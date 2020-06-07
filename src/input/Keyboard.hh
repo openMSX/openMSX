@@ -11,13 +11,13 @@
 #include "Event.hh"
 #include "EventListener.hh"
 #include "serialize_meta.hh"
-#include "span.hh"
 #include "openmsx.hh"
 #include <array>
 #include <deque>
+#include <memory>
+#include <span>
 #include <string_view>
 #include <vector>
-#include <memory>
 
 namespace openmsx {
 
@@ -90,7 +90,7 @@ private:
 	bool processQueuedEvent(const Event& event, EmuTime::param time);
 	bool processKeyEvent(EmuTime::param time, bool down, const KeyEvent& keyEvent);
 	void updateKeyMatrix(EmuTime::param time, bool down, KeyMatrixPosition pos);
-	void processCmd(Interpreter& interp, span<const TclObject> tokens, bool up);
+	void processCmd(Interpreter& interp, std::span<const TclObject> tokens, bool up);
 	bool pressUnicodeByUser(
 			EmuTime::param time, UnicodeKeymap::KeyInfo keyInfo, unsigned unicode,
 			bool down);
@@ -118,18 +118,18 @@ private:
 		KeyMatrixUpCmd(CommandController& commandController,
 			       StateChangeDistributor& stateChangeDistributor,
 			       Scheduler& scheduler);
-		void execute(span<const TclObject> tokens, TclObject& result,
+		void execute(std::span<const TclObject> tokens, TclObject& result,
 			     EmuTime::param time) override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	} keyMatrixUpCmd;
 
 	struct KeyMatrixDownCmd final : RecordedCommand {
 		KeyMatrixDownCmd(CommandController& commandController,
 				 StateChangeDistributor& stateChangeDistributor,
 				 Scheduler& scheduler);
-		void execute(span<const TclObject> tokens, TclObject& result,
+		void execute(std::span<const TclObject> tokens, TclObject& result,
 			     EmuTime::param time) override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	} keyMatrixDownCmd;
 
 	class KeyInserter final : public RecordedCommand, public Schedulable {
@@ -146,9 +146,9 @@ private:
 		void reschedule(EmuTime::param time);
 
 		// Command
-		void execute(span<const TclObject> tokens, TclObject& result,
+		void execute(std::span<const TclObject> tokens, TclObject& result,
 			     EmuTime::param time) override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 
 		// Schedulable
@@ -167,14 +167,14 @@ private:
 
 	struct Msxcode2UnicodeCmd final : public Command {
 		Msxcode2UnicodeCmd(CommandController& commandController);
-		void execute(span<const TclObject> tokens, TclObject& result) override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		void execute(std::span<const TclObject> tokens, TclObject& result) override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	} msxcode2UnicodeCmd;
 
 	struct Unicode2MsxcodeCmd final : public Command {
 		Unicode2MsxcodeCmd(CommandController& commandController);
-		void execute(span<const TclObject> tokens, TclObject& result) override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		void execute(std::span<const TclObject> tokens, TclObject& result) override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	} unicode2MsxcodeCmd;
 
 	class CapsLockAligner final : private EventListener, private Schedulable {

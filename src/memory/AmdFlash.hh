@@ -4,8 +4,8 @@
 #include "MemBuffer.hh"
 #include "openmsx.hh"
 #include "serialize_meta.hh"
-#include "span.hh"
 #include <memory>
+#include <span>
 
 namespace openmsx {
 
@@ -45,10 +45,10 @@ public:
 	 * @param config The motherboard this flash belongs to
 	 * @param load Load initial content (hack for 'Matra INK')
 	 */
-	AmdFlash(const Rom& rom, span<const SectorInfo> sectorInfo,
+	AmdFlash(const Rom& rom, std::span<const SectorInfo> sectorInfo,
 	         word ID, Addressing addressing,
 	         const DeviceConfig& config, Load load = Load::NORMAL);
-	AmdFlash(const std::string& name, span<const SectorInfo> sectorInfo,
+	AmdFlash(const std::string& name, std::span<const SectorInfo> sectorInfo,
 	         word ID, Addressing addressing,
 		 const DeviceConfig& config);
 	~AmdFlash();
@@ -105,7 +105,7 @@ private:
 	std::unique_ptr<SRAM> ram;
 	MemBuffer<int> writeAddress;
 	MemBuffer<const byte*> readAddress;
-	const span<const SectorInfo> sectorInfo;
+	const std::span<const SectorInfo> sectorInfo;
 	const unsigned size;
 	const word ID;
 	const Addressing addressing;

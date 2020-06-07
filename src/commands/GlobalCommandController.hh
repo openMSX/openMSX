@@ -110,21 +110,21 @@ private:
 
 	struct HelpCmd final : Command {
 		explicit HelpCmd(GlobalCommandController& controller);
-		void execute(span<const TclObject> tokens, TclObject& result) override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		void execute(std::span<const TclObject> tokens, TclObject& result) override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} helpCmd;
 
 	struct TabCompletionCmd final : Command {
 		explicit TabCompletionCmd(GlobalCommandController& controller);
-		void execute(span<const TclObject> tokens, TclObject& result) override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		void execute(std::span<const TclObject> tokens, TclObject& result) override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	} tabCompletionCmd;
 
 	struct UpdateCmd final : Command {
 		explicit UpdateCmd(CommandController& commandController);
-		void execute(span<const TclObject> tokens, TclObject& result) override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		void execute(std::span<const TclObject> tokens, TclObject& result) override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	private:
 		CliConnection& getConnection();
@@ -132,16 +132,16 @@ private:
 
 	struct PlatformInfo final : InfoTopic {
 		explicit PlatformInfo(InfoCommand& openMSXInfoCommand);
-		void execute(span<const TclObject> tokens,
+		void execute(std::span<const TclObject> tokens,
 			     TclObject& result) const override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	} platformInfo;
 
 	struct VersionInfo final : InfoTopic {
 		explicit VersionInfo(InfoCommand& openMSXInfoCommand);
-		void execute(span<const TclObject> tokens,
+		void execute(std::span<const TclObject> tokens,
 			     TclObject& result) const override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	} versionInfo;
 
 	RomInfoTopic romInfoTopic;

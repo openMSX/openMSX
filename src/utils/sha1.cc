@@ -312,7 +312,7 @@ void SHA1::transform(const uint8_t buffer[64])
 }
 
 // Use this function to hash in binary data and strings
-void SHA1::update(span<const uint8_t> data_)
+void SHA1::update(std::span<const uint8_t> data_)
 {
 	const uint8_t* data = data_.data();
 	size_t len = data_.size();
@@ -361,7 +361,7 @@ Sha1Sum SHA1::digest()
 	return m_state;
 }
 
-Sha1Sum SHA1::calc(span<const uint8_t> data)
+Sha1Sum SHA1::calc(std::span<const uint8_t> data)
 {
 	SHA1 sha1;
 	sha1.update(data);

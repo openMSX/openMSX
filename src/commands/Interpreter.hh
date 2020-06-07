@@ -5,6 +5,7 @@
 #include "TclObject.hh"
 #include "zstring_view.hh"
 #include <tcl.h>
+#include <span>
 #include <string_view>
 #include <string>
 
@@ -53,7 +54,7 @@ public:
 
 	void poll();
 
-	void wrongNumArgs(unsigned argc, span<const TclObject> tokens, const char* message);
+	void wrongNumArgs(unsigned argc, std::span<const TclObject> tokens, const char* message);
 
 private:
 	static int outputProc(ClientData clientData, const char* buf,

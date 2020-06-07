@@ -1,8 +1,8 @@
 #ifndef CLICOMM_HH
 #define CLICOMM_HH
 
-#include "span.hh"
 #include "strCat.hh"
+#include <span>
 #include <string_view>
 
 namespace openmsx {
@@ -84,13 +84,13 @@ public:
 	}
 
 	// string representations of the LogLevel and UpdateType enums
-	[[nodiscard]] static span<const char* const> getLevelStrings()  {
+	[[nodiscard]] static std::span<const char* const> getLevelStrings()  {
 		static constexpr const char* const levelStr [NUM_LEVELS] = {
 			"info", "warning", "error", "progress"
 		};
 		return levelStr;
 	}
-	[[nodiscard]] static span<const char* const> getUpdateStrings() {
+	[[nodiscard]] static std::span<const char* const> getUpdateStrings() {
 		static constexpr const char* const updateStr[NUM_UPDATES] = {
 			"led", "setting", "setting-info", "hardware", "plug",
 			"media", "status", "extension", "sounddevice", "connector",

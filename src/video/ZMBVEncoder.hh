@@ -6,8 +6,8 @@
 #include "PixelFormat.hh"
 #include "MemBuffer.hh"
 #include "aligned.hh"
-#include "span.hh"
 #include <cstdint>
+#include <span>
 #include <zlib.h>
 
 namespace openmsx {
@@ -22,7 +22,7 @@ public:
 
 	ZMBVEncoder(unsigned width, unsigned height, unsigned bpp);
 
-	[[nodiscard]] span<const uint8_t> compressFrame(bool keyFrame, FrameSource* frame);
+	[[nodiscard]] std::span<const uint8_t> compressFrame(bool keyFrame, FrameSource* frame);
 
 private:
 	enum Format {

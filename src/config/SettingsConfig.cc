@@ -207,7 +207,7 @@ SettingsConfig::SaveSettingsCommand::SaveSettingsCommand(
 }
 
 void SettingsConfig::SaveSettingsCommand::execute(
-	span<const TclObject> tokens, TclObject& /*result*/)
+	std::span<const TclObject> tokens, TclObject& /*result*/)
 {
 	checkNumArgs(tokens, Between{1, 2}, Prefix{1}, "?filename?");
 	auto& settingsConfig = OUTER(SettingsConfig, saveSettingsCommand);
@@ -226,7 +226,7 @@ void SettingsConfig::SaveSettingsCommand::execute(
 	}
 }
 
-string SettingsConfig::SaveSettingsCommand::help(span<const TclObject> /*tokens*/) const
+string SettingsConfig::SaveSettingsCommand::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Save the current settings.";
 }
@@ -248,14 +248,14 @@ SettingsConfig::LoadSettingsCommand::LoadSettingsCommand(
 }
 
 void SettingsConfig::LoadSettingsCommand::execute(
-	span<const TclObject> tokens, TclObject& /*result*/)
+	std::span<const TclObject> tokens, TclObject& /*result*/)
 {
 	checkNumArgs(tokens, 2, "filename");
 	auto& settingsConfig = OUTER(SettingsConfig, loadSettingsCommand);
 	settingsConfig.loadSetting(systemFileContext(), tokens[1].getString());
 }
 
-string SettingsConfig::LoadSettingsCommand::help(span<const TclObject> /*tokens*/) const
+string SettingsConfig::LoadSettingsCommand::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Load settings from given file.";
 }

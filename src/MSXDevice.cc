@@ -73,7 +73,7 @@ MSXMotherBoard& MSXDevice::getMotherBoard() const
 	return getHardwareConfig().getMotherBoard();
 }
 
-void MSXDevice::testRemove(span<const std::unique_ptr<MSXDevice>> removed) const
+void MSXDevice::testRemove(std::span<const std::unique_ptr<MSXDevice>> removed) const
 {
 	// Typically 'referencedBy' contains very few elements, so a simple
 	// O(n*m) algorithm is fine.

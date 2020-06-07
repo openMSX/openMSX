@@ -854,7 +854,7 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 	}
 }
 
-void Keyboard::processCmd(Interpreter& interp, span<const TclObject> tokens, bool up)
+void Keyboard::processCmd(Interpreter& interp, std::span<const TclObject> tokens, bool up)
 {
 	unsigned row  = tokens[1].getInt(interp);
 	unsigned mask = tokens[2].getInt(interp);
@@ -1130,14 +1130,14 @@ Keyboard::KeyMatrixUpCmd::KeyMatrixUpCmd(
 }
 
 void Keyboard::KeyMatrixUpCmd::execute(
-	span<const TclObject> tokens, TclObject& /*result*/, EmuTime::param /*time*/)
+	std::span<const TclObject> tokens, TclObject& /*result*/, EmuTime::param /*time*/)
 {
 	checkNumArgs(tokens, 3, Prefix{1}, "row mask");
 	auto& keyboard = OUTER(Keyboard, keyMatrixUpCmd);
 	return keyboard.processCmd(getInterpreter(), tokens, true);
 }
 
-std::string Keyboard::KeyMatrixUpCmd::help(span<const TclObject> /*tokens*/) const
+std::string Keyboard::KeyMatrixUpCmd::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "keymatrixup <row> <bitmask>  release a key in the keyboardmatrix\n";
 }
@@ -1153,7 +1153,7 @@ Keyboard::KeyMatrixDownCmd::KeyMatrixDownCmd(CommandController& commandControlle
 {
 }
 
-void Keyboard::KeyMatrixDownCmd::execute(span<const TclObject> tokens,
+void Keyboard::KeyMatrixDownCmd::execute(std::span<const TclObject> tokens,
                                          TclObject& /*result*/, EmuTime::param /*time*/)
 {
 	checkNumArgs(tokens, 3, Prefix{1}, "row mask");
@@ -1161,7 +1161,7 @@ void Keyboard::KeyMatrixDownCmd::execute(span<const TclObject> tokens,
 	return keyboard.processCmd(getInterpreter(), tokens, false);
 }
 
-std::string Keyboard::KeyMatrixDownCmd::help(span<const TclObject> /*tokens*/) const
+std::string Keyboard::KeyMatrixDownCmd::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "keymatrixdown <row> <bitmask>  press a key in the keyboardmatrix\n";
 }
@@ -1241,7 +1241,7 @@ Keyboard::KeyInserter::KeyInserter(
 }
 
 void Keyboard::KeyInserter::execute(
-	span<const TclObject> tokens, TclObject& /*result*/, EmuTime::param /*time*/)
+	std::span<const TclObject> tokens, TclObject& /*result*/, EmuTime::param /*time*/)
 {
 	checkNumArgs(tokens, AtLeast{2}, "?-release? ?-freq hz? text");
 
@@ -1268,7 +1268,7 @@ void Keyboard::KeyInserter::execute(
 	type(arguments[0].getString());
 }
 
-std::string Keyboard::KeyInserter::help(span<const TclObject> /*tokens*/) const
+std::string Keyboard::KeyInserter::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Type a string in the emulated MSX.\n"
 	       "Use -release to make sure the keys are always released before typing new ones (necessary for some game input routines, but in general, this means typing is twice as slow).\n"
@@ -1362,7 +1362,7 @@ Keyboard::Msxcode2UnicodeCmd::Msxcode2UnicodeCmd(CommandController& commandContr
 {
 }
 
-void Keyboard::Msxcode2UnicodeCmd::execute(span<const TclObject> tokens, TclObject& result)
+void Keyboard::Msxcode2UnicodeCmd::execute(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, Between{2, 3}, "msx-string ?fallback?");
 
@@ -1392,7 +1392,7 @@ void Keyboard::Msxcode2UnicodeCmd::execute(span<const TclObject> tokens, TclObje
 	result = msxChars.msxToUtf8(msx, fallback);
 }
 
-std::string Keyboard::Msxcode2UnicodeCmd::help(span<const TclObject> /*tokens*/) const
+std::string Keyboard::Msxcode2UnicodeCmd::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "msxcode2unicode <msx-string> [<fallback>]\n"
 	       "returns a unicode string converted from an MSX-string, i.e. a string based on\n"
@@ -1412,7 +1412,7 @@ Keyboard::Unicode2MsxcodeCmd::Unicode2MsxcodeCmd(CommandController& commandContr
 {
 }
 
-void Keyboard::Unicode2MsxcodeCmd::execute(span<const TclObject> tokens, TclObject& result)
+void Keyboard::Unicode2MsxcodeCmd::execute(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, Between{2, 3}, "unicode-string ?fallback?");
 
@@ -1442,7 +1442,7 @@ void Keyboard::Unicode2MsxcodeCmd::execute(span<const TclObject> tokens, TclObje
 	result = msxChars.utf8ToMsx(unicode, fallback);
 }
 
-std::string Keyboard::Unicode2MsxcodeCmd::help(span<const TclObject> /*tokens*/) const
+std::string Keyboard::Unicode2MsxcodeCmd::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "unicode2msxcode <unicode-string> [<fallback>]\n"
 	       "returns an MSX string, i.e. a string based on MSX character codes, converted\n"

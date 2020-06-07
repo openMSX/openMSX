@@ -5,10 +5,10 @@
 #include "StateChangeListener.hh"
 #include "RecordedCommand.hh"
 #include "serialize_meta.hh"
-#include "span.hh"
 #include <functional>
 #include <memory>
 #include <optional>
+#include <span>
 #include <string>
 
 namespace openmsx {
@@ -28,11 +28,11 @@ class DiskCommand final : public Command // TODO RecordedCommand
 public:
 	DiskCommand(CommandController& commandController,
 	            DiskChanger& diskChanger);
-	void execute(span<const TclObject> tokens,
+	void execute(std::span<const TclObject> tokens,
 	             TclObject& result) override;
-	[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+	[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	void tabCompletion(std::vector<std::string>& tokens) const override;
-	[[nodiscard]] bool needRecord(span<const TclObject> tokens) const /*override*/;
+	[[nodiscard]] bool needRecord(std::span<const TclObject> tokens) const /*override*/;
 private:
 	DiskChanger& diskChanger;
 };
@@ -76,10 +76,10 @@ public:
 
 private:
 	void init(std::string_view prefix, bool createCmd);
-	void execute(span<const TclObject> tokens);
-	void insertDisk(span<const TclObject> args);
+	void execute(std::span<const TclObject> tokens);
+	void insertDisk(std::span<const TclObject> args);
 	void ejectDisk();
-	void sendChangeDiskEvent(span<const TclObject> args);
+	void sendChangeDiskEvent(std::span<const TclObject> args);
 
 	// StateChangeListener
 	void signalStateChange(const StateChange& event) override;

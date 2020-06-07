@@ -1,9 +1,9 @@
 #ifndef MSXCHAR2UNICODE_HH
 #define MSXCHAR2UNICODE_HH
 
-#include "span.hh"
 #include <cstdint>
 #include <functional>
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -17,7 +17,7 @@ public:
 
 	/** TODO */
 	[[nodiscard]] std::string msxToUtf8(
-		span<const uint8_t> msx,
+		std::span<const uint8_t> msx,
 		std::function<uint32_t(uint8_t)> fallback) const;
 	/** TODO */
 	[[nodiscard]] std::vector<uint8_t> utf8ToMsx(

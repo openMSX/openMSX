@@ -44,7 +44,7 @@ std::unique_ptr<HardwareConfig> HardwareConfig::createExtensionConfig(
 
 std::unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	MSXMotherBoard& motherBoard, string romfile,
-	string slotname, span<const TclObject> options)
+	string slotname, std::span<const TclObject> options)
 {
 	auto result = std::make_unique<HardwareConfig>(motherBoard, "rom");
 	result->setName(romfile);
@@ -186,12 +186,10 @@ HardwareConfig::~HardwareConfig()
 
 void HardwareConfig::testRemove() const
 {
-	//auto et = devices.end();
-	auto* et = devices.data() + devices.size();
+	auto et = devices.end();
 	for (auto rit = devices.rbegin(), ret = devices.rend();
 	     rit != ret; ++rit) {
-		// c++20:  std::span alreadyRemoved{rit.base(), et};
-		span<const std::unique_ptr<MSXDevice>> alreadyRemoved{devices.data() + (rit.base() - devices.begin()), et};
+		std::span alreadyRemoved{rit.base(), et};
 		(*rit)->testRemove(alreadyRemoved);
 	}
 

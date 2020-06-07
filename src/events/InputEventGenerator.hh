@@ -58,8 +58,8 @@ private:
 
 	struct EscapeGrabCmd final : Command {
 		explicit EscapeGrabCmd(CommandController& commandController);
-		void execute(span<const TclObject> tokens, TclObject& result) override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		void execute(std::span<const TclObject> tokens, TclObject& result) override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	} escapeGrabCmd;
 
 	enum EscapeGrabState {

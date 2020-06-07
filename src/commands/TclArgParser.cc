@@ -7,7 +7,7 @@
 
 namespace openmsx {
 
-std::vector<TclObject> parseTclArgs(Interpreter& interp, span<const TclObject> inArgs, span<const ArgsInfo> table)
+std::vector<TclObject> parseTclArgs(Interpreter& interp, std::span<const TclObject> inArgs, std::span<const ArgsInfo> table)
 {
 	std::vector<TclObject> outArgs;
 	outArgs.reserve(inArgs.size());

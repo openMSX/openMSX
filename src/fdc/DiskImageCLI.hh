@@ -13,16 +13,16 @@ class DiskImageCLI final : public CLIOption, public CLIFileType
 public:
 	explicit DiskImageCLI(CommandLineParser& parser);
 	void parseOption(const std::string& option,
-	                 span<std::string>& cmdLine) override;
+	                 std::span<std::string>& cmdLine) override;
 	[[nodiscard]] std::string_view optionHelp() const override;
 	void parseFileType(const std::string& filename,
-	                   span<std::string>& cmdLine) override;
+	                   std::span<std::string>& cmdLine) override;
 	[[nodiscard]] std::string_view fileTypeHelp() const override;
 	[[nodiscard]] std::string_view fileTypeCategoryName() const override;
 
 private:
 	void parse(zstring_view drive, std::string_view image,
-	           span<std::string>& cmdLine);
+	           std::span<std::string>& cmdLine);
 
 private:
 	CommandLineParser& parser;

@@ -1,16 +1,17 @@
 #ifndef TCLOBJECT_HH
 #define TCLOBJECT_HH
 
-#include "span.hh"
 #include "vla.hh"
 #include "xxhash.hh"
 #include "zstring_view.hh"
 #include <tcl.h>
+#include <algorithm>
 #include <cassert>
 #include <cstdint>
 #include <initializer_list>
 #include <iterator>
 #include <optional>
+#include <span>
 #include <string_view>
 
 struct Tcl_Obj;
@@ -152,7 +153,7 @@ public:
 	[[nodiscard]] int getInt      (Interpreter& interp) const;
 	[[nodiscard]] bool getBoolean (Interpreter& interp) const;
 	[[nodiscard]] double getDouble(Interpreter& interp) const;
-	[[nodiscard]] span<const uint8_t> getBinary() const;
+	[[nodiscard]] std::span<const uint8_t> getBinary() const;
 	[[nodiscard]] unsigned getListLength(Interpreter& interp) const;
 	[[nodiscard]] TclObject getListIndex(Interpreter& interp, unsigned index) const;
 	[[nodiscard]] TclObject getDictValue(Interpreter& interp, const TclObject& key) const;
@@ -166,8 +167,8 @@ public:
 	// strings. Invalid Tcl lists are silently interpreted as empty lists.
 	[[nodiscard]] unsigned size() const { return getListLengthUnchecked(); }
 	[[nodiscard]] bool empty() const { return size() == 0; }
-	[[nodiscard]] auto begin() const { return iterator(*this, 0); }
-	[[nodiscard]] auto end()   const { return iterator(*this, size()); }
+	[[nodiscard]] iterator begin() const { return iterator(*this, 0); }
+	[[nodiscard]] iterator end()   const { return iterator(*this, size()); }
 
 	// expressions
 	[[nodiscard]] bool evalBool(Interpreter& interp) const;
@@ -222,7 +223,7 @@ private:
 	[[nodiscard]] static Tcl_Obj* newObj(double d) {
 		return Tcl_NewDoubleObj(d);
 	}
-	[[nodiscard]] static Tcl_Obj* newObj(span<const uint8_t> buf) {
+	[[nodiscard]] static Tcl_Obj* newObj(std::span<const uint8_t> buf) {
 		return Tcl_NewByteArrayObj(buf.data(), int(buf.size()));
 	}
 	[[nodiscard]] static Tcl_Obj* newObj(const TclObject& o) {
@@ -253,7 +254,7 @@ private:
 	void assign(double d) {
 		Tcl_SetDoubleObj(obj, d);
 	}
-	void assign(span<const uint8_t> b) {
+	void assign(std::span<const uint8_t> b) {
 		Tcl_SetByteArrayObj(obj, b.data(), int(b.size()));
 	}
 

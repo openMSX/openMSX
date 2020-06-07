@@ -22,7 +22,7 @@ MessageCommand::MessageCommand(CommandController& controller)
 	throw CommandException("Unknown level string: ", level);
 }
 
-void MessageCommand::execute(span<const TclObject> tokens, TclObject& /*result*/)
+void MessageCommand::execute(std::span<const TclObject> tokens, TclObject& /*result*/)
 {
 	checkNumArgs(tokens, Between{2, 3}, "string ?level?");
 	CliComm& cliComm = getCliComm();
@@ -37,7 +37,7 @@ void MessageCommand::execute(span<const TclObject> tokens, TclObject& /*result*/
 	}
 }
 
-std::string MessageCommand::help(span<const TclObject> /*tokens*/) const
+std::string MessageCommand::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "message <text> [<level>]\n"
 	       "Print a message. (By default) this message will be shown in "

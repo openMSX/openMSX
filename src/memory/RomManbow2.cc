@@ -43,7 +43,7 @@ static constexpr auto config4 = [] {
 	cstd::fill(result, Info{64 * 1024, false});
 	return result;
 }();
-[[nodiscard]] static constexpr span<const Info> getSectorInfo(RomType type)
+[[nodiscard]] static constexpr std::span<const Info> getSectorInfo(RomType type)
 {
 	switch (type) {
 	case ROM_MANBOW2:

@@ -156,7 +156,7 @@ FilePool::Sha1SumCommand::Sha1SumCommand(
 {
 }
 
-void FilePool::Sha1SumCommand::execute(span<const TclObject> tokens, TclObject& result)
+void FilePool::Sha1SumCommand::execute(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, 2, "filename");
 	File file(FileOperations::expandTilde(std::string(tokens[1].getString())));
@@ -164,7 +164,7 @@ void FilePool::Sha1SumCommand::execute(span<const TclObject> tokens, TclObject& 
 	result = filePool.getSha1Sum(file).toString();
 }
 
-std::string FilePool::Sha1SumCommand::help(span<const TclObject> /*tokens*/) const
+std::string FilePool::Sha1SumCommand::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Calculate sha1 value for the given file. If the file is "
 	       "(g)zipped the sha1 is calculated on the unzipped version.";

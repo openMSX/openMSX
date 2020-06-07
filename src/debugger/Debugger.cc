@@ -209,7 +209,7 @@ Debugger::Cmd::Cmd(CommandController& commandController_,
 {
 }
 
-bool Debugger::Cmd::needRecord(span<const TclObject> tokens) const
+bool Debugger::Cmd::needRecord(std::span<const TclObject> tokens) const
 {
 	// Note: it's crucial for security that only the write and write_block
 	// subcommands are recorded and replayed. The 'set_bp' command for
@@ -220,7 +220,7 @@ bool Debugger::Cmd::needRecord(span<const TclObject> tokens) const
 }
 
 void Debugger::Cmd::execute(
-	span<const TclObject> tokens, TclObject& result, EmuTime::param /*time*/)
+	std::span<const TclObject> tokens, TclObject& result, EmuTime::param /*time*/)
 {
 	checkNumArgs(tokens, AtLeast{2}, "subcommand ?arg ...?");
 	executeSubCommand(tokens[1].getString(),
@@ -253,21 +253,21 @@ void Debugger::Cmd::list(TclObject& result)
 	result.addListElements(view::keys(debugger().debuggables));
 }
 
-void Debugger::Cmd::desc(span<const TclObject> tokens, TclObject& result)
+void Debugger::Cmd::desc(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, 3, "debuggable");
 	Debuggable& device = debugger().getDebuggable(tokens[2].getString());
 	result = device.getDescription();
 }
 
-void Debugger::Cmd::size(span<const TclObject> tokens, TclObject& result)
+void Debugger::Cmd::size(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, 3, "debuggable");
 	Debuggable& device = debugger().getDebuggable(tokens[2].getString());
 	result = device.getSize();
 }
 
-void Debugger::Cmd::read(span<const TclObject> tokens, TclObject& result)
+void Debugger::Cmd::read(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, 4, Prefix{2}, "debuggable address");
 	Debuggable& device = debugger().getDebuggable(tokens[2].getString());
@@ -278,7 +278,7 @@ void Debugger::Cmd::read(span<const TclObject> tokens, TclObject& result)
 	result = device.read(addr);
 }
 
-void Debugger::Cmd::readBlock(span<const TclObject> tokens, TclObject& result)
+void Debugger::Cmd::readBlock(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, 5, Prefix{2}, "debuggable address size");
 	auto& interp = getInterpreter();
@@ -297,10 +297,10 @@ void Debugger::Cmd::readBlock(span<const TclObject> tokens, TclObject& result)
 	for (auto i : xrange(num)) {
 		buf[i] = device.read(addr + i);
 	}
-	result = span<byte>{buf.data(), num};
+	result = std::span<byte>{buf.data(), num};
 }
 
-void Debugger::Cmd::write(span<const TclObject> tokens, TclObject& /*result*/)
+void Debugger::Cmd::write(std::span<const TclObject> tokens, TclObject& /*result*/)
 {
 	checkNumArgs(tokens, 5, Prefix{2}, "debuggable address value");
 	auto& interp = getInterpreter();
@@ -317,7 +317,7 @@ void Debugger::Cmd::write(span<const TclObject> tokens, TclObject& /*result*/)
 	device.write(addr, value);
 }
 
-void Debugger::Cmd::writeBlock(span<const TclObject> tokens, TclObject& /*result*/)
+void Debugger::Cmd::writeBlock(std::span<const TclObject> tokens, TclObject& /*result*/)
 {
 	checkNumArgs(tokens, 5, Prefix{2}, "debuggable address values");
 	Debuggable& device = debugger().getDebuggable(tokens[2].getString());
@@ -336,7 +336,7 @@ void Debugger::Cmd::writeBlock(span<const TclObject> tokens, TclObject& /*result
 	}
 }
 
-void Debugger::Cmd::setBreakPoint(span<const TclObject> tokens, TclObject& result)
+void Debugger::Cmd::setBreakPoint(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, AtLeast{3}, "address ?-once? ?condition? ?command?");
 	TclObject command("debug break");
@@ -367,7 +367,7 @@ void Debugger::Cmd::setBreakPoint(span<const TclObject> tokens, TclObject& resul
 }
 
 void Debugger::Cmd::removeBreakPoint(
-	span<const TclObject> tokens, TclObject& /*result*/)
+	std::span<const TclObject> tokens, TclObject& /*result*/)
 {
 	checkNumArgs(tokens, 3, "id|address");
 	auto& interface = debugger().motherBoard.getCPUInterface();
@@ -400,7 +400,7 @@ void Debugger::Cmd::removeBreakPoint(
 }
 
 void Debugger::Cmd::listBreakPoints(
-	span<const TclObject> /*tokens*/, TclObject& result)
+	std::span<const TclObject> /*tokens*/, TclObject& result)
 {
 	string res;
 	auto& interface = debugger().motherBoard.getCPUInterface();
@@ -416,7 +416,7 @@ void Debugger::Cmd::listBreakPoints(
 }
 
 
-void Debugger::Cmd::setWatchPoint(span<const TclObject> tokens, TclObject& result)
+void Debugger::Cmd::setWatchPoint(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, AtLeast{4}, Prefix{2}, "type address ?-once? ?condition? ?command?");
 	TclObject command("debug break");
@@ -483,7 +483,7 @@ void Debugger::Cmd::setWatchPoint(span<const TclObject> tokens, TclObject& resul
 }
 
 void Debugger::Cmd::removeWatchPoint(
-	span<const TclObject> tokens, TclObject& /*result*/)
+	std::span<const TclObject> tokens, TclObject& /*result*/)
 {
 	checkNumArgs(tokens, 3, "id");
 	string_view tmp = tokens[2].getString();
@@ -503,7 +503,7 @@ void Debugger::Cmd::removeWatchPoint(
 }
 
 void Debugger::Cmd::listWatchPoints(
-	span<const TclObject> /*tokens*/, TclObject& result)
+	std::span<const TclObject> /*tokens*/, TclObject& result)
 {
 	string res;
 	auto& interface = debugger().motherBoard.getCPUInterface();
@@ -544,7 +544,7 @@ void Debugger::Cmd::listWatchPoints(
 }
 
 
-void Debugger::Cmd::setCondition(span<const TclObject> tokens, TclObject& result)
+void Debugger::Cmd::setCondition(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, AtLeast{3}, "condition ?-once? ?command?");
 	TclObject command("debug break");
@@ -572,7 +572,7 @@ void Debugger::Cmd::setCondition(span<const TclObject> tokens, TclObject& result
 }
 
 void Debugger::Cmd::removeCondition(
-	span<const TclObject> tokens, TclObject& /*result*/)
+	std::span<const TclObject> tokens, TclObject& /*result*/)
 {
 	checkNumArgs(tokens, 3, "id");
 
@@ -593,7 +593,7 @@ void Debugger::Cmd::removeCondition(
 }
 
 void Debugger::Cmd::listConditions(
-	span<const TclObject> /*tokens*/, TclObject& result)
+	std::span<const TclObject> /*tokens*/, TclObject& result)
 {
 	string res;
 	auto& interface = debugger().motherBoard.getCPUInterface();
@@ -607,7 +607,7 @@ void Debugger::Cmd::listConditions(
 }
 
 
-void Debugger::Cmd::probe(span<const TclObject> tokens, TclObject& result)
+void Debugger::Cmd::probe(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, AtLeast{3}, "subcommand ?arg ...?");
 	executeSubCommand(tokens[2].getString(),
@@ -618,23 +618,23 @@ void Debugger::Cmd::probe(span<const TclObject> tokens, TclObject& result)
 		"remove_bp", [&]{ probeRemoveBreakPoint(tokens, result); },
 		"list_bp",   [&]{ probeListBreakPoints(tokens, result); });
 }
-void Debugger::Cmd::probeList(span<const TclObject> /*tokens*/, TclObject& result)
+void Debugger::Cmd::probeList(std::span<const TclObject> /*tokens*/, TclObject& result)
 {
 	result.addListElements(view::transform(debugger().probes,
 		[](auto* p) { return p->getName(); }));
 }
-void Debugger::Cmd::probeDesc(span<const TclObject> tokens, TclObject& result)
+void Debugger::Cmd::probeDesc(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, 4, "probe");
 	result = debugger().getProbe(tokens[3].getString()).getDescription();
 }
-void Debugger::Cmd::probeRead(span<const TclObject> tokens, TclObject& result)
+void Debugger::Cmd::probeRead(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, 4, "probe");
 	result = debugger().getProbe(tokens[3].getString()).getValue();
 }
 void Debugger::Cmd::probeSetBreakPoint(
-	span<const TclObject> tokens, TclObject& result)
+	std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, AtLeast{4}, "probe ?-once? ?condition? ?command?");
 	TclObject command("debug break");
@@ -667,13 +667,13 @@ void Debugger::Cmd::probeSetBreakPoint(
 	result = tmpStrCat("pp#", id);
 }
 void Debugger::Cmd::probeRemoveBreakPoint(
-	span<const TclObject> tokens, TclObject& /*result*/)
+	std::span<const TclObject> tokens, TclObject& /*result*/)
 {
 	checkNumArgs(tokens, 4, "id");
 	debugger().removeProbeBreakPoint(tokens[3].getString());
 }
 void Debugger::Cmd::probeListBreakPoints(
-	span<const TclObject> /*tokens*/, TclObject& result)
+	std::span<const TclObject> /*tokens*/, TclObject& result)
 {
 	string res;
 	for (auto& p : debugger().probeBreakPoints) {
@@ -686,7 +686,7 @@ void Debugger::Cmd::probeListBreakPoints(
 	result = res;
 }
 
-string Debugger::Cmd::help(span<const TclObject> tokens) const
+string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 {
 	auto generalHelp =
 		"debug <subcommand> [<arguments>]\n"

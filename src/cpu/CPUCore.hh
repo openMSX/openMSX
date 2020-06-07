@@ -9,8 +9,8 @@
 #include "IntegerSetting.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
-#include "span.hh"
 #include <atomic>
+#include <span>
 #include <string>
 
 namespace openmsx {
@@ -90,7 +90,7 @@ public:
 	[[nodiscard]] bool isM1Cycle(unsigned address) const;
 
 	void disasmCommand(Interpreter& interp,
-	                   span<const TclObject> tokens,
+	                   std::span<const TclObject> tokens,
 	                   TclObject& result) const;
 
 	/**

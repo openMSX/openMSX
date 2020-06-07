@@ -2,8 +2,8 @@
 #define ZLIBINFLATE_HH
 
 #include "MemBuffer.hh"
-#include "span.hh"
 #include <cstdint>
+#include <span>
 #include <string>
 #include <zlib.h>
 
@@ -12,7 +12,7 @@ namespace openmsx {
 class ZlibInflate
 {
 public:
-	ZlibInflate(span<const uint8_t> input);
+	ZlibInflate(std::span<const uint8_t> input);
 	~ZlibInflate();
 
 	void skip(size_t num);

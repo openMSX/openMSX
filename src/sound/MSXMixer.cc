@@ -759,7 +759,7 @@ MSXMixer::SoundDeviceInfoTopic::SoundDeviceInfoTopic(
 }
 
 void MSXMixer::SoundDeviceInfoTopic::execute(
-	span<const TclObject> tokens, TclObject& result) const
+	std::span<const TclObject> tokens, TclObject& result) const
 {
 	auto& msxMixer = OUTER(MSXMixer, soundDeviceInfo);
 	switch (tokens.size()) {
@@ -781,7 +781,7 @@ void MSXMixer::SoundDeviceInfoTopic::execute(
 	}
 }
 
-std::string MSXMixer::SoundDeviceInfoTopic::help(span<const TclObject> /*tokens*/) const
+std::string MSXMixer::SoundDeviceInfoTopic::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Shows a list of available sound devices.\n";
 }

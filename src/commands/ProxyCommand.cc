@@ -21,7 +21,7 @@ Command* ProxyCmd::getMachineCommand() const
 	return motherBoard->getMSXCommandController().findCommand(getName());
 }
 
-void ProxyCmd::execute(span<const TclObject> tokens, TclObject& result)
+void ProxyCmd::execute(std::span<const TclObject> tokens, TclObject& result)
 {
 	if (Command* command = getMachineCommand()) {
 		if (!command->isAllowedInEmptyMachine()) {
@@ -38,7 +38,7 @@ void ProxyCmd::execute(span<const TclObject> tokens, TclObject& result)
 	}
 }
 
-std::string ProxyCmd::help(span<const TclObject> tokens) const
+std::string ProxyCmd::help(std::span<const TclObject> tokens) const
 {
 	if (Command* command = getMachineCommand()) {
 		return command->help(tokens);

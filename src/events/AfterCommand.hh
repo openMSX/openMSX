@@ -23,23 +23,23 @@ public:
 	             CommandController& commandController);
 	~AfterCommand();
 
-	void execute(span<const TclObject> tokens, TclObject& result) override;
-	[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+	void execute(std::span<const TclObject> tokens, TclObject& result) override;
+	[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	void tabCompletion(std::vector<std::string>& tokens) const override;
 
 private:
 	template<typename PRED> void executeMatches(PRED pred);
 	void executeSimpleEvents(EventType type);
-	void afterSimpleEvent(span<const TclObject> tokens, TclObject& result, EventType type);
+	void afterSimpleEvent(std::span<const TclObject> tokens, TclObject& result, EventType type);
 	void afterInputEvent(const Event& event,
-	                   span<const TclObject> tokens, TclObject& result);
+	                   std::span<const TclObject> tokens, TclObject& result);
 	void afterTclTime (int ms,
-	                   span<const TclObject> tokens, TclObject& result);
-	void afterTime    (span<const TclObject> tokens, TclObject& result);
-	void afterRealTime(span<const TclObject> tokens, TclObject& result);
-	void afterIdle    (span<const TclObject> tokens, TclObject& result);
-	void afterInfo    (span<const TclObject> tokens, TclObject& result);
-	void afterCancel  (span<const TclObject> tokens, TclObject& result);
+	                   std::span<const TclObject> tokens, TclObject& result);
+	void afterTime    (std::span<const TclObject> tokens, TclObject& result);
+	void afterRealTime(std::span<const TclObject> tokens, TclObject& result);
+	void afterIdle    (std::span<const TclObject> tokens, TclObject& result);
+	void afterInfo    (std::span<const TclObject> tokens, TclObject& result);
+	void afterCancel  (std::span<const TclObject> tokens, TclObject& result);
 
 	// EventListener
 	int signalEvent(const Event& event) noexcept override;

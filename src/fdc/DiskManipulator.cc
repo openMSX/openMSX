@@ -130,7 +130,7 @@ DiskPartition DiskManipulator::getPartition(
 }
 
 
-void DiskManipulator::execute(span<const TclObject> tokens, TclObject& result)
+void DiskManipulator::execute(std::span<const TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() == 1) {
 		throw CommandException("Missing argument");
@@ -151,12 +151,12 @@ void DiskManipulator::execute(span<const TclObject> tokens, TclObject& result)
 			throw CommandException(dir, " is not a directory");
 		}
 		auto& settings = getDriveSettings(tokens[2].getString());
-		span<const TclObject> lists(std::begin(tokens) + 4, std::end(tokens));
+		std::span<const TclObject> lists(std::begin(tokens) + 4, std::end(tokens));
 		exprt(settings, directory, lists);
 
 	} else if (subcmd == "import") {
 		auto& settings = getDriveSettings(tokens[2].getString());
-		span<const TclObject> lists(std::begin(tokens) + 3, std::end(tokens));
+		std::span<const TclObject> lists(std::begin(tokens) + 3, std::end(tokens));
 		result = import(settings, lists);
 
 	} else if (subcmd == "savedsk") {
@@ -202,7 +202,7 @@ void DiskManipulator::execute(span<const TclObject> tokens, TclObject& result)
 	}
 }
 
-string DiskManipulator::help(span<const TclObject> tokens) const
+string DiskManipulator::help(std::span<const TclObject> tokens) const
 {
 	string helptext;
 	if (tokens.size() >= 2) {
@@ -336,7 +336,7 @@ void DiskManipulator::savedsk(const DriveSettings& driveData,
 	}
 }
 
-void DiskManipulator::create(span<const TclObject> tokens)
+void DiskManipulator::create(std::span<const TclObject> tokens)
 {
 	static_vector<unsigned, MAX_PARTITIONS> sizes;
 	unsigned totalSectors = 0;
@@ -486,7 +486,7 @@ void DiskManipulator::mkdir(DriveSettings& driveData, string_view filename)
 }
 
 string DiskManipulator::import(DriveSettings& driveData,
-                               span<const TclObject> lists)
+                               std::span<const TclObject> lists)
 {
 	auto partition = getPartition(driveData);
 	auto workhorse = getMSXtar(partition, driveData);
@@ -519,7 +519,7 @@ string DiskManipulator::import(DriveSettings& driveData,
 }
 
 void DiskManipulator::exprt(DriveSettings& driveData, string_view dirname,
-                            span<const TclObject> lists)
+                            std::span<const TclObject> lists)
 {
 	auto partition = getPartition(driveData);
 	auto workhorse = getMSXtar(partition, driveData);

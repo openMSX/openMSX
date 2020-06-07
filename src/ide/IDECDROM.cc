@@ -319,7 +319,7 @@ CDXCommand::CDXCommand(CommandController& commandController_,
 {
 }
 
-void CDXCommand::execute(span<const TclObject> tokens, TclObject& result,
+void CDXCommand::execute(std::span<const TclObject> tokens, TclObject& result,
                          EmuTime::param /*time*/)
 {
 	if (tokens.size() == 1) {
@@ -359,7 +359,7 @@ void CDXCommand::execute(span<const TclObject> tokens, TclObject& result,
 	}
 }
 
-string CDXCommand::help(span<const TclObject> /*tokens*/) const
+string CDXCommand::help(std::span<const TclObject> /*tokens*/) const
 {
 	return strCat(
 		cd.name, "                   : display the cd image for this CD-ROM drive\n",

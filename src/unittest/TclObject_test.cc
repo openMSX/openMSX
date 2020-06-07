@@ -40,7 +40,7 @@ TEST_CASE("TclObject, constructors")
 	}
 	SECTION("binary") {
 		uint8_t buf[] = {'a', 'b', 'c'};
-		TclObject t(span<uint8_t>{buf, sizeof(buf)});
+		TclObject t(std::span<uint8_t>{buf, sizeof(buf)});
 		CHECK(t.getString() == "abc");
 	}
 	SECTION("copy") {
@@ -146,7 +146,7 @@ TEST_CASE("TclObject, operator=")
 	}
 	SECTION("binary") {
 		uint8_t buf[] = {1, 2, 3};
-		t = span<uint8_t>{buf, sizeof(buf)};
+		t = std::span<uint8_t>{buf, sizeof(buf)};
 		auto result = t.getBinary();
 		CHECK(result.size() == sizeof(buf));
 		CHECK(memcmp(buf, result.data(), result.size()) == 0);
@@ -198,7 +198,7 @@ TEST_CASE("TclObject, addListElement")
 		t.addListElement(std::string("qux"));
 		CHECK(t.getListLength(interp) == 6);
 		uint8_t buf[] = {'x', 'y', 'z'};
-		t.addListElement(span<uint8_t>{buf, sizeof(buf)});
+		t.addListElement(std::span<uint8_t>{buf, sizeof(buf)});
 		CHECK(t.getListLength(interp) == 7);
 
 		TclObject l0 = t.getListIndex(interp, 0);

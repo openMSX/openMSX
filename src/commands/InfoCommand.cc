@@ -42,7 +42,7 @@ void InfoCommand::unregisterTopic(InfoTopic& topic)
 
 // Command
 
-void InfoCommand::execute(span<const TclObject> tokens,
+void InfoCommand::execute(std::span<const TclObject> tokens,
                           TclObject& result)
 {
 	switch (tokens.size()) {
@@ -64,7 +64,7 @@ void InfoCommand::execute(span<const TclObject> tokens,
 	}
 }
 
-std::string InfoCommand::help(span<const TclObject> tokens) const
+std::string InfoCommand::help(std::span<const TclObject> tokens) const
 {
 	std::string result;
 	switch (tokens.size()) {

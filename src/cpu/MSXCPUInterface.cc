@@ -253,7 +253,7 @@ void MSXCPUInterface::setExpanded(int ps)
 
 void MSXCPUInterface::testUnsetExpanded(
 		int ps,
-		span<const std::unique_ptr<MSXDevice>> allowed) const
+		std::span<const std::unique_ptr<MSXDevice>> allowed) const
 {
 	assert(isExpanded(ps));
 	if (expanded[ps] != 1) return; // ok, still expanded after this
@@ -300,7 +300,7 @@ void MSXCPUInterface::unsetExpanded(int ps)
 {
 #ifndef NDEBUG
 	try {
-		span<const std::unique_ptr<MSXDevice>> dummy;
+		std::span<const std::unique_ptr<MSXDevice>> dummy;
 		testUnsetExpanded(ps, dummy);
 	} catch (...) {
 		UNREACHABLE;
@@ -1116,7 +1116,7 @@ MSXCPUInterface::SlotInfo::SlotInfo(
 {
 }
 
-void MSXCPUInterface::SlotInfo::execute(span<const TclObject> tokens,
+void MSXCPUInterface::SlotInfo::execute(std::span<const TclObject> tokens,
                                         TclObject& result) const
 {
 	checkNumArgs(tokens, 5, Prefix{2}, "primary secondary page");
@@ -1131,7 +1131,7 @@ void MSXCPUInterface::SlotInfo::execute(span<const TclObject> tokens,
 	interface.slotLayout[ps][ss][page]->getNameList(result);
 }
 
-std::string MSXCPUInterface::SlotInfo::help(span<const TclObject> /*tokens*/) const
+std::string MSXCPUInterface::SlotInfo::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Retrieve name of the device inserted in given "
 	       "primary slot / secondary slot / page.";
@@ -1146,7 +1146,7 @@ MSXCPUInterface::SubSlottedInfo::SubSlottedInfo(
 {
 }
 
-void MSXCPUInterface::SubSlottedInfo::execute(span<const TclObject> tokens,
+void MSXCPUInterface::SubSlottedInfo::execute(std::span<const TclObject> tokens,
                                               TclObject& result) const
 {
 	checkNumArgs(tokens, 3, "primary");
@@ -1156,7 +1156,7 @@ void MSXCPUInterface::SubSlottedInfo::execute(span<const TclObject> tokens,
 }
 
 std::string MSXCPUInterface::SubSlottedInfo::help(
-	span<const TclObject> /*tokens*/) const
+	std::span<const TclObject> /*tokens*/) const
 {
 	return "Indicates whether a certain primary slot is expanded.";
 }
@@ -1171,7 +1171,7 @@ MSXCPUInterface::ExternalSlotInfo::ExternalSlotInfo(
 }
 
 void MSXCPUInterface::ExternalSlotInfo::execute(
-	span<const TclObject> tokens, TclObject& result) const
+	std::span<const TclObject> tokens, TclObject& result) const
 {
 	checkNumArgs(tokens, Between{3, 4}, "primary ?secondary?");
 	int ps = 0;
@@ -1191,7 +1191,7 @@ void MSXCPUInterface::ExternalSlotInfo::execute(
 }
 
 std::string MSXCPUInterface::ExternalSlotInfo::help(
-	span<const TclObject> /*tokens*/) const
+	std::span<const TclObject> /*tokens*/) const
 {
 	return "Indicates whether a certain slot is external or internal.";
 }
@@ -1225,7 +1225,7 @@ MSXCPUInterface::IOInfo::IOInfo(InfoCommand& machineInfoCommand, const char* nam
 }
 
 void MSXCPUInterface::IOInfo::helper(
-	span<const TclObject> tokens, TclObject& result, MSXDevice** devices) const
+	std::span<const TclObject> tokens, TclObject& result, MSXDevice** devices) const
 {
 	checkNumArgs(tokens, 3, "port");
 	unsigned port = tokens[2].getInt(getInterpreter());
@@ -1235,19 +1235,19 @@ void MSXCPUInterface::IOInfo::helper(
 	devices[port]->getNameList(result);
 }
 void MSXCPUInterface::IInfo::execute(
-	span<const TclObject> tokens, TclObject& result) const
+	std::span<const TclObject> tokens, TclObject& result) const
 {
 	auto& interface = OUTER(MSXCPUInterface, inputPortInfo);
 	helper(tokens, result, interface.IO_In);
 }
 void MSXCPUInterface::OInfo::execute(
-	span<const TclObject> tokens, TclObject& result) const
+	std::span<const TclObject> tokens, TclObject& result) const
 {
 	auto& interface = OUTER(MSXCPUInterface, outputPortInfo);
 	helper(tokens, result, interface.IO_Out);
 }
 
-std::string MSXCPUInterface::IOInfo::help(span<const TclObject> /*tokens*/) const
+std::string MSXCPUInterface::IOInfo::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Return the name of the device connected to the given IO port.";
 }

@@ -102,8 +102,8 @@ private:
 	public:
 		BindCmd(CommandController& commandController, HotKey& hotKey,
 			bool defaultCmd);
-		void execute(span<const TclObject> tokens, TclObject& result) override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		void execute(std::span<const TclObject> tokens, TclObject& result) override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	private:
 		HotKey& hotKey;
 		const bool defaultCmd;
@@ -115,8 +115,8 @@ private:
 	public:
 		UnbindCmd(CommandController& commandController, HotKey& hotKey,
 			  bool defaultCmd);
-		void execute(span<const TclObject> tokens, TclObject& result) override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		void execute(std::span<const TclObject> tokens, TclObject& result) override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	private:
 		HotKey& hotKey;
 		const bool defaultCmd;
@@ -126,14 +126,14 @@ private:
 
 	struct ActivateCmd final : Command {
 		explicit ActivateCmd(CommandController& commandController);
-		void execute(span<const TclObject> tokens, TclObject& result) override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		void execute(std::span<const TclObject> tokens, TclObject& result) override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	} activateCmd;
 
 	struct DeactivateCmd final : Command {
 		explicit DeactivateCmd(CommandController& commandController);
-		void execute(span<const TclObject> tokens, TclObject& result) override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		void execute(std::span<const TclObject> tokens, TclObject& result) override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	} deactivateCmd;
 
 	BindMap cmdMap;

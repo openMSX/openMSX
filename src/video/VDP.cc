@@ -1688,12 +1688,12 @@ VDP::Info::Info(VDP& vdp_, const std::string& name_, std::string helpText_)
 {
 }
 
-void VDP::Info::execute(span<const TclObject> /*tokens*/, TclObject& result) const
+void VDP::Info::execute(std::span<const TclObject> /*tokens*/, TclObject& result) const
 {
 	result = calc(vdp.getCurrentTime());
 }
 
-std::string VDP::Info::help(span<const TclObject> /*tokens*/) const
+std::string VDP::Info::help(std::span<const TclObject> /*tokens*/) const
 {
 	return helpText;
 }

@@ -19,7 +19,7 @@
 
 namespace openmsx {
 
-AmdFlash::AmdFlash(const Rom& rom, span<const SectorInfo> sectorInfo_,
+AmdFlash::AmdFlash(const Rom& rom, std::span<const SectorInfo> sectorInfo_,
                    word ID_, Addressing addressing_,
                    const DeviceConfig& config, Load load)
 	: motherBoard(config.getMotherBoard())
@@ -31,7 +31,7 @@ AmdFlash::AmdFlash(const Rom& rom, span<const SectorInfo> sectorInfo_,
 	init(rom.getName() + "_flash", config, load, &rom);
 }
 
-AmdFlash::AmdFlash(const std::string& name, span<const SectorInfo> sectorInfo_,
+AmdFlash::AmdFlash(const std::string& name, std::span<const SectorInfo> sectorInfo_,
                    word ID_, Addressing addressing_,
                    const DeviceConfig& config)
 	: motherBoard(config.getMotherBoard())

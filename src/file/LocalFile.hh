@@ -23,7 +23,7 @@ public:
 	void read (void* buffer, size_t num) override;
 	void write(const void* buffer, size_t num) override;
 #if HAVE_MMAP || defined _WIN32
-	[[nodiscard]] span<const uint8_t> mmap() override;
+	[[nodiscard]] std::span<const uint8_t> mmap() override;
 	void munmap() override;
 #endif
 	[[nodiscard]] size_t getSize() override;

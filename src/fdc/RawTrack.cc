@@ -154,13 +154,13 @@ std::optional<RawTrack::Sector> RawTrack::decodeSector(byte sectorNum) const
 	return {};
 }
 
-void RawTrack::readBlock(int idx, span<byte> destination) const
+void RawTrack::readBlock(int idx, std::span<byte> destination) const
 {
 	for (auto [i, d] : enumerate(destination)) {
 		d = read(idx + int(i));
 	}
 }
-void RawTrack::writeBlock(int idx, span<const byte> source)
+void RawTrack::writeBlock(int idx, std::span<const byte> source)
 {
 	for (auto [i, s] : enumerate(source)) {
 		write(idx + int(i), s);

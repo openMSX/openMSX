@@ -98,7 +98,7 @@ void File::write(const void* buffer, size_t num)
 	file->write(buffer, num);
 }
 
-span<const uint8_t> File::mmap()
+std::span<const uint8_t> File::mmap()
 {
 	return file->mmap();
 }

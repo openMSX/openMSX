@@ -232,7 +232,7 @@ public:
 	void setExpanded(int ps);
 	void unsetExpanded(int ps);
 	void testUnsetExpanded(int ps,
-		               span<const std::unique_ptr<MSXDevice>> allowed) const;
+		               std::span<const std::unique_ptr<MSXDevice>> allowed) const;
 	[[nodiscard]] inline bool isExpanded(int ps) const { return expanded[ps] != 0; }
 	void changeExpanded(bool newExpanded);
 
@@ -334,43 +334,43 @@ private:
 
 	struct SlotInfo final : InfoTopic {
 		explicit SlotInfo(InfoCommand& machineInfoCommand);
-		void execute(span<const TclObject> tokens,
+		void execute(std::span<const TclObject> tokens,
 			     TclObject& result) const override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	} slotInfo;
 
 	struct SubSlottedInfo final : InfoTopic {
 		explicit SubSlottedInfo(InfoCommand& machineInfoCommand);
-		void execute(span<const TclObject> tokens,
+		void execute(std::span<const TclObject> tokens,
 			     TclObject& result) const override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	} subSlottedInfo;
 
 	struct ExternalSlotInfo final : InfoTopic {
 		explicit ExternalSlotInfo(InfoCommand& machineInfoCommand);
-		void execute(span<const TclObject> tokens,
+		void execute(std::span<const TclObject> tokens,
 			     TclObject& result) const override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	} externalSlotInfo;
 
 	struct IOInfo : InfoTopic {
 		IOInfo(InfoCommand& machineInfoCommand, const char* name);
-		void helper(span<const TclObject> tokens,
+		void helper(std::span<const TclObject> tokens,
 		            TclObject& result, MSXDevice** devices) const;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	protected:
 		~IOInfo() = default;
 	};
 	struct IInfo final : IOInfo {
 		explicit IInfo(InfoCommand& machineInfoCommand)
 			: IOInfo(machineInfoCommand, "input_port") {}
-		void execute(span<const TclObject> tokens,
+		void execute(std::span<const TclObject> tokens,
 		             TclObject& result) const override;
 	} inputPortInfo;
 	struct OInfo final : IOInfo {
 		explicit OInfo(InfoCommand& machineInfoCommand)
 			: IOInfo(machineInfoCommand, "output_port") {}
-		void execute(span<const TclObject> tokens,
+		void execute(std::span<const TclObject> tokens,
 		             TclObject& result) const override;
 	} outputPortInfo;
 

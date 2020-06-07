@@ -249,7 +249,7 @@ static string removeEscaping(const string& str)
 	return result;
 }
 
-static vector<string> removeEscaping(span<const string> input, bool keepLastIfEmpty)
+static vector<string> removeEscaping(std::span<const string> input, bool keepLastIfEmpty)
 {
 	vector<string> result;
 	for (const auto& s : input) {
@@ -438,7 +438,7 @@ GlobalCommandController::HelpCmd::HelpCmd(GlobalCommandController& controller_)
 }
 
 void GlobalCommandController::HelpCmd::execute(
-	span<const TclObject> tokens, TclObject& result)
+	std::span<const TclObject> tokens, TclObject& result)
 {
 	auto& controller = OUTER(GlobalCommandController, helpCmd);
 	switch (tokens.size()) {
@@ -472,7 +472,7 @@ void GlobalCommandController::HelpCmd::execute(
 	}
 }
 
-string GlobalCommandController::HelpCmd::help(span<const TclObject> /*tokens*/) const
+string GlobalCommandController::HelpCmd::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "prints help information for commands\n";
 }
@@ -496,7 +496,7 @@ GlobalCommandController::TabCompletionCmd::TabCompletionCmd(
 }
 
 void GlobalCommandController::TabCompletionCmd::execute(
-	span<const TclObject> tokens, TclObject& result)
+	std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, 2, "commandstring");
 	// TODO this prints list of possible completions in the console
@@ -504,7 +504,7 @@ void GlobalCommandController::TabCompletionCmd::execute(
 	result = controller.tabCompletion(tokens[1].getString());
 }
 
-string GlobalCommandController::TabCompletionCmd::help(span<const TclObject> /*tokens*/) const
+string GlobalCommandController::TabCompletionCmd::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "!!! This command will change in the future !!!\n"
 	       "Tries to completes the given argument as if it were typed in "
@@ -542,7 +542,7 @@ CliConnection& GlobalCommandController::UpdateCmd::getConnection()
 }
 
 void GlobalCommandController::UpdateCmd::execute(
-	span<const TclObject> tokens, TclObject& /*result*/)
+	std::span<const TclObject> tokens, TclObject& /*result*/)
 {
 	checkNumArgs(tokens, 3, Prefix{1}, "enable|disable type");
 	if (tokens[1] == "enable") {
@@ -554,7 +554,7 @@ void GlobalCommandController::UpdateCmd::execute(
 	}
 }
 
-string GlobalCommandController::UpdateCmd::help(span<const TclObject> /*tokens*/) const
+string GlobalCommandController::UpdateCmd::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Enable or disable update events for external applications. See doc/openmsx-control-xml.txt.";
 }
@@ -583,12 +583,12 @@ GlobalCommandController::PlatformInfo::PlatformInfo(InfoCommand& openMSXInfoComm
 }
 
 void GlobalCommandController::PlatformInfo::execute(
-	span<const TclObject> /*tokens*/, TclObject& result) const
+	std::span<const TclObject> /*tokens*/, TclObject& result) const
 {
 	result = TARGET_PLATFORM;
 }
 
-string GlobalCommandController::PlatformInfo::help(span<const TclObject> /*tokens*/) const
+string GlobalCommandController::PlatformInfo::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Prints openMSX platform.";
 }
@@ -601,12 +601,12 @@ GlobalCommandController::VersionInfo::VersionInfo(InfoCommand& openMSXInfoComman
 }
 
 void GlobalCommandController::VersionInfo::execute(
-	span<const TclObject> /*tokens*/, TclObject& result) const
+	std::span<const TclObject> /*tokens*/, TclObject& result) const
 {
 	result = Version::full();
 }
 
-string GlobalCommandController::VersionInfo::help(span<const TclObject> /*tokens*/) const
+string GlobalCommandController::VersionInfo::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Prints openMSX version.";
 }

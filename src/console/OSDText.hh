@@ -24,7 +24,7 @@ protected:
 public:
 	OSDText(Display& display, const TclObject& name);
 
-	[[nodiscard]] span<const std::string_view> getProperties() const override {
+	[[nodiscard]] std::span<const std::string_view> getProperties() const override {
 		return textProperties;
 	}
 	void setProperty(Interpreter& interp,

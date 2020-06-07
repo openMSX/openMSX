@@ -88,7 +88,7 @@ GLImage::GLImage(OutputSurface& /*output*/, ivec2 size_, unsigned rgba)
 	initBuffers();
 }
 
-GLImage::GLImage(OutputSurface& /*output*/, ivec2 size_, span<const unsigned, 4> rgba,
+GLImage::GLImage(OutputSurface& /*output*/, ivec2 size_, std::span<const unsigned, 4> rgba,
                  int borderSize_, unsigned borderRGBA)
 	: texture(gl::Null())
 {

@@ -121,7 +121,7 @@ void LocalFile::write(const void* buffer, size_t num)
 }
 
 #if defined _WIN32
-span<const uint8_t> LocalFile::mmap()
+std::span<const uint8_t> LocalFile::mmap()
 {
 	size_t size = getSize();
 	if (size == 0) return {static_cast<uint8_t*>(nullptr), size};
@@ -176,7 +176,7 @@ void LocalFile::munmap()
 }
 
 #elif HAVE_MMAP
-span<const uint8_t> LocalFile::mmap()
+std::span<const uint8_t> LocalFile::mmap()
 {
 	size_t size = getSize();
 	if (size == 0) return {static_cast<uint8_t*>(nullptr), size};

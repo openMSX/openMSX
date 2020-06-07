@@ -6,7 +6,7 @@
 #include "openmsx.hh"
 #include "serialize_meta.hh"
 #include "serialize_constr.hh"
-#include "span.hh"
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -39,7 +39,7 @@ public:
 		std::string_view slotname);
 	[[nodiscard]] static std::unique_ptr<HardwareConfig> createRomConfig(
 		MSXMotherBoard& motherBoard, std::string romfile,
-		std::string slotname, span<const TclObject> options);
+		std::string slotname, std::span<const TclObject> options);
 
 	HardwareConfig(MSXMotherBoard& motherBoard, std::string hwName);
 	~HardwareConfig();

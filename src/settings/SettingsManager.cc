@@ -123,7 +123,7 @@ SettingsManager::SettingInfo::SettingInfo(InfoCommand& openMSXInfoCommand)
 }
 
 void SettingsManager::SettingInfo::execute(
-	span<const TclObject> tokens, TclObject& result) const
+	std::span<const TclObject> tokens, TclObject& result) const
 {
 	auto& manager = OUTER(SettingsManager, settingInfo);
 	switch (tokens.size()) {
@@ -151,7 +151,7 @@ void SettingsManager::SettingInfo::execute(
 	}
 }
 
-string SettingsManager::SettingInfo::help(span<const TclObject> /*tokens*/) const
+string SettingsManager::SettingInfo::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "openmsx_info setting        : "
 	             "returns list of all settings\n"
@@ -177,7 +177,7 @@ SettingsManager::SetCompleter::SetCompleter(
 {
 }
 
-string SettingsManager::SetCompleter::help(span<const TclObject> tokens) const
+string SettingsManager::SetCompleter::help(std::span<const TclObject> tokens) const
 {
 	if (tokens.size() == 2) {
 		auto& manager = OUTER(SettingsManager, setCompleter);
@@ -219,7 +219,7 @@ SettingsManager::SettingCompleter::SettingCompleter(
 {
 }
 
-string SettingsManager::SettingCompleter::help(span<const TclObject> /*tokens*/) const
+string SettingsManager::SettingCompleter::help(std::span<const TclObject> /*tokens*/) const
 {
 	return {}; // TODO
 }

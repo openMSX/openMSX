@@ -13,7 +13,7 @@ public:
 	explicit CliExtension(CommandLineParser& cmdLineParser);
 
 	void parseOption(const std::string& option,
-	                 span<std::string>& cmdLine) override;
+	                 std::span<std::string>& cmdLine) override;
 	[[nodiscard]] std::string_view optionHelp() const override;
 
 private:

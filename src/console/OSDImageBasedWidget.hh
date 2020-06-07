@@ -2,9 +2,9 @@
 #define OSDIMAGEBASEDWIDGET_HH
 
 #include "OSDWidget.hh"
-#include "span.hh"
 #include "stl.hh"
 #include <cstdint>
+#include <span>
 
 namespace openmsx {
 
@@ -27,11 +27,11 @@ protected:
 
 public:
 	[[nodiscard]] uint32_t getRGBA(uint32_t corner) const { return rgba[corner]; }
-	[[nodiscard]] span<const uint32_t, 4> getRGBA4() const { return rgba; }
+	[[nodiscard]] std::span<const uint32_t, 4> getRGBA4() const { return rgba; }
 
 	[[nodiscard]] virtual uint8_t getFadedAlpha() const = 0;
 
-	[[nodiscard]] span<const std::string_view> getProperties() const override {
+	[[nodiscard]] std::span<const std::string_view> getProperties() const override {
 		return imageBasedProperties;
 	}
 	void setProperty(Interpreter& interp,

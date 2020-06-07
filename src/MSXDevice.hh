@@ -6,7 +6,7 @@
 #include "IterableBitSet.hh"
 #include "openmsx.hh"
 #include "serialize_meta.hh"
-#include "span.hh"
+#include <span>
 #include <string>
 #include <vector>
 
@@ -48,7 +48,7 @@ public:
 	/** Checks whether this device can be removed (no other device has a
 	  * reference to it). Throws an exception if it can't be removed.
 	  */
-	void testRemove(span<const std::unique_ptr<MSXDevice>> removed) const;
+	void testRemove(std::span<const std::unique_ptr<MSXDevice>> removed) const;
 
 	/**
 	 * This method is called on reset.

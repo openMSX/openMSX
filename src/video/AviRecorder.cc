@@ -198,7 +198,7 @@ unsigned AviRecorder::getFrameHeight() const {
 	return frameHeight;
 }
 
-void AviRecorder::processStart(Interpreter& interp, span<const TclObject> tokens, TclObject& result)
+void AviRecorder::processStart(Interpreter& interp, std::span<const TclObject> tokens, TclObject& result)
 {
 	std::string_view prefix = "openmsx";
 	bool audioOnly    = false;
@@ -267,12 +267,12 @@ void AviRecorder::processStart(Interpreter& interp, span<const TclObject> tokens
 	}
 }
 
-void AviRecorder::processStop(span<const TclObject> /*tokens*/)
+void AviRecorder::processStop(std::span<const TclObject> /*tokens*/)
 {
 	stop();
 }
 
-void AviRecorder::processToggle(Interpreter& interp, span<const TclObject> tokens, TclObject& result)
+void AviRecorder::processToggle(Interpreter& interp, std::span<const TclObject> tokens, TclObject& result)
 {
 	if (aviWriter || wavWriter) {
 		// drop extra tokens
@@ -282,7 +282,7 @@ void AviRecorder::processToggle(Interpreter& interp, span<const TclObject> token
 	}
 }
 
-void AviRecorder::status(span<const TclObject> /*tokens*/, TclObject& result) const
+void AviRecorder::status(std::span<const TclObject> /*tokens*/, TclObject& result) const
 {
 	result.addDictKeyValue("status", (aviWriter || wavWriter) ? "recording" : "idle");
 }
@@ -294,7 +294,7 @@ AviRecorder::Cmd::Cmd(CommandController& commandController_)
 {
 }
 
-void AviRecorder::Cmd::execute(span<const TclObject> tokens, TclObject& result)
+void AviRecorder::Cmd::execute(std::span<const TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() < 2) {
 		throw CommandException("Missing argument");
@@ -311,7 +311,7 @@ void AviRecorder::Cmd::execute(span<const TclObject> tokens, TclObject& result)
 			recorder.status(tokens, result); });
 }
 
-std::string AviRecorder::Cmd::help(span<const TclObject> /*tokens*/) const
+std::string AviRecorder::Cmd::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Controls video recording: Write openMSX audio/video to a .avi file.\n"
 	       "record start              Record to file 'openmsxNNNN.avi'\n"

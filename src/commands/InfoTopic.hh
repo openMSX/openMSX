@@ -2,7 +2,7 @@
 #define INFOTOPIC_HH
 
 #include "Completer.hh"
-#include "span.hh"
+#include <span>
 #include <string>
 #include <vector>
 
@@ -26,14 +26,14 @@ public:
 	  * @throw CommandException Thrown when there was an error while
 	  *                         executing this InfoTopic.
 	  */
-	virtual void execute(span<const TclObject> tokens,
+	virtual void execute(std::span<const TclObject> tokens,
 	                     TclObject& result) const = 0;
 
 	/** Print help for this topic.
 	  * @param tokens Tokenized command line;
 	  *     tokens[1] is the topic.
 	  */
-	[[nodiscard]] std::string help(span<const TclObject> tokens) const override = 0;
+	[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override = 0;
 
 	/** Attempt tab completion for this topic.
 	  * Default implementation does nothing.

@@ -109,7 +109,7 @@ std::string_view DiskChanger::getContainerName() const
 	return getDriveName();
 }
 
-void DiskChanger::sendChangeDiskEvent(span<const TclObject> args)
+void DiskChanger::sendChangeDiskEvent(std::span<const TclObject> args)
 {
 	// note: might throw MSXException
 	if (stateChangeDistributor) {
@@ -128,7 +128,7 @@ void DiskChanger::signalStateChange(const StateChange& event)
 	execute(commandEvent->getTokens());
 }
 
-void DiskChanger::execute(span<const TclObject> tokens)
+void DiskChanger::execute(std::span<const TclObject> tokens)
 {
 	if (tokens[0] == getDriveName()) {
 		if (tokens[1] == "eject") {
@@ -155,7 +155,7 @@ int DiskChanger::insertDisk(const std::string& filename)
 	}
 }
 
-void DiskChanger::insertDisk(span<const TclObject> args)
+void DiskChanger::insertDisk(std::span<const TclObject> args)
 {
 	string diskImage = FileOperations::getConventionalPath(string(args[1].getString()));
 	auto& diskFactory = reactor.getDiskFactory();
@@ -193,7 +193,7 @@ DiskCommand::DiskCommand(CommandController& commandController_,
 {
 }
 
-void DiskCommand::execute(span<const TclObject> tokens, TclObject& result)
+void DiskCommand::execute(std::span<const TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() == 1) {
 		result.addListElement(tmpStrCat(diskChanger.getDriveName(), ':'),
@@ -261,7 +261,7 @@ void DiskCommand::execute(span<const TclObject> tokens, TclObject& result)
 	}
 }
 
-string DiskCommand::help(span<const TclObject> /*tokens*/) const
+string DiskCommand::help(std::span<const TclObject> /*tokens*/) const
 {
 	const string& driveName = diskChanger.getDriveName();
 	return strCat(
@@ -285,7 +285,7 @@ void DiskCommand::tabCompletion(std::vector<string>& tokens) const
 	}
 }
 
-bool DiskCommand::needRecord(span<const TclObject> tokens) const
+bool DiskCommand::needRecord(std::span<const TclObject> tokens) const
 {
 	return tokens.size() > 1;
 }

@@ -11,11 +11,11 @@
 #include "HDImageCLI.hh"
 #include "CDImageCLI.hh"
 #include "InfoTopic.hh"
-#include "span.hh"
 #include "components.hh"
 #include <initializer_list>
 #include <memory>
 #include <optional>
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -82,10 +82,10 @@ private:
 	};
 
 	[[nodiscard]] bool parseFileName(const std::string& arg,
-	                   span<std::string>& cmdLine);
+	                   std::span<std::string>& cmdLine);
 	[[nodiscard]] CLIFileType* getFileTypeHandlerForFileName(std::string_view filename) const;
 	[[nodiscard]] bool parseOption(const std::string& arg,
-	                 span<std::string>& cmdLine, ParsePhase phase);
+	                 std::span<std::string>& cmdLine, ParsePhase phase);
 	void createMachineSetting();
 
 private:
@@ -95,25 +95,25 @@ private:
 	Reactor& reactor;
 
 	struct HelpOption final : CLIOption {
-		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
+		void parseOption(const std::string& option, std::span<std::string>& cmdLine) override;
 		[[nodiscard]] std::string_view optionHelp() const override;
 	} helpOption;
 
 	struct VersionOption final : CLIOption {
-		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
+		void parseOption(const std::string& option, std::span<std::string>& cmdLine) override;
 		[[nodiscard]] std::string_view optionHelp() const override;
 	} versionOption;
 
 	struct ControlOption final : CLIOption {
-		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
+		void parseOption(const std::string& option, std::span<std::string>& cmdLine) override;
 		[[nodiscard]] std::string_view optionHelp() const override;
 	} controlOption;
 
 	struct ScriptOption final : CLIOption, CLIFileType {
-		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
+		void parseOption(const std::string& option, std::span<std::string>& cmdLine) override;
 		[[nodiscard]] std::string_view optionHelp() const override;
 		void parseFileType(const std::string& filename,
-				   span<std::string>& cmdLine) override;
+				   std::span<std::string>& cmdLine) override;
 		[[nodiscard]] std::string_view fileTypeCategoryName() const override;
 		[[nodiscard]] std::string_view fileTypeHelp() const override;
 
@@ -121,36 +121,36 @@ private:
 	} scriptOption;
 
 	struct CommandOption final : CLIOption {
-		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
+		void parseOption(const std::string& option, std::span<std::string>& cmdLine) override;
 		[[nodiscard]] std::string_view optionHelp() const override;
 
 		std::vector<std::string> commands;
 	} commandOption;
 
 	struct MachineOption final : CLIOption {
-		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
+		void parseOption(const std::string& option, std::span<std::string>& cmdLine) override;
 		[[nodiscard]] std::string_view optionHelp() const override;
 	} machineOption;
 
 	struct SettingOption final : CLIOption {
-		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
+		void parseOption(const std::string& option, std::span<std::string>& cmdLine) override;
 		[[nodiscard]] std::string_view optionHelp() const override;
 	} settingOption;
 
 	struct TestConfigOption final : CLIOption {
-		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
+		void parseOption(const std::string& option, std::span<std::string>& cmdLine) override;
 		[[nodiscard]] std::string_view optionHelp() const override;
 	} testConfigOption;
 
 	struct BashOption final : CLIOption {
-		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
+		void parseOption(const std::string& option, std::span<std::string>& cmdLine) override;
 		[[nodiscard]] std::string_view optionHelp() const override;
 	} bashOption;
 
 	struct FileTypeCategoryInfoTopic final : InfoTopic {
 		FileTypeCategoryInfoTopic(InfoCommand& openMSXInfoCommand, const CommandLineParser& parser);
-		void execute(span<const TclObject> tokens, TclObject& result) const override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		void execute(std::span<const TclObject> tokens, TclObject& result) const override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	private:
 		const CommandLineParser& parser;
 	};

@@ -2,9 +2,10 @@
 #define COMMAND_HH
 
 #include "Completer.hh"
-#include "span.hh"
 #include "strCat.hh"
 #include "CommandException.hh"
+#include <cassert>
+#include <span>
 #include <string_view>
 #include <vector>
 
@@ -50,7 +51,7 @@ public:
 	  * @throws CommandException Thrown when there was an error while
 	  *                          executing this command.
 	  */
-	virtual void execute(span<const TclObject> tokens, TclObject& result) = 0;
+	virtual void execute(std::span<const TclObject> tokens, TclObject& result) = 0;
 
 	/** Attempt tab completion for this command.
 	  * Default implementation does nothing.

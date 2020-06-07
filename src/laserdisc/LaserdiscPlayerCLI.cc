@@ -13,7 +13,7 @@ LaserdiscPlayerCLI::LaserdiscPlayerCLI(CommandLineParser& parser_)
 	parser.registerFileType({"ogv"}, *this);
 }
 
-void LaserdiscPlayerCLI::parseOption(const std::string& option, span<std::string>& cmdLine)
+void LaserdiscPlayerCLI::parseOption(const std::string& option, std::span<std::string>& cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine), cmdLine);
 }
@@ -25,7 +25,7 @@ std::string_view LaserdiscPlayerCLI::optionHelp() const
 }
 
 void LaserdiscPlayerCLI::parseFileType(const std::string& filename,
-                                       span<std::string>& /*cmdLine*/)
+                                       std::span<std::string>& /*cmdLine*/)
 {
 	if (!parser.getInterpreter().hasCommand("laserdiscplayer")) {
 		throw MSXException("No LaserDisc player present.");

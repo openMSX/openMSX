@@ -2,7 +2,6 @@
 #include "TclArgParser.hh"
 
 #include "Interpreter.hh"
-#include "span.hh"
 #include <optional>
 
 using namespace openmsx;
@@ -34,7 +33,7 @@ TEST_CASE("TclArgParser")
 	};
 
 	SECTION("empty") {
-		span<const TclObject, 0> in;
+		std::span<const TclObject, 0> in;
 		auto out = parseTclArgs(interp, in, table);
 
 		CHECK(out.empty()); // no args

@@ -4,7 +4,7 @@
 #include "AlignedBuffer.hh"
 #include "endian.hh"
 #include "openmsx.hh"
-#include "span.hh"
+#include <span>
 
 namespace openmsx {
 
@@ -128,7 +128,7 @@ namespace DiskImageUtils {
 	 * @param sizes The number of sectors for each partition.
 	 */
 	void partition(SectorAccessibleDisk& disk,
-	               span<const unsigned> sizes);
+	               std::span<const unsigned> sizes);
 };
 
 } // namespace openmsx

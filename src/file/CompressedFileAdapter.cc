@@ -70,7 +70,7 @@ void CompressedFileAdapter::write(const void* /*buffer*/, size_t /*num*/)
 	throw FileException("Writing to compressed files not yet supported");
 }
 
-span<const uint8_t> CompressedFileAdapter::mmap()
+std::span<const uint8_t> CompressedFileAdapter::mmap()
 {
 	decompress();
 	return { decompressed->buf.data(), decompressed->size };

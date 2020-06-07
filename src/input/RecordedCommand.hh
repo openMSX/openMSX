@@ -22,7 +22,7 @@ class MSXCommandEvent final : public StateChange
 {
 public:
 	MSXCommandEvent() = default; // for serialize
-	MSXCommandEvent(EmuTime::param time, span<const TclObject> tokens);
+	MSXCommandEvent(EmuTime::param time, std::span<const TclObject> tokens);
 	[[nodiscard]] const auto& getTokens() const { return tokens; }
 
 	template<typename Archive>
@@ -49,7 +49,7 @@ public:
 	  * has an extra time parameter.
 	  */
 	virtual void execute(
-		span<const TclObject> tokens, TclObject& result,
+		std::span<const TclObject> tokens, TclObject& result,
 		EmuTime::param time) = 0;
 
 	/** It's possible that in some cases the command doesn't need to be
@@ -57,7 +57,7 @@ public:
 	  * override this method. Return false iff the command doesn't need
 	  * to be recorded.
 	  */
-	[[nodiscard]] virtual bool needRecord(span<const TclObject> tokens) const;
+	[[nodiscard]] virtual bool needRecord(std::span<const TclObject> tokens) const;
 
 protected:
 	RecordedCommand(CommandController& commandController,
@@ -68,7 +68,7 @@ protected:
 
 private:
 	// Command
-	void execute(span<const TclObject> tokens, TclObject& result) override;
+	void execute(std::span<const TclObject> tokens, TclObject& result) override;
 
 	// StateChangeListener
 	void signalStateChange(const StateChange& event) override;

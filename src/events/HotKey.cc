@@ -450,7 +450,7 @@ static string formatBinding(const HotKey::HotKeyInfo& info)
 	              (info.passEvent ? " [event]" : ""), ":  ", info.command, '\n');
 }
 
-void HotKey::BindCmd::execute(span<const TclObject> tokens, TclObject& result)
+void HotKey::BindCmd::execute(std::span<const TclObject> tokens, TclObject& result)
 {
 	string layer;
 	bool layers = false;
@@ -523,7 +523,7 @@ void HotKey::BindCmd::execute(span<const TclObject> tokens, TclObject& result)
 	}
 	}
 }
-string HotKey::BindCmd::help(span<const TclObject> /*tokens*/) const
+string HotKey::BindCmd::help(std::span<const TclObject> /*tokens*/) const
 {
 	auto cmd = getBindCmdName(defaultCmd);
 	return strCat(
@@ -553,7 +553,7 @@ HotKey::UnbindCmd::UnbindCmd(CommandController& commandController_,
 {
 }
 
-void HotKey::UnbindCmd::execute(span<const TclObject> tokens, TclObject& /*result*/)
+void HotKey::UnbindCmd::execute(std::span<const TclObject> tokens, TclObject& /*result*/)
 {
 	string layer;
 	ArgsInfo info[] = { valueArg("-layer", layer) };
@@ -585,7 +585,7 @@ void HotKey::UnbindCmd::execute(span<const TclObject> tokens, TclObject& /*resul
 		}
 	}
 }
-string HotKey::UnbindCmd::help(span<const TclObject> /*tokens*/) const
+string HotKey::UnbindCmd::help(std::span<const TclObject> /*tokens*/) const
 {
 	auto cmd = getUnbindCmdName(defaultCmd);
 	return strCat(
@@ -602,7 +602,7 @@ HotKey::ActivateCmd::ActivateCmd(CommandController& commandController_)
 {
 }
 
-void HotKey::ActivateCmd::execute(span<const TclObject> tokens, TclObject& result)
+void HotKey::ActivateCmd::execute(std::span<const TclObject> tokens, TclObject& result)
 {
 	bool blocking = false;
 	ArgsInfo info[] = { flagArg("-blocking", blocking) };
@@ -632,7 +632,7 @@ void HotKey::ActivateCmd::execute(span<const TclObject> tokens, TclObject& resul
 	}
 }
 
-string HotKey::ActivateCmd::help(span<const TclObject> /*tokens*/) const
+string HotKey::ActivateCmd::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "activate_input_layer                         "
 	       ": show list of active layers (most recent on top)\n"
@@ -648,14 +648,14 @@ HotKey::DeactivateCmd::DeactivateCmd(CommandController& commandController_)
 {
 }
 
-void HotKey::DeactivateCmd::execute(span<const TclObject> tokens, TclObject& /*result*/)
+void HotKey::DeactivateCmd::execute(std::span<const TclObject> tokens, TclObject& /*result*/)
 {
 	checkNumArgs(tokens, 2, "layer");
 	auto& hotKey = OUTER(HotKey, deactivateCmd);
 	hotKey.deactivateLayer(tokens[1].getString());
 }
 
-string HotKey::DeactivateCmd::help(span<const TclObject> /*tokens*/) const
+string HotKey::DeactivateCmd::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "deactivate_input_layer <layername> : deactivate the given input layer";
 }

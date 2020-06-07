@@ -506,7 +506,7 @@ static constexpr void toHex(byte x, char* buf)
 }
 
 template<typename T> void CPUCore<T>::disasmCommand(
-	Interpreter& interp, span<const TclObject> tokens, TclObject& result) const
+	Interpreter& interp, std::span<const TclObject> tokens, TclObject& result) const
 {
 	word address = (tokens.size() < 3) ? getPC() : tokens[2].getInt(interp);
 	byte outBuf[4];

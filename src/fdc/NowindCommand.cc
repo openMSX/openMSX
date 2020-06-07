@@ -11,10 +11,10 @@
 #include "TclObject.hh"
 #include "enumerate.hh"
 #include "one_of.hh"
-#include "span.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
 #include <cassert>
+#include <span>
 #include <memory>
 
 using std::string;
@@ -92,7 +92,7 @@ void NowindCommand::processHdimage(
 	});
 }
 
-void NowindCommand::execute(span<const TclObject> tokens, TclObject& result)
+void NowindCommand::execute(std::span<const TclObject> tokens, TclObject& result)
 {
 	auto& host = interface.host;
 	auto& drives = interface.drives;
@@ -136,7 +136,7 @@ void NowindCommand::execute(span<const TclObject> tokens, TclObject& result)
 	string error;
 
 	// actually parse the commandline
-	span<const TclObject> args(&tokens[1], tokens.size() - 1);
+	std::span<const TclObject> args(&tokens[1], tokens.size() - 1);
 	while (error.empty() && !args.empty()) {
 		bool createDrive = false;
 		std::string_view image;
@@ -274,7 +274,7 @@ void NowindCommand::execute(span<const TclObject> tokens, TclObject& result)
 	result = r;
 }
 
-string NowindCommand::help(span<const TclObject> /*tokens*/) const
+string NowindCommand::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Similar to the disk<x> commands there is a nowind<x> command "
 	       "for each nowind interface. This command is modeled after the "

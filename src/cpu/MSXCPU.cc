@@ -351,7 +351,7 @@ void MSXCPU::update(const Setting& setting) noexcept
 // Command
 
 void MSXCPU::disasmCommand(
-	Interpreter& interp, span<const TclObject> tokens,
+	Interpreter& interp, std::span<const TclObject> tokens,
 	TclObject& result) const
 {
 	z80Active ? z80 ->disasmCommand(interp, tokens, result)
@@ -378,14 +378,14 @@ MSXCPU::TimeInfoTopic::TimeInfoTopic(InfoCommand& machineInfoCommand)
 }
 
 void MSXCPU::TimeInfoTopic::execute(
-	span<const TclObject> /*tokens*/, TclObject& result) const
+	std::span<const TclObject> /*tokens*/, TclObject& result) const
 {
 	auto& cpu = OUTER(MSXCPU, timeInfo);
 	EmuDuration dur = cpu.getCurrentTime() - cpu.reference;
 	result = dur.toDouble();
 }
 
-std::string MSXCPU::TimeInfoTopic::help(span<const TclObject> /*tokens*/) const
+std::string MSXCPU::TimeInfoTopic::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Prints the time in seconds that the MSX is powered on\n";
 }
@@ -402,12 +402,12 @@ MSXCPU::CPUFreqInfoTopic::CPUFreqInfoTopic(
 }
 
 void MSXCPU::CPUFreqInfoTopic::execute(
-	span<const TclObject> /*tokens*/, TclObject& result) const
+	std::span<const TclObject> /*tokens*/, TclObject& result) const
 {
 	result = clock.getFreq();
 }
 
-std::string MSXCPU::CPUFreqInfoTopic::help(span<const TclObject> /*tokens*/) const
+std::string MSXCPU::CPUFreqInfoTopic::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Returns the actual frequency of this CPU.\n"
 	       "This frequency can vary because:\n"

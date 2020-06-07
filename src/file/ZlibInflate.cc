@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-ZlibInflate::ZlibInflate(span<const uint8_t> input)
+ZlibInflate::ZlibInflate(std::span<const uint8_t> input)
 {
 	if (input.size() > std::numeric_limits<decltype(s.avail_in)>::max()) {
 		throw FileException(

@@ -1,13 +1,13 @@
 #ifndef STATIC_VECTOR_HH
 #define STATIC_VECTOR_HH
 
-#include "span.hh"
 #include <algorithm>
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <initializer_list>
 #include <limits>
+#include <span>
 #include <type_traits>
 
 // This is a _very_ minimal implementation of the following (we can easily
@@ -53,8 +53,8 @@ public:
 
 	constexpr void clear() { sz = 0; }
 
-	operator span<      T>()       { return {data, sz}; }
-	operator span<const T>() const { return {data, sz}; }
+	operator std::span<      T>()       { return {data, sz}; }
+	operator std::span<const T>() const { return {data, sz}; }
 
 private:
 	T data[N] = {};

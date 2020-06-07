@@ -26,7 +26,7 @@ protected:
 public:
 	OSDRectangle(Display& display, const TclObject& name);
 
-	[[nodiscard]] span<const std::string_view> getProperties() const override {
+	[[nodiscard]] std::span<const std::string_view> getProperties() const override {
 		return rectangleProperties;
 	}
 	void setProperty(Interpreter& interp,

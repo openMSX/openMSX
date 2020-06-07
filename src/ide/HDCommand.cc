@@ -21,7 +21,7 @@ HDCommand::HDCommand(CommandController& commandController_,
 {
 }
 
-void HDCommand::execute(span<const TclObject> tokens, TclObject& result,
+void HDCommand::execute(std::span<const TclObject> tokens, TclObject& result,
                         EmuTime::param /*time*/)
 {
 	if (tokens.size() == 1) {
@@ -64,7 +64,7 @@ void HDCommand::execute(span<const TclObject> tokens, TclObject& result,
 	}
 }
 
-std::string HDCommand::help(span<const TclObject> /*tokens*/) const
+std::string HDCommand::help(std::span<const TclObject> /*tokens*/) const
 {
 	return hd.getName() + ": change the hard disk image for this hard disk drive\n";
 }
@@ -74,11 +74,11 @@ void HDCommand::tabCompletion(std::vector<std::string>& tokens) const
 	using namespace std::literals;
 	static constexpr std::array extra = {"insert"sv};
 	completeFileName(tokens, userFileContext(),
-		(tokens.size() < 3) ? extra : span<const std::string_view>{});
+		(tokens.size() < 3) ? extra : std::span<const std::string_view>{});
 
 }
 
-bool HDCommand::needRecord(span<const TclObject> tokens) const
+bool HDCommand::needRecord(std::span<const TclObject> tokens) const
 {
 	return tokens.size() > 1;
 }

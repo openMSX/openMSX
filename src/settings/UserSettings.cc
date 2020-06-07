@@ -49,7 +49,7 @@ UserSettings::Cmd::Cmd(CommandController& commandController_)
 {
 }
 
-void UserSettings::Cmd::execute(span<const TclObject> tokens, TclObject& result)
+void UserSettings::Cmd::execute(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, AtLeast{2}, "subcommand ?arg ...?");
 	executeSubCommand(tokens[1].getString(),
@@ -58,7 +58,7 @@ void UserSettings::Cmd::execute(span<const TclObject> tokens, TclObject& result)
 		"info",    [&]{ info(tokens, result); });
 }
 
-void UserSettings::Cmd::create(span<const TclObject> tokens, TclObject& result)
+void UserSettings::Cmd::create(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, AtLeast{5}, Prefix{2}, "type name ?arg ...?");
 	const auto& type = tokens[2].getString();
@@ -93,7 +93,7 @@ void UserSettings::Cmd::create(span<const TclObject> tokens, TclObject& result)
 	result = tokens[3]; // name
 }
 
-UserSettings::Info UserSettings::Cmd::createString(span<const TclObject> tokens)
+UserSettings::Info UserSettings::Cmd::createString(std::span<const TclObject> tokens)
 {
 	checkNumArgs(tokens, 6, Prefix{3}, "name description initialvalue");
 	const auto& sName   = tokens[3].getString();
@@ -106,7 +106,7 @@ UserSettings::Info UserSettings::Cmd::createString(span<const TclObject> tokens)
 	        std::move(storage)};
 }
 
-UserSettings::Info UserSettings::Cmd::createBoolean(span<const TclObject> tokens)
+UserSettings::Info UserSettings::Cmd::createBoolean(std::span<const TclObject> tokens)
 {
 	checkNumArgs(tokens, 6, Prefix{3}, "name description initialvalue");
 	const auto& sName   = tokens[3].getString();
@@ -119,7 +119,7 @@ UserSettings::Info UserSettings::Cmd::createBoolean(span<const TclObject> tokens
 	        std::move(storage)};
 }
 
-UserSettings::Info UserSettings::Cmd::createInteger(span<const TclObject> tokens)
+UserSettings::Info UserSettings::Cmd::createInteger(std::span<const TclObject> tokens)
 {
 	checkNumArgs(tokens, 8, Prefix{3}, "name description initialvalue minvalue maxvalue");
 	auto& interp = getInterpreter();
@@ -135,7 +135,7 @@ UserSettings::Info UserSettings::Cmd::createInteger(span<const TclObject> tokens
 	        std::move(storage)};
 }
 
-UserSettings::Info UserSettings::Cmd::createFloat(span<const TclObject> tokens)
+UserSettings::Info UserSettings::Cmd::createFloat(std::span<const TclObject> tokens)
 {
 	checkNumArgs(tokens, 8, Prefix{3}, "name description initialvalue minvalue maxvalue");
 	auto& interp = getInterpreter();
@@ -151,7 +151,7 @@ UserSettings::Info UserSettings::Cmd::createFloat(span<const TclObject> tokens)
 	        std::move(storage)};
 }
 
-UserSettings::Info UserSettings::Cmd::createEnum(span<const TclObject> tokens)
+UserSettings::Info UserSettings::Cmd::createEnum(std::span<const TclObject> tokens)
 {
 	checkNumArgs(tokens, 7, Prefix{3}, "name description initialvalue allowed-values-list");
 	const auto& sName   = tokens[3].getString();
@@ -178,7 +178,7 @@ UserSettings::Info UserSettings::Cmd::createEnum(span<const TclObject> tokens)
 	        std::move(storage)};
 }
 
-void UserSettings::Cmd::destroy(span<const TclObject> tokens, TclObject& /*result*/)
+void UserSettings::Cmd::destroy(std::span<const TclObject> tokens, TclObject& /*result*/)
 {
 	checkNumArgs(tokens, 3, "name");
 	const auto& settingName = tokens[2].getString();
@@ -192,12 +192,12 @@ void UserSettings::Cmd::destroy(span<const TclObject> tokens, TclObject& /*resul
 	userSettings.deleteSetting(*setting);
 }
 
-void UserSettings::Cmd::info(span<const TclObject> /*tokens*/, TclObject& result)
+void UserSettings::Cmd::info(std::span<const TclObject> /*tokens*/, TclObject& result)
 {
 	result.addListElements(getSettingNames());
 }
 
-std::string UserSettings::Cmd::help(span<const TclObject> tokens) const
+std::string UserSettings::Cmd::help(std::span<const TclObject> tokens) const
 {
 	if (tokens.size() < 2) {
 		return

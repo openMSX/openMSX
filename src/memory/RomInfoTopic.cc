@@ -10,7 +10,7 @@ RomInfoTopic::RomInfoTopic(InfoCommand& openMSXInfoCommand)
 {
 }
 
-void RomInfoTopic::execute(span<const TclObject> tokens, TclObject& result) const
+void RomInfoTopic::execute(std::span<const TclObject> tokens, TclObject& result) const
 {
 	switch (tokens.size()) {
 	case 2: {
@@ -31,7 +31,7 @@ void RomInfoTopic::execute(span<const TclObject> tokens, TclObject& result) cons
 	}
 }
 
-std::string RomInfoTopic::help(span<const TclObject> /*tokens*/) const
+std::string RomInfoTopic::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Shows a list of supported rom types. "
 	       "Or show info on a specific rom type.";

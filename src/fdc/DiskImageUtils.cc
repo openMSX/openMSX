@@ -233,7 +233,7 @@ struct CHS {
 	return {cylinder, head, sector};
 }
 
-void partition(SectorAccessibleDisk& disk, span<const unsigned> sizes)
+void partition(SectorAccessibleDisk& disk, std::span<const unsigned> sizes)
 {
 	assert(sizes.size() <= 31);
 
