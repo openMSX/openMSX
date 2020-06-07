@@ -24,21 +24,10 @@ namespace cstd {
 // Various constexpr reimplementations of STL algorithms.
 //
 
-template<typename InputIt, typename UnaryPredicate>
-[[nodiscard]] constexpr InputIt find_if_not(InputIt first, InputIt last, UnaryPredicate p)
-{
-	for (/**/; first != last; ++first) {
-		if (!p(*first)) {
-			return first;
-		}
-	}
-	return last;
-}
-
 template<typename ForwardIt, typename UnaryPredicate>
 [[nodiscard]] constexpr ForwardIt partition(ForwardIt first, ForwardIt last, UnaryPredicate p)
 {
-	first = cstd::find_if_not(first, last, p);
+	first = std::find_if_not(first, last, p);
 	if (first == last) return first;
 
 	for (ForwardIt i = first + 1; i != last; ++i) {
