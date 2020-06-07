@@ -2,6 +2,7 @@
 #define CSTD_HH
 
 #include "xrange.hh"
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <cstddef>
@@ -24,21 +25,6 @@ namespace cstd {
 // Various constexpr reimplementations of STL algorithms.
 //
 
-template<typename ForwardIt, typename UnaryPredicate>
-[[nodiscard]] constexpr ForwardIt partition(ForwardIt first, ForwardIt last, UnaryPredicate p)
-{
-	first = std::find_if_not(first, last, p);
-	if (first == last) return first;
-
-	for (ForwardIt i = first + 1; i != last; ++i) {
-		if (p(*i)) {
-			std::iter_swap(i, first);
-			++first;
-		}
-	}
-	return first;
-}
-
 // Textbook implementation of quick sort. Not optimized, but the intention is
 // that it only gets executed during compile-time.
 template<typename RAIt, typename Compare = std::less<>>
@@ -47,9 +33,9 @@ constexpr void sort(RAIt first, RAIt last, Compare cmp = Compare{})
 	auto const N = last - first;
 	if (N <= 1) return;
 	auto const pivot = *(first + N / 2);
-	auto const middle1 = cstd::partition(
+	auto const middle1 = std::partition(
 	        first, last, [&](const auto& elem) { return cmp(elem, pivot); });
-	auto const middle2 = cstd::partition(
+	auto const middle2 = std::partition(
 	        middle1, last, [&](const auto& elem) { return !cmp(pivot, elem); });
 	cstd::sort(first, middle1, cmp);
 	cstd::sort(middle2, last, cmp);

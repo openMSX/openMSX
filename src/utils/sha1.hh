@@ -2,11 +2,11 @@
 #define SHA1_HH
 
 #include "xrange.hh"
+#include <cstdint>
 #include <ostream>
 #include <span>
 #include <string>
 #include <string_view>
-#include <cstdint>
 
 namespace openmsx {
 
