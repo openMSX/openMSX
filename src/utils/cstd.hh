@@ -24,14 +24,6 @@ namespace cstd {
 // Various constexpr reimplementations of STL algorithms.
 //
 
-template<typename Iter1, typename Iter2>
-constexpr void iter_swap(Iter1 a, Iter2 b)
-{
-	auto temp = std::move(*a);
-	*a = std::move(*b);
-	*b = std::move(temp);
-}
-
 template<typename InputIt, typename UnaryPredicate>
 [[nodiscard]] constexpr InputIt find_if_not(InputIt first, InputIt last, UnaryPredicate p)
 {
@@ -51,7 +43,7 @@ template<typename ForwardIt, typename UnaryPredicate>
 
 	for (ForwardIt i = first + 1; i != last; ++i) {
 		if (p(*i)) {
-			cstd::iter_swap(i, first);
+			std::iter_swap(i, first);
 			++first;
 		}
 	}
