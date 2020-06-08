@@ -759,7 +759,7 @@ set misc_setting_menu {
 	         actions { LEFT  { osd_menu::menu_setting [incr maxframeskip -1] }
 	                   RIGHT { osd_menu::menu_setting [incr maxframeskip  1] }}}}}
 
-set resampler_desc [dict create fast "fast (but low quality)" blip "blip (good speed/quality)" hq "hq (best but slow on Android)"]
+set resampler_desc [dict create fast "fast (but low quality)" blip "blip (good speed/quality)" hq "hq (best but uses more CPU)"]
 
 set sound_setting_menu {
 	font-size 8
@@ -888,7 +888,7 @@ proc create_video_setting_menu {} {
 		lappend items { textexpr "Video source: $videosource"
 			actions { LEFT  { osd_menu::menu_setting [cycle_back videosource] }
 			          RIGHT { osd_menu::menu_setting [cycle      videosource] }}
-				  post-spacing 6}
+				  post-spacing 3}
 	}
 	if {$scaling_available} {
 		lappend items { textexpr "Scaler: $scale_algorithm"
@@ -904,7 +904,13 @@ proc create_video_setting_menu {} {
 	}
 	lappend items { textexpr "Horizontal Stretch: [osd_menu::get_horizontal_stretch_presentation $horizontal_stretch]"
 	         actions { A  { osd_menu::menu_create [osd_menu::menu_create_stretch_list]; osd_menu::select_menu_item $horizontal_stretch }}
-	         post-spacing 6 }
+	         post-spacing 3 }
+	if {$::renderer eq "SDLGL-PP"} {
+		lappend items { textexpr "VSync mode: $sync_to_vblank_mode"
+			actions { LEFT  { osd_menu::menu_setting [cycle_back sync_to_vblank_mode] }
+			          RIGHT { osd_menu::menu_setting [cycle      sync_to_vblank_mode] }}
+		post-spacing 3 }
+	}
 	if {$scaling_available} {
 		lappend items { textexpr "Scanline: $scanline%"
 			actions { LEFT  { osd_menu::menu_setting [incr scanline -1] }
@@ -924,7 +930,7 @@ proc create_video_setting_menu {} {
 	lappend items { textexpr "Noise: $noise%"
 		actions { LEFT  { osd_menu::menu_setting [set noise [expr $noise - 1]] }
 		          RIGHT { osd_menu::menu_setting [set noise [expr $noise + 1]] }}
-			  post-spacing 6}
+			  post-spacing 3}
 	lappend items { textexpr "Enforce VDP Sprites-per-line Limit: $limitsprites"
 			actions { LEFT  { osd_menu::menu_setting [cycle_back limitsprites] }
 			          RIGHT { osd_menu::menu_setting [cycle      limitsprites] }}}
