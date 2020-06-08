@@ -49,16 +49,12 @@ public:
 		}
 		return true;
 	}
-	[[nodiscard]] bool operator< (const Sha1Sum& other) const {
+	[[nodiscard]] constexpr auto operator<=>(const Sha1Sum& other) const {
 		for (int i : xrange(5 - 1)) {
-			if (a[i] != other.a[i]) return a[i] < other.a[i];
+			if (auto cmp = a[i] <=> other.a[i]; cmp != 0) return cmp;
 		}
-		return a[5 - 1] < other.a[5 - 1];
+		return a[5 - 1] <=> other.a[5 - 1];
 	}
-
-	[[nodiscard]] bool operator<=(const Sha1Sum& other) const { return !(other <  *this); }
-	[[nodiscard]] bool operator> (const Sha1Sum& other) const { return  (other <  *this); }
-	[[nodiscard]] bool operator>=(const Sha1Sum& other) const { return !(*this <  other); }
 
 	friend std::ostream& operator<<(std::ostream& os, const Sha1Sum& sum) {
 		os << sum.toString();

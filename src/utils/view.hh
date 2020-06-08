@@ -213,21 +213,9 @@ public:
 		return *(*this + n);
 	}
 
-	[[nodiscard]] constexpr friend bool operator<(const TransformIterator& x, const TransformIterator& y)
+	[[nodiscard]] constexpr auto operator<=>(const TransformIterator& other) const
 	{
-		return x.it < y.it;
-	}
-	[[nodiscard]] constexpr friend bool operator<=(const TransformIterator& x, const TransformIterator& y)
-	{
-		return x.it <= y.it;
-	}
-	[[nodiscard]] constexpr friend bool operator>(const TransformIterator& x, const TransformIterator& y)
-	{
-		return x.it > y.it;
-	}
-	[[nodiscard]] constexpr friend bool operator>=(const TransformIterator& x, const TransformIterator& y)
-	{
-		return x.it >= y.it;
+		return it <=> other.it;
 	}
 
 private:

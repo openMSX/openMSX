@@ -76,14 +76,12 @@ public:
 
 	[[nodiscard]] T& operator[](difference_type n) const { return *(*this + n); }
 
-	[[nodiscard]] bool operator==(const cb_iterator& it) const { return p == it.p; }
-
-	[[nodiscard]] bool operator<(const cb_iterator& it) const {
-		return index(p) < index(it.p);
+	[[nodiscard]] bool operator== (const cb_iterator& it) const {
+		return p == it.p;
 	}
-	[[nodiscard]] bool operator> (const cb_iterator& it) const { return   it < *this;  }
-	[[nodiscard]] bool operator<=(const cb_iterator& it) const { return !(it < *this); }
-	[[nodiscard]] bool operator>=(const cb_iterator& it) const { return !(*this < it); }
+	[[nodiscard]] auto operator<=>(const cb_iterator& it) const {
+		return index(p) <=> index(it.p);
+	}
 
 private:
 	[[nodiscard]] size_t index(const T* q) const {

@@ -118,22 +118,7 @@ template<typename T> struct XRange
 			return *(*this + n);
 		}
 
-		[[nodiscard]] constexpr friend bool operator<(const Iter& i, const Iter& j)
-		{
-			return i.x < j.x;
-		}
-		[[nodiscard]] constexpr friend bool operator<=(const Iter& i, const Iter& j)
-		{
-			return i.x <= j.x;
-		}
-		[[nodiscard]] constexpr friend bool operator>(const Iter& i, const Iter& j)
-		{
-			return i.x > j.x;
-		}
-		[[nodiscard]] constexpr friend bool operator>=(const Iter& i, const Iter& j)
-		{
-			return i.x >= j.x;
-		}
+		[[nodiscard]] constexpr auto operator<=>(const Iter&) const = default;
 
 		T x;
 	};
