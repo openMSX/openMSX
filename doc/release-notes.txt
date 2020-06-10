@@ -95,7 +95,7 @@ New or improved emulator features:
   - go to the top of a list with HOME or CTRL+LEFT. Go to the end by pressing UP
     after that, as the lists wrap around :)
   - now all cartridge slots and disk drives can be controlled from OSD
-- added setting to control sync to vblank. Default is now enabled
+- added setting to control vsync. Default is still disabled
 - added new OSD icon set, which positions icons as far to the bottom as
   possible (set3)
 - use soft-fullscreen now, instead of changing display modes. This looks better
