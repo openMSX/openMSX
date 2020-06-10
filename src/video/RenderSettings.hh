@@ -43,10 +43,6 @@ public:
 		DEFORM_NORMAL, DEFORM_3D
 	};
 
-	enum SyncToVBlankMode {
-		IMMEDIATE, SYNC, ADAPTIVE
-	};
-
 	explicit RenderSettings(CommandController& commandController);
 	~RenderSettings();
 
@@ -148,9 +144,9 @@ public:
 	  * ATM this only works when using the SDLGL-PP renderer. */
 	DisplayDeform getDisplayDeform() { return displayDeformSetting.getEnum(); }
 
-	/** SyncToVBlankMode (immediate, sync, sync_adaptive)
+	/** VSync [on, off]
 	 * ATM this only works when using the SDLGL-PP renderer. */
-	EnumSetting<SyncToVBlankMode>& getSyncToVBlankModeSetting() { return syncToVBlankModeSetting; }
+	BooleanSetting& getVSyncSetting() { return vSyncSetting; }
 
 	/** Amount of horizontal stretch.
 	  * This number represents the amount of MSX pixels (normal width) that
@@ -229,7 +225,7 @@ private:
 	EnumSetting<bool> cmdTimingSetting;
 	EnumSetting<bool> tooFastAccessSetting;
 	EnumSetting<DisplayDeform> displayDeformSetting;
-	EnumSetting<SyncToVBlankMode> syncToVBlankModeSetting;
+	BooleanSetting vSyncSetting;
 	FloatSetting horizontalStretchSetting;
 	FloatSetting pointerHideDelaySetting;
 	BooleanSetting interleaveBlackFrameSetting;

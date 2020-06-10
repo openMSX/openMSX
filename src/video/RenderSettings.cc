@@ -152,19 +152,19 @@ RenderSettings::RenderSettings(CommandController& commandController)
 			{"normal", DEFORM_NORMAL},
 			{"3d",     DEFORM_3D}})
 
-	, syncToVBlankModeSetting(
-		commandController,
-		"sync_to_vblank_mode", "Sync-to-VBlank mode (for the moment this only "
+	, vSyncSetting(commandController,
+		"vsync", "VSync (for the moment this only "
 		"works with the SDLGL-PP renderer)\n"
-		"immediate:     no sync to vblank, just render immediately\n"
-		"sync:          sync to vblank always\n"
-		"adaptive:      sync to vblank, but if too late, sync immediately "
-		"(not supported on all systems)",
-		SyncToVBlankMode::IMMEDIATE,
-		EnumSetting<SyncToVBlankMode>::Map{
-			{"immediate", SyncToVBlankMode::IMMEDIATE},
-			{"sync",      SyncToVBlankMode::SYNC},
-			{"adaptive",  SyncToVBlankMode::ADAPTIVE}})
+		"on for vsync enabled: synchronize the output frames of openMSX\n"
+		"with the host screen. Helps against tearing, but currently limits\n"
+		"the maximum framerate openMSX can output together with the\n"
+		"maxframeskip setting. Also, on some drivers, may increase host CPU\n"
+		"usage. Although tearing is reduced, when the host frame rate\n"
+		"(typically 60Hz) differs from the MSX frame rate (50 or 60Hz)\n"
+		"stuttering may be observed.\n"
+		"off for immediate output to the host screen, which will show\n"
+		"tearing in smooth scrolling MSX software, but otherwise has\n"
+		"no caveats.", false)
 
 	// Many android devices are relatively low powered. Therefore use
 	// no stretch (value 320) as default for Android because it gives

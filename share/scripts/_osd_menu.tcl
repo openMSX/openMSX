@@ -906,9 +906,9 @@ proc create_video_setting_menu {} {
 	         actions { A  { osd_menu::menu_create [osd_menu::menu_create_stretch_list]; osd_menu::select_menu_item $horizontal_stretch }}
 	         post-spacing 3 }
 	if {$::renderer eq "SDLGL-PP"} {
-		lappend items { textexpr "VSync mode: $sync_to_vblank_mode"
-			actions { LEFT  { osd_menu::menu_setting [cycle_back sync_to_vblank_mode] }
-			          RIGHT { osd_menu::menu_setting [cycle      sync_to_vblank_mode] }}
+		lappend items { textexpr "VSync: $vsync"
+			actions { LEFT  { osd_menu::menu_setting [cycle_back vsync] }
+			          RIGHT { osd_menu::menu_setting [cycle      vsync] }}
 		post-spacing 3 }
 	}
 	if {$scaling_available} {

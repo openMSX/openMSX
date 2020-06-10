@@ -172,7 +172,6 @@
         <li><a class="internal" href="#soundchip_vibrato_frequency">&lt;soundchip&gt;_vibrato_frequency</a></li>
         <li><a class="internal" href="#soundchip_vibrato_percent">&lt;soundchip&gt;_vibrato_percent</a></li>
         <li><a class="internal" href="#soundchip_volume">&lt;soundchip&gt;_volume</a></li>
-        <li><a class="internal" href="#sync_to_vblank_mode">sync_to_vblank_mode</a></li>
         <li><a class="internal" href="#throttle">throttle</a></li>
         <li><a class="internal" href="#too_fast_vram_access">too_fast_vram_access</a></li>
         <li><a class="internal" href="#too_fast_vram_access_callback">too_fast_vram_access_callback</a></li>
@@ -182,6 +181,7 @@
         <li><a class="internal" href="#vdpcmdinprogress_callback">vdpcmdinprogress_callback</a></li>
         <li><a class="internal" href="#vdpcmdtrace">vdpcmdtrace</a></li>
         <li><a class="internal" href="#videosource">videosource</a></li>
+        <li><a class="internal" href="#vsync">vsync</a></li>
         <li><a class="internal" href="#v9990cmdtrace">v9990cmdtrace</a></li>
         <li><a class="internal" href="#z80_freq">z80_freq / z80_freq_locked</a></li>
         <li><a class="internal" href="#othersettings">other</a></li>
@@ -5359,45 +5359,9 @@
     <code>set "FMPAC_volume" 50</code>
   </div>
 
-  <h3><a id="sync_to_vblank_mode">sync_to_vblank_mode</a></h3>
-
-  <p>Sets the sync to vblank mode. This setting determines whether the SDLGL-PP renderer should synchronizes its frames to your host monitors frame rate (e.g. 60fps).</p>
-  <p>The default value is not to synchronize ("<code>immediate</code>"). To synchronize with the host monitor, set the value to <code>sync</code> or <code>adaptive</code>. The former means that the frame will always be only output in sync with the monitor. If the host system is busy it may mean that a frame is too late for the monitor and it will be displayed one frame later. Adaptive sync means that if the frame is too late, it will be drawn anyway, but immediately, not waiting for next monitor frame.</p>
-  <p>Use one of the synchronization modes if your MSX is running at about the same frame rate as your monitor (e.g. 60Hz MSX output on a 60Hz host monitor) and you want to avoid (or reduce) tearing, which can be quite visible in smooth horizontal scrolling demos. Keep in mind <a class="internal" href="throttle">throttle mode</a> off works a bit differently in the <code>sync</code> mode (see there). Note that adaptive sync is not supported on all hardware. When that is the case, openMSX falls back to normal sync.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>set sync_to_vblank_mode</code></td>
-
-      <td>Shows the current setting</td>
-    </tr>
-
-    <tr>
-      <td><code>set sync_to_vblank_mode immediate</code></td>
-
-      <td>No synchronization to monitor frame rate: draw immediately (default)</td>
-    </tr>
-
-    <tr>
-      <td><code>set sync_to_vblank_mode sync</code></td>
-
-      <td>Synchronize to monitor frame rate always</td>
-    </tr>
-
-    <tr>
-      <td><code>set sync_to_vblank_mode adaptive</code></td>
-
-      <td>Synchronize to monitor frame rate when possible, otherwise draw immediately. Not available on all host hardware.</td>
-    </tr>
-  </table>
-
   <h3><a id="throttle">throttle</a></h3>
 
-  <p>Sets throttle mode. In throttle mode the emulator tries to run at the specified speed relative to a real MSX (see <a class="internal" href="#speed">speed</a> command). When throttling is turned off the emulator runs as fast as possible. The speed may be limited to the framerate of your monitor (e.g. 60fps) if you have set <a class="internal" href="sync_to_vblank_mode">sync to vblank_mode</a> to <code>sync</code>, when using the (default) SDLGL-PP renderer. In that case, to increase the speed, set the <a class="internal" href="#maxframeskip">maxframeskip</a> setting to a high value (e.g. 100).</p>
+  <p>Sets throttle mode. In throttle mode the emulator tries to run at the specified speed relative to a real MSX (see <a class="internal" href="#speed">speed</a> command). When throttling is turned off the emulator runs as fast as possible. The speed may be limited to the framerate of your monitor (e.g. 60fps) if you have set <a class="internal" href="vsync">vsync</a> enabled, when using the (default) SDLGL-PP renderer. In that case, to increase the speed, set the <a class="internal" href="#maxframeskip">maxframeskip</a> setting to a high value (e.g. 100).</p>
 
   <div class="subsectiontitle">
     usage:
@@ -5671,6 +5635,41 @@
 
   <div class="note">
     Note: This setting is only available if multiple videosources are present.
+  </div>
+
+  <h3><a id="vsync">vsync</a></h3>
+
+  <p>Enables or disables vsync. This setting determines whether the SDLGL-PP renderer should synchronize its frames to your host monitors frame rate (e.g. 60fps).</p>
+  <p>The default value is not to synchronize ("<code>off</code>"). When enabled, adaptive vsync is attempted if your hardware and driver support it, which means that if a frame is too late, it will be output immediately anyway. If not supported, normal vsync will be used, which may mean a frame is output later, when the sync is missed.</p>
+  <p>Enable this if your MSX is running at about the same frame rate as your monitor (e.g. 60Hz MSX output on a 60Hz host monitor) and you want to avoid (or reduce) tearing, which can be quite visible in smooth horizontal scrolling demos. Keep in mind <a class="internal" href="throttle">throttle mode</a> off works a bit differently if vsync is enabled (see there).</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set vsync</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set vsync off</code></td>
+
+      <td>No synchronization to monitor frame rate: draw immediately (default)</td>
+    </tr>
+
+    <tr>
+      <td><code>set vsync on</code></td>
+
+      <td>Synchronize to monitor frame rate when possible, otherwise draw immediately. Or, when this is not available on the host hardware/driver, synchronize to monitor frame rate always</td>
+    </tr>
+
+  </table>
+
+  <div class="note">
+   Note: This setting only has effect when the SDLGL-PP renderer is used.
   </div>
 
   <h3><a id="v9990cmdtrace">v9990cmdtrace</a></h3>

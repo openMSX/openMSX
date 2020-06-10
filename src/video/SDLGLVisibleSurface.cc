@@ -85,14 +85,14 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	setOpenGlPixelFormat();
 	gl::context = std::make_unique<gl::Context>(width, height);
 
-	getDisplay().getRenderSettings().getSyncToVBlankModeSetting().attach(syncToVBlankModeObserver);
+	getDisplay().getRenderSettings().getVSyncSetting().attach(vSyncObserver);
 	// set initial value
-	syncToVBlankModeObserver.update(getDisplay().getRenderSettings().getSyncToVBlankModeSetting());
+	vSyncObserver.update(getDisplay().getRenderSettings().getVSyncSetting());
 }
 
 SDLGLVisibleSurface::~SDLGLVisibleSurface()
 {
-	getDisplay().getRenderSettings().getSyncToVBlankModeSetting().detach(syncToVBlankModeObserver);
+	getDisplay().getRenderSettings().getVSyncSetting().detach(vSyncObserver);
 
 	gl::context.reset();
 	SDL_GL_DeleteContext(glContext);
@@ -147,26 +147,20 @@ std::unique_ptr<OutputSurface> SDLGLVisibleSurface::createOffScreenSurface()
 	return std::make_unique<SDLGLOffScreenSurface>(*this);
 }
 
-void SDLGLVisibleSurface::SyncToVBlankModeObserver::update(const Setting& setting)
+void SDLGLVisibleSurface::VSyncObserver::update(const Setting& setting)
 {
-	auto& surface = OUTER(SDLGLVisibleSurface, syncToVBlankModeObserver);
-	auto& syncSetting = surface.getDisplay().getRenderSettings().getSyncToVBlankModeSetting();
+	auto& surface = OUTER(SDLGLVisibleSurface, vSyncObserver);
+	auto& syncSetting = surface.getDisplay().getRenderSettings().getVSyncSetting();
 	assert(&setting == &syncSetting); (void)setting;
 
-	int interval = [&] {
-		switch (syncSetting.getEnum()) {
-			case RenderSettings::SyncToVBlankMode::IMMEDIATE: return 0;
-			case RenderSettings::SyncToVBlankMode::SYNC:      return 1;
-			case RenderSettings::SyncToVBlankMode::ADAPTIVE:  return -1;
-		}
-		UNREACHABLE; return 0;
-	}();
+	// for now, we assume that adaptive vsync is the best kind of vsync, so when
+	// vsync is enabled, we attempt adaptive vsync.
+	int interval = syncSetting.getBoolean() ? -1 : 0;
+
 	if ((SDL_GL_SetSwapInterval(interval) < 0) && (interval == -1)) {
 		// "Adaptive vsync" is not supported by all drivers. SDL
 		// documentation suggests to fallback to "regular vsync" in
 		// that case.
-		surface.getCliComm().printWarning(
-				"Adaptive vsync not supported; falling back to regular vsync");
 		SDL_GL_SetSwapInterval(1);
 	}
 }
