@@ -774,7 +774,7 @@ set sound_setting_menu {
 	       { textexpr "Volume: $master_volume"
 	         actions { LEFT  { osd_menu::menu_setting [incr master_volume -5] }
 	                   RIGHT { osd_menu::menu_setting [incr master_volume  5] }}}
-	       { textexpr "Mute: $mute"
+	       { textexpr "Mute: [osd_menu::boolean_to_text $mute]"
 	         actions { LEFT  { osd_menu::menu_setting [cycle_back mute] }
 	                   RIGHT { osd_menu::menu_setting [cycle      mute] }}}
 	       { text "Individual Sound Device Settings..."
@@ -849,7 +849,7 @@ proc create_sound_device_settings_menu {device} {
 		if {$channel_count > 1} {
 			set pretext "Channel $channel "
 		}
-		lappend item "${pretext}Mute: \[[list set $chmute_var_name]]"
+		lappend item "${pretext}Mute: \[osd_menu::boolean_to_text \[[list set $chmute_var_name]]]"
 		lappend item "actions"
 		set actions [list]
 		lappend actions "LEFT"
@@ -868,6 +868,17 @@ proc create_sound_device_settings_menu {device} {
 
 	dict set menu_def items $items
 	return $menu_def
+}
+
+proc boolean_to_text {boolean} {
+	if {[lsearch -nocase [list "true" "on" "yes"] $boolean] != -1} {
+		return "on"
+	} elseif {[lsearch -nocase [list "false" "off" "no"] $boolean] != -1} {
+		return "off"
+	} else {
+		puts stderr "Couldn't make head or tails of: XXX${boolean}XXX"
+		return $boolean
+	}
 }
 
 proc create_video_setting_menu {} {
@@ -906,7 +917,7 @@ proc create_video_setting_menu {} {
 	         actions { A  { osd_menu::menu_create [osd_menu::menu_create_stretch_list]; osd_menu::select_menu_item $horizontal_stretch }}
 	         post-spacing 3 }
 	if {$::renderer eq "SDLGL-PP"} {
-		lappend items { textexpr "VSync: $vsync"
+		lappend items { textexpr "VSync: [osd_menu::boolean_to_text $vsync]"
 			actions { LEFT  { osd_menu::menu_setting [cycle_back vsync] }
 			          RIGHT { osd_menu::menu_setting [cycle      vsync] }}
 		post-spacing 3 }
@@ -931,7 +942,7 @@ proc create_video_setting_menu {} {
 		actions { LEFT  { osd_menu::menu_setting [set noise [expr $noise - 1]] }
 		          RIGHT { osd_menu::menu_setting [set noise [expr $noise + 1]] }}
 			  post-spacing 3}
-	lappend items { textexpr "Enforce VDP Sprites-per-line Limit: $limitsprites"
+	lappend items { textexpr "Enforce VDP Sprites-per-line Limit: [osd_menu::boolean_to_text $limitsprites]"
 			actions { LEFT  { osd_menu::menu_setting [cycle_back limitsprites] }
 			          RIGHT { osd_menu::menu_setting [cycle      limitsprites] }}}
 	dict set menu_def items $items
@@ -960,7 +971,7 @@ proc create_hardware_menu {} {
 	lappend items { text "Connectors..."
 			 actions { A { osd_menu::menu_create [osd_menu::menu_create_connectors_list] }}}
 	if {![catch {openmsx_info setting firmwareswitch}]} {
-		lappend items { textexpr "Firmware switch active: $::firmwareswitch"
+		lappend items { textexpr "Firmware switch: [osd_menu::boolean_to_text $::firmwareswitch]"
 			actions { LEFT  { osd_menu::menu_setting [cycle_back firmwareswitch] }
 			          RIGHT { osd_menu::menu_setting [cycle      firmwareswitch] }}}
 
