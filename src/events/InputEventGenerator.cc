@@ -4,6 +4,7 @@
 #include "IntegerSetting.hh"
 #include "GlobalSettings.hh"
 #include "Keys.hh"
+#include "FileOperations.hh"
 #include "checked_cast.hh"
 #include "one_of.hh"
 #include "outer.hh"
@@ -394,7 +395,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		break;
 
 	case SDL_DROPFILE:
-		event = make_shared<FileDropEvent>(evt.drop.file);
+		event = make_shared<FileDropEvent>(FileOperations::getConventionalPath(evt.drop.file));
 		SDL_free(evt.drop.file);
 		break;
 
