@@ -243,6 +243,12 @@ def convert(inFilename, outFilename):
 			filterEvents(combineEvents(readEvents(inFilename)), wantedKeys)
 			))
 	print('after cleanup %d events remain' % len(inputEvents), file=stderr)
+	if not inputEvents:
+		print(
+			"no events match; you should probably customize 'inputMap' "
+			"at the top of this script", file=stderr
+			)
+		return
 
 	ticksPerFrame = detectTicksPerFrame(evt[0] for evt in inputEvents)
 	scaledEvents = list(removeRedundantEvents(
