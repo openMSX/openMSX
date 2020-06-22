@@ -18,7 +18,10 @@ SDLVisibleSurfaceBase::~SDLVisibleSurfaceBase()
 {
 	// store last known position for when we recreate it
 	// the window gets recreated when changing renderers, for instance.
-	SDL_GetWindowPosition(window.get(), &windowPosX, &windowPosY);
+	// Do not store if we're fullscreen, the location is the top-left
+	if ((SDL_GetWindowFlags(window.get()) & SDL_WINDOW_FULLSCREEN) == 0) {
+		SDL_GetWindowPosition(window.get(), &windowPosX, &windowPosY);
+	}
 }
 
 // TODO: The video subsystem is not de-inited on errors.
