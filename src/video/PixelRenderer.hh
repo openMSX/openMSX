@@ -11,6 +11,7 @@ namespace openmsx {
 
 class EventDistributor;
 class RealTime;
+class ThrottleManager;
 class Display;
 class Rasterizer;
 class VDP;
@@ -109,6 +110,7 @@ private:
 
 	EventDistributor& eventDistributor;
 	RealTime& realTime;
+	ThrottleManager& throttleManager;
 	RenderSettings& renderSettings;
 	VideoSourceSetting& videoSourceSetting;
 

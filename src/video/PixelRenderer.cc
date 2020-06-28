@@ -17,6 +17,8 @@ TODO:
 #include "EventDistributor.hh"
 #include "FinishFrameEvent.hh"
 #include "RealTime.hh"
+#include "ThrottleManager.hh"
+#include "GlobalSettings.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "Timer.hh"
@@ -109,6 +111,8 @@ PixelRenderer::PixelRenderer(VDP& vdp_, Display& display)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, eventDistributor(vdp.getReactor().getEventDistributor())
 	, realTime(vdp.getMotherBoard().getRealTime())
+	, throttleManager(
+		vdp.getReactor().getGlobalSettings().getThrottleManager())
 	, renderSettings(display.getRenderSettings())
 	, videoSourceSetting(vdp.getMotherBoard().getVideoSource())
 	, spriteChecker(vdp.getSpriteChecker())
@@ -171,6 +175,8 @@ void PixelRenderer::frameStart(EmuTime::param time)
 	} else {
 		if (rasterizer->isRecording()) {
 			renderFrame = true;
+		} else if (!throttleManager.isThrottled()) {
+			renderFrame = (frameSkipCounter >= 20);
 		} else if (frameSkipCounter < renderSettings.getMinFrameSkip()) {
 			renderFrame = false;
 		} else if (frameSkipCounter >= renderSettings.getMaxFrameSkip()) {
