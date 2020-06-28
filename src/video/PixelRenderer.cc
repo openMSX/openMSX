@@ -169,26 +169,20 @@ void PixelRenderer::frameStart(EmuTime::param time)
 	    vdp.getEvenOdd() && vdp.isEvenOddEnabled()) {
 		// deinterlaced odd frame, do same as even frame
 	} else {
-		if (frameSkipCounter < renderSettings.getMinFrameSkip()) {
-			++frameSkipCounter;
+		if (rasterizer->isRecording()) {
+			renderFrame = true;
+		} else if (frameSkipCounter < renderSettings.getMinFrameSkip()) {
 			renderFrame = false;
 		} else if (frameSkipCounter >= renderSettings.getMaxFrameSkip()) {
-			frameSkipCounter = 0;
 			renderFrame = true;
 		} else {
-			++frameSkipCounter;
-			if (rasterizer->isRecording()) {
-				renderFrame = true;
-			} else {
-				renderFrame = realTime.timeLeft(
-					unsigned(finishFrameDuration), time);
-			}
-			if (renderFrame) {
-				frameSkipCounter = 0;
-			}
+			renderFrame = realTime.timeLeft(
+				unsigned(finishFrameDuration), time);
 		}
+		++frameSkipCounter;
 	}
 	if (!renderFrame) return;
+	frameSkipCounter = 0;
 
 	rasterizer->frameStart(time);
 
