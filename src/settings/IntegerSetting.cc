@@ -4,9 +4,10 @@ namespace openmsx {
 
 IntegerSetting::IntegerSetting(CommandController& commandController_,
                                std::string_view name_, std::string_view description_,
-                               int initialValue, int minValue_, int maxValue_)
+                               int initialValue, int minValue_, int maxValue_,
+                               SaveSetting save_)
 	: Setting(commandController_, name_, description_,
-	          TclObject(initialValue), SAVE)
+	          TclObject(initialValue), save_)
 	, minValue(minValue_)
 	, maxValue(maxValue_)
 {

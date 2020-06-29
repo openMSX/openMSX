@@ -12,7 +12,8 @@ class IntegerSetting final : public Setting
 public:
 	IntegerSetting(CommandController& commandController,
 	               std::string_view name, std::string_view description,
-	               int initialValue, int minValue, int maxValue);
+	               int initialValue, int minValue, int maxValue,
+	               SaveSetting save = SAVE);
 
 	std::string_view getTypeString() const override;
 	void additionalInfo(TclObject& result) const override;
