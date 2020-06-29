@@ -16,6 +16,7 @@ class Mixer;
 class MSXMotherBoard;
 class MSXCommandController;
 class GlobalSettings;
+class SpeedManager;
 class ThrottleManager;
 class IntegerSetting;
 class StringSetting;
@@ -24,6 +25,7 @@ class Setting;
 class AviRecorder;
 
 class MSXMixer final : private Schedulable, private Observer<Setting>
+                     , private Observer<SpeedManager>
                      , private Observer<ThrottleManager>
 {
 public:
@@ -138,6 +140,8 @@ private:
 
 	// Observer<Setting>
 	void update(const Setting& setting) override;
+	// Observer<SpeedManager>
+	void update(const SpeedManager& speedManager) override;
 	// Observer<ThrottleManager>
 	void update(const ThrottleManager& throttleManager) override;
 
@@ -155,7 +159,7 @@ private:
 	MSXCommandController& commandController;
 
 	IntegerSetting& masterVolume;
-	IntegerSetting& speedSetting;
+	SpeedManager& speedManager;
 	ThrottleManager& throttleManager;
 
 	DynamicClock prevTime;

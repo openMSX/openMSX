@@ -59,6 +59,7 @@ sources = files(
     'Schedulable.cc',
     'Scheduler.cc',
     'SensorKid.cc',
+    'SpeedManager.cc',
     'ThrottleManager.cc',
     'Version.cc',
     'cassette/CasImage.cc',

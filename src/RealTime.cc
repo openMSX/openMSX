@@ -25,14 +25,14 @@ RealTime::RealTime(
 	, motherBoard(motherBoard_)
 	, eventDistributor(motherBoard.getReactor().getEventDistributor())
 	, eventDelay(eventDelay_)
+	, speedManager   (globalSettings.getSpeedManager())
 	, throttleManager(globalSettings.getThrottleManager())
-	, speedSetting   (globalSettings.getSpeedSetting())
 	, pauseSetting   (globalSettings.getPauseSetting())
 	, powerSetting   (globalSettings.getPowerSetting())
 	, emuTime(EmuTime::zero())
 	, enabled(true)
 {
-	speedSetting.attach(*this);
+	speedManager.attach(*this);
 	throttleManager.attach(*this);
 	pauseSetting.attach(*this);
 	powerSetting.attach(*this);
@@ -51,17 +51,17 @@ RealTime::~RealTime()
 	powerSetting.detach(*this);
 	pauseSetting.detach(*this);
 	throttleManager.detach(*this);
-	speedSetting.detach(*this);
+	speedManager.detach(*this);
 }
 
 double RealTime::getRealDuration(EmuTime::param time1, EmuTime::param time2)
 {
-	return (time2 - time1).toDouble() * 100.0 / speedSetting.getInt();
+	return (time2 - time1).toDouble() / speedManager.getSpeed();
 }
 
 EmuDuration RealTime::getEmuDuration(double realDur)
 {
-	return EmuDuration(realDur * speedSetting.getInt() / 100.0);
+	return EmuDuration(realDur * speedManager.getSpeed());
 }
 
 bool RealTime::timeLeft(uint64_t us, EmuTime::param time)
@@ -142,6 +142,11 @@ int RealTime::signalEvent(const std::shared_ptr<const Event>& event)
 }
 
 void RealTime::update(const Setting& /*setting*/)
+{
+	resync();
+}
+
+void RealTime::update(const SpeedManager& /*speedManager*/)
 {
 	resync();
 }

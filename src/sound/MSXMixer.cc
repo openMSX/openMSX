@@ -43,7 +43,7 @@ MSXMixer::MSXMixer(Mixer& mixer_, MSXMotherBoard& motherBoard_,
 	, motherBoard(motherBoard_)
 	, commandController(motherBoard.getMSXCommandController())
 	, masterVolume(mixer.getMasterVolume())
-	, speedSetting(globalSettings.getSpeedSetting())
+	, speedManager(globalSettings.getSpeedManager())
 	, throttleManager(globalSettings.getThrottleManager())
 	, prevTime(getCurrentTime(), 44100)
 	, soundDeviceInfo(commandController.getMachineInfoCommand())
@@ -59,7 +59,7 @@ MSXMixer::MSXMixer(Mixer& mixer_, MSXMotherBoard& motherBoard_,
 	reschedule2();
 
 	masterVolume.attach(*this);
-	speedSetting.attach(*this);
+	speedManager.attach(*this);
 	throttleManager.attach(*this);
 }
 
@@ -71,7 +71,7 @@ MSXMixer::~MSXMixer()
 	assert(infos.empty());
 
 	throttleManager.detach(*this);
-	speedSetting.detach(*this);
+	speedManager.detach(*this);
 	masterVolume.detach(*this);
 
 	mute(); // calls Mixer::unregisterMixer()
@@ -154,9 +154,7 @@ void MSXMixer::setSynchronousMode(bool synchronous)
 
 double MSXMixer::getEffectiveSpeed() const
 {
-	return synchronousCounter
-	     ? 1.0
-	     : speedSetting.getInt() / 100.0;
+	return synchronousCounter ? 1.0 : speedManager.getSpeed();
 }
 
 void MSXMixer::updateStream(EmuTime::param time)
@@ -605,17 +603,6 @@ void MSXMixer::update(const Setting& setting)
 {
 	if (&setting == &masterVolume) {
 		updateMasterVolume();
-	} else if (&setting == &speedSetting) {
-		if (synchronousCounter == 0) {
-			setMixerParams(fragmentSize, hostSampleRate);
-		} else {
-			// Avoid calling reInit() while recording because
-			// each call causes a small hiccup in the sound (and
-			// while recording this call anyway has no effect).
-			// This was noticable while sliding the speed slider
-			// in catapult (becuase this causes many changes in
-			// the speed setting).
-		}
 	} else if (dynamic_cast<const IntegerSetting*>(&setting)) {
 		auto it = find_if_unguarded(infos,
 			[&](const SoundDeviceInfo& i) {
@@ -662,6 +649,20 @@ void MSXMixer::changeMuteSetting(const Setting& setting)
 		}
 	}
 	UNREACHABLE;
+}
+
+void MSXMixer::update(const SpeedManager& /*speedManager*/)
+{
+	if (synchronousCounter == 0) {
+		setMixerParams(fragmentSize, hostSampleRate);
+	} else {
+		// Avoid calling reInit() while recording because
+		// each call causes a small hiccup in the sound (and
+		// while recording this call anyway has no effect).
+		// This was noticable while sliding the speed slider
+		// in catapult (becuase this causes many changes in
+		// the speed setting).
+	}
 }
 
 void MSXMixer::update(const ThrottleManager& /*throttleManager*/)
