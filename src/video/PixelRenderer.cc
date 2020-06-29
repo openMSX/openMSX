@@ -203,7 +203,9 @@ void PixelRenderer::frameStart(EmuTime::param time)
 
 void PixelRenderer::frameEnd(EmuTime::param time)
 {
-	bool skipEvent = !renderFrame;
+	bool skipEvent = !renderFrame || (
+			rasterizer->isRecording() && !throttleManager.isThrottled()
+			);
 	if (renderFrame) {
 		// Render changes from this last frame.
 		sync(time, true);
