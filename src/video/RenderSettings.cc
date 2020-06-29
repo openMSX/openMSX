@@ -153,18 +153,12 @@ RenderSettings::RenderSettings(CommandController& commandController)
 			{"3d",     DEFORM_3D}})
 
 	, vSyncSetting(commandController,
-		"vsync", "VSync (for the moment this only "
-		"works with the SDLGL-PP renderer)\n"
-		"on for vsync enabled: synchronize the output frames of openMSX\n"
-		"with the host screen. Helps against tearing, but currently limits\n"
-		"the maximum framerate openMSX can output together with the\n"
-		"maxframeskip setting. Also, on some drivers, may increase host CPU\n"
-		"usage. Although tearing is reduced, when the host frame rate\n"
-		"(typically 60Hz) differs from the MSX frame rate (50 or 60Hz)\n"
-		"stuttering may be observed.\n"
-		"off for immediate output to the host screen, which will show\n"
-		"tearing in smooth scrolling MSX software, but otherwise has\n"
-		"no caveats.", false)
+		"vsync", "Synchronize page flip with the host screen vertical sync:\n"
+		" on -> flip on host vsync: avoids tearing\n"
+		" off -> immediate flip: might be more fluent when host framerate"
+		" (typically 60Hz) differs from MSX framerate (50 or 60Hz)\n"
+		"Currently this only affects the SDLGL-PP renderer.",
+		true)
 
 	// Many android devices are relatively low powered. Therefore use
 	// no stretch (value 320) as default for Android because it gives
