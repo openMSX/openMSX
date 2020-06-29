@@ -113,7 +113,7 @@ void HotKey::initDefaultBindings()
 		                       "toggle pause"));
 		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(
 		                            Keys::combine(Keys::K_T, Keys::KM_META)),
-		                       "toggle throttle"));
+		                       "toggle turbo"));
 		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(
 		                            Keys::combine(Keys::K_L, Keys::KM_META)),
 		                       "toggle console"));
@@ -133,7 +133,7 @@ void HotKey::initDefaultBindings()
 		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(Keys::K_PAUSE),
 		                       "toggle pause"));
 		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(Keys::K_F9),
-		                       "toggle throttle"));
+		                       "toggle turbo"));
 		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(Keys::K_F10),
 		                       "toggle console"));
 		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(Keys::K_F11),
