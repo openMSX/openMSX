@@ -4332,8 +4332,6 @@
 
   <p>In a situation where the number of consecutive frames specified by <code>maxframeskip</code> has been skipped, openMSX will display the next frame, even if that means emulation will start lagging behind real time.</p>
 
-  <p>When <code><a class="internal" href="#throttle">throttle</a></code> is off, the number of skipped frames will be equal to <code>maxframeskip</code>.</p>
-
   <div class="subsectiontitle">
     usage:
   </div>
@@ -5361,7 +5359,7 @@
 
   <h3><a id="throttle">throttle</a></h3>
 
-  <p>Sets throttle mode. In throttle mode the emulator tries to run at the specified speed relative to a real MSX (see <a class="internal" href="#speed">speed</a> command). When throttling is turned off the emulator runs as fast as possible. The speed may be limited to the framerate of your monitor (e.g. 60fps) if you have set <a class="internal" href="vsync">vsync</a> enabled, when using the (default) SDLGL-PP renderer. In that case, to increase the speed, set the <a class="internal" href="#maxframeskip">maxframeskip</a> setting to a high value (e.g. 100).</p>
+  <p>Sets throttle mode. In throttle mode the emulator tries to run at the specified speed relative to a real MSX (see <a class="internal" href="#speed">speed</a> command). When throttling is turned off the emulator runs as fast as possible.</p>
 
   <div class="subsectiontitle">
     usage:
