@@ -11,6 +11,7 @@ namespace openmsx {
 
 class EventDistributor;
 class RealTime;
+class SpeedManager;
 class ThrottleManager;
 class Display;
 class Rasterizer;
@@ -110,6 +111,7 @@ private:
 
 	EventDistributor& eventDistributor;
 	RealTime& realTime;
+	SpeedManager& speedManager;
 	ThrottleManager& throttleManager;
 	RenderSettings& renderSettings;
 	VideoSourceSetting& videoSourceSetting;
@@ -121,7 +123,7 @@ private:
 	const std::unique_ptr<Rasterizer> rasterizer;
 
 	float finishFrameDuration;
-	int frameSkipCounter;
+	float frameSkipCounter;
 
 	/** Number of the next position within a line to render.
 	  * Expressed in VDP clock ticks since start of line.

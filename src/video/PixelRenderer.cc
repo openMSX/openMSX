@@ -17,6 +17,7 @@ TODO:
 #include "EventDistributor.hh"
 #include "FinishFrameEvent.hh"
 #include "RealTime.hh"
+#include "SpeedManager.hh"
 #include "ThrottleManager.hh"
 #include "GlobalSettings.hh"
 #include "MSXMotherBoard.hh"
@@ -26,6 +27,7 @@ TODO:
 #include "unreachable.hh"
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 
 namespace openmsx {
 
@@ -111,6 +113,8 @@ PixelRenderer::PixelRenderer(VDP& vdp_, Display& display)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, eventDistributor(vdp.getReactor().getEventDistributor())
 	, realTime(vdp.getMotherBoard().getRealTime())
+	, speedManager(
+		vdp.getReactor().getGlobalSettings().getSpeedManager())
 	, throttleManager(
 		vdp.getReactor().getGlobalSettings().getThrottleManager())
 	, renderSettings(display.getRenderSettings())
@@ -173,24 +177,25 @@ void PixelRenderer::frameStart(EmuTime::param time)
 	    vdp.getEvenOdd() && vdp.isEvenOddEnabled()) {
 		// deinterlaced odd frame, do same as even frame
 	} else {
+		int counter = int(frameSkipCounter);
 		if (rasterizer->isRecording()) {
 			renderFrame = true;
 		} else if (!throttleManager.isThrottled()) {
 			// We need to render a frame every now and then, so the forced
 			// 10 fps repaint has something new to show.
-			renderFrame = (frameSkipCounter >= 100);
-		} else if (frameSkipCounter < renderSettings.getMinFrameSkip()) {
+			renderFrame = (counter >= 100);
+		} else if (counter < renderSettings.getMinFrameSkip()) {
 			renderFrame = false;
-		} else if (frameSkipCounter >= renderSettings.getMaxFrameSkip()) {
+		} else if (counter >= renderSettings.getMaxFrameSkip()) {
 			renderFrame = true;
 		} else {
 			renderFrame = realTime.timeLeft(
 				unsigned(finishFrameDuration), time);
 		}
-		++frameSkipCounter;
+		frameSkipCounter += 1.0f / float(speedManager.getSpeed());
 	}
 	if (!renderFrame) return;
-	frameSkipCounter = 0;
+	frameSkipCounter = remainder(frameSkipCounter, 1.0f);
 
 	rasterizer->frameStart(time);
 
