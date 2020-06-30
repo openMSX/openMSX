@@ -176,7 +176,9 @@ void PixelRenderer::frameStart(EmuTime::param time)
 		if (rasterizer->isRecording()) {
 			renderFrame = true;
 		} else if (!throttleManager.isThrottled()) {
-			renderFrame = (frameSkipCounter >= 20);
+			// We need to render a frame every now and then, so the forced
+			// 10 fps repaint has something new to show.
+			renderFrame = (frameSkipCounter >= 100);
 		} else if (frameSkipCounter < renderSettings.getMinFrameSkip()) {
 			renderFrame = false;
 		} else if (frameSkipCounter >= renderSettings.getMaxFrameSkip()) {
@@ -203,9 +205,7 @@ void PixelRenderer::frameStart(EmuTime::param time)
 
 void PixelRenderer::frameEnd(EmuTime::param time)
 {
-	bool skipEvent = !renderFrame || (
-			rasterizer->isRecording() && !throttleManager.isThrottled()
-			);
+	bool skipEvent = !(renderFrame && throttleManager.isThrottled());
 	if (renderFrame) {
 		// Render changes from this last frame.
 		sync(time, true);
