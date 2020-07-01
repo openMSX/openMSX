@@ -319,9 +319,9 @@ foreach icon $icon_list {
 	osd create rectangle osd_icons.${icon}_on  -fadeCurrent 0 -fadeTarget 0 -fadePeriod 5.0
 	osd create rectangle osd_icons.${icon}_off -fadeCurrent 0 -fadeTarget 0 -fadePeriod 5.0
 	trace add variable ::$icon "write unset" load_icons::trace_icon_status
-	trace add variable ::turbo "write unset" load_icons::trace_icon_status
 	set last_change($icon) $now
 }
+trace add variable ::turbo "write unset" load_icons::trace_icon_status
 
 namespace export load_icons
 
