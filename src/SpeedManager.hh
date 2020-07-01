@@ -2,6 +2,7 @@
 #define SPEEDMANAGER_HH
 
 #include "Subject.hh"
+#include "BooleanSetting.hh"
 #include "IntegerSetting.hh"
 
 namespace openmsx {
@@ -32,6 +33,8 @@ private:
 	void update(const Setting& setting) override;
 
 	IntegerSetting speedSetting;
+	IntegerSetting turboSpeedSetting;
+	BooleanSetting turboSetting;
 	double speed = 1.0;
 };
 

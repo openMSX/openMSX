@@ -176,7 +176,9 @@
         <li><a class="internal" href="#too_fast_vram_access">too_fast_vram_access</a></li>
         <li><a class="internal" href="#too_fast_vram_access_callback">too_fast_vram_access_callback</a></li>
         <li><a class="internal" href="#touchpad_transform_matrix">touchpad_transform_matrix</a></li>
+        <li><a class="internal" href="#turbo">turbo</a></li>
         <li><a class="internal" href="#turborpause">turborpause</a></li>
+        <li><a class="internal" href="#turbospeed">turbospeed</a></li>
         <li><a class="internal" href="#umr_callback">umr_callback</a></li>
         <li><a class="internal" href="#vdpcmdinprogress_callback">vdpcmdinprogress_callback</a></li>
         <li><a class="internal" href="#vdpcmdtrace">vdpcmdtrace</a></li>
@@ -5039,7 +5041,7 @@
     <tr>
       <td><code>set speed &lt;num&gt;</code></td>
 
-      <td>Sets new emulation speed</td>
+      <td>Sets new emulation speed to &lt;num&gt;% of real time</td>
     </tr>
   </table>
 
@@ -5493,6 +5495,33 @@
   </div>
 -->
 
+  <h3><a id="turbo">turbo</a></h3>
+
+  <p>Chooses between normal speed (off) and turbo speed (on).</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set turbo</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set turbo on</code></td>
+
+      <td>Run at turbo speed: the <code><a class="internal" href="#turbospeed">turbospeed</a></code> setting determines how fast the emulated MSX runs compared to real time</td>
+    </tr>
+
+    <tr>
+      <td><code>set turbo off</code></td>
+
+      <td>Run at normal speed: the <code><a class="internal" href="#speed">speed</a></code> setting determines how fast the emulated MSX runs compared to real time</td>
+    </tr>
+  </table>
 
   <h3><a id="turborpause">turborpause</a></h3>
 
@@ -5526,6 +5555,27 @@
     Note: If you use this setting often, it may be useful to bind it to a key on your PC keyboard. See the <code><a class="internal" href="#bind">bind</a></code> and <code><a class="internal" href="#toggle">toggle</a></code> commands.
   </div>
 
+  <h3><a id="turbospeed">turbospeed</a></h3>
+
+  <p>Sets the emulation speed relative to the speed of a real MSX when we are running in <a class="internal" href="#turbo">turbo mode</a>. Speed 100 means as fast as a real MSX, lower values are slower than real MSX, higher values are faster than real MSX.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set turbospeed</code></td>
+
+      <td>Shows current turbo speed</td>
+    </tr>
+
+    <tr>
+      <td><code>set turbospeed &lt;num&gt;</code></td>
+
+      <td>Sets new turbo speed to &lt;num&gt;% of real time</td>
+    </tr>
+  </table>
 
   <h3><a id="umr_callback">umr_callback</a></h3>
 
