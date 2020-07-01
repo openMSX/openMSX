@@ -31,10 +31,12 @@ variable current_fade_delay_active
 variable current_fade_delay_non_active
 variable fade_id
 
+# temporary hack: for now map the new 'turbo' setting onto the old 'throttle' setting
 proc trace_icon_status {name1 name2 op} {
 	variable last_change
 	global $name1
 	set icon [string trimleft $name1 ":"]
+	if {$icon eq "turbo"} {set icon "throttle"}
 	set now [openmsx_info realtime]
 	set last_change($icon) $now
 	redraw_osd_icons $icon $now
@@ -48,7 +50,15 @@ proc redraw_osd_icons {icon now} {
 	global $icon
 
 	# handle 'unset' variables  (when current msx machine got deleted)
-	if {[catch {set value [set $icon]}]} {set value false}
+	if {[catch {
+		if {$icon eq "throttle"} {
+			set value [expr {$::throttle && !$::turbo}]
+		} else {
+			set value [set $icon]
+		}
+	}]} {
+		set value false
+	}
 
 	if {$value} {
 		set widget  osd_icons.${icon}_on
@@ -292,6 +302,8 @@ proc machine_switch_osd_icons {} {
 		trace add    variable ::$icon "write unset" [namespace code trace_icon_status]
 		redraw_osd_icons $icon $now
 	}
+	trace remove variable ::turbo "write unset" [namespace code trace_icon_status]
+	trace add    variable ::turbo "write unset" [namespace code trace_icon_status]
 	after machine_switch [namespace code machine_switch_osd_icons]
 }
 
@@ -307,6 +319,7 @@ foreach icon $icon_list {
 	osd create rectangle osd_icons.${icon}_on  -fadeCurrent 0 -fadeTarget 0 -fadePeriod 5.0
 	osd create rectangle osd_icons.${icon}_off -fadeCurrent 0 -fadeTarget 0 -fadePeriod 5.0
 	trace add variable ::$icon "write unset" load_icons::trace_icon_status
+	trace add variable ::turbo "write unset" load_icons::trace_icon_status
 	set last_change($icon) $now
 }
 
