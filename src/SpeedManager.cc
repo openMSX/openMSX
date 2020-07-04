@@ -10,11 +10,11 @@ namespace openmsx {
 SpeedManager::SpeedManager(CommandController& commandController)
 	: speedSetting(commandController, "speed",
 	       "controls the emulation speed: higher is faster, 100 is normal",
-	       100, 1, 1000000, Setting::DONT_SAVE)
+	       100, 1, 10000, Setting::DONT_SAVE)
 	, fastforwardSpeedSetting(commandController, "fastforwardspeed",
 	       "controls the emulation speed in fastforward mode: "
 		   "higher is faster, 100 is normal",
-	       2000, 1, 1000000)
+	       2000, 1, 10000)
 	, fastforwardSetting(commandController, "fastforward",
 	       "select emulation speed:\n"
 	       " on -> fastforward speed ('fastforwardspeed' setting)\n"
