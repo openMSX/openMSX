@@ -173,21 +173,18 @@ void PixelRenderer::frameStart(EmuTime::param time)
 		paintFrame = false;
 		return;
 	}
+
 	prevRenderFrame = renderFrame;
 	if (vdp.isInterlaced() && renderSettings.getDeinterlace()
 			&& vdp.getEvenOdd() && vdp.isEvenOddEnabled()) {
 		// Deinterlaced odd frame: do same as even frame.
 		paintFrame = prevRenderFrame;
-	} else {
-		int counter = int(frameSkipCounter);
-		if (!throttleManager.isThrottled()) {
-			// We need to render a frame every now and then,
-			// to show the user what is happening.
-			paintFrame = (counter >= 100);
+	} else if (throttleManager.isThrottled()) {
 		// Note: min/maxFrameSkip control the number of skipped frames, but
 		//       for every series of skipped frames there is also one painted
 		//       frame, so our boundary checks are offset by one.
-		} else if (counter <= renderSettings.getMinFrameSkip()) {
+		int counter = int(frameSkipCounter);
+		if (counter <= renderSettings.getMinFrameSkip()) {
 			paintFrame = false;
 		} else if (counter > renderSettings.getMaxFrameSkip()) {
 			paintFrame = true;
@@ -196,7 +193,13 @@ void PixelRenderer::frameStart(EmuTime::param time)
 				unsigned(finishFrameDuration), time);
 		}
 		frameSkipCounter += 1.0f / float(speedManager.getSpeed());
+	} else  {
+		// We need to render a frame every now and then,
+		// to show the user what is happening.
+		frameSkipCounter += 0.01f;
+		paintFrame = (frameSkipCounter >= 1.0f);
 	}
+
 	if (paintFrame) {
 		frameSkipCounter = std::remainder(frameSkipCounter, 1.0f);
 	} else if (!rasterizer->isRecording()) {
