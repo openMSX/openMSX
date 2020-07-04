@@ -184,7 +184,7 @@ void PixelRenderer::frameStart(EmuTime::param time)
 		//       for every series of skipped frames there is also one painted
 		//       frame, so our boundary checks are offset by one.
 		int counter = int(frameSkipCounter);
-		if (counter <= renderSettings.getMinFrameSkip()) {
+		if (counter < renderSettings.getMinFrameSkip()) {
 			paintFrame = false;
 		} else if (counter > renderSettings.getMaxFrameSkip()) {
 			paintFrame = true;
