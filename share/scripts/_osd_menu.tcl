@@ -749,9 +749,12 @@ set misc_setting_menu {
 	         font-size 10
 	         post-spacing 6
 	         selectable false }
-	       { textexpr "Speed: $speed"
+	       { textexpr "Speed: ${speed}%"
 	         actions { LEFT  { osd_menu::menu_setting [incr speed -1] }
 	                   RIGHT { osd_menu::menu_setting [incr speed  1] }}}
+	       { textexpr "Fastforward speed: ${fastforwardspeed}%"
+	         actions { LEFT  { osd_menu::menu_setting [incr fastforwardspeed -1] }
+	                   RIGHT { osd_menu::menu_setting [incr fastforwardspeed  1] }}}
 	       { textexpr "Minimal Frameskip: $minframeskip"
 	         actions { LEFT  { osd_menu::menu_setting [incr minframeskip -1] }
 	                   RIGHT { osd_menu::menu_setting [incr minframeskip  1] }}}
