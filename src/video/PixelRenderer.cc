@@ -170,32 +170,37 @@ void PixelRenderer::frameStart(EmuTime::param time)
 		frameSkipCounter = 999;
 		renderFrame = false;
 		prevRenderFrame = false;
+		paintFrame = false;
 		return;
 	}
 	prevRenderFrame = renderFrame;
-	if (vdp.isInterlaced() && renderSettings.getDeinterlace() &&
-	    vdp.getEvenOdd() && vdp.isEvenOddEnabled()) {
-		// deinterlaced odd frame, do same as even frame
+	if (vdp.isInterlaced() && renderSettings.getDeinterlace()
+			&& vdp.getEvenOdd() && vdp.isEvenOddEnabled()) {
+		// Deinterlaced odd frame: do same as even frame.
+		paintFrame = prevRenderFrame;
 	} else {
 		int counter = int(frameSkipCounter);
-		if (rasterizer->isRecording()) {
-			renderFrame = true;
-		} else if (!throttleManager.isThrottled()) {
-			// We need to render a frame every now and then, so the forced
-			// 10 fps repaint has something new to show.
-			renderFrame = (counter >= 100);
+		if (!throttleManager.isThrottled()) {
+			// We need to render a frame every now and then,
+			// to show the user what is happening.
+			paintFrame = (counter >= 100);
 		} else if (counter < renderSettings.getMinFrameSkip()) {
-			renderFrame = false;
+			paintFrame = false;
 		} else if (counter >= renderSettings.getMaxFrameSkip()) {
-			renderFrame = true;
+			paintFrame = true;
 		} else {
-			renderFrame = realTime.timeLeft(
+			paintFrame = realTime.timeLeft(
 				unsigned(finishFrameDuration), time);
 		}
 		frameSkipCounter += 1.0f / float(speedManager.getSpeed());
 	}
-	if (!renderFrame) return;
-	frameSkipCounter = std::remainder(frameSkipCounter, 1.0f);
+	if (paintFrame) {
+		frameSkipCounter = std::remainder(frameSkipCounter, 1.0f);
+	} else if (!rasterizer->isRecording()) {
+		renderFrame = false;
+		return;
+	}
+	renderFrame = true;
 
 	rasterizer->frameStart(time);
 
@@ -210,7 +215,6 @@ void PixelRenderer::frameStart(EmuTime::param time)
 
 void PixelRenderer::frameEnd(EmuTime::param time)
 {
-	bool skipEvent = !(renderFrame && throttleManager.isThrottled());
 	if (renderFrame) {
 		// Render changes from this last frame.
 		sync(time, true);
@@ -224,12 +228,11 @@ void PixelRenderer::frameEnd(EmuTime::param time)
 		finishFrameDuration = finishFrameDuration * (1 - ALPHA) +
 		                      current * ALPHA;
 
-		if (vdp.isInterlaced() && vdp.isEvenOddEnabled() &&
-		    renderSettings.getDeinterlace() &&
-		    !prevRenderFrame) {
-			// dont send event in deinterlace mode when
-			// previous frame was not rendered
-			skipEvent = true;
+		if (vdp.isInterlaced() && vdp.isEvenOddEnabled()
+				&& renderSettings.getDeinterlace() && !prevRenderFrame) {
+			// Don't paint in deinterlace mode when previous frame
+			// was not rendered.
+			paintFrame = false;
 		}
 	}
 	if (vdp.getMotherBoard().isActive() &&
@@ -238,7 +241,7 @@ void PixelRenderer::frameEnd(EmuTime::param time)
 			std::make_shared<FinishFrameEvent>(
 				rasterizer->getPostProcessor()->getVideoSource(),
 				videoSourceSetting.getSource(),
-				skipEvent));
+				!paintFrame));
 	}
 }
 

@@ -152,6 +152,13 @@ private:
 	  */
 	bool renderFrame;
 	bool prevRenderFrame;
+
+	/** Should a rendered frame be painted to the window?
+	  * When renderFrame is false, paintFrame must be false as well.
+	  * But when recording, renderFrame will be true for every frame,
+	  * while paintFrame may not.
+	  */
+	bool paintFrame;
 };
 
 } // namespace openmsx
