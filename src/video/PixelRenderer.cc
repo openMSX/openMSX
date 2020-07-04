@@ -195,7 +195,7 @@ void PixelRenderer::frameStart(EmuTime::param time)
 		frameSkipCounter += 1.0f / float(speedManager.getSpeed());
 	}
 	if (!renderFrame) return;
-	frameSkipCounter = remainder(frameSkipCounter, 1.0f);
+	frameSkipCounter = std::remainder(frameSkipCounter, 1.0f);
 
 	rasterizer->frameStart(time);
 
