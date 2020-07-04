@@ -21,6 +21,7 @@
 #include "unreachable.hh"
 #include "view.hh"
 #include "vla.hh"
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <cstring>
@@ -154,7 +155,9 @@ void MSXMixer::setSynchronousMode(bool synchronous)
 
 double MSXMixer::getEffectiveSpeed() const
 {
-	return synchronousCounter ? 1.0 : speedManager.getSpeed();
+	// At very high speeds, the audio just becomes unpleasant when scaled,
+	// so at some point we'll start dropping a portion of the audio instead.
+	return synchronousCounter ? 1.0 : std::min(speedManager.getSpeed(), 8.0);
 }
 
 void MSXMixer::updateStream(EmuTime::param time)
