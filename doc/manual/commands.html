@@ -110,6 +110,8 @@
         <li><a class="internal" href="#display_deform">display_deform</a></li>
         <li><a class="internal" href="#di_halt_callback">di_halt_callback</a></li>
         <li><a class="internal" href="#enable_session_management">enable_session_management</a></li>
+        <li><a class="internal" href="#fastforward">fastforward</a></li>
+        <li><a class="internal" href="#fastforwardspeed">fastforwardspeed</a></li>
         <li><a class="internal" href="#frequency">frequency</a></li>
         <li><a class="internal" href="#firmwareswitch">firmwareswitch</a></li>
         <li><a class="internal" href="#fullscreen">fullscreen</a></li>
@@ -176,9 +178,7 @@
         <li><a class="internal" href="#too_fast_vram_access">too_fast_vram_access</a></li>
         <li><a class="internal" href="#too_fast_vram_access_callback">too_fast_vram_access_callback</a></li>
         <li><a class="internal" href="#touchpad_transform_matrix">touchpad_transform_matrix</a></li>
-        <li><a class="internal" href="#turbo">turbo</a></li>
         <li><a class="internal" href="#turborpause">turborpause</a></li>
-        <li><a class="internal" href="#turbospeed">turbospeed</a></li>
         <li><a class="internal" href="#umr_callback">umr_callback</a></li>
         <li><a class="internal" href="#vdpcmdinprogress_callback">vdpcmdinprogress_callback</a></li>
         <li><a class="internal" href="#vdpcmdtrace">vdpcmdtrace</a></li>
@@ -401,10 +401,10 @@
     <code>bind PAGEUP   "set speed 100"</code><br />
     <code>bind PAGEDOWN "set speed  50"</code><br />
     <br />
-    Only run with turbo while F9 is pressed (like BrMSX):<br />
+    Only run in fastforward-mode while F9 is pressed (like BrMSX):<br />
     <code>unbind F9</code><br />
-    <code>bind F9         "set turbo off"</code><br />
-    <code>bind F9,release "set turbo on"</code><br />
+    <code>bind F9         "set fastforward off"</code><br />
+    <code>bind F9,release "set fastforward on"</code><br />
     <br />
     Pause when window loses focus (like fMSX):<br />
     <code>bind "focus 0" "set pause on"</code><br />
@@ -3481,6 +3481,56 @@
   <p>Sessions can also be saved manually with the command <code>save_session</code>, and explicitly loaded with <code>load_session</code>. A list of saved sessions can be retrieved with <code>list_sessions</code>.
   </p>
 
+  <h3><a id="fastforward">fastforward</a></h3>
+
+  <p>Chooses between normal speed (off) and fastforward speed (on).</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set fastforward</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set fastforward on</code></td>
+
+      <td>Run at fastforward speed: the <code><a class="internal" href="#fastforwardspeed">fastforwardspeed</a></code> setting determines how fast the emulated MSX runs compared to real time</td>
+    </tr>
+
+    <tr>
+      <td><code>set fastforward off</code></td>
+
+      <td>Run at normal speed: the <code><a class="internal" href="#speed">speed</a></code> setting determines how fast the emulated MSX runs compared to real time</td>
+    </tr>
+  </table>
+
+  <h3><a id="fastforwardspeed">fastforwardspeed</a></h3>
+
+  <p>Sets the emulation speed relative to the speed of a real MSX when we are running in <a class="internal" href="#fastforward">fastforward mode</a>. Speed 100 means as fast as a real MSX, lower values are slower than real MSX, higher values are faster than real MSX.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set fastforwardspeed</code></td>
+
+      <td>Shows current fastforward speed</td>
+    </tr>
+
+    <tr>
+      <td><code>set fastforwardspeed &lt;num&gt;</code></td>
+
+      <td>Sets new fastforward speed to &lt;num&gt;% of real time</td>
+    </tr>
+  </table>
+
   <h3><a id="frequency">frequency</a></h3>
 
   <p>Sets the sound mixer frequency. Sound hardware and sound APIs typically support a limited set of frequencies, such as 11025 Hz, 22050 Hz, 44100 Hz and 48000 Hz.</p>
@@ -5495,34 +5545,6 @@
   </div>
 -->
 
-  <h3><a id="turbo">turbo</a></h3>
-
-  <p>Chooses between normal speed (off) and turbo speed (on).</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>set turbo</code></td>
-
-      <td>Shows the current setting</td>
-    </tr>
-
-    <tr>
-      <td><code>set turbo on</code></td>
-
-      <td>Run at turbo speed: the <code><a class="internal" href="#turbospeed">turbospeed</a></code> setting determines how fast the emulated MSX runs compared to real time</td>
-    </tr>
-
-    <tr>
-      <td><code>set turbo off</code></td>
-
-      <td>Run at normal speed: the <code><a class="internal" href="#speed">speed</a></code> setting determines how fast the emulated MSX runs compared to real time</td>
-    </tr>
-  </table>
-
   <h3><a id="turborpause">turborpause</a></h3>
 
   <p>Controls the pause key on a MSX turboR machine.</p>
@@ -5554,28 +5576,6 @@
   <div class="note">
     Note: If you use this setting often, it may be useful to bind it to a key on your PC keyboard. See the <code><a class="internal" href="#bind">bind</a></code> and <code><a class="internal" href="#toggle">toggle</a></code> commands.
   </div>
-
-  <h3><a id="turbospeed">turbospeed</a></h3>
-
-  <p>Sets the emulation speed relative to the speed of a real MSX when we are running in <a class="internal" href="#turbo">turbo mode</a>. Speed 100 means as fast as a real MSX, lower values are slower than real MSX, higher values are faster than real MSX.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>set turbospeed</code></td>
-
-      <td>Shows current turbo speed</td>
-    </tr>
-
-    <tr>
-      <td><code>set turbospeed &lt;num&gt;</code></td>
-
-      <td>Sets new turbo speed to &lt;num&gt;% of real time</td>
-    </tr>
-  </table>
 
   <h3><a id="umr_callback">umr_callback</a></h3>
 

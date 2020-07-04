@@ -33,8 +33,8 @@ private:
 	void update(const Setting& setting) override;
 
 	IntegerSetting speedSetting;
-	IntegerSetting turboSpeedSetting;
-	BooleanSetting turboSetting;
+	IntegerSetting fastforwardSpeedSetting;
+	BooleanSetting fastforwardSetting;
 	double speed = 1.0;
 };
 

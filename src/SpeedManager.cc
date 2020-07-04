@@ -11,31 +11,31 @@ SpeedManager::SpeedManager(CommandController& commandController)
 	: speedSetting(commandController, "speed",
 	       "controls the emulation speed: higher is faster, 100 is normal",
 	       100, 1, 1000000, Setting::DONT_SAVE)
-	, turboSpeedSetting(commandController, "turbospeed",
-	       "controls the emulation speed in turbo mode: "
+	, fastforwardSpeedSetting(commandController, "fastforwardspeed",
+	       "controls the emulation speed in fastforward mode: "
 		   "higher is faster, 100 is normal",
 	       2000, 1, 1000000)
-	, turboSetting(commandController, "turbo",
+	, fastforwardSetting(commandController, "fastforward",
 	       "select emulation speed:\n"
-	       " on -> turbo speed ('turbospeed' setting)\n"
+	       " on -> fastforward speed ('fastforwardspeed' setting)\n"
 	       " off -> normal speed ('speed' setting)",
 	       false, Setting::DONT_SAVE)
 {
 	speedSetting.attach(*this);
-	turboSpeedSetting.attach(*this);
-	turboSetting.attach(*this);
+	fastforwardSpeedSetting.attach(*this);
+	fastforwardSetting.attach(*this);
 }
 
 SpeedManager::~SpeedManager()
 {
-	turboSetting.detach(*this);
-	turboSpeedSetting.detach(*this);
+	fastforwardSetting.detach(*this);
+	fastforwardSpeedSetting.detach(*this);
 	speedSetting.detach(*this);
 }
 
 void SpeedManager::updateSpeed()
 {
-	speed = (turboSetting.getBoolean() ? turboSpeedSetting : speedSetting)
+	speed = (fastforwardSetting.getBoolean() ? fastforwardSpeedSetting : speedSetting)
 	        .getInt() / 100.0;
 	notify();
 }
