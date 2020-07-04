@@ -233,11 +233,6 @@ sources = files(
     'input/Touchpad.cc',
     'input/Trackball.cc',
     'input/UnicodeKeymap.cc',
-    'laserdisc/LaserdiscPlayer.cc',
-    'laserdisc/LaserdiscPlayerCLI.cc',
-    'laserdisc/OggReader.cc',
-    'laserdisc/PioneerLDControl.cc',
-    'laserdisc/yuv2rgb.cc',
     'memory/AmdFlash.cc',
     'memory/Carnivore2.cc',
     'memory/CheckedRam.cc',
@@ -330,6 +325,7 @@ sources = files(
     'serial/DummyRS232Device.cc',
     'serial/I8251.cc',
     'serial/I8254.cc',
+    'serial/JVCMSXMIDI.cc',
     'serial/MC6850.cc',
     'serial/MSXFacMidiInterface.cc',
     'serial/MSXMidi.cc',
@@ -344,8 +340,8 @@ sources = files(
     'serial/MidiOutDevice.cc',
     'serial/MidiOutLogger.cc',
     'serial/MidiOutWindows.cc',
-    'serial/MidiSessionALSA.cc',
     'serial/Midi_w32.cc',
+    'serial/MusicModuleMIDI.cc',
     'serial/RS232Connector.cc',
     'serial/RS232Device.cc',
     'serial/RS232Tester.cc',
@@ -412,9 +408,12 @@ sources = files(
     'sound/YM2151.cc',
     'sound/YM2413.cc',
     'sound/YM2413Burczynski.cc',
+    'sound/YM2413NukeYKT.cc',
     'sound/YM2413Okazaki.cc',
+    'sound/YM2413OriginalNukeYKT.cc',
     'sound/YMF262.cc',
     'sound/YMF278.cc',
+    'sound/opll.cc',
     'thread/Thread.cc',
     'thread/Timer.cc',
     'utils/Base64.cc',
@@ -448,11 +447,6 @@ sources = files(
     'video/DummyVideoSystem.cc',
     'video/FBPostProcessor.cc',
     'video/FrameSource.cc',
-    'video/GLContext.cc',
-    'video/GLImage.cc',
-    'video/GLPostProcessor.cc',
-    'video/GLSnow.cc',
-    'video/GLUtil.cc',
     'video/Icon.cc',
     'video/Layer.cc',
     'video/OutputSurface.cc',
@@ -463,8 +457,6 @@ sources = files(
     'video/RenderSettings.cc',
     'video/Renderer.cc',
     'video/RendererFactory.cc',
-    'video/SDLGLOffScreenSurface.cc',
-    'video/SDLGLVisibleSurface.cc',
     'video/SDLImage.cc',
     'video/SDLOffScreenSurface.cc',
     'video/SDLOutputSurface.cc',
@@ -484,20 +476,7 @@ sources = files(
     'video/VideoSystem.cc',
     'video/VisibleSurface.cc',
     'video/ZMBVEncoder.cc',
-    'video/ld/LDDummyRenderer.cc',
-    'video/ld/LDPixelRenderer.cc',
-    'video/ld/LDSDLRasterizer.cc',
     'video/scalers/DirectScalerOutput.cc',
-    'video/scalers/GLDefaultScaler.cc',
-    'video/scalers/GLHQLiteScaler.cc',
-    'video/scalers/GLHQScaler.cc',
-    'video/scalers/GLRGBScaler.cc',
-    'video/scalers/GLSaIScaler.cc',
-    'video/scalers/GLScaleNxScaler.cc',
-    'video/scalers/GLScaler.cc',
-    'video/scalers/GLScalerFactory.cc',
-    'video/scalers/GLSimpleScaler.cc',
-    'video/scalers/GLTVScaler.cc',
     'video/scalers/HQ2xLiteScaler.cc',
     'video/scalers/HQ2xScaler.cc',
     'video/scalers/HQ3xLiteScaler.cc',
@@ -528,6 +507,47 @@ sources = files(
     'video/v9990/V9990VRAM.cc',
     'video/v9990/Video9000.cc',
     )
+
+if not get_option('alsamidi').disabled()
+    sources += files(
+        'serial/MidiSessionALSA.cc',
+        )
+endif
+
+if not get_option('glrenderer').disabled()
+    sources += files(
+        'video/GLContext.cc',
+        'video/GLImage.cc',
+        'video/GLPostProcessor.cc',
+        'video/GLSnow.cc',
+        'video/GLUtil.cc',
+        'video/SDLGLOffScreenSurface.cc',
+        'video/SDLGLVisibleSurface.cc',
+        'video/scalers/GLDefaultScaler.cc',
+        'video/scalers/GLHQLiteScaler.cc',
+        'video/scalers/GLHQScaler.cc',
+        'video/scalers/GLRGBScaler.cc',
+        'video/scalers/GLSaIScaler.cc',
+        'video/scalers/GLScaleNxScaler.cc',
+        'video/scalers/GLScaler.cc',
+        'video/scalers/GLScalerFactory.cc',
+        'video/scalers/GLSimpleScaler.cc',
+        'video/scalers/GLTVScaler.cc',
+        )
+endif
+
+if not get_option('laserdisc').disabled()
+    sources += files(
+        'laserdisc/LaserdiscPlayer.cc',
+        'laserdisc/LaserdiscPlayerCLI.cc',
+        'laserdisc/OggReader.cc',
+        'laserdisc/PioneerLDControl.cc',
+        'laserdisc/yuv2rgb.cc',
+        'video/ld/LDDummyRenderer.cc',
+        'video/ld/LDPixelRenderer.cc',
+        'video/ld/LDSDLRasterizer.cc',
+        )
+endif
 
 main_sources = files(
     'main.cc',
