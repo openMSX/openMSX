@@ -196,8 +196,7 @@ void PixelRenderer::frameStart(EmuTime::param time)
 	} else  {
 		// We need to render a frame every now and then,
 		// to show the user what is happening.
-		frameSkipCounter += 0.01f;
-		paintFrame = (frameSkipCounter >= 1.0f);
+		paintFrame = (Timer::getTime() - lastPaintTime) >= 100000; // 10 fps
 	}
 
 	if (paintFrame) {
@@ -239,6 +238,9 @@ void PixelRenderer::frameEnd(EmuTime::param time)
 			// Don't paint in deinterlace mode when previous frame
 			// was not rendered.
 			paintFrame = false;
+		}
+		if (paintFrame) {
+			lastPaintTime = time2;
 		}
 	}
 	if (vdp.getMotherBoard().isActive() &&

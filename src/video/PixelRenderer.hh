@@ -5,6 +5,7 @@
 #include "Observer.hh"
 #include "RenderSettings.hh"
 #include "openmsx.hh"
+#include <cstdint>
 #include <memory>
 
 namespace openmsx {
@@ -159,6 +160,11 @@ private:
 	  * while paintFrame may not.
 	  */
 	bool paintFrame;
+
+	/** Timestamp (us, like Timer::getTime()) at which we last painted a frame.
+	  * Used to force a minimal paint rate when throttle is off.
+	  */
+	uint64_t lastPaintTime = 0;
 };
 
 } // namespace openmsx
