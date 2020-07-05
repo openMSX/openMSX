@@ -70,10 +70,10 @@ void ResampledSoundDevice::createResampler()
 		case RESAMPLE_HQ:
 			if (!isStereo()) {
 				algo = std::make_unique<ResampleHQ<1>>(
-					*this, hostClock, inputRate);
+					*this, hostClock);
 			} else {
 				algo = std::make_unique<ResampleHQ<2>>(
-					*this, hostClock, inputRate);
+					*this, hostClock);
 			}
 			break;
 		case RESAMPLE_LQ:

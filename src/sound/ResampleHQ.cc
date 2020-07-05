@@ -370,11 +370,10 @@ ResampleCoeffs::Table ResampleCoeffs::calcTable(
 
 template <unsigned CHANNELS>
 ResampleHQ<CHANNELS>::ResampleHQ(
-		ResampledSoundDevice& input_,
-		const DynamicClock& hostClock_, unsigned emuSampleRate)
+		ResampledSoundDevice& input_, const DynamicClock& hostClock_)
 	: ResampleAlgo(input_)
 	, hostClock(hostClock_)
-	, ratio(float(emuSampleRate) / hostClock.getFreq())
+	, ratio(float(hostClock.getPeriod().toDouble() / getEmuClock().getPeriod().toDouble()))
 {
 	ResampleCoeffs::instance().getCoeffs(double(ratio), permute, table, filterLen);
 

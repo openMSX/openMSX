@@ -14,8 +14,7 @@ template <unsigned CHANNELS>
 class ResampleHQ final : public ResampleAlgo
 {
 public:
-	ResampleHQ(ResampledSoundDevice& input,
-	           const DynamicClock& hostClock, unsigned emuSampleRate);
+	ResampleHQ(ResampledSoundDevice& input, const DynamicClock& hostClock);
 	~ResampleHQ() override;
 
 	bool generateOutputImpl(float* dataOut, unsigned num,
