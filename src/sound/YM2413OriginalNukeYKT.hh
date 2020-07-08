@@ -35,6 +35,8 @@ private:
 	// only used for peekReg();
 	uint8_t regs[64];
 	uint8_t latch;
+
+	int allowed_offset = 0;
 };
 
 } // namespace OriginalNuke

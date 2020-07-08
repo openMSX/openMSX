@@ -265,6 +265,8 @@ private:
 	// only used for peekReg();
 	uint8_t regs[64];
 	uint8_t latch;
+
+	int allowed_offset = 0; // Hack: see comments in writePort()
 };
 
 } // namespace NukeYKT

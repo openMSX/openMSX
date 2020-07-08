@@ -57,10 +57,23 @@ void YM2413::generateChannels(float* out_[9 + 5], uint32_t n)
 	for (uint32_t i = 0; i < n; ++i) {
 		f();
 	}
+
+	allowed_offset = std::max<int>(0, allowed_offset - 18); // see writePort()
 }
 
 void YM2413::writePort(bool port, uint8_t value, int cycle_offset)
 {
+	// see comments in YM2413NukeYKT.cc
+	while (unlikely(cycle_offset < allowed_offset)) {
+		float d = 0.0f;
+		float* dummy[9 + 5] = {
+			&d, &d, &d, &d, &d, &d, &d, &d, &d,
+			&d, &d, &d, &d, &d,
+		};
+		generateChannels(dummy, 1);
+	}
+	allowed_offset = ((port ? 84 : 12) / 4) + cycle_offset;
+
 	writes[cycle_offset] = {port, value};
 
 	// only needed for peekReg()

@@ -858,10 +858,34 @@ NEVER_INLINE void YM2413::step18(float* out[9 + 5])
 	step<15, TEST_MODE>(l);
 	step<16, TEST_MODE>(l);
 	step<17, TEST_MODE>(l);
+
+	allowed_offset = std::max<int>(0, allowed_offset - 18); // see writePort()
 }
 
 void YM2413::writePort(bool port, uint8_t value, int cycle_offset)
 {
+	// Hack: detect too-fast access and workaround that.
+	//  Ideally we'd just pass this too-fast-access to the NukeYKY code,
+	//  because it handles it 'fine' (as in "the same as the real
+	//  hardware"). Possibly with a warning.
+	//  Though currently in openMSX, when running at 'speed > 100%' we keep
+	//  emulate the sound devices at 100% speed, but because CPU runs
+	//  faster this can result in artificial too-fast-access. We need to
+	//  solve this properly, but for now this hack should suffice.
+
+	while (unlikely(cycle_offset < allowed_offset)) {
+		float d = 0.0f;
+		float* dummy[9 + 5] = {
+			&d, &d, &d, &d, &d, &d, &d, &d, &d,
+			&d, &d, &d, &d, &d,
+		};
+		step18<false>(dummy); // discard result
+	}
+	// Need 12 cycles (@3.57MHz) wait after address-port access, 84 cycles
+	// after data-port access. Divide by 4 to translate to our 18-step
+	// timescale.
+	allowed_offset = ((port ? 84 : 12) / 4) + cycle_offset;
+
 	writes[cycle_offset] = {port, value};
 	if (port && (write_address == 0xf)) {
 		test_mode_active = true;
