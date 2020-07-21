@@ -74,9 +74,10 @@ public:
 	double getEffectiveSpeed() const;
 
 	/** If we're recording, we want to emulate sound at 100% emutime speed.
-	 * See alsoe getEffectiveSpeed().
+	 * See also getEffectiveSpeed().
 	 */
 	void setSynchronousMode(bool synchronous);
+	bool isSynchronousMode() const { return synchronousCounter != 0; }
 
 	/** TODO
 	 * This methods (un)mute the sound.
