@@ -912,7 +912,7 @@ void Scale_8on9<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
 	size_t i = 0, j = 0;
-	for (/* */; i < width; i += 9, j += 8) {
+	for (/* */; i < (width - 8); i += 9, j += 8) {
 		out[i + 0] =                                 in[j + 0];
 		out[i + 1] = pixelOps.template blend2<1, 7>(&in[j + 0]);
 		out[i + 2] = pixelOps.template blend2<1, 3>(&in[j + 1]);
