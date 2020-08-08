@@ -23,17 +23,15 @@ GLHQLiteScaler::GLHQLiteScaler(GLScaler& fallback_)
 	}
 
 	edgeTexture.bind();
-	glTexImage2D(GL_TEXTURE_2D,    // target
-	             0,                // level
-	             GL_R16,           // internal format
-	             320,              // width
-	             240,              // height
-	             0,                // border
-	             GL_RED,           // format
-	             GL_UNSIGNED_SHORT,// type
-	             nullptr);         // data
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
+	glTexImage2D(GL_TEXTURE_2D,      // target
+	             0,                  // level
+	             GL_LUMINANCE_ALPHA, // internal format
+	             320,                // width
+	             240,                // height
+	             0,                  // border
+	             GL_LUMINANCE_ALPHA, // format
+	             GL_UNSIGNED_BYTE,   // type
+	             nullptr);           // data
 	edgeBuffer.setImage(320, 240);
 
 	auto context = systemFileContext();
@@ -46,16 +44,13 @@ GLHQLiteScaler::GLHQLiteScaler(GLScaler& fallback_)
 		offsetTexture[i].bind();
 		glTexImage2D(GL_TEXTURE_2D,        // target
 		             0,                    // level
-		             GL_RG8,               // internal format
+		             GL_LUMINANCE_ALPHA,   // internal format
 		             n * 64,               // width
 		             n * 64,               // height
 		             0,                    // border
-		             GL_RG,                // format
+		             GL_LUMINANCE_ALPHA,   // format
 		             GL_UNSIGNED_BYTE,     // type
 		             offsetFile.mmap().data());// data
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_A, GL_GREEN);
 	}
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4); // restore to default
 }
@@ -127,8 +122,8 @@ void GLHQLiteScaler::uploadBlock(
 		                srcStartY,           // offset y
 		                lineWidth,           // width
 		                srcEndY - srcStartY, // height
-		                GL_RED,              // format
-		                GL_UNSIGNED_SHORT,   // type
+		                GL_LUMINANCE_ALPHA,  // format
+		                GL_UNSIGNED_BYTE,    // type
 		                edgeBuffer.getOffset(0, srcStartY)); // data
 	}
 	edgeBuffer.unbind();

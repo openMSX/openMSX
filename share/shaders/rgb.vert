@@ -1,12 +1,12 @@
 uniform mat4 u_mvpMatrix;
 uniform vec3 texSize;
 
-in vec4 a_position;
-in vec3 a_texCoord;
+attribute vec4 a_position;
+attribute vec3 a_texCoord;
 
-out vec4 scaled;
-out vec2 pos;
-out vec2 videoCoord;
+varying vec4 scaled;
+varying vec2 pos;
+varying vec2 videoCoord;
 
 void main()
 {
