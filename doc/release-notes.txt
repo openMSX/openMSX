@@ -1,4 +1,4 @@
-Release Notes for openMSX 16.0 (2020-07-xx)
+Release Notes for openMSX 16.0 (2020-08-xx)
 =============================================
 
 A major release in which we finally migrated to SDL2 and Tcl 8.6. And we moved
@@ -24,6 +24,7 @@ MSX device support:
   - added synchronization for the CE IRQ
   - fixed sprite rendering algorithm on P modes
   - fixed background rendering in P2
+  - fixed crash when using V9990 B4 mode with SDL renderer and scale_factor 3
 - V99x8:
   - fixed that set adjust has no influence on maximum horizontal interrupt line
   - fixed right border on V9958 horizontal scroll
@@ -95,6 +96,12 @@ New or improved emulator features:
   - now all cartridge slots and disk drives can be controlled from OSD
   - show on/off instead of true/false for boolean settings
 - added setting to control vsync. Default is now enabled
+- added new settings 'fastforward' and 'fastforwardspeed' to offer a way to go
+  fast for a while (e.g. with the F9 button, which has now its binding changed
+  to this) without going insanely fast.
+- With vsync enabled the maxframeskip will not have to be tweaked anymore to go
+  faster than the host monitor frame rate. Fast forward just works as you would
+  expect it
 - added new OSD icon set, which positions icons as far to the bottom as
   possible (set3)
 - use soft-fullscreen now, instead of changing display modes. This looks better
