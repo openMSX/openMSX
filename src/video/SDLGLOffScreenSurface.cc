@@ -12,7 +12,7 @@ SDLGLOffScreenSurface::SDLGLOffScreenSurface(const OutputSurface& output)
 	fboTex.bind();
 	glTexImage2D(GL_TEXTURE_2D,    // target
 	             0,                // level
-	             GL_RGB8,          // internal format
+	             GL_RGB,           // internal format
 	             w,                // width
 	             h,                // height
 	             0,                // border

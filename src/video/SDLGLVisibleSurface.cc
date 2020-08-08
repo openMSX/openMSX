@@ -16,6 +16,8 @@
 #include "unreachable.hh"
 #include <memory>
 
+#include "GLUtil.hh"
+
 namespace openmsx {
 
 SDLGLVisibleSurface::SDLGLVisibleSurface(
@@ -36,14 +38,14 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	//flags |= SDL_RESIZABLE;
 	createSurface(width, height, flags);
 
-	// Create an OpenGL 3.3 Core profile
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+	// Create an OpenGL ES 2.0 profile
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 	glContext = SDL_GL_CreateContext(window.get());
 	if (!glContext) {
 		throw InitException(
-			"Failed to create openGL-3.3 context: ", SDL_GetError());
+			"Failed to create openGL ES 2.0 context: ", SDL_GetError());
 	}
 
 	// From the glew documentation:
@@ -77,11 +79,6 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	auto [vw, vh] = getViewSize();
 	glViewport(vx, vy, vw, vh);
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0, width, height, 0, -1, 1);
-	glMatrixMode(GL_MODELVIEW);
-
 	setOpenGlPixelFormat();
 	gl::context = std::make_unique<gl::Context>(width, height);
 
@@ -109,12 +106,24 @@ void SDLGLVisibleSurface::saveScreenshotGL(
 	auto [x, y] = output.getViewOffset();
 	auto [w, h] = output.getViewSize();
 
+	// OpenGL ES only supports reading RGBA (not RGB)
+	MemBuffer<uint8_t> buffer(w * h * 4);
+	glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, buffer.data());
+
+	// perform in-place conversion of RGBA -> RGB
 	VLA(const void*, rowPointers, h);
-	MemBuffer<uint8_t> buffer(w * h * 3);
 	for (int i = 0; i < h; ++i) {
-		rowPointers[h - 1 - i] = &buffer[w * 3 * i];
+		uint8_t* out = &buffer[w * 4 * i];
+		const uint8_t* in = out;
+		rowPointers[h - 1 - i] = out;
+
+		for (int j = 0; j < w; ++j) {
+			out[3 * j + 0] = in[4 * j + 0];
+			out[3 * j + 1] = in[4 * j + 1];
+			out[3 * j + 2] = in[4 * j + 2];
+		}
 	}
-	glReadPixels(x, y, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer.data());
+
 	PNG::save(w, h, rowPointers, filename);
 }
 
