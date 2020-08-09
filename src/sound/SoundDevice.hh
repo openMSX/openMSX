@@ -72,6 +72,7 @@ protected:
 	  * @param name Name for this device, will be made unique
 	  * @param description Description for this sound device
 	  * @param numChannels The number of channels for this device
+	  * @param inputRate The sample rate of this sound device
 	  * @param stereo Is this a stereo device
 	  */
 	SoundDevice(MSXMixer& mixer, std::string_view name, std::string_view description,
