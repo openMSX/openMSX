@@ -95,6 +95,7 @@ New or improved emulator features:
     after that, as the lists wrap around :)
   - now all cartridge slots and disk drives can be controlled from OSD
   - show on/off instead of true/false for boolean settings
+  - added keyboard mapping mode setting to OSD menu
 - added setting to control vsync. Default is now enabled
 - added new settings 'fastforward' and 'fastforwardspeed' to offer a way to go
   fast for a while (e.g. with the F9 button, which has now its binding changed
