@@ -10,14 +10,12 @@ varying vec2 videoCoord;
 
 void main()
 {
-	// distribute 12-bit 'edge' information over 2 x 6-bit
-	vec2 la = texture2D(edgeTex, edgePos).ra; // 4 (LSB) bits in 'r', 8 (MSB) bits in 'a'
-	float xx = fract(floor(256.0 * la.y) / 4.0) + (la.x / 4.0); // 6 LSB bits
-	float yy = floor(64.0 * la.y) / 64.0;                       // 6 MSB bits
-	vec2 xy = vec2(xx, yy);
+	// 12-bit edge information encoded as 64x64 texture-coordinate
+	vec2 xy = texture2D(edgeTex, edgePos).ra;
 
+	// extend to (64N x 64N) texture-coordinate
 	vec2 subPixelPos = misc.xy;
-	xy += fract(subPixelPos) / 64.0;
+	xy = (floor(64.0 * xy) + fract(subPixelPos)) / 64.0;
 	vec2 offset = texture2D(offsetTex, xy).xw;
 
 	// fract not really needed, but it eliminates one MOV instruction

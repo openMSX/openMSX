@@ -92,7 +92,7 @@ void GLHQLiteScaler::uploadBlock(
 {
 	if ((lineWidth != 320) || (srcEndY > 240)) return;
 
-	uint32_t tmpBuf2[320 / 2]; // 2 x uint16_t
+	Endian::L32 tmpBuf2[320 / 2]; // 2 x uint16_t
 	#ifndef NDEBUG
 	// Avoid UMR. In optimized mode we don't care.
 	memset(tmpBuf2, 0, sizeof(tmpBuf2));

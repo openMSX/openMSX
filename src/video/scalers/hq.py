@@ -25,8 +25,18 @@ class Variant(object):
 			pixelExpr = makeLite(pixelExpr, table)
 		if narrow is not None:
 			pixelExpr = narrow(pixelExpr)
+                #   0 | 1 | 2
+                #  ---+---+---
+                #   3 | 4 | 5
+                #  ---+---+---
+                #   6 | 7 | 8
+                # For the openGL shaders we want the following order:
+                #   (4,6), (3,7), (3,4), (1,3), (0,4), (4,7), (1,4), (5,7), (4,8), (4,5), (2,4), (1,5)
+                #   see comments in src/video/scalers/HQCommon.hh for why this order was choosen.
+                # Compare this to the orignal order in 'edges' in hq_gen.py.
+                # To switch between these different orderings we use the following permutations.
 		pixelExpr = permuteCases(
-			(5, 0, 4, 6, 3, 10, 11, 2, 1, 9, 8, 7)
+			(9, 2, 7, 3, 4, 10, 5, 1, 11, 8, 6, 0)  # openGL
 			if table else
 			(2, 9, 7, 4, 3, 10, 11, 1, 8, 0, 6, 5),
 			pixelExpr
