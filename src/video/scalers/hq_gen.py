@@ -1,9 +1,14 @@
 from functools import reduce
 
 # Edges in the same order as the edge bits in "case".
+#   0 | 1 | 2
+#  ---+---+---
+#   3 | 4 | 5
+#  ---+---+---
+#   6 | 7 | 8
 edges = (
-	(1, 5), (5, 7), (3, 7), (1, 3),
-	(0, 4), (1, 4), (2, 4), (3, 4),
+	(1, 5), (5, 7), (3, 7), (1, 3),   # first 4 are cross-edges
+	(0, 4), (1, 4), (2, 4), (3, 4),   # followed by 8 star-edges
 	(4, 5), (4, 6), (4, 7), (4, 8),
 	)
 
