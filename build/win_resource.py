@@ -1,17 +1,13 @@
 # Generates Windows resource header.
 
 from outpututils import rewriteIfChanged
-from version import extractRevisionNumber, packageVersion
+from version import extractRevisionNumber, packageVersion, packageVersionNumber
 
 import sys
 
 def iterResourceHeader():
-	if '-' in packageVersion:
-		versionNumber = packageVersion[ : packageVersion.index('-')]
-	else:
-		versionNumber = packageVersion
 	revision = str(extractRevisionNumber())
-	versionComponents = versionNumber.split('.') + [ revision ]
+	versionComponents = packageVersionNumber.split('.') + [ revision ]
 	assert len(versionComponents) == 4, versionComponents
 
 	yield '#define OPENMSX_VERSION_INT %s' % ', '.join(versionComponents)
