@@ -75,7 +75,7 @@ def extractRevision():
 	return revision
 
 def extractRevisionNumber():
-	return int(extractNumberFromGitRevision(extractRevision()) or 1)
+	return int(extractNumberFromGitRevision(extractRevision()) or 0)
 
 def extractRevisionString():
 	return extractRevision() or 'unknown'
