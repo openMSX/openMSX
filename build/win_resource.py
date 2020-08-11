@@ -6,8 +6,9 @@ from version import extractRevisionNumber, packageVersion, packageVersionNumber
 import sys
 
 def iterResourceHeader():
-	revision = str(extractRevisionNumber())
-	versionComponents = packageVersionNumber.split('.') + [ revision ]
+	versionComponents = packageVersionNumber.split('.')
+	versionComponents += ['0'] * (3 - len(versionComponents))
+	versionComponents.append(str(extractRevisionNumber()))
 	assert len(versionComponents) == 4, versionComponents
 
 	yield '#define OPENMSX_VERSION_INT %s' % ', '.join(versionComponents)
