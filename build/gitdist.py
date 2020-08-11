@@ -25,6 +25,7 @@ def archiveFromGit(versionedPackageName, committish):
 				info.name.endswith('/.gitignore'),
 				info.name.startswith(prefix + 'doc/internal'),
 				info.name.startswith(prefix + '.'),
+				info.name[info.name.rfind('/') + 1:].startswith('meson'),
 				))
 
 	proc = Popen(
