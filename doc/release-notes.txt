@@ -1,8 +1,8 @@
-Release Notes for openMSX 16.0 (2020-08-xx)
-=============================================
+Release Notes for openMSX 16.0 (2020-08-12)
+===========================================
 
 A major release in which we finally migrated to SDL2 and Tcl 8.6. And we moved
-to a simpler versioning scheme, stripping of that 0. prefix now :) Other than
+to a simpler versioning scheme, stripping off that 0. prefix now :) Other than
 that, there are loads and loads of improvements. Some often requested ones are
 copy/paste functionality and drag and drop support. But we also added a super
 accurate YM2413 emulation (originally written by NukeYKT), fixed MIDI-in/out
@@ -43,7 +43,8 @@ MSX device support:
 - fixed initial RAM pattern of ColecoVision to 0x00, which fixes The Heist
 - fixed register mirroring of Yamaha SFG modules
 - improved loading bad quality WAV cassette images using cubic interpolation
-- added very accurate (but also slower) NukeYKT YM2413 core (now also the default)
+- added very accurate (but also slower) NukeYKT YM2413 core (now also the
+  default)
 - added emulation of 256kB hangul font ROM of the Daewoo CPC-400S
 - added emulation of mappers Repro Cartridge mapper (v1 and v2) and Matra
   Compilation (e.g. Konami Compilation 1 and 2)
@@ -90,9 +91,10 @@ New or improved emulator features:
     instance.
   - implemented quick search in lists with alphanumeric keys. Type the name you
     expect and the cursor will find items starting with the typed characters.
-  - fixed filtering out symlinked configurations from the machine/extension lists
-  - go to the top of a list with HOME or CTRL+LEFT. Go to the end by pressing UP
-    after that, as the lists wrap around :)
+  - fixed filtering out symlinked configurations from the machine/extension
+    lists
+  - go to the top of a list with HOME or CTRL+LEFT. Go to the end by pressing
+    UP after that, as the lists wrap around :)
   - now all cartridge slots and disk drives can be controlled from OSD
   - show on/off instead of true/false for boolean settings
   - added keyboard mapping mode setting to OSD menu
