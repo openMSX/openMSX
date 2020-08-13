@@ -245,14 +245,14 @@ public:
 	template<size_t Count>
 	[[nodiscard]] constexpr span<element_type, Count> first() const
 	{
-		assert(Count >= 0 && Count <= size());
+		assert(Count <= size());
 		return {data(), Count};
 	}
 
 	template<size_t Count>
 	[[nodiscard]] constexpr span<element_type, Count> last() const
 	{
-		assert(Count >= 0 && Count <= size());
+		assert(Count <= size());
 		return {data() + (size() - Count), Count};
 	}
 
@@ -266,7 +266,7 @@ public:
 	[[nodiscard]] constexpr subspan_return_t<Offset, Count> subspan() const
 	{
 		assert((Offset >= 0 && Offset <= size()) &&
-		       (Count == dynamic_extent || (Count >= 0 && Offset + Count <= size())));
+		       (Count == dynamic_extent || (Offset + Count <= size())));
 		return {data() + Offset,
 		        Count != dynamic_extent ? Count
 		                                : (Extent != dynamic_extent ? Extent - Offset : size() - Offset)};
@@ -274,21 +274,21 @@ public:
 
 	[[nodiscard]] constexpr span<element_type, dynamic_extent> first(index_type count) const
 	{
-		assert(count >= 0 && count <= size());
+		assert(count <= size());
 		return {data(), count};
 	}
 
 	[[nodiscard]] constexpr span<element_type, dynamic_extent> last(index_type count) const
 	{
-		assert(count >= 0 && count <= size());
+		assert(count <= size());
 		return {data() + (size() - count), count};
 	}
 
 	[[nodiscard]] constexpr span<element_type, dynamic_extent> subspan(
 		index_type offset, index_type count = dynamic_extent) const
 	{
-		assert((offset >= 0 && offset <= size()) &&
-		       (count == dynamic_extent || (count >= 0 && offset + count <= size())));
+		assert((offset <= size()) &&
+		       (count == dynamic_extent || (offset + count <= size())));
 		return {data() + offset, count == dynamic_extent ? size() - offset : count};
 	}
 
@@ -302,7 +302,7 @@ public:
 	// [span.elem], span element access
 	[[nodiscard]] constexpr reference operator[](index_type idx) const
 	{
-		assert(idx >= 0 && idx < size());
+		assert(idx < size());
 		return *(data() + idx);
 	}
 
