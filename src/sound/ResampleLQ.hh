@@ -15,12 +15,10 @@ class ResampleLQ : public ResampleAlgo
 {
 public:
 	static std::unique_ptr<ResampleLQ<CHANNELS>> create(
-		ResampledSoundDevice& input,
-		const DynamicClock& hostClock, unsigned emuSampleRate);
+		ResampledSoundDevice& input, const DynamicClock& hostClock);
 
 protected:
-	ResampleLQ(ResampledSoundDevice& input,
-	           const DynamicClock& hostClock, unsigned emuSampleRate);
+	ResampleLQ(ResampledSoundDevice& input, const DynamicClock& hostClock);
 	bool fetchData(EmuTime::param time, unsigned& valid);
 
 	const DynamicClock& hostClock;
@@ -33,8 +31,7 @@ template <unsigned CHANNELS>
 class ResampleLQDown final : public ResampleLQ<CHANNELS>
 {
 public:
-	ResampleLQDown(ResampledSoundDevice& input,
-	               const DynamicClock& hostClock, unsigned emuSampleRate);
+	ResampleLQDown(ResampledSoundDevice& input, const DynamicClock& hostClock);
 private:
 	bool generateOutputImpl(float* dataOut, unsigned num,
 	                        EmuTime::param time) override;
@@ -45,8 +42,7 @@ template <unsigned CHANNELS>
 class ResampleLQUp final : public ResampleLQ<CHANNELS>
 {
 public:
-	ResampleLQUp(ResampledSoundDevice& input,
-	             const DynamicClock& hostClock, unsigned emuSampleRate);
+	ResampleLQUp(ResampledSoundDevice& input, const DynamicClock& hostClock);
 private:
 	bool generateOutputImpl(float* dataOut, unsigned num,
 	                        EmuTime::param time) override;

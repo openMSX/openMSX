@@ -69,29 +69,23 @@ void ResampledSoundDevice::createResampler()
 		switch (resampleSetting.getEnum()) {
 		case RESAMPLE_HQ:
 			if (!isStereo()) {
-				algo = std::make_unique<ResampleHQ<1>>(
-					*this, hostClock);
+				algo = std::make_unique<ResampleHQ<1>>(*this, hostClock);
 			} else {
-				algo = std::make_unique<ResampleHQ<2>>(
-					*this, hostClock);
+				algo = std::make_unique<ResampleHQ<2>>(*this, hostClock);
 			}
 			break;
 		case RESAMPLE_LQ:
 			if (!isStereo()) {
-				algo = ResampleLQ<1>::create(
-					*this, hostClock, inputRate);
+				algo = ResampleLQ<1>::create(*this, hostClock);
 			} else {
-				algo = ResampleLQ<2>::create(
-					*this, hostClock, inputRate);
+				algo = ResampleLQ<2>::create(*this, hostClock);
 			}
 			break;
 		case RESAMPLE_BLIP:
 			if (!isStereo()) {
-				algo = std::make_unique<ResampleBlip<1>>(
-					*this, hostClock);
+				algo = std::make_unique<ResampleBlip<1>>(*this, hostClock);
 			} else {
-				algo = std::make_unique<ResampleBlip<2>>(
-					*this, hostClock);
+				algo = std::make_unique<ResampleBlip<2>>(*this, hostClock);
 			}
 			break;
 		default:
