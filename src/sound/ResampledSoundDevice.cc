@@ -58,12 +58,12 @@ void ResampledSoundDevice::update(const Setting& setting)
 void ResampledSoundDevice::createResampler()
 {
 	const DynamicClock& hostClock = getHostSampleClock();
-	unsigned outputRate = hostClock.getFreq();
-	unsigned inputRate  = getInputRate() / getEffectiveSpeed();
+	EmuDuration outputPeriod = hostClock.getPeriod();
+	EmuDuration inputPeriod(getEffectiveSpeed() / double(getInputRate()));
 	emuClock.reset(hostClock.getTime());
-	emuClock.setFreq(inputRate);
+	emuClock.setPeriod(inputPeriod);
 
-	if (outputRate == inputRate) {
+	if (outputPeriod == inputPeriod) {
 		algo = std::make_unique<ResampleTrivial>(*this);
 	} else {
 		switch (resampleSetting.getEnum()) {

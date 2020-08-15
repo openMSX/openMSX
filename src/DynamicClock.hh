@@ -98,23 +98,24 @@ public:
 	}
 
 	/** Change the frequency at which this clock ticks.
+	  * When possible prefer setPeriod() over this method because it may
+	  * introduce less rounding errors.
 	  * @param freq New frequency in Hertz.
 	  */
 	void setFreq(unsigned freq) {
 		unsigned newStep = (MAIN_FREQ32 + (freq / 2)) / freq;
-		assert(newStep);
-		divmod.setDivisor(newStep);
+		setPeriod(EmuDuration(uint64_t(newStep)));
 	}
 	/** Equivalent to setFreq(freq_num / freq_denom), but possibly with
 	  * less rounding errors.
+	  * When possible prefer setPeriod() over this method because it may
+	  * introduce less rounding errors.
 	  */
 	void setFreq(unsigned freq_num, unsigned freq_denom) {
 		static_assert(MAIN_FREQ < (1ull << 32), "must fit in 32 bit");
 		uint64_t p = MAIN_FREQ * freq_denom + (freq_num / 2);
 		uint64_t newStep = p / freq_num;
-		assert(newStep < (1ull << 32));
-		assert(newStep);
-		divmod.setDivisor(unsigned(newStep));
+		setPeriod(EmuDuration(newStep));
 	}
 
 	/** Returns the frequency (in Hz) at which this clock ticks.
@@ -129,6 +130,13 @@ public:
 	  */
 	EmuDuration getPeriod() const {
 		return EmuDuration(uint64_t(getStep()));
+	}
+
+	/** Set the duration of a clock tick. See also setFreq(). */
+	void setPeriod(EmuDuration period) {
+		assert(period.length() < (1ull << 32));
+		assert(period.length());
+		divmod.setDivisor(uint32_t(period.length()));
 	}
 
 	/** Reset the clock to start ticking at the given time.
