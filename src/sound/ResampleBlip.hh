@@ -13,8 +13,7 @@ template <unsigned CHANNELS>
 class ResampleBlip final : public ResampleAlgo
 {
 public:
-	ResampleBlip(ResampledSoundDevice& input,
-	             const DynamicClock& hostClock, unsigned emuSampleRate);
+	ResampleBlip(ResampledSoundDevice& input, const DynamicClock& hostClock);
 
 	bool generateOutputImpl(float* dataOut, unsigned num,
 	                        EmuTime::param time) override;

@@ -88,10 +88,10 @@ void ResampledSoundDevice::createResampler()
 		case RESAMPLE_BLIP:
 			if (!isStereo()) {
 				algo = std::make_unique<ResampleBlip<1>>(
-					*this, hostClock, inputRate);
+					*this, hostClock);
 			} else {
 				algo = std::make_unique<ResampleBlip<2>>(
-					*this, hostClock, inputRate);
+					*this, hostClock);
 			}
 			break;
 		default:

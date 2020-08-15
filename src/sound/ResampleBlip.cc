@@ -10,11 +10,16 @@ namespace openmsx {
 
 template <unsigned CHANNELS>
 ResampleBlip<CHANNELS>::ResampleBlip(
-		ResampledSoundDevice& input_,
-		const DynamicClock& hostClock_, unsigned emuSampleRate)
+		ResampledSoundDevice& input_, const DynamicClock& hostClock_)
 	: ResampleAlgo(input_)
 	, hostClock(hostClock_)
-	, step(FP::roundRatioDown(hostClock.getFreq(), emuSampleRate))
+	, step([&]{ // calculate 'hostClock.getFreq() / getEmuClock().getFreq()', but with less rounding errors
+			uint64_t emuPeriod = input_.getEmuClock().getPeriod().length(); // unknown units
+			uint64_t hostPeriod = hostClock.getPeriod().length(); // unknown units, but same as above
+			assert(unsigned( emuPeriod) ==  emuPeriod);
+			assert(unsigned(hostPeriod) == hostPeriod);
+			return FP::roundRatioDown(emuPeriod, hostPeriod);
+		}())
 {
 	ranges::fill(lastInput, 0.0f);
 }
