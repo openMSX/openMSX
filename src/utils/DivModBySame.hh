@@ -75,10 +75,10 @@ public:
 	}
 
 private:
-	uint64_t m;
-	uint64_t a;
-	uint32_t s;
-	uint32_t divisor; // only used by mod() and getDivisor()
+	uint64_t m = 0;
+	uint64_t a = 0;
+	uint32_t s = 0;
+	uint32_t divisor= 0; // only used by mod() and getDivisor()
 };
 
 } // namespace openmsx

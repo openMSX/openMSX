@@ -8,6 +8,10 @@ void DivModBySame::setDivisor(uint32_t divisor_)
 {
 	//assert(divisor_ < 0x8000000000000000ull); // when divisor is uint64_t
 	divisor = divisor_;
+	if (divisor == 0) {
+		m = a = s = 0;
+		return;
+	}
 
 	// reduce divisor until it becomes odd
 	uint32_t n = 0;

@@ -135,7 +135,6 @@ public:
 	/** Set the duration of a clock tick. See also setFreq(). */
 	void setPeriod(EmuDuration period) {
 		assert(period.length() < (1ull << 32));
-		assert(period.length());
 		divmod.setDivisor(uint32_t(period.length()));
 	}
 
@@ -208,6 +207,7 @@ private:
 
 	DivModBySame divmod;
 };
+SERIALIZE_CLASS_VERSION(DynamicClock, 2);
 
 } // namespace openmsx
 
