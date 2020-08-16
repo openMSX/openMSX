@@ -22,9 +22,7 @@ jobs:
     - name: Determine version
       id: get_version
       run: |
-        OPENMSX_MAJOR_VERSION=`python3 build/version.py`
-        OPENMSX_BUILD_REVISION=`fgrep "Revision string:" derived/version.log | sed -e "s/.*: //"`
-        OPENMSX_VERSION=$OPENMSX_MAJOR_VERSION-$OPENMSX_BUILD_REVISION
+        OPENMSX_VERSION=`python3 build/version.py`
         echo ::set-output name=OPENMSX_VERSION::$OPENMSX_VERSION
     - name: Create redistributable zip
       run: |
