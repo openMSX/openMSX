@@ -844,7 +844,7 @@ void MSXtar::recurseDirExtract(string_view dirName, unsigned sector)
 
 string MSXtar::addDir(string_view rootDirName)
 {
-	return recurseDirFill(rootDirName, chrootSector);
+	return recurseDirFill(FileOperations::expandTilde(rootDirName), chrootSector);
 }
 
 string MSXtar::addFile(const string& filename)

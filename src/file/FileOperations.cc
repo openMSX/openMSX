@@ -632,15 +632,14 @@ string expandCurrentDirFromDrive(string_view path)
 	return result;
 }
 
-bool getStat(string_view filename_, Stat& st)
+bool getStat(std::string filename, Stat& st)
 {
-	string filename = expandTilde(filename_);
 	// workaround for VC++: strip trailing slashes (but keep it if it's the
 	// only character in the path)
 	auto pos = filename.find_last_not_of('/');
 	if (pos == string::npos) {
 		// string was either empty or a (sequence of) '/' character(s)
-		filename = filename.empty() ? string{} : "/";
+		if (!filename.empty()) filename.resize(1);
 	} else {
 		filename.resize(pos + 1);
 	}
@@ -658,7 +657,7 @@ bool isRegularFile(const Stat& st)
 bool isRegularFile(string_view filename)
 {
 	Stat st;
-	return getStat(filename, st) && isRegularFile(st);
+	return getStat(expandTilde(filename), st) && isRegularFile(st);
 }
 
 bool isDirectory(const Stat& st)
@@ -669,13 +668,13 @@ bool isDirectory(const Stat& st)
 bool isDirectory(string_view directory)
 {
 	Stat st;
-	return getStat(directory, st) && isDirectory(st);
+	return getStat(expandTilde(directory), st) && isDirectory(st);
 }
 
 bool exists(string_view filename)
 {
 	Stat st; // dummy
-	return getStat(filename, st);
+	return getStat(expandTilde(filename), st);
 }
 
 time_t getModificationDate(const Stat& st)

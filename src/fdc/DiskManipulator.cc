@@ -499,7 +499,7 @@ string DiskManipulator::import(DriveSettings& driveData,
 	auto& interp = getInterpreter();
 	for (auto& l : lists) {
 		for (auto i : xrange(l.getListLength(interp))) {
-			auto s = l.getListIndex(interp, i).getString();
+			auto s = FileOperations::expandTilde(l.getListIndex(interp, i).getString());
 			try {
 				FileOperations::Stat st;
 				if (!FileOperations::getStat(s, st)) {

@@ -217,7 +217,7 @@ namespace openmsx::FileOperations {
 	 * @param st The stat structute that will be filled in
 	 * @result true iff success
 	 */
-	bool getStat(std::string_view filename, Stat& st);
+	bool getStat(std::string filename, Stat& st);
 
 	/**
 	 * Is this a regular file (no directory, device, ..)?
