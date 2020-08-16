@@ -104,5 +104,24 @@ def getAndroidVersionCode():
 	else:
 		return '%s' % ( countGitCommits() )
 
+formatMap = dict(
+	main=lambda: packageVersionNumber,
+	plain=lambda: packageVersion,
+	detailed=getDetailedVersion,
+	)
+
 if __name__ == '__main__':
-	print(packageVersionNumber)
+	import sys
+	badFormat = False
+	for fmt in sys.argv[1:] or ['main']:
+		try:
+			formatter = formatMap[fmt]
+		except KeyError:
+			print('Unknown version format "%s"' % fmt, file=sys.stderr)
+			badFormat = True
+		else:
+			print(formatter())
+	if badFormat:
+		print('Supported version formats:', ', '.join(sorted(formatMap.keys())),
+			file=sys.stderr)
+		sys.exit(2)
