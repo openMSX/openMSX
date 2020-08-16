@@ -118,7 +118,7 @@ formatMap = dict(
 if __name__ == '__main__':
 	import sys
 	badFormat = False
-	for fmt in sys.argv[1:] or ['main']:
+	for fmt in sys.argv[1:] or ['detailed']:
 		try:
 			formatter = formatMap[fmt]
 		except KeyError:
