@@ -80,6 +80,10 @@ def extractRevisionNumber():
 def extractRevisionString():
 	return extractRevision() or 'unknown'
 
+def getVersionTripleString():
+	"""Version in "x.y.z" format."""
+	return '%s.%d' % (packageVersionNumber, extractRevisionNumber())
+
 def getDetailedVersion():
 	if releaseFlag:
 		return packageVersion
@@ -107,6 +111,7 @@ def getAndroidVersionCode():
 formatMap = dict(
 	main=lambda: packageVersionNumber,
 	plain=lambda: packageVersion,
+	triple=getVersionTripleString,
 	detailed=getDetailedVersion,
 	)
 

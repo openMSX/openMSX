@@ -34,7 +34,7 @@ $(DESTDIR)/$(APP_PLIST): $(DESTDIR)/$(APP_DIR)/Contents/%: $(APP_SUPPORT_DIR)/% 
 	@echo "  Writing meta-info..."
 	@mkdir -p $(@D)
 	@sed -e 's/%ICON%/$(notdir $(APP_ICON))/' \
-		-e 's/%VERSION%/$(shell $(PYTHON) build/version.py)/' < $< > $@
+		-e 's/%VERSION%/$(shell $(PYTHON) build/version.py triple)/' < $< > $@
 	@echo "APPLoMSX" > $(@D)/PkgInfo
 
 $(DESTDIR)/$(APP_ICON): $(DESTDIR)/$(APP_RES)/%: $(APP_SUPPORT_DIR)/% bindistclean
