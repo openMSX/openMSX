@@ -1,27 +1,15 @@
 #include "FilePool.hh"
 #include "File.hh"
-#include "FileException.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "TclObject.hh"
-#include "ReadDir.hh"
-#include "Date.hh"
 #include "CommandException.hh"
 #include "Display.hh"
 #include "EventDistributor.hh"
 #include "CliComm.hh"
 #include "Reactor.hh"
-#include "Timer.hh"
-#include "one_of.hh"
-#include "ranges.hh"
-#include "sha1.hh"
-#include <fstream>
 #include <memory>
-#include <optional>
-#include <tuple>
 
-using std::ifstream;
-using std::ofstream;
 using std::string;
 using std::vector;
 
@@ -162,7 +150,7 @@ void FilePool::update(const Setting& setting)
 
 void FilePool::reportProgress(const std::string& message)
 {
-	if (quit) core.abort(); // TODO
+	if (quit) core.abort();
 	reactor.getCliComm().printProgress(message);
 	reactor.getDisplay().repaintDelayed(0);
 }

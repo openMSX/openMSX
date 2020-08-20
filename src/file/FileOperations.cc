@@ -458,14 +458,13 @@ string getNativePath(string_view path)
 	return result;
 }
 
-string getConventionalPath(string_view path)
-{
-	string result(path);
 #ifdef _WIN32
-	ranges::replace(result, '\\', '/');
-#endif
-	return result;
+string getConventionalPath(string path)
+{
+	ranges::replace(path, '\\', '/');
+	return path;
 }
+#endif
 
 string getCurrentWorkingDirectory()
 {
@@ -632,19 +631,20 @@ string expandCurrentDirFromDrive(string_view path)
 	return result;
 }
 
-bool getStat(std::string filename, Stat& st)
+bool getStat(const std::string& filename, Stat& st)
 {
+#ifdef _WIN32
+	std::string filename2 = filename;
 	// workaround for VC++: strip trailing slashes (but keep it if it's the
 	// only character in the path)
-	auto pos = filename.find_last_not_of('/');
+	auto pos = filename2.find_last_not_of('/');
 	if (pos == string::npos) {
 		// string was either empty or a (sequence of) '/' character(s)
-		if (!filename.empty()) filename.resize(1);
+		if (!filename2.empty()) filename2.resize(1);
 	} else {
-		filename.resize(pos + 1);
+		filename2.resize(pos + 1);
 	}
-#ifdef _WIN32
-	return _wstat(utf8to16(filename).c_str(), &st) == 0;
+	return _wstat(utf8to16(filename2).c_str(), &st) == 0;
 #else
 	return stat(filename.c_str(), &st) == 0;
 #endif

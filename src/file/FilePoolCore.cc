@@ -1,7 +1,7 @@
 #include "FilePoolCore.hh"
 #include "File.hh"
 #include "FileException.hh"
-#include "ReadDir.hh"
+#include "foreach_file.hh"
 #include "Date.hh"
 #include "Timer.hh"
 #include "one_of.hh"
@@ -364,30 +364,20 @@ File FilePoolCore::scanDirectory(
 	const Sha1Sum& sha1sum, const string& directory, const string& poolPath,
 	ScanProgress& progress)
 {
-	ReadDir dir(directory);
-	while (dirent* d = dir.getEntry()) {
+	File result;
+	auto fileAction = [&](const std::string& path, const FileOperations::Stat& st) {
 		if (stop) {
-			// Scanning can take a long time. Allow to abort
-			// the search when it takes too long. Stop scanning
-			// by pretending that we didn't find the file.
-			return File();
+			// Scanning can take a long time. Allow to exit
+			// openmsx when it takes too long. Stop scanning
+			// by pretending we didn't find the file.
+			assert(!result.is_open());
+			return false; // abort foreach_file_recursive
 		}
-		string file = d->d_name;
-		string path = strCat(directory, '/', file);
-		FileOperations::Stat st;
-		if (FileOperations::getStat(path, st)) {
-			File result;
-			if (FileOperations::isRegularFile(st)) {
-				result = scanFile(sha1sum, path, st, poolPath, progress);
-			} else if (FileOperations::isDirectory(st)) {
-				if (file != one_of(".", "..")) {
-					result = scanDirectory(sha1sum, path, poolPath, progress);
-				}
-			}
-			if (result.is_open()) return result;
-		}
-	}
-	return File(); // not found
+		result = scanFile(sha1sum, path, st, poolPath, progress);
+		return !result.is_open(); // abort traversal when found
+	};
+	foreach_file_recursive(directory, fileAction);
+	return result;
 }
 
 File FilePoolCore::scanFile(const Sha1Sum& sha1sum, const string& filename,

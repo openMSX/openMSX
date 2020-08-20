@@ -3,7 +3,7 @@
 #include "InterpreterOutput.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
-#include "ReadDir.hh"
+#include "foreach_file.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "strCat.hh"
@@ -151,21 +151,20 @@ void Completer::completeFileNameImpl(vector<string>& tokens,
 
 	vector<string> filenames;
 	for (auto& p : paths) {
-		string dirname = FileOperations::join(p, dirname1);
-		ReadDir dir(FileOperations::getNativePath(dirname));
-		while (dirent* de = dir.getEntry()) {
-			string name = FileOperations::join(dirname, de->d_name);
-			if (FileOperations::exists(name)) {
-				string nm = FileOperations::join(dirname1, de->d_name);
-				if (FileOperations::isDirectory(name)) {
-					nm += '/';
-				}
-				nm = FileOperations::getConventionalPath(nm);
-				if (equalHead(filename, nm, true)) {
-					filenames.push_back(nm);
-				}
+		auto fileAction = [&](const string& path) {
+			const auto& nm = FileOperations::getConventionalPath(path);
+			if (equalHead(filename, nm, true)) {
+				filenames.push_back(nm);
 			}
-		}
+		};
+		auto dirAction = [&](string& path) {
+			path += '/';
+			fileAction(path);
+			path.pop_back();
+		};
+		foreach_file_and_directory(
+			FileOperations::getNativePath(FileOperations::join(p, dirname1)),
+			fileAction, dirAction);
 	}
 	append(matches, filenames);
 	bool t = completeImpl(filename, matches, true);

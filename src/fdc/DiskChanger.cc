@@ -170,7 +170,7 @@ int DiskChanger::insertDisk(std::string_view filename)
 
 void DiskChanger::insertDisk(span<const TclObject> args)
 {
-	const string& diskImage = FileOperations::getConventionalPath(args[1].getString());
+	string diskImage = FileOperations::getConventionalPath(string(args[1].getString()));
 	auto& diskFactory = reactor.getDiskFactory();
 	std::unique_ptr<Disk> newDisk(diskFactory.createDisk(diskImage, *this));
 	for (size_t i = 2; i < args.size(); ++i) {
