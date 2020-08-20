@@ -3,7 +3,7 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
-openMSX 16.0 (2020-08-12)
+openMSX 16.0 (2020-08-20)
 -------------------------
 
 A major release in which we finally migrated to SDL2 and Tcl 8.6. And we moved
