@@ -12,6 +12,7 @@
 #include "openmsx.hh"
 #include "one_of.hh"
 #include "unreachable.hh"
+#include "utf8_unchecked.hh"
 #include "xrange.hh"
 #include <algorithm>
 #include <cassert>
@@ -289,25 +290,16 @@ void OSDConsoleRenderer::loadBackground(string_view value)
 #endif
 }
 
-void OSDConsoleRenderer::drawText(OutputSurface& output, const ConsoleLine& line,
-                                  ivec2 pos, byte alpha)
+void OSDConsoleRenderer::drawText(OutputSurface& output, string_view text,
+                                  int cx, int cy, byte alpha, uint32_t rgb)
 {
-	for (auto i : xrange(line.numChunks())) {
-		auto rgb = line.chunkColor(i);
-		string_view text = line.chunkText(i);
-		drawText2(output, text, pos[0], pos[1], alpha, rgb);
-	}
-}
-
-void OSDConsoleRenderer::drawText2(OutputSurface& output, string_view text,
-                                   int& x, int y, byte alpha, unsigned rgb)
-{
+	auto xy = getTextPos(cx, cy);
 	unsigned width;
 	BaseImage* image;
 	if (!getFromCache(text, rgb, image, width)) {
 		string textStr(text);
 		SDLSurfacePtr surf;
-		unsigned rgb2 = openGL ? 0xffffff : rgb; // openGL -> always render white
+		uint32_t rgb2 = openGL ? 0xffffff : rgb; // openGL -> always render white
 		try {
 			unsigned dummyHeight;
 			font.getSize(textStr, width, dummyHeight);
@@ -344,15 +336,14 @@ void OSDConsoleRenderer::drawText2(OutputSurface& output, string_view text,
 			byte r = (rgb >> 16) & 0xff;
 			byte g = (rgb >>  8) & 0xff;
 			byte b = (rgb >>  0) & 0xff;
-			image->draw(output, ivec2(x, y), r, g, b, alpha);
+			image->draw(output, xy, r, g, b, alpha);
 		} else {
-			image->draw(output, ivec2(x, y), alpha);
+			image->draw(output, xy, alpha);
 		}
 	}
-	x += width; // in case of trailing whitespace width != image->getWidth()
 }
 
-bool OSDConsoleRenderer::getFromCache(string_view text, unsigned rgb,
+bool OSDConsoleRenderer::getFromCache(string_view text, uint32_t rgb,
                                       BaseImage*& image, unsigned& width)
 {
 	// Items are LRU sorted, so the next requested items will often be
@@ -385,7 +376,7 @@ found:		image = it->image.get();
 }
 
 void OSDConsoleRenderer::insertInCache(
-	string text, unsigned rgb, std::unique_ptr<BaseImage> image,
+	string text, uint32_t rgb, std::unique_ptr<BaseImage> image,
 	unsigned width)
 {
 	constexpr unsigned MAX_TEXT_CACHE_SIZE = 250;
@@ -408,7 +399,7 @@ void OSDConsoleRenderer::clearCache()
 	cacheHint = begin(textCache);
 }
 
-gl::ivec2 OSDConsoleRenderer::getTextPos(int cursorX, int cursorY)
+gl::ivec2 OSDConsoleRenderer::getTextPos(int cursorX, int cursorY) const
 {
 	return bgPos + ivec2(CHAR_BORDER + cursorX * font.getWidth(),
 	                     bgSize[1] - (font.getHeight() * (cursorY + 1)) - 1);
@@ -449,11 +440,7 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 		backgroundImage->draw(output, bgPos, visibility);
 	}
 
-	for (auto loop : xrange(bgSize[1] / font.getHeight())) {
-		drawText(output,
-		         console.getLine(loop + console.getScrollBack()),
-		         getTextPos(0, loop), visibility);
-	}
+	drawConsoleText(output, visibility);
 
 	// Check if the blink period is over
 	auto now = Timer::getTime();
@@ -471,8 +458,83 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 		lastCursorY = cursorY;
 	}
 	if (blink && (console.getScrollBack() == 0)) {
-		drawText(output, ConsoleLine("_"),
-		         getTextPos(cursorX, cursorY), visibility);
+		drawText(output, "_", cursorX, cursorY, visibility, 0xffffff);
+	}
+}
+
+void OSDConsoleRenderer::drawConsoleText(OutputSurface& output, byte visibility)
+{
+	const auto rows = console.getRows();
+	const auto columns = console.getColumns();
+	const auto scrollBack = console.getScrollBack();
+	const auto& lines = console.getLines();
+
+	// search first visible line
+	auto [cursorY_, subLine, lineIdx] = [&] {
+		size_t count = 0;
+		size_t target = rows + scrollBack;
+		for (auto idx : xrange(lines.size())) {
+			count += std::max(size_t(1), (lines[idx].numChars() + columns - 1) / columns);
+			if (count >= target) {
+				return std::tuple(int(rows - 1), int(count - target), idx);
+			}
+		}
+		int y = count - 1 - scrollBack;
+		return std::tuple(y, 0, lines.size() - 1);
+	}();
+	int cursorY = cursorY_; // clang workaround
+
+	// setup for first (partial) line
+	std::string_view text = lines[lineIdx].str();
+	auto it = begin(text);
+	auto endIt = end(text);
+	utf8::unchecked::advance(it, subLine * columns);
+	std::string_view::size_type idx = it - begin(text);
+	unsigned chunkIdx = 1;
+	const auto& chunks0 = lines[lineIdx].getChunks();
+	while ((chunkIdx < chunks0.size()) && (chunks0[chunkIdx].second <= idx)) {
+		++chunkIdx;
+	}
+
+	// draw each console-line (long text-lines are split over multiple console-lines)
+	while (true) {
+		auto remainingColumns = columns;
+		const auto& chunks = lines[lineIdx].getChunks();
+		if (!chunks.empty()) {
+			// draw chunks of same color
+			while (remainingColumns && (it < endIt)) {
+				auto startColumn = remainingColumns;
+				auto e = it;
+				auto nextColorIt = (chunkIdx == chunks.size())
+				                  ? endIt
+				                  : begin(text) + chunks[chunkIdx].second;
+				auto maxIt = std::min(endIt, nextColorIt);
+				while (remainingColumns && (e < maxIt)) {
+					utf8::unchecked::next(e);
+					--remainingColumns;
+				}
+				//std::string_view subText(it, e); // c++20
+				std::string_view subText(&*it, e - it);
+				auto rgb = chunks[chunkIdx - 1].first;
+				auto cursorX = columns - startColumn;
+				drawText(output, subText, cursorX, cursorY, visibility, rgb);
+
+				// next chunk
+				it = e;
+				// move to next color?
+				if (e == nextColorIt) ++chunkIdx;
+			}
+		}
+		// all console-lines drawn?
+		if (--cursorY < 0) break;
+		// move to next text-line?
+		if (it == endIt) {
+			--lineIdx;
+			text = lines[lineIdx].str();
+			it = begin(text);
+			endIt = end(text);
+			chunkIdx = 1;
+		}
 	}
 }
 
