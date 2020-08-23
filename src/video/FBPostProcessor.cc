@@ -287,6 +287,11 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output_)
 	unsigned srcStep = srcHeight / g;
 	unsigned dstStep = dstHeight / g;
 
+	float horStretch = renderSettings.getHorizontalStretch();
+	unsigned inWidth = lrintf(horStretch);
+	auto dst = StretchScalerOutputFactory<Pixel>::create(
+		output, pixelOps, inWidth);
+
 	// TODO: Store all MSX lines in RawFrame and only scale the ones that fit
 	//       on the PC screen, as a preparation for resizable output window.
 	unsigned srcStartY = 0;
@@ -309,11 +314,6 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output_)
 		// fill region
 		//fprintf(stderr, "post processing lines %d-%d: %d\n",
 		//	srcStartY, srcEndY, lineWidth );
-		float horStretch = renderSettings.getHorizontalStretch();
-		unsigned inWidth = lrintf(horStretch);
-		std::unique_ptr<ScalerOutput<Pixel>> dst(
-			StretchScalerOutputFactory<Pixel>::create(
-				output, pixelOps, inWidth));
 		currScaler->scaleImage(
 			*paintFrame, superImposeVideoFrame,
 			srcStartY, srcEndY, lineWidth, // source
