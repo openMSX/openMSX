@@ -30,9 +30,8 @@ public:
 
 private:
 	template<typename PRED> void executeMatches(PRED pred);
-	template<EventType T> void executeEvents();
-	template<EventType T> void afterEvent(
-	                   span<const TclObject> tokens, TclObject& result);
+	void executeSimpleEvents(EventType type);
+	void afterSimpleEvent(span<const TclObject> tokens, TclObject& result, EventType type);
 	void afterInputEvent(const EventPtr& event,
 	                   span<const TclObject> tokens, TclObject& result);
 	void afterTclTime (int ms,

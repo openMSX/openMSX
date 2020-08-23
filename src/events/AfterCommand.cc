@@ -12,6 +12,7 @@
 #include "TclObject.hh"
 #include "ranges.hh"
 #include "stl.hh"
+#include "unreachable.hh"
 #include "view.hh"
 #include <iterator>
 #include <memory>
@@ -80,16 +81,16 @@ public:
 	[[nodiscard]] string getType() const override;
 };
 
-template<EventType T>
-class AfterEventCmd final : public AfterCmd
+class AfterSimpleEventCmd final : public AfterCmd
 {
 public:
-	AfterEventCmd(AfterCommand& afterCommand,
-		      const TclObject& type,
-		      TclObject command);
+	AfterSimpleEventCmd(AfterCommand& afterCommand,
+	                    TclObject command,
+	                    EventType type);
 	[[nodiscard]] string getType() const override;
+	[[nodiscard]] EventType getTypeEnum() const { return type; }
 private:
-	const string type;
+	EventType type;
 };
 
 class AfterInputEventCmd final : public AfterCmd
@@ -208,15 +209,15 @@ void AfterCommand::execute(span<const TclObject> tokens, TclObject& result)
 	} else if (subCmd == "idle") {
 		afterIdle(tokens, result);
 	} else if (subCmd == "frame") {
-		afterEvent<OPENMSX_FINISH_FRAME_EVENT>(tokens, result);
+		afterSimpleEvent(tokens, result, OPENMSX_FINISH_FRAME_EVENT);
 	} else if (subCmd == "break") {
-		afterEvent<OPENMSX_BREAK_EVENT>(tokens, result);
+		afterSimpleEvent(tokens, result, OPENMSX_BREAK_EVENT);
 	} else if (subCmd == "quit") {
-		afterEvent<OPENMSX_QUIT_EVENT>(tokens, result);
+		afterSimpleEvent(tokens, result, OPENMSX_QUIT_EVENT);
 	} else if (subCmd == "boot") {
-		afterEvent<OPENMSX_BOOT_EVENT>(tokens, result);
+		afterSimpleEvent(tokens, result, OPENMSX_BOOT_EVENT);
 	} else if (subCmd == "machine_switch") {
-		afterEvent<OPENMSX_MACHINE_LOADED_EVENT>(tokens, result);
+		afterSimpleEvent(tokens, result, OPENMSX_MACHINE_LOADED_EVENT);
 	} else if (subCmd == "info") {
 		afterInfo(tokens, result);
 	} else if (subCmd == "cancel") {
@@ -281,11 +282,10 @@ void AfterCommand::afterTclTime(
 	afterCmds.push_back(move(cmd));
 }
 
-template<EventType T>
-void AfterCommand::afterEvent(span<const TclObject> tokens, TclObject& result)
+void AfterCommand::afterSimpleEvent(span<const TclObject> tokens, TclObject& result, EventType type)
 {
 	checkNumArgs(tokens, 3, "command");
-	auto cmd = std::make_unique<AfterEventCmd<T>>(*this, tokens[1], tokens[2]);
+	auto cmd = std::make_unique<AfterSimpleEventCmd>(*this, tokens[2], type);
 	result = cmd->getId();
 	afterCmds.push_back(move(cmd));
 }
@@ -394,14 +394,18 @@ template<typename PRED> void AfterCommand::executeMatches(PRED pred)
 	}
 }
 
-template<EventType T> struct AfterEventPred {
+struct AfterSimpleEventPred {
 	bool operator()(const unique_ptr<AfterCmd>& x) const {
-		return dynamic_cast<AfterEventCmd<T>*>(x.get()) != nullptr;
+		if (auto* se = dynamic_cast<AfterSimpleEventCmd*>(x.get())) {
+			return se->getTypeEnum() == type;
+		}
+		return false;
 	}
+	const EventType type;
 };
-template<EventType T> void AfterCommand::executeEvents()
+void AfterCommand::executeSimpleEvents(EventType type)
 {
-	executeMatches(AfterEventPred<T>());
+	executeMatches(AfterSimpleEventPred{type});
 }
 
 struct AfterEmuTimePred {
@@ -430,15 +434,15 @@ struct AfterInputEventPred {
 int AfterCommand::signalEvent(const std::shared_ptr<const Event>& event) noexcept
 {
 	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
-		executeEvents<OPENMSX_FINISH_FRAME_EVENT>();
+		executeSimpleEvents(OPENMSX_FINISH_FRAME_EVENT);
 	} else if (event->getType() == OPENMSX_BREAK_EVENT) {
-		executeEvents<OPENMSX_BREAK_EVENT>();
+		executeSimpleEvents(OPENMSX_BREAK_EVENT);
 	} else if (event->getType() == OPENMSX_BOOT_EVENT) {
-		executeEvents<OPENMSX_BOOT_EVENT>();
+		executeSimpleEvents(OPENMSX_BOOT_EVENT);
 	} else if (event->getType() == OPENMSX_QUIT_EVENT) {
-		executeEvents<OPENMSX_QUIT_EVENT>();
+		executeSimpleEvents(OPENMSX_QUIT_EVENT);
 	} else if (event->getType() == OPENMSX_MACHINE_LOADED_EVENT) {
-		executeEvents<OPENMSX_MACHINE_LOADED_EVENT>();
+		executeSimpleEvents(OPENMSX_MACHINE_LOADED_EVENT);
 	} else if (event->getType() == OPENMSX_AFTER_TIMED_EVENT) {
 		executeMatches(AfterEmuTimePred());
 	} else {
@@ -562,20 +566,25 @@ string AfterIdleCmd::getType() const
 }
 
 
-// class AfterEventCmd
+// class AfterSimpleEventCmd
 
-template<EventType T>
-AfterEventCmd<T>::AfterEventCmd(
-		AfterCommand& afterCommand_, const TclObject& type_,
-		TclObject command_)
-	: AfterCmd(afterCommand_, std::move(command_)), type(type_.getString())
+AfterSimpleEventCmd::AfterSimpleEventCmd(
+		AfterCommand& afterCommand_, TclObject command_,
+		EventType type_)
+	: AfterCmd(afterCommand_, std::move(command_)), type(type_)
 {
 }
 
-template<EventType T>
-string AfterEventCmd<T>::getType() const
+string AfterSimpleEventCmd::getType() const
 {
-	return type;
+	switch (type) {
+		case OPENMSX_FINISH_FRAME_EVENT:   return "frame";
+		case OPENMSX_BREAK_EVENT:          return "break";
+		case OPENMSX_BOOT_EVENT:           return "boot";
+		case OPENMSX_QUIT_EVENT:           return "quit";
+		case OPENMSX_MACHINE_LOADED_EVENT: return "machine_switch";
+		default: UNREACHABLE;              return "";
+	}
 }
 
 
