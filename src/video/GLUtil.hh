@@ -5,14 +5,7 @@
 #include "components.hh"
 #if COMPONENT_GL
 
-// Include GLEW headers.
-#include <GL/glew.h>
-// Include OpenGL headers.
-#ifdef __APPLE__
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
+#include "SDL2/SDL_opengles2.h"
 
 #include "MemBuffer.hh"
 #include "build-info.hh"
