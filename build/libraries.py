@@ -254,29 +254,6 @@ class GL(Library):
 				return None
 		return execute
 
-class GLEW(Library):
-	makeName = 'GLEW'
-	header = '<GL/glew.h>'
-	function = 'glewInit'
-	dependsOn = ('GL', )
-
-	@classmethod
-	def getLibName(cls, platform):
-		if platform.startswith('mingw'):
-			return 'glew32'
-		else:
-			return 'GLEW'
-
-	@classmethod
-	def getCompileFlags(cls, platform, linkStatic, distroRoot):
-		flags = super().getCompileFlags(
-			platform, linkStatic, distroRoot
-			)
-		if platform.startswith('mingw') and linkStatic:
-			return '%s -DGLEW_STATIC' % flags
-		else:
-			return flags
-
 class LibPNG(Library):
 	libName = 'png16'
 	makeName = 'PNG'

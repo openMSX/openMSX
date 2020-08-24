@@ -2,8 +2,6 @@
 # Non-empty value means found, empty means not found.
 HAVE_GL_H:=true
 HAVE_GL_LIB:=true
-HAVE_GLEW_H:=true
-HAVE_GLEW_LIB:=true
 HAVE_LASERDISC_H:=true
 HAVE_LASERDISC_LIB:=true
 HAVE_OGG_H:=true
