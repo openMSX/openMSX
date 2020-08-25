@@ -1,4 +1,4 @@
-Release Notes for openMSX 16.0 (2020-08-20)
+Release Notes for openMSX 16.0 (2020-08-25)
 ===========================================
 
 A major release in which we finally migrated to SDL2 and Tcl 8.6. And we moved
