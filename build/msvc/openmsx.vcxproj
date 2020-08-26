@@ -433,6 +433,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\file\Filename.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\file\FileOperations.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\file\FilePool.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\file\FilePoolCore.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\file\GZFileAdapter.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\file\LocalFile.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\file\LocalFileReference.cc" />
@@ -979,6 +980,7 @@
     <None Include="$(OpenMSXSrcDir)\file\Filename.hh" />
     <None Include="$(OpenMSXSrcDir)\file\FileOperations.hh" />
     <None Include="$(OpenMSXSrcDir)\file\FilePool.hh" />
+    <None Include="$(OpenMSXSrcDir)\file\FilePoolCore.hh" />
     <None Include="$(OpenMSXSrcDir)\file\GZFileAdapter.hh" />
     <None Include="$(OpenMSXSrcDir)\file\LocalFile.hh" />
     <None Include="$(OpenMSXSrcDir)\file\LocalFileReference.hh" />

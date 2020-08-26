@@ -402,6 +402,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\file\FilePool.cc">
       <Filter>file</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\file\FilePoolCore.cc">
+      <Filter>file</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\file\GZFileAdapter.cc">
       <Filter>file</Filter>
     </ClCompile>
@@ -1751,6 +1754,9 @@
       <Filter>file</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\file\FilePool.hh">
+      <Filter>file</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\file\FilePoolCore.hh">
       <Filter>file</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\file\GZFileAdapter.hh">

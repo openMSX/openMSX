@@ -352,7 +352,7 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 			if (!FileOperations::exists(name)) {
 				assert(!oldChecksum.empty());
 				auto file = filePool.getFile(
-					FilePool::DISK, Sha1Sum(oldChecksum));
+					FileType::DISK, Sha1Sum(oldChecksum));
 				if (file.is_open()) {
 					name = file.getURL();
 				}
