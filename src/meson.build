@@ -539,6 +539,7 @@ test_sources = files(
     'unittest/CircularBuffer_test.cc',
     'unittest/Date_test.cc',
     'unittest/DivMod_test.cc',
+    'unittest/FilePoolCore_test.cc',
     'unittest/FixedPoint_test.cc',
     'unittest/HexDump_test.cc',
     'unittest/Keys_test.cc',
