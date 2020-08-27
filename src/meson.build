@@ -546,6 +546,7 @@ test_sources = files(
     'unittest/Math_test.cc',
     'unittest/MemoryBufferFile.cc',
     'unittest/MemoryBufferFile_test.cc',
+    'unittest/ObjectPool_test.cc',
     'unittest/ScopedAssign_test.cc',
     'unittest/StringOp_test.cc',
     'unittest/TclArgParser.cc',
