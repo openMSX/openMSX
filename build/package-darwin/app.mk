@@ -26,6 +26,7 @@ app: install $(DESTDIR)/$(APP_PLIST) $(DESTDIR)/$(APP_ICON)
 bindist: app $(DESTDIR)/$(BINDIST_README) $(DESTDIR)/$(BINDIST_LICENSE)
 	@echo "Creating disk image:"
 	@hdiutil create -srcfolder $(BINDIST_DIR) \
+		-fs HFS+J \
 		-volname openMSX \
 		-imagekey zlib-level=9 \
 		-ov $(BINDIST_PACKAGE)
