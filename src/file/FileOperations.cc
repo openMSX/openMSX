@@ -654,10 +654,10 @@ bool isRegularFile(const Stat& st)
 {
 	return S_ISREG(st.st_mode);
 }
-bool isRegularFile(string_view filename)
+bool isRegularFile(const std::string& filename)
 {
 	Stat st;
-	return getStat(expandTilde(filename), st) && isRegularFile(st);
+	return getStat(filename, st) && isRegularFile(st);
 }
 
 bool isDirectory(const Stat& st)
@@ -665,16 +665,16 @@ bool isDirectory(const Stat& st)
 	return S_ISDIR(st.st_mode);
 }
 
-bool isDirectory(string_view directory)
+bool isDirectory(const std::string& directory)
 {
 	Stat st;
-	return getStat(expandTilde(directory), st) && isDirectory(st);
+	return getStat(directory, st) && isDirectory(st);
 }
 
-bool exists(string_view filename)
+bool exists(const std::string& filename)
 {
 	Stat st; // dummy
-	return getStat(expandTilde(filename), st);
+	return getStat(filename, st);
 }
 
 time_t getModificationDate(const Stat& st)

@@ -222,19 +222,19 @@ namespace openmsx::FileOperations {
 	/**
 	 * Is this a regular file (no directory, device, ..)?
 	 */
-	bool isRegularFile(std::string_view filename);
+	bool isRegularFile(const std::string& filename);
 	bool isRegularFile(const Stat& st);
 
 	/**
 	 * Is this a directory?
 	 */
-	bool isDirectory(std::string_view directory);
+	bool isDirectory(const std::string& directory);
 	bool isDirectory(const Stat& st);
 
 	/**
 	 * Does this file (directory) exists?
 	 */
-	bool exists(std::string_view filename);
+	bool exists(const std::string& filename);
 
 	/** Get the date/time of last modification
 	 */

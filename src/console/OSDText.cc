@@ -59,8 +59,8 @@ void OSDText::setProperty(
 	} else if (propName == "-font") {
 		string val(value.getString());
 		if (fontfile != val) {
-			string file = systemFileContext().resolve(val);
-			if (!FileOperations::isRegularFile(file)) {
+			if (string file = systemFileContext().resolve(val);
+			    !FileOperations::isRegularFile(file)) {
 				throw CommandException("Not a valid font file: ", val);
 			}
 			fontfile = val;

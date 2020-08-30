@@ -50,7 +50,7 @@ unsigned NowindCommand::searchRomdisk(const NowindHost::Drives& drives) const
 }
 
 void NowindCommand::processHdimage(
-	string_view hdimage, NowindHost::Drives& drives) const
+	const string& hdimage, NowindHost::Drives& drives) const
 {
 	MSXMotherBoard& motherboard = interface.getMotherBoard();
 
@@ -66,7 +66,7 @@ void NowindCommand::processHdimage(
 			hdimage.substr(pos + 1), 1, 31);
 	}
 
-	auto wholeDisk = std::make_shared<DSKDiskImage>(Filename(string(hdimage)));
+	auto wholeDisk = std::make_shared<DSKDiskImage>(Filename(hdimage));
 	bool failOnError = true;
 	if (partitions.empty()) {
 		// insert all partitions
@@ -182,7 +182,8 @@ void NowindCommand::execute(span<const TclObject> tokens, TclObject& result)
 				error = strCat("Missing argument for option: ", arg);
 			} else {
 				try {
-					string_view hdimage = args.front().getString();
+					auto hdimage = FileOperations::expandTilde(
+						args.front().getString());
 					args = args.subspan(1);
 					processHdimage(hdimage, tmpDrives);
 					changeDrives = true;
