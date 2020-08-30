@@ -91,6 +91,12 @@ class PPC64LE(CPU):
 	name = 'ppc64le'
 	bigEndian = False
 
+class RISCV64(CPU):
+	'''64-bit RISC-V.
+	'''
+	name = 'riscv64'
+	bigEndian = False
+
 class S390(CPU):
 	'''IBM S/390.
 	'''
