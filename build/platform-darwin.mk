@@ -33,5 +33,7 @@ TARGET_FLAGS+=-mmacosx-version-min=$(OSX_VER)
 CXX:=clang++
 TARGET_FLAGS+=-stdlib=libc++
 
-# Link against CoreMIDI.
-LINK_FLAGS+=-framework CoreMIDI
+# Link against system frameworks.
+LINK_FLAGS+= \
+	-framework CoreFoundation -framework CoreServices \
+	-framework ApplicationServices -framework CoreMIDI
