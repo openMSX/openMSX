@@ -72,11 +72,11 @@ class LibPNG(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/libpng'
 	niceName = 'libpng'
 	sourceName = 'libpng'
-	version = '1.6.36'
-	fileLength = 1496022
+	version = '1.6.37'
+	fileLength = 1495748
 	checksums = {
 		'sha256':
-			'ca13c548bde5fb6ff7117cc0bdab38808acb699c0eccb613f0e4697826e1fd7d',
+			'daeb2620d829575513e35fecc83f0d3791a620b9b93d800b763542ece9390fb4',
 		}
 
 	@classmethod
