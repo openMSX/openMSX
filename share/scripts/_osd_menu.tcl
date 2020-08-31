@@ -755,13 +755,10 @@ set misc_setting_menu {
 	       { textexpr "Fastforward speed: ${fastforwardspeed}%"
 	         actions { LEFT  { osd_menu::menu_setting [incr fastforwardspeed -1] }
 	                   RIGHT { osd_menu::menu_setting [incr fastforwardspeed  1] }}}
-	       { textexpr "Minimal Frameskip: $minframeskip"
-	         actions { LEFT  { osd_menu::menu_setting [incr minframeskip -1] }
-	                   RIGHT { osd_menu::menu_setting [incr minframeskip  1] }}}
-	       { textexpr "Maximal Frameskip: $maxframeskip"
-	         actions { LEFT  { osd_menu::menu_setting [incr maxframeskip -1] }
-	                   RIGHT { osd_menu::menu_setting [incr maxframeskip  1] }}}
-	       { textexpr "Keyboard mapping mode: $kbd_mapping_mode"
+	       { textexpr "Full speed when loading: [osd_menu::boolean_to_text $fullspeedwhenloading]"
+	         actions { LEFT  { osd_menu::menu_setting [cycle_back fullspeedwhenloading] }
+	                   RIGHT { osd_menu::menu_setting [cycle      fullspeedwhenloading] }}}
+{ textexpr "Keyboard mapping mode: $kbd_mapping_mode"
 	         actions { LEFT  { osd_menu::menu_setting [cycle_back kbd_mapping_mode] }
 	                   RIGHT { osd_menu::menu_setting [cycle      kbd_mapping_mode] }}}
               }}
