@@ -46,6 +46,7 @@ private:
 	bool isRegistered(MSXEventListener* listener) const;
 
 	std::vector<MSXEventListener*> listeners; // unordered
+	std::vector<MSXEventListener*> listenersCopy; // see distributeEvent()
 };
 
 } // namespace openmsx

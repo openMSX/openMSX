@@ -66,38 +66,6 @@ string_view ConsoleLine::chunkText(size_t i) const
 	return string_view(line).substr(pos, len);
 }
 
-ConsoleLine ConsoleLine::substr(size_t pos, size_t len) const
-{
-	ConsoleLine result;
-	if (chunks.empty()) {
-		assert(line.empty());
-		assert(pos == 0);
-		return result;
-	}
-
-	auto b = begin(line);
-	utf8::unchecked::advance(b, pos);
-	auto e = b;
-	while (len-- && (e != end(line))) {
-		utf8::unchecked::next(e);
-	}
-	result.line.assign(b, e);
-
-	unsigned bpos = b - begin(line);
-	unsigned bend = e - begin(line);
-	unsigned i = 1;
-	while ((i < chunks.size()) && (chunks[i].second <= bpos)) {
-		++i;
-	}
-	result.chunks.emplace_back(chunks[i - 1].first, 0);
-	while ((i < chunks.size()) && (chunks[i].second < bend)) {
-		result.chunks.emplace_back(chunks[i].first,
-		                           chunks[i].second - bpos);
-		++i;
-	}
-	return result;
-}
-
 // class CommandConsole
 
 constexpr const char* const PROMPT_NEW  = "> ";
@@ -198,20 +166,6 @@ void CommandConsole::getCursorPosition(unsigned& xPosition, unsigned& yPosition)
 	xPosition = cursorPosition % getColumns();
 	auto num = lines[0].numChars() / getColumns();
 	yPosition = unsigned(num - (cursorPosition / getColumns()));
-}
-
-ConsoleLine CommandConsole::getLine(unsigned line) const
-{
-	size_t count = 0;
-	for (auto buf : xrange(lines.size())) {
-		count += (lines[buf].numChars() / getColumns()) + 1;
-		if (count > line) {
-			return lines[buf].substr(
-				(count - line - 1) * getColumns(),
-				getColumns());
-		}
-	}
-	return ConsoleLine();
 }
 
 int CommandConsole::signalEvent(const std::shared_ptr<const Event>& event)

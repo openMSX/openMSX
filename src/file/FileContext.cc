@@ -45,6 +45,9 @@ static vector<string> getPathsHelper(const vector<string>& input)
 			result.push_back(s);
 		}
 	}
+	for (const auto& s : result) {
+		assert(FileOperations::expandTilde(s) == s); (void)s;
+	}
 	return result;
 }
 
@@ -60,7 +63,7 @@ static string resolveHelper(const vector<string>& pathList,
 
 	for (auto& p : pathList) {
 		string name = FileOperations::join(p, filename);
-		name = FileOperations::expandTilde(name);
+		assert(FileOperations::expandTilde(name) == name);
 		if (FileOperations::exists(name)) {
 			return name;
 		}

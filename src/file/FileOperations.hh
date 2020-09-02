@@ -141,7 +141,12 @@ namespace openmsx::FileOperations {
 	 *    On UNI*Y systems, it will have no effect indeed.
 	 *    Just for portability issue. (Especially for Win32)
 	 */
-	std::string getConventionalPath(std::string_view path);
+#ifdef _WIN32
+	std::string getConventionalPath(std::string path);
+#else
+	inline const std::string& getConventionalPath(const std::string& path) { return path; }
+	inline std::string getConventionalPath(std::string&& path) { return std::move(path); }
+#endif
 
 	/**
 	 * Returns the path in native path-delimiter.
@@ -217,24 +222,24 @@ namespace openmsx::FileOperations {
 	 * @param st The stat structute that will be filled in
 	 * @result true iff success
 	 */
-	bool getStat(std::string_view filename, Stat& st);
+	bool getStat(const std::string& filename, Stat& st);
 
 	/**
 	 * Is this a regular file (no directory, device, ..)?
 	 */
-	bool isRegularFile(std::string_view filename);
+	bool isRegularFile(const std::string& filename);
 	bool isRegularFile(const Stat& st);
 
 	/**
 	 * Is this a directory?
 	 */
-	bool isDirectory(std::string_view directory);
+	bool isDirectory(const std::string& directory);
 	bool isDirectory(const Stat& st);
 
 	/**
 	 * Does this file (directory) exists?
 	 */
-	bool exists(std::string_view filename);
+	bool exists(const std::string& filename);
 
 	/** Get the date/time of last modification
 	 */

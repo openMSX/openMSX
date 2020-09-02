@@ -28,7 +28,7 @@ public:
 
 private:
 	unsigned searchRomdisk(const NowindHost::Drives& drives) const;
-	void processHdimage(std::string_view hdimage,
+	void processHdimage(const std::string& hdimage,
 	                    NowindHost::Drives& drives) const;
 	NowindInterface& interface;
 };

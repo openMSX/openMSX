@@ -262,7 +262,7 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 	: SectorBasedDisk(hostDir_)
 	, diskChanger(diskChanger_)
 	, cliComm(cliComm_)
-	, hostDir(hostDir_.getResolved() + '/')
+	, hostDir(FileOperations::expandTilde(hostDir_.getResolved() + '/'))
 	, syncMode(syncMode_)
 	, lastAccess(EmuTime::zero())
 	, nofSectors((diskChanger_.isDoubleSidedDrive() ? 2 : 1) * SECTORS_PER_TRACK * NUM_TRACKS)

@@ -34,7 +34,7 @@
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "FileOperations.hh"
-#include "ReadDir.hh"
+#include "foreach_file.hh"
 #include "Thread.hh"
 #include "Timer.hh"
 #include "serialize.hh"
@@ -327,23 +327,21 @@ vector<string> Reactor::getHwConfigs(string_view type)
 {
 	vector<string> result;
 	for (auto& p : systemFileContext().getPaths()) {
-		const auto& path = FileOperations::join(p, type);
-		ReadDir configsDir(path);
-		while (auto* entry = configsDir.getEntry()) {
-			string_view name = entry->d_name;
-			const auto& fullname = FileOperations::join(path, name);
-			if (StringOp::endsWith(name, ".xml") &&
-			    FileOperations::isRegularFile(fullname)) {
+		auto fileAction = [&](const std::string& /*path*/, std::string_view name) {
+			if (StringOp::endsWith(name, ".xml")) {
 				name.remove_suffix(4);
 				result.emplace_back(name);
-			} else if (FileOperations::isDirectory(fullname)) {
-				const auto& config = FileOperations::join(
-					fullname, "hardwareconfig.xml");
-				if (FileOperations::isRegularFile(config)) {
-					result.emplace_back(name);
-				}
 			}
-		}
+		};
+		auto dirAction = [&](std::string& path, std::string_view name) {
+			auto size = path.size();
+			path += "/hardwareconfig.xml";
+			if (FileOperations::isRegularFile(path)) {
+				result.emplace_back(name);
+			}
+			path.resize(size);
+		};
+		foreach_file_and_directory(FileOperations::join(p, type), fileAction, dirAction);
 	}
 	// remove duplicates
 	ranges::sort(result);
@@ -959,25 +957,20 @@ void RestoreMachineCommand::execute(span<const TclObject> tokens,
 	switch (tokens.size()) {
 	case 1: {
 		// load last saved entry
-		struct stat st;
-		string dirName = FileOperations::getUserOpenMSXDir() + "/savestates/";
 		string lastEntry;
 		time_t lastTime = 0;
-		ReadDir dir(dirName);
-		while (dirent* d = dir.getEntry()) {
-			int res = stat(strCat(dirName, d->d_name).c_str(), &st);
-			if ((res == 0) && S_ISREG(st.st_mode)) {
+		foreach_file(
+			FileOperations::getUserOpenMSXDir() + "/savestates",
+			[&](const string& path, const FileOperations::Stat& st) {
 				time_t modTime = st.st_mtime;
 				if (modTime > lastTime) {
-					lastEntry = string(d->d_name);
+					filename = path;
 					lastTime = modTime;
 				}
-			}
-		}
-		if (lastEntry.empty()) {
+			});
+		if (filename.empty()) {
 			throw CommandException("Can't find last saved state.");
 		}
-		filename = dirName + lastEntry;
 		break;
 	}
 	case 2:

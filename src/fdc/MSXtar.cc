@@ -7,9 +7,9 @@
 #endif
 
 #include "MSXtar.hh"
-#include "ReadDir.hh"
 #include "SectorAccessibleDisk.hh"
 #include "FileOperations.hh"
+#include "foreach_file.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include "strCat.hh"
@@ -366,7 +366,7 @@ static string makeSimpleMSXFileName(string_view fullFilename)
 // returns: the first sector of the new subdir
 // @throws in case no directory could be created
 unsigned MSXtar::addSubdir(
-	const string& msxName, unsigned t, unsigned d, unsigned sector)
+	std::string_view msxName, unsigned t, unsigned d, unsigned sector)
 {
 	// returns the sector for the first cluster of this subdir
 	DirEntry result = addEntryToDir(sector);
@@ -452,7 +452,7 @@ static void getTimeDate(const string& filename, unsigned& time, unsigned& date)
 
 // Add an MSXsubdir with the time properties from the HOST-OS subdir
 // @throws when subdir could not be created
-unsigned MSXtar::addSubdirToDSK(const string& hostName, const string& msxName,
+unsigned MSXtar::addSubdirToDSK(const string& hostName, std::string_view msxName,
                                 unsigned sector)
 {
 	unsigned time, date;
@@ -605,46 +605,37 @@ string MSXtar::addFileToDSK(const string& fullHostName, unsigned rootSector)
 string MSXtar::recurseDirFill(string_view dirName, unsigned sector)
 {
 	string messages;
-	ReadDir readDir{string(dirName)};
-	while (dirent* d = readDir.getEntry()) {
-		string name(d->d_name);
-		string fullName = strCat(dirName, '/', name);
 
-		FileOperations::Stat st;
-		if (!FileOperations::getStat(fullName, st)) {
-			// ignore, normally this should not happen
-			continue;
-		}
-
-		if (FileOperations::isRegularFile(st)) {
-			// add new file
-			messages += addFileToDSK(fullName, sector);
-
-		} else if (FileOperations::isDirectory(st) && name != one_of(".", "..")) {
-			string msxFileName = makeSimpleMSXFileName(name);
-			SectorBuffer buf;
-			DirEntry entry = findEntryInDir(msxFileName, sector, buf);
-			if (entry.sector != 0) {
-				// entry already exists ..
-				auto& msxDirEntry = buf.dirEntry[entry.index];
-				if (msxDirEntry.attrib & T_MSX_DIR) {
-					// .. and is a directory
-					unsigned nextSector = clusterToSector(
-						getStartCluster(msxDirEntry));
-					messages += recurseDirFill(fullName, nextSector);
-				} else {
-					// .. but is NOT a directory
-					strAppend(messages,
-					          "MSX file ", msxFileName,
-					          " is not a directory.\n");
-				}
+	auto fileAction = [&](const string& path) {
+		// add new file
+		messages += addFileToDSK(path, sector);
+	};
+	auto dirAction = [&](const string& path, std::string_view name) {
+		string msxFileName = makeSimpleMSXFileName(name);
+		SectorBuffer buf;
+		DirEntry entry = findEntryInDir(msxFileName, sector, buf);
+		if (entry.sector != 0) {
+			// entry already exists ..
+			auto& msxDirEntry = buf.dirEntry[entry.index];
+			if (msxDirEntry.attrib & T_MSX_DIR) {
+				// .. and is a directory
+				unsigned nextSector = clusterToSector(
+					getStartCluster(msxDirEntry));
+				messages += recurseDirFill(path, nextSector);
 			} else {
-				// add new directory
-				unsigned nextSector = addSubdirToDSK(fullName, name, sector);
-				messages += recurseDirFill(fullName, nextSector);
+				// .. but is NOT a directory
+				strAppend(messages,
+					  "MSX file ", msxFileName,
+					  " is not a directory.\n");
 			}
+		} else {
+			// add new directory
+			unsigned nextSector = addSubdirToDSK(path, name, sector);
+			messages += recurseDirFill(path, nextSector);
 		}
-	}
+	};
+	foreach_file_and_directory(std::string(dirName), fileAction, dirAction);
+
 	return messages;
 }
 
@@ -844,7 +835,7 @@ void MSXtar::recurseDirExtract(string_view dirName, unsigned sector)
 
 string MSXtar::addDir(string_view rootDirName)
 {
-	return recurseDirFill(rootDirName, chrootSector);
+	return recurseDirFill(FileOperations::expandTilde(rootDirName), chrootSector);
 }
 
 string MSXtar::addFile(const string& filename)

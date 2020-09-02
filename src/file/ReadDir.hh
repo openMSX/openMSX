@@ -8,7 +8,7 @@
 namespace openmsx {
 
 /**
- * Simple wrapper around openmdir() / readdir() / closedir() functions.
+ * Simple wrapper around opendir() / readdir() / closedir() functions.
  * Mainly useful to automatically call closedir() when object goes out
  * of scope.
  */

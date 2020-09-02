@@ -458,14 +458,13 @@ string getNativePath(string_view path)
 	return result;
 }
 
-string getConventionalPath(string_view path)
-{
-	string result(path);
 #ifdef _WIN32
-	ranges::replace(result, '\\', '/');
-#endif
-	return result;
+string getConventionalPath(string path)
+{
+	ranges::replace(path, '\\', '/');
+	return path;
 }
+#endif
 
 string getCurrentWorkingDirectory()
 {
@@ -632,20 +631,20 @@ string expandCurrentDirFromDrive(string_view path)
 	return result;
 }
 
-bool getStat(string_view filename_, Stat& st)
+bool getStat(const std::string& filename, Stat& st)
 {
-	string filename = expandTilde(filename_);
+#ifdef _WIN32
+	std::string filename2 = filename;
 	// workaround for VC++: strip trailing slashes (but keep it if it's the
 	// only character in the path)
-	auto pos = filename.find_last_not_of('/');
+	auto pos = filename2.find_last_not_of('/');
 	if (pos == string::npos) {
 		// string was either empty or a (sequence of) '/' character(s)
-		filename = filename.empty() ? string{} : "/";
+		if (!filename2.empty()) filename2.resize(1);
 	} else {
-		filename.resize(pos + 1);
+		filename2.resize(pos + 1);
 	}
-#ifdef _WIN32
-	return _wstat(utf8to16(filename).c_str(), &st) == 0;
+	return _wstat(utf8to16(filename2).c_str(), &st) == 0;
 #else
 	return stat(filename.c_str(), &st) == 0;
 #endif
@@ -655,7 +654,7 @@ bool isRegularFile(const Stat& st)
 {
 	return S_ISREG(st.st_mode);
 }
-bool isRegularFile(string_view filename)
+bool isRegularFile(const std::string& filename)
 {
 	Stat st;
 	return getStat(filename, st) && isRegularFile(st);
@@ -666,13 +665,13 @@ bool isDirectory(const Stat& st)
 	return S_ISDIR(st.st_mode);
 }
 
-bool isDirectory(string_view directory)
+bool isDirectory(const std::string& directory)
 {
 	Stat st;
 	return getStat(directory, st) && isDirectory(st);
 }
 
-bool exists(string_view filename)
+bool exists(const std::string& filename)
 {
 	Stat st; // dummy
 	return getStat(filename, st);

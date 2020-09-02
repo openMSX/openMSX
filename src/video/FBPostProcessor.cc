@@ -241,6 +241,7 @@ FBPostProcessor<Pixel>::FBPostProcessor(MSXMotherBoard& motherBoard_,
 {
 	scaleAlgorithm = RenderSettings::NO_SCALER;
 	scaleFactor = unsigned(-1);
+	stretchWidth = unsigned(-1);
 
 	auto& noiseSetting = renderSettings.getNoiseSetting();
 	noiseSetting.attach(*this);
@@ -268,15 +269,19 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output_)
 
 	if (!paintFrame) return;
 
-	// New scaler algorithm selected?
+	// New scaler algorithm selected? Or different horizontal stretch?
 	auto algo = renderSettings.getScaleAlgorithm();
 	unsigned factor = renderSettings.getScaleFactor();
-	if ((scaleAlgorithm != algo) || (scaleFactor != factor)) {
+	unsigned inWidth = lrintf(renderSettings.getHorizontalStretch());
+	if ((scaleAlgorithm != algo) || (scaleFactor != factor) || (inWidth != stretchWidth)) {
 		scaleAlgorithm = algo;
 		scaleFactor = factor;
+		stretchWidth = inWidth;
 		currScaler = ScalerFactory<Pixel>::createScaler(
 			PixelOperations<Pixel>(output.getPixelFormat()),
 			renderSettings);
+		stretchScaler = StretchScalerOutputFactory<Pixel>::create(
+			output, pixelOps, inWidth);
 	}
 
 	// Scale image.
@@ -309,15 +314,10 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output_)
 		// fill region
 		//fprintf(stderr, "post processing lines %d-%d: %d\n",
 		//	srcStartY, srcEndY, lineWidth );
-		float horStretch = renderSettings.getHorizontalStretch();
-		unsigned inWidth = lrintf(horStretch);
-		std::unique_ptr<ScalerOutput<Pixel>> dst(
-			StretchScalerOutputFactory<Pixel>::create(
-				output, pixelOps, inWidth));
 		currScaler->scaleImage(
 			*paintFrame, superImposeVideoFrame,
 			srcStartY, srcEndY, lineWidth, // source
-			*dst, dstStartY, dstEndY); // dest
+			*stretchScaler, dstStartY, dstEndY); // dest
 
 		// next region
 		srcStartY = srcEndY;

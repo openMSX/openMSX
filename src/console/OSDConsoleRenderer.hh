@@ -46,15 +46,14 @@ private:
 	void loadFont      (std::string_view value);
 	void loadBackground(std::string_view value);
 	byte getVisibility() const;
-	void drawText(OutputSurface& output, const ConsoleLine& line,
-	              gl::ivec2 pos, byte alpha);
-	void drawText2(OutputSurface& output, std::string_view text,
-	               int& x, int y, byte alpha, unsigned rgb);
-	gl::ivec2 getTextPos(int cursorX, int cursorY);
+	void drawText(OutputSurface& output, std::string_view text,
+	              int cx, int cy, byte alpha, uint32_t rgb);
+	gl::ivec2 getTextPos(int cursorX, int cursorY) const;
+	void drawConsoleText(OutputSurface& output, byte visibility);
 
-	bool getFromCache(std::string_view text, unsigned rgb,
+	bool getFromCache(std::string_view text, uint32_t rgb,
 	                  BaseImage*& image, unsigned& width);
-	void insertInCache(std::string text, unsigned rgb,
+	void insertInCache(std::string text, uint32_t rgb,
 	                   std::unique_ptr<BaseImage> image, unsigned width);
 	void clearCache();
 
@@ -65,14 +64,14 @@ private:
 	};
 
 	struct TextCacheElement {
-		TextCacheElement(std::string text_, unsigned rgb_,
+		TextCacheElement(std::string text_, uint32_t rgb_,
 		                 std::unique_ptr<BaseImage> image_, unsigned width_)
 			: text(std::move(text_)), image(std::move(image_))
 			, rgb(rgb_), width(width_) {}
 
 		std::string text;
 		std::unique_ptr<BaseImage> image;
-		unsigned rgb;
+		uint32_t rgb;
 		unsigned width;
 	};
 	using TextCache = std::list<TextCacheElement>;
