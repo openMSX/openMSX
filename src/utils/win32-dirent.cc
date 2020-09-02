@@ -64,7 +64,7 @@ dirent* readdir(DIR* dir)
 {
 	static dirent entry;
 	entry.d_ino = 0;
-	entry.d_type = 0;
+	entry.d_type = DT_UNKNOWN;
 
 	auto find = static_cast<WIN32_FIND_DATAW*>(dir->data);
 	if (dir->filepos) {
