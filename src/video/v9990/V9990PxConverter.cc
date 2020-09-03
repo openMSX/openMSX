@@ -358,7 +358,7 @@ void V9990P2Converter<Pixel>::convertLine(
 template class V9990P1Converter<uint16_t>;
 template class V9990P2Converter<uint16_t>;
 #endif
-#if HAVE_32BPP || COMPONENT_GL
+#if HAVE_32BPP || COMPONENT_GLES2
 template class V9990P1Converter<uint32_t>;
 template class V9990P2Converter<uint32_t>;
 #endif

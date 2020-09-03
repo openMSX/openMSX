@@ -697,7 +697,7 @@ void SDLRasterizer<Pixel>::update(const Setting& setting)
 #if HAVE_16BPP
 template class SDLRasterizer<uint16_t>;
 #endif
-#if HAVE_32BPP || COMPONENT_GL
+#if HAVE_32BPP || COMPONENT_GLES2
 template class SDLRasterizer<uint32_t>;
 #endif
 

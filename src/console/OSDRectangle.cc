@@ -9,7 +9,7 @@
 #include <cassert>
 #include <cmath>
 #include <memory>
-#if COMPONENT_GL
+#if COMPONENT_GLES2
 #include "GLImage.hh"
 #endif
 
@@ -194,7 +194,7 @@ std::unique_ptr<BaseImage> OSDRectangle::createSDL(OutputSurface& output)
 
 std::unique_ptr<BaseImage> OSDRectangle::createGL(OutputSurface& output)
 {
-#if COMPONENT_GL
+#if COMPONENT_GLES2
 	return create<GLImage>(output);
 #else
 	(void)&output;

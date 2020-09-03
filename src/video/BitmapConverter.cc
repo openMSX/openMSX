@@ -347,7 +347,7 @@ void BitmapConverter<Pixel>::renderBogus(Pixel* pixelPtr)
 #if HAVE_16BPP
 template class BitmapConverter<uint16_t>;
 #endif
-#if HAVE_32BPP || COMPONENT_GL
+#if HAVE_32BPP || COMPONENT_GLES2
 template class BitmapConverter<uint32_t>;
 #endif
 

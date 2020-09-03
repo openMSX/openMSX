@@ -349,7 +349,7 @@ template const uint16_t* FrameSource::getLinePtr640_480<uint16_t>(unsigned, uint
 template const uint16_t* FrameSource::getLinePtr960_720<uint16_t>(unsigned, uint16_t*) const;
 template void FrameSource::scaleLine<uint16_t>(const uint16_t*, uint16_t*, unsigned, unsigned) const;
 #endif
-#if HAVE_32BPP || COMPONENT_GL
+#if HAVE_32BPP || COMPONENT_GLES2
 template const uint32_t* FrameSource::getLinePtr320_240<uint32_t>(unsigned, uint32_t*) const;
 template const uint32_t* FrameSource::getLinePtr640_480<uint32_t>(unsigned, uint32_t*) const;
 template const uint32_t* FrameSource::getLinePtr960_720<uint32_t>(unsigned, uint32_t*) const;

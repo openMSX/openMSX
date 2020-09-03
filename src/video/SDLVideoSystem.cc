@@ -15,7 +15,7 @@
 #include <memory>
 
 #include "components.hh"
-#if COMPONENT_GL
+#if COMPONENT_GLES2
 #include "SDLGLVisibleSurface.hh"
 #include "GLPostProcessor.hh"
 #endif
@@ -86,7 +86,7 @@ std::unique_ptr<Rasterizer> SDLVideoSystem::createRasterizer(VDP& vdp)
 		default:
 			UNREACHABLE; return nullptr;
 		}
-#if COMPONENT_GL
+#if COMPONENT_GLES2
 	case RenderSettings::SDLGL_PP:
 		return std::make_unique<SDLRasterizer<uint32_t>>(
 			vdp, display, *screen,
@@ -128,7 +128,7 @@ std::unique_ptr<V9990Rasterizer> SDLVideoSystem::createV9990Rasterizer(
 		default:
 			UNREACHABLE; return nullptr;
 		}
-#if COMPONENT_GL
+#if COMPONENT_GLES2
 	case RenderSettings::SDLGL_PP:
 		return std::make_unique<V9990SDLRasterizer<uint32_t>>(
 			vdp, display, *screen,
@@ -169,7 +169,7 @@ std::unique_ptr<LDRasterizer> SDLVideoSystem::createLDRasterizer(
 		default:
 			UNREACHABLE; return nullptr;
 		}
-#if COMPONENT_GL
+#if COMPONENT_GLES2
 	case RenderSettings::SDLGL_PP:
 		return std::make_unique<LDSDLRasterizer<uint32_t>>(
 			*screen,
@@ -271,7 +271,7 @@ void SDLVideoSystem::resize()
 			eventDistributor, inputEventGenerator,
 			reactor.getCliComm(), *this);
 		break;
-#if COMPONENT_GL
+#if COMPONENT_GLES2
 	case RenderSettings::SDLGL_PP:
 		screen = std::make_unique<SDLGLVisibleSurface>(
 			width, height, display, rtScheduler,

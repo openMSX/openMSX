@@ -1,7 +1,7 @@
 # Hardcoded probe results for Visual C++ build.
 # Non-empty value means found, empty means not found.
-HAVE_GL_H:=true
-HAVE_GL_LIB:=true
+HAVE_GLES2_H:=true
+HAVE_GLES2_LIB:=true
 HAVE_LASERDISC_H:=true
 HAVE_LASERDISC_LIB:=true
 HAVE_OGG_H:=true

@@ -19,7 +19,7 @@
 #include <memory>
 
 #include "components.hh"
-#if COMPONENT_GL
+#if COMPONENT_GLES2
 #include "GLImage.hh"
 #endif
 
@@ -85,7 +85,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 		"consolebackground", "console background file",
 		"skins/ConsoleBackgroundGrey.png")
 {
-#if !COMPONENT_GL
+#if !COMPONENT_GLES2
 	assert(!openGL);
 #endif
 	bgPos = bgSize = ivec2(); // recalc on first paint()
@@ -283,7 +283,7 @@ void OSDConsoleRenderer::loadBackground(string_view value)
 	if (!openGL) {
 		backgroundImage = std::make_unique<SDLImage>(*output, filename, bgSize);
 	}
-#if COMPONENT_GL
+#if COMPONENT_GLES2
 	else {
 		backgroundImage = std::make_unique<GLImage>(*output, filename, bgSize);
 	}
@@ -323,7 +323,7 @@ void OSDConsoleRenderer::drawText(OutputSurface& output, string_view text,
 		} else if (!openGL) {
 			image2 = std::make_unique<SDLImage>(output, std::move(surf));
 		}
-#if COMPONENT_GL
+#if COMPONENT_GLES2
 		else {
 			image2 = std::make_unique<GLImage>(output, std::move(surf));
 		}
@@ -426,7 +426,7 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 				backgroundImage = std::make_unique<SDLImage>(
 					output, bgSize, CONSOLE_ALPHA);
 			}
-#if COMPONENT_GL
+#if COMPONENT_GLES2
 			else {
 				backgroundImage = std::make_unique<GLImage>(
 					output, bgSize, CONSOLE_ALPHA);

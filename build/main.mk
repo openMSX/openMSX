@@ -275,7 +275,7 @@ endef
 SOURCES_FULL:=$(filter-out $(foreach src,$(strip $(SOURCES_UPSCALE)),src/video/scalers/$(src).cc),$(SOURCES_FULL))
 endif
 
-ifneq ($(COMPONENT_GL),true)
+ifneq ($(COMPONENT_GLES2),true)
 SOURCES_FULL:=$(filter-out src/video/GL%.cc,$(SOURCES_FULL))
 SOURCES_FULL:=$(filter-out src/video/SDLGL%.cc,$(SOURCES_FULL))
 SOURCES_FULL:=$(filter-out src/video/scalers/GL%.cc,$(SOURCES_FULL))

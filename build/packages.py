@@ -83,9 +83,9 @@ class OGG(DownloadablePackage):
 	def getMakeName(cls):
 		return 'OGG'
 
-class OpenGL(Package):
-	niceName = 'OpenGL'
-	sourceName = 'gl'
+class OpenGLES(Package):
+	niceName = 'OpenGL ES'
+	sourceName = 'gles2'
 
 class PkgConfig(DownloadablePackage):
 	downloadURL = 'https://pkg-config.freedesktop.org/releases'

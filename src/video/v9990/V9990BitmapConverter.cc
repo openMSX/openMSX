@@ -495,7 +495,7 @@ void V9990BitmapConverter<Pixel>::convertLine(
 #if HAVE_16BPP
 template class V9990BitmapConverter<uint16_t>;
 #endif
-#if HAVE_32BPP || COMPONENT_GL
+#if HAVE_32BPP || COMPONENT_GLES2
 template class V9990BitmapConverter<uint32_t>;
 #endif
 

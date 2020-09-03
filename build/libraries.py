@@ -196,9 +196,9 @@ class FreeType(Library):
 		configScript = cls.getConfigScript(platform, linkStatic, distroRoot)
 		return '`%s --ftversion`' % configScript
 
-class GL(Library):
-	libName = 'GL'
-	makeName = 'GL'
+class GLES2(Library):
+	libName = 'GLES2'
+	makeName = 'GLES2'
 	function = 'glGenTextures'
 
 	@classmethod
@@ -209,9 +209,9 @@ class GL(Library):
 	@classmethod
 	def getHeaders(cls, platform):
 		if platform == 'darwin':
-			return ('<OpenGL/gl.h>', )
+			return ('<OpenGL/gl.h>', ) # TODO
 		else:
-			return ('<GL/gl.h>', )
+			return ('<GLES2/gl2.h>', )
 
 	@classmethod
 	def getCompileFlags(cls, platform, linkStatic, distroRoot):
@@ -225,13 +225,14 @@ class GL(Library):
 	@classmethod
 	def getLinkFlags(cls, platform, linkStatic, distroRoot):
 		if platform == 'darwin':
-			return '-framework OpenGL'
+			return '-framework OpenGL' # TODO
 		elif platform.startswith('mingw'):
-			return '-lopengl32'
+			return '-lopengl32'        # TODO
 		elif platform in ('netbsd', 'openbsd'):
-			return '-L/usr/X11R6/lib -L/usr/X11R7/lib -lGL'
+			return '-L/usr/X11R6/lib -L/usr/X11R7/lib -lGLESv2' # TODO
 		else:
-			return super().getLinkFlags(platform, linkStatic, distroRoot)
+			#return super().getLinkFlags(platform, linkStatic, distroRoot)
+                        return '-lGLESv2'
 
 	@classmethod
 	def getVersion(cls, platform, linkStatic, distroRoot):
@@ -242,7 +243,7 @@ class GL(Library):
 				for minor in range(0, 10)
 				)
 			version = cmd.expand(log, cls.getHeaders(platform), *(
-				'GL_VERSION_%d_%d' % pair for pair in versionPairs
+				'GL_ES_VERSION_%d_%d' % pair for pair in versionPairs
 				))
 			try:
 				return '%d.%d' % max(

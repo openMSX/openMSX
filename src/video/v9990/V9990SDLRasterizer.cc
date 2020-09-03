@@ -387,7 +387,7 @@ void V9990SDLRasterizer<Pixel>::update(const Setting& setting)
 #if HAVE_16BPP
 template class V9990SDLRasterizer<uint16_t>;
 #endif
-#if HAVE_32BPP || COMPONENT_GL
+#if HAVE_32BPP || COMPONENT_GLES2
 template class V9990SDLRasterizer<uint32_t>;
 #endif
 

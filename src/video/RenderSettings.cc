@@ -39,7 +39,7 @@ EnumSetting<RenderSettings::RendererID>::Map RenderSettings::getRendererMap()
 	EnumSetting<RendererID>::Map rendererMap = {
 		{ "none", DUMMY },// TODO: only register when in CliComm mode
 		{ "SDL", SDL } };
-#if COMPONENT_GL
+#if COMPONENT_GLES2
 	// compiled with OpenGL-2.0, still need to test whether
 	// it's available at run time, but cannot be done here
 	rendererMap.emplace_back("SDLGL-PP", SDLGL_PP);
@@ -98,7 +98,7 @@ RenderSettings::RenderSettings(CommandController& commandController)
 
 	, rendererSetting(commandController,
 		"renderer", "rendering back-end used to display the MSX screen",
-#if COMPONENT_GL
+#if COMPONENT_GLES2
 		SDLGL_PP,
 #else
 		SDL,

@@ -385,7 +385,7 @@ void CharacterConverter<Pixel>::renderBlank(
 #if HAVE_16BPP
 template class CharacterConverter<uint16_t>;
 #endif
-#if HAVE_32BPP || COMPONENT_GL
+#if HAVE_32BPP || COMPONENT_GLES2
 template class CharacterConverter<uint32_t>;
 #endif
 

@@ -3,7 +3,7 @@
 
 // Check for availability of OpenGL.
 #include "components.hh"
-#if COMPONENT_GL
+#if COMPONENT_GLES2
 
 #include "SDL2/SDL_opengles2.h"
 
@@ -448,5 +448,5 @@ private:
 
 } // namespace gl
 
-#endif // COMPONENT_GL
+#endif // COMPONENT_GLES2
 #endif // GLUTIL_HH
