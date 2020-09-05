@@ -75,6 +75,7 @@ static void init()
 	init(ROM_CROSS_BLAIM,    "CrossBlaim",     0x4000, "Cross Blaim");
 	init(ROM_HARRY_FOX,      "HarryFox",       0x4000, "Harry Fox");
 	init(ROM_HALNOTE,        "Halnote",        0x2000, "Halnote");
+	init(ROM_ZEMINA25IN1,    "Zemina25in1",    0x2000, "Zemina 25 in 1");
 	init(ROM_ZEMINA80IN1,    "Zemina80in1",    0x2000, "Zemina 80 in 1");
 	init(ROM_ZEMINA90IN1,    "Zemina90in1",    0x2000, "Zemina 90 in 1");
 	init(ROM_ZEMINA126IN1,   "Zemina126in1",   0x2000, "Zemina 126 in 1");

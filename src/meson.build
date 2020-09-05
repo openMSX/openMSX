@@ -317,6 +317,7 @@ sources = files(
     'memory/RomZemina126in1.cc',
     'memory/RomZemina80in1.cc',
     'memory/RomZemina90in1.cc',
+    'memory/RomZemina25in1.cc',
     'memory/SRAM.cc',
     'memory/SdCard.cc',
     'memory/TrackedRam.cc',

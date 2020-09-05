@@ -31,6 +31,7 @@
 #include "RomNettouYakyuu.hh"
 #include "RomGameMaster2.hh"
 #include "RomHalnote.hh"
+#include "RomZemina25in1.hh"
 #include "RomZemina80in1.hh"
 #include "RomZemina90in1.hh"
 #include "RomZemina126in1.hh"
@@ -347,6 +348,9 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 		break;
 	case ROM_HALNOTE:
 		result = make_unique<RomHalnote>(config, move(rom));
+		break;
+	case ROM_ZEMINA25IN1:
+		result = make_unique<RomZemina25in1>(config, move(rom));
 		break;
 	case ROM_ZEMINA80IN1:
 		result = make_unique<RomZemina80in1>(config, move(rom));
