@@ -62,8 +62,7 @@ void FilePoolCore::insert(const Sha1Sum& sum, time_t time, const string& filenam
 FilePoolCore::Sha1Index::iterator FilePoolCore::getSha1Iterator(Index idx, Entry& entry)
 {
 	// There can be multiple entries for the same sha1, look for the specific one.
-	auto [b, e] = ranges::equal_range(sha1Index, entry.sum, CompareSha1(pool));
-	while (b != e) {
+	for (auto [b, e] = ranges::equal_range(sha1Index, entry.sum, CompareSha1(pool)); b != e; ++b) {
 		if (*b == idx) {
 			return b;
 		}
