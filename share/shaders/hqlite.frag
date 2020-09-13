@@ -15,7 +15,7 @@ void main()
 
 	// extend to (64N x 64N) texture-coordinate
 	vec2 subPixelPos = misc.xy;
-	xy += fract(subPixelPos) / 64.0;
+	xy = (floor(64.0 * xy) + fract(subPixelPos)) / 64.0;
 	vec2 offset = texture2D(offsetTex, xy).xw;
 
 	// fract not really needed, but it eliminates one MOV instruction

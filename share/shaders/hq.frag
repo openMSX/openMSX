@@ -17,7 +17,7 @@ void main()
 	vec2 xy = texture2D(edgeTex, edgePos).ra;
 
 	// extend to (64N x 64N) texture-coordinate
-	xy += fract(weightPos) / 64.0;
+	xy = (floor(64.0 * xy) + fract(weightPos)) / 64.0;
 	vec4 offsets = texture2D(offsetTex, xy);
 	vec3 weights = texture2D(weightTex, xy).xyz;
 
