@@ -386,7 +386,7 @@ public:
 
 		unsigned attrY = vram.readVRAMBx(attrAddr + 0) +
 		                (vram.readVRAMBx(attrAddr + 2) & 1) * 256;
-		++attrY; // one line later
+		attrY += vdp.isInterlaced() ? 2 : 1; // 1 or 2 lines later
 		unsigned cursorLine = (displayY - attrY) & 511;
 		if (cursorLine >= 32) return;
 
