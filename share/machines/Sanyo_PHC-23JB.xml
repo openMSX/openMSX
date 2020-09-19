@@ -10,6 +10,10 @@
     <type>MSX2</type>
   </info>
 
+ <!-- Confirmed (except RAM pattern) by Peter Hanraets on serial number
+      61265468
+   -->
+
   <CassettePort/>
 
   <devices>
@@ -90,6 +94,7 @@
         <RAM id="Main RAM">
           <mem base="0x0000" size="0x10000"/>
           <initialContent encoding="hex">0000FFFFFFFF0000</initialContent>
+          <!-- on serial number 61265468 the pattern is like this, but after 256 bytes the pattern inverts for another 256 bytes. Then starts again. -->
         </RAM>
       </secondary>
 
