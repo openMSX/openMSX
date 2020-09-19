@@ -30,6 +30,7 @@
 #include "FileContext.hh"
 #include "FilePool.hh"
 #include "File.hh"
+#include "ReverseManager.hh"
 #include "WavImage.hh"
 #include "CasImage.hh"
 #include "CliComm.hh"
@@ -112,6 +113,12 @@ CassettePlayer::~CassettePlayer()
 void CassettePlayer::autoRun()
 {
 	if (!playImage) return;
+	if (motherBoard.getReverseManager().isReplaying()) {
+		// Don't execute the loading commands (keyboard type commands)
+		// when we're replaying a recording. Because the recording
+		// already contains those commands.
+		return;
+	}
 
 	// try to automatically run the tape, if that's set
 	CassetteImage::FileType type = playImage->getFirstFileType();

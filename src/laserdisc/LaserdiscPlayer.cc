@@ -11,6 +11,7 @@
 #include "Display.hh"
 #include "GlobalSettings.hh"
 #include "Reactor.hh"
+#include "ReverseManager.hh"
 #include "MSXMotherBoard.hh"
 #include "PioneerLDControl.hh"
 #include "OggReader.hh"
@@ -652,6 +653,10 @@ int LaserdiscPlayer::signalEvent(const std::shared_ptr<const Event>& event)
 void LaserdiscPlayer::autoRun()
 {
 	if (!autoRunSetting.getBoolean()) return;
+	if (motherBoard.getReverseManager().isReplaying()) {
+		// See comments in CassettePlayer::autoRun()
+		return;
+	}
 
 	string var = "::auto_run_ld_counter";
 	string command = strCat(
