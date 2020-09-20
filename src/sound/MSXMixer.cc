@@ -418,7 +418,7 @@ void MSXMixer::generate(float* output, EmuTime::param time, unsigned samples)
 	// When samples==0, call updateBuffer() but skip all further processing
 	// (handling this as a special case allows to simplify the code below).
 	if (samples == 0) {
-		alignas(SSE_ALIGNMENT) float dummyBuf[4];
+		ALIGNAS_SSE float dummyBuf[4];
 		for (auto& info : infos) {
 			info.device->updateBuffer(0, dummyBuf, time);
 		}

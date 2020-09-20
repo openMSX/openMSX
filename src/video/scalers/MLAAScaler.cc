@@ -3,6 +3,7 @@
 #include "ScalerOutput.hh"
 #include "Math.hh"
 #include "MemBuffer.hh"
+#include "aligned.hh"
 #include "vla.hh"
 #include "build-info.hh"
 #include <algorithm>
@@ -42,7 +43,7 @@ void MLAAScaler<Pixel>::scaleImage(
 	const int srcNumLines = srcEndY - srcStartY;
 	VLA(const Pixel*, srcLinePtrsArray, srcNumLines + 2);
 	auto** srcLinePtrs = &srcLinePtrsArray[1];
-	std::vector<MemBuffer<Pixel, SSE2_ALIGNMENT>> workBuffer;
+	std::vector<MemBuffer<Pixel, SSE_ALIGNMENT>> workBuffer;
 	const Pixel* line = nullptr;
 	Pixel* work = nullptr;
 	for (int y = -1; y < srcNumLines + 1; y++) {

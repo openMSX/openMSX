@@ -16,6 +16,7 @@
 #include "FinishFrameEvent.hh"
 #include "CommandException.hh"
 #include "MemBuffer.hh"
+#include "aligned.hh"
 #include "vla.hh"
 #include "likely.hh"
 #include "build-info.hh"
@@ -211,7 +212,7 @@ void PostProcessor::executeUntil(EmuTime::param /*time*/)
 			getVideoSource(), getVideoSourceSetting(), false));
 }
 
-using WorkBuffer = std::vector<MemBuffer<char, SSE2_ALIGNMENT>>;
+using WorkBuffer = std::vector<MemBuffer<char, SSE_ALIGNMENT>>;
 static void getScaledFrame(FrameSource& paintFrame, unsigned bpp,
                            unsigned height, const void** lines,
                            WorkBuffer& workBuffer)

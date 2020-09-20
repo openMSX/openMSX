@@ -5,6 +5,7 @@
 
 #include "PixelFormat.hh"
 #include "MemBuffer.hh"
+#include "aligned.hh"
 #include <cstdint>
 #include <zlib.h>
 
@@ -40,9 +41,9 @@ private:
 		unsigned offset, unsigned& workUsed);
 	const void* getScaledLine(FrameSource* frame, unsigned y, void* workBuf) const;
 
-	MemBuffer<uint8_t, SSE2_ALIGNMENT> oldframe;
-	MemBuffer<uint8_t, SSE2_ALIGNMENT> newframe;
-	MemBuffer<uint8_t, SSE2_ALIGNMENT> work;
+	MemBuffer<uint8_t, SSE_ALIGNMENT> oldframe;
+	MemBuffer<uint8_t, SSE_ALIGNMENT> newframe;
+	MemBuffer<uint8_t, SSE_ALIGNMENT> work;
 	MemBuffer<uint8_t> output;
 	MemBuffer<unsigned> blockOffsets;
 	unsigned outputSize;

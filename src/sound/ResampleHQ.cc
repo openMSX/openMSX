@@ -13,6 +13,7 @@
 #include "ResampledSoundDevice.hh"
 #include "FixedPoint.hh"
 #include "MemBuffer.hh"
+#include "aligned.hh"
 #include "likely.hh"
 #include "ranges.hh"
 #include "stl.hh"
@@ -53,7 +54,7 @@ public:
 	void releaseCoeffs(double ratio);
 
 private:
-	using Table = MemBuffer<float, SSE2_ALIGNMENT>;
+	using Table = MemBuffer<float, SSE_ALIGNMENT>;
 	using PermuteTable = MemBuffer<int16_t>;
 
 	ResampleCoeffs() = default;

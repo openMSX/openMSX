@@ -10,15 +10,6 @@
 
 namespace openmsx {
 
-// When SSE2 is enabled (some) buffers need to be 16-bytes aligned. If not
-// then don't enforce stricter than default alignment.
-#ifdef __SSE2__
-constexpr size_t SSE2_ALIGNMENT = 16;
-#else
-constexpr size_t SSE2_ALIGNMENT = 0;
-#endif
-
-
 /** This class manages the lifetime of a block of memory.
   *
   * Its two main use cases are:

@@ -8,6 +8,7 @@
 #include "MemoryOps.hh"
 #include "MemBuffer.hh"
 #include "MSXException.hh"
+#include "aligned.hh"
 #include "likely.hh"
 #include "ranges.hh"
 #include "one_of.hh"
@@ -20,7 +21,7 @@ using std::string;
 
 namespace openmsx {
 
-static MemBuffer<float, SSE2_ALIGNMENT> mixBuffer;
+static MemBuffer<float, SSE_ALIGNMENT> mixBuffer;
 static unsigned mixBufferSize = 0;
 
 static void allocateMixBuffer(unsigned size)
