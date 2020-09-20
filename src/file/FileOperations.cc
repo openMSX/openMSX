@@ -630,7 +630,7 @@ bool getStat(const std::string& filename, Stat& st)
 	// workaround for VC++: strip trailing slashes (but keep it if it's the
 	// only character in the path)
 	if (auto pos = filename2.find_last_not_of('/'); pos != string::npos) {
-		filename.resize(pos + 1);
+		filename2.resize(pos + 1);
 	} else {
 		// string was either empty or a (sequence of) '/' character(s)
 		if (!filename2.empty()) filename2.resize(1);
