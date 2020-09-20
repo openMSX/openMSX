@@ -90,8 +90,10 @@ void Trackball::plugHelper(Connector& /*connector*/, EmuTime::param time)
 	eventDistributor.registerEventListener(*this);
 	stateChangeDistributor.registerListener(*this);
 	lastSync = time;
-	targetDeltaX = targetDeltaY = 0;
-	currentDeltaX = currentDeltaY = 0;
+	targetDeltaX = 0;
+	targetDeltaY = 0;
+	currentDeltaX = 0;
+	currentDeltaY = 0;
 }
 
 void Trackball::unplugHelper(EmuTime::param /*time*/)
