@@ -28,7 +28,7 @@ private:
 };
 
 
-[[nodiscard]] static string initialFilePoolSettingValue()
+[[nodiscard]] static TclObject initialFilePoolSettingValue()
 {
 	TclObject result;
 
@@ -39,7 +39,7 @@ private:
 			makeTclDict("-path", tmpStrCat(p, "/software"),
 			            "-types", "rom disk tape"));
 	}
-	return string(result.getString());
+	return result;
 }
 
 FilePool::FilePool(CommandController& controller, Reactor& reactor_)
@@ -50,7 +50,7 @@ FilePool::FilePool(CommandController& controller, Reactor& reactor_)
 		controller, "__filepool",
 		"This is an internal setting. Don't change this directly, "
 		"instead use the 'filepool' command.",
-		initialFilePoolSettingValue())
+		initialFilePoolSettingValue().getString())
 	, reactor(reactor_)
 {
 	filePoolSetting.attach(*this);

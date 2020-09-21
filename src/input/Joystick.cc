@@ -163,7 +163,7 @@ Joystick::Joystick(MSXEventDistributor& eventDistributor_,
 	, joyNum(SDL_JoystickInstanceID(joystick_))
 	, deadSetting(globalSettings.getJoyDeadzoneSetting(joyNum))
 	, name(getJoystickName(joyNum))
-	, desc(string(SDL_JoystickName(joystick_)))
+	, desc(SDL_JoystickName(joystick_))
 	, configSetting(commandController, tmpStrCat(name, "_config"),
 		"joystick configuration", getConfigValue(joystick).getString())
 {

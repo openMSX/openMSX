@@ -115,7 +115,7 @@ int OSDConsoleRenderer::initFontAndGetColumns()
 {
 	// init font
 	fontSetting.setChecker([this](TclObject& value) {
-		loadFont(string(value.getString()));
+		loadFont(value.getString());
 	});
 	try {
 		loadFont(fontSetting.getString());
