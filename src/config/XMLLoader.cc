@@ -46,7 +46,7 @@ XMLElement load(string_view filename, string_view systemID)
 
 	XMLElementParser handler;
 	try {
-		rapidsax::parse<rapidsax::trimWhitespace>(handler, buf.data());
+		rapidsax::parse<0>(handler, buf.data());
 	} catch (rapidsax::ParseError& e) {
 		throw XMLException(filename, ": Document parsing failed: ", e.what());
 	}

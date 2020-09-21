@@ -282,30 +282,33 @@ void XMLElement::dump(string& result, unsigned indentNum) const
 //  > -> &gt;    always allowed, but must be done when it appears as ]]>
 //  ' -> &apos;  always allowed, but must be done inside quoted attribute
 //  " -> &quot;  always allowed, but must be done inside quoted attribute
-// So to simplify things we always do these 5 substitutions.
+//  all chars less than 32 -> &#xnn;
+// So to simplify things we always do these 5+32 substitutions.
 string XMLElement::XMLEscape(string_view s)
 {
-	static constexpr const char* const CHARS = "<>&\"'";
-	size_t i = s.find_first_of(CHARS);
-	if (i == string::npos) return string(s); // common case, no substitutions
-
 	string result;
-	result.reserve(s.size() + 10); // extra space for at least 2 substitutions
-	size_t pos = 0;
-	do {
-		strAppend(result, s.substr(pos, i - pos));
-		switch (s[i]) {
-		case '<' : result += "&lt;";   break;
-		case '>' : result += "&gt;";   break;
-		case '&' : result += "&amp;";  break;
-		case '"' : result += "&quot;"; break;
-		case '\'': result += "&apos;"; break;
-		default: UNREACHABLE;
+	result.reserve(s.size()); // By default assume no substitution will be needed
+	for (char c : s) {
+		if (auto uc = unsigned(c); uc < 32) {
+			auto hex = [](unsigned x) { return (x < 10) ? char(x + '0') : char(x - 10 + 'a'); };
+			result += "&#x";
+			result += hex(uc / 16);
+			result += hex(uc % 16);
+			result += ';';
+		} else if (c == '<') {
+			result += "&lt;";
+		} else if (c == '>') {
+			result += "&gt;";
+		} else if (c == '&') {
+			result += "&amp;";
+		} else if (c == '"') {
+			result += "&quot;";
+		} else if (c == '\'') {
+			result += "&apos;";
+		} else {
+			result += c;
 		}
-		pos = i + 1;
-		i = s.find_first_of(CHARS, pos);
-	} while (i != string::npos);
-	strAppend(result, s.substr(pos));
+	}
 	return result;
 }
 
