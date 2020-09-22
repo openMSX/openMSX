@@ -22,16 +22,22 @@ GLHQLiteScaler::GLHQLiteScaler(GLScaler& fallback_)
 		glUniform1i(p.getUniformLocation("offsetTex"), 3);
 	}
 
+	// GL_LUMINANCE_ALPHA is no longer supported in newer openGL versions
+	auto format = (OPENGL_VERSION >= OPENGL_3_3) ? GL_RG : GL_LUMINANCE_ALPHA;
 	edgeTexture.bind();
-	glTexImage2D(GL_TEXTURE_2D,      // target
-	             0,                  // level
-	             GL_LUMINANCE_ALPHA, // internal format
-	             320,                // width
-	             240,                // height
-	             0,                  // border
-	             GL_LUMINANCE_ALPHA, // format
-	             GL_UNSIGNED_BYTE,   // type
-	             nullptr);           // data
+	glTexImage2D(GL_TEXTURE_2D,    // target
+	             0,                // level
+	             format,           // internal format
+	             320,              // width
+	             240,              // height
+	             0,                // border
+	             format,           // format
+	             GL_UNSIGNED_BYTE, // type
+	             nullptr);         // data
+#if OPENGL_VERSION >= OPENGL_3_3
+	GLint swizzleMask1[] = {GL_RED, GL_RED, GL_RED, GL_GREEN};
+	glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask1);
+#endif
 	edgeBuffer.setImage(320, 240);
 
 	auto context = systemFileContext();
@@ -44,13 +50,17 @@ GLHQLiteScaler::GLHQLiteScaler(GLScaler& fallback_)
 		offsetTexture[i].bind();
 		glTexImage2D(GL_TEXTURE_2D,        // target
 		             0,                    // level
-		             GL_LUMINANCE_ALPHA,   // internal format
+		             format,               // internal format
 		             n * 64,               // width
 		             n * 64,               // height
 		             0,                    // border
-		             GL_LUMINANCE_ALPHA,   // format
+		             format,               // format
 		             GL_UNSIGNED_BYTE,     // type
 		             offsetFile.mmap().data());// data
+#if OPENGL_VERSION >= OPENGL_3_3
+		GLint swizzleMask2[] = {GL_RED, GL_RED, GL_RED, GL_GREEN};
+		glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask2);
+#endif
 	}
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4); // restore to default
 }
@@ -115,6 +125,7 @@ void GLHQLiteScaler::uploadBlock(
 		}
 		edgeBuffer.unmap();
 
+		auto format = (OPENGL_VERSION >= OPENGL_3_3) ? GL_RG : GL_LUMINANCE_ALPHA;
 		edgeTexture.bind();
 		glTexSubImage2D(GL_TEXTURE_2D,       // target
 		                0,                   // level
@@ -122,7 +133,7 @@ void GLHQLiteScaler::uploadBlock(
 		                srcStartY,           // offset y
 		                lineWidth,           // width
 		                srcEndY - srcStartY, // height
-		                GL_LUMINANCE_ALPHA,  // format
+		                format,              // format
 		                GL_UNSIGNED_BYTE,    // type
 		                edgeBuffer.getOffset(0, srcStartY)); // data
 	}

@@ -34,6 +34,7 @@ GLPostProcessor::GLPostProcessor(
 	frameCounter = 0;
 	noiseX = noiseY = 0.0f;
 	preCalcNoise(renderSettings.getNoise());
+	initBuffers();
 
 	storedFrame = false;
 	for (int i = 0; i < 2; ++i) {
@@ -70,6 +71,18 @@ GLPostProcessor::~GLPostProcessor()
 {
 	renderSettings.getHorizontalStretchSetting().detach(*this);
 	renderSettings.getNoiseSetting().detach(*this);
+}
+
+void GLPostProcessor::initBuffers()
+{
+	// combined positions and texture coordinates
+	static const vec2 pos_tex[4 + 4] = {
+		vec2(-1, 1), vec2(-1,-1), vec2( 1,-1), vec2( 1, 1), // pos
+		vec2( 0, 1), vec2( 0, 0), vec2( 1, 0), vec2( 1, 1), // tex
+	};
+	glBindBuffer(GL_ARRAY_BUFFER, vbo.get());
+	glBufferData(GL_ARRAY_BUFFER, sizeof(pos_tex), pos_tex, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void GLPostProcessor::createRegions()
@@ -177,7 +190,6 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 			r.srcStartY, r.srcEndY, r.lineWidth, // src
 			r.dstStartY, r.dstEndY, scrnWidth,   // dst
 			paintFrame->getHeight()); // dst
-		//GLUtil::checkGLError("GLPostProcessor::paint");
 	}
 
 	drawNoise();
@@ -195,10 +207,6 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 		} else {
 			float x1 = (320.0f - float(horStretch)) / (2.0f * 320.0f);
 			float x2 = 1.0f - x1;
-
-			static const vec2 pos[4] = {
-				vec2(-1, 1), vec2(-1,-1), vec2( 1,-1), vec2( 1, 1)
-			};
 			vec2 tex[4] = {
 				vec2(x1, 1), vec2(x1, 0), vec2(x2, 0), vec2(x2, 1)
 			};
@@ -209,18 +217,27 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 			mat4 I;
 			glUniformMatrix4fv(gl::context->unifTexMvp,
 			                   1, GL_FALSE, &I[0][0]);
-			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos);
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, tex);
+
+			glBindBuffer(GL_ARRAY_BUFFER, vbo.get());
+			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 			glEnableVertexAttribArray(0);
+
+			glBindBuffer(GL_ARRAY_BUFFER, stretchVBO.get());
+			glBufferData(GL_ARRAY_BUFFER, sizeof(tex), tex, GL_STREAM_DRAW);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 			glEnableVertexAttribArray(1);
+
 			glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
 			glDisableVertexAttribArray(1);
 			glDisableVertexAttribArray(0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
 		}
 		storedFrame = true;
 	} else {
 		storedFrame = false;
 	}
+	//gl::checkGLError("GLPostProcessor::paint");
 }
 
 std::unique_ptr<RawFrame> GLPostProcessor::rotateFrames(
@@ -345,13 +362,6 @@ void GLPostProcessor::drawGlow(int glow)
 {
 	if ((glow == 0) || !storedFrame) return;
 
-	static const vec2 pos[4] = {
-		vec2(-1, 1), vec2(-1,-1), vec2( 1,-1), vec2( 1, 1)
-	};
-	static const vec2 tex[4] = {
-		vec2( 0, 1), vec2( 0, 0), vec2( 1, 0), vec2( 1, 1)
-	};
-
 	gl::context->progTex.activate();
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -360,13 +370,22 @@ void GLPostProcessor::drawGlow(int glow)
 	            1.0f, 1.0f, 1.0f, glow * 31 / 3200.0f);
 	mat4 I;
 	glUniformMatrix4fv(gl::context->unifTexMvp, 1, GL_FALSE, &I[0][0]);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, tex);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo.get());
+
+	const vec2* offset = nullptr;
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, offset); // pos
+	offset += 4; // see initBuffers()
 	glEnableVertexAttribArray(0);
+
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, offset); // tex
 	glEnableVertexAttribArray(1);
+
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glDisable(GL_BLEND);
 }
 
@@ -383,29 +402,39 @@ void GLPostProcessor::preCalcNoise(float factor)
 		buf2[i] = (s < 0) ? -s : 0;
 	}
 
+	// GL_LUMINANCE is no longer supported in newer openGL versions
+	auto format = (OPENGL_VERSION >= OPENGL_3_3) ? GL_RED : GL_LUMINANCE;
 	noiseTextureA.bind();
 	glTexImage2D(
 		GL_TEXTURE_2D,    // target
 		0,                // level
-		GL_LUMINANCE,     // internal format
+		format,           // internal format
 		256,              // width
 		256,              // height
 		0,                // border
-		GL_LUMINANCE,     // format
+		format,           // format
 		GL_UNSIGNED_BYTE, // type
 		buf1);            // data
+#if OPENGL_VERSION >= OPENGL_3_3
+	GLint swizzleMask1[] = {GL_RED, GL_RED, GL_RED, GL_ONE};
+	glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask1);
+#endif
 
 	noiseTextureB.bind();
 	glTexImage2D(
 		GL_TEXTURE_2D,    // target
 		0,                // level
-		GL_LUMINANCE,     // internal format
+		format,           // internal format
 		256,              // width
 		256,              // height
 		0,                // border
-		GL_LUMINANCE,     // format
+		format,           // format
 		GL_UNSIGNED_BYTE, // type
 		buf2);            // data
+#if OPENGL_VERSION >= OPENGL_3_3
+	GLint swizzleMask2[] = {GL_RED, GL_RED, GL_RED, GL_ONE};
+	glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask2);
+#endif
 }
 
 void GLPostProcessor::drawNoise()

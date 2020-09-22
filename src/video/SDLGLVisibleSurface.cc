@@ -38,14 +38,27 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	//flags |= SDL_RESIZABLE;
 	createSurface(width, height, flags);
 
-	// Create an OpenGL 2.1 profile
+	// Create an OpenGL profile
+#if OPENGL_VERSION == OPENGL_ES_2_0
+	#define VERSION_STRING "openGL ES 2.0"
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+#elif OPENGL_VERSION == OPENGL_2_1
+	#define VERSION_STRING "openGL 2.1"
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+#elif OPENGL_VERSION == OPENGL_3_3
+	#define VERSION_STRING "openGL 3.3"
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+#endif
 	glContext = SDL_GL_CreateContext(window.get());
 	if (!glContext) {
 		throw InitException(
-			"Failed to create openGL 2.1 context: ", SDL_GetError());
+			"Failed to create " VERSION_STRING " context: ", SDL_GetError());
 	}
 
 	// From the glew documentation:
@@ -85,6 +98,14 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	getDisplay().getRenderSettings().getVSyncSetting().attach(vSyncObserver);
 	// set initial value
 	vSyncObserver.update(getDisplay().getRenderSettings().getVSyncSetting());
+
+#if OPENGL_VERSION == OPENGL_3_3
+	// We don't (yet/anymore) use VAO, but apparently it's required in openGL 3.3.
+	// Luckily this workaround is sufficient: create one global VAO and then don't care anymore.
+	GLuint vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+#endif
 }
 
 SDLGLVisibleSurface::~SDLGLVisibleSurface()

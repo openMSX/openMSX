@@ -14,7 +14,7 @@ using namespace openmsx;
 
 namespace gl {
 
-void checkGLError(const string& prefix)
+void checkGLError(std::string_view prefix)
 {
 	GLenum error = glGetError();
 	if (error != GL_NO_ERROR) {

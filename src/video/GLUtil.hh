@@ -19,9 +19,15 @@
 #include <string>
 #include <cassert>
 
+// arbitrary but distinct values, (roughly) ordered according to version number
+#define OPENGL_ES_2_0 1
+#define OPENGL_2_1    2
+#define OPENGL_3_3    3
+#define OPENGL_VERSION OPENGL_2_1
+
 namespace gl {
 
-void checkGLError(const std::string& prefix);
+void checkGLError(std::string_view prefix);
 
 
 // Dummy object, to be able to construct empty handler objects.

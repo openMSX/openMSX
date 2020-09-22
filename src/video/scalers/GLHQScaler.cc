@@ -23,16 +23,22 @@ GLHQScaler::GLHQScaler(GLScaler& fallback_)
 		glUniform1i(p.getUniformLocation("weightTex"), 4);
 	}
 
+	// GL_LUMINANCE_ALPHA is no longer supported in newer openGL versions
+	auto format = (OPENGL_VERSION >= OPENGL_3_3) ? GL_RG : GL_LUMINANCE_ALPHA;
 	edgeTexture.bind();
-	glTexImage2D(GL_TEXTURE_2D,      // target
-	             0,                  // level
-	             GL_LUMINANCE_ALPHA, // internal format
-	             320,                // width
-	             240,                // height
-	             0,                  // border
-	             GL_LUMINANCE_ALPHA, // format
-	             GL_UNSIGNED_BYTE,   // type
-	             nullptr);           // data
+	glTexImage2D(GL_TEXTURE_2D,    // target
+	             0,                // level
+	             format,           // internal format
+	             320,              // width
+	             240,              // height
+	             0,                // border
+	             format,           // format
+	             GL_UNSIGNED_BYTE, // type
+	             nullptr);         // data
+#if OPENGL_VERSION >= OPENGL_3_3
+	GLint swizzleMask[] = {GL_RED, GL_RED, GL_RED, GL_ONE};
+	glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
+#endif
 	edgeBuffer.setImage(320, 240);
 
 	auto context = systemFileContext();
@@ -132,6 +138,7 @@ void GLHQScaler::uploadBlock(
 		}
 		edgeBuffer.unmap();
 
+		auto format = (OPENGL_VERSION >= OPENGL_3_3) ? GL_RG : GL_LUMINANCE_ALPHA;
 		edgeTexture.bind();
 		glTexSubImage2D(GL_TEXTURE_2D,       // target
 		                0,                   // level
@@ -139,7 +146,7 @@ void GLHQScaler::uploadBlock(
 		                srcStartY,           // offset y
 		                lineWidth,           // width
 		                srcEndY - srcStartY, // height
-		                GL_LUMINANCE_ALPHA,  // format
+		                format,              // format
 		                GL_UNSIGNED_BYTE,    // type
 		                edgeBuffer.getOffset(0, srcStartY)); // data
 	}
