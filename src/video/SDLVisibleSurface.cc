@@ -134,4 +134,9 @@ void SDLVisibleSurface::clearScreen()
 	SDL_FillRect(surface.get(), nullptr, 0);
 }
 
+void SDLVisibleSurface::fullScreenUpdated(bool /*fullscreen*/)
+{
+	// nothing
+}
+
 } // namespace openmsx

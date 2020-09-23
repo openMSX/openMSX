@@ -83,14 +83,8 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 				glewGetErrorString(glew_error)));
 	}
 
-	// The created surface may be larger than requested.
-	// If that happens, center the area that we actually use.
-	int w, h;
-	SDL_GL_GetDrawableSize(window.get(), &w, &h);
-	calculateViewPort(gl::ivec2(width, height), gl::ivec2(w, h));
-	auto [vx, vy] = getViewOffset();
-	auto [vw, vh] = getViewSize();
-	glViewport(vx, vy, vw, vh);
+	bool fullscreen = getDisplay().getRenderSettings().getFullScreen();
+	setViewPort(gl::ivec2(width, height), fullscreen); // set initial values
 
 	setOpenGlPixelFormat();
 	gl::context = std::make_unique<gl::Context>(width, height);
@@ -193,6 +187,36 @@ void SDLGLVisibleSurface::VSyncObserver::update(const Setting& setting)
 		// that case.
 		SDL_GL_SetSwapInterval(1);
 	}
+}
+
+void SDLGLVisibleSurface::setViewPort(gl::ivec2 logicalSize, bool fullscreen)
+{
+	gl::ivec2 physicalSize = [&] {
+		if (fullscreen) {
+			int w, h;
+			SDL_GL_GetDrawableSize(window.get(), &w, &h);
+			return gl::ivec2(w, h);
+		} else {
+			// ??? When switching  back from fullscreen to windowed mode,
+			// SDL_GL_GetDrawableSize() still returns the dimensions of the
+			// fullscreen window ??? Is this a bug ???
+			// But we know that in windowed mode, physical and logical size
+			// must be the same, so enforce that.
+			return logicalSize;
+		}
+	}();
+
+	// The created surface may be larger than requested.
+	// If that happens, center the area that we actually use.
+	calculateViewPort(logicalSize, physicalSize);
+	auto [vx, vy] = getViewOffset();
+	auto [vw, vh] = getViewSize();
+	glViewport(vx, vy, vw, vh);
+}
+
+void SDLGLVisibleSurface::fullScreenUpdated(bool fullscreen)
+{
+	setViewPort(getLogicalSize(), fullscreen);
 }
 
 } // namespace openmsx

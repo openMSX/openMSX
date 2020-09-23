@@ -96,11 +96,12 @@ bool SDLVisibleSurfaceBase::setFullScreen(bool fullscreen)
 		return true;
 	}
 
-	// in win32, toggling full screen requires opening a new SDL screen
-	// in Linux calling the SDL_WM_ToggleFullScreen usually works fine
-	// We now always create a new screen to make the code on both OSes
-	// more similar (we had a windows-only bug because of this difference)
-	return false;
+	if (SDL_SetWindowFullscreen(window.get(),
+			fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0) != 0) {
+		return false; // error, try re-creating the window
+	}
+	fullScreenUpdated(fullscreen);
+	return true; // success
 }
 
 } // namespace openmsx
