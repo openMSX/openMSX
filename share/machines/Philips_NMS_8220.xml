@@ -10,6 +10,13 @@
     <type>MSX2</type>
   </info>
 
+  <!-- There are two ROM chips: the "1M MASK ROM" which says M531000-52 KYOCERA INT
+                                                            (C) 1986 68517 MICROSOFT
+       Note that this is a 128kB mask ROM of which only 48kB is used. It even contains
+       a disk ROM! Thanks to Tristan Zondag for finding this out.
+       and the APPLICATION ROM (containing the Designer program).
+   -->
+
   <MapperReadBackBits>largest</MapperReadBackBits>
 
   <CassettePort/>
@@ -58,6 +65,11 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
+          <filename>NMS8220SystemROM.bin</filename>
+          <sha1>e761e7081c613ad4893a664334ce105841d0e80e</sha1> <!-- 1M MASK ROM dump by Tristan Zondag -->
+          <window base="0x10000" size="0x8000"/>
+        </rom>
+        <rom>
           <filename>nms8220_basic-bios2.rom</filename>
           <sha1>6103b39f1e38d1aa2d84b1c3219c44f1abb5436e</sha1>
         </rom>
@@ -73,6 +85,11 @@
 
       <secondary slot="0">
         <ROM id="MSX Sub ROM">
+          <rom>
+            <filename>NMS8220SystemROM.bin</filename>
+            <sha1>e761e7081c613ad4893a664334ce105841d0e80e</sha1> <!-- 1M MASK ROM dump by Tristan Zondag -->
+            <window base="0x18000" size="0x4000"/>
+          </rom>
           <rom>
             <filename>nms8220_msx2sub.rom</filename>
             <sha1>f5eb0a396097572589f2a6efeed045044e9425e4</sha1> <!-- confirmed by Luc on 8220/00 -->
