@@ -25,6 +25,8 @@ variable input_buffer ""
 variable input_last_time [openmsx_info realtime]
 variable input_timeout 1; #sec
 
+variable pool_prefix "pool::"
+
 proc push_menu_info {} {
 	variable menulevels
 	incr menulevels 1
@@ -1638,10 +1640,11 @@ proc menu_create_disk_list {path drive} {
 		lappend presentation "\[Eject [file tail $cur_image]\]"
 	}
 	set i 1
+	variable pool_prefix
 	foreach pool_path [filepool::get_paths_for_type disk] {
 		if {$path ne $pool_path && [file exists $pool_path] &&
 		    ![is_empty_dir $pool_path $extensions]} {
-			lappend items $pool_path
+			lappend items "$pool_prefix$pool_path"; # special prefix to know it's not a dir-as-disk folder
 			lappend presentation "\[Disk Pool $i\]"
 		}
 		incr i
@@ -1667,15 +1670,21 @@ proc menu_select_disk {drive item {dummy false}} {
 		$drive eject
 		osd::display_message "Disk $cur_image ejected from drive [get_slot_str $drive]!"
 	} else {
+		set is_pool_item false
+		variable pool_prefix
+		if {[string match "${pool_prefix}*" $item]} {
+			set item [string replace $item 0 [string length $pool_prefix]-1]
+			set is_pool_item true
+		}
 		# if the item is already a directory, it's an absolute path, use that as fullname
 		if {[file isdirectory $item] && $item ne "." && $item ne ".." && $item ni [file volumes]} {
 			set fullname $item
-			set abspath true
+			set dir_as_disk [expr {!$is_pool_item}]
 		} else {
 			set fullname [file normalize [file join $::osd_disk_path $item]]
-			set abspath false
+			set dir_as_disk false
 		}
-		if {[file isdirectory $fullname] && $item ne "." && !$abspath} {
+		if {[file isdirectory $fullname] && $item ne "." && !$dir_as_disk} {
 			menu_close_top
 			set ::osd_disk_path [file normalize $fullname]
 			menu_create [menu_create_disk_list $::osd_disk_path $drive]
