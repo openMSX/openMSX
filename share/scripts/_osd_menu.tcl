@@ -1476,7 +1476,7 @@ proc menu_create_rom_list {path slot} {
 	set presentation [list]
 	if {[lindex [$slot] 2] ne "empty"} {
 		lappend items "--eject--"
-		lappend presentation "--eject-- [file tail [lindex [$slot] 1]]"
+		lappend presentation "\[Eject [file tail [lindex [$slot] 1]]\]"
 	}
 	set i 1
 	foreach pool_path [filepool::get_paths_for_type rom] {
@@ -1635,7 +1635,7 @@ proc menu_create_disk_list {path drive} {
 	set presentation [list]
 	if {[lindex [$drive] 2] ne "empty readonly"} {
 		lappend items "--eject--"
-		lappend presentation "--eject-- [file tail $cur_image]"
+		lappend presentation "\[Eject [file tail $cur_image]\]"
 	}
 	set i 1
 	foreach pool_path [filepool::get_paths_for_type disk] {
@@ -1649,7 +1649,7 @@ proc menu_create_disk_list {path drive} {
 
 	if {$cur_image ne $path} {
 		lappend items "."
-		lappend presentation "--insert this dir as disk--"
+		lappend presentation "\[Insert this dir as disk\]"
 	}
 
 	set files [ls $path $extensions]
@@ -1708,13 +1708,13 @@ proc menu_create_tape_list {path} {
 	set items [list]
 	set presentation [list]
 	lappend items "--create--"
-	lappend presentation "--create new and insert--"
+	lappend presentation "\[Create new and insert\]"
 	set inserted [lindex [cassetteplayer] 1]
 	if {$inserted ne ""} {
 		lappend items "--eject--"
-		lappend presentation "--eject-- [file tail $inserted]"
+		lappend presentation "\[Eject [file tail $inserted]\]"
 		lappend items "--rewind--"
-		lappend presentation "--rewind-- [file tail $inserted]"
+		lappend presentation "\[Rewind [file tail $inserted]\]"
 	}
 	if {$path ne $taperecordings_directory && [file exists $taperecordings_directory]} {
 		lappend items $taperecordings_directory
@@ -1838,7 +1838,7 @@ proc menu_create_ld_list {path} {
 	set presentation [list]
 	if {$cur_image ne ""} {
 		lappend items "--eject--"
-		lappend presentation "--eject-- [file tail $cur_image]"
+		lappend presentation "\[Eject [file tail $cur_image]\]"
 	}
 
 	set files [ls $path $extensions]
