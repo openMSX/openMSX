@@ -625,6 +625,22 @@ proc create_slot_actions_to_select_file {slot path listtype} {
 proc get_slot_str {slot} {
 	return [string toupper [string index $slot end]]
 }
+
+# this proc gives a presentation for humans of the slot contents
+proc get_slot_content {slot} {
+	set slotcontent "(empty)"
+	# alas, cassetteplayer and laserdiscplayer have a different interface :(
+	if {$slot in [list "cassetteplayer" "laserdiscplayer"]} {
+		set inserted [lindex [$slot] 1]
+		if {$inserted ne ""} {
+			set slotcontent [file tail $inserted]
+		}
+	} elseif {"empty" ni [lindex [$slot] 2]} {
+		set slotcontent [file tail [lindex [$slot] 1]]
+	}
+	return $slotcontent
+}
+
 proc create_slot_menu_def {slots path listtype menutitle create_action_proc} {
 	set menudef {
 		font-size 8
@@ -639,11 +655,7 @@ proc create_slot_menu_def {slots path listtype menutitle create_action_proc} {
 		selectable false\
 	]
 	foreach slot $slots {
-		set slotcontent "(empty)"
-		if {![string match "empty*" [lindex [$slot] 2]]} {
-			set slotcontent [file tail [lindex [$slot] 1]]
-		}
-		lappend items [list text "[get_slot_str $slot]: $slotcontent" {*}[$create_action_proc $slot $path $listtype]]
+		lappend items [list text "[get_slot_str $slot]: [get_slot_content $slot]" {*}[$create_action_proc $slot $path $listtype]]
 	}
 	dict set menudef items $items
 	return $menudef
@@ -1478,7 +1490,7 @@ proc menu_create_rom_list {path slot} {
 	set presentation [list]
 	if {[lindex [$slot] 2] ne "empty"} {
 		lappend items "--eject--"
-		lappend presentation "\[Eject [file tail [lindex [$slot] 1]]\]"
+		lappend presentation "\[Eject [get_slot_content $slot]\]"
 	}
 	set i 1
 	foreach pool_path [filepool::get_paths_for_type rom] {
@@ -1631,13 +1643,12 @@ proc menu_create_disk_list {path drive} {
 		header { textexpr "Disks $::osd_disk_path" \
 			font-size 10 \
 			post-spacing 6 }]
-	set cur_image [lindex [$drive] 1]
 	set extensions "dsk|zip|gz|xsa|dmk|di1|di2|fd?|1|2|3|4|5|6|7|8|9"
 	set items [list]
 	set presentation [list]
 	if {[lindex [$drive] 2] ne "empty readonly"} {
 		lappend items "--eject--"
-		lappend presentation "\[Eject [file tail $cur_image]\]"
+		lappend presentation "\[Eject [get_slot_content $drive]\]"
 	}
 	set i 1
 	variable pool_prefix
@@ -1650,7 +1661,7 @@ proc menu_create_disk_list {path drive} {
 		incr i
 	}
 
-	if {$cur_image ne $path} {
+	if {[lindex [$drive] 1] ne $path} {
 		lappend items "."
 		lappend presentation "\[Insert this dir as disk\]"
 	}
@@ -1665,7 +1676,7 @@ proc menu_create_disk_list {path drive} {
 
 proc menu_select_disk {drive item {dummy false}} {
 	if {$item eq "--eject--"} {
-		set cur_image [lindex [$drive] 1]
+		set cur_image [get_slot_content $drive]
 		menu_close_all
 		$drive eject
 		osd::display_message "Disk $cur_image ejected from drive [get_slot_str $drive]!"
@@ -1721,9 +1732,9 @@ proc menu_create_tape_list {path} {
 	set inserted [lindex [cassetteplayer] 1]
 	if {$inserted ne ""} {
 		lappend items "--eject--"
-		lappend presentation "\[Eject [file tail $inserted]\]"
+		lappend presentation "\[Eject [get_slot_content cassetteplayer]\]"
 		lappend items "--rewind--"
-		lappend presentation "\[Rewind [file tail $inserted]\]"
+		lappend presentation "\[Rewind [get_slot_content cassetteplayer]\]"
 	}
 	if {$path ne $taperecordings_directory && [file exists $taperecordings_directory]} {
 		lappend items $taperecordings_directory
@@ -1841,13 +1852,12 @@ proc menu_create_ld_list {path} {
 		header { textexpr "LaserDiscs $::osd_ld_path" \
 			font-size 10 \
 			post-spacing 6 }]
-	set cur_image [lindex [laserdiscplayer] 1]
 	set extensions "ogv"
 	set items [list]
 	set presentation [list]
-	if {$cur_image ne ""} {
+	if {[lindex [laserdiscplayer] 1] ne ""} {
 		lappend items "--eject--"
-		lappend presentation "\[Eject [file tail $cur_image]\]"
+		lappend presentation "\[Eject [get_slot_content laserdiscplayer]\]"
 	}
 
 	set files [ls $path $extensions]
@@ -1861,8 +1871,8 @@ proc menu_create_ld_list {path} {
 proc menu_select_ld {item} {
 	if {$item eq "--eject--"} {
 		menu_close_all
-		osd::display_message [laserdiscplayer eject]
-		set cur_image [lindex [laserdiscplayer] 1]
+		set cur_image [get_slot_content laserdiscplayer]
+		laserdiscplayer eject
 		osd::display_message "LaserDisc $cur_image ejected!"
 	} else {
 		set fullname [file join $::osd_ld_path $item]
