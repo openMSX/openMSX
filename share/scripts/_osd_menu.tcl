@@ -1217,17 +1217,21 @@ proc menu_load_machine_exec_add {item} {
 	}
 }
 
-proc menu_create_extensions_list {} {
-	set menu_def {
-	         execute menu_add_extension_exec
-	         font-size 8
-	         border-size 2
-	         width 200
-	         xpos 110
-	         ypos 130
-	         header { text "Select Extension to Add"
-	                  font-size 10
-	                  post-spacing 6 }}
+proc menu_create_extensions_list {{slot "none"}} {
+	set target_text "Add"
+	if {$slot ne ""} {
+		set target_text "Insert Into Slot [get_slot_str $slot]"
+	}
+	set menu_def [list \
+	         execute "menu_add_extension_exec $slot"\
+	         font-size 8 \
+	         border-size 2 \
+	         width 200 \
+	         xpos 110 \
+	         ypos 130 \
+	         header [list text "Select Extension to $target_text" \
+	                  font-size 10 \
+	                  post-spacing 6] ]
 
 	set items [get_filtered_configs extensions]
 	set presentation [list]
@@ -1249,8 +1253,12 @@ proc menu_create_extensions_list {} {
 	return [prepare_menu_list $items_sorted 10 $menu_def]
 }
 
-proc menu_add_extension_exec {item} {
-	if {[catch {ext $item} errorText]} {
+proc menu_add_extension_exec {slot item} {
+	if {$slot eq "none"} {
+		set slot ""
+	}
+	set ext [string index $slot end]
+	if {[catch {if {$slot ne ""} { cart${ext} eject }; ext${ext} $item} errorText]} {
 		osd::display_message $errorText error
 	} else {
 		menu_close_all
@@ -1481,7 +1489,7 @@ proc menu_create_rom_list {path slot} {
 		width 200 \
 		xpos 100 \
 		ypos 120 \
-		header { textexpr "ROMs $::osd_rom_path" \
+		header { textexpr "Cartridges $::osd_rom_path" \
 			font-size 10 \
 			post-spacing 6 }]
 	set extensions "rom|ri|mx1|mx2|zip|gz"
@@ -1492,6 +1500,8 @@ proc menu_create_rom_list {path slot} {
 		lappend presentation "\[Eject [get_slot_content $slot]\]"
 	}
 	set i 1
+	lappend items "--extension--"
+	lappend presentation "\[Insert Extension\]"
 	foreach pool_path [filepool::get_paths_for_type rom] {
 		if {$path ne $pool_path && [file exists $pool_path] &&
 		    ![is_empty_dir $pool_path $extensions]} {
@@ -1513,6 +1523,8 @@ proc menu_select_rom {slot item {open_main false}} {
 		menu_close_all
 		$slot eject
 		reset
+	} elseif {$item eq "--extension--"} {
+		osd_menu::menu_create [osd_menu::menu_create_extensions_list $slot]
 	} else {
 		set fullname [file join $::osd_rom_path $item]
 		if {[file isdirectory $fullname]} {
