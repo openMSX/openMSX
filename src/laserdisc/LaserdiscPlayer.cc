@@ -847,6 +847,7 @@ void LaserdiscPlayer::stop(EmuTime::param time)
 void LaserdiscPlayer::eject(EmuTime::param time)
 {
 	stop(time);
+	oggImage = {};
 	video.reset();
 }
 
