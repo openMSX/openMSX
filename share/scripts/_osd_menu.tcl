@@ -611,6 +611,28 @@ proc select_next_menu_item_starting_with {text} {
 	select_menu_idx $index
 }
 
+proc get_extension_slot { device } {
+	set cart_slots [info command cart?]
+	foreach slot $cart_slots {
+		if {[lindex [$slot] 1] eq $device} {
+			return $slot
+		}
+	}
+	return ""
+}
+
+proc get_io_extensions {} {
+	set io_extensions [list]
+	set extensions [list_extensions]
+	foreach extension $extensions {
+		if {[get_extension_slot $extension] eq ""} {
+			lappend io_extensions $extension
+		}
+	}
+	return $io_extensions
+}
+
+
 variable mediaslot_info [dict create \
 "rom"      [dict create mediabasecommand "cart"           mediapath "::osd_rom_path"  listtype "rom"  itemtext "Cartridge Slot"    shortmediaslotname "slot"  longmediaslotname "cartridge slot"]\
 "disk"     [dict create mediabasecommand "disk"           mediapath "::osd_disk_path" listtype "disk" itemtext "Disk Drive" shortmediaslotname "drive" longmediaslotname "disk drive"]\
@@ -641,7 +663,7 @@ proc get_slot_content {slot} {
 	return $slotcontent
 }
 
-proc create_slot_menu_def {slots path listtype menutitle create_action_proc} {
+proc create_slot_menu_def {slots path listtype menutitle create_action_proc {show_io_slots false}} {
 	set menudef {
 		font-size 8
 		border-size 2
@@ -656,6 +678,12 @@ proc create_slot_menu_def {slots path listtype menutitle create_action_proc} {
 	]
 	foreach slot $slots {
 		lappend items [list text "[get_slot_str $slot]: [get_slot_content $slot]" {*}[$create_action_proc $slot $path $listtype]]
+	}
+	# hack: use special parameter show_io_slots to add cartridge specific I/O slots
+	if {$show_io_slots} {
+		foreach extension [get_io_extensions] {
+			lappend items [list text "\[Remove I/O extension: [utils::get_extension_display_name_by_config_name $extension]\]" actions [list A "osd_menu::menu_remove_extension_exec $extension"]]
+		}
 	}
 	dict set menudef items $items
 	return $menudef
@@ -676,14 +704,15 @@ proc create_media_menu_items {file_type_category} {
 		]
 	} else {
 		set slots [lsort [info command ${mediabasecommand}?]]; # TODO: make more generic
-		if {[llength $slots] <= 2} {
+		set is_cart [expr {$file_type_category eq "rom"}]
+		if {[llength $slots] <= 2 && !($is_cart && [llength [get_io_extensions]] > 0)} {
 			foreach slot $slots {
 				lappend menuitems [list text "\[${itemtext} [get_slot_str $slot]: [get_slot_content $slot]\]" {*}[create_slot_actions_to_select_file $slot $mediapath $listtype]]
 			}
 		} else {
 			set slot [lindex $slots 0]
 			lappend menuitems [list text "\[${itemtext} [get_slot_str $slot]: [get_slot_content $slot]\]" {*}[create_slot_actions_to_select_file $slot $mediapath $listtype]]
-			lappend menuitems [list text "\[All ${itemtext}s... \]" actions [list A "osd_menu::menu_create \[osd_menu::create_slot_menu_def \[list $slots\] \{$mediapath\} \{$listtype\} \{Select $longmediaslotname...\} \{create_slot_actions_to_select_file\}\]"]]
+			lappend menuitems [list text "\[All ${itemtext}s... \]" actions [list A "osd_menu::menu_create \[osd_menu::create_slot_menu_def \[list $slots\] \{$mediapath\} \{$listtype\} \{Select $longmediaslotname...\} \{create_slot_actions_to_select_file\} $is_cart\]"]]
 		}
 	}
 	return $menuitems
@@ -1219,7 +1248,7 @@ proc menu_load_machine_exec_add {item} {
 
 proc menu_create_extensions_list {{slot "none"}} {
 	set target_text "Add"
-	if {$slot ne ""} {
+	if {$slot ne "none"} {
 		set target_text "Insert Into Slot [get_slot_str $slot]"
 	}
 	set menu_def [list \
@@ -1261,7 +1290,9 @@ proc menu_add_extension_exec {slot item} {
 	if {[catch {if {$slot ne ""} { cart${ext} eject }; ext${ext} $item} errorText]} {
 		osd::display_message $errorText error
 	} else {
+		set location [expr {[get_extension_slot $item] ne "" ? "slot [get_slot_str $slot]" : "I/O only slot"}]
 		menu_close_all
+		osd::display_message "Extension [utils::get_extension_display_name_by_config_name $item] inserted in $location!"
 	}
 }
 
@@ -1300,6 +1331,9 @@ proc menu_create_plugged_extensions_list {} {
 proc menu_remove_extension_exec {item} {
 	menu_close_all
 	remove_extension $item
+	set slot [get_extension_slot $item]
+	set location [expr {$slot ne "" ? "slot [get_slot_str $slot]" : "I/O only slot"}]
+	osd::display_message "Extension [utils::get_extension_display_name_by_config_name $item] removed from $location!"
 }
 
 proc menu_create_connectors_list {} {
