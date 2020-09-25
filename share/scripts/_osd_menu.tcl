@@ -612,9 +612,9 @@ proc select_next_menu_item_starting_with {text} {
 }
 
 variable mediaslot_info [dict create \
-"rom"      [dict create mediabasecommand "cart"           mediapath "::osd_rom_path"  listtype "rom"  itemtext "Load ROM"    shortmediaslotname "slot"  longmediaslotname "cartridge slot"]\
-"disk"     [dict create mediabasecommand "disk"           mediapath "::osd_disk_path" listtype "disk" itemtext "Insert disk" shortmediaslotname "drive" longmediaslotname "disk drive"]\
-#"cassette" [dict create mediabasecommand "cassetteplayer" mediapath "::osd_tape_path" listtype "tape" itemtext "Set tape"    shortmediaslotname "xxx"   longmediaslotname "cassette player"]\
+"rom"      [dict create mediabasecommand "cart"           mediapath "::osd_rom_path"  listtype "rom"  itemtext "Cartridge Slot"    shortmediaslotname "slot"  longmediaslotname "cartridge slot"]\
+"disk"     [dict create mediabasecommand "disk"           mediapath "::osd_disk_path" listtype "disk" itemtext "Disk Drive" shortmediaslotname "drive" longmediaslotname "disk drive"]\
+#"cassette" [dict create mediabasecommand "cassetteplayer" mediapath "::osd_tape_path" listtype "tape" itemtext "Tape Deck"    shortmediaslotname "xxx"   longmediaslotname "cassette player"]\
 ]
 
 proc create_slot_actions_to_select_file {slot path listtype} {
@@ -678,12 +678,12 @@ proc create_media_menu_items {file_type_category} {
 		set slots [lsort [info command ${mediabasecommand}?]]; # TODO: make more generic
 		if {[llength $slots] <= 2} {
 			foreach slot $slots {
-				lappend menuitems [list text "${itemtext}... (${shortmediaslotname} [get_slot_str $slot])" {*}[create_slot_actions_to_select_file $slot $mediapath $listtype]]
+				lappend menuitems [list text "\[${itemtext} [get_slot_str $slot]: [get_slot_content $slot]\]" {*}[create_slot_actions_to_select_file $slot $mediapath $listtype]]
 			}
 		} else {
 			set slot [lindex $slots 0]
-			lappend menuitems [list text "${itemtext}... (${shortmediaslotname} [get_slot_str $slot])" {*}[create_slot_actions_to_select_file $slot $mediapath $listtype]]
-			lappend menuitems [list text "${itemtext}... (any ${shortmediaslotname})" actions [list A "osd_menu::menu_create \[osd_menu::create_slot_menu_def \[list $slots\] \{$mediapath\} \{$listtype\} \{Select $longmediaslotname...\} \{create_slot_actions_to_select_file\}\]"]]
+			lappend menuitems [list text "\[${itemtext} [get_slot_str $slot]: [get_slot_content $slot]\]" {*}[create_slot_actions_to_select_file $slot $mediapath $listtype]]
+			lappend menuitems [list text "\[All ${itemtext}s... \]" actions [list A "osd_menu::menu_create \[osd_menu::create_slot_menu_def \[list $slots\] \{$mediapath\} \{$listtype\} \{Select $longmediaslotname...\} \{create_slot_actions_to_select_file\}\]"]]
 		}
 	}
 	return $menuitems
@@ -712,9 +712,8 @@ proc create_main_menu {} {
 		}
 	}
 	if {[info command laserdiscplayer] ne ""} {; # only exists on some Pioneers
-		lappend items { text "Load LaserDisc..."
-			actions { A { set curSel [lindex [laserdiscplayer] 1]; set ::osd_ld_path [expr {$curSel ne {} ? [file dirname $curSel] : $::osd_ld_path}]; osd_menu::menu_create [osd_menu::menu_create_ld_list $::osd_ld_path]; catch { osd_menu::select_menu_item [file tail $curSel]}} }
-		}
+		lappend items [list text "\[LaserDisc Player: [get_slot_content laserdiscplayer]\]" \
+			actions [list A "set curSel \[lindex \[laserdiscplayer\] 1\]; set ::osd_ld_path \[expr {\$curSel ne {} ? \[file dirname \$curSel\] : \$::osd_ld_path}\]; osd_menu::menu_create \[osd_menu::menu_create_ld_list \$::osd_ld_path\]; catch { osd_menu::select_menu_item \[file tail \$curSel\]}"]]
 	}
 	if {[catch "machine_info connector cassetteport"]} {; # example: turboR
 		lappend items { text "(No cassette port present...)"
@@ -723,9 +722,9 @@ proc create_main_menu {} {
 			post-spacing 3
 		}
 	} else {
-		lappend items { text "Set Tape..."
-	         actions { A { osd_menu::menu_create [osd_menu::menu_create_tape_list $::osd_tape_path]; catch { osd_menu::select_menu_item [file tail [lindex [cassetteplayer] 1]]}} }
-	         post-spacing 3 }
+		lappend items [list text "\[Tape Deck: [get_slot_content cassetteplayer]\]" \
+			actions [list A "osd_menu::menu_create \[osd_menu::menu_create_tape_list $::osd_tape_path\]; catch { osd_menu::select_menu_item [file tail [lindex [cassetteplayer] 1]]}" ] \
+	         post-spacing 3 ]
 	}
 	lappend items { text "Save State..."
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_save_state] }}}
