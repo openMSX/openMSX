@@ -3,6 +3,7 @@
 
 #include "FileOperations.hh"
 #include "ReadDir.hh"
+#include "StringOp.hh"
 #include "one_of.hh"
 #include <functional>
 #include <string_view>
@@ -102,7 +103,7 @@ namespace openmsx {
 			bool needStat = statFile || statDir;
 
 			ReadDir dir(path);
-			path += '/';
+			if (!StringOp::endsWith(path, '/')) path += '/';
 			auto origLen = path.size();
 			while (dirent* d = dir.getEntry()) {
 				std::string_view f(d->d_name);
