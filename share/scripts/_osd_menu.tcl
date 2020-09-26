@@ -1516,6 +1516,38 @@ proc is_empty_dir {directory extensions} {
 	return true
 }
 
+proc get_non_empty_pools {type extensions exclude_path} {
+	set pools [list]
+	foreach pool_path [filepool::get_paths_for_type $type] {
+		if {$exclude_path ne $pool_path && [file exists $pool_path] &&
+		    ![is_empty_dir $pool_path $extensions]} {
+			lappend pools $pool_path
+		}
+	}
+	return $pools
+}
+
+proc add_pools_to_menu { pools item_list presentation_list list_name} {
+	upvar $item_list items
+	upvar $presentation_list presentation
+	variable pool_prefix
+	set prefix [expr {$list_name == "Disk" ? $pool_prefix : ""}]; # special prefix to know it's not a dir-as-disk folder
+	if {[llength $pools] == 0} {
+		return
+	} elseif {[llength $pools] == 1} {
+		set pool_path [lindex $pools 0]
+		lappend items $prefix$pool_path
+		lappend presentation "\[$list_name Pool: $pool_path\]"
+	} else {
+		set i 1
+		foreach pool_path $pools {
+			lappend items $pool_path
+			lappend presentation "\[$list_name Pool $i: $pool_path\]"
+			incr i
+		}
+	}
+}
+
 proc menu_create_rom_list {path slot} {
 	set menu_def [list execute [list menu_select_rom $slot] \
 		font-size 8 \
@@ -1533,17 +1565,10 @@ proc menu_create_rom_list {path slot} {
 		lappend items "--eject--"
 		lappend presentation "\[Eject [get_slot_content $slot]\]"
 	}
-	set i 1
 	lappend items "--extension--"
 	lappend presentation "\[Insert Extension\]"
-	foreach pool_path [filepool::get_paths_for_type rom] {
-		if {$path ne $pool_path && [file exists $pool_path] &&
-		    ![is_empty_dir $pool_path $extensions]} {
-			lappend items $pool_path
-			lappend presentation "\[ROM Pool $i\]"
-		}
-		incr i
-	}
+	set pools [get_non_empty_pools "rom" $extensions $path]
+	add_pools_to_menu $pools items presentation "ROM"
 	set files [ls $path $extensions]
 	set items [concat $items $files]
 	set presentation [concat $presentation $files]
@@ -1695,17 +1720,8 @@ proc menu_create_disk_list {path drive} {
 		lappend items "--eject--"
 		lappend presentation "\[Eject [get_slot_content $drive]\]"
 	}
-	set i 1
-	variable pool_prefix
-	foreach pool_path [filepool::get_paths_for_type disk] {
-		if {$path ne $pool_path && [file exists $pool_path] &&
-		    ![is_empty_dir $pool_path $extensions]} {
-			lappend items "$pool_prefix$pool_path"; # special prefix to know it's not a dir-as-disk folder
-			lappend presentation "\[Disk Pool $i\]"
-		}
-		incr i
-	}
-
+	set pools [get_non_empty_pools "disk" $extensions $path]
+	add_pools_to_menu $pools items presentation "Disk"
 	if {[lindex [$drive] 1] ne $path} {
 		lappend items "."
 		lappend presentation "\[Insert this dir as disk\]"
@@ -1785,16 +1801,8 @@ proc menu_create_tape_list {path} {
 		lappend items $taperecordings_directory
 		lappend presentation "\[My Tape Recordings\]"
 	}
-	set i 1
-	foreach pool_path [filepool::get_paths_for_type tape] {
-		if {$path ne $pool_path && [file exists $pool_path] &&
-		    ![is_empty_dir $pool_path $extensions]} {
-			lappend items $pool_path
-			lappend presentation "\[Tape Pool $i\]"
-		}
-		incr i
-	}
-
+	set pools [get_non_empty_pools "tape" $extensions $path]
+	add_pools_to_menu $pools items presentation "Tape"
 	set files [ls $path $extensions]
 	set items [concat $items $files]
 	set presentation [concat $presentation $files]
