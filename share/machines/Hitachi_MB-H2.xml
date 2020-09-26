@@ -24,6 +24,38 @@
   Machine has a built-in datarecorder, which is not emulated as such. The
   built-in firmware seems to have commands to control the datarecorder, which
   are also not emulated.
+
+  Thanks to BiFi we know something about how the datarecorder is controlled:
+  - control via I/O port 0x94, with the following bit map:
+    bit 7 = Fast Forward
+    bit 6 = Rewind
+    bit 5 = Record
+    bit 4 = Stop
+    bit 3 = Pause
+    bit 2 = Play
+    bit 1 = Scan
+    bit 0 = Mute
+  - Scan is done in combination with Fast Forward, Rewind or Record. It's used
+    to scan for the next, previous or blank spot on the cassette respectively.
+  - Scan in combination with Play is the _IDTRACE command
+  - Scan in combination with Pause is the _STDBY command
+  - The scanning stuff is implemented in hardware
+  - The commands as mentioned in the Cassette Operation Guide:
+    _CFILES:   not sure, probably a scan of the whole tape
+    _REC:      only bit 5 and 3 on 1 ("ready to record")
+    _PLAY:     only bit 2 on 1
+    _REW:      only bit 6 on 1
+    _FF:       only bit 7 on 1
+    _STOP:     only bit 4 on 1
+    _PAUSE:    only bit 3 on 1
+    _NSCAN:    only bit 1 and 7 on 1: Next SCAN
+    _CSCAN:    only bit 1 and 6 on 1: C(urrent)? SCAN
+    _IDTRACE:  only bit 1 and 2 on 1
+    _BLSCAN:   only bit 1 and 5 on 1: BLank SCAN
+    _STDBY:    only bit 1 and 3 on 1: stand by (?)
+    _AUTOMUTE: ??? mutes and unmutes depending on bits read from port 0x94
+    _MUTE:     only bit 0 on 1
+
   The speed-control button/option is also not emulated.
 -->
 
