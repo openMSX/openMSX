@@ -421,7 +421,7 @@ proc do_menu_open {top_menu} {
 	bind -layer osd_menu "CTRL+UP"      {osd_menu::select_menu_idx 0}
 	bind -layer osd_menu "CTRL+LEFT"    {osd_menu::select_menu_idx 0}
 	bind -layer osd_menu "keyb HOME"    {osd_menu::select_menu_idx 0}
-	set alphanum {a b c d e f g h i j k l m n o p q r s t u v w x y z 0 1 2 3 4 5 6 7 8 9}
+	set alphanum {a b c d e f g h i j k l m n o p q r s t u v w x y z 0 1 2 3 4 5 6 7 8 9 MINUS SHIFT+MINUS}
 	foreach char $alphanum {
 		bind -layer osd_menu "keyb $char"      "osd_menu::handle_keyboard_input $char"
 	}
@@ -577,6 +577,12 @@ proc handle_keyboard_input {char} {
 	variable input_buffer
 	variable input_last_time
 	variable input_timeout
+
+	if {$char eq "MINUS"} {
+		set char "-"
+	} elseif {$char eq "SHIFT+MINUS"} {
+		set char "_"
+	}
 
 	set current_time [openmsx_info realtime]
 	if {[expr {$current_time - $input_last_time}] < $input_timeout} {
