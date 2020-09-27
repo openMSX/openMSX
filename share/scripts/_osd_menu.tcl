@@ -640,7 +640,7 @@ proc get_io_extensions {} {
 
 
 variable mediaslot_info [dict create \
-"rom"      [dict create mediabasecommand "cart"           mediapath "::osd_rom_path"  listtype "rom"  itemtext "Cartridge Slot"    shortmediaslotname "slot"  longmediaslotname "cartridge slot"]\
+"rom"      [dict create mediabasecommand "cart"           mediapath "::osd_rom_path"  listtype "rom"  itemtext "Cart. Slot"    shortmediaslotname "slot"  longmediaslotname "cartridge slot"]\
 "disk"     [dict create mediabasecommand "disk"           mediapath "::osd_disk_path" listtype "disk" itemtext "Disk Drive" shortmediaslotname "drive" longmediaslotname "disk drive"]\
 #"cassette" [dict create mediabasecommand "cassetteplayer" mediapath "::osd_tape_path" listtype "tape" itemtext "Tape Deck"    shortmediaslotname "xxx"   longmediaslotname "cassette player"]\
 ]
@@ -657,14 +657,25 @@ proc get_slot_str {slot} {
 # this proc gives a presentation for humans of the slot contents
 proc get_slot_content {slot} {
 	set slotcontent "(empty)"
-	# alas, cassetteplayer and laserdiscplayer have a different interface :(
-	if {$slot in [list "cassetteplayer" "laserdiscplayer"]} {
-		set inserted [lindex [$slot] 1]
-		if {$inserted ne ""} {
-			set slotcontent [file tail $inserted]
+	set filename [lindex [$slot] 1]
+	if {$filename ne ""} {
+		set slotcontent [file tail $filename]
+		if {[string match "cart*" $slot]} {
+			if {$slotcontent in [openmsx_info extensions]} {
+				# extension
+				set slotcontent [utils::get_extension_display_name_by_config_name $slotcontent]
+			} else {
+				# ROM
+				foreach device [machine_info device] {
+					set device_info [machine_info device $device]
+					if {[dict get $device_info type] eq "ROM" &&
+					    [dict get $device_info filename] eq $filename} {
+						set slotcontent $device
+						break
+					}
+				}
+			}
 		}
-	} elseif {"empty" ni [lindex [$slot] 2]} {
-		set slotcontent [file tail [lindex [$slot] 1]]
 	}
 	return $slotcontent
 }
@@ -673,7 +684,7 @@ proc create_slot_menu_def {slots path listtype menutitle create_action_proc {sho
 	set menudef {
 		font-size 8
 		border-size 2
-		width 150
+		width 200
 		xpos 100
 		ypos 80
 	}
@@ -688,7 +699,7 @@ proc create_slot_menu_def {slots path listtype menutitle create_action_proc {sho
 	# hack: use special parameter show_io_slots to add cartridge specific I/O slots
 	if {$show_io_slots} {
 		foreach extension [get_io_extensions] {
-			lappend items [list text "\[Remove I/O extension: [utils::get_extension_display_name_by_config_name $extension]\]" actions [list A "osd_menu::menu_remove_extension_exec $extension"]]
+			lappend items [list text "\[Remove I/O ext.: [utils::get_extension_display_name_by_config_name $extension]\]" actions [list A "osd_menu::menu_remove_extension_exec $extension"]]
 		}
 	}
 	dict set menudef items $items
