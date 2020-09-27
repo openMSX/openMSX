@@ -325,15 +325,10 @@ template<typename T>
 // append() / concat()
 namespace detail {
 
-[[nodiscard]] inline size_t sum_of_sizes()
+template<typename... Ranges>
+[[nodiscard]] size_t sum_of_sizes(const Ranges&... ranges)
 {
-	return 0;
-}
-template<typename Range, typename... Tail>
-[[nodiscard]] size_t sum_of_sizes(const Range& r, Tail&&... tail)
-{
-	return std::distance(std::begin(r), std::end(r)) +
-	       sum_of_sizes(std::forward<Tail>(tail)...);
+    return (0 + ... + std::distance(std::begin(ranges), std::end(ranges)));
 }
 
 template<typename Result>
