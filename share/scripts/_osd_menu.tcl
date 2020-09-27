@@ -638,6 +638,16 @@ proc get_io_extensions {} {
 	return $io_extensions
 }
 
+proc get_ROM_device_name_by_filename { filename } {
+	foreach device [machine_info device] {
+		set device_info [machine_info device $device]
+		if {[dict get $device_info type] eq "ROM" &&
+		    [dict get $device_info filename] eq $filename} {
+			return $device
+		}
+	}
+	return ""
+}
 
 variable mediaslot_info [dict create \
 "rom"      [dict create mediabasecommand "cart"           mediapath "::osd_rom_path"  listtype "rom"  itemtext "Cart. Slot"    shortmediaslotname "slot"  longmediaslotname "cartridge slot"]\
@@ -666,13 +676,9 @@ proc get_slot_content {slot} {
 				set slotcontent [utils::get_extension_display_name_by_config_name $slotcontent]
 			} else {
 				# ROM
-				foreach device [machine_info device] {
-					set device_info [machine_info device $device]
-					if {[dict get $device_info type] eq "ROM" &&
-					    [dict get $device_info filename] eq $filename} {
-						set slotcontent $device
-						break
-					}
+				set devicename [get_ROM_device_name_by_filename $filename]
+				if {$devicename ne ""} {
+					set slotcontent $devicename
 				}
 			}
 		}
@@ -1629,9 +1635,11 @@ proc menu_rom_with_mappertype_exec {slot fullname mappertype} {
 	} else {
 		menu_close_all
 
-		set rominfo [getlist_rom_info]
+		set filename [lindex [$slot] 1]
+		set devicename [get_ROM_device_name_by_filename $filename]
+		set rominfo [getlist_rom_info $devicename]
 
-		set message1 "Now running ROM"
+		set message1 "Inserted ROM"
 		set message2 " \n"
 
 		dict with rominfo {
