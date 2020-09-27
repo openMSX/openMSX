@@ -112,39 +112,6 @@ template<typename T>
 	return likely(uint8_t(x) == x) ? x : ~(x >> 31);
 }
 
-/** Calculate greatest common divider of two strictly positive integers.
-  * Classical implementation is like this:
-  *    while (unsigned t = b % a) { b = a; a = t; }
-  *    return a;
-  * The following implementation avoids the costly modulo operation. It
-  * is about 40% faster on my machine.
-  *
-  * require: a != 0  &&  b != 0
-  */
-[[nodiscard]] inline unsigned gcd(unsigned a, unsigned b)
-{
-	unsigned k = 0;
-	while (((a & 1) == 0) && ((b & 1) == 0)) {
-		a >>= 1; b >>= 1; ++k;
-	}
-
-	// either a or b (or both) is odd
-	while ((a & 1) == 0) a >>= 1;
-	while ((b & 1) == 0) b >>= 1;
-
-	// both a and b odd
-	while (a != b) {
-		if (a >= b) {
-			a -= b;
-			do { a >>= 1; } while ((a & 1) == 0);
-		} else {
-			b -= a;
-			do { b >>= 1; } while ((b & 1) == 0);
-		}
-	}
-	return b << k;
-}
-
 /** Reverse the lower N bits of a given value.
   * The upper 32-N bits from the input are ignored and will be returned as 0.
   * For example reverseNBits('xxxabcde', 5) returns '000edcba' (binary notation).

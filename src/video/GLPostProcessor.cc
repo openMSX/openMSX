@@ -5,7 +5,6 @@
 #include "FloatSetting.hh"
 #include "OutputSurface.hh"
 #include "RawFrame.hh"
-#include "Math.hh"
 #include "InitException.hh"
 #include "gl_transform.hh"
 #include "random.hh"
@@ -14,6 +13,7 @@
 #include "vla.hh"
 #include <cassert>
 #include <cstdint>
+#include <numeric>
 
 using namespace gl;
 
@@ -92,7 +92,7 @@ void GLPostProcessor::createRegions()
 	const unsigned srcHeight = paintFrame->getHeight();
 	const unsigned dstHeight = screen.getLogicalHeight();
 
-	unsigned g = Math::gcd(srcHeight, dstHeight);
+	unsigned g = std::gcd(srcHeight, dstHeight);
 	unsigned srcStep = srcHeight / g;
 	unsigned dstStep = dstHeight / g;
 

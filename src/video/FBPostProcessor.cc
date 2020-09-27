@@ -6,7 +6,6 @@
 #include "Scaler.hh"
 #include "ScalerFactory.hh"
 #include "SDLOutputSurface.hh"
-#include "Math.hh"
 #include "aligned.hh"
 #include "checked_cast.hh"
 #include "random.hh"
@@ -16,6 +15,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cstddef>
+#include <numeric>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
@@ -288,7 +288,7 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output_)
 	const unsigned srcHeight = paintFrame->getHeight();
 	const unsigned dstHeight = output.getLogicalHeight();
 
-	unsigned g = Math::gcd(srcHeight, dstHeight);
+	unsigned g = std::gcd(srcHeight, dstHeight);
 	unsigned srcStep = srcHeight / g;
 	unsigned dstStep = dstHeight / g;
 

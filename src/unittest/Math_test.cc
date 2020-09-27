@@ -119,34 +119,6 @@ TEST_CASE("Math::clipIntToByte")
 	CHECK(Math::clipIntToByte( 327) == 255);
 }
 
-static unsigned classic_gcd(unsigned a, unsigned b)
-{
-	while (unsigned t = b % a) { b = a; a = t; }
-	return a;
-}
-static void testGcd(unsigned a, unsigned b)
-{
-	unsigned expected = classic_gcd(a, b);
-	CHECK(Math::gcd(a, b) == expected);
-	CHECK(Math::gcd(b, a) == expected);
-}
-TEST_CASE("Math::gcd")
-{
-	testGcd(1, 1);
-	testGcd(1, 2);
-	testGcd(1, 1234500);
-	testGcd(14, 1);
-	testGcd(14, 2);
-	testGcd(14, 7);
-	testGcd(14, 21);
-	testGcd(14, 291);
-	testGcd(14, 6398);
-	testGcd(1464, 6398);
-	testGcd(1464, 6398);
-	CHECK(Math::gcd(320, 1280) == 320);
-	CHECK(Math::gcd(123 * 121972, 123 * 9710797) == 123);
-}
-
 static void testReverseNBits(unsigned x, unsigned n, unsigned expected)
 {
 	CHECK(Math::reverseNBits(x, n) == expected);
