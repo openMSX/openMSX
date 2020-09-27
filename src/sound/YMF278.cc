@@ -33,12 +33,12 @@
 #include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
-#include "Math.hh"
 #include "likely.hh"
 #include "one_of.hh"
 #include "outer.hh"
 #include "ranges.hh"
 #include "serialize.hh"
+#include <algorithm>
 
 namespace openmsx {
 
@@ -245,10 +245,10 @@ int YMF278::Slot::compute_rate(int val) const
 	int res = val * 4;
 	if (RC != 15) {
 		// clamping verified with HW tests -Valley Bell
-		res += 2 * Math::clip<0, 15>(OCT + RC);
+		res += 2 * std::clamp(OCT + RC, 0, 15);
 		res += (FN & 0x200) ? 1 : 0;
 	}
-	return Math::clip<0, 63>(res);
+	return std::clamp(res, 0, 63);
 }
 
 int YMF278::Slot::compute_decay_rate(int val) const

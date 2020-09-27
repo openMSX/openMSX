@@ -65,10 +65,10 @@ void FBPostProcessor<Pixel>::preCalcNoise(float factor)
 	std::normal_distribution<float> distribution(0.0f, 1.0f);
 	for (unsigned i = 0; i < NOISE_BUF_SIZE; i += 4) {
 		float r = distribution(generator);
-		noiseBuf[i + 0] = Math::clip<-128, 127>(roundf(r * scale[0]));
-		noiseBuf[i + 1] = Math::clip<-128, 127>(roundf(r * scale[1]));
-		noiseBuf[i + 2] = Math::clip<-128, 127>(roundf(r * scale[2]));
-		noiseBuf[i + 3] = Math::clip<-128, 127>(roundf(r * scale[3]));
+		noiseBuf[i + 0] = std::clamp(int(roundf(r * scale[0])), -128, 127);
+		noiseBuf[i + 1] = std::clamp(int(roundf(r * scale[1])), -128, 127);
+		noiseBuf[i + 2] = std::clamp(int(roundf(r * scale[2])), -128, 127);
+		noiseBuf[i + 3] = std::clamp(int(roundf(r * scale[3])), -128, 127);
 	}
 }
 

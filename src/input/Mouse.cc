@@ -7,9 +7,9 @@
 #include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
-#include "Math.hh"
 #include "unreachable.hh"
 #include <SDL.h>
+#include <algorithm>
 
 using std::string;
 using std::shared_ptr;
@@ -228,8 +228,8 @@ void Mouse::write(byte value, EmuTime::param time)
 				// sdsnatcher's post of 30 aug 2018 for a
 				// motivation for this difference:
 				//   https://github.com/openMSX/openMSX/issues/892
-				xrel = Math::clip<-127, 127>(curxrel);
-				yrel = Math::clip<-127, 127>(curyrel);
+				xrel = std::clamp(curxrel, -127, 127);
+				yrel = std::clamp(curyrel, -127, 127);
 				curxrel -= xrel;
 				curyrel -= yrel;
 #endif

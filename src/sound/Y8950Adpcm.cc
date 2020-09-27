@@ -15,6 +15,7 @@
 #include "MSXMotherBoard.hh"
 #include "Math.hh"
 #include "serialize.hh"
+#include <algorithm>
 
 namespace openmsx {
 
@@ -468,7 +469,7 @@ int Y8950Adpcm::calcSample(bool doEmu)
 		}
 		int prevOut = pd.out;
 		pd.out = Math::clipIntToShort(pd.out + (pd.diff * F1[val]) / 8);
-		pd.diff = Math::clip<DMIN, DMAX>((pd.diff * F2[val]) / 64);
+		pd.diff = std::clamp((pd.diff * F2[val]) / 64, DMIN, DMAX);
 
 		int prevLeveling = pd.nextLeveling;
 		pd.nextLeveling = (prevOut + pd.out) / 2;

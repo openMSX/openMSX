@@ -78,12 +78,12 @@ chirp 12-..: vokume   0   : silent
 #include "DeviceConfig.hh"
 #include "XMLElement.hh"
 #include "FileOperations.hh"
-#include "Math.hh"
 #include "cstd.hh"
 #include "one_of.hh"
 #include "random.hh"
 #include "ranges.hh"
 #include "serialize.hh"
+#include <algorithm>
 #include <cmath>
 #include <cstring>
 
@@ -326,7 +326,7 @@ void VLM5030::generateChannels(float** bufs, unsigned num)
 			x[0] = u[0];
 
 			// clipping, buffering
-			bufs[0][buf_count] = Math::clip<-511, 511>(u[0]);
+			bufs[0][buf_count] = std::clamp(u[0], -511, 511);
 			++buf_count;
 			--sample_count;
 			++pitch_count;

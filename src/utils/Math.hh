@@ -94,17 +94,6 @@ template<typename T>
 	return floodRight(x - 1) + 1;
 }
 
-/** Clips x to the range [LO,HI].
-  * Slightly faster than    std::min(HI, std::max(LO, x))
-  * especially when no clipping is required.
-  */
-template <int LO, int HI>
-[[nodiscard]] inline int clip(int x)
-{
-	static_assert(LO <= HI, "invalid clip range");
-	return unsigned(x - LO) <= unsigned(HI - LO) ? x : (x < HI ? LO : HI);
-}
-
 /** Clip x to range [-32768,32767]. Special case of the version above.
   * Optimized for the case when no clipping is needed.
   */
