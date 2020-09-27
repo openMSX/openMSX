@@ -103,7 +103,12 @@
         </MemoryMapper>
       </secondary>
 
-      <secondary slot="3"/> <!-- module slot -->
+      <!-- Note that this is not a standard MSX cartridgeslot, but a 60 pins card
+      edge connector, carrying all MSX cartridgeslot signals. It is made to
+      connect the Yamaha SFG-01/05 and other "units" with the same connector. As
+      openMSX doesn't model this, we just make it available as an MSX cartridge
+      slot here. -->
+      <secondary external="true" slot="3"/>
 
     </primary>
 
