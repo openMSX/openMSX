@@ -792,9 +792,9 @@ protected:
 	hash_set_impl::Pool<Value> pool;
 	unsigned allocMask = unsigned(-1);
 	unsigned elemCount = 0;
-	Extractor extract;
-	Hasher hasher;
-	Equal equal;
+	[[no_unique_address]] Extractor extract;
+	[[no_unique_address]] Hasher hasher;
+	[[no_unique_address]] Equal equal;
 };
 
 #endif

@@ -36,7 +36,7 @@ public:
     }
 
 private:
-    FUNC action;
+    [[no_unique_address]] FUNC action;
 };
 
 #endif

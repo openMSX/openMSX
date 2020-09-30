@@ -126,51 +126,51 @@ public:
 	constexpr TransformIterator() = default;
 
 	constexpr TransformIterator(Iterator it_, UnaryOp op_)
-		: storage(it_, op_)
+		: it(it_), op(op_)
 	{
 	}
 
 	// InputIterator, ForwardIterator
 
-	[[nodiscard]] constexpr return_type operator*() const { return std::invoke(op(), *it()); }
+	[[nodiscard]] constexpr return_type operator*() const { return std::invoke(op, *it); }
 
 	// pointer operator->() const   not defined
 
 	constexpr TransformIterator& operator++()
 	{
-		++it();
+		++it;
 		return *this;
 	}
 
 	constexpr TransformIterator operator++(int)
 	{
 		auto copy = *this;
-		++it();
+		++it;
 		return copy;
 	}
 
 	[[nodiscard]] constexpr friend bool operator==(const TransformIterator& x, const TransformIterator& y)
 	{
-		return x.it() == y.it();
+		return x.it == y.it;
 	}
 
 	[[nodiscard]] constexpr friend bool operator!=(const TransformIterator& x, const TransformIterator& y)
 	{
-		return x.it() != y.it();
+		return x.it != y.it;
 	}
 
 	// BidirectionalIterator
 
 	constexpr TransformIterator& operator--()
 	{
-		--it();
+		--it;
 		return *this;
 	}
 
 	constexpr TransformIterator operator--(int)
 	{
 		auto copy = *this;
-		--it();
+		--it;
 		return copy;
 	}
 
@@ -178,13 +178,13 @@ public:
 
 	constexpr TransformIterator& operator+=(difference_type n)
 	{
-		it() += n;
+		it += n;
 		return *this;
 	}
 
 	constexpr TransformIterator& operator-=(difference_type n)
 	{
-		it() -= n;
+		it -= n;
 		return *this;
 	}
 
@@ -207,7 +207,7 @@ public:
 
 	[[nodiscard]] constexpr friend difference_type operator-(const TransformIterator& x, const TransformIterator& y)
 	{
-		return x.it() - y.it();
+		return x.it - y.it;
 	}
 
 	[[nodiscard]] constexpr reference operator[](difference_type n)
@@ -217,70 +217,64 @@ public:
 
 	[[nodiscard]] constexpr friend bool operator<(const TransformIterator& x, const TransformIterator& y)
 	{
-		return x.it() < y.it();
+		return x.it < y.it;
 	}
 	[[nodiscard]] constexpr friend bool operator<=(const TransformIterator& x, const TransformIterator& y)
 	{
-		return x.it() <= y.it();
+		return x.it <= y.it;
 	}
 	[[nodiscard]] constexpr friend bool operator>(const TransformIterator& x, const TransformIterator& y)
 	{
-		return x.it() > y.it();
+		return x.it > y.it;
 	}
 	[[nodiscard]] constexpr friend bool operator>=(const TransformIterator& x, const TransformIterator& y)
 	{
-		return x.it() >= y.it();
+		return x.it >= y.it;
 	}
 
 private:
-	std::tuple<Iterator, UnaryOp> storage;
-
-	[[nodiscard]] constexpr       Iterator& it()       { return std::get<0>(storage); }
-	[[nodiscard]] constexpr const Iterator& it() const { return std::get<0>(storage); }
-	[[nodiscard]] constexpr       UnaryOp&  op()       { return std::get<1>(storage); }
-	[[nodiscard]] constexpr const UnaryOp&  op() const { return std::get<1>(storage); }
+	Iterator it;
+	[[no_unique_address]] UnaryOp op;
 };
 
 template<typename Range, typename UnaryOp> class Transform
 {
 public:
 	constexpr Transform(Range&& range_, UnaryOp op_)
-	        : storage(std::forward<Range>(range_), op_)
+		: range(std::forward<Range>(range_)), op(op_)
 	{
 	}
 
 	[[nodiscard]] constexpr auto begin() const
 	{
-		return TransformIterator(std::begin(range()), op());
+		return TransformIterator(std::begin(range), op);
 	}
 	[[nodiscard]] constexpr auto end() const
 	{
-		return TransformIterator(std::end(range()), op());
+		return TransformIterator(std::end(range), op);
 	}
 	[[nodiscard]] constexpr auto rbegin() const
 	{
-		return TransformIterator(std::rbegin(range()), op());
+		return TransformIterator(std::rbegin(range), op);
 	}
 	[[nodiscard]] constexpr auto rend() const
 	{
-		return TransformIterator(std::rend(range()), op());
+		return TransformIterator(std::rend(range), op);
 	}
 
-	[[nodiscard]] constexpr auto size()  const { return range().size(); }
-	[[nodiscard]] constexpr auto empty() const { return range().empty(); }
+	[[nodiscard]] constexpr auto size()  const { return range.size(); }
+	[[nodiscard]] constexpr auto empty() const { return range.empty(); }
 
-	[[nodiscard]] constexpr auto front() const { return op()(range().front()); }
-	[[nodiscard]] constexpr auto back()  const { return op()(range().back()); }
+	[[nodiscard]] constexpr auto front() const { return op(range.front()); }
+	[[nodiscard]] constexpr auto back()  const { return op(range.back()); }
 
 	[[nodiscard]] constexpr auto operator[](size_t idx) const {
-		return std::invoke(op(), range()[idx]);
+		return std::invoke(op, range[idx]);
 	}
 
 private:
-	std::tuple<Range, UnaryOp> storage;
-
-	[[nodiscard]] constexpr const Range& range() const { return std::get<0>(storage); }
-	[[nodiscard]] constexpr const UnaryOp& op()  const { return std::get<1>(storage); }
+	Range range;
+	[[no_unique_address]] UnaryOp op;
 };
 
 
@@ -335,7 +329,7 @@ private:
 private:
 	Iterator it;
 	Sentinel last;
-	Predicate pred;
+	[[no_unique_address]] Predicate pred;
 };
 
 template<typename Range, typename Predicate>
@@ -364,7 +358,7 @@ public:
 
 private:
 	Range range;
-	Predicate pred;
+	[[no_unique_address]] Predicate pred;
 };
 
 } // namespace detail

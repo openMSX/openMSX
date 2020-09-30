@@ -62,7 +62,7 @@ struct Result
 
 	std::array<uint8_t, M > tab1;
 	std::array<uint8_t, M2> tab2; // half size (space optimization)
-	Hash hash;
+	[[no_unique_address]] Hash hash;
 
 	template<typename Key>
 	[[nodiscard]] constexpr uint8_t lookupIndex(const Key& key) const {

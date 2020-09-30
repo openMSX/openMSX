@@ -6,12 +6,6 @@
 #include <cassert>
 #include <type_traits>
 
-#if __has_cpp_attribute(no_unique_address)
-#define NO_UNIQUE_ADDRESS [[no_unique_address]]
-#else
-#define NO_UNIQUE_ADDRESS
-#endif
-
 // SimpleHashSet
 //
 // As the name implies this class is an implementation of a simple set based on
@@ -228,8 +222,8 @@ private:
 	}
 
 private:
-	NO_UNIQUE_ADDRESS Hasher hasher;
-	NO_UNIQUE_ADDRESS Equality equality;
+	[[no_unique_address]] Hasher hasher;
+	[[no_unique_address]] Equality equality;
 	Value* table = nullptr;
 	uint32_t mask = 0; // always one less than a power-of-2 (0, 1, 3, 7, 15, ...)
 	uint32_t num_elems = 0;
