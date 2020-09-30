@@ -118,7 +118,7 @@ private:
 	unsigned lastTime;       // last time a byte was received from MSX
 	State state;
 	unsigned recvCount;      // how many bytes recv in this state
-	unsigned transfered;     // progress within diskread/write
+	unsigned transferred;    // progress within diskread/write
 	unsigned retryCount;     // only used for diskread
 	unsigned transferSize;   // size of current chunk
 	byte cmdData[9];         // reg_[cbedlhfa] + cmd

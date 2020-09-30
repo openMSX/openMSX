@@ -76,7 +76,7 @@ template<typename T1, typename T2> struct SerializeClassVersion<std::pair<T1, T2
  *      convert from string back to enum value
  *
  * If the enum has all consecutive values, starting from zero (as is the case
- * if you don't explicity mention the numeric values in the enum definition),
+ * if you don't explicitly mention the numeric values in the enum definition),
  * you can use the SERIALIZE_ENUM macro as a convenient way to define a
  * specialization of serialize_as_enum:
 

@@ -301,7 +301,7 @@ void HotKey::bindDefault(HotKeyInfo&& info)
 {
 	if (!contains(  boundKeys, *info.event) &&
 	    !contains(unboundKeys, *info.event)) {
-		// not explicity bound or unbound
+		// not explicitly bound or unbound
 		insert(cmdMap, info);
 	}
 	insert(defaultMap, std::move(info));
@@ -311,7 +311,7 @@ void HotKey::unbindDefault(const EventPtr& event)
 {
 	if (!contains(  boundKeys, *event) &&
 	    !contains(unboundKeys, *event)) {
-		// not explicity bound or unbound
+		// not explicitly bound or unbound
 		erase(cmdMap, *event);
 	}
 	erase(defaultMap, *event);

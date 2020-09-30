@@ -151,7 +151,7 @@ void AviRecorder::addWave(unsigned num, float* fdata)
 				reactor.getCliComm().printWarning(
 				    "Detected stereo sound during mono recording. "
 				    "Channels will be mixed down to mono. To "
-				    "avoid this warning you can explicity pass the "
+				    "avoid this warning you can explicitly pass the "
 				    "-mono or -stereo flag to the record command.");
 				warnedStereo = true;
 				break;

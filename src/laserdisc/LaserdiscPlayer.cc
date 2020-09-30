@@ -71,7 +71,7 @@ string LaserdiscPlayer::Command::help(const vector<string>& tokens) const
 {
 	if (tokens.size() >= 2) {
 		if (tokens[1] == "insert") {
-			return "Inserts the specfied laserdisc image into "
+			return "Inserts the specified laserdisc image into "
 			       "the laserdisc player.";
 		} else if (tokens[1] == "eject") {
 			return "Eject the laserdisc.";
