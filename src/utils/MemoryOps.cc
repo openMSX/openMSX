@@ -1,11 +1,10 @@
 #include "MemoryOps.hh"
 #include "build-info.hh"
 #include "systemfuncs.hh"
-#include "Math.hh"
 #include "endian.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include <vector>
+#include <bit>
 #include <cassert>
 #include <cstdlib>
 #include <cstdint>
@@ -254,7 +253,7 @@ private:
 
 void* mallocAligned(size_t alignment, size_t size)
 {
-	assert("must be a power of 2" && Math::ispow2(alignment));
+	assert("must be a power of 2" && std::has_single_bit(alignment));
 	assert(alignment >= sizeof(void*));
 #if HAVE_POSIX_MEMALIGN
 	void* aligned = nullptr;

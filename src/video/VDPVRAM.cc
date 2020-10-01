@@ -1,10 +1,10 @@
 #include "VDPVRAM.hh"
 #include "SpriteChecker.hh"
 #include "Renderer.hh"
-#include "Math.hh"
 #include "outer.hh"
 #include "serialize.hh"
 #include <algorithm>
+#include <bit>
 #include <cstring>
 
 namespace openmsx {
@@ -175,9 +175,9 @@ void VDPVRAM::setSizeMask(EmuTime::param time)
 	sizeMask = (
 		  vrMode
 		// VR = 1: 64K address space, CAS0/1 is determined by A16
-		? (Math::ceil2(actualSize) - 1) | (1u << 16)
+		? (std::bit_ceil(actualSize) - 1) | (1u << 16)
 		// VR = 0: 16K address space, CAS0/1 is determined by A14
-		: (std::min(Math::ceil2(actualSize), 16384u) - 1) | (1u << 14)
+		: (std::min(std::bit_ceil(actualSize), 0x4000u) - 1) | (1u << 14)
 		) | (1u << 17); // CASX (expansion RAM) is always relevant
 
 	cmdReadWindow.setSizeMask(sizeMask, time);

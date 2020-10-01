@@ -8,6 +8,7 @@
 #include "stl.hh"
 #include "xrange.hh"
 #include <array>
+#include <bit>
 #include <cassert>
 #include <cstdint>
 
@@ -58,7 +59,7 @@ namespace PerfectMinimalHash {
 template<size_t M, typename Hash>
 struct Result
 {
-	static_assert(Math::ispow2(M));
+	static_assert(std::has_single_bit(M));
 	static constexpr auto M2 = M / 2;
 
 	std::array<uint8_t, M > tab1;
@@ -81,7 +82,7 @@ template<size_t N, typename Hash, typename GetKey>
 [[nodiscard]] constexpr auto create(const Hash& hash, const GetKey& getKey)
 {
 	static_assert(N < 128);
-	constexpr size_t M = Math::ceil2(N);
+	constexpr size_t M = std::bit_ceil(N);
 	constexpr auto bucket_max = size_t(2 * cstd::sqrt(M));
 
 	Result<M, Hash> r{};

@@ -28,36 +28,6 @@
 
 namespace Math {
 
-/** Returns the number of bits needed to store the value 'x', that is:
-  *   for x==0 : 0
-  *   for x!=0 : 1 + floor(log2(x))
-  * This will be part of c++20:
-  *   https://en.cppreference.com/w/cpp/numeric/log2p1
-  */
-template<typename T>
-[[nodiscard]] constexpr T log2p1(T x) noexcept
-{
-	T result = 0;
-	while (x) {
-		++result;
-		x >>= 1;
-	}
-	return result;
-}
-
-/** Is the given number an integral power of two?
-  * That is, does it have exactly one 1-bit in binary representation.
-  * (So zero is not a power of two).
-  *
-  * This will be part of c++20:
-  *   https://en.cppreference.com/w/cpp/numeric/ispow2
-  */
-template<typename T>
-[[nodiscard]] constexpr bool ispow2(T x) noexcept
-{
-	return x && ((x & (x - 1)) == 0);
-}
-
 /** Returns the smallest number of the form 2^n-1 that is greater or equal
   * to the given number.
   * The resulting number has the same number of leading zeros as the input,
@@ -74,23 +44,6 @@ template<typename T>
 	x |= x >> ((sizeof(x) >= 4) ? 16 : 0); // suppress compiler warnings.
 	x |= x >> ((sizeof(x) >= 8) ? 32 : 0); // Generates equally efficient
 	return x;                              // code.
-}
-
-/** Returns the smallest number that is both >=a and a power of two.
-  * This will be part of c++20:
-  *   https://en.cppreference.com/w/cpp/numeric/ceil2
-  */
-template<typename T>
-[[nodiscard]] constexpr T ceil2(T x) noexcept
-{
-	// classical implementation:
-	//   unsigned res = 1;
-	//   while (x > res) res <<= 1;
-	//   return res;
-
-	// optimized version
-	x += (x == 0); // can be removed if argument is never zero
-	return floodRight(x - 1) + 1;
 }
 
 /** Clip x to range [-32768,32767]. Special case of the version above.

@@ -6,9 +6,9 @@
 #include "GlobalSettings.hh"
 #include "ThrottleManager.hh"
 #include "MSXException.hh"
-#include "Math.hh"
 #include "Timer.hh"
 #include <algorithm>
+#include <bit>
 #include <cassert>
 #include <cstring>
 
@@ -21,7 +21,7 @@ SDLSoundDriver::SDLSoundDriver(Reactor& reactor_,
 {
 	SDL_AudioSpec desired;
 	desired.freq     = wantedFreq;
-	desired.samples  = Math::ceil2(wantedSamples);
+	desired.samples  = std::bit_ceil(wantedSamples);
 	desired.channels = 2; // stereo
 	desired.format   = AUDIO_F32SYS;
 	desired.callback = audioCallbackHelper; // must be a static method

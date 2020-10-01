@@ -6,7 +6,6 @@
 #include "MSXCPUInterface.hh"
 #include "CacheLine.hh"
 #include "TclObject.hh"
-#include "Math.hh"
 #include "MSXException.hh"
 #include "one_of.hh"
 #include "ranges.hh"
@@ -14,6 +13,7 @@
 #include "stl.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+#include <bit>
 #include <cassert>
 #include <cstring>
 
@@ -164,7 +164,7 @@ void MSXDevice::registerSlots()
 {
 	MemRegions tmpMemRegions;
 	unsigned align = getBaseSizeAlignment();
-	assert(Math::ispow2(align));
+	assert(std::has_single_bit(align));
 	for (const auto* m : getDeviceConfig().getChildren("mem")) {
 		unsigned base = m->getAttributeValueAsInt("base", 0);
 		unsigned size = m->getAttributeValueAsInt("size", 0);

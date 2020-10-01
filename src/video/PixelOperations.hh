@@ -4,7 +4,7 @@
 #include "PixelFormat.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
-#include "Math.hh"
+#include <bit>
 
 namespace openmsx {
 
@@ -434,7 +434,7 @@ inline Pixel PixelOperations<Pixel>::blend(Pixel p1, Pixel p2) const
 		Pixel p13 = avgDown(p11, p2);
 		return avgDown(p11, p13);
 
-	} else if constexpr (!Math::ispow2(total)) {
+	} else if constexpr (!std::has_single_bit(total)) {
 		// approximate with weights that sum to 256 (or 64)
 		// e.g. approximate <1,2> as <85,171> (or <21,43>)
 		//  ww1 = round(256 * w1 / total)   ww2 = 256 - ww1
@@ -444,7 +444,7 @@ inline Pixel PixelOperations<Pixel>::blend(Pixel p1, Pixel p2) const
 		return blend<ww1, ww2>(p1, p2);
 
 	} else if constexpr (sizeof(Pixel) == 4) {
-		unsigned l2 = Math::log2p1(total) - 1;
+		constexpr unsigned l2 = std::bit_width(total) - 1;
 		unsigned c1 = (((p1 & 0x00FF00FF) * w1 +
 				(p2 & 0x00FF00FF) * w2
 			       ) >> l2) & 0x00FF00FF;
@@ -465,7 +465,7 @@ inline Pixel PixelOperations<Pixel>::blend(Pixel p1, Pixel p2) const
 			constexpr unsigned ww2 = 64 - ww1;
 			return blend<ww1, ww2>(p1, p2);
 		} else {
-			unsigned l2 = Math::log2p1(total) - 1;
+			unsigned l2 = std::bit_width(total) - 1;
 			unsigned c1 = (((unsigned(p1) & 0xF81F) * w1) +
 			               ((unsigned(p2) & 0xF81F) * w2)) & (0xF81F << l2);
 			unsigned c2 = (((unsigned(p1) & 0x07E0) * w1) +
@@ -487,8 +487,8 @@ template<unsigned w1, unsigned w2, unsigned w3>
 inline Pixel PixelOperations<Pixel>::blend(Pixel p1, Pixel p2, Pixel p3) const
 {
 	constexpr unsigned total = w1 + w2 + w3;
-	if constexpr ((sizeof(Pixel) == 4) && Math::ispow2(total)) {
-		unsigned l2 = Math::log2p1(total) - 1;
+	if constexpr ((sizeof(Pixel) == 4) && std::has_single_bit(total)) {
+		constexpr unsigned l2 = std::bit_width(total) - 1;
 		unsigned c1 = (((p1 & 0x00FF00FF) * w1 +
 		                (p2 & 0x00FF00FF) * w2 +
 		                (p3 & 0x00FF00FF) * w3) >> l2) & 0x00FF00FF;
@@ -510,8 +510,8 @@ inline Pixel PixelOperations<Pixel>::blend(
 		Pixel p1, Pixel p2, Pixel p3, Pixel p4) const
 {
 	constexpr unsigned total = w1 + w2 + w3 + w4;
-	if constexpr ((sizeof(Pixel) == 4) && Math::ispow2(total)) {
-		unsigned l2 = Math::log2p1(total) - 1;
+	if constexpr ((sizeof(Pixel) == 4) && std::has_single_bit(total)) {
+		constexpr unsigned l2 = std::bit_width(total) - 1;
 		unsigned c1 = (((p1 & 0x00FF00FF) * w1 +
 		                (p2 & 0x00FF00FF) * w2 +
 		                (p3 & 0x00FF00FF) * w3 +
@@ -539,8 +539,8 @@ inline Pixel PixelOperations<Pixel>::blend(
 	Pixel p1, Pixel p2, Pixel p3, Pixel p4, Pixel p5, Pixel p6) const
 {
 	constexpr unsigned total = w1 + w2 + w3 + w4 + w5 + w6;
-	if constexpr ((sizeof(Pixel) == 4) && Math::ispow2(total)) {
-		unsigned l2 = Math::log2p1(total) - 1;
+	if constexpr ((sizeof(Pixel) == 4) && std::has_single_bit(total)) {
+		constexpr unsigned l2 = std::bit_width(total) - 1;
 		unsigned c1 = (((p1 & 0x00FF00FF) * w1 +
 		                (p2 & 0x00FF00FF) * w2 +
 		                (p3 & 0x00FF00FF) * w3 +

@@ -3,6 +3,7 @@
 
 #include "PixelOperations.hh"
 #include <cstdint>
+#include <cstddef>
 
 namespace openmsx {
 

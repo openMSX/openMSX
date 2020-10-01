@@ -1,9 +1,9 @@
 #include "MSXMemoryMapperBase.hh"
 #include "MSXException.hh"
-#include "Math.hh"
 #include "outer.hh"
 #include "ranges.hh"
 #include "serialize.hh"
+#include <bit>
 
 namespace openmsx {
 
@@ -53,13 +53,13 @@ byte MSXMemoryMapperBase::readIO(word port, EmuTime::param time)
 byte MSXMemoryMapperBase::peekIO(word port, EmuTime::param /*time*/) const
 {
 	unsigned numSegments = checkedRam.getSize() / 0x4000;
-	return registers[port & 0x03] | ~(Math::ceil2(numSegments) - 1);
+	return registers[port & 0x03] | ~(std::bit_ceil(numSegments) - 1);
 }
 
 void MSXMemoryMapperBase::writeIOImpl(word port, byte value, EmuTime::param /*time*/)
 {
 	unsigned numSegments = checkedRam.getSize() / 0x4000;
-	registers[port & 3] = value & (Math::ceil2(numSegments) - 1);
+	registers[port & 3] = value & (std::bit_ceil(numSegments) - 1);
 	// Note: subclasses are responsible for handling CPU cacheline stuff
 }
 

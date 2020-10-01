@@ -1,6 +1,6 @@
 #include "DivModBySame.hh"
-#include "Math.hh"
 #include "uint128.hh"
+#include <bit>
 
 namespace openmsx {
 
@@ -28,7 +28,7 @@ void DivModBySame::setDivisor(uint32_t divisor_)
 		// Generate m, s for algorithm 0. Based on: Granlund, T.; Montgomery,
 		// P.L.: "Division by Invariant Integers using Multiplication".
 		// SIGPLAN Notices, Vol. 29, June 1994, page 61.
-		uint32_t l = Math::log2p1(t);
+		uint32_t l = std::bit_width(t);
 		uint64_t j = 0xffffffffffffffffull % t;
 		uint128 k = (uint128(1) << (64 + l)) / (0xffffffffffffffffull - j);
 		uint128 m_low  =  (uint128(1) << (64 + l))      / t;
@@ -46,7 +46,7 @@ void DivModBySame::setDivisor(uint32_t divisor_)
 			// Generate m, s for algorithm 1. Based on: Magenheimer, D.J.; et al:
 			// "Integer Multiplication and Division on the HP Precision Architecture".
 			// IEEE Transactions on Computers, Vol 37, No. 8, August 1988, page 980.
-			s = Math::log2p1(t) - 1;
+			s = std::bit_width(t) - 1;
 			uint128 m_low2 =   (uint128(1) << (64 + s)) / t;
 			uint64_t r = low64((uint128(1) << (64 + s)) % t);
 			m = low64(m_low2 + ((r <= (t >> 1)) ? 0 : 1));

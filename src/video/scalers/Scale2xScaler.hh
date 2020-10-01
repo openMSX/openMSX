@@ -2,6 +2,7 @@
 #define SCALE2XSCALER_HH
 
 #include "Scaler2.hh"
+#include <cstddef>
 
 namespace openmsx {
 

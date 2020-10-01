@@ -1,8 +1,8 @@
 #ifndef SIMPLEHASHSET_HH
 #define SIMPLEHASHSET_HH
 
-#include "Math.hh"
 #include <algorithm>
+#include <bit>
 #include <cassert>
 #include <type_traits>
 
@@ -57,7 +57,7 @@ public:
 	void reserve(size_t n)
 	{
 		if (n <= capacity()) return;
-		grow(Math::ceil2(2 * n));
+		grow(std::bit_ceil(2 * n));
 		assert(capacity() >= n);
 	}
 	[[nodiscard]] size_t capacity() const
@@ -184,7 +184,7 @@ private:
 
 	void grow(size_t newSize)
 	{
-		assert(Math::ispow2(newSize));
+		assert(std::has_single_bit(newSize));
 		assert(newSize > (mask + 1));
 
 		auto* newTable = static_cast<Value*>(malloc(newSize * sizeof(Value)));

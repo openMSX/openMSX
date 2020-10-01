@@ -7,10 +7,10 @@
 #include "FileException.hh"
 #include "XMLElement.hh"
 #include "CacheLine.hh"
-#include "Math.hh"
 #include "enumerate.hh"
 #include "ranges.hh"
 #include "serialize.hh"
+#include <bit>
 
 namespace openmsx {
 
@@ -37,7 +37,7 @@ static auto getMapperConfig(const DeviceConfig& config)
 	} else if (subtype == "Popolon") {
 		// this subtype supports configurable size (128, 256, 512, 1024, 2048)
 		unsigned ramSize = config.getChildDataAsInt("size", 2048);
-		if (!Math::ispow2(ramSize)) {
+		if (!std::has_single_bit(ramSize)) {
 			throw MSXException(
 				"Popolon type Sound Cartridge must have a power-of-2 RAM size: ",
 				ramSize);

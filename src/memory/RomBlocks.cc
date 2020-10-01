@@ -1,10 +1,10 @@
 #include "CliComm.hh"
 #include "RomBlocks.hh"
 #include "SRAM.hh"
-#include "Math.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+#include <bit>
 
 namespace openmsx {
 
@@ -18,9 +18,9 @@ RomBlocks<BANK_SIZE>::RomBlocks(
 	: MSXRom(config, std::move(rom_))
 	, romBlockDebug(
 		*this,  blockNr, 0x0000, 0x10000,
-		Math::log2p1(BANK_SIZE) - 1, debugBankSizeShift)
+		std::bit_width(BANK_SIZE) - 1, debugBankSizeShift)
 {
-	static_assert(Math::ispow2(BANK_SIZE), "BANK_SIZE must be a power of two");
+	static_assert(std::has_single_bit(BANK_SIZE), "BANK_SIZE must be a power of two");
 	auto extendedSize = (rom.getSize() + BANK_SIZE - 1) & ~(BANK_SIZE - 1);
 	if (extendedSize != rom.getSize() && alreadyWarnedForSha1Sum != rom.getOriginalSHA1()) {
 		config.getCliComm().printWarning(
