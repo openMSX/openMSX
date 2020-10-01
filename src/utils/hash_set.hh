@@ -243,12 +243,8 @@ private:
 
 // Type-alias for the resulting type of applying Extractor on Value.
 template<typename Value, typename Extractor>
-using ExtractedType =
-	typename std::remove_cv<
-		typename std::remove_reference<
-			decltype(std::declval<Extractor>()(std::declval<Value>()))>
-		::type>
-	::type;
+using ExtractedType = typename std::remove_cvref_t<
+	decltype(std::declval<Extractor>()(std::declval<Value>()))>;
 
 } // namespace hash_set_impl
 

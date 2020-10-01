@@ -81,7 +81,7 @@ struct has_size_and_data<T,
 	: std::true_type {};
 
 
-template<typename C, typename U = std::remove_cv_t<std::remove_reference_t<C>>>
+template<typename C, typename U = std::remove_cvref_t<C>>
 struct is_container
 {
 	static constexpr bool value = !is_span<U>::value &&

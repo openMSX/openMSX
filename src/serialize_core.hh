@@ -192,8 +192,7 @@ template<typename V> struct VariantSerializer : std::true_type
 			saveEnum<Archive>(Serializer<V>::list, v.index(),
 				[&](const auto& t) { ar.attribute("type", t); });
 			std::visit([&](auto& e) {
-				// TODO c++20 std::remove_cvref_t<decltype(e)>;
-				using TNC = std::remove_const_t<std::remove_reference_t<decltype(e)>>;
+				using TNC = std::remove_cvref_t<decltype(e)>;
 				auto& e2 = const_cast<TNC&>(e);
 				ClassSaver<TNC> saver;
 				saver(ar, e2, saveId);
