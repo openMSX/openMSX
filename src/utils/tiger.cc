@@ -1,7 +1,6 @@
 #include "tiger.hh"
 #include "endian.hh"
 #include "xrange.hh"
-#include "build-info.hh"
 #include <cassert>
 #include <cstring>
 
@@ -665,7 +664,7 @@ static constexpr void initState(uint64_t state[3])
 }
 static inline void returnState(uint64_t state[3])
 {
-	if constexpr (OPENMSX_BIGENDIAN) {
+	if constexpr (Endian::BIG) {
 		state[0] = Endian::byteswap64(state[0]);
 		state[1] = Endian::byteswap64(state[1]);
 		state[2] = Endian::byteswap64(state[2]);

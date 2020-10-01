@@ -6,8 +6,6 @@
 #include "likely.hh"
 #include "unreachable.hh"
 
-#include "build-info.hh"
-
 #include <cstring>
 
 #ifdef _MSC_VER
@@ -139,7 +137,7 @@ static void memcpy_using_offset(uint8_t* dstPtr, const uint8_t* srcPtr, uint8_t*
 [[nodiscard]] static inline int NbCommonBytes(size_t val)
 {
 #if LZ4_ARCH64
-	if constexpr (openmsx::OPENMSX_BIGENDIAN) {
+	if constexpr (Endian::BIG) {
 #ifdef _MSC_VER
 		unsigned long r;
 		_BitScanReverse64(&r, val);
@@ -173,7 +171,7 @@ static void memcpy_using_offset(uint8_t* dstPtr, const uint8_t* srcPtr, uint8_t*
 
 #else // LZ4_ARCH64
 
-	if constexpr (openmsx::OPENMSX_BIGENDIAN) {
+	if constexpr (Endian::BIG) {
 #ifdef _MSC_VER
 		unsigned long r;
 		_BitScanReverse(&r, val);
@@ -279,7 +277,7 @@ template<> struct HashImpl<false, true> {
 
 	[[nodiscard]] static uint32_t hashPosition(const uint8_t* p) {
 		uint64_t sequence = read_ARCH(p);
-		const uint64_t prime = openmsx::OPENMSX_BIGENDIAN
+		const uint64_t prime = Endian::BIG
 				     ? 11400714785074694791ULL   // 8 bytes
 				     :         889523592379ULL;  // 5 bytes
 		return uint32_t(((sequence << 24) * prime) >> (64 - HASHLOG));

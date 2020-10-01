@@ -8,7 +8,6 @@
 #include "endian.hh"
 #include "vla.hh"
 #include "xrange.hh"
-#include "build-info.hh"
 #include <algorithm>
 #include <cassert>
 #include <cstdint>

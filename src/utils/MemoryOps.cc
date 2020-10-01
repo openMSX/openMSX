@@ -3,6 +3,7 @@
 #include "build-info.hh"
 #include "systemfuncs.hh"
 #include "Math.hh"
+#include "endian.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 #include <vector>
@@ -98,8 +99,8 @@ static inline void memset_32_2(
 		++out; --num32;
 	}
 
-	uint64_t val64 = OPENMSX_BIGENDIAN ? (uint64_t(val0) << 32) | val1
-	                                   : val0 | (uint64_t(val1) << 32);
+	uint64_t val64 = Endian::BIG ? (uint64_t(val0) << 32) | val1
+	                             : val0 | (uint64_t(val1) << 32);
 	memset_64(reinterpret_cast<uint64_t*>(out), num32 / 2, val64);
 
 	if (unlikely(num32 & 1)) {
@@ -161,8 +162,8 @@ static inline void memset_16_2(
 		++out; --num16;
 	}
 
-	uint32_t val32 = OPENMSX_BIGENDIAN ? (uint32_t(val0) << 16) | val1
-	                                   : val0 | (uint32_t(val1) << 16);
+	uint32_t val32 = Endian::BIG ? (uint32_t(val0) << 16) | val1
+	                             : val0 | (uint32_t(val1) << 16);
 	memset_32(reinterpret_cast<uint32_t*>(out), num16 / 2, val32);
 
 	if (unlikely(num16 & 1)) {

@@ -7,7 +7,6 @@
 #include "Display.hh"
 #include "RenderSettings.hh"
 #include "PNG.hh"
-#include "build-info.hh"
 #include "MemBuffer.hh"
 #include "outer.hh"
 #include "vla.hh"

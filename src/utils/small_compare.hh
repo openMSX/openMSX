@@ -31,7 +31,7 @@
 //   padding at the end of the buffer.
 
 #include "aligned.hh"
-#include "build-info.hh"
+#include "endian.hh"
 #include <cstdint>
 #include <cstring>
 #include <string_view>
@@ -86,8 +86,8 @@ template<typename T, char ...Ns> struct ScValBe : ScValBeImpl<T, 0, 0, 8 * (size
 // ScVal: combines all given characters in one value of type T, also computes a
 // mask-value with 1-bits in the 'used' positions.
 template<typename T, char ...Ns> struct ScVal
-	: std::conditional_t<openmsx::OPENMSX_BIGENDIAN, ScValBe<T, Ns...>,
-	                                                 ScValLe<T, Ns...>> {};
+	: std::conditional_t<Endian::BIG, ScValBe<T, Ns...>,
+	                                  ScValLe<T, Ns...>> {};
 
 
 template<char ...Ns> struct SmallCompare {

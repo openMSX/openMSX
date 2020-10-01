@@ -1,13 +1,17 @@
 #ifndef ENDIAN_HH
 #define ENDIAN_HH
 
-#include "build-info.hh"
 #include "inline.hh"
+#include <bit>
 #include <cstdint>
 #include <cstring>
 #include <cassert>
 
 namespace Endian {
+
+inline constexpr bool BIG    = std::endian::native == std::endian::big;
+inline constexpr bool LITTLE = std::endian::native == std::endian::little;
+static_assert(BIG || LITTLE, "mixed endian not supported");
 
 // Reverse bytes in a 16-bit number: 0x1234 becomes 0x3412
 [[nodiscard]] static inline uint16_t byteswap16(uint16_t x)
@@ -108,12 +112,12 @@ template<> struct ConvBig   <false> : ByteSwap {};
 template<bool> struct ConvLittle;
 template<> struct ConvLittle<true > : ByteSwap {};
 template<> struct ConvLittle<false> : Ident {};
-using B16 = EndianT<uint16_t, ConvBig   <openmsx::OPENMSX_BIGENDIAN>>;
-using L16 = EndianT<uint16_t, ConvLittle<openmsx::OPENMSX_BIGENDIAN>>;
-using B32 = EndianT<uint32_t, ConvBig   <openmsx::OPENMSX_BIGENDIAN>>;
-using L32 = EndianT<uint32_t, ConvLittle<openmsx::OPENMSX_BIGENDIAN>>;
-using B64 = EndianT<uint64_t, ConvBig   <openmsx::OPENMSX_BIGENDIAN>>;
-using L64 = EndianT<uint64_t, ConvLittle<openmsx::OPENMSX_BIGENDIAN>>;
+using B16 = EndianT<uint16_t, ConvBig   <BIG>>;
+using L16 = EndianT<uint16_t, ConvLittle<BIG>>;
+using B32 = EndianT<uint32_t, ConvBig   <BIG>>;
+using L32 = EndianT<uint32_t, ConvLittle<BIG>>;
+using B64 = EndianT<uint64_t, ConvBig   <BIG>>;
+using L64 = EndianT<uint64_t, ConvLittle<BIG>>;
 static_assert(sizeof(B16)  == 2, "must have size 2");
 static_assert(sizeof(L16)  == 2, "must have size 2");
 static_assert(sizeof(B32)  == 4, "must have size 4");
@@ -177,11 +181,11 @@ template<bool SWAP, typename T> static ALWAYS_INLINE void write_UA(void* p, T x)
 }
 ALWAYS_INLINE void write_UA_B16(void* p, uint16_t x)
 {
-	write_UA<!openmsx::OPENMSX_BIGENDIAN>(p, x);
+	write_UA<LITTLE>(p, x);
 }
 ALWAYS_INLINE void write_UA_L16(void* p, uint16_t x)
 {
-	write_UA< openmsx::OPENMSX_BIGENDIAN>(p, x);
+	write_UA<BIG>(p, x);
 }
 ALWAYS_INLINE void write_UA_L24(void* p, uint32_t x)
 {
@@ -193,19 +197,19 @@ ALWAYS_INLINE void write_UA_L24(void* p, uint32_t x)
 }
 ALWAYS_INLINE void write_UA_B32(void* p, uint32_t x)
 {
-	write_UA<!openmsx::OPENMSX_BIGENDIAN>(p, x);
+	write_UA<LITTLE>(p, x);
 }
 ALWAYS_INLINE void write_UA_L32(void* p, uint32_t x)
 {
-	write_UA< openmsx::OPENMSX_BIGENDIAN>(p, x);
+	write_UA<BIG>(p, x);
 }
 ALWAYS_INLINE void write_UA_B64(void* p, uint64_t x)
 {
-	write_UA<!openmsx::OPENMSX_BIGENDIAN>(p, x);
+	write_UA<LITTLE>(p, x);
 }
 ALWAYS_INLINE void write_UA_L64(void* p, uint64_t x)
 {
-	write_UA< openmsx::OPENMSX_BIGENDIAN>(p, x);
+	write_UA<BIG>(p, x);
 }
 
 template<bool SWAP, typename T> [[nodiscard]] static ALWAYS_INLINE T read_UA(const void* p)
@@ -217,11 +221,11 @@ template<bool SWAP, typename T> [[nodiscard]] static ALWAYS_INLINE T read_UA(con
 }
 [[nodiscard]] ALWAYS_INLINE uint16_t read_UA_B16(const void* p)
 {
-	return read_UA<!openmsx::OPENMSX_BIGENDIAN, uint16_t>(p);
+	return read_UA<LITTLE, uint16_t>(p);
 }
 [[nodiscard]] ALWAYS_INLINE uint16_t read_UA_L16(const void* p)
 {
-	return read_UA< openmsx::OPENMSX_BIGENDIAN, uint16_t>(p);
+	return read_UA<BIG, uint16_t>(p);
 }
 [[nodiscard]] ALWAYS_INLINE uint32_t read_UA_L24(const void* p)
 {
@@ -230,19 +234,19 @@ template<bool SWAP, typename T> [[nodiscard]] static ALWAYS_INLINE T read_UA(con
 }
 [[nodiscard]] ALWAYS_INLINE uint32_t read_UA_B32(const void* p)
 {
-	return read_UA<!openmsx::OPENMSX_BIGENDIAN, uint32_t>(p);
+	return read_UA<LITTLE, uint32_t>(p);
 }
 [[nodiscard]] ALWAYS_INLINE uint32_t read_UA_L32(const void* p)
 {
-	return read_UA< openmsx::OPENMSX_BIGENDIAN, uint32_t>(p);
+	return read_UA<BIG, uint32_t>(p);
 }
 [[nodiscard]] ALWAYS_INLINE uint64_t read_UA_B64(const void* p)
 {
-	return read_UA<!openmsx::OPENMSX_BIGENDIAN, uint64_t>(p);
+	return read_UA<LITTLE, uint64_t>(p);
 }
 [[nodiscard]] ALWAYS_INLINE uint64_t read_UA_L64(const void* p)
 {
-	return read_UA< openmsx::OPENMSX_BIGENDIAN, uint64_t>(p);
+	return read_UA<BIG, uint64_t>(p);
 }
 
 

@@ -19,7 +19,6 @@
 #include "stl.hh"
 #include "vla.hh"
 #include "xrange.hh"
-#include "build-info.hh"
 #include <vector>
 #include <cmath>
 #include <cstddef>

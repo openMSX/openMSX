@@ -3,8 +3,8 @@
 #include "AviWriter.hh"
 #include "FileOperations.hh"
 #include "MSXException.hh"
-#include "build-info.hh"
 #include "Version.hh"
+#include "endian.hh"
 #include "cstdiop.hh" // for snprintf
 #include <cassert>
 #include <cstring>
@@ -274,7 +274,7 @@ void AviWriter::addFrame(FrameSource* frame, unsigned samples, int16_t* sampleDa
 	if (samples) {
 		assert((samples % channels) == 0);
 		assert(audiorate != 0);
-		if constexpr (OPENMSX_BIGENDIAN) {
+		if constexpr (Endian::BIG) {
 			// See comment in WavWriter::write()
 			//VLA(Endian::L16, buf, samples); // doesn't work in clang
 			std::vector<Endian::L16> buf(sampleData, sampleData + samples);

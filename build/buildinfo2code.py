@@ -73,10 +73,6 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 	yield ''
 	yield 'namespace openmsx {'
 	yield ''
-	# Note: Don't call it "BIG_ENDIAN", because some system header may #define
-	#       that.
-	yield 'static const bool OPENMSX_BIGENDIAN = %s;' \
-		% str(targetCPU.bigEndian).lower()
 	yield 'static const bool OPENMSX_SET_WINDOW_ICON = %s;' \
 		% str(setWindowIcon).lower()
 	yield 'static const char* const DATADIR = "%s";' % installShareDir

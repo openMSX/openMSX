@@ -86,7 +86,7 @@ void Wav8Writer::write(const uint8_t* buffer, unsigned samples)
 void Wav16Writer::write(const int16_t* buffer, unsigned samples)
 {
 	unsigned size = sizeof(int16_t) * samples;
-	if constexpr (OPENMSX_BIGENDIAN) {
+	if constexpr (Endian::BIG) {
 		// Variable length arrays (VLA) are part of c99 but not of c++
 		// (not even c++11). Some compilers (like gcc) do support VLA
 		// in c++ mode, others (like VC++) don't. Still other compilers
