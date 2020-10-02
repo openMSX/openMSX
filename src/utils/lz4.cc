@@ -5,7 +5,7 @@
 #include "inline.hh"
 #include "likely.hh"
 #include "unreachable.hh"
-
+#include <bit>
 #include <cstring>
 
 #ifdef _MSC_VER
@@ -136,70 +136,12 @@ static void memcpy_using_offset(uint8_t* dstPtr, const uint8_t* srcPtr, uint8_t*
 
 [[nodiscard]] static inline int NbCommonBytes(size_t val)
 {
-#if LZ4_ARCH64
+	if (val == 0) UNREACHABLE;
 	if constexpr (Endian::BIG) {
-#ifdef _MSC_VER
-		unsigned long r;
-		_BitScanReverse64(&r, val);
-		return r >> 3;
-#elif defined(__GNUC__)
-		return __builtin_clzll(val) >> 3;
-#else
-		int r;
-		if (!(val >> 32)) { r = 4; } else { r = 0; val >>= 32; }
-		if (!(val >> 16)) { r += 2; val >>= 8; } else { val >>= 24; }
-		r += !val;
-		return r;
-#endif
+		return std::countl_zero(val) >> 3;
 	} else {
-#ifdef _MSC_VER
-		unsigned long r;
-		_BitScanForward64(&r, val);
-		return r >> 3;
-#elif defined(__GNUC__)
-		return __builtin_ctzll(val) >> 3;
-#else
-		static constexpr int DeBruijnBytePos[64] = {
-			0, 0, 0, 0, 0, 1, 1, 2, 0, 3, 1, 3, 1, 4, 2, 7,
-			0, 2, 3, 6, 1, 5, 3, 5, 1, 3, 4, 4, 2, 5, 6, 7,
-			7, 0, 1, 2, 3, 3, 4, 6, 2, 6, 5, 5, 3, 4, 5, 6,
-			7, 1, 2, 4, 6, 4, 4, 5, 7, 2, 6, 5, 7, 6, 7, 7,
-		};
-		return DeBruijnBytePos[(uint64_t((val & -val) * 0x0218A392CDABBD3F)) >> 58];
-#endif
+		return std::countr_zero(val) >> 3;
 	}
-
-#else // LZ4_ARCH64
-
-	if constexpr (Endian::BIG) {
-#ifdef _MSC_VER
-		unsigned long r;
-		_BitScanReverse(&r, val);
-		return r >> 3;
-#elif defined(__GNUC__)
-		return __builtin_clz(val) >> 3;
-#else
-		int r;
-		if (!(val >> 16)) { r = 2; val >>= 8; } else { r = 0; val >>= 24; }
-		r += !val;
-		return r;
-#endif
-	} else {
-#ifdef _MSC_VER
-		unsigned long r;
-		_BitScanForward(&r, val);
-		return r >> 3;
-#elif defined(__GNUC__)
-		return __builtin_ctz(val) >> 3;
-#else
-		static constexpr int DeBruijnBytePos[32] = {
-			0, 0, 3, 0, 3, 1, 3, 0, 3, 2, 2, 1, 3, 2, 0, 1,
-			3, 3, 1, 2, 2, 2, 2, 0, 3, 1, 2, 0, 1, 0, 1, 1,
-		};
-		return DeBruijnBytePos[(uint32_t((val & -val) * 0x077CB531U)) >> 27];
-#endif
-	}
-#endif // LZ4_ARCH64
 }
 
 [[nodiscard]] ALWAYS_INLINE unsigned count(const uint8_t* pIn, const uint8_t* pMatch, const uint8_t* pInLimit)
