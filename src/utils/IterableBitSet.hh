@@ -1,9 +1,9 @@
 #ifndef ITERABLEBITSET_HH
 #define ITERABLEBITSET_HH
 
-#include "Math.hh"
 #include "ranges.hh"
 #include "xrange.hh"
+#include <bit>
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
@@ -118,7 +118,7 @@ public:
 		for (auto i : xrange(NUM_WORDS)) {
 			auto w = words[i];
 			while (w) {
-				op(i * BITS_PER_WORD + Math::countTrailingZeros(w));
+				op(i * BITS_PER_WORD + std::countr_zero(w));
 				w &= w - 1; // clear least significant set bit
 			}
 		}

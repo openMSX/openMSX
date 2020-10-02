@@ -13,6 +13,7 @@ TODO:
 #include "BooleanSetting.hh"
 #include "serialize.hh"
 #include <algorithm>
+#include <bit>
 #include <cassert>
 
 namespace openmsx {
@@ -231,7 +232,7 @@ inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 						colPat &= (1 << (32 + x_i)) - 1;
 					}
 					if (colPat) {
-						int xCollision = x_i + Math::countLeadingZeros(colPat);
+						int xCollision = x_i + std::countl_zero(colPat);
 						assert(xCollision >= 0);
 						minXCollision = std::min(minXCollision, xCollision);
 					}
@@ -471,7 +472,7 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 						colPat &= (1 << (32 + x_i)) - 1;
 					}
 					if (colPat) {
-						int xCollision = x_i + Math::countLeadingZeros(colPat);
+						int xCollision = x_i + std::countl_zero(colPat);
 						assert(xCollision >= 0);
 						minXCollision = std::min(minXCollision, xCollision);
 					}
