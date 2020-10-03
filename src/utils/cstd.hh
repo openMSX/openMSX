@@ -107,6 +107,7 @@ template<int>      [[nodiscard]] constexpr double exp2 (double x) { return    ::
 template<int, int> [[nodiscard]] constexpr double pow(double x, double y) { return std::pow(x, y); }
 [[nodiscard]] inline constexpr double round(double x) { return ::round(x); } // should be std::round(), see above
 [[nodiscard]] inline constexpr float  round(float  x) { return ::round(x); }
+[[nodiscard]] inline constexpr double sqrt (double x) { return ::sqrt (x); }
 
 #else
 
@@ -325,6 +326,18 @@ template<int ITERATIONS>
 {
 	return (x >= 0) ?  int( x + 0.5f)
 	                : -int(-x + 0.5f);
+}
+
+[[nodiscard]] constexpr double sqrt(double x)
+{
+    assert(x >= 0.0);
+    double curr = x;
+    double prev = 0.0;
+    while (curr != prev) {
+        prev = curr;
+        curr = 0.5 * (curr + x / curr);
+    }
+    return curr;
 }
 
 #endif

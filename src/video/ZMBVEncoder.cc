@@ -3,13 +3,16 @@
 #include "ZMBVEncoder.hh"
 #include "FrameSource.hh"
 #include "PixelOperations.hh"
+#include "cstd.hh"
 #include "endian.hh"
 #include "ranges.hh"
 #include "unreachable.hh"
+#include <array>
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
+#include <tuple>
 
 namespace openmsx {
 
@@ -22,33 +25,69 @@ constexpr unsigned BLOCK_HEIGHT = MAX_VECTOR;
 constexpr unsigned FLAG_KEYFRAME = 0x01;
 
 struct CodecVector {
-	float cost() const {
-		float c = sqrtf(float(x * x + y * y));
-		if ((x == 0) || (y == 0)) {
-			// no penalty for purely horizontal/vertical offset
-			c *= 1.0f;
-		} else if (abs(x) == abs(y)) {
-			// small penalty for pure diagonal
-			c *= 2.0f;
-		} else {
-			// bigger penalty for 'random' direction
-			c *= 4.0f;
-		}
-		return c;
-	}
 	int x;
 	int y;
 };
-static inline bool operator<(const CodecVector& l, const CodecVector& r)
-{
-	return l.cost() < r.cost();
-}
 
 constexpr unsigned VECTOR_TAB_SIZE =
 	1 +                                       // center
 	8 * MAX_VECTOR +                          // horizontal, vertial, diagonal
 	MAX_VECTOR * MAX_VECTOR - 2 * MAX_VECTOR; // rest (only MAX_VECTOR/2)
-CodecVector vectorTable[VECTOR_TAB_SIZE];
+
+constexpr auto vectorTable = [] {
+	std::array<CodecVector, VECTOR_TAB_SIZE> result = {};
+
+	unsigned p = 0;
+	// center
+	result[p] = {0, 0};
+	p += 1;
+	// horizontal, vertial, diagonal
+	for (int i = 1; i <= int(MAX_VECTOR); ++i, p += 8) {
+		result[p + 0] = { i,  0};
+		result[p + 1] = {-i,  0};
+		result[p + 2] = { 0,  i};
+		result[p + 3] = { 0, -i};
+		result[p + 4] = { i,  i};
+		result[p + 5] = {-i,  i};
+		result[p + 6] = { i, -i};
+		result[p + 7] = {-i, -i};
+	}
+	// rest
+	for (int y = 1; y <= int(MAX_VECTOR / 2); ++y) {
+		for (int x = 1; x <= int(MAX_VECTOR / 2); ++x) {
+			if (x == y) continue; // already have diagonal
+			result[p + 0] = { x,  y};
+			result[p + 1] = {-x,  y};
+			result[p + 2] = { x, -y};
+			result[p + 3] = {-x, -y};
+			p += 4;
+		}
+	}
+	assert(p == VECTOR_TAB_SIZE);
+
+	// sort
+	auto compare = [](const CodecVector& l, const CodecVector& r) {
+		auto cost = [](const CodecVector& v) {
+			auto c = cstd::sqrt(double(v.x * v.x + v.y * v.y));
+			if ((v.x == 0) || (v.y == 0)) {
+				// no penalty for purely horizontal/vertical offset
+				c *= 1.0;
+			} else if (abs(v.x) == abs(v.y)) {
+				// small penalty for pure diagonal
+				c *= 2.0;
+			} else {
+				// bigger penalty for 'random' direction
+				c *= 4.0;
+			}
+			return c;
+		};
+		return std::tuple(cost(l), l.x, l.y) <
+		       std::tuple(cost(r), r.x, r.y);
+	};
+	cstd::sort(result, compare);
+
+	return result;
+}();
 
 struct KeyframeHeader {
 	uint8_t high_version;
@@ -80,46 +119,12 @@ static inline void writePixel(
 	dest = (r << 16) | (g <<  8) |  b;
 }
 
-static void createVectorTable()
-{
-	unsigned p = 0;
-	// center
-	vectorTable[p] = {0, 0};
-	p += 1;
-	// horizontal, vertial, diagonal
-	for (int i = 1; i <= int(MAX_VECTOR); ++i) {
-		vectorTable[p + 0] = { i, 0};
-		vectorTable[p + 1] = {-i, 0};
-		vectorTable[p + 2] = { 0, i};
-		vectorTable[p + 3] = { 0,-i};
-		vectorTable[p + 4] = { i, i};
-		vectorTable[p + 5] = {-i, i};
-		vectorTable[p + 6] = { i,-i};
-		vectorTable[p + 7] = {-i,-i};
-		p += 8;
-	}
-	// rest
-	for (int y = 1; y <= int(MAX_VECTOR / 2); ++y) {
-		for (int x = 1; x <= int(MAX_VECTOR / 2); ++x) {
-			if (x == y) continue; // already have diagonal
-			vectorTable[p + 0] = { x, y};
-			vectorTable[p + 1] = {-x, y};
-			vectorTable[p + 2] = { x,-y};
-			vectorTable[p + 3] = {-x,-y};
-			p += 4;
-		}
-	}
-	assert(p == VECTOR_TAB_SIZE);
-
-	ranges::sort(vectorTable);
-}
 
 ZMBVEncoder::ZMBVEncoder(unsigned width_, unsigned height_, unsigned bpp)
 	: width(width_)
 	, height(height_)
 {
 	setupBuffers(bpp);
-	createVectorTable();
 	memset(&zstream, 0, sizeof(zstream));
 	deflateInit(&zstream, 6); // compression level
 
