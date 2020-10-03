@@ -90,6 +90,11 @@ template<typename InputIt1, typename InputIt2>
 	return (first1 == last1) && (first2 != last2);
 }
 
+template<typename T>
+constexpr T abs(T t)
+{
+    return (t >= 0) ? t : -t;
+}
 
 // Reimplementation of various mathematical functions. You must specify an
 // iteration count, this controls how accurate the result will be.

@@ -73,7 +73,7 @@ constexpr auto vectorTable = [] {
 			if ((v.x == 0) || (v.y == 0)) {
 				// no penalty for purely horizontal/vertical offset
 				c *= 1.0;
-			} else if (abs(v.x) == abs(v.y)) {
+			} else if (cstd::abs(v.x) == cstd::abs(v.y)) {
 				// small penalty for pure diagonal
 				c *= 2.0;
 			} else {
