@@ -18,7 +18,7 @@ This will display a white 16x16 box at MSX location x,y == 10,10.}
 set_help_text osd_widgets::msx_init   $help_text
 set_help_text osd_widgets::msx_update $help_text
 
-variable registered_msx_widgets []
+variable registered_msx_widgets [list]
 variable msx_widgets_adjust_watchpoint ""
 
 proc msx_init {name} {
@@ -28,10 +28,10 @@ proc msx_init {name} {
 	osd create rectangle $name -scaled true -alpha 0
 	msx_update $name
 
-	if {[lsearch -exact $registered_msx_widgets $name] == -1} {
+	if {$name ni $registered_msx_widgets} {
 		lappend registered_msx_widgets $name
 	}
-	if {[lindex [lindex [trace info variable ::horizontal_stretch] 0] 1] == ""} {
+	if {[lindex [trace info variable ::horizontal_stretch] 0 1] eq ""} {
 		trace add variable ::horizontal_stretch {write unset array} ::osd_widgets::update_registered_msx_widgets
 	}
 	if {$msx_widgets_adjust_watchpoint == ""} {
@@ -44,9 +44,9 @@ proc msx_init {name} {
 }
 
 # Update all known MSX widgets to adjust to new compensation factors. This is currently only used when the horizontal stretch is changed.
-proc update_registered_msx_widgets { args } {
+proc update_registered_msx_widgets {args} {
 	variable registered_msx_widgets
- 	foreach name $registered_msx_widgets {
+	foreach name $registered_msx_widgets {
 		if {[osd exists $name]} {
 			msx_update $name
 		} else {
