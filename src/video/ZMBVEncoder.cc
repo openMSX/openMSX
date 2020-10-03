@@ -9,6 +9,7 @@
 #include "unreachable.hh"
 #include <array>
 #include <cassert>
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
@@ -25,8 +26,8 @@ constexpr unsigned BLOCK_HEIGHT = MAX_VECTOR;
 constexpr unsigned FLAG_KEYFRAME = 0x01;
 
 struct CodecVector {
-	int x;
-	int y;
+	int8_t x;
+	int8_t y;
 };
 
 constexpr unsigned VECTOR_TAB_SIZE =
@@ -43,23 +44,23 @@ constexpr auto vectorTable = [] {
 	p += 1;
 	// horizontal, vertial, diagonal
 	for (int i = 1; i <= int(MAX_VECTOR); ++i, p += 8) {
-		result[p + 0] = { i,  0};
-		result[p + 1] = {-i,  0};
-		result[p + 2] = { 0,  i};
-		result[p + 3] = { 0, -i};
-		result[p + 4] = { i,  i};
-		result[p + 5] = {-i,  i};
-		result[p + 6] = { i, -i};
-		result[p + 7] = {-i, -i};
+		result[p + 0] = {int8_t( i), int8_t( 0)};
+		result[p + 1] = {int8_t(-i), int8_t( 0)};
+		result[p + 2] = {int8_t( 0), int8_t( i)};
+		result[p + 3] = {int8_t( 0), int8_t(-i)};
+		result[p + 4] = {int8_t( i), int8_t( i)};
+		result[p + 5] = {int8_t(-i), int8_t( i)};
+		result[p + 6] = {int8_t( i), int8_t(-i)};
+		result[p + 7] = {int8_t(-i), int8_t(-i)};
 	}
 	// rest
 	for (int y = 1; y <= int(MAX_VECTOR / 2); ++y) {
 		for (int x = 1; x <= int(MAX_VECTOR / 2); ++x) {
 			if (x == y) continue; // already have diagonal
-			result[p + 0] = { x,  y};
-			result[p + 1] = {-x,  y};
-			result[p + 2] = { x, -y};
-			result[p + 3] = {-x, -y};
+			result[p + 0] = {int8_t( x), int8_t( y)};
+			result[p + 1] = {int8_t(-x), int8_t( y)};
+			result[p + 2] = {int8_t( x), int8_t(-y)};
+			result[p + 3] = {int8_t(-x), int8_t(-y)};
 			p += 4;
 		}
 	}
