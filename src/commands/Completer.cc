@@ -163,7 +163,7 @@ void Completer::completeFileNameImpl(vector<string>& tokens,
 			path.pop_back();
 		};
 		foreach_file_and_directory(
-			FileOperations::getNativePath(FileOperations::join(p, dirname1)),
+			FileOperations::join(p, dirname1),
 			fileAction, dirAction);
 	}
 	append(matches, filenames);
