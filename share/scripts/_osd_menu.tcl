@@ -1775,7 +1775,7 @@ proc menu_select_disk {drive item {dummy false}} {
 		}
 		# if the item is already an absolute path, use that as fullname
 		# (happens for drag and drop usage and also for file pools)
-		if {[file pathtype $item] eq "absolute"} {
+		if {[file pathtype $item] eq "absolute" && $item ni [file volumes]} {
 			set fullname $item
 			set dir_as_disk [expr {!$is_pool_item}]
 		} else {
