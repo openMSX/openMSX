@@ -12,6 +12,7 @@
 #include "ranges.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include <array>
 #include <cstring>
 #include <cassert>
 #include <iostream>
@@ -156,55 +157,37 @@ constexpr uint8_t mlTable[16] = {
 //   [0,        DB_MUTE )    actual values, from max to min
 //   [DB_MUTE,  DBTABLEN)    filled with min val (to allow some overflow in index)
 //   [DBTABLEN, 2*DBTABLEN)  as above but for negative output values
-struct Db2LinTab {
-	int tab[2 * DBTABLEN];
-};
-static constexpr Db2LinTab makeDB2LinTable()
-{
-	Db2LinTab dB2Lin = {};
-
+constexpr auto dB2LinTab = [] {
+	std::array<int, 2 * DBTABLEN> result = {};
 	for (int i = 0; i < DB_MUTE; ++i) {
-		dB2Lin.tab[i] = int(double((1 << DB2LIN_AMP_BITS) - 1) *
+		result[i] = int(double((1 << DB2LIN_AMP_BITS) - 1) *
 		                   cstd::pow<5, 3>(10, -double(i) * DB_STEP / 20));
 	}
-	dB2Lin.tab[DB_MUTE - 1] = 0;
+	result[DB_MUTE - 1] = 0;
 	for (int i = DB_MUTE; i < DBTABLEN; ++i) {
-		dB2Lin.tab[i] = 0;
+		result[i] = 0;
 	}
 	for (int i = 0; i < DBTABLEN; ++i) {
-		dB2Lin.tab[i + DBTABLEN] = -dB2Lin.tab[i];
+		result[i + DBTABLEN] = -result[i];
 	}
-
-	return dB2Lin;
-}
-constexpr Db2LinTab dB2Lin = makeDB2LinTable();
+	return result;
+}();
 
 // Linear to Log curve conversion table (for Attack rate)
-struct ArAdjustTable {
-	unsigned tab[1 << EG_BITS];
-};
-static constexpr ArAdjustTable makeAdjustTable()
-{
-	ArAdjustTable arAdjust = {};
-
-	arAdjust.tab[0] = (1 << EG_BITS) - 1;
+constexpr auto arAdjustTab = [] {
+	std::array<unsigned, 1 << EG_BITS> result = {};
+	result[0] = (1 << EG_BITS) - 1;
 	constexpr double l127 = cstd::log<5, 4>(127.0);
 	for (int i = 1; i < (1 << EG_BITS); ++i) {
-		arAdjust.tab[i] = unsigned(double(1 << EG_BITS) - 1 -
+		result[i] = unsigned(double(1 << EG_BITS) - 1 -
 		         ((1 << EG_BITS) - 1) * cstd::log<5, 4>(double(i)) / l127);
 	}
-
-	return arAdjust;
-}
-constexpr ArAdjustTable arAdjust = makeAdjustTable();
+	return result;
+}();
 
 // KSL + TL Table   values are in range [0, 112]
-struct TllTable {
-	uint8_t tab[4][16 * 8];
-};
-static constexpr TllTable makeTllTable()
-{
-	TllTable tll = {};
+constexpr auto tllTab = [] {
+	std::array<std::array<uint8_t, 16 * 8>, 4> result = {};
 
 	// Processed version of Table III-5 from the Application Manual.
 	constexpr unsigned kltable[16] = {
@@ -221,95 +204,74 @@ static constexpr TllTable makeTllTable()
 		for (unsigned KL = 0; KL < 4; ++KL) {
 			unsigned t = (tmp <= 0 || KL == 0) ? 0 : (tmp >> (3 - KL));
 			assert(t <= 112);
-			tll.tab[KL][freq] = t;
+			result[KL][freq] = t;
 		}
 	}
-
-	return tll;
-}
-constexpr TllTable tll = makeTllTable();
+	return result;
+}();
 
 // WaveTable for each envelope amp
 //  values are in range [0, DB_MUTE)             (for positive values)
 //                  or  [0, DB_MUTE) + DBTABLEN  (for negative values)
-struct SinTable {
-	unsigned full[PG_WIDTH];
-	unsigned half[PG_WIDTH];
-};
-static constexpr int lin2db(double d)
-{
-	// lin(+0.0 .. +1.0) to dB(DB_MUTE-1 .. 0)
-	return (d == 0)
-		? DB_MUTE - 1
-		: std::min(-int(20.0 * cstd::log10<5, 2>(d) / DB_STEP), DB_MUTE - 1); // 0 - 127
-}
-constexpr SinTable makeSinTable()
-{
-	SinTable sinTable = {};
+constexpr auto fullSinTable = [] {
+	auto lin2db = [](double d) {
+		// lin(+0.0 .. +1.0) to dB(DB_MUTE-1 .. 0)
+		return (d == 0)
+			? DB_MUTE - 1
+			: std::min(-int(20.0 * cstd::log10<5, 2>(d) / DB_STEP), DB_MUTE - 1); // 0 - 127
+	};
 
+	std::array<unsigned, PG_WIDTH> result = {};
 	for (int i = 0; i < PG_WIDTH / 4; ++i) {
-		sinTable.full[i] = lin2db(cstd::sin<2>(double(2.0 * M_PI) * i / PG_WIDTH));
+		result[i] = lin2db(cstd::sin<2>(double(2.0 * M_PI) * i / PG_WIDTH));
 	}
 	for (int i = 0; i < PG_WIDTH / 4; ++i) {
-		sinTable.full[PG_WIDTH / 2 - 1 - i] = sinTable.full[i];
+		result[PG_WIDTH / 2 - 1 - i] = result[i];
 	}
 	for (int i = 0; i < PG_WIDTH / 2; ++i) {
-		sinTable.full[PG_WIDTH / 2 + i] = DBTABLEN + sinTable.full[i];
+		result[PG_WIDTH / 2 + i] = DBTABLEN + result[i];
 	}
-
+	return result;
+}();
+constexpr auto halfSinTable = [] {
+	std::array<unsigned, PG_WIDTH> result = {};
 	for (int i = 0; i < PG_WIDTH / 2; ++i) {
-		sinTable.half[i] = sinTable.full[i];
+		result[i] = fullSinTable[i];
 	}
 	for (int i = PG_WIDTH / 2; i < PG_WIDTH; ++i) {
-		sinTable.half[i] = sinTable.full[0];
+		result[i] = fullSinTable[0];
 	}
-
-	return sinTable;
-}
-constexpr SinTable sinTable = makeSinTable();
-constexpr unsigned const * const waveform[2] = {sinTable.full, sinTable.half};
+	return result;
+}();
+constexpr unsigned const * const waveform[2] = {fullSinTable.data(), halfSinTable.data()};
 
 // Phase incr table for attack, decay and release
 //  note: original code had indices swapped. It also had
 //        a separate table for attack
 //  17.15 fixed point
-struct DphaseDRTable {
-	int tab[16][16];
-};
-static constexpr DphaseDRTable makeDphaseDRTable()
-{
-	DphaseDRTable dphaseDR = {};
-
+constexpr auto dphaseDrTab = [] {
+	std::array<std::array<int, 16>, 16> result = {};
 	for (unsigned Rks = 0; Rks < 16; ++Rks) {
-		dphaseDR.tab[Rks][0] = 0;
+		result[Rks][0] = 0;
 		for (unsigned DR = 1; DR < 16; ++DR) {
 			unsigned RM = std::min(DR + (Rks >> 2), 15u);
 			unsigned RL = Rks & 3;
-			dphaseDR.tab[Rks][DR] =
+			result[Rks][DR] =
 				((RL + 4) << EP_FP_BITS) >> (16 - RM);
 		}
 	}
-
-	return dphaseDR;
-}
-constexpr DphaseDRTable dphaseDR = makeDphaseDRTable();
+	return result;
+}();
 
 // Sustain level (17.15 fixed point)
-struct SlTable {
-	unsigned tab[16];
-};
-static constexpr SlTable makeSusLevTable()
-{
-	SlTable sl = {};
-
+constexpr auto slTab = [] {
+	std::array<unsigned, 16> result = {};
 	for (int i = 0; i < 16; ++i) {
 		double x = (i == 15) ? 48.0 : (3.0 * i);
-		sl.tab[i] = int(x / EG_STEP) << EP_FP_BITS;
+		result[i] = int(x / EG_STEP) << EP_FP_BITS;
 	}
-
-	return sl;
-}
-constexpr SlTable sl = makeSusLevTable();
+	return result;
+}();
 
 //
 // Helper functions
@@ -398,7 +360,7 @@ void Patch::setML(uint8_t value)
 }
 void Patch::setKL(uint8_t value)
 {
-	KL = tll.tab[value];
+	KL = tllTab[value].data();
 }
 void Patch::setTL(uint8_t value)
 {
@@ -416,7 +378,7 @@ void Patch::setFB(uint8_t value)
 }
 void Patch::setSL(uint8_t value)
 {
-	SL = sl.tab[value];
+	SL = slTab[value];
 }
 
 
@@ -430,7 +392,7 @@ void Slot::reset()
 	output = 0;
 	feedback = 0;
 	setEnvelopeState(FINISH);
-	dphaseDRTableRks = dphaseDR.tab[0];
+	dphaseDRTableRks = dphaseDrTab[0].data();
 	tll = 0;
 	sustain = false;
 	volume = TL2EG(0);
@@ -462,7 +424,7 @@ void Slot::updateRKS(unsigned freq)
 {
 	unsigned rks = freq >> patch.KR;
 	assert(rks < 16);
-	dphaseDRTableRks = dphaseDR.tab[rks];
+	dphaseDRTableRks = dphaseDrTab[rks].data();
 }
 
 void Slot::updateEG()
@@ -576,7 +538,7 @@ void Slot::slotOff()
 {
 	if (state == FINISH) return; // already in off state
 	if (state == ATTACK) {
-		eg_phase = EnvPhaseIndex(arAdjust.tab[eg_phase.toInt()]);
+		eg_phase = EnvPhaseIndex(arAdjustTab[eg_phase.toInt()]);
 	}
 	setEnvelopeState(RELEASE);
 }
@@ -690,34 +652,34 @@ static uint8_t inst_data[16 + 3][8] = {
 YM2413::YM2413()
 {
 	if (false) {
-		for (auto& e : dB2Lin.tab) std::cout << e << ' ';
+		for (auto& e : dB2LinTab) std::cout << e << ' ';
 		std::cout << '\n';
 
-		for (auto& e : arAdjust.tab) std::cout << e << ' ';
+		for (auto& e : arAdjustTab) std::cout << e << ' ';
 		std::cout << '\n';
 
 		for (int i = 0; i < 4; ++i) {
 			for (int j = 0; j < 16 * 8; ++j) {
-				std::cout << int(tll.tab[i][j]) << ' ';
+				std::cout << int(tllTab[i][j]) << ' ';
 			}
 			std::cout << '\n';
 		}
 		std::cout << '\n';
 
-		for (auto& e : sinTable.full) std::cout << e << ' ';
+		for (auto& e : fullSinTable) std::cout << e << ' ';
 		std::cout << '\n';
-		for (auto& e : sinTable.half) std::cout << e << ' ';
+		for (auto& e : halfSinTable) std::cout << e << ' ';
 		std::cout << '\n';
 
 		for (int i = 0; i < 16; ++i) {
 			for (int j = 0; j < 16; ++j) {
-				std::cout << dphaseDR.tab[i][j] << ' ';
+				std::cout << dphaseDrTab[i][j] << ' ';
 			}
 			std::cout << '\n';
 		}
 		std::cout << '\n';
 
-		for (auto& e : sl.tab) std::cout << e << ' ';
+		for (auto& e : slTab) std::cout << e << ' ';
 		std::cout << '\n';
 	}
 
@@ -979,7 +941,7 @@ ALWAYS_INLINE unsigned Slot::calc_envelope(int lfo_am, unsigned fixed_env)
 	} else {
 		unsigned out = eg_phase.toInt(); // in range [0, 128)
 		if (state == ATTACK) {
-			out = arAdjust.tab[out]; // [0, 128)
+			out = arAdjustTab[out]; // [0, 128)
 		}
 		eg_phase += eg_dphase;
 		if (eg_phase >= eg_phase_max) {
@@ -1010,7 +972,7 @@ ALWAYS_INLINE int Slot::calc_slot_car(unsigned lfo_pm, int lfo_am, int fm, unsig
 {
 	int phase = calc_phase(lfo_pm) + wave2_8pi(fm);
 	unsigned egout = calc_envelope<HAS_AM, FIXED_ENV>(lfo_am, fixed_env);
-	int newOutput = dB2Lin.tab[patch.WF[phase & PG_MASK] + egout];
+	int newOutput = dB2LinTab[patch.WF[phase & PG_MASK] + egout];
 	output = (output + newOutput) >> 1;
 	return output;
 }
@@ -1025,7 +987,7 @@ ALWAYS_INLINE int Slot::calc_slot_mod(unsigned lfo_pm, int lfo_am, unsigned fixe
 	if (HAS_FB) {
 		phase += wave2_8pi(feedback) >> patch.FB;
 	}
-	int newOutput = dB2Lin.tab[patch.WF[phase & PG_MASK] + egout];
+	int newOutput = dB2LinTab[patch.WF[phase & PG_MASK] + egout];
 	feedback = (output + newOutput) >> 1;
 	output = newOutput;
 	return feedback;
@@ -1036,7 +998,7 @@ ALWAYS_INLINE int Slot::calc_slot_tom()
 {
 	unsigned phase = calc_phase(0);
 	unsigned egout = calc_envelope<false, false>(0, 0);
-	return dB2Lin.tab[patch.WF[phase & PG_MASK] + egout];
+	return dB2LinTab[patch.WF[phase & PG_MASK] + egout];
 }
 
 // SNARE (ch7 car)
@@ -1045,8 +1007,8 @@ ALWAYS_INLINE int Slot::calc_slot_snare(bool noise)
 	unsigned phase = calc_phase(0);
 	unsigned egout = calc_envelope<false, false>(0, 0);
 	return BIT(phase, 7)
-		? dB2Lin.tab[(noise ? DB_POS(0.0) : DB_POS(15.0)) + egout]
-		: dB2Lin.tab[(noise ? DB_NEG(0.0) : DB_NEG(15.0)) + egout];
+		? dB2LinTab[(noise ? DB_POS(0.0) : DB_POS(15.0)) + egout]
+		: dB2LinTab[(noise ? DB_NEG(0.0) : DB_NEG(15.0)) + egout];
 }
 
 // TOP-CYM (ch8 car)
@@ -1060,7 +1022,7 @@ ALWAYS_INLINE int Slot::calc_slot_cym(unsigned phase7, unsigned phase8)
 	                   !BIT(phase8, PG_BITS - 5)))
 	               ? DB_NEG(3.0)
 	               : DB_POS(3.0);
-	return dB2Lin.tab[dbout + egout];
+	return dB2LinTab[dbout + egout];
 }
 
 // HI-HAT (ch7 mod)
@@ -1074,7 +1036,7 @@ ALWAYS_INLINE int Slot::calc_slot_hat(unsigned phase7, unsigned phase8, bool noi
 	                   !BIT(phase8, PG_BITS - 5)))
 	               ? (noise ? DB_NEG(12.0) : DB_NEG(24.0))
 	               : (noise ? DB_POS(12.0) : DB_POS(24.0));
-	return dB2Lin.tab[dbout + egout];
+	return dB2LinTab[dbout + egout];
 }
 
 float YM2413::getAmplificationFactor() const
