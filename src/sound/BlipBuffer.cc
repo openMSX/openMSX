@@ -3,6 +3,7 @@
 #include "likely.hh"
 #include "Math.hh"
 #include <algorithm>
+#include <array>
 #include <cstring>
 #include <cassert>
 #include <iostream>
@@ -21,11 +22,7 @@ constexpr int BLIP_RES = 1 << BlipBuffer::BLIP_PHASE_BITS;
 
 
 // Precalculated impulse table.
-struct Impulses {
-	float a[BLIP_RES][BLIP_IMPULSE_WIDTH];
-};
-static constexpr Impulses calcImpulses()
-{
+constexpr auto impulses = [] {
 	constexpr int HALF_SIZE = BLIP_RES / 2 * (BLIP_IMPULSE_WIDTH - 1);
 	double fimpulse[HALF_SIZE + 2 * BLIP_RES] = {};
 	double* out = &fimpulse[BLIP_RES];
@@ -69,11 +66,11 @@ static constexpr Impulses calcImpulses()
 	// longer meaningful.
 
 	// reshuffle values to a more cache friendly order
-	Impulses impulses = {};
+	std::array<std::array<float, BLIP_IMPULSE_WIDTH>, BLIP_RES> result = {};
 	for (int phase = 0; phase < BLIP_RES; ++phase) {
 		const auto* imp_fwd = &imp[BLIP_RES - phase];
 		const auto* imp_rev = &imp[phase];
-		auto* p = impulses.a[phase];
+		auto* p = result[phase].data();
 		for (int i = 0; i < BLIP_IMPULSE_WIDTH / 2; ++i) {
 			*p++ = imp_fwd[BLIP_RES * i];
 		}
@@ -81,18 +78,17 @@ static constexpr Impulses calcImpulses()
 			*p++ = imp_rev[BLIP_RES * i];
 		}
 	}
-	return impulses;
-}
-constexpr Impulses impulses = calcImpulses();
+	return result;
+}();
 
 
 BlipBuffer::BlipBuffer()
 {
 	if (false) {
 		for (int i = 0; i < BLIP_RES; ++i) {
-			std::cout << "\t{ " << impulses.a[i][0];
+			std::cout << "\t{ " << impulses[i][0];
 			for (int j = 1; j < BLIP_IMPULSE_WIDTH; ++j) {
-				std::cout << ", " << impulses.a[i][j];
+				std::cout << ", " << impulses[i][j];
 			}
 			std::cout << " },\n";
 		}
@@ -112,7 +108,7 @@ void BlipBuffer::addDelta(TimeIndex time, float delta)
 
 	unsigned phase = time.fractAsInt();
 	unsigned ofst = time.toInt() + offset;
-	const float* __restrict impulse = impulses.a[phase];
+	const float* __restrict impulse = impulses[phase].data();
 	if (likely((ofst + BLIP_IMPULSE_WIDTH) <= BUFFER_SIZE)) {
 		float* __restrict result = &buffer[ofst];
 		for (int i = 0; i < BLIP_IMPULSE_WIDTH; ++i) {
