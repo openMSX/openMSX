@@ -33,6 +33,7 @@
 #include "one_of.hh"
 #include "unreachable.hh"
 #include <algorithm>
+#include <array>
 #include <cstring>
 
 namespace openmsx {
@@ -55,21 +56,20 @@ constexpr RmNum rm_for_cycle(int cycle)
 	return RmNum(cycle - 11);
 }
 
-struct Rom {
-	uint16_t logsin[256];
-	uint16_t exp[256];
-};
-constexpr Rom makeRomTables()
-{
-	Rom t = {};
+constexpr auto logsinTab = [] {
+	std::array<uint16_t, 256> result = {};
 	for (int i = 0; i < 256; ++i) {
-		t.logsin[i] = cstd::round(-cstd::log2<8, 3>(cstd::sin<2>((double(i) + 0.5) * M_PI / 256.0 / 2.0)) * 256.0);
-		t.exp[i] = cstd::round((cstd::exp2<6>(double(255 - i) / 256.0)) * 1024.0);
+		result[i] = cstd::round(-cstd::log2<8, 3>(cstd::sin<2>((double(i) + 0.5) * M_PI / 256.0 / 2.0)) * 256.0);
 	}
-	return t;
-}
-constexpr Rom rom = makeRomTables();
-
+	return result;
+}();
+constexpr auto expTab = [] {
+	std::array<uint16_t, 256> result = {};
+	for (int i = 0; i < 256; ++i) {
+		result[i] = cstd::round((cstd::exp2<6>(double(255 - i) / 256.0)) * 1024.0);
+	}
+	return result;
+}();
 
 constexpr YM2413::Patch YM2413::m_patches[15] = {
 	{0x1e, 2, 7, {0, 0}, {1, 1}, {1, 1}, {1, 0}, {0x1, 0x1}, {0, 0}, {0xd, 0x7}, {0x0, 0x8}, {0x0, 0x1}, {0x0, 0x7}},
@@ -633,9 +633,9 @@ template<uint32_t CYCLES> ALWAYS_INLINE void YM2413::doOperator(float* out[9 + 5
 		if (eg_silent) return 0;
 		auto prev2_phase = op_phase[(CYCLES - 2) & 1];
 		uint8_t quarter = (prev2_phase & 0x100) ? ~prev2_phase : prev2_phase;
-		auto logsin = rom.logsin[quarter];
+		auto logsin = logsinTab[quarter];
 		auto op_level = std::min(4095, logsin + (eg_out[(CYCLES - 2) & 1] << 4));
-		uint32_t op_exp_m = rom.exp[op_level & 0xff];
+		uint32_t op_exp_m = expTab[op_level & 0xff];
 		auto  op_exp_s = op_level >> 8;
 		if (prev2_phase & 0x200) {
 			return unlikely(c_dcm[(CYCLES + 16) % 3] & (ismod1 ? 1 : 2))
