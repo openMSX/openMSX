@@ -8,26 +8,6 @@
 
 namespace openmsx {
 
-[[nodiscard]] inline constexpr auto calcTable()
-{
-	std::array<std::array<uint16_t, 0x100>, 8> result = {}; // uint16_t[8][0x100]
-	for (unsigned i = 0; i < 0x100; ++i) {
-		uint16_t x = i << 8;
-		for (int j = 0; j < 8; ++j) {
-			x = (x << 1) ^ ((x & 0x8000) ? 0x1021 : 0);
-		}
-		result[0][i] = x;
-	}
-	for (unsigned i = 0; i < 0x100; ++i) {
-		uint16_t c = result[0][i];
-		for (unsigned j = 1; j < 8; ++j) {
-			c = result[0][c >> 8] ^ (c << 8);
-			result[j][i] = c;
-		}
-	}
-	return result;
-}
-
 /**
  * This class calculates CRC numbers for the polygon
  *   x^16 + x^12 + x^5 + 1
@@ -109,7 +89,24 @@ public:
 	}
 
 private:
-	static inline constexpr auto tab = calcTable();
+	static inline constexpr auto tab = [] {
+		std::array<std::array<uint16_t, 0x100>, 8> result = {}; // uint16_t[8][0x100]
+		for (unsigned i = 0; i < 0x100; ++i) {
+			uint16_t x = i << 8;
+			for (int j = 0; j < 8; ++j) {
+				x = (x << 1) ^ ((x & 0x8000) ? 0x1021 : 0);
+			}
+			result[0][i] = x;
+		}
+		for (unsigned i = 0; i < 0x100; ++i) {
+			uint16_t c = result[0][i];
+			for (unsigned j = 1; j < 8; ++j) {
+				c = result[0][c >> 8] ^ (c << 8);
+				result[j][i] = c;
+			}
+		}
+		return result;
+	}();
 
 	uint16_t crc;
 };
