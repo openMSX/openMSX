@@ -1313,7 +1313,7 @@ proc menu_add_extension_exec {slot item} {
 	if {[catch {if {$slot ne ""} { cart${ext} eject }; ext${ext} $item} errorText]} {
 		osd::display_message $errorText error
 	} else {
-		set location [expr {[get_extension_slot $item] ne "" ? "slot [get_slot_str $slot]" : "I/O only slot"}]
+		set location [expr {[get_extension_slot $item] ne "" ? "slot [get_slot_str [get_extension_slot $item]]" : "I/O only slot"}]
 		menu_close_all
 		osd::display_message "Extension [utils::get_extension_display_name_by_config_name $item] inserted in $location!"
 	}
