@@ -23,6 +23,7 @@
 #include "Math.hh"
 #include "cstd.hh"
 #include "serialize.hh"
+#include <array>
 #include <cstring>
 #include <iostream>
 
@@ -212,12 +213,8 @@ constexpr uint8_t mul_tab[16] =
 //  2  - sinus sign bit           (Y axis)
 //  TL_RES_LEN - sinus resolution (X axis)
 constexpr int TL_TAB_LEN = 11 * 2 * TL_RES_LEN;
-struct TlTab {
-	int tab[TL_TAB_LEN];
-};
-static constexpr TlTab makeTlTab()
-{
-	TlTab tl = {};
+constexpr auto tlTab = [] {
+	std::array<int, TL_TAB_LEN> result = {};
 	for (int x = 0; x < TL_RES_LEN; ++x) {
 		double m = (1 << 16) / cstd::exp2<6>((x + 1) * (ENV_STEP / 4.0) / 8.0);
 
@@ -228,44 +225,38 @@ static constexpr TlTab makeTlTab()
 		n = (n >> 1) + (n & 1); // round to nearest
 		// 11 bits here (rounded)
 		for (int i = 0; i < 11; ++i) {
-			tl.tab[x * 2 + 0 + i * 2 * TL_RES_LEN] = n >> i;
-			tl.tab[x * 2 + 1 + i * 2 * TL_RES_LEN] = -(n >> i);
+			result[x * 2 + 0 + i * 2 * TL_RES_LEN] = n >> i;
+			result[x * 2 + 1 + i * 2 * TL_RES_LEN] = -(n >> i);
 		}
 	}
-	return tl;
-}
-constexpr TlTab tl = makeTlTab();
+	return result;
+}();
 
 // sin waveform table in 'decibel' scale
 // two waveforms on OPLL type chips
-struct SinTab {
-	unsigned tab[SIN_LEN * 2];
-};
-static constexpr SinTab makeSinTab()
-{
-	SinTab sin = {};
+constexpr auto sinTab = [] {
+	std::array<unsigned, SIN_LEN * 2> result = {};
 	for (int i = 0; i < SIN_LEN / 4; ++i) {
 		// checked on real hardware, see also
 		//   http://docs.google.com/Doc?id=dd8kqn9f_13cqjkf4gp
 		double m = cstd::sin<2>(((i * 2) + 1) * M_PI / SIN_LEN);
 		int n = int(cstd::round(cstd::log2<8, 3>(m) * -256.0));
-		sin.tab[i] = 2 * n;
+		result[i] = 2 * n;
 	}
 	for (int i = 0; i < SIN_LEN / 4; ++i) {
-		sin.tab[SIN_LEN / 4 + i] = sin.tab[SIN_LEN / 4 - 1 - i];
+		result[SIN_LEN / 4 + i] = result[SIN_LEN / 4 - 1 - i];
 	}
 	for (int i = 0; i < SIN_LEN / 2; ++i) {
-		sin.tab[SIN_LEN / 2 + i] = sin.tab[i] | 1;
+		result[SIN_LEN / 2 + i] = result[i] | 1;
 	}
 	for (int i = 0; i < SIN_LEN / 2; ++i) {
-		sin.tab[i + SIN_LEN] = sin.tab[i];
+		result[i + SIN_LEN] = result[i];
 	}
 	for (int i = 0; i < SIN_LEN / 2; ++i) {
-		sin.tab[i + SIN_LEN + SIN_LEN / 2] = TL_TAB_LEN;
+		result[i + SIN_LEN + SIN_LEN / 2] = TL_TAB_LEN;
 	}
-	return sin;
-}
-constexpr SinTab sin = makeSinTab();
+	return result;
+}();
 
 // LFO Amplitude Modulation table (verified on real YM3812)
 // 27 output levels (triangle waveform);
@@ -543,7 +534,7 @@ inline int Slot::calcOutput(Channel& channel, unsigned eg_cnt, bool carrier,
 	int egout2 = calc_envelope(channel, eg_cnt, carrier);
 	int env = (TLL + egout2 + (lfo_am & AMmask)) << 5;
 	int p = env + wavetable[phase2 & SIN_MASK];
-	return p < TL_TAB_LEN ? tl.tab[p] : 0;
+	return p < TL_TAB_LEN ? tlTab[p] : 0;
 }
 
 inline int Slot::calc_slot_mod(Channel& channel, unsigned eg_cnt, bool carrier,
@@ -664,7 +655,7 @@ Slot::Slot()
 	eg_sustain = false;
 	setEnvelopeState(EG_OFF);
 	key = AMmask = vib = 0;
-	wavetable = &sin.tab[0 * SIN_LEN];
+	wavetable = &sinTab[0 * SIN_LEN];
 }
 
 void Slot::setKeyOn(KeyPart part)
@@ -746,7 +737,7 @@ void Slot::setKeyScaleLevel(Channel& channel, uint8_t value)
 
 void Slot::setWaveform(uint8_t value)
 {
-	wavetable = &sin.tab[value * SIN_LEN];
+	wavetable = &sinTab[value * SIN_LEN];
 }
 
 void Slot::setFeedbackShift(uint8_t value)
@@ -788,7 +779,7 @@ void Slot::updateFrequency(Channel& channel)
 
 void Slot::resetOperators()
 {
-	wavetable = &sin.tab[0 * SIN_LEN];
+	wavetable = &sinTab[0 * SIN_LEN];
 	setEnvelopeState(EG_OFF);
 	egout = MAX_ATT_INDEX;
 }
@@ -936,9 +927,9 @@ YM2413::YM2413()
 	: lfo_am_cnt(0), lfo_pm_cnt(0)
 {
 	if (false) {
-		for (auto& e : tl.tab) std::cout << e << '\n';
+		for (auto& e : tlTab) std::cout << e << '\n';
 		std::cout << '\n';
-		for (auto& e : sin.tab) std::cout << e << '\n';
+		for (auto& e : sinTab) std::cout << e << '\n';
 	}
 
 	memset(reg, 0, sizeof(reg)); // avoid UMR
@@ -1331,7 +1322,7 @@ void Slot::serialize(Archive& a, unsigned /*version*/)
 {
 	// TODO some of the serialized members here could be calculated from
 	//      other members
-	int waveform = (wavetable == &sin.tab[0]) ? 0 : 1;
+	int waveform = (wavetable == &sinTab[0]) ? 0 : 1;
 	a.serialize("waveform", waveform);
 	if (a.isLoader()) {
 		setWaveform(waveform);
