@@ -15,6 +15,7 @@
 #include "ranges.hh"
 #include "serialize.hh"
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <iostream>
 
@@ -174,119 +175,91 @@ static inline unsigned DB_NEG(int x)
 
 // Linear to Log curve conversion table (for Attack rate) and vice versa.
 //   values are in the range [0 .. EG_MUTE]
-struct AdjustTables {
-	unsigned ar[EG_MUTE];
-	unsigned ra[EG_MUTE + 1];
-};
-static constexpr AdjustTables makeAdjustTables()
-{
-	AdjustTables adjust = {};
-
-	adjust.ar[0] = EG_MUTE;
-	adjust.ra[0] = EG_MUTE;
+// adjustAR[] and adjustRA[] are each others inverse, IOW
+//   adjustRA[adjustAR[x]] == x
+// (except for rounding errors).
+constexpr auto adjustAR = [] {
+	std::array<unsigned, EG_MUTE> result = {};
+	result[0] = EG_MUTE;
 	auto log_eg_mute = cstd::log<6, 5>(EG_MUTE);
 	for (int i = 1; i < int(EG_MUTE); ++i) {
-		adjust.ar[i] = (EG_MUTE - 1 - EG_MUTE * cstd::log<6, 5>(i) / log_eg_mute) / 2;
-		adjust.ra[i] = cstd::pow<6, 5>(EG_MUTE, (double(EG_MUTE) - 1 - 2 * i) / EG_MUTE);
-		assert(0 <= int(adjust.ar[i]));
-		assert(0 <= int(adjust.ra[i]));
-		assert(adjust.ar[i] <= EG_MUTE);
-		assert(adjust.ra[i] <= EG_MUTE);
+		result[i] = (EG_MUTE - 1 - EG_MUTE * cstd::log<6, 5>(i) / log_eg_mute) / 2;
+		assert(0 <= int(result[i]));
+		assert(result[i] <= EG_MUTE);
 	}
-	adjust.ra[EG_MUTE] = 0;
-
-	return adjust;
-
-	// adjust.ar[] and adjust.ra[] are each others inverse, IOW
-	//   adjust.ra[adjust.ar[x]] == x
-	// (except for rounding errors).
-}
-constexpr AdjustTables adjust = makeAdjustTables();
+	return result;
+}();
+constexpr auto adjustRA = [] {
+	std::array<unsigned, EG_MUTE + 1> result = {};
+	result[0] = EG_MUTE;
+	for (int i = 1; i < int(EG_MUTE); ++i) {
+		result[i] = cstd::pow<6, 5>(EG_MUTE, (double(EG_MUTE) - 1 - 2 * i) / EG_MUTE);
+		assert(0 <= int(result[i]));
+		assert(result[i] <= EG_MUTE);
+	}
+	result[EG_MUTE] = 0;
+	return result;
+}();
 
 // Table for dB(0 -- (1<<DB_BITS)) to Liner(0 -- DB2LIN_AMP_WIDTH)
-struct Db2LinTab {
-	int tab[(2 * DB_MUTE) * 2];
-};
-static constexpr Db2LinTab makeDB2LinTable()
-{
-	Db2LinTab dB2Lin = {};
-
+constexpr auto dB2LinTab = [] {
+	std::array<int, (2 * DB_MUTE) * 2> result = {};
 	for (int i = 0; i < DB_MUTE; ++i) {
-		dB2Lin.tab[i] = int(double((1 << DB2LIN_AMP_BITS) - 1) *
+		result[i] = int(double((1 << DB2LIN_AMP_BITS) - 1) *
 		                   cstd::pow<7, 3>(10, -double(i) * DB_STEP / 20.0));
 	}
-	assert(dB2Lin.tab[DB_MUTE - 1] == 0);
+	assert(result[DB_MUTE - 1] == 0);
 	for (int i = DB_MUTE; i < 2 * DB_MUTE; ++i) {
-		dB2Lin.tab[i] = 0;
+		result[i] = 0;
 	}
 	for (int i = 0; i < 2 * DB_MUTE; ++i) {
-		dB2Lin.tab[i + 2 * DB_MUTE] = -dB2Lin.tab[i];
+		result[i + 2 * DB_MUTE] = -result[i];
 	}
-
-	return dB2Lin;
-}
-constexpr Db2LinTab dB2Lin = makeDB2LinTable();
-
-// Liner(+0.0 - +1.0) to dB(DB_MUTE-1 -- 0)
-static constexpr unsigned lin2db(double d)
-{
-	if (d < 1e-4) {
-		// (almost) zero
-		return DB_MUTE - 1;
-	}
-	int tmp = -int(20.0 * cstd::log10<6, 2>(d) / DB_STEP);
-	int result = std::min(tmp, DB_MUTE - 1);
-	assert(result >= 0);
-	assert(result <= DB_MUTE - 1);
 	return result;
-}
+}();
 
 // WaveTable for each envelope amp.
 //  values are in range[        0,   DB_MUTE)   (for positive values)
 //                  or [2*DB_MUTE, 3*DB_MUTE)   (for negative values)
-struct SinTable {
-	unsigned table[PG_WIDTH];
-};
-constexpr SinTable makeSinTable()
-{
-	SinTable sin = {};
+constexpr auto sinTable = [] {
+	// Linear(+0.0 ... +1.0) to dB(DB_MUTE-1 ... 0)
+	auto lin2db = [](double d) {
+		if (d < 1e-4) { // (almost) zero
+			return DB_MUTE - 1;
+		}
+		int tmp = -int(20.0 * cstd::log10<6, 2>(d) / DB_STEP);
+		int result = std::min(tmp, DB_MUTE - 1);
+		assert(result >= 0);
+		assert(result <= DB_MUTE - 1);
+		return result;
+	};
+
+	std::array<unsigned, PG_WIDTH> result = {};
 	for (int i = 0; i < PG_WIDTH / 4; ++i) {
-		sin.table[i] = lin2db(cstd::sin<2>(2.0 * M_PI * i / PG_WIDTH));
+		result[i] = lin2db(cstd::sin<2>(2.0 * M_PI * i / PG_WIDTH));
 	}
 	for (int i = 0; i < PG_WIDTH / 4; i++) {
-		sin.table[PG_WIDTH / 2 - 1 - i] = sin.table[i];
+		result[PG_WIDTH / 2 - 1 - i] = result[i];
 	}
 	for (int i = 0; i < PG_WIDTH / 2; i++) {
-		sin.table[PG_WIDTH / 2 + i] = 2 * DB_MUTE + sin.table[i];
+		result[PG_WIDTH / 2 + i] = 2 * DB_MUTE + result[i];
 	}
-	return sin;
-}
-constexpr SinTable sin = makeSinTable();
+	return result;
+}();
 
 // Table for Pitch Modulator
-struct PmTable {
-	int table[2][PM_PG_WIDTH];
-};
-static constexpr PmTable makePmTable()
-{
-	PmTable pm = {};
+constexpr auto pmTable = [] {
+	std::array<std::array<int, PM_PG_WIDTH>, 2> result = {};
 	for (int i = 0; i < PM_PG_WIDTH; ++i) {
 		auto s = cstd::sin<5>(2.0 * M_PI * i / PM_PG_WIDTH) / 1200;
-		pm.table[0][i] = int(PM_AMP * cstd::exp2<2>(PM_DEPTH  * s));
-		pm.table[1][i] = int(PM_AMP * cstd::exp2<2>(PM_DEPTH2 * s));
+		result[0][i] = int(PM_AMP * cstd::exp2<2>(PM_DEPTH  * s));
+		result[1][i] = int(PM_AMP * cstd::exp2<2>(PM_DEPTH2 * s));
 	}
-	return pm;
-}
-constexpr PmTable pm = makePmTable();
+	return result;
+}();
 
 // TL Table.
-struct TllTable {
-	int table[16 * 8][4];
-};
-static constexpr TllTable makeTllTable()
-{
-	TllTable tll = {};
-
+constexpr auto tllTable = [] {
 	// Processed version of Table 3.5 from the Application Manual
 	constexpr unsigned kltable[16] = {
 		0, 24, 32, 37, 40, 43, 45, 47, 48, 50, 51, 52, 53, 54, 55, 56
@@ -295,56 +268,48 @@ static constexpr TllTable makeTllTable()
 	// Note the illogical order of 2nd and 3rd element.
 	constexpr unsigned shift[4] = { 31, 1, 2, 0 };
 
+	std::array<std::array<int, 4>, 16 * 8> result = {};
 	for (unsigned freq = 0; freq < 16 * 8; ++freq) {
 		unsigned fnum  = freq % 16;
 		unsigned block = freq / 16;
 		int tmp = 4 * kltable[fnum] - 32 * (7 - block);
 		for (unsigned KL = 0; KL < 4; ++KL) {
-			tll.table[freq][KL] = (tmp <= 0) ? 0 : (tmp >> shift[KL]);
+			result[freq][KL] = (tmp <= 0) ? 0 : (tmp >> shift[KL]);
 		}
 	}
-
-	return tll;
-}
-constexpr TllTable tllTable = makeTllTable();
+	return result;
+}();
 
 // Phase incr table for Attack.
-struct DPhaseTable {
-	Y8950::EnvPhaseIndex table[16][16];
-};
-static constexpr DPhaseTable makeDphaseARTable()
-{
-	DPhaseTable dphaseAR = {};
+constexpr auto dphaseArTable = [] {
+	std::array<std::array<Y8950::EnvPhaseIndex, 16>, 16> result = {};
 	for (unsigned Rks = 0; Rks < 16; ++Rks) {
-		dphaseAR.table[Rks][0] = Y8950::EnvPhaseIndex(0);
+		result[Rks][0] = Y8950::EnvPhaseIndex(0);
 		for (unsigned AR = 1; AR < 15; ++AR) {
 			unsigned RM = std::min(AR + (Rks >> 2), 15u);
 			unsigned RL = Rks & 3;
-			dphaseAR.table[Rks][AR] =
+			result[Rks][AR] =
 				Y8950::EnvPhaseIndex(12 * (RL + 4)) >> (15 - RM);
 		}
-		dphaseAR.table[Rks][15] = EG_DP_MAX;
+		result[Rks][15] = EG_DP_MAX;
 	}
-	return dphaseAR;
-}
-constexpr DPhaseTable dphaseAR = makeDphaseARTable();
+	return result;
+}();
 
 // Phase incr table for Decay and Release.
-static constexpr DPhaseTable makeDphaseDRTable()
-{
-	DPhaseTable dphaseDR = {};
+constexpr auto dphaseDrTable = [] {
+	std::array<std::array<Y8950::EnvPhaseIndex, 16>, 16> result = {};
 	for (unsigned Rks = 0; Rks < 16; ++Rks) {
-		dphaseDR.table[Rks][0] = Y8950::EnvPhaseIndex(0);
+		result[Rks][0] = Y8950::EnvPhaseIndex(0);
 		for (unsigned DR = 1; DR < 16; ++DR) {
 			unsigned RM = std::min(DR + (Rks >> 2), 15u);
 			unsigned RL = Rks & 3;
-			dphaseDR.table[Rks][DR] =
+			result[Rks][DR] =
 				Y8950::EnvPhaseIndex(RL + 4) >> (15 - RM);
 		}
 	}
-	return dphaseDR;
-}
-constexpr DPhaseTable dphaseDR = makeDphaseDRTable();
+	return result;
+}();
 
 
 // class Y8950::Patch
@@ -402,15 +367,15 @@ void Y8950::Slot::updatePG(unsigned freq)
 
 void Y8950::Slot::updateTLL(unsigned freq)
 {
-	tll = tllTable.table[freq >> 6][patch.KL] + patch.TL * TL_PER_EG;
+	tll = tllTable[freq >> 6][patch.KL] + patch.TL * TL_PER_EG;
 }
 
 void Y8950::Slot::updateRKS(unsigned freq)
 {
 	unsigned rks = freq >> patch.KR;
 	assert(rks < 16);
-	dphaseARTableRks = dphaseAR.table[rks];
-	dphaseDRTableRks = dphaseDR.table[rks];
+	dphaseARTableRks = dphaseArTable[rks].data();
+	dphaseDRTableRks = dphaseDrTable[rks].data();
 }
 
 void Y8950::Slot::updateEG()
@@ -451,7 +416,7 @@ void Y8950::Slot::slotOn(KeyPart part)
 	if (!key) {
 		eg_mode = ATTACK;
 		phase = 0;
-		eg_phase = Y8950::EnvPhaseIndex(adjust.ra[eg_phase.toInt()]);
+		eg_phase = Y8950::EnvPhaseIndex(adjustRA[eg_phase.toInt()]);
 	}
 	key |= part;
 }
@@ -463,7 +428,7 @@ void Y8950::Slot::slotOff(KeyPart part)
 		key &= ~part;
 		if (!key) {
 			if (eg_mode == ATTACK) {
-				eg_phase = Y8950::EnvPhaseIndex(adjust.ar[eg_phase.toInt()]);
+				eg_phase = Y8950::EnvPhaseIndex(adjustAR[eg_phase.toInt()]);
 			}
 			eg_mode = RELEASE;
 		}
@@ -524,34 +489,34 @@ Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
 	// when the calculation changes.
 	if (false) {
 		for (int i = 0; i < PM_PG_WIDTH; ++i) {
-			std::cout << pm.table[0][i] << ' '
-			          << pm.table[1][i] << '\n';
+			std::cout << pmTable[0][i] << ' '
+			          << pmTable[1][i] << '\n';
 		}
 		std::cout << '\n';
 
 		for (unsigned i = 0; i < EG_MUTE; ++i) {
-			std::cout << adjust.ra[i] << ' '
-			          << adjust.ar[i] << '\n';
+			std::cout << adjustRA[i] << ' '
+			          << adjustAR[i] << '\n';
 		}
-		std::cout << adjust.ra[EG_MUTE] << "\n\n";
+		std::cout << adjustRA[EG_MUTE] << "\n\n";
 
-		for (auto& e : dB2Lin.tab) std::cout << e << '\n';
+		for (auto& e : dB2LinTab) std::cout << e << '\n';
 		std::cout << '\n';
 
 		for (int i = 0; i < (16 * 8); ++i) {
 			for (int j = 0; j < 4; ++j) {
-				std::cout << tllTable.table[i][j] << ' ';
+				std::cout << tllTable[i][j] << ' ';
 			}
 			std::cout << '\n';
 		}
 		std::cout << '\n';
 
-		for (auto& e : sin.table) std::cout << e << '\n';
+		for (auto& e : sinTable) std::cout << e << '\n';
 		std::cout << '\n';
 
 		for (int i = 0; i < 16; ++i) {
 			for (int j = 0; j < 16; ++j) {
-				std::cout << dphaseAR.table[i][j].getRawValue() << ' ';
+				std::cout << dphaseArTable[i][j].getRawValue() << ' ';
 			}
 			std::cout << '\n';
 		}
@@ -559,7 +524,7 @@ Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
 
 		for (int i = 0; i < 16; ++i) {
 			for (int j = 0; j < 16; ++j) {
-				std::cout << dphaseDR.table[i][j].getRawValue() << ' ';
+				std::cout << dphaseDrTable[i][j].getRawValue() << ' ';
 			}
 			std::cout << '\n';
 		}
@@ -700,7 +665,7 @@ unsigned Y8950::Slot::calc_envelope(int lfo_am)
 			eg_mode = DECAY;
 			updateEG();
 		} else {
-			egout = adjust.ar[eg_phase.toInt()];
+			egout = adjustAR[eg_phase.toInt()];
 		}
 		break;
 
@@ -752,7 +717,7 @@ int Y8950::Slot::calc_slot_car(int lfo_pm, int lfo_am, int fm)
 {
 	unsigned egout = calc_envelope(lfo_am);
 	int pgout = calc_phase(lfo_pm) + wave2_8pi(fm);
-	return dB2Lin.tab[sin.table[pgout & PG_MASK] + egout];
+	return dB2LinTab[sinTable[pgout & PG_MASK] + egout];
 }
 
 int Y8950::Slot::calc_slot_mod(int lfo_pm, int lfo_am)
@@ -763,7 +728,7 @@ int Y8950::Slot::calc_slot_mod(int lfo_pm, int lfo_am)
 	if (patch.FB != 0) {
 		pgout += wave2_8pi(feedback) >> patch.FB;
 	}
-	int newOutput = dB2Lin.tab[sin.table[pgout & PG_MASK] + egout];
+	int newOutput = dB2LinTab[sinTable[pgout & PG_MASK] + egout];
 	feedback = (output + newOutput) >> 1;
 	output = newOutput;
 	return feedback;
@@ -773,7 +738,7 @@ int Y8950::Slot::calc_slot_tom(int lfo_pm, int lfo_am)
 {
 	unsigned egout = calc_envelope(lfo_am);
 	unsigned pgout = calc_phase(lfo_pm);
-	return dB2Lin.tab[sin.table[pgout & PG_MASK] + egout];
+	return dB2LinTab[sinTable[pgout & PG_MASK] + egout];
 }
 
 int Y8950::Slot::calc_slot_snare(int lfo_pm, int lfo_am, int whitenoise)
@@ -781,22 +746,22 @@ int Y8950::Slot::calc_slot_snare(int lfo_pm, int lfo_am, int whitenoise)
 	unsigned egout = calc_envelope(lfo_am);
 	unsigned pgout = calc_phase(lfo_pm);
 	unsigned tmp = (pgout & (1 << (PG_BITS - 1))) ? 0 : 2 * DB_MUTE;
-	return (dB2Lin.tab[tmp + egout] + dB2Lin.tab[egout + whitenoise]) >> 1;
+	return (dB2LinTab[tmp + egout] + dB2LinTab[egout + whitenoise]) >> 1;
 }
 
 int Y8950::Slot::calc_slot_cym(int lfo_am, int a, int b)
 {
 	unsigned egout = calc_envelope(lfo_am);
-	return (dB2Lin.tab[egout + a] + dB2Lin.tab[egout + b]) >> 1;
+	return (dB2LinTab[egout + a] + dB2LinTab[egout + b]) >> 1;
 }
 
 // HI-HAT
 int Y8950::Slot::calc_slot_hat(int lfo_am, int a, int b, int whitenoise)
 {
 	unsigned egout = calc_envelope(lfo_am);
-	return (dB2Lin.tab[egout + whitenoise] +
-	        dB2Lin.tab[egout + a] +
-	        dB2Lin.tab[egout + b]) >> 2;
+	return (dB2LinTab[egout + whitenoise] +
+	        dB2LinTab[egout + a] +
+	        dB2LinTab[egout + b]) >> 2;
 }
 
 float Y8950::getAmplificationFactorImpl() const
@@ -857,7 +822,7 @@ void Y8950::generateChannels(float** bufs, unsigned num)
 		int lfo_am = am_mode ? tmp : tmp / 4;
 
 		pm_phase = (pm_phase + PM_DPHASE) & (PM_DP_WIDTH - 1);
-		int lfo_pm = pm.table[pm_mode][pm_phase >> (PM_DP_BITS - PM_PG_BITS)];
+		int lfo_pm = pmTable[pm_mode][pm_phase >> (PM_DP_BITS - PM_PG_BITS)];
 
 		if (noise_seed & 1) {
 			noise_seed ^= 0x24000;
