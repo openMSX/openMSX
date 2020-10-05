@@ -18,43 +18,44 @@ static float* aBuffer = nullptr; // pointer to aligned sub-buffer
 
 template<unsigned CHANNELS>
 std::unique_ptr<ResampleLQ<CHANNELS>> ResampleLQ<CHANNELS>::create(
-		ResampledSoundDevice& input,
-		const DynamicClock& hostClock, unsigned emuSampleRate)
+		ResampledSoundDevice& input, const DynamicClock& hostClock)
 {
 	std::unique_ptr<ResampleLQ<CHANNELS>> result;
-	unsigned hostSampleRate = hostClock.getFreq();
-	if (emuSampleRate < hostSampleRate) {
-		result = std::make_unique<ResampleLQUp  <CHANNELS>>(
-			input, hostClock, emuSampleRate);
+	if (input.getEmuClock().getPeriod() >= hostClock.getPeriod()) {
+		result = std::make_unique<ResampleLQUp  <CHANNELS>>(input, hostClock);
 	} else {
-		result = std::make_unique<ResampleLQDown<CHANNELS>>(
-			input, hostClock, emuSampleRate);
+		result = std::make_unique<ResampleLQDown<CHANNELS>>(input, hostClock);
 	}
 	return result;
 }
 
 template <unsigned CHANNELS>
 ResampleLQ<CHANNELS>::ResampleLQ(
-		ResampledSoundDevice& input_,
-		const DynamicClock& hostClock_, unsigned emuSampleRate)
-	: input(input_)
+		ResampledSoundDevice& input_, const DynamicClock& hostClock_)
+	: ResampleAlgo(input_)
 	, hostClock(hostClock_)
-	, emuClock(hostClock.getTime(), emuSampleRate)
-	, step(FP::roundRatioDown(emuSampleRate, hostClock.getFreq()))
+	, step([&]{ // calculate 'getEmuClock().getFreq() / hostClock.getFreq()', but with less rounding errors
+			uint64_t emuPeriod = input_.getEmuClock().getPeriod().length(); // unknown units
+			uint64_t hostPeriod = hostClock.getPeriod().length(); // unknown units, but same as above
+			assert(unsigned( emuPeriod) ==  emuPeriod);
+			assert(unsigned(hostPeriod) == hostPeriod);
+			return FP::roundRatioDown(hostPeriod, emuPeriod);
+		}())
 {
 	ranges::fill(lastInput, 0.0f);
 }
 
 static bool isSilent(float x)
 {
-	static const float threshold = 1.0f / 32768;
+	constexpr float threshold = 1.0f / 32768;
 	return std::abs(x) < threshold;
 }
 
 template <unsigned CHANNELS>
 bool ResampleLQ<CHANNELS>::fetchData(EmuTime::param time, unsigned& valid)
 {
-	unsigned emuNum = emuClock.getTicksTill(time);
+	auto& emuClk = getEmuClock();
+	unsigned emuNum = emuClk.getTicksTill(time);
 	valid = 2 + emuNum;
 
 	unsigned required = emuNum + 4;
@@ -69,9 +70,7 @@ bool ResampleLQ<CHANNELS>::fetchData(EmuTime::param time, unsigned& valid)
 		assert(bufferSize >= required);
 	}
 
-	emuClock += emuNum;
-	assert(emuClock.getTime() <= time);
-	assert(emuClock.getFastAdd(1) > time);
+	emuClk += emuNum;
 
 	auto* buffer = &aBuffer[4 - 2 * CHANNELS];
 	assert((uintptr_t(&buffer[2 * CHANNELS]) & 15) == 0);
@@ -96,21 +95,21 @@ bool ResampleLQ<CHANNELS>::fetchData(EmuTime::param time, unsigned& valid)
 
 template <unsigned CHANNELS>
 ResampleLQUp<CHANNELS>::ResampleLQUp(
-		ResampledSoundDevice& input_,
-		const DynamicClock& hostClock_, unsigned emuSampleRate)
-	: ResampleLQ<CHANNELS>(input_, hostClock_, emuSampleRate)
+		ResampledSoundDevice& input_, const DynamicClock& hostClock_)
+	: ResampleLQ<CHANNELS>(input_, hostClock_)
 {
-	assert(emuSampleRate < hostClock_.getFreq()); // only upsampling
+	assert(input_.getEmuClock().getFreq() <= hostClock_.getFreq()); // only upsampling
 }
 
 template <unsigned CHANNELS>
-bool ResampleLQUp<CHANNELS>::generateOutput(
+bool ResampleLQUp<CHANNELS>::generateOutputImpl(
 	float* __restrict dataOut, unsigned hostNum, EmuTime::param time)
 {
+	auto& emuClk = this->getEmuClock();
 	EmuTime host1 = this->hostClock.getFastAdd(1);
-	assert(host1 > this->emuClock.getTime());
+	assert(host1 > emuClk.getTime());
 	FP pos;
-	this->emuClock.getTicksTill(host1, pos);
+	emuClk.getTicksTill(host1, pos);
 	assert(pos.toInt() < 2);
 
 	unsigned valid; // only indices smaller than this number are valid
@@ -136,21 +135,21 @@ bool ResampleLQUp<CHANNELS>::generateOutput(
 
 template <unsigned CHANNELS>
 ResampleLQDown<CHANNELS>::ResampleLQDown(
-		ResampledSoundDevice& input_,
-		const DynamicClock& hostClock_, unsigned emuSampleRate)
-	: ResampleLQ<CHANNELS>(input_, hostClock_, emuSampleRate)
+		ResampledSoundDevice& input_, const DynamicClock& hostClock_)
+	: ResampleLQ<CHANNELS>(input_, hostClock_)
 {
-	assert(emuSampleRate > hostClock_.getFreq()); // can only do downsampling
+	assert(input_.getEmuClock().getFreq() >= hostClock_.getFreq()); // can only do downsampling
 }
 
 template <unsigned CHANNELS>
-bool ResampleLQDown<CHANNELS>::generateOutput(
+bool ResampleLQDown<CHANNELS>::generateOutputImpl(
 	float* __restrict dataOut, unsigned hostNum, EmuTime::param time)
 {
+	auto& emuClk = this->getEmuClock();
 	EmuTime host1 = this->hostClock.getFastAdd(1);
-	assert(host1 > this->emuClock.getTime());
+	assert(host1 > emuClk.getTime());
 	FP pos;
-	this->emuClock.getTicksTill(host1, pos);
+	emuClk.getTicksTill(host1, pos);
 
 	unsigned valid;
 	if (!this->fetchData(time, valid)) return false;

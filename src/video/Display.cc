@@ -123,7 +123,7 @@ OutputSurface* Display::getOutputSurface()
 void Display::resetVideoSystem()
 {
 	videoSystem.reset();
-	// At this point all layers expect for the Video9000 layer
+	// At this point all layers except for the Video9000 layer
 	// should be gone.
 	//assert(layers.empty());
 }
@@ -175,7 +175,7 @@ Display::Layers::iterator Display::baseLayer()
 
 void Display::executeRT()
 {
-	repaint();
+	videoSystem->repaint();
 }
 
 int Display::signalEvent(const std::shared_ptr<const Event>& event)
@@ -183,7 +183,7 @@ int Display::signalEvent(const std::shared_ptr<const Event>& event)
 	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
 		auto& ffe = checked_cast<const FinishFrameEvent&>(*event);
 		if (ffe.needRender()) {
-			repaint();
+			videoSystem->repaint();
 			reactor.getEventDistributor().distributeEvent(
 				std::make_shared<SimpleEvent>(
 					OPENMSX_FRAME_DRAWN_EVENT));
@@ -211,7 +211,7 @@ int Display::signalEvent(const std::shared_ptr<const Event>& event)
 		//  port discovers that the graphics context is gone.
 		// -When gaining the focus, this repaint does nothing as
 		//  the renderFrozen flag is still false
-		repaint();
+		videoSystem->repaint();
 		auto& focusEvent = checked_cast<const FocusEvent&>(*event);
 		ad_printf("Setting renderFrozen to %d", !focusEvent.getGain());
 		renderFrozen = !focusEvent.getGain();
@@ -261,7 +261,7 @@ void Display::checkRendererSwitch()
 	if ((newRenderer != currentRenderer) ||
 	    !getVideoSystem().checkSettings()) {
 		currentRenderer = newRenderer;
-		// don't do the actualing swithing in the Tcl callback
+		// don't do the actual switching in the Tcl callback
 		// it seems creating and destroying Settings (= Tcl vars)
 		// causes problems???
 		switchInProgress = true;
@@ -300,7 +300,7 @@ void Display::doRendererSwitch()
 						" (and I have no other ideas to try...)"); // give up and die... :(
 				}
 				strAppend(errorMsg, "\nTrying to decrease scale_factor setting from ",
-                                          curval, " to ", curval - 1, "...");
+				          curval, " to ", curval - 1, "...");
 				scaleFactorSetting.setInt(curval - 1);
 			}
 			getCliComm().printWarning(errorMsg);
@@ -404,7 +404,7 @@ Display::ScreenShotCmd::ScreenShotCmd(CommandController& commandController_)
 
 void Display::ScreenShotCmd::execute(span<const TclObject> tokens, TclObject& result)
 {
-	string_view prefix = "openmsx";
+	std::string_view prefix = "openmsx";
 	bool rawShot = false;
 	bool msxOnly = false;
 	bool doubleSize = false;
@@ -435,7 +435,7 @@ void Display::ScreenShotCmd::execute(span<const TclObject> tokens, TclObject& re
 		                       "combination with -raw");
 	}
 
-	string_view fname;
+	std::string_view fname;
 	switch (arguments.size()) {
 	case 0:
 		// nothing
@@ -491,7 +491,7 @@ string Display::ScreenShotCmd::help(const vector<string>& /*tokens*/) const
 
 void Display::ScreenShotCmd::tabCompletion(vector<string>& tokens) const
 {
-	static const char* const extra[] = {
+	static constexpr const char* const extra[] = {
 		"-prefix", "-raw", "-doublesize", "-with-osd", "-no-sprites",
 	};
 	completeFileName(tokens, userFileContext(), extra);
@@ -506,7 +506,7 @@ Display::FpsInfoTopic::FpsInfoTopic(InfoCommand& openMSXInfoCommand)
 }
 
 void Display::FpsInfoTopic::execute(span<const TclObject> /*tokens*/,
-                           TclObject& result) const
+                                    TclObject& result) const
 {
 	auto& display = OUTER(Display, fpsInfo);
 	result = 1000000.0f * Display::NUM_FRAME_DURATIONS / display.frameDurationSum;

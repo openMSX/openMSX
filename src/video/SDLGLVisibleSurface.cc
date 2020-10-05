@@ -4,8 +4,19 @@
 #include "GLSnow.hh"
 #include "OSDConsoleRenderer.hh"
 #include "OSDGUILayer.hh"
+#include "Display.hh"
+#include "RenderSettings.hh"
+#include "CliComm.hh"
+#include "PNG.hh"
+#include "build-info.hh"
+#include "MemBuffer.hh"
+#include "outer.hh"
+#include "vla.hh"
 #include "InitException.hh"
+#include "unreachable.hh"
 #include <memory>
+
+#include "GLUtil.hh"
 
 namespace openmsx {
 
@@ -16,10 +27,9 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 		EventDistributor& eventDistributor_,
 		InputEventGenerator& inputEventGenerator_,
 		CliComm& cliComm_,
-		FrameBuffer frameBuffer_)
-	: VisibleSurface(display_, rtScheduler_, eventDistributor_, inputEventGenerator_,
-			cliComm_)
-	, SDLGLOutputSurface(frameBuffer_)
+		VideoSystem& videoSystem_)
+	: SDLVisibleSurfaceBase(display_, rtScheduler_, eventDistributor_,
+	                        inputEventGenerator_, cliComm_, videoSystem_)
 {
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
@@ -27,7 +37,29 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	int flags = SDL_WINDOW_OPENGL;
 	//flags |= SDL_RESIZABLE;
 	createSurface(width, height, flags);
+
+	// Create an OpenGL profile
+#if OPENGL_VERSION == OPENGL_ES_2_0
+	#define VERSION_STRING "openGL ES 2.0"
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+#elif OPENGL_VERSION == OPENGL_2_1
+	#define VERSION_STRING "openGL 2.1"
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+#elif OPENGL_VERSION == OPENGL_3_3
+	#define VERSION_STRING "openGL 3.3"
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+#endif
 	glContext = SDL_GL_CreateContext(window.get());
+	if (!glContext) {
+		throw InitException(
+			"Failed to create " VERSION_STRING " context: ", SDL_GetError());
+	}
 
 	// From the glew documentation:
 	//   GLEW obtains information on the supported extensions from the
@@ -43,8 +75,6 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	glewExperimental = GL_TRUE;
 
 	// Initialise GLEW library.
-	// This must happen after GL itself is initialised, which is done by
-	// the SDL_SetVideoMode() call in createSurface().
 	GLenum glew_error = glewInit();
 	if (glew_error != GLEW_OK) {
 		throw InitException(
@@ -52,53 +82,64 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 			reinterpret_cast<const char*>(
 				glewGetErrorString(glew_error)));
 	}
-	if (!GLEW_VERSION_2_0) {
-		throw InitException("Need at least openGL version 2.0.");
-	}
 
-	// The created surface may be larger than requested.
-	// If that happens, center the area that we actually use.
-	int w, h;
-	SDL_GL_GetDrawableSize(window.get(), &w, &h);
-	calculateViewPort(gl::ivec2(w, h));
-	gl::ivec2 offset = getViewOffset();
-	gl::ivec2 size   = getViewSize();
-	glViewport(offset[0], offset[1], size[0], size[1]);
+	bool fullscreen = getDisplay().getRenderSettings().getFullScreen();
+	setViewPort(gl::ivec2(width, height), fullscreen); // set initial values
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0, width, height, 0, -1, 1);
-	glMatrixMode(GL_MODELVIEW);
-
-	// This stuff logically belongs in the SDLGLOutputSurface constructor,
-	// but it cannot be executed before the openGL context is created which
-	// is done in this constructor. So construction of SDLGLOutputSurface
-	// is split in two phases.
-	SDLGLOutputSurface::init(*this);
-
+	setOpenGlPixelFormat();
 	gl::context = std::make_unique<gl::Context>(width, height);
+
+	getDisplay().getRenderSettings().getVSyncSetting().attach(vSyncObserver);
+	// set initial value
+	vSyncObserver.update(getDisplay().getRenderSettings().getVSyncSetting());
+
+#if OPENGL_VERSION == OPENGL_3_3
+	// We don't (yet/anymore) use VAO, but apparently it's required in openGL 3.3.
+	// Luckily this workaround is sufficient: create one global VAO and then don't care anymore.
+	GLuint vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+#endif
 }
 
 SDLGLVisibleSurface::~SDLGLVisibleSurface()
 {
-	// TODO: Move context creation/deletion into Context class?
+	getDisplay().getRenderSettings().getVSyncSetting().detach(vSyncObserver);
+
 	gl::context.reset();
 	SDL_GL_DeleteContext(glContext);
 }
 
-void SDLGLVisibleSurface::flushFrameBuffer()
-{
-	SDLGLOutputSurface::flushFrameBuffer(getWidth(), getHeight());
-}
-
-void SDLGLVisibleSurface::clearScreen()
-{
-	SDLGLOutputSurface::clearScreen();
-}
-
 void SDLGLVisibleSurface::saveScreenshot(const std::string& filename)
 {
-	SDLGLOutputSurface::saveScreenshot(filename, *this);
+	saveScreenshotGL(*this, filename);
+}
+
+void SDLGLVisibleSurface::saveScreenshotGL(
+	const OutputSurface& output, const std::string& filename)
+{
+	auto [x, y] = output.getViewOffset();
+	auto [w, h] = output.getViewSize();
+
+	// OpenGL ES only supports reading RGBA (not RGB)
+	MemBuffer<uint8_t> buffer(w * h * 4);
+	glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, buffer.data());
+
+	// perform in-place conversion of RGBA -> RGB
+	VLA(const void*, rowPointers, h);
+	for (int i = 0; i < h; ++i) {
+		uint8_t* out = &buffer[w * 4 * i];
+		const uint8_t* in = out;
+		rowPointers[h - 1 - i] = out;
+
+		for (int j = 0; j < w; ++j) {
+			out[3 * j + 0] = in[4 * j + 0];
+			out[3 * j + 1] = in[4 * j + 1];
+			out[3 * j + 2] = in[4 * j + 2];
+		}
+	}
+
+	PNG::save(w, h, rowPointers, filename);
 }
 
 void SDLGLVisibleSurface::finish()
@@ -115,8 +156,9 @@ std::unique_ptr<Layer> SDLGLVisibleSurface::createConsoleLayer(
 		Reactor& reactor, CommandConsole& console)
 {
 	const bool openGL = true;
+	auto [width, height] = getLogicalSize();
 	return std::make_unique<OSDConsoleRenderer>(
-		reactor, console, getWidth(), getHeight(), openGL);
+		reactor, console, width, height, openGL);
 }
 
 std::unique_ptr<Layer> SDLGLVisibleSurface::createOSDGUILayer(OSDGUI& gui)
@@ -127,6 +169,54 @@ std::unique_ptr<Layer> SDLGLVisibleSurface::createOSDGUILayer(OSDGUI& gui)
 std::unique_ptr<OutputSurface> SDLGLVisibleSurface::createOffScreenSurface()
 {
 	return std::make_unique<SDLGLOffScreenSurface>(*this);
+}
+
+void SDLGLVisibleSurface::VSyncObserver::update(const Setting& setting)
+{
+	auto& surface = OUTER(SDLGLVisibleSurface, vSyncObserver);
+	auto& syncSetting = surface.getDisplay().getRenderSettings().getVSyncSetting();
+	assert(&setting == &syncSetting); (void)setting;
+
+	// for now, we assume that adaptive vsync is the best kind of vsync, so when
+	// vsync is enabled, we attempt adaptive vsync.
+	int interval = syncSetting.getBoolean() ? -1 : 0;
+
+	if ((SDL_GL_SetSwapInterval(interval) < 0) && (interval == -1)) {
+		// "Adaptive vsync" is not supported by all drivers. SDL
+		// documentation suggests to fallback to "regular vsync" in
+		// that case.
+		SDL_GL_SetSwapInterval(1);
+	}
+}
+
+void SDLGLVisibleSurface::setViewPort(gl::ivec2 logicalSize, bool fullscreen)
+{
+	gl::ivec2 physicalSize = [&] {
+		if (fullscreen) {
+			int w, h;
+			SDL_GL_GetDrawableSize(window.get(), &w, &h);
+			return gl::ivec2(w, h);
+		} else {
+			// ??? When switching  back from fullscreen to windowed mode,
+			// SDL_GL_GetDrawableSize() still returns the dimensions of the
+			// fullscreen window ??? Is this a bug ???
+			// But we know that in windowed mode, physical and logical size
+			// must be the same, so enforce that.
+			return logicalSize;
+		}
+	}();
+
+	// The created surface may be larger than requested.
+	// If that happens, center the area that we actually use.
+	calculateViewPort(logicalSize, physicalSize);
+	auto [vx, vy] = getViewOffset();
+	auto [vw, vh] = getViewSize();
+	glViewport(vx, vy, vw, vh);
+}
+
+void SDLGLVisibleSurface::fullScreenUpdated(bool fullscreen)
+{
+	setViewPort(getLogicalSize(), fullscreen);
 }
 
 } // namespace openmsx

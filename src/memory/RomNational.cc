@@ -1,6 +1,7 @@
 #include "RomNational.hh"
 #include "CacheLine.hh"
 #include "SRAM.hh"
+#include "one_of.hh"
 #include "serialize.hh"
 #include <memory>
 
@@ -19,6 +20,8 @@ void RomNational::reset(EmuTime::param /*time*/)
 	for (int region = 0; region < 4; ++region) {
 		setRom(region, 0);
 		bankSelect[region] = 0;
+		invalidateDeviceRCache((region * 0x4000) + (0x3FF0 & CacheLine::HIGH),
+		                       CacheLine::SIZE);
 	}
 	sramAddr = 0; // TODO check this
 }
@@ -62,15 +65,19 @@ void RomNational::writeMem(word address, byte value, EmuTime::param /*time*/)
 	if (address == 0x6000) {
 		bankSelect[1] = value;
 		setRom(1, value); // !!
+		invalidateDeviceRCache(0x7FF0 & CacheLine::HIGH, CacheLine::SIZE);
 	} else if (address == 0x6400) {
 		bankSelect[0] = value;
 		setRom(0, value); // !!
+		invalidateDeviceRCache(0x3FF0 & CacheLine::HIGH, CacheLine::SIZE);
 	} else if (address == 0x7000) {
 		bankSelect[2] = value;
 		setRom(2, value);
+		invalidateDeviceRCache(0xBFF0 & CacheLine::HIGH, CacheLine::SIZE);
 	} else if (address == 0x7400) {
 		bankSelect[3] = value;
 		setRom(3, value);
+		invalidateDeviceRCache(0xFFF0 & CacheLine::HIGH, CacheLine::SIZE);
 	} else if (address == 0x7FF9) {
 		// write control byte
 		control = value;
@@ -93,11 +100,11 @@ void RomNational::writeMem(word address, byte value, EmuTime::param /*time*/)
 
 byte* RomNational::getWriteCacheLine(word address) const
 {
-	if ((address == (0x6000 & CacheLine::HIGH)) ||
-	    (address == (0x6400 & CacheLine::HIGH)) ||
-	    (address == (0x7000 & CacheLine::HIGH)) ||
-	    (address == (0x7400 & CacheLine::HIGH)) ||
-	    (address == (0x7FF9 & CacheLine::HIGH))) {
+	if (address == one_of(0x6000 & CacheLine::HIGH,
+	                      0x6400 & CacheLine::HIGH,
+	                      0x7000 & CacheLine::HIGH,
+	                      0x7400 & CacheLine::HIGH,
+	                      0x7FF9 & CacheLine::HIGH)) {
 		return nullptr;
 	} else if ((address & 0x3FFF) == (0x3FFA & CacheLine::HIGH)) {
 		return nullptr;

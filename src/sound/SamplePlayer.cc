@@ -8,7 +8,7 @@
 
 namespace openmsx {
 
-static const unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on .wav files
+constexpr unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on .wav files
 
 SamplePlayer::SamplePlayer(const std::string& name_, const std::string& desc,
                            const DeviceConfig& config,

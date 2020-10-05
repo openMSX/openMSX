@@ -8,7 +8,7 @@
 
 namespace openmsx {
 
-static const size_t BLOCK_SIZE = 1024;
+constexpr size_t BLOCK_SIZE = 1024;
 
 struct TTCacheEntry
 {
@@ -32,7 +32,7 @@ static size_t calcNumNodes(size_t dataSize)
 static TTCacheEntry& getCacheEntry(
 	TTData& data, size_t dataSize, const std::string& name)
 {
-	auto& result = ttCache[std::make_pair(dataSize, name)];
+	auto& result = ttCache[std::pair(dataSize, name)];
 	if (!data.isCacheStillValid(result.time)) { // note: has side effect
 		size_t numNodes = calcNumNodes(dataSize);
 		result.hash .resize(numNodes);

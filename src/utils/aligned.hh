@@ -1,61 +1,57 @@
 #ifndef ALIGNED_HH
 #define ALIGNED_HH
 
-#include "build-info.hh"
+#include "inline.hh"
 #include <cstdint>
 #include <cassert>
 #include <cstring>
 
-#ifdef _MSC_VER
-#define ALIGNED(EXPRESSION, ALIGNMENT) __declspec (align(ALIGNMENT)) EXPRESSION
-#else // GCC style
-#define ALIGNED(EXPRESSION, ALIGNMENT) EXPRESSION __attribute__((__aligned__((ALIGNMENT))));
-#endif
-
 // Only need to (more strictly) align when SSE is actually enabled.
 #ifdef __SSE2__
-#define SSE_ALIGNED(EXPRESSION) ALIGNED(EXPRESSION, 16)
+constexpr size_t SSE_ALIGNMENT = 16;
 #else
-#define SSE_ALIGNED(EXPRESSION) EXPRESSION
+constexpr size_t SSE_ALIGNMENT = 0; // alignas(0) has no effect
 #endif
 
+// 'alignas(0)' has no effect according to the C++ standard, however gcc
+// produces a warning for it. This for example triggers when using
+//     alignas(SSE_ALIGNMENT)
+// and the target has no SSE instructions (thus SSE_ALIGNMENT == 0).
+// The following macro works around that.
+#ifdef __SSE2__
+#define ALIGNAS_SSE alignas(SSE_ALIGNMENT)
+#else
+#define ALIGNAS_SSE /*nothing*/
+#endif
 
 // Unaligned loads and stores.
-template<typename T> static inline T unalignedLoad(const void* p)
+template<typename T> [[nodiscard]] static ALWAYS_INLINE T unalignedLoad(const void* p)
 {
-	if (openmsx::OPENMSX_UNALIGNED_MEMORY_ACCESS) {
-		return *reinterpret_cast<const T*>(p);
-	} else {
-		T t;
-		memcpy(&t, p, sizeof(t));
-		return t;
-	}
+	T t;
+	memcpy(&t, p, sizeof(t));
+	return t;
 }
-template<typename T> static inline void unalignedStore(void* p, T t)
+template<typename T> static ALWAYS_INLINE void unalignedStore(void* p, T t)
 {
-	if (openmsx::OPENMSX_UNALIGNED_MEMORY_ACCESS) {
-		*reinterpret_cast<T*>(p) = t;
-	} else {
-		memcpy(p, &t, sizeof(t));
-	}
+	memcpy(p, &t, sizeof(t));
 }
 
-static inline uint16_t unalignedLoad16(const void* p) {
+[[nodiscard]] ALWAYS_INLINE uint16_t unalignedLoad16(const void* p) {
 	return unalignedLoad<uint16_t>(p);
 }
-static inline uint32_t unalignedLoad32(const void* p) {
+[[nodiscard]] ALWAYS_INLINE uint32_t unalignedLoad32(const void* p) {
 	return unalignedLoad<uint32_t>(p);
 }
-static inline uint64_t unalignedLoad64(const void* p) {
+[[nodiscard]] ALWAYS_INLINE uint64_t unalignedLoad64(const void* p) {
 	return unalignedLoad<uint64_t>(p);
 }
-static inline void unalignedStore16(void* p, uint16_t v) {
+ALWAYS_INLINE void unalignedStore16(void* p, uint16_t v) {
 	unalignedStore(p, v);
 }
-static inline void unalignedStore32(void* p, uint32_t v) {
+ALWAYS_INLINE void unalignedStore32(void* p, uint32_t v) {
 	unalignedStore(p, v);
 }
-static inline void unalignedStore64(void* p, uint64_t v) {
+ALWAYS_INLINE void unalignedStore64(void* p, uint64_t v) {
 	unalignedStore(p, v);
 }
 
@@ -78,13 +74,13 @@ static inline void unalignedStore64(void* p, uint64_t v) {
 // gcc-version check macro
 #if defined(__GNUC__) && defined(__GNUC_MINOR__)
 #  define GNUC_PREREQ(maj, min) \
-    (((maj) * 100 + (min)) <= (__GNUC__ * 100 + __GNUC_MINOR__))
+	(((maj) * 100 + (min)) <= (__GNUC__ * 100 + __GNUC_MINOR__))
 #else
 #  define GNUC_PREREQ(maj, min) 0
 #endif
 
 template<size_t A, typename T>
-static inline void assume_aligned(T* __restrict & ptr)
+static ALWAYS_INLINE void assume_aligned(T* __restrict & ptr)
 {
 #ifdef DEBUG // only check in debug build
 	assert((reinterpret_cast<uintptr_t>(ptr) % A) == 0);
@@ -97,7 +93,7 @@ static inline void assume_aligned(T* __restrict & ptr)
 #endif
 }
 
-template<typename T> static inline void assume_SSE_aligned(
+template<typename T> static ALWAYS_INLINE void assume_SSE_aligned(
 #ifdef __SSE2__
 		T* __restrict & ptr) { assume_aligned<16>(ptr); }
 #else

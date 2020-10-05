@@ -1,4 +1,3 @@
-from __future__ import print_function
 from hashlib import new as newhash
 from os import stat
 from os.path import isfile
@@ -7,26 +6,26 @@ import sys
 def verifyFile(filePath, fileLength, checksums):
 	actualLength = stat(filePath).st_size
 	if actualLength != fileLength:
-		raise IOError(
+		raise OSError(
 			'Expected length %d, actual length %d' % (fileLength, actualLength)
 			)
 	hashers = {}
-	for algo in checksums.iterkeys():
+	for algo in checksums.keys():
 		try:
 			hashers[algo] = newhash(algo)
 		except ValueError as ex:
-			raise IOError('Failed to create "%s" hasher: %s' % (algo, ex))
+			raise OSError('Failed to create "%s" hasher: %s' % (algo, ex))
 	bufSize = 16384
 	with open(filePath, 'rb') as inp:
 		while True:
 			buf = inp.read(bufSize)
 			if not buf:
 				break
-			for hasher in hashers.itervalues():
+			for hasher in hashers.values():
 				hasher.update(buf)
-	for algo, hasher in sorted(hashers.iteritems()):
+	for algo, hasher in sorted(hashers.items()):
 		if checksums[algo] != hasher.hexdigest():
-			raise IOError('%s checksum mismatch' % algo)
+			raise OSError('%s checksum mismatch' % algo)
 
 def main(filePath, fileLengthStr, checksumStrs):
 	if not isfile(filePath):
@@ -49,7 +48,7 @@ def main(filePath, fileLengthStr, checksumStrs):
 	print('Validating: %s' % filePath)
 	try:
 		verifyFile(filePath, fileLength, checksums)
-	except IOError as ex:
+	except OSError as ex:
 		print('Validation FAILED: %s' % ex, file=sys.stderr)
 		sys.exit(1)
 	else:
@@ -65,7 +64,7 @@ if __name__ == '__main__':
 			)
 	else:
 		print(
-			'Usage: python checksum.py FILE LENGTH (ALGO=HASH)*',
+			'Usage: python3 checksum.py FILE LENGTH (ALGO=HASH)*',
 			file=sys.stderr
 			)
 		sys.exit(2)

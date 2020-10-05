@@ -10,13 +10,16 @@
 #include "FileOperations.hh"
 #include "Version.hh"
 #include "Date.hh"
+#include "one_of.hh"
 #include "stl.hh"
+#include "build-info.hh"
 #include "cstdiop.hh" // for dup()
 #include <cstring>
 #include <iostream>
 #include <limits>
 
 using std::string;
+using std::string_view;
 
 namespace openmsx {
 
@@ -50,7 +53,7 @@ unsigned OutputArchiveBase2::generateID2(
 	       !addressOnStack(p));
 	#endif
 	++lastId;
-	auto key = std::make_pair(p, std::type_index(typeInfo));
+	auto key = std::pair(p, std::type_index(typeInfo));
 	assert(!idMap.contains(key));
 	idMap.emplace_noDuplicateCheck(key, lastId);
 	return lastId;
@@ -64,7 +67,7 @@ unsigned OutputArchiveBase2::getID1(const void* p)
 unsigned OutputArchiveBase2::getID2(
 	const void* p, const std::type_info& typeInfo)
 {
-	auto v = lookup(idMap, std::make_pair(p, std::type_index(typeInfo)));
+	auto v = lookup(idMap, std::pair(p, std::type_index(typeInfo)));
 	return v ? *v : 0;
 }
 
@@ -123,8 +126,8 @@ void InputArchiveBase2::addPointer(unsigned id, const void* p)
 
 unsigned InputArchiveBase2::getId(const void* ptr) const
 {
-	for (const auto& p : idMap) {
-		if (p.second == ptr) return p.first;
+	for (const auto& [id, pt] : idMap) {
+		if (pt == ptr) return id;
 	}
 	return 0;
 }
@@ -141,15 +144,15 @@ void InputArchiveBase<Derived>::serialize_blob(
 	this->self().endTag(tag);
 
 	if (encoding == "gz-base64") {
-		auto p = Base64::decode(tmp);
+		auto [buf, bufSize] = Base64::decode(tmp);
 		auto dstLen = uLongf(len); // TODO check for overflow?
 		if ((uncompress(reinterpret_cast<Bytef*>(data), &dstLen,
-		                reinterpret_cast<const Bytef*>(p.first.data()), uLong(p.second))
+		                reinterpret_cast<const Bytef*>(buf.data()), uLong(bufSize))
 		     != Z_OK) ||
 		    (dstLen != len)) {
 			throw MSXException("Error while decompressing blob.");
 		}
-	} else if ((encoding == "hex") || (encoding == "base64")) {
+	} else if (encoding == one_of("hex", "base64")) {
 		bool ok = (encoding == "hex")
 		        ? HexDump::decode_inplace(tmp, static_cast<uint8_t*>(data), len)
 		        : Base64 ::decode_inplace(tmp, static_cast<uint8_t*>(data), len);
@@ -209,7 +212,7 @@ string_view MemInputArchive::loadStr()
 // compression has a relatively large setup time). I choose this value
 // semi-arbitrary. I only made it >= 52 so that the (incompressible) RP5C01
 // registers won't be compressed.
-static const size_t SMALL_SIZE = 64;
+constexpr size_t SMALL_SIZE = 64;
 void MemOutputArchive::serialize_blob(const char* /*tag*/, const void* data,
                                       size_t len, bool diff)
 {
@@ -390,7 +393,7 @@ string_view XmlInputArchive::loadStr()
 }
 void XmlInputArchive::load(string& t)
 {
-	t = loadStr().str();
+	t = loadStr();
 }
 void XmlInputArchive::loadChar(char& c)
 {
@@ -402,9 +405,9 @@ void XmlInputArchive::loadChar(char& c)
 void XmlInputArchive::load(bool& b)
 {
 	string_view s = loadStr();
-	if ((s == "true") || (s == "1")) {
+	if (s == one_of("true", "1")) {
 		b = true;
-	} else if ((s == "false") || (s == "0")) {
+	} else if (s == one_of("false", "0")) {
 		b = false;
 	} else {
 		throw XMLException("Bad value found for boolean: ", s);
@@ -442,7 +445,7 @@ template<typename T> static inline void fastAtoi(string_view str, T& t)
 	size_t i = 0;
 	size_t l = str.size();
 
-	static const bool IS_SIGNED = std::numeric_limits<T>::is_signed;
+	constexpr bool IS_SIGNED = std::numeric_limits<T>::is_signed;
 	if (IS_SIGNED) {
 		if (l == 0) return;
 		if (str[0] == '-') {

@@ -98,7 +98,7 @@ see http://bilgisayarlarim.com/Philips/VG-8235
       <secondary slot="2">
         <MemoryMapper id="Main RAM">
           <size>128</size>
-          <initialContent encoding="gz-base64">eNpj+M8wouEI9z4DAJBx/wE=</initialContent> <!-- (chr(0) + chr(255)) * 128 + (chr(255)+ chr(0)) * 128) -->
+          <initialContent encoding="gz-base64">eNpj+M8wouEI9z4DAJBx/wE=</initialContent> <!-- (chr(0) + chr(255)) * 128 + (chr(255)+ chr(0)) * 128), also seen is 128x 00 and then 128x FF -->
           <mem base="0x0000" size="0x10000"/>
         </MemoryMapper>
       </secondary>

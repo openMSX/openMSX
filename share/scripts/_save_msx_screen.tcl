@@ -3,26 +3,32 @@ set_help_text save_msx_screen \
 file. This file can for example be loaded in MSX-BASIC using the BLOAD command.
 
 This script was originally developed by NYYRIKKI, see also this forum thread:
-  http://www.msx.org/forum/msx-talk/general-discussion/taking-sc5-snapshot-games
+http://www.msx.org/forum/msx-talk/general-discussion/taking-sc5-snapshot-games
 }
 
 proc save_msx_screen {basename} {
-	set directory [file normalize $::env(OPENMSX_USER_DATA)/../screenshots]
-	# Create filename with correct extension (also gives an error in
-	# case of an invalid screen mode).
-	set fname [file join $directory [format "%s.SC%X" $basename [get_screen_mode_number]]]
+	# Gives an error in case of an invalid screen mode.
+	set mode_num [get_screen_mode_number]
 
-	set name_base        [expr { [vdpreg 2]        * 0x400}]
-	set name_base_80     [expr {([vdpreg 2] & 252) * 0x400}]
-	set name_base_bitmap [expr {([vdpreg 2] &  96) * 0x400}]
-	set color_base       [expr { [vdpreg 3]        * 0x40 + [vdpreg 10] * 0x4000}]
-	set color_base_2     [expr {([vdpreg 3] & 128) * 0x40 + [vdpreg 10] * 0x4000}]
-	set pattern_base     [expr { [vdpreg 4]        * 0x800}]
-	set pattern_base_2   [expr {([vdpreg 4] & 60)  * 0x800}]
-	set spr_att_base     [expr { [vdpreg 5]        * 0x80 + [vdpreg 11] * 0x8000}]
-	set spr_att_base_2   [expr {([vdpreg 5] & 252) * 0x80 + [vdpreg 11] * 0x8000 - 0x200}]
-	set spr_pat_base     [expr { [vdpreg 6]        * 0x800}]
+	# Read VDP registers (only once)
+	foreach n {2 3 4 5 6 9 10 11 23} {
+		set R$n [vdpreg $n]
+	}
 
+	set name_base        [expr {($R2      ) * 0x400}]
+	set name_base_80     [expr {($R2 & 252) * 0x400}]
+	set name_base_bitmap [expr {($R2 &  96) * 0x400}]
+	set color_base       [expr {($R3      ) * 0x40 + $R10 * 0x4000}]
+	set color_base_2     [expr {($R3 & 128) * 0x40 + $R10 * 0x4000}]
+	set pattern_base     [expr {($R4      ) * 0x800}]
+	set pattern_base_2   [expr {($R4 &  60) * 0x800}]
+	set spr_att_base     [expr {($R5      ) * 0x80 + $R11 * 0x8000}]
+	set spr_att_base_2   [expr {($R5 & 252) * 0x80 + $R11 * 0x8000 - 0x200}]
+	set spr_pat_base     [expr {($R6      ) * 0x800}]
+	set interlace        [expr {(($R9 & 12) == 12) && ($R2 & (($mode_num < 7) ? 16 : 32))}]
+
+	set sections [list]
+	set sections2 [list]
 	switch [get_screen_mode] {
 	"TEXT40" {
 		lappend sections "VRAM" $name_base 0x400                    ;# BG Map
@@ -73,45 +79,70 @@ proc save_msx_screen {basename} {
 		lappend sections "VRAM" $spr_pat_base 0x800                 ;# OBJ Tiles
 	}
 	"5" - "6" {
-		set lines1 [expr {[vdpreg 23] > 24 ? 256 - [vdpreg 23] : 232}] ;# Store 232 lines, even
-		set lines2 [expr {232 - $lines1}]                              ;# though only 212 are visible
-		set base1 [expr {$name_base_bitmap + [vdpreg 23] * 128}]
-		set base2        $name_base_bitmap
+		set lines1 [expr {$R23 > 24 ? 256 - $R23 : 232}]            ;# Store 232 lines, even
+		set lines2 [expr {232 - $lines1}]                           ;# though only 212 are visible
+		set base2 [expr {$name_base_bitmap - (0x8000 * $interlace)}]
+		set base1 [expr {$base2 + $R23 * 128}]
 		lappend sections "VRAM" $base1 [expr {$lines1 * 128}]       ;# Bitmap (part 1)
 		lappend sections "VRAM" $base2 [expr {$lines2 * 128}]       ;# Bitmap (part 2)
 		lappend sections "VRAM" $spr_att_base_2 0x280               ;# Sprite colors + attributes
 		lappend sections "VDP palette" 0 0x20                       ;# Palette
-		lappend sections "VRAM" [expr {$name_base_bitmap + 0x76A0}] 0x160 ;# Fill (Bitmap)
+		lappend sections "VRAM" [expr {$name_base_bitmap - (0x8000 * $interlace) + 0x76A0}] 0x160 ;# Fill (Bitmap)
 		lappend sections "VRAM" $spr_pat_base 0x800                 ;# Sprite character patterns
+		if {$interlace} {
+			lappend sections2 "VRAM" [expr {$base1 + 0x8000}] [expr {$lines1 * 128}]   ;# Bitmap (part 1)
+			lappend sections2 "VRAM" [expr {$base2 + 0x8000}] [expr {$lines2 * 128}]   ;# Bitmap (part 2)
+			lappend sections2 "VRAM" [expr {$spr_att_base_2 + 0x8000}] 0x280           ;# Sprite colors + attributes
+			lappend sections2 "VDP palette" 0 0x20                                     ;# Palette
+			lappend sections2 "VRAM" [expr {$name_base_bitmap + 0x76A0}] 0x160         ;# Fill (Bitmap)
+			lappend sections2 "VRAM" [expr {$spr_pat_base + 0x8000}] 0x800             ;# Sprite character patterns
+		}
 	}
 	"7" - "8" - "11" - "12" {
-		set lines1 [expr {[vdpreg 23] > 16 ? 256 - [vdpreg 23] : 240}] ;# Store 240 lines, even
-		set lines2 [expr {240 - $lines1}]                              ;# though only 212 are visible
-		set base1 [expr {($name_base_bitmap * 2) & 0x10000 + [vdpreg 23] * 256}]
-		set base2 [expr {($name_base_bitmap * 2) & 0x10000 }]
+		set lines1 [expr {$R23 > 16 ? 256 - $R23 : 240}]            ;# Store 240 lines, even
+		set lines2 [expr {240 - $lines1}]                           ;# though only 212 are visible
+		set base2 [expr {($name_base_bitmap * 2) & 0x10000 - (0x10000 * $interlace)}]
+		set base1 [expr {$base2 + $R23 * 256}]
 		lappend sections "VRAM" $base1 [expr {$lines1 * 256}]       ;# Bitmap (part 1)
 		lappend sections "VRAM" $base2 [expr {$lines2 * 256}]       ;# Bitmap (part 2)
 		lappend sections "VRAM" $spr_pat_base 0x800                 ;# Sprite character patterns
 		lappend sections "VRAM" $spr_att_base_2 0x280               ;# Sprite colors + attributes
 		lappend sections "VDP palette" 0 0x20                       ;# Palette
+		if {$interlace} {
+			lappend sections2 "VRAM" [expr {$base1 + 0x10000}] [expr {$lines1 * 256}]  ;# Bitmap (part 1)
+			lappend sections2 "VRAM" [expr {$base2 + 0x10000}] [expr {$lines2 * 256}]  ;# Bitmap (part 2)
+			lappend sections2 "VRAM" [expr {$spr_pat_base + 0x10000}] 0x800            ;# Sprite character patterns
+			lappend sections2 "VRAM" [expr {$spr_att_base_2 + 0x10000}] 0x280          ;# Sprite colors + attributes
+			lappend sections2 "VDP palette" 0 0x20                                     ;# Palette
+		}
 	}}
 
-	# open file
-	set out [open $fname w]
-	fconfigure $out -translation binary
+	set directory [file normalize $::env(OPENMSX_USER_DATA)/../screenshots]
 
-	# write header
-	set end_addr -1
-	foreach {type addr size} $sections {
-		incr end_addr $size
-	}
-	set header [list 0xFE 0 0 [expr {$end_addr & 255}] [expr {$end_addr / 256}] 0 0]
-	puts -nonewline $out [binary format c* $header]
+	set result ""
+	foreach {ext sec} [list ".SC" $sections ".S1" $sections2] {
+		if {[llength $sec] == 0} break
 
-	# write data sections
-	foreach {type addr size} $sections {
-		puts -nonewline $out [debug read_block $type $addr $size]
+		# Open file with correct extension
+		set fname [file join $directory [format "%s%s%X" $basename $ext $mode_num]]
+		set out [open $fname w]
+		fconfigure $out -translation binary
+
+		# write header
+		set end_addr -1
+		foreach {type addr size} $sec {
+			incr end_addr $size
+		}
+		set header [list 0xFE 0 0 [expr {$end_addr & 255}] [expr {$end_addr / 256}] 0 0]
+		puts -nonewline $out [binary format c* $header]
+
+		# write data sections
+		foreach {type addr size} $sec {
+			puts -nonewline $out [debug read_block $type $addr $size]
+		}
+		close $out
+
+		append result "Screen written to $fname\n"
 	}
-	close $out
-	return "Screen written to $fname"
+	return $result
 }

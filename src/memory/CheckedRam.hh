@@ -37,6 +37,7 @@ public:
 
 	const byte* getReadCacheLine(unsigned addr) const;
 	byte* getWriteCacheLine(unsigned addr) const;
+	byte* getRWCacheLines(unsigned addr, unsigned size) const;
 
 	unsigned getSize() const { return ram.getSize(); }
 	void clear();

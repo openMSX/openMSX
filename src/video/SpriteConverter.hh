@@ -107,9 +107,9 @@ public:
 				&visibleSprites[visibleIndex];
 			Pixel colIndex = sip->colorAttrib & 0x0F;
 			// Don't draw transparent sprites in sprite mode 1.
-			// TODO: Verify on real V9938 that sprite mode 1 indeed
-			//       ignores the transparency bit.
-			if (colIndex == 0) continue;
+			// Verified on real V9958: TP bit also has effect in
+			// sprite mode 1.
+			if (colIndex == 0 && transparency) continue;
 			Pixel color = palette[colIndex];
 			SpriteChecker::SpritePattern pattern = sip->pattern;
 			int x = sip->x;

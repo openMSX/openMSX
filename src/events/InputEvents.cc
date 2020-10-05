@@ -9,7 +9,6 @@
 #include <tuple>
 #include <SDL.h>
 
-using std::make_tuple;
 using std::string;
 
 namespace openmsx {
@@ -25,13 +24,24 @@ TimedEvent::TimedEvent(EventType type_)
 
 // class KeyEvent
 
-KeyEvent::KeyEvent(EventType type_, Keys::KeyCode keyCode_, uint32_t unicode_)
-	: TimedEvent(type_), keyCode(keyCode_), unicode(unicode_)
+KeyEvent::KeyEvent(EventType type_, Keys::KeyCode keyCode_, Keys::KeyCode scanCode_, uint32_t unicode_)
+	: TimedEvent(type_), keyCode(keyCode_), scanCode(scanCode_), unicode(unicode_)
 {
 }
 
 TclObject KeyEvent::toTclList() const
 {
+	// Note: 'scanCode' is not included (also not in lessImpl()).
+	//
+	// At the moment 'scanCode' is only used in the MSX Keyboard code when
+	// the POSITIONAL mapping mode is active. It is not used for key
+	// bindings (the 'bind' or the 'after' commands) or for the openMSX
+	// console. KeyEvents also don't end up in 'reverse replay' files
+	// (instead those files contain more low level MSX keyboard matrix
+	// changes).
+	//
+	// Within these constraints it's fine to ignore 'scanCode' in this
+	// method.
 	auto result = makeTclList("keyb", Keys::getName(getKeyCode()));
 	if (getUnicode() != 0) {
 		result.addListElement(strCat("unicode", getUnicode()));
@@ -41,25 +51,9 @@ TclObject KeyEvent::toTclList() const
 
 bool KeyEvent::lessImpl(const Event& other) const
 {
-	// note: don't compare unicode
+	// note: don't compare scancode, unicode
 	auto& o = checked_cast<const KeyEvent&>(other);
 	return getKeyCode() < o.getKeyCode();
-}
-
-
-// class KeyUpEvent
-
-KeyUpEvent::KeyUpEvent(Keys::KeyCode keyCode_)
-	: KeyEvent(OPENMSX_KEY_UP_EVENT, keyCode_, 0)
-{
-}
-
-
-// class KeyDownEvent
-
-KeyDownEvent::KeyDownEvent(Keys::KeyCode keyCode_, uint32_t unicode_)
-	: KeyEvent(OPENMSX_KEY_DOWN_EVENT, keyCode_, unicode_)
-{
 }
 
 
@@ -70,7 +64,7 @@ MouseButtonEvent::MouseButtonEvent(EventType type_, unsigned button_)
 {
 }
 
-TclObject MouseButtonEvent::toTclHelper(string_view direction) const
+TclObject MouseButtonEvent::toTclHelper(std::string_view direction) const
 {
 	return makeTclList("mouse", strCat("button", getButton()), direction);
 }
@@ -124,8 +118,8 @@ TclObject MouseWheelEvent::toTclList() const
 bool MouseWheelEvent::lessImpl(const Event& other) const
 {
 	auto& o = checked_cast<const MouseWheelEvent&>(other);
-	return make_tuple(  getX(),   getY()) <
-	       make_tuple(o.getX(), o.getY());
+	return std::tuple(  getX(),   getY()) <
+	       std::tuple(o.getX(), o.getY());
 }
 
 
@@ -146,8 +140,8 @@ TclObject MouseMotionEvent::toTclList() const
 bool MouseMotionEvent::lessImpl(const Event& other) const
 {
 	auto& o = checked_cast<const MouseMotionEvent&>(other);
-	return make_tuple(  getX(),   getY(),   getAbsX(),   getAbsY()) <
-	       make_tuple(o.getX(), o.getY(), o.getAbsX(), o.getAbsY());
+	return std::tuple(  getX(),   getY(),   getAbsX(),   getAbsY()) <
+	       std::tuple(o.getX(), o.getY(), o.getAbsX(), o.getAbsY());
 }
 
 
@@ -180,7 +174,7 @@ JoystickButtonEvent::JoystickButtonEvent(
 {
 }
 
-TclObject JoystickButtonEvent::toTclHelper(string_view direction) const
+TclObject JoystickButtonEvent::toTclHelper(std::string_view direction) const
 {
 	auto result = JoystickEvent::toTclHelper();
 	result.addListElement(strCat("button", getButton()), direction);
@@ -239,8 +233,8 @@ TclObject JoystickAxisMotionEvent::toTclList() const
 bool JoystickAxisMotionEvent::lessImpl(const JoystickEvent& other) const
 {
 	auto& o = checked_cast<const JoystickAxisMotionEvent&>(other);
-	return make_tuple(  getAxis(),   getValue()) <
-	       make_tuple(o.getAxis(), o.getValue());
+	return std::tuple(  getAxis(),   getValue()) <
+	       std::tuple(o.getAxis(), o.getValue());
 }
 
 
@@ -274,8 +268,8 @@ TclObject JoystickHatEvent::toTclList() const
 bool JoystickHatEvent::lessImpl(const JoystickEvent& other) const
 {
 	auto& o = checked_cast<const JoystickHatEvent&>(other);
-	return make_tuple(  getHat(),   getValue()) <
-	       make_tuple(o.getHat(), o.getValue());
+	return std::tuple(  getHat(),   getValue()) <
+	       std::tuple(o.getHat(), o.getValue());
 }
 
 
@@ -313,8 +307,27 @@ TclObject ResizeEvent::toTclList() const
 bool ResizeEvent::lessImpl(const Event& other) const
 {
 	auto& o = checked_cast<const ResizeEvent&>(other);
-	return make_tuple(  getX(),   getY()) <
-	       make_tuple(o.getX(), o.getY());
+	return std::tuple(  getX(),   getY()) <
+	       std::tuple(o.getX(), o.getY());
+}
+
+
+// class FileDropEvent
+
+FileDropEvent::FileDropEvent(std::string fileName_)
+	: Event(OPENMSX_FILEDROP_EVENT), fileName(std::move(fileName_))
+{
+}
+
+TclObject FileDropEvent::toTclList() const
+{
+	return makeTclList("filedrop", fileName);
+}
+
+bool FileDropEvent::lessImpl(const Event& other) const
+{
+	auto& o = checked_cast<const FileDropEvent&>(other);
+	return getFileName() < o.getFileName();
 }
 
 
@@ -359,9 +372,9 @@ bool OsdControlEvent::isRepeatStopper(const Event& other) const
 	       !dynamic_cast<const JoystickAxisMotionEvent*>(&other);
 }
 
-TclObject OsdControlEvent::toTclHelper(string_view direction) const
+TclObject OsdControlEvent::toTclHelper(std::string_view direction) const
 {
-	static const char* const names[] = {
+	static constexpr const char* const names[] = {
 		"LEFT", "RIGHT", "UP", "DOWN", "A", "B"
 	};
 	return makeTclList("OSDcontrol", names[getButton()], direction);

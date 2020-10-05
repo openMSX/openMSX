@@ -17,6 +17,7 @@ public:
 	const byte* getReadCacheLine(word start) const override;
 	byte* getWriteCacheLine(word start) const override;
 	byte peekMem(word address, EmuTime::param time) const override;
+	bool allowUnaligned() const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

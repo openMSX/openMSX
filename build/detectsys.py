@@ -2,7 +2,6 @@
 # Actually we rely on the Python "platform" module and map its output to names
 # that the openMSX build understands.
 
-from __future__ import print_function
 from executils import captureStdout
 
 from platform import architecture, machine, system

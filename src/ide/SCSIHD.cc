@@ -26,6 +26,7 @@
 #include "MSXMotherBoard.hh"
 #include "DeviceConfig.hh"
 #include "endian.hh"
+#include "one_of.hh"
 #include "serialize.hh"
 #include <algorithm>
 #include <cstring>
@@ -35,19 +36,19 @@ using std::string;
 namespace openmsx {
 
 // Medium type (value like LS-120)
-static const byte MT_UNKNOWN   = 0x00;
-static const byte MT_2DD_UN    = 0x10;
-static const byte MT_2DD       = 0x11;
-static const byte MT_2HD_UN    = 0x20;
-static const byte MT_2HD_12_98 = 0x22;
-static const byte MT_2HD_12    = 0x23;
-static const byte MT_2HD_144   = 0x24;
-static const byte MT_LS120     = 0x31;
-static const byte MT_NO_DISK   = 0x70;
-static const byte MT_DOOR_OPEN = 0x71;
-static const byte MT_FMT_ERROR = 0x72;
+constexpr byte MT_UNKNOWN   = 0x00;
+constexpr byte MT_2DD_UN    = 0x10;
+constexpr byte MT_2DD       = 0x11;
+constexpr byte MT_2HD_UN    = 0x20;
+constexpr byte MT_2HD_12_98 = 0x22;
+constexpr byte MT_2HD_12    = 0x23;
+constexpr byte MT_2HD_144   = 0x24;
+constexpr byte MT_LS120     = 0x31;
+constexpr byte MT_NO_DISK   = 0x70;
+constexpr byte MT_DOOR_OPEN = 0x71;
+constexpr byte MT_FMT_ERROR = 0x72;
 
-static const byte inqdata[36] = {
+constexpr byte inqdata[36] = {
 	  0,   // bit5-0 device type code.
 	  0,   // bit7 = 1 removable device
 	  2,   // bit7,6 ISO version. bit5,4,3 ECMA version.
@@ -64,8 +65,8 @@ static const byte inqdata[36] = {
 	'0', '1', '0', 'a'                         // product version (ASCII 4bytes)
 };
 
-static const unsigned BUFFER_BLOCK_SIZE = SCSIHD::BUFFER_SIZE /
-                                          SectorAccessibleDisk::SECTOR_SIZE;
+constexpr unsigned BUFFER_BLOCK_SIZE = SCSIHD::BUFFER_SIZE /
+                                       SectorAccessibleDisk::SECTOR_SIZE;
 
 SCSIHD::SCSIHD(const DeviceConfig& targetconfig,
                AlignedBuffer& buf, unsigned mode_)
@@ -140,8 +141,8 @@ unsigned SCSIHD::inquiry()
 	}
 
 	if (length > 36) {
-		string imageName = FileOperations::getFilename(
-		                       getImageName().getOriginal()).str();
+		string imageName(FileOperations::getFilename(
+		                       getImageName().getOriginal()));
 		imageName.resize(20, ' ');
 		memcpy(buffer + 36, imageName.data(), 20);
 	}
@@ -367,7 +368,7 @@ unsigned SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& bloc
 
 	// check unit attention
 	if (unitAttention && (mode & MODE_UNITATTENTION) &&
-	    (cdb[0] != SCSI::OP_INQUIRY) && (cdb[0] != SCSI::OP_REQUEST_SENSE)) {
+	    (cdb[0] != one_of(SCSI::OP_INQUIRY, SCSI::OP_REQUEST_SENSE))) {
 		unitAttention = false;
 		keycode = SCSI::SENSE_POWER_ON;
 		if (cdb[0] == SCSI::OP_TEST_UNIT_READY) {
@@ -551,7 +552,7 @@ int SCSIHD::msgOut(byte value)
 
 	case SCSI::MSG_BUS_DEVICE_RESET:
 		busReset();
-		// fall-through
+		[[fallthrough]];
 	case SCSI::MSG_ABORT:
 		return -1;
 

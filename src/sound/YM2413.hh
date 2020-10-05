@@ -19,7 +19,8 @@ public:
 	~YM2413();
 
 	void reset(EmuTime::param time);
-	void writeReg(byte reg, byte value, EmuTime::param time);
+	void writePort(bool port, byte value, EmuTime::param time);
+	void pokeReg(byte reg, byte value, EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

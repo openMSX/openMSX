@@ -32,7 +32,7 @@ public:
 		last = prev(last);
 		return buffer[last];
 	}
-	T& operator[](size_t pos) {
+	[[nodiscard]] T& operator[](size_t pos) {
 		assert(pos < MAXSIZE);
 		auto tmp = first + pos;
 		if (tmp > MAXSIZE) {
@@ -40,16 +40,16 @@ public:
 		}
 		return buffer[tmp];
 	}
-	const T& operator[](size_t pos) const {
+	[[nodiscard]] const T& operator[](size_t pos) const {
 		return const_cast<CircularBuffer&>(*this)[pos];
 	}
-	bool isEmpty() const {
+	[[nodiscard]] bool isEmpty() const {
 		return (first == last);
 	}
-	bool isFull() const {
+	[[nodiscard]] bool isFull() const {
 		return (first == next(last));
 	}
-	size_t size() const {
+	[[nodiscard]] size_t size() const {
 		if (first > last) {
 			return MAXSIZE + 1 - first + last;
 		} else {
@@ -58,10 +58,10 @@ public:
 	}
 
 private:
-	inline size_t next(size_t a) const {
+	[[nodiscard]] inline size_t next(size_t a) const {
 		return (a != MAXSIZE) ? a + 1 : 0;
 	}
-	inline size_t prev(size_t a) const {
+	[[nodiscard]] inline size_t prev(size_t a) const {
 		return (a != 0) ? a - 1 : MAXSIZE;
 	}
 

@@ -12,9 +12,6 @@ namespace openmsx {
 
 GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 	: commandController(commandController_)
-	, speedSetting(commandController, "speed",
-	       "controls the emulation speed: higher is faster, 100 is normal",
-	       100, 1, 1000000)
 	, pauseSetting(commandController, "pause",
 	       "pauses the emulation", false, Setting::DONT_SAVE)
 	, powerSetting(commandController, "power",
@@ -26,6 +23,10 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 	, invalidPsgDirectionsSetting(commandController,
 		"invalid_psg_directions_callback",
 		"Tcl proc called when the MSX program has set invalid PSG port directions",
+		{})
+	, invalidPpiModeSetting(commandController,
+		"invalid_ppi_mode_callback",
+		"Tcl proc called when the MSX program has set an invalid PPI mode",
 		{})
 	, resampleSetting(commandController, "resampler", "Resample algorithm",
 #if PLATFORM_DINGUX
@@ -42,6 +43,7 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 			{"hq",   ResampledSoundDevice::RESAMPLE_HQ},
 			{"fast", ResampledSoundDevice::RESAMPLE_LQ},
 			{"blip", ResampledSoundDevice::RESAMPLE_BLIP}})
+	, speedManager(commandController)
 	, throttleManager(commandController)
 {
 	deadzoneSettings = to_vector(

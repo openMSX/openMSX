@@ -11,7 +11,7 @@ using std::string;
 
 namespace openmsx {
 
-ProxyCmd::ProxyCmd(Reactor& reactor_, string_view name_)
+ProxyCmd::ProxyCmd(Reactor& reactor_, std::string_view name_)
 	: Command(reactor_.getGlobalCommandController(), name_)
 	, reactor(reactor_)
 {

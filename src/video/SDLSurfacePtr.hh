@@ -1,5 +1,5 @@
-#ifndef SDLSURFACEPTR
-#define SDLSURFACEPTR
+#ifndef SDLSURFACEPTR_HH
+#define SDLSURFACEPTR_HH
 
 #include "MemBuffer.hh"
 #include "InitException.hh"

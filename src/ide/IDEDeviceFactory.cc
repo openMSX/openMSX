@@ -6,8 +6,7 @@
 #include "MSXException.hh"
 #include <memory>
 
-namespace openmsx {
-namespace IDEDeviceFactory {
+namespace openmsx::IDEDeviceFactory {
 
 std::unique_ptr<IDEDevice> create(const DeviceConfig& config)
 {
@@ -23,5 +22,4 @@ std::unique_ptr<IDEDevice> create(const DeviceConfig& config)
 	throw MSXException("Unknown IDE device: ", type);
 }
 
-} // namespace IDEDeviceFactory
-} // namespace openmsx
+} // namespace openmsx::IDEDeviceFactory

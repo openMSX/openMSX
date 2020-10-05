@@ -10,10 +10,10 @@ class CliListener
 public:
 	virtual ~CliListener() = default;
 
-	virtual void log(CliComm::LogLevel level, string_view message) = 0;
+	virtual void log(CliComm::LogLevel level, std::string_view message) = 0;
 
-	virtual void update(CliComm::UpdateType type, string_view machine,
-	                    string_view name, string_view value) = 0;
+	virtual void update(CliComm::UpdateType type, std::string_view machine,
+	                    std::string_view name, std::string_view value) = 0;
 
 protected:
 	CliListener() = default;

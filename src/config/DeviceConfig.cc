@@ -36,37 +36,37 @@ GlobalSettings& DeviceConfig::getGlobalSettings() const
 	return getReactor().getGlobalSettings();
 }
 
-const XMLElement& DeviceConfig::getChild(string_view name) const
+const XMLElement& DeviceConfig::getChild(std::string_view name) const
 {
 	return getXML()->getChild(name);
 }
-const std::string& DeviceConfig::getChildData(string_view name) const
+const std::string& DeviceConfig::getChildData(std::string_view name) const
 {
 	return getXML()->getChildData(name);
 }
-string_view DeviceConfig::getChildData(string_view name,
-                                      string_view defaultValue) const
+std::string_view DeviceConfig::getChildData(std::string_view name,
+                                            std::string_view defaultValue) const
 {
 	return getXML()->getChildData(name, defaultValue);
 }
-int DeviceConfig::getChildDataAsInt(string_view name, int defaultValue) const
+int DeviceConfig::getChildDataAsInt(std::string_view name, int defaultValue) const
 {
 	return getXML()->getChildDataAsInt(name, defaultValue);
 }
-bool DeviceConfig::getChildDataAsBool(string_view name,
+bool DeviceConfig::getChildDataAsBool(std::string_view name,
                                       bool defaultValue) const
 {
 	return getXML()->getChildDataAsBool(name, defaultValue);
 }
-const XMLElement* DeviceConfig::findChild(string_view name) const
+const XMLElement* DeviceConfig::findChild(std::string_view name) const
 {
 	return getXML()->findChild(name);
 }
-const std::string& DeviceConfig::getAttribute(string_view attName) const
+const std::string& DeviceConfig::getAttribute(std::string_view attName) const
 {
 	return getXML()->getAttribute(attName);
 }
-int DeviceConfig::getAttributeAsInt(string_view attName, int defaultValue) const
+int DeviceConfig::getAttributeAsInt(std::string_view attName, int defaultValue) const
 {
 	return getXML()->getAttributeAsInt(attName, defaultValue);
 }

@@ -5,12 +5,15 @@
 #include "Observer.hh"
 #include "RenderSettings.hh"
 #include "openmsx.hh"
+#include <cstdint>
 #include <memory>
 
 namespace openmsx {
 
 class EventDistributor;
 class RealTime;
+class SpeedManager;
+class ThrottleManager;
 class Display;
 class Rasterizer;
 class VDP;
@@ -109,6 +112,8 @@ private:
 
 	EventDistributor& eventDistributor;
 	RealTime& realTime;
+	SpeedManager& speedManager;
+	ThrottleManager& throttleManager;
 	RenderSettings& renderSettings;
 	VideoSourceSetting& videoSourceSetting;
 
@@ -119,7 +124,7 @@ private:
 	const std::unique_ptr<Rasterizer> rasterizer;
 
 	float finishFrameDuration;
-	int frameSkipCounter;
+	float frameSkipCounter;
 
 	/** Number of the next position within a line to render.
 	  * Expressed in VDP clock ticks since start of line.
@@ -148,6 +153,18 @@ private:
 	  */
 	bool renderFrame;
 	bool prevRenderFrame;
+
+	/** Should a rendered frame be painted to the window?
+	  * When renderFrame is false, paintFrame must be false as well.
+	  * But when recording, renderFrame will be true for every frame,
+	  * while paintFrame may not.
+	  */
+	bool paintFrame;
+
+	/** Timestamp (us, like Timer::getTime()) at which we last painted a frame.
+	  * Used to force a minimal paint rate when throttle is off.
+	  */
+	uint64_t lastPaintTime = 0;
 };
 
 } // namespace openmsx

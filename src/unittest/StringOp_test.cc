@@ -1,10 +1,13 @@
 #include "catch.hpp"
 #include "StringOp.hh"
+#include <type_traits>
 
-using namespace std;
 using namespace StringOp;
+using std::string;
+using std::string_view;
+using std::vector;
 
-static void testStringToInt(const std::string& s, bool ok, int expected)
+static void testStringToInt(const string& s, bool ok, int expected)
 {
 	int result;
 	bool success = stringToInt(s, result);
@@ -59,9 +62,12 @@ static void checkTrimLeft(const string& s, const char* chars, const string& expe
 
 static void checkSplitOnFirst(const string& s, const string& first, const string& last)
 {
-	string_view f1, f2, l1, l2;
-	splitOnFirst(s, '-', f1, l1);
-	splitOnFirst(s, " -+", f2, l2);
+	auto [f1, l1] = splitOnFirst(s, '-');
+	auto [f2, l2] = splitOnFirst(s, " -+");
+	static_assert(std::is_same_v<decltype(f1), std::string_view>);
+	static_assert(std::is_same_v<decltype(f2), std::string_view>);
+	static_assert(std::is_same_v<decltype(l1), std::string_view>);
+	static_assert(std::is_same_v<decltype(l2), std::string_view>);
 	CHECK(f1 == first);
 	CHECK(f2 == first);
 	CHECK(l1 == last);
@@ -70,9 +76,12 @@ static void checkSplitOnFirst(const string& s, const string& first, const string
 
 static void checkSplitOnLast(const string& s, const string& first, const string& last)
 {
-	string_view f1, f2, l1, l2;
-	splitOnLast(s, '-', f1, l1);
-	splitOnLast(s, " -+", f2, l2);
+	auto [f1, l1] = splitOnLast(s, '-');
+	auto [f2, l2] = splitOnLast(s, " -+");
+	static_assert(std::is_same_v<decltype(f1), std::string_view>);
+	static_assert(std::is_same_v<decltype(f2), std::string_view>);
+	static_assert(std::is_same_v<decltype(l1), std::string_view>);
+	static_assert(std::is_same_v<decltype(l2), std::string_view>);
 	CHECK(f1 == first);
 	CHECK(f2 == first);
 	CHECK(l1 == last);

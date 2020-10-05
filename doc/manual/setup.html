@@ -1,13 +1,11 @@
-<?xml version="1.0" encoding="iso-8859-1" ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.0//EN"
-"http://www.w3.org/TR/xhtml-basic/xhtml-basic10.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<link title="Purple" rel="stylesheet" href="manual-purple.css" type="text/css" />
-<link title="Minty" rel="alternate stylesheet" href="manual-minty.css" type="text/css" />
-<link title="Plain" rel="alternate stylesheet" href="manual.css" type="text/css" />
-<title>openMSX Setup Guide</title>
+  <meta charset="utf-8">
+  <link title="Purple" rel="stylesheet" href="manual-purple.css" type="text/css">
+  <link title="Minty" rel="alternate stylesheet" href="manual-minty.css" type="text/css">
+  <link title="Plain" rel="alternate stylesheet" href="manual.css" type="text/css">
+  <title>openMSX Setup Guide</title>
 </head>
 
 <body>
@@ -228,7 +226,11 @@ The machine <code>C-BIOS_MSX2</code> is an MSX2 with 512 kB RAM and 128 kB VRAM.
 The machine <code>C-BIOS_MSX2+</code> is an MSX2+ with 512 kB RAM, 128 kB VRAM and MSX-MUSIC.
 The latter is the default machine for openMSX after installation,
 so if you change nothing to the openMSX configuration,
-then <code>C-BIOS_MSX2+</code> is the machine that will be booted. The mentioned machines have an international keyboard layout and character set and run at 50Hz (PAL) interrupt frequency. From C-BIOS 0.25, there are also localized versions available: Japanese and Brazilian types. You can recognize them easily.
+then <code>C-BIOS_MSX2+</code> is the machine that will be booted. The
+mentioned machines have a US English (international) keyboard layout and
+character set and run at 60Hz (like NTSC) interrupt frequency. From C-BIOS
+0.25, there are also localized versions available: Japanese, European (like US,
+but 50Hz) and Brazilian types. You can recognize them easily.
 </p>
 
 <p>
@@ -673,8 +675,8 @@ In a similar fashion, you can also add an MSX-Audio device
 (<code>&lt;MSX-AUDIO&gt;</code>, note that some programs also need the
 <code>MusicModuleMIDI</code> device to
 detect the Music Module, an empty SCC cartridge (<code>&lt;SCC&gt;</code>),
-etc. Just browse the existing existing extensions, the Boosted_MSX2_EN
-configuration file or the extensions and see what you can find.
+etc. Just browse the existing extensions, check the Boosted_MSX2_EN
+configuration file and see what you can find.
 </p>
 
 <p>

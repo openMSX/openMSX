@@ -15,7 +15,7 @@ class PatchInterface;
 class SectorAccessibleDisk
 {
 public:
-	static const size_t SECTOR_SIZE = sizeof(SectorBuffer);
+	static constexpr size_t SECTOR_SIZE = sizeof(SectorBuffer);
 
 	// sector stuff
 	void readSector (size_t sector,       SectorBuffer& buf);

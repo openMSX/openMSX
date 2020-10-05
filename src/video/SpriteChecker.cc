@@ -193,7 +193,8 @@ inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 	Model for sprite collision: (or "coincidence" in TMS9918 data sheet)
 	- Reset when status reg is read.
 	- Set when sprite patterns overlap.
-	- Color doesn't matter: sprites of color 0 can collide.
+	- ??? Color doesn't matter: sprites of color 0 can collide.
+	  ??? This conflicts with: https://github.com/openMSX/openMSX/issues/1198
 	- Sprites that are partially off-screen position can collide, but only
 	  on the in-screen pixels. In other words: sprites cannot collide in
 	  the left or right border, only in the visible screen area. Though
@@ -205,12 +206,17 @@ inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 	but there are max 4 sprites and therefore max 6 pairs.
 	If any collision is found, method returns at once.
 	*/
+	bool can0collide = vdp.canSpriteColor0Collide();
 	for (int line = minLine; line < maxLine; ++line) {
 		int minXCollision = 999;
 		for (int i = std::min<int>(4, spriteCount[line]); --i >= 1; /**/) {
+			auto color1 = spriteBuffer[line][i].colorAttrib & 0xf;
+			if (!can0collide && (color1 == 0)) continue;
 			int x_i = spriteBuffer[line][i].x;
 			SpritePattern pattern_i = spriteBuffer[line][i].pattern;
 			for (int j = i; --j >= 0; ) {
+				auto color2 = spriteBuffer[line][j].colorAttrib & 0xf;
+				if (!can0collide && (color2 == 0)) continue;
 				// Do sprite i and sprite j collide?
 				int x_j = spriteBuffer[line][j].x;
 				int dist = x_j - x_i;
@@ -420,8 +426,9 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 	Model for sprite collision: (or "coincidence" in TMS9918 data sheet)
 	- Reset when status reg is read.
 	- Set when sprite patterns overlap.
-	- Color doesn't matter: sprites of color 0 can collide.
-	    TODO: V9938 data book denies this (page 98).
+	- ??? Color doesn't matter: sprites of color 0 can collide.
+	  ???  TODO: V9938 data book denies this (page 98).
+	  ??? This conflicts with: https://github.com/openMSX/openMSX/issues/1198
 	- Sprites that are partially off-screen position can collide, but only
 	  on the in-screen pixels. In other words: sprites cannot collide in
 	  the left or right border, only in the visible screen area. Though
@@ -434,18 +441,23 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 	  TODO: Maybe this is slow... Think of something faster.
 	        Probably new approach is needed anyway for OR-ing.
 	*/
+	bool can0collide = vdp.canSpriteColor0Collide();
 	for (int line = minLine; line < maxLine; ++line) {
 		int minXCollision = 999; // no collision
 		SpriteInfo* visibleSprites = spriteBuffer[line];
 		for (int i = std::min<int>(8, spriteCount[line]); --i >= 1; /**/) {
+			auto colorAttrib1 = visibleSprites[i].colorAttrib;
+			if (!can0collide && ((colorAttrib1 & 0xf) == 0)) continue;
 			// If CC or IC is set, this sprite cannot collide.
-			if (visibleSprites[i].colorAttrib & 0x60) continue;
+			if (colorAttrib1 & 0x60) continue;
 
 			int x_i = visibleSprites[i].x;
 			SpritePattern pattern_i = visibleSprites[i].pattern;
 			for (int j = i; --j >= 0; ) {
+				auto colorAttrib2 = visibleSprites[j].colorAttrib;
+				if (!can0collide && ((colorAttrib2 & 0xf) == 0)) continue;
 				// If CC or IC is set, this sprite cannot collide.
-				if (visibleSprites[j].colorAttrib & 0x60) continue;
+				if (colorAttrib2 & 0x60) continue;
 
 				// Do sprite i and sprite j collide?
 				int x_j = visibleSprites[j].x;

@@ -1,6 +1,5 @@
 # Generates the contents of "components_defs.mk".
 
-from __future__ import print_function
 from components import (
 	EmulationCore, iterBuildableComponents, iterComponents,
 	requiredLibrariesFor
@@ -34,7 +33,7 @@ if len(sys.argv) == 3:
 	rewriteIfChanged(sys.argv[1], iterComponentDefs(sys.argv[2]))
 else:
 	print(
-		'Usage: python components2defs.py COMPONENTS_DEFS PROBE_MAKE',
+		'Usage: python3 components2defs.py COMPONENTS_DEFS PROBE_MAKE',
 		file=sys.stderr
 		)
 	sys.exit(2)

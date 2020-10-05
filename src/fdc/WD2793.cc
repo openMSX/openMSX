@@ -10,34 +10,34 @@
 namespace openmsx {
 
 // Status register
-static const int BUSY             = 0x01;
-static const int INDEX            = 0x02;
-static const int S_DRQ            = 0x02;
-static const int TRACK00          = 0x04;
-static const int LOST_DATA        = 0x04;
-static const int CRC_ERROR        = 0x08;
-static const int SEEK_ERROR       = 0x10;
-static const int RECORD_NOT_FOUND = 0x10;
-static const int HEAD_LOADED      = 0x20;
-static const int RECORD_TYPE      = 0x20;
-static const int WRITE_PROTECTED  = 0x40;
-static const int NOT_READY        = 0x80;
+constexpr int BUSY             = 0x01;
+constexpr int INDEX            = 0x02;
+constexpr int S_DRQ            = 0x02;
+constexpr int TRACK00          = 0x04;
+constexpr int LOST_DATA        = 0x04;
+constexpr int CRC_ERROR        = 0x08;
+constexpr int SEEK_ERROR       = 0x10;
+constexpr int RECORD_NOT_FOUND = 0x10;
+constexpr int HEAD_LOADED      = 0x20;
+constexpr int RECORD_TYPE      = 0x20;
+constexpr int WRITE_PROTECTED  = 0x40;
+constexpr int NOT_READY        = 0x80;
 
 // Command register
-static const int STEP_SPEED = 0x03;
-static const int V_FLAG     = 0x04;
-static const int E_FLAG     = 0x04;
-static const int H_FLAG     = 0x08;
-static const int T_FLAG     = 0x10;
-static const int M_FLAG     = 0x10;
-static const int A0_FLAG    = 0x01;
-static const int N2R_IRQ    = 0x01;
-static const int R2N_IRQ    = 0x02;
-static const int IDX_IRQ    = 0x04;
-static const int IMM_IRQ    = 0x08;
+constexpr int STEP_SPEED = 0x03;
+constexpr int V_FLAG     = 0x04;
+constexpr int E_FLAG     = 0x04;
+constexpr int H_FLAG     = 0x08;
+constexpr int T_FLAG     = 0x10;
+constexpr int M_FLAG     = 0x10;
+constexpr int A0_FLAG    = 0x01;
+constexpr int N2R_IRQ    = 0x01;
+constexpr int R2N_IRQ    = 0x02;
+constexpr int IDX_IRQ    = 0x04;
+constexpr int IMM_IRQ    = 0x08;
 
 // HLD/HLT timing constants
-const EmuDuration WD2793::IDLE = EmuDuration::sec(3);
+constexpr auto IDLE = EmuDuration::sec(3);
 
 /** This class has emulation for WD1770, WD1793, WD2793. Though at the moment
  * the only emulated difference between WD1770 and WD{12}793 is that WD1770
@@ -49,10 +49,10 @@ WD2793::WD2793(Scheduler& scheduler_, DiskDrive& drive_, CliComm& cliComm_,
 	: Schedulable(scheduler_)
 	, drive(drive_)
 	, cliComm(cliComm_)
-	, drqTime(EmuTime::infinity)
-	, irqTime(EmuTime::infinity)
-	, pulse5(EmuTime::infinity)
-	, hldTime(EmuTime::infinity) // HLD=false
+	, drqTime(EmuTime::infinity())
+	, irqTime(EmuTime::infinity())
+	, pulse5(EmuTime::infinity())
+	, hldTime(EmuTime::infinity()) // HLD=false
 	, isWD1770(isWD1770_)
 {
 	// avoid (harmless) UMR in serialize()
@@ -78,8 +78,8 @@ void WD2793::reset(EmuTime::param time)
 	dataReg = 0;
 	directionIn = true;
 
-	drqTime.reset(EmuTime::infinity); // DRQ = false
-	irqTime = EmuTime::infinity;      // INTRQ = false;
+	drqTime.reset(EmuTime::infinity()); // DRQ = false
+	irqTime = EmuTime::infinity();      // INTRQ = false;
 	immediateIRQ = false;
 
 	// Execute Restore command
@@ -135,7 +135,7 @@ void WD2793::setCommandReg(byte value, EmuTime::param time)
 	removeSyncPoint();
 
 	commandReg = value;
-	irqTime = EmuTime::infinity; // INTRQ = false;
+	irqTime = EmuTime::infinity(); // INTRQ = false;
 	switch (commandReg & 0xF0) {
 		case 0x00: // restore
 		case 0x10: // seek
@@ -201,7 +201,7 @@ byte WD2793::getStatusReg(EmuTime::param time)
 
 	// Reset INTRQ only if it's not scheduled to turn on in the future.
 	if (irqTime <= time) { // if (INTRQ == true)
-		irqTime = EmuTime::infinity; // INTRQ = false;
+		irqTime = EmuTime::infinity(); // INTRQ = false;
 	}
 
 	return statusReg;
@@ -253,7 +253,7 @@ void WD2793::setDataReg(byte value, EmuTime::param time)
 	if (((commandReg & 0xE0) == 0xA0) || // write sector
 	    ((commandReg & 0xF0) == 0xF0)) { // write track
 		dataRegWritten = true;
-		drqTime.reset(EmuTime::infinity); // DRQ = false
+		drqTime.reset(EmuTime::infinity()); // DRQ = false
 	}
 }
 
@@ -298,9 +298,10 @@ byte WD2793::getDataReg(EmuTime::param time)
 				if (!(commandReg & M_FLAG)) {
 					endCmd(time);
 				} else {
-					// TODO multi sector read
+					// multi sector read, wait for the next sector
+					drqTime.reset(EmuTime::infinity()); // DRQ = false
 					sectorReg++;
-					endCmd(time);
+					type2Loaded(time);
 				}
 			} else {
 				// read track, read address
@@ -438,7 +439,7 @@ void WD2793::startType1Cmd(EmuTime::param time)
 		hldTime = time;
 	} else {
 		// deactivate HLD
-		hldTime = EmuTime::infinity;
+		hldTime = EmuTime::infinity();
 	}
 
 	switch (commandReg & 0xF0) {
@@ -483,9 +484,12 @@ void WD2793::seek(EmuTime::param time)
 
 void WD2793::step(EmuTime::param time)
 {
-	const int timePerStep[4] = {
-		// in ms, in case a 1MHz clock is used (as in MSX)
-		6, 12, 20, 30
+	static constexpr EmuDuration timePerStep[4] = {
+		// in case a 1MHz clock is used (as in MSX)
+		EmuDuration::msec( 6),
+		EmuDuration::msec(12),
+		EmuDuration::msec(20),
+		EmuDuration::msec(30),
 	};
 
 	if ((commandReg & T_FLAG) || ((commandReg & 0xE0) == 0x00)) {
@@ -501,8 +505,7 @@ void WD2793::step(EmuTime::param time)
 		endType1Cmd(time);
 	} else {
 		drive.step(directionIn, time);
-		schedule(FSM_SEEK,
-		         time + EmuDuration::msec(timePerStep[commandReg & STEP_SPEED]));
+		schedule(FSM_SEEK, time + timePerStep[commandReg & STEP_SPEED]);
 	}
 }
 
@@ -578,7 +581,7 @@ void WD2793::type2Search(EmuTime::param time)
 	}
 	// Sector not found in 5 revolutions (or read error),
 	// schedule to give a RECORD_NOT_FOUND error
-	if (pulse5 < EmuTime::infinity) {
+	if (pulse5 < EmuTime::infinity()) {
 		schedule(FSM_TYPE2_NOT_FOUND, pulse5);
 	} else {
 		// Drive not rotating. How does a real WD293 handle this?
@@ -703,7 +706,7 @@ void WD2793::checkStartWrite(EmuTime::param time)
 	// pause 12 bytes
 	drqTime.reset(time);
 	schedule(FSM_PRE_WRITE_SECTOR, drqTime + 12);
-	drqTime.reset(EmuTime::infinity); // DRQ = false
+	drqTime.reset(EmuTime::infinity()); // DRQ = false
 	dataAvailable = 16; // 12+4 bytes pre-data
 }
 
@@ -721,7 +724,7 @@ void WD2793::preWriteSector(EmuTime::param time)
 			}
 			drqTime.reset(time);
 			schedule(FSM_PRE_WRITE_SECTOR, drqTime + 1);
-			drqTime.reset(EmuTime::infinity); // DRQ = false
+			drqTime.reset(EmuTime::infinity()); // DRQ = false
 		} else {
 			// and finally a single F8/FB byte
 			crc.init({0xA1, 0xA1, 0xA1});
@@ -772,7 +775,7 @@ void WD2793::writeSectorData(EmuTime::param time)
 			dataAvailable = 3;
 			drqTime.reset(time);
 			schedule(FSM_POST_WRITE_SECTOR, drqTime + 1);
-			drqTime.reset(EmuTime::infinity); // DRQ = false
+			drqTime.reset(EmuTime::infinity()); // DRQ = false
 		}
 	} catch (MSXException&) {
 		statusReg |= NOT_READY; // TODO which status bit should be set?
@@ -791,7 +794,7 @@ void WD2793::postWriteSector(EmuTime::param time)
 			drive.writeTrackByte(dataCurrent++, val);
 			drqTime.reset(time);
 			schedule(FSM_POST_WRITE_SECTOR, drqTime + 1);
-			drqTime.reset(EmuTime::infinity); // DRQ = false
+			drqTime.reset(EmuTime::infinity()); // DRQ = false
 		} else {
 			// write one byte of 0xFE
 			drive.writeTrackByte(dataCurrent++, 0xFE);
@@ -802,9 +805,10 @@ void WD2793::postWriteSector(EmuTime::param time)
 			if (!(commandReg & M_FLAG)) {
 				endCmd(time);
 			} else {
-				// TODO multi sector write
+				// multi sector write, wait for next sector
+				drqTime.reset(EmuTime::infinity()); // DRQ = false
 				sectorReg++;
-				endCmd(time);
+				type2Loaded(time);
 			}
 		}
 	} catch (MSXException&) {
@@ -857,7 +861,7 @@ void WD2793::type3Loaded(EmuTime::param time)
 			// wait till next sector header
 			setDrqRate(drive.getTrackLength());
 			next = drive.getNextSector(time, sectorInfo);
-			if (next == EmuTime::infinity) {
+			if (next == EmuTime::infinity()) {
 				// TODO wait for 5 revolutions
 				statusReg |= RECORD_NOT_FOUND;
 				endCmd(time);
@@ -865,6 +869,7 @@ void WD2793::type3Loaded(EmuTime::param time)
 			}
 			dataCurrent = sectorInfo.addrIdx;
 			dataAvailable = 6;
+			sectorReg = drive.readTrackByte(dataCurrent);
 		} catch (MSXException&) {
 			// read addr failed
 			statusReg |= RECORD_NOT_FOUND;
@@ -875,7 +880,7 @@ void WD2793::type3Loaded(EmuTime::param time)
 		// read/write track
 		// wait till next index pulse
 		next = drive.getTimeTillIndexPulse(time);
-		if (next == EmuTime::infinity) {
+		if (next == EmuTime::infinity()) {
 			// drive became not ready since the command was started,
 			// how does a real WD2793 handle this?
 			endCmd(time);
@@ -1016,7 +1021,7 @@ void WD2793::writeTrackData(EmuTime::param time)
 			} else {
 				dataOutReg = crc.getValue() & 0xFF; // low byte
 				// don't re-activate DRQ for 2nd byte of CRC
-				drqTime.reset(EmuTime::infinity); // DRQ = false
+				drqTime.reset(EmuTime::infinity()); // DRQ = false
 			}
 		} else {
 			// Write track done
@@ -1046,13 +1051,13 @@ void WD2793::startType4Cmd(EmuTime::param time)
 	if ((flags & IDX_IRQ) && isReady()) {
 		irqTime = drive.getTimeTillIndexPulse(time);
 	} else {
-		assert(irqTime == EmuTime::infinity); // INTRQ = false
+		assert(irqTime == EmuTime::infinity()); // INTRQ = false
 	}
 	if (flags & IMM_IRQ) {
 		immediateIRQ = true;
 	}
 
-	drqTime.reset(EmuTime::infinity); // DRQ = false
+	drqTime.reset(EmuTime::infinity()); // DRQ = false
 	statusReg &= ~BUSY; // reset status on Busy
 }
 
@@ -1064,8 +1069,8 @@ void WD2793::endCmd(EmuTime::param time)
 		// here by waiting for 3s.
 		hldTime = time;
 	}
-	drqTime.reset(EmuTime::infinity); // DRQ   = false
-	irqTime = EmuTime::zero;          // INTRQ = true;
+	drqTime.reset(EmuTime::infinity()); // DRQ   = false
+	irqTime = EmuTime::zero();          // INTRQ = true;
 	statusReg &= ~BUSY;
 }
 
@@ -1116,12 +1121,12 @@ SERIALIZE_ENUM(WD2793::FSMState, fsmStateInfo);
 template<typename Archive>
 void WD2793::serialize(Archive& ar, unsigned version)
 {
-	EmuTime bw_irqTime = EmuTime::zero;
+	EmuTime bw_irqTime = EmuTime::zero();
 	if (ar.versionAtLeast(version, 8)) {
 		ar.template serializeBase<Schedulable>(*this);
 	} else {
-		static const int SCHED_FSM     = 0;
-		static const int SCHED_IDX_IRQ = 1;
+		constexpr int SCHED_FSM     = 0;
+		constexpr int SCHED_IDX_IRQ = 1;
 		assert(ar.isLoader());
 		removeSyncPoint();
 		for (auto& old : Schedulable::serializeBW(ar)) {
@@ -1163,7 +1168,7 @@ void WD2793::serialize(Archive& ar, unsigned version)
 		//             "DRQ",          DRQ,
 		//             "transferring", transferring,
 		//             "formatting",   formatting);
-		drqTime.reset(EmuTime::infinity);
+		drqTime.reset(EmuTime::infinity());
 	}
 
 	if (ar.versionAtLeast(version, 3)) {
@@ -1177,7 +1182,7 @@ void WD2793::serialize(Archive& ar, unsigned version)
 		ar.serialize("pulse5",     pulse5,
 		             "sectorInfo", sectorInfo);
 	} else {
-		// leave pulse5 at EmuTime::infinity
+		// leave pulse5 at EmuTime::infinity()
 		// leave sectorInfo uninitialized
 	}
 
@@ -1187,8 +1192,8 @@ void WD2793::serialize(Archive& ar, unsigned version)
 		assert(ar.isLoader());
 		bool INTRQ = false; // dummy init to avoid warning
 		ar.serialize("INTRQ", INTRQ);
-		irqTime = INTRQ ? EmuTime::zero : EmuTime::infinity;
-		if (bw_irqTime != EmuTime::zero) {
+		irqTime = INTRQ ? EmuTime::zero() : EmuTime::infinity();
+		if (bw_irqTime != EmuTime::zero()) {
 			irqTime = bw_irqTime;
 		}
 	}
@@ -1223,7 +1228,7 @@ void WD2793::serialize(Archive& ar, unsigned version)
 		if (statusReg & BUSY) {
 			hldTime = getCurrentTime();
 		} else {
-			hldTime = EmuTime::infinity;
+			hldTime = EmuTime::infinity();
 		}
 	}
 }

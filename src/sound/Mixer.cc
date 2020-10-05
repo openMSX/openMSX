@@ -5,6 +5,7 @@
 #include "CommandController.hh"
 #include "CliComm.hh"
 #include "MSXException.hh"
+#include "one_of.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
@@ -14,11 +15,11 @@
 namespace openmsx {
 
 #if defined(_WIN32)
-static const int defaultsamples = 2048;
+constexpr int defaultsamples = 2048;
 #elif PLATFORM_ANDROID
-static const int defaultsamples = 2560;
+constexpr int defaultsamples = 2560;
 #else
-static const int defaultsamples = 1024;
+constexpr int defaultsamples = 1024;
 #endif
 
 static EnumSetting<Mixer::SoundDriverType>::Map getSoundDriverMap()
@@ -162,9 +163,7 @@ void Mixer::update(const Setting& setting)
 		} else {
 			unmute();
 		}
-	} else if ((&setting == &samplesSetting) ||
-	           (&setting == &soundDriverSetting) ||
-	           (&setting == &frequencySetting)) {
+	} else if (&setting == one_of(&samplesSetting, &soundDriverSetting, &frequencySetting)) {
 		reloadDriver();
 	} else {
 		UNREACHABLE;

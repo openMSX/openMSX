@@ -6,6 +6,7 @@
 #include "BooleanSetting.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
+#include "one_of.hh"
 #include "outer.hh"
 #include "unreachable.hh"
 #include <cassert>
@@ -40,7 +41,7 @@ MSXRS232::MSXRS232(const DeviceConfig& config)
 		"toshiba_rs232c_switch", "status of the RS-232C enable switch",
 		true) : nullptr)
 {
-	if (rom && rom->getSize() != 0x2000 && rom->getSize() != 0x4000) {
+	if (rom && (rom->getSize() != one_of(0x2000u, 0x4000u))) {
 		throw MSXException("RS232C only supports 8kB or 16kB ROMs.");
 	}
 
@@ -90,9 +91,9 @@ byte MSXRS232::readMem(word address, EmuTime::param time)
 
 const byte* MSXRS232::getReadCacheLine(word start) const
 {
-        if (hasMemoryBasedIo && (start == (0xBFF8 & CacheLine::HIGH))) {
-                return nullptr;
-        }
+	if (hasMemoryBasedIo && (start == (0xBFF8 & CacheLine::HIGH))) {
+		return nullptr;
+	}
 	word addr = start & 0x3FFF;
 	if (ram && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
 		return &(*ram)[addr - RAM_OFFSET];
@@ -125,15 +126,21 @@ void MSXRS232::writeMem(word address, byte value, EmuTime::param time)
 
 byte* MSXRS232::getWriteCacheLine(word start) const
 {
-        if (hasMemoryBasedIo && (start == (0xBFF8 & CacheLine::HIGH))) {
-                return nullptr;
-        }
+	if (hasMemoryBasedIo && (start == (0xBFF8 & CacheLine::HIGH))) {
+		return nullptr;
+	}
 	word addr = start & 0x3FFF;
 	if (ram && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
 		return &(*ram)[addr - RAM_OFFSET];
 	} else {
 		return unmappedWrite;
 	}
+}
+
+bool MSXRS232::allowUnaligned() const
+{
+	// OK, because this device doesn't call any 'fillDeviceXXXCache()'functions.
+	return true;
 }
 
 byte MSXRS232::readIO(word port, EmuTime::param time)

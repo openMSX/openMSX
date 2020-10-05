@@ -9,6 +9,7 @@
 #include "DirAsDSK.hh"
 #include "DiskPartition.hh"
 #include "MSXException.hh"
+#include "StringOp.hh"
 #include <memory>
 #include <stdexcept>
 
@@ -95,7 +96,7 @@ std::unique_ptr<Disk> DiskFactory::createDisk(
 		}
 		unsigned num;
 		try {
-			num = fast_stou(string_view(diskImage).substr(pos + 1));
+			num = StringOp::fast_stou(std::string_view(diskImage).substr(pos + 1));
 		} catch (std::invalid_argument&) {
 			// not a valid partion number, throw previous exception
 			throw e;

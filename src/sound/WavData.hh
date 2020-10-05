@@ -5,6 +5,7 @@
 #include "File.hh"
 #include "MemBuffer.hh"
 #include "MSXException.hh"
+#include "one_of.hh"
 #include <cstdint>
 #include <string>
 
@@ -81,7 +82,7 @@ inline WavData::WavData(File file, Filter filter)
 		throw MSXException("Invalid WAV file.");
 	}
 	unsigned bits = header->wBitsPerSample;
-	if ((header->wFormatTag != 1) || ((bits != 8) && (bits != 16))) {
+	if ((header->wFormatTag != 1) || (bits != one_of(8u, 16u))) {
 		throw MSXException("WAV format unsupported, must be 8 or 16 bit PCM.");
 	}
 	freq = header->dwSamplesPerSec;

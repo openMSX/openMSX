@@ -24,16 +24,12 @@ protected:
 	explicit MSXMusicBase(const DeviceConfig& config);
 	~MSXMusicBase() override = default;
 
-	void writeRegisterPort(byte value, EmuTime::param time);
-	void writeDataPort(byte value, EmuTime::param time);
+	void writePort(bool port, byte value, EmuTime::param time);
 
 	Rom rom;
 	YM2413 ym2413;
-
-private:
-	int registerLatch;
 };
-SERIALIZE_CLASS_VERSION(MSXMusicBase, 2);
+SERIALIZE_CLASS_VERSION(MSXMusicBase, 3);
 
 
 class MSXMusic : public MSXMusicBase
@@ -44,7 +40,7 @@ public:
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 };
-SERIALIZE_CLASS_VERSION(MSXMusic, 2); // must be same as MSXMusicBase
+SERIALIZE_CLASS_VERSION(MSXMusic, 3); // must be same as MSXMusicBase
 
 
 // Variant used in Panasonic_FS-A1WX and Panasonic_FS-A1WSX
@@ -66,7 +62,7 @@ public:
 private:
 	byte control;
 };
-SERIALIZE_CLASS_VERSION(MSXMusicWX, 2); // must be same as MSXMusicBase
+SERIALIZE_CLASS_VERSION(MSXMusicWX, 3); // must be same as MSXMusicBase
 
 } // namespace openmsx
 

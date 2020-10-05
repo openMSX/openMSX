@@ -10,7 +10,7 @@ ReplayCLI::ReplayCLI(CommandLineParser& parser_)
 	: parser(parser_)
 {
 	parser.registerOption("-replay", *this);
-	parser.registerFileType("omr", *this);
+	parser.registerFileType({"omr"}, *this);
 }
 
 void ReplayCLI::parseOption(const string& option, span<string>& cmdLine)
@@ -18,7 +18,7 @@ void ReplayCLI::parseOption(const string& option, span<string>& cmdLine)
 	parseFileType(getArgument(option, cmdLine), cmdLine);
 }
 
-string_view ReplayCLI::optionHelp() const
+std::string_view ReplayCLI::optionHelp() const
 {
 	return "Load replay and start replaying it in view only mode";
 }
@@ -30,9 +30,14 @@ void ReplayCLI::parseFileType(const string& filename,
 	command.executeCommand(parser.getInterpreter());
 }
 
-string_view ReplayCLI::fileTypeHelp() const
+std::string_view ReplayCLI::fileTypeHelp() const
 {
 	return "openMSX replay";
+}
+
+std::string_view ReplayCLI::fileTypeCategoryName() const
+{
+	return "replay";
 }
 
 } // namespace openmsx

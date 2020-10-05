@@ -1,10 +1,11 @@
 #include "BitmapConverter.hh"
-#include "Math.hh"
 #include "likely.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
 #include "components.hh"
+#include <algorithm>
 #include <cstdint>
+#include <tuple>
 
 namespace openmsx {
 
@@ -272,6 +273,14 @@ void BitmapConverter<Pixel>::renderGraphic7(
 	}
 }
 
+static std::tuple<int, int, int> yjk2rgb(int y, int j, int k)
+{
+	int r = std::clamp(y + j,                   0, 31);
+	int g = std::clamp(y + k,                   0, 31);
+	int b = std::clamp((5 * y - 2 * j - k) / 4, 0, 31);
+	return {r, g, b};
+}
+
 template <class Pixel>
 void BitmapConverter<Pixel>::renderYJK(
 	Pixel*      __restrict pixelPtr,
@@ -290,9 +299,7 @@ void BitmapConverter<Pixel>::renderYJK(
 
 		for (unsigned n = 0; n < 4; ++n) {
 			int y = p[n] >> 3;
-			int r = Math::clip<0, 31>(y + j);
-			int g = Math::clip<0, 31>(y + k);
-			int b = Math::clip<0, 31>((5 * y - 2 * j - k) / 4);
+			auto [r, g, b] = yjk2rgb(y, j, k);
 			int col = (r << 10) + (g << 5) + b;
 			pixelPtr[4 * i + n] = palette32768[col];
 		}
@@ -323,9 +330,7 @@ void BitmapConverter<Pixel>::renderYAE(
 			} else {
 				// YJK
 				int y = p[n] >> 3;
-				int r = Math::clip<0, 31>(y + j);
-				int g = Math::clip<0, 31>(y + k);
-				int b = Math::clip<0, 31>((5 * y - 2 * j - k) / 4);
+				auto [r, g, b] = yjk2rgb(y, j, k);
 				pix = palette32768[(r << 10) + (g << 5) + b];
 			}
 			pixelPtr[4 * i + n] = pix;

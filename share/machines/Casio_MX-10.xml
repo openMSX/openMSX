@@ -47,6 +47,7 @@
     <primary slot="0">
       <RAM id="Main RAM">
         <mem base="0xC000" size="0x4000"/>
+        <initialContent encoding="gz-base64">eJxj+M+AAtG4DAwE5ElVjy4PABFQP8E=</initialContent> <!-- As shown in Alejandro Cremades' machine. Pattern is line1 = (chr(0) + chr(255))*8; line2 = (chr(255) + chr(0))*8; (line1 + line2)*2 + (line2 + line1)*2 -->
       </RAM>
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>

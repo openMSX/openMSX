@@ -135,14 +135,14 @@ void SDLSoundDriver::uploadBuffer(float* buffer, unsigned len)
 	len *= 2; // stereo
 	unsigned free = getBufferFree();
 	if (len > free) {
-		if (reactor.getGlobalSettings().getThrottleManager().isThrottled()) {
+		auto* board = reactor.getMotherBoard();
+		if (board && !board->getMSXMixer().isSynchronousMode() && // when not recording
+		    reactor.getGlobalSettings().getThrottleManager().isThrottled()) {
 			do {
 				SDL_UnlockAudioDevice(deviceID);
 				Timer::sleep(5000); // 5ms
 				SDL_LockAudioDevice(deviceID);
-				if (MSXMotherBoard* board = reactor.getMotherBoard()) {
-					board->getRealTime().resync();
-				}
+				board->getRealTime().resync();
 				free = getBufferFree();
 			} while (len > free);
 		} else {

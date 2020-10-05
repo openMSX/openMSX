@@ -10,10 +10,10 @@ namespace openmsx {
 // So, if the BIOS is disabled to show RAM and the SGM RAM is disabled, is
 // there is 8kB SGM RAM on 0-0x1FFF.
 
-static const unsigned MAIN_RAM_AREA_START = 0x6000;
-static const unsigned MAIN_RAM_SIZE = 0x400; // 1kB
-static const unsigned SGM_RAM_SIZE = 0x8000; // 32kB
-static const unsigned BIOS_ROM_SIZE = 0x2000; // 8kB
+constexpr unsigned MAIN_RAM_AREA_START = 0x6000;
+constexpr unsigned MAIN_RAM_SIZE = 0x400; // 1kB
+constexpr unsigned SGM_RAM_SIZE = 0x8000; // 32kB
+constexpr unsigned BIOS_ROM_SIZE = 0x2000; // 8kB
 
 ColecoSuperGameModule::ColecoSuperGameModule(const DeviceConfig& config)
 	: MSXDevice(config)
@@ -53,7 +53,7 @@ void ColecoSuperGameModule::reset(EmuTime::param time)
 	ramAtBiosEnabled = false;
 	psgLatch = 0;
 	psg.reset(time);
-	invalidateMemCache(0x0000, 0x10000); // flush all to be sure
+	invalidateDeviceRWCache(); // flush all to be sure
 }
 
 byte ColecoSuperGameModule::readIO(word port, EmuTime::param time)
@@ -83,11 +83,11 @@ void ColecoSuperGameModule::writeIO(word port, byte value, EmuTime::param time)
 			break;
 		case 0x53: // bit0=1 means enable SGM RAM in 0x2000-0x7FFF range
 			ramEnabled = (value & 1) != 0;
-			invalidateMemCache(0x0000, SGM_RAM_SIZE); // just flush the whole area
+			invalidateDeviceRWCache(0x0000, SGM_RAM_SIZE); // just flush the whole area
 			break;
 		case 0x7F: // bit1=0 means enable SGM RAM in BIOS area (0-0x1FFF), 1 means BIOS
 			ramAtBiosEnabled = (value & 2) == 0;
-			invalidateMemCache(0x0000, BIOS_ROM_SIZE);
+			invalidateDeviceRWCache(0x0000, BIOS_ROM_SIZE);
 			break;
 		default:
 			// ignore

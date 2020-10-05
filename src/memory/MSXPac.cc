@@ -4,7 +4,7 @@
 
 namespace openmsx {
 
-static const char* const PAC_Header = "PAC2 BACKUP DATA";
+constexpr const char* const PAC_Header = "PAC2 BACKUP DATA";
 
 MSXPac::MSXPac(const DeviceConfig& config)
 	: MSXDevice(config)
@@ -92,7 +92,7 @@ void MSXPac::checkSramEnable()
 	bool newEnabled = (r1ffe == 0x4D) && (r1fff == 0x69);
 	if (sramEnabled != newEnabled) {
 		sramEnabled = newEnabled;
-		invalidateMemCache(0x0000, 0x10000);
+		invalidateDeviceRWCache();
 	}
 }
 

@@ -41,7 +41,7 @@ public:
 	  * Used by the overloaded operators.
 	  * @param value the internal representation.
 	  */
-	static constexpr FixedPoint create(int value) {
+	[[nodiscard]] static constexpr FixedPoint create(int value) {
 		return FixedPoint(value, CreateRawTag{});
 	}
 
@@ -56,11 +56,11 @@ public:
 	explicit FixedPoint(float  f) : value(lrintf(f * ONE)) {}
 	explicit FixedPoint(double d) : value(lrint (d * ONE)) {}
 
-	static constexpr FixedPoint roundRatioDown(unsigned n, unsigned d) {
+	[[nodiscard]] static constexpr FixedPoint roundRatioDown(unsigned n, unsigned d) {
 		return create((static_cast<uint64_t>(n) << FRACTION_BITS) / d);
 	}
 
-	static constexpr int shiftHelper(int x, int s) {
+	[[nodiscard]] static constexpr int shiftHelper(int x, int s) {
 		return (s >= 0) ? (x >> s) : (x << -s);
 	}
 	template<unsigned BITS2>
@@ -73,21 +73,21 @@ public:
 	 * Returns the integer part (rounded down) of this fixed point number.
 	 * Note that for negative numbers, rounding occurs away from zero.
 	 */
-	constexpr int toInt() const {
+	[[nodiscard]] constexpr int toInt() const {
 		return value >> FRACTION_BITS;
 	}
 
 	/**
 	 * Returns the float value that corresponds to this fixed point number.
 	 */
-	constexpr float toFloat() const {
+	[[nodiscard]] constexpr float toFloat() const {
 		return value * INV_ONE_F;
 	}
 
 	/**
 	 * Returns the double value that corresponds to this fixed point number.
 	 */
-	constexpr double toDouble() const {
+	[[nodiscard]] constexpr double toDouble() const {
 		return value * INV_ONE_D;
 	}
 
@@ -97,7 +97,7 @@ public:
 	 * numbers.
 	 * x.toInt() + x.fractionAsFloat() is approximately equal to x.toFloat()
 	 */
-	constexpr float fractionAsFloat() const {
+	[[nodiscard]] constexpr float fractionAsFloat() const {
 		return (value & FRACTION_MASK) * INV_ONE_F;
 	}
 
@@ -107,7 +107,7 @@ public:
 	 * numbers.
 	 * x.toInt() + x.fractionAsDouble() is approximately equal to x.toDouble()
 	 */
-	constexpr double fractionAsDouble() const {
+	[[nodiscard]] constexpr double fractionAsDouble() const {
 		return (value & FRACTION_MASK) * INV_ONE_D;
 	}
 
@@ -117,7 +117,7 @@ public:
 	 * Returns the result of a division between this fixed point number and
 	 * another, rounded towards zero.
 	 */
-	constexpr int divAsInt(FixedPoint other) const {
+	[[nodiscard]] constexpr int divAsInt(FixedPoint other) const {
 		return value / other.value;
 	}
 
@@ -125,7 +125,7 @@ public:
 	 * Returns this value rounded down.
 	 * The result is equal to FixedPoint(fp.toInt()).
 	 */
-	constexpr FixedPoint floor() const {
+	[[nodiscard]] constexpr FixedPoint floor() const {
 		return create(value & ~FRACTION_MASK);
 	}
 
@@ -133,7 +133,7 @@ public:
 	 * Returns the fractional part of this value.
 	 * The result is equal to fp - floor(fp).
 	 */
-	constexpr FixedPoint fract() const {
+	[[nodiscard]] constexpr FixedPoint fract() const {
 		return create(value & FRACTION_MASK);
 	}
 
@@ -141,64 +141,64 @@ public:
 	 * Returns the fractional part of this value as an integer.
 	 * The result is equal to  (fract() * (1 << FRACTION_BITS)).toInt()
 	 */
-	constexpr unsigned fractAsInt() const {
+	[[nodiscard]] constexpr unsigned fractAsInt() const {
 		return value & FRACTION_MASK;
 	}
 
 	// Arithmetic operators:
 
-	constexpr friend FixedPoint operator+(FixedPoint x, FixedPoint y) {
+	[[nodiscard]] constexpr friend FixedPoint operator+(FixedPoint x, FixedPoint y) {
 		return create(x.value + y.value);
 	}
-	constexpr friend FixedPoint operator-(FixedPoint x, FixedPoint y) {
+	[[nodiscard]] constexpr friend FixedPoint operator-(FixedPoint x, FixedPoint y) {
 		return create(x.value - y.value);
 	}
-	constexpr friend FixedPoint operator*(FixedPoint x, FixedPoint y) {
+	[[nodiscard]] constexpr friend FixedPoint operator*(FixedPoint x, FixedPoint y) {
 		return create(int(
 			(static_cast<int64_t>(x.value) * y.value) >> FRACTION_BITS));
 	}
-	constexpr friend FixedPoint operator*(FixedPoint x, int y) {
+	[[nodiscard]] constexpr friend FixedPoint operator*(FixedPoint x, int y) {
 		return create(x.value * y);
 	}
-	constexpr friend FixedPoint operator*(int x, FixedPoint y) {
+	[[nodiscard]] constexpr friend FixedPoint operator*(int x, FixedPoint y) {
 		return create(x * y.value);
 	}
 	/**
 	 * Divides two fixed point numbers.
 	 * The fractional part is rounded down.
 	 */
-	constexpr friend FixedPoint operator/(FixedPoint x, FixedPoint y) {
+	[[nodiscard]] constexpr friend FixedPoint operator/(FixedPoint x, FixedPoint y) {
 		return create(int(
 			(static_cast<int64_t>(x.value) << FRACTION_BITS) / y.value));
 	}
-	constexpr friend FixedPoint operator/(FixedPoint x, int y) {
+	[[nodiscard]] constexpr friend FixedPoint operator/(FixedPoint x, int y) {
 		return create(x.value / y);
 	}
-	constexpr friend FixedPoint operator<<(FixedPoint x, int y) {
+	[[nodiscard]] constexpr friend FixedPoint operator<<(FixedPoint x, int y) {
 		return create(x.value << y);
 	}
-	constexpr friend FixedPoint operator>>(FixedPoint x, int y) {
+	[[nodiscard]] constexpr friend FixedPoint operator>>(FixedPoint x, int y) {
 		return create(x.value >> y);
 	}
 
 	// Comparison operators:
 
-	constexpr friend bool operator==(FixedPoint x, FixedPoint y) {
+	[[nodiscard]] constexpr friend bool operator==(FixedPoint x, FixedPoint y) {
 		return x.value == y.value;
 	}
-	constexpr friend bool operator!=(FixedPoint x, FixedPoint y) {
+	[[nodiscard]] constexpr friend bool operator!=(FixedPoint x, FixedPoint y) {
 		return x.value != y.value;
 	}
-	constexpr friend bool operator<(FixedPoint x, FixedPoint y) {
+	[[nodiscard]] constexpr friend bool operator<(FixedPoint x, FixedPoint y) {
 		return x.value < y.value;
 	}
-	constexpr friend bool operator<=(FixedPoint x, FixedPoint y) {
+	[[nodiscard]] constexpr friend bool operator<=(FixedPoint x, FixedPoint y) {
 		return x.value <= y.value;
 	}
-	constexpr friend bool operator>(FixedPoint x, FixedPoint y) {
+	[[nodiscard]] constexpr friend bool operator>(FixedPoint x, FixedPoint y) {
 		return x.value > y.value;
 	}
-	constexpr friend bool operator>=(FixedPoint x, FixedPoint y) {
+	[[nodiscard]] constexpr friend bool operator>=(FixedPoint x, FixedPoint y) {
 		return x.value >= y.value;
 	}
 
@@ -220,7 +220,7 @@ public:
 
 	// Should only be used by other instances of this class
 	//  templatized friend declarations are not possible in c++
-	constexpr int getRawValue() const {
+	[[nodiscard]] constexpr int getRawValue() const {
 		return value;
 	}
 

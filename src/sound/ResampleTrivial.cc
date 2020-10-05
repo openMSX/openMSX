@@ -5,16 +5,17 @@
 namespace openmsx {
 
 ResampleTrivial::ResampleTrivial(ResampledSoundDevice& input_)
-	: input(input_)
+	: ResampleAlgo(input_)
 {
 }
 
-bool ResampleTrivial::generateOutput(float* dataOut, unsigned num,
-                                     EmuTime::param /*time*/)
+bool ResampleTrivial::generateOutputImpl(float* dataOut, unsigned num,
+                                         EmuTime::param /*time*/)
 {
 #ifdef __SSE2__
 	assert((uintptr_t(dataOut) & 15) == 0); // must be 16-byte aligned
 #endif
+	getEmuClock() += num;
 	return input.generateInput(dataOut, num);
 }
 

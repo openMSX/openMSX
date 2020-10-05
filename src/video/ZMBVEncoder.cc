@@ -3,52 +3,92 @@
 #include "ZMBVEncoder.hh"
 #include "FrameSource.hh"
 #include "PixelOperations.hh"
+#include "cstd.hh"
 #include "endian.hh"
 #include "ranges.hh"
 #include "unreachable.hh"
+#include <array>
 #include <cassert>
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
+#include <tuple>
 
 namespace openmsx {
 
-static const uint8_t DBZV_VERSION_HIGH = 0;
-static const uint8_t DBZV_VERSION_LOW = 1;
-static const uint8_t COMPRESSION_ZLIB = 1;
-static const unsigned MAX_VECTOR = 16;
-static const unsigned BLOCK_WIDTH  = MAX_VECTOR;
-static const unsigned BLOCK_HEIGHT = MAX_VECTOR;
-static const unsigned FLAG_KEYFRAME = 0x01;
+constexpr uint8_t DBZV_VERSION_HIGH = 0;
+constexpr uint8_t DBZV_VERSION_LOW = 1;
+constexpr uint8_t COMPRESSION_ZLIB = 1;
+constexpr unsigned MAX_VECTOR = 16;
+constexpr unsigned BLOCK_WIDTH  = MAX_VECTOR;
+constexpr unsigned BLOCK_HEIGHT = MAX_VECTOR;
+constexpr unsigned FLAG_KEYFRAME = 0x01;
 
 struct CodecVector {
-	float cost() const {
-		float c = sqrtf(float(x * x + y * y));
-		if ((x == 0) || (y == 0)) {
-			// no penalty for purely horizontal/vertical offset
-			c *= 1.0f;
-		} else if (abs(x) == abs(y)) {
-			// small penalty for pure diagonal
-			c *= 2.0f;
-		} else {
-			// bigger penalty for 'random' direction
-			c *= 4.0f;
-		}
-		return c;
-	}
-	int x;
-	int y;
+	int8_t x;
+	int8_t y;
 };
-static inline bool operator<(const CodecVector& l, const CodecVector& r)
-{
-	return l.cost() < r.cost();
-}
 
-static const unsigned VECTOR_TAB_SIZE =
+constexpr unsigned VECTOR_TAB_SIZE =
 	1 +                                       // center
 	8 * MAX_VECTOR +                          // horizontal, vertial, diagonal
 	MAX_VECTOR * MAX_VECTOR - 2 * MAX_VECTOR; // rest (only MAX_VECTOR/2)
-CodecVector vectorTable[VECTOR_TAB_SIZE];
+
+constexpr auto vectorTable = [] {
+	std::array<CodecVector, VECTOR_TAB_SIZE> result = {};
+
+	unsigned p = 0;
+	// center
+	result[p] = {0, 0};
+	p += 1;
+	// horizontal, vertial, diagonal
+	for (int i = 1; i <= int(MAX_VECTOR); ++i, p += 8) {
+		result[p + 0] = {int8_t( i), int8_t( 0)};
+		result[p + 1] = {int8_t(-i), int8_t( 0)};
+		result[p + 2] = {int8_t( 0), int8_t( i)};
+		result[p + 3] = {int8_t( 0), int8_t(-i)};
+		result[p + 4] = {int8_t( i), int8_t( i)};
+		result[p + 5] = {int8_t(-i), int8_t( i)};
+		result[p + 6] = {int8_t( i), int8_t(-i)};
+		result[p + 7] = {int8_t(-i), int8_t(-i)};
+	}
+	// rest
+	for (int y = 1; y <= int(MAX_VECTOR / 2); ++y) {
+		for (int x = 1; x <= int(MAX_VECTOR / 2); ++x) {
+			if (x == y) continue; // already have diagonal
+			result[p + 0] = {int8_t( x), int8_t( y)};
+			result[p + 1] = {int8_t(-x), int8_t( y)};
+			result[p + 2] = {int8_t( x), int8_t(-y)};
+			result[p + 3] = {int8_t(-x), int8_t(-y)};
+			p += 4;
+		}
+	}
+	assert(p == VECTOR_TAB_SIZE);
+
+	// sort
+	auto compare = [](const CodecVector& l, const CodecVector& r) {
+		auto cost = [](const CodecVector& v) {
+			auto c = cstd::sqrt(double(v.x * v.x + v.y * v.y));
+			if ((v.x == 0) || (v.y == 0)) {
+				// no penalty for purely horizontal/vertical offset
+				c *= 1.0;
+			} else if (cstd::abs(v.x) == cstd::abs(v.y)) {
+				// small penalty for pure diagonal
+				c *= 2.0;
+			} else {
+				// bigger penalty for 'random' direction
+				c *= 4.0;
+			}
+			return c;
+		};
+		return std::tuple(cost(l), l.x, l.y) <
+		       std::tuple(cost(r), r.x, r.y);
+	};
+	cstd::sort(result, compare);
+
+	return result;
+}();
 
 struct KeyframeHeader {
 	uint8_t high_version;
@@ -58,8 +98,6 @@ struct KeyframeHeader {
 	uint8_t blockwidth;
 	uint8_t blockheight;
 };
-
-const char* ZMBVEncoder::CODEC_4CC = "ZMBV";
 
 
 static inline void writePixel(
@@ -82,46 +120,12 @@ static inline void writePixel(
 	dest = (r << 16) | (g <<  8) |  b;
 }
 
-static void createVectorTable()
-{
-	unsigned p = 0;
-	// center
-	vectorTable[p] = {0, 0};
-	p += 1;
-	// horizontal, vertial, diagonal
-	for (int i = 1; i <= int(MAX_VECTOR); ++i) {
-		vectorTable[p + 0] = { i, 0};
-		vectorTable[p + 1] = {-i, 0};
-		vectorTable[p + 2] = { 0, i};
-		vectorTable[p + 3] = { 0,-i};
-		vectorTable[p + 4] = { i, i};
-		vectorTable[p + 5] = {-i, i};
-		vectorTable[p + 6] = { i,-i};
-		vectorTable[p + 7] = {-i,-i};
-		p += 8;
-	}
-	// rest
-	for (int y = 1; y <= int(MAX_VECTOR / 2); ++y) {
-		for (int x = 1; x <= int(MAX_VECTOR / 2); ++x) {
-			if (x == y) continue; // already have diagonal
-			vectorTable[p + 0] = { x, y};
-			vectorTable[p + 1] = {-x, y};
-			vectorTable[p + 2] = { x,-y};
-			vectorTable[p + 3] = {-x,-y};
-			p += 4;
-		}
-	}
-	assert(p == VECTOR_TAB_SIZE);
-
-	ranges::sort(vectorTable);
-}
 
 ZMBVEncoder::ZMBVEncoder(unsigned width_, unsigned height_, unsigned bpp)
 	: width(width_)
 	, height(height_)
 {
 	setupBuffers(bpp);
-	createVectorTable();
 	memset(&zstream, 0, sizeof(zstream));
 	deflateInit(&zstream, 6); // compression level
 
@@ -189,7 +193,7 @@ void ZMBVEncoder::setupBuffers(unsigned bpp)
 	}
 }
 
-unsigned ZMBVEncoder::neededSize()
+unsigned ZMBVEncoder::neededSize() const
 {
 	unsigned f = pixelSize;
 	f = f * width * height + 2 * (1 + (width / 8)) * (1 + (height / 8)) + 1024;
@@ -248,7 +252,7 @@ void ZMBVEncoder::addXorBlock(
 }
 
 template<class P>
-void ZMBVEncoder::addXorFrame(const SDL_PixelFormat& pixelFormat, unsigned& workUsed)
+void ZMBVEncoder::addXorFrame(const PixelFormat& pixelFormat, unsigned& workUsed)
 {
 	PixelOperations<P> pixelOps(pixelFormat);
 	auto* vectors = reinterpret_cast<int8_t*>(&work[workUsed]);
@@ -292,7 +296,7 @@ void ZMBVEncoder::addXorFrame(const SDL_PixelFormat& pixelFormat, unsigned& work
 }
 
 template<class P>
-void ZMBVEncoder::addFullFrame(const SDL_PixelFormat& pixelFormat, unsigned& workUsed)
+void ZMBVEncoder::addFullFrame(const PixelFormat& pixelFormat, unsigned& workUsed)
 {
 	using LE_P = typename Endian::Little<P>::type;
 
@@ -310,7 +314,7 @@ void ZMBVEncoder::addFullFrame(const SDL_PixelFormat& pixelFormat, unsigned& wor
 	}
 }
 
-const void* ZMBVEncoder::getScaledLine(FrameSource* frame, unsigned y, void* workBuf_)
+const void* ZMBVEncoder::getScaledLine(FrameSource* frame, unsigned y, void* workBuf_) const
 {
 #if HAVE_32BPP
 	if (pixelSize == 4) { // 32bpp
@@ -388,12 +392,12 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 		switch (pixelSize) {
 #if HAVE_16BPP
 		case 2:
-			addFullFrame<uint16_t>(frame->getSDLPixelFormat(), workUsed);
+			addFullFrame<uint16_t>(frame->getPixelFormat(), workUsed);
 			break;
 #endif
 #if HAVE_32BPP
 		case 4:
-			addFullFrame<uint32_t>(frame->getSDLPixelFormat(), workUsed);
+			addFullFrame<uint32_t>(frame->getPixelFormat(), workUsed);
 			break;
 #endif
 		default:
@@ -404,12 +408,12 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 		switch (pixelSize) {
 #if HAVE_16BPP
 		case 2:
-			addXorFrame<uint16_t>(frame->getSDLPixelFormat(), workUsed);
+			addXorFrame<uint16_t>(frame->getPixelFormat(), workUsed);
 			break;
 #endif
 #if HAVE_32BPP
 		case 4:
-			addXorFrame<uint32_t>(frame->getSDLPixelFormat(), workUsed);
+			addXorFrame<uint32_t>(frame->getPixelFormat(), workUsed);
 			break;
 #endif
 		default:
@@ -425,7 +429,7 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 	zstream.avail_out = outputSize - writeDone;
 	zstream.total_out = 0;
 	auto r = deflate(&zstream, Z_SYNC_FLUSH);
-	assert(r == Z_OK);
+	assert(r == Z_OK); (void)r;
 
 	buffer = output.data();
 	written = writeDone + zstream.total_out;

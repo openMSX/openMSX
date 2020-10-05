@@ -16,21 +16,7 @@
 struct LessDeref
 {
 	template<typename PTR>
-	bool operator()(PTR p1, PTR p2) const { return *p1 < *p2; }
-};
-
-// Heterogeneous version of std::equal_to.
-struct EqualTo
-{
-       template<typename T1, typename T2>
-       bool operator()(const T1& t1, const T2& t2) const { return t1 == t2; }
-};
-
-// Heterogeneous version of std::less.
-struct LessThan
-{
-	template<typename T1, typename T2>
-	bool operator()(const T1& t1, const T2& t2) const { return t1 < t2; }
+	[[nodiscard]] bool operator()(PTR p1, PTR p2) const { return *p1 < *p2; }
 };
 
 
@@ -42,32 +28,32 @@ struct LessThan
 template<int N, typename CMP> struct CmpTupleElement
 {
 	template<typename... Args>
-	bool operator()(const std::tuple<Args...>& x, const std::tuple<Args...>& y) const {
+	[[nodiscard]] bool operator()(const std::tuple<Args...>& x, const std::tuple<Args...>& y) const {
 		return cmp(std::get<N>(x), std::get<N>(y));
 	}
 
 	template<typename T, typename... Args>
-	bool operator()(const T& x, const std::tuple<Args...>& y) const {
+	[[nodiscard]] bool operator()(const T& x, const std::tuple<Args...>& y) const {
 		return cmp(x, std::get<N>(y));
 	}
 
 	template<typename T, typename... Args>
-	bool operator()(const std::tuple<Args...>& x, const T& y) const {
+	[[nodiscard]] bool operator()(const std::tuple<Args...>& x, const T& y) const {
 		return cmp(std::get<N>(x), y);
 	}
 
 	template<typename T1, typename T2>
-	bool operator()(const std::pair<T1, T2>& x, const std::pair<T1, T2>& y) const {
+	[[nodiscard]] bool operator()(const std::pair<T1, T2>& x, const std::pair<T1, T2>& y) const {
 		return cmp(std::get<N>(x), std::get<N>(y));
 	}
 
 	template<typename T, typename T1, typename T2>
-	bool operator()(const T& x, const std::pair<T1, T2>& y) const {
+	[[nodiscard]] bool operator()(const T& x, const std::pair<T1, T2>& y) const {
 		return cmp(x, std::get<N>(y));
 	}
 
 	template<typename T, typename T1, typename T2>
-	bool operator()(const std::pair<T1, T2>& x, const T& y) const {
+	[[nodiscard]] bool operator()(const std::pair<T1, T2>& x, const T& y) const {
 		return cmp(std::get<N>(x), y);
 	}
 
@@ -76,7 +62,7 @@ private:
 };
 
 // Similar to CmpTupleElement above, but uses the less-than operator.
-template<int N> using LessTupleElement = CmpTupleElement<N, LessThan>;
+template<int N> using LessTupleElement = CmpTupleElement<N, std::less<>>;
 
 
 // Check whether the N-the element of a tuple is equal to the given value.
@@ -84,14 +70,14 @@ template<int N, typename T> struct EqualTupleValueImpl
 {
 	explicit EqualTupleValueImpl(const T& t_) : t(t_) {}
 	template<typename TUPLE>
-	bool operator()(const TUPLE& tup) const {
+	[[nodiscard]] bool operator()(const TUPLE& tup) const {
 		return std::get<N>(tup) == t;
 	}
 private:
 	const T& t;
 };
 template<int N, typename T>
-auto EqualTupleValue(const T& t) {
+[[nodiscard]] auto EqualTupleValue(const T& t) {
 	return EqualTupleValueImpl<N, T>(t);
 }
 
@@ -103,12 +89,12 @@ auto EqualTupleValue(const T& t) {
   * STL already has the 'any_of' algorithm.
   */
 template<typename ITER, typename VAL>
-inline bool contains(ITER first, ITER last, const VAL& val)
+[[nodiscard]] inline bool contains(ITER first, ITER last, const VAL& val)
 {
 	return std::find(first, last, val) != last;
 }
 template<typename RANGE, typename VAL>
-inline bool contains(const RANGE& range, const VAL& val)
+[[nodiscard]] inline bool contains(const RANGE& range, const VAL& val)
 {
 	return contains(std::begin(range), std::end(range), val);
 }
@@ -122,7 +108,7 @@ inline bool contains(const RANGE& range, const VAL& val)
   * parameter, we could consider providing such an overload as well.
   */
 template<typename ITER, typename VAL>
-inline ITER find_unguarded(ITER first, ITER last, const VAL& val)
+[[nodiscard]] inline ITER find_unguarded(ITER first, ITER last, const VAL& val)
 {
 	(void)last;
 	while (true) {
@@ -132,7 +118,7 @@ inline ITER find_unguarded(ITER first, ITER last, const VAL& val)
 	}
 }
 template<typename RANGE, typename VAL>
-inline auto find_unguarded(RANGE& range, const VAL& val)
+[[nodiscard]] inline auto find_unguarded(RANGE& range, const VAL& val)
 {
 	return find_unguarded(std::begin(range), std::end(range), val);
 }
@@ -142,7 +128,7 @@ inline auto find_unguarded(RANGE& range, const VAL& val)
   * See also 'find_unguarded'.
   */
 template<typename ITER, typename PRED>
-inline ITER find_if_unguarded(ITER first, ITER last, PRED pred)
+[[nodiscard]] inline ITER find_if_unguarded(ITER first, ITER last, PRED pred)
 {
 	(void)last;
 	while (true) {
@@ -152,7 +138,7 @@ inline ITER find_if_unguarded(ITER first, ITER last, PRED pred)
 	}
 }
 template<typename RANGE, typename PRED>
-inline auto find_if_unguarded(RANGE& range, PRED pred)
+[[nodiscard]] inline auto find_if_unguarded(RANGE& range, PRED pred)
 {
 	return find_if_unguarded(std::begin(range), std::end(range), pred);
 }
@@ -163,7 +149,7 @@ inline auto find_if_unguarded(RANGE& range, PRED pred)
   * versions it is already possible to pass reverse iterators.
   */
 template<typename RANGE, typename VAL>
-inline auto rfind_unguarded(RANGE& range, const VAL& val)
+[[nodiscard]] inline auto rfind_unguarded(RANGE& range, const VAL& val)
 {
 	auto it = find_unguarded(std::rbegin(range), std::rend(range), val);
 	++it;
@@ -171,7 +157,7 @@ inline auto rfind_unguarded(RANGE& range, const VAL& val)
 }
 
 template<typename RANGE, typename PRED>
-inline auto rfind_if_unguarded(RANGE& range, PRED pred)
+[[nodiscard]] inline auto rfind_if_unguarded(RANGE& range, PRED pred)
 {
 	auto it = find_if_unguarded(std::rbegin(range), std::rend(range), pred);
 	++it;
@@ -223,7 +209,7 @@ void move_pop_back(VECTOR& v, typename VECTOR::iterator it)
   *    to the return value of the remove() algorithm.
   */
 template<typename ForwardIt, typename OutputIt, typename UnaryPredicate>
-std::pair<OutputIt, ForwardIt> partition_copy_remove(
+[[nodiscard]] std::pair<OutputIt, ForwardIt> partition_copy_remove(
 	ForwardIt first, ForwardIt last, OutputIt out_true, UnaryPredicate p)
 {
 	first = std::find_if(first, last, p);
@@ -238,11 +224,11 @@ l_true:				*out_true++  = std::move(*first++);
 			}
 		}
 	}
-	return std::make_pair(out_true, out_false);
+	return std::pair(out_true, out_false);
 }
 
 template<typename ForwardRange, typename OutputIt, typename UnaryPredicate>
-auto partition_copy_remove(ForwardRange&& range, OutputIt out_true, UnaryPredicate p)
+[[nodiscard]] auto partition_copy_remove(ForwardRange&& range, OutputIt out_true, UnaryPredicate p)
 {
 	return partition_copy_remove(std::begin(range), std::end(range), out_true, p);
 }
@@ -259,7 +245,7 @@ auto transform_in_place(ForwardRange&& range, UnaryOperation op)
 // Returns (a copy of) the minimum value in [first, last).
 // Requires: first != last.
 template<typename InputIterator>
-auto min_value(InputIterator first, InputIterator last)
+[[nodiscard]] auto min_value(InputIterator first, InputIterator last)
 {
 	assert(first != last);
 	auto result = *first++;
@@ -270,7 +256,7 @@ auto min_value(InputIterator first, InputIterator last)
 }
 
 template<typename InputRange>
-auto min_value(InputRange&& range)
+[[nodiscard]] auto min_value(InputRange&& range)
 {
 	return min_value(std::begin(range), std::end(range));
 }
@@ -278,7 +264,7 @@ auto min_value(InputRange&& range)
 // Returns (a copy of) the maximum value in [first, last).
 // Requires: first != last.
 template<typename InputIterator>
-auto max_value(InputIterator first, InputIterator last)
+[[nodiscard]] auto max_value(InputIterator first, InputIterator last)
 {
 	assert(first != last);
 	auto result = *first++;
@@ -289,7 +275,7 @@ auto max_value(InputIterator first, InputIterator last)
 }
 
 template<typename InputRange>
-auto max_value(InputRange&& range)
+[[nodiscard]] auto max_value(InputRange&& range)
 {
 	return max_value(std::begin(range), std::end(range));
 }
@@ -299,7 +285,7 @@ auto max_value(InputRange&& range)
 // Assumes: elements can be summed via operator+, with a default constructed
 // value being the identity-element for this operator.
 template<typename InputRange>
-auto sum(InputRange&& range)
+[[nodiscard]] auto sum(InputRange&& range)
 {
 	using Iter = decltype(std::begin(range));
 	using T = typename std::iterator_traits<Iter>::value_type;
@@ -311,7 +297,7 @@ auto sum(InputRange&& range)
 namespace detail {
 	template<typename T, typename Iterator>
 	using ToVectorType = std::conditional_t<
-		std::is_same<T, void>::value,
+		std::is_same_v<T, void>,
 		typename std::iterator_traits<Iterator>::value_type,
 		T>;
 }
@@ -322,7 +308,7 @@ namespace detail {
 //   auto v1 = to_vector(view::drop(my_list, 3));
 //   auto v2 = to_vector<Base*>(getDerivedPtrs());
 template<typename T = void, typename Range>
-auto to_vector(Range&& range)
+[[nodiscard]] auto to_vector(Range&& range)
 	-> std::vector<detail::ToVectorType<T, decltype(std::begin(range))>>
 {
 	return {std::begin(range), std::end(range)};
@@ -330,7 +316,7 @@ auto to_vector(Range&& range)
 
 // Optimized version for r-value input and no type conversion.
 template<typename T>
-auto to_vector(std::vector<T>&& v)
+[[nodiscard]] auto to_vector(std::vector<T>&& v)
 {
 	return std::move(v);
 }
@@ -339,15 +325,10 @@ auto to_vector(std::vector<T>&& v)
 // append() / concat()
 namespace detail {
 
-inline size_t sum_of_sizes()
+template<typename... Ranges>
+[[nodiscard]] size_t sum_of_sizes(const Ranges&... ranges)
 {
-	return 0;
-}
-template<typename Range, typename... Tail>
-size_t sum_of_sizes(const Range& r, Tail&&... tail)
-{
-	return std::distance(std::begin(r), std::end(r)) +
-	       sum_of_sizes(std::forward<Tail>(tail)...);
+    return (0 + ... + std::distance(std::begin(ranges), std::end(ranges)));
 }
 
 template<typename Result>
@@ -366,7 +347,7 @@ void append(Result& x, Range&& y, Tail&&... tail)
 	// gcc/include/c++/7.1.0/debug/functions.h
 	// __foreign_iterator_aux functions). So avoid vector::insert
 	for (auto&& e : y) {
-		x.push_back(std::forward<decltype(e)>(e));
+		x.emplace_back(std::forward<decltype(e)>(e));
 	}
 #else
 	x.insert(std::end(x), std::begin(y), std::end(y));
@@ -381,8 +362,8 @@ template<typename Result, typename T2, typename... Tail>
 void append(Result& x, std::vector<T2>&& y, Tail&&... tail)
 {
 	x.insert(std::end(x),
-		 std::make_move_iterator(std::begin(y)),
-		 std::make_move_iterator(std::end(y)));
+		 std::move_iterator(std::begin(y)),
+		 std::move_iterator(std::end(y)));
 	detail::append(x, std::forward<Tail>(tail)...);
 }
 
@@ -411,8 +392,8 @@ void append(std::vector<T>& v, std::vector<T>&& range)
 		v = std::move(range);
 	} else {
 		v.insert(std::end(v),
-		         std::make_move_iterator(std::begin(range)),
-		         std::make_move_iterator(std::end(range)));
+		         std::move_iterator(std::begin(range)),
+		         std::move_iterator(std::end(range)));
 	}
 }
 
@@ -424,32 +405,32 @@ void append(std::vector<T>& x, std::initializer_list<T> list)
 
 
 template<typename T = void, typename Range, typename... Tail>
-auto concat(const Range& range, Tail&&... tail)
+[[nodiscard]] auto concat(const Range& range, Tail&&... tail)
 {
-    using T2 = detail::ToVectorType<T, decltype(std::begin(range))>;
-    std::vector<T2> result;
-    append(result, range, std::forward<Tail>(tail)...);
-    return result;
+	using T2 = detail::ToVectorType<T, decltype(std::begin(range))>;
+	std::vector<T2> result;
+	append(result, range, std::forward<Tail>(tail)...);
+	return result;
 }
 
 template<typename T, typename... Tail>
-std::vector<T> concat(std::vector<T>&& v, Tail&&... tail)
+[[nodiscard]] std::vector<T> concat(std::vector<T>&& v, Tail&&... tail)
 {
-    append(v, std::forward<Tail>(tail)...);
-    return std::move(v);
+	append(v, std::forward<Tail>(tail)...);
+	return std::move(v);
 }
 
 
 // lookup in std::map
 template<typename Key, typename Value>
-const Value* lookup(const std::map<Key, Value>& m, const Key& k)
+[[nodiscard]] const Value* lookup(const std::map<Key, Value>& m, const Key& k)
 {
 	auto it = m.find(k);
 	return (it != m.end()) ? &it->second : nullptr;
 }
 
 template<typename Key, typename Value>
-Value* lookup(std::map<Key, Value>& m, const Key& k)
+[[nodiscard]] Value* lookup(std::map<Key, Value>& m, const Key& k)
 {
 	auto it = m.find(k);
 	return (it != m.end()) ? &it->second : nullptr;

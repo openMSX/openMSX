@@ -1,4 +1,3 @@
-from __future__ import print_function
 from msysutils import msysActive, msysPathToNative
 
 from os import environ
@@ -53,7 +52,7 @@ class _Command(object):
 			[ self.__executable ] + self.__flags + (
 				[ '(%s)' % ' '.join(
 					'%s=%s' % item
-					for item in sorted(self.__env.iteritems())
+					for item in sorted(self.__env.items())
 					) ] if self.__env else []
 				)
 			)
@@ -70,34 +69,36 @@ class _Command(object):
 				stderr = PIPE if captureOutput else STDOUT,
 				)
 		except OSError as ex:
-			print(u'failed to execute %s: %s' % (name, ex), file=log)
+			print('failed to execute %s: %s' % (name, ex), file=log)
 			return None if captureOutput else False
-		inputText = None if inputSeq is None else '\n'.join(inputSeq) + '\n'
+		inputText = None if inputSeq is None \
+				else ('\n'.join(inputSeq) + '\n').encode('utf-8')
 		stdoutdata, stderrdata = proc.communicate(inputText)
+		stdouttext = stdoutdata.decode('utf-8', 'replace')
 		if captureOutput:
 			assert stderrdata is not None
-			messages = stderrdata
+			messages = stderrdata.decode('utf-8', 'replace')
 		else:
 			assert stderrdata is None
-			messages = stdoutdata
+			messages = stdouttext
 		if messages:
-			log.write(u'%s command: %s\n' % (name, ' '.join(commandLine)))
+			log.write('%s command: %s\n' % (name, ' '.join(commandLine)))
 			if inputText is not None:
-				log.write(u'input:\n')
-				log.write(unicode(inputText))
+				log.write('input:\n')
+				log.write(str(inputText))
 				if not inputText.endswith('\n'):
-					log.write(u'\n')
-				log.write(u'end input.\n')
+					log.write('\n')
+				log.write('end input.\n')
 			# pylint 0.18.0 somehow thinks 'messages' is a list, not a string.
 			# pylint: disable-msg=E1103
 			messages = messages.replace('\r', '')
-			log.write(messages.decode('utf-8'))
+			log.write(messages)
 			if not messages.endswith('\n'):
-				log.write(u'\n')
+				log.write('\n')
 		if proc.returncode == 0:
-			return stdoutdata if captureOutput else True
+			return stdouttext if captureOutput else True
 		else:
-			print(u'return code from %s: %d' % (name, proc.returncode), file=log)
+			print('return code from %s: %d' % (name, proc.returncode), file=log)
 			return None if captureOutput else False
 
 class CompileCommand(_Command):
@@ -139,8 +140,8 @@ class CompileCommand(_Command):
 						key, value = keyValueStr, ''
 					if key not in keys:
 						log.write(
-							u'Ignoring macro expand signature match on '
-							u'non-requested macro "%s"\n' % key
+							'Ignoring macro expand signature match on '
+							'non-requested macro "%s"\n' % key
 							)
 						continue
 					elif value == '':

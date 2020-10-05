@@ -10,7 +10,7 @@ namespace YM2413Okazaki {
 
 class YM2413;
 
-static constexpr int EP_FP_BITS = 15;
+constexpr int EP_FP_BITS = 15;
 using EnvPhaseIndex = FixedPoint<EP_FP_BITS>;
 
 enum EnvelopeState {
@@ -24,36 +24,36 @@ public:
 	  */
 	Patch();
 
-	void initModulator(const byte* data);
-	void initCarrier  (const byte* data);
+	void initModulator(const uint8_t* data);
+	void initCarrier  (const uint8_t* data);
 
 	/** Sets the Key Scale of Rate (0 or 1). */
-	inline void setKR(byte value);
+	inline void setKR(uint8_t value);
 	/** Sets the frequency multiplier factor [0..15]. */
-	inline void setML(byte value);
+	inline void setML(uint8_t value);
 	/** Sets Key scale level [0..3]. */
-	inline void setKL(byte value);
+	inline void setKL(uint8_t value);
 	/** Set volume (total level) [0..63]. */
-	inline void setTL(byte value);
+	inline void setTL(uint8_t value);
 	/** Set waveform [0..1]. */
-	inline void setWF(byte value);
+	inline void setWF(uint8_t value);
 	/** Sets the amount of feedback [0..7]. */
-	inline void setFB(byte value);
+	inline void setFB(uint8_t value);
 	/** Sets sustain level [0..15]. */
-	inline void setSL(byte value);
+	inline void setSL(uint8_t value);
 
 	const unsigned* WF; // 0-1    transformed to waveform[0-1]
-	const byte* KL;     // 0-3    transformed to tllTable[0-3]
+	const uint8_t* KL;  // 0-3    transformed to tllTable[0-3]
 	unsigned SL;        // 0-15   transformed to slTable[0-15]
-	byte AMPM;          // 0-3    2 packed booleans
+	uint8_t AMPM;       // 0-3    2 packed booleans
 	bool EG;            // 0-1
-	byte KR;            // 0-1    transformed to 10,8
-	byte ML;            // 0-15   transformed to mlTable[0-15]
-	byte TL;            // 0-63   transformed to TL2EG(0..63) == [0..252]
-	byte FB;            // 0,1-7  transformed to 0,7-1
-	byte AR;            // 0-15
-	byte DR;            // 0-15
-	byte RR;            // 0-15
+	uint8_t KR;         // 0-1    transformed to 10,8
+	uint8_t ML;         // 0-15   transformed to mlTable[0-15]
+	uint8_t TL;         // 0-63   transformed to TL2EG(0..63) == [0..252]
+	uint8_t FB;         // 0,1-7  transformed to 0,7-1
+	uint8_t AR;         // 0-15
+	uint8_t DR;         // 0-15
+	uint8_t RR;         // 0-15
 };
 
 class Slot {
@@ -108,7 +108,7 @@ public:
 	EnvPhaseIndex eg_phase;      // Phase
 	EnvPhaseIndex eg_dphase;     // Phase increment amount
 	EnvPhaseIndex eg_phase_max;
-	byte slot_on_flag;
+	uint8_t slot_on_flag;
 	bool sustain;                // Sustain
 
 	Patch patch;
@@ -135,6 +135,22 @@ class YM2413 final : public YM2413Core
 public:
 	YM2413();
 
+	// YM2413Core
+	void reset() override;
+	void writePort(bool port, uint8_t value, int offset) override;
+	void pokeReg(uint8_t reg, uint8_t data) override;
+	uint8_t peekReg(uint8_t reg) const override;
+	void generateChannels(float* bufs[9 + 5], unsigned num) override;
+	float getAmplificationFactor() const override;
+
+	Patch& getPatch(unsigned instrument, bool carrier);
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
+private:
+	void writeReg(uint8_t r, uint8_t data);
+
 	inline void keyOn_BD();
 	inline void keyOn_SD();
 	inline void keyOn_TOM();
@@ -145,26 +161,15 @@ public:
 	inline void keyOff_TOM();
 	inline void keyOff_HH();
 	inline void keyOff_CYM();
-	inline void setRhythmFlags(byte old);
+	inline void setRhythmFlags(uint8_t old);
 	inline void update_key_status();
 	inline bool isRhythm() const;
 	inline unsigned getFreq(unsigned channel) const;
-	Patch& getPatch(unsigned instrument, bool carrier);
 
 	template <unsigned FLAGS>
 	inline void calcChannel(Channel& ch, float* buf, unsigned num);
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
-
 private:
-	// YM2413Core
-	void reset() override;
-	void writeReg(byte reg, byte data) override;
-	byte peekReg(byte reg) const override;
-	void generateChannels(float* bufs[9 + 5], unsigned num) override;
-	float getAmplificationFactor() const override;
-
 	/** Channel & Slot */
 	Channel channels[9];
 
@@ -181,14 +186,15 @@ private:
 	Patch patches[19][2];
 
 	/** Registers */
-	byte reg[0x40];
+	uint8_t reg[0x40];
+	uint8_t registerLatch;
 };
 
 } // namespace YM2413Okazaki
 
 SERIALIZE_CLASS_VERSION(YM2413Okazaki::Slot, 4);
 SERIALIZE_CLASS_VERSION(YM2413Okazaki::Channel, 2);
-SERIALIZE_CLASS_VERSION(YM2413Okazaki::YM2413, 3);
+SERIALIZE_CLASS_VERSION(YM2413Okazaki::YM2413, 4);
 
 } // namespace openmsx
 

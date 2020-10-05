@@ -3,8 +3,7 @@
 
 #include "V9990Rasterizer.hh"
 #include "V9990BitmapConverter.hh"
-#include "V9990P1Converter.hh"
-#include "V9990P2Converter.hh"
+#include "V9990PxConverter.hh"
 #include "Observer.hh"
 #include <memory>
 
@@ -15,7 +14,6 @@ class V9990;
 class V9990VRAM;
 class RawFrame;
 class OutputSurface;
-class VisibleSurface;
 class RenderSettings;
 class Setting;
 class PostProcessor;
@@ -28,7 +26,7 @@ class V9990SDLRasterizer final : public V9990Rasterizer
 {
 public:
 	V9990SDLRasterizer(
-		V9990& vdp, Display& display, VisibleSurface& screen,
+		V9990& vdp, Display& display, OutputSurface& screen,
 		std::unique_ptr<PostProcessor> postProcessor);
 	~V9990SDLRasterizer() override;
 
@@ -51,11 +49,11 @@ public:
 private:
 	/** screen width for SDLLo
 	  */
-	static const int SCREEN_WIDTH  = 320;
+	static constexpr int SCREEN_WIDTH  = 320;
 
 	/** screenheight for SDLLo
 	  */
-	static const int SCREEN_HEIGHT = 240;
+	static constexpr int SCREEN_HEIGHT = 240;
 
 	/** The VDP of which the video output is being rendered.
 	  */

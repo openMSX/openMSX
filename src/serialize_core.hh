@@ -3,6 +3,7 @@
 
 #include "serialize_constr.hh"
 #include "serialize_meta.hh"
+#include "one_of.hh"
 #include <string>
 #include <type_traits>
 #include <cassert>
@@ -52,7 +53,7 @@ void serialize(Archive& ar, std::pair<T1, T2>& p, unsigned /*version*/)
 }
 template<typename T1, typename T2> struct SerializeClassVersion<std::pair<T1, T2>>
 {
-	static const unsigned value = 0;
+	static constexpr unsigned value = 0;
 };
 
 ///////////
@@ -75,7 +76,7 @@ template<typename T1, typename T2> struct SerializeClassVersion<std::pair<T1, T2
  *      convert from string back to enum value
  *
  * If the enum has all consecutive values, starting from zero (as is the case
- * if you don't explicity mention the numeric values in the enum definition),
+ * if you don't explicitly mention the numeric values in the enum definition),
  * you can use the SERIALIZE_ENUM macro as a convenient way to define a
  * specialization of serialize_as_enum:
 
@@ -234,14 +235,14 @@ template<typename T> struct serialize_as_pointer<std::shared_ptr<T>>
 template<typename T> struct serialize_as_collection : std::false_type {};
 template<typename T, int N> struct serialize_as_collection<T[N]> : std::true_type
 {
-	static const int size = N; // fixed size
+	static constexpr int size = N; // fixed size
 	using value_type = T;
 	// save
 	using const_iterator = const T*;
 	static const T* begin(const T (&array)[N]) { return &array[0]; }
 	static const T* end  (const T (&array)[N]) { return &array[N]; }
 	// load
-	static const bool loadInPlace = true;
+	static constexpr bool loadInPlace = true;
 	static void prepare(T (&/*array*/)[N], int /*n*/) { }
 	static T* output(T (&array)[N]) { return &array[0]; }
 };
@@ -374,7 +375,7 @@ template<typename TP> struct PointerSaver
 		if (unsigned id = ar.getId(tp)) {
 			ar.attribute("id_ref", id);
 		} else {
-			if (std::is_polymorphic<T>::value) {
+			if constexpr (std::is_polymorphic_v<T>) {
 				PolymorphicSaverRegistry<Archive>::save(ar, tp);
 			} else {
 				ClassSaver<T> saver;
@@ -442,7 +443,7 @@ template<typename T> struct Saver
 
 // Implementation of the different load-strategies.
 //
-// This matches very closly with the save-strategies above.
+// This matches very closely with the save-strategies above.
 //
 // All these strategies have a method:
 //   template<typename Archive, typename TUPLE>
@@ -461,7 +462,7 @@ template<typename T> struct PrimitiveLoader
 	template<typename Archive, typename TUPLE>
 	void operator()(Archive& ar, T& t, TUPLE /*args*/, int /*id*/)
 	{
-		static_assert(std::tuple_size<TUPLE>::value == 0,
+		static_assert(std::tuple_size_v<TUPLE> == 0,
 		              "can't have constructor arguments");
 		ar.load(t);
 	}
@@ -471,7 +472,7 @@ template<typename T> struct EnumLoader
 	template<typename Archive, typename TUPLE>
 	void operator()(Archive& ar, T& t, TUPLE /*args*/, int /*id*/)
 	{
-		static_assert(std::tuple_size<TUPLE>::value == 0,
+		static_assert(std::tuple_size_v<TUPLE> == 0,
 		              "can't have constructor arguments");
 		if (ar.translateEnumToString()) {
 			std::string str;
@@ -505,7 +506,7 @@ template<typename T> struct ClassLoader
 	void operator()(Archive& ar, T& t, TUPLE /*args*/, int id = 0,
 	                int version = -1)
 	{
-		static_assert(std::tuple_size<TUPLE>::value == 0,
+		static_assert(std::tuple_size_v<TUPLE> == 0,
 		              "can't have constructor arguments");
 
 		// id == -1: don't load id, don't addPointer
@@ -549,7 +550,7 @@ template<typename T> struct NonPolymorphicPointerLoader
 		Creator<T> creator;
 		auto tp = creator(args);
 		ClassLoader<T> loader;
-		loader(ar, *tp, std::make_tuple(), id, version);
+		loader(ar, *tp, std::tuple<>(), id, version);
 		return tp.release();
 	}
 };
@@ -559,7 +560,7 @@ template<typename T> struct PolymorphicPointerLoader
 	T* operator()(Archive& ar, unsigned id, TUPLE args)
 	{
 		using ArgsType = typename PolymorphicConstructorArgs<T>::type;
-		static_assert(std::is_same<TUPLE, ArgsType>::value,
+		static_assert(std::is_same_v<TUPLE, ArgsType>,
 		              "constructor arguments types must match");
 		return static_cast<T*>(
 			PolymorphicLoaderRegistry<Archive>::load(ar, id, &args));
@@ -569,7 +570,7 @@ template<typename T> struct PointerLoader2
 	// extra indirection needed because inlining the body of
 	// NonPolymorphicPointerLoader in PointerLoader does not compile
 	// for abstract types
-	: std::conditional_t<std::is_polymorphic<T>::value,
+	: std::conditional_t<std::is_polymorphic_v<T>,
 	                     PolymorphicPointerLoader<T>,
 	                     NonPolymorphicPointerLoader<T>> {};
 
@@ -660,7 +661,7 @@ template<typename TC> struct CollectionLoader
 	template<typename Archive, typename TUPLE>
 	void operator()(Archive& ar, TC& tc, TUPLE args, int id = 0)
 	{
-		assert((id == 0) || (id == -1));
+		assert(id == one_of(0, -1));
 		using sac = serialize_as_collection<TC>;
 		static_assert(sac::value, "must be serialized as a collection");
 		int n = sac::size;

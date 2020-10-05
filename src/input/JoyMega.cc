@@ -18,14 +18,14 @@ using std::shared_ptr;
 namespace openmsx {
 
 #if PLATFORM_ANDROID
-static const int THRESHOLD = 32768 / 4;
+constexpr int THRESHOLD = 32768 / 4;
 #else
-static const int THRESHOLD = 32768 / 10;
+constexpr int THRESHOLD = 32768 / 10;
 #endif
 
 void JoyMega::registerAll(MSXEventDistributor& eventDistributor,
-                           StateChangeDistributor& stateChangeDistributor,
-                           PluggingController& controller)
+                          StateChangeDistributor& stateChangeDistributor,
+                          PluggingController& controller)
 {
 #ifdef SDL_JOYSTICK_DISABLED
 	(void)eventDistributor;
@@ -96,7 +96,7 @@ JoyMega::JoyMega(MSXEventDistributor& eventDistributor_,
 	, joyNum(SDL_JoystickInstanceID(joystick_))
 	, name("joymegaX") // 'X' is filled in below
 	, desc(string(SDL_JoystickName(joystick_)))
-	, lastTime(EmuTime::zero)
+	, lastTime(EmuTime::zero())
 {
 	const_cast<string&>(name)[7] = char('1' + joyNum);
 }
@@ -115,7 +115,7 @@ const string& JoyMega::getName() const
 	return name;
 }
 
-string_view JoyMega::getDescription() const
+std::string_view JoyMega::getDescription() const
 {
 	return desc;
 }

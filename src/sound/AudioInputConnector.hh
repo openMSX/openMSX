@@ -17,8 +17,8 @@ public:
 	AudioInputDevice& getPluggedAudioDev() const;
 
 	// Connector
-	string_view getDescription() const final override;
-	string_view getClass() const final override;
+	std::string_view getDescription() const final override;
+	std::string_view getClass() const final override;
 
 	int16_t readSample(EmuTime::param time) const;
 

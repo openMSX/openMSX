@@ -83,35 +83,6 @@ TEST_CASE("Math::ceil2")
 	//   result can't be represented in 32bit
 }
 
-TEST_CASE("Math::clip")
-{
-	CHECK((Math::clip<10, 20>(-6)) == 10);
-	CHECK((Math::clip<10, 20>( 0)) == 10);
-	CHECK((Math::clip<10, 20>( 9)) == 10);
-	CHECK((Math::clip<10, 20>(10)) == 10);
-	CHECK((Math::clip<10, 20>(11)) == 11);
-	CHECK((Math::clip<10, 20>(14)) == 14);
-	CHECK((Math::clip<10, 20>(19)) == 19);
-	CHECK((Math::clip<10, 20>(20)) == 20);
-	CHECK((Math::clip<10, 20>(21)) == 20);
-	CHECK((Math::clip<10, 20>(99)) == 20);
-
-	CHECK((Math::clip<10, 10>( 9)) == 10);
-	CHECK((Math::clip<10, 10>(10)) == 10);
-	CHECK((Math::clip<10, 10>(11)) == 10);
-
-	CHECK((Math::clip<-10, 10>(-20)) == -10);
-	CHECK((Math::clip<-10, 10>( -3)) ==  -3);
-	CHECK((Math::clip<-10, 10>( 20)) ==  10);
-
-	CHECK((Math::clip<-100, -10>(-200)) == -100);
-	CHECK((Math::clip<-100, -10>( -53)) ==  -53);
-	CHECK((Math::clip<-100, -10>( 200)) ==  -10);
-
-	// ok, compiler error (invalid range)
-	//CHECK((Math::clip<6, 3>(1)) == 1);
-}
-
 TEST_CASE("Math::clipIntToShort")
 {
 	CHECK(Math::clipIntToShort(-100000) == -32768);
@@ -146,34 +117,6 @@ TEST_CASE("Math::clipIntToByte")
 	CHECK(Math::clipIntToByte( 256) == 255);
 	CHECK(Math::clipIntToByte( 257) == 255);
 	CHECK(Math::clipIntToByte( 327) == 255);
-}
-
-static unsigned classic_gcd(unsigned a, unsigned b)
-{
-	while (unsigned t = b % a) { b = a; a = t; }
-	return a;
-}
-static void testGcd(unsigned a, unsigned b)
-{
-	unsigned expected = classic_gcd(a, b);
-	CHECK(Math::gcd(a, b) == expected);
-	CHECK(Math::gcd(b, a) == expected);
-}
-TEST_CASE("Math::gcd")
-{
-	testGcd(1, 1);
-	testGcd(1, 2);
-	testGcd(1, 1234500);
-	testGcd(14, 1);
-	testGcd(14, 2);
-	testGcd(14, 7);
-	testGcd(14, 21);
-	testGcd(14, 291);
-	testGcd(14, 6398);
-	testGcd(1464, 6398);
-	testGcd(1464, 6398);
-	CHECK(Math::gcd(320, 1280) == 320);
-	CHECK(Math::gcd(123 * 121972, 123 * 9710797) == 123);
 }
 
 static void testReverseNBits(unsigned x, unsigned n, unsigned expected)

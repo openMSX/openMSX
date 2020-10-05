@@ -4,10 +4,13 @@
 #include "File.hh"
 #include "FileException.hh"
 #include "MemBuffer.hh"
+#include "one_of.hh"
 #include "rapidsax.hh"
 
-namespace openmsx {
-namespace XMLLoader {
+using std::string;
+using std::string_view;
+
+namespace openmsx::XMLLoader {
 
 class XMLElementParser : public rapidsax::NullHandler
 {
@@ -43,7 +46,7 @@ XMLElement load(string_view filename, string_view systemID)
 
 	XMLElementParser handler;
 	try {
-		rapidsax::parse<rapidsax::trimWhitespace>(handler, buf.data());
+		rapidsax::parse<0>(handler, buf.data());
 	} catch (rapidsax::ParseError& e) {
 		throw XMLException(filename, ": Document parsing failed: ", e.what());
 	}
@@ -68,9 +71,9 @@ void XMLElementParser::start(string_view name)
 {
 	XMLElement* newElem;
 	if (!current.empty()) {
-		newElem = &current.back()->addChild(name.str());
+		newElem = &current.back()->addChild(string(name));
 	} else {
-		root.setName(name.str());
+		root.setName(string(name));
 		newElem = &root;
 	}
 	current.push_back(newElem);
@@ -83,7 +86,7 @@ void XMLElementParser::attribute(string_view name, string_view value)
 			"Found duplicate attribute \"", name, "\" in <",
 			current.back()->getName(), ">.");
 	}
-	current.back()->addAttribute(name.str(), value.str());
+	current.back()->addAttribute(string(name), string(value));
 }
 
 void XMLElementParser::text(string_view txt)
@@ -94,7 +97,7 @@ void XMLElementParser::text(string_view txt)
 			"Mixed text+subtags in <", current.back()->getName(),
 			">: \"", txt, "\".");
 	}
-	current.back()->setData(txt.str());
+	current.back()->setData(string(txt));
 }
 
 void XMLElementParser::stop()
@@ -108,7 +111,7 @@ void XMLElementParser::doctype(string_view txt)
 	if (pos1 == string_view::npos) return;
 	if ((pos1 + 8) >= txt.size()) return;
 	char q = txt[pos1 + 8];
-	if ((q != '"') && (q != '\'')) return;
+	if (q != one_of('"', '\'')) return;
 	auto t = txt.substr(pos1 + 9);
 	auto pos2 = t.find(q);
 	if (pos2 == string_view::npos) return;
@@ -116,5 +119,4 @@ void XMLElementParser::doctype(string_view txt)
 	systemID = t.substr(0, pos2);
 }
 
-} // namespace XMLLoader
-} // namespace openmsx
+} // namespace openmsx::XMLLoader

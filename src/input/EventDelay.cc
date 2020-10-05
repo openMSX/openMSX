@@ -6,6 +6,7 @@
 #include "Timer.hh"
 #include "MSXException.hh"
 #include "checked_cast.hh"
+#include "one_of.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include <cassert>
@@ -20,7 +21,7 @@ EventDelay::EventDelay(Scheduler& scheduler_,
 	: Schedulable(scheduler_)
 	, eventDistributor(eventDistributor_)
 	, msxEventDistributor(msxEventDistributor_)
-	, prevEmu(EmuTime::zero)
+	, prevEmu(EmuTime::zero())
 	, prevReal(Timer::getTime())
 	, delaySetting(
 		commandController, "inputdelay",
@@ -119,8 +120,7 @@ void EventDelay::sync(EmuTime::param curEmu)
 	EmuTime time = curEmu + extraDelay;
 	for (auto& e : toBeScheduledEvents) {
 #if PLATFORM_ANDROID
-		if (e->getType() == OPENMSX_KEY_DOWN_EVENT ||
-		    e->getType() == OPENMSX_KEY_UP_EVENT) {
+		if (e->getType() == one_of(OPENMSX_KEY_DOWN_EVENT, OPENMSX_KEY_UP_EVENT)) {
 			auto keyEvent = checked_cast<const KeyEvent*>(e.get());
 			int maskedKeyCode = int(keyEvent->getKeyCode()) & int(Keys::K_MASK);
 			auto it = ranges::find_if(nonMatchedKeyPresses,

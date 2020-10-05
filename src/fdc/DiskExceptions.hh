@@ -7,22 +7,22 @@ namespace openmsx {
 
 class NoSuchSectorException final : public MSXException {
 public:
-    using MSXException::MSXException;
+	using MSXException::MSXException;
 };
 
 class DiskIOErrorException final : public MSXException {
 public:
-    using MSXException::MSXException;
+	using MSXException::MSXException;
 };
 
 class DriveEmptyException final : public MSXException {
 public:
-    using MSXException::MSXException;
+	using MSXException::MSXException;
 };
 
 class WriteProtectedException final : public MSXException {
 public:
-    using MSXException::MSXException;
+	using MSXException::MSXException;
 };
 
 } // namespace openmsx

@@ -2,6 +2,7 @@
 #define V9990BITMAPCONVERTER_HH
 
 #include "V9990ModeEnum.hh"
+#include "one_of.hh"
 #include <cstdint>
 
 namespace openmsx {
@@ -35,8 +36,7 @@ public:
 
 private:
 	static bool isHighRes(V9990DisplayMode display) {
-		return (display == B4) || (display == B5) ||
-		       (display == B6) || (display == B7);
+		return display == one_of(B4, B5, B6, B7);
 	}
 
 private:

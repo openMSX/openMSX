@@ -160,41 +160,10 @@ $(BUILD_DIR)/$(PACKAGE_PKG_CONFIG)/Makefile: \
 		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		CC= LD= AR= RANLIB= STRIP=
 
-# Configure ALSA.
-$(BUILD_DIR)/$(PACKAGE_ALSA)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_ALSA)/.extracted
-	mkdir -p $(@D)
-	cd $(@D) && $(PWD)/$(<D)/configure \
-		--enable-static \
-		--disable-shared \
-		--enable-symbolic-functions \
-		--disable-debug \
-		--disable-aload \
-		--disable-mixer \
-		--enable-pcm \
-		--disable-rawmidi \
-		--disable-hwdep \
-		--enable-seq \
-		--disable-ucm \
-		--disable-topology \
-		--disable-alisp \
-		--disable-old-symbols \
-		--disable-python \
-		--with-debug=no \
-		--with-libdl=no \
-		--with-pthread=yes \
-		--with-librt=yes \
-		--host=$(TARGET_TRIPLE) \
-		--prefix=$(PWD)/$(INSTALL_DIR) \
-		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
-		CFLAGS="$(_CFLAGS)" \
-		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
-		LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib"
-
 # Configure SDL2.
 $(BUILD_DIR)/$(PACKAGE_SDL2)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_SDL2)/.extracted \
-  $(call installdeps,PKG_CONFIG $(filter ALSA,$(PACKAGES_3RD)))
+  $(call installdeps,PKG_CONFIG)
 	mkdir -p $(@D)
 	cd $(@D) && \
 		$(PWD)/$(<D)/configure \
@@ -205,6 +174,7 @@ $(BUILD_DIR)/$(PACKAGE_SDL2)/Makefile: \
 		--disable-esd \
 		--disable-arts \
 		--disable-shared \
+		$(if $(filter %clang,$(CC)),--disable-arm-simd,) \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--libdir=$(PWD)/$(INSTALL_DIR)/lib \

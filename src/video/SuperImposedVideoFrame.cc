@@ -11,7 +11,7 @@ template <typename Pixel>
 SuperImposedVideoFrame<Pixel>::SuperImposedVideoFrame(
 		const FrameSource& src_, const FrameSource& super_,
 		const PixelOperations<Pixel>& pixelOps_)
-	: FrameSource(pixelOps_.getSDLPixelFormat())
+	: FrameSource(pixelOps_.getPixelFormat())
 	, src(src_), super(super_), pixelOps(pixelOps_)
 {
 	setHeight(src.getHeight());

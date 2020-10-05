@@ -8,8 +8,10 @@
 #include "MemoryOps.hh"
 #include "MemBuffer.hh"
 #include "MSXException.hh"
+#include "aligned.hh"
 #include "likely.hh"
 #include "ranges.hh"
+#include "one_of.hh"
 #include "vla.hh"
 #include "xrange.hh"
 #include <cassert>
@@ -19,7 +21,7 @@ using std::string;
 
 namespace openmsx {
 
-static MemBuffer<float, SSE2_ALIGNMENT> mixBuffer;
+static MemBuffer<float, SSE_ALIGNMENT> mixBuffer;
 static unsigned mixBufferSize = 0;
 
 static void allocateMixBuffer(unsigned size)
@@ -30,9 +32,9 @@ static void allocateMixBuffer(unsigned size)
 	}
 }
 
-static string makeUnique(MSXMixer& mixer, string_view name)
+static string makeUnique(MSXMixer& mixer, std::string_view name)
 {
-	string result = name.str();
+	string result(name);
 	if (mixer.findDevice(result)) {
 		unsigned n = 0;
 		do {
@@ -55,18 +57,18 @@ void SoundDevice::addFill(float*& buf, float val, unsigned num)
 	} while (--num);
 }
 
-SoundDevice::SoundDevice(MSXMixer& mixer_, string_view name_, string_view description_,
+SoundDevice::SoundDevice(MSXMixer& mixer_, std::string_view name_, std::string_view description_,
 			 unsigned numChannels_, unsigned inputRate, bool stereo_)
 	: mixer(mixer_)
 	, name(makeUnique(mixer, name_))
-	, description(description_.str())
+	, description(description_)
 	, numChannels(numChannels_)
 	, stereo(stereo_ ? 2 : 1)
 	, numRecordChannels(0)
 	, balanceCenter(true)
 {
 	assert(numChannels <= MAX_CHANNELS);
-	assert(stereo == 1 || stereo == 2);
+	assert(stereo == one_of(1u, 2u));
 
 	setInputRate(inputRate);
 
@@ -92,7 +94,7 @@ void SoundDevice::registerSound(const DeviceConfig& config)
 	const XMLElement& soundConfig = config.getChild("sound");
 	float volume = soundConfig.getChildDataAsInt("volume") / 32767.0f;
 	int devBalance = 0;
-	string_view mode = soundConfig.getChildData("mode", "mono");
+	std::string_view mode = soundConfig.getChildData("mode", "mono");
 	if (mode == "mono") {
 		devBalance = 0;
 	} else if (mode == "left") {
@@ -112,7 +114,7 @@ void SoundDevice::registerSound(const DeviceConfig& config)
 		}
 
 		// TODO Support other balances
-		if (balance != 0 && balance != -100 && balance != 100) {
+		if (balance != one_of(0, -100, 100)) {
 			throw MSXException("balance ", balance, " illegal");
 		}
 		if (balance != 0) {
@@ -193,7 +195,7 @@ bool SoundDevice::mixChannels(float* dataOut, unsigned samples)
 	if (samples == 0) return true;
 	unsigned outputStereo = isStereo() ? 2 : 1;
 
-	static_assert(sizeof(float) == sizeof(uint32_t), "");
+	static_assert(sizeof(float) == sizeof(uint32_t));
 	MemoryOps::MemSet<uint32_t> mset;
 	if (numChannels != 1) {
 		// The generateChannels() method of SoundDevices with more than

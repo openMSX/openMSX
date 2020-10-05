@@ -31,10 +31,12 @@ variable current_fade_delay_active
 variable current_fade_delay_non_active
 variable fade_id
 
+# temporary hack: for now map the new 'fastforward' setting onto the old 'throttle' setting
 proc trace_icon_status {name1 name2 op} {
 	variable last_change
 	global $name1
 	set icon [string trimleft $name1 ":"]
+	if {$icon eq "fastforward"} {set icon "throttle"}
 	set now [openmsx_info realtime]
 	set last_change($icon) $now
 	redraw_osd_icons $icon $now
@@ -48,7 +50,15 @@ proc redraw_osd_icons {icon now} {
 	global $icon
 
 	# handle 'unset' variables  (when current msx machine got deleted)
-	if {[catch {set value [set $icon]}]} {set value false}
+	if {[catch {
+		if {$icon eq "throttle"} {
+			set value [expr {$::throttle && !$::fastforward}]
+		} else {
+			set value [set $icon]
+		}
+	}]} {
+		set value false
+	}
 
 	if {$value} {
 		set widget  osd_icons.${icon}_on
@@ -88,13 +98,22 @@ proc load_icons {{set_name "-show"} {position_param "default"}} {
 	variable current_fade_delay_active
 	variable current_fade_delay_non_active
 
+	set possible_positions [list "top" "bottom" "left" "right" "default"]
+
 	if {$set_name eq "-show"} {
 		# Show list of available skins
-		set user_skins   \
-		    [glob -tails -types d -directory $::env(OPENMSX_USER_DATA)/skins   *]
-		set system_skins \
-		    [glob -tails -types d -directory $::env(OPENMSX_SYSTEM_DATA)/skins *]
-		return [lsort -unique [concat $user_skins $system_skins]]
+		set user_skins [list]
+		catch {
+			set user_skins   \
+			    [glob -tails -types d -directory $::env(OPENMSX_USER_DATA)/skins   *]
+		}
+
+		set system_skins [list]
+		catch {
+			set system_skins \
+			    [glob -tails -types d -directory $::env(OPENMSX_SYSTEM_DATA)/skins *]
+		}
+		return "Current icon set is $::osd_leds_set at position $::osd_leds_pos.\nAvailable sets: [lsort -unique [concat $user_skins $system_skins]]\nPossible positions: $possible_positions"
 	}
 
 	# Check skin directory
@@ -108,7 +127,7 @@ proc load_icons {{set_name "-show"} {position_param "default"}} {
 	}
 
 	# Check position
-	if {$position_param ni [list "top" "bottom" "left" "right" "default"]} {
+	if {$position_param ni $possible_positions} {
 		error "Invalid position: $position_param"
 	}
 
@@ -283,6 +302,8 @@ proc machine_switch_osd_icons {} {
 		trace add    variable ::$icon "write unset" [namespace code trace_icon_status]
 		redraw_osd_icons $icon $now
 	}
+	trace remove variable ::fastforward "write unset" [namespace code trace_icon_status]
+	trace add    variable ::fastforward "write unset" [namespace code trace_icon_status]
 	after machine_switch [namespace code machine_switch_osd_icons]
 }
 
@@ -300,6 +321,7 @@ foreach icon $icon_list {
 	trace add variable ::$icon "write unset" load_icons::trace_icon_status
 	set last_change($icon) $now
 }
+trace add variable ::fastforward "write unset" load_icons::trace_icon_status
 
 namespace export load_icons
 

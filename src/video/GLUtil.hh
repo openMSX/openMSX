@@ -19,10 +19,15 @@
 #include <string>
 #include <cassert>
 
+// arbitrary but distinct values, (roughly) ordered according to version number
+#define OPENGL_ES_2_0 1
+#define OPENGL_2_1    2
+#define OPENGL_3_3    3
+#define OPENGL_VERSION OPENGL_2_1
+
 namespace gl {
 
-// TODO this needs glu, but atm we don't link against glu (in windows)
-//void checkGLError(const std::string& prefix);
+void checkGLError(std::string_view prefix);
 
 
 // Dummy object, to be able to construct empty handler objects.
@@ -132,19 +137,17 @@ public:
 
 private:
 	GLuint bufferId = 0; // 0 is not a valid openGL name
-};
-
-struct PixelBuffers
-{
-	/** Global switch to disable pixel buffers using the "-nopbo" option.
-	  */
-	static bool enabled;
+	GLint previousId = 0;
 };
 
 /** Wrapper around a pixel buffer.
   * The pixel buffer will be allocated in VRAM if possible, in main RAM
   * otherwise.
   * The pixel type is templatized T.
+  *
+  * Note: openGL ES 2.0 does not yet support this. So for now we always use the
+  * fallback implementation, maybe we can re-enable this when we switch to
+  * openGL ES 3.0.
   */
 template <typename T> class PixelBuffer
 {
@@ -153,13 +156,6 @@ public:
 	PixelBuffer(PixelBuffer&& other) noexcept;
 	PixelBuffer& operator=(PixelBuffer&& other) noexcept;
 	~PixelBuffer();
-
-	/** Are PBOs supported by this openGL implementation?
-	  * This class implements a SW fallback in case PBOs are not directly
-	  * supported by this openGL implementation, but it will probably
-	  * be a lot slower.
-	  */
-	bool openGLSupported() const;
 
 	/** Sets the image for this buffer.
 	  * TODO: Actually, only image size for now;
@@ -208,7 +204,7 @@ private:
 
 	/** Handle of the GL buffer, or 0 if no GL buffer is available.
 	  */
-	GLuint bufferId;
+	//GLuint bufferId;
 
 	/** Number of pixels per line.
 	  */
@@ -224,29 +220,24 @@ private:
 template <typename T>
 PixelBuffer<T>::PixelBuffer()
 {
-	if (PixelBuffers::enabled && GLEW_ARB_pixel_buffer_object) {
-		glGenBuffers(1, &bufferId);
-	} else {
-		//std::cerr << "OpenGL pixel buffers are not available\n";
-		bufferId = 0;
-	}
+	//glGenBuffers(1, &bufferId);
 }
 
 template <typename T>
 PixelBuffer<T>::PixelBuffer(PixelBuffer<T>&& other) noexcept
 	: allocated(std::move(other.allocated))
-	, bufferId(other.bufferId)
+	//, bufferId(other.bufferId)
 	, width(other.width)
 	, height(other.height)
 {
-	other.bufferId = 0;
+	//other.bufferId = 0;
 }
 
 template <typename T>
 PixelBuffer<T>& PixelBuffer<T>::operator=(PixelBuffer<T>&& other) noexcept
 {
 	std::swap(allocated, other.allocated);
-	std::swap(bufferId,  other.bufferId);
+	//std::swap(bufferId,  other.bufferId);
 	std::swap(width,     other.width);
 	std::swap(height,    other.height);
 	return *this;
@@ -255,13 +246,7 @@ PixelBuffer<T>& PixelBuffer<T>::operator=(PixelBuffer<T>&& other) noexcept
 template <typename T>
 PixelBuffer<T>::~PixelBuffer()
 {
-	glDeleteBuffers(1, &bufferId); // ok to delete '0'
-}
-
-template <typename T>
-bool PixelBuffer<T>::openGLSupported() const
-{
-	return bufferId != 0;
+	//glDeleteBuffers(1, &bufferId); // ok to delete '0'
 }
 
 template <typename T>
@@ -269,33 +254,33 @@ void PixelBuffer<T>::setImage(GLuint width_, GLuint height_)
 {
 	width = width_;
 	height = height_;
-	if (bufferId != 0) {
-		bind();
-		// TODO make performance hint configurable?
-		glBufferData(GL_PIXEL_UNPACK_BUFFER_ARB,
-		             width * height * 4,
-		             nullptr, // leave data undefined
-		             GL_STREAM_DRAW); // performance hint
-		unbind();
-	} else {
+	//if (bufferId != 0) {
+	//	bind();
+	//	// TODO make performance hint configurable?
+	//	glBufferData(GL_PIXEL_UNPACK_BUFFER,
+	//	             width * height * 4,
+	//	             nullptr, // leave data undefined
+	//	             GL_STREAM_DRAW); // performance hint
+	//	unbind();
+	//} else {
 		allocated.resize(width * height);
-	}
+	//}
 }
 
 template <typename T>
 void PixelBuffer<T>::bind() const
 {
-	if (bufferId != 0) {
-		glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, bufferId);
-	}
+	//if (bufferId != 0) {
+	//	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, bufferId);
+	//}
 }
 
 template <typename T>
 void PixelBuffer<T>::unbind() const
 {
-	if (bufferId != 0) {
-		glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
-	}
+	//if (bufferId != 0) {
+	//	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+	//}
 }
 
 template <typename T>
@@ -304,30 +289,30 @@ T* PixelBuffer<T>::getOffset(GLuint x, GLuint y)
 	assert(x < width);
 	assert(y < height);
 	auto offset = x + size_t(width) * y;
-	if (bufferId != 0) {
-		return reinterpret_cast<T*>(offset * sizeof(T));
-	} else {
+	//if (bufferId != 0) {
+	//	return reinterpret_cast<T*>(offset * sizeof(T));
+	//} else {
 		return &allocated[offset];
-	}
+	//}
 }
 
 template <typename T>
 T* PixelBuffer<T>::mapWrite()
 {
-	if (bufferId != 0) {
-		return reinterpret_cast<T*>(glMapBuffer(
-			GL_PIXEL_UNPACK_BUFFER_ARB, GL_WRITE_ONLY));
-	} else {
+	//if (bufferId != 0) {
+	//	return reinterpret_cast<T*>(glMapBuffer(
+	//		GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY));
+	//} else {
 		return allocated.data();
-	}
+	//}
 }
 
 template <typename T>
 void PixelBuffer<T>::unmap() const
 {
-	if (bufferId != 0) {
-		glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER_ARB);
-	}
+	//if (bufferId != 0) {
+	//	glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+	//}
 }
 
 
@@ -446,7 +431,7 @@ public:
 	  */
 	void activate() const;
 
-	void validate();
+	void validate() const;
 
 private:
 	GLuint handle;

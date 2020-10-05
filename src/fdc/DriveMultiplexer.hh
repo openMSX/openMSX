@@ -49,6 +49,10 @@ public:
 	void applyWd2793ReadTrackQuirk() override;
 	void invalidateWd2793ReadTrackQuirk() override;
 
+	bool isDiskInserted(DriveNum num) const;
+	bool diskChanged(DriveNum num);
+	bool peekDiskChanged(DriveNum num) const;
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 

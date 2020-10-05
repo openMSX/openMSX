@@ -1,6 +1,7 @@
 #include "RomMSXDOS2.hh"
 #include "CacheLine.hh"
 #include "MSXException.hh"
+#include "one_of.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 
@@ -10,7 +11,7 @@ RomMSXDOS2::RomMSXDOS2(const DeviceConfig& config, Rom&& rom_)
 	: Rom16kBBlocks(config, std::move(rom_))
 	, range(rom[0x94])
 {
-	if ((range != 0x00) && (range != 0x60) && (range != 0x7f)) {
+	if (range != one_of(0x00, 0x60, 0x7f)) {
 		throw MSXException(
 			"Invalid rom with for MSXDOS2 mapper: unsupported range 0x",
 			hex_string<2>(range));

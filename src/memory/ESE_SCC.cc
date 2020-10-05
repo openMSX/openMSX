@@ -48,6 +48,7 @@
 #include "ESE_SCC.hh"
 #include "MB89352.hh"
 #include "MSXException.hh"
+#include "one_of.hh"
 #include "serialize.hh"
 #include <memory>
 
@@ -56,7 +57,7 @@ namespace openmsx {
 unsigned ESE_SCC::getSramSize(bool withSCSI) const
 {
 	unsigned sramSize = getDeviceConfig().getChildDataAsInt("sramsize", 256); // size in kb
-	if (sramSize != 1024 && sramSize != 512 && sramSize != 256 && sramSize != 128) {
+	if (sramSize != one_of(1024u, 512u, 256u, 128u)) {
 		throw MSXException(
 			"SRAM size for ", getName(),
 			" should be 128, 256, 512 or 1024kB and not ",
@@ -120,7 +121,7 @@ void ESE_SCC::setMapperLow(unsigned page, byte value)
 		flush = true;
 	}
 	if (flush) {
-		invalidateMemCache(0x4000 + 0x2000 * page, 0x2000);
+		invalidateDeviceRWCache(0x4000 + 0x2000 * page, 0x2000);
 	}
 }
 
@@ -143,7 +144,7 @@ void ESE_SCC::setMapperHigh(byte value)
 		flush = true;
 	}
 	if (flush) {
-		invalidateMemCache(0x4000, 0x2000);
+		invalidateDeviceRWCache(0x4000, 0x2000);
 	}
 }
 

@@ -1,4 +1,3 @@
-from __future__ import print_function
 from harvest import generateWixFragment
 from packagewindows import (
 	PackageInfo, emptyOrCreateDirectory, generateInstallFiles
@@ -17,7 +16,7 @@ def _writeFragment(
 	print('Generating ' + wxsFile)
 	with open(wxsFile, 'w', encoding='utf-8') as out:
 		out.writelines(
-			u'%s\n' % line
+			line + '\n'
 			for line in generateWixFragment(
 				sourcePath, componentGroup, directoryRef, virtualDir,
 				excludedFile, win64
@@ -225,7 +224,7 @@ if __name__ == '__main__':
 		packageMSI(PackageInfo(*sys.argv[1 : ]))
 	else:
 		print(
-			'Usage: python packagemsi.py '
+			'Usage: python3 packagemsi.py '
 			'platform configuration catapultPath',
 			file=sys.stderr
 			)

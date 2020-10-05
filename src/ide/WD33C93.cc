@@ -26,66 +26,66 @@
 
 namespace openmsx {
 
-static const unsigned MAX_DEV = 8;
+constexpr unsigned MAX_DEV = 8;
 
-static const byte REG_OWN_ID      = 0x00;
-static const byte REG_CONTROL     = 0x01;
-static const byte REG_TIMEO       = 0x02;
-static const byte REG_TSECS       = 0x03;
-static const byte REG_THEADS      = 0x04;
-static const byte REG_TCYL_HI     = 0x05;
-static const byte REG_TCYL_LO     = 0x06;
-static const byte REG_ADDR_HI     = 0x07;
-static const byte REG_ADDR_2      = 0x08;
-static const byte REG_ADDR_3      = 0x09;
-static const byte REG_ADDR_LO     = 0x0a;
-static const byte REG_SECNO       = 0x0b;
-static const byte REG_HEADNO      = 0x0c;
-static const byte REG_CYLNO_HI    = 0x0d;
-static const byte REG_CYLNO_LO    = 0x0e;
-static const byte REG_TLUN        = 0x0f;
-static const byte REG_CMD_PHASE   = 0x10;
-static const byte REG_SYN         = 0x11;
-static const byte REG_TCH         = 0x12;
-static const byte REG_TCM         = 0x13;
-static const byte REG_TCL         = 0x14;
-static const byte REG_DST_ID      = 0x15;
-static const byte REG_SRC_ID      = 0x16;
-static const byte REG_SCSI_STATUS = 0x17; // (r)
-static const byte REG_CMD         = 0x18;
-static const byte REG_DATA        = 0x19;
-static const byte REG_QUEUE_TAG   = 0x1a;
-static const byte REG_AUX_STATUS  = 0x1f; // (r)
+constexpr byte REG_OWN_ID      = 0x00;
+constexpr byte REG_CONTROL     = 0x01;
+constexpr byte REG_TIMEO       = 0x02;
+constexpr byte REG_TSECS       = 0x03;
+constexpr byte REG_THEADS      = 0x04;
+constexpr byte REG_TCYL_HI     = 0x05;
+constexpr byte REG_TCYL_LO     = 0x06;
+constexpr byte REG_ADDR_HI     = 0x07;
+constexpr byte REG_ADDR_2      = 0x08;
+constexpr byte REG_ADDR_3      = 0x09;
+constexpr byte REG_ADDR_LO     = 0x0a;
+constexpr byte REG_SECNO       = 0x0b;
+constexpr byte REG_HEADNO      = 0x0c;
+constexpr byte REG_CYLNO_HI    = 0x0d;
+constexpr byte REG_CYLNO_LO    = 0x0e;
+constexpr byte REG_TLUN        = 0x0f;
+constexpr byte REG_CMD_PHASE   = 0x10;
+constexpr byte REG_SYN         = 0x11;
+constexpr byte REG_TCH         = 0x12;
+constexpr byte REG_TCM         = 0x13;
+constexpr byte REG_TCL         = 0x14;
+constexpr byte REG_DST_ID      = 0x15;
+constexpr byte REG_SRC_ID      = 0x16;
+constexpr byte REG_SCSI_STATUS = 0x17; // (r)
+constexpr byte REG_CMD         = 0x18;
+constexpr byte REG_DATA        = 0x19;
+constexpr byte REG_QUEUE_TAG   = 0x1a;
+constexpr byte REG_AUX_STATUS  = 0x1f; // (r)
 
-static const byte REG_CDBSIZE     = 0x00;
-static const byte REG_CDB1        = 0x03;
-static const byte REG_CDB2        = 0x04;
-static const byte REG_CDB3        = 0x05;
-static const byte REG_CDB4        = 0x06;
-static const byte REG_CDB5        = 0x07;
-static const byte REG_CDB6        = 0x08;
-static const byte REG_CDB7        = 0x09;
-static const byte REG_CDB8        = 0x0a;
-static const byte REG_CDB9        = 0x0b;
-static const byte REG_CDB10       = 0x0c;
-static const byte REG_CDB11       = 0x0d;
-static const byte REG_CDB12       = 0x0e;
+constexpr byte REG_CDBSIZE     = 0x00;
+constexpr byte REG_CDB1        = 0x03;
+constexpr byte REG_CDB2        = 0x04;
+constexpr byte REG_CDB3        = 0x05;
+constexpr byte REG_CDB4        = 0x06;
+constexpr byte REG_CDB5        = 0x07;
+constexpr byte REG_CDB6        = 0x08;
+constexpr byte REG_CDB7        = 0x09;
+constexpr byte REG_CDB8        = 0x0a;
+constexpr byte REG_CDB9        = 0x0b;
+constexpr byte REG_CDB10       = 0x0c;
+constexpr byte REG_CDB11       = 0x0d;
+constexpr byte REG_CDB12       = 0x0e;
 
-static const byte OWN_EAF         = 0x08; // ENABLE ADVANCED FEATURES
+constexpr byte OWN_EAF         = 0x08; // ENABLE ADVANCED FEATURES
 
 // SCSI STATUS
-static const byte SS_RESET        = 0x00; // reset
-static const byte SS_RESET_ADV    = 0x01; // reset w/adv. features
-static const byte SS_XFER_END     = 0x16; // select and transfer complete
-static const byte SS_SEL_TIMEOUT  = 0x42; // selection timeout
-static const byte SS_DISCONNECT   = 0x85;
+constexpr byte SS_RESET        = 0x00; // reset
+constexpr byte SS_RESET_ADV    = 0x01; // reset w/adv. features
+constexpr byte SS_XFER_END     = 0x16; // select and transfer complete
+constexpr byte SS_SEL_TIMEOUT  = 0x42; // selection timeout
+constexpr byte SS_DISCONNECT   = 0x85;
 
 // AUX STATUS
-static const byte AS_DBR          = 0x01; // data buffer ready
-static const byte AS_CIP          = 0x10; // command in progress, chip is busy
-static const byte AS_BSY          = 0x20; // Level 2 command in progress
-static const byte AS_LCI          = 0x40; // last command ignored
-static const byte AS_INT          = 0x80;
+constexpr byte AS_DBR          = 0x01; // data buffer ready
+constexpr byte AS_CIP          = 0x10; // command in progress, chip is busy
+constexpr byte AS_BSY          = 0x20; // Level 2 command in progress
+constexpr byte AS_LCI          = 0x40; // last command ignored
+constexpr byte AS_INT          = 0x80;
 
 /* command phase
 0x00    NO_SELECT
@@ -185,7 +185,7 @@ void WD33C93::execCmd(byte value)
 
 	case 0x06: // Select with ATN (Lv2)
 		atn = true;
-		// fall-through
+		[[fallthrough]];
 	case 0x07: // Select Without ATN (Lv2)
 		targetId = regs[REG_DST_ID] & 7;
 		regs[REG_SCSI_STATUS] = SS_SEL_TIMEOUT;
@@ -195,7 +195,7 @@ void WD33C93::execCmd(byte value)
 
 	case 0x08: // Select with ATN and transfer (Lv2)
 		atn = true;
-		// fall-through
+		[[fallthrough]];
 	case 0x09: // Select without ATN and Transfer (Lv2)
 		targetId = regs[REG_DST_ID] & 7;
 

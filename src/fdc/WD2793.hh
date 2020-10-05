@@ -132,7 +132,6 @@ private:
 	// requests to load the disk head, the drive responds with "ok, done".
 	// So 'LOAD' is zero, and phase 2) doesn't exist. Therefor the current
 	// implementation mostly ignores 'LOAD'.
-	static const EmuDuration IDLE;
 	EmuTime hldTime;
 
 	RawTrack::Sector sectorInfo;

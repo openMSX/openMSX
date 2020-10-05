@@ -13,7 +13,7 @@ namespace hash_set_impl {
 // Takes any (const or non-const) pair reference and returns a reference to
 // the first element of the pair.
 struct ExtractFirst {
-	template<typename Pair> auto& operator()(Pair&& p) const { return p.first; }
+	template<typename Pair> [[nodiscard]] auto& operator()(Pair&& p) const { return p.first; }
 };
 
 } // namespace hash_set_impl
@@ -27,7 +27,7 @@ struct ExtractFirst {
 template<typename Key,
          typename Value,
          typename Hasher = std::hash<Key>,
-         typename Equal = EqualTo>
+         typename Equal = std::equal_to<>>
 class hash_map : public hash_set<std::pair<Key, Value>, hash_set_impl::ExtractFirst, Hasher, Equal>
 {
 	using BaseType = hash_set<std::pair<Key, Value>, hash_set_impl::ExtractFirst, Hasher, Equal>;
@@ -51,7 +51,7 @@ public:
 	}
 
 	template<typename K>
-	Value& operator[](K&& key)
+	[[nodiscard]] Value& operator[](K&& key)
 	{
 		auto it = this->find(key);
 		if (it == this->end()) {
@@ -75,12 +75,12 @@ public:
 		} else {
 			// assign, return pair<iterator, false>
 			it->second = std::forward<V>(value);
-			return std::make_pair(it, false);
+			return std::pair(it, false);
 		}
 	}
 
 	template<typename K>
-	bool contains(const K& k) const
+	[[nodiscard]] bool contains(const K& k) const
 	{
 		return this->find(k) != this->end();
 	}
@@ -88,14 +88,14 @@ public:
 
 
 template<typename Key, typename Value, typename Hasher, typename Equal, typename Key2>
-const Value* lookup(const hash_map<Key, Value, Hasher, Equal>& map, const Key2& key)
+[[nodiscard]] const Value* lookup(const hash_map<Key, Value, Hasher, Equal>& map, const Key2& key)
 {
 	auto it = map.find(key);
 	return (it != map.end()) ? &it->second : nullptr;
 }
 
 template<typename Key, typename Value, typename Hasher, typename Equal, typename Key2>
-Value* lookup(hash_map<Key, Value, Hasher, Equal>& map, const Key2& key)
+[[nodiscard]] Value* lookup(hash_map<Key, Value, Hasher, Equal>& map, const Key2& key)
 {
 	auto it = map.find(key);
 	return (it != map.end()) ? &it->second : nullptr;

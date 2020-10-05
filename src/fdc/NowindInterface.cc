@@ -107,14 +107,14 @@ void NowindInterface::writeMem(word address, byte value, EmuTime::param time)
 		flash.write(bank * 0x4000 + address, value);
 	} else if (((0x4000 <= address) && (address < 0x6000)) ||
 	           ((0x8000 <= address) && (address < 0xA000))) {
-		static const Clock<1000> clock(EmuTime::zero);
+		constexpr Clock<1000> clock(EmuTime::zero());
 		host.write(value, clock.getTicksTill(time));
 	} else if (((0x6000 <= address) && (address < 0x8000)) ||
 	           ((0xA000 <= address) && (address < 0xC000))) {
 		byte max = rom.getSize() / (16 * 1024);
 		bank = (value < max) ? value : value & (max - 1);
-		invalidateMemCache(0x4000, 0x4000);
-		invalidateMemCache(0xA000, 0x2000);
+		invalidateDeviceRCache(0x4000, 0x4000);
+		invalidateDeviceRCache(0xA000, 0x2000);
 	}
 }
 

@@ -1,7 +1,6 @@
 #include "V9990BitmapConverter.hh"
 #include "V9990VRAM.hh"
 #include "V9990.hh"
-#include "Math.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
 #include "components.hh"
@@ -42,9 +41,9 @@ static inline void draw_YJK_YUV_PAL(
 			*out++ = color.lookup64(data[i] >> 4);
 		} else {
 			int y = (data[i] & 0xF8) >> 3;
-			int r = Math::clip<0, 31>(y + u);
-			int g = Math::clip<0, 31>((5 * y - 2 * u - v) / 4);
-			int b = Math::clip<0, 31>(y + v);
+			int r = std::clamp(y + u,                   0, 31);
+			int g = std::clamp((5 * y - 2 * u - v) / 4, 0, 31);
+			int b = std::clamp(y + v,                   0, 31);
 			// The only difference between YUV and YJK is that
 			// green and blue are swapped.
 			if (YJK) std::swap(g, b);
@@ -386,7 +385,7 @@ public:
 
 		unsigned attrY = vram.readVRAMBx(attrAddr + 0) +
 		                (vram.readVRAMBx(attrAddr + 2) & 1) * 256;
-		++attrY; // one line later
+		attrY += vdp.isInterlaced() ? 2 : 1; // 1 or 2 lines later
 		unsigned cursorLine = (displayY - attrY) & 511;
 		if (cursorLine >= 32) return;
 

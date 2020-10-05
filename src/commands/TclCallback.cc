@@ -12,12 +12,12 @@ namespace openmsx {
 
 TclCallback::TclCallback(
 		CommandController& controller,
-		string_view name,
-		string_view description,
+		std::string_view name,
+		std::string_view description,
 		bool useCliComm_,
 		bool save)
 	: callbackSetting2(std::make_unique<StringSetting>(
-		controller, name, description, string_view{},
+		controller, name, description, std::string_view{},
 		save ? Setting::SAVE : Setting::DONT_SAVE))
 	, callbackSetting(*callbackSetting2)
 	, useCliComm(useCliComm_)
@@ -64,7 +64,7 @@ TclObject TclCallback::execute(int arg1, int arg2)
 	return executeCommon(command);
 }
 
-TclObject TclCallback::execute(int arg1, string_view arg2)
+TclObject TclCallback::execute(int arg1, std::string_view arg2)
 {
 	const auto& callback = getValue();
 	if (callback.empty()) return TclObject();
@@ -73,7 +73,7 @@ TclObject TclCallback::execute(int arg1, string_view arg2)
 	return executeCommon(command);
 }
 
-TclObject TclCallback::execute(string_view arg1, string_view arg2)
+TclObject TclCallback::execute(std::string_view arg1, std::string_view arg2)
 {
 	const auto& callback = getValue();
 	if (callback.empty()) return TclObject();

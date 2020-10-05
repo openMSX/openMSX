@@ -21,15 +21,15 @@ TclCallbackMessages::~TclCallbackMessages()
 	ptr.release();
 }
 
-void TclCallbackMessages::log(CliComm::LogLevel level, string_view message)
+void TclCallbackMessages::log(CliComm::LogLevel level, std::string_view message)
 {
 	auto levelStr = CliComm::getLevelStrings();
 	messageCallback.execute(message, levelStr[level]);
 }
 
 void TclCallbackMessages::update(
-	CliComm::UpdateType /*type*/, string_view /*machine*/,
-	string_view /*name*/, string_view /*value*/)
+	CliComm::UpdateType /*type*/, std::string_view /*machine*/,
+	std::string_view /*name*/, std::string_view /*value*/)
 {
 	// ignore
 }

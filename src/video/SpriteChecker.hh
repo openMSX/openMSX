@@ -142,6 +142,15 @@ public:
 		// TODO: Precalc something?
 	}
 
+	/** Informs the sprite checker of a change in the TP bit (R#8 bit 5)
+	  * @param tp The new transparency value.
+	  * @param time The moment in emulated time this change occurs.
+	  */
+	inline void updateTransparency(bool tp, EmuTime::param time) {
+		(void)tp;
+		sync(time);
+	}
+
 	/** Informs the sprite checker of a vertical scroll change.
 	  * @param scroll The new scroll value.
 	  * @param time The moment in emulated time this change occurs.

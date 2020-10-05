@@ -9,14 +9,14 @@
 
 namespace openmsx {
 
-static const byte ID = 0x08;
+constexpr byte ID = 0x08;
 
 MSXMatsushita::MSXMatsushita(const DeviceConfig& config)
 	: MSXDevice(config)
 	, MSXSwitchedDevice(getMotherBoard(), ID)
 	, cpu(getCPU()) // used frequently, so cache it
 	, vdp(nullptr)
-	, lastTime(EmuTime::zero)
+	, lastTime(EmuTime::zero())
 	, firmwareSwitch(config)
 	, sram(config.findChild("sramname") ? std::make_unique<SRAM>(getName() + " SRAM", 0x800, config) : nullptr)
 	, turboAvailable(config.getChildDataAsBool("hasturbo", false))

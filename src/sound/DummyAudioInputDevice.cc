@@ -2,7 +2,7 @@
 
 namespace openmsx {
 
-string_view DummyAudioInputDevice::getDescription() const
+std::string_view DummyAudioInputDevice::getDescription() const
 {
 	return {};
 }

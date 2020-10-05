@@ -3,6 +3,7 @@
 #include "SectorAccessibleDisk.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
+#include "one_of.hh"
 #include "unreachable.hh"
 #include <algorithm>
 #include <cassert>
@@ -20,7 +21,7 @@ using std::ios;
 
 namespace openmsx {
 
-static const unsigned SECTOR_SIZE = sizeof(SectorBuffer);
+constexpr unsigned SECTOR_SIZE = sizeof(SectorBuffer);
 
 static void DBERR(const char* message, ...)
 {
@@ -118,7 +119,7 @@ void NowindHost::write(byte data, unsigned time)
 	case STATE_IMAGE:
 		assert(recvCount < 40);
 		extraData[recvCount] = data;
-		if ((data == 0) || (data == ':') ||
+		if (data == one_of(0, ':') ||
 		    (++recvCount == 40)) {
 			char* eData = reinterpret_cast<char*>(extraData);
 			callImage(string(eData, recvCount));
@@ -342,7 +343,7 @@ unsigned NowindHost::getStartAddress() const
 unsigned NowindHost::getCurrentAddress() const
 {
 	unsigned startAdress = getStartAddress();
-	return startAdress + transfered;
+	return startAdress + transferred;
 }
 
 
@@ -357,14 +358,14 @@ void NowindHost::diskReadInit(SectorAccessibleDisk& disk)
 		return;
 	}
 
-	transfered = 0;
+	transferred = 0;
 	retryCount = 0;
 	doDiskRead1();
 }
 
 void NowindHost::doDiskRead1()
 {
-	unsigned bytesLeft = unsigned(buffer.size() * SECTOR_SIZE) - transfered;
+	unsigned bytesLeft = unsigned(buffer.size() * SECTOR_SIZE) - transferred;
 	if (bytesLeft == 0) {
 		sendHeader();
 		send(0x01); // end of receive-loop
@@ -373,7 +374,7 @@ void NowindHost::doDiskRead1()
 		return;
 	}
 
-	static const unsigned NUMBEROFBLOCKS = 32; // 32 * 64 bytes = 2048 bytes
+	constexpr unsigned NUMBEROFBLOCKS = 32; // 32 * 64 bytes = 2048 bytes
 	transferSize = std::min(bytesLeft, NUMBEROFBLOCKS * 64); // hardcoded in firmware
 
 	unsigned address = getCurrentAddress();
@@ -407,11 +408,11 @@ void NowindHost::doDiskRead2()
 	byte tail1 = extraData[0];
 	byte tail2 = extraData[1];
 	if ((tail1 == 0xAF) && (tail2 == 0x07)) {
-		transfered += transferSize;
+		transferred += transferSize;
 		retryCount = 0;
 
 		unsigned address = getCurrentAddress();
-		size_t bytesLeft = (buffer.size() * SECTOR_SIZE) - transfered;
+		size_t bytesLeft = (buffer.size() * SECTOR_SIZE) - transferred;
 		if ((address == 0x8000) && (bytesLeft > 0)) {
 			sendHeader();
 			send(0x01); // end of receive-loop
@@ -443,7 +444,7 @@ void NowindHost::transferSectors(unsigned transferAddress, unsigned amount)
 	send16(transferAddress);
 	send16(amount);
 
-	auto* bufferPointer = buffer[0].raw + transfered;
+	auto* bufferPointer = buffer[0].raw + transferred;
 	for (unsigned i = 0; i < amount; ++i) {
 		send(bufferPointer[i]);
 	}
@@ -451,7 +452,7 @@ void NowindHost::transferSectors(unsigned transferAddress, unsigned amount)
 	send(0x07); // used for validation
 }
 
- // sends "02" + "transfer_addr" + "amount" + "data" + "0F 07"
+// sends "02" + "transfer_addr" + "amount" + "data" + "0F 07"
 void NowindHost::transferSectorsBackwards(unsigned transferAddress, unsigned amount)
 {
 	sendHeader();
@@ -459,7 +460,7 @@ void NowindHost::transferSectorsBackwards(unsigned transferAddress, unsigned amo
 	send16(transferAddress + amount);
 	send(amount / 64);
 
-	auto* bufferPointer = buffer[0].raw + transfered;
+	auto* bufferPointer = buffer[0].raw + transferred;
 	for (int i = amount - 1; i >= 0; --i) {
 		send(bufferPointer[i]);
 	}
@@ -480,13 +481,13 @@ void NowindHost::diskWriteInit(SectorAccessibleDisk& disk)
 
 	unsigned sectorAmount = std::min(128u, getSectorAmount());
 	buffer.resize(sectorAmount);
-	transfered = 0;
+	transferred = 0;
 	doDiskWrite1();
 }
 
 void NowindHost::doDiskWrite1()
 {
-	unsigned bytesLeft = unsigned(buffer.size() * SECTOR_SIZE) - transfered;
+	unsigned bytesLeft = unsigned(buffer.size() * SECTOR_SIZE) - transferred;
 	if (bytesLeft == 0) {
 		// All data transferred!
 		auto sectorAmount = unsigned(buffer.size());
@@ -502,7 +503,7 @@ void NowindHost::doDiskWrite1()
 		return;
 	}
 
-	static const unsigned BLOCKSIZE = 240;
+	constexpr unsigned BLOCKSIZE = 240;
 	transferSize = std::min(bytesLeft, BLOCKSIZE);
 
 	unsigned address = getCurrentAddress();
@@ -526,7 +527,7 @@ void NowindHost::doDiskWrite1()
 void NowindHost::doDiskWrite2()
 {
 	assert(recvCount == (transferSize + 2));
-	auto* buf = buffer[0].raw + transfered;
+	auto* buf = buffer[0].raw + transferred;
 	for (unsigned i = 0; i < transferSize; ++i) {
 		buf[i] = extraData[i + 1];
 	}
@@ -535,10 +536,10 @@ void NowindHost::doDiskWrite2()
 	byte seq2 = extraData[transferSize + 1];
 	if ((seq1 == 0xaa) && (seq2 == 0xaa)) {
 		// good block received
-		transfered += transferSize;
+		transferred += transferSize;
 
 		unsigned address = getCurrentAddress();
-		size_t bytesLeft = (buffer.size() * SECTOR_SIZE) - transfered;
+		size_t bytesLeft = (buffer.size() * SECTOR_SIZE) - transferred;
 		if ((address == 0x8000) && (bytesLeft > 0)) {
 			sendHeader();
 			send(254); // more data for page 2/3
@@ -735,7 +736,7 @@ void NowindHost::readHelper2(unsigned len, const char* buf)
 
 // strips a string from outer double-quotes and anything outside them
 // ie: 'pre("foo")bar' will result in 'foo'
-static string_view stripquotes(string_view str)
+static std::string_view stripquotes(std::string_view str)
 {
 	auto first = str.find_first_of('\"');
 	if (first == string::npos) {
@@ -794,7 +795,7 @@ void NowindHost::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("buffer", tmp);
 	memcpy(bufRaw, tmp.data(), bufSize);
 
-	ar.serialize("transfered",          transfered,
+	ar.serialize("transfered",          transferred, // for bw compat, keep typo in serialize name
 	             "retryCount",          retryCount,
 	             "transferSize",        transferSize,
 	             "romdisk",             romdisk,

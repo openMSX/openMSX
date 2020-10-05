@@ -1,11 +1,12 @@
 #include "catch.hpp"
 #include "Base64.hh"
+#include <cstring>
 
 static void test_decode(const std::string& encoded, const std::string& decoded)
 {
-	auto p = Base64::decode(encoded);
-	REQUIRE(p.second == decoded.size());
-	CHECK(memcmp(p.first.data(), decoded.data(), decoded.size()) == 0);
+	auto [buf, bufSize] = Base64::decode(encoded);
+	REQUIRE(bufSize == decoded.size());
+	CHECK(memcmp(buf.data(), decoded.data(), decoded.size()) == 0);
 }
 
 static void test(const std::string& decoded, const std::string& encoded)

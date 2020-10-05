@@ -9,24 +9,24 @@
 namespace openmsx {
 
 // status register flags
-static const unsigned STAT_TXRDY = 0x01; // Transmitter ready: no MIDI-out send is in progress
-static const unsigned STAT_RXRDY = 0x02; // Receiver ready: a MIDI-in byte is available for the MSX
-static const unsigned STAT_OE    = 0x10; // Overrun error (incoming data)
-static const unsigned STAT_FE    = 0x20; // Framing error (incoming data)
+constexpr unsigned STAT_TXRDY = 0x01; // Transmitter ready: no MIDI-out send is in progress
+constexpr unsigned STAT_RXRDY = 0x02; // Receiver ready: a MIDI-in byte is available for the MSX
+constexpr unsigned STAT_OE    = 0x10; // Overrun error (incoming data)
+constexpr unsigned STAT_FE    = 0x20; // Framing error (incoming data)
 
 // command register bits
-static const unsigned CMD_TXEN  = 0x01; // Transmit enable
-static const unsigned CMD_TXIE  = 0x02; // TxRDY interrupt enable
-static const unsigned CMD_RXEN  = 0x04; // Receive enable
-static const unsigned CMD_RXIE  = 0x08; // RxRDY interrupt enable
-static const unsigned CMD_ER    = 0x10; // Error Reset
-static const unsigned CMD_IR    = 0x80; // Internal Reset
+constexpr unsigned CMD_TXEN  = 0x01; // Transmit enable
+constexpr unsigned CMD_TXIE  = 0x02; // TxRDY interrupt enable
+constexpr unsigned CMD_RXEN  = 0x04; // Receive enable
+constexpr unsigned CMD_RXIE  = 0x08; // RxRDY interrupt enable
+constexpr unsigned CMD_ER    = 0x10; // Error Reset
+constexpr unsigned CMD_IR    = 0x80; // Internal Reset
 // The meaning of bits 5 and 6 are unknown (they are used by the CX5M
 // software). Some documentation *guesses* they are related to IM2
 // IRQ handling.
 
-static const EmuDuration BIT_DURATION = EmuDuration::hz(31250);
-static const EmuDuration CHAR_DURATION = BIT_DURATION * 10; // 1 start-bit, 8 data-bits, 1 stop-bit
+constexpr auto BIT_DURATION = EmuDuration::hz(31250);
+constexpr auto CHAR_DURATION = BIT_DURATION * 10; // 1 start-bit, 8 data-bits, 1 stop-bit
 
 YM2148::YM2148(const std::string& name_, MSXMotherBoard& motherBoard)
 	: MidiInConnector(motherBoard.getPluggingController(), name_ + "-MIDI-in")

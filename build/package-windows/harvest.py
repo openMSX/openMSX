@@ -1,6 +1,5 @@
 # Generates Windows resource header.
 
-from __future__ import print_function
 from optparse import OptionParser
 from os import walk
 from os.path import (
@@ -64,7 +63,7 @@ class WixFragment(object):
 		line = self.indent(
 			'<%s %s>' % (
 				elementName,
-				' '.join('%s="%s"' % item for item in args.iteritems())
+				' '.join('%s="%s"' % item for item in args.items())
 				)
 			)
 		self.incrementIndent()

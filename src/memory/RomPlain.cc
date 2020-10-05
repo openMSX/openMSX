@@ -68,8 +68,22 @@ RomPlain::RomPlain(const DeviceConfig& config, Rom&& rom_,
 				setUnmapped(page);
 			}
 		}
-
 	}
+	// RomPlain is currently implemented as a subclass of Rom8kBBlocks,
+	// because of that it inherits a 8kB alignment requirement on the
+	// base/size attributes in the <mem> tag in the hardware description.
+	// But for example for the 'Boosted_audio' extension this requirement
+	// is too strict. Except for the calls to setRom() and setUnmapped() in
+	// this constructor, RomPlain doesn't dynamically change the memory
+	// layout. So if we undo the cache-pre-filling stuff done by setRom()
+	// it is OK to relax the alignment requirements again.
+	//
+	// An alternative is to not inherit from Rom8kBBlocks but from MSXRom.
+	// That would simplify the alignment stuff, but OTOH then we have to
+	// reimplement the debuggable stuff. Also the format of savestates will
+	// change (so it would require extra backwards compatibility code).
+	// Therefor, at least for now, I've not chosen this alternative.
+	invalidateDeviceRCache();
 }
 
 void RomPlain::guessHelper(unsigned offset, int* pages)
@@ -117,6 +131,14 @@ unsigned RomPlain::guessLocation(unsigned windowBase, unsigned windowSize)
 
 	// heuristics didn't work, return start of window
 	return windowBase;
+}
+
+unsigned RomPlain::getBaseSizeAlignment() const
+{
+	// Because this mapper has no switchable banks, we can relax the
+	// alignment requirements again. See also the comment at the end of the
+	// constructor.
+	return MSXRom::getBaseSizeAlignment();
 }
 
 REGISTER_MSXDEVICE(RomPlain, "RomPlain");

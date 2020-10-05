@@ -2,8 +2,8 @@ project(
     'openMSX', 'cpp',
     version : '0.15.0',
     license : 'GPL2',
-    default_options : ['warning_level=3', 'cpp_std=c++14'],
-    meson_version: '>=0.49.999'
+    default_options : ['warning_level=3', 'cpp_std=c++17'],
+    meson_version: '>=0.50.0'
     )
 
 subdir('src')
@@ -132,7 +132,7 @@ hdr_systemfuncs = configure_file(
 # Other Generated Headers
 # =======================
 
-prog_python = import('python').find_installation('python2')
+prog_python = import('python').find_installation('python3')
 
 hdr_version = custom_target(
     'version header',
@@ -183,7 +183,7 @@ test_exec = executable(
     build_by_default : false,
     install : false,
     implicit_include_directories : false,
-    include_directories: incdirs,
+    include_directories: [incdirs, 'Contrib/catch2'],
     dependencies : [
         dep_alsa, dep_gl, dep_glew, dep_ogg, dep_png, dep_sdl2, dep_sdl2_ttf,
         dep_tcl, dep_theora, dep_threads, dep_vorbis

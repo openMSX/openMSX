@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -346,9 +346,12 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\haptic\windows\SDL_xinputhaptic.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\hidapi\windows\hid.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\hidapi\SDL_hidapijoystick.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\hidapi\SDL_hidapi_gamecube.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\hidapi\SDL_hidapi_ps4.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\hidapi\SDL_hidapi_rumble.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\hidapi\SDL_hidapi_switch.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\hidapi\SDL_hidapi_xbox360.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\hidapi\SDL_hidapi_xbox360w.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\hidapi\SDL_hidapi_xboxone.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\SDL_gamecontroller.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\SDL_joystick.c" />
@@ -411,6 +414,7 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\stdlib\SDL_qsort.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\stdlib\SDL_stdlib.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\stdlib\SDL_string.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\stdlib\SDL_strtokr.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\thread\generic\SDL_syscond.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\thread\SDL_thread.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\thread\windows\SDL_sysmutex.c" />

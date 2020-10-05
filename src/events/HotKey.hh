@@ -4,8 +4,8 @@
 #include "RTSchedulable.hh"
 #include "EventListener.hh"
 #include "Command.hh"
-#include "string_view.hh"
 #include <map>
+#include <string_view>
 #include <vector>
 #include <string>
 #include <memory>
@@ -59,7 +59,7 @@ private:
 	void unbindLayer  (const EventPtr& event, const std::string& layer);
 	void unbindFullLayer(const std::string& layer);
 	void activateLayer  (std::string layer, bool blocking);
-	void deactivateLayer(string_view layer);
+	void deactivateLayer(std::string_view layer);
 
 	int executeEvent(const EventPtr& event);
 	void executeBinding(const EventPtr& event, const HotKeyInfo& info);

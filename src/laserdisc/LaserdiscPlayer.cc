@@ -11,6 +11,7 @@
 #include "Display.hh"
 #include "GlobalSettings.hh"
 #include "Reactor.hh"
+#include "ReverseManager.hh"
 #include "MSXMotherBoard.hh"
 #include "PioneerLDControl.hh"
 #include "OggReader.hh"
@@ -18,6 +19,7 @@
 #include "RendererFactory.hh"
 #include "Math.hh"
 #include "likely.hh"
+#include "one_of.hh"
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
@@ -56,7 +58,7 @@ void LaserdiscPlayer::Command::execute(
 		checkNumArgs(tokens, 3, "filename");
 		try {
 			result = "Changing laserdisc.";
-			laserdiscPlayer.setImageName(tokens[2].getString().str(), time);
+			laserdiscPlayer.setImageName(string(tokens[2].getString()), time);
 		} catch (MSXException& e) {
 			throw CommandException(std::move(e).getMessage());
 		}
@@ -69,7 +71,7 @@ string LaserdiscPlayer::Command::help(const vector<string>& tokens) const
 {
 	if (tokens.size() >= 2) {
 		if (tokens[1] == "insert") {
-			return "Inserts the specfied laserdisc image into "
+			return "Inserts the specified laserdisc image into "
 			       "the laserdisc player.";
 		} else if (tokens[1] == "eject") {
 			return "Eject the laserdisc.";
@@ -84,7 +86,7 @@ string LaserdiscPlayer::Command::help(const vector<string>& tokens) const
 void LaserdiscPlayer::Command::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		static const char* const extra[] = { "eject", "insert" };
+		static constexpr const char* const extra[] = { "eject", "insert" };
 		completeString(tokens, extra);
 	} else if (tokens.size() == 3 && tokens[1] == "insert") {
 		completeFileName(tokens, userFileContext());
@@ -93,7 +95,7 @@ void LaserdiscPlayer::Command::tabCompletion(vector<string>& tokens) const
 
 // LaserdiscPlayer
 
-static const unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on .ogg file
+constexpr unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on .ogg file
 
 static XMLElement createXML()
 {
@@ -114,12 +116,12 @@ LaserdiscPlayer::LaserdiscPlayer(
 	, laserdiscCommand(motherBoard.getCommandController(),
 		           motherBoard.getStateChangeDistributor(),
 		           motherBoard.getScheduler())
-	, sampleClock(EmuTime::zero)
-	, start(EmuTime::zero)
+	, sampleClock(EmuTime::zero())
+	, start(EmuTime::zero())
 	, muteLeft(false)
 	, muteRight(false)
 	, remoteState(REMOTE_IDLE)
-	, remoteLastEdge(EmuTime::zero)
+	, remoteLastEdge(EmuTime::zero())
 	, remoteLastBit(false)
 	, remoteProtocol(IR_NONE)
 	, ack(false)
@@ -225,10 +227,10 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 		// is, we process the button here. Note that real hardware
 		// needs the trailing pulse to be at least 200µs
 		if (++remoteBitNr == 32) {
-			byte custom	 = ( remoteBits >>  0) & 0xff;
+			byte custom      = ( remoteBits >>  0) & 0xff;
 			byte customCompl = (~remoteBits >>  8) & 0xff;
-			byte code	 = ( remoteBits >> 16) & 0xff;
-			byte codeCompl	 = (~remoteBits >> 24) & 0xff;
+			byte code        = ( remoteBits >> 16) & 0xff;
+			byte codeCompl   = (~remoteBits >> 24) & 0xff;
 			if (custom == customCompl &&
 			    custom == 0xa8 &&
 			    code == codeCompl) {
@@ -248,7 +250,7 @@ void LaserdiscPlayer::submitRemote(RemoteProtocol protocol, unsigned code)
 	// The END command for seeking/waiting acknowledges repeats,
 	// Esh's Aurunmilla needs play as well.
 	if (protocol != remoteProtocol || code != remoteCode ||
-	    (protocol == IR_NEC && (code == 0x42 || code == 0x17))) {
+	    (protocol == IR_NEC && (code == one_of(0x42u, 0x17u)))) {
 		remoteProtocol = protocol;
 		remoteCode = code;
 		remoteVblanksBack = 0;
@@ -324,7 +326,7 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 	// 0x49, 0x4a, 0x4b (ack sent)
 	// if 0x49 is a repeat then no ACK is sent
 	// if 0x49 is followed by 0x4a then ACK is sent
-	if (code == 0x49 || code == 0x4a || code == 0x4b) {
+	if (code == one_of(0x49u, 0x4au, 0x4bu)) {
 		updateStream(time);
 
 		switch (code) {
@@ -618,7 +620,7 @@ void LaserdiscPlayer::nextFrame(EmuTime::param time)
 	}
 
 	// freeze if stop frame
-	if ((playerState == PLAYER_PLAYING || playerState == PLAYER_MULTISPEED)
+	if ((playerState == one_of(PLAYER_PLAYING, PLAYER_MULTISPEED))
 	     && video->stopFrame(currentFrame)) {
 		// stop frame reached
 		playingFromSample = getCurrentSample(time);
@@ -651,6 +653,10 @@ int LaserdiscPlayer::signalEvent(const std::shared_ptr<const Event>& event)
 void LaserdiscPlayer::autoRun()
 {
 	if (!autoRunSetting.getBoolean()) return;
+	if (motherBoard.getReverseManager().isReplaying()) {
+		// See comments in CassettePlayer::autoRun()
+		return;
+	}
 
 	string var = "::auto_run_ld_counter";
 	string command = strCat(
@@ -841,6 +847,7 @@ void LaserdiscPlayer::stop(EmuTime::param time)
 void LaserdiscPlayer::eject(EmuTime::param time)
 {
 	stop(time);
+	oggImage = {};
 	video.reset();
 }
 

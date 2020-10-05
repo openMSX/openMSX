@@ -7,8 +7,9 @@
 #include "xxhash.hh"
 #include <cassert>
 
-using std::vector;
 using std::string;
+using std::string_view;
+using std::vector;
 
 namespace openmsx {
 
@@ -74,6 +75,7 @@ static void init()
 	init(ROM_CROSS_BLAIM,    "CrossBlaim",     0x4000, "Cross Blaim");
 	init(ROM_HARRY_FOX,      "HarryFox",       0x4000, "Harry Fox");
 	init(ROM_HALNOTE,        "Halnote",        0x2000, "Halnote");
+	init(ROM_ZEMINA25IN1,    "Zemina25in1",    0x2000, "Zemina 25 in 1");
 	init(ROM_ZEMINA80IN1,    "Zemina80in1",    0x2000, "Zemina 80 in 1");
 	init(ROM_ZEMINA90IN1,    "Zemina90in1",    0x2000, "Zemina 90 in 1");
 	init(ROM_ZEMINA126IN1,   "Zemina126in1",   0x2000, "Zemina 126 in 1");
@@ -100,6 +102,7 @@ static void init()
 	init(ROM_MITSUBISHIMLTS2,"MitsubishiMLTS2",0x2000, "Mitsubishi ML-TS2 firmware");
 	init(ROM_MANBOW2,        "Manbow2",        0x2000, "Manbow2");
 	init(ROM_MANBOW2_2,      "Manbow2_2",      0x2000, "Manbow2 - Second Release");
+	init(ROM_RBSC_FLASH_KONAMI_SCC, "RBSC_Flash_KonamiSCC", 0x2000, "RBSC 2MB flash, Konami SCC mapper");
 	init(ROM_HAMARAJANIGHT,  "HamarajaNight",  0x2000, "Best of Hamaraja Night");
 	init(ROM_MEGAFLASHROMSCC,"MegaFlashRomScc",0x2000, "Mega Flash ROM SCC");
 	init(ROM_MATRAINK,       "MatraInk",       0x0000, "Matra Ink");
@@ -194,9 +197,9 @@ RomType RomInfo::nameToRomType(string_view name)
 string_view RomInfo::romTypeToName(RomType type)
 {
 	assert(!isAlias(type));
-	for (auto& p : getRomTypeMap()) {
-		if (p.second == type) {
-			return p.first;
+	for (const auto& [name, romType] : getRomTypeMap()) {
+		if (romType == type) {
+			return name;
 		}
 	}
 	UNREACHABLE; return {};
@@ -205,9 +208,9 @@ string_view RomInfo::romTypeToName(RomType type)
 vector<string_view> RomInfo::getAllRomTypes()
 {
 	vector<string_view> result;
-	for (auto& p : getRomTypeMap()) {
-		if (!isAlias(p.second)) {
-			result.push_back(p.first);
+	for (const auto& [name, romType] : getRomTypeMap()) {
+		if (!isAlias(romType)) {
+			result.push_back(name);
 		}
 	}
 	return result;

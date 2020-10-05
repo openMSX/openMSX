@@ -8,9 +8,11 @@
 #include "Math.hh"
 #include "cstd.hh"
 #include "inline.hh"
+#include "one_of.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include <array>
 #include <cstring>
 #include <cassert>
 #include <iostream>
@@ -19,39 +21,39 @@ namespace openmsx {
 namespace YM2413Okazaki {
 
 // Number of bits in 'PhaseModulation' fixed point type.
-static constexpr int PM_FP_BITS =  8;
+constexpr int PM_FP_BITS =  8;
 
 // Dynamic range (Accuracy of sin table)
-static constexpr int DB_BITS = 8;
-static constexpr int DB_MUTE = 1 << DB_BITS;
-static constexpr int DBTABLEN = 3 * DB_MUTE; // enough to not have to check for overflow
+constexpr int DB_BITS = 8;
+constexpr int DB_MUTE = 1 << DB_BITS;
+constexpr int DBTABLEN = 3 * DB_MUTE; // enough to not have to check for overflow
 
-static constexpr double DB_STEP = 48.0 / DB_MUTE;
-static constexpr double EG_STEP = 0.375;
-static constexpr double TL_STEP = 0.75;
+constexpr double DB_STEP = 48.0 / DB_MUTE;
+constexpr double EG_STEP = 0.375;
+constexpr double TL_STEP = 0.75;
 
 // Size of Sintable ( 8 -- 18 can be used, but 9 recommended.)
-static constexpr int PG_BITS = 9;
-static constexpr int PG_WIDTH = 1 << PG_BITS;
-static constexpr int PG_MASK = PG_WIDTH - 1;
+constexpr int PG_BITS = 9;
+constexpr int PG_WIDTH = 1 << PG_BITS;
+constexpr int PG_MASK = PG_WIDTH - 1;
 
 // Phase increment counter
-static constexpr int DP_BITS = 18;
-static constexpr int DP_BASE_BITS = DP_BITS - PG_BITS;
+constexpr int DP_BITS = 18;
+constexpr int DP_BASE_BITS = DP_BITS - PG_BITS;
 
 // Dynamic range of envelope
-static constexpr int EG_BITS = 7;
+constexpr int EG_BITS = 7;
 
 // Bits for linear value
-static constexpr int DB2LIN_AMP_BITS = 8;
-static constexpr int SLOT_AMP_BITS = DB2LIN_AMP_BITS;
+constexpr int DB2LIN_AMP_BITS = 8;
+constexpr int SLOT_AMP_BITS = DB2LIN_AMP_BITS;
 
 // Bits for Amp modulator
-static constexpr int AM_PG_BITS = 8;
-static constexpr int AM_PG_WIDTH = 1 << AM_PG_BITS;
-static constexpr int AM_DP_BITS = 16;
-static constexpr int AM_DP_WIDTH = 1 << AM_DP_BITS;
-static constexpr int AM_DP_MASK = AM_DP_WIDTH - 1;
+constexpr int AM_PG_BITS = 8;
+constexpr int AM_PG_WIDTH = 1 << AM_PG_BITS;
+constexpr int AM_DP_BITS = 16;
+constexpr int AM_DP_WIDTH = 1 << AM_DP_BITS;
+constexpr int AM_DP_MASK = AM_DP_WIDTH - 1;
 
 // LFO Amplitude Modulation table (verified on real YM3812)
 // 27 output levels (triangle waveform);
@@ -68,14 +70,14 @@ static constexpr int AM_DP_MASK = AM_DP_WIDTH - 1;
 //    depth = 4.875dB
 // Also this approch can be easily implemented in HW, the previous one (see SVN
 // history) could not.
-static constexpr unsigned LFO_AM_TAB_ELEMENTS = 210;
+constexpr unsigned LFO_AM_TAB_ELEMENTS = 210;
 
 // Extra (derived) constants
-static const EnvPhaseIndex EG_DP_MAX = EnvPhaseIndex(1 << 7);
-static const EnvPhaseIndex EG_DP_INF = EnvPhaseIndex(1 << 8); // as long as it's bigger
+constexpr EnvPhaseIndex EG_DP_MAX = EnvPhaseIndex(1 << 7);
+constexpr EnvPhaseIndex EG_DP_INF = EnvPhaseIndex(1 << 8); // as long as it's bigger
 
 // LFO Phase Modulation table (copied from Burczynski core)
-static const signed char pmTable[8][8] =
+constexpr signed char pmTable[8][8] =
 {
 	{ 0, 0, 0, 0, 0, 0, 0, 0, }, // FNUM = 000xxxxxx
 	{ 0, 0, 1, 0, 0, 0,-1, 0, }, // FNUM = 001xxxxxx
@@ -88,7 +90,7 @@ static const signed char pmTable[8][8] =
 };
 
 // LFO Amplitude Modulation table (verified on real YM3812)
-static const unsigned char lfo_am_table[LFO_AM_TAB_ELEMENTS] = {
+constexpr unsigned char lfo_am_table[LFO_AM_TAB_ELEMENTS] = {
 	0,0,0,0,0,0,0,
 	1,1,1,1,
 	2,2,2,2,
@@ -144,7 +146,7 @@ static const unsigned char lfo_am_table[LFO_AM_TAB_ELEMENTS] = {
 };
 
 // ML-table
-static const byte mlTable[16] = {
+constexpr uint8_t mlTable[16] = {
 	1,   1*2,  2*2,  3*2,  4*2,  5*2,  6*2,  7*2,
 	8*2, 9*2, 10*2, 10*2, 12*2, 12*2, 15*2, 15*2
 };
@@ -155,55 +157,37 @@ static const byte mlTable[16] = {
 //   [0,        DB_MUTE )    actual values, from max to min
 //   [DB_MUTE,  DBTABLEN)    filled with min val (to allow some overflow in index)
 //   [DBTABLEN, 2*DBTABLEN)  as above but for negative output values
-struct Db2LinTab {
-	int tab[2 * DBTABLEN];
-};
-static constexpr Db2LinTab makeDB2LinTable()
-{
-	Db2LinTab dB2Lin = {};
-
+constexpr auto dB2LinTab = [] {
+	std::array<int, 2 * DBTABLEN> result = {};
 	for (int i = 0; i < DB_MUTE; ++i) {
-		dB2Lin.tab[i] = int(double((1 << DB2LIN_AMP_BITS) - 1) *
+		result[i] = int(double((1 << DB2LIN_AMP_BITS) - 1) *
 		                   cstd::pow<5, 3>(10, -double(i) * DB_STEP / 20));
 	}
-	dB2Lin.tab[DB_MUTE - 1] = 0;
+	result[DB_MUTE - 1] = 0;
 	for (int i = DB_MUTE; i < DBTABLEN; ++i) {
-		dB2Lin.tab[i] = 0;
+		result[i] = 0;
 	}
 	for (int i = 0; i < DBTABLEN; ++i) {
-		dB2Lin.tab[i + DBTABLEN] = -dB2Lin.tab[i];
+		result[i + DBTABLEN] = -result[i];
 	}
-
-	return dB2Lin;
-}
-static constexpr Db2LinTab dB2Lin = makeDB2LinTable();
+	return result;
+}();
 
 // Linear to Log curve conversion table (for Attack rate)
-struct ArAdjustTable {
-	unsigned tab[1 << EG_BITS];
-};
-static constexpr ArAdjustTable makeAdjustTable()
-{
-	ArAdjustTable arAdjust = {};
-
-	arAdjust.tab[0] = (1 << EG_BITS) - 1;
+constexpr auto arAdjustTab = [] {
+	std::array<unsigned, 1 << EG_BITS> result = {};
+	result[0] = (1 << EG_BITS) - 1;
 	constexpr double l127 = cstd::log<5, 4>(127.0);
 	for (int i = 1; i < (1 << EG_BITS); ++i) {
-		arAdjust.tab[i] = unsigned(double(1 << EG_BITS) - 1 -
+		result[i] = unsigned(double(1 << EG_BITS) - 1 -
 		         ((1 << EG_BITS) - 1) * cstd::log<5, 4>(double(i)) / l127);
 	}
-
-	return arAdjust;
-}
-static constexpr ArAdjustTable arAdjust = makeAdjustTable();
+	return result;
+}();
 
 // KSL + TL Table   values are in range [0, 112]
-struct TllTable {
-	byte tab[4][16 * 8];
-};
-static constexpr TllTable makeTllTable()
-{
-	TllTable tll = {};
+constexpr auto tllTab = [] {
+	std::array<std::array<uint8_t, 16 * 8>, 4> result = {};
 
 	// Processed version of Table III-5 from the Application Manual.
 	constexpr unsigned kltable[16] = {
@@ -220,95 +204,74 @@ static constexpr TllTable makeTllTable()
 		for (unsigned KL = 0; KL < 4; ++KL) {
 			unsigned t = (tmp <= 0 || KL == 0) ? 0 : (tmp >> (3 - KL));
 			assert(t <= 112);
-			tll.tab[KL][freq] = t;
+			result[KL][freq] = t;
 		}
 	}
-
-	return tll;
-}
-static constexpr TllTable tll = makeTllTable();
+	return result;
+}();
 
 // WaveTable for each envelope amp
 //  values are in range [0, DB_MUTE)             (for positive values)
 //                  or  [0, DB_MUTE) + DBTABLEN  (for negative values)
-struct SinTable {
-	unsigned full[PG_WIDTH];
-	unsigned half[PG_WIDTH];
-};
-static constexpr int lin2db(double d)
-{
-	// lin(+0.0 .. +1.0) to dB(DB_MUTE-1 .. 0)
-	return (d == 0)
-		? DB_MUTE - 1
-		: std::min(-int(20.0 * cstd::log10<5, 2>(d) / DB_STEP), DB_MUTE - 1); // 0 - 127
-}
-static constexpr SinTable makeSinTable()
-{
-	SinTable sinTable = {};
+constexpr auto fullSinTable = [] {
+	auto lin2db = [](double d) {
+		// lin(+0.0 .. +1.0) to dB(DB_MUTE-1 .. 0)
+		return (d == 0)
+			? DB_MUTE - 1
+			: std::min(-int(20.0 * cstd::log10<5, 2>(d) / DB_STEP), DB_MUTE - 1); // 0 - 127
+	};
 
+	std::array<unsigned, PG_WIDTH> result = {};
 	for (int i = 0; i < PG_WIDTH / 4; ++i) {
-		sinTable.full[i] = lin2db(cstd::sin<2>(double(2.0 * M_PI) * i / PG_WIDTH));
+		result[i] = lin2db(cstd::sin<2>(double(2.0 * M_PI) * i / PG_WIDTH));
 	}
 	for (int i = 0; i < PG_WIDTH / 4; ++i) {
-		sinTable.full[PG_WIDTH / 2 - 1 - i] = sinTable.full[i];
+		result[PG_WIDTH / 2 - 1 - i] = result[i];
 	}
 	for (int i = 0; i < PG_WIDTH / 2; ++i) {
-		sinTable.full[PG_WIDTH / 2 + i] = DBTABLEN + sinTable.full[i];
+		result[PG_WIDTH / 2 + i] = DBTABLEN + result[i];
 	}
-
+	return result;
+}();
+constexpr auto halfSinTable = [] {
+	std::array<unsigned, PG_WIDTH> result = {};
 	for (int i = 0; i < PG_WIDTH / 2; ++i) {
-		sinTable.half[i] = sinTable.full[i];
+		result[i] = fullSinTable[i];
 	}
 	for (int i = PG_WIDTH / 2; i < PG_WIDTH; ++i) {
-		sinTable.half[i] = sinTable.full[0];
+		result[i] = fullSinTable[0];
 	}
-
-	return sinTable;
-}
-static constexpr SinTable sinTable = makeSinTable();
-static constexpr unsigned const * const waveform[2] = {sinTable.full, sinTable.half};
+	return result;
+}();
+constexpr unsigned const * const waveform[2] = {fullSinTable.data(), halfSinTable.data()};
 
 // Phase incr table for attack, decay and release
 //  note: original code had indices swapped. It also had
 //        a separate table for attack
 //  17.15 fixed point
-struct DphaseDRTable {
-	int tab[16][16];
-};
-static constexpr DphaseDRTable makeDphaseDRTable()
-{
-	DphaseDRTable dphaseDR = {};
-
+constexpr auto dphaseDrTab = [] {
+	std::array<std::array<int, 16>, 16> result = {};
 	for (unsigned Rks = 0; Rks < 16; ++Rks) {
-		dphaseDR.tab[Rks][0] = 0;
+		result[Rks][0] = 0;
 		for (unsigned DR = 1; DR < 16; ++DR) {
 			unsigned RM = std::min(DR + (Rks >> 2), 15u);
 			unsigned RL = Rks & 3;
-			dphaseDR.tab[Rks][DR] =
+			result[Rks][DR] =
 				((RL + 4) << EP_FP_BITS) >> (16 - RM);
 		}
 	}
-
-	return dphaseDR;
-}
-static constexpr DphaseDRTable dphaseDR = makeDphaseDRTable();
+	return result;
+}();
 
 // Sustain level (17.15 fixed point)
-struct SlTable {
-	unsigned tab[16];
-};
-static constexpr SlTable makeSusLevTable()
-{
-	SlTable sl = {};
-
+constexpr auto slTab = [] {
+	std::array<unsigned, 16> result = {};
 	for (int i = 0; i < 16; ++i) {
 		double x = (i == 15) ? 48.0 : (3.0 * i);
-		sl.tab[i] = int(x / EG_STEP) << EP_FP_BITS;
+		result[i] = int(x / EG_STEP) << EP_FP_BITS;
 	}
-
-	return sl;
-}
-static constexpr SlTable sl = makeSusLevTable();
+	return result;
+}();
 
 //
 // Helper functions
@@ -355,7 +318,7 @@ Patch::Patch()
 	setSL(0);
 }
 
-void Patch::initModulator(const byte* data)
+void Patch::initModulator(const uint8_t* data)
 {
 	AMPM = (data[0] >> 6) &  3;
 	EG   = (data[0] >> 5) &  1;
@@ -371,7 +334,7 @@ void Patch::initModulator(const byte* data)
 	RR   = (data[6] >> 0) & 15;
 }
 
-void Patch::initCarrier(const byte* data)
+void Patch::initCarrier(const uint8_t* data)
 {
 	AMPM = (data[1] >> 6) &  3;
 	EG   = (data[1] >> 5) &  1;
@@ -387,35 +350,35 @@ void Patch::initCarrier(const byte* data)
 	RR   = (data[7] >> 0) & 15;
 }
 
-void Patch::setKR(byte value)
+void Patch::setKR(uint8_t value)
 {
 	KR = value ? 8 : 10;
 }
-void Patch::setML(byte value)
+void Patch::setML(uint8_t value)
 {
 	ML = mlTable[value];
 }
-void Patch::setKL(byte value)
+void Patch::setKL(uint8_t value)
 {
-	KL = tll.tab[value];
+	KL = tllTab[value].data();
 }
-void Patch::setTL(byte value)
+void Patch::setTL(uint8_t value)
 {
 	assert(value < 64);
 	assert(TL2EG(value) < 256);
 	TL = TL2EG(value);
 }
-void Patch::setWF(byte value)
+void Patch::setWF(uint8_t value)
 {
 	WF = waveform[value];
 }
-void Patch::setFB(byte value)
+void Patch::setFB(uint8_t value)
 {
 	FB = value ? 8 - value : 0;
 }
-void Patch::setSL(byte value)
+void Patch::setSL(uint8_t value)
 {
-	SL = sl.tab[value];
+	SL = slTab[value];
 }
 
 
@@ -429,7 +392,7 @@ void Slot::reset()
 	output = 0;
 	feedback = 0;
 	setEnvelopeState(FINISH);
-	dphaseDRTableRks = dphaseDR.tab[0];
+	dphaseDRTableRks = dphaseDrTab[0].data();
 	tll = 0;
 	sustain = false;
 	volume = TL2EG(0);
@@ -461,7 +424,7 @@ void Slot::updateRKS(unsigned freq)
 {
 	unsigned rks = freq >> patch.KR;
 	assert(rks < 16);
-	dphaseDRTableRks = dphaseDR.tab[rks];
+	dphaseDRTableRks = dphaseDrTab[rks].data();
 }
 
 void Slot::updateEG()
@@ -575,7 +538,7 @@ void Slot::slotOff()
 {
 	if (state == FINISH) return; // already in off state
 	if (state == ATTACK) {
-		eg_phase = EnvPhaseIndex(arAdjust.tab[eg_phase.toInt()]);
+		eg_phase = EnvPhaseIndex(arAdjustTab[eg_phase.toInt()]);
 	}
 	setEnvelopeState(RELEASE);
 }
@@ -664,7 +627,7 @@ void Channel::keyOff()
 // YM2413
 //
 
-static byte inst_data[16 + 3][8] = {
+static uint8_t inst_data[16 + 3][8] = {
 	{ 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 }, // user instrument
 	{ 0x61,0x61,0x1e,0x17,0xf0,0x7f,0x00,0x17 }, // violin
 	{ 0x13,0x41,0x16,0x0e,0xfd,0xf4,0x23,0x23 }, // guitar
@@ -689,34 +652,34 @@ static byte inst_data[16 + 3][8] = {
 YM2413::YM2413()
 {
 	if (false) {
-		for (auto& e : dB2Lin.tab) std::cout << e << ' ';
+		for (auto& e : dB2LinTab) std::cout << e << ' ';
 		std::cout << '\n';
 
-		for (auto& e : arAdjust.tab) std::cout << e << ' ';
+		for (auto& e : arAdjustTab) std::cout << e << ' ';
 		std::cout << '\n';
 
 		for (int i = 0; i < 4; ++i) {
 			for (int j = 0; j < 16 * 8; ++j) {
-				std::cout << int(tll.tab[i][j]) << ' ';
+				std::cout << int(tllTab[i][j]) << ' ';
 			}
 			std::cout << '\n';
 		}
 		std::cout << '\n';
 
-		for (auto& e : sinTable.full) std::cout << e << ' ';
+		for (auto& e : fullSinTable) std::cout << e << ' ';
 		std::cout << '\n';
-		for (auto& e : sinTable.half) std::cout << e << ' ';
+		for (auto& e : halfSinTable) std::cout << e << ' ';
 		std::cout << '\n';
 
 		for (int i = 0; i < 16; ++i) {
 			for (int j = 0; j < 16; ++j) {
-				std::cout << dphaseDR.tab[i][j] << ' ';
+				std::cout << dphaseDrTab[i][j] << ' ';
 			}
 			std::cout << '\n';
 		}
 		std::cout << '\n';
 
-		for (auto& e : sl.tab) std::cout << e << ' ';
+		for (auto& e : slTab) std::cout << e << ' ';
 		std::cout << '\n';
 	}
 
@@ -743,6 +706,7 @@ void YM2413::reset()
 	for (unsigned i = 0; i < 0x40; ++i) {
 		writeReg(i, 0);
 	}
+	registerLatch = 0;
 }
 
 // Drum key on
@@ -843,14 +807,14 @@ void YM2413::keyOff_CYM()
 	}
 }
 
-void YM2413::setRhythmFlags(byte old)
+void YM2413::setRhythmFlags(uint8_t old)
 {
 	Channel& ch6 = channels[6];
 	Channel& ch7 = channels[7];
 	Channel& ch8 = channels[8];
 
 	// flags = X | X | mode | BD | SD | TOM | TC | HH
-	byte flags = reg[0x0E];
+	uint8_t flags = reg[0x0E];
 	if ((flags ^ old) & 0x20) {
 		if (flags & 0x20) {
 			// OFF -> ON
@@ -963,7 +927,7 @@ void Slot::calc_envelope_outline(unsigned& out)
 template <bool HAS_AM, bool FIXED_ENV>
 ALWAYS_INLINE unsigned Slot::calc_envelope(int lfo_am, unsigned fixed_env)
 {
-	assert(!FIXED_ENV || (state == SUSHOLD) || (state == FINISH));
+	assert(!FIXED_ENV || (state == one_of(SUSHOLD, FINISH)));
 
 	if (FIXED_ENV) {
 		unsigned out = fixed_env;
@@ -977,7 +941,7 @@ ALWAYS_INLINE unsigned Slot::calc_envelope(int lfo_am, unsigned fixed_env)
 	} else {
 		unsigned out = eg_phase.toInt(); // in range [0, 128)
 		if (state == ATTACK) {
-			out = arAdjust.tab[out]; // [0, 128)
+			out = arAdjustTab[out]; // [0, 128)
 		}
 		eg_phase += eg_dphase;
 		if (eg_phase >= eg_phase_max) {
@@ -992,7 +956,7 @@ ALWAYS_INLINE unsigned Slot::calc_envelope(int lfo_am, unsigned fixed_env)
 }
 template <bool HAS_AM> unsigned Slot::calc_fixed_env() const
 {
-	assert((state == SUSHOLD) || (state == FINISH));
+	assert(state == one_of(SUSHOLD, FINISH));
 	assert(eg_dphase == EnvPhaseIndex(0));
 	unsigned out = eg_phase.toInt(); // in range [0, 128)
 	out = EG2DB(out + tll); // [0, 480)
@@ -1008,7 +972,7 @@ ALWAYS_INLINE int Slot::calc_slot_car(unsigned lfo_pm, int lfo_am, int fm, unsig
 {
 	int phase = calc_phase(lfo_pm) + wave2_8pi(fm);
 	unsigned egout = calc_envelope<HAS_AM, FIXED_ENV>(lfo_am, fixed_env);
-	int newOutput = dB2Lin.tab[patch.WF[phase & PG_MASK] + egout];
+	int newOutput = dB2LinTab[patch.WF[phase & PG_MASK] + egout];
 	output = (output + newOutput) >> 1;
 	return output;
 }
@@ -1023,7 +987,7 @@ ALWAYS_INLINE int Slot::calc_slot_mod(unsigned lfo_pm, int lfo_am, unsigned fixe
 	if (HAS_FB) {
 		phase += wave2_8pi(feedback) >> patch.FB;
 	}
-	int newOutput = dB2Lin.tab[patch.WF[phase & PG_MASK] + egout];
+	int newOutput = dB2LinTab[patch.WF[phase & PG_MASK] + egout];
 	feedback = (output + newOutput) >> 1;
 	output = newOutput;
 	return feedback;
@@ -1034,7 +998,7 @@ ALWAYS_INLINE int Slot::calc_slot_tom()
 {
 	unsigned phase = calc_phase(0);
 	unsigned egout = calc_envelope<false, false>(0, 0);
-	return dB2Lin.tab[patch.WF[phase & PG_MASK] + egout];
+	return dB2LinTab[patch.WF[phase & PG_MASK] + egout];
 }
 
 // SNARE (ch7 car)
@@ -1043,8 +1007,8 @@ ALWAYS_INLINE int Slot::calc_slot_snare(bool noise)
 	unsigned phase = calc_phase(0);
 	unsigned egout = calc_envelope<false, false>(0, 0);
 	return BIT(phase, 7)
-		? dB2Lin.tab[(noise ? DB_POS(0.0) : DB_POS(15.0)) + egout]
-		: dB2Lin.tab[(noise ? DB_NEG(0.0) : DB_NEG(15.0)) + egout];
+		? dB2LinTab[(noise ? DB_POS(0.0) : DB_POS(15.0)) + egout]
+		: dB2LinTab[(noise ? DB_NEG(0.0) : DB_NEG(15.0)) + egout];
 }
 
 // TOP-CYM (ch8 car)
@@ -1058,7 +1022,7 @@ ALWAYS_INLINE int Slot::calc_slot_cym(unsigned phase7, unsigned phase8)
 	                   !BIT(phase8, PG_BITS - 5)))
 	               ? DB_NEG(3.0)
 	               : DB_POS(3.0);
-	return dB2Lin.tab[dbout + egout];
+	return dB2LinTab[dbout + egout];
 }
 
 // HI-HAT (ch7 mod)
@@ -1072,7 +1036,7 @@ ALWAYS_INLINE int Slot::calc_slot_hat(unsigned phase7, unsigned phase8, bool noi
 	                   !BIT(phase8, PG_BITS - 5)))
 	               ? (noise ? DB_NEG(12.0) : DB_NEG(24.0))
 	               : (noise ? DB_POS(12.0) : DB_POS(24.0));
-	return dB2Lin.tab[dbout + egout];
+	return dB2LinTab[dbout + egout];
 }
 
 float YM2413::getAmplificationFactor() const
@@ -1163,10 +1127,8 @@ void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 			// Below we choose between 128 specialized versions of
 			// calcChannel(). This allows to move a lot of
 			// conditional code out of the inner-loop.
-			bool carFixedEnv = (ch.car.state == SUSHOLD) ||
-			                   (ch.car.state == FINISH);
-			bool modFixedEnv = (ch.mod.state == SUSHOLD) ||
-			                   (ch.mod.state == FINISH);
+			bool carFixedEnv = ch.car.state == one_of(SUSHOLD, FINISH);
+			bool modFixedEnv = ch.mod.state == one_of(SUSHOLD, FINISH);
 			if (ch.car.state == SETTLE) {
 				modFixedEnv = false;
 			}
@@ -1395,7 +1357,21 @@ void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 	}
 }
 
-void YM2413::writeReg(byte r, byte data)
+void YM2413::writePort(bool port, uint8_t value, int /*offset*/)
+{
+	if (port == 0) {
+		registerLatch = value;
+	} else {
+		writeReg(registerLatch & 0x3f, value);
+	}
+}
+
+void YM2413::pokeReg(uint8_t r, uint8_t data)
+{
+	writeReg(r, data);
+}
+
+void YM2413::writeReg(uint8_t r, uint8_t data)
 {
 	assert(r < 0x40);
 
@@ -1538,7 +1514,7 @@ void YM2413::writeReg(byte r, byte data)
 		break;
 	}
 	case 0x0E: {
-		byte old = reg[r];
+		uint8_t old = reg[r];
 		reg[r] = data;
 		setRhythmFlags(old);
 		break;
@@ -1546,7 +1522,7 @@ void YM2413::writeReg(byte r, byte data)
 	case 0x19: case 0x1A: case 0x1B: case 0x1C:
 	case 0x1D: case 0x1E: case 0x1F:
 		r -= 9; // verified on real YM2413
-		// fall-through
+		[[fallthrough]];
 	case 0x10: case 0x11: case 0x12: case 0x13: case 0x14:
 	case 0x15: case 0x16: case 0x17: case 0x18: {
 		reg[r] = data;
@@ -1561,7 +1537,7 @@ void YM2413::writeReg(byte r, byte data)
 	case 0x29: case 0x2A: case 0x2B: case 0x2C:
 	case 0x2D: case 0x2E: case 0x2F:
 		r -= 9; // verified on real YM2413
-		// fall-through
+		[[fallthrough]];
 	case 0x20: case 0x21: case 0x22: case 0x23: case 0x24:
 	case 0x25: case 0x26: case 0x27: case 0x28: {
 		reg[r] = data;
@@ -1582,7 +1558,7 @@ void YM2413::writeReg(byte r, byte data)
 	case 0x39: case 0x3A: case 0x3B: case 0x3C:
 	case 0x3D: case 0x3E: case 0x3F:
 		r -= 9; // verified on real YM2413
-		// fall-through
+		[[fallthrough]];
 	case 0x30: case 0x31: case 0x32: case 0x33: case 0x34:
 	case 0x35: case 0x36: case 0x37: case 0x38: {
 		reg[r] = data;
@@ -1608,7 +1584,7 @@ void YM2413::writeReg(byte r, byte data)
 	}
 }
 
-byte YM2413::peekReg(byte r) const
+uint8_t YM2413::peekReg(uint8_t r) const
 {
 	return reg[r];
 }
@@ -1664,6 +1640,7 @@ void Channel::serialize(Archive& ar, unsigned /*version*/)
 // version 1: initial version
 // version 2: 'registers' are moved here (no longer serialized in base class)
 // version 3: no longer serialize 'user_patch_mod' and 'user_patch_car'
+// version 4: added 'registerLatch'
 template<typename Archive>
 void YM2413::serialize(Archive& ar, unsigned version)
 {
@@ -1702,6 +1679,11 @@ void YM2413::serialize(Archive& ar, unsigned version)
 			ch.car.setEnvelopeState(ch.car.state);
 		}
 		update_key_status();
+	}
+	if (ar.versionAtLeast(version, 4)) {
+		ar.serialize("registerLatch", registerLatch);
+	} else {
+		// could be restored from MSXMusicBase, worth the effort?
 	}
 }
 

@@ -4,7 +4,7 @@ from hq_gen import (
 	)
 
 from collections import defaultdict
-from itertools import count, izip
+from itertools import count
 
 def normalizeWeights(pixelExpr):
 	maxSum = max(
@@ -23,11 +23,11 @@ def extractTopLeftWeights(weights):
 
 def extractTopLeftQuadrant(pixelExpr):
 	zoom = getZoom(pixelExpr)
-	quadrantWidth = (zoom + 1) / 2
+	quadrantWidth = (zoom + 1) // 2
 	quadrantMap = [
 		qy * zoom + qx
-		for qy in xrange(quadrantWidth)
-		for qx in xrange(quadrantWidth)
+		for qy in range(quadrantWidth)
+		for qx in range(quadrantWidth)
 		]
 	for expr in [
 		[ expr[subPixel] for subPixel in quadrantMap ]
@@ -69,14 +69,14 @@ def analyzeCaseFunction(caseToWeights):
 	weightsToCase = defaultdict(set)
 	for case, weights in enumerate(caseToWeights):
 		weightsToCase[weights].add(case)
-	for weights in sorted(weightsToCase.iterkeys()):
+	for weights in sorted(weightsToCase.keys()):
 		cases = weightsToCase[weights]
-		partitions = set(
-			tuple((case >> edgeNum) & 1 for edgeNum in xrange(11, -1, -1))
+		partitions = {
+			tuple((case >> edgeNum) & 1 for edgeNum in range(11, -1, -1))
 			for case in cases
-			)
+			}
 		# Repeatedly merge partitions until we have a minimal set.
-		for edgeNum in xrange(12):
+		for edgeNum in range(12):
 			changed = True
 			while changed:
 				changed = False
@@ -100,56 +100,56 @@ def analyzeCaseFunction(caseToWeights):
 # Various analysis:
 
 def findRelevantEdges():
-	for zoom, genExpr in izip(count(2), (genExpr2, genExpr3, genExpr4)):
+	for zoom, genExpr in zip(count(2), (genExpr2, genExpr3, genExpr4)):
 		quadrant = genExpr()
-		quadrantWidth = (zoom + 1) / 2
+		quadrantWidth = (zoom + 1) // 2
 		assert quadrantWidth ** 2 == len(quadrant[0])
-		subPixelOutput = [[] for _ in xrange(quadrantWidth * 10)]
-		for subPixel in xrange(quadrantWidth ** 2):
-			neighbourOutput = [[] for _ in xrange(8)]
-			for neighbour in xrange(4):
+		subPixelOutput = [[] for _ in range(quadrantWidth * 10)]
+		for subPixel in range(quadrantWidth ** 2):
+			neighbourOutput = [[] for _ in range(8)]
+			for neighbour in range(4):
 				relevant = [
 					edgeNum
-					for edgeNum in xrange(12)
+					for edgeNum in range(12)
 					if any(
 						quadrant[case][subPixel][neighbour] !=
 							quadrant[case ^ (1 << edgeNum)][subPixel][neighbour]
-						for case in xrange(len(quadrant))
+						for case in range(len(quadrant))
 						)
 					]
 				zero = len(relevant) == 0 and all(
 					quadrant[case][subPixel][neighbour] == 0
-					for case in xrange(len(quadrant))
+					for case in range(len(quadrant))
 					)
 				center = ('.' if zero else str(neighbour))
 				for rowNum, row in enumerate(formatEdges(relevant)):
 					if rowNum == 1:
 						assert row[1] == 'o'
 						row = row[0] + center + row[2]
-					neighbourOutput[(neighbour / 2) * 4 + rowNum].append(row)
-				neighbourOutput[(neighbour / 2) * 4 + 3].append('   ')
+					neighbourOutput[(neighbour // 2) * 4 + rowNum].append(row)
+				neighbourOutput[(neighbour // 2) * 4 + 3].append('   ')
 			for lineNum, line in enumerate(neighbourOutput):
 				lineOutput = '  %s  |' % '  '.join(line)
 				subPixelOutput[
-					(subPixel / quadrantWidth) * 10 + lineNum + 1
+					(subPixel // quadrantWidth) * 10 + lineNum + 1
 					].append(lineOutput)
 				if lineNum == 7:
-					subPixelOutput[(subPixel / quadrantWidth) * 10].append(
+					subPixelOutput[(subPixel // quadrantWidth) * 10].append(
 						lineOutput
 						)
-					subPixelOutput[(subPixel / quadrantWidth) * 10 + 9].append(
+					subPixelOutput[(subPixel // quadrantWidth) * 10 + 9].append(
 						'%ss%d' % ('-' * (len(lineOutput) - 2), subPixel)
 						)
-		print 'Relevant edges for zoom %d:' % zoom
-		print
+		print('Relevant edges for zoom %d:' % zoom)
+		print()
 		for line in subPixelOutput:
-			print '  %s' % ''.join(line)
-		print
+			print('  %s' % ''.join(line))
+		print()
 
 # Visualization:
 
 def formatEdges(edgeNums):
-	cells = ['.' for _ in xrange(9)]
+	cells = ['.' for _ in range(9)]
 	cells[4] = 'o'
 	def combine(index, ch):
 		old = cells[index]
@@ -169,7 +169,7 @@ def formatEdges(edgeNums):
 			x = 0 if 3 in edge else 2
 			y = 0 if 1 in edge else 2
 			combine(y * 3 + x, '/' if x == y else '\\')
-	for y in xrange(3):
+	for y in range(3):
 		yield ''.join(cells[y * 3 : (y + 1) * 3])
 
 def formatWeights(weights):
@@ -179,35 +179,35 @@ def comparePixelExpr(pixelExpr1, pixelExpr2):
 	zoom = getZoom(pixelExpr1)
 	assert zoom == getZoom(pixelExpr2)
 	mismatchCount = 0
-	for case, (expr1, expr2) in enumerate(izip(pixelExpr1, pixelExpr2)):
+	for case, (expr1, expr2) in enumerate(zip(pixelExpr1, pixelExpr2)):
 		if expr1 != expr2:
 			binStr = bin(case)[2 : ].zfill(12)
-			print 'case: %d (%s)' % (
+			print('case: %d (%s)' % (
 				case,
 				' '.join(binStr[i : i + 4] for i in range(0, 12, 4))
-				)
-			for sy in xrange(zoom):
+				))
+			for sy in range(zoom):
 				matrices = []
-				for sx in xrange(zoom):
+				for sx in range(zoom):
 					subPixel = sy * zoom + sx
 					subExpr1 = expr1[subPixel]
 					subExpr2 = expr2[subPixel]
 					rows = []
-					for ny in xrange(3):
+					for ny in range(3):
 						rows.append('%s   %s %s' % (
 							formatWeights(subExpr1[ny * 3 : (ny + 1) * 3]),
 							'.' if subExpr1 == subExpr2 else '!',
 							formatWeights(subExpr2[ny * 3 : (ny + 1) * 3])
 							))
 					matrices.append(rows)
-				for ny in xrange(3):
-					print '  %s' % '       '.join(
+				for ny in range(3):
+					print('  %s' % '       '.join(
 						matrices[sx][ny]
-						for sx in xrange(zoom)
-						)
-				print
+						for sx in range(zoom)
+						))
+				print()
 			mismatchCount += 1
-	print 'Number of mismatches: %d' % mismatchCount
+	print('Number of mismatches: %d' % mismatchCount)
 
 # Sanity checks:
 

@@ -7,7 +7,7 @@
 #include "IntegerSetting.hh"
 #include "CircularBuffer.hh"
 #include "circular_buffer.hh"
-#include "string_view.hh"
+#include <string_view>
 #include <vector>
 
 namespace openmsx {
@@ -30,7 +30,7 @@ public:
 
 	/** Append a chunk with a (different) color. This is currently the
 	  * only way to construct a multi-colored line/ */
-	void addChunk(string_view text, uint32_t rgb);
+	void addChunk(std::string_view text, uint32_t rgb);
 
 	/** Get the number of UTF8 characters in this line. So multi-byte
 	  * characters are counted as a single character. */
@@ -44,20 +44,13 @@ public:
 	/** Get the color for the i-th chunk. */
 	uint32_t chunkColor(size_t i) const;
 	/** Get the text for the i-th chunk. */
-	string_view chunkText(size_t i) const;
+	std::string_view chunkText(size_t i) const;
 
-	/** Get a part of total line. The result keeps the same colors as this
-	  * line. E.g. used to get part of (long) line that should be wrapped
-	  * over multiple console lines.
-	  * @param pos First character (multi-byte sequence counted as 1
-	  *            character).
-	  * @param len Length of the substring, also counted in characters
-	  */
-	ConsoleLine substr(size_t pos, size_t len) const;
+	const auto& getChunks() const { return chunks; }
 
 private:
 	std::string line;
-	std::vector<std::pair<uint32_t, string_view::size_type>> chunks; // [rgb, pos]
+	std::vector<std::pair<uint32_t, std::string_view::size_type>> chunks; // [rgb, pos]
 };
 
 
@@ -73,7 +66,6 @@ public:
 	BooleanSetting& getConsoleSetting() { return consoleSetting; }
 
 	unsigned getScrollBack() const { return consoleScrollBack; }
-	ConsoleLine getLine(unsigned line) const;
 	void getCursorPosition(unsigned& xPosition, unsigned& yPosition) const;
 
 	void setColumns(unsigned columns_) { columns = columns_; }
@@ -81,9 +73,11 @@ public:
 	void setRows(unsigned rows_) { rows = rows_; }
 	unsigned getRows() const { return rows; }
 
+	const auto& getLines() const { return lines; }
+
 private:
 	// InterpreterOutput
-	void output(string_view text) override;
+	void output(std::string_view text) override;
 	unsigned getOutputColumns() const override;
 
 	// EventListener
@@ -93,9 +87,14 @@ private:
 	void tabCompletion();
 	void commandExecute();
 	void scroll(int delta);
+	void gotoStartOfWord();
+	void deleteToStartOfWord();
+	void gotoEndOfWord();
+	void deleteToEndOfWord();
 	void prevCommand();
 	void nextCommand();
 	void clearCommand();
+	void clearHistory();
 	void backspace();
 	void delete_key();
 	void normalKey(uint32_t chr);
@@ -104,11 +103,12 @@ private:
 	void newLineConsole(ConsoleLine line);
 	void putPrompt();
 	void resetScrollBack();
-	ConsoleLine highLight(string_view line);
+	void paste();
+	ConsoleLine highLight(std::string_view line);
 
 	/** Prints a string on the console.
 	  */
-	void print(string_view text, unsigned rgb = 0xffffff);
+	void print(std::string_view text, unsigned rgb = 0xffffff);
 
 	void loadHistory();
 	void saveHistory();
@@ -120,7 +120,7 @@ private:
 	IntegerSetting historySizeSetting;
 	BooleanSetting removeDoublesSetting;
 
-	static const int LINESHISTORY = 1000;
+	static constexpr int LINESHISTORY = 1000;
 	CircularBuffer<ConsoleLine, LINESHISTORY> lines;
 	std::string commandBuffer;
 	std::string prompt;

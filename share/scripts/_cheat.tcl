@@ -54,7 +54,7 @@ variable translate [dict create \
 	"<="       "new <= old" \
 	">="       "new >= old" \
 	"<"        "new <  old" \
-	">"        "new <  old" \
+	">"        "new >  old" \
 	"=="       "new == old" \
 	"!="       "new != old"]
 

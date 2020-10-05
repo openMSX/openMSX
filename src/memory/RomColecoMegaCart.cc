@@ -2,6 +2,7 @@
 #include "serialize.hh"
 #include "MSXException.hh"
 #include "CacheLine.hh"
+#include "one_of.hh"
 
 // information source:
 // https://github.com/openMSX/openMSX/files/2118720/MegaCart.FAQ.V1-2.pdf
@@ -11,8 +12,8 @@ namespace openmsx {
 RomColecoMegaCart::RomColecoMegaCart(const DeviceConfig& config, Rom&& rom_)
 	: Rom16kBBlocks(config, std::move(rom_))
 {
-	size_t size = rom.getSize() / 1024;
-	if ((size != 128) && (size != 256) && (size != 512) && (size != 1024)) {
+	auto size = rom.getSize() / 1024;
+	if (size != one_of(128u, 256u, 512u, 1024u)) {
 		throw MSXException(
 			"MegaCart only supports ROMs of 128kB, 256kB, 512kB and 1024kB "
 			"size and not of ", size, "kB.");
@@ -28,6 +29,7 @@ void RomColecoMegaCart::reset(EmuTime::param /*time*/)
 	// always contain the highest/last 16K segment of the EPROM.
 	setRom(2, unsigned(-1)); // select last block
 	setRom(3, 0);
+	invalidateDeviceRCache(0xFFC0 & CacheLine::HIGH, CacheLine::SIZE);
 }
 
 byte RomColecoMegaCart::readMem(word address, EmuTime::param time)
@@ -38,6 +40,7 @@ byte RomColecoMegaCart::readMem(word address, EmuTime::param time)
 	// FFD0, FFE0, or FFF0.
 	if (address >= 0xFFC0) {
 		setRom(3, address); // mirroring is handled in superclass
+		invalidateDeviceRCache(0xFFC0 & CacheLine::HIGH, CacheLine::SIZE);
 	}
 	return Rom16kBBlocks::readMem(address, time);
 }

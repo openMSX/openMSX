@@ -5,6 +5,7 @@
 #include "Reactor.hh"
 #include "CassettePort.hh"
 #include "RenShaTurbo.hh"
+#include "GlobalSettings.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -13,7 +14,7 @@ MSXPPI::MSXPPI(const DeviceConfig& config)
 	: MSXDevice(config)
 	, cassettePort(getMotherBoard().getCassettePort())
 	, renshaTurbo(getMotherBoard().getRenShaTurbo())
-	, i8255(*this, getCurrentTime(), getCliComm())
+	, i8255(*this, getCurrentTime(), config.getGlobalSettings().getInvalidPpiModeSetting())
 	, click(config)
 	, keyboard(
 		config.getMotherBoard(),

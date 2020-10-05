@@ -61,6 +61,7 @@
 
     <primary slot="3">
       <RAM id="Main RAM">
+        <initialContent encoding="gz-base64">eJz7z/B/QOEAW/8fAASAf4E=</initialContent> <!-- line1 = (chr(0) + chr(255))*8; line2 = (chr(255) + chr(0))*8; line1 + line2; at least, as seen on Fábio Santos' machine -->
         <mem base="0x0000" size="0x10000"/>
       </RAM>
     </primary>

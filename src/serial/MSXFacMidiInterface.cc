@@ -12,7 +12,7 @@ MSXFacMidiInterface::MSXFacMidiInterface(const DeviceConfig& config)
 	, i8251(getScheduler(), interf, getCurrentTime())
 {
 	EmuTime::param time = getCurrentTime();
-	auto period = EmuDuration::hz(500000); // 500 kHz
+	static constexpr auto period = EmuDuration::hz(500000); // 500 kHz
 	i8251.getClockPin().setPeriodicState(period, period / 2, time);
 	reset(time);
 }

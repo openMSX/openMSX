@@ -3,15 +3,15 @@
 namespace openmsx {
 
 StringSetting::StringSetting(CommandController& commandController_,
-                             string_view name_, string_view description_,
-                             string_view initialValue, SaveSetting save_)
+                             std::string_view name_, std::string_view description_,
+                             std::string_view initialValue, SaveSetting save_)
 	: Setting(commandController_, name_, description_,
 	          TclObject(initialValue), save_)
 {
 	init();
 }
 
-string_view StringSetting::getTypeString() const
+std::string_view StringSetting::getTypeString() const
 {
 	return "string";
 }

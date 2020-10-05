@@ -43,14 +43,6 @@ EnumSetting<RenderSettings::RendererID>::Map RenderSettings::getRendererMap()
 	// compiled with OpenGL-2.0, still need to test whether
 	// it's available at run time, but cannot be done here
 	rendererMap.emplace_back("SDLGL-PP", SDLGL_PP);
-	if (!Version::RELEASE) {
-		// disabled for the release:
-		//  these renderers don't offer anything more than the existing
-		//  renderers and sdlgl-fb32 still has endian problems on PPC
-		// TODO is this still true now that SDLGL is removed?
-		append(rendererMap, {{"SDLGL-FB16", SDLGL_FB16},
-		                     {"SDLGL-FB32", SDLGL_FB32}});
-	}
 #endif
 	return rendererMap;
 }
@@ -155,10 +147,18 @@ RenderSettings::RenderSettings(CommandController& commandController)
 	, displayDeformSetting(
 		commandController,
 		"display_deform", "Display deform (for the moment this only "
-		"works with the SDLGL-PP renderer", DEFORM_NORMAL,
+		"works with the SDLGL-PP renderer)", DEFORM_NORMAL,
 		EnumSetting<DisplayDeform>::Map{
 			{"normal", DEFORM_NORMAL},
 			{"3d",     DEFORM_3D}})
+
+	, vSyncSetting(commandController,
+		"vsync", "Synchronize page flip with the host screen vertical sync:\n"
+		" on -> flip on host vsync: avoids tearing\n"
+		" off -> immediate flip: might be more fluent when host framerate"
+		" (typically 60Hz) differs from MSX framerate (50 or 60Hz)\n"
+		"Currently this only affects the SDLGL-PP renderer.",
+		true)
 
 	// Many android devices are relatively low powered. Therefore use
 	// no stretch (value 320) as default for Android because it gives
@@ -266,11 +266,11 @@ float RenderSettings::transformComponent(float c) const
 
 vec3 RenderSettings::transformRGB(vec3 rgb) const
 {
-	vec3 t = colorMatrix * (rgb * contrast + vec3(brightness));
+	auto [r, g, b] = colorMatrix * (rgb * contrast + vec3(brightness));
 	float gamma = 1.0f / getGamma();
-	return {conv2(t[0], gamma),
-	        conv2(t[1], gamma),
-	        conv2(t[2], gamma)};
+	return {conv2(r, gamma),
+	        conv2(g, gamma),
+	        conv2(b, gamma)};
 }
 
 void RenderSettings::parseColorMatrix(Interpreter& interp, const TclObject& value)

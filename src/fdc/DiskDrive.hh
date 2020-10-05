@@ -12,7 +12,12 @@ namespace openmsx {
 class DiskDrive
 {
 public:
-	static const unsigned ROTATIONS_PER_SECOND = 5; // 300rpm
+	enum class TrackMode {
+		NORMAL, YAMAHA_FD_03,
+	};
+
+public:
+	static constexpr unsigned ROTATIONS_PER_SECOND = 5; // 300rpm
 
 	virtual ~DiskDrive() = default;
 
@@ -81,8 +86,8 @@ public:
 
 	/** Is disk changed?
 	 */
-	virtual bool diskChanged() = 0;
-	virtual bool peekDiskChanged() const = 0;
+	virtual bool diskChanged() = 0;           // read and reset
+	virtual bool peekDiskChanged() const = 0; // read without reset
 
 	/** Is there a dummy (unconncted) drive?
 	 */

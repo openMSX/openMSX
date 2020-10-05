@@ -244,41 +244,42 @@ TEST_CASE("gl_vec: (in)equality")
 
 TEST_CASE("gl_vec: copy constructor, assignment")
 {
-	vec2 v2(2, 3);
-	vec2 w2(v2);
-	CHECK(v2 == w2);
-	v2[0] = 9; w2 = v2;
-	CHECK(v2 == w2);
-
-	ivec2 i2(2, 3);
-	ivec2 j2(i2);
-	CHECK(i2 == j2);
-	i2[1] = 9; j2 = i2;
-	CHECK(i2 == j2);
-
-	vec3 v3(3, 4, 5);
-	vec3 w3(v3);
-	CHECK(v3 == w3);
-	v3[2] = 8; w3 = v3;
-	CHECK(v3 == w3);
-
-	ivec3 i3(3, 4, 5);
-	ivec3 j3(i3);
-	CHECK(i3 == j3);
-	i3[1] = 8; j3 = i3;
-	CHECK(i3 == j3);
-
-	vec4 v4(4, 5, 6, 7);
-	vec4 w4(v4);
-	CHECK(v4 == w4);
-	v3[3] = 0; w4 = v4;
-	CHECK(v4 == w4);
-
-	ivec4 i4(4, 5, 6, 7);
-	ivec4 j4(i4);
-	CHECK(i4 == j4);
-	i3[0] = 1; j4 = i4;
-	CHECK(i4 == j4);
+	SECTION("vec2") {
+		vec2 v(2, 3);
+		vec2 w(v); CHECK(v == w);
+		v[0] = 9;  CHECK(v != w);
+		w = v;     CHECK(v == w);
+	}
+	SECTION("ivec2") {
+		ivec2 v(2, 3);
+		ivec2 w(v); CHECK(v == w);
+		v[1] = 9;   CHECK(v != w);
+		w = v;      CHECK(v == w);
+	}
+	SECTION("vec3") {
+		vec3 v(3, 4, 5);
+		vec3 w(v); CHECK(v == w);
+		v[2] = 8;  CHECK(v != w);
+		w = v;     CHECK(v == w);
+	}
+	SECTION("ivec3") {
+		ivec3 v(3, 4, 5);
+		ivec3 w(v); CHECK(v == w);
+		v[1] = 8;   CHECK(v != w);
+		w = v;      CHECK(v == w);
+	}
+	SECTION("vec4") {
+		vec4 v(4, 5, 6, 7);
+		vec4 w(v); CHECK(v == w);
+		v[3] = 0;  CHECK(v != w);
+		w = v;     CHECK(v == w);
+	}
+	SECTION("ivec4") {
+		ivec4 v(4, 5, 6, 7);
+		ivec4 w(v); CHECK(v == w);
+		v[0] = 1;   CHECK(v != w);
+		w = v;      CHECK(v == w);
+	}
 }
 
 TEST_CASE("gl_vec: construct from larger vector")

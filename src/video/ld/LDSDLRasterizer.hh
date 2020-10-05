@@ -2,12 +2,11 @@
 #define LDSDLRASTERIZER_HH
 
 #include "LDRasterizer.hh"
-#include <SDL.h>
 #include <memory>
 
 namespace openmsx {
 
-class VisibleSurface;
+class OutputSurface;
 class RawFrame;
 class PostProcessor;
 
@@ -19,7 +18,7 @@ class LDSDLRasterizer final : public LDRasterizer
 {
 public:
 	LDSDLRasterizer(
-		VisibleSurface& screen,
+		OutputSurface& screen,
 		std::unique_ptr<PostProcessor> postProcessor);
 	~LDSDLRasterizer() override;
 
@@ -38,8 +37,6 @@ private:
 	/** The next frame as it is delivered by the VDP, work in progress.
 	  */
 	std::unique_ptr<RawFrame> workFrame;
-
-	const SDL_PixelFormat pixelFormat;
 };
 
 } // namespace openmsx

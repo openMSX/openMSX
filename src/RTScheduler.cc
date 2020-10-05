@@ -18,7 +18,7 @@ void RTScheduler::add(uint64_t delta, RTSchedulable& schedulable)
 {
 	queue.insert(RTSyncPoint{Timer::getTime() + delta, &schedulable},
 	             [](RTSyncPoint& sp) {
-                             sp.time = std::numeric_limits<uint64_t>::max(); },
+	                     sp.time = std::numeric_limits<uint64_t>::max(); },
 	             [](const RTSyncPoint& x, const RTSyncPoint& y) {
 	                     return x.time < y.time; });
 }

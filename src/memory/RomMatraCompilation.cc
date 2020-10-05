@@ -1,4 +1,5 @@
 #include "RomMatraCompilation.hh"
+#include "one_of.hh"
 #include "serialize.hh"
 
 // This is basically a generic 8kB mapper (Konami like, but without fixed page
@@ -44,8 +45,7 @@ void RomMatraCompilation::writeMem(word address, byte value, EmuTime::param /*ti
 			}
 		}
 	} else if ((blockOffset >= 2) &&
-		   ((address == 0x5000) || (address == 0x6000)
-		 || (address == 0x8000) || (address == 0xA000))) {
+		   (address == one_of(0x5000, 0x6000, 0x8000, 0xA000))) {
 		setRom(address >> 13, value + blockOffset - 2);
 	}
 }
@@ -62,7 +62,7 @@ byte* RomMatraCompilation::getWriteCacheLine(word address) const
 template<typename Archive>
 void RomMatraCompilation::serialize(Archive& ar, unsigned /*version*/)
 {
-        ar.template serializeBase<Rom8kBBlocks>(*this);
+	ar.template serializeBase<Rom8kBBlocks>(*this);
 
 	ar.serialize("blockOffset", blockOffset);
 }

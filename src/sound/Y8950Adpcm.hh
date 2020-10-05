@@ -63,8 +63,8 @@ private:
 	TrackedRam ram;
 
 	// copy/pasted from Y8950.hh
-	static const int CLOCK_FREQ     = 3579545;
-	static const int CLOCK_FREQ_DIV = 72;
+	static constexpr int CLOCK_FREQ     = 3579545;
+	static constexpr int CLOCK_FREQ_DIV = 72;
 	Clock<CLOCK_FREQ, CLOCK_FREQ_DIV> clock;
 
 	PlayData emu; // used for emulator behaviour (read back of sample data)

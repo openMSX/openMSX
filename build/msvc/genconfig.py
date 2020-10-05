@@ -1,6 +1,5 @@
 # Generates configuration headers for VC++ builds
 
-from __future__ import print_function
 import sys
 import os.path
 import outpututils
@@ -69,5 +68,5 @@ def genConfig(platform, configuration, outputPath):
 if len(sys.argv) == 4:
 	genConfig(sys.argv[1], sys.argv[2], sys.argv[3])
 else:
-	print('Usage: python genconfig.py platform configuration outputPath', file=sys.stderr)
+	print('Usage: python3 genconfig.py platform configuration outputPath', file=sys.stderr)
 	sys.exit(2)

@@ -7,7 +7,7 @@ namespace openmsx {
 
 std::string Event::toString() const
 {
-	return toTclList().getString().str();
+	return std::string(toTclList().getString());
 }
 
 bool Event::operator<(const Event& other) const

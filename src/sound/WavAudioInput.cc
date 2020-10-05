@@ -13,7 +13,7 @@ WavAudioInput::WavAudioInput(CommandController& commandController)
 		commandController, "audio-inputfilename",
 		"filename of the file where the sampler reads data from",
 		"audio-input.wav")
-	, reference(EmuTime::zero)
+	, reference(EmuTime::zero())
 {
 	audioInputFilenameSetting.attach(*this);
 }
@@ -25,7 +25,7 @@ WavAudioInput::~WavAudioInput()
 
 void WavAudioInput::loadWave()
 {
-	wav = WavData(audioInputFilenameSetting.getString().str());
+	wav = WavData(string(audioInputFilenameSetting.getString()));
 }
 
 const string& WavAudioInput::getName() const
@@ -34,7 +34,7 @@ const string& WavAudioInput::getName() const
 	return name;
 }
 
-string_view WavAudioInput::getDescription() const
+std::string_view WavAudioInput::getDescription() const
 {
 	return "Read .wav files. Can for example be used as input for "
 		"samplers.";

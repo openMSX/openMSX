@@ -30,6 +30,7 @@ public:
 	const byte *getReadCacheLine(word start) const override;
 	void writeMem(word address, byte value, EmuTime::param time) override;
 	byte* getWriteCacheLine(word start) const override;
+	bool allowUnaligned() const override;
 
 	// RS232Connector  (input)
 	void setDataBits(DataBits bits) override;

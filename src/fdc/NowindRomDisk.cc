@@ -20,7 +20,7 @@ bool NowindRomDisk::diskChanged()
 	return false;
 }
 
-int NowindRomDisk::insertDisk(string_view /*filename*/)
+int NowindRomDisk::insertDisk(std::string_view /*filename*/)
 {
 	return -1; // Can't change NowindRomDisk disk image
 }

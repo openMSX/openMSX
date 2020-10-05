@@ -1,6 +1,5 @@
 # Generates version include file.
 
-from __future__ import print_function
 from outpututils import rewriteIfChanged
 from version import extractRevisionString, packageVersion, releaseFlag
 
@@ -18,5 +17,5 @@ if __name__ == '__main__':
 	if len(sys.argv) == 2:
 		rewriteIfChanged(sys.argv[1], iterVersionInclude())
 	else:
-		print('Usage: python version2code.py VERSION_HEADER', file=sys.stderr)
+		print('Usage: python3 version2code.py VERSION_HEADER', file=sys.stderr)
 		sys.exit(2)

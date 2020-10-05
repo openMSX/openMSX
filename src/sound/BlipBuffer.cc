@@ -3,6 +3,7 @@
 #include "likely.hh"
 #include "Math.hh"
 #include <algorithm>
+#include <array>
 #include <cstring>
 #include <cassert>
 #include <iostream>
@@ -11,21 +12,17 @@ namespace openmsx {
 
 // The input sample stream can only use this many bits out of the available 32
 // bits. So 29 bits means the sample values must be in range [-256M, 256M].
-static constexpr int BLIP_SAMPLE_BITS = 29;
+constexpr int BLIP_SAMPLE_BITS = 29;
 
 // Number of samples in a (pre-calculated) impulse-response wave-form.
-static constexpr int BLIP_IMPULSE_WIDTH = 16;
+constexpr int BLIP_IMPULSE_WIDTH = 16;
 
 // Derived constants
-static constexpr int BLIP_RES = 1 << BlipBuffer::BLIP_PHASE_BITS;
+constexpr int BLIP_RES = 1 << BlipBuffer::BLIP_PHASE_BITS;
 
 
 // Precalculated impulse table.
-struct Impulses {
-	float a[BLIP_RES][BLIP_IMPULSE_WIDTH];
-};
-static constexpr Impulses calcImpulses()
-{
+constexpr auto impulses = [] {
 	constexpr int HALF_SIZE = BLIP_RES / 2 * (BLIP_IMPULSE_WIDTH - 1);
 	double fimpulse[HALF_SIZE + 2 * BLIP_RES] = {};
 	double* out = &fimpulse[BLIP_RES];
@@ -69,11 +66,11 @@ static constexpr Impulses calcImpulses()
 	// longer meaningful.
 
 	// reshuffle values to a more cache friendly order
-	Impulses impulses = {};
+	std::array<std::array<float, BLIP_IMPULSE_WIDTH>, BLIP_RES> result = {};
 	for (int phase = 0; phase < BLIP_RES; ++phase) {
 		const auto* imp_fwd = &imp[BLIP_RES - phase];
 		const auto* imp_rev = &imp[phase];
-		auto* p = impulses.a[phase];
+		auto* p = result[phase].data();
 		for (int i = 0; i < BLIP_IMPULSE_WIDTH / 2; ++i) {
 			*p++ = imp_fwd[BLIP_RES * i];
 		}
@@ -81,18 +78,17 @@ static constexpr Impulses calcImpulses()
 			*p++ = imp_rev[BLIP_RES * i];
 		}
 	}
-	return impulses;
-}
-static constexpr Impulses impulses = calcImpulses();
+	return result;
+}();
 
 
 BlipBuffer::BlipBuffer()
 {
 	if (false) {
 		for (int i = 0; i < BLIP_RES; ++i) {
-			std::cout << "\t{ " << impulses.a[i][0];
+			std::cout << "\t{ " << impulses[i][0];
 			for (int j = 1; j < BLIP_IMPULSE_WIDTH; ++j) {
-				std::cout << ", " << impulses.a[i][j];
+				std::cout << ", " << impulses[i][j];
 			}
 			std::cout << " },\n";
 		}
@@ -112,7 +108,7 @@ void BlipBuffer::addDelta(TimeIndex time, float delta)
 
 	unsigned phase = time.fractAsInt();
 	unsigned ofst = time.toInt() + offset;
-	const float* __restrict impulse = impulses.a[phase];
+	const float* __restrict impulse = impulses[phase].data();
 	if (likely((ofst + BLIP_IMPULSE_WIDTH) <= BUFFER_SIZE)) {
 		float* __restrict result = &buffer[ofst];
 		for (int i = 0; i < BLIP_IMPULSE_WIDTH; ++i) {
@@ -125,7 +121,7 @@ void BlipBuffer::addDelta(TimeIndex time, float delta)
 	}
 }
 
-static const float BASS_FACTOR = 511.0f / 512.0f;
+constexpr float BASS_FACTOR = 511.0f / 512.0f;
 
 template<unsigned PITCH>
 void BlipBuffer::readSamplesHelper(float* __restrict out, unsigned samples) __restrict
@@ -152,7 +148,7 @@ static bool isSilent(float x)
 	// input is in range [-1..+1] (does not say silent too soon). When the
 	// input is in range [-32768..+32767] it takes longer before we switch
 	// to silent mode (but still less than a second).
-	static const float threshold = 1.0f / 32768;
+	constexpr float threshold = 1.0f / 32768;
 	return std::abs(x) < threshold;
 }
 

@@ -56,6 +56,19 @@ byte* CheckedRam::getWriteCacheLine(unsigned addr) const
 	     ? const_cast<byte*>(&ram[addr]) : nullptr;
 }
 
+byte* CheckedRam::getRWCacheLines(unsigned addr, unsigned size) const
+{
+	// TODO optimize
+	unsigned num = size >> CacheLine::BITS;
+	unsigned first = addr >> CacheLine::BITS;
+	for (unsigned i = 0; i < num; ++i) {
+		if (!completely_initialized_cacheline[first + i]) {
+			return nullptr;
+		}
+	}
+	return const_cast<byte*>(&ram[addr]);
+}
+
 void CheckedRam::write(unsigned addr, const byte value)
 {
 	unsigned line = addr >> CacheLine::BITS;
@@ -63,8 +76,15 @@ void CheckedRam::write(unsigned addr, const byte value)
 		uninitialized[line][addr & CacheLine::LOW] = false;
 		if (unlikely(uninitialized[line].none())) {
 			completely_initialized_cacheline[line] = true;
-			msxcpu.invalidateMemCache(addr & CacheLine::HIGH,
-			                          CacheLine::SIZE);
+			// This invalidates way too much stuff. But because
+			// (locally) we don't know exactly how this class ie
+			// being used in the MSXDevice, there's no easy way to
+			// figure out what exactly should be invalidated.
+			//
+			// This is anyway only a debug feature (usually it's
+			// not in use), therefor it's OK to implement this in a
+			// easy/slow way rather than complex/fast.
+			msxcpu.invalidateAllSlotsRWCache(0, 0x10000);
 		}
 	}
 	ram[addr] = value;
@@ -92,7 +112,7 @@ void CheckedRam::init()
 		uninitialized.assign(
 			uninitialized.size(), getBitSetAllTrue());
 	}
-	msxcpu.invalidateMemCache(0, 0x10000);
+	msxcpu.invalidateAllSlotsRWCache(0, 0x10000);
 }
 
 void CheckedRam::update(const Setting& setting)

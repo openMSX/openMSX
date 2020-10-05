@@ -30,6 +30,11 @@ bool DriveMultiplexer::isDiskInserted() const
 	return drive[selected]->isDiskInserted();
 }
 
+bool DriveMultiplexer::isDiskInserted(DriveNum num) const
+{
+	return drive[num]->isDiskInserted();
+}
+
 bool DriveMultiplexer::isWriteProtected() const
 {
 	return drive[selected]->isWriteProtected();
@@ -112,9 +117,19 @@ bool DriveMultiplexer::diskChanged()
 	return drive[selected]->diskChanged();
 }
 
+bool DriveMultiplexer::diskChanged(DriveNum num)
+{
+	return drive[num]->diskChanged();
+}
+
 bool DriveMultiplexer::peekDiskChanged() const
 {
 	return drive[selected]->peekDiskChanged();
+}
+
+bool DriveMultiplexer::peekDiskChanged(DriveNum num) const
+{
+	return drive[num]->peekDiskChanged();
 }
 
 bool DriveMultiplexer::isDummyDrive() const

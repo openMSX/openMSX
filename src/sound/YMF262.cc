@@ -59,27 +59,27 @@ static inline YMF262::FreqIndex fnumToIncrement(unsigned block_fnum)
 }
 
 // envelope output entries
-static constexpr int ENV_BITS    = 10;
-static constexpr int ENV_LEN     = 1 << ENV_BITS;
-static constexpr double ENV_STEP = 128.0 / ENV_LEN;
+constexpr int ENV_BITS    = 10;
+constexpr int ENV_LEN     = 1 << ENV_BITS;
+constexpr double ENV_STEP = 128.0 / ENV_LEN;
 
-static constexpr int MAX_ATT_INDEX = (1 << (ENV_BITS - 1)) - 1; // 511
-static constexpr int MIN_ATT_INDEX = 0;
+constexpr int MAX_ATT_INDEX = (1 << (ENV_BITS - 1)) - 1; // 511
+constexpr int MIN_ATT_INDEX = 0;
 
 // sinwave entries
-static constexpr int SIN_BITS = 10;
-static constexpr int SIN_LEN  = 1 << SIN_BITS;
-static constexpr int SIN_MASK = SIN_LEN - 1;
+constexpr int SIN_BITS = 10;
+constexpr int SIN_LEN  = 1 << SIN_BITS;
+constexpr int SIN_MASK = SIN_LEN - 1;
 
-static constexpr int TL_RES_LEN = 256; // 8 bits addressing (real chip)
+constexpr int TL_RES_LEN = 256; // 8 bits addressing (real chip)
 
 // register number to channel number , slot offset
-static constexpr byte MOD = 0;
-static constexpr byte CAR = 1;
+constexpr byte MOD = 0;
+constexpr byte CAR = 1;
 
 
 // mapping of register number (offset) to slot number used by the emulator
-static constexpr int slot_array[32] = {
+constexpr int slot_array[32] = {
 	 0,  2,  4,  1,  3,  5, -1, -1,
 	 6,  8, 10,  7,  9, 11, -1, -1,
 	12, 14, 16, 13, 15, 17, -1, -1,
@@ -91,8 +91,8 @@ static constexpr int slot_array[32] = {
 // table is 3dB/octave , DV converts this into 6dB/octave
 // 0.1875 is bit 0 weight of the envelope counter (volume) expressed
 // in the 'decibel' scale
-#define DV(x) int((x) / (0.1875 / 2.0))
-static constexpr unsigned ksl_tab[8 * 16] = {
+static constexpr int DV(double x) { return int(x / (0.1875 / 2.0)); }
+constexpr unsigned ksl_tab[8 * 16] = {
 	// OCT 0
 	DV( 0.000), DV( 0.000), DV( 0.000), DV( 0.000),
 	DV( 0.000), DV( 0.000), DV( 0.000), DV( 0.000),
@@ -134,20 +134,18 @@ static constexpr unsigned ksl_tab[8 * 16] = {
 	DV(18.000), DV(18.750), DV(19.125), DV(19.500),
 	DV(19.875), DV(20.250), DV(20.625), DV(21.000)
 };
-#undef DV
 
 // sustain level table (3dB per step)
 // 0 - 15: 0, 3, 6, 9,12,15,18,21,24,27,30,33,36,39,42,93 (dB)
-#define SC(db) unsigned((db) * (2.0 / ENV_STEP))
-static constexpr unsigned sl_tab[16] = {
+static constexpr unsigned SC(int db) { return unsigned(db * (2.0 / ENV_STEP)); }
+constexpr unsigned sl_tab[16] = {
 	SC( 0), SC( 1), SC( 2), SC(3 ), SC(4 ), SC(5 ), SC(6 ), SC( 7),
 	SC( 8), SC( 9), SC(10), SC(11), SC(12), SC(13), SC(14), SC(31)
 };
-#undef SC
 
 
-static constexpr byte RATE_STEPS = 8;
-static constexpr byte eg_inc[15 * RATE_STEPS] = {
+constexpr byte RATE_STEPS = 8;
+constexpr byte eg_inc[15 * RATE_STEPS] = {
 //cycle:0 1  2 3  4 5  6 7
 	0,1, 0,1, 0,1, 0,1, //  0  rates 00..12 0 (increment by 0 or 1)
 	0,1, 0,1, 1,1, 0,1, //  1  rates 00..12 1
@@ -170,9 +168,9 @@ static constexpr byte eg_inc[15 * RATE_STEPS] = {
 };
 
 
-#define O(a) ((a) * RATE_STEPS)
 // note that there is no O(13) in this table - it's directly in the code
-static constexpr byte eg_rate_select[16 + 64 + 16] = {
+static constexpr byte O(int a) { return a * RATE_STEPS; }
+constexpr byte eg_rate_select[16 + 64 + 16] = {
 	// Envelope Generator rates (16 + 64 rates + 16 RKS)
 	// 16 infinite time rates
 	O(14), O(14), O(14), O(14), O(14), O(14), O(14), O(14),
@@ -206,54 +204,50 @@ static constexpr byte eg_rate_select[16 + 64 + 16] = {
 	O(12), O(12), O(12), O(12), O(12), O(12), O(12), O(12),
 	O(12), O(12), O(12), O(12), O(12), O(12), O(12), O(12),
 };
-#undef O
 
 // rate  0,    1,    2,    3,   4,   5,   6,  7,  8,  9,  10, 11, 12, 13, 14, 15
 // shift 12,   11,   10,   9,   8,   7,   6,  5,  4,  3,  2,  1,  0,  0,  0,  0
 // mask  4095, 2047, 1023, 511, 255, 127, 63, 31, 15, 7,  3,  1,  0,  0,  0,  0
-#define O(a) ((a) * 1)
-static constexpr byte eg_rate_shift[16 + 64 + 16] =
+constexpr byte eg_rate_shift[16 + 64 + 16] =
 {
 	// Envelope Generator counter shifts (16 + 64 rates + 16 RKS)
 	// 16 infinite time rates
-	O( 0), O( 0), O( 0), O( 0), O( 0), O( 0), O( 0), O( 0),
-	O( 0), O( 0), O( 0), O( 0), O( 0), O( 0), O( 0), O( 0),
+	 0,  0,  0,  0,  0,  0,  0,  0,
+	 0,  0,  0,  0,  0,  0,  0,  0,
 
 	// rates 00-15
-	O(12), O(12), O(12), O(12),
-	O(11), O(11), O(11), O(11),
-	O(10), O(10), O(10), O(10),
-	O( 9), O( 9), O( 9), O( 9),
-	O( 8), O( 8), O( 8), O( 8),
-	O( 7), O( 7), O( 7), O( 7),
-	O( 6), O( 6), O( 6), O( 6),
-	O( 5), O( 5), O( 5), O( 5),
-	O( 4), O( 4), O( 4), O( 4),
-	O( 3), O( 3), O( 3), O( 3),
-	O( 2), O( 2), O( 2), O( 2),
-	O( 1), O( 1), O( 1), O( 1),
-	O( 0), O( 0), O( 0), O( 0),
-	O( 0), O( 0), O( 0), O( 0),
-	O( 0), O( 0), O( 0), O( 0),
-	O( 0), O( 0), O( 0), O( 0),
+	12, 12, 12, 12,
+	11, 11, 11, 11,
+	10, 10, 10, 10,
+	 9,  9,  9,  9,
+	 8,  8,  8,  8,
+	 7,  7,  7,  7,
+	 6,  6,  6,  6,
+	 5,  5,  5,  5,
+	 4,  4,  4,  4,
+	 3,  3,  3,  3,
+	 2,  2,  2,  2,
+	 1,  1,  1,  1,
+	 0,  0,  0,  0,
+	 0,  0,  0,  0,
+	 0,  0,  0,  0,
+	 0,  0,  0,  0,
 
 	// 16 dummy rates (same as 15 3)
-	O( 0), O( 0), O( 0), O( 0), O( 0), O( 0), O( 0), O( 0),
-	O( 0), O( 0), O( 0), O( 0), O( 0), O( 0), O( 0), O( 0),
+	 0,  0,  0,  0,  0,  0,  0,  0,
+	 0,  0,  0,  0,  0,  0,  0,  0,
 };
-#undef O
 
 
 // multiple table
-#define ML(x) byte(2 * (x))
-static constexpr byte mul_tab[16] = {
+static constexpr byte ML(double x) { return byte(2 * x); }
+constexpr byte mul_tab[16] = {
 	// 1/2, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,10,12,12,15,15
 	ML( 0.5), ML( 1.0), ML( 2.0), ML( 3.0),
 	ML( 4.0), ML( 5.0), ML( 6.0), ML( 7.0),
 	ML( 8.0), ML( 9.0), ML(10.0), ML(10.0),
 	ML(12.0), ML(12.0), ML(15.0), ML(15.0)
 };
-#undef ML
 
 // LFO Amplitude Modulation table (verified on real YM3812)
 //  27 output levels (triangle waveform); 1 level takes one of: 192, 256 or 448 samples
@@ -267,8 +261,8 @@ static constexpr byte mul_tab[16] = {
 // When AM = 1 data is used directly
 // When AM = 0 data is divided by 4 before being used (loosing precision is important)
 
-static constexpr unsigned LFO_AM_TAB_ELEMENTS = 210;
-static constexpr byte lfo_am_table[LFO_AM_TAB_ELEMENTS] = {
+constexpr unsigned LFO_AM_TAB_ELEMENTS = 210;
+constexpr byte lfo_am_table[LFO_AM_TAB_ELEMENTS] = {
 	 0,  0,  0, /**/
 	 0,  0,  0,  0,
 	 1,  1,  1,  1,
@@ -325,7 +319,7 @@ static constexpr byte lfo_am_table[LFO_AM_TAB_ELEMENTS] = {
 };
 
 // LFO Phase Modulation table (verified on real YM3812)
-static constexpr signed char lfo_pm_table[8 * 8 * 2] = {
+constexpr signed char lfo_pm_table[8 * 8 * 2] = {
 	// FNUM2/FNUM = 00 0xxxxxxx (0x0000)
 	0, 0, 0, 0, 0, 0, 0, 0, // LFO PM depth = 0
 	0, 0, 0, 0, 0, 0, 0, 0, // LFO PM depth = 1
@@ -366,8 +360,8 @@ static constexpr signed char lfo_pm_table[8 * 8 * 2] = {
 //  and we really need -1 for waveform #7)
 //  2  - sinus sign bit           (Y axis)
 //  TL_RES_LEN - sinus resolution (X axis)
-static constexpr int TL_TAB_LEN = 13 * 2 * TL_RES_LEN;
-static constexpr int ENV_QUIET = TL_TAB_LEN >> 4;
+constexpr int TL_TAB_LEN = 13 * 2 * TL_RES_LEN;
+constexpr int ENV_QUIET = TL_TAB_LEN >> 4;
 
 struct TlTab {
 	int tab[TL_TAB_LEN];
@@ -400,7 +394,7 @@ static constexpr TlTab getTlTab()
 	return t;
 }
 
-static constexpr TlTab tl = getTlTab();
+constexpr TlTab tl = getTlTab();
 
 
 // sin waveform table in 'decibel' scale
@@ -489,7 +483,7 @@ static constexpr SinTab getSinTab()
 	return sin;
 }
 
-static constexpr SinTab sin = getSinTab();
+constexpr SinTab sin = getSinTab();
 
 
 // TODO clean this up
@@ -954,7 +948,7 @@ void YMF262::Slot::calc_fc(const Channel& ch)
 	update_rr();
 }
 
-static const unsigned channelPairTab[18] = {
+constexpr unsigned channelPairTab[18] = {
 	0,  1,  2,  0,  1,  2, unsigned(~0), unsigned(~0), unsigned(~0),
 	9, 10, 11,  9, 10, 11, unsigned(~0), unsigned(~0), unsigned(~0),
 };
@@ -1011,7 +1005,7 @@ void YMF262::set_ksl_tl(unsigned sl, byte v)
 
 	// This is indeed {0.0, 3.0, 1.5, 6.0} dB/oct, verified on real YMF262.
 	// Note the illogical order of 2nd and 3rd element.
-	static const unsigned ksl_shift[4] = { 31, 1, 2, 0 };
+	static constexpr unsigned ksl_shift[4] = { 31, 1, 2, 0 };
 	slot.ksl = ksl_shift[v >> 6];
 
 	slot.TL  = (v & 0x3F) << (ENV_BITS - 1 - 7); // 7 bits TL (bit 6 = always 0)
@@ -1091,13 +1085,11 @@ void YMF262::writeRegDirect(unsigned r, byte v, EmuTime::param time)
 		// OPL3 mode when bit0=1 otherwise it is OPL2 mode
 		OPL3_mode = v & 0x01;
 
-		// When NEW2 bit is first set, a read from the status register
-		// (once) returns bit 1 set (0x02). This only happens once after
-		// reset, so clearing NEW2 and setting it again doesn't cause
-		// another change in the status register.
-		// This seems strange behaviour to me, but it is what I saw on
-		// a real YMF278. Also see page 10 in the 'OPL4 YMF278B
-		// Application Manual' (though it's not clear on the details).
+		// Verified on real YMF278: When NEW2 bit is first set, a read
+		// from the status register (once) returns bit 1 set (0x02).
+		// This only happens once after reset, so clearing NEW2 and
+		// setting it again doesn't cause another change in the status
+		// register. Also, only bit 1 changes.
 		if ((v & 0x02) && !alreadySignaledNEW2 && isYMF278) {
 			status2 = 0x02;
 			alreadySignaledNEW2 = true;
@@ -1535,7 +1527,7 @@ void YMF262::setMixLevel(uint8_t x, EmuTime::param time)
 {
 	// Only present on YMF278
 	// see mix_level[] and vol_factor() in YMF278.cc
-	static const float level[8] = {
+	static constexpr float level[8] = {
 		(1.00f / 1), //   0dB
 		(0.75f / 1), //  -3dB (approx)
 		(1.00f / 2), //  -6dB
@@ -1716,6 +1708,10 @@ void YMF262::serialize(Archive& a, unsigned version)
 	            "statusMask",         statusMask);
 	if (a.versionAtLeast(version, 2)) {
 		a.serialize("alreadySignaledNEW2", alreadySignaledNEW2);
+	} else {
+		assert(a.isLoader());
+		alreadySignaledNEW2 = true; // we can't know the actual value,
+									// but 'true' is the safest value
 	}
 
 	// TODO restore more state by rewriting register values

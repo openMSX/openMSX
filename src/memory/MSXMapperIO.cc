@@ -13,12 +13,12 @@ namespace openmsx {
 
 static byte calcReadBackMask(MSXMotherBoard& motherBoard)
 {
-	string_view type = motherBoard.getMachineConfig()->getConfig().getChildData(
+	std::string_view type = motherBoard.getMachineConfig()->getConfig().getChildData(
 	                               "MapperReadBackBits", "largest");
 	if (type == "largest") {
 		return 0x00; // all bits can be read
 	}
-	std::string str = type.str();
+	std::string str(type);
 	int bits;
 	if (!StringOp::stringToInt(str, bits)) {
 		throw FatalError("Unknown mapper type: \"", type, "\".");
@@ -67,10 +67,11 @@ byte MSXMapperIO::peekIO(word port, EmuTime::param time) const
 
 void MSXMapperIO::writeIO(word port, byte value, EmuTime::param time)
 {
+	// Note: the mappers are responsible for invalidating/filling the CPU
+	// cache-lines.
 	for (auto* mapper : mappers) {
 		mapper->writeIO(port, value, time);
 	}
-	invalidateMemCache(0x4000 * (port & 0x03), 0x4000);
 }
 
 

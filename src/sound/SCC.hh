@@ -41,7 +41,7 @@ private:
 	void setFreqVol(unsigned address, byte value, EmuTime::param time);
 	byte getFreqVol(unsigned address) const;
 
-	static const int CLOCK_FREQ = 3579545;
+	static constexpr int CLOCK_FREQ = 3579545;
 
 	struct Debuggable final : SimpleDebuggable {
 		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);

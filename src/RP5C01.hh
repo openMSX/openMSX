@@ -39,7 +39,7 @@ private:
 	void time2Regs();
 	void resetAlarm();
 
-	static const unsigned FREQ = 16384;
+	static constexpr unsigned FREQ = 16384;
 
 	SRAM& regs;
 	EnumSetting<RTCMode> modeSetting;

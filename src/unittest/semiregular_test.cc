@@ -11,12 +11,6 @@ template <typename Op> struct Iter {
 	semiregular_t<Op> op; // wrap 'Op' in semiregular_t<T>
 };
 
-// Factory function for iterator
-template <typename Op> auto make_iter(Op op)
-{
-	return Iter<Op>(std::move(op));
-}
-
 TEST_CASE("semiregular")
 {
 	// This doesn't CHECK() anything, it only tests that the code compiles.
@@ -30,7 +24,7 @@ TEST_CASE("semiregular")
 		// decltype(lambda) l3; // ok, doesn't compile: not default-constructible
 
 		// create iterator containing this lambda
-		auto iter1 = make_iter(lambda);
+		auto iter1 = Iter(std::move(lambda));
 		auto iter2 = iter1; // ok, copy-constructible
 		iter2 = iter1; // ok, copy-assignable
 		decltype(iter1) iter3; // ok, default-constructible

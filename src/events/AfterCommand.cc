@@ -17,11 +17,12 @@
 #include <memory>
 #include <sstream>
 
+using std::move;
 using std::ostringstream;
 using std::string;
+using std::string_view;
 using std::vector;
 using std::unique_ptr;
-using std::move;
 
 namespace openmsx {
 
@@ -41,7 +42,7 @@ protected:
 	AfterCommand& afterCommand;
 	TclObject command;
 	string id;
-	static unsigned lastAfterId;
+	static inline unsigned lastAfterId = 0;
 };
 
 class AfterTimedCmd : public AfterCmd, private Schedulable
@@ -332,9 +333,9 @@ void AfterCommand::afterCancel(span<const TclObject> tokens, TclObject& /*result
 	checkNumArgs(tokens, AtLeast{3}, "id|command");
 	if (tokens.size() == 3) {
 		auto id = tokens[2].getString();
-		auto it = ranges::find_if(afterCmds,
-		                          [&](auto& e) { return e->getId() == id; });
-		if (it != end(afterCmds)) {
+		if (auto it = ranges::find_if(afterCmds,
+		                              [&](auto& e) { return e->getId() == id; });
+		    it != end(afterCmds)) {
 			afterCmds.erase(it);
 			return;
 		}
@@ -342,9 +343,9 @@ void AfterCommand::afterCancel(span<const TclObject> tokens, TclObject& /*result
 	TclObject command;
 	command.addListElements(view::drop(tokens, 2));
 	string_view cmdStr = command.getString();
-	auto it = ranges::find_if(afterCmds,
-	                          [&](auto& e) { return e->getCommand() == cmdStr; });
-	if (it != end(afterCmds)) {
+	if (auto it = ranges::find_if(afterCmds,
+	                              [&](auto& e) { return e->getCommand() == cmdStr; });
+	    it != end(afterCmds)) {
 		afterCmds.erase(it);
 		// Tcl manual is not clear about this, but it seems
 		// there's only occurence of this command canceled.
@@ -371,7 +372,7 @@ string AfterCommand::help(const vector<string>& /*tokens*/) const
 void AfterCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		static const char* const cmds[] = {
+		static constexpr const char* const cmds[] = {
 			"time", "realtime", "idle", "frame", "break", "boot",
 			"machine_switch", "info", "cancel",
 		};
@@ -453,8 +454,6 @@ int AfterCommand::signalEvent(const std::shared_ptr<const Event>& event)
 
 
 // class AfterCmd
-
-unsigned AfterCmd::lastAfterId = 0;
 
 AfterCmd::AfterCmd(AfterCommand& afterCommand_, const TclObject& command_)
 	: afterCommand(afterCommand_), command(command_)
@@ -569,7 +568,7 @@ template<EventType T>
 AfterEventCmd<T>::AfterEventCmd(
 		AfterCommand& afterCommand_, const TclObject& type_,
 		const TclObject& command_)
-	: AfterCmd(afterCommand_, command_), type(type_.getString().str())
+	: AfterCmd(afterCommand_, command_), type(type_.getString())
 {
 }
 

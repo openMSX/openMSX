@@ -18,6 +18,7 @@
 #include "serialize.hh"
 #include "cstd.hh"
 #include "likely.hh"
+#include "one_of.hh"
 #include "outer.hh"
 #include "random.hh"
 #include <cassert>
@@ -31,11 +32,11 @@ namespace openmsx {
 // The step clock for the tone and noise generators is the chip clock
 // divided by 8; for the envelope generator of the AY-3-8910, it is half
 // that much (clock/16).
-static const float NATIVE_FREQ_FLOAT = (3579545.0f / 2) / 8;
-static const int NATIVE_FREQ_INT = lrintf(NATIVE_FREQ_FLOAT);
+constexpr float NATIVE_FREQ_FLOAT = (3579545.0f / 2) / 8;
+constexpr int NATIVE_FREQ_INT = int(cstd::round(NATIVE_FREQ_FLOAT));
 
-static const int PORT_A_DIRECTION = 0x40;
-static const int PORT_B_DIRECTION = 0x80;
+constexpr int PORT_A_DIRECTION = 0x40;
+constexpr int PORT_B_DIRECTION = 0x80;
 
 enum Register {
 	AY_AFINE = 0, AY_ACOARSE = 1, AY_BFINE = 2, AY_BCOARSE = 3,
@@ -44,43 +45,39 @@ enum Register {
 	AY_ECOARSE = 12, AY_ESHAPE = 13, AY_PORTA = 14, AY_PORTB = 15
 };
 
-struct AY8910Tables {
-	float YM2149Envelope[32];
-	float AY8910Envelope[32];
-	float volume[16];
-};
-static constexpr AY8910Tables calcTables()
-{
-	AY8910Tables tables = {};
-
-	// Calculate the volume->voltage conversion table.
-	// The AY-3-8910 has 16 levels, in a logarithmic scale (3dB per step).
-	// YM2149 has 32 levels, the 16 extra levels are only used for envelope
-	// volumes
+// Calculate the volume->voltage conversion table. The AY-3-8910 has 16 levels,
+// in a logarithmic scale (3dB per step). YM2149 has 32 levels, the 16 extra
+// levels are only used for envelope volumes
+constexpr auto YM2149EnvelopeTab = [] {
+	std::array<float, 32> result = {};
 	double out = 1.0;
 	double factor = cstd::pow<5, 3>(0.5, 0.25); // 1/sqrt(sqrt(2)) ~= 1/(1.5dB)
 	for (int i = 31; i > 0; --i) {
-		tables.YM2149Envelope[i] = float(out);
+		result[i] = float(out);
 		out *= factor;
 	}
-	tables.YM2149Envelope[0] = 0.0f;
-
-	tables.volume[0] = 0.0f;
-	for (int i = 1; i < 16; ++i) {
-		tables.volume[i] = tables.YM2149Envelope[2 * i + 1];
-	}
-
+	result[0] = 0.0f;
+	return result;
+}();
+constexpr auto AY8910EnvelopeTab = [] {
 	// only 16 envelope steps, duplicate every step
-	tables.AY8910Envelope[0] = 0.0f;
-	tables.AY8910Envelope[1] = 0.0f;
+	std::array<float, 32> result = {};
+	result[0] = 0.0f;
+	result[1] = 0.0f;
 	for (int i = 2; i < 32; i += 2) {
-		tables.AY8910Envelope[i + 0] = tables.YM2149Envelope[i + 1];
-		tables.AY8910Envelope[i + 1] = tables.YM2149Envelope[i + 1];
+		result[i + 0] = YM2149EnvelopeTab[i + 1];
+		result[i + 1] = YM2149EnvelopeTab[i + 1];
 	}
-
-	return tables;
-}
-static constexpr AY8910Tables tables = calcTables();
+	return result;
+}();
+constexpr auto volumeTab = [] {
+	std::array<float, 16> result = {};
+	result[0] = 0.0f;
+	for (int i = 1; i < 16; ++i) {
+		result[i] = YM2149EnvelopeTab[2 * i + 1];
+	}
+	return result;
+}();
 
 
 // Perlin noise
@@ -106,15 +103,7 @@ static float noiseValue(float x)
 	int xi = int(x);
 	float xf = x - xi;
 	xi &= 255;
-	float n0 = noiseTab[xi + 0];
-	float n1 = noiseTab[xi + 1];
-	float n2 = noiseTab[xi + 2];
-	float n3 = noiseTab[xi + 3];
-	float a = n3 - n2 + n1 - n0;
-	float b = n0 - n1 - a;
-	float c = n2 - n0;
-	float d = n1;
-	return ((a * xf + b) * xf + c) * xf + d;
+	return Math::cubicHermite(&noiseTab[xi + 1], xf);
 }
 
 
@@ -310,20 +299,20 @@ AY8910::Amplitude::Amplitude(const DeviceConfig& config)
 	envChan[0] = false;
 	envChan[1] = false;
 	envChan[2] = false;
-	envVolTable = isAY8910 ? tables.AY8910Envelope : tables.YM2149Envelope;
+	envVolTable = isAY8910 ? AY8910EnvelopeTab.data() : YM2149EnvelopeTab.data();
 
 	if (0) {
 		std::cout << "YM2149Envelope:";
 		for (int i = 0; i < 32; ++i) {
-			std::cout << ' ' << std::hexfloat << tables.YM2149Envelope[i];
+			std::cout << ' ' << std::hexfloat << YM2149EnvelopeTab[i];
 		}
 		std::cout << "\nAY8910Envelope:";
 		for (int i = 0; i < 32; ++i) {
-			std::cout << ' ' << std::hexfloat << tables.AY8910Envelope[i];
+			std::cout << ' ' << std::hexfloat << AY8910EnvelopeTab[i];
 		}
 		std::cout << "\nvolume:";
 		for (int i = 0; i < 16; ++i) {
-			std::cout << ' ' << std::hexfloat << tables.volume[i];
+			std::cout << ' ' << std::hexfloat << volumeTab[i];
 		}
 		std::cout << '\n';
 	}
@@ -343,7 +332,7 @@ inline float AY8910::Amplitude::getVolume(unsigned chan) const
 inline void AY8910::Amplitude::setChannelVolume(unsigned chan, unsigned value)
 {
 	envChan[chan] = (value & 0x10) != 0;
-	vol[chan] = tables.volume[value & 0x0F];
+	vol[chan] = volumeTab[value & 0x0F];
 }
 
 inline bool AY8910::Amplitude::followsEnvelope(unsigned chan) const
@@ -564,7 +553,7 @@ byte AY8910::readRegister(unsigned reg, EmuTime::param time)
 	}
 
 	// TODO some AY8910 models have 1F as mask for registers 1, 3, 5
-	static const byte regMask[16] = {
+	static constexpr byte regMask[16] = {
 		0xff, 0x0f, 0xff, 0x0f, 0xff, 0x0f, 0x1f, 0xff,
 		0x1f, 0x1f ,0x1f, 0xff, 0xff, 0x0f, 0xff, 0xff
 	};
@@ -629,8 +618,15 @@ void AY8910::wrtReg(unsigned reg, byte value, EmuTime::param time)
 		tone[reg / 2].setPeriod(regs[reg & ~1] + 256 * (regs[reg | 1] & 0x0F));
 		break;
 	case AY_NOISEPER:
-		// half the frequency of tone generation
-		noise.setPeriod(2 * (value & 0x1F));
+		// Half the frequency of tone generation.
+		//
+		// Verified on turboR GT: value=0 and value=1 sound the same.
+		//
+		// Likely in real AY8910 this is implemented by driving the
+		// noise generator at halve the frequency instead of
+		// multiplying the value by 2 (hence the correction for value=0
+		// here). But the effect is the same(?).
+		noise.setPeriod(2 * std::max(1, value & 0x1F));
 		break;
 	case AY_AVOL:
 	case AY_BVOL:
@@ -974,8 +970,7 @@ float AY8910::getAmplificationFactorImpl() const
 
 void AY8910::update(const Setting& setting)
 {
-	if ((&setting == &vibratoPercent) ||
-	    (&setting == &detunePercent)) {
+	if (&setting == one_of(&vibratoPercent, &detunePercent)) {
 		doDetune = (vibratoPercent.getDouble() != 0) ||
 			   (detunePercent .getDouble() != 0);
 		if (doDetune && !detuneInitialized) {

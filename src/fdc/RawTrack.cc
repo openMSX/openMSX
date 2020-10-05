@@ -1,5 +1,6 @@
 #include "RawTrack.hh"
 #include "CRC16.hh"
+#include "one_of.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
@@ -8,17 +9,6 @@
 using std::vector;
 
 namespace openmsx {
-
-#ifndef _MSC_VER
-// Workaround vc++ bug???
-//  I'm reasonably sure the following line is required. If it's left out I get
-//  a link error when compiling with gcc (though only in a debug build). This
-//  page also says it's required:
-//    http://www.parashift.com/c++-faq-lite/ctors.html#faq-10.13
-//  Though with this line Vampier got a link error in vc++, removing the line
-//  fixed the problem.
-const unsigned RawTrack::STANDARD_SIZE;
-#endif
 
 RawTrack::RawTrack(unsigned size)
 {
@@ -92,7 +82,7 @@ bool RawTrack::decodeSectorImpl(int idx, Sector& sector) const
 			if (j != 3) continue; // didn't find 3 x 0xA1
 
 			byte type = read(idx2 + 3);
-			if (!((type == 0xfb) || (type == 0xf8))) continue;
+			if (type != one_of(0xfb, 0xf8)) continue;
 
 			CRC16 dataCrc;
 			dataCrc.init({0xA1, 0xA1, 0xA1});

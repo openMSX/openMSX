@@ -1,8 +1,8 @@
 #include "MLAAScaler.hh"
 #include "FrameSource.hh"
 #include "ScalerOutput.hh"
-#include "Math.hh"
 #include "MemBuffer.hh"
+#include "aligned.hh"
 #include "vla.hh"
 #include "build-info.hh"
 #include <algorithm>
@@ -42,15 +42,14 @@ void MLAAScaler<Pixel>::scaleImage(
 	const int srcNumLines = srcEndY - srcStartY;
 	VLA(const Pixel*, srcLinePtrsArray, srcNumLines + 2);
 	auto** srcLinePtrs = &srcLinePtrsArray[1];
-	std::vector<MemBuffer<Pixel, SSE2_ALIGNMENT>> workBuffer;
+	std::vector<MemBuffer<Pixel, SSE_ALIGNMENT>> workBuffer;
 	const Pixel* line = nullptr;
 	Pixel* work = nullptr;
 	for (int y = -1; y < srcNumLines + 1; y++) {
 		if (line == work) {
 			// Allocate new workBuffer when needed
 			// e.g. when used in previous iteration
-			workBuffer.emplace_back(srcWidth);
-			work = workBuffer.back().data();
+			work = workBuffer.emplace_back(srcWidth).data();
 		}
 		line = src.getLinePtr(srcStartY + y, srcWidth, work);
 		srcLinePtrs[y] = line;
@@ -398,8 +397,7 @@ void MLAAScaler<Pixel>::scaleImage(
 						dstLinePtr[fx / 2] = pixelOps.lerp(
 							srcMixLinePtr[fx / (zoomFactorX * 2)],
 							srcCurLinePtr[fx / (zoomFactorX * 2)],
-							Math::clip<0, 256>(int(256 * weight))
-							);
+							std::clamp(int(256 * weight), 0, 256));
 					}
 				}
 
@@ -427,8 +425,7 @@ void MLAAScaler<Pixel>::scaleImage(
 						dstLinePtr[fx / 2] = pixelOps.lerp(
 							srcMixLinePtr[fx / (zoomFactorX * 2)],
 							srcCurLinePtr[fx / (zoomFactorX * 2)],
-							Math::clip<0, 256>(int(256 * weight))
-							);
+							std::clamp(int(256 * weight), 0, 256));
 					}
 				}
 
@@ -566,8 +563,7 @@ void MLAAScaler<Pixel>::scaleImage(
 						dstLinePtr[fx] = pixelOps.lerp(
 							srcLinePtrs[fy / (zoomFactorY * 2)][mixX],
 							srcLinePtrs[fy / (zoomFactorY * 2)][curX],
-							Math::clip<0, 256>(int(256 * weight))
-							);
+							std::clamp(int(256 * weight), 0, 256));
 					}
 				}
 
@@ -591,8 +587,7 @@ void MLAAScaler<Pixel>::scaleImage(
 						dstLinePtr[fx] = pixelOps.lerp(
 							srcLinePtrs[fy / (zoomFactorY * 2)][mixX],
 							srcLinePtrs[fy / (zoomFactorY * 2)][curX],
-							Math::clip<0, 256>(int(256 * weight))
-							);
+							std::clamp(int(256 * weight), 0, 256));
 					}
 				}
 

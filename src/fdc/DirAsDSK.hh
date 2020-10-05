@@ -75,7 +75,7 @@ private:
 	void freeFATChain(unsigned cluster);
 	void addNewHostFiles(const std::string& hostSubDir, unsigned msxDirSector);
 	void addNewDirectory(const std::string& hostSubDir, const std::string& hostName,
-                             unsigned msxDirSector, FileOperations::Stat& fst);
+	                     unsigned msxDirSector, FileOperations::Stat& fst);
 	void addNewHostFile(const std::string& hostSubDir, const std::string& hostName,
 	                    unsigned msxDirSector, FileOperations::Stat& fst);
 	DirIndex fillMSXDirEntry(

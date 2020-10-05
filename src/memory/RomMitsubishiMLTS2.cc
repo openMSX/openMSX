@@ -37,8 +37,8 @@ void RomMitsubishiMLTS2::writeMem(word address, byte value, EmuTime::param /*tim
 		std::cerr << "Setting MLTS2 mapper page 1 to bank " << int(bank) << '\n';
 		setRom(2, bank);
 	} else if ((0x6000 <= address) && (address < 0x8000)) {
-                ram[address & 0x1FFF] = value;
-        }
+		ram[address & 0x1FFF] = value;
+	}
 }
 
 byte RomMitsubishiMLTS2::readMem(word address, EmuTime::param time)
@@ -60,7 +60,7 @@ byte RomMitsubishiMLTS2::peekMem(word address, EmuTime::param time) const
 	} else if (address == 0x7f03) {
 		return 0xff; // TODO
 	} else if ((0x6000 <= address) && (address < 0x8000)) {
-                return ram[address & 0x1FFF];
+		return ram[address & 0x1FFF];
 	} else {
 		return Rom8kBBlocks::peekMem(address, time);
 	}
@@ -70,7 +70,7 @@ const byte* RomMitsubishiMLTS2::getReadCacheLine(word address) const
 {
 	if (address == (0x7FC0 & CacheLine::HIGH)) return nullptr;
 	if ((0x6000 <= address) && (address < 0x8000)) {
-                return &ram[address & 0x1FFF];
+		return &ram[address & 0x1FFF];
 	}
 	return Rom8kBBlocks::getReadCacheLine(address);
 }
@@ -79,7 +79,7 @@ byte* RomMitsubishiMLTS2::getWriteCacheLine(word address) const
 {
 	if (address == (0x7FC0 & CacheLine::HIGH)) return nullptr;
 	if ((0x6000 <= address) && (address < 0x8000)) {
-                return const_cast<byte*>(&ram[address & 0x1FFF]);
+		return const_cast<byte*>(&ram[address & 0x1FFF]);
 	}
 	return unmappedWrite;
 }

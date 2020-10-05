@@ -1,7 +1,6 @@
 #ifndef MC6850_HH
 #define MC6850_HH
 
-#include "MSXDevice.hh"
 #include "DynamicClock.hh"
 #include "IRQHelper.hh"
 #include "MidiInConnector.hh"
@@ -9,33 +8,28 @@
 #include "Schedulable.hh"
 #include "openmsx.hh"
 #include "outer.hh"
-#include "serialize_meta.hh"
 
 namespace openmsx {
 
 class Scheduler;
 
-class MC6850 final : public MSXDevice, public MidiInConnector
+class MC6850 final : public MidiInConnector
 {
 public:
-	explicit MC6850(const DeviceConfig& config);
+	MC6850(const std::string& name, MSXMotherBoard& motherBoard, unsigned clockFreq);
+	void reset(EmuTime::param time);
 
-	// MSXDevice
-	void reset(EmuTime::param time) override;
-	byte readIO(word port, EmuTime::param time) override;
-	byte peekIO(word port, EmuTime::param time) const override;
-	void writeIO(word port, byte value, EmuTime::param time) override;
-
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
-
-private:
 	byte readStatusReg();
 	byte peekStatusReg() const;
 	byte readDataReg();
 	byte peekDataReg() const;
 	void writeControlReg(byte value, EmuTime::param time);
 	void writeDataReg   (byte value, EmuTime::param time);
+
+        template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
+private:
 	void setDataFormat();
 
 	// MidiInConnector
@@ -66,9 +60,10 @@ private:
 	void execRecv (EmuTime::param time);
 	void execTrans(EmuTime::param time);
 
-	// External clock of 500kHz, divided by 1, 16 or 64.
+	// External clock, divided by 1, 16 or 64.
 	// Transmitted bits are synced to this clock
 	DynamicClock txClock;
+	const unsigned clockFreq;
 
 	IRQHelper rxIRQ;
 	IRQHelper txIRQ;

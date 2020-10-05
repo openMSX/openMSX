@@ -31,6 +31,7 @@
  */
 
 #include "MSXHBI55.hh"
+#include "GlobalSettings.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -39,7 +40,7 @@ namespace openmsx {
 
 MSXHBI55::MSXHBI55(const DeviceConfig& config)
 	: MSXDevice(config)
-	, i8255(*this, getCurrentTime(), getCliComm())
+	, i8255(*this, getCurrentTime(), config.getGlobalSettings().getInvalidPpiModeSetting())
 	, sram(getName() + " SRAM", 0x1000, config)
 {
 	reset(getCurrentTime());

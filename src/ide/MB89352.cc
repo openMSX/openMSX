@@ -30,65 +30,65 @@ using std::string;
 
 namespace openmsx {
 
-static const byte REG_BDID =  0;   // Bus Device ID        (r/w)
-static const byte REG_SCTL =  1;   // Spc Control          (r/w)
-static const byte REG_SCMD =  2;   // Command              (r/w)
-static const byte REG_OPEN =  3;   //                      (open)
-static const byte REG_INTS =  4;   // Interrupt Sense      (r/w)
-static const byte REG_PSNS =  5;   // Phase Sense          (r)
-static const byte REG_SDGC =  5;   // SPC Diag. Control    (w)
-static const byte REG_SSTS =  6;   // SPC SCSI::STATUS           (r)
-static const byte REG_SERR =  7;   // SPC Error SCSI::STATUS     (r/w?)
-static const byte REG_PCTL =  8;   // Phase Control        (r/w)
-static const byte REG_MBC  =  9;   // Modified Byte Counter(r)
-static const byte REG_DREG = 10;   // Data Register        (r/w)
-static const byte REG_TEMP = 11;   // Temporary Register   (r/w)
-                                   // Another value is maintained respec-
-                                   // tively for writing and for reading
-static const byte REG_TCH  = 12;   // Transfer Counter High(r/w)
-static const byte REG_TCM  = 13;   // Transfer Counter Mid (r/w)
-static const byte REG_TCL  = 14;   // Transfer Counter Low (r/w)
+constexpr byte REG_BDID =  0;   // Bus Device ID        (r/w)
+constexpr byte REG_SCTL =  1;   // Spc Control          (r/w)
+constexpr byte REG_SCMD =  2;   // Command              (r/w)
+constexpr byte REG_OPEN =  3;   //                      (open)
+constexpr byte REG_INTS =  4;   // Interrupt Sense      (r/w)
+constexpr byte REG_PSNS =  5;   // Phase Sense          (r)
+constexpr byte REG_SDGC =  5;   // SPC Diag. Control    (w)
+constexpr byte REG_SSTS =  6;   // SPC SCSI::STATUS           (r)
+constexpr byte REG_SERR =  7;   // SPC Error SCSI::STATUS     (r/w?)
+constexpr byte REG_PCTL =  8;   // Phase Control        (r/w)
+constexpr byte REG_MBC  =  9;   // Modified Byte Counter(r)
+constexpr byte REG_DREG = 10;   // Data Register        (r/w)
+constexpr byte REG_TEMP = 11;   // Temporary Register   (r/w)
+                                // Another value is maintained respec-
+                                // tively for writing and for reading
+constexpr byte REG_TCH  = 12;   // Transfer Counter High(r/w)
+constexpr byte REG_TCM  = 13;   // Transfer Counter Mid (r/w)
+constexpr byte REG_TCL  = 14;   // Transfer Counter Low (r/w)
 
-static const byte REG_TEMPWR = 13; // (TEMP register preservation place for writing)
-static const byte FIX_PCTL   = 14; // (REG_PCTL & 7)
+constexpr byte REG_TEMPWR = 13; // (TEMP register preservation place for writing)
+constexpr byte FIX_PCTL   = 14; // (REG_PCTL & 7)
 
-static const byte PSNS_IO  = 0x01;
-static const byte PSNS_CD  = 0x02;
-static const byte PSNS_MSG = 0x04;
-static const byte PSNS_BSY = 0x08;
-static const byte PSNS_SEL = 0x10;
-static const byte PSNS_ATN = 0x20;
-static const byte PSNS_ACK = 0x40;
-static const byte PSNS_REQ = 0x80;
+constexpr byte PSNS_IO  = 0x01;
+constexpr byte PSNS_CD  = 0x02;
+constexpr byte PSNS_MSG = 0x04;
+constexpr byte PSNS_BSY = 0x08;
+constexpr byte PSNS_SEL = 0x10;
+constexpr byte PSNS_ATN = 0x20;
+constexpr byte PSNS_ACK = 0x40;
+constexpr byte PSNS_REQ = 0x80;
 
-static const byte PSNS_SELECTION = PSNS_SEL;
-static const byte PSNS_COMMAND   = PSNS_CD;
-static const byte PSNS_DATAIN    = PSNS_IO;
-static const byte PSNS_DATAOUT   = 0;
-static const byte PSNS_STATUS    = PSNS_CD  | PSNS_IO;
-static const byte PSNS_MSGIN     = PSNS_MSG | PSNS_CD | PSNS_IO;
-static const byte PSNS_MSGOUT    = PSNS_MSG | PSNS_CD;
+constexpr byte PSNS_SELECTION = PSNS_SEL;
+constexpr byte PSNS_COMMAND   = PSNS_CD;
+constexpr byte PSNS_DATAIN    = PSNS_IO;
+constexpr byte PSNS_DATAOUT   = 0;
+constexpr byte PSNS_STATUS    = PSNS_CD  | PSNS_IO;
+constexpr byte PSNS_MSGIN     = PSNS_MSG | PSNS_CD | PSNS_IO;
+constexpr byte PSNS_MSGOUT    = PSNS_MSG | PSNS_CD;
 
-static const byte INTS_ResetCondition  = 0x01;
-static const byte INTS_SPC_HardError   = 0x02;
-static const byte INTS_TimeOut         = 0x04;
-static const byte INTS_ServiceRequited = 0x08;
-static const byte INTS_CommandComplete = 0x10;
-static const byte INTS_Disconnected    = 0x20;
-static const byte INTS_ReSelected      = 0x40;
-static const byte INTS_Selected        = 0x80;
+constexpr byte INTS_ResetCondition  = 0x01;
+constexpr byte INTS_SPC_HardError   = 0x02;
+constexpr byte INTS_TimeOut         = 0x04;
+constexpr byte INTS_ServiceRequited = 0x08;
+constexpr byte INTS_CommandComplete = 0x10;
+constexpr byte INTS_Disconnected    = 0x20;
+constexpr byte INTS_ReSelected      = 0x40;
+constexpr byte INTS_Selected        = 0x80;
 
-static const byte CMD_BusRelease    = 0x00;
-static const byte CMD_Select        = 0x20;
-static const byte CMD_ResetATN      = 0x40;
-static const byte CMD_SetATN        = 0x60;
-static const byte CMD_Transfer      = 0x80;
-static const byte CMD_TransferPause = 0xA0;
-static const byte CMD_Reset_ACK_REQ = 0xC0;
-static const byte CMD_Set_ACK_REQ   = 0xE0;
-static const byte CMD_MASK          = 0xE0;
+constexpr byte CMD_BusRelease    = 0x00;
+constexpr byte CMD_Select        = 0x20;
+constexpr byte CMD_ResetATN      = 0x40;
+constexpr byte CMD_SetATN        = 0x60;
+constexpr byte CMD_Transfer      = 0x80;
+constexpr byte CMD_TransferPause = 0xA0;
+constexpr byte CMD_Reset_ACK_REQ = 0xC0;
+constexpr byte CMD_Set_ACK_REQ   = 0xE0;
+constexpr byte CMD_MASK          = 0xE0;
 
-static const unsigned MAX_DEV = 8;
+constexpr unsigned MAX_DEV = 8;
 
 MB89352::MB89352(const DeviceConfig& config)
 {
@@ -340,7 +340,7 @@ void MB89352::resetACKREQ()
 			break;
 		}
 		msgin = 0;
-		// fall-through
+		[[fallthrough]];
 	case SCSI::MSG_OUT: // Message Out phase
 		if (msgin == -1) {
 			disconnect();
@@ -622,8 +622,8 @@ void MB89352::writeRegister(byte reg, byte value)
 				softReset();
 			}
 		}
+		[[fallthrough]];
 	}
-		// fall-through
 	default:
 		regs[reg] = value;
 	}

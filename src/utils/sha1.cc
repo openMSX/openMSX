@@ -100,7 +100,7 @@ Sha1Sum::Sha1Sum()
 	clear();
 }
 
-Sha1Sum::Sha1Sum(string_view hex)
+Sha1Sum::Sha1Sum(std::string_view hex)
 {
 	if (hex.size() != 40) {
 		throw MSXException("Invalid sha1, should be exactly 40 digits long: ", hex);
@@ -134,7 +134,7 @@ static inline unsigned hex(char x, const char* str)
 	if (('a' <= x) && (x <= 'f')) return x - 'a' + 10;
 	if (('A' <= x) && (x <= 'F')) return x - 'A' + 10;
 	throw MSXException("Invalid sha1, digits should be 0-9, a-f: ",
-	                   string_view(str, 40));
+	                   std::string_view(str, 40));
 }
 #endif
 
@@ -180,7 +180,7 @@ void Sha1Sum::parse40(const char* str)
 	__m128i ok = _mm_and_si128(_mm_and_si128(ok0, ok1), ok2);
 	if (unlikely(_mm_movemask_epi8(ok) != 0xffff)) {
 		throw MSXException("Invalid sha1, digits should be 0-9, a-f: ",
-		                   string_view(str, 40));
+		                   std::string_view(str, 40));
 	}
 
 	// '0'-'9' to numeric value (or zero)

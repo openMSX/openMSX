@@ -46,9 +46,13 @@ struct dirent
 	long d_ino;
 	off_t d_off;
 	unsigned short d_reclen;
-	unsigned char d_type;
+	unsigned char d_type;	// always DT_UNKNOWN in current implementation
 	char d_name[256];
 };
+
+constexpr unsigned char DT_UNKNOWN = 0;
+constexpr unsigned char DT_REG = 1;
+constexpr unsigned char DT_DIR = 2;
 
 #define d_fileno d_ino // Backwards compatibility.
 

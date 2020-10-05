@@ -20,7 +20,7 @@ static std::ostream& operator<<(std::ostream& os, const MyType& m)
 TEST_CASE("strCat")
 {
 	std::string str = "abc";
-	string_view sr = "xyz";
+	std::string_view sr = "xyz";
 	const char* literal = "foo";
 	char buf[100]; buf[0] = 'q'; buf[1] = 'u'; buf[2] = 'x'; buf[3] = '\0';
 	char c = '-';
@@ -115,7 +115,7 @@ static void testAppend(const std::string& expected, Args&& ...args)
 TEST_CASE("strAppend")
 {
 	std::string str = "mno";
-	string_view sr = "rst";
+	std::string_view sr = "rst";
 	const char* literal = "ijklmn";
 	char buf[100]; buf[0] = 'd'; buf[1] = 'e'; buf[2] = '\0'; buf[3] = 'f';
 	char c = '+';
@@ -154,7 +154,7 @@ TEST_CASE("strAppend")
 auto test1(int i) { return strCat(i); }
 auto test1b(int i) { return std::to_string(i); }
 auto test2(const char* s) { return strCat(s); }
-auto test3(string_view s) { return strCat(s); }
+auto test3(std::string_view s) { return strCat(s); }
 auto test4(const std::string& s) { return strCat(s); }
 auto test5() { return strCat("bla"); }
 auto test6() { return strCat('a'); }

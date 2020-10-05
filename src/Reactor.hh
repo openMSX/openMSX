@@ -3,11 +3,11 @@
 
 #include "Observer.hh"
 #include "EventListener.hh"
-#include "string_view.hh"
 #include <cassert>
 #include <memory>
 #include <mutex>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace openmsx {
@@ -94,7 +94,7 @@ public:
 	void switchMachine(const std::string& machine);
 	MSXMotherBoard* getMotherBoard() const;
 
-	static std::vector<std::string> getHwConfigs(string_view type);
+	static std::vector<std::string> getHwConfigs(std::string_view type);
 
 	void block();
 	void unblock();
@@ -105,26 +105,30 @@ public:
 	CommandController& getCommandController();
 	CliComm& getCliComm();
 	Interpreter& getInterpreter();
-	string_view getMachineID() const;
+	std::string_view getMachineID() const;
 
 	using Board = std::unique_ptr<MSXMotherBoard>;
 	Board createEmptyMotherBoard();
 	void replaceBoard(MSXMotherBoard& oldBoard, Board newBoard); // for reverse
 
 private:
-	using Boards = std::vector<Board>;
-
 	void createMachineSetting();
 	void switchBoard(MSXMotherBoard* newBoard);
 	void deleteBoard(MSXMotherBoard* board);
-	MSXMotherBoard& getMachine(string_view machineID) const;
-	std::vector<string_view> getMachineIDs() const;
+	MSXMotherBoard& getMachine(std::string_view machineID) const;
+	std::vector<std::string_view> getMachineIDs() const;
 
 	// Observer<Setting>
 	void update(const Setting& setting) override;
 
 	// EventListener
 	int signalEvent(const std::shared_ptr<const Event>& event) override;
+
+	// Run 1 iteration of the openMSX event loop. Typically this will
+	// emulate about 1 frame (but could be more or less depending on
+	// various factors). Returns true when openMSX wants to continue
+	// running.
+	bool doOneIteration();
 
 	void unpause();
 	void pause();
@@ -177,8 +181,8 @@ private:
 	//  - non-main thread can only access activeBoard via specific
 	//    member functions (atm only via enterMainLoop()), it needs to take
 	//    the mbMutex lock
-	Boards boards; // unordered
-	Boards garbageBoards;
+	std::vector<Board> boards; // unordered
+	std::vector<Board> garbageBoards;
 	MSXMotherBoard* activeBoard = nullptr; // either nullptr or a board inside 'boards'
 
 	int blockedCounter = 0;

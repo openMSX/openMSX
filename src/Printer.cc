@@ -357,7 +357,7 @@ void ImagePrinter::printVisibleCharacter(byte data)
 // class ImagePrinterMSX
 
 // MSX-Font taken from NMS8250 BIOS ROM
-static const byte MSXFontRaw[256 * 8] = {
+constexpr byte MSXFontRaw[256 * 8] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // 0
 	0x3C, 0x42, 0xA5, 0x81, 0xA5, 0x99, 0x42, 0x3C,  // 1
 	0x3C, 0x7E, 0xDB, 0xFF, 0xFF, 0xDB, 0x66, 0x3C,  // 2
@@ -631,7 +631,7 @@ const string& ImagePrinterMSX::getName() const
 	return name;
 }
 
-string_view ImagePrinterMSX::getDescription() const
+std::string_view ImagePrinterMSX::getDescription() const
 {
 	// TODO which printer type
 	return "Emulate MSX printer, prints to image.";
@@ -894,7 +894,7 @@ void ImagePrinterMSX::processCharacter(byte data)
 					break;
 				}
 				hpos = leftBorder;
-				// fall-through
+				[[fallthrough]];
 			case 10: // LF: Carriage return + Line feed
 			case 11: // VT: Vertical tabulator (like LF)
 				//hpos = leftBorder;
@@ -940,7 +940,7 @@ REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, ImagePrinterMSX, "ImagePrinterMSX");
 
 // class ImagePrinterEpson
 
-static const byte EpsonFontRom[] = {
+constexpr byte EpsonFontRom[] = {
 	0x8b, 0x04, 0x0a, 0x20, 0x8a, 0x60, 0x0a, 0x20, 0x1c, 0x02, 0x00, 0x00, //   0
 	0x8b, 0x1c, 0x22, 0x08, 0xa2, 0x48, 0x22, 0x08, 0x22, 0x18, 0x00, 0x00, //   1
 	0x9b, 0x00, 0x3c, 0x00, 0x82, 0x40, 0x02, 0x00, 0x3c, 0x02, 0x00, 0x00, //   2
@@ -1211,7 +1211,7 @@ const string& ImagePrinterEpson::getName() const
 	return name;
 }
 
-string_view ImagePrinterEpson::getDescription() const
+std::string_view ImagePrinterEpson::getDescription() const
 {
 	return "Emulate Epson FX80 printer, prints to image.";
 }
@@ -1589,7 +1589,7 @@ void ImagePrinterEpson::processCharacter(byte data)
 				break;
 			}
 			hpos = leftBorder;
-			// fall-through
+			[[fallthrough]];
 		case 10: // Line Feed
 		case 11: // Vertical TAB
 			vpos += lineFeed;

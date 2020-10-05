@@ -1,13 +1,13 @@
 #ifndef KEYS_HH
 #define KEYS_HH
 
-#include "string_view.hh"
 #include <SDL_stdinc.h>
 #include <SDL_keycode.h>
+#include <SDL_scancode.h>
 #include <string>
+#include <string_view>
 
-namespace openmsx {
-namespace Keys {
+namespace openmsx::Keys {
 
 /**
  * Constants that identify keys and key modifiers.
@@ -189,8 +189,8 @@ enum KeyCode {
 
 	// Some japanese keyboard keys are unknown to SDL.
 	// That is; they are all mapped to SDL_Keycode=0
-	// However, they can recognized on their scancode
-	// These keys are usefull for Japanese users who want to map
+	// However, they can be recognized on their scancode
+	// These keys are useful for Japanese users who want to map
 	// their host keyboard to the Japanese MSX keyboard
 	// (e.g. the MSX turbo R keyboard)
 	// Define some codes above suspected SDL_Keycode value range, to
@@ -216,9 +216,11 @@ enum KeyCode {
  * Translate key name to key code.
  * Returns K_NONE when the name is unknown.
  */
-KeyCode getCode(string_view name);
+KeyCode getCode(std::string_view name);
 
-KeyCode getCode(SDL_Keycode key, Uint16 mod = KMOD_NONE, SDL_Scancode scancode = SDL_SCANCODE_UNKNOWN, bool release = false);
+/** Translate SDL_Keycode/SDL_Scancode into openMSX key/scan Keycode's. */
+std::pair<KeyCode, KeyCode> getCodes(
+	SDL_Keycode keycode, Uint16 mod = KMOD_NONE, SDL_Scancode scancode = SDL_SCANCODE_UNKNOWN, bool release = false);
 
 /**
  * Translate key code to key name.
@@ -233,7 +235,6 @@ inline KeyCode combine(KeyCode key, KeyCode modifier) {
 	return static_cast<KeyCode>(int(key) | int(modifier));
 }
 
-} // namespace Keys
-} // namespace openmsx
+} // namespace openmsx::Keys
 
 #endif

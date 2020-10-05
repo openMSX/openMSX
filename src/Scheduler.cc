@@ -38,7 +38,7 @@ void Scheduler::setSyncPoint(EmuTime::param time, Schedulable& device)
 
 	// Push sync point into queue.
 	queue.insert(SynchronizationPoint(time, &device),
-	             [](SynchronizationPoint& sp) { sp.setTime(EmuTime::infinity); },
+	             [](SynchronizationPoint& sp) { sp.setTime(EmuTime::infinity()); },
 	             [](const SynchronizationPoint& x, const SynchronizationPoint& y) {
 	                     return x.getTime() < y.getTime(); });
 
@@ -73,13 +73,12 @@ bool Scheduler::pendingSyncPoint(const Schedulable& device,
                                  EmuTime& result) const
 {
 	assert(Thread::isMainThread());
-	auto it = ranges::find_if(queue, EqualSchedulable(device));
-	if (it != std::end(queue)) {
+	if (auto it = ranges::find_if(queue, EqualSchedulable(device));
+	    it != std::end(queue)) {
 		result = it->getTime();
 		return true;
-	} else {
-		return false;
 	}
+	return false;
 }
 
 EmuTime::param Scheduler::getCurrentTime() const

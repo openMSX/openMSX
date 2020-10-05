@@ -37,6 +37,7 @@
 #include "SRAM.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
+#include "one_of.hh"
 #include "serialize.hh"
 #include <memory>
 
@@ -59,8 +60,7 @@ RomFSA1FM1::RomFSA1FM1(const DeviceConfig& config, Rom&& rom_)
 	, fsSram(getSram(config))
 	, firmwareSwitch(config)
 {
-	if ((rom.getSize() != 0x100000) &&
-	    (rom.getSize() != 0x200000)) {
+	if (rom.getSize() != one_of(0x100000u, 0x200000u)) {
 		throw MSXException(
 			"Rom for FSA1FM mapper must be 1MB in size "
 			"(some dumps are 2MB, those can be used as well).");
@@ -125,7 +125,7 @@ void RomFSA1FM1::writeMem(word address, byte value, EmuTime::param /*time*/)
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		if (address == 0x7FC4) {
 			// switch rom bank
-			invalidateMemCache(0x4000, 0x2000);
+			invalidateDeviceRCache(0x4000, 0x2000);
 		}
 		fsSram->write(address & 0x1FFF, value);
 	}
@@ -170,8 +170,10 @@ void RomFSA1FM2::reset(EmuTime::param /*time*/)
 	for (int region = 0; region < 6; ++region) {
 		changeBank(region, 0xA8);
 	}
-	changeBank(6, 0);
+	changeBank(6, 0); // for mapper-state read-back
 	changeBank(7, 0);
+	setUnmapped(6);
+	setUnmapped(7);
 }
 
 byte RomFSA1FM2::peekMem(word address, EmuTime::param time) const
@@ -273,11 +275,14 @@ void RomFSA1FM2::changeBank(byte region, byte bank)
 			isRam[region]   = false;
 			isEmpty[region] = true;
 		}
-		invalidateMemCache(0x2000 * region, 0x2000);
+		invalidateDeviceRWCache(0x2000 * region, 0x2000);
 	} else {
 		isRam[region]   = false;
 		isEmpty[region] = false;
 		setRom(region, bank & 0x7F);
+		if (region == 3) {
+			invalidateDeviceRCache(0x7FF0 & CacheLine::HIGH, CacheLine::SIZE);
+		}
 	}
 }
 

@@ -3,7 +3,6 @@
 #include "StateChangeDistributor.hh"
 #include "InputEvents.hh"
 #include "StateChange.hh"
-#include "Math.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
@@ -56,7 +55,7 @@ Trackball::Trackball(MSXEventDistributor& eventDistributor_,
                      StateChangeDistributor& stateChangeDistributor_)
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
-	, lastSync(EmuTime::zero)
+	, lastSync(EmuTime::zero())
 	, targetDeltaX(0), targetDeltaY(0)
 	, currentDeltaX(0), currentDeltaY(0)
 	, lastValue(0)
@@ -80,7 +79,7 @@ const string& Trackball::getName() const
 	return name;
 }
 
-string_view Trackball::getDescription() const
+std::string_view Trackball::getDescription() const
 {
 	return "MSX Trackball";
 }
@@ -90,8 +89,10 @@ void Trackball::plugHelper(Connector& /*connector*/, EmuTime::param time)
 	eventDistributor.registerEventListener(*this);
 	stateChangeDistributor.registerListener(*this);
 	lastSync = time;
-	targetDeltaX = targetDeltaY = 0;
-	currentDeltaX = currentDeltaY = 0;
+	targetDeltaX = 0;
+	targetDeltaY = 0;
+	currentDeltaX = 0;
+	currentDeltaY = 0;
 }
 
 void Trackball::unplugHelper(EmuTime::param /*time*/)
@@ -135,10 +136,10 @@ void Trackball::write(byte value, EmuTime::param time)
 	if (diff & 0x4) {
 		// pin 8 flipped
 		if (value & 4) {
-			targetDeltaX = Math::clip<-8, 7>(targetDeltaX - currentDeltaX);
+			targetDeltaX = std::clamp(targetDeltaX - currentDeltaX, -8, 7);
 			currentDeltaX = 0;
 		} else {
-			targetDeltaY = Math::clip<-8, 7>(targetDeltaY - currentDeltaY);
+			targetDeltaY = std::clamp(targetDeltaY - currentDeltaY, -8, 7);
 			currentDeltaY = 0;
 		}
 	}
@@ -186,7 +187,7 @@ void Trackball::syncCurrentWithTarget(EmuTime::param time)
 		return;
 	}
 
-	static const EmuDuration INTERVAL = EmuDuration::msec(1);
+	static constexpr auto INTERVAL = EmuDuration::msec(1);
 
 	int maxSteps = (time - lastSync) / INTERVAL;
 	lastSync += INTERVAL * maxSteps;
@@ -210,7 +211,7 @@ void Trackball::signalMSXEvent(const shared_ptr<const Event>& event,
 	switch (event->getType()) {
 	case OPENMSX_MOUSE_MOTION_EVENT: {
 		auto& mev = checked_cast<const MouseMotionEvent&>(*event);
-		static const int SCALE = 2;
+		constexpr int SCALE = 2;
 		int dx = mev.getX() / SCALE;
 		int dy = mev.getY() / SCALE;
 		if ((dx != 0) || (dy != 0)) {
@@ -267,8 +268,8 @@ void Trackball::signalStateChange(const shared_ptr<StateChange>& event)
 	auto ts = dynamic_cast<TrackballState*>(event.get());
 	if (!ts) return;
 
-	targetDeltaX = Math::clip<-8, 7>(targetDeltaX + ts->getDeltaX());
-	targetDeltaY = Math::clip<-8, 7>(targetDeltaY + ts->getDeltaY());
+	targetDeltaX = std::clamp(targetDeltaX + ts->getDeltaX(), -8, 7);
+	targetDeltaY = std::clamp(targetDeltaY + ts->getDeltaY(), -8, 7);
 	status = (status & ~ts->getPress()) | ts->getRelease();
 }
 

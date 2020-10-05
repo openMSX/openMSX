@@ -1,6 +1,7 @@
 #include "I8254.hh"
 #include "EmuTime.hh"
 #include "ClockPin.hh"
+#include "one_of.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 #include <cassert>
@@ -8,12 +9,12 @@
 
 namespace openmsx {
 
-static const byte READ_BACK = 0xC0;
-static const byte RB_CNTR0  = 0x02;
-static const byte RB_CNTR1  = 0x04;
-static const byte RB_CNTR2  = 0x08;
-static const byte RB_STATUS = 0x10;
-static const byte RB_COUNT  = 0x20;
+constexpr byte READ_BACK = 0xC0;
+constexpr byte RB_CNTR0  = 0x02;
+constexpr byte RB_CNTR1  = 0x04;
+constexpr byte RB_CNTR2  = 0x08;
+constexpr byte RB_STATUS = 0x10;
+constexpr byte RB_COUNT  = 0x20;
 
 
 class Counter {
@@ -36,20 +37,20 @@ public:
 	enum ByteOrder {LOW, HIGH};
 
 private:
-	static const byte WRT_FRMT = 0x30;
-	static const byte WF_LATCH = 0x00;
-	static const byte WF_LOW   = 0x10;
-	static const byte WF_HIGH  = 0x20;
-	static const byte WF_BOTH  = 0x30;
-	static const byte CNTR_MODE = 0x0E;
-	static const byte CNTR_M0   = 0x00;
-	static const byte CNTR_M1   = 0x02;
-	static const byte CNTR_M2   = 0x04;
-	static const byte CNTR_M3   = 0x06;
-	static const byte CNTR_M4   = 0x08;
-	static const byte CNTR_M5   = 0x0A;
-	static const byte CNTR_M2_  = 0x0C;
-	static const byte CNTR_M3_  = 0x0E;
+	static constexpr byte WRT_FRMT = 0x30;
+	static constexpr byte WF_LATCH = 0x00;
+	static constexpr byte WF_LOW   = 0x10;
+	static constexpr byte WF_HIGH  = 0x20;
+	static constexpr byte WF_BOTH  = 0x30;
+	static constexpr byte CNTR_MODE = 0x0E;
+	static constexpr byte CNTR_M0   = 0x00;
+	static constexpr byte CNTR_M1   = 0x02;
+	static constexpr byte CNTR_M2   = 0x04;
+	static constexpr byte CNTR_M3   = 0x06;
+	static constexpr byte CNTR_M4   = 0x08;
+	static constexpr byte CNTR_M5   = 0x0A;
+	static constexpr byte CNTR_M2_  = 0x0C;
+	static constexpr byte CNTR_M3_  = 0x0E;
 
 	void writeLoad(word value, EmuTime::param time);
 	void advance(EmuTime::param time);
@@ -180,7 +181,7 @@ ClockPin& I8254::getOutputPin(unsigned cntr)
 // class Counter
 
 Counter::Counter(Scheduler& scheduler, ClockPinListener* listener,
-                        EmuTime::param time)
+                 EmuTime::param time)
 	: clock(scheduler), output(scheduler, listener)
 	, currentTime(time)
 {
@@ -299,11 +300,10 @@ void Counter::writeLoad(word value, EmuTime::param time)
 {
 	counterLoad = value;
 	byte mode = control & CNTR_MODE;
-	if ((mode==CNTR_M0) || (mode==CNTR_M4)) {
+	if (mode == one_of(CNTR_M0, CNTR_M4)) {
 		counter = counterLoad;
 	}
-	if (!active && ((mode == CNTR_M2) || (mode == CNTR_M2_) ||
-	                 (mode == CNTR_M3) || (mode == CNTR_M3_))) {
+	if (!active && (mode == one_of(CNTR_M2, CNTR_M2_, CNTR_M3, CNTR_M3_))) {
 		if (clock.isPeriodic()) {
 			counter = counterLoad;
 			EmuDuration::param high = clock.getTotalDuration();

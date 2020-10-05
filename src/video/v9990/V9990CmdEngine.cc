@@ -11,62 +11,87 @@
 #include "serialize.hh"
 #include "likely.hh"
 #include "unreachable.hh"
+#include <cassert>
 #include <iostream>
 
 namespace openmsx {
+
+constexpr unsigned maxLength = 171; // The maximum value from the xxx_TIMING tables below
+static constexpr EmuDuration d(unsigned x)
+{
+	assert(x <= maxLength);
+	return Clock<V9990DisplayTiming::UC_TICKS_PER_SECOND>::duration(x);
+}
+using EDStorage = EmuDurationStorageFor<d(maxLength).length()>;
 
 // 1st index  B0/2/4, B1/3/7, P1, P2
 // 2nd index  sprites-ON, sprites-OFF, display-OFF
 // 3th index  2bpp, 4bpp, 8bpp, 16bpp
 //            (for P1/P2 fill in the same value 4 times)
-const unsigned LMMV_TIMING[4][3][4] = {
-	{ {  8, 11, 15, 30}, { 7, 10, 13, 26}, { 7, 10, 13, 25} },
-	{ {  5,  7,  9, 18}, { 5,  6,  8, 17}, { 5,  6,  8, 17} },
-	{ { 56, 56, 56, 56}, {25, 25, 25, 25}, { 9,  9,  9,  9} },
-	{ { 28, 28, 28, 28}, {15, 15, 15, 15}, { 6,  6,  6,  6} }
+constexpr EDStorage LMMV_TIMING[4][3][4] = {
+	{{ d( 8), d(11), d(15), d(30)}, {d( 7), d(10), d(13), d(26)}, {d( 7), d(10), d(13), d(25)}},
+	{{ d( 5), d( 7), d( 9), d(18)}, {d( 5), d( 6), d( 8), d(17)}, {d( 5), d( 6), d( 8), d(17)}},
+	{{ d(56), d(56), d(56), d(56)}, {d(25), d(25), d(25), d(25)}, {d( 9), d( 9), d( 9), d( 9)}},
+	{{ d(28), d(28), d(28), d(28)}, {d(15), d(15), d(15), d(15)}, {d( 6), d( 6), d( 6), d( 6)}}
 };
-const unsigned LMMM_TIMING[4][3][4] = {
-	{ { 10, 16, 32, 66}, { 8, 14, 28, 57}, { 8, 13, 27, 54} },
-	{ {  6, 10, 20, 39}, { 5,  9, 18, 35}, { 5,  9, 17, 35} },
-	{ {115,115,115,115}, {52, 52, 52, 52}, {18, 18, 18, 18} },
-	{ { 57, 57, 57, 57}, {25, 25, 25, 25}, { 9,  9,  9,  9} }
+constexpr EDStorage LMMM_TIMING[4][3][4] = {
+	{{d (10),d (16),d( 32),d( 66)}, {d( 8), d(14), d(28), d(57)}, {d( 8), d(13), d(27), d(54)}},
+	{{d ( 6),d( 10),d( 20),d( 39)}, {d( 5), d( 9), d(18), d(35)}, {d( 5), d( 9), d(17), d(35)}},
+	{{d(115),d(115),d(115),d(115)}, {d(52), d(52), d(52), d(52)}, {d(18), d(18), d(18), d(18)}},
+	{{d( 57),d( 57),d( 57),d( 57)}, {d(25), d(25), d(25), d(25)}, {d( 9), d( 9), d( 9), d( 9)}}
 };
-const unsigned BMXL_TIMING[4][3][4] = { // NOTE: values are BYTE based here!
-	{ { 38, 33, 32, 33}, {33, 28, 28, 28}, {33, 27, 27, 27} }, // identical to LMMM (b)
-	{ { 24, 20, 20, 19}, {22, 18, 18, 18}, {21, 17, 17, 17} }, // identical to LMMM (b)
-	{ {171,171,171,171}, {82, 82, 82, 82}, {29, 29, 29, 29} },
-	{ {114,114,114,114}, {50, 50, 50, 50}, {18, 18, 18, 18} }
+constexpr EDStorage BMXL_TIMING[4][3][4] = { // NOTE: values are BYTE based here!
+	{{d( 38),d( 33),d( 32),d( 33)}, {d(33), d(28), d(28), d(28)}, {d(33), d(27), d(27), d(27)}}, // identical to LMMM (b)
+	{{d( 24),d( 20),d( 20),d (19)}, {d(22), d(18), d(18), d(18)}, {d(21), d(17), d(17), d(17)}}, // identical to LMMM (b)
+	{{d(171),d(171),d(171),d(171)}, {d(82), d(82), d(82), d(82)}, {d(29), d(29), d(29), d(29)}},
+	{{d(114),d(114),d(114),d(114)}, {d(50), d(50), d(50), d(50)}, {d(18), d(18), d(18), d(18)}}
 };
-const unsigned BMLX_TIMING[4][3][4] = {
-	{ { 10, 16, 32, 66}, { 8, 14, 28, 57}, { 8, 13, 27, 54} }, // identical to LMMM
-	{ {  6, 10, 20, 39}, { 5,  9, 18, 35}, { 5,  9, 17, 35} }, // identical to LMMM
-	{ { 84, 84, 84, 84}, {44, 44, 44, 44}, {17, 17, 17, 17} },
-	{ { 57, 57, 57, 57}, {25, 25, 25, 25}, { 9,  9,  9,  9} }
+constexpr EDStorage BMLX_TIMING[4][3][4] = {
+	{{ d(10), d(16), d(32), d(66)}, {d( 8), d(14), d(28), d(57)}, {d( 8), d(13), d(27), d(54)}}, // identical to LMMM
+	{{ d( 6), d(10), d(20), d(39)}, {d( 5), d( 9), d(18), d(35)}, {d( 5), d( 9), d(17), d(35)}}, // identical to LMMM
+	{{ d(84), d(84), d(84), d(84)}, {d(44), d(44), d(44), d(44)}, {d(17), d(17), d(17), d(17)}},
+	{{ d(57), d(57), d(57), d(57)}, {d(25), d(25), d(25), d(25)}, {d( 9), d( 9), d( 9), d( 9)}}
 };
-const unsigned BMLL_TIMING[4][3][4] = {
-	{ { 33, 33, 33, 33}, {28, 28, 28, 28}, {27, 27, 27, 27} },
-	{ { 20, 20, 20, 20}, {18, 18, 18, 18}, {18, 18, 18, 18} },
-	{ {118,118,118,118}, {52, 52, 52, 52}, {18, 18, 18, 18} },
-	{ {118,118,118,118}, {52, 52, 52, 52}, {18, 18, 18, 18} }
+constexpr EDStorage BMLL_TIMING[4][3][4] = {
+	{{d( 33),d( 33),d( 33),d( 33)}, {d(28), d(28), d(28), d(28)}, {d(27), d(27), d(27), d(27)}},
+	{{d( 20),d( 20),d( 20),d( 20)}, {d(18), d(18), d(18), d(18)}, {d(18), d(18), d(18), d(18)}},
+	{{d(118),d(118),d(118),d(118)}, {d(52), d(52), d(52), d(52)}, {d(18), d(18), d(18), d(18)}},
+	{{d(118),d(118),d(118),d(118)}, {d(52), d(52), d(52), d(52)}, {d(18), d(18), d(18), d(18)}}
 };
-const unsigned CMMM_TIMING[4][3][4] = {
-	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }, // TODO
-	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }, // TODO
-	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }, // TODO
-	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }  // TODO
+constexpr EDStorage CMMM_TIMING[4][3][4] = {
+	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}, // TODO
+	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}, // TODO
+	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}, // TODO
+	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}  // TODO
 };
-const unsigned LINE_TIMING[4][3][4] = {
-	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }, // TODO
-	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }, // TODO
-	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }, // TODO
-	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }  // TODO
+constexpr EDStorage LINE_TIMING[4][3][4] = {
+	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}, // TODO
+	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}, // TODO
+	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}, // TODO
+	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}  // TODO
 };
-const unsigned SRCH_TIMING[4][3][4] = {
-	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }, // TODO
-	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }, // TODO
-	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }, // TODO
-	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }  // TODO
+constexpr EDStorage SRCH_TIMING[4][3][4] = {
+	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}, // TODO
+	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}, // TODO
+	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}, // TODO
+	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}  // TODO
 };
+
+static EmuDuration getTiming(const V9990CmdEngine& cmdEngine, const EDStorage table[4][3][4])
+{
+	if (unlikely(cmdEngine.getBrokenTiming())) return EmuDuration();
+
+	const auto& vdp = cmdEngine.getVDP();
+	auto mode = vdp.getDisplayMode();
+	unsigned idx1 = (mode == P1) ? 2 :
+	                (mode == P2) ? 3 :
+	                (vdp.isOverScan()) ? 0 : 1;
+	unsigned idx2 = vdp.isDisplayEnabled() ? (vdp.spritesEnabled() ? 0 : 1)
+	                                       : 2;
+	unsigned idx3 = vdp.getColorDepth();
+	return table[idx1][idx2][idx3];
+}
+
 
 
 // Lazily initialized LUT to speed up logical operations:
@@ -240,10 +265,10 @@ static const byte* getLogOpImpl(unsigned mode, unsigned op)
 }
 
 
-static const byte DIY = 0x08;
-static const byte DIX = 0x04;
-static const byte NEQ = 0x02;
-static const byte MAJ = 0x01;
+constexpr byte DIY = 0x08;
+constexpr byte DIX = 0x04;
+constexpr byte NEQ = 0x02;
+constexpr byte MAJ = 0x01;
 
 // P1 --------------------------------------------------------------
 inline unsigned V9990CmdEngine::V9990P1::getPitch(unsigned width)
@@ -882,7 +907,7 @@ void V9990CmdEngine::setCommandMode()
 	}
 }
 
-void V9990CmdEngine::reportV9990Command()
+void V9990CmdEngine::reportV9990Command() const
 {
 	const char* const COMMANDS[16] = {
 		"STOP", "LMMC", "LMMV", "LMCM",
@@ -910,23 +935,6 @@ void V9990CmdEngine::update(const Setting& setting)
 {
 	brokenTiming = static_cast<const EnumSetting<bool>&>(setting).getEnum();
 }
-
-EmuDuration V9990CmdEngine::getTiming(const unsigned table[4][3][4]) const
-{
-	if (unlikely(brokenTiming)) return EmuDuration();
-
-	auto mode = vdp.getDisplayMode();
-	unsigned idx1 = (mode == P1) ? 2 :
-	                (mode == P2) ? 3 :
-	                (vdp.isOverScan()) ? 0 : 1;
-	unsigned idx2 = vdp.isDisplayEnabled() ? (vdp.spritesEnabled() ? 0 : 1)
-	                                       : 2;
-	unsigned idx3 = vdp.getColorDepth();
-	// TODO possible optimization: directly put EmuDurations in table
-	unsigned x = table[idx1][idx2][idx3];
-	return Clock<V9990DisplayTiming::UC_TICKS_PER_SECOND>::duration(x);
-}
-
 
 // STOP
 void V9990CmdEngine::startSTOP(EmuTime::param time)
@@ -1022,7 +1030,7 @@ void V9990CmdEngine::executeLMMV(EmuTime::param limit)
 {
 	// TODO can be optimized a lot
 
-	auto delta = getTiming(LMMV_TIMING);
+	auto delta = getTiming(*this, LMMV_TIMING);
 	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
 	int dx = (ARG & DIX) ? -1 : 1;
 	int dy = (ARG & DIY) ? -1 : 1;
@@ -1114,7 +1122,7 @@ void V9990CmdEngine::executeLMMM(EmuTime::param limit)
 {
 	// TODO can be optimized a lot
 
-	auto delta = getTiming(LMMM_TIMING);
+	auto delta = getTiming(*this, LMMM_TIMING);
 	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
 	int dx = (ARG & DIX) ? -1 : 1;
 	int dy = (ARG & DIY) ? -1 : 1;
@@ -1209,7 +1217,7 @@ void V9990CmdEngine::executeCMMM(EmuTime::param limit)
 {
 	// TODO can be optimized a lot
 
-	auto delta = getTiming(CMMM_TIMING);
+	auto delta = getTiming(*this, CMMM_TIMING);
 	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
 	int dx = (ARG & DIX) ? -1 : 1;
 	int dy = (ARG & DIY) ? -1 : 1;
@@ -1254,7 +1262,7 @@ template<>
 void V9990CmdEngine::executeBMXL<V9990CmdEngine::V9990Bpp16>(EmuTime::param limit)
 {
 	// timing value is times 2, because it does 2 bytes per iteration:
-	auto delta = getTiming(BMXL_TIMING) * 2;
+	auto delta = getTiming(*this, BMXL_TIMING) * 2;
 	unsigned pitch = V9990Bpp16::getPitch(vdp.getImageWidth());
 	int dx = (ARG & DIX) ? -1 : 1;
 	int dy = (ARG & DIY) ? -1 : 1;
@@ -1283,7 +1291,7 @@ void V9990CmdEngine::executeBMXL<V9990CmdEngine::V9990Bpp16>(EmuTime::param limi
 template<typename Mode>
 void V9990CmdEngine::executeBMXL(EmuTime::param limit)
 {
-	auto delta = getTiming(BMXL_TIMING);
+	auto delta = getTiming(*this, BMXL_TIMING);
 	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
 	int dx = (ARG & DIX) ? -1 : 1;
 	int dy = (ARG & DIY) ? -1 : 1;
@@ -1322,7 +1330,7 @@ template<>
 void V9990CmdEngine::executeBMLX<V9990CmdEngine::V9990Bpp16>(EmuTime::param limit)
 {
 	// TODO test corner cases, timing
-	auto delta = getTiming(BMLX_TIMING);
+	auto delta = getTiming(*this, BMLX_TIMING);
 	unsigned pitch = V9990Bpp16::getPitch(vdp.getImageWidth());
 	int dx = (ARG & DIX) ? -1 : 1;
 	int dy = (ARG & DIY) ? -1 : 1;
@@ -1349,7 +1357,7 @@ template<typename Mode>
 void V9990CmdEngine::executeBMLX(EmuTime::param limit)
 {
 	// TODO test corner cases, timing
-	auto delta = getTiming(BMLX_TIMING);
+	auto delta = getTiming(*this, BMLX_TIMING);
 	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
 	int dx = (ARG & DIX) ? -1 : 1;
 	int dy = (ARG & DIY) ? -1 : 1;
@@ -1403,7 +1411,7 @@ void V9990CmdEngine::executeBMLL<V9990CmdEngine::V9990Bpp16>(EmuTime::param limi
 {
 	// TODO DIX DIY?
 	// timing value is times 2, because it does 2 bytes per iteration:
-	auto delta = getTiming(BMLL_TIMING) * 2;
+	auto delta = getTiming(*this, BMLL_TIMING) * 2;
 	const byte* lut = V9990Bpp16::getLogOpLUT(LOG);
 	bool transp = (LOG & 0x10) != 0;
 	while (engineTime < limit) {
@@ -1430,7 +1438,7 @@ template<typename Mode>
 void V9990CmdEngine::executeBMLL(EmuTime::param limit)
 {
 	// TODO DIX DIY?
-	auto delta = getTiming(BMLL_TIMING);
+	auto delta = getTiming(*this, BMLL_TIMING);
 	const byte* lut = Mode::getLogOpLUT(LOG);
 	while (engineTime < limit) {
 		engineTime += delta;
@@ -1463,7 +1471,7 @@ void V9990CmdEngine::startLINE(EmuTime::param time)
 template<typename Mode>
 void V9990CmdEngine::executeLINE(EmuTime::param limit)
 {
-	auto delta = getTiming(LINE_TIMING);
+	auto delta = getTiming(*this, LINE_TIMING);
 	unsigned width = vdp.getImageWidth();
 	unsigned pitch = Mode::getPitch(width);
 
@@ -1519,7 +1527,7 @@ void V9990CmdEngine::startSRCH(EmuTime::param time)
 template<typename Mode>
 void V9990CmdEngine::executeSRCH(EmuTime::param limit)
 {
-	auto delta = getTiming(SRCH_TIMING);
+	auto delta = getTiming(*this, SRCH_TIMING);
 	unsigned width = vdp.getImageWidth();
 	unsigned pitch = Mode::getPitch(width);
 	typename Mode::Type mask = (1 << Mode::BITS_PER_PIXEL) -1;
@@ -1767,60 +1775,60 @@ EmuTime V9990CmdEngine::estimateCmdEnd() const
 	EmuDuration delta;
 	switch (CMD >> 4) {
 		case 0x00: // STOP
-			delta = EmuDuration::zero;
+			delta = EmuDuration::zero();
 			break;
 
 		case 0x01: // LMMC
 		case 0x05: // CMMC
 			// command terminates when CPU writes data, no need for extra sync
-			delta = EmuDuration::zero;
+			delta = EmuDuration::zero();
 			break;
 
 		case 0x03: // LMCM
 		case 0x0D: // POINT
 			// command terminates when CPU reads data, no need for extra sync
-			delta = EmuDuration::zero;
+			delta = EmuDuration::zero();
 			break;
 
 		case 0x02: // LMMV
 			// Block commands.
-			delta = getTiming(LMMV_TIMING) * (ANX + (ANY - 1) * getWrappedNX());
+			delta = getTiming(*this, LMMV_TIMING) * (ANX + (ANY - 1) * getWrappedNX());
 			break;
 		case 0x04: // LMMM
-			delta = getTiming(LMMM_TIMING) * (ANX + (ANY - 1) * getWrappedNX());
+			delta = getTiming(*this, LMMM_TIMING) * (ANX + (ANY - 1) * getWrappedNX());
 			break;
 		case 0x07: // CMMM
-			delta = getTiming(CMMM_TIMING) * (ANX + (ANY - 1) * getWrappedNX());
+			delta = getTiming(*this, CMMM_TIMING) * (ANX + (ANY - 1) * getWrappedNX());
 			break;
 		case 0x08: // BMXL
-			delta = getTiming(BMXL_TIMING) * (ANX + (ANY - 1) * getWrappedNX()); // TODO correct?
+			delta = getTiming(*this, BMXL_TIMING) * (ANX + (ANY - 1) * getWrappedNX()); // TODO correct?
 			break;
 		case 0x09: // BMLX
-			delta = getTiming(BMLX_TIMING) * (ANX + (ANY - 1) * getWrappedNX()); // TODO correct?
+			delta = getTiming(*this, BMLX_TIMING) * (ANX + (ANY - 1) * getWrappedNX()); // TODO correct?
 			break;
 
 		case 0x06: // CMMK
 			// Not yet implemented.
-			delta = EmuDuration::zero;
+			delta = EmuDuration::zero();
 			break;
 
 		case 0x0A: // BMLL
-			delta = getTiming(BMLL_TIMING) * nbBytes;
+			delta = getTiming(*this, BMLL_TIMING) * nbBytes;
 			break;
 
 		case 0x0B: // LINE
-			delta = getTiming(LINE_TIMING) * (NX - ANX); // TODO ignores clipping
+			delta = getTiming(*this, LINE_TIMING) * (NX - ANX); // TODO ignores clipping
 			break;
 
 		case 0x0C: // SRCH
 			// Can end at any next pixel.
-			delta = getTiming(SRCH_TIMING);
+			delta = getTiming(*this, SRCH_TIMING);
 			break;
 
 		case 0x0E: // PSET
 		case 0x0F: // ADVN
 			// Current implementation of these commands execute instantly, no need for extra sync.
-			delta = EmuDuration::zero;
+			delta = EmuDuration::zero();
 			break;
 
 		default: UNREACHABLE;

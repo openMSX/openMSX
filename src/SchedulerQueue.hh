@@ -19,8 +19,8 @@ namespace openmsx {
 template<typename T> class SchedulerQueue
 {
 public:
-	static const int CAPACITY = 32; // initial capacity
-	static const int SPARE_FRONT = 1;
+	static constexpr int CAPACITY = 32; // initial capacity
+	static constexpr int SPARE_FRONT = 1;
 	SchedulerQueue()
 		: storage   (CAPACITY + 1) // one extra for sentinel
 		, storageEnd(storage.data() + CAPACITY)
@@ -47,7 +47,7 @@ public:
 
 	// Insert new element.
 	// Elements are sorted according to the given LESS predicate.
-	// SET_SENTINEL must set an element to it's maximum value (so that
+	// SET_SENTINEL must set an element to its maximum value (so that
 	// 'less(x, sentinel)' is true for any x).
 	// (Important) two elements that are equivalent according to 'less'
 	// keep their relative order, IOW newly inserted elements are inserted

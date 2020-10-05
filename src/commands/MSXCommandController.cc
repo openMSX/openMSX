@@ -14,6 +14,7 @@
 #include <memory>
 
 using std::string;
+using std::string_view;
 
 namespace openmsx {
 

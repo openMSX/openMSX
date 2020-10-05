@@ -50,9 +50,11 @@ public:
 		reRecordCount = count;
 	}
 
+	bool isReplaying() const override;
+
 private:
 	struct ReverseChunk {
-		ReverseChunk() : time(EmuTime::zero) {}
+		ReverseChunk() : time(EmuTime::zero()) {}
 
 		EmuTime time;
 		std::vector<std::shared_ptr<DeltaBlock>> deltaBlocks;
@@ -131,7 +133,6 @@ private:
 	// StateChangeRecorder
 	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
 	void stopReplay(EmuTime::param time) override;
-	bool isReplaying() const override;
 
 	MSXMotherBoard& motherBoard;
 	EventDistributor& eventDistributor;

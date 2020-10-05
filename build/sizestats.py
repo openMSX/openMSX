@@ -1,6 +1,5 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
-from __future__ import print_function
 from executils import captureStdout
 
 from collections import defaultdict, namedtuple
@@ -48,7 +47,7 @@ if __name__ == '__main__':
 		def newDict():
 			return defaultdict(newDict)
 		dirTree = newDict()
-		for source, symbols in symbolsBySource.iteritems():
+		for source, symbols in symbolsBySource.items():
 			if source is None:
 				parts = [ '(no source)' ]
 			else:
@@ -62,18 +61,18 @@ if __name__ == '__main__':
 
 		# Combine branches without forks.
 		def compactTree(node):
-			names = set(node.iterkeys())
+			names = set(node.keys())
 			while names:
 				name = names.pop()
 				content = node[name]
 				if isinstance(content, dict) and len(content) == 1:
-					subName, subContent = next(content.iteritems())
+					subName, subContent = next(iter(content.items()))
 					if isinstance(subContent, dict):
 						# A directory containing a single directory.
 						del node[name]
 						node[name + subName] = subContent
 						names.add(name + subName)
-			for content in node.itervalues():
+			for content in node.values():
 				if isinstance(content, dict):
 					compactTree(content)
 		compactTree(dirTree)
@@ -82,9 +81,9 @@ if __name__ == '__main__':
 		def buildSizeTree(node):
 			if isinstance(node, dict):
 				newNode = {}
-				for name, content in node.iteritems():
+				for name, content in node.items():
 					newNode[name] = buildSizeTree(content)
-				nodeSize = sum(size for size, subNode in newNode.itervalues())
+				nodeSize = sum(size for size, subNode in newNode.values())
 				return nodeSize, newNode
 			else:
 				nodeSize = sum(symbol.size for symbol in node)
@@ -95,7 +94,7 @@ if __name__ == '__main__':
 		def printTree(size, node, indent):
 			if isinstance(node, dict):
 				for name, (contentSize, content) in sorted(
-						node.iteritems(),
+						node.items(),
 						key=lambda item: (-item[1][0], item[0])
 						):
 					print('%s%8d %s' % (indent, contentSize, name))
@@ -112,5 +111,5 @@ if __name__ == '__main__':
 						))
 		printTree(totalSize, sizeTree, '')
 	else:
-		print('Usage: python sizestats.py executable', file=sys.stderr)
+		print('Usage: python3 sizestats.py executable', file=sys.stderr)
 		sys.exit(2)

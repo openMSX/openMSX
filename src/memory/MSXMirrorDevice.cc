@@ -47,6 +47,12 @@ byte* MSXMirrorDevice::getWriteCacheLine(word /*start*/) const
 	return nullptr;
 }
 
+bool MSXMirrorDevice::allowUnaligned() const
+{
+	// OK, because this device doesn't call any 'fillDeviceXXXCache()'functions.
+	return true;
+}
+
 template<typename Archive>
 void MSXMirrorDevice::serialize(Archive& ar, unsigned /*version*/)
 {

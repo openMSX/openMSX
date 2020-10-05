@@ -49,7 +49,8 @@ proc guess_rom_device_nonextension {} {
 		for {set ss 0} {$ss < 4} {incr ss} {
 			if {![machine_info isexternalslot $ps $ss]} continue
 			foreach device [machine_info slot $ps $ss 1] {
-				set path [dict get [machine_info device $device] "filename"]
+				set path ""
+				catch {set path [dict get [machine_info device $device] "filename"]}
 				if {$path eq ""} continue
 				set ok 1
 				foreach syspath $system_rom_paths {
@@ -68,7 +69,14 @@ proc guess_rom_device_naive {} {
 	for {set ps 0} {$ps < 4} {incr ps} {
 		for {set ss 0} {$ss < 4} {incr ss} {
 			if {[machine_info isexternalslot $ps $ss]} {
-				set device_list [machine_info slot $ps $ss 1]
+				set device_list [list]
+				foreach device [machine_info slot $ps $ss 1] {
+					# try to ignore RAM devices
+					set type [dict get [machine_info device $device] "type"]
+					if {$type ne "RAM" && $type ne "MemoryMapper" && $type ne "PanasonicRAM"} {
+						lappend device_list $device
+					}
+				}
 				if {[llength $device_list] != 0} {
 					return $device_list
 				}
@@ -153,7 +161,7 @@ proc guess_rom_device {} {
 	if {$result ne ""} {return $result}
 
 	# if that doesn't give a result, just return the first thing we find in
-	# an external slot
+	# an external slot (but not RAM)
 	set result [guess_rom_device_naive]
 	return $result
 }

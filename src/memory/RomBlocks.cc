@@ -50,6 +50,12 @@ template <unsigned BANK_SIZE>
 RomBlocks<BANK_SIZE>::~RomBlocks() = default;
 
 template <unsigned BANK_SIZE>
+unsigned RomBlocks<BANK_SIZE>::getBaseSizeAlignment() const
+{
+	return BANK_SIZE;
+}
+
+template <unsigned BANK_SIZE>
 byte RomBlocks<BANK_SIZE>::peekMem(word address, EmuTime::param /*time*/) const
 {
 	return bankPtr[address / BANK_SIZE][address & BANK_MASK];
@@ -78,7 +84,7 @@ void RomBlocks<BANK_SIZE>::setBank(byte region, const byte* adr, int block)
 	        ((extraMem <= adr) && (adr <= &extraMem[extraSize - 1]))));
 	bankPtr[region] = adr;
 	blockNr[region] = block; // only for debuggable
-	invalidateMemCache(region * BANK_SIZE, BANK_SIZE);
+	fillDeviceRCache(region * BANK_SIZE, BANK_SIZE, adr);
 }
 
 template <unsigned BANK_SIZE>

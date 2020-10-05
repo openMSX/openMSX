@@ -21,6 +21,10 @@ vdpTicksPerLine = 1368
 inputMap = {
 	'r': (8, 7), 'd': (8, 6), 'u': (8, 5), 'l': (8, 4), 's': (8, 0)
 	}
+# Coleco:
+#inputMap = {
+#	'r': (0, 1), 'd': (0, 2), 'u': (0, 0), 'l': (0, 3), 's': (0, 6), 'o': (2, 1)
+#	}
 inputMapReverse = dict((pos, name) for name, pos in inputMap.items())
 
 def readEvents(filename):
@@ -243,6 +247,12 @@ def convert(inFilename, outFilename):
 			filterEvents(combineEvents(readEvents(inFilename)), wantedKeys)
 			))
 	print('after cleanup %d events remain' % len(inputEvents), file=stderr)
+	if not inputEvents:
+		print(
+			"no events match; you should probably customize 'inputMap' "
+			"at the top of this script", file=stderr
+			)
+		return
 
 	ticksPerFrame = detectTicksPerFrame(evt[0] for evt in inputEvents)
 	scaledEvents = list(removeRedundantEvents(

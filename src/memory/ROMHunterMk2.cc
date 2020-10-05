@@ -38,7 +38,7 @@ void ROMHunterMk2::reset(EmuTime::param /*time*/)
 	for (int i = 0; i < 4; ++i) {
 		bankRegs[i] = 0;
 	}
-	invalidateMemCache(0x0000, 0x10000); // flush all to be sure
+	invalidateDeviceRCache(); // flush all to be sure
 }
 
 unsigned ROMHunterMk2::getRamAddr(unsigned addr) const
@@ -79,7 +79,7 @@ void ROMHunterMk2::writeMem(word addr, byte value, EmuTime::param /*time*/)
 	// config register at address 0x3FFF
 	if (addr == 0x3FFF) {
 		configReg = value;
-		invalidateMemCache(0x4000, 0x8000);
+		invalidateDeviceRCache(0x4000, 0x8000);
 		return;
 	}
 
@@ -108,12 +108,12 @@ void ROMHunterMk2::writeMem(word addr, byte value, EmuTime::param /*time*/)
 			if ((0x6000 <= addr) && (addr < 0x6800)) {
 				bankRegs[0] = 2 * maskedValue + 0;
 				bankRegs[1] = 2 * maskedValue + 1;
-				invalidateMemCache(0x4000, 0x4000);
+				invalidateDeviceRCache(0x4000, 0x4000);
 			}
 			if ((0x7000 <= addr) && (addr < 0x7800)) {
 				bankRegs[2] = 2 * maskedValue + 0;
 				bankRegs[3] = 2 * maskedValue + 1;
-				invalidateMemCache(0x8000, 0x4000);
+				invalidateDeviceRCache(0x8000, 0x4000);
 			}
 			break;
 		}
@@ -122,7 +122,7 @@ void ROMHunterMk2::writeMem(word addr, byte value, EmuTime::param /*time*/)
 			if ((0x6000 <= addr) && (addr < 0x8000)) {
 				byte bank = (addr >> 11) & 0x03;
 				bankRegs[bank] = value & 0x1F;
-				invalidateMemCache(0x4000 + 0x2000 * bank, 0x2000);
+				invalidateDeviceRCache(0x4000 + 0x2000 * bank, 0x2000);
 			}
 			break;
 		case 0b101:
@@ -130,7 +130,7 @@ void ROMHunterMk2::writeMem(word addr, byte value, EmuTime::param /*time*/)
 			if ((0x6000 <= addr) && (addr < 0xC000)) {
 				unsigned bank = (addr >> 13) - 2;
 				bankRegs[bank] = value & 0x1F;
-				invalidateMemCache(0x4000 + 0x2000 * bank, 0x2000);
+				invalidateDeviceRCache(0x4000 + 0x2000 * bank, 0x2000);
 			}
 			break;
 		case 0b100:

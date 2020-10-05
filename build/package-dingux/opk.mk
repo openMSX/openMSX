@@ -11,7 +11,7 @@ INSTALL_DOC_DIR:=doc
 BINDIST_OPENMSX_START:=$(DESTDIR)/$(INSTALL_BINARY_DIR)/openmsx-start.sh
 
 PACKAGE_FULL:=$(shell PYTHONPATH=build $(PYTHON) -c \
-  "import version; print version.getVersionedPackageName()" \
+  "import version; print(version.getVersionedPackageName())" \
   )
 BINDIST_PACKAGE:=$(PACKAGE_FULL).opk
 

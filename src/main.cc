@@ -39,6 +39,21 @@
 
 namespace openmsx {
 
+#ifdef _WIN32
+// wrapper for Windows, as the MS runtime doesn't provide setenv!?
+int setenv(const char *name, const char *value, int overwrite);
+int setenv(const char *name, const char *value, int overwrite)
+{
+	if (!overwrite) {
+		char* oldvalue = getenv(name);
+		if (oldvalue) {
+			return 0;
+		}
+	}
+	return _putenv_s(name, value);
+}
+#endif
+
 static void initializeSDL()
 {
 	int flags = 0;
@@ -51,6 +66,13 @@ static void initializeSDL()
 	if (SDL_Init(flags) < 0) {
 		throw FatalError("Couldn't init SDL: ", SDL_GetError());
 	}
+
+	// for now: instruct FreeType to use the v35 TTF engine
+	// this is the rendering we had before FreeType implemented and
+	// switched over to the v40 engine. To keep this the same for now, we
+	// select the old engine explicitly, until we decide how to continue
+	// (e.g. just use v40 or use a font that renders better on v40
+	setenv("FREETYPE_PROPERTIES", "truetype:interpreter-version=35", 0);
 }
 
 static int main(int argc, char **argv)

@@ -51,7 +51,7 @@ public:
 		}
 
 		// ForwardIterator
-		T operator*() const
+		[[nodiscard]] T operator*() const
 		{
 			return x;
 		}
@@ -68,11 +68,11 @@ public:
 			return copy;
 		}
 
-		bool operator==(const XRangeIter& other) const
+		[[nodiscard]] bool operator==(const XRangeIter& other) const
 		{
 			return x == other.x;
 		}
-		bool operator!=(const XRangeIter& other) const
+		[[nodiscard]] bool operator!=(const XRangeIter& other) const
 		{
 			return x != other.x;
 		}
@@ -102,45 +102,45 @@ public:
 			return *this;
 		}
 
-		friend XRangeIter operator+(XRangeIter i, difference_type n)
+		[[nodiscard]] friend XRangeIter operator+(XRangeIter i, difference_type n)
 		{
 			i += n;
 			return i;
 		}
-		friend XRangeIter operator+(difference_type n, XRangeIter i)
+		[[nodiscard]] friend XRangeIter operator+(difference_type n, XRangeIter i)
 		{
 			i += n;
 			return i;
 		}
-		friend XRangeIter operator-(XRangeIter i, difference_type n)
+		[[nodiscard]] friend XRangeIter operator-(XRangeIter i, difference_type n)
 		{
 			i -= n;
 			return i;
 		}
 
-		friend difference_type operator-(const XRangeIter& i, const XRangeIter& j)
+		[[nodiscard]] friend difference_type operator-(const XRangeIter& i, const XRangeIter& j)
 		{
 			return i.x - j.x;
 		}
 
-		T operator[](difference_type n)
+		[[nodiscard]] T operator[](difference_type n)
 		{
 			return *(*this + n);
 		}
 
-		friend bool operator<(const XRangeIter& i, const XRangeIter& j)
+		[[nodiscard]] friend bool operator<(const XRangeIter& i, const XRangeIter& j)
 		{
 			return i.x < j.x;
 		}
-		friend bool operator<=(const XRangeIter& i, const XRangeIter& j)
+		[[nodiscard]] friend bool operator<=(const XRangeIter& i, const XRangeIter& j)
 		{
 			return i.x <= j.x;
 		}
-		friend bool operator>(const XRangeIter& i, const XRangeIter& j)
+		[[nodiscard]] friend bool operator>(const XRangeIter& i, const XRangeIter& j)
 		{
 			return i.x > j.x;
 		}
-		friend bool operator>=(const XRangeIter& i, const XRangeIter& j)
+		[[nodiscard]] friend bool operator>=(const XRangeIter& i, const XRangeIter& j)
 		{
 			return i.x >= j.x;
 		}
@@ -159,19 +159,19 @@ public:
 	{
 	}
 
-	auto begin() const { return XRangeIter(b); }
-	auto end()   const { return XRangeIter(e); }
+	[[nodiscard]] auto begin() const { return XRangeIter(b); }
+	[[nodiscard]] auto end()   const { return XRangeIter(e); }
 
 private:
 	const T b;
 	const T e;
 };
 
-template<typename T> inline auto xrange(T e)
+template<typename T> [[nodiscard]] inline auto xrange(T e)
 {
 	return XRange<T>(e);
 }
-template<typename T> inline auto xrange(T b, T e)
+template<typename T> [[nodiscard]] inline auto xrange(T b, T e)
 {
 	return XRange<T>(b, e);
 }

@@ -5,6 +5,7 @@
 #include "PlugException.hh"
 #include "EventDistributor.hh"
 #include "Scheduler.hh"
+#include "one_of.hh"
 #include "serialize.hh"
 #include <cstring>
 #include <cerrno>
@@ -23,8 +24,8 @@ using std::string;
 namespace openmsx {
 
 void MidiInWindows::registerAll(EventDistributor& eventDistributor,
-                               Scheduler& scheduler,
-                               PluggingController& controller)
+                                Scheduler& scheduler,
+                                PluggingController& controller)
 {
 	w32_midiInInit();
 	unsigned devnum = w32_midiInGetVFNsNum();
@@ -36,7 +37,7 @@ void MidiInWindows::registerAll(EventDistributor& eventDistributor,
 
 
 MidiInWindows::MidiInWindows(EventDistributor& eventDistributor_,
-                           Scheduler& scheduler_, unsigned num)
+                             Scheduler& scheduler_, unsigned num)
 	: eventDistributor(eventDistributor_), scheduler(scheduler_)
 	, devIdx(unsigned(-1))
 {
@@ -63,10 +64,10 @@ void MidiInWindows::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 
 	setConnector(&connector_); // base class will do this in a moment,
 	                           // but thread already needs it
-	thread = std::thread([this]() { run(); });
 
 	{
 		std::unique_lock<std::mutex> threadIdLock(threadIdMutex);
+		thread = std::thread([this]() { run(); });
 		threadIdCond.wait(threadIdLock);
 	}
 	{
@@ -92,7 +93,7 @@ const string& MidiInWindows::getName() const
 	return name;
 }
 
-string_view MidiInWindows::getDescription() const
+std::string_view MidiInWindows::getDescription() const
 {
 	return desc;
 }
@@ -139,18 +140,17 @@ void MidiInWindows::run()
 		std::lock_guard<std::mutex> threadIdLock(threadIdMutex);
 		threadId = GetCurrentThreadId();
 	}
-	threadIdCond.notify_all();
 
 	{
 		std::unique_lock<std::mutex> devIdxLock(devIdxMutex);
+		threadIdCond.notify_all();
 		devIdxCond.wait(devIdxLock);
 	}
 
 	bool fexit = devIdx == unsigned(-1);
 	while (!fexit) {
 		MSG msg;
-		int gmer = GetMessage(&msg, nullptr, 0, 0);
-		if (gmer == 0 || gmer == -1) {
+		if (GetMessage(&msg, nullptr, 0, 0) == one_of(0, -1)) {
 			break;
 		}
 		switch (msg.message) {

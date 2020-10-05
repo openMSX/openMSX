@@ -14,12 +14,12 @@ RS232Connector::RS232Connector(PluggingController& pluggingController_,
 {
 }
 
-string_view RS232Connector::getDescription() const
+std::string_view RS232Connector::getDescription() const
 {
 	return "Serial RS232 connector";
 }
 
-string_view RS232Connector::getClass() const
+std::string_view RS232Connector::getClass() const
 {
 	return "RS232";
 }

@@ -5,9 +5,9 @@
 #include "RenderSettings.hh"
 #include "Scaler.hh"
 #include "ScalerFactory.hh"
-#include "OutputSurface.hh"
-#include "Math.hh"
+#include "SDLOutputSurface.hh"
 #include "aligned.hh"
+#include "checked_cast.hh"
 #include "random.hh"
 #include "xrange.hh"
 #include <algorithm>
@@ -15,15 +15,16 @@
 #include <cmath>
 #include <cstdint>
 #include <cstddef>
+#include <numeric>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
 
 namespace openmsx {
 
-static const unsigned NOISE_SHIFT = 8192;
-static const unsigned NOISE_BUF_SIZE = 2 * NOISE_SHIFT;
-SSE_ALIGNED(static signed char noiseBuf[NOISE_BUF_SIZE]);
+constexpr unsigned NOISE_SHIFT = 8192;
+constexpr unsigned NOISE_BUF_SIZE = 2 * NOISE_SHIFT;
+ALIGNAS_SSE static signed char noiseBuf[NOISE_BUF_SIZE];
 
 template <class Pixel>
 void FBPostProcessor<Pixel>::preCalcNoise(float factor)
@@ -64,10 +65,10 @@ void FBPostProcessor<Pixel>::preCalcNoise(float factor)
 	std::normal_distribution<float> distribution(0.0f, 1.0f);
 	for (unsigned i = 0; i < NOISE_BUF_SIZE; i += 4) {
 		float r = distribution(generator);
-		noiseBuf[i + 0] = Math::clip<-128, 127>(roundf(r * scale[0]));
-		noiseBuf[i + 1] = Math::clip<-128, 127>(roundf(r * scale[1]));
-		noiseBuf[i + 2] = Math::clip<-128, 127>(roundf(r * scale[2]));
-		noiseBuf[i + 3] = Math::clip<-128, 127>(roundf(r * scale[3]));
+		noiseBuf[i + 0] = std::clamp(int(roundf(r * scale[0])), -128, 127);
+		noiseBuf[i + 1] = std::clamp(int(roundf(r * scale[1])), -128, 127);
+		noiseBuf[i + 2] = std::clamp(int(roundf(r * scale[2])), -128, 127);
+		noiseBuf[i + 3] = std::clamp(int(roundf(r * scale[3])), -128, 127);
 	}
 }
 
@@ -204,15 +205,15 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 }
 
 template <class Pixel>
-void FBPostProcessor<Pixel>::drawNoise(OutputSurface& output)
+void FBPostProcessor<Pixel>::drawNoise(OutputSurface& output_)
 {
 	if (renderSettings.getNoise() == 0.0f) return;
 
-	unsigned h = output.getHeight();
-	unsigned w = output.getWidth();
-	output.lock();
-	for (unsigned y = 0; y < h; ++y) {
-		auto* buf = output.getLinePtrDirect<Pixel>(y);
+	auto& output = checked_cast<SDLOutputSurface&>(output_);
+	auto [w, h] = output.getLogicalSize();
+	auto pixelAccess = output.getDirectPixelAccess();
+	for (int y = 0; y < h; ++y) {
+		auto* buf = pixelAccess.getLinePtr<Pixel>(y);
 		drawNoiseLine(buf, &noiseBuf[noiseShift[y]], w);
 	}
 }
@@ -235,16 +236,17 @@ FBPostProcessor<Pixel>::FBPostProcessor(MSXMotherBoard& motherBoard_,
 	: PostProcessor(
 		motherBoard_, display_, screen_, videoSource, maxWidth_, height_,
 		canDoInterlace_)
-	, noiseShift(screen.getHeight())
-	, pixelOps(screen.getSDLFormat())
+	, noiseShift(screen.getLogicalHeight())
+	, pixelOps(screen.getPixelFormat())
 {
 	scaleAlgorithm = RenderSettings::NO_SCALER;
 	scaleFactor = unsigned(-1);
+	stretchWidth = unsigned(-1);
 
 	auto& noiseSetting = renderSettings.getNoiseSetting();
 	noiseSetting.attach(*this);
 	preCalcNoise(noiseSetting.getDouble());
-	assert((screen.getWidth() * sizeof(Pixel)) < NOISE_SHIFT);
+	assert((screen.getLogicalWidth() * sizeof(Pixel)) < NOISE_SHIFT);
 }
 
 template <class Pixel>
@@ -254,8 +256,9 @@ FBPostProcessor<Pixel>::~FBPostProcessor()
 }
 
 template <class Pixel>
-void FBPostProcessor<Pixel>::paint(OutputSurface& output)
+void FBPostProcessor<Pixel>::paint(OutputSurface& output_)
 {
+	auto& output = checked_cast<SDLOutputSurface&>(output_);
 	if (renderSettings.getInterleaveBlackFrame()) {
 		interleaveCount ^= 1;
 		if (interleaveCount) {
@@ -266,22 +269,26 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output)
 
 	if (!paintFrame) return;
 
-	// New scaler algorithm selected?
+	// New scaler algorithm selected? Or different horizontal stretch?
 	auto algo = renderSettings.getScaleAlgorithm();
 	unsigned factor = renderSettings.getScaleFactor();
-	if ((scaleAlgorithm != algo) || (scaleFactor != factor)) {
+	unsigned inWidth = lrintf(renderSettings.getHorizontalStretch());
+	if ((scaleAlgorithm != algo) || (scaleFactor != factor) || (inWidth != stretchWidth)) {
 		scaleAlgorithm = algo;
 		scaleFactor = factor;
+		stretchWidth = inWidth;
 		currScaler = ScalerFactory<Pixel>::createScaler(
-			PixelOperations<Pixel>(output.getSDLFormat()),
+			PixelOperations<Pixel>(output.getPixelFormat()),
 			renderSettings);
+		stretchScaler = StretchScalerOutputFactory<Pixel>::create(
+			output, pixelOps, inWidth);
 	}
 
 	// Scale image.
 	const unsigned srcHeight = paintFrame->getHeight();
-	const unsigned dstHeight = output.getHeight();
+	const unsigned dstHeight = output.getLogicalHeight();
 
-	unsigned g = Math::gcd(srcHeight, dstHeight);
+	unsigned g = std::gcd(srcHeight, dstHeight);
 	unsigned srcStep = srcHeight / g;
 	unsigned dstStep = dstHeight / g;
 
@@ -307,16 +314,10 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output)
 		// fill region
 		//fprintf(stderr, "post processing lines %d-%d: %d\n",
 		//	srcStartY, srcEndY, lineWidth );
-		output.lock();
-		float horStretch = renderSettings.getHorizontalStretch();
-		unsigned inWidth = lrintf(horStretch);
-		std::unique_ptr<ScalerOutput<Pixel>> dst(
-			StretchScalerOutputFactory<Pixel>::create(
-				output, pixelOps, inWidth));
 		currScaler->scaleImage(
 			*paintFrame, superImposeVideoFrame,
 			srcStartY, srcEndY, lineWidth, // source
-			*dst, dstStartY, dstEndY); // dest
+			*stretchScaler, dstStartY, dstEndY); // dest
 
 		// next region
 		srcStartY = srcEndY;
@@ -334,7 +335,7 @@ std::unique_ptr<RawFrame> FBPostProcessor<Pixel>::rotateFrames(
 {
 	auto& generator = global_urng(); // fast (non-cryptographic) random numbers
 	std::uniform_int_distribution<int> distribution(0, NOISE_SHIFT / 16 - 1);
-	for (auto y : xrange(screen.getHeight())) {
+	for (auto y : xrange(screen.getLogicalHeight())) {
 		noiseShift[y] = distribution(generator) * 16;
 	}
 

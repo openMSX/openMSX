@@ -27,26 +27,26 @@ namespace openmsx {
 class alignas(std::max_align_t) AlignedBuffer
 {
 private:
-	auto* p()       { return reinterpret_cast<      uint8_t*>(this); }
-	auto* p() const { return reinterpret_cast<const uint8_t*>(this); }
+	[[nodiscard]] auto* p()       { return reinterpret_cast<      uint8_t*>(this); }
+	[[nodiscard]] auto* p() const { return reinterpret_cast<const uint8_t*>(this); }
 
 public:
-	static const size_t ALIGNMENT = alignof(std::max_align_t);
+	static constexpr auto ALIGNMENT = alignof(std::max_align_t);
 
-	operator       uint8_t*()       { return p(); }
-	operator const uint8_t*() const { return p(); }
+	[[nodiscard]] operator       uint8_t*()       { return p(); }
+	[[nodiscard]] operator const uint8_t*() const { return p(); }
 
-	auto* operator+(ptrdiff_t i)       { return p() + i; }
-	auto* operator+(ptrdiff_t i) const { return p() + i; }
+	[[nodiscard]] auto* operator+(ptrdiff_t i)       { return p() + i; }
+	[[nodiscard]] auto* operator+(ptrdiff_t i) const { return p() + i; }
 
-	auto& operator[](int           i)       { return *(p() + i); }
-	auto& operator[](int           i) const { return *(p() + i); }
-	auto& operator[](unsigned int  i)       { return *(p() + i); }
-	auto& operator[](unsigned int  i) const { return *(p() + i); }
-	auto& operator[](long          i)       { return *(p() + i); }
-	auto& operator[](long          i) const { return *(p() + i); }
-	auto& operator[](unsigned long i)       { return *(p() + i); }
-	auto& operator[](unsigned long i) const { return *(p() + i); }
+	[[nodiscard]] auto& operator[](int           i)       { return *(p() + i); }
+	[[nodiscard]] auto& operator[](int           i) const { return *(p() + i); }
+	[[nodiscard]] auto& operator[](unsigned int  i)       { return *(p() + i); }
+	[[nodiscard]] auto& operator[](unsigned int  i) const { return *(p() + i); }
+	[[nodiscard]] auto& operator[](long          i)       { return *(p() + i); }
+	[[nodiscard]] auto& operator[](long          i) const { return *(p() + i); }
+	[[nodiscard]] auto& operator[](unsigned long i)       { return *(p() + i); }
+	[[nodiscard]] auto& operator[](unsigned long i) const { return *(p() + i); }
 };
 static_assert(alignof(AlignedBuffer) == AlignedBuffer::ALIGNMENT, "must be aligned");
 
@@ -56,9 +56,9 @@ static_assert(alignof(AlignedBuffer) == AlignedBuffer::ALIGNMENT, "must be align
 template<size_t N> class AlignedByteArray : public AlignedBuffer
 {
 public:
-	size_t size() const { return N; }
-	auto* data()       { return dat; }
-	auto* data() const { return dat; }
+	[[nodiscard]] size_t size() const { return N; }
+	[[nodiscard]] auto* data()       { return dat; }
+	[[nodiscard]] auto* data() const { return dat; }
 
 private:
 	uint8_t dat[N];
@@ -74,9 +74,9 @@ static_assert(sizeof(AlignedByteArray<32>) == 32,
   * When asserts are enabled this checks whether the original pointer is
   * properly aligned to point to the destination type.
   */
-template<typename T> static inline T aligned_cast(void* p)
+template<typename T> [[nodiscard]] static inline T aligned_cast(void* p)
 {
-	static_assert(std::is_pointer<T>::value,
+	static_assert(std::is_pointer_v<T>,
 	              "can only perform aligned_cast on pointers");
 	assert((reinterpret_cast<uintptr_t>(p) %
 	        alignof(std::remove_pointer_t<T>)) == 0);

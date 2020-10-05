@@ -1,8 +1,8 @@
 #ifndef MSXEXCEPTION_HH
 #define MSXEXCEPTION_HH
 
-#include "string_view.hh"
 #include "strCat.hh"
+#include <string>
 
 namespace openmsx {
 
@@ -12,13 +12,13 @@ public:
 	explicit MSXException() = default;
 
 	explicit MSXException(std::string message_)
-            : message(std::move(message_)) {}
+		: message(std::move(message_)) {}
 
-        template<typename... Args>
-        explicit MSXException(Args&&... args)
-            : message(strCat(std::forward<Args>(args)...))
-        {
-        }
+	template<typename... Args>
+	explicit MSXException(Args&&... args)
+		: message(strCat(std::forward<Args>(args)...))
+	{
+	}
 
 	const std::string& getMessage() const &  { return message; }
 	      std::string  getMessage()       && { return std::move(message); }
@@ -31,13 +31,13 @@ class FatalError
 {
 public:
 	explicit FatalError(std::string message_)
-            : message(std::move(message_)) {}
+		: message(std::move(message_)) {}
 
-        template<typename... Args>
-        explicit FatalError(Args&&... args)
-            : message(strCat(std::forward<Args>(args)...))
-        {
-        }
+	template<typename... Args>
+	explicit FatalError(Args&&... args)
+		: message(strCat(std::forward<Args>(args)...))
+	{
+	}
 
 	const std::string& getMessage() const &  { return message; }
 	      std::string  getMessage()       && { return std::move(message); }

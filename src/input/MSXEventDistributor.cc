@@ -33,8 +33,10 @@ void MSXEventDistributor::distributeEvent(const EventPtr& event, EmuTime::param 
 	//   e.g. signalMSXEvent() -> .. -> PlugCmd::execute() -> .. ->
 	//        Connector::plug() -> .. -> Joystick::plugHelper() ->
 	//        registerEventListener()
-	auto copy = listeners;
-	for (auto& l : copy) {
+	// 'listenersCopy' could be a local variable. But making it a member
+	// variable allows to reuse the allocated vector-capacity.
+	listenersCopy = listeners;
+	for (auto& l : listenersCopy) {
 		if (isRegistered(l)) {
 			// it's possible the listener unregistered itself
 			// (but is still present in the copy)

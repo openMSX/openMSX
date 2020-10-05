@@ -3,8 +3,10 @@
 #include "CliConnection.hh"
 #include "FileOperations.hh"
 #include "MSXException.hh"
+#include "one_of.hh"
 #include "random.hh"
 #include "statp.hh"
+#include "StringOp.hh"
 #include <memory>
 #include <string>
 
@@ -59,8 +61,8 @@ static bool checkSocketDir(const string& dir)
 
 static bool checkSocket(const string& socket)
 {
-	string_view name = FileOperations::getFilename(socket);
-	if (!name.starts_with("socket.")) {
+	std::string_view name = FileOperations::getFilename(socket);
+	if (!StringOp::startsWith(name, "socket.")) {
 		return false; // wrong name
 	}
 
@@ -246,7 +248,7 @@ void CliServer::mainLoop()
 			break;
 		}
 		if (sd == OPENMSX_INVALID_SOCKET) {
-			if (errno == EAGAIN || errno == EWOULDBLOCK) {
+			if (errno == one_of(EAGAIN, EWOULDBLOCK)) {
 				continue;
 			} else {
 				break;

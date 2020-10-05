@@ -23,6 +23,7 @@
 #include "Math.hh"
 #include "cstd.hh"
 #include "serialize.hh"
+#include <array>
 #include <cstring>
 #include <iostream>
 
@@ -30,25 +31,25 @@ namespace openmsx {
 namespace YM2413Burczynski {
 
 // envelope output entries
-static constexpr int ENV_BITS = 10;
-static constexpr double ENV_STEP = 128.0 / (1 << ENV_BITS);
+constexpr int ENV_BITS = 10;
+constexpr double ENV_STEP = 128.0 / (1 << ENV_BITS);
 
-static constexpr int MAX_ATT_INDEX = (1 << (ENV_BITS - 2)) - 1; // 255
-static constexpr int MIN_ATT_INDEX = 0;
+constexpr int MAX_ATT_INDEX = (1 << (ENV_BITS - 2)) - 1; // 255
+constexpr int MIN_ATT_INDEX = 0;
 
 // sinwave entries
-static constexpr int SIN_BITS = 10;
-static constexpr int SIN_LEN  = 1 << SIN_BITS;
-static constexpr int SIN_MASK = SIN_LEN - 1;
+constexpr int SIN_BITS = 10;
+constexpr int SIN_LEN  = 1 << SIN_BITS;
+constexpr int SIN_MASK = SIN_LEN - 1;
 
-static constexpr int TL_RES_LEN = 256; // 8 bits addressing (real chip)
+constexpr int TL_RES_LEN = 256; // 8 bits addressing (real chip)
 
 // key scale level
 // table is 3dB/octave, DV converts this into 6dB/octave
 // 0.1875 is bit 0 weight of the envelope counter (volume) expressed
 // in the 'decibel' scale
-#define DV(x) int((x) / 0.1875)
-static constexpr int ksl_tab[8 * 16] =
+static constexpr int DV(double x) { return int(x / 0.1875); }
+constexpr int ksl_tab[8 * 16] =
 {
 	// OCT 0
 	DV( 0.000),DV( 0.000),DV( 0.000),DV( 0.000),
@@ -91,18 +92,16 @@ static constexpr int ksl_tab[8 * 16] =
 	DV(18.000),DV(18.750),DV(19.125),DV(19.500),
 	DV(19.875),DV(20.250),DV(20.625),DV(21.000)
 };
-#undef DV
 
 // sustain level table (3dB per step)
 // 0 - 15: 0, 3, 6, 9,12,15,18,21,24,27,30,33,36,39,42,45 (dB)
-#define SC(db) int((double(db)) / ENV_STEP)
-static constexpr int sl_tab[16] = {
+static constexpr int SC(int db) { return int(double(db) / ENV_STEP); }
+constexpr int sl_tab[16] = {
 	SC( 0),SC( 1),SC( 2),SC(3 ),SC(4 ),SC(5 ),SC(6 ),SC( 7),
 	SC( 8),SC( 9),SC(10),SC(11),SC(12),SC(13),SC(14),SC(15)
 };
-#undef SC
 
-static constexpr byte eg_inc[15][8] =
+constexpr uint8_t eg_inc[15][8] =
 {
 	// cycle: 0 1  2 3  4 5  6 7
 
@@ -127,7 +126,7 @@ static constexpr byte eg_inc[15][8] =
 };
 
 // note that there is no value 13 in this table - it's directly in the code
-static constexpr byte eg_rate_select[16 + 64 + 16] =
+constexpr uint8_t eg_rate_select[16 + 64 + 16] =
 {
 	// Envelope Generator rates (16 + 64 rates + 16 RKS)
 	// 16 infinite time rates
@@ -165,7 +164,7 @@ static constexpr byte eg_rate_select[16 + 64 + 16] =
 // shift 13,   12,   11,   10,   9,   8,   7,   6,  5,  4,  3,  2,  1,  0,  0,  0
 // mask  8191, 4095, 2047, 1023, 511, 255, 127, 63, 31, 15, 7,  3,  1,  0,  0,  0
 
-static constexpr byte eg_rate_shift[16 + 64 + 16] =
+constexpr uint8_t eg_rate_shift[16 + 64 + 16] =
 {
 	// Envelope Generator counter shifts (16 + 64 rates + 16 RKS)
 	// 16 infinite time rates
@@ -200,27 +199,22 @@ static constexpr byte eg_rate_shift[16 + 64 + 16] =
 };
 
 // multiple table
-#define ML(x) byte(2 * (x))
-static constexpr byte mul_tab[16] =
+static constexpr uint8_t ML(double x) { return uint8_t(2 * x); }
+constexpr uint8_t mul_tab[16] =
 {
 	ML( 0.50), ML( 1.00), ML( 2.00), ML( 3.00),
 	ML( 4.00), ML( 5.00), ML( 6.00), ML( 7.00),
 	ML( 8.00), ML( 9.00), ML(10.00), ML(10.00),
 	ML(12.00), ML(12.00), ML(15.00), ML(15.00),
 };
-#undef ML
 
 //  TL_TAB_LEN is calculated as:
 //  11 - sinus amplitude bits     (Y axis)
 //  2  - sinus sign bit           (Y axis)
 //  TL_RES_LEN - sinus resolution (X axis)
-static constexpr int TL_TAB_LEN = 11 * 2 * TL_RES_LEN;
-struct TlTab {
-	int tab[TL_TAB_LEN];
-};
-static constexpr TlTab makeTlTab()
-{
-	TlTab tl = {};
+constexpr int TL_TAB_LEN = 11 * 2 * TL_RES_LEN;
+constexpr auto tlTab = [] {
+	std::array<int, TL_TAB_LEN> result = {};
 	for (int x = 0; x < TL_RES_LEN; ++x) {
 		double m = (1 << 16) / cstd::exp2<6>((x + 1) * (ENV_STEP / 4.0) / 8.0);
 
@@ -231,44 +225,38 @@ static constexpr TlTab makeTlTab()
 		n = (n >> 1) + (n & 1); // round to nearest
 		// 11 bits here (rounded)
 		for (int i = 0; i < 11; ++i) {
-			tl.tab[x * 2 + 0 + i * 2 * TL_RES_LEN] = n >> i;
-			tl.tab[x * 2 + 1 + i * 2 * TL_RES_LEN] = -(n >> i);
+			result[x * 2 + 0 + i * 2 * TL_RES_LEN] = n >> i;
+			result[x * 2 + 1 + i * 2 * TL_RES_LEN] = -(n >> i);
 		}
 	}
-	return tl;
-}
-static constexpr TlTab tl = makeTlTab();
+	return result;
+}();
 
 // sin waveform table in 'decibel' scale
 // two waveforms on OPLL type chips
-struct SinTab {
-	unsigned tab[SIN_LEN * 2];
-};
-static constexpr SinTab makeSinTab()
-{
-	SinTab sin = {};
+constexpr auto sinTab = [] {
+	std::array<unsigned, SIN_LEN * 2> result = {};
 	for (int i = 0; i < SIN_LEN / 4; ++i) {
 		// checked on real hardware, see also
 		//   http://docs.google.com/Doc?id=dd8kqn9f_13cqjkf4gp
 		double m = cstd::sin<2>(((i * 2) + 1) * M_PI / SIN_LEN);
 		int n = int(cstd::round(cstd::log2<8, 3>(m) * -256.0));
-		sin.tab[i] = 2 * n;
+		result[i] = 2 * n;
 	}
 	for (int i = 0; i < SIN_LEN / 4; ++i) {
-		sin.tab[SIN_LEN / 4 + i] = sin.tab[SIN_LEN / 4 - 1 - i];
+		result[SIN_LEN / 4 + i] = result[SIN_LEN / 4 - 1 - i];
 	}
 	for (int i = 0; i < SIN_LEN / 2; ++i) {
-		sin.tab[SIN_LEN / 2 + i] = sin.tab[i] | 1;
+		result[SIN_LEN / 2 + i] = result[i] | 1;
 	}
 	for (int i = 0; i < SIN_LEN / 2; ++i) {
-		sin.tab[i + SIN_LEN] = sin.tab[i];
+		result[i + SIN_LEN] = result[i];
 	}
 	for (int i = 0; i < SIN_LEN / 2; ++i) {
-		sin.tab[i + SIN_LEN + SIN_LEN / 2] = TL_TAB_LEN;
+		result[i + SIN_LEN + SIN_LEN / 2] = TL_TAB_LEN;
 	}
-	return sin;
-}
-static constexpr SinTab sin = makeSinTab();
+	return result;
+}();
 
 // LFO Amplitude Modulation table (verified on real YM3812)
 // 27 output levels (triangle waveform);
@@ -282,8 +270,8 @@ static constexpr SinTab sin = makeSinTab();
 //
 // We use data>>1, until we find what it really is on real chip...
 
-static constexpr int LFO_AM_TAB_ELEMENTS = 210;
-static constexpr byte lfo_am_table[LFO_AM_TAB_ELEMENTS] =
+constexpr int LFO_AM_TAB_ELEMENTS = 210;
+constexpr uint8_t lfo_am_table[LFO_AM_TAB_ELEMENTS] =
 {
 	0,0,0,0,0,0,0,
 	1,1,1,1,
@@ -340,7 +328,7 @@ static constexpr byte lfo_am_table[LFO_AM_TAB_ELEMENTS] =
 };
 
 // LFO Phase Modulation table (verified on real YM2413)
-static constexpr signed char lfo_pm_table[8][8] =
+constexpr signed char lfo_pm_table[8][8] =
 {
 	// FNUM2/FNUM = 0 00xxxxxx (0x0000)
 	{ 0, 0, 0, 0, 0, 0, 0, 0, },
@@ -372,7 +360,7 @@ static constexpr signed char lfo_pm_table[8][8] =
 // - multi parameters are 100% correct (instruments and drums)
 // - LFO PM and AM enable are 100% correct
 // - waveform DC and DM select are 100% correct
-static constexpr byte table[16 + 3][8] = {
+constexpr uint8_t table[16 + 3][8] = {
 	// MULT  MULT modTL DcDmFb AR/DR AR/DR SL/RR SL/RR
 	//   0     1     2     3     4     5     6     7
 	{ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, // user instrument
@@ -477,8 +465,8 @@ inline int Slot::calc_envelope(Channel& channel, unsigned eg_cnt, bool carrier)
 			const bool sustain = !eg_sustain || channel.isSustained();
 			const unsigned mask = sustain ? eg_mask_rs : eg_mask_rr;
 			if (!(eg_cnt & mask)) {
-				const byte shift = sustain ? eg_sh_rs : eg_sh_rr;
-				const byte* sel = sustain ? eg_sel_rs : eg_sel_rr;
+				const uint8_t shift = sustain ? eg_sh_rs : eg_sh_rr;
+				const uint8_t* sel = sustain ? eg_sel_rs : eg_sel_rr;
 				egout += sel[(eg_cnt >> shift) & 7];
 				if (egout >= MAX_ATT_INDEX) {
 					egout = MAX_ATT_INDEX;
@@ -546,7 +534,7 @@ inline int Slot::calcOutput(Channel& channel, unsigned eg_cnt, bool carrier,
 	int egout2 = calc_envelope(channel, eg_cnt, carrier);
 	int env = (TLL + egout2 + (lfo_am & AMmask)) << 5;
 	int p = env + wavetable[phase2 & SIN_MASK];
-	return p < TL_TAB_LEN ? tl.tab[p] : 0;
+	return p < TL_TAB_LEN ? tlTab[p] : 0;
 }
 
 inline int Slot::calc_slot_mod(Channel& channel, unsigned eg_cnt, bool carrier,
@@ -667,7 +655,7 @@ Slot::Slot()
 	eg_sustain = false;
 	setEnvelopeState(EG_OFF);
 	key = AMmask = vib = 0;
-	wavetable = &sin.tab[0 * SIN_LEN];
+	wavetable = &sinTab[0 * SIN_LEN];
 }
 
 void Slot::setKeyOn(KeyPart part)
@@ -710,7 +698,7 @@ void Slot::setEnvelopeState(EnvelopeState state_)
 	state = state_;
 }
 
-void Slot::setFrequencyMultiplier(byte value)
+void Slot::setFrequencyMultiplier(uint8_t value)
 {
 	mul = mul_tab[value];
 }
@@ -735,50 +723,50 @@ void Slot::setAmplitudeModulation(bool value)
 	AMmask = value ? ~0 : 0;
 }
 
-void Slot::setTotalLevel(Channel& channel, byte value)
+void Slot::setTotalLevel(Channel& channel, uint8_t value)
 {
 	TL = value << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0)
 	updateTotalLevel(channel);
 }
 
-void Slot::setKeyScaleLevel(Channel& channel, byte value)
+void Slot::setKeyScaleLevel(Channel& channel, uint8_t value)
 {
 	ksl = value ? (3 - value) : 31;
 	updateTotalLevel(channel);
 }
 
-void Slot::setWaveform(byte value)
+void Slot::setWaveform(uint8_t value)
 {
-	wavetable = &sin.tab[value * SIN_LEN];
+	wavetable = &sinTab[value * SIN_LEN];
 }
 
-void Slot::setFeedbackShift(byte value)
+void Slot::setFeedbackShift(uint8_t value)
 {
 	fb_shift = value ? 8 - value : 0;
 }
 
-void Slot::setAttackRate(const Channel& channel, byte value)
+void Slot::setAttackRate(const Channel& channel, uint8_t value)
 {
 	int kcodeScaled = channel.getKeyCode() >> KSR;
 	ar = value ? 16 + (value << 2) : 0;
 	updateAttackRate(kcodeScaled);
 }
 
-void Slot::setDecayRate(const Channel& channel, byte value)
+void Slot::setDecayRate(const Channel& channel, uint8_t value)
 {
 	int kcodeScaled = channel.getKeyCode() >> KSR;
 	dr = value ? 16 + (value << 2) : 0;
 	updateDecayRate(kcodeScaled);
 }
 
-void Slot::setReleaseRate(const Channel& channel, byte value)
+void Slot::setReleaseRate(const Channel& channel, uint8_t value)
 {
 	int kcodeScaled = channel.getKeyCode() >> KSR;
 	rr = value ? 16 + (value << 2) : 0;
 	updateReleaseRate(kcodeScaled);
 }
 
-void Slot::setSustainLevel(byte value)
+void Slot::setSustainLevel(uint8_t value)
 {
 	sl = sl_tab[value];
 }
@@ -791,7 +779,7 @@ void Slot::updateFrequency(Channel& channel)
 
 void Slot::resetOperators()
 {
-	wavetable = &sin.tab[0 * SIN_LEN];
+	wavetable = &sinTab[0 * SIN_LEN];
 	setEnvelopeState(EG_OFF);
 	egout = MAX_ATT_INDEX;
 }
@@ -839,12 +827,12 @@ void Channel::setFrequency(int block_fnum_)
 	car.updateFrequency(*this);
 }
 
-void Channel::setFrequencyLow(byte value)
+void Channel::setFrequencyLow(uint8_t value)
 {
 	setFrequency((block_fnum & 0x0F00) | value);
 }
 
-void Channel::setFrequencyHigh(byte value)
+void Channel::setFrequencyHigh(uint8_t value)
 {
 	setFrequency((value << 8) | (block_fnum & 0x00FF));
 }
@@ -864,7 +852,7 @@ int Channel::getKeyScaleLevelBase() const
 	return ksl_base;
 }
 
-byte Channel::getKeyCode() const
+uint8_t Channel::getKeyCode() const
 {
 	// BLK 2,1,0 bits -> bits 3,2,1 of kcode, FNUM MSB -> kcode LSB
 	return (block_fnum & 0x0F00) >> 8;
@@ -880,7 +868,7 @@ void Channel::setSustain(bool sustained)
 	sus = sustained;
 }
 
-void Channel::updateInstrumentPart(int part, byte value)
+void Channel::updateInstrumentPart(int part, uint8_t value)
 {
 	switch (part) {
 	case 0:
@@ -928,7 +916,7 @@ void Channel::updateInstrumentPart(int part, byte value)
 	}
 }
 
-void Channel::updateInstrument(const byte* inst)
+void Channel::updateInstrument(const uint8_t* inst)
 {
 	for (int part = 0; part < 8; ++part) {
 		updateInstrumentPart(part, inst[part]);
@@ -939,9 +927,9 @@ YM2413::YM2413()
 	: lfo_am_cnt(0), lfo_pm_cnt(0)
 {
 	if (false) {
-		for (auto& e : tl.tab) std::cout << e << '\n';
+		for (auto& e : tlTab) std::cout << e << '\n';
 		std::cout << '\n';
-		for (auto& e : sin.tab) std::cout << e << '\n';
+		for (auto& e : sinTab) std::cout << e << '\n';
 	}
 
 	memset(reg, 0, sizeof(reg)); // avoid UMR
@@ -951,7 +939,7 @@ YM2413::YM2413()
 	reset();
 }
 
-void YM2413::updateCustomInstrument(int part, byte value)
+void YM2413::updateCustomInstrument(int part, uint8_t value)
 {
 	// Update instrument definition.
 	inst_tab[0][part] = value;
@@ -966,14 +954,14 @@ void YM2413::updateCustomInstrument(int part, byte value)
 	}
 }
 
-void YM2413::setRhythmFlags(byte old)
+void YM2413::setRhythmFlags(uint8_t old)
 {
 	Channel& ch6 = channels[6];
 	Channel& ch7 = channels[7];
 	Channel& ch8 = channels[8];
 
 	// flags = X | X | mode | BD | SD | TOM | TC | HH
-	byte flags = reg[0x0E];
+	uint8_t flags = reg[0x0E];
 	if ((flags ^ old) & 0x20) {
 		if (flags & 0x20) { // OFF -> ON
 			// Bass drum.
@@ -1034,6 +1022,7 @@ void YM2413::reset()
 	for (int i = 0x3F; i >= 0x10; --i) {
 		writeReg(i, 0);
 	}
+	registerLatch = 0;
 
 	resetOperators();
 }
@@ -1051,9 +1040,9 @@ bool YM2413::isRhythm() const
 	return (reg[0x0E] & 0x20) != 0;
 }
 
-Channel& YM2413::getChannelForReg(byte r)
+Channel& YM2413::getChannelForReg(uint8_t r)
 {
-	byte chan = (r & 0x0F) % 9; // verified on real YM2413
+	uint8_t chan = (r & 0x0F) % 9; // verified on real YM2413
 	return channels[chan];
 }
 
@@ -1222,9 +1211,23 @@ void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 	}
 }
 
-void YM2413::writeReg(byte r, byte v)
+void YM2413::writePort(bool port, uint8_t value, int /*offset*/)
 {
-	byte old = reg[r];
+	if (port == 0) {
+		registerLatch = value;
+	} else {
+		writeReg(registerLatch & 0x3f, value);
+	}
+}
+
+void YM2413::pokeReg(uint8_t r, uint8_t v)
+{
+	writeReg(r, v);
+}
+
+void YM2413::writeReg(uint8_t r, uint8_t v)
+{
+	uint8_t old = reg[r];
 	reg[r] = v;
 
 	switch (r & 0xF0) {
@@ -1272,7 +1275,7 @@ void YM2413::writeReg(byte r, byte v)
 		// Check wether we are in rhythm mode and handle instrument/volume
 		// register accordingly.
 
-		byte chan = (r & 0x0F) % 9; // verified on real YM2413
+		uint8_t chan = (r & 0x0F) % 9; // verified on real YM2413
 		if (isRhythm() && (chan >= 6)) {
 			if (chan > 6) {
 				// channel 7 or 8 in ryhthm mode
@@ -1291,7 +1294,7 @@ void YM2413::writeReg(byte r, byte v)
 	}
 }
 
-byte YM2413::peekReg(byte r) const
+uint8_t YM2413::peekReg(uint8_t r) const
 {
 	return reg[r];
 }
@@ -1319,7 +1322,7 @@ void Slot::serialize(Archive& a, unsigned /*version*/)
 {
 	// TODO some of the serialized members here could be calculated from
 	//      other members
-	int waveform = (wavetable == &sin.tab[0]) ? 0 : 1;
+	int waveform = (wavetable == &sinTab[0]) ? 0 : 1;
 	a.serialize("waveform", waveform);
 	if (a.isLoader()) {
 		setWaveform(waveform);
@@ -1378,6 +1381,7 @@ void Channel::serialize(Archive& a, unsigned /*version*/)
 // version 1: initial version
 // version 2: 'registers' are moved here (no longer serialized in base class)
 // version 3: removed 'rhythm' variable
+// version 4: added 'registerLatch'
 template<typename Archive>
 void YM2413::serialize(Archive& a, unsigned version)
 {
@@ -1392,6 +1396,11 @@ void YM2413::serialize(Archive& a, unsigned version)
 	            "noise_rng",  noise_rng,
 	            "lfo_am_cnt", lfo_am_cnt,
 	            "lfo_pm_cnt", lfo_pm_cnt);
+	if (a.versionAtLeast(version, 4)) {
+		a.serialize("registerLatch", registerLatch);
+	} else {
+		// could be restored from MSXMusicBase, worth the effort?
+	}
 	// don't serialize idleSamples, it's only an optimization
 }
 

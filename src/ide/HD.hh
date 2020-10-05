@@ -47,7 +47,7 @@ private:
 	SectorAccessibleDisk* getSectorAccessibleDisk() override;
 	const std::string& getContainerName() const override;
 	bool diskChanged() override;
-	int insertDisk(string_view newFilename) override;
+	int insertDisk(std::string_view newFilename) override;
 
 	// TTData
 	uint8_t* getData(size_t offset, size_t size) override;
@@ -64,7 +64,7 @@ private:
 	Filename filename;
 	size_t filesize;
 
-	static const unsigned MAX_HD = 26;
+	static constexpr unsigned MAX_HD = 26;
 	using HDInUse = std::bitset<MAX_HD>;
 	std::shared_ptr<HDInUse> hdInUse;
 
