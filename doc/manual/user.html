@@ -85,6 +85,10 @@
 			<li><a class="internal" href="#arkanoidpad">5.4 Arkanoid Pad</a></li>
 			<li><a class="internal" href="#trackball">5.5 Trackball</a></li>
 			<li><a class="internal" href="#touchpad">5.6 Touchpad</a></li>
+			<li><a class="internal" href="#magickey">5.7 Magic Key</a></li>
+			<li><a class="internal" href="#ninjatap">5.8 Ninja Tap</a></li>
+			<li><a class="internal" href="#tetris2dongle">5.9 Tetris II Special Edition dongle</a></li>
+			<li><a class="internal" href="#msxpaddle">5.10 MSX Paddle</a></li>
 		</ol>
 	</li>
 
@@ -931,6 +935,53 @@ This device is mostly supported by the Philips drawing programs Designer, Design
 <p>
 Note that the whole openMSX window will function as the surface of the touch pad. This will not align with the actual pixels of the screen in that window, see the <a class="external" href="commands.html#touchpad_transform_matrix">touchpad_transform_matrix</a> setting for more details.
 </p>
+
+<h3><a id="magickey">5.7 Magic Key</a></h3>
+
+<p>
+Sony made a small dongle for game testers to cheat within the games. The games that have support for it will check if the UP and DOWN keys are pressed. The magic key is supported in port B only:</p>
+<div class="commandline">
+    <a class="external" href="commands.html#plugunplug">plug</a> joyportb magic-key
+</div>
+
+<p>
+Known games that can use this Magic Key are:
+<ul>
+<li>Family Boxing (Sony)</li>
+<p>Press the Graph key on the title screen to enter the secret menu</p>
+<li>Jansei (Sony)</li>
+<p>You can set the characteristics of the enemy by moving the cursor to "Actual Battle" on the menu screen and pressing ESC and SELECT.</p>
+<li>Gall Force - Defense of Chaos (Sony)</li>
+<p>A new menu item will appear on the home screen</p>
+</ul>
+
+</p>
+<h3><a id="ninjatap">5.8 Ninja Tap</a></h3>
+
+<p>The Ninja Tap (忍者タップ) is an adapter designed by Knight's chamber then sold in Japan by PCCM. This adapter allows to use up to 4 joysticks by port. Plug it as follows:</p>
+
+<div class="commandline">
+    <a class="external" href="commands.html#plugunplug">plug</a> joyporta ninjatap
+</div>
+
+<h3><a id="tetris2dongle">5.9 Tetris II Special Edition dongle</a></h3>
+
+<p>
+Tetris 2 Special Edition from R.A.M., an Italian MSX group needs the dongle in port B too start the game:</p>
+
+<div class="commandline">
+    <a class="external" href="commands.html#plugunplug">plug</a> joyportb tetris2-protection
+</div>
+
+<h3><a id="msxpaddle">5.10 MSX Paddle</a></h3>
+
+<p>
+  MSX paddle controller is quite a simple device, but there are not so many commercial implementations for MSX. The Yamaha MMP-01 is a music pad that is known to use this protocol to transmit its coordinates. Plug it as follows:
+
+<div class="commandline">
+    <a class="external" href="commands.html#plugunplug">plug</a> joyporta paddle
+</div>
+
 
 <h2><a id="video">6. Video</a></h2>
 
