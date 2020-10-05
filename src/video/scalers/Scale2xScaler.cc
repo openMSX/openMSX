@@ -159,7 +159,7 @@ static inline void scaleSSE(
 	assert(width > 1);
 	width -= sizeof(__m128i); // handle last unit special
 
-	static const size_t SCALE = DOUBLE_X ? 2 : 1;
+	constexpr size_t SCALE = DOUBLE_X ? 2 : 1;
 
 	// Generated code seems more efficient when all address calculations
 	// are done in bytes. Negative loop counter allows for a more efficient

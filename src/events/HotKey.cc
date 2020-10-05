@@ -21,7 +21,7 @@ using std::vector;
 using std::make_shared;
 
 // This file implements all Tcl key bindings. These are the 'classical' hotkeys
-// (e.g. F11 to (un)mute sound) and the more recent input layers. The idea
+// (e.g. F12 to (un)mute sound) and the more recent input layers. The idea
 // behind an input layer is something like an OSD widget that (temporarily)
 // takes semi-exclusive access to the input. So while the widget is active
 // keyboard (and joystick) input is no longer passed to the emulated MSX.
@@ -74,6 +74,8 @@ HotKey::HotKey(RTScheduler& rtScheduler,
 	eventDistributor.registerEventListener(
 		OPENMSX_FOCUS_EVENT, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
+		OPENMSX_FILEDROP_EVENT, *this, EventDistributor::HOTKEY);
+	eventDistributor.registerEventListener(
 		OPENMSX_OSD_CONTROL_RELEASE_EVENT, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
 		OPENMSX_OSD_CONTROL_PRESS_EVENT, *this, EventDistributor::HOTKEY);
@@ -83,6 +85,7 @@ HotKey::~HotKey()
 {
 	eventDistributor.unregisterEventListener(OPENMSX_OSD_CONTROL_PRESS_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_OSD_CONTROL_RELEASE_EVENT, *this);
+	eventDistributor.unregisterEventListener(OPENMSX_FILEDROP_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_FOCUS_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_JOY_BUTTON_UP_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_JOY_BUTTON_DOWN_EVENT, *this);
@@ -110,7 +113,7 @@ void HotKey::initDefaultBindings()
 		                       "toggle pause"));
 		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(
 		                            Keys::combine(Keys::K_T, Keys::KM_META)),
-		                       "toggle throttle"));
+		                       "toggle fastforward"));
 		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(
 		                            Keys::combine(Keys::K_L, Keys::KM_META)),
 		                       "toggle console"));
@@ -130,13 +133,13 @@ void HotKey::initDefaultBindings()
 		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(Keys::K_PAUSE),
 		                       "toggle pause"));
 		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(Keys::K_F9),
-		                       "toggle throttle"));
+		                       "toggle fastforward"));
 		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(Keys::K_F10),
 		                       "toggle console"));
 		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(Keys::K_F11),
-		                       "toggle mute"));
-		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(Keys::K_F12),
 		                       "toggle fullscreen"));
+		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(Keys::K_F12),
+		                       "toggle mute"));
 		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(
 		                            Keys::combine(Keys::K_F4, Keys::KM_ALT)),
 		                       "exit"));
@@ -243,28 +246,27 @@ static bool contains(const vector<T>& v, const Event& event)
 template<typename T>
 static void erase(vector<T>& v, const Event& event)
 {
-	auto it = ranges::find_if(v, EqualEvent(event));
-	if (it != end(v)) move_pop_back(v, it);
+	if (auto it = ranges::find_if(v, EqualEvent(event)); it != end(v)) {
+		move_pop_back(v, it);
+	}
 }
 
 static void insert(HotKey::KeySet& set, HotKey::EventPtr event)
 {
-	auto it = ranges::find_if(set, EqualEvent(*event));
-	if (it == end(set)) {
-		set.push_back(event);
-	} else {
+	if (auto it = ranges::find_if(set, EqualEvent(*event)); it != end(set)) {
 		*it = event;
+	} else {
+		set.push_back(event);
 	}
 }
 
 template<typename HotKeyInfo>
 static void insert(HotKey::BindMap& map, HotKeyInfo&& info)
 {
-	auto it = ranges::find_if(map, EqualEvent(*info.event));
-	if (it == end(map)) {
-		map.push_back(std::forward<HotKeyInfo>(info));
-	} else {
+	if (auto it = ranges::find_if(map, EqualEvent(*info.event)); it != end(map)) {
 		*it = std::forward<HotKeyInfo>(info);
+	} else {
+		map.push_back(std::forward<HotKeyInfo>(info));
 	}
 }
 
@@ -280,8 +282,8 @@ void HotKey::bind(HotKeyInfo&& info)
 
 void HotKey::unbind(const EventPtr& event)
 {
-	auto it1 = ranges::find_if(boundKeys, EqualEvent(*event));
-	if (it1 == end(boundKeys)) {
+	if (auto it1 = ranges::find_if(boundKeys, EqualEvent(*event));
+	    it1 == end(boundKeys)) {
 		// only when not a regular bound event
 		insert(unboundKeys, event);
 	} else {
@@ -299,7 +301,7 @@ void HotKey::bindDefault(HotKeyInfo&& info)
 {
 	if (!contains(  boundKeys, *info.event) &&
 	    !contains(unboundKeys, *info.event)) {
-		// not explicity bound or unbound
+		// not explicitly bound or unbound
 		insert(cmdMap, info);
 	}
 	insert(defaultMap, std::move(info));
@@ -309,7 +311,7 @@ void HotKey::unbindDefault(const EventPtr& event)
 {
 	if (!contains(  boundKeys, *event) &&
 	    !contains(unboundKeys, *event)) {
-		// not explicity bound or unbound
+		// not explicitly bound or unbound
 		erase(cmdMap, *event);
 	}
 	erase(defaultMap, *event);
@@ -339,13 +341,13 @@ void HotKey::activateLayer(std::string layer, bool blocking)
 	activeLayers.push_back({std::move(layer), blocking});
 }
 
-void HotKey::deactivateLayer(string_view layer)
+void HotKey::deactivateLayer(std::string_view layer)
 {
 	// remove the first matching activation record from the end
 	// (it's not an error if there is no match at all)
-	auto it = ranges::find_if(view::reverse(activeLayers),
-	                          [&](auto& info) { return info.layer == layer; });
-	if (it != activeLayers.rend()) {
+	if (auto it = ranges::find_if(view::reverse(activeLayers),
+	                              [&](auto& info) { return info.layer == layer; });
+	    it != activeLayers.rend()) {
 		// 'reverse_iterator' -> 'iterator' conversion is a bit tricky
 		activeLayers.erase((it + 1).base());
 	}
@@ -388,8 +390,7 @@ int HotKey::executeEvent(const EventPtr& event)
 	bool blocking = false;
 	for (auto& info : view::reverse(activeLayers)) {
 		auto& cmap = layerMap[info.layer]; // ok, if this entry doesn't exist yet
-		auto it = findMatch(cmap, *event);
-		if (it != end(cmap)) {
+		if (auto it = findMatch(cmap, *event); it != end(cmap)) {
 			executeBinding(event, *it);
 			// Deny event to MSX listeners, also don't pass event
 			// to other layers (including the default layer).
@@ -400,8 +401,7 @@ int HotKey::executeEvent(const EventPtr& event)
 	}
 
 	// If the event was not yet handled, try the default layer.
-	auto it = findMatch(cmdMap, *event);
-	if (it != end(cmdMap)) {
+	if (auto it = findMatch(cmdMap, *event); it != end(cmdMap)) {
 		executeBinding(event, *it);
 		return EventDistributor::MSX; // deny event to MSX listeners
 	}
@@ -453,9 +453,9 @@ void HotKey::startRepeat(const EventPtr& event)
 	// On android, because of the sensitivity of the touch screen it's
 	// very hard to have touches of short durations. So half a second is
 	// too short for the key-repeat-delay. A full second should be fine.
-	static const unsigned DELAY = PLATFORM_ANDROID ? 1000 : 500;
+	static constexpr unsigned DELAY = PLATFORM_ANDROID ? 1000 : 500;
 	// Repeat period.
-	static const unsigned PERIOD = 30;
+	static constexpr unsigned PERIOD = 30;
 
 	unsigned delay = (lastEvent ? PERIOD : DELAY) * 1000;
 	lastEvent = event;
@@ -471,7 +471,7 @@ void HotKey::stopRepeat()
 
 // class BindCmd
 
-static string_view getBindCmdName(bool defaultCmd)
+static std::string_view getBindCmdName(bool defaultCmd)
 {
 	return defaultCmd ? "bind_default" : "bind";
 }
@@ -513,11 +513,11 @@ void HotKey::BindCmd::execute(span<const TclObject> tokens, TclObject& result)
 		                : hotKey.layerMap[layer];
 
 	if (layers) {
-		for (auto& p : hotKey.layerMap) {
+		for (const auto& [layerName, bindings] : hotKey.layerMap) {
 			// An alternative for this test is to always properly
 			// prune layerMap. ATM this approach seems simpler.
-			if (!p.second.empty()) {
-				result.addListElement(p.first);
+			if (!bindings.empty()) {
+				result.addListElement(layerName);
 			}
 		}
 		return;
@@ -545,7 +545,7 @@ void HotKey::BindCmd::execute(span<const TclObject> tokens, TclObject& result)
 	}
 	default: {
 		// make a new binding
-		string command = arguments[1].getString().str();
+		string command(arguments[1].getString());
 		for (const auto& arg : view::drop(arguments, 2)) {
 			strAppend(command, ' ', arg.getString());
 		}
@@ -663,8 +663,8 @@ void HotKey::ActivateCmd::execute(span<const TclObject> tokens, TclObject& resul
 		break;
 	}
 	case 1: {
-		string_view layer = args[0].getString();
-		hotKey.activateLayer(layer.str(), blocking);
+		std::string_view layer = args[0].getString();
+		hotKey.activateLayer(string(layer), blocking);
 		break;
 	}
 	default:

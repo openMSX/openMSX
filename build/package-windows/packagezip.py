@@ -1,4 +1,3 @@
-from __future__ import print_function
 from packagewindows import PackageInfo, generateInstallFiles
 
 from os.path import abspath, basename, exists, join as joinpath, relpath
@@ -79,7 +78,7 @@ if __name__ == '__main__':
 		packageZip(PackageInfo(*sys.argv[1 : ]))
 	else:
 		print(
-			'Usage: python packagezip.py '
+			'Usage: python3 packagezip.py '
 			'platform configuration catapultPath',
 			file=sys.stderr
 			)

@@ -24,8 +24,7 @@ public:
 	/** Enumeration of Renderers known to openMSX.
 	  * This is the full list, the list of available renderers may be smaller.
 	  */
-	enum RendererID { UNINITIALIZED, DUMMY, SDL,
-	                  SDLGL_PP, SDLGL_FB16, SDLGL_FB32 };
+	enum RendererID { UNINITIALIZED, DUMMY, SDL, SDLGL_PP };
 	using RendererSetting = EnumSetting<RendererID>;
 
 	/** Render accuracy: granularity of the rendered area.
@@ -145,6 +144,10 @@ public:
 	  * ATM this only works when using the SDLGL-PP renderer. */
 	DisplayDeform getDisplayDeform() { return displayDeformSetting.getEnum(); }
 
+	/** VSync [on, off]
+	 * ATM this only works when using the SDLGL-PP renderer. */
+	BooleanSetting& getVSyncSetting() { return vSyncSetting; }
+
 	/** Amount of horizontal stretch.
 	  * This number represents the amount of MSX pixels (normal width) that
 	  * will be stretched to the complete width of the host window. */
@@ -222,6 +225,7 @@ private:
 	EnumSetting<bool> cmdTimingSetting;
 	EnumSetting<bool> tooFastAccessSetting;
 	EnumSetting<DisplayDeform> displayDeformSetting;
+	BooleanSetting vSyncSetting;
 	FloatSetting horizontalStretchSetting;
 	FloatSetting pointerHideDelaySetting;
 	BooleanSetting interleaveBlackFrameSetting;

@@ -7,7 +7,9 @@
 #include "MSXCPU.hh"
 #include "CacheLine.hh"
 #include "TclObject.hh"
+#include "Math.hh"
 #include "MSXException.hh"
+#include "one_of.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include "stl.hh"
@@ -20,10 +22,6 @@
 using std::string;
 
 namespace openmsx {
-
-byte MSXDevice::unmappedRead[0x10000];
-byte MSXDevice::unmappedWrite[0x10000];
-
 
 MSXDevice::MSXDevice(const DeviceConfig& config, const string& name)
 	: deviceConfig(config)
@@ -76,7 +74,7 @@ void MSXDevice::staticInit()
 
 MSXMotherBoard& MSXDevice::getMotherBoard() const
 {
-       return getHardwareConfig().getMotherBoard();
+	return getHardwareConfig().getMotherBoard();
 }
 
 void MSXDevice::testRemove(Devices removed) const
@@ -170,6 +168,8 @@ PluggingController& MSXDevice::getPluggingController() const
 void MSXDevice::registerSlots()
 {
 	MemRegions tmpMemRegions;
+	unsigned align = getBaseSizeAlignment();
+	assert(Math::ispow2(align));
 	for (auto& m : getDeviceConfig().getChildren("mem")) {
 		unsigned base = m->getAttributeAsInt("base");
 		unsigned size = m->getAttributeAsInt("size");
@@ -178,6 +178,13 @@ void MSXDevice::registerSlots()
 				"Invalid memory specification for device ",
 				getName(), " should be in range "
 				"[0x0000,0x10000).");
+		}
+		if (((base & (align - 1)) || (size & (align - 1))) &&
+		    !allowUnaligned()) {
+			throw MSXException(
+				"invalid memory specification for device ",
+				getName(), " should be aligned on at least 0x",
+				hex_string<4>(align), '.');
 		}
 		tmpMemRegions.emplace_back(base, size);
 	}
@@ -288,9 +295,9 @@ void MSXDevice::unregisterSlots()
 	if (memRegions.empty()) return;
 
 	int logicalSS = (ss == -1) ? 0 : ss;
-	for (auto& r : memRegions) {
+	for (const auto& [base, size] : memRegions) {
 		getCPUInterface().unregisterMemDevice(
-			*this, ps, logicalSS, r.first, r.second);
+			*this, ps, logicalSS, base, size);
 	}
 
 	// See comments above about allocateSlot() for more details:
@@ -324,15 +331,15 @@ void MSXDevice::registerPorts()
 		unsigned num  = i->getAttributeAsInt("num");
 		const auto& type = i->getAttribute("type", "IO");
 		if (((base + num) > 256) || (num == 0) ||
-		    ((type != "I") && (type != "O") && (type != "IO"))) {
+		    (type != one_of("I", "O", "IO"))) {
 			throw MSXException("Invalid IO port specification");
 		}
 		for (unsigned port = base; port < base + num; ++port) {
-			if ((type == "I") || (type == "IO")) {
+			if (type == one_of("I", "IO")) {
 				getCPUInterface().register_IO_In(port, this);
 				inPorts.push_back(port);
 			}
-			if ((type == "O") || (type == "IO")) {
+			if (type == one_of("O", "IO")) {
 				getCPUInterface().register_IO_Out(port, this);
 				outPorts.push_back(port);
 			}
@@ -390,6 +397,11 @@ void MSXDevice::getDeviceInfo(TclObject& result) const
 void MSXDevice::getExtraDeviceInfo(TclObject& /*result*/) const
 {
 	// nothing
+}
+
+unsigned MSXDevice::getBaseSizeAlignment() const
+{
+	return CacheLine::SIZE;
 }
 
 
@@ -455,9 +467,65 @@ byte* MSXDevice::getWriteCacheLine(word /*start*/) const
 	return nullptr; // uncacheable
 }
 
-void MSXDevice::invalidateMemCache(word start, unsigned size)
+
+// calls 'action(<start2>, <size2>, args..., ps, ss)'
+// with 'start', 'size' clipped to each of the ranges in 'memRegions'
+template<typename Action, typename... Args>
+void MSXDevice::clip(unsigned start, unsigned size, Action action, Args... args)
 {
-	getCPU().invalidateMemCache(start, size);
+	int ss2 = (ss != -1) ? ss : 0;
+	unsigned end = start + size;
+	for (auto [base, fullBsize] : memRegions) {
+		// split on 16kB boundaries
+		while (fullBsize > 0) {
+			unsigned bsize = std::min(fullBsize, ((base + 0x4000) & ~0x3fff) - base);
+
+			unsigned baseEnd = base + bsize;
+			// intersect [start, end) with [base, baseEnd) -> [clipStart, clipEnd)
+			unsigned clipStart = std::max(start, base);
+			unsigned clipEnd   = std::min(end, baseEnd);
+			if (clipStart < clipEnd) { // non-empty
+				unsigned clipSize = clipEnd - clipStart;
+				action(clipStart, clipSize, args..., ps, ss2);
+			}
+
+			base += bsize;
+			fullBsize -= bsize;
+		}
+	}
+}
+
+void MSXDevice::invalidateDeviceRWCache(unsigned start, unsigned size)
+{
+	clip(start, size, [&](auto... args) { getCPUInterface().invalidateRWCache(args...); });
+}
+void MSXDevice::invalidateDeviceRCache(unsigned start, unsigned size)
+{
+	clip(start, size, [&](auto... args) { getCPUInterface().invalidateRCache(args...); });
+}
+void MSXDevice::invalidateDeviceWCache(unsigned start, unsigned size)
+{
+	clip(start, size, [&](auto... args) { getCPUInterface().invalidateWCache(args...); });
+}
+
+void MSXDevice::fillDeviceRWCache(unsigned start, unsigned size, byte* rwData)
+{
+	fillDeviceRWCache(start, size, rwData, rwData);
+}
+void MSXDevice::fillDeviceRWCache(unsigned start, unsigned size, const byte* rData, byte* wData)
+{
+	assert(!allowUnaligned());
+	clip(start, size, [&](auto... args) { getCPUInterface().fillRWCache(args...); }, rData, wData);
+}
+void MSXDevice::fillDeviceRCache(unsigned start, unsigned size, const byte* rData)
+{
+	assert(!allowUnaligned());
+	clip(start, size, [&](auto... args) { getCPUInterface().fillRCache(args...); }, rData);
+}
+void MSXDevice::fillDeviceWCache(unsigned start, unsigned size, byte* wData)
+{
+	assert(!allowUnaligned());
+	clip(start, size, [&](auto... args) { getCPUInterface().fillWCache(args...); }, wData);
 }
 
 template<typename Archive>

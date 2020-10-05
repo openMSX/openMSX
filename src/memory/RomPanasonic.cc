@@ -4,6 +4,7 @@
 #include "DeviceConfig.hh"
 #include "SRAM.hh"
 #include "CacheLine.hh"
+#include "one_of.hh"
 #include "serialize.hh"
 #include <memory>
 
@@ -46,6 +47,7 @@ void RomPanasonic::reset(EmuTime::param /*time*/)
 		bankSelect[region] = 0;
 		setRom(region, 0);
 	}
+	invalidateDeviceRCache(0x7FF0 & CacheLine::HIGH, CacheLine::SIZE);
 }
 
 byte RomPanasonic::peekMem(word address, EmuTime::param time) const
@@ -92,7 +94,7 @@ void RomPanasonic::writeMem(word address, byte value, EmuTime::param /*time*/)
 	if ((0x6000 <= address) && (address < 0x7FF0)) {
 		// set mapper state (lower 8 bits)
 		int region = (address & 0x1C00) >> 10;
-		if ((region == 5) || (region == 6)) region ^= 3;
+		if (region == one_of(5, 6)) region ^= 3;
 		int selectedBank = bankSelect[region];
 		int newBank = (selectedBank & ~0xFF) | value;
 		changeBank(region, newBank);
@@ -171,6 +173,11 @@ void RomPanasonic::changeBank(byte region, int bank)
 	} else {
 		// ROM
 		setRom(region, bank);
+	}
+	invalidateDeviceWCache(0x2000 * region, 0x2000); // 'R' is already handled
+	if (region == 3) {
+		// don't pre-fill [0x7ff0, 0x7fff]
+		invalidateDeviceRCache(0x7FF0 & CacheLine::HIGH, CacheLine::SIZE);
 	}
 }
 

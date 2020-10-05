@@ -31,6 +31,7 @@
 #include "RomNettouYakyuu.hh"
 #include "RomGameMaster2.hh"
 #include "RomHalnote.hh"
+#include "RomZemina25in1.hh"
 #include "RomZemina80in1.hh"
 #include "RomZemina90in1.hh"
 #include "RomZemina126in1.hh"
@@ -58,6 +59,7 @@
 #include "DeviceConfig.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
+#include "one_of.hh"
 #include <memory>
 
 using std::make_unique;
@@ -65,8 +67,7 @@ using std::move;
 using std::string;
 using std::unique_ptr;
 
-namespace openmsx {
-namespace RomFactory {
+namespace openmsx::RomFactory {
 
 static RomType guessRomType(const Rom& rom)
 {
@@ -162,7 +163,7 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	RomType type;
 	// if no type is mentioned, we assume 'mirrored' which works for most
 	// plain ROMs...
-	string_view typestr = config.getChildData("mappertype", "Mirrored");
+	std::string_view typestr = config.getChildData("mappertype", "Mirrored");
 	if (typestr == "auto") {
 		// First check whether the (possibly patched) SHA1 is in the DB
 		const RomInfo* romInfo = config.getReactor().getSoftwareDatabase().fetchRomInfo(rom.getSHA1());
@@ -174,12 +175,9 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 		if (!romInfo) {
 			auto machineType = config.getMotherBoard().getMachineType();
 			if (machineType == "Coleco") {
-				unsigned size = rom.getSize();
-				if ((size == 128*1024) || (size == 256*1024) ||
-				    (size == 512*1024) || (size == 1024*1024)) {
+				if (rom.getSize() == one_of(128*1024u, 256*1024u, 512*1024u, 1024*1024u)) {
 					type = ROM_COLECOMEGACART;
-				}
-				else {
+				} else {
 					type = ROM_PAGE23;
 				}
 			} else {
@@ -203,7 +201,7 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	// We do it at this point so that constructors used below can use this
 	// information for warning messages etc.
 	auto& writableConfig = const_cast<XMLElement&>(*config.getXML());
-	writableConfig.setChildData("mappertype", RomInfo::romTypeToName(type).str());
+	writableConfig.setChildData("mappertype", string(RomInfo::romTypeToName(type)));
 
 	unique_ptr<MSXRom> result;
 	switch (type) {
@@ -351,6 +349,9 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	case ROM_HALNOTE:
 		result = make_unique<RomHalnote>(config, move(rom));
 		break;
+	case ROM_ZEMINA25IN1:
+		result = make_unique<RomZemina25in1>(config, move(rom));
+		break;
 	case ROM_ZEMINA80IN1:
 		result = make_unique<RomZemina80in1>(config, move(rom));
 		break;
@@ -376,6 +377,7 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	case ROM_MANBOW2_2:
 	case ROM_HAMARAJANIGHT:
 	case ROM_MEGAFLASHROMSCC:
+	case ROM_RBSC_FLASH_KONAMI_SCC:
 		result = make_unique<RomManbow2>(config, move(rom), type);
 		break;
 	case ROM_MATRAINK:
@@ -424,5 +426,4 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	return result;
 }
 
-} // namespace RomFactory
-} // namespace openmsx
+} // namespace openmsx::RomFactory

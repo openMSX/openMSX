@@ -1,13 +1,14 @@
 #include "BeerIDE.hh"
 #include "IDEDeviceFactory.hh"
 #include "IDEDevice.hh"
+#include "GlobalSettings.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
 BeerIDE::BeerIDE(const DeviceConfig& config)
 	: MSXDevice(config)
-	, i8255(*this, getCurrentTime(), getCliComm())
+	, i8255(*this, getCurrentTime(), config.getGlobalSettings().getInvalidPpiModeSetting())
 	, rom(getName() + " ROM", "rom", config)
 {
 	device = IDEDeviceFactory::create(

@@ -19,10 +19,11 @@
 #include <iostream>
 #include <memory>
 
-using std::string;
-using std::vector;
-using std::unique_ptr;
 using std::move;
+using std::string;
+using std::string_view;
+using std::unique_ptr;
+using std::vector;
 
 namespace openmsx {
 
@@ -92,11 +93,11 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	mem.addAttribute("size", "0x10000");
 	auto& rom = device.addChild("rom");
 	rom.addChild("resolvedFilename", resolvedFilename);
-	rom.addChild("filename", move(romfile));
+	rom.addChild("filename", romfile);
 	if (!ipsfiles.empty()) {
 		auto& patches = rom.addChild("patches");
 		for (auto& s : ipsfiles) {
-			patches.addChild("ips", s.str());
+			patches.addChild("ips", string(s));
 		}
 	}
 	device.addChild("sound").addChild("volume", "9000");
@@ -390,7 +391,7 @@ void HardwareConfig::addDevice(std::unique_ptr<MSXDevice> device)
 void HardwareConfig::setName(string_view proposedName)
 {
 	if (!motherBoard.findExtension(proposedName)) {
-		name = proposedName.str();
+		name = proposedName;
 	} else {
 		unsigned n = 0;
 		do {

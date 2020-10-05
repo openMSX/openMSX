@@ -17,6 +17,7 @@ public:
 	                TclObject condition,
 	                Debugger& debugger,
 	                ProbeBase& probe,
+	                bool once,
 	                unsigned newId = -1);
 	~ProbeBreakPoint();
 
@@ -32,7 +33,7 @@ private:
 	ProbeBase& probe;
 	const unsigned id;
 
-	static unsigned lastId;
+	static inline unsigned lastId = 0;
 };
 
 } // namespace openmsx

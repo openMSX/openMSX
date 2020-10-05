@@ -23,8 +23,8 @@ public:
 	void writeIO(word port, byte value, EmuTime::param time) override;
 
 	// Connector
-	string_view getDescription() const override;
-	string_view getClass() const override;
+	std::string_view getDescription() const override;
+	std::string_view getClass() const override;
 	void plug(Pluggable& dev, EmuTime::param time) override;
 
 	template<typename Archive>

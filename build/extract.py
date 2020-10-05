@@ -1,6 +1,5 @@
 # Extract files from archives.
 
-from __future__ import print_function
 from os import O_CREAT, O_WRONLY, fdopen, mkdir, open as osopen, utime
 try:
 	from os import O_BINARY
@@ -11,10 +10,7 @@ try:
 	from os import symlink
 except ImportError:
 	def symlink(source, link_name):
-		print(
-			'WARNING: OS does not support symlink creation: %s -> %s, skipping!'
-			% (link_name, source)
-			)
+		raise OSError('OS does not support symlink creation')
 from os.path import abspath, isdir, join as joinpath, sep, split as splitpath
 from stat import S_IRWXU, S_IRWXG, S_IRWXO, S_IXUSR, S_IXGRP, S_IXOTH
 from tarfile import TarFile
@@ -74,7 +70,13 @@ def extract(archivePath, destDir, rename = None):
 				if not isdir(absMemberPath):
 					mkdir(absMemberPath)
 			elif member.issym():
-				symlink(member.linkname, absMemberPath)
+				try:
+					symlink(member.linkname, absMemberPath)
+				except OSError as ex:
+					print(
+						'WARNING: Skipping symlink creation: %s -> %s: %s'
+						% (absMemberPath, member.linkname, ex)
+						)
 			else:
 				raise ValueError(
 					'Cannot extract tar entry "%s": '
@@ -115,5 +117,5 @@ if __name__ == '__main__':
 			renameTopLevelDir = None
 		extract(sys.argv[1], sys.argv[2], renameTopLevelDir)
 	else:
-		print('Usage: python extract.py archive destination [new-top-level-dir]', file=sys.stderr)
+		print('Usage: python3 extract.py archive destination [new-top-level-dir]', file=sys.stderr)
 		sys.exit(2)

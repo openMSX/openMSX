@@ -1,5 +1,5 @@
-#ifndef EEPROM_93C46_H
-#define EEPROM_93C46_H
+#ifndef EEPROM_93C46_HH
+#define EEPROM_93C46_HH
 
 #include "EmuTime.hh"
 #include "SRAM.hh"
@@ -24,7 +24,7 @@ public:
 	EEPROM_93C46(const std::string& name, const DeviceConfig& config);
 
 	void reset();
-	
+
 	bool read_DO(EmuTime::param time) const;
 	void write_CS (bool value, EmuTime::param time);
 	void write_CLK(bool value, EmuTime::param time);
@@ -61,8 +61,8 @@ public: // for serialize
 
 private:
 	SRAM sram;
-	EmuTime completionTime = EmuTime::zero;
-	EmuTime csTime = EmuTime::zero;
+	EmuTime completionTime = EmuTime::zero();
+	EmuTime csTime = EmuTime::zero();
 	State state = IN_RESET;
 	uint16_t shiftRegister = 0;
 	uint8_t bits = 0;

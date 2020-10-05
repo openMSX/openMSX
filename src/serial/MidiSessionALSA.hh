@@ -1,5 +1,5 @@
-#ifndef MIDISESSIOnALSA_HH
-#define MIDISESSIOnALSA_HH
+#ifndef MIDISESSIONALSA_HH
+#define MIDISESSIONALSA_HH
 
 #include <alsa/asoundlib.h>
 #include <memory>
@@ -33,4 +33,4 @@ private:
 
 } // namespace openmsx
 
-#endif // MIDISESSIOnALSA_HH
+#endif // MIDISESSIONALSA_HH

@@ -2,6 +2,7 @@
 #define MATH_HH
 
 #include "likely.hh"
+#include <cassert>
 #include <cmath>
 #include <cstdint>
 
@@ -35,7 +36,7 @@ namespace Math {
   *   https://en.cppreference.com/w/cpp/numeric/log2p1
   */
 template<typename T>
-constexpr T log2p1(T x) noexcept
+[[nodiscard]] constexpr T log2p1(T x) noexcept
 {
 	T result = 0;
 	while (x) {
@@ -53,7 +54,7 @@ constexpr T log2p1(T x) noexcept
   *   https://en.cppreference.com/w/cpp/numeric/ispow2
   */
 template<typename T>
-constexpr bool ispow2(T x) noexcept
+[[nodiscard]] constexpr bool ispow2(T x) noexcept
 {
 	return x && ((x & (x - 1)) == 0);
 }
@@ -65,7 +66,7 @@ constexpr bool ispow2(T x) noexcept
   * are also 1.
   */
 template<typename T>
-constexpr T floodRight(T x) noexcept
+[[nodiscard]] constexpr T floodRight(T x) noexcept
 {
 	x |= x >> 1;
 	x |= x >> 2;
@@ -81,7 +82,7 @@ constexpr T floodRight(T x) noexcept
   *   https://en.cppreference.com/w/cpp/numeric/ceil2
   */
 template<typename T>
-constexpr T ceil2(T x) noexcept
+[[nodiscard]] constexpr T ceil2(T x) noexcept
 {
 	// classical implementation:
 	//   unsigned res = 1;
@@ -93,21 +94,10 @@ constexpr T ceil2(T x) noexcept
 	return floodRight(x - 1) + 1;
 }
 
-/** Clips x to the range [LO,HI].
-  * Slightly faster than    std::min(HI, std::max(LO, x))
-  * especially when no clipping is required.
-  */
-template <int LO, int HI>
-inline int clip(int x)
-{
-	static_assert(LO <= HI, "invalid clip range");
-	return unsigned(x - LO) <= unsigned(HI - LO) ? x : (x < HI ? LO : HI);
-}
-
 /** Clip x to range [-32768,32767]. Special case of the version above.
   * Optimized for the case when no clipping is needed.
   */
-inline int16_t clipIntToShort(int x)
+[[nodiscard]] inline int16_t clipIntToShort(int x)
 {
 	static_assert((-1 >> 1) == -1, "right-shift must preserve sign");
 	return likely(int16_t(x) == x) ? x : (0x7FFF - (x >> 31));
@@ -116,50 +106,17 @@ inline int16_t clipIntToShort(int x)
 /** Clip x to range [0,255].
   * Optimized for the case when no clipping is needed.
   */
-inline uint8_t clipIntToByte(int x)
+[[nodiscard]] inline uint8_t clipIntToByte(int x)
 {
 	static_assert((-1 >> 1) == -1, "right-shift must preserve sign");
 	return likely(uint8_t(x) == x) ? x : ~(x >> 31);
-}
-
-/** Calculate greatest common divider of two strictly positive integers.
-  * Classical implementation is like this:
-  *    while (unsigned t = b % a) { b = a; a = t; }
-  *    return a;
-  * The following implementation avoids the costly modulo operation. It
-  * is about 40% faster on my machine.
-  *
-  * require: a != 0  &&  b != 0
-  */
-inline unsigned gcd(unsigned a, unsigned b)
-{
-	unsigned k = 0;
-	while (((a & 1) == 0) && ((b & 1) == 0)) {
-		a >>= 1; b >>= 1; ++k;
-	}
-
-	// either a or b (or both) is odd
-	while ((a & 1) == 0) a >>= 1;
-	while ((b & 1) == 0) b >>= 1;
-
-	// both a and b odd
-	while (a != b) {
-		if (a >= b) {
-			a -= b;
-			do { a >>= 1; } while ((a & 1) == 0);
-		} else {
-			b -= a;
-			do { b >>= 1; } while ((b & 1) == 0);
-		}
-	}
-	return b << k;
 }
 
 /** Reverse the lower N bits of a given value.
   * The upper 32-N bits from the input are ignored and will be returned as 0.
   * For example reverseNBits('xxxabcde', 5) returns '000edcba' (binary notation).
   */
-inline unsigned reverseNBits(unsigned x, unsigned bits)
+[[nodiscard]] inline unsigned reverseNBits(unsigned x, unsigned bits)
 {
 	unsigned ret = 0;
 	while (bits--) {
@@ -209,7 +166,7 @@ inline unsigned reverseNBits(unsigned x, unsigned bits)
 /** Reverse the bits in a byte.
   * This is equivalent to (but faster than) reverseNBits(x, 8);
   */
-inline uint8_t reverseByte(uint8_t a)
+[[nodiscard]] inline uint8_t reverseByte(uint8_t a)
 {
 	// Classical implementation (can be extended to 16 and 32 bits)
 	//   a = ((a & 0xF0) >> 4) | ((a & 0x0F) << 4);
@@ -232,7 +189,7 @@ inline uint8_t reverseByte(uint8_t a)
 /** Count the number of leading zero-bits in the given word.
   * The result is undefined when the input is zero (all bits are zero).
   */
-inline unsigned countLeadingZeros(unsigned x)
+[[nodiscard]] inline unsigned countLeadingZeros(unsigned x)
 {
 #ifdef __GNUC__
 	// actually this only exists starting from gcc-3.4.x
@@ -252,7 +209,7 @@ inline unsigned countLeadingZeros(unsigned x)
   * @return 0 if the input is zero (no bits are set),
   *   otherwise the index of the first set bit + 1.
   */
-inline unsigned findFirstSet(unsigned x)
+[[nodiscard]] inline unsigned findFirstSet(unsigned x)
 {
 #if defined(__GNUC__)
 	return __builtin_ffs(x);
@@ -269,6 +226,31 @@ inline unsigned findFirstSet(unsigned x)
 	if ((x & 0x0001) == 0) { pos +=  1; }
 	return pos + 1;
 #endif
+}
+
+// Cubic Hermite Interpolation:
+//   Given 4 points: (-1, y[-1]), (0, y[0]), (1, y[1]), (2, y[2])
+//   Fit a polynomial:  f(x) = a*x^3 + b*x^2 + c*x + d
+//     which passes through the given points at x=0 and x=1
+//       f(0) = y[0]
+//       f(1) = y[1]
+//     and which has specific derivatives at x=0 and x=1
+//       f'(0) = (y[1] - y[-1]) / 2
+//       f'(1) = (y[2] - y[ 0]) / 2
+//   Then evaluate this polynomial at the given x-position (x in [0, 1]).
+// For more details see:
+//   https://en.wikipedia.org/wiki/Cubic_Hermite_spline
+//   https://www.paulinternet.nl/?page=bicubic
+[[nodiscard]] inline float cubicHermite(const float* y, float x)
+{
+	assert(0.0f <= x); assert(x <= 1.0f);
+	float a = -0.5f*y[-1] + 1.5f*y[0] - 1.5f*y[1] + 0.5f*y[2];
+	float b =       y[-1] - 2.5f*y[0] + 2.0f*y[1] - 0.5f*y[2];
+	float c = -0.5f*y[-1]             + 0.5f*y[1];
+	float d =                    y[0];
+	float x2 = x * x;
+	float x3 = x * x2;
+	return a*x3 + b*x2 + c*x + d;
 }
 
 } // namespace Math

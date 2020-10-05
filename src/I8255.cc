@@ -2,7 +2,6 @@
 #include "I8255Interface.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
-#include "CliComm.hh"
 
 namespace openmsx {
 
@@ -23,10 +22,10 @@ const int BIT_NR       = 0x0E;
 const int SET_RESET    = 0x01;
 
 
-I8255::I8255(I8255Interface& interf, EmuTime::param time, CliComm& cliComm_)
+I8255::I8255(I8255Interface& interf, EmuTime::param time,
+             StringSetting& invalidPpiModeSetting)
 	: interface(interf)
-	, cliComm(cliComm_)
-	, warningPrinted(false)
+	, ppiModeCallback(invalidPpiModeSetting)
 {
 	reset(time);
 }
@@ -318,11 +317,8 @@ void I8255::writeControlPort(byte value, EmuTime::param time)
 	if (value & SET_MODE) {
 		// set new control mode
 		control = value;
-		if ((control & (MODE_A | MODE_B)) && !warningPrinted) {
-			warningPrinted = true;
-			cliComm.printWarning("Invalid PPI mode selected. "
-			"This is not yet correctly emulated. "
-			"On a real MSX this will most likely hang.");
+		if ((control & (MODE_A | MODE_B))) {
+			ppiModeCallback.execute();
 		}
 		outputPortA(latchPortA, time);
 		outputPortB(latchPortB, time);

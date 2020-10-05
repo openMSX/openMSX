@@ -5,38 +5,38 @@
 # <COL>: column in keyboard matrix (0-7)
 # <MODIFIERS>: space separated list of modifiers:
 #              SHIFT CTRL GRAPH CODE CAPSLOCK
-0000, 02, CTRL SHIFT # ^@
-0001, 26, CTRL       # ^A
-0002, 27, CTRL       # ^B
-0003, 30, CTRL       # ^C
-0004, 31, CTRL       # ^D
-0005, 32, CTRL       # ^E
-0006, 33, CTRL       # ^F
-0007, 34, CTRL       # ^G
-0008, 75,            # Backspace
-0009, 73,            # Tab
-000a, 37, CTRL       # ^J
-000b, 81,            # Home (is Home a unicode character?)
-000c, 41, CTRL       # ^L
-000d, 77,            # Enter/CR
-000e, 43, CTRL       # ^N
-000f, 44, CTRL       # ^O
-0010, 45, CTRL       # ^P
-0011, 46, CTRL       # ^Q
-0012, 82,            # Insert (is Insert a unicode character?)
-0013, 50, CTRL       # ^S
-0014, 51, CTRL       # ^T
-0015, 52, CTRL       # ^U
-0016, 53, CTRL       # ^V
-0017, 54, CTRL       # ^W
-0018, 76,            # Select (is Select a unicode character?)
-0019, 56, CTRL       # ^Y
-001a, 57, CTRL       # ^Z
-001b, 72,            # Escape(SDL maps ESC and ^[ to this code)
-001c, 87,            # Right (SDL maps ^\ to this code)
-001d, 84,            # Left  (SDL maps ^] to this code)
-001e, 85,            # Up    (SDL maps ^6 to this code)
-001f, 86,            # Down  (SDL maps ^/ to this code)
+0000, 02, CTRL SHIFT  # ^@
+0001, 26, CTRL        # ^A
+0002, 27, CTRL        # ^B
+0003, 30, CTRL        # ^C
+0004, 31, CTRL        # ^D
+0005, 32, CTRL        # ^E
+0006, 33, CTRL        # ^F
+0007, 34, CTRL        # ^G
+0008, 75,             # Backspace
+0009, 73,             # Tab
+000a, 37, CTRL        # ^J
+000b, 81,             # Home (is Home a unicode character?)
+000c, 41, CTRL        # ^L
+000d, 77,             # Enter/CR
+000e, 43, CTRL        # ^N
+000f, 44, CTRL        # ^O
+0010, 45, CTRL        # ^P
+0011, 46, CTRL        # ^Q
+0012, 82,             # Insert (is Insert a unicode character?)
+0013, 50, CTRL        # ^S
+0014, 51, CTRL        # ^T
+0015, 52, CTRL        # ^U
+0016, 53, CTRL        # ^V
+0017, 54, CTRL        # ^W
+0018, 76,             # Select (is Select a unicode character?)
+0019, 56, CTRL        # ^Y
+001a, 57, CTRL        # ^Z
+001b, 72,             # Escape(SDL maps ESC and ^[ to this code)
+001c, 87,             # Right (SDL maps ^\ to this code)
+001d, 84,             # Left  (SDL maps ^] to this code)
+001e, 85,             # Up    (SDL maps ^6 to this code)
+001f, 86,             # Down  (SDL maps ^/ to this code)
 0020, 80,
 0021, 02,
 0022, 03,
@@ -131,7 +131,7 @@
 007C, 55,
 007D, 44, SHIFT
 007E, 55, SHIFT
-007f, 83,            # Delete
+007f, 83,             # Delete
 00a0, 80,
 00A4, 05,
 0395, 22, SHIFT GRAPH
@@ -219,7 +219,7 @@
 2571, 24, GRAPH
 252c, 51, GRAPH
 2500, 12, GRAPH
-2022, 55, SHIFT GRAPH
+2219, 55, SHIFT GRAPH
 221a, 07, GRAPH
 221e, 10, GRAPH
 2573, 55, GRAPH
@@ -236,16 +236,16 @@
 03bc, 04, SHIFT GRAPH
 03c3, 01, SHIFT GRAPH
 0060, 25, GRAPH
-25fe, 26, GRAPH
+25ac, 26, GRAPH
 2582, 52, GRAPH
-2594, 44, SHIFT GRAPH
+1FB82, 44, SHIFT GRAPH # UPPER ONE QUARTER BLOCK
 2586, 44, GRAPH
 259a, 31, SHIFT GRAPH
-25bc, 32, GRAPH
+1FB6D, 32, GRAPH # UPPER TRIANGULAR ONE QUARTER BLOCK
 00df, 03, GRAPH
 259d, 53, SHIFT GRAPH
 2596, 35, SHIFT GRAPH
-2595, 41, SHIFT GRAPH
+1FB87, 41, SHIFT GRAPH # RIGHT ONE QUARTER BLOCK
 03c0, 21, GRAPH
 2597, 33, SHIFT GRAPH
 2589, 43, SHIFT GRAPH
@@ -255,20 +255,20 @@
 258e, 37, GRAPH
 259e, 31, GRAPH
 25a7, 46, GRAPH
-03c6, 51, SHIFT GRAPH
-29d3, 50, GRAPH
-25a8, 46, SHIFT GRAPH
-25b6, 54, GRAPH
-25c0, 54, SHIFT GRAPH
-25a9, 45, SHIFT GRAPH
-25b2, 32, SHIFT GRAPH
+2300, 51, SHIFT GRAPH
+1FB9B, 50, GRAPH # LEFT AND RIGHT TRIANGULAR HALF BLOCK
+1FB99, 46, SHIFT GRAPH # UPPER RIGHT TO LOWER LEFT FILL
+1FB6C, 54, GRAPH # LEFT TRIANGULAR ONE QUARTER BLOCK
+1FB6E, 54, SHIFT GRAPH # RIGHT TRIANGULAR ONE QUARTER BLOCK
+1FB96, 45, SHIFT GRAPH # INVERSE CHECKER BOARD FILL
+1FB6F, 32, SHIFT GRAPH # LOWER TRIANGULAR ONE QUARTER BLOCK
 2580, 36, SHIFT GRAPH
 2584, 36, GRAPH
 2588, 45, GRAPH
 258c, 40, GRAPH
 2590, 40, SHIFT GRAPH
 25a0, 26, SHIFT GRAPH
-2260, 27, SHIFT GRAPH
+2021, 27, SHIFT GRAPH
 2502, 14, SHIFT GRAPH
 2572, 14, GRAPH
 2534, 27, GRAPH

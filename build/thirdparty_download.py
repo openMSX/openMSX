@@ -1,4 +1,3 @@
-from __future__ import print_function
 from checksum import verifyFile
 from components import requiredLibrariesFor
 from configurations import getConfiguration
@@ -31,7 +30,7 @@ def verifyPackage(package, tarballsDir):
 	filePath = joinpath(tarballsDir, package.getTarballName())
 	try:
 		verifyFile(filePath, package.fileLength, package.checksums)
-	except IOError as ex:
+	except OSError as ex:
 		print('%s corrupt: %s' % (
 			package.getTarballName(), ex
 			), file=sys.stderr)
@@ -74,13 +73,6 @@ def main(platform, tarballsDir, sourcesDir, patchesDir):
 		if not librariesByName[makeName].isSystemLibrary(platform)
 		)
 
-	if platform == 'windows':
-		# Avoid ALSA, since we won't be building it and extracting it will
-		# fail on file systems that don't support symlinks.
-		# TODO: 3rdparty.mk filters out ALSA on non-Linux platforms;
-		#       figure out a way to do that in a single location.
-		thirdPartyLibs.discard('ALSA')
-
 	for makeName in sorted(thirdPartyLibs):
 		fetchPackageSource(makeName, tarballsDir, sourcesDir, patchesDir)
 
@@ -93,5 +85,5 @@ if __name__ == '__main__':
 			'build/3rdparty'
 			)
 	else:
-		print('Usage: python thirdparty_download.py TARGET_OS', file=sys.stderr)
+		print('Usage: python3 thirdparty_download.py TARGET_OS', file=sys.stderr)
 		sys.exit(2)

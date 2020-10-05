@@ -13,13 +13,13 @@ class Deflicker : public FrameSource
 public:
 	// Factory method, actually returns a Deflicker subclass.
 	static std::unique_ptr<Deflicker> create(
-		const SDL_PixelFormat& format,
+		const PixelFormat& format,
 		std::unique_ptr<RawFrame>* lastFrames);
 	void init();
 	virtual ~Deflicker() = default;
 
 protected:
-	Deflicker(const SDL_PixelFormat& format,
+	Deflicker(const PixelFormat& format,
 	          std::unique_ptr<RawFrame>* lastFrames);
 
 	unsigned getLineWidth(unsigned line) const override;

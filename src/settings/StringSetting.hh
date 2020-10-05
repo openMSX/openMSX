@@ -9,13 +9,13 @@ class StringSetting final : public Setting
 {
 public:
 	StringSetting(CommandController& commandController,
-	              string_view name, string_view description,
-	              string_view initialValue, SaveSetting save = SAVE);
+	              std::string_view name, std::string_view description,
+	              std::string_view initialValue, SaveSetting save = SAVE);
 
-	string_view getTypeString() const override;
+	std::string_view getTypeString() const override;
 
-	string_view getString() const noexcept { return getValue().getString(); }
-	void setString(string_view str) { setValue(TclObject(str)); }
+	std::string_view getString() const noexcept { return getValue().getString(); }
+	void setString(std::string_view str) { setValue(TclObject(str)); }
 };
 
 } // namespace openmsx

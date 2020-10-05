@@ -8,13 +8,6 @@
 
 namespace openmsx {
 
-#ifndef _MSC_VER
-// This line is required according to the c++ standard, but because of a vc++
-// extension, we get a link error in vc++ when we add this line. See also:
-//   http://blogs.msdn.com/b/xiangfan/archive/2010/03/03/vc-s-evil-extension-implicit-definition-of-static-constant-member.aspx
-const size_t SectorAccessibleDisk::SECTOR_SIZE;
-#endif
-
 SectorAccessibleDisk::SectorAccessibleDisk()
 	: patch(std::make_unique<EmptyDiskPatch>(*this))
 {

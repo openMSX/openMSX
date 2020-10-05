@@ -7,28 +7,21 @@
 
 namespace openmsx {
 
-// MSX interface:
-// port R/W
-// 0    W    Control Register
-// 1    W    Transmit Data Register
-// 4    R    Status Register
-// 5    R    Receive Data Register
-
 // control register bits
-static const unsigned CR_CDS1 = 0x01; // Counter Divide Select 1
-static const unsigned CR_CDS2 = 0x02; // Counter Divide Select 2
-static const unsigned CR_CDS  = CR_CDS1 | CR_CDS2;
-static const unsigned CR_MR   = CR_CDS1 | CR_CDS2; // Master Reset
+constexpr unsigned CR_CDS1 = 0x01; // Counter Divide Select 1
+constexpr unsigned CR_CDS2 = 0x02; // Counter Divide Select 2
+constexpr unsigned CR_CDS  = CR_CDS1 | CR_CDS2;
+constexpr unsigned CR_MR   = CR_CDS1 | CR_CDS2; // Master Reset
 // CDS2 CDS1
 // 0    0     divide by 1
 // 0    1     divide by 16
 // 1    0     divide by 64
 // 1    1     master reset (!)
 
-static const unsigned CR_WS1  = 0x04; // Word Select 1 (mostly parity)
-static const unsigned CR_WS2  = 0x08; // Word Select 2 (mostly nof stop bits)
-static const unsigned CR_WS3  = 0x10; // Word Select 3: 7/8 bits
-static const unsigned CR_WS   = CR_WS1 | CR_WS2 | CR_WS3; // Word Select
+constexpr unsigned CR_WS1  = 0x04; // Word Select 1 (mostly parity)
+constexpr unsigned CR_WS2  = 0x08; // Word Select 2 (mostly nof stop bits)
+constexpr unsigned CR_WS3  = 0x10; // Word Select 3: 7/8 bits
+constexpr unsigned CR_WS   = CR_WS1 | CR_WS2 | CR_WS3; // Word Select
 // WS3 WS2 WS1
 // 0   0   0   7 bits - 2 stop bits - Even parity
 // 0   0   1   7 bits - 2 stop bits - Odd  parity
@@ -39,9 +32,9 @@ static const unsigned CR_WS   = CR_WS1 | CR_WS2 | CR_WS3; // Word Select
 // 1   1   0   8 bits - 1 stop bit  - Even parity
 // 1   1   1   8 bits - 1 stop bit  - Odd  parity
 
-static const unsigned CR_TC1  = 0x20; // Transmit Control 1
-static const unsigned CR_TC2  = 0x40; // Transmit Control 2
-static const unsigned CR_TC   = CR_TC1 | CR_TC2; // Transmit Control
+constexpr unsigned CR_TC1  = 0x20; // Transmit Control 1
+constexpr unsigned CR_TC2  = 0x40; // Transmit Control 2
+constexpr unsigned CR_TC   = CR_TC1 | CR_TC2; // Transmit Control
 // TC2 TC1
 // 0   0   /RTS low,  Transmitting Interrupt disabled
 // 0   1   /RTS low,  Transmitting Interrupt enabled
@@ -49,48 +42,32 @@ static const unsigned CR_TC   = CR_TC1 | CR_TC2; // Transmit Control
 // 1   1   /RTS low,  Transmits a Break level on the Transmit Data Output.
 //                                 Interrupt disabled
 
-static const unsigned CR_RIE  = 0x80; // Receive Interrupt Enable: interrupt
+constexpr unsigned CR_RIE  = 0x80; // Receive Interrupt Enable: interrupt
 // at Receive Data Register Full, Overrun, low-to-high transition on the Data
 // Carrier Detect (/DCD) signal line
 
 // status register bits
-static const unsigned STAT_RDRF = 0x01; // Receive Data Register Full
-static const unsigned STAT_TDRE = 0x02; // Transmit Data Register Empty
-static const unsigned STAT_DCD  = 0x04; // Data Carrier Detect (/DCD)
-static const unsigned STAT_CTS  = 0x08; // Clear-to-Send (/CTS)
-static const unsigned STAT_FE   = 0x10; // Framing Error
-static const unsigned STAT_OVRN = 0x20; // Receiver Overrun
-static const unsigned STAT_PE   = 0x40; // Parity Error
-static const unsigned STAT_IRQ  = 0x80; // Interrupt Request (/IRQ)
+constexpr unsigned STAT_RDRF = 0x01; // Receive Data Register Full
+constexpr unsigned STAT_TDRE = 0x02; // Transmit Data Register Empty
+constexpr unsigned STAT_DCD  = 0x04; // Data Carrier Detect (/DCD)
+constexpr unsigned STAT_CTS  = 0x08; // Clear-to-Send (/CTS)
+constexpr unsigned STAT_FE   = 0x10; // Framing Error
+constexpr unsigned STAT_OVRN = 0x20; // Receiver Overrun
+constexpr unsigned STAT_PE   = 0x40; // Parity Error
+constexpr unsigned STAT_IRQ  = 0x80; // Interrupt Request (/IRQ)
 
-
-// Some existing Music-Module detection routines:
-// - fac demo 5: does OUT 0,3 : OUT 0,21 : INP(4) and expects to read 2
-// - tetris 2 special edition: does INP(4) and expects to read 0
-// - Synthesix: does INP(4), expects 0; OUT 0,3 : OUT 0,21: INP(4) and expects
-//   bit 1 to be 1 and bit 2, 3 and 7 to be 0. Then does OUT 5,0xFE : INP(4)
-//   and expects bit 1 to be 0.
-// I did some _very_basic_ investigation and found the following:
-// - after a reset reading from port 4 returns 0
-// - after initializing the control register, reading port 4 returns 0 (of
-//   course this will change when you start to actually receive/transmit data)
-// - writing any value with the lower 2 bits set to 1 returns to the initial
-//   state, and reading port 4 again returns 0.
-// -  ?INP(4) : OUT0,3 : ?INP(4) : OUT0,21 : ? INP(4) : OUT0,3 :  ?INP(4)
-//    outputs: 0, 0, 2, 0
-
-MC6850::MC6850(const DeviceConfig& config)
-	: MSXDevice(config)
-	, MidiInConnector(getMotherBoard().getPluggingController(), MSXDevice::getName() + "-in")
-	, syncRecv (getMotherBoard().getScheduler())
-	, syncTrans(getMotherBoard().getScheduler())
-	, txClock(EmuTime::zero)
-	, rxIRQ(getMotherBoard(), MSXDevice::getName() + "-rx-IRQ")
-	, txIRQ(getMotherBoard(), MSXDevice::getName() + "-tx-IRQ")
+MC6850::MC6850(const std::string& name_, MSXMotherBoard& motherBoard, unsigned clockFreq_)
+	: MidiInConnector(motherBoard.getPluggingController(), name_ + "-in")
+	, syncRecv (motherBoard.getScheduler())
+	, syncTrans(motherBoard.getScheduler())
+	, txClock(EmuTime::zero())
+	, clockFreq(clockFreq_)
+	, rxIRQ(motherBoard, name_ + "-rx-IRQ")
+	, txIRQ(motherBoard, name_ + "-tx-IRQ")
 	, txDataReg(0), txShiftReg(0) // avoid UMR
-	, outConnector(getMotherBoard().getPluggingController(), MSXDevice::getName() + "-out")
+	, outConnector(motherBoard.getPluggingController(), name_ + "-out")
 {
-	reset(EmuTime::zero);
+	reset(EmuTime::zero());
 	setDataFormat();
 }
 
@@ -100,7 +77,7 @@ void MC6850::reset(EmuTime::param time)
 	syncRecv .removeSyncPoint();
 	syncTrans.removeSyncPoint();
 	txClock.reset(time);
-	txClock.setFreq(500000); // 500kHz
+	txClock.setFreq(clockFreq);
 	rxIRQ.reset();
 	txIRQ.reset();
 	rxReady = false;
@@ -110,42 +87,6 @@ void MC6850::reset(EmuTime::param time)
 	statusReg = 0;
 	rxDataReg = 0;
 	setDataFormat();
-}
-
-byte MC6850::readIO(word port, EmuTime::param /*time*/)
-{
-	switch (port & 0x1) {
-	case 0:
-		return readStatusReg();
-	case 1:
-		return readDataReg();
-	}
-	UNREACHABLE;
-	return 0xFF;
-}
-
-byte MC6850::peekIO(word port, EmuTime::param /*time*/) const
-{
-	switch (port & 0x1) {
-	case 0:
-		return peekStatusReg();
-	case 1:
-		return peekDataReg();
-	}
-	UNREACHABLE;
-	return 0xFF;
-}
-
-void MC6850::writeIO(word port, byte value, EmuTime::param time)
-{
-	switch (port & 0x01) {
-	case 0:
-		writeControlReg(value, time);
-		break;
-	case 1:
-		writeDataReg(value, time);
-		break;
-	}
 }
 
 byte MC6850::readStatusReg()
@@ -190,9 +131,9 @@ void MC6850::writeControlReg(byte value, EmuTime::param time)
 
 			txClock.reset(time);
 			switch (value & CR_CDS) {
-			case 0: txClock.setFreq(500000,  1); break; // 500kHz
-			case 1: txClock.setFreq(500000, 16); break; // 31250Hz (MIDI)
-			case 2: txClock.setFreq(500000, 64); break; // 7812.5Hz
+			case 0: txClock.setFreq(clockFreq,  1); break;
+			case 1: txClock.setFreq(clockFreq, 16); break;
+			case 2: txClock.setFreq(clockFreq, 64); break;
 			}
 		}
 	}
@@ -306,8 +247,8 @@ void MC6850::recvByte(byte value, EmuTime::param time)
 	rxReady = false;
 
 	// The MC6850 has separate TxCLK and RxCLK inputs, but both share a
-	// common divider. This implementation hard-codes an input frequency of
-	// 500kHz for both. Below we want the receive clock period, but it's OK
+	// common divider. This implementation hard-codes an input frequency
+	// for both. Below we want the receive clock period, but it's OK
 	// to calculate that as 'txClock.getPeriod()'.
 	syncRecv.setSyncPoint(time + txClock.getPeriod() * charLen);
 }
@@ -354,7 +295,6 @@ void MC6850::setParityBit(bool /*enable*/, ParityBit /*parity*/)
 template<typename Archive>
 void MC6850::serialize(Archive& ar, unsigned version)
 {
-	ar.template serializeBase<MSXDevice>(*this);
 	if (ar.versionAtLeast(version, 3)) {
 		ar.template serializeBase<MidiInConnector>(*this);
 		ar.serialize("outConnector", outConnector,
@@ -386,6 +326,5 @@ void MC6850::serialize(Archive& ar, unsigned version)
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(MC6850);
-REGISTER_MSXDEVICE(MC6850, "MC6850");
 
 } // namespace openmsx

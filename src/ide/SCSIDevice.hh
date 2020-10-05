@@ -8,19 +8,19 @@ namespace openmsx {
 class SCSIDevice
 {
 public:
-	static const unsigned BIT_SCSI2          = 0x0001;
-	static const unsigned BIT_SCSI2_ONLY     = 0x0002;
-	static const unsigned BIT_SCSI3          = 0x0004;
+	static constexpr unsigned BIT_SCSI2          = 0x0001;
+	static constexpr unsigned BIT_SCSI2_ONLY     = 0x0002;
+	static constexpr unsigned BIT_SCSI3          = 0x0004;
 
-	static const unsigned MODE_SCSI1         = 0x0000;
-	static const unsigned MODE_SCSI2         = 0x0003;
-	static const unsigned MODE_SCSI3         = 0x0005;
-	static const unsigned MODE_UNITATTENTION = 0x0008; // report unit attention
-	static const unsigned MODE_MEGASCSI      = 0x0010; // report disk change when call of
+	static constexpr unsigned MODE_SCSI1         = 0x0000;
+	static constexpr unsigned MODE_SCSI2         = 0x0003;
+	static constexpr unsigned MODE_SCSI3         = 0x0005;
+	static constexpr unsigned MODE_UNITATTENTION = 0x0008; // report unit attention
+	static constexpr unsigned MODE_MEGASCSI      = 0x0010; // report disk change when call of
 	                                              // 'test unit ready'
-	static const unsigned MODE_NOVAXIS       = 0x0100;
+	static constexpr unsigned MODE_NOVAXIS       = 0x0100;
 
-	static const unsigned BUFFER_SIZE   = 0x10000; // 64KB
+	static constexpr unsigned BUFFER_SIZE   = 0x10000; // 64KB
 
 	virtual ~SCSIDevice() = default;
 

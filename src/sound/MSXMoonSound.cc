@@ -18,32 +18,32 @@ namespace openmsx {
 using MasterClock = Clock<33868800>;
 
 // Required delay between register select and register read/write.
-static const EmuDuration FM_REG_SELECT_DELAY = MasterClock::duration(56);
+constexpr auto FM_REG_SELECT_DELAY = MasterClock::duration(56);
 // Required delay after register write.
-static const EmuDuration FM_REG_WRITE_DELAY  = MasterClock::duration(56);
+constexpr auto FM_REG_WRITE_DELAY  = MasterClock::duration(56);
 // Datasheet doesn't mention any delay for reads from the FM registers. In fact
 // it says reads from FM registers are not possible while tests on a real
 // YMF278 show they do work (value of the NEW2 bit doesn't matter).
 
 // Required delay between register select and register read/write.
-static const EmuDuration WAVE_REG_SELECT_DELAY = MasterClock::duration(88);
+constexpr auto WAVE_REG_SELECT_DELAY = MasterClock::duration(88);
 // Required delay after register write.
-static const EmuDuration WAVE_REG_WRITE_DELAY  = MasterClock::duration(88);
+constexpr auto WAVE_REG_WRITE_DELAY  = MasterClock::duration(88);
 // Datasheet doesn't mention any delay for register reads (except for reads
 // from register 6, see below). I also couldn't measure any delay on a real
 // YMF278.
 
 // Required delay after memory read.
-static const EmuDuration MEM_READ_DELAY  = MasterClock::duration(38);
+constexpr auto MEM_READ_DELAY  = MasterClock::duration(38);
 // Required delay after memory write (instead of register write delay).
-static const EmuDuration MEM_WRITE_DELAY = MasterClock::duration(28);
+constexpr auto MEM_WRITE_DELAY = MasterClock::duration(28);
 
 // Required delay after instrument load.
 // We pick 10000 cycles, this is approximately 300us (the number given in the
 // datasheet). The exact number of cycles is unknown. But I did some (very
 // rough) tests on real HW, and this number is not too bad (slightly too high
 // but within 2%-4% of real value, needs more detailed tests).
-static const EmuDuration LOAD_DELAY = MasterClock::duration(10000);
+constexpr auto LOAD_DELAY = MasterClock::duration(10000);
 
 
 MSXMoonSound::MSXMoonSound(const DeviceConfig& config)
@@ -71,7 +71,6 @@ void MSXMoonSound::reset(EmuTime::param time)
 
 	opl4latch = 0; // TODO check
 	opl3latch = 0; // TODO check
-	alreadyReadID = false;
 
 	ymf278BusyTime = time;
 	ymf278LoadTime = time;
@@ -112,20 +111,7 @@ byte MSXMoonSound::readIO(word port, EmuTime::param time)
 		switch (port & 0x03) {
 		case 0: // read status
 		case 2:
-			result = ymf262.readStatus() |
-			         readYMF278Status(time);
-			if (!alreadyReadID && getNew2()) {
-				// Verified on real YMF278:
-				// Only once after switching NEW2=1, reading
-				// the status register returns '0x02'. This
-				// behavior doesn't re-occur till after a
-				// reset (datasheet confirms this behavior).
-				// Also verified that only bit 1 changes (so
-				// it's not the whole value that is forced to
-				// 0x02, datasheet isn't clear about that).
-				alreadyReadID = true;
-				result |= 0x02;
-			}
+			result = ymf262.readStatus() | readYMF278Status(time);
 			break;
 		case 1:
 		case 3: // read fm register
@@ -158,11 +144,7 @@ byte MSXMoonSound::peekIO(word port, EmuTime::param time) const
 		switch (port & 0x03) {
 		case 0: // read status
 		case 2:
-			result = ymf262.peekStatus() |
-			         readYMF278Status(time);
-			if (!alreadyReadID && getNew2()) {
-				result |= 0x02;
-			}
+			result = ymf262.peekStatus() | readYMF278Status(time);
 			break;
 		case 1:
 		case 3: // read fm register
@@ -254,6 +236,7 @@ byte MSXMoonSound::readYMF278Status(EmuTime::param time) const
 // version 1: initial version
 // version 2: added alreadyReadID
 // version 3: moved loadTime and busyTime from YMF278 to here
+//            removed alreadyReadID
 template<typename Archive>
 void MSXMoonSound::serialize(Archive& ar, unsigned version)
 {
@@ -262,13 +245,6 @@ void MSXMoonSound::serialize(Archive& ar, unsigned version)
 	             "ymf278",    ymf278,
 	             "opl3latch", opl3latch,
 	             "opl4latch", opl4latch);
-	if (ar.versionAtLeast(version, 2)) {
-		ar.serialize("alreadyReadID", alreadyReadID);
-	} else {
-		assert(ar.isLoader());
-		alreadyReadID = true; // we can't know the actual value, but
-		                      // 'true' is the safest value
-	}
 	if (ar.versionAtLeast(version, 3)) {
 		ar.serialize("loadTime", ymf278LoadTime,
 		             "busyTime", ymf278BusyTime);

@@ -25,7 +25,7 @@ struct V9958RasterizerBorderInfo
 class RawFrame final : public FrameSource
 {
 public:
-	RawFrame(const SDL_PixelFormat& format, unsigned maxWidth, unsigned height);
+	RawFrame(const PixelFormat& format, unsigned maxWidth, unsigned height);
 
 	template<typename Pixel>
 	Pixel* getLinePtrDirect(unsigned y) {

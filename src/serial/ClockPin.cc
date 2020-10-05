@@ -8,7 +8,7 @@ namespace openmsx {
 
 ClockPin::ClockPin(Scheduler& scheduler_, ClockPinListener* listener_)
 	: Schedulable(scheduler_), listener(listener_)
-	, referenceTime(EmuTime::zero)
+	, referenceTime(EmuTime::zero())
 	, periodic(false) , status(false), signalEdge(false)
 {
 }
@@ -82,7 +82,7 @@ int ClockPin::getTicksBetween(EmuTime::param begin, EmuTime::param end) const
 	if (!periodic) {
 		return 0;
 	}
-	if (totalDur > EmuDuration::zero) {
+	if (totalDur > EmuDuration::zero()) {
 		int a = (begin < referenceTime) ?
 		        0 :
 		        (begin - referenceTime) / totalDur;
@@ -129,7 +129,7 @@ void ClockPin::executeUntil(EmuTime::param time)
 {
 	assert(signalEdge && periodic && listener);
 	listener->signalPosEdge(*this, time);
-	if (signalEdge && (totalDur > EmuDuration::zero)) {
+	if (signalEdge && (totalDur > EmuDuration::zero())) {
 		schedule(time + totalDur);
 	}
 }

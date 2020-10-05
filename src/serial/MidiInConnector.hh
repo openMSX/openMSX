@@ -15,8 +15,8 @@ public:
 	MidiInDevice& getPluggedMidiInDev() const;
 
 	// Connector
-	string_view getDescription() const final override;
-	string_view getClass() const final override;
+	std::string_view getDescription() const final override;
+	std::string_view getClass() const final override;
 
 	virtual bool ready() = 0;
 	virtual bool acceptsData() = 0;

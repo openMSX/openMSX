@@ -19,8 +19,8 @@ class Filename;
 
 struct AudioFragment
 {
-	static const size_t UNKNOWN_POS = size_t(-1);
-	static const unsigned MAX_SAMPLES = 2048;
+	static constexpr size_t UNKNOWN_POS = size_t(-1);
+	static constexpr unsigned MAX_SAMPLES = 2048;
 	size_t position;
 	unsigned length;
 	float pcm[2][MAX_SAMPLES];
@@ -68,7 +68,7 @@ private:
 	bool nextPacket();
 	void recycleAudio(std::unique_ptr<AudioFragment> audio);
 	void vorbisFoundPosition();
-	size_t frameNo(ogg_packet* packet);
+	size_t frameNo(ogg_packet* packet) const;
 
 	size_t findOffset(size_t frame, size_t sample);
 	size_t bisection(size_t frame, size_t sample,

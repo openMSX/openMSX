@@ -7,22 +7,22 @@
 #include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
-#include "Math.hh"
 #include "unreachable.hh"
 #include <SDL.h>
+#include <algorithm>
 
 using std::string;
 using std::shared_ptr;
 
 namespace openmsx {
 
-static const int TRESHOLD = 2;
-static const int SCALE = 2;
-static const int PHASE_XHIGH = 0;
-static const int PHASE_XLOW  = 1;
-static const int PHASE_YHIGH = 2;
-static const int PHASE_YLOW  = 3;
-static const int STROBE = 0x04;
+constexpr int TRESHOLD = 2;
+constexpr int SCALE = 2;
+constexpr int PHASE_XHIGH = 0;
+constexpr int PHASE_XLOW  = 1;
+constexpr int PHASE_YHIGH = 2;
+constexpr int PHASE_YLOW  = 3;
+constexpr int STROBE = 0x04;
 
 
 class MouseState final : public StateChange
@@ -57,7 +57,7 @@ Mouse::Mouse(MSXEventDistributor& eventDistributor_,
              StateChangeDistributor& stateChangeDistributor_)
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
-	, lastTime(EmuTime::zero)
+	, lastTime(EmuTime::zero())
 {
 	status = JOY_BUTTONA | JOY_BUTTONB;
 	phase = PHASE_YLOW;
@@ -81,7 +81,7 @@ const string& Mouse::getName() const
 	return name;
 }
 
-string_view Mouse::getDescription() const
+std::string_view Mouse::getDescription() const
 {
 	return "MSX mouse";
 }
@@ -228,8 +228,8 @@ void Mouse::write(byte value, EmuTime::param time)
 				// sdsnatcher's post of 30 aug 2018 for a
 				// motivation for this difference:
 				//   https://github.com/openMSX/openMSX/issues/892
-				xrel = Math::clip<-128, 127>(curxrel);
-				yrel = Math::clip<-128, 127>(curyrel);
+				xrel = std::clamp(curxrel, -127, 127);
+				yrel = std::clamp(curyrel, -127, 127);
 				curxrel -= xrel;
 				curyrel -= yrel;
 #endif
@@ -353,7 +353,7 @@ void Mouse::serialize(Archive& ar, unsigned version)
 
 	if (ar.versionBelow(version, 4)) {
 		assert(ar.isLoader());
-		Clock<1000> tmp(EmuTime::zero);
+		Clock<1000> tmp(EmuTime::zero());
 		ar.serialize("lastTime", tmp);
 		lastTime = tmp.getTime();
 	} else {

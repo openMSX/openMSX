@@ -2,7 +2,7 @@
 
 namespace openmsx {
 
-string_view Y8950KeyboardDevice::getClass() const
+std::string_view Y8950KeyboardDevice::getClass() const
 {
 	return "Y8950 Keyboard Port";
 }

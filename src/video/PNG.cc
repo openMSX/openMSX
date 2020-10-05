@@ -1,9 +1,9 @@
 #include "PNG.hh"
-#include "SDLSurfacePtr.hh"
 #include "MSXException.hh"
 #include "File.hh"
 #include "build-info.hh"
 #include "Version.hh"
+#include "one_of.hh"
 #include "vla.hh"
 #include "cstdiop.hh"
 #include <cassert>
@@ -14,8 +14,7 @@
 #include <png.h>
 #include <SDL.h>
 
-namespace openmsx {
-namespace PNG {
+namespace openmsx::PNG {
 
 static void handleError(png_structp png_ptr, png_const_charp error_msg)
 {
@@ -155,20 +154,20 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 				currentMode.format, &bpp, &Rmask, &Gmask, &Bmask, &Amask);
 			if (bpp >= 24) {
 				if        (Rmask == 0x000000FF &&
-					   Gmask == 0x0000FF00 &&
-					   Bmask == 0x00FF0000) { // RGB(A)
+				           Gmask == 0x0000FF00 &&
+				           Bmask == 0x00FF0000) { // RGB(A)
 					bgr = false; swapAlpha = false;
 				} else if (Rmask == 0x00FF0000 &&
 				           Gmask == 0x0000FF00 &&
-					   Bmask == 0x000000FF) { // BGR(A)
+				           Bmask == 0x000000FF) { // BGR(A)
 					bgr = true;  swapAlpha = false;
 				} else if (Rmask == 0x0000FF00 &&
 				           Gmask == 0x00FF0000 &&
-					   Bmask == 0xFF000000) { // ARGB
+				           Bmask == 0xFF000000) { // ARGB
 					bgr = false; swapAlpha = true;
 				} else if (Rmask == 0xFF000000 &&
 				           Gmask == 0x00FF0000 &&
-					   Bmask == 0x0000FF00) { // ABGR
+				           Bmask == 0x0000FF00) { // ABGR
 					bgr = true;  swapAlpha = true;
 				}
 			}
@@ -187,7 +186,7 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 		             &color_type, &interlace_type, nullptr, nullptr);
 
 		// Allocate the SDL surface to hold the image.
-		static const unsigned MAX_SIZE = 2048;
+		constexpr unsigned MAX_SIZE = 2048;
 		if (width > MAX_SIZE) {
 			throw MSXException(
 				"Attempted to create a surface with excessive width: ",
@@ -199,7 +198,7 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 				height, ", max ", MAX_SIZE);
 		}
 		int bpp = png_get_channels(png.ptr, png.info) * 8;
-		assert(bpp == 24 || bpp == 32);
+		assert(bpp == one_of(24, 32));
 		Uint32 redMask, grnMask, bluMask, alpMask;
 		if (OPENMSX_BIGENDIAN) {
 			if (bpp == 32) {
@@ -380,15 +379,15 @@ static void save(SDL_Surface* image, const std::string& filename)
 }
 
 void save(unsigned width, unsigned height, const void** rowPointers,
-          const SDL_PixelFormat& format, const std::string& filename)
+          const PixelFormat& format, const std::string& filename)
 {
 	// this implementation creates 1 extra copy, can be optimized if required
 	SDLSurfacePtr surface(
-		width, height, format.BitsPerPixel,
-		format.Rmask, format.Gmask, format.Bmask, format.Amask);
+		width, height, format.getBpp(),
+		format.getRmask(), format.getGmask(), format.getBmask(), format.getAmask());
 	for (unsigned y = 0; y < height; ++y) {
 		memcpy(surface.getLinePtr(y),
-		       rowPointers[y], width * format.BytesPerPixel);
+		       rowPointers[y], width * format.getBytesPerPixel());
 	}
 	save(surface.get(), filename);
 }
@@ -405,5 +404,4 @@ void saveGrayscale(unsigned width, unsigned height,
 	IMG_SavePNG_RW(width, height, rowPointers, filename, false);
 }
 
-} // namespace PNG
-} // namespace openmsx
+} // namespace openmsx::PNG

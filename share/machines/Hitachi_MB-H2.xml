@@ -1,0 +1,137 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+<!--
+  Data provided by Peter Hanraets on machine with serial 120113
+
+  IDENT says: dvik says VDP is V9938/58: YES (!!!!!?????)
+              TMS99xx/TMS9xxx/TMS9xxx
+              screen 2 mirrored mode: YES
+              mode 3 mixed mode: YES
+              Z80 scf: 01E529ED01F429FC (dunno)
+              z80 cpl: 3AFF12D7 (standard)
+              Z80 out (c), 0: 0 (MSX)
+              PSG pin 6/7 quirk: C (YES)
+              PSGmask; AY8910-like
+
+  Photo on msx.org wiki says:
+  VDP: TMS9928ANL
+  PPI: NEC D8255AC-5
+  CPU: NEC D780
+  PSG: GI AY-3-8910A
+
+  Machine has a built-in datarecorder, which is not emulated as such. The
+  built-in firmware seems to have commands to control the datarecorder, which
+  are also not emulated.
+
+  Thanks to BiFi we know something about how the datarecorder is controlled:
+  - control via I/O port 0x94, with the following bit map:
+    bit 7 = Fast Forward
+    bit 6 = Rewind
+    bit 5 = Record
+    bit 4 = Stop
+    bit 3 = Pause
+    bit 2 = Play
+    bit 1 = Scan
+    bit 0 = Mute
+  - Scan is done in combination with Fast Forward, Rewind or Record. It's used
+    to scan for the next, previous or blank spot on the cassette respectively.
+  - Scan in combination with Play is the _IDTRACE command
+  - Scan in combination with Pause is the _STDBY command
+  - The scanning stuff is implemented in hardware
+  - The commands as mentioned in the Cassette Operation Guide:
+    _CFILES:   not sure, probably a scan of the whole tape
+    _REC:      only bit 5 and 3 on 1 ("ready to record")
+    _PLAY:     only bit 2 on 1
+    _REW:      only bit 6 on 1
+    _FF:       only bit 7 on 1
+    _STOP:     only bit 4 on 1
+    _PAUSE:    only bit 3 on 1
+    _NSCAN:    only bit 1 and 7 on 1: Next SCAN
+    _CSCAN:    only bit 1 and 6 on 1: C(urrent)? SCAN
+    _IDTRACE:  only bit 1 and 2 on 1
+    _BLSCAN:   only bit 1 and 5 on 1: BLank SCAN
+    _STDBY:    only bit 1 and 3 on 1: stand by (?)
+    _AUTOMUTE: ??? mutes and unmutes depending on bits read from port 0x94
+    _MUTE:     only bit 0 on 1
+
+  The speed-control button/option is also not emulated.
+-->
+
+  <info>
+    <manufacturer>Hitachi</manufacturer>
+    <code>MB-H2</code>
+    <release_year>1985</release_year>
+    <description/>
+    <type>MSX</type>
+  </info>
+
+  <CassettePort/>
+
+  <devices>
+
+    <PPI id="ppi">
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <io base="0xA8" num="4"/>
+      <keyboard_type>jp_ansi</keyboard_type>
+      <has_keypad>false</has_keypad>
+      <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
+      <code_kana_locks>true</code_kana_locks>
+      <graph_locks>false</graph_locks>
+    </PPI>
+
+    <VDP id="VDP">
+      <version>TMS9928A</version>
+      <saturation>100</saturation> <!-- TMS9x2x and RGB output -->
+      <io base="0x98" num="2"/>
+    </VDP>
+
+    <PSG id="PSG">
+      <type>AY8910</type>
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <io base="0xA0" num="2" type="O"/>
+      <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>false</ignorePortDirections> <!-- not sure, but guess based on discrete PSG chip -->
+    </PSG>
+
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
+
+    <primary slot="0">
+      <ROM id="MSX BIOS with BASIC ROM">
+        <rom>
+          <filename>mb-h2_basic-bios1.rom</filename>
+          <sha1>302afb5d8be26c758309ca3df611ae69cced2821</sha1>
+        </rom>
+        <mem base="0x0000" size="0x8000"/>
+      </ROM>
+      <ROM id="MB-H2 Firmware">
+        <rom>
+          <filename>mb-h2_firmware.rom</filename>
+          <sha1>e2140fa2e8e59090ecccf55b62323ea9dcc66d0b</sha1>
+        </rom>
+        <mem base="0x8000" size="0x4000"/>
+      </ROM>
+    </primary>
+
+    <primary external="true" slot="1"/>
+
+    <primary external="true" slot="2"/>
+
+    <primary slot="3">
+      <RAM id="Main RAM">
+        <!-- RAM pattern is like 128x 0x00, 128x 0xFF, etc. -->
+        <initialContent encoding="gz-base64">eJxjYBhY8H+AAQAioH+B</initialContent>
+        <mem base="0x0000" size="0x10000"/>
+      </RAM>
+    </primary>
+
+  </devices>
+
+</msxconfig>

@@ -10,8 +10,6 @@
     <type>MSX2</type>
   </info>
 
-  <!-- Note: also has an expansion bus slot, but it is not known to which MSX slot it maps. -->
-
   <MapperReadBackBits>largest</MapperReadBackBits>
 
   <CassettePort/>
@@ -113,6 +111,8 @@
           <mem base="0x4000" size="0x8000"/>
         </ROM>
       </secondary>
+
+      <secondary external="true" slot="2"/> <!-- Note: this connector is actually a non-standard expansion connector on the back. According to flyguille it is mapped to slot 3-2 indeed. -->
 
     </primary>
 

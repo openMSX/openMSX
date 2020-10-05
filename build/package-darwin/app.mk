@@ -14,7 +14,7 @@ INSTALL_SHARE_DIR:=$(APP_DIR)/share
 INSTALL_DOC_DIR:=Documentation
 
 PACKAGE_FULL:=$(shell PYTHONPATH=build $(PYTHON) -c \
-  "import version; print version.getVersionedPackageName()" \
+  "import version; print(version.getVersionedPackageName())" \
   )
 BINDIST_PACKAGE:=$(BUILD_PATH)/$(PACKAGE_FULL)-mac-$(OPENMSX_TARGET_CPU)-bin.dmg
 BINDIST_README:=README.html
@@ -26,16 +26,16 @@ app: install $(DESTDIR)/$(APP_PLIST) $(DESTDIR)/$(APP_ICON)
 bindist: app $(DESTDIR)/$(BINDIST_README) $(DESTDIR)/$(BINDIST_LICENSE)
 	@echo "Creating disk image:"
 	@hdiutil create -srcfolder $(BINDIST_DIR) \
+		-fs HFS+J \
 		-volname openMSX \
 		-imagekey zlib-level=9 \
 		-ov $(BINDIST_PACKAGE)
-	@hdiutil internet-enable -yes $(BINDIST_PACKAGE)
 
 $(DESTDIR)/$(APP_PLIST): $(DESTDIR)/$(APP_DIR)/Contents/%: $(APP_SUPPORT_DIR)/% bindistclean
 	@echo "  Writing meta-info..."
 	@mkdir -p $(@D)
 	@sed -e 's/%ICON%/$(notdir $(APP_ICON))/' \
-		-e 's/%VERSION%/$(shell $(PYTHON) build/version.py)/' < $< > $@
+		-e 's/%VERSION%/$(shell $(PYTHON) build/version.py triple)/' < $< > $@
 	@echo "APPLoMSX" > $(@D)/PkgInfo
 
 $(DESTDIR)/$(APP_ICON): $(DESTDIR)/$(APP_RES)/%: $(APP_SUPPORT_DIR)/% bindistclean

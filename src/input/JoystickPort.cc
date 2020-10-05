@@ -18,12 +18,12 @@ JoystickPort::JoystickPort(PluggingController& pluggingController_,
 {
 }
 
-string_view JoystickPort::getDescription() const
+std::string_view JoystickPort::getDescription() const
 {
 	return description;
 }
 
-string_view JoystickPort::getClass() const
+std::string_view JoystickPort::getClass() const
 {
 	return "Joystick Port";
 }

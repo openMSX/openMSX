@@ -11,7 +11,7 @@ public:
 	void write(byte data, EmuTime::param time) override;
 	byte read(EmuTime::param time) override;
 
-	string_view getDescription() const override;
+	std::string_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 };

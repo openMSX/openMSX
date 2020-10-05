@@ -92,7 +92,7 @@ private:
 
 	void writeRegDirect(byte reg, byte data, EmuTime::param time);
 	unsigned getRamAddress(unsigned addr) const;
-	int16_t getSample(Slot& op);
+	int16_t getSample(Slot& op) const;
 	void advance();
 	bool anyActive();
 	void keyOnHelper(Slot& slot);

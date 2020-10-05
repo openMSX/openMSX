@@ -6,7 +6,7 @@
 
 using namespace openmsx;
 
-static const EmuDuration step = EmuDuration::usec(10);
+constexpr auto step = EmuDuration::usec(10);
 
 static void input_pattern(EEPROM_93C46& eeprom, EmuTime& time, uint32_t pattern, unsigned len)
 {
@@ -124,6 +124,7 @@ static uint8_t read(EEPROM_93C46& eeprom, EmuTime& time, unsigned addr)
 	CHECK(eeprom.read_DO(time) == false); // initial 0-bit
 	uint8_t result = 0;
 	for (auto i : xrange(EEPROM_93C46::DATA_BITS)) {
+		(void)i;
 		eeprom.write_CLK(true, time);
 		time += step;
 		result <<= 1;
@@ -140,7 +141,7 @@ static uint8_t read(EEPROM_93C46& eeprom, EmuTime& time, unsigned addr)
 }
 
 static void read_block(EEPROM_93C46& eeprom, EmuTime& time, unsigned addr,
-                          unsigned num, uint8_t* output)
+                       unsigned num, uint8_t* output)
 {
 	assert(addr < EEPROM_93C46::NUM_ADDRESSES);
 
@@ -155,8 +156,10 @@ static void read_block(EEPROM_93C46& eeprom, EmuTime& time, unsigned addr,
 
 	CHECK(eeprom.read_DO(time) == false); // initial 0-bit
 	for (auto j : xrange(num)) {
+		(void)j;
 		*output = 0;
 		for (auto i : xrange(EEPROM_93C46::DATA_BITS)) {
+			(void)i;
 			eeprom.write_CLK(true, time);
 			time += step;
 			*output <<= 1;
@@ -209,7 +212,7 @@ TEST_CASE("EEPROM_93C46")
 	XMLElement xml;
 	EEPROM_93C46 eeprom(xml);
 	const uint8_t* data = eeprom.backdoor();
-	EmuTime time = EmuTime::zero;
+	EmuTime time = EmuTime::zero();
 
 	// initially filled with 255
 	for (auto addr : xrange(EEPROM_93C46::NUM_ADDRESSES)) {

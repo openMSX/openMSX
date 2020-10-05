@@ -4,9 +4,9 @@
 
 namespace openmsx {
 
-static constexpr uint8_t MIDI_MSG_SYSEX     = 0xF0;
-static constexpr uint8_t MIDI_MSG_SYSEX_END = 0xF7;
-static constexpr uint8_t MIDI_MSG_RESET     = 0xFF;
+constexpr uint8_t MIDI_MSG_SYSEX     = 0xF0;
+constexpr uint8_t MIDI_MSG_SYSEX_END = 0xF7;
+constexpr uint8_t MIDI_MSG_RESET     = 0xFF;
 
 /** Returns the size in bytes of a message that starts with the given status.
   */
@@ -46,7 +46,7 @@ static size_t midiMessageLength(uint8_t status)
 	}
 }
 
-string_view MidiOutDevice::getClass() const
+std::string_view MidiOutDevice::getClass() const
 {
 	return "midi out";
 }

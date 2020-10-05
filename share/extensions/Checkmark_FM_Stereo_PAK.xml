@@ -21,6 +21,7 @@
             <balance channel="1-9">-100</balance>
             <balance channel="10-14">100</balance>
           </sound>
+          <ym2413-core>NukeYKT</ym2413-core>
           <rom>
             <sha1>19bf90b8d2e695ffad61fff6f47f7fcda2f24a1d</sha1>
             <filename>fmpak.rom</filename>

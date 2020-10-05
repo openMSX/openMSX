@@ -27,6 +27,7 @@
 #include "CacheLine.hh"
 #include "SRAM.hh"
 #include "MSXException.hh"
+#include "one_of.hh"
 #include "serialize.hh"
 #include <memory>
 
@@ -83,13 +84,13 @@ void RomHalnote::writeMem(word address, byte value, EmuTime::param /*time*/)
 			sram->write(address, value);
 		}
 	} else if (address < 0xC000) {
-		if ((address == 0x77FF) || (address == 0x7FFF)) {
+		if (address == one_of(0x77FF, 0x7FFF)) {
 			// sub-mapper bank switch region
 			int subBank = address < 0x7800 ? 0 : 1;
 			if (subBanks[subBank] != value) {
 				subBanks[subBank] = value;
 				if (subMapperEnabled) {
-					invalidateMemCache(
+					invalidateDeviceRCache(
 						0x7000 + subBank * 0x800, 0x800);
 				}
 			}
@@ -109,13 +110,14 @@ void RomHalnote::writeMem(word address, byte value, EmuTime::param /*time*/)
 						setUnmapped(0);
 						setUnmapped(1);
 					}
+					// 'R' is already handled
+					invalidateDeviceWCache(0x0000, 0x4000);
 				}
 			} else if (bank == 3) {
 				// sub-mapper enable/disable
-				bool newSubMapperEnabled = (value & 0x80) != 0;
-				if (newSubMapperEnabled != subMapperEnabled) {
-					subMapperEnabled = newSubMapperEnabled;
-					invalidateMemCache(0x7000, 0x1000);
+				subMapperEnabled = (value & 0x80) != 0;
+				if (subMapperEnabled) {
+					invalidateDeviceRCache(0x7000, 0x1000);
 				}
 			}
 		}
@@ -130,8 +132,8 @@ byte* RomHalnote::getWriteCacheLine(word address) const
 			return nullptr;
 		}
 	} else if (address < 0xC000) {
-		if (((address & CacheLine::HIGH) == (0x77FF & CacheLine::HIGH)) ||
-		    ((address & CacheLine::HIGH) == (0x7FFF & CacheLine::HIGH))) {
+		if ((address & CacheLine::HIGH) == one_of(0x77FF & CacheLine::HIGH,
+		                                          0x7FFF & CacheLine::HIGH)) {
 			// sub-mapper bank switch region
 			return nullptr;
 		} else if ((address & 0x1FFF & CacheLine::HIGH) ==

@@ -77,7 +77,7 @@ public:
 private:
 	void init(const std::string& name, const DeviceConfig& config, bool load, const Rom* rom);
 	void getSectorInfo(unsigned address, unsigned& sector,
-                           unsigned& sectorSize, unsigned& offset) const;
+	                   unsigned& sectorSize, unsigned& offset) const;
 
 	void setState(State newState);
 	bool checkCommandReset();
@@ -101,7 +101,7 @@ private:
 	const word ID;
 	const bool use12bitAddressing;
 
-	static const unsigned MAX_CMD_SIZE = 8;
+	static constexpr unsigned MAX_CMD_SIZE = 8;
 	AmdCmd cmd[MAX_CMD_SIZE];
 	unsigned cmdIdx;
 	State state = ST_IDLE;

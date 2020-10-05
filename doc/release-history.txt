@@ -3,6 +3,178 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
+openMSX 16.0 (2020-08-25)
+-------------------------
+
+A major release in which we finally migrated to SDL2 and Tcl 8.6. And we moved
+to a simpler versioning scheme, stripping off that 0. prefix now :) Other than
+that, there are loads and loads of improvements. Some often requested ones are
+copy/paste functionality and drag and drop support. But we also added a super
+accurate YM2413 emulation (originally written by NukeYKT), fixed MIDI-in/out
+support on Windows, a new keyboard mode, much improved OSD menu, etc. See below
+for the details.
+
+Special thanks to all the contributors of this release who are not in the core
+team! Keep these pull requests coming!
+
+Here's the list with all highlights and details:
+
+MSX device support:
+- V9990:
+  - added EOR feature in V9990 bitmap cursor rendering
+  - fixed crash in overscan modes with deflicker filter
+  - fixed YJK/YUV rendering (was broken 8 years ago...)
+  - fixed BMLX command
+  - fixed drawing of second cursor (in some cases)
+  - added synchronization for the CE IRQ
+  - fixed sprite rendering algorithm on P modes
+  - fixed background rendering in P2
+  - fixed crash when using V9990 B4 mode with SDL renderer and scale_factor 3
+- V99x8:
+  - fixed that set adjust has no influence on maximum horizontal interrupt line
+  - fixed right border on V9958 horizontal scroll
+  - implemented "Cadari" bit
+  - fixed sprite collision detection with color 0 sprites
+  - fixed behaviour of TP bit in sprite mode 1
+- PSG:
+  - fixed that PSG registers of turboR do not mirror
+  - fixed behaviour of wrong PSG port configuration (input ports output 0xFF)
+  - it is now possible to specify whether a machine ignores PSG port
+    directions; this helps to only show the warning on machines that may
+    actually get damaged by these PSG bits
+  - fixed noise level 0 ("sound6,0")
+- fixed behaviour details of ADPCM of MSX-AUDIO
+- fixed VDP I/O wait cycles of T9769: only apply to Z80
+- fixed initial RAM pattern of ColecoVision to 0x00, which fixes The Heist
+- fixed register mirroring of Yamaha SFG modules
+- improved loading bad quality WAV cassette images using cubic interpolation
+- added very accurate (but also slower) NukeYKT YM2413 core (now also the
+  default)
+- added emulation of 256kB hangul font ROM of the Daewoo CPC-400S
+- added emulation of mappers Repro Cartridge mapper (v1 and v2) and Matra
+  Compilation (e.g. Konami Compilation 1 and 2)
+- fixed keyboard type of CIEL Expert Turbo
+- fixed RAM size of Daewoo DPC-180
+- added mapper type for RBSC Flash cartridges with KonamiSCC mapper
+- added new machines: Yamaha AX500 (thanks Hashem Khalifa), Toshiba HX-20E
+  (thanks Isaac Santaolalla), Yamaha YIS-503, YIS-503II, CX5F, YIS-604/128,
+  Sony HB-G900D (thanks Peter Hanraets), Yamaha AX150 (thanks Pedro Gimeno),
+  Olympia PHC-2 (thanks Patrick)
+- added new extensions: Yamaha FD-03 (thanks Arjen) and FD-05 disk drive,
+  Toshiba HX-F101PE disk drive, ROM Hunter Mk2 (thanks BiFi, Takamichi), Sony
+  HBI-J1 (thanks Sandy), JVC MSX MIDI (thanks gflores)
+
+New or improved emulator features:
+- F11 now toggles fullscreen mode on PC, to be consistent with other
+  applications such as web browsers; mute is now under F12
+- fixed crash in ColecoVision when e.g. ALT+SPACE was pressed
+- fixed crash when ejecting tape during cassette loading
+- fixed MIDI-in/out support on Windows
+- fixed possible crashes when using reverse
+- added drag and drop support of files on the openMSX window. Supports ROM
+  files, disk images (and folders), cassette images, LaserDisc images,
+  savestates, replays, text files, Tcl scripts.
+- added copy/paste functionality: with CTRL+Win+V (Cmd+V on Mac) or the middle
+  mouse button, the clipboard text will be pasted into the MSX and with
+  CTRL+Win+C (Cmd+C on Mac), the current MSX text screen will be copied to the
+  clipboard
+- added paste functionality to the console (CTRL+V/Cmd+V on Mac)
+- several other small console improvements:
+  - for macOS: Home/End moves to top/end of history, Cmd+Left/Right moves
+    cursor to start/end of the line
+  - move cursor per word with Alt+Left/Right
+  - clear console with Ctrl+L and Cmd+K on macOS
+  - Alt+BackSpace: delete backwards up to the start of the word
+  - Alt+D (Alt+Del on macOS): delete util the end of the word
+- added new POSITIONAL keyboard mapping mode, which is a much improved version
+  of the KEY mode. Use when CHARACTER mode isn't working properly for you
+- added file extensions to OSD menu and command line (e.g.
+  .fd1/.fd2/.fd?/.1/.2)
+- OSD menu:
+  - when browsing for a media (ROM, disk, etc.) the menu now starts with the
+    currently selected item. Makes it much easier to set disk B of a game, for
+    instance.
+  - implemented quick search in lists with alphanumeric keys. Type the name you
+    expect and the cursor will find items starting with the typed characters.
+  - fixed filtering out symlinked configurations from the machine/extension
+    lists
+  - go to the top of a list with HOME or CTRL+LEFT. Go to the end by pressing
+    UP after that, as the lists wrap around :)
+  - now all cartridge slots and disk drives can be controlled from OSD
+  - show on/off instead of true/false for boolean settings
+  - added keyboard mapping mode setting to OSD menu
+- added setting to control vsync. Default is now enabled
+- added new settings 'fastforward' and 'fastforwardspeed' to offer a way to go
+  fast for a while (e.g. with the F9 button, which has now its binding changed
+  to this) without going insanely fast.
+- With vsync enabled the maxframeskip will not have to be tweaked anymore to go
+  faster than the host monitor frame rate. Fast forward just works as you would
+  expect it
+- added new OSD icon set, which positions icons as far to the bottom as
+  possible (set3)
+- use soft-fullscreen now, instead of changing display modes. This looks better
+  on almost all modern monitors. As a consequence, a screenshot made on full
+  screen will be larger and will probably show letter boxes at the sides.
+- huge updates to the Software DB:
+  - many fixes
+  - countless new entries for many ROM files you can find on the web
+- when using IPS patches, the patched ROM will be looked up in the Software DB
+- support host system function keys up to F24 now
+- improved error messages on console commands (e.g. wrong number of arguments,
+  unknown options, wrong subcommands)
+- fixed cursor grabbing when going to and coming back from fullscreen
+- enable HighDPI support (at least fixes some issues on macOS)
+- fixed (removed) influence of user pressing modifier keys (CTRL/SHIFT/...)
+  when text is typed into the MSX (e.g. with type command, auto cassette run,
+  text pasting)
+- added -once flag to 'debug set_bp' (and related commands) to trigger once
+- several fixes to the unicode map files, so that pasting and CHARACTER
+  keyboard mode works better (especially on Spanish MSX machines)
+- added a debug probe on the V99x8 command execution and with that made the
+  vdp_busy script more accurate
+- worked around bug/limitation of MSX-BIOS when typing MSX characters 00-1F,
+  which now works reliably
+- fixed crash when using a relative path with the -setting command line option
+- fixed 'kbd_code_kana_host_key' setting (did (sometimes?) not work anymore)
+- use Rebecca Bettencourt's officially proposed Unicode mapping of MSX character
+  set
+- save_msx_screen script now also supports interlaced images
+- added '-command' command line option to execute the given command after
+  starting
+- disable V99x8 specific debug writes on MSX1 VDP's
+- added an optional <exit-code>-parameter to the exit command
+- added script and MSX-DOS tool to give openMSX commands from within the
+  emulated MSX (which is not enabled by default)
+- when recording to video with throttle off, save time by displaying as few
+  frames as possible on the screen
+- now remember window position when the window is recreated (e.g. when changing
+  renderers or coming back from full screen)
+- make it easier to handle non-specific input events in Tcl scripts
+- WARNING: backwards incompatible change to the 'machine_info device <device>'
+  command. The result for ROM devices is now a dict (instead of a list) with at
+  least one key-value pair, with key "type". For certain devices more key-value
+  pairs are present, that were previously in list elements 1 to 3. Example to
+  get the mapper type of device 'usas':
+  dict get [machine_info device usas] "mappertype"
+  And to get the device type (works for any device) of MyCoolDevice:
+  dict get [machine_info device MyCoolDevice] "type"
+
+Build system, packaging, documentation:
+- migrated to SDL2 (2.0.12)
+- unfortunately, the Android port is for now broken, as we did not integrate it
+  into our build system yet (and that's not easy). The C++ code does compile,
+  and now requires NDK20 and API level 18 (Android 4.3)
+- updated all other 3rdparty libraries as well, like upgrading to Tcl 8.6
+- SDLGL-PP renderer now requires OpenGL 3.3, shaders are now in GLSL 3.30
+- support for pkg-config in the build system, e.g. to build FreeType
+- C++ code is based on C++17 and thus requires a compiler supporting it, e.g.
+  g++ 7 or later or Visual Studio 2019 or later
+- fixed endianness on ppc64le
+- fixed compilation for big-endian CPUs with g++-9
+- migrated build system and all other Python scripts to Python 3, as Python 2
+  is now officially dead
+- documentation is now in HTML5 instead of XHTML
+
 openMSX 0.15.0 (2018-12-08)
 ---------------------------
 

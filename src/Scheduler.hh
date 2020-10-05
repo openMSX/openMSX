@@ -25,7 +25,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	EmuTime timeStamp = EmuTime::zero;
+	EmuTime timeStamp = EmuTime::zero();
 	Schedulable* device = nullptr;
 };
 
@@ -112,7 +112,7 @@ private:
 	  * doesn't allow removal of non-top element.
 	  */
 	SchedulerQueue<SynchronizationPoint> queue;
-	EmuTime scheduleTime = EmuTime::zero;
+	EmuTime scheduleTime = EmuTime::zero();
 	MSXCPU* cpu = nullptr;
 	bool scheduleInProgress = false;
 };

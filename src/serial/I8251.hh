@@ -37,8 +37,8 @@ public:
 	byte peekIO(word port, EmuTime::param time) const;
 	void writeIO(word port, byte value, EmuTime::param time);
 	ClockPin& getClockPin() { return clock; }
-	bool isRecvReady() { return recvReady; }
-	bool isRecvEnabled();
+	bool isRecvReady() const { return recvReady; }
+	bool isRecvEnabled() const;
 
 	// SerialDataInterface
 	void setDataBits(DataBits bits) override { recvDataBits = bits; }

@@ -246,7 +246,7 @@ byte* PanasonicAudioPeriphery::getWriteCacheLine(word address) const
 void PanasonicAudioPeriphery::setBank(byte value)
 {
 	bankSelect = value & 3;
-	audio.getCPU().invalidateMemCache(0x0000, 0x10000);
+	audio.getCPU().invalidateAllSlotsRWCache(0x0000, 0x10000);
 }
 
 void PanasonicAudioPeriphery::setIOPorts(byte value)
@@ -297,7 +297,7 @@ ToshibaAudioPeriphery::ToshibaAudioPeriphery(MSXAudio& audio_)
 }
 
 void ToshibaAudioPeriphery::write(nibble /*outputs*/, nibble /*values*/,
-                                    EmuTime::param /*time*/)
+                                  EmuTime::param /*time*/)
 {
 	// TODO IO1-IO0 are programmed as output by HX-MU900 software rom
 	//      and it writes periodically the values 1/1/2/2/0/0 to

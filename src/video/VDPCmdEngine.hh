@@ -4,6 +4,7 @@
 #include "VDP.hh"
 #include "VDPAccessSlots.hh"
 #include "BooleanSetting.hh"
+#include "Probe.hh"
 #include "TclCallback.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
@@ -104,7 +105,7 @@ public:
 	  * time (IOW this method does not sync the complete CmdEngine)
 	  * @param index The register [0..14] to read from.
 	  */
-	byte peekCmdReg(byte index);
+	byte peekCmdReg(byte index) const;
 
 	/** Informs the command engine of a VDP display mode change.
 	  * @param mode The new display mode.
@@ -121,6 +122,7 @@ public:
 private:
 	void executeCommand(EmuTime::param time);
 
+	void setStatusChangeTime(EmuTime::param t);
 	void calcFinishTime(unsigned NX, unsigned NY, unsigned ticksPerPixel);
 
 	                        void startAbrt(EmuTime::param time);
@@ -170,7 +172,7 @@ private:
 
 	/** Report the VDP command specified in the registers.
 	  */
-	void reportVdpCommand();
+	void reportVdpCommand() const;
 
 
 	/** The VDP this command engine is part of.
@@ -182,6 +184,8 @@ private:
 	  */
 	BooleanSetting cmdTraceSetting;
 	TclCallback cmdInProgressCallback;
+
+	Probe<bool> executingProbe;
 
 	/** Time at which the next vram access slot is available.
 	  * Only valid when a command is executing.
@@ -211,7 +215,7 @@ private:
 	  */
 	unsigned SX, SY, DX, DY, NX, NY; // registers that can be set by CPU
 	unsigned ASX, ADX, ANX; // Temporary registers used in the VDP commands
-                                // Register ASX can be read (via status register 8/9)
+	                        // Register ASX can be read (via status register 8/9)
 	byte COL, ARG, CMD;
 
 	/** When a command needs multiple VRAM accesses per pixel, the result

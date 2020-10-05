@@ -15,7 +15,7 @@ EEPROM_93C46::EEPROM_93C46(const std::string& name, const DeviceConfig& config)
 
 void EEPROM_93C46::reset()
 {
-	completionTime = EmuTime::zero;
+	completionTime = EmuTime::zero();
 	state = IN_RESET;
 	writeProtected = true;
 	bits = 0;

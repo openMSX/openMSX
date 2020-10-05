@@ -257,7 +257,7 @@ void AbstractIDEDevice::setInterruptReason(byte value)
 	sectorCountReg = value;
 }
 
-unsigned AbstractIDEDevice::getByteCount()
+unsigned AbstractIDEDevice::getByteCount() const
 {
 	return cylinderLowReg | (cylinderHighReg << 8);
 }
@@ -434,7 +434,7 @@ void AbstractIDEDevice::createIdentifyBlock(AlignedBuffer& buf)
 		// Use openMSX version as firmware revision, because most of our
 		// IDE emulation code is in fact emulating the firmware.
 		Version::RELEASE ? strCat('v', Version::VERSION)
-                                 : strCat('d', Version::REVISION));
+		                 : strCat('d', Version::REVISION));
 	writeIdentifyString(&buf[27 * 2], 20, getDeviceName()); // model
 
 	fillIdentifyBlock(buf);

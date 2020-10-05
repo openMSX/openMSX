@@ -13,13 +13,14 @@ class MSXMotherBoard;
 class GlobalSettings;
 class EventDistributor;
 class EventDelay;
-class IntegerSetting;
 class BooleanSetting;
+class SpeedManager;
 class ThrottleManager;
 class Setting;
 
 class RealTime final : private Schedulable, private EventListener
                      , private Observer<Setting>
+                     , private Observer<SpeedManager>
                      , private Observer<ThrottleManager>
 {
 public:
@@ -64,6 +65,8 @@ private:
 
 	// Observer<Setting>
 	void update(const Setting& setting) override;
+	// Observer<SpeedManager>
+	void update(const SpeedManager& speedManager) override;
 	// Observer<ThrottleManager>
 	void update(const ThrottleManager& throttleManager) override;
 
@@ -72,8 +75,8 @@ private:
 	MSXMotherBoard& motherBoard;
 	EventDistributor& eventDistributor;
 	EventDelay& eventDelay;
+	SpeedManager& speedManager;
 	ThrottleManager& throttleManager;
-	IntegerSetting& speedSetting;
 	BooleanSetting& pauseSetting;
 	BooleanSetting& powerSetting;
 

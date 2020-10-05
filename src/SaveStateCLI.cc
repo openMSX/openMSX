@@ -10,7 +10,7 @@ SaveStateCLI::SaveStateCLI(CommandLineParser& parser_)
 	: parser(parser_)
 {
 	parser.registerOption("-savestate", *this);
-	parser.registerFileType("oms", *this);
+	parser.registerFileType({"oms"}, *this);
 }
 
 void SaveStateCLI::parseOption(const string& option, span<string>& cmdLine)
@@ -18,7 +18,7 @@ void SaveStateCLI::parseOption(const string& option, span<string>& cmdLine)
 	parseFileType(getArgument(option, cmdLine), cmdLine);
 }
 
-string_view SaveStateCLI::optionHelp() const
+std::string_view SaveStateCLI::optionHelp() const
 {
 	return "Load savestate and start emulation from there";
 }
@@ -45,9 +45,14 @@ void SaveStateCLI::parseFileType(const string& filename,
 	command4.executeCommand(interp);
 }
 
-string_view SaveStateCLI::fileTypeHelp() const
+std::string_view SaveStateCLI::fileTypeHelp() const
 {
 	return "openMSX savestate";
+}
+
+std::string_view SaveStateCLI::fileTypeCategoryName() const
+{
+	return "savestate";
 }
 
 } // namespace openmsx

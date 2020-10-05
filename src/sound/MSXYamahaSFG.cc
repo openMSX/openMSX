@@ -24,11 +24,8 @@ void MSXYamahaSFG::reset(EmuTime::param time)
 
 void MSXYamahaSFG::writeMem(word address, byte value, EmuTime::param time)
 {
-	if (address < 0x3FF0 || address >= 0x3FF8) {
-		return;
-	}
-
-	switch (address & 0x3FFF) {
+	word maskedAddress = address & 0x3FFF;
+	switch (maskedAddress) {
 	case 0x3FF0: // OPM ADDRESS REGISTER
 		writeRegisterPort(value, time);
 		break;
@@ -57,7 +54,7 @@ void MSXYamahaSFG::writeMem(word address, byte value, EmuTime::param time)
 
 byte* MSXYamahaSFG::getWriteCacheLine(word start) const
 {
-	if ((start & CacheLine::HIGH) == (0x3FF0 & CacheLine::HIGH)) {
+	if ((start & 0x3FFF & CacheLine::HIGH) == (0x3FF0 & CacheLine::HIGH)) {
 		return nullptr;
 	}
 	return unmappedWrite;
@@ -80,10 +77,11 @@ void MSXYamahaSFG::writeDataPort(byte value, EmuTime::param time)
 
 byte MSXYamahaSFG::readMem(word address, EmuTime::param time)
 {
-	if (address < 0x3FF0 || address >= 0x3FF8) {
+	word maskedAddress = address & 0x3FFF;
+	if (maskedAddress < 0x3FF0 || maskedAddress >= 0x3FF8) {
 		return peekMem(address, time);
 	}
-	switch (address & 0x3FFF) {
+	switch (maskedAddress) {
 	case 0x3FF0: // (not used, it seems)
 	case 0x3FF1: // OPM STATUS REGISTER
 	case 0x3FF2: // Data buffer for SD0 to SD7 input ports
@@ -98,11 +96,12 @@ byte MSXYamahaSFG::readMem(word address, EmuTime::param time)
 
 byte MSXYamahaSFG::peekMem(word address, EmuTime::param time) const
 {
-	if (address < 0x3FF0 || address >= 0x3FF8) {
+	word maskedAddress = address & 0x3FFF;
+	if (maskedAddress < 0x3FF0 || maskedAddress >= 0x3FF8) {
 		// size can also be 16kB for SFG-01 or 32kB for SFG-05
 		return rom[address & (rom.getSize() - 1)];
 	}
-	switch (address & 0x3FFF) {
+	switch (maskedAddress) {
 	case 0x3FF0: // (not used, it seems)
 		return 0xFF;
 	case 0x3FF1: // OPM STATUS REGISTER
@@ -120,7 +119,7 @@ byte MSXYamahaSFG::peekMem(word address, EmuTime::param time) const
 
 const byte* MSXYamahaSFG::getReadCacheLine(word start) const
 {
-	if ((start & CacheLine::HIGH) == (0x3FF0 & CacheLine::HIGH)) {
+	if ((start & 0x3FFF & CacheLine::HIGH) == (0x3FF0 & CacheLine::HIGH)) {
 		return nullptr;
 	}
 	return &rom[start & (rom.getSize() - 1)];

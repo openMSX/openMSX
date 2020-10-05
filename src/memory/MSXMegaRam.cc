@@ -115,7 +115,7 @@ byte MSXMegaRam::readIO(word port, EmuTime::param /*time*/)
 			if (rom) romMode = true;
 			break;
 	}
-	invalidateMemCache(0x0000, 0x10000);
+	invalidateDeviceRWCache();
 	return 0xFF; // return value doesn't matter
 }
 
@@ -136,15 +136,15 @@ void MSXMegaRam::writeIO(word port, byte /*value*/, EmuTime::param /*time*/)
 			if (rom) romMode = true;
 			break;
 	}
-	invalidateMemCache(0x0000, 0x10000);
+	invalidateDeviceRWCache();
 }
 
 void MSXMegaRam::setBank(byte page, byte block)
 {
 	bank[page] = block & maskBlocks;
 	word adr = page * 0x2000;
-	invalidateMemCache(adr + 0x0000, 0x2000);
-	invalidateMemCache(adr + 0x8000, 0x2000);
+	invalidateDeviceRWCache(adr + 0x0000, 0x2000);
+	invalidateDeviceRWCache(adr + 0x8000, 0x2000);
 }
 
 template<typename Archive>

@@ -70,6 +70,7 @@
             <volume>9000</volume>
             <balance>-75</balance>
           </sound>
+          <ym2413-core>NukeYKT</ym2413-core>
         </MSX-MUSIC>
         <ROM id="BASIC Compiler">
           <rom>

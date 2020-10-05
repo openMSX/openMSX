@@ -27,48 +27,61 @@ class KeyEvent : public TimedEvent
 {
 public:
 	Keys::KeyCode getKeyCode() const { return keyCode; }
+	Keys::KeyCode getScanCode() const { return scanCode; }
 	uint32_t getUnicode() const { return unicode; }
 
 protected:
-	KeyEvent(EventType type, Keys::KeyCode keyCode, uint32_t unicode);
+	KeyEvent(EventType type, Keys::KeyCode keyCode, Keys::KeyCode scanCode, uint32_t unicode);
 	~KeyEvent() = default;
 
 private:
 	TclObject toTclList() const override;
 	bool lessImpl(const Event& other) const override;
 	const Keys::KeyCode keyCode;
+	const Keys::KeyCode scanCode; // 2nd class support, see comments in toTclList()
 	const uint32_t unicode;
 };
 
 class KeyUpEvent final : public KeyEvent
 {
 public:
-	explicit KeyUpEvent(Keys::KeyCode keyCode);
+	explicit KeyUpEvent(Keys::KeyCode keyCode_)
+		: KeyUpEvent(keyCode_, keyCode_) {}
+
+	explicit KeyUpEvent(Keys::KeyCode keyCode_, Keys::KeyCode scanCode_)
+		: KeyEvent(OPENMSX_KEY_UP_EVENT, keyCode_, scanCode_, 0) {}
 };
 
 class KeyDownEvent final : public KeyEvent
 {
 public:
 	explicit KeyDownEvent(Keys::KeyCode keyCode_)
-		: KeyDownEvent(keyCode_, 0) {}
+		: KeyDownEvent(keyCode_, keyCode_, 0) {}
 
-	explicit KeyDownEvent(Keys::KeyCode keyCode, uint32_t unicode);
+	explicit KeyDownEvent(Keys::KeyCode keyCode_, Keys::KeyCode scanCode_)
+		: KeyDownEvent(keyCode_, scanCode_, 0) {}
+
+	explicit KeyDownEvent(Keys::KeyCode keyCode_, uint32_t unicode_)
+		: KeyDownEvent(keyCode_, keyCode_, unicode_) {}
+
+	explicit KeyDownEvent(Keys::KeyCode keyCode_, Keys::KeyCode scanCode_, uint32_t unicode_)
+		: KeyEvent(OPENMSX_KEY_DOWN_EVENT, keyCode_, scanCode_, unicode_) {}
 };
 
 
 class MouseButtonEvent : public TimedEvent
 {
 public:
-	static const unsigned LEFT      = 1;
-	static const unsigned MIDDLE    = 2;
-	static const unsigned RIGHT     = 3;
+	static constexpr unsigned LEFT      = 1;
+	static constexpr unsigned MIDDLE    = 2;
+	static constexpr unsigned RIGHT     = 3;
 
 	unsigned getButton() const { return button; }
 
 protected:
 	MouseButtonEvent(EventType type, unsigned button_);
 	~MouseButtonEvent() = default;
-	TclObject toTclHelper(string_view direction) const;
+	TclObject toTclHelper(std::string_view direction) const;
 
 private:
 	bool lessImpl(const Event& other) const override;
@@ -145,7 +158,7 @@ public:
 protected:
 	JoystickButtonEvent(EventType type, unsigned joystick, unsigned button);
 	~JoystickButtonEvent() = default;
-	TclObject toTclHelper(string_view direction) const;
+	TclObject toTclHelper(std::string_view direction) const;
 
 private:
 	bool lessImpl(const JoystickEvent& other) const override;
@@ -169,8 +182,8 @@ public:
 class JoystickAxisMotionEvent final : public JoystickEvent
 {
 public:
-	static const unsigned X_AXIS = 0;
-	static const unsigned Y_AXIS = 1;
+	static constexpr unsigned X_AXIS = 0;
+	static constexpr unsigned Y_AXIS = 1;
 
 	JoystickAxisMotionEvent(unsigned joystick, unsigned axis, int value);
 	unsigned getAxis() const { return axis; }
@@ -226,6 +239,19 @@ private:
 };
 
 
+class FileDropEvent final : public Event
+{
+public:
+	explicit FileDropEvent(std::string fileName);
+	const std::string& getFileName() const { return fileName; }
+	TclObject toTclList() const override;
+
+private:
+	bool lessImpl(const Event& other) const override;
+	const std::string fileName;
+};
+
+
 class QuitEvent final : public Event
 {
 public:
@@ -264,7 +290,7 @@ protected:
 	OsdControlEvent(EventType type, unsigned button_,
 	                std::shared_ptr<const Event> origEvent);
 	~OsdControlEvent() = default;
-	TclObject toTclHelper(string_view direction) const;
+	TclObject toTclHelper(std::string_view direction) const;
 
 private:
 	bool lessImpl(const Event& other) const final override;

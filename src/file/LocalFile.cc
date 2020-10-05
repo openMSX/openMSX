@@ -13,6 +13,7 @@
 #include "FileException.hh"
 #include "FileNotFoundException.hh"
 #include "PreCacheFile.hh"
+#include "one_of.hh"
 #include <cstring> // for strchr, strerror
 #include <cerrno>
 #include <cassert>
@@ -22,7 +23,7 @@ using std::string;
 
 namespace openmsx {
 
-LocalFile::LocalFile(string_view filename_, File::OpenMode mode)
+LocalFile::LocalFile(std::string_view filename_, File::OpenMode mode)
 	: filename(FileOperations::expandTilde(filename_))
 #if HAVE_MMAP || defined _WIN32
 	, mmem(nullptr)
@@ -33,14 +34,13 @@ LocalFile::LocalFile(string_view filename_, File::OpenMode mode)
 	, readOnly(false)
 {
 	if (mode == File::SAVE_PERSISTENT) {
-		auto pos = filename.find_last_of('/');
-		if (pos != string::npos) {
-			FileOperations::mkdirp(string_view(filename).substr(0, pos));
+		if (auto pos = filename.find_last_of('/'); pos != string::npos) {
+			FileOperations::mkdirp(std::string_view(filename).substr(0, pos));
 		}
 	}
 
 	const string name = FileOperations::getNativePath(filename);
-	if ((mode == File::SAVE_PERSISTENT) || (mode == File::TRUNCATE)) {
+	if (mode == one_of(File::SAVE_PERSISTENT, File::TRUNCATE)) {
 		// open file read/write truncated
 		file = FileOperations::openFile(name, "wb+");
 	} else if (mode == File::CREATE) {
@@ -73,7 +73,7 @@ LocalFile::LocalFile(string_view filename_, File::OpenMode mode)
 	getSize(); // check filesize
 }
 
-LocalFile::LocalFile(string_view filename_, const char* mode)
+LocalFile::LocalFile(std::string_view filename_, const char* mode)
 	: filename(FileOperations::expandTilde(filename_))
 #if HAVE_MMAP || defined _WIN32
 	, mmem(nullptr)

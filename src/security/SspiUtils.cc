@@ -10,8 +10,7 @@
 // NOTE: This file MUST be kept in sync between the openmsx and openmsx-debugger projects
 //
 
-namespace openmsx {
-namespace sspiutils {
+namespace openmsx::sspiutils {
 
 SspiPackageBase::SspiPackageBase(StreamWrapper& userStream, const SEC_WCHAR* securityPackage)
 	: stream(userStream)
@@ -274,7 +273,6 @@ bool RecvChunk(StreamWrapper& stream, std::vector<char>& buffer, uint32_t cbMaxS
 	return true;
 }
 
-} // namespace sspiutils
-} // namespace openmsx
+} // namespace openmsx::sspiutils
 
 #endif

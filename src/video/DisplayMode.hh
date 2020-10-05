@@ -2,6 +2,7 @@
 #define DISPLAYMODE_HH
 
 #include "openmsx.hh"
+#include "one_of.hh"
 
 namespace openmsx {
 
@@ -14,12 +15,12 @@ namespace openmsx {
 class DisplayMode
 {
 private:
-	explicit DisplayMode(byte mode_) : mode(mode_) {}
+	constexpr explicit DisplayMode(byte mode_) : mode(mode_) {}
 	/** Display mode flags: YAE YJK M5..M1.
 	  * The YAE flag indicates whether YAE is active, not just the value of
 	  * the corresponding mode bit; so if YJK is 0, YAE is 0 as well.
 	  */
-	byte mode;
+	byte mode = 0;
 
 public:
 	enum {
@@ -38,25 +39,23 @@ public:
 	};
 
 	/** Bits of VDP register 0 that encode part of the display mode. */
-	static const byte REG0_MASK = 0x0E;
+	static constexpr byte REG0_MASK = 0x0E;
 
 	/** Bits of VDP register 1 that encode part of the display mode. */
-	static const byte REG1_MASK = 0x18;
+	static constexpr byte REG1_MASK = 0x18;
 
 	/** Bits of VDP register 25 that encode part of the display mode. */
-	static const byte REG25_MASK = 0x18;
+	static constexpr byte REG25_MASK = 0x18;
 
 	/** Encoding of YJK flag. */
-	static const byte YJK = 0x20;
+	static constexpr byte YJK = 0x20;
 
 	/** Encoding of YAE flag. */
-	static const byte YAE = 0x40;
+	static constexpr byte YAE = 0x40;
 
 	/** Create the initial display mode.
 	  */
-	DisplayMode() {
-		reset();
-	}
+	constexpr DisplayMode() = default;
 
 	/** Create a specific display mode.
 	  * @param reg0 The contents of VDP register 0.
@@ -64,7 +63,7 @@ public:
 	  * @param reg25 The contents of VDP register 25;
 	  *     on non-V9958 chips, pass 0.
 	  */
-	DisplayMode(byte reg0, byte reg1, byte reg25) {
+	constexpr DisplayMode(byte reg0, byte reg1, byte reg25) {
 		if ((reg25 & 0x08) == 0) reg25 = 0; // If YJK is off, ignore YAE.
 		mode = ((reg25 & 0x18) << 2)  // YAE YJK
 		     | ((reg0  & 0x0E) << 1)  // M5..M3
@@ -72,26 +71,26 @@ public:
 		     | ((reg1  & 0x10) >> 4); // M1
 	}
 
-	inline DisplayMode updateReg25(byte reg25) const {
+	constexpr DisplayMode updateReg25(byte reg25) const {
 		if ((reg25 & 0x08) == 0) reg25 = 0; // If YJK is off, ignore YAE.
 		return DisplayMode(getBase() | ((reg25 & 0x18) << 2));
 	}
 
 	/** Bring the display mode to its initial state.
 	  */
-	inline void reset() {
-		mode = 0;
+	constexpr void reset() {
+		*this = DisplayMode();
 	}
 
 	/** Equals operator.
 	  */
-	inline bool operator==(const DisplayMode& otherMode) const {
+	constexpr bool operator==(const DisplayMode& otherMode) const {
 		return mode == otherMode.mode;
 	}
 
 	/** Does-not-equal operator.
 	  */
-	inline bool operator!=(const DisplayMode& otherMode) const {
+	constexpr bool operator!=(const DisplayMode& otherMode) const {
 		return mode != otherMode.mode;
 	}
 
@@ -99,12 +98,12 @@ public:
 	  * @return The byte representation of this display mode,
 	  *     in the range [0..0x7F].
 	  */
-	inline byte getByte() const {
+	constexpr byte getByte() const {
 		return mode;
 	}
 
 	/** Used for de-serialization. */
-	inline void setByte(byte mode_) {
+	constexpr void setByte(byte mode_) {
 		mode = mode_;
 	}
 
@@ -113,14 +112,14 @@ public:
 	  * @return The integer representation of the base of this display mode,
 	  *     in the range [0..0x1F].
 	  */
-	inline byte getBase() const {
+	constexpr byte getBase() const {
 		return mode & 0x1F;
 	}
 
 	/** Was this mode introduced by the V9938?
 	  * @return True iff the base of this mode only is available on V9938/58.
 	  */
-	inline bool isV9938Mode() const {
+	constexpr bool isV9938Mode() const {
 		return (mode & 0x18) != 0;
 	}
 
@@ -128,18 +127,15 @@ public:
 	  * Text1 and Text2 are text modes.
 	  * @return True iff the current mode is a text mode.
 	  */
-	inline bool isTextMode() const {
-		byte base = getBase();
-		return (base == TEXT1) ||
-		       (base == TEXT2) ||
-		       (base == TEXT1Q);
+	constexpr bool isTextMode() const {
+		return getBase() == one_of(TEXT1, TEXT2, TEXT1Q);
 	}
 
 	/** Is the current mode a bitmap mode?
 	  * Graphic4 and higher are bitmap modes.
 	  * @return True iff the current mode is a bitmap mode.
 	  */
-	inline bool isBitmapMode() const {
+	constexpr bool isBitmapMode() const {
 		return getBase() >= 0x0C;
 	}
 
@@ -149,14 +145,14 @@ public:
 	  * space and the odd bytes to the second half.
 	  * @return True iff the current display mode has planar VRAM.
 	  */
-	inline bool isPlanar() const {
+	constexpr bool isPlanar() const {
 		// TODO: Is the display mode check OK? Profile undefined modes.
 		return (mode & 0x14) == 0x14;
 	}
 
 	/** Are sprite pixels narrow?
 	  */
-	inline bool isSpriteNarrow() const {
+	constexpr bool isSpriteNarrow() const {
 		// TODO: Check what happens to sprites in Graphic5 + YJK/YAE.
 		return mode == GRAPHIC5;
 	}
@@ -167,7 +163,7 @@ public:
 	  *     1 means sprite mode 1 (MSX1 display modes),
 	  *     2 means sprite mode 2 (MSX2 display modes).
 	  */
-	inline int getSpriteMode(bool isMSX1) const {
+	constexpr int getSpriteMode(bool isMSX1) const {
 		switch (getBase()) {
 		case GRAPHIC1: case MULTICOLOR: case GRAPHIC2:
 			return 1;
@@ -189,10 +185,10 @@ public:
 	  * @return 512 for Text 2, Graphic 5 and 6, 256 for all other modes.
 	  * TODO: Would it make more sense to treat Text 2 as 480 pixels?
 	  */
-	inline unsigned getLineWidth() const {
+	constexpr unsigned getLineWidth() const {
 		// Note: Testing "mode" instead of "base mode" ensures that YJK
 		//       modes are treated as 256 pixels wide.
-		return mode == TEXT2 || mode == GRAPHIC5 || mode == GRAPHIC6
+		return mode == one_of(TEXT2, GRAPHIC5, GRAPHIC6)
 			? 512
 			: 256;
 	}

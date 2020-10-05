@@ -31,10 +31,9 @@ DEALINGS IN THE SOFTWARE.
 #define UTF8_UNCHECKED_HH
 
 #include "utf8_core.hh"
-#include "string_view.hh"
+#include <string_view>
 
-namespace utf8 {
-namespace unchecked {
+namespace utf8::unchecked {
 
 template <typename octet_iterator>
 octet_iterator append(uint32_t cp, octet_iterator result)
@@ -92,7 +91,7 @@ uint32_t next(octet_iterator& it)
 }
 
 template <typename octet_iterator>
-uint32_t peek_next(octet_iterator it)
+[[nodiscard]] uint32_t peek_next(octet_iterator it)
 {
 	return next(it);
 }
@@ -102,7 +101,7 @@ uint32_t prior(octet_iterator& it)
 {
 	while (internal::is_trail(*(--it))) ;
 	auto temp = it;
-	return next(temp);
+	return unchecked::next(temp);
 }
 
 template <typename octet_iterator, typename distance_type>
@@ -114,7 +113,7 @@ void advance(octet_iterator& it, distance_type n)
 }
 
 template <typename octet_iterator>
-auto distance(octet_iterator first, octet_iterator last)
+[[nodiscard]] auto distance(octet_iterator first, octet_iterator last)
 {
 	typename std::iterator_traits<octet_iterator>::difference_type dist;
 	for (dist = 0; first < last; ++dist) {
@@ -186,17 +185,17 @@ public:
 	explicit iterator(const octet_iterator& octet_it)
 		: it(octet_it) {}
 	// the default "big three" are OK
-	octet_iterator base() const { return it; }
-	uint32_t operator*() const
+	[[nodiscard]] octet_iterator base() const { return it; }
+	[[nodiscard]] uint32_t operator*() const
 	{
 		octet_iterator temp = it;
 		return next(temp);
 	}
-	bool operator==(const iterator& rhs) const
+	[[nodiscard]] bool operator==(const iterator& rhs) const
 	{
 		return it == rhs.it;
 	}
-	bool operator!=(const iterator& rhs) const
+	[[nodiscard]] bool operator!=(const iterator& rhs) const
 	{
 		return !(operator==(rhs));
 	}
@@ -225,17 +224,17 @@ public:
 };
 
 // convenience functions
-inline size_t size(string_view utf8)
+[[nodiscard]] inline size_t size(std::string_view utf8)
 {
 	return utf8::unchecked::distance(begin(utf8), end(utf8));
 }
-inline string_view substr(string_view utf8, string_view::size_type first = 0,
-                         string_view::size_type len = string_view::npos)
+[[nodiscard]] inline std::string_view substr(std::string_view utf8, std::string_view::size_type first = 0,
+                                             std::string_view::size_type len = std::string_view::npos)
 {
 	auto b = begin(utf8);
 	utf8::unchecked::advance(b, first);
-	string_view::const_iterator e;
-	if (len != string_view::npos) {
+	std::string_view::const_iterator e;
+	if (len != std::string_view::npos) {
 		e = b;
 		while (len && (e != end(utf8))) {
 			unchecked::next(e); --len;
@@ -243,10 +242,9 @@ inline string_view substr(string_view utf8, string_view::size_type first = 0,
 	} else {
 		e = end(utf8);
 	}
-	return string_view(b, e);
+	return std::string_view(&*b, e - b);
 }
 
-} // namespace unchecked
-} // namespace utf8
+} // namespace utf8::unchecked
 
 #endif

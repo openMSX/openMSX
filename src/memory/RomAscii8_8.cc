@@ -15,6 +15,7 @@
 
 #include "RomAscii8_8.hh"
 #include "SRAM.hh"
+#include "one_of.hh"
 #include "serialize.hh"
 #include <memory>
 
@@ -25,10 +26,9 @@ RomAscii8_8::RomAscii8_8(const DeviceConfig& config,
 	: Rom8kBBlocks(config, std::move(rom_))
 	, sramEnableBit((subType == WIZARDRY) ? 0x80
 	                                      : rom.getSize() / BANK_SIZE)
-	, sramPages(((subType == KOEI_8) || (subType == KOEI_32))
-	            ? 0x34 : 0x30)
+	, sramPages((subType == one_of(KOEI_8, KOEI_32)) ? 0x34 : 0x30)
 {
-	unsigned size = (subType == KOEI_32 || subType == ASCII8_32) ? 0x8000  // 32kB
+	unsigned size = (subType == one_of(KOEI_32, ASCII8_32)) ? 0x8000  // 32kB
 	              : (subType == ASCII8_2) ? 0x0800  //  2kB
 	                                      : 0x2000; //  8kB
 	sram = std::make_unique<SRAM>(getName() + " SRAM", size, config);
@@ -84,10 +84,13 @@ void RomAscii8_8::writeMem(word address, byte value, EmuTime::param /*time*/)
 			sramEnabled |= (1 << region) & sramPages;
 			sramBlock[region] = value & (numBlocks - 1);
 			setBank(region, &(*sram)[sramBlock[region] * BANK_SIZE], value);
+			invalidateDeviceRCache(0x2000 * region, 0x2000); // do not cache
 		} else {
 			sramEnabled &= ~(1 << region);
 			setRom(region, value);
 		}
+		// 'R' is already handled
+		invalidateDeviceWCache(0x2000 * region, 0x2000);
 	} else {
 		byte bank = address / BANK_SIZE;
 		if ((1 << bank) & sramEnabled) {

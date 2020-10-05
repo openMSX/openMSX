@@ -4,12 +4,14 @@
 #include "CommandException.hh"
 #include "XMLElement.hh"
 #include "outer.hh"
+#include "StringOp.hh"
 #include "view.hh"
 #include "vla.hh"
 #include <cassert>
 #include <cstring>
 
 using std::string;
+using std::string_view;
 using std::vector;
 
 namespace openmsx {
@@ -44,8 +46,21 @@ void SettingsManager::unregisterSetting(BaseSetting& setting)
 
 BaseSetting* SettingsManager::findSetting(string_view name) const
 {
-	auto it = settings.find(name);
-	return (it != end(settings)) ? *it : nullptr;
+	if (auto it = settings.find(name); it != end(settings)) {
+		return *it;
+	}
+	if (StringOp::startsWith(name, "::")) {
+		// try without leading ::
+		if (auto it = settings.find(name.substr(2)); it != end(settings)) {
+			return *it;
+		}
+	} else {
+		// try adding ::
+		if (auto it = settings.find(strCat("::", name)); it != end(settings)) {
+			return *it;
+		}
+	}
+	return nullptr;
 }
 
 BaseSetting* SettingsManager::findSetting(string_view prefix, string_view baseName) const
@@ -73,9 +88,9 @@ vector<string> SettingsManager::getTabSettingNames() const
 	result.reserve(settings.size() * 2);
 	for (auto* s : settings) {
 		string_view name = s->getFullName();
-		result.push_back(name.str());
-		if (name.starts_with("::")) {
-			result.push_back(name.substr(2).str());
+		result.emplace_back(name);
+		if (StringOp::startsWith(name, "::")) {
+			result.emplace_back(name.substr(2));
 		} else {
 			result.push_back(strCat("::", name));
 		}
@@ -128,11 +143,11 @@ void SettingsManager::SettingInfo::execute(
 		break;
 	case 3: {
 		const auto& settingName = tokens[2].getString();
-		auto it = manager.settings.find(settingName);
-		if (it == end(manager.settings)) {
+		auto* setting = manager.findSetting(settingName);
+		if (!setting) {
 			throw CommandException("No such setting: ", settingName);
 		}
-		(*it)->info(result);
+		setting->info(result);
 		break;
 	}
 	default:
@@ -170,7 +185,7 @@ string SettingsManager::SetCompleter::help(const vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		auto& manager = OUTER(SettingsManager, setCompleter);
-		return manager.getByName("set", tokens[1]).getDescription().str();
+		return string(manager.getByName("set", tokens[1]).getDescription());
 	}
 	return "Set or query the value of a openMSX setting or Tcl variable\n"
 	       "  set <setting>          shows current value\n"
@@ -188,14 +203,12 @@ void SettingsManager::SetCompleter::tabCompletion(vector<string>& tokens) const
 		completeString(tokens, manager.getTabSettingNames(), false); // case insensitive
 		break;
 	}
-	case 3: {
+	case 3:
 		// complete setting value
-		auto it = manager.settings.find(tokens[1]);
-		if (it != end(manager.settings)) {
-			(*it)->tabCompletion(tokens);
+		if (auto* setting = manager.findSetting(tokens[1])) {
+			setting->tabCompletion(tokens);
 		}
 		break;
-	}
 	}
 }
 

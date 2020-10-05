@@ -17,7 +17,7 @@ public:
 	        WatchPoint::Type type,
 	        unsigned beginAddr, unsigned endAddr,
 	        TclObject command, TclObject condition,
-	        unsigned newId = -1);
+	        bool once, unsigned newId = -1);
 
 	MSXWatchIODevice& getDevice(byte port);
 

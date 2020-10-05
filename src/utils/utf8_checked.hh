@@ -41,8 +41,8 @@ class invalid_code_point : public std::exception
 	uint32_t cp;
 public:
 	explicit invalid_code_point(uint32_t cp_) : cp(cp_) {}
-	const char* what() const noexcept override { return "Invalid code point"; }
-	uint32_t code_point() const { return cp; }
+	[[nodiscard]] const char* what() const noexcept override { return "Invalid code point"; }
+	[[nodiscard]] uint32_t code_point() const { return cp; }
 };
 
 class invalid_utf8 : public std::exception
@@ -50,8 +50,8 @@ class invalid_utf8 : public std::exception
 	uint8_t u8;
 public:
 	explicit invalid_utf8(uint8_t u) : u8(u) {}
-	const char* what() const noexcept override { return "Invalid UTF-8"; }
-	uint8_t utf8_octet() const { return u8; }
+	[[nodiscard]] const char* what() const noexcept override { return "Invalid UTF-8"; }
+	[[nodiscard]] uint8_t utf8_octet() const { return u8; }
 };
 
 class invalid_utf16 : public std::exception
@@ -59,14 +59,14 @@ class invalid_utf16 : public std::exception
 	uint16_t u16;
 public:
 	explicit invalid_utf16(uint16_t u) : u16(u) {}
-	const char* what() const noexcept override { return "Invalid UTF-16"; }
-	uint16_t utf16_word() const { return u16; }
+	[[nodiscard]] const char* what() const noexcept override { return "Invalid UTF-16"; }
+	[[nodiscard]] uint16_t utf16_word() const { return u16; }
 };
 
 class not_enough_room : public std::exception
 {
 public:
-	const char* what() const noexcept override { return "Not enough space"; }
+	[[nodiscard]] const char* what() const noexcept override { return "Not enough space"; }
 };
 
 // The library API - functions intended to be called by the users
@@ -163,7 +163,7 @@ uint32_t next(octet_iterator& it, octet_iterator end)
 }
 
 template <typename octet_iterator>
-uint32_t peek_next(octet_iterator it, octet_iterator end)
+[[nodiscard]] uint32_t peek_next(octet_iterator it, octet_iterator end)
 {
 	return next(it, end);
 }
@@ -191,7 +191,7 @@ void advance(octet_iterator& it, distance_type n, octet_iterator end)
 }
 
 template <typename octet_iterator>
-auto distance(octet_iterator first, octet_iterator last)
+[[nodiscard]] auto distance(octet_iterator first, octet_iterator last)
 {
 	typename std::iterator_traits<octet_iterator>::difference_type dist;
 	for (dist = 0; first < last; ++dist) {
@@ -280,13 +280,13 @@ public:
 		}
 	}
 	// the default "big three" are OK
-	octet_iterator base() const { return it; }
-	uint32_t operator*() const
+	[[nodiscard]] octet_iterator base() const { return it; }
+	[[nodiscard]] uint32_t operator*() const
 	{
 		auto temp = it;
 		return next(temp, range_end);
 	}
-	bool operator==(const iterator& rhs) const
+	[[nodiscard]] bool operator==(const iterator& rhs) const
 	{
 		if ((range_start != rhs.range_start) ||
 		    (range_end   != rhs.range_end)) {
@@ -295,7 +295,7 @@ public:
 		}
 		return it == rhs.it;
 	}
-	bool operator!=(const iterator& rhs) const
+	[[nodiscard]] bool operator!=(const iterator& rhs) const
 	{
 		return !(operator==(rhs));
 	}
@@ -324,10 +324,10 @@ public:
 };
 
 #ifdef _WIN32
-std::string unknowntoutf8(const std::string& unknown);
-std::string utf8toansi(const std::string& utf8);
-std::wstring utf8to16(const std::string& utf8);
-std::string utf16to8(const std::wstring& utf16);
+[[nodiscard]] std::string unknowntoutf8(const std::string& unknown);
+[[nodiscard]] std::string utf8toansi(const std::string& utf8);
+[[nodiscard]] std::wstring utf8to16(const std::string& utf8);
+[[nodiscard]] std::string utf16to8(const std::wstring& utf16);
 #endif
 
 } // namespace utf8

@@ -84,6 +84,15 @@ proc all_command_names {} {
 	return $result
 }
 
+# Returns a list of Tcl commands that provide extra help (text or proc).
+# Note: there may also be commands implemented in c++ which provide help.
+proc all_command_names_with_help {} {
+	lazy_execute_all
+	set result [array names ::openmsx::help_text]
+	lappend result {*}[array names ::openmsx::help_proc]
+	return $result
+}
+
 # Is the given name a name of a proc, possibly a name defined in a not-yet
 # loaded script. This helper proc is used for syntax-highlighting in the
 # openMSX console.

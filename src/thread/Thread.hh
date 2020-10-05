@@ -1,8 +1,7 @@
 #ifndef THREAD_HH
 #define THREAD_HH
 
-namespace openmsx {
-namespace Thread {
+namespace openmsx::Thread {
 
 	// For debugging only
 	/** Store ID of the main thread, should be called exactly once from
@@ -14,7 +13,6 @@ namespace Thread {
 	  */
 	bool isMainThread();
 
-} // namespace Thread
-} // namespace openmsx
+} // namespace openmsx::Thread
 
 #endif

@@ -4,7 +4,7 @@
 
 namespace openmsx {
 
-static const char* const PAC_Header = "PAC2 BACKUP DATA";
+constexpr const char* const PAC_Header = "PAC2 BACKUP DATA";
 
 MSXFmPac::MSXFmPac(const DeviceConfig& config)
 	: MSXMusicBase(config)
@@ -93,11 +93,9 @@ void MSXFmPac::writeMem(word address, byte value, EmuTime::param time)
 			checkSramEnable();
 		}
 		break;
-	case 0x3FF4:
-		writeRegisterPort(value, time);
-		break;
-	case 0x3FF5:
-		writeDataPort(value, time);
+	case 0x3FF4: // address
+	case 0x3FF5: // data
+		writePort(address & 1, value, time);
 		break;
 	case 0x3FF6:
 		enable = value & 0x11;
@@ -110,7 +108,7 @@ void MSXFmPac::writeMem(word address, byte value, EmuTime::param time)
 		byte newBank = value & 0x03;
 		if (bank != newBank) {
 			bank = newBank;
-			invalidateMemCache(0x0000, 0x10000);
+			invalidateDeviceRCache();
 		}
 		break;
 	}
@@ -142,7 +140,7 @@ void MSXFmPac::checkSramEnable()
 	bool newEnabled = (r1ffe == 0x4D) && (r1fff == 0x69);
 	if (sramEnabled != newEnabled) {
 		sramEnabled = newEnabled;
-		invalidateMemCache(0x0000, 0x10000);
+		invalidateDeviceRWCache();
 	}
 }
 

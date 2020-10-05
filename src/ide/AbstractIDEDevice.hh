@@ -26,15 +26,15 @@ public:
 
 protected:
 	// Bit flags for the status register:
-	static const byte DRDY = 0x40;
-	static const byte DSC = 0x10;
-	static const byte DRQ = 0x08;
-	static const byte ERR = 0x01;
+	static constexpr byte DRDY = 0x40;
+	static constexpr byte DSC = 0x10;
+	static constexpr byte DRQ = 0x08;
+	static constexpr byte ERR = 0x01;
 
 	// Bit flags for the error register:
-	static const byte UNC = 0x40;
-	static const byte IDNF = 0x10;
-	static const byte ABORT = 0x04;
+	static constexpr byte UNC = 0x40;
+	static constexpr byte IDNF = 0x10;
+	static constexpr byte ABORT = 0x04;
 
 	explicit AbstractIDEDevice(MSXMotherBoard& motherBoard);
 	~AbstractIDEDevice() override = default;
@@ -109,7 +109,7 @@ protected:
 	/** Reads the byte count limit of a packet transfer in the registers.
 	  * The cylinder low/high registers are used for this.
 	  */
-	unsigned getByteCount();
+	unsigned getByteCount() const;
 
 	/** Writes the byte count of a packet transfer in the registers.
 	  * The cylinder low/high registers are used for this.

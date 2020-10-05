@@ -32,27 +32,27 @@
 
 #include "aligned.hh"
 #include "build-info.hh"
-#include "string_view.hh"
 #include <cstdint>
 #include <cstring>
+#include <string_view>
 #include <type_traits>
 
 // Loader can load an 8/16/32/64 unaligned value.
 struct Load8 {
 	using type = uint8_t;
-	type operator()(const void* p) { return *reinterpret_cast<const uint8_t*>(p); }
+	[[nodiscard]] type operator()(const void* p) { return *reinterpret_cast<const uint8_t*>(p); }
 };
 struct Load16 {
 	using type = uint16_t;
-	type operator()(const void* p) { return unalignedLoad16(p); }
+	[[nodiscard]] type operator()(const void* p) { return unalignedLoad16(p); }
 };
 struct Load32 {
 	using type = uint32_t;
-	type operator()(const void* p) { return unalignedLoad32(p); }
+	[[nodiscard]] type operator()(const void* p) { return unalignedLoad32(p); }
 };
 struct Load64 {
 	using type = uint64_t;
-	type operator()(const void* p) { return unalignedLoad64(p); }
+	[[nodiscard]] type operator()(const void* p) { return unalignedLoad64(p); }
 };
 struct ErrorNotSupportedLoader; // load only implemented up to 64 bit
 template<size_t N> struct SelectLoader
@@ -66,22 +66,22 @@ template<size_t N> struct SelectLoader
 // ScVal-little-endian
 template<typename T, T v, T m, T s, char ...Ns> struct ScValLeImpl;
 template<typename T, T v, T m, T s> struct ScValLeImpl<T, v, m, s> {
-	static const T value = v;
-	static const T mask  = m;
+	static constexpr T value = v;
+	static constexpr T mask  = m;
 };
 template<typename T, T v, T m, T s, char N0, char ...Ns> struct ScValLeImpl<T, v, m, s, N0, Ns...>
-	: ScValLeImpl<T, v + (T(N0 & 255) << s), (m << 8) + 255, s + 8, Ns...> {};
+	: ScValLeImpl<T, v + (T(N0 & 255) << s), m + (T(255) << s), T(s + 8), Ns...> {};
 template<typename T, char ...Ns> struct ScValLe : ScValLeImpl<T, 0, 0, 0, Ns...> {};
 
 // ScVal-big-endian
-template<typename T, T v, T m, char ...Ns> struct ScValBeImpl;
-template<typename T, T v, T m> struct ScValBeImpl<T, v, m> {
-	static const T value = v;
-	static const T mask  = ~m;
+template<typename T, T v, T m, T s, char ...Ns> struct ScValBeImpl;
+template<typename T, T v, T m, T s> struct ScValBeImpl<T, v, m, s> {
+	static constexpr T value = v;
+	static constexpr T mask  = m;
 };
-template<typename T, T v, T m, char N0, char ...Ns> struct ScValBeImpl<T, v, m, N0, Ns...>
-	: ScValBeImpl<T, (v << 8) + T(N0 & 255), (m >> 8), Ns...> {};
-template<typename T, char ...Ns> struct ScValBe : ScValBeImpl<T, 0, T(-1), Ns...> {};
+template<typename T, T v, T m, T s, char N0, char ...Ns> struct ScValBeImpl<T, v, m, s, N0, Ns...>
+	: ScValBeImpl<T, v + (T(N0 & 255) << s), m + (T(255) << s), T(s - 8), Ns...> {};
+template<typename T, char ...Ns> struct ScValBe : ScValBeImpl<T, 0, 0, 8 * (sizeof(T) - 1), Ns...> {};
 
 // ScVal: combines all given characters in one value of type T, also computes a
 // mask-value with 1-bits in the 'used' positions.
@@ -93,19 +93,19 @@ template<typename T, char ...Ns> struct ScVal
 template<char ...Ns> struct SmallCompare {
 	using Loader = SelectLoader<sizeof...(Ns)>;
 	using C = ScVal<typename Loader::type, Ns...>;
-	static const auto value = C::value;
-	static const auto mask  = C::mask;
+	static constexpr auto value = C::value;
+	static constexpr auto mask  = C::mask;
 };
 
 // The actual small-fixed-string-comparison.
-template<char ...Ns> bool small_compare(const char* p)
+template<char ...Ns> [[nodiscard]] bool small_compare(const char* p)
 {
 	using SC = SmallCompare<Ns...>;
 	typename SC::Loader loader;
 	return (loader(p) & SC::mask) == SC::value;
 }
 
-template<char ...Ns> bool small_compare(string_view str)
+template<char ...Ns> [[nodiscard]] bool small_compare(std::string_view str)
 {
 	if (str.size() != sizeof...(Ns)) return false;
 	return small_compare<Ns...>(str.data());

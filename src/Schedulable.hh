@@ -22,7 +22,7 @@ struct SyncPointBW
 		             "type", userData);
 	}
 
-	EmuTime time = EmuTime::zero;
+	EmuTime time = EmuTime::zero();
 	int userData = 0;
 };
 

@@ -13,13 +13,11 @@ varying vec2 videoCoord;
 
 void main()
 {
-	float edgeBits = texture2D(edgeTex, edgePos).z;
-	//gl_FragColor = vec4(edgeBits, fract(edgeBits * 16.0), fract(edgeBits * 256.0), 1.0);
+	// 12-bit edge information encoded as 64x64 texture-coordinate
+	vec2 xy = texture2D(edgeTex, edgePos).ra;
 
-	// transform (N x N x 4096) to (64N x 64N) texture coords
-	float t = 64.0 * edgeBits;
-	vec2 xy = vec2(fract(t), floor(t)/64.0);
-	xy += fract(weightPos) / 64.0;
+	// extend to (64N x 64N) texture-coordinate
+	xy = (floor(64.0 * xy) + fract(weightPos)) / 64.0;
 	vec4 offsets = texture2D(offsetTex, xy);
 	vec3 weights = texture2D(weightTex, xy).xyz;
 

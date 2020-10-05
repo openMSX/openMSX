@@ -13,19 +13,15 @@ template <unsigned CHANNELS>
 class ResampleBlip final : public ResampleAlgo
 {
 public:
-	ResampleBlip(ResampledSoundDevice& input,
-	             const DynamicClock& hostClock, unsigned emuSampleRate);
+	ResampleBlip(ResampledSoundDevice& input, const DynamicClock& hostClock);
 
-	bool generateOutput(float* dataOut, unsigned num,
-	                    EmuTime::param time) override;
+	bool generateOutputImpl(float* dataOut, unsigned num,
+	                        EmuTime::param time) override;
 
 private:
 	BlipBuffer blip[CHANNELS];
-	ResampledSoundDevice& input;
 	const DynamicClock& hostClock; // time of the last host-sample,
 	                               //    ticks once per host sample
-	DynamicClock emuClock;         // time of the last emu-sample,
-	                               //    ticks once per emu-sample
 	using FP = FixedPoint<16>;
 	const FP step;
 	float lastInput[CHANNELS];

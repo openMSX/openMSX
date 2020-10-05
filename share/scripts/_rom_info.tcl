@@ -35,77 +35,115 @@ proc getlist_rom_info {{romdevice ""}} {
 		error [format "Device is not of type ROM, but %s" $device_type]
 	}
 
-	set actualSHA1 [dict get $device_info "actualSHA1"]
-	set originalSHA1 [dict get $device_info "originalSHA1"]
-	if {[catch {set rominfo [openmsx_info software $actualSHA1]}]} {
-		# try original sha1 to get more info
-		if {[catch {set rominfo [openmsx_info software $originalSHA1}]} {
-			return
-		}
-	}
-	set softPatched [expr {$actualSHA1 ne $originalSHA1}]
+	set filename [dict get $device_info "filename"]
 
-	dict with rominfo {
-		# dummy info for missing items
-		foreach key [list year company] {
-			if {[set $key] eq ""} {
-				set $key "(info not available)"
+	set slotname ""
+	set slot ""
+	foreach slotcmd [info command cart?] {
+		if {[lindex [$slotcmd] 1] eq $filename} {
+			set slotname [string index $slotcmd end]
+			set slotinfo [machine_info external_slot slot$slotname]
+			set slotname [string toupper $slotname]
+			set slot [lindex $slotinfo 0]
+			set subslot [lindex $slotinfo 1]
+			if {$subslot ne "X"} {
+				append slot "-$subslot"
 			}
 		}
+	}
 
-		if {$original} {
+	set actualSHA1 [dict get $device_info "actualSHA1"]
+	set originalSHA1 [dict get $device_info "originalSHA1"]
+
+	set rominfo ""
+	if {[catch {set rominfo [openmsx_info software $actualSHA1]}]} {
+		# try original sha1 to get more info
+		catch {set rominfo [openmsx_info software $originalSHA1]}
+	}
+	set softPatched [expr {$actualSHA1 ne $originalSHA1}]
+	set mappertype [dict get $device_info "mappertype"]
+
+	set title ""
+	set company ""
+	set country ""
+	set year ""
+	set status ""
+	set remark ""
+
+	dict with rominfo {
+		if {[info exists original] && $original} {
 			# this is an unmodified original dump
 			set status [format "Unmodified dump (confirmed by %s)" $orig_type]
 		} else {
 			# not original or unknown
-			switch $orig_type {
-				"broken" {
-					set status "Bad dump (game is broken)"
-				}
-				"translated" {
-					set status "Translated from original"
-				}
-				"working" {
-					set status "Modified but confirmed working"
-				}
-				default {
-					set status "Unknown"
+			set status "Unknown"
+			if {[info exists orig_type]} {
+				switch $orig_type {
+					"broken" {
+						set status "Bad dump (game is broken)"
+					}
+					"translated" {
+						set status "Translated from original"
+					}
+					"working" {
+						set status "Modified but confirmed working"
+					}
 				}
 			}
 		}
-		if {$softPatched} {
-			set status "$status (patched by openMSX)"
-		}
-
-		return [list \
-				"title"		$title \
-				"year"		$year \
-				"company"	$company \
-				"country"	$country \
-				"status"	$status \
-				"remark"	$remark]
 	}
+	if {$softPatched} {
+		set statusPrefix ""
+		if {$status ne ""} {
+			set statusPrefix " "
+		}
+		set status "$status${statusPrefix}(but patched by openMSX)"
+	}
+
+	return [list \
+			"filename"	$filename \
+			"title"		$title \
+			"year"		$year \
+			"company"	$company \
+			"country"	$country \
+			"status"	$status \
+			"remark"	$remark \
+			"mappertype"	$mappertype \
+			"slotname"	$slotname \
+			"slot"		$slot]
 }
 
 proc rom_info {{romdevice ""}} {
 	set rominfo [rom_info::getlist_rom_info $romdevice]
 
-	if {$rominfo eq ""} {return "No ROM information available..."}
-
-	append result "Title:    [dict get $rominfo title]\n" \
-				  "Year:     [dict get $rominfo year]\n" \
-				  "Company:  [dict get $rominfo company]\n" \
-				  "Country:  [dict get $rominfo country]\n" \
-				  "Status:   [dict get $rominfo status]" \
-
-	set remark [dict get $rominfo remark]
-
-	if {$remark ne ""} {
-		append result "\nRemark:   $remark"
-	} else {
-		append result "\nRemark:   None"
+	dict with rominfo {
+		if {$slotname ne "" && $slot ne ""} {
+			append result "Cart. slot: $slotname (slot $slot)\n"
+		}
+		if {$title ne ""} {
+			append result "Title:      $title\n"
+		} elseif {$filename ne ""} {
+			append result "File:       $filename\n"
+		}
+		if {$year ne ""} {
+			append result "Year:       $year\n"
+		}
+		if {$company ne ""} {
+			append result "Company:    $company\n"
+		}
+		if {$country ne ""} {
+			append result "Country:    $country\n"
+		}
+		if {$status ne ""} {
+			append result "Status:     $status\n"
+		}
+		if {$remark ne ""} {
+			append result "Remark:     $remark\n"
+		}
+		if {$mappertype ne ""} {
+			append result "Mapper:     $mappertype\n"
+		}
 	}
-
 	return $result
 }
 

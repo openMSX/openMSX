@@ -1,7 +1,7 @@
 #include "DeltaBlock.hh"
 #include "likely.hh"
 #include "ranges.hh"
-#include "snappy.hh"
+#include "lz4.hh"
 #include <cassert>
 #include <cstring>
 #include <tuple>
@@ -93,7 +93,7 @@ static std::pair<const uint8_t*, const uint8_t*> scan_mismatch(
 	// bytes. This routine also benefits from AVX2 instructions. Though not
 	// all x86_64 CPUs have AVX2 (all have SSE2), so using them requires
 	// extra run-time checks and that's not worth it at this point.
-	static const int WORD_SIZE =
+	constexpr int WORD_SIZE =
 #ifdef __SSE2__
 		sizeof(__m128i);
 #else
@@ -241,8 +241,6 @@ static void applyDeltaInPlace(uint8_t* buf, size_t size, const uint8_t* delta)
 
 // class DeltaBlock
 
-size_t DeltaBlock::globalAllocSize = 0;
-
 DeltaBlock::~DeltaBlock()
 {
 	globalAllocSize -= allocSize;
@@ -274,9 +272,7 @@ DeltaBlockCopy::DeltaBlockCopy(const uint8_t* data, size_t size)
 void DeltaBlockCopy::apply(uint8_t* dst, size_t size) const
 {
 	if (compressed()) {
-		snappy::uncompress(
-			reinterpret_cast<const char*>(block.data()), compressedSize,
-			reinterpret_cast<char*>(dst), size);
+		LZ4::decompress(block.data(), dst, int(compressedSize), int(size));
 	} else {
 		memcpy(dst, block.data(), size);
 	}
@@ -289,10 +285,10 @@ void DeltaBlockCopy::compress(size_t size)
 {
 	if (compressed()) return;
 
-	size_t dstLen = snappy::maxCompressedLength(size);
+	size_t dstLen = LZ4::compressBound(size);
 	MemBuffer<uint8_t> buf2(dstLen);
-	snappy::compress(reinterpret_cast<const char*>(block.data()), size,
-	                 reinterpret_cast<char*>(buf2.data()), dstLen);
+	dstLen = LZ4::compress(block.data(), buf2.data(), int(size));
+
 	if (dstLen >= size) {
 		// compression isn't beneficial
 		return;
@@ -365,9 +361,9 @@ size_t DeltaBlockDiff::getDeltaSize() const
 std::shared_ptr<DeltaBlock> LastDeltaBlocks::createNew(
 		const void* id, const uint8_t* data, size_t size)
 {
-	auto it = ranges::lower_bound(infos, std::make_tuple(id, size),
+	auto it = ranges::lower_bound(infos, std::tuple(id, size),
 		[](const Info& info, const std::tuple<const void*, size_t>& info2) {
-			return std::make_tuple(info.id, info.size) < info2; });
+			return std::tuple(info.id, info.size) < info2; });
 	if ((it == end(infos)) || (it->id != id) || (it->size != size)) {
 		// no previous info yet
 		it = infos.emplace(it, id, size);

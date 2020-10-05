@@ -95,10 +95,10 @@ TTFFontPool& TTFFontPool::instance()
 
 TTF_Font* TTFFontPool::get(const string& filename, int ptSize)
 {
-	auto it = ranges::find_if(pool, [&](auto& info) {
+	if (auto it = ranges::find_if(pool, [&](auto& info) {
 		return (info.name == filename) && (info.size == ptSize);
-	});
-	if (it != end(pool)) {
+	    });
+	    it != end(pool)) {
 		++it->count;
 		return it->font;
 	}
@@ -173,7 +173,7 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 	unsigned lineHeight = 0; // initialize to avoid warning
 	for (auto& s : lines) {
 		unsigned w;
-		getSize(s.str(), w, lineHeight);
+		getSize(string(s), w, lineHeight);
 		width = std::max(width, w);
 	}
 	// There might be extra space between two successive lines
@@ -200,7 +200,7 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 		}
 		SDLSurfacePtr line(TTF_RenderUTF8_Blended(
 			static_cast<TTF_Font*>(font),
-			lines[i].str().c_str(), color));
+			string(lines[i]).c_str(), color));
 		if (!line) {
 			throw MSXException(TTF_GetError());
 		}

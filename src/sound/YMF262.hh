@@ -176,15 +176,15 @@ private:
 	} debuggable;
 
 	// Bitmask for register 0x04
-	static const int R04_ST1       = 0x01; // Timer1 Start
-	static const int R04_ST2       = 0x02; // Timer2 Start
-	static const int R04_MASK_T2   = 0x20; // Mask Timer2 flag
-	static const int R04_MASK_T1   = 0x40; // Mask Timer1 flag
-	static const int R04_IRQ_RESET = 0x80; // IRQ RESET
+	static constexpr int R04_ST1       = 0x01; // Timer1 Start
+	static constexpr int R04_ST2       = 0x02; // Timer2 Start
+	static constexpr int R04_MASK_T2   = 0x20; // Mask Timer2 flag
+	static constexpr int R04_MASK_T1   = 0x40; // Mask Timer1 flag
+	static constexpr int R04_IRQ_RESET = 0x80; // IRQ RESET
 
 	// Bitmask for status register
-	static const int STATUS_T2      = R04_MASK_T2;
-	static const int STATUS_T1      = R04_MASK_T1;
+	static constexpr int STATUS_T2      = R04_MASK_T2;
+	static constexpr int STATUS_T1      = R04_MASK_T1;
 	// Timers (see EmuTimer class for details about timing)
 	const std::unique_ptr<EmuTimer> timer1; //  80.8us OPL4  ( 80.5us OPL3)
 	const std::unique_ptr<EmuTimer> timer2; // 323.1us OPL4  (321.8us OPL3)

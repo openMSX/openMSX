@@ -36,7 +36,7 @@ public:
 
 	// Pluggable
 	const std::string& getName() const override;
-	string_view getDescription() const override;
+	std::string_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 
@@ -136,7 +136,7 @@ private:
 	void execSyncAudioEmu(EmuTime::param time);
 	EmuTime::param getCurrentTime() const { return syncEndOfTape.getCurrentTime(); }
 
-	static const size_t BUF_SIZE = 1024;
+	static constexpr size_t BUF_SIZE = 1024;
 	unsigned char buf[BUF_SIZE];
 
 	double lastX; // last unfiltered output

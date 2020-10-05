@@ -33,7 +33,7 @@ Paddle::Paddle(MSXEventDistributor& eventDistributor_,
                StateChangeDistributor& stateChangeDistributor_)
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
-	, lastPulse(EmuTime::zero)
+	, lastPulse(EmuTime::zero())
 	, analogValue(128)
 	, lastInput(0)
 {
@@ -54,7 +54,7 @@ const std::string& Paddle::getName() const
 	return name;
 }
 
-string_view Paddle::getDescription() const
+std::string_view Paddle::getDescription() const
 {
 	return "MSX Paddle";
 }
@@ -76,7 +76,7 @@ byte Paddle::read(EmuTime::param time)
 {
 	// The loop in the BIOS routine that reads the paddle status takes
 	// 41 Z80 cycles per iteration.
-	static const EmuDuration TICK = EmuDuration::hz(3579545) * 41;
+	static constexpr auto TICK = EmuDuration::hz(3579545) * 41;
 
 	assert(time >= lastPulse);
 	bool before = (time - lastPulse) < (TICK * analogValue);
@@ -100,7 +100,7 @@ void Paddle::signalMSXEvent(const std::shared_ptr<const Event>& event,
 	if (event->getType() != OPENMSX_MOUSE_MOTION_EVENT) return;
 
 	auto& mev = checked_cast<const MouseMotionEvent&>(*event);
-	static const int SCALE = 2;
+	constexpr int SCALE = 2;
 	int delta = mev.getX() / SCALE;
 	if (delta == 0) return;
 

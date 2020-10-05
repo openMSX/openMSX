@@ -8,6 +8,7 @@
 #include "TclObject.hh"
 #include "CliComm.hh"
 #include "endian.hh"
+#include "one_of.hh"
 #include "serialize.hh"
 #include <algorithm>
 #include <cassert>
@@ -343,8 +344,7 @@ void CDXCommand::execute(span<const TclObject> tokens, TclObject& result,
 		result.addListElement(cd.name + ':',
 		                      file.is_open() ? file.getURL() : string{});
 		if (!file.is_open()) result.addListElement("empty");
-	} else if ((tokens.size() == 2) &&
-	           ((tokens[1] == "eject") || (tokens[1] == "-eject"))) {
+	} else if ((tokens.size() == 2) && (tokens[1] == one_of("eject", "-eject"))) {
 		cd.eject();
 		// TODO check for locked tray
 		if (tokens[1] == "-eject") {
@@ -364,7 +364,7 @@ void CDXCommand::execute(span<const TclObject> tokens, TclObject& result,
 		}
 		try {
 			string filename = userFileContext().resolve(
-				tokens[fileToken].getString().str());
+				string(tokens[fileToken].getString()));
 			cd.insert(filename);
 			// return filename; // Note: the diskX command doesn't do this either, so this has not been converted to TclObject style here
 		} catch (FileException& e) {
@@ -387,7 +387,7 @@ string CDXCommand::help(const vector<string>& /*tokens*/) const
 
 void CDXCommand::tabCompletion(vector<string>& tokens) const
 {
-	static const char* const extra[] = { "eject", "insert" };
+	static constexpr const char* const extra[] = { "eject", "insert" };
 	completeFileName(tokens, userFileContext(), extra);
 }
 

@@ -113,6 +113,7 @@
           <sound>
             <volume>9000</volume>
           </sound>
+          <ym2413-core>NukeYKT</ym2413-core>
           <io base="0x7C" num="2" type="O"/>
           <mem base="0x4000" size="0x4000"/>
         </MSX-MUSIC>
@@ -130,6 +131,7 @@
 
       <secondary slot="0">
         <MemoryMapper id="Main RAM">
+          <initialContent encoding="hex">00FF</initialContent> <!-- Approximately... patterns vary a bit, seen is 128x00FF then 128x04FF and also 2x0BFB then 32x0FFF -->
           <size>64</size>
           <mem base="0x0000" size="0x10000"/>
         </MemoryMapper>

@@ -10,6 +10,7 @@
 #include "Ram.hh"
 #include "SCC.hh"
 #include "YM2413.hh"
+#include "serialize_meta.hh"
 #include <utility>
 
 namespace openmsx {
@@ -137,8 +138,8 @@ private:
 	byte fmPacBank; // bank
 	byte fmPac5ffe;
 	byte fmPac5fff;
-	byte fmPacRegSelect;
 };
+SERIALIZE_CLASS_VERSION(Carnivore2, 2);
 
 } // namespace openmsx
 

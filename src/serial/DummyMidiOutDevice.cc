@@ -7,7 +7,7 @@ void DummyMidiOutDevice::recvByte(byte /*value*/, EmuTime::param /*time*/)
 	// ignore
 }
 
-string_view DummyMidiOutDevice::getDescription() const
+std::string_view DummyMidiOutDevice::getDescription() const
 {
 	return {};
 }

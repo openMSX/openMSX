@@ -85,13 +85,22 @@ void GLScaler::execute(
 		vec3(0.0f + hShift, tex0EndY  , tex1EndY  ),
 	};
 
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, tex);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[0].get());
+	glBufferData(GL_ARRAY_BUFFER, sizeof(pos), pos, GL_STREAM_DRAW);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[1].get());
+	glBufferData(GL_ARRAY_BUFFER, sizeof(tex), tex, GL_STREAM_DRAW);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
+
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 } // namespace openmsx

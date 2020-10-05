@@ -34,7 +34,7 @@
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "FileOperations.hh"
-#include "ReadDir.hh"
+#include "foreach_file.hh"
 #include "Thread.hh"
 #include "Timer.hh"
 #include "serialize.hh"
@@ -42,6 +42,7 @@
 #include "ranges.hh"
 #include "statp.hh"
 #include "stl.hh"
+#include "StringOp.hh"
 #include "unreachable.hh"
 #include "view.hh"
 #include "build-info.hh"
@@ -51,6 +52,7 @@
 using std::make_shared;
 using std::make_unique;
 using std::string;
+using std::string_view;
 using std::vector;
 
 namespace openmsx {
@@ -325,23 +327,21 @@ vector<string> Reactor::getHwConfigs(string_view type)
 {
 	vector<string> result;
 	for (auto& p : systemFileContext().getPaths()) {
-		const auto& path = FileOperations::join(p, type);
-		ReadDir configsDir(path);
-		while (auto* entry = configsDir.getEntry()) {
-			string_view name = entry->d_name;
-			const auto& fullname = FileOperations::join(path, name);
-			if (name.ends_with(".xml") &&
-			    FileOperations::isRegularFile(fullname)) {
+		auto fileAction = [&](const std::string& /*path*/, std::string_view name) {
+			if (StringOp::endsWith(name, ".xml")) {
 				name.remove_suffix(4);
-				result.push_back(name.str());
-			} else if (FileOperations::isDirectory(fullname)) {
-				const auto& config = FileOperations::join(
-					fullname, "hardwareconfig.xml");
-				if (FileOperations::isRegularFile(config)) {
-					result.push_back(name.str());
-				}
+				result.emplace_back(name);
 			}
-		}
+		};
+		auto dirAction = [&](std::string& path, std::string_view name) {
+			auto size = path.size();
+			path += "/hardwareconfig.xml";
+			if (FileOperations::isRegularFile(path)) {
+				result.emplace_back(name);
+			}
+			path.resize(size);
+		};
+		foreach_file_and_directory(FileOperations::join(p, type), fileAction, dirAction);
 	}
 	// remove duplicates
 	ranges::sort(result);
@@ -354,7 +354,7 @@ void Reactor::createMachineSetting()
 	EnumSetting<int>::Map machines; // int's are unique dummy values
 	int count = 1;
 	append(machines, view::transform(getHwConfigs("machines"),
-		[&](auto& name) { return std::make_pair(name, count++); }));
+		[&](auto& name) { return std::pair(name, count++); }));
 	machines.emplace_back("C-BIOS_MSX2+", 0); // default machine
 
 	machineSetting = make_unique<EnumSetting<int>>(
@@ -405,7 +405,7 @@ void Reactor::replaceBoard(MSXMotherBoard& oldBoard_, Board newBoard_)
 
 	// Lookup old board (it must be present).
 	auto it = find_if_unguarded(boards,
-		[&](Boards::value_type& b) { return b.get() == &oldBoard_; });
+		[&](auto& b) { return b.get() == &oldBoard_; });
 
 	// If the old board was the active board, then activate the new board
 	if (it->get() == activeBoard) {
@@ -486,7 +486,7 @@ void Reactor::deleteBoard(MSXMotherBoard* board)
 		switchBoard(nullptr);
 	}
 	auto it = rfind_if_unguarded(boards,
-		[&](Boards::value_type& b) { return b.get() == board; });
+		[&](auto& b) { return b.get() == board; });
 	auto board_ = move(*it);
 	move_pop_back(boards, it);
 	// Don't immediately delete old boards because it's possible this
@@ -535,6 +535,14 @@ void Reactor::run(CommandLineParser& parser)
 			                 e.getMessage());
 		}
 	}
+	for (auto& cmd : parser.getStartupCommands()) {
+		try {
+			commandController.executeCommand(cmd);
+		} catch (CommandException& e) {
+			throw FatalError("Couldn't execute command: ", cmd,
+			                 '\n', e.getMessage());
+		}
+	}
 
 	// At this point openmsx is fully started, it's OK now to start
 	// accepting external commands
@@ -553,21 +561,27 @@ void Reactor::run(CommandLineParser& parser)
 		}
 	}
 
-	while (running) {
-		eventDistributor->deliverEvents();
-		assert(garbageBoards.empty());
-		bool blocked = (blockedCounter > 0) || !activeBoard;
-		if (!blocked) blocked = !activeBoard->execute();
-		if (blocked) {
-			// At first sight a better alternative is to use the
-			// SDL_WaitEvent() function. Though when inspecting
-			// the implementation of that function, it turns out
-			// to also use a sleep/poll loop, with even shorter
-			// sleep periods as we use here. Maybe in future
-			// SDL implementations this will be improved.
-			eventDistributor->sleep(20 * 1000);
-		}
+	while (doOneIteration()) {
+		// nothing
 	}
+}
+
+bool Reactor::doOneIteration()
+{
+	eventDistributor->deliverEvents();
+	assert(garbageBoards.empty());
+	bool blocked = (blockedCounter > 0) || !activeBoard;
+	if (!blocked) blocked = !activeBoard->execute();
+	if (blocked) {
+		// At first sight a better alternative is to use the
+		// SDL_WaitEvent() function. Though when inspecting
+		// the implementation of that function, it turns out
+		// to also use a sleep/poll loop, with even shorter
+		// sleep periods as we use here. Maybe in future
+		// SDL implementations this will be improved.
+		eventDistributor->sleep(20 * 1000);
+	}
+	return running;
 }
 
 void Reactor::unpause()
@@ -701,7 +715,7 @@ void MachineCommand::execute(span<const TclObject> tokens, TclObject& result)
 		break;
 	case 2:
 		try {
-			reactor.switchMachine(tokens[1].getString().str());
+			reactor.switchMachine(string(tokens[1].getString()));
 		} catch (MSXException& e) {
 			throw CommandException("Machine switching failed: ",
 			                       e.getMessage());
@@ -738,7 +752,7 @@ void TestMachineCommand::execute(span<const TclObject> tokens,
 	checkNumArgs(tokens, 2, "machinetype");
 	try {
 		MSXMotherBoard mb(reactor);
-		mb.loadMachine(tokens[1].getString().str());
+		mb.loadMachine(string(tokens[1].getString()));
 	} catch (MSXException& e) {
 		result = e.getMessage(); // error
 	}
@@ -896,7 +910,7 @@ void StoreMachineCommand::execute(span<const TclObject> tokens, TclObject& resul
 		break;
 	case 3:
 		machineID = tokens[1].getString();
-		filename = tokens[2].getString().str();
+		filename = tokens[2].getString();
 		break;
 	}
 
@@ -913,7 +927,7 @@ string StoreMachineCommand::help(const vector<string>& /*tokens*/) const
 	return
 		"store_machine                       Save state of current machine to file \"openmsxNNNN.xml.gz\"\n"
 		"store_machine machineID             Save state of machine \"machineID\" to file \"openmsxNNNN.xml.gz\"\n"
-                "store_machine machineID <filename>  Save state of machine \"machineID\" to indicated file\n"
+		"store_machine machineID <filename>  Save state of machine \"machineID\" to indicated file\n"
 		"\n"
 		"This is a low-level command, the 'savestate' script is easier to use.";
 }
@@ -943,29 +957,24 @@ void RestoreMachineCommand::execute(span<const TclObject> tokens,
 	switch (tokens.size()) {
 	case 1: {
 		// load last saved entry
-		struct stat st;
-		string dirName = FileOperations::getUserOpenMSXDir() + "/savestates/";
 		string lastEntry;
 		time_t lastTime = 0;
-		ReadDir dir(dirName);
-		while (dirent* d = dir.getEntry()) {
-			int res = stat(strCat(dirName, d->d_name).c_str(), &st);
-			if ((res == 0) && S_ISREG(st.st_mode)) {
+		foreach_file(
+			FileOperations::getUserOpenMSXDir() + "/savestates",
+			[&](const string& path, const FileOperations::Stat& st) {
 				time_t modTime = st.st_mtime;
 				if (modTime > lastTime) {
-					lastEntry = string(d->d_name);
+					filename = path;
 					lastTime = modTime;
 				}
-			}
-		}
-		if (lastEntry.empty()) {
+			});
+		if (filename.empty()) {
 			throw CommandException("Can't find last saved state.");
 		}
-		filename = dirName + lastEntry;
 		break;
 	}
 	case 2:
-		filename = tokens[1].getString().str();
+		filename = tokens[1].getString();
 		break;
 	}
 
@@ -1036,7 +1045,7 @@ SetClipboardCommand::SetClipboardCommand(CommandController& commandController_)
 void SetClipboardCommand::execute(span<const TclObject> tokens, TclObject& /*result*/)
 {
 	checkNumArgs(tokens, 2, "text");
-	string text = tokens[1].getString().str();
+	string text(tokens[1].getString());
 	if (SDL_SetClipboardText(text.c_str()) != 0) {
 		const char* err = SDL_GetError();
 		SDL_ClearError();

@@ -51,6 +51,7 @@
           <sound>
             <volume>9000</volume>
           </sound>
+          <ym2413-core>NukeYKT</ym2413-core>
         </MSX-MUSIC>
       </secondary>
 
@@ -74,6 +75,7 @@
 
       <secondary slot="0">
         <PanasonicRAM id="Main RAM">
+          <initialContent encoding="hex">FF00FF0000FF00FF</initialContent> <!-- At least for QBee's GT... -->
           <mem base="0x0000" size="0x10000"/>
           <size>512</size>
         </PanasonicRAM>

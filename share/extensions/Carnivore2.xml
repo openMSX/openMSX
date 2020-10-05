@@ -25,6 +25,7 @@
         <sound>
           <volume>21000</volume>
         </sound>
+        <ym2413-core>NukeYKT</ym2413-core>
         <master>
           <type>IDEHD</type>
           <filename>hd.dsk</filename>

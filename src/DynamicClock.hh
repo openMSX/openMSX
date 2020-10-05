@@ -4,6 +4,7 @@
 #include "EmuTime.hh"
 #include "DivModBySame.hh"
 #include <cassert>
+#include <utility>
 
 namespace openmsx {
 
@@ -52,6 +53,22 @@ public:
 		assert(e.time >= lastTick.time);
 		return divmod.div(e.time - lastTick.time);
 	}
+	/** Like getTicksTill(), but also returns the fractional part (in range [0, 1)).
+	  * This is equivalent to, but numerically more stable than:
+	  *   EmuDuration dur = e - this->getTime();
+	  *   double d = dur / this->getPeriod();
+	  *   int i = int(d);
+	  *   double frac = d - i;
+	  *   return {i, frac};
+	  */
+	std::pair<unsigned, float> getTicksTillAsIntFloat(EmuTime::param e) const {
+		assert(e.time >= lastTick.time);
+		auto dur = e.time - lastTick.time;
+		auto [q, r] = divmod.divMod(dur);
+		auto f = float(r) / float(getStep());
+		assert(0.0f <= f); assert(f < 1.0f);
+		return {q, f};
+	}
 
 	template<typename FIXED>
 	void getTicksTill(EmuTime::param e, FIXED& result) const {
@@ -81,23 +98,24 @@ public:
 	}
 
 	/** Change the frequency at which this clock ticks.
+	  * When possible prefer setPeriod() over this method because it may
+	  * introduce less rounding errors.
 	  * @param freq New frequency in Hertz.
 	  */
 	void setFreq(unsigned freq) {
 		unsigned newStep = (MAIN_FREQ32 + (freq / 2)) / freq;
-		assert(newStep);
-		divmod.setDivisor(newStep);
+		setPeriod(EmuDuration(uint64_t(newStep)));
 	}
 	/** Equivalent to setFreq(freq_num / freq_denom), but possibly with
 	  * less rounding errors.
+	  * When possible prefer setPeriod() over this method because it may
+	  * introduce less rounding errors.
 	  */
 	void setFreq(unsigned freq_num, unsigned freq_denom) {
 		static_assert(MAIN_FREQ < (1ull << 32), "must fit in 32 bit");
 		uint64_t p = MAIN_FREQ * freq_denom + (freq_num / 2);
 		uint64_t newStep = p / freq_num;
-		assert(newStep < (1ull << 32));
-		assert(newStep);
-		divmod.setDivisor(unsigned(newStep));
+		setPeriod(EmuDuration(newStep));
 	}
 
 	/** Returns the frequency (in Hz) at which this clock ticks.
@@ -112,6 +130,12 @@ public:
 	  */
 	EmuDuration getPeriod() const {
 		return EmuDuration(uint64_t(getStep()));
+	}
+
+	/** Set the duration of a clock tick. See also setFreq(). */
+	void setPeriod(EmuDuration period) {
+		assert(period.length() < (1ull << 32));
+		divmod.setDivisor(uint32_t(period.length()));
 	}
 
 	/** Reset the clock to start ticking at the given time.
@@ -183,6 +207,7 @@ private:
 
 	DivModBySame divmod;
 };
+SERIALIZE_CLASS_VERSION(DynamicClock, 2);
 
 } // namespace openmsx
 

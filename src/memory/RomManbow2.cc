@@ -1,8 +1,11 @@
 #include "RomManbow2.hh"
 #include "AY8910.hh"
 #include "DummyAY8910Periphery.hh"
+#include "SCC.hh"
 #include "MSXCPUInterface.hh"
+#include "one_of.hh"
 #include "serialize.hh"
+#include "unreachable.hh"
 #include <cassert>
 #include <memory>
 #include <vector>
@@ -11,34 +14,43 @@ namespace openmsx {
 
 static std::vector<AmdFlash::SectorInfo> getSectorInfo(RomType type)
 {
-	std::vector<AmdFlash::SectorInfo> sectorInfo(512 / 64, {0x10000, true}); // none writable
-	assert((type == ROM_MANBOW2) || (type == ROM_MEGAFLASHROMSCC) || (type == ROM_MANBOW2_2) || (type == ROM_HAMARAJANIGHT));
 	switch (type) {
 	case ROM_MANBOW2:
-	case ROM_MANBOW2_2: // only the last 64kb is writeable
+	case ROM_MANBOW2_2: { // only the last 64kb is writeable
+		std::vector<AmdFlash::SectorInfo> sectorInfo(512 / 64, {0x10000, true}); // none writable
 		sectorInfo[7].writeProtected = false;
-		break;
-	case ROM_HAMARAJANIGHT: // only 128kb is writeable
+		return sectorInfo;
+	}
+	case ROM_HAMARAJANIGHT: { // only 128kb is writeable
+		std::vector<AmdFlash::SectorInfo> sectorInfo(512 / 64, {0x10000, true}); // none writable
 		sectorInfo[4].writeProtected = false;
 		sectorInfo[5].writeProtected = false;
-		break;
-	default: // fully writeable
-		for (auto& i : sectorInfo) i.writeProtected = false;
+		return sectorInfo;
 	}
-	return sectorInfo;
+	case ROM_MEGAFLASHROMSCC: // fully writeable, 512kB
+		return std::vector<AmdFlash::SectorInfo>(512 / 64, {0x10000, false});
+	case ROM_RBSC_FLASH_KONAMI_SCC: // fully writeable, 2MB
+		return std::vector<AmdFlash::SectorInfo>(2048 / 64, {0x10000, false});
+	default:
+		UNREACHABLE;
+		return std::vector<AmdFlash::SectorInfo>{};
+	}
 }
 
 
 RomManbow2::RomManbow2(const DeviceConfig& config, Rom&& rom_,
                        RomType type)
 	: MSXRom(config, std::move(rom_))
-	, scc(getName() + " SCC", config, getCurrentTime())
-	, psg(((type == ROM_MANBOW2_2) || (type == ROM_HAMARAJANIGHT))
+	, scc((type != ROM_RBSC_FLASH_KONAMI_SCC)
+		? std::make_unique<SCC>(
+			getName() + " SCC", config, getCurrentTime())
+		: nullptr)
+	, psg((type == one_of(ROM_MANBOW2_2, ROM_HAMARAJANIGHT))
 		? std::make_unique<AY8910>(
 			getName() + " PSG", DummyAY8910Periphery::instance(),
 			config, getCurrentTime())
 		: nullptr)
-	, flash(rom, getSectorInfo(type), 0x01A4, false, config)
+	, flash(rom, getSectorInfo(type), type == ROM_RBSC_FLASH_KONAMI_SCC ? 0x01AD : 0x01A4, false, config)
 	, romBlockDebug(*this, bank, 0x4000, 0x8000, 13)
 {
 	powerUp(getCurrentTime());
@@ -61,7 +73,9 @@ RomManbow2::~RomManbow2()
 
 void RomManbow2::powerUp(EmuTime::param time)
 {
-	scc.powerUp(time);
+	if (scc) {
+		scc->powerUp(time);
+	}
 	reset(time);
 }
 
@@ -72,7 +86,9 @@ void RomManbow2::reset(EmuTime::param time)
 	}
 
 	sccEnabled = false;
-	scc.reset(time);
+	if (scc) {
+		scc->reset(time);
+	}
 
 	if (psg) {
 		psgLatch = 0;
@@ -87,13 +103,13 @@ void RomManbow2::setRom(unsigned region, unsigned block)
 	assert(region < 4);
 	unsigned nrBlocks = flash.getSize() / 0x2000;
 	bank[region] = block & (nrBlocks - 1);
-	invalidateMemCache(0x4000 + region * 0x2000, 0x2000);
+	invalidateDeviceRCache(0x4000 + region * 0x2000, 0x2000);
 }
 
 byte RomManbow2::peekMem(word address, EmuTime::param time) const
 {
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
-		return scc.peekMem(address & 0xFF, time);
+		return scc->peekMem(address & 0xFF, time);
 	} else if ((0x4000 <= address) && (address < 0xC000)) {
 		unsigned page = (address - 0x4000) / 0x2000;
 		unsigned addr = (address & 0x1FFF) + 0x2000 * bank[page];
@@ -106,7 +122,7 @@ byte RomManbow2::peekMem(word address, EmuTime::param time) const
 byte RomManbow2::readMem(word address, EmuTime::param time)
 {
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
-		return scc.readMem(address & 0xFF, time);
+		return scc->readMem(address & 0xFF, time);
 	} else if ((0x4000 <= address) && (address < 0xC000)) {
 		unsigned page = (address - 0x4000) / 0x2000;
 		unsigned addr = (address & 0x1FFF) + 0x2000 * bank[page];
@@ -133,7 +149,7 @@ void RomManbow2::writeMem(word address, byte value, EmuTime::param time)
 {
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
 		// write to SCC
-		scc.writeMem(address & 0xff, value, time);
+		scc->writeMem(address & 0xff, value, time);
 		// note: writes to SCC also go to flash
 		//    thanks to 'enen' for testing this
 	}
@@ -142,10 +158,10 @@ void RomManbow2::writeMem(word address, byte value, EmuTime::param time)
 		unsigned addr = (address & 0x1FFF) + 0x2000 * bank[page];
 		flash.write(addr, value);
 
-		if ((address & 0xF800) == 0x9000) {
+		if (scc && ((address & 0xF800) == 0x9000)) {
 			// SCC enable/disable
 			sccEnabled = ((value & 0x3F) == 0x3F);
-			invalidateMemCache(0x9800, 0x0800);
+			invalidateDeviceRCache(0x9800, 0x0800);
 		}
 		if ((address & 0x1800) == 0x1000) {
 			// page selection
@@ -188,20 +204,23 @@ void RomManbow2::writeIO(word port, byte value, EmuTime::param time)
 
 // version 1: initial version
 // version 2: added optional built-in PSG
+// version 3: made SCC optional (for ROM_RBSC_FLASH_KONAMI_SCC)
 template<typename Archive>
 void RomManbow2::serialize(Archive& ar, unsigned version)
 {
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);
 
-	ar.serialize("scc", scc);
+	if (scc) {
+		ar.serialize("scc",        *scc,
+		             "sccEnabled", sccEnabled);
+	}
 	if ((ar.versionAtLeast(version, 2)) && psg) {
 		ar.serialize("psg",      *psg,
 		             "psgLatch", psgLatch);
 	}
-	ar.serialize("flash",      flash,
-	             "bank",       bank,
-	             "sccEnabled", sccEnabled);
+	ar.serialize("flash", flash,
+	             "bank",  bank);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomManbow2);
 REGISTER_MSXDEVICE(RomManbow2, "RomManbow2");

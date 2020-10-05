@@ -12,6 +12,7 @@ public:
 
 	RomPlain(const DeviceConfig& config, Rom&& rom,
 	         MirrorType mirrored, int start = -1);
+	unsigned getBaseSizeAlignment() const override;
 
 private:
 	void guessHelper(unsigned offset, int* pages);

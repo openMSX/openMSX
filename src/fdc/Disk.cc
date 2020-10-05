@@ -1,5 +1,6 @@
 #include "Disk.hh"
 #include "DiskExceptions.hh"
+#include "one_of.hh"
 
 using std::string;
 
@@ -113,7 +114,7 @@ void Disk::detectGeometry()
 	try {
 		SectorBuffer buf;
 		readSector(0, buf); // bootsector
-		if ((buf.raw[0] == 0xE9) || (buf.raw[0] == 0xEB)) {
+		if (buf.raw[0] == one_of(0xE9, 0xEB)) {
 			// use values from bootsector
 			sectorsPerTrack = buf.bootSector.sectorsTrack;
 			nbSides         = buf.bootSector.nrSides;

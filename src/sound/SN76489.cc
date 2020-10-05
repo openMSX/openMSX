@@ -2,6 +2,7 @@
 #include "DeviceConfig.hh"
 #include "Math.hh"
 #include "cstd.hh"
+#include "one_of.hh"
 #include "outer.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
@@ -15,7 +16,7 @@ namespace openmsx {
 
 // The SN76489 divides the clock input by 8, but all users of the clock apply
 // another divider of 2.
-static constexpr auto NATIVE_FREQ_INT = unsigned(cstd::round((3579545.0 / 8) / 2));
+constexpr auto NATIVE_FREQ_INT = unsigned(cstd::round((3579545.0 / 8) / 2));
 
 // NoiseShifter:
 
@@ -325,7 +326,7 @@ INSTANTIATE_SERIALIZE_METHODS(SN76489);
 
 // The frequency registers are 10 bits wide, so we have to split them over
 // two debuggable entries.
-static const byte SN76489_DEBUG_MAP[][2] = {
+constexpr byte SN76489_DEBUG_MAP[][2] = {
 	{0, 0}, {0, 1}, {1, 0},
 	{2, 0}, {2, 1}, {3, 0},
 	{4, 0}, {4, 1}, {5, 0},
@@ -356,7 +357,7 @@ void SN76489::Debuggable::write(unsigned address, byte value, EmuTime::param tim
 
 	auto& sn76489 = OUTER(SN76489, debuggable);
 	word data;
-	if (reg == 0 || reg == 2 || reg == 4) {
+	if (reg == one_of(0, 2, 4)) {
 		data = sn76489.peekRegister(reg, time);
 		if (hi) {
 			data = ((value & 0x3F) << 4) | (data & 0x0F);

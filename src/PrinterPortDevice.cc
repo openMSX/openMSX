@@ -2,7 +2,7 @@
 
 namespace openmsx {
 
-string_view PrinterPortDevice::getClass() const
+std::string_view PrinterPortDevice::getClass() const
 {
 	return "Printer Port";
 }

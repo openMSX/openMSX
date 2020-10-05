@@ -9,6 +9,7 @@
 #include "GlobalSettings.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
+#include "unreachable.hh"
 #include <memory>
 
 using std::string;
@@ -16,7 +17,8 @@ using std::string;
 namespace openmsx {
 
 RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeout_,
-                     bool signalsNeedMotorOn_, bool doubleSided)
+                     bool signalsNeedMotorOn_, bool doubleSided,
+                     DiskDrive::TrackMode trackMode_)
 	: syncLoadingTimeout(motherBoard_.getScheduler())
 	, syncMotorTimeout  (motherBoard_.getScheduler())
 	, motherBoard(motherBoard_)
@@ -28,6 +30,7 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeo
 	, motorStatus(false)
 	, doubleSizedDrive(doubleSided)
 	, signalsNeedMotorOn(signalsNeedMotorOn_)
+	, trackMode(trackMode_)
 	, trackValid(false), trackDirty(false)
 {
 	drivesInUse = motherBoard.getSharedStuff<DrivesInUse>("drivesInUse");
@@ -110,13 +113,70 @@ bool RealDrive::getSide() const
 	return side;
 }
 
+unsigned RealDrive::getMaxTrack() const
+{
+	constexpr unsigned MAX_TRACK = 85;
+	switch (trackMode) {
+	case DiskDrive::TrackMode::NORMAL:
+		return MAX_TRACK;
+	case DiskDrive::TrackMode::YAMAHA_FD_03:
+		// Yamaha FD-03: Tracks are calibrated around 4 steps per track, max 3 step further than base
+		return MAX_TRACK * 4 + 3;
+	default:
+		UNREACHABLE;
+		return 0;
+	}
+}
+
+std::optional<unsigned> RealDrive::getDiskReadTrack() const
+{
+	// Translate head-position to track number on disk.
+	// Normally this is a 1-to-1 mapping, but on the Yamaha-FD-03 the head
+	// moves 4 steps for every track on disk. This means it can be
+	// inbetween disk tracks so that it can't read valid data.
+	switch (trackMode) {
+	case DiskDrive::TrackMode::NORMAL:
+		return headPos;
+	case DiskDrive::TrackMode::YAMAHA_FD_03:
+		// Tracks are at a multiple of 4 steps.
+		// But also make sure the track at 1 step lower and 1 step up correctly reads.
+		// This makes the driver (calibration routine) use a trackoffset of 0 (so at a multiple of 4 steps).
+		if ((headPos >= 2) && ((headPos % 4) != 2)) {
+			return (headPos - 2) / 4;
+		} else {
+			return {};
+		}
+	default:
+		UNREACHABLE;
+		return {};
+	}
+}
+
+std::optional<unsigned> RealDrive::getDiskWriteTrack() const
+{
+	switch (trackMode) {
+	case DiskDrive::TrackMode::NORMAL:
+		return headPos;
+	case DiskDrive::TrackMode::YAMAHA_FD_03:
+		// For writes allow only exact multiples of 4. But track 0 is at step 4
+		if ((headPos >= 4) && ((headPos % 4) == 0)) {
+			return (headPos - 4) / 4;
+		} else {
+			return {};
+		}
+	default:
+		UNREACHABLE;
+		return {};
+	}
+}
+
 void RealDrive::step(bool direction, EmuTime::param time)
 {
 	invalidateTrack();
 
 	if (direction) {
 		// step in
-		if (headPos < MAX_TRACK) {
+		if (headPos < getMaxTrack()) {
 			headPos++;
 		}
 	} else {
@@ -268,7 +328,7 @@ bool RealDrive::indexPulse(EmuTime::param time)
 EmuTime RealDrive::getTimeTillIndexPulse(EmuTime::param time, int count)
 {
 	if (!motorStatus || !isDiskInserted()) { // TODO is this correct?
-		return EmuTime::infinity;
+		return EmuTime::infinity();
 	}
 	unsigned delta = TICKS_PER_ROTATION - getCurrentAngle(time);
 	auto dur1 = MotorClock::duration(delta);
@@ -294,7 +354,11 @@ void RealDrive::getTrack()
 		return;
 	}
 	if (!trackValid) {
-		changer->getDisk().readTrack(headPos, side, track);
+		if (auto rdTrack = getDiskReadTrack()) {
+			changer->getDisk().readTrack(*rdTrack, side, track);
+		} else {
+			track.clear(track.getLength());
+		}
 		trackValid = true;
 		trackDirty = false;
 	}
@@ -340,7 +404,7 @@ EmuTime RealDrive::getNextSector(EmuTime::param time, RawTrack::Sector& sector)
 	// header. IOW we need a sector header that's at least 4 bytes removed
 	// from the current position.
 	if (!track.decodeNextSector(idx + 4, sector)) {
-		return EmuTime::infinity;
+		return EmuTime::infinity();
 	}
 	int sectorAngle = divUp(sector.addrIdx * TICKS_PER_ROTATION, trackLen);
 
@@ -356,7 +420,9 @@ EmuTime RealDrive::getNextSector(EmuTime::param time, RawTrack::Sector& sector)
 void RealDrive::flushTrack()
 {
 	if (trackValid && trackDirty) {
-		changer->getDisk().writeTrack(headPos, side, track);
+		if (auto wrTrack = getDiskWriteTrack()) {
+			changer->getDisk().writeTrack(*wrTrack, side, track);
+		}
 		trackDirty = false;
 	}
 }

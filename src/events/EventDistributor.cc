@@ -38,7 +38,7 @@ void EventDistributor::unregisterEventListener(
 	std::lock_guard<std::mutex> lock(mutex);
 	auto& priorityMap = listeners[type];
 	priorityMap.erase(rfind_if_unguarded(priorityMap,
-		[&](PriorityMap::value_type v) { return v.second == &listener; }));
+		[&](auto& v) { return v.second == &listener; }));
 }
 
 void EventDistributor::distributeEvent(const EventPtr& event)
@@ -71,6 +71,9 @@ bool EventDistributor::isRegistered(EventType type, EventListener* listener) con
 
 void EventDistributor::deliverEvents()
 {
+	static PriorityMap priorityMapCopy; // static to preserve capacity
+	static EventQueue eventsCopy;       // static to preserve capacity
+
 	assert(Thread::isMainThread());
 
 	reactor.getInputEventGenerator().poll();
@@ -86,29 +89,28 @@ void EventDistributor::deliverEvents()
 	// unsubscribe from the ols MSXEventDistributor. This really should be
 	// done before we exit this method.
 	while (!scheduledEvents.empty()) {
-		EventQueue eventsCopy;
+		assert(eventsCopy.empty());
 		swap(eventsCopy, scheduledEvents);
-
 		for (auto& event : eventsCopy) {
 			auto type = event->getType();
-			auto priorityMapCopy = listeners[type];
+			priorityMapCopy = listeners[type];
 			lock.unlock();
 			auto blockPriority = unsigned(-1); // allow all
-			for (auto& p : priorityMapCopy) {
+			for (const auto& [priority, listener] : priorityMapCopy) {
 				// It's possible delivery to one of the previous
 				// Listeners unregistered the current Listener.
-				if (!isRegistered(type, p.second)) continue;
+				if (!isRegistered(type, listener)) continue;
 
-				unsigned currentPriority = p.first;
-				if (currentPriority >= blockPriority) break;
+				if (priority >= blockPriority) break;
 
-				if (unsigned block = p.second->signalEvent(event)) {
-					assert(block > currentPriority);
+				if (unsigned block = listener->signalEvent(event)) {
+					assert(block > priority);
 					blockPriority = block;
 				}
 			}
 			lock.lock();
 		}
+		eventsCopy.clear();
 	}
 }
 

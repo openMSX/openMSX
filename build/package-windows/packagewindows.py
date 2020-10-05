@@ -1,4 +1,3 @@
-from __future__ import print_function
 from install import installAll
 from version import (
 	extractRevisionNumber, getVersionedPackageName, packageVersionNumber,
@@ -109,7 +108,7 @@ if __name__ == '__main__':
 		PackageInfo(*sys.argv[1 : ])
 	else:
 		print(
-			'Usage: python packagewindows.py '
+			'Usage: python3 packagewindows.py '
 			'platform configuration catapultPath',
 			file=sys.stderr
 			)

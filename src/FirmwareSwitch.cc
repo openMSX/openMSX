@@ -7,7 +7,7 @@
 
 namespace openmsx {
 
-static const char* const filename = "firmwareswitch";
+constexpr const char* const filename = "firmwareswitch";
 
 FirmwareSwitch::FirmwareSwitch(const DeviceConfig& config_)
 	: config(config_)

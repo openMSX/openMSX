@@ -4,7 +4,9 @@
 #include "IntegerSetting.hh"
 #include "GlobalSettings.hh"
 #include "Keys.hh"
+#include "FileOperations.hh"
 #include "checked_cast.hh"
+#include "one_of.hh"
 #include "outer.hh"
 #include "unreachable.hh"
 #include "utf8_unchecked.hh"
@@ -18,9 +20,6 @@ using std::make_shared;
 
 namespace openmsx {
 
-bool InputEventGenerator::androidButtonA = false;
-bool InputEventGenerator::androidButtonB = false;
-
 InputEventGenerator::InputEventGenerator(CommandController& commandController,
                                          EventDistributor& eventDistributor_,
                                          GlobalSettings& globalSettings_)
@@ -32,10 +31,8 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 		false, Setting::DONT_SAVE)
 	, escapeGrabCmd(commandController)
 	, escapeGrabState(ESCAPE_GRAB_WAIT_CMD)
-	, keyRepeat(false)
 {
 	setGrabInput(grabInput.getBoolean());
-	grabInput.attach(*this);
 	eventDistributor.registerEventListener(OPENMSX_FOCUS_EVENT, *this);
 
 	osdControlButtonsState = unsigned(~0); // 0 is pressed, 1 is released
@@ -48,7 +45,6 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 InputEventGenerator::~InputEventGenerator()
 {
 	eventDistributor.unregisterEventListener(OPENMSX_FOCUS_EVENT, *this);
-	grabInput.detach(*this);
 }
 
 void InputEventGenerator::wait()
@@ -124,11 +120,6 @@ void InputEventGenerator::poll()
 	if (pending) {
 		handle(*prev);
 	}
-}
-
-void InputEventGenerator::setKeyRepeat(bool enable)
-{
-	keyRepeat = enable;
 }
 
 void InputEventGenerator::setNewOsdControlButtonState(
@@ -222,28 +213,40 @@ void InputEventGenerator::triggerOsdControlEventsFromJoystickButtonEvent(
 }
 
 void InputEventGenerator::triggerOsdControlEventsFromKeyEvent(
-	Keys::KeyCode keyCode, bool up, const EventPtr& origEvent)
+	Keys::KeyCode keyCode, bool up, bool repeat, const EventPtr& origEvent)
 {
-	keyCode = static_cast<Keys::KeyCode>(keyCode & Keys::K_MASK);
-	if (keyCode == Keys::K_LEFT) {
-		osdControlChangeButton(up, 1 << OsdControlEvent::LEFT_BUTTON,
-		                       origEvent);
-	} else if (keyCode == Keys::K_RIGHT) {
-		osdControlChangeButton(up, 1 << OsdControlEvent::RIGHT_BUTTON,
-		                       origEvent);
-	} else if (keyCode == Keys::K_UP) {
-		osdControlChangeButton(up, 1 << OsdControlEvent::UP_BUTTON,
-		                       origEvent);
-	} else if (keyCode == Keys::K_DOWN) {
-		osdControlChangeButton(up, 1 << OsdControlEvent::DOWN_BUTTON,
-		                       origEvent);
-	} else if (keyCode == Keys::K_SPACE || keyCode == Keys::K_RETURN) {
-		osdControlChangeButton(up, 1 << OsdControlEvent::A_BUTTON,
-		                       origEvent);
-	} else if (keyCode == Keys::K_ESCAPE) {
-		osdControlChangeButton(up, 1 << OsdControlEvent::B_BUTTON,
-		                       origEvent);
+	unsigned buttonMask = [&] {
+		switch (static_cast<Keys::KeyCode>(keyCode & Keys::K_MASK)) {
+		case Keys::K_LEFT:   return 1 << OsdControlEvent::LEFT_BUTTON;
+		case Keys::K_RIGHT:  return 1 << OsdControlEvent::RIGHT_BUTTON;
+		case Keys::K_UP:     return 1 << OsdControlEvent::UP_BUTTON;
+		case Keys::K_DOWN:   return 1 << OsdControlEvent::DOWN_BUTTON;
+		case Keys::K_SPACE:  return 1 << OsdControlEvent::A_BUTTON;
+		case Keys::K_RETURN: return 1 << OsdControlEvent::A_BUTTON;
+		case Keys::K_ESCAPE: return 1 << OsdControlEvent::B_BUTTON;
+		default: return 0;
+		}
+	}();
+	if (buttonMask) {
+		if (repeat) {
+			osdControlChangeButton(!up, buttonMask, origEvent);
+		}
+		osdControlChangeButton(up, buttonMask, origEvent);
 	}
+}
+
+static Uint16 normalizeModifier(SDL_Keycode sym, Uint16 mod)
+{
+	// Apparently modifier-keys also have the corresponding
+	// modifier attribute set. See here for a discussion:
+	//     https://github.com/openMSX/openMSX/issues/1202
+	// As a solution, on pure modifier keys, we now clear the
+	// modifier attributes.
+	return (sym == one_of(SDLK_LCTRL, SDLK_LSHIFT, SDLK_LALT, SDLK_LGUI,
+	                      SDLK_RCTRL, SDLK_RSHIFT, SDLK_RALT, SDLK_RGUI,
+	                      SDLK_MODE))
+		? 0
+		: mod;
 }
 
 void InputEventGenerator::handleKeyDown(const SDL_KeyboardEvent& key, uint32_t unicode)
@@ -260,11 +263,11 @@ void InputEventGenerator::handleKeyDown(const SDL_KeyboardEvent& key, uint32_t u
 			1, false, event);
 		androidButtonB = true;
 	} else*/ {
-		auto keyCode = Keys::getCode(
-			key.keysym.sym, key.keysym.mod,
-			key.keysym.scancode, false);
-		event = make_shared<KeyDownEvent>(keyCode, unicode);
-		triggerOsdControlEventsFromKeyEvent(keyCode, false, event);
+		auto mod = normalizeModifier(key.keysym.sym, key.keysym.mod);
+		auto [keyCode, scanCode] = Keys::getCodes(
+			key.keysym.sym, mod, key.keysym.scancode, false);
+		event = make_shared<KeyDownEvent>(keyCode, scanCode, unicode);
+		triggerOsdControlEventsFromKeyEvent(keyCode, false, key.repeat, event);
 	}
 	eventDistributor.distributeEvent(event);
 }
@@ -302,11 +305,12 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 				1, true, event);
 			androidButtonB = false;
 		} else*/ {
-			auto keyCode = Keys::getCode(
-				evt.key.keysym.sym, evt.key.keysym.mod,
-				evt.key.keysym.scancode, true);
-			event = make_shared<KeyUpEvent>(keyCode);
-			triggerOsdControlEventsFromKeyEvent(keyCode, true, event);
+			auto mod = normalizeModifier(evt.key.keysym.sym, evt.key.keysym.mod);
+			auto [keyCode, scanCode] = Keys::getCodes(
+				evt.key.keysym.sym, mod, evt.key.keysym.scancode, true);
+			event = make_shared<KeyUpEvent>(keyCode, scanCode);
+			bool repeat = false;
+			triggerOsdControlEventsFromKeyEvent(keyCode, true, repeat, event);
 		}
 		break;
 	case SDL_KEYDOWN:
@@ -390,6 +394,11 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		}
 		break;
 
+	case SDL_DROPFILE:
+		event = make_shared<FileDropEvent>(FileOperations::getConventionalPath(evt.drop.file));
+		SDL_free(evt.drop.file);
+		break;
+
 	case SDL_QUIT:
 		event = make_shared<QuitEvent>();
 		break;
@@ -410,11 +419,10 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 }
 
 
-void InputEventGenerator::update(const Setting& setting)
+void InputEventGenerator::updateGrab(bool grab)
 {
-	assert(&setting == &grabInput); (void)setting;
 	escapeGrabState = ESCAPE_GRAB_WAIT_CMD;
-	setGrabInput(grabInput.getBoolean());
+	setGrabInput(grab);
 }
 
 int InputEventGenerator::signalEvent(const std::shared_ptr<const Event>& event)

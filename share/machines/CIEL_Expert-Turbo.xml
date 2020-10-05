@@ -21,7 +21,7 @@
         <volume>16000</volume>
       </sound>
       <io base="0xA8" num="4"/>
-      <keyboard_type>int</keyboard_type> <!-- It has a Brazillian/Portuguese layout, with special composing capabilities in the ROM -->
+      <keyboard_type>br_gradiente_1_1</keyboard_type> <!-- It has a Brazillian/Portuguese layout, with special composing capabilities in the ROM -->
       <has_keypad>false</has_keypad> <!-- The keypad of the Experts is not a real one. It uses the same keycodes of the standard 1,2,3,4... keys. I.e: If you press SHIFT+4 on the keypad, you'll get the $ sign  -->
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
       <code_kana_locks>false</code_kana_locks>
@@ -117,6 +117,7 @@
             <balance channel="1-9">-100</balance>
             <balance channel="10-14">100</balance>
           </sound>
+          <ym2413-core>NukeYKT</ym2413-core>
           <io base="0x7C" num="2" type="O"/>
           <mem base="0x4000" size="0x4000"/>
         </MSX-MUSIC>

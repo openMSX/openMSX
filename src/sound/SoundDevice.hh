@@ -3,8 +3,8 @@
 
 #include "MSXMixer.hh"
 #include "EmuTime.hh"
-#include "string_view.hh"
 #include <memory>
+#include <string_view>
 
 namespace openmsx {
 
@@ -16,7 +16,7 @@ class DynamicClock;
 class SoundDevice
 {
 public:
-	static const unsigned MAX_CHANNELS = 24;
+	static constexpr unsigned MAX_CHANNELS = 24;
 
 	/** Get the unique name that identifies this sound device.
 	  * Used to create setting names.
@@ -72,9 +72,10 @@ protected:
 	  * @param name Name for this device, will be made unique
 	  * @param description Description for this sound device
 	  * @param numChannels The number of channels for this device
+	  * @param inputRate The sample rate of this sound device
 	  * @param stereo Is this a stereo device
 	  */
-	SoundDevice(MSXMixer& mixer, string_view name, string_view description,
+	SoundDevice(MSXMixer& mixer, std::string_view name, std::string_view description,
 	            unsigned numChannels, unsigned inputRate, bool stereo);
 	~SoundDevice();
 
@@ -126,7 +127,7 @@ public: // Will be called by Mixer:
 	  *
 	  * This method is regularly called from the Mixer, it should return a
 	  * pointer to a buffer filled with the required number of samples.
-	  * Samples are always ints, later they are converted to the systems
+	  * Samples are always floats, later they are converted to the systems
 	  * native format (e.g. 16-bit signed).
 	  *
 	  * Note: To enable various optimizations (like SSE), this method can

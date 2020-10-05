@@ -5,7 +5,6 @@
 #include "FloatSetting.hh"
 #include "OutputSurface.hh"
 #include "RawFrame.hh"
-#include "Math.hh"
 #include "InitException.hh"
 #include "gl_transform.hh"
 #include "random.hh"
@@ -14,6 +13,7 @@
 #include "vla.hh"
 #include <cassert>
 #include <cstdint>
+#include <numeric>
 
 using namespace gl;
 
@@ -29,30 +29,23 @@ GLPostProcessor::GLPostProcessor(
 	, noiseTextureB(true, true)
 	, height(height_)
 {
-	if (!glewIsSupported("GL_EXT_framebuffer_object")) {
-		throw InitException(
-			"The OpenGL framebuffer object is not supported by "
-			"this glew library. Please upgrade your glew library.\n"
-			"It's also possible (but less likely) your video card "
-			"or video card driver doesn't support framebuffer "
-			"objects.");
-	}
-
 	scaleAlgorithm = static_cast<RenderSettings::ScaleAlgorithm>(-1); // not a valid scaler
 
 	frameCounter = 0;
 	noiseX = noiseY = 0.0f;
 	preCalcNoise(renderSettings.getNoise());
+	initBuffers();
 
 	storedFrame = false;
 	for (int i = 0; i < 2; ++i) {
 		colorTex[i].bind();
 		colorTex[i].setInterpolation(true);
+		auto [w, h] = screen.getLogicalSize();
 		glTexImage2D(GL_TEXTURE_2D,     // target
 			     0,                 // level
-			     GL_RGB8,           // internal format
-			     screen.getWidth(), // width
-			     screen.getHeight(),// height
+			     GL_RGB,            // internal format
+			     w,                 // width
+			     h,                 // height
 			     0,                 // border
 			     GL_RGB,            // format
 			     GL_UNSIGNED_BYTE,  // type
@@ -80,14 +73,26 @@ GLPostProcessor::~GLPostProcessor()
 	renderSettings.getNoiseSetting().detach(*this);
 }
 
+void GLPostProcessor::initBuffers()
+{
+	// combined positions and texture coordinates
+	static const vec2 pos_tex[4 + 4] = {
+		vec2(-1, 1), vec2(-1,-1), vec2( 1,-1), vec2( 1, 1), // pos
+		vec2( 0, 1), vec2( 0, 0), vec2( 1, 0), vec2( 1, 1), // tex
+	};
+	glBindBuffer(GL_ARRAY_BUFFER, vbo.get());
+	glBufferData(GL_ARRAY_BUFFER, sizeof(pos_tex), pos_tex, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
 void GLPostProcessor::createRegions()
 {
 	regions.clear();
 
 	const unsigned srcHeight = paintFrame->getHeight();
-	const unsigned dstHeight = screen.getHeight();
+	const unsigned dstHeight = screen.getLogicalHeight();
 
-	unsigned g = Math::gcd(srcHeight, dstHeight);
+	unsigned g = std::gcd(srcHeight, dstHeight);
 	unsigned srcStep = srcHeight / g;
 	unsigned dstStep = dstHeight / g;
 
@@ -166,13 +171,12 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 		uploadFrame();
 	}
 
+	auto [scrnWidth, scrnHeight] = screen.getLogicalSize();
 	if (renderToTexture) {
-		glViewport(0, 0, screen.getWidth(), screen.getHeight());
+		glViewport(0, 0, scrnWidth, scrnHeight);
 		glBindTexture(GL_TEXTURE_2D, 0);
 		fbo[frameCounter & 1].push();
 	}
-
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
 	for (auto& r : regions) {
 		//fprintf(stderr, "post processing lines %d-%d: %d\n",
@@ -183,10 +187,9 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 		                 ? &superImposeTex : nullptr;
 		currScaler->scaleImage(
 			it->second.tex, superImpose,
-			r.srcStartY, r.srcEndY, r.lineWidth,       // src
-			r.dstStartY, r.dstEndY, screen.getWidth(), // dst
+			r.srcStartY, r.srcEndY, r.lineWidth, // src
+			r.dstStartY, r.dstEndY, scrnWidth,   // dst
 			paintFrame->getHeight()); // dst
-		//GLUtil::checkGLError("GLPostProcessor::paint");
 	}
 
 	drawNoise();
@@ -195,19 +198,15 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 	if (renderToTexture) {
 		fbo[frameCounter & 1].pop();
 		colorTex[frameCounter & 1].bind();
-		gl::ivec2 viewOffset = screen.getViewOffset();
-		gl::ivec2 viewSize   = screen.getViewSize();
-		glViewport(viewOffset[0], viewOffset[1], viewSize[0], viewSize[1]);
+		auto [x, y] = screen.getViewOffset();
+		auto [w, h] = screen.getViewSize();
+		glViewport(x, y, w, h);
 
 		if (deform == RenderSettings::DEFORM_3D) {
 			drawMonitor3D();
 		} else {
 			float x1 = (320.0f - float(horStretch)) / (2.0f * 320.0f);
 			float x2 = 1.0f - x1;
-
-			static const vec2 pos[4] = {
-				vec2(-1, 1), vec2(-1,-1), vec2( 1,-1), vec2( 1, 1)
-			};
 			vec2 tex[4] = {
 				vec2(x1, 1), vec2(x1, 0), vec2(x2, 0), vec2(x2, 1)
 			};
@@ -218,18 +217,27 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 			mat4 I;
 			glUniformMatrix4fv(gl::context->unifTexMvp,
 			                   1, GL_FALSE, &I[0][0]);
-			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos);
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, tex);
+
+			glBindBuffer(GL_ARRAY_BUFFER, vbo.get());
+			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 			glEnableVertexAttribArray(0);
+
+			glBindBuffer(GL_ARRAY_BUFFER, stretchVBO.get());
+			glBufferData(GL_ARRAY_BUFFER, sizeof(tex), tex, GL_STREAM_DRAW);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 			glEnableVertexAttribArray(1);
+
 			glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
 			glDisableVertexAttribArray(1);
 			glDisableVertexAttribArray(0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
 		}
 		storedFrame = true;
 	} else {
 		storedFrame = false;
 	}
+	//gl::checkGLError("GLPostProcessor::paint");
 }
 
 std::unique_ptr<RawFrame> GLPostProcessor::rotateFrames(
@@ -287,7 +295,7 @@ void GLPostProcessor::uploadFrame()
 			0,                 // offset y
 			w,                 // width
 			h,                 // height
-			GL_BGRA,           // format
+			GL_RGBA,           // format
 			GL_UNSIGNED_BYTE,  // type
 			const_cast<RawFrame*>(superImposeVideoFrame)->getLinePtrDirect<unsigned>(0)); // data
 	}
@@ -302,11 +310,7 @@ void GLPostProcessor::uploadBlock(
 		TextureData textureData;
 
 		textureData.tex.resize(lineWidth, height * 2); // *2 for interlace
-
-		if (textureData.pbo.openGLSupported()) {
-			textureData.pbo.setImage(lineWidth, height * 2);
-		}
-
+		textureData.pbo.setImage(lineWidth, height * 2);
 		textures.emplace_back(lineWidth, std::move(textureData));
 		it = end(textures) - 1;
 	}
@@ -318,68 +322,35 @@ void GLPostProcessor::uploadBlock(
 
 	// upload data
 	uint32_t* mapped;
-	if (pbo.openGLSupported()) {
-		pbo.bind();
-		mapped = pbo.mapWrite();
-	} else {
-		mapped = nullptr;
-	}
-	if (mapped) {
-		for (unsigned y = srcStartY; y < srcEndY; ++y) {
-			auto* dest = mapped + y * lineWidth;
-			auto* data = paintFrame->getLinePtr(y, lineWidth, dest);
-			if (data != dest) {
-				memcpy(dest, data, lineWidth * sizeof(uint32_t));
-			}
+	pbo.bind();
+	mapped = pbo.mapWrite();
+	for (unsigned y = srcStartY; y < srcEndY; ++y) {
+		auto* dest = mapped + y * lineWidth;
+		auto* data = paintFrame->getLinePtr(y, lineWidth, dest);
+		if (data != dest) {
+			memcpy(dest, data, lineWidth * sizeof(uint32_t));
 		}
-		pbo.unmap();
+	}
+	pbo.unmap();
 #if defined(__APPLE__)
-		// The nVidia GL driver for the GeForce 8000/9000 series seems to hang
-		// on texture data replacements that are 1 pixel wide and start on a
-		// line number that is a non-zero multiple of 16.
-		if (lineWidth == 1 && srcStartY != 0 && srcStartY % 16 == 0) {
-			srcStartY--;
-		}
+	// The nVidia GL driver for the GeForce 8000/9000 series seems to hang
+	// on texture data replacements that are 1 pixel wide and start on a
+	// line number that is a non-zero multiple of 16.
+	if (lineWidth == 1 && srcStartY != 0 && srcStartY % 16 == 0) {
+		srcStartY--;
+	}
 #endif
-		glTexSubImage2D(
-			GL_TEXTURE_2D,       // target
-			0,                   // level
-			0,                   // offset x
-			srcStartY,           // offset y
-			lineWidth,           // width
-			srcEndY - srcStartY, // height
-			GL_BGRA,             // format
-			GL_UNSIGNED_BYTE,    // type
-			pbo.getOffset(0, srcStartY)); // data
-	}
-	if (pbo.openGLSupported()) {
-		pbo.unbind();
-	}
-	if (!mapped) {
-		glPixelStorei(GL_UNPACK_ROW_LENGTH, paintFrame->getRowLength());
-		unsigned y = srcStartY;
-		unsigned remainingLines = srcEndY - srcStartY;
-		VLA_SSE_ALIGNED(uint32_t, buf, lineWidth);
-		while (remainingLines) {
-			unsigned lines;
-			auto* data = paintFrame->getMultiLinePtr(
-				y, remainingLines, lines, lineWidth, buf);
-			glTexSubImage2D(
-				GL_TEXTURE_2D,     // target
-				0,                 // level
-				0,                 // offset x
-				y,                 // offset y
-				lineWidth,         // width
-				lines,             // height
-				GL_BGRA,           // format
-				GL_UNSIGNED_BYTE,  // type
-				data);             // data
-
-			y += lines;
-			remainingLines -= lines;
-		}
-		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0); // restore default
-	}
+	glTexSubImage2D(
+		GL_TEXTURE_2D,       // target
+		0,                   // level
+		0,                   // offset x
+		srcStartY,           // offset y
+		lineWidth,           // width
+		srcEndY - srcStartY, // height
+		GL_RGBA,             // format
+		GL_UNSIGNED_BYTE,    // type
+		pbo.getOffset(0, srcStartY)); // data
+	pbo.unbind();
 
 	// possibly upload scaler specific data
 	if (currScaler) {
@@ -391,13 +362,6 @@ void GLPostProcessor::drawGlow(int glow)
 {
 	if ((glow == 0) || !storedFrame) return;
 
-	static const vec2 pos[4] = {
-		vec2(-1, 1), vec2(-1,-1), vec2( 1,-1), vec2( 1, 1)
-	};
-	static const vec2 tex[4] = {
-		vec2( 0, 1), vec2( 0, 0), vec2( 1, 0), vec2( 1, 1)
-	};
-
 	gl::context->progTex.activate();
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -406,13 +370,22 @@ void GLPostProcessor::drawGlow(int glow)
 	            1.0f, 1.0f, 1.0f, glow * 31 / 3200.0f);
 	mat4 I;
 	glUniformMatrix4fv(gl::context->unifTexMvp, 1, GL_FALSE, &I[0][0]);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, tex);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo.get());
+
+	const vec2* offset = nullptr;
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, offset); // pos
+	offset += 4; // see initBuffers()
 	glEnableVertexAttribArray(0);
+
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, offset); // tex
 	glEnableVertexAttribArray(1);
+
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glDisable(GL_BLEND);
 }
 
@@ -424,34 +397,44 @@ void GLPostProcessor::preCalcNoise(float factor)
 	std::normal_distribution<float> distribution(0.0f, 1.0f);
 	for (int i = 0; i < 256 * 256; ++i) {
 		float r = distribution(generator);
-		int s = Math::clip<-255, 255>(roundf(r * factor));
+		int s = std::clamp(int(roundf(r * factor)), -255, 255);
 		buf1[i] = (s > 0) ?  s : 0;
 		buf2[i] = (s < 0) ? -s : 0;
 	}
 
+	// GL_LUMINANCE is no longer supported in newer openGL versions
+	auto format = (OPENGL_VERSION >= OPENGL_3_3) ? GL_RED : GL_LUMINANCE;
 	noiseTextureA.bind();
 	glTexImage2D(
 		GL_TEXTURE_2D,    // target
 		0,                // level
-		GL_LUMINANCE,     // internal format
+		format,           // internal format
 		256,              // width
 		256,              // height
 		0,                // border
-		GL_LUMINANCE,     // format
+		format,           // format
 		GL_UNSIGNED_BYTE, // type
 		buf1);            // data
+#if OPENGL_VERSION >= OPENGL_3_3
+	GLint swizzleMask1[] = {GL_RED, GL_RED, GL_RED, GL_ONE};
+	glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask1);
+#endif
 
 	noiseTextureB.bind();
 	glTexImage2D(
 		GL_TEXTURE_2D,    // target
 		0,                // level
-		GL_LUMINANCE,     // internal format
+		format,           // internal format
 		256,              // width
 		256,              // height
 		0,                // border
-		GL_LUMINANCE,     // format
+		format,           // format
 		GL_UNSIGNED_BYTE, // type
 		buf2);            // data
+#if OPENGL_VERSION >= OPENGL_3_3
+	GLint swizzleMask2[] = {GL_RED, GL_RED, GL_RED, GL_ONE};
+	glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask2);
+#endif
 }
 
 void GLPostProcessor::drawNoise()
@@ -504,9 +487,9 @@ void GLPostProcessor::drawNoise()
 	glDisable(GL_BLEND);
 }
 
-static const int GRID_SIZE = 16;
-static const int GRID_SIZE1 = GRID_SIZE + 1;
-static const int NUM_INDICES = (GRID_SIZE1 * 2 + 2) * GRID_SIZE - 2;
+constexpr int GRID_SIZE = 16;
+constexpr int GRID_SIZE1 = GRID_SIZE + 1;
+constexpr int NUM_INDICES = (GRID_SIZE1 * 2 + 2) * GRID_SIZE - 2;
 struct Vertex {
 	vec3 position;
 	vec3 normal;
@@ -518,7 +501,7 @@ void GLPostProcessor::preCalcMonitor3D(float width)
 	// precalculate vertex-positions, -normals and -texture-coordinates
 	Vertex vertices[GRID_SIZE1][GRID_SIZE1];
 
-	static const float GRID_SIZE2 = float(GRID_SIZE) / 2.0f;
+	constexpr float GRID_SIZE2 = float(GRID_SIZE) / 2.0f;
 	float s = width / 320.0f;
 	float b = (320.0f - width) / (2.0f * 320.0f);
 

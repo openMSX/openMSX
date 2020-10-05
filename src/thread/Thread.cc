@@ -2,8 +2,7 @@
 #include <cassert>
 #include <thread>
 
-namespace openmsx {
-namespace Thread {
+namespace openmsx::Thread {
 
 static std::thread::id mainThreadId;
 
@@ -19,5 +18,4 @@ bool isMainThread()
 	return mainThreadId == std::this_thread::get_id();
 }
 
-} // namespace Thread
-} // namespace openmsx
+} // namespace openmsx::Thread

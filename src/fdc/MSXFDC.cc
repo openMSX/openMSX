@@ -8,7 +8,8 @@
 
 namespace openmsx {
 
-MSXFDC::MSXFDC(const DeviceConfig& config, const std::string& romId, bool needROM)
+MSXFDC::MSXFDC(const DeviceConfig& config, const std::string& romId, bool needROM,
+               DiskDrive::TrackMode trackMode)
 	: MSXDevice(config)
 	, rom(needROM
 		? std::make_unique<Rom>(getName() + " ROM", "rom", config, romId)
@@ -31,7 +32,7 @@ MSXFDC::MSXFDC(const DeviceConfig& config, const std::string& romId, bool needRO
 	for ( ; i < numDrives; ++i) {
 		drives[i] = std::make_unique<RealDrive>(
 			getMotherBoard(), motorTimeout, signalsNeedMotorOn,
-			!singleSided);
+			!singleSided, trackMode);
 	}
 	for ( ; i < 4; ++i) {
 		drives[i] = std::make_unique<DummyDrive>();

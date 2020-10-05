@@ -1,15 +1,13 @@
 #ifndef SDLGLVISIBLESURFACE_HH
 #define SDLGLVISIBLESURFACE_HH
 
-#include "VisibleSurface.hh"
-#include "SDLGLOutputSurface.hh"
+#include "SDLVisibleSurfaceBase.hh"
 
 namespace openmsx {
 
-/** Visible surface for openGL renderers, both SDLGL-PP and SDLGL-FBxx
+/** Visible surface for SDL openGL renderers
  */
-class SDLGLVisibleSurface final : public VisibleSurface
-                                , public SDLGLOutputSurface
+class SDLGLVisibleSurface final : public SDLVisibleSurfaceBase
 {
 public:
 	SDLGLVisibleSurface(unsigned width, unsigned height,
@@ -18,14 +16,14 @@ public:
 	                    EventDistributor& eventDistributor,
 	                    InputEventGenerator& inputEventGenerator,
 	                    CliComm& cliComm,
-	                    FrameBuffer frameBuffer = FB_NONE);
+	                    VideoSystem& videoSystem);
 	~SDLGLVisibleSurface() override;
 
-private:
+	static void saveScreenshotGL(const OutputSurface& output,
+	                             const std::string& filename);
+
 	// OutputSurface
-	void flushFrameBuffer() override;
 	void saveScreenshot(const std::string& filename) override;
-	void clearScreen() override;
 
 	// VisibleSurface
 	void finish() override;
@@ -34,6 +32,15 @@ private:
 		Reactor& reactor, CommandConsole& console) override;
 	std::unique_ptr<Layer> createOSDGUILayer(OSDGUI& gui) override;
 	std::unique_ptr<OutputSurface> createOffScreenSurface() override;
+	void fullScreenUpdated(bool fullscreen) override;
+
+private:
+	void setViewPort(gl::ivec2 logicalSize, bool fullscreen);
+
+private:
+	struct VSyncObserver : openmsx::Observer<Setting> {
+		void update(const Setting& setting) override;
+	} vSyncObserver;
 
 	SDL_GLContext glContext;
 };

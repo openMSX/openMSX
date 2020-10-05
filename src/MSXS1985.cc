@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-static const byte ID = 0xFE;
+constexpr byte ID = 0xFE;
 
 MSXS1985::MSXS1985(const DeviceConfig& config)
 	: MSXDevice(config)

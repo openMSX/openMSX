@@ -36,6 +36,7 @@ protected:
 	void update(const Setting& setting) override;
 
 private:
+	void initBuffers();
 	void createRegions();
 	void uploadFrame();
 	void uploadBlock(unsigned srcStartY, unsigned srcEndY,
@@ -95,6 +96,8 @@ private:
 	gl::ShaderProgram monitor3DProg;
 	gl::BufferObject arrayBuffer;
 	gl::BufferObject elementbuffer;
+	gl::BufferObject vbo;
+	gl::BufferObject stretchVBO;
 
 	bool storedFrame;
 };

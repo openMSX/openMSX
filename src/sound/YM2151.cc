@@ -17,37 +17,37 @@ namespace openmsx {
 
 // TODO void ym2151WritePortCallback(void* ref, unsigned port, byte value);
 
-static const int FREQ_SH  = 16; // 16.16 fixed point (frequency calculations)
+constexpr int FREQ_SH  = 16; // 16.16 fixed point (frequency calculations)
 
-static const int FREQ_MASK = (1 << FREQ_SH) - 1;
+constexpr int FREQ_MASK = (1 << FREQ_SH) - 1;
 
-static const int ENV_BITS = 10;
-static const int ENV_LEN  = 1 << ENV_BITS;
-static const float ENV_STEP = 128.0f / ENV_LEN;
+constexpr int ENV_BITS = 10;
+constexpr int ENV_LEN  = 1 << ENV_BITS;
+constexpr float ENV_STEP = 128.0f / ENV_LEN;
 
-static const int MAX_ATT_INDEX = ENV_LEN - 1; // 1023
-static const int MIN_ATT_INDEX = 0;
+constexpr int MAX_ATT_INDEX = ENV_LEN - 1; // 1023
+constexpr int MIN_ATT_INDEX = 0;
 
-static const unsigned EG_ATT = 4;
-static const unsigned EG_DEC = 3;
-static const unsigned EG_SUS = 2;
-static const unsigned EG_REL = 1;
-static const unsigned EG_OFF = 0;
+constexpr unsigned EG_ATT = 4;
+constexpr unsigned EG_DEC = 3;
+constexpr unsigned EG_SUS = 2;
+constexpr unsigned EG_REL = 1;
+constexpr unsigned EG_OFF = 0;
 
-static const int SIN_BITS = 10;
-static const int SIN_LEN  = 1 << SIN_BITS;
-static const int SIN_MASK = SIN_LEN - 1;
+constexpr int SIN_BITS = 10;
+constexpr int SIN_LEN  = 1 << SIN_BITS;
+constexpr int SIN_MASK = SIN_LEN - 1;
 
-static const int TL_RES_LEN = 256; // 8 bits addressing (real chip)
+constexpr int TL_RES_LEN = 256; // 8 bits addressing (real chip)
 
 // TL_TAB_LEN is calculated as:
 //  13 - sinus amplitude bits     (Y axis)
 //  2  - sinus sign bit           (Y axis)
 // TL_RES_LEN - sinus resolution (X axis)
-static const unsigned TL_TAB_LEN = 13 * 2 * TL_RES_LEN;
+constexpr unsigned TL_TAB_LEN = 13 * 2 * TL_RES_LEN;
 static int tl_tab[TL_TAB_LEN];
 
-static const unsigned ENV_QUIET = TL_TAB_LEN >> 3;
+constexpr unsigned ENV_QUIET = TL_TAB_LEN >> 3;
 
 // sin waveform table in 'decibel' scale
 static unsigned sin_tab[SIN_LEN];
@@ -56,8 +56,8 @@ static unsigned sin_tab[SIN_LEN];
 static unsigned d1l_tab[16];
 
 
-static const unsigned RATE_STEPS = 8;
-static byte eg_inc[19 * RATE_STEPS] = {
+constexpr unsigned RATE_STEPS = 8;
+constexpr byte eg_inc[19 * RATE_STEPS] = {
 
 //cycle:0 1  2 3  4 5  6 7
 
@@ -87,9 +87,9 @@ static byte eg_inc[19 * RATE_STEPS] = {
 };
 
 
-#define O(a) ((a) * RATE_STEPS)
+static constexpr byte O(int a) { return a * RATE_STEPS; }
 // note that there is no O(17) in this table - it's directly in the code
-static byte eg_rate_select[32 + 64 + 32] = {
+constexpr byte eg_rate_select[32 + 64 + 32] = {
 // Envelope Generator rates (32 + 64 rates + 32 RKS)
 // 32 dummy (infinite time) rates
 O(18),O(18),O(18),O(18),O(18),O(18),O(18),O(18),
@@ -129,53 +129,50 @@ O(16),O(16),O(16),O(16),O(16),O(16),O(16),O(16),
 O(16),O(16),O(16),O(16),O(16),O(16),O(16),O(16),
 O(16),O(16),O(16),O(16),O(16),O(16),O(16),O(16)
 };
-#undef O
 
 // rate  0,    1,    2,   3,   4,   5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15
 // shift 11,   10,   9,   8,   7,   6,  5,  4,  3,  2, 1,  0,  0,  0,  0,  0
 // mask  2047, 1023, 511, 255, 127, 63, 31, 15, 7,  3, 1,  0,  0,  0,  0,  0
-#define O(a) ((a) * 1)
-static byte eg_rate_shift[32 + 64 + 32] = {
+constexpr byte eg_rate_shift[32 + 64 + 32] = {
 // Envelope Generator counter shifts (32 + 64 rates + 32 RKS)
 // 32 infinite time rates
-O(0),O(0),O(0),O(0),O(0),O(0),O(0),O(0),
-O(0),O(0),O(0),O(0),O(0),O(0),O(0),O(0),
-O(0),O(0),O(0),O(0),O(0),O(0),O(0),O(0),
-O(0),O(0),O(0),O(0),O(0),O(0),O(0),O(0),
+   0,  0,  0,  0,  0,  0,  0,  0,
+   0,  0,  0,  0,  0,  0,  0,  0,
+   0,  0,  0,  0,  0,  0,  0,  0,
+   0,  0,  0,  0,  0,  0,  0,  0,
 
 // rates 00-11
-O(11),O(11),O(11),O(11),
-O(10),O(10),O(10),O(10),
-O( 9),O( 9),O( 9),O( 9),
-O( 8),O( 8),O( 8),O( 8),
-O( 7),O( 7),O( 7),O( 7),
-O( 6),O( 6),O( 6),O( 6),
-O( 5),O( 5),O( 5),O( 5),
-O( 4),O( 4),O( 4),O( 4),
-O( 3),O( 3),O( 3),O( 3),
-O( 2),O( 2),O( 2),O( 2),
-O( 1),O( 1),O( 1),O( 1),
-O( 0),O( 0),O( 0),O( 0),
+  11, 11, 11, 11,
+  10, 10, 10, 10,
+   9,  9,  9,  9,
+   8,  8,  8,  8,
+   7,  7,  7,  7,
+   6,  6,  6,  6,
+   5,  5,  5,  5,
+   4,  4,  4,  4,
+   3,  3,  3,  3,
+   2,  2,  2,  2,
+   1,  1,  1,  1,
+   0,  0,  0,  0,
 
 // rate 12
-O( 0),O( 0),O( 0),O( 0),
+   0,  0,  0,  0,
 
 // rate 13
-O( 0),O( 0),O( 0),O( 0),
+   0,  0,  0,  0,
 
 // rate 14
-O( 0),O( 0),O( 0),O( 0),
+   0,  0,  0,  0,
 
 // rate 15
-O( 0),O( 0),O( 0),O( 0),
+   0,  0,  0,  0,
 
 // 32 dummy rates (same as 15 3)
-O( 0),O( 0),O( 0),O( 0),O( 0),O( 0),O( 0),O( 0),
-O( 0),O( 0),O( 0),O( 0),O( 0),O( 0),O( 0),O( 0),
-O( 0),O( 0),O( 0),O( 0),O( 0),O( 0),O( 0),O( 0),
-O( 0),O( 0),O( 0),O( 0),O( 0),O( 0),O( 0),O( 0)
+   0,  0,  0,  0,  0,  0,  0,  0,
+   0,  0,  0,  0,  0,  0,  0,  0,
+   0,  0,  0,  0,  0,  0,  0,  0,
+   0,  0,  0,  0,  0,  0,  0,  0
 };
-#undef O
 
 // DT2 defines offset in cents from base note
 //
@@ -186,12 +183,12 @@ O( 0),O( 0),O( 0),O( 0),O( 0),O( 0),O( 0),O( 0)
 //
 // DT2=0 DT2=1 DT2=2 DT2=3
 // 0     600   781   950
-static unsigned dt2_tab[4] = { 0, 384, 500, 608 };
+constexpr unsigned dt2_tab[4] = { 0, 384, 500, 608 };
 
 // DT1 defines offset in Hertz from base note
 // This table is converted while initialization...
 // Detune table shown in YM2151 User's Manual is wrong (verified on the real chip)
-static byte dt1_tab[4 * 32] = {
+constexpr byte dt1_tab[4 * 32] = {
 // DT1 = 0
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -209,7 +206,7 @@ static byte dt1_tab[4 * 32] = {
   8, 8, 9,10,11,12,13,14,16,17,19,20,22,22,22,22
 };
 
-static word phaseinc_rom[768] = {
+constexpr word phaseinc_rom[768] = {
 1299,1300,1301,1302,1303,1304,1305,1306,1308,1309,1310,1311,1313,1314,1315,1316,
 1318,1319,1320,1321,1322,1323,1324,1325,1327,1328,1329,1330,1332,1333,1334,1335,
 1337,1338,1339,1340,1341,1342,1343,1344,1346,1347,1348,1349,1351,1352,1353,1354,
@@ -274,7 +271,7 @@ static word phaseinc_rom[768] = {
 // possible that two values: 0x80 and 0x00 might be wrong in this table.
 // To be exact:
 // some 0x80 could be 0x81 as well as some 0x00 could be 0x01.
-static byte lfo_noise_waveform[256] = {
+constexpr byte lfo_noise_waveform[256] = {
 0xFF,0xEE,0xD3,0x80,0x58,0xDA,0x7F,0x94,0x9E,0xE3,0xFA,0x00,0x4D,0xFA,0xFF,0x6A,
 0x7A,0xDE,0x49,0xF6,0x00,0x33,0xBB,0x63,0x91,0x60,0x51,0xFF,0x00,0xD8,0x7F,0xDE,
 0xDC,0x73,0x21,0x85,0xB2,0x9C,0x5D,0x24,0xCD,0x91,0x9E,0x76,0x7F,0x20,0xFB,0xF3,
@@ -833,10 +830,10 @@ void YM2151::writeReg(byte r, byte v, EmuTime::param time)
 	}
 }
 
-static constexpr auto INPUT_RATE = unsigned(cstd::round(3579545 / 64.0));
+constexpr auto INPUT_RATE = unsigned(cstd::round(3579545 / 64.0));
 
 YM2151::YM2151(const std::string& name_, const std::string& desc,
-                   const DeviceConfig& config, EmuTime::param time)
+               const DeviceConfig& config, EmuTime::param time)
 	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 8, INPUT_RATE, true)
 	, irq(config.getMotherBoard(), getName() + ".IRQ")
 	, timer1(EmuTimer::createOPM_1(config.getScheduler(), *this))

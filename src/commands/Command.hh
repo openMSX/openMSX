@@ -3,9 +3,9 @@
 
 #include "Completer.hh"
 #include "span.hh"
-#include "string_view.hh"
 #include "strCat.hh"
 #include "CommandException.hh"
+#include <string_view>
 #include <vector>
 
 namespace openmsx {
@@ -26,7 +26,7 @@ public:
 	Interpreter& getInterpreter() const final;
 
 protected:
-	CommandCompleter(CommandController& controller, string_view name);
+	CommandCompleter(CommandController& controller, std::string_view name);
 	~CommandCompleter();
 
 	GlobalCommandController& getGlobalCommandController() const;
@@ -70,7 +70,7 @@ public:
 
 	// helper to delegate to a subcommand
 	template<typename... Args>
-	void executeSubCommand(string_view subcmd, Args&&... args) {
+	void executeSubCommand(std::string_view subcmd, Args&&... args) {
 		try {
 			executeSubCommandImpl(subcmd, std::forward<Args>(args)...);
 		} catch (UnknownSubCommand) {
@@ -79,35 +79,35 @@ public:
 	}
 
 protected:
-	Command(CommandController& controller, string_view name);
+	Command(CommandController& controller, std::string_view name);
 	~Command();
 
 private:
 	template<typename Func, typename... Args>
-	void executeSubCommandImpl(string_view subcmd, string_view candidate, Func func, Args&&... args) {
+	void executeSubCommandImpl(std::string_view subcmd, std::string_view candidate, Func func, Args&&... args) {
 		if (subcmd == candidate) {
 			func();
 		} else {
 			executeSubCommandImpl(subcmd, std::forward<Args>(args)...);
 		}
 	}
-	void executeSubCommandImpl(string_view /*subcmd*/) {
+	void executeSubCommandImpl(std::string_view /*subcmd*/) {
 		throw UnknownSubCommand{}; // exhausted all possible candidates
 	}
 
 	template<typename Func, typename... Args>
-	void unknownSubCommand(string_view subcmd, string_view firstCandidate, Func /*func*/, Args&&... args) {
+	void unknownSubCommand(std::string_view subcmd, std::string_view firstCandidate, Func /*func*/, Args&&... args) {
 		unknownSubCommandImpl(strCat("Unknown subcommand '", subcmd, "'. Must be one of '", firstCandidate, '\''),
 		                      std::forward<Args>(args)...);
 	}
 	template<typename Func, typename... Args>
-	void unknownSubCommandImpl(std::string message, string_view candidate, Func /*func*/, Args&&... args) {
+	void unknownSubCommandImpl(std::string message, std::string_view candidate, Func /*func*/, Args&&... args) {
 		strAppend(message, ", '", candidate, '\'');
 		unknownSubCommandImpl(message, std::forward<Args>(args)...);
 		throw SyntaxError();
 	}
 	template<typename Func>
-	void unknownSubCommandImpl(std::string message, string_view lastCandidate, Func /*func*/) {
+	void unknownSubCommandImpl(std::string message, std::string_view lastCandidate, Func /*func*/) {
 		strAppend(message, " or '", lastCandidate, "'.");
 		throw CommandException(message);
 	}

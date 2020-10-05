@@ -14,6 +14,7 @@
 #include "SectorBasedDisk.hh"
 #include "StringOp.hh"
 #include "TclObject.hh"
+#include "one_of.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "strCat.hh"
@@ -24,16 +25,11 @@
 #include <stdexcept>
 
 using std::string;
-using std::vector;
+using std::string_view;
 using std::unique_ptr;
+using std::vector;
 
 namespace openmsx {
-
-#ifndef _MSC_EXTENSIONS
-// #ifdef required to avoid link error with vc++, see also
-//   http://www.codeguru.com/forum/showthread.php?t=430949
-const unsigned DiskManipulator::MAX_PARTITIONS;
-#endif
 
 DiskManipulator::DiskManipulator(CommandController& commandController_,
                                  Reactor& reactor_)
@@ -118,7 +114,7 @@ DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
 		it->partition = 0;
 	} else {
 		try {
-			unsigned partition = fast_stou(diskname.substr(pos2));
+			unsigned partition = StringOp::fast_stou(diskname.substr(pos2));
 			DiskImageUtils::checkFAT12Partition(*disk, partition);
 			it->partition = partition;
 		} catch (std::invalid_argument&) {
@@ -145,21 +141,18 @@ void DiskManipulator::execute(span<const TclObject> tokens, TclObject& result)
 	}
 
 	string_view subcmd = tokens[1].getString();
-	if (((tokens.size() != 4)                     && (subcmd == "savedsk")) ||
-	    ((tokens.size() != 4)                     && (subcmd == "mkdir"))   ||
-	    ((tokens.size() != 3)                     && (subcmd == "dir"))     ||
-	    ((tokens.size() < 3 || tokens.size() > 4) && (subcmd == "format"))  ||
-	    ((tokens.size() < 3 || tokens.size() > 4) && (subcmd == "chdir"))   ||
-	    ((tokens.size() < 4)                      && (subcmd == "export"))  ||
-	    ((tokens.size() < 4)                      && (subcmd == "import"))  ||
-	    ((tokens.size() < 4)                      && (subcmd == "create"))) {
+	if (((tokens.size() != 4)                     && (subcmd == one_of("savedsk", "mkdir"))) ||
+	    ((tokens.size() != 3)                     && (subcmd ==        "dir"             ))  ||
+	    ((tokens.size() < 3 || tokens.size() > 4) && (subcmd == one_of("format", "chdir")))  ||
+	    ((tokens.size() < 4)                      && (subcmd == one_of("export", "import", "create")))) {
 		throw CommandException("Incorrect number of parameters");
 	}
 
 	if (subcmd == "export") {
-		string_view directory = tokens[3].getString();
+		string_view dir = tokens[3].getString();
+		auto directory = FileOperations::expandTilde(dir);
 		if (!FileOperations::isDirectory(directory)) {
-			throw CommandException(directory, " is not a directory");
+			throw CommandException(dir, " is not a directory");
 		}
 		auto& settings = getDriveSettings(tokens[2].getString());
 		span<const TclObject> lists(std::begin(tokens) + 4, std::end(tokens));
@@ -285,7 +278,7 @@ string DiskManipulator::help(const vector<string>& tokens) const
 void DiskManipulator::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		static const char* const cmds[] = {
+		static constexpr const char* const cmds[] = {
 			"import", "export", "savedsk", "dir", "create",
 			"format", "chdir", "mkdir",
 		};
@@ -296,7 +289,7 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 
 	} else if (tokens.size() == 3) {
 		vector<string> names;
-		if ((tokens[1] == "format") || (tokens[1] == "create")) {
+		if (tokens[1] == one_of("format", "create")) {
 			names.emplace_back("-dos1");
 		}
 		for (auto& d : drives) {
@@ -320,17 +313,15 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 		completeString(tokens, names);
 
 	} else if (tokens.size() >= 4) {
-		if ((tokens[1] == "savedsk") ||
-		    (tokens[1] == "import")  ||
-		    (tokens[1] == "export")) {
+		if (tokens[1] == one_of("savedsk", "import", "export")) {
 			completeFileName(tokens, userFileContext());
 		} else if (tokens[1] == "create") {
-			static const char* const cmds[] = {
+			static constexpr const char* const cmds[] = {
 				"360", "720", "32M", "-dos1"
 			};
 			completeString(tokens, cmds);
 		} else if (tokens[1] == "format") {
-			static const char* const cmds[] = {
+			static constexpr const char* const cmds[] = {
 				"-dos1"
 			};
 			completeString(tokens, cmds);
@@ -366,7 +357,7 @@ void DiskManipulator::create(span<const TclObject> tokens)
 			throw CommandException(
 				"Maximum number of partitions is ", MAX_PARTITIONS);
 		}
-		string tok = tokens[i].getString().str();
+		string tok(tokens[i].getString());
 		char* q;
 		int sectors = strtol(tok.c_str(), &q, 0);
 		int scale = 1024; // default is kilobytes
@@ -416,7 +407,7 @@ void DiskManipulator::create(span<const TclObject> tokens)
 	}
 
 	// create file with correct size
-	Filename filename(tokens[2].getString().str());
+	Filename filename(string(tokens[2].getString()));
 	try {
 		File file(filename, File::CREATE);
 		file.truncate(totalSectors * SectorBasedDisk::SECTOR_SIZE);
@@ -480,7 +471,7 @@ string DiskManipulator::chdir(DriveSettings& driveData, string_view filename)
 	// TODO clean-up this temp hack, used to enable relative paths
 	string& cwd = driveData.workingDir[driveData.partition];
 	if (StringOp::startsWith(filename, '/')) {
-		cwd = filename.str();
+		cwd = filename;
 	} else {
 		if (!StringOp::endsWith(cwd, '/')) cwd += '/';
 		cwd.append(filename.data(), filename.size());
@@ -509,7 +500,7 @@ string DiskManipulator::import(DriveSettings& driveData,
 	auto& interp = getInterpreter();
 	for (auto& l : lists) {
 		for (auto i : xrange(l.getListLength(interp))) {
-			auto s = l.getListIndex(interp, i).getString();
+			auto s = FileOperations::expandTilde(l.getListIndex(interp, i).getString());
 			try {
 				FileOperations::Stat st;
 				if (!FileOperations::getStat(s, st)) {
@@ -519,7 +510,7 @@ string DiskManipulator::import(DriveSettings& driveData,
 				if (FileOperations::isDirectory(st)) {
 					messages += workhorse->addDir(s);
 				} else if (FileOperations::isRegularFile(st)) {
-					messages += workhorse->addFile(s.str());
+					messages += workhorse->addFile(string(s));
 				} else {
 					// ignore other stuff (sockets, device nodes, ..)
 					strAppend(messages, "Ignoring ", s, '\n');

@@ -89,7 +89,7 @@ protected:
 	virtual void processEscSequence() = 0;
 	virtual void processCharacter(byte data) = 0;
 
-	static const unsigned PIXEL_WIDTH = 8;
+	static constexpr unsigned PIXEL_WIDTH = 8;
 
 	double graphDensity;
 	double fontDensity;
@@ -126,10 +126,10 @@ protected:
 	};
 	CountryCode countryCode;
 
-	static const int MAX_ESC_CMDSIZE = 8;
+	static constexpr int MAX_ESC_CMDSIZE = 8;
 	byte abEscSeq[MAX_ESC_CMDSIZE];
 
-	static const int MAX_FONT_WIDTH = 12;
+	static constexpr int MAX_FONT_WIDTH = 12;
 	struct FontInfo {
 		byte rom[256 * MAX_FONT_WIDTH];
 		byte ram[256 * MAX_FONT_WIDTH];
@@ -175,7 +175,7 @@ public:
 
 	// Pluggable
 	const std::string& getName() const override;
-	string_view getDescription() const override;
+	std::string_view getDescription() const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -199,7 +199,7 @@ public:
 
 	// Pluggable
 	const std::string& getName() const override;
-	string_view getDescription() const override;
+	std::string_view getDescription() const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

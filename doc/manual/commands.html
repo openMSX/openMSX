@@ -1,14 +1,10 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <link title="Purple" rel="stylesheet" href="manual-purple.css" type="text/css" />
-  <link title="Minty" rel="alternate stylesheet" href="manual-minty.css" type="text/css" />
-  <link title="Plain" rel="alternate stylesheet" href="manual.css" type="text/css" />
-
+  <meta charset="utf-8">
+  <link title="Purple" rel="stylesheet" href="manual-purple.css" type="text/css">
+  <link title="Minty" rel="alternate stylesheet" href="manual-minty.css" type="text/css">
+  <link title="Plain" rel="alternate stylesheet" href="manual.css" type="text/css">
   <title>openMSX Console Command Reference</title>
 </head>
 
@@ -114,6 +110,8 @@
         <li><a class="internal" href="#display_deform">display_deform</a></li>
         <li><a class="internal" href="#di_halt_callback">di_halt_callback</a></li>
         <li><a class="internal" href="#enable_session_management">enable_session_management</a></li>
+        <li><a class="internal" href="#fastforward">fastforward</a></li>
+        <li><a class="internal" href="#fastforwardspeed">fastforwardspeed</a></li>
         <li><a class="internal" href="#frequency">frequency</a></li>
         <li><a class="internal" href="#firmwareswitch">firmwareswitch</a></li>
         <li><a class="internal" href="#fullscreen">fullscreen</a></li>
@@ -124,6 +122,7 @@
         <li><a class="internal" href="#horizontal_stretch">horizontal_stretch</a></li>
         <li><a class="internal" href="#inputdelay">inputdelay</a></li>
         <li><a class="internal" href="#interleave_black_frame">interleave_black_frame</a></li>
+        <li><a class="internal" href="#invalid_ppi_mode_callback">invalid_ppi_mode_callback</a></li>
         <li><a class="internal" href="#invalid_psg_directions_callback">invalid_psg_directions_callback</a></li>
         <li><a class="internal" href="#joystickN_config">joystick&lt;n&gt;_config</a></li>
         <li><a class="internal" href="#joystickN_deadzone">joystick&lt;n&gt;_deadzone</a></li>
@@ -184,6 +183,7 @@
         <li><a class="internal" href="#vdpcmdinprogress_callback">vdpcmdinprogress_callback</a></li>
         <li><a class="internal" href="#vdpcmdtrace">vdpcmdtrace</a></li>
         <li><a class="internal" href="#videosource">videosource</a></li>
+        <li><a class="internal" href="#vsync">vsync</a></li>
         <li><a class="internal" href="#v9990cmdtrace">v9990cmdtrace</a></li>
         <li><a class="internal" href="#z80_freq">z80_freq / z80_freq_locked</a></li>
         <li><a class="internal" href="#othersettings">other</a></li>
@@ -289,11 +289,11 @@
   <p>Associate events (such as key presses) with commands. Whenever the
   specified event occurs (e.g. you press the specified key), the corresponding
   command will be executed. Any Tcl command or combination of commands
-  separated with <tt>;</tt> (normal Tcl syntax) can be used. To customize your
+  separated with <code>;</code> (normal Tcl syntax) can be used. To customize your
   bindings you should use the (un)bind commands. A script that wants to provide
-  a default binding for its functionality needs to use <tt>bind_default</tt>,
+  a default binding for its functionality needs to use <code>bind_default</code>,
   this allows users with different preferences to overrule the default
-  bindings. Using the <tt>-repeat</tt> option makes sure that if the event is
+  bindings. Using the <code>-repeat</code> option makes sure that if the event is
   repeated (e.g. keyboard events when keeping a key pressed), the command is
   repeated as well.</p>
 
@@ -401,10 +401,10 @@
     <code>bind PAGEUP   "set speed 100"</code><br />
     <code>bind PAGEDOWN "set speed  50"</code><br />
     <br />
-    Only run with full throttle while F9 is pressed (like BrMSX):<br />
+    Only run in fastforward-mode while F9 is pressed (like BrMSX):<br />
     <code>unbind F9</code><br />
-    <code>bind F9         "set throttle off"</code><br />
-    <code>bind F9,release "set throttle on"</code><br />
+    <code>bind F9         "set fastforward off"</code><br />
+    <code>bind F9,release "set fastforward on"</code><br />
     <br />
     Pause when window loses focus (like fMSX):<br />
     <code>bind "focus 0" "set pause on"</code><br />
@@ -680,12 +680,14 @@
     </tr>
 
     <tr>
-      <td><code>debug set_bp &lt;addr&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
+      <td><code>debug set_bp [-once] &lt;addr&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
 
       <td>Insert a new breakpoint at the given address. Optionally you can specify a condition and a command. When
       the CPU is about to execute the instruction at the given address, the condition will be evaluated, if this
       evaluates to true then the command is executed. The condition can be any Tcl expression and the command can be
-      any Tcl command. The default condition is 'true' and the default command is <code>"debug break"</code>.</td>
+      any Tcl command. The default condition is 'true' and the default command is <code>"debug break"</code>.
+      If the <code>-once</code> flag is passed, the breakpoint is automatically removed after it triggered.
+      In other words: it will only trigger once.</td>
     </tr>
 
     <tr>
@@ -701,10 +703,10 @@
     </tr>
 
     <tr>
-      <td><code>debug set_watchpoint &lt;type&gt; &lt;region&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
+      <td><code>debug set_watchpoint [-once] &lt;type&gt; &lt;region&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
 
       <td>Insert a new watchpoint. When the CPU is about to read or write to/from the specified memory or I/O region,
-      the condition is evaluated. If the condition evaluated to true, the command is executed. The condition and the
+      the condition is evaluated. If the condition evaluated to true, the command is executed. The -once flag, the condition and the
       command are similar to the ones in the <code>set_bp</code> subcommand. A watchpoint can either be set on a single memory
       address or I/O port (specify a single value), or on a whole memory or I/O port range (specify a begin/end pair).
       For example: <code>debug set_watchpoint write_mem {0x8000 0x8FFF}</code>. During the execution of <code>&lt;cmd&gt;</code>, the following global Tcl variables are set: <code>::wp_last_address</code>, which is the actual address of the mem/io read/write that triggered the watchpoint and <code>::wp_last_value</code>, the actual value that was written by the mem/io write that triggered the watchpoint.</td>
@@ -723,7 +725,7 @@
     </tr>
 
     <tr>
-      <td><code>debug set_condition &lt;cond&gt; [&lt;cmd&gt;]</code></td>
+      <td><code>debug set_condition [-once] &lt;cond&gt; [&lt;cmd&gt;]</code></td>
 
       <td>Set a new debugger condition. Conditions are like breakpoints, but not
           tied to a specific address. Simulation is much slower when conditions
@@ -758,7 +760,7 @@
       <td>Returns the current value of a probe. But note that not all probes have a value</td>
     </tr>
     <tr>
-      <td><code>debug probe set_bp &lt;probe&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
+      <td><code>debug probe set_bp [-once] &lt;probe&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
       <td>Set a breakpoint on a probe. Like in the 'set_bp' subcommand you can optionally specify a condition and a command.</td>
     </tr>
     <tr>
@@ -816,6 +818,21 @@
     Note: Some of the commands are pretty low level. In the share/scripts directory you'll find some Tcl scripts that
     offer convenience wrappers around these commands. For example: <a class="internal" href="#other"><code>showmem</code></a>, <a class="internal" href="#other"><code>disasm</code></a>, <a class="internal" href="#other"><code>cpuregs</code></a>, <a class="internal" href="#other"><code>save_debuggable</code></a>, etc.
   </div>
+
+  <h3><a id="disable_reversebar">disable_reversebar</a></h3>
+
+  <p>Disables the bar on top of the gui to reverse the emulator status. Use also <code>toggle_reversebar</code> command to enable/disable this feature.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>disable_reversebar</code></td>
+      <td>Disables reverse status emulator bar.</td>
+    </tr>
+  </table>
 
   <h3><a id="disk">disk&lt;x&gt; / virtual_drive</a></h3>
 
@@ -892,6 +909,21 @@
     <tr>
       <td><code>exit</code></td>
       <td>Exits the emulator</td>
+    </tr>
+  </table>
+
+  <h3><a id="enable_reversebar">enable_reversebar</a></h3>
+
+  <p>Enables a bar on top of the gui to reverse the emulator status. Use also <code>toggle_reversebar</code> command to enable/disable this feature.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>enable_reversebar</code></td>
+      <td>Enable reverse status emulator bar.</td>
     </tr>
   </table>
 
@@ -2775,7 +2807,7 @@
     </tr>
     <tr>
       <td><code>set auto_enable_reverse gui</code></td>
-      <td>Enable the reverse feature and the reverse bar when openMSX starts</td>
+      <td>Enable the reverse feature and the reverse bar when openMSX starts. Default setting for Desktop/PC</td>
     </tr>
   </table>
 
@@ -3449,6 +3481,56 @@
   <p>Sessions can also be saved manually with the command <code>save_session</code>, and explicitly loaded with <code>load_session</code>. A list of saved sessions can be retrieved with <code>list_sessions</code>.
   </p>
 
+  <h3><a id="fastforward">fastforward</a></h3>
+
+  <p>Chooses between normal speed (off) and fastforward speed (on).</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set fastforward</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set fastforward on</code></td>
+
+      <td>Run at fastforward speed: the <code><a class="internal" href="#fastforwardspeed">fastforwardspeed</a></code> setting determines how fast the emulated MSX runs compared to real time</td>
+    </tr>
+
+    <tr>
+      <td><code>set fastforward off</code></td>
+
+      <td>Run at normal speed: the <code><a class="internal" href="#speed">speed</a></code> setting determines how fast the emulated MSX runs compared to real time</td>
+    </tr>
+  </table>
+
+  <h3><a id="fastforwardspeed">fastforwardspeed</a></h3>
+
+  <p>Sets the emulation speed relative to the speed of a real MSX when we are running in <a class="internal" href="#fastforward">fastforward mode</a>. Speed 100 means as fast as a real MSX, lower values are slower than real MSX, higher values are faster than real MSX.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set fastforwardspeed</code></td>
+
+      <td>Shows current fastforward speed</td>
+    </tr>
+
+    <tr>
+      <td><code>set fastforwardspeed &lt;num&gt;</code></td>
+
+      <td>Sets new fastforward speed to &lt;num&gt;% of real time</td>
+    </tr>
+  </table>
+
   <h3><a id="frequency">frequency</a></h3>
 
   <p>Sets the sound mixer frequency. Sound hardware and sound APIs typically support a limited set of frequencies, such as 11025 Hz, 22050 Hz, 44100 Hz and 48000 Hz.</p>
@@ -3729,6 +3811,27 @@
     <tr>
       <td><code>set interleave_black_frame true</code></td>
       <td>Enable this feature.</td>
+    </tr>
+  </table>
+
+
+  <h3><a id="invalid_ppi_mode_callback">invalid_ppi_mode_callback</a></h3>
+
+  <p>Selects the Tcl procedure to be called when the running MSX software has selected an invalid PPI mode. Or at least a PPI mode that's not yet correctly emulated. Typically on a real machine these modes will hang the MSX.</p>
+
+  <p>The default openmsx startup scripts initialize this setting with a proc that prints a warning message just once. Though if you're a developer you may want to change this to always print the warning or automatically break emulation when this happens so you can debug the problem.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+  <table>
+    <tr>
+      <td><code>set invalid_ppi_mode_callback</code></td>
+      <td>Shows the current setting</td>
+    </tr>
+    <tr>
+      <td><code>set invalid_ppi_mode_callback my_callback_proc</code></td>
+      <td>Sets a new callback proc</td>
     </tr>
   </table>
 
@@ -4044,22 +4147,26 @@
 
   <h3><a id="kbd_mapping_mode">kbd_mapping_mode</a></h3>
 
-  <p>The keyboard driver can work in two mapping modes; KEY mapping and CHARACTER mapping.</p>
+  <p>The keyboard driver can work in several mapping modes: CHARACTER, POSITIONAL or KEY.</p>
 
   <dl>
-    <dt>KEY mapping:</dt>
-    <dd>A key pressed on the host keyboard maps to one specific key on the MSX keyboard. This mode
-  is convenient when the host keyboard and the MSX keyboard have the same layout or when working with a program
-  that directly reads the keyboard matrix and forces the user to enter a certain key combination that can not
-  be auto-generated in the CHARACTER mapping mode.</dd>
     <dt>CHARACTER mapping:</dt>
-    <dd>A character entered by the user is mapped to the correct key combination on the MSX to
-  enter that character. For example, when the user enters an ! character and openMSX is emulating an 'international'
-  MSX model, the keyboard driver will press SHIFT and 1 on the MSX keyboard. This will be done regardless of the key
-  or keys that the user pressed on the host keyboard to enter the ! character.<br/>
+    <dd>A character entered by the user on the host keyboard is mapped to the correct key combination on the MSX keyboard to
+  enter that same character. For example, when the user enters an '!' character and openMSX is emulating an 'international'
+  MSX model, the keyboard driver will press SHIFT and '1' on the MSX keyboard. This will be done regardless of the key
+  or keys that the user pressed on the host keyboard to enter that '!' character.<br/>
   This is especially useful when the user has an AZERTY host keyboard and is working on a QWERTY style MSX or
   when he has a US-QWERTY keyboard and is working on a Japanese MSX.<br/>
-  Note that special keys (like CAPSLOCK) are mapped directly, just like in the KEY mapping mode.</dd>
+  In other words: in this mode openMSX is aware of both the host and the MSX keyboard layout and tries to remap host key-combinations to the corresponding MSX key-combinations that produce the same character.<br/>
+  Special host keys (like CURSOR keys or CAPSLOCK) are mapped directly to the corresponding MSX keys.<br/>
+  Note that CHARACTER mode isn't perfect (help to improve it is always appreciated). In some cases it may be more convenient or even required to use one of the other mapping modes.</dd>
+
+    <dt>POSITIONAL mapping:</dt>
+    <dd>In this mode both the host and the MSX keyboard layout are ignored. Host keys get mapped to MSX keys that are (approximately) in the same position on both keyboards. (More technically, host 'scan-codes' get mapped to MSX 'keyboard-matrix positions'.)</dd>
+
+    <dt>KEY mapping:</dt>
+    <dd>This mode is deprecated, it's superseded by the previous two modes and may get removed in a future openMSX release.<br/>
+    This mode has rudimentary knowledge about the host keyboard layout, but no knowledge about the MSX keyboard layout. It remaps individual keys, not key combinations. Take for example a french AZERTY host keyboard and an emulated MSX with 'international' keyboard layout. Pressing the 'A' host key correctly maps to the 'A' MSX key. But pressing SHIFT+'3' on the host (which produces '3'), maps to SHIFT+'3' on the MSX keyboard (which produces '#').</dd>
   </dl>
 
   <div class="subsectiontitle">
@@ -4080,9 +4187,9 @@
     </tr>
 
     <tr>
-      <td><code>set&nbsp;kbd_mapping_mode&nbsp;KEY</code></td>
+      <td><code>set&nbsp;kbd_mapping_mode&nbsp;POSITIONAL</code></td>
 
-      <td>Set the KEY mapping mode</td>
+      <td>Set the POSITIONAL mapping mode</td>
     </tr>
 
   </table>
@@ -4276,8 +4383,6 @@
   <p>Frame skipping is done on demand, as a way to keep the flow of time for the emulated MSX in sync with the flow of real time. You can set limits on the amount of frame skipping with the <code><a class="internal" href="#minframeskip">minframeskip</a></code> and <code>maxframeskip</code> setting.</p>
 
   <p>In a situation where the number of consecutive frames specified by <code>maxframeskip</code> has been skipped, openMSX will display the next frame, even if that means emulation will start lagging behind real time.</p>
-
-  <p>When <code><a class="internal" href="#throttle">throttle</a></code> is off, the number of skipped frames will be equal to <code>maxframeskip</code>.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -4986,7 +5091,7 @@
     <tr>
       <td><code>set speed &lt;num&gt;</code></td>
 
-      <td>Sets new emulation speed</td>
+      <td>Sets new emulation speed to &lt;num&gt;% of real time</td>
     </tr>
   </table>
 
@@ -5306,7 +5411,7 @@
 
   <h3><a id="throttle">throttle</a></h3>
 
-  <p>Sets throttle mode. In throttle mode the emulator tries to run at the specified speed relative to a real MSX (see <a class="internal" href="#speed">speed</a> command). When throttling is turned off the emulator runs as fast as possible. The speed may be limited to the framerate of your monitor (e.g. 60fps) due to how the OpenGL driver works, when using the (default) SDLGL-PP renderer. To increase the speed, set the <a class="internal" href="#maxframeskip">maxframeskip</a> setting to a high value (e.g. 100).</p>
+  <p>Sets throttle mode. In throttle mode the emulator tries to run at the specified speed relative to a real MSX (see <a class="internal" href="#speed">speed</a> command). When throttling is turned off the emulator runs as fast as possible.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -5331,7 +5436,6 @@
       <td>Turn throttle mode off (fast forward)</td>
     </tr>
   </table>
-
 
   <h3><a id="too_fast_vram_access">too_fast_vram_access</a></h3>
 
@@ -5441,7 +5545,6 @@
   </div>
 -->
 
-
   <h3><a id="turborpause">turborpause</a></h3>
 
   <p>Controls the pause key on a MSX turboR machine.</p>
@@ -5473,7 +5576,6 @@
   <div class="note">
     Note: If you use this setting often, it may be useful to bind it to a key on your PC keyboard. See the <code><a class="internal" href="#bind">bind</a></code> and <code><a class="internal" href="#toggle">toggle</a></code> commands.
   </div>
-
 
   <h3><a id="umr_callback">umr_callback</a></h3>
 
@@ -5583,6 +5685,41 @@
     Note: This setting is only available if multiple videosources are present.
   </div>
 
+  <h3><a id="vsync">vsync</a></h3>
+
+  <p>Enables or disables vsync. This setting determines whether the SDLGL-PP renderer should synchronize its frames to your host monitors frame rate (e.g. 60fps).</p>
+  <p>The default value is not to synchronize ("<code>off</code>"). When enabled, adaptive vsync is attempted if your hardware and driver support it, which means that if a frame is too late, it will be output immediately anyway. If not supported, normal vsync will be used, which may mean a frame is output later, when the sync is missed.</p>
+  <p>Enable this if your MSX is running at about the same frame rate as your monitor (e.g. 60Hz MSX output on a 60Hz host monitor) and you want to avoid (or reduce) tearing, which can be quite visible in smooth horizontal scrolling demos. Keep in mind <a class="internal" href="#throttle">throttle mode</a> off works a bit differently if vsync is enabled (see there).</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set vsync</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set vsync off</code></td>
+
+      <td>No synchronization to monitor frame rate: draw immediately</td>
+    </tr>
+
+    <tr>
+      <td><code>set vsync on</code></td>
+
+      <td>Synchronize to monitor frame rate when possible, otherwise draw immediately. Or, when this is not available on the host hardware/driver, synchronize to monitor frame rate always (default)</td>
+    </tr>
+
+  </table>
+
+  <div class="note">
+   Note: This setting only has effect when the SDLGL-PP renderer is used.
+  </div>
+
   <h3><a id="v9990cmdtrace">v9990cmdtrace</a></h3>
 
   <p>Enable/disable V9990 command tracing. This is the V9990 equivalent of <code><a class="internal" href="#vdpcmdtrace">vdpcmdtrace</a></code>.</p>
@@ -5618,7 +5755,7 @@
 
   <h3><a id="z80_freq">z80_freq / z80_freq_locked</a></h3>
 
-  <p>These two settings control the Z80 clock frequency. When <code>z80_freq_locked</code> is true the emulated Z80 runs at the normal 3.579545 MHz (or optionally 5.369318 MHz on some machines). When <code>z80_freq_locked</code> is false the value of <code>z80_freq</code> is taken as the Z80 clock frequency.</p>
+  <p>These two settings control the Z80 clock frequency. When <code>z80_freq_locked</code> is true the emulated Z80 runs at the normal 3.579545 MHz (or possibly 5.369318 MHz on machines that are able to switch the CPU to 'turbo' mode, e.g. the Panasonic MSX2+ models). When <code>z80_freq_locked</code> is false the value of <code>z80_freq</code> is taken as the Z80 clock frequency. Note: the value of  <code>z80_freq</code> is by default the MSX Z80 standard of 3579545, so when <code>z80_freq</code> is untouched, setting <code>z80_freq_locked</code> to false will set the clock frequency of a CPU in 5.37 Mhz turbo mode back to 3.58 Mhz.</p>
 
   <p>WARNING: be careful when changing these settings. When saving the settings in which a different clock is activated, this will be applied for all machines, as these are global settings. Some software (like demos) may stop working properly with a changed CPU clock frequency. Specifically, using a value (just) below the normal value may cause problems loading CAS images, as these are converted to a high baud rate WAV file internally and when the MSX becomes slower it cannot handle that high baud rate.</p>
 

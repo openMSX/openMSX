@@ -12,7 +12,7 @@ void DummyJoystick::write(byte /*value*/, EmuTime::param /*time*/)
 	// do nothing
 }
 
-string_view DummyJoystick::getDescription() const
+std::string_view DummyJoystick::getDescription() const
 {
 	return {};
 }

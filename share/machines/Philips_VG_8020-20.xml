@@ -49,7 +49,7 @@ contains:
       </sound>
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
-      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
+      <ignorePortDirections>true</ignorePortDirections> <!-- Confirmed by p_gimeno on a VG 8020/40 -->
     </PSG>
 
     <PrinterPort id="Printer Port">
@@ -78,6 +78,7 @@ contains:
 
       <secondary slot="2">
         <RAM id="Main RAM">
+          <initialContent encoding="hex">00FF</initialContent> <!-- At least on thegeps his machine -->
           <mem base="0x0000" size="0x10000"/>
         </RAM>
       </secondary>

@@ -396,7 +396,7 @@ public:
 		// For polymorphic types you do sometimes use a base pointer
 		// to refer to a subtype. So there we only use the pointer
 		// value as key in the map.
-		if (std::is_polymorphic<T>::value) {
+		if constexpr (std::is_polymorphic_v<T>) {
 			return generateID1(p);
 		} else {
 			return generateID2(p, typeid(T));
@@ -405,7 +405,7 @@ public:
 
 	template<typename T> unsigned getId(const T* p)
 	{
-		if (std::is_polymorphic<T>::value) {
+		if constexpr (std::is_polymorphic_v<T>) {
 			return getID1(p);
 		} else {
 			return getID2(p, typeid(T));
@@ -475,7 +475,7 @@ public:
 	}
 	template<typename T> void serializePolymorphic(const char* tag, const T& t)
 	{
-		static_assert(std::is_polymorphic<T>::value,
+		static_assert(std::is_polymorphic_v<T>,
 		              "must be a polymorphic type");
 		PolymorphicSaverRegistry<Derived>::save(tag, this->self(), t);
 	}
@@ -561,7 +561,7 @@ public:
 		using TNC = std::remove_const_t<T>;
 		auto& tnc = const_cast<TNC&>(t);
 		Loader<TNC> loader;
-		loader(this->self(), tnc, std::make_tuple(), -1); // don't load id
+		loader(this->self(), tnc, std::tuple<>(), -1); // don't load id
 		this->self().endTag(tag);
 	}
 	template<typename T> void serializePointerID(const char* tag, const T& t)
@@ -575,7 +575,7 @@ public:
 	}
 	template<typename T> void serializePolymorphic(const char* tag, T& t)
 	{
-		static_assert(std::is_polymorphic<T>::value,
+		static_assert(std::is_polymorphic_v<T>,
 		              "must be a polymorphic type");
 		PolymorphicInitializerRegistry<Derived>::init(tag, this->self(), &t);
 	}
@@ -674,11 +674,11 @@ public:
 		// - Only do this when there are at least two pairs (it is
 		//   correct for a single pair, but it's less tuned for that
 		//   case).
-		serialize_group(std::make_tuple(), tag, t, std::forward<Args>(args)...);
+		serialize_group(std::tuple<>(), tag, t, std::forward<Args>(args)...);
 	}
 	template<typename T, size_t N>
 	ALWAYS_INLINE void serialize(const char* /*tag*/, const T(&t)[N],
-		typename std::enable_if<SerializeAsMemcpy<T>::value>::type* = nullptr)
+		std::enable_if_t<SerializeAsMemcpy<T>::value>* = nullptr)
 	{
 		buffer.insert(&t[0], N * sizeof(T));
 	}
@@ -722,22 +722,17 @@ private:
 		buffer.insert_tuple_ptr(tuple);
 	}
 	template<typename TUPLE, typename T, typename ...Args>
-	ALWAYS_INLINE void serialize_group_impl(std::true_type, const TUPLE& tuple, const char* /*tag*/, const T& t, Args&& ...args)
-	{
-		// add to the group and continue categorizing
-		serialize_group(std::tuple_cat(tuple, std::make_tuple(&t)), std::forward<Args>(args)...);
-	}
-	template<typename TUPLE, typename T, typename ...Args>
-	ALWAYS_INLINE void serialize_group_impl(std::false_type, const TUPLE& tuple, const char* tag, const T& t, Args&& ...args)
-	{
-		serialize(tag, t);      // process single (ungroupable) element
-		serialize_group(tuple, std::forward<Args>(args)...); // continue categorizing
-	}
-	template<typename TUPLE, typename T, typename ...Args>
 	ALWAYS_INLINE void serialize_group(const TUPLE& tuple, const char* tag, const T& t, Args&& ...args)
 	{
 		// categorize one element
-		serialize_group_impl(typename SerializeAsMemcpy<T>::type(), tuple, tag, t, std::forward<Args>(args)...);
+		if constexpr (SerializeAsMemcpy<T>::value) {
+			// add to the group and continue categorizing
+			(void)tag;
+			serialize_group(std::tuple_cat(tuple, std::tuple(&t)), std::forward<Args>(args)...);
+		} else {
+			serialize(tag, t);      // process single (ungroupable) element
+			serialize_group(tuple, std::forward<Args>(args)...); // continue categorizing
+		}
 	}
 
 private:
@@ -777,7 +772,7 @@ public:
 		load(c);
 	}
 	void load(std::string& s);
-	string_view loadStr();
+	std::string_view loadStr();
 	void serialize_blob(const char* tag, void* data, size_t len,
 	                    bool diff = true);
 
@@ -786,12 +781,12 @@ public:
 	ALWAYS_INLINE void serialize(const char* tag, T& t, Args&& ...args)
 	{
 		// see comments in MemOutputArchive
-		serialize_group(std::make_tuple(), tag, t, std::forward<Args>(args)...);
+		serialize_group(std::tuple<>(), tag, t, std::forward<Args>(args)...);
 	}
 
 	template<typename T, size_t N>
 	ALWAYS_INLINE void serialize(const char* /*tag*/, T(&t)[N],
-		typename std::enable_if<SerializeAsMemcpy<T>::value>::type* = nullptr)
+		std::enable_if_t<SerializeAsMemcpy<T>::value>* = nullptr)
 	{
 		buffer.read(&t[0], N * sizeof(T));
 	}
@@ -813,43 +808,23 @@ private:
 		}
 	}
 
-	template<int I, int N, typename TUPLE> struct GroupLoader {
-		ALWAYS_INLINE void operator()(InputBuffer& buf, const TUPLE& tuple) const {
-			using ElemPtr = typename std::tuple_element<I, TUPLE>::type;
-			using Elem = typename std::remove_pointer<ElemPtr>::type;
-			buf.read(std::get<I>(tuple), sizeof(Elem));
-			GroupLoader<I + 1, N, TUPLE> nextLoader;
-			nextLoader(buf, tuple);
-		}
-	};
-	template<int N, typename TUPLE> struct GroupLoader<N, N, TUPLE> {
-		ALWAYS_INLINE void operator()(InputBuffer& /*buf*/, const TUPLE& /*tuple*/) const {
-			// nothing
-		}
-	};
-
 	// See comments in MemOutputArchive
 	template<typename TUPLE>
 	ALWAYS_INLINE void serialize_group(const TUPLE& tuple)
 	{
-		GroupLoader<0, std::tuple_size<TUPLE>::value, TUPLE> groupLoader;
-		groupLoader(buffer, tuple);
-	}
-	template<typename TUPLE, typename T, typename ...Args>
-	ALWAYS_INLINE void serialize_group_impl(std::true_type, const TUPLE& tuple, const char* /*tag*/, T& t, Args&& ...args)
-	{
-		serialize_group(std::tuple_cat(tuple, std::make_tuple(&t)), std::forward<Args>(args)...);
-	}
-	template<typename TUPLE, typename T, typename ...Args>
-	ALWAYS_INLINE void serialize_group_impl(std::false_type, const TUPLE& tuple, const char* tag, T& t, Args&& ...args)
-	{
-		serialize(tag, t);
-		serialize_group(tuple, std::forward<Args>(args)...);
+		auto read = [&](auto* p) { buffer.read(p, sizeof(*p)); };
+		std::apply([&](auto&&... args) { (read(args), ...); }, tuple);
 	}
 	template<typename TUPLE, typename T, typename ...Args>
 	ALWAYS_INLINE void serialize_group(const TUPLE& tuple, const char* tag, T& t, Args&& ...args)
 	{
-		serialize_group_impl(typename SerializeAsMemcpy<T>::type(), tuple, tag, t, std::forward<Args>(args)...);
+		if constexpr (SerializeAsMemcpy<T>::value) {
+			(void)tag;
+			serialize_group(std::tuple_cat(tuple, std::tuple(&t)), std::forward<Args>(args)...);
+		} else {
+			serialize(tag, t);
+			serialize_group(tuple, std::forward<Args>(args)...);
+		}
 	}
 
 private:
@@ -956,7 +931,7 @@ public:
 	void load(unsigned& u);             // but having them non-inline
 	void load(unsigned long long& ull); // saves quite a bit of code
 	void load(std::string& t);
-	string_view loadStr();
+	std::string_view loadStr();
 
 	void skipSection(bool /*skip*/) { /*nothing*/ }
 

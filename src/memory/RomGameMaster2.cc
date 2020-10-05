@@ -72,6 +72,7 @@ void RomGameMaster2::writeMem(word address, byte value, EmuTime::param /*time*/)
 			byte region = address >> 12; // 0x6, 0x8 or 0xA
 			if (region == 0x0A) {
 				sramEnabled = (value & 0x10) != 0;
+				invalidateDeviceWCache(0xB000, 0x1000); // 'R' is handled below
 			}
 			if (value & 0x10) {
 				// switch SRAM

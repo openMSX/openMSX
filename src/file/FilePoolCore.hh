@@ -1,0 +1,172 @@
+#ifndef FILEPOOLCORE_HH
+#define FILEPOOLCORE_HH
+
+#include "FileOperations.hh"
+#include "ObjectPool.hh"
+#include "MemBuffer.hh"
+#include "SimpleHashSet.hh"
+#include "sha1.hh"
+#include "xxhash.hh"
+#include <cassert>
+#include <cstdint>
+#include <ctime>
+#include <functional>
+#include <string>
+#include <string_view>
+#include <vector>
+
+namespace openmsx {
+
+class File;
+
+enum class FileType {
+	NONE = 0,
+	SYSTEM_ROM = 1, ROM = 2, DISK = 4, TAPE = 8
+};
+inline FileType operator|(FileType x, FileType y) {
+	return static_cast<FileType>(int(x) | int(y));
+}
+inline FileType operator&(FileType x, FileType y) {
+	return static_cast<FileType>(int(x) & int(y));
+}
+inline FileType& operator|=(FileType& x, FileType y) {
+	x = x | y;
+	return x;
+}
+
+class FilePoolCore
+{
+public:
+	struct Dir {
+		std::string path;
+		FileType types;
+	};
+	using Directories = std::vector<Dir>;
+
+public:
+	FilePoolCore(std::string filecache,
+	             std::function<Directories()> getDirectories,
+	             std::function<void(const std::string&)> reportProgress);
+	~FilePoolCore();
+
+	/** Search file with the given sha1sum.
+	 * If found it returns the (already opened) file,
+	 * if not found it returns a close File object.
+	 */
+	[[nodiscard]] File getFile(FileType fileType, const Sha1Sum& sha1sum);
+
+	/** Calculate sha1sum for the given File object.
+	 * If possible the result is retrieved from cache, avoiding the
+	 * relatively expensive calculation.
+	 */
+	[[nodiscard]] Sha1Sum getSha1Sum(File& file);
+
+	/** This is only meaningful to call from within the 'reportProgress'
+	 * callback (constructor parameter). This will abort the current search
+	 * and cause getFile() to return a not-found result.
+	 */
+	void abort() { stop = true; }
+
+private:
+	struct ScanProgress {
+		uint64_t lastTime;
+		unsigned amountScanned;
+	};
+
+	struct Entry {
+		Entry(const Sha1Sum& s, time_t t, std::string_view f)
+			: filename(f), time(t), sum(s)
+		{
+			assert(time != time_t(-1));
+		}
+		Entry(const Sha1Sum& s, const char* t, std::string_view f)
+			: filename(f), timeStr(t), sum(s)
+		{
+			assert(timeStr != nullptr);
+		}
+
+		time_t getTime();
+		void setTime(time_t t);
+
+		// - At least one of 'timeStr' or 'time' is valid.
+		// - 'filename' and 'timeStr' are non-owning pointers.
+		std::string_view filename;
+		const char* timeStr = nullptr; // might be nullptr
+		time_t time = time_t(-1);      // might be -1
+		Sha1Sum sum;
+	};
+	
+	using Pool = ObjectPool<Entry>;
+	using Index = Pool::Index;
+	using Sha1Index = std::vector<Index>; // sorted on sha1sum
+
+	class FilenameIndexHelper {
+	public:
+		FilenameIndexHelper(const Pool& p) : pool(p) {}
+		std::string_view get(std::string_view s) const { return s; }
+		std::string_view get(Index idx) const { return pool[idx].filename; }
+	private:
+		const Pool& pool;
+	};
+	struct FilenameIndexHash : FilenameIndexHelper {
+		FilenameIndexHash(const Pool& p) : FilenameIndexHelper(p) {}
+		template<typename T> auto operator()(T t) const {
+			XXHasher hasher;
+			return hasher(get(t));
+		}
+	};
+	struct FilenameIndexEqual : FilenameIndexHelper {
+		FilenameIndexEqual(const Pool& p) : FilenameIndexHelper(p) {}
+		template<typename T1, typename T2> bool operator()(T1 x, T2 y) const {
+			return get(x) == get(y);
+		}
+	};
+	// Hash indexed by filename, points to a full object in 'pool'
+	using FilenameIndex = SimpleHashSet<Index, Index(-1), FilenameIndexHash, FilenameIndexEqual>;
+
+private:
+	void insert(const Sha1Sum& sum, time_t time, const std::string& filename);
+	Sha1Index::iterator getSha1Iterator(Index idx, Entry& entry);
+	void remove(Sha1Index::iterator it);
+	void remove(Index idx);
+	void remove(Index idx, Entry& entry);
+	bool adjustSha1(Sha1Index::iterator it, Entry& entry, const Sha1Sum& newSum);
+	bool adjustSha1(Index idx,              Entry& entry, const Sha1Sum& newSum);
+
+	void readSha1sums();
+	void writeSha1sums();
+
+	File getFromPool(const Sha1Sum& sha1sum);
+	File scanDirectory(const Sha1Sum& sha1sum,
+	                   const std::string& directory,
+	                   const std::string& poolPath,
+	                   ScanProgress& progress);
+	File scanFile(const Sha1Sum& sha1sum,
+	              const std::string& filename,
+	              const FileOperations::Stat& st,
+	              const std::string& poolPath,
+	              ScanProgress& progress);
+	Sha1Sum calcSha1sum(File& file);
+	std::pair<Index, Entry*> findInDatabase(std::string_view filename);
+
+private:
+	std::string filecache; // path of the '.filecache' file.
+	std::function<Directories()> getDirectories;
+	std::function<void(const std::string&)> reportProgress;
+
+	MemBuffer<char> fileMem; // content of initial .filecache
+	std::vector<std::string> stringBuffer; // owns strings that are not in 'fileMem'
+
+	Pool pool; // the actual entries
+	Sha1Index sha1Index; // entries accessible via sha1, sorted on 'CompareSha1'
+	FilenameIndex filenameIndex{FilenameIndexHash(pool), FilenameIndexEqual(pool)}; // accessible via filename
+
+	bool stop = false; // abort long search (set via reportProgress callback)
+	bool needWrite = false; // dirty '.filecache'? write on exit
+
+	friend class CompareSha1;
+};
+
+} // namespace openmsx
+
+#endif

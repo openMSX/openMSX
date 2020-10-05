@@ -9,26 +9,21 @@
 #include <vector>
 #include <cstdio>
 
-#ifndef glGetShaderiv
-#error The version of GLEW you have installed is missing some OpenGL 2.0 entry points. \
-       Please upgrade to GLEW 1.3.2 or higher.
-#endif
-
 using std::string;
 using namespace openmsx;
 
 namespace gl {
 
-/*
-void checkGLError(const string& prefix)
+void checkGLError(std::string_view prefix)
 {
 	GLenum error = glGetError();
 	if (error != GL_NO_ERROR) {
-		string err = (char*)gluErrorString(error);
-		std::cerr << "GL error: " << prefix << ": " << err << '\n';
+		// TODO this needs glu, but atm we don't link against glu (in windows)
+		//string err = (const char*)gluErrorString(error);
+		std::cerr << "GL error: " << prefix << ": " << int(error) << '\n';
+		assert(false);
 	}
 }
-*/
 
 
 // class Texture
@@ -83,11 +78,11 @@ void ColorTexture::resize(GLsizei width_, GLsizei height_)
 	glTexImage2D(
 		GL_TEXTURE_2D,    // target
 		0,                // level
-		GL_RGBA8,         // internal format
+		GL_RGBA,          // internal format
 		width,            // width
 		height,           // height
 		0,                // border
-		GL_BGRA,          // format
+		GL_RGBA,          // format
 		GL_UNSIGNED_BYTE, // type
 		nullptr);         // data
 }
@@ -95,19 +90,16 @@ void ColorTexture::resize(GLsizei width_, GLsizei height_)
 
 // class FrameBufferObject
 
-static GLuint currentId = 0;
-static std::vector<GLuint> stack;
-
 FrameBufferObject::FrameBufferObject(Texture& texture)
 {
-	glGenFramebuffersEXT(1, &bufferId);
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferId);
-	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-	                          GL_COLOR_ATTACHMENT0_EXT,
-	                          GL_TEXTURE_2D, texture.textureId, 0);
-	bool success = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) ==
-	               GL_FRAMEBUFFER_COMPLETE_EXT;
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, currentId);
+	glGenFramebuffers(1, &bufferId);
+	push();
+	glFramebufferTexture2D(GL_FRAMEBUFFER,
+	                       GL_COLOR_ATTACHMENT0,
+	                       GL_TEXTURE_2D, texture.textureId, 0);
+	bool success = glCheckFramebufferStatus(GL_FRAMEBUFFER) ==
+	               GL_FRAMEBUFFER_COMPLETE;
+	pop();
 	if (!success) {
 		throw InitException(
 			"Your OpenGL implementation support for "
@@ -117,34 +109,20 @@ FrameBufferObject::FrameBufferObject(Texture& texture)
 
 FrameBufferObject::~FrameBufferObject()
 {
-	// It's ok to delete '0' (it's a NOP), but we anyway have to check
-	// for pop().
-	if (!bufferId) return;
-
-	if (currentId == bufferId) {
-		pop();
-	}
-	glDeleteFramebuffersEXT(1, &bufferId);
+	pop();
+	glDeleteFramebuffers(1, &bufferId);
 }
 
 void FrameBufferObject::push()
 {
-	stack.push_back(currentId);
-	currentId = bufferId;
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, currentId);
+	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &previousId);
+	glBindFramebuffer(GL_FRAMEBUFFER, bufferId);
 }
 
 void FrameBufferObject::pop()
 {
-	assert(currentId == bufferId);
-	assert(!stack.empty());
-	currentId = stack.back();
-	stack.pop_back();
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, currentId);
+	glBindFramebuffer(GL_FRAMEBUFFER, GLuint(previousId));
 }
-
-
-bool PixelBuffers::enabled = true;
 
 
 // class Shader
@@ -162,7 +140,15 @@ Shader::Shader(GLenum type, const string& header, const string& filename)
 void Shader::init(GLenum type, const string& header, const string& filename)
 {
 	// Load shader source.
-	string source = "#version 110\n" + header;
+	string source = "#version 100\n";
+	if (type == GL_FRAGMENT_SHADER) {
+		source += "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
+	                  "  precision highp float;\n"
+	                  "#else\n"
+	                  "  precision mediump float;\n"
+	                  "#endif\n";
+	}
+	source += header;
 	try {
 		File file(systemFileContext().resolve("shaders/" + filename));
 		auto mmap = file.mmap();
@@ -315,7 +301,7 @@ void ShaderProgram::activate() const
 }
 
 // only useful for debugging
-void ShaderProgram::validate()
+void ShaderProgram::validate() const
 {
 	glValidateProgram(handle);
 	GLint validateStatus = GL_FALSE;

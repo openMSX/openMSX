@@ -11,7 +11,7 @@ class ArgumentGenerator
 {
 public:
 	~ArgumentGenerator();
-	char** GetArguments(int& argc);
+	[[nodiscard]] char** GetArguments(int& argc);
 
 private:
 	MemBuffer<char*> argv;

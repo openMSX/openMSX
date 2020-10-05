@@ -1,4 +1,4 @@
-from urlparse import urljoin
+from urllib.parse import urljoin
 
 class Package(object):
 	'''Abstract base class for packages.
@@ -34,20 +34,9 @@ class DownloadablePackage(Package):
 	def getURL(cls):
 		return urljoin(cls.downloadURL + '/', cls.getTarballName())
 
-class ALSA(DownloadablePackage):
-	downloadURL = 'ftp://ftp.alsa-project.org/pub/lib/'
+class ALSA(Package):
 	niceName = 'ALSA'
 	sourceName = 'alsa-lib'
-	version = '1.1.7'
-	fileLength = 1005257
-	checksums = {
-		'sha256':
-			'9d6000b882a3b2df56300521225d69717be6741b71269e488bb20a20783bdc09',
-		}
-
-	@classmethod
-	def getTarballName(cls):
-		return '%s-%s.tar.bz2' % (cls.sourceName, cls.version)
 
 	@classmethod
 	def getMakeName(cls):
@@ -83,11 +72,11 @@ class LibPNG(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/libpng'
 	niceName = 'libpng'
 	sourceName = 'libpng'
-	version = '1.6.36'
-	fileLength = 1496022
+	version = '1.6.37'
+	fileLength = 1495748
 	checksums = {
 		'sha256':
-			'ca13c548bde5fb6ff7117cc0bdab38808acb699c0eccb613f0e4697826e1fd7d',
+			'daeb2620d829575513e35fecc83f0d3791a620b9b93d800b763542ece9390fb4',
 		}
 
 	@classmethod
@@ -125,14 +114,14 @@ class PkgConfig(DownloadablePackage):
 		}
 
 class SDL2(DownloadablePackage):
-	downloadURL = 'http://www.libsdl.org/release'
+	downloadURL = 'https://www.libsdl.org/release'
 	niceName = 'SDL2'
 	sourceName = 'SDL2'
-	version = '2.0.9'
-	fileLength = 5246942
+	version = '2.0.12'
+	fileLength = 5720162
 	checksums = {
 		'sha256':
-			'255186dc676ecd0c1dbf10ec8a2cc5d6869b5079d8a38194c2aecdff54b324b1',
+			'349268f695c02efbc9b9148a70b85e58cefbbf704abd3e91be654db7f1e2c863',
 		}
 
 class SDL2_ttf(DownloadablePackage):
@@ -150,11 +139,11 @@ class TCL(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/tcl'
 	niceName = 'Tcl'
 	sourceName = 'tcl'
-	version = '8.6.9'
-	fileLength = 10000896
+	version = '8.6.10'
+	fileLength = 10144235
 	checksums = {
 		'sha256':
-			'ad0cd2de2c87b9ba8086b43957a0de3eb2eb565c7159d5f53ccbba3feb915f4e',
+			'5196dbf6638e3df8d5c87b5815c8c2b758496eb6f0e41446596c9a4e638d87ed',
 		}
 
 	@classmethod
@@ -207,17 +196,19 @@ class ZLib(DownloadablePackage):
 		}
 
 # Build a dictionary of packages using introspection.
-def _discoverPackages(localObjects):
-	for obj in localObjects:
-		if isinstance(obj, type) and issubclass(obj, Package):
-			if not (obj is Package or obj is DownloadablePackage):
-				yield obj.getMakeName(), obj
-_packagesByName = dict(_discoverPackages(locals().itervalues()))
+_packagesByName = {
+	obj.getMakeName(): obj
+	for obj in locals().values()
+	if isinstance(obj, type)
+		and issubclass(obj, Package)
+		and obj is not Package
+		and obj is not DownloadablePackage
+	}
 
 def getPackage(makeName):
 	return _packagesByName[makeName]
 
 def iterDownloadablePackages():
-	for package in _packagesByName.itervalues():
+	for package in _packagesByName.values():
 		if issubclass(package, DownloadablePackage):
 			yield package

@@ -44,9 +44,10 @@ class NftwFunction(SystemFunction):
 		yield '<ftw.h>'
 
 # Build a list of system functions using introspection.
-def _discoverSystemFunctions(localObjects):
-	for obj in localObjects:
-		if isinstance(obj, type) and issubclass(obj, SystemFunction):
-			if obj is not SystemFunction:
-				yield obj
-systemFunctions = list(_discoverSystemFunctions(locals().itervalues()))
+systemFunctions = [
+	obj
+	for obj in locals().values()
+	if isinstance(obj, type)
+		and issubclass(obj, SystemFunction)
+		and obj is not SystemFunction
+	]

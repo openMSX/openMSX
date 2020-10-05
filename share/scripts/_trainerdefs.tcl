@@ -3757,6 +3757,44 @@ create_trainer "Iriegas - Illegus" {time 1} {
 	"Time: Time In Dark" {dpoke 0xee7c 12}
 }
 
+create_trainer "Iron Gauntz, The" {time 1} {
+	"Full Energy" {dpoke 0xd41b 255}
+	"Full Legs/Body Health" {dpoke 0xd433 255}
+	"Full Right Arm Health" {dpoke 0xd434 255}
+	"Full Head Health" {dpoke 0xd435 255}
+	"Full Left Arm Health" {dpoke 0xd436 255}
+	"Wall Collisions OFF" {dpoke 0x17dc 0}
+	"Wall Collisions ON" {dpoke 0x17dc 255}
+	"Kill Enemy" {dpoke 0xD454 0}
+	"Open Doors to All 4 Directions (DON'T LEAVE IT ON!)" {dpoke 0xd4d8 240}
+	"Identify Enemies" {dpoke 0xd43e 255;dpoke 0xd43f 255}
+	"Maximize Score" {dpoke 0xd413 153;dpoke 0xd414 153;dpoke 0xd415 153;dpoke 0xd416 153}
+	"Reset Score" {dpoke 0xd413 0;dpoke 0xd414 0;dpoke 0xd415 0;dpoke 0xd416 0}
+	"Gun's Level = NORMAL" {dpoke 0xd43c 0}
+	"Gun's Level = HYPER" {dpoke 0xd43c 16}
+	"Gun's Level = SUPER (recommended)" {dpoke 0xd43c 32}
+	"Gun's Level = DRAINER" {dpoke 0xd43c 48}
+	"Blast = NORMAL" {dpoke 0xd429 0}
+	"Blast = HYPER" {dpoke 0xd429 1}
+	"Blast = SUPER" {dpoke 0xd429 2}
+	"Blast = DIECITE! (recommended)" {dpoke 0xd429 3}
+	"Mover = NORMAL" {dpoke 0xd41f 0}
+	"Mover = HYPER" {dpoke 0xd41f 65}
+	"Mover = SUPER" {dpoke 0xd41f 129}
+	"Mover = DOUBLE (recommended)" {dpoke 0xd41f 193}
+	"Attack = NORMAL" {dpoke 0xd427 0}
+	"Attack = HYPER" {dpoke 0xd427 1}
+	"Attack = SUPER" {dpoke 0xd427 2}
+	"Attack = PUNCHER (recommended)" {dpoke 0xd427 3}
+	"Defense = NORMAL" {dpoke 0xd42a 0}
+	"Defense = HYPER" {dpoke 0xd42a 1}
+	"Defense = SUPER (recommended)" {dpoke 0xd42a 2}
+	"Defense = CHARM (=Bad Ending)" {dpoke 0xd42a 3}
+	"Anti-Magic = NONE" {dpoke 0xd437 0}
+	"Anti-Magic = NORMAL" {dpoke 0xd437 16}
+	"Anti-Magic = HYPER (recommended)" {dpoke 0xd437 32}
+}
+
 create_trainer "Iron Star" {time 1} {
 	"Time For Boss Battle" {dpoke 0xe341 60}
 	"Invulnerable: Invulnerable" {dpoke 0xe306 0}
@@ -4163,6 +4201,11 @@ create_trainer "Kralizec Tetris 1" {time 1} {
 
 create_trainer "Kralizec Tetris 2" {time 1} {
 	"Always The Same Speed" {dpoke 0xe757 0}
+}
+
+create_trainer "Lady Safari" {time 1} {
+	"Unlimited Health" {dpoke 0xf8bf 0}
+	"Unlimited Lives" {dpoke 0xf913 0}
 }
 
 create_trainer "Laptick 2" {time 1} {

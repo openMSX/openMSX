@@ -47,6 +47,7 @@
            Main RAM! -->
       <SuperGameModule id="Super Game Module">
         <mem base="0x0000" size="0x8000"/>
+        <initialContent encoding="hex">00</initialContent>
         <sound>
           <volume>21000</volume>
         </sound>

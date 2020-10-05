@@ -23,13 +23,13 @@
 
 namespace openmsx {
 
-static const int DRIVE_A_MOTOR = 0x01;
-static const int DRIVE_B_MOTOR = 0x02;
-static const int DRIVE_SELECT  = 0x04;
-static const int SIDE_SELECT   = 0x08;
-static const int DRIVE_DISABLE = 0x10; // renamed due to inverse logic
-static const int DATA_REQUEST  = 0x40;
-static const int INTR_REQUEST  = 0x80;
+constexpr int DRIVE_A_MOTOR = 0x01;
+constexpr int DRIVE_B_MOTOR = 0x02;
+constexpr int DRIVE_SELECT  = 0x04;
+constexpr int SIDE_SELECT   = 0x08;
+constexpr int DRIVE_DISABLE = 0x10; // renamed due to inverse logic
+constexpr int DATA_REQUEST  = 0x40;
+constexpr int INTR_REQUEST  = 0x80;
 
 
 VictorFDC::VictorFDC(const DeviceConfig& config)
@@ -162,6 +162,12 @@ byte* VictorFDC::getWriteCacheLine(word address) const
 	} else {
 		return unmappedWrite;
 	}
+}
+
+bool VictorFDC::allowUnaligned() const
+{
+	// OK, because this device doesn't call any 'fillDeviceXXXCache()'functions.
+	return true;
 }
 
 

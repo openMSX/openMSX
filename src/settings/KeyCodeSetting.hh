@@ -10,10 +10,10 @@ class KeyCodeSetting final : public Setting
 {
 public:
 	KeyCodeSetting(CommandController& commandController,
-	               string_view name, string_view description,
+	               std::string_view name, std::string_view description,
 	               Keys::KeyCode initialValue);
 
-	string_view getTypeString() const override;
+	std::string_view getTypeString() const override;
 
 	Keys::KeyCode getKey() const noexcept;
 };

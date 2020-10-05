@@ -123,7 +123,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		}
 		// .. then try the actual sha1sum ..
 		auto fileType = context.isUserContext()
-			? FilePool::ROM : FilePool::SYSTEM_ROM;
+			? FileType::ROM : FileType::SYSTEM_ROM;
 		if (!file.is_open() && resolvedSha1Elem) {
 			Sha1Sum sha1(resolvedSha1Elem->getData());
 			file = filepool.getFile(fileType, sha1);
@@ -165,7 +165,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 			if (resolvedSha1Elem) {
 				strAppend(error, " (sha1: ", resolvedSha1Elem->getData(), ')');
 			} else if (!sums.empty()) {
-                               strAppend(error, " (sha1: ", sums.front()->getData(), ')');
+				strAppend(error, " (sha1: ", sums.front()->getData(), ')');
 			}
 			strAppend(error, '.');
 			throw MSXException(std::move(error));
@@ -256,12 +256,12 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	//      HardwareConfig::createRomConfig
 	if (StringOp::startsWith(name, "MSXRom")) {
 		auto& db = motherBoard.getReactor().getSoftwareDatabase();
-		string_view title;
+		std::string_view title;
 		if (const auto* romInfo = db.fetchRomInfo(getOriginalSHA1())) {
 			title = romInfo->getTitle(db.getBufferStart());
 		}
 		if (!title.empty()) {
-			name = title.str();
+			name = title;
 		} else {
 			// unknown ROM, use file name
 			name = file.getOriginalName();
@@ -318,7 +318,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	}
 }
 
-bool Rom::checkSHA1(const XMLElement& config)
+bool Rom::checkSHA1(const XMLElement& config) const
 {
 	auto sums = config.getChildren("sha1");
 	if (sums.empty()) {

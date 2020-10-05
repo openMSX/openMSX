@@ -30,9 +30,9 @@ string HDImageCLI::getImageForId(int id)
 {
 	// HD queries image. Return (and clear) the remembered value, or return
 	// an empty string.
-	auto it = ranges::find_if(images, [&](auto& p) { return p.first == id; });
 	string result;
-	if (it != end(images)) {
+	if (auto it = ranges::find_if(images, [&](auto& p) { return p.first == id; });
+	    it != end(images)) {
 		result = std::move(it->second);
 		images.erase(it);
 	}
@@ -42,15 +42,14 @@ string HDImageCLI::getImageForId(int id)
 void HDImageCLI::parseDone()
 {
 	// After parsing all remembered values should be cleared. If not there
-	// was no 'hdX' hard disk.
+	// was no hard disk as specified.
 	if (!images.empty()) {
-		string hd = "hdX";
-		hd[2] = 'a' + images.front().first;
-		throw MSXException("No hard disk named '", hd, "'.");
+		char hd = char(::toupper('a' + images.front().first));
+		throw MSXException("No hard disk ", hd, " present.");
 	}
 }
 
-string_view HDImageCLI::optionHelp() const
+std::string_view HDImageCLI::optionHelp() const
 {
 	return "Use hard disk image in argument for the IDE or SCSI extensions";
 }

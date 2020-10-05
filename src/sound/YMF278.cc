@@ -33,52 +33,52 @@
 #include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
-#include "Math.hh"
 #include "likely.hh"
+#include "one_of.hh"
 #include "outer.hh"
 #include "ranges.hh"
 #include "serialize.hh"
+#include <algorithm>
 
 namespace openmsx {
 
 // envelope output entries
 // fixed to match recordings from actual OPL4 -Valley Bell
-static const int MAX_ATT_INDEX = 0x280; // makes attack phase right and also goes well with "envelope stops at -60dB"
-static const int MIN_ATT_INDEX = 0;
-static const int TL_SHIFT      = 2; // envelope values are 4x as fine as TL levels
+constexpr int MAX_ATT_INDEX = 0x280; // makes attack phase right and also goes well with "envelope stops at -60dB"
+constexpr int MIN_ATT_INDEX = 0;
+constexpr int TL_SHIFT      = 2; // envelope values are 4x as fine as TL levels
 
-static const unsigned LFO_SHIFT = 18; // LFO period of up to 0x40000 sample
-static const unsigned LFO_PERIOD = 1 << LFO_SHIFT;
+constexpr unsigned LFO_SHIFT = 18; // LFO period of up to 0x40000 sample
+constexpr unsigned LFO_PERIOD = 1 << LFO_SHIFT;
 
 // Envelope Generator phases
-static const int EG_ATT = 4;
-static const int EG_DEC = 3;
-static const int EG_SUS = 2;
-static const int EG_REL = 1;
-static const int EG_OFF = 0;
+constexpr int EG_ATT = 4;
+constexpr int EG_DEC = 3;
+constexpr int EG_SUS = 2;
+constexpr int EG_REL = 1;
+constexpr int EG_OFF = 0;
 // these 2 are only used in old savestates (and are converted to EG_REL on load)
-static const int EG_REV = 5; // pseudo reverb
-static const int EG_DMP = 6; // damp
+constexpr int EG_REV = 5; // pseudo reverb
+constexpr int EG_DMP = 6; // damp
 
 // Pan values, units are -3dB, i.e. 8.
-static const uint8_t pan_left[16]  = {
+constexpr uint8_t pan_left[16]  = {
 	0, 8, 16, 24, 32, 40, 48, 255, 255,   0,  0,  0,  0,  0,  0, 0
 };
-static const uint8_t pan_right[16] = {
+constexpr uint8_t pan_right[16] = {
 	0, 0,  0,  0,  0,  0,  0,   0, 255, 255, 48, 40, 32, 24, 16, 8
 };
 
 // decay level table (3dB per step)
 // 0 - 15: 0, 3, 6, 9,12,15,18,21,24,27,30,33,36,39,42,93 (dB)
-#define SC(dB) int16_t((dB) / 3 * 0x20)
-static const int16_t dl_tab[16] = {
+static constexpr int16_t SC(int dB) { return int16_t(dB / 3 * 0x20); }
+constexpr int16_t dl_tab[16] = {
  SC( 0), SC( 3), SC( 6), SC( 9), SC(12), SC(15), SC(18), SC(21),
  SC(24), SC(27), SC(30), SC(33), SC(36), SC(39), SC(42), SC(93)
 };
-#undef SC
 
-static const byte RATE_STEPS = 8;
-static const byte eg_inc[15 * RATE_STEPS] = {
+constexpr byte RATE_STEPS = 8;
+constexpr byte eg_inc[15 * RATE_STEPS] = {
 //cycle:0  1   2  3   4  5   6  7
 	0, 1,  0, 1,  0, 1,  0, 1, //  0  rates 00..12 0 (increment by 0 or 1)
 	0, 1,  0, 1,  1, 1,  0, 1, //  1  rates 00..12 1
@@ -100,8 +100,8 @@ static const byte eg_inc[15 * RATE_STEPS] = {
 	0, 0,  0, 0,  0, 0,  0, 0, // 14  infinity rates for attack and decay(s)
 };
 
-#define O(a) ((a) * RATE_STEPS)
-static const byte eg_rate_select[64] = {
+static constexpr byte O(int a) { return a * RATE_STEPS; }
+constexpr byte eg_rate_select[64] = {
 	O(14),O(14),O(14),O(14), // inf rate
 	O( 0),O( 1),O( 2),O( 3),
 	O( 0),O( 1),O( 2),O( 3),
@@ -119,51 +119,48 @@ static const byte eg_rate_select[64] = {
 	O( 8),O( 9),O(10),O(11),
 	O(12),O(12),O(12),O(12),
 };
-#undef O
 
 // rate  0,    1,    2,    3,   4,   5,   6,  7,  8,  9,  10, 11, 12, 13, 14, 15
 // shift 12,   11,   10,   9,   8,   7,   6,  5,  4,  3,  2,  1,  0,  0,  0,  0
 // mask  4095, 2047, 1023, 511, 255, 127, 63, 31, 15, 7,  3,  1,  0,  0,  0,  0
-#define O(a) (a)
-static const byte eg_rate_shift[64] = {
-	O(12),O(12),O(12),O(12),
-	O(11),O(11),O(11),O(11),
-	O(10),O(10),O(10),O(10),
-	O( 9),O( 9),O( 9),O( 9),
-	O( 8),O( 8),O( 8),O( 8),
-	O( 7),O( 7),O( 7),O( 7),
-	O( 6),O( 6),O( 6),O( 6),
-	O( 5),O( 5),O( 5),O( 5),
-	O( 4),O( 4),O( 4),O( 4),
-	O( 3),O( 3),O( 3),O( 3),
-	O( 2),O( 2),O( 2),O( 2),
-	O( 1),O( 1),O( 1),O( 1),
-	O( 0),O( 0),O( 0),O( 0),
-	O( 0),O( 0),O( 0),O( 0),
-	O( 0),O( 0),O( 0),O( 0),
-	O( 0),O( 0),O( 0),O( 0),
+constexpr byte eg_rate_shift[64] = {
+	 12, 12, 12, 12,
+	 11, 11, 11, 11,
+	 10, 10, 10, 10,
+	  9,  9,  9,  9,
+	  8,  8,  8,  8,
+	  7,  7,  7,  7,
+	  6,  6,  6,  6,
+	  5,  5,  5,  5,
+	  4,  4,  4,  4,
+	  3,  3,  3,  3,
+	  2,  2,  2,  2,
+	  1,  1,  1,  1,
+	  0,  0,  0,  0,
+	  0,  0,  0,  0,
+	  0,  0,  0,  0,
+	  0,  0,  0,  0,
 };
-#undef O
 
 
 // number of steps the LFO counter advances per sample
-#define O(a) int((LFO_PERIOD * (a)) / 44100.0 + 0.5)  // LFO frequency (Hz) -> LFO counter steps per sample
-static const int lfo_period[8] = {
-	O(0.168), // step:  1, period: 262144 samples
-	O(2.019), // step: 12, period:  21845 samples
-	O(3.196), // step: 19, period:  13797 samples
-	O(4.206), // step: 25, period:  10486 samples
-	O(5.215), // step: 31, period:   8456 samples
-	O(5.888), // step: 35, period:   7490 samples
-	O(6.224), // step: 37, period:   7085 samples
-	O(7.066), // step: 42, period:   6242 samples
+//   LFO frequency (Hz) -> LFO counter steps per sample
+static constexpr int L(double a) { return int((LFO_PERIOD * a) / 44100.0 + 0.5); }
+constexpr int lfo_period[8] = {
+	L(0.168), // step:  1, period: 262144 samples
+	L(2.019), // step: 12, period:  21845 samples
+	L(3.196), // step: 19, period:  13797 samples
+	L(4.206), // step: 25, period:  10486 samples
+	L(5.215), // step: 31, period:   8456 samples
+	L(5.888), // step: 35, period:   7490 samples
+	L(6.224), // step: 37, period:   7085 samples
+	L(7.066), // step: 42, period:   6242 samples
 };
-#undef O
 
 
 // formula used by Yamaha docs:
 //     vib_depth_cents(x) = (log2(0x400 + x) - 10) * 1200
-static const int16_t vib_depth[8] = {
+constexpr int16_t vib_depth[8] = {
 	0,      //  0.000 cents
 	2,      //  3.378 cents
 	3,      //  5.065 cents
@@ -181,7 +178,7 @@ static const int16_t vib_depth[8] = {
 //     Thus the maximum attenuation with x=0x80 is (0x7F * 0x80) >> 7 = 0x7F.
 // reversed formula:
 //     am_depth(dB) = round(dB / 6.0 * 0x40) + 1
-static const uint8_t am_depth[8] = {
+constexpr uint8_t am_depth[8] = {
 	0x00,   //  0.000 dB
 	0x14,   //  1.781 dB
 	0x20,   //  2.906 dB
@@ -248,10 +245,10 @@ int YMF278::Slot::compute_rate(int val) const
 	int res = val * 4;
 	if (RC != 15) {
 		// clamping verified with HW tests -Valley Bell
-		res += 2 * Math::clip<0, 15>(OCT + RC);
+		res += 2 * std::clamp(OCT + RC, 0, 15);
 		res += (FN & 0x200) ? 1 : 0;
 	}
-	return Math::clip<0, 63>(res);
+	return std::clamp(res, 0, 63);
 }
 
 int YMF278::Slot::compute_decay_rate(int val) const
@@ -419,7 +416,7 @@ void YMF278::advance()
 	}
 }
 
-int16_t YMF278::getSample(Slot& op)
+int16_t YMF278::getSample(Slot& op) const
 {
 	// TODO How does this behave when R#2 bit 0 = 1?
 	//      As-if read returns 0xff? (Like for CPU memory reads.) Or is
@@ -476,7 +473,7 @@ static int vol_factor(int x, unsigned envVol)
 
 void YMF278::setMixLevel(uint8_t x, EmuTime::param time)
 {
-	static const float level[8] = {
+	static constexpr float level[8] = {
 		(1.00f / 1), //   0dB
 		(0.75f / 1), //  -3dB (approx)
 		(1.00f / 2), //  -6dB
@@ -786,7 +783,7 @@ byte YMF278::peekReg(byte reg) const
 	return result;
 }
 
-static constexpr unsigned INPUT_RATE = 44100;
+constexpr unsigned INPUT_RATE = 44100;
 
 YMF278::YMF278(const std::string& name_, int ramSize_,
                const DeviceConfig& config)
@@ -818,6 +815,7 @@ YMF278::YMF278(const std::string& name_, int ramSize_,
 	}
 
 	memadr = 0; // avoid UMR
+	ranges::fill(regs, 0);
 
 	registerSound(config);
 	reset(motherBoard.getCurrentTime()); // must come after registerSound() because of call to setSoftwareVolume() via setMixLevel()
@@ -1051,7 +1049,7 @@ void YMF278::Slot::serialize(Archive& ar, unsigned version)
 	ar.serialize("state", state);
 	if (ar.versionBelow(version, 4)) {
 		assert(ar.isLoader());
-		if ((state == EG_REV) || (state == EG_DMP)) {
+		if (state == one_of(EG_REV, EG_DMP)) {
 			state = EG_REL;
 		}
 	}

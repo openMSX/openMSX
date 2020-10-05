@@ -33,6 +33,7 @@ TODO:
 #include "Reactor.hh"
 #include "MSXException.hh"
 #include "CliComm.hh"
+#include "one_of.hh"
 #include "ranges.hh"
 #include "unreachable.hh"
 #include <cstring>
@@ -71,6 +72,7 @@ VDP::VDP(const DeviceConfig& config)
 	, syncSetMode(*this)
 	, syncSetBlank(*this)
 	, syncCpuVramAccess(*this)
+	, syncCmdDone(*this)
 	, display(getReactor().getDisplay())
 	, cmdTiming    (display.getRenderSettings().getCmdTimingSetting())
 	, tooFastAccess(display.getRenderSettings().getTooFastAccessSetting())
@@ -132,6 +134,8 @@ VDP::VDP(const DeviceConfig& config)
 	else if (versionString == "TMS9129") version = TMS9129;
 	else if (versionString == "V9938") version = V9938;
 	else if (versionString == "V9958") version = V9958;
+	else if (versionString == "YM2220PAL") version = YM2220PAL;
+	else if (versionString == "YM2220NTSC") version = YM2220NTSC;
 	else throw MSXException("Unknown VDP version \"", versionString, '"');
 
 	// saturation parameters only make sense when using TMS VDP's
@@ -158,11 +162,11 @@ VDP::VDP(const DeviceConfig& config)
 	}
 
 	// Set up control register availability.
-	static const byte VALUE_MASKS_MSX1[32] = {
+	static constexpr byte VALUE_MASKS_MSX1[32] = {
 		0x03, 0xFB, 0x0F, 0xFF, 0x07, 0x7F, 0x07, 0xFF  // 00..07
 	};
-	static const byte VALUE_MASKS_MSX2[32] = {
-		0x7E, 0x7B, 0x7F, 0xFF, 0x3F, 0xFF, 0x3F, 0xFF, // 00..07
+	static constexpr byte VALUE_MASKS_MSX2[32] = {
+		0x7E, 0x7F, 0x7F, 0xFF, 0x3F, 0xFF, 0x3F, 0xFF, // 00..07
 		0xFB, 0xBF, 0x07, 0x03, 0xFF, 0xFF, 0x07, 0x0F, // 08..15
 		0x0F, 0xBF, 0xFF, 0xFF, 0x3F, 0x3F, 0x3F, 0xFF, // 16..23
 		0,    0,    0,    0,    0,    0,    0,    0,    // 24..31
@@ -184,8 +188,7 @@ VDP::VDP(const DeviceConfig& config)
 	EmuTime::param time = getCurrentTime();
 	unsigned vramSize =
 		(isMSX1VDP() ? 16 : config.getChildDataAsInt("vram"));
-	if ((vramSize !=  16) && (vramSize !=  64) &&
-	    (vramSize != 128) && (vramSize != 192)) {
+	if (vramSize != one_of(16u, 64u, 128u, 192u)) {
 		throw MSXException(
 			"VRAM size of ", vramSize, "kB is not supported!");
 	}
@@ -263,6 +266,7 @@ void VDP::resetInit()
 	displayMode.reset();
 	vramPointer = 0;
 	cpuVramData = 0;
+	cpuVramReqIsRead = false; // avoid UMR
 	dataLatch = 0;
 	cpuExtendedVram = false;
 	registerDataStored = false;
@@ -323,6 +327,7 @@ void VDP::reset(EmuTime::param time)
 	syncSetMode      .removeSyncPoint();
 	syncSetBlank     .removeSyncPoint();
 	syncCpuVramAccess.removeSyncPoint();
+	syncCmdDone      .removeSyncPoint();
 	pendingCpuAccess = false;
 
 	// Reset subsystems.
@@ -348,6 +353,16 @@ void VDP::execVSync(EmuTime::param time)
 	// TODO: Do this via VDPVRAM?
 	renderer->frameEnd(time);
 	spriteChecker->frameEnd(time);
+
+	if (isFastBlinkEnabled()) {
+		// adjust blinkState and blinkCount for next frame
+		std::tie(blinkState, blinkCount) =
+			calculateLineBlinkState(getLinesPerFrame());
+	}
+
+	// Finish the previous frame, because access-slot calculations work within a frame.
+	cmdEngine->sync(time);
+
 	// Start next frame.
 	frameStart(time);
 }
@@ -424,6 +439,11 @@ void VDP::execCpuVramAccess(EmuTime::param time)
 	assert(!allowTooFastAccess);
 	pendingCpuAccess = false;
 	executeCpuVramAccess(time);
+}
+
+void VDP::execSyncCmdDone(EmuTime::param time)
+{
+	cmdEngine->sync(time);
 }
 
 // TODO: This approach assumes that an overscan-like approach can be used
@@ -573,10 +593,10 @@ void VDP::frameStart(EmuTime::param time)
 	// TODO: Interlace is effectuated in border height, according to
 	//       the data book. Exactly when is the fixation point?
 	palTiming = (controlRegs[9] & 0x02) != 0;
-	interlaced = (controlRegs[9] & 0x08) != 0;
+	interlaced = !isFastBlinkEnabled() && ((controlRegs[9] & 0x08) != 0);
 
 	// Blinking.
-	if (blinkCount != 0) { // counter active?
+	if ((blinkCount != 0) && !isFastBlinkEnabled()) { // counter active?
 		blinkCount--;
 		if (blinkCount == 0) {
 			renderer->updateBlinkState(!blinkState, time);
@@ -629,7 +649,7 @@ void VDP::writeIO(word port, byte value, EmuTime::param time_)
 	// It seems to originate from the T9769x and for x=C the delay is 1
 	// cycle and for other x it seems the delay is 2 cycles
 	if (fixedVDPIOdelayCycles > 0) {
-		time = cpu.waitCycles(time, fixedVDPIOdelayCycles);
+		time = cpu.waitCyclesZ80(time, fixedVDPIOdelayCycles);
 	}
 
 	assert(isInsideFrame(time));
@@ -646,8 +666,7 @@ void VDP::writeIO(word port, byte value, EmuTime::param time_)
 					changeRegister(
 						value & controlRegMask,
 						dataLatch,
-						time
-						);
+						time);
 				} else {
 					// TODO what happens in this case?
 					// it's not a register write because
@@ -994,6 +1013,10 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 			// Stable color.
 			blinkCount = 0;
 		}
+		// TODO when 'isFastBlinkEnabled()==true' the variables
+		// 'blinkState' and 'blinkCount' represent the values at line 0.
+		// This implementation is not correct for the partial remaining
+		// frame after register 13 got changed.
 	}
 
 	if (!change) return;
@@ -1050,6 +1073,7 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 	case 8:
 		if (change & 0x20) {
 			renderer->updateTransparency((val & 0x20) == 0, time);
+			spriteChecker->updateTransparency((val & 0x20) == 0, time);
 		}
 		if (change & 0x02) {
 			vram->updateSpritesEnabled((val & 0x02) == 0, time);
@@ -1362,8 +1386,7 @@ void VDP::updateDisplayMode(DisplayMode newMode, bool cmdBit, EmuTime::param tim
 
 void VDP::update(const Setting& setting)
 {
-	assert((&setting == &cmdTiming) ||
-	       (&setting == &tooFastAccess));
+	assert(&setting == one_of(&cmdTiming, &tooFastAccess));
 	(void)setting;
 	brokenCmdTiming    = cmdTiming    .getEnum();
 	allowTooFastAccess = tooFastAccess.getEnum();
@@ -1393,7 +1416,7 @@ void VDP::update(const Setting& setting)
  *
  * Thanks to Tiago Valença and Carlos Mansur for measuring on a T7937A.
  */
-static const std::array<std::array<uint8_t,3>,16> TOSHIBA_PALETTE = {{
+constexpr std::array<std::array<uint8_t, 3>, 16> TOSHIBA_PALETTE = {{
 	{   0,   0,   0 },
 	{   0,   0,   0 },
 	{ 102, 204, 102 },
@@ -1413,6 +1436,32 @@ static const std::array<std::array<uint8_t,3>,16> TOSHIBA_PALETTE = {{
 }};
 
 /*
+ * Palette for the YM2220 is a crude approximantion based on the fact that the
+ * pictures of a Yamaha AX-150 (YM2220) and a Philips NMS-8250 (V9938) have a
+ * quite similar appearance. See first post here:
+ *
+ * https://www.msx.org/forum/msx-talk/hardware/unknown-vdp-yamaha-ym2220?page=3
+ */
+constexpr std::array<std::array<uint8_t, 3>, 16> YM2220_PALETTE = {{
+	{   0,   0,   0 },
+	{   0,   0,   0 },
+	{  36, 218,  36 },
+	{ 200, 255, 109 },
+	{  36,  36, 255 },
+	{  72, 109, 255 },
+	{ 182,  36,  36 },
+	{  72, 218, 255 },
+	{ 255,  36,  36 },
+	{ 255, 175, 175 },
+	{ 230, 230,   0 },
+	{ 230, 230, 200 },
+	{  36, 195,  36 },
+	{ 218,  72, 182 },
+	{ 182, 182, 182 },
+	{ 255, 255, 255 },
+}};
+
+/*
 How come the FM-X has a distinct palette while it clearly has a TMS9928 VDP?
 Because it has an additional circuit that rework the palette for the same one
 used in the Fujitsu FM-7. It's encoded in 3-bit RGB.
@@ -1420,7 +1469,7 @@ used in the Fujitsu FM-7. It's encoded in 3-bit RGB.
 This seems to be the 24-bit RGB equivalent to the palette output by the FM-X on
 its RGB conector:
 */
-static const std::array<std::array<uint8_t,3>,16> THREE_BIT_RGB_PALETTE = {{
+constexpr std::array<std::array<uint8_t, 3>, 16> THREE_BIT_RGB_PALETTE = {{
 	{   0,   0,   0 },
 	{   0,   0,   0 },
 	{   0, 255,   0 },
@@ -1441,7 +1490,7 @@ static const std::array<std::array<uint8_t,3>,16> THREE_BIT_RGB_PALETTE = {{
 
 // Source: TMS9918/28/29 Data Book, page 2-17.
 
-const float TMS9XXXA_ANALOG_OUTPUT[16][3] = {
+constexpr float TMS9XXXA_ANALOG_OUTPUT[16][3] = {
 	//  Y     R-Y    B-Y    voltages
 	{ 0.00f, 0.47f, 0.47f },
 	{ 0.00f, 0.47f, 0.47f },
@@ -1469,6 +1518,9 @@ std::array<std::array<uint8_t, 3>, 16> VDP::getMSX1Palette() const
 	}
 	if ((version & VM_TOSHIBA_PALETTE) != 0) {
 		return TOSHIBA_PALETTE;
+	}
+	if ((version & VM_YM2220_PALETTE) != 0) {
+		return YM2220_PALETTE;
 	}
 	std::array<std::array<uint8_t, 3>, 16> tmsPalette;
 	for (int color = 0; color < 16; color++) {
@@ -1529,6 +1581,11 @@ byte VDP::RegDebug::read(unsigned address)
 void VDP::RegDebug::write(unsigned address, byte value, EmuTime::param time)
 {
 	auto& vdp = OUTER(VDP, vdpRegDebug);
+	// Ignore writes to registers >= 8 on MSX1. An alternative is to only
+	// expose 8 registers. But changing that now breaks backwards
+	// compatibilty with some existing scripts. E.g. script that queries
+	// PAL vs NTSC in a VDP agnostic way.
+	if ((address >= 8) && vdp.isMSX1VDP()) return;
 	vdp.changeRegister(address, value, time);
 }
 
@@ -1566,6 +1623,11 @@ byte VDP::PaletteDebug::read(unsigned address)
 void VDP::PaletteDebug::write(unsigned address, byte value, EmuTime::param time)
 {
 	auto& vdp = OUTER(VDP, vdpPaletteDebug);
+	// Ignore writes on MSX1. An alternative could be to not expose the
+	// palette at all, but allowing read-only access could be useful for
+	// some scripts.
+	if (vdp.isMSX1VDP()) return;
+
 	int index = address / 2;
 	word grb = vdp.getPalette(index);
 	grb = (address & 1)
@@ -1772,6 +1834,7 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 		             "syncSetMode",       syncSetMode,
 		             "syncSetBlank",      syncSetBlank,
 		             "syncCpuVramAccess", syncCpuVramAccess);
+		             // no need for syncCmdDone (only used for probe)
 	} else {
 		Schedulable::restoreOld(ar,
 			{&syncVSync, &syncDisplayStart, &syncVScan,

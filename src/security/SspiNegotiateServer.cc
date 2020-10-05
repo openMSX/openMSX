@@ -2,6 +2,7 @@
 
 #include "SspiNegotiateServer.hh"
 #include "MSXException.hh"
+#include "one_of.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
@@ -72,7 +73,7 @@ bool SspiNegotiateServer::Authenticate()
 			&tsContextExpiry);
 
 		DebugPrintSecurityStatus("AcceptSecurityContext", ss);
-		if (ss != SEC_E_OK && ss != SEC_I_CONTINUE_NEEDED) {
+		if (ss != one_of(SEC_E_OK, SEC_I_CONTINUE_NEEDED)) {
 			return false;
 		}
 

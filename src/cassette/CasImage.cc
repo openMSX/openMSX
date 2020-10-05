@@ -20,8 +20,8 @@ namespace openmsx {
 // the max. Let's take 3760 then as a safe value.
 // UPDATE: that seems to break RUN"CAS:" type of programs. 3744 seems to work
 // for those as well (we don't understand why yet)
-static const unsigned BAUDRATE = 3744;
-static const unsigned OUTPUT_FREQUENCY = 4 * BAUDRATE; // 4 samples per bit
+constexpr unsigned BAUDRATE = 3744;
+constexpr unsigned OUTPUT_FREQUENCY = 4 * BAUDRATE; // 4 samples per bit
 // We oversample the audio signal for better sound quality (especially in
 // combination with the hq resampler). Without oversampling the audio output
 // could contain portions like this:
@@ -32,21 +32,21 @@ static const unsigned OUTPUT_FREQUENCY = 4 * BAUDRATE; // 4 samples per bit
 // lost after the hq resampler. After oversampling, the signal looks like this:
 //   -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, ...
 // So every sample repeated 4 times.
-static const unsigned AUDIO_OVERSAMPLE = 4;
+constexpr unsigned AUDIO_OVERSAMPLE = 4;
 
 // number of output bytes for silent parts
-static const unsigned SHORT_SILENCE = OUTPUT_FREQUENCY * 1; // 1 second
-static const unsigned LONG_SILENCE  = OUTPUT_FREQUENCY * 2; // 2 seconds
+constexpr unsigned SHORT_SILENCE = OUTPUT_FREQUENCY * 1; // 1 second
+constexpr unsigned LONG_SILENCE  = OUTPUT_FREQUENCY * 2; // 2 seconds
 
 // number of 1-bits for headers
-static const unsigned LONG_HEADER  = 16000 / 2;
-static const unsigned SHORT_HEADER =  4000 / 2;
+constexpr unsigned LONG_HEADER  = 16000 / 2;
+constexpr unsigned SHORT_HEADER =  4000 / 2;
 
 // headers definitions
-static const byte CAS_HEADER   [ 8] = { 0x1F,0xA6,0xDE,0xBA,0xCC,0x13,0x7D,0x74 };
-static const byte ASCII_HEADER [10] = { 0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA };
-static const byte BINARY_HEADER[10] = { 0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0 };
-static const byte BASIC_HEADER [10] = { 0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3 };
+constexpr byte CAS_HEADER   [ 8] = { 0x1F,0xA6,0xDE,0xBA,0xCC,0x13,0x7D,0x74 };
+constexpr byte ASCII_HEADER [10] = { 0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA };
+constexpr byte BINARY_HEADER[10] = { 0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0 };
+constexpr byte BASIC_HEADER [10] = { 0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3 };
 
 
 CasImage::CasImage(const Filename& filename, FilePool& filePool, CliComm& cliComm)
@@ -57,14 +57,14 @@ CasImage::CasImage(const Filename& filename, FilePool& filePool, CliComm& cliCom
 
 int16_t CasImage::getSampleAt(EmuTime::param time)
 {
-	static const Clock<OUTPUT_FREQUENCY> zero(EmuTime::zero);
+	constexpr Clock<OUTPUT_FREQUENCY> zero(EmuTime::zero());
 	unsigned pos = zero.getTicksTill(time);
 	return pos < output.size() ? output[pos] * 256 : 0;
 }
 
 EmuTime CasImage::getEndTime() const
 {
-	Clock<OUTPUT_FREQUENCY> clk(EmuTime::zero);
+	Clock<OUTPUT_FREQUENCY> clk(EmuTime::zero());
 	clk += unsigned(output.size());
 	return clk.getTime();
 }

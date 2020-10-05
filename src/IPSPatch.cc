@@ -64,7 +64,7 @@ IPSPatch::IPSPatch(Filename filename_,
 				       it->second.size());
 			}
 			memcpy(&tmp[offset - start], v.data(), v.size());
-			*b = std::make_pair(start, std::move(tmp));
+			*b = std::pair(start, std::move(tmp));
 			patchMap.erase(b + 1, e);
 		} else {
 			// add new region

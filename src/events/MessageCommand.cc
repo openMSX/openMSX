@@ -11,7 +11,7 @@ MessageCommand::MessageCommand(CommandController& controller)
 {
 }
 
-static CliComm::LogLevel getLevel(string_view level)
+static CliComm::LogLevel getLevel(std::string_view level)
 {
 	auto levels = CliComm::getLevelStrings();
 	for (auto i : xrange(levels.size())) {
@@ -30,7 +30,7 @@ void MessageCommand::execute(span<const TclObject> tokens, TclObject& /*result*/
 	switch (tokens.size()) {
 	case 3:
 		level = getLevel(tokens[2].getString());
-		// fall-through
+		[[fallthrough]];
 	case 2:
 		cliComm.log(level, tokens[1].getString());
 		break;

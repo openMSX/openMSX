@@ -9,6 +9,7 @@
 #include <utility>
 
 using std::string;
+using std::string_view;
 using std::vector;
 
 namespace openmsx {
@@ -21,7 +22,7 @@ const string SYSTEM_DATA  = "{{SYSTEM_DATA}}";
 
 static string subst(string_view path, string_view before, string_view after)
 {
-	assert(path.starts_with(before));
+	assert(StringOp::startsWith(path, before));
 	return strCat(after, path.substr(before.size()));
 }
 
@@ -44,6 +45,9 @@ static vector<string> getPathsHelper(const vector<string>& input)
 			result.push_back(s);
 		}
 	}
+	for (const auto& s : result) {
+		assert(FileOperations::expandTilde(s) == s); (void)s;
+	}
 	return result;
 }
 
@@ -59,7 +63,7 @@ static string resolveHelper(const vector<string>& pathList,
 
 	for (auto& p : pathList) {
 		string name = FileOperations::join(p, filename);
-		name = FileOperations::expandTilde(name);
+		assert(FileOperations::expandTilde(name) == name);
 		if (FileOperations::exists(name)) {
 			return name;
 		}

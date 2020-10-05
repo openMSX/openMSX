@@ -9,6 +9,7 @@
 #include "serialize_meta.hh"
 #include <bitset>
 #include <memory>
+#include <optional>
 
 namespace openmsx {
 
@@ -21,7 +22,8 @@ class RealDrive final : public DiskDrive
 {
 public:
 	RealDrive(MSXMotherBoard& motherBoard, EmuDuration::param motorTimeout,
-	          bool signalsNeedMotorOn, bool doubleSided);
+	          bool signalsNeedMotorOn, bool doubleSided,
+	          DiskDrive::TrackMode trackMode);
 	~RealDrive() override;
 
 	// DiskDrive interface
@@ -79,12 +81,14 @@ private:
 	void setLoading(EmuTime::param time);
 	unsigned getCurrentAngle(EmuTime::param time) const;
 
+	unsigned getMaxTrack() const;
+	std::optional<unsigned> getDiskReadTrack() const;
+	std::optional<unsigned> getDiskWriteTrack() const;
 	void getTrack();
 	void invalidateTrack();
 
-	static const unsigned MAX_TRACK = 85;
-	static const unsigned TICKS_PER_ROTATION = 200000;
-	static const unsigned INDEX_DURATION = TICKS_PER_ROTATION / 50;
+	static constexpr unsigned TICKS_PER_ROTATION = 200000;
+	static constexpr unsigned INDEX_DURATION = TICKS_PER_ROTATION / 50;
 
 	MSXMotherBoard& motherBoard;
 	LoadingIndicator loadingIndicator;
@@ -99,8 +103,9 @@ private:
 	bool motorStatus;
 	const bool doubleSizedDrive;
 	const bool signalsNeedMotorOn;
+	const DiskDrive::TrackMode trackMode;
 
-	static const unsigned MAX_DRIVES = 26; // a-z
+	static constexpr unsigned MAX_DRIVES = 26; // a-z
 	using DrivesInUse = std::bitset<MAX_DRIVES>;
 	std::shared_ptr<DrivesInUse> drivesInUse;
 

@@ -1,16 +1,16 @@
 #ifndef TCLOBJECT_HH
 #define TCLOBJECT_HH
 
-#include "string_view.hh"
 #include "span.hh"
 #include "vla.hh"
 #include "xxhash.hh"
 #include <tcl.h>
 #include <algorithm>
-#include <initializer_list>
-#include <iterator>
 #include <cassert>
 #include <cstdint>
+#include <initializer_list>
+#include <iterator>
+#include <string_view>
 
 struct Tcl_Obj;
 
@@ -22,9 +22,9 @@ class TclObject
 {
 	// For STL interface, see below
 	struct iterator {
-		using value_type        = string_view;
-		using reference         = string_view;
-		using pointer           = string_view*;
+		using value_type        = std::string_view;
+		using reference         = std::string_view;
+		using pointer           = std::string_view*;
 		using difference_type   = ptrdiff_t;
 		using iterator_category = std::bidirectional_iterator_tag;
 
@@ -39,7 +39,7 @@ class TclObject
 			return !(*this == other);
 		}
 
-		string_view operator*() const {
+		std::string_view operator*() const {
 			return obj->getListIndexUnchecked(i).getString();
 		}
 
@@ -140,7 +140,7 @@ public:
 	}
 
 	// value getters
-	string_view getString() const;
+	std::string_view getString() const;
 	int getInt      (Interpreter& interp) const;
 	bool getBoolean (Interpreter& interp) const;
 	double getDouble(Interpreter& interp) const;
@@ -175,16 +175,16 @@ public:
 	friend bool operator==(const TclObject& x, const TclObject& y) {
 		return x.getString() == y.getString();
 	}
-	friend bool operator==(const TclObject& x, string_view y) {
+	friend bool operator==(const TclObject& x, std::string_view y) {
 		return x.getString() == y;
 	}
-	friend bool operator==(string_view x, const TclObject& y) {
+	friend bool operator==(std::string_view x, const TclObject& y) {
 		return x == y.getString();
 	}
 
 	friend bool operator!=(const TclObject& x, const TclObject& y) { return !(x == y); }
-	friend bool operator!=(const TclObject& x, string_view       y) { return !(x == y); }
-	friend bool operator!=(string_view       x, const TclObject& y) { return !(x == y); }
+	friend bool operator!=(const TclObject& x, std::string_view y) { return !(x == y); }
+	friend bool operator!=(std::string_view x, const TclObject& y) { return !(x == y); }
 
 private:
 	void init(Tcl_Obj* obj_) noexcept {
@@ -192,7 +192,7 @@ private:
 		Tcl_IncrRefCount(obj);
 	}
 
-	static Tcl_Obj* newObj(string_view s) {
+	static Tcl_Obj* newObj(std::string_view s) {
 		return Tcl_NewStringObj(s.data(), int(s.size()));
 	}
 	static Tcl_Obj* newObj(const char* s) {
@@ -223,7 +223,7 @@ private:
 		return Tcl_NewListObj(int(l.size()), l.begin());
 	}
 
-	void assign(string_view s) {
+	void assign(std::string_view s) {
 		Tcl_SetStringObj(obj, s.data(), int(s.size()));
 	}
 	void assign(const char* s) {
@@ -274,7 +274,7 @@ private:
 };
 
 // We want to be able to reinterpret_cast a Tcl_Obj* as a TclObject.
-static_assert(sizeof(TclObject) == sizeof(Tcl_Obj*), "");
+static_assert(sizeof(TclObject) == sizeof(Tcl_Obj*));
 
 template<typename... Args>
 TclObject makeTclList(Args&&... args)
@@ -289,7 +289,7 @@ TclObject makeTclDict(Args&&... args)
 }
 
 struct XXTclHasher {
-	uint32_t operator()(string_view str) const {
+	uint32_t operator()(std::string_view str) const {
 		return xxhash(str);
 	}
 	uint32_t operator()(const TclObject& obj) const {

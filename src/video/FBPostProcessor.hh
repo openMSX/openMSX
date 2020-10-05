@@ -4,6 +4,7 @@
 #include "PostProcessor.hh"
 #include "RenderSettings.hh"
 #include "PixelOperations.hh"
+#include "ScalerOutput.hh"
 #include <vector>
 
 namespace openmsx {
@@ -43,6 +44,10 @@ private:
 	  */
 	std::unique_ptr<Scaler<Pixel>> currScaler;
 
+	/** The currently active stretch-scaler (horizontal stretch setting).
+	 */
+	std::unique_ptr<ScalerOutput<Pixel>> stretchScaler;
+
 	/** Currently active scale algorithm, used to detect scaler changes.
 	  */
 	RenderSettings::ScaleAlgorithm scaleAlgorithm;
@@ -50,6 +55,10 @@ private:
 	/** Currently active scale factor, used to detect scaler changes.
 	  */
 	unsigned scaleFactor;
+
+	/** Currently active stretch factor, used to detect setting changes.
+	  */
+	unsigned stretchWidth;
 
 	/** Remember the noise values to get a stable image when paused.
 	 */

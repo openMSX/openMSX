@@ -2,6 +2,7 @@
 #define WAVWRITER_HH
 
 #include "File.hh"
+#include "one_of.hh"
 #include <cassert>
 #include <cstdint>
 
@@ -41,7 +42,7 @@ public:
 		: WavWriter(filename, channels, 8, frequency) {}
 
 	void write(const uint8_t* buffer, unsigned stereo, unsigned samples) {
-		assert(stereo == 1 || stereo == 2);
+		assert(stereo == one_of(1u, 2u));
 		write(buffer, stereo * samples);
 	}
 
@@ -58,13 +59,13 @@ public:
 		: WavWriter(filename, channels, 16, frequency) {}
 
 	void write(const int16_t* buffer, unsigned stereo, unsigned samples) {
-		assert(stereo == 1 || stereo == 2);
+		assert(stereo == one_of(1u, 2u));
 		write(buffer, stereo * samples);
 	}
 	void write(const float* buffer, unsigned stereo, unsigned samples,
 	           float ampLeft, float ampRight);
 	void writeSilence(unsigned stereo, unsigned samples) {
-		assert(stereo == 1 || stereo == 2);
+		assert(stereo == one_of(1u, 2u));
 		writeSilence(stereo * samples);
 	}
 

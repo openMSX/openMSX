@@ -112,7 +112,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(ThirdPartySrcDir)\$(LibNameTcl)\win;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;TCL_TOMMATH;MP_PREC=4;TCL_CFGVAL_ENCODING="cp1252";STDC_HEADERS;STATIC_BUILD;TCL_CFG_DEBUG;TCL_USE_STATIC_PACKAGES=1;BUILD_tcl;inline=__inline;TCL_PIPE_DLL="tclpip85sg.dll";CFG_INSTALL_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_INSTALL_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_INSTALL_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_INSTALL_INCDIR="C:\\Program Files\\Tcl\\include";CFG_INSTALL_DOCDIR="C:\\Program Files\\Tcl\\doc";CFG_RUNTIME_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_RUNTIME_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_RUNTIME_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_RUNTIME_INCDIR="C:\\Program Files\\Tcl\\include";CFG_RUNTIME_DOCDIR="C:\\Program Files\\Tcl\\doc";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;TCL_TOMMATH;MP_PREC=4;MP_FIXED_CUTOFFS;MP_NO_STDINT;TCL_CFGVAL_ENCODING="cp1252";STDC_HEADERS;STATIC_BUILD;TCL_CFG_DEBUG;TCL_USE_STATIC_PACKAGES=1;BUILD_tcl;inline=__inline;TCL_PIPE_DLL="tclpip85sg.dll";CFG_INSTALL_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_INSTALL_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_INSTALL_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_INSTALL_INCDIR="C:\\Program Files\\Tcl\\include";CFG_INSTALL_DOCDIR="C:\\Program Files\\Tcl\\doc";CFG_RUNTIME_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_RUNTIME_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_RUNTIME_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_RUNTIME_INCDIR="C:\\Program Files\\Tcl\\include";CFG_RUNTIME_DOCDIR="C:\\Program Files\\Tcl\\doc";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -132,7 +132,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(ThirdPartySrcDir)\$(LibNameTcl)\win;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;TCL_TOMMATH;MP_PREC=4;TCL_CFGVAL_ENCODING="cp1252";STDC_HEADERS;STATIC_BUILD;TCL_CFG_DEBUG;TCL_USE_STATIC_PACKAGES=1;BUILD_tcl;inline=__inline;TCL_PIPE_DLL="tclpip85sg.dll";CFG_INSTALL_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_INSTALL_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_INSTALL_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_INSTALL_INCDIR="C:\\Program Files\\Tcl\\include";CFG_INSTALL_DOCDIR="C:\\Program Files\\Tcl\\doc";CFG_RUNTIME_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_RUNTIME_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_RUNTIME_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_RUNTIME_INCDIR="C:\\Program Files\\Tcl\\include";CFG_RUNTIME_DOCDIR="C:\\Program Files\\Tcl\\doc";_stati64=_stat64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;TCL_TOMMATH;MP_PREC=4;MP_FIXED_CUTOFFS;MP_NO_STDINT;TCL_CFGVAL_ENCODING="cp1252";STDC_HEADERS;STATIC_BUILD;TCL_CFG_DEBUG;TCL_USE_STATIC_PACKAGES=1;BUILD_tcl;inline=__inline;TCL_PIPE_DLL="tclpip85sg.dll";CFG_INSTALL_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_INSTALL_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_INSTALL_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_INSTALL_INCDIR="C:\\Program Files\\Tcl\\include";CFG_INSTALL_DOCDIR="C:\\Program Files\\Tcl\\doc";CFG_RUNTIME_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_RUNTIME_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_RUNTIME_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_RUNTIME_INCDIR="C:\\Program Files\\Tcl\\include";CFG_RUNTIME_DOCDIR="C:\\Program Files\\Tcl\\doc";_stati64=_stat64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -155,7 +155,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <AdditionalIncludeDirectories>$(ThirdPartySrcDir)\$(LibNameTcl)\win;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;TCL_TOMMATH;MP_PREC=4;TCL_CFGVAL_ENCODING="cp1252";STDC_HEADERS;STATIC_BUILD;TCL_CFG_DEBUG;TCL_USE_STATIC_PACKAGES=1;BUILD_tcl;inline=__inline;TCL_PIPE_DLL="tclpip85sg.dll";CFG_INSTALL_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_INSTALL_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_INSTALL_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_INSTALL_INCDIR="C:\\Program Files\\Tcl\\include";CFG_INSTALL_DOCDIR="C:\\Program Files\\Tcl\\doc";CFG_RUNTIME_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_RUNTIME_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_RUNTIME_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_RUNTIME_INCDIR="C:\\Program Files\\Tcl\\include";CFG_RUNTIME_DOCDIR="C:\\Program Files\\Tcl\\doc";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;TCL_TOMMATH;MP_PREC=4;MP_FIXED_CUTOFFS;MP_NO_STDINT;TCL_CFGVAL_ENCODING="cp1252";STDC_HEADERS;STATIC_BUILD;TCL_CFG_DEBUG;TCL_USE_STATIC_PACKAGES=1;BUILD_tcl;inline=__inline;TCL_PIPE_DLL="tclpip85sg.dll";CFG_INSTALL_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_INSTALL_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_INSTALL_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_INSTALL_INCDIR="C:\\Program Files\\Tcl\\include";CFG_INSTALL_DOCDIR="C:\\Program Files\\Tcl\\doc";CFG_RUNTIME_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_RUNTIME_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_RUNTIME_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_RUNTIME_INCDIR="C:\\Program Files\\Tcl\\include";CFG_RUNTIME_DOCDIR="C:\\Program Files\\Tcl\\doc";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -183,7 +183,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <AdditionalIncludeDirectories>$(ThirdPartySrcDir)\$(LibNameTcl)\win;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;TCL_TOMMATH;MP_PREC=4;TCL_CFGVAL_ENCODING="cp1252";STDC_HEADERS;STATIC_BUILD;TCL_CFG_DEBUG;TCL_USE_STATIC_PACKAGES=1;BUILD_tcl;inline=__inline;TCL_PIPE_DLL="tclpip85sg.dll";CFG_INSTALL_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_INSTALL_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_INSTALL_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_INSTALL_INCDIR="C:\\Program Files\\Tcl\\include";CFG_INSTALL_DOCDIR="C:\\Program Files\\Tcl\\doc";CFG_RUNTIME_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_RUNTIME_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_RUNTIME_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_RUNTIME_INCDIR="C:\\Program Files\\Tcl\\include";CFG_RUNTIME_DOCDIR="C:\\Program Files\\Tcl\\doc";_stati64=_stat64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;TCL_TOMMATH;MP_PREC=4;MP_FIXED_CUTOFFS;MP_NO_STDINT;TCL_CFGVAL_ENCODING="cp1252";STDC_HEADERS;STATIC_BUILD;TCL_CFG_DEBUG;TCL_USE_STATIC_PACKAGES=1;BUILD_tcl;inline=__inline;TCL_PIPE_DLL="tclpip85sg.dll";CFG_INSTALL_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_INSTALL_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_INSTALL_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_INSTALL_INCDIR="C:\\Program Files\\Tcl\\include";CFG_INSTALL_DOCDIR="C:\\Program Files\\Tcl\\doc";CFG_RUNTIME_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_RUNTIME_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_RUNTIME_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_RUNTIME_INCDIR="C:\\Program Files\\Tcl\\include";CFG_RUNTIME_DOCDIR="C:\\Program Files\\Tcl\\doc";_stati64=_stat64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -202,7 +202,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(ThirdPartySrcDir)\$(LibNameTcl)\win;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;TCL_TOMMATH;MP_PREC=4;TCL_CFGVAL_ENCODING="cp1252";STDC_HEADERS;STATIC_BUILD;TCL_CFG_DEBUG;TCL_USE_STATIC_PACKAGES=1;BUILD_tcl;inline=__inline;TCL_PIPE_DLL="tclpip85sg.dll";CFG_INSTALL_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_INSTALL_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_INSTALL_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_INSTALL_INCDIR="C:\\Program Files\\Tcl\\include";CFG_INSTALL_DOCDIR="C:\\Program Files\\Tcl\\doc";CFG_RUNTIME_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_RUNTIME_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_RUNTIME_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_RUNTIME_INCDIR="C:\\Program Files\\Tcl\\include";CFG_RUNTIME_DOCDIR="C:\\Program Files\\Tcl\\doc";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;TCL_TOMMATH;MP_PREC=4;MP_FIXED_CUTOFFS;MP_NO_STDINT;TCL_CFGVAL_ENCODING="cp1252";STDC_HEADERS;STATIC_BUILD;TCL_CFG_DEBUG;TCL_USE_STATIC_PACKAGES=1;BUILD_tcl;inline=__inline;TCL_PIPE_DLL="tclpip85sg.dll";CFG_INSTALL_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_INSTALL_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_INSTALL_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_INSTALL_INCDIR="C:\\Program Files\\Tcl\\include";CFG_INSTALL_DOCDIR="C:\\Program Files\\Tcl\\doc";CFG_RUNTIME_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_RUNTIME_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_RUNTIME_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_RUNTIME_INCDIR="C:\\Program Files\\Tcl\\include";CFG_RUNTIME_DOCDIR="C:\\Program Files\\Tcl\\doc";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -223,7 +223,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(ThirdPartySrcDir)\$(LibNameTcl)\win;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;TCL_TOMMATH;MP_PREC=4;TCL_CFGVAL_ENCODING="cp1252";STDC_HEADERS;STATIC_BUILD;TCL_CFG_DEBUG;TCL_USE_STATIC_PACKAGES=1;BUILD_tcl;inline=__inline;TCL_PIPE_DLL="tclpip85sg.dll";CFG_INSTALL_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_INSTALL_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_INSTALL_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_INSTALL_INCDIR="C:\\Program Files\\Tcl\\include";CFG_INSTALL_DOCDIR="C:\\Program Files\\Tcl\\doc";CFG_RUNTIME_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_RUNTIME_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_RUNTIME_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_RUNTIME_INCDIR="C:\\Program Files\\Tcl\\include";CFG_RUNTIME_DOCDIR="C:\\Program Files\\Tcl\\doc";_stati64=_stat64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;TCL_TOMMATH;MP_PREC=4;MP_FIXED_CUTOFFS;MP_NO_STDINT;TCL_CFGVAL_ENCODING="cp1252";STDC_HEADERS;STATIC_BUILD;TCL_CFG_DEBUG;TCL_USE_STATIC_PACKAGES=1;BUILD_tcl;inline=__inline;TCL_PIPE_DLL="tclpip85sg.dll";CFG_INSTALL_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_INSTALL_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_INSTALL_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_INSTALL_INCDIR="C:\\Program Files\\Tcl\\include";CFG_INSTALL_DOCDIR="C:\\Program Files\\Tcl\\doc";CFG_RUNTIME_LIBDIR="C:\\Program Files\\Tcl\\lib";CFG_RUNTIME_BINDIR="C:\\Program Files\\Tcl\\bin";CFG_RUNTIME_SCRDIR="C:\\Program Files\\Tcl\\lib\\tcl8.5";CFG_RUNTIME_INCDIR="C:\\Program Files\\Tcl\\include";CFG_RUNTIME_DOCDIR="C:\\Program Files\\Tcl\\doc";_stati64=_stat64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -238,10 +238,6 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bncore.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_reverse.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_fast_s_mp_mul_digs.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_fast_s_mp_sqr.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_add.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_add_d.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_and.c" />
@@ -254,28 +250,26 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_cnt_lsb.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_copy.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_count_bits.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_div.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_div_d.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_div_2.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_div_2d.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_div_3.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_div.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_div_d.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_exch.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_expt_d.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_expt_u32.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_grow.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_init.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_init_copy.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_init_multi.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_init_set.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_init_set_int.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_init_size.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_karatsuba_mul.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_karatsuba_sqr.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_lshd.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_mod.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_mod_2d.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_mul.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_mod.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_mod_d.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_mul_2.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_mul_2d.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_mul.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_mul_d.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_neg.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_or.c" />
@@ -284,24 +278,29 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_read_radix.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_rshd.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_set.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_set_int.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_shrink.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_signed_rsh.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_sqr.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_sqrt.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_sub.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_sub_d.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_to_unsigned_bin.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_to_unsigned_bin_n.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_toom_mul.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_toom_sqr.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_toradix_n.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_unsigned_bin_size.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_to_radix.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_to_ubin.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_ubin_size.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_xor.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_zero.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_add.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_balance_mul.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_karatsuba_mul.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_karatsuba_sqr.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_mul_digs.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_mul_digs_fast.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_reverse.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_sqr.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_sqr_fast.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_sub.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_toom_mul.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_toom_sqr.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\regcomp.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\regerror.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\regexec.c" />
@@ -424,6 +423,8 @@
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\tommath.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tommath.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\tommath_class.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\tommath_cutoffs.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\tommath_private.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\tommath_superclass.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -52,6 +52,7 @@
       <RAM id="Main RAM">
         <mem base="0x6000" size="0x2000"/>
         <size>1024</size>
+        <initialContent encoding="hex">00</initialContent>
       </RAM>
     </primary>
 

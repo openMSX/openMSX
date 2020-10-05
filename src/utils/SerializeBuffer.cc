@@ -7,8 +7,6 @@ namespace openmsx {
 
 // class OutputBuffer
 
-size_t OutputBuffer::lastSize = 50000; // initial estimate
-
 OutputBuffer::OutputBuffer()
 	: buf(lastSize)
 	, end(buf.data())

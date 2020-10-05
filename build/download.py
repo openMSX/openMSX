@@ -1,20 +1,9 @@
-from __future__ import print_function
 from os import remove, stat
 from os.path import basename, isdir, isfile, join as joinpath
-from urllib import FancyURLopener
-from urlparse import urlparse
+from urllib.parse import urlparse
+from urllib.request import urlopen
 
 import sys
-
-# FancyURLOpener, which is also used in urlretrieve(), does not raise
-# an exception on status codes like 404 and 500. However, for downloading it is
-# critical to write either what we requested or nothing at all.
-class DownloadURLOpener(FancyURLopener):
-
-	def http_error_default(self, url, fp, errcode, errmsg, headers):
-		raise IOError('%s: http:%s' % (errmsg, url))
-
-_urlOpener = DownloadURLOpener()
 
 class StatusLine(object):
 
@@ -45,7 +34,7 @@ def createStatusLine(out):
 
 def downloadURL(url, localDir):
 	if not isdir(localDir):
-		raise IOError('Local directory "%s" does not exist' % localDir)
+		raise OSError('Local directory "%s" does not exist' % localDir)
 
 	fileName = basename(urlparse(url).path)
 	localPath = joinpath(localDir, fileName)
@@ -54,8 +43,7 @@ def downloadURL(url, localDir):
 	statusLine = createStatusLine(sys.stdout)
 	statusLine(prefix + 'contacting server...')
 
-	def reportProgress(blocksDone, blockSize, totalSize):
-		doneSize = blocksDone * blockSize
+	def reportProgress(doneSize, totalSize):
 		statusLine(prefix + (
 			'%d/%d bytes (%1.1f%%)...' % (
 				doneSize, totalSize, (100.0 * doneSize) / totalSize
@@ -66,8 +54,19 @@ def downloadURL(url, localDir):
 
 	try:
 		try:
-			_urlOpener.retrieve(url, localPath, reportProgress)
-		except IOError:
+			with urlopen(url) as inp:
+				totalSize = int(inp.info().get('Content-Length', '0'))
+				with open(localPath, 'wb') as out:
+					doneSize = 0
+					reportProgress(doneSize, totalSize)
+					while True:
+						data = inp.read(16384)
+						if not data:
+							break
+						out.write(data)
+						doneSize += len(data)
+						reportProgress(doneSize, totalSize)
+		except OSError:
 			statusLine(prefix + 'FAILED.')
 			raise
 		else:
@@ -84,9 +83,9 @@ if __name__ == '__main__':
 	if len(sys.argv) == 3:
 		try:
 			downloadURL(*sys.argv[1 : ])
-		except IOError as ex:
+		except OSError as ex:
 			print(ex, file=sys.stderr)
 			sys.exit(1)
 	else:
-		print('Usage: python download.py url localdir', file=sys.stderr)
+		print('Usage: python3 download.py url localdir', file=sys.stderr)
 		sys.exit(2)

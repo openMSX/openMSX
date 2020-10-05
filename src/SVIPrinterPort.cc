@@ -1,5 +1,3 @@
-// $Id:$
-
 #include "SVIPrinterPort.hh"
 #include "DummyPrinterPortDevice.hh"
 #include "checked_cast.hh"
@@ -71,12 +69,12 @@ void SVIPrinterPort::writeData(byte newData, EmuTime::param time)
 	}
 }
 
-string_view SVIPrinterPort::getDescription() const
+std::string_view SVIPrinterPort::getDescription() const
 {
 	return "Spectravideo SVI-328 Printer port";
 }
 
-string_view SVIPrinterPort::getClass() const
+std::string_view SVIPrinterPort::getClass() const
 {
 	return "Printer Port";
 }

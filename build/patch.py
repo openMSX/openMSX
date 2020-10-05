@@ -1,6 +1,5 @@
 # Applies a unified diff to a directory tree.
 
-from __future__ import print_function
 from io import open
 from os.path import abspath, isdir, join as joinpath, sep
 import re
@@ -24,7 +23,7 @@ class LineScanner(object):
 		self.__filter = lineFilter
 		self.__currLine = None
 		self.__lineNo = 0
-		self.next()
+		self.nextLine()
 
 	def end(self):
 		'''Returns True iff the end of the stream has been reached.
@@ -38,9 +37,9 @@ class LineScanner(object):
 		'''
 		return self.__currLine
 
-	def next(self):
+	def nextLine(self):
 		'''Moves on to the next line.
-		Raises IOError if there is a problem reading from the stream.
+		Raises OSError if there is a problem reading from the stream.
 		'''
 		stream = self.__stream
 		lineFilter = self.__filter
@@ -127,7 +126,7 @@ class Hunk(object):
 			raise scanner.parseError('invalid delta line')
 		oldLine, oldLen, newLine, newLen = ( int(n) for n in delta.groups() )
 		deltaLineNo = scanner.getLineNumber()
-		scanner.next()
+		scanner.nextLine()
 		def lineCountMismatch(oldOrNew, declared, actual):
 			return scanner.parseError(
 				'hunk %s size mismatch: %d declared, %d actual' % (
@@ -155,12 +154,12 @@ class Hunk(object):
 				if changeClass is None:
 					break
 				content = line[1 : ]
-				scanner.next()
+				scanner.nextLine()
 				if not scanner.end() and scanner.peek().startswith('\\'):
 					# No newline at end of file.
 					assert content[-1] == '\n'
 					content = content[ : -1]
-					scanner.next()
+					scanner.nextLine()
 				change = changeClass(content)
 				yield change
 				oldCount += change.oldInc
@@ -210,11 +209,11 @@ class Diff(object):
 						break
 			while not scanner.end():
 				if scanner.peek().startswith('diff '):
-					scanner.next()
+					scanner.nextLine()
 				diffLineNo = scanner.getLineNumber()
 				if not scanner.peek().startswith('--- '):
 					raise error('"---" expected (not a unified diff?)')
-				scanner.next()
+				scanner.nextLine()
 				newFileLine = scanner.peek()
 				if not newFileLine.startswith('+++ '):
 					raise error('"+++" expected (not a unified diff?)')
@@ -223,7 +222,7 @@ class Diff(object):
 				while index < length and not newFileLine[index].isspace():
 					index += 1
 				filePath = newFileLine[4 : index]
-				scanner.next()
+				scanner.nextLine()
 				try:
 					yield cls(filePath, parseHunks())
 				except ValueError as ex:
@@ -302,7 +301,7 @@ def patch(diff, targetDir):
 def main(diffPath, targetDir):
 	try:
 		differences = list(Diff.load(diffPath))
-	except IOError as ex:
+	except OSError as ex:
 		print('Error reading diff:', ex, file=sys.stderr)
 		sys.exit(1)
 	except ParseError as ex:
@@ -316,7 +315,7 @@ def main(diffPath, targetDir):
 		targetPath = joinpath(targetDir, diff.getPath())
 		try:
 			patch(diff, targetDir)
-		except IOError as ex:
+		except OSError as ex:
 			print('I/O error patching "%s": %s' % (
 				targetPath, ex
 				), file=sys.stderr)
@@ -333,5 +332,5 @@ if __name__ == '__main__':
 	if len(sys.argv) == 3:
 		main(*sys.argv[1 : ])
 	else:
-		print('Usage: python patch.py diff target', file=sys.stderr)
+		print('Usage: python3 patch.py diff target', file=sys.stderr)
 		sys.exit(2)

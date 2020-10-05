@@ -4,6 +4,7 @@
 
 #include "RomMSXWrite.hh"
 #include "CacheLine.hh"
+#include "one_of.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -25,7 +26,7 @@ void RomMSXWrite::reset(EmuTime::param /*time*/)
 void RomMSXWrite::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	if (((0x6000 <= address) && (address < 0x7800) && !(address & 0x0800)) ||
-		(address == 0x6FFF) || (address == 0x7FFF)) {
+	    (address == one_of(0x6FFF, 0x7FFF))) {
 		byte region = ((address >> 12) & 1) + 1;
 		setRom(region, value);
 	}
@@ -34,8 +35,7 @@ void RomMSXWrite::writeMem(word address, byte value, EmuTime::param /*time*/)
 byte* RomMSXWrite::getWriteCacheLine(word address) const
 {
 	if (((0x6000 <= address) && (address < 0x7800) && !(address & 0x0800)) ||
-		(address == (0x6FFF & CacheLine::HIGH)) ||
-		(address == (0x7FFF & CacheLine::HIGH))) {
+	    (address == one_of(0x6FFF & CacheLine::HIGH, 0x7FFF & CacheLine::HIGH))) {
 		return nullptr;
 	} else {
 		return unmappedWrite;

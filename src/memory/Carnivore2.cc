@@ -2,6 +2,7 @@
 #include "IDEDevice.hh"
 #include "IDEDeviceFactory.hh"
 #include "MSXCPU.hh"
+#include "one_of.hh"
 
 namespace openmsx {
 
@@ -89,7 +90,6 @@ void Carnivore2::reset(EmuTime::param time)
 	fmPacBank = 0;
 	fmPac5ffe = 0;
 	fmPac5fff = 0;
-	fmPacRegSelect = 0;
 }
 
 void Carnivore2::globalRead(word address, EmuTime::param /*time*/)
@@ -263,7 +263,7 @@ std::pair<unsigned, byte> Carnivore2::decodeMultiMapper(word address) const
 
 		// check address
 		bool mirroringDisabled = mult & 0x40;
-		static const byte checkMasks[2][8] = {
+		static constexpr byte checkMasks[2][8] = {
 			{ 0x00, 0x00, 0x00, 0x30, 0x60, 0xc0, 0x80, 0x00 }, // mirroring enabled
 			{ 0x00, 0x00, 0x00, 0xf0, 0xe0, 0xc0, 0x80, 0x00 }, // mirroring disabled
 		};
@@ -638,10 +638,8 @@ void Carnivore2::writeFmPacSlot(word address, byte value, EmuTime::param time)
 		fmPac5ffe = value;
 	} else if (address == 0x5fff) {
 		fmPac5fff = value;
-	} else if (address == 0x7ff4) {
-		fmPacRegSelect = value & 0x3f;
-	} else if (address == 0x7ff5) {
-		ym2413.writeReg(fmPacRegSelect, value, time);
+	} else if (address == one_of(0x7ff4, 0x7ff5)) {
+		ym2413.writePort(address & 1, value, time);
 	} else if (address == 0x7ff6) {
 		fmPacEnable = value & 0x11;
 	} else if (address == 0x7ff7) {
@@ -669,15 +667,7 @@ void Carnivore2::writeIO(word port, byte value, EmuTime::param time)
 	if (((port & 0xfe) == 0x7c) &&
 	    (fmPacPortEnabled1() || fmPacPortEnabled2())) {
 		// fm-pac registers
-		switch (port & 1) {
-		case 0:
-			fmPacRegSelect = value & 0x3f;
-			break;
-		case 1:
-			ym2413.writeReg(fmPacRegSelect, value, time);
-			break;
-		}
-
+		ym2413.writePort(port & 1, value, time);
 	} else if (((port & 0xff) == 0x3c) && writePort3cEnabled()) {
 		// only change bit 7
 		port3C = (port3C & 0x7F) | (value & 0x80);
@@ -685,6 +675,7 @@ void Carnivore2::writeIO(word port, byte value, EmuTime::param time)
 	} else if ((port & 0xfc) == 0xfc) {
 		// memory mapper registers
 		memMapRegs[port & 0x03] = value & 0x3f;
+		invalidateDeviceRWCache(0x4000 * (port & 0x03), 0x4000);
 	}
 }
 
@@ -693,6 +684,8 @@ byte Carnivore2::getSelectedSegment(byte page) const
 	return memMapRegs[page];
 }
 
+// version 1: initial version
+// version 2: removed fmPacRegSelect
 template<typename Archive>
 void Carnivore2::serialize(Archive& ar, unsigned /*version*/)
 {
@@ -723,8 +716,7 @@ void Carnivore2::serialize(Archive& ar, unsigned /*version*/)
 	             "fmPacEnable",       fmPacEnable,
 	             "fmPacBank",         fmPacBank,
 	             "fmPac5ffe",         fmPac5ffe,
-	             "fmPac5fff",         fmPac5fff,
-	             "fmPacRegSelect",    fmPacRegSelect);
+	             "fmPac5fff",         fmPac5fff);
 	
 	if (ar.isLoader()) {
 		auto time = getCurrentTime();

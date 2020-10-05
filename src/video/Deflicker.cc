@@ -1,6 +1,7 @@
 #include "Deflicker.hh"
 #include "RawFrame.hh"
 #include "PixelOperations.hh"
+#include "one_of.hh"
 #include "unreachable.hh"
 #include "vla.hh"
 #include "build-info.hh"
@@ -14,7 +15,7 @@ namespace openmsx {
 template<typename Pixel> class DeflickerImpl final : public Deflicker
 {
 public:
-	DeflickerImpl(const SDL_PixelFormat& format,
+	DeflickerImpl(const PixelFormat& format,
 	              std::unique_ptr<RawFrame>* lastFrames);
 
 private:
@@ -27,16 +28,16 @@ private:
 
 
 std::unique_ptr<Deflicker> Deflicker::create(
-	const SDL_PixelFormat& format,
-        std::unique_ptr<RawFrame>* lastFrames)
+	const PixelFormat& format,
+	std::unique_ptr<RawFrame>* lastFrames)
 {
 #if HAVE_16BPP
-	if (format.BitsPerPixel == 15 || format.BitsPerPixel == 16) {
+	if (format.getBytesPerPixel() == 2) {
 		return std::make_unique<DeflickerImpl<uint16_t>>(format, lastFrames);
 	}
 #endif
 #if HAVE_32BPP
-	if (format.BitsPerPixel == 32) {
+	if (format.getBytesPerPixel() == 4) {
 		return std::make_unique<DeflickerImpl<uint32_t>>(format, lastFrames);
 	}
 #endif
@@ -44,7 +45,7 @@ std::unique_ptr<Deflicker> Deflicker::create(
 }
 
 
-Deflicker::Deflicker(const SDL_PixelFormat& format,
+Deflicker::Deflicker(const PixelFormat& format,
                      std::unique_ptr<RawFrame>* lastFrames_)
 	: FrameSource(format)
 	, lastFrames(lastFrames_)
@@ -64,7 +65,7 @@ unsigned Deflicker::getLineWidth(unsigned line) const
 
 
 template<typename Pixel>
-DeflickerImpl<Pixel>::DeflickerImpl(const SDL_PixelFormat& format,
+DeflickerImpl<Pixel>::DeflickerImpl(const PixelFormat& format,
                                     std::unique_ptr<RawFrame>* lastFrames_)
 	: Deflicker(format, lastFrames_)
 	, pixelOps(format)
@@ -108,7 +109,7 @@ static void ustore(Pixel* ptr, ptrdiff_t byteOffst, __m128i val)
 template<typename Pixel>
 static __m128i compare(__m128i x, __m128i y)
 {
-	static_assert(sizeof(Pixel) == 4 || sizeof(Pixel) == 2, "");
+	static_assert(sizeof(Pixel) == one_of(2u, 4u));
 	if (sizeof(Pixel) == 4) {
 		return _mm_cmpeq_epi32(x, y);
 	} else {

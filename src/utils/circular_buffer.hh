@@ -37,10 +37,10 @@ public:
 		buf = it.buf; p = it.p; return *this;
 	}
 
-	T& operator*()  const { return *p; }
+	[[nodiscard]] T& operator*()  const { return *p; }
 	T* operator->() const { return  p; }
 
-	difference_type operator-(const cb_iterator& it) const {
+	[[nodiscard]] difference_type operator-(const cb_iterator& it) const {
 		return index(p) - index(it.p);
 	}
 
@@ -71,23 +71,23 @@ public:
 	}
 	cb_iterator& operator-=(difference_type n) { *this += -n; return *this; }
 
-	cb_iterator operator+(difference_type n) { return cb_iterator(*this) += n; }
-	cb_iterator operator-(difference_type n) { return cb_iterator(*this) -= n; }
+	[[nodiscard]] cb_iterator operator+(difference_type n) { return cb_iterator(*this) += n; }
+	[[nodiscard]] cb_iterator operator-(difference_type n) { return cb_iterator(*this) -= n; }
 
-	T& operator[](difference_type n) const { return *(*this + n); }
+	[[nodiscard]] T& operator[](difference_type n) const { return *(*this + n); }
 
-	bool operator==(const cb_iterator& it) const { return p == it.p; }
-	bool operator!=(const cb_iterator& it) const { return p != it.p; }
+	[[nodiscard]] bool operator==(const cb_iterator& it) const { return p == it.p; }
+	[[nodiscard]] bool operator!=(const cb_iterator& it) const { return p != it.p; }
 
-	bool operator<(const cb_iterator& it) const {
+	[[nodiscard]] bool operator<(const cb_iterator& it) const {
 		return index(p) < index(it.p);
 	}
-	bool operator> (const cb_iterator& it) const { return   it < *this;  }
-	bool operator<=(const cb_iterator& it) const { return !(it < *this); }
-	bool operator>=(const cb_iterator& it) const { return !(*this < it); }
+	[[nodiscard]] bool operator> (const cb_iterator& it) const { return   it < *this;  }
+	[[nodiscard]] bool operator<=(const cb_iterator& it) const { return !(it < *this); }
+	[[nodiscard]] bool operator>=(const cb_iterator& it) const { return !(*this < it); }
 
 private:
-	size_t index(const T* q) const {
+	[[nodiscard]] size_t index(const T* q) const {
 		return q ? buf->index(q) : buf->size();
 	}
 
@@ -171,32 +171,32 @@ public:
 		std::swap(siz,   cb.siz);
 	}
 
-	auto begin() {
+	[[nodiscard]] auto begin() {
 		return iterator(this, empty() ? nullptr : first);
 	}
-	auto begin() const {
+	[[nodiscard]] auto begin() const {
 		return const_iterator(this, empty() ? nullptr : first);
 	}
-	auto end()          { return iterator      (this, nullptr); }
-	auto end()    const { return const_iterator(this, nullptr); }
-	auto rbegin()       { return       reverse_iterator(end()); }
-	auto rbegin() const { return const_reverse_iterator(end()); }
-	auto rend()         { return       reverse_iterator(begin()); }
-	auto rend()   const { return const_reverse_iterator(begin()); }
+	[[nodiscard]] auto end()          { return iterator      (this, nullptr); }
+	[[nodiscard]] auto end()    const { return const_iterator(this, nullptr); }
+	[[nodiscard]] auto rbegin()       { return       reverse_iterator(end()); }
+	[[nodiscard]] auto rbegin() const { return const_reverse_iterator(end()); }
+	[[nodiscard]] auto rend()         { return       reverse_iterator(begin()); }
+	[[nodiscard]] auto rend()   const { return const_reverse_iterator(begin()); }
 
-	auto& operator[](size_t i)       { return *add(first, i); }
-	auto& operator[](size_t i) const { return *add(first, i); }
+	[[nodiscard]] auto& operator[](size_t i)       { return *add(first, i); }
+	[[nodiscard]] auto& operator[](size_t i) const { return *add(first, i); }
 
-	auto& front()       { return *first; }
-	auto& front() const { return *first; }
-	auto& back()       { return *((last == buf ? stop : last) - 1); }
-	auto& back() const { return *((last == buf ? stop : last) - 1); }
+	[[nodiscard]] auto& front()       { return *first; }
+	[[nodiscard]] auto& front() const { return *first; }
+	[[nodiscard]] auto& back()       { return *((last == buf ? stop : last) - 1); }
+	[[nodiscard]] auto& back() const { return *((last == buf ? stop : last) - 1); }
 
-	size_t size() const { return siz; }
-	bool empty() const { return size() == 0; }
-	bool full() const { return capacity() == size(); }
-	size_t reserve() const { return capacity() - size(); }
-	size_t capacity() const { return stop - buf; }
+	[[nodiscard]] size_t size() const { return siz; }
+	[[nodiscard]] bool empty() const { return size() == 0; }
+	[[nodiscard]] bool full() const { return capacity() == size(); }
+	[[nodiscard]] size_t reserve() const { return capacity() - size(); }
+	[[nodiscard]] size_t capacity() const { return stop - buf; }
 
 	void set_capacity(size_t new_capacity) {
 		if (new_capacity == capacity()) return;
@@ -242,7 +242,7 @@ public:
 	}
 
 private:
-	T* uninitialized_copy(const_iterator b, const_iterator e, T* dst) {
+	[[nodiscard]] T* uninitialized_copy(const_iterator b, const_iterator e, T* dst) {
 		T* next = dst;
 		try {
 			while (b != e) {
@@ -259,7 +259,7 @@ private:
 		return dst;
 	}
 
-	T* uninitialized_move_n(iterator src, size_t n, T* dst) {
+	[[nodiscard]] T* uninitialized_move_n(iterator src, size_t n, T* dst) {
 		while (n) {
 			::new (dst) T(std::move(*src));
 			++src; ++dst; --n;
@@ -291,24 +291,24 @@ private:
 		if (p == buf) p = stop;
 		--p;
 	}
-	template<typename Pointer> Pointer add(Pointer p, difference_type n) const {
+	template<typename Pointer> [[nodiscard]] Pointer add(Pointer p, difference_type n) const {
 		p += n;
 		if (p >= stop) p -= capacity();
 		return p;
 	}
-	template<typename Pointer> Pointer sub(Pointer p, difference_type n) const {
+	template<typename Pointer> [[nodiscard]] Pointer sub(Pointer p, difference_type n) const {
 		p -= n;
 		if (p < buf) p += capacity();
 		return p;
 	}
 
-	size_t index(const T* p) const {
+	[[nodiscard]] size_t index(const T* p) const {
 		return (p >= first)
 			? (p - first)
 			: (stop - first) + (p - buf);
 	}
 
-	T* allocate(size_t n) {
+	[[nodiscard]] T* allocate(size_t n) {
 		return (n == 0) ? nullptr
 		                : static_cast<T*>(malloc(n * sizeof(T)));
 	}
@@ -368,25 +368,25 @@ public:
 		return t;
 	}
 
-	const T& front() const { return buf.front(); }
-	const T& back() const  { return buf.back();  }
-	const T& operator[](size_t i) const { return buf[i]; }
+	[[nodiscard]] const T& front() const { return buf.front(); }
+	[[nodiscard]] const T& back() const  { return buf.back();  }
+	[[nodiscard]] const T& operator[](size_t i) const { return buf[i]; }
 
-	auto  begin()       { return buf.begin();  }
-	auto  end()         { return buf.end();    }
-	auto  begin() const { return buf.begin();  }
-	auto  end()   const { return buf.end();    }
-	auto rbegin()       { return buf.rbegin(); }
-	auto rbegin() const { return buf.rbegin(); }
-	auto rend()         { return buf.rend();   }
-	auto rend()   const { return buf.rend();   }
+	[[nodiscard]] auto  begin()       { return buf.begin();  }
+	[[nodiscard]] auto  end()         { return buf.end();    }
+	[[nodiscard]] auto  begin() const { return buf.begin();  }
+	[[nodiscard]] auto  end()   const { return buf.end();    }
+	[[nodiscard]] auto rbegin()       { return buf.rbegin(); }
+	[[nodiscard]] auto rbegin() const { return buf.rbegin(); }
+	[[nodiscard]] auto rend()         { return buf.rend();   }
+	[[nodiscard]] auto rend()   const { return buf.rend();   }
 
-	size_t size() const { return buf.size(); }
-	bool empty() const { return buf.empty(); }
+	[[nodiscard]] size_t size() const { return buf.size(); }
+	[[nodiscard]] bool empty() const { return buf.empty(); }
 	void clear() { buf.clear(); }
 
-	auto& getBuffer()       { return buf; }
-	auto& getBuffer() const { return buf; }
+	[[nodiscard]] auto& getBuffer()       { return buf; }
+	[[nodiscard]] auto& getBuffer() const { return buf; }
 
 private:
 	void checkGrow() {

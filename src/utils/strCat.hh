@@ -1,12 +1,12 @@
-#ifndef STRCAT_H
-#define STRCAT_H
+#ifndef STRCAT_HH
+#define STRCAT_HH
 
-#include "string_view.hh"
 #include <climits>
 #include <cstring>
 #include <limits>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <tuple>
 #include <utility>
 
@@ -34,7 +34,7 @@
 // all intermediate strings. Also it doesn't create temporary string objects
 // for the integer conversions.
 template<typename... Ts>
-std::string strCat(Ts&& ...ts);
+[[nodiscard]] std::string strCat(Ts&& ...ts);
 
 
 // Apppend a bunch of 'printable' objects to an exiting string.
@@ -106,12 +106,12 @@ struct ConcatViaString
 	{
 	}
 
-	size_t size() const
+	[[nodiscard]] size_t size() const
 	{
 		return s.size();
 	}
 
-	char* copy(char* dst) const
+	[[nodiscard]] char* copy(char* dst) const
 	{
 		auto sz = s.size();
 		memcpy(dst, s.data(), sz);
@@ -154,19 +154,19 @@ struct ConcatUnit : ConcatViaString
 
 // ConcatUnit<string_view>:
 //   store the string view (copies the view, not the string)
-template<> struct ConcatUnit<string_view>
+template<> struct ConcatUnit<std::string_view>
 {
-	ConcatUnit(const string_view v_)
+	ConcatUnit(const std::string_view v_)
 		: v(v_)
 	{
 	}
 
-	size_t size() const
+	[[nodiscard]] size_t size() const
 	{
 		return v.size();
 	}
 
-	char* copy(char* dst) const
+	[[nodiscard]] char* copy(char* dst) const
 	{
 		auto sz = v.size();
 		memcpy(dst, v.data(), sz);
@@ -174,7 +174,7 @@ template<> struct ConcatUnit<string_view>
 	}
 
 private:
-	string_view v;
+	std::string_view v;
 };
 
 
@@ -187,12 +187,12 @@ template<> struct ConcatUnit<char>
 	{
 	}
 
-	size_t size() const
+	[[nodiscard]] size_t size() const
 	{
 		return 1;
 	}
 
-	char* copy(char* dst) const
+	[[nodiscard]] char* copy(char* dst) const
 	{
 		*dst = c;
 		return dst + 1;
@@ -212,12 +212,12 @@ template<> struct ConcatUnit<bool>
 	{
 	}
 
-	size_t size() const
+	[[nodiscard]] size_t size() const
 	{
 		return 1;
 	}
 
-	char* copy(char* dst) const
+	[[nodiscard]] char* copy(char* dst) const
 	{
 		*dst = b ? '1' : '0';
 		return dst + 1;
@@ -254,7 +254,7 @@ template<bool IS_SIGNED> struct AbsHelper;
 template<> struct AbsHelper<true>
 {
 	template<typename T>
-	inline FastUnsigned<T> operator()(T t) const
+	[[nodiscard]] inline FastUnsigned<T> operator()(T t) const
 	{
 		return (t < 0) ? -t : t;
 	}
@@ -263,7 +263,7 @@ template<> struct AbsHelper<true>
 template<> struct AbsHelper<false>
 {
 	template<typename T>
-	inline FastUnsigned<T> operator()(T t) const
+	[[nodiscard]] inline FastUnsigned<T> operator()(T t) const
 	{
 		return t;
 	}
@@ -306,8 +306,8 @@ template<> struct PutSignHelper<false>
 // result. This size can be used to calculate the start position in the buffer.
 template<typename T> struct ConcatIntegral
 {
-	static const bool IS_SIGNED = std::numeric_limits<T>::is_signed;
-	static const size_t BUF_SIZE = 1 + std::numeric_limits<T>::digits10 + IS_SIGNED;
+	static constexpr bool IS_SIGNED = std::numeric_limits<T>::is_signed;
+	static constexpr size_t BUF_SIZE = 1 + std::numeric_limits<T>::digits10 + IS_SIGNED;
 
 	ConcatIntegral(T t)
 	{
@@ -323,29 +323,29 @@ template<typename T> struct ConcatIntegral
 		this->sz = static_cast<unsigned char>(this->end() - p);
 	}
 
-	size_t size() const
+	[[nodiscard]] size_t size() const
 	{
 		return sz;
 	}
 
-	char* copy(char* dst) const
+	[[nodiscard]] char* copy(char* dst) const
 	{
 		memcpy(dst, begin(), sz);
 		return dst + sz;
 	}
 
-	operator std::string() const
+	[[nodiscard]] operator std::string() const
 	{
 		return std::string(begin(), this->size());
 	}
 
 private:
-	const char* begin() const
+	[[nodiscard]] const char* begin() const
 	{
 		return &buf[BUF_SIZE] - sz;
 	}
 
-	char* end()
+	[[nodiscard]] char* end()
 	{
 		return &buf[BUF_SIZE];
 	}
@@ -366,12 +366,12 @@ template<size_t N, typename T> struct ConcatFixedWidthHexIntegral
 	{
 	}
 
-	size_t size() const
+	[[nodiscard]] size_t size() const
 	{
 		return N;
 	}
 
-	char* copy(char* dst) const
+	[[nodiscard]] char* copy(char* dst) const
 	{
 		char* p = dst + N;
 		auto u = static_cast<FastUnsigned<T>>(t);
@@ -399,12 +399,12 @@ struct ConcatSpaces
 	{
 	}
 
-	size_t size() const
+	[[nodiscard]] size_t size() const
 	{
 		return n;
 	}
 
-	char* copy(char* dst) const
+	[[nodiscard]] char* copy(char* dst) const
 	{
 		memset(dst, ' ', n);
 		return dst + n;
@@ -421,74 +421,74 @@ private:
 // a specialized version for 'T', or the generic (slow) version which uses
 // operator<<(ostream&, T).
 template<typename T>
-inline auto makeConcatUnit(const T& t)
+[[nodiscard]] inline auto makeConcatUnit(const T& t)
 {
 	return ConcatUnit<T>(t);
 }
 
 // Overloads for various cases (strings, integers, floats, ...).
-inline auto makeConcatUnit(const std::string& s)
+[[nodiscard]] inline auto makeConcatUnit(const std::string& s)
 {
-	return ConcatUnit<string_view>(s);
+	return ConcatUnit<std::string_view>(s);
 }
 
-inline auto makeConcatUnit(const char* s)
+[[nodiscard]] inline auto makeConcatUnit(const char* s)
 {
-	return ConcatUnit<string_view>(s);
+	return ConcatUnit<std::string_view>(s);
 }
 
-inline auto makeConcatUnit(char* s)
+[[nodiscard]] inline auto makeConcatUnit(char* s)
 {
-	return ConcatUnit<string_view>(s);
+	return ConcatUnit<std::string_view>(s);
 }
 
 // Note: no ConcatIntegral<char> because that is printed as a single character
-inline auto makeConcatUnit(signed char c)
+[[nodiscard]] inline auto makeConcatUnit(signed char c)
 {
 	return ConcatIntegral<signed char>(c);
 }
 
-inline auto makeConcatUnit(unsigned char c)
+[[nodiscard]] inline auto makeConcatUnit(unsigned char c)
 {
 	return ConcatIntegral<unsigned char>(c);
 }
 
-inline auto makeConcatUnit(short s)
+[[nodiscard]] inline auto makeConcatUnit(short s)
 {
 	return ConcatIntegral<short>(s);
 }
 
-inline auto makeConcatUnit(unsigned short s)
+[[nodiscard]] inline auto makeConcatUnit(unsigned short s)
 {
 	return ConcatIntegral<unsigned short>(s);
 }
 
-inline auto makeConcatUnit(int i)
+[[nodiscard]] inline auto makeConcatUnit(int i)
 {
 	return ConcatIntegral<int>(i);
 }
 
-inline auto makeConcatUnit(unsigned u)
+[[nodiscard]] inline auto makeConcatUnit(unsigned u)
 {
 	return ConcatIntegral<unsigned>(u);
 }
 
-inline auto makeConcatUnit(long l)
+[[nodiscard]] inline auto makeConcatUnit(long l)
 {
 	return ConcatIntegral<long>(l);
 }
 
-inline auto makeConcatUnit(unsigned long l)
+[[nodiscard]] inline auto makeConcatUnit(unsigned long l)
 {
 	return ConcatIntegral<unsigned long>(l);
 }
 
-inline auto makeConcatUnit(long long l)
+[[nodiscard]] inline auto makeConcatUnit(long long l)
 {
 	return ConcatIntegral<long long>(l);
 }
 
-inline auto makeConcatUnit(unsigned long long l)
+[[nodiscard]] inline auto makeConcatUnit(unsigned long long l)
 {
 	return ConcatIntegral<unsigned long long>(l);
 }
@@ -500,29 +500,29 @@ inline auto makeConcatUnit(unsigned long long l)
 // But for openMSX this isn't critical, so we can live with the default
 // (slower?) version.
 
-inline auto makeConcatUnit(float f)
+[[nodiscard]] inline auto makeConcatUnit(float f)
 {
 	return ConcatToString<float>(f);
 }
 
-inline auto makeConcatUnit(double d)
+[[nodiscard]] inline auto makeConcatUnit(double d)
 {
 	return ConcatToString<double>(d);
 }
 
-inline auto makeConcatUnit(long double d)
+[[nodiscard]] inline auto makeConcatUnit(long double d)
 {
 	return ConcatToString<long double>(d);
 }
 #endif
 
 template<size_t N, typename T>
-inline auto makeConcatUnit(const ConcatFixedWidthHexIntegral<N, T>& t)
+[[nodiscard]] inline auto makeConcatUnit(const ConcatFixedWidthHexIntegral<N, T>& t)
 {
 	return t;
 }
 
-inline auto makeConcatUnit(const ConcatSpaces& t)
+[[nodiscard]] inline auto makeConcatUnit(const ConcatSpaces& t)
 {
 	return t;
 }
@@ -531,17 +531,13 @@ inline auto makeConcatUnit(const ConcatSpaces& t)
 // Calculate the total size for a bunch (a tuple) of ConcatUnit<T> objects.
 // That is, calculate the sum of calling the size() method on each ConcatUnit.
 template<typename Tuple, size_t... Is>
-size_t calcTotalSizeHelper(const Tuple& t, std::index_sequence<Is...>)
+[[nodiscard]] size_t calcTotalSizeHelper(const Tuple& t, std::index_sequence<Is...>)
 {
-	// TODO implementation can be simplified by using c++17 fold expressions
-	size_t total = 0;
-	auto l = { ((total += std::get<Is>(t).size()) , 0)... };
-	(void)l;
-	return total;
+	return (... + std::get<Is>(t).size());
 }
 
 template<typename... Ts>
-size_t calcTotalSize(const std::tuple<Ts...>& t)
+[[nodiscard]] size_t calcTotalSize(const std::tuple<Ts...>& t)
 {
 	return calcTotalSizeHelper(t, std::index_sequence_for<Ts...>{});
 }
@@ -564,7 +560,7 @@ void copyUnits(char* dst, const std::tuple<Ts...>& t)
 // Fast integral -> string conversion. (Standalone version, result is not part
 // of a larger string).
 template<typename T>
-inline std::string to_string(T x)
+[[nodiscard]] inline std::string to_string(T x)
 {
 	return ConcatIntegral<T>(x);
 }
@@ -574,7 +570,7 @@ inline std::string to_string(T x)
 
 // Generic version
 template<typename... Ts>
-std::string strCat(Ts&& ...ts)
+[[nodiscard]] std::string strCat(Ts&& ...ts)
 {
 	// Strategy:
 	// - For each parameter (of any type) we create a ConcatUnit object.
@@ -582,13 +578,13 @@ std::string strCat(Ts&& ...ts)
 	// - We allocate a string of that total size.
 	// - We copy() each ConcatUnit into that string.
 
-	auto t = std::make_tuple(strCatImpl::makeConcatUnit(std::forward<Ts>(ts))...);
+	auto t = std::tuple(strCatImpl::makeConcatUnit(std::forward<Ts>(ts))...);
 	auto size = strCatImpl::calcTotalSize(t);
 	// Ideally we want an uninitialized string with given size, but that's not
 	// yet possible. Though see the following proposal (for c++20):
 	//   www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1072r0.html
 	std::string result(size, ' ');
-	char* dst = &result[0]; // C++17 result.data()
+	char* dst = result.data();
 	strCatImpl::copyUnits(dst, t);
 	return result;
 }
@@ -596,14 +592,14 @@ std::string strCat(Ts&& ...ts)
 // Optimized strCat() for the case that the 1st parameter is a temporary
 // (rvalue) string. In that case we can append to that temporary.
 template<typename... Ts>
-std::string strCat(std::string&& first, Ts&& ...ts)
+[[nodiscard]] std::string strCat(std::string&& first, Ts&& ...ts)
 {
 	strAppend(first, std::forward<Ts>(ts)...);
 	return std::move(first);
 }
 
 // Degenerate case
-inline std::string strCat()
+[[nodiscard]] inline std::string strCat()
 {
 	return std::string();
 }
@@ -612,35 +608,35 @@ inline std::string strCat()
 // but in some cases they might improve performance a bit (see notes above
 // about uninitialized string resize). With these overloads strCat()/strAppend()
 // should never be less efficient than a sequence of + or += string-operations.
-inline std::string strCat(const std::string& x) { return x; }
-inline std::string strCat(std::string&&      x) { return std::move(x); }
-inline std::string strCat(const char*        x) { return std::string(x); }
-inline std::string strCat(char               x) { return std::string(1, x); }
-inline std::string strCat(string_view         x) { return std::string(x.data(), x.size()); }
+[[nodiscard]] inline std::string strCat(const std::string& x) { return x; }
+[[nodiscard]] inline std::string strCat(std::string&&      x) { return std::move(x); }
+[[nodiscard]] inline std::string strCat(const char*        x) { return std::string(x); }
+[[nodiscard]] inline std::string strCat(char               x) { return std::string(1, x); }
+[[nodiscard]] inline std::string strCat(std::string_view   x) { return std::string(x.data(), x.size()); }
 
-inline std::string strCat(signed char        x) { return strCatImpl::to_string(x); }
-inline std::string strCat(unsigned char      x) { return strCatImpl::to_string(x); }
-inline std::string strCat(short              x) { return strCatImpl::to_string(x); }
-inline std::string strCat(unsigned short     x) { return strCatImpl::to_string(x); }
-inline std::string strCat(int                x) { return strCatImpl::to_string(x); }
-inline std::string strCat(unsigned           x) { return strCatImpl::to_string(x); }
-inline std::string strCat(long               x) { return strCatImpl::to_string(x); }
-inline std::string strCat(unsigned long      x) { return strCatImpl::to_string(x); }
-inline std::string strCat(long long          x) { return strCatImpl::to_string(x); }
-inline std::string strCat(unsigned long long x) { return strCatImpl::to_string(x); }
+[[nodiscard]] inline std::string strCat(signed char        x) { return strCatImpl::to_string(x); }
+[[nodiscard]] inline std::string strCat(unsigned char      x) { return strCatImpl::to_string(x); }
+[[nodiscard]] inline std::string strCat(short              x) { return strCatImpl::to_string(x); }
+[[nodiscard]] inline std::string strCat(unsigned short     x) { return strCatImpl::to_string(x); }
+[[nodiscard]] inline std::string strCat(int                x) { return strCatImpl::to_string(x); }
+[[nodiscard]] inline std::string strCat(unsigned           x) { return strCatImpl::to_string(x); }
+[[nodiscard]] inline std::string strCat(long               x) { return strCatImpl::to_string(x); }
+[[nodiscard]] inline std::string strCat(unsigned long      x) { return strCatImpl::to_string(x); }
+[[nodiscard]] inline std::string strCat(long long          x) { return strCatImpl::to_string(x); }
+[[nodiscard]] inline std::string strCat(unsigned long long x) { return strCatImpl::to_string(x); }
 
-inline std::string strCat(const std::string& x, const std::string& y) { return x + y; }
-inline std::string strCat(const char*        x, const std::string& y) { return x + y; }
-inline std::string strCat(char               x, const std::string& y) { return x + y; }
-inline std::string strCat(const std::string& x, const char*        y) { return x + y; }
-inline std::string strCat(const std::string& x, char               y) { return x + y; }
-inline std::string strCat(std::string&&      x, const std::string& y) { return x + y; }
-inline std::string strCat(const std::string& x, std::string&&      y) { return x + y; }
-inline std::string strCat(std::string&&      x, std::string&&      y) { return x + y; }
-inline std::string strCat(const char*        x, std::string&&      y) { return x + y; }
-inline std::string strCat(char               x, std::string&&      y) { return x + y; }
-inline std::string strCat(std::string&&      x, const char*        y) { return x + y; }
-inline std::string strCat(std::string&&      x, char               y) { return x + y; }
+[[nodiscard]] inline std::string strCat(const std::string& x, const std::string& y) { return x + y; }
+[[nodiscard]] inline std::string strCat(const char*        x, const std::string& y) { return x + y; }
+[[nodiscard]] inline std::string strCat(char               x, const std::string& y) { return x + y; }
+[[nodiscard]] inline std::string strCat(const std::string& x, const char*        y) { return x + y; }
+[[nodiscard]] inline std::string strCat(const std::string& x, char               y) { return x + y; }
+[[nodiscard]] inline std::string strCat(std::string&&      x, const std::string& y) { return x + y; }
+[[nodiscard]] inline std::string strCat(const std::string& x, std::string&&      y) { return x + y; }
+[[nodiscard]] inline std::string strCat(std::string&&      x, std::string&&      y) { return x + y; }
+[[nodiscard]] inline std::string strCat(const char*        x, std::string&&      y) { return x + y; }
+[[nodiscard]] inline std::string strCat(char               x, std::string&&      y) { return x + y; }
+[[nodiscard]] inline std::string strCat(std::string&&      x, const char*        y) { return x + y; }
+[[nodiscard]] inline std::string strCat(std::string&&      x, char               y) { return x + y; }
 
 
 // Generic version
@@ -650,7 +646,7 @@ void strAppend(std::string& result, Ts&& ...ts)
 	// Implementation strategy is similar to strCat(). Main difference is
 	// that we now extend an existing string instead of creating a new one.
 
-	auto t = std::make_tuple(strCatImpl::makeConcatUnit(std::forward<Ts>(ts))...);
+	auto t = std::tuple(strCatImpl::makeConcatUnit(std::forward<Ts>(ts))...);
 	auto extraSize = strCatImpl::calcTotalSize(t);
 	auto oldSize = result.size();
 	result.append(extraSize, ' '); // see note in strCat() about uninitialized string
@@ -667,16 +663,16 @@ inline void strAppend(std::string& /*x*/)
 // Extra overloads, see strCat().
 inline void strAppend(std::string& x, const std::string& y) { x += y; }
 inline void strAppend(std::string& x, const char*        y) { x += y; }
-inline void strAppend(std::string& x, string_view         y) { x.append(y.data(), y.size()); }
+inline void strAppend(std::string& x, std::string_view   y) { x.append(y.data(), y.size()); }
 
 
 template<size_t N, typename T>
-inline strCatImpl::ConcatFixedWidthHexIntegral<N, T> hex_string(T t)
+[[nodiscard]] inline strCatImpl::ConcatFixedWidthHexIntegral<N, T> hex_string(T t)
 {
 	return {t};
 }
 
-inline strCatImpl::ConcatSpaces spaces(size_t n)
+[[nodiscard]] inline strCatImpl::ConcatSpaces spaces(size_t n)
 {
 	return {n};
 }

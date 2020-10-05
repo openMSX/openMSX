@@ -68,19 +68,20 @@ public:
 	// speed can vary and thus the disk can be formatted with slightly more
 	// or slightly less raw bytes per track. This class can also represent
 	// tracks of different lengths.
-	static const unsigned STANDARD_SIZE = 6250;
+	static constexpr unsigned STANDARD_SIZE = 6250;
 
 	struct Sector
 	{
-		int addrIdx;
-		int dataIdx;
-		byte track;
-		byte head;
-		byte sector;
-		byte sizeCode;
-		bool deleted;
-		bool addrCrcErr;
-		bool dataCrcErr;
+		// note: initialize to avoid UMR on savestate
+		int addrIdx = 0;
+		int dataIdx = 0;
+		byte track = 0;
+		byte head = 0;
+		byte sector = 0;
+		byte sizeCode = 0;
+		bool deleted = false;
+		bool addrCrcErr = false;
+		bool dataCrcErr = false;
 
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);

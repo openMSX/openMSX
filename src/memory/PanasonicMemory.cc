@@ -99,7 +99,7 @@ void PanasonicMemory::setDRAM(bool dram_)
 {
 	if (dram_ != dram) {
 		dram = dram_;
-		msxcpu.invalidateMemCache(0x0000, 0x10000);
+		msxcpu.invalidateAllSlotsRWCache(0x0000, 0x10000);
 	}
 }
 

@@ -42,7 +42,7 @@ public:
 private:
 	void init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	          const FileContext& context);
-	bool checkSHA1(const XMLElement& config);
+	bool checkSHA1(const XMLElement& config) const;
 
 private:
 	// !! update the move constructor when changing these members !!

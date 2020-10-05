@@ -36,7 +36,6 @@ private:
 
 	int opl3latch;
 	byte opl4latch;
-	bool alreadyReadID;
 };
 SERIALIZE_CLASS_VERSION(MSXMoonSound, 3);
 

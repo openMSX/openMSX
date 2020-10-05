@@ -17,7 +17,7 @@ string coreName;
 string testName;
 
 
-static const unsigned CHANNELS = 11;
+constexpr unsigned CHANNELS = 11;
 
 
 struct RegWrite
@@ -126,8 +126,8 @@ static void test(YM2413Core& core, const Log& log,
 		}
 		if (err) {
 			string filename = strCat(
-                                "bad-", coreName, '-', testName,
-			         "-ch", i, ".wav");
+				"bad-", coreName, '-', testName,
+				"-ch", i, ".wav");
 			strAppend(msg, " writing data to ", filename);
 			error(msg);
 			saveWav(filename, generatedSamples[i]);

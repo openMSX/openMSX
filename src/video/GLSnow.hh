@@ -20,6 +20,7 @@ public:
 
 private:
 	Display& display;
+	gl::BufferObject vbo[2];
 	gl::Texture noiseTexture;
 };
 

@@ -43,7 +43,7 @@ public:
 		return machineID;
 	}
 
-	Command* findCommand(string_view name) const;
+	Command* findCommand(std::string_view name) const;
 
 	/** Returns true iff the machine this controller belongs to is currently
 	  * active.
@@ -56,14 +56,14 @@ public:
 
 	// CommandController
 	void   registerCompleter(CommandCompleter& completer,
-	                         string_view str) override;
+	                         std::string_view str) override;
 	void unregisterCompleter(CommandCompleter& completer,
-	                         string_view str) override;
+	                         std::string_view str) override;
 	void   registerCommand(Command& command,
 	                       const std::string& str) override;
 	void unregisterCommand(Command& command,
-	                       string_view str) override;
-	bool hasCommand(string_view command) const override;
+	                       std::string_view str) override;
+	bool hasCommand(std::string_view command) const override;
 	TclObject executeCommand(const std::string& command,
 	                         CliConnection* connection = nullptr) override;
 	void registerSetting(Setting& setting) override;
@@ -72,7 +72,7 @@ public:
 	Interpreter& getInterpreter() override;
 
 private:
-	std::string getFullName(string_view name);
+	std::string getFullName(std::string_view name);
 
 	// MSXEventListener
 	void signalMSXEvent(const std::shared_ptr<const Event>& event,

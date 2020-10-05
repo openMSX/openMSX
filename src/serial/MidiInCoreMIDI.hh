@@ -36,7 +36,7 @@ public:
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 	const std::string& getName() const override;
-	string_view getDescription() const override;
+	std::string_view getDescription() const override;
 
 	// MidiInDevice
 	void signal(EmuTime::param time) override;
@@ -50,7 +50,7 @@ private:
 	int signalEvent(const std::shared_ptr<const Event>& event) override;
 
 	static void sendPacketList(const MIDIPacketList *pktlist,
-                         void *readProcRefCon, void *srcConnRefCon);
+	                           void *readProcRefCon, void *srcConnRefCon);
 	void sendPacketList(const MIDIPacketList *pktlist, void *srcConnRefCon);
 
 	EventDistributor& eventDistributor;
@@ -81,7 +81,7 @@ public:
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 	const std::string& getName() const override;
-	string_view getDescription() const override;
+	std::string_view getDescription() const override;
 
 	// MidiInDevice
 	void signal(EmuTime::param time) override;
@@ -94,7 +94,7 @@ private:
 	int signalEvent(const std::shared_ptr<const Event>& event) override;
 
 	static void sendPacketList(const MIDIPacketList *pktlist,
-                         void *readProcRefCon, void *srcConnRefCon);
+	                           void *readProcRefCon, void *srcConnRefCon);
 	void sendPacketList(const MIDIPacketList *pktlist, void *srcConnRefCon);
 
 	EventDistributor& eventDistributor;

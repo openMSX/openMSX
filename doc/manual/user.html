@@ -1,13 +1,11 @@
-<?xml version="1.0" encoding="iso-8859-1" ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.0//EN"
-"http://www.w3.org/TR/xhtml-basic/xhtml-basic10.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<link title="Purple" rel="stylesheet" href="manual-purple.css" type="text/css" />
-<link title="Minty" rel="alternate stylesheet" href="manual-minty.css" type="text/css" />
-<link title="Plain" rel="alternate stylesheet" href="manual.css" type="text/css" />
-<title>openMSX User's Manual</title>
+  <meta charset="utf-8">
+  <link title="Purple" rel="stylesheet" href="manual-purple.css" type="text/css">
+  <link title="Minty" rel="alternate stylesheet" href="manual-minty.css" type="text/css">
+  <link title="Plain" rel="alternate stylesheet" href="manual.css" type="text/css">
+  <title>openMSX User's Manual</title>
 </head>
 
 <body>
@@ -260,7 +258,7 @@ You can access the console by pressing F10
 (with <a class="internal" href="#keymapping">default key mapping</a>; Cmd+L on Mac) when the focus is on the emulator window.  This will
 give you a command line in the openMSX window. Note that due to a <a class="external" href="https://github.com/openMSX/openMSX/issues/485">known problem</a>
 in SDL on Windows, the console won't come up if you went to fullscreen by using
-ALT-ENTER. Use F12 to go to fullscreen to work around this problem. (See also <a class="internal" href="#settings">Settings</a> and <a class="internal" href="#keymapping">Keymapping</a>.)
+ALT-ENTER. Use F11 to go to fullscreen to work around this problem. (See also <a class="internal" href="#settings">Settings</a> and <a class="internal" href="#keymapping">Keymapping</a>.)
 </p>
 
 <p>
@@ -277,6 +275,32 @@ The console can be used to <a class="internal" href="#disks">change disk images<
 One very practical feature of the console command line is that you can use "completion" features. Just try typing half a command and then press the TAB key; openMSX will then try to finish the word you were typing or show the possibilities in case of ambiguities. You can use it also for file names, connectors, pluggables and settings and even for machine and extension names.
 </p>
 
+<p>Here follows the full list of keyboard commands that can be used in the console:
+</p>
+
+<table>
+  <tr> <th>key(s)                 </th> <th>function                                                     </th> </tr>
+  <tr> <td>Left/Right             </td> <td>move cursor on command line                                  </td> </tr>
+  <tr> <td>Up                     </td> <td>show previous command from history (starting with current command line)</td> </tr>
+  <tr> <td>Down                   </td> <td>show next command from history (starting with current command line)    </td> </tr>
+  <tr> <td>Tab                    </td> <td>attempt completion of current command                        </td> </tr>
+  <tr> <td>Enter/Return           </td> <td>execute command line                                         </td> </tr>
+  <tr> <td>PageUp                 </td> <td>scroll one line up                                           </td> </tr>
+  <tr> <td>PageDown               </td> <td>scroll one line down                                         </td> </tr>
+  <tr> <td>SHIFT+PageUp           </td> <td>scroll one page up                                           </td> </tr>
+  <tr> <td>SHIFT+PageDown         </td> <td>scroll one page down                                         </td> </tr>
+  <tr> <td>Delete                 </td> <td>delete character at cursor                                   </td> </tr>
+  <tr> <td>CTRL+H/Backspace       </td> <td>delete character left of cursor                              </td> </tr>
+  <tr> <td>CTRL+A/Home            </td> <td>put cursor at the start of the command line                  </td> </tr>
+  <tr> <td>CTRL+E/End             </td> <td>put cursor at the end of the command line                    </td> </tr>
+  <tr> <td>CTRL+C                 </td> <td>clear command line                                           </td> </tr>
+  <tr> <td>CTRL+V (Mac: Cmd+V)    </td> <td>paste clipboard content in console                           </td> </tr>
+  <tr> <td>ALT+Left               </td> <td>move cursor to start of (previous) word                      </td> </tr>
+  <tr> <td>ALT+Right              </td> <td>move cursor to end of (next) word                            </td> </tr>
+  <tr> <td>ALT+Backspace          </td> <td>delete till start of word (to where Alt+Left would move)     </td> </tr>
+  <tr> <td>ALT+D (Mac: ALT+Delete)</td> <td>delete till end of word (to where Alt+Right would move)      </td> </tr>
+</table>
+
 <h3><a id="importantconsole">3.2 Some Simple Console Commands</a></h3>
 
 <p>
@@ -289,7 +313,7 @@ You can reset your MSX with the Console command <code><a class="external" href="
 An interesting console command is <code><a class="external" href="commands.html#set">set</a></code>. You can use it to change the various
 settings. E.g., you can use it to set the current <a class="internal" href="#renderer">renderer</a>. If you issue set with only the setting (like <code>set <a class="external" href="commands.html#renderer">renderer</a></code>), you will get the current value of that setting.
 Settings that have only two possible values can also be toggled with the <code><a class="external" href="commands.html#toggle">toggle</a></code>
-command (an example is the default key binding of F12 to <code>toggle
+command (an example is the default key binding of F11 to <code>toggle
 fullscreen</code>, see also below). A complete list of settings can also be found in the <a class="external" href="commands.html">Console Command Reference</a>. Note that using the "tab completion" feature can help you a lot in getting an idea of what settings are possible, as it will only complete possible options. Just try that.
 </p>
 
@@ -297,16 +321,6 @@ fullscreen</code>, see also below). A complete list of settings can also be foun
 If the MSX goes too fast or too slow, adjust the emulation speed with the
 <code><a class="external" href="commands.html#speed">speed</a></code> setting, which has the speed percentage as parameter. So, typing <code>set
 speed 120</code>, will let the emulated MSX run at 120% of normal MSX speed. This is useful for debugging purposes (slow down) or when you want to skip certain parts of a demo for example (speed up).
-</p>
-
-<p>
-If you got the MSX sped up to maximum (<code>set <a class="external" href="commands.html#throttle">throttle</a></code>), but
-openMSX is still not going fast enough for you, you can increase the
-<code>maxframeskip</code> setting: <code>set <a class="external" href="commands.html#maxframeskip">maxframeskip</a> 10</code> will mean that openMSX may
-skip 10 screens to be displayed, just to get to the requested speed. Note that
-you can also <em>force</em> openMSX to skip frames, with the <code><a class="external" href="commands.html#minframeskip">minframeskip</a></code> setting. This
-sets the amount of frames that will be skipped always. Of course frame skipping
-makes emulation a lot less accurate.
 </p>
 
 <p>
@@ -742,16 +756,16 @@ The program is encoded on the right audio channel which will not be audible. Wit
 </p>
 
 <table>
-  <tr> <th>MSX key</th>           <th>key (PC)</th>  <th>key (Mac)</th>  </tr>
-  <tr> <td>CTRL key</td>          <td>L-CTRL</td>    <td>L-CTRL</td>     </tr>
-  <tr> <td><a class="external" href="commands.html#kbd_deadkey1_host_key">dead (accents) key</a></td><td>R-CTRL</td>    <td>R-CTRL</td>     </tr>
-  <tr> <td>GRAPH key</td>         <td>L-ALT</td>     <td>L-ALT</td>      </tr>
-  <tr> <td><a class="external" href="commands.html#kbd_code_kana_host_key">CODE/KANA key</a></td><td>R-ALT</td>     <td>R-ALT</td> </tr>
-  <tr> <td>iee ('no') key</td>    <td>L-Windows</td> <td></td>           </tr>
-  <tr> <td>hai ('yes') key</td>   <td>R-Windows</td> <td></td>           </tr>
-  <tr> <td>SELECT key</td>        <td>F7</td>        <td>F7</td>         </tr>
-  <tr> <td>STOP key</td>          <td>F8</td>        <td>F8</td>         </tr>
-  <tr> <td>INS key</td>           <td>Insert</td>    <td>Cmd+I</td>      </tr>
+  <tr> <th>MSX key</th>              <th>key (PC)</th> <th>key (Mac)</th>  </tr>
+  <tr> <td>CTRL key</td>             <td>L-CTRL</td>   <td>L-CTRL</td>     </tr>
+  <tr> <td><a class="external" href="commands.html#kbd_deadkey1_host_key">dead (accents) key</a></td><td>R-CTRL</td>    <td>R-CTRL</td> </tr>
+  <tr> <td>GRAPH key</td>            <td>L-ALT</td>    <td>L-ALT</td>      </tr>
+  <tr> <td><a class="external" href="commands.html#kbd_code_kana_host_key">CODE/KANA key</a></td><td>R-ALT</td>     <td>R-ALT</td>      </tr>
+  <tr> <td>取消 ('cancel') key</td>  <td>L-Windows</td><td></td>           </tr>
+  <tr> <td>実行 ('execute') key</td> <td>R-Windows</td><td></td>           </tr>
+  <tr> <td>SELECT key</td>           <td>F7</td>       <td>F7</td>         </tr>
+  <tr> <td>STOP key</td>             <td>F8</td>       <td>F8</td>         </tr>
+  <tr> <td>INS key</td>              <td>Insert</td>   <td>Cmd+I</td>      </tr>
 </table>
 
 <h4><a id="cvkeymapping">5.1.2 ColecoVision Key Mapping</a></h4>
@@ -796,13 +810,15 @@ The mapping of the keys for emulator functions is fully customisable using the <
   <tr> <td>PrtScr</td>     <td>Cmd+D (Dump)</td>       <td>Save current screen to a file (<a class="external" href="commands.html#screenshot">screen shot</a>)</td> </tr>
   <tr> <td>PageUp</td>         <td>PageUp</td>   <td>Go 1 second back in time, using the <a class="external" href="commands.html#reverse">reverse</a> feature</td> </tr>
   <tr> <td>PageDown</td>         <td>PageDown</td>   <td>Go 1 second forward in time, using the <a class="external" href="commands.html#reverse">reverse</a> feature</td> </tr>
-  <tr> <td>F9</td>         <td>Cmd+T (Throttle)</td>   <td>Toggle full <a class="external" href="commands.html#throttle">throttle</a> (maximum speed)</td> </tr>
+  <tr> <td>F9</td>         <td>Cmd+T (Fastforward)</td>   <td>Toggle <a class="external" href="commands.html#fastforward">fastforward</a> mode (normal vs fastforward speed)</td> </tr>
   <tr> <td>F10</td>        <td>Cmd+L (consoLe)</td>    <td>Toggle <a class="external" href="commands.html#console">console</a> display</td> </tr>
-  <tr> <td>F11</td>        <td>Cmd+U (mUte)</td>       <td>Toggle <a class="external" href="commands.html#mute">audio mute</a></td> </tr>
-  <tr> <td>F12 or ALT+Enter</td> <td>Cmd+F (Full)</td> <td>Toggle <a class="external" href="commands.html#fullscreen">full screen</a> mode</td> </tr>
+  <tr> <td>F11 or ALT+Enter</td> <td>Cmd+F (Full)</td> <td>Toggle <a class="external" href="commands.html#fullscreen">full screen</a> mode</td> </tr>
+  <tr> <td>F12</td>        <td>Cmd+U (mUte)</td>       <td>Toggle <a class="external" href="commands.html#mute">audio mute</a></td> </tr>
   <tr> <td>ALT+F7</td>     <td>Cmd+R (Restore)</td>    <td>Quick <a class="external" href="commands.html#savestate">loadstate</a> (from 'quicksave' slot)</td> </tr>
   <tr> <td>ALT+F8</td>     <td>Cmd+S (Save)</td>       <td>Quick <a class="external" href="commands.html#savestate">savestate</a> (to 'quicksave' slot)</td> </tr>
   <tr> <td><a class="external" href="http://en.wikipedia.org/wiki/Menu_key">MENU</a></td>       <td>Cmd+O (Open menu)</td>  <td>Show the On-Screen-Display menu</td> </tr>
+  <tr> <td>CTRL+Win+C</td>     <td>Cmd+C (Copy)</td>       <td>Copy screen's text content to clipboard</td> </tr>
+  <tr> <td>CTRL+Win+V</td>     <td>Cmd+V (paste)</td>       <td>Type the text from the clipboard into the MSX</td> </tr>
 </table>
 <!--
 <p class="todo">
@@ -810,7 +826,7 @@ Make the table look better by using cellpadding stuff in the css.
 </p>-->
 
 <p>
-Note for Mac users: if you want to bind your custom keys on the console, use <code>META</code> as a modifier for the Command (Apple logo) key.
+Note that Mac user must use <code>META</code> as a modifier for the Command (Apple logo) key. On PC's use <code>META</code> for the Windows key.
 </p>
 
 <p>For handheld devices, most of these functions can only be used via the On-Screen-Display menu and the On-Screen-Keyboard.</p>
@@ -1239,7 +1255,7 @@ There is a <code><a class="external" href="commands.html#master_volume">master_v
 </p>
 
 <p>
-There is also a <code><a class="external" href="commands.html#mute">mute</a></code> setting, to disable all sound from openMSX at once. It can be on (muted) or off (sound is audible). By default, mute is bound to the F11 key.
+There is also a <code><a class="external" href="commands.html#mute">mute</a></code> setting, to disable all sound from openMSX at once. It can be on (muted) or off (sound is audible). By default, mute is bound to the F12 key.
 </p>
 
 <p>

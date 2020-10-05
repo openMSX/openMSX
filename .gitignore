@@ -12,3 +12,4 @@ core
 .project
 *.VC.db
 *.VC.VC.opendb
+__pycache__/

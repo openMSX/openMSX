@@ -1,4 +1,3 @@
-from __future__ import print_function
 from cpu import getCPU, X86, X86_64
 from makeutils import extractMakeVariables, parseBool
 from outpututils import rewriteIfChanged
@@ -78,8 +77,6 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 	#       that.
 	yield 'static const bool OPENMSX_BIGENDIAN = %s;' \
 		% str(targetCPU.bigEndian).lower()
-	yield 'static const bool OPENMSX_UNALIGNED_MEMORY_ACCESS = %s;' \
-		% str(targetCPU.unalignedMemoryAccess).lower()
 	yield 'static const bool OPENMSX_SET_WINDOW_ICON = %s;' \
 		% str(setWindowIcon).lower()
 	yield 'static const char* const DATADIR = "%s";' % installShareDir
@@ -95,7 +92,7 @@ if __name__ == '__main__':
 		rewriteIfChanged(sys.argv[1], iterBuildInfoHeader(*sys.argv[2 : ]))
 	else:
 		print(
-			'Usage: python buildinfo2code.py CONFIG_HEADER '
+			'Usage: python3 buildinfo2code.py CONFIG_HEADER '
 			'platform cpu flavour share-install-dir',
 			file=sys.stderr
 			)

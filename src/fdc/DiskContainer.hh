@@ -2,9 +2,9 @@
 #define DISKCONTAINER_HH
 
 #include "serialize_meta.hh"
-#include "string_view.hh"
 #include <functional>
 #include <string>
+#include <string_view>
 
 namespace openmsx {
 
@@ -22,7 +22,7 @@ public:
 
 	// for nowind
 	//  - error handling with return values instead of exceptions
-	virtual int insertDisk(string_view filename) = 0;
+	virtual int insertDisk(std::string_view filename) = 0;
 	// for nowind
 	bool isRomdisk() const;
 
