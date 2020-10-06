@@ -1332,23 +1332,15 @@ proc menu_create_plugged_extensions_list {} {
 	                  post-spacing 6 }}
 
 	set items [list_extensions]
-	set possible_items [get_filtered_configs extensions]
-
-	set useful_items [list]
-	foreach item $items {
-		if {$item in $possible_items} {
-			lappend useful_items $item
-		}
-	}
 
 	set presentation [list]
 
-	foreach i $useful_items {
-		lappend presentation [utils::get_extension_display_name_by_config_name ${i}]
+	foreach item $items {
+		lappend presentation [utils::get_extension_display_name_by_config_name $item]
 	}
 	lappend menu_def presentation $presentation
 
-	return [prepare_menu_list $useful_items 10 $menu_def]
+	return [prepare_menu_list $items 10 $menu_def]
 }
 
 proc menu_remove_extension_exec {item} {
