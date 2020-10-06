@@ -1353,10 +1353,10 @@ proc menu_create_plugged_extensions_list {} {
 
 proc menu_remove_extension_exec {item} {
 	menu_close_all
-	remove_extension $item
 	set slot [get_extension_slot $item]
 	set location [expr {$slot ne "" ? "slot [get_slot_str $slot]" : "I/O only slot"}]
 	osd::display_message "Extension [utils::get_extension_display_name_by_config_name $item] removed from $location!"
+	remove_extension $item
 }
 
 proc menu_create_connectors_list {} {
