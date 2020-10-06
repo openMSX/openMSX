@@ -1595,6 +1595,7 @@ proc menu_create_rom_list {path slot} {
 proc menu_select_rom {slot item {open_main false}} {
 	if {$item eq "--eject--"} {
 		menu_close_all
+		osd::display_message "Cartridge [get_slot_content $slot] removed from slot [get_slot_str $slot]!"
 		$slot eject
 		reset
 	} elseif {$item eq "--extension--"} {
