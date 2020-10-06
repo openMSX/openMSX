@@ -617,10 +617,10 @@ proc select_next_menu_item_starting_with {text} {
 	select_menu_idx $index
 }
 
-proc get_extension_slot { device } {
+proc get_extension_slot { ext_name } {
 	set cart_slots [info command cart?]
 	foreach slot $cart_slots {
-		if {[lindex [$slot] 1] eq $device} {
+		if {[lindex [$slot] 1] eq $ext_name} {
 			return $slot
 		}
 	}
