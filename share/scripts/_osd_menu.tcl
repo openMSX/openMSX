@@ -627,6 +627,11 @@ proc get_extension_slot { ext_name } {
 	return ""
 }
 
+proc get_extension_slot_description { ext_name } {
+	set slot [get_extension_slot $ext_name]
+	return [expr {$slot ne "" ? "slot [get_slot_str $slot]" : "I/O only slot"}]
+}
+
 proc get_io_extensions {} {
 	set io_extensions [list]
 	set extensions [list_extensions]
@@ -636,17 +641,6 @@ proc get_io_extensions {} {
 		}
 	}
 	return $io_extensions
-}
-
-proc get_ROM_device_name_by_filename { filename } {
-	foreach device [machine_info device] {
-		set device_info [machine_info device $device]
-		if {[dict get $device_info type] eq "ROM" &&
-		    [dict get $device_info filename] eq $filename} {
-			return $device
-		}
-	}
-	return ""
 }
 
 variable mediaslot_info [dict create \
@@ -664,23 +658,27 @@ proc get_slot_str {slot} {
 	return [string toupper [string index $slot end]]
 }
 
+proc get_extension_display_name {ext_name} {
+	set ext_info [machine_info extension $ext_name]
+	if {[dict exists $ext_info config]} {
+		# real extension, use a fancy name with manufacturer, type, etc.
+		return [utils::get_extension_display_name_by_config_name [dict get $ext_info config]]
+	} else {
+		# created ROM extension, use the device name
+		return [lindex [dict get $ext_info devices] 0]
+	}
+}
+
 # this proc gives a presentation for humans of the slot contents
 proc get_slot_content {slot} {
 	set slotcontent "(empty)"
-	set filename [lindex [$slot] 1]
-	if {$filename ne ""} {
-		set slotcontent [file tail $filename]
+	set contentname [lindex [$slot] 1]
+	if {$contentname ne ""} {
+		# first assume it's just a path, true for non-cartridges
+		set slotcontent [file tail $contentname]
 		if {[string match "cart*" $slot]} {
-			if {$slotcontent in [openmsx_info extensions]} {
-				# extension
-				set slotcontent [utils::get_extension_display_name_by_config_name $slotcontent]
-			} else {
-				# ROM
-				set devicename [get_ROM_device_name_by_filename $filename]
-				if {$devicename ne ""} {
-					set slotcontent $devicename
-				}
-			}
+			# so, we have something in a cartridge slot
+			set slotcontent [get_extension_display_name $contentname]
 		}
 	}
 	return $slotcontent
@@ -705,7 +703,7 @@ proc create_slot_menu_def {slots path listtype menutitle create_action_proc {sho
 	# hack: use special parameter show_io_slots to add cartridge specific I/O slots
 	if {$show_io_slots} {
 		foreach extension [get_io_extensions] {
-			lappend items [list text "\[Remove I/O ext.: [utils::get_extension_display_name_by_config_name $extension]\]" actions [list A "osd_menu::menu_remove_extension_exec $extension"]]
+			lappend items [list text "\[Remove I/O ext.: [get_extension_display_name $extension]\]" actions [list A "osd_menu::menu_remove_extension_exec $extension"]]
 		}
 	}
 	dict set menudef items $items
@@ -1310,12 +1308,11 @@ proc menu_add_extension_exec {slot item} {
 		set slot ""
 	}
 	set ext [string index $slot end]
-	if {[catch {if {$slot ne ""} { cart${ext} eject }; ext${ext} $item} errorText]} {
+	if {[catch {if {$slot ne ""} { cart${ext} eject }; set extname [ext${ext} $item]} errorText]} {
 		osd::display_message $errorText error
 	} else {
-		set location [expr {[get_extension_slot $item] ne "" ? "slot [get_slot_str [get_extension_slot $item]]" : "I/O only slot"}]
 		menu_close_all
-		osd::display_message "Extension [utils::get_extension_display_name_by_config_name $item] inserted in $location!"
+		osd::display_message "Extension [get_extension_display_name $extname] inserted in [get_extension_slot_description $extname]!"
 	}
 }
 
@@ -1336,7 +1333,7 @@ proc menu_create_plugged_extensions_list {} {
 	set presentation [list]
 
 	foreach item $items {
-		lappend presentation [utils::get_extension_display_name_by_config_name $item]
+		lappend presentation "[get_extension_display_name $item] ([get_extension_slot_description $item])"
 	}
 	lappend menu_def presentation $presentation
 
@@ -1345,9 +1342,7 @@ proc menu_create_plugged_extensions_list {} {
 
 proc menu_remove_extension_exec {item} {
 	menu_close_all
-	set slot [get_extension_slot $item]
-	set location [expr {$slot ne "" ? "slot [get_slot_str $slot]" : "I/O only slot"}]
-	osd::display_message "Extension [utils::get_extension_display_name_by_config_name $item] removed from $location!"
+	osd::display_message "Extension [get_extension_display_name $item] removed from [get_extension_slot_description $item]!"
 	remove_extension $item
 }
 
@@ -1628,8 +1623,8 @@ proc menu_rom_with_mappertype_exec {slot fullname mappertype} {
 	} else {
 		menu_close_all
 
-		set filename [lindex [$slot] 1]
-		set devicename [get_ROM_device_name_by_filename $filename]
+		set extname [lindex [$slot] 1]
+		set devicename [lindex [dict get [machine_info extension extname] devices] 0]
 		set rominfo [getlist_rom_info $devicename]
 
 		set message1 "Inserted ROM"
