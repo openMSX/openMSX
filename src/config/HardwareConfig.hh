@@ -21,6 +21,12 @@ class TclObject;
 class HardwareConfig
 {
 public:
+	enum class Type {
+		MACHINE,
+		EXTENSION,
+		ROM
+	};
+
 	HardwareConfig(const HardwareConfig&) = delete;
 	HardwareConfig& operator=(const HardwareConfig&) = delete;
 
@@ -45,6 +51,8 @@ public:
 
 	const XMLElement& getConfig() const { return config; }
 	const std::string& getName() const { return name; }
+	const std::string& getConfigName() const { return hwName; }
+	Type getType() const { return type; }
 
 	/** Parses a slot mapping.
 	  * Returns the slot selection: two bits per page for the slot to be
@@ -54,6 +62,8 @@ public:
 
 	void parseSlots();
 	void createDevices();
+
+	const std::vector<std::unique_ptr<MSXDevice>>& getDevices() const { return devices; };
 
 	/** Checks whether this HardwareConfig can be deleted.
 	  * Throws an exception if not.
@@ -67,7 +77,7 @@ private:
 	void setConfig(XMLElement config_) { config = std::move(config_); }
 	void load(std::string_view type);
 
-	const XMLElement& getDevices() const;
+	const XMLElement& getDevicesElem() const;
 	void createDevices(const XMLElement& elem,
 	                   const XMLElement* primary, const XMLElement* secondary);
 	void createExternalSlot(int ps);
@@ -81,6 +91,7 @@ private:
 
 	MSXMotherBoard& motherBoard;
 	std::string hwName;
+	Type type;
 	std::string userName;
 	XMLElement config;
 	FileContext context;
@@ -96,7 +107,7 @@ private:
 
 	friend struct SerializeConstructorArgs<HardwareConfig>;
 };
-SERIALIZE_CLASS_VERSION(HardwareConfig, 4);
+SERIALIZE_CLASS_VERSION(HardwareConfig, 5);
 
 template<> struct SerializeConstructorArgs<HardwareConfig>
 {

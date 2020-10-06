@@ -32,6 +32,7 @@ unique_ptr<HardwareConfig> HardwareConfig::createMachineConfig(
 {
 	auto result = std::make_unique<HardwareConfig>(
 		motherBoard, move(machineName));
+	result->type = HardwareConfig::Type::MACHINE;
 	result->load("machines");
 	return result;
 }
@@ -43,6 +44,7 @@ unique_ptr<HardwareConfig> HardwareConfig::createExtensionConfig(
 		motherBoard, move(extensionName));
 	result->load("extensions");
 	result->setName(result->hwName);
+	result->type = HardwareConfig::Type::EXTENSION;
 	result->setSlot(move(slotname));
 	return result;
 }
@@ -53,6 +55,7 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 {
 	auto result = std::make_unique<HardwareConfig>(motherBoard, "rom");
 	result->setName(romfile);
+	result->type = HardwareConfig::Type::ROM;
 
 	vector<string_view> ipsfiles;
 	string mapper;
@@ -182,7 +185,7 @@ void HardwareConfig::testRemove() const
 	}
 }
 
-const XMLElement& HardwareConfig::getDevices() const
+const XMLElement& HardwareConfig::getDevicesElem() const
 {
 	return getConfig().getChild("devices");
 }
@@ -217,14 +220,14 @@ static string getFilename(string_view type, string_view name)
 	}
 }
 
-XMLElement HardwareConfig::loadConfig(string_view type, string_view name)
+XMLElement HardwareConfig::loadConfig(string_view type_, string_view name)
 {
-	return loadHelper(getFilename(type, name));
+	return loadHelper(getFilename(type_, name));
 }
 
-void HardwareConfig::load(string_view type)
+void HardwareConfig::load(string_view type_)
 {
-	string filename = getFilename(type, hwName);
+	string filename = getFilename(type_, hwName);
 	setConfig(loadHelper(filename));
 
 	assert(!userName.empty());
@@ -238,7 +241,7 @@ void HardwareConfig::parseSlots()
 	//      once machine and extensions are parsed separately move parsing
 	//      of 'expanded' to MSXCPUInterface
 	//
-	for (auto& psElem : getDevices().getChildren("primary")) {
+	for (auto& psElem : getDevicesElem().getChildren("primary")) {
 		const auto& primSlot = psElem->getAttribute("slot");
 		int ps = CartridgeSlotManager::getSlotNum(primSlot);
 		if (psElem->getAttributeAsBool("external", false)) {
@@ -320,7 +323,7 @@ byte HardwareConfig::parseSlotMap() const
 
 void HardwareConfig::createDevices()
 {
-	createDevices(getDevices(), nullptr, nullptr);
+	createDevices(getDevicesElem(), nullptr, nullptr);
 }
 
 void HardwareConfig::createDevices(const XMLElement& elem,
@@ -402,7 +405,7 @@ void HardwareConfig::setName(string_view proposedName)
 
 void HardwareConfig::setSlot(string slotname)
 {
-	for (auto& psElem : getDevices().getChildren("primary")) {
+	for (auto& psElem : getDevicesElem().getChildren("primary")) {
 		const auto& primSlot = psElem->getAttribute("slot");
 		if (primSlot == "any") {
 			auto& mutableElem = const_cast<XMLElement*&>(psElem);
@@ -411,10 +414,18 @@ void HardwareConfig::setSlot(string slotname)
 	}
 }
 
+static std::initializer_list<enum_string<HardwareConfig::Type>> configTypeInfo = {
+	{ "MACHINE",   HardwareConfig::Type::MACHINE   },
+	{ "EXTENSION", HardwareConfig::Type::EXTENSION },
+	{ "ROM",       HardwareConfig::Type::ROM       },
+};
+SERIALIZE_ENUM(HardwareConfig::Type, configTypeInfo);
+
 // version 1: initial version
 // version 2: moved FileContext here (was part of config)
 // version 3: hold 'config' by-value instead of by-pointer
 // version 4: hold 'context' by-value instead of by-pointer
+// version 5: added hwconfig type info
 template<typename Archive>
 void HardwareConfig::serialize(Archive& ar, unsigned version)
 {
@@ -455,6 +466,12 @@ void HardwareConfig::serialize(Archive& ar, unsigned version)
 		ar.serializePolymorphic("device", *d);
 	}
 	ar.serialize("name", name);
+	if (ar.versionAtLeast(version, 5)) {
+		ar.serialize("type", type);
+	} else {
+		assert(ar.isLoader());
+		type = name == "rom" ? HardwareConfig::Type::ROM : HardwareConfig::Type::EXTENSION;
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(HardwareConfig);
 

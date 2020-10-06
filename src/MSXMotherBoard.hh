@@ -33,6 +33,7 @@ class JoystickPortIf;
 class LedStatus;
 class ListExtCmd;
 class LoadMachineCmd;
+class MachineExtensionInfo;
 class MachineNameInfo;
 class MachineTypeInfo;
 class MSXCliComm;
@@ -258,6 +259,7 @@ private:
 	std::unique_ptr<RemoveExtCmd> removeExtCommand;
 	std::unique_ptr<MachineNameInfo> machineNameInfo;
 	std::unique_ptr<MachineTypeInfo> machineTypeInfo;
+	std::unique_ptr<MachineExtensionInfo> machineExtensionInfo;
 	std::unique_ptr<DeviceInfo>   deviceInfo;
 	friend class DeviceInfo;
 

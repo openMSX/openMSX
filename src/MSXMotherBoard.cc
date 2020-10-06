@@ -133,6 +133,18 @@ private:
 	MSXMotherBoard& motherBoard;
 };
 
+class MachineExtensionInfo final : public InfoTopic
+{
+public:
+	explicit MachineExtensionInfo(MSXMotherBoard& motherBoard);
+	void execute(span<const TclObject> tokens,
+	             TclObject& result) const override;
+	string help(const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
+private:
+	MSXMotherBoard& motherBoard;
+};
+
 class DeviceInfo final : public InfoTopic
 {
 public:
@@ -207,6 +219,7 @@ MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
 	removeExtCommand = make_unique<RemoveExtCmd>(*this);
 	machineNameInfo = make_unique<MachineNameInfo>(*this);
 	machineTypeInfo = make_unique<MachineTypeInfo>(*this);
+	machineExtensionInfo = make_unique<MachineExtensionInfo>(*this);
 	deviceInfo = make_unique<DeviceInfo>(*this);
 	debugger = make_unique<Debugger>(*this);
 
@@ -938,6 +951,63 @@ void MachineTypeInfo::execute(span<const TclObject> /*tokens*/,
 string MachineTypeInfo::help(const vector<string>& /*tokens*/) const
 {
 	return "Returns the machine type for this machine.";
+}
+
+
+// MachineExtensionInfo
+
+MachineExtensionInfo::MachineExtensionInfo(MSXMotherBoard& motherBoard_)
+	: InfoTopic(motherBoard_.getMachineInfoCommand(), "extension")
+	, motherBoard(motherBoard_)
+{
+}
+
+void MachineExtensionInfo::execute(span<const TclObject> tokens,
+                              TclObject& result) const
+{
+	checkNumArgs(tokens, Between{2, 3}, Prefix{2}, "?extension-instance-name?");
+	if (tokens.size() == 2) {
+		result.addListElements(
+			view::transform(motherBoard.getExtensions(),
+					[&](auto& e) { return e->getName(); }));
+	} else if (tokens.size() == 3) {
+		std::string_view extName = tokens[2].getString();
+		HardwareConfig* extension = motherBoard.findExtension(extName);
+		if (!extension) {
+			throw CommandException("No such extension: ", extName);
+		}
+		if (extension->getType() == HardwareConfig::Type::EXTENSION) {
+			// A 'true' extension, as specified in an XML file
+			result.addDictKeyValue("config", extension->getConfigName());
+		} else {
+			assert(extension->getType() == HardwareConfig::Type::ROM);
+			// A ROM cartridge, peek into the internal config for the original filename
+			const auto& filename = extension->getConfig()
+				.getChild("devices").getChild("primary").getChild("secondary")
+				.getChild("ROM").getChild("rom").getChildData("filename");
+			result.addDictKeyValue("rom", filename);
+		}
+		TclObject deviceList;
+		deviceList.addListElements(
+			view::transform(extension->getDevices(),
+					[&](auto& e) { return e->getName(); }));
+		result.addDictKeyValue("devices", deviceList);
+	}
+}
+
+string MachineExtensionInfo::help(const vector<string>& /*tokens*/) const
+{
+	return "Returns information about the given extension instance.";
+}
+
+void MachineExtensionInfo::tabCompletion(vector<string>& tokens) const
+{
+	if (tokens.size() == 3) {
+		auto names = to_vector(view::transform(
+			motherBoard.getExtensions(),
+			[](auto& e) { return e->getName(); }));
+		completeString(tokens, names);
+	}
 }
 
 
