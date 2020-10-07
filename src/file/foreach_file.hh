@@ -103,7 +103,7 @@ namespace openmsx {
 			bool needStat = statFile || statDir;
 
 			ReadDir dir(path);
-			if (!StringOp::endsWith(path, '/')) path += '/';
+			if (!path.empty() && (path.back() != '/')) path += '/';
 			auto origLen = path.size();
 			while (dirent* d = dir.getEntry()) {
 				std::string_view f(d->d_name);
