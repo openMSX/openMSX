@@ -103,25 +103,26 @@ static EmuDuration getTiming(const V9990CmdEngine& cmdEngine, const EDStorage ta
 //   this table is (almost) never used. So we save quite some memory (and
 //   startup time) by lazily initializing this table.
 static MemBuffer<byte> logOpLUT[4][16];
-static byte bitLUT[8][16][2][2]; // to speedup calculating logOpLUT
 
-enum { LOG_NO_T, LOG_BPP2, LOG_BPP4, LOG_BPP8 };
-
-static void initBitTab()
-{
+// to speedup calculating logOpLUT
+static constexpr auto bitLUT = [] {
+	std::array<std::array<std::array<std::array<byte, 2>, 2>, 16>, 8> result = {};
 	for (unsigned op = 0; op < 16; ++op) {
 		unsigned tmp = op;
 		for (unsigned src = 0; src < 2; ++src) {
 			for (unsigned dst = 0; dst < 2; ++dst) {
 				unsigned b = tmp & 1;
 				for (unsigned bit = 0; bit < 8; ++bit) {
-					bitLUT[bit][op][src][dst] = b << bit;
+					result[bit][op][src][dst] = b << bit;
 				}
 				tmp >>= 1;
 			}
 		}
 	}
-}
+	return result;
+}();
+
+enum { LOG_NO_T, LOG_BPP2, LOG_BPP4, LOG_BPP8 };
 
 static inline byte func01(unsigned op, unsigned src, unsigned dst)
 {
@@ -693,8 +694,6 @@ V9990CmdEngine::V9990CmdEngine(V9990& vdp_, EmuTime::param time_,
 		"v9990cmdtrace",
 		vdp.getCommandController(), "v9990cmdtrace",
 		"V9990 command tracing on/off", false);
-
-	initBitTab();
 
 	auto& cmdTimingSetting = settings.getCmdTimingSetting();
 	update(cmdTimingSetting);
