@@ -12,26 +12,29 @@
 #include "likely.hh"
 #include "outer.hh"
 #include "serialize.hh"
+#include <array>
 
 namespace openmsx {
 
-static byte decryptLUT[256];
+// protection uses a simple rotation on databus, some lines inverted:
+//   out0 = ~in3   out1 =  in7   out2 = ~in5   out3 = ~in1
+//   out4 =  in0   out5 =  in4   out6 = ~in2   out7 =  in6
+static constexpr auto decryptLUT = [] {
+	std::array<byte, 256> result = {};
+	for (int i = 0; i < 256; ++i) {
+		result[i] = (((i << 4) & 0x50) |
+		             ((i >> 3) & 0x05) |
+		             ((i << 1) & 0xa0) |
+		             ((i << 2) & 0x08) |
+	                     ((i >> 6) & 0x02)) ^ 0x4d;
+	}
+	return result;
+}();
 
 RomHolyQuran2::RomHolyQuran2(const DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
 	, romBlocks(*this)
 {
-	// protection uses a simple rotation on databus, some lines inverted:
-	//   out0 = ~in3   out1 =  in7   out2 = ~in5   out3 = ~in1
-	//   out4 =  in0   out5 =  in4   out6 = ~in2   out7 =  in6
-	for (int i = 0; i < 256; ++i) {
-		decryptLUT[i] = (((i << 4) & 0x50) |
-		                 ((i >> 3) & 0x05) |
-		                 ((i << 1) & 0xa0) |
-		                 ((i << 2) & 0x08) |
-	                         ((i >> 6) & 0x02)) ^ 0x4d;
-	}
-
 	if (rom.getSize() != 0x100000) { // 1MB
 		throw MSXException("Holy Quaran ROM should be exactly 1MB in size");
 	}
