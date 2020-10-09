@@ -44,6 +44,7 @@
 #include "cstd.hh"
 #include "outer.hh"
 #include "serialize.hh"
+#include <array>
 #include <cmath>
 #include <cstring>
 #include <iostream>
@@ -363,13 +364,8 @@ constexpr signed char lfo_pm_table[8 * 8 * 2] = {
 constexpr int TL_TAB_LEN = 13 * 2 * TL_RES_LEN;
 constexpr int ENV_QUIET = TL_TAB_LEN >> 4;
 
-struct TlTab {
-	int tab[TL_TAB_LEN];
-};
-
-static constexpr TlTab getTlTab()
-{
-	TlTab t = {};
+constexpr auto tlTab = [] {
+	std::array<int, TL_TAB_LEN> result = {};
 	// this _is_ different from OPL2 (verified on real YMF262)
 	for (int x = 0; x < TL_RES_LEN; x++) {
 		double m = (1 << 16) / cstd::exp2<6>((x + 1) * (ENV_STEP / 4.0) / 8.0);
@@ -381,20 +377,18 @@ static constexpr TlTab getTlTab()
 		n = (n >> 1) + (n & 1); // round to nearest
 		// 11 bits here (rounded)
 		n <<= 1; // 12 bits here (as in real chip)
-		t.tab[x * 2 + 0] = n;
-		t.tab[x * 2 + 1] = ~t.tab[x * 2 + 0];
+		result[x * 2 + 0] = n;
+		result[x * 2 + 1] = ~result[x * 2 + 0];
 
 		for (int i = 1; i < 13; i++) {
-			t.tab[x * 2 + 0 + i * 2 * TL_RES_LEN] =
-			        t.tab[x * 2 + 0] >> i;
-			t.tab[x * 2 + 1 + i * 2 * TL_RES_LEN] =
-			        ~t.tab[x * 2 + 0 + i * 2 * TL_RES_LEN];
+			result[x * 2 + 0 + i * 2 * TL_RES_LEN] =
+			        result[x * 2 + 0] >> i;
+			result[x * 2 + 1 + i * 2 * TL_RES_LEN] =
+			        ~result[x * 2 + 0 + i * 2 * TL_RES_LEN];
 		}
 	}
-	return t;
-}
-
-constexpr TlTab tl = getTlTab();
+	return result;
+}();
 
 
 // sin waveform table in 'decibel' scale
@@ -675,7 +669,7 @@ inline int YMF262::Slot::op_calc(unsigned phase, unsigned lfo_am) const
 {
 	unsigned env = (TLL + volume + (lfo_am & AMmask)) << 4;
 	int p = env + wavetable[phase & SIN_MASK];
-	return (p < TL_TAB_LEN) ? tl.tab[p] : 0;
+	return (p < TL_TAB_LEN) ? tlTab[p] : 0;
 }
 
 // calculate output of a standard 2 operator channel
@@ -1481,7 +1475,7 @@ YMF262::YMF262(const std::string& name_,
 	// For debugging: print out tables to be able to compare before/after
 	// when the calculation changes.
 	if (false) {
-		for (auto& e : tl.tab) std::cout << e << '\n';
+		for (auto& e : tlTab) std::cout << e << '\n';
 		std::cout << '\n';
 		for (auto& e : sin.tab) std::cout << e << '\n';
 	}
