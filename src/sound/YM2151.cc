@@ -10,8 +10,10 @@
 #include "cstd.hh"
 #include "ranges.hh"
 #include "serialize.hh"
+#include <array>
 #include <cmath>
 #include <cstring>
+#include <iostream>
 
 namespace openmsx {
 
@@ -23,7 +25,7 @@ constexpr int FREQ_MASK = (1 << FREQ_SH) - 1;
 
 constexpr int ENV_BITS = 10;
 constexpr int ENV_LEN  = 1 << ENV_BITS;
-constexpr float ENV_STEP = 128.0f / ENV_LEN;
+constexpr double ENV_STEP = 128.0 / ENV_LEN;
 
 constexpr int MAX_ATT_INDEX = ENV_LEN - 1; // 1023
 constexpr int MIN_ATT_INDEX = 0;
@@ -45,15 +47,68 @@ constexpr int TL_RES_LEN = 256; // 8 bits addressing (real chip)
 //  2  - sinus sign bit           (Y axis)
 // TL_RES_LEN - sinus resolution (X axis)
 constexpr unsigned TL_TAB_LEN = 13 * 2 * TL_RES_LEN;
-static int tl_tab[TL_TAB_LEN];
+static constexpr auto tl_tab = [] {
+	std::array<int, TL_TAB_LEN> result = {};
+	for (int x = 0; x < TL_RES_LEN; ++x) {
+		double m = (1 << 16) / cstd::exp2<6>((x + 1) * (ENV_STEP / 4.0) / 8.0);
+
+		// we never reach (1 << 16) here due to the (x + 1)
+		// result fits within 16 bits at maximum
+
+		int n = int(m); // 16 bits here
+		n >>= 4;        // 12 bits here
+		if (n & 1) {    // round to closest
+			n = (n >> 1) + 1;
+		} else {
+			n = n >> 1;
+		}
+		// 11 bits here (rounded)
+		n <<= 2; // 13 bits here (as in real chip)
+		result[x * 2 + 0] = n;
+		result[x * 2 + 1] = -result[x * 2 + 0];
+
+		for (int i = 1; i < 13; ++i) {
+			result[x * 2 + 0 + i * 2 * TL_RES_LEN] =  result[x * 2 + 0] >> i;
+			result[x * 2 + 1 + i * 2 * TL_RES_LEN] = -result[x * 2 + 0 + i * 2 * TL_RES_LEN];
+		}
+	}
+	return result;
+}();
 
 constexpr unsigned ENV_QUIET = TL_TAB_LEN >> 3;
 
 // sin waveform table in 'decibel' scale
-static unsigned sin_tab[SIN_LEN];
+static constexpr auto sin_tab = [] {
+	std::array<unsigned, SIN_LEN> result = {};
+	for (int i = 0; i < SIN_LEN; ++i) {
+		// non-standard sinus
+		double m = cstd::sin<2>((i * 2 + 1) * M_PI / SIN_LEN); // verified on the real chip
+
+		// we never reach zero here due to (i * 2 + 1)
+		double o = -8.0 * cstd::log2<8, 3>(cstd::abs(m)); // convert to decibels
+		o = o / (ENV_STEP / 4);
+
+		int n = int(2.0 * o);
+		if (n & 1) { // round to closest
+			n = (n >> 1) + 1;
+		} else {
+			n = n >> 1;
+		}
+		result[i] = n * 2 + (m >= 0.0 ? 0 : 1);
+	}
+	return result;
+}();
+
 
 // translate from D1L to volume index (16 D1L levels)
-static unsigned d1l_tab[16];
+static constexpr auto d1l_tab = [] {
+	std::array<unsigned, 16> result = {};
+	for (int i = 0; i < 16; ++i) {
+		// every 3 'dB' except for all bits = 1 = 45+48 'dB'
+		result[i] = unsigned((i != 15 ? i : i + 16) * (4.0 / ENV_STEP));
+	}
+	return result;
+}();
 
 
 constexpr unsigned RATE_STEPS = 8;
@@ -257,6 +312,91 @@ constexpr word phaseinc_rom[768] = {
 2561,2563,2565,2567,2568,2571,2572,2575,2577,2579,2581,2583,2586,2589,2590,2593
 };
 
+// Frequency-deltas to get the closest frequency possible.
+// There are 11 octaves because of DT2 (max 950 cents over base frequency)
+// and LFO phase modulation (max 800 cents below AND over base frequency)
+// Summary:   octave  explanation
+//             0       note code - LFO PM
+//             1       note code
+//             2       note code
+//             3       note code
+//             4       note code
+//             5       note code
+//             6       note code
+//             7       note code
+//             8       note code
+//             9       note code + DT2 + LFO PM
+//            10       note code + DT2 + LFO PM
+static constexpr auto freq = [] {
+	std::array<unsigned, 11 * 768> result = {}; // 11 octaves, 768 'cents' per octave
+
+	// this loop calculates Hertz values for notes from c-0 to b-7
+	// including 64 'cents' (100/64 that is 1.5625 of real cent) per note
+	// i*100/64/1200 is equal to i/768
+
+	// real chip works with 10 bits fixed point values (10.10)
+	//   -10 because phaseinc_rom table values are already in 10.10 format
+	double mult = 1 << (FREQ_SH - 10);
+
+	for (int i = 0; i < 768; ++i) {
+		double phaseinc = phaseinc_rom[i]; // real chip phase increment
+
+		// octave 2 - reference octave
+		//   adjust to X.10 fixed point
+		result[768 + 2 * 768 + i] = int(phaseinc * mult) & 0xffffffc0;
+		// octave 0 and octave 1
+		for (int j = 0; j < 2; ++j) {
+			// adjust to X.10 fixed point
+			result[768 + j * 768 + i] = (result[768 + 2 * 768 + i] >> (2 - j)) & 0xffffffc0;
+		}
+		// octave 3 to 7
+		for (int j = 3; j < 8; ++j) {
+			result[768 + j * 768 + i] = result[768 + 2 * 768 + i] << (j - 2);
+		}
+	}
+
+	// octave -1 (all equal to: oct 0, _KC_00_, _KF_00_)
+	for (int i = 0; i < 768; ++i) {
+		result[0 * 768 + i] = result[1 * 768 + 0];
+	}
+
+	// octave 8 and 9 (all equal to: oct 7, _KC_14_, _KF_63_)
+	for (int j = 8; j < 10; ++j) {
+		for (int i = 0; i < 768; ++i) {
+			result[768 + j * 768 + i] = result[768 + 8 * 768 - 1];
+		}
+	}
+	return result;
+}();
+
+// Frequency deltas for DT1. These deltas alter operator frequency
+// after it has been taken from frequency-deltas table.
+static constexpr auto dt1_freq = [] {
+	std::array<int, 8 * 32> result = {};    // 8 DT1 levels, 32 KC values
+	double mult = 1 << FREQ_SH;
+	for (int j = 0; j < 4; ++j) {
+		for (int i = 0; i < 32; ++i) {
+			// calculate phase increment
+			double phaseinc = double(dt1_tab[j * 32 + i]) / (1 << 20) * (SIN_LEN);
+
+			// positive and negative values
+			result[(j + 0) * 32 + i] = int(phaseinc * mult);
+			result[(j + 4) * 32 + i] = -result[(j + 0) * 32 + i];
+		}
+	}
+	return result;
+}();
+
+// This table tells how many cycles/samples it takes before noise is recalculated.
+// 2/2 means every cycle/sample, 2/5 means 2 out of 5 cycles/samples, etc.
+static constexpr auto noise_tab = [] {
+	std::array<unsigned, 32> result = {};  // 17bit Noise Generator periods
+	for (int i = 0; i < 32; ++i) {
+		result[i] = 32 - (i != 31 ? i : 30); // rate 30 and 31 are the same
+	}
+	return result;
+}();
+
 // Noise LFO waveform.
 //
 // Here are just 256 samples out of much longer data.
@@ -292,120 +432,6 @@ constexpr byte lfo_noise_waveform[256] = {
 0x19,0xDB,0x8F,0xAB,0xAE,0xD6,0x12,0xC4,0x26,0x62,0xCE,0xCC,0x0A,0x03,0xE7,0xDD,
 0xE2,0x4D,0x8A,0xA6,0x46,0x95,0x0F,0x8F,0xF5,0x15,0x97,0x32,0xD4,0x28,0x1E,0x55
 };
-
-void YM2151::initTables()
-{
-	for (int x = 0; x < TL_RES_LEN; ++x) {
-		float m = (1 << 16) / exp2f((x + 1) * (ENV_STEP / 4.0f) / 8.0f);
-		m = floorf(m);
-
-		// we never reach (1 << 16) here due to the (x + 1)
-		// result fits within 16 bits at maximum
-
-		int n = int(m); // 16 bits here
-		n >>= 4;        // 12 bits here
-		if (n & 1) {    // round to closest
-			n = (n >> 1) + 1;
-		} else {
-			n = n >> 1;
-		}
-		// 11 bits here (rounded)
-		n <<= 2; // 13 bits here (as in real chip)
-		tl_tab[x * 2 + 0] = n;
-		tl_tab[x * 2 + 1] = -tl_tab[x * 2 + 0];
-
-		for (int i = 1; i < 13; ++i) {
-			tl_tab[x * 2 + 0 + i * 2 * TL_RES_LEN] =  tl_tab[x * 2 + 0] >> i;
-			tl_tab[x * 2 + 1 + i * 2 * TL_RES_LEN] = -tl_tab[x * 2 + 0 + i * 2 * TL_RES_LEN];
-		}
-	}
-
-	static const float LOG2 = log(2.0);
-	for (int i = 0; i < SIN_LEN; ++i) {
-		// non-standard sinus
-		float m = sinf((i * 2 + 1) * M_PI / SIN_LEN); // verified on the real chip
-
-		// we never reach zero here due to (i * 2 + 1)
-		float o = -8.0f * logf(std::abs(m)) / LOG2; // convert to decibels
-		o = o / (ENV_STEP / 4);
-
-		int n = int(2.0f * o);
-		if (n & 1) { // round to closest
-			n = (n >> 1) + 1;
-		} else {
-			n = n >> 1;
-		}
-		sin_tab[i] = n * 2 + (m >= 0.0f ? 0 : 1);
-	}
-
-	// calculate d1l_tab table
-	for (int i = 0; i < 16; ++i) {
-		// every 3 'dB' except for all bits = 1 = 45+48 'dB'
-		d1l_tab[i] = unsigned((i != 15 ? i : i + 16) * (4.0f / ENV_STEP));
-	}
-}
-
-void YM2151::initChipTables()
-{
-	// this loop calculates Hertz values for notes from c-0 to b-7
-	// including 64 'cents' (100/64 that is 1.5625 of real cent) per note
-	// i*100/64/1200 is equal to i/768
-
-	// real chip works with 10 bits fixed point values (10.10)
-	//   -10 because phaseinc_rom table values are already in 10.10 format
-	float mult = 1 << (FREQ_SH - 10);
-
-	for (int i = 0; i < 768; ++i) {
-		float phaseinc = phaseinc_rom[i]; // real chip phase increment
-
-		// octave 2 - reference octave
-		//   adjust to X.10 fixed point
-		freq[768 + 2 * 768 + i] = int(phaseinc * mult) & 0xffffffc0;
-		// octave 0 and octave 1
-		for (int j = 0; j < 2; ++j) {
-			// adjust to X.10 fixed point
-			freq[768 + j * 768 + i] = (freq[768 + 2 * 768 + i] >> (2 - j)) & 0xffffffc0;
-		}
-		// octave 3 to 7
-		for (int j = 3; j < 8; ++j) {
-			freq[768 + j * 768 + i] = freq[768 + 2 * 768 + i] << (j - 2);
-		}
-	}
-
-	// octave -1 (all equal to: oct 0, _KC_00_, _KF_00_)
-	for (int i = 0; i < 768; ++i) {
-		freq[0 * 768 + i] = freq[1 * 768 + 0];
-	}
-
-	// octave 8 and 9 (all equal to: oct 7, _KC_14_, _KF_63_)
-	for (int j = 8; j < 10; ++j) {
-		for (int i = 0; i < 768; ++i) {
-			freq[768 + j * 768 + i] = freq[768 + 8 * 768 - 1];
-		}
-	}
-
-	mult = 1 << FREQ_SH;
-	for (int j = 0; j < 4; ++j) {
-		for (int i = 0; i < 32; ++i) {
-
-			// calculate phase increment
-			float phaseinc = float(dt1_tab[j * 32 + i]) / (1 << 20) * (SIN_LEN);
-
-			// positive and negative values
-			dt1_freq[(j + 0) * 32 + i] = int(phaseinc * mult);
-			dt1_freq[(j + 4) * 32 + i] = -dt1_freq[(j + 0) * 32 + i];
-		}
-	}
-
-	timer_A_val = 0;
-
-	// calculate noise periods table
-	// this table tells how many cycles/samples it takes before noise is recalculated.
-	// 2/2 means every cycle/sample, 2/5 means 2 out of 5 cycles/samples, etc.
-	for (int i = 0; i < 32; ++i) {
-		noise_tab[i] = 32 - (i != 31 ? i : 30); // rate 30 and 31 are the same
-	}
-}
 
 void YM2151::keyOn(YM2151Operator* op, unsigned keySet) {
 	if (!op->key) {
@@ -767,7 +793,7 @@ void YM2151::writeReg(byte r, byte v, EmuTime::param time)
 		op->mul   = (v & 0x0f) ? (v & 0x0f) << 1 : 1;
 
 		if (olddt1_i != op->dt1_i) {
-			op->dt1 = dt1_freq[ op->dt1_i + (op->kc>>2) ];
+			op->dt1 = dt1_freq[op->dt1_i + (op->kc>>2)];
 		}
 		if ((olddt1_i != op->dt1_i) || (oldmul != op->mul)) {
 			op->freq = ((freq[op->kc_i + op->dt2] + op->dt1) * op->mul) >> 1;
@@ -844,8 +870,33 @@ YM2151::YM2151(const std::string& name_, const std::string& desc,
 	//      Should we do the same for registers 0x00-0x1F?
 	memset(regs, 0, sizeof(regs));
 
-	initTables();
-	initChipTables();
+	timer_A_val = 0;
+
+	if (0) {
+		std::cout << "tl_tab:";
+		for (auto& e : tl_tab) std::cout << ' ' << e;
+		std::cout << '\n';
+
+		std::cout << "sin_tab:";
+		for (auto& e : sin_tab) std::cout << ' ' << e;
+		std::cout << '\n';
+
+		std::cout << "d1l_tab:";
+		for (auto& e : d1l_tab) std::cout << ' ' << e;
+		std::cout << '\n';
+
+		std::cout << "freq:";
+		for (auto& e : freq) std::cout << ' ' << e;
+		std::cout << '\n';
+
+		std::cout << "dt1_freq:";
+		for (auto& e : dt1_freq) std::cout << ' ' << e;
+		std::cout << '\n';
+
+		std::cout << "noise_tab:";
+		for (auto& e : noise_tab) std::cout << ' ' << e;
+		std::cout << '\n';
+	}
 
 	reset(time);
 

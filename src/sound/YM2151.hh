@@ -124,9 +124,6 @@ private:
 	void setStatus(byte flags);
 	void resetStatus(byte flags);
 
-	void initTables();
-	void initChipTables();
-
 	// operator methods
 	void envelopeKONKOFF(YM2151Operator* op, int v);
 	static void refreshEG(YM2151Operator* op);
@@ -179,28 +176,6 @@ private:
 	                         // (bit 2); bit 7 - CSM mode (keyon to all
 	                         // slots, everytime timer A overflows)
 	unsigned status;         // chip status (BUSY, IRQ Flags)
-
-	// Frequency-deltas to get the closest frequency possible.
-	// There are 11 octaves because of DT2 (max 950 cents over base frequency)
-	// and LFO phase modulation (max 800 cents below AND over base frequency)
-	// Summary:   octave  explanation
-	//             0       note code - LFO PM
-	//             1       note code
-	//             2       note code
-	//             3       note code
-	//             4       note code
-	//             5       note code
-	//             6       note code
-	//             7       note code
-	//             8       note code
-	//             9       note code + DT2 + LFO PM
-	//            10       note code + DT2 + LFO PM
-	unsigned freq[11 * 768]; // 11 octaves, 768 'cents' per octave   // No Save
-
-	// Frequency deltas for DT1. These deltas alter operator frequency
-	// after it has been taken from frequency-deltas table.
-	int dt1_freq[8 * 32];    // 8 DT1 levels, 32 KC values         // No Save
-	unsigned noise_tab[32];  // 17bit Noise Generator periods      // No Save
 
 	int chanout[8];
 	int m2, c1, c2;          // Phase Modulation input for operators 2,3,4
