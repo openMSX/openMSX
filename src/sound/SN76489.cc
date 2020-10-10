@@ -7,8 +7,10 @@
 #include "serialize.hh"
 #include "unreachable.hh"
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <cmath>
+#include <iostream>
 
 using std::string;
 
@@ -17,6 +19,20 @@ namespace openmsx {
 // The SN76489 divides the clock input by 8, but all users of the clock apply
 // another divider of 2.
 constexpr auto NATIVE_FREQ_INT = unsigned(cstd::round((3579545.0 / 8) / 2));
+
+static constexpr auto volTable = [] {
+	std::array<unsigned, 16> result = {};
+	// 2dB per step -> 0.2, sqrt for amplitude -> 0.5
+	double factor = cstd::pow<5, 3>(0.1, 0.2 * 0.5);
+	double out = 32768.0;
+	for (int i = 0; i < 15; i++) {
+		result[i] = cstd::round(out);
+		out *= factor;
+	}
+	result[15] = 0;
+	return result;
+}();
+
 
 // NoiseShifter:
 
@@ -76,7 +92,11 @@ SN76489::SN76489(const DeviceConfig& config)
 	: ResampledSoundDevice(config.getMotherBoard(), "SN76489", "DCSG", 4, NATIVE_FREQ_INT, false)
 	, debuggable(config.getMotherBoard(), getName())
 {
-	initVolumeTable(32768);
+	if (0) {
+		std::cout << "volTable:";
+		for (const auto& e : volTable) std::cout << ' ' << e;
+		std::cout << '\n';
+	}
 	initState();
 
 	registerSound(config);
@@ -85,18 +105,6 @@ SN76489::SN76489(const DeviceConfig& config)
 SN76489::~SN76489()
 {
 	unregisterSound();
-}
-
-void SN76489::initVolumeTable(int volume)
-{
-	float out = volume;
-	// 2dB per step -> 0.2f, sqrt for amplitude -> 0.5f
-	float factor = powf(0.1f, 0.2f * 0.5f);
-	for (int i = 0; i < 15; i++) {
-		volTable[i] = lrintf(out);
-		out *= factor;
-	}
-	volTable[15] = 0;
 }
 
 void SN76489::initState()
@@ -303,8 +311,6 @@ void SN76489::generateChannels(float** buffers, unsigned num)
 template<typename Archive>
 void SN76489::serialize(Archive& ar, unsigned version)
 {
-	// Don't serialize volTable since it holds computed constants, not state.
-
 	ar.serialize("regs",          regs,
 	             "registerLatch", registerLatch,
 	             "counters",      counters,

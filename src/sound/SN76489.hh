@@ -71,10 +71,6 @@ private:
 		unsigned stepsBehind;
 	};
 
-	/** Initialize 'volTable'.
-	  */
-	void initVolumeTable(int volume);
-
 	/** Initialize registers, counters and other chip state.
 	  */
 	void initState();
@@ -88,8 +84,6 @@ private:
 	void writeRegister(unsigned reg, word value, EmuTime::param time);
 	template <bool NOISE> void synthesizeChannel(
 		float*& buffer, unsigned num, unsigned generator);
-
-	unsigned volTable[16];
 
 	NoiseShifter noiseShifter;
 
