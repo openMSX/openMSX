@@ -206,28 +206,16 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	unique_ptr<MSXRom> result;
 	switch (type) {
 	case ROM_MIRRORED:
-		result = make_unique<RomPlain>(
-			config, move(rom), RomPlain::MIRRORED);
-		break;
-	case ROM_NORMAL:
-		result = make_unique<RomPlain>(
-			config, move(rom), RomPlain::NOT_MIRRORED);
-		break;
 	case ROM_MIRRORED0000:
 	case ROM_MIRRORED4000:
 	case ROM_MIRRORED8000:
 	case ROM_MIRROREDC000:
-		result = make_unique<RomPlain>(
-			config, move(rom), RomPlain::MIRRORED,
-			(type & 7) * 0x2000);
-		break;
+	case ROM_NORMAL:
 	case ROM_NORMAL0000:
 	case ROM_NORMAL4000:
 	case ROM_NORMAL8000:
 	case ROM_NORMALC000:
-		result = make_unique<RomPlain>(
-			config, move(rom), RomPlain::NOT_MIRRORED,
-			(type & 7) * 0x2000);
+		result = make_unique<RomPlain>(config, move(rom), type);
 		break;
 	case ROM_PAGE0:
 	case ROM_PAGE1:
@@ -239,7 +227,7 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	case ROM_PAGE23:
 	case ROM_PAGE123:
 	case ROM_PAGE0123:
-		result = make_unique<RomPageNN>(config, move(rom), type & 0xF);
+		result = make_unique<RomPageNN>(config, move(rom), type);
 		break;
 	case ROM_DRAM:
 		result = make_unique<RomDRAM>(config, move(rom));
