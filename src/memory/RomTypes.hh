@@ -86,12 +86,9 @@ enum RomType {
 	ROM_ZEMINA90IN1,
 	ROM_ZEMINA126IN1,
 
-	ROM_END_OF_UNORDERED_LIST,
-	ROM_UNKNOWN      = 256,
-	ROM_ALIAS        = 512, // no other enum value can have this bit set
+	ROM_LAST,
+	ROM_UNKNOWN = -1
 };
-
-static_assert(ROM_END_OF_UNORDERED_LIST <= ROM_UNKNOWN);
 
 } // namespace openmsx
 

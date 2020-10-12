@@ -52,10 +52,10 @@ public:
 	int              getGenMSXid()  const { return genMSXid; }
 
 	static RomType nameToRomType(std::string_view name);
-	static std::string_view romTypeToName(RomType type);
 	static std::vector<std::string_view> getAllRomTypes();
+	static std::string_view romTypeToName (RomType type);
 	static std::string_view getDescription(RomType type);
-	static unsigned   getBlockSize  (RomType type);
+	static unsigned         getBlockSize  (RomType type);
 
 private:
 	String32 title;

@@ -106,7 +106,7 @@ static RomType guessRomType(const Rom& rom)
 		//  with this instruction to the mapper-registers-addresses
 		//  occur.
 
-		unsigned typeGuess[ROM_END_OF_UNORDERED_LIST] = {}; // 0-initialized
+		unsigned typeGuess[ROM_LAST] = {}; // 0-initialized
 		for (int i = 0; i < size - 3; ++i) {
 			if (data[i] == 0x32) {
 				word value = data[i + 1] + (data[i + 2] << 8);
@@ -145,7 +145,7 @@ static RomType guessRomType(const Rom& rom)
 		}
 		if (typeGuess[ROM_ASCII8]) typeGuess[ROM_ASCII8]--; // -1 -> max_int
 		RomType type = ROM_GENERIC_8KB;
-		for (int i = 0; i < ROM_END_OF_UNORDERED_LIST; ++i) {
+		for (int i = 0; i < ROM_LAST; ++i) {
 			// debug: fprintf(stderr, "%d: %d\n", i, typeGuess[i]);
 			if (typeGuess[i] && (typeGuess[i] >= typeGuess[type])) {
 				type = static_cast<RomType>(i);
