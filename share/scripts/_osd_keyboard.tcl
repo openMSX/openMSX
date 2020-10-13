@@ -8,7 +8,6 @@ namespace eval osd_keyboard {
 variable is_dingux [string match dingux "[openmsx_info platform]"]
 
 #init vars
-variable mouse1_pressed false
 variable key_pressed -1
 variable key_selected -1
 variable keys_held
@@ -54,7 +53,6 @@ proc disable_osd_keyboard {} {
 
 proc enable_osd_keyboard {} {
 	variable is_dingux
-	variable mouse1_pressed false
 	variable keys_held [list]
 	variable row_starts [list]
 	variable key_color
