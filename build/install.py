@@ -5,8 +5,10 @@ from makeutils import extractMakeVariables, parseBool
 
 from os import listdir
 from os.path import basename, expanduser, isdir, splitext
+from pathlib import Path
 import os
 import sys
+import subprocess
 
 def installAll(
 	installPrefix, binaryDestDir, shareDestDir, docDestDir,
@@ -49,6 +51,34 @@ def installAll(
 				'doc/manual/' + fileName,
 				installPrefix + docDestDir + '/manual/' + fileName
 				)
+
+	if os.name == 'posix':
+		if 'XDG_DATA_HOME' in os.environ:
+			desktopShareDestDir = os.environ['XDG_DATA_HOME']
+		elif os.geteuid() == 0:
+			desktopShareDestDir = '/usr/share'
+		else:
+			desktopShareDestDir = os.path.expanduser('~/.local/share')
+		if isdir(desktopShareDestDir):
+			print('  Desktop icons...')
+			for i in ['16', '32', '48', '64', '128', '256']:
+				Path(desktopShareDestDir + '/icons/hicolor/' + i + 'x' + i + '/apps').mkdir(parents=True, exist_ok=True)
+				installFile(
+					'share/icons/openMSX-logo-' + i + '.png', desktopShareDestDir + '/icons/hicolor/' + i + 'x' + i + '/apps/openmsx.png'
+				)
+
+			print('  Desktop file...')
+			Path(desktopShareDestDir + '/applications').mkdir(parents=True, exist_ok=True)
+			installFile(
+				'Contrib/linux/openmsx.desktop', desktopShareDestDir + '/applications/openmsx.desktop'
+				)
+			print('  Metainfo file...')
+			Path(desktopShareDestDir + '/metainfo').mkdir(parents=True, exist_ok=True)
+			installFile(
+				'Contrib/linux/openmsx.metainfo.xml', desktopShareDestDir + '/metainfo/openmsx.metainfo.xml'
+				)
+		else:
+			print('  Failed to install icon, desktop and metainfo files. ' + desktopShareDestDir + ' does not exist.')
 
 	if cbios:
 		print('  C-BIOS...')
