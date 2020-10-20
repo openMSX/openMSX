@@ -70,12 +70,12 @@ def installAll(
 			print('  Desktop file...')
 			Path(desktopShareDestDir + '/applications').mkdir(parents=True, exist_ok=True)
 			installFile(
-				'Contrib/linux/openmsx.desktop', desktopShareDestDir + '/applications/openmsx.desktop'
+				'Contrib/linux/org.openmsx.openMSX.desktop', desktopShareDestDir + '/applications/org.openmsx.openMSX.desktop'
 				)
 			print('  Metainfo file...')
 			Path(desktopShareDestDir + '/metainfo').mkdir(parents=True, exist_ok=True)
 			installFile(
-				'Contrib/linux/openmsx.metainfo.xml', desktopShareDestDir + '/metainfo/openmsx.metainfo.xml'
+				'Contrib/linux/org.openmsx.openMSX.metainfo.xml', desktopShareDestDir + '/metainfo/org.openmsx.openMSX.metainfo.xml'
 				)
 		else:
 			print('  Failed to install icon, desktop and metainfo files. ' + desktopShareDestDir + ' does not exist.')
