@@ -1624,7 +1624,7 @@ proc menu_rom_with_mappertype_exec {slot fullname mappertype} {
 		menu_close_all
 
 		set extname [lindex [$slot] 1]
-		set devicename [lindex [dict get [machine_info extension extname] devices] 0]
+		set devicename [lindex [dict get [machine_info extension $extname] devices] 0]
 		set rominfo [getlist_rom_info $devicename]
 
 		set message1 "Inserted ROM"
