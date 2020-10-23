@@ -1,6 +1,7 @@
 #ifndef FILEOPERATIONS_HH
 #define FILEOPERATIONS_HH
 
+#include "Date.hh"
 #include "unistdp.hh" // needed for mode_t definition when building with VC++
 #include "statp.hh"
 #include <sys/types.h>
@@ -241,9 +242,12 @@ namespace openmsx::FileOperations {
 	 */
 	bool exists(const std::string& filename);
 
-	/** Get the date/time of last modification
-	 */
-	time_t getModificationDate(const Stat& st);
+	/** Get the date/time of last modification.
+	  * Is guaranteed to not be INVALID_TIME_T.
+	  */
+	inline time_t getModificationDate(const Stat& st) {
+		return Date::adjustTimeT(st.st_mtime);
+	}
 
 	/**
 	 * Gets the next numbered file name with the specified prefix in the

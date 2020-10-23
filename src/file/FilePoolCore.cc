@@ -124,7 +124,7 @@ bool FilePoolCore::adjustSha1(Index idx, Entry& entry, const Sha1Sum& newSum)
 
 time_t FilePoolCore::Entry::getTime()
 {
-	if (time == time_t(-1)) {
+	if (time == Date::INVALID_TIME_T) {
 		time = Date::fromString(timeStr);
 	}
 	return time;
@@ -237,7 +237,7 @@ void FilePoolCore::writeSha1sums()
 		if (entry.timeStr) {
 			file << entry.timeStr;
 		} else {
-			assert(entry.time != time_t(-1));
+			assert(entry.time != Date::INVALID_TIME_T);
 			file << Date::toString(entry.time);
 		}
 		file << "  " << entry.filename << '\n';
@@ -316,7 +316,7 @@ File FilePoolCore::getFromPool(const Sha1Sum& sha1sum)
 	while (i != last) {
 		auto it = begin(sha1Index) + i;
 		auto& entry = pool[*it];
-		if (entry.getTime() == time_t(-1)) {
+		if (entry.getTime() == Date::INVALID_TIME_T) {
 			// Invalid time/date format. Remove from
 			// database and continue searching.
 			remove(it);
@@ -443,7 +443,7 @@ std::pair<FilePoolCore::Index, FilePoolCore::Entry*> FilePoolCore::findInDatabas
 	Index idx = *it;
 	auto& entry = pool[idx];
 	assert(entry.filename == filename);
-	if (entry.getTime() == time_t(-1)) {
+	if (entry.getTime() == Date::INVALID_TIME_T) {
 		// invalid date/time string, remove from db
 		remove(idx, entry);
 		return {Index(-1), nullptr};

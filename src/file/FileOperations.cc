@@ -668,11 +668,6 @@ bool exists(const std::string& filename)
 	return getStat(filename, st);
 }
 
-time_t getModificationDate(const Stat& st)
-{
-	return st.st_mtime;
-}
-
 static unsigned getNextNum(dirent* d, string_view prefix, string_view extension,
                            unsigned nofdigits)
 {

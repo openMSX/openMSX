@@ -23,31 +23,31 @@ TEST_CASE("Date")
 
 	// Check invalid formats
 	// - invalid separator characters
-	CHECK(Date::fromString("WedXJun 18 12:01:02 2014") == time_t(-1));
-	CHECK(Date::fromString("Wed JunX18 12:01:02 2014") == time_t(-1));
-	CHECK(Date::fromString("Wed Jun 18X12:01:02 2014") == time_t(-1));
-	CHECK(Date::fromString("Wed Jun 18 12X01:02 2014") == time_t(-1));
-	CHECK(Date::fromString("Wed Jun 18 12:01X02 2014") == time_t(-1));
-	CHECK(Date::fromString("Wed Jun 18 12:01:02X2014") == time_t(-1));
+	CHECK(Date::fromString("WedXJun 18 12:01:02 2014") == Date::INVALID_TIME_T);
+	CHECK(Date::fromString("Wed JunX18 12:01:02 2014") == Date::INVALID_TIME_T);
+	CHECK(Date::fromString("Wed Jun 18X12:01:02 2014") == Date::INVALID_TIME_T);
+	CHECK(Date::fromString("Wed Jun 18 12X01:02 2014") == Date::INVALID_TIME_T);
+	CHECK(Date::fromString("Wed Jun 18 12:01X02 2014") == Date::INVALID_TIME_T);
+	CHECK(Date::fromString("Wed Jun 18 12:01:02X2014") == Date::INVALID_TIME_T);
 	// - weekday is not verified
 	// - invalid month (must also have correct case)
-	CHECK(Date::fromString("Wed Foo 18 12:01:02 2014") == time_t(-1));
-	CHECK(Date::fromString("Wed jun 18 12:01:02 2014") == time_t(-1));
+	CHECK(Date::fromString("Wed Foo 18 12:01:02 2014") == Date::INVALID_TIME_T);
+	CHECK(Date::fromString("Wed jun 18 12:01:02 2014") == Date::INVALID_TIME_T);
 	// - invalid day
-	CHECK(Date::fromString("Wed Jun 00 12:01:02 2014") == time_t(-1));
-	CHECK(Date::fromString("Wed Jun 32 12:01:02 2014") == time_t(-1));
+	CHECK(Date::fromString("Wed Jun 00 12:01:02 2014") == Date::INVALID_TIME_T);
+	CHECK(Date::fromString("Wed Jun 32 12:01:02 2014") == Date::INVALID_TIME_T);
 	// - invalid hour
-	CHECK(Date::fromString("Wed Jun 18 24:01:02 2014") == time_t(-1));
-	CHECK(Date::fromString("Wed Jun 18 xx:01:02 2014") == time_t(-1));
+	CHECK(Date::fromString("Wed Jun 18 24:01:02 2014") == Date::INVALID_TIME_T);
+	CHECK(Date::fromString("Wed Jun 18 xx:01:02 2014") == Date::INVALID_TIME_T);
 	// - invalid minute
-	CHECK(Date::fromString("Wed Jun 18 12:60:02 2014") == time_t(-1));
-	CHECK(Date::fromString("Wed Jun 18 12:-1:02 2014") == time_t(-1));
+	CHECK(Date::fromString("Wed Jun 18 12:60:02 2014") == Date::INVALID_TIME_T);
+	CHECK(Date::fromString("Wed Jun 18 12:-1:02 2014") == Date::INVALID_TIME_T);
 	// - invalid second
-	CHECK(Date::fromString("Wed Jun 18 12:01:60 2014") == time_t(-1));
-	CHECK(Date::fromString("Wed Jun 18 12:01:0 2014 ") == time_t(-1));
+	CHECK(Date::fromString("Wed Jun 18 12:01:60 2014") == Date::INVALID_TIME_T);
+	CHECK(Date::fromString("Wed Jun 18 12:01:0 2014 ") == Date::INVALID_TIME_T);
 	// - invalid year
-	CHECK(Date::fromString("Wed Jun 18 12:01:02 1800") == time_t(-1));
-	CHECK(Date::fromString("Wed Jun 18 12:01:02 X800") == time_t(-1));
+	CHECK(Date::fromString("Wed Jun 18 12:01:02 1800") == Date::INVALID_TIME_T);
+	CHECK(Date::fromString("Wed Jun 18 12:01:02 X800") == Date::INVALID_TIME_T);
 
 	// extra characters at the end are ignored, even digits
 	CHECK(Date::fromString("Wed Jun 18 12:01:02 2014x") == 1403092862);

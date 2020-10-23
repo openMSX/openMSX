@@ -77,7 +77,7 @@ private:
 		Entry(const Sha1Sum& s, time_t t, std::string_view f)
 			: filename(f), time(t), sum(s)
 		{
-			assert(time != time_t(-1));
+			assert(time != Date::INVALID_TIME_T);
 		}
 		Entry(const Sha1Sum& s, const char* t, std::string_view f)
 			: filename(f), timeStr(t), sum(s)
@@ -92,7 +92,7 @@ private:
 		// - 'filename' and 'timeStr' are non-owning pointers.
 		std::string_view filename;
 		const char* timeStr = nullptr; // might be nullptr
-		time_t time = time_t(-1);      // might be -1
+		time_t time = Date::INVALID_TIME_T;
 		Sha1Sum sum;
 	};
 	
