@@ -182,7 +182,7 @@ sources = files(
     'file/FileBase.cc',
     'file/FileContext.cc',
     'file/FileOperations.cc',
-    'file/Fileool.cc',
+    'file/FilePool.cc',
     'file/FilePoolCore.cc',
     'file/Filename.cc',
     'file/GZFileAdapter.cc',
