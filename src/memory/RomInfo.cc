@@ -1,11 +1,10 @@
+#include "MinimalPerfectHash.hh"
 #include "RomInfo.hh"
 #include "StringOp.hh"
-#include "hash_map.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 #include "view.hh"
-#include "xxhash.hh"
 #include <array>
 #include <cassert>
 
@@ -114,51 +113,78 @@ static constexpr auto romTypeInfoArray = [] {
 	return r;
 }();
 
+struct RomTypeAndName {
+	RomType romType;
+	std::string_view name;
+};
+static constexpr std::array aliasTable = {
+	RomTypeAndName{ROM_GENERIC_8KB, "0"},
+	RomTypeAndName{ROM_GENERIC_8KB, "GenericKonami"}, // probably actually used in a Zemina Box
+	RomTypeAndName{ROM_GENERIC_16KB,"1"},
+	RomTypeAndName{ROM_KONAMI_SCC,  "2"},
+	RomTypeAndName{ROM_KONAMI_SCC,  "SCC"},
+	RomTypeAndName{ROM_KONAMI_SCC,  "KONAMI5"},
+	RomTypeAndName{ROM_KONAMI,      "KONAMI4"},
+	RomTypeAndName{ROM_KONAMI,      "3"},
+	RomTypeAndName{ROM_ASCII8,      "4"},
+	RomTypeAndName{ROM_ASCII16,     "5"},
+	RomTypeAndName{ROM_MIRRORED,    "64kB"},
+	RomTypeAndName{ROM_MIRRORED,    "Plain"},
+	RomTypeAndName{ROM_NORMAL0000,  "0x0000"},
+	RomTypeAndName{ROM_NORMAL4000,  "0x4000"},
+	RomTypeAndName{ROM_NORMAL8000,  "0x8000"},
+	RomTypeAndName{ROM_NORMALC000,  "0xC000"},
+	RomTypeAndName{ROM_ASCII16_2,   "HYDLIDE2"},
+	RomTypeAndName{ROM_GAME_MASTER2,"RC755"},
+	RomTypeAndName{ROM_NORMAL8000,  "ROMBAS"},
+	RomTypeAndName{ROM_R_TYPE,      "RTYPE"},
+	RomTypeAndName{ROM_ZEMINA80IN1, "KOREAN80IN1"},
+	RomTypeAndName{ROM_ZEMINA90IN1, "KOREAN90IN1"},
+	RomTypeAndName{ROM_ZEMINA126IN1,"KOREAN126IN1"},
+	RomTypeAndName{ROM_HOLY_QURAN,  "HolyQuran"},
+};
+
+static constexpr auto combinedRomTable = [] {
+	constexpr auto N = std::size(romTypeInfoArray) + std::size(aliasTable);
+	std::array<RomTypeAndName, N> result = {};
+	size_t i = 0;
+	for (const auto& e : romTypeInfoArray) {
+		result[i].romType = static_cast<RomType>(i);
+		result[i].name = e.name;
+		++i;
+	}
+	for (const auto& e : aliasTable) {
+		result[i++] = e;
+	}
+	return result;
+}();
+
+struct RomTypeNameHash {
+	constexpr uint32_t operator()(std::string_view str) const {
+		constexpr uint8_t MASK = ~('a' - 'A'); // case insensitive
+		uint32_t d = 0;
+		for (char c : str) {
+			d = (d ^ (c & MASK)) * 0x01000193;
+		}
+		return d;
+	}
+};
+
+// Construct perfect hash function to lookup RomType by name.
+static constexpr auto pmh = [] {
+	auto getKey = [](size_t i) { return combinedRomTable[i].name; };
+	return PerfectMinimalHash::create<std::size(combinedRomTable)>(RomTypeNameHash{}, getKey);
+}();
+
 RomType RomInfo::nameToRomType(string_view name)
 {
-	static bool isInit = false;
-	// This maps a name to a RomType. There can be multiple names (aliases)
-	// for the same type.
-	static hash_map<string_view, RomType, XXHasher_IgnoreCase, StringOp::casecmp>
-		romTypeMap(256); // initial hashtable size (big enough so that no rehash is needed)
-	if (!isInit) {
-		isInit = true;
-		for (int i = 0; i < int(ROM_LAST); ++i) {
-			romTypeMap.emplace_noCapacityCheck_noDuplicateCheck(
-				romTypeInfoArray[i].name, RomType(i));
-		}
-
-		// Alternative names for rom types, mainly for backwards compatibility
-		auto initAlias = [](RomType type, string_view nm) {
-			romTypeMap.emplace_noCapacityCheck_noDuplicateCheck(nm, type);
-		};
-		initAlias(ROM_GENERIC_8KB, "0");
-		initAlias(ROM_GENERIC_8KB, "GenericKonami"); // probably actually used in a Zemina Box
-		initAlias(ROM_GENERIC_16KB,"1");
-		initAlias(ROM_KONAMI_SCC,  "2");
-		initAlias(ROM_KONAMI_SCC,  "SCC");
-		initAlias(ROM_KONAMI_SCC,  "KONAMI5");
-		initAlias(ROM_KONAMI,      "KONAMI4");
-		initAlias(ROM_KONAMI,      "3");
-		initAlias(ROM_ASCII8,      "4");
-		initAlias(ROM_ASCII16,     "5");
-		initAlias(ROM_MIRRORED,    "64kB");
-		initAlias(ROM_MIRRORED,    "Plain");
-		initAlias(ROM_NORMAL0000,  "0x0000");
-		initAlias(ROM_NORMAL4000,  "0x4000");
-		initAlias(ROM_NORMAL8000,  "0x8000");
-		initAlias(ROM_NORMALC000,  "0xC000");
-		initAlias(ROM_ASCII16_2,   "HYDLIDE2");
-		initAlias(ROM_GAME_MASTER2,"RC755");
-		initAlias(ROM_NORMAL8000,  "ROMBAS");
-		initAlias(ROM_R_TYPE,      "RTYPE");
-		initAlias(ROM_ZEMINA80IN1, "KOREAN80IN1");
-		initAlias(ROM_ZEMINA90IN1, "KOREAN90IN1");
-		initAlias(ROM_ZEMINA126IN1,"KOREAN126IN1");
-		initAlias(ROM_HOLY_QURAN,  "HolyQuran");
+	auto idx = pmh.lookupIndex(name);
+	assert(idx < std::size(combinedRomTable));
+	StringOp::casecmp cmp;
+	if (cmp(combinedRomTable[idx].name, name)) {
+		return combinedRomTable[idx].romType;
 	}
-	auto v = lookup(romTypeMap, name);
-	return v ? *v : ROM_UNKNOWN;
+	return ROM_UNKNOWN;
 }
 
 std::vector<string_view> RomInfo::getAllRomTypes()

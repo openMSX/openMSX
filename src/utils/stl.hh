@@ -89,12 +89,17 @@ template<int N, typename T>
   * STL already has the 'any_of' algorithm.
   */
 template<typename ITER, typename VAL>
-[[nodiscard]] inline bool contains(ITER first, ITER last, const VAL& val)
+[[nodiscard]] inline constexpr bool contains(ITER first, ITER last, const VAL& val)
 {
-	return std::find(first, last, val) != last;
+	// c++20: return std::find(first, last, val) != last;
+	while (first != last) {
+		if (*first == val) return true;
+		++first;
+	}
+	return false;
 }
 template<typename RANGE, typename VAL>
-[[nodiscard]] inline bool contains(const RANGE& range, const VAL& val)
+[[nodiscard]] inline constexpr bool contains(const RANGE& range, const VAL& val)
 {
 	return contains(std::begin(range), std::end(range), val);
 }

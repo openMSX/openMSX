@@ -90,6 +90,36 @@ template<typename InputIt1, typename InputIt2>
 	return (first1 == last1) && (first2 != last2);
 }
 
+template<typename ForwardIt, typename T>
+constexpr void replace(ForwardIt first, ForwardIt last, const T& old_value, const T& new_value)
+{
+	while (first != last) {
+		if (*first == old_value) {
+			*first = new_value;
+		}
+		++first;
+	}
+}
+template<typename ForwardRange, typename T>
+constexpr void replace(ForwardRange& range, const T& old_value, const T& new_value)
+{
+	replace(std::begin(range), std::end(range), old_value, new_value);
+}
+
+template<typename ForwardIt, typename T>
+constexpr void fill(ForwardIt first, ForwardIt last, const T& value)
+{
+	while (first != last) {
+		*first = value;
+		++first;
+	}
+}
+template<typename ForwardRange, typename T>
+constexpr void fill(ForwardRange& range, const T& value)
+{
+	fill(std::begin(range), std::end(range), value);
+}
+
 template<typename T>
 constexpr T abs(T t)
 {
