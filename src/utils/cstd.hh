@@ -117,7 +117,7 @@ constexpr void fill(ForwardIt first, ForwardIt last, const T& value)
 template<typename ForwardRange, typename T>
 constexpr void fill(ForwardRange& range, const T& value)
 {
-	fill(std::begin(range), std::end(range), value);
+	cstd::fill(std::begin(range), std::end(range), value);
 }
 
 template<typename T>
