@@ -103,7 +103,7 @@ constexpr void replace(ForwardIt first, ForwardIt last, const T& old_value, cons
 template<typename ForwardRange, typename T>
 constexpr void replace(ForwardRange& range, const T& old_value, const T& new_value)
 {
-	replace(std::begin(range), std::end(range), old_value, new_value);
+	cstd::replace(std::begin(range), std::end(range), old_value, new_value);
 }
 
 template<typename ForwardIt, typename T>
