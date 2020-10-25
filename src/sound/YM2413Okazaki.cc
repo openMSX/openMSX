@@ -26,7 +26,7 @@ constexpr int PM_FP_BITS =  8;
 // Dynamic range (Accuracy of sin table)
 constexpr int DB_BITS = 8;
 constexpr int DB_MUTE = 1 << DB_BITS;
-constexpr int DBTABLEN = 3 * DB_MUTE; // enough to not have to check for overflow
+constexpr int DBTABLEN = 4 * DB_MUTE; // enough to not have to check for overflow
 
 constexpr double DB_STEP = 48.0 / DB_MUTE;
 constexpr double EG_STEP = 0.375;
@@ -932,24 +932,24 @@ ALWAYS_INLINE unsigned Slot::calc_envelope(int lfo_am, unsigned fixed_env)
 	if (FIXED_ENV) {
 		unsigned out = fixed_env;
 		if (HAS_AM) {
-			out += lfo_am; // [0, 512)
+			out += lfo_am; // [0, 768)
 			out |= 3;
 		} else {
 			// out |= 3   is already done in calc_fixed_env()
 		}
 		return out;
 	} else {
-		unsigned out = eg_phase.toInt(); // in range [0, 128)
+		unsigned out = eg_phase.toInt(); // in range [0, 128]
 		if (state == ATTACK) {
-			out = arAdjustTab[out]; // [0, 128)
+			out = arAdjustTab[out]; // [0, 128]
 		}
 		eg_phase += eg_dphase;
 		if (eg_phase >= eg_phase_max) {
 			calc_envelope_outline(out);
 		}
-		out = EG2DB(out + tll); // [0, 480)
+		out = EG2DB(out + tll); // [0, 732]
 		if (HAS_AM) {
-			out += lfo_am; // [0, 512)
+			out += lfo_am; // [0, 758]
 		}
 		return out | 3;
 	}
