@@ -153,6 +153,7 @@ void PixelRenderer::reInit()
 	// This for example can happen after a loadstate or after switching
 	// renderer in the middle of a frame.
 	renderFrame = false;
+	paintFrame = false;
 
 	rasterizer->reset();
 	displayEnabled = vdp.isDisplayEnabled();
