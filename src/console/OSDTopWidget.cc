@@ -22,6 +22,16 @@ gl::vec2 OSDTopWidget::getSize(const OutputSurface& output) const
 	return gl::vec2(output.getLogicalSize()); // int -> float
 }
 
+bool OSDTopWidget::isVisible() const
+{
+	return false;
+}
+
+bool OSDTopWidget::isRecursiveFading() const
+{
+	return false; // not fading
+}
+
 void OSDTopWidget::invalidateLocal()
 {
 	// nothing

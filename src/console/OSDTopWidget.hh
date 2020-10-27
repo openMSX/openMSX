@@ -16,6 +16,8 @@ public:
 	explicit OSDTopWidget(Display& display);
 	std::string_view getType() const override;
 	gl::vec2 getSize(const OutputSurface& output) const override;
+	bool isVisible() const override;
+	bool isRecursiveFading() const override;
 
 	void queueError(std::string message);
 	void showAllErrors();

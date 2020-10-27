@@ -74,12 +74,15 @@ void OSDGUI::OSDCommand::create(span<const TclObject> tokens, TclObject& result)
 	}
 
 	auto widget = create(type, fullname);
+	auto* widget2 = widget.get();
 	configure(*widget, tokens.subspan(4));
 	top.addName(*widget);
 	parent->addWidget(std::move(widget));
 
 	result = fullname;
-	gui.refresh();
+	if (widget2->isVisible()) {
+		gui.refresh();
+	}
 }
 
 unique_ptr<OSDWidget> OSDGUI::OSDCommand::create(
@@ -116,10 +119,12 @@ void OSDGUI::OSDCommand::destroy(span<const TclObject> tokens, TclObject& result
 		throw CommandException("Can't destroy the top widget.");
 	}
 
+	if (widget->isVisible()) {
+		gui.refresh();
+	}
 	top.removeName(*widget);
 	parent->deleteWidget(*widget);
 	result = true;
-	gui.refresh();
 }
 
 void OSDGUI::OSDCommand::info(span<const TclObject> tokens, TclObject& result)
@@ -158,9 +163,12 @@ void OSDGUI::OSDCommand::exists(span<const TclObject> tokens, TclObject& result)
 void OSDGUI::OSDCommand::configure(span<const TclObject> tokens, TclObject& /*result*/)
 {
 	checkNumArgs(tokens, AtLeast{3}, "name ?property value ...?");
-	configure(getWidget(tokens[2].getString()), tokens.subspan(3));
-	auto& gui = OUTER(OSDGUI, osdCommand);
-	gui.refresh();
+	auto& widget = getWidget(tokens[2].getString());
+	configure(widget, tokens.subspan(3));
+	if (widget.isVisible()) {
+		auto& gui = OUTER(OSDGUI, osdCommand);
+		gui.refresh();
+	}
 }
 
 void OSDGUI::OSDCommand::configure(OSDWidget& widget, span<const TclObject> tokens)

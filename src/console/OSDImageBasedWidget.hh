@@ -22,6 +22,8 @@ public:
 	                 std::string_view name, const TclObject& value) override;
 	void getProperty(std::string_view name, TclObject& result) const override;
 	float getRecursiveFadeValue() const override;
+	bool isVisible() const override;
+	bool isRecursiveFading() const override;
 
 protected:
 	OSDImageBasedWidget(Display& display, const TclObject& name);

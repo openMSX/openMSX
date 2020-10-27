@@ -35,6 +35,7 @@ public:
 	                         std::string_view name, const TclObject& value);
 	virtual void getProperty(std::string_view name, TclObject& result) const;
 	virtual float getRecursiveFadeValue() const;
+	virtual bool isRecursiveFading() const = 0;
 	virtual std::string_view getType() const = 0;
 
 	void invalidateRecursive();
@@ -47,6 +48,9 @@ public:
 	void getBoundingBox(const OutputSurface& output,
 	                    gl::vec2& pos, gl::vec2& size) const;
 	virtual gl::vec2 getSize(const OutputSurface& output) const = 0;
+
+	// Is visible? Or may become visible (fading-in).
+	virtual bool isVisible() const = 0;
 
 	Display& getDisplay() const { return display; }
 

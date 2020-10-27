@@ -158,9 +158,20 @@ float OSDImageBasedWidget::getRecursiveFadeValue() const
 	return getParent()->getRecursiveFadeValue() * getCurrentFadeValue();
 }
 
+bool OSDImageBasedWidget::isVisible() const
+{
+	return (getFadedAlpha() != 0) || isRecursiveFading();
+}
+
 bool OSDImageBasedWidget::isFading() const
 {
 	return (startFadeValue != fadeTarget) && (fadePeriod != 0.0f);
+}
+
+bool OSDImageBasedWidget::isRecursiveFading() const
+{
+	if (isFading()) return true;
+	return getParent()->isRecursiveFading();
 }
 
 float OSDImageBasedWidget::getCurrentFadeValue() const
@@ -270,7 +281,7 @@ void OSDImageBasedWidget::paint(OutputSurface& output, bool openGL)
 		ivec2 drawPos = round(getTransformedPos(output));
 		image->draw(output, drawPos, fadedAlpha);
 	}
-	if (isFading()) {
+	if (isRecursiveFading()) {
 		getDisplay().getOSDGUI().refresh();
 	}
 }
