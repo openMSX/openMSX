@@ -328,8 +328,8 @@ private:
 	Devices references;
 	Devices referencedBy;
 
-	int ps;
-	int ss;
+	int ps = 0;
+	int ss = 0;
 };
 
 REGISTER_BASE_NAME_HELPER(MSXDevice, "Device");
