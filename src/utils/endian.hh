@@ -9,7 +9,7 @@
 namespace Endian {
 
 // Reverse bytes in a 16-bit number: 0x1234 becomes 0x3412
-[[nodiscard]] static inline uint16_t bswap16(uint16_t x)
+[[nodiscard]] static inline uint16_t byteswap16(uint16_t x)
 {
 	// This sequence generates 'optimal' code on a wide range of gcc/clang
 	// versions (a single rotate instruction on x86). The newer compiler
@@ -21,7 +21,7 @@ namespace Endian {
 }
 
 // Reverse bytes in a 32-bit number: 0x12345678 becomes 0x78563412
-[[nodiscard]] static inline uint32_t bswap32(uint32_t x)
+[[nodiscard]] static inline uint32_t byteswap32(uint32_t x)
 {
 #if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 3))
 	// Starting from gcc-4.3 there's a builtin function for this.
@@ -36,22 +36,22 @@ namespace Endian {
 }
 
 // Reverse bytes in a 64-bit value: 0x1122334455667788 becomes 0x8877665544332211
-[[nodiscard]] static inline uint64_t bswap64(uint64_t x)
+[[nodiscard]] static inline uint64_t byteswap64(uint64_t x)
 {
 #if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 3))
 	// Starting from gcc-4.3 there's a builtin function for this.
 	// E.g. on x86 this is translated to a single 'bswap' instruction.
 	return __builtin_bswap64(x);
 #else
-	return (uint64_t(bswap32(x >>  0)) << 32) |
-	       (uint64_t(bswap32(x >> 32)) <<  0);
+	return (uint64_t(byteswap32(x >>  0)) << 32) |
+	       (uint64_t(byteswap32(x >> 32)) <<  0);
 #endif
 }
 
-// Use overloading to get a (statically) polymorphic bswap() function.
-[[nodiscard]] static inline uint16_t bswap(uint16_t x) { return bswap16(x); }
-[[nodiscard]] static inline uint32_t bswap(uint32_t x) { return bswap32(x); }
-[[nodiscard]] static inline uint64_t bswap(uint64_t x) { return bswap64(x); }
+// Use overloading to get a (statically) polymorphic byteswap() function.
+[[nodiscard]] static inline uint16_t byteswap(uint16_t x) { return byteswap16(x); }
+[[nodiscard]] static inline uint32_t byteswap(uint32_t x) { return byteswap32(x); }
+[[nodiscard]] static inline uint64_t byteswap(uint64_t x) { return byteswap64(x); }
 
 
 // Identity operator, simply returns the given value.
@@ -60,8 +60,8 @@ struct Ident {
 };
 
 // Byte-swap operator, swap bytes in the given value (16 or 32 bit).
-struct BSwap {
-	template <typename T> [[nodiscard]] inline T operator()(T t) const { return bswap(t); }
+struct ByteSwap {
+	template <typename T> [[nodiscard]] inline T operator()(T t) const { return byteswap(t); }
 };
 
 // Helper class that stores a value and allows to read/write that value. Though
@@ -103,9 +103,9 @@ private:
 //
 template<bool> struct ConvBig;
 template<> struct ConvBig   <true > : Ident {};
-template<> struct ConvBig   <false> : BSwap {};
+template<> struct ConvBig   <false> : ByteSwap {};
 template<bool> struct ConvLittle;
-template<> struct ConvLittle<true > : BSwap {};
+template<> struct ConvLittle<true > : ByteSwap {};
 template<> struct ConvLittle<false> : Ident {};
 using B16 = EndianT<uint16_t, ConvBig   <openmsx::OPENMSX_BIGENDIAN>>;
 using L16 = EndianT<uint16_t, ConvLittle<openmsx::OPENMSX_BIGENDIAN>>;
@@ -165,7 +165,7 @@ static inline void writeL32(void* p, uint32_t x)
 
 template<bool SWAP, typename T> static ALWAYS_INLINE void write_UA(void* p, T x)
 {
-	if (SWAP) x = bswap(x);
+	if (SWAP) x = byteswap(x);
 	memcpy(p, &x, sizeof(x));
 }
 static ALWAYS_INLINE void write_UA_B16(void* p, uint16_t x)
@@ -197,7 +197,7 @@ template<bool SWAP, typename T> [[nodiscard]] static ALWAYS_INLINE T read_UA(con
 {
 	T x;
 	memcpy(&x, p, sizeof(x));
-	if (SWAP) x = bswap(x);
+	if (SWAP) x = byteswap(x);
 	return x;
 }
 [[nodiscard]] static ALWAYS_INLINE uint16_t read_UA_B16(const void* p)
