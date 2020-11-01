@@ -103,7 +103,8 @@ namespace openmsx {
 			bool needStat = statFile || statDir;
 
 			ReadDir dir(path);
-			if (!path.empty() && (path.back() != '/')) path += '/';
+			bool addSlash = !path.empty() && (path.back() != '/');
+			if (addSlash) path += '/';
 			auto origLen = path.size();
 			while (dirent* d = dir.getEntry()) {
 				std::string_view f(d->d_name);
@@ -139,7 +140,7 @@ namespace openmsx {
 
 				path.resize(origLen);
 			}
-			path.pop_back();
+			if (addSlash) path.pop_back();
 
 			return true; // finished normally
 		}
