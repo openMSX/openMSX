@@ -433,10 +433,10 @@ int16_t YMF278::getSample(Slot& op) const
 		unsigned addr = op.startaddr + ((op.pos / 2) * 3);
 		if (op.pos & 1) {
 			sample = (readMem(addr + 2) << 8) |
-				 ((readMem(addr + 1) << 4) & 0xF0);
+			         (readMem(addr + 1) & 0xF0);
 		} else {
 			sample = (readMem(addr + 0) << 8) |
-				 (readMem(addr + 1) & 0xF0);
+			         ((readMem(addr + 1) << 4) & 0xF0);
 		}
 		break;
 	}
