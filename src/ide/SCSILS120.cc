@@ -88,7 +88,7 @@ public:
 	           Scheduler& scheduler, SCSILS120& ls);
 	void execute(span<const TclObject> tokens,
 	             TclObject& result, EmuTime::param time) override;
-	string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
 	SCSILS120& ls;

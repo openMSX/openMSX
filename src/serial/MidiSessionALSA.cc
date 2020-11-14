@@ -23,8 +23,8 @@ public:
 	// Pluggable
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
-	const std::string& getName() const override;
-	std::string_view getDescription() const override;
+	[[nodiscard]] const std::string& getName() const override;
+	[[nodiscard]] std::string_view getDescription() const override;
 
 	// MidiOutDevice
 	void recvMessage(

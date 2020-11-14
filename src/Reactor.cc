@@ -65,7 +65,7 @@ class ExitCommand final : public Command
 public:
 	ExitCommand(CommandController& commandController, EventDistributor& distributor);
 	void execute(span<const TclObject> tokens, TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(const vector<string>& tokens) const override;
 private:
 	EventDistributor& distributor;
 };
@@ -75,7 +75,7 @@ class MachineCommand final : public Command
 public:
 	MachineCommand(CommandController& commandController, Reactor& reactor);
 	void execute(span<const TclObject> tokens, TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
 	Reactor& reactor;
@@ -86,7 +86,7 @@ class TestMachineCommand final : public Command
 public:
 	TestMachineCommand(CommandController& commandController, Reactor& reactor);
 	void execute(span<const TclObject> tokens, TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
 	Reactor& reactor;
@@ -97,7 +97,7 @@ class CreateMachineCommand final : public Command
 public:
 	CreateMachineCommand(CommandController& commandController, Reactor& reactor);
 	void execute(span<const TclObject> tokens, TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(const vector<string>& tokens) const override;
 private:
 	Reactor& reactor;
 };
@@ -107,7 +107,7 @@ class DeleteMachineCommand final : public Command
 public:
 	DeleteMachineCommand(CommandController& commandController, Reactor& reactor);
 	void execute(span<const TclObject> tokens, TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
 	Reactor& reactor;
@@ -118,7 +118,7 @@ class ListMachinesCommand final : public Command
 public:
 	ListMachinesCommand(CommandController& commandController, Reactor& reactor);
 	void execute(span<const TclObject> tokens, TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(const vector<string>& tokens) const override;
 private:
 	Reactor& reactor;
 };
@@ -128,7 +128,7 @@ class ActivateMachineCommand final : public Command
 public:
 	ActivateMachineCommand(CommandController& commandController, Reactor& reactor);
 	void execute(span<const TclObject> tokens, TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
 	Reactor& reactor;
@@ -139,7 +139,7 @@ class StoreMachineCommand final : public Command
 public:
 	StoreMachineCommand(CommandController& commandController, Reactor& reactor);
 	void execute(span<const TclObject> tokens, TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
 	Reactor& reactor;
@@ -150,7 +150,7 @@ class RestoreMachineCommand final : public Command
 public:
 	RestoreMachineCommand(CommandController& commandController, Reactor& reactor);
 	void execute(span<const TclObject> tokens, TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
 	Reactor& reactor;
@@ -161,7 +161,7 @@ class GetClipboardCommand final : public Command
 public:
 	GetClipboardCommand(CommandController& commandController);
 	void execute(span<const TclObject> tokens, TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(const vector<string>& tokens) const override;
 };
 
 class SetClipboardCommand final : public Command
@@ -169,7 +169,7 @@ class SetClipboardCommand final : public Command
 public:
 	SetClipboardCommand(CommandController& commandController);
 	void execute(span<const TclObject> tokens, TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(const vector<string>& tokens) const override;
 };
 
 class ConfigInfo final : public InfoTopic
@@ -178,7 +178,7 @@ public:
 	ConfigInfo(InfoCommand& openMSXInfoCommand, const string& configName);
 	void execute(span<const TclObject> tokens,
 	             TclObject& result) const override;
-	string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
 	const string configName;
@@ -190,7 +190,7 @@ public:
 	explicit RealTimeInfo(InfoCommand& openMSXInfoCommand);
 	void execute(span<const TclObject> tokens,
 	             TclObject& result) const override;
-	string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(const vector<string>& tokens) const override;
 private:
 	const uint64_t reference;
 };
@@ -201,7 +201,7 @@ public:
 	SoftwareInfoTopic(InfoCommand& openMSXInfoCommand, Reactor& reactor);
 	void execute(span<const TclObject> tokens,
 	             TclObject& result) const override;
-	std::string help(const std::vector<std::string>& tokens) const override;
+	[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
 private:
 	Reactor& reactor;
 };

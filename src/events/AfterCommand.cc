@@ -30,9 +30,9 @@ class AfterCmd
 {
 public:
 	virtual ~AfterCmd() = default;
-	string_view getCommand() const;
-	const string& getId() const;
-	virtual string getType() const = 0;
+	[[nodiscard]] string_view getCommand() const;
+	[[nodiscard]] const string& getId() const;
+	[[nodiscard]] virtual string getType() const = 0;
 	void execute();
 protected:
 	AfterCmd(AfterCommand& afterCommand,
@@ -48,7 +48,7 @@ protected:
 class AfterTimedCmd : public AfterCmd, private Schedulable
 {
 public:
-	double getTime() const;
+	[[nodiscard]] double getTime() const;
 	void reschedule();
 protected:
 	AfterTimedCmd(Scheduler& scheduler,
@@ -68,7 +68,7 @@ public:
 	AfterTimeCmd(Scheduler& scheduler,
 		     AfterCommand& afterCommand,
 		     const TclObject& command, double time);
-	string getType() const override;
+	[[nodiscard]] string getType() const override;
 };
 
 class AfterIdleCmd final : public AfterTimedCmd
@@ -77,7 +77,7 @@ public:
 	AfterIdleCmd(Scheduler& scheduler,
 		     AfterCommand& afterCommand,
 		     const TclObject& command, double time);
-	string getType() const override;
+	[[nodiscard]] string getType() const override;
 };
 
 template<EventType T>
@@ -87,7 +87,7 @@ public:
 	AfterEventCmd(AfterCommand& afterCommand,
 		      const TclObject& type,
 		      const TclObject& command);
-	string getType() const override;
+	[[nodiscard]] string getType() const override;
 private:
 	const string type;
 };
@@ -98,8 +98,8 @@ public:
 	AfterInputEventCmd(AfterCommand& afterCommand,
 	                   AfterCommand::EventPtr event,
 	                   const TclObject& command);
-	string getType() const override;
-	AfterCommand::EventPtr getEvent() const { return event; }
+	[[nodiscard]] string getType() const override;
+	[[nodiscard]] AfterCommand::EventPtr getEvent() const { return event; }
 private:
 	AfterCommand::EventPtr event;
 };
@@ -109,7 +109,7 @@ class AfterRealTimeCmd final : public AfterCmd, private RTSchedulable
 public:
 	AfterRealTimeCmd(RTScheduler& rtScheduler, AfterCommand& afterCommand,
 	                 const TclObject& command, double time);
-	string getType() const override;
+	[[nodiscard]] string getType() const override;
 
 private:
 	void executeRT() override;

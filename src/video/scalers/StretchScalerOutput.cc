@@ -20,13 +20,13 @@ public:
 	                        PixelOperations<Pixel> pixelOps);
 	~StretchScalerOutputBase() override;
 
-	unsigned getWidth()  const override;
-	unsigned getHeight() const override;
-	Pixel* acquireLine(unsigned y) override;
+	[[nodiscard]] unsigned getWidth()  const override;
+	[[nodiscard]] unsigned getHeight() const override;
+	[[nodiscard]] Pixel* acquireLine(unsigned y) override;
 	void   fillLine   (unsigned y, Pixel color) override;
 
 protected:
-	Pixel* releasePre(unsigned y, Pixel* buf);
+	[[nodiscard]] Pixel* releasePre(unsigned y, Pixel* buf);
 	void releasePost(unsigned y, Pixel* dstLine);
 
 	const PixelOperations<Pixel> pixelOps;

@@ -20,9 +20,9 @@ public:
 	            byte press_, byte release_)
 		: StateChange(time_)
 		, name(std::move(name_)), press(press_), release(release_) {}
-	const string& getName() const { return name; }
-	byte getPress()   const { return press; }
-	byte getRelease() const { return release; }
+	[[nodiscard]] const string& getName() const { return name; }
+	[[nodiscard]] byte getPress()   const { return press; }
+	[[nodiscard]] byte getRelease() const { return release; }
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);

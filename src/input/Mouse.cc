@@ -34,10 +34,10 @@ public:
 		: StateChange(time_)
 		, deltaX(deltaX_), deltaY(deltaY_)
 		, press(press_), release(release_) {}
-	int  getDeltaX()  const { return deltaX; }
-	int  getDeltaY()  const { return deltaY; }
-	byte getPress()   const { return press; }
-	byte getRelease() const { return release; }
+	[[nodiscard]] int  getDeltaX()  const { return deltaX; }
+	[[nodiscard]] int  getDeltaY()  const { return deltaY; }
+	[[nodiscard]] byte getPress()   const { return press; }
+	[[nodiscard]] byte getRelease() const { return release; }
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);

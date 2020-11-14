@@ -23,7 +23,7 @@ public:
 		EmuTime::param time);
 	void reset(EmuTime::param time);
 	byte readIO(EmuTime::param time);
-	byte peekIO(EmuTime::param time) const;
+	[[nodiscard]] byte peekIO(EmuTime::param time) const;
 	void writeIO(byte value, EmuTime::param time);
 	void setGateStatus(bool status, EmuTime::param time);
 	void writeControlWord(byte value, EmuTime::param time);

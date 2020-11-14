@@ -287,9 +287,9 @@ public:
 	}
 
 	void set64Offset(size_t offset) { palette64 += offset; }
-	Pixel lookup64   (size_t idx) const { return palette64   [idx]; }
-	Pixel lookup256  (size_t idx) const { return palette256  [idx]; }
-	Pixel lookup32768(size_t idx) const { return palette32768[idx]; }
+	[[nodiscard]] Pixel lookup64   (size_t idx) const { return palette64   [idx]; }
+	[[nodiscard]] Pixel lookup256  (size_t idx) const { return palette256  [idx]; }
+	[[nodiscard]] Pixel lookup32768(size_t idx) const { return palette32768[idx]; }
 
 private:
 	const Pixel* palette64;
@@ -309,9 +309,9 @@ public:
 	}
 
 	void set64Offset(size_t offset) { palette64_32768 += offset; }
-	int16_t lookup64   (size_t idx) const { return palette64_32768 [idx]; }
-	int16_t lookup256  (size_t idx) const { return palette256_32768[idx]; }
-	int16_t lookup32768(size_t idx) const { return int16_t(idx); }
+	[[nodiscard]] int16_t lookup64   (size_t idx) const { return palette64_32768 [idx]; }
+	[[nodiscard]] int16_t lookup256  (size_t idx) const { return palette256_32768[idx]; }
+	[[nodiscard]] int16_t lookup32768(size_t idx) const { return int16_t(idx); }
 
 private:
 	const int16_t* palette64_32768;
@@ -414,10 +414,10 @@ public:
 		if (attr & 0x20) color ^= 0x7fff;
 	}
 
-	bool isVisible() const {
+	[[nodiscard]] bool isVisible() const {
 		return x != unsigned(-1);
 	}
-	bool dot() const {
+	[[nodiscard]] bool dot() const {
 		return (x == 0) && (pattern & 0x80000000);
 	}
 	void shift() {

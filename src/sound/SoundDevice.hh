@@ -21,17 +21,17 @@ public:
 	/** Get the unique name that identifies this sound device.
 	  * Used to create setting names.
 	  */
-	const std::string& getName() const { return name; }
+	[[nodiscard]] const std::string& getName() const { return name; }
 
 	/** Gets a description of this sound device,
 	  * to be presented to the user.
 	  */
-	const std::string& getDescription() const { return description; }
+	[[nodiscard]] const std::string& getDescription() const { return description; }
 
 	/** Is this a stereo device?
 	  * This is set in the constructor and cannot be changed anymore
 	  */
-	bool isStereo() const;
+	[[nodiscard]] bool isStereo() const;
 
 	/** Gets this device its 'amplification factor'.
 	  *
@@ -45,7 +45,7 @@ public:
 	  * The influence of the different volume settings is not part of this
 	  * factor.
 	  */
-	std::pair<float, float> getAmplificationFactor() const {
+	[[nodiscard]] std::pair<float, float> getAmplificationFactor() const {
 		auto f = getAmplificationFactorImpl();
 		return {f * softwareVolumeLeft, f * softwareVolumeRight};
 	}
@@ -87,7 +87,7 @@ protected:
 	  * factor should be used to scale the output to the correct range.
 	  * The default implementation returns '1.0 / 32768.0'.
 	  */
-	virtual float getAmplificationFactorImpl() const;
+	[[nodiscard]] virtual float getAmplificationFactorImpl() const;
 
 	/**
 	 * Registers this sound device with the Mixer.
@@ -107,7 +107,7 @@ protected:
 	void updateStream(EmuTime::param time);
 
 	void setInputRate(unsigned sampleRate) { inputSampleRate = sampleRate; }
-	unsigned getInputRate() const { return inputSampleRate; }
+	[[nodiscard]] unsigned getInputRate() const { return inputSampleRate; }
 
 public: // Will be called by Mixer:
 	/**
@@ -135,8 +135,8 @@ public: // Will be called by Mixer:
 	  * samples should be ignored, though the caller must make sure the
 	  * buffer has enough space to hold them.
 	  */
-	virtual bool updateBuffer(unsigned length, float* buffer,
-	                          EmuTime::param time) = 0;
+	[[nodiscard]] virtual bool updateBuffer(unsigned length, float* buffer,
+	                                        EmuTime::param time) = 0;
 
 protected:
 	/** Adds a number of samples that all have the same value.
@@ -176,11 +176,11 @@ protected:
 	  * samples should be ignored, though the caller must make sure the
 	  * buffer has enough space to hold them.
 	  */
-	bool mixChannels(float* dataOut, unsigned samples);
+	[[nodiscard]] bool mixChannels(float* dataOut, unsigned samples);
 
 	/** See MSXMixer::getHostSampleClock(). */
-	const DynamicClock& getHostSampleClock() const;
-	double getEffectiveSpeed() const;
+	[[nodiscard]] const DynamicClock& getHostSampleClock() const;
+	[[nodiscard]] double getEffectiveSpeed() const;
 
 private:
 	MSXMixer& mixer;

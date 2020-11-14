@@ -73,7 +73,7 @@ public:
 	explicit ResetCmd(MSXMotherBoard& motherBoard);
 	void execute(span<const TclObject> tokens, TclObject& result,
 	             EmuTime::param time) override;
-	string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(const vector<string>& tokens) const override;
 private:
 	MSXMotherBoard& motherBoard;
 };
@@ -83,7 +83,7 @@ class LoadMachineCmd final : public Command
 public:
 	explicit LoadMachineCmd(MSXMotherBoard& motherBoard);
 	void execute(span<const TclObject> tokens, TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
 	MSXMotherBoard& motherBoard;
@@ -94,7 +94,7 @@ class ListExtCmd final : public Command
 public:
 	explicit ListExtCmd(MSXMotherBoard& motherBoard);
 	void execute(span<const TclObject> tokens, TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(const vector<string>& tokens) const override;
 private:
 	MSXMotherBoard& motherBoard;
 };
@@ -105,7 +105,7 @@ public:
 	explicit RemoveExtCmd(MSXMotherBoard& motherBoard);
 	void execute(span<const TclObject> tokens, TclObject& result,
 	             EmuTime::param time) override;
-	string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
 	MSXMotherBoard& motherBoard;
@@ -117,7 +117,7 @@ public:
 	explicit MachineNameInfo(MSXMotherBoard& motherBoard);
 	void execute(span<const TclObject> tokens,
 	             TclObject& result) const override;
-	string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(const vector<string>& tokens) const override;
 private:
 	MSXMotherBoard& motherBoard;
 };
@@ -128,7 +128,7 @@ public:
 	explicit MachineTypeInfo(MSXMotherBoard& motherBoard);
 	void execute(span<const TclObject> tokens,
 	             TclObject& result) const override;
-	string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(const vector<string>& tokens) const override;
 private:
 	MSXMotherBoard& motherBoard;
 };
@@ -139,7 +139,7 @@ public:
 	explicit MachineExtensionInfo(MSXMotherBoard& motherBoard);
 	void execute(span<const TclObject> tokens,
 	             TclObject& result) const override;
-	string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
 	MSXMotherBoard& motherBoard;
@@ -151,7 +151,7 @@ public:
 	explicit DeviceInfo(MSXMotherBoard& motherBoard);
 	void execute(span<const TclObject> tokens,
 	             TclObject& result) const override;
-	string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
 	MSXMotherBoard& motherBoard;
@@ -171,7 +171,7 @@ class JoyPortDebuggable final : public SimpleDebuggable
 {
 public:
 	explicit JoyPortDebuggable(MSXMotherBoard& motherBoard);
-	byte read(unsigned address, EmuTime::param time) override;
+	[[nodiscard]] byte read(unsigned address, EmuTime::param time) override;
 	void write(unsigned address, byte value) override;
 };
 

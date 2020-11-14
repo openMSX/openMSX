@@ -20,7 +20,7 @@ class Sha1SumCommand final : public Command
 public:
 	Sha1SumCommand(CommandController& commandController, FilePool& filePool);
 	void execute(span<const TclObject> tokens, TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
 	FilePool& filePool;

@@ -9,7 +9,7 @@ class XMLElement;
 
 namespace XMLLoader {
 
-XMLElement load(std::string_view filename, std::string_view systemID);
+[[nodiscard]] XMLElement load(std::string_view filename, std::string_view systemID);
 
 } // namespace XMLLoader
 } // namespace openmsx

@@ -16,7 +16,7 @@ public:
 	PaddleState() = default; // for serialize
 	PaddleState(EmuTime::param time_, int delta_)
 		: StateChange(time_), delta(delta_) {}
-	int getDelta() const { return delta; }
+	[[nodiscard]] int getDelta() const { return delta; }
 
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{

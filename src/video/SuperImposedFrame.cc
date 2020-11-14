@@ -17,8 +17,8 @@ public:
 	explicit SuperImposedFrameImpl(const PixelFormat& format);
 
 private:
-	unsigned getLineWidth(unsigned line) const override;
-	const void* getLineInfo(
+	[[nodiscard]] unsigned getLineWidth(unsigned line) const override;
+	[[nodiscard]] const void* getLineInfo(
 		unsigned line, unsigned& width,
 		void* buf, unsigned bufWidth) const override;
 

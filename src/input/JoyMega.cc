@@ -65,9 +65,9 @@ public:
 		assert((press != 0) || (release != 0));
 		assert((press & release) == 0);
 	}
-	unsigned getJoystick() const { return joyNum; }
-	unsigned getPress()    const { return press; }
-	unsigned getRelease()  const { return release; }
+	[[nodiscard]] unsigned getJoystick() const { return joyNum; }
+	[[nodiscard]] unsigned getPress()    const { return press; }
+	[[nodiscard]] unsigned getRelease()  const { return release; }
 
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{

@@ -39,19 +39,19 @@ public:
 		, command(std::move(command_)), id(id_)
 	{
 	}
-	const string& getCommand() const
+	[[nodiscard]] const string& getCommand() const
 	{
 		return command;
 	}
-	const CliConnection* getId() const
+	[[nodiscard]] const CliConnection* getId() const
 	{
 		return id;
 	}
-	TclObject toTclList() const override
+	[[nodiscard]] TclObject toTclList() const override
 	{
 		return makeTclList("CliCmd", getCommand());
 	}
-	bool lessImpl(const Event& other) const override
+	[[nodiscard]] bool lessImpl(const Event& other) const override
 	{
 		const auto& otherCmdEvent = checked_cast<const CliCommandEvent&>(other);
 		return getCommand() < otherCmdEvent.getCommand();

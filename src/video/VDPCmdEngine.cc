@@ -414,7 +414,7 @@ struct IncrByteAddr4
 	{
 		addr = Graphic4Mode::addressOf(x, y, false);
 	}
-	unsigned getAddr() const
+	[[nodiscard]] unsigned getAddr() const
 	{
 		return addr;
 	}
@@ -433,7 +433,7 @@ struct IncrByteAddr5
 	{
 		addr = Graphic5Mode::addressOf(x, y, false);
 	}
-	unsigned getAddr() const
+	[[nodiscard]] unsigned getAddr() const
 	{
 		return addr;
 	}
@@ -456,7 +456,7 @@ struct IncrByteAddr7
 		delta = (tx > 0) ? 0x10000 : (0x10000 - 1);
 		if (x & 1) delta ^= delta2;
 	}
-	unsigned getAddr() const
+	[[nodiscard]] unsigned getAddr() const
 	{
 		return addr;
 	}
@@ -489,7 +489,7 @@ struct IncrPixelAddr4
 		addr = Graphic4Mode::addressOf(x, y, false);
 		delta = (tx == 1) ? (x & 1) : ((x & 1) - 1);
 	}
-	unsigned getAddr() const { return addr; }
+	[[nodiscard]] unsigned getAddr() const { return addr; }
 	void step(int tx)
 	{
 		addr += delta;
@@ -514,7 +514,7 @@ struct IncrPixelAddr5
 			c2 -= 1;       //   | -1 | -1 |  0 |  0
 		}
 	}
-	unsigned getAddr() const { return addr; }
+	[[nodiscard]] unsigned getAddr() const { return addr; }
 	void step(int tx)
 	{
 		addr += (c1 & c2);
@@ -542,7 +542,7 @@ struct IncrPixelAddr6
 			c2 = (x & 2) ? -0x10000 : (0x10000 - 1);
 		}
 	}
-	unsigned getAddr() const { return addr; }
+	[[nodiscard]] unsigned getAddr() const { return addr; }
 	void step(int /*tx*/)
 	{
 		addr += (c1 & c2);
@@ -566,7 +566,7 @@ struct IncrMask4
 	{
 		mask = 0x0F << ((x & 1) << 2);
 	}
-	byte getMask() const
+	[[nodiscard]] byte getMask() const
 	{
 		return mask;
 	}
@@ -585,7 +585,7 @@ struct IncrMask5
 	{
 		mask = ~(0xC0 >> ((x & 3) << 1));
 	}
-	byte getMask() const
+	[[nodiscard]] byte getMask() const
 	{
 		return mask;
 	}
@@ -601,7 +601,7 @@ private:
 struct IncrMask7
 {
 	IncrMask7(unsigned /*x*/, int /*tx*/) {}
-	byte getMask() const
+	[[nodiscard]] byte getMask() const
 	{
 		return 0;
 	}
@@ -617,7 +617,7 @@ struct IncrShift4
 		: shift(((dx - sx) & 1) * 4)
 	{
 	}
-	byte doShift(byte color) const
+	[[nodiscard]] byte doShift(byte color) const
 	{
 		return (color >> shift) | (color << shift);
 	}
@@ -631,7 +631,7 @@ struct IncrShift5
 		: shift(((dx - sx) & 3) * 2)
 	{
 	}
-	byte doShift(byte color) const
+	[[nodiscard]] byte doShift(byte color) const
 	{
 		return (color >> shift) | (color << (8 - shift));
 	}
@@ -642,7 +642,7 @@ private:
 struct IncrShift7
 {
 	IncrShift7(unsigned /*sx*/, unsigned /*dx*/) {}
-	byte doShift(byte color) const
+	[[nodiscard]] byte doShift(byte color) const
 	{
 		return color;
 	}

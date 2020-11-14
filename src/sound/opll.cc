@@ -20,8 +20,8 @@
  *  version: 1.0.1
  */
 
-#include <string.h>
 #include "opll.hh"
+#include <cstring>
 
 enum {
     eg_num_attack = 0,

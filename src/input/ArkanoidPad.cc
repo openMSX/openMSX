@@ -36,9 +36,9 @@ public:
 	ArkanoidState(EmuTime::param time_, int delta_, bool press_, bool release_)
 		: StateChange(time_)
 		, delta(delta_), press(press_), release(release_) {}
-	int  getDelta()   const { return delta; }
-	bool getPress()   const { return press; }
-	bool getRelease() const { return release; }
+	[[nodiscard]] int  getDelta()   const { return delta; }
+	[[nodiscard]] bool getPress()   const { return press; }
+	[[nodiscard]] bool getRelease() const { return release; }
 
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{

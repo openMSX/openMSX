@@ -28,12 +28,12 @@ public:
 		: name(std::move(name_)), data(std::move(data_)) {}
 
 	// name
-	const std::string& getName() const { return name; }
+	[[nodiscard]] const std::string& getName() const { return name; }
 	void setName(std::string name_) { name = std::move(name_); }
 	void clearName() { name.clear(); }
 
 	// data
-	const std::string& getData() const { return data; }
+	[[nodiscard]] const std::string& getData() const { return data; }
 	void setData(std::string data_) {
 		assert(children.empty()); // no mixed-content elements
 		data = std::move(data_);
@@ -43,12 +43,12 @@ public:
 	void addAttribute(std::string name, std::string value);
 	void setAttribute(std::string_view name, std::string value);
 	void removeAttribute(std::string_view name);
-	bool hasAttribute(std::string_view name) const;
-	const std::string& getAttribute(std::string_view attrName) const;
-	std::string_view getAttribute(std::string_view attrName,
-	                              std::string_view defaultValue) const;
+	[[nodiscard]] bool hasAttribute(std::string_view name) const;
+	[[nodiscard]] const std::string& getAttribute(std::string_view attrName) const;
+	[[nodiscard]] std::string_view getAttribute(std::string_view attrName,
+	                                            std::string_view defaultValue) const;
 	// Returns ptr to attribute value, or nullptr when not found.
-	const std::string* findAttribute(std::string_view attrName) const;
+	[[nodiscard]] const std::string* findAttribute(std::string_view attrName) const;
 
 	// child
 	using Children = std::vector<XMLElement>;
@@ -56,37 +56,37 @@ public:
 	XMLElement& addChild(std::string name);
 	XMLElement& addChild(std::string name, std::string data);
 	void removeChild(const XMLElement& child);
-	const Children& getChildren() const { return children; }
-	bool hasChildren() const { return !children.empty(); }
+	[[nodiscard]] const Children& getChildren() const { return children; }
+	[[nodiscard]] bool hasChildren() const { return !children.empty(); }
 
 	//
 	// Convenience functions
 	//
 
 	// attribute
-	bool getAttributeAsBool(std::string_view attrName,
-	                        bool defaultValue = false) const;
-	int getAttributeAsInt(std::string_view attrName,
-	                      int defaultValue = 0) const;
-	bool findAttributeInt(std::string_view attrName,
-	                      unsigned& result) const;
+	[[nodiscard]] bool getAttributeAsBool(std::string_view attrName,
+	                                      bool defaultValue = false) const;
+	[[nodiscard]] int getAttributeAsInt(std::string_view attrName,
+	                                    int defaultValue = 0) const;
+	[[nodiscard]] bool findAttributeInt(std::string_view attrName,
+	                                    unsigned& result) const;
 
 	// child
-	const XMLElement* findChild(std::string_view childName) const;
-	XMLElement* findChild(std::string_view childName);
-	const XMLElement& getChild(std::string_view childName) const;
-	XMLElement& getChild(std::string_view childName);
+	[[nodiscard]] const XMLElement* findChild(std::string_view childName) const;
+	[[nodiscard]] XMLElement* findChild(std::string_view childName);
+	[[nodiscard]] const XMLElement& getChild(std::string_view childName) const;
+	[[nodiscard]] XMLElement& getChild(std::string_view childName);
 
-	const XMLElement* findChildWithAttribute(
+	[[nodiscard]] const XMLElement* findChildWithAttribute(
 		std::string_view childName, std::string_view attrName,
 		std::string_view attValue) const;
-	XMLElement* findChildWithAttribute(
+	[[nodiscard]] XMLElement* findChildWithAttribute(
 		std::string_view childName, std::string_view attrName,
 		std::string_view attValue);
-	const XMLElement* findNextChild(std::string_view name,
-	                                size_t& fromIndex) const;
+	[[nodiscard]] const XMLElement* findNextChild(std::string_view name,
+	                                              size_t& fromIndex) const;
 
-	std::vector<const XMLElement*> getChildren(std::string_view childName) const;
+	[[nodiscard]] std::vector<const XMLElement*> getChildren(std::string_view childName) const;
 
 	XMLElement& getCreateChild(std::string_view childName,
 	                           std::string_view defaultValue = {});
@@ -94,20 +94,20 @@ public:
 		std::string_view childName, std::string_view attrName,
 		std::string_view attValue);
 
-	const std::string& getChildData(std::string_view childName) const;
-	std::string_view getChildData(std::string_view childName,
-	                              std::string_view defaultValue) const;
-	bool getChildDataAsBool(std::string_view childName,
-	                        bool defaultValue = false) const;
-	int getChildDataAsInt(std::string_view childName,
-	                      int defaultValue = 0) const;
+	[[nodiscard]] const std::string& getChildData(std::string_view childName) const;
+	[[nodiscard]] std::string_view getChildData(std::string_view childName,
+	                                            std::string_view defaultValue) const;
+	[[nodiscard]] bool getChildDataAsBool(std::string_view childName,
+	                                      bool defaultValue = false) const;
+	[[nodiscard]] int getChildDataAsInt(std::string_view childName,
+	                                    int defaultValue = 0) const;
 	void setChildData(std::string_view childName, std::string value);
 
 	void removeAllChildren();
 
 	// various
-	std::string dump() const;
-	static std::string XMLEscape(std::string_view str);
+	[[nodiscard]] std::string dump() const;
+	[[nodiscard]] static std::string XMLEscape(std::string_view str);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -118,8 +118,8 @@ public:
 private:
 	using Attribute = std::pair<std::string, std::string>;
 	using Attributes = std::vector<Attribute>;
-	Attributes::iterator getAttributeIter(std::string_view attrName);
-	Attributes::const_iterator getAttributeIter(std::string_view attrName) const;
+	[[nodiscard]] Attributes::iterator getAttributeIter(std::string_view attrName);
+	[[nodiscard]] Attributes::const_iterator getAttributeIter(std::string_view attrName) const;
 	void dump(std::string& result, unsigned indentNum) const;
 
 	std::string name;

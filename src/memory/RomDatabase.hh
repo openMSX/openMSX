@@ -21,9 +21,9 @@ public:
 	/** Lookup an entry in the database by sha1sum.
 	 * Returns nullptr when no corresponding entry was found.
 	 */
-	const RomInfo* fetchRomInfo(const Sha1Sum& sha1sum) const;
+	[[nodiscard]] const RomInfo* fetchRomInfo(const Sha1Sum& sha1sum) const;
 
-	const char* getBufferStart() const { return buffer.data(); }
+	[[nodiscard]] const char* getBufferStart() const { return buffer.data(); }
 
 private:
 	RomDB db;

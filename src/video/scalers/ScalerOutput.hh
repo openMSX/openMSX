@@ -8,10 +8,10 @@ template<typename Pixel> class ScalerOutput
 public:
 	virtual ~ScalerOutput() = default;
 
-	virtual unsigned getWidth()  const = 0;
-	virtual unsigned getHeight() const = 0;
+	[[nodiscard]] virtual unsigned getWidth()  const = 0;
+	[[nodiscard]] virtual unsigned getHeight() const = 0;
 
-	virtual Pixel* acquireLine(unsigned y) = 0;
+	[[nodiscard]] virtual Pixel* acquireLine(unsigned y) = 0;
 	virtual void   releaseLine(unsigned y, Pixel* buf) = 0;
 	virtual void   fillLine   (unsigned y, Pixel color) = 0;
 	// TODO add copyLine() optimization

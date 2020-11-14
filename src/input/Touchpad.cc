@@ -33,10 +33,10 @@ public:
 	              byte x_, byte y_, bool touch_, bool button_)
 		: StateChange(time_)
 		, x(x_), y(y_), touch(touch_), button(button_) {}
-	byte getX()      const { return x; }
-	byte getY()      const { return y; }
-	bool getTouch()  const { return touch; }
-	bool getButton() const { return button; }
+	[[nodiscard]] byte getX()      const { return x; }
+	[[nodiscard]] byte getY()      const { return y; }
+	[[nodiscard]] bool getTouch()  const { return touch; }
+	[[nodiscard]] bool getButton() const { return button; }
 
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{

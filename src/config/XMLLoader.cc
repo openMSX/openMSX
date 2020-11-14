@@ -22,8 +22,8 @@ public:
 	void stop();
 	void doctype(string_view txt);
 
-	string_view getSystemID() const { return systemID; }
-	XMLElement& getRoot() { return root; }
+	[[nodiscard]] string_view getSystemID() const { return systemID; }
+	[[nodiscard]] XMLElement& getRoot() { return root; }
 
 private:
 	XMLElement root;

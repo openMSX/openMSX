@@ -249,7 +249,7 @@ template<bool L64K, bool ARCH64> struct HashImpl;
 template<bool ARCH64> struct HashImpl<true, ARCH64> {
 	alignas(uint64_t) uint16_t tab[1 << (HASHLOG + 1)] = {};
 
-	static uint32_t hashPosition(const uint8_t* p) {
+	[[nodiscard]] static uint32_t hashPosition(const uint8_t* p) {
 		uint32_t sequence = unalignedLoad32(p);
 		return (sequence * 2654435761U) >> ((MINMATCH * 8) - (HASHLOG + 1));
 	}
@@ -262,13 +262,13 @@ template<bool ARCH64> struct HashImpl<true, ARCH64> {
 	void putPosition(const uint8_t* p, const uint8_t* srcBase) {
 		putPositionOnHash(p, hashPosition(p), srcBase);
 	}
-	uint32_t getIndexOnHash(uint32_t h) const {
+	[[nodiscard]] uint32_t getIndexOnHash(uint32_t h) const {
 		return tab[h];
 	}
-	const uint8_t* getPositionOnHash(uint32_t h, const uint8_t* srcBase) const {
+	[[nodiscard]] const uint8_t* getPositionOnHash(uint32_t h, const uint8_t* srcBase) const {
 		return tab[h] + srcBase;
 	}
-	const uint8_t* getPosition(const uint8_t* p, const uint8_t* srcBase) const {
+	[[nodiscard]] const uint8_t* getPosition(const uint8_t* p, const uint8_t* srcBase) const {
 		return getPositionOnHash(hashPosition(p), srcBase);
 	}
 };
@@ -277,7 +277,7 @@ template<bool ARCH64> struct HashImpl<true, ARCH64> {
 template<> struct HashImpl<false, true> {
 	alignas(uint64_t) uint32_t tab[1 << HASHLOG] = {};
 
-	static uint32_t hashPosition(const uint8_t* p) {
+	[[nodiscard]] static uint32_t hashPosition(const uint8_t* p) {
 		uint64_t sequence = read_ARCH(p);
 		const uint64_t prime = openmsx::OPENMSX_BIGENDIAN
 				     ? 11400714785074694791ULL   // 8 bytes
@@ -293,13 +293,13 @@ template<> struct HashImpl<false, true> {
 	void putPosition(const uint8_t* p, const uint8_t* srcBase) {
 		putPositionOnHash(p, hashPosition(p), srcBase);
 	}
-	uint32_t getIndexOnHash(uint32_t h) const {
+	[[nodiscard]] uint32_t getIndexOnHash(uint32_t h) const {
 		return tab[h];
 	}
-	const uint8_t* getPositionOnHash(uint32_t h, const uint8_t* srcBase) const {
+	[[nodiscard]] const uint8_t* getPositionOnHash(uint32_t h, const uint8_t* srcBase) const {
 		return tab[h] + srcBase;
 	}
-	const uint8_t* getPosition(const uint8_t* p, const uint8_t* srcBase) const {
+	[[nodiscard]] const uint8_t* getPosition(const uint8_t* p, const uint8_t* srcBase) const {
 		return getPositionOnHash(hashPosition(p), srcBase);
 	}
 };
@@ -308,7 +308,7 @@ template<> struct HashImpl<false, true> {
 template<> struct HashImpl<false, false> {
 	alignas(uint64_t) const uint8_t* tab[1 << HASHLOG] = {};
 
-	static uint32_t hashPosition(const uint8_t* p) {
+	[[nodiscard]] static uint32_t hashPosition(const uint8_t* p) {
 		uint32_t sequence = unalignedLoad32(p);
 		return (sequence * 2654435761U) >> ((MINMATCH * 8) - HASHLOG);
 	}
@@ -321,13 +321,13 @@ template<> struct HashImpl<false, false> {
 	void putPosition(const uint8_t* p, const uint8_t* srcBase) {
 		putPositionOnHash(p, hashPosition(p), srcBase);
 	}
-	uint32_t getIndexOnHash(uint32_t /*h*/) const {
+	[[nodiscard]] uint32_t getIndexOnHash(uint32_t /*h*/) const {
 		UNREACHABLE; return 0;
 	}
-	const uint8_t* getPositionOnHash(uint32_t h, const uint8_t* /*srcBase*/) const {
+	[[nodiscard]] const uint8_t* getPositionOnHash(uint32_t h, const uint8_t* /*srcBase*/) const {
 		return tab[h];
 	}
-	const uint8_t* getPosition(const uint8_t* p, const uint8_t* srcBase) const {
+	[[nodiscard]] const uint8_t* getPosition(const uint8_t* p, const uint8_t* srcBase) const {
 		return getPositionOnHash(hashPosition(p), srcBase);
 	}
 };

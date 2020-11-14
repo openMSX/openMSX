@@ -27,7 +27,7 @@ class Paper
 public:
 	Paper(unsigned x, unsigned y, double dotSizeX, double dotSizeY);
 
-	std::string save() const;
+	[[nodiscard]] std::string save() const;
 	void setDotSize(double sizeX, double sizeY);
 	void plot(double x, double y);
 

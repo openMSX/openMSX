@@ -47,10 +47,10 @@ public:
 	void stop();
 	void doctype(string_view txt);
 
-	string_view getSystemID() const { return systemID; }
+	[[nodiscard]] string_view getSystemID() const { return systemID; }
 
 private:
-	String32 cIndex(string_view str);
+	[[nodiscard]] String32 cIndex(string_view str);
 	void addEntries();
 	void addAllEntries();
 

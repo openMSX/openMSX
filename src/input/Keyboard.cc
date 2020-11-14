@@ -73,9 +73,9 @@ public:
 		// and or-operations)
 		assert((press & release) == 0);
 	}
-	byte getRow()     const { return row; }
-	byte getPress()   const { return press; }
-	byte getRelease() const { return release; }
+	[[nodiscard]] byte getRow()     const { return row; }
+	[[nodiscard]] byte getPress()   const { return press; }
+	[[nodiscard]] byte getRelease() const { return release; }
 
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{

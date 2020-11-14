@@ -39,9 +39,9 @@ public:
 	            DiskChanger& diskChanger);
 	void execute(span<const TclObject> tokens,
 	             TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
-	bool needRecord(span<const TclObject> tokens) const /*override*/;
+	[[nodiscard]] bool needRecord(span<const TclObject> tokens) const /*override*/;
 private:
 	DiskChanger& diskChanger;
 };

@@ -28,7 +28,7 @@ public:
 	           Scheduler& scheduler, IDECDROM& cd);
 	void execute(span<const TclObject> tokens,
 		TclObject& result, EmuTime::param time) override;
-	string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
 	IDECDROM& cd;

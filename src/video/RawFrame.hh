@@ -28,11 +28,11 @@ public:
 	RawFrame(const PixelFormat& format, unsigned maxWidth, unsigned height);
 
 	template<typename Pixel>
-	Pixel* getLinePtrDirect(unsigned y) {
+	[[nodiscard]] Pixel* getLinePtrDirect(unsigned y) {
 		return reinterpret_cast<Pixel*>(data.data() + y * pitch);
 	}
 
-	unsigned getLineWidthDirect(unsigned y) const {
+	[[nodiscard]] unsigned getLineWidthDirect(unsigned y) const {
 		return lineWidths[y];
 	}
 
@@ -50,18 +50,18 @@ public:
 		lineWidths[line] = 1;
 	}
 
-	unsigned getRowLength() const override;
+	[[nodiscard]] unsigned getRowLength() const override;
 
 	// RawFrame is mostly agnostic of the border info struct. The only
 	// thing it does is store the information and give access to it.
-	V9958RasterizerBorderInfo& getBorderInfo() { return borderInfo; }
+	[[nodiscard]] V9958RasterizerBorderInfo& getBorderInfo() { return borderInfo; }
 
 protected:
-	unsigned getLineWidth(unsigned line) const override;
-	const void* getLineInfo(
+	[[nodiscard]] unsigned getLineWidth(unsigned line) const override;
+	[[nodiscard]] const void* getLineInfo(
 		unsigned line, unsigned& width,
 		void* buf, unsigned bufWidth) const override;
-	bool hasContiguousStorage() const override;
+	[[nodiscard]] bool hasContiguousStorage() const override;
 
 private:
 	MemBuffer<char, 64> data;
