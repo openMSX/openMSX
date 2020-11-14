@@ -96,7 +96,7 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	mem.addAttribute("size", "0x10000");
 	auto& rom = device.addChild("rom");
 	rom.addChild("resolvedFilename", resolvedFilename);
-	rom.addChild("filename", romfile);
+	rom.addChild("filename", move(romfile));
 	if (!ipsfiles.empty()) {
 		auto& patches = rom.addChild("patches");
 		for (auto& s : ipsfiles) {

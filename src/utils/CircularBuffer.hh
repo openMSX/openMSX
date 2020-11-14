@@ -2,6 +2,8 @@
 #define CIRCULARBUFFER_HH
 
 #include <cassert>
+#include <cstddef>
+#include <utility>
 
 namespace openmsx {
 
@@ -16,9 +18,19 @@ public:
 		first = prev(first);
 		buffer[first] = element;
 	}
+	void addFront(T&& element) {
+		assert(!isFull());
+		first = prev(first);
+		buffer[first] = std::move(element);
+	}
 	void addBack(const T& element) {
 		assert(!isFull());
 		buffer[last] = element;
+		last = next(last);
+	}
+	void addBack(T&& element) {
+		assert(!isFull());
+		buffer[last] = std::move(element);
 		last = next(last);
 	}
 	T& removeFront() {

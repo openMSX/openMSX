@@ -43,7 +43,7 @@ HD::HD(const DeviceConfig& config)
 	auto mode = File::NORMAL;
 	string cliImage = HDImageCLI::getImageForId(id);
 	if (cliImage.empty()) {
-		string original = config.getChildData("filename");
+		const string& original = config.getChildData("filename");
 		string resolved = config.getFileContext().resolveCreate(original);
 		filename = Filename(resolved);
 		mode = File::CREATE;

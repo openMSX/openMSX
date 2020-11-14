@@ -251,7 +251,7 @@ static void erase(vector<T>& v, const Event& event)
 	}
 }
 
-static void insert(HotKey::KeySet& set, HotKey::EventPtr event)
+static void insert(HotKey::KeySet& set, const HotKey::EventPtr& event)
 {
 	if (auto it = ranges::find_if(set, EqualEvent(*event)); it != end(set)) {
 		*it = event;

@@ -25,14 +25,14 @@ LocalFileReference::LocalFileReference(const Filename& filename)
 {
 }
 
-LocalFileReference::LocalFileReference(LocalFileReference&& other)
+LocalFileReference::LocalFileReference(LocalFileReference&& other) noexcept
 	: tmpFile(std::move(other.tmpFile))
 	, tmpDir (std::move(other.tmpDir ))
 {
 	other.tmpDir.clear();
 }
 
-LocalFileReference& LocalFileReference::operator=(LocalFileReference&& other)
+LocalFileReference& LocalFileReference::operator=(LocalFileReference&& other) noexcept
 {
 	cleanup();
 	tmpFile = std::move(other.tmpFile);

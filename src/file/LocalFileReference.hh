@@ -38,8 +38,8 @@ public:
 	// non-copyable, but moveable
 	LocalFileReference(const LocalFileReference&) = delete;
 	LocalFileReference& operator=(const LocalFileReference&) = delete;
-	LocalFileReference(LocalFileReference&&);
-	LocalFileReference& operator=(LocalFileReference&&);
+	LocalFileReference(LocalFileReference&&) noexcept;
+	LocalFileReference& operator=(LocalFileReference&&) noexcept;
 
 	/** Returns path to a local uncompressed version of this file.
 	  * This path only remains valid as long as this object is in scope.

@@ -105,7 +105,7 @@ unsigned Debugger::insertProbeBreakPoint(
 	ProbeBase& probe, bool once, unsigned newId /*= -1*/)
 {
 	auto bp = std::make_unique<ProbeBreakPoint>(
-		command, condition, *this, probe, once, newId);
+		std::move(command), std::move(condition), *this, probe, once, newId);
 	unsigned result = bp->getId();
 	probeBreakPoints.push_back(std::move(bp));
 	return result;
@@ -156,10 +156,10 @@ unsigned Debugger::setWatchPoint(TclObject command, TclObject condition,
 	if (type == one_of(WatchPoint::READ_IO, WatchPoint::WRITE_IO)) {
 		wp = make_shared<WatchIO>(
 			motherBoard, type, beginAddr, endAddr,
-			command, condition, once, newId);
+			std::move(command), std::move(condition), once, newId);
 	} else {
 		wp = make_shared<WatchPoint>(
-			command, condition, type, beginAddr, endAddr, once, newId);
+			std::move(command), std::move(condition), type, beginAddr, endAddr, once, newId);
 	}
 	motherBoard.getCPUInterface().setWatchPoint(wp);
 	return wp->getId();
