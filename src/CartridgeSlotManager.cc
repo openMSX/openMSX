@@ -9,6 +9,7 @@
 #include "unreachable.hh"
 #include "one_of.hh"
 #include "outer.hh"
+#include "ranges.hh"
 #include "StringOp.hh"
 #include "xrange.hh"
 #include <cassert>
@@ -265,14 +266,10 @@ void CartridgeSlotManager::freeSlot(
 
 bool CartridgeSlotManager::isExternalSlot(int ps, int ss, bool convert) const
 {
-	for (auto slot : xrange(MAX_SLOTS)) {
+	return ranges::any_of(xrange(MAX_SLOTS), [&](auto slot) {
 		int tmp = (convert && (slots[slot].ss == -1)) ? 0 : slots[slot].ss;
-		if (slots[slot].exists() &&
-		    (slots[slot].ps == ps) && (tmp == ss)) {
-			return true;
-		}
-	}
-	return false;
+		return slots[slot].exists() && (slots[slot].ps == ps) && (tmp == ss);
+	});
 }
 
 
