@@ -61,7 +61,7 @@ public:
 	void writeReg(byte rg, byte data, EmuTime::param time);
 	byte readReg(byte rg, EmuTime::param time);
 	byte peekReg(byte rg, EmuTime::param time) const;
-	byte readStatus(EmuTime::param time);
+	byte readStatus(EmuTime::param time) const;
 	byte peekStatus(EmuTime::param time) const;
 
 	// for ADPCM

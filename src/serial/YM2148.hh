@@ -21,7 +21,7 @@ public:
 
 	void writeCommand(byte value);
 	void writeData(byte value, EmuTime::param time);
-	byte readStatus(EmuTime::param time);
+	byte readStatus(EmuTime::param time) const;
 	byte readData(EmuTime::param time);
 	byte peekStatus(EmuTime::param time) const;
 	byte peekData(EmuTime::param time) const;

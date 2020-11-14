@@ -19,7 +19,7 @@ public:
 	MC6850(const std::string& name, MSXMotherBoard& motherBoard, unsigned clockFreq);
 	void reset(EmuTime::param time);
 
-	byte readStatusReg();
+	byte readStatusReg() const;
 	byte peekStatusReg() const;
 	byte readDataReg();
 	byte peekDataReg() const;

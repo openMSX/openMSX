@@ -89,7 +89,7 @@ void MC6850::reset(EmuTime::param time)
 	setDataFormat();
 }
 
-byte MC6850::readStatusReg()
+byte MC6850::readStatusReg() const
 {
 	return peekStatusReg();
 }

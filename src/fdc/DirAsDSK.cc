@@ -1087,7 +1087,7 @@ struct IsDirSector : DirScanner {
 	IsDirSector(unsigned sector_, DirAsDSK::DirIndex& dirDirIndex_)
 		: DirScanner(dirDirIndex_)
 		, sector(sector_) {}
-	bool onDirSector(unsigned dirSector) {
+	bool onDirSector(unsigned dirSector) const {
 		return sector == dirSector;
 	}
 	const unsigned sector;

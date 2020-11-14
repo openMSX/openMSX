@@ -133,7 +133,7 @@ byte SunriseIDE::readDataLow(EmuTime::param time)
 	readLatch = temp >> 8;
 	return temp & 0xFF;
 }
-byte SunriseIDE::readDataHigh(EmuTime::param /*time*/)
+byte SunriseIDE::readDataHigh(EmuTime::param /*time*/) const
 {
 	return readLatch;
 }

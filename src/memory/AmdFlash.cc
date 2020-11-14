@@ -250,7 +250,7 @@ bool AmdFlash::isSectorWritable(unsigned sector) const
 	return vppWpPinLow && (sector == one_of(0u, 1u)) ? false : (writeAddress[sector] != -1) ;
 }
 
-byte AmdFlash::read(unsigned address)
+byte AmdFlash::read(unsigned address) const
 {
 	// note: after a read we stay in the same mode
 	return peek(address);

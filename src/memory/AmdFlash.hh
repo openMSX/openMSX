@@ -55,7 +55,7 @@ public:
 	void setVppWpPinLow(bool value) { vppWpPinLow = value; }
 
 	unsigned getSize() const { return size; }
-	byte read(unsigned address);
+	byte read(unsigned address) const;
 	byte peek(unsigned address) const;
 	void write(unsigned address, byte value);
 	const byte* getReadCacheLine(unsigned address) const;

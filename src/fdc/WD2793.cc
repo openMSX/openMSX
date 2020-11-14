@@ -87,7 +87,7 @@ void WD2793::reset(EmuTime::param time)
 	setCommandReg(0x03, time);
 }
 
-bool WD2793::getDTRQ(EmuTime::param time)
+bool WD2793::getDTRQ(EmuTime::param time) const
 {
 	return peekDTRQ(time);
 }
@@ -102,7 +102,7 @@ void WD2793::setDrqRate(unsigned trackLength)
 	drqTime.setFreq(trackLength * DiskDrive::ROTATIONS_PER_SECOND);
 }
 
-bool WD2793::getIRQ(EmuTime::param time)
+bool WD2793::getIRQ(EmuTime::param time) const
 {
 	return peekIRQ(time);
 }
@@ -218,7 +218,7 @@ void WD2793::setTrackReg(byte value, EmuTime::param /*time*/)
 	trackReg = value;
 }
 
-byte WD2793::getTrackReg(EmuTime::param time)
+byte WD2793::getTrackReg(EmuTime::param time) const
 {
 	return peekTrackReg(time);
 }
@@ -233,7 +233,7 @@ void WD2793::setSectorReg(byte value, EmuTime::param /*time*/)
 	sectorReg = value;
 }
 
-byte WD2793::getSectorReg(EmuTime::param time)
+byte WD2793::getSectorReg(EmuTime::param time) const
 {
 	return peekSectorReg(time);
 }

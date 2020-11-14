@@ -22,8 +22,8 @@ public:
 	void reset(EmuTime::param time);
 
 	byte getStatusReg(EmuTime::param time);
-	byte getTrackReg (EmuTime::param time);
-	byte getSectorReg(EmuTime::param time);
+	byte getTrackReg (EmuTime::param time) const;
+	byte getSectorReg(EmuTime::param time) const;
 	byte getDataReg  (EmuTime::param time);
 
 	byte peekStatusReg(EmuTime::param time) const;
@@ -36,8 +36,8 @@ public:
 	void setSectorReg (byte value, EmuTime::param time);
 	void setDataReg   (byte value, EmuTime::param time);
 
-	bool getIRQ (EmuTime::param time);
-	bool getDTRQ(EmuTime::param time);
+	bool getIRQ (EmuTime::param time) const;
+	bool getDTRQ(EmuTime::param time) const;
 
 	bool peekIRQ (EmuTime::param time) const;
 	bool peekDTRQ(EmuTime::param time) const;

@@ -111,7 +111,7 @@ void YM2148::setParityBit(bool /*enable*/, ParityBit /*parity*/)
 }
 
 // MSX program reads the status register.
-byte YM2148::readStatus(EmuTime::param /*time*/)
+byte YM2148::readStatus(EmuTime::param /*time*/) const
 {
 	return status;
 }

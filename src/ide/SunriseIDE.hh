@@ -31,7 +31,7 @@ private:
 	void writeControl(byte value);
 
 	byte readDataLow(EmuTime::param time);
-	byte readDataHigh(EmuTime::param time);
+	byte readDataHigh(EmuTime::param time) const;
 	word readData(EmuTime::param time);
 	byte readReg(nibble reg, EmuTime::param time);
 	void writeDataLow(byte value);
