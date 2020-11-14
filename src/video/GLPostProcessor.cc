@@ -183,8 +183,8 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 		//	r.srcStartY, r.srcEndY, r.lineWidth);
 		auto it = find_if_unguarded(textures,
 		                  EqualTupleValue<0>(r.lineWidth));
-		auto superImpose = superImposeVideoFrame
-		                 ? &superImposeTex : nullptr;
+		auto* superImpose = superImposeVideoFrame
+		                  ? &superImposeTex : nullptr;
 		currScaler->scaleImage(
 			it->second.tex, superImpose,
 			r.srcStartY, r.srcEndY, r.lineWidth, // src
@@ -326,7 +326,7 @@ void GLPostProcessor::uploadBlock(
 	mapped = pbo.mapWrite();
 	for (unsigned y = srcStartY; y < srcEndY; ++y) {
 		auto* dest = mapped + y * lineWidth;
-		auto* data = paintFrame->getLinePtr(y, lineWidth, dest);
+		const auto* data = paintFrame->getLinePtr(y, lineWidth, dest);
 		if (data != dest) {
 			memcpy(dest, data, lineWidth * sizeof(uint32_t));
 		}

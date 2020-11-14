@@ -318,7 +318,7 @@ void AfterCommand::afterInfo(span<const TclObject> /*tokens*/, TclObject& result
 	for (auto& cmd : afterCmds) {
 		str << cmd->getId() << ": ";
 		str << cmd->getType() << ' ';
-		if (auto cmd2 = dynamic_cast<const AfterTimedCmd*>(cmd.get())) {
+		if (const auto* cmd2 = dynamic_cast<const AfterTimedCmd*>(cmd.get())) {
 			str.precision(3);
 			str << std::fixed << std::showpoint << cmd2->getTime() << ' ';
 		}

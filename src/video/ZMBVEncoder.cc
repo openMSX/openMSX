@@ -272,7 +272,7 @@ void ZMBVEncoder::addXorFrame(const PixelFormat& pixelFormat, unsigned& workUsed
 		unsigned bestchange = compareBlock<P>(bestvx, bestvy, offset);
 		if (bestchange >= 4) {
 			int possibles = 64;
-			for (auto& v : vectorTable) {
+			for (const auto& v : vectorTable) {
 				if (possibleBlock<P>(v.x, v.y, offset) < 4) {
 					unsigned testchange = compareBlock<P>(v.x, v.y, offset);
 					if (testchange < bestchange) {
@@ -381,7 +381,7 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 	uint8_t* dest =
 		&newframe[pixelSize * (MAX_VECTOR + MAX_VECTOR * pitch)];
 	for (unsigned i = 0; i < height; ++i) {
-		auto* scaled = getScaledLine(frame, i, dest);
+		const auto* scaled = getScaledLine(frame, i, dest);
 		if (scaled != dest) memcpy(dest, scaled, lineWidth);
 		dest += linePitch;
 	}

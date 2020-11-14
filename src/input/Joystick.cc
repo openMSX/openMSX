@@ -235,7 +235,7 @@ byte Joystick::calcState()
 	if (joystick) {
 		int threshold = (deadSetting.getInt() * 32768) / 100;
 		auto& interp = configSetting.getInterpreter();
-		auto& dict   = configSetting.getValue();
+		const auto& dict   = configSetting.getValue();
 		if (getState(interp, dict, "A"    , threshold)) result &= ~JOY_BUTTONA;
 		if (getState(interp, dict, "B"    , threshold)) result &= ~JOY_BUTTONB;
 		if (getState(interp, dict, "UP"   , threshold)) result &= ~JOY_UP;
@@ -301,7 +301,7 @@ bool Joystick::getState(Interpreter& interp, const TclObject& dict,
 void Joystick::signalMSXEvent(const shared_ptr<const Event>& event,
                               EmuTime::param time)
 {
-	auto joyEvent = dynamic_cast<const JoystickEvent*>(event.get());
+	const auto* joyEvent = dynamic_cast<const JoystickEvent*>(event.get());
 	if (!joyEvent) return;
 
 	// TODO: It would be more efficient to make a dispatcher instead of
@@ -335,7 +335,7 @@ void Joystick::createEvent(EmuTime::param time, byte newStatus)
 // StateChangeListener
 void Joystick::signalStateChange(const shared_ptr<StateChange>& event)
 {
-	auto js = dynamic_cast<const JoyState*>(event.get());
+	const auto* js = dynamic_cast<const JoyState*>(event.get());
 	if (!js) return;
 
 	// TODO: It would be more efficient to make a dispatcher instead of

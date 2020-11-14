@@ -110,8 +110,8 @@ void GLHQLiteScaler::uploadBlock(
 
 	VLA_SSE_ALIGNED(Pixel, buf1_, lineWidth); auto* buf1 = buf1_;
 	VLA_SSE_ALIGNED(Pixel, buf2_, lineWidth); auto* buf2 = buf2_;
-	auto* curr = paintFrame.getLinePtr(srcStartY - 1, lineWidth, buf1);
-	auto* next = paintFrame.getLinePtr(srcStartY + 0, lineWidth, buf2);
+	const auto* curr = paintFrame.getLinePtr(srcStartY - 1, lineWidth, buf1);
+	const auto* next = paintFrame.getLinePtr(srcStartY + 0, lineWidth, buf2);
 	calcEdgesGL(curr, next, tmpBuf2, EdgeHQLite());
 
 	edgeBuffer.bind();

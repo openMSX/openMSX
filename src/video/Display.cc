@@ -146,7 +146,7 @@ void Display::detach(VideoSystemChangeListener& listener)
 
 Layer* Display::findActiveLayer() const
 {
-	for (auto& l : layers) {
+	for (auto* l : layers) {
 		if (l->getZ() == Layer::Z_MSX_ACTIVE) {
 			return l;
 		}
@@ -181,7 +181,7 @@ void Display::executeRT()
 int Display::signalEvent(const std::shared_ptr<const Event>& event)
 {
 	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
-		auto& ffe = checked_cast<const FinishFrameEvent&>(*event);
+		const auto& ffe = checked_cast<const FinishFrameEvent&>(*event);
 		if (ffe.needRender()) {
 			videoSystem->repaint();
 			reactor.getEventDistributor().distributeEvent(
@@ -212,7 +212,7 @@ int Display::signalEvent(const std::shared_ptr<const Event>& event)
 		// -When gaining the focus, this repaint does nothing as
 		//  the renderFrozen flag is still false
 		videoSystem->repaint();
-		auto& focusEvent = checked_cast<const FocusEvent&>(*event);
+		const auto& focusEvent = checked_cast<const FocusEvent&>(*event);
 		ad_printf("Setting renderFrozen to %d", !focusEvent.getGain());
 		renderFrozen = !focusEvent.getGain();
 	}
@@ -458,7 +458,7 @@ void Display::ScreenShotCmd::execute(span<const TclObject> tokens, TclObject& re
 				"Failed to take screenshot: ", e.getMessage());
 		}
 	} else {
-		auto videoLayer = dynamic_cast<VideoLayer*>(
+		auto* videoLayer = dynamic_cast<VideoLayer*>(
 			display.findActiveLayer());
 		if (!videoLayer) {
 			throw CommandException(

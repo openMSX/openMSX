@@ -53,7 +53,7 @@ public:
 	}
 	bool lessImpl(const Event& other) const override
 	{
-		auto& otherCmdEvent = checked_cast<const CliCommandEvent&>(other);
+		const auto& otherCmdEvent = checked_cast<const CliCommandEvent&>(other);
 		return getCommand() < otherCmdEvent.getCommand();
 	}
 private:
@@ -141,7 +141,7 @@ static string reply(const string& message, bool status)
 
 int CliConnection::signalEvent(const std::shared_ptr<const Event>& event)
 {
-	auto& commandEvent = checked_cast<const CliCommandEvent&>(*event);
+	const auto& commandEvent = checked_cast<const CliCommandEvent&>(*event);
 	if (commandEvent.getId() == this) {
 		try {
 			string result(commandController.executeCommand(

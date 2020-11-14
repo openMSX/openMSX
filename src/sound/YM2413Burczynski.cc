@@ -927,9 +927,9 @@ YM2413::YM2413()
 	: lfo_am_cnt(0), lfo_pm_cnt(0)
 {
 	if (false) {
-		for (auto& e : tlTab) std::cout << e << '\n';
+		for (const auto& e : tlTab) std::cout << e << '\n';
 		std::cout << '\n';
-		for (auto& e : sinTab) std::cout << e << '\n';
+		for (const auto& e : sinTab) std::cout << e << '\n';
 	}
 
 	memset(reg, 0, sizeof(reg)); // avoid UMR

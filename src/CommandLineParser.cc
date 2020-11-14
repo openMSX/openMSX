@@ -272,7 +272,7 @@ void CommandLineParser::parse(int argc, char** argv)
 			break;
 		}
 	}
-	for (auto& opData : view::values(options)) {
+	for (const auto& opData : view::values(options)) {
 		opData.option->parseDone();
 	}
 	if (!cmdLine.empty() && (parseStatus != EXIT)) {
@@ -393,7 +393,7 @@ static string formatSet(const vector<string_view>& inputSet, string::size_type c
 {
 	string outString;
 	string::size_type totalLength = 0; // ignore the starting spaces for now
-	for (auto& temp : inputSet) {
+	for (const auto& temp : inputSet) {
 		if (totalLength == 0) {
 			// first element ?
 			strAppend(outString, "    ", temp);

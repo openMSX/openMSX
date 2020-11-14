@@ -312,7 +312,7 @@ unsigned SCSIHD::writeSectors(unsigned& blocks)
 
 	try {
 		for (unsigned i = 0; i < numSectors; ++i) {
-			auto* sbuf = aligned_cast<const SectorBuffer*>(buffer);
+			const auto* sbuf = aligned_cast<const SectorBuffer*>(buffer);
 			writeSector(currentSector, sbuf[i]);
 			++currentSector;
 			--currentLength;

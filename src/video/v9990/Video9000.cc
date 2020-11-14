@@ -137,7 +137,7 @@ int Video9000::signalEvent(const std::shared_ptr<const Event>& event)
 	int video9000id = getVideoSource();
 
 	assert(event->getType() == OPENMSX_FINISH_FRAME_EVENT);
-	auto& ffe = checked_cast<const FinishFrameEvent&>(*event);
+	const auto& ffe = checked_cast<const FinishFrameEvent&>(*event);
 	if (ffe.isSkipped()) return 0;
 	if (videoSourceSetting.getSource() != video9000id) return 0;
 

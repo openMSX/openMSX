@@ -227,7 +227,7 @@ unsigned JoyMega::calcInitialState()
 // MSXEventListener
 void JoyMega::signalMSXEvent(const shared_ptr<const Event>& event, EmuTime::param time)
 {
-	auto joyEvent = dynamic_cast<const JoystickEvent*>(event.get());
+	const auto* joyEvent = dynamic_cast<const JoystickEvent*>(event.get());
 	if (!joyEvent) return;
 
 	// TODO: It would be more efficient to make a dispatcher instead of
@@ -236,7 +236,7 @@ void JoyMega::signalMSXEvent(const shared_ptr<const Event>& event, EmuTime::para
 
 	switch (event->getType()) {
 	case OPENMSX_JOY_AXIS_MOTION_EVENT: {
-		auto& mev = checked_cast<const JoystickAxisMotionEvent&>(*event);
+		const auto& mev = checked_cast<const JoystickAxisMotionEvent&>(*event);
 		int value = mev.getValue();
 		switch (mev.getAxis() & 1) {
 		case JoystickAxisMotionEvent::X_AXIS: // Horizontal
@@ -270,12 +270,12 @@ void JoyMega::signalMSXEvent(const shared_ptr<const Event>& event, EmuTime::para
 		break;
 	}
 	case OPENMSX_JOY_BUTTON_DOWN_EVENT: {
-		auto& butEv = checked_cast<const JoystickButtonEvent&>(*event);
+		const auto& butEv = checked_cast<const JoystickButtonEvent&>(*event);
 		createEvent(time, encodeButton(butEv.getButton(), cycleMask), 0);
 		break;
 	}
 	case OPENMSX_JOY_BUTTON_UP_EVENT: {
-		auto& butEv = checked_cast<const JoystickButtonEvent&>(*event);
+		const auto& butEv = checked_cast<const JoystickButtonEvent&>(*event);
 		createEvent(time, 0, encodeButton(butEv.getButton(), cycleMask));
 		break;
 	}
@@ -307,7 +307,7 @@ void JoyMega::createEvent(EmuTime::param time, unsigned newStatus)
 // StateChangeListener
 void JoyMega::signalStateChange(const shared_ptr<StateChange>& event)
 {
-	auto js = dynamic_cast<const JoyMegaState*>(event.get());
+	const auto* js = dynamic_cast<const JoyMegaState*>(event.get());
 	if (!js) return;
 
 	// TODO: It would be more efficient to make a dispatcher instead of

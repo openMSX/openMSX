@@ -282,7 +282,7 @@ void HardwareConfig::parseSlots()
 				} else {
 					ps = getSpecificFreePrimarySlot(-ps - 1);
 				}
-				auto mutableElem = const_cast<XMLElement*>(psElem);
+				auto* mutableElem = const_cast<XMLElement*>(psElem);
 				mutableElem->setAttribute("slot", strCat(ps));
 			}
 			createExpandedSlot(ps);
@@ -303,8 +303,8 @@ void HardwareConfig::parseSlots()
 byte HardwareConfig::parseSlotMap() const
 {
 	byte initialPrimarySlots = 0;
-	if (auto* slotmap = getConfig().findChild("slotmap")) {
-		for (auto* child : slotmap->getChildren("map")) {
+	if (const auto* slotmap = getConfig().findChild("slotmap")) {
+		for (const auto* child : slotmap->getChildren("map")) {
 			int page = child->getAttributeAsInt("page", -1);
 			if (page < 0 || page > 3) {
 				throw MSXException("Invalid or missing page in slotmap entry");
@@ -329,7 +329,7 @@ void HardwareConfig::createDevices()
 void HardwareConfig::createDevices(const XMLElement& elem,
 	const XMLElement* primary, const XMLElement* secondary)
 {
-	for (auto& c : elem.getChildren()) {
+	for (const auto& c : elem.getChildren()) {
 		const auto& childName = c.getName();
 		if (childName == "primary") {
 			createDevices(c, &c, secondary);

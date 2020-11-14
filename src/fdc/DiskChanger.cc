@@ -142,7 +142,7 @@ void DiskChanger::signalStateChange(const std::shared_ptr<StateChange>& event)
 	auto* commandEvent = dynamic_cast<MSXCommandEvent*>(event.get());
 	if (!commandEvent) return;
 
-	auto& tokens = commandEvent->getTokens();
+	const auto& tokens = commandEvent->getTokens();
 	if (tokens[0] == getDriveName()) {
 		if (tokens[1] == "eject") {
 			ejectDisk();

@@ -164,11 +164,11 @@ static inline void scaleSSE(
 	// Generated code seems more efficient when all address calculations
 	// are done in bytes. Negative loop counter allows for a more efficient
 	// loop-end test.
-	auto* in0  = reinterpret_cast<const char*>(in0_ ) +         width;
-	auto* in1  = reinterpret_cast<const char*>(in1_ ) +         width;
-	auto* in2  = reinterpret_cast<const char*>(in2_ ) +         width;
-	auto* out0 = reinterpret_cast<      char*>(out0_) + SCALE * width;
-	auto* out1 = reinterpret_cast<      char*>(out1_) + SCALE * width;
+	const auto* in0  = reinterpret_cast<const char*>(in0_ ) +         width;
+	const auto* in1  = reinterpret_cast<const char*>(in1_ ) +         width;
+	const auto* in2  = reinterpret_cast<const char*>(in2_ ) +         width;
+	      auto* out0 = reinterpret_cast<      char*>(out0_) + SCALE * width;
+	      auto* out1 = reinterpret_cast<      char*>(out1_) + SCALE * width;
 	ptrdiff_t x = -ptrdiff_t(width);
 
 	// Setup for first unit

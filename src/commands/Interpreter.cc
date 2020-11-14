@@ -167,7 +167,7 @@ int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
 		TclObject result;
 		try {
 			if (!command.isAllowedInEmptyMachine()) {
-				if (auto controller =
+				if (auto* controller =
 					dynamic_cast<MSXCommandController*>(
 						&command.getCommandController())) {
 					if (!controller->getMSXMotherBoard().getMachineConfig()) {

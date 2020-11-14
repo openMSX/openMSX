@@ -171,7 +171,7 @@ void CommandConsole::getCursorPosition(unsigned& xPosition, unsigned& yPosition)
 int CommandConsole::signalEvent(const std::shared_ptr<const Event>& event)
 {
 	if (!consoleSetting.getBoolean()) return 0;
-	auto& keyEvent = checked_cast<const KeyEvent&>(*event);
+	const auto& keyEvent = checked_cast<const KeyEvent&>(*event);
 
 	// If the console is open then don't pass the event to the MSX
 	// (whetever the (keyboard) event is). If the event has a meaning for

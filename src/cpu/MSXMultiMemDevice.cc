@@ -81,7 +81,7 @@ std::string MSXMultiMemDevice::getName() const
 }
 void MSXMultiMemDevice::getNameList(TclObject& result) const
 {
-	for (auto& r : ranges) {
+	for (const auto& r : ranges) {
 		const auto& name = r.device->getName();
 		if (!name.empty()) {
 			result.addListElement(name);
@@ -91,7 +91,7 @@ void MSXMultiMemDevice::getNameList(TclObject& result) const
 
 const MSXMultiMemDevice::Range& MSXMultiMemDevice::searchRange(unsigned address) const
 {
-	for (auto& r : ranges) {
+	for (const auto& r : ranges) {
 		if (isInside(address, r.base, r.size)) {
 			return r;
 		}

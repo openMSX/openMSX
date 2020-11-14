@@ -111,9 +111,9 @@ static inline void drawSSE2(
 	assert((reinterpret_cast<uintptr_t>(in1_) % sizeof(__m128i)) == 0);
 	assert((reinterpret_cast<uintptr_t>(in2_) % sizeof(__m128i)) == 0);
 	assert((reinterpret_cast<uintptr_t>(out_) % sizeof(__m128i)) == 0);
-	auto* in1 = reinterpret_cast<const char*>(in1_) + width;
-	auto* in2 = reinterpret_cast<const char*>(in2_) + width;
-	auto* out = reinterpret_cast<      char*>(out_) + width;
+	const auto* in1 = reinterpret_cast<const char*>(in1_) + width;
+	const auto* in2 = reinterpret_cast<const char*>(in2_) + width;
+	      auto* out = reinterpret_cast<      char*>(out_) + width;
 
 	__m128i f = _mm_set1_epi16(factor << 8);
 	ptrdiff_t x = -ptrdiff_t(width);
@@ -138,9 +138,9 @@ static inline void drawSSE2(
 {
 	width *= sizeof(uint16_t); // in bytes
 	assert(width >= 16);
-	auto* in1 = reinterpret_cast<const char*>(in1_) + width;
-	auto* in2 = reinterpret_cast<const char*>(in2_) + width;
-	auto* out = reinterpret_cast<      char*>(out_) + width;
+	const auto* in1 = reinterpret_cast<const char*>(in1_) + width;
+	const auto* in2 = reinterpret_cast<const char*>(in2_) + width;
+	      auto* out = reinterpret_cast<      char*>(out_) + width;
 
 	darkener.setFactor(factor);
 	const uint16_t* table = darkener.getTable();

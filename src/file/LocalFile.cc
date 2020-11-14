@@ -191,7 +191,7 @@ span<uint8_t> LocalFile::mmap()
 		                 MAP_PRIVATE, fileno(file.get()), 0));
 		// MAP_FAILED is #define'd using an old-style cast, we
 		// have to redefine it ourselves to avoid a warning
-		auto MY_MAP_FAILED = reinterpret_cast<void*>(-1);
+		auto* MY_MAP_FAILED = reinterpret_cast<void*>(-1);
 		if (mmem == MY_MAP_FAILED) {
 			throw FileException("Error mmapping file");
 		}

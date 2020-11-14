@@ -95,7 +95,7 @@ void AmdFlash::init(const string& name, const DeviceConfig& config, bool load, c
 		assert(rom);
 	}
 
-	auto* romTag = config.getXML()->findChild("rom");
+	const auto* romTag = config.getXML()->findChild("rom");
 	bool initialContentSpecified = romTag && romTag->findChild("sha1");
 
 	// check whether the loaded SRAM is empty, whilst initial content was specified
@@ -149,7 +149,7 @@ void AmdFlash::init(const string& name, const DeviceConfig& config, bool load, c
 		if (isSectorWritable(unsigned(i))) {
 			readAddress[i] = &(*ram)[writeAddress[i]];
 			if (!loaded) {
-				auto ramPtr = const_cast<byte*>(
+				auto* ramPtr = const_cast<byte*>(
 					&(*ram)[writeAddress[i]]);
 				if (offset >= romSize) {
 					// completely past end of rom

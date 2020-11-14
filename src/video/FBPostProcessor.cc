@@ -177,7 +177,7 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 	// c++ version
 	if (sizeof(Pixel) == 4) {
 		// optimized version for 32bpp
-		auto noise4 = reinterpret_cast<uint32_t*>(noise);
+		auto* noise4 = reinterpret_cast<uint32_t*>(noise);
 		for (size_t i = 0; i < width; ++i) {
 			buf[i] = addNoise4(buf[i], noise4[i]);
 		}

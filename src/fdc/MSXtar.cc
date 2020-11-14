@@ -177,8 +177,8 @@ static unsigned normalizeFAT(unsigned cluster)
 unsigned MSXtar::readFAT(unsigned clnr) const
 {
 	assert(!fatBuffer.empty()); // FAT must already be cached
-	auto* data = fatBuffer[0].raw;
-	auto* p = &data[(clnr * 3) / 2];
+	const auto* data = fatBuffer[0].raw;
+	const auto* p = &data[(clnr * 3) / 2];
 	unsigned result = (clnr & 1)
 	                ? (p[0] >> 4) + (p[1] << 4)
 	                : p[0] + ((p[1] & 0x0F) << 8);

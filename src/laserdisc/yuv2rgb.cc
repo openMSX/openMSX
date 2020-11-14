@@ -45,12 +45,12 @@ static inline void yuv2rgb_sse2(
 	// This routine calculates 32x2 RGBA pixels. Each output pixel uses a
 	// unique corresponding input Y value, but a group of 2x2 ouput pixels
 	// shares the same U and V input value.
-	auto* u    = reinterpret_cast<const __m128i*>(u_);
-	auto* v    = reinterpret_cast<const __m128i*>(v_);
-	auto* y0   = reinterpret_cast<const __m128i*>(y0_);
-	auto* y1   = reinterpret_cast<const __m128i*>(y1_);
-	auto* out0 = reinterpret_cast<      __m128i*>(out0_);
-	auto* out1 = reinterpret_cast<      __m128i*>(out1_);
+	const auto* u    = reinterpret_cast<const __m128i*>(u_);
+	const auto* v    = reinterpret_cast<const __m128i*>(v_);
+	const auto* y0   = reinterpret_cast<const __m128i*>(y0_);
+	const auto* y1   = reinterpret_cast<const __m128i*>(y1_);
+	      auto* out0 = reinterpret_cast<      __m128i*>(out0_);
+	      auto* out1 = reinterpret_cast<      __m128i*>(out1_);
 
 	// constants
 	const __m128i ZERO    = _mm_setzero_si128();

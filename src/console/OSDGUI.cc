@@ -55,7 +55,7 @@ void OSDGUI::OSDCommand::create(span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, AtLeast{4}, Prefix{2}, "type name ?property value ...?");
 	string_view type = tokens[2].getString();
-	auto& fullname = tokens[3];
+	const auto& fullname = tokens[3];
 	auto fullnameStr = fullname.getString();
 
 	auto& gui = OUTER(OSDGUI, osdCommand);

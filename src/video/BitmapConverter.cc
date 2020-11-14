@@ -131,7 +131,7 @@ void BitmapConverter<Pixel>::renderGraphic4(
 		// First write one pixel to get aligned
 		// Then write double pixels in a loop with 4 double pixels (is 8 single pixels) per iteration
 		// Finally write the last pixel unaligned
-		auto in  = reinterpret_cast<const unsigned*>(vramPtr0);
+		const auto* in  = reinterpret_cast<const unsigned*>(vramPtr0);
 		unsigned data = in[0];
 		if (OPENMSX_BIGENDIAN) {
 			pixelPtr[0] = palette16[(data >> 28) & 0x0F];
@@ -182,8 +182,8 @@ void BitmapConverter<Pixel>::renderGraphic4(
 		return;
 	}
 
-	auto out = reinterpret_cast<DPixel*>(pixelPtr);
-	auto in  = reinterpret_cast<const unsigned*>(vramPtr0);
+	      auto* out = reinterpret_cast<DPixel*>(pixelPtr);
+	const auto* in  = reinterpret_cast<const unsigned*>(vramPtr0);
 	for (unsigned i = 0; i < 256 / 8; ++i) {
 		// 8 pixels per iteration
 		unsigned data = in[i];
@@ -232,9 +232,9 @@ void BitmapConverter<Pixel>::renderGraphic6(
 	if (unlikely(!dPaletteValid)) {
 		calcDPalette();
 	}
-	auto out = reinterpret_cast<DPixel*>(pixelPtr);
-	auto in0 = reinterpret_cast<const unsigned*>(vramPtr0);
-	auto in1 = reinterpret_cast<const unsigned*>(vramPtr1);
+	      auto* out = reinterpret_cast<DPixel*>(pixelPtr);
+	const auto* in0 = reinterpret_cast<const unsigned*>(vramPtr0);
+	const auto* in1 = reinterpret_cast<const unsigned*>(vramPtr1);
 	for (unsigned i = 0; i < 512 / 16; ++i) {
 		// 16 pixels per iteration
 		unsigned data0 = in0[i];

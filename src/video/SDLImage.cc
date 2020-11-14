@@ -149,7 +149,7 @@ static void gradient(const unsigned* rgba, SDL_Surface& surface, unsigned border
 	setupInterp1(rgba[0], rgba[2], height, r0, g0, b0, a0, dr02, dg02, db02, da02);
 	setupInterp1(rgba[1], rgba[3], height, r1, g1, b1, a1, dr13, dg13, db13, da13);
 
-	auto buffer = static_cast<unsigned*>(surface.pixels);
+	auto* buffer = static_cast<unsigned*>(surface.pixels);
 	buffer += borderSize;
 	buffer += borderSize * (surface.pitch / sizeof(unsigned));
 	for (int y = 0; y < height; ++y) {
@@ -374,7 +374,7 @@ void SDLImage::draw(OutputSurface& output, gl::ivec2 pos, uint8_t r, uint8_t g, 
 	if (flipX) x -= w;
 	if (flipY) y -= h;
 
-	auto renderer = checked_cast<SDLOutputSurface&>(output).getSDLRenderer();
+	auto* renderer = checked_cast<SDLOutputSurface&>(output).getSDLRenderer();
 	SDL_SetTextureAlphaMod(texture.get(), alpha);
 	SDL_Rect dst = {x, y, w, h};
 	SDL_RenderCopy(renderer, texture.get(), nullptr, &dst);

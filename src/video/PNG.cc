@@ -18,14 +18,14 @@ namespace openmsx::PNG {
 
 static void handleError(png_structp png_ptr, png_const_charp error_msg)
 {
-	auto operation = reinterpret_cast<const char*>(
+	const auto* operation = reinterpret_cast<const char*>(
 		png_get_error_ptr(png_ptr));
 	throw MSXException("Error while ", operation, " PNG: ", error_msg);
 }
 
 static void handleWarning(png_structp png_ptr, png_const_charp warning_msg)
 {
-	auto operation = reinterpret_cast<const char*>(
+	const auto* operation = reinterpret_cast<const char*>(
 		png_get_error_ptr(png_ptr));
 	std::cerr << "Warning while " << operation << " PNG: "
 		<< warning_msg << '\n';
@@ -84,7 +84,7 @@ struct PNGReadHandle {
 
 static void readData(png_structp ctx, png_bytep area, png_size_t size)
 {
-	auto file = reinterpret_cast<File*>(png_get_io_ptr(ctx));
+	auto* file = reinterpret_cast<File*>(png_get_io_ptr(ctx));
 	file->read(area, size);
 }
 
@@ -283,13 +283,13 @@ struct PNGWriteHandle {
 
 static void writeData(png_structp ctx, png_bytep area, png_size_t size)
 {
-	auto file = reinterpret_cast<File*>(png_get_io_ptr(ctx));
+	auto* file = reinterpret_cast<File*>(png_get_io_ptr(ctx));
 	file->write(area, size);
 }
 
 static void flushData(png_structp ctx)
 {
-	auto file = reinterpret_cast<File*>(png_get_io_ptr(ctx));
+	auto* file = reinterpret_cast<File*>(png_get_io_ptr(ctx));
 	file->flush();
 }
 

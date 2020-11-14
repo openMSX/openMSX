@@ -29,7 +29,7 @@ static string subst(string_view path, string_view before, string_view after)
 static vector<string> getPathsHelper(const vector<string>& input)
 {
 	vector<string> result;
-	for (auto& s : input) {
+	for (const auto& s : input) {
 		if (StringOp::startsWith(s, USER_OPENMSX)) {
 			result.push_back(subst(s, USER_OPENMSX,
 			                       FileOperations::getUserOpenMSXDir()));
@@ -61,7 +61,7 @@ static string resolveHelper(const vector<string>& pathList,
 		return filepath;
 	}
 
-	for (auto& p : pathList) {
+	for (const auto& p : pathList) {
 		string name = FileOperations::join(p, filename);
 		assert(FileOperations::expandTilde(name) == name);
 		if (FileOperations::exists(name)) {

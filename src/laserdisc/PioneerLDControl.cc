@@ -163,9 +163,9 @@ void PioneerLDControl::videoIn(bool enabled)
 
 void PioneerLDControl::updateVideoSource()
 {
-	auto* videoSource = (videoEnabled && superimposing && laserdisc)
-	                  ? laserdisc->getRawFrame()
-	                  : nullptr;
+	const auto* videoSource = (videoEnabled && superimposing && laserdisc)
+	                        ? laserdisc->getRawFrame()
+	                        : nullptr;
 	vdp->setExternalVideoSource(videoSource);
 }
 

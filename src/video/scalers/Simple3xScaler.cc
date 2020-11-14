@@ -322,8 +322,8 @@ void Blur_1on3<Pixel>::blur_SSE(const Pixel* in_, Pixel* out_, size_t srcWidth)
 	__m128i C3C2 = _mm_shuffle_epi32(C2C3, 0x4E);
 
 	size_t tmp = srcWidth - 4;
-	auto* in  = reinterpret_cast<const char*>(in_  +     tmp);
-	auto* out = reinterpret_cast<      char*>(out_ + 3 * tmp);
+	const auto* in  = reinterpret_cast<const char*>(in_  +     tmp);
+	      auto* out = reinterpret_cast<      char*>(out_ + 3 * tmp);
 	auto x = -ptrdiff_t(tmp * sizeof(Pixel));
 
 	__m128i ZERO = _mm_setzero_si128();

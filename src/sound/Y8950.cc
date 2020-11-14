@@ -500,7 +500,7 @@ Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
 		}
 		std::cout << adjustRA[EG_MUTE] << "\n\n";
 
-		for (auto& e : dB2LinTab) std::cout << e << '\n';
+		for (const auto& e : dB2LinTab) std::cout << e << '\n';
 		std::cout << '\n';
 
 		for (int i = 0; i < (16 * 8); ++i) {
@@ -511,7 +511,7 @@ Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
 		}
 		std::cout << '\n';
 
-		for (auto& e : sinTable) std::cout << e << '\n';
+		for (const auto& e : sinTable) std::cout << e << '\n';
 		std::cout << '\n';
 
 		for (int i = 0; i < 16; ++i) {

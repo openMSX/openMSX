@@ -75,7 +75,7 @@ static void skipSep(string_view& str)
 static string_view nextToken(string_view& str)
 {
 	skipSep(str);
-	auto tokenBegin = str.data();
+	const auto* tokenBegin = str.data();
 	while (!str.empty() && str.front() != '\n' && !isSep(str.front())) {
 		// Pop non-separator character.
 		str.remove_prefix(1);

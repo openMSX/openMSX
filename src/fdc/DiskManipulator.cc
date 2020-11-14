@@ -292,7 +292,7 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 		if (tokens[1] == one_of("format", "create")) {
 			names.emplace_back("-dos1");
 		}
-		for (auto& d : drives) {
+		for (const auto& d : drives) {
 			const auto& name1 = d.driveName; // with prexix
 			const auto& name2 = d.drive->getContainerName(); // without prefix
 			append(names, {name1, name2});
@@ -498,7 +498,7 @@ string DiskManipulator::import(DriveSettings& driveData,
 
 	string messages;
 	auto& interp = getInterpreter();
-	for (auto& l : lists) {
+	for (const auto& l : lists) {
 		for (auto i : xrange(l.getListLength(interp))) {
 			auto s = FileOperations::expandTilde(l.getListIndex(interp, i).getString());
 			try {
@@ -533,7 +533,7 @@ void DiskManipulator::exprt(DriveSettings& driveData, string_view dirname,
 			// export all
 			workhorse->getDir(dirname);
 		} else {
-			for (auto& l : lists) {
+			for (const auto& l : lists) {
 				workhorse->getItemFromDir(dirname, l.getString());
 			}
 		}

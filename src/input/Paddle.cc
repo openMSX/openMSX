@@ -99,7 +99,7 @@ void Paddle::signalMSXEvent(const std::shared_ptr<const Event>& event,
 {
 	if (event->getType() != OPENMSX_MOUSE_MOTION_EVENT) return;
 
-	auto& mev = checked_cast<const MouseMotionEvent&>(*event);
+	const auto& mev = checked_cast<const MouseMotionEvent&>(*event);
 	constexpr int SCALE = 2;
 	int delta = mev.getX() / SCALE;
 	if (delta == 0) return;
@@ -111,7 +111,7 @@ void Paddle::signalMSXEvent(const std::shared_ptr<const Event>& event,
 // StateChangeListener
 void Paddle::signalStateChange(const std::shared_ptr<StateChange>& event)
 {
-	auto ps = dynamic_cast<PaddleState*>(event.get());
+	const auto* ps = dynamic_cast<const PaddleState*>(event.get());
 	if (!ps) return;
 	int newAnalog = analogValue + ps->getDelta();
 	analogValue = std::min(std::max(newAnalog, 0), 255);

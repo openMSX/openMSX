@@ -186,13 +186,13 @@ static vector<uint8_t> calcDelta(const uint8_t* oldBuf, const uint8_t* newBuf, s
 {
 	vector<uint8_t> result;
 
-	auto* p = oldBuf;
-	auto* q = newBuf;
-	auto* p_end = p + size;
-	auto* q_end = q + size;
+	const auto* p = oldBuf;
+	const auto* q = newBuf;
+	const auto* p_end = p + size;
+	const auto* q_end = q + size;
 
 	// scan equal bytes (possibly zero)
-	auto* q1 = q;
+	const auto* q1 = q;
 	std::tie(p, q) = scan_mismatch(p, p_end, q, q_end);
 	auto n1 = q - q1;
 	storeUleb(result, n1);
@@ -200,12 +200,12 @@ static vector<uint8_t> calcDelta(const uint8_t* oldBuf, const uint8_t* newBuf, s
 	while (q != q_end) {
 		assert(*p != *q);
 
-		auto* q2 = q;
+		const auto* q2 = q;
 	different:
 		std::tie(p, q) = scan_match(p + 1, p_end, q + 1, q_end);
 		auto n2 = q - q2;
 
-		auto* q3 = q;
+		const auto* q3 = q;
 		std::tie(p, q) = scan_mismatch(p, p_end, q, q_end);
 		auto n3 = q - q3;
 		if ((q != q_end) && (n3 <= 2)) goto different;

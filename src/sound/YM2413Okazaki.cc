@@ -652,10 +652,10 @@ static uint8_t inst_data[16 + 3][8] = {
 YM2413::YM2413()
 {
 	if (false) {
-		for (auto& e : dB2LinTab) std::cout << e << ' ';
+		for (const auto& e : dB2LinTab) std::cout << e << ' ';
 		std::cout << '\n';
 
-		for (auto& e : arAdjustTab) std::cout << e << ' ';
+		for (const auto& e : arAdjustTab) std::cout << e << ' ';
 		std::cout << '\n';
 
 		for (int i = 0; i < 4; ++i) {
@@ -666,9 +666,9 @@ YM2413::YM2413()
 		}
 		std::cout << '\n';
 
-		for (auto& e : fullSinTable) std::cout << e << ' ';
+		for (const auto& e : fullSinTable) std::cout << e << ' ';
 		std::cout << '\n';
-		for (auto& e : halfSinTable) std::cout << e << ' ';
+		for (const auto& e : halfSinTable) std::cout << e << ' ';
 		std::cout << '\n';
 
 		for (int i = 0; i < 16; ++i) {
@@ -679,7 +679,7 @@ YM2413::YM2413()
 		}
 		std::cout << '\n';
 
-		for (auto& e : slTab) std::cout << e << ' ';
+		for (const auto& e : slTab) std::cout << e << ' ';
 		std::cout << '\n';
 	}
 

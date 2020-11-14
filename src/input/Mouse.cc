@@ -247,7 +247,7 @@ void Mouse::signalMSXEvent(const shared_ptr<const Event>& event, EmuTime::param 
 {
 	switch (event->getType()) {
 	case OPENMSX_MOUSE_MOTION_EVENT: {
-		auto& mev = checked_cast<const MouseMotionEvent&>(*event);
+		const auto& mev = checked_cast<const MouseMotionEvent&>(*event);
 		if (mev.getX() || mev.getY()) {
 			// note: X/Y are negated, do this already in this
 			//  routine to keep replays bw-compat. In a new
@@ -258,7 +258,7 @@ void Mouse::signalMSXEvent(const shared_ptr<const Event>& event, EmuTime::param 
 		break;
 	}
 	case OPENMSX_MOUSE_BUTTON_DOWN_EVENT: {
-		auto& butEv = checked_cast<const MouseButtonEvent&>(*event);
+		const auto& butEv = checked_cast<const MouseButtonEvent&>(*event);
 		switch (butEv.getButton()) {
 		case MouseButtonEvent::LEFT:
 			createMouseStateChange(time, 0, 0, JOY_BUTTONA, 0);
@@ -273,7 +273,7 @@ void Mouse::signalMSXEvent(const shared_ptr<const Event>& event, EmuTime::param 
 		break;
 	}
 	case OPENMSX_MOUSE_BUTTON_UP_EVENT: {
-		auto& butEv = checked_cast<const MouseButtonEvent&>(*event);
+		const auto& butEv = checked_cast<const MouseButtonEvent&>(*event);
 		switch (butEv.getButton()) {
 		case MouseButtonEvent::LEFT:
 			createMouseStateChange(time, 0, 0, 0, JOY_BUTTONA);
@@ -302,7 +302,7 @@ void Mouse::createMouseStateChange(
 
 void Mouse::signalStateChange(const shared_ptr<StateChange>& event)
 {
-	auto ms = dynamic_cast<MouseState*>(event.get());
+	const auto* ms = dynamic_cast<const MouseState*>(event.get());
 	if (!ms) return;
 
 	// This is almost the same as

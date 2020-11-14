@@ -88,8 +88,8 @@ const TigerHash& TigerTree::calcHash(Node node, const std::function<void(size_t,
 			// interior node
 			auto left  = getLeftChild (node);
 			auto right = getRightChild(node);
-			auto& h1 = calcHash(left, progressCallback);
-			auto& h2 = calcHash(right, progressCallback);
+			const auto& h1 = calcHash(left, progressCallback);
+			const auto& h2 = calcHash(right, progressCallback);
 			tiger_int(h1, h2, entry.hash[n]);
 		} else {
 			// leaf node

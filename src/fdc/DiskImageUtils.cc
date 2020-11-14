@@ -71,7 +71,7 @@ static void setBootSector(MSXBootSector& boot, size_t nbSectors,
                           unsigned& firstDataSector, byte& descriptor, bool dos1)
 {
 	// start from the default bootblock ..
-	auto& defaultBootBlock = dos1 ? BootBlocks::dos1BootBlock : BootBlocks::dos2BootBlock;
+	const auto& defaultBootBlock = dos1 ? BootBlocks::dos1BootBlock : BootBlocks::dos2BootBlock;
 	memcpy(&boot, &defaultBootBlock, sizeof(boot));
 
 	// .. and fill-in image-size dependent parameters ..

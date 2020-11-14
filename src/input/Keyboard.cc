@@ -286,7 +286,7 @@ void Keyboard::signalMSXEvent(const shared_ptr<const Event>& event,
 
 void Keyboard::signalStateChange(const shared_ptr<StateChange>& event)
 {
-	auto kms = dynamic_cast<KeyMatrixState*>(event.get());
+	const auto* kms = dynamic_cast<const KeyMatrixState*>(event.get());
 	if (!kms) return;
 
 	userKeyMatrix[kms->getRow()] &= ~kms->getPress();
@@ -367,7 +367,7 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
 {
 	auto mode = keyboardSettings.getMappingMode();
 
-	auto& keyEvent = checked_cast<const KeyEvent&>(event);
+	const auto& keyEvent = checked_cast<const KeyEvent&>(event);
 	bool down = event.getType() == OPENMSX_KEY_DOWN_EVENT;
 	auto code = (mode == KeyboardSettings::POSITIONAL_MAPPING)
 	          ? keyEvent.getScanCode() : keyEvent.getKeyCode();

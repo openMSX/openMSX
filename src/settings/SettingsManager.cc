@@ -108,11 +108,11 @@ void SettingsManager::loadSettings(const XMLElement& config)
 	}
 
 	// load new values
-	auto* settingsElem = config.findChild("settings");
+	const auto* settingsElem = config.findChild("settings");
 	if (!settingsElem) return;
 	for (auto* s : settings) {
 		if (!s->needLoadSave()) continue;
-		if (auto* elem = settingsElem->findChildWithAttribute(
+		if (const auto* elem = settingsElem->findChildWithAttribute(
 		                "setting", "id", s->getFullName())) {
 			try {
 				s->setValue(TclObject(elem->getData()));

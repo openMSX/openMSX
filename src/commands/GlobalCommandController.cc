@@ -251,7 +251,7 @@ vector<string> GlobalCommandController::removeEscaping(
 	const vector<string>& input, bool keepLastIfEmpty)
 {
 	vector<string> result;
-	for (auto& s : input) {
+	for (const auto& s : input) {
 		if (!s.empty()) {
 			result.push_back(removeEscaping(s));
 		}
@@ -399,7 +399,7 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 		string_view cmd = tokens.front();
 		if (StringOp::startsWith(cmd, "::")) cmd.remove_prefix(2); // drop leading ::
 
-		if (auto v = lookup(commandCompleters, cmd)) {
+		if (auto* v = lookup(commandCompleters, cmd)) {
 			(*v)->tabCompletion(tokens);
 		} else {
 			TclObject command = makeTclList("openmsx::tabcompletion");
@@ -461,7 +461,7 @@ void GlobalCommandController::HelpCmd::execute(
 		break;
 	}
 	default: {
-		if (auto v = lookup(controller.commandCompleters, tokens[1].getString())) {
+		if (const auto* v = lookup(controller.commandCompleters, tokens[1].getString())) {
 			auto tokens2 = to_vector(view::transform(
 				view::drop(tokens, 1),
 				[](auto& t) { return string(t.getString()); }));

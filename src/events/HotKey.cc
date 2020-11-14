@@ -181,10 +181,10 @@ void HotKey::loadBindings(const XMLElement& config)
 	cmdMap = defaultMap;
 
 	// load bindings
-	auto* bindingsElement = config.findChild("bindings");
+	const auto* bindingsElement = config.findChild("bindings");
 	if (!bindingsElement) return;
 	auto copy = *bindingsElement; // dont iterate over changing container
-	for (auto& elem : copy.getChildren()) {
+	for (const auto& elem : copy.getChildren()) {
 		try {
 			auto& interp = commandController.getInterpreter();
 			if (elem.getName() == "bind") {
@@ -219,8 +219,8 @@ void HotKey::saveBindings(XMLElement& config) const
 	bindingsElement.removeAllChildren();
 
 	// add explicit bind's
-	for (auto& k : boundKeys) {
-		auto& info = *find_if_unguarded(cmdMap, EqualEvent(*k));
+	for (const auto& k : boundKeys) {
+		const auto& info = *find_if_unguarded(cmdMap, EqualEvent(*k));
 		auto& elem = bindingsElement.addChild("bind", info.command);
 		elem.addAttribute("key", k->toString());
 		if (info.repeat) {
@@ -231,7 +231,7 @@ void HotKey::saveBindings(XMLElement& config) const
 		}
 	}
 	// add explicit unbind's
-	for (auto& k : unboundKeys) {
+	for (const auto& k : unboundKeys) {
 		auto& elem = bindingsElement.addChild("unbind");
 		elem.addAttribute("key", k->toString());
 	}

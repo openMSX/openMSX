@@ -75,7 +75,7 @@ void XMLElement::removeAttribute(string_view attrName)
 std::vector<const XMLElement*> XMLElement::getChildren(string_view childName) const
 {
 	std::vector<const XMLElement*> result;
-	for (auto& c : children) {
+	for (const auto& c : children) {
 		if (c.getName() == childName) {
 			result.push_back(&c);
 		}
@@ -172,19 +172,19 @@ const string& XMLElement::getChildData(string_view childName) const
 string_view XMLElement::getChildData(string_view childName,
                                      string_view defaultValue) const
 {
-	auto* child = findChild(childName);
+	const auto* child = findChild(childName);
 	return child ? child->getData() : defaultValue;
 }
 
 bool XMLElement::getChildDataAsBool(string_view childName, bool defaultValue) const
 {
-	auto* child = findChild(childName);
+	const auto* child = findChild(childName);
 	return child ? StringOp::stringToBool(child->getData()) : defaultValue;
 }
 
 int XMLElement::getChildDataAsInt(string_view childName, int defaultValue) const
 {
-	auto* child = findChild(childName);
+	const auto* child = findChild(childName);
 	return child ? StringOp::stringToInt(child->getData()) : defaultValue;
 }
 
@@ -209,7 +209,7 @@ bool XMLElement::hasAttribute(string_view attrName) const
 
 const string& XMLElement::getAttribute(string_view attrName) const
 {
-	if (auto* value = findAttribute(attrName)) {
+	if (const auto* value = findAttribute(attrName)) {
 		return *value;
 	}
 	throw ConfigException("Missing attribute \"", attrName, "\".");
@@ -218,28 +218,28 @@ const string& XMLElement::getAttribute(string_view attrName) const
 string_view XMLElement::getAttribute(string_view attrName,
                                      string_view defaultValue) const
 {
-	auto* value = findAttribute(attrName);
+	const auto* value = findAttribute(attrName);
 	return value ? *value : defaultValue;
 }
 
 bool XMLElement::getAttributeAsBool(string_view attrName,
                                     bool defaultValue) const
 {
-	auto* value = findAttribute(attrName);
+	const auto* value = findAttribute(attrName);
 	return value ? StringOp::stringToBool(*value) : defaultValue;
 }
 
 int XMLElement::getAttributeAsInt(string_view attrName,
                                   int defaultValue) const
 {
-	auto* value = findAttribute(attrName);
+	const auto* value = findAttribute(attrName);
 	return value ? StringOp::stringToInt(*value) : defaultValue;
 }
 
 bool XMLElement::findAttributeInt(string_view attrName,
                                   unsigned& result) const
 {
-	if (auto* value = findAttribute(attrName)) {
+	if (const auto* value = findAttribute(attrName)) {
 		result = StringOp::stringToInt(*value);
 		return true;
 	} else {
@@ -269,7 +269,7 @@ void XMLElement::dump(string& result, unsigned indentNum) const
 		}
 	} else {
 		strAppend(result, ">\n");
-		for (auto& c : children) {
+		for (const auto& c : children) {
 			c.dump(result, indentNum + 2);
 		}
 		strAppend(result, spaces(indentNum), "</", getName(), ">\n");

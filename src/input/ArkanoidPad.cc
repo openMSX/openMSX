@@ -123,7 +123,7 @@ void ArkanoidPad::signalMSXEvent(const shared_ptr<const Event>& event,
 {
 	switch (event->getType()) {
 	case OPENMSX_MOUSE_MOTION_EVENT: {
-		auto& mEvent = checked_cast<const MouseMotionEvent&>(*event);
+		const auto& mEvent = checked_cast<const MouseMotionEvent&>(*event);
 		int newPos = std::min(POS_MAX,
 		                      std::max(POS_MIN,
 		                               dialpos + mEvent.getX() / SCALE));
@@ -160,7 +160,7 @@ void ArkanoidPad::signalMSXEvent(const shared_ptr<const Event>& event,
 // StateChangeListener
 void ArkanoidPad::signalStateChange(const shared_ptr<StateChange>& event)
 {
-	auto as = dynamic_cast<ArkanoidState*>(event.get());
+	const auto* as = dynamic_cast<const ArkanoidState*>(event.get());
 	if (!as) return;
 
 	dialpos += as->getDelta();

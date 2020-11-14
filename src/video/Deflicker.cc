@@ -93,8 +93,8 @@ static __m128i blend(__m128i x, __m128i y, Pixel blendMask)
 template<typename Pixel>
 static __m128i uload(const Pixel* ptr, ptrdiff_t byteOffst)
 {
-	auto* p8   = reinterpret_cast<const   char *>(ptr);
-	auto* p128 = reinterpret_cast<const __m128i*>(p8 + byteOffst);
+	const auto* p8   = reinterpret_cast<const   char *>(ptr);
+	const auto* p128 = reinterpret_cast<const __m128i*>(p8 + byteOffst);
 	return _mm_loadu_si128(p128);
 }
 

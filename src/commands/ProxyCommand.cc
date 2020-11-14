@@ -28,7 +28,7 @@ void ProxyCmd::execute(span<const TclObject> tokens, TclObject& result)
 {
 	if (Command* command = getMachineCommand()) {
 		if (!command->isAllowedInEmptyMachine()) {
-			auto controller = checked_cast<MSXCommandController*>(
+			auto* controller = checked_cast<MSXCommandController*>(
 				&command->getCommandController());
 			if (!controller->getMSXMotherBoard().getMachineConfig()) {
 				throw CommandException(

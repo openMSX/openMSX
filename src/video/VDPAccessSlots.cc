@@ -246,7 +246,7 @@ EmuTime getAccessSlot(
 {
 	VDP::VDPClock frame(frame_);
 	unsigned ticks = frame.getTicksTill_fast(time) % TICKS;
-	auto* tab = getTab(vdp);
+	const auto* tab = getTab(vdp);
 	return time + VDP::VDPClock::duration(tab[delta + ticks]);
 }
 
@@ -254,7 +254,7 @@ Calculator getCalculator(
 	EmuTime::param frame, EmuTime::param time, EmuTime::param limit,
 	const VDP& vdp)
 {
-	auto* tab = getTab(vdp);
+	const auto* tab = getTab(vdp);
 	return Calculator(frame, time, limit, tab);
 }
 

@@ -129,7 +129,7 @@ int RealTime::signalEvent(const std::shared_ptr<const Event>& event)
 		return 0;
 	}
 	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
-		auto& ffe = checked_cast<const FinishFrameEvent&>(*event);
+		const auto& ffe = checked_cast<const FinishFrameEvent&>(*event);
 		if (!ffe.needRender()) {
 			// sync but don't sleep
 			sync(getCurrentTime(), false);

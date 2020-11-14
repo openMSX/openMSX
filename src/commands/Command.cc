@@ -29,7 +29,7 @@ CommandCompleter::~CommandCompleter()
 
 GlobalCommandController& CommandCompleter::getGlobalCommandController() const
 {
-	if (auto globalCommandController =
+	if (auto* globalCommandController =
 	    dynamic_cast<GlobalCommandController*>(&commandController)) {
 		return *globalCommandController;
 	} else {

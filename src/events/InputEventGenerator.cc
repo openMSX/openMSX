@@ -427,7 +427,7 @@ void InputEventGenerator::updateGrab(bool grab)
 
 int InputEventGenerator::signalEvent(const std::shared_ptr<const Event>& event)
 {
-	auto& focusEvent = checked_cast<const FocusEvent&>(*event);
+	const auto& focusEvent = checked_cast<const FocusEvent&>(*event);
 	switch (escapeGrabState) {
 		case ESCAPE_GRAB_WAIT_CMD:
 			// nothing

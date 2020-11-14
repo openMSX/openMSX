@@ -85,8 +85,8 @@ static void blur1on2_SSE2(
 	assert((reinterpret_cast<uintptr_t>(out_) % sizeof(__m128i)) == 0);
 
 	ptrdiff_t x = -ptrdiff_t(width - sizeof(__m128i));
-	auto* in  = reinterpret_cast<const char*>(in_ ) -     x;
-	auto* out = reinterpret_cast<      char*>(out_) - 2 * x;
+	const auto* in  = reinterpret_cast<const char*>(in_ ) -     x;
+	      auto* out = reinterpret_cast<      char*>(out_) - 2 * x;
 
 	// Setup first iteration
 	__m128i c1 = _mm_set1_epi16(c1_);
@@ -253,8 +253,8 @@ static void blur1on1_SSE2(
 	assert((reinterpret_cast<uintptr_t>(out_) % sizeof(__m128i)) == 0);
 
 	ptrdiff_t x = -ptrdiff_t(width - sizeof(__m128i));
-	auto* in  = reinterpret_cast<const char*>(in_ ) - x;
-	auto* out = reinterpret_cast<      char*>(out_) - x;
+	const auto* in  = reinterpret_cast<const char*>(in_ ) - x;
+	      auto* out = reinterpret_cast<      char*>(out_) - x;
 
 	// Setup first iteration
 	__m128i c1 = _mm_set1_epi16(c1_);

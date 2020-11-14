@@ -60,7 +60,7 @@ void Debugger::unregisterDebuggable(string_view name, Debuggable& debuggable)
 
 Debuggable* Debugger::findDebuggable(string_view name)
 {
-	auto v = lookup(debuggables, name);
+	auto* v = lookup(debuggables, name);
 	return v ? *v : nullptr;
 }
 
@@ -169,7 +169,7 @@ void Debugger::transfer(Debugger& other)
 {
 	// Copy watchpoints to new machine.
 	assert(motherBoard.getCPUInterface().getWatchPoints().empty());
-	for (auto& wp : other.motherBoard.getCPUInterface().getWatchPoints()) {
+	for (const auto& wp : other.motherBoard.getCPUInterface().getWatchPoints()) {
 		setWatchPoint(wp->getCommandObj(), wp->getConditionObj(),
 		              wp->getType(),       wp->getBeginAddress(),
 		              wp->getEndAddress(), wp->onlyOnce(),
@@ -411,7 +411,7 @@ void Debugger::Cmd::listBreakPoints(
 {
 	string res;
 	auto& interface = debugger().motherBoard.getCPUInterface();
-	for (auto& bp : interface.getBreakPoints()) {
+	for (const auto& bp : interface.getBreakPoints()) {
 		TclObject line = makeTclList(
 			strCat("bp#", bp.getId()),
 			strCat("0x", hex_string<4>(bp.getAddress())),
@@ -516,7 +516,7 @@ void Debugger::Cmd::listWatchPoints(
 {
 	string res;
 	auto& interface = debugger().motherBoard.getCPUInterface();
-	for (auto& wp : interface.getWatchPoints()) {
+	for (const auto& wp : interface.getWatchPoints()) {
 		TclObject line = makeTclList(strCat("wp#", wp->getId()));
 		string type;
 		switch (wp->getType()) {
@@ -609,7 +609,7 @@ void Debugger::Cmd::listConditions(
 {
 	string res;
 	auto& interface = debugger().motherBoard.getCPUInterface();
-	for (auto& c : interface.getConditions()) {
+	for (const auto& c : interface.getConditions()) {
 		TclObject line = makeTclList(strCat("cond#", c.getId()),
 		                             c.getCondition(),
 		                             c.getCommand());

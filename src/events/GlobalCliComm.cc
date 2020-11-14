@@ -83,7 +83,7 @@ void GlobalCliComm::log(LogLevel level, std::string_view message)
 void GlobalCliComm::update(UpdateType type, std::string_view name, std::string_view value)
 {
 	assert(type < NUM_UPDATES);
-	if (auto v = lookup(prevValues[type], name)) {
+	if (auto* v = lookup(prevValues[type], name)) {
 		if (*v == value) {
 			return;
 		}

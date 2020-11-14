@@ -874,27 +874,27 @@ YM2151::YM2151(const std::string& name_, const std::string& desc,
 
 	if (0) {
 		std::cout << "tl_tab:";
-		for (auto& e : tl_tab) std::cout << ' ' << e;
+		for (const auto& e : tl_tab) std::cout << ' ' << e;
 		std::cout << '\n';
 
 		std::cout << "sin_tab:";
-		for (auto& e : sin_tab) std::cout << ' ' << e;
+		for (const auto& e : sin_tab) std::cout << ' ' << e;
 		std::cout << '\n';
 
 		std::cout << "d1l_tab:";
-		for (auto& e : d1l_tab) std::cout << ' ' << e;
+		for (const auto& e : d1l_tab) std::cout << ' ' << e;
 		std::cout << '\n';
 
 		std::cout << "freq:";
-		for (auto& e : freq) std::cout << ' ' << e;
+		for (const auto& e : freq) std::cout << ' ' << e;
 		std::cout << '\n';
 
 		std::cout << "dt1_freq:";
-		for (auto& e : dt1_freq) std::cout << ' ' << e;
+		for (const auto& e : dt1_freq) std::cout << ' ' << e;
 		std::cout << '\n';
 
 		std::cout << "noise_tab:";
-		for (auto& e : noise_tab) std::cout << ' ' << e;
+		for (const auto& e : noise_tab) std::cout << ' ' << e;
 		std::cout << '\n';
 	}
 

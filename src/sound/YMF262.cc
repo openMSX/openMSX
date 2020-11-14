@@ -1475,9 +1475,9 @@ YMF262::YMF262(const std::string& name_,
 	// For debugging: print out tables to be able to compare before/after
 	// when the calculation changes.
 	if (false) {
-		for (auto& e : tlTab) std::cout << e << '\n';
+		for (const auto& e : tlTab) std::cout << e << '\n';
 		std::cout << '\n';
-		for (auto& e : sin.tab) std::cout << e << '\n';
+		for (const auto& e : sin.tab) std::cout << e << '\n';
 	}
 
 	registerSound(config);

@@ -63,7 +63,7 @@ byte MSXMultiIODevice::peekIO(word port, EmuTime::param time) const
 {
 	// conflict: Handle this in the same way as readIO.
 	byte result = 0xFF;
-	for (auto& dev : devices) {
+	for (const auto& dev : devices) {
 		result &= dev->peekIO(port, time);
 	}
 	return result;

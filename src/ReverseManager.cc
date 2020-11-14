@@ -198,7 +198,7 @@ void ReverseManager::stop()
 EmuTime::param ReverseManager::getEndTime(const ReverseHistory& hist) const
 {
 	if (!hist.events.empty()) {
-		if (auto* ev = dynamic_cast<const EndLogEvent*>(
+		if (const auto* ev = dynamic_cast<const EndLogEvent*>(
 				hist.events.back().get())) {
 			// last log element is EndLogEvent, use that
 			return ev->getTime();

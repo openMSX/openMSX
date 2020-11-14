@@ -109,7 +109,7 @@ void NowindCommand::execute(span<const TclObject> tokens, TclObject& result)
 			strAppend(r, "nowind", i + 1, ": ");
 			if (dynamic_cast<NowindRomDisk*>(drives[i].get())) {
 				strAppend(r, "romdisk\n");
-			} else if (auto changer = dynamic_cast<DiskChanger*>(
+			} else if (const auto* changer = dynamic_cast<const DiskChanger*>(
 						drives[i].get())) {
 				string filename = changer->getDiskName().getOriginal();
 				strAppend(r, (filename.empty() ? "--empty--" : filename),
@@ -245,7 +245,7 @@ void NowindCommand::execute(span<const TclObject> tokens, TclObject& result)
 	auto prevSize = tmpDrives.size();
 	tmpDrives.clear();
 	for (auto& d : drives) {
-		if (auto disk = dynamic_cast<DiskChanger*>(d.get())) {
+		if (auto* disk = dynamic_cast<DiskChanger*>(d.get())) {
 			disk->createCommand();
 		}
 	}

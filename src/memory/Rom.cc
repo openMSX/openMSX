@@ -89,8 +89,8 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 	auto sums      = config.getChildren("sha1");
 	auto filenames = config.getChildren("filename");
-	auto* resolvedFilenameElem = config.findChild("resolvedFilename");
-	auto* resolvedSha1Elem     = config.findChild("resolvedSha1");
+	const auto* resolvedFilenameElem = config.findChild("resolvedFilename");
+	const auto* resolvedSha1Elem     = config.findChild("resolvedSha1");
 	if (config.findChild("firstblock")) {
 		// part of the TurboR main ROM
 		//  If there is a firstblock/lastblock tag, (only) use these to
@@ -222,7 +222,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	}
 
 	if (size != 0) {
-		if (auto* patchesElem = config.findChild("patches")) {
+		if (const auto* patchesElem = config.findChild("patches")) {
 			// calculate before content is altered
 			getOriginalSHA1();
 
@@ -299,7 +299,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 	// This must come after we store the 'resolvedSha1', because on
 	// loadstate we use that tag to search the complete rom in a filepool.
-	if (auto* windowElem = config.findChild("window")) {
+	if (const auto* windowElem = config.findChild("window")) {
 		unsigned windowBase = windowElem->getAttributeAsInt("base", 0);
 		unsigned windowSize = windowElem->getAttributeAsInt("size", size);
 		if ((windowBase + windowSize) > size) {
@@ -324,7 +324,7 @@ bool Rom::checkSHA1(const XMLElement& config) const
 	if (sums.empty()) {
 		return true;
 	}
-	auto& sha1sum = getOriginalSHA1();
+	const auto& sha1sum = getOriginalSHA1();
 	return ranges::any_of(sums, [&](auto& s) {
 		return Sha1Sum(s->getData()) == sha1sum;
 	});

@@ -313,7 +313,7 @@ void CartridgeSlotManager::CartCmd::execute(
 	}
 	if (tokens.size() == 1) {
 		// query name of cartridge
-		auto* extConf = getExtensionConfig(cartname);
+		const auto* extConf = getExtensionConfig(cartname);
 		result.addListElement(strCat(cartname, ':'),
 		                      extConf ? extConf->getName() : string{});
 		if (!extConf) {

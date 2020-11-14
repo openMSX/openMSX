@@ -1156,15 +1156,15 @@ void MSXMotherBoard::serialize(Archive& ar, unsigned version)
 	}
 	ar.serialize("cpuInterface", getCPUInterface());
 
-	if (auto port = dynamic_cast<CassettePort*>(&getCassettePort())) {
+	if (auto* port = dynamic_cast<CassettePort*>(&getCassettePort())) {
 		ar.serialize("cassetteport", *port);
 	}
 	if (ar.versionAtLeast(version, 4)) {
-		if (auto port = dynamic_cast<JoystickPort*>(
+		if (auto* port = dynamic_cast<JoystickPort*>(
 				joystickPort[0].get())) {
 			ar.serialize("joystickportA", *port);
 		}
-		if (auto port = dynamic_cast<JoystickPort*>(
+		if (auto* port = dynamic_cast<JoystickPort*>(
 				joystickPort[1].get())) {
 			ar.serialize("joystickportB", *port);
 		}

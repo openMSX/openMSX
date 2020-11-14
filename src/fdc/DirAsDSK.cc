@@ -48,8 +48,8 @@ unsigned DirAsDSK::readFATHelper(const SectorBuffer* fatBuf, unsigned cluster) c
 {
 	assert(FIRST_CLUSTER <= cluster);
 	assert(cluster < maxCluster);
-	auto* buf = fatBuf[0].raw;
-	auto* p = &buf[(cluster * 3) / 2];
+	const auto* buf = fatBuf[0].raw;
+	const auto* p = &buf[(cluster * 3) / 2];
 	unsigned result = (cluster & 1)
 	                ? (p[0] >> 4) + (p[1] << 4)
 	                : p[0] + ((p[1] & 0x0F) << 8);
@@ -1157,7 +1157,7 @@ void DirAsDSK::exportToHost(DirIndex dirIndex, DirIndex dirDirIndex)
 	}
 	const char* msxName = msxDir(dirIndex).filename;
 	string hostName;
-	if (auto v = lookup(mapDirs, dirIndex)) {
+	if (auto* v = lookup(mapDirs, dirIndex)) {
 		// Hostname is already known.
 		hostName = v->hostName;
 	} else {
@@ -1170,7 +1170,7 @@ void DirAsDSK::exportToHost(DirIndex dirIndex, DirIndex dirDirIndex)
 		string hostSubDir;
 		if (dirDirIndex.sector != 0) {
 			// Not the msx root directory.
-			auto v2 = lookup(mapDirs, dirDirIndex);
+			auto* v2 = lookup(mapDirs, dirDirIndex);
 			assert(v2);
 			hostSubDir = v2->hostName;
 			assert(!StringOp::endsWith(hostSubDir, '/'));
@@ -1276,7 +1276,7 @@ void DirAsDSK::writeDIRSector(unsigned sector, DirIndex dirDirIndex,
 {
 	// Look for changed directory entries.
 	for (unsigned idx = 0; idx < DIR_ENTRIES_PER_SECTOR; ++idx) {
-		auto& newEntry = buf.dirEntry[idx];
+		const auto& newEntry = buf.dirEntry[idx];
 		DirIndex dirIndex(sector, idx);
 		if (memcmp(&msxDir(dirIndex), &newEntry, sizeof(newEntry)) != 0) {
 			writeDIREntry(dirIndex, dirDirIndex, newEntry);
@@ -1337,7 +1337,7 @@ void DirAsDSK::writeDataSector(unsigned sector, const SectorBuffer& buf)
 	// Get corresponding directory entry.
 	DirIndex dirIndex = getDirEntryForCluster(startCluster);
 	// no need to check for 'dirIndex.sector == unsigned(-1)'
-	auto v = lookup(mapDirs, dirIndex);
+	auto* v = lookup(mapDirs, dirIndex);
 	if (!v) {
 		// This sector was not mapped to a file, nothing more to do.
 		return;

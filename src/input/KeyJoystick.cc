@@ -115,7 +115,7 @@ void KeyJoystick::signalMSXEvent(const shared_ptr<const Event>& event,
 	switch (event->getType()) {
 	case OPENMSX_KEY_DOWN_EVENT:
 	case OPENMSX_KEY_UP_EVENT: {
-		auto& keyEvent = checked_cast<const KeyEvent&>(*event);
+		const auto& keyEvent = checked_cast<const KeyEvent&>(*event);
 		auto key = static_cast<Keys::KeyCode>(
 			int(keyEvent.getKeyCode()) & int(Keys::K_MASK));
 		if (event->getType() == OPENMSX_KEY_DOWN_EVENT) {
@@ -149,7 +149,7 @@ void KeyJoystick::signalMSXEvent(const shared_ptr<const Event>& event,
 // StateChangeListener
 void KeyJoystick::signalStateChange(const shared_ptr<StateChange>& event)
 {
-	auto kjs = dynamic_cast<const KeyJoyState*>(event.get());
+	const auto* kjs = dynamic_cast<const KeyJoyState*>(event.get());
 	if (!kjs) return;
 	if (kjs->getName() != name) return;
 

@@ -527,7 +527,7 @@ void Reactor::run(CommandLineParser& parser)
 	}
 
 	// execute startup scripts
-	for (auto& s : parser.getStartupScripts()) {
+	for (const auto& s : parser.getStartupScripts()) {
 		try {
 			commandController.source(userFileContext().resolve(s));
 		} catch (FileException& e) {
@@ -535,7 +535,7 @@ void Reactor::run(CommandLineParser& parser)
 			                 e.getMessage());
 		}
 	}
-	for (auto& cmd : parser.getStartupCommands()) {
+	for (const auto& cmd : parser.getStartupCommands()) {
 		try {
 			commandController.executeCommand(cmd);
 		} catch (CommandException& e) {
@@ -1081,7 +1081,7 @@ void ConfigInfo::execute(span<const TclObject> tokens, TclObject& result) const
 			auto config = HardwareConfig::loadConfig(
 				configName, tokens[2].getString());
 			if (auto* info = config.findChild("info")) {
-				for (auto& i : info->getChildren()) {
+				for (const auto& i : info->getChildren()) {
 					result.addDictKeyValue(i.getName(), i.getData());
 				}
 			}

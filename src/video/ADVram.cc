@@ -20,7 +20,7 @@ void ADVram::init()
 {
 	MSXDevice::init();
 
-	auto& refs = getReferences();
+	const auto& refs = getReferences();
 	if (refs.size() != 1) {
 		throw MSXException("Invalid ADVRAM configuration: "
 		                   "need reference to VDP device.");

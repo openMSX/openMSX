@@ -110,7 +110,7 @@ vector<RawTrack::Sector> RawTrack::decodeAll() const
 {
 	// only complete sectors (header + data block)
 	vector<Sector> result;
-	for (auto& i : idam) {
+	for (const auto& i : idam) {
 		Sector sector;
 		if (decodeSectorImpl(i, sector) &&
 		    (sector.dataIdx != -1)) {
@@ -143,7 +143,7 @@ bool RawTrack::decodeNextSector(unsigned startIdx, Sector& sector) const
 bool RawTrack::decodeSector(byte sectorNum, Sector& sector) const
 {
 	// only complete sectors (header + data block)
-	for (auto& i : idam) {
+	for (const auto& i : idam) {
 		if (decodeSectorImpl(i, sector) &&
 		    (sector.sector == sectorNum) &&
 		    (sector.dataIdx != -1)) {

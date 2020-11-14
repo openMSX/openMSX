@@ -61,13 +61,13 @@ unsigned OutputArchiveBase2::generateID2(
 
 unsigned OutputArchiveBase2::getID1(const void* p)
 {
-	auto v = lookup(polyIdMap, p);
+	auto* v = lookup(polyIdMap, p);
 	return v ? *v : 0;
 }
 unsigned OutputArchiveBase2::getID2(
 	const void* p, const std::type_info& typeInfo)
 {
-	auto v = lookup(idMap, std::pair(p, std::type_index(typeInfo)));
+	auto* v = lookup(idMap, std::pair(p, std::type_index(typeInfo)));
 	return v ? *v : 0;
 }
 
@@ -76,7 +76,7 @@ template<typename Derived>
 void OutputArchiveBase<Derived>::serialize_blob(
 	const char* tag, const void* data_, size_t len, bool /*diff*/)
 {
-	auto* data = static_cast<const uint8_t*>(data_);
+	const auto* data = static_cast<const uint8_t*>(data_);
 
 	string encoding;
 	string tmp;
@@ -114,7 +114,7 @@ template class OutputArchiveBase<XmlOutputArchive>;
 
 void* InputArchiveBase2::getPointer(unsigned id)
 {
-	auto v = lookup(idMap, id);
+	auto* v = lookup(idMap, id);
 	return v ? *v : nullptr;
 }
 
@@ -503,7 +503,7 @@ void XmlInputArchive::load(char& c)
 
 void XmlInputArchive::beginTag(const char* tag)
 {
-	auto* child = elems.back().first->findNextChild(
+	const auto* child = elems.back().first->findNextChild(
 		tag, elems.back().second);
 	if (!child) {
 		string path;
