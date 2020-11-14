@@ -31,6 +31,7 @@
 #include "likely.hh"
 #include "Math.hh"
 #include "one_of.hh"
+#include "ranges.hh"
 #include "unreachable.hh"
 #include <algorithm>
 #include <array>
@@ -146,13 +147,10 @@ void YM2413::reset()
 	eg_timer_shift_stop = false;
 	eg_kon[0] = eg_kon[1] = eg_off[0] = eg_off[1] = false;
 
-	for (int i = 0; i < 18; ++i) {
-		pg_phase[i] = 0;
-	}
+	ranges::fill(pg_phase, 0);
+	ranges::fill(op_fb1, 0);
+	ranges::fill(op_fb2, 0);
 
-	for (int i = 0; i < 9; ++i) {
-		op_fb1[i] = op_fb2[i] = 0;
-	}
 	op_mod = 0;
 	op_phase[0] = op_phase[1] = 0;
 
@@ -175,9 +173,7 @@ void YM2413::reset()
 
 	delay6 = delay7 = delay10 = delay11 = delay12 = 0;
 
-	for (int i = 0; i < 64; ++i) {
-		regs[i] = 0;
-	}
+	ranges::fill(regs, 0);
 	latch = 0;
 }
 

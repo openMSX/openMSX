@@ -1,4 +1,5 @@
 #include "YM2413OriginalNukeYKT.hh"
+#include "ranges.hh"
 #include "serialize.hh"
 #include <cassert>
 
@@ -13,9 +14,7 @@ YM2413::YM2413()
 void YM2413::reset()
 {
 	OPLL_Reset(&opll, opll_type_ym2413b);
-	for (int i = 0; i < 64; ++i) {
-		regs[i] = 0;
-	}
+	ranges::fill(regs, 0);
 }
 
 void YM2413::generateChannels(float* out_[9 + 5], uint32_t n)
@@ -45,8 +44,7 @@ void YM2413::generateChannels(float* out_[9 + 5], uint32_t n)
 	};
 
 	assert(n != 0);
-	for (uint32_t i = 0; i < 18; ++i) {
-		auto& write = writes[i];
+	for (auto& write : writes) {
 		if (write.port != uint8_t(-1)) {
 			OPLL_Write(&opll, write.port, write.value);
 			write.port = uint8_t(-1);
