@@ -380,9 +380,9 @@ ALWAYS_INLINE int compress_impl(const uint8_t* src, uint8_t* const dst, const in
 			int step = 1;
 			int searchMatchNb = ACCELERATION << SKIP_TRIGGER;
 			while (true) {
-				uint32_t h = forwardH;
-				uint32_t current = uint32_t(forwardIp - src);
-				uint32_t matchIndex = hashTable.getIndexOnHash(h);
+				auto h = forwardH;
+				auto current = uint32_t(forwardIp - src);
+				auto matchIndex = hashTable.getIndexOnHash(h);
 				ip = forwardIp;
 				forwardIp += step;
 				step = searchMatchNb++ >> SKIP_TRIGGER;
@@ -410,7 +410,7 @@ ALWAYS_INLINE int compress_impl(const uint8_t* src, uint8_t* const dst, const in
 		}
 
 		// Encode Literals
-		unsigned litLength = unsigned(ip - anchor);
+		auto litLength = unsigned(ip - anchor);
 		uint8_t* token = op++;
 		if (litLength >= RUN_MASK) {
 			int len = int(litLength - RUN_MASK);
@@ -475,9 +475,9 @@ _next_match:
 				goto _next_match;
 			}
 		} else { // byU16 or byU32
-			uint32_t h = hashTable.hashPosition(ip);
-			uint32_t current = uint32_t(ip - src);
-			uint32_t matchIndex = hashTable.getIndexOnHash(h);
+			auto h = hashTable.hashPosition(ip);
+			auto current = uint32_t(ip - src);
+			auto matchIndex = hashTable.getIndexOnHash(h);
 			match = src + matchIndex;
 			hashTable.putIndexOnHash(current, h);
 			if ((L64K || (matchIndex + DISTANCE_MAX >= current)) &&
@@ -494,7 +494,7 @@ _next_match:
 
 _last_literals:
 	// Encode Last Literals
-	size_t lastRun = size_t(iend - anchor);
+	auto lastRun = size_t(iend - anchor);
 	if (lastRun >= RUN_MASK) {
 		size_t accumulator = lastRun - RUN_MASK;
 		*op++ = RUN_MASK << ML_BITS;

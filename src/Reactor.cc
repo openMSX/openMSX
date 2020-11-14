@@ -1144,7 +1144,7 @@ void SoftwareInfoTopic::execute(
 		throw CommandException("Wrong number of parameters");
 	}
 
-	Sha1Sum sha1sum = Sha1Sum(tokens[2].getString());
+	Sha1Sum sha1sum(tokens[2].getString());
 	auto& romDatabase = reactor.getSoftwareDatabase();
 	const RomInfo* romInfo = romDatabase.fetchRomInfo(sha1sum);
 	if (!romInfo) {

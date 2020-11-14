@@ -327,7 +327,7 @@ ResampleCoeffs::Table ResampleCoeffs::calcTable(
 
 	double floatIncr = (ratio > 1.0) ? INDEX_INC / ratio : INDEX_INC;
 	double normFactor = floatIncr / INDEX_INC;
-	FilterIndex increment = FilterIndex(floatIncr);
+	auto increment = FilterIndex(floatIncr);
 	FilterIndex maxFilterIndex(COEFF_HALF_LEN);
 
 	int min_idx = -maxFilterIndex.divAsInt(increment);
