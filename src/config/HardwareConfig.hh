@@ -36,7 +36,7 @@ public:
 		MSXMotherBoard& motherBoard, std::string machineName);
 	static std::unique_ptr<HardwareConfig> createExtensionConfig(
 		MSXMotherBoard& motherBoard, std::string extensionName,
-		std::string slotname);
+		std::string_view slotname);
 	static std::unique_ptr<HardwareConfig> createRomConfig(
 		MSXMotherBoard& motherBoard, std::string romfile,
 		std::string slotname, span<const TclObject> options);
@@ -87,7 +87,7 @@ private:
 	int getSpecificFreePrimarySlot(unsigned slot);
 	void addDevice(std::unique_ptr<MSXDevice> device);
 	void setName(std::string_view proposedName);
-	void setSlot(std::string slotname);
+	void setSlot(std::string_view slotname);
 
 	MSXMotherBoard& motherBoard;
 	std::string hwName;

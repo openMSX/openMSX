@@ -38,14 +38,14 @@ unique_ptr<HardwareConfig> HardwareConfig::createMachineConfig(
 }
 
 unique_ptr<HardwareConfig> HardwareConfig::createExtensionConfig(
-	MSXMotherBoard& motherBoard, string extensionName, string slotname)
+	MSXMotherBoard& motherBoard, string extensionName, std::string_view slotname)
 {
 	auto result = std::make_unique<HardwareConfig>(
 		motherBoard, move(extensionName));
 	result->load("extensions");
 	result->setName(result->hwName);
 	result->type = HardwareConfig::Type::EXTENSION;
-	result->setSlot(move(slotname));
+	result->setSlot(slotname);
 	return result;
 }
 
@@ -403,13 +403,13 @@ void HardwareConfig::setName(string_view proposedName)
 	}
 }
 
-void HardwareConfig::setSlot(string slotname)
+void HardwareConfig::setSlot(std::string_view slotname)
 {
 	for (auto& psElem : getDevicesElem().getChildren("primary")) {
 		const auto& primSlot = psElem->getAttribute("slot");
 		if (primSlot == "any") {
 			auto& mutableElem = const_cast<XMLElement*&>(psElem);
-			mutableElem->setAttribute("slot", move(slotname));
+			mutableElem->setAttribute("slot", std::string(slotname));
 		}
 	}
 }

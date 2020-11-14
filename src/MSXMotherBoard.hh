@@ -108,7 +108,7 @@ public:
 	using Extensions = std::vector<std::unique_ptr<HardwareConfig>>;
 	const Extensions& getExtensions() const { return extensions; }
 	HardwareConfig* findExtension(std::string_view extensionName);
-	std::string loadExtension(std::string_view extensionName, std::string slotname);
+	std::string loadExtension(std::string_view extensionName, std::string_view slotname);
 	std::string insertExtension(std::string_view name,
 	                            std::unique_ptr<HardwareConfig> extension);
 	void removeExtension(const HardwareConfig& extension);
