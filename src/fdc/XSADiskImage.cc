@@ -119,8 +119,8 @@ void XSAExtractor::chkHeader()
 {
 	// read original length (little endian)
 	unsigned outBufLen = 0;
-	for (int i = 0, base = 1; i < 4; ++i, base <<= 8) {
-		outBufLen += base * charIn();
+	for (int i = 0; i < 4; ++i) {
+		outBufLen |= charIn() << (8 * i);
 	}
 	sectors = (outBufLen + 511) / 512;
 	outBuf.resize(sectors);
