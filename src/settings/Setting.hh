@@ -19,7 +19,7 @@ class BaseSetting
 {
 protected:
 	explicit BaseSetting(std::string_view name);
-	explicit BaseSetting(const TclObject& name);
+	explicit BaseSetting(TclObject name);
 	~BaseSetting() = default;
 
 public:

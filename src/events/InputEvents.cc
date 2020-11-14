@@ -417,10 +417,10 @@ TclObject OsdControlPressEvent::toTclList() const
 
 // class GroupEvent
 
-GroupEvent::GroupEvent(EventType type_, std::vector<EventType> typesToMatch_, const TclObject& tclListComponents_)
+GroupEvent::GroupEvent(EventType type_, std::vector<EventType> typesToMatch_, TclObject tclListComponents_)
 	: Event(type_)
 	, typesToMatch(std::move(typesToMatch_))
-	, tclListComponents(tclListComponents_)
+	, tclListComponents(std::move(tclListComponents_))
 {
 }
 

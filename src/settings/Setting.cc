@@ -22,8 +22,8 @@ BaseSetting::BaseSetting(string_view name)
 {
 }
 
-BaseSetting::BaseSetting(const TclObject& name)
-	: fullName(name)
+BaseSetting::BaseSetting(TclObject name)
+	: fullName(std::move(name))
 	, baseName(fullName)
 {
 }

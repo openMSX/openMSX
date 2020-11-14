@@ -55,7 +55,7 @@ public:
 	Display& getDisplay() const { return display; }
 
 protected:
-	OSDWidget(Display& display, const TclObject& name);
+	OSDWidget(Display& display, TclObject name);
 	void invalidateChildren();
 	bool needSuppressErrors() const;
 
