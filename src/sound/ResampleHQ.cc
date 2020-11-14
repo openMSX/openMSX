@@ -60,7 +60,7 @@ private:
 	ResampleCoeffs() = default;
 	~ResampleCoeffs();
 
-	Table calcTable(double ratio, int16_t* permute, unsigned& filterLen);
+	static Table calcTable(double ratio, int16_t* permute, unsigned& filterLen);
 
 	struct Element {
 		double ratio;

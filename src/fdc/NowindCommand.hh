@@ -27,7 +27,6 @@ public:
 		MSXMotherBoard& motherBoard) const;
 
 private:
-	unsigned searchRomdisk(const NowindHost::Drives& drives) const;
 	void processHdimage(const std::string& hdimage,
 	                    NowindHost::Drives& drives) const;
 	NowindInterface& interface;

@@ -90,13 +90,6 @@ public:
 	CliConnection* getConnection() const { return connection; }
 
 private:
-	void split(std::string_view str,
-	           std::vector<std::string>& tokens, char delimiter);
-	std::string removeEscaping(const std::string& str);
-	std::vector<std::string> removeEscaping(
-		const std::vector<std::string>& input, bool keepLastIfEmpty);
-	std::string addEscaping(const std::string& str, bool quote, bool finished);
-
 	void tabCompletion(std::vector<std::string>& tokens);
 
 	using ProxySettings =

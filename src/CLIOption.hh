@@ -16,9 +16,9 @@ public:
 
 protected:
 	~CLIOption() = default;
-	std::string getArgument(const std::string& option,
-	                        span<std::string>& cmdLine) const;
-	std::string peekArgument(const span<std::string>& cmdLine) const;
+	static std::string getArgument(const std::string& option,
+	                               span<std::string>& cmdLine);
+	static std::string peekArgument(const span<std::string>& cmdLine);
 };
 
 class CLIFileType

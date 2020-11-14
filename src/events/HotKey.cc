@@ -484,7 +484,7 @@ HotKey::BindCmd::BindCmd(CommandController& commandController_, HotKey& hotKey_,
 {
 }
 
-string HotKey::BindCmd::formatBinding(const HotKey::HotKeyInfo& info)
+static string formatBinding(const HotKey::HotKeyInfo& info)
 {
 	return strCat(info.event->toString(), (info.repeat ? " [repeat]" : ""),
 	              (info.passEvent ? " [event]" : ""), ":  ", info.command, '\n');

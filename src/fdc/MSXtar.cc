@@ -235,7 +235,7 @@ unsigned MSXtar::getNextSector(unsigned sector)
 
 // get start cluster from a directory entry,
 // also takes care of BAD_FAT and EOF_FAT-range.
-unsigned MSXtar::getStartCluster(const MSXDirEntry& entry)
+static unsigned getStartCluster(const MSXDirEntry& entry)
 {
 	return normalizeFAT(entry.startCluster);
 }
@@ -640,7 +640,7 @@ string MSXtar::recurseDirFill(string_view dirName, unsigned sector)
 }
 
 
-string MSXtar::condensName(const MSXDirEntry& dirEntry)
+static string condensName(const MSXDirEntry& dirEntry)
 {
 	string result;
 	for (unsigned i = 0; (i < 8) && (dirEntry.name.base[i] != ' '); ++i) {
@@ -657,7 +657,7 @@ string MSXtar::condensName(const MSXDirEntry& dirEntry)
 
 
 // Set the entries from dirEntry to the timestamp of resultFile
-void MSXtar::changeTime(const string& resultFile, const MSXDirEntry& dirEntry)
+static void changeTime(const string& resultFile, const MSXDirEntry& dirEntry)
 {
 	unsigned t = dirEntry.time;
 	unsigned d = dirEntry.date;

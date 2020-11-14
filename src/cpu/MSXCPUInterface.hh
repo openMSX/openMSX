@@ -323,8 +323,6 @@ private:
 	static void removeCondition(unsigned id);
 
 	void removeAllWatchPoints();
-	void registerIOWatch  (WatchPoint& watchPoint, MSXDevice** devices);
-	void unregisterIOWatch(WatchPoint& watchPoint, MSXDevice** devices);
 	void updateMemWatch(WatchPoint::Type type);
 	void executeMemWatch(WatchPoint::Type type, unsigned address,
 	                     unsigned value = ~0u);

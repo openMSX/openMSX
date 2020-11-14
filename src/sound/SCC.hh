@@ -33,7 +33,6 @@ private:
 	float getAmplificationFactorImpl() const override;
 	void generateChannels(float** bufs, unsigned num) override;
 
-	inline float adjust(signed char wav, byte vol);
 	byte readWave(unsigned channel, unsigned address, EmuTime::param time) const;
 	void writeWave(unsigned channel, unsigned address, byte value);
 	void setDeformReg(byte value, EmuTime::param time);

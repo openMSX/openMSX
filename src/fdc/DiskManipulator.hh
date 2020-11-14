@@ -47,12 +47,12 @@ private:
 	Drives::iterator findDriveSettings(DiskContainer& drive);
 	Drives::iterator findDriveSettings(std::string_view driveName);
 	DriveSettings& getDriveSettings(std::string_view diskname);
-	std::unique_ptr<DiskPartition> getPartition(
+	static std::unique_ptr<DiskPartition> getPartition(
 		const DriveSettings& driveData);
-	std::unique_ptr<MSXtar> getMSXtar(SectorAccessibleDisk& disk,
-	                                  DriveSettings& driveData);
+	static std::unique_ptr<MSXtar> getMSXtar(SectorAccessibleDisk& disk,
+	                                         DriveSettings& driveData);
 
-	void create(span<const TclObject> tokens);
+	static void create(span<const TclObject> tokens);
 	void savedsk(const DriveSettings& driveData,
 	             std::string_view filename);
 	void format(DriveSettings& driveData, bool dos1);

@@ -28,8 +28,6 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	unsigned translateMainRamAddress(unsigned address) const;
-
 	AY8910 psg;
 	CheckedRam sgmRam;
 	CheckedRam mainRam;

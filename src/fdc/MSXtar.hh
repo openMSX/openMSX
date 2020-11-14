@@ -46,7 +46,6 @@ private:
 	unsigned findFirstFreeCluster();
 	unsigned findUsableIndexInSector(unsigned sector);
 	unsigned getNextSector(unsigned sector);
-	unsigned getStartCluster(const MSXDirEntry& entry);
 	unsigned appendClusterToSubdir(unsigned sector);
 	DirEntry addEntryToDir(unsigned sector);
 	unsigned addSubdir(std::string_view msxName,
@@ -58,8 +57,6 @@ private:
 	                        SectorBuffer& sectorBuf);
 	std::string addFileToDSK(const std::string& fullHostName, unsigned sector);
 	std::string recurseDirFill(std::string_view dirName, unsigned sector);
-	std::string condensName(const MSXDirEntry& dirEntry);
-	void changeTime (const std::string& resultFile, const MSXDirEntry& dirEntry);
 	void fileExtract(const std::string& resultFile, const MSXDirEntry& dirEntry);
 	void recurseDirExtract(std::string_view dirName, unsigned sector);
 	std::string singleItemExtract(std::string_view dirName, std::string_view itemName,

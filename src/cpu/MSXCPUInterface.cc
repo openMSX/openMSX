@@ -828,6 +828,19 @@ void MSXCPUInterface::checkBreakPoints(
 	}
 }
 
+static void registerIOWatch(WatchPoint& watchPoint, MSXDevice** devices)
+{
+	assert(dynamic_cast<WatchIO*>(&watchPoint));
+	auto& ioWatch = static_cast<WatchIO&>(watchPoint);
+	unsigned beginPort = ioWatch.getBeginAddress();
+	unsigned endPort   = ioWatch.getEndAddress();
+	assert(beginPort <= endPort);
+	assert(endPort < 0x100);
+	for (unsigned port = beginPort; port <= endPort; ++port) {
+		ioWatch.getDevice(port).getDevicePtr() = devices[port];
+		devices[port] = &ioWatch.getDevice(port);
+	}
+}
 
 void MSXCPUInterface::setWatchPoint(const shared_ptr<WatchPoint>& watchPoint)
 {
@@ -846,6 +859,26 @@ void MSXCPUInterface::setWatchPoint(const shared_ptr<WatchPoint>& watchPoint)
 		break;
 	default:
 		UNREACHABLE; break;
+	}
+}
+
+static void unregisterIOWatch(WatchPoint& watchPoint, MSXDevice** devices)
+{
+	assert(dynamic_cast<WatchIO*>(&watchPoint));
+	auto& ioWatch = static_cast<WatchIO&>(watchPoint);
+	unsigned beginPort = ioWatch.getBeginAddress();
+	unsigned endPort   = ioWatch.getEndAddress();
+	assert(beginPort <= endPort);
+	assert(endPort < 0x100);
+
+	for (unsigned port = beginPort; port <= endPort; ++port) {
+		// find pointer to watchpoint
+		MSXDevice** prev = &devices[port];
+		while (*prev != &ioWatch.getDevice(port)) {
+			prev = &checked_cast<MSXWatchIODevice*>(*prev)->getDevicePtr();
+		}
+		// remove watchpoint from chain
+		*prev = checked_cast<MSXWatchIODevice*>(*prev)->getDevicePtr();
 	}
 }
 
@@ -894,40 +927,6 @@ void MSXCPUInterface::removeCondition(unsigned id)
 	    // could be ==end for a condition that removes itself AND has the -once flag set
 	    it != conditions.end()) {
 		conditions.erase(it);
-	}
-}
-
-void MSXCPUInterface::registerIOWatch(WatchPoint& watchPoint, MSXDevice** devices)
-{
-	assert(dynamic_cast<WatchIO*>(&watchPoint));
-	auto& ioWatch = static_cast<WatchIO&>(watchPoint);
-	unsigned beginPort = ioWatch.getBeginAddress();
-	unsigned endPort   = ioWatch.getEndAddress();
-	assert(beginPort <= endPort);
-	assert(endPort < 0x100);
-	for (unsigned port = beginPort; port <= endPort; ++port) {
-		ioWatch.getDevice(port).getDevicePtr() = devices[port];
-		devices[port] = &ioWatch.getDevice(port);
-	}
-}
-
-void MSXCPUInterface::unregisterIOWatch(WatchPoint& watchPoint, MSXDevice** devices)
-{
-	assert(dynamic_cast<WatchIO*>(&watchPoint));
-	auto& ioWatch = static_cast<WatchIO&>(watchPoint);
-	unsigned beginPort = ioWatch.getBeginAddress();
-	unsigned endPort   = ioWatch.getEndAddress();
-	assert(beginPort <= endPort);
-	assert(endPort < 0x100);
-
-	for (unsigned port = beginPort; port <= endPort; ++port) {
-		// find pointer to watchpoint
-		MSXDevice** prev = &devices[port];
-		while (*prev != &ioWatch.getDevice(port)) {
-			prev = &checked_cast<MSXWatchIODevice*>(*prev)->getDevicePtr();
-		}
-		// remove watchpoint from chain
-		*prev = checked_cast<MSXWatchIODevice*>(*prev)->getDevicePtr();
 	}
 }
 

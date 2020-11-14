@@ -305,7 +305,7 @@ private:
 	void clip(unsigned start, unsigned size, Action action, Args... args);
 
 	void initName(const std::string& name);
-	void staticInit();
+	static void staticInit();
 
 	void lockDevices();
 	void unlockDevices();

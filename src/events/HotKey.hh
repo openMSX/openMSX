@@ -78,8 +78,6 @@ private:
 		void execute(span<const TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 	private:
-		std::string formatBinding(const HotKey::BindMap::value_type& info);
-
 		HotKey& hotKey;
 		const bool defaultCmd;
 	};

@@ -345,7 +345,7 @@ float SCC::getAmplificationFactorImpl() const
 	return 1.0f / 128.0f;
 }
 
-inline float SCC::adjust(signed char wav, byte vol)
+static inline float adjust(signed char wav, byte vol)
 {
 	// The result is an integer value, but we store it as a float because
 	// then we need fewer int->float conversion (compared to converting in

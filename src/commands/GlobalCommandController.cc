@@ -176,9 +176,10 @@ bool GlobalCommandController::hasCommand(string_view command) const
 	return commands.contains(command);
 }
 
-void GlobalCommandController::split(string_view str, vector<string>& tokens,
-                                    const char delimiter)
+static vector<string> split(string_view str, const char delimiter)
 {
+	vector<string> tokens;
+
 	enum ParseState {Alpha, BackSlash, Quote};
 	ParseState state = Alpha;
 
@@ -212,9 +213,10 @@ void GlobalCommandController::split(string_view str, vector<string>& tokens,
 				break;
 		}
 	}
+	return tokens;
 }
 
-string GlobalCommandController::removeEscaping(const string& str)
+static string removeEscaping(const string& str)
 {
 	enum ParseState {Alpha, BackSlash, Quote};
 	ParseState state = Alpha;
@@ -247,8 +249,7 @@ string GlobalCommandController::removeEscaping(const string& str)
 	return result;
 }
 
-vector<string> GlobalCommandController::removeEscaping(
-	const vector<string>& input, bool keepLastIfEmpty)
+static vector<string> removeEscaping(const vector<string>& input, bool keepLastIfEmpty)
 {
 	vector<string> result;
 	for (const auto& s : input) {
@@ -275,8 +276,7 @@ static string escapeChars(const string& str, const string& chars)
 	return result;
 }
 
-string GlobalCommandController::addEscaping(const string& str, bool quote,
-                                            bool finished)
+static string addEscaping(const string& str, bool quote, bool finished)
 {
 	if (str.empty() && finished) {
 		quote = true;
@@ -329,8 +329,7 @@ string GlobalCommandController::tabCompletion(string_view command)
 	string_view post = command.substr(last);
 
 	// split command string in tokens
-	vector<string> originalTokens;
-	split(post, originalTokens, ' ');
+	vector<string> originalTokens = split(post, ' ');
 	if (originalTokens.empty()) {
 		originalTokens.emplace_back();
 	}
