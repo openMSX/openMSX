@@ -872,7 +872,7 @@ YM2151::YM2151(const std::string& name_, const std::string& desc,
 
 	timer_A_val = 0;
 
-	if (0) {
+	if (false) {
 		std::cout << "tl_tab:";
 		for (const auto& e : tl_tab) std::cout << ' ' << e;
 		std::cout << '\n';

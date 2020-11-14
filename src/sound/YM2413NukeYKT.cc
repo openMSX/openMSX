@@ -228,7 +228,7 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::envelopeTim
 			releasePtr = releaseData[idx];
 		}
 		{ // EG timer
-			bool timer_inc = (eg_counter_state != 3) ? 0
+			bool timer_inc = (eg_counter_state != 3) ? false
 				       : (CYCLES == 0)           ? true
 								 : eg_timer_carry;
 			auto timer_bit = (eg_timer & 1) + timer_inc;

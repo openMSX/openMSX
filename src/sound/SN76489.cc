@@ -92,7 +92,7 @@ SN76489::SN76489(const DeviceConfig& config)
 	: ResampledSoundDevice(config.getMotherBoard(), "SN76489", "DCSG", 4, NATIVE_FREQ_INT, false)
 	, debuggable(config.getMotherBoard(), getName())
 {
-	if (0) {
+	if (false) {
 		std::cout << "volTable:";
 		for (const auto& e : volTable) std::cout << ' ' << e;
 		std::cout << '\n';

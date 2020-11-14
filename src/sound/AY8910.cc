@@ -301,7 +301,7 @@ AY8910::Amplitude::Amplitude(const DeviceConfig& config)
 	envChan[2] = false;
 	envVolTable = isAY8910 ? AY8910EnvelopeTab.data() : YM2149EnvelopeTab.data();
 
-	if (0) {
+	if (false) {
 		std::cout << "YM2149Envelope:";
 		for (int i = 0; i < 32; ++i) {
 			std::cout << ' ' << std::hexfloat << YM2149EnvelopeTab[i];
