@@ -21,6 +21,8 @@ public:
 private:
 	SDLTTF();
 	~SDLTTF();
+	SDLTTF(const SDLTTF&) = delete;
+	SDLTTF& operator=(const SDLTTF&) = delete;
 };
 
 class TTFFontPool
@@ -33,6 +35,8 @@ public:
 private:
 	TTFFontPool() = default;
 	~TTFFontPool();
+	TTFFontPool(const TTFFontPool&) = delete;
+	TTFFontPool& operator=(const TTFFontPool&) = delete;
 
 	// We want to keep the LocalFileReference object alive for as long as
 	// the SDL_ttf library uses the font. This solves a problem we had in

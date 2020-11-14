@@ -19,6 +19,8 @@ public:
 			snd_seq_t& seq,
 			snd_seq_client_info_t& cinfo, snd_seq_port_info_t& pinfo);
 	~MidiOutALSA() override;
+	MidiOutALSA(const MidiOutALSA&) = delete;
+	MidiOutALSA& operator=(const MidiOutALSA&) = delete;
 
 	// Pluggable
 	void plugHelper(Connector& connector, EmuTime::param time) override;
@@ -60,7 +62,8 @@ MidiOutALSA::MidiOutALSA(
 {
 }
 
-MidiOutALSA::~MidiOutALSA() {
+MidiOutALSA::~MidiOutALSA()
+{
 	if (connected) {
 		disconnect();
 	}

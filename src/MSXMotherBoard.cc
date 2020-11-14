@@ -63,6 +63,8 @@ class AddRemoveUpdate
 public:
 	explicit AddRemoveUpdate(MSXMotherBoard& motherBoard);
 	~AddRemoveUpdate();
+	AddRemoveUpdate(const AddRemoveUpdate&) = delete;
+	AddRemoveUpdate& operator=(const AddRemoveUpdate&) = delete;
 private:
 	MSXMotherBoard& motherBoard;
 };

@@ -29,6 +29,8 @@ public:
 		V9990& vdp, Display& display, OutputSurface& screen,
 		std::unique_ptr<PostProcessor> postProcessor);
 	~V9990SDLRasterizer() override;
+	V9990SDLRasterizer(const V9990SDLRasterizer&) = delete;
+	V9990SDLRasterizer& operator=(const V9990SDLRasterizer&) = delete;
 
 	// Rasterizer interface:
 	PostProcessor* getPostProcessor() const override;

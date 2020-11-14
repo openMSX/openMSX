@@ -19,6 +19,8 @@ public:
 	StretchScalerOutputBase(SDLOutputSurface& out,
 	                        PixelOperations<Pixel> pixelOps);
 	~StretchScalerOutputBase() override;
+	StretchScalerOutputBase(const StretchScalerOutputBase&) = delete;
+	StretchScalerOutputBase& operator=(const StretchScalerOutputBase&) = delete;
 
 	[[nodiscard]] unsigned getWidth()  const override;
 	[[nodiscard]] unsigned getHeight() const override;

@@ -24,6 +24,8 @@ public:
 		OutputSurface& screen, const std::string& videoSource,
 		unsigned maxWidth, unsigned height, bool canDoInterlace);
 	~FBPostProcessor() override;
+	FBPostProcessor(const FBPostProcessor&) = delete;
+	FBPostProcessor& operator=(const FBPostProcessor&) = delete;
 
 	// Layer interface:
 	void paint(OutputSurface& output) override;

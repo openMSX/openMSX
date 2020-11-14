@@ -243,6 +243,8 @@ private:
 	~AllocMap() {
 		assert(allocMap.empty());
 	}
+	AllocMap(const AllocMap&) = delete;
+	AllocMap& operator=(const AllocMap&) = delete;
 
 	// typically contains 5-10 items, so (unsorted) vector is fine
 	std::vector<std::pair<void*, void*>> allocMap;

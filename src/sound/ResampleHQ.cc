@@ -59,6 +59,8 @@ private:
 
 	ResampleCoeffs() = default;
 	~ResampleCoeffs();
+	ResampleCoeffs(const ResampleCoeffs&) = delete;
+	ResampleCoeffs& operator=(const ResampleCoeffs&) = delete;
 
 	static Table calcTable(double ratio, int16_t* permute, unsigned& filterLen);
 

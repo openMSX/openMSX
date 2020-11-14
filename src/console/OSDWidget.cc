@@ -50,6 +50,8 @@ class SDLScopedClip
 public:
 	SDLScopedClip(OutputSurface& output, vec2 xy, vec2 wh);
 	~SDLScopedClip();
+	SDLScopedClip(const SDLScopedClip&) = delete;
+	SDLScopedClip& operator=(const SDLScopedClip&) = delete;
 private:
 	SDL_Renderer* renderer;
 	std::optional<SDL_Rect> origClip;
@@ -92,6 +94,8 @@ class GLScopedClip
 public:
 	GLScopedClip(OutputSurface& output, vec2 xy, vec2 wh);
 	~GLScopedClip();
+	GLScopedClip(const GLScopedClip&) = delete;
+	GLScopedClip& operator=(const GLScopedClip&) = delete;
 private:
 	std::optional<std::array<GLint, 4>> origClip; // x, y, w, h;
 };

@@ -215,6 +215,9 @@ public:
 private:
 	PolymorphicSaverRegistry() = default;
 	~PolymorphicSaverRegistry() = default;
+	PolymorphicSaverRegistry(const PolymorphicSaverRegistry&) = delete;
+	PolymorphicSaverRegistry& operator=(const PolymorphicSaverRegistry&) = delete;
+
 	void registerHelper(const std::type_info& type,
 	                    std::unique_ptr<PolymorphicSaverBase<Archive>> saver);
 	static void save(Archive& ar, const void* t,
@@ -248,6 +251,9 @@ public:
 private:
 	PolymorphicLoaderRegistry() = default;
 	~PolymorphicLoaderRegistry() = default;
+	PolymorphicLoaderRegistry(const PolymorphicLoaderRegistry&) = delete;
+	PolymorphicLoaderRegistry& operator=(const PolymorphicLoaderRegistry&) = delete;
+
 	void registerHelper(
 		const char* name,
 		std::unique_ptr<PolymorphicLoaderBase<Archive>> loader);
@@ -277,6 +283,9 @@ public:
 private:
 	PolymorphicInitializerRegistry() = default;
 	~PolymorphicInitializerRegistry() = default;
+	PolymorphicInitializerRegistry(const PolymorphicInitializerRegistry&) = delete;
+	PolymorphicInitializerRegistry& operator=(const PolymorphicInitializerRegistry&) = delete;
+
 	void registerHelper(
 		const char* name,
 		std::unique_ptr<PolymorphicInitializerBase<Archive>> initializer);

@@ -33,6 +33,9 @@ class RomDebuggable final : public Debuggable
 public:
 	RomDebuggable(Debugger& debugger, Rom& rom);
 	~RomDebuggable();
+	RomDebuggable(const RomDebuggable&) = delete;
+	RomDebuggable& operator=(const RomDebuggable&) = delete;
+
 	[[nodiscard]] unsigned getSize() const override;
 	[[nodiscard]] const std::string& getDescription() const override;
 	[[nodiscard]] byte read(unsigned address) override;

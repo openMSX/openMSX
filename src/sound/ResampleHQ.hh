@@ -16,6 +16,8 @@ class ResampleHQ final : public ResampleAlgo
 public:
 	ResampleHQ(ResampledSoundDevice& input, const DynamicClock& hostClock);
 	~ResampleHQ() override;
+	ResampleHQ(const ResampleHQ&) = delete;
+	ResampleHQ& operator=(const ResampleHQ&) = delete;
 
 	bool generateOutputImpl(float* dataOut, unsigned num,
 	                        EmuTime::param time) override;
