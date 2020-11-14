@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-class RomHolyQuran2 : public MSXRom
+class RomHolyQuran2 final : public MSXRom
 {
 public:
 	RomHolyQuran2(const DeviceConfig& config, Rom&& rom);

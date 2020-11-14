@@ -32,7 +32,7 @@ protected:
 SERIALIZE_CLASS_VERSION(MSXMusicBase, 3);
 
 
-class MSXMusic : public MSXMusicBase
+class MSXMusic final : public MSXMusicBase
 {
 public:
 	explicit MSXMusic(const DeviceConfig& config);
@@ -44,7 +44,7 @@ SERIALIZE_CLASS_VERSION(MSXMusic, 3); // must be same as MSXMusicBase
 
 
 // Variant used in Panasonic_FS-A1WX and Panasonic_FS-A1WSX
-class MSXMusicWX : public MSXMusicBase
+class MSXMusicWX final : public MSXMusicBase
 {
 public:
 	explicit MSXMusicWX(const DeviceConfig& config);
