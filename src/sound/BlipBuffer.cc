@@ -10,10 +10,6 @@
 
 namespace openmsx {
 
-// The input sample stream can only use this many bits out of the available 32
-// bits. So 29 bits means the sample values must be in range [-256M, 256M].
-constexpr int BLIP_SAMPLE_BITS = 29;
-
 // Number of samples in a (pre-calculated) impulse-response wave-form.
 constexpr int BLIP_IMPULSE_WIDTH = 16;
 
