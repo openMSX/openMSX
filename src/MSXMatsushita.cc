@@ -98,13 +98,11 @@ byte MSXMatsushita::readSwitchedIO(word port, EmuTime::param time)
 
 byte MSXMatsushita::peekSwitchedIO(word port, EmuTime::param /*time*/) const
 {
-	byte result;
 	switch (port & 0x0F) {
 	case 0:
-		result = byte(~ID);
-		break;
-	case 1:
-		result = firmwareSwitch.getStatus() ? 0x7F : 0xFF;
+		return byte(~ID);
+	case 1: {
+		byte result = firmwareSwitch.getStatus() ? 0x7F : 0xFF;
 		// bit 0: turbo status, 0=on
 		if (turboEnabled) {
 			result &= ~0x01;
@@ -113,22 +111,20 @@ byte MSXMatsushita::peekSwitchedIO(word port, EmuTime::param /*time*/) const
 		if (turboAvailable) {
 			result &= ~0x04;
 		}
-		break;
+		return result;
+	}
 	case 3:
-		result = (((pattern & 0x80) ? color2 : color1) << 4)
+		return (((pattern & 0x80) ? color2 : color1) << 4)
 		        | ((pattern & 0x40) ? color2 : color1);
-		break;
 	case 9:
 		if (address < 0x800 && sram) {
-			result = (*sram)[address];
+			return (*sram)[address];
 		} else {
-			result = 0xFF;
+			return 0xFF;
 		}
-		break;
 	default:
-		result = 0xFF;
+		return 0xFF;
 	}
-	return result;
 }
 
 void MSXMatsushita::writeSwitchedIO(word port, byte value, EmuTime::param /*time*/)

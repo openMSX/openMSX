@@ -41,17 +41,18 @@ void HQLite_1x1on2x2<Pixel>::operator()(
 	unsigned srcWidth, unsigned* __restrict edgeBuf,
 	EdgeHQLite /*edgeOp*/) __restrict
 {
-	unsigned c2, c4, c5, c6, c8, c9;
-	c2 =      readPixel(in0[0]);
-	c5 = c6 = readPixel(in1[0]);
-	c8 = c9 = readPixel(in2[0]);
+	unsigned c2 = readPixel(in0[0]);
+	unsigned c5 = readPixel(in1[0]); unsigned c6 = c5;
+	unsigned c8 = readPixel(in2[0]); unsigned c9 = c8;
 
 	unsigned pattern = 0;
 	if (c5 != c8) pattern |= 3 <<  6;
 	if (c5 != c2) pattern |= 3 <<  9;
 
 	for (unsigned x = 0; x < srcWidth; ++x) {
-		c4 = c5; c5 = c6; c8 = c9;
+		unsigned c4 = c5;
+		c5 = c6;
+		c8 = c9;
 		if (x != srcWidth - 1) {
 			c6 = readPixel(in1[x + 1]);
 			c9 = readPixel(in2[x + 1]);
@@ -104,17 +105,18 @@ void HQLite_1x1on1x2<Pixel>::operator()(
 	//  +---+---+---+
 	//  | 7 | 8 | 9 |
 	//  +---+---+---+
-	unsigned c2, c4, c5, c6, c8, c9;
-	c2 =      readPixel(in0[0]);
-	c5 = c6 = readPixel(in1[0]);
-	c8 = c9 = readPixel(in2[0]);
+	unsigned c2 = readPixel(in0[0]);
+	unsigned c5 = readPixel(in1[0]); unsigned c6 = c5;
+	unsigned c8 = readPixel(in2[0]); unsigned c9 = c8;
 
 	unsigned pattern = 0;
 	if (c5 != c8) pattern |= 3 <<  6;
 	if (c5 != c2) pattern |= 3 <<  9;
 
 	for (unsigned x = 0; x < srcWidth; ++x) {
-		c4 = c5; c5 = c6; c8 = c9;
+		unsigned c4 = c5;
+		c5 = c6;
+		c8 = c9;
 		if (x != srcWidth - 1) {
 			c6 = readPixel(in1[x + 1]);
 			c9 = readPixel(in2[x + 1]);

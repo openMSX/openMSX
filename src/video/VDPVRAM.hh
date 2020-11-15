@@ -227,12 +227,12 @@ public:
 	  * @param index Index in table
 	  * @param size Size of the block. This is only used to assert that
 	  *             requested block is not too large.
-	  * @param ptr0 out Pointer to the block of even numbered bytes.
-	  * @param ptr1 out Pointer to the block of odd  numbered bytes.
+	  * @return pair{ptr0, ptr1}
+	  *    ptr0: Pointer to the block of even numbered bytes.
+	  *    ptr1: Pointer to the block of odd  numbered bytes.
 	  */
-	inline void getReadAreaPlanar(
-			unsigned index, unsigned size,
-			const byte*& ptr0, const byte*& ptr1) const {
+	inline std::pair<const byte*, const byte*> getReadAreaPlanar(
+			unsigned index, unsigned size) const {
 		assert((index & 1) == 0);
 		assert((size & 1) == 0);
 		unsigned endIndex = index + size - 1;
@@ -243,8 +243,9 @@ public:
 		assert((areaBits & ~indexMask)        == areaBits);
 		assert(isEnabled());
 		unsigned addr = effectiveBaseMask & (indexMask | (index >> 1));
-		ptr0 = &data[addr | 0x00000];
-		ptr1 = &data[addr | 0x10000];
+		const byte* ptr0 = &data[addr | 0x00000];
+		const byte* ptr1 = &data[addr | 0x10000];
+		return {ptr0, ptr1};
 	}
 
 	/** Reads a byte from VRAM in its current state.

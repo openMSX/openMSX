@@ -47,24 +47,26 @@ SdCard::SdCard(const DeviceConfig& config)
 SdCard::~SdCard() = default;
 
 // helper methods for 'transfer' to avoid duplication
-byte SdCard::readCurrentByteFromCurrentSector() {
-	byte retval;
-	if (currentByteInSector == -1) {
-		retval = START_BLOCK_TOKEN;
-		try {
-			hd->readSector(currentSector, sectorBuf);
-		} catch (MSXException&) {
-			retval = DATA_ERROR_TOKEN_ERROR;
+byte SdCard::readCurrentByteFromCurrentSector()
+{
+	byte result = [&] {
+		if (currentByteInSector == -1) {
+			try {
+				hd->readSector(currentSector, sectorBuf);
+				return START_BLOCK_TOKEN;
+			} catch (MSXException&) {
+				return DATA_ERROR_TOKEN_ERROR;
+			}
+		} else {
+			// output next byte from stream
+			return sectorBuf.raw[currentByteInSector];
 		}
-	} else {
-		// output next byte from stream
-		retval = sectorBuf.raw[currentByteInSector];
-	}
+	}();
 	currentByteInSector++;
 	if (currentByteInSector == sizeof(sectorBuf)) {
 		responseQueue.push_back({0x00, 0x00}); // 2 CRC's (dummy)
 	}
-	return retval;
+	return result;
 }
 
 byte SdCard::transfer(byte value, bool cs)

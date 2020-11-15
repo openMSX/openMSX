@@ -210,8 +210,8 @@ void Simple2xScaler<Pixel>::blur1on2(
 	unsigned f1 = f0;
 	unsigned tmp;
 
-	size_t x;
-	for (x = 0; x < (srcWidth - 2); x += 2) {
+	size_t x = 0;
+	for (/**/; x < (srcWidth - 2); x += 2) {
 		tmp = mult2.mul32(p0);
 		pOut[2 * x + 0] = mult1.conv32(f1 + tmp);
 
@@ -361,8 +361,8 @@ void Simple2xScaler<Pixel>::blur1on1(
 	unsigned f0 = mult1.mul32(p0);
 	unsigned f1 = f0;
 
-	size_t x;
-	for (x = 0; x < (srcWidth - 2); x += 2) {
+	size_t x = 0;
+	for (/**/; x < (srcWidth - 2); x += 2) {
 		p1 = pIn[x + 1];
 		unsigned t0 = mult1.mul32(p1);
 		pOut[x] = mult1.conv32(f0 + mult3.mul32(p0) + t0);

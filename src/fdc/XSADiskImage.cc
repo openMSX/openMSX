@@ -60,8 +60,8 @@ XSADiskImage::XSADiskImage(Filename& filename, File& file)
 	: SectorBasedDisk(filename)
 {
 	XSAExtractor extractor(file);
-	unsigned sectors;
-	std::tie(data, sectors) = extractor.extractData();
+	auto [d, sectors] = extractor.extractData();
+	data = std::move(d);
 	setNbSectors(sectors);
 }
 
@@ -180,9 +180,9 @@ unsigned XSAExtractor::rdStrLen()
 	if (!bitIn()) return 3;
 	if (!bitIn()) return 4;
 
-	byte nrBits;
-	for (nrBits = 2; (nrBits != 7) && bitIn(); ++nrBits) {
-		// nothing
+	byte nrBits = 2;
+	while ((nrBits != 7) && bitIn()) {
+		++nrBits;
 	}
 
 	unsigned len = 1;
@@ -207,22 +207,24 @@ int XSAExtractor::rdStrPos()
 	byte cpdIndex = byte(hufPos - hufTbl);
 	++tblSizes[cpdIndex];
 
-	int strPos;
-	if (cpdBmask[cpdIndex] >= 256) {
-		byte strPosLsb = charIn();
-		byte strPosMsb = 0;
-		for (byte nrBits = cpdExt[cpdIndex] - 8; nrBits--;
-		     strPosMsb |= (bitIn() ? 1 : 0)) {
-			strPosMsb <<= 1;
+	int strPos = [&] {
+		if (cpdBmask[cpdIndex] >= 256) {
+			byte strPosLsb = charIn();
+			byte strPosMsb = 0;
+			for (byte nrBits = cpdExt[cpdIndex] - 8; nrBits--;
+			     strPosMsb |= (bitIn() ? 1 : 0)) {
+				strPosMsb <<= 1;
+			}
+			return strPosLsb + 256 * strPosMsb;
+		} else {
+			int pos = 0;
+			for (byte nrBits = cpdExt[cpdIndex]; nrBits--;
+			     pos |= (bitIn() ? 1 : 0)) {
+				pos <<= 1;
+			}
+			return pos;
 		}
-		strPos = strPosLsb + 256 * strPosMsb;
-	} else {
-		strPos = 0;
-		for (byte nrBits = cpdExt[cpdIndex]; nrBits--;
-		     strPos |= (bitIn() ? 1 : 0)) {
-			strPos <<= 1;
-		}
-	}
+	}();
 	if ((updHufCnt--) == 0) {
 		mkHufTbl();	// make the huffman table
 	}
@@ -274,23 +276,24 @@ void XSAExtractor::mkHufTbl()
 	}
 	// Place the nodes in the correct manner in the tree
 	while (hufTbl[2 * TBLSIZE - 2].weight == -1) {
-		HufNode* l1Pos;
-		HufNode* l2Pos;
 		for (hufPos = hufTbl; !(hufPos->weight); ++hufPos) {
 			// nothing
 		}
-		l1Pos = hufPos++;
+		HufNode* l1Pos = hufPos++;
 		while (!(hufPos->weight)) {
 			++hufPos;
 		}
-		if (hufPos->weight < l1Pos->weight) {
-			l2Pos = l1Pos;
-			l1Pos = hufPos++;
-		} else {
-			l2Pos = hufPos++;
-		}
+		HufNode* l2Pos = [&] {
+			if (hufPos->weight < l1Pos->weight) {
+				auto* tmp = l1Pos;
+				l1Pos = hufPos++;
+				return tmp;
+			} else {
+				return hufPos++;
+			}
+		}();
 		int tempW;
-		while ((tempW = (hufPos)->weight) != -1) {
+		while ((tempW = hufPos->weight) != -1) {
 			if (tempW) {
 				if (tempW < l1Pos->weight) {
 					l2Pos = l1Pos;

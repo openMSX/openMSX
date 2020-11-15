@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
+#include <tuple>
 #include <png.h>
 #include <SDL.h>
 
@@ -202,46 +203,29 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 		}
 		int bpp = png_get_channels(png.ptr, png.info) * 8;
 		assert(bpp == one_of(24, 32));
-		Uint32 redMask, grnMask, bluMask, alpMask;
-		if (OPENMSX_BIGENDIAN) {
-			if (bpp == 32) {
-				if (swapAlpha) {
-					redMask = 0x00FF0000;
-					grnMask = 0x0000FF00;
-					bluMask = 0x000000FF;
-					alpMask = 0xFF000000;
+		auto [redMask, grnMask, bluMask, alpMask] = [&]()-> std::tuple<Uint32, Uint32, Uint32, Uint32> {
+			if (OPENMSX_BIGENDIAN) {
+				if (bpp == 32) {
+					if (swapAlpha) {
+						return {0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000};
+					} else {
+						return {0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF};
+					}
 				} else {
-					redMask = 0xFF000000;
-					grnMask = 0x00FF0000;
-					bluMask = 0x0000FF00;
-					alpMask = 0x000000FF;
+					return {0x00FF0000, 0x0000FF00, 0x000000FF, 0x00000000};
 				}
 			} else {
-				redMask = 0x00FF0000;
-				grnMask = 0x0000FF00;
-				bluMask = 0x000000FF;
-				alpMask = 0x00000000;
-			}
-		} else {
-			if (bpp == 32) {
-				if (swapAlpha) {
-					redMask = 0x0000FF00;
-					grnMask = 0x00FF0000;
-					bluMask = 0xFF000000;
-					alpMask = 0x000000FF;
+				if (bpp == 32) {
+					if (swapAlpha) {
+						return {0x0000FF00, 0x00FF0000, 0xFF000000, 0x000000FF};
+					} else {
+						return {0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000};
+					}
 				} else {
-					redMask = 0x000000FF;
-					grnMask = 0x0000FF00;
-					bluMask = 0x00FF0000;
-					alpMask = 0xFF000000;
+					return {0x000000FF, 0x0000FF00, 0x00FF0000, 0x00000000};
 				}
-			} else {
-				redMask = 0x000000FF;
-				grnMask = 0x0000FF00;
-				bluMask = 0x00FF0000;
-				alpMask = 0x00000000;
 			}
-		}
+		}();
 		if (bgr) std::swap(redMask, bluMask);
 		SDLSurfacePtr surface(width, height, bpp,
 		                      redMask, grnMask, bluMask, alpMask);

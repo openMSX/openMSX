@@ -490,8 +490,8 @@ void Blur_1on3<Pixel>::operator()(
 	uint32_t g0 = f0;
 	uint32_t g1 = f1;
 
-	size_t x;
-	for (x = 0; x < (srcWidth - 2); x += 2) {
+	size_t x = 0;
+	for (/**/; x < (srcWidth - 2); x += 2) {
 		uint32_t g2 = mult2.mul32(p0);
 		out[3 * x + 0] = mult0.conv32(g2 + f1);
 		p1 = in[x + 1];

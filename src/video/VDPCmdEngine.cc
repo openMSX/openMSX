@@ -1873,29 +1873,25 @@ byte VDPCmdEngine::peekCmdReg(byte index) const
 
 void VDPCmdEngine::updateDisplayMode(DisplayMode mode, bool cmdBit, EmuTime::param time)
 {
-	int newScrMode;
-	switch (mode.getBase()) {
-	case DisplayMode::GRAPHIC4:
-		newScrMode = 0;
-		break;
-	case DisplayMode::GRAPHIC5:
-		newScrMode = 1;
-		break;
-	case DisplayMode::GRAPHIC6:
-		newScrMode = 2;
-		break;
-	case DisplayMode::GRAPHIC7:
-		newScrMode = 3;
-		break;
-	default:
-		if (cmdBit) {
-			newScrMode = 4; // like GRAPHIC7, but non-planar
-			                // TODO timing might be different
-		} else {
-			newScrMode = -1; // no commands
+	int newScrMode = [&] {
+		switch (mode.getBase()) {
+		case DisplayMode::GRAPHIC4:
+			return 0;
+		case DisplayMode::GRAPHIC5:
+			return 1;
+		case DisplayMode::GRAPHIC6:
+			return 2;
+		case DisplayMode::GRAPHIC7:
+			return 3;
+		default:
+			if (cmdBit) {
+				return 4; // like GRAPHIC7, but non-planar
+				          // TODO timing might be different
+			} else {
+				return -1; // no commands
+			}
 		}
-		break;
-	}
+	}();
 
 	if (newScrMode != scrMode) {
 		sync(time);

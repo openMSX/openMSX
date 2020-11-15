@@ -65,14 +65,15 @@ byte SensorKid::readIO(word port, EmuTime::param /* time */)
 		//  for 12,11,1,0 we return 1
 		//  for 10        we return 0
 		//  for 9..2      we return one of the analog bits
-		byte result;
-		if (mb4052_count == 10) {
-			result = 0;
-		} else if ((mb4052_count < 10) && (mb4052_count > 1)) {
-			result = (mb4052_ana >> (mb4052_count - 2)) & 1;
-		} else {
-			result = 1;
-		}
+		byte result = [&] {
+			if (mb4052_count == 10) {
+				return 0;
+			} else if ((mb4052_count < 10) && (mb4052_count > 1)) {
+				return (mb4052_ana >> (mb4052_count - 2)) & 1;
+			} else {
+				return 1;
+			}
+		}();
 		return 0xFE | result; // other bits read as '1'.
 	} else {
 		// port 1

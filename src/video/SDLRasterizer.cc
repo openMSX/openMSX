@@ -56,10 +56,8 @@ template <class Pixel>
 inline void SDLRasterizer<Pixel>::renderBitmapLine(Pixel* buf, unsigned vramLine)
 {
 	if (vdp.getDisplayMode().isPlanar()) {
-		const byte* vramPtr0;
-		const byte* vramPtr1;
-		vram.bitmapCacheWindow.getReadAreaPlanar(
-			vramLine * 256, 256, vramPtr0, vramPtr1);
+		auto [vramPtr0, vramPtr1] =
+			vram.bitmapCacheWindow.getReadAreaPlanar(vramLine * 256, 256);
 		bitmapConverter.convertLinePlanar(buf, vramPtr0, vramPtr1);
 	} else {
 		const byte* vramPtr =

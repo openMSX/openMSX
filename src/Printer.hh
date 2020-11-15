@@ -13,6 +13,7 @@
 #include "PrinterPortDevice.hh"
 #include "openmsx.hh"
 #include <memory>
+#include <utility>
 
 namespace openmsx {
 
@@ -83,7 +84,7 @@ protected:
 	void printVisibleCharacter(byte data);
 	void plot9Dots(double x, double y, unsigned pattern);
 
-	virtual void getNumberOfDots(unsigned& dotsX, unsigned& dotsY) = 0;
+	virtual std::pair<unsigned, unsigned> getNumberOfDots() = 0;
 	virtual void resetSettings() = 0;
 	virtual unsigned calcEscSequenceLength(byte character) = 0;
 	virtual void processEscSequence() = 0;
@@ -184,7 +185,7 @@ private:
 	void msxPrnSetFont(const byte* msxBits);
 	unsigned parseNumber(unsigned sizeStart, unsigned sizeChars);
 
-	void getNumberOfDots(unsigned& dotsX, unsigned& dotsY) override;
+	std::pair<unsigned, unsigned> getNumberOfDots() override;
 	void resetSettings() override;
 	unsigned calcEscSequenceLength(byte character) override;
 	void processEscSequence() override;
@@ -207,7 +208,7 @@ public:
 private:
 	unsigned parseNumber(unsigned sizeStart, unsigned sizeChars);
 
-	void getNumberOfDots(unsigned& dotsX, unsigned& dotsY) override;
+	std::pair<unsigned, unsigned> getNumberOfDots() override;
 	void resetSettings() override;
 	unsigned calcEscSequenceLength(byte character) override;
 	void processEscSequence() override;

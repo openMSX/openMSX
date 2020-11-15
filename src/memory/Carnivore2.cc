@@ -301,8 +301,7 @@ byte Carnivore2::readMultiMapperSlot(word address, EmuTime::param time)
 		return readConfigRegister(address, time);
 	}
 
-	unsigned addr; byte mult;
-	std::tie(addr, mult) = decodeMultiMapper(address);
+	auto [addr, mult] = decodeMultiMapper(address);
 	if (addr == unsigned(-1)) return 0xff; // unmapped
 
 	if (mult & 0x20) {
@@ -319,8 +318,7 @@ byte Carnivore2::peekMultiMapperSlot(word address, EmuTime::param time) const
 		return peekConfigRegister(address, time);
 	}
 
-	unsigned addr; byte mult;
-	std::tie(addr, mult) = decodeMultiMapper(address);
+	auto [addr, mult] = decodeMultiMapper(address);
 	if (addr == unsigned(-1)) return 0xff; // unmapped
 
 	if (mult & 0x20) {
@@ -352,8 +350,7 @@ void Carnivore2::writeMultiMapperSlot(word address, byte value, EmuTime::param t
 		}
 	}
 
-	unsigned addr; byte mult;
-	std::tie(addr, mult) = decodeMultiMapper(address);
+	auto [addr, mult] = decodeMultiMapper(address);
 	if ((addr != unsigned(-1)) && (mult & 0x10)) { // write enable
 		if (mult & 0x20) {
 			ram[addr & 0x1fffff] = value; // 2MB

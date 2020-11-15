@@ -28,7 +28,7 @@ static inline bool parseDigit(unsigned c, T& t)
 
 time_t fromString(const char* p)
 {
-	struct tm tm;
+	struct tm tm{};
 
 	// skip day
 	p += 3;
@@ -150,8 +150,7 @@ time_t fromString(const char* p)
 std::string toString(time_t time)
 {
 	if (time < 0) time = 0;
-	struct tm* tm;
-	tm = localtime(&time);
+	struct tm* tm = localtime(&time);
 	std::ostringstream sstr;
 	sstr << std::setfill('0')
 	     << days  [tm->tm_wday] << ' '

@@ -215,16 +215,14 @@ void MSXCPU::setRWCache(unsigned start, unsigned size, const byte* rData, byte* 
 	if (SUB_START && WRITE) wData -= start;
 
 	// select between 'active' or 'shadow' cache lines
-	const byte** readLines;
-	      byte** writeLines;
-	if (slot == slots[page]) {
-		auto cache = z80Active ? z80->getCacheLines() : r800->getCacheLines();
-		readLines  = cache.first;
-		writeLines = cache.second;
-	} else {
-		readLines  = slotReadLines [slot];
-		writeLines = slotWriteLines[slot];
-	}
+	auto [readLines, writeLines] = [&] {
+		if (slot == slots[page]) {
+			return z80Active ? z80->getCacheLines() : r800->getCacheLines();
+		} else {
+			return std::pair{slotReadLines [slot],
+			                 slotWriteLines[slot]};
+		}
+	}();
 
 	unsigned first = start / CacheLine::SIZE;
 	readLines     += first;

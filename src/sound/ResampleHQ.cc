@@ -244,15 +244,16 @@ static void calcPermute(double ratio, int16_t* permute)
 	double r2 = ratio * N;
 	double fract = r2 - floor(r2);
 	unsigned step = floor(r2);
-	bool incr;
-	if (fract > 0.5) {
-		// mostly (> 50%) take steps of 'floor(r2) + 1'
-		step += 1;
-		incr = false; // assign from high to low
-	} else {
-		// mostly take steps of 'floor(r2)'
-		incr = true; // assign from low to high
-	}
+	bool incr = [&] {
+		if (fract > 0.5) {
+			// mostly (> 50%) take steps of 'floor(r2) + 1'
+			step += 1;
+			return false; // assign from high to low
+		} else {
+			// mostly take steps of 'floor(r2)'
+			return true; // assign from low to high
+		}
+	}();
 
 	// initially set all as unassigned
 	for (unsigned i = 0; i < N2; ++i) {

@@ -826,15 +826,16 @@ void VDP::executeCpuVramAccess(EmuTime::param time)
 		addr = ((addr << 16) | (addr >> 1)) & 0x1FFFF;
 	}
 
-	bool doAccess;
-	if (likely(!cpuExtendedVram)) {
-		doAccess = true;
-	} else if (likely(vram->getSize() == 192 * 1024)) {
-		addr = 0x20000 | (addr & 0xFFFF);
-		doAccess = true;
-	} else {
-		doAccess = false;
-	}
+	bool doAccess = [&] {
+		if (likely(!cpuExtendedVram)) {
+			return true;
+		} else if (likely(vram->getSize() == 192 * 1024)) {
+			addr = 0x20000 | (addr & 0xFFFF);
+			return true;
+		} else {
+			return false;
+		}
+	}();
 	if (doAccess) {
 		if (cpuVramReqIsRead) {
 			cpuVramData = vram->cpuRead(addr, time);

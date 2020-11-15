@@ -44,20 +44,21 @@ size_t Disk::physToLog(byte track, byte side, byte sector)
 	}
 	return sectorsPerTrack * (side + nbSides * track) + (sector - 1);
 }
-void Disk::logToPhys(size_t log, byte& track, byte& side, byte& sector)
+Disk::TSS Disk::logToPhys(size_t log)
 {
 	if (log <= 1) {
-		track = 0;
-		side = 0;
-		sector = byte(log + 1);
-		return;
+		byte track = 0;
+		byte side = 0;
+		byte sector = byte(log + 1);
+		return {track, side, sector};
 	}
 	if (!nbSides) {
 		detectGeometry();
 	}
-	track  = byte(log / (nbSides * sectorsPerTrack)); // TODO check for overflow
-	side   = byte((log / sectorsPerTrack) % nbSides);
-	sector = byte((log % sectorsPerTrack) + 1);
+	byte track  = byte(log / (nbSides * sectorsPerTrack)); // TODO check for overflow
+	byte side   = byte((log / sectorsPerTrack) % nbSides);
+	byte sector = byte((log % sectorsPerTrack) + 1);
+	return {track, side, sector};
 }
 
 unsigned Disk::getSectorsPerTrack()

@@ -65,9 +65,7 @@ inline SpriteChecker::SpritePattern SpriteChecker::calculatePatternNP(
 inline SpriteChecker::SpritePattern SpriteChecker::calculatePatternPlanar(
 	unsigned patternNr, unsigned y)
 {
-	const byte* ptr0;
-	const byte* ptr1;
-	vram.spritePatternTable.getReadAreaPlanar(0, 256 * 8, ptr0, ptr1);
+	auto [ptr0, ptr1] = vram.spritePatternTable.getReadAreaPlanar(0, 256 * 8);
 	unsigned index = patternNr * 8 + y;
 	const byte* patternPtr = (index & 1) ? ptr1 : ptr0;
 	index /= 2;
@@ -293,10 +291,8 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 	// code for planar and non-planar modes.
 	int sprite = 0;
 	if (planar) {
-		const byte* attributePtr0;
-		const byte* attributePtr1;
-		vram.spriteAttribTable.getReadAreaPlanar(
-			512, 32 * 4, attributePtr0, attributePtr1);
+		auto [attributePtr0, attributePtr1] =
+			vram.spriteAttribTable.getReadAreaPlanar(512, 32 * 4);
 		// TODO: Verify CC implementation.
 		for (/**/; sprite < 32; ++sprite) {
 			int y = attributePtr0[2 * sprite + 0];

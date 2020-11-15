@@ -255,8 +255,7 @@ void ImagePrinter::ensurePrintPage()
 		auto paperSizeX = unsigned((210 / 25.4) * dpi);
 		auto paperSizeY = unsigned((297 / 25.4) * dpi);
 
-		unsigned dotsX, dotsY;
-		getNumberOfDots(dotsX, dotsY);
+		auto [dotsX, dotsY] = getNumberOfDots();
 		pixelSizeX = double(paperSizeX) / dotsX;
 		pixelSizeY = double(paperSizeY) / dotsY;
 
@@ -671,10 +670,9 @@ void ImagePrinterMSX::msxPrnSetFont(const byte* msxBits)
 	}
 }
 
-void ImagePrinterMSX::getNumberOfDots(unsigned& dotsX, unsigned& dotsY)
+std::pair<unsigned, unsigned> ImagePrinterMSX::getNumberOfDots()
 {
-	dotsX = 825;
-	dotsY = 825;
+	return {825, 825};
 }
 
 void ImagePrinterMSX::resetSettings()
@@ -1216,10 +1214,9 @@ std::string_view ImagePrinterEpson::getDescription() const
 	return "Emulate Epson FX80 printer, prints to image.";
 }
 
-void ImagePrinterEpson::getNumberOfDots(unsigned& dotsX, unsigned& dotsY)
+std::pair<unsigned, unsigned> ImagePrinterEpson::getNumberOfDots()
 {
-	dotsX = 610;
-	dotsY = 825;
+	return {610, 825};
 }
 
 void ImagePrinterEpson::resetSettings()

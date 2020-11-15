@@ -12,58 +12,46 @@ MicrosolFDC::MicrosolFDC(const DeviceConfig& config)
 
 byte MicrosolFDC::readIO(word port, EmuTime::param time)
 {
-	byte value;
 	switch (port & 0x07) {
 	case 0:
-		value = controller.getStatusReg(time);
-		break;
+		return controller.getStatusReg(time);
 	case 1:
-		value = controller.getTrackReg(time);
-		break;
+		return controller.getTrackReg(time);
 	case 2:
-		value = controller.getSectorReg(time);
-		break;
+		return controller.getSectorReg(time);
 	case 3:
-		value = controller.getDataReg(time);
-		break;
-	case 4:
-		value = 0x7F;
+		return controller.getDataReg(time);
+	case 4: {
+		byte value = 0x7F;
 		if (controller.getIRQ(time))  value |=  0x80;
 		if (controller.getDTRQ(time)) value &= ~0x40;
-		break;
-	default:
-		value = 255;
-		break;
+		return value;
 	}
-	return value;
+	default:
+		return 255;
+	}
 }
 
 byte MicrosolFDC::peekIO(word port, EmuTime::param time) const
 {
-	byte value;
 	switch (port & 0x07) {
 	case 0:
-		value = controller.peekStatusReg(time);
-		break;
+		return controller.peekStatusReg(time);
 	case 1:
-		value = controller.peekTrackReg(time);
-		break;
+		return controller.peekTrackReg(time);
 	case 2:
-		value = controller.peekSectorReg(time);
-		break;
+		return controller.peekSectorReg(time);
 	case 3:
-		value = controller.peekDataReg(time);
-		break;
-	case 4:
-		value = 0x7F;
+		return controller.peekDataReg(time);
+	case 4: {
+		byte value = 0x7F;
 		if (controller.peekIRQ(time))  value |=  0x80;
 		if (controller.peekDTRQ(time)) value &= ~0x40;
-		break;
-	default:
-		value = 255;
-		break;
+		return value;
 	}
-	return value;
+	default:
+		return 255;
+	}
 }
 
 void MicrosolFDC::writeIO(word port, byte value, EmuTime::param time)
@@ -98,28 +86,25 @@ void MicrosolFDC::writeIO(word port, byte value, EmuTime::param time)
 		// we need to connect this to the OSD later on.
 
 		// Set correct drive
-		DriveMultiplexer::DriveNum drive;
-		switch (value & 0x0F) {
-		case 1:
-			drive = DriveMultiplexer::DRIVE_A;
-			break;
-		case 2:
-			drive = DriveMultiplexer::DRIVE_B;
-			break;
-		case 4:
-			drive = DriveMultiplexer::DRIVE_C;
-			break;
-		case 8:
-			drive = DriveMultiplexer::DRIVE_D;
-			break;
-		default:
-			// No drive selected or two drives at same time
-			// The motor is enabled for all drives at the same time, so
-			// in a real machine you must take care to do not select more
-			// than one drive at the same time (you could get data
-			// collision).
-			drive = DriveMultiplexer::NO_DRIVE;
-		}
+		DriveMultiplexer::DriveNum drive = [&] {
+			switch (value & 0x0F) {
+			case 1:
+				return DriveMultiplexer::DRIVE_A;
+			case 2:
+				return DriveMultiplexer::DRIVE_B;
+			case 4:
+				return DriveMultiplexer::DRIVE_C;
+			case 8:
+				return DriveMultiplexer::DRIVE_D;
+			default:
+				// No drive selected or two drives at same time
+				// The motor is enabled for all drives at the same time, so
+				// in a real machine you must take care to do not select more
+				// than one drive at the same time (you could get data
+				// collision).
+				return DriveMultiplexer::NO_DRIVE;
+			}
+		}();
 		multiplexer.selectDrive(drive, time);
 		multiplexer.setSide((value & 0x10) != 0);
 		multiplexer.setMotor((value & 0x20) != 0, time);

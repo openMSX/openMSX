@@ -255,7 +255,7 @@ void* mallocAligned(size_t alignment, size_t size)
 	assert("must be a power of 2" && Math::ispow2(alignment));
 	assert(alignment >= sizeof(void*));
 #if HAVE_POSIX_MEMALIGN
-	void* aligned;
+	void* aligned = nullptr;
 	if (posix_memalign(&aligned, alignment, size)) {
 		throw std::bad_alloc();
 	}

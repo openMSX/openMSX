@@ -27,7 +27,8 @@ public:
 protected:
 	explicit Disk(DiskName name);
 	size_t physToLog(byte track, byte side, byte sector);
-	void logToPhys(size_t log, byte& track, byte& side, byte& sector);
+	struct TSS { byte track, side, sector; };
+	TSS logToPhys(size_t log);
 
 	virtual void detectGeometry();
 	virtual void detectGeometryFallback();

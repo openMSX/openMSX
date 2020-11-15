@@ -421,37 +421,32 @@ int16_t YMF278::getSample(Slot& op) const
 	// TODO How does this behave when R#2 bit 0 = 1?
 	//      As-if read returns 0xff? (Like for CPU memory reads.) Or is
 	//      sound generation blocked at some higher level?
-	int16_t sample;
 	switch (op.bits) {
 	case 0: {
 		// 8 bit
-		sample = readMem(op.startaddr + op.pos) << 8;
-		break;
+		return readMem(op.startaddr + op.pos) << 8;
 	}
 	case 1: {
 		// 12 bit
 		unsigned addr = op.startaddr + ((op.pos / 2) * 3);
 		if (op.pos & 1) {
-			sample = (readMem(addr + 2) << 8) |
-			         (readMem(addr + 1) & 0xF0);
+			return (readMem(addr + 2) << 8) |
+			       (readMem(addr + 1) & 0xF0);
 		} else {
-			sample = (readMem(addr + 0) << 8) |
-			         ((readMem(addr + 1) << 4) & 0xF0);
+			return (readMem(addr + 0) << 8) |
+			       ((readMem(addr + 1) << 4) & 0xF0);
 		}
-		break;
 	}
 	case 2: {
 		// 16 bit
 		unsigned addr = op.startaddr + (op.pos * 2);
-		sample = (readMem(addr + 0) << 8) |
-			 (readMem(addr + 1));
-		break;
+		return (readMem(addr + 0) << 8) |
+		        (readMem(addr + 1));
 	}
 	default:
 		// TODO unspecified
-		sample = 0;
+		return 0;
 	}
-	return sample;
 }
 
 bool YMF278::anyActive()
@@ -761,26 +756,21 @@ byte YMF278::readReg(byte reg)
 
 byte YMF278::peekReg(byte reg) const
 {
-	byte result;
 	switch (reg) {
 		case 2: // 3 upper bits are device ID
-			result = (regs[2] & 0x1F) | 0x20;
-			break;
+			return (regs[2] & 0x1F) | 0x20;
 
 		case 6: // Memory Data Register
 			if (regs[2] & 1) {
-				result = readMem(memadr);
+				return readMem(memadr);
 			} else {
 				// Verified on real YMF278
-				result = 0xff;
+				return 0xff;
 			}
-			break;
 
 		default:
-			result = regs[reg];
-			break;
+			return regs[reg];
 	}
-	return result;
 }
 
 constexpr unsigned INPUT_RATE = 44100;

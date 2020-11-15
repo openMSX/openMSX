@@ -139,13 +139,11 @@ byte SunriseIDE::readDataHigh(EmuTime::param /*time*/) const
 }
 word SunriseIDE::readData(EmuTime::param time)
 {
-	word result = device[selectedDevice]->readData(time);
-	return result;
+	return device[selectedDevice]->readData(time);
 }
 
 byte SunriseIDE::readReg(nibble reg, EmuTime::param time)
 {
-	byte result;
 	if (reg == 14) {
 		// alternate status register
 		reg = 7;
@@ -153,23 +151,23 @@ byte SunriseIDE::readReg(nibble reg, EmuTime::param time)
 	if (softReset) {
 		if (reg == 7) {
 			// read status
-			result = 0xFF; // BUSY
+			return 0xFF; // BUSY
 		} else {
 			// all others
-			result = 0x7F; // don't care
+			return 0x7F; // don't care
 		}
 	} else {
 		if (reg == 0) {
-			result = readData(time) & 0xFF;
+			return readData(time) & 0xFF;
 		} else {
-			result = device[selectedDevice]->readReg(reg, time);
+			byte result = device[selectedDevice]->readReg(reg, time);
 			if (reg == 6) {
 				result &= 0xEF;
 				result |= selectedDevice ? 0x10 : 0x00;
 			}
+			return result;
 		}
 	}
-	return result;
 }
 
 void SunriseIDE::writeDataLow(byte value)

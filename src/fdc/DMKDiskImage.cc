@@ -172,8 +172,7 @@ void DMKDiskImage::extendImageToTrack(byte track)
 
 void DMKDiskImage::readSectorImpl(size_t logicalSector, SectorBuffer& buf)
 {
-	byte track, side, sector;
-	logToPhys(logicalSector, track, side, sector);
+	auto [track, side, sector] = logToPhys(logicalSector);
 	RawTrack rawTrack;
 	readTrack(track, side, rawTrack);
 
@@ -188,8 +187,7 @@ void DMKDiskImage::readSectorImpl(size_t logicalSector, SectorBuffer& buf)
 
 void DMKDiskImage::writeSectorImpl(size_t logicalSector, const SectorBuffer& buf)
 {
-	byte track, side, sector;
-	logToPhys(logicalSector, track, side, sector);
+	auto [track, side, sector] = logToPhys(logicalSector);
 	RawTrack rawTrack;
 	readTrack(track, side, rawTrack);
 

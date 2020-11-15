@@ -39,13 +39,11 @@ byte MSXTurboRPCM::readIO(word port, EmuTime::param time)
 
 byte MSXTurboRPCM::peekIO(word port, EmuTime::param time) const
 {
-	byte result;
 	switch (port & 0x01) {
 	case 0:
 		// bit 0-1  15.75kHz counter
 		// bit 2-7  not used
-		result = reference.getTicksTill(time) & 0x03;
-		break;
+		return reference.getTicksTill(time) & 0x03;
 	case 1:
 		// bit 0   BUFF  0->D/A    TODO check this bit
 		//               1->A/D
@@ -59,12 +57,10 @@ byte MSXTurboRPCM::peekIO(word port, EmuTime::param time) const
 		// bit 5-6       not used
 		// bit 7   COMP  comparator result 0->greater
 		//                                 1->smaller
-		result = (getComp(time) ? 0x80 : 0x00) | (status & 0x1F);
-		break;
+		return (getComp(time) ? 0x80 : 0x00) | (status & 0x1F);
 	default: // unreachable, avoid warning
-		UNREACHABLE; result = 0;
+		UNREACHABLE; return 0;
 	}
-	return result;
 }
 
 void MSXTurboRPCM::writeIO(word port, byte value, EmuTime::param time)

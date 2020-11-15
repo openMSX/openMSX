@@ -178,20 +178,18 @@ void RomFSA1FM2::reset(EmuTime::param /*time*/)
 
 byte RomFSA1FM2::peekMem(word address, EmuTime::param time) const
 {
-	byte result;
 	if (0xC000 <= address) {
-		result = 0xFF;
+		return 0xFF;
 	} else if ((control & 0x04) && (0x7FF0 <= address) && (address < 0x7FF8)) {
 		// read mapper state
-		result = bankSelect[address & 7];
+		return bankSelect[address & 7];
 	} else if (isRam[address >> 13]) {
-		result = (*fsSram)[address & 0x1FFF];
+		return (*fsSram)[address & 0x1FFF];
 	} else if (isEmpty[address >> 13]) {
-		result = 0xFF;
+		return 0xFF;
 	} else {
-		result = Rom8kBBlocks::peekMem(address, time);
+		return Rom8kBBlocks::peekMem(address, time);
 	}
-	return result;
 }
 
 byte RomFSA1FM2::readMem(word address, EmuTime::param time)

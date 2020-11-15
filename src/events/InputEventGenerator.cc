@@ -146,21 +146,20 @@ void InputEventGenerator::setNewOsdControlButtonState(
 void InputEventGenerator::triggerOsdControlEventsFromJoystickAxisMotion(
 	unsigned axis, int value, const EventPtr& origEvent)
 {
-	unsigned neg_button, pos_button;
-	switch (axis) {
-	case 0:
-		neg_button = 1 << OsdControlEvent::LEFT_BUTTON;
-		pos_button = 1 << OsdControlEvent::RIGHT_BUTTON;
-		break; // axis 0
-	case 1:
-		neg_button = 1 << OsdControlEvent::UP_BUTTON;
-		pos_button = 1 << OsdControlEvent::DOWN_BUTTON;
-		break;
-	default:
-		// Ignore all other axis (3D joysticks and flight joysticks may
-		// have more than 2 axis)
-		return;
-	}
+	auto [neg_button, pos_button] = [&] {
+		switch (axis) {
+		case 0:
+			return std::pair{1u << OsdControlEvent::LEFT_BUTTON,
+			                 1u << OsdControlEvent::RIGHT_BUTTON};
+		case 1:
+			return std::pair{1u << OsdControlEvent::UP_BUTTON,
+			                 1u << OsdControlEvent::DOWN_BUTTON};
+		default:
+			// Ignore all other axis (3D joysticks and flight joysticks may
+			// have more than 2 axis)
+			return std::pair{0u, 0u};
+		}
+	}();
 
 	if (value > 0) {
 		// release negative button, press positive button
