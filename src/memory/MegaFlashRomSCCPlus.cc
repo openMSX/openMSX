@@ -248,21 +248,22 @@ unsigned MegaFlashRomSCCPlus::getSubslot(unsigned addr) const
 unsigned MegaFlashRomSCCPlus::getFlashAddr(unsigned addr) const
 {
 	unsigned subslot = getSubslot(addr);
-	unsigned tmp;
-	if ((configReg & 0xC0) == 0x40) {
-		unsigned bank = bankRegs[subslot][addr >> 14] + offsetReg;
-		tmp = (bank * 0x4000) + (addr & 0x3FFF);
-	} else {
-		unsigned page = (addr >> 13) - 2;
-		if (page >= 4) {
-			// Bank: -2, -1, 4, 5. So not mapped in this region,
-			// returned value should not be used. But querying it
-			// anyway is easier, see start of writeMem().
-			return unsigned(-1);
+	unsigned tmp = [&] {
+		if ((configReg & 0xC0) == 0x40) {
+			unsigned bank = bankRegs[subslot][addr >> 14] + offsetReg;
+			return (bank * 0x4000) + (addr & 0x3FFF);
+		} else {
+			unsigned page = (addr >> 13) - 2;
+			if (page >= 4) {
+				// Bank: -2, -1, 4, 5. So not mapped in this region,
+				// returned value should not be used. But querying it
+				// anyway is easier, see start of writeMem().
+				return unsigned(-1);
+			}
+			unsigned bank = bankRegs[subslot][page] + offsetReg;
+			return (bank * 0x2000) + (addr & 0x1FFF);
 		}
-		unsigned bank = bankRegs[subslot][page] + offsetReg;
-		tmp = (bank * 0x2000) + (addr & 0x1FFF);
-	}
+	}();
 	return ((0x40000 * subslot) + tmp) & 0xFFFFF; // wrap at 1MB
 }
 

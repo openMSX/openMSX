@@ -44,31 +44,38 @@ static SDLSurfacePtr getTempSurface(ivec2 size_)
 //  Extract R,G,B,A components to 8.16 bit fixed point.
 //  Note the order R,G,B,A is arbitrary, the actual pixel value may have the
 //  components in a different order.
-static void unpackRGBA(unsigned rgba,
-                       unsigned& r, unsigned&g, unsigned&b, unsigned& a)
+struct UnpackedRGBA {
+	unsigned r, g, b, a;
+};
+static UnpackedRGBA unpackRGBA(unsigned rgba)
 {
-	r = (((rgba >> 24) & 0xFF) << 16) + 0x8000;
-	g = (((rgba >> 16) & 0xFF) << 16) + 0x8000;
-	b = (((rgba >>  8) & 0xFF) << 16) + 0x8000;
-	a = (((rgba >>  0) & 0xFF) << 16) + 0x8000;
+	unsigned r = (((rgba >> 24) & 0xFF) << 16) + 0x8000;
+	unsigned g = (((rgba >> 16) & 0xFF) << 16) + 0x8000;
+	unsigned b = (((rgba >>  8) & 0xFF) << 16) + 0x8000;
+	unsigned a = (((rgba >>  0) & 0xFF) << 16) + 0x8000;
+	return {r, g, b, a};
 }
 // Setup outer loop (vertical) interpolation parameters.
 //  For each component there is a pair of (initial,delta) values. These values
 //  are 8.16 bit fixed point, delta is signed.
-static void setupInterp1(unsigned rgba0, unsigned rgba1, unsigned length,
-                         unsigned& r0, unsigned& g0, unsigned& b0, unsigned& a0,
-                         int& dr, int& dg, int& db, int& da)
+struct Interp1Result {
+	unsigned r0, g0, b0, a0;
+	int dr, dg, db, da;
+};
+static Interp1Result setupInterp1(unsigned rgba0, unsigned rgba1, unsigned length)
 {
-	unpackRGBA(rgba0, r0, g0, b0, a0);
+	auto [r0, g0, b0, a0] = unpackRGBA(rgba0);
 	if (length == 1) {
-		dr = dg = db = da = 0;
+		return {r0, g0, b0, a0,
+		        0,  0,  0,  0};
 	} else {
-		unsigned r1, g1, b1, a1;
-		unpackRGBA(rgba1, r1, g1, b1, a1);
-		dr = int(r1 - r0) / int(length - 1);
-		dg = int(g1 - g0) / int(length - 1);
-		db = int(b1 - b0) / int(length - 1);
-		da = int(a1 - a0) / int(length - 1);
+		auto [r1, g1, b1, a1] = unpackRGBA(rgba1);
+		int dr = int(r1 - r0) / int(length - 1);
+		int dg = int(g1 - g0) / int(length - 1);
+		int db = int(b1 - b0) / int(length - 1);
+		int da = int(a1 - a0) / int(length - 1);
+		return {r0, g0, b0, a0,
+		        dr, dg, db, da};
 	}
 }
 // Setup inner loop (horizontal) interpolation parameters.
@@ -86,24 +93,27 @@ static void setupInterp1(unsigned rgba0, unsigned rgba1, unsigned length,
 //   because in this routine we need the individual components of the values
 //   that are calculated by setupInterp1(). (It would also make the code even
 //   more complex).
-static void setupInterp2(unsigned r0, unsigned g0, unsigned b0, unsigned a0,
-                         unsigned r1, unsigned g1, unsigned b1, unsigned a1,
-                         unsigned length,
-                         unsigned&  rb, unsigned&  ga,
-                         unsigned& drb, unsigned& dga,
-                         bool&   subRB, bool&   subGA)
+struct Interp2Result {
+	unsigned rb, ga;
+	unsigned drb, dga;
+	bool subRB, subGA;
+};
+static Interp2Result setupInterp2(unsigned r0, unsigned g0, unsigned b0, unsigned a0,
+                                  unsigned r1, unsigned g1, unsigned b1, unsigned a1,
+                                  unsigned length)
 {
 	// Pack the initial values for the components R,B and G,A into
 	// a vector-type: two 8.16 scalars -> one [8.8 ; 8.8] vector
-	rb = ((r0 << 8) & 0xffff0000) |
-	     ((b0 >> 8) & 0x0000ffff);
-	ga = ((g0 << 8) & 0xffff0000) |
-	     ((a0 >> 8) & 0x0000ffff);
-	subRB = subGA = false;
+	unsigned rb = ((r0 << 8) & 0xffff0000) |
+	              ((b0 >> 8) & 0x0000ffff);
+	unsigned ga = ((g0 << 8) & 0xffff0000) |
+	              ((a0 >> 8) & 0x0000ffff);
 	if (length == 1) {
-		drb = dga = 0;
+		return {rb, ga, 0, 0, false, false};
 	} else {
 		// calculate delta values
+		bool subRB = false;
+		bool subGA = false;
 		int dr = int(r1 - r0) / int(length - 1);
 		int dg = int(g1 - g0) / int(length - 1);
 		int db = int(b1 - b0) / int(length - 1);
@@ -119,10 +129,11 @@ static void setupInterp2(unsigned r0, unsigned g0, unsigned b0, unsigned a0,
 			subGA = true;
 		}
 		// also pack two 8.16 delta values in one [8.8 ; 8.8] vector
-		drb = ((unsigned(dr) << 8) & 0xffff0000) |
-		      ((unsigned(db) >> 8) & 0x0000ffff);
-		dga = ((unsigned(dg) << 8) & 0xffff0000) |
-		      ((unsigned(da) >> 8) & 0x0000ffff);
+		unsigned drb = ((unsigned(dr) << 8) & 0xffff0000) |
+		               ((unsigned(db) >> 8) & 0x0000ffff);
+		unsigned dga = ((unsigned(dg) << 8) & 0xffff0000) |
+		               ((unsigned(da) >> 8) & 0x0000ffff);
+		return {rb, ga, drb, dga, subRB, subGA};
 	}
 }
 // Pack two [8.8 ; 8.8] vectors into one pixel.
@@ -142,22 +153,14 @@ static void gradient(const unsigned* rgba, SDL_Surface& surface, unsigned border
 	int height = surface.h - 2 * borderSize;
 	if ((width <= 0) || (height <= 0)) return;
 
-	unsigned r0, g0, b0, a0;
-	unsigned r1, g1, b1, a1;
-	int dr02, dg02, db02, da02;
-	int dr13, dg13, db13, da13;
-	setupInterp1(rgba[0], rgba[2], height, r0, g0, b0, a0, dr02, dg02, db02, da02);
-	setupInterp1(rgba[1], rgba[3], height, r1, g1, b1, a1, dr13, dg13, db13, da13);
+	auto [r0, g0, b0, a0, dr02, dg02, db02, da02] = setupInterp1(rgba[0], rgba[2], height);
+	auto [r1, g1, b1, a1, dr13, dg13, db13, da13] = setupInterp1(rgba[1], rgba[3], height);
 
 	auto* buffer = static_cast<unsigned*>(surface.pixels);
 	buffer += borderSize;
 	buffer += borderSize * (surface.pitch / sizeof(unsigned));
 	for (int y = 0; y < height; ++y) {
-		unsigned  rb,  ga;
-		unsigned drb, dga;
-		bool   subRB, subGA;
-		setupInterp2(r0, g0, b0, a0, r1, g1, b1, a1, width,
-		             rb, ga, drb, dga, subRB, subGA);
+		auto [rb,  ga, drb, dga, subRB, subGA] = setupInterp2(r0, g0, b0, a0, r1, g1, b1, a1, width);
 
 		// Depending on the subRB/subGA booleans, we need to add or
 		// subtract the delta to/from the initial value. There are

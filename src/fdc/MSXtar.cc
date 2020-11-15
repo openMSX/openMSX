@@ -419,34 +419,34 @@ unsigned MSXtar::addSubdir(
 	return logicalSector;
 }
 
-static void getTimeDate(time_t& totalSeconds, unsigned& time, unsigned& date)
+struct TimeDate {
+	unsigned time, date;
+};
+static TimeDate getTimeDate(time_t totalSeconds)
 {
-	tm* mtim = localtime(&totalSeconds);
-	if (!mtim) {
-		time = 0;
-		date = 0;
-	} else {
-		time = (mtim->tm_sec >> 1) + (mtim->tm_min << 5) +
-		       (mtim->tm_hour << 11);
-		date = mtim->tm_mday + ((mtim->tm_mon + 1) << 5) +
-		       ((mtim->tm_year + 1900 - 1980) << 9);
+	if (tm* mtim = localtime(&totalSeconds)) {
+		unsigned time = (mtim->tm_sec >> 1) + (mtim->tm_min << 5) +
+		                (mtim->tm_hour << 11);
+		unsigned date = mtim->tm_mday + ((mtim->tm_mon + 1) << 5) +
+		                ((mtim->tm_year + 1900 - 1980) << 9);
+		return {time, date};
 	}
+	return {0, 0};
 }
 
 // Get the time/date from a host file in MSX format
-static void getTimeDate(const string& filename, unsigned& time, unsigned& date)
+static TimeDate getTimeDate(const string& filename)
 {
 	struct stat st;
 	if (stat(filename.c_str(), &st)) {
 		// stat failed
-		time = 0;
-		date = 0;
+		return {0, 0};
 	} else {
 		// Some info indicates that st.st_mtime could be useless on win32 with vfat.
 		// On Android 'st_mtime' is 'unsigned long' instead of 'time_t'
 		// (like on linux), so we require a reinterpret_cast. That cast
 		// is fine (but redundant) on linux.
-		getTimeDate(reinterpret_cast<time_t&>(st.st_mtime), time, date);
+		return getTimeDate(reinterpret_cast<time_t&>(st.st_mtime));
 	}
 }
 
@@ -455,8 +455,7 @@ static void getTimeDate(const string& filename, unsigned& time, unsigned& date)
 unsigned MSXtar::addSubdirToDSK(const string& hostName, std::string_view msxName,
                                 unsigned sector)
 {
-	unsigned time, date;
-	getTimeDate(hostName, time, date);
+	auto [time, date] = getTimeDate(hostName);
 	return addSubdir(msxName, time, date, sector);
 }
 
@@ -584,8 +583,7 @@ string MSXtar::addFileToDSK(const string& fullHostName, unsigned rootSector)
 	dirEntry.attrib = T_MSX_REG;
 
 	// compute time/date stamps
-	unsigned time, date;
-	getTimeDate(fullHostName, time, date);
+	auto [time, date] = getTimeDate(fullHostName);
 	dirEntry.time = time;
 	dirEntry.date = date;
 
@@ -741,8 +739,7 @@ void MSXtar::chroot(string_view newRootDir, bool createDir)
 			// creat new subdir
 			time_t now;
 			time(&now);
-			unsigned t, d;
-			getTimeDate(now, t, d);
+			auto [t, d] = getTimeDate(now);
 			chrootSector = addSubdir(simple, t, d, chrootSector);
 		} else {
 			auto& dirEntry = buf.dirEntry[entry.index];

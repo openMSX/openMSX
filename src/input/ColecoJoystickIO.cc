@@ -40,7 +40,6 @@ byte ColecoJoystickIO::peekIO(word port, EmuTime::param time) const
 	const byte joyStatus = ports[joyPort]->read(time);
 	const byte* keys = keyboard.getKeys();
 
-	byte value;
 	if (joyMode == 0) {
 		// Combine keypad rows, convert to high-active and drop unused bits.
 		// Note: The keypad can only return one button press, but I don't know
@@ -51,12 +50,12 @@ byte ColecoJoystickIO::peekIO(word port, EmuTime::param time) const
 		constexpr byte keyEnc[] = {
 			0xF, 0xA, 0xD, 0x7, 0xC, 0x2, 0x3, 0xE, 0x5, 0x1, 0xB, 0x9, 0x6
 			};
-		value = keyEnc[Math::findFirstSet(keypadStatus)]
-		      | 0x30 // not connected
-		      | ((joyStatus << 1) & (keys[joyPort] >> 1) & 0x40); // trigger B
+		return keyEnc[Math::findFirstSet(keypadStatus)]
+		     | 0x30 // not connected
+		     | ((joyStatus << 1) & (keys[joyPort] >> 1) & 0x40); // trigger B
 	} else {
 		// Map MSX joystick direction bits to Coleco bits.
-		value =
+		byte value =
 			  ( joyStatus       & 0x01) // up
 			| ((joyStatus >> 2) & 0x02) // right
 			| ((joyStatus << 1) & 0x04) // down
@@ -67,9 +66,8 @@ byte ColecoJoystickIO::peekIO(word port, EmuTime::param time) const
 			// Note: ColEm puts 0 in bit 7.
 			//       I don't know why this is different from bit 4 and 5.
 		// Combine with row 0/1 of keyboard matrix.
-		value &= keys[joyPort] | ~0x4F;
+		return value & (keys[joyPort] | ~0x4F);
 	}
-	return value;
 }
 
 byte ColecoJoystickIO::readIO(word port, EmuTime::param time)

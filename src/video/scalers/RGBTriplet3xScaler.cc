@@ -22,20 +22,22 @@ RGBTriplet3xScaler<Pixel>::RGBTriplet3xScaler(
 }
 
 template <class Pixel>
-void RGBTriplet3xScaler<Pixel>::calcBlur(unsigned& c1, unsigned& c2)
+std::pair<unsigned, unsigned> RGBTriplet3xScaler<Pixel>::calcBlur()
 {
-	c1 = settings.getBlurFactor();
-	c2 = (3 * 256) - (2 * c1);
+	unsigned c1 = settings.getBlurFactor();
+	unsigned c2 = (3 * 256) - (2 * c1);
+	return {c1, c2};
 }
 
-static inline void calcSpil(unsigned c1, unsigned c2, unsigned x, unsigned& r, unsigned& s)
+static inline std::pair<unsigned, unsigned> calcSpil(unsigned c1, unsigned c2, unsigned x)
 {
-	r = (c2 * x) >> 8;
-	s = (c1 * x) >> 8;
+	unsigned r = (c2 * x) >> 8;
+	unsigned s = (c1 * x) >> 8;
 	if (r > 255) {
 		s += (r - 255) / 2;
 		r = 255;
 	}
+	return {r, s};
 }
 
 template <class Pixel>
@@ -43,29 +45,28 @@ void RGBTriplet3xScaler<Pixel>::rgbify(
 	const Pixel* __restrict in, Pixel* __restrict out, unsigned inwidth,
 	unsigned c1, unsigned c2)
 {
-	unsigned r, g, b, rs, gs, bs;
 	unsigned i = 0;
 
-	calcSpil(c1, c2, pixelOps.red256  (in[i + 0]), r, rs);
-	calcSpil(c1, c2, pixelOps.green256(in[i + 0]), g, gs);
+	auto    [r, rs] = calcSpil(c1, c2, pixelOps.red256  (in[i + 0]));
+	auto    [g, gs] = calcSpil(c1, c2, pixelOps.green256(in[i + 0]));
 	out[3 * i + 0] = pixelOps.combine256(r , gs, 0 );
-	calcSpil(c1, c2, pixelOps.blue256 (in[i + 0]), b, bs);
+	auto    [b, bs] = calcSpil(c1, c2, pixelOps.blue256 (in[i + 0]));
 	out[3 * i + 1] = pixelOps.combine256(rs, g , bs);
-	calcSpil(c1, c2, pixelOps.red256  (in[i + 1]), r, rs);
+	std::tie(r, rs) = calcSpil(c1, c2, pixelOps.red256  (in[i + 1]));
 	out[3 * i + 2] = pixelOps.combine256(rs, gs, b );
 
 	for (++i; i < (inwidth - 1); ++i) {
-		calcSpil(c1, c2, pixelOps.green256(in[i + 0]), g, gs);
+		std::tie(g, gs) = calcSpil(c1, c2, pixelOps.green256(in[i + 0]));
 		out[3 * i + 0] = pixelOps.combine256(r , gs, bs);
-		calcSpil(c1, c2, pixelOps.blue256 (in[i + 0]), b, bs);
+		std::tie(b, bs) = calcSpil(c1, c2, pixelOps.blue256 (in[i + 0]));
 		out[3 * i + 1] = pixelOps.combine256(rs, g , bs);
-		calcSpil(c1, c2, pixelOps.red256  (in[i + 1]), r, rs);
+		std::tie(r, rs) = calcSpil(c1, c2, pixelOps.red256  (in[i + 1]));
 		out[3 * i + 2] = pixelOps.combine256(rs, gs, b );
 	}
 
-	calcSpil(c1, c2, pixelOps.green256(in[i + 0]), g, gs);
+	std::tie(g, gs) = calcSpil(c1, c2, pixelOps.green256(in[i + 0]));
 	out[3 * i + 0] = pixelOps.combine256(r , gs, bs);
-	calcSpil(c1, c2, pixelOps.blue256 (in[i + 0]), b, bs);
+	std::tie(b, bs) = calcSpil(c1, c2, pixelOps.blue256 (in[i + 0]));
 	out[3 * i + 1] = pixelOps.combine256(rs, g , bs);
 	out[3 * i + 2] = pixelOps.combine256(0 , gs, b );
 }
@@ -95,8 +96,7 @@ void RGBTriplet3xScaler<Pixel>::doScale1(FrameSource& src,
 {
 	VLA_SSE_ALIGNED(Pixel, buf, srcWidth);
 
-	unsigned c1, c2;
-	calcBlur(c1, c2);
+	auto [c1, c2] = calcBlur();
 
 	unsigned dstWidth = dst.getWidth();
 	unsigned tmpWidth = dstWidth / 3;
@@ -146,8 +146,7 @@ void RGBTriplet3xScaler<Pixel>::doScale2(FrameSource& src,
 	PolyLineScaler<Pixel>& scale)
 {
 	VLA_SSE_ALIGNED(Pixel, buf, srcWidth);
-	unsigned c1, c2;
-	calcBlur(c1, c2);
+	auto [c1, c2] = calcBlur();
 
 	unsigned dstWidth = dst.getWidth();
 	unsigned tmpWidth = dstWidth / 3;
@@ -314,8 +313,7 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank1to3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	unsigned c1, c2;
-	calcBlur(c1, c2);
+	auto [c1, c2] = calcBlur();
 	int scanlineFactor = settings.getScanlineFactor();
 
 	unsigned dstWidth  = dst.getWidth();
@@ -362,8 +360,7 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank2to3(
 		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	unsigned c1, c2;
-	calcBlur(c1, c2);
+	auto [c1, c2] = calcBlur();
 	int scanlineFactor = settings.getScanlineFactor();
 	unsigned dstWidth = dst.getWidth();
 	for (unsigned srcY = srcStartY, dstY = dstStartY;

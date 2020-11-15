@@ -677,31 +677,38 @@ void MSXMixer::updateVolumeParams(SoundDeviceInfo& info)
 	int dVolume = info.volumeSetting->getInt();
 	float volume = info.defaultVolume * mVolume * dVolume / (100.0f * 100.0f);
 	int balance = info.balanceSetting->getInt();
-	float l1, r1, l2, r2;
-	if (info.device->isStereo()) {
-		if (balance < 0) {
-			float b = (balance + 100.0f) / 100.0f;
-			l1 = volume;
-			r1 = 0.0f;
-			l2 = volume * sqrtf(std::max(0.0f, 1.0f - b));
-			r2 = volume * sqrtf(std::max(0.0f,        b));
+	auto [l1, r1, l2, r2] = [&] {
+		if (info.device->isStereo()) {
+			if (balance < 0) {
+				float b = (balance + 100.0f) / 100.0f;
+				return std::tuple{
+					/*l1 =*/ volume,
+					/*r1 =*/ 0.0f,
+					/*l2 =*/ volume * sqrtf(std::max(0.0f, 1.0f - b)),
+					/*r2 =*/ volume * sqrtf(std::max(0.0f,        b))
+				};
+			} else {
+				float b = balance / 100.0f;
+				return std::tuple{
+					/*l1 =*/ volume * sqrtf(std::max(0.0f, 1.0f - b)),
+					/*r1 =*/ volume * sqrtf(std::max(0.0f,        b)),
+					/*l2 =*/ 0.0f,
+					/*r2 =*/ volume
+				};
+			}
 		} else {
-			float b = balance / 100.0f;
-			l1 = volume * sqrtf(std::max(0.0f, 1.0f - b));
-			r1 = volume * sqrtf(std::max(0.0f,        b));
-			l2 = 0.0f;
-			r2 = volume;
+			// make sure that in case of rounding errors
+			// we don't take sqrt() of negative numbers
+			float b = (balance + 100.0f) / 200.0f;
+			return std::tuple{
+				/*l1 =*/ volume * sqrtf(std::max(0.0f, 1.0f - b)),
+				/*r1 =*/ volume * sqrtf(std::max(0.0f,        b)),
+				/*l2 =*/ 0.0f, // dummy
+				/*r2 =*/ 0.0f  // dummy
+			};
 		}
-	} else {
-		// make sure that in case of rounding errors
-		// we don't take sqrt() of negative numbers
-		float b = (balance + 100.0f) / 200.0f;
-		l1 = volume * sqrtf(std::max(0.0f, 1.0f - b));
-		r1 = volume * sqrtf(std::max(0.0f,        b));
-		l2 = r2 = 0.0f; // dummy
-	}
-	float ampL, ampR;
-	std::tie(ampL, ampR) = info.device->getAmplificationFactor();
+	}();
+	auto [ampL, ampR] = info.device->getAmplificationFactor();
 	info.left1  = l1 * ampL;
 	info.right1 = r1 * ampR;
 	info.left2  = l2 * ampL;

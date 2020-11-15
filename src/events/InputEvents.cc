@@ -249,18 +249,19 @@ JoystickHatEvent::JoystickHatEvent(unsigned joystick_, unsigned hat_, unsigned v
 TclObject JoystickHatEvent::toTclList() const
 {
 	auto result = JoystickEvent::toTclHelper();
-	const char* str;
-	switch (getValue()) {
-		case SDL_HAT_UP:        str = "up";        break;
-		case SDL_HAT_RIGHT:     str = "right";     break;
-		case SDL_HAT_DOWN:      str = "down";      break;
-		case SDL_HAT_LEFT:      str = "left";      break;
-		case SDL_HAT_RIGHTUP:   str = "rightup";   break;
-		case SDL_HAT_RIGHTDOWN: str = "rightdown"; break;
-		case SDL_HAT_LEFTUP:    str = "leftup";    break;
-		case SDL_HAT_LEFTDOWN:  str = "leftdown";  break;
-		default:                str = "center";    break;
-	}
+	const char* str = [&] {
+		switch (getValue()) {
+			case SDL_HAT_UP:        return "up";
+			case SDL_HAT_RIGHT:     return "right";
+			case SDL_HAT_DOWN:      return "down";
+			case SDL_HAT_LEFT:      return "left";
+			case SDL_HAT_RIGHTUP:   return "rightup";
+			case SDL_HAT_RIGHTDOWN: return "rightdown";
+			case SDL_HAT_LEFTUP:    return "leftup";
+			case SDL_HAT_LEFTDOWN:  return "leftdown";
+			default:                return "center";
+		}
+	}();
 	result.addListElement(strCat("hat", getHat()), str);
 	return result;
 }

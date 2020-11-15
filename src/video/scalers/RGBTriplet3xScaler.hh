@@ -4,6 +4,7 @@
 #include "Scaler3.hh"
 #include "PixelOperations.hh"
 #include "Scanline.hh"
+#include <utility>
 
 namespace openmsx {
 
@@ -68,7 +69,7 @@ protected:
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
 
 private:
-	void calcBlur(unsigned& c1, unsigned& c2);
+	std::pair<unsigned, unsigned> calcBlur();
 
 	/**
 	 * Calculates the RGB triplets.

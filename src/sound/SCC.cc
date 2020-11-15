@@ -204,50 +204,45 @@ byte SCC::readMem(byte addr, EmuTime::param time)
 
 byte SCC::peekMem(byte address, EmuTime::param time) const
 {
-	byte result;
 	switch (currentChipMode) {
 	case SCC_Real:
 		if (address < 0x80) {
 			// 0x00..0x7F : read wave form 1..4
-			result = readWave(address >> 5, address, time);
+			return readWave(address >> 5, address, time);
 		} else {
 			// 0x80..0x9F : freq volume block, write only
 			// 0xA0..0xDF : no function
 			// 0xE0..0xFF : deformation register
-			result = 0xFF;
+			return 0xFF;
 		}
-		break;
 	case SCC_Compatible:
 		if (address < 0x80) {
 			// 0x00..0x7F : read wave form 1..4
-			result = readWave(address >> 5, address, time);
+			return readWave(address >> 5, address, time);
 		} else if (address < 0xA0) {
 			// 0x80..0x9F : freq volume block
-			result = 0xFF;
+			return 0xFF;
 		} else if (address < 0xC0) {
 			// 0xA0..0xBF : read wave form 5
-			result = readWave(4, address, time);
+			return readWave(4, address, time);
 		} else {
 			// 0xC0..0xDF : deformation register
 			// 0xE0..0xFF : no function
-			result = 0xFF;
+			return 0xFF;
 		}
-		break;
 	case SCC_plusmode:
 		if (address < 0xA0) {
 			// 0x00..0x9F : read wave form 1..5
-			result = readWave(address >> 5, address, time);
+			return readWave(address >> 5, address, time);
 		} else {
 			// 0xA0..0xBF : freq volume block
 			// 0xC0..0xDF : deformation register
 			// 0xE0..0xFF : no function
-			result = 0xFF;
+			return 0xFF;
 		}
-		break;
 	default:
 		UNREACHABLE; return 0;
 	}
-	return result;
 }
 
 byte SCC::readWave(unsigned channel, unsigned address, EmuTime::param time) const

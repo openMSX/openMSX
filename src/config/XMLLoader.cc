@@ -69,13 +69,14 @@ XMLElement load(string_view filename, string_view systemID)
 
 void XMLElementParser::start(string_view name)
 {
-	XMLElement* newElem;
-	if (!current.empty()) {
-		newElem = &current.back()->addChild(string(name));
-	} else {
-		root.setName(string(name));
-		newElem = &root;
-	}
+	XMLElement* newElem = [&] {
+		if (!current.empty()) {
+			return &current.back()->addChild(string(name));
+		} else {
+			root.setName(string(name));
+			return &root;
+		}
+	}();
 	current.push_back(newElem);
 }
 
