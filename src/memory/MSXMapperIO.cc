@@ -18,15 +18,14 @@ static byte calcReadBackMask(MSXMotherBoard& motherBoard)
 	if (type == "largest") {
 		return 0x00; // all bits can be read
 	}
-	std::string str(type);
-	int bits;
-	if (!StringOp::stringToInt(str, bits)) {
+	auto bits = StringOp::stringToInt(std::string(type)); // TODO optimize
+	if (!bits) {
 		throw FatalError("Unknown mapper type: \"", type, "\".");
 	}
-	if (bits < 0 || bits > 8) {
+	if (*bits < 0 || *bits > 8) {
 		throw FatalError("MapperReadBackBits out of range: \"", type, "\".");
 	}
-	return unsigned(-1) << bits;
+	return unsigned(-1) << *bits;
 }
 
 MSXMapperIO::MSXMapperIO(const DeviceConfig& config)

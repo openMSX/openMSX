@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <iomanip>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -16,14 +17,11 @@
 
 namespace StringOp
 {
-	[[nodiscard]] int stringToInt(const std::string& str);
-	[[nodiscard]] bool stringToInt(const std::string& str, int& result);
-	[[nodiscard]] unsigned stringToUint(const std::string& str);
-	[[nodiscard]] bool stringToUint(const std::string& str, unsigned& result);
-	[[nodiscard]] uint64_t stringToUint64(const std::string& str);
+	[[nodiscard]] std::optional<int>      stringToInt   (const std::string& str);
+	[[nodiscard]] std::optional<unsigned> stringToUint  (const std::string& str);
+	[[nodiscard]] std::optional<uint64_t> stringToUint64(const std::string& str);
+	[[nodiscard]] std::optional<double>   stringToDouble(const std::string& str);
 	[[nodiscard]] bool stringToBool(std::string_view str);
-	[[nodiscard]] double stringToDouble(const std::string& str);
-	[[nodiscard]] bool stringToDouble(const std::string& str, double& result);
 
 	[[nodiscard]] std::string toLower(std::string_view str);
 

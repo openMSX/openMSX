@@ -9,12 +9,10 @@ using std::vector;
 
 static void testStringToInt(const string& s, bool ok, int expected)
 {
-	int result;
-	bool success = stringToInt(s, result);
-	REQUIRE(success == ok);
+	auto result = stringToInt(s);
+	REQUIRE(!!result == ok);
 	if (ok) {
-		CHECK(result == expected);
-		CHECK(stringToInt(s) == expected);
+		CHECK(*result == expected);
 	}
 }
 

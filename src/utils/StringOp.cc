@@ -13,31 +13,36 @@ using std::vector;
 
 namespace StringOp {
 
-int stringToInt(const string& str)
-{
-	return strtol(str.c_str(), nullptr, 0);
-}
-bool stringToInt(const string& str, int& result)
+std::optional<int> stringToInt(const string& str)
 {
 	char* endptr;
-	result = strtol(str.c_str(), &endptr, 0);
-	return *endptr == '\0';
+	int result = strtol(str.c_str(), &endptr, 0);
+	if (*endptr == '\0') return result;
+	return {};
 }
 
-unsigned stringToUint(const string& str)
-{
-	return strtoul(str.c_str(), nullptr, 0);
-}
-bool stringToUint(const string& str, unsigned& result)
+std::optional<unsigned> stringToUint(const string& str)
 {
 	char* endptr;
-	result = strtoul(str.c_str(), &endptr, 0);
-	return *endptr == '\0';
+	unsigned result = strtoul(str.c_str(), &endptr, 0);
+	if (*endptr == '\0') return result;
+	return {};
 }
 
-uint64_t stringToUint64(const string& str)
+std::optional<uint64_t> stringToUint64(const string& str)
 {
-	return strtoull(str.c_str(), nullptr, 0);
+	char* endptr;
+	uint64_t result = strtoull(str.c_str(), &endptr, 0);
+	if (*endptr == '\0') return result;
+	return {};
+}
+
+std::optional<double> stringToDouble(const string& str)
+{
+	char* endptr;
+	double result = strtod(str.c_str(), &endptr);
+	if (*endptr == '\0') return result;
+	return {};
 }
 
 bool stringToBool(string_view str)
@@ -48,17 +53,6 @@ bool stringToBool(string_view str)
 	if ((str.size() == 3) && (strncasecmp(str.data(), "yes", 3) == 0))
 		return true;
 	return false;
-}
-
-double stringToDouble(const string& str)
-{
-	return strtod(str.c_str(), nullptr);
-}
-bool stringToDouble(const string& str, double& result)
-{
-	char* endptr;
-	result = strtod(str.c_str(), &endptr);
-	return *endptr == '\0';
 }
 
 string toLower(string_view str)
