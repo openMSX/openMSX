@@ -165,26 +165,25 @@ byte V9990::readIO(word port, EmuTime::param time)
 	port &= 0x0F;
 
 	// calculate return value (mostly uses peekIO)
-	byte result;
-	switch (port) {
-	case COMMAND_DATA:
-		result = cmdEngine->getCmdData(time);
-		break;
-
-	case VRAM_DATA:
-	case PALETTE_DATA:
-	case REGISTER_DATA:
-	case INTERRUPT_FLAG:
-	case STATUS:
-	case KANJI_ROM_0:
-	case KANJI_ROM_1:
-	case KANJI_ROM_2:
-	case KANJI_ROM_3:
-	case REGISTER_SELECT:
-	case SYSTEM_CONTROL:
-	default:
-		result = peekIO(port, time);
-	}
+	byte result = [&] {
+		switch (port) {
+		case COMMAND_DATA:
+			return cmdEngine->getCmdData(time);
+		case VRAM_DATA:
+		case PALETTE_DATA:
+		case REGISTER_DATA:
+		case INTERRUPT_FLAG:
+		case STATUS:
+		case KANJI_ROM_0:
+		case KANJI_ROM_1:
+		case KANJI_ROM_2:
+		case KANJI_ROM_3:
+		case REGISTER_SELECT:
+		case SYSTEM_CONTROL:
+		default:
+			return peekIO(port, time);
+		}
+	}();
 	// TODO verify this, especially REGISTER_DATA
 	if (systemReset) return result; // no side-effects
 
@@ -224,31 +223,25 @@ byte V9990::readIO(word port, EmuTime::param time)
 
 byte V9990::peekIO(word port, EmuTime::param time) const
 {
-	byte result;
 	switch (port & 0x0F) {
 	case VRAM_DATA: {
 		// TODO in 'systemReset' mode, this seems to hang the MSX
 		// V9990 fetches from read buffer instead of directly from VRAM.
 		// The read buffer is the reason why it is impossible to fill
 		// vram by copying a block from "addr" to "addr+1".
-		result = vramReadBuffer;
-		break;
+		return vramReadBuffer;
 	}
 	case PALETTE_DATA:
-		result = palette[regs[PALETTE_POINTER]];
-		break;
+		return palette[regs[PALETTE_POINTER]];
 
 	case COMMAND_DATA:
-		result = cmdEngine->peekCmdData(time);
-		break;
+		return cmdEngine->peekCmdData(time);
 
 	case REGISTER_DATA:
-		result = readRegister(regSelect & 0x3F, time);
-		break;
+		return readRegister(regSelect & 0x3F, time);
 
 	case INTERRUPT_FLAG:
-		result = pendingIRQs;
-		break;
+		return pendingIRQs;
 
 	case STATUS: {
 		unsigned left   = getLeftBorder();
@@ -261,17 +254,15 @@ byte V9990::peekIO(word port, EmuTime::param time) const
 		bool hr = (x < left) || (right  <= x);
 		bool vr = (y < top)  || (bottom <= y);
 
-		result = cmdEngine->getStatus(time) |
-		         (vr ? 0x40 : 0x00) |
-		         (hr ? 0x20 : 0x00) |
-		         (status & 0x06);
-		break;
+		return cmdEngine->getStatus(time) |
+		       (vr ? 0x40 : 0x00) |
+		       (hr ? 0x20 : 0x00) |
+		       (status & 0x06);
 	}
 	case KANJI_ROM_1:
 	case KANJI_ROM_3:
 		// not used in Gfx9000
-		result = 0xFF; // TODO check
-		break;
+		return 0xFF; // TODO check
 
 	case REGISTER_SELECT:
 	case SYSTEM_CONTROL:
@@ -279,10 +270,8 @@ byte V9990::peekIO(word port, EmuTime::param time) const
 	case KANJI_ROM_2:
 	default:
 		// write-only
-		result = 0xFF;
-		break;
+		return 0xFF;
 	}
-	return result;
 }
 
 void V9990::writeIO(word port, byte val, EmuTime::param time)
@@ -555,19 +544,17 @@ byte V9990::readRegister(byte reg, EmuTime::param time) const
 	if (systemReset) return 255; // verified on real MSX
 
 	assert(reg < 64);
-	byte result;
 	if (regAccess[reg] & ALLOW_READ) {
 		if (reg < CMD_PARAM_BORDER_X_0) {
-			result = regs[reg];
+			return regs[reg];
 		} else {
 			word borderX = cmdEngine->getBorderX(time);
-			result = (reg == CMD_PARAM_BORDER_X_0)
+			return (reg == CMD_PARAM_BORDER_X_0)
 			       ? (borderX & 0xFF) : (borderX >> 8);
 		}
 	} else {
-		result = 0xFF;
+		return 0xFF;
 	}
-	return result;
 }
 
 void V9990::syncAtNextLine(SyncBase& type, EmuTime::param time)
@@ -693,12 +680,13 @@ void V9990::writePaletteRegister(byte reg, byte val, EmuTime::param time)
 	}
 }
 
-void V9990::getPalette(int index, byte& r, byte& g, byte& b, bool& ys) const
+V9990::GetPaletteResult V9990::getPalette(int index) const
 {
-	r = palette[4 * index + 0] & 0x1F;
-	g = palette[4 * index + 1];
-	b = palette[4 * index + 2];
-	ys = isSuperimposing() && (palette[4 * index + 0] & 0x80);
+	byte r = palette[4 * index + 0] & 0x1F;
+	byte g = palette[4 * index + 1];
+	byte b = palette[4 * index + 2];
+	bool ys = isSuperimposing() && (palette[4 * index + 0] & 0x80);
+	return {r, g, b, ys};
 }
 
 void V9990::createRenderer(EmuTime::param time)
@@ -867,15 +855,16 @@ void V9990::scheduleHscan(EmuTime::param time)
 	}
 
 	int ticks = frameStartTime.getTicksTill_fast(time);
-	int offset;
-	if (regs[INTERRUPT_2] & 0x80) {
-		// every line
-		offset = ticks - (ticks % V9990DisplayTiming::UC_TICKS_PER_LINE);
-	} else {
-		int line = regs[INTERRUPT_1] + 256 * (regs[INTERRUPT_2] & 3) +
-		           getTopBorder();
-		offset = line * V9990DisplayTiming::UC_TICKS_PER_LINE;
-	}
+	int offset = [&] {
+		if (regs[INTERRUPT_2] & 0x80) {
+			// every line
+			return ticks - (ticks % V9990DisplayTiming::UC_TICKS_PER_LINE);
+		} else {
+			int line = regs[INTERRUPT_1] + 256 * (regs[INTERRUPT_2] & 3) +
+				   getTopBorder();
+			return line * V9990DisplayTiming::UC_TICKS_PER_LINE;
+		}
+	}();
 	int mult = (status & 0x04) ? 3 : 2; // MCLK / XTAL1
 	offset += (regs[INTERRUPT_3] & 0x0F) * 64 * mult;
 	if (offset <= ticks) {

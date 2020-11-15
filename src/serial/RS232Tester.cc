@@ -85,7 +85,6 @@ std::string_view RS232Tester::getDescription() const
 
 void RS232Tester::run()
 {
-	byte buf;
 	if (!inFile) return;
 	while (!feof(inFile.get())) {
 #ifndef _WIN32
@@ -93,6 +92,7 @@ void RS232Tester::run()
 			break;
 		}
 #endif
+		byte buf;
 		size_t num = fread(&buf, 1, 1, inFile.get());
 		if (poller.aborted()) {
 			break;

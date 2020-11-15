@@ -176,9 +176,9 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 	unsigned width = 0;
 	unsigned lineHeight = 0; // initialize to avoid warning
 	for (auto& s : lines) {
-		unsigned w;
-		getSize(string(s), w, lineHeight);
-		width = std::max(width, w);
+		auto [w, h] = getSize(string(s));
+		width = std::max<unsigned>(width, w);
+		lineHeight = h;
 	}
 	// There might be extra space between two successive lines
 	// (so lineSkip might be bigger than lineHeight).
@@ -242,14 +242,14 @@ unsigned TTFFont::getWidth() const
 	return advance;
 }
 
-void TTFFont::getSize(const std::string& text,
-                      unsigned& width, unsigned& height) const
+gl::ivec2 TTFFont::getSize(const std::string& text) const
 {
+	int width, height;
 	if (TTF_SizeUTF8(static_cast<TTF_Font*>(font), text.c_str(),
-	                 reinterpret_cast<int*>(&width),
-	                 reinterpret_cast<int*>(&height))) {
+	                 &width, &height)) {
 		throw MSXException(TTF_GetError());
 	}
+	return {width, height};
 }
 
 } // namespace openmsx

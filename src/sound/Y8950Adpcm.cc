@@ -450,23 +450,24 @@ int Y8950Adpcm::calcSample(bool doEmu)
 	pd.nowStep += delta;
 	if (pd.nowStep & ~STEP_MASK) {
 		pd.nowStep &= STEP_MASK;
-		byte val;
-		if (!(pd.memPntr & 1)) {
-			// even nibble
-			if (reg7 & R07_MEMORY_DATA) {
-				pd.adpcm_data = readMemory(pd.memPntr);
-			} else {
-				pd.adpcm_data = reg15;
-				// set BRDY bit, ready to accept new data
-				if (doEmu) {
-					y8950.setStatus(Y8950::STATUS_BUF_RDY);
+		byte val = [&] {
+			if (!(pd.memPntr & 1)) {
+				// even nibble
+				if (reg7 & R07_MEMORY_DATA) {
+					pd.adpcm_data = readMemory(pd.memPntr);
+				} else {
+					pd.adpcm_data = reg15;
+					// set BRDY bit, ready to accept new data
+					if (doEmu) {
+						y8950.setStatus(Y8950::STATUS_BUF_RDY);
+					}
 				}
+				return pd.adpcm_data >> 4;
+			} else {
+				// odd nibble
+				return pd.adpcm_data & 0x0F;
 			}
-			val = pd.adpcm_data >> 4;
-		} else {
-			// odd nibble
-			val = pd.adpcm_data & 0x0F;
-		}
+		}();
 		int prevOut = pd.out;
 		pd.out = Math::clipIntToShort(pd.out + (pd.diff * F1[val]) / 8);
 		pd.diff = std::clamp((pd.diff * F2[val]) / 64, DMIN, DMAX);

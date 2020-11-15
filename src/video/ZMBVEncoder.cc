@@ -350,8 +350,7 @@ const void* ZMBVEncoder::getScaledLine(FrameSource* frame, unsigned y, void* wor
 	return nullptr; // avoid warning
 }
 
-void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
-                                void*& buffer, unsigned& written)
+span<const uint8_t> ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame)
 {
 	std::swap(newframe, oldframe); // replace oldframe with newframe
 
@@ -431,8 +430,7 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 	auto r = deflate(&zstream, Z_SYNC_FLUSH);
 	assert(r == Z_OK); (void)r;
 
-	buffer = output.data();
-	written = writeDone + zstream.total_out;
+	return {output.data(), writeDone + zstream.total_out};
 }
 
 } // namespace openmsx

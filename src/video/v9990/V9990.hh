@@ -100,16 +100,16 @@ public:
 
 	/** Get palette entry
 	  * @param[in] index The palette index
-	  * @param[out] r red   component of the color
-	  * @param[out] g green component of the color
-	  * @param[out] b blue  component of the color
-	  * @param[out] ys  ys  value of the color
 	  * ys is only true iff
 	  *  - bit 5 (YSE) in R#8 is set
 	  *  - there is an external video source set
 	  *  - the YS bit in the palette-entry is set
 	  */
-	void getPalette(int index, byte& r, byte& g, byte& b, bool& ys) const;
+	struct GetPaletteResult {
+		byte r, g, b;
+		bool ys;
+	};
+	GetPaletteResult getPalette(int index) const;
 
 	/** Get the number of elapsed UC ticks in this frame.
 	  * @param  time Point in emulated time.

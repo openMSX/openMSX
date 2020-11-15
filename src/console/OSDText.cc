@@ -74,18 +74,19 @@ void OSDText::setProperty(
 		}
 	} else if (propName == "-wrap") {
 		string_view val = value.getString();
-		WrapMode wrapMode2;
-		if (val == "none") {
-			wrapMode2 = NONE;
-		} else if (val == "word") {
-			wrapMode2 = WORD;
-		} else if (val == "char") {
-			wrapMode2 = CHAR;
-		} else {
-			throw CommandException("Not a valid value for -wrap, "
-				"expected one of 'none word char', but got '",
-				val, "'.");
-		}
+		WrapMode wrapMode2 = [&] {
+			if (val == "none") {
+				return NONE;
+			} else if (val == "word") {
+				return WORD;
+			} else if (val == "char") {
+				return CHAR;
+			} else {
+				throw CommandException("Not a valid value for -wrap, "
+					"expected one of 'none word char', but got '",
+					val, "'.");
+			}
+		}();
 		if (wrapMode != wrapMode2) {
 			wrapMode = wrapMode2;
 			invalidateRecursive();
@@ -297,8 +298,7 @@ size_t OSDText::split(const string& line, unsigned maxWidth,
 		return 0;
 	}
 
-	unsigned width, height;
-	font.getSize(line, width, height);
+	unsigned width = font.getSize(line)[0];
 	if (width <= maxWidth) {
 		// whole line fits
 		return line.size();
@@ -323,8 +323,8 @@ size_t OSDText::split(const string& line, unsigned maxWidth,
 		if (removeTrailingSpaces) {
 			StringOp::trimRight(curStr, ' ');
 		}
-		font.getSize(curStr, width, height);
-		if (width <= maxWidth) {
+		unsigned width2 = font.getSize(curStr)[0];
+		if (width2 <= maxWidth) {
 			// still fits, try to enlarge
 			size_t next = findSplitPoint(line, cur, max);
 			if (next == cur) {

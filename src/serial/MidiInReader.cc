@@ -71,7 +71,6 @@ std::string_view MidiInReader::getDescription() const
 
 void MidiInReader::run()
 {
-	byte buf;
 	if (!file) return;
 	while (true) {
 #ifndef _WIN32
@@ -79,6 +78,7 @@ void MidiInReader::run()
 			break;
 		}
 #endif
+		byte buf;
 		size_t num = fread(&buf, 1, 1, file.get());
 		if (poller.aborted()) {
 			break;

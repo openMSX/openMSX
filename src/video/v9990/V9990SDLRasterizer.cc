@@ -350,9 +350,7 @@ void V9990SDLRasterizer<Pixel>::resetPalette()
 {
 	// get 64 color palette from VDP
 	for (int i = 0; i < 64; ++i) {
-		byte r, g, b;
-		bool ys;
-		vdp.getPalette(i, r, g, b, ys);
+		auto [r, g, b, ys] = vdp.getPalette(i);
 		setPalette(i, r, g, b, ys);
 	}
 	palette256[0] = vdp.isSuperimposing() ? screen.getKeyColor<Pixel>()

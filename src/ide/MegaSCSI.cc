@@ -81,7 +81,6 @@ void MegaSCSI::reset(EmuTime::param /*time*/)
 
 byte MegaSCSI::readMem(word address, EmuTime::param /*time*/)
 {
-	byte result;
 	if ((0x4000 <= address) && (address < 0xC000)) {
 		unsigned page = (address / 0x2000) - 2;
 		word addr = address & 0x1FFF;
@@ -89,17 +88,16 @@ byte MegaSCSI::readMem(word address, EmuTime::param /*time*/)
 			// SPC read
 			if (addr < 0x1000) {
 				// Data Register
-				result = mb89352.readDREG();
+				return mb89352.readDREG();
 			} else {
-				result = mb89352.readRegister(addr & 0x0F);
+				return mb89352.readRegister(addr & 0x0F);
 			}
 		} else {
-			result = sram[0x2000 * mapped[page] + addr];
+			return sram[0x2000 * mapped[page] + addr];
 		}
 	} else {
-		result = 0xFF;
+		return 0xFF;
 	}
-	return result;
 }
 
 byte MegaSCSI::peekMem(word address, EmuTime::param /*time*/) const

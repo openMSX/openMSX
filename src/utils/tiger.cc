@@ -16,21 +16,24 @@ std::string TigerHash::toString() const
 	const uint8_t* end = src + 24;
 
 	unsigned bit = 0;
-	uint8_t tmp;
 	while (src != end) {
-		if (bit > 3) {
-			tmp = *src & (0xFF >> bit);
-			bit = (bit + 5) % 8;
-			tmp <<= bit;
-			++src;
-			if (src != end) {
-				tmp |= *src >> (8 - bit);
+		uint8_t tmp = [&] {
+			if (bit > 3) {
+				uint8_t t = *src & (0xFF >> bit);
+				bit = (bit + 5) % 8;
+				t <<= bit;
+				++src;
+				if (src != end) {
+					t |= *src >> (8 - bit);
+				}
+				return t;
+			} else {
+				uint8_t t = (*src >> (3 - bit)) & 0x1F;
+				bit = (bit + 5) % 8;
+				if (bit == 0) ++src;
+				return t;
 			}
-		} else {
-			tmp = (*src >> (3 - bit)) & 0x1F;
-			bit = (bit + 5) % 8;
-			if (bit == 0) ++src;
-		}
+		}();
 		assert(tmp < 32);
 		result += chars[tmp];
 	}
@@ -674,14 +677,14 @@ void tiger(const uint8_t* str, size_t length, TigerHash& result)
 
 	initState(result.h64);
 
-	size_t i;
-	for (i = length; i >= 64; i -= 64) {
+	size_t i = length;
+	for (/**/; i >= 64; i -= 64) {
 		tiger_compress(str, result.h64);
 		str += 64;
 	}
 
-	size_t j;
-	for (j = 0; j < i; ++j) {
+	size_t j = 0;
+	for (/**/; j < i; ++j) {
 		temp[j] = str[j];
 	}
 

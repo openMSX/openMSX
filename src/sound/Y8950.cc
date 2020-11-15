@@ -1099,19 +1099,20 @@ void Y8950::writeReg(byte rg, byte data, EmuTime::param time)
 			// 0xa9-0xaf 0xb9-0xbf
 			break;
 		}
-		unsigned freq;
-		if (!(rg & 0x10)) {
-			// 0xa0-0xa8
-			freq = data | ((reg[rg + 0x10] & 0x1F) << 8);
-		} else {
-			// 0xb0-0xb8
-			if (data & 0x20) {
-				ch[c].keyOn (KEY_MAIN);
+		unsigned freq = [&] {
+			if (!(rg & 0x10)) {
+				// 0xa0-0xa8
+				return data | ((reg[rg + 0x10] & 0x1F) << 8);
 			} else {
-				ch[c].keyOff(KEY_MAIN);
+				// 0xb0-0xb8
+				if (data & 0x20) {
+					ch[c].keyOn (KEY_MAIN);
+				} else {
+					ch[c].keyOff(KEY_MAIN);
+				}
+				return reg[rg - 0x10] | ((data & 0x1F) << 8);
 			}
-			freq = reg[rg - 0x10] | ((data & 0x1F) << 8);
-		}
+		}();
 		ch[c].setFreq(freq);
 		unsigned fNum  = freq % 1024;
 		unsigned block = freq / 1024;
@@ -1141,18 +1142,15 @@ byte Y8950::readReg(byte rg, EmuTime::param time)
 {
 	updateStream(time); // TODO only when necessary
 
-	byte result;
 	switch (rg) {
 		case 0x0F: // ADPCM-DATA
 		case 0x13: //  ???
 		case 0x14: //  ???
 		case 0x1A: // PCM-DATA
-			result = adpcm.readReg(rg, time);
-			break;
+			return adpcm.readReg(rg, time);
 		default:
-			result = peekReg(rg, time);
+			return peekReg(rg, time);
 	}
-	return result;
 }
 
 byte Y8950::peekReg(byte rg, EmuTime::param time) const

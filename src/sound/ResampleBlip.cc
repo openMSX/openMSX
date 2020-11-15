@@ -87,13 +87,12 @@ bool ResampleBlip<CHANNELS>::generateOutputImpl(float* dataOut, unsigned hostNum
 		results[ch] = blip[ch].template readSamples<CHANNELS>(dataOut + ch, hostNum);
 	}
 	static_assert(CHANNELS == one_of(1u, 2u), "either mono or stereo");
-	bool result;
 	if (CHANNELS == 1) {
-		result = results[0];
+		return results[0];
 	} else {
 		if (results[0] == results[1]) {
 			// Both muted or both unmuted
-			result = results[0];
+			return results[0];
 		} else {
 			// One channel muted, the other not.
 			// We have to set the muted channel to all-zero.
@@ -101,10 +100,9 @@ bool ResampleBlip<CHANNELS>::generateOutputImpl(float* dataOut, unsigned hostNum
 			for (unsigned i = 0; i < hostNum; ++i) {
 				dataOut[2 * i + offset] = 0.0f;
 			}
-			result = true;
+			return true;
 		}
 	}
-	return result;
 }
 
 // Force template instantiation.

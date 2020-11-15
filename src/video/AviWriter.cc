@@ -238,7 +238,7 @@ AviWriter::~AviWriter()
 	}
 }
 
-void AviWriter::addAviChunk(const char* tag, unsigned size, void* data, unsigned flags)
+void AviWriter::addAviChunk(const char* tag, unsigned size, const void* data, unsigned flags)
 {
 	struct {
 		char t[4];
@@ -264,10 +264,8 @@ void AviWriter::addAviChunk(const char* tag, unsigned size, void* data, unsigned
 void AviWriter::addFrame(FrameSource* frame, unsigned samples, int16_t* sampleData)
 {
 	bool keyFrame = (frames++ % 300 == 0);
-	void* buffer;
-	unsigned size;
-	codec.compressFrame(keyFrame, frame, buffer, size);
-	addAviChunk("00dc", size, buffer, keyFrame ? 0x10 : 0x0);
+	auto buffer = codec.compressFrame(keyFrame, frame);
+	addAviChunk("00dc", buffer.size(), buffer.data(), keyFrame ? 0x10 : 0x0);
 
 	if (samples) {
 		assert((samples % channels) == 0);

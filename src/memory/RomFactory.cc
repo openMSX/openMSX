@@ -160,39 +160,41 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	Rom rom(config.getAttribute("id"), "rom", config);
 
 	// Get specified mapper type from the config.
-	RomType type;
-	// if no type is mentioned, we assume 'mirrored' which works for most
-	// plain ROMs...
-	std::string_view typestr = config.getChildData("mappertype", "Mirrored");
-	if (typestr == "auto") {
-		// First check whether the (possibly patched) SHA1 is in the DB
-		const RomInfo* romInfo = config.getReactor().getSoftwareDatabase().fetchRomInfo(rom.getSHA1());
-		// If not found, try the original SHA1 in the DB
-		if (!romInfo) {
-			romInfo = config.getReactor().getSoftwareDatabase().fetchRomInfo(rom.getOriginalSHA1());
-		}
-		// If still not found, guess the mapper type
-		if (!romInfo) {
-			auto machineType = config.getMotherBoard().getMachineType();
-			if (machineType == "Coleco") {
-				if (rom.getSize() == one_of(128*1024u, 256*1024u, 512*1024u, 1024*1024u)) {
-					type = ROM_COLECOMEGACART;
+	RomType type = [&] {
+		// if no type is mentioned, we assume 'mirrored' which works for most
+		// plain ROMs...
+		std::string_view typestr = config.getChildData("mappertype", "Mirrored");
+		if (typestr == "auto") {
+			// First check whether the (possibly patched) SHA1 is in the DB
+			const RomInfo* romInfo = config.getReactor().getSoftwareDatabase().fetchRomInfo(rom.getSHA1());
+			// If not found, try the original SHA1 in the DB
+			if (!romInfo) {
+				romInfo = config.getReactor().getSoftwareDatabase().fetchRomInfo(rom.getOriginalSHA1());
+			}
+			// If still not found, guess the mapper type
+			if (!romInfo) {
+				auto machineType = config.getMotherBoard().getMachineType();
+				if (machineType == "Coleco") {
+					if (rom.getSize() == one_of(128*1024u, 256*1024u, 512*1024u, 1024*1024u)) {
+						return ROM_COLECOMEGACART;
+					} else {
+						return ROM_PAGE23;
+					}
 				} else {
-					type = ROM_PAGE23;
+					return guessRomType(rom);
 				}
 			} else {
-				type = guessRomType(rom);
+				return romInfo->getRomType();
 			}
 		} else {
-			type = romInfo->getRomType();
+			// Use mapper type from config, even if this overrides DB.
+			auto t = RomInfo::nameToRomType(typestr);
+			if (t == ROM_UNKNOWN) {
+				throw MSXException("Unknown mappertype: ", typestr);
+			}
+			return t;
 		}
-	} else {
-		// Use mapper type from config, even if this overrides DB.
-		type = RomInfo::nameToRomType(typestr);
-		if (type == ROM_UNKNOWN) {
-			throw MSXException("Unknown mappertype: ", typestr);
-		}
-	}
+	}();
 
 	// Store actual detected mapper type in config (override the possible
 	// 'auto' value). This way we're sure that on savestate/loadstate we're

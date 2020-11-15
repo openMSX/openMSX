@@ -321,9 +321,8 @@ void GLPostProcessor::uploadBlock(
 	tex.bind();
 
 	// upload data
-	uint32_t* mapped;
 	pbo.bind();
-	mapped = pbo.mapWrite();
+	uint32_t* mapped = pbo.mapWrite();
 	for (unsigned y = srcStartY; y < srcEndY; ++y) {
 		auto* dest = mapped + y * lineWidth;
 		const auto* data = paintFrame->getLinePtr(y, lineWidth, dest);

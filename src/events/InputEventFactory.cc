@@ -123,22 +123,25 @@ static EventPtr parseOsdControlEvent(const TclObject& str, Interpreter& interp)
 {
 	if (str.getListLength(interp) == 3) {
 		auto buttonName = str.getListIndex(interp, 1).getString();
-		unsigned button;
-		if (buttonName == "LEFT") {
-			button = OsdControlEvent::LEFT_BUTTON;
-		} else if (buttonName == "RIGHT") {
-			button = OsdControlEvent::RIGHT_BUTTON;
-		} else if (buttonName == "UP") {
-			button = OsdControlEvent::UP_BUTTON;
-		} else if (buttonName == "DOWN") {
-			button = OsdControlEvent::DOWN_BUTTON;
-		} else if (buttonName == "A") {
-			button = OsdControlEvent::A_BUTTON;
-		} else if (buttonName == "B") {
-			button = OsdControlEvent::B_BUTTON;
-		} else {
-			goto error;
-		}
+		unsigned button = [&] {
+			if (buttonName == "LEFT") {
+				return OsdControlEvent::LEFT_BUTTON;
+			} else if (buttonName == "RIGHT") {
+				return OsdControlEvent::RIGHT_BUTTON;
+			} else if (buttonName == "UP") {
+				return OsdControlEvent::UP_BUTTON;
+			} else if (buttonName == "DOWN") {
+				return OsdControlEvent::DOWN_BUTTON;
+			} else if (buttonName == "A") {
+				return OsdControlEvent::A_BUTTON;
+			} else if (buttonName == "B") {
+				return OsdControlEvent::B_BUTTON;
+			} else {
+				throw CommandException(
+					"Invalid OSDcontrol event, invalid button name: ",
+					buttonName);
+			}
+		}();
 		auto buttonAction = str.getListIndex(interp, 2).getString();
 		if (buttonAction == "RELEASE") {
 			return make_shared<OsdControlReleaseEvent>(button, nullptr);
@@ -146,7 +149,7 @@ static EventPtr parseOsdControlEvent(const TclObject& str, Interpreter& interp)
 			return make_shared<OsdControlPressEvent>  (button, nullptr);
 		}
 	}
-error:	throw CommandException("Invalid OSDcontrol event: ", str.getString());
+	throw CommandException("Invalid OSDcontrol event: ", str.getString());
 }
 
 static EventPtr parseJoystickEvent(const TclObject& str, Interpreter& interp)
@@ -192,19 +195,20 @@ static EventPtr parseJoystickEvent(const TclObject& str, Interpreter& interp)
 				} else if (StringOp::startsWith(comp1, "hat")) {
 					unsigned hat = StringOp::fast_stou(comp1.substr(3));
 					auto valueStr = str.getListIndex(interp, 2).getString();
-					int value;
-					if      (valueStr == "up")        value = SDL_HAT_UP;
-					else if (valueStr == "right")     value = SDL_HAT_RIGHT;
-					else if (valueStr == "down")      value = SDL_HAT_DOWN;
-					else if (valueStr == "left")      value = SDL_HAT_LEFT;
-					else if (valueStr == "rightup")   value = SDL_HAT_RIGHTUP;
-					else if (valueStr == "rightdown") value = SDL_HAT_RIGHTDOWN;
-					else if (valueStr == "leftup")    value = SDL_HAT_LEFTUP;
-					else if (valueStr == "leftdown")  value = SDL_HAT_LEFTDOWN;
-					else if (valueStr == "center")    value = SDL_HAT_CENTERED;
-					else {
-						throw CommandException("Invalid hat value: ", valueStr);
-					}
+					int value = [&] {
+						if      (valueStr == "up")        return SDL_HAT_UP;
+						else if (valueStr == "right")     return SDL_HAT_RIGHT;
+						else if (valueStr == "down")      return SDL_HAT_DOWN;
+						else if (valueStr == "left")      return SDL_HAT_LEFT;
+						else if (valueStr == "rightup")   return SDL_HAT_RIGHTUP;
+						else if (valueStr == "rightdown") return SDL_HAT_RIGHTDOWN;
+						else if (valueStr == "leftup")    return SDL_HAT_LEFTUP;
+						else if (valueStr == "leftdown")  return SDL_HAT_LEFTDOWN;
+						else if (valueStr == "center")    return SDL_HAT_CENTERED;
+						else {
+							throw CommandException("Invalid hat value: ", valueStr);
+						}
+					}();
 					return make_shared<JoystickHatEvent>(joystick, hat, value);
 				}
 			} catch (std::invalid_argument&) {

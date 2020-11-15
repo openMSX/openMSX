@@ -6,6 +6,7 @@
 #include "PixelFormat.hh"
 #include "MemBuffer.hh"
 #include "aligned.hh"
+#include "span.hh"
 #include <cstdint>
 #include <zlib.h>
 
@@ -21,8 +22,7 @@ public:
 
 	ZMBVEncoder(unsigned width, unsigned height, unsigned bpp);
 
-	void compressFrame(bool keyFrame, FrameSource* frame,
-	                   void*& buffer, unsigned& written);
+	span<const uint8_t> compressFrame(bool keyFrame, FrameSource* frame);
 
 private:
 	enum Format {

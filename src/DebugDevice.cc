@@ -98,22 +98,15 @@ void DebugDevice::outputSingleByte(byte value, EmuTime::param time)
 
 void DebugDevice::outputMultiByte(byte value)
 {
-	DisplayType dispType;
-	switch (modeParameter) {
-	case 0:
-		dispType = HEX;
-		break;
-	case 1:
-		dispType = BIN;
-		break;
-	case 2:
-		dispType = DEC;
-		break;
-	case 3:
-	default:
-		dispType = ASC;
-		break;
-	}
+	DisplayType dispType = [&] {
+		switch (modeParameter) {
+			case 0:  return HEX;
+			case 1:  return BIN;
+			case 2:  return DEC;
+			case 3:
+			default: return ASC;
+		}
+	}();
 	displayByte(value, dispType);
 }
 

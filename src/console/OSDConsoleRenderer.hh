@@ -13,6 +13,7 @@
 #include <list>
 #include <memory>
 #include <string_view>
+#include <tuple>
 
 namespace openmsx {
 
@@ -51,8 +52,7 @@ private:
 	gl::ivec2 getTextPos(int cursorX, int cursorY) const;
 	void drawConsoleText(OutputSurface& output, byte visibility);
 
-	bool getFromCache(std::string_view text, uint32_t rgb,
-	                  BaseImage*& image, unsigned& width);
+	std::tuple<bool, BaseImage*, unsigned> getFromCache(std::string_view text, uint32_t rgb);
 	void insertInCache(std::string text, uint32_t rgb,
 	                   std::unique_ptr<BaseImage> image, unsigned width);
 	void clearCache();
@@ -72,7 +72,7 @@ private:
 		std::string text;
 		std::unique_ptr<BaseImage> image;
 		uint32_t rgb;
-		unsigned width;
+		unsigned width; // in case of trailing whitespace width != image->getWidth()
 	};
 	using TextCache = std::list<TextCacheElement>;
 

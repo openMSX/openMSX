@@ -600,18 +600,19 @@ inline int Channel::calcOutput(unsigned eg_cnt, unsigned lfo_pm, unsigned lfo_am
 static inline int genPhaseHighHat(int phaseM7, int phaseC8, int noise_rng)
 {
 	// hi == phase >= 0x200
-	bool hi;
 	// enable gate based on frequency of operator 2 in channel 8
-	if (phaseC8 & 0x28) {
-		hi = true;
-	} else {
-		// base frequency derived from operator 1 in channel 7
-		// VC++ requires explicit conversion to bool. Compiler bug??
-		const bool bit7 = (phaseM7 & 0x80) != 0;
-		const bool bit3 = (phaseM7 & 0x08) != 0;
-		const bool bit2 = (phaseM7 & 0x04) != 0;
-		hi = (bit2 ^ bit7) | bit3;
-	}
+	bool hi = [&] {
+		if (phaseC8 & 0x28) {
+			return true;
+		} else {
+			// base frequency derived from operator 1 in channel 7
+			// VC++ requires explicit conversion to bool. Compiler bug??
+			const bool bit7 = (phaseM7 & 0x80) != 0;
+			const bool bit3 = (phaseM7 & 0x08) != 0;
+			const bool bit2 = (phaseM7 & 0x04) != 0;
+			return bool((bit2 ^ bit7) | bit3);
+		}
+	}();
 	if (noise_rng & 1) {
 		return hi ? (0x200 | 0xD0) : (0xD0 >> 2);
 	} else {

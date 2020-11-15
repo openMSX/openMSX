@@ -161,11 +161,12 @@ void CommandConsole::loadHistory()
 	}
 }
 
-void CommandConsole::getCursorPosition(unsigned& xPosition, unsigned& yPosition) const
+gl::ivec2 CommandConsole::getCursorPosition() const
 {
-	xPosition = cursorPosition % getColumns();
+	int xPosition = cursorPosition % getColumns();
 	auto num = lines[0].numChars() / getColumns();
-	yPosition = unsigned(num - (cursorPosition / getColumns()));
+	int yPosition = unsigned(num - (cursorPosition / getColumns()));
+	return {xPosition, yPosition};
 }
 
 int CommandConsole::signalEvent(const std::shared_ptr<const Event>& event)
@@ -471,16 +472,17 @@ ConsoleLine CommandConsole::highLight(string_view line)
 			++pos;
 		}
 		// TODO make these color configurable?
-		unsigned rgb;
-		switch (col) {
-		case 'E': rgb = 0xff0000; break; // error
-		case 'c': rgb = 0x5c5cff; break; // comment
-		case 'v': rgb = 0x00ffff; break; // variable
-		case 'l': rgb = 0xff00ff; break; // literal
-		case 'p': rgb = 0xcdcd00; break; // proc
-		case 'o': rgb = 0x00cdcd; break; // operator
-		default:  rgb = 0xffffff; break; // other
-		}
+		unsigned rgb = [&] {
+			switch (col) {
+			case 'E': return 0xff0000; // error
+			case 'c': return 0x5c5cff; // comment
+			case 'v': return 0x00ffff; // variable
+			case 'l': return 0xff00ff; // literal
+			case 'p': return 0xcdcd00; // proc
+			case 'o': return 0x00cdcd; // operator
+			default:  return 0xffffff; // other
+			}
+		}();
 		result.addChunk(line.substr(pos2, pos - pos2), rgb);
 	}
 	return result;

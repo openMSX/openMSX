@@ -3,6 +3,7 @@
 
 #include "SDLSurfacePtr.hh"
 #include "openmsx.hh"
+#include "gl_vec.hh"
 #include <string>
 #include <utility>
 
@@ -70,7 +71,7 @@ public:
 
 	/** Return the size in pixels of the text if it would be rendered.
 	 */
-	void getSize(const std::string& text, unsigned& width, unsigned& height) const;
+	gl::ivec2 getSize(const std::string& text) const;
 
 private:
 	void* font = nullptr;  // TTF_Font*

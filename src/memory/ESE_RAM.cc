@@ -57,15 +57,13 @@ void ESE_RAM::reset(EmuTime::param /*time*/)
 
 byte ESE_RAM::readMem(word address, EmuTime::param /*time*/)
 {
-	byte result;
 	if ((0x4000 <= address) && (address < 0xC000)) {
 		unsigned page = (address / 8192) - 2;
 		word addr = address & 0x1FFF;
-		result = sram[8192 * mapped[page] + addr];
+		return sram[8192 * mapped[page] + addr];
 	} else {
-		result = 0xFF;
+		return 0xFF;
 	}
-	return result;
 }
 
 const byte* ESE_RAM::getReadCacheLine(word address) const

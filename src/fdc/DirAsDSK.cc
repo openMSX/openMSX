@@ -128,18 +128,18 @@ unsigned DirAsDSK::clusterToSector(unsigned cluster) const
 	            (cluster - FIRST_CLUSTER);
 }
 
-void DirAsDSK::sectorToCluster(unsigned sector, unsigned& cluster, unsigned& offset) const
+std::pair<unsigned, unsigned> DirAsDSK::sectorToClusterOffset(unsigned sector) const
 {
 	assert(sector >= firstDataSector);
 	assert(sector < nofSectors);
 	sector -= firstDataSector;
-	cluster = (sector / SECTORS_PER_CLUSTER) + FIRST_CLUSTER;
-	offset  = (sector % SECTORS_PER_CLUSTER) * SECTOR_SIZE;
+	unsigned cluster = (sector / SECTORS_PER_CLUSTER) + FIRST_CLUSTER;
+	unsigned offset  = (sector % SECTORS_PER_CLUSTER) * SECTOR_SIZE;
+	return {cluster, offset};
 }
 unsigned DirAsDSK::sectorToCluster(unsigned sector) const
 {
-	unsigned cluster, offset;
-	sectorToCluster(sector, cluster, offset);
+	auto [cluster, offset] = sectorToClusterOffset(sector);
 	return cluster;
 }
 
@@ -164,8 +164,7 @@ unsigned DirAsDSK::nextMsxDirSector(unsigned sector)
 		return sector;
 	} else {
 		// Subdirectory.
-		unsigned cluster, offset;
-		sectorToCluster(sector, cluster, offset);
+		auto [cluster, offset] = sectorToClusterOffset(sector);
 		if (offset < ((SECTORS_PER_CLUSTER - 1) * SECTOR_SIZE)) {
 			// Next sector still in same cluster.
 			return sector + 1;
@@ -330,17 +329,18 @@ bool DirAsDSK::isWriteProtectedImpl() const
 
 void DirAsDSK::checkCaches()
 {
-	bool needSync;
-	if (auto* scheduler = diskChanger.getScheduler()) {
-		auto now = scheduler->getCurrentTime();
-		auto delta = now - lastAccess;
-		needSync = delta > EmuDuration::sec(1);
-		// Do not update lastAccess because we don't actually call
-		// syncWithHost().
-	} else {
-		// Happens when dirasdisk is used in virtual_drive.
-		needSync = true;
-	}
+	bool needSync = [&] {
+		if (auto* scheduler = diskChanger.getScheduler()) {
+			auto now = scheduler->getCurrentTime();
+			auto delta = now - lastAccess;
+			return delta > EmuDuration::sec(1);
+			// Do not update lastAccess because we don't actually call
+			// syncWithHost().
+		} else {
+			// Happens when dirasdisk is used in virtual_drive.
+			return true;
+		}
+	}();
 	if (needSync) {
 		flushCaches();
 	}
@@ -355,16 +355,17 @@ void DirAsDSK::readSectorImpl(size_t sector, SectorBuffer& buf)
 	// interfer with the access time we use for normal read/writes. So in
 	// peek-mode we skip the whole sync-step.
 	if (!isPeekMode()) {
-		bool needSync;
-		if (auto* scheduler = diskChanger.getScheduler()) {
-			auto now = scheduler->getCurrentTime();
-			auto delta = now - lastAccess;
-			lastAccess = now;
-			needSync = delta > EmuDuration::sec(1);
-		} else {
-			// Happens when dirasdisk is used in virtual_drive.
-			needSync = true;
-		}
+		bool needSync = [&] {
+			if (auto* scheduler = diskChanger.getScheduler()) {
+				auto now = scheduler->getCurrentTime();
+				auto delta = now - lastAccess;
+				lastAccess = now;
+				return delta > EmuDuration::sec(1);
+			} else {
+				// Happens when dirasdisk is used in virtual_drive.
+				return true;
+			}
+		}();
 		if (needSync) {
 			syncWithHost();
 			flushCaches(); // e.g. sha1sum
@@ -891,7 +892,6 @@ void DirAsDSK::writeSectorImpl(size_t sector_, const SectorBuffer& buf)
 		lastAccess = scheduler->getCurrentTime();
 	}
 
-	DirIndex dirDirIndex;
 	if (sector == 0) {
 		// Ignore. We don't allow writing to the bootsector. It would
 		// be very bad if the MSX tried to format this disk using other
@@ -904,7 +904,7 @@ void DirAsDSK::writeSectorImpl(size_t sector_, const SectorBuffer& buf)
 		// Write to 2nd FAT, only buffer it. Don't interpret the data
 		// in FAT2 in any way (nor trigger any action on this write).
 		memcpy(&sectors[sector], &buf, sizeof(buf));
-	} else if (isDirSector(sector, dirDirIndex)) {
+	} else if (DirIndex dirDirIndex; isDirSector(sector, dirDirIndex)) {
 		// Either root- or sub-directory.
 		writeDIRSector(sector, dirDirIndex, buf);
 	} else {
@@ -942,8 +942,7 @@ void DirAsDSK::writeFATSector(unsigned sector, const SectorBuffer& buf)
 void DirAsDSK::exportFileFromFATChange(unsigned cluster, SectorBuffer* oldFAT)
 {
 	// Get first cluster in the FAT chain that contains 'cluster'.
-	unsigned chainLength; // not used
-	unsigned startCluster = getChainStart(cluster, chainLength);
+	auto [startCluster, chainLength] = getChainStart(cluster);
 
 	// Copy this whole chain from FAT1 to FAT2 (so that the loop in
 	// writeFATSector() sees this part is already handled).
@@ -969,13 +968,13 @@ void DirAsDSK::exportFileFromFATChange(unsigned cluster, SectorBuffer* oldFAT)
 	}
 }
 
-unsigned DirAsDSK::getChainStart(unsigned cluster, unsigned& chainLength)
+std::pair<unsigned, unsigned> DirAsDSK::getChainStart(unsigned cluster)
 {
 	// Search for the first cluster in the chain that contains 'cluster'
 	// Note: worst case (this implementation of) the search is O(N^2), but
 	// because usually FAT chains are allocated in ascending order, this
 	// search is fast O(N).
-	chainLength = 0;
+	unsigned chainLength = 0;
 	for (unsigned i = FIRST_CLUSTER; i < maxCluster; ++i) {
 		if (readFAT(i) == cluster) {
 			// Found a predecessor.
@@ -984,7 +983,7 @@ unsigned DirAsDSK::getChainStart(unsigned cluster, unsigned& chainLength)
 			i = FIRST_CLUSTER - 1; // restart search
 		}
 	}
-	return cluster;
+	return {cluster, chainLength};
 }
 
 // Generic helper function that walks over the whole MSX directory tree
@@ -1329,9 +1328,8 @@ void DirAsDSK::writeDataSector(unsigned sector, const SectorBuffer& buf)
 	memcpy(&sectors[sector], &buf, sizeof(buf));
 
 	// Get first cluster in the FAT chain that contains this sector.
-	unsigned cluster, offset, chainLength;
-	sectorToCluster(sector, cluster, offset);
-	unsigned startCluster = getChainStart(cluster, chainLength);
+	auto [cluster, offset] = sectorToClusterOffset(sector);
+	auto [startCluster, chainLength] = getChainStart(cluster);
 	offset += (sizeof(buf) * SECTORS_PER_CLUSTER) * chainLength;
 
 	// Get corresponding directory entry.

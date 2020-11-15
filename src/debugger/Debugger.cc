@@ -447,22 +447,23 @@ void Debugger::Cmd::setWatchPoint(span<const TclObject> tokens, TclObject& resul
 		[[fallthrough]];
 	case 2: { // address + type
 		string_view typeStr = arguments[0].getString();
-		unsigned max;
-		if (typeStr == "read_io") {
-			type = WatchPoint::READ_IO;
-			max = 0x100;
-		} else if (typeStr == "write_io") {
-			type = WatchPoint::WRITE_IO;
-			max = 0x100;
-		} else if (typeStr == "read_mem") {
-			type = WatchPoint::READ_MEM;
-			max = 0x10000;
-		} else if (typeStr == "write_mem") {
-			type = WatchPoint::WRITE_MEM;
-			max = 0x10000;
-		} else {
-			throw CommandException("Invalid type: ", typeStr);
-		}
+		unsigned max = [&] {
+			if (typeStr == "read_io") {
+				type = WatchPoint::READ_IO;
+				return 0x100;
+			} else if (typeStr == "write_io") {
+				type = WatchPoint::WRITE_IO;
+				return 0x100;
+			} else if (typeStr == "read_mem") {
+				type = WatchPoint::READ_MEM;
+				return 0x10000;
+			} else if (typeStr == "write_mem") {
+				type = WatchPoint::WRITE_MEM;
+				return 0x10000;
+			} else {
+				throw CommandException("Invalid type: ", typeStr);
+			}
+		}();
 		auto& interp = getInterpreter();
 		if (arguments[1].getListLength(interp) == 2) {
 			beginAddr = arguments[1].getListIndex(interp, 0).getInt(interp);

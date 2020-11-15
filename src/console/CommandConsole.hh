@@ -5,6 +5,7 @@
 #include "InterpreterOutput.hh"
 #include "BooleanSetting.hh"
 #include "IntegerSetting.hh"
+#include "gl_vec.hh"
 #include "CircularBuffer.hh"
 #include "circular_buffer.hh"
 #include <string_view>
@@ -66,7 +67,7 @@ public:
 	BooleanSetting& getConsoleSetting() { return consoleSetting; }
 
 	unsigned getScrollBack() const { return consoleScrollBack; }
-	void getCursorPosition(unsigned& xPosition, unsigned& yPosition) const;
+	gl::ivec2 getCursorPosition() const;
 
 	void setColumns(unsigned columns_) { columns = columns_; }
 	unsigned getColumns() const { return columns; }

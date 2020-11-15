@@ -1361,62 +1361,57 @@ void YM2151::advance()
 	unsigned i = lfo_phase;
 	// calculate LFO AM and PM waveform value (all verified on real chip,
 	// except for noise algorithm which is impossible to analyse)
-	int a, p;
-	switch (lfo_wsel) {
-	case 0:
-		// saw
-		// AM: 255 down to 0
-		// PM: 0 to 127, -127 to 0 (at PMD=127: LFP = 0 to 126, -126 to 0)
-		a = 255 - i;
-		if (i < 128) {
-			p = i;
-		} else {
-			p = i - 255;
-		}
-		break;
-	case 1:
-		// square
-		// AM: 255, 0
-		// PM: 128,-128 (LFP = exactly +PMD, -PMD)
-		if (i < 128) {
-			a = 255;
-			p = 128;
-		} else {
-			a = 0;
-			p = -128;
-		}
-		break;
-	case 2:
-		// triangle
-		// AM: 255 down to 1 step -2; 0 up to 254 step +2
-		// PM: 0 to  126 step +2,  127 to  1 step -2,
-		//     0 to -126 step -2, -127 to -1 step +2
-		if (i < 128) {
-			a = 255 - (i * 2);
-		} else {
-			a = (i * 2) - 256;
-		}
-		if (i < 64) {            // i = 0..63
-			p = i * 2;       //     0 to  126 step +2
-		} else if (i < 128) {    // i = 64..127
-			p = 255 - i * 2; //   127 to    1 step -2
-		} else if (i < 192) {    // i = 128..191
-			p = 256 - i*2;   //     0 to -126 step -2
-		} else {                 // i = 192..255
-			p = i*2 - 511;   //  -127 to   -1 step +2
-		}
-		break;
-	case 3:
-	default: // keep the compiler happy
-		// Random. The real algorithm is unknown !!!
-		// We just use a snapshot of data from real chip
+	auto [a, p] = [&]() -> std::pair<int, int> {
+		switch (lfo_wsel) {
+		case 0:
+			// saw
+			// AM: 255 down to 0
+			// PM: 0 to 127, -127 to 0 (at PMD=127: LFP = 0 to 126, -126 to 0)
+			return {
+				/*a =*/ (255 - i),
+				/*p =*/ ((i < 128) ? i : (i - 255))
+			};
+		case 1:
+			// square
+			// AM: 255, 0
+			// PM: 128,-128 (LFP = exactly +PMD, -PMD)
+			return {
+				/*a =*/ ((i < 128) ? 255 : 0),
+				/*p =*/ ((i < 128) ? 128 : -128)
+			};
+		case 2:
+			// triangle
+			// AM: 255 down to 1 step -2; 0 up to 254 step +2
+			// PM: 0 to  126 step +2,  127 to  1 step -2,
+			//     0 to -126 step -2, -127 to -1 step +2
+			return {
+				/*a =*/ ((i < 128) ? (255 - (i * 2)) : ((i * 2) - 256)),
+				/*p =*/ [&] {
+						if (i < 64) {               // i = 0..63
+							return i * 2;       //     0 to  126 step +2
+						} else if (i < 128) {       // i = 64..127
+							return 255 - i * 2; //   127 to    1 step -2
+						} else if (i < 192) {       // i = 128..191
+							return 256 - i * 2; //     0 to -126 step -2
+						} else {                    // i = 192..255
+							return i * 2 - 511; //  -127 to   -1 step +2
+						}
+					}()
+			};
+			break;
+		case 3:
+		default: // keep the compiler happy
+			// Random. The real algorithm is unknown !!!
+			// We just use a snapshot of data from real chip
 
-		// AM: range 0 to 255
-		// PM: range -128 to 127
-		a = lfo_noise_waveform[i];
-		p = a - 128;
-		break;
-	}
+			// AM: range 0 to 255
+			// PM: range -128 to 127
+			return {
+				/*a =*/ lfo_noise_waveform[i],
+				/*p =*/ (lfo_noise_waveform[i] - 128)
+			};
+		}
+	}();
 	lfa = a * amd / 128;
 	lfp = p * pmd / 128;
 

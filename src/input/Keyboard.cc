@@ -651,12 +651,9 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 			keyCode = key = Keys::K_INSERT;
 		}
 #endif
-		unsigned unicode;
-		if (key < MAX_KEYSYM) {
-			unicode = dynKeymap[key]; // Get the unicode that was derived from this key
-		} else {
-			unicode = 0;
-		}
+		unsigned unicode = (key < MAX_KEYSYM)
+			? dynKeymap[key] // Get the unicode that was derived from this key
+			: 0;
 		if (unicode == 0) {
 			// It was a special key, perform matrix to matrix mapping
 			// But only when it is not a first keystroke of a

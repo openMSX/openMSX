@@ -381,15 +381,12 @@ void MLAAScaler<Pixel>::scaleImage(
 					// TODO: This is implied by !(slopeTopLeft && slopeBotLeft),
 					//       which is ensured by a temporary measure.
 					assert(!(blendTopLeft && blendBotLeft));
-					const Pixel* srcMixLinePtr;
-					float lineY;
-					if (blendTopLeft) {
-						srcMixLinePtr = srcTopLinePtr;
-						lineY = (zoomFactorY - 1 - iy) / float(zoomFactorY);
-					} else {
-						srcMixLinePtr = srcBotLinePtr;
-						lineY = iy / float(zoomFactorY);
-					}
+					const Pixel* srcMixLinePtr = blendTopLeft
+						? srcTopLinePtr
+						: srcBotLinePtr;
+					float lineY = blendTopLeft
+						? ((zoomFactorY - 1 - iy) / float(zoomFactorY))
+						: (iy / float(zoomFactorY));
 					for (unsigned fx = x0 | 1; fx < x1; fx += 2) {
 						float rx = (fx - x0) / float(x1 - x0);
 						float ry = 0.5f + rx * 0.5f;
@@ -406,15 +403,12 @@ void MLAAScaler<Pixel>::scaleImage(
 					// TODO: This is implied by !(slopeTopRight && slopeBotRight),
 					//       which is ensured by a temporary measure.
 					assert(!(blendTopRight && blendBotRight));
-					const Pixel* srcMixLinePtr;
-					float lineY;
-					if (blendTopRight) {
-						srcMixLinePtr = srcTopLinePtr;
-						lineY = (zoomFactorY - 1 - iy) / float(zoomFactorY);
-					} else {
-						srcMixLinePtr = srcBotLinePtr;
-						lineY = iy / float(zoomFactorY);
-					}
+					const Pixel* srcMixLinePtr = blendTopRight
+						? srcTopLinePtr
+						: srcBotLinePtr;
+					float lineY = blendTopRight
+						? ((zoomFactorY - 1 - iy) / float(zoomFactorY))
+						: (iy / float(zoomFactorY));
 					// TODO: The weight is slightly too high for the middle
 					//       pixel when zoomFactorX is odd and we are rendering
 					//       a U-shape.
@@ -546,15 +540,10 @@ void MLAAScaler<Pixel>::scaleImage(
 				// Render top side.
 				if (blendTopLeft || blendTopRight) {
 					assert(!(blendTopLeft && blendTopRight));
-					unsigned mixX;
-					float lineX;
-					if (blendTopLeft) {
-						mixX = leftX;
-						lineX = (zoomFactorX - 1 - ix) / float(zoomFactorX);
-					} else {
-						mixX = rightX;
-						lineX = ix / float(zoomFactorX);
-					}
+					unsigned mixX = blendTopLeft ? leftX : rightX;
+					float lineX = blendTopLeft
+						? ((zoomFactorX - 1 - ix) / float(zoomFactorX))
+						: (ix / float(zoomFactorX));
 					for (unsigned fy = y0 | 1; fy < y1; fy += 2) {
 						auto* dstLinePtr = dstLines[dstStartY + fy / 2];
 						float ry = (fy - y0) / float(y1 - y0);
@@ -570,15 +559,10 @@ void MLAAScaler<Pixel>::scaleImage(
 				// Render bottom side.
 				if (blendBotLeft || blendBotRight) {
 					assert(!(blendBotLeft && blendBotRight));
-					unsigned mixX;
-					float lineX;
-					if (blendBotLeft) {
-						mixX = leftX;
-						lineX = (zoomFactorX - 1 - ix) / float(zoomFactorX);
-					} else {
-						mixX = rightX;
-						lineX = ix / float(zoomFactorX);
-					}
+					unsigned mixX = blendBotLeft ? leftX : rightX;
+					float lineX = blendBotLeft
+						? ((zoomFactorX - 1 - ix) / float(zoomFactorX))
+						: (ix / float(zoomFactorX));
 					for (unsigned fy = y2 | 1; fy < y3; fy += 2) {
 						auto* dstLinePtr = dstLines[dstStartY + fy / 2];
 						float ry = (fy - y2) / float(y3 - y2);

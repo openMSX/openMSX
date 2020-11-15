@@ -19,73 +19,66 @@ SanyoFDC::SanyoFDC(const DeviceConfig& config)
 
 byte SanyoFDC::readMem(word address, EmuTime::param time)
 {
-	byte value;
 	switch (address) {
 	case 0x7FF8:
-		value = controller.getStatusReg(time);
-		break;
+		return controller.getStatusReg(time);
 	case 0x7FF9:
-		value = controller.getTrackReg(time);
-		break;
+		return controller.getTrackReg(time);
 	case 0x7FFA:
-		value = controller.getSectorReg(time);
-		break;
+		return controller.getSectorReg(time);
 	case 0x7FFB:
-		value = controller.getDataReg(time);
-		break;
+		return controller.getDataReg(time);
 	case 0x7FFC:
 	case 0x7FFD:
 	case 0x7FFE:
-	case 0x7FFF:
-		value = 0x3F;
+	case 0x7FFF: {
+		byte value = 0x3F;
 		if (controller.getIRQ(time))  value |= 0x80;
 		if (controller.getDTRQ(time)) value |= 0x40;
-		break;
-	default:
-		value = SanyoFDC::peekMem(address, time);
-		break;
+		return value;
 	}
-	return value;
+	default:
+		return SanyoFDC::peekMem(address, time);
+	}
 }
 
 byte SanyoFDC::peekMem(word address, EmuTime::param time) const
 {
-	byte value;
 	switch (address) {
 	case 0x7FF8:
-		value = controller.peekStatusReg(time);
+		return controller.peekStatusReg(time);
 		break;
 	case 0x7FF9:
-		value = controller.peekTrackReg(time);
+		return controller.peekTrackReg(time);
 		break;
 	case 0x7FFA:
-		value = controller.peekSectorReg(time);
+		return controller.peekSectorReg(time);
 		break;
 	case 0x7FFB:
-		value = controller.peekDataReg(time);
+		return controller.peekDataReg(time);
 		break;
 	case 0x7FFC:
 	case 0x7FFD:
 	case 0x7FFE:
-	case 0x7FFF:
+	case 0x7FFF: {
 		// Drive control IRQ and DRQ lines are not connected to Z80 interrupt request
 		// bit 7: intrq
 		// bit 6: dtrq
 		// other bits read 1
-		value = 0x3F;
+		byte value = 0x3F;
 		if (controller.peekIRQ(time))  value |= 0x80;
 		if (controller.peekDTRQ(time)) value |= 0x40;
-		break;
+		return value;
+	}
 	default:
 		if (address < 0x8000) {
 			// ROM only visible in 0x0000-0x7FFF (not verified!)
-			value = MSXFDC::peekMem(address, time);
+			return MSXFDC::peekMem(address, time);
 		} else {
-			value = 255;
+			return 255;
 		}
 		break;
 	}
-	return value;
 }
 
 const byte* SanyoFDC::getReadCacheLine(word start) const
@@ -124,17 +117,13 @@ void SanyoFDC::writeMem(word address, byte value, EmuTime::param time)
 		// bit 1 -> select drive 1
 		// bit 2 -> side select
 		// bit 3 -> motor on
-		DriveMultiplexer::DriveNum drive;
-		switch (value & 3) {
-			case 1:
-				drive = DriveMultiplexer::DRIVE_A;
-				break;
-			case 2:
-				drive = DriveMultiplexer::DRIVE_B;
-				break;
-			default:
-				drive = DriveMultiplexer::NO_DRIVE;
-		}
+		auto drive = [&] {
+			switch (value & 3) {
+				case 1:  return DriveMultiplexer::DRIVE_A;
+				case 2:  return DriveMultiplexer::DRIVE_B;
+				default: return DriveMultiplexer::NO_DRIVE;
+			}
+		}();
 		multiplexer.selectDrive(drive, time);
 		multiplexer.setSide((value & 0x04) != 0);
 		multiplexer.setMotor((value & 0x08) != 0, time);

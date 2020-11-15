@@ -901,13 +901,9 @@ void LaserdiscPlayer::seekFrame(size_t toframe, EmuTime::param time)
 		// This calculation is based on measurements on
 		// a Pioneer LD-92000.
 		auto dist = std::abs(int64_t(toframe) - int64_t(currentFrame));
-		int seektime; // time in ms
-
-		if (dist < 1000) {
-			seektime = dist + 300;
-		} else {
-			seektime = 1800 + dist / 12;
-		}
+		int seektime = (dist < 1000) // time in ms
+		             ? (dist + 300)
+		             : (1800 + dist / 12);
 
 		int64_t samplePos = (toframe - 1ll) * 1001ll *
 				    video->getSampleRate() / 30000ll;
@@ -960,17 +956,16 @@ bool LaserdiscPlayer::isVideoOutputAvailable(EmuTime::param time)
 {
 	updateStream(time);
 
-	bool videoOut;
-	switch (playerState) {
-	case PLAYER_PLAYING:
-	case PLAYER_MULTISPEED:
-	case PLAYER_STILL:
-		videoOut = !seeking;
-		break;
-	default:
-		videoOut = false;
-		break;
-	}
+	bool videoOut = [&] {
+		switch (playerState) {
+		case PLAYER_PLAYING:
+		case PLAYER_MULTISPEED:
+		case PLAYER_STILL:
+			return !seeking;
+		default:
+			return false;
+		}
+	}();
 	ldcontrol.videoIn(videoOut);
 
 	return videoOut;

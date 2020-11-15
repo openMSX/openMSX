@@ -184,20 +184,20 @@ void AmdFlash::init(const string& name, const DeviceConfig& config, bool load, c
 
 AmdFlash::~AmdFlash() = default;
 
-void AmdFlash::getSectorInfo(unsigned address, unsigned& sector,
-                             unsigned& sectorSize, unsigned& offset) const
+AmdFlash::GetSectorInfoResult AmdFlash::getSectorInfo(unsigned address) const
 {
 	address &= getSize() - 1;
 	auto it = begin(sectorInfo);
-	sector = 0;
+	unsigned sector = 0;
 	while (address >= it->size) {
 		address -= it->size;
 		++sector;
 		++it;
 		assert(it != end(sectorInfo));
 	}
-	sectorSize = it->size;
-	offset = address;
+	unsigned sectorSize = it->size;
+	unsigned offset = address;
+	return {sector, sectorSize, offset};
 }
 
 void AmdFlash::reset()
@@ -215,8 +215,7 @@ void AmdFlash::setState(State newState)
 
 byte AmdFlash::peek(unsigned address) const
 {
-	unsigned sector, sectorSize, offset;
-	getSectorInfo(address, sector, sectorSize, offset);
+	auto [sector, sectorSize, offset] = getSectorInfo(address);
 	if (state == ST_IDLE) {
 		if (const byte* addr = readAddress[sector]) {
 			return addr[offset];
@@ -259,8 +258,7 @@ byte AmdFlash::read(unsigned address) const
 const byte* AmdFlash::getReadCacheLine(unsigned address) const
 {
 	if (state == ST_IDLE) {
-		unsigned sector, sectorSize, offset;
-		getSectorInfo(address, sector, sectorSize, offset);
+		auto [sector, sectorSize, offset] = getSectorInfo(address);
 		const byte* addr = readAddress[sector];
 		return addr ? &addr[offset] : MSXDevice::unmappedRead;
 	} else {
@@ -307,8 +305,7 @@ bool AmdFlash::checkCommandEraseSector()
 		if (cmdIdx < 6) return true;
 		if (cmd[5].value == 0x30) {
 			unsigned addr = cmd[5].addr;
-			unsigned sector, sectorSize, offset;
-			getSectorInfo(addr, sector, sectorSize, offset);
+			auto [sector, sectorSize, offset] = getSectorInfo(addr);
 			if (isSectorWritable(sector)) {
 				ram->memset(writeAddress[sector],
 				            0xff, sectorSize);
@@ -336,8 +333,7 @@ bool AmdFlash::checkCommandProgramHelper(unsigned numBytes, const byte* cmdSeq, 
 		if (cmdIdx < (cmdLen + numBytes)) return true;
 		for (auto i = cmdLen; i < (cmdLen + numBytes); ++i) {
 			unsigned addr = cmd[i].addr;
-			unsigned sector, sectorSize, offset;
-			getSectorInfo(addr, sector, sectorSize, offset);
+			auto [sector, sectorSize, offset] = getSectorInfo(addr);
 			if (isSectorWritable(sector)) {
 				unsigned ramAddr = writeAddress[sector] + offset;
 				ram->write(ramAddr, (*ram)[ramAddr] & cmd[i].value);

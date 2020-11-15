@@ -557,28 +557,25 @@ void PixelRenderer::renderUntil(EmuTime::param time)
 	// Translate from time to pixel position.
 	int limitTicks = vdp.getTicksThisFrame(time);
 	assert(limitTicks <= vdp.getTicksPerFrame());
-	int limitX, limitY;
-	switch (accuracy) {
-	case RenderSettings::ACC_PIXEL: {
-		limitX = limitTicks % VDP::TICKS_PER_LINE;
-		limitY = limitTicks / VDP::TICKS_PER_LINE;
-		break;
-	}
-	case RenderSettings::ACC_LINE:
-	case RenderSettings::ACC_SCREEN: {
-		// Note: I'm not sure the rounding point is optimal.
-		//       It used to be based on the left margin, but that doesn't work
-		//       because the margin can change which leads to a line being
-		//       rendered even though the time doesn't advance.
-		limitX = 0;
-		limitY =
-			(limitTicks + VDP::TICKS_PER_LINE - 400) / VDP::TICKS_PER_LINE;
-		break;
-	}
-	default:
-		UNREACHABLE;
-		limitX = limitY = 0; // avoid warning
-	}
+	auto [limitX, limitY] = [&]() -> std::pair<int, int> {
+		switch (accuracy) {
+		case RenderSettings::ACC_PIXEL: {
+			return {limitTicks % VDP::TICKS_PER_LINE,
+			        limitTicks / VDP::TICKS_PER_LINE};
+		}
+		case RenderSettings::ACC_LINE:
+		case RenderSettings::ACC_SCREEN:
+			// Note: I'm not sure the rounding point is optimal.
+			//       It used to be based on the left margin, but that doesn't work
+			//       because the margin can change which leads to a line being
+			//       rendered even though the time doesn't advance.
+			return {0,
+				(limitTicks + VDP::TICKS_PER_LINE - 400) / VDP::TICKS_PER_LINE};
+		default:
+			UNREACHABLE;
+			return {0, 0}; // avoid warning
+		}
+	}();
 
 	// Stop here if there is nothing to render.
 	// This ensures that no pixels are rendered in a series of updates that

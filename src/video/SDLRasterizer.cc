@@ -527,14 +527,15 @@ void SDLRasterizer<Pixel>::drawDisplay(
 	// Note that it is possible for pageBorder to be to the left of displayX,
 	// in that case only the second page should be drawn.
 	int pageBorder = displayX + displayWidth;
-	int scrollPage1, scrollPage2;
-	if (vdp.isMultiPageScrolling()) {
-		scrollPage1 = vdp.getHorizontalScrollHigh() >> 5;
-		scrollPage2 = scrollPage1 ^ 1;
-	} else {
-		scrollPage1 = 0;
-		scrollPage2 = 0;
-	}
+	auto [scrollPage1, scrollPage2] = [&]() -> std::pair<int, int> {
+		if (vdp.isMultiPageScrolling()) {
+			int p1 = vdp.getHorizontalScrollHigh() >> 5;
+			int p2 = p1 ^ 1;
+			return {p1, p2};
+		} else {
+			return {0, 0};
+		}
+	}();
 	// Because SDL blits do not wrap, unlike GL textures, the pageBorder is
 	// also used if multi page is disabled.
 	int pageSplit = lineWidth - hScroll;

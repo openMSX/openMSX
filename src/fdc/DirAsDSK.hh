@@ -6,6 +6,7 @@
 #include "FileOperations.hh"
 #include "EmuTime.hh"
 #include "hash_map.hh"
+#include <utility>
 
 namespace openmsx {
 
@@ -99,7 +100,7 @@ private:
 	unsigned readFAT(unsigned cluster);
 	void writeFAT12(unsigned cluster, unsigned val);
 	void exportFileFromFATChange(unsigned cluster, SectorBuffer* oldFAT);
-	unsigned getChainStart(unsigned cluster, unsigned& chainLength);
+	std::pair<unsigned, unsigned> getChainStart(unsigned cluster);
 	bool isDirSector(unsigned sector, DirIndex& dirDirIndex);
 	bool getDirEntryForCluster(unsigned cluster,
 	                           DirIndex& dirIndex, DirIndex& dirDirIndex);
@@ -117,7 +118,7 @@ private:
 	unsigned readFATHelper(const SectorBuffer* fat, unsigned cluster) const;
 	void writeFATHelper(SectorBuffer* fat, unsigned cluster, unsigned val) const;
 	unsigned clusterToSector(unsigned cluster) const;
-	void sectorToCluster(unsigned sector, unsigned& cluster, unsigned& offset) const;
+	std::pair<unsigned, unsigned> sectorToClusterOffset(unsigned sector) const;
 	unsigned sectorToCluster(unsigned sector) const;
 
 private:

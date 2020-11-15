@@ -75,14 +75,12 @@ void MSXSCCPlusCart::reset(EmuTime::param time)
 
 byte MSXSCCPlusCart::readMem(word addr, EmuTime::param time)
 {
-	byte result;
 	if (((enable == EN_SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
 	    ((enable == EN_SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
-		result = scc.readMem(addr & 0xFF, time);
+		return scc.readMem(addr & 0xFF, time);
 	} else {
-		result = MSXSCCPlusCart::peekMem(addr, time);
+		return MSXSCCPlusCart::peekMem(addr, time);
 	}
-	return result;
 }
 
 byte MSXSCCPlusCart::peekMem(word addr, EmuTime::param time) const
@@ -198,15 +196,16 @@ void MSXSCCPlusCart::setMapper(int regio, byte value)
 	mapper[regio] = value;
 	value &= mapperMask;
 
-	byte* block;
-	if ((!lowRAM  && (value <  8)) ||
-	    (!highRAM && (value >= 8))) {
-		block = unmappedRead;
-		isMapped[regio] = false;
-	} else {
-		block = &ram[0x2000 * value];
-		isMapped[regio] = true;
-	}
+	byte* block = [&] {
+		if ((!lowRAM  && (value <  8)) ||
+		    (!highRAM && (value >= 8))) {
+			isMapped[regio] = false;
+			return unmappedRead;
+		} else {
+			isMapped[regio] = true;
+			return &ram[0x2000 * value];
+		}
+	}();
 
 	checkEnable(); // invalidateDeviceRWCache() done below
 	internalMemoryBank[regio] = block;
