@@ -420,7 +420,8 @@ void MSXMixer::generate(float* output, EmuTime::param time, unsigned samples)
 	if (samples == 0) {
 		ALIGNAS_SSE float dummyBuf[4];
 		for (auto& info : infos) {
-			info.device->updateBuffer(0, dummyBuf, time);
+			bool ignore = info.device->updateBuffer(0, dummyBuf, time);
+			(void)ignore;
 		}
 		return;
 	}
