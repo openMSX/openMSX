@@ -15,6 +15,9 @@ class WavImage final : public CassetteImage
 {
 public:
 	explicit WavImage(const Filename& filename, FilePool& filePool);
+	~WavImage();
+	WavImage(const WavImage&) = delete;
+	WavImage& operator=(const WavImage&) = delete;
 
 	int16_t getSampleAt(EmuTime::param time) override;
 	EmuTime getEndTime() const override;
@@ -23,7 +26,7 @@ public:
 	float getAmplificationFactorImpl() const override;
 
 private:
-	WavData wav;
+	const WavData* wav;
 	DynamicClock clock;
 };
 

@@ -3,7 +3,10 @@
 #include "Filename.hh"
 #include "FilePool.hh"
 #include "Math.hh"
+#include "ranges.hh"
 #include "xrange.hh"
+#include <cassert>
+#include <map>
 
 namespace openmsx {
 
@@ -27,15 +30,80 @@ private:
 	float t0 = 0.0f;
 };
 
+
+class WavImageCache
+{
+public:
+	struct Entry {
+		WavData wav;
+		Sha1Sum sum;
+	};
+
+	static WavImageCache& instance();
+	const Entry& get(const Filename& filename, FilePool& filePool);
+	void release(const WavData* wav);
+
+private:
+	WavImageCache() = default;
+	~WavImageCache();
+	WavImageCache(const WavImageCache&) = delete;
+	WavImageCache& operator=(const WavImageCache&) = delete;
+
+	// typically contains very few elements, but values need stable addresses
+	std::map<std::string, std::pair<Entry, unsigned>> cache;
+};
+
+WavImageCache::~WavImageCache()
+{
+	assert(cache.empty());
+}
+
+WavImageCache& WavImageCache::instance()
+{
+	static WavImageCache wavImageCache;
+	return wavImageCache;
+}
+
+const WavImageCache::Entry& WavImageCache::get(const Filename& filename, FilePool& filePool)
+{
+	auto [it, inserted] = cache.try_emplace(filename.getResolved());
+	auto& [entry, count] = it->second;
+	if (inserted) {
+		assert(count == 0);
+		File file(filename);
+		entry.sum = filePool.getSha1Sum(file);
+		entry.wav = WavData(std::move(file), DCFilter{});
+	}
+	++count; // increase reference count
+	return entry;
+}
+
+void WavImageCache::release(const WavData* wav)
+{
+	// cache contains very few entries, so linear search is ok
+	auto it = ranges::find_if(cache, [&](auto& pr) { return &pr.second.first.wav == wav; });
+	assert(it != end(cache));
+	auto& count = it->second.second;
+	--count; // decrease reference count
+	if (count == 0) {
+		cache.erase(it);
+	}
+}
+
+
 // Note: type detection not implemented yet for WAV images
 WavImage::WavImage(const Filename& filename, FilePool& filePool)
 	: clock(EmuTime::zero())
 {
-	File file(filename);
-	setSha1Sum(filePool.getSha1Sum(file));
+	const auto& entry = WavImageCache::instance().get(filename, filePool);
+	wav = &entry.wav;
+	setSha1Sum(entry.sum);
+	clock.setFreq(wav->getFreq());
+}
 
-	wav = WavData(std::move(file), DCFilter{});
-	clock.setFreq(wav.getFreq());
+WavImage::~WavImage()
+{
+	WavImageCache::instance().release(wav);
 }
 
 int16_t WavImage::getSampleAt(EmuTime::param time)
@@ -52,10 +120,10 @@ int16_t WavImage::getSampleAt(EmuTime::param time)
 	// work in openMSX (with sample-and-hold it didn't work).
 	auto [sample, x] = clock.getTicksTillAsIntFloat(time);
 	float p[4] = {
-		float(wav.getSample(unsigned(sample) - 1)), // intentional: underflow wraps to UINT_MAX
-		float(wav.getSample(sample + 0)),
-		float(wav.getSample(sample + 1)),
-		float(wav.getSample(sample + 2))
+		float(wav->getSample(unsigned(sample) - 1)), // intentional: underflow wraps to UINT_MAX
+		float(wav->getSample(sample + 0)),
+		float(wav->getSample(sample + 1)),
+		float(wav->getSample(sample + 2))
 	};
 	return Math::clipIntToShort(int(Math::cubicHermite(p + 1, x)));
 }
@@ -63,7 +131,7 @@ int16_t WavImage::getSampleAt(EmuTime::param time)
 EmuTime WavImage::getEndTime() const
 {
 	DynamicClock clk(clock);
-	clk += wav.getSize();
+	clk += wav->getSize();
 	return clk.getTime();
 }
 
@@ -74,9 +142,9 @@ unsigned WavImage::getFrequency() const
 
 void WavImage::fillBuffer(unsigned pos, float** bufs, unsigned num) const
 {
-	if (pos < wav.getSize()) {
+	if (pos < wav->getSize()) {
 		for (auto i : xrange(num)) {
-			bufs[0][i] = wav.getSample(pos + i);
+			bufs[0][i] = wav->getSample(pos + i);
 		}
 	} else {
 		bufs[0] = nullptr;
