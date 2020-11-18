@@ -64,7 +64,7 @@ SDLScopedClip::SDLScopedClip(OutputSurface& output, vec2 xy, vec2 wh)
 	ivec2 i_wh = round(wh); auto [w, h] = i_wh;
 	normalize(x, w); normalize(y, h);
 
-	auto [xn, yn, wn, hn] = [&] {
+	auto [xn, yn, wn, hn] = [&, x=x, y=y, w=w, h=h] {
 		if (SDL_RenderIsClipEnabled(renderer)) {
 			origClip.emplace();
 			SDL_RenderGetClipRect(renderer, &*origClip);
