@@ -1,14 +1,17 @@
 #ifndef STRINGOP_HH
 #define STRINGOP_HH
 
+#include "likely.hh"
 #include "stringsp.hh"
 #include <algorithm>
+#include <charconv>
 #include <cstdint>
 #include <iomanip>
 #include <optional>
 #include <sstream>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <utility>
 #include <vector>
 #if defined(__APPLE__)
@@ -17,10 +20,32 @@
 
 namespace StringOp
 {
-	[[nodiscard]] std::optional<int>      stringToInt   (const std::string& str);
-	[[nodiscard]] std::optional<unsigned> stringToUint  (const std::string& str);
-	[[nodiscard]] std::optional<uint64_t> stringToUint64(const std::string& str);
-	[[nodiscard]] std::optional<double>   stringToDouble(const std::string& str);
+	/** Convert a string to an intergral type 'T' (int, uint64_t, ...).
+	  * This is similar to, but not quite the same as the family of
+	  * 'strtoll()' functions:
+	  * - Leading whitespace is NOT accepted (unlike strtoll()).
+	  * - There may NOT be any trailing character after the value (unlike
+	  *   strtoll()).
+	  * - (Only) if 'T' is a signed type, the value may start with a '-'
+	  *   character.
+	  * - A leading '+' character is NOT accepted.
+	  * - It's an error if the value cannot be represented by the type 'T'.
+	  * - This function tries to detect the base of the value by looking at
+	  *   the prefix. (Only) these prefixes are accepted:
+	  *    - '0x' or '0X': hexadecimal
+	  *    - '0b' or '0B': binary
+	  *    - no prefix: decimal
+	  *   Note that prefix '0' for octal is NOT supported.
+	  * - The input is a 'string_view' (rather than a 'const char*'), so it
+	  *   is not required to be zero-terminated.
+	  */
+	template<typename T> [[nodiscard]] std::optional<T> stringTo(std::string_view s);
+
+	/** As above, but without dynamic base detection. Moreover leading
+	  * prefixes like '0x' for hexadecimal are seen as invalid input.
+	  */
+	template<int BASE, typename T> [[nodiscard]] std::optional<T> stringToBase(std::string_view s);
+
 	[[nodiscard]] bool stringToBool(std::string_view str);
 
 	[[nodiscard]] std::string toLower(std::string_view str);
@@ -73,6 +98,60 @@ namespace StringOp
 #if defined(__APPLE__)
 	[[nodiscard]] std::string fromCFString(CFStringRef str);
 #endif
+
+	template<int BASE, typename T>
+	std::optional<T> stringToBase(std::string_view s)
+	{
+		T result;
+		auto b = s.data();
+		auto e = s.data() + s.size();
+		if (auto [p, ec] = std::from_chars(b, e, result, BASE);
+		    (ec == std::errc()) && (p == e)) {
+			return result;
+		}
+		return {};
+	}
+
+	template<typename T>
+	std::optional<T> stringTo(std::string_view s)
+	{
+		if (unlikely(s.empty())) return {};
+		if constexpr (std::is_signed_v<T>) {
+			bool negate = false;
+			if (unlikely(s[0] == '-')) {
+				negate = true;
+				s.remove_prefix(1);
+			}
+
+			using U = std::make_unsigned_t<T>;
+			auto tmp = stringTo<U>(s);
+			if (unlikely(!tmp)) return {};
+
+			U max = U(std::numeric_limits<T>::max()) + 1; // 0x8000
+			if (unlikely(negate)) {
+				if (unlikely(*tmp > max)) return {}; // 0x8000
+				return T(~*tmp + 1);
+			} else {
+				if (unlikely(*tmp >= max)) return {}; // 0x7fff
+				return T(*tmp);
+			}
+		} else {
+			if (likely(s[0] != '0')) {
+				return stringToBase<10, T>(s);
+			} else {
+				if (s.size() == 1) return T(0);
+				if (likely((s[1] == 'x') || (s[1] == 'X'))) {
+					s.remove_prefix(2);
+					return stringToBase<16, T>(s);
+				} else if ((s[1] == 'b') || (s[1] == 'B')) {
+					s.remove_prefix(2);
+					return stringToBase<2, T>(s);
+				} else {
+					return stringToBase<10, T>(s);
+				}
+			}
+		}
+	}
 }
 
 #endif

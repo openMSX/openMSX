@@ -18,7 +18,7 @@ static byte calcReadBackMask(MSXMotherBoard& motherBoard)
 	if (type == "largest") {
 		return 0x00; // all bits can be read
 	}
-	auto bits = StringOp::stringToInt(std::string(type)); // TODO optimize
+	auto bits = StringOp::stringTo<int>(type);
 	if (!bits) {
 		throw FatalError("Unknown mapper type: \"", type, "\".");
 	}

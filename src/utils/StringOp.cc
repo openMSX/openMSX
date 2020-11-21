@@ -13,38 +13,6 @@ using std::vector;
 
 namespace StringOp {
 
-std::optional<int> stringToInt(const string& str)
-{
-	char* endptr;
-	int result = strtol(str.c_str(), &endptr, 0);
-	if (*endptr == '\0') return result;
-	return {};
-}
-
-std::optional<unsigned> stringToUint(const string& str)
-{
-	char* endptr;
-	unsigned result = strtoul(str.c_str(), &endptr, 0);
-	if (*endptr == '\0') return result;
-	return {};
-}
-
-std::optional<uint64_t> stringToUint64(const string& str)
-{
-	char* endptr;
-	uint64_t result = strtoull(str.c_str(), &endptr, 0);
-	if (*endptr == '\0') return result;
-	return {};
-}
-
-std::optional<double> stringToDouble(const string& str)
-{
-	char* endptr;
-	double result = strtod(str.c_str(), &endptr);
-	if (*endptr == '\0') return result;
-	return {};
-}
-
 bool stringToBool(string_view str)
 {
 	if (str == "1") return true;

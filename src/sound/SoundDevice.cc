@@ -106,7 +106,7 @@ void SoundDevice::registerSound(const DeviceConfig& config)
 	}
 
 	for (auto& b : soundConfig.getChildren("balance")) {
-		auto balance = StringOp::stringToInt(b->getData());
+		auto balance = StringOp::stringTo<int>(b->getData());
 		if (!balance) {
 			throw MSXException("balance ", b->getData(), " illegal");
 		}

@@ -186,7 +186,7 @@ int XMLElement::getChildDataAsInt(string_view childName, int defaultValue) const
 {
 	const auto* child = findChild(childName);
 	if (!child) return defaultValue;
-	auto r = StringOp::stringToInt(child->getData());
+	auto r = StringOp::stringTo<int>(child->getData());
 	return r ? *r : defaultValue;
 }
 
@@ -236,7 +236,7 @@ int XMLElement::getAttributeAsInt(string_view attrName,
 {
 	const auto* value = findAttribute(attrName);
 	if (!value) return defaultValue;
-	auto r = StringOp::stringToInt(*value);
+	auto r = StringOp::stringTo<int>(*value);
 	return r ? *r : defaultValue;
 }
 
@@ -244,7 +244,7 @@ bool XMLElement::findAttributeInt(string_view attrName,
                                   unsigned& result) const
 {
 	if (const auto* value = findAttribute(attrName)) {
-		if (auto r = StringOp::stringToInt(*value)) {
+		if (auto r = StringOp::stringTo<int>(*value)) {
 			result = *r;
 			return true;
 		}

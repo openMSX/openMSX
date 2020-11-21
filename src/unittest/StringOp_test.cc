@@ -7,15 +7,6 @@ using std::string;
 using std::string_view;
 using std::vector;
 
-static void testStringToInt(const string& s, bool ok, int expected)
-{
-	auto result = stringToInt(s);
-	REQUIRE(!!result == ok);
-	if (ok) {
-		CHECK(*result == expected);
-	}
-}
-
 static void checkTrimRight(const string& s, char c, const string& expected)
 {
 	string test = s;
@@ -96,22 +87,117 @@ static void checkParseRange(const string& s, const vector<unsigned>& expected)
 	CHECK(parseRange(s, 0, 99) == expected);
 }
 
+
 TEST_CASE("StringOp")
 {
-	SECTION("stringToXXX") {
-		testStringToInt("", true, 0);
-		testStringToInt("0", true, 0);
-		testStringToInt("1234", true, 1234);
-		testStringToInt("-1234", true, -1234);
-		testStringToInt("0xabcd", true, 43981);
-		testStringToInt("0x7fffffff", true, 2147483647);
-		testStringToInt("-0x80000000", true, -2147483648);
-		testStringToInt("bla", false, 0);
-		//testStringToInt("0x80000000", true, 0); not detected correctly
+	SECTION("to<int>") {
+		std::optional<int> NOK;
+		using OK = std::optional<int>;
 
-		// TODO stringToUint
-		// TODO stringToUint64
+		// empty string is invalid
+		CHECK(StringOp::to<int>("") == NOK);
 
+		// valid decimal values, positive ..
+		CHECK(StringOp::to<int>("0") == OK(0));
+		CHECK(StringOp::to<int>("03") == OK(3));
+		CHECK(StringOp::to<int>("097") == OK(97));
+		CHECK(StringOp::to<int>("12") == OK(12));
+		// .. and negative
+		CHECK(StringOp::to<int>("-0") == OK(0));
+		CHECK(StringOp::to<int>("-11") == OK(-11));
+
+		// invalid
+		CHECK(StringOp::to<int>("-") == NOK);
+		CHECK(StringOp::to<int>("zz") == NOK);
+		CHECK(StringOp::to<int>("+") == NOK);
+		CHECK(StringOp::to<int>("+12") == NOK);
+
+		// leading whitespace is invalid, trailing stuff is invalid
+		CHECK(StringOp::to<int>(" 14") == NOK);
+		CHECK(StringOp::to<int>("15 ") == NOK);
+		CHECK(StringOp::to<int>("15bar") == NOK);
+
+		// hexadecimal
+		CHECK(StringOp::to<int>("0x1a") == OK(26));
+		CHECK(StringOp::to<int>("0x1B") == OK(27));
+		CHECK(StringOp::to<int>("0X1c") == OK(28));
+		CHECK(StringOp::to<int>("0X1D") == OK(29));
+		CHECK(StringOp::to<int>("-0x100") == OK(-256));
+		CHECK(StringOp::to<int>("0x") == NOK);
+		CHECK(StringOp::to<int>("0x12g") == NOK);
+		CHECK(StringOp::to<int>("0x-123") == NOK);
+
+		// binary
+		CHECK(StringOp::to<int>("0b") == NOK);
+		CHECK(StringOp::to<int>("0b2") == NOK);
+		CHECK(StringOp::to<int>("0b100") == OK(4));
+		CHECK(StringOp::to<int>("-0B1001") == OK(-9));
+		CHECK(StringOp::to<int>("0b-11") == NOK);
+
+		// overflow
+		CHECK(StringOp::to<int>("-2147483649") == NOK);
+		CHECK(StringOp::to<int>("2147483648") == NOK);
+		CHECK(StringOp::to<int>("999999999999999") == NOK);
+		CHECK(StringOp::to<int>("-999999999999999") == NOK);
+		// edge cases (no overflow)
+		CHECK(StringOp::to<int>("-2147483648") == OK(-2147483648));
+		CHECK(StringOp::to<int>("2147483647") == OK(2147483647));
+		CHECK(StringOp::to<int>("-0x80000000") == OK(-2147483648));
+		CHECK(StringOp::to<int>("0x7fffffff") == OK(2147483647));
+	}
+	SECTION("to<unisgned>") {
+		std::optional<unsigned> NOK;
+		using OK = std::optional<unsigned>;
+
+		// empty string is invalid
+		CHECK(StringOp::to<unsigned>("") == NOK);
+
+		// valid decimal values, only positive ..
+		CHECK(StringOp::to<unsigned>("0") == OK(0));
+		CHECK(StringOp::to<unsigned>("08") == OK(8));
+		CHECK(StringOp::to<unsigned>("0123") == OK(123));
+		CHECK(StringOp::to<unsigned>("13") == OK(13));
+		// negative is invalid
+		CHECK(StringOp::to<unsigned>("-0") == NOK);
+		CHECK(StringOp::to<unsigned>("-12") == NOK);
+
+		// invalid
+		CHECK(StringOp::to<unsigned>("-") == NOK);
+		CHECK(StringOp::to<unsigned>("zz") == NOK);
+		CHECK(StringOp::to<unsigned>("+") == NOK);
+		CHECK(StringOp::to<unsigned>("+12") == NOK);
+
+		// leading whitespace is invalid, trailing stuff is invalid
+		CHECK(StringOp::to<unsigned>(" 16") == NOK);
+		CHECK(StringOp::to<unsigned>("17 ") == NOK);
+		CHECK(StringOp::to<unsigned>("17qux") == NOK);
+
+		// hexadecimal
+		CHECK(StringOp::to<unsigned>("0x2a") == OK(42));
+		CHECK(StringOp::to<unsigned>("0x2B") == OK(43));
+		CHECK(StringOp::to<unsigned>("0X2c") == OK(44));
+		CHECK(StringOp::to<unsigned>("0X2D") == OK(45));
+		CHECK(StringOp::to<unsigned>("0x") == NOK);
+		CHECK(StringOp::to<unsigned>("-0x456") == NOK);
+		CHECK(StringOp::to<unsigned>("0x-123") == NOK);
+
+		// binary
+		CHECK(StringOp::to<unsigned>("0b1100") == OK(12));
+		CHECK(StringOp::to<unsigned>("0B1010") == OK(10));
+		CHECK(StringOp::to<unsigned>("0b") == NOK);
+		CHECK(StringOp::to<unsigned>("-0b101") == NOK);
+		CHECK(StringOp::to<unsigned>("0b2") == NOK);
+		CHECK(StringOp::to<unsigned>("0b-11") == NOK);
+
+		// overflow
+		CHECK(StringOp::to<unsigned>("4294967296") == NOK);
+		CHECK(StringOp::to<unsigned>("999999999999999") == NOK);
+		// edge case (no overflow)
+		CHECK(StringOp::to<unsigned>("4294967295") == OK(4294967295));
+		CHECK(StringOp::to<unsigned>("0xffffffff") == OK(4294967295));
+	}
+
+	SECTION("stringToBool") {
 		CHECK(stringToBool("0") == false);
 		CHECK(stringToBool("1") == true);
 		CHECK(stringToBool("Yes") == true);
@@ -129,8 +215,6 @@ TEST_CASE("StringOp")
 		// These two behave different as Tcl
 		CHECK(stringToBool("2") == false); // is true in Tcl
 		CHECK(stringToBool("foobar") == false); // is error in Tcl
-
-		// TODO stringToDouble
 	}
 	SECTION("toLower") {
 		CHECK(toLower("") == "");
