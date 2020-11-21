@@ -39,11 +39,8 @@ static EventPtr parseKeyEvent(const TclObject& str, Interpreter& interp)
 		auto comp1 = str.getListIndex(interp, 1).getString();
 		auto comp2 = str.getListIndex(interp, 2).getString();
 		if (StringOp::startsWith(comp2, "unicode")) {
-			try {
-				return parseKeyEvent(
-					comp1, StringOp::fast_stou(comp2.substr(7)));
-			} catch (std::invalid_argument&) {
-				// parse error in fast_stou()
+			if (auto u = StringOp::stringToBase<10, unsigned>(comp2.substr(7))) {
+				return parseKeyEvent(comp1, *u);
 			}
 		}
 	}
@@ -92,15 +89,12 @@ static EventPtr parseMouseEvent(const TclObject& str, Interpreter& interp)
 					std::vector<EventType>{OPENMSX_MOUSE_BUTTON_UP_EVENT, OPENMSX_MOUSE_BUTTON_DOWN_EVENT},
 					makeTclList("mouse", "button"));
 			} else if (len == 3) {
-				try {
-					unsigned button = StringOp::fast_stou(comp1.substr(6));
+				if (auto button = StringOp::stringToBase<10, unsigned>(comp1.substr(6))) {
 					if (upDown(str.getListIndex(interp, 2).getString())) {
-						return make_shared<MouseButtonUpEvent>  (button);
+						return make_shared<MouseButtonUpEvent>  (*button);
 					} else {
-						return make_shared<MouseButtonDownEvent>(button);
+						return make_shared<MouseButtonDownEvent>(*button);
 					}
-				} catch (std::invalid_argument&) {
-					// parse error in fast_stou()
 				}
 			}
 		} else if (comp1 == "wheel") {
@@ -177,42 +171,42 @@ static EventPtr parseJoystickEvent(const TclObject& str, Interpreter& interp)
 					makeTclList("joy", "hat"));
 			}
 		} else if (len == 3) {
-			try {
-				auto comp2 = str.getListIndex(interp, 2);
-				unsigned joystick = StringOp::fast_stou(comp0.substr(3)) - 1;
-
+			auto comp2 = str.getListIndex(interp, 2);
+			if (auto j = StringOp::stringToBase<10, unsigned>(comp0.substr(3))) {
+				unsigned joystick = *j - 1;
 				if (StringOp::startsWith(comp1, "button")) {
-					unsigned button = StringOp::fast_stou(comp1.substr(6));
-					if (upDown(comp2.getString())) {
-						return make_shared<JoystickButtonUpEvent>  (joystick, button);
-					} else {
-						return make_shared<JoystickButtonDownEvent>(joystick, button);
+					if (auto button = StringOp::stringToBase<10, unsigned>(comp1.substr(6))) {
+						if (upDown(comp2.getString())) {
+							return make_shared<JoystickButtonUpEvent>  (joystick, *button);
+						} else {
+							return make_shared<JoystickButtonDownEvent>(joystick, *button);
+						}
 					}
 				} else if (StringOp::startsWith(comp1, "axis")) {
-					unsigned axis = StringOp::fast_stou(comp1.substr(4));
-					int value = str.getListIndex(interp, 2).getInt(interp);
-					return make_shared<JoystickAxisMotionEvent>(joystick, axis, value);
+					if (auto axis = StringOp::stringToBase<10, unsigned>(comp1.substr(4))) {
+						int value = str.getListIndex(interp, 2).getInt(interp);
+						return make_shared<JoystickAxisMotionEvent>(joystick, *axis, value);
+					}
 				} else if (StringOp::startsWith(comp1, "hat")) {
-					unsigned hat = StringOp::fast_stou(comp1.substr(3));
-					auto valueStr = str.getListIndex(interp, 2).getString();
-					int value = [&] {
-						if      (valueStr == "up")        return SDL_HAT_UP;
-						else if (valueStr == "right")     return SDL_HAT_RIGHT;
-						else if (valueStr == "down")      return SDL_HAT_DOWN;
-						else if (valueStr == "left")      return SDL_HAT_LEFT;
-						else if (valueStr == "rightup")   return SDL_HAT_RIGHTUP;
-						else if (valueStr == "rightdown") return SDL_HAT_RIGHTDOWN;
-						else if (valueStr == "leftup")    return SDL_HAT_LEFTUP;
-						else if (valueStr == "leftdown")  return SDL_HAT_LEFTDOWN;
-						else if (valueStr == "center")    return SDL_HAT_CENTERED;
-						else {
-							throw CommandException("Invalid hat value: ", valueStr);
-						}
-					}();
-					return make_shared<JoystickHatEvent>(joystick, hat, value);
+					if (auto hat = StringOp::stringToBase<10, unsigned>(comp1.substr(3))) {
+						auto valueStr = str.getListIndex(interp, 2).getString();
+						int value = [&] {
+							if      (valueStr == "up")        return SDL_HAT_UP;
+							else if (valueStr == "right")     return SDL_HAT_RIGHT;
+							else if (valueStr == "down")      return SDL_HAT_DOWN;
+							else if (valueStr == "left")      return SDL_HAT_LEFT;
+							else if (valueStr == "rightup")   return SDL_HAT_RIGHTUP;
+							else if (valueStr == "rightdown") return SDL_HAT_RIGHTDOWN;
+							else if (valueStr == "leftup")    return SDL_HAT_LEFTUP;
+							else if (valueStr == "leftdown")  return SDL_HAT_LEFTDOWN;
+							else if (valueStr == "center")    return SDL_HAT_CENTERED;
+							else {
+								throw CommandException("Invalid hat value: ", valueStr);
+							}
+						}();
+						return make_shared<JoystickHatEvent>(joystick, *hat, value);
+					}
 				}
-			} catch (std::invalid_argument&) {
-				// parse error in fast_stou()
 			}
 		}
 	}

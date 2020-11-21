@@ -115,19 +115,16 @@ void Debugger::removeProbeBreakPoint(string_view name)
 {
 	if (StringOp::startsWith(name, "pp#")) {
 		// remove by id
-		try {
-			unsigned id = StringOp::fast_stou(name.substr(3));
+		if (auto id = StringOp::stringToBase<10, unsigned>(name.substr(3))) {
 			auto it = ranges::find_if(probeBreakPoints, [&](auto& bp) {
-				return bp->getId() == id;
+				return bp->getId() == *id;
 			});
-			if (it == end(probeBreakPoints)) {
-				throw CommandException("No such breakpoint: ", name);
+			if (it != end(probeBreakPoints)) {
+				move_pop_back(probeBreakPoints, it);
+				return;
 			}
-			move_pop_back(probeBreakPoints, it);
-		} catch (std::invalid_argument&) {
-			// parse error in fast_stou()
-			throw CommandException("No such breakpoint: ", name);
 		}
+		throw CommandException("No such breakpoint: ", name);
 	} else {
 		// remove by probe, only works for unconditional bp
 		auto it = ranges::find_if(probeBreakPoints, [&](auto& bp) {
@@ -378,19 +375,16 @@ void Debugger::Cmd::removeBreakPoint(
 	string_view tmp = tokens[2].getString();
 	if (StringOp::startsWith(tmp, "bp#")) {
 		// remove by id
-		try {
-			unsigned id = StringOp::fast_stou(tmp.substr(3));
+		if (auto id = StringOp::stringToBase<10, unsigned>(tmp.substr(3))) {
 			auto it = ranges::find_if(breakPoints, [&](auto& bp) {
-				return bp.getId() == id;
+				return bp.getId() == *id;
 			});
-			if (it == end(breakPoints)) {
-				throw CommandException("No such breakpoint: ", tmp);
+			if (it != end(breakPoints)) {
+				interface.removeBreakPoint(*it);
+				return;
 			}
-			interface.removeBreakPoint(*it);
-		} catch (std::invalid_argument&) {
-			// parse error in fast_stou()
-			throw CommandException("No such breakpoint: ", tmp);
 		}
+		throw CommandException("No such breakpoint: ", tmp);
 	} else {
 		// remove by addr, only works for unconditional bp
 		word addr = getAddress(getInterpreter(), tokens[2]);
@@ -494,20 +488,17 @@ void Debugger::Cmd::removeWatchPoint(
 {
 	checkNumArgs(tokens, 3, "id");
 	string_view tmp = tokens[2].getString();
-	try {
-		if (StringOp::startsWith(tmp, "wp#")) {
-			// remove by id
-			unsigned id = StringOp::fast_stou(tmp.substr(3));
+	if (StringOp::startsWith(tmp, "wp#")) {
+		// remove by id
+		if (auto id = StringOp::stringToBase<10, unsigned>(tmp.substr(3))) {
 			auto& interface = debugger().motherBoard.getCPUInterface();
 			for (auto& wp : interface.getWatchPoints()) {
-				if (wp->getId() == id) {
+				if (wp->getId() == *id) {
 					interface.removeWatchPoint(wp);
 					return;
 				}
 			}
 		}
-	} catch (std::invalid_argument&) {
-		// parse error in fast_stou()
 	}
 	throw CommandException("No such watchpoint: ", tmp);
 }
@@ -587,20 +578,17 @@ void Debugger::Cmd::removeCondition(
 	checkNumArgs(tokens, 3, "id");
 
 	string_view tmp = tokens[2].getString();
-	try {
-		if (StringOp::startsWith(tmp, "cond#")) {
-			// remove by id
-			unsigned id = StringOp::fast_stou(tmp.substr(5));
+	if (StringOp::startsWith(tmp, "cond#")) {
+		// remove by id
+		if (auto id = StringOp::stringToBase<10, unsigned>(tmp.substr(5))) {
 			auto& interface = debugger().motherBoard.getCPUInterface();
 			for (auto& c : interface.getConditions()) {
-				if (c.getId() == id) {
+				if (c.getId() == *id) {
 					interface.removeCondition(c);
 					return;
 				}
 			}
 		}
-	} catch (std::invalid_argument&) {
-		// parse error in fast_stou()
 	}
 	throw CommandException("No such condition: ", tmp);
 }

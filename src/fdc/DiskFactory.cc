@@ -95,12 +95,12 @@ std::unique_ptr<Disk> DiskFactory::createDisk(
 			throw e;
 		}
 		unsigned num = [&] {
-			try {
-				return StringOp::fast_stou(std::string_view(diskImage).substr(pos + 1));
-			} catch (std::invalid_argument&) {
+			auto n = StringOp::stringToBase<10, unsigned>(std::string_view(diskImage).substr(pos + 1));
+			if (!n) {
 				// not a valid partion number, throw previous exception
 				throw e;
 			}
+			return *n;
 		}();
 		SectorAccessibleDisk& disk = *wholeDisk;
 		return std::make_unique<DiskPartition>(disk, num, std::move(wholeDisk));

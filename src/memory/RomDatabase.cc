@@ -324,16 +324,17 @@ void DBParser::text(string_view txt)
 	case COUNTRY:
 		country = cIndex(txt);
 		break;
-	case GENMSXID:
-		try {
-			genMSXid = StringOp::fast_stou(txt);
-		} catch (std::invalid_argument&) {
+	case GENMSXID: {
+		auto g = StringOp::stringToBase<10, unsigned>(txt);
+		if (!g) {
 			cliComm.printWarning(
 				"Ignoring bad Generation MSX id (genmsxid) "
 				"in entry with title '", title,
 				": ", txt);
 		}
+		genMSXid = *g;
 		break;
+	}
 	case ORIGINAL:
 		dumps.back().origData = cIndex(txt);
 		break;

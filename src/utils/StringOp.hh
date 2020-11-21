@@ -78,8 +78,6 @@ namespace StringOp
 	[[nodiscard]] std::vector<unsigned> parseRange(std::string_view str,
 	                                               unsigned min, unsigned max);
 
-	[[nodiscard]] unsigned fast_stou(std::string_view s);
-
 	// case insensitive less-than operator
 	struct caseless {
 		[[nodiscard]] bool operator()(std::string_view s1, std::string_view s2) const {

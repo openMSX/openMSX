@@ -160,14 +160,11 @@ vector<string_view> split(string_view str, char chars)
 static unsigned parseNumber(string_view str)
 {
 	trim(str, " \t");
-	if (!str.empty()) {
-		try {
-			return fast_stou(str);
-		} catch (std::invalid_argument&) {
-			// parse error
-		}
+	auto r = stringToBase<10, unsigned>(str);
+	if (!r) {
+		throw openmsx::MSXException("Invalid integer: ", str);
 	}
-	throw openmsx::MSXException("Invalid integer: ", str);
+	return *r;
 }
 
 static void insert(unsigned x, vector<unsigned>& result, unsigned min, unsigned max)
@@ -213,20 +210,6 @@ vector<unsigned> parseRange(string_view str, unsigned min, unsigned max)
 		parseRange2(sub, result, min, max);
 		if (next == string_view::npos) break;
 		str = str.substr(next);
-	}
-	return result;
-}
-
-unsigned fast_stou(string_view s)
-{
-	unsigned result = 0;
-	for (char c : s) {
-		unsigned d = c - '0';
-		if (unlikely(d > 9)) {
-			throw std::invalid_argument("fast_stoi");
-		}
-		result *= 10;
-		result += d;
 	}
 	return result;
 }

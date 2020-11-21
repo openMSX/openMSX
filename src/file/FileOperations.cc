@@ -680,11 +680,10 @@ static unsigned getNextNum(dirent* d, string_view prefix, string_view extension,
 	    (name.substr(prefixLen + nofdigits, extensionLen) != extension)) {
 		return 0;
 	}
-	try {
-		return StringOp::fast_stou(name.substr(prefixLen, nofdigits));
-	} catch (std::invalid_argument&) {
-		return 0;
+	if (auto n = StringOp::stringToBase<10, unsigned>(name.substr(prefixLen, nofdigits))) {
+		return *n;
 	}
+	return 0;
 }
 
 string getNextNumberedFileName(

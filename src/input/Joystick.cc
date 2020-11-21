@@ -262,44 +262,51 @@ bool Joystick::getState(Interpreter& interp, const TclObject& dict,
 		for (auto i : xrange(list.getListLength(interp))) {
 			const auto& elem = list.getListIndex(interp, i).getString();
 			if (StringOp::startsWith(elem, "button")) {
-				unsigned n = StringOp::fast_stou(elem.substr(6));
-				if (InputEventGenerator::joystickGetButton(joystick, n)) {
-					return true;
+				if (auto n = StringOp::stringToBase<10, unsigned>(elem.substr(6))) {
+					if (InputEventGenerator::joystickGetButton(joystick, *n)) {
+						return true;
+					}
 				}
 			} else if (StringOp::startsWith(elem, "+axis")) {
-				unsigned n = StringOp::fast_stou(elem.substr(5));
-				if (SDL_JoystickGetAxis(joystick, n) > threshold) {
-					return true;
+				if (auto n = StringOp::stringToBase<10, unsigned>(elem.substr(5))) {
+					if (SDL_JoystickGetAxis(joystick, *n) > threshold) {
+						return true;
+					}
 				}
 			} else if (StringOp::startsWith(elem, "-axis")) {
-				unsigned n = StringOp::fast_stou(elem.substr(5));
-				if (SDL_JoystickGetAxis(joystick, n) < -threshold) {
-					return true;
+				if (auto n = StringOp::stringToBase<10, unsigned>(elem.substr(5))) {
+					if (SDL_JoystickGetAxis(joystick, *n) < -threshold) {
+						return true;
+					}
 				}
 			} else if (StringOp::startsWith(elem, "L_hat")) {
-				unsigned n = StringOp::fast_stou(elem.substr(5));
-				if (SDL_JoystickGetHat(joystick, n) & SDL_HAT_LEFT) {
-					return true;
+				if (auto n = StringOp::stringToBase<10, unsigned>(elem.substr(5))) {
+					if (SDL_JoystickGetHat(joystick, *n) & SDL_HAT_LEFT) {
+						return true;
+					}
 				}
 			} else if (StringOp::startsWith(elem, "R_hat")) {
-				unsigned n = StringOp::fast_stou(elem.substr(5));
-				if (SDL_JoystickGetHat(joystick, n) & SDL_HAT_RIGHT) {
-					return true;
+				if (auto n = StringOp::stringToBase<10, unsigned>(elem.substr(5))) {
+					if (SDL_JoystickGetHat(joystick, *n) & SDL_HAT_RIGHT) {
+						return true;
+					}
 				}
 			} else if (StringOp::startsWith(elem, "U_hat")) {
-				unsigned n = StringOp::fast_stou(elem.substr(5));
-				if (SDL_JoystickGetHat(joystick, n) & SDL_HAT_UP) {
-					return true;
+				if (auto n = StringOp::stringToBase<10, unsigned>(elem.substr(5))) {
+					if (SDL_JoystickGetHat(joystick, *n) & SDL_HAT_UP) {
+						return true;
+					}
 				}
 			} else if (StringOp::startsWith(elem, "D_hat")) {
-				unsigned n = StringOp::fast_stou(elem.substr(5));
-				if (SDL_JoystickGetHat(joystick, n) & SDL_HAT_DOWN) {
-					return true;
+				if (auto n = StringOp::stringToBase<10, unsigned>(elem.substr(5))) {
+					if (SDL_JoystickGetHat(joystick, *n) & SDL_HAT_DOWN) {
+						return true;
+					}
 				}
 			}
 		}
 	} catch (...) {
-		// Error, in getListLength()/getListIndex() or in fast_stou().
+		// Error, in getListLength() or getListIndex().
 		// In either case we can't do anything about it here, so ignore.
 	}
 	return false;

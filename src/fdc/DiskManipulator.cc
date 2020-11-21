@@ -113,14 +113,13 @@ DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
 		// whole disk
 		it->partition = 0;
 	} else {
-		try {
-			unsigned partition = StringOp::fast_stou(diskname.substr(pos2));
-			DiskImageUtils::checkFAT12Partition(*disk, partition);
-			it->partition = partition;
-		} catch (std::invalid_argument&) {
-			// parse error in fast_stou()
-			throw CommandException("Invalid partition name");
+		auto partitionName = diskname.substr(pos2);
+		auto partition = StringOp::stringToBase<10, unsigned>(partitionName);
+		if (!partition) {
+			throw CommandException("Invalid partition name: ", partitionName);
 		}
+		DiskImageUtils::checkFAT12Partition(*disk, *partition);
+		it->partition = *partition;
 	}
 	return *it;
 }
