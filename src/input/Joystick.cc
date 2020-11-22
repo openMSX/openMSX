@@ -129,7 +129,7 @@ static string getJoystickName(unsigned joyNum)
 
 static TclObject getConfigValue(SDL_Joystick* joystick)
 {
-	TclObject listA, listB, listL, listR, listU, listD;
+	TclObject listA, listB;
 	for (auto i : xrange(InputEventGenerator::joystickNumButtons(joystick))) {
 		string button = strCat("button", i);
 		if (i & 1) {
@@ -138,19 +138,11 @@ static TclObject getConfigValue(SDL_Joystick* joystick)
 			listA.addListElement(button);
 		}
 	}
-	listL.addListElement("-axis0");
-	listL.addListElement("L_hat0");
-	listR.addListElement("+axis0");
-	listR.addListElement("R_hat0");
-	listU.addListElement("-axis1");
-	listU.addListElement("U_hat0");
-	listD.addListElement("+axis1");
-	listD.addListElement("D_hat0");
 	TclObject value;
-	value.addDictKeyValues("LEFT",  listL,
-	                       "RIGHT", listR,
-	                       "UP",    listU,
-	                       "DOWN",  listD,
+	value.addDictKeyValues("LEFT",  makeTclList("-axis0", "L_hat0"),
+	                       "RIGHT", makeTclList("+axis0", "R_hat0"),
+	                       "UP",    makeTclList("-axis1", "U_hat0"),
+	                       "DOWN",  makeTclList("+axis1", "D_hat0"),
 	                       "A",     listA,
 	                       "B",     listB);
 	return value;
