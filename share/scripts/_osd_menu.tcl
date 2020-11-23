@@ -658,6 +658,21 @@ proc get_slot_str {slot} {
 	return [string toupper [string index $slot end]]
 }
 
+proc get_slot_str_ext {slot} {
+	set output [get_slot_str $slot]
+	if {[string match "cart*" $slot]} {
+		set slotinfo [machine_info external_slot slot[string index $slot end]]
+		set ps [lindex $slotinfo 0]
+		set ss [lindex $slotinfo 1]
+		append output " ($ps"
+		if {$ss ne "X"} {
+			append output "-$ss"
+		}
+		append output ")"
+	}
+	return $output
+}
+
 proc get_extension_display_name {ext_name} {
 	set ext_info [machine_info extension $ext_name]
 	if {[dict exists $ext_info config]} {
@@ -698,7 +713,7 @@ proc create_slot_menu_def {slots path listtype menutitle create_action_proc {sho
 		selectable false\
 	]
 	foreach slot $slots {
-		lappend items [list text "[get_slot_str $slot]: [get_slot_content $slot]" {*}[$create_action_proc $slot $path $listtype]]
+		lappend items [list text "[get_slot_str_ext $slot]: [get_slot_content $slot]" {*}[$create_action_proc $slot $path $listtype]]
 	}
 	# hack: use special parameter show_io_slots to add cartridge specific I/O slots
 	if {$show_io_slots} {
