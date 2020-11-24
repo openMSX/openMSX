@@ -661,9 +661,7 @@ proc get_slot_str {slot} {
 proc get_slot_str_ext {slot} {
 	set output [get_slot_str $slot]
 	if {[string match "cart*" $slot]} {
-		set slotinfo [machine_info external_slot slot[string index $slot end]]
-		set ps [lindex $slotinfo 0]
-		set ss [lindex $slotinfo 1]
+		lassign [machine_info external_slot "slot[string index $slot end]"] ps ss
 		append output " ($ps"
 		if {$ss ne "X"} {
 			append output "-$ss"
