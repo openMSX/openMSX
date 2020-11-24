@@ -7,6 +7,7 @@ from os import listdir
 from os.path import basename, expanduser, isdir, splitext
 from pathlib import Path
 import os
+import platform
 import sys
 import subprocess
 
@@ -52,7 +53,7 @@ def installAll(
 				installPrefix + docDestDir + '/manual/' + fileName
 				)
 
-	if os.name == 'posix':
+	if platform.system() == 'Linux':
 		if 'XDG_DATA_HOME' in os.environ:
 			desktopShareDestDir = os.environ['XDG_DATA_HOME']
 		elif os.geteuid() == 0:
