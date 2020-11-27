@@ -66,16 +66,23 @@ WavImageCache& WavImageCache::instance()
 
 const WavImageCache::Entry& WavImageCache::get(const Filename& filename, FilePool& filePool)
 {
-	auto [it, inserted] = cache.try_emplace(filename.getResolved());
-	auto& [entry, count] = it->second;
-	if (inserted) {
-		assert(count == 0);
-		File file(filename);
-		entry.sum = filePool.getSha1Sum(file);
-		entry.wav = WavData(std::move(file), DCFilter{});
+	// Reading file or parsing as .wav may throw, so only create cache
+	// entry after all went well.
+	if (auto it = cache.find(filename.getResolved());
+	    it != cache.end()) {
+		auto& [entry, count] = it->second;
+		++count; // increase reference count
+		return entry;
 	}
-	++count; // increase reference count
-	return entry;
+
+	File file(filename);
+	Entry entry;
+	entry.sum = filePool.getSha1Sum(file);
+	entry.wav = WavData(std::move(file), DCFilter{});
+	unsigned count = 1;
+	auto [it, inserted] = cache.try_emplace(filename.getResolved(), std::move(entry), count);
+	assert(inserted);
+	return it->second.first;
 }
 
 void WavImageCache::release(const WavData* wav)
