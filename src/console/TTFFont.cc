@@ -16,18 +16,22 @@ namespace openmsx {
 class SDLTTF
 {
 public:
+	SDLTTF(const SDLTTF&) = delete;
+	SDLTTF& operator=(const SDLTTF&) = delete;
+
 	static SDLTTF& instance();
 
 private:
 	SDLTTF();
 	~SDLTTF();
-	SDLTTF(const SDLTTF&) = delete;
-	SDLTTF& operator=(const SDLTTF&) = delete;
 };
 
 class TTFFontPool
 {
 public:
+	TTFFontPool(const TTFFontPool&) = delete;
+	TTFFontPool& operator=(const TTFFontPool&) = delete;
+
 	static TTFFontPool& instance();
 	TTF_Font* get(const string& filename, int ptSize);
 	void release(TTF_Font* font);
@@ -35,8 +39,6 @@ public:
 private:
 	TTFFontPool() = default;
 	~TTFFontPool();
-	TTFFontPool(const TTFFontPool&) = delete;
-	TTFFontPool& operator=(const TTFFontPool&) = delete;
 
 	// We want to keep the LocalFileReference object alive for as long as
 	// the SDL_ttf library uses the font. This solves a problem we had in

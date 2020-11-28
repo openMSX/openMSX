@@ -10,7 +10,7 @@ class OSDGUI;
 class OSDGUILayer : public Layer
 {
 public:
-	OSDGUI& getGUI() { return gui; }
+	[[nodiscard]] OSDGUI& getGUI() { return gui; }
 
 protected:
 	explicit OSDGUILayer(OSDGUI& gui);

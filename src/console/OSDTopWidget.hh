@@ -14,19 +14,19 @@ class OSDTopWidget final : public OSDWidget
 {
 public:
 	explicit OSDTopWidget(Display& display);
-	std::string_view getType() const override;
-	gl::vec2 getSize(const OutputSurface& output) const override;
-	bool isVisible() const override;
-	bool isRecursiveFading() const override;
+	[[nodiscard]] std::string_view getType() const override;
+	[[nodiscard]] gl::vec2 getSize(const OutputSurface& output) const override;
+	[[nodiscard]] bool isVisible() const override;
+	[[nodiscard]] bool isRecursiveFading() const override;
 
 	void queueError(std::string message);
 	void showAllErrors();
 
-	OSDWidget* findByName(std::string_view name);
-	const OSDWidget* findByName(std::string_view name) const;
+	[[nodiscard]]       OSDWidget* findByName(std::string_view name);
+	[[nodiscard]] const OSDWidget* findByName(std::string_view name) const;
 	void addName(OSDWidget& widget);
 	void removeName(OSDWidget& widget);
-	std::vector<std::string_view> getAllWidgetNames() const;
+	[[nodiscard]] std::vector<std::string_view> getAllWidgetNames() const;
 
 protected:
 	void invalidateLocal() override;
@@ -37,7 +37,7 @@ private:
 	std::vector<std::string> errors;
 
 	struct NameFromWidget {
-		std::string_view operator()(const OSDWidget* w) const {
+		[[nodiscard]] std::string_view operator()(const OSDWidget* w) const {
 			return w->getName();
 		}
 	};

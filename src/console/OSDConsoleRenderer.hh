@@ -31,8 +31,8 @@ public:
 	~OSDConsoleRenderer() override;
 
 private:
-	int initFontAndGetColumns();
-	int getRows();
+	[[nodiscard]] int initFontAndGetColumns();
+	[[nodiscard]] int getRows();
 
 	// Layer
 	void paint(OutputSurface& output) override;
@@ -49,14 +49,16 @@ private:
 	byte getVisibility() const;
 	void drawText(OutputSurface& output, std::string_view text,
 	              int cx, int cy, byte alpha, uint32_t rgb);
-	gl::ivec2 getTextPos(int cursorX, int cursorY) const;
+	[[nodiscard]] gl::ivec2 getTextPos(int cursorX, int cursorY) const;
 	void drawConsoleText(OutputSurface& output, byte visibility);
 
-	std::tuple<bool, BaseImage*, unsigned> getFromCache(std::string_view text, uint32_t rgb);
+	[[nodiscard]] std::tuple<bool, BaseImage*, unsigned> getFromCache(
+		std::string_view text, uint32_t rgb);
 	void insertInCache(std::string text, uint32_t rgb,
 	                   std::unique_ptr<BaseImage> image, unsigned width);
 	void clearCache();
 
+private:
 	enum Placement {
 		CP_TOPLEFT,    CP_TOP,    CP_TOPRIGHT,
 		CP_LEFT,       CP_CENTER, CP_RIGHT,
