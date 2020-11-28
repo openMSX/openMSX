@@ -31,7 +31,7 @@ ZlibInflate::~ZlibInflate()
 void ZlibInflate::skip(size_t num)
 {
 	for (size_t i = 0; i < num; ++i) {
-		getByte();
+		(void)getByte();
 	}
 }
 

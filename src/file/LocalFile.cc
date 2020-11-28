@@ -70,7 +70,7 @@ LocalFile::LocalFile(std::string_view filename_, File::OpenMode mode)
 				strerror(err));
 		}
 	}
-	getSize(); // check filesize
+	(void)getSize(); // query filesize, but ignore result
 }
 
 LocalFile::LocalFile(std::string_view filename_, const char* mode)
@@ -89,7 +89,7 @@ LocalFile::LocalFile(std::string_view filename_, const char* mode)
 	if (!file) {
 		throw FileException("Error opening file \"", filename, '"');
 	}
-	getSize(); // check filesize
+	(void)getSize(); // query filesize, but ignore result
 }
 
 LocalFile::~LocalFile()

@@ -21,6 +21,7 @@ public:
 private:
 	void run();
 
+private:
 	const std::string name;
 	std::thread thread;
 	std::atomic<bool> exitLoop;

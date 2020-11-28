@@ -15,8 +15,8 @@ public:
 	RS232Device& getPluggedRS232Dev() const;
 
 	// Connector
-	std::string_view getDescription() const final override;
-	std::string_view getClass() const final override;
+	std::string_view getDescription() const final;
+	std::string_view getClass() const final;
 
 	// input (SerialDataInterface)
 	void setDataBits(DataBits bits) override = 0;

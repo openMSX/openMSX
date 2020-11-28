@@ -25,11 +25,11 @@ public:
 	  * are no more entries or in case of error (e.g. given directory
 	  * does not exist).
 	  */
-	struct dirent* getEntry();
+	[[nodiscard]] struct dirent* getEntry();
 
 	/** Is the given directory valid (does it exist)?
 	  */
-	bool isValid() const { return dir != nullptr; }
+	[[nodiscard]] bool isValid() const { return dir != nullptr; }
 
 private:
 	DIR* dir;

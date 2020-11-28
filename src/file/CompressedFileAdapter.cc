@@ -9,7 +9,7 @@ using std::string;
 namespace openmsx {
 
 struct GetURLFromDecompressed {
-	template<typename Ptr> const string& operator()(const Ptr& p) const {
+	template<typename Ptr> [[nodiscard]] const string& operator()(const Ptr& p) const {
 		return p->cachedURL;
 	}
 };

@@ -27,7 +27,7 @@ private:
 };
 
 
-static string initialFilePoolSettingValue()
+[[nodiscard]] static string initialFilePoolSettingValue()
 {
 	TclObject result;
 
@@ -74,7 +74,7 @@ Sha1Sum FilePool::getSha1Sum(File& file)
 	return core.getSha1Sum(file);
 }
 
-static FileType parseTypes(Interpreter& interp, const TclObject& list)
+[[nodiscard]] static FileType parseTypes(Interpreter& interp, const TclObject& list)
 {
 	auto result = FileType::NONE;
 	unsigned num = list.getListLength(interp);
@@ -145,7 +145,7 @@ FilePoolCore::Directories FilePool::getDirectories() const
 void FilePool::update(const Setting& setting)
 {
 	assert(&setting == &filePoolSetting); (void)setting;
-	getDirectories(); // check for syntax errors
+	(void)getDirectories(); // check for syntax errors
 }
 
 void FilePool::reportProgress(const std::string& message)

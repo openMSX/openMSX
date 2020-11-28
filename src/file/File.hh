@@ -58,7 +58,7 @@ public:
 	File& operator=(File&& other) noexcept;
 
 	/** Return true iff this file handle refers to an open file. */
-	bool is_open() const { return file != nullptr; }
+	[[nodiscard]] bool is_open() const { return file != nullptr; }
 
 	/** Close the current file.
 	 * Equivalent to assigning a default constructed value to this object.
@@ -83,7 +83,7 @@ public:
 	 * @result Pointer/size to/of memory block.
 	 * @throws FileException
 	 */
-	span<uint8_t> mmap();
+	[[nodiscard]] span<uint8_t> mmap();
 
 	/** Unmap file from memory.
 	 */
@@ -93,7 +93,7 @@ public:
 	 * @result The size of this file
 	 * @throws FileException
 	 */
-	size_t getSize();
+	[[nodiscard]] size_t getSize();
 
 	/** Move read/write pointer to the specified position.
 	 * @param pos Position in bytes from the beginning of the file.
@@ -105,7 +105,7 @@ public:
 	 * @result Position in bytes from the beginning of the file.
 	 * @throws FileException
 	 */
-	size_t getPos();
+	[[nodiscard]] size_t getPos();
 
 	/** Truncate file size. Enlarging file size always works, but
 	 *  making file smaller doesn't work on some platforms (windows)
@@ -121,7 +121,7 @@ public:
 	/** Returns the URL of this file object.
 	 * @throws FileException
 	 */
-	std::string getURL() const;
+	[[nodiscard]] std::string getURL() const;
 
 	/** Get Original filename for this object. This will usually just
 	 *  return the filename portion of the URL. However for compressed
@@ -129,18 +129,18 @@ public:
 	 * @result Original file name
 	 * @throws FileException
 	 */
-	std::string getOriginalName();
+	[[nodiscard]] std::string getOriginalName();
 
 	/** Check if this file is readonly
 	 * @result true iff file is readonly
 	 * @throws FileException
 	 */
-	bool isReadOnly() const;
+	[[nodiscard]] bool isReadOnly() const;
 
 	/** Get the date/time of last modification
 	 * @throws FileException
 	 */
-	time_t getModificationDate();
+	[[nodiscard]] time_t getModificationDate();
 
 private:
 	friend class LocalFileReference;
@@ -148,7 +148,7 @@ private:
 	 * Returns the path to the (uncompressed) file on the local,
 	 * filesystem. Or an empty string in case there is no such path.
 	 */
-	std::string getLocalReference() const;
+	[[nodiscard]] std::string getLocalReference() const;
 
 	std::unique_ptr<FileBase> file;
 };

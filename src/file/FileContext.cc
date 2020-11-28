@@ -20,13 +20,13 @@ const string USER_DATA    = "{{USER_DATA}}";
 const string SYSTEM_DATA  = "{{SYSTEM_DATA}}";
 
 
-static string subst(string_view path, string_view before, string_view after)
+[[nodiscard]] static string subst(string_view path, string_view before, string_view after)
 {
 	assert(StringOp::startsWith(path, before));
 	return strCat(after, path.substr(before.size()));
 }
 
-static vector<string> getPathsHelper(const vector<string>& input)
+[[nodiscard]] static vector<string> getPathsHelper(const vector<string>& input)
 {
 	vector<string> result;
 	for (const auto& s : input) {
@@ -51,7 +51,7 @@ static vector<string> getPathsHelper(const vector<string>& input)
 	return result;
 }
 
-static string resolveHelper(const vector<string>& pathList,
+[[nodiscard]] static string resolveHelper(const vector<string>& pathList,
                             string_view filename)
 {
 	string filepath = FileOperations::expandCurrentDirFromDrive(filename);

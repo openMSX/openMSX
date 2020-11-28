@@ -17,12 +17,13 @@ namespace openmsx {
 class CompareSha1 {
 public:
 	CompareSha1(const FilePoolCore::Pool& pool_) : pool(pool_) {}
-	template<typename X, typename Y> bool operator()(const X& x, const Y& y) const {
+	template<typename X, typename Y>
+	[[nodiscard]] bool operator()(const X& x, const Y& y) const {
 		return get(x) < get(y);
 	}
 private:
-	const Sha1Sum& get(const Sha1Sum& sum) const { return sum; }
-	const Sha1Sum& get(FilePoolCore::Index idx) const { return pool[idx].sum; }
+	[[nodiscard]] const Sha1Sum& get(const Sha1Sum& sum) const { return sum; }
+	[[nodiscard]] const Sha1Sum& get(FilePoolCore::Index idx) const { return pool[idx].sum; }
 private:
 	const FilePoolCore::Pool& pool;
 };

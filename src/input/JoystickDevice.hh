@@ -28,7 +28,7 @@ public:
 	 */
 	virtual void write(byte value, EmuTime::param time) = 0;
 
-	std::string_view getClass() const final override;
+	std::string_view getClass() const final;
 
 	/* Missing pin descriptions
 	 * pin 5 : +5V

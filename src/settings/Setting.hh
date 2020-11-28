@@ -132,7 +132,7 @@ public:
 
 	/** Gets the current value of this setting as a TclObject.
 	  */
-	const TclObject& getValue() const final override { return value; }
+	const TclObject& getValue() const final { return value; }
 
 	/** Set restore value. See getDefaultValue() and getRestoreValue().
 	  */
@@ -154,16 +154,16 @@ public:
 	}
 
 	// BaseSetting
-	void setValue(const TclObject& newValue) final override;
-	std::string_view getDescription() const final override;
-	TclObject getDefaultValue() const final override { return defaultValue; }
-	TclObject getRestoreValue() const final override { return restoreValue; }
-	void setValueDirect(const TclObject& newValue) final override;
+	void setValue(const TclObject& newValue) final;
+	std::string_view getDescription() const final;
+	TclObject getDefaultValue() const final { return defaultValue; }
+	TclObject getRestoreValue() const final { return restoreValue; }
+	void setValueDirect(const TclObject& newValue) final;
 	void tabCompletion(std::vector<std::string>& tokens) const override;
-	bool needLoadSave() const final override;
+	bool needLoadSave() const final;
 	void additionalInfo(TclObject& result) const override;
-	bool needTransfer() const final override;
-	void setDontSaveValue(const TclObject& dontSaveValue) final override;
+	bool needTransfer() const final;
+	void setDontSaveValue(const TclObject& dontSaveValue) final;
 
 	// convenience functions
 	CommandController& getCommandController() const { return commandController; }

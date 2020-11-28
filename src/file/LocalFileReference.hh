@@ -44,12 +44,13 @@ public:
 	/** Returns path to a local uncompressed version of this file.
 	  * This path only remains valid as long as this object is in scope.
 	  */
-	const std::string& getFilename() const;
+	[[nodiscard]] const std::string& getFilename() const;
 
 private:
 	void init(File& file);
 	void cleanup();
 
+private:
 	std::string tmpFile;
 	std::string tmpDir;
 };

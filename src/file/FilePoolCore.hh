@@ -85,7 +85,7 @@ private:
 			assert(timeStr != nullptr);
 		}
 
-		time_t getTime();
+		[[nodiscard]] time_t getTime();
 		void setTime(time_t t);
 
 		// - At least one of 'timeStr' or 'time' is valid.
@@ -95,7 +95,7 @@ private:
 		time_t time = Date::INVALID_TIME_T;
 		Sha1Sum sum;
 	};
-	
+
 	using Pool = ObjectPool<Entry>;
 	using Index = Pool::Index;
 	using Sha1Index = std::vector<Index>; // sorted on sha1sum
@@ -103,21 +103,22 @@ private:
 	class FilenameIndexHelper {
 	public:
 		FilenameIndexHelper(const Pool& p) : pool(p) {}
-		std::string_view get(std::string_view s) const { return s; }
-		std::string_view get(Index idx) const { return pool[idx].filename; }
+		[[nodiscard]] std::string_view get(std::string_view s) const { return s; }
+		[[nodiscard]] std::string_view get(Index idx) const { return pool[idx].filename; }
 	private:
 		const Pool& pool;
 	};
 	struct FilenameIndexHash : FilenameIndexHelper {
 		FilenameIndexHash(const Pool& p) : FilenameIndexHelper(p) {}
-		template<typename T> auto operator()(T t) const {
+		template<typename T> [[nodiscard]] auto operator()(T t) const {
 			XXHasher hasher;
 			return hasher(get(t));
 		}
 	};
 	struct FilenameIndexEqual : FilenameIndexHelper {
 		FilenameIndexEqual(const Pool& p) : FilenameIndexHelper(p) {}
-		template<typename T1, typename T2> bool operator()(T1 x, T2 y) const {
+		template<typename T1, typename T2>
+		[[nodiscard]] bool operator()(T1 x, T2 y) const {
 			return get(x) == get(y);
 		}
 	};
@@ -126,7 +127,7 @@ private:
 
 private:
 	void insert(const Sha1Sum& sum, time_t time, const std::string& filename);
-	Sha1Index::iterator getSha1Iterator(Index idx, Entry& entry);
+	[[nodiscard]] Sha1Index::iterator getSha1Iterator(Index idx, Entry& entry);
 	void remove(Sha1Index::iterator it);
 	void remove(Index idx);
 	void remove(Index idx, Entry& entry);
@@ -136,18 +137,20 @@ private:
 	void readSha1sums();
 	void writeSha1sums();
 
-	File getFromPool(const Sha1Sum& sha1sum);
-	File scanDirectory(const Sha1Sum& sha1sum,
-	                   const std::string& directory,
-	                   const std::string& poolPath,
-	                   ScanProgress& progress);
-	File scanFile(const Sha1Sum& sha1sum,
-	              const std::string& filename,
-	              const FileOperations::Stat& st,
-	              const std::string& poolPath,
-	              ScanProgress& progress);
-	Sha1Sum calcSha1sum(File& file);
-	std::pair<Index, Entry*> findInDatabase(std::string_view filename);
+	[[nodiscard]] File getFromPool(const Sha1Sum& sha1sum);
+	[[nodiscard]] File scanDirectory(
+		const Sha1Sum& sha1sum,
+	        const std::string& directory,
+	        const std::string& poolPath,
+	        ScanProgress& progress);
+	[[nodiscard]] File scanFile(
+		const Sha1Sum& sha1sum,
+	        const std::string& filename,
+	        const FileOperations::Stat& st,
+	        const std::string& poolPath,
+	        ScanProgress& progress);
+	[[nodiscard]] Sha1Sum calcSha1sum(File& file);
+	[[nodiscard]] std::pair<Index, Entry*> findInDatabase(std::string_view filename);
 
 private:
 	std::string filecache; // path of the '.filecache' file.

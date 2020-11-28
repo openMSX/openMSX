@@ -23,8 +23,8 @@ public:
 	explicit Filename(std::string filename);
 	Filename(std::string filename, const FileContext& context);
 
-	const std::string& getOriginal() const { return originalFilename; }
-	const std::string& getResolved() const { return resolvedFilename; }
+	[[nodiscard]] const std::string& getOriginal() const { return originalFilename; }
+	[[nodiscard]] const std::string& getResolved() const { return resolvedFilename; }
 
 	/** After a loadstate we prefer to use the exact same file as before
 	  * savestate. But if that file is not available (possibly because
@@ -37,7 +37,7 @@ public:
 	 * In any case getOriginal().empty() and getResolved().empty() return
 	 * the same result. This method is a shortcut to either of these.
 	 */
-	bool empty() const;
+	[[nodiscard]] bool empty() const;
 
 	/** Change the resolved part of this filename
 	 * E.g. on loadstate when we didn't find the original file, but another
@@ -48,10 +48,10 @@ public:
 	}
 
 	// Do both Filename objects point to the same file?
-	bool operator==(const Filename& other) const {
+	[[nodiscard]] bool operator==(const Filename& other) const {
 		return resolvedFilename == other.resolvedFilename;
 	}
-	bool operator!=(const Filename& other) const {
+	[[nodiscard]] bool operator!=(const Filename& other) const {
 		return !(*this == other);
 	}
 
