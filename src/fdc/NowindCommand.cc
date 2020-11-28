@@ -39,7 +39,7 @@ unique_ptr<DiskChanger> NowindCommand::createDiskChanger(
 			false, true);
 }
 
-static unsigned searchRomdisk(const NowindHost::Drives& drives)
+[[nodiscard]] static unsigned searchRomdisk(const NowindHost::Drives& drives)
 {
 	for (size_t i = 0; i < drives.size(); ++i) {
 		if (drives[i]->isRomdisk()) {

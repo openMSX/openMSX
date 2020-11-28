@@ -38,10 +38,10 @@ private:
 	void writeLogicalSector(unsigned sector, const SectorBuffer& buf);
 	void readLogicalSector (unsigned sector,       SectorBuffer& buf);
 
-	unsigned clusterToSector(unsigned cluster) const;
-	unsigned sectorToCluster(unsigned sector) const;
+	[[nodiscard]] unsigned clusterToSector(unsigned cluster) const;
+	[[nodiscard]] unsigned sectorToCluster(unsigned sector) const;
 	void parseBootSector(const MSXBootSector& boot);
-	unsigned readFAT(unsigned clnr) const;
+	[[nodiscard]] unsigned readFAT(unsigned clnr) const;
 	void writeFAT(unsigned clnr, unsigned val);
 	unsigned findFirstFreeCluster();
 	unsigned findUsableIndexInSector(unsigned sector);
@@ -63,7 +63,7 @@ private:
 	                              unsigned sector);
 	void chroot(std::string_view newRootDir, bool createDir);
 
-
+private:
 	SectorAccessibleDisk& disk;
 	MemBuffer<SectorBuffer> fatBuffer;
 

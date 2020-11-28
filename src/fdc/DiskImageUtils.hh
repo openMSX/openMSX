@@ -114,7 +114,7 @@ namespace DiskImageUtils {
 
 	/** Check whether the given disk is partitioned.
 	 */
-	bool hasPartitionTable(SectorAccessibleDisk& disk);
+	[[nodiscard]] bool hasPartitionTable(SectorAccessibleDisk& disk);
 
 	/** Format the given disk (= a single partition).
 	 * The formatting depends on the size of the image.

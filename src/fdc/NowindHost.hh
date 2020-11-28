@@ -23,13 +23,13 @@ public:
 	~NowindHost();
 
 	// public for usb-host implementation
-	bool isDataAvailable() const;
+	[[nodiscard]] bool isDataAvailable() const;
 
 	// read one byte of response-data from the host (msx <- pc)
 	byte read();
 
 	// like read(), but without side effects (doesn't consume the data)
-	byte peek() const;
+	[[nodiscard]] byte peek() const;
 
 	// Write one byte of command-data to the host   (msx -> pc)
 	// Time parameter is in milliseconds. Emulators can pass emulation
@@ -37,10 +37,10 @@ public:
 	void write(byte data, unsigned time);
 
 	void setAllowOtherDiskroms(bool allow) { allowOtherDiskroms = allow; }
-	bool getAllowOtherDiskroms() const { return allowOtherDiskroms; }
+	[[nodiscard]] bool getAllowOtherDiskroms() const { return allowOtherDiskroms; }
 
 	void setEnablePhantomDrives(bool enable) { enablePhantomDrives = enable; }
-	bool getEnablePhantomDrives() const { return enablePhantomDrives; }
+	[[nodiscard]] bool getEnablePhantomDrives() const { return enablePhantomDrives; }
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -59,7 +59,7 @@ public:
 
 private:
 	void msxReset();
-	SectorAccessibleDisk* getDisk() const;
+	[[nodiscard]] SectorAccessibleDisk* getDisk() const;
 	void executeCommand();
 
 	void send(byte value);
@@ -73,10 +73,10 @@ private:
 	void INIENV();
 	void setDateMSX();
 
-	unsigned getSectorAmount() const;
-	unsigned getStartSector() const;
-	unsigned getStartAddress() const;
-	unsigned getCurrentAddress() const;
+	[[nodiscard]] unsigned getSectorAmount() const;
+	[[nodiscard]] unsigned getStartSector() const;
+	[[nodiscard]] unsigned getStartAddress() const;
+	[[nodiscard]] unsigned getCurrentAddress() const;
 
 	void diskReadInit(SectorAccessibleDisk& disk);
 	void doDiskRead1();
@@ -88,11 +88,11 @@ private:
 	void doDiskWrite1();
 	void doDiskWrite2();
 
-	unsigned getFCB() const;
-	std::string extractName(int begin, int end) const;
+	[[nodiscard]] unsigned getFCB() const;
+	[[nodiscard]] std::string extractName(int begin, int end) const;
 	unsigned readHelper1(unsigned dev, char* buffer);
 	void readHelper2(unsigned len, const char* buffer);
-	int getDeviceNum() const;
+	[[nodiscard]] int getDeviceNum() const;
 	int getFreeDeviceNum();
 	void deviceOpen();
 	void deviceClose();
@@ -101,7 +101,7 @@ private:
 
 	void callImage(const std::string& filename);
 
-
+private:
 	static constexpr unsigned MAX_DEVICES = 16;
 
 	const Drives& drives;

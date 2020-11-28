@@ -19,12 +19,12 @@ private:
 	static constexpr int TBLSIZE = 16;
 	static constexpr int MAXHUFCNT = 127;
 
-	inline byte charIn();
+	[[nodiscard]] inline byte charIn();
 	void chkHeader();
 	void unLz77();
-	unsigned rdStrLen();
-	int rdStrPos();
-	bool bitIn();
+	[[nodiscard]] unsigned rdStrLen();
+	[[nodiscard]] int rdStrPos();
+	[[nodiscard]] bool bitIn();
 	void initHufInfo();
 	void mkHufTbl();
 
@@ -34,6 +34,7 @@ private:
 		int weight;
 	};
 
+private:
 	MemBuffer<SectorBuffer> outBuf;	// the output buffer
 	const byte* inBufPos;	// pos in input buffer
 	const byte* inBufEnd;

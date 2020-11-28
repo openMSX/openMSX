@@ -20,7 +20,7 @@
 
 namespace openmsx {
 
-static TurboRFDC::Type parseType(const DeviceConfig& config)
+[[nodiscard]] static TurboRFDC::Type parseType(const DeviceConfig& config)
 {
 	auto ioregs = config.getChildData("io_regs", {});
 	if (ioregs == "7FF2") {

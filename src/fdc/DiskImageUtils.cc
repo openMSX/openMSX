@@ -13,7 +13,7 @@ namespace openmsx::DiskImageUtils {
 constexpr char PARTAB_HEADER[11] = {
 	'\353', '\376', '\220', 'M', 'S', 'X', '_', 'I', 'D', 'E', ' '
 };
-static bool isPartitionTableSector(const PartitionTable& pt)
+[[nodiscard]] static bool isPartitionTableSector(const PartitionTable& pt)
 {
 	return memcmp(pt.header, PARTAB_HEADER, sizeof(PARTAB_HEADER)) == 0;
 }
@@ -26,8 +26,8 @@ bool hasPartitionTable(SectorAccessibleDisk& disk)
 }
 
 
-static Partition& checkImpl(SectorAccessibleDisk& disk, unsigned partition,
-                            SectorBuffer& buf)
+static Partition& checkImpl(
+	SectorAccessibleDisk& disk, unsigned partition, SectorBuffer& buf)
 {
 	// check number in range
 	if (partition < 1 || partition > 31) {
@@ -218,7 +218,7 @@ struct CHS {
 	unsigned head;
 	unsigned sector;
 };
-static CHS logicalToCHS(unsigned logical)
+[[nodiscard]] static CHS logicalToCHS(unsigned logical)
 {
 	// This is made to fit the openMSX harddisk configuration:
 	//  32 sectors/track   16 heads

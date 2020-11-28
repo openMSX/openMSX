@@ -39,7 +39,7 @@ constexpr unsigned EOF_FAT  = 0xFFF; // actually 0xFF8-0xFFF
 
 // Transform BAD_FAT (0xFF7) and EOF_FAT-range (0xFF8-0xFFF)
 // to a single value: EOF_FAT (0xFFF).
-static unsigned normalizeFAT(unsigned cluster)
+[[nodiscard]] static unsigned normalizeFAT(unsigned cluster)
 {
 	return (cluster < BAD_FAT) ? cluster : EOF_FAT;
 }

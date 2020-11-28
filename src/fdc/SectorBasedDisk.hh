@@ -24,12 +24,12 @@ protected:
 
 private:
 	// Disk
-	size_t getNbSectorsImpl() const override;
+	[[nodiscard]] size_t getNbSectorsImpl() const override;
 	void readTrack(byte track, byte side, RawTrack& output) override;
 	void writeTrackImpl(byte track, byte side, const RawTrack& input) override;
 
+private:
 	size_t nbSectors;
-
 	RawTrack cachedTrackData;
 	int cachedTrackNum;
 };

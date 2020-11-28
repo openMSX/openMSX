@@ -11,11 +11,11 @@ public:
 	/*implicit*/ DiskName(Filename name);
 	DiskName(Filename name, std::string extra);
 
-	std::string getOriginal() const;
-	std::string getResolved() const;
+	[[nodiscard]] std::string getOriginal() const;
+	[[nodiscard]] std::string getResolved() const;
 	void updateAfterLoadState();
-	bool empty() const;
-	const Filename& getFilename() const { return name; }
+	[[nodiscard]] bool empty() const;
+	[[nodiscard]] const Filename& getFilename() const { return name; }
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

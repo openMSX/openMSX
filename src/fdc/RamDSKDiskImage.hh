@@ -15,8 +15,9 @@ private:
 	// SectorBasedDisk
 	void readSectorImpl (size_t sector,       SectorBuffer& buf) override;
 	void writeSectorImpl(size_t sector, const SectorBuffer& buf) override;
-	bool isWriteProtectedImpl() const override;
+	[[nodiscard]] bool isWriteProtectedImpl() const override;
 
+private:
 	MemBuffer<SectorBuffer> data;
 };
 

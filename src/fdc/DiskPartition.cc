@@ -8,7 +8,7 @@ namespace openmsx {
 
 using namespace DiskImageUtils;
 
-static DiskName getDiskName(SectorAccessibleDisk* disk, unsigned partition)
+[[nodiscard]] static DiskName getDiskName(SectorAccessibleDisk* disk, unsigned partition)
 {
 	if (auto* dsk = dynamic_cast<Disk*>(disk)) {
 		return DiskName(dsk->getName().getFilename(),

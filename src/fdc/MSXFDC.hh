@@ -15,8 +15,8 @@ class MSXFDC : public MSXDevice
 public:
 	void powerDown(EmuTime::param time) override;
 	byte readMem(word address, EmuTime::param time) override;
-	byte peekMem(word address, EmuTime::param time) const override;
-	const byte* getReadCacheLine(word start) const override;
+	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;
+	[[nodiscard]] const byte* getReadCacheLine(word start) const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

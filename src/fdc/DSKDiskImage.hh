@@ -17,9 +17,10 @@ public:
 private:
 	void readSectorImpl (size_t sector,       SectorBuffer& buf) override;
 	void writeSectorImpl(size_t sector, const SectorBuffer& buf) override;
-	bool isWriteProtectedImpl() const override;
-	Sha1Sum getSha1SumImpl(FilePool& filepool) override;
+	[[nodiscard]] bool isWriteProtectedImpl() const override;
+	[[nodiscard]] Sha1Sum getSha1SumImpl(FilePool& filepool) override;
 
+private:
 	const std::shared_ptr<File> file;
 };
 

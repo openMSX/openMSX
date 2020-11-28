@@ -21,10 +21,10 @@ public:
 
 	void reset(EmuTime::param time);
 	byte readReg(int reg, EmuTime::param time);
-	byte peekReg(int reg, EmuTime::param time) const;
+	[[nodiscard]] byte peekReg(int reg, EmuTime::param time) const;
 	void writeReg(int reg, byte data, EmuTime::param time);
 	bool diskChanged(unsigned driveNum);
-	bool peekDiskChanged(unsigned driveNum) const;
+	[[nodiscard]] bool peekDiskChanged(unsigned driveNum) const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -59,13 +59,13 @@ private:
 	// Schedulable
 	void executeUntil(EmuTime::param time) override;
 
-	byte peekDataPort(EmuTime::param time) const;
+	[[nodiscard]] byte peekDataPort(EmuTime::param time) const;
 	byte readDataPort(EmuTime::param time);
-	byte peekStatus() const;
+	[[nodiscard]] byte peekStatus() const;
 	byte readStatus(EmuTime::param time);
-	byte executionPhasePeek(EmuTime::param time) const;
+	[[nodiscard]] byte executionPhasePeek(EmuTime::param time) const;
 	byte executionPhaseRead(EmuTime::param time);
-	byte resultsPhasePeek() const;
+	[[nodiscard]] byte resultsPhasePeek() const;
 	byte resultsPhaseRead(EmuTime::param time);
 	void writeDataPort(byte value, EmuTime::param time);
 	void idlePhaseWrite(byte value, EmuTime::param time);
@@ -76,12 +76,12 @@ private:
 	void resultPhase();
 	void endCommand(EmuTime::param time);
 
-	bool isHeadLoaded(EmuTime::param time) const;
-	EmuDuration getHeadLoadDelay() const;
-	EmuDuration getHeadUnloadDelay() const;
-	EmuDuration getSeekDelay() const;
+	[[nodiscard]] bool isHeadLoaded(EmuTime::param time) const;
+	[[nodiscard]] EmuDuration getHeadLoadDelay() const;
+	[[nodiscard]] EmuDuration getHeadUnloadDelay() const;
+	[[nodiscard]] EmuDuration getSeekDelay() const;
 
-	EmuTime locateSector(EmuTime::param time);
+	[[nodiscard]] EmuTime locateSector(EmuTime::param time);
 	void writeSector();
 	void initTrackHeader(EmuTime::param time);
 	void formatSector();
