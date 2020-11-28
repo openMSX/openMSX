@@ -48,7 +48,7 @@ bool RecordedCommand::needRecord(span<const TclObject> /*tokens*/) const
 	return true;
 }
 
-static std::string_view getBaseName(std::string_view str)
+[[nodiscard]] static std::string_view getBaseName(std::string_view str)
 {
 	auto pos = str.rfind("::");
 	return (pos == std::string_view::npos) ? str : str.substr(pos + 2);

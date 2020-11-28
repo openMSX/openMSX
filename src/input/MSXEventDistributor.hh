@@ -43,8 +43,9 @@ public:
 	void distributeEvent(const EventPtr& event, EmuTime::param time);
 
 private:
-	bool isRegistered(MSXEventListener* listener) const;
+	[[nodiscard]] bool isRegistered(MSXEventListener* listener) const;
 
+private:
 	std::vector<MSXEventListener*> listeners; // unordered
 	std::vector<MSXEventListener*> listenersCopy; // see distributeEvent()
 };

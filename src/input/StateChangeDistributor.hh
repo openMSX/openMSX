@@ -63,14 +63,15 @@ public:
 	 * @param value false if new events stop replay mode
 	 */
 	void setViewOnlyMode(bool value) { viewOnlyMode = value; }
-	bool isViewOnlyMode() const { return viewOnlyMode; }
+	[[nodiscard]] bool isViewOnlyMode() const { return viewOnlyMode; }
 
-	bool isReplaying() const;
+	[[nodiscard]] bool isReplaying() const;
 
 private:
-	bool isRegistered(StateChangeListener* listener) const;
+	[[nodiscard]] bool isRegistered(StateChangeListener* listener) const;
 	void distribute(const EventPtr& event);
 
+private:
 	std::vector<StateChangeListener*> listeners; // unordered
 	StateChangeRecorder* recorder = nullptr;
 	bool viewOnlyMode = false;

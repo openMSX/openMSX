@@ -28,13 +28,13 @@ public:
 
 private:
 	// Pluggable
-	const std::string& getName() const override;
-	std::string_view getDescription() const override;
+	[[nodiscard]] const std::string& getName() const override;
+	[[nodiscard]] std::string_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 
 	// KeyJoystickDevice
-	byte read(EmuTime::param time) override;
+	[[nodiscard]] byte read(EmuTime::param time) override;
 	void write(byte value, EmuTime::param time) override;
 
 	// MSXEventListener
@@ -44,6 +44,7 @@ private:
 	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
 	void stopReplay(EmuTime::param time) override;
 
+private:
 	MSXEventDistributor& eventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
 	const std::string name;

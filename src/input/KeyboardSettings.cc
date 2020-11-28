@@ -3,7 +3,7 @@
 
 namespace openmsx {
 
-static EnumSetting<Keys::KeyCode>::Map getAllowedKeysMap()
+[[nodiscard]] static EnumSetting<Keys::KeyCode>::Map getAllowedKeysMap()
 {
 	return {
 		{"RALT",        Keys::K_RALT},

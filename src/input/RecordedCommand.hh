@@ -23,7 +23,7 @@ public:
 	MSXCommandEvent() = default; // for serialize
 	MSXCommandEvent(span<std::string> tokens, EmuTime::param time);
 	MSXCommandEvent(span<const TclObject> tokens, EmuTime::param time);
-	const std::vector<TclObject>& getTokens() const { return tokens; }
+	[[nodiscard]] const std::vector<TclObject>& getTokens() const { return tokens; }
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -57,7 +57,7 @@ public:
 	  * override this method. Return false iff the command doesn't need
 	  * to be recorded.
 	  */
-	virtual bool needRecord(span<const TclObject> tokens) const;
+	[[nodiscard]] virtual bool needRecord(span<const TclObject> tokens) const;
 
 protected:
 	RecordedCommand(CommandController& commandController,
@@ -74,6 +74,7 @@ private:
 	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
 	void stopReplay(EmuTime::param time) override;
 
+private:
 	StateChangeDistributor& stateChangeDistributor;
 	Scheduler& scheduler;
 	TclObject dummyResultObject;

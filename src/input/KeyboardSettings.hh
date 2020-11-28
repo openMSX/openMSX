@@ -19,26 +19,26 @@ public:
 
 	explicit KeyboardSettings(CommandController& commandController);
 
-	Keys::KeyCode getDeadkeyHostKey(unsigned n) const {
+	[[nodiscard]] Keys::KeyCode getDeadkeyHostKey(unsigned n) const {
 		assert(n < 3);
 		return deadkeyHostKey[n]->getEnum();
 	}
-	Keys::KeyCode getCodeKanaHostKey() const {
+	[[nodiscard]] Keys::KeyCode getCodeKanaHostKey() const {
 		return codeKanaHostKey.getEnum();
 	}
-	KpEnterMode getKpEnterMode() const {
+	[[nodiscard]] KpEnterMode getKpEnterMode() const {
 		return kpEnterMode.getEnum();
 	}
-	MappingMode getMappingMode() const {
+	[[nodiscard]] MappingMode getMappingMode() const {
 		return mappingMode.getEnum();
 	}
-	bool getAlwaysEnableKeypad() const {
+	[[nodiscard]] bool getAlwaysEnableKeypad() const {
 		return alwaysEnableKeypad.getBoolean();
 	}
-	bool getTraceKeyPresses() const {
+	[[nodiscard]] bool getTraceKeyPresses() const {
 		return traceKeyPresses.getBoolean();
 	}
-	bool getAutoToggleCodeKanaLock() const {
+	[[nodiscard]] bool getAutoToggleCodeKanaLock() const {
 		return autoToggleCodeKanaLock.getBoolean();
 	}
 

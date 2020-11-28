@@ -122,12 +122,12 @@ static void checkJoystickConfig(Interpreter& interp, TclObject& newValue)
 	}
 }
 
-static string getJoystickName(unsigned joyNum)
+[[nodiscard]] static string getJoystickName(unsigned joyNum)
 {
 	return strCat("joystick", char('1' + joyNum));
 }
 
-static TclObject getConfigValue(SDL_Joystick* joystick)
+[[nodiscard]] static TclObject getConfigValue(SDL_Joystick* joystick)
 {
 	TclObject listA, listB;
 	for (auto i : xrange(InputEventGenerator::joystickNumButtons(joystick))) {

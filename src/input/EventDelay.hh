@@ -44,6 +44,7 @@ private:
 	// Schedulable
 	void executeUntil(EmuTime::param time) override;
 
+private:
 	EventDistributor& eventDistributor;
 	MSXEventDistributor& msxEventDistributor;
 

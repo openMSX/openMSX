@@ -35,7 +35,7 @@ protected:
 class StateChangeRecorder : public StateChangeListener
 {
 public:
-	virtual bool isReplaying() const = 0;
+	[[nodiscard]] virtual bool isReplaying() const = 0;
 protected:
 	~StateChangeRecorder() = default;
 };

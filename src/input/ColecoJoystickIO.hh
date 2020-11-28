@@ -17,7 +17,7 @@ public:
 	// MSXDevice:
 	void reset(EmuTime::param time) override;
 	byte readIO(word port, EmuTime::param time) override;
-	byte peekIO(word port, EmuTime::param time) const override;
+	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
 	void writeIO(word port, byte value, EmuTime::param time) override;
 
 	template<typename Archive>

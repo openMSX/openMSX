@@ -29,13 +29,13 @@ public:
 
 #ifndef SDL_JOYSTICK_DISABLED
 	// Pluggable
-	const std::string& getName() const override;
-	std::string_view getDescription() const override;
+	[[nodiscard]] const std::string& getName() const override;
+	[[nodiscard]] std::string_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 
 	// JoystickDevice
-	byte read(EmuTime::param time) override;
+	[[nodiscard]] byte read(EmuTime::param time) override;
 	void write(byte value, EmuTime::param time) override;
 
 	template<typename Archive>
@@ -43,7 +43,7 @@ public:
 
 private:
 	void plugHelper2();
-	unsigned calcInitialState();
+	[[nodiscard]] unsigned calcInitialState();
 	void checkTime(EmuTime::param time);
 	void createEvent(EmuTime::param time, unsigned press, unsigned release);
 	void createEvent(EmuTime::param time, unsigned newStatus);
@@ -55,6 +55,7 @@ private:
 	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
 	void stopReplay(EmuTime::param time) override;
 
+private:
 	MSXEventDistributor& eventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
 

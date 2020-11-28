@@ -59,7 +59,7 @@ public:
 
 	/** Returns a pointer to the current KeyBoard matrix
 	 */
-	const byte* getKeys() const;
+	[[nodiscard]] const byte* getKeys() const;
 
 	void transferHostKeyMatrix(const Keyboard& source);
 
@@ -104,6 +104,7 @@ private:
 	  */
 	byte needsLockToggle(const UnicodeKeymap::KeyInfo& keyInfo) const;
 
+private:
 	CommandController& commandController;
 	MSXEventDistributor& msxEventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
@@ -120,7 +121,7 @@ private:
 			       Scheduler& scheduler);
 		void execute(span<const TclObject> tokens, TclObject& result,
 			     EmuTime::param time) override;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
 	} keyMatrixUpCmd;
 
 	struct KeyMatrixDownCmd final : RecordedCommand {
@@ -129,7 +130,7 @@ private:
 				 Scheduler& scheduler);
 		void execute(span<const TclObject> tokens, TclObject& result,
 			     EmuTime::param time) override;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
 	} keyMatrixDownCmd;
 
 	class KeyInserter final : public RecordedCommand, public Schedulable {
@@ -137,7 +138,7 @@ private:
 		KeyInserter(CommandController& commandController,
 			    StateChangeDistributor& stateChangeDistributor,
 			    Scheduler& scheduler);
-		bool isActive() const { return pendingSyncPoint(); }
+		[[nodiscard]] bool isActive() const { return pendingSyncPoint(); }
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);
 
@@ -148,12 +149,13 @@ private:
 		// Command
 		void execute(span<const TclObject> tokens, TclObject& result,
 			     EmuTime::param time) override;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 
 		// Schedulable
 		void executeUntil(EmuTime::param time) override;
 
+	private:
 		std::string text_utf8;
 		unsigned last;
 		byte lockKeysMask;
@@ -179,6 +181,7 @@ private:
 
 		void alignCapsLock(EmuTime::param time);
 
+	private:
 		EventDistributor& eventDistributor;
 
 		enum CapsLockAlignerStateType {
@@ -199,13 +202,14 @@ private:
 	private:
 		// Schedulable
 		void executeUntil(EmuTime::param time) override;
+	private:
 		std::deque<std::shared_ptr<const Event>> eventQueue;
 		Interpreter& interp;
 	} msxKeyEventQueue;
 
 	struct KeybDebuggable final : SimpleDebuggable {
 		explicit KeybDebuggable(MSXMotherBoard& motherBoard);
-		byte read(unsigned address) override;
+		[[nodiscard]] byte read(unsigned address) override;
 		void write(unsigned address, byte value) override;
 	} keybDebuggable;
 
