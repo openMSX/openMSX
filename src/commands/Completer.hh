@@ -17,7 +17,7 @@ class TclObject;
 class Completer
 {
 public:
-	const std::string& getName() const { return theName; }
+	[[nodiscard]] const std::string& getName() const { return theName; }
 
 	/** Print help for this command.
 	  */

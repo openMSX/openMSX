@@ -31,15 +31,15 @@ class TclObject
 		iterator(const TclObject& obj_, unsigned i_)
 			: obj(&obj_), i(i_) {}
 
-		bool operator==(const iterator& other) const {
+		[[nodiscard]] bool operator==(const iterator& other) const {
 			assert(obj == other.obj);
 			return i == other.i;
 		}
-		bool operator!=(const iterator& other) const {
+		[[nodiscard]] bool operator!=(const iterator& other) const {
 			return !(*this == other);
 		}
 
-		std::string_view operator*() const {
+		[[nodiscard]] std::string_view operator*() const {
 			return obj->getListIndexUnchecked(i).getString();
 		}
 
@@ -114,8 +114,8 @@ public:
 	}
 
 	// get underlying Tcl_Obj
-	Tcl_Obj* getTclObject() { return obj; }
-	Tcl_Obj* getTclObjectNonConst() const { return const_cast<Tcl_Obj*>(obj); }
+	[[nodiscard]] Tcl_Obj* getTclObject() { return obj; }
+	[[nodiscard]] Tcl_Obj* getTclObjectNonConst() const { return const_cast<Tcl_Obj*>(obj); }
 
 	// add elements to a Tcl list
 	template<typename T> void addListElement(T t) { addListElement(newObj(t)); }
@@ -140,28 +140,28 @@ public:
 	}
 
 	// value getters
-	std::string_view getString() const;
-	int getInt      (Interpreter& interp) const;
-	bool getBoolean (Interpreter& interp) const;
-	double getDouble(Interpreter& interp) const;
-	span<const uint8_t> getBinary() const;
-	unsigned getListLength(Interpreter& interp) const;
-	TclObject getListIndex(Interpreter& interp, unsigned index) const;
-	TclObject getDictValue(Interpreter& interp, const TclObject& key) const;
+	[[nodiscard]] std::string_view getString() const;
+	[[nodiscard]] int getInt      (Interpreter& interp) const;
+	[[nodiscard]] bool getBoolean (Interpreter& interp) const;
+	[[nodiscard]] double getDouble(Interpreter& interp) const;
+	[[nodiscard]] span<const uint8_t> getBinary() const;
+	[[nodiscard]] unsigned getListLength(Interpreter& interp) const;
+	[[nodiscard]] TclObject getListIndex(Interpreter& interp, unsigned index) const;
+	[[nodiscard]] TclObject getDictValue(Interpreter& interp, const TclObject& key) const;
 	template<typename Key>
-	TclObject getDictValue(Interpreter& interp, const Key& key) const {
+	[[nodiscard]] TclObject getDictValue(Interpreter& interp, const Key& key) const {
 		return getDictValue(interp, TclObject(key));
 	}
 
 	// STL-like interface when interpreting this TclObject as a list of
 	// strings. Invalid Tcl lists are silently interpreted as empty lists.
-	unsigned size() const { return getListLengthUnchecked(); }
-	bool empty() const { return size() == 0; }
-	auto begin() const { return iterator(*this, 0); }
-	auto end()   const { return iterator(*this, size()); }
+	[[nodiscard]] unsigned size() const { return getListLengthUnchecked(); }
+	[[nodiscard]] bool empty() const { return size() == 0; }
+	[[nodiscard]] auto begin() const { return iterator(*this, 0); }
+	[[nodiscard]] auto end()   const { return iterator(*this, size()); }
 
 	// expressions
-	bool evalBool(Interpreter& interp) const;
+	[[nodiscard]] bool evalBool(Interpreter& interp) const;
 
 	/** Interpret this TclObject as a command and execute it.
 	  * @param interp The Tcl interpreter
@@ -172,19 +172,19 @@ public:
 	  */
 	TclObject executeCommand(Interpreter& interp, bool compile = false);
 
-	friend bool operator==(const TclObject& x, const TclObject& y) {
+	[[nodiscard]] friend bool operator==(const TclObject& x, const TclObject& y) {
 		return x.getString() == y.getString();
 	}
-	friend bool operator==(const TclObject& x, std::string_view y) {
+	[[nodiscard]] friend bool operator==(const TclObject& x, std::string_view y) {
 		return x.getString() == y;
 	}
-	friend bool operator==(std::string_view x, const TclObject& y) {
+	[[nodiscard]] friend bool operator==(std::string_view x, const TclObject& y) {
 		return x == y.getString();
 	}
 
-	friend bool operator!=(const TclObject& x, const TclObject& y) { return !(x == y); }
-	friend bool operator!=(const TclObject& x, std::string_view y) { return !(x == y); }
-	friend bool operator!=(std::string_view x, const TclObject& y) { return !(x == y); }
+	[[nodiscard]] friend bool operator!=(const TclObject& x, const TclObject& y) { return !(x == y); }
+	[[nodiscard]] friend bool operator!=(const TclObject& x, std::string_view y) { return !(x == y); }
+	[[nodiscard]] friend bool operator!=(std::string_view x, const TclObject& y) { return !(x == y); }
 
 private:
 	void init(Tcl_Obj* obj_) noexcept {
@@ -192,34 +192,34 @@ private:
 		Tcl_IncrRefCount(obj);
 	}
 
-	static Tcl_Obj* newObj(std::string_view s) {
+	[[nodiscard]] static Tcl_Obj* newObj(std::string_view s) {
 		return Tcl_NewStringObj(s.data(), int(s.size()));
 	}
-	static Tcl_Obj* newObj(const char* s) {
+	[[nodiscard]] static Tcl_Obj* newObj(const char* s) {
 		return Tcl_NewStringObj(s, int(strlen(s)));
 	}
-	static Tcl_Obj* newObj(bool b) {
+	[[nodiscard]] static Tcl_Obj* newObj(bool b) {
 		return Tcl_NewBooleanObj(b);
 	}
-	static Tcl_Obj* newObj(int i) {
+	[[nodiscard]] static Tcl_Obj* newObj(int i) {
 		return Tcl_NewIntObj(i);
 	}
-	static Tcl_Obj* newObj(unsigned u) {
+	[[nodiscard]] static Tcl_Obj* newObj(unsigned u) {
 		return Tcl_NewIntObj(u);
 	}
-	static Tcl_Obj* newObj(float f) {
+	[[nodiscard]] static Tcl_Obj* newObj(float f) {
 		return Tcl_NewDoubleObj(double(f));
 	}
-	static Tcl_Obj* newObj(double d) {
+	[[nodiscard]] static Tcl_Obj* newObj(double d) {
 		return Tcl_NewDoubleObj(d);
 	}
-	static Tcl_Obj* newObj(span<const uint8_t> buf) {
+	[[nodiscard]] static Tcl_Obj* newObj(span<const uint8_t> buf) {
 		return Tcl_NewByteArrayObj(buf.data(), int(buf.size()));
 	}
-	static Tcl_Obj* newObj(const TclObject& o) {
+	[[nodiscard]] static Tcl_Obj* newObj(const TclObject& o) {
 		return o.obj;
 	}
-	static Tcl_Obj* newList(std::initializer_list<Tcl_Obj*> l) {
+	[[nodiscard]] static Tcl_Obj* newList(std::initializer_list<Tcl_Obj*> l) {
 		return Tcl_NewListObj(int(l.size()), l.begin());
 	}
 
@@ -266,8 +266,8 @@ private:
 	void addListElementsImpl(int objc, Tcl_Obj* const* objv);
 	void addListElementsImpl(std::initializer_list<Tcl_Obj*> l);
 	void addDictKeyValues(std::initializer_list<Tcl_Obj*> keyValuePairs);
-	unsigned getListLengthUnchecked() const;
-	TclObject getListIndexUnchecked(unsigned index) const;
+	[[nodiscard]] unsigned getListLengthUnchecked() const;
+	[[nodiscard]] TclObject getListIndexUnchecked(unsigned index) const;
 
 private:
 	Tcl_Obj* obj;
@@ -277,22 +277,22 @@ private:
 static_assert(sizeof(TclObject) == sizeof(Tcl_Obj*));
 
 template<typename... Args>
-TclObject makeTclList(Args&&... args)
+[[nodiscard]] TclObject makeTclList(Args&&... args)
 {
 	return TclObject(TclObject::MakeListTag{}, std::forward<Args>(args)...);
 }
 
 template<typename... Args>
-TclObject makeTclDict(Args&&... args)
+[[nodiscard]] TclObject makeTclDict(Args&&... args)
 {
 	return TclObject(TclObject::MakeDictTag{}, std::forward<Args>(args)...);
 }
 
 struct XXTclHasher {
-	uint32_t operator()(std::string_view str) const {
+	[[nodiscard]] uint32_t operator()(std::string_view str) const {
 		return xxhash(str);
 	}
-	uint32_t operator()(const TclObject& obj) const {
+	[[nodiscard]] uint32_t operator()(const TclObject& obj) const {
 		return xxhash(obj.getString());
 	}
 };

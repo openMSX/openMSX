@@ -36,7 +36,7 @@ public:
 	/**
 	 * Does a command with this name already exist?
 	 */
-	virtual bool hasCommand(std::string_view command) const = 0;
+	[[nodiscard]] virtual bool hasCommand(std::string_view command) const = 0;
 
 	/**
 	 * Execute the given command

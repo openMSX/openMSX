@@ -30,25 +30,25 @@ public:
 	                     const std::string& machineID);
 	~MSXCommandController();
 
-	GlobalCommandController& getGlobalCommandController() {
+	[[nodiscard]] GlobalCommandController& getGlobalCommandController() {
 		return globalCommandController;
 	}
-	InfoCommand& getMachineInfoCommand() {
+	[[nodiscard]] InfoCommand& getMachineInfoCommand() {
 		return *machineInfoCommand;
 	}
-	MSXMotherBoard& getMSXMotherBoard() const {
+	[[nodiscard]] MSXMotherBoard& getMSXMotherBoard() const {
 		return motherboard;
 	}
-	const std::string& getPrefix() const {
+	[[nodiscard]] const std::string& getPrefix() const {
 		return machineID;
 	}
 
-	Command* findCommand(std::string_view name) const;
+	[[nodiscard]] Command* findCommand(std::string_view name) const;
 
 	/** Returns true iff the machine this controller belongs to is currently
 	  * active.
 	  */
-	bool isActive() const;
+	[[nodiscard]] bool isActive() const;
 
 	/** Transfer setting values from one machine to another,
 	  * used for during 'reverse'. */
@@ -63,16 +63,16 @@ public:
 	                       const std::string& str) override;
 	void unregisterCommand(Command& command,
 	                       std::string_view str) override;
-	bool hasCommand(std::string_view command) const override;
+	[[nodiscard]] bool hasCommand(std::string_view command) const override;
 	TclObject executeCommand(const std::string& command,
 	                         CliConnection* connection = nullptr) override;
 	void registerSetting(Setting& setting) override;
 	void unregisterSetting(Setting& setting) override;
-	CliComm& getCliComm() override;
-	Interpreter& getInterpreter() override;
+	[[nodiscard]] CliComm& getCliComm() override;
+	[[nodiscard]] Interpreter& getInterpreter() override;
 
 private:
-	std::string getFullName(std::string_view name);
+	[[nodiscard]] std::string getFullName(std::string_view name);
 
 	// MSXEventListener
 	void signalMSXEvent(const std::shared_ptr<const Event>& event,
@@ -86,7 +86,7 @@ private:
 	std::unique_ptr<InfoCommand> machineInfoCommand;
 
 	struct NameFromCommand {
-		const std::string& operator()(const Command* c) const {
+		[[nodiscard]] const std::string& operator()(const Command* c) const {
 			return c->getName();
 		}
 	};

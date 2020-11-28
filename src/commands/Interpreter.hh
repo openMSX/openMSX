@@ -27,8 +27,8 @@ public:
 	void init(const char* programName);
 	void registerCommand(const std::string& name, Command& command);
 	void unregisterCommand(Command& command);
-	TclObject getCommandNames();
-	bool isComplete(const std::string& command) const;
+	[[nodiscard]] TclObject getCommandNames();
+	[[nodiscard]] bool isComplete(const std::string& command) const;
 	TclObject execute(const std::string& command);
 	TclObject executeFile(const std::string& filename);
 
@@ -47,10 +47,10 @@ public:
 	  */
 	void deleteNamespace(const std::string& name);
 
-	TclParser parse(std::string_view command);
+	[[nodiscard]] TclParser parse(std::string_view command);
 
 	void poll();
-	
+
 	void wrongNumArgs(unsigned argc, span<const TclObject> tokens, const char* message);
 
 private:

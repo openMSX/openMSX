@@ -27,8 +27,8 @@ public:
 	TclObject execute(int arg1, std::string_view arg2);
 	TclObject execute(std::string_view arg1, std::string_view arg2);
 
-	TclObject getValue() const;
-	StringSetting& getSetting() const { return callbackSetting; }
+	[[nodiscard]] TclObject getValue() const;
+	[[nodiscard]] StringSetting& getSetting() const { return callbackSetting; }
 
 private:
 	TclObject executeCommon(TclObject& command);

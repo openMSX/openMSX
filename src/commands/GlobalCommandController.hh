@@ -44,7 +44,7 @@ public:
 	                        Reactor& reactor);
 	~GlobalCommandController();
 
-	InfoCommand& getOpenMSXInfoCommand() { return openMSXInfoCommand; }
+	[[nodiscard]] InfoCommand& getOpenMSXInfoCommand() { return openMSXInfoCommand; }
 
 	/**
 	 * Executes all defined auto commands
@@ -66,28 +66,28 @@ public:
 	                       const std::string& str) override;
 	void unregisterCommand(Command& command,
 	                       std::string_view str) override;
-	bool hasCommand(std::string_view command) const override;
+	[[nodiscard]] bool hasCommand(std::string_view command) const override;
 	TclObject executeCommand(const std::string& command,
 	                         CliConnection* connection = nullptr) override;
 	void registerSetting(Setting& setting) override;
 	void unregisterSetting(Setting& setting) override;
-	CliComm& getCliComm() override;
-	Interpreter& getInterpreter() override;
+	[[nodiscard]] CliComm& getCliComm() override;
+	[[nodiscard]] Interpreter& getInterpreter() override;
 
 	/**
 	 * Complete the given command.
 	 */
-	std::string tabCompletion(std::string_view command);
+	[[nodiscard]] std::string tabCompletion(std::string_view command);
 
 	/**
 	 * Returns true iff the command is complete (all braces, quotes etc. are
 	 * balanced).
 	 */
-	bool isComplete(const std::string& command);
+	[[nodiscard]] bool isComplete(const std::string& command);
 
-	SettingsConfig& getSettingsConfig() { return settingsConfig; }
-	SettingsManager& getSettingsManager() { return settingsConfig.getSettingsManager(); }
-	CliConnection* getConnection() const { return connection; }
+	[[nodiscard]] SettingsConfig& getSettingsConfig() { return settingsConfig; }
+	[[nodiscard]] SettingsManager& getSettingsManager() { return settingsConfig.getSettingsManager(); }
+	[[nodiscard]] CliConnection* getConnection() const { return connection; }
 
 private:
 	void tabCompletion(std::vector<std::string>& tokens);
@@ -109,20 +109,20 @@ private:
 	struct HelpCmd final : Command {
 		explicit HelpCmd(GlobalCommandController& controller);
 		void execute(span<const TclObject> tokens, TclObject& result) override;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} helpCmd;
 
 	struct TabCompletionCmd final : Command {
 		explicit TabCompletionCmd(GlobalCommandController& controller);
 		void execute(span<const TclObject> tokens, TclObject& result) override;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
 	} tabCompletionCmd;
 
 	struct UpdateCmd final : Command {
 		explicit UpdateCmd(CommandController& commandController);
 		void execute(span<const TclObject> tokens, TclObject& result) override;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	private:
 		CliConnection& getConnection();
@@ -132,21 +132,21 @@ private:
 		explicit PlatformInfo(InfoCommand& openMSXInfoCommand);
 		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
 	} platformInfo;
 
 	struct VersionInfo final : InfoTopic {
 		explicit VersionInfo(InfoCommand& openMSXInfoCommand);
 		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
 	} versionInfo;
 
 	RomInfoTopic romInfoTopic;
 
 	struct NameFromProxy {
 		template<typename Pair>
-		const std::string& operator()(const Pair& p) const {
+		[[nodiscard]] const std::string& operator()(const Pair& p) const {
 			return p.second->getName();
 		}
 	};
