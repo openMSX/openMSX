@@ -21,10 +21,10 @@ public:
 
 	void reset(EmuTime::param time) override;
 	byte readMem(word address, EmuTime::param time) override;
-	byte peekMem(word address, EmuTime::param time) const override;
+	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;
 	void writeMem(word address, byte value, EmuTime::param time) override;
-	const byte* getReadCacheLine(word address) const override;
-	byte* getWriteCacheLine(word address) const override;
+	[[nodiscard]] const byte* getReadCacheLine(word address) const override;
+	[[nodiscard]] byte* getWriteCacheLine(word address) const override;
 	void init() override;
 
 	void videoIn(bool enabled);
@@ -35,6 +35,7 @@ public:
 private:
 	void updateVideoSource();
 
+private:
 	Rom rom;
 	std::unique_ptr<LaserdiscPlayer> laserdisc; // can be nullptr
 	MSXPPI* ppi;

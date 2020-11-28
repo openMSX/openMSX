@@ -32,19 +32,19 @@ public:
 	~LaserdiscPlayer();
 
 	// Called from CassettePort
-	int16_t readSample(EmuTime::param time);
+	[[nodiscard]] int16_t readSample(EmuTime::param time);
 
 	// Called from PioneerLDControl
 	void setMuting(bool left, bool right, EmuTime::param time);
-	bool extAck(EmuTime::param /*time*/) const { return ack; }
+	[[nodiscard]] bool extAck(EmuTime::param /*time*/) const { return ack; }
 	void extControl(bool bit, EmuTime::param time);
-	const RawFrame* getRawFrame() const;
+	[[nodiscard]] const RawFrame* getRawFrame() const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 	// video interface
-	MSXMotherBoard& getMotherBoard() { return motherBoard; }
+	[[nodiscard]] MSXMotherBoard& getMotherBoard() { return motherBoard; }
 
 	enum RemoteState {
 		REMOTE_IDLE,
@@ -81,7 +81,7 @@ public:
 	};
 private:
 	void setImageName(std::string newImage, EmuTime::param time);
-	const Filename& getImageName() const { return oggImage; }
+	[[nodiscard]] const Filename& getImageName() const { return oggImage; }
 	void autoRun();
 
 	/** Laserdisc player commands
@@ -99,18 +99,18 @@ private:
 	/** Is video output being generated?
 	  */
 	void scheduleDisplayStart(EmuTime::param time);
-	bool isVideoOutputAvailable(EmuTime::param time);
+	[[nodiscard]] bool isVideoOutputAvailable(EmuTime::param time);
 	void remoteButtonNEC(unsigned code, EmuTime::param time);
 	void submitRemote(RemoteProtocol protocol, unsigned code);
 	void setAck(EmuTime::param time, int wait);
-	size_t getCurrentSample(EmuTime::param time);
+	[[nodiscard]] size_t getCurrentSample(EmuTime::param time);
 	void createRenderer();
 
 	// SoundDevice
 	void generateChannels(float** buffers, unsigned num) override;
 	bool updateBuffer(unsigned length, float* buffer,
 	                  EmuTime::param time) override;
-	float getAmplificationFactorImpl() const override;
+	[[nodiscard]] float getAmplificationFactorImpl() const override;
 
 	// Schedulable
 	struct SyncAck final : public Schedulable {
@@ -140,7 +140,7 @@ private:
 
 	void execSyncAck(EmuTime::param time);
 	void execSyncFrame(EmuTime::param time, bool odd);
-	EmuTime::param getCurrentTime() const { return syncAck.getCurrentTime(); }
+	[[nodiscard]] EmuTime::param getCurrentTime() const { return syncAck.getCurrentTime(); }
 
 	// EventListener
 	int signalEvent(const std::shared_ptr<const Event>& event) override;
@@ -158,7 +158,7 @@ private:
 		        Scheduler& scheduler);
 		void execute(span<const TclObject> tokens, TclObject& result,
 			     EmuTime::param time) override;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} laserdiscCommand;
 

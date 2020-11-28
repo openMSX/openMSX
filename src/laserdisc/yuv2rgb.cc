@@ -267,7 +267,7 @@ struct Coefs {
 	int y [256];
 };
 
-static constexpr Coefs getCoefs()
+[[nodiscard]] static constexpr Coefs getCoefs()
 {
 	Coefs coefs = {};
 	for (int i = 0; i < 256; ++i) {
@@ -281,8 +281,8 @@ static constexpr Coefs getCoefs()
 }
 
 template<typename Pixel>
-static inline Pixel calc(const PixelFormat& format,
-                         int y, int ruv, int guv, int buv)
+[[nodiscard]] static inline Pixel calc(
+	const PixelFormat& format, int y, int ruv, int guv, int buv)
 {
 	uint8_t r = Math::clipIntToByte((y + ruv) >> PREC);
 	uint8_t g = Math::clipIntToByte((y + guv) >> PREC);

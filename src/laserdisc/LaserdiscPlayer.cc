@@ -1128,7 +1128,7 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 	}
 
 	if (ar.isLoader()) {
-		isVideoOutputAvailable(getCurrentTime());
+		(void)isVideoOutputAvailable(getCurrentTime());
 	}
 }
 
