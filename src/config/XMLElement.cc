@@ -294,7 +294,7 @@ string XMLElement::XMLEscape(string_view s)
 	string result;
 	result.reserve(s.size()); // By default assume no substitution will be needed
 	for (char c : s) {
-		if (auto uc = unsigned(c); uc < 32) {
+		if (auto uc = static_cast<unsigned char>(c); uc < 32) {
 			auto hex = [](unsigned x) { return (x < 10) ? char(x + '0') : char(x - 10 + 'a'); };
 			result += "&#x";
 			result += hex(uc / 16);
