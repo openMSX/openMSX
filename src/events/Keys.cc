@@ -28,12 +28,12 @@ struct P {
 
 struct CmpKeys {
 	// for cstd::sort
-	constexpr bool operator()(const P& x, const P& y) const {
+	[[nodiscard]] constexpr bool operator()(const P& x, const P& y) const {
 		return x.first < y.first; // shortcut: no need to ignore case
 	}
 
 	// for lower_bound()
-	bool operator()(const P& x, string_view y) const {
+	[[nodiscard]] bool operator()(const P& x, string_view y) const {
 		StringOp::caseless cmp;
 		return cmp(x.first, y);
 	}

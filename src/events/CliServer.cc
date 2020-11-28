@@ -24,7 +24,7 @@ using std::string;
 
 namespace openmsx {
 
-static string getUserName()
+[[nodiscard]] static string getUserName()
 {
 #if defined(_WIN32)
 	return "default";
@@ -34,7 +34,7 @@ static string getUserName()
 #endif
 }
 
-static bool checkSocketDir(const string& dir)
+[[nodiscard]] static bool checkSocketDir(const string& dir)
 {
 	struct stat st;
 	if (stat(dir.c_str(), &st)) {
@@ -59,7 +59,7 @@ static bool checkSocketDir(const string& dir)
 	return true;
 }
 
-static bool checkSocket(const string& socket)
+[[nodiscard]] static bool checkSocket(const string& socket)
 {
 	std::string_view name = FileOperations::getFilename(socket);
 	if (!StringOp::startsWith(name, "socket.")) {
@@ -99,7 +99,7 @@ static bool checkSocket(const string& socket)
 }
 
 #ifdef _WIN32
-static int openPort(SOCKET listenSock)
+[[nodiscard]] static int openPort(SOCKET listenSock)
 {
 	const int BASE = 9938;
 	const int RANGE = 64;

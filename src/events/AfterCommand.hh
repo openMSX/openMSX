@@ -25,7 +25,7 @@ public:
 	~AfterCommand();
 
 	void execute(span<const TclObject> tokens, TclObject& result) override;
-	std::string help(const std::vector<std::string>& tokens) const override;
+	[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
 	void tabCompletion(std::vector<std::string>& tokens) const override;
 
 private:
@@ -46,6 +46,7 @@ private:
 	// EventListener
 	int signalEvent(const std::shared_ptr<const Event>& event) override;
 
+private:
 	using AfterCmds = std::vector<std::unique_ptr<AfterCmd>>;
 	AfterCmds afterCmds;
 	Reactor& reactor;

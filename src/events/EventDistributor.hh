@@ -68,8 +68,9 @@ public:
 	bool sleep(unsigned us);
 
 private:
-	bool isRegistered(EventType type, EventListener* listener) const;
+	[[nodiscard]] bool isRegistered(EventType type, EventListener* listener) const;
 
+private:
 	Reactor& reactor;
 
 	using PriorityMap = std::vector<std::pair<Priority, EventListener*>>; // sorted on priority

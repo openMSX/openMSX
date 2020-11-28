@@ -76,7 +76,7 @@ public:
 	static constexpr unsigned MIDDLE    = 2;
 	static constexpr unsigned RIGHT     = 3;
 
-	unsigned getButton() const { return button; }
+	[[nodiscard]] unsigned getButton() const { return button; }
 
 protected:
 	MouseButtonEvent(EventType type, unsigned button_);
@@ -284,7 +284,7 @@ public:
 	 *  - if the original host event is a joystick motion event, we
 	 *    should not stop repeat for 'small' relative new joystick events.
 	 */
-	[[nodiscard]] bool isRepeatStopper(const Event& other) const final override;
+	[[nodiscard]] bool isRepeatStopper(const Event& other) const final;
 
 protected:
 	OsdControlEvent(EventType type, unsigned button_,
@@ -293,7 +293,7 @@ protected:
 	[[nodiscard]] TclObject toTclHelper(std::string_view direction) const;
 
 private:
-	[[nodiscard]] bool lessImpl(const Event& other) const final override;
+	[[nodiscard]] bool lessImpl(const Event& other) const final;
 	const std::shared_ptr<const Event> origEvent;
 	const unsigned button;
 };

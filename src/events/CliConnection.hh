@@ -22,7 +22,7 @@ public:
 	void setUpdateEnable(CliComm::UpdateType type, bool value) {
 		updateEnabled[type] = value;
 	}
-	bool getUpdateEnable(CliComm::UpdateType type) const {
+	[[nodiscard]] bool getUpdateEnable(CliComm::UpdateType type) const {
 		return updateEnabled[type];
 	}
 

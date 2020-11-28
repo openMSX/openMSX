@@ -11,7 +11,7 @@ using std::make_shared;
 
 namespace openmsx::InputEventFactory {
 
-static EventPtr parseKeyEvent(std::string_view str, uint32_t unicode)
+[[nodiscard]] static EventPtr parseKeyEvent(std::string_view str, uint32_t unicode)
 {
 	auto keyCode = Keys::getCode(str);
 	if (keyCode == Keys::K_NONE) {
@@ -24,7 +24,7 @@ static EventPtr parseKeyEvent(std::string_view str, uint32_t unicode)
 	}
 }
 
-static EventPtr parseKeyEvent(const TclObject& str, Interpreter& interp)
+[[nodiscard]] static EventPtr parseKeyEvent(const TclObject& str, Interpreter& interp)
 {
 	auto len = str.getListLength(interp);
 	if (len == 1) {
@@ -47,7 +47,7 @@ static EventPtr parseKeyEvent(const TclObject& str, Interpreter& interp)
 	throw CommandException("Invalid keyboard event: ", str.getString());
 }
 
-static bool upDown(std::string_view str)
+[[nodiscard]] static bool upDown(std::string_view str)
 {
 	if (str == "up") {
 		return true;
@@ -58,7 +58,7 @@ static bool upDown(std::string_view str)
 		"Invalid direction (expected 'up' or 'down'): ", str);
 }
 
-static EventPtr parseMouseEvent(const TclObject& str, Interpreter& interp)
+[[nodiscard]] static EventPtr parseMouseEvent(const TclObject& str, Interpreter& interp)
 {
 	auto len = str.getListLength(interp);
 	if (len >= 2) {
@@ -113,7 +113,7 @@ static EventPtr parseMouseEvent(const TclObject& str, Interpreter& interp)
 	throw CommandException("Invalid mouse event: ", str.getString());
 }
 
-static EventPtr parseOsdControlEvent(const TclObject& str, Interpreter& interp)
+[[nodiscard]] static EventPtr parseOsdControlEvent(const TclObject& str, Interpreter& interp)
 {
 	if (str.getListLength(interp) == 3) {
 		auto buttonName = str.getListIndex(interp, 1).getString();
@@ -146,7 +146,7 @@ static EventPtr parseOsdControlEvent(const TclObject& str, Interpreter& interp)
 	throw CommandException("Invalid OSDcontrol event: ", str.getString());
 }
 
-static EventPtr parseJoystickEvent(const TclObject& str, Interpreter& interp)
+[[nodiscard]] static EventPtr parseJoystickEvent(const TclObject& str, Interpreter& interp)
 {
 	auto len = str.getListLength(interp);
 	if (len >= 2) {
@@ -213,7 +213,7 @@ static EventPtr parseJoystickEvent(const TclObject& str, Interpreter& interp)
 	throw CommandException("Invalid joystick event: ", str.getString());
 }
 
-static EventPtr parseFocusEvent(const TclObject& str, Interpreter& interp)
+[[nodiscard]] static EventPtr parseFocusEvent(const TclObject& str, Interpreter& interp)
 {
 	if (str.getListLength(interp) != 2) {
 		throw CommandException("Invalid focus event: ", str.getString());
@@ -221,7 +221,7 @@ static EventPtr parseFocusEvent(const TclObject& str, Interpreter& interp)
 	return make_shared<FocusEvent>(str.getListIndex(interp, 1).getBoolean(interp));
 }
 
-static EventPtr parseFileDropEvent(const TclObject& str, Interpreter& interp)
+[[nodiscard]] static EventPtr parseFileDropEvent(const TclObject& str, Interpreter& interp)
 {
 	if (str.getListLength(interp) != 1) {
 		throw CommandException("Invalid filedrop event: ", str.getString());
@@ -232,7 +232,7 @@ static EventPtr parseFileDropEvent(const TclObject& str, Interpreter& interp)
 		makeTclList("filename"));
 }
 
-static EventPtr parseResizeEvent(const TclObject& str, Interpreter& interp)
+[[nodiscard]] static EventPtr parseResizeEvent(const TclObject& str, Interpreter& interp)
 {
 	if (str.getListLength(interp) != 3) {
 		throw CommandException("Invalid resize event: ", str.getString());
@@ -242,7 +242,7 @@ static EventPtr parseResizeEvent(const TclObject& str, Interpreter& interp)
 		str.getListIndex(interp, 2).getInt(interp));
 }
 
-static EventPtr parseQuitEvent(const TclObject& str, Interpreter& interp)
+[[nodiscard]] static EventPtr parseQuitEvent(const TclObject& str, Interpreter& interp)
 {
 	if (str.getListLength(interp) != 1) {
 		throw CommandException("Invalid quit event: ", str.getString());

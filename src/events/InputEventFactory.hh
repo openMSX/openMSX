@@ -14,8 +14,8 @@ namespace InputEventFactory
 {
 	using EventPtr = std::shared_ptr<const Event>;
 
-	EventPtr createInputEvent(std::string_view str, Interpreter& interp);
-	EventPtr createInputEvent(const TclObject& str, Interpreter& interp);
+	[[nodiscard]] EventPtr createInputEvent(std::string_view str, Interpreter& interp);
+	[[nodiscard]] EventPtr createInputEvent(const TclObject& str, Interpreter& interp);
 }
 
 } // namespace openmsx
