@@ -113,7 +113,7 @@ public:
 	/** Get the interrupt state.
 	  * @return true iff interrupt request is active.
 	  */
-	inline bool getState() const {
+	[[nodiscard]] inline bool getState() const {
 		return request;
 	}
 

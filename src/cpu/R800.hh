@@ -33,8 +33,8 @@ protected:
 
 	static constexpr int CLOCK_FREQ = 7159090;
 
-	ALWAYS_INLINE unsigned haltStates() const { return 1; } // TODO check this
-	ALWAYS_INLINE bool isR800() const { return true; }
+	[[nodiscard]] ALWAYS_INLINE unsigned haltStates() const { return 1; } // TODO check this
+	[[nodiscard]] ALWAYS_INLINE bool isR800() const { return true; }
 
 	R800TYPE(EmuTime::param time, Scheduler& scheduler_)
 		: CPUClock(time, scheduler_)
@@ -160,7 +160,7 @@ protected:
 	}
 
 	ALWAYS_INLINE void setMemPtr(unsigned /*x*/) { /* nothing*/ }
-	ALWAYS_INLINE unsigned getMemPtr() const { return 0; } // dummy value
+	[[nodiscard]] ALWAYS_INLINE unsigned getMemPtr() const { return 0; } // dummy value
 
 	static constexpr int I  = 6; // cycles for an I/O operation
 	static constexpr int O  = 1; // wait for one cycle and wait for next even

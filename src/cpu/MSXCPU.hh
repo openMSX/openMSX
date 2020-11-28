@@ -113,7 +113,7 @@ public:
 	  * (the Z80 M1 pin is active). This implementation is not 100%
 	  * accurate, but good enough for now.
 	  */
-	bool isM1Cycle(unsigned address) const;
+	[[nodiscard]] bool isM1Cycle(unsigned address) const;
 
 	/** See CPUCore::exitCPULoopsync() */
 	void exitCPULoopSync();
@@ -121,7 +121,7 @@ public:
 	void exitCPULoopAsync();
 
 	/** Is the R800 currently active? */
-	bool isR800Active() const { return !z80Active; }
+	[[nodiscard]] bool isR800Active() const { return !z80Active; }
 
 	/** Switch the Z80 clock freq. */
 	void setZ80Freq(unsigned freq);
@@ -142,7 +142,7 @@ public:
 	EmuTime waitCyclesZ80(EmuTime::param time, unsigned cycles);
 	EmuTime waitCyclesR800(EmuTime::param time, unsigned cycles);
 
-	CPURegs& getRegisters();
+	[[nodiscard]] CPURegs& getRegisters();
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -183,7 +183,7 @@ private:
 		explicit TimeInfoTopic(InfoCommand& machineInfoCommand);
 		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
-		std::string help (const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help (const std::vector<std::string>& tokens) const override;
 	} timeInfo;
 
 	class CPUFreqInfoTopic final : public InfoTopic {
@@ -192,7 +192,7 @@ private:
 				 const std::string& name, CPUClock& clock);
 		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
-		std::string help (const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help (const std::vector<std::string>& tokens) const override;
 	private:
 		CPUClock& clock;
 	};
@@ -201,7 +201,7 @@ private:
 
 	struct Debuggable final : SimpleDebuggable {
 		explicit Debuggable(MSXMotherBoard& motherboard);
-		byte read(unsigned address) override;
+		[[nodiscard]] byte read(unsigned address) override;
 		void write(unsigned address, byte value) override;
 	} debuggable;
 

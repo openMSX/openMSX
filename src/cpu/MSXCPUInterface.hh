@@ -27,13 +27,13 @@ class BreakPoint;
 class CartridgeSlotManager;
 
 struct CompareBreakpoints {
-	bool operator()(const BreakPoint& x, const BreakPoint& y) const {
+	[[nodiscard]] bool operator()(const BreakPoint& x, const BreakPoint& y) const {
 		return x.getAddress() < y.getAddress();
 	}
-	bool operator()(const BreakPoint& x, word y) const {
+	[[nodiscard]] bool operator()(const BreakPoint& x, word y) const {
 		return x.getAddress() < y;
 	}
-	bool operator()(word x, const BreakPoint& y) const {
+	[[nodiscard]] bool operator()(word x, const BreakPoint& y) const {
 		return x < y.getAddress();
 	}
 };
@@ -182,7 +182,7 @@ public:
 	 * An interval will never cross a 16KB border.
 	 * An interval will never contain the address 0xffff.
 	 */
-	inline const byte* getReadCacheLine(word start) const {
+	[[nodiscard]] inline const byte* getReadCacheLine(word start) const {
 		tick(CacheLineCounters::GetReadCacheLine);
 		if (unlikely(disallowReadCache[start >> CacheLine::BITS])) {
 			return nullptr;
@@ -202,7 +202,7 @@ public:
 	 * An interval will never cross a 16KB border.
 	 * An interval will never contain the address 0xffff.
 	 */
-	inline byte* getWriteCacheLine(word start) const {
+	[[nodiscard]] inline byte* getWriteCacheLine(word start) const {
 		tick(CacheLineCounters::GetWriteCacheLine);
 		if (unlikely(disallowWriteCache[start >> CacheLine::BITS])) {
 			return nullptr;
@@ -214,7 +214,7 @@ public:
 	 * CPU uses this method to read 'extra' data from the databus
 	 * used in interrupt routines. In MSX this returns always 255.
 	 */
-	byte readIRQVector();
+	[[nodiscard]] byte readIRQVector();
 
 	/*
 	 * Should only be used by PPI
@@ -236,8 +236,8 @@ public:
 	 * Peek memory location
 	 * @see MSXDevice::peekMem()
 	 */
-	byte peekMem(word address, EmuTime::param time) const;
-	byte peekSlottedMem(unsigned address, EmuTime::param time) const;
+	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const;
+	[[nodiscard]] byte peekSlottedMem(unsigned address, EmuTime::param time) const;
 	byte readSlottedMem(unsigned address, EmuTime::param time);
 	void writeSlottedMem(unsigned address, byte value,
 	                     EmuTime::param time);
@@ -245,38 +245,38 @@ public:
 	void setExpanded(int ps);
 	void unsetExpanded(int ps);
 	void testUnsetExpanded(int ps, std::vector<MSXDevice*> allowed) const;
-	inline bool isExpanded(int ps) const { return expanded[ps] != 0; }
+	[[nodiscard]] inline bool isExpanded(int ps) const { return expanded[ps] != 0; }
 	void changeExpanded(bool newExpanded);
 
-	DummyDevice& getDummyDevice() { return *dummyDevice; }
+	[[nodiscard]] DummyDevice& getDummyDevice() { return *dummyDevice; }
 
 	static void insertBreakPoint(BreakPoint bp);
 	static void removeBreakPoint(const BreakPoint& bp);
 	using BreakPoints = std::vector<BreakPoint>;
-	static const BreakPoints& getBreakPoints() { return breakPoints; }
+	[[nodiscard]] static const BreakPoints& getBreakPoints() { return breakPoints; }
 
 	void setWatchPoint(const std::shared_ptr<WatchPoint>& watchPoint);
 	void removeWatchPoint(std::shared_ptr<WatchPoint> watchPoint);
 	// note: must be shared_ptr (not unique_ptr), see WatchIO::doReadCallback()
 	using WatchPoints = std::vector<std::shared_ptr<WatchPoint>>;
-	const WatchPoints& getWatchPoints() const { return watchPoints; }
+	[[nodiscard]] const WatchPoints& getWatchPoints() const { return watchPoints; }
 
 	static void setCondition(DebugCondition cond);
 	static void removeCondition(const DebugCondition& cond);
 	using Conditions = std::vector<DebugCondition>;
-	static const Conditions& getConditions() { return conditions; }
+	[[nodiscard]] static const Conditions& getConditions() { return conditions; }
 
-	static bool isBreaked() { return breaked; }
+	[[nodiscard]] static bool isBreaked() { return breaked; }
 	void doBreak();
 	void doStep();
 	void doContinue();
 
 	// breakpoint methods used by CPUCore
-	static bool anyBreakPoints()
+	[[nodiscard]] static bool anyBreakPoints()
 	{
 		return !breakPoints.empty() || !conditions.empty();
 	}
-	static bool checkBreakPoints(unsigned pc, MSXMotherBoard& motherBoard)
+	[[nodiscard]] static bool checkBreakPoints(unsigned pc, MSXMotherBoard& motherBoard)
 	{
 		auto range = ranges::equal_range(breakPoints, pc, CompareBreakpoints());
 		if (conditions.empty() && (range.first == range.second)) {
@@ -294,7 +294,7 @@ public:
 	// In fast-forward mode, breakpoints, watchpoints and conditions should
 	// not trigger.
 	void setFastForward(bool fastForward_) { fastForward = fastForward_; }
-	bool isFastForward() const { return fastForward; }
+	[[nodiscard]] bool isFastForward() const { return fastForward; }
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -329,19 +329,19 @@ private:
 
 	struct MemoryDebug final : SimpleDebuggable {
 		explicit MemoryDebug(MSXMotherBoard& motherBoard);
-		byte read(unsigned address, EmuTime::param time) override;
+		[[nodiscard]] byte read(unsigned address, EmuTime::param time) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	} memoryDebug;
 
 	struct SlottedMemoryDebug final : SimpleDebuggable {
 		explicit SlottedMemoryDebug(MSXMotherBoard& motherBoard);
-		byte read(unsigned address, EmuTime::param time) override;
+		[[nodiscard]] byte read(unsigned address, EmuTime::param time) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	} slottedMemoryDebug;
 
 	struct IODebug final : SimpleDebuggable {
 		explicit IODebug(MSXMotherBoard& motherBoard);
-		byte read(unsigned address, EmuTime::param time) override;
+		[[nodiscard]] byte read(unsigned address, EmuTime::param time) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	} ioDebug;
 
@@ -349,28 +349,28 @@ private:
 		explicit SlotInfo(InfoCommand& machineInfoCommand);
 		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
 	} slotInfo;
 
 	struct SubSlottedInfo final : InfoTopic {
 		explicit SubSlottedInfo(InfoCommand& machineInfoCommand);
 		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
 	} subSlottedInfo;
 
 	struct ExternalSlotInfo final : InfoTopic {
 		explicit ExternalSlotInfo(InfoCommand& machineInfoCommand);
 		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
 	} externalSlotInfo;
 
 	struct IOInfo : InfoTopic {
 		IOInfo(InfoCommand& machineInfoCommand, const char* name);
 		void helper(span<const TclObject> tokens,
 		            TclObject& result, MSXDevice** devices) const;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
 	protected:
 		~IOInfo() = default;
 	};
@@ -412,7 +412,7 @@ private:
 	struct GlobalRwInfo {
 		MSXDevice* device;
 		word addr;
-		bool operator==(const GlobalRwInfo& rhs) const {
+		[[nodiscard]] bool operator==(const GlobalRwInfo& rhs) const {
 			return (device == rhs.device) &&
 			       (addr   == rhs.addr);
 		}
@@ -445,8 +445,8 @@ private:
 template<unsigned BEGIN, unsigned END = BEGIN + 1>
 struct CT_Interval
 {
-	unsigned begin() const { return BEGIN; } // inclusive
-	unsigned end()   const { return END; }   // exclusive
+	[[nodiscard]] unsigned begin() const { return BEGIN; } // inclusive
+	[[nodiscard]] unsigned end()   const { return END; }   // exclusive
 };
 
 // Execute an 'action' for every element in the given interval(s).
