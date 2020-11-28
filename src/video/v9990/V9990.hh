@@ -36,40 +36,40 @@ public:
 	// MSXDevice interface:
 	void powerUp(EmuTime::param time) override;
 	void reset(EmuTime::param time) override;
-	byte readIO(word port, EmuTime::param time) override;
-	byte peekIO(word port, EmuTime::param time) const override;
+	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
+	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
 	void writeIO(word port, byte value, EmuTime::param time) override;
 
 	/** Used by Video9000 to be able to couple the VDP and V9990 output.
 	 * Can return nullptr in case of renderer=none. This value can change
 	 * over the lifetime of the V9990 object (on renderer switch).
 	 */
-	PostProcessor* getPostProcessor() const;
+	[[nodiscard]] PostProcessor* getPostProcessor() const;
 
 	/** Obtain a reference to the V9990's VRAM
 	  */
-	inline V9990VRAM& getVRAM() {
+	[[nodiscard]] inline V9990VRAM& getVRAM() {
 		return *vram;
 	}
 
 	/** Get interlace status.
 	  * @return True iff interlace is enabled.
 	  */
-	inline bool isInterlaced() const {
+	[[nodiscard]] inline bool isInterlaced() const {
 		return interlaced;
 	}
 
 	/** Get even/odd page alternation status.
 	  * @return True iff even/odd page alternation is enabled.
 	  */
-	inline bool isEvenOddEnabled() const {
+	[[nodiscard]] inline bool isEvenOddEnabled() const {
 		return (regs[SCREEN_MODE_1] & 0x04) != 0;
 	}
 
 	/** Is the even or odd field being displayed?
 	  * @return True iff the odd lines should be displayed.
 	  */
-	inline bool getEvenOdd() const {
+	[[nodiscard]] inline bool getEvenOdd() const {
 		return (status & 0x02) != 0;
 	}
 
@@ -78,14 +78,14 @@ public:
 	  *  because V9990 doesn't have the same overscan trick (?)
 	  * @return true iff enabled
 	  */
-	inline bool isDisplayEnabled() const {
+	[[nodiscard]] inline bool isDisplayEnabled() const {
 		return isDisplayArea && displayEnabled;
 	}
 
 	/** Are sprites (cursors) enabled?
 	  * @return true iff enabled
 	  */
-	inline bool spritesEnabled() const {
+	[[nodiscard]] inline bool spritesEnabled() const {
 		return !(regs[CONTROL] & 0x40);
 	}
 
@@ -94,7 +94,7 @@ public:
 	  * between [0..63] with lowest two bits always 0).
 	  * @return palette offset
 	  */
-	inline byte getPaletteOffset() const {
+	[[nodiscard]] inline byte getPaletteOffset() const {
 		return (regs[PALETTE_CONTROL] & 0x0F);
 	}
 
@@ -109,13 +109,13 @@ public:
 		byte r, g, b;
 		bool ys;
 	};
-	GetPaletteResult getPalette(int index) const;
+	[[nodiscard]] GetPaletteResult getPalette(int index) const;
 
 	/** Get the number of elapsed UC ticks in this frame.
 	  * @param  time Point in emulated time.
 	  * @return      Number of UC ticks.
 	  */
-	inline int getUCTicksThisFrame(EmuTime::param time) const {
+	[[nodiscard]] inline int getUCTicksThisFrame(EmuTime::param time) const {
 		return frameStartTime.getTicksTill_fast(time);
 	}
 
@@ -123,13 +123,13 @@ public:
 	  * This setting is fixed at start of frame.
 	  * @return True if PAL timing, false if NTSC timing.
 	  */
-	inline bool isPalTiming() const {
+	[[nodiscard]] inline bool isPalTiming() const {
 		return palTiming;
 	}
 
 	/** Returns true iff in overscan mode
 	  */
-	inline bool isOverScan() const {
+	[[nodiscard]] inline bool isOverScan() const {
 		return mode == one_of(B0, B2, B4);
 	}
 
@@ -139,7 +139,7 @@ public:
 	  * because this property only changes once per frame we can't directly
 	  * calculate it like that.
 	  */
-	inline bool isSuperimposing() const {
+	[[nodiscard]] inline bool isSuperimposing() const {
 		return superimposing;
 	}
 
@@ -152,7 +152,7 @@ public:
 	  * 'normal' (non-overscan) y-coordinates. This method returns the
 	  * offset between those two coord-systems.
 	  */
-	inline unsigned getCursorYOffset() const {
+	[[nodiscard]] inline unsigned getCursorYOffset() const {
 		// TODO vertical set-adjust may or may not influence this,
 		//      need to investigate that.
 		if (!isOverScan()) return 0;
@@ -167,7 +167,7 @@ public:
 	  * @return       Pixel position
 	  * TODO: Move this to V9990DisplayTiming??
 	  */
-	static inline int UCtoX(int ticks, V9990DisplayMode mode) {
+	[[nodiscard]] static inline int UCtoX(int ticks, V9990DisplayMode mode) {
 		int x;
 		ticks = ticks % V9990DisplayTiming::UC_TICKS_PER_LINE;
 		switch (mode) {
@@ -188,7 +188,7 @@ public:
 
 	/** Return the current display mode
 	  */
-	inline V9990DisplayMode getDisplayMode() const {
+	[[nodiscard]] inline V9990DisplayMode getDisplayMode() const {
 		return mode;
 	}
 
@@ -203,44 +203,44 @@ public:
 	  *             2 ->  8bpp
 	  *             3 -> 16bpp
 	  */
-	inline unsigned getColorDepth() const {
+	[[nodiscard]] inline unsigned getColorDepth() const {
 		return regs[SCREEN_MODE_0] & 0x03;
 	}
 
 	/** Return the current back drop color
 	  * @return  Index the color palette
 	  */
-	inline byte getBackDropColor() const {
+	[[nodiscard]] inline byte getBackDropColor() const {
 		return regs[BACK_DROP_COLOR];
 	}
 
 	/** Returns the X scroll offset for screen A of P1 and other modes
 	  */
-	inline unsigned getScrollAX() const {
+	[[nodiscard]] inline unsigned getScrollAX() const {
 		return regs[SCROLL_CONTROL_AX0] + 8 * regs[SCROLL_CONTROL_AX1];
 	}
 
 	/** Returns the Y scroll offset for screen A of P1 and other modes
 	  */
-	inline unsigned getScrollAY() const {
+	[[nodiscard]] inline unsigned getScrollAY() const {
 		return regs[SCROLL_CONTROL_AY0] + 256 * scrollAYHigh;
 	}
 
 	/** Returns the X scroll offset for screen B of P1 mode
 	  */
-	inline unsigned getScrollBX() const {
+	[[nodiscard]] inline unsigned getScrollBX() const {
 		return regs[SCROLL_CONTROL_BX0] + 8 * regs[SCROLL_CONTROL_BX1];
 	}
 
 	/** Returns the Y scroll offset for screen B of P1 mode
 	  */
-	inline unsigned getScrollBY() const {
+	[[nodiscard]] inline unsigned getScrollBY() const {
 		return regs[SCROLL_CONTROL_BY0] + 256 * scrollBYHigh;
 	}
 
 	/** Returns the vertical roll mask
 	  */
-	inline unsigned getRollMask(unsigned maxMask) const {
+	[[nodiscard]] inline unsigned getRollMask(unsigned maxMask) const {
 		static unsigned rollMasks[4] = {
 			0xFFFF, // no rolling (use maxMask)
 			0x00FF,
@@ -253,7 +253,7 @@ public:
 
 	/** Return the image width
 	  */
-	inline unsigned getImageWidth() const {
+	[[nodiscard]] inline unsigned getImageWidth() const {
 		switch (regs[SCREEN_MODE_0] & 0xC0) {
 		case 0x00: // P1
 			return 256;
@@ -266,7 +266,7 @@ public:
 	}
 	/** Return the display width
 	  */
-	inline unsigned getLineWidth() const {
+	[[nodiscard]] inline unsigned getLineWidth() const {
 		switch (getDisplayMode()) {
 		case B0:          return  213;
 		case P1: case B1: return  320;
@@ -288,7 +288,7 @@ public:
 
 	/** Return the sprite pattern table base address
 	  */
-	inline int getSpritePatternAddress(V9990DisplayMode m) const {
+	[[nodiscard]] inline int getSpritePatternAddress(V9990DisplayMode m) const {
 		switch (m) {
 		case P1:
 			return (int(regs[SPRITE_PATTERN_ADDRESS] & 0x0E) << 14);
@@ -301,49 +301,49 @@ public:
 
 	/** return sprite palette offset
 	  */
-	inline byte getSpritePaletteOffset() const {
+	[[nodiscard]] inline byte getSpritePaletteOffset() const {
 		return regs[SPRITE_PALETTE_CONTROL] << 2;
 	}
 
 	/** Get horizontal display timings
 	 */
-	inline const V9990DisplayPeriod& getHorizontalTiming() const {
+	[[nodiscard]] inline const V9990DisplayPeriod& getHorizontalTiming() const {
 		return *horTiming;
 	}
 
 	/** Get the number of VDP clockticks between the start of the line and
 	  * the end of the left border.
 	  */
-	inline int getLeftBorder() const {
+	[[nodiscard]] inline int getLeftBorder() const {
 		return horTiming->blank + horTiming->border1 +
 		       (((regs[DISPLAY_ADJUST] & 0x0F) ^ 7) - 8) * 8;
 	}
 	/** Get the number of VDP clockticks between the start of the line and
 	  * the end of the right border.
 	  */
-	inline int getRightBorder() const {
+	[[nodiscard]] inline int getRightBorder() const {
 		return getLeftBorder() + horTiming->display;
 	}
 
 	/** Get vertical display timings
 	 */
-	inline const V9990DisplayPeriod& getVerticalTiming() const {
+	[[nodiscard]] inline const V9990DisplayPeriod& getVerticalTiming() const {
 		return *verTiming;
 	}
 
-	inline int getTopBorder() const {
+	[[nodiscard]] inline int getTopBorder() const {
 		return verTiming->blank + verTiming->border1 +
 		       (((regs[DISPLAY_ADJUST] >> 4) ^ 7) - 8);
 	}
-	inline int getBottomBorder() const {
+	[[nodiscard]] inline int getBottomBorder() const {
 		return getTopBorder() + verTiming->display;
 	}
 
-	inline unsigned getPriorityControlX() const {
+	[[nodiscard]] inline unsigned getPriorityControlX() const {
 		unsigned t = regs[PRIORITY_CONTROL] & 0x03;
 		return (t == 0) ? 256 : t << 6;
 	}
-	inline unsigned getPriorityControlY() const {
+	[[nodiscard]] inline unsigned getPriorityControlY() const {
 		unsigned t = regs[PRIORITY_CONTROL] & 0x0C;
 		return (t == 0) ? 256 : t << 4;
 	}
@@ -512,13 +512,13 @@ private:
 
 	struct RegDebug final : SimpleDebuggable {
 		explicit RegDebug(V9990& v9990);
-		byte read(unsigned address) override;
+		[[nodiscard]] byte read(unsigned address) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	} v9990RegDebug;
 
 	struct PalDebug final : SimpleDebuggable {
 		explicit PalDebug(V9990& v9990);
-		byte read(unsigned address) override;
+		[[nodiscard]] byte read(unsigned address) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	} v9990PalDebug;
 
@@ -627,13 +627,13 @@ private:
 	void setHorizontalTiming();
 	void setVerticalTiming();
 
-	V9990ColorMode getColorMode(byte pal_ctrl) const;
+	[[nodiscard]] V9990ColorMode getColorMode(byte pal_ctrl) const;
 
 	/** Get VRAM read or write address from V9990 registers
 	  * @param base  VRAM_READ_ADDRESS_0 or VRAM_WRITE_ADDRESS_0
 	  * @returns     VRAM read or write address
 	  */
-	inline unsigned getVRAMAddr(RegisterId base) const;
+	[[nodiscard]] inline unsigned getVRAMAddr(RegisterId base) const;
 
 	/** set VRAM read or write address into V9990 registers
 	  * @param base  VRAM_READ_ADDRESS_0 or VRAM_WRITE_ADDRESS_0
@@ -646,7 +646,7 @@ private:
 	  * @param time  Moment in emulated time to read register
 	  * @returns     Register value
 	  */
-	byte readRegister(byte reg, EmuTime::param time) const;
+	[[nodiscard]] byte readRegister(byte reg, EmuTime::param time) const;
 
 	/** Write V9990 register value
 	  * @param reg   Register to write to

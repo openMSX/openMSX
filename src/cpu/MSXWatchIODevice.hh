@@ -25,6 +25,7 @@ private:
 	void doReadCallback(unsigned port);
 	void doWriteCallback(unsigned port, unsigned value);
 
+private:
 	MSXMotherBoard& motherboard;
 	std::vector<std::unique_ptr<MSXWatchIODevice>> ios;
 
@@ -41,10 +42,11 @@ public:
 private:
 	// MSXDevice
 	[[nodiscard]] std::string getName() const override;
-	byte readIO(word port, EmuTime::param time) override;
+	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
 	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
 	void writeIO(word port, byte value, EmuTime::param time) override;
 
+private:
 	WatchIO& watchIO;
 	MSXDevice* device;
 };

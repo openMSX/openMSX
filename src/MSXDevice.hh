@@ -110,7 +110,7 @@ public:
 	 * Read a byte from an IO port at a certain time from this device.
 	 * The default implementation returns 255.
 	 */
-	virtual byte readIO(word port, EmuTime::param time);
+	[[nodiscard]] virtual byte readIO(word port, EmuTime::param time);
 
 	/**
 	 * Write a byte to a given IO port at a certain time to this
@@ -137,7 +137,7 @@ public:
 	 * device.
 	 * The default implementation returns 255.
 	 */
-	virtual byte readMem(word address, EmuTime::param time);
+	[[nodiscard]] virtual byte readMem(word address, EmuTime::param time);
 
 	/**
 	 * Write a given byte to a given location at a certain time

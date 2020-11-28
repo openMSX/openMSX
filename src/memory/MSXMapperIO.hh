@@ -10,10 +10,10 @@ namespace openmsx {
 
 struct MSXMemoryMapperInterface
 {
-	virtual byte readIO(word port, EmuTime::param time) = 0;
-	virtual byte peekIO(word port, EmuTime::param time) const = 0;
+	[[nodiscard]] virtual byte readIO(word port, EmuTime::param time) = 0;
+	[[nodiscard]] virtual byte peekIO(word port, EmuTime::param time) const = 0;
 	virtual void writeIO(word port, byte value, EmuTime::param time) = 0;
-	virtual byte getSelectedSegment(byte page) const = 0;
+	[[nodiscard]] virtual byte getSelectedSegment(byte page) const = 0;
 protected:
 	~MSXMemoryMapperInterface() = default;
 };
@@ -24,8 +24,8 @@ class MSXMapperIO final : public MSXDevice
 public:
 	explicit MSXMapperIO(const DeviceConfig& config);
 
-	byte readIO(word port, EmuTime::param time) override;
-	byte peekIO(word port, EmuTime::param time) const override;
+	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
+	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
 	void writeIO(word port, byte value, EmuTime::param time) override;
 
 	void registerMapper(MSXMemoryMapperInterface* mapper);
@@ -37,7 +37,7 @@ public:
 private:
 	struct Debuggable final : SimpleDebuggable {
 		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
-		byte read(unsigned address) override;
+		[[nodiscard]] byte read(unsigned address) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	} debuggable;
 

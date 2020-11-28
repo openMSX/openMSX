@@ -54,11 +54,11 @@ public:
 
 	void reset(EmuTime::param time) override;
 
-	byte readMem(word address, EmuTime::param time) override;
+	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
 	[[nodiscard]] const byte* getReadCacheLine(word start) const override;
 
 	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
-	byte readIO(word port, EmuTime::param time) override;
+	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
 	void writeIO(word port, byte value, EmuTime::param time) override;
 
 	template<typename Archive>

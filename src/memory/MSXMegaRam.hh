@@ -18,14 +18,14 @@ public:
 
 	void powerUp(EmuTime::param time) override;
 	void reset(EmuTime::param time) override;
-	byte readMem(word address, EmuTime::param time) override;
-	const byte* getReadCacheLine(word address) const override;
+	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
+	[[nodiscard]] const byte* getReadCacheLine(word address) const override;
 	void writeMem(word address, byte value,
 	              EmuTime::param time) override;
-	byte* getWriteCacheLine(word address) const override;
+	[[nodiscard]] byte* getWriteCacheLine(word address) const override;
 
-	byte readIO(word port, EmuTime::param time) override;
-	byte peekIO(word port, EmuTime::param time) const override;
+	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
+	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
 	void writeIO(word port, byte value, EmuTime::param time) override;
 
 	template<typename Archive>
@@ -34,6 +34,7 @@ public:
 private:
 	void setBank(byte page, byte block);
 
+private:
 	const unsigned numBlocks; // must come before ram
 	Ram ram;
 	const std::unique_ptr<Rom> rom; // can be nullptr

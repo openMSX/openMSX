@@ -31,8 +31,8 @@ public:
 	void reset(EmuTime::param time) override;
 	void powerDown(EmuTime::param time) override;
 
-	byte readIO(word port, EmuTime::param time) override;
-	byte peekIO(word port, EmuTime::param time) const override;
+	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
+	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
 	void writeIO(word port, byte value, EmuTime::param time) override;
 
 	template<typename Archive>
@@ -44,6 +44,7 @@ private:
 
 	void updatePause();
 
+private:
 	BooleanSetting pauseSetting;
 	byte status;
 	bool pauseLed;

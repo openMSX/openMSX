@@ -686,7 +686,7 @@ void VDP::writeIO(word port, byte value, EmuTime::param time_)
 				vramPointer = (value << 8 | dataLatch) & 0x3FFF;
 				if (!(value & 0x40)) {
 					// Read ahead.
-					vramRead(time);
+					(void)vramRead(time);
 				}
 			}
 			registerDataStored = false;

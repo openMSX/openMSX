@@ -12,10 +12,10 @@ public:
 	explicit MSXPac(const DeviceConfig& config);
 
 	void reset(EmuTime::param time) override;
-	byte readMem(word address, EmuTime::param time) override;
+	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
 	void writeMem(word address, byte value, EmuTime::param time) override;
-	const byte* getReadCacheLine(word address) const override;
-	byte* getWriteCacheLine(word address) const override;
+	[[nodiscard]] const byte* getReadCacheLine(word address) const override;
+	[[nodiscard]] byte* getWriteCacheLine(word address) const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -23,6 +23,7 @@ public:
 private:
 	void checkSramEnable();
 
+private:
 	SRAM sram;
 	byte r1ffe, r1fff;
 	bool sramEnabled;

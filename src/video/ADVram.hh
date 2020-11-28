@@ -27,7 +27,7 @@ public:
 	 * and possibly the enable bit are set according to address lines
 	 * that are normally ignored for IO reads.  Returns 255.
 	 */
-	byte readIO(word port, EmuTime::param time) override;
+	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
 	// default peekIO() implementation is ok.
 
 	/** Write a byte to a given IO port, set mapper register.  */
@@ -37,7 +37,7 @@ public:
 	 * time.  If the device is enabled then the value returned comes
 	 * from the video ram, otherwise it returns 255.
 	 */
-	byte readMem(word address, EmuTime::param time) override;
+	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
 
 	/** Write a given byte at a certain time to a given location in
 	 * the video ram.  If the device is enabled then the write is
@@ -50,8 +50,9 @@ public:
 
 private:
 	void init() override;
-	inline unsigned calcAddress(word address) const;
+	[[nodiscard]] inline unsigned calcAddress(word address) const;
 
+private:
 	VDP* vdp;
 	VDPVRAM* vram;
 	/** Bit mask applied to logical addresses, reflects vram size.  */
