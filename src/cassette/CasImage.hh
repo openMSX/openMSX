@@ -22,10 +22,10 @@ public:
 
 	// CassetteImage
 	int16_t getSampleAt(EmuTime::param time) override;
-	EmuTime getEndTime() const override;
-	unsigned getFrequency() const override;
+	[[nodiscard]] EmuTime getEndTime() const override;
+	[[nodiscard]] unsigned getFrequency() const override;
 	void fillBuffer(unsigned pos, float** bufs, unsigned num) const override;
-	float getAmplificationFactorImpl() const override;
+	[[nodiscard]] float getAmplificationFactorImpl() const override;
 
 private:
 	void write0();

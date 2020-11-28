@@ -18,7 +18,7 @@ template <typename T> struct EmuTime_param_impl<T, true> { // pass by reference
 	static param dummy() { static constexpr auto e = T::zero(); return e; }
 };
 template <typename T> struct EmuTime_param_impl<T, false> { // pass by value
-	using param = const T;
+	using param = T;
 	static param dummy() { return T(); }
 };
 

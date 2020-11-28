@@ -163,9 +163,9 @@ private:
 			    Scheduler& scheduler);
 		void execute(span<const TclObject> tokens, TclObject& result,
 			     EmuTime::param time) override;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
-		bool needRecord(span<const TclObject> tokens) const override;
+		[[nodiscard]] bool needRecord(span<const TclObject> tokens) const override;
 	} tapeCommand;
 
 	LoadingIndicator loadingIndicator;

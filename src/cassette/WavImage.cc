@@ -39,6 +39,9 @@ public:
 		Sha1Sum sum;
 	};
 
+	WavImageCache(const WavImageCache&) = delete;
+	WavImageCache& operator=(const WavImageCache&) = delete;
+
 	static WavImageCache& instance();
 	const Entry& get(const Filename& filename, FilePool& filePool);
 	void release(const WavData* wav);
@@ -46,8 +49,6 @@ public:
 private:
 	WavImageCache() = default;
 	~WavImageCache();
-	WavImageCache(const WavImageCache&) = delete;
-	WavImageCache& operator=(const WavImageCache&) = delete;
 
 	// typically contains very few elements, but values need stable addresses
 	std::map<std::string, std::pair<Entry, unsigned>> cache;
