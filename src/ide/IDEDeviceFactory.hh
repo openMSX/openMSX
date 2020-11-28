@@ -10,7 +10,7 @@ class DeviceConfig;
 
 namespace IDEDeviceFactory
 {
-	std::unique_ptr<IDEDevice> create(const DeviceConfig& config);
+	[[nodiscard]] std::unique_ptr<IDEDevice> create(const DeviceConfig& config);
 }
 
 } // namespace openmsx

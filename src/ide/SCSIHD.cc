@@ -444,7 +444,7 @@ unsigned SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& bloc
 		case SCSI::OP_SEEK6:
 			getMotherBoard().getLedStatus().setLed(LedStatus::FDD, true);
 			currentLength = 1;
-			checkAddress();
+			(void)checkAddress();
 			return 0;
 
 		case SCSI::OP_MODE_SENSE: {
@@ -505,7 +505,7 @@ unsigned SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& bloc
 		case SCSI::OP_SEEK10:
 			getMotherBoard().getLedStatus().setLed(LedStatus::FDD, true);
 			currentLength = 1;
-			checkAddress();
+			(void)checkAddress();
 			return 0;
 		}
 	}

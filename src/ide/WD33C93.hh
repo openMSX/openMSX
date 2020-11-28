@@ -27,10 +27,10 @@ public:
 
 	void reset(bool scsireset);
 
-	byte readAuxStatus();
-	byte readCtrl();
-	byte peekAuxStatus() const;
-	byte peekCtrl() const;
+	[[nodiscard]] byte readAuxStatus();
+	[[nodiscard]] byte readCtrl();
+	[[nodiscard]] byte peekAuxStatus() const;
+	[[nodiscard]] byte peekCtrl() const;
 	void writeAdr(byte value);
 	void writeCtrl(byte value);
 
@@ -41,6 +41,7 @@ private:
 	void disconnect();
 	void execCmd(byte value);
 
+private:
 	AlignedByteArray<SCSIDevice::BUFFER_SIZE> buffer;
 	std::unique_ptr<SCSIDevice> dev[8];
 	unsigned bufIdx;

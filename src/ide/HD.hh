@@ -24,37 +24,38 @@ public:
 	explicit HD(const DeviceConfig& config);
 	~HD() override;
 
-	const std::string& getName() const { return name; }
-	const Filename& getImageName() const { return filename; }
+	[[nodiscard]] const std::string& getName() const { return name; }
+	[[nodiscard]] const Filename& getImageName() const { return filename; }
 	void switchImage(const Filename& filename);
 
-	std::string getTigerTreeHash();
+	[[nodiscard]] std::string getTigerTreeHash();
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
-	MSXMotherBoard& getMotherBoard() const { return motherBoard; }
+	[[nodiscard]] MSXMotherBoard& getMotherBoard() const { return motherBoard; }
 
 private:
 	// SectorAccessibleDisk:
 	void readSectorImpl (size_t sector,       SectorBuffer& buf) override;
 	void writeSectorImpl(size_t sector, const SectorBuffer& buf) override;
-	size_t getNbSectorsImpl() const override;
-	bool isWriteProtectedImpl() const override;
-	Sha1Sum getSha1SumImpl(FilePool& filePool) override;
+	[[nodiscard]] size_t getNbSectorsImpl() const override;
+	[[nodiscard]] bool isWriteProtectedImpl() const override;
+	[[nodiscard]] Sha1Sum getSha1SumImpl(FilePool& filePool) override;
 
 	// Diskcontainer:
-	SectorAccessibleDisk* getSectorAccessibleDisk() override;
-	const std::string& getContainerName() const override;
-	bool diskChanged() override;
+	[[nodiscard]] SectorAccessibleDisk* getSectorAccessibleDisk() override;
+	[[nodiscard]] const std::string& getContainerName() const override;
+	[[nodiscard]] bool diskChanged() override;
 	int insertDisk(std::string_view newFilename) override;
 
 	// TTData
-	uint8_t* getData(size_t offset, size_t size) override;
-	bool isCacheStillValid(time_t& time) override;
+	[[nodiscard]] uint8_t* getData(size_t offset, size_t size) override;
+	[[nodiscard]] bool isCacheStillValid(time_t& time) override;
 
 	void showProgress(size_t position, size_t maxPosition);
 
+private:
 	MSXMotherBoard& motherBoard;
 	std::string name;
 	std::unique_ptr<HDCommand> hdCommand;

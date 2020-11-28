@@ -574,7 +574,7 @@ unsigned SCSILS120::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& b
 		case SCSI::OP_SEEK6:
 			motherBoard.getLedStatus().setLed(LedStatus::FDD, true);
 			currentLength = 1;
-			checkAddress();
+			(void)checkAddress();
 			return 0;
 
 		case SCSI::OP_MODE_SENSE: {
@@ -635,7 +635,7 @@ unsigned SCSILS120::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& b
 		case SCSI::OP_SEEK10:
 			motherBoard.getLedStatus().setLed(LedStatus::FDD, true);
 			currentLength = 1;
-			checkAddress();
+			(void)checkAddress();
 			return 0;
 		}
 	}

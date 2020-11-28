@@ -26,10 +26,10 @@ public:
 	explicit MB89352(const DeviceConfig& config);
 
 	void reset(bool scsireset);
-	byte readRegister(byte reg);
-	byte peekRegister(byte reg) const;
-	byte readDREG();
-	byte peekDREG() const;
+	[[nodiscard]] byte readRegister(byte reg);
+	[[nodiscard]] byte peekRegister(byte reg) const;
+	[[nodiscard]] byte readDREG();
+	[[nodiscard]] byte peekDREG() const;
 	void writeRegister(byte reg, byte value);
 	void writeDREG(byte value);
 
@@ -41,8 +41,9 @@ private:
 	void softReset();
 	void setACKREQ(byte& value);
 	void resetACKREQ();
-	byte getSSTS() const;
+	[[nodiscard]] byte getSSTS() const;
 
+private:
 	std::unique_ptr<SCSIDevice> dev[8];
 	AlignedByteArray<SCSIDevice::BUFFER_SIZE> buffer; // buffer for transfer
 	unsigned cdbIdx;                // cdb index

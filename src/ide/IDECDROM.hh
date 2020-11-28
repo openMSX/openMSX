@@ -28,10 +28,10 @@ public:
 
 protected:
 	// AbstractIDEDevice:
-	bool isPacketDevice() override;
-	const std::string& getDeviceName() override;
+	[[nodiscard]] bool isPacketDevice() override;
+	[[nodiscard]] const std::string& getDeviceName() override;
 	void fillIdentifyBlock (AlignedBuffer& buffer) override;
-	unsigned readBlockStart(AlignedBuffer& buffer, unsigned count) override;
+	[[nodiscard]] unsigned readBlockStart(AlignedBuffer& buffer, unsigned count) override;
 	void readEnd() override;
 	void writeBlockComplete(AlignedBuffer& buffer, unsigned count) override;
 	void executeCommand(byte cmd) override;
