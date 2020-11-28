@@ -11,8 +11,8 @@ class MSXMotherBoard;
 class SimpleDebuggable : public Debuggable
 {
 public:
-	[[nodiscard]] unsigned getSize() const final override;
-	[[nodiscard]] const std::string& getDescription() const final override;
+	[[nodiscard]] unsigned getSize() const final;
+	[[nodiscard]] const std::string& getDescription() const final;
 
 	[[nodiscard]] byte read(unsigned address) override;
 	[[nodiscard]] virtual byte read(unsigned address, EmuTime::param time);

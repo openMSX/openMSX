@@ -12,9 +12,9 @@ class Debugger;
 class ProbeBase : public Subject<ProbeBase>
 {
 public:
-	const std::string& getName() const { return name; }
-	const std::string& getDescription() const { return description; }
-	virtual std::string getValue() const = 0;
+	[[nodiscard]] const std::string& getName() const { return name; }
+	[[nodiscard]] const std::string& getDescription() const { return description; }
+	[[nodiscard]] virtual std::string getValue() const = 0;
 
 protected:
 	ProbeBase(Debugger& debugger, std::string name,
@@ -42,12 +42,12 @@ public:
 		return *this;
 	}
 
-	operator const T&() const {
+	[[nodiscard]] operator const T&() const {
 		return value;
 	}
 
 private:
-	std::string getValue() const override;
+	[[nodiscard]] std::string getValue() const override;
 
 	T value;
 };
@@ -74,7 +74,7 @@ public:
 	void signal();
 
 private:
-	std::string getValue() const override;
+	[[nodiscard]] std::string getValue() const override;
 };
 
 } // namespace openmsx
