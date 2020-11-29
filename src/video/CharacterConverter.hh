@@ -12,7 +12,7 @@ class DisplayMode;
 
 /** Utility class for converting VRAM contents to host pixels.
   */
-template <class Pixel>
+template<typename Pixel>
 class CharacterConverter
 {
 public:

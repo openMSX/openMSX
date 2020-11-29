@@ -9,10 +9,10 @@
 namespace openmsx {
 
 class RenderSettings;
-template <class Pixel> class Blur_1on3;
-template <class Pixel> class PolyLineScaler;
+template<typename Pixel> class Blur_1on3;
+template<typename Pixel> class PolyLineScaler;
 
-template <class Pixel>
+template<typename Pixel>
 class Simple3xScaler final : public Scaler3<Pixel>
 {
 public:
@@ -76,6 +76,7 @@ private:
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY,
 		PolyLineScaler<Pixel>& scale);
 
+private:
 	PixelOperations<Pixel> pixelOps;
 	Scanline<Pixel> scanline;
 

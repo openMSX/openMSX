@@ -189,14 +189,14 @@ static inline void drawSSE2(
 
 // class Scanline
 
-template <class Pixel>
+template<typename Pixel>
 Scanline<Pixel>::Scanline(const PixelOperations<Pixel>& pixelOps_)
 	: darkener(pixelOps_)
 	, pixelOps(pixelOps_)
 {
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scanline<Pixel>::draw(
 	const Pixel* __restrict src1, const Pixel* __restrict src2,
 	Pixel* __restrict dst, unsigned factor, size_t width)
@@ -213,14 +213,14 @@ void Scanline<Pixel>::draw(
 #endif
 }
 
-template <class Pixel>
-Pixel Scanline<Pixel>::darken(Pixel p, unsigned factor)
+template<typename Pixel>
+Pixel Scanline<Pixel>::darken(Pixel p, unsigned factor) const
 {
 	return darkener.multiply(p, factor);
 }
 
-template <class Pixel>
-Pixel Scanline<Pixel>::darken(Pixel p1, Pixel p2, unsigned factor)
+template<typename Pixel>
+Pixel Scanline<Pixel>::darken(Pixel p1, Pixel p2, unsigned factor) const
 {
 	return darkener.multiply(pixelOps.template blend<1, 1>(p1, p2), factor);
 }

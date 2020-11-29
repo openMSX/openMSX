@@ -14,14 +14,14 @@
 
 namespace openmsx {
 
-template <typename Pixel>
+template<typename Pixel>
 SaI3xScaler<Pixel>::SaI3xScaler(const PixelOperations<Pixel>& pixelOps_)
 	: Scaler3<Pixel>(pixelOps_)
 	, pixelOps(pixelOps_)
 {
 }
 
-template <class Pixel>
+template<typename Pixel>
 void SaI3xScaler<Pixel>::scaleBlank1to3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -45,8 +45,8 @@ void SaI3xScaler<Pixel>::scaleBlank1to3(
 	}
 }
 
-template <typename Pixel>
-inline Pixel SaI3xScaler<Pixel>::blend(Pixel p1, Pixel p2)
+template<typename Pixel>
+inline Pixel SaI3xScaler<Pixel>::blend(Pixel p1, Pixel p2) const
 {
 	return pixelOps.template blend<1, 1>(p1, p2);
 }
@@ -56,9 +56,9 @@ constexpr unsigned greenMask = 0x7E0;
 
 // TODO use PixelOperations::lerp()
 template <typename Pixel>
-static Pixel bilinear(unsigned a, unsigned b, unsigned x);
+[[nodiscard]] static Pixel bilinear(unsigned a, unsigned b, unsigned x);
 
-template<> uint16_t bilinear<uint16_t>(unsigned a, unsigned b, unsigned x)
+template<> [[nodiscard]] uint16_t bilinear<uint16_t>(unsigned a, unsigned b, unsigned x)
 {
 	if (a == b) return a;
 
@@ -71,7 +71,7 @@ template<> uint16_t bilinear<uint16_t>(unsigned a, unsigned b, unsigned x)
 	return (result & redblueMask) | ((result >> 16) & greenMask);
 }
 
-template<> uint32_t bilinear<uint32_t>(unsigned a, unsigned b, unsigned x)
+template<> [[nodiscard]] uint32_t bilinear<uint32_t>(unsigned a, unsigned b, unsigned x)
 {
 	if (a == b) return a;
 
@@ -86,7 +86,7 @@ template<> uint32_t bilinear<uint32_t>(unsigned a, unsigned b, unsigned x)
 }
 
 // TODO move to PixelOperations
-template<typename Pixel> static Pixel bilinear4(
+template<typename Pixel> [[nodiscard]] static Pixel bilinear4(
 	unsigned a, unsigned b, unsigned c, unsigned d, unsigned x, unsigned y);
 
 template<> uint16_t bilinear4<uint16_t>(
@@ -111,7 +111,7 @@ template<> uint16_t bilinear4<uint16_t>(
 	return (result & redblueMask) | ((result >> 16) & greenMask);
 }
 
-template<> uint32_t bilinear4<uint32_t>(
+template<> [[nodiscard]] uint32_t bilinear4<uint32_t>(
 	unsigned a, unsigned b, unsigned c, unsigned d, unsigned x, unsigned y)
 {
 	x >>= 8;
@@ -137,10 +137,10 @@ class Blender
 {
 public:
 	template <unsigned x>
-	inline static Pixel blend(unsigned a, unsigned b);
+	[[nodiscard]] inline static Pixel blend(unsigned a, unsigned b);
 
 	template <unsigned x, unsigned y>
-	inline static Pixel blend(unsigned a, unsigned b, unsigned c, unsigned d);
+	[[nodiscard]] inline static Pixel blend(unsigned a, unsigned b, unsigned c, unsigned d);
 };
 
 template <unsigned X, unsigned OLD, unsigned NEW>

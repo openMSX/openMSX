@@ -14,14 +14,14 @@
 
 namespace openmsx {
 
-template <class Pixel>
+template<typename Pixel>
 SaI2xScaler<Pixel>::SaI2xScaler(const PixelOperations<Pixel>& pixelOps_)
 	: Scaler2<Pixel>(pixelOps_)
 	, pixelOps(pixelOps_)
 {
 }
 
-template <class Pixel>
+template<typename Pixel>
 void SaI2xScaler<Pixel>::scaleBlank1to2(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -44,13 +44,13 @@ void SaI2xScaler<Pixel>::scaleBlank1to2(
 	}
 }
 
-template <class Pixel>
-inline Pixel SaI2xScaler<Pixel>::blend(Pixel p1, Pixel p2)
+template<typename Pixel>
+inline Pixel SaI2xScaler<Pixel>::blend(Pixel p1, Pixel p2) const
 {
 	return pixelOps.template blend<1, 1>(p1, p2);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void SaI2xScaler<Pixel>::scaleLine1on2(
 	const Pixel* __restrict srcLine0, const Pixel* __restrict srcLine1,
 	const Pixel* __restrict srcLine2, const Pixel* __restrict srcLine3,
@@ -169,7 +169,7 @@ void SaI2xScaler<Pixel>::scaleLine1on2(
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void SaI2xScaler<Pixel>::scaleLine1on1(
 	const Pixel* __restrict srcLine0, const Pixel* __restrict srcLine1,
 	const Pixel* __restrict srcLine2, const Pixel* __restrict srcLine3,
@@ -239,7 +239,7 @@ void SaI2xScaler<Pixel>::scaleLine1on1(
 		blend(srcLine1[srcWidth - 1], srcLine2[srcWidth - 1]);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void SaI2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -273,7 +273,7 @@ void SaI2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void SaI2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)

@@ -10,7 +10,7 @@ class Display;
 
 /** Snow effect for background layer.
   */
-template <class Pixel>
+template<typename Pixel>
 class SDLSnow final : public Layer
 {
 public:

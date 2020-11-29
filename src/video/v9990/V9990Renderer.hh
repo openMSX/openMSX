@@ -21,7 +21,7 @@ public:
 	virtual ~V9990Renderer() = default;
 
 	/** See V9990::getPostProcessor. */
-	virtual PostProcessor* getPostProcessor() const = 0;
+	[[nodiscard]] virtual PostProcessor* getPostProcessor() const = 0;
 
 	/** Re-initialise the V9990Renderer's state.
 	  * @param time The moment in emulated time this reset occurs.

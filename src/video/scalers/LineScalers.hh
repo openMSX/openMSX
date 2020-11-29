@@ -298,7 +298,7 @@ public:
 	 * produce the output of the previous step in this step's output buffer,
 	 * so effectively skipping this step.
 	 */
-	virtual bool isCopy() const = 0;
+	[[nodiscard]] virtual bool isCopy() const = 0;
 
 protected:
 	~PolyLineScaler() = default;
@@ -323,7 +323,7 @@ public:
 	{
 		scaler(in, out, outWidth);
 	}
-	bool isCopy() const override
+	[[nodiscard]] bool isCopy() const override
 	{
 		return IsTagged<Scaler, TagCopy>::value;
 	}
@@ -346,7 +346,7 @@ public:
 	{
 		scaler(in, out, outWidth);
 	}
-	bool isCopy() const override
+	[[nodiscard]] bool isCopy() const override
 	{
 		return IsTagged<Scaler, TagCopy>::value;
 	}
@@ -392,7 +392,7 @@ void Scale_1on6<Pixel>::operator()(const Pixel* in, Pixel* out, size_t width)
 }
 
 #ifdef __SSE2__
-template<typename Pixel> static inline __m128i unpacklo(__m128i x, __m128i y)
+template<typename Pixel> inline __m128i unpacklo(__m128i x, __m128i y)
 {
 	if (sizeof(Pixel) == 4) {
 		return _mm_unpacklo_epi32(x, y);
@@ -402,7 +402,7 @@ template<typename Pixel> static inline __m128i unpacklo(__m128i x, __m128i y)
 		UNREACHABLE;
 	}
 }
-template<typename Pixel> static inline __m128i unpackhi(__m128i x, __m128i y)
+template<typename Pixel> inline __m128i unpackhi(__m128i x, __m128i y)
 {
 	if (sizeof(Pixel) == 4) {
 		return _mm_unpackhi_epi32(x, y);
@@ -414,14 +414,14 @@ template<typename Pixel> static inline __m128i unpackhi(__m128i x, __m128i y)
 }
 
 template<typename Pixel>
-static inline void scale_1on2_SSE(const Pixel* in_, Pixel* out_, size_t srcWidth)
+inline void scale_1on2_SSE(const Pixel* in_, Pixel* out_, size_t srcWidth)
 {
 	size_t bytes = srcWidth * sizeof(Pixel);
 	assert((bytes % (4 * sizeof(__m128i))) == 0);
 	assert(bytes != 0);
 
-	auto* in  = reinterpret_cast<const char*>(in_)  +     bytes;
-	auto* out = reinterpret_cast<      char*>(out_) + 2 * bytes;
+	const auto* in  = reinterpret_cast<const char*>(in_)  +     bytes;
+	      auto* out = reinterpret_cast<      char*>(out_) + 2 * bytes;
 
 	auto x = -ptrdiff_t(bytes);
 	do {
@@ -488,7 +488,7 @@ void Scale_1on2<Pixel>::operator()(
 // Memcpy-like routine, it can be faster than a generic memcpy because:
 // - It requires that both input and output are 16-bytes aligned.
 // - It can only copy (non-zero) integer multiples of 128 bytes.
-static inline void memcpy_SSE_128(
+inline void memcpy_SSE_128(
 	const void* __restrict in_, void* __restrict out_, size_t size)
 {
 	assert((reinterpret_cast<size_t>(in_ ) % 16) == 0);
@@ -496,9 +496,9 @@ static inline void memcpy_SSE_128(
 	assert((size % 128) == 0);
 	assert(size != 0);
 
-	auto* in  = reinterpret_cast<const __m128i*>(in_);
-	auto* out = reinterpret_cast<      __m128i*>(out_);
-	auto* end = in + (size / sizeof(__m128i));
+	const auto* in  = reinterpret_cast<const __m128i*>(in_);
+	      auto* out = reinterpret_cast<      __m128i*>(out_);
+	const auto* end = in + (size / sizeof(__m128i));
 	do {
 		out[0] = in[0];
 		out[1] = in[1];
@@ -550,7 +550,7 @@ template<int IMM8> static inline __m128i shuffle(__m128i x, __m128i y)
 }
 
 template<typename Pixel>
-static inline __m128i blend(__m128i x, __m128i y, Pixel mask)
+inline __m128i blend(__m128i x, __m128i y, Pixel mask)
 {
 	if (sizeof(Pixel) == 4) {
 		// 32bpp
@@ -600,15 +600,15 @@ static inline __m128i blend(__m128i x, __m128i y, Pixel mask)
 }
 
 template<typename Pixel>
-static inline void scale_2on1_SSE(
+inline void scale_2on1_SSE(
 	const Pixel* __restrict in_, Pixel* __restrict out_, size_t dstBytes,
 	Pixel mask)
 {
 	assert((dstBytes % (4 * sizeof(__m128i))) == 0);
 	assert(dstBytes != 0);
 
-	auto* in  = reinterpret_cast<const char*>(in_)  + 2 * dstBytes;
-	auto* out = reinterpret_cast<      char*>(out_) +     dstBytes;
+	const auto* in  = reinterpret_cast<const char*>(in_)  + 2 * dstBytes;
+	      auto* out = reinterpret_cast<      char*>(out_) +     dstBytes;
 
 	auto x = -ptrdiff_t(dstBytes);
 	do {

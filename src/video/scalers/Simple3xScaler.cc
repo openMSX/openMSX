@@ -14,7 +14,7 @@
 
 namespace openmsx {
 
-template <class Pixel> class Blur_1on3
+template<typename Pixel> class Blur_1on3
 {
 public:
 	explicit Blur_1on3(const PixelOperations<Pixel>& pixelOps);
@@ -32,7 +32,7 @@ private:
 };
 
 
-template <class Pixel>
+template<typename Pixel>
 Simple3xScaler<Pixel>::Simple3xScaler(
 		const PixelOperations<Pixel>& pixelOps_,
 		const RenderSettings& settings_)
@@ -44,10 +44,10 @@ Simple3xScaler<Pixel>::Simple3xScaler(
 {
 }
 
-template <class Pixel>
+template<typename Pixel>
 Simple3xScaler<Pixel>::~Simple3xScaler() = default;
 
-template <typename Pixel>
+template<typename Pixel>
 void Simple3xScaler<Pixel>::doScale1(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY,
@@ -94,7 +94,7 @@ void Simple3xScaler<Pixel>::doScale1(FrameSource& src,
 	dst.releaseLine(y + 2, dstLine2);
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void Simple3xScaler<Pixel>::doScale2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY,
@@ -123,7 +123,7 @@ void Simple3xScaler<Pixel>::doScale2(FrameSource& src,
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Simple3xScaler<Pixel>::scale2x1to9x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -132,7 +132,7 @@ void Simple3xScaler<Pixel>::scale2x1to9x3(FrameSource& src,
 	doScale1(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Simple3xScaler<Pixel>::scale2x2to9x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -141,7 +141,7 @@ void Simple3xScaler<Pixel>::scale2x2to9x3(FrameSource& src,
 	doScale2(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Simple3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -161,7 +161,7 @@ void Simple3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Simple3xScaler<Pixel>::scale1x2to3x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -170,7 +170,7 @@ void Simple3xScaler<Pixel>::scale1x2to3x3(FrameSource& src,
 	doScale2(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Simple3xScaler<Pixel>::scale4x1to9x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -179,7 +179,7 @@ void Simple3xScaler<Pixel>::scale4x1to9x3(FrameSource& src,
 	doScale1(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Simple3xScaler<Pixel>::scale4x2to9x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -188,7 +188,7 @@ void Simple3xScaler<Pixel>::scale4x2to9x3(FrameSource& src,
 	doScale2(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Simple3xScaler<Pixel>::scale2x1to3x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -197,7 +197,7 @@ void Simple3xScaler<Pixel>::scale2x1to3x3(FrameSource& src,
 	doScale1(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Simple3xScaler<Pixel>::scale2x2to3x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -206,7 +206,7 @@ void Simple3xScaler<Pixel>::scale2x2to3x3(FrameSource& src,
 	doScale2(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Simple3xScaler<Pixel>::scale8x1to9x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -215,7 +215,7 @@ void Simple3xScaler<Pixel>::scale8x1to9x3(FrameSource& src,
 	doScale1(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Simple3xScaler<Pixel>::scale8x2to9x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -224,7 +224,7 @@ void Simple3xScaler<Pixel>::scale8x2to9x3(FrameSource& src,
 	doScale2(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Simple3xScaler<Pixel>::scale4x1to3x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -233,7 +233,7 @@ void Simple3xScaler<Pixel>::scale4x1to3x3(FrameSource& src,
 	doScale1(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Simple3xScaler<Pixel>::scale4x2to3x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -242,7 +242,7 @@ void Simple3xScaler<Pixel>::scale4x2to3x3(FrameSource& src,
 	doScale2(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Simple3xScaler<Pixel>::scaleBlank1to3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -269,7 +269,7 @@ void Simple3xScaler<Pixel>::scaleBlank1to3(
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Simple3xScaler<Pixel>::scaleBlank2to3(
 		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -289,7 +289,7 @@ void Simple3xScaler<Pixel>::scaleBlank2to3(
 
 // class Blur_1on3
 
-template <class Pixel>
+template<typename Pixel>
 Blur_1on3<Pixel>::Blur_1on3(const PixelOperations<Pixel>& pixelOps)
 	: mult0(pixelOps)
 	, mult1(pixelOps)
@@ -299,7 +299,7 @@ Blur_1on3<Pixel>::Blur_1on3(const PixelOperations<Pixel>& pixelOps)
 }
 
 #ifdef __SSE2__
-template<class Pixel>
+template<typename Pixel>
 void Blur_1on3<Pixel>::blur_SSE(const Pixel* in_, Pixel* out_, size_t srcWidth)
 {
 	if (sizeof(Pixel) != 4) {
@@ -440,7 +440,7 @@ void Blur_1on3<Pixel>::blur_SSE(const Pixel* in_, Pixel* out_, size_t srcWidth)
 }
 #endif
 
-template <class Pixel>
+template<typename Pixel>
 void Blur_1on3<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out,
 	size_t dstWidth)
@@ -525,7 +525,7 @@ void Blur_1on3<Pixel>::operator()(
 	out[3 * x + 5] = p1;
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Simple3xScaler<Pixel>::scaleImage(
 	FrameSource& src, const RawFrame* superImpose,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,

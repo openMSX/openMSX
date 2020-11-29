@@ -13,7 +13,7 @@ template<typename Pixel> class PolyLineScaler;
 
 /** TODO
   */
-template <class Pixel>
+template<typename Pixel>
 class RGBTriplet3xScaler final : public Scaler3<Pixel>
 {
 public:
@@ -69,7 +69,7 @@ protected:
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
 
 private:
-	std::pair<unsigned, unsigned> calcBlur();
+	[[nodiscard]] std::pair<unsigned, unsigned> calcBlur();
 
 	/**
 	 * Calculates the RGB triplets.
@@ -91,6 +91,7 @@ private:
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY,
 		PolyLineScaler<Pixel>& scale);
 
+private:
 	PixelOperations<Pixel> pixelOps;
 	Scanline<Pixel> scanline;
 	const RenderSettings& settings;

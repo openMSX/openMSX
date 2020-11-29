@@ -9,7 +9,7 @@
 
 namespace openmsx {
 
-template <class Pixel>
+template<typename Pixel>
 V9990BitmapConverter<Pixel>::V9990BitmapConverter(
 		V9990& vdp_,
 		const Pixel* palette64_,  const int16_t* palette64_32768_,
@@ -435,7 +435,7 @@ public:
 	bool doXor;
 };
 
-template <class Pixel>
+template<typename Pixel>
 void V9990BitmapConverter<Pixel>::convertLine(
 	Pixel* linePtr, unsigned x, unsigned y, int nrPixels,
 	int cursorY, bool drawCursors)

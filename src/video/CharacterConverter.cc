@@ -20,7 +20,7 @@ TODO:
 
 namespace openmsx {
 
-template <class Pixel>
+template<typename Pixel>
 CharacterConverter<Pixel>::CharacterConverter(
 	VDP& vdp_, const Pixel* palFg_, const Pixel* palBg_)
 	: vdp(vdp_), vram(vdp.getVRAM()), palFg(palFg_), palBg(palBg_)
@@ -28,14 +28,14 @@ CharacterConverter<Pixel>::CharacterConverter(
 	modeBase = 0; // not strictly needed, but avoids Coverity warning
 }
 
-template <class Pixel>
+template<typename Pixel>
 void CharacterConverter<Pixel>::setDisplayMode(DisplayMode mode)
 {
 	modeBase = mode.getBase();
 	assert(modeBase < 0x0C);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void CharacterConverter<Pixel>::convertLine(Pixel* linePtr, int line)
 {
 	// TODO: Support YJK on modes other than Graphic 6/7.
@@ -138,7 +138,7 @@ template<typename Pixel> static inline void draw8(
 	pixelPtr += 8;
 }
 
-template <class Pixel>
+template<typename Pixel>
 void CharacterConverter<Pixel>::renderText1(
 	Pixel* __restrict pixelPtr, int line)
 {
@@ -161,7 +161,7 @@ void CharacterConverter<Pixel>::renderText1(
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void CharacterConverter<Pixel>::renderText1Q(
 	Pixel* __restrict pixelPtr, int line)
 {
@@ -185,7 +185,7 @@ void CharacterConverter<Pixel>::renderText1Q(
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void CharacterConverter<Pixel>::renderText2(
 	Pixel* __restrict pixelPtr, int line)
 {
@@ -247,7 +247,7 @@ void CharacterConverter<Pixel>::renderText2(
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 const byte* CharacterConverter<Pixel>::getNamePtr(int line, int scroll)
 {
 	// no need to test whether multi-page scrolling is enabled,
@@ -255,7 +255,7 @@ const byte* CharacterConverter<Pixel>::getNamePtr(int line, int scroll)
 	return vram.nameTable.getReadArea(
 		((line / 8) * 32) | ((scroll & 0x20) ? 0x8000 : 0), 32);
 }
-template <class Pixel>
+template<typename Pixel>
 void CharacterConverter<Pixel>::renderGraphic1(
 	Pixel* __restrict pixelPtr, int line)
 {
@@ -276,7 +276,7 @@ void CharacterConverter<Pixel>::renderGraphic1(
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void CharacterConverter<Pixel>::renderGraphic2(
 	Pixel* __restrict pixelPtr, int line)
 {
@@ -320,7 +320,7 @@ void CharacterConverter<Pixel>::renderGraphic2(
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void CharacterConverter<Pixel>::renderMultiHelper(
 	Pixel* __restrict pixelPtr, int line,
 	int mask, int patternQuarter)
@@ -341,7 +341,7 @@ void CharacterConverter<Pixel>::renderMultiHelper(
 		if (!(++scroll & 0x1F)) namePtr = getNamePtr(line, scroll);
 	}
 }
-template <class Pixel>
+template<typename Pixel>
 void CharacterConverter<Pixel>::renderMulti(
 	Pixel* __restrict pixelPtr, int line)
 {
@@ -349,7 +349,7 @@ void CharacterConverter<Pixel>::renderMulti(
 	renderMultiHelper(pixelPtr, line, mask, 0);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void CharacterConverter<Pixel>::renderMultiQ(
 	Pixel* __restrict pixelPtr, int line)
 {
@@ -358,7 +358,7 @@ void CharacterConverter<Pixel>::renderMultiQ(
 	renderMultiHelper(pixelPtr, line, mask, patternQuarter);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void CharacterConverter<Pixel>::renderBogus(
 	Pixel* __restrict pixelPtr)
 {
@@ -372,7 +372,7 @@ void CharacterConverter<Pixel>::renderBogus(
 	for (int n = 8; n--; ) *pixelPtr++ = bg;
 }
 
-template <class Pixel>
+template<typename Pixel>
 void CharacterConverter<Pixel>::renderBlank(
 	Pixel* __restrict pixelPtr)
 {

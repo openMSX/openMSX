@@ -12,7 +12,7 @@
 
 namespace openmsx {
 
-template <class Pixel>
+template<typename Pixel>
 MLAAScaler<Pixel>::MLAAScaler(
 		unsigned dstWidth_, const PixelOperations<Pixel>& pixelOps_)
 	: pixelOps(pixelOps_)
@@ -20,7 +20,7 @@ MLAAScaler<Pixel>::MLAAScaler(
 {
 }
 
-template <class Pixel>
+template<typename Pixel>
 void MLAAScaler<Pixel>::scaleImage(
 		FrameSource& src, const RawFrame* superImpose,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,

@@ -23,13 +23,13 @@ public:
 		factor = f;
 	}
 
-	inline uint32_t mul32(uint32_t p) const
+	[[nodiscard]] inline uint32_t mul32(uint32_t p) const
 	{
 		return ((((p       & 0x00FF00FF) * factor) & 0xFF00FF00) >> 8)
 		     | ((((p >> 8) & 0x00FF00FF) * factor) & 0xFF00FF00);
 	}
 
-	inline uint32_t conv32(uint32_t p) const
+	[[nodiscard]] inline uint32_t conv32(uint32_t p) const
 	{
 		return p;
 	}
@@ -41,7 +41,7 @@ private:
 template<> class Multiply32<uint16_t>
 {
 	// Note that 0 <= n < 32; on x86 this doesn't matter but on PPC it does.
-	inline uint32_t rotRight(uint32_t a, unsigned n) const
+	[[nodiscard]] inline uint32_t rotRight(uint32_t a, unsigned n) const
 	{
 		return (a >> n) | (a << (32 - n));
 	}
@@ -51,12 +51,12 @@ public:
 
 	void setFactor32(unsigned factor);
 
-	inline uint32_t mul32(uint16_t p) const
+	[[nodiscard]] inline uint32_t mul32(uint16_t p) const
 	{
 		return tab[p];
 	}
 
-	inline uint16_t conv32(uint32_t p) const
+	[[nodiscard]] inline uint16_t conv32(uint32_t p) const
 	{
 		return (rotRight(p, Rshift3) & Rmask1) |
 		       (rotRight(p, Gshift3) & Gmask1) |

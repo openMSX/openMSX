@@ -23,7 +23,7 @@ class PostProcessor;
 /** Rasterizer using a frame buffer approach: it writes pixels to a single
   * rectangular pixel buffer.
   */
-template <class Pixel>
+template<typename Pixel>
 class SDLRasterizer final : public Rasterizer
                           , private Observer<Setting>
 {

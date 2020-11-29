@@ -8,7 +8,7 @@ namespace openmsx {
 
 /** Runs the hq3x scaler algorithm.
   */
-template <class Pixel>
+template<typename Pixel>
 class HQ3xScaler final : public Scaler3<Pixel>
 {
 public:

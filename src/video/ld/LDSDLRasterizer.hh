@@ -13,7 +13,7 @@ class PostProcessor;
 /** Rasterizer using a frame buffer approach: it writes pixels to a single
   * rectangular pixel buffer.
   */
-template <class Pixel>
+template<typename Pixel>
 class LDSDLRasterizer final : public LDRasterizer
 {
 public:
@@ -23,10 +23,10 @@ public:
 	~LDSDLRasterizer() override;
 
 	// Rasterizer interface:
-	PostProcessor* getPostProcessor() const override;
+	[[nodiscard]] PostProcessor* getPostProcessor() const override;
 	void frameStart(EmuTime::param time) override;
 	void drawBlank(int r, int g, int b) override;
-	RawFrame* getRawFrame() override;
+	[[nodiscard]] RawFrame* getRawFrame() override;
 
 private:
 	/** The video post processor which displays the frames produced by this

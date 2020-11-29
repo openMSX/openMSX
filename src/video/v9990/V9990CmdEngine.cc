@@ -77,7 +77,7 @@ constexpr EDStorage SRCH_TIMING[4][3][4] = {
 	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}  // TODO
 };
 
-static EmuDuration getTiming(const V9990CmdEngine& cmdEngine, const EDStorage table[4][3][4])
+[[nodiscard]] static EmuDuration getTiming(const V9990CmdEngine& cmdEngine, const EDStorage table[4][3][4])
 {
 	if (unlikely(cmdEngine.getBrokenTiming())) return EmuDuration();
 
@@ -124,7 +124,7 @@ static constexpr auto bitLUT = [] {
 
 enum { LOG_NO_T, LOG_BPP2, LOG_BPP4, LOG_BPP8 };
 
-static inline byte func01(unsigned op, unsigned src, unsigned dst)
+[[nodiscard]] static inline byte func01(unsigned op, unsigned src, unsigned dst)
 {
 	if ((src & 0x03) == 0) return dst & 0x03;
 	byte res = 0;
@@ -132,7 +132,7 @@ static inline byte func01(unsigned op, unsigned src, unsigned dst)
 	res |= bitLUT[1][op][(src & 0x02) >> 1][(dst & 0x02) >> 1];
 	return res;
 }
-static inline byte func23(unsigned op, unsigned src, unsigned dst)
+[[nodiscard]] static inline byte func23(unsigned op, unsigned src, unsigned dst)
 {
 	if ((src & 0x0C) == 0) return dst & 0x0C;
 	byte res = 0;
@@ -140,7 +140,7 @@ static inline byte func23(unsigned op, unsigned src, unsigned dst)
 	res |= bitLUT[3][op][(src & 0x08) >> 3][(dst & 0x08) >> 3];
 	return res;
 }
-static inline byte func45(unsigned op, unsigned src, unsigned dst)
+[[nodiscard]] static inline byte func45(unsigned op, unsigned src, unsigned dst)
 {
 	if ((src & 0x30) == 0) return dst & 0x30;
 	byte res = 0;
@@ -148,7 +148,7 @@ static inline byte func45(unsigned op, unsigned src, unsigned dst)
 	res |= bitLUT[5][op][(src & 0x20) >> 5][(dst & 0x20) >> 5];
 	return res;
 }
-static inline byte func67(unsigned op, unsigned src, unsigned dst)
+[[nodiscard]] static inline byte func67(unsigned op, unsigned src, unsigned dst)
 {
 	if ((src & 0xC0) == 0) return dst & 0xC0;
 	byte res = 0;
@@ -157,7 +157,7 @@ static inline byte func67(unsigned op, unsigned src, unsigned dst)
 	return res;
 }
 
-static inline byte func03(unsigned op, unsigned src, unsigned dst)
+[[nodiscard]] static inline byte func03(unsigned op, unsigned src, unsigned dst)
 {
 	if ((src & 0x0F) == 0) return dst & 0x0F;
 	byte res = 0;
@@ -167,7 +167,7 @@ static inline byte func03(unsigned op, unsigned src, unsigned dst)
 	res |= bitLUT[3][op][(src & 0x08) >> 3][(dst & 0x08) >> 3];
 	return res;
 }
-static inline byte func47(unsigned op, unsigned src, unsigned dst)
+[[nodiscard]] static inline byte func47(unsigned op, unsigned src, unsigned dst)
 {
 	if ((src & 0xF0) == 0) return dst & 0xF0;
 	byte res = 0;
@@ -178,7 +178,7 @@ static inline byte func47(unsigned op, unsigned src, unsigned dst)
 	return res;
 }
 
-static inline byte func07(unsigned op, unsigned src, unsigned dst)
+[[nodiscard]] static inline byte func07(unsigned op, unsigned src, unsigned dst)
 {
 	// if (src == 0) return dst;  // handled in fillTable8
 	byte res = 0;
@@ -240,7 +240,7 @@ static void fillTable8(unsigned op, byte* table)
 	}
 }
 
-static const byte* getLogOpImpl(unsigned mode, unsigned op)
+[[nodiscard]] static const byte* getLogOpImpl(unsigned mode, unsigned op)
 {
 	op &= 0x0f;
 	if (!logOpLUT[mode][op].data()) {

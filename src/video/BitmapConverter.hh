@@ -13,7 +13,7 @@ template<> struct DoublePixel<4> { using type = uint64_t; };
 
 /** Utility class for converting VRAM contents to host pixels.
   */
-template <class Pixel>
+template<typename Pixel>
 class BitmapConverter
 {
 public:

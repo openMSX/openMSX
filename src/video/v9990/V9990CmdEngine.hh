@@ -52,24 +52,24 @@ public:
 
 	/** read the command data byte
 	  */
-	byte getCmdData(EmuTime::param time);
+	[[nodiscard]] byte getCmdData(EmuTime::param time);
 
 	/** read the command data byte (without side-effects)
 	  */
-	byte peekCmdData(EmuTime::param time);
+	[[nodiscard]] byte peekCmdData(EmuTime::param time);
 
 	/** Get command engine related status bits
 	  *  - TR command data transfer ready (bit 7)
 	  *  - BD border color detect         (bit 4)
 	  *  - CE command being executed      (bit 0)
 	  */
-	byte getStatus(EmuTime::param time) {
+	[[nodiscard]] byte getStatus(EmuTime::param time) {
 		// note: used for both normal and debug read
 		sync(time);
 		return status;
 	}
 
-	word getBorderX(EmuTime::param time) {
+	[[nodiscard]] word getBorderX(EmuTime::param time) {
 		// note: used for both normal and debug read
 		sync(time);
 		return borderX;
@@ -86,10 +86,10 @@ public:
 	  *   that point in time is reached) the new estimation is more
 	  *   accurate and converges to the actual end time.
 	  */
-	EmuTime estimateCmdEnd() const;
+	[[nodiscard]] EmuTime estimateCmdEnd() const;
 
-	const V9990& getVDP() const { return vdp; }
-	bool getBrokenTiming() const { return brokenTiming; }
+	[[nodiscard]] const V9990& getVDP() const { return vdp; }
+	[[nodiscard]] bool getBrokenTiming() const { return brokenTiming; }
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -330,10 +330,10 @@ private:
 
 	void setCommandMode();
 
-	inline unsigned getWrappedNX() const {
+	[[nodiscard]] inline unsigned getWrappedNX() const {
 		return NX ? NX : 2048;
 	}
-	inline unsigned getWrappedNY() const {
+	[[nodiscard]] inline unsigned getWrappedNY() const {
 		return NY ? NY : 4096;
 	}
 };

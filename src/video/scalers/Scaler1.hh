@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-template <typename Pixel>
+template<typename Pixel>
 class Scaler1 final : public Scaler<Pixel>
 {
 public:
@@ -63,6 +63,7 @@ protected:
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
 
+protected:
 	const PixelOperations<Pixel> pixelOps;
 };
 

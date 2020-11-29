@@ -42,7 +42,7 @@ public:
 		lineWidths[line] = width;
 	}
 
-	template <class Pixel>
+	template<typename Pixel>
 	inline void setBlank(unsigned line, Pixel color) {
 		assert(line < getHeight());
 		auto* pixels = getLinePtrDirect<Pixel>(line);

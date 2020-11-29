@@ -17,21 +17,21 @@ Visit the HiEnd3D site for info:
 
 namespace openmsx {
 
-template <typename Pixel> struct HQ_1x1on2x2
+template<typename Pixel> struct HQ_1x1on2x2
 {
 	void operator()(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 	                Pixel* out0, Pixel* out1, unsigned srcWidth,
 	                unsigned* edgeBuf, EdgeHQ edgeOp) __restrict;
 };
 
-template <typename Pixel> struct HQ_1x1on1x2
+template<typename Pixel> struct HQ_1x1on1x2
 {
 	void operator()(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 	                Pixel* out0, Pixel* out1, unsigned srcWidth,
 	                unsigned* edgeBuf, EdgeHQ edgeOp) __restrict;
 };
 
-template <typename Pixel>
+template<typename Pixel>
 void HQ_1x1on2x2<Pixel>::operator()(
 	const Pixel* __restrict in0, const Pixel* __restrict in1,
 	const Pixel* __restrict in2,
@@ -92,7 +92,7 @@ void HQ_1x1on2x2<Pixel>::operator()(
 	}
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void HQ_1x1on1x2<Pixel>::operator()(
 	const Pixel* __restrict in0, const Pixel* __restrict in1,
 	const Pixel* __restrict in2,
@@ -161,14 +161,14 @@ void HQ_1x1on1x2<Pixel>::operator()(
 
 
 
-template <class Pixel>
+template<typename Pixel>
 HQ2xScaler<Pixel>::HQ2xScaler(const PixelOperations<Pixel>& pixelOps_)
 	: Scaler2<Pixel>(pixelOps_)
 	, pixelOps(pixelOps_)
 {
 }
 
-template <class Pixel>
+template<typename Pixel>
 void HQ2xScaler<Pixel>::scale1x1to3x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -180,7 +180,7 @@ void HQ2xScaler<Pixel>::scale1x1to3x2(FrameSource& src,
 	                  dst, dstStartY, dstEndY, srcWidth * 3);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void HQ2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -192,7 +192,7 @@ void HQ2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	                  dst, dstStartY, dstEndY, srcWidth * 2);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void HQ2xScaler<Pixel>::scale2x1to3x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -204,7 +204,7 @@ void HQ2xScaler<Pixel>::scale2x1to3x2(FrameSource& src,
 	                  dst, dstStartY, dstEndY, (srcWidth * 3) / 2);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void HQ2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -216,7 +216,7 @@ void HQ2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	                  dst, dstStartY, dstEndY, srcWidth);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void HQ2xScaler<Pixel>::scale4x1to3x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -228,7 +228,7 @@ void HQ2xScaler<Pixel>::scale4x1to3x2(FrameSource& src,
 	                  dst, dstStartY, dstEndY, (srcWidth * 3) / 4);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void HQ2xScaler<Pixel>::scale2x1to1x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)

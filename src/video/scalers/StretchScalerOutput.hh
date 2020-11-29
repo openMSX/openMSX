@@ -12,7 +12,7 @@ template<typename Pixel> class ScalerOutput;
 template<typename Pixel>
 struct StretchScalerOutputFactory
 {
-	static std::unique_ptr<ScalerOutput<Pixel>> create(
+	[[nodiscard]] static std::unique_ptr<ScalerOutput<Pixel>> create(
 		SDLOutputSurface& output,
 		PixelOperations<Pixel> pixelOps,
 		unsigned inWidth);

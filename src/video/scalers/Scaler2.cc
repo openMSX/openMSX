@@ -10,13 +10,13 @@
 
 namespace openmsx {
 
-template <class Pixel>
+template<typename Pixel>
 Scaler2<Pixel>::Scaler2(const PixelOperations<Pixel>& pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scaler2<Pixel>::scaleBlank1to2(
 		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -29,7 +29,7 @@ void Scaler2<Pixel>::scaleBlank1to2(
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scaler2<Pixel>::scaleBlank1to1(
 		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -41,7 +41,7 @@ void Scaler2<Pixel>::scaleBlank1to1(
 	}
 }
 
-template <typename Pixel>
+template<typename Pixel>
 static void doScale1(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY,
@@ -61,7 +61,7 @@ static void doScale1(FrameSource& src,
 	}
 }
 
-template <typename Pixel>
+template<typename Pixel>
 static void doScale2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY,
@@ -79,7 +79,7 @@ static void doScale2(FrameSource& src,
 }
 
 
-template <class Pixel>
+template<typename Pixel>
 void Scaler2<Pixel>::scale1x1to3x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -89,7 +89,7 @@ void Scaler2<Pixel>::scale1x1to3x2(FrameSource& src,
 	                dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scaler2<Pixel>::scale1x1to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -105,7 +105,7 @@ void Scaler2<Pixel>::scale1x1to3x1(FrameSource& src,
 //       need it to reduce the executable size?
 //       See also Scaler3::scale256.
 // TODO: Why won't it compile anymore without this method enabled?
-template <class Pixel>
+template<typename Pixel>
 void Scaler2<Pixel>::scale1x1to2x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -115,7 +115,7 @@ void Scaler2<Pixel>::scale1x1to2x2(FrameSource& src,
 	                dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scaler2<Pixel>::scale1x1to2x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -125,7 +125,7 @@ void Scaler2<Pixel>::scale1x1to2x1(FrameSource& src,
 	                dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scaler2<Pixel>::scale2x1to3x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -135,7 +135,7 @@ void Scaler2<Pixel>::scale2x1to3x2(FrameSource& src,
 	                dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scaler2<Pixel>::scale2x1to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -145,7 +145,7 @@ void Scaler2<Pixel>::scale2x1to3x1(FrameSource& src,
 	                dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scaler2<Pixel>::scale1x1to1x2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -164,7 +164,7 @@ void Scaler2<Pixel>::scale1x1to1x2(FrameSource& src,
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scaler2<Pixel>::scale1x1to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -181,7 +181,7 @@ void Scaler2<Pixel>::scale1x1to1x1(FrameSource& src,
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scaler2<Pixel>::scale4x1to3x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -191,7 +191,7 @@ void Scaler2<Pixel>::scale4x1to3x2(FrameSource& src,
 	                dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scaler2<Pixel>::scale4x1to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -201,7 +201,7 @@ void Scaler2<Pixel>::scale4x1to3x1(FrameSource& src,
 	                dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scaler2<Pixel>::scale2x1to1x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -211,7 +211,7 @@ void Scaler2<Pixel>::scale2x1to1x2(FrameSource& src,
 	                dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scaler2<Pixel>::scale2x1to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -221,7 +221,7 @@ void Scaler2<Pixel>::scale2x1to1x1(FrameSource& src,
 	                dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scaler2<Pixel>::dispatchScale(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -296,7 +296,7 @@ void Scaler2<Pixel>::dispatchScale(FrameSource& src,
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scaler2<Pixel>::scaleImage(FrameSource& src, const RawFrame* superImpose,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)

@@ -72,7 +72,7 @@ public:
 	  * @param  palTiming  Use PAL timing? (False = NTSC timing)
 	  * @return            The number of UC ticks in a frame
 	  */
-	static constexpr int getUCTicksPerFrame(bool palTiming) {
+	[[nodiscard]] static constexpr int getUCTicksPerFrame(bool palTiming) {
 		return palTiming ? (displayPAL_MCLK.cycle  * UC_TICKS_PER_LINE)
 		                 : (displayNTSC_MCLK.cycle * UC_TICKS_PER_LINE);
 	}

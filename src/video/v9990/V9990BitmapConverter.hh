@@ -12,7 +12,7 @@ class V9990VRAM;
 
 /** Utility class to convert VRAM content to host pixels.
   */
-template <class Pixel>
+template<typename Pixel>
 class V9990BitmapConverter
 {
 public:
@@ -35,7 +35,7 @@ public:
 	}
 
 private:
-	static bool isHighRes(V9990DisplayMode display) {
+	[[nodiscard]] static bool isHighRes(V9990DisplayMode display) {
 		return display == one_of(B4, B5, B6, B7);
 	}
 

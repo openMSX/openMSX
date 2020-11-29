@@ -15,7 +15,7 @@
 namespace openmsx {
 
 template <typename Pixel>
-static inline uint32_t readPixel(Pixel p)
+[[nodiscard]] inline uint32_t readPixel(Pixel p)
 {
 	// TODO: Use surface info instead.
 	if (sizeof(Pixel) == 2) {
@@ -28,7 +28,7 @@ static inline uint32_t readPixel(Pixel p)
 }
 
 template <typename Pixel>
-static inline Pixel writePixel(uint32_t p)
+inline Pixel writePixel(uint32_t p)
 {
 	// TODO: Use surface info instead.
 	if (sizeof(Pixel) == 2) {
@@ -48,7 +48,7 @@ public:
 	{
 	}
 
-	inline bool operator()(uint32_t c1, uint32_t c2) const
+	[[nodiscard]] inline bool operator()(uint32_t c1, uint32_t c2) const
 	{
 		if (c1 == c2) return false;
 
@@ -95,7 +95,7 @@ EdgeHQ createEdgeHQ(const PixelOperations<Pixel>& pixelOps)
 
 struct EdgeHQLite
 {
-	inline bool operator()(uint32_t c1, uint32_t c2) const
+	[[nodiscard]] inline bool operator()(uint32_t c1, uint32_t c2) const
 	{
 		return c1 != c2;
 	}
@@ -188,7 +188,7 @@ void calcEdgesGL(const uint32_t* __restrict curr, const uint32_t* __restrict nex
 }
 
 template <typename Pixel, typename EdgeOp>
-static void calcInitialEdges(
+void calcInitialEdges(
 	const Pixel* __restrict srcPrev, const Pixel* __restrict srcCurr,
 	unsigned srcWidth, unsigned* __restrict edgeBuf, EdgeOp edgeOp)
 {
@@ -212,7 +212,7 @@ static void calcInitialEdges(
 }
 
 template <typename Pixel, typename HQScale, typename EdgeOp>
-static void doHQScale2(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& postScale,
+void doHQScale2(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& postScale,
 	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
 {
@@ -253,7 +253,7 @@ static void doHQScale2(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& po
 }
 
 template <typename Pixel, typename HQScale, typename EdgeOp>
-static void doHQScale3(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& postScale,
+void doHQScale3(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& postScale,
 	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
 {

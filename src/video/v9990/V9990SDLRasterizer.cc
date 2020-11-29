@@ -18,7 +18,7 @@ using std::max;
 
 namespace openmsx {
 
-template <class Pixel>
+template<typename Pixel>
 V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
 		V9990& vdp_, Display& display, OutputSurface& screen_,
 		std::unique_ptr<PostProcessor> postProcessor_)
@@ -42,7 +42,7 @@ V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
 	renderSettings.getColorMatrixSetting().attach(*this);
 }
 
-template <class Pixel>
+template<typename Pixel>
 V9990SDLRasterizer<Pixel>::~V9990SDLRasterizer()
 {
 	renderSettings.getColorMatrixSetting().detach(*this);
@@ -51,13 +51,13 @@ V9990SDLRasterizer<Pixel>::~V9990SDLRasterizer()
 	renderSettings.getContrastSetting()   .detach(*this);
 }
 
-template <class Pixel>
+template<typename Pixel>
 PostProcessor* V9990SDLRasterizer<Pixel>::getPostProcessor() const
 {
 	return postProcessor.get();
 }
 
-template <class Pixel>
+template<typename Pixel>
 bool V9990SDLRasterizer<Pixel>::isActive()
 {
 	return postProcessor->needRender() &&
@@ -65,7 +65,7 @@ bool V9990SDLRasterizer<Pixel>::isActive()
 	       !vdp.getMotherBoard().isFastForwarding();
 }
 
-template <class Pixel>
+template<typename Pixel>
 void V9990SDLRasterizer<Pixel>::reset()
 {
 	setDisplayMode(vdp.getDisplayMode());
@@ -73,7 +73,7 @@ void V9990SDLRasterizer<Pixel>::reset()
 	resetPalette();
 }
 
-template <class Pixel>
+template<typename Pixel>
 void V9990SDLRasterizer<Pixel>::frameStart()
 {
 	const V9990DisplayPeriod& horTiming = vdp.getHorizontalTiming();
@@ -93,7 +93,7 @@ void V9990SDLRasterizer<Pixel>::frameStart()
 	                (verTiming.display - SCREEN_HEIGHT) / 2;
 }
 
-template <class Pixel>
+template<typename Pixel>
 void V9990SDLRasterizer<Pixel>::frameEnd(EmuTime::param time)
 {
 	workFrame = postProcessor->rotateFrames(std::move(workFrame), time);
@@ -103,21 +103,21 @@ void V9990SDLRasterizer<Pixel>::frameEnd(EmuTime::param time)
 	                       : RawFrame::FIELD_NONINTERLACED);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void V9990SDLRasterizer<Pixel>::setDisplayMode(V9990DisplayMode mode)
 {
 	displayMode = mode;
 	bitmapConverter.setColorMode(colorMode, displayMode);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void V9990SDLRasterizer<Pixel>::setColorMode(V9990ColorMode mode)
 {
 	colorMode = mode;
 	bitmapConverter.setColorMode(colorMode, displayMode);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void V9990SDLRasterizer<Pixel>::drawBorder(
 	int fromX, int fromY, int limitX, int limitY)
 {
@@ -153,7 +153,7 @@ void V9990SDLRasterizer<Pixel>::drawBorder(
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void V9990SDLRasterizer<Pixel>::drawDisplay(
 	int fromX, int fromY, int toX, int toY,
 	int displayX, int displayY, int displayYA, int displayYB)
@@ -214,7 +214,7 @@ void V9990SDLRasterizer<Pixel>::drawDisplay(
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void V9990SDLRasterizer<Pixel>::drawP1Mode(
 	int fromX, int fromY, int displayX,
 	int displayY, int displayYA, int displayYB,
@@ -233,7 +233,7 @@ void V9990SDLRasterizer<Pixel>::drawP1Mode(
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void V9990SDLRasterizer<Pixel>::drawP2Mode(
 	int fromX, int fromY, int displayX, int displayY, int displayYA,
 	int displayWidth, int displayHeight, bool drawSprites)
@@ -249,7 +249,7 @@ void V9990SDLRasterizer<Pixel>::drawP2Mode(
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void V9990SDLRasterizer<Pixel>::drawBxMode(
 	int fromX, int fromY, int displayX, int displayY, int displayYA,
 	int displayWidth, int displayHeight, bool drawSprites)
@@ -288,7 +288,7 @@ void V9990SDLRasterizer<Pixel>::drawBxMode(
 }
 
 
-template <class Pixel>
+template<typename Pixel>
 void V9990SDLRasterizer<Pixel>::preCalcPalettes()
 {
 	// the 32768 color palette
@@ -335,7 +335,7 @@ void V9990SDLRasterizer<Pixel>::preCalcPalettes()
 	resetPalette();
 }
 
-template <class Pixel>
+template<typename Pixel>
 void V9990SDLRasterizer<Pixel>::setPalette(int index,
                                            byte r, byte g, byte b, bool ys)
 {
@@ -345,7 +345,7 @@ void V9990SDLRasterizer<Pixel>::setPalette(int index,
 	                           : palette32768[idx32768];
 }
 
-template <class Pixel>
+template<typename Pixel>
 void V9990SDLRasterizer<Pixel>::resetPalette()
 {
 	// get 64 color palette from VDP
@@ -358,19 +358,19 @@ void V9990SDLRasterizer<Pixel>::resetPalette()
 	// TODO what with palette256_32768[0]?
 }
 
-template <class Pixel>
+template<typename Pixel>
 void V9990SDLRasterizer<Pixel>::setSuperimpose(bool /*enabled*/)
 {
 	resetPalette();
 }
 
-template <class Pixel>
+template<typename Pixel>
 bool V9990SDLRasterizer<Pixel>::isRecording() const
 {
 	return postProcessor->isRecording();
 }
 
-template <class Pixel>
+template<typename Pixel>
 void V9990SDLRasterizer<Pixel>::update(const Setting& setting)
 {
 	if (&setting == one_of(&renderSettings.getGammaSetting(),

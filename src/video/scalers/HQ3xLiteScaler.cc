@@ -17,7 +17,7 @@ Visit the HiEnd3D site for info:
 
 namespace openmsx {
 
-template <typename Pixel> struct HQLite_1x1on3x3
+template<typename Pixel> struct HQLite_1x1on3x3
 {
 	void operator()(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 	                Pixel* out0, Pixel* out1, Pixel* out2,
@@ -25,7 +25,7 @@ template <typename Pixel> struct HQLite_1x1on3x3
 	               __restrict;
 };
 
-template <typename Pixel>
+template<typename Pixel>
 void HQLite_1x1on3x3<Pixel>::operator()(
 	const Pixel* __restrict in0, const Pixel* __restrict in1,
 	const Pixel* __restrict in2,
@@ -90,14 +90,14 @@ void HQLite_1x1on3x3<Pixel>::operator()(
 }
 
 
-template <class Pixel>
+template<typename Pixel>
 HQ3xLiteScaler<Pixel>::HQ3xLiteScaler(const PixelOperations<Pixel>& pixelOps_)
 	: Scaler3<Pixel>(pixelOps_)
 	, pixelOps(pixelOps_)
 {
 }
 
-template <class Pixel>
+template<typename Pixel>
 void HQ3xLiteScaler<Pixel>::scale2x1to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -109,7 +109,7 @@ void HQ3xLiteScaler<Pixel>::scale2x1to9x3(FrameSource& src,
 	                  dst, dstStartY, dstEndY, (srcWidth * 9) / 2);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void HQ3xLiteScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -121,7 +121,7 @@ void HQ3xLiteScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 	                  dst, dstStartY, dstEndY, srcWidth * 3);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void HQ3xLiteScaler<Pixel>::scale4x1to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -133,7 +133,7 @@ void HQ3xLiteScaler<Pixel>::scale4x1to9x3(FrameSource& src,
 	                  dst, dstStartY, dstEndY, (srcWidth * 9) / 4);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void HQ3xLiteScaler<Pixel>::scale2x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -145,7 +145,7 @@ void HQ3xLiteScaler<Pixel>::scale2x1to3x3(FrameSource& src,
 	                  dst, dstStartY, dstEndY, (srcWidth * 3) / 2);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void HQ3xLiteScaler<Pixel>::scale8x1to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -157,7 +157,7 @@ void HQ3xLiteScaler<Pixel>::scale8x1to9x3(FrameSource& src,
 	                  dst, dstStartY, dstEndY, (srcWidth * 9) / 8);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void HQ3xLiteScaler<Pixel>::scale4x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)

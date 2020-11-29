@@ -15,7 +15,7 @@ namespace openmsx {
 
 /** Utility class for converting VRAM contents to host pixels.
   */
-template <class Pixel>
+template<typename Pixel>
 class SpriteConverter
 {
 public:

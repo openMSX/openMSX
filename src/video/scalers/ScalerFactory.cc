@@ -24,7 +24,7 @@ using std::unique_ptr;
 
 namespace openmsx {
 
-template <class Pixel>
+template<typename Pixel>
 unique_ptr<Scaler<Pixel>> ScalerFactory<Pixel>::createScaler(
 	const PixelOperations<Pixel>& pixelOps, RenderSettings& renderSettings)
 {

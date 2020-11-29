@@ -47,6 +47,7 @@ private:
 	// Observer<Setting>
 	void update(const Setting& setting) override;
 
+private:
 	VideoSourceSetting& videoSourceSetting;
 	VDP* vdp;
 	V9990* v9990;

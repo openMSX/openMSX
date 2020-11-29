@@ -12,14 +12,14 @@ template<typename Pixel> class PixelOperations;
 /** Abstract base class for scalers.
   * A scaler is an algorithm that converts low-res graphics to hi-res graphics.
   */
-template <class Pixel>
+template<typename Pixel>
 class ScalerFactory
 {
 public:
 	/** Instantiates a Scaler.
 	  * @return A Scaler object, owned by the caller.
 	  */
-	static std::unique_ptr<Scaler<Pixel>> createScaler(
+	[[nodiscard]] static std::unique_ptr<Scaler<Pixel>> createScaler(
 		const PixelOperations<Pixel>& pixelOps,
 		RenderSettings& renderSettings);
 };

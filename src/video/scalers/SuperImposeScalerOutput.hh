@@ -16,15 +16,16 @@ public:
 	                        const RawFrame& superImpose_,
 	                        const PixelOperations<Pixel>& pixelOps_);
 
-	unsigned getWidth()  const override;
-	unsigned getHeight() const override;
-	Pixel* acquireLine(unsigned y) override;
-	void   releaseLine(unsigned y, Pixel* buf)  override;
-	void   fillLine   (unsigned y, Pixel color) override;
+	[[nodiscard]] unsigned getWidth()  const override;
+	[[nodiscard]] unsigned getHeight() const override;
+	[[nodiscard]] Pixel* acquireLine(unsigned y) override;
+	void releaseLine(unsigned y, Pixel* buf)  override;
+	void fillLine   (unsigned y, Pixel color) override;
 
 private:
-	const Pixel* getSrcLine(unsigned y, Pixel* buf);
+	[[nodiscard]] const Pixel* getSrcLine(unsigned y, Pixel* buf);
 
+private:
 	ScalerOutput<Pixel>& output;
 	const RawFrame& superImpose;
 	const PixelOperations<Pixel> pixelOps;

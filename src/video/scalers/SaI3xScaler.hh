@@ -22,7 +22,7 @@ public:
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
 
 private:
-	inline Pixel blend(Pixel p1, Pixel p2);
+	[[nodiscard]] inline Pixel blend(Pixel p1, Pixel p2) const;
 
 	template <unsigned NX, unsigned NY>
 	void scaleFixed(FrameSource& src,

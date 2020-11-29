@@ -18,14 +18,14 @@ public:
 	virtual ~V9990Rasterizer() = default;
 
 	/** See V9990::getPostProcessor(). */
-	virtual PostProcessor* getPostProcessor() const = 0;
+	[[nodiscard]] virtual PostProcessor* getPostProcessor() const = 0;
 
 	/** Will the output of this Rasterizer be displayed?
 	  * There is no point in producing a frame that will not be displayed.
 	  * TODO: Is querying the next pipeline step the best way to solve this,
 	  *       or is it better to explicitly disable the first step in the pipeline?
 	  */
-	virtual bool isActive() = 0;
+	[[nodiscard]] virtual bool isActive() = 0;
 
 	/** Resynchronize with VDP - flush caches etc.
 	  */
@@ -94,7 +94,7 @@ public:
 
 	/** Is video recording active?
 	  */
-	virtual bool isRecording() const = 0;
+	[[nodiscard]] virtual bool isRecording() const = 0;
 };
 
 } // namespace openmsx
