@@ -25,7 +25,7 @@ public:
 
 	void reset();
 
-	bool read_DO(EmuTime::param time) const;
+	[[nodiscard]] bool read_DO(EmuTime::param time) const;
 	void write_CS (bool value, EmuTime::param time);
 	void write_CLK(bool value, EmuTime::param time);
 	void write_DI (bool value, EmuTime::param time);
@@ -34,18 +34,18 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 	// for unittest
-	const uint8_t* backdoor() const {
+	[[nodiscard]] const uint8_t* backdoor() const {
 		return &sram[0];
 	}
 
 private:
-	uint8_t read(unsigned addr);
+	[[nodiscard]] uint8_t read(unsigned addr);
 	void write(unsigned addr, uint8_t value, EmuTime::param time);
 	void writeAll(uint8_t value, EmuTime::param time);
 	void erase(unsigned addr, EmuTime::param time);
 	void eraseAll(EmuTime::param time);
 
-	bool ready(EmuTime::param time) const;
+	[[nodiscard]] bool ready(EmuTime::param time) const;
 	void clockEvent(EmuTime::param time);
 	void execute_command(EmuTime::param time);
 

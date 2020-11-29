@@ -25,24 +25,24 @@ public:
 	Rom(Rom&& other) noexcept;
 	~Rom();
 
-	const byte& operator[](unsigned address) const {
+	[[nodiscard]] const byte& operator[](unsigned address) const {
 		assert(address < size);
 		return rom[address];
 	}
-	unsigned getSize() const { return size; }
+	[[nodiscard]] unsigned getSize() const { return size; }
 
-	std::string getFilename() const;
-	const std::string& getName() const { return name; }
-	const std::string& getDescription() const { return description; }
-	const Sha1Sum& getOriginalSHA1() const;
-	const Sha1Sum& getSHA1() const;
+	[[nodiscard]] std::string getFilename() const;
+	[[nodiscard]] const std::string& getName() const { return name; }
+	[[nodiscard]] const std::string& getDescription() const { return description; }
+	[[nodiscard]] const Sha1Sum& getOriginalSHA1() const;
+	[[nodiscard]] const Sha1Sum& getSHA1() const;
 
 	void addPadding(unsigned newSize, byte filler = 0xff);
 
 private:
 	void init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	          const FileContext& context);
-	bool checkSHA1(const XMLElement& config) const;
+	[[nodiscard]] bool checkSHA1(const XMLElement& config) const;
 
 private:
 	// !! update the move constructor when changing these members !!

@@ -24,17 +24,17 @@ public:
 
 	~Ram();
 
-	const byte& operator[](unsigned addr) const {
+	[[nodiscard]] const byte& operator[](unsigned addr) const {
 		return ram[addr];
 	}
-	byte& operator[](unsigned addr) {
+	[[nodiscard]] byte& operator[](unsigned addr) {
 		return ram[addr];
 	}
-	unsigned getSize() const {
+	[[nodiscard]] unsigned getSize() const {
 		return size;
 	}
 
-	const std::string& getName() const;
+	[[nodiscard]] const std::string& getName() const;
 	void clear(byte c = 0xff);
 
 	template<typename Archive>

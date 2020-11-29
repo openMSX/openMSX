@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-static unsigned getAddressHigh(const DeviceConfig& config)
+[[nodiscard]] static unsigned getAddressHigh(const DeviceConfig& config)
 {
 	unsigned prim = config.getChildDataAsInt("ps");
 	unsigned sec  = config.getChildDataAsInt("ss", 0);

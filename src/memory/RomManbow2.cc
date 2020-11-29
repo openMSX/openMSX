@@ -12,7 +12,7 @@
 
 namespace openmsx {
 
-static std::vector<AmdFlash::SectorInfo> getSectorInfo(RomType type)
+[[nodiscard]] static std::vector<AmdFlash::SectorInfo> getSectorInfo(RomType type)
 {
 	switch (type) {
 	case ROM_MANBOW2:

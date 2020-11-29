@@ -10,11 +10,11 @@ class RomPlain final : public Rom8kBBlocks
 {
 public:
 	RomPlain(const DeviceConfig& config, Rom&& rom, RomType type);
-	unsigned getBaseSizeAlignment() const override;
+	[[nodiscard]] unsigned getBaseSizeAlignment() const override;
 
 private:
 	void guessHelper(unsigned offset, int* pages);
-	unsigned guessLocation(unsigned windowBase, unsigned windowSize);
+	[[nodiscard]] unsigned guessLocation(unsigned windowBase, unsigned windowSize);
 };
 
 } // namespace openmsx

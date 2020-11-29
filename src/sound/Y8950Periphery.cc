@@ -26,7 +26,7 @@ class MusicModulePeriphery final : public Y8950Periphery
 public:
 	explicit MusicModulePeriphery(MSXAudio& audio);
 	void write(nibble outputs, nibble values, EmuTime::param time) override;
-	nibble read(EmuTime::param time) override;
+	[[nodiscard]] nibble read(EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& /*ar*/, unsigned /*version*/) {
@@ -51,12 +51,12 @@ public:
 	void reset() override;
 
 	void write(nibble outputs, nibble values, EmuTime::param time) override;
-	nibble read(EmuTime::param time) override;
+	[[nodiscard]] nibble read(EmuTime::param time) override;
 
-	byte peekMem(word address, EmuTime::param time) const override;
+	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;
 	void writeMem(word address, byte value, EmuTime::param time) override;
-	const byte* getReadCacheLine(word address) const override;
-	byte* getWriteCacheLine(word address) const override;
+	[[nodiscard]] const byte* getReadCacheLine(word address) const override;
+	[[nodiscard]] byte* getWriteCacheLine(word address) const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -66,6 +66,7 @@ private:
 	void setIOPorts(byte value);
 	void setIOPortsHelper(unsigned base, bool enable);
 
+private:
 	MSXAudio& audio;
 	BooleanSetting swSwitch;
 	Ram ram;
@@ -80,7 +81,7 @@ class ToshibaAudioPeriphery final : public Y8950Periphery
 public:
 	explicit ToshibaAudioPeriphery(MSXAudio& audio);
 	void write(nibble outputs, nibble values, EmuTime::param time) override;
-	nibble read(EmuTime::param time) override;
+	[[nodiscard]] nibble read(EmuTime::param time) override;
 	void setSPOFF(bool value, EmuTime::param time) override;
 
 	template<typename Archive>

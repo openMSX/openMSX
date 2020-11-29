@@ -45,7 +45,7 @@ namespace openmsx {
 
 // 8kb shared sram //
 
-static std::shared_ptr<SRAM> getSram(const DeviceConfig& config)
+[[nodiscard]] static std::shared_ptr<SRAM> getSram(const DeviceConfig& config)
 {
 	return config.getMotherBoard().getSharedStuff<SRAM>(
 		"FSA1FM-sram",

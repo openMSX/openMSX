@@ -54,11 +54,11 @@ public:
 	 */
 	void setVppWpPinLow(bool value) { vppWpPinLow = value; }
 
-	unsigned getSize() const { return size; }
-	byte read(unsigned address) const;
-	byte peek(unsigned address) const;
+	[[nodiscard]] unsigned getSize() const { return size; }
+	[[nodiscard]] byte read(unsigned address) const;
+	[[nodiscard]] byte peek(unsigned address) const;
 	void write(unsigned address, byte value);
-	const byte* getReadCacheLine(unsigned address) const;
+	[[nodiscard]] const byte* getReadCacheLine(unsigned address) const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -77,21 +77,22 @@ public:
 private:
 	void init(const std::string& name, const DeviceConfig& config, bool load, const Rom* rom);
 	struct GetSectorInfoResult { unsigned sector, sectorSize, offset; };
-	GetSectorInfoResult getSectorInfo(unsigned address) const;
+	[[nodiscard]] GetSectorInfoResult getSectorInfo(unsigned address) const;
 
 	void setState(State newState);
-	bool checkCommandReset();
-	bool checkCommandEraseSector();
-	bool checkCommandEraseChip();
-	bool checkCommandProgramHelper(unsigned numBytes, const byte* cmdSeq, size_t cmdLen);
-	bool checkCommandProgram();
-	bool checkCommandDoubleByteProgram();
-	bool checkCommandQuadrupleByteProgram();
-	bool checkCommandManufacturer();
-	bool partialMatch(size_t len, const byte* dataSeq) const;
+	[[nodiscard]] bool checkCommandReset();
+	[[nodiscard]] bool checkCommandEraseSector();
+	[[nodiscard]] bool checkCommandEraseChip();
+	[[nodiscard]] bool checkCommandProgramHelper(unsigned numBytes, const byte* cmdSeq, size_t cmdLen);
+	[[nodiscard]] bool checkCommandProgram();
+	[[nodiscard]] bool checkCommandDoubleByteProgram();
+	[[nodiscard]] bool checkCommandQuadrupleByteProgram();
+	[[nodiscard]] bool checkCommandManufacturer();
+	[[nodiscard]] bool partialMatch(size_t len, const byte* dataSeq) const;
 
-	bool isSectorWritable(unsigned sector) const;
+	[[nodiscard]] bool isSectorWritable(unsigned sector) const;
 
+private:
 	MSXMotherBoard& motherBoard;
 	std::unique_ptr<SRAM> ram;
 	MemBuffer<int> writeAddress;

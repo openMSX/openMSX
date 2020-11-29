@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-static std::vector<AmdFlash::SectorInfo> getSectorInfo()
+[[nodiscard]] static std::vector<AmdFlash::SectorInfo> getSectorInfo()
 {
 	std::vector<AmdFlash::SectorInfo> sectorInfo;
 	// 8 * 8kB
@@ -708,13 +708,13 @@ void Carnivore2::serialize(Archive& ar, unsigned /*version*/)
 	             "ideWrite",          ideWrite,
 
 	             "memMapRegs",        memMapRegs,
-	
+
 	             "ym2413",            ym2413,
 	             "fmPacEnable",       fmPacEnable,
 	             "fmPacBank",         fmPacBank,
 	             "fmPac5ffe",         fmPac5ffe,
 	             "fmPac5fff",         fmPac5fff);
-	
+
 	if (ar.isLoader()) {
 		auto time = getCurrentTime();
 		writeSndLVL (configRegs[0x22], time);

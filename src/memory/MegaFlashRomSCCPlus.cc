@@ -163,7 +163,7 @@ Main features:
 
 namespace openmsx {
 
-static std::vector<AmdFlash::SectorInfo> getSectorInfo() {
+[[nodiscard]] static std::vector<AmdFlash::SectorInfo> getSectorInfo() {
 	std::vector<AmdFlash::SectorInfo> sectorInfo;
 	// 1 * 16kB
 	sectorInfo.insert(sectorInfo.end(), 1, {16 * 1024, false});

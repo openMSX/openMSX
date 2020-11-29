@@ -258,7 +258,7 @@ constexpr unsigned MEMORY_MAPPER_MASK = (MEMORY_MAPPER_SIZE / 16) - 1;
 
 namespace openmsx {
 
-static std::vector<AmdFlash::SectorInfo> getSectorInfo()
+[[nodiscard]] static std::vector<AmdFlash::SectorInfo> getSectorInfo()
 {
 	std::vector<AmdFlash::SectorInfo> sectorInfo;
 	// 8 * 8kB
@@ -455,14 +455,14 @@ byte* MegaFlashRomSCCPlusSD::getWriteCacheLine(word addr) const
 byte MegaFlashRomSCCPlusSD::readMemSubSlot0(word addr)
 {
 	// read from the first 16kB of flash
-	// Pazos: ROM and flash can be accessed in all pages (0,1,2,3) (#0000-#FFFF) 
+	// Pazos: ROM and flash can be accessed in all pages (0,1,2,3) (#0000-#FFFF)
 	return flash.read(addr & 0x3FFF);
 }
 
 byte MegaFlashRomSCCPlusSD::peekMemSubSlot0(word addr) const
 {
 	// read from the first 16kB of flash
-	// Pazos: ROM and flash can be accessed in all pages (0,1,2,3) (#0000-#FFFF) 
+	// Pazos: ROM and flash can be accessed in all pages (0,1,2,3) (#0000-#FFFF)
 	return flash.peek(addr & 0x3FFF);
 }
 
@@ -473,7 +473,7 @@ const byte* MegaFlashRomSCCPlusSD::getReadCacheLineSubSlot0(word addr) const
 
 void MegaFlashRomSCCPlusSD::writeMemSubSlot0(word addr, byte value)
 {
-	// Pazos: ROM and flash can be accessed in all pages (0,1,2,3) (#0000-#FFFF) 
+	// Pazos: ROM and flash can be accessed in all pages (0,1,2,3) (#0000-#FFFF)
 	writeToFlash(addr & 0x3FFF, value);
 }
 
@@ -634,7 +634,7 @@ void MegaFlashRomSCCPlusSD::writeMemSubSlot1(word addr, byte value, EmuTime::par
 		    ((enable == EN_SCCPLUS) && !isRamSegment3 &&
 		     (0xB800 <= addr) && (addr < 0xC000))) {
 			scc.writeMem(addr & 0xFF, value, time);
-			return; // Pazos: when SCC registers are selected flashROM is not seen, so it does not accept commands. 
+			return; // Pazos: when SCC registers are selected flashROM is not seen, so it does not accept commands.
 		}
 	}
 

@@ -47,7 +47,7 @@ AmdFlash::AmdFlash(const string& name, vector<SectorInfo> sectorInfo_,
 	init(name, config, true, nullptr);
 }
 
-static bool sramEmpty(const SRAM& ram)
+[[nodiscard]] static bool sramEmpty(const SRAM& ram)
 {
 	return ranges::all_of(xrange(ram.getSize()),
 	                      [&](auto i) { return ram[i] == 0xFF; });

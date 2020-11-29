@@ -227,7 +227,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	if (size != 0) {
 		if (const auto* patchesElem = config.findChild("patches")) {
 			// calculate before content is altered
-			getOriginalSHA1();
+			(void)getOriginalSHA1(); // fills cache
 
 			unique_ptr<PatchInterface> patch =
 				std::make_unique<EmptyPatch>(rom, size);

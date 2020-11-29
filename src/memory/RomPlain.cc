@@ -8,13 +8,13 @@
 namespace openmsx {
 
 // return x inside [start, start+len)
-static inline bool isInside(unsigned x, unsigned start, unsigned len)
+[[nodiscard]] static inline bool isInside(unsigned x, unsigned start, unsigned len)
 {
 	unsigned tmp = x - start;
 	return tmp < len;
 }
 
-static std::string toString(unsigned start, unsigned len)
+[[nodiscard]] static std::string toString(unsigned start, unsigned len)
 {
 	return strCat("[0x", hex_string<4>(start), ", "
 	               "0x", hex_string<4>(start + len), ')');

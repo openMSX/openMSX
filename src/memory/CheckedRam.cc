@@ -9,7 +9,7 @@
 
 namespace openmsx {
 
-static std::bitset<CacheLine::SIZE> getBitSetAllTrue()
+[[nodiscard]] static std::bitset<CacheLine::SIZE> getBitSetAllTrue()
 {
 	std::bitset<CacheLine::SIZE> result;
 	result.set();

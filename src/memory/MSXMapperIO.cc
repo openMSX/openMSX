@@ -11,7 +11,7 @@
 
 namespace openmsx {
 
-static byte calcReadBackMask(MSXMotherBoard& motherBoard)
+[[nodiscard]] static byte calcReadBackMask(MSXMotherBoard& motherBoard)
 {
 	std::string_view type = motherBoard.getMachineConfig()->getConfig().getChildData(
 	                               "MapperReadBackBits", "largest");

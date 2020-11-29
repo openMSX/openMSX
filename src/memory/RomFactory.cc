@@ -69,7 +69,7 @@ using std::unique_ptr;
 
 namespace openmsx::RomFactory {
 
-static RomType guessRomType(const Rom& rom)
+[[nodiscard]] static RomType guessRomType(const Rom& rom)
 {
 	int size = rom.getSize();
 	if (size == 0) {
@@ -117,8 +117,6 @@ static RomType guessRomType(const Rom& rom)
 					typeGuess[ROM_KONAMI_SCC]++;
 					break;
 				case 0x4000:
-					typeGuess[ROM_KONAMI]++;
-					break;
 				case 0x8000:
 				case 0xa000:
 					typeGuess[ROM_KONAMI]++;

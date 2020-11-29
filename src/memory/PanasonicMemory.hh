@@ -22,16 +22,16 @@ public:
 	 * access via the ROM mapper. Note that this is always unchecked Ram!
 	 */
 	void registerRam(Ram& ram);
-	const byte* getRomBlock(unsigned block);
-	const byte* getRomRange(unsigned first, unsigned last);
+	[[nodiscard]] const byte* getRomBlock(unsigned block);
+	[[nodiscard]] const byte* getRomRange(unsigned first, unsigned last);
 	/**
 	 * Note that this is always unchecked RAM! There is no UMR detection
 	 * when accessing Ram in DRAM mode or via the ROM mapper!
 	 */
-	byte* getRamBlock(unsigned block);
-	unsigned getRamSize() const { return ramSize; }
+	[[nodiscard]] byte* getRamBlock(unsigned block);
+	[[nodiscard]] unsigned getRamSize() const { return ramSize; }
 	void setDRAM(bool dram);
-	bool isWritable(unsigned address) const;
+	[[nodiscard]] bool isWritable(unsigned address) const;
 
 private:
 	MSXCPU& msxcpu;

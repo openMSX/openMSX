@@ -11,7 +11,7 @@
 
 namespace openmsx {
 
-static std::unique_ptr<Rom> createRom(MSXMotherBoard& motherBoard)
+[[nodiscard]] static std::unique_ptr<Rom> createRom(MSXMotherBoard& motherBoard)
 {
 	const XMLElement* elem = motherBoard.getMachineConfig()->
 	                      getConfig().findChild("PanasonicRom");

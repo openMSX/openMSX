@@ -13,7 +13,7 @@ public:
 	explicit PanasonicRam(const DeviceConfig& config);
 
 	void writeMem(word address, byte value, EmuTime::param time) override;
-	byte* getWriteCacheLine(word start) const override;
+	[[nodiscard]] byte* getWriteCacheLine(word start) const override;
 	void writeIO(word port, byte value, EmuTime::param time) override;
 
 	template<typename Archive>
