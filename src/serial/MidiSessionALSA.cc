@@ -39,6 +39,7 @@ private:
 	void connect();
 	void disconnect();
 
+private:
 	snd_seq_t& seq;
 	snd_midi_event_t* event_parser;
 	int sourcePort;

@@ -22,7 +22,7 @@ public:
 	Counter(Scheduler& scheduler, ClockPinListener* listener,
 		EmuTime::param time);
 	void reset(EmuTime::param time);
-	byte readIO(EmuTime::param time);
+	[[nodiscard]] byte readIO(EmuTime::param time);
 	[[nodiscard]] byte peekIO(EmuTime::param time) const;
 	void writeIO(byte value, EmuTime::param time);
 	void setGateStatus(bool status, EmuTime::param time);
@@ -55,6 +55,7 @@ private:
 	void writeLoad(word value, EmuTime::param time);
 	void advance(EmuTime::param time);
 
+private:
 	ClockPin clock;
 	ClockPin output;
 	EmuTime currentTime;

@@ -26,13 +26,13 @@ public:
 	~I8254();
 
 	void reset(EmuTime::param time);
-	byte readIO(word port, EmuTime::param time);
-	byte peekIO(word port, EmuTime::param time) const;
+	[[nodiscard]] byte readIO(word port, EmuTime::param time);
+	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const;
 	void writeIO(word port, byte value, EmuTime::param time);
 
 	void setGate(unsigned cntr, bool status, EmuTime::param time);
-	ClockPin& getClockPin(unsigned cntr);
-	ClockPin& getOutputPin(unsigned cntr);
+	[[nodiscard]] ClockPin& getClockPin(unsigned cntr);
+	[[nodiscard]] ClockPin& getOutputPin(unsigned cntr);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -40,6 +40,7 @@ public:
 private:
 	void readBackHelper(byte value, unsigned cntr, EmuTime::param time);
 
+private:
 	std::unique_ptr<Counter> counter[3];
 };
 

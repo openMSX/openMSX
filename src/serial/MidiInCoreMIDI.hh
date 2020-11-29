@@ -35,8 +35,8 @@ public:
 	// Pluggable
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
-	const std::string& getName() const override;
-	std::string_view getDescription() const override;
+	[[nodiscard]] const std::string& getName() const override;
+	[[nodiscard]] std::string_view getDescription() const override;
 
 	// MidiInDevice
 	void signal(EmuTime::param time) override;
@@ -53,6 +53,7 @@ private:
 	                           void *readProcRefCon, void *srcConnRefCon);
 	void sendPacketList(const MIDIPacketList *pktlist, void *srcConnRefCon);
 
+private:
 	EventDistributor& eventDistributor;
 	Scheduler& scheduler;
 	cb_queue<byte> queue;

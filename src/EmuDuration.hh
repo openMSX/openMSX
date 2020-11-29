@@ -22,7 +22,7 @@ public:
 	// it's cheaper to pass this by value. On 32-bit CPUs pass-by-reference
 	// is cheaper.
 #ifdef __x86_64
-	using param = const EmuDuration;
+	using param = EmuDuration;
 #else
 	using param = const EmuDuration&;
 #endif

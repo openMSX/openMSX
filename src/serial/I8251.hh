@@ -18,8 +18,8 @@ public:
 	virtual void setRxRDY(bool status, EmuTime::param time) = 0;
 	virtual void setDTR(bool status, EmuTime::param time) = 0;
 	virtual void setRTS(bool status, EmuTime::param time) = 0;
-	virtual bool getDSR(EmuTime::param time) = 0;
-	virtual bool getCTS(EmuTime::param time) = 0; // TODO use this
+	[[nodiscard]] virtual bool getDSR(EmuTime::param time) = 0;
+	[[nodiscard]] virtual bool getCTS(EmuTime::param time) = 0; // TODO use this
 	virtual void signal(EmuTime::param time) = 0;
 
 protected:
@@ -33,12 +33,12 @@ public:
 	I8251(Scheduler& scheduler, I8251Interface& interf, EmuTime::param time);
 
 	void reset(EmuTime::param time);
-	byte readIO(word port, EmuTime::param time);
-	byte peekIO(word port, EmuTime::param time) const;
+	[[nodiscard]] byte readIO(word port, EmuTime::param time);
+	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const;
 	void writeIO(word port, byte value, EmuTime::param time);
-	ClockPin& getClockPin() { return clock; }
-	bool isRecvReady() const { return recvReady; }
-	bool isRecvEnabled() const;
+	[[nodiscard]] ClockPin& getClockPin() { return clock; }
+	[[nodiscard]] bool isRecvReady() const { return recvReady; }
+	[[nodiscard]] bool isRecvEnabled() const;
 
 	// SerialDataInterface
 	void setDataBits(DataBits bits) override { recvDataBits = bits; }
@@ -77,11 +77,12 @@ public:
 private:
 	void setMode(byte newMode);
 	void writeCommand(byte value, EmuTime::param time);
-	byte readStatus(EmuTime::param time);
-	byte readTrans(EmuTime::param time);
+	[[nodiscard]] byte readStatus(EmuTime::param time);
+	[[nodiscard]] byte readTrans(EmuTime::param time);
 	void writeTrans(byte value, EmuTime::param time);
 	void send(byte value, EmuTime::param time);
 
+private:
 	I8251Interface& interf;
 	ClockPin clock;
 	unsigned charLength;
@@ -90,8 +91,8 @@ private:
 	SerialDataInterface::DataBits  recvDataBits;
 	SerialDataInterface::StopBits  recvStopBits;
 	SerialDataInterface::ParityBit recvParityBit;
-	bool                           recvParityEnabled;
-	byte                           recvBuf;
+	bool recvParityEnabled;
+	byte recvBuf;
 	bool recvReady;
 
 	byte sendByte;
