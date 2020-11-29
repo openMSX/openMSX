@@ -13,9 +13,9 @@ public:
 	               std::string_view name, std::string_view description,
 	               Keys::KeyCode initialValue);
 
-	std::string_view getTypeString() const override;
+	[[nodiscard]] std::string_view getTypeString() const override;
 
-	Keys::KeyCode getKey() const noexcept;
+	[[nodiscard]] Keys::KeyCode getKey() const noexcept;
 };
 
 } // namespace openmsx

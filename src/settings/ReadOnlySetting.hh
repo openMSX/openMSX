@@ -14,7 +14,7 @@ public:
 
 	void setReadOnlyValue(const TclObject& value);
 
-	std::string_view getTypeString() const override;
+	[[nodiscard]] std::string_view getTypeString() const override;
 
 private:
 	TclObject roValue;

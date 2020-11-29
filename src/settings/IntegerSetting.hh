@@ -15,10 +15,10 @@ public:
 	               int initialValue, int minValue, int maxValue,
 	               SaveSetting save = SAVE);
 
-	std::string_view getTypeString() const override;
+	[[nodiscard]] std::string_view getTypeString() const override;
 	void additionalInfo(TclObject& result) const override;
 
-	int getInt() const noexcept { return getValue().getInt(getInterpreter()); }
+	[[nodiscard]] int getInt() const noexcept { return getValue().getInt(getInterpreter()); }
 	void setInt(int i);
 
 private:
