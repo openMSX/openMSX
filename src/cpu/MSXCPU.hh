@@ -21,7 +21,7 @@ class CPUClock;
 class CPURegs;
 class Z80TYPE;
 class R800TYPE;
-template <typename T> class CPUCore;
+template<typename T> class CPUCore;
 class TclObject;
 class Interpreter;
 

@@ -52,7 +52,7 @@ private:
 
 
 // generic implementation
-template <typename SOURCE> class IntHelper : public SOURCE
+template<typename SOURCE> class IntHelper : public SOURCE
 {
 public:
 	IntHelper(const IntHelper&) = delete;

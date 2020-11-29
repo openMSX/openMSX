@@ -42,7 +42,7 @@
 
 namespace sreg_impl {
 
-template <typename T> struct semiregular_move_assign : std::optional<T> {
+template<typename T> struct semiregular_move_assign : std::optional<T> {
 	using std::optional<T>::optional;
 
 	semiregular_move_assign() = default;
@@ -60,13 +60,13 @@ template <typename T> struct semiregular_move_assign : std::optional<T> {
 	}
 };
 
-template <typename T>
+template<typename T>
 using semiregular_move_layer =
 	std::conditional_t<std::is_move_assignable_v<T>,
 	                   std::optional<T>,
 	                   semiregular_move_assign<T>>;
 
-template <typename T>
+template<typename T>
 struct semiregular_copy_assign : semiregular_move_layer<T> {
 	using semiregular_move_layer<T>::semiregular_move_layer;
 
@@ -84,13 +84,13 @@ struct semiregular_copy_assign : semiregular_move_layer<T> {
 	semiregular_copy_assign& operator=(semiregular_copy_assign&&) noexcept = default;
 };
 
-template <typename T>
+template<typename T>
 using semiregular_copy_layer =
 	std::conditional_t<std::is_copy_assignable_v<T>,
 	                   std::optional<T>,
 	                   semiregular_copy_assign<T>>;
 
-template <typename T> struct semiregular : semiregular_copy_layer<T> {
+template<typename T> struct semiregular : semiregular_copy_layer<T> {
 	using semiregular_copy_layer<T>::semiregular_copy_layer;
 
 	semiregular() : semiregular(tag{}, std::is_default_constructible<T>{})
@@ -107,19 +107,19 @@ template <typename T> struct semiregular : semiregular_copy_layer<T> {
 	operator T &&() && { return *std::move(*this); }
 	operator const T &&() const&& { return *std::move(*this); }
 
-	template <typename... Args> auto operator()(Args&&... args) &
+	template<typename... Args> auto operator()(Args&&... args) &
 	{
 		return (**this)(static_cast<Args&&>(args)...);
 	}
-	template <typename... Args> auto operator()(Args&&... args) const&
+	template<typename... Args> auto operator()(Args&&... args) const&
 	{
 		return (**this)(static_cast<Args&&>(args)...);
 	}
-	template <typename... Args> auto operator()(Args&&... args) &&
+	template<typename... Args> auto operator()(Args&&... args) &&
 	{
 		return (*std::move(*this))(static_cast<Args&&>(args)...);
 	}
-	template <typename... Args> auto operator()(Args&&... args) const&&
+	template<typename... Args> auto operator()(Args&&... args) const&&
 	{
 		return (*std::move(*this))(static_cast<Args&&>(args)...);
 	}
@@ -135,11 +135,11 @@ private:
 };
 
 
-template <typename T>
+template<typename T>
 struct semiregular<T&> : private std::reference_wrapper<T&> {
 	semiregular() = default;
 
-	template <typename Arg, std::enable_if_t<(std::is_constructible<
+	template<typename Arg, std::enable_if_t<(std::is_constructible<
 	                                          std::reference_wrapper<T&>,
 	                                          Arg&>::value)>* = nullptr>
 	semiregular(std::in_place_t, Arg& arg) : std::reference_wrapper<T&>(arg)
@@ -152,11 +152,11 @@ struct semiregular<T&> : private std::reference_wrapper<T&> {
 	using std::reference_wrapper<T&>::operator();
 };
 
-template <typename T>
+template<typename T>
 struct semiregular<T&&> : private std::reference_wrapper<T&&> {
 	semiregular() = default;
 
-	template <typename Arg, std::enable_if_t<(std::is_constructible<
+	template<typename Arg, std::enable_if_t<(std::is_constructible<
 	                                          std::reference_wrapper<T&&>,
 	                                          Arg>::value)>* = nullptr>
 	semiregular(std::in_place_t, Arg&& arg)
@@ -172,7 +172,7 @@ struct semiregular<T&&> : private std::reference_wrapper<T&&> {
 
 } // namespace sreg_impl
 
-template <typename T>
+template<typename T>
 using semiregular_t =
 	std::conditional_t<std::is_default_constructible_v<T> &&
 	                   std::is_copy_assignable_v<T>,

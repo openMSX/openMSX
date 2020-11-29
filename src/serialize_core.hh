@@ -37,7 +37,7 @@ template<> struct is_primitive<std::string>        : std::true_type {};
 // method on the class. For some classes we cannot extend the source code. So
 // we need an alternative, non-intrusive, way to make those classes
 // serializable.
-template <typename Archive, typename T>
+template<typename Archive, typename T>
 void serialize(Archive& ar, T& t, unsigned version)
 {
 	// By default use the serialize() member. But this function can
@@ -45,7 +45,7 @@ void serialize(Archive& ar, T& t, unsigned version)
 	t.serialize(ar, version);
 }
 
-template <typename Archive, typename T1, typename T2>
+template<typename Archive, typename T1, typename T2>
 void serialize(Archive& ar, std::pair<T1, T2>& p, unsigned /*version*/)
 {
 	ar.serialize("first",  p.first,

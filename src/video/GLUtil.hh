@@ -149,7 +149,7 @@ private:
   * fallback implementation, maybe we can re-enable this when we switch to
   * openGL ES 3.0.
   */
-template <typename T> class PixelBuffer
+template<typename T> class PixelBuffer
 {
 public:
 	PixelBuffer();
@@ -217,13 +217,13 @@ private:
 
 // class PixelBuffer
 
-template <typename T>
+template<typename T>
 PixelBuffer<T>::PixelBuffer()
 {
 	//glGenBuffers(1, &bufferId);
 }
 
-template <typename T>
+template<typename T>
 PixelBuffer<T>::PixelBuffer(PixelBuffer<T>&& other) noexcept
 	: allocated(std::move(other.allocated))
 	//, bufferId(other.bufferId)
@@ -233,7 +233,7 @@ PixelBuffer<T>::PixelBuffer(PixelBuffer<T>&& other) noexcept
 	//other.bufferId = 0;
 }
 
-template <typename T>
+template<typename T>
 PixelBuffer<T>& PixelBuffer<T>::operator=(PixelBuffer<T>&& other) noexcept
 {
 	std::swap(allocated, other.allocated);
@@ -243,13 +243,13 @@ PixelBuffer<T>& PixelBuffer<T>::operator=(PixelBuffer<T>&& other) noexcept
 	return *this;
 }
 
-template <typename T>
+template<typename T>
 PixelBuffer<T>::~PixelBuffer()
 {
 	//glDeleteBuffers(1, &bufferId); // ok to delete '0'
 }
 
-template <typename T>
+template<typename T>
 void PixelBuffer<T>::setImage(GLuint width_, GLuint height_)
 {
 	width = width_;
@@ -267,7 +267,7 @@ void PixelBuffer<T>::setImage(GLuint width_, GLuint height_)
 	//}
 }
 
-template <typename T>
+template<typename T>
 void PixelBuffer<T>::bind() const
 {
 	//if (bufferId != 0) {
@@ -275,7 +275,7 @@ void PixelBuffer<T>::bind() const
 	//}
 }
 
-template <typename T>
+template<typename T>
 void PixelBuffer<T>::unbind() const
 {
 	//if (bufferId != 0) {
@@ -283,7 +283,7 @@ void PixelBuffer<T>::unbind() const
 	//}
 }
 
-template <typename T>
+template<typename T>
 T* PixelBuffer<T>::getOffset(GLuint x, GLuint y)
 {
 	assert(x < width);
@@ -296,7 +296,7 @@ T* PixelBuffer<T>::getOffset(GLuint x, GLuint y)
 	//}
 }
 
-template <typename T>
+template<typename T>
 T* PixelBuffer<T>::mapWrite()
 {
 	//if (bufferId != 0) {
@@ -307,7 +307,7 @@ T* PixelBuffer<T>::mapWrite()
 	//}
 }
 
-template <typename T>
+template<typename T>
 void PixelBuffer<T>::unmap() const
 {
 	//if (bufferId != 0) {

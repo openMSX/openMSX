@@ -10,7 +10,7 @@ namespace openmsx {
 // minimal attempt to avoid seeing this warning too often
 static Sha1Sum alreadyWarnedForSha1Sum;
 
-template <unsigned BANK_SIZE>
+template<unsigned BANK_SIZE>
 RomBlocks<BANK_SIZE>::RomBlocks(
 		const DeviceConfig& config, Rom&& rom_,
 		unsigned debugBankSizeShift)
@@ -46,34 +46,34 @@ RomBlocks<BANK_SIZE>::RomBlocks(
 	}
 }
 
-template <unsigned BANK_SIZE>
+template<unsigned BANK_SIZE>
 RomBlocks<BANK_SIZE>::~RomBlocks() = default;
 
-template <unsigned BANK_SIZE>
+template<unsigned BANK_SIZE>
 unsigned RomBlocks<BANK_SIZE>::getBaseSizeAlignment() const
 {
 	return BANK_SIZE;
 }
 
-template <unsigned BANK_SIZE>
+template<unsigned BANK_SIZE>
 byte RomBlocks<BANK_SIZE>::peekMem(word address, EmuTime::param /*time*/) const
 {
 	return bankPtr[address / BANK_SIZE][address & BANK_MASK];
 }
 
-template <unsigned BANK_SIZE>
+template<unsigned BANK_SIZE>
 byte RomBlocks<BANK_SIZE>::readMem(word address, EmuTime::param time)
 {
 	return RomBlocks<BANK_SIZE>::peekMem(address, time);
 }
 
-template <unsigned BANK_SIZE>
+template<unsigned BANK_SIZE>
 const byte* RomBlocks<BANK_SIZE>::getReadCacheLine(word address) const
 {
 	return &bankPtr[address / BANK_SIZE][address & BANK_MASK];
 }
 
-template <unsigned BANK_SIZE>
+template<unsigned BANK_SIZE>
 void RomBlocks<BANK_SIZE>::setBank(byte region, const byte* adr, int block)
 {
 	assert("address passed to setBank() is not serializable" &&
@@ -87,20 +87,20 @@ void RomBlocks<BANK_SIZE>::setBank(byte region, const byte* adr, int block)
 	fillDeviceRCache(region * BANK_SIZE, BANK_SIZE, adr);
 }
 
-template <unsigned BANK_SIZE>
+template<unsigned BANK_SIZE>
 void RomBlocks<BANK_SIZE>::setUnmapped(byte region)
 {
 	setBank(region, unmappedRead, 255);
 }
 
-template <unsigned BANK_SIZE>
+template<unsigned BANK_SIZE>
 void RomBlocks<BANK_SIZE>::setExtraMemory(const byte* mem, unsigned size)
 {
 	extraMem = mem;
 	extraSize = size;
 }
 
-template <unsigned BANK_SIZE>
+template<unsigned BANK_SIZE>
 void RomBlocks<BANK_SIZE>::setRom(byte region, unsigned block)
 {
 	// Note: Some cartridges have a number of blocks that is not a power of 2,
@@ -115,7 +115,7 @@ void RomBlocks<BANK_SIZE>::setRom(byte region, unsigned block)
 
 // version 1: initial version
 // version 2: added blockNr
-template <unsigned BANK_SIZE>
+template<unsigned BANK_SIZE>
 template<typename Archive>
 void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 {

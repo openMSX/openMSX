@@ -25,10 +25,10 @@ protected:
 	[[nodiscard]] ALWAYS_INLINE unsigned haltStates() const { return 4 + WAIT_CYCLES; } // HALT + M1
 	[[nodiscard]] ALWAYS_INLINE bool isR800() const { return false; }
 
-	template <bool, bool> ALWAYS_INLINE void PRE_MEM  (unsigned /*address*/) { }
-	template <      bool> ALWAYS_INLINE void POST_MEM (unsigned /*address*/) { }
-	template <bool, bool> ALWAYS_INLINE void PRE_WORD (unsigned /*address*/) { }
-	template <      bool> ALWAYS_INLINE void POST_WORD(unsigned /*address*/) { }
+	template<bool, bool> ALWAYS_INLINE void PRE_MEM  (unsigned /*address*/) { }
+	template<      bool> ALWAYS_INLINE void POST_MEM (unsigned /*address*/) { }
+	template<bool, bool> ALWAYS_INLINE void PRE_WORD (unsigned /*address*/) { }
+	template<      bool> ALWAYS_INLINE void POST_WORD(unsigned /*address*/) { }
 
 	ALWAYS_INLINE void R800Refresh(CPURegs& /*R*/) { }
 	ALWAYS_INLINE void R800ForcePageBreak() { }

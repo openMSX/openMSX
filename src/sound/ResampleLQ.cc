@@ -29,7 +29,7 @@ std::unique_ptr<ResampleLQ<CHANNELS>> ResampleLQ<CHANNELS>::create(
 	return result;
 }
 
-template <unsigned CHANNELS>
+template<unsigned CHANNELS>
 ResampleLQ<CHANNELS>::ResampleLQ(
 		ResampledSoundDevice& input_, const DynamicClock& hostClock_)
 	: ResampleAlgo(input_)
@@ -51,7 +51,7 @@ ResampleLQ<CHANNELS>::ResampleLQ(
 	return std::abs(x) < threshold;
 }
 
-template <unsigned CHANNELS>
+template<unsigned CHANNELS>
 bool ResampleLQ<CHANNELS>::fetchData(EmuTime::param time, unsigned& valid)
 {
 	auto& emuClk = getEmuClock();
@@ -93,7 +93,7 @@ bool ResampleLQ<CHANNELS>::fetchData(EmuTime::param time, unsigned& valid)
 
 ////
 
-template <unsigned CHANNELS>
+template<unsigned CHANNELS>
 ResampleLQUp<CHANNELS>::ResampleLQUp(
 		ResampledSoundDevice& input_, const DynamicClock& hostClock_)
 	: ResampleLQ<CHANNELS>(input_, hostClock_)
@@ -101,7 +101,7 @@ ResampleLQUp<CHANNELS>::ResampleLQUp(
 	assert(input_.getEmuClock().getFreq() <= hostClock_.getFreq()); // only upsampling
 }
 
-template <unsigned CHANNELS>
+template<unsigned CHANNELS>
 bool ResampleLQUp<CHANNELS>::generateOutputImpl(
 	float* __restrict dataOut, unsigned hostNum, EmuTime::param time)
 {
@@ -133,7 +133,7 @@ bool ResampleLQUp<CHANNELS>::generateOutputImpl(
 
 ////
 
-template <unsigned CHANNELS>
+template<unsigned CHANNELS>
 ResampleLQDown<CHANNELS>::ResampleLQDown(
 		ResampledSoundDevice& input_, const DynamicClock& hostClock_)
 	: ResampleLQ<CHANNELS>(input_, hostClock_)
@@ -141,7 +141,7 @@ ResampleLQDown<CHANNELS>::ResampleLQDown(
 	assert(input_.getEmuClock().getFreq() >= hostClock_.getFreq()); // can only do downsampling
 }
 
-template <unsigned CHANNELS>
+template<unsigned CHANNELS>
 bool ResampleLQDown<CHANNELS>::generateOutputImpl(
 	float* __restrict dataOut, unsigned hostNum, EmuTime::param time)
 {

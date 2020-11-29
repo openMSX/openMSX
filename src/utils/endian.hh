@@ -56,12 +56,12 @@ namespace Endian {
 
 // Identity operator, simply returns the given value.
 struct Ident {
-	template <typename T> [[nodiscard]] inline T operator()(T t) const { return t; }
+	template<typename T> [[nodiscard]] inline T operator()(T t) const { return t; }
 };
 
 // Byte-swap operator, swap bytes in the given value (16 or 32 bit).
 struct ByteSwap {
-	template <typename T> [[nodiscard]] inline T operator()(T t) const { return byteswap(t); }
+	template<typename T> [[nodiscard]] inline T operator()(T t) const { return byteswap(t); }
 };
 
 // Helper class that stores a value and allows to read/write that value. Though

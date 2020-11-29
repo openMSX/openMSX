@@ -291,7 +291,7 @@ void RGBTriplet3xScaler<Pixel>::scale4x2to3x3(FrameSource& src,
 	         dst, dstStartY, dstEndY, op);
 }
 
-template <typename Pixel>
+template<typename Pixel>
 static void fillLoop(const Pixel* __restrict in, Pixel* __restrict out,
                      unsigned dstWidth)
 {

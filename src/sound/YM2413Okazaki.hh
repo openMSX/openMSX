@@ -70,9 +70,9 @@ public:
 	inline void setVolume(unsigned value);
 
 	[[nodiscard]] inline unsigned calc_phase(unsigned lfo_pm);
-	template <bool HAS_AM, bool FIXED_ENV>
+	template<bool HAS_AM, bool FIXED_ENV>
 	[[nodiscard]] inline unsigned calc_envelope(int lfo_am, unsigned fixed_env);
-	template <bool HAS_AM> [[nodiscard]] unsigned calc_fixed_env() const;
+	template<bool HAS_AM> [[nodiscard]] unsigned calc_fixed_env() const;
 	void calc_envelope_outline(unsigned& out);
 	template<bool HAS_AM, bool FIXED_ENV>
 	[[nodiscard]] inline int calc_slot_car(unsigned lfo_pm, int lfo_am, int fm, unsigned fixed_env);
@@ -166,7 +166,7 @@ private:
 	[[nodiscard]] inline bool isRhythm() const;
 	[[nodiscard]] inline unsigned getFreq(unsigned channel) const;
 
-	template <unsigned FLAGS>
+	template<unsigned FLAGS>
 	inline void calcChannel(Channel& ch, float* buf, unsigned num);
 
 private:

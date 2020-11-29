@@ -51,7 +51,7 @@ EmuTime::param Schedulable::getCurrentTime() const
 	return scheduler.getCurrentTime();
 }
 
-template <typename Archive>
+template<typename Archive>
 void Schedulable::serialize(Archive& ar, unsigned /*version*/)
 {
 	Scheduler::SyncPoints syncPoints;

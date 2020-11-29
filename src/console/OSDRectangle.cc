@@ -156,7 +156,7 @@ uint8_t OSDRectangle::getFadedAlpha() const
 	return uint8_t(255 * getRecursiveFadeValue());
 }
 
-template <typename IMAGE> std::unique_ptr<BaseImage> OSDRectangle::create(
+template<typename IMAGE> std::unique_ptr<BaseImage> OSDRectangle::create(
 	OutputSurface& output)
 {
 	if (imageName.empty()) {

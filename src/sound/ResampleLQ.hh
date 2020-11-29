@@ -10,7 +10,7 @@ namespace openmsx {
 
 class ResampledSoundDevice;
 
-template <unsigned CHANNELS>
+template<unsigned CHANNELS>
 class ResampleLQ : public ResampleAlgo
 {
 public:
@@ -28,7 +28,7 @@ protected:
 	float lastInput[2 * CHANNELS];
 };
 
-template <unsigned CHANNELS>
+template<unsigned CHANNELS>
 class ResampleLQDown final : public ResampleLQ<CHANNELS>
 {
 public:
@@ -39,7 +39,7 @@ private:
 	using FP = typename ResampleLQ<CHANNELS>::FP;
 };
 
-template <unsigned CHANNELS>
+template<unsigned CHANNELS>
 class ResampleLQUp final : public ResampleLQ<CHANNELS>
 {
 public:

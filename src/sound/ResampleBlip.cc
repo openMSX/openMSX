@@ -8,7 +8,7 @@
 
 namespace openmsx {
 
-template <unsigned CHANNELS>
+template<unsigned CHANNELS>
 ResampleBlip<CHANNELS>::ResampleBlip(
 		ResampledSoundDevice& input_, const DynamicClock& hostClock_)
 	: ResampleAlgo(input_)
@@ -24,7 +24,7 @@ ResampleBlip<CHANNELS>::ResampleBlip(
 	ranges::fill(lastInput, 0.0f);
 }
 
-template <unsigned CHANNELS>
+template<unsigned CHANNELS>
 bool ResampleBlip<CHANNELS>::generateOutputImpl(float* dataOut, unsigned hostNum,
                                                 EmuTime::param time)
 {

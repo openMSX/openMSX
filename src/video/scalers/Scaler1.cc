@@ -17,7 +17,7 @@ Scaler1<Pixel>::Scaler1(const PixelOperations<Pixel>& pixelOps_)
 {
 }
 
-/*template <typename Pixel>
+/*template<typename Pixel>
 void Scaler1<Pixel>::averageHalve(const Pixel* pIn0, const Pixel* pIn1, Pixel* pOut, unsigned dstWidth)
 {
 	// TODO SSE optimizations

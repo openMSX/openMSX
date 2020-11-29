@@ -924,7 +924,7 @@ void Slot::calc_envelope_outline(unsigned& out)
 		break;
 	}
 }
-template <bool HAS_AM, bool FIXED_ENV>
+template<bool HAS_AM, bool FIXED_ENV>
 ALWAYS_INLINE unsigned Slot::calc_envelope(int lfo_am, unsigned fixed_env)
 {
 	assert(!FIXED_ENV || (state == one_of(SUSHOLD, FINISH)));
@@ -954,7 +954,7 @@ ALWAYS_INLINE unsigned Slot::calc_envelope(int lfo_am, unsigned fixed_env)
 		return out | 3;
 	}
 }
-template <bool HAS_AM> unsigned Slot::calc_fixed_env() const
+template<bool HAS_AM> unsigned Slot::calc_fixed_env() const
 {
 	assert(state == one_of(SUSHOLD, FINISH));
 	assert(eg_dphase == EnvPhaseIndex(0));
@@ -1061,7 +1061,7 @@ Patch& YM2413::getPatch(unsigned instrument, bool carrier)
 	return patches[instrument][carrier];
 }
 
-template <unsigned FLAGS>
+template<unsigned FLAGS>
 ALWAYS_INLINE void YM2413::calcChannel(Channel& ch, float* buf, unsigned num)
 {
 	// VC++ requires explicit conversion to bool. Compiler bug??

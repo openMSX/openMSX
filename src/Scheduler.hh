@@ -21,7 +21,7 @@ public:
 	void setTime(EmuTime::param time) { timeStamp = time; }
 	Schedulable* getDevice() const { return device; }
 
-	template <typename Archive>
+	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
@@ -68,7 +68,7 @@ public:
 		scheduleTime = limit;
 	}
 
-	template <typename Archive>
+	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private: // -> intended for Schedulable

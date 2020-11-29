@@ -69,7 +69,7 @@ public:
 	  * line. But it's fine to call this on non-border lines as well, in
 	  * that case the color of the first pixel of the line is returned.
 	  */
-	template <typename Pixel>
+	template<typename Pixel>
 	[[nodiscard]] inline Pixel getLineColor(unsigned line) const {
 		ALIGNAS_SSE Pixel buf[1280]; // large enough for widest line
 		unsigned width; // not used
@@ -86,7 +86,7 @@ public:
 	  * value of this function will point to the line data (some internal
 	  * buffer or the work buffer).
 	  */
-	template <typename Pixel>
+	template<typename Pixel>
 	[[nodiscard]] inline const Pixel* getLinePtr(int line, unsigned width, Pixel* buf) const
 	{
 		line = std::min<unsigned>(std::max(0, line), getHeight() - 1);
@@ -108,7 +108,7 @@ public:
 	  * number of lines is returned in 'actualLines', it will always be at
 	  * least 1.
 	  */
-	template <typename Pixel>
+	template<typename Pixel>
 	[[nodiscard]] inline const Pixel* getMultiLinePtr(
 		int line, unsigned numLines, unsigned& actualLines,
 		unsigned width, Pixel* buf) const
@@ -159,21 +159,21 @@ public:
 	  * getLinePtr() is that this method also does vertical scaling.
 	  * This is used for video recording.
 	  */
-	template <typename Pixel>
+	template<typename Pixel>
 	[[nodiscard]] const Pixel* getLinePtr320_240(unsigned line, Pixel* buf) const;
 
 	/** Get a pointer to a given line in this frame, the frame is scaled
 	  * to 640x480 pixels. Same as getLinePtr320_240, but then for a
 	  * higher resolution output.
 	  */
-	template <typename Pixel>
+	template<typename Pixel>
 	[[nodiscard]] const Pixel* getLinePtr640_480(unsigned line, Pixel* buf) const;
 
 	/** Get a pointer to a given line in this frame, the frame is scaled
 	  * to 960x720 pixels. Same as getLinePtr320_240, but then for a
 	  * higher resolution output.
 	  */
-	template <typename Pixel>
+	template<typename Pixel>
 	[[nodiscard]] const Pixel* getLinePtr960_720(unsigned line, Pixel* buf) const;
 
 	/** Returns the distance (in pixels) between two consecutive lines.
@@ -203,7 +203,7 @@ protected:
 		return false;
 	}
 
-	template <typename Pixel> void scaleLine(
+	template<typename Pixel> void scaleLine(
 		const Pixel* in, Pixel* out,
 		unsigned inWidth, unsigned outWidth) const;
 

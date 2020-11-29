@@ -652,7 +652,7 @@ public:
 	bool needVersion() const { return false; }
 	bool isReverseSnapshot() const { return reverseSnapshot; }
 
-	template <typename T> void save(const T& t)
+	template<typename T> void save(const T& t)
 	{
 		put(&t, sizeof(t));
 	}
@@ -841,13 +841,13 @@ public:
 	void close();
 	~XmlOutputArchive();
 
-	template <typename T> void saveImpl(const T& t)
+	template<typename T> void saveImpl(const T& t)
 	{
 		// TODO make sure floating point is printed with enough digits
 		//      maybe print as hex?
 		save(strCat(t));
 	}
-	template <typename T> void save(const T& t)
+	template<typename T> void save(const T& t)
 	{
 		saveImpl(t);
 	}

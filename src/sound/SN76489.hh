@@ -82,7 +82,7 @@ private:
 
 	[[nodiscard]] word peekRegister(unsigned reg, EmuTime::param time) const;
 	void writeRegister(unsigned reg, word value, EmuTime::param time);
-	template <bool NOISE> void synthesizeChannel(
+	template<bool NOISE> void synthesizeChannel(
 		float*& buffer, unsigned num, unsigned generator);
 
 private:

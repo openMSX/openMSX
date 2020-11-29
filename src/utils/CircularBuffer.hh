@@ -7,7 +7,7 @@
 
 namespace openmsx {
 
-template<class T, size_t MAXSIZE>
+template<typename T, size_t MAXSIZE>
 class CircularBuffer
 {
 public:

@@ -220,7 +220,7 @@ template<char C0, char C1, char C2, char C3, char C4, char C5>
 
 
 // Skip characters until predicate evaluates to true
-template<class StopPred> static inline void skip(char*& text)
+template<typename StopPred> static inline void skip(char*& text)
 {
 	char* tmp = text;
 	while (StopPred::test(*tmp)) ++tmp;
@@ -231,7 +231,7 @@ template<class StopPred> static inline void skip(char*& text)
 // - replacing XML character entity references with proper characters
 //   (&apos; &amp; &quot; &lt; &gt; &#...;)
 // - condensing whitespace sequences to single space character
-template<class StopPred, class StopPredPure, int FLAGS>
+template<typename StopPred, class StopPredPure, int FLAGS>
 [[nodiscard]] static inline char* skipAndExpand(char*& text)
 {
 	// If entity translation, whitespace condense and whitespace

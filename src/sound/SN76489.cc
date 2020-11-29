@@ -209,7 +209,7 @@ void SN76489::writeRegister(unsigned reg, word value, EmuTime::param time)
  * channel are in phase, but do end up in their own separate mixing buffers.
  */
 
-template <bool NOISE> void SN76489::synthesizeChannel(
+template<bool NOISE> void SN76489::synthesizeChannel(
 		float*& buffer, unsigned num, unsigned generator)
 {
 	unsigned period = [&] {

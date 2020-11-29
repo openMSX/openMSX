@@ -15,7 +15,7 @@ class Scheduler;
 // For backwards-compatible savestates
 struct SyncPointBW
 {
-	template <typename Archive>
+	template<typename Archive>
 	void serialize(Archive& ar, unsigned /*version*/) {
 		assert(ar.isLoader());
 		ar.serialize("time", time,
@@ -61,10 +61,10 @@ public:
 	  * This is the same as getScheduler().getCurrentTime(). */
 	EmuTime::param getCurrentTime() const;
 
-	template <typename Archive>
+	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
-	template <typename Archive>
+	template<typename Archive>
 	static std::vector<SyncPointBW> serializeBW(Archive& ar) {
 		assert(ar.isLoader());
 		ar.beginTag("Schedulable");
@@ -73,7 +73,7 @@ public:
 		ar.endTag("Schedulable");
 		return result;
 	}
-	template <typename Archive>
+	template<typename Archive>
 	static void restoreOld(Archive& ar, std::vector<Schedulable*> schedulables) {
 		assert(ar.isLoader());
 		for (auto* s : schedulables) {

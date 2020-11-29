@@ -148,7 +148,7 @@ static bool isSilent(float x)
 	return std::abs(x) < threshold;
 }
 
-template <unsigned PITCH>
+template<unsigned PITCH>
 bool BlipBuffer::readSamples(float* __restrict out, unsigned samples)
 {
 	if (availSamp <= 0) {

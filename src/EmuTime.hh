@@ -12,12 +12,12 @@ namespace openmsx {
 // EmuTime is only a very small class (one 64-bit member). On 64-bit CPUs
 // it's cheaper to pass this by value. On 32-bit CPUs pass-by-reference
 // is cheaper.
-template <typename T, bool C = sizeof(void*) < 8> struct EmuTime_param_impl;
-template <typename T> struct EmuTime_param_impl<T, true> { // pass by reference
+template<typename T, bool C = sizeof(void*) < 8> struct EmuTime_param_impl;
+template<typename T> struct EmuTime_param_impl<T, true> { // pass by reference
 	using param = const T&;
 	static param dummy() { static constexpr auto e = T::zero(); return e; }
 };
-template <typename T> struct EmuTime_param_impl<T, false> { // pass by value
+template<typename T> struct EmuTime_param_impl<T, false> { // pass by value
 	using param = T;
 	static param dummy() { return T(); }
 };

@@ -16,7 +16,7 @@ namespace openmsx {
   * on the proper MSX resolution. So the MSX graphics get scaled in the same
   * way whether superimpose is enabled or not.
   */
-template <typename Pixel>
+template<typename Pixel>
 class SuperImposedVideoFrame final : public FrameSource
 {
 public:

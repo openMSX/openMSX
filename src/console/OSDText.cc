@@ -167,7 +167,7 @@ uint8_t OSDText::getFadedAlpha() const
 	return byte((getRGBA(0) & 0xff) * getRecursiveFadeValue());
 }
 
-template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
+template<typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 	OutputSurface& output)
 {
 	if (text.empty()) {

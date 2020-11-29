@@ -9,7 +9,7 @@ namespace openmsx {
 
 class SRAM;
 
-template <unsigned BANK_SIZE_>
+template<unsigned BANK_SIZE_>
 class RomBlocks : public MSXRom
 {
 public:

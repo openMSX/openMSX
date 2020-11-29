@@ -54,7 +54,7 @@ private:
 //-------------
 
 
-template <typename T>
+template<typename T>
 EnumSetting<T>::EnumSetting(
 		CommandController& commandController_, std::string_view name,
 		std::string_view description_, T initialValue,

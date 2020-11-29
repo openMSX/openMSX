@@ -51,7 +51,7 @@ class AviRecorder;
 class ConfigInfo;
 class RealTimeInfo;
 class SoftwareInfoTopic;
-template <typename T> class EnumSetting;
+template<typename T> class EnumSetting;
 
 extern int exitCode;
 

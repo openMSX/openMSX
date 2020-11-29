@@ -55,7 +55,7 @@ constexpr unsigned redblueMask = 0xF81F;
 constexpr unsigned greenMask = 0x7E0;
 
 // TODO use PixelOperations::lerp()
-template <typename Pixel>
+template<typename Pixel>
 [[nodiscard]] static Pixel bilinear(unsigned a, unsigned b, unsigned x);
 
 template<> [[nodiscard]] uint16_t bilinear<uint16_t>(unsigned a, unsigned b, unsigned x)
@@ -132,26 +132,26 @@ template<> [[nodiscard]] uint32_t bilinear4<uint32_t>(
 	return (result0 & 0x00FF00FF) | (result1 & 0xFF00FF00);
 }
 
-template <typename Pixel>
+template<typename Pixel>
 class Blender
 {
 public:
-	template <unsigned x>
+	template<unsigned x>
 	[[nodiscard]] inline static Pixel blend(unsigned a, unsigned b);
 
-	template <unsigned x, unsigned y>
+	template<unsigned x, unsigned y>
 	[[nodiscard]] inline static Pixel blend(unsigned a, unsigned b, unsigned c, unsigned d);
 };
 
-template <unsigned X, unsigned OLD, unsigned NEW>
+template<unsigned X, unsigned OLD, unsigned NEW>
 struct Round {
 	static_assert(OLD > NEW);
 	static constexpr unsigned result =
 		(X >> (OLD - NEW)) + ((X >> (OLD - NEW - 1)) & 1);
 };
 
-template <typename Pixel>
-template <unsigned x>
+template<typename Pixel>
+template<unsigned x>
 inline Pixel Blender<Pixel>::blend(unsigned a, unsigned b)
 {
 	if (a == b) return a;
@@ -176,8 +176,8 @@ inline Pixel Blender<Pixel>::blend(unsigned a, unsigned b)
 	}
 }
 
-template <typename Pixel>
-template <unsigned wx, unsigned wy>
+template<typename Pixel>
+template<unsigned wx, unsigned wy>
 inline Pixel Blender<Pixel>::blend(
 	unsigned a, unsigned b, unsigned c, unsigned d)
 {
@@ -212,17 +212,17 @@ inline Pixel Blender<Pixel>::blend(
 	}
 }
 
-template <unsigned i>
+template<unsigned i>
 class PixelStripRepeater
 {
 public:
-	template <typename Pixel>
+	template<typename Pixel>
 	inline static void fill(Pixel*& dp, unsigned sa) {
 		*dp++ = sa;
 		PixelStripRepeater<i - 1>::template fill<Pixel>(dp, sa);
 	}
 
-	template <unsigned NX, unsigned y, typename Pixel>
+	template<unsigned NX, unsigned y, typename Pixel>
 	inline static void blendBackslash(
 		Pixel*& dp,
 		unsigned sa, unsigned sb, unsigned sc, unsigned sd,
@@ -250,7 +250,7 @@ public:
 			dp, sa, sb, sc, sd, se, sg, sj, sl );
 	}
 
-	template <unsigned NX, unsigned y, typename Pixel>
+	template<unsigned NX, unsigned y, typename Pixel>
 	inline static void blendSlash(
 		Pixel*& dp,
 		unsigned sa, unsigned sb, unsigned sc, unsigned sd,
@@ -280,7 +280,7 @@ public:
 			dp, sa, sb, sc, sd, sf, sh, si, sk );
 	}
 
-	template <unsigned NX, unsigned y, typename Pixel>
+	template<unsigned NX, unsigned y, typename Pixel>
 	inline static void blend4(
 		Pixel*& dp, unsigned sa, unsigned sb, unsigned sc, unsigned sd)
 	{
@@ -289,35 +289,35 @@ public:
 		PixelStripRepeater<i - 1>::template blend4<NX, y, Pixel>(dp, sa, sb, sc, sd);
 	}
 };
-template <>
+template<>
 class PixelStripRepeater<0>
 {
 public:
-	template <typename Pixel>
+	template<typename Pixel>
 	inline static void fill(Pixel*& /*dp*/, unsigned /*sa*/) { }
 
-	template <unsigned NX, unsigned y, typename Pixel>
+	template<unsigned NX, unsigned y, typename Pixel>
 	inline static void blendBackslash(
 		Pixel*& /*dp*/, unsigned /*sa*/, unsigned /*sb*/,
 		unsigned /*sc*/, unsigned /*sd*/, unsigned /*se*/,
 		unsigned /*sg*/, unsigned /*sj*/, unsigned /*sl*/) { }
 
-	template <unsigned NX, unsigned y, typename Pixel>
+	template<unsigned NX, unsigned y, typename Pixel>
 	inline static void blendSlash(
 		Pixel*& /*dp*/, unsigned /*sa*/, unsigned /*sb*/,
 		unsigned /*sc*/, unsigned /*sd*/, unsigned /*sf*/,
 		unsigned /*sh*/, unsigned /*si*/, unsigned /*sk*/) { }
 
-	template <unsigned NX, unsigned y, typename Pixel>
+	template<unsigned NX, unsigned y, typename Pixel>
 	inline static void blend4(Pixel*& /*dp*/, unsigned /*sa*/,
 		unsigned /*sb*/, unsigned /*sc*/, unsigned /*sd*/) { }
 };
 
-template <unsigned i>
+template<unsigned i>
 class LineRepeater
 {
 public:
-	template <unsigned NX, unsigned NY, typename Pixel>
+	template<unsigned NX, unsigned NY, typename Pixel>
 	inline static void scaleFixedLine(
 		const Pixel* __restrict src0, const Pixel* __restrict src1,
 		const Pixel* __restrict src2, const Pixel* __restrict src3,
@@ -369,11 +369,11 @@ public:
 			src0, src1, src2, src3, srcWidth, dst, dstY);
 	}
 };
-template <>
+template<>
 class LineRepeater<0>
 {
 public:
-	template <unsigned NX, unsigned NY, typename Pixel>
+	template<unsigned NX, unsigned NY, typename Pixel>
 	inline static void scaleFixedLine(
 		const Pixel* /*src0*/, const Pixel* /*src1*/, const Pixel* /*src2*/,
 		const Pixel* /*src3*/, unsigned /*srcWidth*/,
@@ -381,8 +381,8 @@ public:
 	{ }
 };
 
-template <typename Pixel>
-template <unsigned NX, unsigned NY>
+template<typename Pixel>
+template<unsigned NX, unsigned NY>
 void SaI3xScaler<Pixel>::scaleFixed(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -413,7 +413,7 @@ void SaI3xScaler<Pixel>::scaleFixed(FrameSource& src,
 	}
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void SaI3xScaler<Pixel>::scaleAny(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) __restrict
@@ -533,7 +533,7 @@ void SaI3xScaler<Pixel>::scaleAny(FrameSource& src,
 	}
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void SaI3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)

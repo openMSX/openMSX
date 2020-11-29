@@ -17,7 +17,7 @@ FrameSource::FrameSource(const PixelFormat& format)
 {
 }
 
-template <typename Pixel>
+template<typename Pixel>
 const Pixel* FrameSource::getLinePtr320_240(unsigned line, Pixel* buf0) const
 {
 	if (getHeight() == 240) {
@@ -34,7 +34,7 @@ const Pixel* FrameSource::getLinePtr320_240(unsigned line, Pixel* buf0) const
 	}
 }
 
-template <typename Pixel>
+template<typename Pixel>
 const Pixel* FrameSource::getLinePtr640_480(unsigned line, Pixel* buf) const
 {
 	if (getHeight() == 480) {
@@ -45,7 +45,7 @@ const Pixel* FrameSource::getLinePtr640_480(unsigned line, Pixel* buf) const
 	}
 }
 
-template <typename Pixel>
+template<typename Pixel>
 const Pixel* FrameSource::getLinePtr960_720(unsigned line, Pixel* buf0) const
 {
 	if (getHeight() == 480) {
@@ -66,7 +66,7 @@ const Pixel* FrameSource::getLinePtr960_720(unsigned line, Pixel* buf0) const
 	}
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void FrameSource::scaleLine(
 	const Pixel* in, Pixel* out,
 	unsigned inWidth, unsigned outWidth) const

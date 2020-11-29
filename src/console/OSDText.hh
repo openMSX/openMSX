@@ -24,7 +24,7 @@ private:
 	[[nodiscard]] uint8_t getFadedAlpha() const override;
 	[[nodiscard]] std::unique_ptr<BaseImage> createSDL(OutputSurface& output) override;
 	[[nodiscard]] std::unique_ptr<BaseImage> createGL (OutputSurface& output) override;
-	template <typename IMAGE> [[nodiscard]] std::unique_ptr<BaseImage> create(
+	template<typename IMAGE> [[nodiscard]] std::unique_ptr<BaseImage> create(
 		OutputSurface& output);
 
 	template<typename FindSplitPointFunc, typename CantSplitFunc>

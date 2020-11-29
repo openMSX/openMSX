@@ -373,7 +373,7 @@ ResampleCoeffs::Table ResampleCoeffs::calcTable(
 }
 
 
-template <unsigned CHANNELS>
+template<unsigned CHANNELS>
 ResampleHQ<CHANNELS>::ResampleHQ(
 		ResampledSoundDevice& input_, const DynamicClock& hostClock_)
 	: ResampleAlgo(input_)
@@ -391,7 +391,7 @@ ResampleHQ<CHANNELS>::ResampleHQ(
 	buffer.resize((initialSize + extra) * CHANNELS); // zero-initialized
 }
 
-template <unsigned CHANNELS>
+template<unsigned CHANNELS>
 ResampleHQ<CHANNELS>::~ResampleHQ()
 {
 	ResampleCoeffs::instance().releaseCoeffs(double(ratio));
@@ -526,7 +526,7 @@ static inline void calcSseStereo(const float* buf_, const float* tab_, size_t le
 
 #endif
 
-template <unsigned CHANNELS>
+template<unsigned CHANNELS>
 void ResampleHQ<CHANNELS>::calcOutput(
 	float pos, float* __restrict output)
 {
@@ -599,7 +599,7 @@ void ResampleHQ<CHANNELS>::calcOutput(
 	}
 }
 
-template <unsigned CHANNELS>
+template<unsigned CHANNELS>
 void ResampleHQ<CHANNELS>::prepareData(unsigned emuNum)
 {
 	// Still enough free space at end of buffer?
@@ -642,7 +642,7 @@ void ResampleHQ<CHANNELS>::prepareData(unsigned emuNum)
 	assert(bufEnd <= (buffer.size() / CHANNELS));
 }
 
-template <unsigned CHANNELS>
+template<unsigned CHANNELS>
 bool ResampleHQ<CHANNELS>::generateOutputImpl(
 	float* __restrict dataOut, unsigned hostNum, EmuTime::param time)
 {

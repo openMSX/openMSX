@@ -14,7 +14,7 @@ namespace openmsx {
   * A clock has a current time, which can be increased by
   * an integer number of ticks.
   */
-template <unsigned FREQ_NUM, unsigned FREQ_DENOM = 1>
+template<unsigned FREQ_NUM, unsigned FREQ_DENOM = 1>
 class Clock
 {
 private:

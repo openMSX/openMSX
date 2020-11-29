@@ -173,7 +173,7 @@ struct Graphic4Mode
 	static constexpr unsigned PIXELS_PER_LINE = 256;
 	static inline unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
 	static inline byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
-	template <typename LogOp>
+	template<typename LogOp>
 	static inline void pset(EmuTime::param time, VDPVRAM& vram,
 		unsigned x, unsigned addr, byte src, byte color, LogOp op);
 	static inline byte duplicate(byte color);
@@ -223,7 +223,7 @@ struct Graphic5Mode
 	static constexpr unsigned PIXELS_PER_LINE = 512;
 	static inline unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
 	static inline byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
-	template <typename LogOp>
+	template<typename LogOp>
 	static inline void pset(EmuTime::param time, VDPVRAM& vram,
 		unsigned x, unsigned addr, byte src, byte color, LogOp op);
 	static inline byte duplicate(byte color);
@@ -275,7 +275,7 @@ struct Graphic6Mode
 	static constexpr unsigned PIXELS_PER_LINE = 512;
 	static inline unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
 	static inline byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
-	template <typename LogOp>
+	template<typename LogOp>
 	static inline void pset(EmuTime::param time, VDPVRAM& vram,
 		unsigned x, unsigned addr, byte src, byte color, LogOp op);
 	static inline byte duplicate(byte color);

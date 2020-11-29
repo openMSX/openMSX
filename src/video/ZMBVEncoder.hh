@@ -13,7 +13,7 @@
 namespace openmsx {
 
 class FrameSource;
-template<class P> class PixelOperations;
+template<typename P> class PixelOperations;
 
 class ZMBVEncoder
 {
@@ -32,11 +32,11 @@ private:
 
 	void setupBuffers(unsigned bpp);
 	unsigned neededSize() const;
-	template<class P> void addFullFrame(const PixelFormat& pixelFormat, unsigned& workUsed);
-	template<class P> void addXorFrame (const PixelFormat& pixelFormat, unsigned& workUsed);
-	template<class P> unsigned possibleBlock(int vx, int vy, unsigned offset);
-	template<class P> unsigned compareBlock(int vx, int vy, unsigned offset);
-	template<class P> void addXorBlock(
+	template<typename P> void addFullFrame(const PixelFormat& pixelFormat, unsigned& workUsed);
+	template<typename P> void addXorFrame (const PixelFormat& pixelFormat, unsigned& workUsed);
+	template<typename P> unsigned possibleBlock(int vx, int vy, unsigned offset);
+	template<typename P> unsigned compareBlock(int vx, int vy, unsigned offset);
+	template<typename P> void addXorBlock(
 		const PixelOperations<P>& pixelOps, int vx, int vy,
 		unsigned offset, unsigned& workUsed);
 	const void* getScaledLine(FrameSource* frame, unsigned y, void* workBuf) const;

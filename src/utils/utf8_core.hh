@@ -94,7 +94,7 @@ enum utf_error {
 	INVALID_CODE_POINT
 };
 
-template <typename octet_iterator>
+template<typename octet_iterator>
 [[nodiscard]] utf_error validate_next(octet_iterator& it, octet_iterator end,
                                       uint32_t* code_point)
 {
@@ -198,7 +198,7 @@ template <typename octet_iterator>
 	return OK;
 }
 
-template <typename octet_iterator>
+template<typename octet_iterator>
 [[nodiscard]] inline utf_error validate_next(octet_iterator& it, octet_iterator end) {
 	return validate_next(it, end, nullptr);
 }
@@ -210,7 +210,7 @@ template <typename octet_iterator>
 // Byte order mark
 const uint8_t bom[] = { 0xef, 0xbb, 0xbf };
 
-template <typename octet_iterator>
+template<typename octet_iterator>
 [[nodiscard]] octet_iterator find_invalid(octet_iterator start, octet_iterator end)
 {
 	auto result = start;
@@ -223,13 +223,13 @@ template <typename octet_iterator>
 	return result;
 }
 
-template <typename octet_iterator>
+template<typename octet_iterator>
 [[nodiscard]] inline bool is_valid(octet_iterator start, octet_iterator end)
 {
 	return find_invalid(start, end) == end;
 }
 
-template <typename octet_iterator>
+template<typename octet_iterator>
 [[nodiscard]] inline bool is_bom(octet_iterator it)
 {
 	return ((*it++ == bom[0]) &&

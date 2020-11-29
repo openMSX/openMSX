@@ -45,7 +45,7 @@ enum class ExecIRQ {
 	NONE, // about to execute regular instruction
 };
 
-template<class CPU_POLICY>
+template<typename CPU_POLICY>
 class CPUCore final : public CPUBase, public CPURegs, public CPU_POLICY
 {
 public:

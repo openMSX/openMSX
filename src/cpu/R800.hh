@@ -71,7 +71,7 @@ protected:
 		lastPage = -1;
 	}
 
-	template <bool PRE_PB, bool POST_PB>
+	template<bool PRE_PB, bool POST_PB>
 	ALWAYS_INLINE void PRE_MEM(unsigned address)
 	{
 		int newPage = address >> 8;
@@ -88,7 +88,7 @@ protected:
 			lastPage = newPage;
 		}
 	}
-	template <bool POST_PB>
+	template<bool POST_PB>
 	ALWAYS_INLINE void POST_MEM(unsigned address)
 	{
 		add(extraMemoryDelay[address >> 14]);
@@ -96,7 +96,7 @@ protected:
 			R800ForcePageBreak();
 		}
 	}
-	template <bool PRE_PB, bool POST_PB>
+	template<bool PRE_PB, bool POST_PB>
 	ALWAYS_INLINE void PRE_WORD(unsigned address)
 	{
 		int newPage = address >> 8;
@@ -117,7 +117,7 @@ protected:
 			lastPage = newPage;
 		}
 	}
-	template <bool POST_PB>
+	template<bool POST_PB>
 	ALWAYS_INLINE void POST_WORD(unsigned address)
 	{
 		add(2 * extraMemoryDelay[address >> 14]);

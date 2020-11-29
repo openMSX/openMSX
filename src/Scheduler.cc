@@ -111,7 +111,7 @@ void Scheduler::scheduleHelper(EmuTime::param limit, EmuTime next)
 }
 
 
-template <typename Archive>
+template<typename Archive>
 void SynchronizationPoint::serialize(Archive& ar, unsigned /*version*/)
 {
 	// SynchronizationPoint is always serialized via Schedulable. A
@@ -122,7 +122,7 @@ void SynchronizationPoint::serialize(Archive& ar, unsigned /*version*/)
 }
 INSTANTIATE_SERIALIZE_METHODS(SynchronizationPoint);
 
-template <typename Archive>
+template<typename Archive>
 void Scheduler::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("currentTime", scheduleTime);

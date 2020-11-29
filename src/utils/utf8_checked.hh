@@ -71,7 +71,7 @@ public:
 
 // The library API - functions intended to be called by the users
 
-template <typename octet_iterator, typename output_iterator>
+template<typename octet_iterator, typename output_iterator>
 output_iterator replace_invalid(octet_iterator start, octet_iterator end,
                                 output_iterator out, uint32_t replacement)
 {
@@ -105,14 +105,14 @@ output_iterator replace_invalid(octet_iterator start, octet_iterator end,
 	return out;
 }
 
-template <typename octet_iterator, typename output_iterator>
+template<typename octet_iterator, typename output_iterator>
 inline output_iterator replace_invalid(octet_iterator start, octet_iterator end,
                                        output_iterator out)
 {
 	return replace_invalid(start, end, out, 0xfffd);
 }
 
-template <typename octet_iterator>
+template<typename octet_iterator>
 octet_iterator append(uint32_t cp, octet_iterator result)
 {
 	if (!internal::is_code_point_valid(cp)) {
@@ -142,7 +142,7 @@ octet_iterator append(uint32_t cp, octet_iterator result)
 	return result;
 }
 
-template <typename octet_iterator>
+template<typename octet_iterator>
 uint32_t next(octet_iterator& it, octet_iterator end)
 {
 	uint32_t cp = 0;
@@ -162,13 +162,13 @@ uint32_t next(octet_iterator& it, octet_iterator end)
 	return cp;
 }
 
-template <typename octet_iterator>
+template<typename octet_iterator>
 [[nodiscard]] uint32_t peek_next(octet_iterator it, octet_iterator end)
 {
 	return next(it, end);
 }
 
-template <typename octet_iterator>
+template<typename octet_iterator>
 uint32_t prior(octet_iterator& it, octet_iterator start)
 {
 	auto end = it;
@@ -182,7 +182,7 @@ uint32_t prior(octet_iterator& it, octet_iterator start)
 	return next(temp, end);
 }
 
-template <typename octet_iterator, typename distance_type>
+template<typename octet_iterator, typename distance_type>
 void advance(octet_iterator& it, distance_type n, octet_iterator end)
 {
 	for (distance_type i = 0; i < n; ++i) {
@@ -190,7 +190,7 @@ void advance(octet_iterator& it, distance_type n, octet_iterator end)
 	}
 }
 
-template <typename octet_iterator>
+template<typename octet_iterator>
 [[nodiscard]] auto distance(octet_iterator first, octet_iterator last)
 {
 	typename std::iterator_traits<octet_iterator>::difference_type dist;
@@ -200,7 +200,7 @@ template <typename octet_iterator>
 	return dist;
 }
 
-template <typename u16bit_iterator, typename octet_iterator>
+template<typename u16bit_iterator, typename octet_iterator>
 octet_iterator utf16to8(u16bit_iterator start, u16bit_iterator end,
                         octet_iterator result)
 {
@@ -223,7 +223,7 @@ octet_iterator utf16to8(u16bit_iterator start, u16bit_iterator end,
 	return result;
 }
 
-template <typename u16bit_iterator, typename octet_iterator>
+template<typename u16bit_iterator, typename octet_iterator>
 u16bit_iterator utf8to16(octet_iterator start, octet_iterator end,
                          u16bit_iterator result)
 {
@@ -239,7 +239,7 @@ u16bit_iterator utf8to16(octet_iterator start, octet_iterator end,
 	return result;
 }
 
-template <typename octet_iterator, typename u32bit_iterator>
+template<typename octet_iterator, typename u32bit_iterator>
 octet_iterator utf32to8(u32bit_iterator start, u32bit_iterator end,
                         octet_iterator result)
 {
@@ -249,7 +249,7 @@ octet_iterator utf32to8(u32bit_iterator start, u32bit_iterator end,
 	return result;
 }
 
-template <typename octet_iterator, typename u32bit_iterator>
+template<typename octet_iterator, typename u32bit_iterator>
 u32bit_iterator utf8to32(octet_iterator start, octet_iterator end,
                          u32bit_iterator result)
 {
@@ -260,7 +260,7 @@ u32bit_iterator utf8to32(octet_iterator start, octet_iterator end,
 }
 
 // The iterator class
-template <typename octet_iterator>
+template<typename octet_iterator>
 class iterator : public std::iterator<std::bidirectional_iterator_tag, uint32_t>
 {
 	octet_iterator it;

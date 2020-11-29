@@ -193,24 +193,24 @@ public:
 	  * The special case for blending between two colors with
 	  * an equal blend weight has an optimized implementation.
 	  */
-	template <unsigned w1, unsigned w2>
+	template<unsigned w1, unsigned w2>
 	inline Pixel blend(Pixel p1, Pixel p2) const;
-	template <unsigned w1, unsigned w2, unsigned w3>
+	template<unsigned w1, unsigned w2, unsigned w3>
 	inline Pixel blend(Pixel p1, Pixel p2, Pixel p3) const;
-	template <unsigned w1, unsigned w2, unsigned w3, unsigned w4>
+	template<unsigned w1, unsigned w2, unsigned w3, unsigned w4>
 	inline Pixel blend(Pixel p1, Pixel p2, Pixel p3, Pixel p4) const;
-	template <unsigned w1, unsigned w2, unsigned w3,
+	template<unsigned w1, unsigned w2, unsigned w3,
 	          unsigned w4, unsigned w5, unsigned w6>
 	inline Pixel blend(Pixel p1, Pixel p2, Pixel p3,
 	                   Pixel p4, Pixel p5, Pixel p6) const;
 
-	template <unsigned w1, unsigned w2>
+	template<unsigned w1, unsigned w2>
 	inline Pixel blend2(const Pixel* p) const;
-	template <unsigned w1, unsigned w2, unsigned w3>
+	template<unsigned w1, unsigned w2, unsigned w3>
 	inline Pixel blend3(const Pixel* p) const;
-	template <unsigned w1, unsigned w2, unsigned w3, unsigned w4>
+	template<unsigned w1, unsigned w2, unsigned w3, unsigned w4>
 	inline Pixel blend4(const Pixel* p) const;
-	template <unsigned w1, unsigned w2, unsigned w3,
+	template<unsigned w1, unsigned w2, unsigned w3,
 	          unsigned w4, unsigned w5, unsigned w6>
 	inline Pixel blend6(const Pixel* p) const;
 
@@ -246,13 +246,13 @@ private:
 };
 
 
-template <typename Pixel>
+template<typename Pixel>
 PixelOperations<Pixel>::PixelOperations(const PixelFormat& format_)
 	: PixelOpBase<Pixel>(format_)
 {
 }
 
-template <typename Pixel>
+template<typename Pixel>
 inline unsigned PixelOperations<Pixel>::red(Pixel p) const
 {
 	if (sizeof(Pixel) == 4) {
@@ -261,7 +261,7 @@ inline unsigned PixelOperations<Pixel>::red(Pixel p) const
 		return (p & getRmask()) >> getRshift();
 	}
 }
-template <typename Pixel>
+template<typename Pixel>
 inline unsigned PixelOperations<Pixel>::green(Pixel p) const
 {
 	if (sizeof(Pixel) == 4) {
@@ -270,7 +270,7 @@ inline unsigned PixelOperations<Pixel>::green(Pixel p) const
 		return (p & getGmask()) >> getGshift();
 	}
 }
-template <typename Pixel>
+template<typename Pixel>
 inline unsigned PixelOperations<Pixel>::blue(Pixel p) const
 {
 	if (sizeof(Pixel) == 4) {
@@ -279,7 +279,7 @@ inline unsigned PixelOperations<Pixel>::blue(Pixel p) const
 		return (p & getBmask()) >> getBshift();
 	}
 }
-template <typename Pixel>
+template<typename Pixel>
 inline unsigned PixelOperations<Pixel>::alpha(Pixel p) const
 {
 	if (sizeof(Pixel) == 4) {
@@ -290,7 +290,7 @@ inline unsigned PixelOperations<Pixel>::alpha(Pixel p) const
 	}
 }
 
-template <typename Pixel>
+template<typename Pixel>
 inline bool PixelOperations<Pixel>::isFullyOpaque(Pixel p) const
 {
 	if (sizeof(Pixel) == 4) {
@@ -299,7 +299,7 @@ inline bool PixelOperations<Pixel>::isFullyOpaque(Pixel p) const
 		return p != 0x0001;
 	}
 }
-template <typename Pixel>
+template<typename Pixel>
 inline bool PixelOperations<Pixel>::isFullyTransparent(Pixel p) const
 {
 	if (sizeof(Pixel) == 4) {
@@ -309,7 +309,7 @@ inline bool PixelOperations<Pixel>::isFullyTransparent(Pixel p) const
 	}
 }
 
-template <typename Pixel>
+template<typename Pixel>
 inline unsigned PixelOperations<Pixel>::red256(Pixel p) const
 {
 	if (sizeof(Pixel) == 4) {
@@ -318,7 +318,7 @@ inline unsigned PixelOperations<Pixel>::red256(Pixel p) const
 		return ((p >> getRshift()) << getRloss()) & 0xFF;
 	}
 }
-template <typename Pixel>
+template<typename Pixel>
 inline unsigned PixelOperations<Pixel>::green256(Pixel p) const
 {
 	if (sizeof(Pixel) == 4) {
@@ -327,7 +327,7 @@ inline unsigned PixelOperations<Pixel>::green256(Pixel p) const
 		return ((p >> getGshift()) << getGloss()) & 0xFF;
 	}
 }
-template <typename Pixel>
+template<typename Pixel>
 inline unsigned PixelOperations<Pixel>::blue256(Pixel p) const
 {
 	if (sizeof(Pixel) == 4) {
@@ -337,7 +337,7 @@ inline unsigned PixelOperations<Pixel>::blue256(Pixel p) const
 	}
 }
 
-template <typename Pixel>
+template<typename Pixel>
 inline Pixel PixelOperations<Pixel>::combine(
 		unsigned r, unsigned g, unsigned b) const
 {
@@ -346,7 +346,7 @@ inline Pixel PixelOperations<Pixel>::combine(
 	             (b << getBshift()));
 }
 
-template <typename Pixel>
+template<typename Pixel>
 inline Pixel PixelOperations<Pixel>::combine256(
 		unsigned r, unsigned g, unsigned b) const
 {
@@ -361,7 +361,7 @@ inline Pixel PixelOperations<Pixel>::combine256(
 	}
 }
 
-template <typename Pixel>
+template<typename Pixel>
 inline unsigned PixelOperations<Pixel>::getMaxRed() const
 {
 	if (sizeof(Pixel) == 4) {
@@ -370,7 +370,7 @@ inline unsigned PixelOperations<Pixel>::getMaxRed() const
 		return 255 >> getRloss();
 	}
 }
-template <typename Pixel>
+template<typename Pixel>
 inline unsigned PixelOperations<Pixel>::getMaxGreen() const
 {
 	if (sizeof(Pixel) == 4) {
@@ -379,7 +379,7 @@ inline unsigned PixelOperations<Pixel>::getMaxGreen() const
 		return 255 >> getGloss();
 	}
 }
-template <typename Pixel>
+template<typename Pixel>
 inline unsigned PixelOperations<Pixel>::getMaxBlue() const
 {
 	if (sizeof(Pixel) == 4) {
@@ -481,8 +481,8 @@ inline Pixel PixelOperations<Pixel>::blend(Pixel p1, Pixel p2) const
 	}
 }
 
-template <typename Pixel>
-template <unsigned w1, unsigned w2, unsigned w3>
+template<typename Pixel>
+template<unsigned w1, unsigned w2, unsigned w3>
 inline Pixel PixelOperations<Pixel>::blend(Pixel p1, Pixel p2, Pixel p3) const
 {
 	constexpr unsigned total = w1 + w2 + w3;
@@ -503,8 +503,8 @@ inline Pixel PixelOperations<Pixel>::blend(Pixel p1, Pixel p2, Pixel p3) const
 	}
 }
 
-template <typename Pixel>
-template <unsigned w1, unsigned w2, unsigned w3, unsigned w4>
+template<typename Pixel>
+template<unsigned w1, unsigned w2, unsigned w3, unsigned w4>
 inline Pixel PixelOperations<Pixel>::blend(
 		Pixel p1, Pixel p2, Pixel p3, Pixel p4) const
 {
@@ -531,8 +531,8 @@ inline Pixel PixelOperations<Pixel>::blend(
 	}
 }
 
-template <typename Pixel>
-template <unsigned w1, unsigned w2, unsigned w3,
+template<typename Pixel>
+template<unsigned w1, unsigned w2, unsigned w3,
           unsigned w4, unsigned w5, unsigned w6>
 inline Pixel PixelOperations<Pixel>::blend(
 	Pixel p1, Pixel p2, Pixel p3, Pixel p4, Pixel p5, Pixel p6) const
@@ -568,36 +568,36 @@ inline Pixel PixelOperations<Pixel>::blend(
 }
 
 
-template <typename Pixel>
-template <unsigned w1, unsigned w2>
+template<typename Pixel>
+template<unsigned w1, unsigned w2>
 inline Pixel PixelOperations<Pixel>::blend2(const Pixel* p) const
 {
 	return blend<w1, w2>(p[0], p[1]);
 }
 
-template <typename Pixel>
-template <unsigned w1, unsigned w2, unsigned w3>
+template<typename Pixel>
+template<unsigned w1, unsigned w2, unsigned w3>
 inline Pixel PixelOperations<Pixel>::blend3(const Pixel* p) const
 {
 	return blend<w1, w2, w3>(p[0], p[1], p[2]);
 }
 
-template <typename Pixel>
-template <unsigned w1, unsigned w2, unsigned w3, unsigned w4>
+template<typename Pixel>
+template<unsigned w1, unsigned w2, unsigned w3, unsigned w4>
 inline Pixel PixelOperations<Pixel>::blend4(const Pixel* p) const
 {
 	return blend<w1, w2, w3, w4>(p[0], p[1], p[2], p[3]);
 }
 
-template <typename Pixel>
-template <unsigned w1, unsigned w2, unsigned w3,
+template<typename Pixel>
+template<unsigned w1, unsigned w2, unsigned w3,
           unsigned w4, unsigned w5, unsigned w6>
 inline Pixel PixelOperations<Pixel>::blend6(const Pixel* p) const
 {
 	return blend<w1, w2, w3, w4, w5, w6>(p[0], p[1], p[2], p[3], p[4], p[5]);
 }
 
-template <typename Pixel>
+template<typename Pixel>
 inline Pixel PixelOperations<Pixel>::multiply(Pixel p, unsigned x)
 {
 	if (sizeof(Pixel) == 4) {
@@ -608,7 +608,7 @@ inline Pixel PixelOperations<Pixel>::multiply(Pixel p, unsigned x)
 	}
 }
 
-template <typename Pixel>
+template<typename Pixel>
 inline Pixel PixelOperations<Pixel>::lerp(Pixel p1, Pixel p2, unsigned x) const
 {
 	if (sizeof(Pixel) == 4) { // 32 bpp
@@ -657,7 +657,7 @@ inline Pixel PixelOperations<Pixel>::lerp(Pixel p1, Pixel p2, unsigned x) const
 	}
 }
 
-template <typename Pixel>
+template<typename Pixel>
 inline Pixel PixelOperations<Pixel>::alphaBlend(Pixel p1, Pixel p2) const
 {
 	if (sizeof(Pixel) == 2) {
