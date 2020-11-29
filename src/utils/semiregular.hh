@@ -14,7 +14,7 @@
 // semiregular_t<T> is default constructible and assignable (but if T is
 // move-only, then semiregular_t<T> remains move-only). Internally this works by
 // wrapping T in an std::optional<T> (but only when needed).
-// 
+//
 // This implementation is taken from (and simplified / stripped down):
 //   https://github.com/ericniebler/range-v3/blob/master/include/range/v3/utility/semiregular.hpp
 //
@@ -47,7 +47,7 @@ template <typename T> struct semiregular_move_assign : std::optional<T> {
 
 	semiregular_move_assign() = default;
 	semiregular_move_assign(const semiregular_move_assign&) = default;
-	semiregular_move_assign(semiregular_move_assign&&) = default;
+	semiregular_move_assign(semiregular_move_assign&&) noexcept = default;
 	semiregular_move_assign&
 	operator=(const semiregular_move_assign&) = default;
 	semiregular_move_assign&
@@ -72,7 +72,7 @@ struct semiregular_copy_assign : semiregular_move_layer<T> {
 
 	semiregular_copy_assign() = default;
 	semiregular_copy_assign(const semiregular_copy_assign&) = default;
-	semiregular_copy_assign(semiregular_copy_assign&&) = default;
+	semiregular_copy_assign(semiregular_copy_assign&&) noexcept = default;
 	semiregular_copy_assign&
 	operator=(const semiregular_copy_assign& that) noexcept(
 	        std::is_nothrow_copy_constructible_v<T>)
@@ -81,7 +81,7 @@ struct semiregular_copy_assign : semiregular_move_layer<T> {
 		if (that) { this->emplace(*that); }
 		return *this;
 	}
-	semiregular_copy_assign& operator=(semiregular_copy_assign&&) = default;
+	semiregular_copy_assign& operator=(semiregular_copy_assign&&) noexcept = default;
 };
 
 template <typename T>

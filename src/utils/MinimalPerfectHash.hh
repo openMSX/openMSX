@@ -64,7 +64,7 @@ struct Result
 	Hash hash;
 
 	template<typename Key>
-	constexpr uint8_t lookupIndex(const Key& key) const {
+	[[nodiscard]] constexpr uint8_t lookupIndex(const Key& key) const {
 		const uint32_t h = hash(key);
 		const uint8_t d = tab1[h % M];
 		if ((d & 0x80) == 0) {
@@ -76,7 +76,7 @@ struct Result
 };
 
 template<size_t N, typename Hash, typename GetKey>
-constexpr auto create(const Hash& hash, const GetKey& getKey)
+[[nodiscard]] constexpr auto create(const Hash& hash, const GetKey& getKey)
 {
 	static_assert(N < 128);
 	constexpr size_t M = Math::ceil2(N);

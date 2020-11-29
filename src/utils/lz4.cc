@@ -48,7 +48,7 @@ using reg_t = uintptr_t;
 static const int STEPSIZE = sizeof(reg_t);
 
 
-static reg_t read_ARCH(const uint8_t* p)
+[[nodiscard]] static reg_t read_ARCH(const uint8_t* p)
 {
 	reg_t val;
 	memcpy(&val, p, sizeof(val));
@@ -136,7 +136,7 @@ static void memcpy_using_offset(uint8_t* dstPtr, const uint8_t* srcPtr, uint8_t*
 	}
 }
 
-static inline int NbCommonBytes(size_t val)
+[[nodiscard]] static inline int NbCommonBytes(size_t val)
 {
 #if LZ4_ARCH64
 	if (openmsx::OPENMSX_BIGENDIAN) {
@@ -204,7 +204,7 @@ static inline int NbCommonBytes(size_t val)
 #endif // LZ4_ARCH64
 }
 
-ALWAYS_INLINE unsigned count(const uint8_t* pIn, const uint8_t* pMatch, const uint8_t* pInLimit)
+[[nodiscard]] ALWAYS_INLINE unsigned count(const uint8_t* pIn, const uint8_t* pMatch, const uint8_t* pInLimit)
 {
 	const uint8_t* const pStart = pIn;
 

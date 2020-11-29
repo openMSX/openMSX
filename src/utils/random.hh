@@ -7,27 +7,27 @@
   */
 [[nodiscard]] inline auto& global_urng()
 {
-	static std::minstd_rand0 u;
-	return u;
+  static std::minstd_rand0 u;
+  return u;
 }
 
 /** Seed the (shared) random number generator.
   */
 inline void randomize()
 {
-	static std::random_device rd;
-	global_urng().seed(rd());
+  static std::random_device rd;
+  global_urng().seed(rd());
 }
 
 /** Return a random boolean value.
   */
 [[nodiscard]] inline bool random_bool()
 {
-	// Note: this is only 100% uniform if 'generator.max() -
-	// generator().min() + 1' is even. This is the case for
-	// std::minstd_rand0.
-	auto& generator = global_urng();
-	return generator() & 1;
+  // Note: this is only 100% uniform if 'generator.max() -
+  // generator().min() + 1' is even. This is the case for
+  // std::minstd_rand0.
+  auto& generator = global_urng();
+  return generator() & 1;
 }
 
 /** Return a random integer in the range [from, thru] (note: closed interval).
@@ -37,9 +37,9 @@ inline void randomize()
   */
 [[nodiscard]] inline int random_int(int from, int thru)
 {
-	static std::uniform_int_distribution<int> d;
-	using parm_t = decltype(d)::param_type;
-	return d(global_urng(), parm_t{from, thru});
+  static std::uniform_int_distribution<int> d;
+  using parm_t = decltype(d)::param_type;
+  return d(global_urng(), parm_t{from, thru});
 }
 
 /** Return a random float in the range [from, upto) (note: half-open interval).
@@ -49,9 +49,9 @@ inline void randomize()
   */
 [[nodiscard]] inline float random_float(float from, float upto)
 {
-	static std::uniform_real_distribution<float> d;
-	using parm_t = decltype(d)::param_type;
-	return d(global_urng(), parm_t{from, upto});
+  static std::uniform_real_distribution<float> d;
+  using parm_t = decltype(d)::param_type;
+  return d(global_urng(), parm_t{from, upto});
 }
 
 /** Return a random 32-bit value.
@@ -66,9 +66,9 @@ inline void randomize()
   */
 [[nodiscard]] inline uint32_t random_32bit()
 {
-	static std::uniform_int_distribution<uint32_t> d;
-	using parm_t = decltype(d)::param_type;
-	return d(global_urng(), parm_t{0, 0xffffffff});
+  static std::uniform_int_distribution<uint32_t> d;
+  using parm_t = decltype(d)::param_type;
+  return d(global_urng(), parm_t{0, 0xffffffff});
 }
 
 #endif

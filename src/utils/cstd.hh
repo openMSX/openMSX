@@ -121,7 +121,7 @@ constexpr void fill(ForwardRange& range, const T& value)
 }
 
 template<typename T>
-constexpr T abs(T t)
+[[nodiscard]] constexpr T abs(T t)
 {
     return (t >= 0) ? t : -t;
 }

@@ -34,7 +34,7 @@ using std::string;
 namespace openmsx {
 
 // Rotate x bits to the left
-inline static uint32_t rol32(uint32_t value, int bits)
+[[nodiscard]] inline static uint32_t rol32(uint32_t value, int bits)
 {
 	return (value << bits) | (value >> (32 - bits));
 }
@@ -43,12 +43,12 @@ class WorkspaceBlock {
 private:
 	uint32_t data[16];
 
-	uint32_t next0(int i)
+	[[nodiscard]] uint32_t next0(int i)
 	{
 		data[i] = Endian::readB32(&data[i]);
 		return data[i];
 	}
-	uint32_t next(int i)
+	[[nodiscard]] uint32_t next(int i)
 	{
 		return data[i & 15] = rol32(
 			data[(i + 13) & 15] ^ data[(i + 8) & 15] ^
@@ -110,25 +110,25 @@ Sha1Sum::Sha1Sum(std::string_view hex)
 
 #ifdef __SSE2__
 // emulate some missing unsigned-8-bit comparison functions
-static inline __m128i _mm_cmpge_epu8(__m128i a, __m128i b)
+[[nodiscard]] static inline __m128i _mm_cmpge_epu8(__m128i a, __m128i b)
 {
 	return _mm_cmpeq_epi8(_mm_max_epu8(a, b), a);
 }
 
-static inline __m128i _mm_cmple_epu8(__m128i a, __m128i b)
+[[nodiscard]] static inline __m128i _mm_cmple_epu8(__m128i a, __m128i b)
 {
 	return _mm_cmpge_epu8(b, a);
 }
 
 // load 64-bit (possibly unaligned) and swap bytes
-static inline uint64_t loadSwap64(const char* s)
+[[nodiscard]] static inline uint64_t loadSwap64(const char* s)
 {
 	return Endian::byteswap64(*reinterpret_cast<const uint64_t*>(s));
 }
 
 #else
 
-static inline unsigned hex(char x, const char* str)
+[[nodiscard]] static inline unsigned hex(char x, const char* str)
 {
 	if (('0' <= x) && (x <= '9')) return x - '0';
 	if (('a' <= x) && (x <= 'f')) return x - 'a' + 10;
@@ -225,7 +225,7 @@ void Sha1Sum::parse40(const char* str)
 #endif
 }
 
-static inline char digit(unsigned x)
+[[nodiscard]] static inline char digit(unsigned x)
 {
 	return (x < 10) ? (x + '0') : (x - 10 + 'a');
 }

@@ -175,7 +175,7 @@ struct AttPurePred2 {
 };
 
 // Insert coded character, using UTF8
-static inline void insertUTF8char(char*& text, uint32_t code)
+inline void insertUTF8char(char*& text, uint32_t code)
 {
 	if (code < 0x80) { // 1 byte sequence
 		text[0] = char(code);
@@ -349,7 +349,7 @@ template<class StopPred, class StopPredPure, int FLAGS>
 	return dest;
 }
 
-static inline void skipBOM(char*& text)
+inline void skipBOM(char*& text)
 {
 	if (next<char(0xEF), char(0xBB), char(0xBF)>(text)) {
 		text += 3; // skip utf-8 bom

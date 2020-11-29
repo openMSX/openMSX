@@ -33,6 +33,9 @@
 // (getting the stop condition correct is not trivial) and we don't need it
 // currently.
 
+#include <cstddef>
+#include <iterator>
+
 template<typename T> class XRange
 {
 public:

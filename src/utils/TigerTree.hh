@@ -103,6 +103,7 @@ private:
 
 	[[nodiscard]] const TigerHash& calcHash(Node node, const std::function<void(size_t, size_t)>& progressCallback);
 
+private:
 	TTData& data;
 	const size_t dataSize;
 	TTCacheEntry& entry;

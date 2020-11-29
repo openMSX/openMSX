@@ -27,7 +27,7 @@ namespace openmsx::MemoryOps {
 // only has it for 64 bit. So we add it ourselves for vc++/32-bit. An
 // alternative would be to always use this routine, but this generates worse
 // code than the real _mm_set1_epi64x() function for gcc (both 32 and 64 bit).
-static inline __m128i _mm_set1_epi64x(uint64_t val)
+[[nodiscard]] static inline __m128i _mm_set1_epi64x(uint64_t val)
 {
 	uint32_t low  = val >> 32;
 	uint32_t high = val >>  0;
@@ -216,6 +216,9 @@ template struct MemSet2<uint32_t>;
 class AllocMap
 {
 public:
+	AllocMap(const AllocMap&) = delete;
+	AllocMap& operator=(const AllocMap&) = delete;
+
 	static AllocMap& instance() {
 		static AllocMap oneInstance;
 		return oneInstance;
@@ -243,8 +246,6 @@ private:
 	~AllocMap() {
 		assert(allocMap.empty());
 	}
-	AllocMap(const AllocMap&) = delete;
-	AllocMap& operator=(const AllocMap&) = delete;
 
 	// typically contains 5-10 items, so (unsorted) vector is fine
 	std::vector<std::pair<void*, void*>> allocMap;

@@ -25,13 +25,13 @@ class static_vector
 public:
 	constexpr static_vector() = default;
 
-	constexpr const T* begin() const noexcept { return data; }
-	constexpr const T* end()   const noexcept { return data + sz; }
+	[[nodiscard]] constexpr const T* begin() const noexcept { return data; }
+	[[nodiscard]] constexpr const T* end()   const noexcept { return data + sz; }
 
-	constexpr size_t size() const { return sz; }
+	[[nodiscard]] constexpr size_t size() const { return sz; }
 
-	constexpr       T& operator[](size_t index)       { return data[index]; }
-	constexpr const T& operator[](size_t index) const { return data[index]; }
+	[[nodiscard]] constexpr       T& operator[](size_t index)       { return data[index]; }
+	[[nodiscard]] constexpr const T& operator[](size_t index) const { return data[index]; }
 
 	constexpr void push_back(const T& a) { assert(sz < N); data[sz++] = a; }
 

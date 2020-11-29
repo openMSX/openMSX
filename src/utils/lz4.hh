@@ -53,7 +53,7 @@ namespace LZ4 {
 		return isize + (isize / 255) + 16;
 	}
 
-	[[nodiscard]] int compress  (const uint8_t* src, uint8_t* dst, int srcSize);
+	[[nodiscard]] int compress(const uint8_t* src, uint8_t* dst, int srcSize);
 	int decompress(const uint8_t* src, uint8_t* dst, int compressedSize, int dstCapacity);
 }
 

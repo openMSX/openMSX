@@ -66,13 +66,13 @@ namespace StringOp
 	void trim     (std::string_view& str, std::string_view chars);
 	void trim     (std::string_view& str, char chars);
 
-	std::pair<std::string_view, std::string_view> splitOnFirst(
+	[[nodiscard]] std::pair<std::string_view, std::string_view> splitOnFirst(
 		std::string_view str, std::string_view chars);
-	std::pair<std::string_view, std::string_view> splitOnFirst(
+	[[nodiscard]] std::pair<std::string_view, std::string_view> splitOnFirst(
 		std::string_view str, char chars);
-	std::pair<std::string_view, std::string_view> splitOnLast(
+	[[nodiscard]] std::pair<std::string_view, std::string_view> splitOnLast(
 		std::string_view str, std::string_view chars);
-	std::pair<std::string_view, std::string_view> splitOnLast(
+	[[nodiscard]] std::pair<std::string_view, std::string_view> splitOnLast(
 		std::string_view str, char chars);
 	[[nodiscard]] std::vector<std::string_view> split(std::string_view str, char chars);
 	[[nodiscard]] std::vector<unsigned> parseRange(std::string_view str,
@@ -98,7 +98,7 @@ namespace StringOp
 #endif
 
 	template<int BASE, typename T>
-	std::optional<T> stringToBase(std::string_view s)
+	[[nodiscard]] std::optional<T> stringToBase(std::string_view s)
 	{
 		T result;
 		auto b = s.data();
@@ -111,7 +111,7 @@ namespace StringOp
 	}
 
 	template<typename T>
-	std::optional<T> stringTo(std::string_view s)
+	[[nodiscard]] std::optional<T> stringTo(std::string_view s)
 	{
 		if (unlikely(s.empty())) return {};
 		if constexpr (std::is_signed_v<T>) {

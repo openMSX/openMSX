@@ -9,11 +9,11 @@ namespace HexDump {
 using std::string;
 using openmsx::MemBuffer;
 
-static char encode2(uint8_t x)
+[[nodiscard]] static char encode2(uint8_t x)
 {
 	return (x < 10) ? (x + '0') : (x - 10 + 'A');
 }
-static string encode(uint8_t x)
+[[nodiscard]] static string encode(uint8_t x)
 {
 	return strCat(encode2(x >> 4), encode2(x & 15));
 }
@@ -32,7 +32,7 @@ string encode(const uint8_t* input, size_t len, bool newlines)
 	return ret;
 }
 
-static int decode(char x)
+[[nodiscard]] static int decode(char x)
 {
 	if (('0' <= x) && (x <= '9')) {
 		return x - '0';

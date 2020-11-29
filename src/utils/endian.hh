@@ -122,36 +122,36 @@ static_assert(alignof(L32) <= 4, "may have alignment 4");
 
 
 // Helper functions to read/write aligned 16/32 bit values.
-static inline void writeB16(void* p, uint16_t x)
+inline void writeB16(void* p, uint16_t x)
 {
 	*reinterpret_cast<B16*>(p) = x;
 }
-static inline void writeL16(void* p, uint16_t x)
+inline void writeL16(void* p, uint16_t x)
 {
 	*reinterpret_cast<L16*>(p) = x;
 }
-static inline void writeB32(void* p, uint32_t x)
+inline void writeB32(void* p, uint32_t x)
 {
 	*reinterpret_cast<B32*>(p) = x;
 }
-static inline void writeL32(void* p, uint32_t x)
+inline void writeL32(void* p, uint32_t x)
 {
 	*reinterpret_cast<L32*>(p) = x;
 }
 
-[[nodiscard]] static inline uint16_t readB16(const void* p)
+[[nodiscard]] inline uint16_t readB16(const void* p)
 {
 	return *reinterpret_cast<const B16*>(p);
 }
-[[nodiscard]] static inline uint16_t readL16(const void* p)
+[[nodiscard]] inline uint16_t readL16(const void* p)
 {
 	return *reinterpret_cast<const L16*>(p);
 }
-[[nodiscard]] static inline uint32_t readB32(const void* p)
+[[nodiscard]] inline uint32_t readB32(const void* p)
 {
 	return *reinterpret_cast<const B32*>(p);
 }
-[[nodiscard]] static inline uint32_t readL32(const void* p)
+[[nodiscard]] inline uint32_t readL32(const void* p)
 {
 	return *reinterpret_cast<const L32*>(p);
 }
@@ -168,27 +168,27 @@ template<bool SWAP, typename T> static ALWAYS_INLINE void write_UA(void* p, T x)
 	if (SWAP) x = byteswap(x);
 	memcpy(p, &x, sizeof(x));
 }
-static ALWAYS_INLINE void write_UA_B16(void* p, uint16_t x)
+ALWAYS_INLINE void write_UA_B16(void* p, uint16_t x)
 {
 	write_UA<!openmsx::OPENMSX_BIGENDIAN>(p, x);
 }
-static ALWAYS_INLINE void write_UA_L16(void* p, uint16_t x)
+ALWAYS_INLINE void write_UA_L16(void* p, uint16_t x)
 {
 	write_UA< openmsx::OPENMSX_BIGENDIAN>(p, x);
 }
-static ALWAYS_INLINE void write_UA_B32(void* p, uint32_t x)
+ALWAYS_INLINE void write_UA_B32(void* p, uint32_t x)
 {
 	write_UA<!openmsx::OPENMSX_BIGENDIAN>(p, x);
 }
-static ALWAYS_INLINE void write_UA_L32(void* p, uint32_t x)
+ALWAYS_INLINE void write_UA_L32(void* p, uint32_t x)
 {
 	write_UA< openmsx::OPENMSX_BIGENDIAN>(p, x);
 }
-static ALWAYS_INLINE void write_UA_B64(void* p, uint64_t x)
+ALWAYS_INLINE void write_UA_B64(void* p, uint64_t x)
 {
 	write_UA<!openmsx::OPENMSX_BIGENDIAN>(p, x);
 }
-static ALWAYS_INLINE void write_UA_L64(void* p, uint64_t x)
+ALWAYS_INLINE void write_UA_L64(void* p, uint64_t x)
 {
 	write_UA< openmsx::OPENMSX_BIGENDIAN>(p, x);
 }
@@ -200,27 +200,27 @@ template<bool SWAP, typename T> [[nodiscard]] static ALWAYS_INLINE T read_UA(con
 	if (SWAP) x = byteswap(x);
 	return x;
 }
-[[nodiscard]] static ALWAYS_INLINE uint16_t read_UA_B16(const void* p)
+[[nodiscard]] ALWAYS_INLINE uint16_t read_UA_B16(const void* p)
 {
 	return read_UA<!openmsx::OPENMSX_BIGENDIAN, uint16_t>(p);
 }
-[[nodiscard]] static ALWAYS_INLINE uint16_t read_UA_L16(const void* p)
+[[nodiscard]] ALWAYS_INLINE uint16_t read_UA_L16(const void* p)
 {
 	return read_UA< openmsx::OPENMSX_BIGENDIAN, uint16_t>(p);
 }
-[[nodiscard]] static ALWAYS_INLINE uint32_t read_UA_B32(const void* p)
+[[nodiscard]] ALWAYS_INLINE uint32_t read_UA_B32(const void* p)
 {
 	return read_UA<!openmsx::OPENMSX_BIGENDIAN, uint32_t>(p);
 }
-[[nodiscard]] static ALWAYS_INLINE uint32_t read_UA_L32(const void* p)
+[[nodiscard]] ALWAYS_INLINE uint32_t read_UA_L32(const void* p)
 {
 	return read_UA< openmsx::OPENMSX_BIGENDIAN, uint32_t>(p);
 }
-[[nodiscard]] static ALWAYS_INLINE uint64_t read_UA_B64(const void* p)
+[[nodiscard]] ALWAYS_INLINE uint64_t read_UA_B64(const void* p)
 {
 	return read_UA<!openmsx::OPENMSX_BIGENDIAN, uint64_t>(p);
 }
-[[nodiscard]] static ALWAYS_INLINE uint64_t read_UA_L64(const void* p)
+[[nodiscard]] ALWAYS_INLINE uint64_t read_UA_L64(const void* p)
 {
 	return read_UA< openmsx::OPENMSX_BIGENDIAN, uint64_t>(p);
 }

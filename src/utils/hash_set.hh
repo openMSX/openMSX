@@ -394,6 +394,7 @@ public:
 
 	hash_set& operator=(const hash_set& source)
 	{
+		if (&source == this) return *this;
 		clear();
 		if (source.elemCount == 0) return *this;
 		reserve(source.elemCount);

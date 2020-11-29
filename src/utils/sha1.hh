@@ -94,6 +94,7 @@ private:
 	void transform(const uint8_t buffer[64]);
 	void finalize();
 
+private:
 	uint64_t m_count;
 	Sha1Sum m_state;
 	uint8_t m_buffer[64];

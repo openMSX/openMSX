@@ -23,13 +23,13 @@ struct TTCacheEntry
 // inserted. So still use std::map instead of std::vector.
 static std::map<std::pair<size_t, std::string>, TTCacheEntry> ttCache;
 
-static size_t calcNumNodes(size_t dataSize)
+[[nodiscard]] static size_t calcNumNodes(size_t dataSize)
 {
 	auto numBlocks = (dataSize + BLOCK_SIZE - 1) / BLOCK_SIZE;
 	return (numBlocks == 0) ? 1 : 2 * numBlocks - 1;
 }
 
-static TTCacheEntry& getCacheEntry(
+[[nodiscard]] static TTCacheEntry& getCacheEntry(
 	TTData& data, size_t dataSize, const std::string& name)
 {
 	auto& result = ttCache[std::pair(dataSize, name)];
