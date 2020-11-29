@@ -79,7 +79,7 @@ public:
 	 * register hasn't been written to since the last reset() call.
 	 * Reading registers has no influence on the generated sound.
 	 */
-	virtual uint8_t peekReg(uint8_t reg) const = 0;
+	[[nodiscard]] virtual uint8_t peekReg(uint8_t reg) const = 0;
 
 	/** Generate the sound output.
 	 * @param bufs Pointers to output buffers.
@@ -129,7 +129,7 @@ public:
 	 * filters or volume adjustments) must anyway still multiply the output
 	 * sample values, so this factor can be folded-in for free.
 	 */
-	virtual float getAmplificationFactor() const = 0;
+	[[nodiscard]] virtual float getAmplificationFactor() const = 0;
 
 protected:
 	YM2413Core() = default;

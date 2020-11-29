@@ -859,8 +859,8 @@ void Y8950::generateChannels(float** bufs, unsigned num)
 			//bufs[8][sample] += 0;
 
 			// TODO wasn't in original source either
-			ch[7].slot[MOD].calc_phase(lfo_pm);
-			ch[8].slot[CAR].calc_phase(lfo_pm);
+			(void)ch[7].slot[MOD].calc_phase(lfo_pm);
+			(void)ch[8].slot[CAR].calc_phase(lfo_pm);
 
 			bufs[ 9][sample] += (ch[6].slot[CAR].isActive())
 				? 2 * ch[6].slot[CAR].calc_slot_car(lfo_pm, lfo_am,

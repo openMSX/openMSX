@@ -1150,7 +1150,7 @@ void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 			//       Possible by passing phase generator as a template parameter to
 			//       calcOutput.
 
-			/*  phaseC7 */channels[7].car.calc_phase(channels[7], lfo_pm);
+			/*C7*/  (void)channels[7].car.calc_phase(channels[7], lfo_pm);
 			int phaseM7 = channels[7].mod.calc_phase(channels[7], lfo_pm);
 			int phaseC8 = channels[8].car.calc_phase(channels[8], lfo_pm);
 			int phaseM8 = channels[8].mod.calc_phase(channels[8], lfo_pm);

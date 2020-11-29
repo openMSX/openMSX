@@ -45,7 +45,7 @@ public:
 	 */
 	void uploadBuffer(MSXMixer& msxMixer, float* buffer, unsigned len);
 
-	IntegerSetting& getMasterVolume() { return masterVolume; }
+	[[nodiscard]] IntegerSetting& getMasterVolume() { return masterVolume; }
 
 private:
 	void reloadDriver();
@@ -54,6 +54,7 @@ private:
 	// Observer<Setting>
 	void update(const Setting& setting) override;
 
+private:
 	std::vector<MSXMixer*> msxMixers; // unordered
 
 	std::unique_ptr<SoundDriver> driver;

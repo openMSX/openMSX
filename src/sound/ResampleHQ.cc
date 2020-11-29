@@ -49,6 +49,9 @@ constexpr unsigned HALF_TAB_LEN = TAB_LEN / 2;
 class ResampleCoeffs
 {
 public:
+	ResampleCoeffs(const ResampleCoeffs&) = delete;
+	ResampleCoeffs& operator=(const ResampleCoeffs&) = delete;
+
 	static ResampleCoeffs& instance();
 	void getCoeffs(double ratio, int16_t*& permute, float*& table, unsigned& filterLen);
 	void releaseCoeffs(double ratio);
@@ -59,8 +62,6 @@ private:
 
 	ResampleCoeffs() = default;
 	~ResampleCoeffs();
-	ResampleCoeffs(const ResampleCoeffs&) = delete;
-	ResampleCoeffs& operator=(const ResampleCoeffs&) = delete;
 
 	static Table calcTable(double ratio, int16_t* permute, unsigned& filterLen);
 

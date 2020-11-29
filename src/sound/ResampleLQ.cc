@@ -45,7 +45,7 @@ ResampleLQ<CHANNELS>::ResampleLQ(
 	ranges::fill(lastInput, 0.0f);
 }
 
-static bool isSilent(float x)
+[[nodiscard]] static bool isSilent(float x)
 {
 	constexpr float threshold = 1.0f / 32768;
 	return std::abs(x) < threshold;

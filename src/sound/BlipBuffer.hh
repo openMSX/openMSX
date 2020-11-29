@@ -34,6 +34,7 @@ private:
 	template <unsigned PITCH>
 	void readSamplesHelper(float* out, unsigned samples) __restrict;
 
+private:
 	static constexpr unsigned BUFFER_SIZE = 1 << 14;
 	static constexpr unsigned BUFFER_MASK = BUFFER_SIZE - 1;
 	float buffer[BUFFER_SIZE];

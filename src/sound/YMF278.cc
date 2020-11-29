@@ -100,7 +100,7 @@ constexpr byte eg_inc[15 * RATE_STEPS] = {
 	0, 0,  0, 0,  0, 0,  0, 0, // 14  infinity rates for attack and decay(s)
 };
 
-static constexpr byte O(int a) { return a * RATE_STEPS; }
+[[nodiscard]] static constexpr byte O(int a) { return a * RATE_STEPS; }
 constexpr byte eg_rate_select[64] = {
 	O(14),O(14),O(14),O(14), // inf rate
 	O( 0),O( 1),O( 2),O( 3),
@@ -145,7 +145,7 @@ constexpr byte eg_rate_shift[64] = {
 
 // number of steps the LFO counter advances per sample
 //   LFO frequency (Hz) -> LFO counter steps per sample
-static constexpr int L(double a) { return int((LFO_PERIOD * a) / 44100.0 + 0.5); }
+[[nodiscard]] static constexpr int L(double a) { return int((LFO_PERIOD * a) / 44100.0 + 0.5); }
 constexpr int lfo_period[8] = {
 	L(0.168), // step:  1, period: 262144 samples
 	L(2.019), // step: 12, period:  21845 samples
@@ -197,7 +197,7 @@ YMF278::Slot::Slot()
 
 // Sign extend a 4-bit value to int (32-bit)
 // require: x in range [0..15]
-static int sign_extend_4(int x)
+[[nodiscard]] static int sign_extend_4(int x)
 {
 	return (x ^ 8) - 8;
 }
@@ -208,7 +208,7 @@ static int sign_extend_4(int x)
 //    ((fn | 1024) + vib) << (5 + sign_extend_4(oct))
 // Though in this formula the shift can go over a negative distance (in that
 // case we should shift in the other direction).
-static unsigned calcStep(int8_t oct, uint16_t fn, int16_t vib = 0)
+[[nodiscard]] static unsigned calcStep(int8_t oct, uint16_t fn, int16_t vib = 0)
 {
 	if (oct == -8) return 0;
 	unsigned t = (fn + 1024 + vib) << (8 + oct); // use '+' iso '|' (generates slightly better code)

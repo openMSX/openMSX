@@ -8,8 +8,7 @@
 #include "YM2413Core.hh"
 #include "opll.hh"
 
-namespace openmsx {
-namespace YM2413OriginalNukeYKT {
+namespace openmsx::YM2413OriginalNukeYKT {
 
 class YM2413 final : public YM2413Core
 {
@@ -18,9 +17,9 @@ public:
 	void reset() override;
 	void writePort(bool port, uint8_t value, int cycle_offset) override;
 	void pokeReg(uint8_t reg, uint8_t value) override;
-	uint8_t peekReg(uint8_t reg) const override;
+	[[nodiscard]] uint8_t peekReg(uint8_t reg) const override;
 	void generateChannels(float* out[9 + 5], uint32_t n) override;
-	float getAmplificationFactor() const override;
+	[[nodiscard]] float getAmplificationFactor() const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -39,7 +38,6 @@ private:
 	int allowed_offset = 0;
 };
 
-} // namespace OriginalNuke
-} // namespace openmsx
+} // namespace openmsx::OriginalNuke
 
 #endif

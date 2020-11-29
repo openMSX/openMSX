@@ -71,13 +71,13 @@ public:
 	 * we're recording or not (in case of recording we want to generate
 	 * sound as if realtime and emutime go at the same speed.
 	 */
-	double getEffectiveSpeed() const;
+	[[nodiscard]] double getEffectiveSpeed() const;
 
 	/** If we're recording, we want to emulate sound at 100% emutime speed.
 	 * See also getEffectiveSpeed().
 	 */
 	void setSynchronousMode(bool synchronous);
-	bool isSynchronousMode() const { return synchronousCounter != 0; }
+	[[nodiscard]] bool isSynchronousMode() const { return synchronousCounter != 0; }
 
 	/** TODO
 	 * This methods (un)mute the sound.
@@ -103,16 +103,16 @@ public:
 	  * the requested speed or because the 'speed' setting is different
 	  * from 100.
 	  */
-	const DynamicClock& getHostSampleClock() const { return prevTime; }
+	[[nodiscard]] const DynamicClock& getHostSampleClock() const { return prevTime; }
 
 	// Called by AviRecorder
-	bool needStereoRecording() const;
+	[[nodiscard]] bool needStereoRecording() const;
 	void setRecorder(AviRecorder* recorder);
 
 	// Returns the nominal host sample rate (not adjusted for speed setting)
-	unsigned getSampleRate() const { return hostSampleRate; }
+	[[nodiscard]] unsigned getSampleRate() const { return hostSampleRate; }
 
-	SoundDevice* findDevice(std::string_view name) const;
+	[[nodiscard]] SoundDevice* findDevice(std::string_view name) const;
 
 	void reInit();
 
@@ -149,6 +149,7 @@ private:
 	void changeRecordSetting(const Setting& setting);
 	void changeMuteSetting(const Setting& setting);
 
+private:
 	unsigned fragmentSize;
 	unsigned hostSampleRate; // requested freq by sound driver,
 	                         // not compensated for speed
@@ -169,7 +170,7 @@ private:
 		explicit SoundDeviceInfoTopic(InfoCommand& machineInfoCommand);
 		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} soundDeviceInfo;
 

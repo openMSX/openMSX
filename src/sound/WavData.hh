@@ -30,15 +30,15 @@ public:
 	template<typename Filter = NoFilter>
 	explicit WavData(File file, Filter filter = {});
 
-	unsigned getFreq() const { return freq; }
-	unsigned getSize() const { return length; }
-	int16_t getSample(unsigned pos) const {
+	[[nodiscard]] unsigned getFreq() const { return freq; }
+	[[nodiscard]] unsigned getSize() const { return length; }
+	[[nodiscard]] int16_t getSample(unsigned pos) const {
 		return (pos < length) ? buffer[pos] : 0;
 	}
 
 private:
 	template<typename T>
-	static const T* read(span<uint8_t> raw, size_t offset, size_t count = 1);
+	[[nodiscard]] static const T* read(span<uint8_t> raw, size_t offset, size_t count = 1);
 
 private:
 	MemBuffer<int16_t> buffer;

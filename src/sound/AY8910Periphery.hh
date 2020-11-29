@@ -22,10 +22,10 @@ public:
 	  *   On subsequent calls, the time will always be increasing.
 	  * @return the value read; unconnected bits should be 1
 	  */
-	virtual byte readA(EmuTime::param time);
+	[[nodiscard]] virtual byte readA(EmuTime::param time);
 
 	/** Similar to readA, but reads port B. */
-	virtual byte readB(EmuTime::param time);
+	[[nodiscard]] virtual byte readB(EmuTime::param time);
 
 	/** Writes to the peripheral on port A.
 	  * @param value The value to write.

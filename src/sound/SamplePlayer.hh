@@ -39,7 +39,7 @@ public:
 	void stopRepeat() { nextSampleNum = unsigned(-1); }
 
 	/** Is there currently playing a sample. */
-	bool isPlaying() const { return currentSampleNum != unsigned(-1); }
+	[[nodiscard]] bool isPlaying() const { return currentSampleNum != unsigned(-1); }
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -51,6 +51,7 @@ private:
 	// SoundDevice
 	void generateChannels(float** bufs, unsigned num) override;
 
+private:
 	std::vector<WavData> samples;
 
 	unsigned index;

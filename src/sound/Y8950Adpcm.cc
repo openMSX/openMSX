@@ -108,7 +108,7 @@ void Y8950Adpcm::sync(EmuTime::param time)
 	if (isPlaying()) { // optimization, also correct without this test
 		unsigned ticks = clock.getTicksTill(time);
 		for (unsigned i = 0; isPlaying() && (i < ticks); ++i) {
-			calcSample(true); // ignore result
+			(void)calcSample(true); // ignore result
 		}
 	}
 	clock.advance(time);

@@ -48,11 +48,11 @@ enum RmNum : uint8_t {
 	rm_num_sd = 4,   //           15
 	rm_num_tc = 5,   //           16
 };
-constexpr bool is_rm_cycle(int cycle)
+[[nodiscard]] constexpr bool is_rm_cycle(int cycle)
 {
 	return (11 <= cycle) && (cycle <= 16);
 }
-constexpr RmNum rm_for_cycle(int cycle)
+[[nodiscard]] constexpr RmNum rm_for_cycle(int cycle)
 {
 	return RmNum(cycle - 11);
 }

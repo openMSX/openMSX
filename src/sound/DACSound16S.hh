@@ -29,6 +29,7 @@ private:
 	bool updateBuffer(unsigned length, float* buffer,
 	                  EmuTime::param time) override;
 
+private:
 	BlipBuffer blip;
 	int16_t lastWrittenValue;
 };

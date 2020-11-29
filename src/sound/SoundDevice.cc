@@ -32,7 +32,7 @@ static void allocateMixBuffer(unsigned size)
 	}
 }
 
-static string makeUnique(MSXMixer& mixer, std::string_view name)
+[[nodiscard]] static string makeUnique(MSXMixer& mixer, std::string_view name)
 {
 	string result(name);
 	if (mixer.findDevice(result)) {

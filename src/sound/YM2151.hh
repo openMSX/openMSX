@@ -53,7 +53,7 @@ public:
 
 	void reset(EmuTime::param time);
 	void writeReg(byte r, byte v, EmuTime::param time);
-	byte readStatus() const;
+	[[nodiscard]] byte readStatus() const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -127,9 +127,9 @@ private:
 	// operator methods
 	void envelopeKONKOFF(YM2151Operator* op, int v);
 	static void refreshEG(YM2151Operator* op);
-	int opCalc(YM2151Operator* op, unsigned env, int pm);
-	int opCalc1(YM2151Operator* op, unsigned env, int pm);
-	inline unsigned volumeCalc(YM2151Operator* op, unsigned AM);
+	[[nodiscard]] int opCalc(YM2151Operator* op, unsigned env, int pm);
+	[[nodiscard]] int opCalc1(YM2151Operator* op, unsigned env, int pm);
+	[[nodiscard]] inline unsigned volumeCalc(YM2151Operator* op, unsigned AM);
 	inline void keyOn(YM2151Operator* op, unsigned keySet);
 	inline void keyOff(YM2151Operator* op, unsigned keyClear);
 
@@ -140,7 +140,7 @@ private:
 	void advanceEG();
 	void advance();
 
-	bool checkMuteHelper();
+	[[nodiscard]] bool checkMuteHelper();
 
 	IRQHelper irq;
 

@@ -18,11 +18,11 @@ public:
 	~WavAudioInput() override;
 
 	// AudioInputDevice
-	const std::string& getName() const override;
-	std::string_view getDescription() const override;
+	[[nodiscard]] const std::string& getName() const override;
+	[[nodiscard]] std::string_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
-	int16_t readSample(EmuTime::param time) override;
+	[[nodiscard]] int16_t readSample(EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -31,6 +31,7 @@ private:
 	void loadWave();
 	void update(const Setting& setting) override;
 
+private:
 	FilenameSetting audioInputFilenameSetting;
 	WavData wav;
 	EmuTime reference;

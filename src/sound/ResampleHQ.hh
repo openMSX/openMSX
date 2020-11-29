@@ -26,8 +26,8 @@ private:
 	void calcOutput(float pos, float* output);
 	void prepareData(unsigned emuNum);
 
+private:
 	const DynamicClock& hostClock;
-
 	const float ratio;
 	unsigned bufStart;
 	unsigned bufEnd;

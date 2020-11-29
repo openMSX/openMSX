@@ -19,8 +19,9 @@ public:
 
 protected:
 	ResampleLQ(ResampledSoundDevice& input, const DynamicClock& hostClock);
-	bool fetchData(EmuTime::param time, unsigned& valid);
+	[[nodiscard]] bool fetchData(EmuTime::param time, unsigned& valid);
 
+protected:
 	const DynamicClock& hostClock;
 	using FP = FixedPoint<14>;
 	const FP step;

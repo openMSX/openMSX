@@ -20,7 +20,7 @@ public:
 	/** Creates a periphery object for this MSXAudio cartridge.
 	  * The ownership of the object remains with the MSXAudio instance.
 	  */
-	Y8950Periphery& createPeriphery(const std::string& soundDeviceName);
+	[[nodiscard]] Y8950Periphery& createPeriphery(const std::string& soundDeviceName);
 
 	void powerUp(EmuTime::param time) override;
 	void reset(EmuTime::param time) override;
