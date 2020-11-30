@@ -37,7 +37,7 @@
 
     <PSG id="PSG">
       <type>AY8910</type>
-      <keyboardlayout>jis</keyboardlayout>
+      <keyboardlayout>JIS</keyboardlayout>
       <sound>
         <volume>21000</volume>
         <balance channel="1">0</balance>
