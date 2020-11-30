@@ -18,8 +18,8 @@ public:
 	         std::unique_ptr<const PatchInterface> parent);
 
 	void copyBlock(size_t src, byte* dst, size_t num) const override;
-	size_t getSize() const override;
-	std::vector<Filename> getFilenames() const override;
+	[[nodiscard]] size_t getSize() const override;
+	[[nodiscard]] std::vector<Filename> getFilenames() const override;
 
 private:
 	const Filename filename;

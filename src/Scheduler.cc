@@ -13,7 +13,7 @@ namespace openmsx {
 struct EqualSchedulable {
 	explicit EqualSchedulable(const Schedulable& schedulable_)
 		: schedulable(schedulable_) {}
-	bool operator()(const SynchronizationPoint& sp) const {
+	[[nodiscard]] bool operator()(const SynchronizationPoint& sp) const {
 		return sp.getDevice() == &schedulable;
 	}
 	const Schedulable& schedulable;

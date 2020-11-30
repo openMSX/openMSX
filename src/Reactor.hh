@@ -133,6 +133,7 @@ private:
 	void unpause();
 	void pause();
 
+private:
 	std::mutex mbMutex; // this should come first, because it's still used by
 	                    // the destructors of the unique_ptr below
 

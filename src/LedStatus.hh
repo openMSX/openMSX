@@ -39,6 +39,7 @@ private:
 	// RTSchedulable
 	void executeRT() override;
 
+private:
 	MSXCliComm& msxCliComm;
 	Interpreter& interp;
 	std::unique_ptr<ReadOnlySetting> ledStatus[NUM_LEDS];

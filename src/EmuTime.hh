@@ -33,23 +33,23 @@ public:
 	static constexpr EmuTime makeEmuTime(uint64_t u) { return EmuTime(u); }
 
 	// comparison operators
-	constexpr bool operator==(EmuTime::param e) const
+	[[nodiscard]] constexpr bool operator==(EmuTime::param e) const
 		{ return time == e.time; }
-	constexpr bool operator!=(EmuTime::param e) const
+	[[nodiscard]] constexpr bool operator!=(EmuTime::param e) const
 		{ return time != e.time; }
-	constexpr bool operator< (EmuTime::param e) const
+	[[nodiscard]] constexpr bool operator< (EmuTime::param e) const
 		{ return time <  e.time; }
-	constexpr bool operator<=(EmuTime::param e) const
+	[[nodiscard]] constexpr bool operator<=(EmuTime::param e) const
 		{ return time <= e.time; }
-	constexpr bool operator> (EmuTime::param e) const
+	[[nodiscard]] constexpr bool operator> (EmuTime::param e) const
 		{ return time >  e.time; }
-	constexpr bool operator>=(EmuTime::param e) const
+	[[nodiscard]] constexpr bool operator>=(EmuTime::param e) const
 		{ return time >= e.time; }
 
 	// arithmetic operators
-	constexpr EmuTime operator+(EmuDuration::param d) const
+	[[nodiscard]] constexpr EmuTime operator+(EmuDuration::param d) const
 		{ return EmuTime(time + d.time); }
-	constexpr EmuTime operator-(EmuDuration::param d) const
+	[[nodiscard]] constexpr EmuTime operator-(EmuDuration::param d) const
 		{ assert(time >= d.time);
 		  return EmuTime(time - d.time); }
 	constexpr EmuTime& operator+=(EmuDuration::param d)
@@ -57,15 +57,15 @@ public:
 	constexpr EmuTime& operator-=(EmuDuration::param d)
 		{ assert(time >= d.time);
 		  time -= d.time; return *this; }
-	constexpr EmuDuration operator-(EmuTime::param e) const
+	[[nodiscard]] constexpr EmuDuration operator-(EmuTime::param e) const
 		{ assert(time >= e.time);
 		  return EmuDuration(time - e.time); }
 
-	static constexpr EmuTime zero()
+	[[nodiscard]] static constexpr EmuTime zero()
 	{
 		return EmuTime(uint64_t(0));
 	}
-	static constexpr EmuTime infinity()
+	[[nodiscard]] static constexpr EmuTime infinity()
 	{
 		return EmuTime(std::numeric_limits<uint64_t>::max());
 	}
@@ -80,6 +80,7 @@ private:
 	EmuTime() = default; // uninitialized
 	constexpr explicit EmuTime(uint64_t n) : time(n) {}
 
+private:
 	uint64_t time;
 
 	// friends

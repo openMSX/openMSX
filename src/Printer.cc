@@ -34,6 +34,7 @@ public:
 private:
 	byte& dot(unsigned x, unsigned y);
 
+private:
 	MemBuffer<byte> buf;
 	std::vector<int> table;
 

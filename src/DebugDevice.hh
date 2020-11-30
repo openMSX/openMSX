@@ -29,6 +29,7 @@ private:
 	void displayByte(byte value, DisplayType type);
 	void openOutput(std::string_view name);
 
+private:
 	FilenameSetting fileNameSetting;
 	std::ostream* outputstrm;
 	std::ofstream debugOut;

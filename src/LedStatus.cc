@@ -7,7 +7,7 @@
 
 namespace openmsx {
 
-static std::string getLedName(LedStatus::Led led)
+[[nodiscard]] static std::string getLedName(LedStatus::Led led)
 {
 	static constexpr const char* const names[LedStatus::NUM_LEDS] = {
 		"power", "caps", "kana", "pause", "turbo", "FDD"

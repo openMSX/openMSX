@@ -483,7 +483,7 @@ RenShaTurbo& MSXMotherBoard::getRenShaTurbo()
 LedStatus& MSXMotherBoard::getLedStatus()
 {
 	if (!ledStatus) {
-		getMSXCliComm(); // force init, to be on the safe side
+		(void)getMSXCliComm(); // force init, to be on the safe side
 		ledStatus = make_unique<LedStatus>(
 			reactor.getRTScheduler(),
 			*msxCommandController,

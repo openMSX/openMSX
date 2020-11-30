@@ -14,7 +14,7 @@ public:
 	 *  false = low  = ready,
 	 *  true  = high = not ready.
 	 */
-	virtual bool getStatus(EmuTime::param time) = 0;
+	[[nodiscard]] virtual bool getStatus(EmuTime::param time) = 0;
 
 	/**
 	 * Sets the strobe signal:
@@ -33,7 +33,7 @@ public:
 	virtual void writeData(byte data, EmuTime::param time) = 0;
 
 	// Pluggable
-	std::string_view getClass() const final;
+	[[nodiscard]] std::string_view getClass() const final;
 };
 
 } // namespace openmsx

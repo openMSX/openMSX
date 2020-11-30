@@ -93,7 +93,7 @@ using std::unique_ptr;
 
 namespace openmsx {
 
-static unique_ptr<MSXDevice> createWD2793BasedFDC(const DeviceConfig& conf)
+[[nodiscard]] static unique_ptr<MSXDevice> createWD2793BasedFDC(const DeviceConfig& conf)
 {
 	const XMLElement* styleEl = conf.findChild("connectionstyle");
 	std::string type;
@@ -293,7 +293,7 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 	return result;
 }
 
-static XMLElement createConfig(std::string name, std::string id)
+[[nodiscard]] static XMLElement createConfig(std::string name, std::string id)
 {
 	XMLElement config(std::move(name));
 	config.addAttribute("id", std::move(id));

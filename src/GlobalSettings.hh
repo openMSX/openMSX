@@ -27,34 +27,34 @@ public:
 	explicit GlobalSettings(GlobalCommandController& commandController);
 	~GlobalSettings();
 
-	BooleanSetting& getPauseSetting() {
+	[[nodiscard]] BooleanSetting& getPauseSetting() {
 		return pauseSetting;
 	}
-	BooleanSetting& getPowerSetting() {
+	[[nodiscard]] BooleanSetting& getPowerSetting() {
 		return powerSetting;
 	}
-	BooleanSetting& getAutoSaveSetting() {
+	[[nodiscard]] BooleanSetting& getAutoSaveSetting() {
 		return autoSaveSetting;
 	}
-	StringSetting& getUMRCallBackSetting() {
+	[[nodiscard]] StringSetting& getUMRCallBackSetting() {
 		return umrCallBackSetting;
 	}
-	StringSetting& getInvalidPsgDirectionsSetting() {
+	[[nodiscard]] StringSetting& getInvalidPsgDirectionsSetting() {
 		return invalidPsgDirectionsSetting;
 	}
-	StringSetting& getInvalidPpiModeSetting() {
+	[[nodiscard]] StringSetting& getInvalidPpiModeSetting() {
 		return invalidPpiModeSetting;
 	}
-	EnumSetting<ResampledSoundDevice::ResampleType>& getResampleSetting() {
+	[[nodiscard]] EnumSetting<ResampledSoundDevice::ResampleType>& getResampleSetting() {
 		return resampleSetting;
 	}
-	IntegerSetting& getJoyDeadzoneSetting(int i) {
+	[[nodiscard]] IntegerSetting& getJoyDeadzoneSetting(int i) {
 		return *deadzoneSettings[i];
 	}
-	SpeedManager& getSpeedManager() {
+	[[nodiscard]] SpeedManager& getSpeedManager() {
 		return speedManager;
 	}
-	ThrottleManager& getThrottleManager() {
+	[[nodiscard]] ThrottleManager& getThrottleManager() {
 		return throttleManager;
 	}
 
@@ -62,6 +62,7 @@ private:
 	// Observer<Setting>
 	void update(const Setting& setting) override;
 
+private:
 	GlobalCommandController& commandController;
 
 	BooleanSetting pauseSetting;

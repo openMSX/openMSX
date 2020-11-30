@@ -55,11 +55,11 @@ public:
 	 */
 	virtual void schedulerDeleted();
 
-	Scheduler& getScheduler() const { return scheduler; }
+	[[nodiscard]] Scheduler& getScheduler() const { return scheduler; }
 
 	/** Convenience method:
 	  * This is the same as getScheduler().getCurrentTime(). */
-	EmuTime::param getCurrentTime() const;
+	[[nodiscard]] EmuTime::param getCurrentTime() const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -94,8 +94,8 @@ protected:
 	void setSyncPoint(EmuTime::param timestamp);
 	bool removeSyncPoint();
 	void removeSyncPoints();
-	bool pendingSyncPoint() const;
-	bool pendingSyncPoint(EmuTime& result) const;
+	[[nodiscard]] bool pendingSyncPoint() const;
+	[[nodiscard]] bool pendingSyncPoint(EmuTime& result) const;
 
 private:
 	Scheduler& scheduler;

@@ -191,6 +191,9 @@ template<typename Archive>
 class PolymorphicSaverRegistry
 {
 public:
+	PolymorphicSaverRegistry(const PolymorphicSaverRegistry&) = delete;
+	PolymorphicSaverRegistry& operator=(const PolymorphicSaverRegistry&) = delete;
+
 	static PolymorphicSaverRegistry& instance();
 
 	template<typename T> void registerClass(const char* name)
@@ -215,8 +218,6 @@ public:
 private:
 	PolymorphicSaverRegistry() = default;
 	~PolymorphicSaverRegistry() = default;
-	PolymorphicSaverRegistry(const PolymorphicSaverRegistry&) = delete;
-	PolymorphicSaverRegistry& operator=(const PolymorphicSaverRegistry&) = delete;
 
 	void registerHelper(const std::type_info& type,
 	                    std::unique_ptr<PolymorphicSaverBase<Archive>> saver);
@@ -234,6 +235,9 @@ template<typename Archive>
 class PolymorphicLoaderRegistry
 {
 public:
+	PolymorphicLoaderRegistry(const PolymorphicLoaderRegistry&) = delete;
+	PolymorphicLoaderRegistry& operator=(const PolymorphicLoaderRegistry&) = delete;
+
 	static PolymorphicLoaderRegistry& instance();
 
 	template<typename T> void registerClass(const char* name)
@@ -251,8 +255,6 @@ public:
 private:
 	PolymorphicLoaderRegistry() = default;
 	~PolymorphicLoaderRegistry() = default;
-	PolymorphicLoaderRegistry(const PolymorphicLoaderRegistry&) = delete;
-	PolymorphicLoaderRegistry& operator=(const PolymorphicLoaderRegistry&) = delete;
 
 	void registerHelper(
 		const char* name,
@@ -266,6 +268,9 @@ template<typename Archive>
 class PolymorphicInitializerRegistry
 {
 public:
+	PolymorphicInitializerRegistry(const PolymorphicInitializerRegistry&) = delete;
+	PolymorphicInitializerRegistry& operator=(const PolymorphicInitializerRegistry&) = delete;
+
 	static PolymorphicInitializerRegistry& instance();
 
 	template<typename T> void registerClass(const char* name)
@@ -283,8 +288,6 @@ public:
 private:
 	PolymorphicInitializerRegistry() = default;
 	~PolymorphicInitializerRegistry() = default;
-	PolymorphicInitializerRegistry(const PolymorphicInitializerRegistry&) = delete;
-	PolymorphicInitializerRegistry& operator=(const PolymorphicInitializerRegistry&) = delete;
 
 	void registerHelper(
 		const char* name,

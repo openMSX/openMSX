@@ -50,7 +50,7 @@ public:
 		reRecordCount = count;
 	}
 
-	bool isReplaying() const override;
+	[[nodiscard]] bool isReplaying() const override;
 
 private:
 	struct ReverseChunk {
@@ -72,14 +72,14 @@ private:
 	struct ReverseHistory {
 		void swap(ReverseHistory& other);
 		void clear();
-		unsigned getNextSeqNum(EmuTime::param time) const;
+		[[nodiscard]] unsigned getNextSeqNum(EmuTime::param time) const;
 
 		Chunks chunks;
 		Events events;
 		LastDeltaBlocks lastDeltaBlocks;
 	};
 
-	bool isCollecting() const { return collecting; }
+	[[nodiscard]] bool isCollecting() const { return collecting; }
 
 	void start();
 	void stop();
@@ -93,7 +93,7 @@ private:
 	                span<const TclObject> tokens, TclObject& result);
 
 	void signalStopReplay(EmuTime::param time);
-	EmuTime::param getEndTime(const ReverseHistory& history) const;
+	[[nodiscard]] EmuTime::param getEndTime(const ReverseHistory& history) const;
 	void goTo(EmuTime::param targetTime, bool novideo);
 	void goTo(EmuTime::param targetTime, bool novideo,
 	          ReverseHistory& history, bool sameTimeLine);
@@ -125,7 +125,7 @@ private:
 
 	void execNewSnapshot();
 	void execInputEvent();
-	EmuTime::param getCurrentTime() const { return syncNewSnapshot.getCurrentTime(); }
+	[[nodiscard]] EmuTime::param getCurrentTime() const { return syncNewSnapshot.getCurrentTime(); }
 
 	// EventListener
 	int signalEvent(const std::shared_ptr<const Event>& event) override;
@@ -134,13 +134,14 @@ private:
 	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
 	void stopReplay(EmuTime::param time) override;
 
+private:
 	MSXMotherBoard& motherBoard;
 	EventDistributor& eventDistributor;
 
 	struct ReverseCmd final : Command {
 		explicit ReverseCmd(CommandController& controller);
 		void execute(span<const TclObject> tokens, TclObject& result) override;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} reverseCmd;
 

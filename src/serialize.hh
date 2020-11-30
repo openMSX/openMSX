@@ -212,15 +212,15 @@ public:
 	// be used by the serialization framework.
 
 	/** Does this archive store version information. */
-	bool needVersion() const { return true; }
+	[[nodiscard]] bool needVersion() const { return true; }
 
 	/** Is this a reverse-snapshot? */
-	bool isReverseSnapshot() const { return false; }
+	[[nodiscard]] bool isReverseSnapshot() const { return false; }
 
 	/** Does this archive store enums as strings.
 	 * See also struct serialize_as_enum.
 	 */
-	bool translateEnumToString() const { return false; }
+	[[nodiscard]] bool translateEnumToString() const { return false; }
 
 	/** Load/store an attribute from/in the archive.
 	 * Depending on the underlying concrete stream, attributes are either
@@ -239,13 +239,13 @@ public:
 	 * This can be used to for example in XML files don't store attributes
 	 * with default values (thus to make the XML look prettier).
 	 */
-	bool canHaveOptionalAttributes() const { return false; }
+	[[nodiscard]] bool canHaveOptionalAttributes() const { return false; }
 
 	/** Check the presence of a (optional) attribute.
 	 * It's only allowed to call this method on archives that can have
 	 * optional attributes.
 	 */
-	bool hasAttribute(const char* /*name*/)
+	[[nodiscard]] bool hasAttribute(const char* /*name*/)
 	{
 		UNREACHABLE; return false;
 	}
@@ -253,7 +253,7 @@ public:
 	/** Optimization: combination of hasAttribute() and getAttribute().
 	 * Returns true if hasAttribute() and (if so) also fills in the value.
 	 */
-	bool findAttribute(const char* /*name*/, unsigned& /*value*/)
+	[[nodiscard]] bool findAttribute(const char* /*name*/, unsigned& /*value*/)
 	{
 		UNREACHABLE; return false;
 	}
@@ -266,13 +266,13 @@ public:
 	 * explictly store the size of the collection, it can be derived from
 	 * the number of subtags.
 	 */
-	bool canCountChildren() const { return false; }
+	[[nodiscard]] bool canCountChildren() const { return false; }
 
 	/** Count the number of child tags.
 	 * It's only allowed to call this method on archives that have support
 	 * for this operation.
 	 */
-	int countChildren() const
+	[[nodiscard]] int countChildren() const
 	{
 		UNREACHABLE; return 0;
 	}
@@ -348,12 +348,12 @@ protected:
 class OutputArchiveBase2
 {
 public:
-	inline bool isLoader() const { return false; }
-	inline bool versionAtLeast(unsigned /*actual*/, unsigned /*required*/) const
+	[[nodiscard]] inline bool isLoader() const { return false; }
+	[[nodiscard]] inline bool versionAtLeast(unsigned /*actual*/, unsigned /*required*/) const
 	{
 		return true;
 	}
-	inline bool versionBelow(unsigned /*actual*/, unsigned /*required*/) const
+	[[nodiscard]] inline bool versionBelow(unsigned /*actual*/, unsigned /*required*/) const
 	{
 		return false;
 	}
@@ -370,7 +370,7 @@ public:
 	// is _below_ the heap.
 	// But this is anyway only used to check assertions. So for now
 	// only do that in linux.
-	static NEVER_INLINE bool addressOnStack(const void* p)
+	[[nodiscard]] static NEVER_INLINE bool addressOnStack(const void* p)
 	{
 		// This is not portable, it assumes:
 		//  - stack grows downwards
@@ -384,7 +384,7 @@ public:
 
 	// Generate a new ID for the given pointer and store this association
 	// for later (see getId()).
-	template<typename T> unsigned generateId(const T* p)
+	template<typename T> [[nodiscard]] unsigned generateId(const T* p)
 	{
 		// For composed structures, for example
 		//   struct A { ... };
@@ -403,7 +403,7 @@ public:
 		}
 	}
 
-	template<typename T> unsigned getId(const T* p)
+	template<typename T> [[nodiscard]] unsigned getId(const T* p)
 	{
 		if constexpr (std::is_polymorphic_v<T>) {
 			return getID1(p);
@@ -416,11 +416,12 @@ protected:
 	OutputArchiveBase2() = default;
 
 private:
-	unsigned generateID1(const void* p);
-	unsigned generateID2(const void* p, const std::type_info& typeInfo);
-	unsigned getID1(const void* p);
-	unsigned getID2(const void* p, const std::type_info& typeInfo);
+	[[nodiscard]] unsigned generateID1(const void* p);
+	[[nodiscard]] unsigned generateID2(const void* p, const std::type_info& typeInfo);
+	[[nodiscard]] unsigned getID1(const void* p);
+	[[nodiscard]] unsigned getID2(const void* p, const std::type_info& typeInfo);
 
+private:
 	hash_map<std::pair<const void*, std::type_index>, unsigned, HashPair> idMap;
 	hash_map<const void*, unsigned> polyIdMap;
 	unsigned lastId = 0;
@@ -503,7 +504,7 @@ protected:
 class InputArchiveBase2
 {
 public:
-	inline bool isLoader() const { return true; }
+	[[nodiscard]] inline bool isLoader() const { return true; }
 
 	void beginSection()
 	{
@@ -515,9 +516,9 @@ public:
 	}
 
 /*internal*/
-	void* getPointer(unsigned id);
+	[[nodiscard]] void* getPointer(unsigned id);
 	void addPointer(unsigned id, const void* p);
-	unsigned getId(const void* p) const;
+	[[nodiscard]] unsigned getId(const void* p) const;
 
 	template<typename T> void resetSharedPtr(std::shared_ptr<T>& s, T* r)
 	{
@@ -649,8 +650,8 @@ public:
 		assert(openSections.empty());
 	}
 
-	bool needVersion() const { return false; }
-	bool isReverseSnapshot() const { return reverseSnapshot; }
+	[[nodiscard]] bool needVersion() const { return false; }
+	[[nodiscard]] bool isReverseSnapshot() const { return reverseSnapshot; }
 
 	template<typename T> void save(const T& t)
 	{
@@ -701,7 +702,7 @@ public:
 		                &skip, sizeof(skip));
 	}
 
-	MemBuffer<uint8_t> releaseBuffer(size_t& size);
+	[[nodiscard]] MemBuffer<uint8_t> releaseBuffer(size_t& size);
 
 private:
 	void put(const void* data, size_t len)
@@ -753,12 +754,12 @@ public:
 	{
 	}
 
-	bool needVersion() const { return false; }
-	inline bool versionAtLeast(unsigned /*actual*/, unsigned /*required*/) const
+	[[nodiscard]] bool needVersion() const { return false; }
+	[[nodiscard]] inline bool versionAtLeast(unsigned /*actual*/, unsigned /*required*/) const
 	{
 		return true;
 	}
-	inline bool versionBelow(unsigned /*actual*/, unsigned /*required*/) const
+	[[nodiscard]] inline bool versionBelow(unsigned /*actual*/, unsigned /*required*/) const
 	{
 		return false;
 	}
@@ -772,7 +773,7 @@ public:
 		load(c);
 	}
 	void load(std::string& s);
-	std::string_view loadStr();
+	[[nodiscard]] std::string_view loadStr();
 	void serialize_blob(const char* tag, void* data, size_t len,
 	                    bool diff = true);
 
@@ -876,9 +877,9 @@ public:
 	}
 
 //internal:
-	inline bool translateEnumToString() const { return true; }
-	inline bool canHaveOptionalAttributes() const { return true; }
-	inline bool canCountChildren() const { return true; }
+	[[nodiscard]] inline bool translateEnumToString() const { return true; }
+	[[nodiscard]] inline bool canHaveOptionalAttributes() const { return true; }
+	[[nodiscard]] inline bool canCountChildren() const { return true; }
 
 	void beginTag(const char* tag);
 	void endTag(const char* tag);
@@ -906,11 +907,11 @@ class XmlInputArchive final : public InputArchiveBase<XmlInputArchive>
 public:
 	explicit XmlInputArchive(const std::string& filename);
 
-	inline bool versionAtLeast(unsigned actual, unsigned required) const
+	[[nodiscard]] inline bool versionAtLeast(unsigned actual, unsigned required) const
 	{
 		return actual >= required;
 	}
-	inline bool versionBelow(unsigned actual, unsigned required) const
+	[[nodiscard]] inline bool versionBelow(unsigned actual, unsigned required) const
 	{
 		return actual < required;
 	}
@@ -931,7 +932,7 @@ public:
 	void load(unsigned& u);             // but having them non-inline
 	void load(unsigned long long& ull); // saves quite a bit of code
 	void load(std::string& t);
-	std::string_view loadStr();
+	[[nodiscard]] std::string_view loadStr();
 
 	void skipSection(bool /*skip*/) { /*nothing*/ }
 
@@ -947,9 +948,9 @@ public:
 	}
 
 //internal:
-	inline bool translateEnumToString() const { return true; }
-	inline bool canHaveOptionalAttributes() const { return true; }
-	inline bool canCountChildren() const { return true; }
+	[[nodiscard]] inline bool translateEnumToString() const { return true; }
+	[[nodiscard]] inline bool canHaveOptionalAttributes() const { return true; }
+	[[nodiscard]] inline bool canCountChildren() const { return true; }
 
 	void beginTag(const char* tag);
 	void endTag(const char* tag);
@@ -969,9 +970,9 @@ public:
 	void attribute(const char* name, int& i);
 	void attribute(const char* name, unsigned& u);
 
-	bool hasAttribute(const char* name);
+	[[nodiscard]] bool hasAttribute(const char* name);
 	bool findAttribute(const char* name, unsigned& value);
-	int countChildren() const;
+	[[nodiscard]] int countChildren() const;
 
 private:
 	XMLElement rootElem;
