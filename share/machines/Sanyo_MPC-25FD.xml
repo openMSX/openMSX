@@ -22,7 +22,7 @@
       <sound>
         <volume>16000</volume>
       </sound>
-      <keyboard_type>jp_jis</keyboard_type>
+      <keyboard_type>jp_ansi</keyboard_type>
       <has_keypad>true</has_keypad>
       <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>
       <code_kana_locks>true</code_kana_locks>
@@ -38,7 +38,7 @@
 
     <PSG id="PSG">
       <type>YM2149</type> <!-- In S3527 -->
-      <keyboardlayout>JIS</keyboardlayout>
+      <keyboardlayout>50on</keyboardlayout>
       <sound>
         <volume>21000</volume>
       </sound>
