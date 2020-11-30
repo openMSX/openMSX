@@ -28,7 +28,7 @@ public:
 	// Layer interface:
 	void paint(OutputSurface& output) override;
 
-	std::unique_ptr<RawFrame> rotateFrames(
+	[[nodiscard]] std::unique_ptr<RawFrame> rotateFrames(
 		std::unique_ptr<RawFrame> finishedFrame, EmuTime::param time) override;
 
 protected:
@@ -49,6 +49,7 @@ private:
 	void preCalcMonitor3D(float width);
 	void drawMonitor3D();
 
+private:
 	/** The currently active scaler.
 	  */
 	std::unique_ptr<GLScaler> currScaler;

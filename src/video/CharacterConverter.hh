@@ -54,8 +54,9 @@ private:
 	inline void renderMultiHelper(Pixel* pixelPtr, int line,
 	                       int mask, int patternQuarter);
 
-	const byte* getNamePtr(int line, int scroll);
+	[[nodiscard]] const byte* getNamePtr(int line, int scroll);
 
+private:
 	VDP& vdp;
 	VDPVRAM& vram;
 

@@ -214,7 +214,7 @@ constexpr CycleTable tabMsx1ScreenOff (true,  slotsMsx1ScreenOff);
 constexpr ZeroTable  tabBroken;
 
 
-static inline const uint8_t* getTab(const VDP& vdp)
+[[nodiscard]] static inline const uint8_t* getTab(const VDP& vdp)
 {
 	if (vdp.getBrokenCmdTiming()) return tabBroken;
 	bool enabled = vdp.isDisplayEnabled();

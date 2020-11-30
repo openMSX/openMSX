@@ -26,6 +26,7 @@ public:
 private:
 	void addAviChunk(const char* tag, unsigned size, const void* data, unsigned flags);
 
+private:
 	File file;
 	ZMBVEncoder codec;
 	std::vector<Endian::L32> index;

@@ -24,8 +24,8 @@ public:
 	                       const PixelOperations<Pixel>& pixelOps);
 
 	// FrameSource
-	unsigned getLineWidth(unsigned line) const override;
-	const void* getLineInfo(
+	[[nodiscard]] unsigned getLineWidth(unsigned line) const override;
+	[[nodiscard]] const void* getLineInfo(
 		unsigned line, unsigned& width,
 		void* buf, unsigned bufWidth) const override;
 

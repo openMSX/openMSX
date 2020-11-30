@@ -38,12 +38,12 @@ public:
 	~Display();
 
 	void createVideoSystem();
-	VideoSystem& getVideoSystem();
+	[[nodiscard]] VideoSystem& getVideoSystem();
 
-	CliComm& getCliComm() const;
-	RenderSettings& getRenderSettings() { return renderSettings; }
-	OSDGUI& getOSDGUI() { return osdGui; }
-	CommandConsole& getCommandConsole() { return commandConsole; }
+	[[nodiscard]] CliComm& getCliComm() const;
+	[[nodiscard]] RenderSettings& getRenderSettings() { return renderSettings; }
+	[[nodiscard]] OSDGUI& getOSDGUI() { return osdGui; }
+	[[nodiscard]] CommandConsole& getCommandConsole() { return commandConsole; }
 
 	/** Redraw the display.
 	  * repaint() should only be called from the VideoSystem.
@@ -58,12 +58,12 @@ public:
 	void attach(VideoSystemChangeListener& listener);
 	void detach(VideoSystemChangeListener& listener);
 
-	Layer* findActiveLayer() const;
-	const Layers& getAllLayers() const { return layers; }
+	[[nodiscard]] Layer* findActiveLayer() const;
+	[[nodiscard]] const Layers& getAllLayers() const { return layers; }
 
-	OutputSurface* getOutputSurface();
+	[[nodiscard]] OutputSurface* getOutputSurface();
 
-	std::string getWindowTitle();
+	[[nodiscard]] std::string getWindowTitle();
 
 private:
 	void resetVideoSystem();
@@ -83,11 +83,12 @@ private:
 
 	/** Find frontmost opaque layer.
 	  */
-	Layers::iterator baseLayer();
+	[[nodiscard]] Layers::iterator baseLayer();
 
 	// LayerListener interface
 	void updateZ(Layer& layer) override;
 
+private:
 	Layers layers; // sorted on z
 	std::unique_ptr<VideoSystem> videoSystem;
 
@@ -102,7 +103,7 @@ private:
 	struct ScreenShotCmd final : Command {
 		explicit ScreenShotCmd(CommandController& commandController);
 		void execute(span<const TclObject> tokens, TclObject& result) override;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} screenShotCmd;
 
@@ -110,7 +111,7 @@ private:
 		explicit FpsInfoTopic(InfoCommand& openMSXInfoCommand);
 		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
 	} fpsInfo;
 
 	OSDGUI osdGui;

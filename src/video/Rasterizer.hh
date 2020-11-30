@@ -15,7 +15,7 @@ public:
 	virtual ~Rasterizer() = default;
 
 	/** See VDP::getPostProcessor(). */
-	virtual PostProcessor* getPostProcessor() const = 0;
+	[[nodiscard]] virtual PostProcessor* getPostProcessor() const = 0;
 
 	/** Will the output of this Rasterizer be displayed?
 	  * There is no point in producing a frame that will not be displayed.
@@ -102,7 +102,7 @@ public:
 
 	/** Is video recording active?
 	  */
-	virtual bool isRecording() const = 0;
+	[[nodiscard]] virtual bool isRecording() const = 0;
 
 protected:
 	Rasterizer() = default;

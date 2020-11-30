@@ -21,7 +21,7 @@ public:
 	virtual ~BaseImage() = default;
 	virtual void draw(OutputSurface& output, gl::ivec2 pos,
 	                  uint8_t r, uint8_t g, uint8_t b, uint8_t alpha) = 0;
-	gl::ivec2 getSize() const { return size; }
+	[[nodiscard]] gl::ivec2 getSize() const { return size; }
 
 	void draw(OutputSurface& output, gl::ivec2 pos, uint8_t alpha = 255) {
 		draw(output, pos, 255, 255, 255, alpha);

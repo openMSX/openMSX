@@ -22,7 +22,7 @@ public:
 
 	ZMBVEncoder(unsigned width, unsigned height, unsigned bpp);
 
-	span<const uint8_t> compressFrame(bool keyFrame, FrameSource* frame);
+	[[nodiscard]] span<const uint8_t> compressFrame(bool keyFrame, FrameSource* frame);
 
 private:
 	enum Format {
@@ -31,16 +31,17 @@ private:
 	};
 
 	void setupBuffers(unsigned bpp);
-	unsigned neededSize() const;
+	[[nodiscard]] unsigned neededSize() const;
 	template<typename P> void addFullFrame(const PixelFormat& pixelFormat, unsigned& workUsed);
 	template<typename P> void addXorFrame (const PixelFormat& pixelFormat, unsigned& workUsed);
-	template<typename P> unsigned possibleBlock(int vx, int vy, unsigned offset);
-	template<typename P> unsigned compareBlock(int vx, int vy, unsigned offset);
+	template<typename P> [[nodiscard]] unsigned possibleBlock(int vx, int vy, unsigned offset);
+	template<typename P> [[nodiscard]] unsigned compareBlock(int vx, int vy, unsigned offset);
 	template<typename P> void addXorBlock(
 		const PixelOperations<P>& pixelOps, int vx, int vy,
 		unsigned offset, unsigned& workUsed);
-	const void* getScaledLine(FrameSource* frame, unsigned y, void* workBuf) const;
+	[[nodiscard]] const void* getScaledLine(FrameSource* frame, unsigned y, void* workBuf) const;
 
+private:
 	MemBuffer<uint8_t, SSE_ALIGNMENT> oldframe;
 	MemBuffer<uint8_t, SSE_ALIGNMENT> newframe;
 	MemBuffer<uint8_t, SSE_ALIGNMENT> work;

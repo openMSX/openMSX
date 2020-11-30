@@ -37,8 +37,8 @@ public:
 	~SDLRasterizer() override;
 
 	// Rasterizer interface:
-	PostProcessor* getPostProcessor() const override;
-	bool isActive() override;
+	[[nodiscard]] PostProcessor* getPostProcessor() const override;
+	[[nodiscard]] bool isActive() override;
 	void reset() override;
 	void frameStart(EmuTime::param time) override;
 	void frameEnd() override;
@@ -59,7 +59,7 @@ public:
 		int fromX, int fromY,
 		int displayX, int displayY,
 		int displayWidth, int displayHeight) override;
-	bool isRecording() const override;
+	[[nodiscard]] bool isRecording() const override;
 
 private:
 	inline void renderBitmapLine(Pixel* buf, unsigned vramLine);
@@ -90,6 +90,7 @@ private:
 	// Observer<Setting>
 	void update(const Setting& setting) override;
 
+private:
 	/** The VDP of which the video output is being rendered.
 	  */
 	VDP& vdp;

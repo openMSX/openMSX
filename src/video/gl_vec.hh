@@ -2,8 +2,8 @@
 #define GL_VEC_HH
 
 // This code implements a mathematical vector, comparable in functionality
-// and syntax to the vector types in GLSL. 
-// 
+// and syntax to the vector types in GLSL.
+//
 // Only vector sizes 2, 3 and 4 are supported. Though when it doesn't
 // complicate stuff the code was written to support any size.
 //
@@ -112,13 +112,13 @@ public:
 	}
 
 	// Access the i-th element of this vector.
-	T  operator[](unsigned i) const {
+	[[nodiscard]] T  operator[](unsigned i) const {
 		#ifdef DEBUG
 		assert(i < N);
 		#endif
 		return e[i];
 	}
-	T& operator[](unsigned i) {
+	[[nodiscard]] T& operator[](unsigned i) {
 		#ifdef DEBUG
 		assert(i < N);
 		#endif
@@ -126,8 +126,8 @@ public:
 	}
 
 	// For structured bindings
-	template<size_t I> T  get() const noexcept { return (*this)[I]; }
-	template<size_t I> T& get()       noexcept { return (*this)[I]; }
+	template<size_t I> [[nodiscard]] T  get() const noexcept { return (*this)[I]; }
+	template<size_t I> [[nodiscard]] T& get()       noexcept { return (*this)[I]; }
 
 	// Assignment version of the +,-,* operations defined below.
 	vecN& operator+=(const vecN& x) { *this = *this + x; return *this; }
@@ -152,21 +152,21 @@ using ivec4 = vecN<4, int>;
 // -- Scalar functions --
 
 // reciprocal square root
-inline float rsqrt(float x)
+[[nodiscard]] inline float rsqrt(float x)
 {
 	return 1.0f / sqrtf(x);
 }
-inline double rsqrt(double x)
+[[nodiscard]] inline double rsqrt(double x)
 {
 	return 1.0 / sqrt(x);
 }
 
 // convert radians <-> degrees
-template<typename T> inline T radians(T d)
+template<typename T> [[nodiscard]] inline T radians(T d)
 {
 	return d * T(M_PI / 180.0);
 }
-template<typename T> inline T degrees(T r)
+template<typename T> [[nodiscard]] inline T degrees(T r)
 {
 	return r * T(180.0 / M_PI);
 }
@@ -176,27 +176,27 @@ template<typename T> inline T degrees(T r)
 
 // vector equality / inequality
 template<int N, typename T>
-inline bool operator==(const vecN<N, T>& x, const vecN<N, T>& y)
+[[nodiscard]] inline bool operator==(const vecN<N, T>& x, const vecN<N, T>& y)
 {
 	for (int i = 0; i < N; ++i) if (x[i] != y[i]) return false;
 	return true;
 }
 template<int N, typename T>
-inline bool operator!=(const vecN<N, T>& x, const vecN<N, T>& y)
+[[nodiscard]] inline bool operator!=(const vecN<N, T>& x, const vecN<N, T>& y)
 {
 	return !(x == y);
 }
 
 // vector negation
 template<int N, typename T>
-inline vecN<N, T> operator-(const vecN<N, T>& x)
+[[nodiscard]] inline vecN<N, T> operator-(const vecN<N, T>& x)
 {
 	return vecN<N, T>() - x;
 }
 
 // vector + vector
 template<int N, typename T>
-inline vecN<N, T> operator+(const vecN<N, T>& x, const vecN<N, T>& y)
+[[nodiscard]] inline vecN<N, T> operator+(const vecN<N, T>& x, const vecN<N, T>& y)
 {
 	vecN<N, T> r;
 	for (int i = 0; i < N; ++i) r[i] = x[i] + y[i];
@@ -205,7 +205,7 @@ inline vecN<N, T> operator+(const vecN<N, T>& x, const vecN<N, T>& y)
 
 // vector - vector
 template<int N, typename T>
-inline vecN<N, T> operator-(const vecN<N, T>& x, const vecN<N, T>& y)
+[[nodiscard]] inline vecN<N, T> operator-(const vecN<N, T>& x, const vecN<N, T>& y)
 {
 	vecN<N, T> r;
 	for (int i = 0; i < N; ++i) r[i] = x[i] - y[i];
@@ -214,7 +214,7 @@ inline vecN<N, T> operator-(const vecN<N, T>& x, const vecN<N, T>& y)
 
 // scalar * vector
 template<int N, typename T>
-inline vecN<N, T> operator*(T x, const vecN<N, T>& y)
+[[nodiscard]] inline vecN<N, T> operator*(T x, const vecN<N, T>& y)
 {
 	vecN<N, T> r;
 	for (int i = 0; i < N; ++i) r[i] = x * y[i];
@@ -223,7 +223,7 @@ inline vecN<N, T> operator*(T x, const vecN<N, T>& y)
 
 // vector * scalar
 template<int N, typename T>
-inline vecN<N, T> operator*(const vecN<N, T>& x, T y)
+[[nodiscard]] inline vecN<N, T> operator*(const vecN<N, T>& x, T y)
 {
 	vecN<N, T> r;
 	for (int i = 0; i < N; ++i) r[i] = x[i] * y;
@@ -232,7 +232,7 @@ inline vecN<N, T> operator*(const vecN<N, T>& x, T y)
 
 // vector * vector
 template<int N, typename T>
-inline vecN<N, T> operator*(const vecN<N, T>& x, const vecN<N, T>& y)
+[[nodiscard]] inline vecN<N, T> operator*(const vecN<N, T>& x, const vecN<N, T>& y)
 {
 	vecN<N, T> r;
 	for (int i = 0; i < N; ++i) r[i] = x[i] * y[i];
@@ -241,7 +241,7 @@ inline vecN<N, T> operator*(const vecN<N, T>& x, const vecN<N, T>& y)
 
 // element-wise reciprocal
 template<int N, typename T>
-inline vecN<N, T> recip(const vecN<N, T>& x)
+[[nodiscard]] inline vecN<N, T> recip(const vecN<N, T>& x)
 {
 	vecN<N, T> r;
 	for (int i = 0; i < N; ++i) r[i] = T(1) / x[i];
@@ -250,28 +250,28 @@ inline vecN<N, T> recip(const vecN<N, T>& x)
 
 // scalar / vector
 template<int N, typename T>
-inline vecN<N, T> operator/(T x, const vecN<N, T>& y)
+[[nodiscard]] inline vecN<N, T> operator/(T x, const vecN<N, T>& y)
 {
 	return x * recip(y);
 }
 
 // vector / scalar
 template<int N, typename T>
-inline vecN<N, T> operator/(const vecN<N, T>& x, T y)
+[[nodiscard]] inline vecN<N, T> operator/(const vecN<N, T>& x, T y)
 {
 	return x * (T(1) / y);
 }
 
 // vector / vector
 template<int N, typename T>
-inline vecN<N, T> operator/(const vecN<N, T>& x, const vecN<N, T>& y)
+[[nodiscard]] inline vecN<N, T> operator/(const vecN<N, T>& x, const vecN<N, T>& y)
 {
 	return x * recip(y);
 }
 
 // min(vector, vector)
 template<int N, typename T>
-inline vecN<N, T> min(const vecN<N, T>& x, const vecN<N, T>& y)
+[[nodiscard]] inline vecN<N, T> min(const vecN<N, T>& x, const vecN<N, T>& y)
 {
 	vecN<N, T> r;
 	for (int i = 0; i < N; ++i) r[i] = std::min(x[i], y[i]);
@@ -280,7 +280,7 @@ inline vecN<N, T> min(const vecN<N, T>& x, const vecN<N, T>& y)
 
 // min(vector, vector)
 template<int N, typename T>
-inline T min_component(const vecN<N, T>& x)
+[[nodiscard]] inline T min_component(const vecN<N, T>& x)
 {
 	T r = x[0];
 	for (int i = 1; i < N; ++i) r = std::min(r, x[i]);
@@ -289,7 +289,7 @@ inline T min_component(const vecN<N, T>& x)
 
 // max(vector, vector)
 template<int N, typename T>
-inline vecN<N, T> max(const vecN<N, T>& x, const vecN<N, T>& y)
+[[nodiscard]] inline vecN<N, T> max(const vecN<N, T>& x, const vecN<N, T>& y)
 {
 	vecN<N, T> r;
 	for (int i = 0; i < N; ++i) r[i] = std::max(x[i], y[i]);
@@ -298,68 +298,68 @@ inline vecN<N, T> max(const vecN<N, T>& x, const vecN<N, T>& y)
 
 // clamp(vector, vector, vector)
 template<int N, typename T>
-inline vecN<N, T> clamp(const vecN<N, T>& x, const vecN<N, T>& minVal, const vecN<N, T>& maxVal)
+[[nodiscard]] inline vecN<N, T> clamp(const vecN<N, T>& x, const vecN<N, T>& minVal, const vecN<N, T>& maxVal)
 {
 	return min(maxVal, max(minVal, x));
 }
 
 // clamp(vector, scalar, scalar)
 template<int N, typename T>
-inline vecN<N, T> clamp(const vecN<N, T>& x, T minVal, T maxVal)
+[[nodiscard]] inline vecN<N, T> clamp(const vecN<N, T>& x, T minVal, T maxVal)
 {
 	return clamp(x, vecN<N, T>(minVal), vecN<N, T>(maxVal));
 }
 
 // sum of components
 template<int N, typename T>
-inline T sum(const vecN<N, T>& x)
+[[nodiscard]] inline T sum(const vecN<N, T>& x)
 {
 	T result(0);
 	for (int i = 0; i < N; ++i) result += x[i];
 	return result;
 }
 template<int N, typename T>
-inline vecN<N, T> sum_broadcast(const vecN<N, T>& x)
+[[nodiscard]] inline vecN<N, T> sum_broadcast(const vecN<N, T>& x)
 {
 	return vecN<N, T>(sum(x));
 }
 
 // dot product
 template<int N, typename T>
-inline T dot(const vecN<N, T>& x, const vecN<N, T>& y)
+[[nodiscard]] inline T dot(const vecN<N, T>& x, const vecN<N, T>& y)
 {
 	return sum(x * y);
 }
 template<int N, typename T>
-inline vecN<N, T> dot_broadcast(const vecN<N, T>& x, const vecN<N, T>& y)
+[[nodiscard]] inline vecN<N, T> dot_broadcast(const vecN<N, T>& x, const vecN<N, T>& y)
 {
 	return sum_broadcast(x * y);
 }
 
 // squared length (norm-2)
 template<int N, typename T>
-inline T length2(const vecN<N, T>& x)
+[[nodiscard]] inline T length2(const vecN<N, T>& x)
 {
 	return dot(x, x);
 }
 
 // length (norm-2)
 template<int N, typename T>
-inline T length(const vecN<N, T>& x)
+[[nodiscard]] inline T length(const vecN<N, T>& x)
 {
 	return sqrt(length2(x));
 }
 
 // normalize vector
 template<int N, typename T>
-inline vecN<N, T> normalize(const vecN<N, T>& x)
+[[nodiscard]] inline vecN<N, T> normalize(const vecN<N, T>& x)
 {
 	return x * rsqrt(length2(x));
 }
 
 // cross product (only defined for vectors of length 3)
 template<typename T>
-inline vecN<3, T> cross(const vecN<3, T>& x, const vecN<3, T>& y)
+[[nodiscard]] inline vecN<3, T> cross(const vecN<3, T>& x, const vecN<3, T>& y)
 {
 	return vecN<3, T>(x[1] * y[2] - x[2] * y[1],
 	                  x[2] * y[0] - x[0] * y[2],
@@ -368,7 +368,7 @@ inline vecN<3, T> cross(const vecN<3, T>& x, const vecN<3, T>& y)
 
 // round each component to the nearest integer (returns a vector of integers)
 template<int N, typename T>
-inline vecN<N, int> round(const vecN<N, T>& x)
+[[nodiscard]] inline vecN<N, int> round(const vecN<N, T>& x)
 {
 	vecN<N, int> r;
 	// note: std::lrint() is more generic (e.g. also works with double),
@@ -380,7 +380,7 @@ inline vecN<N, int> round(const vecN<N, T>& x)
 // truncate each component to the nearest integer that is not bigger in
 // absolute value (returns a vector of integers)
 template<int N, typename T>
-inline vecN<N, int> trunc(const vecN<N, T>& x)
+[[nodiscard]] inline vecN<N, int> trunc(const vecN<N, T>& x)
 {
 	vecN<N, int> r;
 	for (int i = 0; i < N; ++i) r[i] = int(x[i]);
@@ -471,12 +471,12 @@ public:
 		e = _mm_setr_ps(x, y, z, w);
 	}
 
-	float  operator[](int i) const { return e_[i]; }
-	float& operator[](int i)       { return e_[i]; }
+	[[nodiscard]] float  operator[](int i) const { return e_[i]; }
+	[[nodiscard]] float& operator[](int i)       { return e_[i]; }
 
 	// For structured bindings
-	template<size_t I> float  get() const noexcept { return (*this)[I]; }
-	template<size_t I> float& get()       noexcept { return (*this)[I]; }
+	template<size_t I> [[nodiscard]] float  get() const noexcept { return (*this)[I]; }
+	template<size_t I> [[nodiscard]] float& get()       noexcept { return (*this)[I]; }
 
 	vecN& operator+=(vecN  x) { *this = *this + x; ; return *this; }
 	vecN& operator-=(vecN  x) { *this = *this - x; ; return *this; }
@@ -484,7 +484,7 @@ public:
 	vecN& operator*=(float x) { *this = *this * x; ; return *this; }
 
 	explicit vecN(__m128 x) : e(x) {}
-	__m128 sse() const { return e; }
+	[[nodiscard]] __m128 sse() const { return e; }
 
 private:
 	// With gcc we don't need this union. With clang we need it to
@@ -495,56 +495,56 @@ private:
 	};
 };
 
-inline bool operator==(vec4 x, vec4 y)
+[[nodiscard]] inline bool operator==(vec4 x, vec4 y)
 {
 	return _mm_movemask_ps(_mm_cmpeq_ps(x.sse(), y.sse())) == 15;
 }
 
-inline vec4 operator+(vec4 x, vec4 y)
+[[nodiscard]] inline vec4 operator+(vec4 x, vec4 y)
 {
 	return vec4(_mm_add_ps(x.sse(), y.sse()));
 }
 
-inline vec4 operator-(vec4 x, vec4 y)
+[[nodiscard]] inline vec4 operator-(vec4 x, vec4 y)
 {
 	return vec4(_mm_sub_ps(x.sse(), y.sse()));
 }
 
-inline vec4 operator*(float x, vec4 y)
+[[nodiscard]] inline vec4 operator*(float x, vec4 y)
 {
 	return vec4(_mm_mul_ps(_mm_set1_ps(x), y.sse()));
 }
 
-inline vec4 operator*(vec4 x, float y)
+[[nodiscard]] inline vec4 operator*(vec4 x, float y)
 {
 	return vec4(_mm_mul_ps(x.sse(), _mm_set1_ps(y)));
 }
 
-inline vec4 operator*(vec4 x, vec4 y)
+[[nodiscard]] inline vec4 operator*(vec4 x, vec4 y)
 {
 	return vec4(_mm_mul_ps(x.sse(), y.sse()));
 }
 
 #ifdef __SSE3__
-inline float sum(vec4 x)
+[[nodiscard]] inline float sum(vec4 x)
 {
 	__m128 t = _mm_hadd_ps(x.sse(), x.sse());
 	return _mm_cvtss_f32(_mm_hadd_ps(t, t));
 }
-inline vec4 sum_broadcast(vec4 x)
+[[nodiscard]] inline vec4 sum_broadcast(vec4 x)
 {
 	__m128 t = _mm_hadd_ps(x.sse(), x.sse());
 	return vec4(_mm_hadd_ps(t, t));
 }
 #else
-inline float sum(vec4 x)
+[[nodiscard]] inline float sum(vec4 x)
 {
 	__m128 t0 = x.sse();
 	__m128 t1 = _mm_add_ps(t0, _mm_movehl_ps (t0, t0));
 	__m128 t2 = _mm_add_ps(t1, _mm_shuffle_ps(t1, t1, _MM_SHUFFLE(1,1,1,1)));
 	return _mm_cvtss_f32(t2);
 }
-inline vec4 sum_broadcast(vec4 x)
+[[nodiscard]] inline vec4 sum_broadcast(vec4 x)
 {
 	__m128 t0 = x.sse();
 	__m128 t1 = _mm_add_ps(t0, _mm_shuffle_ps(t0, t0, _MM_SHUFFLE(2,3,0,1)));
@@ -553,28 +553,28 @@ inline vec4 sum_broadcast(vec4 x)
 }
 #endif
 
-inline vec4 min(vec4 x, vec4 y)
+[[nodiscard]] inline vec4 min(vec4 x, vec4 y)
 {
 	return vec4(_mm_min_ps(x.sse(), y.sse()));
 }
 
-inline vec4 max(vec4 x, vec4 y)
+[[nodiscard]] inline vec4 max(vec4 x, vec4 y)
 {
 	return vec4(_mm_max_ps(x.sse(), y.sse()));
 }
 
 #ifdef __SSE4_1__
-inline float dot(vec4 x, vec4 y)
+[[nodiscard]] inline float dot(vec4 x, vec4 y)
 {
 	return _mm_cvtss_f32(_mm_dp_ps(x.sse(), y.sse(), 0xF1));
 }
-inline vec4 dot_broadcast(vec4 x, vec4 y)
+[[nodiscard]] inline vec4 dot_broadcast(vec4 x, vec4 y)
 {
 	return vec4(_mm_dp_ps(x.sse(), y.sse(), 0xFF));
 }
 #endif
 
-inline vec4 normalize(vec4 x)
+[[nodiscard]] inline vec4 normalize(vec4 x)
 {
 	// Use 1 Newton-Raphson step to improve 1/sqrt(a) approximation:
 	//   let s0 be the initial approximation, then
@@ -588,7 +588,7 @@ inline vec4 normalize(vec4 x)
 	return vec4(_mm_mul_ps(x.sse(), s1));
 }
 
-inline vec4 recip(vec4 a)
+[[nodiscard]] inline vec4 recip(vec4 a)
 {
 	// Use 1 Newton-Raphson step to improve 1/a approximation:
 	//   let x0 be the initial approximation, then

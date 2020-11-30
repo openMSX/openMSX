@@ -29,7 +29,7 @@ TODO:
   - in 512 lines modes (e.g. screen 7) NY is NOT limited to 512, so when
     NY > 512, part of the screen is overdrawn twice
   - in 256 columns modes (e.g. screen 5) when "SX/DX >= 256", only 1 element
-    (pixel or byte) is processed per horizontal line. The real x-ccordinate
+    (pixel or byte) is processed per horizontal line. The real x-coordinate
     is "SX/DX & 255".
 */
 

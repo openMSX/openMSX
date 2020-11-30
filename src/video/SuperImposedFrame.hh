@@ -22,6 +22,7 @@ public:
 protected:
 	explicit SuperImposedFrame(const PixelFormat& format);
 
+protected:
 	const FrameSource* top;
 	const FrameSource* bottom;
 };

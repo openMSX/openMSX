@@ -19,10 +19,11 @@ public:
 	              std::unique_ptr<RawFrame>* lastFrames);
 
 private:
-	const void* getLineInfo(
+	[[nodiscard]] const void* getLineInfo(
 		unsigned line, unsigned& width,
 		void* buf, unsigned bufWidth) const override;
 
+private:
 	PixelOperations<Pixel> pixelOps;
 };
 

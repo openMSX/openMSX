@@ -12,7 +12,7 @@ class Deflicker : public FrameSource
 {
 public:
 	// Factory method, actually returns a Deflicker subclass.
-	static std::unique_ptr<Deflicker> create(
+	[[nodiscard]] static std::unique_ptr<Deflicker> create(
 		const PixelFormat& format,
 		std::unique_ptr<RawFrame>* lastFrames);
 	void init();
@@ -22,8 +22,9 @@ protected:
 	Deflicker(const PixelFormat& format,
 	          std::unique_ptr<RawFrame>* lastFrames);
 
-	unsigned getLineWidth(unsigned line) const override;
+	[[nodiscard]] unsigned getLineWidth(unsigned line) const override;
 
+protected:
 	std::unique_ptr<RawFrame>* lastFrames;
 };
 

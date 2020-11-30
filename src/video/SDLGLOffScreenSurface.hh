@@ -20,6 +20,7 @@ private:
 	// OutputSurface
 	void saveScreenshot(const std::string& filename) override;
 
+private:
 	gl::Texture fboTex;
 	gl::FrameBufferObject fbo;
 };

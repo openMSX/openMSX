@@ -30,7 +30,7 @@ public:
 	// Layer interface:
 	void paint(OutputSurface& output) override;
 
-	std::unique_ptr<RawFrame> rotateFrames(
+	[[nodiscard]] std::unique_ptr<RawFrame> rotateFrames(
 		std::unique_ptr<RawFrame> finishedFrame, EmuTime::param time) override;
 
 private:
@@ -42,6 +42,7 @@ private:
 	// Observer<Setting>
 	void update(const Setting& setting) override;
 
+private:
 	/** The currently active scaler.
 	  */
 	std::unique_ptr<Scaler<Pixel>> currScaler;

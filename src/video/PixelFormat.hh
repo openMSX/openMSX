@@ -19,25 +19,25 @@ public:
 		, Rloss (Rloss_),  Gloss (Gloss_),  Bloss (Bloss_),  Aloss (Aloss_)
 		, bpp(bpp_), bytesPerPixel((bpp + 7) / 8) {}
 
-	unsigned getBpp()           const { return bpp; }
-	unsigned getBytesPerPixel() const { return bytesPerPixel; }
+	[[nodiscard]] unsigned getBpp()           const { return bpp; }
+	[[nodiscard]] unsigned getBytesPerPixel() const { return bytesPerPixel; }
 
-	unsigned getRmask() const  { return Rmask; }
-	unsigned getGmask() const  { return Gmask; }
-	unsigned getBmask() const  { return Bmask; }
-	unsigned getAmask() const  { return Amask; }
+	[[nodiscard]] unsigned getRmask() const  { return Rmask; }
+	[[nodiscard]] unsigned getGmask() const  { return Gmask; }
+	[[nodiscard]] unsigned getBmask() const  { return Bmask; }
+	[[nodiscard]] unsigned getAmask() const  { return Amask; }
 
-	unsigned getRshift() const { return Rshift; }
-	unsigned getGshift() const { return Gshift; }
-	unsigned getBshift() const { return Bshift; }
-	unsigned getAshift() const { return Ashift; }
+	[[nodiscard]] unsigned getRshift() const { return Rshift; }
+	[[nodiscard]] unsigned getGshift() const { return Gshift; }
+	[[nodiscard]] unsigned getBshift() const { return Bshift; }
+	[[nodiscard]] unsigned getAshift() const { return Ashift; }
 
-	unsigned getRloss() const  { return Rloss; }
-	unsigned getGloss() const  { return Gloss; }
-	unsigned getBloss() const  { return Bloss; }
-	unsigned getAloss() const  { return Aloss; }
+	[[nodiscard]] unsigned getRloss() const  { return Rloss; }
+	[[nodiscard]] unsigned getGloss() const  { return Gloss; }
+	[[nodiscard]] unsigned getBloss() const  { return Bloss; }
+	[[nodiscard]] unsigned getAloss() const  { return Aloss; }
 
-	unsigned map(unsigned r, unsigned g, unsigned b) const
+	[[nodiscard]] unsigned map(unsigned r, unsigned g, unsigned b) const
 	{
 		return ((r >> Rloss) << Rshift) |
 		       ((g >> Gloss) << Gshift) |

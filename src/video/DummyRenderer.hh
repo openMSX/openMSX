@@ -12,7 +12,7 @@ class DummyRenderer final : public Renderer, public Layer
 {
 public:
 	// Renderer interface:
-	PostProcessor* getPostProcessor() const override;
+	[[nodiscard]] PostProcessor* getPostProcessor() const override;
 	void reInit() override;
 	void frameStart(EmuTime::param time) override;
 	void frameEnd(EmuTime::param time) override;

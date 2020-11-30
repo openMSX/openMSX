@@ -182,14 +182,14 @@ public:
 
 	/** Get X coordinate of sprite collision.
 	  */
-	inline int getCollisionX(EmuTime::param time) {
+	[[nodiscard]] inline int getCollisionX(EmuTime::param time) {
 		sync(time);
 		return collisionX;
 	}
 
 	/** Get Y coordinate of sprite collision.
 	  */
-	inline int getCollisionY(EmuTime::param time) {
+	[[nodiscard]] inline int getCollisionY(EmuTime::param time) {
 		sync(time);
 		return collisionY;
 	}
@@ -232,7 +232,7 @@ public:
 	  *   is scheduled.
 	  * @return The number of sprites stored in the visibleSprites array.
 	  */
-	inline int getSprites(int line, const SpriteInfo*& visibleSprites) const {
+	[[nodiscard]] inline int getSprites(int line, const SpriteInfo*& visibleSprites) const {
 		// Compensate for the fact sprites are checked one line earlier
 		// than they are displayed.
 		line--;
@@ -296,8 +296,8 @@ private:
 	  *   Bit 31 is the leftmost bit of the sprite.
 	  *   Unused bits are zero.
 	  */
-	inline SpritePattern calculatePatternNP(unsigned patternNr, unsigned y);
-	inline SpritePattern calculatePatternPlanar(unsigned patternNr, unsigned y);
+	[[nodiscard]] inline SpritePattern calculatePatternNP(unsigned patternNr, unsigned y);
+	[[nodiscard]] inline SpritePattern calculatePatternPlanar(unsigned patternNr, unsigned y);
 
 	/** Check sprite collision and number of sprites per line.
 	  * This routine implements sprite mode 1 (MSX1).
@@ -323,6 +323,7 @@ private:
 	  */
 	inline void checkSprites2(int minLine, int maxLine);
 
+private:
 	using UpdateSpritesMethod = void (SpriteChecker::*)(int limit);
 	UpdateSpritesMethod updateSpritesMethod;
 

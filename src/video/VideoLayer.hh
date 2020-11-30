@@ -25,8 +25,8 @@ public:
 	  * These IDs are globally unique. The 'videosource' setting uses
 	  * these IDs as possible values.
 	  */
-	int getVideoSource() const;
-	int getVideoSourceSetting() const;
+	[[nodiscard]] int getVideoSource() const;
+	[[nodiscard]] int getVideoSourceSetting() const;
 
 	/** Create a raw (=non-postprocessed) screenshot. The 'height'
 	 * parameter should be either '240' or '480'. The current image will be
@@ -43,8 +43,8 @@ public:
 		video9000Source = video9000Source_;
 		activeVideo9000 = active;
 	}
-	bool needRender() const;
-	bool needRecord() const;
+	[[nodiscard]] bool needRender() const;
+	[[nodiscard]] bool needRecord() const;
 
 protected:
 	VideoLayer(MSXMotherBoard& motherBoard,
@@ -64,6 +64,7 @@ private:
 	void signalMSXEvent(const std::shared_ptr<const Event>& event,
 	                    EmuTime::param time) override;
 
+private:
 	/** This layer belongs to a specific machine. */
 	MSXMotherBoard& motherBoard;
 	/** Settings shared between all renderers. */

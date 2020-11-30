@@ -88,6 +88,7 @@ private:
 		Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1);
 	inline void renderBogus(Pixel* pixelPtr);
 
+private:
 	const Pixel* const __restrict palette16;
 	const Pixel* const __restrict palette256;
 	const Pixel* const __restrict palette32768;

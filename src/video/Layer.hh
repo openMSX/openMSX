@@ -47,11 +47,11 @@ public:
 
 	/** Query the Z-index of this layer.
 	  */
-	ZIndex getZ() const { return z; }
+	[[nodiscard]] ZIndex getZ() const { return z; }
 
 	/** Query the coverage of this layer.
 	 */
-	Coverage getCoverage() const { return coverage; }
+	[[nodiscard]] Coverage getCoverage() const { return coverage; }
 
 	/** Store pointer to Display.
 	  * Will be called by Display::addLayer().

@@ -2,8 +2,8 @@
 #define GL_MAT_HH
 
 // This code implements a mathematical matrix, comparable in functionality
-// and syntax to the matrix types in GLSL. 
-// 
+// and syntax to the matrix types in GLSL.
+//
 // The code was tuned for 4x4 matrixes, but when it didn't complicate the
 // code, other sizes (even non-square) are supported as well.
 //
@@ -41,7 +41,7 @@ public:
 			}
 		}
 	}
-	
+
 	// Construct diagonal matrix.
 	explicit matMxN(const vecN<(M < N ? M : N), T>& d)
 	{
@@ -85,13 +85,13 @@ public:
 	// Access the i-the column of the matrix.
 	// Vectors are also indexable, so 'A[i][j]' returns the element
 	// at the i-th column, j-th row.
-	const vecN<M, T>& operator[](unsigned i) const {
+	[[nodiscard]] const vecN<M, T>& operator[](unsigned i) const {
 		#ifdef DEBUG
 		assert(i < N);
 		#endif
 		return c[i];
 	}
-	vecN<M, T>& operator[](unsigned i) {
+	[[nodiscard]] vecN<M, T>& operator[](unsigned i) {
 		#ifdef DEBUG
 		assert(i < N);
 		#endif
@@ -139,8 +139,8 @@ public:
 		c[0] = x; c[1] = y; c[2] = z; c[3] = w;
 	}
 
-	vecN<4, T>  operator[](int i) const { return c[i]; }
-	vecN<4, T>& operator[](int i)       { return c[i]; }
+	[[nodiscard]] vecN<4, T>  operator[](int i) const { return c[i]; }
+	[[nodiscard]] vecN<4, T>& operator[](int i)       { return c[i]; }
 
 	// Assignment version of the +,-,* operations defined below.
 	matMxN& operator+=(const matMxN& x) { *this = *this + x; return *this; }
@@ -163,20 +163,20 @@ using mat4 = matMxN<4, 4, float>;
 
 // matrix equality / inequality
 template<int M, int N, typename T>
-inline bool operator==(const matMxN<M, N, T>& A, const matMxN<M, N, T>& B)
+[[nodiscard]] inline bool operator==(const matMxN<M, N, T>& A, const matMxN<M, N, T>& B)
 {
 	for (int i = 0; i < N; ++i) if (A[i] != B[i]) return false;
 	return true;
 }
 template<int M, int N, typename T>
-inline bool operator!=(const matMxN<M, N, T>& A, const matMxN<M, N, T>& B)
+[[nodiscard]] inline bool operator!=(const matMxN<M, N, T>& A, const matMxN<M, N, T>& B)
 {
 	return !(A == B);
 }
 
 // matrix + matrix
 template<int M, int N, typename T>
-inline matMxN<M, N, T> operator+(const matMxN<M, N, T>& A, const matMxN<M, N, T>& B)
+[[nodiscard]] inline matMxN<M, N, T> operator+(const matMxN<M, N, T>& A, const matMxN<M, N, T>& B)
 {
 	matMxN<M, N, T> R;
 	for (int i = 0; i < N; ++i) R[i] = A[i] + B[i];
@@ -185,7 +185,7 @@ inline matMxN<M, N, T> operator+(const matMxN<M, N, T>& A, const matMxN<M, N, T>
 
 // matrix - matrix
 template<int M, int N, typename T>
-inline matMxN<M, N, T> operator-(const matMxN<M, N, T>& A, const matMxN<M, N, T>& B)
+[[nodiscard]] inline matMxN<M, N, T> operator-(const matMxN<M, N, T>& A, const matMxN<M, N, T>& B)
 {
 	matMxN<M, N, T> R;
 	for (int i = 0; i < N; ++i) R[i] = A[i] - B[i];
@@ -194,14 +194,14 @@ inline matMxN<M, N, T> operator-(const matMxN<M, N, T>& A, const matMxN<M, N, T>
 
 // matrix negation
 template<int M, int N, typename T>
-inline matMxN<M, N, T> operator-(const matMxN<M, N, T>& A)
+[[nodiscard]] inline matMxN<M, N, T> operator-(const matMxN<M, N, T>& A)
 {
 	return matMxN<M, N, T>(vecN<(M < N ? M : N), T>()) - A;
 }
 
 // scalar * matrix
 template<int M, int N, typename T>
-inline matMxN<M, N, T> operator*(T x, const matMxN<M, N, T>& A)
+[[nodiscard]] inline matMxN<M, N, T> operator*(T x, const matMxN<M, N, T>& A)
 {
 	matMxN<M, N, T> R;
 	for (int i = 0; i < N; ++i) R[i] = x * A[i];
@@ -210,7 +210,7 @@ inline matMxN<M, N, T> operator*(T x, const matMxN<M, N, T>& A)
 
 // matrix * scalar
 template<int M, int N, typename T>
-inline matMxN<M, N, T> operator*(const matMxN<M, N, T>& A, T x)
+[[nodiscard]] inline matMxN<M, N, T> operator*(const matMxN<M, N, T>& A, T x)
 {
 	matMxN<M, N, T> R;
 	for (int i = 0; i < N; ++i) R[i] = A[i] * x;
@@ -219,14 +219,14 @@ inline matMxN<M, N, T> operator*(const matMxN<M, N, T>& A, T x)
 
 // matrix * column-vector
 template<int M, int N, typename T>
-inline vecN<M, T> operator*(const matMxN<M, N, T>& A, const vecN<N, T>& x)
+[[nodiscard]] inline vecN<M, T> operator*(const matMxN<M, N, T>& A, const vecN<N, T>& x)
 {
 	vecN<M, T> r;
 	for (int i = 0; i < N; ++i) r += A[i] * x[i];
 	return r;
 }
 template<typename T>
-inline vecN<4, T> operator*(const matMxN<4, 4, T>& A, vecN<4, T> x)
+[[nodiscard]] inline vecN<4, T> operator*(const matMxN<4, 4, T>& A, vecN<4, T> x)
 {
 	// Small optimization for 4x4 matrix: reassociate add-chain
 	return (A[0] * x[0] + A[1] * x[1]) + (A[2] * x[2] + A[3] * x[3]);
@@ -234,7 +234,7 @@ inline vecN<4, T> operator*(const matMxN<4, 4, T>& A, vecN<4, T> x)
 
 // matrix * matrix
 template<int M, int N, int O, typename T>
-inline matMxN<M, O, T> operator*(const matMxN<M, N, T>& A, const matMxN<N, O, T>& B)
+[[nodiscard]] inline matMxN<M, O, T> operator*(const matMxN<M, N, T>& A, const matMxN<N, O, T>& B)
 {
 	matMxN<M, O, T> R;
 	for (int i = 0; i < O; ++i) R[i] = A * B[i];
@@ -243,7 +243,7 @@ inline matMxN<M, O, T> operator*(const matMxN<M, N, T>& A, const matMxN<N, O, T>
 
 // matrix transpose
 template<int M, int N, typename T>
-inline matMxN<N, M, T> transpose(const matMxN<M, N, T>& A)
+[[nodiscard]] inline matMxN<N, M, T> transpose(const matMxN<M, N, T>& A)
 {
 	matMxN<N, M, T> R;
 	for (int i = 0; i < N; ++i) {
@@ -256,14 +256,14 @@ inline matMxN<N, M, T> transpose(const matMxN<M, N, T>& A)
 
 // determinant of a 2x2 matrix
 template<typename T>
-inline T determinant(const matMxN<2, 2, T>& A)
+[[nodiscard]] inline T determinant(const matMxN<2, 2, T>& A)
 {
 	return A[0][0] * A[1][1] - A[0][1] * A[1][0];
 }
 
 // determinant of a 3x3 matrix
 template<typename T>
-inline T determinant(const matMxN<3, 3, T>& A)
+[[nodiscard]] inline T determinant(const matMxN<3, 3, T>& A)
 {
 	return A[0][0] * (A[1][1] * A[2][2] - A[1][2] * A[2][1])
 	     - A[1][0] * (A[0][1] * A[2][2] - A[0][2] * A[2][1])
@@ -272,7 +272,7 @@ inline T determinant(const matMxN<3, 3, T>& A)
 
 // determinant of a 4x4 matrix
 template<typename T>
-inline T determinant(const matMxN<4, 4, T>& A)
+[[nodiscard]] inline T determinant(const matMxN<4, 4, T>& A)
 {
 	// Implementation based on glm:  http://glm.g-truc.net
 	T f0 = A[2][2] * A[3][3] - A[3][2] * A[2][3];
@@ -290,7 +290,7 @@ inline T determinant(const matMxN<4, 4, T>& A)
 
 // inverse of a 2x2 matrix
 template<typename T>
-inline matMxN<2, 2, T> inverse(const matMxN<2, 2, T>& A)
+[[nodiscard]] inline matMxN<2, 2, T> inverse(const matMxN<2, 2, T>& A)
 {
 	T d = T(1) / determinant(A);
 	return d * matMxN<2, 2, T>(vecN<2, T>( A[1][1], -A[0][1]),
@@ -299,7 +299,7 @@ inline matMxN<2, 2, T> inverse(const matMxN<2, 2, T>& A)
 
 // inverse of a 3x3 matrix
 template<typename T>
-inline matMxN<3, 3, T> inverse(const matMxN<3, 3, T>& A)
+[[nodiscard]] inline matMxN<3, 3, T> inverse(const matMxN<3, 3, T>& A)
 {
 	T d = T(1) / determinant(A);
 	return d * matMxN<3, 3, T>(
@@ -316,7 +316,7 @@ inline matMxN<3, 3, T> inverse(const matMxN<3, 3, T>& A)
 
 // inverse of a 4x4 matrix
 template<typename T>
-inline matMxN<4, 4, T> inverse(const matMxN<4, 4, T>& A)
+[[nodiscard]] inline matMxN<4, 4, T> inverse(const matMxN<4, 4, T>& A)
 {
 	// Implementation based on glm:  http://glm.g-truc.net
 
@@ -373,7 +373,7 @@ inline matMxN<4, 4, T> inverse(const matMxN<4, 4, T>& A)
 
 // norm-2 squared
 template<int M, int N, typename T>
-inline T norm2_2(const matMxN<M, N, T>& A)
+[[nodiscard]] inline T norm2_2(const matMxN<M, N, T>& A)
 {
 	vecN<M, T> t;
 	for (int i = 0; i < N; ++i) t += A[i] * A[i];
@@ -404,7 +404,7 @@ std::ostream& operator<<(std::ostream& os, const matMxN<M, N, T>& A)
 namespace gl {
 
 // transpose of 4x4-float matrix
-inline mat4 transpose(const mat4& A)
+[[nodiscard]] inline mat4 transpose(const mat4& A)
 {
 	mat4 R;
 	__m128 t0 = _mm_shuffle_ps(A[0].sse(), A[1].sse(), _MM_SHUFFLE(1,0,1,0));
@@ -419,7 +419,7 @@ inline mat4 transpose(const mat4& A)
 }
 
 // inverse of a 4x4-float matrix
-inline mat4 inverse(const mat4& A)
+[[nodiscard]] inline mat4 inverse(const mat4& A)
 {
 	// Implementation based on glm:  http://glm.g-truc.net
 
