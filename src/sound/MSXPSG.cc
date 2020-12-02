@@ -12,22 +12,21 @@
 
 namespace openmsx {
 
-byte keyboardLayoutHelper(const DeviceConfig& config, const std::string& name); // avoid declaration warning
-
-byte keyboardLayoutHelper(const DeviceConfig& config, const std::string& name)
+static byte getKeyboardLayout(const MSXPSG& psg)
 {
-	byte value = 0x00;
-	// as many (mostly European) configs do not specify the layout
+	// As many (mostly European) configs do not specify the layout
 	// in the PSG config, assume 50on for these cases.
-	std::string_view configValue = config.getChildData("keyboardlayout", {"50on"});
-	if (StringOp::toLower(configValue) == "jis") {
-		value = 0x40;
-	} else {
-		if (StringOp::toLower(configValue) != "50on") {
-			throw MSXException("Illegal keyboard layout configuration in ", name, " device configuration: ", configValue);
-		}
+	auto value = psg.getDeviceConfig().getChildData("keyboardlayout", "50on");
+	StringOp::casecmp cmp; // case-insensitive
+	if (cmp(value, "50on")) {
+		return 0x00;
+	} else if (cmp(value, "jis")) {
+		return 0x40;
 	}
-	return value;
+	throw MSXException(
+		"Illegal keyboard layout configuration in '", psg.getName(),
+	        "' device configuration: '", value,
+		"', expected 'jis' or '50on'.");
 }
 
 // MSXDevice
@@ -37,7 +36,7 @@ MSXPSG::MSXPSG(const DeviceConfig& config)
 	, renShaTurbo(getMotherBoard().getRenShaTurbo())
 	, selectedPort(0)
 	, prev(255)
-	, keyLayout(keyboardLayoutHelper(config, getName()))
+	, keyLayout(getKeyboardLayout(*this))
 	, addressMask(config.getChildDataAsBool("mirrored_registers", true) ? 0x0f : 0xff)
 {
 	ports[0] = &getMotherBoard().getJoystickPort(0);
