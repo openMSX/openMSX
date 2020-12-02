@@ -326,17 +326,17 @@ std::unique_ptr<Y8950Periphery> Y8950PeripheryFactory::create(
 	MSXAudio& audio, const DeviceConfig& config,
 	const std::string& soundDeviceName)
 {
-	string type(StringOp::toLower(config.getChildData("type", "philips")));
-	if (type == "philips") {
+	auto type = config.getChildData("type", "philips");
+	StringOp::casecmp cmp;
+	if (cmp(type, "philips")) {
 		return std::make_unique<MusicModulePeriphery>(audio);
-	} else if (type == "panasonic") {
+	} else if (cmp(type, "panasonic")) {
 		return std::make_unique<PanasonicAudioPeriphery>(
 			audio, config, soundDeviceName);
-	} else if (type == "toshiba") {
+	} else if (cmp(type, "toshiba")) {
 		return std::make_unique<ToshibaAudioPeriphery>(audio);
-	} else {
-		throw MSXException("Unknown MSX-AUDIO type: ", type);
 	}
+	throw MSXException("Unknown MSX-AUDIO type: ", type);
 }
 
 } // namespace openmsx

@@ -23,12 +23,12 @@ bool stringToBool(string_view str)
 	return false;
 }
 
-string toLower(string_view str)
-{
-	string result(str);
-	transform_in_place(result, ::tolower);
-	return result;
-}
+//string toLower(string_view str)
+//{
+//	string result(str);
+//	transform_in_place(result, ::tolower);
+//	return result;
+//}
 
 bool startsWith(string_view total, string_view part)
 {

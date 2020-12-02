@@ -48,7 +48,7 @@ namespace StringOp
 
 	[[nodiscard]] bool stringToBool(std::string_view str);
 
-	[[nodiscard]] std::string toLower(std::string_view str);
+	//[[nodiscard]] std::string toLower(std::string_view str);
 
 	[[nodiscard]] bool startsWith(std::string_view total, std::string_view part);
 	[[nodiscard]] bool startsWith(std::string_view total, char part);

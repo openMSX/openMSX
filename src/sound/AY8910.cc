@@ -282,14 +282,14 @@ inline void AY8910::NoiseGenerator::advance(int duration)
 
 static bool checkAY8910(const DeviceConfig& config)
 {
-	string type = StringOp::toLower(config.getChildData("type", "ay8910"));
-	if (type == "ay8910") {
+	auto type = config.getChildData("type", "ay8910");
+	StringOp::casecmp cmp;
+	if (cmp(type, "ay8910")) {
 		return true;
-	} else if (type == "ym2149") {
+	} else if (cmp(type, "ym2149")) {
 		return false;
-	} else {
-		throw FatalError("Unknown PSG type: ", type);
 	}
+	throw FatalError("Unknown PSG type: ", type);
 }
 
 AY8910::Amplitude::Amplitude(const DeviceConfig& config)
