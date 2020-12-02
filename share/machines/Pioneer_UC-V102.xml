@@ -6,7 +6,7 @@
      Information provided by http://msxarcheology.blogspot.nl/ (Piter Punk)
      Serial number JL1000114
 
-     - Uses same keyboard as Mitsubishi ML-G30
+     - Uses same keyboard as Mitsubishi ML-G30, but is labeled UK-V101
      - 2 FDD's
      - RS-232C interface
      - superimpose capabilities (not emulated!)
@@ -62,7 +62,7 @@
         <volume>16000</volume>
       </sound>
       <io base="0xA8" num="4"/>
-      <keyboard_type>jp_ansi</keyboard_type>
+      <keyboard_type>jp_jis</keyboard_type>
       <has_keypad>true</has_keypad>
       <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>
       <code_kana_locks>true</code_kana_locks>
@@ -82,7 +82,7 @@
 
     <PSG id="PSG">
       <type>YM2149</type>
-      <keyboardlayout>50on</keyboardlayout>
+      <keyboardlayout>JIS</keyboardlayout>
       <sound>
         <volume>21000</volume>
       </sound>
