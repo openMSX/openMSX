@@ -5,11 +5,30 @@
 #include "MSXMotherBoard.hh"
 #include "JoystickPort.hh"
 #include "RenShaTurbo.hh"
+#include "StringOp.hh"
 #include "serialize.hh"
 #include "checked_cast.hh"
 #include <memory>
 
 namespace openmsx {
+
+byte keyboardLayoutHelper(const DeviceConfig& config, const std::string& name); // avoid declaration warning
+
+byte keyboardLayoutHelper(const DeviceConfig& config, const std::string& name)
+{
+	byte value = 0x00;
+	// as many (mostly European) configs do not specify the layout
+	// in the PSG config, assume 50on for these cases.
+	std::string_view configValue = config.getChildData("keyboardlayout", {"50on"});
+	if (StringOp::toLower(configValue) == "jis") {
+		value = 0x40;
+	} else {
+		if (StringOp::toLower(configValue) != "50on") {
+			throw MSXException("Illegal keyboard layout configuration in ", name, " device configuration: ", configValue);
+		}
+	}
+	return value;
+}
 
 // MSXDevice
 MSXPSG::MSXPSG(const DeviceConfig& config)
@@ -18,7 +37,7 @@ MSXPSG::MSXPSG(const DeviceConfig& config)
 	, renShaTurbo(getMotherBoard().getRenShaTurbo())
 	, selectedPort(0)
 	, prev(255)
-	, keyLayout((config.getChildData("keyboardlayout", {}) == "JIS") ? 0x40 : 0x00)
+	, keyLayout(keyboardLayoutHelper(config, getName()))
 	, addressMask(config.getChildDataAsBool("mirrored_registers", true) ? 0x0f : 0xff)
 {
 	ports[0] = &getMotherBoard().getJoystickPort(0);
