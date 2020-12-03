@@ -140,13 +140,18 @@ Shader::Shader(GLenum type, const string& header, const string& filename)
 void Shader::init(GLenum type, const string& header, const string& filename)
 {
 	// Load shader source.
-	string source = "#version 100\n";
-	if (type == GL_FRAGMENT_SHADER) {
-		source += "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
-	                  "  precision highp float;\n"
-	                  "#else\n"
-	                  "  precision mediump float;\n"
-	                  "#endif\n";
+	string source;
+	if (OPENGL_VERSION == OPENGL_ES_2_0) {
+		source += "#version 100\n";
+		if (type == GL_FRAGMENT_SHADER) {
+			source += "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
+				"  precision highp float;\n"
+				"#else\n"
+				"  precision mediump float;\n"
+				"#endif\n";
+		}
+	} else {
+		source += "#version 110\n";
 	}
 	source += header;
 	try {
