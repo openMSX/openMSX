@@ -34,11 +34,6 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 0);
-	int flags = SDL_WINDOW_OPENGL;
-	//flags |= SDL_RESIZABLE;
-	createSurface(width, height, flags);
-
-	// Create an OpenGL profile
 #if OPENGL_VERSION == OPENGL_ES_2_0
 	#define VERSION_STRING "openGL ES 2.0"
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
@@ -46,7 +41,7 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 #elif OPENGL_VERSION == OPENGL_2_1
 	#define VERSION_STRING "openGL 2.1"
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 #elif OPENGL_VERSION == OPENGL_3_3
@@ -55,6 +50,11 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 #endif
+
+	int flags = SDL_WINDOW_OPENGL;
+	//flags |= SDL_RESIZABLE;
+	createSurface(width, height, flags);
+
 	glContext = SDL_GL_CreateContext(window.get());
 	if (!glContext) {
 		throw InitException(
