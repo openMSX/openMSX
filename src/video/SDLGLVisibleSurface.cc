@@ -192,11 +192,11 @@ void SDLGLVisibleSurface::VSyncObserver::update(const Setting& setting)
 void SDLGLVisibleSurface::setViewPort(gl::ivec2 logicalSize, bool fullscreen)
 {
 	gl::ivec2 physicalSize = [&] {
-		if (fullscreen) {
-			int w, h;
-			SDL_GL_GetDrawableSize(window.get(), &w, &h);
-			return gl::ivec2(w, h);
-		} else {
+#ifndef __APPLE__
+		// On macos we set 'SDL_WINDOW_ALLOW_HIGHDPI', and in that case
+		// it's required to use SDL_GL_GetDrawableSize(), but then this
+		// 'fullscreen'-workaround/hack is counter-productive.
+		if (!fullscreen) {
 			// ??? When switching  back from fullscreen to windowed mode,
 			// SDL_GL_GetDrawableSize() still returns the dimensions of the
 			// fullscreen window ??? Is this a bug ???
@@ -204,6 +204,11 @@ void SDLGLVisibleSurface::setViewPort(gl::ivec2 logicalSize, bool fullscreen)
 			// must be the same, so enforce that.
 			return logicalSize;
 		}
+#endif
+		(void)fullscreen;
+		int w, h;
+		SDL_GL_GetDrawableSize(window.get(), &w, &h);
+		return gl::ivec2(w, h);
 	}();
 
 	// The created surface may be larger than requested.

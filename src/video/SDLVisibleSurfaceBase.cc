@@ -32,7 +32,10 @@ void SDLVisibleSurfaceBase::createSurface(int width, int height, unsigned flags)
 	if (getDisplay().getRenderSettings().getFullScreen()) {
 		flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 	}
+#ifdef __APPLE__
+	// See SDLGLVisibleSurface::setViewPort() for why only macos (for now).
 	flags |= SDL_WINDOW_ALLOW_HIGHDPI;
+#endif
 
 	assert(!window);
 	window.reset(SDL_CreateWindow(
