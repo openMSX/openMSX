@@ -199,14 +199,14 @@ bool SoundDevice::mixChannels(float* dataOut, unsigned samples)
 	unsigned outputStereo = isStereo() ? 2 : 1;
 
 	static_assert(sizeof(float) == sizeof(uint32_t));
-	MemoryOps::MemSet<uint32_t> mset;
+	MemoryOps::MemSet<uint32_t> mSet;
 	if (numChannels != 1) {
 		// The generateChannels() method of SoundDevices with more than
 		// one channel will _add_ the generated channel data in the
 		// provided buffers. Those with only one channel will directly
 		// replace the content of the buffer. For the former we must
 		// start from a buffer containing all zeros.
-		mset(reinterpret_cast<uint32_t*>(dataOut), outputStereo * samples, 0);
+		mSet(reinterpret_cast<uint32_t*>(dataOut), outputStereo * samples, 0);
 	}
 
 	VLA(float*, bufs, numChannels);
@@ -227,7 +227,7 @@ bool SoundDevice::mixChannels(float* dataOut, unsigned samples)
 	}
 	if (separateChannels) {
 		allocateMixBuffer(pitch * separateChannels);
-		mset(reinterpret_cast<uint32_t*>(mixBuffer.data()),
+		mSet(reinterpret_cast<uint32_t*>(mixBuffer.data()),
 		     pitch * separateChannels, 0);
 		// still need to fill in (some) bufs[i] pointers
 		unsigned count = 0;
@@ -262,7 +262,7 @@ bool SoundDevice::mixChannels(float* dataOut, unsigned samples)
 		}
 	}
 
-	// remove muted channels (explictly by user or by device itself)
+	// remove muted channels (explicitly by user or by device itself)
 	bool anyUnmuted = false;
 	unsigned numMix = 0;
 	VLA(int, mixBalance, numChannels);

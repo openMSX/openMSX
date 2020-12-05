@@ -122,7 +122,7 @@ void MSXPSG::serialize(Archive& ar, unsigned version)
 	ar.serialize("ay8910", *ay8910);
 	if (ar.versionBelow(version, 2)) {
 		assert(ar.isLoader());
-		// in older versions there were always 2 real joytsick ports
+		// in older versions there were always 2 real joystick ports
 		ar.serialize("joystickportA", *checked_cast<JoystickPort*>(ports[0]),
 		             "joystickportB", *checked_cast<JoystickPort*>(ports[1]));
 	}

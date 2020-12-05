@@ -10,12 +10,12 @@ namespace openmsx {
 class PluggingController;
 class JoystickPort;
 
-/** This device is pluged in into the joyports and consolidates several other
+/** This device is plugged in into the joyports and consolidates several other
  * joysticks plugged into it. This joytap simply ANDs all the joystick
  * outputs, acting as a simple wiring of all digital joysticks into one
  * connector.
  * This is the base class for the NinjaTap device and the FNano2 multiplayer
- * extension, who basicly have other read and write methods
+ * extension, who basically have other read and write methods
  */
 class JoyTap : public JoystickDevice
 {

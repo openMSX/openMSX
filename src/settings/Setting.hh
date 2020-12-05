@@ -142,7 +142,7 @@ public:
 
 	/** Set value-check-callback.
 	 * The callback is called on each change of this settings value.
-	 * The callback has to posibility to
+	 * The callback has the possibility to
 	 *  - change the value (modify the parameter)
 	 *  - disallow the change (throw an exception)
 	 * The callback is only executed on each value change, even if the

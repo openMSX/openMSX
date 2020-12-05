@@ -597,7 +597,7 @@ private:
 	/** Changing high byte of vertical scroll registers only takes effect
 	  * at the start of the next page. These members hold the current
 	  * value of the scroll value.
-	  * note: writing the low byte has effect immediatly (or at the next
+	  * note: writing the low byte has effect immediately (or at the next
 	  *       line, TODO investigate this). But the effect is not the same
 	  *       as on V99x8, see V9990PixelRenderer::updateScrollAYLow() for
 	  *       details.

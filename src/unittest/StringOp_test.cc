@@ -145,7 +145,7 @@ TEST_CASE("StringOp")
 		CHECK(StringOp::to<int>("-0x80000000") == OK(-2147483648));
 		CHECK(StringOp::to<int>("0x7fffffff") == OK(2147483647));
 	}
-	SECTION("to<unisgned>") {
+	SECTION("to<unsigned>") {
 		std::optional<unsigned> NOK;
 		using OK = std::optional<unsigned>;
 

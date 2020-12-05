@@ -20,8 +20,8 @@ constexpr int BLIP_RES = 1 << BlipBuffer::BLIP_PHASE_BITS;
 // Precalculated impulse table.
 constexpr auto impulses = [] {
 	constexpr int HALF_SIZE = BLIP_RES / 2 * (BLIP_IMPULSE_WIDTH - 1);
-	double fimpulse[HALF_SIZE + 2 * BLIP_RES] = {};
-	double* out = &fimpulse[BLIP_RES];
+	double fImpulse[HALF_SIZE + 2 * BLIP_RES] = {};
+	double* out = &fImpulse[BLIP_RES];
 
 	// generate sinc, apply hamming window
 	double oversample = ((4.5 / (BLIP_IMPULSE_WIDTH - 1)) + 0.85);
@@ -52,8 +52,8 @@ constexpr auto impulses = [] {
 	double next = 0.0;
 	for (int i = 0; i < IMPULSES_SIZE; ++i) {
 		imp[i] = float((next - sum) * rescale);
-		sum += fimpulse[i];
-		next += fimpulse[i + BLIP_RES];
+		sum += fImpulse[i];
+		next += fImpulse[i + BLIP_RES];
 	}
 	// Original code would now apply a correction on each kernel so that
 	// the (integer) coefficients sum up to 'kernelUnit'. I've measured

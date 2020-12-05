@@ -149,7 +149,7 @@ struct TextPureNoWsPred {
 };
 
 // Detect text character (PCDATA) that does not require processing when ws
-// normalizationis is enabled (anything but < \0 & space \n \r \t)
+// normalization is enabled (anything but < \0 & space \n \r \t)
 struct TextPureWithWsPred {
 	[[nodiscard]] static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x0F); }
 };

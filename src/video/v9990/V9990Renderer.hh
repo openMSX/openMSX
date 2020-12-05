@@ -10,7 +10,7 @@ namespace openmsx {
 class PostProcessor;
 
 /** Abstract base class for V9990 renderers.
-  * A V9990Renderer is a class that covnerts the V9990 state into
+  * A V9990Renderer is a class that converts the V9990 state into
   * visual information (e.g. pixels on a screen).
   *
   * @see Renderer.cc

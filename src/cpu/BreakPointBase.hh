@@ -24,7 +24,7 @@ public:
 
 protected:
 	// Note: we require GlobalCliComm here because breakpoint objects can
-	// be transfered to different MSX machines, and so the MSXCliComm
+	// be transferred to different MSX machines, and so the MSXCliComm
 	// object won't remain valid.
 	BreakPointBase(TclObject command_, TclObject condition_, bool once_)
 		: command(std::move(command_))

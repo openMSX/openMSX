@@ -99,7 +99,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 
 	adjustColRow();
 
-	// background (only load backgound on first paint())
+	// background (only load background on first paint())
 	backgroundSetting.setChecker([this](TclObject& value) {
 		loadBackground(value.getString());
 	});
@@ -364,7 +364,7 @@ found:		BaseImage* image = it->image.get();
 		unsigned width = it->width;
 		cacheHint = it;
 		if (it != begin(textCache)) {
-			--cacheHint; // likely candiate for next item
+			--cacheHint; // likely candidate for next item
 			// move to front (to keep in LRU order)
 			textCache.splice(begin(textCache), textCache, it);
 		}

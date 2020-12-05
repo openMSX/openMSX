@@ -116,7 +116,7 @@ private:
 	/** Global envelope generator counter. */
 	unsigned eg_cnt;
 
-	int memadr;
+	int memAdr;
 
 	Rom rom;
 	TrackedRam ram;

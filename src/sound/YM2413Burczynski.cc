@@ -385,7 +385,7 @@ constexpr uint8_t table[16 + 3][8] = {
 	//{ 0x07, 0x21, 0x14, 0x00, 0xee, 0xf8, 0xff, 0xf8 },
 	//{ 0x01, 0x31, 0x00, 0x00, 0xf8, 0xf7, 0xf8, 0xf7 },
 	//{ 0x25, 0x11, 0x00, 0x00, 0xf8, 0xfa, 0xf8, 0x55 }
-	{ 0x01, 0x01, 0x16, 0x00, 0xfd, 0xf8, 0x2f, 0x6d },// BD(multi verified, modTL verified, mod env - verified(close), carr. env verifed)
+	{ 0x01, 0x01, 0x16, 0x00, 0xfd, 0xf8, 0x2f, 0x6d },// BD(multi verified, modTL verified, mod env - verified(close), carr. env verified)
 	{ 0x01, 0x01, 0x00, 0x00, 0xd8, 0xd8, 0xf9, 0xf8 },// HH(multi verified), SD(multi not used)
 	{ 0x05, 0x01, 0x00, 0x00, 0xf8, 0xba, 0x49, 0x55 },// TOM(multi,env verified), TOP CYM(multi verified, env verified)
 };
@@ -407,9 +407,9 @@ inline int Slot::calc_envelope(Channel& channel, unsigned eg_cnt, bool carrier)
 		// operators are reset (at the same time?).
 		// TODO: That sounds logical, but it does not match the implementation.
 		if (!(eg_cnt & eg_mask_dp)) {
-			egout += eg_sel_dp[(eg_cnt >> eg_sh_dp) & 7];
-			if (egout >= MAX_ATT_INDEX) {
-				egout = MAX_ATT_INDEX;
+			egOut += eg_sel_dp[(eg_cnt >> eg_sh_dp) & 7];
+			if (egOut >= MAX_ATT_INDEX) {
+				egOut = MAX_ATT_INDEX;
 				setEnvelopeState(EG_ATTACK);
 				phase = FreqIndex(0); // restart Phase Generator
 			}
@@ -418,10 +418,10 @@ inline int Slot::calc_envelope(Channel& channel, unsigned eg_cnt, bool carrier)
 
 	case EG_ATTACK:
 		if (!(eg_cnt & eg_mask_ar)) {
-			egout +=
-				(~egout * eg_sel_ar[(eg_cnt >> eg_sh_ar) & 7]) >> 2;
-			if (egout <= MIN_ATT_INDEX) {
-				egout = MIN_ATT_INDEX;
+			egOut +=
+				(~egOut * eg_sel_ar[(eg_cnt >> eg_sh_ar) & 7]) >> 2;
+			if (egOut <= MIN_ATT_INDEX) {
+				egOut = MIN_ATT_INDEX;
 				setEnvelopeState(EG_DECAY);
 			}
 		}
@@ -429,8 +429,8 @@ inline int Slot::calc_envelope(Channel& channel, unsigned eg_cnt, bool carrier)
 
 	case EG_DECAY:
 		if (!(eg_cnt & eg_mask_dr)) {
-			egout += eg_sel_dr[(eg_cnt >> eg_sh_dr) & 7];
-			if (egout >= sl) {
+			egOut += eg_sel_dr[(eg_cnt >> eg_sh_dr) & 7];
+			if (egOut >= sl) {
 				setEnvelopeState(EG_SUSTAIN);
 			}
 		}
@@ -438,7 +438,7 @@ inline int Slot::calc_envelope(Channel& channel, unsigned eg_cnt, bool carrier)
 
 	case EG_SUSTAIN:
 		// this is important behaviour:
-		// one can change percusive/non-percussive modes on the fly and
+		// one can change percussive/non-percussive modes on the fly and
 		// the chip will remain in sustain phase
 		// - verified on real YM3812
 		if (eg_sustain) {
@@ -449,9 +449,9 @@ inline int Slot::calc_envelope(Channel& channel, unsigned eg_cnt, bool carrier)
 			// during sustain phase chip adds Release Rate (in
 			// percussive mode)
 			if (!(eg_cnt & eg_mask_rr)) {
-				egout += eg_sel_rr[(eg_cnt >> eg_sh_rr) & 7];
-				if (egout >= MAX_ATT_INDEX) {
-					egout = MAX_ATT_INDEX;
+				egOut += eg_sel_rr[(eg_cnt >> eg_sh_rr) & 7];
+				if (egOut >= MAX_ATT_INDEX) {
+					egOut = MAX_ATT_INDEX;
 				}
 			}
 			// else do nothing in sustain phase
@@ -467,9 +467,9 @@ inline int Slot::calc_envelope(Channel& channel, unsigned eg_cnt, bool carrier)
 			if (!(eg_cnt & mask)) {
 				const uint8_t shift = sustain ? eg_sh_rs : eg_sh_rr;
 				const uint8_t* sel = sustain ? eg_sel_rs : eg_sel_rr;
-				egout += sel[(eg_cnt >> shift) & 7];
-				if (egout >= MAX_ATT_INDEX) {
-					egout = MAX_ATT_INDEX;
+				egOut += sel[(eg_cnt >> shift) & 7];
+				if (egOut >= MAX_ATT_INDEX) {
+					egOut = MAX_ATT_INDEX;
 					setEnvelopeState(EG_OFF);
 				}
 			}
@@ -479,7 +479,7 @@ inline int Slot::calc_envelope(Channel& channel, unsigned eg_cnt, bool carrier)
 	case EG_OFF:
 		break;
 	}
-	return egout;
+	return egOut;
 }
 
 inline int Slot::calc_phase(Channel& channel, unsigned lfo_pm)
@@ -531,8 +531,8 @@ inline void Slot::updateReleaseRate(int kcodeScaled)
 inline int Slot::calcOutput(Channel& channel, unsigned eg_cnt, bool carrier,
                             unsigned lfo_am, int phase2)
 {
-	int egout2 = calc_envelope(channel, eg_cnt, carrier);
-	int env = (TLL + egout2 + (lfo_am & AMmask)) << 5;
+	int egOut2 = calc_envelope(channel, eg_cnt, carrier);
+	int env = (TLL + egOut2 + (lfo_am & AMmask)) << 5;
 	int p = env + wavetable[phase2 & SIN_MASK];
 	return p < TL_TAB_LEN ? tlTab[p] : 0;
 }
@@ -649,7 +649,7 @@ Slot::Slot()
 {
 	ar = dr = rr = KSR = ksl = mul = 0;
 	fb_shift = op1_out[0] = op1_out[1] = 0;
-	TL = TLL = egout = sl = 0;
+	TL = TLL = egOut = sl = 0;
 	eg_sh_dp   = eg_sh_ar   = eg_sh_dr   = eg_sh_rr   = eg_sh_rs   = 0;
 	eg_sel_dp  = eg_sel_ar  = eg_sel_dr  = eg_sel_rr  = eg_sel_rs  = eg_inc[0];
 	eg_mask_dp = eg_mask_ar = eg_mask_dr = eg_mask_rr = eg_mask_rs = 0;
@@ -782,7 +782,7 @@ void Slot::resetOperators()
 {
 	wavetable = &sinTab[0 * SIN_LEN];
 	setEnvelopeState(EG_OFF);
-	egout = MAX_ATT_INDEX;
+	egOut = MAX_ATT_INDEX;
 }
 
 void Slot::updateGenerators(Channel& channel)
@@ -1258,7 +1258,7 @@ void YM2413::writeReg(uint8_t r, uint8_t v)
 		break;
 	}
 	case 0x20: {
-		// 20-28: suson, keyon, block, FNUM 8
+		// 20-28: susOn, keyOn, block, FNUM 8
 		Channel& ch = getChannelForReg(r);
 		ch.mod.setKeyOnOff(Slot::KEY_MAIN, (v & 0x10) != 0);
 		ch.car.setKeyOnOff(Slot::KEY_MAIN, (v & 0x10) != 0);
@@ -1279,7 +1279,7 @@ void YM2413::writeReg(uint8_t r, uint8_t v)
 		uint8_t chan = (r & 0x0F) % 9; // verified on real YM2413
 		if (isRhythm() && (chan >= 6)) {
 			if (chan > 6) {
-				// channel 7 or 8 in ryhthm mode
+				// channel 7 or 8 in rythm mode
 				// modulator envelope is HH(chan=7) or TOM(chan=8).
 				ch.mod.setTotalLevel(ch, (v >> 4) << 2);
 			}
@@ -1300,7 +1300,7 @@ uint8_t YM2413::peekReg(uint8_t r) const
 	return reg[r];
 }
 
-} // namespace Burczynsk
+} // namespace YM2413Burczynski
 
 static std::initializer_list<enum_string<YM2413Burczynski::Slot::EnvelopeState>> envelopeStateInfo = {
 	{ "DUMP",    YM2413Burczynski::Slot::EG_DUMP    },
@@ -1331,7 +1331,7 @@ void Slot::serialize(Archive& a, unsigned /*version*/)
 
 	a.serialize("phase",      phase,
 	            "TL",         TL,
-	            "volume",     egout,
+	            "volume",     egOut,
 	            "sl",         sl,
 	            "state",      state,
 	            "op1_out",    op1_out,
@@ -1405,7 +1405,7 @@ void YM2413::serialize(Archive& a, unsigned version)
 	// don't serialize idleSamples, it's only an optimization
 }
 
-} // namespace Burczynsk
+} // namespace YM2413Burczynski
 
 using YM2413Burczynski::YM2413;
 INSTANTIATE_SERIALIZE_METHODS(YM2413);

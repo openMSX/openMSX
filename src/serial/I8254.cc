@@ -285,7 +285,7 @@ void Counter::writeIO(byte value, EmuTime::param time)
 			writeOrder = HIGH;
 			writeLatch = value;
 			if ((control & CNTR_MODE) == CNTR_M0)
-				// pauze counting when in mode 0
+				// pause counting when in mode 0
 				counting = false;
 		} else {
 			writeOrder = LOW;

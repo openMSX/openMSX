@@ -348,7 +348,7 @@ void AfterCommand::afterCancel(span<const TclObject> tokens, TclObject& /*result
 	    it != end(afterCmds)) {
 		afterCmds.erase(it);
 		// Tcl manual is not clear about this, but it seems
-		// there's only occurence of this command canceled.
+		// there's only occurrences of this command canceled.
 		// It's also not clear which of the (possibly) several
 		// matches is canceled.
 		return;

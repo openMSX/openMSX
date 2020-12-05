@@ -89,7 +89,7 @@ public:
 	virtual bool diskChanged() = 0;           // read and reset
 	[[nodiscard]] virtual bool peekDiskChanged() const = 0; // read without reset
 
-	/** Is there a dummy (unconncted) drive?
+	/** Is there a dummy (unconnected) drive?
 	 */
 	[[nodiscard]] virtual bool isDummyDrive() const = 0;
 

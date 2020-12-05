@@ -40,7 +40,7 @@ public:
 	explicit File(const Filename& filename, OpenMode mode = NORMAL);
 
 	/** This constructor maps very closely on the fopen() libc function.
-	  * Compared to constructor above, it does not transparantly
+	  * Compared to constructor above, it does not transparently
 	  * uncompress files.
 	  * @param filename Name of the file to be opened.
 	  * @param mode Open mode, same meaning as in fopen(), but we assert

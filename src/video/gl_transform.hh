@@ -1,7 +1,7 @@
 #ifndef GL_TRANSFORM_HH
 #define GL_TRANSFORM_HH
 
-// OpenGLES 2.0 removed functions like
+// openGL ES 2.0 removed functions like
 //   glRotate(), glTranslate(), glScale(), ...
 // This code can be used to replace them.
 //

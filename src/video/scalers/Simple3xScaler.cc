@@ -335,7 +335,7 @@ void Blur_1on3<Pixel>::blur_SSE(const Pixel* in_, Pixel* out_, size_t srcWidth)
 	__m128i a0a1 = _mm_mulhi_epu16(a_a_, C0C1);
 	__m128i d1d0 = _mm_shuffle_epi32(a0a1, 0x4E); // left border
 
-	// At the start of each iteration the follwoing vars are live:
+	// At the start of each iteration the following vars are live:
 	//   abcd, a_b_, a_a_, a0a1, d1d0
 	// Each iteration reads 4 and produces 12 pixels.
 	do {

@@ -390,8 +390,8 @@ void DiskManipulator::create(span<const TclObject> tokens)
 		// TEMP FIX: the smallest bootsector we create in MSXtar is for
 		// a normal single sided disk.
 		// TODO: MSXtar must be altered and this temp fix must be set to
-		// the real smallest dsk possible (= bootsecor + minimal fat +
-		// minial dir + minimal data clusters)
+		// the real smallest dsk possible (= bootsector + minimal fat +
+		// minimal dir + minimal data clusters)
 		if (sectors < 720) sectors = 720;
 
 		sizes.push_back(sectors);

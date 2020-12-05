@@ -151,7 +151,7 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, locksOn(0)
 {
 	keysChanged = false;
-	msxmodifiers = 0xff;
+	msxModifiers = 0xff;
 	ranges::fill(keyMatrix,     255);
 	ranges::fill(cmdKeyMatrix,  255);
 	ranges::fill(typeKeyMatrix, 255);
@@ -258,7 +258,7 @@ void Keyboard::transferHostKeyMatrix(const Keyboard& source)
 	// msx keyboard with the host keyboard. In the past we assumed the host
 	// keyboard had no keys pressed. But this is wrong in the above
 	// scenario. Now we remember the state of the host keyboard and
-	// transfer that to the new keyboard(s) that get created for reverese.
+	// transfer that to the new keyboard(s) that get created for reverse.
 	// When replay is stopped we restore this host keyboard state, see
 	// stopReplay().
 
@@ -299,7 +299,7 @@ void Keyboard::stopReplay(EmuTime::param time)
 	for (unsigned row = 0; row < KeyMatrixPosition::NUM_ROWS; ++row) {
 		changeKeyMatrixEvent(time, row, hostKeyMatrix[row]);
 	}
-	msxmodifiers = 0xff;
+	msxModifiers = 0xff;
 	msxKeyEventQueue.clear();
 	memset(dynKeymap, 0, sizeof(dynKeymap));
 }
@@ -529,14 +529,14 @@ void Keyboard::updateKeyMatrix(EmuTime::param time, bool down, KeyMatrixPosition
 		// restore them to the real key-combinations pressed by the user.
 		for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
 			if (pos == modifierPos[i]) {
-				msxmodifiers &= ~(1 << i);
+				msxModifiers &= ~(1 << i);
 			}
 		}
 	} else {
 		releaseKeyMatrixEvent(time, pos);
 		for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
 			if (pos == modifierPos[i]) {
-				msxmodifiers |= 1 << i;
+				msxModifiers |= 1 << i;
 			}
 		}
 	}
@@ -746,7 +746,7 @@ bool Keyboard::pressUnicodeByUser(
 			// Ignore the GRAPH key in case that Graph locks
 			// Always ignore CAPSLOCK mask (assume that user will
 			// use real CAPS lock to switch/ between hiragana and
-			// katanana on japanese model)
+			// katakana on japanese model)
 			pressKeyMatrixEvent(time, keyInfo.pos);
 
 			byte modmask = keyInfo.modmask & ~modifierIsLock;
@@ -778,7 +778,7 @@ bool Keyboard::pressUnicodeByUser(
 			if (!((modifierIsLock >> i) & 1)) {
 				// Do not simply unpress graph, ctrl, code and shift but
 				// restore them to the values currently pressed by the user.
-				if ((msxmodifiers >> i) & 1) {
+				if ((msxModifiers >> i) & 1) {
 					releaseKeyMatrixEvent(time, modifierPos[i]);
 				} else {
 					pressKeyMatrixEvent(time, modifierPos[i]);
@@ -1327,7 +1327,7 @@ void Keyboard::KeyInserter::serialize(Archive& ar, unsigned /*version*/)
 	}
 }
 
-// version 1: Initial version: {userKeyMatrix, dynKeymap, msxmodifiers,
+// version 1: Initial version: {userKeyMatrix, dynKeymap, msxModifiers,
 //            msxKeyEventQueue} was intentionally not serialized. The reason
 //            was that after a loadstate, you want the MSX keyboard to reflect
 //            the state of the host keyboard. So any pressed MSX keys from the
@@ -1369,7 +1369,7 @@ void Keyboard::serialize(Archive& ar, unsigned version)
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("userKeyMatrix",    userKeyMatrix,
 		             "dynKeymap",        dynKeymap,
-		             "msxmodifiers",     msxmodifiers,
+		             "msxmodifiers",     msxModifiers,
 		             "msxKeyEventQueue", msxKeyEventQueue);
 	}
 	// don't serialize hostKeyMatrix
@@ -1388,7 +1388,7 @@ void Keyboard::MsxKeyEventQueue::serialize(Archive& ar, unsigned /*version*/)
 
 	// serialization of deque<shared_ptr<const Event>> is not directly
 	// supported by the serialization framework (main problem is the
-	// constness, collections of shared_ptr to polymorhpic objects are
+	// constness, collections of shared_ptr to polymorphic objects are
 	// not a problem). Worked around this by serializing the events in
 	// ascii format. (In all practical cases this queue will anyway be
 	// empty or contain very few elements).

@@ -290,7 +290,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		// buttons. It has however up to 6 virtual buttons that can be
 		// mapped to SDL keyboard events. Two of these virtual buttons
 		// will be mapped to keys SDLK_WORLD_93 and 94 and are
-		// interpeted here as joystick buttons (respectively button 0
+		// interpreted here as joystick buttons (respectively button 0
 		// and 1).
 		// TODO Android code should be rewritten for SDL2
 		/*if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_93) {

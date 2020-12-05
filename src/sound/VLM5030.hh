@@ -41,7 +41,7 @@ private:
 	[[nodiscard]] float getAmplificationFactorImpl() const override;
 
 	void setupParameter(byte param);
-	[[nodiscard]] int getBits(unsigned sbit, unsigned bits);
+	[[nodiscard]] int getBits(unsigned sBit, unsigned bits);
 	[[nodiscard]] int parseFrame();
 
 private:

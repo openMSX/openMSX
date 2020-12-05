@@ -552,11 +552,11 @@ void GLPostProcessor::preCalcMonitor3D(float width)
 	// calculate transformation matrices
 	mat4 proj = frustum(-1, 1, -1, 1, 1, 10);
 	mat4 tran = translate(vec3(0.0f, 0.4f, -2.0f));
-	mat4 rotx = rotateX(radians(-10.0f));
+	mat4 rotX = rotateX(radians(-10.0f));
 	mat4 scal = scale(vec3(2.2f, 2.2f, 2.2f));
 
-	mat3 normal = mat3(rotx);
-	mat4 mvp = proj * tran * rotx * scal;
+	mat3 normal = mat3(rotX);
+	mat4 mvp = proj * tran * rotX * scal;
 
 	// set uniforms
 	monitor3DProg.activate();

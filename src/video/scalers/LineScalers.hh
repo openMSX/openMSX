@@ -216,7 +216,7 @@ private:
 
 
 /**  BlendLines functor
- * Generate an output line that is an iterpolation of two input lines.
+ * Generate an output line that is an interpolation of two input lines.
  * @param in1 First input line
  * @param in2 Second input line
  * @param out Output line
@@ -462,10 +462,10 @@ void Scale_1on2<Pixel>::operator()(
 	//   SSE-intrinsics version.
 	// - Gcc can auto-vectorize this routine. Though my best tuned version
 	//   (I mean tuned to further improve the auto-vectorization, including
-	//   using the new __builtin_assume_aligned() instrinsic) still runs
+	//   using the new __builtin_assume_aligned() intrinsic) still runs
 	//   approx 40% slower than the intrinsics version.
 	// Hopefully in some years the compilers have improved further so that
-	// the instrinsic version is no longer needed.
+	// the intrinsic version is no longer needed.
 	size_t srcWidth = dstWidth / 2;
 
 #ifdef __SSE2__

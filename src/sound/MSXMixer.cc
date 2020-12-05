@@ -292,7 +292,7 @@ static inline void mulMix2Acc(
 //  with:
 //     R = 1 - (2*pi * cut-off-frequency / samplerate)
 //  we take R = 511/512
-//   44100Hz --> cutt-off freq = 14Hz
+//   44100Hz --> cutoff freq = 14Hz
 //   22050Hz                     7Hz
 constexpr auto R = 511.0f / 512.0f;
 
@@ -660,8 +660,8 @@ void MSXMixer::update(const SpeedManager& /*speedManager*/)
 		// Avoid calling reInit() while recording because
 		// each call causes a small hiccup in the sound (and
 		// while recording this call anyway has no effect).
-		// This was noticable while sliding the speed slider
-		// in catapult (becuase this causes many changes in
+		// This was noticeable while sliding the speed slider
+		// in catapult (because this causes many changes in
 		// the speed setting).
 	}
 }

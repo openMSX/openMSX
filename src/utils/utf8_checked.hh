@@ -324,8 +324,7 @@ public:
 };
 
 #ifdef _WIN32
-[[nodiscard]] std::string unknowntoutf8(const std::string& unknown);
-[[nodiscard]] std::string utf8toansi(const std::string& utf8);
+[[nodiscard]] std::string utf8ToAnsi(const std::string& utf8);
 [[nodiscard]] std::wstring utf8to16(const std::string& utf8);
 [[nodiscard]] std::string utf16to8(const std::wstring& utf16);
 #endif

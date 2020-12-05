@@ -47,7 +47,7 @@ void CompressedFileAdapter::decompress()
 		decompressCache.insert_noDuplicateCheck(decompressed);
 	}
 
-	// close original file after succesful decompress
+	// close original file after successful decompress
 	file.reset();
 }
 

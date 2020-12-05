@@ -27,7 +27,7 @@ public:
 		MSXMotherBoard& motherBoard) const;
 
 private:
-	void processHdimage(const std::string& hdimage,
+	void processHdimage(const std::string& hdImage,
 	                    NowindHost::Drives& drives) const;
 
 private:

@@ -575,7 +575,7 @@ void YMF262::Slot::advanceEnvelopeGenerator(unsigned egCnt)
 
 	case EG_SUSTAIN:
 		// this is important behaviour:
-		// one can change percusive/non-percussive
+		// one can change percussive/non-percussive
 		// modes on the fly and the chip will remain
 		// in sustain phase - verified on real YM3812
 		if (eg_type) {
@@ -1271,7 +1271,7 @@ void YMF262::writeRegDirect(unsigned r, byte v, EmuTime::param time)
 			ch.kcode = (ch.block_fnum & 0x1C00) >> 9;
 
 			// the info below is actually opposite to what is stated
-			// in the Manuals (verifed on real YMF262)
+			// in the Manuals (verified on real YMF262)
 			// if notesel == 0 -> lsb of kcode is bit 10 (MSB) of fnum
 			// if notesel == 1 -> lsb of kcode is bit 9 (MSB-1) of fnum
 			if (nts) {

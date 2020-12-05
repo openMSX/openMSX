@@ -174,25 +174,25 @@ static unsigned normalizeFAT(unsigned cluster)
 }
 
 // Get the next clusternumber from the FAT chain
-unsigned MSXtar::readFAT(unsigned clnr) const
+unsigned MSXtar::readFAT(unsigned clNr) const
 {
 	assert(!fatBuffer.empty()); // FAT must already be cached
 	const auto* data = fatBuffer[0].raw;
-	const auto* p = &data[(clnr * 3) / 2];
-	unsigned result = (clnr & 1)
+	const auto* p = &data[(clNr * 3) / 2];
+	unsigned result = (clNr & 1)
 	                ? (p[0] >> 4) + (p[1] << 4)
 	                : p[0] + ((p[1] & 0x0F) << 8);
 	return normalizeFAT(result);
 }
 
 // Write an entry to the FAT
-void MSXtar::writeFAT(unsigned clnr, unsigned val)
+void MSXtar::writeFAT(unsigned clNr, unsigned val)
 {
 	assert(!fatBuffer.empty()); // FAT must already be cached
 	assert(val < 4096); // FAT12
 	auto* data = fatBuffer[0].raw;
-	auto* p = &data[(clnr * 3) / 2];
-	if (clnr & 1) {
+	auto* p = &data[(clNr * 3) / 2];
+	if (clNr & 1) {
 		p[0] = (p[0] & 0x0F) + (val << 4);
 		p[1] = val >> 4;
 	} else {
@@ -228,8 +228,8 @@ unsigned MSXtar::getNextSector(unsigned sector)
 		return sector + 1;
 	} else {
 		// first sector in next cluster
-		unsigned nextcl = readFAT(currCluster);
-		return (nextcl == EOF_FAT) ? 0 : clusterToSector(nextcl);
+		unsigned nextCl = readFAT(currCluster);
+		return (nextCl == EOF_FAT) ? 0 : clusterToSector(nextCl);
 	}
 }
 
@@ -288,7 +288,7 @@ unsigned MSXtar::findUsableIndexInSector(unsigned sector)
 // @throws When either root dir is full or disk is full
 MSXtar::DirEntry MSXtar::addEntryToDir(unsigned sector)
 {
-	// this routine adds the msxname to a directory sector, if needed (and
+	// this routine adds the msx name to a directory sector, if needed (and
 	// possible) the directory is extened with an extra cluster
 	DirEntry result;
 	result.sector = sector;
@@ -319,7 +319,7 @@ MSXtar::DirEntry MSXtar::addEntryToDir(unsigned sector)
 	}
 }
 
-// create an MSX filename 8.3 format, if needed in vfat like abreviation
+// create an MSX filename 8.3 format, if needed in vfat like abbreviation
 static char toMSXChr(char a)
 {
 	a = toupper(a);
@@ -335,7 +335,7 @@ static string makeSimpleMSXFileName(string_view fullFilename)
 {
 	auto [dir, fullFile] = StringOp::splitOnLast(fullFilename, '/');
 
-	// handle speciale case '.' and '..' first
+	// handle special case '.' and '..' first
 	string result(8 + 3, ' ');
 	if (fullFile == one_of(".", "..")) {
 		memcpy(result.data(), fullFile.data(), fullFile.size());
@@ -659,18 +659,18 @@ static void changeTime(const string& resultFile, const MSXDirEntry& dirEntry)
 {
 	unsigned t = dirEntry.time;
 	unsigned d = dirEntry.date;
-	struct tm mtim;
-	struct utimbuf utim;
-	mtim.tm_sec   =  (t & 0x001f) << 1;
-	mtim.tm_min   =  (t & 0x07e0) >> 5;
-	mtim.tm_hour  =  (t & 0xf800) >> 11;
-	mtim.tm_mday  =  (d & 0x001f);
-	mtim.tm_mon   = ((d & 0x01e0) >> 5) - 1;
-	mtim.tm_year  = ((d & 0xfe00) >> 9) + 80;
-	mtim.tm_isdst = -1;
-	utim.actime  = mktime(&mtim);
-	utim.modtime = mktime(&mtim);
-	utime(resultFile.c_str(), &utim);
+	struct tm mTim;
+	struct utimbuf uTim;
+	mTim.tm_sec   =  (t & 0x001f) << 1;
+	mTim.tm_min   =  (t & 0x07e0) >> 5;
+	mTim.tm_hour  =  (t & 0xf800) >> 11;
+	mTim.tm_mday  =  (d & 0x001f);
+	mTim.tm_mon   = ((d & 0x01e0) >> 5) - 1;
+	mTim.tm_year  = ((d & 0xfe00) >> 9) + 80;
+	mTim.tm_isdst = -1;
+	uTim.actime  = mktime(&mTim);
+	uTim.modtime = mktime(&mTim);
+	utime(resultFile.c_str(), &uTim);
 }
 
 string MSXtar::dir()
@@ -683,7 +683,7 @@ string MSXtar::dir()
 			if ((dirEntry.filename[0] == one_of(char(0xe5), char(0x00))) ||
 			    (dirEntry.attrib == T_MSX_LFN)) continue;
 
-			// filename first (in condensed form for human readablitly)
+			// filename first (in condensed form for human readability)
 			string tmp = condensName(dirEntry);
 			tmp.resize(13, ' ');
 			strAppend(result, tmp,
@@ -769,7 +769,7 @@ void MSXtar::fileExtract(const string& resultFile, const MSXDirEntry& dirEntry)
 	changeTime(resultFile, dirEntry);
 }
 
-// extracts a single item (file or directory) from the msximage to the host OS
+// extracts a single item (file or directory) from the msx image to the host OS
 string MSXtar::singleItemExtract(string_view dirName, string_view itemName,
                                  unsigned sector)
 {
@@ -782,7 +782,7 @@ string MSXtar::singleItemExtract(string_view dirName, string_view itemName,
 	}
 
 	auto& msxDirEntry = buf.dirEntry[entry.index];
-	// create full name for loacl filesystem
+	// create full name for local filesystem
 	string fullName = strCat(dirName, '/', condensName(msxDirEntry));
 
 	// ...and extract

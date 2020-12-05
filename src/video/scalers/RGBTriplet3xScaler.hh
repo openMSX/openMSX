@@ -77,7 +77,7 @@ private:
 	 * @param out Buffer of output pixels, should be 3x as long as input
 	 * @param inwidth Width of the input buffer (in pixels)
 	 */
-	void rgbify(const Pixel* in, Pixel* out, unsigned inwidth, unsigned c1, unsigned c2);
+	void rgbify(const Pixel* in, Pixel* out, unsigned inWidth, unsigned c1, unsigned c2);
 
 	void scaleLine(const Pixel* srcLine, Pixel* dstLine,
 	               PolyLineScaler<Pixel>& scale, unsigned tmpWidth,

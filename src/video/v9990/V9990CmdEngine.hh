@@ -34,7 +34,7 @@ public:
 	  */
 	void reset(EmuTime::param time);
 
-	/** Synchronises the command engine with the V9990
+	/** Synchronizes the command engine with the V9990
 	  * @param time The moment in emulated time to sync to.
 	  */
 	inline void sync(EmuTime::param time) {
@@ -317,7 +317,7 @@ private:
 	 */
 	bool brokenTiming;
 
-	/** The running command is complete. Perform neccessary clean-up actions.
+	/** The running command is complete. Perform necessary clean-up actions.
 	  */
 	void cmdReady(EmuTime::param time);
 

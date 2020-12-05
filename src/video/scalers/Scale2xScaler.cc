@@ -113,15 +113,15 @@ template<typename Pixel, bool DOUBLE_X> static inline void scale1(
 	__m128i leqb = isEqual<Pixel>(left, bottom);
 	__m128i reqb = isEqual<Pixel>(right, bottom);
 
-	__m128i cnda = _mm_andnot_si128(_mm_or_si128(teqb, reqt), leqt);
-	__m128i cndb = _mm_andnot_si128(_mm_or_si128(teqb, leqt), reqt);
-	__m128i cndc = _mm_andnot_si128(_mm_or_si128(teqb, reqb), leqb);
-	__m128i cndd = _mm_andnot_si128(_mm_or_si128(teqb, leqb), reqb);
+	__m128i cndA = _mm_andnot_si128(_mm_or_si128(teqb, reqt), leqt);
+	__m128i cndB = _mm_andnot_si128(_mm_or_si128(teqb, leqt), reqt);
+	__m128i cndC = _mm_andnot_si128(_mm_or_si128(teqb, reqb), leqb);
+	__m128i cndD = _mm_andnot_si128(_mm_or_si128(teqb, leqb), reqb);
 
-	__m128i a = select(mid, top,    cnda);
-	__m128i b = select(mid, top,    cndb);
-	__m128i c = select(mid, bottom, cndc);
-	__m128i d = select(mid, bottom, cndd);
+	__m128i a = select(mid, top,    cndA);
+	__m128i b = select(mid, top,    cndB);
+	__m128i c = select(mid, bottom, cndC);
+	__m128i d = select(mid, bottom, cndD);
 
 	if (DOUBLE_X) {
 		out0[0] = unpacklo<Pixel>(a, b);
@@ -234,8 +234,8 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on2(
 	const Pixel* __restrict src1, const Pixel* __restrict src2,
 	size_t srcWidth) __restrict
 {
-	//   n      m is expaned to a b
-	// w m e                    c d
+	//   n      m is expanded to a b
+	// w m e                     c d
 	//   s         a = (w == n) && (s != n) && (e != n) ? n : m
 	//             b =   .. swap w/e
 	//             c =   .. swap n/s

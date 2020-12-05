@@ -38,7 +38,7 @@ private:
 };
 
 /**
- * Helper class to draw scalines
+ * Helper class to draw scanlines
  */
 template<typename Pixel> class Scanline
 {

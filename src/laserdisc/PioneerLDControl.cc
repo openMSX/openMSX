@@ -67,12 +67,12 @@ PioneerLDControl::~PioneerLDControl() = default;
 
 void PioneerLDControl::reset(EmuTime::param time)
 {
-	mutel = muter = true;
+	muteL = muteR = true;
 	superimposing = false;
 	extint = false;
 
 	irq.reset();
-	if (laserdisc) laserdisc->setMuting(mutel, muter, time);
+	if (laserdisc) laserdisc->setMuting(muteL, muteR, time);
 }
 
 byte PioneerLDControl::readMem(word address, EmuTime::param time)
@@ -130,11 +130,11 @@ void PioneerLDControl::writeMem(word address, byte value, EmuTime::param time)
 		updateVideoSource();
 
 		// Muting
-		if (!mutel && !(value & 0x80)) {
-			muter = !(ppi->peekIO(2, time) & 0x10);
+		if (!muteL && !(value & 0x80)) {
+			muteR = !(ppi->peekIO(2, time) & 0x10);
 		}
-		mutel = !(value & 0x80);
-		if (laserdisc) laserdisc->setMuting(mutel, muter, time);
+		muteL = !(value & 0x80);
+		if (laserdisc) laserdisc->setMuting(muteL, muteR, time);
 
 	} else if (address == 0x7ffe) {
 		if (laserdisc) laserdisc->extControl(value & 1, time);
@@ -173,8 +173,8 @@ template<typename Archive>
 void PioneerLDControl::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("clock", clock,
-	             "mutel", mutel,
-	             "muter", muter);
+	             "mutel", muteL,
+	             "muter", muteR);
 	// videoEnabled is restored from LaserdiscPlayer. Set to false
 	// for now so that the irq does not get changed during load
 	if (ar.isLoader()) {
@@ -188,7 +188,7 @@ void PioneerLDControl::serialize(Archive& ar, unsigned /*version*/)
 	if (ar.isLoader()) {
 		updateVideoSource();
 		if (laserdisc) {
-			laserdisc->setMuting(mutel, muter, getCurrentTime());
+			laserdisc->setMuting(muteL, muteR, getCurrentTime());
 		}
 	}
 }

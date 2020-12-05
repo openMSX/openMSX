@@ -133,7 +133,7 @@ std::optional<unsigned> RealDrive::getDiskReadTrack() const
 	// Translate head-position to track number on disk.
 	// Normally this is a 1-to-1 mapping, but on the Yamaha-FD-03 the head
 	// moves 4 steps for every track on disk. This means it can be
-	// inbetween disk tracks so that it can't read valid data.
+	// between disk tracks so that it can't read valid data.
 	switch (trackMode) {
 	case DiskDrive::TrackMode::NORMAL:
 		return headPos;
@@ -259,7 +259,7 @@ void RealDrive::setMotor(bool status, EmuTime::param time)
 bool RealDrive::getMotor() const
 {
 	// note: currently unused because of the implementation in DriveMultiplexer
-	// note: currently returns the actual motor status, could be differnt from the
+	// note: currently returns the actual motor status, could be different from the
 	//       last set status because of 'syncMotorTimeout'.
 	return motorStatus;
 }

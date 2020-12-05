@@ -106,7 +106,7 @@ public:
 	bool erase(const Value2& val)
 	{
 		auto pos1 = locate(val);
-		if (pos1 == size_t(-1)) return false; // was not presnt
+		if (pos1 == size_t(-1)) return false; // was not present
 
 		// Element found, now plug the hole created at position 'pos1'.
 		auto mustMove = [&](size_t p1, size_t p2, size_t p3) {

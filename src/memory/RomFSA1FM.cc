@@ -104,7 +104,7 @@ byte RomFSA1FM1::readMem(word address, EmuTime::param time)
 const byte* RomFSA1FM1::getReadCacheLine(word address) const
 {
 	if (address == (0x7FC0 & CacheLine::HIGH)) {
-		// dont't cache IO area
+		// don't cache IO area
 		return nullptr;
 	} else if ((0x4000 <= address) && (address < 0x6000)) {
 		// read rom

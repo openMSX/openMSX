@@ -58,8 +58,8 @@ inline void randomize()
   * This function should rarely be used. It should NOT be used if you actually
   * need random values in a smaller range than [0 .. 0xffffffff]. For example:
   * 'random_32bit % N' with
-  *  - N not a power-of-2: is NOT uniform distribution anymore (higher values
-  *     have a slighly lower probability than the lower values)
+  *  - N not a power-of-2: is NOT a uniform distribution anymore (higher values
+  *     have a slightly lower probability than the lower values)
   *  - N a power-of-2: does more work than needed (typically has to call the
   *     underlying generator more than once to make sure all 32 bits are
   *     random, but then those upper bits are discarded).

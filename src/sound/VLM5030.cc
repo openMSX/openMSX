@@ -36,7 +36,7 @@ silent  :   ---  :  ---   :   ---  :   ---  :   ---  :0000SS01:
 speech  :11111122:22233334:44455566:67778889:99AAAEEE:EEPPPPP0:
 
 EEEEE  : energy : volume 0=off,0x1f=max
-PPPPP  : pitch  : 0=noize , 1=fast,0x1f=slow
+PPPPP  : pitch  : 0=noise , 1=fast,0x1f=slow
 111111 : K1     : 48=off
 22222  : K2     : 0=off,1=+min,0x0f=+max,0x10=off,0x11=+max,0x1f=-min
                 : 16 == special function??
@@ -60,9 +60,9 @@ chirp  2   : volume  6- 4 : with filter
 chirp  3   : volume   4   : no filter ??
 chirp  4- 5: volume  4- 2 : with filter
 chirp  6-11: volume  2- 0 : with filter
-chirp 12-..: vokume   0   : silent
+chirp 12-..: volume   0   : silent
 
- ---------- digial output information ----------
+ ---------- digital output information ----------
  when ME pin = high , some status output to A0..15 pins
 
   A0..8   : DAC output value (abs)
@@ -114,7 +114,7 @@ enum {
 // SPC SPB SPA
 //  1   0   1  more slow (05h)     : 42ms   (150%) : 60sample
 //  1   1   x  slow      (06h,07h) : 34ms   (125%) : 50sample
-//  x   0   0  normal    (00h,04h) : 25.6ms (100%) : 40samplme
+//  x   0   0  normal    (00h,04h) : 25.6ms (100%) : 40sample
 //  0   0   1  fast      (01h)     : 20.2ms  (75%) : 30sample
 //  0   1   x  more fast (02h,03h) : 12.2ms  (50%) : 20sample
 constexpr int VLM5030_speed_table[8] =
@@ -177,12 +177,12 @@ constexpr int16_t K5_table[] = {
 	0,   -8127,  -16384,  -24511,   32638,   24511,   16254,    8127
 };
 
-int VLM5030::getBits(unsigned sbit, unsigned bits)
+int VLM5030::getBits(unsigned sBit, unsigned bits)
 {
-	unsigned offset = address + (sbit / 8);
+	unsigned offset = address + (sBit / 8);
 	unsigned data = rom[(offset + 0) & address_mask] +
 	                rom[(offset + 1) & address_mask] * 256;
-	data >>= (sbit & 7);
+	data >>= (sBit & 7);
 	data &= (0xFF >> (8 - bits));
 	return data;
 }
@@ -375,13 +375,13 @@ void VLM5030::setupParameter(byte param)
 	// latch parameter value
 	parameter = param;
 
-	// bit 0,1 : 4800bps / 9600bps , interporator step
+	// bit 0,1 : 4800bps / 9600bps , interpolator step
 	if (param & 2) {          // bit 1 = 1 , 9600bps
-		interp_step = 4;  // 9600bps : no interporator
+		interp_step = 4;  // 9600bps : no interpolator
 	} else if (param & 1) {   // bit1 = 0 & bit0 = 1 , 4800bps
-		interp_step = 2;  // 4800bps : 2 interporator
+		interp_step = 2;  // 4800bps : 2 interpolator
 	} else {                  // bit1 = bit0 = 0 : 2400bps
-		interp_step = 1;  // 2400bps : 4 interporator
+		interp_step = 1;  // 2400bps : 4 interpolator
 	}
 
 	// bit 3,4,5 : speed (frame size)

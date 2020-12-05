@@ -28,7 +28,7 @@ public:
 	void clear();
 
 	/** Update VRAM state to specified moment in time.
-	  * @param time Moment in emulated time to synchronise VRAM to
+	  * @param time Moment in emulated time to synchronize VRAM to
 	  */
 	inline void sync(EmuTime::param time) {
 		cmdEngine->sync(time);

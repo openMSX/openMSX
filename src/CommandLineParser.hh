@@ -38,7 +38,7 @@ public:
 	enum ParsePhase {
 		PHASE_BEFORE_INIT,       // --help, --version, -bash
 		PHASE_INIT,              // calls Reactor::init()
-		PHASE_BEFORE_SETTINGS,   // -setting, -nommx, ...
+		PHASE_BEFORE_SETTINGS,   // -setting, ...
 		PHASE_LOAD_SETTINGS,     // loads settings.xml
 		PHASE_BEFORE_MACHINE,    // before -machine
 		PHASE_LOAD_MACHINE,      // -machine

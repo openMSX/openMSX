@@ -129,7 +129,7 @@ VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, EmuTime::param time)
 	vrMode = vdp.getVRMode();
 	setSizeMask(time);
 
-	// Whole VRAM is cachable.
+	// Whole VRAM is cacheable.
 	// Because this window has no observer, any EmuTime can be passed.
 	// TODO: Move this to cache registration.
 	bitmapCacheWindow.setMask(0x1FFFF, ~0u << 17, EmuTime::zero());

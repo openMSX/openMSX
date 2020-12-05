@@ -431,7 +431,7 @@ ALWAYS_INLINE int compress_impl(const uint8_t* src, uint8_t* const dst, const in
 _next_match:
 		// At this stage, the following variables must be correctly set:
 		// - ip : at start of LZ operation
-		// - match : at start of previous pattern occurence; can be within current prefix, or within extDict
+		// - match : at start of previous pattern occurrence; can be within current prefix, or within extDict
 		// - token and *token : position to write 4-bits for match length; higher 4-bits for literal length supposed already written
 
 		// Encode Offset

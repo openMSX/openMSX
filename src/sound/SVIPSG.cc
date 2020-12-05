@@ -36,7 +36,7 @@
 // 2   /BK22   Memory bank 22, RAM 8000-FFFF
 // 3   /BK31   Memory bank 31, RAM 0000-7FFF
 // 4   /BK32   Memory bank 32, RAM 8000-7FFF
-// 5   CAPS    Caps-Lock diod
+// 5   CAPS    Caps-Lock LED
 // 6   /ROMEN0 Memory bank 12, ROM 8000-BFFF* (cartridge /CCS3)
 // 7   /ROMEN1 Memory bank 12, ROM C000-FFFF* (cartridge /CCS4)
 //
@@ -111,31 +111,31 @@ void SVIPSG::writeB(byte value, EmuTime::param /*time*/)
 	getMotherBoard().getLedStatus().setLed(LedStatus::CAPS, (value & 0x20) != 0);
 
 	// Default to bank 1 and 2
-	byte psreg = 0;
+	byte psReg = 0;
 	switch (~value & 0x14) {
 	case 0x04: // bk22
-		psreg = 0xa0;
+		psReg = 0xa0;
 		break;
 	case 0x10: // bk32
-		psreg = 0xf0;
+		psReg = 0xf0;
 		break;
 	}
 	switch (~value & 0x0B) {
 	case 1: // bk12 (cart)?
 		if ((~value & 0x80) || (~value & 0x40)) {
-			psreg = 0x50;
+			psReg = 0x50;
 		}
 		// bk11 (cart)
-		psreg |= 0x05;
+		psReg |= 0x05;
 		break;
 	case 2: // bk21
-		psreg |= 0x0a;
+		psReg |= 0x0a;
 		break;
 	case 8: // bk31
-		psreg |= 0x0f;
+		psReg |= 0x0f;
 		break;
 	}
-	getMotherBoard().getCPUInterface().setPrimarySlots(psreg);
+	getMotherBoard().getCPUInterface().setPrimarySlots(psReg);
 
 	prev = value;
 }

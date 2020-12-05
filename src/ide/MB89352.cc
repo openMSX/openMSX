@@ -644,7 +644,7 @@ byte MB89352::getSSTS() const
 		}
 	}
 	if (phase != SCSI::BUS_FREE) {
-		result |= 0x80; // set iniciator
+		result |= 0x80; // set indiciator
 	}
 	if (isBusy) {
 		result |= 0x20; // set SPC_BSY

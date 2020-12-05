@@ -14,7 +14,7 @@
 //   slightly less efficient).
 // The String32 helper abstracts the difference between the two above
 // approaches. In both cases it is a 32-bit type (hence the name). And on
-// both 32/64-bit systems it uses the more effient implementation.
+// both 32/64-bit systems it uses the more efficient implementation.
 
 using String32 = std::conditional_t<
 	(sizeof(char*) > sizeof(uint32_t)), // is a pointer bigger than an uint32_t

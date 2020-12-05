@@ -19,7 +19,7 @@ OutputBuffer::OutputBuffer()
 	// allocate any initial buffer at all). But it can make a difference in
 	// performance. If later we discover the buffer is too small, we have
 	// to reallocate (and thus make a copy). In profiling this reallocation
-	// step was noticable.
+	// step was noticeable.
 
 	// Slowly drop the estimated required size. This makes sure that when
 	// we've overestimated the size once, we don't forever keep this too

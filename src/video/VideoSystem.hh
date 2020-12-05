@@ -49,7 +49,7 @@ public:
 	  * right renderer is selected. Subclasses are encouraged to check
 	  * more settings.
 	  * @return True if the settings were still in sync
-	  *     or were succesfully synced;
+	  *     or were successfully synced;
 	  *     false if the renderer is unable to bring the settings in sync.
 	  * TODO: Text copied from Renderer interface,
 	  *       if this stays here then rewrite text accordingly.

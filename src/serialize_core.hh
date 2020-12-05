@@ -62,7 +62,7 @@ template<typename T1, typename T2> struct SerializeClassVersion<std::pair<T1, T2
  *
  * For serialization of enums to work you have to specialize the
  * serialize_as_enum struct for that specific enum. This has a double purpose:
- *  - let the framework know this type should be traited as an enum
+ *  - let the framework know this type should be treated as an enum
  *  - define a mapping between enum values and string representations
  *
  * The serialize_as_enum class has the following members:
@@ -137,7 +137,7 @@ template<> struct serialize_as_enum< TYPE > : serialize_as_enum_impl< TYPE > { \
 // a reference to this first object.
 //
 // By default all pointer types are treated as pointer, but also smart pointer
-// can be traited as such. Though only unique_ptr<T> is implemented ATM.
+// can be treated as such. Though only unique_ptr<T> is implemented ATM.
 //
 // The serialize_as_pointer class has the following members:
 //  - static bool value
@@ -213,7 +213,7 @@ template<typename T> struct serialize_as_pointer<std::shared_ptr<T>>
 //  - int size
 //      The size of the collection, -1 for variable sized collections.
 //      Fixed sized collections can be serialized slightly more efficient
-//      becuase we don't need to explicitly store the size.
+//      because we don't need to explicitly store the size.
 //  - using value_type = ...
 //      The type stored in the collection (only homogeneous collections are
 //      supported).

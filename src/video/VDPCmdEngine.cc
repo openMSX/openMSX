@@ -11,7 +11,7 @@ TODO:
   But maybe it makes more sense to have all RAM managed by the VDP?
 - Currently all VRAM access is done at the start time of a series of
   updates: currentTime is not increased until the very end of the sync
-  method. It should ofcourse be updated after every read and write.
+  method. It should of course be updated after every read and write.
   An acceptable approximation would be an update after every pixel/byte
   operation.
 */
@@ -706,7 +706,7 @@ struct TransparentOp : Op {
 	{
 		// TODO does this skip the write or re-write the original value
 		//      might make a difference in case the CPU has written
-		//      the same address inbetween the command read and write
+		//      the same address between the command read and write
 		if (color) Op::operator()(time, vram, addr, src, color, mask);
 	}
 };
@@ -1586,7 +1586,7 @@ void VDPCmdEngine::executeYmmm(EmuTime::param limit)
 	ANX = clipNX_1_byte<Mode>(ADX, 512, ARG);
 
 	// TODO does this use MXD for both read and write?
-	//  it says so in the datasheet, but it seems unlogical
+	//  it says so in the datasheet, but it seems illogical
 	//  OTOH YMMM also uses DX for both read and write
 	bool dstExt = (ARG & MXD) != 0;
 	bool doPset  = !dstExt || hasExtendedVRAM;

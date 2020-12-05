@@ -138,45 +138,45 @@ void Mouse::emulateJoystick()
 {
 	status &= ~(JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT);
 
-	int deltax = curxrel; curxrel = 0;
-	int deltay = curyrel; curyrel = 0;
-	int absx = (deltax > 0) ? deltax : -deltax;
-	int absy = (deltay > 0) ? deltay : -deltay;
+	int deltaX = curxrel; curxrel = 0;
+	int deltaY = curyrel; curyrel = 0;
+	int absX = (deltaX > 0) ? deltaX : -deltaX;
+	int absY = (deltaY > 0) ? deltaY : -deltaY;
 
-	if ((absx < TRESHOLD) && (absy < TRESHOLD)) {
+	if ((absX < TRESHOLD) && (absY < TRESHOLD)) {
 		return;
 	}
 
 	// tan(pi/8) ~= 5/12
-	if (deltax > 0) {
-		if (deltay > 0) {
-			if ((12 * absx) > (5 * absy)) {
+	if (deltaX > 0) {
+		if (deltaY > 0) {
+			if ((12 * absX) > (5 * absY)) {
 				status |= JOY_RIGHT;
 			}
-			if ((12 * absy) > (5 * absx)) {
+			if ((12 * absY) > (5 * absX)) {
 				status |= JOY_DOWN;
 			}
 		} else {
-			if ((12 * absx) > (5 * absy)) {
+			if ((12 * absX) > (5 * absY)) {
 				status |= JOY_RIGHT;
 			}
-			if ((12 * absy) > (5 * absx)) {
+			if ((12 * absY) > (5 * absX)) {
 				status |= JOY_UP;
 			}
 		}
 	} else {
-		if (deltay > 0) {
-			if ((12 * absx) > (5 * absy)) {
+		if (deltaY > 0) {
+			if ((12 * absX) > (5 * absY)) {
 				status |= JOY_LEFT;
 			}
-			if ((12 * absy) > (5 * absx)) {
+			if ((12 * absY) > (5 * absX)) {
 				status |= JOY_DOWN;
 			}
 		} else {
-			if ((12 * absx) > (5 * absy)) {
+			if ((12 * absX) > (5 * absY)) {
 				status |= JOY_LEFT;
 			}
-			if ((12 * absy) > (5 * absx)) {
+			if ((12 * absY) > (5 * absX)) {
 				status |= JOY_UP;
 			}
 		}

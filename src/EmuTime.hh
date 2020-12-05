@@ -28,7 +28,7 @@ public:
 	using param = EmuTime_param_impl<EmuTime>::param;
 	static param dummy() { return EmuTime_param_impl<EmuTime>::dummy(); }
 
-	// Note: default copy constructor and assigment operator are ok.
+	// Note: default copy constructor and assignment operator are ok.
 
 	static constexpr EmuTime makeEmuTime(uint64_t u) { return EmuTime(u); }
 

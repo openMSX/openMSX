@@ -31,7 +31,7 @@ constexpr byte regAccess[64] = {
 	RD_WR,                              // Display Adjust
 	RD_WR, RD_WR, RD_WR, RD_WR,         // Scroll Control A
 	RD_WR, RD_WR, RD_WR, RD_WR,         // Scroll Control B
-	RD_WR,                              // Sprite Pattern Table Adress
+	RD_WR,                              // Sprite Pattern Table Address
 	RD_WR,                              // LCD Control
 	RD_WR,                              // Priority Control
 	WR_ONLY,                            // Sprite Palette Control

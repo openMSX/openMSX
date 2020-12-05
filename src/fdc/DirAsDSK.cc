@@ -819,7 +819,7 @@ DirAsDSK::DirIndex DirAsDSK::fillMSXDirEntry(
 		// Create correct MSX filename.
 		string msxFilename = hostToMsxName(hostName);
 		if (checkMSXFileExists(msxFilename, msxDirSector)) {
-			// TODO: actually should increase vfat abrev if possible!!
+			// TODO: actually should increase vfat abbreviation if possible!!
 			throw MSXException(
 				"MSX name ", msxToHostName(msxFilename.c_str()),
 				" already exists");
@@ -932,7 +932,7 @@ void DirAsDSK::writeFATSector(unsigned sector, const SectorBuffer& buf)
 	//   assert(memcmp(fat(), oldFAT, sizeof(oldFAT)) == 0);
 	// because exportFileFromFATChange() only updates the part of the FAT
 	// that actually contains FAT info. E.g. not the media ID at the
-	// beginning nor the unsused part at the end. And for example the 'CALL
+	// beginning nor the unused part at the end. And for example the 'CALL
 	// FORMAT' routine also writes these parts of the FAT.
 	for (unsigned i = FIRST_CLUSTER; i < maxCluster; ++i) {
 		assert(readFAT(i) == readFATHelper(oldFAT.data(), i));

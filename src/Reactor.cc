@@ -643,7 +643,7 @@ int Reactor::signalEvent(const std::shared_ptr<const Event>& event)
 		// by the OS for whatever reason (like an incoming phone call) and all screen
 		// resources are taken away from the app.
 		// In such case the app is supposed to behave as a good citizen
-		// and minize its resource usage and related battery drain.
+		// and minimize its resource usage and related battery drain.
 		// The SDL Android port already takes care of halting the Java
 		// part of the sound processing. The Display class makes sure that it wont try
 		// to render anything to the (temporary missing) graphics resources but the

@@ -48,9 +48,9 @@
 #include <cstdint>
 
 namespace LZ4 {
-	[[nodiscard]] inline int compressBound(int isize)
+	[[nodiscard]] inline int compressBound(int iSize)
 	{
-		return isize + (isize / 255) + 16;
+		return iSize + (iSize / 255) + 16;
 	}
 
 	[[nodiscard]] int compress(const uint8_t* src, uint8_t* dst, int srcSize);

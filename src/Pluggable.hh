@@ -33,7 +33,7 @@ public:
 	void plug(Connector& connector, EmuTime::param time);
 
 	/** This method is called when this pluggable is removed from a
-	  * conector.
+	  * connector.
 	  */
 	void unplug(EmuTime::param time);
 

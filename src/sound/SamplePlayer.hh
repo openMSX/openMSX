@@ -25,7 +25,7 @@ public:
 	/** Keep on repeating the given sample data.
 	 * If there is already a sample playing, that sample is still
 	 * finished. If there was no sample playing, the given sample
-	 * immediatly starts playing.
+	 * immediately starts playing.
 	 * Parameters are the same as for the play() method.
 	 * @see stopRepeat()
 	 */

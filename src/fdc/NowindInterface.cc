@@ -91,7 +91,7 @@ const byte* NowindInterface::getReadCacheLine(word address) const
 {
 	if (((0x2000 <= address) && (address < 0x4000)) ||
 	    ((0x8000 <= address) && (address < 0xA000))) {
-		// nowind region, not cachable
+		// nowind region, not cacheable
 		return nullptr;
 	} else if ((0x4000 <= address) && (address < 0xC000)) {
 		// note: range 0x8000-0xA000 is already handled above
@@ -121,7 +121,7 @@ void NowindInterface::writeMem(word address, byte value, EmuTime::param time)
 byte* NowindInterface::getWriteCacheLine(word address) const
 {
 	if (address < 0xC000) {
-		// not cachable
+		// not cacheable
 		return nullptr;
 	} else {
 		return unmappedWrite;

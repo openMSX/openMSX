@@ -401,7 +401,7 @@ static constexpr auto noise_tab = [] {
 //
 // Here are just 256 samples out of much longer data.
 //
-// It does NOT repeat every 256 samples on real chip and I wasnt able to find
+// It does NOT repeat every 256 samples on real chip and I wasn't able to find
 // the point where it repeats (even in strings as long as 131072 samples).
 //
 // I only put it here because its better than nothing and perhaps
@@ -805,12 +805,12 @@ void YM2151::writeReg(byte r, byte v, EmuTime::param time)
 		break;
 
 	case 0x80: { // KS, AR
-		unsigned oldks = op->ks;
-		unsigned oldar = op->ar;
+		unsigned oldKs = op->ks;
+		unsigned oldAr = op->ar;
 		op->ks = 5 - (v >> 6);
 		op->ar = (v & 0x1f) ? 32 + ((v & 0x1f) << 1) : 0;
 
-		if ((op->ar != oldar) || (op->ks != oldks)) {
+		if ((op->ar != oldAr) || (op->ks != oldKs)) {
 			if ((op->ar + (op->kc >> op->ks)) < 32 + 62) {
 				op->eg_sh_ar  = eg_rate_shift [op->ar + (op->kc>>op->ks)];
 				op->eg_sel_ar = eg_rate_select[op->ar + (op->kc>>op->ks)];
@@ -819,7 +819,7 @@ void YM2151::writeReg(byte r, byte v, EmuTime::param time)
 				op->eg_sel_ar = 17 * RATE_STEPS;
 			}
 		}
-		if (op->ks != oldks) {
+		if (op->ks != oldKs) {
 			op->eg_sh_d1r  = eg_rate_shift [op->d1r + (op->kc >> op->ks)];
 			op->eg_sel_d1r = eg_rate_select[op->d1r + (op->kc >> op->ks)];
 			op->eg_sh_d2r  = eg_rate_shift [op->d2r + (op->kc >> op->ks)];
@@ -1290,7 +1290,7 @@ rate 11 1         |
 void YM2151::advanceEG()
 {
 	if (eg_timer++ != 3) {
-		// envelope generator timer overlfows every 3 samples (on real chip)
+		// envelope generator timer overflows every 3 samples (on real chip)
 		return;
 	}
 	eg_timer = 0;
@@ -1416,7 +1416,7 @@ void YM2151::advance()
 	lfp = p * pmd / 128;
 
 	// The Noise Generator of the YM2151 is 17-bit shift register.
-	// Input to the bit16 is negated (bit0 XOR bit3) (EXNOR).
+	// Input to the bit16 is negated (bit0 XOR bit3) (XNOR).
 	// Output of the register is negated (bit0 XOR bit3).
 	// Simply use bit16 as the noise output.
 
@@ -1473,7 +1473,7 @@ void YM2151::advance()
 	// Interesting effect is that when timer A is set to 1023, the KEY ON happens
 	// on every sample, so there is no KEY OFF at all - the result is that
 	// the sound played is the same as after normal KEY ON.
-	if (csm_req) { // CSM KEYON/KEYOFF seqeunce request
+	if (csm_req) { // CSM KEYON/KEYOFF sequence request
 		if (csm_req == 2) { // KEY ON
 			op = &oper[0]; // CH 0 M1
 			i = 32;

@@ -146,7 +146,7 @@ CLIFileType* CommandLineParser::getFileTypeHandlerForFileName(string_view filena
 	// First try the fileName as we get it from the commandline. This may
 	// be more interesting than the original fileName of a (g)zipped file:
 	// in case of an OMR file for instance, we want to select on the
-	// original extension, and not on the extension inside the gzipped
+	// original extension, and not on the extension inside the (g)zipped
 	// file.
 	auto* result = inner(filename);
 	if (!result) {

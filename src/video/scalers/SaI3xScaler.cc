@@ -419,10 +419,10 @@ void SaI3xScaler<Pixel>::scaleAny(FrameSource& src,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) __restrict
 {
 	// Calculate fixed point end coordinates and deltas.
-	const unsigned wfinish = (srcWidth - 1) << 16;
-	const unsigned dw = wfinish / (dst.getWidth() - 1);
-	const unsigned hfinish = (src.getHeight() - 1) << 16;
-	const unsigned dh = hfinish / (dst.getHeight() - 1);
+	const unsigned wFinish = (srcWidth - 1) << 16;
+	const unsigned dw = wFinish / (dst.getWidth() - 1);
+	const unsigned hFinish = (src.getHeight() - 1) << 16;
+	const unsigned dh = hFinish / (dst.getHeight() - 1);
 
 	VLA_SSE_ALIGNED(Pixel, buf0, srcWidth);
 	VLA_SSE_ALIGNED(Pixel, buf1, srcWidth);
@@ -454,7 +454,7 @@ void SaI3xScaler<Pixel>::scaleAny(FrameSource& src,
 		unsigned pos3 = 1;
 		Pixel B = src1[0];
 		Pixel D = src2[0];
-		for (unsigned w = 0; w < wfinish; /**/) {
+		for (unsigned w = 0; w < wFinish; /**/) {
 			const unsigned pos0 = pos1;
 			pos1 = pos2;
 			pos2 = pos3;

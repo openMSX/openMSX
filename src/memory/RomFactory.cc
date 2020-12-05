@@ -101,7 +101,7 @@ namespace openmsx::RomFactory {
 	} else {
 		//  GameCartridges do their bankswitching by using the Z80
 		//  instruction ld(nn),a in the middle of program code. The
-		//  adress nn depends upon the GameCartridge mappertype used.
+		//  address nn depends upon the GameCartridge mappertype used.
 		//  To guess which mapper it is, we will look how much writes
 		//  with this instruction to the mapper-registers-addresses
 		//  occur.

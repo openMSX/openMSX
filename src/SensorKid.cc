@@ -91,7 +91,7 @@ byte SensorKid::getAnalog(byte chi)
 	// Execute Tcl callback
 	//   input: the port number (0-3)
 	//   output: the analog value for that port (0-255)
-	// On the real cartrige
+	// On the real cartridge
 	//  port 0 is connected to a light sensor         HIKARI
 	//  port 1 is connector to a temperature sensor   ONDO
 	//  port 2 is connected to a microphone           OTO

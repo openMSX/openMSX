@@ -577,15 +577,15 @@ void YMF278::writeRegDirect(byte reg, byte data, EmuTime::param time)
 {
 	// Handle slot registers specifically
 	if (reg >= 0x08 && reg <= 0xF7) {
-		int snum = (reg - 8) % 24;
-		auto& slot = slots[snum];
+		int sNum = (reg - 8) % 24;
+		auto& slot = slots[sNum];
 		switch ((reg - 8) / 24) {
 		case 0: {
 			slot.wave = (slot.wave & 0x100) | data;
-			int wavetblhdr = (regs[2] >> 2) & 0x7;
-			int base = (slot.wave < 384 || !wavetblhdr) ?
+			int waveTblHdr = (regs[2] >> 2) & 0x7;
+			int base = (slot.wave < 384 || !waveTblHdr) ?
 			           (slot.wave * 12) :
-			           (wavetblhdr * 0x80000 + ((slot.wave - 384) * 12));
+			           (waveTblHdr * 0x80000 + ((slot.wave - 384) * 12));
 			byte buf[12];
 			for (int i = 0; i < 12; ++i) {
 				// TODO What if R#2 bit 0 = 1?
@@ -600,7 +600,7 @@ void YMF278::writeRegDirect(byte reg, byte data, EmuTime::param time)
 				// Verified on real YMF278:
 				// After tone loading, if you read these
 				// registers, their value actually has changed.
-				writeRegDirect(8 + snum + (i - 2) * 24, buf[i], time);
+				writeRegDirect(8 + sNum + (i - 2) * 24, buf[i], time);
 			}
 			if (slot.keyon) {
 				keyOnHelper(slot);
@@ -698,7 +698,7 @@ void YMF278::writeRegDirect(byte reg, byte data, EmuTime::param time)
 
 		case 0x03:
 			// Verified on real YMF278:
-			// * Don't update the 'memadr' variable on writes to
+			// * Don't update the 'memAdr' variable on writes to
 			//   reg 3 and 4. Only store the value in the 'regs'
 			//   array for later use.
 			// * The upper 2 bits are not used to address the
@@ -715,18 +715,18 @@ void YMF278::writeRegDirect(byte reg, byte data, EmuTime::param time)
 
 		case 0x05:
 			// Verified on real YMF278: (see above)
-			// Only writes to reg 5 change the (full) 'memadr'.
-			memadr = (regs[3] << 16) | (regs[4] << 8) | data;
+			// Only writes to reg 5 change the (full) 'memAdr'.
+			memAdr = (regs[3] << 16) | (regs[4] << 8) | data;
 			break;
 
 		case 0x06:  // memory data
 			if (regs[2] & 1) {
-				writeMem(memadr, data);
-				++memadr; // no need to mask (again) here
+				writeMem(memAdr, data);
+				++memAdr; // no need to mask (again) here
 			} else {
 				// Verified on real YMF278:
 				//  - writes are ignored
-				//  - memadr is NOT increased
+				//  - memAdr is NOT increased
 			}
 			break;
 
@@ -747,8 +747,8 @@ byte YMF278::readReg(byte reg)
 		// Memory Data Register
 		if (regs[2] & 1) {
 			// Verified on real YMF278:
-			// memadr is only increased when 'regs[2] & 1'
-			++memadr; // no need to mask (again) here
+			// memAdr is only increased when 'regs[2] & 1'
+			++memAdr; // no need to mask (again) here
 		}
 	}
 	return result;
@@ -762,7 +762,7 @@ byte YMF278::peekReg(byte reg) const
 
 		case 6: // Memory Data Register
 			if (regs[2] & 1) {
-				return readMem(memadr);
+				return readMem(memAdr);
 			} else {
 				// Verified on real YMF278
 				return 0xff;
@@ -804,7 +804,7 @@ YMF278::YMF278(const std::string& name_, int ramSize_,
 			"0, 128, 256, 512, 640, 1024 or 2048.");
 	}
 
-	memadr = 0; // avoid UMR
+	memAdr = 0; // avoid UMR
 	ranges::fill(regs, 0);
 
 	registerSound(config);
@@ -834,7 +834,7 @@ void YMF278::reset(EmuTime::param time)
 	for (int i = 0xf7; i >= 0; --i) { // reverse order to avoid UMR
 		writeRegDirect(i, 0, time);
 	}
-	memadr = 0;
+	memAdr = 0;
 	setMixLevel(0, time);
 }
 
@@ -1063,7 +1063,7 @@ void YMF278::Slot::serialize(Archive& ar, unsigned version)
 
 // version 1: initial version
 // version 2: loadTime and busyTime moved to MSXMoonSound class
-// version 3: memadr cannot be restored from register values
+// version 3: memAdr cannot be restored from register values
 // version 4: implement ram via Ram class
 template<typename Archive>
 void YMF278::serialize(Archive& ar, unsigned version)
@@ -1077,14 +1077,14 @@ void YMF278::serialize(Archive& ar, unsigned version)
 	}
 	ar.serialize_blob("registers", regs, sizeof(regs));
 	if (ar.versionAtLeast(version, 3)) { // must come after 'regs'
-		ar.serialize("memadr", memadr);
+		ar.serialize("memadr", memAdr);
 	} else {
 		assert(ar.isLoader());
-		// Old formats didn't store 'memadr' so we also can't magically
+		// Old formats didn't store 'memAdr' so we also can't magically
 		// restore the correct value. The best we can do is restore the
 		// last set address.
 		regs[3] &= 0x3F; // mask upper two bits
-		memadr = (regs[3] << 16) | (regs[4] << 8) | regs[5];
+		memAdr = (regs[3] << 16) | (regs[4] << 8) | regs[5];
 	}
 
 	// TODO restore more state from registers

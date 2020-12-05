@@ -28,7 +28,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void setMapper(int regio, byte value);
+	void setMapper(int region, byte value);
 	void setModeRegister(byte value);
 	void checkEnable();
 

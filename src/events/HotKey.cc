@@ -230,7 +230,7 @@ void HotKey::saveBindings(XMLElement& config) const
 			elem.addAttribute("event", "true");
 		}
 	}
-	// add explicit unbind's
+	// add explicit unbinds
 	for (const auto& k : unboundKeys) {
 		auto& elem = bindingsElement.addChild("unbind");
 		elem.addAttribute("key", k->toString());
@@ -334,7 +334,7 @@ void HotKey::unbindFullLayer(const string& layer)
 
 void HotKey::activateLayer(std::string layer, bool blocking)
 {
-	// Insert new activattion record at the end of the list.
+	// Insert new activation record at the end of the list.
 	// (it's not an error if the same layer was already active, in such
 	// as case it will now appear twice in the list of active layer,
 	// and it must also be deactivated twice).
@@ -697,7 +697,7 @@ void HotKey::DeactivateCmd::execute(span<const TclObject> tokens, TclObject& /*r
 
 string HotKey::DeactivateCmd::help(const vector<string>& /*tokens*/) const
 {
-	return "deactivate_input_layer <layername> : deactive the given input layer";
+	return "deactivate_input_layer <layername> : deactivate the given input layer";
 }
 
 

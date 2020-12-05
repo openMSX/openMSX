@@ -67,7 +67,7 @@ template<typename T> struct SerializeClassVersion;
 // Archive code is heavily templatized. It uses the CRTP (curiously recuring
 // template pattern ; a base class templatized on it's derived class). To
 // implement static polymorphism. This means there is practically no run-time
-// overhead of using this mechansim compared to 6 seperatly handcoded functions
+// overhead of using this mechanism compared to 6 separately handcoded functions
 // (Mem/XML/Text x input/output).
 // TODO At least in theory, still need to verify this in practice.
 //      Though my experience is that gcc is generally very good in this.
@@ -101,7 +101,7 @@ public:
 	 * class in a new subtag, serializeInlinedBase() puts the members
 	 * of the base class (inline) in the current tag. The advantage
 	 * of serializeBase() is that the base class can be versioned
-	 * seperatly from the subclass. The disadvantage is that it exposes
+	 * separately from the subclass. The disadvantage is that it exposes
 	 * an internal implementation detail in the XML file, and thus makes
 	 * it harder to for example change the class hierarchy or move
 	 * members from base to subclass or vice-versa.
@@ -114,7 +114,7 @@ public:
 
 	// Each concrete archive class also has the following methods:
 	// Because of the implementation with static polymorphism, this
-	// interface is not explictly visible in the base class.
+	// interface is not explicitly visible in the base class.
 	//
 	//
 	// template<typename T> void serializeWithID(const char* tag, const T& t, ...)
@@ -263,7 +263,7 @@ public:
 	 * the case for this archive or not.
 	 * This can for example be used to make the XML files look prettier in
 	 * case of serialization of collections: in that case we don't need to
-	 * explictly store the size of the collection, it can be derived from
+	 * explicitly store the size of the collection, it can be derived from
 	 * the number of subtags.
 	 */
 	[[nodiscard]] bool canCountChildren() const { return false; }

@@ -379,7 +379,7 @@ private:
 	static inline DummyVRAMOBserver dummyObserver;
 };
 
-/** Manages VRAM contents and synchronises the various users of the VRAM.
+/** Manages VRAM contents and synchronizes the various users of the VRAM.
   * VDPVRAM does not apply planar remapping to addresses, this is the
   * responsibility of the caller.
   */
@@ -640,7 +640,7 @@ private:
 	VDPCmdEngine* cmdEngine;
 	SpriteChecker* spriteChecker;
 
-	/** The last time a CmdEngine write or a CPU read/write occured.
+	/** The last time a CmdEngine write or a CPU read/write occurred.
 	  * This is only used in a debug build to check if read/writes come
 	  * in the correct order.
 	  */

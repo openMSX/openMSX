@@ -238,7 +238,7 @@ void WD33C93::execCmd(byte value)
 
 	case 0x18: // Translate Address (Lv2)
 	default:
-		// unsupport command
+		// unsupported command
 		break;
 	}
 }

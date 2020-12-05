@@ -105,7 +105,7 @@ void IPSPatch::copyBlock(size_t src, byte* dst, size_t num) const
 			chunkSize  -= chunkOffset;
 			chunkStart += chunkOffset;
 		}
-		// calc chuncksize
+		// calc chunkSize
 		assert(src <= chunkStart);
 		int overflow = int(chunkStart - src + chunkSize - num);
 		if (overflow > 0) {

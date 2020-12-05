@@ -31,11 +31,11 @@ private:
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
 	void scale2x1to9x3(FrameSource& src,
-		unsigned srcstarty, unsigned srcendy, unsigned srcwidth,
-		ScalerOutput<Pixel>& dst, unsigned dststarty, unsigned dstendy) override;
+		unsigned srcStartY, unsigned srcEndY, unsigned srcwidth,
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
 	void scale2x2to9x3(FrameSource& src,
-		unsigned srcstarty, unsigned srcendy, unsigned srcwidth,
-		ScalerOutput<Pixel>& dst, unsigned dststarty, unsigned dstendy) override;
+		unsigned srcStartY, unsigned srcEndY, unsigned srcwidth,
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
 	void scale1x1to3x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;

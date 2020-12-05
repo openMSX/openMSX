@@ -140,7 +140,7 @@ public:
 	/** Abstract implementation of getLinePtr().
 	  * Pixel type is unspecified (implementations that care about the
 	  * exact type should get it via some other mechanism).
-	  * @param line The line number for the requisted line.
+	  * @param line The line number for the requested line.
 	  * @param lineWidth Output parameter, the width of the returned line
 	  *                  in pixel units.
 	  * @param buf Buffer space that can _optionally_ be used by the

@@ -122,7 +122,7 @@ void MSXMultiMemDevice::writeMem(word address, byte value, EmuTime::param time)
 const byte* MSXMultiMemDevice::getReadCacheLine(word start) const
 {
 	assert((start & CacheLine::HIGH) == start); // start is aligned
-	// Because start is aligned we don't need to wory about the begin
+	// Because start is aligned we don't need to worry about the begin
 	// address of the range. But we must make sure the end of the range
 	// doesn't only fill a partial cacheline.
 	const auto& range = searchRange(start);

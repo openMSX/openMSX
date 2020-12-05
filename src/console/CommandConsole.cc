@@ -431,7 +431,7 @@ void CommandConsole::commandExecute()
 	if (commandController.isComplete(commandBuffer)) {
 		// Normally the busy prompt is NOT shown (not even very briefly
 		// because the screen is not redrawn), though for some commands
-		// that potentially take a long time to execute, we explictly
+		// that potentially take a long time to execute, we explicitly
 		// send events, see also comment in signalEvent().
 		prompt = PROMPT_BUSY;
 		putPrompt();

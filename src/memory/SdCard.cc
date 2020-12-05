@@ -203,7 +203,7 @@ byte SdCard::transfer(byte value, bool cs)
 		}
 		break;
 	}
-	
+
 	return retval;
 }
 
@@ -228,7 +228,7 @@ void SdCard::executeCommand()
 			byte(0x01), // voltage accepted
 			cmdBuf[4]});// check pattern
 		break;
-	case 9:{ // SEND_CSD 
+	case 9:{ // SEND_CSD
 		responseQueue.push_back({
 			R1_BUSY, // OK (ignored on MegaSD code, used in FUZIX)
 		// now follows a CSD version 2.0 (for SDHC)
@@ -317,7 +317,7 @@ void SdCard::executeCommand()
 			byte(0x00),   // OCR Reg part 3
 			byte(0x00)}); // OCR Reg part 4
 		break;
-	
+
 	default:
 		responseQueue.push_back(R1_ILLEGAL_COMMAND);
 		break;

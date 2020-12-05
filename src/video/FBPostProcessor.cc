@@ -86,7 +86,7 @@ static inline void drawNoiseLineSse2(uint32_t* buf_, signed char* noise, size_t 
 	//   x + 128 == x - 128 == x ^ 128
 	// So the expression becomes:
 	//   signed_add_sat(value ^ 128, noise) ^ 128
-	// The follwoing loop does just that, though it processes 64 bytes per
+	// The following loop does just that, though it processes 64 bytes per
 	// iteration.
 	ptrdiff_t x = width * sizeof(uint32_t);
 	assert((x & 63) == 0);

@@ -17,7 +17,7 @@ SamplePlayer::SamplePlayer(const std::string& name_, const std::string& desc,
 	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 1, DUMMY_INPUT_RATE, false)
 {
 	bool alreadyWarned = false;
-	samples.resize(numSamples); // initialize with empty wavs
+	samples.resize(numSamples); // initialize with empty WAVs
 	auto context = systemFileContext();
 	for (unsigned i = 0; i < numSamples; ++i) {
 		try {

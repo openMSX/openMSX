@@ -34,7 +34,7 @@ public:
 private:
 	// This data is updated while playing
 	struct PlayData {
-		unsigned memPntr;
+		unsigned memPtr;
 		unsigned nowStep;
 		int out;
 		int output;

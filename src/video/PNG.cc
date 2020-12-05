@@ -240,7 +240,7 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 		// Read the entire image in one go.
 		png_read_image(png.ptr, row_pointers);
 
-		// In some cases it can't read PNG's created by some popular programs
+		// In some cases it can't read PNGs created by some popular programs
 		// (ACDSEE), we do not want to process comments, so we omit png_read_end
 		//png_read_end(png.ptr, png.info);
 

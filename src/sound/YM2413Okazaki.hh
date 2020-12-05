@@ -97,16 +97,16 @@ public:
 	int output;		// Output value of slot
 
 	// for Phase Generator (PG)
-	unsigned cphase;	// Phase counter
-	unsigned dphase[8];	// Phase increment
+	unsigned cPhase;	// Phase counter
+	unsigned dPhase[8];	// Phase increment
 
 	// for Envelope Generator (EG)
 	unsigned volume;             // Current volume
 	unsigned tll;                // Total Level + Key scale level
-	const int* dphaseDRTableRks; // (converted to EnvPhaseIndex)
+	const int* dPhaseDRTableRks; // (converted to EnvPhaseIndex)
 	EnvelopeState state;         // Current state
 	EnvPhaseIndex eg_phase;      // Phase
-	EnvPhaseIndex eg_dphase;     // Phase increment amount
+	EnvPhaseIndex eg_dPhase;     // Phase increment amount
 	EnvPhaseIndex eg_phase_max;
 	uint8_t slot_on_flag;
 	bool sustain;                // Sustain

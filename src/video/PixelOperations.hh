@@ -42,7 +42,7 @@ public:
 	[[nodiscard]] inline Pixel getBlendMask() const { return blendMask; }
 
 	/** Return true if it's statically known that the pixelformat has
-	  * a 5-6-5 format (not specified wihich component goes where, but
+	  * a 5-6-5 format (not specified which component goes where, but
 	  * usually it will be BGR). This method is currently used to pick
 	  * a faster version for lerp() on dingoo. */
 	static constexpr bool IS_RGB565 = false;
@@ -161,7 +161,7 @@ public:
 
 	explicit PixelOperations(const PixelFormat& format);
 
-	/** Extract RGB componts
+	/** Extract RGB components
 	  */
 	[[nodiscard]] inline unsigned red(Pixel p) const;
 	[[nodiscard]] inline unsigned green(Pixel p) const;

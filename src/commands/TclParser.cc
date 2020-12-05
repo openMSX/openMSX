@@ -90,7 +90,7 @@ void TclParser::parse(const char* p, int size, ParseType type)
 	// The functions Tcl_ParseCommand() and Tcl_ParseExpr() are meant to
 	// operate on a complete command. For interactive syntax highlighting
 	// we also want to pass incomplete commands (e.g. with an opening, but
-	// not yet a closing brace). This loop tries to parse and depening on
+	// not yet a closing brace). This loop tries to parse and depending on
 	// the parse error retries with a completed command.
 	Tcl_Parse parseInfo;
 	int retryCount = 0;
@@ -122,7 +122,7 @@ void TclParser::parse(const char* p, int size, ParseType type)
 			//    'if { / 3'
 			// and that can't be solved by adding something at the
 			// end. Without the retryCount stuff we would get in an
-			// infinte loop here.
+			// infinite loop here.
 			parseStr += '0';
 		} else if (allowComplete && StringOp::startsWith(error, "missing )")) {
 			parseStr += ')';

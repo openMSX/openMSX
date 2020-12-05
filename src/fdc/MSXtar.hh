@@ -41,8 +41,8 @@ private:
 	[[nodiscard]] unsigned clusterToSector(unsigned cluster) const;
 	[[nodiscard]] unsigned sectorToCluster(unsigned sector) const;
 	void parseBootSector(const MSXBootSector& boot);
-	[[nodiscard]] unsigned readFAT(unsigned clnr) const;
-	void writeFAT(unsigned clnr, unsigned val);
+	[[nodiscard]] unsigned readFAT(unsigned clNr) const;
+	void writeFAT(unsigned clNr, unsigned val);
 	unsigned findFirstFreeCluster();
 	unsigned findUsableIndexInSector(unsigned sector);
 	unsigned getNextSector(unsigned sector);

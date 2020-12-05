@@ -50,7 +50,7 @@ unique_ptr<DiskChanger> NowindCommand::createDiskChanger(
 }
 
 void NowindCommand::processHdimage(
-	const string& hdimage, NowindHost::Drives& drives) const
+	const string& hdImage, NowindHost::Drives& drives) const
 {
 	MSXMotherBoard& motherboard = interface.getMotherBoard();
 
@@ -60,13 +60,13 @@ void NowindCommand::processHdimage(
 	// disambiguity we will always interpret the string as <filename> if
 	// it is an existing filename.
 	vector<unsigned> partitions;
-	if (auto pos = hdimage.find_last_of(':');
-	    (pos != string::npos) && !FileOperations::exists(hdimage)) {
+	if (auto pos = hdImage.find_last_of(':');
+	    (pos != string::npos) && !FileOperations::exists(hdImage)) {
 		partitions = StringOp::parseRange(
-			hdimage.substr(pos + 1), 1, 31);
+			hdImage.substr(pos + 1), 1, 31);
 	}
 
-	auto wholeDisk = std::make_shared<DSKDiskImage>(Filename(hdimage));
+	auto wholeDisk = std::make_shared<DSKDiskImage>(Filename(hdImage));
 	bool failOnError = true;
 	if (partitions.empty()) {
 		// insert all partitions
@@ -182,10 +182,10 @@ void NowindCommand::execute(span<const TclObject> tokens, TclObject& result)
 				error = strCat("Missing argument for option: ", arg);
 			} else {
 				try {
-					auto hdimage = FileOperations::expandTilde(
+					auto hdImage = FileOperations::expandTilde(
 						args.front().getString());
 					args = args.subspan(1);
-					processHdimage(hdimage, tmpDrives);
+					processHdimage(hdImage, tmpDrives);
 					changeDrives = true;
 				} catch (MSXException& e) {
 					error = std::move(e).getMessage();

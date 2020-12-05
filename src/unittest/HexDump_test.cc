@@ -58,7 +58,7 @@ TEST_CASE("HexDump")
 	// Decode-only:
 	// - extra newlines don't matter
 	test_decode("30 31\n32\n33 34", "01234");
-	// - no spaces inbetween is fine as well
+	// - no spaces in between is fine as well
 	test_decode("3031323334", "01234");
 	// - any non [0-9][a-f][A-F] character is ignored
 	test_decode("30|31G32g33+34", "01234");

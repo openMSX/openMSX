@@ -50,13 +50,13 @@ public:
 	void updateVisiblePage(byte page, byte primarySlot, byte secondarySlot);
 
 	/** Invalidate the CPU its cache for the interval [start, start + size)
-	  * For example MSXMemoryMapper and MSXGameCartrigde need to call this
+	  * For example MSXMemoryMapper and MSXGameCartridge need to call this
 	  * method when a 'memory switch' occurs. */
 	void invalidateAllSlotsRWCache(word start, unsigned size);
 
 	/** Similar to the method above, but only invalidates one specific slot.
 	  * One small tweak: lines that are in 'disallowRead/Write' are
-	  * immediately marked as 'non-cachable' instead of (first) as
+	  * immediately marked as 'non-cacheable' instead of (first) as
 	  * 'unknown'.
 	  */
 	void invalidateRWCache(unsigned start, unsigned size, int ps, int ss,
@@ -67,7 +67,7 @@ public:
                                const byte* disallowWrite);
 
 	/** Fill the read and write cache lines for a specific slot with the
-	 * specified value. Except for the lines where the correponding
+	 * specified value. Except for the lines where the corresponding
 	 * 'disallow{Read,Write}' array is non-zero, those lines are marked
 	 * non-cacheable.
 	 * This is useful on e.g. a memory mapper bank switch because:

@@ -64,7 +64,7 @@ private:
 	bool isEnabled;                 // spc enable flag
 	bool isBusy;                    // spc now working
 	bool isTransfer;                // hardware transfer mode
-	//TODO: bool devBusy;           // CDROM busy (buffer conflict prevention)
+	//TODO: bool devBusy;           // CD-ROM busy (buffer conflict prevention)
 	byte cdb[12];                   // Command Descripter Block
 };
 

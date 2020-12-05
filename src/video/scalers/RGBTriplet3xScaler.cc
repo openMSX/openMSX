@@ -29,7 +29,7 @@ std::pair<unsigned, unsigned> RGBTriplet3xScaler<Pixel>::calcBlur()
 	return {c1, c2};
 }
 
-[[nodiscard]] static inline std::pair<unsigned, unsigned> calcSpil(unsigned c1, unsigned c2, unsigned x)
+[[nodiscard]] static inline std::pair<unsigned, unsigned> calcSpill(unsigned c1, unsigned c2, unsigned x)
 {
 	unsigned r = (c2 * x) >> 8;
 	unsigned s = (c1 * x) >> 8;
@@ -42,31 +42,31 @@ std::pair<unsigned, unsigned> RGBTriplet3xScaler<Pixel>::calcBlur()
 
 template<typename Pixel>
 void RGBTriplet3xScaler<Pixel>::rgbify(
-	const Pixel* __restrict in, Pixel* __restrict out, unsigned inwidth,
+	const Pixel* __restrict in, Pixel* __restrict out, unsigned inWidth,
 	unsigned c1, unsigned c2)
 {
 	unsigned i = 0;
 
-	auto    [r, rs] = calcSpil(c1, c2, pixelOps.red256  (in[i + 0]));
-	auto    [g, gs] = calcSpil(c1, c2, pixelOps.green256(in[i + 0]));
+	auto    [r, rs] = calcSpill(c1, c2, pixelOps.red256  (in[i + 0]));
+	auto    [g, gs] = calcSpill(c1, c2, pixelOps.green256(in[i + 0]));
 	out[3 * i + 0] = pixelOps.combine256(r , gs, 0 );
-	auto    [b, bs] = calcSpil(c1, c2, pixelOps.blue256 (in[i + 0]));
+	auto    [b, bs] = calcSpill(c1, c2, pixelOps.blue256 (in[i + 0]));
 	out[3 * i + 1] = pixelOps.combine256(rs, g , bs);
-	std::tie(r, rs) = calcSpil(c1, c2, pixelOps.red256  (in[i + 1]));
+	std::tie(r, rs) = calcSpill(c1, c2, pixelOps.red256  (in[i + 1]));
 	out[3 * i + 2] = pixelOps.combine256(rs, gs, b );
 
-	for (++i; i < (inwidth - 1); ++i) {
-		std::tie(g, gs) = calcSpil(c1, c2, pixelOps.green256(in[i + 0]));
+	for (++i; i < (inWidth - 1); ++i) {
+		std::tie(g, gs) = calcSpill(c1, c2, pixelOps.green256(in[i + 0]));
 		out[3 * i + 0] = pixelOps.combine256(r , gs, bs);
-		std::tie(b, bs) = calcSpil(c1, c2, pixelOps.blue256 (in[i + 0]));
+		std::tie(b, bs) = calcSpill(c1, c2, pixelOps.blue256 (in[i + 0]));
 		out[3 * i + 1] = pixelOps.combine256(rs, g , bs);
-		std::tie(r, rs) = calcSpil(c1, c2, pixelOps.red256  (in[i + 1]));
+		std::tie(r, rs) = calcSpill(c1, c2, pixelOps.red256  (in[i + 1]));
 		out[3 * i + 2] = pixelOps.combine256(rs, gs, b );
 	}
 
-	std::tie(g, gs) = calcSpil(c1, c2, pixelOps.green256(in[i + 0]));
+	std::tie(g, gs) = calcSpill(c1, c2, pixelOps.green256(in[i + 0]));
 	out[3 * i + 0] = pixelOps.combine256(r , gs, bs);
-	std::tie(b, bs) = calcSpil(c1, c2, pixelOps.blue256 (in[i + 0]));
+	std::tie(b, bs) = calcSpill(c1, c2, pixelOps.blue256 (in[i + 0]));
 	out[3 * i + 1] = pixelOps.combine256(rs, g , bs);
 	out[3 * i + 2] = pixelOps.combine256(0 , gs, b );
 }

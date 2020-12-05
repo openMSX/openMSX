@@ -129,7 +129,7 @@ private:
 	// Envelope Generator
 	int TL;		// total level: TL << 2
 	int TLL;	// adjusted now TL
-	int egout;	// envelope counter
+	int egOut;	// envelope counter
 	int sl;		// sustain level: sl_tab[SL]
 	EnvelopeState state;
 
@@ -215,7 +215,7 @@ public:
 private:
 	// phase generator state
 	int block_fnum;	// block+fnum
-	FreqIndex fc;	// Freq. freqement base
+	FreqIndex fc;	// Freq. increment base
 	int ksl_base;	// KeyScaleLevel Base step
 	bool sus;	// sus on/off (release speed in percussive mode)
 };

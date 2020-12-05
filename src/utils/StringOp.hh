@@ -20,7 +20,7 @@
 
 namespace StringOp
 {
-	/** Convert a string to an intergral type 'T' (int, uint64_t, ...).
+	/** Convert a string to an integral type 'T' (int, uint64_t, ...).
 	  * This is similar to, but not quite the same as the family of
 	  * 'strtoll()' functions:
 	  * - Leading whitespace is NOT accepted (unlike strtoll()).

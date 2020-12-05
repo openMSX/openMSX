@@ -41,6 +41,6 @@ void MSXResetStatusRegister::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("status", status);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXResetStatusRegister);
-REGISTER_MSXDEVICE(MSXResetStatusRegister, "F4Device"); // TODO: find a way to handle renames of classes and keep bwcompat with savestates....
+REGISTER_MSXDEVICE(MSXResetStatusRegister, "F4Device"); // TODO: find a way to handle renames of classes and keep bw compat with savestates....
 
 } // namespace openmsx

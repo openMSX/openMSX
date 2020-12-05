@@ -211,14 +211,14 @@ AviWriter::~AviWriter()
 	// a much nicer way
 
 	// Finish stream list, i.e. put number of bytes in the list to proper pos
-	int nmain = header_pos - main_list - 4;
-	int njunk = AVI_HEADER_SIZE - 8 - 12 - header_pos;
-	assert(njunk > 0); // increase AVI_HEADER_SIZE if this occurs
+	int nMain = header_pos - main_list - 4;
+	int nJunk = AVI_HEADER_SIZE - 8 - 12 - header_pos;
+	assert(nJunk > 0); // increase AVI_HEADER_SIZE if this occurs
 	AVIOUT4("JUNK");
-	AVIOUTd(njunk);
+	AVIOUTd(nJunk);
 	// Fix the size of the main list
 	header_pos = main_list;
-	AVIOUTd(nmain);
+	AVIOUTd(nMain);
 	header_pos = AVI_HEADER_SIZE - 12;
 
 	AVIOUT4("LIST");

@@ -168,15 +168,15 @@ private:
 
 		// for Phase Generator (PG)
 		unsigned phase;		// Phase
-		unsigned dphase;	// Phase increment amount
+		unsigned dPhase;	// Phase increment amount
 
 		// for Envelope Generator (EG)
-		const EnvPhaseIndex* dphaseARTableRks;
-		const EnvPhaseIndex* dphaseDRTableRks;
+		const EnvPhaseIndex* dPhaseARTableRks;
+		const EnvPhaseIndex* dPhaseDRTableRks;
 		int tll;		// Total Level + Key scale level
 		EnvelopeState eg_mode;  // Current state
 		EnvPhaseIndex eg_phase;	// Phase
-		EnvPhaseIndex eg_dphase;// Phase increment amount
+		EnvPhaseIndex eg_dPhase;// Phase increment amount
 
 		Patch patch;
 		byte key;
@@ -225,8 +225,8 @@ private:
 	int noise_seed;
 	unsigned noiseA_phase;
 	unsigned noiseB_phase;
-	unsigned noiseA_dphase;
-	unsigned noiseB_dphase;
+	unsigned noiseA_dPhase;
+	unsigned noiseB_dPhase;
 
 	byte status;     // STATUS Register
 	byte statusMask; // bit=0 -> masked

@@ -138,9 +138,9 @@ VDP::VDP(const DeviceConfig& config)
 	else if (versionString == "YM2220NTSC") version = YM2220NTSC;
 	else throw MSXException("Unknown VDP version \"", versionString, '"');
 
-	// saturation parameters only make sense when using TMS VDP's
+	// saturation parameters only make sense when using TMS VDPs
 	if ((versionString.find("TMS") != 0) && ((config.findChild("saturationPr") != nullptr) || (config.findChild("saturationPb") != nullptr) || (config.findChild("saturation") != nullptr))) {
-		throw MSXException("Specifying saturation parameters only makes sense for TMS VDP's");
+		throw MSXException("Specifying saturation parameters only makes sense for TMS VDPs");
 	}
 
 	int saturation = config.getChildDataAsInt("saturation", defaultSaturation);
@@ -673,7 +673,7 @@ void VDP::writeIO(word port, byte value, EmuTime::param time_)
 					// that breaks "SNOW26" demo
 				}
 				if (isMSX1VDP()) {
-					// For these VDP's the VRAM pointer is modified when
+					// For these VDPs the VRAM pointer is modified when
 					// writing to VDP registers. Without this some demos won't
 					// run as on real MSX1, e.g. Planet of the Epas, Utopia and
 					// Waves 1.2. Thanks to dvik for finding this out.
@@ -1348,7 +1348,7 @@ void VDP::updateSpritePatternBase(EmuTime::param time)
 
 void VDP::updateDisplayMode(DisplayMode newMode, bool cmdBit, EmuTime::param time)
 {
-	// Synchronise subsystems.
+	// Synchronize subsystems.
 	vram->updateDisplayMode(newMode, cmdBit, time);
 
 	// TODO: Is this a useful optimisation, or doesn't it help
@@ -1437,7 +1437,7 @@ constexpr std::array<std::array<uint8_t, 3>, 16> TOSHIBA_PALETTE = {{
 }};
 
 /*
- * Palette for the YM2220 is a crude approximantion based on the fact that the
+ * Palette for the YM2220 is a crude approximation based on the fact that the
  * pictures of a Yamaha AX-150 (YM2220) and a Philips NMS-8250 (V9938) have a
  * quite similar appearance. See first post here:
  *
@@ -1468,7 +1468,7 @@ Because it has an additional circuit that rework the palette for the same one
 used in the Fujitsu FM-7. It's encoded in 3-bit RGB.
 
 This seems to be the 24-bit RGB equivalent to the palette output by the FM-X on
-its RGB conector:
+its RGB connector:
 */
 constexpr std::array<std::array<uint8_t, 3>, 16> THREE_BIT_RGB_PALETTE = {{
 	{   0,   0,   0 },
@@ -1584,7 +1584,7 @@ void VDP::RegDebug::write(unsigned address, byte value, EmuTime::param time)
 	auto& vdp = OUTER(VDP, vdpRegDebug);
 	// Ignore writes to registers >= 8 on MSX1. An alternative is to only
 	// expose 8 registers. But changing that now breaks backwards
-	// compatibilty with some existing scripts. E.g. script that queries
+	// compatibility with some existing scripts. E.g. script that queries
 	// PAL vs NTSC in a VDP agnostic way.
 	if ((address >= 8) && vdp.isMSX1VDP()) return;
 	vdp.changeRegister(address, value, time);

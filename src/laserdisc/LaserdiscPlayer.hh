@@ -28,7 +28,7 @@ class LaserdiscPlayer final : public ResampledSoundDevice
 {
 public:
 	LaserdiscPlayer(const HardwareConfig& hwConf,
-			PioneerLDControl& ldcontrol);
+			PioneerLDControl& ldControl);
 	~LaserdiscPlayer();
 
 	// Called from CassettePort
@@ -150,7 +150,7 @@ private:
 	void postVideoSystemChange() override;
 
 	MSXMotherBoard& motherBoard;
-	PioneerLDControl& ldcontrol;
+	PioneerLDControl& ldControl;
 
 	struct Command final : RecordedCommand {
 		Command(CommandController& commandController,

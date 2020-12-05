@@ -24,7 +24,7 @@ SDLVisibleSurfaceBase::~SDLVisibleSurfaceBase()
 	}
 }
 
-// TODO: The video subsystem is not de-inited on errors.
+// TODO: The video subsystem is not de-initialized on errors.
 //       While it would be consistent to do so, doing it in this class is
 //       not ideal since the init doesn't happen here.
 void SDLVisibleSurfaceBase::createSurface(int width, int height, unsigned flags)

@@ -24,12 +24,12 @@ class VDPCmdEngine
 public:
 	VDPCmdEngine(VDP& vdp, CommandController& commandController);
 
-	/** Reinitialise Renderer state.
+	/** Reinitialize Renderer state.
 	  * @param time The moment in time the reset occurs.
 	  */
 	void reset(EmuTime::param time);
 
-	/** Synchronises the command engine with the VDP.
+	/** Synchronizes the command engine with the VDP.
 	  * Ideally this would be a private method, but the current
 	  * design doesn't allow that.
 	  * @param time The moment in emulated time to sync to.

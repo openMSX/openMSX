@@ -1,10 +1,10 @@
-// Based on libsamplerate-0.1.2 (aka Secret Rabit Code)
+// Based on libsamplerate-0.1.2 (aka Secret Rabbit Code)
 //
 //  simplified code in several ways:
 //   - resample algorithm is no longer switchable, we took this variant:
 //        Band limited sinc interpolation, fastest, 97dB SNR, 80% BW
 //   - don't allow to change sample rate on-the-fly
-//   - assume input (and thus also output) signals have infinte length, so
+//   - assume input (and thus also output) signals have infinite length, so
 //     there is no special code to handle the ending of the signal
 //   - changed/simplified API to better match openmsx use model
 //     (e.g. remove all error checking)

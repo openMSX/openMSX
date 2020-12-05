@@ -224,7 +224,7 @@ inline void AY8910::NoiseGenerator::doNextEvent()
 	// The input to the shift register is bit0 XOR bit3 (bit0 is the
 	// output). Verified on real AY8910 and YM2149 chips.
 	//
-	// Fibonacci configuartion:
+	// Fibonacci configuration:
 	//   random ^= ((random & 1) ^ ((random >> 3) & 1)) << 17;
 	//   random >>= 1;
 	// Galois configuration:

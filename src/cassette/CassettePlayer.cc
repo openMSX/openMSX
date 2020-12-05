@@ -11,7 +11,7 @@
 //   flag): refuse to go to record mode when those are selected
 // - smartly auto-set the position of tapes: if you insert an existing WAV
 //   file, it will have the position at the start, assuming PLAY mode by
-//   default.  When specifiying record mode at insert (somehow), it should be
+//   default.  When specifying record mode at insert (somehow), it should be
 //   at the back.
 //   Alternatively, we could remember the index in tape images by storing the
 //   index in some persistent data file with its SHA1 sum as it was as we last

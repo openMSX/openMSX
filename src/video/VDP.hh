@@ -402,7 +402,7 @@ public:
 
 	/** Similar to the above getEvenOddMask() method, but can also be
 	  * called when 'isFastBlinkEnabled() == true'. In the latter case
-	  * the timinig is based on lines instead of frames. This means the
+	  * the timing is based on lines instead of frames. This means the
 	  * result is no longer fixed per frame, and thus this method takes
 	  * an additional line parameter.
 	  */

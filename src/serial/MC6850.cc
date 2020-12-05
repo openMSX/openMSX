@@ -262,7 +262,7 @@ void MC6850::execRecv(EmuTime::param time)
 	getPluggedMidiInDev().signal(time); // trigger (possible) send of next char
 }
 
-// MidiInDevice querries whether it can send a new character 'now'.
+// MidiInDevice queries whether it can send a new character 'now'.
 bool MC6850::ready()
 {
 	return rxReady;

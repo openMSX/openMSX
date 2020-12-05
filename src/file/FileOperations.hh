@@ -35,7 +35,7 @@ namespace openmsx::FileOperations {
 	 * it bahaves the same on all platforms. The mode parameter is ignored
 	 * on windows. For compatibility with *nix creating the root dir (or a
 	 * drivename) is not an error instead the operation is silently
-	 * ignored. This function can only create one dircetory at-a-time. You
+	 * ignored. This function can only create one directory at-a-time. You
 	 * probably want to use the mkdirp function (see below).
 	 * @param path The path of the directory to create
 	 * @param mode The permission bits (*nix only)
@@ -61,7 +61,7 @@ namespace openmsx::FileOperations {
 	 */
 	int rmdir(const std::string& path);
 
-	/** Recurively delete a file or directory and (in case of a directory)
+	/** Recursively delete a file or directory and (in case of a directory)
 	  * all its sub-components.
 	  */
 	int deleteRecursive(const std::string& path);
@@ -128,7 +128,7 @@ namespace openmsx::FileOperations {
 	 * Returns the equivalent of 'path1 + '/' + path2'. If 'part2' is an
 	 * absolute path, that path is returned ('part1' is ignored). If
 	 * 'part1' is empty or if it already ends with '/', there will be no
-	 * extra '/' added inbetween 'part1' and 'part2'.
+	 * extra '/' added between 'part1' and 'part2'.
 	 */
 	[[nodiscard]] std::string join(std::string_view part1, std::string_view part2);
 	[[nodiscard]] std::string join(std::string_view part1, std::string_view part2, std::string_view part3);
@@ -220,7 +220,7 @@ namespace openmsx::FileOperations {
 	/**
 	 * Call stat() and return the stat structure
 	 * @param filename the file path (will be tilde expanded)
-	 * @param st The stat structute that will be filled in
+	 * @param st The stat structure that will be filled in
 	 * @result true iff success
 	 */
 	[[nodiscard]] bool getStat(const std::string& filename, Stat& st);

@@ -154,7 +154,7 @@ void BitmapConverter<Pixel>::renderGraphic4(
 					pixelPtr[254] = palette16[(data >> 0) & 0x0F];
 				} else {
 					// Last double-pixel must be composed of
-					// remaing 4 bits in (previous) data
+					// remaining 4 bits in (previous) data
 					// and first 4 bits from (next) data
 					unsigned prevData = data;
 					data = in[i+1];
@@ -170,7 +170,7 @@ void BitmapConverter<Pixel>::renderGraphic4(
 					pixelPtr[254] = palette16[(data >> 24) & 0x0F];
 				} else {
 					// Last double-pixel must be composed of
-					// remaing 4 bits in (previous) data
+					// remaining 4 bits in (previous) data
 					// and first 4 bits from (next) data
 					unsigned prevData = data;
 					data = in[i+1];

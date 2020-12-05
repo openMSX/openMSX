@@ -366,8 +366,8 @@ void Carnivore2::writeMultiMapperSlot(word address, byte value, EmuTime::param t
 	}
 	if (((sccMode & 0x10) == 0x00) && // note: no check for sccEnabled()
 	    ((address & 0x1800) == 0x1000)) {
-		byte regio = (address >> 13) - 2;
-		sccBank[regio] = value;
+		byte region = (address >> 13) - 2;
+		sccBank[region] = value;
 	} else if (sccAccess(address)) {
 		scc.writeMem(address & 0xff, value, time);
 	}
@@ -375,7 +375,7 @@ void Carnivore2::writeMultiMapperSlot(word address, byte value, EmuTime::param t
 
 byte Carnivore2::readIDESlot(word address, EmuTime::param time)
 {
-	// TODO mirroing is different from SunriseIDE
+	// TODO mirroring is different from SunriseIDE
 	if (ideRegsEnabled() && ((address & 0xfe00) == 0x7c00)) {
 		// 0x7c00-0x7dff   IDE data register
 		switch (address & 1) {
@@ -428,7 +428,7 @@ byte Carnivore2::peekIDESlot(word address, EmuTime::param /*time*/) const
 
 void Carnivore2::writeIDESlot(word address, byte value, EmuTime::param time)
 {
-	// TODO mirroing is different from SunriseIDE
+	// TODO mirroring is different from SunriseIDE
 	if (address == 0x4104) {
 		ideControlReg = value;
 

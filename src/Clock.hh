@@ -27,7 +27,7 @@ private:
 	static constexpr unsigned MASTER_TICKS32 = MASTER_TICKS;
 
 public:
-	// Note: default copy constructor and assigment operator are ok.
+	// Note: default copy constructor and assignment operator are ok.
 
 	/** Calculates the duration of the given number of ticks at this
 	  * clock's frequency.

@@ -96,7 +96,7 @@ void Disk::detectGeometry()
 	//     If step c) fails, then this disk cannot be read.
 	//
 	//  d) If step b) succeeds, read bytes # 0B to # 1D. This is the
-	//     DPB for MS-DOS, Version 2.0 and above. The DPB for MSXDOS can
+	//     DPB for MS-DOS, Version 2.0 and above. The DPB for MSX-DOS can
 	//     be obtained as follows.
 	//
 	//     ....
@@ -106,7 +106,7 @@ void Disk::detectGeometry()
 
 	//
 	//     Media Descriptor  0F8H  0F9H  0FAh  0FBH  0FCH  0FDH  0FEH  0FFH
-	//       byte (FATID)
+	//       byte (FAT-ID)
 	//     Sectors/track        9     9     8     8     9     9     8     8
 	//     No. of sides         1     2     1     2     1     2     1     2
 	//     Tracks/side         80    80    80    80    40    40    40    40

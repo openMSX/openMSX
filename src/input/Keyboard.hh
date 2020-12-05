@@ -227,7 +227,7 @@ private:
 	/** Combination of 'cmdKeyMatrix', 'typeKeyMatrix' and 'userKeyMatrix'. */
 	mutable byte keyMatrix[KeyMatrixPosition::NUM_ROWS];
 
-	byte msxmodifiers;
+	byte msxModifiers;
 
 	/** True iff keyboard includes a numeric keypad. */
 	const bool hasKeypad;

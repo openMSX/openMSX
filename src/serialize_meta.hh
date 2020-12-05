@@ -55,7 +55,7 @@ template<typename T> struct ClassLoader;
 /** Store association between polymorphic class (base- or subclass) and
  *  the list of constructor arguments.
  * Specializations of this class should store the constructor arguments
- * as a 'using type = tupple<...>'.
+ * as a 'using type = tuple<...>'.
  */
 template<typename T> struct PolymorphicConstructorArgs;
 

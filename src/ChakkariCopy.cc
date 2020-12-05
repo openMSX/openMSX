@@ -37,8 +37,8 @@
 // buttons are no longer working. In this case CALL SCHANGE switches the BIOS
 // to the patched version again.
 //
-// In case a program switches screen modes in a way that prevents Chakkara Copy
-// from detecting the correct parameters Chakkara Copy can be started by
+// In case a program switches screen modes in a way that prevents Chakkari Copy
+// from detecting the correct parameters Chakkari Copy can be started by
 // keeping the COPY button pressed. In this case the screen-mode autodetect
 // will be skipped and the parameters can be entered manually.
 // This appears to be an undocumented feature, confirmed by typos and a very

@@ -16,7 +16,7 @@ namespace openmsx {
 class DynamicClock
 {
 public:
-	// Note: default copy constructor and assigment operator are ok.
+	// Note: default copy constructor and assignment operator are ok.
 
 	/** Create a new clock, which starts ticking at given time.
 	  * The initial frequency is infinite;

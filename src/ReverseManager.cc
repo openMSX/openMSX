@@ -735,7 +735,7 @@ void ReverseManager::loadReplay(
 			move(newChunk);
 	}
 
-	// Note: untill this point we didn't make any changes to the current
+	// Note: until this point we didn't make any changes to the current
 	// ReverseManager/MSXMotherBoard yet
 	reRecordCount = newReverseManager.reRecordCount;
 	bool novideo = false;

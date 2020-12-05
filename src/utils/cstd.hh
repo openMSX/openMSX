@@ -20,7 +20,7 @@ namespace cstd {
 // the callers from 'cstd::xxx()' to 'std::xxx()'.
 
 //
-// Various constexpr reimplementation of STL algorithms.
+// Various constexpr reimplementations of STL algorithms.
 //
 
 template<typename Iter1, typename Iter2>

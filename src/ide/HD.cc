@@ -160,7 +160,7 @@ uint8_t* HD::getData(size_t offset, size_t size)
 
 	struct Work {
 		char extra; // at least one byte before 'bufs'
-		// likely here are padding bytes inbetween
+		// likely here are padding bytes in between
 		SectorBuffer bufs[1024 / sizeof(SectorBuffer)];
 	};
 	static Work work; // not reentrant

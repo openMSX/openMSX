@@ -302,17 +302,17 @@ int deleteRecursive(const std::string& path)
 {
 	std::wstring pathW = utf8to16(path);
 
-	SHFILEOPSTRUCTW rmdirFileop;
-	rmdirFileop.hwnd = nullptr;
-	rmdirFileop.wFunc = FO_DELETE;
-	rmdirFileop.pFrom = pathW.c_str();
-	rmdirFileop.pTo = nullptr;
-	rmdirFileop.fFlags = FOF_SILENT | FOF_NOCONFIRMATION | FOF_NOERRORUI;
-	rmdirFileop.fAnyOperationsAborted = FALSE;
-	rmdirFileop.hNameMappings = nullptr;
-	rmdirFileop.lpszProgressTitle = nullptr;
+	SHFILEOPSTRUCTW rmdirFileOp;
+	rmdirFileOp.hwnd = nullptr;
+	rmdirFileOp.wFunc = FO_DELETE;
+	rmdirFileOp.pFrom = pathW.c_str();
+	rmdirFileOp.pTo = nullptr;
+	rmdirFileOp.fFlags = FOF_SILENT | FOF_NOCONFIRMATION | FOF_NOERRORUI;
+	rmdirFileOp.fAnyOperationsAborted = FALSE;
+	rmdirFileOp.hNameMappings = nullptr;
+	rmdirFileOp.lpszProgressTitle = nullptr;
 
-	return SHFileOperationW(&rmdirFileop);
+	return SHFileOperationW(&rmdirFileOp);
 }
 #elif HAVE_NFTW
 static int deleteRecursive_cb(const char* fpath, const struct stat* /*sb*/,
@@ -790,7 +790,7 @@ FILE_t openUniqueFile(const std::string& directory, std::string& filename)
 	int fd = mkstemp(const_cast<char*>(filename.c_str()));
 	umask(oldMask);
 	if (fd == -1) {
-		throw FileException("Coundn't get temp file name");
+		throw FileException("Couldnt get temp file name");
 	}
 	return FILE_t(fdopen(fd, "wb"));
 #endif

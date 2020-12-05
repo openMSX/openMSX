@@ -379,10 +379,10 @@ void CDXCommand::execute(span<const TclObject> tokens, TclObject& result,
 string CDXCommand::help(const vector<string>& /*tokens*/) const
 {
 	return strCat(
-		cd.name, "                   : display the cd image for this CDROM drive\n",
-		cd.name, " eject             : eject the cd image from this CDROM drive\n",
-		cd.name, " insert <filename> : change the cd image for this CDROM drive\n",
-		cd.name, " <filename>        : change the cd image for this CDROM drive\n");
+		cd.name, "                   : display the cd image for this CD-ROM drive\n",
+		cd.name, " eject             : eject the cd image from this CD-ROM drive\n",
+		cd.name, " insert <filename> : change the cd image for this CD-ROM drive\n",
+		cd.name, " <filename>        : change the cd image for this CD-ROM drive\n");
 }
 
 void CDXCommand::tabCompletion(vector<string>& tokens) const
@@ -400,7 +400,7 @@ void IDECDROM::serialize(Archive& ar, unsigned /*version*/)
 	string filename = file.is_open() ? file.getURL() : string{};
 	ar.serialize("filename", filename);
 	if (ar.isLoader()) {
-		// re-insert CDROM before restoring 'mediaChanged', 'senseKey'
+		// re-insert CD-ROM before restoring 'mediaChanged', 'senseKey'
 		if (filename.empty()) {
 			eject();
 		} else {

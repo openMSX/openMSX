@@ -15,7 +15,7 @@
 // MSX emulators). Unfortunately this is also a lot slower.
 //
 // It is possible to combine the speed of array accesses with the flexibility
-// of virtual methods. In openMSX it's implemened as follows: the 64kb address
+// of virtual methods. In openMSX it's implemented as follows: the 64kb address
 // space is divided in 256 regions of 256 bytes (called cacheLines in the code
 // below). For each such region we store a pointer, if this pointer is nullptr
 // then we have to use the slow way (=virtual method call). If it is not nullptr,
@@ -186,7 +186,7 @@
 //   standard. So this will only work if you use gcc as your compiler (it
 //   won't work with visual c++ for example)
 // - This is only beneficial on CPUs with branch prediction for indirect jumps
-//   and a reasonable amout of cache. For example it is very benefical for a
+//   and a reasonable amount of cache. For example it is very benefical for a
 //   intel core2 cpu (10% faster), but not for a ARM920 (a few percent slower)
 // - Compiling src/cpu/CPUCore.cc with computed goto's enabled is very demanding
 //   on the compiler. On older gcc versions it requires up to 1.5GB of memory.
@@ -2445,9 +2445,9 @@ template<typename T> inline void CPUCore<T>::cpuTracePost()
 }
 template<typename T> void CPUCore<T>::cpuTracePost_slow()
 {
-	byte opbuf[4];
+	byte opBuf[4];
 	string dasmOutput;
-	dasm(*interface, start_pc, opbuf, dasmOutput, T::getTimeFast());
+	dasm(*interface, start_pc, opBuf, dasmOutput, T::getTimeFast());
 	std::cout << strCat(hex_string<4>(start_pc),
 	                    " : ", dasmOutput,
 	                    " AF=", hex_string<4>(getAF()),
@@ -2472,7 +2472,7 @@ template<typename T> void CPUCore<T>::executeSlow(ExecIRQ execIRQ)
 {
 	if (unlikely(execIRQ == ExecIRQ::NMI)) {
 		nmiEdge = false;
-		nmi(); // NMI occured
+		nmi(); // NMI occurred
 	} else if (unlikely(execIRQ == ExecIRQ::IRQ)) {
 		// normal interrupt
 		if (unlikely(prevWasLDAI())) {
@@ -4392,9 +4392,9 @@ void CPUCore<T>::serialize(Archive& ar, unsigned version)
 	T::serialize(ar, version);
 	ar.serialize("regs", static_cast<CPURegs&>(*this));
 	if (ar.versionBelow(version, 2)) {
-		unsigned mptr = 0; // dummy value (avoid warning)
-		ar.serialize("memptr", mptr);
-		T::setMemPtr(mptr);
+		unsigned mPtr = 0; // dummy value (avoid warning)
+		ar.serialize("memptr", mPtr);
+		T::setMemPtr(mPtr);
 	}
 
 	if (ar.versionBelow(version, 5)) {

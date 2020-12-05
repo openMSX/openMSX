@@ -18,7 +18,7 @@
 // efficient as well, but I mean it wasn't the main goal for this code.
 //
 // Calling convention: vec4 internally takes up one 128-bit xmm register. It
-// can be efficientlt passed by value. The other vector types are passed by
+// can be efficiently passed by value. The other vector types are passed by
 // const-reference. Though also in the latter case usually the compiler can
 // optimize away the indirection.
 

@@ -43,7 +43,7 @@ WavWriter::WavWriter(const Filename& filename,
 	header.blockAlign    = (channels * bits) / 8;
 	header.bitsPerSample = bits;
 	memcpy(header.subChunk2ID, "data", sizeof(header.subChunk2ID));
-	header.subChunk2Size = 0; // actaul value filled in later
+	header.subChunk2Size = 0; // actual value filled in later
 
 	file.write(&header, sizeof(header));
 }

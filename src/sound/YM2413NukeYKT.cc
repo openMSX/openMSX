@@ -109,7 +109,7 @@ static constexpr int8_t VIB_TAB[8] = {0, 1, 2, 1, 0, -1, -2, -1};
 //    constexpr uint8_t attack[14][4][64] = { ... };
 //    constexpr uint8_t releaseIndex[14][4][4] = { ... };
 //    constexpr uint8_t releaseData[64][64] = { ... };
-// Theoretically these could all be initialized via some constepr functions.
+// Theoretically these could all be initialized via some constexpr functions.
 // The calculation isn't difficult, but it's a bit long. 'clang' can handle it,
 // but 'gcc' cannot. So instead, for now, we pre-calculate these tables and
 // #include them. See 'generateNukeYktTables.cpp' for the generator code.

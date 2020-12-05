@@ -57,17 +57,17 @@ constexpr byte MT_NO_DISK   = 0x70;
 constexpr byte MT_DOOR_OPEN = 0x71;
 constexpr byte MT_FMT_ERROR = 0x72;
 
-constexpr byte inqdata[36] = {
+constexpr byte inqData[36] = {
 	  0,   // bit5-0 device type code.
 	  0,   // bit7 = 1 removable device
 	  2,   // bit7,6 ISO version. bit5,4,3 ECMA version.
 	       // bit2,1,0 ANSI Version (001=SCSI1, 010=SCSI2)
 	  2,   // bit7 AENC. bit6 TrmIOP.
 	       // bit3-0 Response Data Format. (0000=SCSI1, 0001=CCS, 0010=SCSI2)
-	 51,   // addtional length
+	 51,   // additional length
 	  0, 0,// reserved
 	  0,   // bit7 RelAdr, bit6 WBus32, bit5 Wbus16, bit4 Sync, bit3 Linked,
-	       // bit2 reseved bit1 CmdQue, bit0 SftRe
+	       // bit2 reserved bit1 CmdQue, bit0 SftRe
 	'o', 'p', 'e', 'n', 'M', 'S', 'X', ' ',    // vendor ID (8bytes)
 	'S', 'C', 'S', 'I', '2', ' ', 'L', 'S',    // product ID (16bytes)
 	'-', '1', '2', '0', 'd', 'i', 's', 'k',
@@ -202,10 +202,10 @@ unsigned SCSILS120::inquiry()
 	if (length == 0) return 0;
 
 	if (fdsmode) {
-		memcpy(buffer + 2, inqdata + 2, 6);
+		memcpy(buffer + 2, inqData + 2, 6);
 		memcpy(buffer + 8, fds120, 28);
 	} else {
-		memcpy(buffer + 2, inqdata + 2, 34);
+		memcpy(buffer + 2, inqData + 2, 34);
 	}
 
 	buffer[0] = SCSI::DT_DirectAccess;

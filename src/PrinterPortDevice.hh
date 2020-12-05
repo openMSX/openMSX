@@ -26,7 +26,7 @@ public:
 
 	/**
 	 * Sets the data signals.
-	 * Always use strobe to see wheter data is valid.
+	 * Always use strobe to see whether data is valid.
 	 * As an optimization, this method might not be called when the
 	 * new data is the same as the previous data.
 	 */

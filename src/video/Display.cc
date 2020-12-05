@@ -201,7 +201,7 @@ int Display::signalEvent(const std::shared_ptr<const Event>& event)
 		// the background, because Android takes away all graphics resources
 		// from the app. It simply destroys the entire graphics context.
 		// Though, a repaint() must happen within the focus-lost event
-		// so that the SDL Android port realises that the graphix context
+		// so that the SDL Android port realizes that the graphics context
 		// is gone and will re-build it again on the first flush to the
 		// surface after the focus has been regained.
 

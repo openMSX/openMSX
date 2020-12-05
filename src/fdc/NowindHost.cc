@@ -281,7 +281,7 @@ void NowindHost::DSKCHG()
 
 void NowindHost::DRIVES()
 {
-	// at least one drive (MSXDOS1 cannot handle 0 drives)
+	// at least one drive (MSX-DOS1 cannot handle 0 drives)
 	byte numberOfDrives = std::max<byte>(1, byte(drives.size()));
 
 	byte reg_a = cmdData[7];
@@ -342,8 +342,8 @@ unsigned NowindHost::getStartAddress() const
 }
 unsigned NowindHost::getCurrentAddress() const
 {
-	unsigned startAdress = getStartAddress();
-	return startAdress + transferred;
+	unsigned startAddress = getStartAddress();
+	return startAddress + transferred;
 }
 
 

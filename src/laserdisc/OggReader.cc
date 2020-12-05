@@ -801,7 +801,7 @@ size_t OggReader::bisection(
 	size_t frame, size_t sample,
 	size_t maxOffset, size_t maxSamples, size_t maxFrames)
 {
-	// Defined to be a power-of-two such that the arthmetic can be done faster.
+	// Defined to be a power-of-two such that the calculations can be done faster.
 	// Note that the sample-number is in the range of: 1..(44100*60*60)
 	constexpr uint64_t SHIFT = 0x20000000ull;
 

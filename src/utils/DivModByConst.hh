@@ -7,7 +7,7 @@
 #include <type_traits>
 
 /** Utility class to optimize 64-bit divide/module by a 32-bit constant.
- * For 32-bit by 32-bit gcc already does this optimiztion (on 64-bit
+ * For 32-bit by 32-bit gcc already does this optimization (on 64-bit
  * CPUs gcc also does it for 64-bit operands). This optimization especially
  * helps on CPU without a HW division instruction (like ARM).
  *
@@ -160,4 +160,4 @@ template<uint32_t DIVISOR> struct DivModByConst
 	}
 };
 
-#endif // DIVMODBYCONST
+#endif // DIVMODBYCONST_HH
