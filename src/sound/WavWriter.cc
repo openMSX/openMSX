@@ -119,7 +119,7 @@ void Wav16Writer::write(const float* buffer, unsigned stereo, unsigned samples,
 	} else {
 		for (unsigned i = 0; i < samples; ++i) {
 			buf[2 * i + 0] = float2int16(buffer[2 * i + 0] * ampLeft);
-			buf[2 * i + 0] = float2int16(buffer[2 * i + 0] * ampRight);
+			buf[2 * i + 1] = float2int16(buffer[2 * i + 1] * ampRight);
 		}
 	}
 	unsigned size = sizeof(int16_t) * samples * stereo;
