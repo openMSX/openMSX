@@ -11,6 +11,7 @@
 #include "MSXException.hh"
 #include "likely.hh"
 #include "outer.hh"
+#include "ranges.hh"
 #include "serialize.hh"
 #include <array>
 
@@ -43,9 +44,7 @@ RomHolyQuran2::RomHolyQuran2(const DeviceConfig& config, Rom&& rom_)
 
 void RomHolyQuran2::reset(EmuTime::param /*time*/)
 {
-	for (auto& b : bank) {
-		b = &rom[0];
-	}
+	ranges::fill(bank, &rom[0]);
 	decrypt = false;
 }
 

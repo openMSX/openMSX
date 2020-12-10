@@ -9,6 +9,7 @@
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include "build-info.hh"
 #include <memory>
 
@@ -32,8 +33,7 @@ void JoyMega::registerAll(MSXEventDistributor& eventDistributor,
 	(void)stateChangeDistributor;
 	(void)controller;
 #else
-	unsigned numJoysticks = SDL_NumJoysticks();
-	for (unsigned i = 0; i < numJoysticks; i++) {
+	for (auto i : xrange(SDL_NumJoysticks())) {
 		if (SDL_Joystick* joystick = SDL_JoystickOpen(i)) {
 			// Avoid devices that have axes but no buttons, like accelerometers.
 			// SDL 1.2.14 in Linux has an issue where it rejects a device from
@@ -215,8 +215,7 @@ unsigned JoyMega::calcInitialState()
 		result &= ~JOY_DOWN;
 	}
 
-	int numButtons = InputEventGenerator::joystickNumButtons(joystick);
-	for (int button = 0; button < numButtons; ++button) {
+	for (auto button : xrange(InputEventGenerator::joystickNumButtons(joystick))) {
 		if (InputEventGenerator::joystickGetButton(joystick, button)) {
 			result &= ~encodeButton(button, 7);
 		}

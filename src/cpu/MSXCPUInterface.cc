@@ -96,11 +96,9 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 	ranges::fill(IO_In,  dummyDevice.get());
 	ranges::fill(IO_Out, dummyDevice.get());
 	ranges::fill(visibleDevices, dummyDevice.get());
-	for (int primSlot = 0; primSlot < 4; ++primSlot) {
-		for (int secSlot = 0; secSlot < 4; ++secSlot) {
-			for (int page = 0; page < 4; ++page) {
-				slotLayout[primSlot][secSlot][page] = dummyDevice.get();
-			}
+	for (auto& sub1 : slotLayout) {
+		for (auto& sub2 : sub1) {
+			ranges::fill(sub2, dummyDevice.get());
 		}
 	}
 
