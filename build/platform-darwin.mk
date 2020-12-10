@@ -9,12 +9,7 @@ USE_SYMLINK:=true
 # replace this with its own low-res icon.
 SET_WINDOW_ICON:=false
 
-# Compile for the selected CPU.
-ifeq ($(OPENMSX_TARGET_CPU),x86)
-TARGET_FLAGS+=-arch i386
-else
 TARGET_FLAGS+=-arch $(OPENMSX_TARGET_CPU)
-endif
 
 # File name extension of executables.
 EXEEXT:=
@@ -26,7 +21,7 @@ LIBRARYEXT:=.so
 # since libraries such as libxml2 can change soname between OS X versions.
 # Clang as shipped with Xcode requires OS X 10.7 or higher for compiling with
 # libc++, when compiling Clang and libc++ from source 10.6 works as well.
-OSX_VER:=10.7
+OSX_VER:=10.13
 TARGET_FLAGS+=-mmacosx-version-min=$(OSX_VER)
 
 # Select Clang as the compiler and libc++ as the standard library.
