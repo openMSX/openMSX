@@ -403,7 +403,9 @@ EmuTime RealDrive::getNextSector(EmuTime::param time, RawTrack::Sector& sector)
 	// distance is only 3 bytes or less we need to skip to the next sector
 	// header. IOW we need a sector header that's at least 4 bytes removed
 	// from the current position.
-	if (!track.decodeNextSector(idx + 4, sector)) {
+	if (auto s = track.decodeNextSector(idx + 4)) {
+		sector = *s;
+	} else {
 		return EmuTime::infinity();
 	}
 	int sectorAngle = divUp(sector.addrIdx * TICKS_PER_ROTATION, trackLen);

@@ -3,6 +3,7 @@
 
 #include "openmsx.hh"
 #include "serialize_meta.hh"
+#include <optional>
 #include <vector>
 
 namespace openmsx {
@@ -118,14 +119,14 @@ public:
 	[[nodiscard]] std::vector<Sector> decodeAll() const;
 
 	/** Get the next sector (starting from a certain index). */
-	[[nodiscard]] bool decodeNextSector(unsigned startIdx, Sector& sector) const;
+	[[nodiscard]] std::optional<Sector> decodeNextSector(unsigned startIdx) const;
 
 	/** Get a sector with a specific number.
 	  * Note that if a sector with the same number occurs multiple times,
 	  * this method will always return the same (the first) sector. So
 	  * don't use it in the implementation of FDC / DiskDrive code.
 	  */
-	[[nodiscard]] bool decodeSector(byte sectorNum, Sector& sector) const;
+	[[nodiscard]] std::optional<Sector> decodeSector(byte sectorNum) const;
 
 	/** Like memcpy() but copy from/to circular buffer. */
 	void readBlock (int idx, unsigned size, byte* destination) const;
@@ -141,7 +142,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	[[nodiscard]] bool decodeSectorImpl(int idx, Sector& sector) const;
+	[[nodiscard]] std::optional<Sector> decodeSectorImpl(int idx) const;
 
 private:
 	// Index into 'data'-array to positions where an address mark
