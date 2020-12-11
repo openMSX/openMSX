@@ -38,7 +38,7 @@
 
 
 #ifdef __APPLE__
-#include <Carbon/Carbon.h>
+#include "FileOperationsMac.hh"
 #endif
 
 #include "ReadDir.hh"
@@ -75,122 +75,6 @@ using namespace utf8;
 #endif
 
 namespace openmsx::FileOperations {
-
-#ifdef __APPLE__
-
-static std::string findShareDir()
-{
-	// Find bundle location:
-	// for an app folder, this is the outer directory,
-	// for an unbundled executable, it is the executable itself.
-	ProcessSerialNumber psn;
-	if (GetCurrentProcess(&psn) != noErr) {
-		throw FatalError("Failed to get process serial number");
-	}
-	FSRef location;
-	if (GetProcessBundleLocation(&psn, &location) != noErr) {
-		throw FatalError("Failed to get process bundle location");
-	}
-	// Get info about the location.
-	FSCatalogInfo catalogInfo;
-	FSRef parentRef;
-	if (FSGetCatalogInfo(
-		&location, kFSCatInfoVolume | kFSCatInfoNodeFlags,
-		&catalogInfo, nullptr, nullptr, &parentRef
-		) != noErr) {
-		throw FatalError("Failed to get info about bundle path");
-	}
-	// Get reference to root directory of the volume we are searching.
-	// We will need this later to know when to give up.
-	FSRef root;
-	if (FSGetVolumeInfo(
-		catalogInfo.volume, 0, nullptr, kFSVolInfoNone, nullptr, nullptr, &root
-		) != noErr) {
-		throw FatalError("Failed to get reference to root directory");
-	}
-	// Make sure we are looking at a directory.
-	if (~catalogInfo.nodeFlags & kFSNodeIsDirectoryMask) {
-		// Location is not a directory, so it is the path to the executable.
-		location = parentRef;
-	}
-	while (true) {
-		// Iterate through the files in the directory.
-		FSIterator iterator;
-		if (FSOpenIterator(&location, kFSIterateFlat, &iterator) != noErr) {
-			throw FatalError("Failed to open iterator");
-		}
-		bool filesLeft = true; // iterator has files left for next call
-		while (filesLeft) {
-			// Get info about several files at a time.
-			const int MAX_SCANNED_FILES = 100;
-			ItemCount actualObjects;
-			FSRef refs[MAX_SCANNED_FILES];
-			FSCatalogInfo catalogInfos[MAX_SCANNED_FILES];
-			HFSUniStr255 names[MAX_SCANNED_FILES];
-			OSErr err = FSGetCatalogInfoBulk(
-				iterator,
-				MAX_SCANNED_FILES,
-				&actualObjects,
-				nullptr /*containerChanged*/,
-				kFSCatInfoNodeFlags,
-				catalogInfos,
-				refs,
-				nullptr /*specs*/,
-				names
-				);
-			if (err == errFSNoMoreItems) {
-				filesLeft = false;
-			} else if (err != noErr) {
-				throw FatalError("Catalog get failed");
-			}
-			for (ItemCount i = 0; i < actualObjects; i++) {
-				// We're only interested in subdirectories.
-				if (catalogInfos[i].nodeFlags & kFSNodeIsDirectoryMask) {
-					// Convert the name to a CFString.
-					CFStringRef name = CFStringCreateWithCharactersNoCopy(
-						kCFAllocatorDefault,
-						names[i].unicode,
-						names[i].length,
-						kCFAllocatorNull // do not deallocate character buffer
-						);
-					// Is this the directory we are looking for?
-					static const CFStringRef SHARE = CFSTR("share");
-					CFComparisonResult cmp = CFStringCompare(SHARE, name, 0);
-					CFRelease(name);
-					if (cmp == kCFCompareEqualTo) {
-						// Clean up.
-						OSErr closeErr = FSCloseIterator(iterator);
-						assert(closeErr == noErr); (void)closeErr;
-						// Get full path of directory.
-						UInt8 path[256];
-						if (FSRefMakePath(
-							&refs[i], path, sizeof(path)) != noErr
-							) {
-							throw FatalError("Path too long");
-						}
-						return std::string(reinterpret_cast<char*>(path));
-					}
-				}
-			}
-		}
-		OSErr closeErr = FSCloseIterator(iterator);
-		assert(closeErr == noErr); (void)closeErr;
-		// Are we in the root yet?
-		if (FSCompareFSRefs(&location, &root) == noErr) {
-			throw FatalError("Could not find \"share\" directory anywhere");
-		}
-		// Go up one level.
-		if (FSGetCatalogInfo(
-			&location, kFSCatInfoNone, nullptr, nullptr, nullptr, &parentRef
-			) != noErr
-		) {
-			throw FatalError("Failed to get parent directory");
-		}
-		location = parentRef;
-	}
-}
-
-#endif // __APPLE__
 
 string expandTilde(string_view path)
 {
