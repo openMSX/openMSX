@@ -209,7 +209,7 @@ MSX device support:
 - improved emulation of OPL4 (wave part) considerably, thanks to Valley Bell
 - added emulation of bizarre I/O port mirroring of Philips Music Module (thanks
   to Grauw and L. Oliveira for doing the research)
-- implemented Y8910 status register bit 0
+- implemented Y8950 status register bit 0
 - fixed exact formula for noise generation on AY8910 (PSG)
 - made memory mapper ports readable on MegaFlashROM SCC+ SD, conforming to the
   latest version of this cartridge
@@ -1706,7 +1706,7 @@ MSX device support:
 - Improved Sony HBI-55, thanks to Daniel Vik.
 - Fixes in Tetris II Special Edition dongle.
 - Added separate machine configuration for Philips VG 8020/20.
-- Added MSX-AUDIO 2 extension. This is an Y8910 on alternative I/O ports.
+- Added MSX-AUDIO 2 extension. This is an Y8950 on alternative I/O ports.
 - Added FM Stereo PAK extension.
 
 Build system, packaging, documentation:
