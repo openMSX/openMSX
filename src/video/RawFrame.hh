@@ -8,17 +8,6 @@
 
 namespace openmsx {
 
-// Used by SDLRasterizer to implement left/right border drawing optimization.
-struct V9958RasterizerBorderInfo
-{
-	uint32_t color0, color1;
-	byte mode = 0xff; // invalid mode
-	byte adjust;
-	byte scroll;
-	bool masked;
-};
-
-
 /** A video frame as output by the VDP scanline conversion unit,
   * before any postprocessing filters are applied.
   */
@@ -52,10 +41,6 @@ public:
 
 	[[nodiscard]] unsigned getRowLength() const override;
 
-	// RawFrame is mostly agnostic of the border info struct. The only
-	// thing it does is store the information and give access to it.
-	[[nodiscard]] V9958RasterizerBorderInfo& getBorderInfo() { return borderInfo; }
-
 protected:
 	[[nodiscard]] unsigned getLineWidth(unsigned line) const override;
 	[[nodiscard]] const void* getLineInfo(
@@ -68,8 +53,6 @@ private:
 	MemBuffer<unsigned> lineWidths;
 	unsigned maxWidth;
 	unsigned pitch;
-
-	V9958RasterizerBorderInfo borderInfo;
 };
 
 } // namespace openmsx
