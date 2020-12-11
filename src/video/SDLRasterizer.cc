@@ -367,32 +367,35 @@ void SDLRasterizer<Pixel>::precalcColorIndex0(DisplayMode mode,
 }
 
 template<typename Pixel>
-void SDLRasterizer<Pixel>::getBorderColors(Pixel& border0, Pixel& border1)
+std::pair<Pixel, Pixel> SDLRasterizer<Pixel>::getBorderColors()
 {
 	DisplayMode mode = vdp.getDisplayMode();
 	int bgColor = vdp.getBackgroundColor();
 	if (mode.getBase() == DisplayMode::GRAPHIC5) {
 		// border in SCREEN6 has separate color for even and odd pixels.
 		// TODO odd/even swapped?
-		border0 = palBg[(bgColor & 0x0C) >> 2];
-		border1 = palBg[(bgColor & 0x03) >> 0];
-	} else if (mode.getByte() == DisplayMode::GRAPHIC7) {
-		border0 = border1 = PALETTE256[bgColor];
-	} else {
-		if (!bgColor && vdp.isSuperimposing()) {
-			border0 = border1 = screen.getKeyColor<Pixel>();
-		} else {
-			border0 = border1 = palBg[bgColor];
-		}
+		return {palBg[(bgColor & 0x0C) >> 2],
+		        palBg[(bgColor & 0x03) >> 0]};
 	}
+	Pixel col = [&] { // other modes only have a single border color
+		if (mode.getByte() == DisplayMode::GRAPHIC7) {
+			return PALETTE256[bgColor];
+		} else {
+			if (!bgColor && vdp.isSuperimposing()) {
+				return screen.getKeyColor<Pixel>();
+			} else {
+				return palBg[bgColor];
+			}
+		}
+	}();
+	return {col, col};
 }
 
 template<typename Pixel>
 void SDLRasterizer<Pixel>::drawBorder(
 	int fromX, int fromY, int limitX, int limitY)
 {
-	Pixel border0, border1;
-	getBorderColors(border0, border1);
+	auto [border0, border1] = getBorderColors();
 
 	int startY = std::max(fromY - lineRenderTop, 0);
 	int endY = std::min(limitY - lineRenderTop, 240);

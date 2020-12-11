@@ -82,7 +82,7 @@ private:
 	                        const RawFrame* superimposing, byte bgcolorIndex);
 
 	// Get the border color(s). These are 16bpp or 32bpp host pixels.
-	void getBorderColors(Pixel& border0, Pixel& border1);
+	std::pair<Pixel, Pixel> getBorderColors();
 
 	// Observer<Setting>
 	void update(const Setting& setting) override;

@@ -3,7 +3,6 @@
 
 #include "FrameSource.hh"
 #include "MemBuffer.hh"
-#include "openmsx.hh"
 #include <cassert>
 
 namespace openmsx {
