@@ -9,12 +9,7 @@ USE_SYMLINK:=true
 # replace this with its own low-res icon.
 SET_WINDOW_ICON:=false
 
-# Compile for the selected CPU.
-ifeq ($(OPENMSX_TARGET_CPU),x86)
-TARGET_FLAGS+=-arch i386
-else
 TARGET_FLAGS+=-arch $(OPENMSX_TARGET_CPU)
-endif
 
 # File name extension of executables.
 EXEEXT:=
