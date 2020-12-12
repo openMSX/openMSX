@@ -137,11 +137,9 @@ void YM2413::reset()
 	attackPtr  = attack[eg_timer_shift_lock][eg_timer_lock];
 	auto idx = releaseIndex[eg_timer_shift_lock][eg_timer_lock][eg_counter_state];
 	releasePtr = releaseData[idx];
-	for (int i = 0; i < 18; i++) {
-		eg_state[i] = EgState::release;
-		eg_level[i] = 0x7f;
-		eg_dokon[i] = false;
-	}
+	ranges::fill(eg_state, EgState::release);
+	ranges::fill(eg_level, 0x7f);
+	ranges::fill(eg_dokon, false);
 	eg_rate[0] = eg_rate[1] = 0;
 	eg_sl[0] = eg_sl[1] = eg_out[0] = eg_out[1] = 0;
 	eg_timer_shift_stop = false;
@@ -158,10 +156,13 @@ void YM2413::reset()
 	lfo_vib = VIB_TAB[lfo_vib_counter];
 	lfo_am_step = lfo_am_dir = false;
 
+	ranges::fill(fnum, 0);
+	ranges::fill(block, 0);
+	ranges::fill(vol8, 0);
+	ranges::fill(inst, 0);
+	ranges::fill(sk_on, 0);
 	for (int i = 0; i < 9; ++i) {
-		fnum[i] = block[i] = vol8[i] = inst[i] = 0;
 		p_inst[i] = &patches[inst[i]];
-		sk_on[i] = 0;
 		changeFnumBlock(i);
 	}
 	rhythm = testmode = 0;

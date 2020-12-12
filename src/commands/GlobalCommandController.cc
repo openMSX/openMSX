@@ -263,7 +263,7 @@ static vector<string> removeEscaping(const vector<string>& input, bool keepLastI
 	return result;
 }
 
-static string escapeChars(const string& str, const string& chars)
+static string escapeChars(const string& str, string_view chars)
 {
 	string result;
 	for (auto chr : str) {

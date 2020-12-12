@@ -4,6 +4,7 @@
 #include "cstd.hh"
 #include "one_of.hh"
 #include "outer.hh"
+#include "ranges.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 #include <algorithm>
@@ -115,11 +116,11 @@ void SN76489::initState()
 	// chips seem to start with random values (for lack of a reset pin).
 	// For the user's comfort, we init to silence instead.
 	for (unsigned chan = 0; chan < 4; chan++) {
-		regs[chan * 2] = 0;
+		regs[chan * 2 + 0] = 0x0;
 		regs[chan * 2 + 1] = 0xF;
-		counters[chan] = 0;
-		outputs[chan] = 0;
 	}
+	ranges::fill(counters, 0);
+	ranges::fill(outputs, 0);
 
 	initNoise();
 }

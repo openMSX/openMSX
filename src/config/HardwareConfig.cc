@@ -116,14 +116,12 @@ HardwareConfig::HardwareConfig(MSXMotherBoard& motherBoard_, string hwName_)
 	: motherBoard(motherBoard_)
 	, hwName(move(hwName_))
 {
-	for (auto ps : xrange(4)) {
-		for (auto ss : xrange(4)) {
-			externalSlots[ps][ss] = false;
-		}
-		externalPrimSlots[ps] = false;
-		expandedSlots[ps] = false;
-		allocatedPrimarySlots[ps] = false;
+	for (auto& sub : externalSlots) {
+		ranges::fill(sub, false);
 	}
+	ranges::fill(externalPrimSlots, false);
+	ranges::fill(expandedSlots, false);
+	ranges::fill(allocatedPrimarySlots, false);
 	userName = motherBoard.getUserName(hwName);
 }
 

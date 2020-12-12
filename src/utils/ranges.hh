@@ -163,6 +163,12 @@ auto transform(InputRange&& range, OutputIter out, UnaryOperation op)
 	return std::transform(std::begin(range), std::end(range), out, op);
 }
 
+template<typename ForwardRange, typename Generator>
+void generate(ForwardRange&& range, Generator&& g)
+{
+	std::generate(std::begin(range), std::end(range), std::forward<Generator>(g));
+}
+
 template<typename ForwardRange, typename T>
 [[nodiscard]] auto remove(ForwardRange&& range, const T& value)
 {

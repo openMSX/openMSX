@@ -79,7 +79,7 @@ void PixelRenderer::draw(
 
 void PixelRenderer::subdivide(
 	int startX, int startY, int endX, int endY, int clipL, int clipR,
-	DrawType drawType )
+	DrawType drawType)
 {
 	// Partial first line.
 	if (startX > clipL) {

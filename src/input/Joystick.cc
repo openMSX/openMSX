@@ -34,11 +34,8 @@ void Joystick::registerAll(MSXEventDistributor& eventDistributor,
 	(void)stateChangeDistributor;
 	(void)controller;
 #else
-	unsigned numJoysticks = SDL_NumJoysticks();
-	ad_printf("#joysticks: %d\n", numJoysticks);
-	for (unsigned i = 0; i < numJoysticks; i++) {
-		SDL_Joystick* joystick = SDL_JoystickOpen(i);
-		if (joystick) {
+	for (auto i : xrange(SDL_NumJoysticks())) {
+		if (SDL_Joystick* joystick = SDL_JoystickOpen(i)) {
 			// Avoid devices that have axes but no buttons, like accelerometers.
 			// SDL 1.2.14 in Linux has an issue where it rejects a device from
 			// /dev/input/event* if it has no buttons but does not reject a

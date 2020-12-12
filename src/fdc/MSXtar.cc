@@ -549,7 +549,7 @@ MSXtar::DirEntry MSXtar::findEntryInDir(
 		// read sector and scan 16 entries
 		readLogicalSector(result.sector, buf);
 		for (result.index = 0; result.index < 16; ++result.index) {
-			if (string(buf.dirEntry[result.index].filename, 11) == name) {
+			if (string_view(buf.dirEntry[result.index].filename, 11) == name) {
 				return result;
 			}
 		}
