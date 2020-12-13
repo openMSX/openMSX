@@ -3,6 +3,7 @@
 #include "IDEDeviceFactory.hh"
 #include "MSXCPU.hh"
 #include "one_of.hh"
+#include "ranges.hh"
 #include "xrange.hh"
 
 namespace openmsx {
@@ -71,7 +72,7 @@ void Carnivore2::reset(EmuTime::param time)
 	// multi-mapper
 	scc.reset(time);
 	sccMode = 0;
-	for (int i = 0; i < 4; ++i) sccBank[i] = i;
+	ranges::iota(sccBank, 0);
 
 	// ide
 	ideControlReg = 0;
@@ -81,9 +82,7 @@ void Carnivore2::reset(EmuTime::param time)
 	ideDevices[1]->reset(time);
 
 	// memory mapper
-	for (int i = 0; i < 4; ++i) {
-		memMapRegs[i] = i; // Note: different from how BIOS initializes these registers
-	}
+	ranges::iota(memMapRegs, 0); // Note: different from how BIOS initializes these registers
 
 	// fm-pac
 	ym2413.reset(time);

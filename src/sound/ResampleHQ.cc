@@ -310,7 +310,7 @@ static void calcPermute(double ratio, int16_t* permute)
 
 #ifdef DEBUG
 	int16_t testPerm[N2];
-	for (unsigned i = 0; i < N2; ++i) testPerm[i] = i;
+	ranges::iota(testPerm, 0);
 	assert(std::is_permutation(permute, permute + N2, testPerm));
 #endif
 }

@@ -4,6 +4,7 @@
 #include "CacheLine.hh"
 #include "CheckedRam.hh"
 #include "SdCard.hh"
+#include "ranges.hh"
 #include "serialize.hh"
 #include "xrange.hh"
 #include <memory>
@@ -311,14 +312,10 @@ void MegaFlashRomSCCPlusSD::reset(EmuTime::param time)
 	offsetReg = 0;
 	updateConfigReg(3);
 	subslotReg = 0;
-	for (int bank = 0; bank < 4; ++bank) {
-		bankRegsSubSlot1[bank] = bank;
-	}
+	ranges::iota(bankRegsSubSlot1, 0);
 
 	sccMode = 0;
-	for (int i = 0; i < 4; ++i) {
-		sccBanks[i] = i;
-	}
+	ranges::iota(sccBanks, 0);
 	scc.reset(time);
 
 	psgLatch = 0;

@@ -2,6 +2,7 @@
 #include "DummyAY8910Periphery.hh"
 #include "MSXCPUInterface.hh"
 #include "CacheLine.hh"
+#include "ranges.hh"
 #include "serialize.hh"
 #include "xrange.hh"
 #include <cassert>
@@ -209,15 +210,11 @@ void MegaFlashRomSCCPlus::reset(EmuTime::param time)
 	offsetReg = 0;
 	subslotReg = 0;
 	for (auto& regs : bankRegs) {
-		for (int bank = 0; bank < 4; ++bank) {
-			regs[bank] = bank;
-		}
+		ranges::iota(regs, 0);
 	}
 
 	sccMode = 0;
-	for (int i = 0; i < 4; ++i) {
-		sccBanks[i] = i;
-	}
+	ranges::iota(sccBanks, 0);
 	scc.reset(time);
 
 	psgLatch = 0;

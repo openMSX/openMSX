@@ -49,6 +49,7 @@
 #include "MB89352.hh"
 #include "MSXException.hh"
 #include "one_of.hh"
+#include "ranges.hh"
 #include "serialize.hh"
 #include "xrange.hh"
 #include <memory>
@@ -82,9 +83,7 @@ ESE_SCC::ESE_SCC(const DeviceConfig& config, bool withSCSI)
 	sccEnable   = false;
 	spcEnable   = false;
 	writeEnable = false;
-	for (int i = 0; i < 4; ++i) {
-		mapper[i] = i;
-	}
+	ranges::iota(mapper, 0);
 }
 
 void ESE_SCC::powerUp(EmuTime::param time)
