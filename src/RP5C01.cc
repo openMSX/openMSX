@@ -247,7 +247,7 @@ void RP5C01::updateTimeRegs(EmuTime::param time)
 
 void RP5C01::resetAlarm()
 {
-	for (unsigned i = 2; i <= 8; ++i) {
+	for (auto i : xrange(2, 9)) {
 		regs.write(ALARM_BLOCK * 13 + i, 0);
 	}
 }

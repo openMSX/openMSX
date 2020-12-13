@@ -12,6 +12,7 @@
 #include "one_of.hh"
 #include "span.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <memory>
 
@@ -71,9 +72,7 @@ void NowindCommand::processHdimage(
 	if (partitions.empty()) {
 		// insert all partitions
 		failOnError = false;
-		for (unsigned i = 1; i <= 31; ++i) {
-			partitions.push_back(i);
-		}
+		partitions = to_vector(xrange(1u, 32u));
 	}
 
 	for (auto& p : partitions) {

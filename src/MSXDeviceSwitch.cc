@@ -4,6 +4,7 @@
 #include "MSXException.hh"
 #include "ranges.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -32,7 +33,7 @@ void MSXDeviceSwitch::registerDevice(byte id, MSXSwitchedDevice* device)
 	}
 	devices[id] = device;
 	if (count == 0) {
-		for (byte port = 0x40; port < 0x50; ++port) {
+		for (auto port : xrange(0x40, 0x50)) {
 			getCPUInterface().register_IO_In (port, this);
 			getCPUInterface().register_IO_Out(port, this);
 		}
@@ -44,7 +45,7 @@ void MSXDeviceSwitch::unregisterDevice(byte id)
 {
 	--count;
 	if (count == 0) {
-		for (byte port = 0x40; port < 0x50; ++port) {
+		for (auto port : xrange(0x40, 0x50)) {
 			getCPUInterface().unregister_IO_Out(port, this);
 			getCPUInterface().unregister_IO_In (port, this);
 		}

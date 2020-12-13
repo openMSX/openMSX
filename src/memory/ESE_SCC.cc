@@ -50,6 +50,7 @@
 #include "MSXException.hh"
 #include "one_of.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <memory>
 
 namespace openmsx {
@@ -95,7 +96,7 @@ void ESE_SCC::powerUp(EmuTime::param time)
 void ESE_SCC::reset(EmuTime::param time)
 {
 	setMapperHigh(0);
-	for (int i = 0; i < 4; ++i) {
+	for (auto i : xrange(4)) {
 		setMapperLow(i, i);
 	}
 	scc.reset(time);

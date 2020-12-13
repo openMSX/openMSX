@@ -18,6 +18,7 @@
 #include "ranges.hh"
 #include "stl.hh"
 #include "strCat.hh"
+#include "view.hh"
 #include "xrange.hh"
 #include <cassert>
 #include <cctype>
@@ -346,8 +347,8 @@ void DiskManipulator::create(span<const TclObject> tokens)
 	unsigned totalSectors = 0;
 	bool dos1 = false;
 
-	for (size_t i = 3; i < tokens.size(); ++i) {
-		if (tokens[i] == "-dos1") {
+	for (const auto& token : view::drop(tokens, 3)) {
+		if (token == "-dos1") {
 			dos1 = true;
 			continue;
 		}
@@ -356,7 +357,7 @@ void DiskManipulator::create(span<const TclObject> tokens)
 			throw CommandException(
 				"Maximum number of partitions is ", MAX_PARTITIONS);
 		}
-		string tok(tokens[i].getString());
+		string tok(token.getString());
 		char* q;
 		int sectors = strtol(tok.c_str(), &q, 0);
 		int scale = 1024; // default is kilobytes

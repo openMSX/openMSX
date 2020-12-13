@@ -8,6 +8,7 @@
 #include "FrameSource.hh"
 #include "ScalerOutput.hh"
 #include "vla.hh"
+#include "xrange.hh"
 #include "build-info.hh"
 #include <cassert>
 #include <cstdint>
@@ -58,7 +59,7 @@ void SaI2xScaler<Pixel>::scaleLine1on2(
 	unsigned srcWidth)
 {
 	// TODO: Scale border pixels as well.
-	for (unsigned x = 0; x < srcWidth; x++) {
+	for (auto x : xrange(srcWidth)) {
 		// Map of the pixels:
 		//   I|E F|J
 		//   G|A B|K
@@ -181,7 +182,7 @@ void SaI2xScaler<Pixel>::scaleLine1on1(
 	// like SimpleScaler does.
 	dstUpper[0] = srcLine1[0];
 	dstLower[0] = blend(srcLine1[0], srcLine2[0]);
-	for (unsigned x = 1; x < srcWidth - 1; x++) {
+	for (auto x : xrange(1u, srcWidth - 1)) {
 		// Map of the pixels:
 		//   I E F
 		//   G A B

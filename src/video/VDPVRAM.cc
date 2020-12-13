@@ -217,7 +217,7 @@ void VDPVRAM::updateVRMode(bool newVRmode, EmuTime::param time)
 		}
 	} else {
 		// switch from VR=1 to VR=0
-		for (int i = 0; i < 0x8000; ++i) {
+		for (auto i : xrange(0x8000)) {
 			std::swap(data[i], data[swapAddr(i)]);
 		}
 	}

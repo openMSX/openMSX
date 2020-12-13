@@ -83,6 +83,7 @@ chirp 12-..: volume   0   : silent
 #include "random.hh"
 #include "ranges.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -193,9 +194,7 @@ int VLM5030::parseFrame()
 	// remember previous frame
 	old_energy = new_energy;
 	old_pitch = new_pitch;
-	for (int i = 0; i <= 9; ++i) {
-		old_k[i] = new_k[i];
-	}
+	ranges::copy(new_k, old_k);
 	// command byte check
 	byte cmd = rom[address & address_mask];
 	if (cmd & 0x01) {
@@ -270,23 +269,17 @@ void VLM5030::generateChannels(float** bufs, unsigned num)
 					// Set old target as new start of frame
 					current_energy = old_energy;
 					current_pitch = old_pitch;
-					for (int i = 0; i <= 9; ++i) {
-						current_k[i] = old_k[i];
-					}
+					ranges::copy(old_k, current_k);
 					// is this a zero energy frame?
 					if (current_energy == 0) {
 						target_energy = 0;
 						target_pitch = current_pitch;
-						for (int i = 0; i <= 9; ++i) {
-							target_k[i] = current_k[i];
-						}
+						ranges::copy(current_k, target_k);
 					} else {
 						// normal frame
 						target_energy = new_energy;
 						target_pitch = new_pitch;
-						for (int i = 0; i <= 9; ++i) {
-							target_k[i] = new_k[i];
-						}
+						ranges::copy(new_k, target_k);
 					}
 				}
 				// next interpolator
@@ -298,7 +291,7 @@ void VLM5030::generateChannels(float** bufs, unsigned num)
 				if (old_pitch > 1) {
 					current_pitch = old_pitch + (target_pitch - old_pitch) * interp_effect / FR_SIZE;
 				}
-				for (int i = 0; i <= 9; ++i)
+				for (auto i : xrange(10))
 					current_k[i] = old_k[i] + (target_k[i] - old_k[i]) * interp_effect / FR_SIZE;
 			}
 			// calcrate digital filter

@@ -5,6 +5,7 @@
 #include "CheckedRam.hh"
 #include "SdCard.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <memory>
 #include <vector>
 
@@ -413,7 +414,7 @@ void MegaFlashRomSCCPlusSD::writeMem(word addr, byte value, EmuTime::param time)
 		// write subslot register
 		byte diff = value ^ subslotReg;
 		subslotReg = value;
-		for (int i = 0; i < 4; ++i) {
+		for (auto i : xrange(4)) {
 			if (diff & (3 << (2 * i))) {
 				invalidateDeviceRWCache(0x4000 * i, 0x4000);
 			}

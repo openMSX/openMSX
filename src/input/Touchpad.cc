@@ -18,6 +18,7 @@
 #include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
+#include "xrange.hh"
 #include <iostream>
 
 using std::shared_ptr;
@@ -102,12 +103,12 @@ void Touchpad::parseTransformMatrix(Interpreter& interp, const TclObject& value)
 	if (value.getListLength(interp) != 2) {
 		throw CommandException("must have 2 rows");
 	}
-	for (int i = 0; i < 2; ++i) {
+	for (auto i : xrange(2)) {
 		TclObject row = value.getListIndex(interp, i);
 		if (row.getListLength(interp) != 3) {
 			throw CommandException("each row must have 3 elements");
 		}
-		for (int j = 0; j < 3; ++j) {
+		for (auto j : xrange(3)) {
 			m[j][i] = row.getListIndex(interp, j).getDouble(interp);
 		}
 	}

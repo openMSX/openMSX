@@ -32,7 +32,7 @@ void SaI3xScaler<Pixel>::scaleBlank1to3(
 	unsigned srcY = srcStartY, dstY = dstStartY;
 	for (/* */; dstY < stopDstY; srcY += 1, dstY += 3) {
 		auto color = src.getLineColor<Pixel>(srcY);
-		for (int i = 0; i < 3; ++i) {
+		for (auto i : xrange(3)) {
 			dst.fillLine(dstY + i, color);
 		}
 	}
@@ -333,7 +333,7 @@ public:
 		unsigned pos3 = 1;
 		Pixel sb = src1[0];
 		Pixel sd = src2[0];
-		for (unsigned srcX = 0; srcX < srcWidth; srcX++) {
+		repeat(srcWidth, [&] {
 			const unsigned pos0 = pos1;
 			pos1 = pos2;
 			pos2 = pos3;
@@ -361,7 +361,7 @@ public:
 				PixelStripRepeater<NX>::template blend4<NX, y1, Pixel>(
 					dp, sa, sb, sc, sd);
 			}
-		}
+		});
 		dst.releaseLine(dstY, dstLine);
 		++dstY;
 
@@ -400,7 +400,7 @@ void SaI3xScaler<Pixel>::scaleFixed(FrameSource& src,
 	auto* src1 = src.getLinePtr(srcY + 0, srcWidth, buf1);
 	auto* src2 = src.getLinePtr(srcY + 1, srcWidth, buf2);
 
-	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY++) {
+	for (auto dstY : xrange(dstStartY, dstEndY)) {
 		auto* src3 = src.getLinePtr(srcY + 2, srcWidth, buf3);
 		LineRepeater<NY>::template scaleFixedLine<NX, NY, Pixel>(
 			src0, src1, src2, src3, srcWidth, dst, dstY);
@@ -430,7 +430,7 @@ void SaI3xScaler<Pixel>::scaleAny(FrameSource& src,
 	VLA_SSE_ALIGNED(Pixel, buf3, srcWidth);
 
 	unsigned h = 0;
-	for (unsigned dstY = dstStartY; dstY < dstEndY; dstY++) {
+	for (auto dstY : xrange(dstStartY, dstEndY)) {
 		// Get source line pointers.
 		int line = srcStartY + (h >> 16);
 		// TODO possible optimization: reuse srcN from previous step

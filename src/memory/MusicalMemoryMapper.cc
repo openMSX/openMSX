@@ -1,6 +1,7 @@
 #include "MusicalMemoryMapper.hh"
 #include "SN76489.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <memory>
 
 namespace openmsx {
@@ -128,17 +129,17 @@ void MusicalMemoryMapper::updateControlReg(byte value)
 
 		// Invalidate pages for which register access changes.
 		byte regAccessBefore = 0;
-		for (unsigned page = 0; page < 4; page++) {
+		for (auto page : xrange(4)) {
 			regAccessBefore |= registerAccessAt(0x4000 * page) << page;
 		}
 		controlReg = value;
 		byte regAccessAfter = 0;
-		for (unsigned page = 0; page < 4; page++) {
+		for (auto page : xrange(4)) {
 			regAccessAfter |= registerAccessAt(0x4000 * page) << page;
 		}
 		invalidate |= regAccessBefore ^ regAccessAfter;
 
-		for (unsigned page = 0; page < 4; page++) {
+		for (auto page : xrange(4)) {
 			if ((invalidate >> page) & 1) {
 				invalidateDeviceRWCache(0x4000 * page, 0x4000);
 			}

@@ -38,6 +38,7 @@
 #include "outer.hh"
 #include "ranges.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <algorithm>
 
 namespace openmsx {
@@ -486,14 +487,12 @@ void YMF278::generateChannels(float** bufs, unsigned num)
 	if (!anyActive()) {
 		// TODO update internal state, even if muted
 		// TODO also mute individual channels
-		for (int i = 0; i < 24; ++i) {
-			bufs[i] = nullptr;
-		}
+		std::fill_n(bufs, 24, nullptr);
 		return;
 	}
 
-	for (unsigned j = 0; j < num; ++j) {
-		for (int i = 0; i < 24; ++i) {
+	for (auto j : xrange(num)) {
+		for (auto i : xrange(24)) {
 			auto& sl = slots[i];
 			if (sl.state == EG_OFF) {
 				//bufs[i][2 * j + 0] += 0;
@@ -587,7 +586,7 @@ void YMF278::writeRegDirect(byte reg, byte data, EmuTime::param time)
 			           (slot.wave * 12) :
 			           (waveTblHdr * 0x80000 + ((slot.wave - 384) * 12));
 			byte buf[12];
-			for (int i = 0; i < 12; ++i) {
+			for (auto i : xrange(12)) {
 				// TODO What if R#2 bit 0 = 1?
 				//      See also getSample()
 				buf[i] = readMem(base + i);
@@ -596,7 +595,7 @@ void YMF278::writeRegDirect(byte reg, byte data, EmuTime::param time)
 			slot.startaddr = buf[2] | (buf[1] << 8) | ((buf[0] & 0x3F) << 16);
 			slot.loopaddr = buf[4] | (buf[3] << 8);
 			slot.endaddr  = buf[6] | (buf[5] << 8);
-			for (int i = 7; i < 12; ++i) {
+			for (auto i : xrange(7, 12)) {
 				// Verified on real YMF278:
 				// After tone loading, if you read these
 				// registers, their value actually has changed.

@@ -39,6 +39,7 @@
 #include "MSXException.hh"
 #include "one_of.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <memory>
 
 namespace openmsx {
@@ -167,7 +168,7 @@ RomFSA1FM2::RomFSA1FM2(const DeviceConfig& config, Rom&& rom_)
 void RomFSA1FM2::reset(EmuTime::param /*time*/)
 {
 	control = 0;
-	for (int region = 0; region < 6; ++region) {
+	for (auto region : xrange(6)) {
 		changeBank(region, 0xA8);
 	}
 	changeBank(6, 0); // for mapper-state read-back
@@ -295,7 +296,7 @@ void RomFSA1FM2::serialize(Archive& ar, unsigned /*version*/)
 	             "control",    control);
 	if (ar.isLoader()) {
 		// recalculate 'isRam' and 'isEmpty' from bankSelect
-		for (int region = 0; region < 8; ++region) {
+		for (auto region : xrange(8)) {
 			changeBank(region, bankSelect[region]);
 		}
 	}

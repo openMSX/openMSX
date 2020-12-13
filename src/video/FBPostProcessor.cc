@@ -178,14 +178,14 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 	if (sizeof(Pixel) == 4) {
 		// optimized version for 32bpp
 		auto* noise4 = reinterpret_cast<uint32_t*>(noise);
-		for (size_t i = 0; i < width; ++i) {
+		for (auto i : xrange(width)) {
 			buf[i] = addNoise4(buf[i], noise4[i]);
 		}
 	} else {
 		int mr = pixelOps.getMaxRed();
 		int mg = pixelOps.getMaxGreen();
 		int mb = pixelOps.getMaxBlue();
-		for (size_t i = 0; i < width; ++i) {
+		for (auto i : xrange(width)) {
 			Pixel p = buf[i];
 			int r = pixelOps.red(p);
 			int g = pixelOps.green(p);
@@ -212,7 +212,7 @@ void FBPostProcessor<Pixel>::drawNoise(OutputSurface& output_)
 	auto& output = checked_cast<SDLOutputSurface&>(output_);
 	auto [w, h] = output.getLogicalSize();
 	auto pixelAccess = output.getDirectPixelAccess();
-	for (int y = 0; y < h; ++y) {
+	for (auto y : xrange(h)) {
 		auto* buf = pixelAccess.getLinePtr<Pixel>(y);
 		drawNoiseLine(buf, &noiseBuf[noiseShift[y]], w);
 	}

@@ -279,12 +279,12 @@ void RenderSettings::parseColorMatrix(Interpreter& interp, const TclObject& valu
 		throw CommandException("must have 3 rows");
 	}
 	bool identity = true;
-	for (int i = 0; i < 3; ++i) {
+	for (auto i : xrange(3)) {
 		TclObject row = value.getListIndex(interp, i);
 		if (row.getListLength(interp) != 3) {
 			throw CommandException("each row must have 3 elements");
 		}
-		for (int j = 0; j < 3; ++j) {
+		for (auto j : xrange(3)) {
 			TclObject element = row.getListIndex(interp, j);
 			float val = element.getDouble(interp);
 			colorMatrix[i][j] = val;

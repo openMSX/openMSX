@@ -3,6 +3,7 @@
 #include "MSXCPUInterface.hh"
 #include "DummyDevice.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -12,7 +13,7 @@ VDPIODelay::VDPIODelay(const DeviceConfig& config, MSXCPUInterface& cpuInterface
 	, cpu(getCPU()) // used frequently, so cache it
 	, lastTime(EmuTime::zero())
 {
-	for (int port = 0x098; port <= 0x9B; ++port) {
+	for (auto port : xrange(0x98, 0x9c)) {
 		getInDevicePtr (port) = &cpuInterface.getDummyDevice();
 		getOutDevicePtr(port) = &cpuInterface.getDummyDevice();
 	}

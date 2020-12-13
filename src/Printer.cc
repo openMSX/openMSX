@@ -9,6 +9,7 @@
 #include "MemBuffer.hh"
 #include "serialize.hh"
 #include "vla.hh"
+#include "xrange.hh"
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -207,7 +208,7 @@ void ImagePrinter::resetEmulatedPrinter()
 
 void ImagePrinter::plot9Dots(double x, double y, unsigned pattern)
 {
-	for (int i = 0; i < 9; ++i) {
+	for (auto i : xrange(9)) {
 		if (pattern & (1 << i)) {
 			paper->plot(x, y + (8 - i) * pixelSizeY);
 		}
@@ -289,7 +290,7 @@ void ImagePrinter::flushEmulatedPrinter()
 static unsigned compress9(unsigned a)
 {
 	unsigned result = 0;
-	for (unsigned i = 0; i < 9; ++i) {
+	for (auto i : xrange(9)) {
 		if (a & (1 << i)) {
 			result |= 1 << (i / 2);
 		}
@@ -330,7 +331,7 @@ void ImagePrinter::printVisibleCharacter(byte data)
 	printAreaTop    = min(printAreaTop, destY);
 	printAreaBottom = max(printAreaBottom, destY + destHeight + dblStrikeOffset);
 
-	for (unsigned i = start; i < end; ++i) {
+	for (auto i : xrange(start, end)) {
 		unsigned charBits = unsigned(charBitmap[i + 1]) << topBits;
 
 		if (underline) {
@@ -340,9 +341,9 @@ void ImagePrinter::printVisibleCharacter(byte data)
 			charBits = compress9(charBits);
 		}
 
-		for (int d = 0; d <= (doubleWidth?1:0); d++) {
-			for (int b = 0; b <= (bold?1:0); ++b) {
-				for (int y = 0; y <= (doubleStrike?1:0); ++y) {
+		for (auto d : xrange(doubleWidth ? 2 : 1)) {
+			for (auto b : xrange(bold ? 2 : 1)) {
+				for (auto y : xrange(doubleStrike ? 2: 1)) {
 					double destX = (hPos + (d + b / 2.0) / fontDensity) * pixelSizeX;
 					plot9Dots(destX, destY + y * dblStrikeOffset, charBits);
 				}
@@ -640,34 +641,29 @@ std::string_view ImagePrinterMSX::getDescription() const
 void ImagePrinterMSX::msxPrnSetFont(const byte* msxBits)
 {
 	// Convert MSX printer font to Epson printer font
-	byte* font = MSXFont;
-
-	for (int i = 0; i < 256; ++i) {
+	for (auto i : xrange(256)) {
 		byte oneBits = 0;
 		int start = -1;
 		int end = 0;
 
 		// Rotate MSX character
-		for (int j = 0; j < 8; ++j) {
+		for (auto j : xrange(8)) {
 			byte charBits = 0;
-			for (int k = 0; k < 8; ++k) {
-				charBits |= ((msxBits[7 - k] >> (7 - j)) & 1) << k;
+			for (auto k : xrange(8)) {
+				charBits |= ((msxBits[8 * i + 7 - k] >> (7 - j)) & 1) << k;
 			}
 
 			oneBits |= charBits;
 			if (oneBits  != 0 && start < 0) start = j;
 			if (charBits != 0) end = j;
-			font[j + 1] = charBits;
+			MSXFont[9 * i + j + 1] = charBits;
 		}
 
 		end = end + 1;
 		if (start < 0 || start >= 7) start = 0;
 		if (end == 1) end = 5;
 		if (end >= 7) end = 7;
-		font[0] = (start << 4) | end;
-
-		font    += 9;
-		msxBits += 8;
+		MSXFont[9 * i] = (start << 4) | end;
 	}
 }
 
@@ -1660,7 +1656,7 @@ string Paper::save() const
 	string filename = FileOperations::getNextNumberedFileName(
 		"prints", "page", ".png");
 	VLA(const void*, rowPointers, sizeY);
-	for (unsigned y = 0; y < sizeY; ++y) {
+	for (auto y : xrange(sizeY)) {
 		rowPointers[y] = &buf[sizeX * y];
 	}
 	PNG::saveGrayscale(sizeX, sizeY, rowPointers, filename);
@@ -1736,11 +1732,11 @@ void Paper::plot(double xPos, double yPos)
 	unsigned yy2 = min<int>(int(ceil (yPos + radiusY)), sizeY);
 
 	int y = 16 * yy1 - int(16 * yPos) + 16 + radius16;
-	for (unsigned yy = yy1; yy < yy2; ++yy) {
+	for (auto yy : xrange(yy1, yy2)) {
 		int x = 16 * xx1 - int(16 * xPos);
-		for (unsigned xx = xx1; xx < xx2; ++xx) {
+		for (auto xx : xrange(xx1, xx2)) {
 			int sum = 0;
-			for (int i = 0; i < 16; ++i) {
+			for (auto i : xrange(16)) {
 				int a = table[y + i];
 				if (x < -a) {
 					int t = 16 + a + x;

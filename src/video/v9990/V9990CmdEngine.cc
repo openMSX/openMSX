@@ -11,6 +11,7 @@
 #include "serialize.hh"
 #include "likely.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <iostream>
 
@@ -107,12 +108,12 @@ static MemBuffer<byte> logOpLUT[4][16];
 // to speedup calculating logOpLUT
 static constexpr auto bitLUT = [] {
 	std::array<std::array<std::array<std::array<byte, 2>, 2>, 16>, 8> result = {};
-	for (unsigned op = 0; op < 16; ++op) {
+	for (auto op : xrange(16)) {
 		unsigned tmp = op;
-		for (unsigned src = 0; src < 2; ++src) {
-			for (unsigned dst = 0; dst < 2; ++dst) {
+		for (auto src : xrange(2)) {
+			for (auto dst : xrange(2)) {
 				unsigned b = tmp & 1;
-				for (unsigned bit = 0; bit < 8; ++bit) {
+				for (auto bit : xrange(8)) {
 					result[bit][op][src][dst] = b << bit;
 				}
 				tmp >>= 1;
@@ -195,8 +196,8 @@ enum { LOG_NO_T, LOG_BPP2, LOG_BPP4, LOG_BPP8 };
 
 static void fillTableNoT(unsigned op, byte* table)
 {
-	for (unsigned dst = 0; dst < 256; ++dst) {
-		for (unsigned src = 0; src < 256; ++src) {
+	for (auto dst : xrange(256)) {
+		for (auto src : xrange(256)) {
 			table[dst * 256 + src] = func07(op, src, dst);
 		}
 	}
@@ -204,8 +205,8 @@ static void fillTableNoT(unsigned op, byte* table)
 
 static void fillTable2(unsigned op, byte* table)
 {
-	for (unsigned dst = 0; dst < 256; ++dst) {
-		for (unsigned src = 0; src < 256; ++src) {
+	for (auto dst : xrange(256)) {
+		for (auto src : xrange(256)) {
 			byte res = 0;
 			res |= func01(op, src, dst);
 			res |= func23(op, src, dst);
@@ -218,8 +219,8 @@ static void fillTable2(unsigned op, byte* table)
 
 static void fillTable4(unsigned op, byte* table)
 {
-	for (unsigned dst = 0; dst < 256; ++dst) {
-		for (unsigned src = 0; src < 256; ++src) {
+	for (auto dst : xrange(256)) {
+		for (auto src : xrange(256)) {
 			byte res = 0;
 			res |= func03(op, src, dst);
 			res |= func47(op, src, dst);
@@ -230,11 +231,11 @@ static void fillTable4(unsigned op, byte* table)
 
 static void fillTable8(unsigned op, byte* table)
 {
-	for (unsigned dst = 0; dst < 256; ++dst) {
+	for (auto dst : xrange(256)) {
 		{ // src == 0
 			table[dst * 256 + 0  ] = dst;
 		}
-		for (unsigned src = 1; src < 256; ++src) { // src != 0
+		for (auto src : xrange(1, 256)) { // src != 0
 			table[dst * 256 + src] = func07(op, src, dst);
 		}
 	}
@@ -1167,7 +1168,8 @@ void V9990CmdEngine::executeCMMC(EmuTime::param limit)
 		int dx = (ARG & DIX) ? -1 : 1;
 		int dy = (ARG & DIY) ? -1 : 1;
 		const byte* lut = Mode::getLogOpLUT(LOG);
-		for (unsigned i = 0; i < 8; ++i) {
+		for (auto i : xrange(8)) {
+			(void)i;
 			bool bit = (data & 0x80) != 0;
 			data <<= 1;
 
@@ -1364,7 +1366,7 @@ void V9990CmdEngine::executeBMLX(EmuTime::param limit)
 	while (engineTime < limit) {
 		engineTime += delta;
 		byte d = 0;
-		for (int i = 0; i < Mode::PIXELS_PER_BYTE; ++i) {
+		for (auto i : xrange(Mode::PIXELS_PER_BYTE)) {
 			auto src = Mode::point(vram, SX, SY, pitch);
 			d |= Mode::shift(src, SX, i) & Mode::shiftMask(i);
 			SX += dx;

@@ -206,7 +206,7 @@ void Scanline<Pixel>::draw(
 #else
 	// non-SSE2 routine, both 16bpp and 32bpp
 	darkener.setFactor(factor);
-	for (unsigned x = 0; x < width; ++x) {
+	for (auto x : xrange(width)) {
 		dst[x] = darkener.multiply(
 			pixelOps.template blend<1, 1>(src1[x], src2[x]));
 	}

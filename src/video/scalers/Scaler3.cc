@@ -4,6 +4,7 @@
 #include "SuperImposeScalerOutput.hh"
 #include "unreachable.hh"
 #include "vla.hh"
+#include "xrange.hh"
 #include "build-info.hh"
 #include <cstdint>
 
@@ -23,7 +24,7 @@ void Scaler3<Pixel>::scaleBlank1to3(
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 1, dstY += 3) {
 		auto color = src.getLineColor<Pixel>(srcY);
-		for (int i = 0; i < 3; ++i) {
+		for (auto i : xrange(3)) {
 			dst.fillLine(dstY + i, color);
 		}
 	}

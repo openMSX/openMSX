@@ -1,6 +1,7 @@
 #ifndef STRCAT_HH
 #define STRCAT_HH
 
+#include "xrange.hh"
 #include <climits>
 #include <cstring>
 #include <limits>
@@ -376,12 +377,12 @@ template<size_t N, typename T> struct ConcatFixedWidthHexIntegral
 		char* p = dst + N;
 		auto u = static_cast<FastUnsigned<T>>(t);
 
-		for (size_t i = 0; i < N; ++i) {
+		repeat(N, [&] {
 			auto d = u & 15;
 			*--p = (d < 10) ? static_cast<char>(d + '0')
 			                : static_cast<char>(d - 10 + 'a');
 			u >>= 4;
-		}
+		});
 
 		return dst + N;
 	}

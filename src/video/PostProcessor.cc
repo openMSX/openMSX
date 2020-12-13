@@ -17,8 +17,9 @@
 #include "CommandException.hh"
 #include "MemBuffer.hh"
 #include "aligned.hh"
-#include "vla.hh"
 #include "likely.hh"
+#include "vla.hh"
+#include "xrange.hh"
 #include "build-info.hh"
 #include <algorithm>
 #include <cassert>
@@ -85,7 +86,7 @@ unsigned PostProcessor::getLineWidth(
 	FrameSource* frame, unsigned y, unsigned step)
 {
 	unsigned result = frame->getLineWidth(y);
-	for (unsigned i = 1; i < step; ++i) {
+	for (auto i : xrange(1u, step)) {
 		result = std::max(result, frame->getLineWidth(y + i));
 	}
 	return result;
@@ -221,7 +222,7 @@ static void getScaledFrame(FrameSource& paintFrame, unsigned bpp,
 	unsigned pitch = width * ((bpp == 32) ? 4 : 2);
 	const void* line = nullptr;
 	void* work = nullptr;
-	for (unsigned i = 0; i < height; ++i) {
+	for (auto i : xrange(height)) {
 		if (line == work) {
 			// If work buffer was used in previous iteration,
 			// then allocate a new one.

@@ -25,6 +25,7 @@
 #include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include <cstring>
 #include <iomanip>
 #include <iostream>
@@ -115,7 +116,7 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 		// TODO also MSX2+ needs (slightly different) VDPIODelay
 		delayDevice = DeviceFactory::createVDPIODelay(
 			*motherBoard.getMachineConfig(), *this);
-		for (int port = 0x98; port <= 0x9B; ++port) {
+		for (auto port : xrange(0x98, 0x9c)) {
 			assert(IO_In [port] == dummyDevice.get());
 			assert(IO_Out[port] == dummyDevice.get());
 			IO_In [port] = delayDevice.get();
@@ -143,7 +144,7 @@ MSXCPUInterface::~MSXCPUInterface()
 	removeAllWatchPoints();
 
 	if (delayDevice) {
-		for (int port = 0x98; port <= 0x9B; ++port) {
+		for (auto port : xrange(0x98, 0x9c)) {
 			assert(IO_In [port] == delayDevice.get());
 			assert(IO_Out[port] == delayDevice.get());
 			IO_In [port] = dummyDevice.get();
@@ -154,7 +155,7 @@ MSXCPUInterface::~MSXCPUInterface()
 	msxcpu.setInterface(nullptr);
 
 	#ifndef NDEBUG
-	for (int port = 0; port < 256; ++port) {
+	for (auto port : xrange(256)) {
 		if (IO_In[port] != dummyDevice.get()) {
 			std::cout << "In-port " << port << " still registered "
 			          << IO_In[port]->getName() << '\n';
@@ -166,10 +167,10 @@ MSXCPUInterface::~MSXCPUInterface()
 			UNREACHABLE;
 		}
 	}
-	for (int primSlot = 0; primSlot < 4; ++primSlot) {
+	for (auto primSlot : xrange(4)) {
 		assert(!isExpanded(primSlot));
-		for (int secSlot = 0; secSlot < 4; ++secSlot) {
-			for (int page = 0; page < 4; ++page) {
+		for (auto secSlot : xrange(4)) {
+			for (auto page : xrange(4)) {
 				assert(slotLayout[primSlot][secSlot][page] == dummyDevice.get());
 			}
 		}
@@ -243,7 +244,7 @@ void MSXCPUInterface::writeMemSlow(word address, byte value, EmuTime::param time
 void MSXCPUInterface::setExpanded(int ps)
 {
 	if (expanded[ps] == 0) {
-		for (int page = 0; page < 4; ++page) {
+		for (auto page : xrange(4)) {
 			if (slotLayout[ps][0][page] != dummyDevice.get()) {
 				throw MSXException("Can't expand slot because "
 				                   "it's already in use.");
@@ -264,8 +265,8 @@ void MSXCPUInterface::testUnsetExpanded(
 	if (expanded[ps] != 1) return; // ok, still expanded after this
 
 	std::vector<MSXDevice*> inUse;
-	for (int ss = 0; ss < 4; ++ss) {
-		for (int page = 0; page < 4; ++page) {
+	for (auto ss : xrange(4)) {
+		for (auto page : xrange(4)) {
 			MSXDevice* device = slotLayout[ps][ss][page];
 			std::vector<MSXDevice*> devices;
 			std::vector<MSXDevice*>::iterator end_devices;
@@ -645,7 +646,7 @@ void MSXCPUInterface::fillWCache(unsigned start, unsigned size, byte* wData, int
 
 void MSXCPUInterface::reset()
 {
-	for (int i = 0; i < 4; ++i) {
+	for (auto i : xrange(4)) {
 		setSubSlot(i, 0);
 	}
 	setPrimarySlots(initialPrimarySlots);
@@ -932,7 +933,7 @@ void MSXCPUInterface::updateMemWatch(WatchPoint::Type type)
 {
 	std::bitset<CacheLine::SIZE>* watchSet =
 		(type == WatchPoint::READ_MEM) ? readWatchSet : writeWatchSet;
-	for (unsigned i = 0; i < CacheLine::NUM; ++i) {
+	for (auto i : xrange(CacheLine::NUM)) {
 		watchSet[i].reset();
 	}
 	for (auto& w : watchPoints) {
@@ -947,7 +948,7 @@ void MSXCPUInterface::updateMemWatch(WatchPoint::Type type)
 			}
 		}
 	}
-	for (unsigned i = 0; i < CacheLine::NUM; ++i) {
+	for (auto i : xrange(CacheLine::NUM)) {
 		if (readWatchSet [i].any()) {
 			disallowReadCache [i] |=  MEMORY_WATCH_BIT;
 		} else {
@@ -1251,7 +1252,7 @@ void MSXCPUInterface::serialize(Archive& ar, unsigned /*version*/)
 	// primary and 4 secondary slot select registers
 	byte prim = 0;
 	if (!ar.isLoader()) {
-		for (int i = 0; i < 4; ++i) {
+		for (auto i : xrange(4)) {
 			prim |= primarySlotState[i] << (2 * i);
 		}
 	}
@@ -1259,7 +1260,7 @@ void MSXCPUInterface::serialize(Archive& ar, unsigned /*version*/)
 	             "subSlotRegs",  subSlotRegister);
 	if (ar.isLoader()) {
 		setPrimarySlots(prim);
-		for (int i = 0; i < 4; ++i) {
+		for (auto i : xrange(4)) {
 			setSubSlot(i, subSlotRegister[i]);
 		}
 	}

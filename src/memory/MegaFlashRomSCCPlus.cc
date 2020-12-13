@@ -3,6 +3,7 @@
 #include "MSXCPUInterface.hh"
 #include "CacheLine.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <vector>
 
@@ -207,9 +208,9 @@ void MegaFlashRomSCCPlus::reset(EmuTime::param time)
 	configReg = 0;
 	offsetReg = 0;
 	subslotReg = 0;
-	for (int subslot = 0; subslot < 4; ++subslot) {
+	for (auto& regs : bankRegs) {
 		for (int bank = 0; bank < 4; ++bank) {
-			bankRegs[subslot][bank] = bank;
+			regs[bank] = bank;
 		}
 	}
 
@@ -362,7 +363,7 @@ void MegaFlashRomSCCPlus::writeMem(word addr, byte value, EmuTime::param time)
 		// write subslot register
 		byte diff = value ^ subslotReg;
 		subslotReg = value;
-		for (int i = 0; i < 4; ++i) {
+		for (auto i : xrange(4)) {
 			if (diff & (3 << (2 * i))) {
 				invalidateDeviceRCache(0x4000 * i, 0x4000);
 			}

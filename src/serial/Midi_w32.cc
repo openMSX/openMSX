@@ -31,6 +31,7 @@
 #include "MemBuffer.hh"
 #include "cstdiop.hh"
 #include "one_of.hh"
+#include "xrange.hh"
 
 #include <cstring>
 #include <cstdlib>
@@ -77,8 +78,8 @@ static char inlongmes[OPENMSX_W32_MIDI_SYSMES_MAXLEN];
 static void w32_midiDevNameConv(char *dst, char *src)
 {
 	size_t len = strlen(src);
-	size_t i;
-	for (i = 0; i < len; ++i) {
+	size_t i = 0;
+	for (/**/; i < len; ++i) {
 		if ((src[i] < '0') || (src[i] > 'z') ||
 		    ((src[i] > '9') && (src[i] < 'A')) ||
 		    ((src[i] > 'Z') && (src[i] < 'a'))) {
@@ -94,7 +95,7 @@ static void w32_midiDevNameConv(char *dst, char *src)
 // MIDI-OUT
 static int w32_midiOutFindDev(unsigned *idx, unsigned *dev, const char *vfn)
 {
-	for (unsigned i = 0; i < vfnt_midiout_num; ++i) {
+	for (auto i : xrange(vfnt_midiout_num)) {
 		if (!strcmp(vfnt_midiout[i].vfname, vfn)) {
 			*idx = i;
 			*dev = vfnt_midiout[i].devid;
@@ -130,7 +131,7 @@ int w32_midiOutInit()
 	strncpy(vfnt_midiout[0].vfname, "midi-out", MAXPATHLEN + 1);
 	vfnt_midiout_num ++;
 
-	for (unsigned i = 0; i < num; ++i) {
+	for (auto i : xrange(num)) {
 		if (midiOutGetDevCapsA(i, &cap, sizeof(cap)) != MMSYSERR_NOERROR) {
 			return 0; // atleast MIDI-MAPPER is available...
 		}
@@ -242,7 +243,7 @@ int w32_midiOutMsg(unsigned size, const uint8_t* data, unsigned idx)
 // MIDI-IN
 static int w32_midiInFindDev(unsigned *idx, unsigned *dev, const char *vfn)
 {
-	for (unsigned i = 0; i < vfnt_midiin_num; ++i) {
+	for (auto i : xrange(vfnt_midiin_num)) {
 		if (!strcmp(vfnt_midiin[i].vfname, vfn)) {
 			*idx = i;
 			*dev = vfnt_midiin[i].devid;
@@ -260,7 +261,7 @@ int w32_midiInInit()
 	if (!num) return 0;
 
 	vfnt_midiin.resize(num + 1);
-	for (unsigned i = 0; i < num; ++i) {
+	for (auto i : xrange(num)) {
 		MIDIINCAPSA cap;
 		if (midiInGetDevCapsA(i, &cap, sizeof(cap)) != MMSYSERR_NOERROR) {
 			return 1;

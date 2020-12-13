@@ -44,6 +44,7 @@
 #include "MSXException.hh"
 #include "one_of.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -73,7 +74,7 @@ MegaSCSI::MegaSCSI(const DeviceConfig& config)
 
 void MegaSCSI::reset(EmuTime::param /*time*/)
 {
-	for (int i = 0; i < 4; ++i) {
+	for (auto i : xrange(4)) {
 		setSRAM(i, 0);
 	}
 	mb89352.reset(true);

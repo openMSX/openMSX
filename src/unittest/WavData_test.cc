@@ -2,6 +2,7 @@
 #include "WavData.hh"
 #include "MemoryBufferFile.hh"
 #include "MSXException.hh"
+#include "xrange.hh"
 
 using namespace openmsx;
 
@@ -10,7 +11,7 @@ TEST_CASE("WavData, default constructor")
 	WavData wav;
 	CHECK(wav.getSize() == 0);
 	CHECK(wav.getFreq() == 0);
-	for (unsigned i = 0; i < 10; ++i) {
+	for (auto i : xrange(10)) {
 		CHECK(wav.getSample(i) == 0);
 	}
 }

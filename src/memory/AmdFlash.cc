@@ -331,7 +331,7 @@ bool AmdFlash::checkCommandProgramHelper(unsigned numBytes, const byte* cmdSeq, 
 {
 	if (partialMatch(cmdLen, cmdSeq)) {
 		if (cmdIdx < (cmdLen + numBytes)) return true;
-		for (auto i = cmdLen; i < (cmdLen + numBytes); ++i) {
+		for (auto i : xrange(cmdLen, cmdLen + numBytes)) {
 			unsigned addr = cmd[i].addr;
 			auto [sector, sectorSize, offset] = getSectorInfo(addr);
 			if (isSectorWritable(sector)) {
@@ -379,8 +379,7 @@ bool AmdFlash::partialMatch(size_t len, const byte* dataSeq) const
 	unsigned cmdAddr[2] = { 0x555, 0x2aa };
 
 	assert(len <= 5);
-	unsigned n = std::min(unsigned(len), cmdIdx);
-	for (unsigned i = 0; i < n; ++i) {
+	for (auto i : xrange(std::min(unsigned(len), cmdIdx))) {
 		// convert the address to the '11 bit case'
 		unsigned addr = use12bitAddressing ? cmd[i].addr >> 1 : cmd[i].addr;
 		if (((addr & 0x7FF) != cmdAddr[addrSeq[i]]) ||

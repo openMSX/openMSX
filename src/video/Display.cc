@@ -29,6 +29,7 @@
 #include "stl.hh"
 #include "unreachable.hh"
 #include "view.hh"
+#include "xrange.hh"
 #include <cassert>
 
 using std::string;
@@ -49,10 +50,10 @@ Display::Display(Reactor& reactor_)
 	, switchInProgress(false)
 {
 	frameDurationSum = 0;
-	for (unsigned i = 0; i < NUM_FRAME_DURATIONS; ++i) {
+	repeat(NUM_FRAME_DURATIONS, [&] {
 		frameDurations.addFront(20);
 		frameDurationSum += 20;
-	}
+	});
 	prevTimeStamp = Timer::getTime();
 
 	EventDistributor& eventDistributor = reactor.getEventDistributor();

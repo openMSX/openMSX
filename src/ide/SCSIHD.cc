@@ -28,6 +28,7 @@
 #include "endian.hh"
 #include "one_of.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <algorithm>
 #include <cstring>
 
@@ -277,7 +278,7 @@ unsigned SCSIHD::readSectors(unsigned& blocks)
 	unsigned counter = currentLength * SECTOR_SIZE;
 
 	try {
-		for (unsigned i = 0; i < numSectors; ++i) {
+		for (auto i : xrange(numSectors)) {
 			auto* sbuf = aligned_cast<SectorBuffer*>(buffer);
 			readSector(currentSector, sbuf[i]);
 			++currentSector;
@@ -311,7 +312,7 @@ unsigned SCSIHD::writeSectors(unsigned& blocks)
 	unsigned numSectors = std::min(currentLength, BUFFER_BLOCK_SIZE);
 
 	try {
-		for (unsigned i = 0; i < numSectors; ++i) {
+		for (auto i : xrange(numSectors)) {
 			const auto* sbuf = aligned_cast<const SectorBuffer*>(buffer);
 			writeSector(currentSector, sbuf[i]);
 			++currentSector;

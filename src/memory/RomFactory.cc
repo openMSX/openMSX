@@ -60,6 +60,7 @@
 #include "XMLElement.hh"
 #include "MSXException.hh"
 #include "one_of.hh"
+#include "xrange.hh"
 #include <memory>
 
 using std::make_unique;
@@ -107,7 +108,7 @@ namespace openmsx::RomFactory {
 		//  occur.
 
 		unsigned typeGuess[ROM_LAST] = {}; // 0-initialized
-		for (int i = 0; i < size - 3; ++i) {
+		for (auto i : xrange(size - 3)) {
 			if (data[i] == 0x32) {
 				word value = data[i + 1] + (data[i + 2] << 8);
 				switch (value) {

@@ -14,6 +14,7 @@ Visit the Scale2x site for info:
 #include "FrameSource.hh"
 #include "ScalerOutput.hh"
 #include "vla.hh"
+#include "xrange.hh"
 #include "build-info.hh"
 #include <cstdint>
 
@@ -56,7 +57,7 @@ void Scale3xScaler<Pixel>::scaleLine1on3Half(
 	       ? top : mid;
 
 	// Central pixels.
-	for (unsigned x = 1; x < srcWidth - 1; ++x) {
+	for (auto x : xrange(1u, srcWidth - 1)) {
 		Pixel left = mid;
 		mid   = right;
 		right = src1[x + 1];
@@ -119,7 +120,7 @@ void Scale3xScaler<Pixel>::scaleLine1on3Mid(
 	       ? right : mid;
 
 	// Central pixels.
-	for (unsigned x = 1; x < srcWidth - 1; ++x) {
+	for (auto x : xrange(1u, srcWidth - 1)) {
 		Pixel left = mid;
 		mid   = right;
 		right = src1[x + 1];

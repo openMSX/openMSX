@@ -11,6 +11,7 @@
 #include "TclObject.hh"
 #include "utf8_unchecked.hh"
 #include "view.hh"
+#include "xrange.hh"
 
 using std::vector;
 using std::string;
@@ -46,7 +47,7 @@ static bool formatHelper(const vector<string_view>& input, size_t columnLimit,
 static vector<string> format(const vector<string_view>& input, size_t columnLimit)
 {
 	vector<string> result;
-	for (size_t lines = 1; lines < input.size(); ++lines) {
+	for (auto lines : xrange(1u, input.size())) {
 		result.assign(lines, string());
 		if (formatHelper(input, columnLimit, result)) {
 			return result;

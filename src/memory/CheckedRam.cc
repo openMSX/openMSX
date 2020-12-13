@@ -5,6 +5,7 @@
 #include "GlobalSettings.hh"
 #include "StringSetting.hh"
 #include "likely.hh"
+#include "xrange.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -61,7 +62,7 @@ byte* CheckedRam::getRWCacheLines(unsigned addr, unsigned size) const
 	// TODO optimize
 	unsigned num = size >> CacheLine::BITS;
 	unsigned first = addr >> CacheLine::BITS;
-	for (unsigned i = 0; i < num; ++i) {
+	for (auto i : xrange(num)) {
 		if (!completely_initialized_cacheline[first + i]) {
 			return nullptr;
 		}

@@ -336,7 +336,7 @@ WINDRES?=windres
 DEPEND_FLAGS:=
 ifneq ($(filter %clang++,$(CXX))$(filter clang++%,$(CXX)),)
   # Enable C++17 (for the most part supported since clang-5)
-  COMPILE_FLAGS+=-std=c++17
+  COMPILE_FLAGS+=-std=c++17 -fconstexpr-steps=2000000
   COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion -Wmissing-declarations -Wshadow -Wold-style-cast -Wzero-as-null-pointer-constant
   # Hardware descriptions can contain constants that are not used in the code
   # but still useful as documentation.

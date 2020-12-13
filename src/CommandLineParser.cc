@@ -257,10 +257,9 @@ void CommandLineParser::parse(int argc, char** argv)
 						if (auto it = ranges::lower_bound(options, arg, CmpOptions());
 						    (it != end(options)) && (it->first == arg)) {
 							for (unsigned i = 0; i < it->second.length - 1; ++i) {
-								if (!cmdLine.empty()) {
-									backupCmdLine.push_back(std::move(cmdLine.front()));
-									cmdLine = cmdLine.subspan(1);
-								}
+								if (cmdLine.empty()) break;
+								backupCmdLine.push_back(std::move(cmdLine.front()));
+								cmdLine = cmdLine.subspan(1);
 							}
 						}
 					}

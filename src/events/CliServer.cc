@@ -7,6 +7,7 @@
 #include "random.hh"
 #include "statp.hh"
 #include "StringOp.hh"
+#include "xrange.hh"
 #include <memory>
 #include <string>
 
@@ -106,7 +107,7 @@ namespace openmsx {
 
 	int first = random_int(0, RANGE - 1); // [0, RANGE)
 
-	for (int n = 0; n < RANGE; ++n) {
+	for (auto n : xrange(RANGE)) {
 		int port = BASE + ((first + n) % RANGE);
 		sockaddr_in server_address;
 		memset(&server_address, 0, sizeof(server_address));

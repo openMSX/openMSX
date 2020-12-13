@@ -2,6 +2,7 @@
 #include "ResampledSoundDevice.hh"
 #include "likely.hh"
 #include "ranges.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <cstring>
 #include <memory>
@@ -84,7 +85,7 @@ bool ResampleLQ<CHANNELS>::fetchData(EmuTime::param time, unsigned& valid)
 		}
 		memset(&buffer[CHANNELS], 0, emuNum * CHANNELS * sizeof(float));
 	}
-	for (unsigned j = 0; j < 2 * CHANNELS; ++j) {
+	for (auto j : xrange(2 * CHANNELS)) {
 		buffer[j] = lastInput[j];
 		lastInput[j] = buffer[emuNum * CHANNELS + j];
 	}
@@ -119,10 +120,10 @@ bool ResampleLQUp<CHANNELS>::generateOutputImpl(
 	// sound quality is not so important here, so use 0-th order
 	// interpolation (instead of 1st-order).
 	auto* buffer = &aBuffer[4 - 2 * CHANNELS];
-	for (unsigned i = 0; i < hostNum; ++i) {
+	for (auto i : xrange(hostNum)) {
 		unsigned p = pos.toInt();
 		assert(p < valid);
-		for (unsigned j = 0; j < CHANNELS; ++j) {
+		for (auto j : xrange(CHANNELS)) {
 			dataOut[i * CHANNELS + j] = buffer[p * CHANNELS + j];
 		}
 		pos += this->step;
@@ -155,11 +156,11 @@ bool ResampleLQDown<CHANNELS>::generateOutputImpl(
 	if (!this->fetchData(time, valid)) return false;
 
 	auto* buffer = &aBuffer[4 - 2 * CHANNELS];
-	for (unsigned i = 0; i < hostNum; ++i) {
+	for (auto i : xrange(hostNum)) {
 		unsigned p = pos.toInt();
 		assert((p + 1) < valid);
 		FP fract = pos.fract();
-		for (unsigned j = 0; j < CHANNELS; ++j) {
+		for (auto j : xrange(CHANNELS)) {
 			auto s0 = buffer[(p + 0) * CHANNELS + j];
 			auto s1 = buffer[(p + 1) * CHANNELS + j];
 			auto out = s0 + (fract.toFloat() * (s1 - s0));

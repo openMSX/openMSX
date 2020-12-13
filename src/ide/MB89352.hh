@@ -44,7 +44,9 @@ private:
 	[[nodiscard]] byte getSSTS() const;
 
 private:
-	std::unique_ptr<SCSIDevice> dev[8];
+	static constexpr unsigned MAX_DEV = 8;
+
+	std::unique_ptr<SCSIDevice> dev[MAX_DEV];
 	AlignedByteArray<SCSIDevice::BUFFER_SIZE> buffer; // buffer for transfer
 	unsigned cdbIdx;                // cdb index
 	unsigned bufIdx;                // buffer index

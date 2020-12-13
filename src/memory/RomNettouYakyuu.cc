@@ -40,7 +40,9 @@
 
 #include "RomNettouYakyuu.hh"
 #include "FileOperations.hh"
+#include "ranges.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 
 namespace openmsx {
 
@@ -60,13 +62,13 @@ void RomNettouYakyuu::reset(EmuTime::param /*time*/)
 	// ASCII8 behaviour
 	setUnmapped(0);
 	setUnmapped(1);
-	for (int i = 2; i < 6; i++) {
+	for (auto i : xrange(2, 6)) {
 		setRom(i, 0);
-		redirectToSamplePlayer[i - 2] = false;
 	}
 	setUnmapped(6);
 	setUnmapped(7);
 
+	ranges::fill(redirectToSamplePlayer, false);
 	samplePlayer.reset();
 }
 

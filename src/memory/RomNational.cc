@@ -3,6 +3,7 @@
 #include "SRAM.hh"
 #include "one_of.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <memory>
 
 namespace openmsx {
@@ -17,7 +18,7 @@ RomNational::RomNational(const DeviceConfig& config, Rom&& rom_)
 void RomNational::reset(EmuTime::param /*time*/)
 {
 	control = 0;
-	for (int region = 0; region < 4; ++region) {
+	for (auto region : xrange(4)) {
 		setRom(region, 0);
 		bankSelect[region] = 0;
 		invalidateDeviceRCache((region * 0x4000) + (0x3FF0 & CacheLine::HIGH),

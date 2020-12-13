@@ -5,6 +5,7 @@
 #include "outer.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -198,14 +199,14 @@ void MSXMidi::registerIOports(byte value)
 
 void MSXMidi::registerRange(byte port, unsigned num)
 {
-	for (unsigned i = 0; i < num; ++i) {
+	for (auto i : xrange(num)) {
 		getCPUInterface().register_IO_In (port + i, this);
 		getCPUInterface().register_IO_Out(port + i, this);
 	}
 }
 void MSXMidi::unregisterRange(byte port, unsigned num)
 {
-	for (unsigned i = 0; i < num; ++i) {
+	for (auto i : xrange(num)) {
 		getCPUInterface().unregister_IO_In (port + i, this);
 		getCPUInterface().unregister_IO_Out(port + i, this);
 	}

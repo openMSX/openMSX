@@ -5,6 +5,7 @@
 #include "serialize_stl.hh"
 #include "one_of.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include <algorithm>
 #include <cassert>
 #include <cctype>
@@ -445,7 +446,7 @@ void NowindHost::transferSectors(unsigned transferAddress, unsigned amount)
 	send16(amount);
 
 	auto* bufferPointer = buffer[0].raw + transferred;
-	for (unsigned i = 0; i < amount; ++i) {
+	for (auto i : xrange(amount)) {
 		send(bufferPointer[i]);
 	}
 	send(0xAF);
@@ -528,7 +529,7 @@ void NowindHost::doDiskWrite2()
 {
 	assert(recvCount == (transferSize + 2));
 	auto* buf = buffer[0].raw + transferred;
-	for (unsigned i = 0; i < transferSize; ++i) {
+	for (auto i : xrange(transferSize)) {
 		buf[i] = extraData[i + 1];
 	}
 
@@ -566,7 +567,7 @@ unsigned NowindHost::getFCB() const
 string NowindHost::extractName(int begin, int end) const
 {
 	string result;
-	for (int i = begin; i < end; ++i) {
+	for (auto i : xrange(begin, end)) {
 		char c = extraData[i];
 		if (c == ' ') break;
 		result += char(toupper(c));
@@ -725,7 +726,7 @@ unsigned NowindHost::readHelper1(unsigned dev, char* buf)
 
 void NowindHost::readHelper2(unsigned len, const char* buf)
 {
-	for (unsigned i = 0; i < len; ++i) {
+	for (auto i : xrange(len)) {
 		send(buf[i]);
 	}
 	if (len < 256) {

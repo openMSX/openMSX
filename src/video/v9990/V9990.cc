@@ -7,6 +7,7 @@
 #include "Reactor.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <cstring>
 #include <memory>
@@ -73,7 +74,7 @@ V9990::V9990(const DeviceConfig& config)
 	calcDisplayMode();
 
 	// initialize palette
-	for (int i = 0; i < 64; ++i) {
+	for (auto i : xrange(64)) {
 		palette[4 * i + 0] = 0x9F;
 		palette[4 * i + 1] = 0x1F;
 		palette[4 * i + 2] = 0x1F;
@@ -376,7 +377,7 @@ void V9990::writeIO(word port, byte val, EmuTime::param time)
 					// Enter systemReset mode
 					//   Verified on real MSX: palette data
 					//   and VRAM content are NOT reset.
-					for (int i = 0; i < 64; ++i) {
+					for (auto i : xrange(64)) {
 						writeRegister(i, 0, time);
 					}
 					// TODO verify IRQ behaviour

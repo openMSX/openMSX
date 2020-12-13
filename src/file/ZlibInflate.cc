@@ -1,6 +1,7 @@
 #include "ZlibInflate.hh"
 #include "FileException.hh"
 #include "MemBuffer.hh"
+#include "xrange.hh"
 #include <limits>
 
 namespace openmsx {
@@ -30,9 +31,7 @@ ZlibInflate::~ZlibInflate()
 
 void ZlibInflate::skip(size_t num)
 {
-	for (size_t i = 0; i < num; ++i) {
-		(void)getByte();
-	}
+	repeat(num, [&] { (void)getByte(); });
 }
 
 uint8_t ZlibInflate::getByte()
@@ -65,9 +64,7 @@ std::string ZlibInflate::getString(size_t len)
 {
 	std::string result;
 	result.reserve(len);
-	for (size_t i = 0; i < len; ++i) {
-		result.push_back(getByte());
-	}
+	repeat(len, [&] { result.push_back(getByte()); });
 	return result;
 }
 

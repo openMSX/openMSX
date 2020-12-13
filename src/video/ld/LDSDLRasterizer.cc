@@ -41,7 +41,7 @@ void LDSDLRasterizer<Pixel>::drawBlank(int r, int g, int b)
 	// here, like the real laserdisc player does. Note that this
 	// changes when seeking or starting to play.
 	auto background = static_cast<Pixel>(workFrame->getPixelFormat().map(r, g, b));
-	for (int y = 0; y < 480; ++y) {
+	for (auto y : xrange(480)) {
 		workFrame->setBlank(y, background);
 	}
 }

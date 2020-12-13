@@ -185,16 +185,15 @@ uint32_t prior(octet_iterator& it, octet_iterator start)
 template<typename octet_iterator, typename distance_type>
 void advance(octet_iterator& it, distance_type n, octet_iterator end)
 {
-	for (distance_type i = 0; i < n; ++i) {
-		next(it, end);
-	}
+	repeat(n, [&] {	next(it, end); });
 }
 
 template<typename octet_iterator>
 [[nodiscard]] auto distance(octet_iterator first, octet_iterator last)
 {
-	typename std::iterator_traits<octet_iterator>::difference_type dist;
-	for (dist = 0; first < last; ++dist) {
+	typename std::iterator_traits<octet_iterator>::difference_type dist = 0;
+	while (first < last) {
+		++dist;
 		next(first, last);
 	}
 	return dist;

@@ -4,6 +4,7 @@
 #include "one_of.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 
 namespace openmsx {
 
@@ -77,7 +78,7 @@ RomPlain::RomPlain(const DeviceConfig& config, Rom&& rom_, RomType type)
 
 	unsigned firstPage = romBase / 0x2000;
 	unsigned numPages = romSize / 0x2000;
-	for (unsigned page = 0; page < 8; ++page) {
+	for (auto page : xrange(8)) {
 		unsigned romPage = page - firstPage;
 		if (romPage < numPages) {
 			setRom(page, romPage);
@@ -109,11 +110,9 @@ RomPlain::RomPlain(const DeviceConfig& config, Rom&& rom_, RomType type)
 void RomPlain::guessHelper(unsigned offset, int* pages)
 {
 	if ((rom[offset++] == 'A') && (rom[offset++] =='B')) {
-		for (int i = 0; i < 4; i++) {
-			word addr = rom[offset + 0] +
-			            rom[offset + 1] * 256;
-			offset += 2;
-			if (addr) {
+		for (auto i : xrange(4)) {
+			if (word addr = rom[offset + 2 * i + 0] +
+			                rom[offset + 2 * i + 1] * 256) {
 				int page = (addr >> 14) - (offset >> 14);
 				if ((0 <= page) && (page <= 2)) {
 					pages[page]++;

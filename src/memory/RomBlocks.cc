@@ -4,6 +4,7 @@
 #include "Math.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 
 namespace openmsx {
 
@@ -41,7 +42,7 @@ RomBlocks<BANK_SIZE>::RomBlocks(
 
 	// Default mask: wraps at end of ROM image.
 	blockMask = nrBlocks - 1;
-	for (unsigned i = 0; i < NUM_BANKS; i++) {
+	for (auto i : xrange(NUM_BANKS)) {
 		setRom(i, 0);
 	}
 }
@@ -129,7 +130,7 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 	unsigned sramSize = sram ? sram->getSize() : 0;
 	if (ar.isLoader()) {
 		ar.serialize("banks", offsets);
-		for (unsigned i = 0; i < NUM_BANKS; ++i) {
+		for (auto i : xrange(NUM_BANKS)) {
 			if (offsets[i] == unsigned(-1)) {
 				bankPtr[i] = unmappedRead;
 			} else if (offsets[i] < romSize) {
@@ -145,7 +146,7 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 			}
 		}
 	} else {
-		for (unsigned i = 0; i < NUM_BANKS; ++i) {
+		for (auto i : xrange(NUM_BANKS)) {
 			if (bankPtr[i] == unmappedRead) {
 				offsets[i] = unsigned(-1);
 			} else if ((&rom[0] <= bankPtr[i]) &&
@@ -171,9 +172,7 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 	} else {
 		assert(ar.isLoader());
 		// set dummy value, anyway only used for debuggable
-		for (unsigned i = 0; i < NUM_BANKS; ++i) {
-			blockNr[i] = 255;
-		}
+		ranges::fill(blockNr, 255);
 	}*/
 }
 

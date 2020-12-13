@@ -15,6 +15,7 @@
 #include "stl.hh"
 #include "unreachable.hh"
 #include "view.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <cstring>
 #include <iterator> // for back_inserter
@@ -334,7 +335,7 @@ void MSXDevice::registerPorts()
 		    (type != one_of("I", "O", "IO"))) {
 			throw MSXException("Invalid IO port specification");
 		}
-		for (unsigned port = base; port < base + num; ++port) {
+		for (auto port : xrange(base, base + num)) {
 			if (type == one_of("I", "IO")) {
 				getCPUInterface().register_IO_In(port, this);
 				inPorts.push_back(port);

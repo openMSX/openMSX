@@ -131,7 +131,7 @@ inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 		int y = attributePtr[4 * sprite + 0];
 		if (y == 208) break;
 
-		for (int line = minLine; line < maxLine; ++line) {
+		for (int line = minLine; line < maxLine; ++line) { // 'line' changes in loop
 			// Calculate line number within the sprite.
 			int displayLine = line + displayDelta;
 			int spriteLine = (displayLine - y) & 0xFF;
@@ -205,7 +205,7 @@ inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 	If any collision is found, method returns at once.
 	*/
 	bool can0collide = vdp.canSpriteColor0Collide();
-	for (int line = minLine; line < maxLine; ++line) {
+	for (auto line : xrange(minLine, maxLine)) {
 		int minXCollision = 999;
 		for (int i = std::min<int>(4, spriteCount[line]); --i >= 1; /**/) {
 			auto color1 = spriteBuffer[line][i].colorAttrib & 0xf;
@@ -298,7 +298,7 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 			int y = attributePtr0[2 * sprite + 0];
 			if (y == 216) break;
 
-			for (int line = minLine; line < maxLine; ++line) {
+			for (int line = minLine; line < maxLine; ++line) { // 'line' changes in loop
 				// Calculate line number within the sprite.
 				int displayLine = line + displayDelta;
 				int spriteLine = (displayLine - y) & 0xFF;
@@ -343,7 +343,7 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 			int y = attributePtr0[4 * sprite + 0];
 			if (y == 216) break;
 
-			for (int line = minLine; line < maxLine; ++line) {
+			for (int line = minLine; line < maxLine; ++line) { // 'line' changes in loop
 				// Calculate line number within the sprite.
 				int displayLine = line + displayDelta;
 				int spriteLine = (displayLine - y) & 0xFF;
@@ -438,7 +438,7 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 	        Probably new approach is needed anyway for OR-ing.
 	*/
 	bool can0collide = vdp.canSpriteColor0Collide();
-	for (int line = minLine; line < maxLine; ++line) {
+	for (auto line : xrange(minLine, maxLine)) {
 		int minXCollision = 999; // no collision
 		SpriteInfo* visibleSprites = spriteBuffer[line];
 		for (int i = std::min<int>(8, spriteCount[line]); --i >= 1; /**/) {

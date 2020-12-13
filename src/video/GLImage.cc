@@ -4,6 +4,7 @@
 #include "MSXException.hh"
 #include "Math.hh"
 #include "PNG.hh"
+#include "xrange.hh"
 #include "build-info.hh"
 #include <cstdlib>
 #include <SDL.h>
@@ -78,7 +79,7 @@ GLImage::GLImage(OutputSurface& /*output*/, ivec2 size_, unsigned rgba)
 	size = size_;
 	borderSize = 0;
 	borderR = borderG = borderB = borderA = 0; // not used, but avoid (harmless) UMR
-	for (int i = 0; i < 4; ++i) {
+	for (auto i : xrange(4)) {
 		bgR[i] = (rgba >> 24) & 0xff;
 		bgG[i] = (rgba >> 16) & 0xff;
 		bgB[i] = (rgba >>  8) & 0xff;
@@ -88,14 +89,14 @@ GLImage::GLImage(OutputSurface& /*output*/, ivec2 size_, unsigned rgba)
 	initBuffers();
 }
 
-GLImage::GLImage(OutputSurface& /*output*/, ivec2 size_, const unsigned* rgba,
+GLImage::GLImage(OutputSurface& /*output*/, ivec2 size_, span<const unsigned, 4> rgba,
                  int borderSize_, unsigned borderRGBA)
 	: texture(gl::Null())
 {
 	checkSize(size_);
 	size = size_;
 	borderSize = borderSize_;
-	for (int i = 0; i < 4; ++i) {
+	for (auto i : xrange(4)) {
 		bgR[i] = (rgba[i] >> 24) & 0xff;
 		bgG[i] = (rgba[i] >> 16) & 0xff;
 		bgB[i] = (rgba[i] >>  8) & 0xff;

@@ -21,6 +21,7 @@
 #include "one_of.hh"
 #include "outer.hh"
 #include "random.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <cstring>
 #include <iostream>
@@ -73,7 +74,7 @@ constexpr auto AY8910EnvelopeTab = [] {
 constexpr auto volumeTab = [] {
 	std::array<float, 16> result = {};
 	result[0] = 0.0f;
-	for (int i = 1; i < 16; ++i) {
+	for (auto i : xrange(1, 16)) {
 		result[i] = YM2149EnvelopeTab[2 * i + 1];
 	}
 	return result;
@@ -89,7 +90,7 @@ static void initDetune()
 	auto& generator = global_urng(); // fast (non-cryptographic) random numbers
 	std::uniform_real_distribution<float> distribution(-1.0f, 1.0f);
 
-	for (int i = 0; i < 256; ++i) {
+	for (auto i : xrange(256)) {
 		noiseTab[i] = distribution(generator);
 	}
 	noiseTab[256] = noiseTab[0];
@@ -303,16 +304,16 @@ AY8910::Amplitude::Amplitude(const DeviceConfig& config)
 
 	if (false) {
 		std::cout << "YM2149Envelope:";
-		for (int i = 0; i < 32; ++i) {
-			std::cout << ' ' << std::hexfloat << YM2149EnvelopeTab[i];
+		for (const auto& e : YM2149EnvelopeTab) {
+			std::cout << ' ' << std::hexfloat << e;
 		}
 		std::cout << "\nAY8910Envelope:";
-		for (int i = 0; i < 32; ++i) {
-			std::cout << ' ' << std::hexfloat << AY8910EnvelopeTab[i];
+		for (const auto& e : AY8910EnvelopeTab) {
+			std::cout << ' ' << std::hexfloat << e;
 		}
 		std::cout << "\nvolume:";
-		for (int i = 0; i < 16; ++i) {
-			std::cout << ' ' << std::hexfloat << volumeTab[i];
+		for (const auto& e : volumeTab) {
+			std::cout << ' ' << std::hexfloat << e;
 		}
 		std::cout << '\n';
 	}
@@ -530,7 +531,7 @@ void AY8910::reset(EmuTime::param time)
 	noise.reset();
 	envelope.reset();
 	// Reset registers and values derived from them.
-	for (unsigned reg = 0; reg <= 15; ++reg) {
+	for (auto reg : xrange(16)) {
 		wrtReg(reg, 0, time);
 	}
 }
@@ -682,7 +683,7 @@ void AY8910::generateChannels(float** bufs, unsigned num)
 	// Disable channels with volume 0: since the sample value doesn't matter,
 	// we can use the fastest path.
 	unsigned chanEnable = regs[AY_ENABLE];
-	for (unsigned chan = 0; chan < 3; ++chan) {
+	for (auto chan : xrange(3)) {
 		if ((!amplitude.followsEnvelope(chan) &&
 		     (amplitude.getVolume(chan) == 0.0f)) ||
 		    (amplitude.followsEnvelope(chan) &&
@@ -1013,7 +1014,7 @@ void AY8910::serialize(Archive& ar, unsigned /*version*/)
 
 	// amplitude
 	if (ar.isLoader()) {
-		for (int i = 0; i < 3; ++i) {
+		for (auto i : xrange(3)) {
 			amplitude.setChannelVolume(i, regs[i + AY_AVOL]);
 		}
 	}

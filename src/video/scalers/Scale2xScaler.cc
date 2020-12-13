@@ -15,6 +15,7 @@ Visit the Scale2x site for info:
 #include "ScalerOutput.hh"
 #include "unreachable.hh"
 #include "vla.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
@@ -248,7 +249,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on2(
 	dst[1] = (right == src0[0] && src2[0] != src0[0]) ? src0[0] : mid;
 
 	// Central pixels.
-	for (size_t x = 1; x < srcWidth - 1; ++x) {
+	for (auto x : xrange(1u, srcWidth - 1)) {
 		Pixel left = mid;
 		mid   = right;
 		right = src1[x + 1];
@@ -296,7 +297,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on1(
 	dst[0] = mid;
 
 	// Central pixels.
-	for (size_t x = 1; x < srcWidth - 1; ++x) {
+	for (auto x : xrange(1u, srcWidth - 1)) {
 		Pixel left = mid;
 		mid   = right;
 		right = src1[x + 1];

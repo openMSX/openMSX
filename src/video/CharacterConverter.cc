@@ -10,6 +10,7 @@ TODO:
 #include "CharacterConverter.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
+#include "xrange.hh"
 #include "build-info.hh"
 #include "components.hh"
 #include <cstdint>
@@ -154,7 +155,7 @@ void CharacterConverter<Pixel>::renderText1(
 	//       correctly. Therefore we read one character at a time.
 	unsigned nameStart = (line / 8) * 40;
 	unsigned nameEnd = nameStart + 40;
-	for (unsigned name = nameStart; name < nameEnd; ++name) {
+	for (auto name : xrange(nameStart, nameEnd)) {
 		unsigned charcode = vram.nameTable.readNP((name + 0xC00) | (~0u << 12));
 		unsigned pattern = patternArea[charcode * 8];
 		draw6(pixelPtr, fg, bg, pattern);
@@ -176,7 +177,7 @@ void CharacterConverter<Pixel>::renderText1Q(
 	unsigned nameStart = (line / 8) * 40;
 	unsigned nameEnd = nameStart + 40;
 	unsigned patternQuarter = (line & 0xC0) << 2;
-	for (unsigned name = nameStart; name < nameEnd; ++name) {
+	for (auto name : xrange(nameStart, nameEnd)) {
 		unsigned charcode = vram.nameTable.readNP((name + 0xC00) | (~0u << 12));
 		unsigned patternNr = patternQuarter | charcode;
 		unsigned pattern = vram.patternTable.readNP(
@@ -207,7 +208,7 @@ void CharacterConverter<Pixel>::renderText2(
 
 	unsigned colorStart = (line / 8) * (80 / 8);
 	unsigned nameStart  = (line / 8) * 80;
-	for (unsigned i = 0; i < (80 / 8); ++i) {
+	for (auto i : xrange(80 / 8)) {
 		unsigned colorPattern = vram.colorTable.readNP(
 			(colorStart + i) | (~0u << 9));
 		const byte* nameArea = vram.nameTable.getReadArea(
@@ -265,7 +266,7 @@ void CharacterConverter<Pixel>::renderGraphic1(
 
 	int scroll = vdp.getHorizontalScrollHigh();
 	const byte* namePtr = getNamePtr(line, scroll);
-	for (unsigned n = 0; n < 32; ++n) {
+	repeat(32, [&] {
 		unsigned charcode = namePtr[scroll & 0x1F];
 		unsigned pattern = patternArea[charcode * 8];
 		unsigned color = colorArea[charcode / 8];
@@ -273,7 +274,7 @@ void CharacterConverter<Pixel>::renderGraphic1(
 		Pixel bg = palFg[color & 0x0F];
 		draw8(pixelPtr, fg, bg, pattern);
 		if (!(++scroll & 0x1F)) namePtr = getNamePtr(line, scroll);
-	}
+	});
 }
 
 template<typename Pixel>
@@ -293,7 +294,7 @@ void CharacterConverter<Pixel>::renderGraphic2(
 		// This is very common, so make an optimized version for this.
 		const byte* patternArea = vram.patternTable.getReadArea(quarter8, 8 * 256) + line7;
 		const byte* colorArea   = vram.colorTable  .getReadArea(quarter8, 8 * 256) + line7;
-		for (unsigned n = 0; n < 32; ++n) {
+		for (auto n : xrange(32)) {
 			unsigned charCode8 = namePtr[n] * 8;
 			unsigned pattern = patternArea[charCode8];
 			unsigned color   = colorArea  [charCode8];
@@ -307,7 +308,7 @@ void CharacterConverter<Pixel>::renderGraphic2(
 		// - there is mirroring in the pattern table (TMS9929)
 		// - V9958 horizontal scroll feature is used
 		int baseLine = (~0u << 13) | quarter8 | line7;
-		for (unsigned n = 0; n < 32; ++n) {
+		repeat(32, [&] {
 			unsigned charCode8 = namePtr[scroll & 0x1F] * 8;
 			unsigned index = charCode8 | baseLine;
 			unsigned pattern = vram.patternTable.readNP(index);
@@ -316,7 +317,7 @@ void CharacterConverter<Pixel>::renderGraphic2(
 			Pixel bg = palFg[color & 0x0F];
 			draw8(pixelPtr, fg, bg, pattern);
 			if (!(++scroll & 0x1F)) namePtr = getNamePtr(line, scroll);
-		}
+		});
 	}
 }
 
@@ -328,7 +329,7 @@ void CharacterConverter<Pixel>::renderMultiHelper(
 	unsigned baseLine = mask | ((line / 4) & 7);
 	unsigned scroll = vdp.getHorizontalScrollHigh();
 	const byte* namePtr = getNamePtr(line, scroll);
-	for (unsigned n = 0; n < 32; ++n) {
+	repeat(32, [&] {
 		unsigned patternNr = patternQuarter | namePtr[scroll & 0x1F];
 		unsigned color = vram.patternTable.readNP((patternNr * 8) | baseLine);
 		Pixel cl = palFg[color >> 4];
@@ -339,7 +340,7 @@ void CharacterConverter<Pixel>::renderMultiHelper(
 		pixelPtr[6] = cr; pixelPtr[7] = cr;
 		pixelPtr += 8;
 		if (!(++scroll & 0x1F)) namePtr = getNamePtr(line, scroll);
-	}
+	});
 }
 template<typename Pixel>
 void CharacterConverter<Pixel>::renderMulti(
@@ -364,12 +365,16 @@ void CharacterConverter<Pixel>::renderBogus(
 {
 	Pixel fg = palFg[vdp.getForegroundColor()];
 	Pixel bg = palFg[vdp.getBackgroundColor()];
-	for (int n = 8; n--; ) *pixelPtr++ = bg;
-	for (int c = 40; c--; ) {
-		for (int n = 4; n--; ) *pixelPtr++ = fg;
-		for (int n = 2; n--; ) *pixelPtr++ = bg;
-	}
-	for (int n = 8; n--; ) *pixelPtr++ = bg;
+	auto draw = [&](int n, Pixel col) {
+		pixelPtr = std::fill_n(pixelPtr, n, col);
+
+	};
+	draw(8, bg);
+	repeat(40, [&] {
+		draw(4, fg);
+		draw(2, bg);
+	});
+	draw(8, bg);
 }
 
 template<typename Pixel>
@@ -378,7 +383,7 @@ void CharacterConverter<Pixel>::renderBlank(
 {
 	// when this is in effect, the VRAM is not refreshed anymore, but that
 	// is not emulated
-	for (int n = 256; n--; ) *pixelPtr++ = palFg[15];
+	std::fill_n(pixelPtr, 256, palFg[15]);
 }
 
 // Force template instantiation.

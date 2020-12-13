@@ -44,6 +44,7 @@
 #include "cstd.hh"
 #include "outer.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <array>
 #include <cmath>
 #include <cstring>
@@ -367,7 +368,7 @@ constexpr int ENV_QUIET = TL_TAB_LEN >> 4;
 constexpr auto tlTab = [] {
 	std::array<int, TL_TAB_LEN> result = {};
 	// this _is_ different from OPL2 (verified on real YMF262)
-	for (int x = 0; x < TL_RES_LEN; x++) {
+	for (auto x : xrange(TL_RES_LEN)) {
 		double m = (1 << 16) / cstd::exp2<6>((x + 1) * (ENV_STEP / 4.0) / 8.0);
 
 		// we never reach (1<<16) here due to the (x+1)
@@ -380,7 +381,7 @@ constexpr auto tlTab = [] {
 		result[x * 2 + 0] = n;
 		result[x * 2 + 1] = ~result[x * 2 + 0];
 
-		for (int i = 1; i < 13; i++) {
+		for (int i : xrange(1, 13)) {
 			result[x * 2 + 0 + i * 2 * TL_RES_LEN] =
 			        result[x * 2 + 0] >> i;
 			result[x * 2 + 1 + i * 2 * TL_RES_LEN] =
@@ -401,7 +402,7 @@ static constexpr SinTab getSinTab()
 {
 	SinTab sin = {};
 
-	for (int i = 0; i < SIN_LEN / 4; i++) {
+	for (auto i : xrange(SIN_LEN / 4)) {
 		// non-standard sinus
 		double m = cstd::sin<2>(((i * 2) + 1) * M_PI / SIN_LEN); // checked against the real chip
 		// we never reach zero here due to ((i * 2) + 1)
@@ -412,14 +413,14 @@ static constexpr SinTab getSinTab()
 		n = (n >> 1) + (n & 1); // round to nearest
 		sin.tab[i] = 2 * n;
 	}
-	for (int i = 0; i < SIN_LEN / 4; i++) {
+	for (auto i : xrange(SIN_LEN / 4)) {
 		sin.tab[SIN_LEN / 2 - 1 - i] = sin.tab[i];
 	}
-	for (int i = 0; i < SIN_LEN / 2; i++) {
+	for (auto i : xrange(SIN_LEN / 2)) {
 		sin.tab[SIN_LEN / 2 + i] = sin.tab[i] + 1;
 	}
 
-	for (int i = 0; i < SIN_LEN; ++i) {
+	for (auto i : xrange(SIN_LEN)) {
 		// these 'pictures' represent _two_ cycles
 		// waveform 1:  __      __
 		//             /  \____/  \____
@@ -1545,15 +1546,13 @@ void YMF262::generateChannels(float** bufs, unsigned num)
 	// TODO output rhythm on separate channels?
 	if (checkMuteHelper()) {
 		// TODO update internal state, even if muted
-		for (int i = 0; i < 18; ++i) {
-			bufs[i] = nullptr;
-		}
+		std::fill_n(bufs, 18, nullptr);
 		return;
 	}
 
 	bool rhythmEnabled = (rhythm & 0x20) != 0;
 
-	for (unsigned j = 0; j < num; ++j) {
+	for (auto j : xrange(num)) {
 		// Amplitude modulation: 27 output levels (triangle waveform);
 		// 1 level takes one of: 192, 256 or 448 samples
 		// One entry from LFO_AM_TABLE lasts for 64 samples
@@ -1571,7 +1570,7 @@ void YMF262::generateChannels(float** bufs, unsigned num)
 		// channels 0,3 1,4 2,5  9,12 10,13 11,14
 		// in either 2op or 4op mode
 		for (int k = 0; k <= 9; k += 9) {
-			for (int i = 0; i < 3; ++i) {
+			for (auto i : xrange(3)) {
 				auto& ch0 = channel[k + i + 0];
 				auto& ch3 = channel[k + i + 3];
 				// extended 4op ch#0 part 1 or 2op ch#0
@@ -1601,7 +1600,7 @@ void YMF262::generateChannels(float** bufs, unsigned num)
 		channel[16].chan_calc(lfo_am);
 		channel[17].chan_calc(lfo_am);
 
-		for (int i = 0; i < 18; ++i) {
+		for (auto i : xrange(18)) {
 			bufs[i][2 * j + 0] += int(chanout[i] & pan[4 * i + 0]);
 			bufs[i][2 * j + 1] += int(chanout[i] & pan[4 * i + 1]);
 			// unused c        += int(chanout[i] & pan[4 * i + 2]);
@@ -1711,7 +1710,7 @@ void YMF262::serialize(Archive& a, unsigned version)
 	// TODO restore more state by rewriting register values
 	//   this handles pan
 	EmuTime::param time = timer1->getCurrentTime();
-	for (int i = 0xC0; i <= 0xC8; ++i) {
+	for (auto i : xrange(0xC0, 0xC9)) {
 		writeRegDirect(i + 0x000, reg[i + 0x000], time);
 		writeRegDirect(i + 0x100, reg[i + 0x100], time);
 	}

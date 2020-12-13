@@ -1,5 +1,6 @@
 #include "catch.hpp"
 #include "circular_buffer.hh"
+#include "xrange.hh"
 #include <memory>
 #include <vector>
 
@@ -21,7 +22,7 @@ static void check_buf(
 		CHECK(buf.back()  == expectedElements.back());
 	}
 
-	for (int i = 0; i < expectedSize; ++i) {
+	for (auto i : xrange(expectedSize)) {
 		CHECK(buf[i] == expectedElements[i]);
 	}
 
@@ -69,7 +70,7 @@ static void check_buf(
 		CHECK(*buf.back()  == expectedElements.back());
 	}
 
-	for (int i = 0; i < expectedSize; ++i) {
+	for (auto i : xrange(expectedSize)) {
 		CHECK(*buf[i] == expectedElements[i]);
 	}
 

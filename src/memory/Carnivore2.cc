@@ -3,6 +3,7 @@
 #include "IDEDeviceFactory.hh"
 #include "MSXCPU.hh"
 #include "one_of.hh"
+#include "xrange.hh"
 
 namespace openmsx {
 
@@ -99,7 +100,7 @@ void Carnivore2::globalRead(word address, EmuTime::param /*time*/)
 	if ((!delayedConfig4000() && (address == 0x0000) && (getCPU().isM1Cycle(address))) ||
 	    ( delayedConfig4000() && (address <= 0x4000) && (address < 0x4010))) {
 		// activate delayed configuration
-		for (int i = 0x05; i <= 0x1e; ++i) {
+		for (auto i : xrange(0x05, 0x1f)) {
 			configRegs[i] = shadowConfigRegs[i];
 		}
 	}
@@ -112,7 +113,7 @@ byte Carnivore2::getSubSlot(word address) const
 		byte subSlot = (subSlotReg >> (2 * page)) & 0x03;
 		return subSlotEnabled(subSlot) ? subSlot : -1;
 	} else {
-		for (int i = 0; i < 4; ++i) {
+		for (auto i : xrange(4)) {
 			if (subSlotEnabled(i)) return i;
 		}
 		return byte(-1);
@@ -253,7 +254,7 @@ bool Carnivore2::isConfigReg(word address) const
 std::pair<unsigned, byte> Carnivore2::decodeMultiMapper(word address) const
 {
 	// check up to 4 possible banks
-	for (int i = 0; i < 4; ++i) {
+	for (auto i : xrange(4)) {
 		const byte* base = configRegs + (i * 6) + 6; // points to R<i>Mask
 		byte mult = base[3];
 		if (mult & 8) continue; // bank disabled
@@ -336,7 +337,7 @@ void Carnivore2::writeMultiMapperSlot(word address, byte value, EmuTime::param t
 	}
 
 	// check (all) 4 bank switch regions
-	for (int i = 0; i < 4; ++i) {
+	for (auto i : xrange(4)) {
 		byte* base = configRegs + (i * 6) + 6; // points to R<i>Mask
 		byte mask = base[0];
 		byte addr = base[1];

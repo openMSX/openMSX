@@ -18,6 +18,7 @@
 #include "ranges.hh"
 #include "stl.hh"
 #include "vla.hh"
+#include "xrange.hh"
 #include "build-info.hh"
 #include <vector>
 #include <cmath>
@@ -257,16 +258,14 @@ static void calcPermute(double ratio, int16_t* permute)
 	}();
 
 	// initially set all as unassigned
-	for (unsigned i = 0; i < N2; ++i) {
-		permute[i] = -1;
-	}
+	std::fill_n(permute, N2, -1);
 
 	unsigned nxt1, nxt2;
 	unsigned restart = incr ? 0 : N2 - 1;
 	unsigned curr = restart;
 	// check for chain (instead of cycles)
 	if (incr) {
-		for (unsigned i = 0; i < N2; ++i) {
+		for (auto i : xrange(N2)) {
 			std::tie(nxt1, nxt2) = next(i, step);
 			if ((nxt1 == i) || (nxt2 == i)) { curr = i; break; }
 		}
@@ -342,7 +341,7 @@ ResampleCoeffs::Table ResampleCoeffs::calcTable(
 	Table table(HALF_TAB_LEN * filterLen);
 	memset(table.data(), 0, HALF_TAB_LEN * filterLen * sizeof(float));
 
-	for (unsigned t = 0; t < HALF_TAB_LEN; ++t) {
+	for (auto t : xrange(HALF_TAB_LEN)) {
 		float* tab = &table[permute[t] * filterLen];
 		double lastPos = (double(t) + 0.5) / TAB_LEN;
 		FilterIndex startFilterIndex(lastPos * floatIncr);
@@ -553,7 +552,7 @@ void ResampleHQ<CHANNELS>::calcOutput(
 #endif
 
 		// c++ version, both mono and stereo
-		for (unsigned ch = 0; ch < CHANNELS; ++ch) {
+		for (auto ch : xrange(CHANNELS)) {
 			float r0 = 0.0f;
 			float r1 = 0.0f;
 			float r2 = 0.0f;
@@ -582,7 +581,7 @@ void ResampleHQ<CHANNELS>::calcOutput(
 #endif
 
 		// c++ version, both mono and stereo
-		for (unsigned ch = 0; ch < CHANNELS; ++ch) {
+		for (auto ch : xrange(CHANNELS)) {
 			float r0 = 0.0f;
 			float r1 = 0.0f;
 			float r2 = 0.0f;
@@ -659,7 +658,7 @@ bool ResampleHQ<CHANNELS>::generateOutputImpl(
 		assert(host1 > emuClk.getTime());
 		float pos = emuClk.getTicksTillDouble(host1);
 		assert(pos <= (ratio + 2));
-		for (unsigned i = 0; i < hostNum; ++i) {
+		for (auto i : xrange(hostNum)) {
 			calcOutput(pos, &dataOut[i * CHANNELS]);
 			pos += ratio;
 		}

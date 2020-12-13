@@ -21,6 +21,7 @@
 #include "unreachable.hh"
 #include "view.hh"
 #include "vla.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <cmath>
 #include <cstring>
@@ -95,7 +96,7 @@ void MSXMixer::registerSound(SoundDevice& device, float volume,
 	info.volumeSetting->attach(*this);
 	info.balanceSetting->attach(*this);
 
-	for (unsigned i = 0; i < numChannels; ++i) {
+	for (auto i : xrange(numChannels)) {
 		SoundDeviceInfo::ChannelSettings channelSettings;
 		string ch_name = strCat(name, "_ch", i + 1);
 

@@ -104,6 +104,7 @@
 #include "ranges.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include <cmath>
 
 using std::string;
@@ -156,7 +157,7 @@ void SCC::powerUp(EmuTime::param time)
 		ranges::fill(w1, ~0);
 	}
 	// Initialize volume (initialize this before period)
-	for (int i = 0; i < 5; ++i) {
+	for (auto i : xrange(5)) {
 		setFreqVol(i + 10, 15, time);
 	}
 	// Actual initial value is difficult to measure, assume zero
@@ -164,7 +165,7 @@ void SCC::powerUp(EmuTime::param time)
 	ranges::fill(pos, 0);
 
 	// Initialize period (sets members orgPeriod, period, incr, count, out)
-	for (int i = 0; i < 2 * 5; ++i) {
+	for (auto i : xrange(2 * 5)) {
 		setFreqVol(i, 0, time);
 	}
 }
@@ -399,7 +400,7 @@ void SCC::setFreqVol(unsigned address, byte value, EmuTime::param time)
 		// change volume
 		unsigned channel = address - 0x0A;
 		volume[channel] = value & 0xF;
-		for (unsigned i = 0; i < 32; ++i) {
+		for (auto i : xrange(32)) {
 			volAdjustedWave[channel][i] =
 				adjust(wave[channel][i], volume[channel]);
 		}
@@ -434,21 +435,21 @@ void SCC::setDeformRegHelper(byte value)
 		ranges::fill(readOnly, true);
 		break;
 	case 0x80:
-		for (unsigned i = 0; i < 3; ++i) {
+		for (auto i : xrange(3)) {
 			rotate[i] = false;
 			readOnly[i] = false;
 		}
-		for (unsigned i = 3; i < 5; ++i) {
+		for (auto i : xrange(3, 5)) {
 			rotate[i] = true;
 			readOnly[i] = true;
 		}
 		break;
 	case 0xC0:
-		for (unsigned i = 0; i < 3; ++i) {
+		for (auto i : xrange(3)) {
 			rotate[i] = true;
 			readOnly[i] = true;
 		}
-		for (unsigned i = 3; i < 5; ++i) {
+		for (auto i : xrange(3, 5)) {
 			rotate[i] = false;
 			readOnly[i] = true;
 		}
@@ -468,7 +469,7 @@ void SCC::generateChannels(float** bufs, unsigned num)
 			unsigned pos2 = pos[i];
 			unsigned incr2 = incr[i];
 			unsigned period2 = period[i] + 1;
-			for (unsigned j = 0; j < num; ++j) {
+			for (auto j : xrange(num)) {
 				bufs[i][j] += out2;
 				count2 += incr2;
 				// Note: only for very small periods
@@ -565,8 +566,8 @@ void SCC::serialize(Archive& ar, unsigned /*version*/)
 
 	if (ar.isLoader()) {
 		// recalculate volAdjustedWave
-		for (int channel = 0; channel < 5; ++channel) {
-			for (int p = 0; p < 32; ++p) {
+		for (auto channel : xrange(5)) {
+			for (auto p : xrange(32)) {
 				volAdjustedWave[channel][p] =
 					adjust(wave[channel][p], volume[channel]);
 			}
@@ -581,7 +582,7 @@ void SCC::serialize(Archive& ar, unsigned /*version*/)
 		// Don't use current time, but instead use deformTimer, to
 		// avoid changing the value of deformTimer.
 		EmuTime::param time = deformTimer.getTime();
-		for (int channel = 0; channel < 5; ++channel) {
+		for (auto channel : xrange(5)) {
 			unsigned per = orgPeriod[channel];
 			setFreqVol(2 * channel + 0, (per & 0x0FF) >> 0, time);
 			setFreqVol(2 * channel + 1, (per & 0xF00) >> 8, time);

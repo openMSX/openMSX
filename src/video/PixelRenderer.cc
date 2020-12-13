@@ -447,9 +447,9 @@ inline bool PixelRenderer::checkSync(int offset, EmuTime::param time)
 		if (vram.colorTable.isInside(offset)) {
 			int vramQuarter = (offset & 0x1800) >> 11;
 			int mask = (vram.colorTable.getMask() & 0x1800) >> 11;
-			for (int i = 0; i < 4; i++) {
-				if ( (i & mask) == vramQuarter
-				&& overlap(displayY0, displayY1, i * 64, (i + 1) * 64) ) {
+			for (auto i : xrange(4)) {
+				if ((i & mask) == vramQuarter
+				&& overlap(displayY0, displayY1, i * 64, (i + 1) * 64)) {
 					/*fprintf(stderr,
 						"color table: %05X %04X - quarter %d\n",
 						offset, offset & 0x1FFF, i
@@ -461,9 +461,9 @@ inline bool PixelRenderer::checkSync(int offset, EmuTime::param time)
 		if (vram.patternTable.isInside(offset)) {
 			int vramQuarter = (offset & 0x1800) >> 11;
 			int mask = (vram.patternTable.getMask() & 0x1800) >> 11;
-			for (int i = 0; i < 4; i++) {
-				if ( (i & mask) == vramQuarter
-				&& overlap(displayY0, displayY1, i * 64, (i + 1) * 64) ) {
+			for (auto i : xrange(4)) {
+				if ((i & mask) == vramQuarter
+				&& overlap(displayY0, displayY1, i * 64, (i + 1) * 64)) {
 					/*fprintf(stderr,
 						"pattern table: %05X %04X - quarter %d\n",
 						offset, offset & 0x1FFF, i

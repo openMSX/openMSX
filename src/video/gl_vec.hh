@@ -23,6 +23,7 @@
 // optimize away the indirection.
 
 #include "Math.hh"
+#include "xrange.hh"
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -40,27 +41,27 @@ public:
 	// Construct vector containing all zeros.
 	vecN()
 	{
-		for (int i = 0; i < N; ++i) e[i] = T(0);
+		for (auto i : xrange(N)) e[i] = T(0);
 	}
 
 	// Construct vector containing the same value repeated N times.
 	explicit vecN(T x)
 	{
-		for (int i = 0; i < N; ++i) e[i] = x;
+		for (auto i : xrange(N)) e[i] = x;
 	}
 
 	// Conversion constructor from vector of same size but different type
 	template<typename T2>
 	explicit vecN(const vecN<N, T2>& x)
 	{
-		for (int i = 0; i < N; ++i) e[i] = T(x[i]);
+		for (auto i : xrange(N)) e[i] = T(x[i]);
 	}
 
 	// Construct from larger vector (higher order elements are dropped).
 	template<int N2> explicit vecN(const vecN<N2, T>& x)
 	{
 		static_assert(N2 > N, "wrong vector length in constructor");
-		for (int i = 0; i < N; ++i) e[i] = x[i];
+		for (auto i : xrange(N)) e[i] = x[i];
 	}
 
 	// Construct vector from 2 given values (only valid when N == 2).
@@ -90,7 +91,7 @@ public:
 	{
 		static_assert((1 + N2) == N, "wrong vector length in constructor");
 		e[0] = x;
-		for (int i = 0; i < N2; ++i) e[i + 1] = y[i];
+		for (auto i : xrange(N2)) e[i + 1] = y[i];
 	}
 
 	// Construct vector from concatenating a (smaller) vector and a scalar.
@@ -98,7 +99,7 @@ public:
 	vecN(const vecN<N1, T>& x, T y)
 	{
 		static_assert((N1 + 1) == N, "wrong vector length in constructor");
-		for (int i = 0; i < N1; ++i) e[i] = x[i];
+		for (auto i : xrange(N1)) e[i] = x[i];
 		e[N1] = y;
 	}
 
@@ -107,8 +108,8 @@ public:
 	vecN(const vecN<N1, T>& x, const vecN<N2, T>& y)
 	{
 		static_assert((N1 + N2) == N, "wrong vector length in constructor");
-		for (int i = 0; i < N1; ++i) e[i     ] = x[i];
-		for (int i = 0; i < N2; ++i) e[i + N1] = y[i];
+		for (auto i : xrange(N1)) e[i     ] = x[i];
+		for (auto i : xrange(N2)) e[i + N1] = y[i];
 	}
 
 	// Access the i-th element of this vector.
@@ -178,7 +179,7 @@ template<typename T> [[nodiscard]] inline T degrees(T r)
 template<int N, typename T>
 [[nodiscard]] inline bool operator==(const vecN<N, T>& x, const vecN<N, T>& y)
 {
-	for (int i = 0; i < N; ++i) if (x[i] != y[i]) return false;
+	for (auto i : xrange(N)) if (x[i] != y[i]) return false;
 	return true;
 }
 template<int N, typename T>
@@ -199,7 +200,7 @@ template<int N, typename T>
 [[nodiscard]] inline vecN<N, T> operator+(const vecN<N, T>& x, const vecN<N, T>& y)
 {
 	vecN<N, T> r;
-	for (int i = 0; i < N; ++i) r[i] = x[i] + y[i];
+	for (auto i : xrange(N)) r[i] = x[i] + y[i];
 	return r;
 }
 
@@ -208,7 +209,7 @@ template<int N, typename T>
 [[nodiscard]] inline vecN<N, T> operator-(const vecN<N, T>& x, const vecN<N, T>& y)
 {
 	vecN<N, T> r;
-	for (int i = 0; i < N; ++i) r[i] = x[i] - y[i];
+	for (auto i : xrange(N)) r[i] = x[i] - y[i];
 	return r;
 }
 
@@ -217,7 +218,7 @@ template<int N, typename T>
 [[nodiscard]] inline vecN<N, T> operator*(T x, const vecN<N, T>& y)
 {
 	vecN<N, T> r;
-	for (int i = 0; i < N; ++i) r[i] = x * y[i];
+	for (auto i : xrange(N)) r[i] = x * y[i];
 	return r;
 }
 
@@ -226,7 +227,7 @@ template<int N, typename T>
 [[nodiscard]] inline vecN<N, T> operator*(const vecN<N, T>& x, T y)
 {
 	vecN<N, T> r;
-	for (int i = 0; i < N; ++i) r[i] = x[i] * y;
+	for (auto i : xrange(N)) r[i] = x[i] * y;
 	return r;
 }
 
@@ -235,7 +236,7 @@ template<int N, typename T>
 [[nodiscard]] inline vecN<N, T> operator*(const vecN<N, T>& x, const vecN<N, T>& y)
 {
 	vecN<N, T> r;
-	for (int i = 0; i < N; ++i) r[i] = x[i] * y[i];
+	for (auto i : xrange(N)) r[i] = x[i] * y[i];
 	return r;
 }
 
@@ -244,7 +245,7 @@ template<int N, typename T>
 [[nodiscard]] inline vecN<N, T> recip(const vecN<N, T>& x)
 {
 	vecN<N, T> r;
-	for (int i = 0; i < N; ++i) r[i] = T(1) / x[i];
+	for (auto i : xrange(N)) r[i] = T(1) / x[i];
 	return r;
 }
 
@@ -274,7 +275,7 @@ template<int N, typename T>
 [[nodiscard]] inline vecN<N, T> min(const vecN<N, T>& x, const vecN<N, T>& y)
 {
 	vecN<N, T> r;
-	for (int i = 0; i < N; ++i) r[i] = std::min(x[i], y[i]);
+	for (auto i : xrange(N)) r[i] = std::min(x[i], y[i]);
 	return r;
 }
 
@@ -283,7 +284,7 @@ template<int N, typename T>
 [[nodiscard]] inline T min_component(const vecN<N, T>& x)
 {
 	T r = x[0];
-	for (int i = 1; i < N; ++i) r = std::min(r, x[i]);
+	for (auto i : xrange(1, N)) r = std::min(r, x[i]);
 	return r;
 }
 
@@ -292,7 +293,7 @@ template<int N, typename T>
 [[nodiscard]] inline vecN<N, T> max(const vecN<N, T>& x, const vecN<N, T>& y)
 {
 	vecN<N, T> r;
-	for (int i = 0; i < N; ++i) r[i] = std::max(x[i], y[i]);
+	for (auto i : xrange(N)) r[i] = std::max(x[i], y[i]);
 	return r;
 }
 
@@ -315,7 +316,7 @@ template<int N, typename T>
 [[nodiscard]] inline T sum(const vecN<N, T>& x)
 {
 	T result(0);
-	for (int i = 0; i < N; ++i) result += x[i];
+	for (auto i : xrange(N)) result += x[i];
 	return result;
 }
 template<int N, typename T>
@@ -373,7 +374,7 @@ template<int N, typename T>
 	vecN<N, int> r;
 	// note: std::lrint() is more generic (e.g. also works with double),
 	// but Dingux doesn't seem to have std::lrint().
-	for (int i = 0; i < N; ++i) r[i] = lrintf(x[i]);
+	for (auto i : xrange(N)) r[i] = lrintf(x[i]);
 	return r;
 }
 
@@ -383,7 +384,7 @@ template<int N, typename T>
 [[nodiscard]] inline vecN<N, int> trunc(const vecN<N, T>& x)
 {
 	vecN<N, int> r;
-	for (int i = 0; i < N; ++i) r[i] = int(x[i]);
+	for (auto i : xrange(N)) r[i] = int(x[i]);
 	return r;
 }
 
@@ -392,7 +393,7 @@ template<int N, typename T>
 std::ostream& operator<<(std::ostream& os, const vecN<N, T>& x)
 {
 	os << "[ ";
-	for (int i = 0; i < N; ++i) {
+	for (auto i : xrange(N)) {
 		os << x[i] << ' ';
 	}
 	os << ']';

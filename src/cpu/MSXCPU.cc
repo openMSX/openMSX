@@ -12,6 +12,7 @@
 #include "ranges.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <memory>
 
@@ -155,7 +156,7 @@ void MSXCPU::invalidateMemCacheSlot()
 	ranges::fill(slots, 0);
 
 	// nullptr: means not a valid entry and not yet attempted to fill this entry
-	for (int i = 0; i < 16; ++i) {
+	for (auto i : xrange(16)) {
 		ranges::fill(slotReadLines[i], nullptr);
 		ranges::fill(slotWriteLines[i], nullptr);
 	}
@@ -189,8 +190,8 @@ void MSXCPU::invalidateAllSlotsRWCache(word start, unsigned size)
 	std::fill_n(cpuReadLines  + first, num, nullptr); // nullptr: means not a valid entry and not
 	std::fill_n(cpuWriteLines + first, num, nullptr); //   yet attempted to fill this entry
 
-	for (int i = 0; i < 16; ++i) {
-		std::fill_n(slotReadLines[i] + first, num, nullptr);
+	for (auto i : xrange(16)) {
+		std::fill_n(slotReadLines [i] + first, num, nullptr);
 		std::fill_n(slotWriteLines[i] + first, num, nullptr);
 	}
 }
@@ -232,7 +233,7 @@ void MSXCPU::setRWCache(unsigned start, unsigned size, const byte* rData, byte* 
 	unsigned num = size / CacheLine::SIZE;
 
 	static auto* const NON_CACHEABLE = reinterpret_cast<byte*>(1);
-	for (unsigned i = 0; i < num; ++i) {
+	for (auto i : xrange(num)) {
 		if (READ)  readLines [i] = disallowRead [i] ? NON_CACHEABLE : rData;
 		if (WRITE) writeLines[i] = disallowWrite[i] ? NON_CACHEABLE : wData;
 	}

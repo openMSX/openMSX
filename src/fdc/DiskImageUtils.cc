@@ -4,6 +4,7 @@
 #include "BootBlocks.hh"
 #include "endian.hh"
 #include "random.hh"
+#include "xrange.hh"
 #include <cstring>
 #include <cassert>
 #include <ctime>
@@ -195,7 +196,7 @@ void format(SectorAccessibleDisk& disk, bool dos1)
 
 	// write empty FAT and directory sectors
 	memset(&buf, 0, sizeof(buf));
-	for (unsigned i = 2; i < firstDataSector; ++i) {
+	for (auto i : xrange(2u, firstDataSector)) {
 		disk.writeSector(i, buf);
 	}
 	// first FAT sector is special:
@@ -208,7 +209,7 @@ void format(SectorAccessibleDisk& disk, bool dos1)
 
 	// write 'empty' data sectors
 	memset(&buf, 0xE5, sizeof(buf));
-	for (size_t i = firstDataSector; i < nbSectors; ++i) {
+	for (auto i : xrange(firstDataSector, nbSectors)) {
 		disk.writeSector(i, buf);
 	}
 }
@@ -241,7 +242,7 @@ void partition(SectorAccessibleDisk& disk, const std::vector<unsigned>& sizes)
 	buf.pt.end = 0xAA55;
 
 	unsigned partitionOffset = 1;
-	for (size_t i = 0; i < sizes.size(); ++i) {
+	for (auto i : xrange(sizes.size())) {
 		unsigned partitionNbSectors = sizes[i];
 		auto& p = buf.pt.part[30 - i];
 		auto [startCylinder, startHead, startSector] =

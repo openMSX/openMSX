@@ -23,6 +23,7 @@ A million repetitions of "a"
 #include "endian.hh"
 #include "likely.hh"
 #include "ranges.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <cstring>
 #ifdef __SSE2__
@@ -216,10 +217,10 @@ void Sha1Sum::parse40(const char* str)
 	const char* p = str;
 	for (auto& ai : a) {
 		unsigned t = 0;
-		for (int j = 0; j < 8; ++j) {
+		repeat(8, [&] {
 			t <<= 4;
 			t |= hex(*p++, str);
-		}
+		});
 		ai = t;
 	}
 #endif

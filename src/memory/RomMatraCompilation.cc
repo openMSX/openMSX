@@ -1,6 +1,7 @@
 #include "RomMatraCompilation.hh"
 #include "one_of.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 
 // This is basically a generic 8kB mapper (Konami like, but without fixed page
 // at 0x4000), with an extra offset register accessible at 0xBA00.
@@ -24,7 +25,7 @@ void RomMatraCompilation::reset(EmuTime::param /*time*/)
 {
 	setUnmapped(0);
 	setUnmapped(1);
-	for (int i = 2; i < 6; i++) {
+	for (auto i : xrange(2, 6)) {
 		setRom(i, i - 2);
 	}
 	setUnmapped(6);
@@ -40,7 +41,7 @@ void RomMatraCompilation::writeMem(word address, byte value, EmuTime::param /*ti
 		blockOffset = value;
 		// retro-actively select the blocks for this offset
 		if (blockOffset >= 2) {
-			for (int i = 2; i < 6; i++) {
+			for (auto i : xrange(2, 6)) {
 				setRom(i, blockNr[i] + blockOffset - 2);
 			}
 		}

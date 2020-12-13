@@ -168,9 +168,7 @@ template<typename octet_iterator>
 	}
 	// Is the code point valid?
 	if (!is_code_point_valid(cp)) {
-		for (int i = 0; i < length - 1; ++i) {
-			--it;
-		}
+		repeat(length - 1, [&] { --it; });
 		return INVALID_CODE_POINT;
 	}
 

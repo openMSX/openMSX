@@ -8,6 +8,7 @@
 #include "EventDistributor.hh"
 #include "CliComm.hh"
 #include "Reactor.hh"
+#include "xrange.hh"
 #include <memory>
 
 using std::string;
@@ -77,8 +78,7 @@ Sha1Sum FilePool::getSha1Sum(File& file)
 [[nodiscard]] static FileType parseTypes(Interpreter& interp, const TclObject& list)
 {
 	auto result = FileType::NONE;
-	unsigned num = list.getListLength(interp);
-	for (unsigned i = 0; i < num; ++i) {
+	for (auto i : xrange(list.getListLength(interp))) {
 		std::string_view elem = list.getListIndex(interp, i).getString();
 		if (elem == "system_rom") {
 			result |= FileType::SYSTEM_ROM;
@@ -101,8 +101,7 @@ FilePoolCore::Directories FilePool::getDirectories() const
 	try {
 		auto& interp = filePoolSetting.getInterpreter();
 		const TclObject& all = filePoolSetting.getValue();
-		unsigned numLines = all.getListLength(interp);
-		for (unsigned i = 0; i < numLines; ++i) {
+		for (auto i : xrange(all.getListLength(interp))) {
 			FilePoolCore::Dir dir;
 			bool hasPath = false;
 			dir.types = FileType::NONE;

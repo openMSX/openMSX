@@ -4,6 +4,7 @@
 #include "MSXException.hh"
 #include "ranges.hh"
 #include "stl.hh"
+#include "xrange.hh"
 #include <cstring>
 #include <cassert>
 
@@ -59,7 +60,7 @@ IPSPatch::IPSPatch(Filename filename_,
 			auto length2 = stop - start;
 			++e;
 			vector<byte> tmp(length2);
-			for (auto it = b; it != e; ++it) {
+			for (auto it : xrange(b, e)) {
 				memcpy(&tmp[it->first - start], &it->second[0],
 				       it->second.size());
 			}
@@ -88,7 +89,7 @@ void IPSPatch::copyBlock(size_t src, byte* dst, size_t num) const
 	auto b = ranges::lower_bound(patchMap, src, LessTupleElement<0>());
 	if (b != begin(patchMap)) --b;
 	auto e = ranges::upper_bound(patchMap, src + num - 1, LessTupleElement<0>());
-	for (auto it = b; it != e; ++it) {
+	for (auto it : xrange(b, e)) {
 		auto chunkStart = it->first;
 		int chunkSize = int(it->second.size());
 		// calc chunkOffset, chunkStart

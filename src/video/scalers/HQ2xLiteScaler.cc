@@ -49,7 +49,7 @@ void HQLite_1x1on2x2<Pixel>::operator()(
 	if (c5 != c8) pattern |= 3 <<  6;
 	if (c5 != c2) pattern |= 3 <<  9;
 
-	for (unsigned x = 0; x < srcWidth; ++x) {
+	for (auto x : xrange(srcWidth)) {
 		unsigned c4 = c5;
 		c5 = c6;
 		c8 = c9;
@@ -113,7 +113,7 @@ void HQLite_1x1on1x2<Pixel>::operator()(
 	if (c5 != c8) pattern |= 3 <<  6;
 	if (c5 != c2) pattern |= 3 <<  9;
 
-	for (unsigned x = 0; x < srcWidth; ++x) {
+	for (auto x : xrange(srcWidth)) {
 		unsigned c4 = c5;
 		c5 = c6;
 		c8 = c9;

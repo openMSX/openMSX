@@ -4,6 +4,7 @@
 #include "FileContext.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -19,7 +20,7 @@ SamplePlayer::SamplePlayer(const std::string& name_, const std::string& desc,
 	bool alreadyWarned = false;
 	samples.resize(numSamples); // initialize with empty WAVs
 	auto context = systemFileContext();
-	for (unsigned i = 0; i < numSamples; ++i) {
+	for (auto i : xrange(numSamples)) {
 		try {
 			std::string filename = strCat(samplesBaseName, i, ".wav");
 			samples[i] = WavData(context.resolve(filename));
@@ -106,7 +107,7 @@ void SamplePlayer::generateChannels(float** bufs, unsigned num)
 	}
 
 	auto& wav = samples[currentSampleNum];
-	for (unsigned i = 0; i < num; ++i) {
+	for (auto i : xrange(num)) {
 		if (index >= bufferSize) {
 			if (nextSampleNum != unsigned(-1)) {
 				doRepeat();

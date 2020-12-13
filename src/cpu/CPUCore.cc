@@ -172,6 +172,7 @@
 #include "likely.hh"
 #include "inline.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include <iostream>
 #include <type_traits>
 #include <cassert>
@@ -235,7 +236,7 @@ static constexpr Table initTables()
 {
 	Table table = {};
 
-	for (int i = 0; i < 256; ++i) {
+	for (auto i : xrange(256)) {
 		byte zFlag = (i == 0) ? Z_FLAG : 0;
 		byte sFlag = i & S_FLAG;
 		byte xFlag = i & X_FLAG;
@@ -518,7 +519,7 @@ template<typename T> void CPUCore<T>::disasmCommand(
 	               T::getTimeFast());
 	result.addListElement(dasmOutput);
 	char tmp[3]; tmp[2] = 0;
-	for (unsigned i = 0; i < len; ++i) {
+	for (auto i : xrange(len)) {
 		toHex(outBuf[i], tmp);
 		result.addListElement(tmp);
 	}

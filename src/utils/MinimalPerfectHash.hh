@@ -5,6 +5,7 @@
 #include "Math.hh"
 #include "static_vector.hh"
 #include "stl.hh"
+#include "xrange.hh"
 #include <array>
 #include <cassert>
 #include <cstdint>
@@ -87,7 +88,7 @@ template<size_t N, typename Hash, typename GetKey>
 
 	// Step 1: Place all of the keys into buckets
 	std::array<static_vector<uint8_t, bucket_max>, r.tab1.size()> buckets;
-	for (size_t i = 0; i < N; ++i) {
+	for (auto i : xrange(N)) {
 		buckets[hash(getKey(i)) % r.tab1.size()].push_back(i);
 	}
 
@@ -100,10 +101,10 @@ template<size_t N, typename Hash, typename GetKey>
 	constexpr auto UNUSED = uint8_t(-1);
 	cstd::fill(r.tab2, UNUSED);
 	for (const auto& bucket : buckets) {
-		auto const bsize = bucket.size();
-		if (bsize == 0) break; // done
+		auto const bSize = bucket.size();
+		if (bSize == 0) break; // done
 		auto hash1 = hash(getKey(bucket[0])) % r.tab1.size();
-		if (bsize == 1) {
+		if (bSize == 1) {
 			// Store index to the (single) item in tab1
 			r.tab1[hash1] = bucket[0];
 		} else {
@@ -112,7 +113,7 @@ template<size_t N, typename Hash, typename GetKey>
 			uint8_t shift = 1;
 			static_vector<uint8_t, bucket_max> bucket_slots;
 
-			while (bucket_slots.size() < bsize) {
+			while (bucket_slots.size() < bSize) {
 				auto hash2 = hash(getKey(bucket[bucket_slots.size()]));
 				assert((hash2 % r.tab1.size()) == hash1);
 				auto slot = (hash2 >> shift) % r.tab2.size();
@@ -127,7 +128,7 @@ template<size_t N, typename Hash, typename GetKey>
 
 			// Put successful shift-factor in tab1, and put indices to items in their slots
 			r.tab1[hash1] = shift | 0x80;
-			for (size_t i = 0; i < bsize; ++i) {
+			for (auto i : xrange(bSize)) {
 				r.tab2[bucket_slots[i]] = bucket[i];
 			}
 		}

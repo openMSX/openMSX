@@ -31,6 +31,7 @@ DEALINGS IN THE SOFTWARE.
 #define UTF8_UNCHECKED_HH
 
 #include "utf8_core.hh"
+#include "xrange.hh"
 #include <string_view>
 
 namespace utf8::unchecked {
@@ -107,16 +108,15 @@ uint32_t prior(octet_iterator& it)
 template<typename octet_iterator, typename distance_type>
 void advance(octet_iterator& it, distance_type n)
 {
-	for (distance_type i = 0; i < n; ++i) {
-		unchecked::next(it);
-	}
+	repeat(n, [&] { unchecked::next(it); });
 }
 
 template<typename octet_iterator>
 [[nodiscard]] auto distance(octet_iterator first, octet_iterator last)
 {
-	typename std::iterator_traits<octet_iterator>::difference_type dist;
-	for (dist = 0; first < last; ++dist) {
+	typename std::iterator_traits<octet_iterator>::difference_type dist = 0;
+	while (first < last) {
+		++dist;
 		unchecked::next(first);
 	}
 	return dist;

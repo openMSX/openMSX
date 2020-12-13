@@ -1,6 +1,7 @@
 #include "catch.hpp"
 
 #include "ObjectPool.hh"
+#include "xrange.hh"
 #include <vector>
 
 
@@ -78,7 +79,7 @@ TEST_CASE("ObjectPool")
 		CHECK(pool.capacity() == 256);
 
 		// insert a lot more (force allocating more memory in the pool)
-		for (int i = 0; i < 1000; ++i) {
+		for (auto i : xrange(1000)) {
 			auto val = 1000 + i;
 			auto [idx, ptr] = pool.emplace(val);
 			CHECK(ptr->i == val);

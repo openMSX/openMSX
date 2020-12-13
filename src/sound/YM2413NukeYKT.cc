@@ -33,6 +33,7 @@
 #include "one_of.hh"
 #include "ranges.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include <algorithm>
 #include <array>
 #include <cstring>
@@ -119,9 +120,7 @@ static constexpr int8_t VIB_TAB[8] = {0, 1, 2, 1, 0, -1, -2, -1};
 YM2413::YM2413()
 {
 	// copy ROM patches to array (for faster lookup)
-	for (int i = 0; i < 15; ++i) {
-		patches[i + 1] = m_patches[i];
-	}
+	ranges::copy(m_patches, patches + 1);
 	reset();
 }
 
@@ -161,7 +160,7 @@ void YM2413::reset()
 	ranges::fill(vol8, 0);
 	ranges::fill(inst, 0);
 	ranges::fill(sk_on, 0);
-	for (int i = 0; i < 9; ++i) {
+	for (auto i : xrange(9)) {
 		p_inst[i] = &patches[inst[i]];
 		changeFnumBlock(i);
 	}
@@ -814,17 +813,13 @@ ALWAYS_INLINE void YM2413::step(Locals& l)
 void YM2413::generateChannels(float* out_[9 + 5], uint32_t n)
 {
 	float* out[9 + 5];
-	for (int i = 0; i < 9 + 5; ++i) out[i] = out_[i];
+	std::copy_n(out_, 9 + 5, out);
 
 	// Loop here (instead of in step18) seems faster. (why?)
 	if (unlikely(test_mode_active)) {
-		for (uint32_t i = 0; i < n; ++i) {
-			step18<true>(out);
-		}
+		repeat(n, [&] { step18<true >(out); });
 	} else {
-		for (uint32_t i = 0; i < n; ++i) {
-			step18<false>(out);
-		}
+		repeat(n, [&] { step18<false>(out); });
 	}
 	test_mode_active = testmode;
 }
@@ -995,7 +990,7 @@ void YM2413::serialize(Archive& ar, unsigned /*version*/)
 		// Restore these from register values:
 		//   fnum, block, p_ksl, p_incr, p_ksr_freq, sk_on, vol8,
 		//   inst, p_inst, rhythm, testmode, patches[0]
-		for (int i = 0; i < 64; ++i) {
+		for (auto i : xrange(64)) {
 			pokeReg(i, regs[i]);
 		}
 	}

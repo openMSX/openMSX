@@ -293,7 +293,7 @@ void Debugger::Cmd::readBlock(span<const TclObject> tokens, TclObject& result)
 	}
 
 	MemBuffer<byte> buf(num);
-	for (unsigned i = 0; i < num; ++i) {
+	for (auto i : xrange(num)) {
 		buf[i] = device.read(addr + i);
 	}
 	result = span<byte>{buf.data(), num};

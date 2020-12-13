@@ -4,6 +4,7 @@
 #include "one_of.hh"
 #include "unreachable.hh"
 #include "vla.hh"
+#include "xrange.hh"
 #include "build-info.hh"
 #include <memory>
 #ifdef __SSE2__
@@ -181,7 +182,7 @@ const void* DeflickerImpl<Pixel>::getLineInfo(
 	}
 	remaining &= pixelsPerSSE - 1;
 #endif
-	for (unsigned x = 0; x < remaining; ++x) {
+	for (auto x : xrange(remaining)) {
 		dst[x] = ((line0[x] == line2[x]) && (line1[x] == line3[x]))
 		       ? pixelOps.template blend<1, 1>(line0[x], line1[x])
 	               : line0[x];

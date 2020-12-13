@@ -4,6 +4,7 @@
 #include "endian.hh"
 #include "one_of.hh"
 #include "vla.hh"
+#include "xrange.hh"
 #include <cstring>
 #include <vector>
 
@@ -113,11 +114,11 @@ void Wav16Writer::write(const float* buffer, unsigned stereo, unsigned samples,
 	std::vector<Endian::L16> buf(samples * stereo);
 	if (stereo == 1) {
 		assert(ampLeft == ampRight);
-		for (unsigned i = 0; i < samples; ++i) {
+		for (auto i : xrange(samples)) {
 			buf[i] = float2int16(buffer[i] * ampLeft);
 		}
 	} else {
-		for (unsigned i = 0; i < samples; ++i) {
+		for (auto i : xrange(samples)) {
 			buf[2 * i + 0] = float2int16(buffer[2 * i + 0] * ampLeft);
 			buf[2 * i + 1] = float2int16(buffer[2 * i + 1] * ampRight);
 		}

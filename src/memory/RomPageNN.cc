@@ -1,6 +1,7 @@
 #include "RomPageNN.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 
 namespace openmsx {
 
@@ -23,7 +24,7 @@ RomPageNN::RomPageNN(const DeviceConfig& config, Rom&& rom_, RomType type)
 		}
 	}();
 	int bank = 0;
-	for (int page = 0; page < 4; ++page) {
+	for (auto page : xrange(4)) {
 		if (pages & (1 << page)) {
 			setRom(page * 2 + 0, bank++);
 			setRom(page * 2 + 1, bank++);

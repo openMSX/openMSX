@@ -6,6 +6,7 @@
 #include "likely.hh"
 #include "one_of.hh"
 #include "ranges.hh"
+#include "xrange.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -87,7 +88,7 @@ void DMKDiskImage::readTrack(byte track, byte side, RawTrack& output)
 
 	// Convert idam data into an easier to work with internal format.
 	int lastIdam = -1;
-	for (int i = 0; i < 64; ++i) {
+	for (auto i : xrange(64)) {
 		unsigned idx = idamBuf[2 * i + 0] + 256 * idamBuf[2 * i + 1];
 		if (idx == 0) break; // end of table reached
 
@@ -139,7 +140,7 @@ void DMKDiskImage::doWriteTrack(byte track, byte side, const RawTrack& input)
 	// Write idam table.
 	byte idamOut[2 * 64] = {}; // zero-initialize
 	const auto& idamIn = input.getIdamBuffer();
-	for (int i = 0; i < std::min(64, int(idamIn.size())); ++i) {
+	for (auto i : xrange(std::min(64, int(idamIn.size())))) {
 		int t = (idamIn[i] + 128) | FLAG_MFM_SECTOR;
 		idamOut[2 * i + 0] = t & 0xff;
 		idamOut[2 * i + 1] = t >> 8;
@@ -157,7 +158,7 @@ void DMKDiskImage::extendImageToTrack(byte track)
 	RawTrack emptyTrack(dmkTrackLen);
 	byte numSides = singleSided ? 1 : 2;
 	while (numTracks <= track) {
-		for (byte side = 0; side < numSides; ++side) {
+		for (auto side : xrange(numSides)) {
 			doWriteTrack(numTracks, side, emptyTrack);
 		}
 		++numTracks;

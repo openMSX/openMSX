@@ -6,6 +6,7 @@
 #include "MemBuffer.hh"
 #include "MSXException.hh"
 #include "one_of.hh"
+#include "xrange.hh"
 #include <cstdint>
 #include <string>
 
@@ -111,7 +112,7 @@ inline WavData::WavData(File file, Filter filter)
 	buffer.resize(length);
 	filter.setFreq(freq);
 	auto convertLoop = [&](const auto* in, auto convertFunc) {
-		for (unsigned i = 0; i < length; ++i) {
+		for (auto i : xrange(length)) {
 			buffer[i] = filter(convertFunc(*in));
 			in += channels; // discard all but the first channel
 		}

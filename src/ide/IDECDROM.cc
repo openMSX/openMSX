@@ -10,6 +10,7 @@
 #include "endian.hh"
 #include "one_of.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <algorithm>
 #include <cassert>
 #include <cstdio>
@@ -216,7 +217,7 @@ void IDECDROM::executePacketCommand(AlignedBuffer& packet)
 	// It seems that unlike ATA which uses words at the basic data unit,
 	// ATAPI uses bytes.
 	//fprintf(stderr, "ATAPI Packet:");
-	//for (unsigned i = 0; i < 12; i++) {
+	//for (auto i : xrange(12)) {
 	//	fprintf(stderr, " %02X", packet[i]);
 	//}
 	//fprintf(stderr, "\n");
@@ -234,7 +235,7 @@ void IDECDROM::executePacketCommand(AlignedBuffer& packet)
 		const int byteCount = 18;
 		startPacketReadTransfer(byteCount);
 		auto& buf = startShortReadTransfer(byteCount);
-		for (int i = 0; i < byteCount; i++) {
+		for (auto i : xrange(byteCount)) {
 			buf[i] = 0x00;
 		}
 		buf[ 0] = 0xF0;

@@ -1,5 +1,6 @@
 #include "catch.hpp"
 #include "CRC16.hh"
+#include "xrange.hh"
 
 using namespace openmsx;
 
@@ -10,7 +11,7 @@ TEST_CASE("CRC16")
 
 	// Test a simple sequence
 	SECTION("'3 x A1' in a loop") {
-		for (int i = 0; i < 3; ++i) crc.update(0xA1);
+		repeat(3, [&] { crc.update(0xA1); });
 		CHECK(crc.getValue() == 0xCDB4);
 	}
 	SECTION("'3 x A1' in one chunk") {
@@ -38,7 +39,7 @@ TEST_CASE("CRC16")
 	// same as disk sector size
 	SECTION("512 bytes") {
 		uint8_t buf[512];
-		for (int i = 0; i < 512; ++i) buf[i] = i & 255;
+		for (auto i : xrange(512)) buf[i] = i & 255;
 		SECTION("in a loop") {
 			for (char c : buf) crc.update(c);
 			CHECK(crc.getValue() == 0x56EE);

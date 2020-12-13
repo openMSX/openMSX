@@ -12,6 +12,7 @@
 #include "ranges.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include <array>
 #include <cstring>
 #include <cassert>
@@ -159,15 +160,15 @@ constexpr uint8_t mlTable[16] = {
 //   [DBTABLEN, 2*DBTABLEN)  as above but for negative output values
 constexpr auto dB2LinTab = [] {
 	std::array<int, 2 * DBTABLEN> result = {};
-	for (int i = 0; i < DB_MUTE; ++i) {
+	for (int i : xrange(DB_MUTE - 1)) {
 		result[i] = int(double((1 << DB2LIN_AMP_BITS) - 1) *
 		                   cstd::pow<5, 3>(10, -double(i) * DB_STEP / 20));
 	}
 	result[DB_MUTE - 1] = 0;
-	for (int i = DB_MUTE; i < DBTABLEN; ++i) {
+	for (auto i : xrange(DB_MUTE, DBTABLEN)) {
 		result[i] = 0;
 	}
-	for (int i = 0; i < DBTABLEN; ++i) {
+	for (auto i : xrange(DBTABLEN)) {
 		result[i + DBTABLEN] = -result[i];
 	}
 	return result;
@@ -178,7 +179,7 @@ constexpr auto arAdjustTab = [] {
 	std::array<unsigned, 1 << EG_BITS> result = {};
 	result[0] = (1 << EG_BITS) - 1;
 	constexpr double l127 = cstd::log<5, 4>(127.0);
-	for (int i = 1; i < (1 << EG_BITS); ++i) {
+	for (int i : xrange(1, 1 << EG_BITS)) {
 		result[i] = unsigned(double(1 << EG_BITS) - 1 -
 		         ((1 << EG_BITS) - 1) * cstd::log<5, 4>(double(i)) / l127);
 	}
@@ -197,11 +198,11 @@ constexpr auto tllTab = [] {
 	// This is different from Y8950 and YMF262 which have {0, 3, 1.5, 6}.
 	// (2nd and 3rd elements are swapped). Verified on real YM2413.
 
-	for (unsigned freq = 0; freq < 16 * 8; ++freq) {
-		unsigned fnum = freq & 15;
+	for (auto freq : xrange(16 * 8u)) {
+		unsigned fnum  = freq % 16;
 		unsigned block = freq / 16;
 		int tmp = 2 * klTable[fnum] - 16 * (7 - block);
-		for (unsigned KL = 0; KL < 4; ++KL) {
+		for (auto KL : xrange(4)) {
 			unsigned t = (tmp <= 0 || KL == 0) ? 0 : (tmp >> (3 - KL));
 			assert(t <= 112);
 			result[KL][freq] = t;
@@ -222,23 +223,23 @@ constexpr auto fullSinTable = [] {
 	};
 
 	std::array<unsigned, PG_WIDTH> result = {};
-	for (int i = 0; i < PG_WIDTH / 4; ++i) {
+	for (auto i : xrange(PG_WIDTH / 4)) {
 		result[i] = lin2db(cstd::sin<2>(double(2.0 * M_PI) * i / PG_WIDTH));
 	}
-	for (int i = 0; i < PG_WIDTH / 4; ++i) {
+	for (auto i : xrange(PG_WIDTH / 4)) {
 		result[PG_WIDTH / 2 - 1 - i] = result[i];
 	}
-	for (int i = 0; i < PG_WIDTH / 2; ++i) {
+	for (auto i : xrange(PG_WIDTH / 2)) {
 		result[PG_WIDTH / 2 + i] = DBTABLEN + result[i];
 	}
 	return result;
 }();
 constexpr auto halfSinTable = [] {
 	std::array<unsigned, PG_WIDTH> result = {};
-	for (int i = 0; i < PG_WIDTH / 2; ++i) {
+	for (auto i : xrange(PG_WIDTH / 2)) {
 		result[i] = fullSinTable[i];
 	}
-	for (int i = PG_WIDTH / 2; i < PG_WIDTH; ++i) {
+	for (auto i : xrange(PG_WIDTH / 2, PG_WIDTH)) {
 		result[i] = fullSinTable[0];
 	}
 	return result;
@@ -251,10 +252,10 @@ constexpr unsigned const * const waveform[2] = {fullSinTable.data(), halfSinTabl
 //  17.15 fixed point
 constexpr auto dPhaseDrTab = [] {
 	std::array<std::array<int, 16>, 16> result = {};
-	for (unsigned Rks = 0; Rks < 16; ++Rks) {
+	for (auto Rks : xrange(16)) {
 		result[Rks][0] = 0;
-		for (unsigned DR = 1; DR < 16; ++DR) {
-			unsigned RM = std::min(DR + (Rks >> 2), 15u);
+		for (auto DR : xrange(1, 16)) {
+			unsigned RM = std::min(DR + (Rks >> 2), 15);
 			unsigned RL = Rks & 3;
 			result[Rks][DR] =
 				((RL + 4) << EP_FP_BITS) >> (16 - RM);
@@ -658,8 +659,8 @@ YM2413::YM2413()
 		for (const auto& e : arAdjustTab) std::cout << e << ' ';
 		std::cout << '\n';
 
-		for (int i = 0; i < 4; ++i) {
-			for (int j = 0; j < 16 * 8; ++j) {
+		for (auto i : xrange(4)) {
+			for (auto j : xrange(16 * 8)) {
 				std::cout << int(tllTab[i][j]) << ' ';
 			}
 			std::cout << '\n';
@@ -671,8 +672,8 @@ YM2413::YM2413()
 		for (const auto& e : halfSinTable) std::cout << e << ' ';
 		std::cout << '\n';
 
-		for (int i = 0; i < 16; ++i) {
-			for (int j = 0; j < 16; ++j) {
+		for (auto i : xrange(16)) {
+			for (auto j : xrange(16)) {
 				std::cout << dPhaseDrTab[i][j] << ' ';
 			}
 			std::cout << '\n';
@@ -685,7 +686,7 @@ YM2413::YM2413()
 
 	memset(reg, 0, sizeof(reg)); // avoid UMR
 
-	for (unsigned i = 0; i < 16 + 3; ++i) {
+	for (auto i : xrange(16 + 3)) {
 		patches[i][0].initModulator(inst_data[i]);
 		patches[i][1].initCarrier  (inst_data[i]);
 	}
@@ -703,7 +704,7 @@ void YM2413::reset()
 	for (auto& ch : channels) {
 		ch.reset(*this);
 	}
-	for (unsigned i = 0; i < 0x40; ++i) {
+	for (auto i : xrange(0x40)) {
 		writeReg(i, 0);
 	}
 	registerLatch = 0;
@@ -1120,8 +1121,7 @@ void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 {
 	assert(num != 0);
 
-	unsigned m = isRhythm() ? 6 : 9;
-	for (unsigned i = 0; i < m; ++i) {
+	for (auto i : xrange(isRhythm() ? 6 : 9)) {
 		Channel& ch = channels[i];
 		if (ch.car.isActive()) {
 			// Below we choose between 128 specialized versions of
@@ -1290,7 +1290,7 @@ void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 		unsigned old_cPhase8 = ch8.car.cPhase;
 
 		if (ch6.car.isActive()) {
-			for (unsigned sample = 0; sample < num; ++sample) {
+			for (auto sample : xrange(num)) {
 				bufs[ 9][sample] += 2 *
 				    ch6.car.calc_slot_car<false, false>(
 				        0, 0, ch6.mod.calc_slot_mod<
@@ -1301,7 +1301,7 @@ void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 		}
 
 		if (ch7.car.isActive()) {
-			for (unsigned sample = 0; sample < num; ++sample) {
+			for (auto sample : xrange(num)) {
 				noise_seed >>= 1;
 				bool noise_bit = noise_seed & 1;
 				if (noise_bit) noise_seed ^= 0x8003020;
@@ -1313,7 +1313,7 @@ void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 		}
 
 		if (ch8.car.isActive()) {
-			for (unsigned sample = 0; sample < num; ++sample) {
+			for (auto sample : xrange(num)) {
 				unsigned phase7 = ch7.mod.calc_phase(0);
 				unsigned phase8 = ch8.car.calc_phase(0);
 				bufs[11][sample] +=
@@ -1328,7 +1328,7 @@ void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 			noise_seed = old_noise;
 			ch7.mod.cPhase = old_cPhase7;
 			ch8.car.cPhase = old_cPhase8;
-			for (unsigned sample = 0; sample < num; ++sample) {
+			for (auto sample : xrange(num)) {
 				noise_seed >>= 1;
 				bool noise_bit = noise_seed & 1;
 				if (noise_bit) noise_seed ^= 0x8003020;
@@ -1342,7 +1342,7 @@ void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 		}
 
 		if (ch8.mod.isActive()) {
-			for (unsigned sample = 0; sample < num; ++sample) {
+			for (auto sample : xrange(num)) {
 				bufs[13][sample] += 2 * ch8.mod.calc_slot_tom();
 			}
 		} else {
@@ -1382,8 +1382,7 @@ void YM2413::writeReg(uint8_t r, uint8_t data)
 		patches[0][0].EG   = (data >> 5) & 1;
 		patches[0][0].setKR ((data >> 4) & 1);
 		patches[0][0].setML ((data >> 0) & 15);
-		unsigned m = isRhythm() ? 6 : 9;
-		for (unsigned i = 0; i < m; ++i) {
+		for (auto i : xrange(isRhythm() ? 6 : 9)) {
 			if ((reg[0x30 + i] & 0xF0) == 0) {
 				Channel& ch = channels[i];
 				ch.setPatch(0, *this); // TODO optimize
@@ -1401,8 +1400,7 @@ void YM2413::writeReg(uint8_t r, uint8_t data)
 		patches[0][1].EG   = (data >> 5) & 1;
 		patches[0][1].setKR ((data >> 4) & 1);
 		patches[0][1].setML ((data >> 0) & 15);
-		unsigned m = isRhythm() ? 6 : 9;
-		for (unsigned i = 0; i < m; ++i) {
+		for (auto i : xrange(isRhythm() ? 6 : 9)) {
 			if ((reg[0x30 + i] & 0xF0) == 0) {
 				Channel& ch = channels[i];
 				ch.setPatch(0, *this); // TODO optimize
@@ -1418,8 +1416,7 @@ void YM2413::writeReg(uint8_t r, uint8_t data)
 		reg[r] = data;
 		patches[0][0].setKL((data >> 6) &  3);
 		patches[0][0].setTL((data >> 0) & 63);
-		unsigned m = isRhythm() ? 6 : 9;
-		for (unsigned i = 0; i < m; ++i) {
+		for (auto i : xrange(isRhythm() ? 6 : 9)) {
 			if ((reg[0x30 + i] & 0xF0) == 0) {
 				Channel& ch = channels[i];
 				ch.setPatch(0, *this); // TODO optimize
@@ -1436,8 +1433,7 @@ void YM2413::writeReg(uint8_t r, uint8_t data)
 		patches[0][1].setWF((data >> 4) & 1);
 		patches[0][0].setWF((data >> 3) & 1);
 		patches[0][0].setFB((data >> 0) & 7);
-		unsigned m = isRhythm() ? 6 : 9;
-		for (unsigned i = 0; i < m; ++i) {
+		for (auto i : xrange(isRhythm() ? 6 : 9)) {
 			if ((reg[0x30 + i] & 0xF0) == 0) {
 				Channel& ch = channels[i];
 				ch.setPatch(0, *this); // TODO optimize
@@ -1449,8 +1445,7 @@ void YM2413::writeReg(uint8_t r, uint8_t data)
 		reg[r] = data;
 		patches[0][0].AR = (data >> 4) & 15;
 		patches[0][0].DR = (data >> 0) & 15;
-		unsigned m = isRhythm() ? 6 : 9;
-		for (unsigned i = 0; i < m; ++i) {
+		for (auto i : xrange(isRhythm() ? 6 : 9)) {
 			if ((reg[0x30 + i] & 0xF0) == 0) {
 				Channel& ch = channels[i];
 				ch.setPatch(0, *this); // TODO optimize
@@ -1466,8 +1461,7 @@ void YM2413::writeReg(uint8_t r, uint8_t data)
 		reg[r] = data;
 		patches[0][1].AR = (data >> 4) & 15;
 		patches[0][1].DR = (data >> 0) & 15;
-		unsigned m = isRhythm() ? 6 : 9;
-		for (unsigned i = 0; i < m; ++i) {
+		for (auto i : xrange(isRhythm() ? 6 : 9)) {
 			if ((reg[0x30 + i] & 0xF0) == 0) {
 				Channel& ch = channels[i];
 				ch.setPatch(0, *this); // TODO optimize
@@ -1483,8 +1477,7 @@ void YM2413::writeReg(uint8_t r, uint8_t data)
 		reg[r] = data;
 		patches[0][0].setSL((data >> 4) & 15);
 		patches[0][0].RR  = (data >> 0) & 15;
-		unsigned m = isRhythm() ? 6 : 9;
-		for (unsigned i = 0; i < m; ++i) {
+		for (auto i : xrange(isRhythm() ? 6 : 9)) {
 			if ((reg[0x30 + i] & 0xF0) == 0) {
 				Channel& ch = channels[i];
 				ch.setPatch(0, *this); // TODO optimize
@@ -1500,8 +1493,7 @@ void YM2413::writeReg(uint8_t r, uint8_t data)
 		reg[r] = data;
 		patches[0][1].setSL((data >> 4) & 15);
 		patches[0][1].RR  = (data >> 0) & 15;
-		unsigned m = isRhythm() ? 6 : 9;
-		for (unsigned i = 0; i < m; i++) {
+		for (auto i : xrange(isRhythm() ? 6 : 9)) {
 			if ((reg[0x30 + i] & 0xF0) == 0) {
 				Channel& ch = channels[i];
 				ch.setPatch(0, *this); // TODO optimize

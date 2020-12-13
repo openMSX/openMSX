@@ -8,6 +8,7 @@
 
 #include "stl.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <cstdlib>
 #include <functional>
@@ -194,14 +195,14 @@ private:
 			newBuf = static_cast<Elem*>(malloc(newCapacity * sizeof(Elem)));
 			if (!newBuf) throw std::bad_alloc();
 
-			for (size_t i = 0; i < capacity_; ++i) {
+			for (size_t i : xrange(capacity_)) {
 				new (&newBuf[i]) Elem(std::move(oldBuf[i]));
 				oldBuf[i].~Elem();
 			}
 			free(oldBuf);
 		}
 
-		for (unsigned i = capacity_; i < newCapacity - 1; ++i) {
+		for (auto i : xrange(capacity_, newCapacity - 1)) {
 			newBuf[i].nextIdx = i + 1 + 1;
 		}
 		newBuf[newCapacity - 1].nextIdx = 0;
@@ -216,7 +217,7 @@ private:
 		auto* newBuf = static_cast<Elem*>(malloc(newCapacity * sizeof(Elem)));
 		if (!newBuf) throw std::bad_alloc();
 
-		for (unsigned i = 0; i < newCapacity - 1; ++i) {
+		for (auto i : xrange(newCapacity - 1)) {
 			newBuf[i].nextIdx = i + 1 + 1;
 		}
 		newBuf[newCapacity - 1].nextIdx = 0;
@@ -742,7 +743,7 @@ private:
 	void rehash(unsigned oldCount)
 	{
 		assert((oldCount & (oldCount - 1)) == 0); // must be a power-of-2
-		for (unsigned i = 0; i < oldCount; i++) {
+		for (auto i : xrange(oldCount)) {
 			auto* p0 = &table[i];
 			auto* p1 = &table[i + oldCount];
 			for (auto p = *p0; p; p = pool.get(p).nextIdx) {

@@ -3,6 +3,7 @@
 
 #include "PixelOperations.hh"
 #include "likely.hh"
+#include "xrange.hh"
 #include <type_traits>
 #include <cstddef>
 #include <cstring>
@@ -364,11 +365,11 @@ static inline void scale_1onN(
 	size_t i = 0, j = 0;
 	for (/* */; i < (width - (N - 1)); i += N, j += 1) {
 		Pixel pix = in[j];
-		for (unsigned k = 0; k < N; ++k) {
+		for (auto k : xrange(N)) {
 			out[i + k] = pix;
 		}
 	}
-	for (unsigned k = 0; k < (N - 1); ++k) {
+	for (auto k : xrange(N - 1)) {
 		if ((i + k) < width) out[i + k] = 0;
 	}
 }
@@ -479,7 +480,7 @@ void Scale_1on2<Pixel>::operator()(
 
 	// C++ version. Used both on non-x86 machines and (possibly) on x86 for
 	// the last few pixels of the line.
-	for (size_t x = 0; x < srcWidth; ++x) {
+	for (auto x : xrange(srcWidth)) {
 		out[x * 2] = out[x * 2 + 1] = in[x];
 	}
 }
@@ -648,7 +649,7 @@ void Scale_2on1<Pixel>::operator()(
 #endif
 
 	// pure C++ version
-	for (size_t i = 0; i < dstWidth; ++i) {
+	for (auto i : xrange(dstWidth)) {
 		out[i] = pixelOps.template blend<1, 1>(
 			in[2 * i + 0], in[2 * i + 1]);
 	}
@@ -665,7 +666,7 @@ template<typename Pixel>
 void Scale_6on1<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
-	for (size_t i = 0; i < width; ++i) {
+	for (auto i : xrange(width)) {
 		out[i] = pixelOps.template blend6<1, 1, 1, 1, 1, 1>(&in[6 * i]);
 	}
 }
@@ -681,7 +682,7 @@ template<typename Pixel>
 void Scale_4on1<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
-	for (size_t i = 0; i < width; ++i) {
+	for (auto i : xrange(width)) {
 		out[i] = pixelOps.template blend4<1, 1, 1, 1>(&in[4 * i]);
 	}
 }
@@ -697,7 +698,7 @@ template<typename Pixel>
 void Scale_3on1<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
-	for (size_t i = 0; i < width; ++i) {
+	for (auto i : xrange(width)) {
 		out[i] = pixelOps.template blend3<1, 1, 1>(&in[3 * i]);
 	}
 }
@@ -739,7 +740,7 @@ void Scale_3on4<Pixel>::operator()(
 		out[i + 2] = pixelOps.template blend2<2, 1>(&in[j + 1]);
 		out[i + 3] =                                 in[j + 2];
 	}
-	for (size_t k = 0; k < (4 - 1); ++k) {
+	for (auto k : xrange(4 - 1)) {
 		if ((i + k) < width) out[i + k] = 0;
 	}
 }
@@ -766,7 +767,7 @@ void Scale_3on8<Pixel>::operator()(
 		out[i + 6] =                                 in[j + 2];
 		out[i + 7] =                                 in[j + 2];
 	}
-	for (size_t k = 0; k < (8 - 1); ++k) {
+	for (auto k : xrange(8 - 1)) {
 		if ((i + k) < width) out[i + k] = 0;
 	}
 }
@@ -1054,7 +1055,7 @@ void BlendLines<Pixel, w1, w2>::operator()(
 	// It _IS_ allowed that the output is the same as one of the inputs.
 	// TODO SSE optimizations
 	// pure C++ version
-	for (size_t i = 0; i < width; ++i) {
+	for (auto i : xrange(width)) {
 		out[i] = pixelOps.template blend<w1, w2>(in1[i], in2[i]);
 	}
 }
@@ -1075,7 +1076,7 @@ void ZoomLine<Pixel>::operator()(
 
 	unsigned step = FACTOR * inWidth / outWidth;
 	unsigned i = 0 * FACTOR;
-	for (unsigned o = 0; o < outWidth; ++o) {
+	for (auto o : xrange(outWidth)) {
 		Pixel p0 = in[(i / FACTOR) + 0];
 		Pixel p1 = in[(i / FACTOR) + 1];
 		out[o] = pixelOps.lerp(p0, p1, i % FACTOR);
@@ -1095,7 +1096,7 @@ void AlphaBlendLines<Pixel>::operator()(
 	const Pixel* in1, const Pixel* in2, Pixel* out, size_t width)
 {
 	// It _IS_ allowed that the output is the same as one of the inputs.
-	for (size_t i = 0; i < width; ++i) {
+	for (auto i : xrange(width)) {
 		out[i] = pixelOps.alphaBlend(in1[i], in2[i]);
 	}
 }
@@ -1115,12 +1116,12 @@ void AlphaBlendLines<Pixel>::operator()(
 	// When one of the two colors is loop-invariant, using the
 	// pre-multiplied-alpha-blending equation is a tiny bit more efficient
 	// than using alphaBlend() or even lerp().
-	//    for (size_t i = 0; i < width; ++i) {
+	//    for (auto i : xrange(width)) {
 	//        out[i] = pixelOps.lerp(in1, in2[i], alpha);
 	//    }
 	Pixel in1M = pixelOps.multiply(in1, alpha);
 	unsigned alpha2 = 256 - alpha;
-	for (size_t i = 0; i < width; ++i) {
+	for (auto i : xrange(width)) {
 		out[i] = in1M + pixelOps.multiply(in2[i], alpha2);
 	}
 }

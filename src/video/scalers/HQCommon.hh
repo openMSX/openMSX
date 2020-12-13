@@ -7,6 +7,7 @@
 #include "PixelOperations.hh"
 #include "endian.hh"
 #include "vla.hh"
+#include "xrange.hh"
 #include "build-info.hh"
 #include <algorithm>
 #include <cassert>
@@ -151,7 +152,7 @@ void calcEdgesGL(const uint32_t* __restrict curr, const uint32_t* __restrict nex
 	Pixel c8 = next[0];
 	if (edgeOp(c5, c8)) pattern |= 0x1800'0000; // edges: 9,D (right pixel)
 
-	for (unsigned xx = 0; xx < (320 - 2) / 2; ++xx) {
+	for (auto xx : xrange((320 - 2) / 2)) {
 		pattern = (pattern >> (16 + 9)) & 0x001C;   // edges: 6,D,9 -> 4,7,C        (left pixel)
 		pattern |= (edges2[xx] << 3) & 0xC460'C460; // edges C,8,D,7,9 -> 1,2,3,A,B (left and right)
 

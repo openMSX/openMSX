@@ -232,7 +232,7 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 
 		// Create the array of pointers to image data.
 		VLA(png_bytep, row_pointers, height);
-		for (png_uint_32 row = 0; row < height; ++row) {
+		for (auto row : xrange(height)) {
 			row_pointers[row] = reinterpret_cast<png_bytep>(
 				surface.getLinePtr(row));
 		}
@@ -361,7 +361,7 @@ static void save(SDL_Surface* image, const std::string& filename)
 
 	// Create the array of pointers to image data
 	VLA(const void*, row_pointers, image->h);
-	for (int i = 0; i < image->h; ++i) {
+	for (auto i : xrange(image->h)) {
 		row_pointers[i] = surf24.getLinePtr(i);
 	}
 
@@ -375,7 +375,7 @@ void save(unsigned width, unsigned height, const void** rowPointers,
 	SDLSurfacePtr surface(
 		width, height, format.getBpp(),
 		format.getRmask(), format.getGmask(), format.getBmask(), format.getAmask());
-	for (unsigned y = 0; y < height; ++y) {
+	for (auto y : xrange(height)) {
 		memcpy(surface.getLinePtr(y),
 		       rowPointers[y], width * format.getBytesPerPixel());
 	}

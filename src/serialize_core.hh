@@ -4,6 +4,7 @@
 #include "serialize_constr.hh"
 #include "serialize_meta.hh"
 #include "one_of.hh"
+#include "xrange.hh"
 #include <string>
 #include <type_traits>
 #include <cassert>
@@ -676,9 +677,10 @@ template<typename TC> struct CollectionLoader
 		sac::prepare(tc, n);
 		auto it = sac::output(tc);
 		CollectionLoaderHelper<sac> loadOneElement;
-		for (int i = 0; i < n; ++i, ++it) {
+		repeat(n, [&] {
 			loadOneElement(ar, args, it, id);
-		}
+			++it;
+		});
 	}
 };
 template<typename T> struct Loader

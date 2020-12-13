@@ -11,6 +11,7 @@
 #include "ranges.hh"
 #include "stl.hh"
 #include "vla.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <cstdint>
 #include <numeric>
@@ -37,7 +38,7 @@ GLPostProcessor::GLPostProcessor(
 	initBuffers();
 
 	storedFrame = false;
-	for (int i = 0; i < 2; ++i) {
+	for (auto i : xrange(2)) {
 		colorTex[i].bind();
 		colorTex[i].setInterpolation(true);
 		auto [w, h] = screen.getLogicalSize();
@@ -323,7 +324,7 @@ void GLPostProcessor::uploadBlock(
 	// upload data
 	pbo.bind();
 	uint32_t* mapped = pbo.mapWrite();
-	for (unsigned y = srcStartY; y < srcEndY; ++y) {
+	for (auto y : xrange(srcStartY, srcEndY)) {
 		auto* dest = mapped + y * lineWidth;
 		const auto* data = paintFrame->getLinePtr(y, lineWidth, dest);
 		if (data != dest) {
@@ -394,7 +395,7 @@ void GLPostProcessor::preCalcNoise(float factor)
 	GLbyte buf2[256 * 256];
 	auto& generator = global_urng(); // fast (non-cryptographic) random numbers
 	std::normal_distribution<float> distribution(0.0f, 1.0f);
-	for (int i = 0; i < 256 * 256; ++i) {
+	for (auto i : xrange(256 * 256)) {
 		float r = distribution(generator);
 		int s = std::clamp(int(roundf(r * factor)), -255, 255);
 		buf1[i] = (s > 0) ?  s : 0;
@@ -504,8 +505,8 @@ void GLPostProcessor::preCalcMonitor3D(float width)
 	float s = width / 320.0f;
 	float b = (320.0f - width) / (2.0f * 320.0f);
 
-	for (int sx = 0; sx < GRID_SIZE1; ++sx) {
-		for (int sy = 0; sy < GRID_SIZE1; ++sy) {
+	for (auto sx : xrange(GRID_SIZE1)) {
+		for (auto sy : xrange(GRID_SIZE1)) {
 			Vertex& v = vertices[sx][sy];
 			float x = (sx - GRID_SIZE2) / GRID_SIZE2;
 			float y = (sy - GRID_SIZE2) / GRID_SIZE2;
@@ -521,8 +522,8 @@ void GLPostProcessor::preCalcMonitor3D(float width)
 	uint16_t indices[NUM_INDICES];
 
 	uint16_t* ind = indices;
-	for (int y = 0; y < GRID_SIZE; ++y) {
-		for (int x = 0; x < GRID_SIZE1; ++x) {
+	for (auto y : xrange(GRID_SIZE)) {
+		for (auto x : xrange(GRID_SIZE1)) {
 			*ind++ = (y + 0) * GRID_SIZE1 + x;
 			*ind++ = (y + 1) * GRID_SIZE1 + x;
 		}
@@ -531,13 +532,13 @@ void GLPostProcessor::preCalcMonitor3D(float width)
 	}
 	assert((ind - indices) == NUM_INDICES + 2);
 	ind = indices;
-	for (int y = 0; y < (GRID_SIZE - 1); ++y) {
+	repeat(GRID_SIZE - 1, [&] {
 		ind += 2 * GRID_SIZE1;
 		// repeat prev and next index to restart strip
 		ind[0] = ind[-1];
 		ind[1] = ind[ 2];
 		ind += 2;
-	}
+	});
 
 	// upload calculated values to buffers
 	glBindBuffer(GL_ARRAY_BUFFER, arrayBuffer.get());

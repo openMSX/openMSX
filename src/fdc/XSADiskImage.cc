@@ -1,6 +1,7 @@
 #include "XSADiskImage.hh"
 #include "DiskExceptions.hh"
 #include "File.hh"
+#include "xrange.hh"
 #include <cstring>
 #include <utility>
 
@@ -120,7 +121,7 @@ void XSAExtractor::chkHeader()
 {
 	// read original length (little endian)
 	unsigned outBufLen = 0;
-	for (int i = 0; i < 4; ++i) {
+	for (auto i : xrange(4)) {
 		outBufLen |= charIn() << (8 * i);
 	}
 	sectors = (outBufLen + 511) / 512;
@@ -250,14 +251,14 @@ bool XSAExtractor::bitIn()
 void XSAExtractor::initHufInfo()
 {
 	int offs = 1;
-	for (int i = 0; i != TBLSIZE; ++i) {
+	for (auto i : xrange(TBLSIZE)) {
 		cpDist[i] = offs;
 		cpdBmask[i] = 1 << cpdExt[i];
 		offs += cpdBmask[i];
 	}
 	cpDist[TBLSIZE] = offs;
 
-	for (int i = 0; i != TBLSIZE; ++i) {
+	for (auto i : xrange(TBLSIZE)) {
 		tblSizes[i] = 0;            // reset the table counters
 		hufTbl[i].child1 = nullptr; // mark the leave nodes
 	}
@@ -269,7 +270,7 @@ void XSAExtractor::mkHufTbl()
 {
 	// Initialize the huffman tree
 	HufNode* hufPos = hufTbl;
-	for (int i = 0; i != TBLSIZE; ++i) {
+	for (auto i : xrange(TBLSIZE)) {
 		(hufPos++)->weight = 1 + (tblSizes[i] >>= 1);
 	}
 	for (int i = TBLSIZE; i != 2 * TBLSIZE - 1; ++i) {

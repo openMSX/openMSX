@@ -10,6 +10,7 @@
 #include "cstd.hh"
 #include "ranges.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <array>
 #include <cmath>
 #include <cstring>
@@ -49,7 +50,7 @@ constexpr int TL_RES_LEN = 256; // 8 bits addressing (real chip)
 constexpr unsigned TL_TAB_LEN = 13 * 2 * TL_RES_LEN;
 static constexpr auto tl_tab = [] {
 	std::array<int, TL_TAB_LEN> result = {};
-	for (int x = 0; x < TL_RES_LEN; ++x) {
+	for (auto x : xrange(TL_RES_LEN)) {
 		double m = (1 << 16) / cstd::exp2<6>((x + 1) * (ENV_STEP / 4.0) / 8.0);
 
 		// we never reach (1 << 16) here due to the (x + 1)
@@ -67,7 +68,7 @@ static constexpr auto tl_tab = [] {
 		result[x * 2 + 0] = n;
 		result[x * 2 + 1] = -result[x * 2 + 0];
 
-		for (int i = 1; i < 13; ++i) {
+		for (auto i : xrange(1, 13)) {
 			result[x * 2 + 0 + i * 2 * TL_RES_LEN] =  result[x * 2 + 0] >> i;
 			result[x * 2 + 1 + i * 2 * TL_RES_LEN] = -result[x * 2 + 0 + i * 2 * TL_RES_LEN];
 		}
@@ -80,7 +81,7 @@ constexpr unsigned ENV_QUIET = TL_TAB_LEN >> 3;
 // sin waveform table in 'decibel' scale
 static constexpr auto sin_tab = [] {
 	std::array<unsigned, SIN_LEN> result = {};
-	for (int i = 0; i < SIN_LEN; ++i) {
+	for (auto i : xrange(SIN_LEN)) {
 		// non-standard sinus
 		double m = cstd::sin<2>((i * 2 + 1) * M_PI / SIN_LEN); // verified on the real chip
 
@@ -338,31 +339,31 @@ static constexpr auto freq = [] {
 	//   -10 because phaseinc_rom table values are already in 10.10 format
 	double mult = 1 << (FREQ_SH - 10);
 
-	for (int i = 0; i < 768; ++i) {
+	for (auto i : xrange(768)) {
 		double phaseinc = phaseinc_rom[i]; // real chip phase increment
 
 		// octave 2 - reference octave
 		//   adjust to X.10 fixed point
 		result[768 + 2 * 768 + i] = int(phaseinc * mult) & 0xffffffc0;
 		// octave 0 and octave 1
-		for (int j = 0; j < 2; ++j) {
+		for (auto j : xrange(2)) {
 			// adjust to X.10 fixed point
 			result[768 + j * 768 + i] = (result[768 + 2 * 768 + i] >> (2 - j)) & 0xffffffc0;
 		}
 		// octave 3 to 7
-		for (int j = 3; j < 8; ++j) {
+		for (auto j : xrange(3, 8)) {
 			result[768 + j * 768 + i] = result[768 + 2 * 768 + i] << (j - 2);
 		}
 	}
 
 	// octave -1 (all equal to: oct 0, _KC_00_, _KF_00_)
-	for (int i = 0; i < 768; ++i) {
+	for (auto i : xrange(768)) {
 		result[0 * 768 + i] = result[1 * 768 + 0];
 	}
 
 	// octave 8 and 9 (all equal to: oct 7, _KC_14_, _KF_63_)
-	for (int j = 8; j < 10; ++j) {
-		for (int i = 0; i < 768; ++i) {
+	for (auto j : xrange(8, 10)) {
+		for (auto i : xrange(768)) {
 			result[768 + j * 768 + i] = result[768 + 8 * 768 - 1];
 		}
 	}
@@ -374,10 +375,10 @@ static constexpr auto freq = [] {
 static constexpr auto dt1_freq = [] {
 	std::array<int, 8 * 32> result = {};    // 8 DT1 levels, 32 KC values
 	double mult = 1 << FREQ_SH;
-	for (int j = 0; j < 4; ++j) {
-		for (int i = 0; i < 32; ++i) {
+	for (auto j : xrange(4)) {
+		for (auto i : xrange(32)) {
 			// calculate phase increment
-			double phaseinc = double(dt1_tab[j * 32 + i]) / (1 << 20) * (SIN_LEN);
+			double phaseinc = double(dt1_tab[j * 32 + i]) / (1 << 20) * SIN_LEN;
 
 			// positive and negative values
 			result[(j + 0) * 32 + i] = int(phaseinc * mult);
@@ -950,7 +951,7 @@ void YM2151::reset(EmuTime::param time)
 
 	writeReg(0x1b, 0, time); // only because of CT1, CT2 output pins
 	writeReg(0x18, 0, time); // set LFO frequency
-	for (int i = 0x20; i < 0x100; ++i) { // set the operators
+	for (auto i : xrange(0x20, 0x100)) { // set the operators
 		writeReg(i, 0, time);
 	}
 
@@ -1500,23 +1501,21 @@ void YM2151::generateChannels(float** bufs, unsigned num)
 {
 	if (checkMuteHelper()) {
 		// TODO update internal state, even if muted
-		for (int i = 0; i < 8; ++i) {
-			bufs[i] = nullptr;
-		}
+		std::fill_n(bufs, 8, nullptr);
 		return;
 	}
 
-	for (unsigned i = 0; i < num; ++i) {
+	for (auto i : xrange(num)) {
 		advanceEG();
 
-		for (int j = 0; j < 8-1; ++j) {
+		for (auto j : xrange(8 - 1)) {
 			chanout[j] = 0;
 			chanCalc(j);
 		}
 		chanout[7] = 0;
 		chan7Calc(); // special case for channel 7
 
-		for (int j = 0; j < 8; ++j) {
+		for (auto j : xrange(8)) {
 			bufs[j][2 * i + 0] += int(chanout[j] & pan[2 * j + 0]);
 			bufs[j][2 * i + 1] += int(chanout[j] & pan[2 * j + 1]);
 		}
@@ -1643,7 +1642,7 @@ void YM2151::serialize(Archive& a, unsigned /*version*/)
 	if (a.isLoader()) {
 		// TODO restore more state from registers
 		EmuTime::param time = timer1->getCurrentTime();
-		for (int r = 0x20; r < 0x28; ++r) {
+		for (auto r : xrange(0x20, 0x28)) {
 			writeReg(r , regs[r], time);
 		}
 	}

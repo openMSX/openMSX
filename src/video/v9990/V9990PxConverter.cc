@@ -214,7 +214,7 @@ static void renderSprites(
 	int visibleSprites[16 + 1];
 	int index = 0;
 	int index_max = 16;
-	for (unsigned sprite = 0; sprite < 125; ++sprite) {
+	for (auto sprite : xrange(125)) {
 		unsigned spriteInfo = spriteTable + 4 * sprite;
 		byte spriteY = Policy::readSpriteAttr(vram, spriteInfo) + 1;
 		byte posY = displayY - spriteY;

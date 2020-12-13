@@ -12,6 +12,7 @@ Visit the HiEnd3D site for info:
 #include "HQCommon.hh"
 #include "LineScalers.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include "build-info.hh"
 #include <cstdint>
 
@@ -42,7 +43,7 @@ void HQ_1x1on3x3<Pixel>::operator()(
 	if (edgeOp(c5, c8)) pattern |= 3 <<  6;
 	if (edgeOp(c5, c2)) pattern |= 3 <<  9;
 
-	for (unsigned x = 0; x < srcWidth; ++x) {
+	for (auto x : xrange(srcWidth)) {
 		unsigned c1 = c2;
 		unsigned c4 = c5;
 		unsigned c7 = c8;

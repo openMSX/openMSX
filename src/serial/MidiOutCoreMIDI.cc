@@ -40,10 +40,8 @@ void MidiOutMessageBuffer::recvMessage(
 
 void MidiOutCoreMIDI::registerAll(PluggingController& controller)
 {
-	ItemCount numberOfEndpoints = MIDIGetNumberOfDestinations();
-	for (ItemCount i = 0; i < numberOfEndpoints; i++) {
-		MIDIEndpointRef endpoint = MIDIGetDestination(i);
-		if (endpoint) {
+	for (auto i : xrange(MIDIGetNumberOfDestinations())) {
+		if (MIDIEndpointRef endpoint = MIDIGetDestination(i)) {
 			controller.registerPluggable(
 				std::make_unique<MidiOutCoreMIDI>(endpoint));
 		}

@@ -245,7 +245,7 @@ void TclParser::setColors(const char* p, int size, char c)
 {
 	int start = (p - parseStr.data()) + offset;
 	int stop = std::min(start + size, int(colors.size()));
-	for (int i = start; i < stop; ++i) {
+	for (auto i : xrange(start, stop)) {
 		colors[i] = c;
 	}
 }

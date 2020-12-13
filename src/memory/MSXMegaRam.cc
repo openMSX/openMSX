@@ -26,6 +26,7 @@
 #include "Rom.hh"
 #include "Math.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <memory>
 
 namespace openmsx {
@@ -47,7 +48,7 @@ MSXMegaRam::~MSXMegaRam() = default;
 
 void MSXMegaRam::powerUp(EmuTime::param time)
 {
-	for (unsigned i = 0; i < 4; i++) {
+	for (auto i : xrange(4)) {
 		setBank(i, 0);
 	}
 	writeMode = false;

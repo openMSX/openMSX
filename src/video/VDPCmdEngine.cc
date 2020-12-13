@@ -1037,7 +1037,7 @@ loop:		if (unlikely(calculator.limitReached())) { phase = 0; break; }
 			unsigned num = (delta != EmuDuration::zero())
 			             ? std::min(dur.divUp(delta), ANX)
 			             : ANX;
-			for (unsigned i = 0; i < num; ++i) {
+			for (auto i : xrange(num)) {
 				byte mask = dstMask.getMask();
 				psetFast(engineTime, vram, dstAddr.getAddr(),
 					 CL & ~mask, mask, LogOp());
@@ -1174,7 +1174,7 @@ loop:		if (unlikely(calculator.limitReached())) { phase = 0; break; }
 			unsigned num = (delta != EmuDuration::zero())
 			             ? std::min(dur.divUp(delta), ANX)
 			             : ANX;
-			for (unsigned i = 0; i < num; ++i) {
+			for (auto i : xrange(num)) {
 				byte p = vram.cmdReadWindow.readNP(srcAddr.getAddr());
 				p = shift.doShift(p);
 				byte mask = dstMask.getMask();
@@ -1397,7 +1397,7 @@ void VDPCmdEngine::executeHmmv(EmuTime::param limit)
 			unsigned num = (delta != EmuDuration::zero())
 			             ? std::min(dur.divUp(delta), ANX)
 			             : ANX;
-			for (unsigned i = 0; i < num; ++i) {
+			for (auto i : xrange(num)) {
 				vram.cmdWrite(dstAddr.getAddr(), COL,
 					      engineTime);
 				engineTime += delta;
@@ -1525,7 +1525,7 @@ loop:		if (unlikely(calculator.limitReached())) { phase = 0; break; }
 			unsigned num = (delta != EmuDuration::zero())
 			             ? std::min(dur.divUp(delta), ANX)
 			             : ANX;
-			for (unsigned i = 0; i < num; ++i) {
+			for (auto i : xrange(num)) {
 				byte p = vram.cmdReadWindow.readNP(srcAddr.getAddr());
 				vram.cmdWrite(dstAddr.getAddr(), p, engineTime);
 				engineTime += delta;
@@ -1655,7 +1655,7 @@ loop:		if (unlikely(calculator.limitReached())) { phase = 0; break; }
 			unsigned num = (delta != EmuDuration::zero())
 			             ? std::min(dur.divUp(delta), ANX)
 			             : ANX;
-			for (unsigned i = 0; i < num; ++i) {
+			for (auto i : xrange(num)) {
 				byte p = vram.cmdReadWindow.readNP(srcAddr.getAddr());
 				vram.cmdWrite(dstAddr.getAddr(), p, engineTime);
 				engineTime += delta;

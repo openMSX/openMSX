@@ -7,6 +7,7 @@
 #include "likely.hh"
 #include "inline.hh"
 #include "one_of.hh"
+#include "xrange.hh"
 
 namespace openmsx {
 
@@ -43,25 +44,25 @@ protected:
 		R800ForcePageBreak();
 
 		// TODO currently hardcoded, move to config file?
-		for (int page = 0; page < 4; ++page) {
-			for (int prim = 0; prim < 4; ++prim) {
-				for (int sec = 0; sec < 4; ++sec) {
-					unsigned val;
-					if (prim == one_of(1, 2)) {
-						// external slot
-						val = 2;
-					} else if ((prim == 3) && (sec == 0)) {
-						// internal RAM
-						val = 0;
-					} else {
-						// internal ROM
-						val = 1;
-					}
-					extraMemoryDelays[page][prim][sec] = val;
+		for (auto page : xrange(4)) {
+			for (auto prim : xrange(4)) {
+				for (auto sec : xrange(4)) {
+					extraMemoryDelays[page][prim][sec] = [&] {
+						if (prim == one_of(1, 2)) {
+							// external slot
+							return 2;
+						} else if ((prim == 3) && (sec == 0)) {
+							// internal RAM
+							return 0;
+						} else {
+							// internal ROM
+							return 1;
+						}
+					}();
 				}
 			}
 		}
-		for (int page = 0; page < 4; ++page) {
+		for (auto page : xrange(4)) {
 			extraMemoryDelay[page] = extraMemoryDelays[page][0][0];
 		}
 	}

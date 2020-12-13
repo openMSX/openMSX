@@ -1524,7 +1524,7 @@ std::array<std::array<uint8_t, 3>, 16> VDP::getMSX1Palette() const
 		return YM2220_PALETTE;
 	}
 	std::array<std::array<uint8_t, 3>, 16> tmsPalette;
-	for (int color = 0; color < 16; color++) {
+	for (auto color : xrange(16)) {
 		// convert from analog output to YPbPr
 		float Y  = TMS9XXXA_ANALOG_OUTPUT[color][0];
 		float Pr = TMS9XXXA_ANALOG_OUTPUT[color][1] - 0.5f;

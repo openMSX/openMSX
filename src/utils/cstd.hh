@@ -1,6 +1,7 @@
 #ifndef CSTD_HH
 #define CSTD_HH
 
+#include "xrange.hh"
 #include <cassert>
 #include <cmath>
 #include <cstddef>
@@ -176,10 +177,10 @@ template<int ITERATIONS>
 	double y = 1.0;
 	double t = f;
 	double n = 1.0;
-	for (int k = 2; k < (2 + ITERATIONS); ++k) {
+	for (auto k : xrange(ITERATIONS)) {
 		y += t / n;
 		t *= f;
-		n *= k;
+		n *= k + 2;
 	}
 
 	// Approximate exp(i) by squaring.
@@ -320,10 +321,10 @@ template<int E_ITERATIONS, int L_ITERATIONS>
 		++a;
 	}
 	double y = 0.0;
-	for (int i = 0; i < L_ITERATIONS; ++i) {
+	repeat(L_ITERATIONS, [&] {
 		auto ey = cstd::exp<E_ITERATIONS>(y);
 		y = y + 2.0 * (x - ey) / (x + ey);
-	}
+	});
 	return y - a;
 }
 

@@ -1,6 +1,7 @@
 #include "BitmapConverter.hh"
 #include "likely.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include "build-info.hh"
 #include "components.hh"
 #include <algorithm>
@@ -25,9 +26,9 @@ void BitmapConverter<Pixel>::calcDPalette()
 {
 	dPaletteValid = true;
 	unsigned bits = sizeof(Pixel) * 8;
-	for (unsigned i = 0; i < 16; ++i) {
+	for (auto i : xrange(16)) {
 		DPixel p0 = palette16[i];
-		for (unsigned j = 0; j < 16; ++j) {
+		for (auto j : xrange(16)) {
 			DPixel p1 = palette16[j];
 			DPixel dp = OPENMSX_BIGENDIAN
 				  ? (p0 << bits) | p1
@@ -143,7 +144,7 @@ void BitmapConverter<Pixel>::renderGraphic4(
 
 		pixelPtr += 1; // Move to next pixel, which is on word boundary
 		auto out = reinterpret_cast<DPixel*>(pixelPtr);
-		for (unsigned i = 0; i < 256 / 8; ++i) {
+		for (auto i : xrange(256 / 8)) {
 			// 8 pixels per iteration
 			if (OPENMSX_BIGENDIAN) {
 				out[4 * i + 0] = dPalette[(data >> 24) & 0xFF];
@@ -184,7 +185,7 @@ void BitmapConverter<Pixel>::renderGraphic4(
 
 	      auto* out = reinterpret_cast<DPixel*>(pixelPtr);
 	const auto* in  = reinterpret_cast<const unsigned*>(vramPtr0);
-	for (unsigned i = 0; i < 256 / 8; ++i) {
+	for (auto i : xrange(256 / 8)) {
 		// 8 pixels per iteration
 		unsigned data = in[i];
 		if (OPENMSX_BIGENDIAN) {
@@ -206,7 +207,7 @@ void BitmapConverter<Pixel>::renderGraphic5(
 	Pixel*      __restrict pixelPtr,
 	const byte* __restrict vramPtr0)
 {
-	for (unsigned i = 0; i < 128; ++i) {
+	for (auto i : xrange(128)) {
 		unsigned data = vramPtr0[i];
 		pixelPtr[4 * i + 0] = palette16[ 0 +  (data >> 6)     ];
 		pixelPtr[4 * i + 1] = palette16[16 + ((data >> 4) & 3)];
@@ -221,7 +222,7 @@ void BitmapConverter<Pixel>::renderGraphic6(
 	const byte* __restrict vramPtr0,
 	const byte* __restrict vramPtr1)
 {
-	/*for (unsigned i = 0; i < 128; ++i) {
+	/*for (auto i : xrange(128)) {
 		unsigned data0 = vramPtr0[i];
 		unsigned data1 = vramPtr1[i];
 		pixelPtr[4 * i + 0] = palette16[data0 >> 4];
@@ -235,7 +236,7 @@ void BitmapConverter<Pixel>::renderGraphic6(
 	      auto* out = reinterpret_cast<DPixel*>(pixelPtr);
 	const auto* in0 = reinterpret_cast<const unsigned*>(vramPtr0);
 	const auto* in1 = reinterpret_cast<const unsigned*>(vramPtr1);
-	for (unsigned i = 0; i < 512 / 16; ++i) {
+	for (auto i : xrange(512 / 16)) {
 		// 16 pixels per iteration
 		unsigned data0 = in0[i];
 		unsigned data1 = in1[i];
@@ -267,7 +268,7 @@ void BitmapConverter<Pixel>::renderGraphic7(
 	const byte* __restrict vramPtr0,
 	const byte* __restrict vramPtr1)
 {
-	for (unsigned i = 0; i < 128; ++i) {
+	for (auto i : xrange(128)) {
 		pixelPtr[2 * i + 0] = palette256[vramPtr0[i]];
 		pixelPtr[2 * i + 1] = palette256[vramPtr1[i]];
 	}
@@ -287,7 +288,7 @@ void BitmapConverter<Pixel>::renderYJK(
 	const byte* __restrict vramPtr0,
 	const byte* __restrict vramPtr1)
 {
-	for (unsigned i = 0; i < 64; ++i) {
+	for (auto i : xrange(64)) {
 		unsigned p[4];
 		p[0] = vramPtr0[2 * i + 0];
 		p[1] = vramPtr1[2 * i + 0];
@@ -297,7 +298,7 @@ void BitmapConverter<Pixel>::renderYJK(
 		int j = (p[2] & 7) + ((p[3] & 3) << 3) - ((p[3] & 4) << 3);
 		int k = (p[0] & 7) + ((p[1] & 3) << 3) - ((p[1] & 4) << 3);
 
-		for (unsigned n = 0; n < 4; ++n) {
+		for (auto n : xrange(4)) {
 			int y = p[n] >> 3;
 			auto [r, g, b] = yjk2rgb(y, j, k);
 			int col = (r << 10) + (g << 5) + b;
@@ -312,7 +313,7 @@ void BitmapConverter<Pixel>::renderYAE(
 	const byte* __restrict vramPtr0,
 	const byte* __restrict vramPtr1)
 {
-	for (unsigned i = 0; i < 64; ++i) {
+	for (auto i : xrange(64)) {
 		unsigned p[4];
 		p[0] = vramPtr0[2 * i + 0];
 		p[1] = vramPtr1[2 * i + 0];
@@ -322,7 +323,7 @@ void BitmapConverter<Pixel>::renderYAE(
 		int j = (p[2] & 7) + ((p[3] & 3) << 3) - ((p[3] & 4) << 3);
 		int k = (p[0] & 7) + ((p[1] & 3) << 3) - ((p[1] & 4) << 3);
 
-		for (unsigned n = 0; n < 4; ++n) {
+		for (auto n : xrange(4)) {
 			Pixel pix;
 			if (p[n] & 0x08) {
 				// YAE
@@ -345,7 +346,7 @@ void BitmapConverter<Pixel>::renderBogus(Pixel* pixelPtr)
 	// show palette color 15.
 	// When this is in effect, the VRAM is not refreshed anymore, but that
 	// is not emulated.
-	for (int n = 256; n--; ) *pixelPtr++ = palette16[15];
+	std::fill_n(pixelPtr, 256, palette16[15]);
 }
 
 // Force template instantiation.

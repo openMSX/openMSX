@@ -2,6 +2,7 @@
 #define OSDIMAGEBASEDWIDGET_HH
 
 #include "OSDWidget.hh"
+#include "span.hh"
 #include <cstdint>
 
 namespace openmsx {
@@ -13,7 +14,7 @@ class OSDImageBasedWidget : public OSDWidget
 {
 public:
 	[[nodiscard]] uint32_t getRGBA(uint32_t corner) const { return rgba[corner]; }
-	[[nodiscard]] const uint32_t* getRGBA4() const { return rgba; }
+	[[nodiscard]] span<const uint32_t, 4> getRGBA4() const { return rgba; }
 
 	[[nodiscard]] virtual uint8_t getFadedAlpha() const = 0;
 

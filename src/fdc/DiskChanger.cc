@@ -23,6 +23,7 @@
 #include "serialize_stl.hh"
 #include "serialize_constr.hh"
 #include "strCat.hh"
+#include "view.hh"
 #include <functional>
 #include <memory>
 #include <utility>
@@ -173,9 +174,9 @@ void DiskChanger::insertDisk(span<const TclObject> args)
 	string diskImage = FileOperations::getConventionalPath(string(args[1].getString()));
 	auto& diskFactory = reactor.getDiskFactory();
 	std::unique_ptr<Disk> newDisk(diskFactory.createDisk(diskImage, *this));
-	for (size_t i = 2; i < args.size(); ++i) {
+	for (const auto& arg : view::drop(args, 2)) {
 		newDisk->applyPatch(Filename(
-			string(args[i].getString()), userFileContext()));
+			string(arg.getString()), userFileContext()));
 	}
 
 	// no errors, only now replace original disk
@@ -254,7 +255,7 @@ void DiskCommand::execute(span<const TclObject> tokens, TclObject& result)
 		}
 		try {
 			vector<string> args = { diskChanger.getDriveName() };
-			for (size_t i = firstFileToken; i < tokens.size(); ++i) {
+			for (size_t i = firstFileToken; i < tokens.size(); ++i) { // 'i' changes in loop
 				std::string_view option = tokens[i].getString();
 				if (option == "-ips") {
 					if (++i == tokens.size()) {

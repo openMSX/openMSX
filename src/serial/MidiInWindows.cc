@@ -7,6 +7,7 @@
 #include "Scheduler.hh"
 #include "one_of.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <cstring>
 #include <cerrno>
 #include "Midi_w32.hh"
@@ -28,8 +29,7 @@ void MidiInWindows::registerAll(EventDistributor& eventDistributor,
                                 PluggingController& controller)
 {
 	w32_midiInInit();
-	unsigned devnum = w32_midiInGetVFNsNum();
-	for (unsigned i = 0 ; i <devnum; ++i) {
+	for (auto i : xrange(w32_midiInGetVFNsNum())) {
 		controller.registerPluggable(std::make_unique<MidiInWindows>(
 			eventDistributor, scheduler, i));
 	}
@@ -103,7 +103,7 @@ void MidiInWindows::procLongMsg(LPMIDIHDR p)
 	if (p->dwBytesRecorded) {
 		{
 			std::lock_guard<std::mutex> lock(queueMutex);
-			for (unsigned i = 0; i < p->dwBytesRecorded; ++i) {
+			for (auto i : xrange(p->dwBytesRecorded)) {
 				queue.push_back(p->lpData[i]);
 			}
 		}

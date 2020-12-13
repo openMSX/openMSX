@@ -19,6 +19,7 @@
 // likely not).
 
 #include "gl_vec.hh"
+#include "xrange.hh"
 #include <cassert>
 
 namespace gl {
@@ -35,8 +36,8 @@ public:
 	// Construct identity matrix.
 	matMxN()
 	{
-		for (int i = 0; i < N; ++i) {
-			for (int j = 0; j < M; ++j) {
+		for (auto i : xrange(N)) {
+			for (auto j : xrange(M)) {
 				c[i][j] = (i == j) ? T(1) : T(0);
 			}
 		}
@@ -45,8 +46,8 @@ public:
 	// Construct diagonal matrix.
 	explicit matMxN(const vecN<(M < N ? M : N), T>& d)
 	{
-		for (int i = 0; i < N; ++i) {
-			for (int j = 0; j < M; ++j) {
+		for (auto i : xrange(N)) {
+			for (auto j : xrange(M)) {
 				c[i][j] = (i == j) ? d[i] : T(0);
 			}
 		}
@@ -57,7 +58,7 @@ public:
 	{
 		static_assert(((M2 > M) && (N2 >= N)) || ((M2 >= M) && (N2 > N)),
 		              "matrix must have strictly larger dimensions");
-		for (int i = 0; i < N; ++i) c[i] = vecN<M, T>(x[i]);
+		for (auto i : xrange(N)) c[i] = vecN<M, T>(x[i]);
 	}
 
 	// Construct matrix from 2 given columns (only valid when N == 2).
@@ -165,7 +166,7 @@ using mat4 = matMxN<4, 4, float>;
 template<int M, int N, typename T>
 [[nodiscard]] inline bool operator==(const matMxN<M, N, T>& A, const matMxN<M, N, T>& B)
 {
-	for (int i = 0; i < N; ++i) if (A[i] != B[i]) return false;
+	for (auto i : xrange(N)) if (A[i] != B[i]) return false;
 	return true;
 }
 template<int M, int N, typename T>
@@ -179,7 +180,7 @@ template<int M, int N, typename T>
 [[nodiscard]] inline matMxN<M, N, T> operator+(const matMxN<M, N, T>& A, const matMxN<M, N, T>& B)
 {
 	matMxN<M, N, T> R;
-	for (int i = 0; i < N; ++i) R[i] = A[i] + B[i];
+	for (auto i : xrange(N)) R[i] = A[i] + B[i];
 	return R;
 }
 
@@ -188,7 +189,7 @@ template<int M, int N, typename T>
 [[nodiscard]] inline matMxN<M, N, T> operator-(const matMxN<M, N, T>& A, const matMxN<M, N, T>& B)
 {
 	matMxN<M, N, T> R;
-	for (int i = 0; i < N; ++i) R[i] = A[i] - B[i];
+	for (auto i : xrange(N)) R[i] = A[i] - B[i];
 	return R;
 }
 
@@ -204,7 +205,7 @@ template<int M, int N, typename T>
 [[nodiscard]] inline matMxN<M, N, T> operator*(T x, const matMxN<M, N, T>& A)
 {
 	matMxN<M, N, T> R;
-	for (int i = 0; i < N; ++i) R[i] = x * A[i];
+	for (auto i : xrange(N)) R[i] = x * A[i];
 	return R;
 }
 
@@ -213,7 +214,7 @@ template<int M, int N, typename T>
 [[nodiscard]] inline matMxN<M, N, T> operator*(const matMxN<M, N, T>& A, T x)
 {
 	matMxN<M, N, T> R;
-	for (int i = 0; i < N; ++i) R[i] = A[i] * x;
+	for (auto i : xrange(N)) R[i] = A[i] * x;
 	return R;
 }
 
@@ -222,7 +223,7 @@ template<int M, int N, typename T>
 [[nodiscard]] inline vecN<M, T> operator*(const matMxN<M, N, T>& A, const vecN<N, T>& x)
 {
 	vecN<M, T> r;
-	for (int i = 0; i < N; ++i) r += A[i] * x[i];
+	for (auto i : xrange(N)) r += A[i] * x[i];
 	return r;
 }
 template<typename T>
@@ -237,7 +238,7 @@ template<int M, int N, int O, typename T>
 [[nodiscard]] inline matMxN<M, O, T> operator*(const matMxN<M, N, T>& A, const matMxN<N, O, T>& B)
 {
 	matMxN<M, O, T> R;
-	for (int i = 0; i < O; ++i) R[i] = A * B[i];
+	for (auto i : xrange(O)) R[i] = A * B[i];
 	return R;
 }
 
@@ -246,8 +247,8 @@ template<int M, int N, typename T>
 [[nodiscard]] inline matMxN<N, M, T> transpose(const matMxN<M, N, T>& A)
 {
 	matMxN<N, M, T> R;
-	for (int i = 0; i < N; ++i) {
-		for (int j = 0; j < M; ++j) {
+	for (auto i : xrange(N)) {
+		for (auto j : xrange(M)) {
 			R[j][i] = A[i][j];
 		}
 	}
@@ -376,7 +377,7 @@ template<int M, int N, typename T>
 [[nodiscard]] inline T norm2_2(const matMxN<M, N, T>& A)
 {
 	vecN<M, T> t;
-	for (int i = 0; i < N; ++i) t += A[i] * A[i];
+	for (auto i : xrange(N)) t += A[i] * A[i];
 	return sum(t);
 }
 
@@ -384,8 +385,8 @@ template<int M, int N, typename T>
 template<int M, int N, typename T>
 std::ostream& operator<<(std::ostream& os, const matMxN<M, N, T>& A)
 {
-	for (int j = 0; j < M; ++j) {
-		for (int i = 0; i < N; ++i) {
+	for (auto j : xrange(M)) {
+		for (auto i : xrange(N)) {
 			os << A[i][j] << ' ';
 		}
 		os << '\n';

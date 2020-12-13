@@ -46,6 +46,7 @@
 #include "EmuDuration.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include <algorithm>
 #include <cassert>
 #include <memory>
@@ -505,10 +506,10 @@ void CassettePlayer::fillBuf(size_t length, double x)
 
 	while (length) {
 		size_t len = std::min(length, BUF_SIZE - sampcnt);
-		for (size_t j = 0; j < len; ++j) {
+		repeat(len, [&] {
 			buf[sampcnt++] = int(y) + 128;
 			y *= A;
-		}
+		});
 		length -= len;
 		assert(sampcnt <= BUF_SIZE);
 		if (BUF_SIZE == sampcnt) {

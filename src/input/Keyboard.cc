@@ -23,6 +23,7 @@
 #include "outer.hh"
 #include "stl.hh"
 #include "view.hh"
+#include "xrange.hh"
 #include <SDL.h>
 #include <cstdio>
 #include <cstring>
@@ -195,9 +196,9 @@ static void doKeyGhosting(byte (&matrix)[NUM_ROWS], bool protectRow6)
 	bool changedSomething;
 	do {
 		changedSomething = false;
-		for (unsigned i = 0; i < NUM_ROWS - 1; i++) {
+		for (auto i : xrange(NUM_ROWS - 1)) {
 			auto row1 = matrix[i];
-			for (unsigned j = i + 1; j < NUM_ROWS; j++) {
+			for (auto j : xrange(i + 1, NUM_ROWS)) {
 				auto row2 = matrix[j];
 				if ((row1 != row2) && ((row1 | row2) != 0xff)) {
 					auto rowIold = matrix[i];
@@ -235,7 +236,7 @@ const byte* Keyboard::getKeys() const
 	if (keysChanged) {
 		keysChanged = false;
 		const auto* matrix = keyTypeCmd.isActive() ? typeKeyMatrix : userKeyMatrix;
-		for (unsigned row = 0; row < KeyMatrixPosition::NUM_ROWS; ++row) {
+		for (auto row : xrange(KeyMatrixPosition::NUM_ROWS)) {
 			keyMatrix[row] = cmdKeyMatrix[row] & matrix[row];
 		}
 		if (keyGhosting) {
@@ -262,7 +263,7 @@ void Keyboard::transferHostKeyMatrix(const Keyboard& source)
 	// When replay is stopped we restore this host keyboard state, see
 	// stopReplay().
 
-	for (unsigned row = 0; row < KeyMatrixPosition::NUM_ROWS; ++row) {
+	for (auto row : xrange(KeyMatrixPosition::NUM_ROWS)) {
 		hostKeyMatrix[row] = source.hostKeyMatrix[row];
 	}
 }
@@ -399,7 +400,7 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
 
 	// Process deadkeys.
 	if (mode == KeyboardSettings::CHARACTER_MAPPING) {
-		for (unsigned n = 0; n < 3; n++) {
+		for (auto n : xrange(3)) {
 			if (key == keyboardSettings.getDeadkeyHostKey(n)) {
 				UnicodeKeymap::KeyInfo deadkey = unicodeKeymap.getDeadkey(n);
 				if (deadkey.isValid()) {

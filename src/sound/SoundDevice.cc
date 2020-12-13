@@ -215,7 +215,7 @@ bool SoundDevice::mixChannels(float* dataOut, unsigned samples)
 	// TODO optimization: All channels with the same balance (according to
 	// channelBalance[]) could use the same buffer when balanceCenter is
 	// false
-	for (unsigned i = 0; i < numChannels; ++i) {
+	for (auto i : xrange(numChannels)) {
 		if (!channelMuted[i] && !writer[i] && balanceCenter) {
 			// no need to keep this channel separate
 			bufs[i] = dataOut;
@@ -231,7 +231,7 @@ bool SoundDevice::mixChannels(float* dataOut, unsigned samples)
 		     pitch * separateChannels, 0);
 		// still need to fill in (some) bufs[i] pointers
 		unsigned count = 0;
-		for (unsigned i = 0; i < numChannels; ++i) {
+		for (auto i : xrange(numChannels)) {
 			if (!(!channelMuted[i] && !writer[i] && balanceCenter)) {
 				bufs[i] = &mixBuffer[pitch * count++];
 			}
@@ -247,7 +247,7 @@ bool SoundDevice::mixChannels(float* dataOut, unsigned samples)
 	}
 
 	// record channels
-	for (unsigned i = 0; i < numChannels; ++i) {
+	for (auto i : xrange(numChannels)) {
 		if (writer[i]) {
 			assert(bufs[i] != dataOut);
 			if (bufs[i]) {
@@ -266,7 +266,7 @@ bool SoundDevice::mixChannels(float* dataOut, unsigned samples)
 	bool anyUnmuted = false;
 	unsigned numMix = 0;
 	VLA(int, mixBalance, numChannels);
-	for (unsigned i = 0; i < numChannels; ++i) {
+	for (auto i : xrange(numChannels)) {
 		if (bufs[i] && !channelMuted[i]) {
 			anyUnmuted = true;
 			if (bufs[i] != dataOut) {

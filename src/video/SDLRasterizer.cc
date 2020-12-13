@@ -9,6 +9,7 @@
 #include "MemoryOps.hh"
 #include "OutputSurface.hh"
 #include "one_of.hh"
+#include "xrange.hh"
 #include "build-info.hh"
 #include "components.hh"
 #include <algorithm>
@@ -84,7 +85,7 @@ SDLRasterizer<Pixel>::SDLRasterizer(
 
 	// Initialize palette (avoid UMR)
 	if (!vdp.isMSX1VDP()) {
-		for (int i = 0; i < 16; ++i) {
+		for (auto i : xrange(16)) {
 			palFg[i] = palFg[i + 16] = palBg[i] =
 				V9938_COLORS[0][0][0];
 		}
@@ -134,7 +135,7 @@ void SDLRasterizer<Pixel>::resetPalette()
 {
 	if (!vdp.isMSX1VDP()) {
 		// Reset the palette.
-		for (int i = 0; i < 16; i++) {
+		for (auto i : xrange(16)) {
 			setPalette(i, vdp.getPalette(i));
 		}
 	}
@@ -238,7 +239,7 @@ void SDLRasterizer<Pixel>::precalcPalette()
 	if (vdp.isMSX1VDP()) {
 		// Fixed palette.
 		const auto palette = vdp.getMSX1Palette();
-		for (int i = 0; i < 16; ++i) {
+		for (auto i : xrange(16)) {
 			const auto rgb = palette[i];
 			palFg[i] = palFg[i + 16] = palBg[i] =
 				screen.mapKeyedRGB<Pixel>(
@@ -256,16 +257,16 @@ void SDLRasterizer<Pixel>::precalcPalette()
 					intensity[i] =
 						int(255 * renderSettings.transformComponent(i / 31.0));
 				}
-				for (int rgb = 0; rgb < (1 << 15); ++rgb) {
+				for (auto rgb : xrange(1 << 15)) {
 					V9958_COLORS[rgb] = screen.mapKeyedRGB255<Pixel>(ivec3(
 						intensity[(rgb >> 10) & 31],
 						intensity[(rgb >>  5) & 31],
 						intensity[(rgb >>  0) & 31]));
 				}
 			} else {
-				for (int r = 0; r < 32; ++r) {
-					for (int g = 0; g < 32; ++g) {
-						for (int b = 0; b < 32; ++b) {
+				for (auto r : xrange(32)) {
+					for (auto g : xrange(32)) {
+						for (auto b : xrange(32)) {
 							V9958_COLORS[(r << 10) + (g << 5) + b] =
 								screen.mapKeyedRGB<Pixel>(
 									renderSettings.transformRGB(
@@ -277,11 +278,11 @@ void SDLRasterizer<Pixel>::precalcPalette()
 			// Precalculate palette for V9938 colors.
 			// Based on comparing red and green gradients, using palette and
 			// YJK, in SCREEN11 on a real turbo R.
-			for (int r3 = 0; r3 < 8; ++r3) {
+			for (auto r3 : xrange(8)) {
 				int r5 = (r3 << 2) | (r3 >> 1);
-				for (int g3 = 0; g3 < 8; ++g3) {
+				for (auto g3 : xrange(8)) {
 					int g5 = (g3 << 2) | (g3 >> 1);
-					for (int b3 = 0; b3 < 8; ++b3) {
+					for (auto b3 : xrange(8)) {
 						int b5 = (b3 << 2) | (b3 >> 1);
 						V9938_COLORS[r3][g3][b3] =
 							V9958_COLORS[(r5 << 10) + (g5 << 5) + b5];
@@ -296,9 +297,9 @@ void SDLRasterizer<Pixel>::precalcPalette()
 					intensity[i] =
 						int(255 * renderSettings.transformComponent(i / 7.0f));
 				}
-				for (int r = 0; r < 8; ++r) {
-					for (int g = 0; g < 8; ++g) {
-						for (int b = 0; b < 8; ++b) {
+				for (auto r : xrange(8)) {
+					for (auto g : xrange(8)) {
+						for (auto b : xrange(8)) {
 							V9938_COLORS[r][g][b] =
 								screen.mapKeyedRGB255<Pixel>(ivec3(
 									intensity[r],
@@ -308,9 +309,9 @@ void SDLRasterizer<Pixel>::precalcPalette()
 					}
 				}
 			} else {
-				for (int r = 0; r < 8; ++r) {
-					for (int g = 0; g < 8; ++g) {
-						for (int b = 0; b < 8; ++b) {
+				for (auto r : xrange(8)) {
+					for (auto g : xrange(8)) {
+						for (auto b : xrange(8)) {
 							V9938_COLORS[r][g][b] =
 								screen.mapKeyedRGB<Pixel>(
 									renderSettings.transformRGB(
@@ -321,14 +322,14 @@ void SDLRasterizer<Pixel>::precalcPalette()
 			}
 		}
 		// Precalculate Graphic 7 bitmap palette.
-		for (int i = 0; i < 256; ++i) {
+		for (auto i : xrange(256)) {
 			PALETTE256[i] = V9938_COLORS
 				[(i & 0x1C) >> 2]
 				[(i & 0xE0) >> 5]
 				[(i & 0x03) == 3 ? 7 : (i & 0x03) * 2];
 		}
 		// Precalculate Graphic 7 sprite palette.
-		for (int i = 0; i < 16; ++i) {
+		for (auto i : xrange(16)) {
 			uint16_t grb = Renderer::GRAPHIC7_SPRITE_PALETTE[i];
 			palGraphic7Sprites[i] =
 				V9938_COLORS[(grb >> 4) & 7][grb >> 8][grb & 7];
@@ -402,7 +403,7 @@ void SDLRasterizer<Pixel>::drawBorder(
 	if ((fromX == 0) && (limitX == VDP::TICKS_PER_LINE) &&
 	    (border0 == border1)) {
 		// complete lines, non striped
-		for (int y = startY; y < endY; y++) {
+		for (auto y : xrange(startY, endY)) {
 			workFrame->setBlank(y, border0);
 			// setBlank() implies this line is not suitable
 			// for left/right border optimization in a later
@@ -414,7 +415,7 @@ void SDLRasterizer<Pixel>::drawBorder(
 		unsigned num = translateX(limitX, (lineWidth == 512)) - x;
 		unsigned width = (lineWidth == 512) ? 640 : 320;
 		MemoryOps::MemSet2<Pixel> memset;
-		for (int y = startY; y < endY; ++y) {
+		for (auto y : xrange(startY, endY)) {
 			memset(workFrame->getLinePtrDirect<Pixel>(y) + x,
 			       num, border0, border1);
 			if (limitX == VDP::TICKS_PER_LINE) {
@@ -491,7 +492,7 @@ void SDLRasterizer<Pixel>::drawDisplay(
 	}
 
 	if (mode.isBitmapMode()) {
-		for (int y = screenY; y < screenLimitY; y++) {
+		for (auto y : xrange(screenY, screenLimitY)) {
 			// Which bits in the name mask determine the page?
 			// TODO optimize this?
 			//   Calculating pageMaskOdd/Even is a non-trivial amount
@@ -543,7 +544,7 @@ void SDLRasterizer<Pixel>::drawDisplay(
 		}
 	} else {
 		// horizontal scroll (high) is implemented in CharacterConverter
-		for (int y = screenY; y < screenLimitY; y++) {
+		for (auto y : xrange(screenY, screenLimitY)) {
 			assert(!vdp.isMSX1VDP() || displayY < 192);
 
 			Pixel* dst = workFrame->getLinePtrDirect<Pixel>(y)

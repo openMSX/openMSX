@@ -17,6 +17,7 @@
 #include "outer.hh"
 #include "view.hh"
 #include "vla.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <memory>
 
@@ -134,7 +135,7 @@ void AviRecorder::addWave(unsigned num, float* fData)
 	}
 	if (stereo) {
 		VLA(int16_t, buf, 2 * num);
-		for (unsigned i = 0; i < 2 * num; ++i) {
+		for (auto i : xrange(2 * num)) {
 			buf[i] = float2int16(fData[i]);
 		}
 		if (wavWriter) {

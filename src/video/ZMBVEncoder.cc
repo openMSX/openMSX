@@ -184,8 +184,8 @@ void ZMBVEncoder::setupBuffers(unsigned bpp)
 	unsigned xBlocks = width / BLOCK_WIDTH;
 	unsigned yBlocks = height / BLOCK_HEIGHT;
 	blockOffsets.resize(xBlocks * yBlocks);
-	for (unsigned y = 0; y < yBlocks; ++y) {
-		for (unsigned x = 0; x < xBlocks; ++x) {
+	for (auto y : xrange(yBlocks)) {
+		for (auto x : xrange(xBlocks)) {
 			blockOffsets[y * xBlocks + x] =
 				((y * BLOCK_HEIGHT) + MAX_VECTOR) * pitch +
 				(x * BLOCK_WIDTH) + MAX_VECTOR;
@@ -222,13 +222,13 @@ unsigned ZMBVEncoder::compareBlock(int vx, int vy, unsigned offset)
 	int ret = 0;
 	auto* pOld = &(reinterpret_cast<P*>(oldframe.data()))[offset + (vy * pitch) + vx];
 	auto* pNew = &(reinterpret_cast<P*>(newframe.data()))[offset];
-	for (unsigned y = 0; y < BLOCK_HEIGHT; ++y) {
-		for (unsigned x = 0; x < BLOCK_WIDTH; ++x) {
+	repeat(BLOCK_HEIGHT, [&] {
+		for (auto x : xrange(BLOCK_WIDTH)) {
 			if (pOld[x] != pNew[x]) ++ret;
 		}
 		pOld += pitch;
 		pNew += pitch;
-	}
+	});
 	return ret;
 }
 
@@ -240,15 +240,15 @@ void ZMBVEncoder::addXorBlock(
 
 	auto* pOld = &(reinterpret_cast<P*>(oldframe.data()))[offset + (vy * pitch) + vx];
 	auto* pNew = &(reinterpret_cast<P*>(newframe.data()))[offset];
-	for (unsigned y = 0; y < BLOCK_HEIGHT; ++y) {
-		for (unsigned x = 0; x < BLOCK_WIDTH; ++x) {
+	repeat(BLOCK_HEIGHT, [&] {
+		for (auto x : xrange(BLOCK_WIDTH)) {
 			P pXor = pNew[x] ^ pOld[x];
 			writePixel(pixelOps, pXor, *reinterpret_cast<LE_P*>(&work[workUsed]));
 			workUsed += sizeof(P);
 		}
 		pOld += pitch;
 		pNew += pitch;
-	}
+	});
 }
 
 template<typename P>
@@ -266,7 +266,7 @@ void ZMBVEncoder::addXorFrame(const PixelFormat& pixelFormat, unsigned& workUsed
 
 	int bestVx = 0;
 	int bestVy = 0;
-	for (unsigned b = 0; b < blockcount; ++b) {
+	for (auto b : xrange(blockcount)) {
 		unsigned offset = blockOffsets[b];
 		// first try best vector of previous block
 		unsigned bestchange = compareBlock<P>(bestVx, bestVy, offset);
@@ -303,15 +303,15 @@ void ZMBVEncoder::addFullFrame(const PixelFormat& pixelFormat, unsigned& workUse
 	PixelOperations<P> pixelOps(pixelFormat);
 	auto* readFrame =
 		&newframe[pixelSize * (MAX_VECTOR + MAX_VECTOR * pitch)];
-	for (unsigned y = 0; y < height; ++y) {
+	repeat(height, [&] {
 		auto* pixelsIn  = reinterpret_cast<P*>   (readFrame);
 		auto* pixelsOut = reinterpret_cast<LE_P*>(&work[workUsed]);
-		for (unsigned x = 0; x < width; ++x) {
+		for (auto x : xrange(width)) {
 			writePixel(pixelOps, pixelsIn[x], pixelsOut[x]);
 		}
 		readFrame += pitch * sizeof(P);
 		workUsed += width * sizeof(P);
-	}
+	});
 }
 
 const void* ZMBVEncoder::getScaledLine(FrameSource* frame, unsigned y, void* workBuf_) const
@@ -379,7 +379,7 @@ span<const uint8_t> ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame
 	unsigned lineWidth = width * pixelSize;
 	uint8_t* dest =
 		&newframe[pixelSize * (MAX_VECTOR + MAX_VECTOR * pitch)];
-	for (unsigned i = 0; i < height; ++i) {
+	for (auto i : xrange(height)) {
 		const auto* scaled = getScaledLine(frame, i, dest);
 		if (scaled != dest) memcpy(dest, scaled, lineWidth);
 		dest += linePitch;

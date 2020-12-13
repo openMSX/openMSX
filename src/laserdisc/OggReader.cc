@@ -9,6 +9,7 @@
 #include "stl.hh"
 #include "stringsp.hh" // for strncasecmp
 #include "view.hh"
+#include "xrange.hh"
 #include <cstring> // for memcpy, memcmp
 #include <cstdlib> // for atoi
 #include <cctype> // for isspace
@@ -435,7 +436,7 @@ size_t OggReader::frameNo(ogg_packet* packet) const
 void OggReader::readMetadata(th_comment& tc)
 {
 	char* metadata = nullptr;
-	for (int i = 0; i < tc.comments; ++i) {
+	for (auto i : xrange(tc.comments)) {
 		if (!strncasecmp(tc.user_comments[i], "location=",
 				 strlen("location="))) {
 			metadata = tc.user_comments[i] + strlen("location=");

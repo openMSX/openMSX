@@ -14,6 +14,7 @@
 #include "outer.hh"
 #include "ranges.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -182,7 +183,7 @@ constexpr auto adjustAR = [] {
 	std::array<unsigned, EG_MUTE> result = {};
 	result[0] = EG_MUTE;
 	auto log_eg_mute = cstd::log<6, 5>(EG_MUTE);
-	for (int i = 1; i < int(EG_MUTE); ++i) {
+	for (int i : xrange(1, int(EG_MUTE))) {
 		result[i] = (EG_MUTE - 1 - EG_MUTE * cstd::log<6, 5>(i) / log_eg_mute) / 2;
 		assert(0 <= int(result[i]));
 		assert(result[i] <= EG_MUTE);
@@ -192,7 +193,7 @@ constexpr auto adjustAR = [] {
 constexpr auto adjustRA = [] {
 	std::array<unsigned, EG_MUTE + 1> result = {};
 	result[0] = EG_MUTE;
-	for (int i = 1; i < int(EG_MUTE); ++i) {
+	for (int i : xrange(1, int(EG_MUTE))) {
 		result[i] = cstd::pow<6, 5>(EG_MUTE, (double(EG_MUTE) - 1 - 2 * i) / EG_MUTE);
 		assert(0 <= int(result[i]));
 		assert(result[i] <= EG_MUTE);
@@ -204,15 +205,15 @@ constexpr auto adjustRA = [] {
 // Table for dB(0 -- (1<<DB_BITS)) to Liner(0 -- DB2LIN_AMP_WIDTH)
 constexpr auto dB2LinTab = [] {
 	std::array<int, (2 * DB_MUTE) * 2> result = {};
-	for (int i = 0; i < DB_MUTE; ++i) {
+	for (int i : xrange(DB_MUTE)) {
 		result[i] = int(double((1 << DB2LIN_AMP_BITS) - 1) *
 		                   cstd::pow<7, 3>(10, -double(i) * DB_STEP / 20.0));
 	}
 	assert(result[DB_MUTE - 1] == 0);
-	for (int i = DB_MUTE; i < 2 * DB_MUTE; ++i) {
+	for (auto i : xrange(DB_MUTE, 2 * DB_MUTE)) {
 		result[i] = 0;
 	}
-	for (int i = 0; i < 2 * DB_MUTE; ++i) {
+	for (auto i : xrange(2 * DB_MUTE)) {
 		result[i + 2 * DB_MUTE] = -result[i];
 	}
 	return result;
@@ -235,13 +236,13 @@ constexpr auto sinTable = [] {
 	};
 
 	std::array<unsigned, PG_WIDTH> result = {};
-	for (int i = 0; i < PG_WIDTH / 4; ++i) {
+	for (int i : xrange(PG_WIDTH / 4)) {
 		result[i] = lin2db(cstd::sin<2>(2.0 * M_PI * i / PG_WIDTH));
 	}
-	for (int i = 0; i < PG_WIDTH / 4; i++) {
+	for (auto i : xrange(PG_WIDTH / 4)) {
 		result[PG_WIDTH / 2 - 1 - i] = result[i];
 	}
-	for (int i = 0; i < PG_WIDTH / 2; i++) {
+	for (auto i : xrange(PG_WIDTH / 2)) {
 		result[PG_WIDTH / 2 + i] = 2 * DB_MUTE + result[i];
 	}
 	return result;
@@ -250,7 +251,7 @@ constexpr auto sinTable = [] {
 // Table for Pitch Modulator
 constexpr auto pmTable = [] {
 	std::array<std::array<int, PM_PG_WIDTH>, 2> result = {};
-	for (int i = 0; i < PM_PG_WIDTH; ++i) {
+	for (int i : xrange(PM_PG_WIDTH)) {
 		auto s = cstd::sin<5>(2.0 * M_PI * i / PM_PG_WIDTH) / 1200;
 		result[0][i] = int(PM_AMP * cstd::exp2<2>(PM_DEPTH  * s));
 		result[1][i] = int(PM_AMP * cstd::exp2<2>(PM_DEPTH2 * s));
@@ -269,11 +270,11 @@ constexpr auto tllTable = [] {
 	constexpr unsigned shift[4] = { 31, 1, 2, 0 };
 
 	std::array<std::array<int, 4>, 16 * 8> result = {};
-	for (unsigned freq = 0; freq < 16 * 8; ++freq) {
+	for (auto freq : xrange(16 * 8u)) {
 		unsigned fnum  = freq % 16;
 		unsigned block = freq / 16;
 		int tmp = 4 * klTable[fnum] - 32 * (7 - block);
-		for (unsigned KL = 0; KL < 4; ++KL) {
+		for (auto KL : xrange(4)) {
 			result[freq][KL] = (tmp <= 0) ? 0 : (tmp >> shift[KL]);
 		}
 	}
@@ -283,10 +284,10 @@ constexpr auto tllTable = [] {
 // Phase incr table for Attack.
 constexpr auto dPhaseArTable = [] {
 	std::array<std::array<Y8950::EnvPhaseIndex, 16>, 16> result = {};
-	for (unsigned Rks = 0; Rks < 16; ++Rks) {
+	for (auto Rks : xrange(16)) {
 		result[Rks][0] = Y8950::EnvPhaseIndex(0);
-		for (unsigned AR = 1; AR < 15; ++AR) {
-			unsigned RM = std::min(AR + (Rks >> 2), 15u);
+		for (auto AR : xrange(1, 15)) {
+			unsigned RM = std::min(AR + (Rks >> 2), 15);
 			unsigned RL = Rks & 3;
 			result[Rks][AR] =
 				Y8950::EnvPhaseIndex(12 * (RL + 4)) >> (15 - RM);
@@ -299,10 +300,10 @@ constexpr auto dPhaseArTable = [] {
 // Phase incr table for Decay and Release.
 constexpr auto dPhaseDrTable = [] {
 	std::array<std::array<Y8950::EnvPhaseIndex, 16>, 16> result = {};
-	for (unsigned Rks = 0; Rks < 16; ++Rks) {
+	for (auto Rks : xrange(16)) {
 		result[Rks][0] = Y8950::EnvPhaseIndex(0);
-		for (unsigned DR = 1; DR < 16; ++DR) {
-			unsigned RM = std::min(DR + (Rks >> 2), 15u);
+		for (auto DR : xrange(1, 16)) {
+			unsigned RM = std::min(DR + (Rks >> 2), 15);
 			unsigned RL = Rks & 3;
 			result[Rks][DR] =
 				Y8950::EnvPhaseIndex(RL + 4) >> (15 - RM);
@@ -488,13 +489,13 @@ Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
 	// For debugging: print out tables to be able to compare before/after
 	// when the calculation changes.
 	if (false) {
-		for (int i = 0; i < PM_PG_WIDTH; ++i) {
+		for (auto i : xrange(PM_PG_WIDTH)) {
 			std::cout << pmTable[0][i] << ' '
 			          << pmTable[1][i] << '\n';
 		}
 		std::cout << '\n';
 
-		for (unsigned i = 0; i < EG_MUTE; ++i) {
+		for (auto i : xrange(EG_MUTE)) {
 			std::cout << adjustRA[i] << ' '
 			          << adjustAR[i] << '\n';
 		}
@@ -503,8 +504,8 @@ Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
 		for (const auto& e : dB2LinTab) std::cout << e << '\n';
 		std::cout << '\n';
 
-		for (int i = 0; i < (16 * 8); ++i) {
-			for (int j = 0; j < 4; ++j) {
+		for (auto i : xrange(16 * 8)) {
+			for (auto j : xrange(4)) {
 				std::cout << tllTable[i][j] << ' ';
 			}
 			std::cout << '\n';
@@ -514,16 +515,16 @@ Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
 		for (const auto& e : sinTable) std::cout << e << '\n';
 		std::cout << '\n';
 
-		for (int i = 0; i < 16; ++i) {
-			for (int j = 0; j < 16; ++j) {
+		for (auto i : xrange(16)) {
+			for (auto j : xrange(16)) {
 				std::cout << dPhaseArTable[i][j].getRawValue() << ' ';
 			}
 			std::cout << '\n';
 		}
 		std::cout << '\n';
 
-		for (int i = 0; i < 16; ++i) {
-			for (int j = 0; j < 16; ++j) {
+		for (auto i : xrange(16)) {
+			for (auto j : xrange(16)) {
 				std::cout << dPhaseDrTable[i][j].getRawValue() << ' ';
 			}
 			std::cout << '\n';
@@ -780,11 +781,11 @@ bool Y8950::checkMuteHelper()
 	if (!enabled) {
 		return true;
 	}
-	for (int i = 0; i < 6; ++i) {
+	for (auto i : xrange(6)) {
 		if (ch[i].slot[CAR].isActive()) return false;
 	}
 	if (!rythm_mode) {
-		for(int i = 6; i < 9; ++i) {
+		for (auto i : xrange(6, 9)) {
 			if (ch[i].slot[CAR].isActive()) return false;
 		}
 	} else {
@@ -805,13 +806,11 @@ void Y8950::generateChannels(float** bufs, unsigned num)
 		// TODO update internal state even when muted
 		// during mute pm_phase, am_phase, noiseA_phase, noiseB_phase
 		// and noise_seed aren't updated, probably ok
-		for (int i = 0; i < 9 + 5 + 1; ++i) {
-			bufs[i] = nullptr;
-		}
+		std::fill_n(bufs, 9 + 5 + 1, nullptr);
 		return;
 	}
 
-	for (unsigned sample = 0; sample < num; ++sample) {
+	for (auto sample : xrange(num)) {
 		// Amplitude modulation: 27 output levels (triangle waveform);
 		// 1 level takes one of: 192, 256 or 448 samples
 		// One entry from LFO_AM_TABLE lasts for 64 samples
@@ -841,8 +840,7 @@ void Y8950::generateChannels(float** bufs, unsigned num)
 		noiseB_phase &= (0x10 << 11) - 1;
 		int noiseB = noiseB_phase & (0x0A << 11) ? DB_POS(6) : DB_NEG(6);
 
-		int m = rythm_mode ? 6 : 9;
-		for (int i = 0; i < m; ++i) {
+		for (auto i : xrange(rythm_mode ? 6 : 9)) {
 			if (ch[i].slot[CAR].isActive()) {
 				bufs[i][sample] += ch[i].alg
 					? ch[i].slot[CAR].calc_slot_car(lfo_pm, lfo_am, 0) +

@@ -2,6 +2,8 @@
 #include "cstd.hh"
 #include "likely.hh"
 #include "Math.hh"
+#include "ranges.hh"
+#include "xrange.hh"
 #include <algorithm>
 #include <array>
 #include <cstring>
@@ -27,20 +29,20 @@ constexpr auto impulses = [] {
 	double oversample = ((4.5 / (BLIP_IMPULSE_WIDTH - 1)) + 0.85);
 	double to_angle = M_PI / (2.0 * oversample * BLIP_RES);
 	double to_fraction = M_PI / (2 * (HALF_SIZE - 1));
-	for (int i = 0; i < HALF_SIZE; ++i) {
+	for (auto i : xrange(HALF_SIZE)) {
 		double angle = ((i - HALF_SIZE) * 2 + 1) * to_angle;
 		out[i] = cstd::sin<2>(angle) / angle;
 		out[i] *= 0.54 - 0.46 * cstd::cos<2>((2 * i + 1) * to_fraction);
 	}
 
 	// need mirror slightly past center for calculation
-	for (int i = 0; i < BLIP_RES; ++i) {
+	for (auto i : xrange(BLIP_RES)) {
 		out[HALF_SIZE + i] = out[HALF_SIZE - 1 - i];
 	}
 
 	// find rescale factor
 	double total = 0.0;
-	for (int i = 0; i < HALF_SIZE; ++i) {
+	for (auto i : xrange(HALF_SIZE)) {
 		total += out[i];
 	}
 	double rescale = 1.0 / (2.0 * total);
@@ -50,7 +52,7 @@ constexpr auto impulses = [] {
 	float imp[IMPULSES_SIZE] = {};
 	double sum = 0.0;
 	double next = 0.0;
-	for (int i = 0; i < IMPULSES_SIZE; ++i) {
+	for (auto i : xrange(IMPULSES_SIZE)) {
 		imp[i] = float((next - sum) * rescale);
 		sum += fImpulse[i];
 		next += fImpulse[i + BLIP_RES];
@@ -63,11 +65,11 @@ constexpr auto impulses = [] {
 
 	// reshuffle values to a more cache friendly order
 	std::array<std::array<float, BLIP_IMPULSE_WIDTH>, BLIP_RES> result = {};
-	for (int phase = 0; phase < BLIP_RES; ++phase) {
+	for (auto phase : xrange(BLIP_RES)) {
 		const auto* imp_fwd = &imp[BLIP_RES - phase];
 		const auto* imp_rev = &imp[phase];
 		auto* p = result[phase].data();
-		for (int i = 0; i < BLIP_IMPULSE_WIDTH / 2; ++i) {
+		for (auto i : xrange(BLIP_IMPULSE_WIDTH / 2)) {
 			*p++ = imp_fwd[BLIP_RES * i];
 		}
 		for (int i = BLIP_IMPULSE_WIDTH / 2 - 1; i >= 0; --i) {
@@ -81,9 +83,9 @@ constexpr auto impulses = [] {
 BlipBuffer::BlipBuffer()
 {
 	if (false) {
-		for (int i = 0; i < BLIP_RES; ++i) {
+		for (auto i : xrange(BLIP_RES)) {
 			std::cout << "\t{ " << impulses[i][0];
-			for (int j = 1; j < BLIP_IMPULSE_WIDTH; ++j) {
+			for (auto j : xrange(1, BLIP_IMPULSE_WIDTH)) {
 				std::cout << ", " << impulses[i][j];
 			}
 			std::cout << " },\n";
@@ -107,11 +109,11 @@ void BlipBuffer::addDelta(TimeIndex time, float delta)
 	const float* __restrict impulse = impulses[phase].data();
 	if (likely((ofst + BLIP_IMPULSE_WIDTH) <= BUFFER_SIZE)) {
 		float* __restrict result = &buffer[ofst];
-		for (int i = 0; i < BLIP_IMPULSE_WIDTH; ++i) {
+		for (auto i : xrange(BLIP_IMPULSE_WIDTH)) {
 			result[i] += impulse[i] * delta;
 		}
 	} else {
-		for (int i = 0; i < BLIP_IMPULSE_WIDTH; ++i) {
+		for (auto i : xrange(BLIP_IMPULSE_WIDTH)) {
 			buffer[(ofst + i) & BUFFER_MASK] += impulse[i] * delta;
 		}
 	}
@@ -125,7 +127,7 @@ void BlipBuffer::readSamplesHelper(float* __restrict out, unsigned samples) __re
 	assert((offset + samples) <= BUFFER_SIZE);
 	auto acc = accum;
 	unsigned ofst = offset;
-	for (unsigned i = 0; i < samples; ++i) {
+	for (auto i : xrange(samples)) {
 		out[i * PITCH] = acc;
 		acc *= BASS_FACTOR;
 		acc += buffer[ofst];
@@ -154,15 +156,13 @@ bool BlipBuffer::readSamples(float* __restrict out, unsigned samples)
 	if (availSamp <= 0) {
 		#ifdef DEBUG
 		// buffer contains all zeros (only check this in debug mode)
-		for (unsigned i = 0; i < BUFFER_SIZE; ++i) {
-			assert(buffer[i] == 0.0f);
-		}
+		assert(ranges::all_of(buffer, [](const auto& b) { return b == 0.0f; }));
 		#endif
 		if (isSilent(accum)) {
 			return false; // muted
 		}
 		auto acc = accum;
-		for (unsigned i = 0; i < samples; ++i) {
+		for (auto i : xrange(samples)) {
 			out[i * PITCH] = acc;
 			acc *= BASS_FACTOR;
 		}

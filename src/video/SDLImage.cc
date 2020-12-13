@@ -2,6 +2,8 @@
 #include "PNG.hh"
 #include "SDLOutputSurface.hh"
 #include "checked_cast.hh"
+#include "ranges.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <cstdlib>
 #include <cmath>
@@ -159,7 +161,8 @@ static void gradient(const unsigned* rgba, SDL_Surface& surface, unsigned border
 	auto* buffer = static_cast<unsigned*>(surface.pixels);
 	buffer += borderSize;
 	buffer += borderSize * (surface.pitch / sizeof(unsigned));
-	for (int y = 0; y < height; ++y) {
+	repeat(height, [&, r0=r0, g0=g0, b0=b0, a0=a0, dr02=dr02, dg02=dg02, db02=db02, da02=da02,
+	                   r1=r1, g1=g1, b1=b1, a1=a1, dr13=dr13, dg13=dg13, db13=db13, da13=da13] () mutable {
 		auto [rb,  ga, drb, dga, subRB, subGA] = setupInterp2(r0, g0, b0, a0, r1, g1, b1, a1, width);
 
 		// Depending on the subRB/subGA booleans, we need to add or
@@ -167,24 +170,24 @@ static void gradient(const unsigned* rgba, SDL_Surface& surface, unsigned border
 		// 2 booleans so 4 combinations:
 		if (!subRB) {
 			if (!subGA) {
-				for (int x = 0; x < width; ++x) {
+				for (auto x : xrange(width)) {
 					buffer[x] = packRGBA(rb, ga);
 					rb += drb; ga += dga;
 				}
 			} else {
-				for (int x = 0; x < width; ++x) {
+				for (auto x : xrange(width)) {
 					buffer[x] = packRGBA(rb, ga);
 					rb += drb; ga -= dga;
 				}
 			}
 		} else {
 			if (!subGA) {
-				for (int x = 0; x < width; ++x) {
+				for (auto x : xrange(width)) {
 					buffer[x] = packRGBA(rb, ga);
 					rb -= drb; ga += dga;
 				}
 			} else {
-				for (int x = 0; x < width; ++x) {
+				for (auto x : xrange(width)) {
 					buffer[x] = packRGBA(rb, ga);
 					rb -= drb; ga -= dga;
 				}
@@ -194,7 +197,7 @@ static void gradient(const unsigned* rgba, SDL_Surface& surface, unsigned border
 		r0 += dr02; g0 += dg02; b0 += db02; a0 += da02;
 		r1 += dr13; g1 += dg13; b1 += db13; a1 += da13;
 		buffer += (surface.pitch / sizeof(unsigned));
-	}
+	});
 }
 
 // class SDLImage
@@ -229,7 +232,7 @@ SDLImage::SDLImage(OutputSurface& output, ivec2 size_, unsigned rgba)
 }
 
 
-SDLImage::SDLImage(OutputSurface& output, ivec2 size_, const unsigned* rgba,
+SDLImage::SDLImage(OutputSurface& output, ivec2 size_, span<const unsigned, 4> rgba,
                    unsigned borderSize, unsigned borderRGBA)
 	: flipX(size_[0] < 0), flipY(size_[1] < 0)
 {
@@ -332,7 +335,7 @@ void SDLImage::initSolid(OutputSurface& output, ivec2 size_, unsigned rgba,
 	texture = toTexture(output, *tmp32);
 }
 
-void SDLImage::initGradient(OutputSurface& output, ivec2 size_, const unsigned* rgba_,
+void SDLImage::initGradient(OutputSurface& output, ivec2 size_, span<const unsigned, 4> rgba_,
                             unsigned borderSize, unsigned borderRGBA)
 {
 	checkSize(size_);
@@ -341,9 +344,7 @@ void SDLImage::initGradient(OutputSurface& output, ivec2 size_, const unsigned* 
 	}
 
 	unsigned rgba[4];
-	for (unsigned i = 0; i < 4; ++i) {
-		rgba[i] = rgba_[i];
-	}
+	ranges::copy(rgba_, rgba);
 
 	if (flipX) {
 		std::swap(rgba[0], rgba[1]);

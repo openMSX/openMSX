@@ -5,7 +5,9 @@
 #include "SRAM.hh"
 #include "CacheLine.hh"
 #include "one_of.hh"
+#include "ranges.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <memory>
 
 namespace openmsx {
@@ -43,8 +45,8 @@ RomPanasonic::RomPanasonic(const DeviceConfig& config, Rom&& rom_)
 void RomPanasonic::reset(EmuTime::param /*time*/)
 {
 	control = 0;
-	for (int region = 0; region < 8; ++region) {
-		bankSelect[region] = 0;
+	ranges::fill(bankSelect, 0);
+	for (auto region : xrange(8)) {
 		setRom(region, 0);
 	}
 	invalidateDeviceRCache(0x7FF0 & CacheLine::HIGH, CacheLine::SIZE);
@@ -99,7 +101,7 @@ void RomPanasonic::writeMem(word address, byte value, EmuTime::param /*time*/)
 		changeBank(region, newBank);
 	} else if (address == 0x7FF8) {
 		// set mapper state (9th bit)
-		for (int region = 0; region < 8; region++) {
+		for (auto region : xrange(8)) {
 			if (value & 1) {
 				changeBank(region, bankSelect[region] |  0x100);
 			} else {

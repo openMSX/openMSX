@@ -1,5 +1,6 @@
 #include "catch.hpp"
 #include "sha1.hh"
+#include "xrange.hh"
 #include <cstring>
 #include <sstream>
 
@@ -124,9 +125,9 @@ TEST_CASE("sha1: update,digest")
 	SECTION("multiple blocks") {
 		const char* in = "aaaaaaaaaaaaaaaaaaaaaaaaa";
 		REQUIRE(strlen(in) == 25);
-		for (int i = 0; i < 40000; ++i) {
+		repeat(40000, [&] {
 			sha1.update(reinterpret_cast<const uint8_t*>(in), strlen(in));
-		}
+		});
 		// 25 * 40'000 = 1'000'000 repetitions of "a"
 		Sha1Sum sum = sha1.digest();
 		CHECK(sum.toString() == "34aa973cd4c4daa4f61eeb2bdbad27316534016f");

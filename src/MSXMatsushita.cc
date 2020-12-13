@@ -6,6 +6,7 @@
 #include "CliComm.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 
 namespace openmsx {
 
@@ -44,10 +45,10 @@ void MSXMatsushita::init()
 	// Wrap the VDP ports.
 	auto& cpuInterface = getCPUInterface();
 	bool error = false;
-	for (int i = 0; i < 2; ++i) {
+	for (auto i : xrange(2)) {
 		error |= !cpuInterface.replace_IO_In (0x98 + i, vdp, this);
 	}
-	for (int i = 0; i < 4; ++i) {
+	for (auto i : xrange(4)) {
 		error |= !cpuInterface.replace_IO_Out(0x98 + i, vdp, this);
 	}
 	if (error) {
@@ -68,10 +69,10 @@ void MSXMatsushita::unwrap()
 {
 	// Unwrap the VDP ports.
 	auto& cpuInterface = getCPUInterface();
-	for (int i = 0; i < 2; ++i) {
+	for (auto i : xrange(2)) {
 		cpuInterface.replace_IO_In (0x98 + i, this, vdp);
 	}
-	for (int i = 0; i < 4; ++i) {
+	for (auto i : xrange(4)) {
 		cpuInterface.replace_IO_Out(0x98 + i, this, vdp);
 	}
 }

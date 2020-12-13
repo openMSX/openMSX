@@ -22,7 +22,9 @@
 #include "YM2413Burczynski.hh"
 #include "Math.hh"
 #include "cstd.hh"
+#include "ranges.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <array>
 #include <cstring>
 #include <iostream>
@@ -215,7 +217,7 @@ constexpr uint8_t mul_tab[16] =
 constexpr int TL_TAB_LEN = 11 * 2 * TL_RES_LEN;
 constexpr auto tlTab = [] {
 	std::array<int, TL_TAB_LEN> result = {};
-	for (int x = 0; x < TL_RES_LEN; ++x) {
+	for (auto x : xrange(TL_RES_LEN)) {
 		double m = (1 << 16) / cstd::exp2<6>((x + 1) * (ENV_STEP / 4.0) / 8.0);
 
 		// we never reach (1 << 16) here due to the (x + 1)
@@ -224,7 +226,7 @@ constexpr auto tlTab = [] {
 		n >>= 4;        // 12 bits here
 		n = (n >> 1) + (n & 1); // round to nearest
 		// 11 bits here (rounded)
-		for (int i = 0; i < 11; ++i) {
+		for (auto i : xrange(11)) {
 			result[x * 2 + 0 + i * 2 * TL_RES_LEN] = n >> i;
 			result[x * 2 + 1 + i * 2 * TL_RES_LEN] = -(n >> i);
 		}
@@ -236,23 +238,23 @@ constexpr auto tlTab = [] {
 // two waveforms on OPLL type chips
 constexpr auto sinTab = [] {
 	std::array<unsigned, SIN_LEN * 2> result = {};
-	for (int i = 0; i < SIN_LEN / 4; ++i) {
+	for (auto i : xrange(SIN_LEN / 4)) {
 		// checked on real hardware, see also
 		//   http://docs.google.com/Doc?id=dd8kqn9f_13cqjkf4gp
 		double m = cstd::sin<2>(((i * 2) + 1) * M_PI / SIN_LEN);
 		int n = int(cstd::round(cstd::log2<8, 3>(m) * -256.0));
 		result[i] = 2 * n;
 	}
-	for (int i = 0; i < SIN_LEN / 4; ++i) {
+	for (auto i : xrange(SIN_LEN / 4)) {
 		result[SIN_LEN / 4 + i] = result[SIN_LEN / 4 - 1 - i];
 	}
-	for (int i = 0; i < SIN_LEN / 2; ++i) {
+	for (auto i : xrange(SIN_LEN / 2)) {
 		result[SIN_LEN / 2 + i] = result[i] | 1;
 	}
-	for (int i = 0; i < SIN_LEN / 2; ++i) {
+	for (auto i : xrange(SIN_LEN / 2)) {
 		result[i + SIN_LEN] = result[i];
 	}
-	for (int i = 0; i < SIN_LEN / 2; ++i) {
+	for (auto i : xrange(SIN_LEN / 2)) {
 		result[i + SIN_LEN + SIN_LEN / 2] = TL_TAB_LEN;
 	}
 	return result;
@@ -919,7 +921,7 @@ void Channel::updateInstrumentPart(int part, uint8_t value)
 
 void Channel::updateInstrument(const uint8_t* inst)
 {
-	for (int part = 0; part < 8; ++part) {
+	for (auto part : xrange(8)) {
 		updateInstrumentPart(part, inst[part]);
 	}
 }
@@ -946,8 +948,7 @@ void YM2413::updateCustomInstrument(int part, uint8_t value)
 	inst_tab[0][part] = value;
 
 	// Update every channel that has instrument 0 selected.
-	const int numMelodicChannels = isRhythm() ? 6 : 9;
-	for (int ch = 0; ch < numMelodicChannels; ++ch) {
+	for (auto ch : xrange(isRhythm() ? 6 : 9)) {
 		Channel& channel = channels[ch];
 		if ((reg[0x30 + ch] & 0xF0) == 0) {
 			channel.updateInstrumentPart(part, value);
@@ -1012,10 +1013,8 @@ void YM2413::reset()
 	idleSamples = 0;
 
 	// setup instruments table
-	for (int instrument = 0; instrument < 19; ++instrument) {
-		for (int part = 0; part < 8; ++part) {
-			inst_tab[instrument][part] = table[instrument][part];
-		}
+	for (auto instrument : xrange(19)) {
+		ranges::copy(table[instrument], inst_tab[instrument]);
 	}
 
 	// reset with register write
@@ -1061,8 +1060,7 @@ void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 	// bits 9-17 -> ch[0-8].mod (only ch7 and ch8 used)
 	unsigned channelActiveBits = 0;
 
-	const int numMelodicChannels = isRhythm() ? 6 : 9;
-	for (int ch = 0; ch < numMelodicChannels; ++ch) {
+	for (auto ch : xrange(isRhythm() ? 6 : 9)) {
 		if (channels[ch].car.isActive()) {
 			channelActiveBits |= 1 << ch;
 		} else {
@@ -1070,10 +1068,8 @@ void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 		}
 	}
 	if (isRhythm()) {
-		bufs[6] = nullptr;
-		bufs[7] = nullptr;
-		bufs[8] = nullptr;
-		for (int ch = 6; ch < 9; ++ch) {
+		std::fill_n(bufs + 6, 3, nullptr);
+		for (auto ch : xrange(6, 9)) {
 			if (channels[ch].car.isActive()) {
 				channelActiveBits |= 1 << ch;
 			} else {
@@ -1091,11 +1087,7 @@ void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 			bufs[13] = nullptr;
 		}
 	} else {
-		bufs[ 9] = nullptr;
-		bufs[10] = nullptr;
-		bufs[11] = nullptr;
-		bufs[12] = nullptr;
-		bufs[13] = nullptr;
+		std::fill_n(bufs + 9, 5, nullptr);
 	}
 
 	if (channelActiveBits) {
@@ -1113,7 +1105,7 @@ void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 		idleSamples += num;
 	}
 
-	for (unsigned i = 0; i < num; ++i) {
+	for (auto i : xrange(num)) {
 		// Amplitude modulation: 27 output levels (triangle waveform)
 		// 1 level takes one of: 192, 256 or 448 samples
 		// One entry from LFO_AM_TABLE lasts for 64 samples
@@ -1125,7 +1117,7 @@ void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 		unsigned lfo_am = lfo_am_table[lfo_am_cnt.toInt()] >> 1;
 		unsigned lfo_pm = lfo_pm_cnt.toInt() & 7;
 
-		for (int ch = 0; ch < numMelodicChannels; ++ch) {
+		for (auto ch : xrange(isRhythm() ? 6 : 9)) {
 			Channel& channel = channels[ch];
 			int fm = channel.mod.calc_slot_mod(channel, eg_cnt, false, lfo_pm, lfo_am);
 			if ((channelActiveBits >> ch) & 1) {

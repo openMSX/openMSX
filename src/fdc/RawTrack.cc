@@ -4,6 +4,7 @@
 #include "ranges.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
+#include "xrange.hh"
 #include <cassert>
 
 using std::vector;
@@ -74,7 +75,7 @@ std::optional<RawTrack::Sector> RawTrack::decodeSectorImpl(int idx) const
 	if (!sector.addrCrcErr) {
 		// Locate data mark, should starts within 43 bytes from current
 		// position (that's what the WD2793 does).
-		for (int i = 0; i < 43; ++i) {
+		for (auto i : xrange(43)) {
 			int idx2 = idx + i;
 			int j = 0;
 			for (; j < 3; ++j) {
@@ -156,13 +157,13 @@ std::optional<RawTrack::Sector> RawTrack::decodeSector(byte sectorNum) const
 
 void RawTrack::readBlock(int idx, unsigned size, byte* destination) const
 {
-	for (unsigned i = 0; i < size; ++i) {
+	for (auto i : xrange(size)) {
 		destination[i] = read(idx + i);
 	}
 }
 void RawTrack::writeBlock(int idx, unsigned size, const byte* source)
 {
-	for (unsigned i = 0; i < size; ++i) {
+	for (auto i : xrange(size)) {
 		write(idx + i, source[i]);
 	}
 }

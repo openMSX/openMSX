@@ -10,6 +10,7 @@
 #include "one_of.hh"
 #include "ranges.hh"
 #include "stl.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <cstring>
 #include <vector>
@@ -190,7 +191,7 @@ bool DirAsDSK::checkMSXFileExists(
 		}
 		visited[msxDirSector] = true;
 
-		for (unsigned idx = 0; idx < DIR_ENTRIES_PER_SECTOR; ++idx) {
+		for (auto idx : xrange(DIR_ENTRIES_PER_SECTOR)) {
 			DirIndex dirIndex(msxDirSector, idx);
 			if (memcmp(msxDir(dirIndex).filename,
 			           msxFilename.data(), 8 + 3) == 0) {
@@ -476,7 +477,7 @@ void DirAsDSK::deleteMSXFilesInDir(unsigned msxDirSector)
 		}
 		visited[msxDirSector] = true;
 
-		for (unsigned idx = 0; idx < DIR_ENTRIES_PER_SECTOR; ++idx) {
+		for (auto idx : xrange(DIR_ENTRIES_PER_SECTOR)) {
 			deleteMSXFile(DirIndex(msxDirSector, idx));
 		}
 		msxDirSector = nextMsxDirSector(msxDirSector);
@@ -573,7 +574,7 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, FileOperations::Stat& fst)
 
 		while (remainingSize && (curCl < maxCluster)) {
 			unsigned logicalSector = clusterToSector(curCl);
-			for (unsigned i = 0; i < SECTORS_PER_CLUSTER; ++i) {
+			for (auto i : xrange(SECTORS_PER_CLUSTER)) {
 				unsigned sector = logicalSector + i;
 				assert(sector < nofSectors);
 				auto* buf = &sectors[sector];
@@ -750,7 +751,7 @@ void DirAsDSK::addNewDirectory(const string& hostSubDir, const string& hostName,
 
 		// Initialize the new directory.
 		newMsxDirSector = clusterToSector(cluster);
-		for (unsigned i = 0; i < SECTORS_PER_CLUSTER; ++i) {
+		for (auto i : xrange(SECTORS_PER_CLUSTER)) {
 			memset(&sectors[newMsxDirSector + i], 0, SECTOR_SIZE);
 		}
 		DirIndex idx0(newMsxDirSector, 0); // entry for "."
@@ -847,7 +848,7 @@ DirAsDSK::DirIndex DirAsDSK::getFreeDirEntry(unsigned msxDirSector)
 		}
 		visited[msxDirSector] = true;
 
-		for (unsigned idx = 0; idx < DIR_ENTRIES_PER_SECTOR; ++idx) {
+		for (auto idx : xrange(DIR_ENTRIES_PER_SECTOR)) {
 			DirIndex dirIndex(msxDirSector, idx);
 			const char* msxName = msxDir(dirIndex).filename;
 			if (msxName[0] == one_of(char(0x00), char(0xE5))) {
@@ -922,7 +923,7 @@ void DirAsDSK::writeFATSector(unsigned sector, const SectorBuffer& buf)
 	memcpy(&sectors[sector], &buf, sizeof(buf));
 
 	// Look for changes.
-	for (unsigned i = FIRST_CLUSTER; i < maxCluster; ++i) {
+	for (auto i : xrange(FIRST_CLUSTER, maxCluster)) {
 		if (readFAT(i) != readFATHelper(oldFAT.data(), i)) {
 			exportFileFromFATChange(i, oldFAT.data());
 		}
@@ -934,8 +935,8 @@ void DirAsDSK::writeFATSector(unsigned sector, const SectorBuffer& buf)
 	// that actually contains FAT info. E.g. not the media ID at the
 	// beginning nor the unused part at the end. And for example the 'CALL
 	// FORMAT' routine also writes these parts of the FAT.
-	for (unsigned i = FIRST_CLUSTER; i < maxCluster; ++i) {
-		assert(readFAT(i) == readFATHelper(oldFAT.data(), i));
+	for (auto i : xrange(FIRST_CLUSTER, maxCluster)) {
+		assert(readFAT(i) == readFATHelper(oldFAT.data(), i)); (void)i;
 	}
 }
 
@@ -975,7 +976,7 @@ std::pair<unsigned, unsigned> DirAsDSK::getChainStart(unsigned cluster)
 	// because usually FAT chains are allocated in ascending order, this
 	// search is fast O(N).
 	unsigned chainLength = 0;
-	for (unsigned i = FIRST_CLUSTER; i < maxCluster; ++i) {
+	for (auto i : xrange(FIRST_CLUSTER, maxCluster)) {
 		if (readFAT(i) == cluster) {
 			// Found a predecessor.
 			cluster = i;
@@ -999,7 +1000,7 @@ template<typename FUNC> bool DirAsDSK::scanMsxDirs(FUNC func, unsigned sector)
 			// About to process a new directory sector.
 			if (func.onDirSector(sector)) return true;
 
-			for (unsigned idx = 0; idx < DIR_ENTRIES_PER_SECTOR; ++idx) {
+			for (auto idx : xrange(DIR_ENTRIES_PER_SECTOR)) {
 				// About to process a new directory entry.
 				DirIndex dirIndex(sector, idx);
 				const MSXDirEntry& entry = msxDir(dirIndex);
@@ -1219,7 +1220,7 @@ void DirAsDSK::exportToHostDir(DirIndex dirIndex, const string& hostName)
 				// the directory entry is updated.
 				return;
 			}
-			for (unsigned idx = 0; idx < DIR_ENTRIES_PER_SECTOR; ++idx) {
+			for (auto idx : xrange(DIR_ENTRIES_PER_SECTOR)) {
 				exportToHost(DirIndex(msxDirSector, idx), dirIndex);
 			}
 			msxDirSector = nextMsxDirSector(msxDirSector);
@@ -1253,7 +1254,7 @@ void DirAsDSK::exportToHostFile(DirIndex dirIndex, const string& hostName)
 			visited[curCl] = true;
 
 			unsigned logicalSector = clusterToSector(curCl);
-			for (unsigned i = 0; i < SECTORS_PER_CLUSTER; ++i) {
+			for (auto i : xrange(SECTORS_PER_CLUSTER)) {
 				if (offset >= msxSize) break;
 				unsigned sector = logicalSector + i;
 				assert(sector < nofSectors);
@@ -1274,7 +1275,7 @@ void DirAsDSK::writeDIRSector(unsigned sector, DirIndex dirDirIndex,
                               const SectorBuffer& buf)
 {
 	// Look for changed directory entries.
-	for (unsigned idx = 0; idx < DIR_ENTRIES_PER_SECTOR; ++idx) {
+	for (auto idx : xrange(DIR_ENTRIES_PER_SECTOR)) {
 		const auto& newEntry = buf.dirEntry[idx];
 		DirIndex dirIndex(sector, idx);
 		if (memcmp(&msxDir(dirIndex), &newEntry, sizeof(newEntry)) != 0) {

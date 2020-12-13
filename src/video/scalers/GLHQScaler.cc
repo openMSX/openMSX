@@ -45,7 +45,7 @@ GLHQScaler::GLHQScaler(GLScaler& fallback_)
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	string offsetsName = "shaders/HQ_xOffsets.dat";
 	string weightsName = "shaders/HQ_xWeights.dat";
-	for (int i = 0; i < 3; ++i) {
+	for (auto i : xrange(3)) {
 		int n = i + 2;
 		offsetsName[10] = char('0') + n;
 		File offsetsFile(context.resolve(offsetsName));
@@ -129,7 +129,7 @@ void GLHQScaler::uploadBlock(
 
 	edgeBuffer.bind();
 	if (auto* mapped = edgeBuffer.mapWrite()) {
-		for (unsigned y = srcStartY; y < srcEndY; ++y) {
+		for (auto y : xrange(srcStartY, srcEndY)) {
 			curr = next;
 			std::swap(buf1, buf2);
 			next = paintFrame.getLinePtr(y + 1, lineWidth, buf2);

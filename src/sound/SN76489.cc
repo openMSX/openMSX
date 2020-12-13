@@ -7,6 +7,7 @@
 #include "ranges.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include <algorithm>
 #include <array>
 #include <cassert>
@@ -26,7 +27,7 @@ static constexpr auto volTable = [] {
 	// 2dB per step -> 0.2, sqrt for amplitude -> 0.5
 	double factor = cstd::pow<5, 3>(0.1, 0.2 * 0.5);
 	double out = 32768.0;
-	for (int i = 0; i < 15; i++) {
+	for (auto i : xrange(15)) {
 		result[i] = cstd::round(out);
 		out *= factor;
 	}
@@ -115,7 +116,7 @@ void SN76489::initState()
 	// The Sega integrated versions start zeroed (max volume), while discrete
 	// chips seem to start with random values (for lack of a reset pin).
 	// For the user's comfort, we init to silence instead.
-	for (unsigned chan = 0; chan < 4; chan++) {
+	for (auto chan : xrange(4)) {
 		regs[chan * 2 + 0] = 0x0;
 		regs[chan * 2 + 1] = 0xF;
 	}
@@ -300,7 +301,7 @@ void SN76489::generateChannels(float** buffers, unsigned num)
 	}
 
 	// Channels 0, 1, 2: tone.
-	for (unsigned channel = 0; channel < 3; channel++) {
+	for (auto channel : xrange(3)) {
 		synthesizeChannel<false>(buffers[channel], num, channel);
 	}
 }

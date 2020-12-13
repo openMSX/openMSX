@@ -1,6 +1,7 @@
 #include "catch.hpp"
 #include "MemoryBufferFile.hh"
 #include "File.hh"
+#include "xrange.hh"
 
 using namespace openmsx;
 
@@ -40,7 +41,7 @@ TEST_CASE("MemoryBufferFile")
 	// read full file
 	file.seek(0);
 	file.read(tmp, file.getSize());
-	for (int i = 0; i < 10; ++i) {
+	for (auto i : xrange(10)) {
 		CHECK(tmp[i] == (i + 1));
 	}
 	CHECK(file.getPos() == file.getSize());

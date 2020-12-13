@@ -23,6 +23,7 @@
 #include "MSXException.hh"
 #include "one_of.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -50,7 +51,7 @@ ESE_RAM::ESE_RAM(const DeviceConfig& config)
 
 void ESE_RAM::reset(EmuTime::param /*time*/)
 {
-	for (int i = 0; i < 4; ++i) {
+	for (auto i : xrange(4)) {
 		setSRAM(i, 0);
 	}
 }

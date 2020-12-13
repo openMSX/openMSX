@@ -3,6 +3,7 @@
 
 #include "BaseImage.hh"
 #include "SDLSurfacePtr.hh"
+#include "span.hh"
 #include <string>
 
 namespace openmsx {
@@ -15,7 +16,7 @@ public:
 	SDLImage(OutputSurface& output, const std::string& filename, float scaleFactor);
 	SDLImage(OutputSurface& output, const std::string& filename, gl::ivec2 size);
 	SDLImage(OutputSurface& output, gl::ivec2 size, unsigned rgba);
-	SDLImage(OutputSurface& output, gl::ivec2 size, const unsigned* rgba,
+	SDLImage(OutputSurface& output, gl::ivec2 size, span<const unsigned, 4> rgba,
 	         unsigned borderSize, unsigned borderRGBA);
 
 	void draw(OutputSurface& output, gl::ivec2 pos,
@@ -26,7 +27,7 @@ private:
 	[[nodiscard]] SDLTexturePtr loadImage(OutputSurface& output, const std::string& filename);
 	void initSolid(OutputSurface& output, gl::ivec2 size, unsigned rgba,
 	               unsigned borderSize, unsigned borderRGBA);
-	void initGradient(OutputSurface& output, gl::ivec2 size, const unsigned* rgba,
+	void initGradient(OutputSurface& output, gl::ivec2 size, span<const unsigned, 4> rgba,
 	                  unsigned borderSize, unsigned borderRGBA);
 
 private:

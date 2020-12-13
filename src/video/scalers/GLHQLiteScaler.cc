@@ -43,7 +43,7 @@ GLHQLiteScaler::GLHQLiteScaler(GLScaler& fallback_)
 	auto context = systemFileContext();
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	string offsetName = "shaders/HQ_xLiteOffsets.dat";
-	for (int i = 0; i < 3; ++i) {
+	for (auto i : xrange(3)) {
 		int n = i + 2;
 		offsetName[10] = char('0') + n;
 		File offsetFile(context.resolve(offsetName));
@@ -116,7 +116,7 @@ void GLHQLiteScaler::uploadBlock(
 
 	edgeBuffer.bind();
 	if (auto* mapped = edgeBuffer.mapWrite()) {
-		for (unsigned y = srcStartY; y < srcEndY; ++y) {
+		for (auto y : xrange(srcStartY, srcEndY)) {
 			curr = next;
 			std::swap(buf1, buf2);
 			next = paintFrame.getLinePtr(y + 1, lineWidth, buf2);

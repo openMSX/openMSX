@@ -7,7 +7,7 @@ GLTVScaler::GLTVScaler(RenderSettings& renderSettings_)
 	: GLScaler("tv")
 	, renderSettings(renderSettings_)
 {
-	for (int i = 0; i < 2; ++i) {
+	for (auto i : xrange(2)) {
 		program[i].activate();
 		unifMinScanline[i] =
 			program[i].getUniformLocation("minScanline");

@@ -16,6 +16,7 @@
 #include "File.hh"
 #include "one_of.hh"
 #include "stl.hh"
+#include "xrange.hh"
 #include <cstring>
 #include <cassert>
 #include <cctype>
@@ -148,7 +149,7 @@ MSXtar::MSXtar(SectorAccessibleDisk& sectordisk)
 	// cache complete FAT
 	fatCacheDirty = false;
 	fatBuffer.resize(sectorsPerFat);
-	for (unsigned i = 0; i < sectorsPerFat; ++i) {
+	for (auto i : xrange(sectorsPerFat)) {
 		disk.readSector(i + 1, fatBuffer[i]);
 	}
 }
@@ -157,7 +158,7 @@ MSXtar::~MSXtar()
 {
 	if (!fatCacheDirty) return;
 
-	for (unsigned i = 0; i < sectorsPerFat; ++i) {
+	for (auto i : xrange(sectorsPerFat)) {
 		try {
 			disk.writeSector(i + 1, fatBuffer[i]);
 		} catch (MSXException&) {
@@ -206,7 +207,7 @@ void MSXtar::writeFAT(unsigned clNr, unsigned val)
 // @throws When no more free clusters
 unsigned MSXtar::findFirstFreeCluster()
 {
-	for (unsigned cluster = 2; cluster < maxCluster; ++cluster) {
+	for (auto cluster : xrange(2u, maxCluster)) {
 		if (readFAT(cluster) == 0) {
 			return cluster;
 		}
@@ -253,7 +254,7 @@ unsigned MSXtar::appendClusterToSubdir(unsigned sector)
 	// clear this cluster
 	SectorBuffer buf;
 	memset(&buf, 0, sizeof(buf));
-	for (unsigned i = 0; i < sectorsPerCluster; ++i) {
+	for (auto i : xrange(sectorsPerCluster)) {
 		writeLogicalSector(i + nextSector, buf);
 	}
 
@@ -274,7 +275,7 @@ unsigned MSXtar::findUsableIndexInSector(unsigned sector)
 	readLogicalSector(sector, buf);
 
 	// find a not used (0x00) or delete entry (0xE5)
-	for (unsigned i = 0; i < 16; ++i) {
+	for (auto i : xrange(16)) {
 		if (buf.dirEntry[i].filename[0] == one_of(0x00, char(0xE5))) {
 			return i;
 		}
@@ -392,7 +393,7 @@ unsigned MSXtar::addSubdir(
 	// clear this cluster
 	unsigned logicalSector = clusterToSector(curCl);
 	memset(&buf, 0, sizeof(buf));
-	for (unsigned i = 0; i < sectorsPerCluster; ++i) {
+	for (auto i : xrange(sectorsPerCluster)) {
 		writeLogicalSector(i + logicalSector, buf);
 	}
 

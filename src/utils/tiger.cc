@@ -1,5 +1,6 @@
 #include "tiger.hh"
 #include "endian.hh"
+#include "xrange.hh"
 #include "build-info.hh"
 #include <cassert>
 #include <cstring>
@@ -746,7 +747,7 @@ void tiger_leaf(/*const*/ uint8_t data[1024], TigerHash& result)
 
 	auto backup = data[-1];
 	data[-1] = 0;
-	for (int i = 0; i < 16; ++i) {
+	for (auto i : xrange(16)) {
 		tiger_compress(data - 1 + i * 64, result.h64);
 	}
 	data[-1] = backup;

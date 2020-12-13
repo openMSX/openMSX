@@ -3,6 +3,7 @@
 
 #include "PixelFormat.hh"
 #include "aligned.hh"
+#include "xrange.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -58,8 +59,8 @@ public:
 	[[nodiscard]] unsigned getWidth() const {
 		assert(height > 0);
 		unsigned result = getLineWidth(0);
-		for (unsigned line = 1; line < height; ++line) {
-			assert(result == getLineWidth(line));
+		for (auto line : xrange(1u, height)) {
+			assert(result == getLineWidth(line)); (void)line;
 		}
 		return result;
 	}

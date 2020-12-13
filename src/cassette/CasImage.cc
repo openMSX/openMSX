@@ -104,15 +104,13 @@ void CasImage::write1()
 }
 
 // write a header signal
-void CasImage::writeHeader(int s)
+void CasImage::writeHeader(unsigned s)
 {
-	for (int i = 0; i < s; ++i) {
-		write1();
-	}
+	repeat(s, [&] { write1(); });
 }
 
 // write silence
-void CasImage::writeSilence(int s)
+void CasImage::writeSilence(unsigned s)
 {
 	output.insert(end(output), s, 0);
 }

@@ -1,6 +1,7 @@
 #ifndef SHA1_HH
 #define SHA1_HH
 
+#include "xrange.hh"
 #include <ostream>
 #include <string>
 #include <string_view>
@@ -39,17 +40,17 @@ public:
 	void clear();
 
 	[[nodiscard]] bool operator==(const Sha1Sum& other) const {
-		for (int i = 0; i < 5; ++i) {
+		for (int i : xrange(5)) {
 			if (a[i] != other.a[i]) return false;
 		}
 		return true;
 	}
 	[[nodiscard]] bool operator!=(const Sha1Sum& other) const { return !(*this == other); }
 	[[nodiscard]] bool operator< (const Sha1Sum& other) const {
-		for (int i = 0; i < 5-1; ++i) {
+		for (int i : xrange(5 - 1)) {
 			if (a[i] != other.a[i]) return a[i] < other.a[i];
 		}
-		return a[5-1] < other.a[5-1];
+		return a[5 - 1] < other.a[5 - 1];
 	}
 
 	[[nodiscard]] bool operator<=(const Sha1Sum& other) const { return !(other <  *this); }

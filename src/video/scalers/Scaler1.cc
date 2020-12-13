@@ -4,6 +4,7 @@
 #include "SuperImposeScalerOutput.hh"
 #include "vla.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include "build-info.hh"
 #include <algorithm>
 #include <cassert>
@@ -22,7 +23,7 @@ void Scaler1<Pixel>::averageHalve(const Pixel* pIn0, const Pixel* pIn1, Pixel* p
 {
 	// TODO SSE optimizations
 	// pure C++ version
-	for (int i = 0; i < dstWidth; ++i) {
+	for (auto i : xrange(dstWidth)) {
 		Pixel tmp0 = blend(pIn0[2 * i + 0], pIn0[2 * i + 1]);
 		Pixel tmp1 = blend(pIn1[2 * i + 0], pIn1[2 * i + 1]);
 		pOut[i] = blend(tmp0, tmp1);
@@ -142,7 +143,7 @@ void Scaler1<Pixel>::scale1x2to1x1(FrameSource& src,
 	VLA_SSE_ALIGNED(Pixel, buf, srcWidth);
 	unsigned dstWidth = dst.getWidth();
 	BlendLines<Pixel> blend(pixelOps);
-	for (unsigned dstY = dstStartY; dstY < dstEndY; ++dstY) {
+	for (auto dstY : xrange(dstStartY, dstEndY)) {
 		auto* dstLine = dst.acquireLine(dstY);
 		auto* srcLine0 = src.getLinePtr(srcStartY++, srcWidth, dstLine);
 		auto* srcLine1 = src.getLinePtr(srcStartY++, srcWidth, buf);

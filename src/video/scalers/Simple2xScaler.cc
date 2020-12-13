@@ -166,8 +166,8 @@ void Simple2xScaler<Pixel>::blur1on2(
 	 *         Pixel prev, curr, next;
 	 *         prev = curr = pIn[0];
 	 *
-	 *         unsigned x;
-	 *         for (x = 0; x < (srcWidth - 1); ++x) {
+	 *         unsigned x = 0;
+	 *         for (; x < (srcWidth - 1); ++x) {
 	 *                 pOut[2 * x + 0] = (c1 * prev + c2 * curr) >> 8;
 	 *                 Pixel next = pIn[x + 1];
 	 *                 pOut[2 * x + 1] = (c1 * next + c2 * curr) >> 8;
@@ -321,8 +321,8 @@ void Simple2xScaler<Pixel>::blur1on1(
 	 *         Pixel prev, curr, next;
 	 *         prev = curr = pIn[0];
 	 *
-	 *         unsigned x;
-	 *         for (x = 0; x < (srcWidth - 1); ++x) {
+	 *         unsigned x = 0;
+	 *         for (; x < (srcWidth - 1); ++x) {
 	 *                 next = pIn[x + 1];
 	 *                 pOut[x] = (c1 * prev + c2 * curr + c1 * next) >> 8;
 	 *                 prev = curr;

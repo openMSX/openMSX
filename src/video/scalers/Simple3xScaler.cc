@@ -456,7 +456,7 @@ void Blur_1on3<Pixel>::operator()(
 	 *  Pixel prev, curr, next;
 	 *  prev = curr = next = in[0];
 	 *  size_t srcWidth = dstWidth / 3;
-	 *  for (unsigned x = 0; x < srcWidth; ++x) {
+	 *  for (auto x : xrange(srcWidth)) {
 	 *      if (x != (srcWidth - 1)) next = in[x + 1];
 	 *      out[3 * x + 0] = mul(c1, prev) + mul(c2, curr);
 	 *      out[3 * x + 1] = mul(c0, prev) + mul(c3, curr) + mul(c0, next);

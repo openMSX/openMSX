@@ -127,12 +127,12 @@ void SDLGLVisibleSurface::saveScreenshotGL(
 
 	// perform in-place conversion of RGBA -> RGB
 	VLA(const void*, rowPointers, h);
-	for (int i = 0; i < h; ++i) {
+	for (auto i : xrange(h)) {
 		uint8_t* out = &buffer[w * 4 * i];
 		const uint8_t* in = out;
 		rowPointers[h - 1 - i] = out;
 
-		for (int j = 0; j < w; ++j) {
+		for (auto j : xrange(w)) {
 			out[3 * j + 0] = in[4 * j + 0];
 			out[3 * j + 1] = in[4 * j + 1];
 			out[3 * j + 2] = in[4 * j + 2];

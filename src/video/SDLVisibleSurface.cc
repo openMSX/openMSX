@@ -118,7 +118,7 @@ void SDLVisibleSurface::saveScreenshotSDL(
 	auto [width, height] = output.getLogicalSize();
 	VLA(const void*, rowPointers, height);
 	MemBuffer<uint8_t> buffer(width * height * 3);
-	for (int i = 0; i < height; ++i) {
+	for (auto i : xrange(height)) {
 		rowPointers[i] = &buffer[width * 3 * i];
 	}
 	if (SDL_RenderReadPixels(

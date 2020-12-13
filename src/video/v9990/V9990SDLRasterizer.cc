@@ -9,6 +9,7 @@
 #include "build-info.hh"
 #include "components.hh"
 #include "one_of.hh"
+#include "xrange.hh"
 #include <algorithm>
 #include <cstdint>
 #include <memory>
@@ -131,7 +132,7 @@ void V9990SDLRasterizer<Pixel>::drawBorder(
 
 	if ((fromX == 0) && (limitX == V9990DisplayTiming::UC_TICKS_PER_LINE)) {
 		// optimization
-		for (int y = startY; y < endY; ++y) {
+		for (auto y : xrange(startY, endY)) {
 			workFrame->setBlank(y, bgColor);
 		}
 		return;
@@ -146,7 +147,7 @@ void V9990SDLRasterizer<Pixel>::drawBorder(
 
 	unsigned lineWidth = vdp.getLineWidth();
 	MemoryOps::MemSet<Pixel> memset;
-	for (int y = startY; y < endY; ++y) {
+	for (auto y : xrange(startY, endY)) {
 		memset(workFrame->getLinePtrDirect<Pixel>(y) + startX,
 		       endX - startX, bgColor);
 		workFrame->setLineWidth(y, lineWidth);
@@ -307,9 +308,9 @@ void V9990SDLRasterizer<Pixel>::preCalcPalettes()
 				intensity[(grb >>  0) & 31]));
 		}
 	} else {
-		for (int g = 0; g < 32; ++g) {
-			for (int r = 0; r < 32; ++r) {
-				for (int b = 0; b < 32; ++b) {
+		for (auto g : xrange(32)) {
+			for (auto r : xrange(32)) {
+				for (auto b : xrange(32)) {
 					palette32768[(g << 10) + (r << 5) + b] =
 						screen.mapRGB(renderSettings.transformRGB(
 							gl::vec3(r, g, b) / 31.0f));
@@ -321,9 +322,9 @@ void V9990SDLRasterizer<Pixel>::preCalcPalettes()
 	// the 256 color palette
 	int mapRG[8] = { 0, 4, 9, 13, 18, 22, 27, 31 };
 	int mapB [4] = { 0, 11, 21, 31 };
-	for (int g = 0; g < 8; ++g) {
-		for (int r = 0; r < 8; ++r) {
-			for (int b = 0; b < 4; ++b) {
+	for (auto g : xrange(8)) {
+		for (auto r : xrange(8)) {
+			for (auto b : xrange(4)) {
 				auto idx256 = (g << 5) | (r << 2) | b;
 				auto idx32768 = (mapRG[g] << 10) | (mapRG[r] << 5) | mapB[b];
 				palette256_32768[idx256] = idx32768;
@@ -349,7 +350,7 @@ template<typename Pixel>
 void V9990SDLRasterizer<Pixel>::resetPalette()
 {
 	// get 64 color palette from VDP
-	for (int i = 0; i < 64; ++i) {
+	for (auto i : xrange(64)) {
 		auto [r, g, b, ys] = vdp.getPalette(i);
 		setPalette(i, r, g, b, ys);
 	}

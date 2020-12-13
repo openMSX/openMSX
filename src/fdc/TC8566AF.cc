@@ -11,6 +11,7 @@
 #include "MSXException.hh"
 #include "one_of.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 
 namespace openmsx {
 
@@ -603,11 +604,14 @@ void TC8566AF::initTrackHeader(EmuTime::param time)
 		dataCurrent = 0;
 		dataAvailable = trackLength;
 
-		for (int i = 0; i < 80; ++i) drv->writeTrackByte(dataCurrent++, 0x4E); // gap4a
-		for (int i = 0; i < 12; ++i) drv->writeTrackByte(dataCurrent++, 0x00); // sync
-		for (int i = 0; i <  3; ++i) drv->writeTrackByte(dataCurrent++, 0xC2); // index mark
-		for (int i = 0; i <  1; ++i) drv->writeTrackByte(dataCurrent++, 0xFC); //   "    "
-		for (int i = 0; i < 50; ++i) drv->writeTrackByte(dataCurrent++, 0x4E); // gap1
+		auto write = [&](unsigned n, byte value) {
+			repeat(n, [&] { drv->writeTrackByte(dataCurrent++, value); });
+		};
+		write(80, 0x4E); // gap4a
+		write(12, 0x00); // sync
+		write( 3, 0xC2); // index mark
+		write( 1, 0xFC); //   "    "
+		write(50, 0x4E); // gap1
 	} catch (MSXException& /*e*/) {
 		endCommand(time);
 	}
@@ -616,36 +620,43 @@ void TC8566AF::initTrackHeader(EmuTime::param time)
 void TC8566AF::formatSector()
 {
 	auto* drv = drive[driveSelect];
-	for (int i = 0; i < 12; ++i) drv->writeTrackByte(dataCurrent++, 0x00); // sync
 
-	for (int i = 0; i <  3; ++i) drv->writeTrackByte(dataCurrent++, 0xA1); // addr mark
-	drv->writeTrackByte(dataCurrent++, 0xFE, true); // addr mark + add idam
+	auto write1 = [&](byte value, bool idam = false) {
+		drv->writeTrackByte(dataCurrent++, value, idam);
+	};
+	auto writeU = [&](byte value) {
+		write1(value);
+		crc.update(value);
+	};
+	auto writeN = [&](unsigned n, byte value) {
+		repeat(n, [&] { write1(value); });
+	};
+	auto writeCRC = [&] {
+		write1(crc.getValue() >> 8);   // CRC (high byte)
+		write1(crc.getValue() & 0xff); //     (low  byte)
+	};
+
+	writeN(12, 0x00); // sync
+
+	writeN(3, 0xA1); // addr mark
+	write1(0xFE, true); // addr mark + add idam
 	crc.init({0xA1, 0xA1, 0xA1, 0xFE});
-	drv->writeTrackByte(dataCurrent++, currentTrack); // C: Cylinder number
-	crc.update(currentTrack);
-	drv->writeTrackByte(dataCurrent++, headNumber);   // H: Head Address
-	crc.update(headNumber);
-	drv->writeTrackByte(dataCurrent++, sectorNumber); // R: Record
-	crc.update(sectorNumber);
-	drv->writeTrackByte(dataCurrent++, number);       // N: Length of sector
-	crc.update(number);
-	drv->writeTrackByte(dataCurrent++, crc.getValue() >> 8);   // CRC (high byte)
-	drv->writeTrackByte(dataCurrent++, crc.getValue() & 0xff); //     (low  byte)
+	writeU(currentTrack); // C: Cylinder number
+	writeU(headNumber);   // H: Head Address
+	writeU(sectorNumber); // R: Record
+	writeU(number);       // N: Length of sector
+	writeCRC();
 
-	for (int i = 0; i < 22; ++i) drv->writeTrackByte(dataCurrent++, 0x4E); // gap2
-	for (int i = 0; i < 12; ++i) drv->writeTrackByte(dataCurrent++, 0x00); // sync
+	writeN(22, 0x4E); // gap2
+	writeN(12, 0x00); // sync
 
-	for (int i = 0; i <  3; ++i) drv->writeTrackByte(dataCurrent++, 0xA1); // data mark
-	for (int i = 0; i <  1; ++i) drv->writeTrackByte(dataCurrent++, 0xFB); //  "    "
+	writeN(3, 0xA1); // data mark
+	write1(0xFB);   //  "    "
 	crc.init({0xA1, 0xA1, 0xA1, 0xFB});
-	for (int i = 0; i < (128 << (number & 7)); ++i) {
-		drv->writeTrackByte(dataCurrent++, fillerByte);
-		crc.update(fillerByte);
-	}
-	drv->writeTrackByte(dataCurrent++, crc.getValue() >> 8);   // CRC (high byte)
-	drv->writeTrackByte(dataCurrent++, crc.getValue() & 0xff); //     (low  byte)
+	repeat(128 << (number & 7), [&] { writeU(fillerByte); });
+	writeCRC();
 
-	for (int i = 0; i < gapLength; ++i) drv->writeTrackByte(dataCurrent++, 0x4E); // gap3
+	writeN(gapLength, 0x4E); // gap3
 }
 
 void TC8566AF::doSeek(EmuTime::param time)

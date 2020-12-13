@@ -1,6 +1,7 @@
 #include "HexDump.hh"
 #include "likely.hh"
 #include "strCat.hh"
+#include "xrange.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -23,7 +24,7 @@ string encode(const uint8_t* input, size_t len, bool newlines)
 	while (len) {
 		if (newlines && !ret.empty()) ret += '\n';
 		int t = int(std::min<size_t>(16, len));
-		for (int i = 0; i < t; ++i) {
+		for (auto i : xrange(t)) {
 			ret += encode(*input++);
 			if (i != (t - 1)) ret += ' ';
 		}

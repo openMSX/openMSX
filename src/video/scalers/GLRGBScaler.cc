@@ -9,7 +9,7 @@ GLRGBScaler::GLRGBScaler(
 	, renderSettings(renderSettings_)
 	, fallback(fallback_)
 {
-	for (int i = 0; i < 2; ++i) {
+	for (auto i : xrange(2)) {
 		program[i].activate();
 		unifCnsts[i] = program[i].getUniformLocation("cnsts");
 	}

@@ -21,6 +21,7 @@
 #include "XMLElement.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <string>
 #include <cstring>
@@ -88,8 +89,6 @@ constexpr byte CMD_Reset_ACK_REQ = 0xC0;
 constexpr byte CMD_Set_ACK_REQ   = 0xE0;
 constexpr byte CMD_MASK          = 0xE0;
 
-constexpr unsigned MAX_DEV = 8;
-
 MB89352::MB89352(const DeviceConfig& config)
 {
 	// TODO: devBusy = false;
@@ -154,7 +153,7 @@ void MB89352::softReset()
 {
 	isEnabled = false;
 
-	for (int i = 2; i < 15; ++i) {
+	for (auto i : xrange(2, 15)) {
 		regs[i] = 0;
 	}
 	regs[15] = 0xFF;               // un mapped
