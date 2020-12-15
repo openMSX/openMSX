@@ -1,5 +1,6 @@
 #include "MusicalMemoryMapper.hh"
 #include "SN76489.hh"
+#include "enumerate.hh"
 #include "serialize.hh"
 #include "xrange.hh"
 #include <memory>
@@ -27,8 +28,8 @@ void MusicalMemoryMapper::reset(EmuTime::param time)
 
 	// MMM inits the page registers to 3, 2, 1, 0 instead of zeroes, so we
 	// don't call the superclass implementation.
-	for (unsigned page = 0; page < 4; page++) {
-		registers[page] = 3 - page;
+	for (auto [page, reg] : enumerate(registers)) {
+		reg = 3 - page;
 	}
 
 	// Note: The actual SN76489AN chip does not have a reset pin. I assume

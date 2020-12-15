@@ -9,6 +9,7 @@
 #include "FileOperations.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
+#include "enumerate.hh"
 #include "one_of.hh"
 #include "span.hh"
 #include "unreachable.hh"
@@ -42,8 +43,8 @@ unique_ptr<DiskChanger> NowindCommand::createDiskChanger(
 
 [[nodiscard]] static unsigned searchRomdisk(const NowindHost::Drives& drives)
 {
-	for (size_t i = 0; i < drives.size(); ++i) {
-		if (drives[i]->isRomdisk()) {
+	for (auto [i, drv] : enumerate(drives)) {
+		if (drv->isRomdisk()) {
 			return i;
 		}
 	}
@@ -104,12 +105,12 @@ void NowindCommand::execute(span<const TclObject> tokens, TclObject& result)
 		// no arguments, show general status
 		assert(!drives.empty());
 		string r;
-		for (size_t i = 0; i < drives.size(); ++i) {
+		for (auto [i, drv] : enumerate(drives)) {
 			strAppend(r, "nowind", i + 1, ": ");
-			if (dynamic_cast<NowindRomDisk*>(drives[i].get())) {
+			if (dynamic_cast<NowindRomDisk*>(drv.get())) {
 				strAppend(r, "romdisk\n");
 			} else if (const auto* changer = dynamic_cast<const DiskChanger*>(
-						drives[i].get())) {
+						drv.get())) {
 				string filename = changer->getDiskName().getOriginal();
 				strAppend(r, (filename.empty() ? "--empty--" : filename),
 				          '\n');

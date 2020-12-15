@@ -33,6 +33,7 @@
 #include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
+#include "enumerate.hh"
 #include "likely.hh"
 #include "one_of.hh"
 #include "outer.hh"
@@ -1088,9 +1089,7 @@ void YMF278::serialize(Archive& ar, unsigned version)
 
 	// TODO restore more state from registers
 	if (ar.isLoader()) {
-		for (int i = 0; i < 24; ++i) {
-			Slot& sl = slots[i];
-
+		for (auto [i, sl] : enumerate(slots)) {
 			auto t = regs[0x50 + i] >> 1;
 			sl.TLdest = (t != 0x7f) ? t : 0xff;
 

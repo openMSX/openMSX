@@ -1,6 +1,7 @@
 #include "JoyTap.hh"
 #include "JoystickPort.hh"
 #include "PluggingController.hh"
+#include "enumerate.hh"
 #include "serialize.hh"
 #include "strCat.hh"
 #include <memory>
@@ -18,8 +19,8 @@ JoyTap::JoyTap(PluggingController& pluggingController_, string name_)
 JoyTap::~JoyTap() = default;
 
 void JoyTap::createPorts(const string& baseDescription) {
-	for (int i = 0; i < 4; ++i) {
-		slaves[i] = std::make_unique<JoystickPort>(
+	for (auto [i, slave] : enumerate(slaves)) {
+		slave = std::make_unique<JoystickPort>(
 			pluggingController,
 			strCat(name, "_port_", char('1' + i)),
 			strCat(baseDescription, char('1' + i)));
@@ -76,9 +77,9 @@ void JoyTap::serialize(Archive& ar, unsigned /*version*/)
 	}
 
 	char tag[6] = { 'p', 'o', 'r', 't', 'X', 0 };
-	for (int i = 0; i < 4; ++i) {
+	for (auto [i, slave] : enumerate(slaves)) {
 		tag[4] = char('0' + i);
-		ar.serialize(tag, *slaves[i]);
+		ar.serialize(tag, *slave);
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(JoyTap);

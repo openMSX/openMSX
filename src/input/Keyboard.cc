@@ -12,16 +12,17 @@
 #include "InputEvents.hh"
 #include "StateChange.hh"
 #include "TclArgParser.hh"
-#include "utf8_checked.hh"
 #include "checked_cast.hh"
-#include "unreachable.hh"
-#include "serialize.hh"
-#include "serialize_stl.hh"
-#include "serialize_meta.hh"
+#include "enumerate.hh"
 #include "openmsx.hh"
 #include "one_of.hh"
 #include "outer.hh"
+#include "serialize.hh"
+#include "serialize_stl.hh"
+#include "serialize_meta.hh"
 #include "stl.hh"
+#include "unreachable.hh"
+#include "utf8_checked.hh"
 #include "view.hh"
 #include "xrange.hh"
 #include <SDL.h>
@@ -297,8 +298,8 @@ void Keyboard::signalStateChange(const shared_ptr<StateChange>& event)
 
 void Keyboard::stopReplay(EmuTime::param time)
 {
-	for (unsigned row = 0; row < KeyMatrixPosition::NUM_ROWS; ++row) {
-		changeKeyMatrixEvent(time, row, hostKeyMatrix[row]);
+	for (auto [row, hkm] : enumerate(hostKeyMatrix)) {
+		changeKeyMatrixEvent(time, row, hkm);
 	}
 	msxModifiers = 0xff;
 	msxKeyEventQueue.clear();
@@ -528,15 +529,15 @@ void Keyboard::updateKeyMatrix(EmuTime::param time, bool down, KeyMatrixPosition
 		// The MSX modifiers sometimes get overruled by the unicode character
 		// processing, in which case the unicode processing must be able to
 		// restore them to the real key-combinations pressed by the user.
-		for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
-			if (pos == modifierPos[i]) {
+		for (auto [i, mp] : enumerate(modifierPos)) {
+			if (pos == mp) {
 				msxModifiers &= ~(1 << i);
 			}
 		}
 	} else {
 		releaseKeyMatrixEvent(time, pos);
-		for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
-			if (pos == modifierPos[i]) {
+		for (auto [i, mp] : enumerate(modifierPos)) {
+			if (pos == mp) {
 				msxModifiers |= 1 << i;
 			}
 		}
@@ -765,9 +766,9 @@ bool Keyboard::pressUnicodeByUser(
 			}
 			// Press required modifiers for our character.
 			// Note that these modifiers are only pressed, never released.
-			for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
+			for (auto [i, mp] : enumerate(modifierPos)) {
 				if ((modmask >> i) & 1) {
-					pressKeyMatrixEvent(time, modifierPos[i]);
+					pressKeyMatrixEvent(time, mp);
 				}
 			}
 		}
@@ -775,14 +776,14 @@ bool Keyboard::pressUnicodeByUser(
 		releaseKeyMatrixEvent(time, keyInfo.pos);
 
 		// Restore non-lock modifier keys.
-		for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
+		for (auto [i, mp] : enumerate(modifierPos)) {
 			if (!((modifierIsLock >> i) & 1)) {
 				// Do not simply unpress graph, ctrl, code and shift but
 				// restore them to the values currently pressed by the user.
 				if ((msxModifiers >> i) & 1) {
-					releaseKeyMatrixEvent(time, modifierPos[i]);
+					releaseKeyMatrixEvent(time, mp);
 				} else {
-					pressKeyMatrixEvent(time, modifierPos[i]);
+					pressKeyMatrixEvent(time, mp);
 				}
 			}
 		}
@@ -814,13 +815,12 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
 	if (down) {
 		// check for modifier toggles
 		byte toggleLocks = needsLockToggle(keyInfo);
-		for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
+		for (auto [i, mp] : enumerate(modifierPos)) {
 			if ((toggleLocks >> i) & 1) {
 				debug("Toggling lock %d\n", i);
 				locksOn ^= 1 << i;
 				releaseMask |= 1 << i;
-				auto lockPos = modifierPos[i];
-				typeKeyMatrix[lockPos.getRow()] &= ~lockPos.getMask();
+				typeKeyMatrix[mp.getRow()] &= ~mp.getMask();
 			}
 		}
 		if (releaseMask == 0) {
@@ -864,10 +864,9 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
 				}
 			}
 			// press modifiers
-			for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
+			for (auto [i, mp] : enumerate(modifierPos)) {
 				if ((modmask >> i) & 1) {
-					auto modPos = modifierPos[i];
-					typeKeyMatrix[modPos.getRow()] &= ~modPos.getMask();
+					typeKeyMatrix[mp.getRow()] &= ~mp.getMask();
 				}
 			}
 			if (releaseMask == 0) {
@@ -877,10 +876,9 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
 		}
 	} else {
 		typeKeyMatrix[keyInfo.pos.getRow()] |= keyInfo.pos.getMask();
-		for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
+		for (auto [i, mp] : enumerate(modifierPos)) {
 			if ((modmask >> i) & 1) {
-				auto modPos = modifierPos[i];
-				typeKeyMatrix[modPos.getRow()] |= modPos.getMask();
+				typeKeyMatrix[mp.getRow()] |= mp.getMask();
 			}
 		}
 	}
@@ -896,15 +894,14 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
  */
 void Keyboard::pressLockKeys(byte lockKeysMask, bool down)
 {
-	for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
+	for (auto [i, mp] : enumerate(modifierPos)) {
 		if ((lockKeysMask >> i) & 1) {
-			auto lockPos = modifierPos[i];
 			if (down) {
 				// press lock key
-				typeKeyMatrix[lockPos.getRow()] &= ~lockPos.getMask();
+				typeKeyMatrix[mp.getRow()] &= ~mp.getMask();
 			} else {
 				// release lock key
-				typeKeyMatrix[lockPos.getRow()] |= lockPos.getMask();
+				typeKeyMatrix[mp.getRow()] |= mp.getMask();
 			}
 		}
 	}

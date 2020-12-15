@@ -1,5 +1,6 @@
 #include "Scanline.hh"
 #include "PixelOperations.hh"
+#include "enumerate.hh"
 #include "unreachable.hh"
 #include <cassert>
 #include <cstddef>
@@ -21,15 +22,13 @@ Multiply<uint16_t>::Multiply(const PixelOperations<uint16_t>& pixelOps_)
 
 void Multiply<uint16_t>::setFactor(unsigned f)
 {
-	if (f == factor) {
-		return;
-	}
+	if (f == factor) return;
 	factor = f;
 
-	for (unsigned p = 0; p < 0x10000; ++p) {
-		tab[p] = ((((p & pixelOps.getRmask()) * f) >> 8) & pixelOps.getRmask()) |
-		         ((((p & pixelOps.getGmask()) * f) >> 8) & pixelOps.getGmask()) |
-		         ((((p & pixelOps.getBmask()) * f) >> 8) & pixelOps.getBmask());
+	for (auto [p, t] : enumerate(tab)) {
+		t = ((((p & pixelOps.getRmask()) * f) >> 8) & pixelOps.getRmask()) |
+		    ((((p & pixelOps.getGmask()) * f) >> 8) & pixelOps.getGmask()) |
+		    ((((p & pixelOps.getBmask()) * f) >> 8) & pixelOps.getBmask());
 	}
 }
 

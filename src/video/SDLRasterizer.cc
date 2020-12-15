@@ -8,6 +8,7 @@
 #include "PostProcessor.hh"
 #include "MemoryOps.hh"
 #include "OutputSurface.hh"
+#include "enumerate.hh"
 #include "one_of.hh"
 #include "xrange.hh"
 #include "build-info.hh"
@@ -253,12 +254,11 @@ void SDLRasterizer<Pixel>::precalcPalette()
 				// Most users use the "normal" monitor type; making this a
 				// special case speeds up palette precalculation a lot.
 				int intensity[32];
-				for (int i = 0; i < 32; ++i) {
-					intensity[i] =
-						int(255 * renderSettings.transformComponent(i / 31.0));
+				for (auto [i, r] : enumerate(intensity)) {
+					r = int(255 * renderSettings.transformComponent(i / 31.0));
 				}
-				for (auto rgb : xrange(1 << 15)) {
-					V9958_COLORS[rgb] = screen.mapKeyedRGB255<Pixel>(ivec3(
+				for (auto [rgb, col] : enumerate(V9958_COLORS)) {
+					col = screen.mapKeyedRGB255<Pixel>(ivec3(
 						intensity[(rgb >> 10) & 31],
 						intensity[(rgb >>  5) & 31],
 						intensity[(rgb >>  0) & 31]));
@@ -293,9 +293,8 @@ void SDLRasterizer<Pixel>::precalcPalette()
 			// Precalculate palette for V9938 colors.
 			if (renderSettings.isColorMatrixIdentity()) {
 				int intensity[8];
-				for (int i = 0; i < 8; ++i) {
-					intensity[i] =
-						int(255 * renderSettings.transformComponent(i / 7.0f));
+				for (auto [i, r] : enumerate(intensity)) {
+					r = int(255 * renderSettings.transformComponent(i / 7.0f));
 				}
 				for (auto r : xrange(8)) {
 					for (auto g : xrange(8)) {

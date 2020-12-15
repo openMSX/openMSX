@@ -4,6 +4,7 @@
 #include "CacheLine.hh"
 #include "CheckedRam.hh"
 #include "SdCard.hh"
+#include "enumerate.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include "xrange.hh"
@@ -324,12 +325,12 @@ void MegaFlashRomSCCPlusSD::reset(EmuTime::param time)
 	flash.reset();
 
 	// memory mapper
-	for (auto i = 0; i < 4; ++i) {
-		memMapperRegs[i] = 3 - i;
+	for (auto [i, mr] : enumerate(memMapperRegs)) {
+		mr = 3 - i;
 	}
 
-	for (int bank = 0; bank < 4; ++bank) {
-		bankRegsSubSlot3[bank] = (bank == 1) ? 1 : 0;
+	for (auto [bank, reg] : enumerate(bankRegsSubSlot3)) {
+		reg = (bank == 1) ? 1 : 0;
 	}
 
 	selectedCard = 0;

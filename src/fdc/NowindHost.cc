@@ -1,9 +1,10 @@
 #include "NowindHost.hh"
 #include "DiskContainer.hh"
 #include "SectorAccessibleDisk.hh"
+#include "enumerate.hh"
+#include "one_of.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
-#include "one_of.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
 #include <algorithm>
@@ -292,8 +293,8 @@ void NowindHost::DRIVES()
 	send(numberOfDrives);
 
 	romdisk = 255; // no romdisk
-	for (size_t i = 0; i < drives.size(); ++i) {
-		if (drives[i]->isRomdisk()) {
+	for (auto [i, drv] : enumerate(drives)) {
+		if (drv->isRomdisk()) {
 			romdisk = i;
 			break;
 		}
@@ -578,8 +579,8 @@ string NowindHost::extractName(int begin, int end) const
 int NowindHost::getDeviceNum() const
 {
 	unsigned fcb = getFCB();
-	for (unsigned i = 0; i < MAX_DEVICES; ++i) {
-		if (devices[i].fs && devices[i].fcb == fcb) {
+	for (auto [i, dev] : enumerate(devices)) {
+		if (dev.fs && dev.fcb == fcb) {
 			return i;
 		}
 	}
@@ -588,17 +589,14 @@ int NowindHost::getDeviceNum() const
 
 int NowindHost::getFreeDeviceNum()
 {
-	int dev = getDeviceNum();
-	if (dev != -1) {
+	if (int dev = getDeviceNum(); dev != -1) {
 		// There already was a device open with this fcb address,
 		// reuse that device.
 		return dev;
 	}
 	// Search for free device.
-	for (unsigned i = 0; i < MAX_DEVICES; ++i) {
-		if (!devices[i].fs) {
-			return i;
-		}
+	for (auto [i, dev] : enumerate(devices)) {
+		if (!dev.fs) return i;
 	}
 	// All devices are in use. This can't happen when the MSX software
 	// functions correctly. We'll simply reuse the first device. It would

@@ -99,6 +99,7 @@
 #include "SCC.hh"
 #include "DeviceConfig.hh"
 #include "cstd.hh"
+#include "enumerate.hh"
 #include "likely.hh"
 #include "outer.hh"
 #include "ranges.hh"
@@ -559,9 +560,9 @@ void SCC::serialize(Archive& ar, unsigned /*version*/)
 	// serialization framework, maybe in the future. So for now
 	// manually loop over the channels.
 	char tag[6] = { 'w', 'a', 'v', 'e', 'X', 0 };
-	for (int channel = 0; channel < 5; ++channel) {
+	for (auto [channel, wv] : enumerate(wave)) {
 		tag[4] = char('1' + channel);
-		ar.serialize(tag, wave[channel]); // signed char
+		ar.serialize(tag, wv); // signed char
 	}
 
 	if (ar.isLoader()) {

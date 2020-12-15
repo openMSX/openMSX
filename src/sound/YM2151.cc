@@ -8,6 +8,7 @@
 #include "DeviceConfig.hh"
 #include "Math.hh"
 #include "cstd.hh"
+#include "enumerate.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include "xrange.hh"
@@ -104,9 +105,9 @@ static constexpr auto sin_tab = [] {
 // translate from D1L to volume index (16 D1L levels)
 static constexpr auto d1l_tab = [] {
 	std::array<unsigned, 16> result = {};
-	for (int i = 0; i < 16; ++i) {
+	for (auto [i, r] : enumerate(result)) {
 		// every 3 'dB' except for all bits = 1 = 45+48 'dB'
-		result[i] = unsigned((i != 15 ? i : i + 16) * (4.0 / ENV_STEP));
+		r = unsigned((i != 15 ? i : i + 16) * (4.0 / ENV_STEP));
 	}
 	return result;
 }();
@@ -392,8 +393,8 @@ static constexpr auto dt1_freq = [] {
 // 2/2 means every cycle/sample, 2/5 means 2 out of 5 cycles/samples, etc.
 static constexpr auto noise_tab = [] {
 	std::array<unsigned, 32> result = {};  // 17bit Noise Generator periods
-	for (int i = 0; i < 32; ++i) {
-		result[i] = 32 - (i != 31 ? i : 30); // rate 30 and 31 are the same
+	for (auto [i, r] : enumerate(result)) {
+		r = 32 - (i != 31 ? i : 30); // rate 30 and 31 are the same
 	}
 	return result;
 }();

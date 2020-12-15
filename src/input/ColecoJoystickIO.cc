@@ -3,6 +3,7 @@
 #include "Reactor.hh"
 #include "JoystickPort.hh"
 #include "Math.hh"
+#include "enumerate.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -21,10 +22,10 @@ ColecoJoystickIO::ColecoJoystickIO(const DeviceConfig& config)
 {
 	MSXMotherBoard& motherBoard = getMotherBoard();
 	auto time = getCurrentTime();
-	for (unsigned i = 0; i < 2; i++) {
-		ports[i] = &motherBoard.getJoystickPort(i);
+	for (auto [i, port] : enumerate(ports)) {
+		port = &motherBoard.getJoystickPort(i);
 		// Clear strobe bit, or MSX joysticks will stay silent.
-		ports[i]->write(0xFB, time);
+		port->write(0xFB, time);
 	}
 	reset(time);
 }

@@ -4,6 +4,7 @@
 #include "RawFrame.hh"
 #include "ScalerOutput.hh"
 #include "RenderSettings.hh"
+#include "enumerate.hh"
 #include "vla.hh"
 #include "build-info.hh"
 #include <cstdint>
@@ -329,9 +330,8 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank1to3(
 		inNormal[0] = inNormal[1] = inNormal[2] = color;
 		rgbify(inNormal, outNormal, 3, c1, c2);
 		Pixel outScanline[3 * 3];
-		for (int i = 0; i < (3 * 3); ++i) {
-			outScanline[i] = scanline.darken(
-					outNormal[i], scanlineFactor);
+		for (auto [i, out] : enumerate(outScanline)) {
+			out = scanline.darken(outNormal[i], scanlineFactor);
 		}
 
 		auto* dstLine0 = dst.acquireLine(dstY + 0);
@@ -378,8 +378,8 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank2to3(
 		inNormal[0] = inNormal[1] = inNormal[2] = color1;
 		rgbify(inNormal, out1Normal, 3, c1, c2);
 
-		for (int i = 0; i < (3 * 3); ++i) {
-			outScanline[i] = scanline.darken(
+		for (auto [i, out] : enumerate(outScanline)) {
+			out = scanline.darken(
 				out0Normal[i], out1Normal[i],
 				scanlineFactor);
 		}

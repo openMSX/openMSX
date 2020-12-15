@@ -21,6 +21,7 @@ A million repetitions of "a"
 #include "sha1.hh"
 #include "MSXException.hh"
 #include "endian.hh"
+#include "enumerate.hh"
 #include "likely.hh"
 #include "ranges.hh"
 #include "xrange.hh"
@@ -340,16 +341,16 @@ void SHA1::update(const uint8_t* data, size_t len)
 void SHA1::finalize()
 {
 	assert(!m_finalized);
-	uint8_t finalcount[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-	for (int i = 0; i < 8; i++) {
-		finalcount[i] = uint8_t(m_count >> ((7 - i) * 8));
+	uint8_t finalCount[8];
+	for (auto [i, fc] : enumerate(finalCount)) {
+		fc = uint8_t(m_count >> ((7 - i) * 8));
 	}
 
 	update(reinterpret_cast<const uint8_t*>("\200"), 1);
 	while ((m_count & 504) != 448) {
 		update(reinterpret_cast<const uint8_t*>("\0"), 1);
 	}
-	update(finalcount, 8); // cause a transform()
+	update(finalCount, 8); // cause a transform()
 	m_finalized = true;
 }
 

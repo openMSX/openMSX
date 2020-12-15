@@ -9,6 +9,7 @@
 #include "RomHolyQuran2.hh"
 #include "MSXCPU.hh"
 #include "MSXException.hh"
+#include "enumerate.hh"
 #include "likely.hh"
 #include "outer.hh"
 #include "ranges.hh"
@@ -22,12 +23,12 @@ namespace openmsx {
 //   out4 =  in0   out5 =  in4   out6 = ~in2   out7 =  in6
 static constexpr auto decryptLUT = [] {
 	std::array<byte, 256> result = {};
-	for (int i = 0; i < 256; ++i) {
-		result[i] = (((i << 4) & 0x50) |
-		             ((i >> 3) & 0x05) |
-		             ((i << 1) & 0xa0) |
-		             ((i << 2) & 0x08) |
-	                     ((i >> 6) & 0x02)) ^ 0x4d;
+	for (auto [i, r] : enumerate(result)) {
+		r = (((i << 4) & 0x50) |
+		     ((i >> 3) & 0x05) |
+		     ((i << 1) & 0xa0) |
+		     ((i << 2) & 0x08) |
+	             ((i >> 6) & 0x02)) ^ 0x4d;
 	}
 	return result;
 }();
@@ -104,17 +105,17 @@ void RomHolyQuran2::serialize(Archive& ar, unsigned /*version*/)
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);
 
-	unsigned b[4];
+	unsigned bb[4];
 	if (ar.isLoader()) {
-		ar.serialize("banks", b);
-		for (unsigned i = 0; i < 4; ++i) {
-			bank[i] = &rom[(b[i] & 127) * 0x2000];
+		ar.serialize("banks", bb);
+		for (auto [i, b] : enumerate(bb)) {
+			bank[i] = &rom[(b & 127) * 0x2000];
 		}
 	} else {
-		for (unsigned i = 0; i < 4; ++i) {
-			b[i] = (bank[i] - &rom[0]) / 0x2000;
+		for (auto [i, b] : enumerate(bb)) {
+			b = (bank[i] - &rom[0]) / 0x2000;
 		}
-		ar.serialize("banks", b);
+		ar.serialize("banks", bb);
 	}
 
 	ar.serialize("decrypt", decrypt);

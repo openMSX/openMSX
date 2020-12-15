@@ -20,6 +20,7 @@
 #include "DeviceConfig.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
+#include "enumerate.hh"
 #include "serialize.hh"
 #include "xrange.hh"
 #include <cassert>
@@ -752,9 +753,9 @@ void MB89352::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize_blob("buffer", buffer.data(), buffer.size());
 	char tag[8] = { 'd', 'e', 'v', 'i', 'c', 'e', 'X', 0 };
-	for (unsigned i = 0; i < MAX_DEV; ++i) {
+	for (auto [i, d] : enumerate(dev)) {
 		tag[6] = char('0' + i);
-		ar.serializePolymorphic(tag, *dev[i]);
+		ar.serializePolymorphic(tag, *d);
 	}
 	ar.serialize("bufIdx",       bufIdx,
 	             "msgin",        msgin,

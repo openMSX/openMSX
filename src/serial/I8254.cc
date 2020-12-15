@@ -1,6 +1,7 @@
 #include "I8254.hh"
 #include "EmuTime.hh"
 #include "ClockPin.hh"
+#include "enumerate.hh"
 #include "one_of.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
@@ -539,9 +540,9 @@ template<typename Archive>
 void I8254::serialize(Archive& ar, unsigned /*version*/)
 {
 	char tag[9] = { 'c', 'o', 'u', 'n', 't', 'e', 'r', 'X', 0 };
-	for (int i = 0; i < 3; ++i) {
+	for (auto [i, cntr] : enumerate(counter)) {
 		tag[7] = char('0' + i);
-		ar.serialize(tag, *counter[i]);
+		ar.serialize(tag, *cntr);
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(I8254);

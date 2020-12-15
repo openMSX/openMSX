@@ -6,10 +6,11 @@
 #include "OutputSurface.hh"
 #include "RenderSettings.hh"
 #include "MemoryOps.hh"
-#include "build-info.hh"
-#include "components.hh"
+#include "enumerate.hh"
 #include "one_of.hh"
 #include "xrange.hh"
+#include "build-info.hh"
+#include "components.hh"
 #include <algorithm>
 #include <cstdint>
 #include <memory>
@@ -297,12 +298,11 @@ void V9990SDLRasterizer<Pixel>::preCalcPalettes()
 		// Most users use the "normal" monitor type; making this a
 		// special case speeds up palette precalculation a lot.
 		int intensity[32];
-		for (int i = 0; i < 32; ++i) {
-			intensity[i] =
-				int(255 * renderSettings.transformComponent(i / 31.0f));
+		for (auto [i, r] : enumerate(intensity)) {
+			r = int(255 * renderSettings.transformComponent(i / 31.0f));
 		}
-		for (int grb = 0; grb < (1 << 15); ++grb) {
-			palette32768[grb] = screen.mapKeyedRGB255<Pixel>(gl::ivec3(
+		for (auto [grb, col] : enumerate(palette32768)) {
+			col = screen.mapKeyedRGB255<Pixel>(gl::ivec3(
 				intensity[(grb >>  5) & 31],
 				intensity[(grb >> 10) & 31],
 				intensity[(grb >>  0) & 31]));

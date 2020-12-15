@@ -4,6 +4,7 @@
 #include "XMLElement.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
+#include "enumerate.hh"
 #include "outer.hh"
 #include "serialize.hh"
 #include "stl.hh"
@@ -111,8 +112,8 @@ void MSXMapperIO::serialize(Archive& ar, unsigned version)
 		assert(ar.isLoader());
 		byte registers[4];
 		ar.serialize("registers", registers);
-		for (int page = 0; page < 4; page++) {
-			writeIO(page, registers[page], EmuTime::dummy());
+		for (auto [page, reg] : enumerate(registers)) {
+			writeIO(page, reg, EmuTime::dummy());
 		}
 	}
 }

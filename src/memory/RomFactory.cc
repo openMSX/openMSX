@@ -59,6 +59,7 @@
 #include "DeviceConfig.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
+#include "enumerate.hh"
 #include "one_of.hh"
 #include "xrange.hh"
 #include <memory>
@@ -144,9 +145,9 @@ namespace openmsx::RomFactory {
 		}
 		if (typeGuess[ROM_ASCII8]) typeGuess[ROM_ASCII8]--; // -1 -> max_int
 		RomType type = ROM_GENERIC_8KB;
-		for (int i = 0; i < ROM_LAST; ++i) {
-			// debug: fprintf(stderr, "%d: %d\n", i, typeGuess[i]);
-			if (typeGuess[i] && (typeGuess[i] >= typeGuess[type])) {
+		for (auto [i, tg] : enumerate(typeGuess)) {
+			// debug: fprintf(stderr, "%d: %d\n", i, tg);
+			if (tg && (tg >= typeGuess[type])) {
 				type = static_cast<RomType>(i);
 			}
 		}

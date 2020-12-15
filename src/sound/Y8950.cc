@@ -11,6 +11,7 @@
 #include "MSXMotherBoard.hh"
 #include "Math.hh"
 #include "cstd.hh"
+#include "enumerate.hh"
 #include "outer.hh"
 #include "ranges.hh"
 #include "serialize.hh"
@@ -610,10 +611,10 @@ void Y8950::setRythmMode(int data)
 // recalculate 'key' from register settings
 void Y8950::update_key_status()
 {
-	for (unsigned i = 0; i < 9; ++i) {
+	for (auto [i, c] : enumerate(ch)) {
 		int main = (reg[0xb0 + i] & 0x20) ? KEY_MAIN : 0;
-		ch[i].slot[MOD].key = main;
-		ch[i].slot[CAR].key = main;
+		c.slot[MOD].key = main;
+		c.slot[CAR].key = main;
 	}
 	if (rythm_mode) {
 		ch[6].slot[MOD].key |= (reg[0xbd] & 0x10) ? KEY_RHYTHM : 0; // BD1

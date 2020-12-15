@@ -7,6 +7,7 @@
 #include "FileException.hh"
 #include "XMLElement.hh"
 #include "CacheLine.hh"
+#include "enumerate.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 
@@ -268,8 +269,8 @@ void MSXSCCPlusCart::serialize(Archive& ar, unsigned /*version*/)
 
 	if (ar.isLoader()) {
 		// recalculate: isMapped[4], internalMemoryBank[4]
-		for (int i = 0; i < 4; ++i) {
-			setMapper(i, mapper[i]);
+		for (auto [i, m] : enumerate(mapper)) {
+			setMapper(i, m);
 		}
 		// recalculate: enable, isRamSegment[4]
 		setModeRegister(modeRegister);

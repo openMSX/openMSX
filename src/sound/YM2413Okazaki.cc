@@ -7,6 +7,7 @@
 #include "YM2413Okazaki.hh"
 #include "Math.hh"
 #include "cstd.hh"
+#include "enumerate.hh"
 #include "inline.hh"
 #include "one_of.hh"
 #include "ranges.hh"
@@ -267,9 +268,9 @@ constexpr auto dPhaseDrTab = [] {
 // Sustain level (17.15 fixed point)
 constexpr auto slTab = [] {
 	std::array<unsigned, 16> result = {};
-	for (int i = 0; i < 16; ++i) {
+	for (auto [i, r] : enumerate(result)) {
 		double x = (i == 15) ? 48.0 : (3.0 * i);
-		result[i] = int(x / EG_STEP) << EP_FP_BITS;
+		r = int(x / EG_STEP) << EP_FP_BITS;
 	}
 	return result;
 }();
@@ -410,9 +411,9 @@ void Slot::updatePG(unsigned freq)
 	// is much more suited for a (cheap) hardware calculation.
 	unsigned fnum  = freq & 511;
 	unsigned block = freq / 512;
-	for (int pm = 0; pm < 8; ++pm) {
+	for (auto [pm, dP] : enumerate(dPhase)) {
 		unsigned tmp = ((2 * fnum + pmTable[fnum >> 6][pm]) * patch.ML) << block;
-		dPhase[pm] = tmp >> (21 - DP_BITS);
+		dP = tmp >> (21 - DP_BITS);
 	}
 }
 
@@ -857,9 +858,8 @@ void YM2413::setRhythmFlags(uint8_t old)
 
 void YM2413::update_key_status()
 {
-	for (unsigned i = 0; i < 9; ++i) {
+	for (auto [i, ch] : enumerate(channels)) {
 		int slot_on = (reg[0x20 + i] & 0x10) ? 1 : 0;
-		Channel& ch = channels[i];
 		ch.mod.slot_on_flag = slot_on;
 		ch.car.slot_on_flag = slot_on;
 	}
@@ -1650,8 +1650,7 @@ void YM2413::serialize(Archive& ar, unsigned version)
 	if (ar.isLoader()) {
 		patches[0][0].initModulator(&reg[0]);
 		patches[0][1].initCarrier  (&reg[0]);
-		for (int i = 0; i < 9; ++i) {
-			Channel& ch = channels[i];
+		for (auto [i, ch] : enumerate(channels)) {
 			// restore patch
 			unsigned p = ((i >= 6) && isRhythm())
 			           ? (16 + (i - 6))

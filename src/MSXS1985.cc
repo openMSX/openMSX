@@ -1,5 +1,6 @@
 #include "MSXS1985.hh"
 #include "SRAM.hh"
+#include "enumerate.hh"
 #include "serialize.hh"
 #include <memory>
 
@@ -98,8 +99,8 @@ void MSXS1985::serialize(Archive& ar, unsigned version)
 		ar.beginTag("ram");
 		ar.serialize_blob("ram", tmp, sizeof(tmp));
 		ar.endTag("ram");
-		for (size_t i = 0; i < sizeof(tmp); ++i) {
-			sram->write(i, tmp[i]);
+		for (auto [i, t] : enumerate(tmp)) {
+			sram->write(i, t);
 		}
 	}
 
