@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1607977257">
+<softwaredb timestamp="1608157456">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -4641,6 +4641,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash>05280f0a26ac5c42ab63b80a487bb909683e7461</hash></megarom></dump>
 		<dump><megarom><type>ASCII8</type><hash>77fcce7b7c9c915fb0adff059141d4d4307f5a22</hash></megarom></dump>
 		<dump><megarom><type>ASCII8</type><hash>028eb2de64ee129f9403d114b3059e8b62fef6c2</hash></megarom></dump>
+		<dump><original value="false">Bad</original><megarom><type>ASCII8</type><hash>d77546e1652d16b7645a537165a7b064117e742d</hash></megarom></dump>
 </software>
 <software>
 	<title>Dragon Slayer 1</title>
@@ -6099,7 +6100,6 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>a8b64009424f518b9e9714b3a5e7b548a4e60eb2</hash><remark>v1.0 / MSXDev2020</remark></megarom></dump>
 		<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>ac13c262401f6d646b3ce2d930c141069604e38a</hash><remark>v1.1 / MSXDev2020</remark></megarom></dump>
 		<dump><original value="false">Bad</original><megarom><type>ASCII16</type><hash>c6e82c3a7134bc0c95010aaf26d7bcc0f699ff15</hash><remark>v1.2 / MSXDev2020</remark></megarom></dump>
-		<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>ac6e82c3a7134bc0c95010aaf26d7bcc0f699ff15</hash><remark>v1.2 / MSXDev2020</remark></megarom></dump>
 		<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>2b6e2ac79f5f650e24ccf7b2730aed15184c0b41</hash><remark>v1.3 / MSXDev2020</remark></megarom></dump>
 		<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>2f6a4171274bcaff83d1d16d04952d70a65cc1d8</hash><remark>v1.4 / MSXDev2020</remark></megarom></dump>
 		<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>632423b549219b0413d12fdd5ef883dbba3fbcaf</hash><remark>v1.5 / MSXDev2020</remark></megarom></dump>
@@ -22940,4 +22940,4 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>9119f3a485eb4215e7d41c7cf0e412d903458647</hash></rom></dump>
 </software>
 </softwaredb>
-<!-- Roms in this XML file:5934 - Created on Mon Dec 14 2020 - 11:21:09 AKST-->
+<!-- Roms in this XML file:5934 - Created on Wed Dec 16 2020 - 13:24:26 AKST-->
