@@ -329,7 +329,7 @@ void DBParser::text(string_view txt)
 		if (!g) {
 			cliComm.printWarning(
 				"Ignoring bad Generation MSX id (genmsxid) "
-				"in entry with title '", title,
+				"in entry with title '", fromString32(bufStart, title),
 				": ", txt);
 		}
 		genMSXid = *g;
@@ -345,7 +345,13 @@ void DBParser::text(string_view txt)
 		startVal = txt;
 		break;
 	case HASH:
-		dumps.back().hash = Sha1Sum(txt);
+		try {
+			dumps.back().hash = Sha1Sum(txt);
+		} catch (MSXException& e) {
+			cliComm.printWarning(
+				"Ignoring bad dump for '", fromString32(bufStart, title),
+				"': ", e.getMessage());
+		}
 		break;
 	case DUMP_REMARK:
 	case DUMP_TEXT:
