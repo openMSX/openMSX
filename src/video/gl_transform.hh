@@ -16,14 +16,14 @@ namespace gl {
 
 // Returns a 4x4 scaling matrix for the given xyz scale factors.
 // Comparable to the glScale() function.
-[[nodiscard]] inline mat4 scale(const vec3& xyz)
+[[nodiscard]] constexpr inline mat4 scale(const vec3& xyz)
 {
 	return mat4(vec4(xyz, 1.0f));
 }
 
 // Multiplies the given matrix by a scaling matrix. Equivalent to (but more
 // efficient than) 'A * scale(xyz)'.
-[[nodiscard]] inline mat4 scale(const mat4& A, const vec3& xyz)
+[[nodiscard]] constexpr inline mat4 scale(const mat4& A, const vec3& xyz)
 {
 	return {A[0] * xyz[0],
 	        A[1] * xyz[1],
@@ -33,7 +33,7 @@ namespace gl {
 
 // Returns a 4x4 translation matrix for the given xyz translation vector.
 // Comparable to the gltranslate() function.
-[[nodiscard]] inline mat4 translate(const vec3& xyz)
+[[nodiscard]] constexpr inline mat4 translate(const vec3& xyz)
 {
 	mat4 result;
 	result[3] = vec4(xyz, 1.0f);
@@ -42,7 +42,7 @@ namespace gl {
 
 // Multiplies the given matrix by a translation matrix. Equivalent to (but
 // more efficient than) 'A * translate(xyz)'.
-[[nodiscard]] inline mat4 translate(mat4& A, const vec3& xyz)
+[[nodiscard]] constexpr inline mat4 translate(mat4& A, const vec3& xyz)
 {
 	return {A[0],
 	        A[1],
@@ -166,9 +166,10 @@ namespace gl {
 
 // Returns a 4x4 orthographic projection matrix. Comparable to
 // the glOrtho() function.
-[[nodiscard]] inline mat4 ortho(float left,    float right,
-                                float bottom,  float top,
-                                float nearVal, float farVal)
+[[nodiscard]] constexpr inline mat4 ortho(
+	float left,    float right,
+	float bottom,  float top,
+	float nearVal, float farVal)
 {
 	return {vec4(-2.0f / (left - right),  0.0f, 0.0f, 0.0f),
 	        vec4( 0.0f, -2.0f / (bottom - top), 0.0f, 0.0f),
@@ -181,9 +182,10 @@ namespace gl {
 
 // Returns a 4x4 frustum projection matrix. Comparable to
 // the glFrustum() function.
-[[nodiscard]] inline mat4 frustum(float left,    float right,
-                                  float bottom,  float top,
-                                  float nearVal, float farVal)
+[[nodiscard]] constexpr inline mat4 frustum(
+	float left,    float right,
+	float bottom,  float top,
+	float nearVal, float farVal)
 {
 	return {vec4((2.0f * nearVal) / (right - left), 0.0f, 0.0f, 0.0f),
 	        vec4(0.0f, (2.0f * nearVal) / (top - bottom), 0.0f, 0.0f),

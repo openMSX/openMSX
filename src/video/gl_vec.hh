@@ -33,47 +33,47 @@ public:
 	// Default copy-constructor and assignment operator.
 
 	// Construct vector containing all zeros.
-	vecN()
+	constexpr vecN()
 	{
 		for (auto i : xrange(N)) e[i] = T(0);
 	}
 
 	// Construct vector containing the same value repeated N times.
-	explicit vecN(T x)
+	constexpr explicit vecN(T x)
 	{
 		for (auto i : xrange(N)) e[i] = x;
 	}
 
 	// Conversion constructor from vector of same size but different type
 	template<typename T2>
-	explicit vecN(const vecN<N, T2>& x)
+	constexpr explicit vecN(const vecN<N, T2>& x)
 	{
 		for (auto i : xrange(N)) e[i] = T(x[i]);
 	}
 
 	// Construct from larger vector (higher order elements are dropped).
-	template<int N2> explicit vecN(const vecN<N2, T>& x)
+	template<int N2> constexpr explicit vecN(const vecN<N2, T>& x)
 	{
 		static_assert(N2 > N, "wrong vector length in constructor");
 		for (auto i : xrange(N)) e[i] = x[i];
 	}
 
 	// Construct vector from 2 given values (only valid when N == 2).
-	vecN(T x, T y)
+	constexpr vecN(T x, T y)
 	{
 		static_assert(N == 2, "wrong #constructor arguments");
 		e[0] = x; e[1] = y;
 	}
 
 	// Construct vector from 3 given values (only valid when N == 3).
-	vecN(T x, T y, T z)
+	constexpr vecN(T x, T y, T z)
 	{
 		static_assert(N == 3, "wrong #constructor arguments");
 		e[0] = x; e[1] = y; e[2] = z;
 	}
 
 	// Construct vector from 4 given values (only valid when N == 4).
-	vecN(T x, T y, T z, T w)
+	constexpr vecN(T x, T y, T z, T w)
 	{
 		static_assert(N == 4, "wrong #constructor arguments");
 		e[0] = x; e[1] = y; e[2] = z; e[3] = w;
@@ -81,7 +81,7 @@ public:
 
 	// Construct vector from concatenating a scalar and a (smaller) vector.
 	template<int N2>
-	vecN(T x, const vecN<N2, T>& y)
+	constexpr vecN(T x, const vecN<N2, T>& y)
 	{
 		static_assert((1 + N2) == N, "wrong vector length in constructor");
 		e[0] = x;
@@ -90,7 +90,7 @@ public:
 
 	// Construct vector from concatenating a (smaller) vector and a scalar.
 	template<int N1>
-	vecN(const vecN<N1, T>& x, T y)
+	constexpr vecN(const vecN<N1, T>& x, T y)
 	{
 		static_assert((N1 + 1) == N, "wrong vector length in constructor");
 		for (auto i : xrange(N1)) e[i] = x[i];
@@ -99,7 +99,7 @@ public:
 
 	// Construct vector from concatenating two (smaller) vectors.
 	template<int N1, int N2>
-	vecN(const vecN<N1, T>& x, const vecN<N2, T>& y)
+	constexpr vecN(const vecN<N1, T>& x, const vecN<N2, T>& y)
 	{
 		static_assert((N1 + N2) == N, "wrong vector length in constructor");
 		for (auto i : xrange(N1)) e[i     ] = x[i];
@@ -107,13 +107,13 @@ public:
 	}
 
 	// Access the i-th element of this vector.
-	[[nodiscard]] T  operator[](unsigned i) const {
+	[[nodiscard]] constexpr T  operator[](unsigned i) const {
 		#ifdef DEBUG
 		assert(i < N);
 		#endif
 		return e[i];
 	}
-	[[nodiscard]] T& operator[](unsigned i) {
+	[[nodiscard]] constexpr T& operator[](unsigned i) {
 		#ifdef DEBUG
 		assert(i < N);
 		#endif
@@ -121,14 +121,14 @@ public:
 	}
 
 	// For structured bindings
-	template<size_t I> [[nodiscard]] T  get() const noexcept { return (*this)[I]; }
-	template<size_t I> [[nodiscard]] T& get()       noexcept { return (*this)[I]; }
+	template<size_t I> [[nodiscard]] constexpr T  get() const noexcept { return (*this)[I]; }
+	template<size_t I> [[nodiscard]] constexpr T& get()       noexcept { return (*this)[I]; }
 
 	// Assignment version of the +,-,* operations defined below.
-	vecN& operator+=(const vecN& x) { *this = *this + x; return *this; }
-	vecN& operator-=(const vecN& x) { *this = *this - x; return *this; }
-	vecN& operator*=(const vecN& x) { *this = *this * x; return *this; }
-	vecN& operator*=(T           x) { *this = *this * x; return *this; }
+	constexpr vecN& operator+=(const vecN& x) { *this = *this + x; return *this; }
+	constexpr vecN& operator-=(const vecN& x) { *this = *this - x; return *this; }
+	constexpr vecN& operator*=(const vecN& x) { *this = *this * x; return *this; }
+	constexpr vecN& operator*=(T           x) { *this = *this * x; return *this; }
 
 private:
 	T e[N];
@@ -157,11 +157,11 @@ using ivec4 = vecN<4, int>;
 }
 
 // convert radians <-> degrees
-template<typename T> [[nodiscard]] inline T radians(T d)
+template<typename T> [[nodiscard]] constexpr inline T radians(T d)
 {
 	return d * T(M_PI / 180.0);
 }
-template<typename T> [[nodiscard]] inline T degrees(T r)
+template<typename T> [[nodiscard]] constexpr inline T degrees(T r)
 {
 	return r * T(180.0 / M_PI);
 }
@@ -171,27 +171,27 @@ template<typename T> [[nodiscard]] inline T degrees(T r)
 
 // vector equality / inequality
 template<int N, typename T>
-[[nodiscard]] inline bool operator==(const vecN<N, T>& x, const vecN<N, T>& y)
+[[nodiscard]] constexpr inline bool operator==(const vecN<N, T>& x, const vecN<N, T>& y)
 {
 	for (auto i : xrange(N)) if (x[i] != y[i]) return false;
 	return true;
 }
 template<int N, typename T>
-[[nodiscard]] inline bool operator!=(const vecN<N, T>& x, const vecN<N, T>& y)
+[[nodiscard]] constexpr inline bool operator!=(const vecN<N, T>& x, const vecN<N, T>& y)
 {
 	return !(x == y);
 }
 
 // vector negation
 template<int N, typename T>
-[[nodiscard]] inline vecN<N, T> operator-(const vecN<N, T>& x)
+[[nodiscard]] constexpr inline vecN<N, T> operator-(const vecN<N, T>& x)
 {
 	return vecN<N, T>() - x;
 }
 
 // vector + vector
 template<int N, typename T>
-[[nodiscard]] inline vecN<N, T> operator+(const vecN<N, T>& x, const vecN<N, T>& y)
+[[nodiscard]] constexpr inline vecN<N, T> operator+(const vecN<N, T>& x, const vecN<N, T>& y)
 {
 	vecN<N, T> r;
 	for (auto i : xrange(N)) r[i] = x[i] + y[i];
@@ -200,7 +200,7 @@ template<int N, typename T>
 
 // vector - vector
 template<int N, typename T>
-[[nodiscard]] inline vecN<N, T> operator-(const vecN<N, T>& x, const vecN<N, T>& y)
+[[nodiscard]] constexpr inline vecN<N, T> operator-(const vecN<N, T>& x, const vecN<N, T>& y)
 {
 	vecN<N, T> r;
 	for (auto i : xrange(N)) r[i] = x[i] - y[i];
@@ -209,7 +209,7 @@ template<int N, typename T>
 
 // scalar * vector
 template<int N, typename T>
-[[nodiscard]] inline vecN<N, T> operator*(T x, const vecN<N, T>& y)
+[[nodiscard]] constexpr inline vecN<N, T> operator*(T x, const vecN<N, T>& y)
 {
 	vecN<N, T> r;
 	for (auto i : xrange(N)) r[i] = x * y[i];
@@ -218,7 +218,7 @@ template<int N, typename T>
 
 // vector * scalar
 template<int N, typename T>
-[[nodiscard]] inline vecN<N, T> operator*(const vecN<N, T>& x, T y)
+[[nodiscard]] constexpr inline vecN<N, T> operator*(const vecN<N, T>& x, T y)
 {
 	vecN<N, T> r;
 	for (auto i : xrange(N)) r[i] = x[i] * y;
@@ -227,7 +227,7 @@ template<int N, typename T>
 
 // vector * vector
 template<int N, typename T>
-[[nodiscard]] inline vecN<N, T> operator*(const vecN<N, T>& x, const vecN<N, T>& y)
+[[nodiscard]] constexpr inline vecN<N, T> operator*(const vecN<N, T>& x, const vecN<N, T>& y)
 {
 	vecN<N, T> r;
 	for (auto i : xrange(N)) r[i] = x[i] * y[i];
@@ -236,7 +236,7 @@ template<int N, typename T>
 
 // element-wise reciprocal
 template<int N, typename T>
-[[nodiscard]] inline vecN<N, T> recip(const vecN<N, T>& x)
+[[nodiscard]] constexpr inline vecN<N, T> recip(const vecN<N, T>& x)
 {
 	vecN<N, T> r;
 	for (auto i : xrange(N)) r[i] = T(1) / x[i];
@@ -245,28 +245,28 @@ template<int N, typename T>
 
 // scalar / vector
 template<int N, typename T>
-[[nodiscard]] inline vecN<N, T> operator/(T x, const vecN<N, T>& y)
+[[nodiscard]] constexpr inline vecN<N, T> operator/(T x, const vecN<N, T>& y)
 {
 	return x * recip(y);
 }
 
 // vector / scalar
 template<int N, typename T>
-[[nodiscard]] inline vecN<N, T> operator/(const vecN<N, T>& x, T y)
+[[nodiscard]] constexpr inline vecN<N, T> operator/(const vecN<N, T>& x, T y)
 {
 	return x * (T(1) / y);
 }
 
 // vector / vector
 template<int N, typename T>
-[[nodiscard]] inline vecN<N, T> operator/(const vecN<N, T>& x, const vecN<N, T>& y)
+[[nodiscard]] constexpr inline vecN<N, T> operator/(const vecN<N, T>& x, const vecN<N, T>& y)
 {
 	return x * recip(y);
 }
 
 // min(vector, vector)
 template<int N, typename T>
-[[nodiscard]] inline vecN<N, T> min(const vecN<N, T>& x, const vecN<N, T>& y)
+[[nodiscard]] constexpr inline vecN<N, T> min(const vecN<N, T>& x, const vecN<N, T>& y)
 {
 	vecN<N, T> r;
 	for (auto i : xrange(N)) r[i] = std::min(x[i], y[i]);
@@ -275,7 +275,7 @@ template<int N, typename T>
 
 // min(vector, vector)
 template<int N, typename T>
-[[nodiscard]] inline T min_component(const vecN<N, T>& x)
+[[nodiscard]] constexpr inline T min_component(const vecN<N, T>& x)
 {
 	T r = x[0];
 	for (auto i : xrange(1, N)) r = std::min(r, x[i]);
@@ -284,7 +284,7 @@ template<int N, typename T>
 
 // max(vector, vector)
 template<int N, typename T>
-[[nodiscard]] inline vecN<N, T> max(const vecN<N, T>& x, const vecN<N, T>& y)
+[[nodiscard]] constexpr inline vecN<N, T> max(const vecN<N, T>& x, const vecN<N, T>& y)
 {
 	vecN<N, T> r;
 	for (auto i : xrange(N)) r[i] = std::max(x[i], y[i]);
@@ -293,47 +293,47 @@ template<int N, typename T>
 
 // clamp(vector, vector, vector)
 template<int N, typename T>
-[[nodiscard]] inline vecN<N, T> clamp(const vecN<N, T>& x, const vecN<N, T>& minVal, const vecN<N, T>& maxVal)
+[[nodiscard]] constexpr inline vecN<N, T> clamp(const vecN<N, T>& x, const vecN<N, T>& minVal, const vecN<N, T>& maxVal)
 {
 	return min(maxVal, max(minVal, x));
 }
 
 // clamp(vector, scalar, scalar)
 template<int N, typename T>
-[[nodiscard]] inline vecN<N, T> clamp(const vecN<N, T>& x, T minVal, T maxVal)
+[[nodiscard]] constexpr inline vecN<N, T> clamp(const vecN<N, T>& x, T minVal, T maxVal)
 {
 	return clamp(x, vecN<N, T>(minVal), vecN<N, T>(maxVal));
 }
 
 // sum of components
 template<int N, typename T>
-[[nodiscard]] inline T sum(const vecN<N, T>& x)
+[[nodiscard]] constexpr inline T sum(const vecN<N, T>& x)
 {
 	T result(0);
 	for (auto i : xrange(N)) result += x[i];
 	return result;
 }
 template<int N, typename T>
-[[nodiscard]] inline vecN<N, T> sum_broadcast(const vecN<N, T>& x)
+[[nodiscard]] constexpr inline vecN<N, T> sum_broadcast(const vecN<N, T>& x)
 {
 	return vecN<N, T>(sum(x));
 }
 
 // dot product
 template<int N, typename T>
-[[nodiscard]] inline T dot(const vecN<N, T>& x, const vecN<N, T>& y)
+[[nodiscard]] constexpr inline T dot(const vecN<N, T>& x, const vecN<N, T>& y)
 {
 	return sum(x * y);
 }
 template<int N, typename T>
-[[nodiscard]] inline vecN<N, T> dot_broadcast(const vecN<N, T>& x, const vecN<N, T>& y)
+[[nodiscard]] constexpr inline vecN<N, T> dot_broadcast(const vecN<N, T>& x, const vecN<N, T>& y)
 {
 	return sum_broadcast(x * y);
 }
 
 // squared length (norm-2)
 template<int N, typename T>
-[[nodiscard]] inline T length2(const vecN<N, T>& x)
+[[nodiscard]] constexpr inline T length2(const vecN<N, T>& x)
 {
 	return dot(x, x);
 }
@@ -354,7 +354,7 @@ template<int N, typename T>
 
 // cross product (only defined for vectors of length 3)
 template<typename T>
-[[nodiscard]] inline vecN<3, T> cross(const vecN<3, T>& x, const vecN<3, T>& y)
+[[nodiscard]] constexpr inline vecN<3, T> cross(const vecN<3, T>& x, const vecN<3, T>& y)
 {
 	return vecN<3, T>(x[1] * y[2] - x[2] * y[1],
 	                  x[2] * y[0] - x[0] * y[2],
@@ -375,7 +375,7 @@ template<int N, typename T>
 // truncate each component to the nearest integer that is not bigger in
 // absolute value (returns a vector of integers)
 template<int N, typename T>
-[[nodiscard]] inline vecN<N, int> trunc(const vecN<N, T>& x)
+[[nodiscard]] constexpr inline vecN<N, int> trunc(const vecN<N, T>& x)
 {
 	vecN<N, int> r;
 	for (auto i : xrange(N)) r[i] = int(x[i]);
