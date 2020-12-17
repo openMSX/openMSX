@@ -1222,7 +1222,7 @@ void MSXCPUInterface::IOInfo::helper(
 	if (port >= 256) {
 		throw CommandException("Port must be in range 0..255");
 	}
-	result = devices[port]->getName();
+	devices[port]->getNameList(result);
 }
 void MSXCPUInterface::IInfo::execute(
 	span<const TclObject> tokens, TclObject& result) const
