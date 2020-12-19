@@ -37,22 +37,15 @@
 #include <iterator>
 #include <type_traits>
 
-template<typename T> class XRange
+template<typename T> struct XRange
 {
-public:
-	class XRangeIter
+	struct Iter
 	{
-	public:
 		using difference_type = ptrdiff_t;
 		using value_type = T;
 		using pointer    = T*;
 		using reference  = T&;
 		using iterator_category = std::random_access_iterator_tag;
-
-		constexpr explicit XRangeIter(T x_)
-			: x(x_)
-		{
-		}
 
 		// ForwardIterator
 		[[nodiscard]] constexpr T operator*() const
@@ -60,34 +53,34 @@ public:
 			return x;
 		}
 
-		constexpr XRangeIter& operator++()
+		constexpr Iter& operator++()
 		{
 			++x;
 			return *this;
 		}
-		constexpr XRangeIter operator++(int)
+		constexpr Iter operator++(int)
 		{
 			auto copy = *this;
 			++x;
 			return copy;
 		}
 
-		[[nodiscard]] constexpr bool operator==(const XRangeIter& other) const
+		[[nodiscard]] constexpr bool operator==(const Iter& other) const
 		{
 			return x == other.x;
 		}
-		[[nodiscard]] constexpr bool operator!=(const XRangeIter& other) const
+		[[nodiscard]] constexpr bool operator!=(const Iter& other) const
 		{
 			return x != other.x;
 		}
 
 		// BidirectionalIterator
-		constexpr XRangeIter& operator--()
+		constexpr Iter& operator--()
 		{
 			--x;
 			return *this;
 		}
-		constexpr XRangeIter operator--(int)
+		constexpr Iter operator--(int)
 		{
 			auto copy = *this;
 			--x;
@@ -95,34 +88,34 @@ public:
 		}
 
 		// RandomAccessIterator
-		constexpr XRangeIter& operator+=(difference_type n)
+		constexpr Iter& operator+=(difference_type n)
 		{
 			x += n;
 			return *this;
 		}
-		constexpr XRangeIter& operator-=(difference_type n)
+		constexpr Iter& operator-=(difference_type n)
 		{
 			x -= n;
 			return *this;
 		}
 
-		[[nodiscard]] constexpr friend XRangeIter operator+(XRangeIter i, difference_type n)
+		[[nodiscard]] constexpr friend Iter operator+(Iter i, difference_type n)
 		{
 			i += n;
 			return i;
 		}
-		[[nodiscard]] constexpr friend XRangeIter operator+(difference_type n, XRangeIter i)
+		[[nodiscard]] constexpr friend Iter operator+(difference_type n, Iter i)
 		{
 			i += n;
 			return i;
 		}
-		[[nodiscard]] constexpr friend XRangeIter operator-(XRangeIter i, difference_type n)
+		[[nodiscard]] constexpr friend Iter operator-(Iter i, difference_type n)
 		{
 			i -= n;
 			return i;
 		}
 
-		[[nodiscard]] constexpr friend difference_type operator-(const XRangeIter& i, const XRangeIter& j)
+		[[nodiscard]] constexpr friend difference_type operator-(const Iter& i, const Iter& j)
 		{
 			return i.x - j.x;
 		}
@@ -132,54 +125,42 @@ public:
 			return *(*this + n);
 		}
 
-		[[nodiscard]] constexpr friend bool operator<(const XRangeIter& i, const XRangeIter& j)
+		[[nodiscard]] constexpr friend bool operator<(const Iter& i, const Iter& j)
 		{
 			return i.x < j.x;
 		}
-		[[nodiscard]] constexpr friend bool operator<=(const XRangeIter& i, const XRangeIter& j)
+		[[nodiscard]] constexpr friend bool operator<=(const Iter& i, const Iter& j)
 		{
 			return i.x <= j.x;
 		}
-		[[nodiscard]] constexpr friend bool operator>(const XRangeIter& i, const XRangeIter& j)
+		[[nodiscard]] constexpr friend bool operator>(const Iter& i, const Iter& j)
 		{
 			return i.x > j.x;
 		}
-		[[nodiscard]] constexpr friend bool operator>=(const XRangeIter& i, const XRangeIter& j)
+		[[nodiscard]] constexpr friend bool operator>=(const Iter& i, const Iter& j)
 		{
 			return i.x >= j.x;
 		}
 
-	private:
 		T x;
 	};
 
-	constexpr explicit XRange(T e_)
-		: b(0), e(e_ < 0 ? 0 : e_)
-	{
-	}
+	[[nodiscard]] constexpr auto begin() const { return Iter{b}; }
+	[[nodiscard]] constexpr auto end()   const { return Iter{e}; }
 
-	constexpr XRange(T b_, T e_)
-		: b(b_), e(e_ < b_ ? b_ : e_)
-	{
-	}
-
-	[[nodiscard]] constexpr auto begin() const { return XRangeIter(b); }
-	[[nodiscard]] constexpr auto end()   const { return XRangeIter(e); }
-
-private:
 	const T b;
 	const T e;
 };
 
 template<typename T> [[nodiscard]] inline constexpr auto xrange(T e)
 {
-	return XRange<T>(e);
+	return XRange<T>{T(0), e < T(0) ? T(0) : e};
 }
 template<typename T1, typename T2> [[nodiscard]] inline constexpr auto xrange(T1 b, T2 e)
 {
 	static_assert(std::is_signed_v<T1> == std::is_signed_v<T2>);
 	using T = std::common_type_t<T1, T2>;
-	return XRange<T>(b, e);
+	return XRange<T>{b, e < b ? b : e};
 }
 
 
