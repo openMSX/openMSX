@@ -322,10 +322,11 @@ template<int E_ITERATIONS, int L_ITERATIONS>
 		++a;
 	}
 	double y = 0.0;
-	repeat(L_ITERATIONS, [&] {
+	//repeat(L_ITERATIONS, [&] { msvc bug
+	for (int i = 0; i < L_ITERATIONS; ++i) {
 		auto ey = cstd::exp<E_ITERATIONS>(y);
 		y = y + 2.0 * (x - ey) / (x + ey);
-	});
+	}
 	return y - a;
 }
 
