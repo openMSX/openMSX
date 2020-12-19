@@ -104,7 +104,8 @@ private:
 		// for (auto i : xrange(0x100)) { msvc bug
 		for (int i = 0; i < 0x100; ++i) {
 			uint16_t c = result[0][i];
-			for (auto j : xrange(1, 8)) {
+			//for (auto j : xrange(1, 8)) { msvc bug
+			for (int j = 1; j < 8; ++j) {
 				c = result[0][c >> 8] ^ (c << 8);
 				result[j][i] = c;
 			}
