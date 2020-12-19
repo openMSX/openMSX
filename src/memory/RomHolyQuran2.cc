@@ -23,12 +23,13 @@ namespace openmsx {
 //   out4 =  in0   out5 =  in4   out6 = ~in2   out7 =  in6
 static constexpr auto decryptLUT = [] {
 	std::array<byte, 256> result = {};
-	for (auto [i, r] : enumerate(result)) {
-		r = (((i << 4) & 0x50) |
-		     ((i >> 3) & 0x05) |
-		     ((i << 1) & 0xa0) |
-		     ((i << 2) & 0x08) |
-	             ((i >> 6) & 0x02)) ^ 0x4d;
+	//for (auto [i, r] : enumerate(result)) { msvc bug
+	for (int i = 0; i < 256; ++i) {
+		result[i] = (((i << 4) & 0x50) |
+		             ((i >> 3) & 0x05) |
+		             ((i << 1) & 0xa0) |
+		             ((i << 2) & 0x08) |
+	                     ((i >> 6) & 0x02)) ^ 0x4d;
 	}
 	return result;
 }();

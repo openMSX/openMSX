@@ -177,7 +177,8 @@ template<int ITERATIONS>
 	double y = 1.0;
 	double t = f;
 	double n = 1.0;
-	for (auto k : xrange(ITERATIONS)) {
+	//for (auto k : xrange(ITERATIONS)) { msvc bug
+	for (int k = 0; k < ITERATIONS; ++k) {
 		y += t / n;
 		t *= f;
 		n *= k + 2;

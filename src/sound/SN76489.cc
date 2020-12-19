@@ -27,7 +27,8 @@ static constexpr auto volTable = [] {
 	// 2dB per step -> 0.2, sqrt for amplitude -> 0.5
 	double factor = cstd::pow<5, 3>(0.1, 0.2 * 0.5);
 	double out = 32768.0;
-	for (auto i : xrange(15)) {
+	//for (auto i : xrange(15)) { msvc bug
+	for (int i = 0; i < 15; ++i) {
 		result[i] = cstd::round(out);
 		out *= factor;
 	}

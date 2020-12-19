@@ -368,7 +368,8 @@ constexpr int ENV_QUIET = TL_TAB_LEN >> 4;
 constexpr auto tlTab = [] {
 	std::array<int, TL_TAB_LEN> result = {};
 	// this _is_ different from OPL2 (verified on real YMF262)
-	for (auto x : xrange(TL_RES_LEN)) {
+	//for (auto x : xrange(TL_RES_LEN)) { msvc bug
+	for (int x = 0; x < TL_RES_LEN; ++x) {
 		double m = (1 << 16) / cstd::exp2<6>((x + 1) * (ENV_STEP / 4.0) / 8.0);
 
 		// we never reach (1<<16) here due to the (x+1)
@@ -381,7 +382,8 @@ constexpr auto tlTab = [] {
 		result[x * 2 + 0] = n;
 		result[x * 2 + 1] = ~result[x * 2 + 0];
 
-		for (int i : xrange(1, 13)) {
+		//for (int i : xrange(1, 13)) { msvc bug
+		for (int i = 1; i < 13; ++i) {
 			result[x * 2 + 0 + i * 2 * TL_RES_LEN] =
 			        result[x * 2 + 0] >> i;
 			result[x * 2 + 1 + i * 2 * TL_RES_LEN] =
@@ -402,7 +404,8 @@ static constexpr SinTab getSinTab()
 {
 	SinTab sin = {};
 
-	for (auto i : xrange(SIN_LEN / 4)) {
+	//for (auto i : xrange(SIN_LEN / 4)) { msvc bug
+	for (int i = 0; i < (SIN_LEN / 4); ++i) {
 		// non-standard sinus
 		double m = cstd::sin<2>(((i * 2) + 1) * M_PI / SIN_LEN); // checked against the real chip
 		// we never reach zero here due to ((i * 2) + 1)
@@ -413,14 +416,17 @@ static constexpr SinTab getSinTab()
 		n = (n >> 1) + (n & 1); // round to nearest
 		sin.tab[i] = 2 * n;
 	}
-	for (auto i : xrange(SIN_LEN / 4)) {
+	//for (auto i : xrange(SIN_LEN / 4)) { msvc bug
+	for (int i = 0; i < (SIN_LEN / 4); ++i) {
 		sin.tab[SIN_LEN / 2 - 1 - i] = sin.tab[i];
 	}
-	for (auto i : xrange(SIN_LEN / 2)) {
+	//for (auto i : xrange(SIN_LEN / 2)) { msvc bug
+	for (int i = 0; i < (SIN_LEN / 2); ++i) {
 		sin.tab[SIN_LEN / 2 + i] = sin.tab[i] + 1;
 	}
 
-	for (auto i : xrange(SIN_LEN)) {
+	//for (auto i : xrange(SIN_LEN)) { msvc bug
+	for (int i = 0; i < SIN_LEN; ++i) {
 		// these 'pictures' represent _two_ cycles
 		// waveform 1:  __      __
 		//             /  \____/  \____

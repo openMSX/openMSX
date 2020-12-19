@@ -74,7 +74,8 @@ constexpr auto AY8910EnvelopeTab = [] {
 constexpr auto volumeTab = [] {
 	std::array<float, 16> result = {};
 	result[0] = 0.0f;
-	for (auto i : xrange(1, 16)) {
+	//for (auto i : xrange(1, 16)) { msvc bug
+	for (int i = 1; i < 16; ++i) {
 		result[i] = YM2149EnvelopeTab[2 * i + 1];
 	}
 	return result;

@@ -61,15 +61,17 @@ enum RmNum : uint8_t {
 
 constexpr auto logsinTab = [] {
 	std::array<uint16_t, 256> result = {};
-	for (auto [i, r] : enumerate(result)) {
-		r = cstd::round(-cstd::log2<8, 3>(cstd::sin<2>((double(i) + 0.5) * M_PI / 256.0 / 2.0)) * 256.0);
+	//for (auto [i, r] : enumerate(result)) { msvc bug
+	for (int i = 0; i < 256; ++i) {
+		result[i] = cstd::round(-cstd::log2<8, 3>(cstd::sin<2>((double(i) + 0.5) * M_PI / 256.0 / 2.0)) * 256.0);
 	}
 	return result;
 }();
 constexpr auto expTab = [] {
 	std::array<uint16_t, 256> result = {};
-	for (auto [i, r] : enumerate(result)) {
-		r = cstd::round((cstd::exp2<6>(double(255 - i) / 256.0)) * 1024.0);
+	//for (auto [i, r] : enumerate(result)) { msvc bug
+	for (int i = 0; i < 256; ++i) {
+		result[i] = cstd::round((cstd::exp2<6>(double(255 - i) / 256.0)) * 1024.0);
 	}
 	return result;
 }();

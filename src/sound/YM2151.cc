@@ -51,7 +51,8 @@ constexpr int TL_RES_LEN = 256; // 8 bits addressing (real chip)
 constexpr unsigned TL_TAB_LEN = 13 * 2 * TL_RES_LEN;
 static constexpr auto tl_tab = [] {
 	std::array<int, TL_TAB_LEN> result = {};
-	for (auto x : xrange(TL_RES_LEN)) {
+	//for (auto x : xrange(TL_RES_LEN)) { msvc bug
+	for (unsigned x = 0; x < TL_RES_LEN; ++x) {
 		double m = (1 << 16) / cstd::exp2<6>((x + 1) * (ENV_STEP / 4.0) / 8.0);
 
 		// we never reach (1 << 16) here due to the (x + 1)
@@ -69,7 +70,8 @@ static constexpr auto tl_tab = [] {
 		result[x * 2 + 0] = n;
 		result[x * 2 + 1] = -result[x * 2 + 0];
 
-		for (auto i : xrange(1, 13)) {
+		//for (auto i : xrange(1, 13)) { msvc bug
+		for (int i = 1; i < 13; ++i) {
 			result[x * 2 + 0 + i * 2 * TL_RES_LEN] =  result[x * 2 + 0] >> i;
 			result[x * 2 + 1 + i * 2 * TL_RES_LEN] = -result[x * 2 + 0 + i * 2 * TL_RES_LEN];
 		}
@@ -82,7 +84,8 @@ constexpr unsigned ENV_QUIET = TL_TAB_LEN >> 3;
 // sin waveform table in 'decibel' scale
 static constexpr auto sin_tab = [] {
 	std::array<unsigned, SIN_LEN> result = {};
-	for (auto i : xrange(SIN_LEN)) {
+	//for (auto i : xrange(SIN_LEN)) { msvc bug
+	for (int i = 0; i < SIN_LEN; ++i) {
 		// non-standard sinus
 		double m = cstd::sin<2>((i * 2 + 1) * M_PI / SIN_LEN); // verified on the real chip
 
@@ -105,9 +108,10 @@ static constexpr auto sin_tab = [] {
 // translate from D1L to volume index (16 D1L levels)
 static constexpr auto d1l_tab = [] {
 	std::array<unsigned, 16> result = {};
-	for (auto [i, r] : enumerate(result)) {
+	//for (auto [i, r] : enumerate(result)) { msvc bug
+	for (int i = 0; i < 16; ++i) {
 		// every 3 'dB' except for all bits = 1 = 45+48 'dB'
-		r = unsigned((i != 15 ? i : i + 16) * (4.0 / ENV_STEP));
+		result[i] = unsigned((i != 15 ? i : i + 16) * (4.0 / ENV_STEP));
 	}
 	return result;
 }();
@@ -340,31 +344,37 @@ static constexpr auto freq = [] {
 	//   -10 because phaseinc_rom table values are already in 10.10 format
 	double mult = 1 << (FREQ_SH - 10);
 
-	for (auto i : xrange(768)) {
+	//for (auto i : xrange(768)) { msvc bug
+	for (int i = 0; i < 768; ++i) {
 		double phaseinc = phaseinc_rom[i]; // real chip phase increment
 
 		// octave 2 - reference octave
 		//   adjust to X.10 fixed point
 		result[768 + 2 * 768 + i] = int(phaseinc * mult) & 0xffffffc0;
 		// octave 0 and octave 1
-		for (auto j : xrange(2)) {
+		//for (auto j : xrange(2)) { msvc bug
+		for (int j = 0; j < 2; ++j) {
 			// adjust to X.10 fixed point
 			result[768 + j * 768 + i] = (result[768 + 2 * 768 + i] >> (2 - j)) & 0xffffffc0;
 		}
 		// octave 3 to 7
-		for (auto j : xrange(3, 8)) {
+		//for (auto j : xrange(3, 8)) { msvc bug
+		for (int j = 3; j < 8; ++j) {
 			result[768 + j * 768 + i] = result[768 + 2 * 768 + i] << (j - 2);
 		}
 	}
 
 	// octave -1 (all equal to: oct 0, _KC_00_, _KF_00_)
-	for (auto i : xrange(768)) {
+	//for (auto i : xrange(768)) { msvc bug
+	for (int i = 0; i < 768; ++i) {
 		result[0 * 768 + i] = result[1 * 768 + 0];
 	}
 
 	// octave 8 and 9 (all equal to: oct 7, _KC_14_, _KF_63_)
-	for (auto j : xrange(8, 10)) {
-		for (auto i : xrange(768)) {
+	//for (auto j : xrange(8, 10)) { msvc bug
+	for (int j = 8; j < 10; ++j) {
+		//for (auto i : xrange(768)) { msvc bug
+		for (int i = 0; i < 768; ++i) {
 			result[768 + j * 768 + i] = result[768 + 8 * 768 - 1];
 		}
 	}
@@ -376,8 +386,10 @@ static constexpr auto freq = [] {
 static constexpr auto dt1_freq = [] {
 	std::array<int, 8 * 32> result = {};    // 8 DT1 levels, 32 KC values
 	double mult = 1 << FREQ_SH;
-	for (auto j : xrange(4)) {
-		for (auto i : xrange(32)) {
+	//for (auto j : xrange(4)) { msvc bug
+	for (int j = 0; j < 4; ++j) {
+		//for (auto i : xrange(32)) { msvc bug
+		for (int i = 0; i < 32; ++i) {
 			// calculate phase increment
 			double phaseinc = double(dt1_tab[j * 32 + i]) / (1 << 20) * SIN_LEN;
 
@@ -393,8 +405,9 @@ static constexpr auto dt1_freq = [] {
 // 2/2 means every cycle/sample, 2/5 means 2 out of 5 cycles/samples, etc.
 static constexpr auto noise_tab = [] {
 	std::array<unsigned, 32> result = {};  // 17bit Noise Generator periods
-	for (auto [i, r] : enumerate(result)) {
-		r = 32 - (i != 31 ? i : 30); // rate 30 and 31 are the same
+	//for (auto [i, r] : enumerate(result)) { msvc bug
+	for (int i = 0; i < 32; ++i) {
+		result[i] = 32 - (i != 31 ? i : 30); // rate 30 and 31 are the same
 	}
 	return result;
 }();

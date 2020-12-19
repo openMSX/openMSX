@@ -161,15 +161,18 @@ constexpr uint8_t mlTable[16] = {
 //   [DBTABLEN, 2*DBTABLEN)  as above but for negative output values
 constexpr auto dB2LinTab = [] {
 	std::array<int, 2 * DBTABLEN> result = {};
-	for (int i : xrange(DB_MUTE - 1)) {
+	//for (int i : xrange(DB_MUTE - 1)) { msvc bug
+	for (int i = 0; i < (DB_MUTE - 1); ++i) {
 		result[i] = int(double((1 << DB2LIN_AMP_BITS) - 1) *
 		                   cstd::pow<5, 3>(10, -double(i) * DB_STEP / 20));
 	}
 	result[DB_MUTE - 1] = 0;
-	for (auto i : xrange(DB_MUTE, DBTABLEN)) {
+	//for (auto i : xrange(DB_MUTE, DBTABLEN)) { msvc bug
+	for (int i = DB_MUTE; i < DBTABLEN; ++i) {
 		result[i] = 0;
 	}
-	for (auto i : xrange(DBTABLEN)) {
+	//for (auto i : xrange(DBTABLEN)) { msvc bug
+	for (int i = 0; i < DBTABLEN; ++i) {
 		result[i + DBTABLEN] = -result[i];
 	}
 	return result;
@@ -180,7 +183,8 @@ constexpr auto arAdjustTab = [] {
 	std::array<unsigned, 1 << EG_BITS> result = {};
 	result[0] = (1 << EG_BITS) - 1;
 	constexpr double l127 = cstd::log<5, 4>(127.0);
-	for (int i : xrange(1, 1 << EG_BITS)) {
+	//for (int i : xrange(1, 1 << EG_BITS)) { msvc bug
+	for (int i = 1; i < (1 << EG_BITS); ++i) {
 		result[i] = unsigned(double(1 << EG_BITS) - 1 -
 		         ((1 << EG_BITS) - 1) * cstd::log<5, 4>(double(i)) / l127);
 	}
@@ -199,11 +203,13 @@ constexpr auto tllTab = [] {
 	// This is different from Y8950 and YMF262 which have {0, 3, 1.5, 6}.
 	// (2nd and 3rd elements are swapped). Verified on real YM2413.
 
-	for (auto freq : xrange(16 * 8u)) {
+	//for (auto freq : xrange(16 * 8u)) { msvc bug
+	for (unsigned freq = 0; freq < (16 * 8); ++freq) {
 		unsigned fnum  = freq % 16;
 		unsigned block = freq / 16;
 		int tmp = 2 * klTable[fnum] - 16 * (7 - block);
-		for (auto KL : xrange(4)) {
+		//for (auto KL : xrange(4)) { msvc bug
+		for (int KL = 0; KL < 4; ++KL) {
 			unsigned t = (tmp <= 0 || KL == 0) ? 0 : (tmp >> (3 - KL));
 			assert(t <= 112);
 			result[KL][freq] = t;
@@ -224,23 +230,28 @@ constexpr auto fullSinTable = [] {
 	};
 
 	std::array<unsigned, PG_WIDTH> result = {};
-	for (auto i : xrange(PG_WIDTH / 4)) {
+	//for (auto i : xrange(PG_WIDTH / 4)) { msvc bug
+	for (int i = 0; i < (PG_WIDTH / 4); ++i) {
 		result[i] = lin2db(cstd::sin<2>(double(2.0 * M_PI) * i / PG_WIDTH));
 	}
-	for (auto i : xrange(PG_WIDTH / 4)) {
+	//for (auto i : xrange(PG_WIDTH / 4)) { msvc bug
+	for (int i = 0; i < (PG_WIDTH / 4); ++i) {
 		result[PG_WIDTH / 2 - 1 - i] = result[i];
 	}
-	for (auto i : xrange(PG_WIDTH / 2)) {
+	//for (auto i : xrange(PG_WIDTH / 2)) { msvc bug
+	for (int i = 0; i < (PG_WIDTH / 2); ++i) {
 		result[PG_WIDTH / 2 + i] = DBTABLEN + result[i];
 	}
 	return result;
 }();
 constexpr auto halfSinTable = [] {
 	std::array<unsigned, PG_WIDTH> result = {};
-	for (auto i : xrange(PG_WIDTH / 2)) {
+	//for (auto i : xrange(PG_WIDTH / 2)) { msvc bug
+	for (int i = 0; i < (PG_WIDTH / 2); ++i) {
 		result[i] = fullSinTable[i];
 	}
-	for (auto i : xrange(PG_WIDTH / 2, PG_WIDTH)) {
+	//for (auto i : xrange(PG_WIDTH / 2, PG_WIDTH)) { msvc bug
+	for (int i = PG_WIDTH / 2; i < PG_WIDTH; ++i) {
 		result[i] = fullSinTable[0];
 	}
 	return result;
@@ -253,9 +264,11 @@ constexpr unsigned const * const waveform[2] = {fullSinTable.data(), halfSinTabl
 //  17.15 fixed point
 constexpr auto dPhaseDrTab = [] {
 	std::array<std::array<int, 16>, 16> result = {};
-	for (auto Rks : xrange(16)) {
+	//for (auto Rks : xrange(16)) { msvc bug
+	for (int Rks = 0; Rks < 16; ++Rks) {
 		result[Rks][0] = 0;
-		for (auto DR : xrange(1, 16)) {
+		//for (auto DR : xrange(1, 16)) { msvc bug
+		for (int DR = 1; DR < 16; ++DR) {
 			unsigned RM = std::min(DR + (Rks >> 2), 15);
 			unsigned RL = Rks & 3;
 			result[Rks][DR] =
@@ -268,9 +281,10 @@ constexpr auto dPhaseDrTab = [] {
 // Sustain level (17.15 fixed point)
 constexpr auto slTab = [] {
 	std::array<unsigned, 16> result = {};
-	for (auto [i, r] : enumerate(result)) {
+	//for (auto [i, r] : enumerate(result)) { msvc bug
+	for (int i = 0; i < 16; ++i) {
 		double x = (i == 15) ? 48.0 : (3.0 * i);
-		r = int(x / EG_STEP) << EP_FP_BITS;
+		result[i] = int(x / EG_STEP) << EP_FP_BITS;
 	}
 	return result;
 }();

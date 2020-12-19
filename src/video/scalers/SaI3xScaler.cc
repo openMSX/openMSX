@@ -326,7 +326,7 @@ public:
 		auto* dstLine = dst.acquireLine(dstY);
 		auto* dp = dstLine;
 		// Calculate fixed point coordinate.
-		const unsigned y1 = ((NY - i) << 16) / NY;
+		static constexpr unsigned y1 = ((NY - i) << 16) / NY;
 
 		unsigned pos1 = 0;
 		unsigned pos2 = 0;

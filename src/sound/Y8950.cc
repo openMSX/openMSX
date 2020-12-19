@@ -184,7 +184,8 @@ constexpr auto adjustAR = [] {
 	std::array<unsigned, EG_MUTE> result = {};
 	result[0] = EG_MUTE;
 	auto log_eg_mute = cstd::log<6, 5>(EG_MUTE);
-	for (int i : xrange(1, int(EG_MUTE))) {
+	//for (int i : xrange(1, int(EG_MUTE))) { msvc bug
+	for (int i = 1; i < int(EG_MUTE); ++i) {
 		result[i] = (EG_MUTE - 1 - EG_MUTE * cstd::log<6, 5>(i) / log_eg_mute) / 2;
 		assert(0 <= int(result[i]));
 		assert(result[i] <= EG_MUTE);
@@ -194,7 +195,8 @@ constexpr auto adjustAR = [] {
 constexpr auto adjustRA = [] {
 	std::array<unsigned, EG_MUTE + 1> result = {};
 	result[0] = EG_MUTE;
-	for (int i : xrange(1, int(EG_MUTE))) {
+	//for (int i : xrange(1, int(EG_MUTE))) { msvc bug
+	for (int i = 1; i < int(EG_MUTE); ++i) {
 		result[i] = cstd::pow<6, 5>(EG_MUTE, (double(EG_MUTE) - 1 - 2 * i) / EG_MUTE);
 		assert(0 <= int(result[i]));
 		assert(result[i] <= EG_MUTE);
@@ -206,15 +208,18 @@ constexpr auto adjustRA = [] {
 // Table for dB(0 -- (1<<DB_BITS)) to Liner(0 -- DB2LIN_AMP_WIDTH)
 constexpr auto dB2LinTab = [] {
 	std::array<int, (2 * DB_MUTE) * 2> result = {};
-	for (int i : xrange(DB_MUTE)) {
+	//for (int i : xrange(DB_MUTE)) { msvc bug
+	for (int i = 0; i < DB_MUTE; ++i) {
 		result[i] = int(double((1 << DB2LIN_AMP_BITS) - 1) *
 		                   cstd::pow<7, 3>(10, -double(i) * DB_STEP / 20.0));
 	}
 	assert(result[DB_MUTE - 1] == 0);
-	for (auto i : xrange(DB_MUTE, 2 * DB_MUTE)) {
+	//for (auto i : xrange(DB_MUTE, 2 * DB_MUTE)) { msvc bug
+	for (int i = DB_MUTE; i < (2 * DB_MUTE); ++i) {
 		result[i] = 0;
 	}
-	for (auto i : xrange(2 * DB_MUTE)) {
+	//for (auto i : xrange(2 * DB_MUTE)) { msvc bug
+	for (int i = 0; i < (2 * DB_MUTE); ++i) {
 		result[i + 2 * DB_MUTE] = -result[i];
 	}
 	return result;
@@ -237,13 +242,16 @@ constexpr auto sinTable = [] {
 	};
 
 	std::array<unsigned, PG_WIDTH> result = {};
-	for (int i : xrange(PG_WIDTH / 4)) {
+	//for (int i : xrange(PG_WIDTH / 4)) { msvc bug
+	for (int i = 0; i < (PG_WIDTH / 4); ++i) {
 		result[i] = lin2db(cstd::sin<2>(2.0 * M_PI * i / PG_WIDTH));
 	}
-	for (auto i : xrange(PG_WIDTH / 4)) {
+	//for (auto i : xrange(PG_WIDTH / 4)) { msvc bug
+	for (int i = 0 ; i < (PG_WIDTH / 4); ++i) {
 		result[PG_WIDTH / 2 - 1 - i] = result[i];
 	}
-	for (auto i : xrange(PG_WIDTH / 2)) {
+	//for (auto i : xrange(PG_WIDTH / 2)) { msvc bug
+	for (int i = 0; i < (PG_WIDTH / 2); ++i) {
 		result[PG_WIDTH / 2 + i] = 2 * DB_MUTE + result[i];
 	}
 	return result;
@@ -252,7 +260,8 @@ constexpr auto sinTable = [] {
 // Table for Pitch Modulator
 constexpr auto pmTable = [] {
 	std::array<std::array<int, PM_PG_WIDTH>, 2> result = {};
-	for (int i : xrange(PM_PG_WIDTH)) {
+	//for (int i : xrange(PM_PG_WIDTH)) { // msvc bug
+	for (int i = 0; i < PM_PG_WIDTH; ++i) {
 		auto s = cstd::sin<5>(2.0 * M_PI * i / PM_PG_WIDTH) / 1200;
 		result[0][i] = int(PM_AMP * cstd::exp2<2>(PM_DEPTH  * s));
 		result[1][i] = int(PM_AMP * cstd::exp2<2>(PM_DEPTH2 * s));
@@ -271,11 +280,13 @@ constexpr auto tllTable = [] {
 	constexpr unsigned shift[4] = { 31, 1, 2, 0 };
 
 	std::array<std::array<int, 4>, 16 * 8> result = {};
-	for (auto freq : xrange(16 * 8u)) {
+	//for (auto freq : xrange(16 * 8u)) { msvc bug
+	for (unsigned freq = 0; freq < (16 * 8); ++freq) {
 		unsigned fnum  = freq % 16;
 		unsigned block = freq / 16;
 		int tmp = 4 * klTable[fnum] - 32 * (7 - block);
-		for (auto KL : xrange(4)) {
+		//for (auto KL : xrange(4)) { msvc bug
+		for (int KL = 0; KL < 4; ++KL) {
 			result[freq][KL] = (tmp <= 0) ? 0 : (tmp >> shift[KL]);
 		}
 	}
@@ -285,9 +296,11 @@ constexpr auto tllTable = [] {
 // Phase incr table for Attack.
 constexpr auto dPhaseArTable = [] {
 	std::array<std::array<Y8950::EnvPhaseIndex, 16>, 16> result = {};
-	for (auto Rks : xrange(16)) {
+	//for (auto Rks : xrange(16)) { msvc bug
+	for (int Rks = 0; Rks < 16; ++Rks) {
 		result[Rks][0] = Y8950::EnvPhaseIndex(0);
-		for (auto AR : xrange(1, 15)) {
+		//for (auto AR : xrange(1, 15)) { msvc bug
+		for (int AR = 1; AR < 15; ++AR) {
 			unsigned RM = std::min(AR + (Rks >> 2), 15);
 			unsigned RL = Rks & 3;
 			result[Rks][AR] =
@@ -301,9 +314,11 @@ constexpr auto dPhaseArTable = [] {
 // Phase incr table for Decay and Release.
 constexpr auto dPhaseDrTable = [] {
 	std::array<std::array<Y8950::EnvPhaseIndex, 16>, 16> result = {};
-	for (auto Rks : xrange(16)) {
+	//for (auto Rks : xrange(16)) { msvc bug
+	for (int Rks = 0; Rks < 16; ++Rks) {
 		result[Rks][0] = Y8950::EnvPhaseIndex(0);
-		for (auto DR : xrange(1, 16)) {
+		//for (auto DR : xrange(1, 16)) { msvc bug
+		for (int DR = 1; DR < 16; ++DR) {
 			unsigned RM = std::min(DR + (Rks >> 2), 15);
 			unsigned RL = Rks & 3;
 			result[Rks][DR] =

@@ -217,7 +217,8 @@ constexpr uint8_t mul_tab[16] =
 constexpr int TL_TAB_LEN = 11 * 2 * TL_RES_LEN;
 constexpr auto tlTab = [] {
 	std::array<int, TL_TAB_LEN> result = {};
-	for (auto x : xrange(TL_RES_LEN)) {
+	//for (auto x : xrange(TL_RES_LEN)) { msvc bug
+	for (int x = 0; x < TL_RES_LEN; ++x) {
 		double m = (1 << 16) / cstd::exp2<6>((x + 1) * (ENV_STEP / 4.0) / 8.0);
 
 		// we never reach (1 << 16) here due to the (x + 1)
@@ -226,7 +227,8 @@ constexpr auto tlTab = [] {
 		n >>= 4;        // 12 bits here
 		n = (n >> 1) + (n & 1); // round to nearest
 		// 11 bits here (rounded)
-		for (auto i : xrange(11)) {
+		//for (auto i : xrange(11)) { msvc bug
+		for (int i = 0; i < 11; ++i) {
 			result[x * 2 + 0 + i * 2 * TL_RES_LEN] = n >> i;
 			result[x * 2 + 1 + i * 2 * TL_RES_LEN] = -(n >> i);
 		}
@@ -238,23 +240,28 @@ constexpr auto tlTab = [] {
 // two waveforms on OPLL type chips
 constexpr auto sinTab = [] {
 	std::array<unsigned, SIN_LEN * 2> result = {};
-	for (auto i : xrange(SIN_LEN / 4)) {
+	//for (auto i : xrange(SIN_LEN / 4)) { msvc bug
+	for (int i = 0; i < (SIN_LEN / 4); ++i) {
 		// checked on real hardware, see also
 		//   http://docs.google.com/Doc?id=dd8kqn9f_13cqjkf4gp
 		double m = cstd::sin<2>(((i * 2) + 1) * M_PI / SIN_LEN);
 		int n = int(cstd::round(cstd::log2<8, 3>(m) * -256.0));
 		result[i] = 2 * n;
 	}
-	for (auto i : xrange(SIN_LEN / 4)) {
+	//for (auto i : xrange(SIN_LEN / 4)) { msvc bug
+	for (int i = 0; i < (SIN_LEN / 4); ++i) {
 		result[SIN_LEN / 4 + i] = result[SIN_LEN / 4 - 1 - i];
 	}
-	for (auto i : xrange(SIN_LEN / 2)) {
+	//for (auto i : xrange(SIN_LEN / 2)) { msvc bug
+	for (int i = 0; i < (SIN_LEN / 2); ++i) {
 		result[SIN_LEN / 2 + i] = result[i] | 1;
 	}
-	for (auto i : xrange(SIN_LEN / 2)) {
+	//for (auto i : xrange(SIN_LEN / 2)) { msvc bug
+	for (int i = 0; i < (SIN_LEN / 2); ++i) {
 		result[i + SIN_LEN] = result[i];
 	}
-	for (auto i : xrange(SIN_LEN / 2)) {
+	//for (auto i : xrange(SIN_LEN / 2)) { msvc bug
+	for (int i = 0; i < (SIN_LEN / 2); ++i) {
 		result[i + SIN_LEN + SIN_LEN / 2] = TL_TAB_LEN;
 	}
 	return result;

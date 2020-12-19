@@ -108,12 +108,16 @@ static MemBuffer<byte> logOpLUT[4][16];
 // to speedup calculating logOpLUT
 static constexpr auto bitLUT = [] {
 	std::array<std::array<std::array<std::array<byte, 2>, 2>, 16>, 8> result = {};
-	for (auto op : xrange(16)) {
+	//for (auto op : xrange(16)) { msvc bug
+	for (int op = 0; op < 16; ++op) {
 		unsigned tmp = op;
-		for (auto src : xrange(2)) {
-			for (auto dst : xrange(2)) {
+		//for (auto src : xrange(2)) { msvc bug
+		for (int src = 0; src < 2; ++src) {
+			//for (auto dst : xrange(2)) { msvc bug
+			for (int dst = 0; dst < 2; ++dst) {
 				unsigned b = tmp & 1;
-				for (auto bit : xrange(8)) {
+				//for (auto bit : xrange(8)) { msvc bug
+				for (int bit = 0; bit < 8; ++bit) {
 					result[bit][op][src][dst] = b << bit;
 				}
 				tmp >>= 1;
