@@ -236,7 +236,8 @@ static constexpr Table initTables()
 {
 	Table table = {};
 
-	for (auto i : xrange(256)) {
+	//for (auto i : xrange(256)) { msvc bug
+	for (int i = 0; i < 256; ++i) {
 		byte zFlag = (i == 0) ? Z_FLAG : 0;
 		byte sFlag = i & S_FLAG;
 		byte xFlag = i & X_FLAG;
