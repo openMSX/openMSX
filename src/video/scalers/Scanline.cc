@@ -2,6 +2,7 @@
 #include "PixelOperations.hh"
 #include "enumerate.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <cstddef>
 #include <cstring>
