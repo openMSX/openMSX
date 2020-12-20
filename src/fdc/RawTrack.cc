@@ -1,5 +1,6 @@
 #include "RawTrack.hh"
 #include "CRC16.hh"
+#include "enumerate.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "serialize.hh"
@@ -155,16 +156,16 @@ std::optional<RawTrack::Sector> RawTrack::decodeSector(byte sectorNum) const
 	return {};
 }
 
-void RawTrack::readBlock(int idx, unsigned size, byte* destination) const
+void RawTrack::readBlock(int idx, span<byte> destination) const
 {
-	for (auto i : xrange(size)) {
-		destination[i] = read(idx + i);
+	for (auto [i, d] : enumerate(destination)) {
+		d = read(idx + i);
 	}
 }
-void RawTrack::writeBlock(int idx, unsigned size, const byte* source)
+void RawTrack::writeBlock(int idx, span<const byte> source)
 {
-	for (auto i : xrange(size)) {
-		write(idx + i, source[i]);
+	for (auto [i, s] : enumerate(source)) {
+		write(idx + i, s);
 	}
 }
 

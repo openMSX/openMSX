@@ -22,7 +22,7 @@ void SectorBasedDisk::writeTrackImpl(byte track, byte side, const RawTrack& inpu
 		// Ignore sectors that are outside the range 1..sectorsPerTrack
 		if ((s.sector < 1) || (s.sector > getSectorsPerTrack())) continue;
 		SectorBuffer buf;
-		input.readBlock(s.dataIdx, 512, buf.raw);
+		input.readBlock(s.dataIdx, buf.raw);
 		auto logicalSector = physToLog(track, side, s.sector);
 		writeSector(logicalSector, buf);
 		// it's important to use writeSector() and not writeSectorImpl()
