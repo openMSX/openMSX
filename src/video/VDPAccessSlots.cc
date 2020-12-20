@@ -182,8 +182,7 @@ struct CycleTable : AccessTable
 		for (auto step : delta) {
 			int p = 0;
 			while (slots[p] < step) ++p;
-			//for (auto i : xrange(TICKS)) { msvc bug
-			for (int i = 0; i < TICKS; ++i) {
+			for (auto i : xrange(TICKS)) {
 				if ((slots[p] - i) < step) ++p;
 				assert((slots[p] - i) >= step);
 				unsigned t = slots[p] - i;

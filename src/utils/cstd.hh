@@ -177,8 +177,7 @@ template<int ITERATIONS>
 	double y = 1.0;
 	double t = f;
 	double n = 1.0;
-	//for (auto k : xrange(ITERATIONS)) { msvc bug
-	for (int k = 0; k < ITERATIONS; ++k) {
+	for (auto k : xrange(ITERATIONS)) {
 		y += t / n;
 		t *= f;
 		n *= k + 2;
@@ -322,11 +321,10 @@ template<int E_ITERATIONS, int L_ITERATIONS>
 		++a;
 	}
 	double y = 0.0;
-	//repeat(L_ITERATIONS, [&] { msvc bug
-	for (int i = 0; i < L_ITERATIONS; ++i) {
+	repeat(L_ITERATIONS, [&] {
 		auto ey = cstd::exp<E_ITERATIONS>(y);
 		y = y + 2.0 * (x - ey) / (x + ey);
-	}
+	});
 	return y - a;
 }
 

@@ -88,8 +88,7 @@ template<size_t N, typename Hash, typename GetKey>
 
 	// Step 1: Place all of the keys into buckets
 	std::array<static_vector<uint8_t, bucket_max>, r.tab1.size()> buckets;
-	//for (auto i : xrange(N)) { msvc bug
-	for (unsigned i = 0; i < N; ++i) {
+	for (auto i : xrange(N)) {
 		buckets[hash(getKey(i)) % r.tab1.size()].push_back(i);
 	}
 
@@ -129,8 +128,7 @@ template<size_t N, typename Hash, typename GetKey>
 
 			// Put successful shift-factor in tab1, and put indices to items in their slots
 			r.tab1[hash1] = shift | 0x80;
-			//for (auto i : xrange(bSize)) { msvc bug
-			for (size_t i = 0; i < bSize; ++i) {
+			for (auto i : xrange(bSize)) {
 				r.tab2[bucket_slots[i]] = bucket[i];
 			}
 		}

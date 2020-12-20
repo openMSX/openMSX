@@ -148,8 +148,8 @@ template<typename T> struct XRange
 	[[nodiscard]] constexpr auto begin() const { return Iter{b}; }
 	[[nodiscard]] constexpr auto end()   const { return Iter{e}; }
 
-	T b;
-	T e;
+	/*const*/ T b; // non-const to workaround msvc bug(?)
+	/*const*/ T e;
 };
 
 template<typename T> [[nodiscard]] inline constexpr auto xrange(T e)

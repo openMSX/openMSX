@@ -271,8 +271,7 @@ struct Coefs {
 [[nodiscard]] static constexpr Coefs getCoefs()
 {
 	Coefs coefs = {};
-	//for (auto i : xrange(256)) { msvc bug
-	for (int i = 0; i < 256; ++i) {
+	for (auto i : xrange(256)) {
 		coefs.gu[i] = -COEF_GU * (i - 128);
 		coefs.gv[i] = -COEF_GV * (i - 128);
 		coefs.bu[i] =  COEF_BU * (i - 128);
