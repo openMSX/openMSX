@@ -700,7 +700,7 @@ private:
 		if (!CHECK_CAPACITY || (elemCount > 0)) {
 			primary = table[tableIdx];
 			if (CHECK_DUPLICATE) {
-				for (auto elemIdx = primary; elemIdx; ) {
+				for (auto elemIdx = primary; elemIdx; /**/) {
 					auto& elem = pool.get(elemIdx);
 					if ((elem.hash == hash) &&
 					    equal(extract(elem.value), extract(poolElem.value))) {

@@ -601,8 +601,8 @@ void VDP::frameStart(EmuTime::param time)
 		if (blinkCount == 0) {
 			renderer->updateBlinkState(!blinkState, time);
 			blinkState = !blinkState;
-			blinkCount = ( blinkState
-				? controlRegs[13] >> 4 : controlRegs[13] & 0x0F ) * 10;
+			blinkCount = (blinkState
+				? controlRegs[13] >> 4 : controlRegs[13] & 0x0F) * 10;
 		}
 	}
 

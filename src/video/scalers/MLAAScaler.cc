@@ -347,18 +347,16 @@ void MLAAScaler<Pixel>::scaleImage(
 			const unsigned x1 =
 				  slopeTopLeft
 				? (startX + topEndX) * zoomFactorX
-				: ( slopeBotLeft
+				: (slopeBotLeft
 				  ? (startX + botEndX) * zoomFactorX
-				  : x0
-				  );
+				  : x0);
 			const unsigned x3 = endX * 2 * zoomFactorX;
 			const unsigned x2 =
 				  slopeTopRight
 				? (startX + topEndX) * zoomFactorX
-				: ( slopeBotRight
+				: (slopeBotRight
 				  ? (startX + botEndX) * zoomFactorX
-				  : x3
-				  );
+				  : x3);
 			for (auto iy : xrange(zoomFactorY)) {
 				auto* dstLinePtr = dstLines[dstY + iy];
 
@@ -508,18 +506,16 @@ void MLAAScaler<Pixel>::scaleImage(
 			const unsigned y1 =
 				  slopeTopLeft
 				? (startY + leftEndY) * zoomFactorY
-				: ( slopeTopRight
+				: (slopeTopRight
 				  ? (startY + rightEndY) * zoomFactorY
-				  : y0
-				  );
+				  : y0);
 			const unsigned y3 = endY * 2 * zoomFactorY;
 			const unsigned y2 =
 				  slopeBotLeft
 				? (startY + leftEndY) * zoomFactorY
-				: ( slopeBotRight
+				: (slopeBotRight
 				  ? (startY + rightEndY) * zoomFactorY
-				  : y3
-				  );
+				  : y3);
 			for (auto ix : xrange(zoomFactorX)) {
 				const unsigned fx = x * zoomFactorX + ix;
 

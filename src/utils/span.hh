@@ -348,7 +348,7 @@ template<typename ElementType,
          size_t Extent,
          std::enable_if_t<!std::is_const_v<ElementType>, int> = 0>
 [[nodiscard]] span<uint8_t, detail::calculate_byte_size<ElementType, Extent>::value>
-as_writable_bytes( span<ElementType, Extent> s) noexcept
+as_writable_bytes(span<ElementType, Extent> s) noexcept
 {
 	return {reinterpret_cast<uint8_t*>(s.data()), s.size_bytes()};
 }

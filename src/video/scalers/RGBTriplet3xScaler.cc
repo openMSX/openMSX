@@ -50,11 +50,11 @@ void RGBTriplet3xScaler<Pixel>::rgbify(
 
 	auto    [r, rs] = calcSpill(c1, c2, pixelOps.red256  (in[i + 0]));
 	auto    [g, gs] = calcSpill(c1, c2, pixelOps.green256(in[i + 0]));
-	out[3 * i + 0] = pixelOps.combine256(r , gs, 0 );
+	out[3 * i + 0] = pixelOps.combine256(r , gs, 0);
 	auto    [b, bs] = calcSpill(c1, c2, pixelOps.blue256 (in[i + 0]));
 	out[3 * i + 1] = pixelOps.combine256(rs, g , bs);
 	std::tie(r, rs) = calcSpill(c1, c2, pixelOps.red256  (in[i + 1]));
-	out[3 * i + 2] = pixelOps.combine256(rs, gs, b );
+	out[3 * i + 2] = pixelOps.combine256(rs, gs, b);
 
 	for (++i; i < (inWidth - 1); ++i) {
 		std::tie(g, gs) = calcSpill(c1, c2, pixelOps.green256(in[i + 0]));
@@ -62,14 +62,14 @@ void RGBTriplet3xScaler<Pixel>::rgbify(
 		std::tie(b, bs) = calcSpill(c1, c2, pixelOps.blue256 (in[i + 0]));
 		out[3 * i + 1] = pixelOps.combine256(rs, g , bs);
 		std::tie(r, rs) = calcSpill(c1, c2, pixelOps.red256  (in[i + 1]));
-		out[3 * i + 2] = pixelOps.combine256(rs, gs, b );
+		out[3 * i + 2] = pixelOps.combine256(rs, gs, b);
 	}
 
 	std::tie(g, gs) = calcSpill(c1, c2, pixelOps.green256(in[i + 0]));
 	out[3 * i + 0] = pixelOps.combine256(r , gs, bs);
 	std::tie(b, bs) = calcSpill(c1, c2, pixelOps.blue256 (in[i + 0]));
 	out[3 * i + 1] = pixelOps.combine256(rs, g , bs);
-	out[3 * i + 2] = pixelOps.combine256(0 , gs, b );
+	out[3 * i + 2] = pixelOps.combine256(0 , gs, b);
 }
 
 template<typename Pixel>

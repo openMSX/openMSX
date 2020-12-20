@@ -125,7 +125,7 @@ private:
 
 #define SERIALIZE_ENUM(TYPE,INFO) \
 template<> struct serialize_as_enum< TYPE > : serialize_as_enum_impl< TYPE > { \
-	serialize_as_enum() : serialize_as_enum_impl< TYPE >( INFO ) {} \
+	serialize_as_enum() : serialize_as_enum_impl<TYPE>(INFO) {} \
 };
 
 /////////////

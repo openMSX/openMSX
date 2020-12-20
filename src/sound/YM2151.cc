@@ -760,7 +760,7 @@ void YM2151::writeReg(byte r, byte v, EmuTime::param time)
 				(op + 3)->dt1 = dt1_freq[(op + 3)->dt1_i + kc];
 				(op + 3)->freq = ((freq[kc_channel + (op + 3)->dt2] + (op + 3)->dt1) * (op + 3)->mul) >> 1;
 
-				refreshEG( op );
+				refreshEG(op);
 			}
 			break;
 

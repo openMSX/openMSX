@@ -260,7 +260,7 @@ void VLM5030::generateChannels(float** bufs, unsigned num)
 				if (interp_count == 0) {
 					// change to new frame
 					interp_count = parseFrame(); // with change phase
-					if (interp_count == 0 ) {
+					if (interp_count == 0) {
 						// end mark found
 						interp_count = FR_SIZE;
 						sample_count = frame_size; // end -> stop time

@@ -418,8 +418,8 @@ def process2x():
 def process3x():
 	pixelExpr = expandQuadrant(genExpr3(), 3)
 
-	fullTableVariant = Variant(pixelExpr, lite = False, table = True )
-	liteTableVariant = Variant(pixelExpr, lite = True,  table = True )
+	fullTableVariant = Variant(pixelExpr, lite = False, table = True)
+	liteTableVariant = Variant(pixelExpr, lite = True,  table = True)
 
 	#printText(formatOffsetsTable(fullTableVariant.pixelExpr))
 	#printText(formatOffsetsTable(liteTableVariant.pixelExpr))

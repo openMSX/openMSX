@@ -210,12 +210,12 @@ string DiskManipulator::help(const vector<string>& tokens) const
 {
 	string helptext;
 	if (tokens.size() >= 2) {
-	  if (tokens[1] == "import" ) {
+	  if (tokens[1] == "import") {
 	  helptext=
 	    "diskmanipulator import <disk name> <host directory|host file>\n"
 	    "Import all files and subdirs from the host OS as specified into the <disk name> in the\n"
 	    "current MSX subdirectory as was specified with the last chdir command.\n";
-	  } else if (tokens[1] == "export" ) {
+	  } else if (tokens[1] == "export") {
 	  helptext=
 	    "diskmanipulator export <disk name> <host directory>\n"
 	    "Extract all files and subdirs from the MSX subdirectory specified with the chdir command\n"

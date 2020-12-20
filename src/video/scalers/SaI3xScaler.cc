@@ -247,7 +247,7 @@ public:
 			*dp++ = Blender<Pixel>::template blend<x1 - y1>(sa, sb);
 		}
 		PixelStripRepeater<i - 1>::template blendBackslash<NX, y, Pixel>(
-			dp, sa, sb, sc, sd, se, sg, sj, sl );
+			dp, sa, sb, sc, sd, se, sg, sj, sl);
 	}
 
 	template<unsigned NX, unsigned y, typename Pixel>
@@ -277,7 +277,7 @@ public:
 			*dp++ = Blender<Pixel>::template blend<x1 - y2>(sb, sd);
 		}
 		PixelStripRepeater<i - 1>::template blendSlash<NX, y, Pixel>(
-			dp, sa, sb, sc, sd, sf, sh, si, sk );
+			dp, sa, sb, sc, sd, sf, sh, si, sk);
 	}
 
 	template<unsigned NX, unsigned y, typename Pixel>

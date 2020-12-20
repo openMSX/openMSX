@@ -106,7 +106,7 @@ time_t fromString(const char* p)
 	// parse mday
 	if (!parseDigit<true, 10>(*p++, tm.tm_mday)) return INVALID_TIME_T;
 	if (!parseDigit<false, 1>(*p++, tm.tm_mday)) return INVALID_TIME_T;
-	if ((tm.tm_mday < 1) || (31 < tm.tm_mday) ) return INVALID_TIME_T;
+	if ((tm.tm_mday < 1) || (31 < tm.tm_mday))   return INVALID_TIME_T;
 
 	// space
 	if (*p++ != ' ') return INVALID_TIME_T;
@@ -114,7 +114,7 @@ time_t fromString(const char* p)
 	// parse hour
 	if (!parseDigit<true, 10>(*p++, tm.tm_hour)) return INVALID_TIME_T;
 	if (!parseDigit<false, 1>(*p++, tm.tm_hour)) return INVALID_TIME_T;
-	if ((tm.tm_hour < 0) || (23 < tm.tm_hour)) return INVALID_TIME_T;
+	if ((tm.tm_hour < 0) || (23 < tm.tm_hour))   return INVALID_TIME_T;
 
 	// colon
 	if (*p++ != ':') return INVALID_TIME_T;
@@ -122,7 +122,7 @@ time_t fromString(const char* p)
 	// parse minute
 	if (!parseDigit<true, 10>(*p++, tm.tm_min)) return INVALID_TIME_T;
 	if (!parseDigit<false, 1>(*p++, tm.tm_min)) return INVALID_TIME_T;
-	if ((tm.tm_min < 0) || (59 < tm.tm_min)) return INVALID_TIME_T;
+	if ((tm.tm_min < 0) || (59 < tm.tm_min))    return INVALID_TIME_T;
 
 	// colon
 	if (*p++ != ':') return INVALID_TIME_T;
@@ -130,7 +130,7 @@ time_t fromString(const char* p)
 	// parse second
 	if (!parseDigit<true, 10>(*p++, tm.tm_sec)) return INVALID_TIME_T;
 	if (!parseDigit<false, 1>(*p++, tm.tm_sec)) return INVALID_TIME_T;
-	if ((tm.tm_sec < 0) || (59 < tm.tm_sec)) return INVALID_TIME_T;
+	if ((tm.tm_sec < 0) || (59 < tm.tm_sec))    return INVALID_TIME_T;
 
 	// space
 	if (*p++ != ' ') return INVALID_TIME_T;

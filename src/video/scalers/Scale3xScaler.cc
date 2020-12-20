@@ -50,7 +50,7 @@ void Scale3xScaler<Pixel>::scaleLine1on3Half(
 
 	dst[0] = mid;
 	dst[1] = (mid != right) && (top != bot) &&
-	         (((top == mid ) && (mid != src0[1])) ||
+	         (((top == mid) && (mid != src0[1])) ||
 	          ((top == right) && (mid != top)))
 	       ? top : mid;
 	dst[2] = (mid != right) && (top != bot) && (top == right)

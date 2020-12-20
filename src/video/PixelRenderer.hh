@@ -83,7 +83,7 @@ private:
 	  */
 	void subdivide(
 		int startX, int startY, int endX, int endY,
-		int clipL, int clipR, DrawType drawType );
+		int clipL, int clipR, DrawType drawType);
 
 	[[nodiscard]] inline bool checkSync(int offset, EmuTime::param time);
 

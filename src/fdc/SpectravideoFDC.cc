@@ -48,7 +48,7 @@ byte SpectravideoFDC::readMem(word address, EmuTime::param time)
 		return controller.getDataReg(time);
 	case 0x3FBC: {
 		byte value = 0;
-		if ( controller.getIRQ(time))  value |= 0x80;
+		if ( controller.getIRQ (time)) value |= 0x80;
 		if (!controller.getDTRQ(time)) value |= 0x40;
 		return value;
 	}
@@ -82,7 +82,7 @@ byte SpectravideoFDC::peekMem(word address, EmuTime::param time) const
 		// bit 6: data request of 1793 (0 for request)
 		// TODO: other bits read 0?
 		byte value = 0;
-		if ( controller.peekIRQ(time))  value |= 0x80;
+		if ( controller.peekIRQ (time)) value |= 0x80;
 		if (!controller.peekDTRQ(time)) value |= 0x40;
 		return value;
 	}
@@ -135,8 +135,8 @@ void SpectravideoFDC::writeMem(word address, byte value, EmuTime::param time)
 		// bit 2 -> side select (0 for side 0)
 		// bit 3 -> motor on (1 for ON)
 		multiplexer.selectDrive((value & 0x01) != 0 ? DriveMultiplexer::DRIVE_A : DriveMultiplexer::NO_DRIVE, time);
-		multiplexer.setSide(    (value & 0x04) != 0);
-		multiplexer.setMotor(   (value & 0x08) != 0, time);
+		multiplexer.setSide    ((value & 0x04) != 0);
+		multiplexer.setMotor   ((value & 0x08) != 0, time);
 		break;
 	case 0x3FBE: // Software switch to turn on CP/M,
 	             // boot ROM and turn off MSX DOS ROM.

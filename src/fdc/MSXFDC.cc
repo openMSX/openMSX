@@ -30,12 +30,12 @@ MSXFDC::MSXFDC(const DeviceConfig& config, const std::string& romId, bool needRO
 	bool signalsNeedMotorOn = !styleEl || (styleEl->getData() == "Philips");
 	EmuDuration motorTimeout = EmuDuration::msec(timeout);
 	int i = 0;
-	for ( ; i < numDrives; ++i) {
+	for (/**/; i < numDrives; ++i) {
 		drives[i] = std::make_unique<RealDrive>(
 			getMotherBoard(), motorTimeout, signalsNeedMotorOn,
 			!singleSided, trackMode);
 	}
-	for ( ; i < 4; ++i) {
+	for (/**/; i < 4; ++i) {
 		drives[i] = std::make_unique<DummyDrive>();
 	}
 }

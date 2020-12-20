@@ -39,7 +39,7 @@ void LDPixelRenderer::frameEnd()
 		!isActive()));
 }
 
-void LDPixelRenderer::drawBlank(int r, int g, int b )
+void LDPixelRenderer::drawBlank(int r, int g, int b)
 {
 	rasterizer->drawBlank(r, g, b);
 }

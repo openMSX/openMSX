@@ -826,10 +826,8 @@ private:
 		  * ticks.
 		  */
 		static constexpr int HBLANK_LEN_GFX = 312;
-		return
-			( ticksThisFrame + TICKS_PER_LINE - getRightBorder()
-				) % TICKS_PER_LINE
-			< (displayMode.isTextMode() ? HBLANK_LEN_TXT : HBLANK_LEN_GFX);
+		return (ticksThisFrame + TICKS_PER_LINE - getRightBorder()) % TICKS_PER_LINE
+		     < (displayMode.isTextMode() ? HBLANK_LEN_TXT : HBLANK_LEN_GFX);
 	}
 
 	// VideoSystemChangeListener interface:

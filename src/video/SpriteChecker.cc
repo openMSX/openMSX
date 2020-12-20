@@ -212,7 +212,7 @@ inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 			if (!can0collide && (color1 == 0)) continue;
 			int x_i = spriteBuffer[line][i].x;
 			SpritePattern pattern_i = spriteBuffer[line][i].pattern;
-			for (int j = i; --j >= 0; ) {
+			for (int j = i; --j >= 0; /**/) {
 				auto color2 = spriteBuffer[line][j].colorAttrib & 0xf;
 				if (!can0collide && (color2 == 0)) continue;
 				// Do sprite i and sprite j collide?
@@ -449,7 +449,7 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 
 			int x_i = visibleSprites[i].x;
 			SpritePattern pattern_i = visibleSprites[i].pattern;
-			for (int j = i; --j >= 0; ) {
+			for (int j = i; --j >= 0; /**/) {
 				auto colorAttrib2 = visibleSprites[j].colorAttrib;
 				if (!can0collide && ((colorAttrib2 & 0xf) == 0)) continue;
 				// If CC or IC is set, this sprite cannot collide.

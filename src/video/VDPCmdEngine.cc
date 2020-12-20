@@ -190,8 +190,8 @@ inline unsigned Graphic4Mode::addressOf(
 inline byte Graphic4Mode::point(
 	VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM)
 {
-	return ( vram.cmdReadWindow.readNP(addressOf(x, y, extVRAM))
-		>> (((~x) & 1) << 2) ) & 15;
+	return (vram.cmdReadWindow.readNP(addressOf(x, y, extVRAM))
+		>> (((~x) & 1) << 2)) & 15;
 }
 
 template<typename LogOp>
@@ -240,8 +240,8 @@ inline unsigned Graphic5Mode::addressOf(
 inline byte Graphic5Mode::point(
 	VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM)
 {
-	return ( vram.cmdReadWindow.readNP(addressOf(x, y, extVRAM))
-		>> (((~x) & 3) << 1) ) & 3;
+	return (vram.cmdReadWindow.readNP(addressOf(x, y, extVRAM))
+		>> (((~x) & 3) << 1)) & 3;
 }
 
 template<typename LogOp>
@@ -292,8 +292,8 @@ inline unsigned Graphic6Mode::addressOf(
 inline byte Graphic6Mode::point(
 	VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM)
 {
-	return ( vram.cmdReadWindow.readNP(addressOf(x, y, extVRAM))
-		>> (((~x) & 1) << 2) ) & 15;
+	return (vram.cmdReadWindow.readNP(addressOf(x, y, extVRAM))
+		>> (((~x) & 1) << 2)) & 15;
 }
 
 template<typename LogOp>
@@ -1345,7 +1345,7 @@ void VDPCmdEngine::executeHmmv(EmuTime::param limit)
 		? -Mode::PIXELS_PER_BYTE : Mode::PIXELS_PER_BYTE;
 	int TY = (ARG & DIY) ? -1 : 1;
 	ANX = clipNX_1_byte<Mode>(
-		ADX, ANX << Mode::PIXELS_PER_BYTE_SHIFT, ARG );
+		ADX, ANX << Mode::PIXELS_PER_BYTE_SHIFT, ARG);
 	bool dstExt = (ARG & MXD) != 0;
 	bool doPset = !dstExt || hasExtendedVRAM;
 	auto calculator = getSlotCalculator(limit);
@@ -1710,7 +1710,7 @@ void VDPCmdEngine::executeHmmc(EmuTime::param limit)
 		? -Mode::PIXELS_PER_BYTE : Mode::PIXELS_PER_BYTE;
 	int TY = (ARG & DIY) ? -1 : 1;
 	ANX = clipNX_1_byte<Mode>(
-		ADX, ANX << Mode::PIXELS_PER_BYTE_SHIFT, ARG );
+		ADX, ANX << Mode::PIXELS_PER_BYTE_SHIFT, ARG);
 	bool dstExt = (ARG & MXD) != 0;
 	bool doPset = !dstExt || hasExtendedVRAM;
 
