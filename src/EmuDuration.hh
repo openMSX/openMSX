@@ -34,7 +34,7 @@ public:
 	constexpr EmuDuration() = default;
 	constexpr explicit EmuDuration(uint64_t n) : time(n) {}
 	constexpr explicit EmuDuration(double duration)
-		: time(uint64_t(duration * MAIN_FREQ)) {}
+		: time(uint64_t(duration * MAIN_FREQ + 0.5)) {}
 
 	static constexpr EmuDuration sec(unsigned x)
 		{ return EmuDuration(x * MAIN_FREQ); }
