@@ -220,8 +220,6 @@ void Reactor::init()
 		*globalCommandController);
 	inputEventGenerator = make_unique<InputEventGenerator>(
 		*globalCommandController, *eventDistributor, *globalSettings);
-	mixer = make_unique<Mixer>(
-		*this, *globalCommandController);
 	diskFactory = make_unique<DiskFactory>(
 		*this);
 	diskManipulator = make_unique<DiskManipulator>(
@@ -293,6 +291,14 @@ Reactor::~Reactor()
 	eventDistributor->unregisterEventListener(OPENMSX_DELETE_BOARDS, *this);
 
 	getGlobalSettings().getPauseSetting().detach(*this);
+}
+
+Mixer& Reactor::getMixer()
+{
+	if (!mixer) {
+		mixer = make_unique<Mixer>(*this, *globalCommandController);
+	}
+	return *mixer;
 }
 
 RomDatabase& Reactor::getSoftwareDatabase()
@@ -606,14 +612,14 @@ void Reactor::block()
 {
 	++blockedCounter;
 	enterMainLoop();
-	mixer->mute();
+	getMixer().mute();
 }
 
 void Reactor::unblock()
 {
 	--blockedCounter;
 	assert(blockedCounter >= 0);
-	mixer->unmute();
+	getMixer().unmute();
 }
 
 

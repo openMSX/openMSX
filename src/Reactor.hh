@@ -83,7 +83,7 @@ public:
 	[[nodiscard]] GlobalCommandController& getGlobalCommandController() { return *globalCommandController; }
 	[[nodiscard]] InputEventGenerator& getInputEventGenerator() { return *inputEventGenerator; }
 	[[nodiscard]] Display& getDisplay() { assert(display); return *display; }
-	[[nodiscard]] Mixer& getMixer() { return *mixer; }
+	[[nodiscard]] Mixer& getMixer();
 	[[nodiscard]] DiskFactory& getDiskFactory() { return *diskFactory; }
 	[[nodiscard]] DiskManipulator& getDiskManipulator() { return *diskManipulator; }
 	[[nodiscard]] EnumSetting<int>& getMachineSetting() { return *machineSetting; }
@@ -145,7 +145,7 @@ private:
 	std::unique_ptr<GlobalSettings> globalSettings;
 	std::unique_ptr<InputEventGenerator> inputEventGenerator;
 	std::unique_ptr<Display> display;
-	std::unique_ptr<Mixer> mixer;
+	std::unique_ptr<Mixer> mixer; // lazy initialized
 	std::unique_ptr<DiskFactory> diskFactory;
 	std::unique_ptr<DiskManipulator> diskManipulator;
 	std::unique_ptr<DiskChanger> virtualDrive;
@@ -153,7 +153,7 @@ private:
 
 	std::unique_ptr<EnumSetting<int>> machineSetting;
 	std::unique_ptr<UserSettings> userSettings;
-	std::unique_ptr<RomDatabase> softwareDatabase;
+	std::unique_ptr<RomDatabase> softwareDatabase; // lazy initialized
 
 	std::unique_ptr<AfterCommand> afterCommand;
 	std::unique_ptr<ExitCommand> exitCommand;
