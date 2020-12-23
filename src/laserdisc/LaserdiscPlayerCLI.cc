@@ -1,6 +1,6 @@
 #include "LaserdiscPlayerCLI.hh"
 #include "CommandLineParser.hh"
-#include "GlobalCommandController.hh"
+#include "Interpreter.hh"
 #include "MSXException.hh"
 #include "TclObject.hh"
 
@@ -29,7 +29,7 @@ std::string_view LaserdiscPlayerCLI::optionHelp() const
 void LaserdiscPlayerCLI::parseFileType(const string& filename,
                                        span<string>& /*cmdLine*/)
 {
-	if (!parser.getGlobalCommandController().hasCommand("laserdiscplayer")) {
+	if (!parser.getInterpreter().hasCommand("laserdiscplayer")) {
 		throw MSXException("No LaserDisc player present.");
 	}
 	TclObject command = makeTclList("laserdiscplayer", "insert", filename);

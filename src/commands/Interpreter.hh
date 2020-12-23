@@ -25,6 +25,7 @@ public:
 	void setOutput(InterpreterOutput* output_) { output = output_; }
 
 	void init(const char* programName);
+	bool hasCommand(const std::string& name) const;
 	void registerCommand(const std::string& name, Command& command);
 	void unregisterCommand(Command& command);
 	[[nodiscard]] TclObject getCommandNames();

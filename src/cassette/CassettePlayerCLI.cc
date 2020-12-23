@@ -1,6 +1,6 @@
 #include "CassettePlayerCLI.hh"
 #include "CommandLineParser.hh"
-#include "GlobalCommandController.hh"
+#include "Interpreter.hh"
 #include "MSXException.hh"
 #include "TclObject.hh"
 
@@ -29,7 +29,7 @@ std::string_view CassettePlayerCLI::optionHelp() const
 void CassettePlayerCLI::parseFileType(const string& filename,
                                       span<string>& /*cmdLine*/)
 {
-	if (!parser.getGlobalCommandController().hasCommand("cassetteplayer")) {
+	if (!parser.getInterpreter().hasCommand("cassetteplayer")) {
 		throw MSXException("No cassette player present.");
 	}
 	TclObject command = makeTclList("cassetteplayer", filename);

@@ -52,7 +52,9 @@ GlobalCommandControllerBase::~GlobalCommandControllerBase()
 {
 	// GlobalCommandController destructor must have run before
 	// we can check this.
+#ifdef DEBUG
 	assert(commands.empty());
+#endif
 	assert(commandCompleters.empty());
 }
 
@@ -128,17 +130,22 @@ Interpreter& GlobalCommandController::getInterpreter()
 void GlobalCommandController::registerCommand(
 	Command& command, const string& str)
 {
+#ifdef DEBUG
 	assert(!commands.contains(str));
 	commands.emplace_noDuplicateCheck(str, &command);
+#endif
 	interpreter.registerCommand(str, command);
 }
 
 void GlobalCommandController::unregisterCommand(
 	Command& command, string_view str)
 {
+	(void)str;
+#ifdef DEBUG
 	assert(commands.contains(str));
 	assert(commands[str] == &command);
 	commands.erase(str);
+#endif
 	interpreter.unregisterCommand(command);
 }
 
@@ -169,11 +176,6 @@ void GlobalCommandController::unregisterSetting(Setting& setting)
 {
 	interpreter.unregisterSetting(setting);
 	getSettingsManager().unregisterSetting(setting);
-}
-
-bool GlobalCommandController::hasCommand(string_view command) const
-{
-	return commands.contains(command);
 }
 
 static vector<string> split(string_view str, const char delimiter)

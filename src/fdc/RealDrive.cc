@@ -4,7 +4,7 @@
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "LedStatus.hh"
-#include "CommandController.hh"
+#include "MSXCommandController.hh"
 #include "CliComm.hh"
 #include "GlobalSettings.hh"
 #include "MSXException.hh"
@@ -44,7 +44,7 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeo
 	(*drivesInUse)[i] = true;
 	string driveName = "diskX"; driveName[4] = char('a' + i);
 
-	if (motherBoard.getCommandController().hasCommand(driveName)) {
+	if (motherBoard.getMSXCommandController().hasCommand(driveName)) {
 		throw MSXException("Duplicated drive name: ", driveName);
 	}
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, driveName, "add");

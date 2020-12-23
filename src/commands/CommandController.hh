@@ -34,11 +34,6 @@ public:
 	                               std::string_view str) = 0;
 
 	/**
-	 * Does a command with this name already exist?
-	 */
-	[[nodiscard]] virtual bool hasCommand(std::string_view command) const = 0;
-
-	/**
 	 * Execute the given command
 	 */
 	virtual TclObject executeCommand(const std::string& command,

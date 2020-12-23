@@ -1,6 +1,6 @@
 #include "DiskImageCLI.hh"
 #include "CommandLineParser.hh"
-#include "GlobalCommandController.hh"
+#include "Interpreter.hh"
 #include "TclObject.hh"
 #include "MSXException.hh"
 
@@ -46,7 +46,7 @@ std::string_view DiskImageCLI::fileTypeCategoryName() const
 void DiskImageCLI::parse(std::string_view drive, std::string_view image,
                          span<string>& cmdLine)
 {
-	if (!parser.getGlobalCommandController().hasCommand(drive)) { // TODO WIP
+	if (!parser.getInterpreter().hasCommand(std::string(drive))) { // TODO WIP
 		throw MSXException("No disk drive ", char(::toupper(drive.back())), " present to put image '", image, "' in.");
 	}
 	TclObject command = makeTclList(drive, image);

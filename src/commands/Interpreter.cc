@@ -142,6 +142,13 @@ int Interpreter::outputProc(ClientData clientData, const char* buf,
 	return toWrite;
 }
 
+bool Interpreter::hasCommand(const std::string& name) const
+{
+	// Note: these are not only the commands registered via
+	// registerCommand(), but all commands know to this Tcl-interpreter.
+	return Tcl_FindCommand(interp, name.c_str(), nullptr, 0);
+}
+
 void Interpreter::registerCommand(const string& name, Command& command)
 {
 	auto token = Tcl_CreateObjCommand(

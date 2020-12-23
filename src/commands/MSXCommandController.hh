@@ -54,6 +54,8 @@ public:
 	  * used for during 'reverse'. */
 	void transferSettings(const MSXCommandController& from);
 
+	[[nodiscard]] bool hasCommand(std::string_view command) const;
+
 	// CommandController
 	void   registerCompleter(CommandCompleter& completer,
 	                         std::string_view str) override;
@@ -63,7 +65,6 @@ public:
 	                       const std::string& str) override;
 	void unregisterCommand(Command& command,
 	                       std::string_view str) override;
-	[[nodiscard]] bool hasCommand(std::string_view command) const override;
 	TclObject executeCommand(const std::string& command,
 	                         CliConnection* connection = nullptr) override;
 	void registerSetting(Setting& setting) override;
