@@ -268,7 +268,7 @@ void LocalFile::flush()
 	fflush(file.get());
 }
 
-string LocalFile::getURL() const
+const string& LocalFile::getURL() const
 {
 	return filename;
 }

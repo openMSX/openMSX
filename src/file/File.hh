@@ -121,7 +121,7 @@ public:
 	/** Returns the URL of this file object.
 	 * @throws FileException
 	 */
-	[[nodiscard]] std::string getURL() const;
+	[[nodiscard]] const std::string& getURL() const;
 
 	/** Get Original filename for this object. This will usually just
 	 *  return the filename portion of the URL. However for compressed
@@ -129,7 +129,7 @@ public:
 	 * @result Original file name
 	 * @throws FileException
 	 */
-	[[nodiscard]] std::string getOriginalName();
+	[[nodiscard]] std::string_view getOriginalName();
 
 	/** Check if this file is readonly
 	 * @result true iff file is readonly

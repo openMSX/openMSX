@@ -290,7 +290,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		const auto& actualSha1Elem = mutableConfig.getCreateChild(
 			"resolvedSha1", patchedSha1Str);
 		if (actualSha1Elem.getData() != patchedSha1Str) {
-			string tmp = file.is_open() ? file.getURL() : name;
+			std::string_view tmp = file.is_open() ? file.getURL() : name;
 			// can only happen in case of loadstate
 			motherBoard.getMSXCliComm().printWarning(
 				"The content of the rom ", tmp, " has "
@@ -349,9 +349,10 @@ Rom::Rom(Rom&& r) noexcept
 
 Rom::~Rom() = default;
 
-string Rom::getFilename() const
+const string& Rom::getFilename() const
 {
-	return file.is_open() ? file.getURL() : string{};
+	static const string EMPTY;
+	return file.is_open() ? file.getURL() : EMPTY;
 }
 
 const Sha1Sum& Rom::getOriginalSHA1() const

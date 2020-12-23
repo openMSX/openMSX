@@ -36,14 +36,14 @@ void CompressedFileAdapter::decompress()
 {
 	if (decompressed) return;
 
-	string url = getURL();
+	const std::string& url = getURL();
 	if (auto it = decompressCache.find(url); it != end(decompressCache)) {
 		decompressed = *it;
 	} else {
 		decompressed = std::make_shared<Decompressed>();
 		decompress(*file, *decompressed);
 		decompressed->cachedModificationDate = getModificationDate();
-		decompressed->cachedURL = std::move(url);
+		decompressed->cachedURL = url;
 		decompressCache.insert_noDuplicateCheck(decompressed);
 	}
 
@@ -104,12 +104,12 @@ void CompressedFileAdapter::flush()
 	// nothing because writing is not supported
 }
 
-string CompressedFileAdapter::getURL() const
+const string& CompressedFileAdapter::getURL() const
 {
 	return file ? file->getURL() : decompressed->cachedURL;
 }
 
-string CompressedFileAdapter::getOriginalName()
+std::string_view CompressedFileAdapter::getOriginalName()
 {
 	decompress();
 	return decompressed->originalName;

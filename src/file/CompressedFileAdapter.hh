@@ -27,8 +27,8 @@ public:
 	[[nodiscard]] size_t getPos() final;
 	void truncate(size_t size) final;
 	void flush() final;
-	[[nodiscard]] std::string getURL() const final;
-	[[nodiscard]] std::string getOriginalName() final;
+	[[nodiscard]] const std::string& getURL() const final;
+	[[nodiscard]] std::string_view getOriginalName() final;
 	[[nodiscard]] bool isReadOnly() const final;
 	[[nodiscard]] time_t getModificationDate() final;
 

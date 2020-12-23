@@ -40,9 +40,10 @@ void MemoryBufferFile::flush()
 	// nothing
 }
 
-std::string MemoryBufferFile::getURL() const
+const std::string& MemoryBufferFile::getURL() const
 {
-	return "";
+	static const std::string EMPTY;
+	return EMPTY;
 }
 
 bool MemoryBufferFile::isReadOnly() const

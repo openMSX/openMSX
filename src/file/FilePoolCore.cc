@@ -455,7 +455,7 @@ std::pair<FilePoolCore::Index, FilePoolCore::Entry*> FilePoolCore::findInDatabas
 Sha1Sum FilePoolCore::getSha1Sum(File& file)
 {
 	auto time = file.getModificationDate();
-	const auto& filename = file.getURL();
+	const std::string& filename = file.getURL();
 
 	auto [idx, entry] = findInDatabase(filename);
 	if (idx != Index(-1)) {

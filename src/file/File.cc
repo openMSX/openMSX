@@ -125,7 +125,7 @@ void File::flush()
 	file->flush();
 }
 
-string File::getURL() const
+const string& File::getURL() const
 {
 	return file->getURL();
 }
@@ -135,9 +135,9 @@ string File::getLocalReference() const
 	return file->getLocalReference();
 }
 
-string File::getOriginalName()
+std::string_view File::getOriginalName()
 {
-	string orig = file->getOriginalName();
+	std::string_view orig = file->getOriginalName();
 	return !orig.empty() ? orig : getURL();
 }
 
