@@ -361,7 +361,7 @@ File FilePoolCore::getFromPool(const Sha1Sum& sha1sum)
 }
 
 File FilePoolCore::scanDirectory(
-	const Sha1Sum& sha1sum, const string& directory, const string& poolPath,
+	const Sha1Sum& sha1sum, const string& directory, std::string_view poolPath,
 	ScanProgress& progress)
 {
 	File result;
@@ -381,7 +381,7 @@ File FilePoolCore::scanDirectory(
 }
 
 File FilePoolCore::scanFile(const Sha1Sum& sha1sum, const string& filename,
-                            const FileOperations::Stat& st, const string& poolPath,
+                            const FileOperations::Stat& st, std::string_view poolPath,
                             ScanProgress& progress)
 {
 	++progress.amountScanned;

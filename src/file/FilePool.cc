@@ -132,7 +132,7 @@ FilePoolCore::Directories FilePool::getDirectories() const
 				throw CommandException(
 					"Missing -types item: ", line.getString());
 			}
-			result.push_back(dir);
+			result.push_back(std::move(dir));
 		}
 	} catch (CommandException& e) {
 		reactor.getCliComm().printWarning(

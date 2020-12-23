@@ -38,7 +38,7 @@ class FilePoolCore
 {
 public:
 	struct Dir {
-		std::string path;
+		std::string_view path;
 		FileType types;
 	};
 	using Directories = std::vector<Dir>;
@@ -141,13 +141,13 @@ private:
 	[[nodiscard]] File scanDirectory(
 		const Sha1Sum& sha1sum,
 	        const std::string& directory,
-	        const std::string& poolPath,
+	        std::string_view poolPath,
 	        ScanProgress& progress);
 	[[nodiscard]] File scanFile(
 		const Sha1Sum& sha1sum,
 	        const std::string& filename,
 	        const FileOperations::Stat& st,
-	        const std::string& poolPath,
+	        std::string_view poolPath,
 	        ScanProgress& progress);
 	[[nodiscard]] Sha1Sum calcSha1sum(File& file);
 	[[nodiscard]] std::pair<Index, Entry*> findInDatabase(std::string_view filename);
