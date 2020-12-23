@@ -141,6 +141,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 				try {
 					Filename filename(f->getData(), context);
 					file = File(filename);
+					break;
 				} catch (FileException&) {
 					// ignore
 				}
