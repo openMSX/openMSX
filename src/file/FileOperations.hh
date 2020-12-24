@@ -28,7 +28,13 @@ namespace openmsx::FileOperations {
 	 * @param path Pathname, with or without '~' character
 	 * @result The expanded pathname
 	 */
-	[[nodiscard]] std::string expandTilde(std::string_view path);
+	[[nodiscard]] std::string expandTilde(std::string path);
+
+	/** Returns true iff expandTilde(s) would have an effect.
+	  * In other words: expandTilde(s) != s
+	  * Mostly useful to assert that tilde expansion has already been done.
+	  */
+	[[nodiscard]] bool needsTildeExpansion(std::string_view path);
 
 	/**
 	 * Create the specified directory. Does some sanity checks so that
@@ -49,7 +55,7 @@ namespace openmsx::FileOperations {
 	 * @param path The path of the directory to create
 	 * @throw FileException
 	 */
-	void mkdirp(std::string_view path);
+	void mkdirp(std::string path);
 
 	/**
 	 * Call unlink() in a platform-independent manner
@@ -213,9 +219,9 @@ namespace openmsx::FileOperations {
 
 	/**
 	* Get the current directory of the specified drive
-	* Linux: just return an empty string
+	* Linux: return the given string unchanged
 	*/
-	[[nodiscard]] std::string expandCurrentDirFromDrive(std::string_view path);
+	[[nodiscard]] std::string expandCurrentDirFromDrive(std::string path);
 
 #ifdef _WIN32
 	typedef struct _stat Stat;

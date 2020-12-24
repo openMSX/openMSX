@@ -150,7 +150,7 @@ void DiskManipulator::execute(span<const TclObject> tokens, TclObject& result)
 
 	if (subcmd == "export") {
 		string_view dir = tokens[3].getString();
-		auto directory = FileOperations::expandTilde(dir);
+		auto directory = FileOperations::expandTilde(string(dir));
 		if (!FileOperations::isDirectory(directory)) {
 			throw CommandException(dir, " is not a directory");
 		}
@@ -500,7 +500,7 @@ string DiskManipulator::import(DriveSettings& driveData,
 	auto& interp = getInterpreter();
 	for (const auto& l : lists) {
 		for (auto i : xrange(l.getListLength(interp))) {
-			auto s = FileOperations::expandTilde(l.getListIndex(interp, i).getString());
+			auto s = FileOperations::expandTilde(string(l.getListIndex(interp, i).getString()));
 			try {
 				FileOperations::Stat st;
 				if (!FileOperations::getStat(s, st)) {
@@ -510,7 +510,7 @@ string DiskManipulator::import(DriveSettings& driveData,
 				if (FileOperations::isDirectory(st)) {
 					messages += workhorse->addDir(s);
 				} else if (FileOperations::isRegularFile(st)) {
-					messages += workhorse->addFile(string(s));
+					messages += workhorse->addFile(s);
 				} else {
 					// ignore other stuff (sockets, device nodes, ..)
 					strAppend(messages, "Ignoring ", s, '\n');

@@ -146,7 +146,7 @@ void DebugDevice::openOutput(std::string_view name)
 	} else if (name == "stderr") {
 		outputstrm = &std::cerr;
 	} else {
-		string realName = FileOperations::expandTilde(name);
+		string realName = FileOperations::expandTilde(fileNameString);
 		FileOperations::openofstream(debugOut, realName, std::ios::app);
 		outputstrm = &debugOut;
 	}

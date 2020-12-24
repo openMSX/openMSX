@@ -46,7 +46,7 @@ const string SYSTEM_DATA  = "{{SYSTEM_DATA}}";
 		}
 	}
 	for (const auto& s : result) {
-		assert(FileOperations::expandTilde(s) == s); (void)s;
+		assert(!FileOperations::needsTildeExpansion(s)); (void)s;
 	}
 	return result;
 }
@@ -54,8 +54,8 @@ const string SYSTEM_DATA  = "{{SYSTEM_DATA}}";
 [[nodiscard]] static string resolveHelper(const vector<string>& pathList,
                             string_view filename)
 {
-	string filepath = FileOperations::expandCurrentDirFromDrive(filename);
-	filepath = FileOperations::expandTilde(filepath);
+	string filepath = FileOperations::expandTilde(
+	                      FileOperations::expandCurrentDirFromDrive(string(filename)));
 	if (FileOperations::isAbsolutePath(filepath)) {
 		// absolute path, don't resolve
 		return filepath;
@@ -63,7 +63,7 @@ const string SYSTEM_DATA  = "{{SYSTEM_DATA}}";
 
 	for (const auto& p : pathList) {
 		string name = FileOperations::join(p, filename);
-		assert(FileOperations::expandTilde(name) == name);
+		assert(!FileOperations::needsTildeExpansion(name));
 		if (FileOperations::exists(name)) {
 			return name;
 		}
@@ -81,7 +81,7 @@ string FileContext::resolve(string_view filename) const
 {
 	vector<string> pathList = getPathsHelper(paths);
 	string result = resolveHelper(pathList, filename);
-	assert(FileOperations::expandTilde(result) == result);
+	assert(!FileOperations::needsTildeExpansion(result));
 	return result;
 }
 
@@ -100,7 +100,7 @@ string FileContext::resolveCreate(string_view filename) const
 		}
 		result = FileOperations::join(path, filename);
 	}
-	assert(FileOperations::expandTilde(result) == result);
+	assert(!FileOperations::needsTildeExpansion(result));
 	return result;
 }
 
@@ -124,7 +124,7 @@ INSTANTIATE_SERIALIZE_METHODS(FileContext);
 
 ///
 
-static string backSubstSymbols(const string& path)
+static string backSubstSymbols(string_view path)
 {
 	const string& systemData = FileOperations::getSystemDataDir();
 	if (StringOp::startsWith(path, systemData)) {
@@ -139,12 +139,12 @@ static string backSubstSymbols(const string& path)
 		return subst(path, userDir, USER_OPENMSX);
 	}
 	// TODO USER_DIRS (not needed ATM)
-	return path;
+	return string(path);
 }
 
 FileContext configFileContext(string_view path, string_view hwDescr, string_view userName)
 {
-	return { { backSubstSymbols(FileOperations::expandTilde(path)) },
+	return { { backSubstSymbols(path) },
 	         { FileOperations::join(
 	               USER_OPENMSX, "persistent", hwDescr, userName) } };
 }

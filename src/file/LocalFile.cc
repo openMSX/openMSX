@@ -23,8 +23,8 @@ using std::string;
 
 namespace openmsx {
 
-LocalFile::LocalFile(std::string_view filename_, File::OpenMode mode)
-	: filename(FileOperations::expandTilde(filename_))
+LocalFile::LocalFile(std::string filename_, File::OpenMode mode)
+	: filename(FileOperations::expandTilde(std::move(filename_)))
 #if HAVE_MMAP || defined _WIN32
 	, mmem(nullptr)
 #endif
@@ -35,11 +35,11 @@ LocalFile::LocalFile(std::string_view filename_, File::OpenMode mode)
 {
 	if (mode == File::SAVE_PERSISTENT) {
 		if (auto pos = filename.find_last_of('/'); pos != string::npos) {
-			FileOperations::mkdirp(std::string_view(filename).substr(0, pos));
+			FileOperations::mkdirp(filename.substr(0, pos));
 		}
 	}
 
-	const string name = FileOperations::getNativePath(filename);
+	const string& name = FileOperations::getNativePath(filename);
 	if (mode == one_of(File::SAVE_PERSISTENT, File::TRUNCATE)) {
 		// open file read/write truncated
 		file = FileOperations::openFile(name, "wb+");
@@ -73,8 +73,8 @@ LocalFile::LocalFile(std::string_view filename_, File::OpenMode mode)
 	(void)getSize(); // query filesize, but ignore result
 }
 
-LocalFile::LocalFile(std::string_view filename_, const char* mode)
-	: filename(FileOperations::expandTilde(filename_))
+LocalFile::LocalFile(std::string filename_, const char* mode)
+	: filename(FileOperations::expandTilde(std::move(filename_)))
 #if HAVE_MMAP || defined _WIN32
 	, mmem(nullptr)
 #endif

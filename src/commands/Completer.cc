@@ -139,8 +139,8 @@ void Completer::completeFileNameImpl(vector<string>& tokens,
                                      vector<string_view> matches)
 {
 	string& filename = tokens.back();
-	filename = FileOperations::expandTilde(filename);
-	filename = FileOperations::expandCurrentDirFromDrive(filename);
+	filename = FileOperations::expandTilde(std::move(filename));
+	filename = FileOperations::expandCurrentDirFromDrive(std::move(filename));
 	string_view dirname1 = FileOperations::getDirName(filename);
 
 	vector<string> paths;

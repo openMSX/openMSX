@@ -643,9 +643,9 @@ void CassettePlayer::TapeCommand::execute(
 		                      options);
 
 	} else if (tokens[1] == "new") {
-		string directory = "taperecordings";
-		string prefix = "openmsx";
-		string extension = ".wav";
+		std::string_view directory = "taperecordings";
+		std::string_view prefix = "openmsx";
+		std::string_view extension = ".wav";
 		string filename = FileOperations::parseCommandFileArgument(
 			(tokens.size() == 3) ? tokens[2].getString() : string{},
 			directory, prefix, extension);

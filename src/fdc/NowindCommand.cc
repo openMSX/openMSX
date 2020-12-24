@@ -183,7 +183,7 @@ void NowindCommand::execute(span<const TclObject> tokens, TclObject& result)
 			} else {
 				try {
 					auto hdImage = FileOperations::expandTilde(
-						args.front().getString());
+						string(args.front().getString()));
 					args = args.subspan(1);
 					processHdimage(hdImage, tmpDrives);
 					changeDrives = true;

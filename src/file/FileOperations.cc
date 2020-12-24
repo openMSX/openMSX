@@ -76,19 +76,24 @@ using namespace utf8;
 
 namespace openmsx::FileOperations {
 
-string expandTilde(string_view path)
+bool needsTildeExpansion(std::string_view path)
 {
-	if (path.empty() || path[0] != '~') {
-		return string(path);
+	return !path.empty() && (path[0] == '~');
+}
+
+string expandTilde(string path)
+{
+	if (!needsTildeExpansion(path)) {
+		return path;
 	}
 	auto pos = path.find_first_of('/');
 	string_view user = ((path.size() == 1) || (pos == 1))
 	                ? string_view{}
-	                : path.substr(1, (pos == string_view::npos) ? pos : pos - 1);
+	                : string_view(path).substr(1, (pos == string::npos) ? pos : pos - 1);
 	string result = getUserHomeDir(user);
 	if (result.empty()) {
 		// failed to find homedir, return the path unchanged
-		return string(path);
+		return path;
 	}
 	if (pos == string_view::npos) {
 		return result;
@@ -129,14 +134,15 @@ static bool isUNCPath(string_view path)
 #endif
 }
 
-void mkdirp(string_view path_)
+void mkdirp(string path)
 {
-	if (path_.empty()) {
+	if (path.empty()) {
 		return;
 	}
 
 	// We may receive platform-specific paths here, so conventionalize early
-	string path = getConventionalPath(expandTilde(path_));
+	// TODO move tilde-expansion outside
+	path = getConventionalPath(expandTilde(std::move(path)));
 
 	// If the directory already exists, don't try to recreate it
 	if (isDirectory(path))
@@ -477,9 +483,8 @@ static bool driveExists(char driveLetter)
 }
 #endif
 
-string expandCurrentDirFromDrive(string_view path)
+string expandCurrentDirFromDrive(string result)
 {
-	string result(path);
 #ifdef _WIN32
 	if (((path.size() == 2) && (path[1] == ':')) ||
 		((path.size() >= 3) && (path[1] == ':') && (path[2] != '/'))) {
@@ -610,7 +615,7 @@ string parseCommandFileArgument(
 		mkdirp(dir);
 		filename = strCat(dir, '/', filename);
 	} else {
-		filename = expandTilde(filename);
+		filename = expandTilde(std::move(filename));
 	}
 
 	if (!StringOp::endsWith(filename, extension) &&

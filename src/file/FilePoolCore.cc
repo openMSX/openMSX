@@ -258,7 +258,7 @@ File FilePoolCore::getFile(FileType fileType, const Sha1Sum& sha1sum)
 
 	for (auto& [path, types] : getDirectories()) {
 		if ((types & fileType) != FileType::NONE) {
-			result = scanDirectory(sha1sum, FileOperations::expandTilde(path), path, progress);
+			result = scanDirectory(sha1sum, FileOperations::expandTilde(string(path)), path, progress);
 			if (result.is_open()) return result;
 		}
 	}
