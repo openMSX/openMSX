@@ -71,7 +71,7 @@ void OSDRectangle::setProperty(
 			invalidateRecursive();
 		}
 	} else if (propName == "-image") {
-		string val(value.getString());
+		std::string_view val = value.getString();
 		if (imageName != val) {
 			if (!val.empty()) {
 				if (string file = systemFileContext().resolve(val);

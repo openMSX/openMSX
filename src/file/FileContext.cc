@@ -130,9 +130,9 @@ static string backSubstSymbols(string_view path)
 	if (StringOp::startsWith(path, systemData)) {
 		return subst(path, systemData, SYSTEM_DATA);
 	}
-	const string& userData = FileOperations::getSystemDataDir();
+	const string& userData = FileOperations::getUserDataDir();
 	if (StringOp::startsWith(path, userData)) {
-		return subst(path, userData, SYSTEM_DATA);
+		return subst(path, userData, USER_DATA);
 	}
 	const string& userDir = FileOperations::getUserOpenMSXDir();
 	if (StringOp::startsWith(path, userDir)) {
