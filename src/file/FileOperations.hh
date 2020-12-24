@@ -169,6 +169,17 @@ namespace openmsx::FileOperations {
 	[[nodiscard]] inline       std::string  getNativePath(      std::string&& path) { return std::move(path); }
 #endif
 
+	/**
+	* Get the current directory of the specified drive
+	* Linux: return the given string unchanged
+	*/
+#ifdef _WIN32
+	[[nodiscard]]              std::string  expandCurrentDirFromDrive(std::string path);
+#else
+	[[nodiscard]] inline const std::string& expandCurrentDirFromDrive(const std::string&  path) { return           path;  }
+	[[nodiscard]] inline       std::string  expandCurrentDirFromDrive(      std::string&& path) { return std::move(path); }
+#endif
+
 	/** Returns the current working directory.
 	 * @throw FileException (for example when directory has been deleted).
 	 */
@@ -216,12 +227,6 @@ namespace openmsx::FileOperations {
 	 * Win32: use "same directory as .exe" + "/share".
 	 */
 	[[nodiscard]] std::string getSystemDataDir();
-
-	/**
-	* Get the current directory of the specified drive
-	* Linux: return the given string unchanged
-	*/
-	[[nodiscard]] std::string expandCurrentDirFromDrive(std::string path);
 
 #ifdef _WIN32
 	typedef struct _stat Stat;

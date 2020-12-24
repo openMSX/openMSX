@@ -482,9 +482,9 @@ static bool driveExists(char driveLetter)
 }
 #endif
 
+#ifdef _WIN32
 string expandCurrentDirFromDrive(string result)
 {
-#ifdef _WIN32
 	if (((path.size() == 2) && (path[1] == ':')) ||
 		((path.size() >= 3) && (path[1] == ':') && (path[2] != '/'))) {
 		// get current directory for this drive
@@ -504,9 +504,9 @@ string expandCurrentDirFromDrive(string result)
 			}
 		}
 	}
-#endif
 	return result;
 }
+#endif
 
 bool getStat(const std::string& filename, Stat& st)
 {
