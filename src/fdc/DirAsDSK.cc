@@ -569,8 +569,8 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, FileOperations::Stat& fst)
 	auto remainingSize = hostSize;
 	unsigned prevCl = 0;
 	try {
-		string fullHostName = hostDir + mapDir.hostName;
-		File file(fullHostName, "rb"); // don't uncompress
+		File file(hostDir + mapDir.hostName,
+		          "rb"); // don't uncompress
 
 		while (remainingSize && (curCl < maxCluster)) {
 			unsigned logicalSector = clusterToSector(curCl);
@@ -1241,8 +1241,7 @@ void DirAsDSK::exportToHostFile(DirIndex dirIndex, const string& hostName)
 		unsigned curCl = msxDir(dirIndex).startCluster;
 		unsigned msxSize = msxDir(dirIndex).size;
 
-		string fullHostName = hostDir + hostName;
-		File file(fullHostName, File::TRUNCATE);
+		File file(hostDir + hostName, File::TRUNCATE);
 		unsigned offset = 0;
 		vector<bool> visited(maxCluster, false);
 

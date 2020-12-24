@@ -1,5 +1,6 @@
 #include "WavAudioInput.hh"
 #include "CommandController.hh"
+#include "FileOperations.hh"
 #include "PlugException.hh"
 #include "CliComm.hh"
 #include "serialize.hh"
@@ -25,7 +26,7 @@ WavAudioInput::~WavAudioInput()
 
 void WavAudioInput::loadWave()
 {
-	wav = WavData(string(audioInputFilenameSetting.getString()));
+	wav = WavData(FileOperations::expandTilde(string(audioInputFilenameSetting.getString())));
 }
 
 const string& WavAudioInput::getName() const

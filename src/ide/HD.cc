@@ -45,7 +45,7 @@ HD::HD(const DeviceConfig& config)
 	if (cliImage.empty()) {
 		const string& original = config.getChildData("filename");
 		string resolved = config.getFileContext().resolveCreate(original);
-		filename = Filename(resolved);
+		filename = Filename(std::move(resolved));
 		mode = File::CREATE;
 	} else {
 		filename = Filename(cliImage, userFileContext());
@@ -196,7 +196,7 @@ bool HD::diskChanged()
 	return false; // TODO not implemented
 }
 
-int HD::insertDisk(std::string_view newFilename)
+int HD::insertDisk(const std::string& newFilename)
 {
 	try {
 		switchImage(Filename(string(newFilename)));

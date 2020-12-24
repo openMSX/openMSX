@@ -14,14 +14,19 @@ LocalFileReference::LocalFileReference(File& file)
 	init(file);
 }
 
-LocalFileReference::LocalFileReference(const std::string& filename)
+LocalFileReference::LocalFileReference(std::string filename)
 {
-	File file(filename);
+	File file(std::move(filename));
 	init(file);
 }
 
 LocalFileReference::LocalFileReference(const Filename& filename)
 	: LocalFileReference(filename.getResolved())
+{
+}
+
+LocalFileReference::LocalFileReference(Filename&& filename)
+	: LocalFileReference(std::move(filename).getResolved())
 {
 }
 

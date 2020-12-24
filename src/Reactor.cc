@@ -982,7 +982,7 @@ void RestoreMachineCommand::execute(span<const TclObject> tokens,
 		break;
 	}
 	case 2:
-		filename = tokens[1].getString();
+		filename = FileOperations::expandTilde(string(tokens[1].getString()));
 		break;
 	}
 

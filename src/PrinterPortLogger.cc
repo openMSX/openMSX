@@ -1,5 +1,6 @@
 #include "PrinterPortLogger.hh"
 #include "PlugException.hh"
+#include "FileContext.hh"
 #include "FileException.hh"
 #include "serialize.hh"
 
@@ -45,7 +46,7 @@ void PrinterPortLogger::plugHelper(
 		Connector& /*connector*/, EmuTime::param /*time*/)
 {
 	try {
-		file = File(logFilenameSetting.getString(),
+		file = File(userFileContext().resolve(logFilenameSetting.getString()),
 		            File::TRUNCATE);
 	} catch (FileException& e) {
 		throw PlugException("Couldn't plug printer logger: ",

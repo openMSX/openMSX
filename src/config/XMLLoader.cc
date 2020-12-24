@@ -31,7 +31,7 @@ private:
 	string_view systemID;
 };
 
-XMLElement load(string_view filename, string_view systemID)
+XMLElement load(const string& filename, string_view systemID)
 {
 	MemBuffer<char> buf;
 	try {

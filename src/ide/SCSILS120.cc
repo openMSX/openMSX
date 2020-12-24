@@ -478,7 +478,7 @@ void SCSILS120::eject()
 	motherBoard.getMSXCliComm().update(CliComm::MEDIA, name, {});
 }
 
-void SCSILS120::insert(std::string_view filename)
+void SCSILS120::insert(const std::string& filename)
 {
 	file = File(filename);
 	mediaChanged = true;
@@ -740,7 +740,7 @@ bool SCSILS120::diskChanged()
 	return mediaChanged; // TODO not reset on read
 }
 
-int SCSILS120::insertDisk(std::string_view filename)
+int SCSILS120::insertDisk(const std::string& filename)
 {
 	try {
 		insert(filename);
@@ -789,10 +789,7 @@ void LSXCommand::execute(span<const TclObject> tokens, TclObject& result,
 			}
 		}
 		try {
-			string filename = userFileContext().resolve(
-				string(tokens[fileToken].getString()));
-			ls.insert(filename);
-			// return filename; // Note: the diskX command doesn't do this either, so this has not been converted to TclObject style here
+			ls.insert(userFileContext().resolve(tokens[fileToken].getString()));
 		} catch (FileException& e) {
 			throw CommandException("Can't change disk image: ",
 			                       e.getMessage());

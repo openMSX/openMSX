@@ -22,7 +22,7 @@ public:
 
 	// for nowind
 	//  - error handling with return values instead of exceptions
-	virtual int insertDisk(std::string_view filename) = 0;
+	virtual int insertDisk(const std::string& filename) = 0;
 	// for nowind
 	[[nodiscard]] bool isRomdisk() const;
 

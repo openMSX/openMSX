@@ -13,13 +13,12 @@ namespace openmsx {
 
 File::File() = default;
 
-[[nodiscard]] static std::unique_ptr<FileBase> init(std::string_view filename, File::OpenMode mode)
+[[nodiscard]] static std::unique_ptr<FileBase> init(std::string filename, File::OpenMode mode)
 {
 	static constexpr uint8_t GZ_HEADER[3]  = { 0x1F, 0x8B, 0x08 };
 	static constexpr uint8_t ZIP_HEADER[4] = { 0x50, 0x4B, 0x03, 0x04 };
 
-	// TODO string(filename) because expandTilde()
-	std::unique_ptr<FileBase> file = std::make_unique<LocalFile>(string(filename), mode);
+	std::unique_ptr<FileBase> file = std::make_unique<LocalFile>(std::move(filename), mode);
 	if (file->getSize() >= 4) {
 		uint8_t buf[4];
 		file->read(buf, 4);
@@ -38,8 +37,8 @@ File::File() = default;
 	return file;
 }
 
-File::File(std::string_view filename, OpenMode mode)
-	: file(init(filename, mode))
+File::File(std::string filename, OpenMode mode)
+	: file(init(std::move(filename), mode))
 {
 }
 
@@ -48,14 +47,23 @@ File::File(const Filename& filename, OpenMode mode)
 {
 }
 
-File::File(std::string_view filename, const char* mode)
-	// TODO string(filename) because expandTilde()
-	: file(std::make_unique<LocalFile>(string(filename), mode))
+File::File(Filename&& filename, OpenMode mode)
+	: File(std::move(filename).getResolved(), mode)
+{
+}
+
+File::File(std::string filename, const char* mode)
+	: file(std::make_unique<LocalFile>(std::move(filename), mode))
 {
 }
 
 File::File(const Filename& filename, const char* mode)
 	: File(filename.getResolved(), mode)
+{
+}
+
+File::File(Filename&& filename, const char* mode)
+	: File(std::move(filename).getResolved(), mode)
 {
 }
 

@@ -24,7 +24,7 @@ using std::string;
 namespace openmsx {
 
 LocalFile::LocalFile(std::string filename_, File::OpenMode mode)
-	: filename(FileOperations::expandTilde(std::move(filename_)))
+	: filename(std::move(filename_))
 #if HAVE_MMAP || defined _WIN32
 	, mmem(nullptr)
 #endif
@@ -74,7 +74,7 @@ LocalFile::LocalFile(std::string filename_, File::OpenMode mode)
 }
 
 LocalFile::LocalFile(std::string filename_, const char* mode)
-	: filename(FileOperations::expandTilde(std::move(filename_)))
+	: filename(std::move(filename_))
 #if HAVE_MMAP || defined _WIN32
 	, mmem(nullptr)
 #endif

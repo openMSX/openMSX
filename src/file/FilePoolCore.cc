@@ -325,7 +325,7 @@ File FilePoolCore::getFromPool(const Sha1Sum& sha1sum)
 			continue;
 		}
 		try {
-			File file(entry.filename);
+			File file(string(entry.filename));
 			auto newTime = file.getModificationDate();
 			if (entry.getTime() == newTime) {
 				// When modification time is unchanged, assume

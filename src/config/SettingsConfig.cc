@@ -3,6 +3,7 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
+#include "FileOperations.hh"
 #include "CliComm.hh"
 #include "HotKey.hh"
 #include "CommandException.hh"
@@ -42,12 +43,13 @@ SettingsConfig::~SettingsConfig()
 
 void SettingsConfig::loadSetting(const FileContext& context, string_view filename)
 {
-	xmlElement = XMLLoader::load(context.resolve(filename), "settings.dtd");
+	string resolved = context.resolve(filename);
+	xmlElement = XMLLoader::load(resolved, "settings.dtd");
 	getSettingsManager().loadSettings(xmlElement);
 	hotKey.loadBindings(xmlElement);
 
 	// only set saveName after file was successfully parsed
-	setSaveFilename(context, filename);
+	saveName = resolved;
 }
 
 void SettingsConfig::setSaveFilename(const FileContext& context, string_view filename)
@@ -55,10 +57,10 @@ void SettingsConfig::setSaveFilename(const FileContext& context, string_view fil
 	saveName = context.resolveCreate(filename);
 }
 
-void SettingsConfig::saveSetting(string_view filename)
+void SettingsConfig::saveSetting(string filename)
 {
-	string_view name = filename.empty() ? saveName : filename;
-	if (name.empty()) return;
+	if (filename.empty()) filename = saveName;
+	if (filename.empty()) return;
 
 	// Normally the following isn't needed. Only when there was no
 	// settings.xml in either the user or the system directory (so an
@@ -69,7 +71,7 @@ void SettingsConfig::saveSetting(string_view filename)
 	// settings are kept up-to-date
 	hotKey.saveBindings(xmlElement);
 
-	File file(name, File::TRUNCATE);
+	File file(std::move(filename), File::TRUNCATE);
 	string data = "<!DOCTYPE settings SYSTEM 'settings.dtd'>\n" +
 	              xmlElement.dump();
 	file.write(data.data(), data.size());
@@ -95,7 +97,8 @@ void SettingsConfig::SaveSettingsCommand::execute(
 			settingsConfig.saveSetting();
 			break;
 		case 2:
-			settingsConfig.saveSetting(tokens[1].getString());
+			settingsConfig.saveSetting(FileOperations::expandTilde(
+				string(tokens[1].getString())));
 			break;
 		}
 	} catch (FileException& e) {

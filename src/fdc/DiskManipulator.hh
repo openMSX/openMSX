@@ -53,8 +53,7 @@ private:
 	                                         DriveSettings& driveData);
 
 	static void create(span<const TclObject> tokens);
-	void savedsk(const DriveSettings& driveData,
-	             std::string_view filename);
+	void savedsk(const DriveSettings& driveData, std::string filename);
 	void format(DriveSettings& driveData, bool dos1);
 	std::string chdir(DriveSettings& driveData, std::string_view filename);
 	void mkdir(DriveSettings& driveData, std::string_view filename);

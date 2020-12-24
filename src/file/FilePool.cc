@@ -175,7 +175,7 @@ Sha1SumCommand::Sha1SumCommand(
 void Sha1SumCommand::execute(span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, 2, "filename");
-	File file(tokens[1].getString());
+	File file(FileOperations::expandTilde(string(tokens[1].getString())));
 	result = filePool.getSha1Sum(file).toString();
 }
 

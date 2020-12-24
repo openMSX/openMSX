@@ -204,7 +204,7 @@ void NowindCommand::execute(span<const TclObject> tokens, TclObject& result)
 				interface.getMotherBoard());
 			changeDrives = true;
 			if (!image.empty()) {
-				if (drive->insertDisk(image)) {
+				if (drive->insertDisk(FileOperations::expandTilde(string(image)))) {
 					error = strCat("Invalid disk image: ", image);
 				}
 			}

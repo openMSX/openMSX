@@ -158,7 +158,7 @@ void DiskChanger::stopReplay(EmuTime::param /*time*/)
 	// nothing
 }
 
-int DiskChanger::insertDisk(std::string_view filename)
+int DiskChanger::insertDisk(const std::string& filename)
 {
 	TclObject args[] = { TclObject("dummy"), TclObject(filename) };
 	try {

@@ -165,7 +165,7 @@ void DiskManipulator::execute(span<const TclObject> tokens, TclObject& result)
 
 	} else if (subcmd == "savedsk") {
 		auto& settings = getDriveSettings(tokens[2].getString());
-		savedsk(settings, tokens[3].getString());
+		savedsk(settings, FileOperations::expandTilde(string(tokens[3].getString())));
 
 	} else if (subcmd == "chdir") {
 		auto& settings = getDriveSettings(tokens[2].getString());
@@ -330,11 +330,11 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 }
 
 void DiskManipulator::savedsk(const DriveSettings& driveData,
-                              string_view filename)
+                              string filename)
 {
 	auto partition = getPartition(driveData);
 	SectorBuffer buf;
-	File file(filename, File::CREATE);
+	File file(std::move(filename), File::CREATE);
 	for (auto i : xrange(partition->getNbSectors())) {
 		partition->readSector(i, buf);
 		file.write(&buf, sizeof(buf));
@@ -407,7 +407,7 @@ void DiskManipulator::create(span<const TclObject> tokens)
 	}
 
 	// create file with correct size
-	Filename filename(string(tokens[2].getString()));
+	Filename filename(FileOperations::expandTilde(string(tokens[2].getString())));
 	try {
 		File file(filename, File::CREATE);
 		file.truncate(totalSectors * SectorBasedDisk::SECTOR_SIZE);

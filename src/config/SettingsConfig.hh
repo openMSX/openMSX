@@ -22,7 +22,7 @@ public:
 	~SettingsConfig();
 
 	void loadSetting(const FileContext& context, std::string_view filename);
-	void saveSetting(std::string_view filename = {});
+	void saveSetting(std::string filename = {});
 	void setSaveSettings(bool save) { mustSaveSettings = save; }
 	void setSaveFilename(const FileContext& context, std::string_view filename);
 

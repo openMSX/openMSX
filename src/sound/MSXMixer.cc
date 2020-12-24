@@ -12,6 +12,7 @@
 #include "CommandException.hh"
 #include "AviRecorder.hh"
 #include "Filename.hh"
+#include "FileOperations.hh"
 #include "CliComm.hh"
 #include "stl.hh"
 #include "aligned.hh"
@@ -628,7 +629,8 @@ void MSXMixer::changeRecordSetting(const Setting& setting)
 			if (s.recordSetting.get() == &setting) {
 				info.device->recordChannel(
 					channel,
-					Filename(string(s.recordSetting->getString())));
+					Filename(FileOperations::expandTilde(string(
+						s.recordSetting->getString()))));
 				return;
 			}
 			++channel;

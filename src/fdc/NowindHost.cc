@@ -1,5 +1,6 @@
 #include "NowindHost.hh"
 #include "DiskContainer.hh"
+#include "FileOperations.hh"
 #include "SectorAccessibleDisk.hh"
 #include "enumerate.hh"
 #include "one_of.hh"
@@ -758,7 +759,7 @@ void NowindHost::callImage(const string& filename)
 		// invalid drive number
 		return;
 	}
-	if (drives[num]->insertDisk(stripquotes(filename))) {
+	if (drives[num]->insertDisk(FileOperations::expandTilde(string(stripquotes(filename))))) {
 		// TODO error handling
 	}
 }

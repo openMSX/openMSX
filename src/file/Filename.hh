@@ -24,7 +24,8 @@ public:
 	Filename(std::string filename, const FileContext& context);
 
 	[[nodiscard]] const std::string& getOriginal() const { return originalFilename; }
-	[[nodiscard]] const std::string& getResolved() const { return resolvedFilename; }
+	[[nodiscard]] const std::string& getResolved() const & { return           resolvedFilename; }
+	[[nodiscard]]       std::string  getResolved() &&      { return std::move(resolvedFilename); }
 
 	/** After a loadstate we prefer to use the exact same file as before
 	  * savestate. But if that file is not available (possibly because

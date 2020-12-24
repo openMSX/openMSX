@@ -176,9 +176,8 @@ template<typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 	int scale = getScaleFactor(output);
 	if (font.empty()) {
 		try {
-			string file = systemFileContext().resolve(fontfile);
-			int ptSize = size * scale;
-			font = TTFFont(file, ptSize);
+			font = TTFFont(systemFileContext().resolve(fontfile),
+			               size * scale);
 		} catch (MSXException& e) {
 			throw MSXException("Couldn't open font: ", e.getMessage());
 		}

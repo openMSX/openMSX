@@ -47,7 +47,7 @@ private:
 	[[nodiscard]] SectorAccessibleDisk* getSectorAccessibleDisk() override;
 	[[nodiscard]] const std::string& getContainerName() const override;
 	[[nodiscard]] bool diskChanged() override;
-	int insertDisk(std::string_view newFilename) override;
+	int insertDisk(const std::string& newFilename) override;
 
 	// TTData
 	[[nodiscard]] uint8_t* getData(size_t offset, size_t size) override;
