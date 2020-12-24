@@ -325,16 +325,13 @@ string join(string_view part1, string_view part2,
 	return join(part1, join(part2, join(part3, part4)));
 }
 
-string getNativePath(string_view path)
-{
-	string result(path);
 #ifdef _WIN32
-	ranges::replace(result, '/', '\\');
-#endif
-	return result;
+string getNativePath(string path)
+{
+	ranges::replace(path, '/', '\\');
+	return path;
 }
 
-#ifdef _WIN32
 string getConventionalPath(string path)
 {
 	ranges::replace(path, '\\', '/');

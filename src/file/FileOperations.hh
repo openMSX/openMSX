@@ -143,10 +143,10 @@ namespace openmsx::FileOperations {
 	 *    Just for portability issue. (Especially for Win32)
 	 */
 #ifdef _WIN32
-	[[nodiscard]] std::string getConventionalPath(std::string path);
+	[[nodiscard]]              std::string  getConventionalPath(      std::string   path);
 #else
-	[[nodiscard]] inline const std::string& getConventionalPath(const std::string& path) { return path; }
-	[[nodiscard]] inline std::string getConventionalPath(std::string&& path) { return std::move(path); }
+	[[nodiscard]] inline const std::string& getConventionalPath(const std::string&  path) { return           path;  }
+	[[nodiscard]] inline       std::string  getConventionalPath(      std::string&& path) { return std::move(path); }
 #endif
 
 	/**
@@ -156,7 +156,12 @@ namespace openmsx::FileOperations {
 	 *    On UNI*Y systems, it will have no effect indeed.
 	 *    Just for portability issue. (Especially for Win32)
 	 */
-	[[nodiscard]] std::string getNativePath(std::string_view path);
+#ifdef _WIN32
+	[[nodiscard]]              std::string  getNativePath(      std::string   path);
+#else
+	[[nodiscard]] inline const std::string& getNativePath(const std::string&  path) { return           path;  }
+	[[nodiscard]] inline       std::string  getNativePath(      std::string&& path) { return std::move(path); }
+#endif
 
 	/** Returns the current working directory.
 	 * @throw FileException (for example when directory has been deleted).
