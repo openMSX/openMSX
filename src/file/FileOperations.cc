@@ -141,8 +141,7 @@ void mkdirp(string path)
 	}
 
 	// We may receive platform-specific paths here, so conventionalize early
-	// TODO move tilde-expansion outside
-	path = getConventionalPath(expandTilde(std::move(path)));
+	path = getConventionalPath(std::move(path));
 
 	// If the directory already exists, don't try to recreate it
 	if (isDirectory(path))
