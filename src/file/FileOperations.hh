@@ -219,14 +219,14 @@ namespace openmsx::FileOperations {
 	 * Get the openMSX data dir in the user's home directory.
 	 * Default value is "~/.openMSX/share" (UNIX) or "~/openMSX/share" (win)
 	 */
-	[[nodiscard]] std::string getUserDataDir();
+	[[nodiscard]] const std::string& getUserDataDir();
 
 	/**
 	 * Get system directory.
 	 * UNI*Y: statically defined as "/opt/openMSX/share".
 	 * Win32: use "same directory as .exe" + "/share".
 	 */
-	[[nodiscard]] std::string getSystemDataDir();
+	[[nodiscard]] const std::string& getSystemDataDir();
 
 #ifdef _WIN32
 	typedef struct _stat Stat;

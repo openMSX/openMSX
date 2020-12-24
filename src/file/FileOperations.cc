@@ -432,46 +432,49 @@ const string& getUserOpenMSXDir()
 	return OPENMSX_DIR;
 }
 
-string getUserDataDir()
+const string& getUserDataDir()
 {
-	const char* const NAME = "OPENMSX_USER_DATA";
-	char* value = getenv(NAME);
-	return value ? value : getUserOpenMSXDir() + "/share";
+	static std::optional<string> result;
+	if (!result) {
+		const char* const NAME = "OPENMSX_USER_DATA";
+		char* value = getenv(NAME);
+		result = value ? value : getUserOpenMSXDir() + "/share";
+	}
+	return *result;
 }
 
-string getSystemDataDir()
+const string& getSystemDataDir()
 {
-	const char* const NAME = "OPENMSX_SYSTEM_DATA";
-	if (char* value = getenv(NAME)) {
-		return value;
-	}
-
-	string newValue;
+	static std::optional<string> result;
+	if (!result) result = []() -> string {
+		if (char* value = getenv("OPENMSX_SYSTEM_DATA")) {
+			return value;
+		}
 #ifdef _WIN32
-	wchar_t bufW[MAXPATHLEN + 1];
-	int res = GetModuleFileNameW(nullptr, bufW, std::size(bufW));
-	if (!res) {
-		throw FatalError(
-			"Cannot detect openMSX directory. GetModuleFileNameW failed: ",
-			GetLastError());
-	}
+		wchar_t bufW[MAXPATHLEN + 1];
+		int res = GetModuleFileNameW(nullptr, bufW, std::size(bufW));
+		if (!res) {
+			throw FatalError(
+				"Cannot detect openMSX directory. GetModuleFileNameW failed: ",
+				GetLastError());
+		}
 
-	string filename = utf16to8(bufW);
-	auto pos = filename.find_last_of('\\');
-	if (pos == string::npos) {
-		throw FatalError("openMSX is not in directory!?");
-	}
-	newValue = getConventionalPath(filename.substr(0, pos)) + "/share";
+		string filename = utf16to8(bufW);
+		auto pos = filename.find_last_of('\\');
+		if (pos == string::npos) {
+			throw FatalError("openMSX is not in directory!?");
+		}
+		return getConventionalPath(filename.substr(0, pos)) + "/share";
 #elif defined(__APPLE__)
-	newValue = findShareDir();
+		return findShareDir();
 #elif PLATFORM_ANDROID
-	newValue = getAbsolutePath("openmsx_system");
-	ad_printf("System data dir: %s", newValue.c_str());
+		return getAbsolutePath("openmsx_system");
 #else
-	// defined in build-info.hh (default /opt/openMSX/share)
-	newValue = DATADIR;
+		// defined in build-info.hh (default /opt/openMSX/share)
+		return DATADIR;
 #endif
-	return newValue;
+	}();
+	return *result;
 }
 
 #ifdef _WIN32
