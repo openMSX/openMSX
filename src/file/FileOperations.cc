@@ -483,8 +483,9 @@ static bool driveExists(char driveLetter)
 #endif
 
 #ifdef _WIN32
-string expandCurrentDirFromDrive(string result)
+string expandCurrentDirFromDrive(string path)
 {
+	string result = path;
 	if (((path.size() == 2) && (path[1] == ':')) ||
 		((path.size() >= 3) && (path[1] == ':') && (path[2] != '/'))) {
 		// get current directory for this drive
