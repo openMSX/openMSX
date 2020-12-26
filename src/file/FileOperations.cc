@@ -101,7 +101,7 @@ string expandTilde(string path)
 	if (result.back() != '/') {
 		result += '/';
 	}
-	string_view last = path.substr(pos + 1);
+	string_view last = string_view(path).substr(pos + 1);
 	result.append(last.data(), last.size());
 	return result;
 }
