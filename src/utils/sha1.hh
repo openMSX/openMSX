@@ -97,7 +97,7 @@ private:
 	void finalize();
 
 private:
-	uint64_t m_count;
+	uint64_t m_count; // in bytes (sha1 reference implementation counts in bits)
 	Sha1Sum m_state;
 	uint8_t m_buffer[64];
 	bool m_finalized;

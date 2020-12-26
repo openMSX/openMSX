@@ -344,16 +344,19 @@ void SHA1::update(span<const uint8_t> data_)
 void SHA1::finalize()
 {
 	assert(!m_finalized);
-	uint8_t finalCount[8];
-	for (auto [i, fc] : enumerate(finalCount)) {
-		fc = uint8_t((8 * m_count) >> ((7 - i) * 8));
-	}
 
-	update({reinterpret_cast<const uint8_t*>("\200"), 1});
-	while ((m_count & 63) != 56) {
-		update({reinterpret_cast<const uint8_t*>("\0"), 1});
+	uint32_t j = m_count & 63;
+	m_buffer[j++] = 0x80;
+	if (j > 56) {
+		memset(&m_buffer[j], 0, 64 - j);
+		transform(m_buffer);
+		j = 0;
 	}
-	update({finalCount, 8}); // cause a transform()
+	memset(&m_buffer[j], 0, 56 - j);
+	Endian::B64 finalCount = 8 * m_count; // convert number of bytes to bits
+	memcpy(&m_buffer[56], &finalCount, 8);
+	transform(m_buffer);
+
 	m_finalized = true;
 }
 

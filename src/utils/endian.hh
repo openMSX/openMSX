@@ -111,14 +111,20 @@ using B16 = EndianT<uint16_t, ConvBig   <openmsx::OPENMSX_BIGENDIAN>>;
 using L16 = EndianT<uint16_t, ConvLittle<openmsx::OPENMSX_BIGENDIAN>>;
 using B32 = EndianT<uint32_t, ConvBig   <openmsx::OPENMSX_BIGENDIAN>>;
 using L32 = EndianT<uint32_t, ConvLittle<openmsx::OPENMSX_BIGENDIAN>>;
+using B64 = EndianT<uint64_t, ConvBig   <openmsx::OPENMSX_BIGENDIAN>>;
+using L64 = EndianT<uint64_t, ConvLittle<openmsx::OPENMSX_BIGENDIAN>>;
 static_assert(sizeof(B16)  == 2, "must have size 2");
 static_assert(sizeof(L16)  == 2, "must have size 2");
 static_assert(sizeof(B32)  == 4, "must have size 4");
 static_assert(sizeof(L32)  == 4, "must have size 4");
+static_assert(sizeof(B64)  == 8, "must have size 8");
+static_assert(sizeof(L64)  == 8, "must have size 8");
 static_assert(alignof(B16) <= 2, "may have alignment 2");
 static_assert(alignof(L16) <= 2, "may have alignment 2");
 static_assert(alignof(B32) <= 4, "may have alignment 4");
 static_assert(alignof(L32) <= 4, "may have alignment 4");
+static_assert(alignof(B64) <= 8, "may have alignment 8");
+static_assert(alignof(L64) <= 8, "may have alignment 8");
 
 
 // Helper functions to read/write aligned 16/32 bit values.
