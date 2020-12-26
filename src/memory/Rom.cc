@@ -248,7 +248,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 			}
 
 			// calculated because it's different from original
-			actualSha1 = SHA1::calc(rom, size);
+			actualSha1 = SHA1::calc({rom, size});
 
 			// Content altered by external patch file -> check.
 			checkResolvedSha1 = true;
@@ -358,7 +358,7 @@ const string& Rom::getFilename() const
 const Sha1Sum& Rom::getOriginalSHA1() const
 {
 	if (originalSha1.empty()) {
-		originalSha1 = SHA1::calc(rom, size);
+		originalSha1 = SHA1::calc({rom, size});
 	}
 	return originalSha1;
 }

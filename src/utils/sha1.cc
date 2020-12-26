@@ -317,8 +317,11 @@ void SHA1::transform(const uint8_t buffer[64])
 }
 
 // Use this function to hash in binary data and strings
-void SHA1::update(const uint8_t* data, size_t len)
+void SHA1::update(span<const uint8_t> data_)
 {
+	const uint8_t* data = data_.data();
+	size_t len = data_.size();
+
 	assert(!m_finalized);
 	uint32_t j = (m_count >> 3) & 63;
 
@@ -346,11 +349,11 @@ void SHA1::finalize()
 		fc = uint8_t(m_count >> ((7 - i) * 8));
 	}
 
-	update(reinterpret_cast<const uint8_t*>("\200"), 1);
+	update({reinterpret_cast<const uint8_t*>("\200"), 1});
 	while ((m_count & 504) != 448) {
-		update(reinterpret_cast<const uint8_t*>("\0"), 1);
+		update({reinterpret_cast<const uint8_t*>("\0"), 1});
 	}
-	update(finalCount, 8); // cause a transform()
+	update({finalCount, 8}); // cause a transform()
 	m_finalized = true;
 }
 
@@ -360,10 +363,10 @@ Sha1Sum SHA1::digest()
 	return m_state;
 }
 
-Sha1Sum SHA1::calc(const uint8_t* data, size_t len)
+Sha1Sum SHA1::calc(span<const uint8_t> data)
 {
 	SHA1 sha1;
-	sha1.update(data, len);
+	sha1.update(data);
 	return sha1.digest();
 }
 

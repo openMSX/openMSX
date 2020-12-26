@@ -107,7 +107,7 @@ TEST_CASE("Sha1Sum: stream")
 TEST_CASE("sha1: calc")
 {
 	const char* in = "abc";
-	Sha1Sum output = SHA1::calc(reinterpret_cast<const uint8_t*>(in), strlen(in));
+	Sha1Sum output = SHA1::calc({reinterpret_cast<const uint8_t*>(in), strlen(in)});
 	CHECK(output.toString() == "a9993e364706816aba3e25717850c26c9cd0d89d");
 }
 
@@ -116,7 +116,7 @@ TEST_CASE("sha1: update,digest")
 	SHA1 sha1;
 	SECTION("single block") {
 		const char* in = "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq";
-		sha1.update(reinterpret_cast<const uint8_t*>(in), strlen(in));
+		sha1.update({reinterpret_cast<const uint8_t*>(in), strlen(in)});
 		Sha1Sum sum1 = sha1.digest();
 		Sha1Sum sum2 = sha1.digest(); // call 2nd time is ok
 		CHECK(sum1 == sum2);
@@ -126,7 +126,7 @@ TEST_CASE("sha1: update,digest")
 		const char* in = "aaaaaaaaaaaaaaaaaaaaaaaaa";
 		REQUIRE(strlen(in) == 25);
 		repeat(40000, [&] {
-			sha1.update(reinterpret_cast<const uint8_t*>(in), strlen(in));
+			sha1.update({reinterpret_cast<const uint8_t*>(in), strlen(in)});
 		});
 		// 25 * 40'000 = 1'000'000 repetitions of "a"
 		Sha1Sum sum = sha1.digest();

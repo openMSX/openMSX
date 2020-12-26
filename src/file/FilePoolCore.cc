@@ -287,7 +287,7 @@ Sha1Sum FilePoolCore::calcSha1sum(File& file)
 	};
 	// Loop over all-but-the last blocks. For small files this loop is skipped.
 	while (remaining > STEP_SIZE) {
-		sha1.update(&data[done], STEP_SIZE);
+		sha1.update({&data[done], STEP_SIZE});
 		done += STEP_SIZE;
 		remaining -= STEP_SIZE;
 
@@ -300,7 +300,7 @@ Sha1Sum FilePoolCore::calcSha1sum(File& file)
 	}
 	// last block
 	if (remaining) {
-		sha1.update(&data[done], remaining);
+		sha1.update({&data[done], remaining});
 	}
 	if (everShowedProgress) {
 		report(100);

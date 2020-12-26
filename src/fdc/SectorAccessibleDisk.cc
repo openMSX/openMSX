@@ -86,7 +86,7 @@ Sha1Sum SectorAccessibleDisk::getSha1SumImpl(FilePool& /*filePool*/)
 		for (auto i : xrange(getNbSectors())) {
 			SectorBuffer buf;
 			readSector(i, buf);
-			sha1.update(buf.raw, sizeof(buf));
+			sha1.update(buf.raw);
 		}
 		setPeekMode(false);
 		return sha1.digest();

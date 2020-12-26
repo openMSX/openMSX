@@ -1,6 +1,7 @@
 #ifndef SHA1_HH
 #define SHA1_HH
 
+#include "span.hh"
 #include "xrange.hh"
 #include <ostream>
 #include <string>
@@ -82,14 +83,14 @@ public:
 	SHA1();
 
 	/** Incrementally calculate the hash value. */
-	void update(const uint8_t* data, size_t len);
+	void update(span<const uint8_t> data);
 
 	/** Get the final hash. After this method is called, calls to update()
 	  * are invalid. */
 	[[nodiscard]] Sha1Sum digest();
 
 	/** Easier to use interface, if you can pass all data in one go. */
-	[[nodiscard]] static Sha1Sum calc(const uint8_t* data, size_t len);
+	[[nodiscard]] static Sha1Sum calc(span<const uint8_t> data);
 
 private:
 	void transform(const uint8_t buffer[64]);
