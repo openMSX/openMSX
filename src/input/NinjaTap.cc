@@ -22,7 +22,7 @@ std::string_view NinjaTap::getDescription() const
 
 void NinjaTap::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
 {
-	createPorts("Ninja Tap port ");
+	createPorts("Ninja Tap port");
 }
 
 byte NinjaTap::read(EmuTime::param /*time*/)

@@ -4,8 +4,10 @@
 #include "File.hh"
 #include "MemBuffer.hh"
 #include "sha1.hh"
+#include "static_string_view.hh"
 #include "openmsx.hh"
 #include <string>
+#include <string_view>
 #include <memory>
 #include <cassert>
 
@@ -20,7 +22,7 @@ class RomDebuggable;
 class Rom final
 {
 public:
-	Rom(std::string name, std::string description,
+	Rom(std::string name, static_string_view description,
 	    const DeviceConfig& config, const std::string& id = {});
 	Rom(Rom&& other) noexcept;
 	~Rom();
@@ -33,7 +35,7 @@ public:
 
 	[[nodiscard]] const std::string& getFilename() const;
 	[[nodiscard]] const std::string& getName() const { return name; }
-	[[nodiscard]] const std::string& getDescription() const { return description; }
+	[[nodiscard]] std::string_view getDescription() const { return description; }
 	[[nodiscard]] const Sha1Sum& getOriginalSHA1() const;
 	[[nodiscard]] const Sha1Sum& getSHA1() const;
 
@@ -54,7 +56,7 @@ private:
 	mutable Sha1Sum originalSha1;
 	mutable Sha1Sum actualSha1;
 	std::string name;
-	/*const*/ std::string description; // not const to allow move
+	/*const*/ static_string_view description; // not const to allow move
 	unsigned size;
 
 	// This must come after 'name':

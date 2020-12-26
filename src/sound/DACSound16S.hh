@@ -12,7 +12,7 @@ namespace openmsx {
 class DACSound16S : public SoundDevice
 {
 public:
-	DACSound16S(std::string_view name, std::string_view desc,
+	DACSound16S(std::string_view name, static_string_view desc,
 	            const DeviceConfig& config);
 	virtual ~DACSound16S();
 

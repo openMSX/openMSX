@@ -14,7 +14,7 @@ class DeviceConfig;
 class VLM5030 final : public ResampledSoundDevice
 {
 public:
-	VLM5030(const std::string& name, const std::string& desc,
+	VLM5030(const std::string& name, const static_string_view desc,
 	        const std::string& romFilename, const DeviceConfig& config);
 	~VLM5030();
 	void reset();

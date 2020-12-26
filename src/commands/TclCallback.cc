@@ -13,7 +13,7 @@ namespace openmsx {
 TclCallback::TclCallback(
 		CommandController& controller,
 		std::string_view name,
-		std::string_view description,
+		static_string_view description,
 		bool useCliComm_,
 		bool save)
 	: callbackSetting2(std::make_unique<StringSetting>(

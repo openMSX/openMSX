@@ -18,7 +18,7 @@ namespace openmsx {
 }
 
 CheckedRam::CheckedRam(const DeviceConfig& config, const std::string& name,
-                       const std::string& description, unsigned size)
+                       static_string_view description, unsigned size)
 	: completely_initialized_cacheline(size / CacheLine::SIZE, false)
 	, uninitialized(size / CacheLine::SIZE, getBitSetAllTrue())
 	, ram(config, name, description, size)

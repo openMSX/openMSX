@@ -9,7 +9,7 @@ class StringSetting final : public Setting
 {
 public:
 	StringSetting(CommandController& commandController,
-	              std::string_view name, std::string_view description,
+	              std::string_view name, static_string_view description,
 	              std::string_view initialValue, SaveSetting save = SAVE);
 
 	[[nodiscard]] std::string_view getTypeString() const override;

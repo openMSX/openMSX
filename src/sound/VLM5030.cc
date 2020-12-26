@@ -516,7 +516,7 @@ static XMLElement getRomConfig(const std::string& name, const std::string& romFi
 
 constexpr auto INPUT_RATE = unsigned(cstd::round(3579545 / 440.0));
 
-VLM5030::VLM5030(const std::string& name_, const std::string& desc,
+VLM5030::VLM5030(const std::string& name_, static_string_view desc,
                  const std::string& romFilename, const DeviceConfig& config)
 	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 1, INPUT_RATE, false)
 	, rom(name_ + " ROM", "rom", DeviceConfig(config, getRomConfig(name_, romFilename)))

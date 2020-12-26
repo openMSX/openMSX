@@ -1,6 +1,7 @@
 #ifndef PROBE_HH
 #define PROBE_HH
 
+#include "static_string_view.hh"
 #include "Subject.hh"
 #include "strCat.hh"
 #include <string>
@@ -13,18 +14,18 @@ class ProbeBase : public Subject<ProbeBase>
 {
 public:
 	[[nodiscard]] const std::string& getName() const { return name; }
-	[[nodiscard]] const std::string& getDescription() const { return description; }
+	[[nodiscard]] std::string_view getDescription() const { return description; }
 	[[nodiscard]] virtual std::string getValue() const = 0;
 
 protected:
 	ProbeBase(Debugger& debugger, std::string name,
-	          std::string description);
+	          static_string_view description);
 	~ProbeBase();
 
 private:
 	Debugger& debugger;
 	const std::string name;
-	const std::string description;
+	const static_string_view description;
 };
 
 
@@ -32,7 +33,7 @@ template<typename T> class Probe final : public ProbeBase
 {
 public:
 	Probe(Debugger& debugger, std::string name,
-	      std::string description, T t);
+	      static_string_view description, T t);
 
 	Probe& operator=(const T& newValue) {
 		if (value != newValue) {
@@ -54,7 +55,7 @@ private:
 
 template<typename T>
 Probe<T>::Probe(Debugger& debugger_, std::string name_,
-                std::string description_, T t)
+                static_string_view description_, T t)
 	: ProbeBase(debugger_, std::move(name_), std::move(description_))
 	, value(std::move(t))
 {
@@ -70,7 +71,7 @@ std::string Probe<T>::getValue() const
 template<> class Probe<void> final : public ProbeBase
 {
 public:
-	Probe(Debugger& debugger, std::string name, std::string description);
+	Probe(Debugger& debugger, std::string name, static_string_view description);
 	void signal();
 
 private:

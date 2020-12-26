@@ -26,7 +26,8 @@ WavAudioInput::~WavAudioInput()
 
 void WavAudioInput::loadWave()
 {
-	wav = WavData(FileOperations::expandTilde(string(audioInputFilenameSetting.getString())));
+	wav = WavData(FileOperations::expandTilde(string(
+		audioInputFilenameSetting.getString())));
 }
 
 const string& WavAudioInput::getName() const

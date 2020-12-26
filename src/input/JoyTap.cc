@@ -18,12 +18,12 @@ JoyTap::JoyTap(PluggingController& pluggingController_, string name_)
 
 JoyTap::~JoyTap() = default;
 
-void JoyTap::createPorts(const string& baseDescription) {
+void JoyTap::createPorts(static_string_view description) {
 	for (auto [i, slave] : enumerate(slaves)) {
 		slave = std::make_unique<JoystickPort>(
 			pluggingController,
 			strCat(name, "_port_", char('1' + i)),
-			strCat(baseDescription, char('1' + i)));
+			description);
 	}
 }
 
@@ -39,7 +39,7 @@ const std::string& JoyTap::getName() const
 
 void JoyTap::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
 {
-	createPorts("Joy Tap port ");
+	createPorts("Joy Tap port");
 }
 
 void JoyTap::unplugHelper(EmuTime::param time)

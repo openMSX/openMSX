@@ -3,6 +3,7 @@
 
 #include "Debuggable.hh"
 #include "EmuTime.hh"
+#include "static_string_view.hh"
 
 namespace openmsx {
 
@@ -12,7 +13,7 @@ class SimpleDebuggable : public Debuggable
 {
 public:
 	[[nodiscard]] unsigned getSize() const final;
-	[[nodiscard]] const std::string& getDescription() const final;
+	[[nodiscard]] std::string_view getDescription() const final;
 
 	[[nodiscard]] byte read(unsigned address) override;
 	[[nodiscard]] virtual byte read(unsigned address, EmuTime::param time);
@@ -24,13 +25,13 @@ public:
 
 protected:
 	SimpleDebuggable(MSXMotherBoard& motherBoard, std::string name,
-	                 std::string description, unsigned size);
+	                 static_string_view description, unsigned size);
 	~SimpleDebuggable();
 
 private:
 	MSXMotherBoard& motherBoard;
 	const std::string name;
-	const std::string description;
+	const static_string_view description;
 	const unsigned size;
 };
 

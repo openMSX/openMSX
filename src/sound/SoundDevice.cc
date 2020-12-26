@@ -57,7 +57,7 @@ void SoundDevice::addFill(float*& buf, float val, unsigned num)
 	} while (--num);
 }
 
-SoundDevice::SoundDevice(MSXMixer& mixer_, std::string_view name_, std::string_view description_,
+SoundDevice::SoundDevice(MSXMixer& mixer_, std::string_view name_, static_string_view description_,
 			 unsigned numChannels_, unsigned inputRate, bool stereo_)
 	: mixer(mixer_)
 	, name(makeUnique(mixer, name_))

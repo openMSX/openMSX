@@ -30,7 +30,7 @@ LedStatus::LedStatus(
 		std::string name = getLedName(static_cast<Led>(i));
 		ledStatus[i] = std::make_unique<ReadOnlySetting>(
 			commandController, "led_" + name,
-			"Current status for LED: " + name,
+			"Current status for LED",
 			TclObject("off"));
 	}
 }

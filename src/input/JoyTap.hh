@@ -3,6 +3,7 @@
 
 #include "JoystickDevice.hh"
 #include "serialize_meta.hh"
+#include "static_string_view.hh"
 #include <memory>
 
 namespace openmsx {
@@ -37,7 +38,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 protected:
-	void createPorts(const std::string& baseDescription);
+	void createPorts(static_string_view description);
 
 protected:
 	std::unique_ptr<JoystickPort> slaves[4];

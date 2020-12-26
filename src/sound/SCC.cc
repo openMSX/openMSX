@@ -114,9 +114,10 @@ namespace openmsx {
 
 constexpr auto INPUT_RATE = unsigned(cstd::round(3579545.0 / 32));
 
-static string calcDescription(SCC::ChipMode mode)
+static auto calcDescription(SCC::ChipMode mode)
 {
-	return (mode == SCC::SCC_Real) ? "Konami SCC" : "Konami SCC+";
+	return (mode == SCC::SCC_Real) ? static_string_view("Konami SCC")
+	                               : static_string_view("Konami SCC+");
 }
 
 SCC::SCC(const string& name_, const DeviceConfig& config,

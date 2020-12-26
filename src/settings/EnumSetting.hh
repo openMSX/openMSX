@@ -35,7 +35,7 @@ public:
 	using Map = std::vector<std::pair<std::string, T>>;
 
 	EnumSetting(CommandController& commandController, std::string_view name,
-	            std::string_view description, T initialValue,
+	            static_string_view description, T initialValue,
 	            Map&& map_, SaveSetting save = SAVE);
 
 	[[nodiscard]] std::string_view getTypeString() const override;
@@ -57,7 +57,7 @@ private:
 template<typename T>
 EnumSetting<T>::EnumSetting(
 		CommandController& commandController_, std::string_view name,
-		std::string_view description_, T initialValue,
+		static_string_view description_, T initialValue,
 		Map&& map, SaveSetting save_)
 	: EnumSettingBase(BaseMap(std::move_iterator(begin(map)),
 	                          std::move_iterator(end(map))))

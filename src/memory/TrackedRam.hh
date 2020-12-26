@@ -11,7 +11,7 @@ class TrackedRam
 public:
 	// Most methods simply delegate to the internal 'ram' object.
 	TrackedRam(const DeviceConfig& config, const std::string& name,
-	           const std::string& description, unsigned size)
+	           static_string_view description, unsigned size)
 		: ram(config, name, description, size) {}
 
 	TrackedRam(const XMLElement& xml, unsigned size)

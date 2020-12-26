@@ -28,7 +28,7 @@ public:
 
 protected:
 	ResampledSoundDevice(MSXMotherBoard& motherBoard, std::string_view name,
-	                     std::string_view description, unsigned channels,
+	                     static_string_view description, unsigned channels,
 	                     unsigned inputSampleRate, bool stereo);
 	~ResampledSoundDevice();
 

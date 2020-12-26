@@ -3,6 +3,7 @@
 
 #include "Connector.hh"
 #include "openmsx.hh"
+#include "static_string_view.hh"
 
 namespace openmsx {
 
@@ -23,7 +24,7 @@ class JoystickPort final : public JoystickPortIf, public Connector
 {
 public:
 	JoystickPort(PluggingController& pluggingController,
-	             std::string name, std::string description);
+	             std::string name, static_string_view description);
 
 	[[nodiscard]] JoystickDevice& getPluggedJoyDev() const;
 
@@ -43,7 +44,7 @@ private:
 
 private:
 	byte lastValue;
-	const std::string description;
+	const static_string_view description;
 };
 
 class DummyJoystickPort final : public JoystickPortIf

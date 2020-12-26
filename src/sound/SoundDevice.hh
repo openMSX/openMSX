@@ -3,7 +3,9 @@
 
 #include "MSXMixer.hh"
 #include "EmuTime.hh"
+#include "static_string_view.hh"
 #include <memory>
+#include <string>
 #include <string_view>
 
 namespace openmsx {
@@ -26,7 +28,7 @@ public:
 	/** Gets a description of this sound device,
 	  * to be presented to the user.
 	  */
-	[[nodiscard]] const std::string& getDescription() const { return description; }
+	[[nodiscard]] std::string_view getDescription() const { return description; }
 
 	/** Is this a stereo device?
 	  * This is set in the constructor and cannot be changed anymore
@@ -75,7 +77,7 @@ protected:
 	  * @param inputRate The sample rate of this sound device
 	  * @param stereo Is this a stereo device
 	  */
-	SoundDevice(MSXMixer& mixer, std::string_view name, std::string_view description,
+	SoundDevice(MSXMixer& mixer, std::string_view name, static_string_view description,
 	            unsigned numChannels, unsigned inputRate, bool stereo);
 	~SoundDevice();
 
@@ -185,7 +187,7 @@ protected:
 private:
 	MSXMixer& mixer;
 	const std::string name;
-	const std::string description;
+	const static_string_view description;
 
 	std::unique_ptr<Wav16Writer> writer[MAX_CHANNELS];
 

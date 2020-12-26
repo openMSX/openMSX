@@ -28,7 +28,7 @@ class CheckedRam final : private Observer<Setting>
 {
 public:
 	CheckedRam(const DeviceConfig& config, const std::string& name,
-	           const std::string& description, unsigned size);
+	           static_string_view description, unsigned size);
 	~CheckedRam();
 
 	[[nodiscard]] byte read(unsigned addr);

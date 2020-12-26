@@ -422,7 +422,7 @@ string MSXCPU::CPUFreqInfoTopic::help(const vector<string>& /*tokens*/) const
 
 // class Debuggable
 
-constexpr const char* const CPU_REGS_DESC =
+constexpr static_string_view CPU_REGS_DESC =
 	"Registers of the active CPU (Z80 or R800).\n"
 	"Each byte in this debuggable represents one 8 bit register:\n"
 	"  0 ->  A      1 ->  F      2 -> B       3 -> C\n"

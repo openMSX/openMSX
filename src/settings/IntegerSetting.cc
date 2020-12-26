@@ -3,7 +3,7 @@
 namespace openmsx {
 
 IntegerSetting::IntegerSetting(CommandController& commandController_,
-                               std::string_view name_, std::string_view description_,
+                               std::string_view name_, static_string_view description_,
                                int initialValue, int minValue_, int maxValue_,
                                SaveSetting save_)
 	: Setting(commandController_, name_, description_,

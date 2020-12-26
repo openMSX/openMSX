@@ -4,7 +4,7 @@
 namespace openmsx {
 
 KeyCodeSetting::KeyCodeSetting(CommandController& commandController_,
-                               std::string_view name_, std::string_view description_,
+                               std::string_view name_, static_string_view description_,
                                Keys::KeyCode initialValue)
 	: Setting(commandController_, name_, description_,
 	          TclObject(Keys::getName(initialValue)), SAVE)

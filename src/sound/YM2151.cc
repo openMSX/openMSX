@@ -862,7 +862,7 @@ void YM2151::writeReg(byte r, byte v, EmuTime::param time)
 
 constexpr auto INPUT_RATE = unsigned(cstd::round(3579545 / 64.0));
 
-YM2151::YM2151(const std::string& name_, const std::string& desc,
+YM2151::YM2151(const std::string& name_, static_string_view desc,
                const DeviceConfig& config, EmuTime::param time)
 	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 8, INPUT_RATE, true)
 	, irq(config.getMotherBoard(), getName() + ".IRQ")

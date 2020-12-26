@@ -3,7 +3,7 @@
 namespace openmsx {
 
 FloatSetting::FloatSetting(CommandController& commandController_,
-                           std::string_view name_, std::string_view description_,
+                           std::string_view name_, static_string_view description_,
                            double initialValue,
                            double minValue_, double maxValue_)
 	: Setting(commandController_, name_, description_,

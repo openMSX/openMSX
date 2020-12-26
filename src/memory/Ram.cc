@@ -20,7 +20,7 @@ class RamDebuggable final : public SimpleDebuggable
 {
 public:
 	RamDebuggable(MSXMotherBoard& motherBoard, const string& name,
-	              const string& description, Ram& ram);
+	              static_string_view description, Ram& ram);
 	byte read(unsigned address) override;
 	void write(unsigned address, byte value) override;
 private:
@@ -29,7 +29,7 @@ private:
 
 
 Ram::Ram(const DeviceConfig& config, const string& name,
-         const string& description, unsigned size_)
+         static_string_view description, unsigned size_)
 	: xml(*config.getXML())
 	, ram(size_)
 	, size(size_)
@@ -100,7 +100,7 @@ const string& Ram::getName() const
 
 RamDebuggable::RamDebuggable(MSXMotherBoard& motherBoard_,
                              const string& name_,
-                             const string& description_, Ram& ram_)
+                             static_string_view description_, Ram& ram_)
 	: SimpleDebuggable(motherBoard_, name_, description_, ram_.getSize())
 	, ram(ram_)
 {

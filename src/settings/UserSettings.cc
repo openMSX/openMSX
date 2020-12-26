@@ -27,23 +27,23 @@ UserSettings::UserSettings(CommandController& commandController_)
 {
 }
 
-void UserSettings::addSetting(unique_ptr<Setting> setting)
+void UserSettings::addSetting(Info&& info)
 {
-	assert(!findSetting(setting->getFullName()));
-	settings.push_back(std::move(setting));
+	assert(!findSetting(info.setting->getFullName()));
+	settings.push_back(std::move(info));
 }
 
 void UserSettings::deleteSetting(Setting& setting)
 {
 	move_pop_back(settings, rfind_if_unguarded(settings,
-		[&](unique_ptr<Setting>& p) { return p.get() == &setting; }));
+		[&](auto& info) { return info.setting.get() == &setting; }));
 }
 
 Setting* UserSettings::findSetting(std::string_view name) const
 {
 	auto it = ranges::find_if(
-	        settings, [&](auto& s) { return s->getFullName() == name; });
-	return (it != end(settings)) ? it->get() : nullptr;
+	        settings, [&](auto& info) { return info.setting->getFullName() == name; });
+	return (it != end(settings)) ? it->setting.get() : nullptr;
 }
 
 
@@ -75,47 +75,54 @@ void UserSettings::Cmd::create(span<const TclObject> tokens, TclObject& result)
 			"There already exists a setting with this name: ", settingName);
 	}
 
-	unique_ptr<Setting> setting;
-	if (type == "string") {
-		setting = createString(tokens);
-	} else if (type == "boolean") {
-		setting = createBoolean(tokens);
-	} else if (type == "integer") {
-		setting = createInteger(tokens);
-	} else if (type == "float") {
-		setting = createFloat(tokens);
-	} else {
-		throw CommandException(
-			"Invalid setting type '", type, "', expected "
-			"'string', 'boolean', 'integer' or 'float'.");
-	}
+	auto getInfo = [&] {
+		if (type == "string") {
+			return createString(tokens);
+		} else if (type == "boolean") {
+			return createBoolean(tokens);
+		} else if (type == "integer") {
+			return createInteger(tokens);
+		} else if (type == "float") {
+			return createFloat(tokens);
+		} else {
+			throw CommandException(
+				"Invalid setting type '", type, "', expected "
+				"'string', 'boolean', 'integer' or 'float'.");
+		}
+	};
 	auto& userSettings = OUTER(UserSettings, userSettingCommand);
-	userSettings.addSetting(std::move(setting));
+	userSettings.addSetting(getInfo());
 
 	result = tokens[3]; // name
 }
 
-unique_ptr<Setting> UserSettings::Cmd::createString(span<const TclObject> tokens)
+UserSettings::Info UserSettings::Cmd::createString(span<const TclObject> tokens)
 {
 	checkNumArgs(tokens, 6, Prefix{3}, "name description initialvalue");
 	const auto& sName   = tokens[3].getString();
 	const auto& desc    = tokens[4].getString();
 	const auto& initVal = tokens[5].getString();
-	return std::make_unique<StringSetting>(
-		getCommandController(), sName, desc, initVal);
+
+	auto [storage, view] = make_string_storage(desc);
+	return {std::make_unique<StringSetting>(getCommandController(), sName,
+	                                        view, initVal),
+	        std::move(storage)};
 }
 
-unique_ptr<Setting> UserSettings::Cmd::createBoolean(span<const TclObject> tokens)
+UserSettings::Info UserSettings::Cmd::createBoolean(span<const TclObject> tokens)
 {
 	checkNumArgs(tokens, 6, Prefix{3}, "name description initialvalue");
 	const auto& sName   = tokens[3].getString();
 	const auto& desc    = tokens[4].getString();
 	const auto& initVal = tokens[5].getBoolean(getInterpreter());
-	return std::make_unique<BooleanSetting>(
-		getCommandController(), sName, desc, initVal);
+
+	auto [storage, view] = make_string_storage(desc);
+	return {std::make_unique<BooleanSetting>(getCommandController(), sName,
+	                                         view, initVal),
+	        std::move(storage)};
 }
 
-unique_ptr<Setting> UserSettings::Cmd::createInteger(span<const TclObject> tokens)
+UserSettings::Info UserSettings::Cmd::createInteger(span<const TclObject> tokens)
 {
 	checkNumArgs(tokens, 8, Prefix{3}, "name description initialvalue minvalue maxvalue");
 	auto& interp = getInterpreter();
@@ -124,21 +131,27 @@ unique_ptr<Setting> UserSettings::Cmd::createInteger(span<const TclObject> token
 	const auto& initVal = tokens[5].getInt(interp);
 	const auto& minVal  = tokens[6].getInt(interp);
 	const auto& maxVal  = tokens[7].getInt(interp);
-	return std::make_unique<IntegerSetting>(
-		getCommandController(), sName, desc, initVal, minVal, maxVal);
+
+	auto [storage, view] = make_string_storage(desc);
+	return {std::make_unique<IntegerSetting>(getCommandController(), sName,
+	                                         view, initVal, minVal, maxVal),
+	        std::move(storage)};
 }
 
-unique_ptr<Setting> UserSettings::Cmd::createFloat(span<const TclObject> tokens)
+UserSettings::Info UserSettings::Cmd::createFloat(span<const TclObject> tokens)
 {
 	checkNumArgs(tokens, 8, Prefix{3}, "name description initialvalue minvalue maxvalue");
 	auto& interp = getInterpreter();
-	const auto& sName    = tokens[3].getString();
+	const auto& sName   = tokens[3].getString();
 	const auto& desc    = tokens[4].getString();
 	const auto& initVal = tokens[5].getDouble(interp);
 	const auto& minVal  = tokens[6].getDouble(interp);
 	const auto& maxVal  = tokens[7].getDouble(interp);
-	return std::make_unique<FloatSetting>(
-		getCommandController(), sName, desc, initVal, minVal, maxVal);
+
+	auto [storage, view] = make_string_storage(desc);
+	return {std::make_unique<FloatSetting>(getCommandController(), sName,
+	                                       view, initVal, minVal, maxVal),
+	        std::move(storage)};
 }
 
 void UserSettings::Cmd::destroy(span<const TclObject> tokens, TclObject& /*result*/)
@@ -234,8 +247,8 @@ void UserSettings::Cmd::tabCompletion(vector<string>& tokens) const
 vector<std::string_view> UserSettings::Cmd::getSettingNames() const
 {
 	return to_vector(view::transform(
-		OUTER(UserSettings, userSettingCommand).getSettings(),
-		[](auto& s) { return s->getFullName(); }));
+		OUTER(UserSettings, userSettingCommand).getSettingsInfo(),
+		[](const auto& info) { return info.setting->getFullName(); }));
 }
 
 } // namespace openmsx

@@ -10,7 +10,7 @@ namespace openmsx {
 class SamplePlayer final : public ResampledSoundDevice
 {
 public:
-	SamplePlayer(const std::string& name, const std::string& desc,
+	SamplePlayer(const std::string& name, static_string_view desc,
 	             const DeviceConfig& config,
 	             const std::string& samplesBaseName, unsigned numSamples,
 	             const std::string& alternativeName = {});

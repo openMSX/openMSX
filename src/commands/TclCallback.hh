@@ -1,6 +1,7 @@
 #ifndef TCLCALLBACK_HH
 #define TCLCALLBACK_HH
 
+#include "static_string_view.hh"
 #include "TclObject.hh"
 #include <memory>
 #include <string_view>
@@ -15,7 +16,7 @@ class TclCallback
 public:
 	TclCallback(CommandController& controller,
 	            std::string_view name,
-	            std::string_view description,
+	            static_string_view description,
 	            bool useCliComm = true,
 	            bool save = true);
 	explicit TclCallback(StringSetting& setting);

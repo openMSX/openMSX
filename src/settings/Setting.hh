@@ -3,6 +3,7 @@
 
 #include "Subject.hh"
 #include "TclObject.hh"
+#include "static_string_view.hh"
 #include "strCat.hh"
 #include "StringOp.hh"
 #include <functional>
@@ -171,7 +172,7 @@ public:
 
 protected:
 	Setting(CommandController& commandController,
-	        std::string_view name, std::string_view description,
+	        std::string_view name, static_string_view description,
 	        const TclObject& initialValue, SaveSetting save = SAVE);
 	void init();
 	void notifyPropertyChange() const;
@@ -182,7 +183,7 @@ private:
 
 private:
 	CommandController& commandController;
-	const std::string description;
+	const static_string_view description;
 	std::function<void(TclObject&)> checkFunc;
 	TclObject value; // TODO can we share the underlying Tcl var storage?
 	const TclObject defaultValue;

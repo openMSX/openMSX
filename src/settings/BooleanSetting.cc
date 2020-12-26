@@ -5,7 +5,7 @@ namespace openmsx {
 
 BooleanSetting::BooleanSetting(
 		CommandController& commandController_, std::string_view name,
-		std::string_view description_, bool initialValue, SaveSetting save_)
+		static_string_view description_, bool initialValue, SaveSetting save_)
 	: Setting(commandController_, name, description_,
 	          TclObject(toString(initialValue)), save_)
 {

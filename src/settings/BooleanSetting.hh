@@ -9,7 +9,7 @@ class BooleanSetting final : public Setting
 {
 public:
 	BooleanSetting(CommandController& commandController,
-	               std::string_view name, std::string_view description,
+	               std::string_view name, static_string_view description,
 	               bool initialValue, SaveSetting save = SAVE);
 	[[nodiscard]] std::string_view getTypeString() const override;
 	void tabCompletion(std::vector<std::string>& tokens) const override;

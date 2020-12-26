@@ -301,11 +301,11 @@ template<typename T> CPUCore<T>::CPUCore(
 		    "right after the CPU accepted an IRQ.")
 	, freqLocked(
 		motherboard.getCommandController(), name + "_freq_locked",
-	        strCat("real (locked) or custom (unlocked) ", name, " frequency"),
+	        "real (locked) or custom (unlocked) CPU frequency",
 	        true)
 	, freqValue(
 		motherboard.getCommandController(), name + "_freq",
-		strCat("custom ", name, " frequency (only valid when unlocked)"),
+		"custom CPU frequency (only valid when unlocked)",
 		T::CLOCK_FREQ, 1000000, 1000000000)
 	, freq(T::CLOCK_FREQ)
 	, NMIStatus(0)

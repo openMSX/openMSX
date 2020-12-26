@@ -11,7 +11,7 @@ class IntegerSetting final : public Setting
 {
 public:
 	IntegerSetting(CommandController& commandController,
-	               std::string_view name, std::string_view description,
+	               std::string_view name, static_string_view description,
 	               int initialValue, int minValue, int maxValue,
 	               SaveSetting save = SAVE);
 

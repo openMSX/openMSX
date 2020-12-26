@@ -5,7 +5,7 @@ namespace openmsx {
 
 ReadOnlySetting::ReadOnlySetting(
 		CommandController& commandController_,
-		std::string_view name_, std::string_view description_,
+		std::string_view name_, static_string_view description_,
 		const TclObject& initialValue)
 	: Setting(commandController_, name_, description_, initialValue,
 	          Setting::DONT_TRANSFER)

@@ -123,7 +123,7 @@ void AmdFlash::init(const string& name, const DeviceConfig& config, bool load, c
 		// initial flash content is all 0xFF.
 		try {
 			rom_ = std::make_unique<Rom>(
-				string{}, string{}, // dummy name and description
+				"", "", // dummy name and description
 				config);
 			rom = rom_.get();
 			config.getCliComm().printInfo(

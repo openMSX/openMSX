@@ -37,7 +37,7 @@ public:
 	RomDebuggable& operator=(const RomDebuggable&) = delete;
 
 	[[nodiscard]] unsigned getSize() const override;
-	[[nodiscard]] const std::string& getDescription() const override;
+	[[nodiscard]] std::string_view getDescription() const override;
 	[[nodiscard]] byte read(unsigned address) override;
 	void write(unsigned address, byte value) override;
 	void moved(Rom& r);
@@ -47,9 +47,9 @@ private:
 };
 
 
-Rom::Rom(string name_, string description_,
+Rom::Rom(string name_, static_string_view description_,
          const DeviceConfig& config, const string& id /*= {}*/)
-	: name(std::move(name_)), description(std::move(description_))
+	: name(std::move(name_)), description(description_)
 {
 	// Try all <rom> tags with matching "id" attribute.
 	string errors;
@@ -403,7 +403,7 @@ unsigned RomDebuggable::getSize() const
 	return rom->getSize();
 }
 
-const string& RomDebuggable::getDescription() const
+std::string_view RomDebuggable::getDescription() const
 {
 	return rom->getDescription();
 }

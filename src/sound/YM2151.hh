@@ -47,7 +47,7 @@ class DeviceConfig;
 class YM2151 final : public ResampledSoundDevice, private EmuTimerCallback
 {
 public:
-	YM2151(const std::string& name, const std::string& desc,
+	YM2151(const std::string& name, static_string_view desc,
 	       const DeviceConfig& config, EmuTime::param time);
 	~YM2151();
 

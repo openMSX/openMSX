@@ -7,6 +7,9 @@
 
 namespace openmsx {
 
+constexpr static_string_view DESCRIPTION =
+	"Play samples via your printer port.";
+
 PrinterPortSimpl::PrinterPortSimpl(const HardwareConfig& hwConf_)
 	: hwConf(hwConf_)
 {
@@ -39,7 +42,7 @@ static XMLElement createXML()
 void PrinterPortSimpl::createDAC()
 {
 	static XMLElement xml = createXML();
-	dac = std::make_unique<DACSound8U>("simpl", getDescription(),
+	dac = std::make_unique<DACSound8U>("simpl", DESCRIPTION,
 	                                   DeviceConfig(hwConf, xml));
 }
 
@@ -61,7 +64,7 @@ const std::string& PrinterPortSimpl::getName() const
 
 std::string_view PrinterPortSimpl::getDescription() const
 {
-	return "Play samples via your printer port.";
+	return DESCRIPTION;
 }
 
 template<typename Archive>
