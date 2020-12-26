@@ -258,7 +258,7 @@ DeltaBlockCopy::DeltaBlockCopy(const uint8_t* data, size_t size)
 	, compressedSize(0)
 {
 #ifdef DEBUG
-	sha1 = SHA1::calc(data, size);
+	sha1 = SHA1::calc({data, size});
 #endif
 	memcpy(block.data(), data, size);
 	assert(!compressed());
@@ -278,7 +278,7 @@ void DeltaBlockCopy::apply(uint8_t* dst, size_t size) const
 		memcpy(dst, block.data(), size);
 	}
 #ifdef DEBUG
-	assert(SHA1::calc(dst, size) == sha1);
+	assert(SHA1::calc({dst, size}) == sha1);
 #endif
 }
 
@@ -328,7 +328,7 @@ DeltaBlockDiff::DeltaBlockDiff(
 	, delta(calcDelta(prev->getData(), data, size))
 {
 #ifdef DEBUG
-	sha1 = SHA1::calc(data, size);
+	sha1 = SHA1::calc({data, size});
 
 	MemBuffer<uint8_t> buf(size);
 	apply(buf.data(), size);
@@ -347,7 +347,7 @@ void DeltaBlockDiff::apply(uint8_t* dst, size_t size) const
 	prev->apply(dst, size);
 	applyDeltaInPlace(dst, size, delta.data());
 #ifdef DEBUG
-	assert(SHA1::calc(dst, size) == sha1);
+	assert(SHA1::calc({dst, size}) == sha1);
 #endif
 }
 
@@ -417,7 +417,7 @@ std::shared_ptr<DeltaBlock> LastDeltaBlocks::createNullDiff(
 		return b;
 	} else {
 #ifdef DEBUG
-		assert(SHA1::calc(data, size) == last->sha1);
+		assert(SHA1::calc({data, size}) == last->sha1);
 #endif
 		return last;
 	}
