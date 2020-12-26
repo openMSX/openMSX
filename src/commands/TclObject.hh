@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <initializer_list>
 #include <iterator>
+#include <optional>
 #include <string_view>
 
 struct Tcl_Obj;
@@ -152,6 +153,7 @@ public:
 	[[nodiscard]] TclObject getDictValue(Interpreter& interp, const Key& key) const {
 		return getDictValue(interp, TclObject(key));
 	}
+	[[nodiscard]] std::optional<int> getOptionalInt() const;
 
 	// STL-like interface when interpreting this TclObject as a list of
 	// strings. Invalid Tcl lists are silently interpreted as empty lists.

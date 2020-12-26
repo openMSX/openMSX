@@ -79,6 +79,15 @@ int TclObject::getInt(Interpreter& interp_) const
 	return result;
 }
 
+std::optional<int> TclObject::getOptionalInt() const
+{
+	int result;
+	if (Tcl_GetIntFromObj(nullptr, obj, &result) != TCL_OK) {
+		return {};
+	}
+	return result;
+}
+
 bool TclObject::getBoolean(Interpreter& interp_) const
 {
 	auto* interp = interp_.interp;

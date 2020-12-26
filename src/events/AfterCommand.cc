@@ -222,13 +222,12 @@ void AfterCommand::execute(span<const TclObject> tokens, TclObject& result)
 	} else if (subCmd == "cancel") {
 		afterCancel(tokens, result);
 	} else {
-		try {
-			// A valid integer?
-			int time = tokens[1].getInt(getInterpreter());
-			afterTclTime(time, tokens, result);
-		} catch (CommandException&) {
+		// A valid integer?
+		if (auto time = tokens[1].getOptionalInt()) {
+			afterTclTime(*time, tokens, result);
+		} else {
+			// A valid event name?
 			try {
-				// A valid event name?
 				afterInputEvent(
 					InputEventFactory::createInputEvent(
 						tokens[1], getInterpreter()),
