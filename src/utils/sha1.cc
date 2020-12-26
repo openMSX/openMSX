@@ -323,15 +323,15 @@ void SHA1::update(span<const uint8_t> data_)
 	size_t len = data_.size();
 
 	assert(!m_finalized);
-	uint32_t j = (m_count >> 3) & 63;
+	uint32_t j = m_count & 63;
 
-	m_count += uint64_t(len) << 3;
+	m_count += len;
 
 	size_t i;
 	if ((j + len) > 63) {
 		memcpy(&m_buffer[j], data, (i = 64 - j));
 		transform(m_buffer);
-		for (; i + 63 < len; i += 64) {
+		for (/**/; i + 63 < len; i += 64) {
 			transform(&data[i]);
 		}
 		j = 0;
@@ -346,11 +346,11 @@ void SHA1::finalize()
 	assert(!m_finalized);
 	uint8_t finalCount[8];
 	for (auto [i, fc] : enumerate(finalCount)) {
-		fc = uint8_t(m_count >> ((7 - i) * 8));
+		fc = uint8_t((8 * m_count) >> ((7 - i) * 8));
 	}
 
 	update({reinterpret_cast<const uint8_t*>("\200"), 1});
-	while ((m_count & 504) != 448) {
+	while ((m_count & 63) != 56) {
 		update({reinterpret_cast<const uint8_t*>("\0"), 1});
 	}
 	update({finalCount, 8}); // cause a transform()
