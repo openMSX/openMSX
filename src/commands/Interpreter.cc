@@ -259,11 +259,10 @@ void Interpreter::unsetVariable(const char* name)
 
 static TclObject getSafeValue(BaseSetting& setting)
 {
-	try {
-		return setting.getValue();
-	} catch (MSXException&) {
-		return TclObject(0); // 'safe' value, see comment in registerSetting()
+	if (auto val = setting.getOptionalValue()) {
+		return *val;
 	}
+	return TclObject(0); // 'safe' value, see comment in registerSetting()
 }
 void Interpreter::registerSetting(BaseSetting& variable)
 {

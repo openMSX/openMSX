@@ -64,6 +64,15 @@ const TclObject& ProxySetting::getValue() const
 	}
 }
 
+std::optional<TclObject> ProxySetting::getOptionalValue() const
+{
+	if (const auto* setting = getSetting()) {
+		return setting->getOptionalValue();
+	} else {
+		return {};
+	}
+}
+
 TclObject ProxySetting::getDefaultValue() const
 {
 	if (const auto* setting = getSetting()) {

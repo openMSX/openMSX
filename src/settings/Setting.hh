@@ -7,6 +7,7 @@
 #include "strCat.hh"
 #include "StringOp.hh"
 #include <functional>
+#include <optional>
 #include <string_view>
 #include <vector>
 
@@ -73,6 +74,11 @@ public:
 	 */
 	[[nodiscard]] virtual const TclObject& getValue() const = 0;
 
+	/** Like getValue(), but in case of error returns an empty optional
+	  * instead of throwing an exception.
+	  */
+	[[nodiscard]] virtual std::optional<TclObject> getOptionalValue() const = 0;
+
 	/** Get the default value of this setting.
 	  * This is the initial value of the setting. Default values don't
 	  * get saved in 'settings.xml'.
@@ -134,6 +140,7 @@ public:
 	/** Gets the current value of this setting as a TclObject.
 	  */
 	[[nodiscard]] const TclObject& getValue() const final { return value; }
+	[[nodiscard]] std::optional<TclObject> getOptionalValue() const final { return value; }
 
 	/** Set restore value. See getDefaultValue() and getRestoreValue().
 	  */

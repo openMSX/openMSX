@@ -16,6 +16,7 @@ public:
 	[[nodiscard]] std::string_view getTypeString() const override;
 	[[nodiscard]] std::string_view getDescription() const override;
 	[[nodiscard]] const TclObject& getValue() const override;
+	[[nodiscard]] std::optional<TclObject> getOptionalValue() const override;
 	[[nodiscard]] TclObject getDefaultValue() const override;
 	[[nodiscard]] TclObject getRestoreValue() const override;
 	void setValueDirect(const TclObject& value) override;
