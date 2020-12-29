@@ -186,7 +186,7 @@ std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
 			recorder->addImage(paintFrame, time);
 		} catch (MSXException& e) {
 			getCliComm().printWarning(
-				"Recording stopped with error: " +
+				"Recording stopped with error: ",
 				e.getMessage());
 			recorder->stop();
 			assert(!recorder);

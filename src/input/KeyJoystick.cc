@@ -44,17 +44,17 @@ KeyJoystick::KeyJoystick(CommandController& commandController,
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
 	, name(std::move(name_))
-	, up   (commandController, name + ".up",
+	, up   (commandController, tmpStrCat(name, ".up"),
 		"key for direction up",    Keys::K_UP)
-	, down (commandController, name + ".down",
+	, down (commandController, tmpStrCat(name, ".down"),
 		"key for direction down",  Keys::K_DOWN)
-	, left (commandController, name + ".left",
+	, left (commandController, tmpStrCat(name, ".left"),
 		"key for direction left",  Keys::K_LEFT)
-	, right(commandController, name + ".right",
+	, right(commandController, tmpStrCat(name, ".right"),
 		"key for direction right", Keys::K_RIGHT)
-	, trigA(commandController, name + ".triga",
+	, trigA(commandController, tmpStrCat(name, ".triga"),
 		"key for trigger A",       Keys::K_SPACE)
-	, trigB(commandController, name + ".trigb",
+	, trigB(commandController, tmpStrCat(name, ".trigb"),
 		"key for trigger B",       Keys::K_M)
 {
 	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |

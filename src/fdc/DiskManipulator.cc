@@ -170,8 +170,8 @@ void DiskManipulator::execute(span<const TclObject> tokens, TclObject& result)
 	} else if (subcmd == "chdir") {
 		auto& settings = getDriveSettings(tokens[2].getString());
 		if (tokens.size() == 3) {
-			result = "Current directory: " +
-			         settings.workingDir[settings.partition];
+			result = tmpStrCat("Current directory: ",
+			                   settings.workingDir[settings.partition]);
 		} else {
 			result = chdir(settings, tokens[3].getString());
 		}
@@ -211,34 +211,34 @@ string DiskManipulator::help(const vector<string>& tokens) const
 	string helptext;
 	if (tokens.size() >= 2) {
 	  if (tokens[1] == "import") {
-	  helptext=
+	  helptext =
 	    "diskmanipulator import <disk name> <host directory|host file>\n"
 	    "Import all files and subdirs from the host OS as specified into the <disk name> in the\n"
 	    "current MSX subdirectory as was specified with the last chdir command.\n";
 	  } else if (tokens[1] == "export") {
-	  helptext=
+	  helptext =
 	    "diskmanipulator export <disk name> <host directory>\n"
 	    "Extract all files and subdirs from the MSX subdirectory specified with the chdir command\n"
 	    "from <disk name> to the host OS in <host directory>.\n";
 	  } else if (tokens[1] == "savedsk") {
-	  helptext=
+	  helptext =
 	    "diskmanipulator savedsk <disk name> <dskfilename>\n"
 	    "Save the complete drive content to <dskfilename>, it is not possible to save just one\n"
 	    "partition. The main purpose of this command is to make it possible to save a 'ramdsk' into\n"
 	    "a file and to take 'live backups' of dsk-files in use.\n";
 	  } else if (tokens[1] == "chdir") {
-	  helptext=
+	  helptext =
 	    "diskmanipulator chdir <disk name> <MSX directory>\n"
 	    "Change the working directory on <disk name>. This will be the directory were the 'import',\n"
 	    "'export' and 'dir' commands will work on.\n"
 	    "In case of a partitioned drive, each partition has its own working directory.\n";
 	  } else if (tokens[1] == "mkdir") {
-	  helptext=
+	  helptext =
 	    "diskmanipulator mkdir <disk name> <MSX directory>\n"
 	    "Create the specified directory on <disk name>. If needed, all missing parent directories\n"
 	    "are created at the same time. Accepts both absolute and relative path names.\n";
 	  } else if (tokens[1] == "create") {
-	  helptext=
+	  helptext =
 	    "diskmanipulator create <dskfilename> <size/option> [<size/option>...]\n"
 	    "Create a formatted dsk file with the given size.\n"
 	    "If multiple sizes are given, a partitioned disk image will be created with each partition\n"
@@ -247,19 +247,19 @@ string DiskManipulator::help(const vector<string>& tokens) const
 	    "When using the -dos1 option, the boot sector of the created image will be MSX-DOS1\n"
 	    "compatible.\n";
 	  } else if (tokens[1] == "format") {
-	  helptext=
+	  helptext =
 	    "diskmanipulator format <disk name>\n"
 	    "formats the current (partition on) <disk name> with a regular FAT12 MSX filesystem with an\n"
 	    "MSX-DOS2 boot sector, or, when the -dos1 option is specified, with an MSX-DOS1 boot sector.\n";
 	  } else if (tokens[1] == "dir") {
-	  helptext=
+	  helptext =
 	    "diskmanipulator dir <disk name>\n"
 	    "Shows the content of the current directory on <disk name>\n";
 	  } else {
 	  helptext = "Unknown diskmanipulator subcommand: " + tokens[1];
 	  }
 	} else {
-	  helptext=
+	  helptext =
 	    "diskmanipulator create <fn> <sz> [<sz> ...]  : create a formatted dsk file with name <fn>\n"
 	    "                                               having the given (partition) size(s)\n"
 	    "diskmanipulator savedsk <disk name> <fn>     : save <disk name> as dsk file named as <fn>\n"

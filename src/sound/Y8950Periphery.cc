@@ -161,7 +161,7 @@ PanasonicAudioPeriphery::PanasonicAudioPeriphery(
 		MSXAudio& audio_, const DeviceConfig& config,
 		const string& soundDeviceName)
 	: audio(audio_)
-	, swSwitch(audio.getCommandController(), soundDeviceName + "_firmware",
+	, swSwitch(audio.getCommandController(), tmpStrCat(soundDeviceName, "_firmware"),
 	           "This setting controls the switch on the Panasonic "
 	           "MSX-AUDIO module. The switch controls whether the internal "
 	           "software of this module must be started or not.",

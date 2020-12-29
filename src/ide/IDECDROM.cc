@@ -342,7 +342,7 @@ void CDXCommand::execute(span<const TclObject> tokens, TclObject& result,
 {
 	if (tokens.size() == 1) {
 		auto& file = cd.file;
-		result.addListElement(cd.name + ':',
+		result.addListElement(tmpStrCat(cd.name, ':'),
 		                      file.is_open() ? file.getURL() : string{});
 		if (!file.is_open()) result.addListElement("empty");
 	} else if ((tokens.size() == 2) && (tokens[1] == one_of("eject", "-eject"))) {

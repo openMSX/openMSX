@@ -333,14 +333,18 @@ protected:
 	  * @param type The shader type: GL_VERTEX_SHADER or GL_FRAGMENT_SHADER.
 	  * @param filename The GLSL source code for the shader.
 	  */
-	Shader(GLenum type, const std::string& filename);
-	Shader(GLenum type, std::string_view header,
-	                    const std::string& filename);
+	Shader(GLenum type, std::string_view filename) {
+		init(type, {}, filename);
+	}
+	Shader(GLenum type, std::string_view header, std::string_view filename) {
+		init(type, header, filename);
+	}
+
 	~Shader();
 
 private:
 	void init(GLenum type, std::string_view header,
-	                       const std::string& filename);
+	                       std::string_view filename);
 
 	friend class ShaderProgram;
 
@@ -357,8 +361,10 @@ public:
 	/** Instantiates a vertex shader.
 	  * @param filename The GLSL source code for the shader.
 	  */
-	explicit VertexShader(const std::string& filename);
-	VertexShader(std::string_view header, const std::string& filename);
+	explicit VertexShader(std::string_view filename)
+		: Shader(GL_VERTEX_SHADER, filename) {}
+	VertexShader(std::string_view header, std::string_view filename)
+		: Shader(GL_VERTEX_SHADER, header, filename) {}
 };
 
 /** Wrapper around an OpenGL fragment shader:
@@ -370,8 +376,10 @@ public:
 	/** Instantiates a fragment shader.
 	  * @param filename The GLSL source code for the shader.
 	  */
-	explicit FragmentShader(const std::string& filename);
-	FragmentShader(std::string_view header, const std::string& filename);
+	explicit FragmentShader(std::string_view filename)
+		: Shader(GL_FRAGMENT_SHADER, filename) {}
+	FragmentShader(std::string_view header, std::string_view filename)
+		: Shader(GL_FRAGMENT_SHADER, header, filename) {}
 };
 
 /** Wrapper around an OpenGL program:

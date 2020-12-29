@@ -300,11 +300,11 @@ template<typename T> CPUCore<T>::CPUCore(
 		    "return by read is meaningless). The breakpoint gets triggered "
 		    "right after the CPU accepted an IRQ.")
 	, freqLocked(
-		motherboard.getCommandController(), name + "_freq_locked",
+		motherboard.getCommandController(), tmpStrCat(name, "_freq_locked"),
 	        "real (locked) or custom (unlocked) CPU frequency",
 	        true)
 	, freqValue(
-		motherboard.getCommandController(), name + "_freq",
+		motherboard.getCommandController(), tmpStrCat(name, "_freq"),
 		"custom CPU frequency (only valid when unlocked)",
 		T::CLOCK_FREQ, 1000000, 1000000000)
 	, freq(T::CLOCK_FREQ)

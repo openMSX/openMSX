@@ -42,8 +42,8 @@ RP5C01::RP5C01(CommandController& commandController, SRAM& regs_,
 	: regs(regs_)
 	, modeSetting(
 		commandController,
-		((name == "Real time clock") ? "rtcmode" // bw-compat
-		                             : (name + " mode")),
+		((name == "Real time clock") ? std::string_view("rtcmode") // bw-compat
+		                             : tmpStrCat(name + " mode")),
 		"Real Time Clock mode", RP5C01::EMUTIME,
 		EnumSetting<RP5C01::RTCMode>::Map{
 			{"EmuTime",  RP5C01::EMUTIME},

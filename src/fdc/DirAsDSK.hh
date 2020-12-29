@@ -83,8 +83,8 @@ private:
 		const std::string& hostSubDir, const std::string& hostName,
 		unsigned msxDirSector);
 	[[nodiscard]] DirIndex getFreeDirEntry(unsigned msxDirSector);
-	[[nodiscard]] DirIndex findHostFileInDSK(const std::string& hostName);
-	[[nodiscard]] bool checkFileUsedInDSK(const std::string& hostName);
+	[[nodiscard]] DirIndex findHostFileInDSK(std::string_view hostName);
+	[[nodiscard]] bool checkFileUsedInDSK(std::string_view hostName);
 	[[nodiscard]] unsigned nextMsxDirSector(unsigned sector);
 	[[nodiscard]] bool checkMSXFileExists(const std::string& msxfilename,
 	                                      unsigned msxDirSector);

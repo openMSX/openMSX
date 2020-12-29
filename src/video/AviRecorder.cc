@@ -267,7 +267,7 @@ void AviRecorder::processStart(Interpreter& interp, span<const TclObject> tokens
 	} else {
 		start(recordAudio, recordVideo, recordMono, recordStereo,
 				Filename(filename));
-		result = "Recording to " + filename;
+		result = tmpStrCat("Recording to ", filename);
 	}
 }
 

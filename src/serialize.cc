@@ -348,11 +348,11 @@ void XmlOutputArchive::save(unsigned long long ull)
 	saveImpl(ull);
 }
 
-void XmlOutputArchive::attribute(const char* name, const string& str)
+void XmlOutputArchive::attribute(const char* name, string str)
 {
 	assert(!current.empty());
 	assert(!current.back()->hasAttribute(name));
-	current.back()->addAttribute(name, str);
+	current.back()->addAttribute(name, std::move(str));
 }
 void XmlOutputArchive::attribute(const char* name, int i)
 {

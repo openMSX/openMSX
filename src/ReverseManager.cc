@@ -630,7 +630,7 @@ void ReverseManager::saveReplay(
 		history.events.pop_back();
 	}
 
-	result = "Saved replay to " + filename;
+	result = tmpStrCat("Saved replay to ", filename);
 }
 
 void ReverseManager::loadReplay(
@@ -654,11 +654,11 @@ void ReverseManager::loadReplay(
 		filename = context.resolve(fileNameArg);
 	} catch (MSXException& /*e1*/) { try {
 		// Not found, try adding '.omr'.
-		filename = context.resolve(fileNameArg + ".omr");
+		filename = context.resolve(tmpStrCat(fileNameArg, ".omr"));
 	} catch (MSXException& e2) { try {
 		// Again not found, try adding '.gz'.
 		// (this is for backwards compatibility).
-		filename = context.resolve(fileNameArg + ".gz");
+		filename = context.resolve(tmpStrCat(fileNameArg, ".gz"));
 	} catch (MSXException& /*e3*/) {
 		// Show error message that includes the default extension.
 		throw e2;
@@ -741,7 +741,7 @@ void ReverseManager::loadReplay(
 	bool novideo = false;
 	goTo(destination, novideo, newHistory, false); // move to different time-line
 
-	result = "Loaded replay from " + filename;
+	result = tmpStrCat("Loaded replay from ", filename);
 }
 
 void ReverseManager::transferHistory(ReverseHistory& oldHistory,

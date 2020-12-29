@@ -127,17 +127,7 @@ void FrameBufferObject::pop()
 
 // class Shader
 
-Shader::Shader(GLenum type, const string& filename)
-{
-	init(type, {}, filename);
-}
-
-Shader::Shader(GLenum type, std::string_view header, const string& filename)
-{
-	init(type, header, filename);
-}
-
-void Shader::init(GLenum type, std::string_view header, const string& filename)
+void Shader::init(GLenum type, std::string_view header, std::string_view filename)
 {
 	// Load shader source.
 	string source;
@@ -155,7 +145,7 @@ void Shader::init(GLenum type, std::string_view header, const string& filename)
 	}
 	source += header;
 	try {
-		File file(systemFileContext().resolve("shaders/" + filename));
+		File file(systemFileContext().resolve(tmpStrCat("shaders/", filename)));
 		auto mmap = file.mmap();
 		source.append(reinterpret_cast<const char*>(mmap.data()),
 		              mmap.size());
@@ -185,9 +175,9 @@ void Shader::init(GLenum type, std::string_view header, const string& filename)
 	if (!ok || (!Version::RELEASE && infoLogLength > 1)) {
 		VLA(GLchar, infoLog, infoLogLength);
 		glGetShaderInfoLog(handle, infoLogLength, nullptr, infoLog);
-		fprintf(stderr, "%s(s) compiling shader \"%s\":\n%s",
-			ok ? "Warning" : "Error", filename.c_str(),
-			infoLogLength > 1 ? infoLog : "(no details available)\n");
+		std::cerr << (ok ? "Warning" : "Error") << "(s) compiling shader \""
+		          << filename << "\":\n"
+			  << (infoLogLength > 1 ? infoLog : "(no details available)\n");
 	}
 }
 
@@ -202,32 +192,6 @@ bool Shader::isOK() const
 	GLint compileStatus = GL_FALSE;
 	glGetShaderiv(handle, GL_COMPILE_STATUS, &compileStatus);
 	return compileStatus == GL_TRUE;
-}
-
-
-// class VertexShader
-
-VertexShader::VertexShader(const string& filename)
-	: Shader(GL_VERTEX_SHADER, filename)
-{
-}
-
-VertexShader::VertexShader(std::string_view header, const string& filename)
-	: Shader(GL_VERTEX_SHADER, header, filename)
-{
-}
-
-
-// class FragmentShader
-
-FragmentShader::FragmentShader(const string& filename)
-	: Shader(GL_FRAGMENT_SHADER, filename)
-{
-}
-
-FragmentShader::FragmentShader(std::string_view header, const string& filename)
-	: Shader(GL_FRAGMENT_SHADER, header, filename)
-{
 }
 
 

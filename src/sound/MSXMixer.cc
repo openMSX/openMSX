@@ -88,10 +88,10 @@ void MSXMixer::registerSound(SoundDevice& device, float volume,
 	info.device = &device;
 	info.defaultVolume = volume;
 	info.volumeSetting = std::make_unique<IntegerSetting>(
-		commandController, name + "_volume",
+		commandController, tmpStrCat(name, "_volume"),
 		"the volume of this sound chip", 75, 0, 100);
 	info.balanceSetting = std::make_unique<IntegerSetting>(
-		commandController, name + "_balance",
+		commandController, tmpStrCat(name, "_balance"),
 		"the balance of this sound chip", balance, -100, 100);
 
 	info.volumeSetting->attach(*this);

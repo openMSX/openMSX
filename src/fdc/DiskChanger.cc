@@ -210,7 +210,7 @@ DiskCommand::DiskCommand(CommandController& commandController_,
 void DiskCommand::execute(span<const TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() == 1) {
-		result.addListElement(diskChanger.getDriveName() + ':',
+		result.addListElement(tmpStrCat(diskChanger.getDriveName(), ':'),
 		                      diskChanger.getDiskName().getResolved());
 
 		TclObject options;

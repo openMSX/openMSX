@@ -483,16 +483,16 @@ AY8910::AY8910(const std::string& name_, AY8910Periphery& periphery_,
 	, periphery(periphery_)
 	, debuggable(config.getMotherBoard(), getName())
 	, vibratoPercent(
-		config.getCommandController(), getName() + "_vibrato_percent",
+		config.getCommandController(), tmpStrCat(getName(), "_vibrato_percent"),
 		"controls strength of vibrato effect", 0.0, 0.0, 10.0)
 	, vibratoFrequency(
-		config.getCommandController(), getName() + "_vibrato_frequency",
+		config.getCommandController(), tmpStrCat(getName(), "_vibrato_frequency"),
 		"frequency of vibrato effect in Hertz", 5, 1.0, 10.0)
 	, detunePercent(
-		config.getCommandController(), getName() + "_detune_percent",
+		config.getCommandController(), tmpStrCat(getName(), "_detune_percent"),
 		"controls strength of detune effect", 0.0, 0.0, 10.0)
 	, detuneFrequency(
-		config.getCommandController(), getName() + "_detune_frequency",
+		config.getCommandController(), tmpStrCat(getName(), "_detune_frequency"),
 		"frequency of detune effect in Hertz", 5.0, 1.0, 100.0)
 	, directionsCallback(
 		config.getGlobalSettings().getInvalidPsgDirectionsSetting())

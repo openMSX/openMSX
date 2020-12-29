@@ -207,7 +207,7 @@ bool DirAsDSK::checkMSXFileExists(
 
 // Returns msx directory entry for the given host file. Or -1 if the host file
 // is not mapped in the virtual disk.
-DirAsDSK::DirIndex DirAsDSK::findHostFileInDSK(const string& hostName)
+DirAsDSK::DirIndex DirAsDSK::findHostFileInDSK(std::string_view hostName)
 {
 	for (const auto& [dirIdx, mapDir] : mapDirs) {
 		if (mapDir.hostName == hostName) {
@@ -218,7 +218,7 @@ DirAsDSK::DirIndex DirAsDSK::findHostFileInDSK(const string& hostName)
 }
 
 // Check if a host file is already mapped in the virtual disk.
-bool DirAsDSK::checkFileUsedInDSK(const string& hostName)
+bool DirAsDSK::checkFileUsedInDSK(std::string_view hostName)
 {
 	DirIndex dirIndex = findHostFileInDSK(hostName);
 	return dirIndex.sector != unsigned(-1);
@@ -728,8 +728,7 @@ void DirAsDSK::addNewHostFiles(const string& hostSubDir, unsigned msxDirSector)
 void DirAsDSK::addNewDirectory(const string& hostSubDir, const string& hostName,
                                unsigned msxDirSector, FileOperations::Stat& fst)
 {
-	string hostPath = hostSubDir + hostName;
-	DirIndex dirIndex = findHostFileInDSK(hostPath);
+	DirIndex dirIndex = findHostFileInDSK(tmpStrCat(hostSubDir, hostName));
 	unsigned newMsxDirSector;
 	if (dirIndex.sector == unsigned(-1)) {
 		// MSX directory doesn't exist yet, create it.
@@ -791,17 +790,15 @@ void DirAsDSK::addNewDirectory(const string& hostSubDir, const string& hostName,
 void DirAsDSK::addNewHostFile(const string& hostSubDir, const string& hostName,
                               unsigned msxDirSector, FileOperations::Stat& fst)
 {
-	if (checkFileUsedInDSK(hostSubDir + hostName)) {
+	if (checkFileUsedInDSK(tmpStrCat(hostSubDir, hostName))) {
 		// File is already present in the virtual disk, do nothing.
 		return;
 	}
-	string hostPath = hostSubDir + hostName;
-	string fullHostName = hostDir + hostPath;
-
 	// TODO check for available free space on disk instead of max free space
 	int diskSpace = (nofSectors - firstDataSector) * SECTOR_SIZE;
 	if (fst.st_size > diskSpace) {
-		cliComm.printWarning("File too large: ", fullHostName);
+		cliComm.printWarning("File too large: ",
+		                     hostDir, hostSubDir, hostName);
 		return;
 	}
 
@@ -1202,8 +1199,7 @@ void DirAsDSK::exportToHostDir(DirIndex dirIndex, const string& hostName)
 		unsigned msxDirSector = clusterToSector(cluster);
 
 		// Create the host directory.
-		string fullHostName = hostDir + hostName;
-		FileOperations::mkdirp(fullHostName);
+		FileOperations::mkdirp(hostDir + hostName);
 
 		// Export all the components in this directory.
 		vector<bool> visited(nofSectors, false);

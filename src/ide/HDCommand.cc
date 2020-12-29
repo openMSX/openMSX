@@ -28,7 +28,7 @@ void HDCommand::execute(span<const TclObject> tokens, TclObject& result,
                         EmuTime::param /*time*/)
 {
 	if (tokens.size() == 1) {
-		result.addListElement(hd.getName() + ':',
+		result.addListElement(tmpStrCat(hd.getName(), ':'),
 		                      hd.getImageName().getResolved());
 
 		if (hd.isWriteProtected()) {

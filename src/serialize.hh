@@ -893,7 +893,7 @@ public:
 	{
 		attributeImpl(name, t);
 	}
-	void attribute(const char* name, const std::string& str);
+	void attribute(const char* name, std::string str);
 	void attribute(const char* name, int i);
 	void attribute(const char* name, unsigned u);
 
