@@ -31,7 +31,7 @@ private:
 
 FilePoolCore::FilePoolCore(string filecache_,
                            std::function<Directories()> getDirectories_,
-                           std::function<void(const string&)> reportProgress_)
+                           std::function<void(std::string_view)> reportProgress_)
 	: filecache(std::move(filecache_))
 	, getDirectories(getDirectories_)
 	, reportProgress(reportProgress_)
@@ -282,8 +282,8 @@ Sha1Sum FilePoolCore::calcSha1sum(File& file)
 	bool everShowedProgress = false;
 
 	auto report = [&](size_t percentage) {
-		reportProgress(strCat("Calculating SHA1 sum for ", file.getOriginalName(),
-		                      "... ", percentage, '%'));
+		reportProgress(tmpStrCat("Calculating SHA1 sum for ", file.getOriginalName(),
+		                         "... ", percentage, '%'));
 	};
 	// Loop over all-but-the last blocks. For small files this loop is skipped.
 	while (remaining > STEP_SIZE) {
@@ -389,7 +389,7 @@ File FilePoolCore::scanFile(const Sha1Sum& sha1sum, const string& filename,
 	auto now = Timer::getTime();
 	if (now > (progress.lastTime + 250'000)) { // 4Hz
 		progress.lastTime = now;
-		reportProgress(strCat(
+		reportProgress(tmpStrCat(
 		        "Searching for file with sha1sum ", sha1sum.toString(),
 		        "...\nIndexing filepool ", poolPath, ": [",
 		        progress.amountScanned, "]: ",

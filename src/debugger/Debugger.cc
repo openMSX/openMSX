@@ -358,7 +358,7 @@ void Debugger::Cmd::setBreakPoint(span<const TclObject> tokens, TclObject& resul
 	case 1: { // address
 		word addr = getAddress(getInterpreter(), arguments[0]);
 		BreakPoint bp(addr, command, condition, once);
-		result = strCat("bp#", bp.getId());
+		result = tmpStrCat("bp#", bp.getId());
 		debugger().motherBoard.getCPUInterface().insertBreakPoint(std::move(bp));
 		break;
 	}
@@ -407,8 +407,8 @@ void Debugger::Cmd::listBreakPoints(
 	auto& interface = debugger().motherBoard.getCPUInterface();
 	for (const auto& bp : interface.getBreakPoints()) {
 		TclObject line = makeTclList(
-			strCat("bp#", bp.getId()),
-			strCat("0x", hex_string<4>(bp.getAddress())),
+			tmpStrCat("bp#", bp.getId()),
+			tmpStrCat("0x", hex_string<4>(bp.getAddress())),
 			bp.getCondition(),
 			bp.getCommand());
 		strAppend(res, line.getString(), '\n');
@@ -480,7 +480,7 @@ void Debugger::Cmd::setWatchPoint(span<const TclObject> tokens, TclObject& resul
 	}
 	unsigned id = debugger().setWatchPoint(
 		command, condition, type, beginAddr, endAddr, once);
-	result = strCat("wp#", id);
+	result = tmpStrCat("wp#", id);
 }
 
 void Debugger::Cmd::removeWatchPoint(
@@ -509,7 +509,7 @@ void Debugger::Cmd::listWatchPoints(
 	string res;
 	auto& interface = debugger().motherBoard.getCPUInterface();
 	for (const auto& wp : interface.getWatchPoints()) {
-		TclObject line = makeTclList(strCat("wp#", wp->getId()));
+		TclObject line = makeTclList(tmpStrCat("wp#", wp->getId()));
 		string type;
 		switch (wp->getType()) {
 		case WatchPoint::READ_IO:
@@ -531,11 +531,11 @@ void Debugger::Cmd::listWatchPoints(
 		unsigned beginAddr = wp->getBeginAddress();
 		unsigned endAddr   = wp->getEndAddress();
 		if (beginAddr == endAddr) {
-			line.addListElement(strCat("0x", hex_string<4>(beginAddr)));
+			line.addListElement(tmpStrCat("0x", hex_string<4>(beginAddr)));
 		} else {
 			line.addListElement(makeTclList(
-				strCat("0x", hex_string<4>(beginAddr)),
-				strCat("0x", hex_string<4>(endAddr))));
+				tmpStrCat("0x", hex_string<4>(beginAddr)),
+				tmpStrCat("0x", hex_string<4>(endAddr))));
 		}
 		line.addListElement(wp->getCondition(),
 		                    wp->getCommand());
@@ -565,7 +565,7 @@ void Debugger::Cmd::setCondition(span<const TclObject> tokens, TclObject& result
 	case 1: { // condition
 		condition = arguments[0];
 		DebugCondition dc(command, condition, once);
-		result = strCat("cond#", dc.getId());
+		result = tmpStrCat("cond#", dc.getId());
 		debugger().motherBoard.getCPUInterface().setCondition(std::move(dc));
 		break;
 	}
@@ -599,7 +599,7 @@ void Debugger::Cmd::listConditions(
 	string res;
 	auto& interface = debugger().motherBoard.getCPUInterface();
 	for (const auto& c : interface.getConditions()) {
-		TclObject line = makeTclList(strCat("cond#", c.getId()),
+		TclObject line = makeTclList(tmpStrCat("cond#", c.getId()),
 		                             c.getCondition(),
 		                             c.getCommand());
 		strAppend(res, line.getString(), '\n');
@@ -665,7 +665,7 @@ void Debugger::Cmd::probeSetBreakPoint(
 	}
 
 	unsigned id = debugger().insertProbeBreakPoint(command, condition, *p, once);
-	result = strCat("pp#", id);
+	result = tmpStrCat("pp#", id);
 }
 void Debugger::Cmd::probeRemoveBreakPoint(
 	span<const TclObject> tokens, TclObject& /*result*/)
@@ -678,7 +678,7 @@ void Debugger::Cmd::probeListBreakPoints(
 {
 	string res;
 	for (auto& p : debugger().probeBreakPoints) {
-		TclObject line = makeTclList(strCat("pp#", p->getId()),
+		TclObject line = makeTclList(tmpStrCat("pp#", p->getId()),
 		                             p->getProbe().getName(),
 		                             p->getCondition(),
 		                             p->getCommand());

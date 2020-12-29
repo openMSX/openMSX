@@ -44,7 +44,7 @@ TclObject KeyEvent::toTclList() const
 	// method.
 	auto result = makeTclList("keyb", Keys::getName(getKeyCode()));
 	if (getUnicode() != 0) {
-		result.addListElement(strCat("unicode", getUnicode()));
+		result.addListElement(tmpStrCat("unicode", getUnicode()));
 	}
 	return result;
 }
@@ -66,7 +66,7 @@ MouseButtonEvent::MouseButtonEvent(EventType type_, unsigned button_)
 
 TclObject MouseButtonEvent::toTclHelper(std::string_view direction) const
 {
-	return makeTclList("mouse", strCat("button", getButton()), direction);
+	return makeTclList("mouse", tmpStrCat("button", getButton()), direction);
 }
 
 bool MouseButtonEvent::lessImpl(const Event& other) const
@@ -154,7 +154,7 @@ JoystickEvent::JoystickEvent(EventType type_, unsigned joystick_)
 
 TclObject JoystickEvent::toTclHelper() const
 {
-	return makeTclList(strCat("joy", getJoystick() + 1));
+	return makeTclList(tmpStrCat("joy", getJoystick() + 1));
 }
 
 bool JoystickEvent::lessImpl(const Event& other) const
@@ -177,7 +177,7 @@ JoystickButtonEvent::JoystickButtonEvent(
 TclObject JoystickButtonEvent::toTclHelper(std::string_view direction) const
 {
 	auto result = JoystickEvent::toTclHelper();
-	result.addListElement(strCat("button", getButton()), direction);
+	result.addListElement(tmpStrCat("button", getButton()), direction);
 	return result;
 }
 
@@ -226,7 +226,7 @@ JoystickAxisMotionEvent::JoystickAxisMotionEvent(
 TclObject JoystickAxisMotionEvent::toTclList() const
 {
 	auto result = JoystickEvent::toTclHelper();
-	result.addListElement(strCat("axis", getAxis()), getValue());
+	result.addListElement(tmpStrCat("axis", getAxis()), getValue());
 	return result;
 }
 
@@ -262,7 +262,7 @@ TclObject JoystickHatEvent::toTclList() const
 			default:                return "center";
 		}
 	}();
-	result.addListElement(strCat("hat", getHat()), str);
+	result.addListElement(tmpStrCat("hat", getHat()), str);
 	return result;
 }
 

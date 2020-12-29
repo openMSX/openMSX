@@ -29,7 +29,7 @@ std::string_view DiskImageCLI::optionHelp() const
 
 void DiskImageCLI::parseFileType(const string& filename, span<string>& cmdLine)
 {
-	parse(strCat("disk", driveLetter), filename, cmdLine);
+	parse(tmpStrCat("disk", driveLetter), filename, cmdLine);
 	++driveLetter;
 }
 

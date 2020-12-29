@@ -651,7 +651,7 @@ void CassettePlayer::TapeCommand::execute(
 			(tokens.size() == 3) ? tokens[2].getString() : string{},
 			directory, prefix, extension);
 		cassettePlayer.recordTape(Filename(filename), time);
-		result = strCat(
+		result = tmpStrCat(
 			"Created new cassette image file: ", filename,
 			", inserted it and set recording mode.");
 
@@ -679,7 +679,7 @@ void CassettePlayer::TapeCommand::execute(
 		throw SyntaxError();
 
 	} else if (tokens[1] == "motorcontrol") {
-		result = strCat("Motor control is ",
+		result = tmpStrCat("Motor control is ",
 		                (cassettePlayer.motorControl ? "on" : "off"));
 
 	} else if (tokens[1] == "record") {

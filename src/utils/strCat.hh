@@ -1,6 +1,7 @@
 #ifndef STRCAT_HH
 #define STRCAT_HH
 
+#include "TemporaryString.hh"
 #include "xrange.hh"
 #include <climits>
 #include <cstring>
@@ -37,6 +38,13 @@
 template<typename... Ts>
 [[nodiscard]] std::string strCat(Ts&& ...ts);
 
+// Consider using 'tmpStrCat()' as an alternative for 'strCat()'. The only
+// difference is that this one returns a 'TemporaryString' instead of a
+// 'std::string'. This can be faster (e.g. no heap allocation) when the result
+// is not required to be a 'std::string' (std::string_view is sufficient) and
+// when it really is a temporary (short lived) string.
+template<typename... Ts>
+[[nodiscard]] TemporaryString tmpStrCat(Ts&&... ts);
 
 // Apppend a bunch of 'printable' objects to an exiting string.
 //
@@ -442,6 +450,10 @@ template<typename T>
 {
 	return ConcatUnit<std::string_view>(s);
 }
+[[nodiscard]] inline auto makeConcatUnit(const TemporaryString& s)
+{
+	return ConcatUnit<std::string_view>(s);
+}
 
 // Note: no ConcatIntegral<char> because that is printed as a single character
 [[nodiscard]] inline auto makeConcatUnit(signed char c)
@@ -639,6 +651,13 @@ template<typename... Ts>
 [[nodiscard]] inline std::string strCat(std::string&&      x, const char*        y) { return x + y; }
 [[nodiscard]] inline std::string strCat(std::string&&      x, char               y) { return x + y; }
 
+template<typename... Ts> [[nodiscard]] TemporaryString tmpStrCat(Ts&&... ts)
+{
+	auto t = std::tuple(strCatImpl::makeConcatUnit(std::forward<Ts>(ts))...);
+	auto size = strCatImpl::calcTotalSize(t);
+	return TemporaryString(
+	        size, [&](char* dst) { strCatImpl::copyUnits(dst, t); });
+}
 
 // Generic version
 template<typename... Ts>

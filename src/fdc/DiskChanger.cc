@@ -60,7 +60,7 @@ DiskChanger::DiskChanger(MSXMotherBoard& board,
 	, driveName(std::move(driveName_))
 	, doubleSidedDrive(doubleSidedDrive_)
 {
-	init(strCat(board.getMachineID(), "::"), createCmd);
+	init(tmpStrCat(board.getMachineID(), "::"), createCmd);
 }
 
 DiskChanger::DiskChanger(Reactor& reactor_, string driveName_)
@@ -74,7 +74,7 @@ DiskChanger::DiskChanger(Reactor& reactor_, string driveName_)
 	init({}, true);
 }
 
-void DiskChanger::init(const string& prefix, bool createCmd)
+void DiskChanger::init(std::string_view prefix, bool createCmd)
 {
 	if (createCmd) createCommand();
 	ejectDisk();

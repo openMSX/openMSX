@@ -56,7 +56,7 @@ BaseSetting* SettingsManager::findSetting(string_view name) const
 		}
 	} else {
 		// try adding ::
-		if (auto it = settings.find(strCat("::", name)); it != end(settings)) {
+		if (auto it = settings.find(tmpStrCat("::", name)); it != end(settings)) {
 			return *it;
 		}
 	}

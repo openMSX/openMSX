@@ -83,8 +83,8 @@ CliConnection::~CliConnection()
 void CliConnection::log(CliComm::LogLevel level, std::string_view message)
 {
 	auto levelStr = CliComm::getLevelStrings();
-	output(strCat("<log level=\"", levelStr[level], "\">",
-	              XMLElement::XMLEscape(message), "</log>\n"));
+	output(tmpStrCat("<log level=\"", levelStr[level], "\">",
+	                 XMLElement::XMLEscape(message), "</log>\n"));
 }
 
 void CliConnection::update(CliComm::UpdateType type, std::string_view machine,

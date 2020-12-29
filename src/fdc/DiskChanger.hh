@@ -58,7 +58,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void init(const std::string& prefix, bool createCmd);
+	void init(std::string_view prefix, bool createCmd);
 	void insertDisk(span<const TclObject> args);
 	void ejectDisk();
 	void sendChangeDiskEvent(span<std::string> args);

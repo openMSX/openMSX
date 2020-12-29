@@ -268,7 +268,7 @@ void MSXDevice::registerSlots()
 	primaryConfig->setAttribute("slot", strCat(ps));
 	if (secondaryConfig) {
 		string slot = (ss == -1) ? "X" : strCat(ss);
-		secondaryConfig->setAttribute("slot", slot);
+		secondaryConfig->setAttribute("slot", std::move(slot));
 	} else {
 		if (ss != -1) {
 			throw MSXException(

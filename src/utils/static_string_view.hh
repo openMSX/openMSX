@@ -1,11 +1,10 @@
 #ifndef STATIC_STRING_VIEW_HH
 #define STATIC_STRING_VIEW_HH
 
+#include "StringStorage.hh"
 #include <cassert>
-#include <cstdlib>
 #include <cstring>
 #include <string_view>
-#include <memory>
 #include <utility>
 
 /** static_string_view
@@ -52,17 +51,6 @@ private:
 	const std::string_view s;
 };
 
-
-/** StringStorage:
- * Acts like a 'const char*', but in addition calls free() when the pointer
- * goes out of scope.
- */
-struct FreeStringStorage
-{
-	void operator()(char* p) { free(p); }
-};
-using StringStorage = std::unique_ptr<char, FreeStringStorage>;
-
 /** Take a string_view, make a copy of it, and return a pair of
   *  - Storage for the copy.
   *  - A static_string_view object pointing to that storage.
@@ -75,9 +63,10 @@ using StringStorage = std::unique_ptr<char, FreeStringStorage>;
 inline auto make_string_storage(std::string_view sv)
 {
 	auto size = sv.size();
-	auto* p = static_cast<char*>(malloc(size));
+	auto storage = allocate_string_storage(size);
+	char* p = storage.get();
 	memcpy(p, sv.data(), size);
-	return std::pair{StringStorage(p),
+	return std::pair{std::move(storage),
 	                 static_string_view(static_string_view::lifetime_ok_tag{},
 			                    std::string_view(p, size))};
 }

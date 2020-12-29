@@ -59,19 +59,23 @@ public:
 
 	template<typename... Args>
 	void printInfo(Args&& ...args) {
-		printInfo(std::string_view(strCat(std::forward<Args>(args)...)));
+		auto tmp = tmpStrCat(std::forward<Args>(args)...);
+		printInfo(std::string_view(tmp));
 	}
 	template<typename... Args>
 	void printWarning(Args&& ...args) {
-		printWarning(std::string_view(strCat(std::forward<Args>(args)...)));
+		auto tmp = tmpStrCat(std::forward<Args>(args)...);
+		printWarning(std::string_view(tmp));
 	}
 	template<typename... Args>
 	void printError(Args&& ...args) {
-		printError(std::string_view(strCat(std::forward<Args>(args)...)));
+		auto tmp = tmpStrCat(std::forward<Args>(args)...);
+		printError(std::string_view(tmp));
 	}
 	template<typename... Args>
 	void printProgress(Args&& ...args) {
-		printProgress(std::string_view(strCat(std::forward<Args>(args)...)));
+		auto tmp = tmpStrCat(std::forward<Args>(args)...);
+		printProgress(std::string_view(tmp));
 	}
 
 	// string representations of the LogLevel and UpdateType enums

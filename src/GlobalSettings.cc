@@ -50,7 +50,7 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 		view::transform(xrange(SDL_NumJoysticks()), [&](auto i) {
 			return std::make_unique<IntegerSetting>(
 				commandController,
-				strCat("joystick", i + 1, "_deadzone"),
+				tmpStrCat("joystick", i + 1, "_deadzone"),
 				"size (as a percentage) of the dead center zone",
 				25, 0, 100);
 		}));

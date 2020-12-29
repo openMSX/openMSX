@@ -51,12 +51,12 @@ string DiskManipulator::getMachinePrefix() const
 }
 
 void DiskManipulator::registerDrive(
-	DiskContainer& drive, const std::string& prefix)
+	DiskContainer& drive, std::string_view prefix)
 {
 	assert(findDriveSettings(drive) == end(drives));
 	DriveSettings driveSettings;
 	driveSettings.drive = &drive;
-	driveSettings.driveName = prefix + drive.getContainerName();
+	driveSettings.driveName = strCat(prefix, drive.getContainerName());
 	driveSettings.partition = 0;
 	for (unsigned i = 0; i <= MAX_PARTITIONS; ++i) {
 		driveSettings.workingDir[i] = '/';
@@ -98,7 +98,7 @@ DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
 
 	auto it = findDriveSettings(tmp2);
 	if (it == end(drives)) {
-		it = findDriveSettings(strCat(getMachinePrefix(), tmp2));
+		it = findDriveSettings(tmpStrCat(getMachinePrefix(), tmp2));
 		if (it == end(drives)) {
 			throw CommandException("Unknown drive: ", tmp2);
 		}

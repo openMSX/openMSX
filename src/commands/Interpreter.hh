@@ -1,6 +1,7 @@
 #ifndef INTERPRETER_HH
 #define INTERPRETER_HH
 
+#include "TemporaryString.hh"
 #include "TclParser.hh"
 #include "TclObject.hh"
 #include <tcl.h>
@@ -31,6 +32,7 @@ public:
 	[[nodiscard]] TclObject getCommandNames();
 	[[nodiscard]] bool isComplete(const std::string& command) const;
 	TclObject execute(const std::string& command);
+	TclObject execute(const TemporaryString& command);
 	TclObject executeFile(const std::string& filename);
 
 	void setVariable(const TclObject& name, const TclObject& value);

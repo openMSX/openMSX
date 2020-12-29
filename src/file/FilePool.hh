@@ -5,6 +5,7 @@
 #include "FilePoolCore.hh"
 #include "StringSetting.hh"
 #include "Observer.hh"
+#include <string_view>
 
 namespace openmsx {
 
@@ -32,7 +33,7 @@ public:
 
 private:
 	[[nodiscard]] FilePoolCore::Directories getDirectories() const;
-	void reportProgress(const std::string& message);
+	void reportProgress(std::string_view message);
 
 	// Observer<Setting>
 	void update(const Setting& setting) override;

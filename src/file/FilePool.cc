@@ -45,7 +45,7 @@ private:
 FilePool::FilePool(CommandController& controller, Reactor& reactor_)
 	: core(FileOperations::getUserDataDir() + "/.filecache",
 	       [&] { return getDirectories(); },
-	       [&](const std::string& message) { reportProgress(message); })
+	       [&](std::string_view message) { reportProgress(message); })
 	, filePoolSetting(
 		controller, "__filepool",
 		"This is an internal setting. Don't change this directly, "
@@ -147,7 +147,7 @@ void FilePool::update(const Setting& setting)
 	(void)getDirectories(); // check for syntax errors
 }
 
-void FilePool::reportProgress(const std::string& message)
+void FilePool::reportProgress(std::string_view message)
 {
 	if (quit) core.abort();
 	reactor.getCliComm().printProgress(message);

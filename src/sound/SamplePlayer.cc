@@ -22,12 +22,12 @@ SamplePlayer::SamplePlayer(const std::string& name_, static_string_view desc,
 	auto context = systemFileContext();
 	for (auto i : xrange(numSamples)) {
 		try {
-			std::string filename = strCat(samplesBaseName, i, ".wav");
+			auto filename = tmpStrCat(samplesBaseName, i, ".wav");
 			samples[i] = WavData(context.resolve(filename));
 		} catch (MSXException& e1) {
 			try {
 				if (alternativeName.empty()) throw;
-				std::string filename = strCat(
+				auto filename = tmpStrCat(
 					alternativeName, i, ".wav");
 				samples[i] = WavData(context.resolve(filename));
 			} catch (MSXException& /*e2*/) {

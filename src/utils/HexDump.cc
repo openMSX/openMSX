@@ -14,9 +14,9 @@ using openmsx::MemBuffer;
 {
 	return (x < 10) ? (x + '0') : (x - 10 + 'A');
 }
-[[nodiscard]] static string encode(uint8_t x)
+[[nodiscard]] static auto encode(uint8_t x)
 {
-	return strCat(encode2(x >> 4), encode2(x & 15));
+	return tmpStrCat(encode2(x >> 4), encode2(x & 15));
 }
 string encode(const uint8_t* input, size_t len, bool newlines)
 {

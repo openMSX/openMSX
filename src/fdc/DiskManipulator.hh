@@ -22,7 +22,7 @@ public:
 	                         Reactor& reactor);
 	~DiskManipulator();
 
-	void registerDrive(DiskContainer& drive, const std::string& prefix);
+	void registerDrive(DiskContainer& drive, std::string_view prefix);
 	void unregisterDrive(DiskContainer& drive);
 
 private:

@@ -41,7 +41,7 @@ public:
 	 */
 	void setPrefix(std::string_view prefix) {
 		assert(StringOp::startsWith(prefix, "::"));
-		fullName = strCat(prefix, getBaseName());
+		fullName = tmpStrCat(prefix, getBaseName());
 	}
 
 	/** For SettingInfo

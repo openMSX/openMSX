@@ -132,12 +132,12 @@ Shader::Shader(GLenum type, const string& filename)
 	init(type, {}, filename);
 }
 
-Shader::Shader(GLenum type, const string& header, const string& filename)
+Shader::Shader(GLenum type, std::string_view header, const string& filename)
 {
 	init(type, header, filename);
 }
 
-void Shader::init(GLenum type, const string& header, const string& filename)
+void Shader::init(GLenum type, std::string_view header, const string& filename)
 {
 	// Load shader source.
 	string source;
@@ -212,7 +212,7 @@ VertexShader::VertexShader(const string& filename)
 {
 }
 
-VertexShader::VertexShader(const string& header, const string& filename)
+VertexShader::VertexShader(std::string_view header, const string& filename)
 	: Shader(GL_VERTEX_SHADER, header, filename)
 {
 }
@@ -225,7 +225,7 @@ FragmentShader::FragmentShader(const string& filename)
 {
 }
 
-FragmentShader::FragmentShader(const string& header, const string& filename)
+FragmentShader::FragmentShader(std::string_view header, const string& filename)
 	: Shader(GL_FRAGMENT_SHADER, header, filename)
 {
 }

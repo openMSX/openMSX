@@ -761,7 +761,7 @@ void CommandConsole::paste()
 		if (prefix.empty()) {
 			lines[0] = highLight(suffix);
 		} else {
-			lines[0] = highLight(strCat(prefix, suffix));
+			lines[0] = highLight(tmpStrCat(prefix, suffix));
 			prefix = "";
 		}
 	};

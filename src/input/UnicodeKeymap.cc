@@ -83,7 +83,7 @@ static void skipSep(string_view& str)
 UnicodeKeymap::UnicodeKeymap(string_view keyboardType)
 {
 	auto filename = systemFileContext().resolve(
-		strCat("unicodemaps/unicodemap.", keyboardType));
+		tmpStrCat("unicodemaps/unicodemap.", keyboardType));
 	try {
 		File file(filename);
 		auto buf = file.mmap();

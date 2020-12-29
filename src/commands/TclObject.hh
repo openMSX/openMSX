@@ -119,7 +119,7 @@ public:
 	[[nodiscard]] Tcl_Obj* getTclObjectNonConst() const { return const_cast<Tcl_Obj*>(obj); }
 
 	// add elements to a Tcl list
-	template<typename T> void addListElement(T t) { addListElement(newObj(t)); }
+	template<typename T> void addListElement(const T& t) { addListElement(newObj(t)); }
 	template<typename ITER> void addListElements(ITER first, ITER last) {
 		addListElementsImpl(first, last,
 		                typename std::iterator_traits<ITER>::iterator_category());

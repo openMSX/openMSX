@@ -17,6 +17,7 @@
 #include "MemBuffer.hh"
 #include "build-info.hh"
 #include <string>
+#include <string_view>
 #include <cassert>
 
 // arbitrary but distinct values, (roughly) ordered according to version number
@@ -333,12 +334,12 @@ protected:
 	  * @param filename The GLSL source code for the shader.
 	  */
 	Shader(GLenum type, const std::string& filename);
-	Shader(GLenum type, const std::string& header,
+	Shader(GLenum type, std::string_view header,
 	                    const std::string& filename);
 	~Shader();
 
 private:
-	void init(GLenum type, const std::string& header,
+	void init(GLenum type, std::string_view header,
 	                       const std::string& filename);
 
 	friend class ShaderProgram;
@@ -357,7 +358,7 @@ public:
 	  * @param filename The GLSL source code for the shader.
 	  */
 	explicit VertexShader(const std::string& filename);
-	VertexShader(const std::string& header, const std::string& filename);
+	VertexShader(std::string_view header, const std::string& filename);
 };
 
 /** Wrapper around an OpenGL fragment shader:
@@ -370,7 +371,7 @@ public:
 	  * @param filename The GLSL source code for the shader.
 	  */
 	explicit FragmentShader(const std::string& filename);
-	FragmentShader(const std::string& header, const std::string& filename);
+	FragmentShader(std::string_view header, const std::string& filename);
 };
 
 /** Wrapper around an OpenGL program:

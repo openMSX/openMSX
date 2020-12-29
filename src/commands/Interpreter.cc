@@ -219,6 +219,15 @@ TclObject Interpreter::execute(const string& command)
 	return TclObject(Tcl_GetObjResult(interp));
 }
 
+TclObject Interpreter::execute(const TemporaryString& command)
+{
+	int success = Tcl_Eval(interp, command.c_str());
+	if (success != TCL_OK) {
+		throw CommandException(Tcl_GetStringResult(interp));
+	}
+	return TclObject(Tcl_GetObjResult(interp));
+}
+
 TclObject Interpreter::executeFile(const string& filename)
 {
 	int success = Tcl_EvalFile(interp, filename.c_str());
@@ -436,12 +445,12 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 
 void Interpreter::createNamespace(const std::string& name)
 {
-	execute(strCat("namespace eval ", name, " {}"));
+	execute(tmpStrCat("namespace eval ", name, " {}"));
 }
 
 void Interpreter::deleteNamespace(const std::string& name)
 {
-	execute("namespace delete " + name);
+	execute(tmpStrCat("namespace delete ", name));
 }
 
 void Interpreter::poll()

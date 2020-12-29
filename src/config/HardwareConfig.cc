@@ -70,7 +70,7 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	}
 
 	const auto& sramfile = FileOperations::getFilename(romfile);
-	auto context = userFileContext(strCat("roms/", sramfile));
+	auto context = userFileContext(tmpStrCat("roms/", sramfile));
 	for (const auto& ips : ipsfiles) {
 		if (!FileOperations::isRegularFile(context.resolve(ips))) {
 			throw MSXException("Invalid IPS file: ", ips);
@@ -205,7 +205,7 @@ static string getFilename(string_view type, string_view name)
 	try {
 		// try <name>.xml
 		return context.resolve(FileOperations::join(
-			type, strCat(name, ".xml")));
+			type, tmpStrCat(name, ".xml")));
 	} catch (MSXException& e) {
 		// backwards-compatibility:
 		//  also try <name>/hardwareconfig.xml

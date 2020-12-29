@@ -128,7 +128,8 @@ static void checkJoystickConfig(Interpreter& interp, TclObject& newValue)
 {
 	TclObject listA, listB;
 	for (auto i : xrange(InputEventGenerator::joystickNumButtons(joystick))) {
-		string button = strCat("button", i);
+		auto button = tmpStrCat("button", i);
+		//std::string_view button = tmp;
 		if (i & 1) {
 			listB.addListElement(button);
 		} else {

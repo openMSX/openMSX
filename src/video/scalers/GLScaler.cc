@@ -12,7 +12,7 @@ namespace openmsx {
 GLScaler::GLScaler(const string& progName)
 {
 	for (auto i : xrange(2)) {
-		string header = strCat("#define SUPERIMPOSE ", char('0' + i), '\n');
+		auto header = tmpStrCat("#define SUPERIMPOSE ", char('0' + i), '\n');
 		VertexShader   vShader(header, progName + ".vert");
 		FragmentShader fShader(header, progName + ".frag");
 		program[i].attach(vShader);
