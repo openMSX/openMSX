@@ -98,18 +98,25 @@ public:
 		}
 		return *this;
 	}
+	TclObject& operator=(TclObject& other) {
+		if (&other != this) {
+			Tcl_DecrRefCount(obj);
+			init(other.obj);
+		}
+		return *this;
+	}
 	TclObject& operator=(TclObject&& other) noexcept {
 		std::swap(obj, other.obj);
 		return *this;
 	}
 	template<typename T>
-	TclObject& operator=(T t) {
+	TclObject& operator=(T&& t) {
 		if (Tcl_IsShared(obj)) {
 			Tcl_DecrRefCount(obj);
-			obj = newObj(t);
+			obj = newObj(std::forward<T>(t));
 			Tcl_IncrRefCount(obj);
 		} else {
-			assign(t);
+			assign(std::forward<T>(t));
 		}
 		return *this;
 	}
