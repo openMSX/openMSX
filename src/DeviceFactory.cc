@@ -31,6 +31,7 @@
 #include "MSXKanji.hh"
 #include "MSXBunsetsu.hh"
 #include "MSXMemoryMapper.hh"
+#include "MSXToshibaTcx200x.hh"
 #include "MegaFlashRomSCCPlusSD.hh"
 #include "MusicalMemoryMapper.hh"
 #include "Carnivore2.hh"
@@ -219,6 +220,8 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<NationalFDC>(conf);
 	} else if (type == "TC8566AF") {
 		result = make_unique<TurboRFDC>(conf);
+	} else if (type == "ToshibaTCX-200x") {
+		result = make_unique<MSXToshibaTcx200x>(conf);
 	} else if (type == "SVIFDC") {
 		result = make_unique<SVIFDC>(conf);
 	} else if (type == "BeerIDE") {
