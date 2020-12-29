@@ -109,6 +109,7 @@
       <secondary slot="0">
         <MemoryMapper id="Main RAM">
           <mem base="0x0000" size="0x10000"/>
+          <initialContent encoding="gz-base64">eJxjYPj/n2EE44F3wcBiAJBx/wE=</initialContent> <!-- (((chr(0)*2 + chr(255)*2)*64) + ((chr(255)*2 + chr(0)*2)*64)) based on Werner's HX-33, see HX-33 config -->
           <size>64</size>
         </MemoryMapper>
       </secondary>
