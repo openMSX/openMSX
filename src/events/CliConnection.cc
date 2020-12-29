@@ -11,6 +11,7 @@
 #include "CommandController.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
+#include "TemporaryString.hh"
 #include "XMLElement.hh"
 #include "checked_cast.hh"
 #include "cstdiop.hh"
@@ -133,9 +134,9 @@ void CliConnection::execute(const string& command)
 		std::make_shared<CliCommandEvent>(command, this));
 }
 
-static string reply(const string& message, bool status)
+static TemporaryString reply(std::string_view message, bool status)
 {
-	return strCat("<reply result=\"", (status ? "ok" : "nok"), "\">",
+	return tmpStrCat("<reply result=\"", (status ? "ok" : "nok"), "\">",
 	              XMLElement::XMLEscape(message), "</reply>\n");
 }
 
@@ -144,8 +145,8 @@ int CliConnection::signalEvent(const std::shared_ptr<const Event>& event)
 	const auto& commandEvent = checked_cast<const CliCommandEvent&>(*event);
 	if (commandEvent.getId() == this) {
 		try {
-			string result(commandController.executeCommand(
-				commandEvent.getCommand(), this).getString());
+			auto result = commandController.executeCommand(
+				commandEvent.getCommand(), this).getString();
 			output(reply(result, true));
 		} catch (CommandException& e) {
 			string result = std::move(e).getMessage() + '\n';

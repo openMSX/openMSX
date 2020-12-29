@@ -14,7 +14,7 @@ public:
 
 	[[nodiscard]] std::string_view getTypeString() const override;
 
-	[[nodiscard]] std::string_view getString() const noexcept { return getValue().getString(); }
+	[[nodiscard]] zstring_view getString() const noexcept { return getValue().getString(); }
 	void setString(std::string_view str) { setValue(TclObject(str)); }
 };
 

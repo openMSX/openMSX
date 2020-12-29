@@ -436,7 +436,7 @@ static TimeDate getTimeDate(time_t totalSeconds)
 }
 
 // Get the time/date from a host file in MSX format
-static TimeDate getTimeDate(const string& filename)
+static TimeDate getTimeDate(zstring_view filename)
 {
 	struct stat st;
 	if (stat(filename.c_str(), &st)) {
@@ -453,7 +453,7 @@ static TimeDate getTimeDate(const string& filename)
 
 // Add an MSXsubdir with the time properties from the HOST-OS subdir
 // @throws when subdir could not be created
-unsigned MSXtar::addSubdirToDSK(const string& hostName, std::string_view msxName,
+unsigned MSXtar::addSubdirToDSK(zstring_view hostName, std::string_view msxName,
                                 unsigned sector)
 {
 	auto [time, date] = getTimeDate(hostName);
@@ -656,7 +656,7 @@ static string condensName(const MSXDirEntry& dirEntry)
 
 
 // Set the entries from dirEntry to the timestamp of resultFile
-static void changeTime(const string& resultFile, const MSXDirEntry& dirEntry)
+static void changeTime(zstring_view resultFile, const MSXDirEntry& dirEntry)
 {
 	unsigned t = dirEntry.time;
 	unsigned d = dirEntry.date;

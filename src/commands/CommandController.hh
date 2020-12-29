@@ -2,6 +2,7 @@
 #define COMMANDCONTROLLER_HH
 
 #include "TclObject.hh"
+#include "zstring_view.hh"
 #include <string_view>
 
 namespace openmsx {
@@ -29,14 +30,14 @@ public:
 	 * (Un)register a command
 	 */
 	virtual void   registerCommand(Command& command,
-	                               const std::string& str) = 0;
+	                               zstring_view str) = 0;
 	virtual void unregisterCommand(Command& command,
 	                               std::string_view str) = 0;
 
 	/**
 	 * Execute the given command
 	 */
-	virtual TclObject executeCommand(const std::string& command,
+	virtual TclObject executeCommand(zstring_view command,
 	                                 CliConnection* connection = nullptr) = 0;
 
 	/** TODO

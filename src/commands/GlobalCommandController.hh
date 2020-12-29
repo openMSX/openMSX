@@ -53,7 +53,7 @@ public:
 	 */
 	void source(const std::string& script);
 
-	void registerProxyCommand(const std::string& name);
+	void registerProxyCommand(std::string_view name);
 	void unregisterProxyCommand(std::string_view name);
 
 	void registerProxySetting(Setting& setting);
@@ -65,10 +65,10 @@ public:
 	void unregisterCompleter(CommandCompleter& completer,
 	                         std::string_view str) override;
 	void   registerCommand(Command& command,
-	                       const std::string& str) override;
+	                       zstring_view str) override;
 	void unregisterCommand(Command& command,
 	                       std::string_view str) override;
-	TclObject executeCommand(const std::string& command,
+	TclObject executeCommand(zstring_view command,
 	                         CliConnection* connection = nullptr) override;
 	void registerSetting(Setting& setting) override;
 	void unregisterSetting(Setting& setting) override;
@@ -84,7 +84,7 @@ public:
 	 * Returns true iff the command is complete (all braces, quotes etc. are
 	 * balanced).
 	 */
-	[[nodiscard]] bool isComplete(const std::string& command);
+	[[nodiscard]] bool isComplete(zstring_view command);
 
 	[[nodiscard]] SettingsConfig& getSettingsConfig() { return settingsConfig; }
 	[[nodiscard]] SettingsManager& getSettingsManager() { return settingsConfig.getSettingsManager(); }

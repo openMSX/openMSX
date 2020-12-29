@@ -7,7 +7,7 @@
 
 namespace utf8 {
 
-static bool multiByteToUtf16(const std::string& multiByte, UINT cp, DWORD dwFlags, std::wstring& utf16)
+static bool multiByteToUtf16(zstring_view multiByte, UINT cp, DWORD dwFlags, std::wstring& utf16)
 {
 	const char* multiByteA = multiByte.c_str();
 	if (int len = MultiByteToWideChar(cp, dwFlags, multiByteA, -1, nullptr, 0)) {
@@ -35,7 +35,7 @@ static bool utf16ToMultiByte(const std::wstring& utf16, UINT cp, std::string& mu
 	return false;
 }
 
-std::string utf8ToAnsi(const std::string& utf8)
+std::string utf8ToAnsi(zstring_view utf8)
 {
 	std::wstring utf16;
 	if (!multiByteToUtf16(utf8, CP_UTF8, MB_ERR_INVALID_CHARS, utf16)) {
@@ -51,7 +51,7 @@ std::string utf8ToAnsi(const std::string& utf8)
 	return ansi;
 }
 
-std::wstring utf8to16(const std::string& utf8)
+std::wstring utf8to16(zstring_view utf8)
 {
 	std::wstring utf16;
 	if (!multiByteToUtf16(utf8, CP_UTF8, MB_ERR_INVALID_CHARS, utf16))

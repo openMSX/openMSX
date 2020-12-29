@@ -357,7 +357,7 @@ void DiskManipulator::create(span<const TclObject> tokens)
 			throw CommandException(
 				"Maximum number of partitions is ", MAX_PARTITIONS);
 		}
-		string tok(token.getString());
+		auto tok = token.getString();
 		char* q;
 		int sectors = strtol(tok.c_str(), &q, 0);
 		int scale = 1024; // default is kilobytes

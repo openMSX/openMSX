@@ -108,11 +108,11 @@ double TclObject::getDouble(Interpreter& interp_) const
 	return result;
 }
 
-std::string_view TclObject::getString() const
+zstring_view TclObject::getString() const
 {
 	int length;
 	char* buf = Tcl_GetStringFromObj(obj, &length);
-	return std::string_view(buf, length);
+	return zstring_view(buf, length);
 }
 
 span<const uint8_t> TclObject::getBinary() const

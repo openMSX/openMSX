@@ -254,7 +254,7 @@ void MemInputArchive::serialize_blob(const char* /*tag*/, void* data,
 
 ////
 
-XmlOutputArchive::XmlOutputArchive(const string& filename)
+XmlOutputArchive::XmlOutputArchive(zstring_view filename)
 	: root("serial")
 {
 	root.addAttribute("openmsx_version", Version::full());

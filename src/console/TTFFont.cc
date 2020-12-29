@@ -5,6 +5,7 @@
 #include "ranges.hh"
 #include "stl.hh"
 #include "xrange.hh"
+#include "zstring_view.hh"
 #include <SDL_ttf.h>
 #include <cassert>
 #include <vector>
@@ -244,7 +245,7 @@ unsigned TTFFont::getWidth() const
 	return advance;
 }
 
-gl::ivec2 TTFFont::getSize(const std::string& text) const
+gl::ivec2 TTFFont::getSize(zstring_view text) const
 {
 	int width, height;
 	if (TTF_SizeUTF8(static_cast<TTF_Font*>(font), text.c_str(),

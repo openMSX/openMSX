@@ -4,6 +4,7 @@
 #include "CommandController.hh"
 #include "Command.hh"
 #include "MSXEventListener.hh"
+#include "TemporaryString.hh"
 #include "hash_set.hh"
 #include "xxhash.hh"
 #include <memory>
@@ -62,10 +63,10 @@ public:
 	void unregisterCompleter(CommandCompleter& completer,
 	                         std::string_view str) override;
 	void   registerCommand(Command& command,
-	                       const std::string& str) override;
+	                       zstring_view str) override;
 	void unregisterCommand(Command& command,
 	                       std::string_view str) override;
-	TclObject executeCommand(const std::string& command,
+	TclObject executeCommand(zstring_view command,
 	                         CliConnection* connection = nullptr) override;
 	void registerSetting(Setting& setting) override;
 	void unregisterSetting(Setting& setting) override;
@@ -73,7 +74,7 @@ public:
 	[[nodiscard]] Interpreter& getInterpreter() override;
 
 private:
-	[[nodiscard]] std::string getFullName(std::string_view name);
+	[[nodiscard]] TemporaryString getFullName(std::string_view name);
 
 	// MSXEventListener
 	void signalMSXEvent(const std::shared_ptr<const Event>& event,

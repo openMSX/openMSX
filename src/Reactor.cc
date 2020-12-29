@@ -1053,7 +1053,7 @@ SetClipboardCommand::SetClipboardCommand(CommandController& commandController_)
 void SetClipboardCommand::execute(span<const TclObject> tokens, TclObject& /*result*/)
 {
 	checkNumArgs(tokens, 2, "text");
-	string text(tokens[1].getString());
+	auto text = tokens[1].getString();
 	if (SDL_SetClipboardText(text.c_str()) != 0) {
 		const char* err = SDL_GetError();
 		SDL_ClearError();

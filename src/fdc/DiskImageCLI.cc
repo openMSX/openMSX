@@ -20,7 +20,7 @@ DiskImageCLI::DiskImageCLI(CommandLineParser& parser_)
 void DiskImageCLI::parseOption(const string& option, span<string>& cmdLine)
 {
 	string filename = getArgument(option, cmdLine);
-	parse(std::string_view(option).substr(1), filename, cmdLine);
+	parse(zstring_view(option).substr(1), filename, cmdLine);
 }
 std::string_view DiskImageCLI::optionHelp() const
 {
@@ -43,10 +43,10 @@ std::string_view DiskImageCLI::fileTypeCategoryName() const
 	return "disk";
 }
 
-void DiskImageCLI::parse(std::string_view drive, std::string_view image,
+void DiskImageCLI::parse(zstring_view drive, std::string_view image,
                          span<string>& cmdLine)
 {
-	if (!parser.getInterpreter().hasCommand(std::string(drive))) { // TODO WIP
+	if (!parser.getInterpreter().hasCommand(drive)) {
 		throw MSXException("No disk drive ", char(::toupper(drive.back())), " present to put image '", image, "' in.");
 	}
 	TclObject command = makeTclList(drive, image);

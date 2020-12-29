@@ -33,7 +33,7 @@ MidiInReader::~MidiInReader()
 // Pluggable
 void MidiInReader::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 {
-	file = FileOperations::openFile(string(readFilenameSetting.getString()), "rb");
+	file = FileOperations::openFile(readFilenameSetting.getString(), "rb");
 	if (!file) {
 		throw PlugException("Failed to open input: ", strerror(errno));
 	}

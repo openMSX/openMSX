@@ -2,7 +2,7 @@
 #define READDIR_HH
 
 #include "direntp.hh"
-#include <string>
+#include "zstring_view.hh"
 #include <sys/types.h>
 
 namespace openmsx {
@@ -18,7 +18,7 @@ public:
 	ReadDir(const ReadDir&) = delete;
 	ReadDir& operator=(const ReadDir&) = delete;
 
-	explicit ReadDir(const std::string& directory);
+	explicit ReadDir(zstring_view directory);
 	~ReadDir();
 
 	/** Get directory entry for next file. Returns nullptr when there

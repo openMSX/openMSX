@@ -414,7 +414,7 @@ void DirAsDSK::checkDeletedHostFiles()
 			// mapDirs. Ignore it.
 			continue;
 		}
-		string fullHostName = hostDir + mapDir.hostName;
+		auto fullHostName = tmpStrCat(hostDir, mapDir.hostName);
 		bool isMSXDirectory = (msxDir(dirIdx).attrib &
 		                       MSXDirEntry::ATT_DIRECTORY) != 0;
 		FileOperations::Stat fst;
@@ -502,7 +502,7 @@ void DirAsDSK::checkModifiedHostFiles()
 			// See comment in checkDeletedHostFiles().
 			continue;
 		}
-		string fullHostName = hostDir + mapDir.hostName;
+		auto fullHostName = tmpStrCat(hostDir, mapDir.hostName);
 		bool isMSXDirectory = (msxDir(dirIdx).attrib &
 		                       MSXDirEntry::ATT_DIRECTORY) != 0;
 		FileOperations::Stat fst;
@@ -692,7 +692,7 @@ void DirAsDSK::addNewHostFiles(const string& hostSubDir, unsigned msxDirSector)
 
 	vector<string> hostNames;
 	{
-		ReadDir dir(hostDir + hostSubDir);
+		ReadDir dir(tmpStrCat(hostDir, hostSubDir));
 		while (auto* d = dir.getEntry()) {
 			hostNames.emplace_back(d->d_name);
 		}
@@ -707,7 +707,7 @@ void DirAsDSK::addNewHostFiles(const string& hostSubDir, unsigned msxDirSector)
 				// also skip hidden files on unix
 				continue;
 			}
-			string fullHostName = strCat(hostDir, hostSubDir, hostName);
+			auto fullHostName = tmpStrCat(hostDir, hostSubDir, hostName);
 			FileOperations::Stat fst;
 			if (!FileOperations::getStat(fullHostName, fst)) {
 				throw MSXException("Error accessing ", fullHostName);
@@ -1296,7 +1296,7 @@ void DirAsDSK::writeDIREntry(DirIndex dirIndex, DirIndex dirDirIndex,
 			// If there is an associated hostfile, then delete it
 			// (in case of a rename, the file will be recreated
 			// below).
-			string fullHostName = hostDir + it->second.hostName;
+			auto fullHostName = tmpStrCat(hostDir, it->second.hostName);
 			FileOperations::deleteRecursive(fullHostName); // ignore return value
 			// Remove mapping between msx and host file/dir.
 			mapDirs.erase(it);

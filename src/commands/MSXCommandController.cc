@@ -9,6 +9,7 @@
 #include "Setting.hh"
 #include "Event.hh"
 #include "MSXException.hh"
+#include "TemporaryString.hh"
 #include "stl.hh"
 #include <iostream>
 #include <memory>
@@ -58,18 +59,18 @@ MSXCommandController::~MSXCommandController()
 	globalCommandController.getInterpreter().deleteNamespace(machineID);
 }
 
-string MSXCommandController::getFullName(string_view name)
+TemporaryString MSXCommandController::getFullName(string_view name)
 {
-	return strCat(machineID, name);
+	return tmpStrCat(machineID, name);
 }
 
-void MSXCommandController::registerCommand(Command& command, const string& str)
+void MSXCommandController::registerCommand(Command& command, zstring_view str)
 {
 	assert(!hasCommand(str));
 	assert(command.getName() == str);
 	commandMap.insert_noDuplicateCheck(&command);
 
-	string fullname = getFullName(str);
+	auto fullname = getFullName(str);
 	globalCommandController.registerCommand(command, fullname);
 	globalCommandController.registerProxyCommand(str);
 
@@ -83,21 +84,21 @@ void MSXCommandController::unregisterCommand(Command& command, string_view str)
 	commandMap.erase(str);
 
 	globalCommandController.unregisterProxyCommand(str);
-	string fullname = getFullName(str);
+	auto fullname = getFullName(str);
 	globalCommandController.unregisterCommand(command, fullname);
 }
 
 void MSXCommandController::registerCompleter(CommandCompleter& completer,
                                              string_view str)
 {
-	string fullname = getFullName(str);
+	auto fullname = getFullName(str);
 	globalCommandController.registerCompleter(completer, fullname);
 }
 
 void MSXCommandController::unregisterCompleter(CommandCompleter& completer,
                                                string_view str)
 {
-	string fullname = getFullName(str);
+	auto fullname = getFullName(str);
 	globalCommandController.unregisterCompleter(completer, fullname);
 }
 
@@ -132,7 +133,7 @@ bool MSXCommandController::hasCommand(string_view command) const
 	return findCommand(command) != nullptr;
 }
 
-TclObject MSXCommandController::executeCommand(const string& command,
+TclObject MSXCommandController::executeCommand(zstring_view command,
                                                CliConnection* connection)
 {
 	return globalCommandController.executeCommand(command, connection);

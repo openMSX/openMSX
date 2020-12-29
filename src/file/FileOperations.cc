@@ -106,7 +106,7 @@ string expandTilde(string path)
 	return result;
 }
 
-void mkdir(const string& path, mode_t mode)
+void mkdir(zstring_view path, mode_t mode)
 {
 #ifdef _WIN32
 	(void)&mode; // Suppress C4100 VC++ warning
@@ -168,7 +168,7 @@ void mkdirp(string path)
 	}
 }
 
-int unlink(const std::string& path)
+int unlink(zstring_view path)
 {
 #ifdef _WIN32
 	return _wunlink(utf8to16(path).c_str());
@@ -177,7 +177,7 @@ int unlink(const std::string& path)
 #endif
 }
 
-int rmdir(const std::string& path)
+int rmdir(zstring_view path)
 {
 #ifdef _WIN32
 	return _wrmdir(utf8to16(path).c_str());
@@ -187,7 +187,7 @@ int rmdir(const std::string& path)
 }
 
 #ifdef _WIN32
-int deleteRecursive(const std::string& path)
+int deleteRecursive(zstring_view path)
 {
 	std::wstring pathW = utf8to16(path);
 
@@ -209,7 +209,7 @@ static int deleteRecursive_cb(const char* fpath, const struct stat* /*sb*/,
 {
 	return remove(fpath);
 }
-int deleteRecursive(const std::string& path)
+int deleteRecursive(zstring_view path)
 {
 	return nftw(path.c_str(), deleteRecursive_cb, 64, FTW_DEPTH | FTW_PHYS);
 }
@@ -239,7 +239,7 @@ int deleteRecursive(const std::string& path)
 }
 #endif
 
-FILE_t openFile(const std::string& filename, const std::string& mode)
+FILE_t openFile(zstring_view filename, zstring_view mode)
 {
 	// Mode must contain a 'b' character. On unix this doesn't make any
 	// difference. But on windows this is required to open the file
@@ -253,7 +253,7 @@ FILE_t openFile(const std::string& filename, const std::string& mode)
 #endif
 }
 
-void openofstream(std::ofstream& stream, const std::string& filename)
+void openofstream(std::ofstream& stream, zstring_view filename)
 {
 #if defined _WIN32 && defined _MSC_VER
 	// MinGW 3.x doesn't support ofstream.open(wchar_t*)
@@ -264,8 +264,8 @@ void openofstream(std::ofstream& stream, const std::string& filename)
 #endif
 }
 
-void openofstream(std::ofstream& stream, const std::string& filename,
-				  std::ios_base::openmode mode)
+void openofstream(std::ofstream& stream, zstring_view filename,
+                  std::ios_base::openmode mode)
 {
 #if defined _WIN32 && defined _MSC_VER
 	// MinGW 3.x doesn't support ofstream.open(wchar_t*)
@@ -512,10 +512,10 @@ string expandCurrentDirFromDrive(string path)
 }
 #endif
 
-bool getStat(const std::string& filename, Stat& st)
+bool getStat(zstring_view filename, Stat& st)
 {
 #ifdef _WIN32
-	std::string filename2 = filename;
+	std::string filename2(filename);
 	// workaround for VC++: strip trailing slashes (but keep it if it's the
 	// only character in the path)
 	if (auto pos = filename2.find_last_not_of('/'); pos != string::npos) {
@@ -534,7 +534,7 @@ bool isRegularFile(const Stat& st)
 {
 	return S_ISREG(st.st_mode);
 }
-bool isRegularFile(const std::string& filename)
+bool isRegularFile(zstring_view filename)
 {
 	Stat st;
 	return getStat(filename, st) && isRegularFile(st);
@@ -545,13 +545,13 @@ bool isDirectory(const Stat& st)
 	return S_ISDIR(st.st_mode);
 }
 
-bool isDirectory(const std::string& directory)
+bool isDirectory(zstring_view directory)
 {
 	Stat st;
 	return getStat(directory, st) && isDirectory(st);
 }
 
-bool exists(const std::string& filename)
+bool exists(zstring_view filename)
 {
 	Stat st; // dummy
 	return getStat(filename, st);

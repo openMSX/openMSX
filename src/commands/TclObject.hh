@@ -4,6 +4,7 @@
 #include "span.hh"
 #include "vla.hh"
 #include "xxhash.hh"
+#include "zstring_view.hh"
 #include <tcl.h>
 #include <algorithm>
 #include <cassert>
@@ -23,9 +24,9 @@ class TclObject
 {
 	// For STL interface, see below
 	struct iterator {
-		using value_type        = std::string_view;
-		using reference         = std::string_view;
-		using pointer           = std::string_view*;
+		using value_type        = zstring_view;
+		using reference         = zstring_view;
+		using pointer           = zstring_view*;
 		using difference_type   = ptrdiff_t;
 		using iterator_category = std::bidirectional_iterator_tag;
 
@@ -40,7 +41,7 @@ class TclObject
 			return !(*this == other);
 		}
 
-		[[nodiscard]] std::string_view operator*() const {
+		[[nodiscard]] zstring_view operator*() const {
 			return obj->getListIndexUnchecked(i).getString();
 		}
 
@@ -148,7 +149,7 @@ public:
 	}
 
 	// value getters
-	[[nodiscard]] std::string_view getString() const;
+	[[nodiscard]] zstring_view getString() const;
 	[[nodiscard]] int getInt      (Interpreter& interp) const;
 	[[nodiscard]] bool getBoolean (Interpreter& interp) const;
 	[[nodiscard]] double getDouble(Interpreter& interp) const;

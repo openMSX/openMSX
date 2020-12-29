@@ -4,6 +4,7 @@
 #include "Date.hh"
 #include "unistdp.hh" // needed for mode_t definition when building with VC++
 #include "statp.hh"
+#include "zstring_view.hh"
 #include <sys/types.h>
 #include <fstream>
 #include <memory>
@@ -47,7 +48,7 @@ namespace openmsx::FileOperations {
 	 * @param mode The permission bits (*nix only)
 	 * @throw FileException
 	 */
-	void mkdir(const std::string& path, mode_t mode);
+	void mkdir(zstring_view path, mode_t mode);
 
 	/**
 	 * Acts like the unix command "mkdir -p". Creates the
@@ -60,17 +61,17 @@ namespace openmsx::FileOperations {
 	/**
 	 * Call unlink() in a platform-independent manner
 	 */
-	int unlink(const std::string& path);
+	int unlink(zstring_view path);
 
 	/**
 	 * Call rmdir() in a platform-independent manner
 	 */
-	int rmdir(const std::string& path);
+	int rmdir(zstring_view path);
 
 	/** Recursively delete a file or directory and (in case of a directory)
 	  * all its sub-components.
 	  */
-	int deleteRecursive(const std::string& path);
+	int deleteRecursive(zstring_view path);
 
 	/** Call fopen() in a platform-independent manner
 	  * @param filename the file path
@@ -78,14 +79,14 @@ namespace openmsx::FileOperations {
 	  * @result A pointer to the opened file, or nullptr on error
 	  *         On error the global variable 'errno' is filled in (see
 	  *         man fopen for details). */
-	[[nodiscard]] FILE_t openFile(const std::string& filename, const std::string& mode);
+	[[nodiscard]] FILE_t openFile(zstring_view filename, zstring_view mode);
 
 	/**
 	 * Open an ofstream in a platform-independent manner
 	 * @param stream an ofstream
 	 * @param filename the file path
 	 */
-	void openofstream(std::ofstream& stream, const std::string& filename);
+	void openofstream(std::ofstream& stream, zstring_view filename);
 
 	/**
 	 * Open an ofstream in a platform-independent manner
@@ -93,10 +94,10 @@ namespace openmsx::FileOperations {
 	 * @param filename the file path
 	 * @param mode the open mode
 	 */
-	void openofstream(std::ofstream& stream, const std::string& filename,
-		std::ios_base::openmode mode);
+        void openofstream(std::ofstream& stream, zstring_view filename,
+	                  std::ios_base::openmode mode);
 
-	/**
+        /**
 	 * Returns the file portion of a path name.
 	 * @param path The pathname
 	 * @result The file portion
@@ -239,24 +240,24 @@ namespace openmsx::FileOperations {
 	 * @param st The stat structure that will be filled in
 	 * @result true iff success
 	 */
-	[[nodiscard]] bool getStat(const std::string& filename, Stat& st);
+	[[nodiscard]] bool getStat(zstring_view filename, Stat& st);
 
 	/**
 	 * Is this a regular file (no directory, device, ..)?
 	 */
-	[[nodiscard]] bool isRegularFile(const std::string& filename);
+	[[nodiscard]] bool isRegularFile(zstring_view filename);
 	[[nodiscard]] bool isRegularFile(const Stat& st);
 
 	/**
 	 * Is this a directory?
 	 */
-	[[nodiscard]] bool isDirectory(const std::string& directory);
+	[[nodiscard]] bool isDirectory(zstring_view directory);
 	[[nodiscard]] bool isDirectory(const Stat& st);
 
 	/**
 	 * Does this file (directory) exists?
 	 */
-	[[nodiscard]] bool exists(const std::string& filename);
+	[[nodiscard]] bool exists(zstring_view filename);
 
 	/** Get the date/time of last modification.
 	  * Is guaranteed to not be INVALID_TIME_T.

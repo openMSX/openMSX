@@ -31,6 +31,7 @@ DEALINGS IN THE SOFTWARE.
 #define UTF8_CHECKED_HH
 
 #include "utf8_core.hh"
+#include "zstring_view.hh"
 #include <stdexcept>
 
 namespace utf8 {
@@ -323,9 +324,9 @@ public:
 };
 
 #ifdef _WIN32
-[[nodiscard]] std::string utf8ToAnsi(const std::string& utf8);
-[[nodiscard]] std::wstring utf8to16(const std::string& utf8);
-[[nodiscard]] std::string utf16to8(const std::wstring& utf16);
+[[nodiscard]] std::string  utf8ToAnsi(zstring_view utf8);
+[[nodiscard]] std::wstring utf8to16  (zstring_view utf8);
+[[nodiscard]] std::string  utf16to8  (const std::wstring& utf16);
 #endif
 
 } // namespace utf8

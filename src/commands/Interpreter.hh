@@ -4,6 +4,7 @@
 #include "TemporaryString.hh"
 #include "TclParser.hh"
 #include "TclObject.hh"
+#include "zstring_view.hh"
 #include <tcl.h>
 #include <string_view>
 #include <string>
@@ -26,14 +27,13 @@ public:
 	void setOutput(InterpreterOutput* output_) { output = output_; }
 
 	void init(const char* programName);
-	bool hasCommand(const std::string& name) const;
-	void registerCommand(const std::string& name, Command& command);
+	bool hasCommand(zstring_view name) const;
+	void registerCommand(zstring_view name, Command& command);
 	void unregisterCommand(Command& command);
 	[[nodiscard]] TclObject getCommandNames();
-	[[nodiscard]] bool isComplete(const std::string& command) const;
-	TclObject execute(const std::string& command);
-	TclObject execute(const TemporaryString& command);
-	TclObject executeFile(const std::string& filename);
+	[[nodiscard]] bool isComplete(zstring_view command) const;
+	TclObject execute(zstring_view command);
+	TclObject executeFile(zstring_view filename);
 
 	void setVariable(const TclObject& name, const TclObject& value);
 	void unsetVariable(const char* name);

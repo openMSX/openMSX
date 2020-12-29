@@ -15,7 +15,7 @@ public:
 	[[nodiscard]] std::string_view getTypeString() const override;
 	void tabCompletion(std::vector<std::string>& tokens) const override;
 
-	[[nodiscard]] std::string_view getString() const noexcept { return getValue().getString(); }
+	[[nodiscard]] zstring_view getString() const noexcept { return getValue().getString(); }
 	void setString(std::string_view str) { setValue(TclObject(str)); }
 };
 

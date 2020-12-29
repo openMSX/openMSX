@@ -9,6 +9,7 @@
 
 #include "MemBuffer.hh"
 #include "DiskImageUtils.hh"
+#include "zstring_view.hh"
 #include <string_view>
 
 namespace openmsx {
@@ -51,7 +52,7 @@ private:
 	unsigned addSubdir(std::string_view msxName,
 	                   unsigned t, unsigned d, unsigned sector);
 	void alterFileInDSK(MSXDirEntry& msxDirEntry, const std::string& hostName);
-	unsigned addSubdirToDSK(const std::string& hostName,
+	unsigned addSubdirToDSK(zstring_view hostName,
 	                        std::string_view msxName, unsigned sector);
 	DirEntry findEntryInDir(const std::string& name, unsigned sector,
 	                        SectorBuffer& sectorBuf);

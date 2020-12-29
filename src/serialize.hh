@@ -9,6 +9,7 @@
 #include "inline.hh"
 #include "strCat.hh"
 #include "unreachable.hh"
+#include "zstring_view.hh"
 #include <zlib.h>
 #include <string>
 #include <typeindex>
@@ -838,7 +839,7 @@ private:
 class XmlOutputArchive final : public OutputArchiveBase<XmlOutputArchive>
 {
 public:
-	explicit XmlOutputArchive(const std::string& filename);
+	explicit XmlOutputArchive(zstring_view filename);
 	void close();
 	~XmlOutputArchive();
 

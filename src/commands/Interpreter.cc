@@ -142,14 +142,14 @@ int Interpreter::outputProc(ClientData clientData, const char* buf,
 	return toWrite;
 }
 
-bool Interpreter::hasCommand(const std::string& name) const
+bool Interpreter::hasCommand(zstring_view name) const
 {
 	// Note: these are not only the commands registered via
 	// registerCommand(), but all commands know to this Tcl-interpreter.
 	return Tcl_FindCommand(interp, name.c_str(), nullptr, 0);
 }
 
-void Interpreter::registerCommand(const string& name, Command& command)
+void Interpreter::registerCommand(zstring_view name, Command& command)
 {
 	auto token = Tcl_CreateObjCommand(
 		interp, name.c_str(), commandProc,
@@ -205,12 +205,12 @@ TclObject Interpreter::getCommandNames()
 	return execute("openmsx::all_command_names");
 }
 
-bool Interpreter::isComplete(const string& command) const
+bool Interpreter::isComplete(zstring_view command) const
 {
 	return Tcl_CommandComplete(command.c_str()) != 0;
 }
 
-TclObject Interpreter::execute(const string& command)
+TclObject Interpreter::execute(zstring_view command)
 {
 	int success = Tcl_Eval(interp, command.c_str());
 	if (success != TCL_OK) {
@@ -219,16 +219,7 @@ TclObject Interpreter::execute(const string& command)
 	return TclObject(Tcl_GetObjResult(interp));
 }
 
-TclObject Interpreter::execute(const TemporaryString& command)
-{
-	int success = Tcl_Eval(interp, command.c_str());
-	if (success != TCL_OK) {
-		throw CommandException(Tcl_GetStringResult(interp));
-	}
-	return TclObject(Tcl_GetObjResult(interp));
-}
-
-TclObject Interpreter::executeFile(const string& filename)
+TclObject Interpreter::executeFile(zstring_view filename)
 {
 	int success = Tcl_EvalFile(interp, filename.c_str());
 	if (success != TCL_OK) {

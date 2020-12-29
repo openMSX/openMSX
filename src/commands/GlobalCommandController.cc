@@ -58,7 +58,7 @@ GlobalCommandControllerBase::~GlobalCommandControllerBase()
 	assert(commandCompleters.empty());
 }
 
-void GlobalCommandController::registerProxyCommand(const string& name)
+void GlobalCommandController::registerProxyCommand(std::string_view name)
 {
 	auto it = proxyCommandMap.find(name);
 	if (it == end(proxyCommandMap)) {
@@ -128,7 +128,7 @@ Interpreter& GlobalCommandController::getInterpreter()
 }
 
 void GlobalCommandController::registerCommand(
-	Command& command, const string& str)
+	Command& command, zstring_view str)
 {
 #ifdef DEBUG
 	assert(!commands.contains(str));
@@ -295,13 +295,13 @@ static string addEscaping(const string& str, bool quote, bool finished)
 	return result;
 }
 
-bool GlobalCommandController::isComplete(const string& command)
+bool GlobalCommandController::isComplete(zstring_view command)
 {
 	return interpreter.isComplete(command);
 }
 
 TclObject GlobalCommandController::executeCommand(
-	const string& command, CliConnection* connection_)
+	zstring_view command, CliConnection* connection_)
 {
 	ScopedAssign sa(connection, connection_);
 	return interpreter.execute(command);

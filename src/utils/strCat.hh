@@ -3,6 +3,7 @@
 
 #include "TemporaryString.hh"
 #include "xrange.hh"
+#include "zstring_view.hh"
 #include <climits>
 #include <cstring>
 #include <limits>
@@ -451,6 +452,10 @@ template<typename T>
 	return ConcatUnit<std::string_view>(s);
 }
 [[nodiscard]] inline auto makeConcatUnit(const TemporaryString& s)
+{
+	return ConcatUnit<std::string_view>(s);
+}
+[[nodiscard]] inline auto makeConcatUnit(zstring_view s)
 {
 	return ConcatUnit<std::string_view>(s);
 }

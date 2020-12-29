@@ -2,6 +2,7 @@
 #define TEMPORARYSTRING_HH
 
 #include "StringStorage.hh"
+#include "zstring_view.hh"
 #include <string_view>
 
 
@@ -45,6 +46,7 @@ public:
 	[[nodiscard]] const char* c_str() const { return ptr; }
 
 	[[nodiscard]] operator std::string_view() const { return {ptr, n}; }
+	[[nodiscard]] operator     zstring_view() const { return {ptr, n}; }
 
 private:
 	size_t n;

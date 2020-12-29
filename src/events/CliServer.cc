@@ -35,7 +35,7 @@ namespace openmsx {
 #endif
 }
 
-[[nodiscard]] static bool checkSocketDir(const string& dir)
+[[nodiscard]] static bool checkSocketDir(zstring_view dir)
 {
 	struct stat st;
 	if (stat(dir.c_str(), &st)) {
@@ -60,7 +60,7 @@ namespace openmsx {
 	return true;
 }
 
-[[nodiscard]] static bool checkSocket(const string& socket)
+[[nodiscard]] static bool checkSocket(zstring_view socket)
 {
 	std::string_view name = FileOperations::getFilename(socket);
 	if (!StringOp::startsWith(name, "socket.")) {
@@ -125,7 +125,7 @@ namespace openmsx {
 
 SOCKET CliServer::createSocket()
 {
-	string dir = strCat(FileOperations::getTempDir(), "/openmsx-", getUserName());
+	auto dir = tmpStrCat(FileOperations::getTempDir(), "/openmsx-", getUserName());
 	FileOperations::mkdir(dir, 0700);
 	if (!checkSocketDir(dir)) {
 		throw MSXException("Couldn't create socket directory.");

@@ -16,7 +16,7 @@ MidiOutLogger::MidiOutLogger(CommandController& commandController)
 void MidiOutLogger::plugHelper(Connector& /*connector*/,
                                EmuTime::param /*time*/)
 {
-	FileOperations::openofstream(file, std::string(logFilenameSetting.getString()));
+	FileOperations::openofstream(file, logFilenameSetting.getString());
 	if (file.fail()) {
 		file.clear();
 		throw PlugException("Error opening log file");
