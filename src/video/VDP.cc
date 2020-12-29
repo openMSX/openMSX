@@ -1223,8 +1223,11 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 
 void VDP::syncAtNextLine(SyncBase& type, EmuTime::param time)
 {
-	int line = getTicksThisFrame(time) / TICKS_PER_LINE;
-	int ticks = (line + 1) * TICKS_PER_LINE;
+	// The processing of a new line starts in the middle of the left erase,
+	// ~144 cycles after the sync signal. Adjust affects it. See issue #1310.
+	int offset = 144 + (horizontalAdjust - 7) * 4;
+	int line = (getTicksThisFrame(time) + TICKS_PER_LINE - offset) / TICKS_PER_LINE;
+	int ticks = line * TICKS_PER_LINE + offset;
 	EmuTime nextTime = frameStartTime + ticks;
 	type.setSyncPoint(nextTime);
 }
