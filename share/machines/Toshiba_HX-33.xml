@@ -1,0 +1,151 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <info>
+    <manufacturer>Toshiba</manufacturer>
+    <code>HX-33</code>
+    <release_year>1985?</release_year>
+    <description>MSX2 with built in word processor</description>
+    <type>MSX2</type>
+  </info>
+
+  <!-- based on information provided by Werner Kai's machine with serial 100158
+       CPU: Sharp LH0080A Z80A-CPU-D
+       PSG: Yamaha YM2149F
+       There seem to be engine-like chips on the mobo:
+       - TCX-2001
+       - TCX-2002
+       PPI: could be the TCX-1009?
+       There is 2kB SRAM on the mobo.
+
+       Reverse engineering by Arjen Zeilemaker and GuvyeR800/BiFi:
+       0x7FFF in slot 3-3 is a control register:
+       - bit 7: COPY button status (0 is pressed), button is located left of
+                the STOP button on the keyboard
+       - bit 5/6: switch ROM/SRAM in page 2
+       - bit 0/1: ROM segment select in page 2 (4 16kB pages)
+       the rest of page 1 is the RS-232C ROM
+       -->
+
+  <CassettePort/>
+
+  <devices>
+
+    <Kanji id="Kanji ROM">
+      <rom>
+        <filename>hx-34_kanjifont.rom</filename>
+        <sha1>db03211b7db46899df41db2b1dfbec972109a967</sha1>
+      </rom>
+      <io base="0xD8" num="2" type="O"/>
+      <io base="0xD9" num="1" type="I"/>
+    </Kanji>
+
+    <PPI id="ppi">
+      <io base="0xA8" num="4"/>
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <keyboard_type>jp_jis</keyboard_type>
+      <has_keypad>true</has_keypad>
+      <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>
+      <code_kana_locks>true</code_kana_locks>
+      <graph_locks>false</graph_locks>
+    </PPI>
+
+    <VDP id="VDP">
+      <version>V9938</version>
+      <vram>128</vram>
+      <io base="0x98" num="4" type="O"/>
+      <io base="0x98" num="2" type="I"/>
+    </VDP>
+
+    <PSG id="PSG">
+      <type>YM2149</type>
+      <keyboardlayout>JIS</keyboardlayout>
+      <sound>
+        <volume>21000</volume>
+        <balance channel="1">0</balance>
+        <balance channel="2">100</balance> <!-- According to Werner Kai's HX-21 -->
+        <balance channel="3">-100</balance><!-- According to Werner Kai's HX-21 -->
+      </sound>
+      <io base="0xA0" num="2" type="O"/>
+      <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>false</ignorePortDirections> <!-- not sure, but guess based on discrete PSG chip -->
+    </PSG>
+
+    <RTC id="Real time clock">
+      <sramname>hx-33.cmos</sramname>
+      <io base="0xB4" num="2" type="O"/>
+      <io base="0xB5" num="1" type="I"/>
+    </RTC>
+
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
+
+    <MSX-RS232 id="RS-232">
+      <io base="0x80" num="8"/>
+      <toshiba_rs232c_switch>true</toshiba_rs232c_switch>
+    </MSX-RS232>
+
+    <primary slot="0">
+      <ROM id="MSX BIOS with BASIC ROM">
+        <rom>
+         <sha1>5e057526fe39d79e88e7ff1ce02ed669bd38929e</sha1>
+         <filename>HX33_IC7.BIN</filename> <!-- Same as HX-34 EPROM dump -->
+         <window base="0x0000" size="0x8000"/>
+        </rom>
+        <mem base="0x0000" size="0x8000"/>
+      </ROM>
+    </primary>
+
+    <primary external="true" slot="1"/> <!-- top slot -->
+
+    <primary external="true" slot="2"/> <!-- back slot -->
+
+    <primary slot="3">
+
+      <secondary slot="0">
+        <MemoryMapper id="Main RAM">
+          <mem base="0x0000" size="0x10000"/>
+          <initialContent encoding="gz-base64">eJxjYPj/n2EE44F3wcBiAJBx/wE=</initialContent> <!-- (((chr(0)*2 + chr(255)*2)*64) + ((chr(255)*2 + chr(0)*2)*64)) -->
+          <size>64</size>
+        </MemoryMapper>
+      </secondary>
+
+      <secondary slot="1">
+        <ROM id="MSX Sub ROM">
+          <rom>
+           <sha1>5e057526fe39d79e88e7ff1ce02ed669bd38929e</sha1>
+           <filename>HX33_IC7.BIN</filename> <!-- Same as HX-34 EPROM dump -->
+           <window base="0x8000" size="0x4000"/>
+          </rom>
+          <mem base="0x0000" size="0x4000"/>
+        </ROM>
+      </secondary>
+
+      <secondary slot="2"/>
+
+      <secondary slot="3">
+        <ToshibaTCX-200x id="Toshiba TCX-2001/2002">
+          <rom id="rs232">
+           <sha1>5e057526fe39d79e88e7ff1ce02ed669bd38929e</sha1>
+           <filename>HX33_IC7.BIN</filename> <!-- identical to HX-34 -->
+           <window base="0xC000" size="0x4000"/>
+          </rom>
+          <rom id="wordpro">
+           <sha1>5e057526fe39d79e88e7ff1ce02ed669bd38929e</sha1>
+           <filename>HX34_IC7.BIN</filename> <!-- also assumed to be the same as HX-34, the first 16kB block is at least identical -->
+           <window base="0x10000" size="0x10000"/>
+          </rom>
+          <mem base="0x4000" size="0x8000"/>
+          <sramname>hx-33_tcx-200x.sram</sramname>
+        </ToshibaTCX-200x>
+      </secondary>
+
+    </primary>
+
+  </devices>
+
+</msxconfig>
