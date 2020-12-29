@@ -71,6 +71,7 @@ VDP::VDP(const DeviceConfig& config)
 	, syncHorAdjust(*this)
 	, syncSetMode(*this)
 	, syncSetBlank(*this)
+	, syncSetSprites(*this)
 	, syncCpuVramAccess(*this)
 	, syncCmdDone(*this)
 	, display(getReactor().getDisplay())
@@ -278,6 +279,7 @@ void VDP::resetInit()
 	// TODO: Real VDP probably resets timing as well.
 	isDisplayArea = false;
 	displayEnabled = false;
+	spriteEnabled = true;
 	superimposing = nullptr;
 	externalVideo = nullptr;
 
@@ -326,6 +328,7 @@ void VDP::reset(EmuTime::param time)
 	syncHorAdjust    .removeSyncPoint();
 	syncSetMode      .removeSyncPoint();
 	syncSetBlank     .removeSyncPoint();
+	syncSetSprites   .removeSyncPoint();
 	syncCpuVramAccess.removeSyncPoint();
 	syncCmdDone      .removeSyncPoint();
 	pendingCpuAccess = false;
@@ -432,6 +435,13 @@ void VDP::execSetBlank(EmuTime::param time)
 		vram->updateDisplayEnabled(newDisplayEnabled, time);
 	}
 	displayEnabled = newDisplayEnabled;
+}
+
+void VDP::execSetSprites(EmuTime::param time)
+{
+	bool newSpriteEnabled = (controlRegs[8] & 0x02) == 0;
+	vram->updateSpritesEnabled(newSpriteEnabled, time);
+	spriteEnabled = newSpriteEnabled;
 }
 
 void VDP::execCpuVramAccess(EmuTime::param time)
@@ -1077,7 +1087,7 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 			spriteChecker->updateTransparency((val & 0x20) == 0, time);
 		}
 		if (change & 0x02) {
-			vram->updateSpritesEnabled((val & 0x02) == 0, time);
+			syncAtNextLine(syncSetSprites, time);
 		}
 		if (change & 0x08) {
 			vram->updateVRMode((val & 0x08) != 0, time);
@@ -1824,6 +1834,7 @@ int VDP::MsxX512PosInfo::calc(const EmuTime& time) const
 // version 6: added cpuVramReqAddr to solve too_fast_vram_access issue
 // version 7: removed cpuVramReqAddr again, fixed issue in a different way
 // version 8: removed 'userData' from Schedulable
+// version 9: update sprite-enabled-status only once per line
 template<typename Archive>
 void VDP::serialize(Archive& ar, unsigned serVersion)
 {
@@ -1904,6 +1915,14 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 		// constant the whole time). But I think it's better to have
 		// an obviously wrong value than an almost correct value.
 		frameCount = 0;
+	}
+
+	if (ar.versionAtLeast(serVersion, 9)) {
+		ar.serialize("syncSetSprites", syncSetSprites);
+		ar.serialize("spriteEnabled", spriteEnabled);
+	} else {
+		assert(ar.isLoader());
+		spriteEnabled = (controlRegs[8] & 0x02) == 0;
 	}
 
 	// externalVideo does not need serializing. It is set on load by the

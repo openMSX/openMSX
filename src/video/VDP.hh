@@ -256,7 +256,7 @@ public:
 	[[nodiscard]] inline bool spritesEnabled() const {
 		return displayEnabled &&
 		       (displayMode.getSpriteMode(isMSX1VDP()) != 0) &&
-		       ((controlRegs[8] & 0x02) == 0x00);
+		       spriteEnabled;
 	}
 
 	/** Same as spritesEnabled(), but may only be called in sprite
@@ -264,14 +264,14 @@ public:
 	  */
 	[[nodiscard]] inline bool spritesEnabledFast() const {
 		assert(displayMode.getSpriteMode(isMSX1VDP()) != 0);
-		return displayEnabled && ((controlRegs[8] & 0x02) == 0x00);
+		return displayEnabled && spriteEnabled;
 	}
 
 	/** Still faster variant (just looks at the sprite-enabled-bit).
 	  * But only valid in sprite mode 1/2 with screen enabled.
 	  */
 	[[nodiscard]] inline bool spritesEnabledRegister() const {
-		return (controlRegs[8] & 0x02) == 0x00;
+		return spriteEnabled;
 	}
 
 	/** Gets the current vertical scroll (line displayed at Y=0).
@@ -766,6 +766,14 @@ private:
 		}
 	} syncSetBlank;
 
+	struct SyncSetSprites final : public SyncBase {
+		explicit SyncSetSprites(VDP& vdp) : SyncBase(vdp) {}
+		void executeUntil(EmuTime::param time) override {
+			auto& vdp = OUTER(VDP, syncSetSprites);
+			vdp.execSetSprites(time);
+		}
+	} syncSetSprites;
+
 	struct SyncCpuVramAccess final : public SyncBase {
 		explicit SyncCpuVramAccess(VDP& vdp) : SyncBase(vdp) {}
 		void executeUntil(EmuTime::param time) override {
@@ -789,6 +797,7 @@ private:
 	void execHorAdjust(EmuTime::param time);
 	void execSetMode(EmuTime::param time);
 	void execSetBlank(EmuTime::param time);
+	void execSetSprites(EmuTime::param time);
 	void execCpuVramAccess(EmuTime::param time);
 	void execSyncCmdDone(EmuTime::param time);
 
@@ -1227,6 +1236,13 @@ private:
 	  */
 	bool displayEnabled;
 
+	/** Are sprites enabled. This only reflects the SPD bit in R#8. It does
+	  * not take screen mode, screen enabled or vertical borders into
+	  * account. It's not identical to the SPD bit because this variable is
+	  * only updated at the start of the next line.
+	  */
+	bool spriteEnabled;
+
 	/** Has a warning been printed.
 	  * This is set when a warning about setting the dotclock direction
 	  * is printed.  */
@@ -1240,7 +1256,7 @@ private:
 	MSXCPU& cpu;
 	const byte fixedVDPIOdelayCycles;
 };
-SERIALIZE_CLASS_VERSION(VDP, 8);
+SERIALIZE_CLASS_VERSION(VDP, 9);
 
 } // namespace openmsx
 
