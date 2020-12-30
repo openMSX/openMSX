@@ -141,6 +141,7 @@
           </rom>
           <mem base="0x4000" size="0x8000"/>
           <sramname>hx-33_tcx-200x.sram</sramname>
+          <initialContent encoding="hex">00</initialContent>
         </ToshibaTCX-200x>
       </secondary>
 
