@@ -45,6 +45,7 @@ private:
 		[[nodiscard]] Info createBoolean(span<const TclObject> tokens);
 		[[nodiscard]] Info createInteger(span<const TclObject> tokens);
 		[[nodiscard]] Info createFloat  (span<const TclObject> tokens);
+		[[nodiscard]] Info createEnum   (span<const TclObject> tokens);
 
 		[[nodiscard]] std::vector<std::string_view> getSettingNames() const;
 	} userSettingCommand;

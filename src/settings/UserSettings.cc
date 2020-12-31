@@ -5,6 +5,7 @@
 #include "TclObject.hh"
 #include "StringSetting.hh"
 #include "BooleanSetting.hh"
+#include "EnumSetting.hh"
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
 #include "checked_cast.hh"
@@ -15,7 +16,6 @@
 #include <memory>
 
 using std::string;
-using std::unique_ptr;
 using std::vector;
 
 namespace openmsx {
@@ -84,10 +84,12 @@ void UserSettings::Cmd::create(span<const TclObject> tokens, TclObject& result)
 			return createInteger(tokens);
 		} else if (type == "float") {
 			return createFloat(tokens);
+		} else if (type == "enum") {
+			return createEnum(tokens);
 		} else {
 			throw CommandException(
 				"Invalid setting type '", type, "', expected "
-				"'string', 'boolean', 'integer' or 'float'.");
+				"'string', 'boolean', 'integer', 'float' or 'enum'.");
 		}
 	};
 	auto& userSettings = OUTER(UserSettings, userSettingCommand);
@@ -154,6 +156,33 @@ UserSettings::Info UserSettings::Cmd::createFloat(span<const TclObject> tokens)
 	        std::move(storage)};
 }
 
+UserSettings::Info UserSettings::Cmd::createEnum(span<const TclObject> tokens)
+{
+	checkNumArgs(tokens, 7, Prefix{3}, "name description initialvalue allowed-values-list");
+	const auto& sName   = tokens[3].getString();
+	const auto& desc    = tokens[4].getString();
+	const auto& initStr = tokens[5].getString();
+	const auto& list    = tokens[6];
+
+	int initVal = -1;
+	int i = 0;
+	auto map = to_vector(view::transform(list, [&](const auto& s) {
+		if (s == initStr) initVal = i;
+		return std::pair{string(s), i++};
+	}));
+	if (initVal == -1) {
+		throw CommandException(
+			"Initial value '", initStr, "' "
+			"must be one of the allowed values '",
+			list.getString(), '\'');
+	}
+
+	auto [storage, view] = make_string_storage(desc);
+	return {std::make_unique<EnumSetting<int>>(
+			getCommandController(), sName, view, initVal, std::move(map)),
+	        std::move(storage)};
+}
+
 void UserSettings::Cmd::destroy(span<const TclObject> tokens, TclObject& /*result*/)
 {
 	checkNumArgs(tokens, 3, "name");
@@ -193,7 +222,7 @@ string UserSettings::Cmd::help(const vector<string>& tokens) const
 	assert(tokens.size() >= 2);
 	if (tokens[1] == "create") {
 		return
-		  "user_setting create <type> <name> <description> <init-value> [<min-value> <max-value>]\n"
+		  "user_setting create <type> <name> <description> <init-value> [<min-value> <max-value> | <value-list>]\n"
 		  "\n"
 		  "Create a user defined setting. The extra arguments have the following meaning:\n"
 		  "  <type>         The type for the setting, must be 'string', 'boolean', 'integer' or 'float'.\n"
@@ -204,7 +233,8 @@ string UserSettings::Cmd::help(const vector<string>& tokens) const
 		  "                 This value is only used the very first time the setting is created, otherwise the value is taken from previous openMSX sessions.\n"
 		  "  <min-value>    This parameter is only required for 'integer' and 'float' setting types.\n"
 		  "                 Together with max-value this parameter defines the range of valid values.\n"
-		  "  <max-value>    See min-value.";
+		  "  <max-value>    See min-value.\n"
+		  "  <value-list>   Enum settings have no min and max but instead have a list of possible values";
 
 	} else if (tokens[1] == "destroy") {
 		return
@@ -236,7 +266,7 @@ void UserSettings::Cmd::tabCompletion(vector<string>& tokens) const
 		completeString(tokens, cmds);
 	} else if ((tokens.size() == 3) && (tokens[1] == "create")) {
 		static constexpr const char* const types[] = {
-			"string", "boolean", "integer", "float"
+			"string", "boolean", "integer", "float", "enum"
 		};
 		completeString(tokens, types);
 	} else if ((tokens.size() == 3) && (tokens[1] == "destroy")) {
