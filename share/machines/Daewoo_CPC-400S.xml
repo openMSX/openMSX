@@ -57,6 +57,10 @@
       <type>YM2149</type> <!-- in S-1985 MSX-ENGINE -->
       <sound>
         <volume>21000</volume>
+        <!-- with the stereo option enabled, the sound is LEFT, RIGHT, RIGHT -->
+        <balance channel="1">-100</balance>
+        <balance channel="2">100</balance>
+        <balance channel="3">100</balance>
       </sound>
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
