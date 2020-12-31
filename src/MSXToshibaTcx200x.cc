@@ -5,13 +5,13 @@
 namespace openmsx {
 
 // 7FFF is mapper control register
-// 
+//
 // x11xxxxx select SRAM in page 2 (8000H-87FFH, or perhaps mirrored in page 2), R/W
 // x00xxxxx select ROM in page 2, R/W
-// xxxxxx00 select ROM segement 0 in page 2 (screencopy, japanese wordprocessor), R/W
-// xxxxxx01 select ROM segement 1 in page 2 (japanese wordprocessor), R/W
-// xxxxxx10 select ROM segement 2 in page 2 (european wordprocessor), R/W
-// xxxxxx11 select ROM segement 3 in page 2 (japanese wordprocessor), R/W
+// xxxxxx00 select ROM segment 0 in page 2 (screencopy, japanese wordprocessor), R/W
+// xxxxxx01 select ROM segment 1 in page 2 (japanese wordprocessor), R/W
+// xxxxxx10 select ROM segment 2 in page 2 (european wordprocessor), R/W
+// xxxxxx11 select ROM segment 3 in page 2 (japanese wordprocessor), R/W
 // kxxxxxxx COPY key, 0 is pressed (R)
 
 // b6,b5 = SRAM select. Only pattern 00 and 11 are used, not sure what pattern 01 and 10 do
@@ -43,7 +43,7 @@ bool MSXToshibaTcx200x::sramEnabled() const
 
 byte MSXToshibaTcx200x::getSelectedSegment() const
 {
-	return (controlReg & 0b0000'0011);
+	return controlReg & 0b0000'0011;
 }
 
 byte MSXToshibaTcx200x::peekMem(word address, EmuTime::param /*time*/) const
@@ -72,7 +72,7 @@ byte MSXToshibaTcx200x::readMem(word address, EmuTime::param time)
 void MSXToshibaTcx200x::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	if (address == 0x7FFF) {
-		controlReg = value;
+		controlReg = value & 0b0110'0011; // TODO which bits can be read back?
 		invalidateDeviceRWCache(0x8000, 0x4000);
 	} else if ((0x8000 <= address) && (address < 0xC000) && sramEnabled()) {
 		sram.write(address & (sram.getSize() - 1), value);
