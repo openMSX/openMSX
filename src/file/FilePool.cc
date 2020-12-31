@@ -34,9 +34,9 @@ private:
 
 	for (auto& p : systemFileContext().getPaths()) {
 		result.addListElement(
-			makeTclDict("-path", FileOperations::join(p, "systemroms"),
+			makeTclDict("-path", tmpStrCat(p, "/systemroms"),
 			            "-types", "system_rom"),
-			makeTclDict("-path", FileOperations::join(p, "software"),
+			makeTclDict("-path", tmpStrCat(p, "/software"),
 			            "-types", "rom disk tape"));
 	}
 	return string(result.getString());

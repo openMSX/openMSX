@@ -370,8 +370,7 @@ string getAbsolutePath(string_view path)
 	if (isAbsolutePath(path)) {
 		return string(path);
 	}
-	string currentDir = getCurrentWorkingDirectory();
-	return join(currentDir, path);
+	return join(getCurrentWorkingDirectory(), path);
 }
 
 bool isAbsolutePath(string_view path)

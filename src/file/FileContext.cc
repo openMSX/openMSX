@@ -145,8 +145,7 @@ static string backSubstSymbols(string_view path)
 FileContext configFileContext(string_view path, string_view hwDescr, string_view userName)
 {
 	return { { backSubstSymbols(path) },
-	         { FileOperations::join(
-	               USER_OPENMSX, "persistent", hwDescr, userName) } };
+	         { strCat(USER_OPENMSX, "/persistent/", hwDescr, '/', userName) } };
 }
 
 FileContext systemFileContext()
@@ -165,8 +164,7 @@ FileContext userFileContext(string_view savePath)
 {
 	vector<string> savePaths;
 	if (!savePath.empty()) {
-		savePaths = { FileOperations::join(
-		                 USER_OPENMSX, "persistent", savePath) };
+		savePaths = { strCat(USER_OPENMSX, "/persistent/", savePath) };
 	}
 	return { { string{}, USER_DIRS }, std::move(savePaths) };
 }

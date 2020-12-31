@@ -204,14 +204,14 @@ static string getFilename(string_view type, string_view name)
 	auto context = systemFileContext();
 	try {
 		// try <name>.xml
-		return context.resolve(FileOperations::join(
-			type, tmpStrCat(name, ".xml")));
+		return context.resolve(tmpStrCat(
+			type, '/', name, ".xml"));
 	} catch (MSXException& e) {
 		// backwards-compatibility:
 		//  also try <name>/hardwareconfig.xml
 		try {
-			return context.resolve(FileOperations::join(
-				type, name, "hardwareconfig.xml"));
+			return context.resolve(tmpStrCat(
+				type, '/', name, "/hardwareconfig.xml"));
 		} catch (MSXException&) {
 			throw e; // signal first error
 		}
