@@ -115,7 +115,7 @@ void mkdir(zstring_view path, mode_t mode)
 		StringOp::endsWith(path, ":/")) {
 		return;
 	}
-	int result = _wmkdir(utf8to16(getNativePath(path)).c_str());
+	int result = _wmkdir(utf8to16(getNativePath(string(path))).c_str());
 #else
 	int result = ::mkdir(path.c_str(), mode);
 #endif
