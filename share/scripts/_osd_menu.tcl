@@ -961,6 +961,11 @@ proc boolean_to_text {boolean} {
 	}
 }
 
+proc rerender {} {
+	# attempts to use reverse to rerender the current frame
+	catch {reverse goback 0}
+}
+
 proc create_video_setting_menu {} {
 	variable scaling_available
 
@@ -969,7 +974,7 @@ proc create_video_setting_menu {} {
 		border-size 2
 		width 210
 		xpos 100
-		ypos 110
+		ypos 90
 	}
 	lappend items { text "Video Settings"
 	         font-size 10
@@ -1023,8 +1028,12 @@ proc create_video_setting_menu {} {
 		          RIGHT { osd_menu::menu_setting [set noise [expr $noise + 1]] }}
 			  post-spacing 3}
 	lappend items { textexpr "Enforce VDP Sprites-per-line Limit: [osd_menu::boolean_to_text $limitsprites]"
-			actions { LEFT  { osd_menu::menu_setting [cycle_back limitsprites] }
-			          RIGHT { osd_menu::menu_setting [cycle      limitsprites] }}}
+			actions { LEFT  { osd_menu::menu_setting [cycle_back limitsprites]; osd_menu::rerender }
+			          RIGHT { osd_menu::menu_setting [cycle      limitsprites]; osd_menu::rerender }}
+			  post-spacing 3}
+	lappend items { textexpr "Monitor type: [string map {_ { }} $monitor_type]"
+		actions { LEFT  { osd_menu::menu_setting [cycle_back monitor_type]; osd_menu::rerender }
+			  RIGHT { osd_menu::menu_setting [cycle      monitor_type]; osd_menu::rerender }}}
 	dict set menu_def items $items
 	return $menu_def
 }
