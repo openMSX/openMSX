@@ -52,6 +52,10 @@ proc monitor_type {{monitor ""}} {
 
 namespace export monitor_type
 
+user_setting create enum monitor_type "Selects the monitor color profile" normal [dict keys $monitors]
+proc monitor_type_changed {name1 name2 op} { monitor_type $::monitor_type }
+trace add variable ::monitor_type write [namespace code monitor_type_changed]
+
 } ;# namespace monitor
 
 namespace import monitor::*
