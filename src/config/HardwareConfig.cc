@@ -94,6 +94,9 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	auto& mem = device.addChild("mem");
 	mem.addAttribute("base", "0x0000");
 	mem.addAttribute("size", "0x10000");
+	device.addChild("sound").addChild("volume", "9000");
+	device.addChild("mappertype", mapper.empty() ? "auto" : std::move(mapper));
+	device.addChild("sramname", strCat(sramfile, ".SRAM"));
 	auto& rom = device.addChild("rom");
 	rom.addChild("resolvedFilename", resolvedFilename);
 	rom.addChild("filename", move(romfile));
@@ -103,9 +106,6 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 			patches.addChild("ips", string(s));
 		}
 	}
-	device.addChild("sound").addChild("volume", "9000");
-	device.addChild("mappertype", mapper.empty() ? "auto" : std::move(mapper));
-	device.addChild("sramname", strCat(sramfile, ".SRAM"));
 
 	result->setConfig(move(extension));
 	result->setFileContext(move(context));
