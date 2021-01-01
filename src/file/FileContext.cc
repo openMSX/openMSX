@@ -79,20 +79,22 @@ FileContext::FileContext(vector<string>&& paths_, vector<string>&& savePaths_)
 
 string FileContext::resolve(string_view filename) const
 {
-	vector<string> pathList = getPathsHelper(paths);
-	string result = resolveHelper(pathList, filename);
+	string result = resolveHelper(getPaths(), filename);
 	assert(!FileOperations::needsTildeExpansion(result));
 	return result;
 }
 
 string FileContext::resolveCreate(string_view filename) const
 {
+	if (savePaths2.empty()) {
+		savePaths2 = getPathsHelper(savePaths);
+	}
+
 	string result;
-	vector<string> pathList = getPathsHelper(savePaths);
 	try {
-		result = resolveHelper(pathList, filename);
+		result = resolveHelper(savePaths2, filename);
 	} catch (FileException&) {
-		string path = pathList.front();
+		const string& path = savePaths2.front();
 		try {
 			FileOperations::mkdirp(path);
 		} catch (FileException&) {
@@ -104,9 +106,12 @@ string FileContext::resolveCreate(string_view filename) const
 	return result;
 }
 
-vector<string> FileContext::getPaths() const
+const vector<string>& FileContext::getPaths() const
 {
-	return getPathsHelper(paths);
+	if (paths2.empty()) {
+		paths2 = getPathsHelper(paths);
+	}
+	return paths2;
 }
 
 bool FileContext::isUserContext() const
@@ -148,25 +153,32 @@ FileContext configFileContext(string_view path, string_view hwDescr, string_view
 	         { strCat(USER_OPENMSX, "/persistent/", hwDescr, '/', userName) } };
 }
 
-FileContext systemFileContext()
+const FileContext& systemFileContext()
 {
-	return { { USER_DATA, SYSTEM_DATA },
-	         { USER_DATA } };
+	static const FileContext result{
+		{ USER_DATA, SYSTEM_DATA },
+		{ USER_DATA } };
+	return result;
 }
 
-FileContext preferSystemFileContext()
+const FileContext& preferSystemFileContext()
 {
-	return { { SYSTEM_DATA, USER_DATA },  // first system dir
-	         {} };
+	static const FileContext result{
+		{ SYSTEM_DATA, USER_DATA },  // first system dir
+		{} };
+	return result;
 }
 
 FileContext userFileContext(string_view savePath)
 {
-	vector<string> savePaths;
-	if (!savePath.empty()) {
-		savePaths = { strCat(USER_OPENMSX, "/persistent/", savePath) };
-	}
-	return { { string{}, USER_DIRS }, std::move(savePaths) };
+	return { { string{}, USER_DIRS },
+	         { strCat(USER_OPENMSX, "/persistent/", savePath) } };
+}
+
+const FileContext& userFileContext()
+{
+	static const FileContext result{ { string{}, USER_DIRS }, {} };
+	return result;
 }
 
 FileContext userDataFileContext(string_view subDir)
@@ -175,9 +187,10 @@ FileContext userDataFileContext(string_view subDir)
 	         {} };
 }
 
-FileContext currentDirFileContext()
+const FileContext& currentDirFileContext()
 {
-	return {{string{}}, {string{}}};
+	static const FileContext result{{string{}}, {string{}}};
+	return result;
 }
 
 } // namespace openmsx
