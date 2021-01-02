@@ -368,7 +368,7 @@ size_t OSDText::splitAtWord(const std::string& line, unsigned maxWidth) const
 string OSDText::getCharWrappedText(const string& txt, unsigned maxWidth) const
 {
 	vector<string_view> wrappedLines;
-	for (auto& line : StringOp::split(txt, '\n')) {
+	for (auto line : StringOp::split_view(txt, '\n')) {
 		do {
 			auto p = splitAtChar(string(line), maxWidth);
 			wrappedLines.push_back(line.substr(0, p));
@@ -381,7 +381,7 @@ string OSDText::getCharWrappedText(const string& txt, unsigned maxWidth) const
 string OSDText::getWordWrappedText(const string& txt, unsigned maxWidth) const
 {
 	vector<string_view> wrappedLines;
-	for (auto& line : StringOp::split(txt, '\n')) {
+	for (auto line : StringOp::split_view(txt, '\n')) {
 		do {
 			auto p = splitAtWord(string(line), maxWidth);
 			string_view first = line.substr(0, p);

@@ -80,6 +80,12 @@ static void checkSplitOnLast(const string& s, const string& first, const string&
 static void checkSplit(const string& s, const vector<string_view> expected)
 {
 	CHECK(split(s, '-') == expected);
+
+	vector<string_view> result;
+	for (const auto& ss : StringOp::split_view(s, '-')) {
+		result.push_back(ss);
+	}
+	CHECK(result == expected);
 }
 
 static void checkParseRange(const string& s, const vector<unsigned>& expected)

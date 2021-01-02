@@ -74,9 +74,57 @@ namespace StringOp
 		std::string_view str, std::string_view chars);
 	[[nodiscard]] std::pair<std::string_view, std::string_view> splitOnLast(
 		std::string_view str, char chars);
-	[[nodiscard]] std::vector<std::string_view> split(std::string_view str, char chars);
 	[[nodiscard]] std::vector<unsigned> parseRange(std::string_view str,
 	                                               unsigned min, unsigned max);
+
+	[[nodiscard]] std::vector<std::string_view> split(std::string_view str, char chars);
+
+	[[nodiscard]] inline auto split_view(std::string_view str, char c) {
+		struct Sentinel {};
+
+		struct Iterator {
+			std::string_view str;
+			std::string_view::size_type p;
+			const char c;
+
+			[[nodiscard]] Iterator(std::string_view str_, char c_)
+				: str(str_), c(c_) {
+				next_p();
+			}
+
+			[[nodiscard]] std::string_view operator*() const {
+				return std::string_view(str.data(), p);
+			}
+
+			Iterator& operator++() {
+				if (p < str.size()) {
+					str.remove_prefix(p + 1);
+					next_p();
+				} else {
+					str = "";
+				}
+				return *this;
+			}
+
+			[[nodiscard]] bool operator==(Sentinel) const { return  str.empty(); }
+			[[nodiscard]] bool operator!=(Sentinel) const { return !str.empty(); }
+
+			void next_p() {
+				p = 0;
+				while ((p < str.size()) && (str[p] != c)) ++p;
+			}
+		};
+
+		struct Splitter {
+			std::string_view str;
+			char c;
+
+			[[nodiscard]] auto begin() const { return Iterator{str, c}; }
+			[[nodiscard]] auto end()   const { return Sentinel{}; }
+		};
+
+		return Splitter{str, c};
+	}
 
 	// case insensitive less-than operator
 	struct caseless {
