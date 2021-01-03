@@ -261,12 +261,19 @@ u32bit_iterator utf8to32(octet_iterator start, octet_iterator end,
 
 // The iterator class
 template<typename octet_iterator>
-class iterator : public std::iterator<std::bidirectional_iterator_tag, uint32_t>
+class iterator
 {
 	octet_iterator it;
 	octet_iterator range_start;
 	octet_iterator range_end;
+
 public:
+	using iterator_category = std::bidirectional_iterator_tag;
+	using difference_type   = ptrdiff_t;
+	using value_type        = uint32_t;
+	using pointer           = uint32_t*;
+	using reference         = uint32_t&;
+
 	iterator() = default;
 	iterator(const octet_iterator& octet_it,
 	         const octet_iterator& range_start_,
