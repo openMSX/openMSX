@@ -475,7 +475,7 @@ void OSDConsoleRenderer::drawConsoleText(OutputSurface& output, byte visibility)
 				return std::tuple(int(rows - 1), int(count - target), idx);
 			}
 		}
-		int y = count - 1 - scrollBack;
+		int y = int(count - 1 - scrollBack);
 		return std::tuple(y, 0, lines.size() - 1);
 	}();
 	int cursorY = cursorY_; // clang workaround

@@ -451,7 +451,7 @@ const string& getSystemDataDir()
 		}
 #ifdef _WIN32
 		wchar_t bufW[MAXPATHLEN + 1];
-		int res = GetModuleFileNameW(nullptr, bufW, std::size(bufW));
+		int res = GetModuleFileNameW(nullptr, bufW, DWORD(std::size(bufW)));
 		if (!res) {
 			throw FatalError(
 				"Cannot detect openMSX directory. GetModuleFileNameW failed: ",

@@ -299,7 +299,7 @@ void Keyboard::signalStateChange(const shared_ptr<StateChange>& event)
 void Keyboard::stopReplay(EmuTime::param time)
 {
 	for (auto [row, hkm] : enumerate(hostKeyMatrix)) {
-		changeKeyMatrixEvent(time, row, hkm);
+		changeKeyMatrixEvent(time, byte(row), hkm);
 	}
 	msxModifiers = 0xff;
 	msxKeyEventQueue.clear();

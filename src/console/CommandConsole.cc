@@ -527,7 +527,7 @@ void CommandConsole::scroll(int delta)
 // returned for efficiency (this function calculates them anyway, and it's
 // likely the caller will need them as well).
 static std::tuple<std::string::const_iterator, std::string::const_iterator, unsigned>
-	getStartOfWord(const std::string& line, unsigned cursorPos, unsigned promptSize)
+	getStartOfWord(const std::string& line, unsigned cursorPos, size_t promptSize)
 {
 	auto begin  = std::begin(line);
 	auto prompt = begin + promptSize; // assumes prompt only contains single-byte utf8 chars
@@ -585,7 +585,7 @@ static std::tuple<std::string::const_iterator, std::string::const_iterator, unsi
 void CommandConsole::gotoStartOfWord()
 {
 	auto [begin, end, distance] = getStartOfWord(lines[0].str(), cursorPosition, prompt.size());
-	cursorPosition -= unsigned(distance);
+	cursorPosition -= distance;
 }
 
 void CommandConsole::deleteToStartOfWord()
@@ -596,7 +596,7 @@ void CommandConsole::deleteToStartOfWord()
 	currentLine.erase(begin, end);
 	currentLine.erase(0, prompt.size());
 	lines[0] = highLight(currentLine);
-	cursorPosition -= unsigned(distance);
+	cursorPosition -= distance;
 }
 
 void CommandConsole::gotoEndOfWord()
