@@ -428,7 +428,7 @@ static string formatHelptext(string_view helpText,
 			}
 		}
 		strAppend(outText, helpText.substr(index, index + pos), '\n',
-		          string(indent, ' '));
+		          spaces(indent));
 		index = pos + 1;
 	}
 	strAppend(outText, helpText.substr(index));
