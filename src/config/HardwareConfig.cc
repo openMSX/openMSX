@@ -103,7 +103,7 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	if (!ipsfiles.empty()) {
 		auto& patches = rom.addChild("patches");
 		for (auto& s : ipsfiles) {
-			patches.addChild("ips", string(s));
+			patches.addChild("ips", s);
 		}
 	}
 
@@ -407,7 +407,7 @@ void HardwareConfig::setSlot(std::string_view slotname)
 		const auto& primSlot = psElem->getAttribute("slot");
 		if (primSlot == "any") {
 			auto& mutableElem = const_cast<XMLElement*&>(psElem);
-			mutableElem->setAttribute("slot", std::string(slotname));
+			mutableElem->setAttribute("slot", slotname);
 		}
 	}
 }

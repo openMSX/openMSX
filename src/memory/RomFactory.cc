@@ -203,7 +203,7 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	// We do it at this point so that constructors used below can use this
 	// information for warning messages etc.
 	auto& writableConfig = const_cast<XMLElement&>(*config.getXML());
-	writableConfig.setChildData("mappertype", string(RomInfo::romTypeToName(type)));
+	writableConfig.setChildData("mappertype", RomInfo::romTypeToName(type));
 
 	unique_ptr<MSXRom> result;
 	switch (type) {

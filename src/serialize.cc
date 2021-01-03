@@ -321,7 +321,7 @@ void XmlOutputArchive::save(bool b)
 {
 	assert(!current.empty());
 	assert(current.back()->getData().empty());
-	current.back()->setData(b ? "true" : "false");
+	current.back()->setData(std::string_view(b ? "true" : "false"));
 }
 void XmlOutputArchive::save(unsigned char b)
 {

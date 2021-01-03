@@ -17,15 +17,6 @@ using std::unique_ptr;
 
 namespace openmsx {
 
-XMLElement& XMLElement::addChild(string childName)
-{
-	return children.emplace_back(std::move(childName));
-}
-XMLElement& XMLElement::addChild(string childName, string childData)
-{
-	return children.emplace_back(std::move(childName), std::move(childData));
-}
-
 void XMLElement::removeChild(const XMLElement& child)
 {
 	children.erase(rfind_if_unguarded(children,
@@ -47,22 +38,6 @@ const string* XMLElement::findAttribute(string_view attrName) const
 {
 	auto it = getAttributeIter(attrName);
 	return (it != end(attributes)) ? &it->second : nullptr;
-}
-
-void XMLElement::addAttribute(string attrName, string value)
-{
-	assert(!hasAttribute(attrName));
-	attributes.emplace_back(std::move(attrName), std::move(value));
-}
-
-void XMLElement::setAttribute(string_view attrName, string value)
-{
-	auto it = getAttributeIter(attrName);
-	if (it != end(attributes)) {
-		it->second = std::move(value);
-	} else {
-		attributes.emplace_back(attrName, std::move(value));
-	}
 }
 
 void XMLElement::removeAttribute(string_view attrName)
@@ -143,27 +118,6 @@ const XMLElement& XMLElement::getChild(string_view childName) const
 	return const_cast<XMLElement*>(this)->getChild(childName);
 }
 
-XMLElement& XMLElement::getCreateChild(string_view childName,
-                                       string_view defaultValue)
-{
-	if (auto* result = findChild(childName)) {
-		return *result;
-	}
-	return addChild(string(childName), string(defaultValue));
-}
-
-XMLElement& XMLElement::getCreateChildWithAttribute(
-	string_view childName, string_view attrName,
-	string_view attValue)
-{
-	if (auto* result = findChildWithAttribute(childName, attrName, attValue)) {
-		return *result;
-	}
-	auto& result = addChild(string(childName));
-	result.addAttribute(string(attrName), string(attValue));
-	return result;
-}
-
 const string& XMLElement::getChildData(string_view childName) const
 {
 	return getChild(childName).getData();
@@ -188,15 +142,6 @@ int XMLElement::getChildDataAsInt(string_view childName, int defaultValue) const
 	if (!child) return defaultValue;
 	auto r = StringOp::stringTo<int>(child->getData());
 	return r ? *r : defaultValue;
-}
-
-void XMLElement::setChildData(string_view childName, string value)
-{
-	if (auto* child = findChild(childName)) {
-		child->setData(std::move(value));
-	} else {
-		addChild(string(childName), std::move(value));
-	}
 }
 
 void XMLElement::removeAllChildren()
