@@ -113,7 +113,7 @@ void MSXMapperIO::serialize(Archive& ar, unsigned version)
 		byte registers[4];
 		ar.serialize("registers", registers);
 		for (auto [page, reg] : enumerate(registers)) {
-			writeIO(page, reg, EmuTime::dummy());
+			writeIO(word(page), reg, EmuTime::dummy());
 		}
 	}
 }

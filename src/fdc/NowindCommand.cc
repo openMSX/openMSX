@@ -45,7 +45,7 @@ unique_ptr<DiskChanger> NowindCommand::createDiskChanger(
 {
 	for (auto [i, drv] : enumerate(drives)) {
 		if (drv->isRomdisk()) {
-			return i;
+			return unsigned(i);
 		}
 	}
 	return 255;

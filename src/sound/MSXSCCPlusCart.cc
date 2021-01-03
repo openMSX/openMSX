@@ -270,7 +270,7 @@ void MSXSCCPlusCart::serialize(Archive& ar, unsigned /*version*/)
 	if (ar.isLoader()) {
 		// recalculate: isMapped[4], internalMemoryBank[4]
 		for (auto [i, m] : enumerate(mapper)) {
-			setMapper(i, m);
+			setMapper(int(i), m);
 		}
 		// recalculate: enable, isRamSegment[4]
 		setModeRegister(modeRegister);

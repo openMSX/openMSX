@@ -241,8 +241,8 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 		}
 		break;
 	case Keys::KM_META:
-		switch (key) {
 #ifdef __APPLE__
+		switch (key) {
 		case Keys::K_V:
 			paste();
 			return true;
@@ -255,8 +255,8 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 		case Keys::K_RIGHT:
 			cursorPosition = unsigned(lines[0].numChars());
 			return true;
-#endif
 		}
+#endif
 		break;
 	case Keys::KM_ALT:
 		switch (key) {
@@ -585,7 +585,7 @@ static std::tuple<std::string::const_iterator, std::string::const_iterator, unsi
 void CommandConsole::gotoStartOfWord()
 {
 	auto [begin, end, distance] = getStartOfWord(lines[0].str(), cursorPosition, prompt.size());
-	cursorPosition -= distance;
+	cursorPosition -= unsigned(distance);
 }
 
 void CommandConsole::deleteToStartOfWord()
@@ -596,7 +596,7 @@ void CommandConsole::deleteToStartOfWord()
 	currentLine.erase(begin, end);
 	currentLine.erase(0, prompt.size());
 	lines[0] = highLight(currentLine);
-	cursorPosition -= distance;
+	cursorPosition -= unsigned(distance);
 }
 
 void CommandConsole::gotoEndOfWord()
