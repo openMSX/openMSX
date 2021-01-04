@@ -19,11 +19,13 @@ class Filename
 public:
 	// dummy constructor, to be able to serialize vector<Filename>
 	Filename() = default;
-	Filename(Filename&) = default; // ! because of template below
 	Filename(Filename&&) = default;
 	Filename(const Filename&) = default;
 	Filename& operator=(Filename&&) = default;
 	Filename& operator=(const Filename&) = default;
+
+	// needed because the template below hides this version
+	Filename(Filename& f) : Filename(const_cast<const Filename&>(f)) {}
 
 	template<typename String>
 	explicit Filename(String&& filename)

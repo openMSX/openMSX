@@ -22,11 +22,13 @@ public:
 	// Construction.
 	//  (copy, assign, move, destruct are default)
 	XMLElement() = default;
-	XMLElement(XMLElement&) = default; // because hidden by template below
 	XMLElement(const XMLElement&) = default;
 	XMLElement(XMLElement&&) = default;
 	XMLElement& operator=(const XMLElement&) = default;
 	XMLElement& operator=(XMLElement&&) = default;
+
+	// needed because the template below hides this version
+	XMLElement(XMLElement& x) : XMLElement(const_cast<const XMLElement&>(x)) {}
 
 	template<typename String>
 	explicit XMLElement(String&& name_)
