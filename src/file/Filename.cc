@@ -1,6 +1,4 @@
 #include "Filename.hh"
-#include "FileContext.hh"
-#include "FileOperations.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
 #include <cassert>
@@ -8,19 +6,6 @@
 using std::string;
 
 namespace openmsx {
-
-Filename::Filename(string filename)
-	: originalFilename(std::move(filename))
-	, resolvedFilename(originalFilename)
-{
-}
-
-Filename::Filename(string filename, const FileContext& context)
-	: originalFilename(std::move(filename))
-	, resolvedFilename(FileOperations::getAbsolutePath(
-		context.resolve(originalFilename)))
-{
-}
 
 void Filename::updateAfterLoadState()
 {

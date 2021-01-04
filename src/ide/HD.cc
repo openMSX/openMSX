@@ -48,7 +48,7 @@ HD::HD(const DeviceConfig& config)
 		filename = Filename(std::move(resolved));
 		mode = File::CREATE;
 	} else {
-		filename = Filename(cliImage, userFileContext());
+		filename = Filename(std::move(cliImage), userFileContext());
 	}
 
 	file = File(filename, mode);
@@ -199,7 +199,7 @@ bool HD::diskChanged()
 int HD::insertDisk(const std::string& newFilename)
 {
 	try {
-		switchImage(Filename(string(newFilename)));
+		switchImage(Filename(newFilename));
 		return 0;
 	} catch (MSXException&) {
 		return -1;

@@ -176,7 +176,7 @@ void DiskChanger::insertDisk(span<const TclObject> args)
 	std::unique_ptr<Disk> newDisk(diskFactory.createDisk(diskImage, *this));
 	for (const auto& arg : view::drop(args, 2)) {
 		newDisk->applyPatch(Filename(
-			string(arg.getString()), userFileContext()));
+			arg.getString(), userFileContext()));
 	}
 
 	// no errors, only now replace original disk

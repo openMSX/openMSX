@@ -1,11 +1,11 @@
 #ifndef FILENAME_HH
 #define FILENAME_HH
 
+#include "FileContext.hh"
+#include "FileOperations.hh"
 #include <string>
 
 namespace openmsx {
-
-class FileContext;
 
 /** This class represents a filename.
  * A filename is resolved in a certain context.
@@ -19,9 +19,22 @@ class Filename
 public:
 	// dummy constructor, to be able to serialize vector<Filename>
 	Filename() = default;
+	Filename(Filename&) = default; // ! because of template below
+	Filename(Filename&&) = default;
+	Filename(const Filename&) = default;
+	Filename& operator=(Filename&&) = default;
+	Filename& operator=(const Filename&) = default;
 
-	explicit Filename(std::string filename);
-	Filename(std::string filename, const FileContext& context);
+	template<typename String>
+	explicit Filename(String&& filename)
+		: originalFilename(std::forward<String>(filename))
+		, resolvedFilename(originalFilename) {}
+
+	template<typename String>
+	Filename(String&& filename, const FileContext& context)
+		: originalFilename(std::forward<String>(filename))
+		, resolvedFilename(FileOperations::getAbsolutePath(
+			context.resolve(originalFilename))) {}
 
 	[[nodiscard]] const std::string& getOriginal() const { return originalFilename; }
 	[[nodiscard]] const std::string& getResolved() const & { return           resolvedFilename; }

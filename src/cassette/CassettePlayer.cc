@@ -658,7 +658,7 @@ void CassettePlayer::TapeCommand::execute(
 	} else if (tokens[1] == "insert" && tokens.size() == 3) {
 		try {
 			result = "Changing tape";
-			Filename filename(string(tokens[2].getString()), userFileContext());
+			Filename filename(tokens[2].getString(), userFileContext());
 			cassettePlayer.playTape(filename, time);
 		} catch (MSXException& e) {
 			throw CommandException(std::move(e).getMessage());
@@ -729,7 +729,7 @@ void CassettePlayer::TapeCommand::execute(
 	} else {
 		try {
 			result = "Changing tape";
-			Filename filename(string(tokens[1].getString()), userFileContext());
+			Filename filename(tokens[1].getString(), userFileContext());
 			cassettePlayer.playTape(filename, time);
 		} catch (MSXException& e) {
 			throw CommandException(std::move(e).getMessage());
