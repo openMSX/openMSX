@@ -22,10 +22,15 @@ public:
 	// Construction.
 	//  (copy, assign, move, destruct are default)
 	XMLElement() = default;
-	XMLElement(const XMLElement&) = default;
 	XMLElement(XMLElement&&) = default;
 	XMLElement& operator=(const XMLElement&) = default;
 	XMLElement& operator=(XMLElement&&) = default;
+
+	//workaround msvc bug(?)
+	//XMLElement(const XMLElement&) = default;
+	XMLElement(const XMLElement& e)
+		: name(e.name), data(e.data)
+		, children(e.children), attributes(e.attributes) {}
 
 	// needed because the template below hides this version
 	XMLElement(XMLElement& x) : XMLElement(const_cast<const XMLElement&>(x)) {}

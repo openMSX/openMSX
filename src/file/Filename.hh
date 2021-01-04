@@ -20,9 +20,14 @@ public:
 	// dummy constructor, to be able to serialize vector<Filename>
 	Filename() = default;
 	Filename(Filename&&) = default;
-	Filename(const Filename&) = default;
 	Filename& operator=(Filename&&) = default;
 	Filename& operator=(const Filename&) = default;
+
+	//workaround msvc bug(?)
+	//Filename(const Filename&) = default;
+	Filename(const Filename& f)
+		: originalFilename(f.originalFilename)
+		, resolvedFilename(f.resolvedFilename) {}
 
 	// needed because the template below hides this version
 	Filename(Filename& f) : Filename(const_cast<const Filename&>(f)) {}
