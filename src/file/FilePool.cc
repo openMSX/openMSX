@@ -151,7 +151,7 @@ void FilePool::reportProgress(std::string_view message)
 {
 	if (quit) core.abort();
 	reactor.getCliComm().printProgress(message);
-	reactor.getDisplay().repaintDelayed(0);
+	reactor.getDisplay().repaint();
 }
 
 int FilePool::signalEvent(const std::shared_ptr<const Event>& event)

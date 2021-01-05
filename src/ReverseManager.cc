@@ -317,7 +317,7 @@ static void reportProgress(Reactor& reactor, const EmuTime& targetTime, int perc
 		std::fmod(targetTimeDisp, 60.0) <<
 		"... " << percentage << '%';
 	reactor.getCliComm().printProgress(sstr.str());
-	reactor.getDisplay().repaintDelayed(0);
+	reactor.getDisplay().repaint();
 }
 
 void ReverseManager::goTo(
