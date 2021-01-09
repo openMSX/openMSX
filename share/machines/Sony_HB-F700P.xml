@@ -94,7 +94,7 @@
           <drives>1</drives>
           <rom>
             <filename>hb-f700p_disk.rom</filename>
-            <sha1>3376cf9dd2b1ac9b41bf6bf6598b33136e86f9d5</sha1> <!-- According to team blueMSX -->
+            <sha1>3376cf9dd2b1ac9b41bf6bf6598b33136e86f9d5</sha1> <!-- According to team blueMSX, confirmed by Peter Hanraets -->
             <sha1>7dcd434d9a244e23afd212d3fea4c3bf3fe2a300</sha1> <!-- This is a fast diskROM, which is also in Meits' machine, certainly not original -->
           </rom>
           <mem base="0x4000" size="0x8000"/>
