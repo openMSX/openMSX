@@ -107,15 +107,15 @@ public:
 	[[nodiscard]] Interpreter& getInterpreter();
 	[[nodiscard]] std::string_view getMachineID() const;
 
-	using Board = std::unique_ptr<MSXMotherBoard>;
+	using Board = std::shared_ptr<MSXMotherBoard>;
 	[[nodiscard]] Board createEmptyMotherBoard();
 	void replaceBoard(MSXMotherBoard& oldBoard, Board newBoard); // for reverse
 
 private:
 	void createMachineSetting();
-	void switchBoard(MSXMotherBoard* newBoard);
-	void deleteBoard(MSXMotherBoard* board);
-	[[nodiscard]] MSXMotherBoard& getMachine(std::string_view machineID) const;
+	void switchBoard(Board newBoard);
+	void deleteBoard(Board board);
+	[[nodiscard]] Board getMachine(std::string_view machineID) const;
 	[[nodiscard]] std::vector<std::string_view> getMachineIDs() const;
 
 	// Observer<Setting>
@@ -183,8 +183,7 @@ private:
 	//    member functions (atm only via enterMainLoop()), it needs to take
 	//    the mbMutex lock
 	std::vector<Board> boards; // unordered
-	std::vector<Board> garbageBoards;
-	MSXMotherBoard* activeBoard = nullptr; // either nullptr or a board inside 'boards'
+	Board activeBoard; // either nullptr or a board inside 'boards'
 
 	int blockedCounter = 0;
 	bool paused = false;
