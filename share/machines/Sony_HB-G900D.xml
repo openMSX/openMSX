@@ -77,7 +77,7 @@
           <broken_fdc_read>false</broken_fdc_read>
           <drives>1</drives>
           <rom>
-            <sha1>0e081572f84555dc13bdb0c7044a19d6c164d985</sha1>
+            <sha1>12f2cc79b3d09723840bae774be48c0d721ec1c6</sha1>
             <filename>hb-g900d_disk.rom</filename>
           </rom>
           <mem base="0x4000" size="0x8000"/>
