@@ -26,6 +26,9 @@ def detectCPU():
 		return 'ppc64le'
 	elif cpu.startswith('ppc') or cpu.endswith('ppc') or cpu.startswith('power'):
 		return 'ppc64' if cpu.endswith('64') else 'ppc'
+	elif cpu == 'arm64':
+		# Darwin uses "arm64", unlike Linux.
+		return 'aarch64'
 	elif cpu.startswith('arm'):
 		return 'arm'
 	elif cpu == 'aarch64':
