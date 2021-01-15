@@ -9,7 +9,11 @@ USE_SYMLINK:=true
 # replace this with its own low-res icon.
 SET_WINDOW_ICON:=false
 
+ifeq ($(OPENMSX_TARGET_CPU),aarch64)
+TARGET_FLAGS+=-arch amd64
+else
 TARGET_FLAGS+=-arch $(OPENMSX_TARGET_CPU)
+endif
 
 # File name extension of executables.
 EXEEXT:=
