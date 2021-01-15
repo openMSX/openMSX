@@ -10,7 +10,7 @@ USE_SYMLINK:=true
 SET_WINDOW_ICON:=false
 
 ifeq ($(OPENMSX_TARGET_CPU),aarch64)
-TARGET_FLAGS+=-arch amd64
+TARGET_FLAGS+=-arch arm64
 else
 TARGET_FLAGS+=-arch $(OPENMSX_TARGET_CPU)
 endif
