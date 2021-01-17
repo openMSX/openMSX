@@ -7,9 +7,9 @@ on:
     branches: [ master ]
 
 env:
-  { env.target_cpu }: x86_64
-  { env.target_os }: mingw-w64
-  { env.target_flavour }: opt
+  target_cpu: x86_64
+  target_os: mingw-w64
+  target_flavour: opt
 
 jobs:
   build:
