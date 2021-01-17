@@ -1,4 +1,4 @@
-name: Build Linux Distributable
+name: Build Linux arm64 Distributable
 
 on:
   push:
@@ -18,7 +18,7 @@ jobs:
     - name: Install prerequisites
       run: sudo apt-get install libgl1-mesa-dev
     - name: Make
-      run: make staticbindist
+      run: make staticbindist OPENMSX_TARGET_CPU=arm64
     - name: Determine version
       id: get_version
       run: |
@@ -26,10 +26,10 @@ jobs:
         echo ::set-output name=OPENMSX_VERSION::$OPENMSX_VERSION
     - name: Prepare redistributable directory
       run: |
-        cd derived/x86_64-linux-opt-3rd/bindist
-        mv install openmsx-${{ steps.get_version.outputs.OPENMSX_VERSION }}-x86_64-linux-opt-3rd
+        cd derived/arm64-linux-opt-3rd/bindist
+        mv install openmsx-${{ steps.get_version.outputs.OPENMSX_VERSION }}-arm64-linux-opt-3rd
     - name: Upload redistributable zip
       uses: actions/upload-artifact@v1
       with:
-        name: openmsx-${{ steps.get_version.outputs.OPENMSX_VERSION }}-x86_64-linux-opt-3rd.zip
-        path: derived/x86_64-linux-opt-3rd/bindist/openmsx-${{ steps.get_version.outputs.OPENMSX_VERSION }}-x86_64-linux-opt-3rd
+        name: openmsx-${{ steps.get_version.outputs.OPENMSX_VERSION }}-arm64-linux-opt-3rd.zip
+        path: derived/arm64-linux-opt-3rd/bindist/openmsx-${{ steps.get_version.outputs.OPENMSX_VERSION }}-arm64-linux-opt-3rd
