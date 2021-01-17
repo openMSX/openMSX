@@ -1,4 +1,4 @@
-name: Build Linux Distributable
+name: Build Linux x86_64 Distributable
 
 on:
   push:
