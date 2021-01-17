@@ -1,4 +1,4 @@
-name: Build macOS AMD64 Distributable
+name: Build macOS x86_64 Distributable
 
 on:
   push:
@@ -16,7 +16,7 @@ jobs:
     - name: Fetch entire repository
       run: git fetch --prune --unshallow
     - name: Make
-      run: make staticbindist OPENMSX_TARGET_CPU=amd64
+      run: make staticbindist OPENMSX_TARGET_CPU=x86_64
     - name: Determine version
       id: get_version
       run: |
