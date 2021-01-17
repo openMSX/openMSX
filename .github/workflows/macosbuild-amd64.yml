@@ -1,4 +1,4 @@
-name: Build macOS Distributable
+name: Build macOS AMD64 Distributable
 
 on:
   push:
