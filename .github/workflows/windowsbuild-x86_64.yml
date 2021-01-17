@@ -38,7 +38,7 @@ jobs:
     - name: Prepare redistributable directory
       run: |
         cd derived/${{ env.target_cpu }}-${{ env.target_os }}-${{ env.target_flavour }}-3rd/bindist
-        mv install openmsx-${{ steps.get_version.outputs.OPENMSX_VERSION }}-${ env.target_cpu }-${{ env.target_os }}-${{ env.target_flavour }}
+        mv install openmsx-${{ steps.get_version.outputs.OPENMSX_VERSION }}-${{ env.target_cpu }}-${{ env.target_os }}-${{ env.target_flavour }}
     - name: Upload redistributable zip
       uses: actions/upload-artifact@v1
       with:
