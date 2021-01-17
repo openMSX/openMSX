@@ -9,14 +9,14 @@ on:
 jobs:
   build:
 
-    runs-on: macos-latest
+    runs-on: macos-11.0
     
     steps:
     - uses: actions/checkout@v2
     - name: Fetch entire repository
       run: git fetch --prune --unshallow
     - name: Make
-      run: make staticbindist
+      run: make staticbindist OPENMSX_TARGET_CPU=amd64
     - name: Determine version
       id: get_version
       run: |

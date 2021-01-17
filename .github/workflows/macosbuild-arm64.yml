@@ -1,0 +1,33 @@
+name: Build macOS Distributable
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: macos-11.0
+    
+    steps:
+    - uses: actions/checkout@v2
+    - name: Fetch entire repository
+      run: git fetch --prune --unshallow
+    - name: Make
+      run: make staticbindist OPENMSX_TARGET_CPU=arm64
+    - name: Determine version
+      id: get_version
+      run: |
+        OPENMSX_VERSION=`python3 build/version.py`
+        echo ::set-output name=OPENMSX_VERSION::$OPENMSX_VERSION
+    - name: Rename redistributable dmg
+      run: |
+        cd derived/arm64-darwin-opt-3rd
+        mv openmsx-${{ steps.get_version.outputs.OPENMSX_VERSION }}-mac-arm64-bin.dmg openmsx-${{ steps.get_version.outputs.OPENMSX_VERSION }}-arm64-darwin-opt-3rd.dmg
+    - name: Upload redistributable dmg
+      uses: actions/upload-artifact@v1
+      with:
+        name: openmsx-${{ steps.get_version.outputs.OPENMSX_VERSION }}-arm64-darwin-opt-3rd.dmg
+        path: derived/x86_64-darwin-opt-3rd/openmsx-${{ steps.get_version.outputs.OPENMSX_VERSION }}-arm64-darwin-opt-3rd.dmg
