@@ -38,9 +38,13 @@ public:
 	Joystick(MSXEventDistributor& eventDistributor,
 	         StateChangeDistributor& stateChangeDistributor,
 	         CommandController& commandController,
-		 GlobalSettings& globalSettings,
+	         GlobalSettings& globalSettings,
 	         SDL_Joystick* joystick);
-	~Joystick() override;
+	~Joystick()
+#ifndef SDL_JOYSTICK_DISABLED
+		override
+#endif
+		;
 
 #ifndef SDL_JOYSTICK_DISABLED
 	// Pluggable

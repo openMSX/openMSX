@@ -32,6 +32,8 @@ void Joystick::registerAll(MSXEventDistributor& eventDistributor,
 #ifdef SDL_JOYSTICK_DISABLED
 	(void)eventDistributor;
 	(void)stateChangeDistributor;
+	(void)commandController;
+	(void)globalSettings;
 	(void)controller;
 #else
 	for (auto i : xrange(SDL_NumJoysticks())) {
