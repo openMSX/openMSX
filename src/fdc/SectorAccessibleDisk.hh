@@ -43,7 +43,11 @@ public:
 	[[nodiscard]] Sha1Sum getSha1Sum(FilePool& filepool);
 
 	// should only be called by EmptyDiskPatch
-	virtual void readSectorImpl (size_t sector, SectorBuffer& buf) = 0;
+	virtual void readSectorsImpl(
+		SectorBuffer* buffers, size_t startSector, size_t nbSectors);
+	// Default readSectorsImpl() implementation delegates to readSectorImpl.
+	// Subclasses should override exactly one of these two.
+	virtual void readSectorImpl(size_t sector, SectorBuffer& buf);
 
 protected:
 	SectorAccessibleDisk();
