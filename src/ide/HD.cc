@@ -155,14 +155,14 @@ std::string HD::getTigerTreeHash()
 
 uint8_t* HD::getData(size_t offset, size_t size)
 {
-	assert(size <= 1024);
+	assert(size <= TigerTree::BLOCK_SIZE);
 	assert((offset % sizeof(SectorBuffer)) == 0);
 	assert((size   % sizeof(SectorBuffer)) == 0);
 
 	struct Work {
 		char extra; // at least one byte before 'bufs'
 		// likely here are padding bytes in between
-		SectorBuffer bufs[1024 / sizeof(SectorBuffer)];
+		SectorBuffer bufs[TigerTree::BLOCK_SIZE / sizeof(SectorBuffer)];
 	};
 	static Work work; // not reentrant
 

@@ -8,8 +8,6 @@
 
 namespace openmsx {
 
-constexpr size_t BLOCK_SIZE = 1024;
-
 struct TTCacheEntry
 {
 	MemBuffer<TigerHash> hash;
@@ -25,7 +23,7 @@ static std::map<std::pair<size_t, std::string>, TTCacheEntry> ttCache;
 
 [[nodiscard]] static size_t calcNumNodes(size_t dataSize)
 {
-	auto numBlocks = (dataSize + BLOCK_SIZE - 1) / BLOCK_SIZE;
+	auto numBlocks = (dataSize + TigerTree::BLOCK_SIZE - 1) / TigerTree::BLOCK_SIZE;
 	return (numBlocks == 0) ? 1 : 2 * numBlocks - 1;
 }
 
