@@ -167,10 +167,8 @@ uint8_t* HD::getData(size_t offset, size_t size)
 	static Work work; // not reentrant
 
 	size_t sector = offset / sizeof(SectorBuffer);
-	for (auto i : xrange(size / sizeof(SectorBuffer))) {
-		// This possibly applies IPS patches.
-		readSector(sector++, work.bufs[i]);
-	}
+	size_t num    = size   / sizeof(SectorBuffer);
+	readSectors(work.bufs, sector, num); // This possibly applies IPS patches.
 	return work.bufs[0].raw;
 }
 

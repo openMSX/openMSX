@@ -149,9 +149,7 @@ MSXtar::MSXtar(SectorAccessibleDisk& sectordisk)
 	// cache complete FAT
 	fatCacheDirty = false;
 	fatBuffer.resize(sectorsPerFat);
-	for (auto i : xrange(sectorsPerFat)) {
-		disk.readSector(i + 1, fatBuffer[i]);
-	}
+	disk.readSectors(&fatBuffer[0], 1, sectorsPerFat);
 }
 
 MSXtar::~MSXtar()

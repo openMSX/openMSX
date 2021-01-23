@@ -121,11 +121,18 @@ Sha1Sum SectorAccessibleDisk::getSha1SumImpl(FilePool& /*filePool*/)
 	try {
 		setPeekMode(true);
 		SHA1 sha1;
-		for (auto i : xrange(getNbSectors())) {
-			SectorBuffer buf;
-			readSector(i, buf);
-			sha1.update(buf.raw);
+
+		constexpr size_t MAX_CHUNK = 32;
+		SectorBuffer buf[MAX_CHUNK];
+		size_t total = getNbSectors();
+		size_t sector = 0;
+		while (sector < total) {
+			auto chunk = std::min(MAX_CHUNK, total - sector);
+			readSectors(buf, sector, chunk);
+			sha1.update({buf[0].raw, chunk * sizeof(SectorBuffer)});
+			sector += chunk;
 		}
+
 		setPeekMode(false);
 		return sha1.digest();
 	} catch (MSXException&) {
