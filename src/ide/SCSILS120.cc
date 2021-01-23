@@ -713,10 +713,11 @@ Sha1Sum SCSILS120::getSha1SumImpl(FilePool& filePool)
 	return filePool.getSha1Sum(file);
 }
 
-void SCSILS120::readSectorImpl(size_t sector, SectorBuffer& buf)
+void SCSILS120::readSectorsImpl(
+	SectorBuffer* buffers, size_t startSector, size_t num)
 {
-	file.seek(sizeof(buf) * sector);
-	file.read(&buf, sizeof(buf));
+	file.seek(startSector * sizeof(SectorBuffer));
+	file.read(buffers, num * sizeof(SectorBuffer));
 }
 
 void SCSILS120::writeSectorImpl(size_t sector, const SectorBuffer& buf)

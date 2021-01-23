@@ -39,7 +39,8 @@ public:
 
 private:
 	// SectorAccessibleDisk:
-	void readSectorImpl (size_t sector,       SectorBuffer& buf) override;
+	void readSectorsImpl(
+		SectorBuffer* buffers, size_t startSector, size_t num) override;
 	void writeSectorImpl(size_t sector, const SectorBuffer& buf) override;
 	[[nodiscard]] size_t getNbSectorsImpl() const override;
 	[[nodiscard]] bool isWriteProtectedImpl() const override;

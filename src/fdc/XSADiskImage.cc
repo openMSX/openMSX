@@ -67,9 +67,10 @@ XSADiskImage::XSADiskImage(Filename& filename, File& file)
 	setNbSectors(sectors);
 }
 
-void XSADiskImage::readSectorImpl(size_t sector, SectorBuffer& buf)
+void XSADiskImage::readSectorsImpl(
+	SectorBuffer* buffers, size_t startSector, size_t num)
 {
-	memcpy(&buf, &data[sector], sizeof(buf));
+	memcpy(buffers, &data[startSector], num * sizeof(SectorBuffer));
 }
 
 void XSADiskImage::writeSectorImpl(size_t /*sector*/, const SectorBuffer& /*buf*/)

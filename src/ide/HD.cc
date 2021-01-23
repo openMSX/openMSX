@@ -98,10 +98,11 @@ size_t HD::getNbSectorsImpl() const
 	return filesize / sizeof(SectorBuffer);
 }
 
-void HD::readSectorImpl(size_t sector, SectorBuffer& buf)
+void HD::readSectorsImpl(
+	SectorBuffer* buffers, size_t startSector, size_t num)
 {
-	file.seek(sector * sizeof(buf));
-	file.read(&buf, sizeof(buf));
+	file.seek(startSector * sizeof(SectorBuffer));
+	file.read(buffers, num * sizeof(SectorBuffer));
 }
 
 void HD::writeSectorImpl(size_t sector, const SectorBuffer& buf)
