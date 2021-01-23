@@ -96,29 +96,19 @@ Sha1Sum SectorAccessibleDisk::getSha1SumImpl(FilePool& /*filePool*/)
 	}
 }
 
-int SectorAccessibleDisk::readSectors (
+void SectorAccessibleDisk::readSectors(
 	SectorBuffer* buffers, size_t startSector, size_t nbSectors)
 {
-	try {
-		for (auto i : xrange(nbSectors)) {
-			readSector(startSector + i, buffers[i]);
-		}
-		return 0;
-	} catch (MSXException&) {
-		return -1;
+	for (auto i : xrange(nbSectors)) {
+		readSector(startSector + i, buffers[i]);
 	}
 }
 
-int SectorAccessibleDisk::writeSectors(
+void SectorAccessibleDisk::writeSectors(
 	const SectorBuffer* buffers, size_t startSector, size_t nbSectors)
 {
-	try {
-		for (auto i : xrange(nbSectors)) {
-			writeSector(startSector + i, buffers[i]);
-		}
-		return 0;
-	} catch (MSXException&) {
-		return -1;
+	for (auto i : xrange(nbSectors)) {
+		writeSector(startSector + i, buffers[i]);
 	}
 }
 

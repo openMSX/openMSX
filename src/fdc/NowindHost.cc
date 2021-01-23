@@ -1,6 +1,7 @@
 #include "NowindHost.hh"
 #include "DiskContainer.hh"
 #include "FileOperations.hh"
+#include "MSXException.hh"
 #include "SectorAccessibleDisk.hh"
 #include "enumerate.hh"
 #include "one_of.hh"
@@ -270,7 +271,9 @@ void NowindHost::DSKCHG()
 		send(255); // changed
 		// read first FAT sector (contains media descriptor)
 		SectorBuffer sectorBuffer;
-		if (disk->readSectors(&sectorBuffer, 1, 1)) {
+		try {
+			disk->readSectors(&sectorBuffer, 1, 1);
+		} catch (MSXException&) {
 			// TODO read error
 			sectorBuffer.raw[0] = 0;
 		}
@@ -355,7 +358,9 @@ void NowindHost::diskReadInit(SectorAccessibleDisk& disk)
 	unsigned sectorAmount = getSectorAmount();
 	buffer.resize(sectorAmount);
 	unsigned startSector = getStartSector();
-	if (disk.readSectors(buffer.data(), startSector, sectorAmount)) {
+	try {
+		disk.readSectors(buffer.data(), startSector, sectorAmount);
+	} catch (MSXException&) {
 		// read error
 		state = STATE_SYNC1;
 		return;
@@ -496,7 +501,9 @@ void NowindHost::doDiskWrite1()
 		auto sectorAmount = unsigned(buffer.size());
 		unsigned startSector = getStartSector();
 		if (auto* disk = getDisk()) {
-			if (disk->writeSectors(&buffer[0], startSector, sectorAmount)) {
+			try {
+				disk->writeSectors(&buffer[0], startSector, sectorAmount);
+			} catch (MSXException&) {
 				// TODO write error
 			}
 		}

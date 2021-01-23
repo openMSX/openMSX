@@ -20,6 +20,10 @@ public:
 	// sector stuff
 	void readSector (size_t sector,       SectorBuffer& buf);
 	void writeSector(size_t sector, const SectorBuffer& buf);
+	void readSectors (      SectorBuffer* buffers, size_t startSector,
+	                  size_t nbSectors);
+	void writeSectors(const SectorBuffer* buffers, size_t startSector,
+	                  size_t nbSectors);
 	[[nodiscard]] size_t getNbSectors() const;
 
 	// write protected stuff
@@ -37,15 +41,6 @@ public:
 	 * This value is cached (and flushed on writes).
 	 */
 	[[nodiscard]] Sha1Sum getSha1Sum(FilePool& filepool);
-
-	// For compatibility with nowind
-	//  - read/write multiple sectors instead of one-per-one
-	//  - use error codes instead of exceptions
-	//  - different order of parameters
-	int readSectors (      SectorBuffer* buffers, size_t startSector,
-	                 size_t nbSectors);
-	int writeSectors(const SectorBuffer* buffers, size_t startSector,
-	                 size_t nbSectors);
 
 	// should only be called by EmptyDiskPatch
 	virtual void readSectorImpl (size_t sector, SectorBuffer& buf) = 0;
