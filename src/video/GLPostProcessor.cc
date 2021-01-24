@@ -30,7 +30,7 @@ GLPostProcessor::GLPostProcessor(
 	, noiseTextureB(true, true)
 	, height(height_)
 {
-	scaleAlgorithm = static_cast<RenderSettings::ScaleAlgorithm>(-1); // not a valid scaler
+	scaleAlgorithm = RenderSettings::NO_SCALER;
 
 	frameCounter = 0;
 	noiseX = noiseY = 0.0f;
