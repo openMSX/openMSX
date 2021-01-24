@@ -62,7 +62,7 @@ EnumSetting<T>::EnumSetting(
 	: EnumSettingBase(BaseMap(std::move_iterator(begin(map)),
 	                          std::move_iterator(end(map))))
 	, Setting(commandController_, name, description_,
-	          TclObject(toString(initialValue)), save_)
+	          TclObject(EnumSettingBase::toStringBase(static_cast<int>(initialValue))), save_)
 {
 	setChecker([this](TclObject& newValue) {
 		(void)fromStringBase(newValue.getString()); // may throw

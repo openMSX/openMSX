@@ -72,8 +72,14 @@ static XMLElement createXML()
 	return xml;
 }
 
+static const string& getCassettePlayerName()
+{
+	static const string pluggableName("cassetteplayer");
+	return pluggableName;
+}
+
 CassettePlayer::CassettePlayer(const HardwareConfig& hwConf)
-	: ResampledSoundDevice(hwConf.getMotherBoard(), getName(), DESCRIPTION, 1, DUMMY_INPUT_RATE, false)
+	: ResampledSoundDevice(hwConf.getMotherBoard(), getCassettePlayerName(), DESCRIPTION, 1, DUMMY_INPUT_RATE, false)
 	, syncEndOfTape(hwConf.getMotherBoard().getScheduler())
 	, syncAudioEmu (hwConf.getMotherBoard().getScheduler())
 	, tapePos(EmuTime::zero())
@@ -100,7 +106,7 @@ CassettePlayer::CassettePlayer(const HardwareConfig& hwConf)
 
 	motherBoard.getReactor().getEventDistributor().registerEventListener(
 		OPENMSX_BOOT_EVENT, *this);
-	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, getName(), "add");
+	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, getCassettePlayerName(), "add");
 
 	removeTape(EmuTime::zero());
 }
@@ -113,7 +119,7 @@ CassettePlayer::~CassettePlayer()
 	}
 	motherBoard.getReactor().getEventDistributor().unregisterEventListener(
 		OPENMSX_BOOT_EVENT, *this);
-	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, getName(), "remove");
+	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, getCassettePlayerName(), "remove");
 }
 
 void CassettePlayer::autoRun()
@@ -540,8 +546,7 @@ void CassettePlayer::flushOutput()
 
 const string& CassettePlayer::getName() const
 {
-	static const string pluggableName("cassetteplayer");
-	return pluggableName;
+	return getCassettePlayerName();
 }
 
 std::string_view CassettePlayer::getDescription() const
