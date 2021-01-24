@@ -179,7 +179,7 @@ template<> struct ConcatUnit<std::string_view>
 	[[nodiscard]] char* copy(char* dst) const
 	{
 		auto sz = v.size();
-		memcpy(dst, v.data(), sz);
+		if (sz) memcpy(dst, v.data(), sz);
 		return dst + sz;
 	}
 
