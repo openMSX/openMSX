@@ -125,7 +125,7 @@ Sha1Sum::Sha1Sum(std::string_view hex)
 // load 64-bit (possibly unaligned) and swap bytes
 [[nodiscard]] static inline uint64_t loadSwap64(const char* s)
 {
-	return Endian::byteswap64(*reinterpret_cast<const uint64_t*>(s));
+	return Endian::read_UA_B64(s);
 }
 
 #else
