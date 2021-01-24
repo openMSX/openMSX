@@ -7,6 +7,7 @@
 #include <charconv>
 #include <cstdint>
 #include <iomanip>
+#include <limits>
 #include <optional>
 #include <sstream>
 #include <string>
