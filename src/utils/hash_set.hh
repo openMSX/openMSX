@@ -27,6 +27,13 @@ struct Identity {
 	[[nodiscard]] inline T& operator()(T&& t) const { return t; }
 };
 
+struct PoolIndex {
+	unsigned idx;
+};
+static constexpr PoolIndex invalidIndex{unsigned(-1)};
+inline bool operator==(PoolIndex i, PoolIndex j) { return i.idx == j.idx; }
+inline bool operator!=(PoolIndex i, PoolIndex j) { return i.idx != j.idx; }
+
 // Holds the data that will be stored in the hash_set plus some extra
 // administrative data.
 // - value: the actual to be stored data
@@ -38,10 +45,10 @@ template<typename Value>
 struct Element {
 	Value    value;
 	unsigned hash;
-	unsigned nextIdx;
+	PoolIndex nextIdx;
 
 	template<typename V>
-	Element(V&& value_, unsigned hash_, unsigned nextIdx_)
+	Element(V&& value_, unsigned hash_, PoolIndex nextIdx_)
 		: value(std::forward<V>(value_))
 		, hash(hash_)
 		, nextIdx(nextIdx_)
@@ -60,9 +67,8 @@ struct Element {
 
 // Holds 'Element' objects. These objects can be in 2 states:
 // - 'free': In that case 'nextIdx' forms a single-linked list of all
-//     free objects. 'freeIdx_' is the head of this list. Index 0
-//     indicates the end of the list. This also means that valid
-//     indices start at 1 instead of 0.
+//     free objects. 'freeIdx_' is the head of this list. Index 'invalidIndex'
+//     indicates the end of the list.
 // - 'in-use': The Element object is in use by some other data structure,
 //     the Pool class doesn't interpret any of the Element fields.
 template<typename Value>
@@ -73,42 +79,40 @@ public:
 	Pool() = default;
 
 	Pool(Pool&& source) noexcept
-		: buf1_    (source.buf1_)
+		: buf_     (source.buf_)
 		, freeIdx_ (source.freeIdx_)
 		, capacity_(source.capacity_)
 	{
-		source.buf1_ = adjust(nullptr);
-		source.freeIdx_ = 0;
+		source.buf_ = nullptr;
+		source.freeIdx_ = invalidIndex;
 		source.capacity_ = 0;
 	}
 
 	Pool& operator=(Pool&& source) noexcept
 	{
-		buf1_     = source.buf1_;
+		buf_      = source.buf_;
 		freeIdx_  = source.freeIdx_;
 		capacity_ = source.capacity_;
-		source.buf1_ = adjust(nullptr);
-		source.freeIdx_ = 0;
+		source.buf_ = nullptr;
+		source.freeIdx_ = invalidIndex;
 		source.capacity_ = 0;
 		return *this;
 	}
 
 	~Pool()
 	{
-		free(buf1_ + 1);
+		free(buf_);
 	}
 
-	// Lookup Element by index. Valid indices start at 1 instead of 0!
-	// (External code) is only allowed to call this method with indices
-	// that were earlier returned from create() and have not yet been
-	// passed to destroy().
-	[[nodiscard]] Elem& get(unsigned idx)
+	// Lookup Element by index. (External code) is only allowed to call this
+	// method with indices that were earlier returned from create() and have
+	// not yet been passed to destroy().
+	[[nodiscard]] Elem& get(PoolIndex idx)
 	{
-		assert(idx != 0);
-		assert(idx <= capacity_);
-		return buf1_[idx];
+		assert(idx.idx < capacity_);
+		return buf_[idx.idx];
 	}
-	[[nodiscard]] const Elem& get(unsigned idx) const
+	[[nodiscard]] const Elem& get(PoolIndex idx) const
 	{
 		return const_cast<Pool&>(*this).get(idx);
 	}
@@ -116,14 +120,14 @@ public:
 	// - Insert a new Element in the pool (will be created with the given
 	//   Element constructor parameters).
 	// - Returns an index that can be used with the get() method. Never
-	//   returns 0 (so 0 can be used as a 'special' value).
+	//   returns 'invalidIndex' (so it can be used as a 'special' value).
 	// - Internally Pool keeps a list of pre-allocated objects, when this
 	//   list runs out Pool will automatically allocate more objects.
 	template<typename V>
-	[[nodiscard]] unsigned create(V&& value, unsigned hash, unsigned nextIdx)
+	[[nodiscard]] PoolIndex create(V&& value, unsigned hash, PoolIndex nextIdx)
 	{
-		if (freeIdx_ == 0) grow();
-		unsigned idx = freeIdx_;
+		if (freeIdx_ == invalidIndex) grow();
+		auto idx = freeIdx_;
 		auto& elem = get(idx);
 		freeIdx_ = elem.nextIdx;
 		new (&elem) Elem(std::forward<V>(value), hash, nextIdx);
@@ -132,8 +136,8 @@ public:
 
 	// Destroys a previously created object (given by index). Index must
 	// have been returned by an earlier create() call, and the same index
-	// can only be destroyed once. It's not allowed to destroy index 0.
-	void destroy(unsigned idx)
+	// can only be destroyed once. It's not allowed to destroy 'invalidIndex'.
+	void destroy(PoolIndex idx)
 	{
 		auto& elem = get(idx);
 		elem.~Elem();
@@ -143,10 +147,10 @@ public:
 
 	// Leaves 'hash' and 'nextIdx' members uninitialized!
 	template<typename... Args>
-	[[nodiscard]] unsigned emplace(Args&&... args)
+	[[nodiscard]] PoolIndex emplace(Args&&... args)
 	{
-		if (freeIdx_ == 0) grow();
-		unsigned idx = freeIdx_;
+		if (freeIdx_ == invalidIndex) grow();
+		auto idx = freeIdx_;
 		auto& elem = get(idx);
 		freeIdx_ = elem.nextIdx;
 		new (&elem) Elem(std::forward<Args>(args)...);
@@ -162,30 +166,34 @@ public:
 	{
 		// note: not required to be a power-of-2
 		if (capacity_ >= count) return;
-		if (capacity_ != 0) growMore(count);
-		else             growInitial(count);
+		if (capacity_ != 0) {
+			growMore(count);
+		} else {
+			growInitial(count);
+		}
 	}
 
 	friend void swap(Pool& x, Pool& y) noexcept
 	{
 		using std::swap;
-		swap(x.buf1_,     y.buf1_);
+		swap(x.buf_,     y.buf_);
 		swap(x.freeIdx_,  y.freeIdx_);
 		swap(x.capacity_, y.capacity_);
 	}
 
 private:
-	[[nodiscard]] static inline Elem* adjust(Elem* p) { return p - 1; }
-
 	void grow()
 	{
-		if (capacity_ != 0) growMore(2 * capacity_);
-		else             growInitial(4); // initial capacity = 4
+		if (capacity_ != 0) {
+			growMore(2 * capacity_);
+		} else {
+			growInitial(4); // initial capacity = 4
+		}
 	}
 
 	void growMore(unsigned newCapacity)
 	{
-		auto* oldBuf = buf1_ + 1;
+		auto* oldBuf = buf_;
 		Elem* newBuf;
 		if constexpr (std::is_trivially_move_constructible_v<Elem> &&
 		              std::is_trivially_copyable_v<Elem>) {
@@ -203,12 +211,12 @@ private:
 		}
 
 		for (auto i : xrange(capacity_, newCapacity - 1)) {
-			newBuf[i].nextIdx = i + 1 + 1;
+			newBuf[i].nextIdx = PoolIndex{i + 1};
 		}
-		newBuf[newCapacity - 1].nextIdx = 0;
+		newBuf[newCapacity - 1].nextIdx = invalidIndex;
 
-		buf1_ = adjust(newBuf);
-		freeIdx_ = capacity_ + 1;
+		buf_ = newBuf;
+		freeIdx_ = PoolIndex{capacity_};
 		capacity_ = newCapacity;
 	}
 
@@ -218,18 +226,18 @@ private:
 		if (!newBuf) throw std::bad_alloc();
 
 		for (auto i : xrange(newCapacity - 1)) {
-			newBuf[i].nextIdx = i + 1 + 1;
+			newBuf[i].nextIdx = PoolIndex{i + 1};
 		}
-		newBuf[newCapacity - 1].nextIdx = 0;
+		newBuf[newCapacity - 1].nextIdx = invalidIndex;
 
-		buf1_ = adjust(newBuf);
-		freeIdx_ = 1;
+		buf_ = newBuf;
+		freeIdx_ = PoolIndex{0};
 		capacity_ = newCapacity;
 	}
 
 private:
-	Elem* buf1_ = adjust(nullptr); // 1 before start of buffer -> valid indices start at 1
-	unsigned freeIdx_ = 0; // index of a free block, 0 means nothing is free
+	Elem* buf_ = nullptr;
+	PoolIndex freeIdx_ = invalidIndex; // index of a free block, 'invalidIndex' means nothing is free
 	unsigned capacity_ = 0;
 };
 
@@ -265,6 +273,9 @@ template<typename Value,
          typename Equal = std::equal_to<>>
 class hash_set
 {
+	using PoolIndex = hash_set_impl::PoolIndex;
+	static constexpr auto invalidIndex = hash_set_impl::invalidIndex;
+
 public:
 	using value_type = Value;
 
@@ -301,12 +312,12 @@ public:
 		Iter& operator++() {
 			auto& oldElem = hashSet->pool.get(elemIdx);
 			elemIdx = oldElem.nextIdx;
-			if (!elemIdx) {
+			if (elemIdx == invalidIndex) {
 				unsigned tableIdx = oldElem.hash & hashSet->allocMask;
 				do {
 					if (tableIdx == hashSet->allocMask) break;
 					elemIdx = hashSet->table[++tableIdx];
-				} while (!elemIdx);
+				} while (elemIdx == invalidIndex);
 			}
 			return *this;
 		}
@@ -326,16 +337,16 @@ public:
 	private:
 		friend class hash_set;
 
-		Iter(HashSet* m, unsigned idx)
+		Iter(HashSet* m, PoolIndex idx)
 			: hashSet(m), elemIdx(idx) {}
 
-		[[nodiscard]] unsigned getElementIdx() const {
+		[[nodiscard]] PoolIndex getElementIdx() const {
 			return elemIdx;
 		}
 
 	private:
 		HashSet* hashSet = nullptr;
-		unsigned elemIdx = 0;
+		PoolIndex elemIdx = invalidIndex;
 	};
 
 	using       iterator = Iter<      hash_set,       Value>;
@@ -359,7 +370,7 @@ public:
 		reserve(source.elemCount);
 
 		for (unsigned i = 0; i <= source.allocMask; ++i) {
-			for (auto idx = source.table[i]; idx; /**/) {
+			for (auto idx = source.table[i]; idx != invalidIndex; /**/) {
 				const auto& elem = source.pool.get(idx);
 				insert_noCapacityCheck_noDuplicateCheck(elem.value);
 				idx = elem.nextIdx;
@@ -401,7 +412,7 @@ public:
 		reserve(source.elemCount);
 
 		for (unsigned i = 0; i <= source.allocMask; ++i) {
-			for (auto idx = source.table[i]; idx; /**/) {
+			for (auto idx = source.table[i]; idx != invalidIndex; /**/) {
 				const auto& elem = source.pool.get(idx);
 				insert_noCapacityCheck_noDuplicateCheck(elem.value);
 				idx = elem.nextIdx;
@@ -432,7 +443,7 @@ public:
 	template<typename K>
 	[[nodiscard]] bool contains(const K& key) const
 	{
-		return locateElement(key) != 0;
+		return locateElement(key) != invalidIndex;
 	}
 
 	template<typename V>
@@ -485,8 +496,8 @@ public:
 		unsigned hash = hasher(key);
 		unsigned tableIdx = hash & allocMask;
 
-		for (auto* prev = &table[tableIdx]; *prev; prev = &(pool.get(*prev).nextIdx)) {
-			unsigned elemIdx = *prev;
+		for (auto* prev = &table[tableIdx]; *prev != invalidIndex; prev = &(pool.get(*prev).nextIdx)) {
+			auto elemIdx = *prev;
 			auto& elem = pool.get(elemIdx);
 			if (elem.hash != hash) continue;
 			if (!equal(extract(elem.value), key)) continue;
@@ -502,17 +513,17 @@ public:
 	void erase(iterator it)
 	{
 		auto elemIdx = it.getElementIdx();
-		if (!elemIdx) {
+		if (elemIdx == invalidIndex) {
 			UNREACHABLE; // not allowed to call erase(end())
 			return;
 		}
 		auto& elem = pool.get(elemIdx);
-		unsigned tableIdx = pool.get(elemIdx).hash & allocMask;
+		auto tableIdx = pool.get(elemIdx).hash & allocMask;
 		auto* prev = &table[tableIdx];
-		assert(*prev);
+		assert(*prev != invalidIndex);
 		while (*prev != elemIdx) {
 			prev = &(pool.get(*prev).nextIdx);
-			assert(*prev);
+			assert(*prev != invalidIndex);
 		}
 		*prev = elem.nextIdx;
 		pool.destroy(elemIdx);
@@ -534,12 +545,12 @@ public:
 		if (elemCount == 0) return;
 
 		for (unsigned i = 0; i <= allocMask; ++i) {
-			for (auto elemIdx = table[i]; elemIdx; /**/) {
+			for (auto elemIdx = table[i]; elemIdx != invalidIndex; /**/) {
 				auto nextIdx = pool.get(elemIdx).nextIdx;
 				pool.destroy(elemIdx);
 				elemIdx = nextIdx;
 			}
-			table[i] = 0;
+			table[i] = invalidIndex;
 		}
 		elemCount = 0;
 	}
@@ -561,7 +572,7 @@ public:
 		if (elemCount == 0) return end();
 
 		for (unsigned idx = 0; idx <= allocMask; ++idx) {
-			if (table[idx]) {
+			if (table[idx] != invalidIndex) {
 				return iterator(this, table[idx]);
 			}
 		}
@@ -574,7 +585,7 @@ public:
 		if (elemCount == 0) return end();
 
 		for (unsigned idx = 0; idx <= allocMask; ++idx) {
-			if (table[idx]) {
+			if (table[idx] != invalidIndex) {
 				return const_iterator(this, table[idx]);
 			}
 		}
@@ -611,9 +622,10 @@ public:
 
 		allocMask = newCount - 1;
 		if (oldCount == 0) {
-			table = static_cast<unsigned*>(calloc(newCount, sizeof(unsigned)));
+			table = static_cast<PoolIndex*>(malloc(newCount * sizeof(PoolIndex)));
+			std::fill(table, table + newCount, invalidIndex);
 		} else {
-			table = static_cast<unsigned*>(realloc(table, newCount * sizeof(unsigned)));
+			table = static_cast<PoolIndex*>(realloc(table, newCount * sizeof(PoolIndex)));
 			do {
 				rehash(oldCount);
 				oldCount *= 2;
@@ -658,12 +670,12 @@ private:
 	{
 		unsigned hash = hasher(extract(value));
 		unsigned tableIdx = hash & allocMask;
-		unsigned primary = 0;
+		PoolIndex primary = invalidIndex;
 
 		if (!CHECK_CAPACITY || (elemCount > 0)) {
 			primary = table[tableIdx];
 			if (CHECK_DUPLICATE) {
-				for (auto elemIdx = primary; elemIdx; /**/) {
+				for (auto elemIdx = primary; elemIdx != invalidIndex; /**/) {
 					auto& elem = pool.get(elemIdx);
 					if ((elem.hash == hash) &&
 					    equal(extract(elem.value), extract(value))) {
@@ -682,7 +694,7 @@ private:
 		}
 
 		elemCount++;
-		unsigned idx = pool.create(std::forward<V>(value), hash, primary);
+		auto idx = pool.create(std::forward<V>(value), hash, primary);
 		table[tableIdx] = idx;
 		return std::pair(iterator(this, idx), true);
 	}
@@ -690,17 +702,17 @@ private:
 	template<bool CHECK_CAPACITY, bool CHECK_DUPLICATE, typename... Args>
 	[[nodiscard]] std::pair<iterator, bool> emplace_impl(Args&&... args)
 	{
-		unsigned poolIdx = pool.emplace(std::forward<Args>(args)...);
+		auto poolIdx = pool.emplace(std::forward<Args>(args)...);
 		auto& poolElem = pool.get(poolIdx);
 
 		auto hash = unsigned(hasher(extract(poolElem.value)));
 		unsigned tableIdx = hash & allocMask;
-		unsigned primary = 0;
+		PoolIndex primary = invalidIndex;
 
 		if (!CHECK_CAPACITY || (elemCount > 0)) {
 			primary = table[tableIdx];
 			if (CHECK_DUPLICATE) {
-				for (auto elemIdx = primary; elemIdx; /**/) {
+				for (auto elemIdx = primary; elemIdx != invalidIndex; /**/) {
 					auto& elem = pool.get(elemIdx);
 					if ((elem.hash == hash) &&
 					    equal(extract(elem.value), extract(poolElem.value))) {
@@ -731,11 +743,12 @@ private:
 		unsigned oldCount = allocMask + 1;
 		if (oldCount == 0) {
 			allocMask = 4 - 1; // initial size
-			table = static_cast<unsigned*>(calloc(4, sizeof(unsigned)));
+			table = static_cast<PoolIndex*>(malloc(4 * sizeof(PoolIndex)));
+			std::fill(table, table + 4, invalidIndex);
 		} else {
 			unsigned newCount = 2 * oldCount;
 			allocMask = newCount - 1;
-			table = static_cast<unsigned*>(realloc(table, newCount * sizeof(unsigned)));
+			table = static_cast<PoolIndex*>(realloc(table, newCount * sizeof(unsigned)));
 			rehash(oldCount);
 		}
 	}
@@ -746,7 +759,7 @@ private:
 		for (auto i : xrange(oldCount)) {
 			auto* p0 = &table[i];
 			auto* p1 = &table[i + oldCount];
-			for (auto p = *p0; p; p = pool.get(p).nextIdx) {
+			for (auto p = *p0; p != invalidIndex; p = pool.get(p).nextIdx) {
 				auto& elem = pool.get(p);
 				if ((elem.hash & oldCount) == 0) {
 					*p0 = p;
@@ -756,19 +769,19 @@ private:
 					p1 = &elem.nextIdx;
 				}
 			}
-			*p0 = 0;
-			*p1 = 0;
+			*p0 = invalidIndex;
+			*p1 = invalidIndex;
 		}
 	}
 
 	template<typename K>
-	[[nodiscard]] unsigned locateElement(const K& key) const
+	[[nodiscard]] PoolIndex locateElement(const K& key) const
 	{
-		if (elemCount == 0) return 0;
+		if (elemCount == 0) return invalidIndex;
 
 		auto hash = unsigned(hasher(key));
 		unsigned tableIdx = hash & allocMask;
-		for (unsigned elemIdx = table[tableIdx]; elemIdx; /**/) {
+		for (auto elemIdx = table[tableIdx]; elemIdx != invalidIndex; /**/) {
 			auto& elem = pool.get(elemIdx);
 			if ((elem.hash == hash) &&
 			    equal(extract(elem.value), key)) {
@@ -776,11 +789,11 @@ private:
 			}
 			elemIdx = elem.nextIdx;
 		}
-		return 0;
+		return invalidIndex;
 	}
 
 private:
-	unsigned* table = nullptr;
+	PoolIndex* table = nullptr;
 	hash_set_impl::Pool<Value> pool;
 	unsigned allocMask = unsigned(-1);
 	unsigned elemCount = 0;
