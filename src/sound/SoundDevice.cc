@@ -209,7 +209,7 @@ bool SoundDevice::mixChannels(float* dataOut, unsigned samples)
 		mSet(reinterpret_cast<uint32_t*>(dataOut), outputStereo * samples, 0);
 	}
 
-	VLA(float*, bufs, numChannels);
+	float* bufs[MAX_CHANNELS];
 	unsigned separateChannels = 0;
 	unsigned pitch = (samples * stereo + 3) & ~3; // align for SSE access
 	// TODO optimization: All channels with the same balance (according to
@@ -243,7 +243,7 @@ bool SoundDevice::mixChannels(float* dataOut, unsigned samples)
 
 	if (separateChannels == 0) {
 		return ranges::any_of(xrange(numChannels),
-		                      [&bufs](auto i) { return bufs[i]; });
+		                      [&](auto i) { return bufs[i]; });
 	}
 
 	// record channels

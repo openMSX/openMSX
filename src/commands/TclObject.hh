@@ -267,6 +267,7 @@ private:
 	template<typename ITER>
 	void addListElementsImpl(ITER first, ITER last, std::random_access_iterator_tag) {
 		auto objc = last - first;
+		if (objc == 0) return; // because 0-length VLAs are not allowed (but gcc/clang allow it as an extension)
 		VLA(Tcl_Obj*, objv, objc);
 		std::transform(first, last, objv, [](const auto& t) { return newObj(t); });
 		addListElementsImpl(objc, objv);
