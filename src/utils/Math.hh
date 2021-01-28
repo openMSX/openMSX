@@ -209,7 +209,7 @@ template<typename T>
   * @return 0 if the input is zero (no bits are set),
   *   otherwise the index of the first set bit + 1.
   */
-[[nodiscard]] constexpr unsigned findFirstSet(unsigned x)
+[[nodiscard]] inline /*constexpr*/ unsigned findFirstSet(unsigned x)
 {
 #if defined(__GNUC__)
 	return __builtin_ffs(x);
