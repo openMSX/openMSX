@@ -44,33 +44,33 @@ namespace internal {
 // Unicode constants
 // Leading (high) surrogates: 0xd800 - 0xdbff
 // Trailing (low) surrogates: 0xdc00 - 0xdfff
-const uint16_t LEAD_SURROGATE_MIN  = 0xd800u;
-const uint16_t LEAD_SURROGATE_MAX  = 0xdbffu;
-const uint16_t TRAIL_SURROGATE_MIN = 0xdc00u;
-const uint16_t TRAIL_SURROGATE_MAX = 0xdfffu;
-const uint16_t LEAD_OFFSET         = LEAD_SURROGATE_MIN - (0x10000 >> 10);
-const uint32_t SURROGATE_OFFSET    = 0x10000u - (LEAD_SURROGATE_MIN << 10) - TRAIL_SURROGATE_MIN;
+constexpr uint16_t LEAD_SURROGATE_MIN  = 0xd800u;
+constexpr uint16_t LEAD_SURROGATE_MAX  = 0xdbffu;
+constexpr uint16_t TRAIL_SURROGATE_MIN = 0xdc00u;
+constexpr uint16_t TRAIL_SURROGATE_MAX = 0xdfffu;
+constexpr uint16_t LEAD_OFFSET         = LEAD_SURROGATE_MIN - (0x10000 >> 10);
+constexpr uint32_t SURROGATE_OFFSET    = 0x10000u - (LEAD_SURROGATE_MIN << 10) - TRAIL_SURROGATE_MIN;
 
 // Maximum valid value for a Unicode code point
-const uint32_t CODE_POINT_MAX      = 0x0010ffffu;
+constexpr uint32_t CODE_POINT_MAX      = 0x0010ffffu;
 
-[[nodiscard]] inline bool is_trail(uint8_t oc)
+[[nodiscard]] constexpr bool is_trail(uint8_t oc)
 {
 	return (oc >> 6) == 0x2;
 }
 
-[[nodiscard]] inline bool is_surrogate(uint16_t cp)
+[[nodiscard]] constexpr bool is_surrogate(uint16_t cp)
 {
 	return (cp >= LEAD_SURROGATE_MIN) && (cp <= TRAIL_SURROGATE_MAX);
 }
 
-[[nodiscard]] inline bool is_code_point_valid(uint32_t cp)
+[[nodiscard]] constexpr bool is_code_point_valid(uint32_t cp)
 {
 	return (cp <= CODE_POINT_MAX) && !is_surrogate(cp) &&
 	       (cp != one_of(0xfffeu, 0xffffu));
 }
 
-[[nodiscard]] inline unsigned sequence_length(uint8_t lead)
+[[nodiscard]] constexpr unsigned sequence_length(uint8_t lead)
 {
 	if (lead < 0x80) {
 		return 1;
@@ -95,7 +95,7 @@ enum utf_error {
 };
 
 template<typename octet_iterator>
-[[nodiscard]] utf_error validate_next(octet_iterator& it, octet_iterator end,
+[[nodiscard]] constexpr utf_error validate_next(octet_iterator& it, octet_iterator end,
                                       uint32_t* code_point)
 {
 	uint32_t cp = *it;
@@ -197,7 +197,7 @@ template<typename octet_iterator>
 }
 
 template<typename octet_iterator>
-[[nodiscard]] inline utf_error validate_next(octet_iterator& it, octet_iterator end) {
+[[nodiscard]] constexpr utf_error validate_next(octet_iterator& it, octet_iterator end) {
 	return validate_next(it, end, nullptr);
 }
 
@@ -205,11 +205,8 @@ template<typename octet_iterator>
 
 /// The library API - functions intended to be called by the users
 
-// Byte order mark
-const uint8_t bom[] = { 0xef, 0xbb, 0xbf };
-
 template<typename octet_iterator>
-[[nodiscard]] octet_iterator find_invalid(octet_iterator start, octet_iterator end)
+[[nodiscard]] constexpr octet_iterator find_invalid(octet_iterator start, octet_iterator end)
 {
 	auto result = start;
 	while (result != end) {
@@ -222,28 +219,31 @@ template<typename octet_iterator>
 }
 
 template<typename octet_iterator>
-[[nodiscard]] inline bool is_valid(octet_iterator start, octet_iterator end)
+[[nodiscard]] constexpr bool is_valid(octet_iterator start, octet_iterator end)
 {
 	return find_invalid(start, end) == end;
 }
 
 template<typename octet_iterator>
-[[nodiscard]] inline bool is_bom(octet_iterator it)
+[[nodiscard]] constexpr bool is_bom(octet_iterator it)
 {
+	// Byte order mark
+	constexpr uint8_t bom[] = {0xef, 0xbb, 0xbf};
+
 	return ((*it++ == bom[0]) &&
 	        (*it++ == bom[1]) &&
 	        (*it   == bom[2]));
 }
 
 template<typename octet_iterator>
-[[nodiscard]] inline octet_iterator sync_forward(octet_iterator it)
+[[nodiscard]] constexpr octet_iterator sync_forward(octet_iterator it)
 {
 	while (internal::is_trail(*it)) ++it;
 	return it;
 }
 
 template<typename octet_iterator>
-[[nodiscard]] inline octet_iterator sync_backward(octet_iterator it)
+[[nodiscard]] constexpr octet_iterator sync_backward(octet_iterator it)
 {
 	while (internal::is_trail(*it)) --it;
 	return it;
@@ -251,7 +251,7 @@ template<typename octet_iterator>
 
 // Is this a code point in the 'Private Use Area' (PUA).
 //   https://en.wikipedia.org/wiki/Private_Use_Areas
-[[nodiscard]] inline bool is_pua(uint32_t cp)
+[[nodiscard]] constexpr bool is_pua(uint32_t cp)
 {
 	return ((0x00E000 <= cp) && (cp <= 0x00F8FF)) ||
 	       ((0x0F0000 <= cp) && (cp <= 0x0FFFFD)) ||

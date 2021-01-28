@@ -9,9 +9,9 @@ namespace Base64 {
 using std::string;
 using openmsx::MemBuffer;
 
-[[nodiscard]] static inline char encode(uint8_t c)
+[[nodiscard]] static constexpr char encode(uint8_t c)
 {
-	static constexpr const char* const base64_chars =
+	constexpr const char* const base64_chars =
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		"abcdefghijklmnopqrstuvwxyz"
 		"0123456789+/";
@@ -19,7 +19,7 @@ using openmsx::MemBuffer;
 	return base64_chars[c];
 }
 
-[[nodiscard]] static inline uint8_t decode(uint8_t c)
+[[nodiscard]] static constexpr uint8_t decode(uint8_t c)
 {
 	if        ('A' <= c && c <= 'Z') {
 		return c - 'A';

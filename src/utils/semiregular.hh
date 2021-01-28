@@ -45,13 +45,11 @@ namespace sreg_impl {
 template<typename T> struct semiregular_move_assign : std::optional<T> {
 	using std::optional<T>::optional;
 
-	semiregular_move_assign() = default;
-	semiregular_move_assign(const semiregular_move_assign&) = default;
-	semiregular_move_assign(semiregular_move_assign&&) noexcept = default;
-	semiregular_move_assign&
-	operator=(const semiregular_move_assign&) = default;
-	semiregular_move_assign&
-	operator=(semiregular_move_assign&& that) noexcept(
+	constexpr semiregular_move_assign() = default;
+	constexpr semiregular_move_assign(const semiregular_move_assign&) = default;
+	constexpr semiregular_move_assign(semiregular_move_assign&&) noexcept = default;
+	constexpr semiregular_move_assign& operator=(const semiregular_move_assign&) = default;
+	constexpr semiregular_move_assign& operator=(semiregular_move_assign&& that) noexcept(
 	        std::is_nothrow_move_constructible_v<T>)
 	{
 		this->reset();
@@ -70,18 +68,17 @@ template<typename T>
 struct semiregular_copy_assign : semiregular_move_layer<T> {
 	using semiregular_move_layer<T>::semiregular_move_layer;
 
-	semiregular_copy_assign() = default;
-	semiregular_copy_assign(const semiregular_copy_assign&) = default;
-	semiregular_copy_assign(semiregular_copy_assign&&) noexcept = default;
-	semiregular_copy_assign&
-	operator=(const semiregular_copy_assign& that) noexcept(
+	constexpr semiregular_copy_assign() = default;
+	constexpr semiregular_copy_assign(const semiregular_copy_assign&) = default;
+	constexpr semiregular_copy_assign(semiregular_copy_assign&&) noexcept = default;
+	constexpr semiregular_copy_assign& operator=(const semiregular_copy_assign& that) noexcept(
 	        std::is_nothrow_copy_constructible_v<T>)
 	{
 		this->reset();
 		if (that) { this->emplace(*that); }
 		return *this;
 	}
-	semiregular_copy_assign& operator=(semiregular_copy_assign&&) noexcept = default;
+	constexpr semiregular_copy_assign& operator=(semiregular_copy_assign&&) noexcept = default;
 };
 
 template<typename T>
@@ -93,33 +90,33 @@ using semiregular_copy_layer =
 template<typename T> struct semiregular : semiregular_copy_layer<T> {
 	using semiregular_copy_layer<T>::semiregular_copy_layer;
 
-	semiregular() : semiregular(tag{}, std::is_default_constructible<T>{})
+	constexpr semiregular() : semiregular(tag{}, std::is_default_constructible<T>{})
 	{
 	}
 
-	T& get() & { return **this; }
-	T const& get() const& { return **this; }
-	T&& get() && { return *std::move(*this); }
-	T const&& get() const&& { return *std::move(*this); }
+	constexpr T& get() & { return **this; }
+	constexpr T const& get() const& { return **this; }
+	constexpr T&& get() && { return *std::move(*this); }
+	constexpr T const&& get() const&& { return *std::move(*this); }
 
-	operator T&() & { return **this; }
-	operator const T&() const& { return **this; }
-	operator T &&() && { return *std::move(*this); }
-	operator const T &&() const&& { return *std::move(*this); }
+	constexpr operator T&() & { return **this; }
+	constexpr operator const T&() const& { return **this; }
+	constexpr operator T &&() && { return *std::move(*this); }
+	constexpr operator const T &&() const&& { return *std::move(*this); }
 
-	template<typename... Args> auto operator()(Args&&... args) &
-	{
-		return (**this)(static_cast<Args&&>(args)...);
-	}
-	template<typename... Args> auto operator()(Args&&... args) const&
+	template<typename... Args> constexpr auto operator()(Args&&... args) &
 	{
 		return (**this)(static_cast<Args&&>(args)...);
 	}
-	template<typename... Args> auto operator()(Args&&... args) &&
+	template<typename... Args> constexpr auto operator()(Args&&... args) const&
+	{
+		return (**this)(static_cast<Args&&>(args)...);
+	}
+	template<typename... Args> constexpr auto operator()(Args&&... args) &&
 	{
 		return (*std::move(*this))(static_cast<Args&&>(args)...);
 	}
-	template<typename... Args> auto operator()(Args&&... args) const&&
+	template<typename... Args> constexpr auto operator()(Args&&... args) const&&
 	{
 		return (*std::move(*this))(static_cast<Args&&>(args)...);
 	}
@@ -127,8 +124,8 @@ template<typename T> struct semiregular : semiregular_copy_layer<T> {
 private:
 	struct tag {};
 
-	semiregular(tag, std::false_type) {}
-	semiregular(tag, std::true_type)
+	constexpr semiregular(tag, std::false_type) {}
+	constexpr semiregular(tag, std::true_type)
 	        : semiregular_copy_layer<T>{std::in_place}
 	{
 	}
@@ -142,7 +139,7 @@ struct semiregular<T&> : private std::reference_wrapper<T&> {
 	template<typename Arg, std::enable_if_t<(std::is_constructible<
 	                                          std::reference_wrapper<T&>,
 	                                          Arg&>::value)>* = nullptr>
-	semiregular(std::in_place_t, Arg& arg) : std::reference_wrapper<T&>(arg)
+	constexpr semiregular(std::in_place_t, Arg& arg) : std::reference_wrapper<T&>(arg)
 	{
 	}
 
@@ -159,7 +156,7 @@ struct semiregular<T&&> : private std::reference_wrapper<T&&> {
 	template<typename Arg, std::enable_if_t<(std::is_constructible<
 	                                          std::reference_wrapper<T&&>,
 	                                          Arg>::value)>* = nullptr>
-	semiregular(std::in_place_t, Arg&& arg)
+	constexpr semiregular(std::in_place_t, Arg&& arg)
 	        : std::reference_wrapper<T&>(static_cast<Arg&&>(arg))
 	{
 	}

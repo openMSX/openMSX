@@ -116,7 +116,7 @@ template<typename T>
   * The upper 32-N bits from the input are ignored and will be returned as 0.
   * For example reverseNBits('xxxabcde', 5) returns '000edcba' (binary notation).
   */
-[[nodiscard]] inline unsigned reverseNBits(unsigned x, unsigned bits)
+[[nodiscard]] constexpr unsigned reverseNBits(unsigned x, unsigned bits)
 {
 	unsigned ret = 0;
 	while (bits--) {
@@ -166,7 +166,7 @@ template<typename T>
 /** Reverse the bits in a byte.
   * This is equivalent to (but faster than) reverseNBits(x, 8);
   */
-[[nodiscard]] inline uint8_t reverseByte(uint8_t a)
+[[nodiscard]] constexpr uint8_t reverseByte(uint8_t a)
 {
 	// Classical implementation (can be extended to 16 and 32 bits)
 	//   a = ((a & 0xF0) >> 4) | ((a & 0x0F) << 4);
@@ -189,7 +189,7 @@ template<typename T>
 /** Count the number of leading zero-bits in the given word.
   * The result is undefined when the input is zero (all bits are zero).
   */
-[[nodiscard]] inline unsigned countLeadingZeros(unsigned x)
+[[nodiscard]] constexpr unsigned countLeadingZeros(unsigned x)
 {
 #ifdef __GNUC__
 	// actually this only exists starting from gcc-3.4.x
@@ -209,7 +209,7 @@ template<typename T>
   * @return 0 if the input is zero (no bits are set),
   *   otherwise the index of the first set bit + 1.
   */
-[[nodiscard]] inline unsigned findFirstSet(unsigned x)
+[[nodiscard]] constexpr unsigned findFirstSet(unsigned x)
 {
 #if defined(__GNUC__)
 	return __builtin_ffs(x);
@@ -241,7 +241,7 @@ template<typename T>
 // For more details see:
 //   https://en.wikipedia.org/wiki/Cubic_Hermite_spline
 //   https://www.paulinternet.nl/?page=bicubic
-[[nodiscard]] inline float cubicHermite(const float* y, float x)
+[[nodiscard]] constexpr float cubicHermite(const float* y, float x)
 {
 	assert(0.0f <= x); assert(x <= 1.0f);
 	float a = -0.5f*y[-1] + 1.5f*y[0] - 1.5f*y[1] + 0.5f*y[2];

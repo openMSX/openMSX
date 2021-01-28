@@ -9,8 +9,8 @@
 // use that type because it's most likely much more efficient.
 // VC++ 2008 does not provide a 128-bit integer type
 using uint128 = __uint128_t;
-[[nodiscard]] inline constexpr uint64_t low64 (uint128 a) { return a; }
-[[nodiscard]] inline constexpr uint64_t high64(uint128 a) { return a >> 64; }
+[[nodiscard]] constexpr uint64_t low64 (uint128 a) { return a; }
+[[nodiscard]] constexpr uint64_t high64(uint128 a) { return a >> 64; }
 
 #else // __x86_64 && !_MSC_VER
 
@@ -176,84 +176,84 @@ private:
 	uint64_t hi;
 };
 
-[[nodiscard]] inline constexpr uint128 operator+(const uint128& a, const uint128& b)
+[[nodiscard]] constexpr uint128 operator+(const uint128& a, const uint128& b)
 {
 	return uint128(a) += b;
 }
-[[nodiscard]] inline constexpr uint128 operator-(const uint128& a, const uint128& b)
+[[nodiscard]] constexpr uint128 operator-(const uint128& a, const uint128& b)
 {
 	return uint128(a) -= b;
 }
-[[nodiscard]] inline constexpr uint128 operator*(const uint128& a, const uint128& b)
+[[nodiscard]] constexpr uint128 operator*(const uint128& a, const uint128& b)
 {
 	return uint128(a) *= b;
 }
-[[nodiscard]] inline constexpr uint128 operator/(const uint128& a, const uint128& b)
+[[nodiscard]] constexpr uint128 operator/(const uint128& a, const uint128& b)
 {
 	return uint128(a) /= b;
 }
-[[nodiscard]] inline constexpr uint128 operator%(const uint128& a, const uint128& b)
+[[nodiscard]] constexpr uint128 operator%(const uint128& a, const uint128& b)
 {
 	return uint128(a) %= b;
 }
 
-[[nodiscard]] inline constexpr uint128 operator>>(const uint128& a, unsigned n)
+[[nodiscard]] constexpr uint128 operator>>(const uint128& a, unsigned n)
 {
 	return uint128(a) >>= n;
 }
-[[nodiscard]] inline constexpr uint128 operator<<(const uint128 & a, unsigned n)
+[[nodiscard]] constexpr uint128 operator<<(const uint128 & a, unsigned n)
 {
 	return uint128(a) <<= n;
 }
 
-[[nodiscard]] inline constexpr uint128 operator&(const uint128& a, const uint128& b)
+[[nodiscard]] constexpr uint128 operator&(const uint128& a, const uint128& b)
 {
 	return uint128(a) &= b;
 }
-[[nodiscard]] inline constexpr uint128 operator|(const uint128& a, const uint128& b)
+[[nodiscard]] constexpr uint128 operator|(const uint128& a, const uint128& b)
 {
 	return uint128(a) |= b;
 }
-[[nodiscard]] inline constexpr uint128 operator^(const uint128& a, const uint128& b)
+[[nodiscard]] constexpr uint128 operator^(const uint128& a, const uint128& b)
 {
 	return uint128(a) ^= b;
 }
 
-[[nodiscard]] inline constexpr bool operator<(const uint128& a, const uint128& b)
+[[nodiscard]] constexpr bool operator<(const uint128& a, const uint128& b)
 {
 	return std::pair(high64(a), low64(a)) < std::pair(high64(b), low64(b));
 }
-[[nodiscard]] inline constexpr bool operator>(const uint128& a, const uint128& b)
+[[nodiscard]] constexpr bool operator>(const uint128& a, const uint128& b)
 {
 	return b < a;
 }
-[[nodiscard]] inline constexpr bool operator<=(const uint128& a, const uint128& b)
+[[nodiscard]] constexpr bool operator<=(const uint128& a, const uint128& b)
 {
 	return !(b < a);
 }
-[[nodiscard]] inline constexpr bool operator>=(const uint128& a, const uint128& b)
+[[nodiscard]] constexpr bool operator>=(const uint128& a, const uint128& b)
 {
 	return !(a < b);
 }
-[[nodiscard]] inline constexpr bool operator==(const uint128& a, const uint128& b)
+[[nodiscard]] constexpr bool operator==(const uint128& a, const uint128& b)
 {
 	return (high64(a) == high64(b)) && (low64(a) == low64(b));
 }
-[[nodiscard]] inline constexpr bool operator!=(const uint128& a, const uint128& b)
+[[nodiscard]] constexpr bool operator!=(const uint128& a, const uint128& b)
 {
 	return !(a == b);
 }
 
-[[nodiscard]] inline constexpr bool operator&&(const uint128& a, const uint128& b)
+[[nodiscard]] constexpr bool operator&&(const uint128& a, const uint128& b)
 {
 	return !!a && !!b;
 }
-[[nodiscard]] inline constexpr bool operator||(const uint128& a, const uint128& b)
+[[nodiscard]] constexpr bool operator||(const uint128& a, const uint128& b)
 {
 	return !!a || !!b;
 }
 
-constexpr inline uint128& uint128::operator*=(const uint128& b)
+constexpr uint128& uint128::operator*=(const uint128& b)
 {
 	uint128 a = *this;
 	uint128 t = b;
@@ -270,7 +270,7 @@ constexpr inline uint128& uint128::operator*=(const uint128& b)
 	return *this;
 }
 
-constexpr inline std::pair<uint128, uint128> uint128::div(const uint128& ds) const
+constexpr std::pair<uint128, uint128> uint128::div(const uint128& ds) const
 {
 	uint128 dd = *this;
 	uint128 r = 0;

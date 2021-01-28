@@ -55,7 +55,7 @@ constexpr uint32_t PRIME32_5 =  374761393;
 
 
 template<int R>
-[[nodiscard]] inline uint32_t rotl(uint32_t x)
+[[nodiscard]] constexpr uint32_t rotl(uint32_t x)
 {
 	return (x << R) | (x >> (32 - R));
 }

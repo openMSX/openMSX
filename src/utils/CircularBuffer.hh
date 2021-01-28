@@ -11,40 +11,40 @@ template<typename T, size_t MAXSIZE>
 class CircularBuffer
 {
 public:
-	CircularBuffer() = default;
+	constexpr CircularBuffer() = default;
 
-	void addFront(const T& element) {
+	constexpr void addFront(const T& element) {
 		assert(!isFull());
 		first = prev(first);
 		buffer[first] = element;
 	}
-	void addFront(T&& element) {
+	constexpr void addFront(T&& element) {
 		assert(!isFull());
 		first = prev(first);
 		buffer[first] = std::move(element);
 	}
-	void addBack(const T& element) {
+	constexpr void addBack(const T& element) {
 		assert(!isFull());
 		buffer[last] = element;
 		last = next(last);
 	}
-	void addBack(T&& element) {
+	constexpr void addBack(T&& element) {
 		assert(!isFull());
 		buffer[last] = std::move(element);
 		last = next(last);
 	}
-	T& removeFront() {
+	constexpr T& removeFront() {
 		assert(!isEmpty());
 		auto tmp = first;
 		first = next(first);
 		return buffer[tmp];
 	}
-	T& removeBack() {
+	constexpr T& removeBack() {
 		assert(!isEmpty());
 		last = prev(last);
 		return buffer[last];
 	}
-	[[nodiscard]] T& operator[](size_t pos) {
+	[[nodiscard]] constexpr T& operator[](size_t pos) {
 		assert(pos < MAXSIZE);
 		auto tmp = first + pos;
 		if (tmp > MAXSIZE) {
@@ -52,16 +52,16 @@ public:
 		}
 		return buffer[tmp];
 	}
-	[[nodiscard]] const T& operator[](size_t pos) const {
+	[[nodiscard]] constexpr const T& operator[](size_t pos) const {
 		return const_cast<CircularBuffer&>(*this)[pos];
 	}
-	[[nodiscard]] bool isEmpty() const {
+	[[nodiscard]] constexpr bool isEmpty() const {
 		return (first == last);
 	}
-	[[nodiscard]] bool isFull() const {
+	[[nodiscard]] constexpr bool isFull() const {
 		return (first == next(last));
 	}
-	[[nodiscard]] size_t size() const {
+	[[nodiscard]] constexpr size_t size() const {
 		if (first > last) {
 			return MAXSIZE + 1 - first + last;
 		} else {
@@ -70,10 +70,10 @@ public:
 	}
 
 private:
-	[[nodiscard]] inline size_t next(size_t a) const {
+	[[nodiscard]] constexpr size_t next(size_t a) const {
 		return (a != MAXSIZE) ? a + 1 : 0;
 	}
-	[[nodiscard]] inline size_t prev(size_t a) const {
+	[[nodiscard]] constexpr size_t prev(size_t a) const {
 		return (a != 0) ? a - 1 : MAXSIZE;
 	}
 

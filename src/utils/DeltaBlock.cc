@@ -31,7 +31,7 @@ static void storeUleb(vector<uint8_t>& result, size_t value)
 	} while (value);
 }
 
-[[nodiscard]] static size_t loadUleb(const uint8_t*& data)
+[[nodiscard]] static constexpr size_t loadUleb(const uint8_t*& data)
 {
 	size_t result = 0;
 	int shift = 0;
@@ -151,7 +151,7 @@ end:	return std::mismatch(p, p_end, q);
 // Unlike scan_mismatch() it's less obvious how to perform this function
 // word-at-a-time (it's possible with some bit hacks). Though luckily this
 // function is also less performance critical.
-[[nodiscard]] static std::pair<const uint8_t*, const uint8_t*> scan_match(
+[[nodiscard]] static constexpr std::pair<const uint8_t*, const uint8_t*> scan_match(
 	const uint8_t* p, const uint8_t* p_end, const uint8_t* q, const uint8_t* q_end)
 {
 	assert((p_end - p) == (q_end - q));

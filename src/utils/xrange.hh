@@ -152,11 +152,11 @@ template<typename T> struct XRange
 	/*const*/ T e;
 };
 
-template<typename T> [[nodiscard]] inline constexpr auto xrange(T e)
+template<typename T> [[nodiscard]] constexpr auto xrange(T e)
 {
 	return XRange<T>{T(0), e < T(0) ? T(0) : e};
 }
-template<typename T1, typename T2> [[nodiscard]] inline constexpr auto xrange(T1 b, T2 e)
+template<typename T1, typename T2> [[nodiscard]] constexpr auto xrange(T1 b, T2 e)
 {
 	static_assert(std::is_signed_v<T1> == std::is_signed_v<T2>);
 	using T = std::common_type_t<T1, T2>;

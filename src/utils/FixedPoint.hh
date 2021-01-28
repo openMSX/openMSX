@@ -204,17 +204,17 @@ public:
 
 	// Arithmetic operators that modify this object:
 
-	void operator+=(FixedPoint other) {
+	constexpr void operator+=(FixedPoint other) {
 		value += other.value;
 	}
-	void operator-=(FixedPoint other) {
+	constexpr void operator-=(FixedPoint other) {
 		value -= other.value;
 	}
 
 	/** Increase this value with the smallest possible amount. Typically
 	  * used to implement counters at the resolution of this datatype.
 	  */
-	void addQuantum() {
+	constexpr void addQuantum() {
 		value += 1;
 	}
 

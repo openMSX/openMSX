@@ -31,8 +31,8 @@ struct PoolIndex {
 	unsigned idx;
 };
 static constexpr PoolIndex invalidIndex{unsigned(-1)};
-inline bool operator==(PoolIndex i, PoolIndex j) { return i.idx == j.idx; }
-inline bool operator!=(PoolIndex i, PoolIndex j) { return i.idx != j.idx; }
+constexpr bool operator==(PoolIndex i, PoolIndex j) { return i.idx == j.idx; }
+constexpr bool operator!=(PoolIndex i, PoolIndex j) { return i.idx != j.idx; }
 
 // Holds the data that will be stored in the hash_set plus some extra
 // administrative data.
@@ -48,7 +48,7 @@ struct Element {
 	PoolIndex nextIdx;
 
 	template<typename V>
-	Element(V&& value_, unsigned hash_, PoolIndex nextIdx_)
+	constexpr Element(V&& value_, unsigned hash_, PoolIndex nextIdx_)
 		: value(std::forward<V>(value_))
 		, hash(hash_)
 		, nextIdx(nextIdx_)
@@ -56,7 +56,7 @@ struct Element {
 	}
 
 	template<typename... Args>
-	explicit Element(Args&&... args)
+	explicit constexpr Element(Args&&... args)
 		: value(std::forward<Args>(args)...)
 		// hash    left uninitialized
 		// nextIdx left uninitialized

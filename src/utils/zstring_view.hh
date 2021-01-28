@@ -79,10 +79,10 @@ static_assert(std::is_trivially_assignable_v<zstring_view, zstring_view>);
 static_assert(std::is_trivially_copy_assignable_v<zstring_view>);
 static_assert(std::is_trivially_move_assignable_v<zstring_view>);
 
-[[nodiscard]] inline auto begin(const zstring_view& x) { return x.begin(); }
-[[nodiscard]] inline auto end  (const zstring_view& x) { return x.end();   }
+[[nodiscard]] constexpr auto begin(const zstring_view& x) { return x.begin(); }
+[[nodiscard]] constexpr auto end  (const zstring_view& x) { return x.end();   }
 
-[[nodiscard]] inline bool operator==(const zstring_view& x, const zstring_view& y) {
+[[nodiscard]] constexpr bool operator==(const zstring_view& x, const zstring_view& y) {
 	return std::string_view(x) == std::string_view(y);
 }
 [[nodiscard]] inline bool operator==(const zstring_view& x, const std::string& y) {
@@ -91,19 +91,19 @@ static_assert(std::is_trivially_move_assignable_v<zstring_view>);
 [[nodiscard]] inline bool operator==(const std::string& x, const zstring_view& y) {
 	return std::string_view(x) == std::string_view(y);
 }
-[[nodiscard]] inline bool operator==(const zstring_view& x, const std::string_view& y) {
+[[nodiscard]] constexpr bool operator==(const zstring_view& x, const std::string_view& y) {
 	return std::string_view(x) == y;
 }
-[[nodiscard]] inline bool operator==(const std::string_view& x, const zstring_view& y) {
+[[nodiscard]] constexpr bool operator==(const std::string_view& x, const zstring_view& y) {
 	return x == std::string_view(y);
 }
-[[nodiscard]] inline bool operator==(const zstring_view& x, const char* y) {
+[[nodiscard]] constexpr bool operator==(const zstring_view& x, const char* y) {
 	return std::string_view(x) == std::string_view(y);
 }
-[[nodiscard]] inline bool operator==(const char* x, const zstring_view& y) {
+[[nodiscard]] constexpr bool operator==(const char* x, const zstring_view& y) {
 	return std::string_view(x) == std::string_view(y);
 }
-[[nodiscard]] inline bool operator!=(const zstring_view& x, const zstring_view& y) {
+[[nodiscard]] constexpr bool operator!=(const zstring_view& x, const zstring_view& y) {
 	return std::string_view(x) != std::string_view(y);
 }
 [[nodiscard]] inline bool operator!=(const zstring_view& x, const std::string& y) {
@@ -112,16 +112,16 @@ static_assert(std::is_trivially_move_assignable_v<zstring_view>);
 [[nodiscard]] inline bool operator!=(const std::string& x, const zstring_view& y) {
 	return std::string_view(x) != std::string_view(y);
 }
-[[nodiscard]] inline bool operator!=(const zstring_view& x, const std::string_view& y) {
+[[nodiscard]] constexpr bool operator!=(const zstring_view& x, const std::string_view& y) {
 	return std::string_view(x) != y;
 }
-[[nodiscard]] inline bool operator!=(const std::string_view& x, const zstring_view& y) {
+[[nodiscard]] constexpr bool operator!=(const std::string_view& x, const zstring_view& y) {
 	return x != std::string_view(y);
 }
-[[nodiscard]] inline bool operator!=(const zstring_view& x, const char* y) {
+[[nodiscard]] constexpr bool operator!=(const zstring_view& x, const char* y) {
 	return std::string_view(x) != std::string_view(y);
 }
-[[nodiscard]] inline bool operator!=(const char* x, const zstring_view& y) {
+[[nodiscard]] constexpr bool operator!=(const char* x, const zstring_view& y) {
 	return std::string_view(x) != std::string_view(y);
 }
 

@@ -22,20 +22,20 @@ using String32 = std::conditional_t<
 	const char*>;                       // no  -> directly use pointer
 
 // convert string in buffer to String32
-inline void toString32(const char* buffer, const char* str, uint32_t& result) {
+constexpr void toString32(const char* buffer, const char* str, uint32_t& result) {
 	assert(buffer <= str);
 	assert(str < (buffer + std::numeric_limits<uint32_t>::max()));
 	result = str - buffer;
 }
-inline void toString32(const char* /*buffer*/, const char* str, const char*& result) {
+constexpr void toString32(const char* /*buffer*/, const char* str, const char*& result) {
 	result = str;
 }
 
 // convert String32 back to string in buffer
-[[nodiscard]] inline const char* fromString32(const char* buffer, uint32_t str32) {
+[[nodiscard]] constexpr const char* fromString32(const char* buffer, uint32_t str32) {
 	return buffer + str32;
 }
-[[nodiscard]] inline const char* fromString32(const char* /*buffer*/, const char* str32) {
+[[nodiscard]] constexpr const char* fromString32(const char* /*buffer*/, const char* str32) {
 	return str32;
 }
 

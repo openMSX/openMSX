@@ -16,7 +16,7 @@
 struct LessDeref
 {
 	template<typename PTR>
-	[[nodiscard]] bool operator()(PTR p1, PTR p2) const { return *p1 < *p2; }
+	[[nodiscard]] constexpr bool operator()(PTR p1, PTR p2) const { return *p1 < *p2; }
 };
 
 
@@ -28,32 +28,32 @@ struct LessDeref
 template<int N, typename CMP> struct CmpTupleElement
 {
 	template<typename... Args>
-	[[nodiscard]] bool operator()(const std::tuple<Args...>& x, const std::tuple<Args...>& y) const {
+	[[nodiscard]] constexpr bool operator()(const std::tuple<Args...>& x, const std::tuple<Args...>& y) const {
 		return cmp(std::get<N>(x), std::get<N>(y));
 	}
 
 	template<typename T, typename... Args>
-	[[nodiscard]] bool operator()(const T& x, const std::tuple<Args...>& y) const {
+	[[nodiscard]] constexpr bool operator()(const T& x, const std::tuple<Args...>& y) const {
 		return cmp(x, std::get<N>(y));
 	}
 
 	template<typename T, typename... Args>
-	[[nodiscard]] bool operator()(const std::tuple<Args...>& x, const T& y) const {
+	[[nodiscard]] constexpr bool operator()(const std::tuple<Args...>& x, const T& y) const {
 		return cmp(std::get<N>(x), y);
 	}
 
 	template<typename T1, typename T2>
-	[[nodiscard]] bool operator()(const std::pair<T1, T2>& x, const std::pair<T1, T2>& y) const {
+	[[nodiscard]] constexpr bool operator()(const std::pair<T1, T2>& x, const std::pair<T1, T2>& y) const {
 		return cmp(std::get<N>(x), std::get<N>(y));
 	}
 
 	template<typename T, typename T1, typename T2>
-	[[nodiscard]] bool operator()(const T& x, const std::pair<T1, T2>& y) const {
+	[[nodiscard]] constexpr bool operator()(const T& x, const std::pair<T1, T2>& y) const {
 		return cmp(x, std::get<N>(y));
 	}
 
 	template<typename T, typename T1, typename T2>
-	[[nodiscard]] bool operator()(const std::pair<T1, T2>& x, const T& y) const {
+	[[nodiscard]] constexpr bool operator()(const std::pair<T1, T2>& x, const T& y) const {
 		return cmp(std::get<N>(x), y);
 	}
 
@@ -70,14 +70,14 @@ template<int N, typename T> struct EqualTupleValueImpl
 {
 	explicit EqualTupleValueImpl(const T& t_) : t(t_) {}
 	template<typename TUPLE>
-	[[nodiscard]] bool operator()(const TUPLE& tup) const {
+	[[nodiscard]] constexpr bool operator()(const TUPLE& tup) const {
 		return std::get<N>(tup) == t;
 	}
 private:
 	const T& t;
 };
 template<int N, typename T>
-[[nodiscard]] auto EqualTupleValue(const T& t) {
+[[nodiscard]] constexpr auto EqualTupleValue(const T& t) {
 	return EqualTupleValueImpl<N, T>(t);
 }
 
@@ -89,7 +89,7 @@ template<int N, typename T>
   * STL already has the 'any_of' algorithm.
   */
 template<typename ITER, typename VAL>
-[[nodiscard]] inline constexpr bool contains(ITER first, ITER last, const VAL& val)
+[[nodiscard]] constexpr bool contains(ITER first, ITER last, const VAL& val)
 {
 	// c++20: return std::find(first, last, val) != last;
 	while (first != last) {
@@ -99,7 +99,7 @@ template<typename ITER, typename VAL>
 	return false;
 }
 template<typename RANGE, typename VAL>
-[[nodiscard]] inline constexpr bool contains(const RANGE& range, const VAL& val)
+[[nodiscard]] constexpr bool contains(const RANGE& range, const VAL& val)
 {
 	return contains(std::begin(range), std::end(range), val);
 }
@@ -113,7 +113,7 @@ template<typename RANGE, typename VAL>
   * parameter, we could consider providing such an overload as well.
   */
 template<typename ITER, typename VAL>
-[[nodiscard]] inline ITER find_unguarded(ITER first, ITER last, const VAL& val)
+[[nodiscard]] constexpr ITER find_unguarded(ITER first, ITER last, const VAL& val)
 {
 	(void)last;
 	while (true) {
@@ -123,7 +123,7 @@ template<typename ITER, typename VAL>
 	}
 }
 template<typename RANGE, typename VAL>
-[[nodiscard]] inline auto find_unguarded(RANGE& range, const VAL& val)
+[[nodiscard]] constexpr auto find_unguarded(RANGE& range, const VAL& val)
 {
 	return find_unguarded(std::begin(range), std::end(range), val);
 }
@@ -133,7 +133,7 @@ template<typename RANGE, typename VAL>
   * See also 'find_unguarded'.
   */
 template<typename ITER, typename PRED>
-[[nodiscard]] inline ITER find_if_unguarded(ITER first, ITER last, PRED pred)
+[[nodiscard]] constexpr ITER find_if_unguarded(ITER first, ITER last, PRED pred)
 {
 	(void)last;
 	while (true) {
@@ -143,7 +143,7 @@ template<typename ITER, typename PRED>
 	}
 }
 template<typename RANGE, typename PRED>
-[[nodiscard]] inline auto find_if_unguarded(RANGE& range, PRED pred)
+[[nodiscard]] constexpr auto find_if_unguarded(RANGE& range, PRED pred)
 {
 	return find_if_unguarded(std::begin(range), std::end(range), pred);
 }
@@ -154,7 +154,7 @@ template<typename RANGE, typename PRED>
   * versions it is already possible to pass reverse iterators.
   */
 template<typename RANGE, typename VAL>
-[[nodiscard]] inline auto rfind_unguarded(RANGE& range, const VAL& val)
+[[nodiscard]] constexpr auto rfind_unguarded(RANGE& range, const VAL& val)
 {
 	auto it = find_unguarded(std::rbegin(range), std::rend(range), val);
 	++it;
@@ -162,7 +162,7 @@ template<typename RANGE, typename VAL>
 }
 
 template<typename RANGE, typename PRED>
-[[nodiscard]] inline auto rfind_if_unguarded(RANGE& range, PRED pred)
+[[nodiscard]] constexpr auto rfind_if_unguarded(RANGE& range, PRED pred)
 {
 	auto it = find_if_unguarded(std::rbegin(range), std::rend(range), pred);
 	++it;
@@ -250,7 +250,7 @@ auto transform_in_place(ForwardRange&& range, UnaryOperation op)
 // Returns (a copy of) the minimum value in [first, last).
 // Requires: first != last.
 template<typename InputIterator>
-[[nodiscard]] auto min_value(InputIterator first, InputIterator last)
+[[nodiscard]] constexpr auto min_value(InputIterator first, InputIterator last)
 {
 	assert(first != last);
 	auto result = *first++;
@@ -261,7 +261,7 @@ template<typename InputIterator>
 }
 
 template<typename InputRange>
-[[nodiscard]] auto min_value(InputRange&& range)
+[[nodiscard]] constexpr auto min_value(InputRange&& range)
 {
 	return min_value(std::begin(range), std::end(range));
 }
@@ -269,7 +269,7 @@ template<typename InputRange>
 // Returns (a copy of) the maximum value in [first, last).
 // Requires: first != last.
 template<typename InputIterator>
-[[nodiscard]] auto max_value(InputIterator first, InputIterator last)
+[[nodiscard]] constexpr auto max_value(InputIterator first, InputIterator last)
 {
 	assert(first != last);
 	auto result = *first++;
@@ -280,7 +280,7 @@ template<typename InputIterator>
 }
 
 template<typename InputRange>
-[[nodiscard]] auto max_value(InputRange&& range)
+[[nodiscard]] constexpr auto max_value(InputRange&& range)
 {
 	return max_value(std::begin(range), std::end(range));
 }
@@ -331,7 +331,7 @@ template<typename T>
 namespace detail {
 
 template<typename... Ranges>
-[[nodiscard]] size_t sum_of_sizes(const Ranges&... ranges)
+[[nodiscard]] constexpr size_t sum_of_sizes(const Ranges&... ranges)
 {
     return (0 + ... + std::distance(std::begin(ranges), std::end(ranges)));
 }

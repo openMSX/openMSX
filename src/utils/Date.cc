@@ -14,7 +14,7 @@ const char* const months[12] = {
 };
 
 template<bool FIRST, unsigned MUL, typename T>
-[[nodiscard]] static inline bool parseDigit(unsigned c, T& t)
+[[nodiscard]] static constexpr bool parseDigit(unsigned c, T& t)
 {
 	c -= '0';
 	if (c > 9) return false;

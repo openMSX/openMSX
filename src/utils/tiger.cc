@@ -558,7 +558,7 @@ constexpr uint64_t table[4 * 256] = {
 	0xC83223F1720AEF96ULL, 0xC3A0396F7363A51FULL,  // 1022
 };
 
-static inline void round(uint64_t& a, uint64_t& b, uint64_t& c, uint64_t x, int mul)
+static constexpr void round(uint64_t& a, uint64_t& b, uint64_t& c, uint64_t x, int mul)
 {
 	c ^= x;
 	a -= table[uint8_t(c >>  0) + 0 * 256] ^

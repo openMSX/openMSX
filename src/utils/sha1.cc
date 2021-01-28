@@ -36,7 +36,7 @@ using std::string;
 namespace openmsx {
 
 // Rotate x bits to the left
-[[nodiscard]] inline static uint32_t rol32(uint32_t value, int bits)
+[[nodiscard]] static constexpr uint32_t rol32(uint32_t value, int bits)
 {
 	return (value << bits) | (value >> (32 - bits));
 }
@@ -130,7 +130,7 @@ Sha1Sum::Sha1Sum(std::string_view hex)
 
 #else
 
-[[nodiscard]] static inline unsigned hex(char x, const char* str)
+[[nodiscard]] static constexpr unsigned hex(char x, const char* str)
 {
 	if (('0' <= x) && (x <= '9')) return x - '0';
 	if (('a' <= x) && (x <= 'f')) return x - 'a' + 10;
@@ -227,7 +227,7 @@ void Sha1Sum::parse40(const char* str)
 #endif
 }
 
-[[nodiscard]] static inline char digit(unsigned x)
+[[nodiscard]] static constexpr char digit(unsigned x)
 {
 	return (x < 10) ? (x + '0') : (x - 10 + 'a');
 }
