@@ -33,7 +33,7 @@ private:
 	void writeHeader(unsigned s);
 	void writeSilence(unsigned s);
 	void writeByte(byte b);
-	bool writeData(span<byte> buf, size_t& pos);
+	bool writeData(span<const byte> buf, size_t& pos);
 	void convert(const Filename& filename, FilePool& filePool, CliComm& cliComm);
 
 	std::vector<signed char> output;

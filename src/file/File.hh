@@ -85,7 +85,7 @@ public:
 	 * @result Pointer/size to/of memory block.
 	 * @throws FileException
 	 */
-	[[nodiscard]] span<uint8_t> mmap();
+	[[nodiscard]] span<const uint8_t> mmap();
 
 	/** Unmap file from memory.
 	 */

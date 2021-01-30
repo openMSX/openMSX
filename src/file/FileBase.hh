@@ -18,7 +18,7 @@ public:
 
 	// If you override mmap(), make sure to call munmap() in
 	// your destructor.
-	[[nodiscard]] virtual span<uint8_t> mmap();
+	[[nodiscard]] virtual span<const uint8_t> mmap();
 	virtual void munmap();
 
 	[[nodiscard]] virtual size_t getSize() = 0;

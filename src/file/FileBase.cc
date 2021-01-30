@@ -7,7 +7,7 @@ using std::string;
 
 namespace openmsx {
 
-span<uint8_t> FileBase::mmap()
+span<const uint8_t> FileBase::mmap()
 {
 	auto size = getSize();
 	if (mmapBuf.empty()) {

@@ -16,11 +16,12 @@ public:
 		std::string originalName;
 		std::string cachedURL;
 		time_t cachedModificationDate;
+		unsigned useCount = 0;
 	};
 
 	void read(void* buffer, size_t num) final;
 	void write(const void* buffer, size_t num) final;
-	[[nodiscard]] span<uint8_t> mmap() final;
+	[[nodiscard]] span<const uint8_t> mmap() final;
 	void munmap() final;
 	[[nodiscard]] size_t getSize() final;
 	void seek(size_t pos) final;
@@ -42,8 +43,8 @@ private:
 
 private:
 	std::unique_ptr<FileBase> file;
-	std::shared_ptr<Decompressed> decompressed;
-	size_t pos;
+	const Decompressed* decompressed = nullptr;
+	size_t pos = 0;
 };
 
 } // namespace openmsx

@@ -100,7 +100,7 @@ void File::write(const void* buffer, size_t num)
 	file->write(buffer, num);
 }
 
-span<uint8_t> File::mmap()
+span<const uint8_t> File::mmap()
 {
 	return file->mmap();
 }
