@@ -657,7 +657,7 @@ static void tiger_compress(const uint8_t* str, uint64_t state[3])
 	state[2] = c + cc;
 }
 
-static inline void initState(uint64_t state[3])
+static constexpr void initState(uint64_t state[3])
 {
 	state[0] = 0x0123456789ABCDEFULL;
 	state[1] = 0xFEDCBA9876543210ULL;

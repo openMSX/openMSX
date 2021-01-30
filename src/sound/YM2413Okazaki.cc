@@ -630,7 +630,7 @@ void Channel::keyOff()
 // YM2413
 //
 
-static uint8_t inst_data[16 + 3][8] = {
+static constexpr uint8_t inst_data[16 + 3][8] = {
 	{ 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 }, // user instrument
 	{ 0x61,0x61,0x1e,0x17,0xf0,0x7f,0x00,0x17 }, // violin
 	{ 0x13,0x41,0x16,0x0e,0xfd,0xf4,0x23,0x23 }, // guitar
@@ -1584,7 +1584,7 @@ uint8_t YM2413::peekReg(uint8_t r) const
 
 } // namespace YM2413Okazaki
 
-static std::initializer_list<enum_string<YM2413Okazaki::EnvelopeState>> envelopeStateInfo = {
+static constexpr std::initializer_list<enum_string<YM2413Okazaki::EnvelopeState>> envelopeStateInfo = {
 	{ "ATTACK",  YM2413Okazaki::ATTACK  },
 	{ "DECAY",   YM2413Okazaki::DECAY   },
 	{ "SUSHOLD", YM2413Okazaki::SUSHOLD },

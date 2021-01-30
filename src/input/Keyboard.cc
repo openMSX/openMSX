@@ -56,7 +56,7 @@ static constexpr bool SANE_CAPSLOCK_BEHAVIOR = true;
 #endif
 
 
-static const int TRY_AGAIN = 0x80; // see pressAscii()
+static constexpr int TRY_AGAIN = 0x80; // see pressAscii()
 
 using KeyInfo = UnicodeKeymap::KeyInfo;
 
@@ -176,7 +176,7 @@ Keyboard::~Keyboard()
 }
 
 template<unsigned NUM_ROWS>
-static void doKeyGhosting(byte (&matrix)[NUM_ROWS], bool protectRow6)
+static constexpr void doKeyGhosting(byte (&matrix)[NUM_ROWS], bool protectRow6)
 {
 	// This routine enables keyghosting as seen on a real MSX
 	//

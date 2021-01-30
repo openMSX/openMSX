@@ -25,27 +25,27 @@
 
 namespace LZ4 {
 
-static const int MEMORY_USAGE = 14;
-static const int HASHLOG = MEMORY_USAGE - 2;
-static const int HASH_SIZE_U32 = 1 << HASHLOG;
-static const int ACCELERATION = 1;
-static const int MINMATCH = 4;
-static const int WILDCOPYLENGTH = 8;
-static const int LASTLITERALS = 5; // see ../doc/lz4_Block_format.md#parsing-restrictions
-static const int MFLIMIT = 12;     // see ../doc/lz4_Block_format.md#parsing-restrictions
-static const int MATCH_SAFEGUARD_DISTANCE = 2 * WILDCOPYLENGTH - MINMATCH; // ensure it's possible to write 2 x wildcopyLength without overflowing output buffer
-static const int FASTLOOP_SAFE_DISTANCE = 64;
-static const int MIN_LENGTH = MFLIMIT + 1;
-static const int DISTANCE_MAX = 65535;
-static const int ML_BITS  = 4;
-static const int ML_MASK  = (1 << ML_BITS) - 1;
-static const int RUN_BITS = 8 - ML_BITS;
-static const int RUN_MASK = (1 << RUN_BITS) - 1;
-static const int LIMIT_64K = 0x10000 + (MFLIMIT - 1);
-static const uint32_t SKIP_TRIGGER = 6;  // Increase this value ==> compression run slower on incompressible data
+static constexpr int MEMORY_USAGE = 14;
+static constexpr int HASHLOG = MEMORY_USAGE - 2;
+static constexpr int HASH_SIZE_U32 = 1 << HASHLOG;
+static constexpr int ACCELERATION = 1;
+static constexpr int MINMATCH = 4;
+static constexpr int WILDCOPYLENGTH = 8;
+static constexpr int LASTLITERALS = 5; // see ../doc/lz4_Block_format.md#parsing-restrictions
+static constexpr int MFLIMIT = 12;     // see ../doc/lz4_Block_format.md#parsing-restrictions
+static constexpr int MATCH_SAFEGUARD_DISTANCE = 2 * WILDCOPYLENGTH - MINMATCH; // ensure it's possible to write 2 x wildcopyLength without overflowing output buffer
+static constexpr int FASTLOOP_SAFE_DISTANCE = 64;
+static constexpr int MIN_LENGTH = MFLIMIT + 1;
+static constexpr int DISTANCE_MAX = 65535;
+static constexpr int ML_BITS  = 4;
+static constexpr int ML_MASK  = (1 << ML_BITS) - 1;
+static constexpr int RUN_BITS = 8 - ML_BITS;
+static constexpr int RUN_MASK = (1 << RUN_BITS) - 1;
+static constexpr int LIMIT_64K = 0x10000 + (MFLIMIT - 1);
+static constexpr uint32_t SKIP_TRIGGER = 6;  // Increase this value ==> compression run slower on incompressible data
 
 using reg_t = uintptr_t;
-static const int STEPSIZE = sizeof(reg_t);
+static constexpr int STEPSIZE = sizeof(reg_t);
 
 
 [[nodiscard]] static reg_t read_ARCH(const uint8_t* p)
@@ -78,8 +78,8 @@ static void wildCopy32(uint8_t* dst, const uint8_t* src, uint8_t* dstEnd)
 	} while (dst < dstEnd);
 }
 
-static const unsigned inc32table[8] = {0, 1, 2,  1,  0,  4, 4, 4};
-static const int      dec64table[8] = {0, 0, 0, -1, -4,  1, 2, 3};
+static constexpr unsigned inc32table[8] = {0, 1, 2,  1,  0,  4, 4, 4};
+static constexpr int      dec64table[8] = {0, 0, 0, -1, -4,  1, 2, 3};
 
 static void memcpy_using_offset_base(uint8_t* dstPtr, const uint8_t* srcPtr, uint8_t* dstEnd, const size_t offset)
 {

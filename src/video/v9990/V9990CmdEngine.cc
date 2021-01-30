@@ -125,7 +125,7 @@ static constexpr auto bitLUT = [] {
 
 enum { LOG_NO_T, LOG_BPP2, LOG_BPP4, LOG_BPP8 };
 
-[[nodiscard]] static inline byte func01(unsigned op, unsigned src, unsigned dst)
+[[nodiscard]] static constexpr byte func01(unsigned op, unsigned src, unsigned dst)
 {
 	if ((src & 0x03) == 0) return dst & 0x03;
 	byte res = 0;
@@ -133,7 +133,7 @@ enum { LOG_NO_T, LOG_BPP2, LOG_BPP4, LOG_BPP8 };
 	res |= bitLUT[1][op][(src & 0x02) >> 1][(dst & 0x02) >> 1];
 	return res;
 }
-[[nodiscard]] static inline byte func23(unsigned op, unsigned src, unsigned dst)
+[[nodiscard]] static constexpr byte func23(unsigned op, unsigned src, unsigned dst)
 {
 	if ((src & 0x0C) == 0) return dst & 0x0C;
 	byte res = 0;
@@ -141,7 +141,7 @@ enum { LOG_NO_T, LOG_BPP2, LOG_BPP4, LOG_BPP8 };
 	res |= bitLUT[3][op][(src & 0x08) >> 3][(dst & 0x08) >> 3];
 	return res;
 }
-[[nodiscard]] static inline byte func45(unsigned op, unsigned src, unsigned dst)
+[[nodiscard]] static constexpr byte func45(unsigned op, unsigned src, unsigned dst)
 {
 	if ((src & 0x30) == 0) return dst & 0x30;
 	byte res = 0;
@@ -149,7 +149,7 @@ enum { LOG_NO_T, LOG_BPP2, LOG_BPP4, LOG_BPP8 };
 	res |= bitLUT[5][op][(src & 0x20) >> 5][(dst & 0x20) >> 5];
 	return res;
 }
-[[nodiscard]] static inline byte func67(unsigned op, unsigned src, unsigned dst)
+[[nodiscard]] static constexpr byte func67(unsigned op, unsigned src, unsigned dst)
 {
 	if ((src & 0xC0) == 0) return dst & 0xC0;
 	byte res = 0;
@@ -158,7 +158,7 @@ enum { LOG_NO_T, LOG_BPP2, LOG_BPP4, LOG_BPP8 };
 	return res;
 }
 
-[[nodiscard]] static inline byte func03(unsigned op, unsigned src, unsigned dst)
+[[nodiscard]] static constexpr byte func03(unsigned op, unsigned src, unsigned dst)
 {
 	if ((src & 0x0F) == 0) return dst & 0x0F;
 	byte res = 0;
@@ -168,7 +168,7 @@ enum { LOG_NO_T, LOG_BPP2, LOG_BPP4, LOG_BPP8 };
 	res |= bitLUT[3][op][(src & 0x08) >> 3][(dst & 0x08) >> 3];
 	return res;
 }
-[[nodiscard]] static inline byte func47(unsigned op, unsigned src, unsigned dst)
+[[nodiscard]] static constexpr byte func47(unsigned op, unsigned src, unsigned dst)
 {
 	if ((src & 0xF0) == 0) return dst & 0xF0;
 	byte res = 0;
@@ -179,7 +179,7 @@ enum { LOG_NO_T, LOG_BPP2, LOG_BPP4, LOG_BPP8 };
 	return res;
 }
 
-[[nodiscard]] static inline byte func07(unsigned op, unsigned src, unsigned dst)
+[[nodiscard]] static constexpr byte func07(unsigned op, unsigned src, unsigned dst)
 {
 	// if (src == 0) return dst;  // handled in fillTable8
 	byte res = 0;
@@ -194,7 +194,7 @@ enum { LOG_NO_T, LOG_BPP2, LOG_BPP4, LOG_BPP8 };
 	return res;
 }
 
-static void fillTableNoT(unsigned op, byte* table)
+static constexpr void fillTableNoT(unsigned op, byte* table)
 {
 	for (auto dst : xrange(256)) {
 		for (auto src : xrange(256)) {
@@ -203,7 +203,7 @@ static void fillTableNoT(unsigned op, byte* table)
 	}
 }
 
-static void fillTable2(unsigned op, byte* table)
+static constexpr void fillTable2(unsigned op, byte* table)
 {
 	for (auto dst : xrange(256)) {
 		for (auto src : xrange(256)) {
@@ -217,7 +217,7 @@ static void fillTable2(unsigned op, byte* table)
 	}
 }
 
-static void fillTable4(unsigned op, byte* table)
+static constexpr void fillTable4(unsigned op, byte* table)
 {
 	for (auto dst : xrange(256)) {
 		for (auto src : xrange(256)) {
@@ -229,7 +229,7 @@ static void fillTable4(unsigned op, byte* table)
 	}
 }
 
-static void fillTable8(unsigned op, byte* table)
+static constexpr void fillTable8(unsigned op, byte* table)
 {
 	for (auto dst : xrange(256)) {
 		{ // src == 0

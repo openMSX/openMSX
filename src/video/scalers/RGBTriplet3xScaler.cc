@@ -293,8 +293,8 @@ void RGBTriplet3xScaler<Pixel>::scale4x2to3x3(FrameSource& src,
 }
 
 template<typename Pixel>
-static void fillLoop(const Pixel* __restrict in, Pixel* __restrict out,
-                     unsigned dstWidth)
+static constexpr void fillLoop(const Pixel* __restrict in, Pixel* __restrict out,
+                               unsigned dstWidth)
 {
 	out[0] = in[0];
 	out[1] = in[1];

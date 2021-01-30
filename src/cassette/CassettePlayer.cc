@@ -846,7 +846,7 @@ bool CassettePlayer::TapeCommand::needRecord(span<const TclObject> tokens) const
 }
 
 
-static std::initializer_list<enum_string<CassettePlayer::State>> stateInfo = {
+static constexpr std::initializer_list<enum_string<CassettePlayer::State>> stateInfo = {
 	{ "PLAY",   CassettePlayer::PLAY   },
 	{ "RECORD", CassettePlayer::RECORD },
 	{ "STOP",   CassettePlayer::STOP   }

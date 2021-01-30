@@ -234,7 +234,7 @@ void InputEventGenerator::triggerOsdControlEventsFromKeyEvent(
 	}
 }
 
-static Uint16 normalizeModifier(SDL_Keycode sym, Uint16 mod)
+static constexpr Uint16 normalizeModifier(SDL_Keycode sym, Uint16 mod)
 {
 	// Apparently modifier-keys also have the corresponding
 	// modifier attribute set. See here for a discussion:

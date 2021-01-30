@@ -287,7 +287,7 @@ void ImagePrinter::flushEmulatedPrinter()
 	vpos = pageTop;
 }
 
-static unsigned compress9(unsigned a)
+static constexpr unsigned compress9(unsigned a)
 {
 	unsigned result = 0;
 	for (auto i : xrange(9)) {
@@ -1515,18 +1515,18 @@ void ImagePrinterEpson::processEscSequence()
 
 // International character code translation for the Epson FX-80 printer
 //                              US   FR   DE   GB   DK   SE   IT   SP   JP
-static byte intlChar35 [9] = {  35,  35,  35,   6,  35,  35,  35,  12,  35 };
-static byte intlChar36 [9] = {  36,  36,  36,  36,  36,  11,  36,  36,  36 };
-static byte intlChar64 [9] = {  64,   0,  16,  64,  64,  29,  64,  64,  64 };
-static byte intlChar91 [9] = {  91,   5,  23,  91,  18,  23,   5,   7,  91 };
-static byte intlChar92 [9] = {  92,  15,  24,  92,  20,  24,  92,   9,  31 };
-static byte intlChar93 [9] = {  93,  16,  25,  93,  13,  13,  30,   8,  93 };
-static byte intlChar94 [9] = {  94,  94,  94,  94,  94,  25,  94,  94,  94 };
-static byte intlChar96 [9] = {  96,  96,  96,  96,  96,  30,   2,  96,  96 };
-static byte intlChar123[9] = { 123,  30,  26, 123,  19,  26,   0,  22, 123 };
-static byte intlChar124[9] = { 124,   2,  27, 124,  21,  27,   3,  10, 124 };
-static byte intlChar125[9] = { 125,   1,  28, 125,  14,  14,   1, 125, 125 };
-static byte intlChar126[9] = { 126,  22,  17, 126, 126,  28,   4, 126, 126 };
+static constexpr byte intlChar35 [9] = {  35,  35,  35,   6,  35,  35,  35,  12,  35 };
+static constexpr byte intlChar36 [9] = {  36,  36,  36,  36,  36,  11,  36,  36,  36 };
+static constexpr byte intlChar64 [9] = {  64,   0,  16,  64,  64,  29,  64,  64,  64 };
+static constexpr byte intlChar91 [9] = {  91,   5,  23,  91,  18,  23,   5,   7,  91 };
+static constexpr byte intlChar92 [9] = {  92,  15,  24,  92,  20,  24,  92,   9,  31 };
+static constexpr byte intlChar93 [9] = {  93,  16,  25,  93,  13,  13,  30,   8,  93 };
+static constexpr byte intlChar94 [9] = {  94,  94,  94,  94,  94,  25,  94,  94,  94 };
+static constexpr byte intlChar96 [9] = {  96,  96,  96,  96,  96,  30,   2,  96,  96 };
+static constexpr byte intlChar123[9] = { 123,  30,  26, 123,  19,  26,   0,  22, 123 };
+static constexpr byte intlChar124[9] = { 124,   2,  27, 124,  21,  27,   3,  10, 124 };
+static constexpr byte intlChar125[9] = { 125,   1,  28, 125,  14,  14,   1, 125, 125 };
+static constexpr byte intlChar126[9] = { 126,  22,  17, 126, 126,  28,   4, 126, 126 };
 
 void ImagePrinterEpson::processCharacter(byte data)
 {

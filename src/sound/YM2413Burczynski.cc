@@ -392,7 +392,7 @@ constexpr uint8_t table[16 + 3][8] = {
 	{ 0x05, 0x01, 0x00, 0x00, 0xf8, 0xba, 0x49, 0x55 },// TOM(multi,env verified), TOP CYM(multi verified, env verified)
 };
 
-static inline FreqIndex fnumToIncrement(int block_fnum)
+static constexpr FreqIndex fnumToIncrement(int block_fnum)
 {
 	// OPLL (YM2413) phase increment counter = 18bit
 	// Chip works with 10.10 fixed point, while we use 16.16.
@@ -599,7 +599,7 @@ inline int Channel::calcOutput(unsigned eg_cnt, unsigned lfo_pm, unsigned lfo_am
 //   TOP (17) channel 7->slot 1 combined with channel 8->slot 2
 //            (same combination as HIGH HAT but different output phases)
 
-static inline int genPhaseHighHat(int phaseM7, int phaseC8, int noise_rng)
+static constexpr int genPhaseHighHat(int phaseM7, int phaseC8, int noise_rng)
 {
 	// hi == phase >= 0x200
 	// enable gate based on frequency of operator 2 in channel 8
@@ -622,7 +622,7 @@ static inline int genPhaseHighHat(int phaseM7, int phaseC8, int noise_rng)
 	}
 }
 
-static inline int genPhaseSnare(int phaseM7, int noise_rng)
+static constexpr int genPhaseSnare(int phaseM7, int noise_rng)
 {
 	// base frequency derived from operator 1 in channel 7
 	// noise bit XOR'es phase by 0x100
@@ -630,7 +630,7 @@ static inline int genPhaseSnare(int phaseM7, int noise_rng)
 	     ^ ((noise_rng & 1) << 8);
 }
 
-static inline int genPhaseCymbal(int phaseM7, int phaseC8)
+static constexpr int genPhaseCymbal(int phaseM7, int phaseC8)
 {
 	// enable gate based on frequency of operator 2 in channel 8
 	if (phaseC8 & 0x28) {
@@ -1294,7 +1294,7 @@ uint8_t YM2413::peekReg(uint8_t r) const
 
 } // namespace YM2413Burczynski
 
-static std::initializer_list<enum_string<YM2413Burczynski::Slot::EnvelopeState>> envelopeStateInfo = {
+static constexpr std::initializer_list<enum_string<YM2413Burczynski::Slot::EnvelopeState>> envelopeStateInfo = {
 	{ "DUMP",    YM2413Burczynski::Slot::EG_DUMP    },
 	{ "ATTACK",  YM2413Burczynski::Slot::EG_ATTACK  },
 	{ "DECAY",   YM2413Burczynski::Slot::EG_DECAY   },

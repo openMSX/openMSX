@@ -112,9 +112,9 @@ using std::string;
 
 namespace openmsx {
 
-constexpr auto INPUT_RATE = unsigned(cstd::round(3579545.0 / 32));
+static constexpr auto INPUT_RATE = unsigned(cstd::round(3579545.0 / 32));
 
-static auto calcDescription(SCC::ChipMode mode)
+static constexpr auto calcDescription(SCC::ChipMode mode)
 {
 	return (mode == SCC::SCC_Real) ? static_string_view("Konami SCC")
 	                               : static_string_view("Konami SCC+");
@@ -343,7 +343,7 @@ float SCC::getAmplificationFactorImpl() const
 	return 1.0f / 128.0f;
 }
 
-static inline float adjust(signed char wav, byte vol)
+static constexpr float adjust(signed char wav, byte vol)
 {
 	// The result is an integer value, but we store it as a float because
 	// then we need fewer int->float conversion (compared to converting in
@@ -541,7 +541,7 @@ void SCC::Debuggable::write(unsigned address, byte value, EmuTime::param time)
 }
 
 
-static std::initializer_list<enum_string<SCC::ChipMode>> chipModeInfo = {
+static constexpr std::initializer_list<enum_string<SCC::ChipMode>> chipModeInfo = {
 	{ "Real",       SCC::SCC_Real       },
 	{ "Compatible", SCC::SCC_Compatible },
 	{ "Plus",       SCC::SCC_plusmode   },

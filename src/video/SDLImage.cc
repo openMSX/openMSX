@@ -49,7 +49,7 @@ static SDLSurfacePtr getTempSurface(ivec2 size_)
 struct UnpackedRGBA {
 	unsigned r, g, b, a;
 };
-static UnpackedRGBA unpackRGBA(unsigned rgba)
+static constexpr UnpackedRGBA unpackRGBA(unsigned rgba)
 {
 	unsigned r = (((rgba >> 24) & 0xFF) << 16) + 0x8000;
 	unsigned g = (((rgba >> 16) & 0xFF) << 16) + 0x8000;
@@ -64,7 +64,7 @@ struct Interp1Result {
 	unsigned r0, g0, b0, a0;
 	int dr, dg, db, da;
 };
-static Interp1Result setupInterp1(unsigned rgba0, unsigned rgba1, unsigned length)
+static constexpr Interp1Result setupInterp1(unsigned rgba0, unsigned rgba1, unsigned length)
 {
 	auto [r0, g0, b0, a0] = unpackRGBA(rgba0);
 	if (length == 1) {
@@ -100,9 +100,10 @@ struct Interp2Result {
 	unsigned drb, dga;
 	bool subRB, subGA;
 };
-static Interp2Result setupInterp2(unsigned r0, unsigned g0, unsigned b0, unsigned a0,
-                                  unsigned r1, unsigned g1, unsigned b1, unsigned a1,
-                                  unsigned length)
+static constexpr Interp2Result setupInterp2(
+	unsigned r0, unsigned g0, unsigned b0, unsigned a0,
+	unsigned r1, unsigned g1, unsigned b1, unsigned a1,
+	unsigned length)
 {
 	// Pack the initial values for the components R,B and G,A into
 	// a vector-type: two 8.16 scalars -> one [8.8 ; 8.8] vector
@@ -139,7 +140,7 @@ static Interp2Result setupInterp2(unsigned r0, unsigned g0, unsigned b0, unsigne
 	}
 }
 // Pack two [8.8 ; 8.8] vectors into one pixel.
-static unsigned packRGBA(unsigned rb, unsigned ga)
+static constexpr unsigned packRGBA(unsigned rb, unsigned ga)
 {
 	return (rb & 0xff00ff00) | ((ga & 0xff00ff00) >> 8);
 }
@@ -149,7 +150,7 @@ static unsigned packRGBA(unsigned rb, unsigned ga)
 //    0 -- 1
 //    |    |
 //    2 -- 3
-static void gradient(const unsigned* rgba, SDL_Surface& surface, unsigned borderSize)
+static constexpr void gradient(const unsigned* rgba, SDL_Surface& surface, unsigned borderSize)
 {
 	int width  = surface.w - 2 * borderSize;
 	int height = surface.h - 2 * borderSize;

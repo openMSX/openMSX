@@ -95,7 +95,7 @@ void VDPVRAM::PhysicalVRAMDebuggable::write(
 
 // class VDPVRAM
 
-static unsigned bufferSize(unsigned size)
+static constexpr unsigned bufferSize(unsigned size)
 {
 	// Always allocate at least a buffer of 128kB, this makes the VR0/VR1
 	// swapping a lot easier. Actually only in case there is also extended
@@ -192,7 +192,7 @@ void VDPVRAM::setSizeMask(EmuTime::param time)
 	spriteAttribTable.setSizeMask(sizeMask, time);
 	spritePatternTable.setSizeMask(sizeMask, time);
 }
-static inline unsigned swapAddr(unsigned x)
+static constexpr unsigned swapAddr(unsigned x)
 {
 	// translate VR0 address to corresponding VR1 address
 	//  note: output bit 0 is always 1

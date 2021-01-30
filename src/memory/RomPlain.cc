@@ -9,7 +9,7 @@
 namespace openmsx {
 
 // return x inside [start, start+len)
-[[nodiscard]] static inline bool isInside(unsigned x, unsigned start, unsigned len)
+[[nodiscard]] static constexpr bool isInside(unsigned x, unsigned start, unsigned len)
 {
 	unsigned tmp = x - start;
 	return tmp < len;

@@ -412,7 +412,7 @@ void HardwareConfig::setSlot(std::string_view slotname)
 	}
 }
 
-static std::initializer_list<enum_string<HardwareConfig::Type>> configTypeInfo = {
+static constexpr std::initializer_list<enum_string<HardwareConfig::Type>> configTypeInfo = {
 	{ "MACHINE",   HardwareConfig::Type::MACHINE   },
 	{ "EXTENSION", HardwareConfig::Type::EXTENSION },
 	{ "ROM",       HardwareConfig::Type::ROM       },

@@ -16,7 +16,7 @@ namespace openmsx {
 
 /** Parses the given string as a hexadecimal integer.
   */
-[[nodiscard]] static std::optional<unsigned> parseHex(string_view str)
+[[nodiscard]] static constexpr std::optional<unsigned> parseHex(string_view str)
 {
 	if (str.empty()) {
 		return {};
@@ -41,7 +41,7 @@ namespace openmsx {
   * Separators are: comma, whitespace and hash mark.
   * Newline (\n) is not considered a separator.
   */
-[[nodiscard]] static inline bool isSep(char c)
+[[nodiscard]] static constexpr bool isSep(char c)
 {
 	return c == one_of(',',             // comma
 	                   ' ', '\t', '\r', // whitespace
@@ -51,7 +51,7 @@ namespace openmsx {
 /** Removes separator characters at the start of the given string reference.
   * Characters between a hash mark and the following newline are also skipped.
   */
-static void skipSep(string_view& str)
+static constexpr void skipSep(string_view& str)
 {
 	while (!str.empty()) {
 		const char c = str.front();
@@ -68,7 +68,7 @@ static void skipSep(string_view& str)
 /** Returns the next token in the given string.
   * The token and any separators preceding it are removed from the string.
   */
-[[nodiscard]] static string_view nextToken(string_view& str)
+[[nodiscard]] static constexpr string_view nextToken(string_view& str)
 {
 	skipSep(str);
 	const auto* tokenBegin = str.data();

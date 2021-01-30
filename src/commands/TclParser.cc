@@ -16,7 +16,7 @@ void TclParser::DEBUG_PRINT(const string& s)
 	std::cout << string(2 * level, ' ') << s << '\n';
 }
 
-static std::string_view type2string(int type)
+static constexpr std::string_view type2string(int type)
 {
 	switch (type) {
 	case TCL_TOKEN_WORD:
@@ -44,7 +44,7 @@ static std::string_view type2string(int type)
 }
 #endif
 
-static bool inRange(char c, char low, char high)
+static constexpr bool inRange(char c, char low, char high)
 {
 	unsigned t = c - low;
 	return t <= unsigned(high - low);

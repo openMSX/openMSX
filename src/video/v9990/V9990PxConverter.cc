@@ -104,7 +104,7 @@ static unsigned getPatternAddress(
 }
 
 template<typename Policy>
-static unsigned nextNameAddr(unsigned addr)
+static constexpr unsigned nextNameAddr(unsigned addr)
 {
 	constexpr auto MASK = (2 * Policy::NAME_CHARS) - 1;
 	return (addr & ~MASK) | ((addr + 2) & MASK);

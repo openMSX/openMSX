@@ -157,14 +157,14 @@ constexpr byte lfo_am_table[LFO_AM_TAB_ELEMENTS] =
 //                                                  //
 //**************************************************//
 
-static inline unsigned DB_POS(int x)
+static constexpr unsigned DB_POS(int x)
 {
 	int result = int(x / DB_STEP);
 	assert(result < DB_MUTE);
 	assert(result >= 0);
 	return result;
 }
-static inline unsigned DB_NEG(int x)
+static constexpr unsigned DB_NEG(int x)
 {
 	return 2 * DB_MUTE + DB_POS(x);
 }
@@ -632,7 +632,7 @@ void Y8950::update_key_status()
 //
 
 // Convert Amp(0 to EG_HEIGHT) to Phase(0 to 8PI).
-static inline int wave2_8pi(int e)
+static constexpr int wave2_8pi(int e)
 {
 	int shift = SLOT_AMP_BITS - PG_BITS - 2;
 	return (shift > 0) ? (e >> shift) : (e << -shift);
@@ -1244,7 +1244,7 @@ void Y8950::Patch::serialize(Archive& ar, unsigned /*version*/)
 	             "RR", RR);
 }
 
-static std::initializer_list<enum_string<Y8950::EnvelopeState>> envelopeStateInfo = {
+static constexpr std::initializer_list<enum_string<Y8950::EnvelopeState>> envelopeStateInfo = {
 	{ "ATTACK",  Y8950::ATTACK  },
 	{ "DECAY",   Y8950::DECAY   },
 	{ "SUSTAIN", Y8950::SUSTAIN },

@@ -51,8 +51,8 @@ inline Pixel SaI3xScaler<Pixel>::blend(Pixel p1, Pixel p2) const
 	return pixelOps.template blend<1, 1>(p1, p2);
 }
 
-constexpr unsigned redblueMask = 0xF81F;
-constexpr unsigned greenMask = 0x7E0;
+static constexpr unsigned redblueMask = 0xF81F;
+static constexpr unsigned greenMask = 0x7E0;
 
 // TODO use PixelOperations::lerp()
 template<typename Pixel>

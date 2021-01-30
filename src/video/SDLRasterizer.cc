@@ -39,7 +39,7 @@ constexpr int TICKS_VISIBLE_MIDDLE =
   * @param absoluteX Absolute VDP coordinate.
   * @param narrow Is this a narrow (512 pixels wide) display mode?
   */
-static inline int translateX(int absoluteX, bool narrow)
+static constexpr int translateX(int absoluteX, bool narrow)
 {
 	int maxX = narrow ? 640 : 320;
 	if (absoluteX == VDP::TICKS_PER_LINE) return maxX;

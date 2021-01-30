@@ -50,17 +50,17 @@ namespace openmsx {
 using namespace VDPAccessSlots;
 
 // Constants:
-const byte MXD = 0x20;
-const byte MXS = 0x10;
-const byte DIY = 0x08;
-const byte DIX = 0x04;
-const byte EQ  = 0x02;
-const byte MAJ = 0x01;
+static constexpr byte MXD = 0x20;
+static constexpr byte MXS = 0x10;
+static constexpr byte DIY = 0x08;
+static constexpr byte DIX = 0x04;
+static constexpr byte EQ  = 0x02;
+static constexpr byte MAJ = 0x01;
 
 // Inline methods first, to make sure they are actually inlined:
 
 template<typename Mode>
-static inline unsigned clipNX_1_pixel(unsigned DX, unsigned NX, byte ARG)
+static constexpr unsigned clipNX_1_pixel(unsigned DX, unsigned NX, byte ARG)
 {
 	if (unlikely(DX >= Mode::PIXELS_PER_LINE)) {
 		return 1;
@@ -72,7 +72,7 @@ static inline unsigned clipNX_1_pixel(unsigned DX, unsigned NX, byte ARG)
 }
 
 template<typename Mode>
-static inline unsigned clipNX_1_byte(unsigned DX, unsigned NX, byte ARG)
+static constexpr unsigned clipNX_1_byte(unsigned DX, unsigned NX, byte ARG)
 {
 	constexpr unsigned BYTES_PER_LINE =
 		Mode::PIXELS_PER_LINE >> Mode::PIXELS_PER_BYTE_SHIFT;
@@ -89,7 +89,7 @@ static inline unsigned clipNX_1_byte(unsigned DX, unsigned NX, byte ARG)
 }
 
 template<typename Mode>
-static inline unsigned clipNX_2_pixel(unsigned SX, unsigned DX, unsigned NX, byte ARG)
+static constexpr unsigned clipNX_2_pixel(unsigned SX, unsigned DX, unsigned NX, byte ARG)
 {
 	if (unlikely(SX >= Mode::PIXELS_PER_LINE) ||
 	    unlikely(DX >= Mode::PIXELS_PER_LINE)) {
@@ -102,7 +102,7 @@ static inline unsigned clipNX_2_pixel(unsigned SX, unsigned DX, unsigned NX, byt
 }
 
 template<typename Mode>
-static inline unsigned clipNX_2_byte(unsigned SX, unsigned DX, unsigned NX, byte ARG)
+static constexpr unsigned clipNX_2_byte(unsigned SX, unsigned DX, unsigned NX, byte ARG)
 {
 	constexpr unsigned BYTES_PER_LINE =
 		Mode::PIXELS_PER_LINE >> Mode::PIXELS_PER_BYTE_SHIFT;
@@ -120,13 +120,13 @@ static inline unsigned clipNX_2_byte(unsigned SX, unsigned DX, unsigned NX, byte
 		: min(NX, BYTES_PER_LINE - max(SX, DX));
 }
 
-static inline unsigned clipNY_1(unsigned DY, unsigned NY, byte ARG)
+static constexpr unsigned clipNY_1(unsigned DY, unsigned NY, byte ARG)
 {
 	NY = NY ? NY : 1024;
 	return (ARG & DIY) ? min(NY, DY + 1) : NY;
 }
 
-static inline unsigned clipNY_2(unsigned SY, unsigned DY, unsigned NY, byte ARG)
+static constexpr unsigned clipNY_2(unsigned SY, unsigned DY, unsigned NY, byte ARG)
 {
 	NY = NY ? NY : 1024;
 	return (ARG & DIY) ? min(NY, min(SY, DY) + 1) : NY;

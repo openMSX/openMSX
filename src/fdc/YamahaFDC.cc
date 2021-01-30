@@ -31,15 +31,15 @@
 
 namespace openmsx {
 
-static const int DRIVE_A_SELECT = 0x01;
-static const int DRIVE_B_SELECT = 0x02;
-static const int DRIVE_A_NOT_READY = 0x01;
-static const int DRIVE_B_NOT_READY = 0x02;
-static const int DISK_A_CHANGED = 0x04;
-static const int DISK_B_CHANGED = 0x08;
-static const int MOTOR_ON = 0x04;
-static const int DATA_REQUEST  = 0x40;
-static const int INTR_REQUEST  = 0x80;
+static constexpr int DRIVE_A_SELECT = 0x01;
+static constexpr int DRIVE_B_SELECT = 0x02;
+static constexpr int DRIVE_A_NOT_READY = 0x01;
+static constexpr int DRIVE_B_NOT_READY = 0x02;
+static constexpr int DISK_A_CHANGED = 0x04;
+static constexpr int DISK_B_CHANGED = 0x08;
+static constexpr int MOTOR_ON = 0x04;
+static constexpr int DATA_REQUEST  = 0x40;
+static constexpr int INTR_REQUEST  = 0x80;
 
 
 YamahaFDC::YamahaFDC(const DeviceConfig& config)

@@ -499,11 +499,11 @@ template<typename T> void CPUCore<T>::setNextSyncPoint(EmuTime::param time)
 }
 
 
-static inline char toHex(byte x)
+static constexpr char toHex(byte x)
 {
 	return (x < 10) ? (x + '0') : (x - 10 + 'A');
 }
-static void toHex(byte x, char* buf)
+static constexpr void toHex(byte x, char* buf)
 {
 	buf[0] = toHex(x / 16);
 	buf[1] = toHex(x & 15);
@@ -3442,7 +3442,7 @@ template<typename T> template<unsigned N> inline II CPUCore<T>::bit_N_xix(unsign
 }
 
 // RES n,r
-static inline byte RES(unsigned b, byte reg) {
+static constexpr byte RES(unsigned b, byte reg) {
 	return reg & ~(1 << b);
 }
 template<typename T> template<unsigned N, Reg8 REG> II CPUCore<T>::res_N_R() {
@@ -3463,7 +3463,7 @@ template<typename T> template<unsigned N, Reg8 REG> II CPUCore<T>::res_N_xix_R(u
 }
 
 // SET n,r
-static inline byte SET(unsigned b, byte reg) {
+static constexpr byte SET(unsigned b, byte reg) {
 	return reg | (1 << b);
 }
 template<typename T> template<unsigned N, Reg8 REG> II CPUCore<T>::set_N_R() {

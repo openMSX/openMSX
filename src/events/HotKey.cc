@@ -471,7 +471,7 @@ void HotKey::stopRepeat()
 
 // class BindCmd
 
-static std::string_view getBindCmdName(bool defaultCmd)
+static constexpr std::string_view getBindCmdName(bool defaultCmd)
 {
 	return defaultCmd ? "bind_default" : "bind";
 }
@@ -580,7 +580,7 @@ string HotKey::BindCmd::help(const vector<string>& /*tokens*/) const
 
 // class UnbindCmd
 
-static string getUnbindCmdName(bool defaultCmd)
+static constexpr std::string_view getUnbindCmdName(bool defaultCmd)
 {
 	return defaultCmd ? "unbind_default" : "unbind";
 }

@@ -230,13 +230,13 @@ constexpr unsigned N = TAB_LEN;
 constexpr unsigned N1 = N - 1;
 constexpr unsigned N2 = N / 2;
 
-static unsigned mapIdx(unsigned x)
+static constexpr unsigned mapIdx(unsigned x)
 {
 	unsigned t = x & N1; // first wrap
 	return (t < N2) ? t : N1 - t; // then fold
 }
 
-static std::pair<unsigned, unsigned> next(unsigned x, unsigned step)
+static constexpr std::pair<unsigned, unsigned> next(unsigned x, unsigned step)
 {
 	return {mapIdx(x + step), mapIdx(N1 - x + step)};
 }
@@ -315,7 +315,7 @@ static void calcPermute(double ratio, int16_t* permute)
 #endif
 }
 
-static double getCoeff(FilterIndex index)
+static constexpr double getCoeff(FilterIndex index)
 {
 	double fraction = index.fractionAsDouble();
 	int indx = index.toInt();

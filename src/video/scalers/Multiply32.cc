@@ -19,7 +19,7 @@ Multiply32<uint32_t>::Multiply32(const PixelOperations<uint32_t>& /*pixelOps*/)
 // We don't really need a rotate, but we do need a shift over a positive or
 // negative (not known at compile time) distance, rotate handles this just fine.
 // Note that 0 <= n < 32; on x86 this doesn't matter but on PPC it does.
-static inline uint32_t rotLeft(uint32_t a, unsigned n)
+static constexpr uint32_t rotLeft(uint32_t a, unsigned n)
 {
 	return (a << n) | (a >> (32 - n));
 }

@@ -52,7 +52,7 @@
 
 namespace openmsx {
 
-[[nodiscard]] static inline YMF262::FreqIndex fnumToIncrement(unsigned block_fnum)
+[[nodiscard]] static constexpr YMF262::FreqIndex fnumToIncrement(unsigned block_fnum)
 {
 	// opn phase increment counter = 20bit
 	// chip works with 10.10 fixed point, while we use 16.16
@@ -943,7 +943,7 @@ void YMF262::Slot::calc_fc(const Channel& ch)
 	update_rr();
 }
 
-constexpr unsigned channelPairTab[18] = {
+static constexpr unsigned channelPairTab[18] = {
 	0,  1,  2,  0,  1,  2, unsigned(~0), unsigned(~0), unsigned(~0),
 	9, 10, 11,  9, 10, 11, unsigned(~0), unsigned(~0), unsigned(~0),
 };
@@ -954,7 +954,7 @@ inline bool YMF262::isExtended(unsigned ch) const
 	if (channelPairTab[ch] == unsigned(~0)) return false;
 	return channel[channelPairTab[ch]].extended;
 }
-static inline unsigned getFirstOfPairNum(unsigned ch)
+static constexpr unsigned getFirstOfPairNum(unsigned ch)
 {
 	assert((ch < 18) && (channelPairTab[ch] != unsigned(~0)));
 	return channelPairTab[ch];
@@ -1612,7 +1612,7 @@ void YMF262::generateChannels(float** bufs, unsigned num)
 }
 
 
-static std::initializer_list<enum_string<YMF262::EnvelopeState>> envelopeStateInfo = {
+static constexpr std::initializer_list<enum_string<YMF262::EnvelopeState>> envelopeStateInfo = {
 	{ "ATTACK",  YMF262::EG_ATTACK  },
 	{ "DECAY",   YMF262::EG_DECAY   },
 	{ "SUSTAIN", YMF262::EG_SUSTAIN },

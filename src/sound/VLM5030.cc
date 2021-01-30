@@ -135,7 +135,7 @@ constexpr int VLM5030_speed_table[8] =
 // This is the energy lookup table
 
 // sampled from real chip
-static word energytable[0x20] =
+static constexpr word energytable[0x20] =
 {
 	  0,  2,  4,  6, 10, 12, 14, 18, //  0-7
 	 22, 26, 30, 34, 38, 44, 48, 54, //  8-15

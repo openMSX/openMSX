@@ -11,7 +11,7 @@
 
 namespace openmsx::DiskImageUtils {
 
-constexpr char PARTAB_HEADER[11] = {
+static constexpr char PARTAB_HEADER[11] = {
 	'\353', '\376', '\220', 'M', 'S', 'X', '_', 'I', 'D', 'E', ' '
 };
 [[nodiscard]] static bool isPartitionTableSector(const PartitionTable& pt)
@@ -219,7 +219,7 @@ struct CHS {
 	unsigned head;
 	unsigned sector;
 };
-[[nodiscard]] static CHS logicalToCHS(unsigned logical)
+[[nodiscard]] static constexpr CHS logicalToCHS(unsigned logical)
 {
 	// This is made to fit the openMSX harddisk configuration:
 	//  32 sectors/track   16 heads

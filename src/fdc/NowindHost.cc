@@ -743,7 +743,7 @@ void NowindHost::readHelper2(unsigned len, const char* buf)
 
 // strips a string from outer double-quotes and anything outside them
 // ie: 'pre("foo")bar' will result in 'foo'
-static std::string_view stripquotes(std::string_view str)
+static constexpr std::string_view stripquotes(std::string_view str)
 {
 	auto first = str.find_first_of('\"');
 	if (first == string::npos) {
@@ -772,7 +772,7 @@ void NowindHost::callImage(const string& filename)
 }
 
 
-static std::initializer_list<enum_string<NowindHost::State>> stateInfo = {
+static constexpr std::initializer_list<enum_string<NowindHost::State>> stateInfo = {
 	{ "SYNC1",     NowindHost::STATE_SYNC1     },
 	{ "SYNC2",     NowindHost::STATE_SYNC2     },
 	{ "COMMAND",   NowindHost::STATE_COMMAND   },

@@ -124,7 +124,7 @@ static inline void drawNoiseLineSse2(uint32_t* buf_, signed char* noise, size_t 
  * @param n contains 4 8-bit   signed components, so components have range [-128, 127]
  * @result per component result of clip<0, 255>(p + n)
  */
-static inline uint32_t addNoise4(uint32_t p, uint32_t n)
+static constexpr uint32_t addNoise4(uint32_t p, uint32_t n)
 {
 	// unclipped result (lower 8 bits of each component)
 	// alternative:

@@ -403,7 +403,7 @@ void PixelRenderer::updateSpritesEnabled(
 	if (displayEnabled) sync(time);
 }
 
-static inline bool overlap(
+static constexpr bool overlap(
 	int displayY0, // start of display region, inclusive
 	int displayY1, // end of display region, exclusive
 	int vramLine0, // start of VRAM region, inclusive

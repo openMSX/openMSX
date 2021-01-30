@@ -314,7 +314,7 @@ void I8251::execTrans(EmuTime::param time)
 }
 
 
-static std::initializer_list<enum_string<SerialDataInterface::DataBits>> dataBitsInfo = {
+static constexpr std::initializer_list<enum_string<SerialDataInterface::DataBits>> dataBitsInfo = {
 		{ "5", SerialDataInterface::DATA_5 },
 		{ "6", SerialDataInterface::DATA_6 },
 		{ "7", SerialDataInterface::DATA_7 },
@@ -322,7 +322,7 @@ static std::initializer_list<enum_string<SerialDataInterface::DataBits>> dataBit
 };
 SERIALIZE_ENUM(SerialDataInterface::DataBits, dataBitsInfo);
 
-static std::initializer_list<enum_string<SerialDataInterface::StopBits>> stopBitsInfo = {
+static constexpr std::initializer_list<enum_string<SerialDataInterface::StopBits>> stopBitsInfo = {
 	{ "INVALID", SerialDataInterface::STOP_INV },
 	{ "1",       SerialDataInterface::STOP_1   },
 	{ "1.5",     SerialDataInterface::STOP_15  },
@@ -330,13 +330,13 @@ static std::initializer_list<enum_string<SerialDataInterface::StopBits>> stopBit
 };
 SERIALIZE_ENUM(SerialDataInterface::StopBits, stopBitsInfo);
 
-static std::initializer_list<enum_string<SerialDataInterface::ParityBit>> parityBitInfo = {
+static constexpr std::initializer_list<enum_string<SerialDataInterface::ParityBit>> parityBitInfo = {
 	{ "EVEN", SerialDataInterface::EVEN },
 	{ "ODD",  SerialDataInterface::ODD  }
 };
 SERIALIZE_ENUM(SerialDataInterface::ParityBit, parityBitInfo);
 
-static std::initializer_list<enum_string<I8251::CmdFaze>> cmdFazeInfo = {
+static constexpr std::initializer_list<enum_string<I8251::CmdFaze>> cmdFazeInfo = {
 	{ "MODE",  I8251::FAZE_MODE  },
 	{ "SYNC1", I8251::FAZE_SYNC1 },
 	{ "SYNC2", I8251::FAZE_SYNC2 },

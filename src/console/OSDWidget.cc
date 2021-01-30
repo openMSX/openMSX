@@ -22,8 +22,8 @@ namespace openmsx {
 
 // intersect two rectangles
 struct IntersectResult { int x, y, w, h; };
-static IntersectResult intersect(int xa, int ya, int wa, int ha,
-                                 int xb, int yb, int wb, int hb)
+static constexpr IntersectResult intersect(int xa, int ya, int wa, int ha,
+                                           int xb, int yb, int wb, int hb)
 {
 	int x1 = std::max<int>(xa, xb);
 	int y1 = std::max<int>(ya, yb);
@@ -36,7 +36,7 @@ static IntersectResult intersect(int xa, int ya, int wa, int ha,
 
 ////
 template<typename T>
-static void normalize(T& x, T& w)
+static constexpr void normalize(T& x, T& w)
 {
 	if (w < 0) {
 		w = -w;

@@ -192,7 +192,7 @@ void JoyMega::checkTime(EmuTime::param time)
 	}
 }
 
-static unsigned encodeButton(unsigned button, byte cycleMask)
+static constexpr unsigned encodeButton(unsigned button, byte cycleMask)
 {
 	unsigned n = (cycleMask == 7) ? 7 : 3; // 6- or 3-button mode
 	return 1 << (4 + (button & n));

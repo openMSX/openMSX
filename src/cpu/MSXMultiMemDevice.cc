@@ -37,13 +37,13 @@ MSXMultiMemDevice::~MSXMultiMemDevice()
 	assert(empty());
 }
 
-static bool isInside(unsigned x, unsigned start, unsigned size)
+static constexpr bool isInside(unsigned x, unsigned start, unsigned size)
 {
 	return (x - start) < size;
 }
 
-static bool overlap(unsigned start1, unsigned size1,
-                    unsigned start2, unsigned size2)
+static constexpr bool overlap(unsigned start1, unsigned size1,
+                              unsigned start2, unsigned size2)
 {
 	return (isInside(start1,             start2, size2)) ||
 	       (isInside(start1 + size1 - 1, start2, size2));

@@ -391,7 +391,7 @@ bool AmdFlash::partialMatch(size_t len, const byte* dataSeq) const
 }
 
 
-static std::initializer_list<enum_string<AmdFlash::State>> stateInfo = {
+static constexpr std::initializer_list<enum_string<AmdFlash::State>> stateInfo = {
 	{ "IDLE",  AmdFlash::ST_IDLE  },
 	{ "IDENT", AmdFlash::ST_IDENT }
 };

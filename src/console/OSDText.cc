@@ -220,7 +220,7 @@ template<typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 // Search for a position strictly between min and max which also points to the
 // start of a (possibly multi-byte) utf8-character. If no such position exits,
 // this function returns 'min'.
-static size_t findCharSplitPoint(const string& line, size_t min, size_t max)
+static constexpr size_t findCharSplitPoint(string_view line, size_t min, size_t max)
 {
 	auto pos = (min + max) / 2;
 	auto beginIt = line.data();
@@ -244,9 +244,9 @@ static size_t findCharSplitPoint(const string& line, size_t min, size_t max)
 // exits, this function returns 'min'.
 // This function works correctly with multi-byte utf8-encoding as long as
 // all delimiter characters are single byte chars.
-static size_t findWordSplitPoint(string_view line, size_t min, size_t max)
+static constexpr size_t findWordSplitPoint(string_view line, size_t min, size_t max)
 {
-	static constexpr const char* const delimiters = " -/";
+	constexpr const char* const delimiters = " -/";
 
 	// initial guess for a good position
 	assert(min < max);
@@ -280,7 +280,7 @@ static size_t findWordSplitPoint(string_view line, size_t min, size_t max)
 	return min;
 }
 
-static size_t takeSingleChar(const string& /*line*/, unsigned /*maxWidth*/)
+static constexpr size_t takeSingleChar(string_view /*line*/, unsigned /*maxWidth*/)
 {
 	return 1;
 }

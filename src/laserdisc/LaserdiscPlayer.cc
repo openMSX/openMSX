@@ -987,7 +987,7 @@ void LaserdiscPlayer::createRenderer()
 	renderer = RendererFactory::createLDRenderer(*this, display);
 }
 
-static std::initializer_list<enum_string<LaserdiscPlayer::RemoteState>> RemoteStateInfo = {
+static constexpr std::initializer_list<enum_string<LaserdiscPlayer::RemoteState>> RemoteStateInfo = {
 	{ "IDLE",		LaserdiscPlayer::REMOTE_IDLE		},
 	{ "HEADER_PULSE",	LaserdiscPlayer::REMOTE_HEADER_PULSE	},
 	{ "NEC_HEADER_SPACE",	LaserdiscPlayer::NEC_HEADER_SPACE	},
@@ -996,7 +996,7 @@ static std::initializer_list<enum_string<LaserdiscPlayer::RemoteState>> RemoteSt
 };
 SERIALIZE_ENUM(LaserdiscPlayer::RemoteState, RemoteStateInfo);
 
-static std::initializer_list<enum_string<LaserdiscPlayer::PlayerState>> PlayerStateInfo = {
+static constexpr std::initializer_list<enum_string<LaserdiscPlayer::PlayerState>> PlayerStateInfo = {
 	{ "STOPPED",		LaserdiscPlayer::PLAYER_STOPPED		},
 	{ "PLAYING",		LaserdiscPlayer::PLAYER_PLAYING		},
 	{ "MULTISPEED",		LaserdiscPlayer::PLAYER_MULTISPEED	},
@@ -1005,7 +1005,7 @@ static std::initializer_list<enum_string<LaserdiscPlayer::PlayerState>> PlayerSt
 };
 SERIALIZE_ENUM(LaserdiscPlayer::PlayerState, PlayerStateInfo);
 
-static std::initializer_list<enum_string<LaserdiscPlayer::SeekState>> SeekStateInfo = {
+static constexpr std::initializer_list<enum_string<LaserdiscPlayer::SeekState>> SeekStateInfo = {
 	{ "NONE",		LaserdiscPlayer::SEEK_NONE		},
 	{ "CHAPTER",		LaserdiscPlayer::SEEK_CHAPTER		},
 	{ "FRAME",		LaserdiscPlayer::SEEK_FRAME		},
@@ -1013,14 +1013,14 @@ static std::initializer_list<enum_string<LaserdiscPlayer::SeekState>> SeekStateI
 };
 SERIALIZE_ENUM(LaserdiscPlayer::SeekState, SeekStateInfo);
 
-static std::initializer_list<enum_string<LaserdiscPlayer::StereoMode>> StereoModeInfo = {
+static constexpr std::initializer_list<enum_string<LaserdiscPlayer::StereoMode>> StereoModeInfo = {
 	{ "LEFT",		LaserdiscPlayer::LEFT			},
 	{ "RIGHT",		LaserdiscPlayer::RIGHT			},
 	{ "STEREO",		LaserdiscPlayer::STEREO			}
 };
 SERIALIZE_ENUM(LaserdiscPlayer::StereoMode, StereoModeInfo);
 
-static std::initializer_list<enum_string<LaserdiscPlayer::RemoteProtocol>> RemoteProtocolInfo = {
+static constexpr std::initializer_list<enum_string<LaserdiscPlayer::RemoteProtocol>> RemoteProtocolInfo = {
 	{ "NONE",		LaserdiscPlayer::IR_NONE		},
 	{ "NEC",		LaserdiscPlayer::IR_NEC			},
 };

@@ -8,11 +8,11 @@ static bool approxEq(float x, float y)
 {
 	return fabsf(x - y) < 1.0e-5f;
 }
-static bool approxEq(const vec4& x, const vec4&y)
+static constexpr bool approxEq(const vec4& x, const vec4&y)
 {
 	return length2(x - y) < 1.0e-4f;
 }
-static bool approxEq(const mat4& x, const mat4&y)
+static constexpr bool approxEq(const mat4& x, const mat4&y)
 {
 	return norm2_2(x - y) < 1.0e-3f;
 }

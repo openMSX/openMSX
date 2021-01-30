@@ -5,12 +5,12 @@
 
 namespace openmsx {
 
-static char sign(unsigned char a)
+static constexpr char sign(unsigned char a)
 {
 	return (a & 128) ? '-' : '+';
 }
 
-static int abs(unsigned char a)
+static constexpr int abs(unsigned char a)
 {
 	return (a & 128) ? (256 - a) : a;
 }

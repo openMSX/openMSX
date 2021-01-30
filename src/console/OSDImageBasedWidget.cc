@@ -142,7 +142,7 @@ void OSDImageBasedWidget::getProperty(std::string_view propName, TclObject& resu
 	}
 }
 
-static bool constantAlpha(const uint32_t rgba[4])
+static constexpr bool constantAlpha(const uint32_t rgba[4])
 {
 	return ((rgba[0] & 0xff) == (rgba[1] & 0xff)) &&
 	       ((rgba[0] & 0xff) == (rgba[2] & 0xff)) &&

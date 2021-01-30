@@ -38,7 +38,7 @@ void SpriteChecker::reset(EmuTime::param time)
 	updateSpritesMethod = &SpriteChecker::updateSprites1;
 }
 
-static inline SpriteChecker::SpritePattern doublePattern(SpriteChecker::SpritePattern a)
+static constexpr SpriteChecker::SpritePattern doublePattern(SpriteChecker::SpritePattern a)
 {
 	// bit-pattern "abcd...." gets expanded to "aabbccdd"
 	// upper 16 bits (of a 32 bit number) contain the pattern

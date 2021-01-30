@@ -919,7 +919,7 @@ float YM2413::getAmplificationFactor() const
 } // namespace YM2413NukeYKT
 
 
-static std::initializer_list<enum_string<YM2413NukeYKT::YM2413::EgState>> egStateInfo = {
+static constexpr std::initializer_list<enum_string<YM2413NukeYKT::YM2413::EgState>> egStateInfo = {
 	{ "attack",  YM2413NukeYKT::YM2413::EgState::attack },
 	{ "decay",   YM2413NukeYKT::YM2413::EgState::decay },
 	{ "sustain", YM2413NukeYKT::YM2413::EgState::sustain },

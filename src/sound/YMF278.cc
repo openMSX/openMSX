@@ -199,7 +199,7 @@ YMF278::Slot::Slot()
 
 // Sign extend a 4-bit value to int (32-bit)
 // require: x in range [0..15]
-[[nodiscard]] static int sign_extend_4(int x)
+[[nodiscard]] static constexpr int sign_extend_4(int x)
 {
 	return (x ^ 8) - 8;
 }
@@ -210,7 +210,7 @@ YMF278::Slot::Slot()
 //    ((fn | 1024) + vib) << (5 + sign_extend_4(oct))
 // Though in this formula the shift can go over a negative distance (in that
 // case we should shift in the other direction).
-[[nodiscard]] static unsigned calcStep(int8_t oct, uint16_t fn, int16_t vib = 0)
+[[nodiscard]] static constexpr unsigned calcStep(int8_t oct, uint16_t fn, int16_t vib = 0)
 {
 	if (oct == -8) return 0;
 	unsigned t = (fn + 1024 + vib) << (8 + oct); // use '+' iso '|' (generates slightly better code)
@@ -460,7 +460,7 @@ bool YMF278::anyActive()
 // Out: 'x' attenuated by the corresponding factor.
 // Note: microbenchmarks have shown that re-doing this calculation is about the
 // same speed as using a 4kB lookup table.
-static int vol_factor(int x, unsigned envVol)
+static constexpr int vol_factor(int x, unsigned envVol)
 {
 	if (envVol >= MAX_ATT_INDEX) return 0; // hardware clips to silence below -60dB
 	int vol_mul = 0x80 - (envVol & 0x3F); // 0x40 values per 6dB

@@ -385,7 +385,7 @@ byte RealDrive::readTrackByte(int idx)
 	return trackValid ? track.read(idx) : 0;
 }
 
-static inline unsigned divUp(unsigned a, unsigned b)
+static constexpr unsigned divUp(unsigned a, unsigned b)
 {
 	return (a + b - 1) / b;
 }

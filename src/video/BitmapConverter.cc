@@ -274,7 +274,7 @@ void BitmapConverter<Pixel>::renderGraphic7(
 	}
 }
 
-static std::tuple<int, int, int> yjk2rgb(int y, int j, int k)
+static constexpr std::tuple<int, int, int> yjk2rgb(int y, int j, int k)
 {
 	int r = std::clamp(y + j,                   0, 31);
 	int g = std::clamp(y + k,                   0, 31);
