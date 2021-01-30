@@ -173,8 +173,8 @@ std::unique_ptr<OutputSurface> SDLGLVisibleSurface::createOffScreenSurface()
 
 void SDLGLVisibleSurface::VSyncObserver::update(const Setting& setting)
 {
-	auto& surface = OUTER(SDLGLVisibleSurface, vSyncObserver);
-	auto& syncSetting = surface.getDisplay().getRenderSettings().getVSyncSetting();
+	auto& visSurface = OUTER(SDLGLVisibleSurface, vSyncObserver);
+	auto& syncSetting = visSurface.getDisplay().getRenderSettings().getVSyncSetting();
 	assert(&setting == &syncSetting); (void)setting;
 
 	// for now, we assume that adaptive vsync is the best kind of vsync, so when

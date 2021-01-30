@@ -23,7 +23,7 @@ ColecoJoystickIO::ColecoJoystickIO(const DeviceConfig& config)
 	MSXMotherBoard& motherBoard = getMotherBoard();
 	auto time = getCurrentTime();
 	for (auto [i, port] : enumerate(ports)) {
-		port = &motherBoard.getJoystickPort(i);
+		port = &motherBoard.getJoystickPort(unsigned(i));
 		// Clear strobe bit, or MSX joysticks will stay silent.
 		port->write(0xFB, time);
 	}

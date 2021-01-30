@@ -24,7 +24,7 @@ public:
 	void setFps(float fps_) { fps = fps_; }
 
 private:
-	void addAviChunk(const char* tag, unsigned size, const void* data, unsigned flags);
+	void addAviChunk(const char* tag, size_t size, const void* data, unsigned flags);
 
 private:
 	File file;

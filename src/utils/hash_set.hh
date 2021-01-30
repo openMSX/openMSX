@@ -493,8 +493,8 @@ public:
 	{
 		if (elemCount == 0) return false;
 
-		unsigned hash = hasher(key);
-		unsigned tableIdx = hash & allocMask;
+		auto hash = unsigned(hasher(key));
+		auto tableIdx = hash & allocMask;
 
 		for (auto* prev = &table[tableIdx]; *prev != invalidIndex; prev = &(pool.get(*prev).nextIdx)) {
 			auto elemIdx = *prev;
@@ -668,8 +668,8 @@ private:
 	template<bool CHECK_CAPACITY, bool CHECK_DUPLICATE, typename V>
 	[[nodiscard]] std::pair<iterator, bool> insert_impl(V&& value)
 	{
-		unsigned hash = hasher(extract(value));
-		unsigned tableIdx = hash & allocMask;
+		auto hash = unsigned(hasher(extract(value)));
+		auto tableIdx = hash & allocMask;
 		PoolIndex primary = invalidIndex;
 
 		if (!CHECK_CAPACITY || (elemCount > 0)) {
@@ -706,7 +706,7 @@ private:
 		auto& poolElem = pool.get(poolIdx);
 
 		auto hash = unsigned(hasher(extract(poolElem.value)));
-		unsigned tableIdx = hash & allocMask;
+		auto tableIdx = hash & allocMask;
 		PoolIndex primary = invalidIndex;
 
 		if (!CHECK_CAPACITY || (elemCount > 0)) {
@@ -780,7 +780,7 @@ private:
 		if (elemCount == 0) return invalidIndex;
 
 		auto hash = unsigned(hasher(key));
-		unsigned tableIdx = hash & allocMask;
+		auto tableIdx = hash & allocMask;
 		for (auto elemIdx = table[tableIdx]; elemIdx != invalidIndex; /**/) {
 			auto& elem = pool.get(elemIdx);
 			if ((elem.hash == hash) &&

@@ -95,7 +95,7 @@ void EventDistributor::deliverEvents()
 			auto type = event->getType();
 			priorityMapCopy = listeners[type];
 			lock.unlock();
-			auto blockPriority = unsigned(-1); // allow all
+			int blockPriority = Priority::LOWEST; // allow all
 			for (const auto& [priority, listener] : priorityMapCopy) {
 				// It's possible delivery to one of the previous
 				// Listeners unregistered the current Listener.
@@ -103,7 +103,7 @@ void EventDistributor::deliverEvents()
 
 				if (priority >= blockPriority) break;
 
-				if (unsigned block = listener->signalEvent(event)) {
+				if (int block = listener->signalEvent(event)) {
 					assert(block > priority);
 					blockPriority = block;
 				}

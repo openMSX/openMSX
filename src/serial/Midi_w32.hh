@@ -43,7 +43,7 @@ std::string w32_midiOutGetVFN(unsigned nmb);
 std::string w32_midiOutGetRDN(unsigned nmb);
 unsigned w32_midiOutOpen(const char* vfn);
 int w32_midiOutClose(unsigned idx);
-int w32_midiOutMsg(unsigned size, const uint8_t* data, unsigned idx);
+int w32_midiOutMsg(size_t size, const uint8_t* data, unsigned idx);
 
 int w32_midiInInit();
 void w32_midiInClean();

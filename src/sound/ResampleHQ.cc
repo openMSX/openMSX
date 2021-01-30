@@ -42,7 +42,7 @@ constexpr float coeffs[] = {
 using FilterIndex = FixedPoint<16>;
 
 constexpr int INDEX_INC = 128;
-constexpr int COEFF_LEN = std::size(coeffs);
+constexpr int COEFF_LEN = int(std::size(coeffs));
 constexpr int COEFF_HALF_LEN = COEFF_LEN - 1;
 constexpr unsigned TAB_LEN = 4096;
 constexpr unsigned HALF_TAB_LEN = TAB_LEN / 2;

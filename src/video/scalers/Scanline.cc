@@ -3,6 +3,7 @@
 #include "enumerate.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+#include <bits/stdint-uintn.h>
 #include <cassert>
 #include <cstddef>
 #include <cstring>
@@ -27,9 +28,10 @@ void Multiply<uint16_t>::setFactor(unsigned f)
 	factor = f;
 
 	for (auto [p, t] : enumerate(tab)) {
-		t = ((((p & pixelOps.getRmask()) * f) >> 8) & pixelOps.getRmask()) |
-		    ((((p & pixelOps.getGmask()) * f) >> 8) & pixelOps.getGmask()) |
-		    ((((p & pixelOps.getBmask()) * f) >> 8) & pixelOps.getBmask());
+		auto pix = uint32_t(p);
+		t = ((((pix & pixelOps.getRmask()) * f) >> 8) & pixelOps.getRmask()) |
+		    ((((pix & pixelOps.getGmask()) * f) >> 8) & pixelOps.getGmask()) |
+		    ((((pix & pixelOps.getBmask()) * f) >> 8) & pixelOps.getBmask());
 	}
 }
 

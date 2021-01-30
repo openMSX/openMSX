@@ -79,7 +79,7 @@ public:
 			if (cntr == 0) {
 				pool.push_back(std::make_unique<Element256>());
 			}
-			idx = ((pool.size() - 1) << 8) + cntr;
+			idx = Index(((pool.size() - 1) << 8) + cntr);
 			++cntr;
 		}
 		T* ptr = &get(idx).t;

@@ -89,7 +89,7 @@ template<size_t N, typename Hash, typename GetKey>
 	// Step 1: Place all of the keys into buckets
 	std::array<static_vector<uint8_t, bucket_max>, r.tab1.size()> buckets;
 	for (auto i : xrange(N)) {
-		buckets[hash(getKey(i)) % r.tab1.size()].push_back(i);
+		buckets[hash(getKey(i)) % r.tab1.size()].push_back(uint8_t(i));
 	}
 
 	// Step 2: Sort the buckets to process the ones with the most items first.
@@ -123,7 +123,7 @@ template<size_t N, typename Hash, typename GetKey>
 					bucket_slots.clear();
 					continue;
 				}
-				bucket_slots.push_back(slot);
+				bucket_slots.push_back(uint8_t(slot));
 			}
 
 			// Put successful shift-factor in tab1, and put indices to items in their slots

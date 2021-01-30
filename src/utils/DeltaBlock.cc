@@ -286,7 +286,7 @@ void DeltaBlockCopy::compress(size_t size)
 {
 	if (compressed()) return;
 
-	size_t dstLen = LZ4::compressBound(size);
+	size_t dstLen = LZ4::compressBound(int(size));
 	MemBuffer<uint8_t> buf2(dstLen);
 	dstLen = LZ4::compress(block.data(), buf2.data(), int(size));
 

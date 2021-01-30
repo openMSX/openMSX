@@ -9,6 +9,7 @@
 #include <cassert>
 #include <cstring>
 #include <ctime>
+#include <limits>
 
 namespace openmsx {
 
@@ -238,12 +239,16 @@ AviWriter::~AviWriter()
 	}
 }
 
-void AviWriter::addAviChunk(const char* tag, unsigned size, const void* data, unsigned flags)
+void AviWriter::addAviChunk(const char* tag, size_t size_, const void* data, unsigned flags)
 {
 	struct {
 		char t[4];
 		Endian::L32 s;
 	} chunk;
+
+	assert(size_ <= std::numeric_limits<uint32_t>::max());
+	auto size = uint32_t(size_);
+
 	memcpy(chunk.t, tag, sizeof(chunk.t));
 	chunk.s = size;
 	file.write(&chunk, sizeof(chunk));

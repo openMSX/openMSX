@@ -1654,7 +1654,7 @@ void YM2413::serialize(Archive& ar, unsigned version)
 		for (auto [i, ch] : enumerate(channels)) {
 			// restore patch
 			unsigned p = ((i >= 6) && isRhythm())
-			           ? (16 + (i - 6))
+			           ? unsigned(16 + (i - 6))
 			           : (reg[0x30 + i] >> 4);
 			ch.setPatch(p, *this); // before updateAll()
 			// restore volume
@@ -1664,7 +1664,7 @@ void YM2413::serialize(Archive& ar, unsigned version)
 			}
 			// sync various variables
 			bool actAsCarrier = (i >= 7) && isRhythm();
-			unsigned freq = getFreq(i);
+			unsigned freq = getFreq(unsigned(i));
 			ch.mod.updateAll(freq, actAsCarrier);
 			ch.car.updateAll(freq, true);
 			ch.mod.setEnvelopeState(ch.mod.state);

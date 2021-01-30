@@ -100,7 +100,7 @@ void MSXS1985::serialize(Archive& ar, unsigned version)
 		ar.serialize_blob("ram", tmp, sizeof(tmp));
 		ar.endTag("ram");
 		for (auto [i, t] : enumerate(tmp)) {
-			sram->write(i, t);
+			sram->write(unsigned(i), t);
 		}
 	}
 

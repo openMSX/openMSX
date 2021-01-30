@@ -26,6 +26,7 @@ public:
 		CONSOLE,
 		HOTKEY,
 		MSX,
+		LOWEST, // should only be used internally in EventDistributor
 	};
 
 	explicit EventDistributor(Reactor& reactor);

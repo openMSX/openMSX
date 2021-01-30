@@ -207,7 +207,7 @@ private:
 		}
 
 		table = newTable;
-		mask = newMask;
+		mask = static_cast<decltype(mask)>(newMask);
 	}
 
 	template<typename Value2>

@@ -299,7 +299,7 @@ void NowindHost::DRIVES()
 	romdisk = 255; // no romdisk
 	for (auto [i, drv] : enumerate(drives)) {
 		if (drv->isRomdisk()) {
-			romdisk = i;
+			romdisk = byte(i);
 			break;
 		}
 	}
@@ -589,7 +589,7 @@ int NowindHost::getDeviceNum() const
 	unsigned fcb = getFCB();
 	for (auto [i, dev] : enumerate(devices)) {
 		if (dev.fs && dev.fcb == fcb) {
-			return i;
+			return int(i);
 		}
 	}
 	return -1;
@@ -604,7 +604,7 @@ int NowindHost::getFreeDeviceNum()
 	}
 	// Search for free device.
 	for (auto [i, dev] : enumerate(devices)) {
-		if (!dev.fs) return i;
+		if (!dev.fs) return int(i);
 	}
 	// All devices are in use. This can't happen when the MSX software
 	// functions correctly. We'll simply reuse the first device. It would

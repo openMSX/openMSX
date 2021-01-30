@@ -326,7 +326,7 @@ void MegaFlashRomSCCPlusSD::reset(EmuTime::param time)
 
 	// memory mapper
 	for (auto [i, mr] : enumerate(memMapperRegs)) {
-		mr = 3 - i;
+		mr = byte(3 - i);
 	}
 
 	for (auto [bank, reg] : enumerate(bankRegsSubSlot3)) {

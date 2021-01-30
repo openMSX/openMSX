@@ -29,7 +29,7 @@ void MusicalMemoryMapper::reset(EmuTime::param time)
 	// MMM inits the page registers to 3, 2, 1, 0 instead of zeroes, so we
 	// don't call the superclass implementation.
 	for (auto [page, reg] : enumerate(registers)) {
-		reg = 3 - page;
+		reg = byte(3 - page);
 	}
 
 	// Note: The actual SN76489AN chip does not have a reset pin. I assume

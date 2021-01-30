@@ -214,10 +214,10 @@ static int w32_midiOutFlushExclusiveMsg(unsigned idx)
 	return 0;
 }
 
-int w32_midiOutMsg(unsigned size, const uint8_t* data, unsigned idx)
+int w32_midiOutMsg(size_t size, const uint8_t* data, unsigned idx)
 {
-	if (size <= 0)
-		return 0;
+	if (size == 0) return 0;
+
 	HMIDIOUT hMidiOut = reinterpret_cast<HMIDIOUT>(vfnt_midiout[idx].handle);
 	if (data[0] == one_of(0xF0, 0xF7)) { // SysEx
 		if (size > OPENMSX_W32_MIDI_SYSMES_MAXLEN) {
@@ -228,12 +228,13 @@ int w32_midiOutMsg(unsigned size, const uint8_t* data, unsigned idx)
 		// Even though Windows doesn't write to the buffer, it fails if you don't have
 		// write access to the respective memory page.
 		buf.header.lpData = const_cast<LPSTR>(reinterpret_cast<LPCSTR>(data));
-		buf.header.dwBufferLength = size;
+		buf.header.dwBufferLength = unsigned(size);
 		w32_midiOutFlushExclusiveMsg(idx);
 	} else {
 		DWORD midiMsg = 0x000000;
-		for (unsigned i = 0; i < size && i < 4; i++)
+		for (unsigned i = 0; i < size && i < 4; i++) {
 			midiMsg |= data[i] << (8 * i);
+		}
 		midiOutShortMsg(hMidiOut, midiMsg);
 	}
 	return 0;
