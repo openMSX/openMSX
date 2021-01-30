@@ -3,7 +3,6 @@
 #include "enumerate.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
-#include <bits/stdint-uintn.h>
 #include <cassert>
 #include <cstddef>
 #include <cstring>
