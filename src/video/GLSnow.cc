@@ -31,7 +31,7 @@ GLSnow::GLSnow(Display& display_)
 	glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
 #endif
 
-	static const vec2 pos[8][4] = {
+	static constexpr vec2 pos[8][4] = {
 		{{-1, -1}, { 1, -1}, { 1,  1}, {-1,  1}},
 		{{-1,  1}, { 1,  1}, { 1, -1}, {-1, -1}},
 		{{-1,  1}, {-1, -1}, { 1, -1}, { 1,  1}},

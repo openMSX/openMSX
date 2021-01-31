@@ -694,7 +694,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\PNG.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\PostProcessor.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\RawFrame.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\Renderer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\RendererFactory.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\RenderSettings.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\RGBTriplet3xScaler.cc" />

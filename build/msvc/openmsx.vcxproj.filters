@@ -1050,9 +1050,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\RawFrame.cc">
       <Filter>video</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\Renderer.cc">
-      <Filter>video</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\RendererFactory.cc">
       <Filter>video</Filter>
     </ClCompile>

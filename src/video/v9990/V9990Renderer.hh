@@ -13,7 +13,7 @@ class PostProcessor;
   * A V9990Renderer is a class that converts the V9990 state into
   * visual information (e.g. pixels on a screen).
   *
-  * @see Renderer.cc
+  * @see Renderer.hh
   */
 class V9990Renderer
 {

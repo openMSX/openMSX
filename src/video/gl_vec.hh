@@ -60,23 +60,23 @@ public:
 
 	// Construct vector from 2 given values (only valid when N == 2).
 	constexpr vecN(T x, T y)
+		: e{x, y}
 	{
 		static_assert(N == 2, "wrong #constructor arguments");
-		e[0] = x; e[1] = y;
 	}
 
 	// Construct vector from 3 given values (only valid when N == 3).
 	constexpr vecN(T x, T y, T z)
+		: e{x, y, z}
 	{
 		static_assert(N == 3, "wrong #constructor arguments");
-		e[0] = x; e[1] = y; e[2] = z;
 	}
 
 	// Construct vector from 4 given values (only valid when N == 4).
 	constexpr vecN(T x, T y, T z, T w)
+		: e{x, y, z, w}
 	{
 		static_assert(N == 4, "wrong #constructor arguments");
-		e[0] = x; e[1] = y; e[2] = z; e[3] = w;
 	}
 
 	// Construct vector from concatenating a scalar and a (smaller) vector.

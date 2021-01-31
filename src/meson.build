@@ -455,7 +455,6 @@ sources = files(
     'video/PostProcessor.cc',
     'video/RawFrame.cc',
     'video/RenderSettings.cc',
-    'video/Renderer.cc',
     'video/RendererFactory.cc',
     'video/SDLImage.cc',
     'video/SDLOffScreenSurface.cc',

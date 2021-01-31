@@ -77,7 +77,7 @@ GLPostProcessor::~GLPostProcessor()
 void GLPostProcessor::initBuffers()
 {
 	// combined positions and texture coordinates
-	static const vec2 pos_tex[4 + 4] = {
+	static constexpr vec2 pos_tex[4 + 4] = {
 		vec2(-1, 1), vec2(-1,-1), vec2( 1,-1), vec2( 1, 1), // pos
 		vec2( 0, 1), vec2( 0, 0), vec2( 1, 0), vec2( 1, 1), // tex
 	};
@@ -443,7 +443,7 @@ void GLPostProcessor::drawNoise()
 
 	// Rotate and mirror noise texture in consecutive frames to avoid
 	// seeing 'patterns' in the noise.
-	static const vec2 pos[8][4] = {
+	static constexpr vec2 pos[8][4] = {
 		{ { -1, -1 }, {  1, -1 }, {  1,  1 }, { -1,  1 } },
 		{ { -1,  1 }, {  1,  1 }, {  1, -1 }, { -1, -1 } },
 		{ { -1,  1 }, { -1, -1 }, {  1, -1 }, {  1,  1 } },

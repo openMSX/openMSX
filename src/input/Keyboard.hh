@@ -36,6 +36,7 @@ class Keyboard final : private MSXEventListener, private StateChangeListener
                      , private Schedulable
 {
 public:
+	static constexpr int MAX_KEYSYM = 0x150;
 	enum MatrixType { MATRIX_MSX, MATRIX_SVI, MATRIX_CVJOY };
 
 	/** Constructs a new Keyboard object.
@@ -109,8 +110,6 @@ private:
 	MSXEventDistributor& msxEventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
 
-	static constexpr int MAX_KEYSYM = 0x150;
-	static const KeyMatrixPosition keyTabs[][MAX_KEYSYM];
 	const KeyMatrixPosition* keyTab;
 
 	const std::array<KeyMatrixPosition, UnicodeKeymap::KeyInfo::NUM_MODIFIERS>& modifierPos;
