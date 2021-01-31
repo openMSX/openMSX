@@ -321,7 +321,7 @@ static constexpr void doKeyGhosting(byte (&matrix)[NUM_ROWS], bool protectRow6)
 	// connected to row 6 via a diode. It prevents that
 	// SHIFT, GRAPH and CODE get ghosted to another
 	// row.
-	bool changedSomething;
+	bool changedSomething = false;
 	do {
 		changedSomething = false;
 		for (auto i : xrange(NUM_ROWS - 1)) {

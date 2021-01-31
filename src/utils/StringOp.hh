@@ -88,7 +88,7 @@ namespace StringOp
 			std::string_view::size_type p;
 			const char c;
 
-			[[nodiscard]] Iterator(std::string_view str_, char c_)
+			Iterator(std::string_view str_, char c_)
 				: str(str_), c(c_) {
 				next_p();
 			}
