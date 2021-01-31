@@ -19,11 +19,10 @@
 #include <memory>
 
 using std::string;
-using std::vector;
 
 namespace openmsx {
 
-AmdFlash::AmdFlash(const Rom& rom, vector<SectorInfo> sectorInfo_,
+AmdFlash::AmdFlash(const Rom& rom, span<const SectorInfo> sectorInfo_,
                    word ID_, bool use12bitAddressing_,
                    const DeviceConfig& config, bool load)
 	: motherBoard(config.getMotherBoard())
@@ -35,7 +34,7 @@ AmdFlash::AmdFlash(const Rom& rom, vector<SectorInfo> sectorInfo_,
 	init(rom.getName() + "_flash", config, load, &rom);
 }
 
-AmdFlash::AmdFlash(const string& name, vector<SectorInfo> sectorInfo_,
+AmdFlash::AmdFlash(const string& name, span<const SectorInfo> sectorInfo_,
                    word ID_, bool use12bitAddressing_,
                    const DeviceConfig& config)
 	: motherBoard(config.getMotherBoard())
@@ -187,13 +186,13 @@ AmdFlash::~AmdFlash() = default;
 AmdFlash::GetSectorInfoResult AmdFlash::getSectorInfo(unsigned address) const
 {
 	address &= getSize() - 1;
-	auto it = begin(sectorInfo);
+	auto it = sectorInfo.begin();
 	unsigned sector = 0;
 	while (address >= it->size) {
 		address -= it->size;
 		++sector;
 		++it;
-		assert(it != end(sectorInfo));
+		assert(it != sectorInfo.end());
 	}
 	unsigned sectorSize = it->size;
 	unsigned offset = address;

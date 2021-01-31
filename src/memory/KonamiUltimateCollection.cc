@@ -1,7 +1,8 @@
 #include "KonamiUltimateCollection.hh"
+#include "cstd.hh"
 #include "ranges.hh"
 #include "serialize.hh"
-#include <vector>
+#include <array>
 
 /******************************************************************************
  * DOCUMENTATION AS PROVIDED BY MANUEL PAZOS, WHO DEVELOPED THE CARTRIDGE     *
@@ -34,20 +35,19 @@ all Konami and Konami SCC ROMs should work with "Konami" mapper in KUC.
 
 namespace openmsx {
 
-[[nodiscard]] static std::vector<AmdFlash::SectorInfo> getSectorInfo()
-{
-	std::vector<AmdFlash::SectorInfo> sectorInfo;
-	// 8 * 8kB
-	sectorInfo.insert(end(sectorInfo), 8, {8 * 1024, false});
-	// 127 * 64kB
-	sectorInfo.insert(end(sectorInfo), 127, {64 * 1024, false});
-	return sectorInfo;
-}
+static constexpr auto sectorInfo = [] {
+	// 8 * 8kB, followed by 127 * 64kB
+	using Info = AmdFlash::SectorInfo;
+	std::array<Info, 8 + 127> result = {};
+	cstd::fill(result.begin(), result.begin() + 8, Info{ 8 * 1024, false});
+	cstd::fill(result.begin() + 8, result.end(),   Info{64 * 1024, false});
+	return result;
+}();
 
 KonamiUltimateCollection::KonamiUltimateCollection(
 		const DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
-	, flash(rom, getSectorInfo(), 0x207E, true, config)
+	, flash(rom, sectorInfo, 0x207E, true, config)
 	, scc("KUC SCC", config, getCurrentTime(), SCC::SCC_Compatible)
 	, dac("KUC DAC", "Konami Ultimate Collection DAC", config)
 {

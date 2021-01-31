@@ -4,8 +4,8 @@
 #include "MemBuffer.hh"
 #include "openmsx.hh"
 #include "serialize_meta.hh"
+#include "span.hh"
 #include <memory>
-#include <vector>
 
 namespace openmsx {
 
@@ -24,7 +24,7 @@ public:
 	/** Create AmdFlash with given configuration.
 	 * @param rom The initial content for this flash
 	 * @param sectorInfo
-	 *   A vector containing the size and write protected status of each
+	 *   A span containing the size and write protected status of each
 	 *   sector in the flash. This implicitly also communicates the number
 	 *   of sectors (a sector is a region in the flash that can be erased
 	 *   individually). There exist flash roms were the different sectors
@@ -37,10 +37,10 @@ public:
 	 * @param config The motherboard this flash belongs to
 	 * @param load Load initial content (hack for 'Matra INK')
 	 */
-	AmdFlash(const Rom& rom, std::vector<SectorInfo> sectorInfo,
+	AmdFlash(const Rom& rom, span<const SectorInfo> sectorInfo,
 	         word ID, bool use12bitAddressing,
 	         const DeviceConfig& config, bool load = true);
-	AmdFlash(const std::string& name, std::vector<SectorInfo> sectorInfo,
+	AmdFlash(const std::string& name, span<const SectorInfo> sectorInfo,
 	         word ID, bool use12bitAddressing,
 		 const DeviceConfig& config);
 	~AmdFlash();
@@ -97,7 +97,7 @@ private:
 	std::unique_ptr<SRAM> ram;
 	MemBuffer<int> writeAddress;
 	MemBuffer<const byte*> readAddress;
-	const std::vector<SectorInfo> sectorInfo;
+	const span<const SectorInfo> sectorInfo;
 	const unsigned size;
 	const word ID;
 	const bool use12bitAddressing;

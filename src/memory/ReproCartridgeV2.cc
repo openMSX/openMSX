@@ -1,8 +1,9 @@
 #include "ReproCartridgeV2.hh"
 #include "DummyAY8910Periphery.hh"
 #include "MSXCPUInterface.hh"
+#include "cstd.hh"
 #include "serialize.hh"
-#include <vector>
+#include <array>
 
 
 /******************************************************************************
@@ -50,20 +51,20 @@ differences:
 
 namespace openmsx {
 
-[[nodiscard]] static std::vector<AmdFlash::SectorInfo> getSectorInfo()
-{
-	std::vector<AmdFlash::SectorInfo> sectorInfo;
-	// 8 * 8kB
-	sectorInfo.insert(end(sectorInfo), 8, {8 * 1024, false});
-	// 127 * 64kB
-	sectorInfo.insert(end(sectorInfo), 127, {64 * 1024, false});
-	return sectorInfo;
-}
+static constexpr auto sectorInfo = [] {
+	// 8 * 8kB, followed by 127 * 64kB
+	using Info = AmdFlash::SectorInfo;
+	std::array<Info, 8 + 127> result = {};
+	cstd::fill(result.begin(), result.begin() + 8, Info{ 8 * 1024, false});
+	cstd::fill(result.begin() + 8, result.end(),   Info{64 * 1024, false});
+	return result;
+}();
+
 
 ReproCartridgeV2::ReproCartridgeV2(
 		const DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
-	, flash(rom, getSectorInfo(), 0x207E, true, config, false)
+	, flash(rom, sectorInfo, 0x207E, true, config, false)
 	, scc("MGCV2 SCC", config, getCurrentTime(), SCC::SCC_Compatible)
 	, psg0x10("MGCV2 PSG@0x10", DummyAY8910Periphery::instance(), config,
 	      getCurrentTime())

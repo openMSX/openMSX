@@ -4,12 +4,13 @@
 #include "CacheLine.hh"
 #include "CheckedRam.hh"
 #include "SdCard.hh"
+#include "cstd.hh"
 #include "enumerate.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include "xrange.hh"
+#include <array>
 #include <memory>
-#include <vector>
 
 /******************************************************************************
  * DOCUMENTATION AS PROVIDED BY MANUEL PAZOS, WHO DEVELOPED THE CARTRIDGE     *
@@ -261,19 +262,19 @@ constexpr unsigned MEMORY_MAPPER_MASK = (MEMORY_MAPPER_SIZE / 16) - 1;
 
 namespace openmsx {
 
-[[nodiscard]] static std::vector<AmdFlash::SectorInfo> getSectorInfo()
-{
-	std::vector<AmdFlash::SectorInfo> sectorInfo;
-	// 8 * 8kB
-	sectorInfo.insert(end(sectorInfo), 8, {8 * 1024, false});
-	// 127 * 64kB
-	sectorInfo.insert(end(sectorInfo), 127, {64 * 1024, false});
-	return sectorInfo;
-}
+static constexpr auto sectorInfo = [] {
+	// 8 * 8kB, followed by 127 * 64kB
+	using Info = AmdFlash::SectorInfo;
+	std::array<Info, 8 + 127> result = {};
+	cstd::fill(result.begin(), result.begin() + 8, Info{ 8 * 1024, false});
+	cstd::fill(result.begin() + 8, result.end(),   Info{64 * 1024, false});
+	return result;
+}();
+
 
 MegaFlashRomSCCPlusSD::MegaFlashRomSCCPlusSD(const DeviceConfig& config)
 	: MSXDevice(config)
-	, flash("MFR SCC+ SD flash", getSectorInfo(), 0x207E, true, config)
+	, flash("MFR SCC+ SD flash", sectorInfo, 0x207E, true, config)
 	, scc("MFR SCC+ SD SCC-I", config, getCurrentTime(), SCC::SCC_Compatible)
 	, psg("MFR SCC+ SD PSG", DummyAY8910Periphery::instance(), config,
 	      getCurrentTime())

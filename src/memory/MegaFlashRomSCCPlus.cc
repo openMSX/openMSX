@@ -2,11 +2,12 @@
 #include "DummyAY8910Periphery.hh"
 #include "MSXCPUInterface.hh"
 #include "CacheLine.hh"
+#include "cstd.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include "xrange.hh"
+#include <array>
 #include <cassert>
-#include <vector>
 
 /******************************************************************************
  * DOCUMENTATION AS PROVIDED BY MANUEL PAZOS, WHO DEVELOPED THE CARTRIDGE     *
@@ -165,18 +166,16 @@ Main features:
 
 namespace openmsx {
 
-[[nodiscard]] static std::vector<AmdFlash::SectorInfo> getSectorInfo() {
-	std::vector<AmdFlash::SectorInfo> sectorInfo;
-	// 1 * 16kB
-	sectorInfo.insert(sectorInfo.end(), 1, {16 * 1024, false});
-	// 2 * 8kB
-	sectorInfo.insert(sectorInfo.end(), 2, {8 * 1024, false});
-	// 1 * 32kB
-	sectorInfo.insert(sectorInfo.end(), 1, {32 * 1024, false});
-	// 15 * 64kB
-	sectorInfo.insert(sectorInfo.end(), 15, {64 * 1024, false});
-	return sectorInfo;
-};
+static constexpr auto sectorInfo = [] {
+	// 1 * 16kB, followed by 2 * 8kB, 1 * 32kB, 15 * 64kB
+	using Info = AmdFlash::SectorInfo;
+	std::array<Info, 1 + 2 + 1 + 15> result = {};
+	cstd::fill(result.begin() + 0, result.begin() + 1, Info{16 * 1024, false});
+	cstd::fill(result.begin() + 1, result.begin() + 3, Info{ 8 * 1024, false});
+	cstd::fill(result.begin() + 3, result.begin() + 4, Info{32 * 1024, false});
+	cstd::fill(result.begin() + 4, result.end(),       Info{64 * 1024, false});
+	return result;
+}();
 
 MegaFlashRomSCCPlus::MegaFlashRomSCCPlus(
 		const DeviceConfig& config, Rom&& rom_)
@@ -184,7 +183,7 @@ MegaFlashRomSCCPlus::MegaFlashRomSCCPlus(
 	, scc("MFR SCC+ SCC-I", config, getCurrentTime(), SCC::SCC_Compatible)
 	, psg("MFR SCC+ PSG", DummyAY8910Periphery::instance(), config,
 	      getCurrentTime())
-	, flash(rom, getSectorInfo(), 0x205B, false, config)
+	, flash(rom, sectorInfo, 0x205B, false, config)
 {
 	powerUp(getCurrentTime());
 

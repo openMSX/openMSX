@@ -8,6 +8,7 @@
 #include <bitset>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace openmsx {
 
@@ -31,6 +32,7 @@ public:
 
 private:
 	Rom rom;
+	const std::vector<AmdFlash::SectorInfo> flashConfig;
 	AmdFlash flash;
 	NowindHost host;
 	std::unique_ptr<NowindCommand> command;
