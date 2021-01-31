@@ -48,10 +48,9 @@ Paddle::~Paddle()
 
 
 // Pluggable
-const std::string& Paddle::getName() const
+std::string_view Paddle::getName() const
 {
-	static const std::string name("paddle");
-	return name;
+	return "paddle";
 }
 
 std::string_view Paddle::getDescription() const

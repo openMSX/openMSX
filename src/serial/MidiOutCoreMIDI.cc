@@ -94,7 +94,7 @@ void MidiOutCoreMIDI::unplugHelper(EmuTime::param /*time*/)
 	client = 0;
 }
 
-const std::string& MidiOutCoreMIDI::getName() const
+std::string_view MidiOutCoreMIDI::getName() const
 {
 	return name;
 }
@@ -153,10 +153,9 @@ void MidiOutCoreMIDIVirtual::unplugHelper(EmuTime::param /*time*/)
 	client = 0;
 }
 
-const std::string& MidiOutCoreMIDIVirtual::getName() const
+std::string_view MidiOutCoreMIDIVirtual::getName() const
 {
-	static const std::string name("Virtual OUT");
-	return name;
+	return "Virtual OUT";
 }
 
 std::string_view MidiOutCoreMIDIVirtual::getDescription() const

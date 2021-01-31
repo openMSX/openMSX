@@ -185,7 +185,7 @@ Joystick::~Joystick()
 }
 
 // Pluggable
-const string& Joystick::getName() const
+std::string_view Joystick::getName() const
 {
 	return name;
 }

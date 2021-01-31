@@ -88,7 +88,7 @@ void MidiInWindows::unplugHelper(EmuTime::param /*time*/)
 	thread.join();
 }
 
-const string& MidiInWindows::getName() const
+std::string_view MidiInWindows::getName() const
 {
 	return name;
 }

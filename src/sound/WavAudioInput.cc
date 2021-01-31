@@ -30,16 +30,15 @@ void WavAudioInput::loadWave()
 		audioInputFilenameSetting.getString())));
 }
 
-const string& WavAudioInput::getName() const
+std::string_view WavAudioInput::getName() const
 {
-	static const string name("wavinput");
-	return name;
+	return "wavinput";
 }
 
 std::string_view WavAudioInput::getDescription() const
 {
 	return "Read .wav files. Can for example be used as input for "
-		"samplers.";
+	       "samplers.";
 }
 
 void WavAudioInput::plugHelper(Connector& /*connector*/, EmuTime::param time)

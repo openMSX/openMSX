@@ -49,7 +49,7 @@ void MidiOutWindows::unplugHelper(EmuTime::param /*time*/)
 	}
 }
 
-const string& MidiOutWindows::getName() const
+std::string_view MidiOutWindows::getName() const
 {
 	return name;
 }

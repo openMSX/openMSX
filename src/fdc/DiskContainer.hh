@@ -17,7 +17,7 @@ public:
 	virtual ~DiskContainer() = default;
 
 	[[nodiscard]] virtual SectorAccessibleDisk* getSectorAccessibleDisk() = 0;
-	[[nodiscard]] virtual const std::string& getContainerName() const = 0;
+	[[nodiscard]] virtual std::string_view getContainerName() const = 0;
 	virtual bool diskChanged() = 0;
 
 	// for nowind

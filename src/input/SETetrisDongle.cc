@@ -11,10 +11,9 @@ SETetrisDongle::SETetrisDongle()
 }
 
 // Pluggable
-const std::string& SETetrisDongle::getName() const
+std::string_view SETetrisDongle::getName() const
 {
-	static const std::string name = "tetris2-protection";
-	return name;
+	return "tetris2-protection";
 }
 
 std::string_view SETetrisDongle::getDescription() const

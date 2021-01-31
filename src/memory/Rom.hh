@@ -33,7 +33,7 @@ public:
 	}
 	[[nodiscard]] unsigned getSize() const { return size; }
 
-	[[nodiscard]] const std::string& getFilename() const;
+	[[nodiscard]] std::string_view getFilename() const;
 	[[nodiscard]] const std::string& getName() const { return name; }
 	[[nodiscard]] std::string_view getDescription() const { return description; }
 	[[nodiscard]] const Sha1Sum& getOriginalSHA1() const;

@@ -32,10 +32,9 @@ bool IDEHD::isPacketDevice()
 	return false;
 }
 
-const std::string& IDEHD::getDeviceName()
+std::string_view IDEHD::getDeviceName()
 {
-	static const std::string NAME = "OPENMSX HARD DISK";
-	return NAME;
+	return "OPENMSX HARD DISK";
 }
 
 void IDEHD::fillIdentifyBlock(AlignedBuffer& buf)

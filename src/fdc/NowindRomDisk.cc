@@ -9,10 +9,9 @@ SectorAccessibleDisk* NowindRomDisk::getSectorAccessibleDisk()
 	return nullptr;
 }
 
-const std::string& NowindRomDisk::getContainerName() const
+std::string_view NowindRomDisk::getContainerName() const
 {
-	static const std::string NAME = "NowindRomDisk";
-	return NAME;
+	return "NowindRomDisk";
 }
 
 bool NowindRomDisk::diskChanged()

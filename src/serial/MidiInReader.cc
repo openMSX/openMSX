@@ -55,10 +55,9 @@ void MidiInReader::unplugHelper(EmuTime::param /*time*/)
 	file.reset();
 }
 
-const string& MidiInReader::getName() const
+std::string_view MidiInReader::getName() const
 {
-	static const string name("midi-in-reader");
-	return name;
+	return "midi-in-reader";
 }
 
 std::string_view MidiInReader::getDescription() const

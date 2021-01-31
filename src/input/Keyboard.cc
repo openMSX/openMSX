@@ -1083,9 +1083,7 @@ void Keyboard::KeyMatrixUpCmd::execute(
 
 string Keyboard::KeyMatrixUpCmd::help(const vector<string>& /*tokens*/) const
 {
-	static const string helpText =
-		"keymatrixup <row> <bitmask>  release a key in the keyboardmatrix\n";
-	return helpText;
+	return "keymatrixup <row> <bitmask>  release a key in the keyboardmatrix\n";
 }
 
 
@@ -1109,9 +1107,7 @@ void Keyboard::KeyMatrixDownCmd::execute(span<const TclObject> tokens,
 
 string Keyboard::KeyMatrixDownCmd::help(const vector<string>& /*tokens*/) const
 {
-	static const string helpText =
-		"keymatrixdown <row> <bitmask>  press a key in the keyboardmatrix\n";
-	return helpText;
+	return "keymatrixdown <row> <bitmask>  press a key in the keyboardmatrix\n";
 }
 
 
@@ -1219,10 +1215,9 @@ void Keyboard::KeyInserter::execute(
 
 string Keyboard::KeyInserter::help(const vector<string>& /*tokens*/) const
 {
-	static const string helpText = "Type a string in the emulated MSX.\n" \
-		"Use -release to make sure the keys are always released before typing new ones (necessary for some game input routines, but in general, this means typing is twice as slow).\n" \
-		"Use -freq to tweak how fast typing goes and how long the keys will be pressed (and released in case -release was used). Keys will be typed at the given frequency and will remain pressed/released for 1/freq seconds";
-	return helpText;
+	return "Type a string in the emulated MSX.\n" \
+	       "Use -release to make sure the keys are always released before typing new ones (necessary for some game input routines, but in general, this means typing is twice as slow).\n" \
+	       "Use -freq to tweak how fast typing goes and how long the keys will be pressed (and released in case -release was used). Keys will be typed at the given frequency and will remain pressed/released for 1/freq seconds";
 }
 
 void Keyboard::KeyInserter::tabCompletion(vector<string>& tokens) const

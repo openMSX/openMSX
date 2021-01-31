@@ -32,7 +32,7 @@ std::string_view JoyTap::getDescription() const
 	return "MSX Joy Tap device";
 }
 
-const std::string& JoyTap::getName() const
+std::string_view JoyTap::getName() const
 {
 	return name;
 }

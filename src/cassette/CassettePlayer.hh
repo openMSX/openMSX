@@ -35,7 +35,7 @@ public:
 	void setSignal(bool output, EmuTime::param time) override;
 
 	// Pluggable
-	const std::string& getName() const override;
+	std::string_view getName() const override;
 	std::string_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;

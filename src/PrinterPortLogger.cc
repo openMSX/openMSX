@@ -59,17 +59,16 @@ void PrinterPortLogger::unplugHelper(EmuTime::param /*time*/)
 	file.close();
 }
 
-const std::string& PrinterPortLogger::getName() const
+std::string_view PrinterPortLogger::getName() const
 {
-	static const std::string name("logger");
-	return name;
+	return "logger";
 }
 
 std::string_view PrinterPortLogger::getDescription() const
 {
-	return	"Log everything that is sent to the printer port to a "
-		"file. The filename can be set with the "
-		"'printerlogfilename' setting.";
+	return "Log everything that is sent to the printer port to a "
+	       "file. The filename can be set with the "
+	       "'printerlogfilename' setting.";
 }
 
 template<typename Archive>

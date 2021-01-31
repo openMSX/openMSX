@@ -73,10 +73,9 @@ Trackball::~Trackball()
 
 
 // Pluggable
-const string& Trackball::getName() const
+std::string_view Trackball::getName() const
 {
-	static const string name("trackball");
-	return name;
+	return "trackball";
 }
 
 std::string_view Trackball::getDescription() const

@@ -115,10 +115,9 @@ void Touchpad::parseTransformMatrix(Interpreter& interp, const TclObject& value)
 }
 
 // Pluggable
-const std::string& Touchpad::getName() const
+std::string_view Touchpad::getName() const
 {
-	static const std::string name("touchpad");
-	return name;
+	return "touchpad";
 }
 
 std::string_view Touchpad::getDescription() const

@@ -185,7 +185,7 @@ SectorAccessibleDisk* HD::getSectorAccessibleDisk()
 	return this;
 }
 
-const std::string& HD::getContainerName() const
+std::string_view HD::getContainerName() const
 {
 	return getName();
 }

@@ -29,7 +29,7 @@ public:
 protected:
 	// AbstractIDEDevice:
 	[[nodiscard]] bool isPacketDevice() override;
-	[[nodiscard]] const std::string& getDeviceName() override;
+	[[nodiscard]] std::string_view getDeviceName() override;
 	void fillIdentifyBlock (AlignedBuffer& buffer) override;
 	[[nodiscard]] unsigned readBlockStart(AlignedBuffer& buffer, unsigned count) override;
 	void readEnd() override;

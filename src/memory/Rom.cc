@@ -349,10 +349,9 @@ Rom::Rom(Rom&& r) noexcept
 
 Rom::~Rom() = default;
 
-const string& Rom::getFilename() const
+std::string_view Rom::getFilename() const
 {
-	static const string EMPTY;
-	return file.is_open() ? file.getURL() : EMPTY;
+	return file.is_open() ? file.getURL() : std::string_view();
 }
 
 const Sha1Sum& Rom::getOriginalSHA1() const

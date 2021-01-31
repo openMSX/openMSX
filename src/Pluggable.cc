@@ -13,10 +13,9 @@ Pluggable::Pluggable()
 	setConnector(nullptr);
 }
 
-const string& Pluggable::getName() const
+std::string_view Pluggable::getName() const
 {
-	static const string name;
-	return name;
+	return "";
 }
 
 void Pluggable::plug(Connector& newConnector, EmuTime::param time)

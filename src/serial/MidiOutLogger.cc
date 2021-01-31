@@ -28,10 +28,9 @@ void MidiOutLogger::unplugHelper(EmuTime::param /*time*/)
 	file.close();
 }
 
-const std::string& MidiOutLogger::getName() const
+std::string_view MidiOutLogger::getName() const
 {
-	static const std::string name("midi-out-logger");
-	return name;
+	return "midi-out-logger";
 }
 
 std::string_view MidiOutLogger::getDescription() const

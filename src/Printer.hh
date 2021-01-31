@@ -57,8 +57,8 @@ public:
 	void write(byte data);
 	void forceFormFeed();
 	// Pluggable
-	[[nodiscard]] const std::string& getName() const override;
-	[[nodiscard]] const std::string getDescription() const override;
+	[[nodiscard]] std::string_view getName() const override;
+	[[nodiscard]] std::string_view getDescription() const override;
 
 private:
 	HANDLE hFile;
@@ -176,7 +176,7 @@ public:
 	explicit ImagePrinterMSX(MSXMotherBoard& motherBoard);
 
 	// Pluggable
-	[[nodiscard]] const std::string& getName() const override;
+	[[nodiscard]] std::string_view getName() const override;
 	[[nodiscard]] std::string_view getDescription() const override;
 
 	template<typename Archive>
@@ -200,7 +200,7 @@ public:
 	explicit ImagePrinterEpson(MSXMotherBoard& motherBoard);
 
 	// Pluggable
-	[[nodiscard]] const std::string& getName() const override;
+	[[nodiscard]] std::string_view getName() const override;
 	[[nodiscard]] std::string_view getDescription() const override;
 
 	template<typename Archive>

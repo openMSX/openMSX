@@ -436,7 +436,7 @@ void AbstractIDEDevice::createIdentifyBlock(AlignedBuffer& buf)
 		// IDE emulation code is in fact emulating the firmware.
 		Version::RELEASE ? strCat('v', Version::VERSION)
 		                 : strCat('d', Version::REVISION));
-	writeIdentifyString(&buf[27 * 2], 20, getDeviceName()); // model
+	writeIdentifyString(&buf[27 * 2], 20, std::string(getDeviceName())); // model
 
 	fillIdentifyBlock(buf);
 }

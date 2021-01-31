@@ -731,7 +731,7 @@ SectorAccessibleDisk* SCSILS120::getSectorAccessibleDisk()
 	return this;
 }
 
-const std::string& SCSILS120::getContainerName() const
+std::string_view SCSILS120::getContainerName() const
 {
 	return name;
 }

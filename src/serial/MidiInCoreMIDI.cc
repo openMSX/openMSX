@@ -88,7 +88,7 @@ void MidiInCoreMIDI::unplugHelper(EmuTime::param /*time*/)
 	client = 0;
 }
 
-const std::string& MidiInCoreMIDI::getName() const
+std::string_view MidiInCoreMIDI::getName() const
 {
 	return name;
 }
@@ -211,10 +211,9 @@ void MidiInCoreMIDIVirtual::unplugHelper(EmuTime::param /*time*/)
 	client = 0;
 }
 
-const std::string& MidiInCoreMIDIVirtual::getName() const
+std::string_view MidiInCoreMIDIVirtual::getName() const
 {
-	static const std::string name("Virtual IN");
-	return name;
+	return "Virtual IN";
 }
 
 std::string_view MidiInCoreMIDIVirtual::getDescription() const

@@ -561,8 +561,7 @@ void GlobalCommandController::UpdateCmd::execute(
 
 string GlobalCommandController::UpdateCmd::help(const vector<string>& /*tokens*/) const
 {
-	static const string helpText = "Enable or disable update events for external applications. See doc/openmsx-control-xml.txt.";
-	return helpText;
+	return "Enable or disable update events for external applications. See doc/openmsx-control-xml.txt.";
 }
 
 void GlobalCommandController::UpdateCmd::tabCompletion(vector<string>& tokens) const

@@ -48,7 +48,7 @@ protected:
 	  * block.
 	  * @return An ASCII string, up to 40 characters long.
 	  */
-	[[nodiscard]] virtual const std::string& getDeviceName() = 0;
+	[[nodiscard]] virtual std::string_view getDeviceName() = 0;
 
 	/** Tells a subclass to fill the device specific parts of the identify
 	  * block located in the buffer.

@@ -5,10 +5,9 @@
 namespace openmsx {
 
 // Pluggable
-const std::string& MagicKey::getName() const
+std::string_view MagicKey::getName() const
 {
-	static const std::string NAME = "magic-key";
-	return NAME;
+	return "magic-key";
 }
 
 std::string_view MagicKey::getDescription() const

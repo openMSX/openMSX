@@ -15,7 +15,7 @@ public:
 
 	/** Name used to identify this pluggable.
 	  */
-	[[nodiscard]] virtual const std::string& getName() const;
+	[[nodiscard]] virtual std::string_view getName() const;
 
 	/** A pluggable belongs to a certain class. A pluggable only fits in
 	  * connectors of the same class.

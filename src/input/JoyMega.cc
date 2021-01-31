@@ -110,7 +110,7 @@ JoyMega::~JoyMega()
 }
 
 // Pluggable
-const string& JoyMega::getName() const
+std::string_view JoyMega::getName() const
 {
 	return name;
 }

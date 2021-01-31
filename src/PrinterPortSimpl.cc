@@ -56,10 +56,9 @@ void PrinterPortSimpl::unplugHelper(EmuTime::param /*time*/)
 	dac.reset();
 }
 
-const std::string& PrinterPortSimpl::getName() const
+std::string_view PrinterPortSimpl::getName() const
 {
-	static const std::string name("simpl");
-	return name;
+	return "simpl";
 }
 
 std::string_view PrinterPortSimpl::getDescription() const

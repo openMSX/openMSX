@@ -25,7 +25,7 @@ public:
 	// Pluggable
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
-	[[nodiscard]] const std::string& getName() const override;
+	[[nodiscard]] std::string_view getName() const override;
 	[[nodiscard]] std::string_view getDescription() const override;
 
 	// MidiOutDevice
@@ -113,7 +113,7 @@ void MidiOutALSA::disconnect()
 	connected = false;
 }
 
-const std::string& MidiOutALSA::getName() const
+std::string_view MidiOutALSA::getName() const
 {
 	return name;
 }

@@ -82,10 +82,9 @@ bool IDECDROM::isPacketDevice()
 	return true;
 }
 
-const std::string& IDECDROM::getDeviceName()
+std::string_view IDECDROM::getDeviceName()
 {
-	static const std::string NAME = "OPENMSX CD-ROM";
-	return NAME;
+	return "OPENMSX CD-ROM";
 }
 
 void IDECDROM::fillIdentifyBlock(AlignedBuffer& buf)

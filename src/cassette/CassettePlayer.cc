@@ -72,10 +72,9 @@ static XMLElement createXML()
 	return xml;
 }
 
-static const string& getCassettePlayerName()
+static std::string_view getCassettePlayerName()
 {
-	static const string pluggableName("cassetteplayer");
-	return pluggableName;
+	return "cassetteplayer";
 }
 
 CassettePlayer::CassettePlayer(const HardwareConfig& hwConf)
@@ -544,7 +543,7 @@ void CassettePlayer::flushOutput()
 }
 
 
-const string& CassettePlayer::getName() const
+std::string_view CassettePlayer::getName() const
 {
 	return getCassettePlayerName();
 }

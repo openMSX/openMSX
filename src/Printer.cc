@@ -626,10 +626,9 @@ ImagePrinterMSX::ImagePrinterMSX(MSXMotherBoard& motherBoard_)
 	resetEmulatedPrinter();
 }
 
-const string& ImagePrinterMSX::getName() const
+std::string_view ImagePrinterMSX::getName() const
 {
-	static const string name("msx-printer");
-	return name;
+	return "msx-printer";
 }
 
 std::string_view ImagePrinterMSX::getDescription() const
@@ -1200,10 +1199,9 @@ ImagePrinterEpson::ImagePrinterEpson(MSXMotherBoard& motherBoard_)
 	resetEmulatedPrinter();
 }
 
-const string& ImagePrinterEpson::getName() const
+std::string_view ImagePrinterEpson::getName() const
 {
-	static const string name("epson-printer");
-	return name;
+	return "epson-printer";
 }
 
 std::string_view ImagePrinterEpson::getDescription() const

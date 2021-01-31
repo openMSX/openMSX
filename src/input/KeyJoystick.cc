@@ -70,7 +70,7 @@ KeyJoystick::~KeyJoystick()
 
 
 // Pluggable
-const string& KeyJoystick::getName() const
+std::string_view KeyJoystick::getName() const
 {
 	return name;
 }

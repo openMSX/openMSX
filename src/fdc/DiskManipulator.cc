@@ -295,7 +295,7 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 		for (const auto& d : drives) {
 			const auto& name1 = d.driveName; // with prexix
 			const auto& name2 = d.drive->getContainerName(); // without prefix
-			append(names, {name1, name2});
+			append(names, {name1, std::string(name2)});
 			// if it has partitions then we also add the partition
 			// numbers to the autocompletion
 			if (auto* disk = d.drive->getSectorAccessibleDisk()) {

@@ -43,7 +43,7 @@ public:
 
 	// DiskContainer
 	[[nodiscard]] SectorAccessibleDisk* getSectorAccessibleDisk() override;
-	[[nodiscard]] const std::string& getContainerName() const override;
+	[[nodiscard]] std::string_view getContainerName() const override;
 	bool diskChanged() override;
 	int insertDisk(const std::string& filename) override;
 

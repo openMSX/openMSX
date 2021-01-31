@@ -69,10 +69,9 @@ void RS232Tester::unplugHelper(EmuTime::param /*time*/)
 	inFile.reset();
 }
 
-const std::string& RS232Tester::getName() const
+std::string_view RS232Tester::getName() const
 {
-	static const std::string name("rs232-tester");
-	return name;
+	return "rs232-tester";
 }
 
 std::string_view RS232Tester::getDescription() const

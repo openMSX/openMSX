@@ -29,7 +29,7 @@ private:
 	void syncCurrentWithTarget(EmuTime::param time);
 
 	// Pluggable
-	[[nodiscard]] const std::string& getName() const override;
+	[[nodiscard]] std::string_view getName() const override;
 	[[nodiscard]] std::string_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;

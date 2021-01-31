@@ -73,10 +73,9 @@ ArkanoidPad::~ArkanoidPad()
 
 
 // Pluggable
-const string& ArkanoidPad::getName() const
+std::string_view ArkanoidPad::getName() const
 {
-	static const string name("arkanoidpad");
-	return name;
+	return "arkanoidpad";
 }
 
 std::string_view ArkanoidPad::getDescription() const

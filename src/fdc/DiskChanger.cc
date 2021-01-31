@@ -120,7 +120,7 @@ SectorAccessibleDisk* DiskChanger::getSectorAccessibleDisk()
 	return dynamic_cast<SectorAccessibleDisk*>(disk.get());
 }
 
-const std::string& DiskChanger::getContainerName() const
+std::string_view DiskChanger::getContainerName() const
 {
 	return getDriveName();
 }

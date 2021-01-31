@@ -75,10 +75,9 @@ Mouse::~Mouse()
 
 
 // Pluggable
-const string& Mouse::getName() const
+std::string_view Mouse::getName() const
 {
-	static const string name("mouse");
-	return name;
+	return "mouse";
 }
 
 std::string_view Mouse::getDescription() const

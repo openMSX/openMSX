@@ -689,7 +689,7 @@ void Debugger::Cmd::probeListBreakPoints(
 
 string Debugger::Cmd::help(const vector<string>& tokens) const
 {
-	static const string generalHelp =
+	auto generalHelp =
 		"debug <subcommand> [<arguments>]\n"
 		"  Possible subcommands are:\n"
 		"    list              returns a list of all debuggables\n"
@@ -717,17 +717,17 @@ string Debugger::Cmd::help(const vector<string>& tokens) const
 		"  The arguments are specific for each subcommand.\n"
 		"  Type 'help debug <subcommand>' for help about a specific subcommand.\n";
 
-	static const string listHelp =
+	auto listHelp =
 		"debug list\n"
 		"  Returns a list with the names of all 'debuggables'.\n"
 		"  These names are used in other debug subcommands.\n";
-	static const string descHelp =
+	auto descHelp =
 		"debug desc <name>\n"
 		"  Returns a description for the debuggable with given name.\n";
-	static const string sizeHelp =
+	auto sizeHelp =
 		"debug size <name>\n"
 		"  Returns the size (in bytes) of the debuggable with given name.\n";
-	static const string readHelp =
+	auto readHelp =
 		"debug read <name> <addr>\n"
 		"  Read a byte at offset <addr> from the given debuggable.\n"
 		"  The offset must be smaller than the value returned from the "
@@ -736,12 +736,12 @@ string Debugger::Cmd::help(const vector<string>& tokens) const
 		"some of the debug reads much more convenient (e.g. reading from "
 		"Z80 or VDP registers). See the Console Command Reference for more "
 		"details about these.\n";
-	static const string writeHelp =
+	auto writeHelp =
 		"debug write <name> <addr> <val>\n"
 		"  Write a byte to the given debuggable at a certain offset.\n"
 		"  The offset must be smaller than the value returned from the "
 		"'size' subcommand\n";
-	static const string readBlockHelp =
+	auto readBlockHelp =
 		"debug read_block <name> <addr> <size>\n"
 		"  Read a whole block at once. This is equivalent with repeated "
 		"invocations of the 'read' subcommand, but using this subcommand "
@@ -749,7 +749,7 @@ string Debugger::Cmd::help(const vector<string>& tokens) const
 		"  The block is specified as size/offset in the debuggable. The "
 		"complete block must fit in the debuggable (see the 'size' "
 		"subcommand).\n";
-	static const string writeBlockHelp =
+	auto writeBlockHelp =
 		"debug write_block <name> <addr> <values>\n"
 		"  Write a whole block at once. This is equivalent with repeated "
 		"invocations of the 'write' subcommand, but using this subcommand "
@@ -758,7 +758,7 @@ string Debugger::Cmd::help(const vector<string>& tokens) const
 		"  The block has a size and an offset in the debuggable. The "
 		"complete block must fit in the debuggable (see the 'size' "
 		"subcommand).\n";
-	static const string setBpHelp =
+	auto setBpHelp =
 		"debug set_bp [-once] <addr> [<cond>] [<cmd>]\n"
 		"  Insert a new breakpoint at given address. When the CPU is about "
 		"to execute the instruction at this address, execution will be "
@@ -778,18 +778,18 @@ string Debugger::Cmd::help(const vector<string>& tokens) const
 		"By default this command is 'debug break'.\n"
 		"  The result of this command is a breakpoint ID. This ID can "
 		"later be used to remove this breakpoint again.\n";
-	static const string removeBpHelp =
+	auto removeBpHelp =
 		"debug remove_bp <id>\n"
 		"  Remove the breakpoint with given ID again. You can use the "
 		"'list_bp' subcommand to see all valid IDs.\n";
-	static const string listBpHelp =
+	auto listBpHelp =
 		"debug list_bp\n"
 		"  Lists all active breakpoints. The result is printed in 4 "
 		"columns. The first column contains the breakpoint ID. The "
 		"second one has the address. The third has the condition "
 		"(default condition is empty). And the last column contains "
 		"the command that will be executed (default is 'debug break').\n";
-	static const string setWatchPointHelp =
+	auto setWatchPointHelp =
 		"debug set_watchpoint [-once] <type> <region> [<cond>] [<cmd>]\n"
 		"  Insert a new watchpoint of given type on the given region, "
 		"there can be an optional -once flag, a condition and alternative "
@@ -812,16 +812,16 @@ string Debugger::Cmd::help(const vector<string>& tokens) const
 		"Examples:\n"
 		"  debug set_watchpoint write_io 0x99 {[reg A] == 0x81}\n"
 		"  debug set_watchpoint read_mem {0xfbe5 0xfbef}\n";
-	static const string removeWatchPointHelp =
+	auto removeWatchPointHelp =
 		"debug remove_watchpoint <id>\n"
 		"  Remove the watchpoint with given ID again. You can use the "
 		"'list_watchpoints' subcommand to see all valid IDs.\n";
-	static const string listWatchPointsHelp =
+	auto listWatchPointsHelp =
 		"debug list_watchpoints\n"
 		"  Lists all active watchpoints. The result is similar to the "
 		"'list_bp' subcommand, but there is an extra column (2nd column) "
 		"that contains the type of the watchpoint.\n";
-	static const string setCondHelp =
+	auto setCondHelp =
 		"debug set_condition [-once] <cond> [<cmd>]\n"
 		"  Insert a new condition. These are much like breakpoints, "
 		"except that they are checked before every instruction "
@@ -831,16 +831,16 @@ string Debugger::Cmd::help(const vector<string>& tokens) const
 		"simulation speed (when you're debugging this is usually not "
 		"a problem).\n"
 		"  See 'help debug set_bp' for more details.\n";
-	static const string removeCondHelp =
+	auto removeCondHelp =
 		"debug remove_condition <id>\n"
 		"  Remove the condition with given ID again. You can use the "
 		"'list_conditions' subcommand to see all valid IDs.\n";
-	static const string listCondHelp =
+	auto listCondHelp =
 		"debug list_conditions\n"
 		"  Lists all active conditions. The result is similar to the "
 		"'list_bp' subcommand, but without the 2nd column that would "
 		"show the address.\n";
-	static const string probeHelp =
+	auto probeHelp =
 		"debug probe <subcommand> [<arguments>]\n"
 		"  Possible subcommands are:\n"
 		"    list                                     returns a list of all probes\n"
@@ -849,22 +849,22 @@ string Debugger::Cmd::help(const vector<string>& tokens) const
 		"    set_bp <probe> [-once] [<cond>] [<cmd>]  set a breakpoint on the given probe\n"
 		"    remove_bp <id>                           remove the given breakpoint\n"
 		"    list_bp                                  returns a list of breakpoints that are set on probes\n";
-	static const string contHelp =
+	auto contHelp =
 		"debug cont\n"
 		"  Continue execution after CPU was breaked.\n";
-	static const string stepHelp =
+	auto stepHelp =
 		"debug step\n"
 		"  Execute one instruction. This command is only meaningful in "
 		"break mode.\n";
-	static const string breakHelp =
+	auto breakHelp =
 		"debug break\n"
 		"  Immediately break CPU execution. When CPU was already breaked "
 		"this command has no effect.\n";
-	static const string breakedHelp =
+	auto breakedHelp =
 		"debug breaked\n"
 		"  Query the CPU breaked status. Returns '1' when CPU was "
 		"breaked, '0' otherwise.\n";
-	static const string disasmHelp =
+	auto disasmHelp =
 		"debug disasm <addr>\n"
 		"  Disassemble the instruction at the given address. The result "
 		"is a Tcl list. The first element in the list contains a textual "
@@ -874,7 +874,7 @@ string Debugger::Cmd::help(const vector<string>& tokens) const
 		"instruction).\n"
 		"  Note that openMSX comes with a 'disasm' Tcl script that is much "
 		"more convenient to use than this subcommand.";
-	static const string unknownHelp =
+	auto unknownHelp =
 		"Unknown subcommand, use 'help debug' to see a list of valid "
 		"subcommands.\n";
 
