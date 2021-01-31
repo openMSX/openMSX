@@ -273,10 +273,12 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output_)
 	auto algo = renderSettings.getScaleAlgorithm();
 	unsigned factor = renderSettings.getScaleFactor();
 	unsigned inWidth = lrintf(renderSettings.getHorizontalStretch());
-	if ((scaleAlgorithm != algo) || (scaleFactor != factor) || (inWidth != stretchWidth)) {
+	if ((scaleAlgorithm != algo) || (scaleFactor != factor) ||
+	    (inWidth != stretchWidth) || (lastOutput != &output)) {
 		scaleAlgorithm = algo;
 		scaleFactor = factor;
 		stretchWidth = inWidth;
+		lastOutput = &output;
 		currScaler = ScalerFactory<Pixel>::createScaler(
 			PixelOperations<Pixel>(output.getPixelFormat()),
 			renderSettings);

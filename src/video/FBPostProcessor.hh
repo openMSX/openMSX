@@ -63,6 +63,10 @@ private:
 	  */
 	unsigned stretchWidth;
 
+	/** Last used output, need to recreate 'stretchScaler' when this changes.
+	  */
+	OutputSurface* lastOutput = nullptr;
+
 	/** Remember the noise values to get a stable image when paused.
 	 */
 	std::vector<unsigned> noiseShift;
