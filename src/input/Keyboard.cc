@@ -1222,13 +1222,8 @@ string Keyboard::KeyInserter::help(const vector<string>& /*tokens*/) const
 
 void Keyboard::KeyInserter::tabCompletion(vector<string>& tokens) const
 {
-	vector<const char*> options;
-	if (!contains(tokens, "-release")) {
-		options.push_back("-release");
-	}
-	if (!contains(tokens, "-freq")) {
-		options.push_back("-freq");
-	}
+	using namespace std::literals;
+	static constexpr std::array options = {"-release"sv, "-freq"sv};
 	completeString(tokens, options);
 }
 

@@ -259,14 +259,15 @@ string UserSettings::Cmd::help(const vector<string>& tokens) const
 
 void UserSettings::Cmd::tabCompletion(vector<string>& tokens) const
 {
+	using namespace std::literals;
 	if (tokens.size() == 2) {
-		static constexpr const char* const cmds[] = {
-			"create", "destroy", "info"
+		static constexpr std::array cmds = {
+			"create"sv, "destroy"sv, "info"sv,
 		};
 		completeString(tokens, cmds);
 	} else if ((tokens.size() == 3) && (tokens[1] == "create")) {
-		static constexpr const char* const types[] = {
-			"string", "boolean", "integer", "float", "enum"
+		static constexpr std::array types = {
+			"string"sv, "boolean"sv, "integer"sv, "float"sv, "enum"sv
 		};
 		completeString(tokens, types);
 	} else if ((tokens.size() == 3) && (tokens[1] == "destroy")) {

@@ -824,17 +824,18 @@ string CassettePlayer::TapeCommand::help(const vector<string>& tokens) const
 
 void CassettePlayer::TapeCommand::tabCompletion(vector<string>& tokens) const
 {
+	using namespace std::literals;
 	if (tokens.size() == 2) {
-		static constexpr const char* const cmds[] = {
-			"eject", "rewind", "motorcontrol", "insert", "new",
-			"play", "getpos", "getlength",
-			//"record",
+		static constexpr std::array cmds = {
+			"eject"sv, "rewind"sv, "motorcontrol"sv, "insert"sv, "new"sv,
+			"play"sv, "getpos"sv, "getlength"sv,
+			//"record"sv,
 		};
 		completeFileName(tokens, userFileContext(), cmds);
 	} else if ((tokens.size() == 3) && (tokens[1] == "insert")) {
 		completeFileName(tokens, userFileContext());
 	} else if ((tokens.size() == 3) && (tokens[1] == "motorcontrol")) {
-		static constexpr const char* const extra[] = { "on", "off" };
+		static constexpr std::array extra = {"on"sv, "off"sv};
 		completeString(tokens, extra);
 	}
 }

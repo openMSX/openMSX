@@ -333,15 +333,17 @@ string AviRecorder::Cmd::help(const vector<string>& /*tokens*/) const
 
 void AviRecorder::Cmd::tabCompletion(vector<string>& tokens) const
 {
+	using namespace std::literals;
 	if (tokens.size() == 2) {
-		static constexpr const char* const cmds[] = {
-			"start", "stop", "toggle", "status",
+		static constexpr std::array cmds = {
+			"start"sv, "stop"sv, "toggle"sv, "status"sv,
 		};
 		completeString(tokens, cmds);
 	} else if ((tokens.size() >= 3) && (tokens[1] == "start")) {
-		static constexpr const char* const options[] = {
-			"-prefix", "-videoonly", "-audioonly", "-doublesize", "-triplesize",
-			"-mono", "-stereo",
+		static constexpr std::array options = {
+			"-prefix"sv, "-videoonly"sv, "-audioonly"sv,
+			"-doublesize"sv, "-triplesize"sv,
+			"-mono"sv, "-stereo"sv,
 		};
 		completeFileName(tokens, userFileContext(), options);
 	}

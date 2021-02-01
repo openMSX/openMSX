@@ -371,9 +371,10 @@ string AfterCommand::help(const vector<string>& /*tokens*/) const
 void AfterCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		static constexpr const char* const cmds[] = {
-			"time", "realtime", "idle", "frame", "break", "boot",
-			"machine_switch", "info", "cancel",
+		using namespace std::literals;
+		static constexpr std::array cmds = {
+			"time"sv, "realtime"sv, "idle"sv, "frame"sv, "break"sv, "boot"sv,
+			"machine_switch"sv, "info"sv, "cancel"sv,
 		};
 		completeString(tokens, cmds);
 	}

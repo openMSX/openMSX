@@ -331,14 +331,15 @@ string NowindCommand::help(const vector<string>& /*tokens*/) const
 
 void NowindCommand::tabCompletion(vector<string>& tokens) const
 {
-	static constexpr const char* const extra[] = {
-		"-c", "--ctrl",
-		"-C", "--no-ctrl",
-		"-a", "--allow",
-		"-A", "--no-allow",
-		"-j", "--romdisk",
-		"-i", "--image",
-		"-m", "--hdimage",
+	using namespace std::literals;
+	static constexpr std::array extra = {
+		"-c"sv, "--ctrl"sv,
+		"-C"sv, "--no-ctrl"sv,
+		"-a"sv, "--allow"sv,
+		"-A"sv, "--no-allow"sv,
+		"-j"sv, "--romdisk"sv,
+		"-i"sv, "--image"sv,
+		"-m"sv, "--hdimage"sv,
 	};
 	completeFileName(tokens, userFileContext(), extra);
 }

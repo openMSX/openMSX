@@ -251,14 +251,15 @@ string OSDGUI::OSDCommand::help(const vector<string>& tokens) const
 
 void OSDGUI::OSDCommand::tabCompletion(vector<string>& tokens) const
 {
+	using namespace std::literals;
 	auto& gui = OUTER(OSDGUI, osdCommand);
 	if (tokens.size() == 2) {
-		static constexpr const char* const cmds[] = {
-			"create", "destroy", "info", "exists", "configure"
+		static constexpr std::array cmds = {
+			"create"sv, "destroy"sv, "info"sv, "exists"sv, "configure"sv
 		};
 		completeString(tokens, cmds);
 	} else if ((tokens.size() == 3) && (tokens[1] == "create")) {
-		static constexpr const char* const types[] = { "rectangle", "text" };
+		static constexpr std::array types = {"rectangle"sv, "text"sv};
 		completeString(tokens, types);
 	} else if ((tokens.size() == 3) ||
 	           ((tokens.size() == 4) && (tokens[1] == "create"))) {

@@ -811,8 +811,7 @@ string LoadMachineCmd::help(const vector<string>& /*tokens*/) const
 
 void LoadMachineCmd::tabCompletion(vector<string>& tokens) const
 {
-	auto machines = Reactor::getHwConfigs("machines");
-	completeString(tokens, machines);
+	completeString(tokens, Reactor::getHwConfigs("machines"));
 }
 
 
@@ -869,8 +868,7 @@ string ExtCmd::help(const vector<string>& /*tokens*/) const
 
 void ExtCmd::tabCompletion(vector<string>& tokens) const
 {
-	auto extensions = Reactor::getHwConfigs("extensions");
-	completeString(tokens, extensions);
+	completeString(tokens, Reactor::getHwConfigs("extensions"));
 }
 
 

@@ -568,7 +568,8 @@ void GlobalCommandController::UpdateCmd::tabCompletion(vector<string>& tokens) c
 {
 	switch (tokens.size()) {
 	case 2: {
-		static constexpr const char* const ops[] = { "enable", "disable" };
+		using namespace std::literals;
+		static constexpr std::array ops = {"enable"sv, "disable"sv};
 		completeString(tokens, ops);
 		break;
 	}

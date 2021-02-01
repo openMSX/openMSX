@@ -1006,22 +1006,21 @@ string ReverseManager::ReverseCmd::help(const vector<string>& /*tokens*/) const
 
 void ReverseManager::ReverseCmd::tabCompletion(vector<string>& tokens) const
 {
+	using namespace std::literals;
 	if (tokens.size() == 2) {
-		static constexpr const char* const subCommands[] = {
-			"start", "stop", "status", "goback", "goto",
-			"savereplay", "loadreplay", "viewonlymode",
-			"truncatereplay",
+		static constexpr std::array subCommands = {
+			"start"sv, "stop"sv, "status"sv, "goback"sv, "goto"sv,
+			"savereplay"sv, "loadreplay"sv, "viewonlymode"sv,
+			"truncatereplay"sv,
 		};
 		completeString(tokens, subCommands);
 	} else if ((tokens.size() == 3) || (tokens[1] == "loadreplay")) {
 		if (tokens[1] == one_of("loadreplay", "savereplay")) {
-			std::vector<const char*> cmds;
-			if (tokens[1] == "loadreplay") {
-				cmds = { "-goto", "-viewonly" };
-			}
-			completeFileName(tokens, userDataFileContext(REPLAY_DIR), cmds);
+			static constexpr std::array cmds = {"-goto"sv, "-viewonly"sv};
+			completeFileName(tokens, userDataFileContext(REPLAY_DIR),
+				(tokens[1] == "loadreplay") ? cmds : span<const std::string_view>{});
 		} else if (tokens[1] == "viewonlymode") {
-			static constexpr const char* const options[] = { "true", "false" };
+			static constexpr std::array options = {"true"sv, "false"sv};
 			completeString(tokens, options);
 		}
 	}

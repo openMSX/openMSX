@@ -380,11 +380,11 @@ string CartridgeSlotManager::CartCmd::help(const vector<string>& tokens) const
 
 void CartridgeSlotManager::CartCmd::tabCompletion(vector<string>& tokens) const
 {
-	vector<const char*> extra;
-	if (tokens.size() < 3) {
-		extra = { "eject", "insert" };
-	}
-	completeFileName(tokens, userFileContext(), extra);
+	using namespace std::literals;
+	static constexpr std::array extra = {"eject"sv, "insert"sv};
+	completeFileName(tokens, userFileContext(),
+	                 (tokens.size() < 3) ? extra : span<const std::string_view>{});
+
 }
 
 bool CartridgeSlotManager::CartCmd::needRecord(span<const TclObject> tokens) const

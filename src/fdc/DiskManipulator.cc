@@ -277,10 +277,11 @@ string DiskManipulator::help(const vector<string>& tokens) const
 
 void DiskManipulator::tabCompletion(vector<string>& tokens) const
 {
+	using namespace std::literals;
 	if (tokens.size() == 2) {
-		static constexpr const char* const cmds[] = {
-			"import", "export", "savedsk", "dir", "create",
-			"format", "chdir", "mkdir",
+		static constexpr std::array cmds = {
+			"import"sv, "export"sv, "savedsk"sv, "dir"sv, "create"sv,
+			"format"sv, "chdir"sv, "mkdir"sv,
 		};
 		completeString(tokens, cmds);
 
@@ -316,14 +317,12 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 		if (tokens[1] == one_of("savedsk", "import", "export")) {
 			completeFileName(tokens, userFileContext());
 		} else if (tokens[1] == "create") {
-			static constexpr const char* const cmds[] = {
-				"360", "720", "32M", "-dos1"
+			static constexpr std::array cmds = {
+				"360"sv, "720"sv, "32M"sv, "-dos1"sv,
 			};
 			completeString(tokens, cmds);
 		} else if (tokens[1] == "format") {
-			static constexpr const char* const cmds[] = {
-				"-dos1"
-			};
+			static constexpr std::array cmds = {"-dos1"sv};
 			completeString(tokens, cmds);
 		}
 	}

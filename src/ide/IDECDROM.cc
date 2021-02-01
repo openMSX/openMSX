@@ -387,7 +387,8 @@ string CDXCommand::help(const vector<string>& /*tokens*/) const
 
 void CDXCommand::tabCompletion(vector<string>& tokens) const
 {
-	static constexpr const char* const extra[] = { "eject", "insert" };
+	using namespace std::literals;
+	static constexpr std::array extra = {"eject"sv, "insert"sv};
 	completeFileName(tokens, userFileContext(), extra);
 }
 

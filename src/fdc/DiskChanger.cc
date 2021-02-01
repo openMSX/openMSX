@@ -291,8 +291,9 @@ string DiskCommand::help(const vector<string>& /*tokens*/) const
 void DiskCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() >= 2) {
-		static constexpr const char* const extra[] = {
-			"eject", "ramdsk", "insert",
+		using namespace std::literals;
+		static constexpr std::array extra = {
+			"eject"sv, "ramdsk"sv, "insert"sv,
 		};
 		completeFileName(tokens, userFileContext(), extra);
 	}
