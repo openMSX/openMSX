@@ -28,6 +28,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+        [[nodiscard]] unsigned getRamSize() const;
+
 	void setMapper(int region, byte value);
 	void setModeRegister(byte value);
 	void checkEnable();

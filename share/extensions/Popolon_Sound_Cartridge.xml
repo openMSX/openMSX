@@ -1,0 +1,26 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <name>Popolon Sound Cartridge</name>
+    <manufacturer>Popolon</manufacturer>
+    <code></code>
+    <release_year>2020</release_year>
+    <description>Clone of Konami Sound Cartridge (a.k.a.: SCC+).</description>
+    <type>sound expansion</type>
+  </info>
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <SCCplus id="Popolon Sound Cartridge">
+          <mem base="0x4000" size="0x8000"/>
+          <subtype>Popolon</subtype>
+          <size>2048</size>
+          <sound>
+            <volume>13000</volume>
+          </sound>
+        </SCCplus>
+      </secondary>
+    </primary>
+  </devices>
+</msxconfig>

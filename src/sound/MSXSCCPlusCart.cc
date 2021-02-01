@@ -13,9 +13,26 @@
 
 namespace openmsx {
 
+unsigned MSXSCCPlusCart::getRamSize() const
+{
+	std::string_view subtype = getDeviceConfig().getChildData("subtype", "expanded");
+	if (subtype == "Popolon") {
+		int ramSize = getDeviceConfig().getChildDataAsInt("size", 2048);
+		if (!Math::ispow2(ramSize)) {
+			throw MSXException("Popolon type Sound Cartridge must have a power of 2 RAM size!");
+		}
+		if (ramSize < 128 || ramSize > 2048) {
+			throw MSXException("Popolon type Sound Cartridge must have a size between 128 and 2048 kB!");
+		}
+		return ramSize * 1024; // in bytes
+	}
+	return 0x20000;
+}
+
+
 MSXSCCPlusCart::MSXSCCPlusCart(const DeviceConfig& config)
 	: MSXDevice(config)
-	, ram(config, getName() + " RAM", "SCC+ RAM", 0x20000)
+	, ram(config, getName() + " RAM", "SCC+ RAM", getRamSize())
 	, scc(getName(), config, getCurrentTime(), SCC::SCC_Compatible)
 	, romBlockDebug(*this, mapper, 0x4000, 0x8000, 13)
 {
@@ -41,6 +58,11 @@ MSXSCCPlusCart::MSXSCCPlusCart(const DeviceConfig& config)
 		highRAM = true;
 	} else if (subtype == "mirrored") {
 		mapperMask = 0x07;
+		lowRAM  = true;
+		highRAM = true;
+	} else if (subtype == "Popolon") {
+		// this subtype supports configurable size
+		mapperMask = byte(getRamSize() / 0x2000) - 1;
 		lowRAM  = true;
 		highRAM = true;
 	} else {
@@ -258,8 +280,8 @@ void MSXSCCPlusCart::serialize(Archive& ar, unsigned /*version*/)
 
 	// only serialize that part of the Ram object that's actually
 	// present in the cartridge
-	unsigned ramSize = (lowRAM && highRAM && (mapperMask == 0xF))
-	                 ? 0x20000 : 0x10000;
+	unsigned ramSize = (lowRAM && highRAM && (mapperMask >= 0xF))
+	                 ? ((mapperMask + 1) * 0x2000) : 0x10000;
 	unsigned ramBase = lowRAM ? 0x00000 : 0x10000;
 	ar.serialize_blob("ram", &ram[ramBase], ramSize);
 
