@@ -31,6 +31,13 @@ variable current_fade_delay_active
 variable current_fade_delay_non_active
 variable fade_id
 
+# default is set1, but if only scale_factor 1 is supported, use handheld
+if {[lindex [openmsx_info setting scale_factor] 2 1] == 1} {
+	variable default_set "handheld"
+} else {
+	variable default_set "set1"
+}
+
 # temporary hack: for now map the new 'fastforward' setting onto the old 'throttle' setting
 proc trace_icon_status {name1 name2 op} {
 	variable last_change
@@ -325,17 +332,16 @@ trace add variable ::fastforward "write unset" load_icons::trace_icon_status
 
 namespace export load_icons
 
+user_setting create enum icons "Selects the icon set" $default_set [tab_load_icons {} {}]
+proc icons_changed {name1 name2 op} { load_icons $::icons }
+trace add variable ::icons write [namespace code icons_changed]
+
 } ;# namespace load_icons
 
 namespace import load_icons::*
 
 # Restore settings from previous session
-# default is set1, but if only scale_factor 1 is supported, use handheld
-if {[lindex [openmsx_info setting scale_factor] 2 1] == 1} {
-	user_setting create string osd_leds_set "Name of the OSD icon set" "handheld"
-} else {
-	user_setting create string osd_leds_set "Name of the OSD icon set" "set1"
-}
+user_setting create string osd_leds_set "Name of the OSD icon set" $load_icons::default_set
 user_setting create string osd_leds_pos "Position of the OSD icons" "default"
 set load_icons::current_osd_leds_set $osd_leds_set
 set load_icons::current_osd_leds_pos $osd_leds_pos
