@@ -14,6 +14,13 @@ namespace openmsx {
 class MSXSCCPlusCart final : public MSXDevice
 {
 public:
+	struct MapperConfig {
+		unsigned numBlocks;  // number of 8kB blocks
+		byte registerMask;   // mapper selection bits to ignore
+		byte registerOffset; // first mapped block
+	};
+
+public:
 	explicit MSXSCCPlusCart(const DeviceConfig& config);
 
 	void powerUp(EmuTime::param time) override;
@@ -28,13 +35,12 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-        [[nodiscard]] unsigned getRamSize() const;
-
 	void setMapper(int region, byte value);
 	void setModeRegister(byte value);
 	void checkEnable();
 
 private:
+	const MapperConfig mapperConfig;
 	Ram ram;
 	SCC scc;
 	RomBlockDebuggable romBlockDebug;
@@ -44,8 +50,6 @@ private:
 	bool isRamSegment[4];
 	bool isMapped[4];
 	byte mapper[4];
-	/*const*/ byte mapperMask;
-	/*const*/ bool lowRAM, highRAM;
 };
 
 } // namespace openmsx
