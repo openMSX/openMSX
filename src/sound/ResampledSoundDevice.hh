@@ -38,7 +38,7 @@ protected:
 	                  EmuTime::param time) override;
 
 	// Observer<Setting>
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
 	void createResampler();
 

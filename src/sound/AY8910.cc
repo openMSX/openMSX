@@ -969,7 +969,7 @@ float AY8910::getAmplificationFactorImpl() const
 	return 1.0f;
 }
 
-void AY8910::update(const Setting& setting)
+void AY8910::update(const Setting& setting) noexcept
 {
 	if (&setting == one_of(&vibratoPercent, &detunePercent)) {
 		doDetune = (vibratoPercent.getDouble() != 0) ||

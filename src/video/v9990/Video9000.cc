@@ -158,7 +158,7 @@ int Video9000::signalEvent(const std::shared_ptr<const Event>& event)
 	return 0;
 }
 
-void Video9000::update(const Setting& setting)
+void Video9000::update(const Setting& setting) noexcept
 {
 	VideoLayer::update(setting);
 	if (&setting == &videoSourceSetting) {

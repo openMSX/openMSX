@@ -64,7 +64,7 @@ public:
 	                int displayWidth, int displayHeight, bool drawSprites);
 
 	// Observer<Setting>
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
 private:
 	/** screen width for SDLLo

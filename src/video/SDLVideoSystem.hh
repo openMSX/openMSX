@@ -51,7 +51,7 @@ private:
 	// EventListener
 	int signalEvent(const std::shared_ptr<const Event>& event) override;
 	// Observer
-	void update(const Setting& subject) override;
+	void update(const Setting& subject) noexcept override;
 
 	[[nodiscard]] gl::ivec2 getWindowSize();
 	void resize();

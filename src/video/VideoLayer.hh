@@ -52,7 +52,7 @@ protected:
 	~VideoLayer() override;
 
 	// Observer<Setting> interface:
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
 private:
 	/** Calculates the current Z coordinate of this layer. */

@@ -57,7 +57,7 @@ void WavAudioInput::unplugHelper(EmuTime::param /*time*/)
 {
 }
 
-void WavAudioInput::update(const Setting& setting)
+void WavAudioInput::update(const Setting& setting) noexcept
 {
 	(void)setting;
 	assert(&setting == &audioInputFilenameSetting);

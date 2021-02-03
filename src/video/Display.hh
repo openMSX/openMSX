@@ -75,7 +75,7 @@ private:
 	void executeRT() override;
 
 	// Observer<Setting> interface
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
 	void checkRendererSwitch();
 	void doRendererSwitch();

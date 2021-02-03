@@ -55,7 +55,7 @@ VisibleSurface::~VisibleSurface()
 	renderSettings.getFullScreenSetting().detach(*this);
 }
 
-void VisibleSurface::update(const Setting& /*setting*/)
+void VisibleSurface::update(const Setting& /*setting*/) noexcept
 {
 	updateCursor();
 }

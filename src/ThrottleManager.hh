@@ -43,7 +43,7 @@ private:
 	void updateStatus();
 
 	// Observer<Setting>
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
 private:
 	BooleanSetting throttleSetting;

@@ -171,7 +171,7 @@ std::unique_ptr<OutputSurface> SDLGLVisibleSurface::createOffScreenSurface()
 	return std::make_unique<SDLGLOffScreenSurface>(*this);
 }
 
-void SDLGLVisibleSurface::VSyncObserver::update(const Setting& setting)
+void SDLGLVisibleSurface::VSyncObserver::update(const Setting& setting) noexcept
 {
 	auto& visSurface = OUTER(SDLGLVisibleSurface, vSyncObserver);
 	auto& syncSetting = visSurface.getDisplay().getRenderSettings().getVSyncSetting();

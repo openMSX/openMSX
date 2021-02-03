@@ -40,7 +40,7 @@ private:
 	                   size_t width);
 
 	// Observer<Setting>
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
 private:
 	/** The currently active scaler.

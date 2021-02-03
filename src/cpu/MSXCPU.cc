@@ -344,7 +344,7 @@ CPURegs& MSXCPU::getRegisters()
 	}
 }
 
-void MSXCPU::update(const Setting& setting)
+void MSXCPU::update(const Setting& setting) noexcept
 {
 	          z80 ->update(setting);
 	if (r800) r800->update(setting);

@@ -621,7 +621,7 @@ void PixelRenderer::renderUntil(EmuTime::param time)
 	nextY = limitY;
 }
 
-void PixelRenderer::update(const Setting& setting)
+void PixelRenderer::update(const Setting& setting) noexcept
 {
 	assert(&setting == one_of(&renderSettings.getMinFrameSkipSetting(),
 	                          &renderSettings.getMaxFrameSkipSetting()));

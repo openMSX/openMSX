@@ -67,7 +67,7 @@ private:
 	               int clipL, int clipR, DrawType drawType);
 
 	// Observer<Setting>
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
 private:
 	/** The V9990 VDP

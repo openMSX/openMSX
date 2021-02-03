@@ -931,7 +931,7 @@ void V9990CmdEngine::reportV9990Command() const
 	          << '\n';
 }
 
-void V9990CmdEngine::update(const Setting& setting)
+void V9990CmdEngine::update(const Setting& setting) noexcept
 {
 	brokenTiming = static_cast<const EnumSetting<bool>&>(setting).getEnum();
 }

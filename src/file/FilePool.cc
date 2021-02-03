@@ -141,7 +141,7 @@ FilePoolCore::Directories FilePool::getDirectories() const
 	return result;
 }
 
-void FilePool::update(const Setting& setting)
+void FilePool::update(const Setting& setting) noexcept
 {
 	assert(&setting == &filePoolSetting); (void)setting;
 	(void)getDirectories(); // check for syntax errors

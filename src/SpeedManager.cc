@@ -40,7 +40,7 @@ void SpeedManager::updateSpeed()
 	notify();
 }
 
-void SpeedManager::update(const Setting& /*setting*/)
+void SpeedManager::update(const Setting& /*setting*/) noexcept
 {
 	updateSpeed();
 }

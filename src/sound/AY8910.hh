@@ -164,7 +164,7 @@ private:
 	[[nodiscard]] float getAmplificationFactorImpl() const override;
 
 	// Observer<Setting>
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
 	void wrtReg(unsigned reg, byte value, EmuTime::param time);
 

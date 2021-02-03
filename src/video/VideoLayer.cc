@@ -47,7 +47,7 @@ int VideoLayer::getVideoSourceSetting() const
 	return videoSourceSetting.getSource();
 }
 
-void VideoLayer::update(const Setting& setting)
+void VideoLayer::update(const Setting& setting) noexcept
 {
 	if (&setting == &videoSourceSetting) {
 		calcZ();

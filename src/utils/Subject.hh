@@ -70,7 +70,11 @@ template<typename T> void Subject<T>::notify() const
 	notifyState = IN_PROGRESS;
 
 	for (auto& o : observers) {
-		o->update(*static_cast<const T*>(this));
+		try {
+			o->update(*static_cast<const T*>(this));
+		} catch (...) {
+			assert(false && "Observer::update() shouldn't throw");
+		}
 	}
 
 	if (notifyState == DETACH) {

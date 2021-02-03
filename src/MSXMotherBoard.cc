@@ -181,7 +181,7 @@ class SettingObserver final : public Observer<Setting>
 {
 public:
 	explicit SettingObserver(MSXMotherBoard& motherBoard);
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 private:
 	MSXMotherBoard& motherBoard;
 };
@@ -1102,7 +1102,7 @@ SettingObserver::SettingObserver(MSXMotherBoard& motherBoard_)
 {
 }
 
-void SettingObserver::update(const Setting& setting)
+void SettingObserver::update(const Setting& setting) noexcept
 {
 	if (&setting == &motherBoard.powerSetting) {
 		if (motherBoard.powerSetting.getBoolean()) {

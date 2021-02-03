@@ -284,7 +284,7 @@ void SDLVideoSystem::resize()
 	}
 }
 
-void SDLVideoSystem::update(const Setting& subject)
+void SDLVideoSystem::update(const Setting& subject) noexcept
 {
 	if (&subject == &renderSettings.getScaleFactorSetting()) {
 		// TODO: This is done via checkSettings instead,

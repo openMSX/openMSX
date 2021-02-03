@@ -141,17 +141,17 @@ int RealTime::signalEvent(const std::shared_ptr<const Event>& event)
 	return 0;
 }
 
-void RealTime::update(const Setting& /*setting*/)
+void RealTime::update(const Setting& /*setting*/) noexcept
 {
 	resync();
 }
 
-void RealTime::update(const SpeedManager& /*speedManager*/)
+void RealTime::update(const SpeedManager& /*speedManager*/) noexcept
 {
 	resync();
 }
 
-void RealTime::update(const ThrottleManager& /*throttleManager*/)
+void RealTime::update(const ThrottleManager& /*throttleManager*/) noexcept
 {
 	resync();
 }

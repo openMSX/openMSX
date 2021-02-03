@@ -951,7 +951,7 @@ private:
 	void setPalette(int index, word grb, EmuTime::param time);
 
 	// Observer<Setting>
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
 private:
 	Display& display;

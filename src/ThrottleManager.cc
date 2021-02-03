@@ -44,7 +44,7 @@ void ThrottleManager::indicateLoadingState(bool state)
 	updateStatus();
 }
 
-void ThrottleManager::update(const Setting& /*setting*/)
+void ThrottleManager::update(const Setting& /*setting*/) noexcept
 {
 	updateStatus();
 }

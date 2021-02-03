@@ -1398,7 +1398,7 @@ void VDP::updateDisplayMode(DisplayMode newMode, bool cmdBit, EmuTime::param tim
 	//       It's one line of code and overhead is not huge either.
 }
 
-void VDP::update(const Setting& setting)
+void VDP::update(const Setting& setting) noexcept
 {
 	assert(&setting == one_of(&cmdTiming, &tooFastAccess));
 	(void)setting;

@@ -320,7 +320,7 @@ void V9990PixelRenderer::updateScrollBYLow(EmuTime::param time)
 	}
 }
 
-void V9990PixelRenderer::update(const Setting& setting)
+void V9990PixelRenderer::update(const Setting& setting) noexcept
 {
 	assert(&setting == one_of(&renderSettings.getMinFrameSkipSetting(),
 	                          &renderSettings.getMaxFrameSkipSetting()));

@@ -207,7 +207,7 @@ byte* ChakkariCopy::getWriteCacheLine(word address) const
 	return unmappedWrite;
 }
 
-void ChakkariCopy::update(const Setting& /*setting*/)
+void ChakkariCopy::update(const Setting& /*setting*/) noexcept
 {
 	// switch COPY <-> RAM mode, memory layout changes
 	invalidateDeviceRWCache();

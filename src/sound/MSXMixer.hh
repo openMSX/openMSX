@@ -140,11 +140,11 @@ private:
 	void executeUntil(EmuTime::param time) override;
 
 	// Observer<Setting>
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 	// Observer<SpeedManager>
-	void update(const SpeedManager& speedManager) override;
+	void update(const SpeedManager& speedManager) noexcept override;
 	// Observer<ThrottleManager>
-	void update(const ThrottleManager& throttleManager) override;
+	void update(const ThrottleManager& throttleManager) noexcept override;
 
 	void changeRecordSetting(const Setting& setting);
 	void changeMuteSetting(const Setting& setting);

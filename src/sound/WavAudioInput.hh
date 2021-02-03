@@ -29,7 +29,7 @@ public:
 
 private:
 	void loadWave();
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
 private:
 	FilenameSetting audioInputFilenameSetting;

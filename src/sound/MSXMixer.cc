@@ -602,7 +602,7 @@ void MSXMixer::setRecorder(AviRecorder* newRecorder)
 	recorder = newRecorder;
 }
 
-void MSXMixer::update(const Setting& setting)
+void MSXMixer::update(const Setting& setting) noexcept
 {
 	if (&setting == &masterVolume) {
 		updateMasterVolume();
@@ -655,7 +655,7 @@ void MSXMixer::changeMuteSetting(const Setting& setting)
 	UNREACHABLE;
 }
 
-void MSXMixer::update(const SpeedManager& /*speedManager*/)
+void MSXMixer::update(const SpeedManager& /*speedManager*/) noexcept
 {
 	if (synchronousCounter == 0) {
 		setMixerParams(fragmentSize, hostSampleRate);
@@ -669,7 +669,7 @@ void MSXMixer::update(const SpeedManager& /*speedManager*/)
 	}
 }
 
-void MSXMixer::update(const ThrottleManager& /*throttleManager*/)
+void MSXMixer::update(const ThrottleManager& /*throttleManager*/) noexcept
 {
 	//reInit();
 	// TODO Should this be removed?

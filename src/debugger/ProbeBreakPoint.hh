@@ -26,7 +26,7 @@ public:
 
 private:
 	// Observer<ProbeBase>
-	void update(const ProbeBase& subject) override;
+	void update(const ProbeBase& subject) noexcept override;
 	void subjectDeleted(const ProbeBase& subject) override;
 
 private:

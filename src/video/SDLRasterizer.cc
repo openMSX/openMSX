@@ -627,7 +627,7 @@ bool SDLRasterizer<Pixel>::isRecording() const
 }
 
 template<typename Pixel>
-void SDLRasterizer<Pixel>::update(const Setting& setting)
+void SDLRasterizer<Pixel>::update(const Setting& setting) noexcept
 {
 	if (&setting == one_of(&renderSettings.getGammaSetting(),
 	                       &renderSettings.getBrightnessSetting(),

@@ -38,7 +38,7 @@ private:
 	void paint(OutputSurface& output) override;
 
 	// Observer
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
 	void adjustColRow();
 	void setActive(bool active);

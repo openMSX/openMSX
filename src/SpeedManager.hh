@@ -29,7 +29,7 @@ private:
 	void updateSpeed();
 
 	// Observer<Setting>
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
 private:
 	IntegerSetting speedSetting;

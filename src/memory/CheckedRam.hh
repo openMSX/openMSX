@@ -58,7 +58,7 @@ private:
 	void init();
 
 	// Observer<Setting>
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
 private:
 	std::vector<bool> completely_initialized_cacheline;

@@ -28,7 +28,7 @@ void Autofire::setClock()
 	    (2 * 50 * 60) / (max_ints - (speed * (max_ints - min_ints)) / 100));
 }
 
-void Autofire::update(const Setting& setting)
+void Autofire::update(const Setting& setting) noexcept
 {
 	(void)setting;
 	assert(&setting == &speedSetting);

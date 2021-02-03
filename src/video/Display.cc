@@ -237,7 +237,7 @@ string Display::getWindowTitle()
 	return title;
 }
 
-void Display::update(const Setting& setting)
+void Display::update(const Setting& setting) noexcept
 {
 	if (&setting == &renderSettings.getRendererSetting()) {
 		checkRendererSwitch();

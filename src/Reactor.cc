@@ -612,7 +612,7 @@ void Reactor::unblock()
 
 
 // Observer<Setting>
-void Reactor::update(const Setting& setting)
+void Reactor::update(const Setting& setting) noexcept
 {
 	auto& pauseSetting = getGlobalSettings().getPauseSetting();
 	if (&setting == &pauseSetting) {

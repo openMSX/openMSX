@@ -36,7 +36,7 @@ private:
 	void reportProgress(std::string_view message);
 
 	// Observer<Setting>
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
 	// EventListener
 	int signalEvent(const std::shared_ptr<const Event>& event) override;

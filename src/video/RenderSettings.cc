@@ -234,7 +234,7 @@ RenderSettings::~RenderSettings()
 	contrastSetting  .detach(*this);
 }
 
-void RenderSettings::update(const Setting& setting)
+void RenderSettings::update(const Setting& setting) noexcept
 {
 	if (&setting == &brightnessSetting) {
 		updateBrightnessAndContrast();

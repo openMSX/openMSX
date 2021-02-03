@@ -155,7 +155,7 @@ void Mixer::uploadBuffer(MSXMixer& /*msxMixer*/, float* buffer, unsigned len)
 	driver->uploadBuffer(buffer, len);
 }
 
-void Mixer::update(const Setting& setting)
+void Mixer::update(const Setting& setting) noexcept
 {
 	if (&setting == &muteSetting) {
 		if (muteSetting.getBoolean()) {

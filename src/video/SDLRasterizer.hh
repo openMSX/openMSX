@@ -85,7 +85,7 @@ private:
 	std::pair<Pixel, Pixel> getBorderColors();
 
 	// Observer<Setting>
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
 private:
 	/** The VDP of which the video output is being rendered.

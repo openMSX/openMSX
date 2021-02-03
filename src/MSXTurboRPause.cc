@@ -57,7 +57,7 @@ void MSXTurboRPause::writeIO(word /*port*/, byte value, EmuTime::param /*time*/)
 	updatePause();
 }
 
-void MSXTurboRPause::update(const Setting& /*setting*/)
+void MSXTurboRPause::update(const Setting& /*setting*/) noexcept
 {
 	updatePause();
 }

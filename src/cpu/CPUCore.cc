@@ -525,7 +525,7 @@ template<typename T> void CPUCore<T>::disasmCommand(
 	}
 }
 
-template<typename T> void CPUCore<T>::update(const Setting& setting)
+template<typename T> void CPUCore<T>::update(const Setting& setting) noexcept
 {
 	if (&setting == &freqLocked) {
 		doSetFreq();

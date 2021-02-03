@@ -65,7 +65,7 @@ private:
 	enum DrawType { DRAW_BORDER, DRAW_DISPLAY };
 
 	// Observer<Setting> interface:
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
 	/** Call the right draw method in the subclass,
 	  * depending on passed drawType.

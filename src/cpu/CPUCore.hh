@@ -127,7 +127,7 @@ private:
 	void doSetFreq();
 
 	// Observer<Setting>  !! non-virtual !!
-	void update(const Setting& setting);
+	void update(const Setting& setting) noexcept;
 
 private:
 	// memory cache

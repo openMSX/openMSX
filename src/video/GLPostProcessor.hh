@@ -33,7 +33,7 @@ public:
 
 protected:
 	// Observer<Setting> interface:
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
 private:
 	void initBuffers();

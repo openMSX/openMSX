@@ -27,7 +27,7 @@ ProbeBreakPoint::~ProbeBreakPoint()
 	probe.detach(*this);
 }
 
-void ProbeBreakPoint::update(const ProbeBase& /*subject*/)
+void ProbeBreakPoint::update(const ProbeBase& /*subject*/) noexcept
 {
 	auto& reactor = debugger.getMotherBoard().getReactor();
 	auto& cliComm = reactor.getGlobalCliComm();

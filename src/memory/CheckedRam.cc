@@ -116,7 +116,7 @@ void CheckedRam::init()
 	msxcpu.invalidateAllSlotsRWCache(0, 0x10000);
 }
 
-void CheckedRam::update(const Setting& setting)
+void CheckedRam::update(const Setting& setting) noexcept
 {
 	assert(&setting == &umrCallback.getSetting());
 	(void)setting;

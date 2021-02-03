@@ -372,7 +372,7 @@ bool V9990SDLRasterizer<Pixel>::isRecording() const
 }
 
 template<typename Pixel>
-void V9990SDLRasterizer<Pixel>::update(const Setting& setting)
+void V9990SDLRasterizer<Pixel>::update(const Setting& setting) noexcept
 {
 	if (&setting == one_of(&renderSettings.getGammaSetting(),
 	                       &renderSettings.getBrightnessSetting(),

@@ -39,7 +39,7 @@ private:
 
 private:
 	struct VSyncObserver : openmsx::Observer<Setting> {
-		void update(const Setting& setting) override;
+		void update(const Setting& setting) noexcept override;
 	} vSyncObserver;
 
 	SDL_GLContext glContext;

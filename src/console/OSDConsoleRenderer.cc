@@ -160,7 +160,7 @@ void OSDConsoleRenderer::adjustColRow()
 	console.setRows(consoleRows);
 }
 
-void OSDConsoleRenderer::update(const Setting& setting)
+void OSDConsoleRenderer::update(const Setting& setting) noexcept
 {
 	if (&setting == &consoleSetting) {
 		setActive(consoleSetting.getBoolean());

@@ -65,7 +65,7 @@ GlobalSettings::~GlobalSettings()
 }
 
 // Observer<Setting>
-void GlobalSettings::update(const Setting& setting)
+void GlobalSettings::update(const Setting& setting) noexcept
 {
 	if (&setting == &getPowerSetting()) { // either on or off
 		// automatically unpause after a power off/on cycle

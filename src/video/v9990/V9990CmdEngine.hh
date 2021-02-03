@@ -326,7 +326,7 @@ private:
 	void reportV9990Command() const;
 
 	// Observer<Setting>
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
 	void setCommandMode();
 

@@ -48,7 +48,7 @@ bool ResampledSoundDevice::generateInput(float* buffer, unsigned num)
 }
 
 
-void ResampledSoundDevice::update(const Setting& setting)
+void ResampledSoundDevice::update(const Setting& setting) noexcept
 {
 	(void)setting;
 	assert(&setting == &resampleSetting);

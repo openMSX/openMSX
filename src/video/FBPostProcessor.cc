@@ -219,7 +219,7 @@ void FBPostProcessor<Pixel>::drawNoise(OutputSurface& output_)
 }
 
 template<typename Pixel>
-void FBPostProcessor<Pixel>::update(const Setting& setting)
+void FBPostProcessor<Pixel>::update(const Setting& setting) noexcept
 {
 	VideoLayer::update(setting);
 	auto& noiseSetting = renderSettings.getNoiseSetting();

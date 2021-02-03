@@ -253,7 +253,7 @@ std::unique_ptr<RawFrame> GLPostProcessor::rotateFrames(
 	return reuseFrame;
 }
 
-void GLPostProcessor::update(const Setting& setting)
+void GLPostProcessor::update(const Setting& setting) noexcept
 {
 	VideoLayer::update(setting);
 	auto& noiseSetting = renderSettings.getNoiseSetting();

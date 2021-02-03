@@ -45,7 +45,7 @@ private:
 	int signalEvent(const std::shared_ptr<const Event>& event) override;
 
 	// Observer<Setting>
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
 private:
 	VideoSourceSetting& videoSourceSetting;

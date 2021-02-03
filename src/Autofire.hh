@@ -39,7 +39,7 @@ private:
 	  */
 	void setClock();
 
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
 private:
 	// Following two values specify the range of the autofire

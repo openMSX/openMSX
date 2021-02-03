@@ -162,7 +162,7 @@ private:
 	EmuTime::param getCurrentTime() const;
 
 	// Observer<Setting>
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
 	template<bool READ, bool WRITE, bool SUB_START>
 	void setRWCache(unsigned start, unsigned size, const byte* rData, byte* wData, int ps, int ss,
