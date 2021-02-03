@@ -11,13 +11,17 @@ set_help_text load_icons \
  example: load_icons set1 top
 }
 
+proc all_icons {} {
+	set r1 [glob -nocomplain -tails -type d -directory $::env(OPENMSX_USER_DATA)/skins *]
+	set r2 [glob -nocomplain -tails -type d -directory $::env(OPENMSX_SYSTEM_DATA)/skins *]
+	lsort -unique [concat $r1 $r2]
+}
+
 set_tabcompletion_proc load_icons [namespace code tab_load_icons]
 proc tab_load_icons {args} {
 	set num [llength $args]
 	if {$num == 2} {
-		set r1 [glob -nocomplain -tails -type d -directory $::env(OPENMSX_USER_DATA)/skins *]
-		set r2 [glob -nocomplain -tails -type d -directory $::env(OPENMSX_SYSTEM_DATA)/skins *]
-		concat $r1 $r2
+		all_icons
 	} elseif {$num == 3} {
 		list "top" "bottom" "left" "right"
 	}
@@ -332,7 +336,7 @@ trace add variable ::fastforward "write unset" load_icons::trace_icon_status
 
 namespace export load_icons
 
-user_setting create enum icons "Selects the icon set" $default_set [tab_load_icons {} {}]
+user_setting create enum icons "Selects the icon set" $default_set [all_icons]
 proc icons_changed {name1 name2 op} { load_icons $::icons }
 trace add variable ::icons write [namespace code icons_changed]
 
