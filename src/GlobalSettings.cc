@@ -71,7 +71,12 @@ void GlobalSettings::update(const Setting& setting) noexcept
 		// automatically unpause after a power off/on cycle
 		// this solved a bug, but apart from that this behaviour also
 		// makes more sense
-		getPauseSetting().setBoolean(false);
+		try {
+			getPauseSetting().setBoolean(false);
+		} catch(...) {
+			// Ignore. E.g. can trigger when a Tcl trace on the
+			// pause setting triggers errors in the Tcl script.
+		}
 	}
 }
 
