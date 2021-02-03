@@ -837,9 +837,9 @@ set misc_setting_menu {
 	       { textexpr "Keyboard mapping mode: $kbd_mapping_mode"
 	         actions { LEFT  { osd_menu::menu_setting [cycle_back kbd_mapping_mode] }
 	                   RIGHT { osd_menu::menu_setting [cycle      kbd_mapping_mode] }}}
-	       { textexpr "OSD icon set: $icons"
-	         actions { LEFT  { osd_menu::menu_setting [cycle_back icons] }
-	                   RIGHT { osd_menu::menu_setting [cycle      icons] }}}
+	       { textexpr "OSD icon set: $osd_leds_set"
+	         actions { LEFT  { osd_menu::menu_setting [cycle_back osd_leds_set] }
+	                   RIGHT { osd_menu::menu_setting [cycle      osd_leds_set] }}}
               }}
 
 set resampler_desc [dict create fast "fast (but low quality)" blip "blip (good speed/quality)" hq "hq (best but uses more CPU)"]

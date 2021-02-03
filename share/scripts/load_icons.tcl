@@ -42,6 +42,8 @@ if {[lindex [openmsx_info setting scale_factor] 2 1] == 1} {
 	variable default_set "set1"
 }
 
+variable possible_positions [list "top" "bottom" "left" "right" "default"]
+
 # temporary hack: for now map the new 'fastforward' setting onto the old 'throttle' setting
 proc trace_icon_status {name1 name2 op} {
 	variable last_change
@@ -108,8 +110,7 @@ proc load_icons {{set_name "-show"} {position_param "default"}} {
 	variable current_osd_leds_pos
 	variable current_fade_delay_active
 	variable current_fade_delay_non_active
-
-	set possible_positions [list "top" "bottom" "left" "right" "default"]
+	variable possible_positions
 
 	if {$set_name eq "-show"} {
 		# Show list of available skins
@@ -336,17 +337,13 @@ trace add variable ::fastforward "write unset" load_icons::trace_icon_status
 
 namespace export load_icons
 
-user_setting create enum icons "Selects the icon set" $default_set [all_icons]
-proc icons_changed {name1 name2 op} { load_icons $::icons }
-trace add variable ::icons write [namespace code icons_changed]
-
 } ;# namespace load_icons
 
 namespace import load_icons::*
 
 # Restore settings from previous session
-user_setting create string osd_leds_set "Name of the OSD icon set" $load_icons::default_set
-user_setting create string osd_leds_pos "Position of the OSD icons" "default"
+user_setting create enum osd_leds_set "Name of the OSD icon set" $load_icons::default_set [load_icons::all_icons]
+user_setting create enum osd_leds_pos "Position of the OSD icons" "default" $load_icons::possible_positions
 set load_icons::current_osd_leds_set $osd_leds_set
 set load_icons::current_osd_leds_pos $osd_leds_pos
 trace add variable osd_leds_set write load_icons::trace_osd_icon_vars
