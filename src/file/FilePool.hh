@@ -39,7 +39,7 @@ private:
 	void update(const Setting& setting) noexcept override;
 
 	// EventListener
-	int signalEvent(const std::shared_ptr<const Event>& event) override;
+	int signalEvent(const std::shared_ptr<const Event>& event) noexcept override;
 
 private:
 	FilePoolCore core;

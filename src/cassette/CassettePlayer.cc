@@ -582,7 +582,7 @@ float CassettePlayer::getAmplificationFactorImpl() const
 	return playImage ? playImage->getAmplificationFactorImpl() : 1.0f;
 }
 
-int CassettePlayer::signalEvent(const std::shared_ptr<const Event>& event)
+int CassettePlayer::signalEvent(const std::shared_ptr<const Event>& event) noexcept
 {
 	if (event->getType() == OPENMSX_BOOT_EVENT) {
 		if (!getImageName().empty()) {

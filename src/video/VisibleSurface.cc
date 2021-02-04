@@ -67,7 +67,7 @@ void VisibleSurface::executeRT()
 	inputEventGenerator.updateGrab(grab);
 }
 
-int VisibleSurface::signalEvent(const std::shared_ptr<const Event>& event)
+int VisibleSurface::signalEvent(const std::shared_ptr<const Event>& event) noexcept
 {
 	assert(event->getType() == one_of(OPENMSX_MOUSE_MOTION_EVENT,
 	                                  OPENMSX_MOUSE_BUTTON_UP_EVENT,

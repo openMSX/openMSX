@@ -169,7 +169,7 @@ gl::ivec2 CommandConsole::getCursorPosition() const
 	return {xPosition, yPosition};
 }
 
-int CommandConsole::signalEvent(const std::shared_ptr<const Event>& event)
+int CommandConsole::signalEvent(const std::shared_ptr<const Event>& event) noexcept
 {
 	if (!consoleSetting.getBoolean()) return 0;
 	const auto& keyEvent = checked_cast<const KeyEvent&>(*event);

@@ -148,12 +148,12 @@ void DiskChanger::signalStateChange(const std::shared_ptr<StateChange>& event)
 		if (tokens[1] == "eject") {
 			ejectDisk();
 		} else {
-			insertDisk(tokens);
+			insertDisk(tokens); // might throw
 		}
 	}
 }
 
-void DiskChanger::stopReplay(EmuTime::param /*time*/)
+void DiskChanger::stopReplay(EmuTime::param /*time*/) noexcept
 {
 	// nothing
 }

@@ -203,7 +203,7 @@ ivec2 Touchpad::transformCoords(ivec2 xy)
 
 // MSXEventListener
 void Touchpad::signalMSXEvent(const shared_ptr<const Event>& event,
-                              EmuTime::param time)
+                              EmuTime::param time) noexcept
 {
 	ivec2 pos = hostPos;
 	int b = hostButtons;
@@ -275,7 +275,7 @@ void Touchpad::signalStateChange(const shared_ptr<StateChange>& event)
 	}
 }
 
-void Touchpad::stopReplay(EmuTime::param time)
+void Touchpad::stopReplay(EmuTime::param time) noexcept
 {
 	// TODO Get actual mouse state. Is it worth the trouble?
 	if (x || y || touch || button) {

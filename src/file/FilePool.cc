@@ -154,7 +154,7 @@ void FilePool::reportProgress(std::string_view message)
 	reactor.getDisplay().repaint();
 }
 
-int FilePool::signalEvent(const std::shared_ptr<const Event>& event)
+int FilePool::signalEvent(const std::shared_ptr<const Event>& event) noexcept
 {
 	(void)event; // avoid warning for non-assert compiles
 	assert(event->getType() == OPENMSX_QUIT_EVENT);

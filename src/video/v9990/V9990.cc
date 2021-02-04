@@ -463,12 +463,12 @@ void V9990::scheduleCmdEnd(EmuTime::param time)
 // VideoSystemChangeListener
 // -------------------------------------------------------------------------
 
-void V9990::preVideoSystemChange()
+void V9990::preVideoSystemChange() noexcept
 {
 	renderer.reset();
 }
 
-void V9990::postVideoSystemChange()
+void V9990::postVideoSystemChange() noexcept
 {
 	EmuTime::param time = getCurrentTime();
 	createRenderer(time);

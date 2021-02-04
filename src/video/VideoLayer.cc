@@ -72,7 +72,7 @@ void VideoLayer::calcCoverage()
 }
 
 void VideoLayer::signalMSXEvent(const std::shared_ptr<const Event>& event,
-                                EmuTime::param /*time*/)
+                                EmuTime::param /*time*/) noexcept
 {
 	if (event->getType() == one_of(OPENMSX_MACHINE_ACTIVATED,
 		                       OPENMSX_MACHINE_DEACTIVATED)) {

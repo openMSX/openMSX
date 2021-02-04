@@ -44,7 +44,7 @@ private:
 	void afterCancel  (span<const TclObject> tokens, TclObject& result);
 
 	// EventListener
-	int signalEvent(const std::shared_ptr<const Event>& event) override;
+	int signalEvent(const std::shared_ptr<const Event>& event) noexcept override;
 
 private:
 	using AfterCmds = std::vector<std::unique_ptr<AfterCmd>>;

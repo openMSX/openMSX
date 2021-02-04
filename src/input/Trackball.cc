@@ -205,7 +205,7 @@ void Trackball::syncCurrentWithTarget(EmuTime::param time)
 
 // MSXEventListener
 void Trackball::signalMSXEvent(const shared_ptr<const Event>& event,
-                               EmuTime::param time)
+                               EmuTime::param time) noexcept
 {
 	switch (event->getType()) {
 	case OPENMSX_MOUSE_MOTION_EVENT: {
@@ -272,7 +272,7 @@ void Trackball::signalStateChange(const shared_ptr<StateChange>& event)
 	status = (status & ~ts->getPress()) | ts->getRelease();
 }
 
-void Trackball::stopReplay(EmuTime::param time)
+void Trackball::stopReplay(EmuTime::param time) noexcept
 {
 	syncCurrentWithTarget(time);
 	// TODO Get actual mouse button(s) state. Is it worth the trouble?

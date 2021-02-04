@@ -179,7 +179,7 @@ void Display::executeRT()
 	videoSystem->repaint();
 }
 
-int Display::signalEvent(const std::shared_ptr<const Event>& event)
+int Display::signalEvent(const std::shared_ptr<const Event>& event) noexcept
 {
 	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
 		const auto& ffe = checked_cast<const FinishFrameEvent&>(*event);
@@ -387,7 +387,7 @@ void Display::removeLayer(Layer& layer)
 	layers.erase(rfind_unguarded(layers, &layer));
 }
 
-void Display::updateZ(Layer& layer)
+void Display::updateZ(Layer& layer) noexcept
 {
 	// Remove at old Z-index...
 	removeLayer(layer);

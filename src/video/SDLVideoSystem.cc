@@ -295,7 +295,7 @@ void SDLVideoSystem::update(const Setting& subject) noexcept
 	}
 }
 
-int SDLVideoSystem::signalEvent(const std::shared_ptr<const Event>& /*event*/)
+int SDLVideoSystem::signalEvent(const std::shared_ptr<const Event>& /*event*/) noexcept
 {
 	// TODO: Currently window size depends only on scale factor.
 	//       Maybe in the future it will be handled differently.

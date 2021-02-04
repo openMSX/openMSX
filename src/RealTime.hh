@@ -61,7 +61,7 @@ private:
 	void executeUntil(EmuTime::param time) override;
 
 	// EventListener
-	int signalEvent(const std::shared_ptr<const Event>& event) override;
+	int signalEvent(const std::shared_ptr<const Event>& event) noexcept override;
 
 	// Observer<Setting>
 	void update(const Setting& setting) noexcept override;

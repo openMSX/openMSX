@@ -45,7 +45,7 @@ private:
 	void run();
 
 	// EventListener
-	int signalEvent(const std::shared_ptr<const Event>& event) override;
+	int signalEvent(const std::shared_ptr<const Event>& event) noexcept override;
 
 private:
 	EventDistributor& eventDistributor;

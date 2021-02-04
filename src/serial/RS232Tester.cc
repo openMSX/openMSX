@@ -124,7 +124,7 @@ void RS232Tester::signal(EmuTime::param time)
 }
 
 // EventListener
-int RS232Tester::signalEvent(const std::shared_ptr<const Event>& /*event*/)
+int RS232Tester::signalEvent(const std::shared_ptr<const Event>& /*event*/) noexcept
 {
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());

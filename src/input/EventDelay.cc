@@ -75,7 +75,7 @@ EventDelay::~EventDelay()
 		OPENMSX_JOY_BUTTON_UP_EVENT,   *this);
 }
 
-int EventDelay::signalEvent(const EventPtr& event)
+int EventDelay::signalEvent(const EventPtr& event) noexcept
 {
 	toBeScheduledEvents.push_back(event);
 	if (delaySetting.getDouble() == 0.0) {

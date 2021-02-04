@@ -223,12 +223,12 @@ VDP::~VDP()
 	display      .detach(*this);
 }
 
-void VDP::preVideoSystemChange()
+void VDP::preVideoSystemChange() noexcept
 {
 	renderer.reset();
 }
 
-void VDP::postVideoSystemChange()
+void VDP::postVideoSystemChange() noexcept
 {
 	createRenderer();
 }

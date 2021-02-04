@@ -353,8 +353,8 @@ public:
 
 private:
 	// VideoSystemChangeListener interface:
-	void preVideoSystemChange() override;
-	void postVideoSystemChange() override;
+	void preVideoSystemChange() noexcept override;
+	void postVideoSystemChange() noexcept override;
 
 	// Scheduler stuff
 	struct SyncBase : Schedulable {

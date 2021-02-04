@@ -81,7 +81,7 @@ CliConnection::~CliConnection()
 	eventDistributor.unregisterEventListener(OPENMSX_CLICOMMAND_EVENT, *this);
 }
 
-void CliConnection::log(CliComm::LogLevel level, std::string_view message)
+void CliConnection::log(CliComm::LogLevel level, std::string_view message) noexcept
 {
 	auto levelStr = CliComm::getLevelStrings();
 	output(tmpStrCat("<log level=\"", levelStr[level], "\">",
@@ -89,7 +89,7 @@ void CliConnection::log(CliComm::LogLevel level, std::string_view message)
 }
 
 void CliConnection::update(CliComm::UpdateType type, std::string_view machine,
-                           std::string_view name, std::string_view value)
+                           std::string_view name, std::string_view value) noexcept
 {
 	if (!getUpdateEnable(type)) return;
 
@@ -140,7 +140,7 @@ static TemporaryString reply(std::string_view message, bool status)
 	              XMLElement::XMLEscape(message), "</reply>\n");
 }
 
-int CliConnection::signalEvent(const std::shared_ptr<const Event>& event)
+int CliConnection::signalEvent(const std::shared_ptr<const Event>& event) noexcept
 {
 	const auto& commandEvent = checked_cast<const CliCommandEvent&>(*event);
 	if (commandEvent.getId() == this) {

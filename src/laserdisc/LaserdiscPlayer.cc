@@ -643,7 +643,7 @@ void LaserdiscPlayer::setImageName(string newImage, EmuTime::param time)
 	}
 }
 
-int LaserdiscPlayer::signalEvent(const std::shared_ptr<const Event>& event)
+int LaserdiscPlayer::signalEvent(const std::shared_ptr<const Event>& event) noexcept
 {
 	if (event->getType() == OPENMSX_BOOT_EVENT && video) {
 		autoRun();
@@ -972,12 +972,12 @@ bool LaserdiscPlayer::isVideoOutputAvailable(EmuTime::param time)
 	return videoOut;
 }
 
-void LaserdiscPlayer::preVideoSystemChange()
+void LaserdiscPlayer::preVideoSystemChange() noexcept
 {
 	renderer.reset();
 }
 
-void LaserdiscPlayer::postVideoSystemChange()
+void LaserdiscPlayer::postVideoSystemChange() noexcept
 {
 	createRenderer();
 }

@@ -840,8 +840,8 @@ private:
 	}
 
 	// VideoSystemChangeListener interface:
-	void preVideoSystemChange() override;
-	void postVideoSystemChange() override;
+	void preVideoSystemChange() noexcept override;
+	void postVideoSystemChange() noexcept override;
 
 	/** Called both on init and on reset.
 	  * Puts VDP into reset state.

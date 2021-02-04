@@ -112,7 +112,7 @@ private:
 	void autoRun();
 
 	// EventListener
-	int signalEvent(const std::shared_ptr<const Event>& event) override;
+	int signalEvent(const std::shared_ptr<const Event>& event) noexcept override;
 
 	// Schedulable
 	struct SyncEndOfTape final : Schedulable {

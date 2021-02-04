@@ -102,12 +102,12 @@ void Video9000::recalcVideoSource()
 		superimpose && (videoSourceSetting.getSource() == getVideoSource()));
 }
 
-void Video9000::preVideoSystemChange()
+void Video9000::preVideoSystemChange() noexcept
 {
 	activeLayer = nullptr; // will be recalculated on next paint()
 }
 
-void Video9000::postVideoSystemChange()
+void Video9000::postVideoSystemChange() noexcept
 {
 	// We can't yet re-initialize 'activeLayer' here because the
 	// new v99x8/v9990 layer may not be created yet.
@@ -132,7 +132,7 @@ void Video9000::takeRawScreenShot(unsigned height, const std::string& filename)
 	layer->takeRawScreenShot(height, filename);
 }
 
-int Video9000::signalEvent(const std::shared_ptr<const Event>& event)
+int Video9000::signalEvent(const std::shared_ptr<const Event>& event) noexcept
 {
 	int video9000id = getVideoSource();
 

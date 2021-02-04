@@ -69,7 +69,7 @@ private:
 	void resetVideoSystem();
 
 	// EventListener interface
-	int signalEvent(const std::shared_ptr<const Event>& event) override;
+	int signalEvent(const std::shared_ptr<const Event>& event) noexcept override;
 
 	// RTSchedulable
 	void executeRT() override;
@@ -86,7 +86,7 @@ private:
 	[[nodiscard]] Layers::iterator baseLayer();
 
 	// LayerListener interface
-	void updateZ(Layer& layer) override;
+	void updateZ(Layer& layer) noexcept override;
 
 private:
 	Layers layers; // sorted on z

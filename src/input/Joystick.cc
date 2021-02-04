@@ -306,7 +306,7 @@ bool Joystick::getState(Interpreter& interp, const TclObject& dict,
 
 // MSXEventListener
 void Joystick::signalMSXEvent(const shared_ptr<const Event>& event,
-                              EmuTime::param time)
+                              EmuTime::param time) noexcept
 {
 	const auto* joyEvent = dynamic_cast<const JoystickEvent*>(event.get());
 	if (!joyEvent) return;
@@ -355,7 +355,7 @@ void Joystick::signalStateChange(const shared_ptr<StateChange>& event)
 	status = (status & ~js->getPress()) | js->getRelease();
 }
 
-void Joystick::stopReplay(EmuTime::param time)
+void Joystick::stopReplay(EmuTime::param time) noexcept
 {
 	createEvent(time, calcState());
 }

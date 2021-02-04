@@ -5,7 +5,7 @@ using std::string;
 
 namespace openmsx {
 
-void StdioMessages::log(CliComm::LogLevel level, std::string_view message)
+void StdioMessages::log(CliComm::LogLevel level, std::string_view message) noexcept
 {
 	auto levelStr = CliComm::getLevelStrings();
 	((level == CliComm::INFO) ? std::cout : std::cerr) <<
@@ -14,7 +14,7 @@ void StdioMessages::log(CliComm::LogLevel level, std::string_view message)
 }
 
 void StdioMessages::update(CliComm::UpdateType /*type*/, std::string_view /*machine*/,
-                           std::string_view /*name*/, std::string_view /*value*/)
+                           std::string_view /*name*/, std::string_view /*value*/) noexcept
 {
 	// ignore
 }

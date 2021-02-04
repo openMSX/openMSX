@@ -47,7 +47,7 @@ void StateChangeDistributor::distributeNew(const EventPtr& event)
 	if (isReplaying()) {
 		stopReplay(event->getTime());
 	}
-	distribute(event);
+	distribute(event); // might throw, ok
 }
 
 void StateChangeDistributor::distributeReplay(const EventPtr& event)
@@ -69,7 +69,7 @@ void StateChangeDistributor::distribute(const EventPtr& event)
 		if (isRegistered(l)) {
 			// it's possible the listener unregistered itself
 			// (but is still present in the copy)
-			l->signalStateChange(event);
+			l->signalStateChange(event); // might throw
 		}
 	}
 }

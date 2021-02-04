@@ -128,11 +128,11 @@ private:
 	[[nodiscard]] EmuTime::param getCurrentTime() const { return syncNewSnapshot.getCurrentTime(); }
 
 	// EventListener
-	int signalEvent(const std::shared_ptr<const Event>& event) override;
+	int signalEvent(const std::shared_ptr<const Event>& event) noexcept override;
 
 	// StateChangeRecorder
 	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
-	void stopReplay(EmuTime::param time) override;
+	void stopReplay(EmuTime::param time) noexcept override;
 
 private:
 	MSXMotherBoard& motherBoard;

@@ -819,7 +819,7 @@ void ReverseManager::execInputEvent()
 	}
 }
 
-int ReverseManager::signalEvent(const shared_ptr<const Event>& event)
+int ReverseManager::signalEvent(const shared_ptr<const Event>& event) noexcept
 {
 	(void)event;
 	assert(event->getType() == OPENMSX_TAKE_REVERSE_SNAPSHOT);
@@ -901,7 +901,7 @@ void ReverseManager::signalStopReplay(EmuTime::param time)
 	reRecordCount--;
 }
 
-void ReverseManager::stopReplay(EmuTime::param time)
+void ReverseManager::stopReplay(EmuTime::param time) noexcept
 {
 	if (isReplaying()) {
 		// if we're replaying, stop it and erase remainder of event log

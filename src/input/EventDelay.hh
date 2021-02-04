@@ -39,7 +39,7 @@ private:
 	using EventPtr = std::shared_ptr<const Event>;
 
 	// EventListener
-	int signalEvent(const EventPtr& event) override;
+	int signalEvent(const EventPtr& event) noexcept override;
 
 	// Schedulable
 	void executeUntil(EmuTime::param time) override;

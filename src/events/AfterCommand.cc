@@ -427,7 +427,7 @@ struct AfterInputEventPred {
 	AfterCommand::EventPtr event;
 };
 
-int AfterCommand::signalEvent(const std::shared_ptr<const Event>& event)
+int AfterCommand::signalEvent(const std::shared_ptr<const Event>& event) noexcept
 {
 	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
 		executeEvents<OPENMSX_FINISH_FRAME_EVENT>();

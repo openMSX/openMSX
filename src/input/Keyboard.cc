@@ -402,7 +402,7 @@ void Keyboard::transferHostKeyMatrix(const Keyboard& source)
  *  OPENMSX_KEY_UP_EVENT
  */
 void Keyboard::signalMSXEvent(const shared_ptr<const Event>& event,
-                              EmuTime::param time)
+                              EmuTime::param time) noexcept
 {
 	if (event->getType() == one_of(OPENMSX_KEY_DOWN_EVENT, OPENMSX_KEY_UP_EVENT)) {
 		// Ignore possible console on/off events:
@@ -423,7 +423,7 @@ void Keyboard::signalStateChange(const shared_ptr<StateChange>& event)
 	keysChanged = true; // do ghosting at next getKeys()
 }
 
-void Keyboard::stopReplay(EmuTime::param time)
+void Keyboard::stopReplay(EmuTime::param time) noexcept
 {
 	for (auto [row, hkm] : enumerate(hostKeyMatrix)) {
 		changeKeyMatrixEvent(time, byte(row), hkm);
@@ -1328,7 +1328,7 @@ Keyboard::CapsLockAligner::~CapsLockAligner()
 	eventDistributor.unregisterEventListener(OPENMSX_BOOT_EVENT,  *this);
 }
 
-int Keyboard::CapsLockAligner::signalEvent(const shared_ptr<const Event>& event)
+int Keyboard::CapsLockAligner::signalEvent(const shared_ptr<const Event>& event) noexcept
 {
 	if (!SANE_CAPSLOCK_BEHAVIOR) {
 		// don't even try

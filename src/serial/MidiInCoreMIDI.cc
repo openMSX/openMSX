@@ -144,7 +144,7 @@ void MidiInCoreMIDI::signal(EmuTime::param time)
 }
 
 // EventListener
-int MidiInCoreMIDI::signalEvent(const std::shared_ptr<const Event>& /*event*/)
+int MidiInCoreMIDI::signalEvent(const std::shared_ptr<const Event>& /*event*/) noexcept
 {
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());
@@ -270,7 +270,7 @@ void MidiInCoreMIDIVirtual::signal(EmuTime::param time)
 
 // EventListener
 int MidiInCoreMIDIVirtual::signalEvent(
-		const std::shared_ptr<const Event>& /*event*/)
+		const std::shared_ptr<const Event>& /*event*/) noexcept
 {
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());

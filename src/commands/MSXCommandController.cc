@@ -150,7 +150,7 @@ Interpreter& MSXCommandController::getInterpreter()
 }
 
 void MSXCommandController::signalMSXEvent(
-	const std::shared_ptr<const Event>& event, EmuTime::param /*time*/)
+	const std::shared_ptr<const Event>& event, EmuTime::param /*time*/) noexcept
 {
 	if (event->getType() != OPENMSX_MACHINE_ACTIVATED) return;
 

@@ -94,7 +94,7 @@ void Paddle::write(byte value, EmuTime::param time)
 
 // MSXEventListener
 void Paddle::signalMSXEvent(const std::shared_ptr<const Event>& event,
-                            EmuTime::param time)
+                            EmuTime::param time) noexcept
 {
 	if (event->getType() != OPENMSX_MOUSE_MOTION_EVENT) return;
 
@@ -116,7 +116,7 @@ void Paddle::signalStateChange(const std::shared_ptr<StateChange>& event)
 	analogValue = std::min(std::max(newAnalog, 0), 255);
 }
 
-void Paddle::stopReplay(EmuTime::param /*time*/)
+void Paddle::stopReplay(EmuTime::param /*time*/) noexcept
 {
 }
 

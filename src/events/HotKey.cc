@@ -366,7 +366,7 @@ void HotKey::executeRT()
 	if (lastEvent) executeEvent(lastEvent);
 }
 
-int HotKey::signalEvent(const EventPtr& event)
+int HotKey::signalEvent(const EventPtr& event) noexcept
 {
 	if (lastEvent != event) {
 		// If the newly received event is different from the repeating

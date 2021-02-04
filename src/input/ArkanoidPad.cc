@@ -118,7 +118,7 @@ void ArkanoidPad::write(byte value, EmuTime::param /*time*/)
 
 // MSXEventListener
 void ArkanoidPad::signalMSXEvent(const shared_ptr<const Event>& event,
-                                 EmuTime::param time)
+                                 EmuTime::param time) noexcept
 {
 	switch (event->getType()) {
 	case OPENMSX_MOUSE_MOTION_EVENT: {
@@ -167,7 +167,7 @@ void ArkanoidPad::signalStateChange(const shared_ptr<StateChange>& event)
 	if (as->getRelease()) buttonStatus |=  2;
 }
 
-void ArkanoidPad::stopReplay(EmuTime::param time)
+void ArkanoidPad::stopReplay(EmuTime::param time) noexcept
 {
 	// TODO Get actual mouse button(s) state. Is it worth the trouble?
 	int delta = POS_CENTER - dialpos;

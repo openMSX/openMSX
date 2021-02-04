@@ -108,7 +108,7 @@ void KeyJoystick::write(byte value, EmuTime::param /*time*/)
 
 // MSXEventListener
 void KeyJoystick::signalMSXEvent(const shared_ptr<const Event>& event,
-                                 EmuTime::param time)
+                                 EmuTime::param time) noexcept
 {
 	byte press = 0;
 	byte release = 0;
@@ -156,7 +156,7 @@ void KeyJoystick::signalStateChange(const shared_ptr<StateChange>& event)
 	status = (status & ~kjs->getPress()) | kjs->getRelease();
 }
 
-void KeyJoystick::stopReplay(EmuTime::param time)
+void KeyJoystick::stopReplay(EmuTime::param time) noexcept
 {
 	// TODO read actual host key state
 	byte newStatus = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |

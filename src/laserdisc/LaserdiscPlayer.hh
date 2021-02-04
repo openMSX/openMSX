@@ -143,11 +143,11 @@ private:
 	[[nodiscard]] EmuTime::param getCurrentTime() const { return syncAck.getCurrentTime(); }
 
 	// EventListener
-	int signalEvent(const std::shared_ptr<const Event>& event) override;
+	int signalEvent(const std::shared_ptr<const Event>& event) noexcept override;
 
 	// VideoSystemChangeListener interface:
-	void preVideoSystemChange() override;
-	void postVideoSystemChange() override;
+	void preVideoSystemChange() noexcept override;
+	void postVideoSystemChange() noexcept override;
 
 	MSXMotherBoard& motherBoard;
 	PioneerLDControl& ldControl;

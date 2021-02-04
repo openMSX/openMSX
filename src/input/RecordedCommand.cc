@@ -79,7 +79,7 @@ void RecordedCommand::signalStateChange(const std::shared_ptr<StateChange>& even
 	}
 }
 
-void RecordedCommand::stopReplay(EmuTime::param /*time*/)
+void RecordedCommand::stopReplay(EmuTime::param /*time*/) noexcept
 {
 	// nothing
 }

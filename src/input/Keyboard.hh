@@ -70,10 +70,10 @@ public:
 private:
 	// MSXEventListener
 	void signalMSXEvent(const std::shared_ptr<const Event>& event,
-	                    EmuTime::param time) override;
+	                    EmuTime::param time) noexcept override;
 	// StateChangeListener
 	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
-	void stopReplay(EmuTime::param time) override;
+	void stopReplay(EmuTime::param time) noexcept override;
 
 	// Schedulable
 	void executeUntil(EmuTime::param time) override;
@@ -173,7 +173,7 @@ private:
 
 	private:
 		// EventListener
-		int signalEvent(const std::shared_ptr<const Event>& event) override;
+		int signalEvent(const std::shared_ptr<const Event>& event) noexcept override;
 
 		// Schedulable
 		void executeUntil(EmuTime::param time) override;

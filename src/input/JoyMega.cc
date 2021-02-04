@@ -224,7 +224,7 @@ unsigned JoyMega::calcInitialState()
 }
 
 // MSXEventListener
-void JoyMega::signalMSXEvent(const shared_ptr<const Event>& event, EmuTime::param time)
+void JoyMega::signalMSXEvent(const shared_ptr<const Event>& event, EmuTime::param time) noexcept
 {
 	const auto* joyEvent = dynamic_cast<const JoystickEvent*>(event.get());
 	if (!joyEvent) return;
@@ -319,7 +319,7 @@ void JoyMega::signalStateChange(const shared_ptr<StateChange>& event)
 	status = (status & ~js->getPress()) | js->getRelease();
 }
 
-void JoyMega::stopReplay(EmuTime::param time)
+void JoyMega::stopReplay(EmuTime::param time) noexcept
 {
 	createEvent(time, calcInitialState());
 }

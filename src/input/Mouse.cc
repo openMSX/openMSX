@@ -242,7 +242,7 @@ void Mouse::write(byte value, EmuTime::param time)
 
 
 // MSXEventListener
-void Mouse::signalMSXEvent(const shared_ptr<const Event>& event, EmuTime::param time)
+void Mouse::signalMSXEvent(const shared_ptr<const Event>& event, EmuTime::param time) noexcept
 {
 	switch (event->getType()) {
 	case OPENMSX_MOUSE_MOTION_EVENT: {
@@ -323,7 +323,7 @@ void Mouse::signalStateChange(const shared_ptr<StateChange>& event)
 	status = (status & ~ms->getPress()) | ms->getRelease();
 }
 
-void Mouse::stopReplay(EmuTime::param time)
+void Mouse::stopReplay(EmuTime::param time) noexcept
 {
 	// TODO read actual host mouse button state
 	int dx = 0 - curxrel;

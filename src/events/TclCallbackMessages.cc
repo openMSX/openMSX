@@ -21,7 +21,7 @@ TclCallbackMessages::~TclCallbackMessages()
 	ptr.release();
 }
 
-void TclCallbackMessages::log(CliComm::LogLevel level, std::string_view message)
+void TclCallbackMessages::log(CliComm::LogLevel level, std::string_view message) noexcept
 {
 	auto levelStr = CliComm::getLevelStrings();
 	messageCallback.execute(message, levelStr[level]);
@@ -29,7 +29,7 @@ void TclCallbackMessages::log(CliComm::LogLevel level, std::string_view message)
 
 void TclCallbackMessages::update(
 	CliComm::UpdateType /*type*/, std::string_view /*machine*/,
-	std::string_view /*name*/, std::string_view /*value*/)
+	std::string_view /*name*/, std::string_view /*value*/) noexcept
 {
 	// ignore
 }

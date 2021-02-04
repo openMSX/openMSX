@@ -625,7 +625,7 @@ void Reactor::update(const Setting& setting) noexcept
 }
 
 // EventListener
-int Reactor::signalEvent(const std::shared_ptr<const Event>& event)
+int Reactor::signalEvent(const std::shared_ptr<const Event>& event) noexcept
 {
 	auto type = event->getType();
 	if (type == OPENMSX_QUIT_EVENT) {
