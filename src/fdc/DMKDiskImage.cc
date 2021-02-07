@@ -27,7 +27,7 @@ constexpr unsigned IDAM_FLAGS_MASK = 0xC000;
 constexpr unsigned FLAG_MFM_SECTOR = 0x8000;
 
 
-[[nodiscard]] static constexpr bool isValidDmkHeader(const DmkHeader& header)
+[[nodiscard]] static /*constexpr*/ bool isValidDmkHeader(const DmkHeader& header)
 {
 	if (header.writeProtected != one_of(0x00, 0xff)) {
 		return false;

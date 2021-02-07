@@ -70,7 +70,7 @@ private:
 	using Events = std::vector<std::shared_ptr<StateChange>>;
 
 	struct ReverseHistory {
-		void swap(ReverseHistory& other);
+		void swap(ReverseHistory& other) noexcept;
 		void clear();
 		[[nodiscard]] unsigned getNextSeqNum(EmuTime::param time) const;
 
