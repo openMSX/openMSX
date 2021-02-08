@@ -130,7 +130,7 @@ Sha1Sum::Sha1Sum(std::string_view hex)
 
 #else
 
-[[nodiscard]] static constexpr unsigned hex(char x, const char* str)
+[[nodiscard]] static /*constexpr*/ unsigned hex(char x, const char* str)
 {
 	if (('0' <= x) && (x <= '9')) return x - '0';
 	if (('a' <= x) && (x <= 'f')) return x - 'a' + 10;

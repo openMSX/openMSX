@@ -103,7 +103,7 @@ SERIALIZE_CLASS_VERSION(Replay, 4);
 
 // struct ReverseHistory
 
-void ReverseManager::ReverseHistory::swap(ReverseHistory& other)
+void ReverseManager::ReverseHistory::swap(ReverseHistory& other) noexcept
 {
 	std::swap(chunks, other.chunks);
 	std::swap(events, other.events);

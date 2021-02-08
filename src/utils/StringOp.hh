@@ -156,7 +156,7 @@ namespace StringOp
 		    (ec == std::errc()) && (p == e)) {
 			return result;
 		}
-		return {};
+		return std::nullopt;
 	}
 
 	template<typename T>
