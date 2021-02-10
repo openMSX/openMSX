@@ -1386,6 +1386,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\SVIPSG.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\SVIFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\ColecoJoystickIO.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\SpeedManager.cc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(OpenMSXSrcDir)\cassette\CasImage.hh">
@@ -2938,6 +2939,8 @@
     <None Include="$(OpenMSXSrcDir)\memory\RomColecoMegaCart.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
+    <None Include="$(OpenMSXSrcDir)\SpeedManager.hh" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(OpenMSXSrcDir)\resource\openmsx.rc">

@@ -54,6 +54,20 @@ int setenv(const char *name, const char *value, int overwrite)
 }
 #endif
 
+#ifdef _WIN32
+// enable console output on Windows
+void EnableConsoleOutput()
+{
+    if (AttachConsole(ATTACH_PARENT_PROCESS))
+    {
+        FILE* pCout;
+        freopen_s(&pCout, "CONOUT$", "w", stdout);
+        std::cout.clear();
+        std::wcout.clear();
+    }
+}
+#endif
+
 static void initializeSDL()
 {
 	int flags = 0;
@@ -97,6 +111,10 @@ static int main(int argc, char **argv)
 	std::string msg = Date::toString(time(nullptr)) + ": starting openMSX";
 	std::cout << msg << '\n';
 	std::cerr << msg << '\n';
+#endif
+
+#ifdef _WIN32
+    EnableConsoleOutput();
 #endif
 
 	try {
