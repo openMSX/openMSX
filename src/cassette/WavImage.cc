@@ -34,7 +34,7 @@ private:
 class WavImageCache
 {
 public:
-	struct Entry {
+	struct WavInfo {
 		WavData wav;
 		Sha1Sum sum;
 	};
@@ -43,7 +43,7 @@ public:
 	WavImageCache& operator=(const WavImageCache&) = delete;
 
 	static WavImageCache& instance();
-	const Entry& get(const Filename& filename, FilePool& filePool);
+	const WavInfo& get(const Filename& filename, FilePool& filePool);
 	void release(const WavData* wav);
 
 private:
@@ -51,7 +51,11 @@ private:
 	~WavImageCache();
 
 	// typically contains very few elements, but values need stable addresses
-	std::map<std::string, std::pair<Entry, unsigned>> cache;
+	struct Entry {
+		unsigned refCount = 0;
+		WavInfo info;
+	};
+	std::map<std::string, Entry> cache;
 };
 
 WavImageCache::~WavImageCache()
@@ -65,35 +69,32 @@ WavImageCache& WavImageCache::instance()
 	return wavImageCache;
 }
 
-const WavImageCache::Entry& WavImageCache::get(const Filename& filename, FilePool& filePool)
+const WavImageCache::WavInfo& WavImageCache::get(const Filename& filename, FilePool& filePool)
 {
 	// Reading file or parsing as .wav may throw, so only create cache
 	// entry after all went well.
-	if (auto it = cache.find(filename.getResolved());
-	    it != cache.end()) {
-		auto& [entry, count] = it->second;
-		++count; // increase reference count
-		return entry;
+	auto it = cache.find(filename.getResolved());
+	if (it == cache.end()) {
+		File file(filename);
+		Entry entry;
+		entry.info.sum = filePool.getSha1Sum(file);
+		entry.info.wav = WavData(std::move(file), DCFilter{});
+		it = cache.try_emplace(filename.getResolved(), std::move(entry)).first;
 	}
+	auto& entry = it->second;
+	++entry.refCount;
+	return entry.info;
 
-	File file(filename);
-	Entry entry;
-	entry.sum = filePool.getSha1Sum(file);
-	entry.wav = WavData(std::move(file), DCFilter{});
-	unsigned count = 1;
-	auto [it, inserted] = cache.try_emplace(filename.getResolved(), std::move(entry), count);
-	assert(inserted);
-	return it->second.first;
 }
 
 void WavImageCache::release(const WavData* wav)
 {
 	// cache contains very few entries, so linear search is ok
-	auto it = ranges::find(cache, wav, [](auto& pr) { return &pr.second.first.wav; });
+	auto it = ranges::find(cache, wav, [](auto& pr) { return &pr.second.info.wav; });
 	assert(it != end(cache));
-	auto& count = it->second.second;
-	--count; // decrease reference count
-	if (count == 0) {
+	auto& entry = it->second;
+	--entry.refCount; // decrease reference count
+	if (entry.refCount == 0) {
 		cache.erase(it);
 	}
 }
