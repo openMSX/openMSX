@@ -4,7 +4,6 @@
 #include "EmuTime.hh"
 #include "DivModBySame.hh"
 #include <cassert>
-#include <utility>
 
 namespace openmsx {
 
@@ -61,7 +60,11 @@ public:
 	  *   double frac = d - i;
 	  *   return {i, frac};
 	  */
-	[[nodiscard]] std::pair<unsigned, float> getTicksTillAsIntFloat(EmuTime::param e) const {
+	struct IntegralFractional {
+		unsigned integral;
+		float fractional;
+	};
+	[[nodiscard]] IntegralFractional getTicksTillAsIntFloat(EmuTime::param e) const {
 		assert(e.time >= lastTick.time);
 		auto dur = e.time - lastTick.time;
 		auto [q, r] = divmod.divMod(dur);
