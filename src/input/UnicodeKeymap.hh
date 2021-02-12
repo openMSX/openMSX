@@ -4,7 +4,6 @@
 #include "openmsx.hh"
 #include <cassert>
 #include <string_view>
-#include <utility>
 #include <vector>
 
 namespace openmsx {
