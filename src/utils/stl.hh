@@ -20,48 +20,6 @@ struct identity {
 };
 
 
-// Compare the N-th element of two tuples using a custom comparison functor.
-// Also provides overloads to compare the N-the element of a tuple with a
-// single value (of a compatible type).
-// ATM the functor cannot take constructor arguments, possibly refactor this in
-// the future.
-template<int N, typename CMP> struct CmpTupleElement
-{
-	template<typename... Args>
-	[[nodiscard]] constexpr bool operator()(const std::tuple<Args...>& x, const std::tuple<Args...>& y) const {
-		return cmp(std::get<N>(x), std::get<N>(y));
-	}
-
-	template<typename T, typename... Args>
-	[[nodiscard]] constexpr bool operator()(const T& x, const std::tuple<Args...>& y) const {
-		return cmp(x, std::get<N>(y));
-	}
-
-	template<typename T, typename... Args>
-	[[nodiscard]] constexpr bool operator()(const std::tuple<Args...>& x, const T& y) const {
-		return cmp(std::get<N>(x), y);
-	}
-
-	template<typename T1, typename T2>
-	[[nodiscard]] constexpr bool operator()(const std::pair<T1, T2>& x, const std::pair<T1, T2>& y) const {
-		return cmp(std::get<N>(x), std::get<N>(y));
-	}
-
-	template<typename T, typename T1, typename T2>
-	[[nodiscard]] constexpr bool operator()(const T& x, const std::pair<T1, T2>& y) const {
-		return cmp(x, std::get<N>(y));
-	}
-
-	template<typename T, typename T1, typename T2>
-	[[nodiscard]] constexpr bool operator()(const std::pair<T1, T2>& x, const T& y) const {
-		return cmp(std::get<N>(x), y);
-	}
-
-private:
-	CMP cmp;
-};
-
-
 /** Check if a range contains a given value, using linear search.
   * Equivalent to 'find(first, last, val) != last', though this algorithm
   * is more convenient to use.

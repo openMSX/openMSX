@@ -38,8 +38,6 @@ namespace openmsx {
 
 // class CommandLineParser
 
-using CmpFileTypes = CmpTupleElement<0, StringOp::caseless>;
-
 CommandLineParser::CommandLineParser(Reactor& reactor_)
 	: reactor(reactor_)
 	, msxRomCLI(*this)
@@ -76,7 +74,7 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 
 	// At this point all options and file-types must be registered
 	ranges::sort(options, {}, &OptionData::name);
-	ranges::sort(fileTypes, CmpFileTypes());
+	ranges::sort(fileTypes, StringOp::caseless{}, &FileTypeData::extension);
 }
 
 void CommandLineParser::registerOption(
@@ -89,7 +87,7 @@ void CommandLineParser::registerFileType(
 	std::initializer_list<string_view> extensions, CLIFileType& cliFileType)
 {
 	append(fileTypes, view::transform(extensions,
-		[&](auto& ext) { return std::pair(ext, &cliFileType); }));
+		[&](auto& ext) { return FileTypeData{ext, &cliFileType}; }));
 }
 
 bool CommandLineParser::parseOption(
@@ -133,12 +131,13 @@ CLIFileType* CommandLineParser::getFileTypeHandlerForFileName(string_view filena
 		}
 		extension.remove_prefix(1);
 
-		auto it = ranges::lower_bound(fileTypes, extension, CmpFileTypes());
+		auto it = ranges::lower_bound(fileTypes, extension, StringOp::caseless{},
+		                              &FileTypeData::extension);
 		StringOp::casecmp cmp;
-		if ((it == end(fileTypes)) || !cmp(it->first, extension)) {
+		if ((it == end(fileTypes)) || !cmp(it->extension, extension)) {
 			return nullptr; // unknown extension
 		}
-		return it->second;
+		return it->fileType;
 	};
 
 	// First try the fileName as we get it from the commandline. This may
@@ -476,8 +475,8 @@ void CommandLineParser::HelpOption::parseOption(
 	        "  this is the list of supported file types:\n";
 
 	itemMap.clear();
-	for (const auto& [ext, data] : parser.fileTypes) {
-		itemMap[data->fileTypeHelp()].push_back(ext);
+	for (const auto& [extension, fileType] : parser.fileTypes) {
+		itemMap[fileType->fileTypeHelp()].push_back(extension);
 	}
 	printItemMap(itemMap);
 

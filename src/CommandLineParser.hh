@@ -18,7 +18,6 @@
 #include <string>
 #include <string_view>
 #include <vector>
-#include <utility>
 
 #if COMPONENT_LASERDISC
 #include "LaserdiscPlayerCLI.hh"
@@ -76,6 +75,10 @@ private:
 		ParsePhase phase;
 		unsigned length; // length in parameters
 	};
+	struct FileTypeData {
+		std::string_view extension;
+		CLIFileType* fileType;
+	};
 
 	[[nodiscard]] bool parseFileName(const std::string& arg,
 	                   span<std::string>& cmdLine);
@@ -86,7 +89,7 @@ private:
 
 private:
 	std::vector<OptionData> options;
-	std::vector<std::pair<std::string_view, CLIFileType*>> fileTypes;
+	std::vector<FileTypeData> fileTypes;
 
 	Reactor& reactor;
 
