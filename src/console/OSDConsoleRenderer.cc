@@ -487,7 +487,7 @@ void OSDConsoleRenderer::drawConsoleText(OutputSurface& output, byte visibility)
 	std::string_view::size_type idx = it - begin(text);
 	unsigned chunkIdx = 1;
 	const auto& chunks0 = lines[lineIdx].getChunks();
-	while ((chunkIdx < chunks0.size()) && (chunks0[chunkIdx].second <= idx)) {
+	while ((chunkIdx < chunks0.size()) && (chunks0[chunkIdx].pos <= idx)) {
 		++chunkIdx;
 	}
 
@@ -502,7 +502,7 @@ void OSDConsoleRenderer::drawConsoleText(OutputSurface& output, byte visibility)
 				auto e = it;
 				auto nextColorIt = (chunkIdx == chunks.size())
 				                  ? endIt
-				                  : begin(text) + chunks[chunkIdx].second;
+				                  : begin(text) + chunks[chunkIdx].pos;
 				auto maxIt = std::min(endIt, nextColorIt);
 				while (remainingColumns && (e < maxIt)) {
 					utf8::unchecked::next(e);
@@ -510,7 +510,7 @@ void OSDConsoleRenderer::drawConsoleText(OutputSurface& output, byte visibility)
 				}
 				//std::string_view subText(it, e); // c++20
 				std::string_view subText(&*it, e - it);
-				auto rgb = chunks[chunkIdx - 1].first;
+				auto rgb = chunks[chunkIdx - 1].rgb;
 				auto cursorX = columns - startColumn;
 				drawText(output, subText, cursorX, cursorY, visibility, rgb);
 

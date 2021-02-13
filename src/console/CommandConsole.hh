@@ -51,7 +51,11 @@ public:
 
 private:
 	std::string line;
-	std::vector<std::pair<uint32_t, std::string_view::size_type>> chunks; // [rgb, pos]
+	struct Chunk {
+		uint32_t rgb;
+		std::string_view::size_type pos;
+	};
+	std::vector<Chunk> chunks;
 };
 
 

@@ -40,7 +40,7 @@ ConsoleLine::ConsoleLine(string line_, uint32_t rgb)
 
 void ConsoleLine::addChunk(string_view text, uint32_t rgb)
 {
-	chunks.emplace_back(rgb, line.size());
+	chunks.emplace_back(Chunk{rgb, line.size()});
 	line.append(text.data(), text.size());
 }
 
@@ -52,16 +52,16 @@ size_t ConsoleLine::numChars() const
 uint32_t ConsoleLine::chunkColor(size_t i) const
 {
 	assert(i < chunks.size());
-	return chunks[i].first;
+	return chunks[i].rgb;
 }
 
 string_view ConsoleLine::chunkText(size_t i) const
 {
 	assert(i < chunks.size());
-	auto pos = chunks[i].second;
+	auto pos = chunks[i].pos;
 	auto len = ((i + 1) == chunks.size())
 	         ? string_view::npos
-	         : chunks[i + 1].second - pos;
+	         : chunks[i + 1].pos - pos;
 	return string_view(line).substr(pos, len);
 }
 
