@@ -254,8 +254,7 @@ bool SoundDevice::mixChannels(float* dataOut, unsigned samples)
 				auto amp = getAmplificationFactor();
 				writer[i]->write(
 					bufs[i], stereo, samples,
-					amp.first,
-					amp.second);
+					amp.left, amp.right);
 			} else {
 				writer[i]->writeSilence(stereo, samples);
 			}

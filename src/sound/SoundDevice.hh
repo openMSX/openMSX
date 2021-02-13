@@ -47,7 +47,11 @@ public:
 	  * The influence of the different volume settings is not part of this
 	  * factor.
 	  */
-	[[nodiscard]] std::pair<float, float> getAmplificationFactor() const {
+	struct AmplificationFactors {
+		float left;
+		float right;
+	};
+	[[nodiscard]] AmplificationFactors getAmplificationFactor() const {
 		auto f = getAmplificationFactorImpl();
 		return {f * softwareVolumeLeft, f * softwareVolumeRight};
 	}
