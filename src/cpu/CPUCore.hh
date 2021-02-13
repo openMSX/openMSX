@@ -45,6 +45,11 @@ enum class ExecIRQ {
 	NONE, // about to execute regular instruction
 };
 
+struct CacheLines {
+	const byte** read;
+	      byte** write;
+};
+
 template<typename CPU_POLICY>
 class CPUCore final : public CPUBase, public CPURegs, public CPU_POLICY
 {
@@ -79,8 +84,8 @@ public:
 	void wait(EmuTime::param time);
 	EmuTime waitCycles(EmuTime::param time, unsigned cycles);
 	void setNextSyncPoint(EmuTime::param time);
-	[[nodiscard]] auto getCacheLines() {
-		return std::pair(readCacheLine, writeCacheLine);
+	[[nodiscard]] CacheLines getCacheLines() {
+		return {readCacheLine, writeCacheLine};
 	}
 	[[nodiscard]] bool isM1Cycle(unsigned address) const;
 

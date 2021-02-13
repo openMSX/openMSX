@@ -121,8 +121,8 @@ void MSXCPU::execute(bool fastForward)
 		auto rCache = r800->getCacheLines();
 		auto from = z80Active ? rCache : zCache;
 		auto to   = z80Active ? zCache : rCache;
-		std::copy_n(from.first,  CacheLine::NUM, to.first );
-		std::copy_n(from.second, CacheLine::NUM, to.second);
+		std::copy_n(from.read,  CacheLine::NUM, to.read );
+		std::copy_n(from.write, CacheLine::NUM, to.write);
 	}
 	z80Active ? z80 ->execute(fastForward)
 	          : r800->execute(fastForward);
@@ -220,8 +220,8 @@ void MSXCPU::setRWCache(unsigned start, unsigned size, const byte* rData, byte* 
 		if (slot == slots[page]) {
 			return z80Active ? z80->getCacheLines() : r800->getCacheLines();
 		} else {
-			return std::pair{slotReadLines [slot],
-			                 slotWriteLines[slot]};
+			return CacheLines{slotReadLines [slot],
+			                  slotWriteLines[slot]};
 		}
 	}();
 
