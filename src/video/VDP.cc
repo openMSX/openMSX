@@ -359,8 +359,9 @@ void VDP::execVSync(EmuTime::param time)
 
 	if (isFastBlinkEnabled()) {
 		// adjust blinkState and blinkCount for next frame
-		std::tie(blinkState, blinkCount) =
-			calculateLineBlinkState(getLinesPerFrame());
+		auto next = calculateLineBlinkState(getLinesPerFrame());
+		blinkState = next.state;
+		blinkCount = next.count;
 	}
 
 	// Finish the previous frame, because access-slot calculations work within a frame.

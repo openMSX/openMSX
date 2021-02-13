@@ -410,7 +410,7 @@ public:
 		if (isFastBlinkEnabled()) {
 			// EO and IL not considered in this mode
 			auto p = calculateLineBlinkState(line);
-			return (!p.first) << 8;
+			return (!p.state) << 8;
 		} else {
 			return getEvenOddMask();
 		}
@@ -420,7 +420,11 @@ public:
 	  * (The actual 'blinkState' and 'blinkCount' variables represent the values
 	  * for line 0 and remain fixed for the duration of the frame.
 	  */
-	[[nodiscard]] inline std::pair<bool, int> calculateLineBlinkState(unsigned line) const {
+	struct BlinkStateCount {
+		bool state;
+		int count;
+	};
+	[[nodiscard]] BlinkStateCount calculateLineBlinkState(unsigned line) const {
 		assert(isFastBlinkEnabled());
 
 		if (blinkCount == 0) { // not changing
