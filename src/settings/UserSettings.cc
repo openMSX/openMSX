@@ -168,7 +168,7 @@ UserSettings::Info UserSettings::Cmd::createEnum(span<const TclObject> tokens)
 	int i = 0;
 	auto map = to_vector(view::transform(list, [&](const auto& s) {
 		if (s == initStr) initVal = i;
-		return std::pair{string(s), i++};
+		return EnumSettingBase::MapEntry{string(s), i++};
 	}));
 	if (initVal == -1) {
 		throw CommandException(

@@ -115,7 +115,7 @@ private:
 template<typename Iterator, typename UnaryOp> class TransformIterator
 {
 public:
-	using return_type       = decltype(std::declval<UnaryOp>()(*std::declval<Iterator>()));
+	using return_type       = std::invoke_result_t<UnaryOp, decltype(*std::declval<Iterator>())>;
 	using value_type        = std::remove_reference_t<return_type>;
 	using reference         = value_type;
 	using pointer           = value_type*;
@@ -132,7 +132,7 @@ public:
 
 	// InputIterator, ForwardIterator
 
-	[[nodiscard]] constexpr return_type operator*() const { return op()(*it()); }
+	[[nodiscard]] constexpr return_type operator*() const { return std::invoke(op(), *it()); }
 
 	// pointer operator->() const   not defined
 
@@ -272,7 +272,9 @@ public:
 	[[nodiscard]] constexpr auto front() const { return op()(range().front()); }
 	[[nodiscard]] constexpr auto back()  const { return op()(range().back()); }
 
-	[[nodiscard]] constexpr auto operator[](size_t idx) const { return op()(range()[idx]); }
+	[[nodiscard]] constexpr auto operator[](size_t idx) const {
+		return std::invoke(op(), range()[idx]);
+	}
 
 private:
 	std::tuple<Range, UnaryOp> storage;

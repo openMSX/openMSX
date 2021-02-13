@@ -364,7 +364,7 @@ void Reactor::createMachineSetting()
 	machines.reserve(names.size() + 1);
 	int count = 1;
 	append(machines, view::transform(names,
-		[&](auto& name) { return std::pair(std::move(name), count++); }));
+		[&](auto& name) { return EnumSettingBase::MapEntry(std::move(name), count++); }));
 	machines.emplace_back("C-BIOS_MSX2+", 0); // default machine
 
 	machineSetting = make_unique<EnumSetting<int>>(

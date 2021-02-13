@@ -11,29 +11,27 @@
 
 namespace openmsx {
 
-using Comp = CmpTupleElement<0, StringOp::caseless>;
-
-EnumSettingBase::EnumSettingBase(BaseMap&& map)
+EnumSettingBase::EnumSettingBase(Map&& map)
 	: baseMap(std::move(map))
 {
-	ranges::sort(baseMap, Comp());
+	ranges::sort(baseMap, StringOp::caseless{}, &MapEntry::name);
 }
 
 int EnumSettingBase::fromStringBase(std::string_view str) const
 {
-	auto it = ranges::lower_bound(baseMap, str, Comp());
+	auto it = ranges::lower_bound(baseMap, str, StringOp::caseless{}, &MapEntry::name);
 	StringOp::casecmp cmp;
-	if ((it == end(baseMap)) || !cmp(it->first, str)) {
+	if ((it == end(baseMap)) || !cmp(it->name, str)) {
 		throw CommandException("not a valid value: ", str);
 	}
-	return it->second;
+	return it->value;
 }
 
 std::string_view EnumSettingBase::toStringBase(int value) const
 {
-	for (const auto& [name, val] : baseMap) {
-		if (val == value) {
-			return name;
+	for (const auto& entry : baseMap) {
+		if (entry.value == value) {
+			return entry.name;
 		}
 	}
 	UNREACHABLE; return {};
@@ -41,7 +39,7 @@ std::string_view EnumSettingBase::toStringBase(int value) const
 
 std::vector<std::string_view> EnumSettingBase::getPossibleValues() const
 {
-	return to_vector<std::string_view>(view::keys(baseMap));
+	return to_vector<std::string_view>(view::transform(baseMap, &MapEntry::name));
 }
 
 void EnumSettingBase::additionalInfoBase(TclObject& result) const

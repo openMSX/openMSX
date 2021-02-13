@@ -13,10 +13,19 @@ class TclObject;
 // non-templatized base class
 class EnumSettingBase
 {
+public:
+	struct MapEntry {
+		template<typename Enum>
+		MapEntry(std::string_view name_, Enum value_)
+			: name(name_), value(static_cast<int>(value_)) {}
+
+		std::string name; // cannot be string_view because of the 'default_machine' setting
+		int value;
+	};
+	using Map = std::vector<MapEntry>;
 protected:
-	// cannot be string_view because of the 'default_machine' setting
-	using BaseMap = std::vector<std::pair<std::string, int>>;
-	explicit EnumSettingBase(BaseMap&& m);
+
+	explicit EnumSettingBase(Map&& m);
 
 	[[nodiscard]] int fromStringBase(std::string_view str) const;
 	[[nodiscard]] std::string_view toStringBase(int value) const;
@@ -26,13 +35,13 @@ protected:
 	void tabCompletionBase(std::vector<std::string>& tokens) const;
 
 private:
-	BaseMap baseMap;
+	Map baseMap;
 };
 
 template<typename T> class EnumSetting final : private EnumSettingBase, public Setting
 {
 public:
-	using Map = std::vector<std::pair<std::string, T>>;
+	using Map = EnumSettingBase::Map;
 
 	EnumSetting(CommandController& commandController, std::string_view name,
 	            static_string_view description, T initialValue,
@@ -59,8 +68,7 @@ EnumSetting<T>::EnumSetting(
 		CommandController& commandController_, std::string_view name,
 		static_string_view description_, T initialValue,
 		Map&& map, SaveSetting save_)
-	: EnumSettingBase(BaseMap(std::move_iterator(begin(map)),
-	                          std::move_iterator(end(map))))
+	: EnumSettingBase(std::move(map))
 	, Setting(commandController_, name, description_,
 	          TclObject(EnumSettingBase::toStringBase(static_cast<int>(initialValue))), save_)
 {
