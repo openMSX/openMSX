@@ -274,7 +274,8 @@ static constexpr auto sectorInfo = [] {
 
 MegaFlashRomSCCPlusSD::MegaFlashRomSCCPlusSD(const DeviceConfig& config)
 	: MSXDevice(config)
-	, flash("MFR SCC+ SD flash", sectorInfo, 0x207E, true, config)
+	, flash("MFR SCC+ SD flash", sectorInfo, 0x207E,
+	        AmdFlash::Addressing::BITS_12, config)
 	, scc("MFR SCC+ SD SCC-I", config, getCurrentTime(), SCC::SCC_Compatible)
 	, psg("MFR SCC+ SD PSG", DummyAY8910Periphery::instance(), config,
 	      getCurrentTime())

@@ -23,27 +23,27 @@ using std::string;
 namespace openmsx {
 
 AmdFlash::AmdFlash(const Rom& rom, span<const SectorInfo> sectorInfo_,
-                   word ID_, bool use12bitAddressing_,
-                   const DeviceConfig& config, bool load)
+                   word ID_, Addressing addressing_,
+                   const DeviceConfig& config, Load load)
 	: motherBoard(config.getMotherBoard())
 	, sectorInfo(std::move(sectorInfo_))
 	, size(sum(view::transform(sectorInfo, [](auto& i) { return i.size; })))
 	, ID(ID_)
-	, use12bitAddressing(use12bitAddressing_)
+	, addressing(addressing_)
 {
 	init(rom.getName() + "_flash", config, load, &rom);
 }
 
 AmdFlash::AmdFlash(const string& name, span<const SectorInfo> sectorInfo_,
-                   word ID_, bool use12bitAddressing_,
+                   word ID_, Addressing addressing_,
                    const DeviceConfig& config)
 	: motherBoard(config.getMotherBoard())
 	, sectorInfo(std::move(sectorInfo_))
 	, size(sum(view::transform(sectorInfo, [](auto& i) { return i.size; })))
 	, ID(ID_)
-	, use12bitAddressing(use12bitAddressing_)
+	, addressing(addressing_)
 {
-	init(name, config, true, nullptr);
+	init(name, config, Load::NORMAL, nullptr);
 }
 
 [[nodiscard]] static bool sramEmpty(const SRAM& ram)
@@ -52,7 +52,7 @@ AmdFlash::AmdFlash(const string& name, span<const SectorInfo> sectorInfo_,
 	                      [&](auto i) { return ram[i] == 0xFF; });
 }
 
-void AmdFlash::init(const string& name, const DeviceConfig& config, bool load, const Rom* rom)
+void AmdFlash::init(const string& name, const DeviceConfig& config, Load load, const Rom* rom)
 {
 	assert(Math::ispow2(getSize()));
 
@@ -74,7 +74,7 @@ void AmdFlash::init(const string& name, const DeviceConfig& config, bool load, c
 
 	bool loaded = false;
 	if (writableSize) {
-		if (load) {
+		if (load == Load::NORMAL) {
 			ram = std::make_unique<SRAM>(
 				name, "flash rom",
 				writableSize, config, nullptr, &loaded);
@@ -222,7 +222,7 @@ byte AmdFlash::peek(unsigned address) const
 			return 0xFF;
 		}
 	} else {
-		if (use12bitAddressing) {
+		if (addressing == Addressing::BITS_12) {
 			// convert the address to the '11 bit case'
 			address >>= 1;
 		}
@@ -380,7 +380,7 @@ bool AmdFlash::partialMatch(size_t len, const byte* dataSeq) const
 	assert(len <= 5);
 	for (auto i : xrange(std::min(unsigned(len), cmdIdx))) {
 		// convert the address to the '11 bit case'
-		unsigned addr = use12bitAddressing ? cmd[i].addr >> 1 : cmd[i].addr;
+		unsigned addr = (addressing == Addressing::BITS_12) ? cmd[i].addr >> 1 : cmd[i].addr;
 		if (((addr & 0x7FF) != cmdAddr[addrSeq[i]]) ||
 		    (cmd[i].value != dataSeq[i])) {
 			return false;

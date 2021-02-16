@@ -73,7 +73,9 @@ RomManbow2::RomManbow2(const DeviceConfig& config, Rom&& rom_,
 			getName() + " PSG", DummyAY8910Periphery::instance(),
 			config, getCurrentTime())
 		: nullptr)
-	, flash(rom, getSectorInfo(type), type == ROM_RBSC_FLASH_KONAMI_SCC ? 0x01AD : 0x01A4, false, config)
+	, flash(rom, getSectorInfo(type),
+	        type == ROM_RBSC_FLASH_KONAMI_SCC ? 0x01AD : 0x01A4,
+		AmdFlash::Addressing::BITS_11, config)
 	, romBlockDebug(*this, bank, 0x4000, 0x8000, 13)
 {
 	powerUp(getCurrentTime());

@@ -47,7 +47,8 @@ static constexpr auto sectorInfo = [] {
 KonamiUltimateCollection::KonamiUltimateCollection(
 		const DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
-	, flash(rom, sectorInfo, 0x207E, true, config)
+	, flash(rom, sectorInfo, 0x207E,
+	        AmdFlash::Addressing::BITS_12, config)
 	, scc("KUC SCC", config, getCurrentTime(), SCC::SCC_Compatible)
 	, dac("KUC DAC", "Konami Ultimate Collection DAC", config)
 {

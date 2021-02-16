@@ -21,6 +21,15 @@ public:
 		unsigned size;
 		bool writeProtected;
 	};
+	enum class Addressing {
+		BITS_11,
+		BITS_12,
+	};
+	enum class Load {
+		NORMAL,
+		DONT, // don't load nor save modified flash content
+	};
+
 	/** Create AmdFlash with given configuration.
 	 * @param rom The initial content for this flash
 	 * @param sectorInfo
@@ -38,10 +47,10 @@ public:
 	 * @param load Load initial content (hack for 'Matra INK')
 	 */
 	AmdFlash(const Rom& rom, span<const SectorInfo> sectorInfo,
-	         word ID, bool use12bitAddressing,
-	         const DeviceConfig& config, bool load = true);
+	         word ID, Addressing addressing,
+	         const DeviceConfig& config, Load load = Load::NORMAL);
 	AmdFlash(const std::string& name, span<const SectorInfo> sectorInfo,
-	         word ID, bool use12bitAddressing,
+	         word ID, Addressing addressing,
 		 const DeviceConfig& config);
 	~AmdFlash();
 
@@ -75,7 +84,7 @@ public:
 	enum State { ST_IDLE, ST_IDENT };
 
 private:
-	void init(const std::string& name, const DeviceConfig& config, bool load, const Rom* rom);
+	void init(const std::string& name, const DeviceConfig& config, Load load, const Rom* rom);
 	struct GetSectorInfoResult { unsigned sector, sectorSize, offset; };
 	[[nodiscard]] GetSectorInfoResult getSectorInfo(unsigned address) const;
 
@@ -100,7 +109,7 @@ private:
 	const span<const SectorInfo> sectorInfo;
 	const unsigned size;
 	const word ID;
-	const bool use12bitAddressing;
+	const Addressing addressing;
 
 	static constexpr unsigned MAX_CMD_SIZE = 8;
 	AmdCmd cmd[MAX_CMD_SIZE];

@@ -14,8 +14,10 @@ static constexpr auto sectorInfo = [] {
 }();
 
 RomMatraInk::RomMatraInk(const DeviceConfig& config, Rom&& rom_)
-	: MSXRom(config, std::move(rom_))
-	, flash(rom, sectorInfo, 0x01A4, false, config, false) // don't load/save
+        : MSXRom(config, std::move(rom_))
+        , flash(rom, sectorInfo, 0x01A4,
+	        AmdFlash::Addressing::BITS_11, config,
+                AmdFlash::Load::DONT)
 {
 	reset(EmuTime::dummy());
 }

@@ -183,7 +183,8 @@ MegaFlashRomSCCPlus::MegaFlashRomSCCPlus(
 	, scc("MFR SCC+ SCC-I", config, getCurrentTime(), SCC::SCC_Compatible)
 	, psg("MFR SCC+ PSG", DummyAY8910Periphery::instance(), config,
 	      getCurrentTime())
-	, flash(rom, sectorInfo, 0x205B, false, config)
+	, flash(rom, sectorInfo, 0x205B,
+	        AmdFlash::Addressing::BITS_11, config)
 {
 	powerUp(getCurrentTime());
 

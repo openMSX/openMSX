@@ -64,7 +64,8 @@ static constexpr auto sectorInfo = [] {
 ReproCartridgeV2::ReproCartridgeV2(
 		const DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
-	, flash(rom, sectorInfo, 0x207E, true, config, false)
+	, flash(rom, sectorInfo, 0x207E,
+	        AmdFlash::Addressing::BITS_12, config)
 	, scc("MGCV2 SCC", config, getCurrentTime(), SCC::SCC_Compatible)
 	, psg0x10("MGCV2 PSG@0x10", DummyAY8910Periphery::instance(), config,
 	      getCurrentTime())
