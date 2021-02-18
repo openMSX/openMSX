@@ -46,11 +46,12 @@ public:
 	[[nodiscard]] CommandConsole& getCommandConsole() { return commandConsole; }
 
 	/** Redraw the display.
-	  * repaint() should only be called from the VideoSystem.
+	  * The repaintImpl() methods are for internal and VideoSystem/VisibleSurface use only.
 	  */
 	void repaint();
-	void repaint(OutputSurface& surface);
 	void repaintDelayed(uint64_t delta);
+	void repaintImpl();
+	void repaintImpl(OutputSurface& surface);
 
 	void addLayer(Layer& layer);
 	void removeLayer(Layer& layer);

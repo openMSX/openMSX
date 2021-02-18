@@ -176,7 +176,7 @@ Display::Layers::iterator Display::baseLayer()
 
 void Display::executeRT()
 {
-	videoSystem->repaint();
+	repaint();
 }
 
 int Display::signalEvent(const std::shared_ptr<const Event>& event) noexcept
@@ -184,7 +184,7 @@ int Display::signalEvent(const std::shared_ptr<const Event>& event) noexcept
 	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
 		const auto& ffe = checked_cast<const FinishFrameEvent&>(*event);
 		if (ffe.needRender()) {
-			videoSystem->repaint();
+			repaint();
 			reactor.getEventDistributor().distributeEvent(
 				std::make_shared<SimpleEvent>(
 					OPENMSX_FRAME_DRAWN_EVENT));
@@ -212,7 +212,7 @@ int Display::signalEvent(const std::shared_ptr<const Event>& event) noexcept
 		//  port discovers that the graphics context is gone.
 		// -When gaining the focus, this repaint does nothing as
 		//  the renderFrozen flag is still false
-		videoSystem->repaint();
+		repaint();
 		const auto& focusEvent = checked_cast<const FocusEvent&>(*event);
 		ad_printf("Setting renderFrozen to %d", !focusEvent.getGain());
 		renderFrozen = !focusEvent.getGain();
@@ -325,7 +325,7 @@ void Display::doRendererSwitch2()
 	}
 }
 
-void Display::repaint()
+void Display::repaintImpl()
 {
 	if (switchInProgress) {
 		// The checkRendererSwitch() method will queue a
@@ -343,7 +343,7 @@ void Display::repaint()
 	if (!renderFrozen) {
 		assert(videoSystem);
 		if (OutputSurface* surface = videoSystem->getOutputSurface()) {
-			repaint(*surface);
+			repaintImpl(*surface);
 			videoSystem->flush();
 		}
 	}
@@ -356,13 +356,20 @@ void Display::repaint()
 	frameDurations.addFront(duration);
 }
 
-void Display::repaint(OutputSurface& surface)
+void Display::repaintImpl(OutputSurface& surface)
 {
 	for (auto it = baseLayer(); it != end(layers); ++it) {
 		if ((*it)->getCoverage() != Layer::COVER_NONE) {
 			(*it)->paint(surface);
 		}
 	}
+}
+
+void Display::repaint()
+{
+	// Request a repaint from the VideoSystem. This may call repaintImpl()
+	// directly or for example defer to a signal callback on VisibleSurface.
+	videoSystem->repaint();
 }
 
 void Display::repaintDelayed(uint64_t delta)

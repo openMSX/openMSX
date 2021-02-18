@@ -229,7 +229,7 @@ void SDLVideoSystem::takeScreenShot(const std::string& filename, bool withOsd)
 		ScopedLayerHider hideConsole(*consoleLayer);
 		ScopedLayerHider hideOsd(*osdGuiLayer);
 		std::unique_ptr<OutputSurface> surf = screen->createOffScreenSurface();
-		display.repaint(*surf);
+		display.repaintImpl(*surf);
 		surf->saveScreenshot(filename);
 	}
 }
@@ -251,7 +251,8 @@ void SDLVideoSystem::showCursor(bool show)
 
 void SDLVideoSystem::repaint()
 {
-	display.repaint();
+	// With SDL we can simply repaint the display directly.
+	display.repaintImpl();
 }
 
 void SDLVideoSystem::resize()

@@ -75,6 +75,9 @@ public:
 	/** TODO */
 	[[nodiscard]] virtual OutputSurface* getOutputSurface() = 0;
 	virtual void showCursor(bool show) = 0;
+	
+	/** Requests a repaint of the output surface. An implementation might
+	 *  start a repaint directly, or trigger a queued rendering. */
 	virtual void repaint() = 0;
 
 protected:
