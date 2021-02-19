@@ -18,10 +18,10 @@ public:
 		LaserdiscPlayer& ld) override;
 #endif
 	void flush() override;
-	gl::ivec2 getMouseCoord() override;
+	[[nodiscard]] gl::ivec2 getMouseCoord() override;
 	[[nodiscard]] OutputSurface* getOutputSurface() override;
 	void showCursor(bool show) override;
-	bool getCursorEnabled() override;
+	[[nodiscard]] bool getCursorEnabled() override;
 	void repaint() override;
 };
 

@@ -75,13 +75,13 @@ public:
 
 	/** Returns the current mouse pointer coordinates.
 	  */
-	virtual gl::ivec2 getMouseCoord() = 0;
+	[[nodiscard]] virtual gl::ivec2 getMouseCoord() = 0;
 
 	/** TODO */
 	[[nodiscard]] virtual OutputSurface* getOutputSurface() = 0;
 	virtual void showCursor(bool show) = 0;
-	virtual bool getCursorEnabled() = 0;
-	
+	[[nodiscard]] virtual bool getCursorEnabled() = 0;
+
 	/** Requests a repaint of the output surface. An implementation might
 	 *  start a repaint directly, or trigger a queued rendering. */
 	virtual void repaint() = 0;

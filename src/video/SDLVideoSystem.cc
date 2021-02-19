@@ -258,7 +258,7 @@ void SDLVideoSystem::showCursor(bool show)
 
 bool SDLVideoSystem::getCursorEnabled()
 {
-	return (SDL_ShowCursor(SDL_QUERY) == SDL_DISABLE) ? false : true;
+	return SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE;
 }
 
 void SDLVideoSystem::repaint()
