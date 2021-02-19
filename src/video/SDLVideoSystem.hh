@@ -43,8 +43,10 @@ public:
 	void flush() override;
 	void takeScreenShot(const std::string& filename, bool withOsd) override;
 	void updateWindowTitle() override;
+	gl::ivec2 getMouseCoord() override;
 	[[nodiscard]] OutputSurface* getOutputSurface() override;
 	void showCursor(bool show) override;
+	bool getCursorEnabled() override;
 	void repaint() override;
 
 private:

@@ -239,6 +239,13 @@ void SDLVideoSystem::updateWindowTitle()
 	screen->updateWindowTitle();
 }
 
+gl::ivec2 SDLVideoSystem::getMouseCoord()
+{
+	int mouseX, mouseY;
+	SDL_GetMouseState(&mouseX, &mouseY);
+	return gl::ivec2(mouseX, mouseY);
+}
+
 OutputSurface* SDLVideoSystem::getOutputSurface()
 {
 	return screen.get();
@@ -247,6 +254,11 @@ OutputSurface* SDLVideoSystem::getOutputSurface()
 void SDLVideoSystem::showCursor(bool show)
 {
 	SDL_ShowCursor(show ? SDL_ENABLE : SDL_DISABLE);
+}
+
+bool SDLVideoSystem::getCursorEnabled()
+{
+	return (SDL_ShowCursor(SDL_QUERY) == SDL_DISABLE) ? false : true;
 }
 
 void SDLVideoSystem::repaint()

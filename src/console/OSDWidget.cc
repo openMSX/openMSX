@@ -1,6 +1,7 @@
 #include "OSDWidget.hh"
 #include "SDLOutputSurface.hh"
 #include "Display.hh"
+#include "VideoSystem.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "GLUtil.hh"
@@ -403,7 +404,8 @@ vec2 OSDWidget::transformReverse(const OutputSurface& output, vec2 trPos) const
 
 vec2 OSDWidget::getMouseCoord() const
 {
-	if (SDL_ShowCursor(SDL_QUERY) == SDL_DISABLE) {
+	auto& videoSystem = getDisplay().getVideoSystem();
+	if (!videoSystem.getCursorEnabled()) {
 		// Host cursor is not visible. Return dummy mouse coords for
 		// the OSD cursor position.
 		// The reason for doing this is that otherwise (e.g. when using
@@ -428,11 +430,7 @@ vec2 OSDWidget::getMouseCoord() const
 			"Can't get mouse coordinates: no window visible");
 	}
 
-	int mouseX, mouseY;
-	SDL_GetMouseState(&mouseX, &mouseY);
-
-	vec2 out = transformReverse(*output, vec2(mouseX, mouseY));
-
+	vec2 out = transformReverse(*output, vec2(videoSystem.getMouseCoord()));
 	vec2 size = getSize(*output);
 	if ((size[0] == 0.0f) || (size[1] == 0.0f)) {
 		throw CommandException(

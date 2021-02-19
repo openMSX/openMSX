@@ -33,6 +33,11 @@ void DummyVideoSystem::flush()
 {
 }
 
+gl::ivec2 DummyVideoSystem::getMouseCoord()
+{
+	return gl::ivec2(0,0);
+}
+
 OutputSurface* DummyVideoSystem::getOutputSurface()
 {
 	return nullptr;
@@ -40,6 +45,11 @@ OutputSurface* DummyVideoSystem::getOutputSurface()
 
 void DummyVideoSystem::showCursor(bool /*show*/)
 {
+}
+
+bool DummyVideoSystem::getCursorEnabled()
+{
+	return false;
 }
 
 void DummyVideoSystem::repaint()
