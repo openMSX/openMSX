@@ -164,7 +164,7 @@ public:
 	void execute(span<const TclObject> tokens, TclObject& result) override;
 	[[nodiscard]] string help(const vector<string>& tokens) const override;
 private:
-	Display& display;
+	Reactor& reactor;
 };
 
 class SetClipboardCommand final : public Command
@@ -174,7 +174,7 @@ public:
 	void execute(span<const TclObject> tokens, TclObject& result) override;
 	[[nodiscard]] string help(const vector<string>& tokens) const override;
 private:
-	Display& display;
+	Reactor& reactor;
 };
 
 class ConfigInfo final : public InfoTopic
@@ -1012,14 +1012,16 @@ void RestoreMachineCommand::tabCompletion(vector<string>& tokens) const
 GetClipboardCommand::GetClipboardCommand(
 	CommandController& commandController_, Reactor& reactor_)
 	: Command(commandController_, "get_clipboard_text")
-	, display(reactor_.getDisplay())
+	, reactor(reactor_)
 {
+	// Note: cannot yet call getReactor().getDisplay() (e.g. to cache it)
+	//   display may not yet be initialized.
 }
 
 void GetClipboardCommand::execute(span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, 1, Prefix{1}, nullptr);
-	result = display.getVideoSystem().getClipboardText();
+	result = reactor.getDisplay().getVideoSystem().getClipboardText();
 }
 
 string GetClipboardCommand::help(const vector<string>& /*tokens*/) const
@@ -1033,14 +1035,14 @@ string GetClipboardCommand::help(const vector<string>& /*tokens*/) const
 SetClipboardCommand::SetClipboardCommand(
 	CommandController& commandController_, Reactor& reactor_)
 	: Command(commandController_, "set_clipboard_text")
-	, display(reactor_.getDisplay())
+	, reactor(reactor_)
 {
 }
 
 void SetClipboardCommand::execute(span<const TclObject> tokens, TclObject& /*result*/)
 {
 	checkNumArgs(tokens, 2, "text");
-	display.getVideoSystem().setClipboardText(tokens[1].getString());
+	reactor.getDisplay().getVideoSystem().setClipboardText(tokens[1].getString());
 }
 
 string SetClipboardCommand::help(const vector<string>& /*tokens*/) const
