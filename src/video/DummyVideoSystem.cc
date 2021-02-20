@@ -57,7 +57,7 @@ std::string DummyVideoSystem::getClipboardText()
 	return "";
 }
 
-void DummyVideoSystem::setClipboardText(std::string_view /*text*/)
+void DummyVideoSystem::setClipboardText(zstring_view /*text*/)
 {
 }
 

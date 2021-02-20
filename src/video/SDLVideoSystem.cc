@@ -271,9 +271,9 @@ std::string SDLVideoSystem::getClipboardText()
 	return result;
 }
 
-void SDLVideoSystem::setClipboardText(std::string_view text)
+void SDLVideoSystem::setClipboardText(zstring_view text)
 {
-	if (SDL_SetClipboardText(std::string(text).c_str()) != 0) {
+	if (SDL_SetClipboardText(text.c_str()) != 0) {
 		const char* err = SDL_GetError();
 		SDL_ClearError();
 		throw CommandException(err);
