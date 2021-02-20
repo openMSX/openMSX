@@ -10,14 +10,13 @@
 #include "CliComm.hh"
 #include "InputEvents.hh"
 #include "Display.hh"
+#include "VideoSystem.hh"
 #include "EventDistributor.hh"
-#include "SDL.h"
 #include "Version.hh"
 #include "checked_cast.hh"
 #include "utf8_unchecked.hh"
 #include "StringOp.hh"
 #include "ScopedAssign.hh"
-#include "scope_exit.hh"
 #include "view.hh"
 #include "xrange.hh"
 #include <algorithm>
@@ -747,10 +746,8 @@ static std::vector<std::string_view> splitLines(std::string_view str)
 
 void CommandConsole::paste()
 {
-	char* text = SDL_GetClipboardText();
-	if (!text) return;
-	scope_exit e([&]{ SDL_free(text); });
-
+	auto text = display.getVideoSystem().getClipboardText();
+	if (text.empty()) return;
 	auto pastedLines = splitLines(text);
 	assert(!pastedLines.empty());
 

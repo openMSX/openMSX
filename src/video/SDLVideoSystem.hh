@@ -47,6 +47,8 @@ public:
 	[[nodiscard]] OutputSurface* getOutputSurface() override;
 	void showCursor(bool show) override;
 	[[nodiscard]] bool getCursorEnabled() override;
+	[[nodiscard]] std::string getClipboardText() override;
+	void setClipboardText(std::string_view text) override;
 	void repaint() override;
 
 private:

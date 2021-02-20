@@ -81,6 +81,8 @@ public:
 	[[nodiscard]] virtual OutputSurface* getOutputSurface() = 0;
 	virtual void showCursor(bool show) = 0;
 	[[nodiscard]] virtual bool getCursorEnabled() = 0;
+	[[nodiscard]] virtual std::string getClipboardText() = 0;
+	virtual void setClipboardText(std::string_view text) = 0;
 
 	/** Requests a repaint of the output surface. An implementation might
 	 *  start a repaint directly, or trigger a queued rendering. */
