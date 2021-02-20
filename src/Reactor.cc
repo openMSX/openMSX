@@ -22,6 +22,7 @@
 #include "GlobalCliComm.hh"
 #include "InfoTopic.hh"
 #include "Display.hh"
+#include "VideoSystem.hh"
 #include "Mixer.hh"
 #include "AviRecorder.hh"
 #include "GlobalSettings.hh"
@@ -159,17 +160,21 @@ private:
 class GetClipboardCommand final : public Command
 {
 public:
-	GetClipboardCommand(CommandController& commandController);
+	GetClipboardCommand(CommandController& commandController, Reactor& reactor);
 	void execute(span<const TclObject> tokens, TclObject& result) override;
 	[[nodiscard]] string help(const vector<string>& tokens) const override;
+private:
+	Display& display;
 };
 
 class SetClipboardCommand final : public Command
 {
 public:
-	SetClipboardCommand(CommandController& commandController);
+	SetClipboardCommand(CommandController& commandController, Reactor& reactor);
 	void execute(span<const TclObject> tokens, TclObject& result) override;
 	[[nodiscard]] string help(const vector<string>& tokens) const override;
+private:
+	Display& display;
 };
 
 class ConfigInfo final : public InfoTopic
@@ -252,9 +257,9 @@ void Reactor::init()
 	restoreMachineCommand = make_unique<RestoreMachineCommand>(
 		*globalCommandController, *this);
 	getClipboardCommand = make_unique<GetClipboardCommand>(
-		*globalCommandController);
+		*globalCommandController, *this);
 	setClipboardCommand = make_unique<SetClipboardCommand>(
-		*globalCommandController);
+		*globalCommandController, *this);
 	aviRecordCommand = make_unique<AviRecorder>(*this);
 	extensionInfo = make_unique<ConfigInfo>(
 		getOpenMSXInfoCommand(), "extensions");
@@ -1004,18 +1009,17 @@ void RestoreMachineCommand::tabCompletion(vector<string>& tokens) const
 
 // class GetClipboardCommand
 
-GetClipboardCommand::GetClipboardCommand(CommandController& commandController_)
+GetClipboardCommand::GetClipboardCommand(
+	CommandController& commandController_, Reactor& reactor_)
 	: Command(commandController_, "get_clipboard_text")
+	, display(reactor_.getDisplay())
 {
 }
 
 void GetClipboardCommand::execute(span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, 1, Prefix{1}, nullptr);
-	if (char* text = SDL_GetClipboardText()) {
-		result = text;
-		SDL_free(text);
-	}
+	result = display.getVideoSystem().getClipboardText();
 }
 
 string GetClipboardCommand::help(const vector<string>& /*tokens*/) const
@@ -1026,20 +1030,17 @@ string GetClipboardCommand::help(const vector<string>& /*tokens*/) const
 
 // class SetClipboardCommand
 
-SetClipboardCommand::SetClipboardCommand(CommandController& commandController_)
+SetClipboardCommand::SetClipboardCommand(
+	CommandController& commandController_, Reactor& reactor_)
 	: Command(commandController_, "set_clipboard_text")
+	, display(reactor_.getDisplay())
 {
 }
 
 void SetClipboardCommand::execute(span<const TclObject> tokens, TclObject& /*result*/)
 {
 	checkNumArgs(tokens, 2, "text");
-	auto text = tokens[1].getString();
-	if (SDL_SetClipboardText(text.c_str()) != 0) {
-		const char* err = SDL_GetError();
-		SDL_ClearError();
-		throw CommandException(err);
-	}
+	display.getVideoSystem().setClipboardText(tokens[1].getString());
 }
 
 string SetClipboardCommand::help(const vector<string>& /*tokens*/) const

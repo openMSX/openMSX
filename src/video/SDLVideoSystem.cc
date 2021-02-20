@@ -261,6 +261,25 @@ bool SDLVideoSystem::getCursorEnabled()
 	return SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE;
 }
 
+std::string SDLVideoSystem::getClipboardText()
+{
+	std::string result;
+	if (char* text = SDL_GetClipboardText()) {
+		result = text;
+		SDL_free(text);
+	}
+	return result;
+}
+
+void SDLVideoSystem::setClipboardText(std::string_view text)
+{
+	if (SDL_SetClipboardText(std::string(text).c_str()) != 0) {
+		const char* err = SDL_GetError();
+		SDL_ClearError();
+		throw CommandException(err);
+	}
+}
+
 void SDLVideoSystem::repaint()
 {
 	// With SDL we can simply repaint the display directly.

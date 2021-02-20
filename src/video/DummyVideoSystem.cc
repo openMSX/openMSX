@@ -52,6 +52,15 @@ bool DummyVideoSystem::getCursorEnabled()
 	return false;
 }
 
+std::string DummyVideoSystem::getClipboardText()
+{
+	return "";
+}
+
+void DummyVideoSystem::setClipboardText(std::string_view /*text*/)
+{
+}
+
 void DummyVideoSystem::repaint()
 {
 }
