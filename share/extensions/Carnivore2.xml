@@ -16,7 +16,7 @@
         <io base="0x3C" num="1" type="O"/>
         <io base="0x7C" num="2" type="O"/>
         <rom>
-          <sha1>1ad39f7bfa384b8940073bf0c5ad0bff95aee004</sha1>
+          <sha1>06e14d4db59a2b648fc831757fc833d259457c85</sha1>
         </rom>
         <sramname>carnivore2.flash</sramname>
         <eeprom>
