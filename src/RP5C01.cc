@@ -1,5 +1,6 @@
 #include "RP5C01.hh"
 #include "SRAM.hh"
+#include "one_of.hh"
 #include "serialize.hh"
 #include <cassert>
 #include <ctime>
@@ -72,7 +73,7 @@ nibble RP5C01::readPort(nibble port, EmuTime::param time)
 		break;
 	default:
 		unsigned block = modeReg & MODE_BLOKSELECT;
-		if (block == TIME_BLOCK) {
+		if (block == one_of(TIME_BLOCK, ALARM_BLOCK)) {
 			updateTimeRegs(time);
 		}
 	}
@@ -98,7 +99,7 @@ nibble RP5C01::peekPort(nibble port) const
 
 void RP5C01::writePort(nibble port, nibble value, EmuTime::param time)
 {
-	assert (port<=0x0f);
+	assert (port <= 0x0f);
 	switch (port) {
 	case MODE_REG:
 		updateTimeRegs(time);
@@ -119,11 +120,11 @@ void RP5C01::writePort(nibble port, nibble value, EmuTime::param time)
 		break;
 	default:
 		unsigned block = modeReg & MODE_BLOKSELECT;
-		if (block == TIME_BLOCK) {
+		if (block == one_of(TIME_BLOCK, ALARM_BLOCK)) {
 			updateTimeRegs(time);
 		}
 		regs.write(block * 13 + port, value & mask[block][port]);
-		if (block == TIME_BLOCK) {
+		if (block == one_of(TIME_BLOCK, ALARM_BLOCK)) {
 			regs2Time();
 		}
 	}
@@ -214,14 +215,26 @@ void RP5C01::updateTimeRegs(EmuTime::param time)
 		hours    += minutes / 60;
 		unsigned carryDays = (testReg & TEST_DAYS)
 		                   ? elapsed : hours / 24;
-		days     += carryDays;
-		dayWeek  += carryDays;
-		while (days >= daysInMonth(months, leapYear)) {
-			// TODO not correct because leapYear is not updated
-			//      is only triggered when we update several months
-			//      at a time (but might happen in TEST_DAY mode)
-			days -= daysInMonth(months, leapYear);
-			months++;
+		if (carryDays) {
+			// Only correct for number of days in a month when we
+			// actually advance the day. Because otherwise e.g. the
+			// following scenario goes wrong:
+			// - Suppose current date is 'xx/07/31' and we want to
+			//   change that to 'xx/12/31'.
+			// - Changing the months is done in two steps: first the
+			//   lower then the higher nibble.
+			// - So temporary we go via the (invalid) date 'xx/02/31'
+			//   (february does not have 32 days)
+			// - We must NOT roll over the days and advance to march.
+			days     += carryDays;
+			dayWeek  += carryDays;
+			while (days >= daysInMonth(months, leapYear)) {
+				// TODO not correct because leapYear is not updated
+				//      is only triggered when we update several months
+				//      at a time (but might happen in TEST_DAY mode)
+				days -= daysInMonth(months, leapYear);
+				months++;
+			}
 		}
 		unsigned carryYears = (testReg & TEST_YEARS)
 		                    ? elapsed : unsigned(months / 12);
