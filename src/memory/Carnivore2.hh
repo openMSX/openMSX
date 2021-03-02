@@ -69,7 +69,9 @@ private:
 		return (configRegs[0x1e] & 0x10) && !(port3C & 0x20);
 	}
 
-	[[nodiscard]] byte getSubSlot(word address) const;
+	enum class SubDevice { MultiMapper, IDE, MemoryMapper, FmPac, Nothing };
+
+	[[nodiscard]] SubDevice getSubDevice(word address) const;
 
 	// multi-mapper
 	[[nodiscard]] bool isConfigReg(word address) const;

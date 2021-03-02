@@ -68,6 +68,7 @@ void Carnivore2::reset(EmuTime::param time)
 
 	configRegs[0x1e] = shadowConfigRegs[0x1e] = 0xff;
 	configRegs[0x20] = 0x02;
+	configRegs[0x28] = 0b11'10'01'00; // SLM_cfg
 
 	writeCfgEEPR(0, time);
 
@@ -107,17 +108,35 @@ void Carnivore2::globalRead(word address, EmuTime::param /*time*/)
 	}
 }
 
-byte Carnivore2::getSubSlot(word address) const
+Carnivore2::SubDevice Carnivore2::getSubDevice(word address) const
 {
+	byte subSlot(-1);
+
 	if (slotExpanded()) {
 		byte page = address >> 14;
-		byte subSlot = (subSlotReg >> (2 * page)) & 0x03;
-		return subSlotEnabled(subSlot) ? subSlot : -1;
+		byte selectedSubSlot = (subSlotReg >> (2 * page)) & 0x03;
+		if (subSlotEnabled(selectedSubSlot)) {
+			subSlot = selectedSubSlot;
+		}
 	} else {
 		for (auto i : xrange(4)) {
-			if (subSlotEnabled(i)) return i;
+			if (subSlotEnabled(i)) {
+				subSlot = i;
+				break;
+			}
 		}
-		return byte(-1);
+	}
+
+	if        (subSlot == (configRegs[0x28] & 0b00'00'00'11) >> 0) {
+		return SubDevice::MultiMapper;
+	} else if (subSlot == (configRegs[0x28] & 0b00'00'11'00) >> 2) {
+		return SubDevice::IDE;
+	} else if (subSlot == (configRegs[0x28] & 0b00'11'00'00) >> 4) {
+		return SubDevice::MemoryMapper;
+	} else if (subSlot == (configRegs[0x28] & 0b11'00'00'00) >> 6) {
+		return SubDevice::FmPac;
+	} else {
+		return SubDevice::Nothing;
 	}
 }
 
@@ -126,12 +145,12 @@ byte Carnivore2::readMem(word address, EmuTime::param time)
 	if (slotExpanded() && (address == 0xffff)) {
 		return subSlotReg ^ 0xff;
 	}
-	switch (getSubSlot(address)) {
-		case 0:  return readMultiMapperSlot(address, time);
-		case 1:  return readIDESlot(address, time);
-		case 2:  return readMemoryMapperSlot(address);
-		case 3:  return readFmPacSlot(address);
-		default: return 0xff;
+	switch (getSubDevice(address)) {
+		case SubDevice::MultiMapper:  return readMultiMapperSlot(address, time);
+		case SubDevice::IDE:          return readIDESlot(address, time);
+		case SubDevice::MemoryMapper: return readMemoryMapperSlot(address);
+		case SubDevice::FmPac:        return readFmPacSlot(address);
+		default:                      return 0xff;
 	}
 }
 
@@ -140,12 +159,12 @@ byte Carnivore2::peekMem(word address, EmuTime::param time) const
 	if (slotExpanded() && (address == 0xffff)) {
 		return subSlotReg ^ 0xff;
 	}
-	switch (getSubSlot(address)) {
-		case 0:  return peekMultiMapperSlot(address, time);
-		case 1:  return peekIDESlot(address, time);
-		case 2:  return peekMemoryMapperSlot(address);
-		case 3:  return peekFmPacSlot(address);
-		default: return 0xff;
+	switch (getSubDevice(address)) {
+		case SubDevice::MultiMapper:  return peekMultiMapperSlot(address, time);
+		case SubDevice::IDE:          return peekIDESlot(address, time);
+		case SubDevice::MemoryMapper: return peekMemoryMapperSlot(address);
+		case SubDevice::FmPac:        return peekFmPacSlot(address);
+		default:                      return 0xff;
 	}
 }
 
@@ -156,12 +175,17 @@ void Carnivore2::writeMem(word address, byte value, EmuTime::param time)
 		// this does not block the writes below
 	}
 
-	switch (getSubSlot(address)) {
-		case 0:  writeMultiMapperSlot(address, value, time); break;
-		case 1:  writeIDESlot(address, value, time); break;
-		case 2:  writeMemoryMapperSlot(address, value); break;
-		case 3:  writeFmPacSlot(address, value, time); break;
-		default: /*unmapped, do nothing*/ break;
+	switch (getSubDevice(address)) {
+		case SubDevice::MultiMapper:  writeMultiMapperSlot(address, value, time);
+			break;
+		case SubDevice::IDE:          writeIDESlot(address, value, time);
+			break;
+		case SubDevice::MemoryMapper: writeMemoryMapperSlot(address, value);
+			break;
+		case SubDevice::FmPac:        writeFmPacSlot(address, value, time);
+			break;
+		default:                      /*unmapped, do nothing*/
+			break;
 	}
 }
 
@@ -185,6 +209,9 @@ byte Carnivore2::peekConfigRegister(word address, EmuTime::param time) const
 			case 0x1f: return configRegs[0x00]; // mirror 'CardMDR' register
 			case 0x23: return configRegs[address] |
 					  int(eeprom.read_DO(time));
+			case 0x2C: return '2';
+			case 0x2D: return '3';
+			case 0x2E: return '0';
 			default:   return configRegs[address];
 		}
 	}
