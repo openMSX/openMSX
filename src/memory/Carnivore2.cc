@@ -176,15 +176,20 @@ void Carnivore2::writeMem(word address, byte value, EmuTime::param time)
 	}
 
 	switch (getSubDevice(address)) {
-		case SubDevice::MultiMapper:  writeMultiMapperSlot(address, value, time);
+		case SubDevice::MultiMapper:
+			writeMultiMapperSlot(address, value, time);
 			break;
-		case SubDevice::IDE:          writeIDESlot(address, value, time);
+		case SubDevice::IDE:
+			writeIDESlot(address, value, time);
 			break;
-		case SubDevice::MemoryMapper: writeMemoryMapperSlot(address, value);
+		case SubDevice::MemoryMapper:
+			writeMemoryMapperSlot(address, value);
 			break;
-		case SubDevice::FmPac:        writeFmPacSlot(address, value, time);
+		case SubDevice::FmPac:
+			writeFmPacSlot(address, value, time);
 			break;
-		default:                      /*unmapped, do nothing*/
+		default:
+			// unmapped, do nothing
 			break;
 	}
 }
@@ -329,6 +334,9 @@ byte Carnivore2::readMultiMapperSlot(word address, EmuTime::param time)
 	if (isConfigReg(address)) {
 		return readConfigRegister(address, time);
 	}
+	if (sccAccess(address)) {
+		return scc.readMem(address & 0xff, time);
+	}
 
 	auto [addr, mult] = decodeMultiMapper(address);
 	if (addr == unsigned(-1)) return 0xff; // unmapped
@@ -338,7 +346,6 @@ byte Carnivore2::readMultiMapperSlot(word address, EmuTime::param time)
 	} else {
 		return flash.read(addr);
 	}
-	// note: no reads from scc
 }
 
 byte Carnivore2::peekMultiMapperSlot(word address, EmuTime::param time) const
