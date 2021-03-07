@@ -1,0 +1,94 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <info>
+    <manufacturer>Hitachi</manufacturer>
+    <code>MB-H50</code>
+    <release_year>1986</release_year>
+    <description>A compact and futuristic looking MSX with an external keyboard.</description>
+    <type>MSX</type>
+  </info>
+
+<!-- Thanks to MSXOuterHeaven for the information.
+     And Peter Hanraets for info about this machine with serial number 158187
+     The extra LEDs are not emulated.
+     MSX-ENGINE: S3527
+     CPU: Sharp LH0080A (on MSXOuterHeaven's machine)
+
+     ident.bas:
+     4k/16k effect: NO
+     address latch: NO
+     sprites clones: NO
+     screen 2 mirrored mode: YES
+     mode 3 mixed mode: YES
+     Z80 scf: 01C529ED01D429FC
+     Z80 cpl: 3AFF12D7 (standard)
+     Z80 out (c),0: 0 (MSX)
+     PSG pin 6/7 quirk: C (YES)
+     PSGmask: YM2149 like
+     Note: outcome of white diagonal line test was unclear!
+-->
+
+  <CassettePort/>
+
+  <devices>
+
+    <PPI id="ppi">
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <io base="0xA8" num="4"/>
+      <keyboard_type>jp_jis</keyboard_type>
+      <has_keypad>false</has_keypad>
+      <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>
+      <code_kana_locks>true</code_kana_locks>
+      <graph_locks>false</graph_locks>
+    </PPI>
+
+    <VDP id="VDP">
+      <version>T6950NTSC</version>
+      <io base="0x98" num="8"/> <!-- S3527 mirrors -->
+    </VDP>
+
+    <PSG id="PSG">
+      <type>YM2149</type> <!-- in S-3527 MSX-ENGINE -->
+      <keyboardlayout>JIS</keyboardlayout>
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <io base="0xA0" num="2" type="O"/>
+      <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
+    </PSG>
+
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
+
+    <primary slot="0">
+      <ROM id="MSX BIOS with BASIC ROM">
+        <rom>
+          <filename>mb-h50_basic-bios1.rom</filename>
+          <sha1>302afb5d8be26c758309ca3df611ae69cced2821</sha1>
+        </rom>
+        <mem base="0x0000" size="0x8000"/>
+      </ROM>
+    </primary>
+
+    <primary external="true" slot="1"/>
+
+    <primary external="true" slot="2"/>
+
+    <primary slot="3">
+      <secondary slot="2">
+        <RAM id="Main RAM">
+          <mem base="0x0000" size="0x10000"/>
+          <initialContent encoding="gz-base64">eJxjYBhY8H+AAQAioH+B</initialContent> <!-- ((chr(0) * 128) + (chr(255) * 128)) -->
+        </RAM>
+      </secondary>
+    </primary>
+
+  </devices>
+
+</msxconfig>
