@@ -54,8 +54,6 @@ protected:
 	byte registers[4];
 
 private:
-	[[nodiscard]] unsigned getRamSize() const;
-
 	struct Debuggable final : SimpleDebuggable {
 		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
 		[[nodiscard]] byte read(unsigned address) override;

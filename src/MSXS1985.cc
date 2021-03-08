@@ -1,5 +1,8 @@
 #include "MSXS1985.hh"
+#include "DeviceConfig.hh"
+#include "HardwareConfig.hh"
 #include "SRAM.hh"
+#include "XMLElement.hh"
 #include "enumerate.hh"
 #include "serialize.hh"
 #include <memory>
@@ -8,10 +11,25 @@ namespace openmsx {
 
 constexpr byte ID = 0xFE;
 
+[[nodiscard]] static bool machineHasMemoryMapper(const DeviceConfig& config)
+{
+	for (auto& psElem : config.getHardwareConfig().getDevicesElem().getChildren("primary")) {
+		if (psElem->findChild("MemoryMapper")) return true;
+		for (auto& ssElem : psElem->getChildren("secondary")) {
+			if (ssElem->findChild("MemoryMapper")) return true;
+		}
+	}
+	return false;
+}
+
 MSXS1985::MSXS1985(const DeviceConfig& config)
 	: MSXDevice(config)
 	, MSXSwitchedDevice(getMotherBoard(), ID)
 {
+	if (!machineHasMemoryMapper(config)) {
+		dummyMapper.emplace(config);
+	}
+
 	if (!config.findChild("sramname")) {
 		// special case for backwards compatibility (S1985 didn't
 		// always have SRAM in its config...)
@@ -79,6 +97,7 @@ void MSXS1985::writeSwitchedIO(word port, byte value, EmuTime::param /*time*/)
 
 // version 1: initial version
 // version 2: replaced RAM with SRAM
+// version 3: added dummyMapper
 template<typename Archive>
 void MSXS1985::serialize(Archive& ar, unsigned version)
 {
@@ -108,8 +127,47 @@ void MSXS1985::serialize(Archive& ar, unsigned version)
 	             "color1",  color1,
 	             "color2",  color2,
 	             "pattern", pattern);
+
+	if (ar.versionAtLeast(version, 3)) {
+		if (dummyMapper) {
+			ar.serialize("dummyMapper", *dummyMapper);
+		}
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXS1985);
 REGISTER_MSXDEVICE(MSXS1985, "S1985");
+
+
+[[nodiscard]] static DeviceConfig getDummyConfig(const DeviceConfig& config)
+{
+	static const XMLElement xml = [&] {
+		XMLElement result("DummyMemoryMapper");
+		result.addAttribute("id", "DummyMemoryMapper");
+		result.addChild("size", "dummy");
+		return result;
+	}();
+	return DeviceConfig(config, xml);
+}
+
+DummyMemoryMapper::DummyMemoryMapper(const DeviceConfig& config)
+	: MSXMemoryMapperBase(getDummyConfig(config))
+{
+}
+
+byte DummyMemoryMapper::peekIO(word port, EmuTime::param /*time*/) const
+{
+	return registers[port & 3];
+}
+
+void DummyMemoryMapper::writeIO(word port, byte value, EmuTime::param /*time*/)
+{
+	registers[port & 3] = value;
+}
+
+template<typename Archive>
+void DummyMemoryMapper::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("registers", registers);
+}
 
 } // namespace openmsx

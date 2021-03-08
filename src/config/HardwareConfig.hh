@@ -62,6 +62,7 @@ public:
 
 	void parseSlots();
 	void createDevices();
+	[[nodiscard]] const XMLElement& getDevicesElem() const;
 
 	[[nodiscard]] const std::vector<std::unique_ptr<MSXDevice>>& getDevices() const { return devices; };
 
@@ -77,7 +78,6 @@ private:
 	void setConfig(XMLElement config_) { config = std::move(config_); }
 	void load(std::string_view type);
 
-	[[nodiscard]] const XMLElement& getDevicesElem() const;
 	void createDevices(const XMLElement& elem,
 	                   const XMLElement* primary, const XMLElement* secondary);
 	void createExternalSlot(int ps);
