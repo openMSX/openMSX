@@ -14,7 +14,7 @@
   <!-- Note that the content of these EPROMs were identical to what was
        specified in this file before using the EPROM dumps. -->
 
-  <MapperReadBackBits>largest</MapperReadBackBits>
+  <MapperReadBackBits>5</MapperReadBackBits> <!-- Due to S-1985 -->
 
   <CassettePort/>
 

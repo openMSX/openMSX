@@ -10,6 +10,8 @@
     <type>MSX2</type>
   </info>
 
+  <MapperReadBackBits>5</MapperReadBackBits> <!-- Due to S-1985 -->
+
   <CassettePort/>
 
   <devices>

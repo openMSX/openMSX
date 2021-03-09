@@ -24,9 +24,9 @@
     <type>MSX2</type>
   </info>
 
-  <CassettePort/>
-
   <MapperReadBackBits>5</MapperReadBackBits>
+
+  <CassettePort/>
 
   <devices>
 

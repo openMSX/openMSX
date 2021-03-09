@@ -14,11 +14,11 @@
     Built-in printer is NOT emulated as such.
     Based on dumps by Peter Hanraets on machine with serial number 781 04902
     Firmware switch not emulated yet, now always on 'enable'. When the switch
-    is on disabled on the real machine, slot 2 is totally empty (0xFF).
-    When running MSXMEM(2) on the real machine, it reports a 0kB memory mapper
-    in slot 0. Perhaps this is due to the MM readback on the S1985, without
-    having actual memory connected to it? This isn't emulated yet.
+    is on disabled on the real machine, slot 2 is totally empty (0xFF). It
+    seems to be connected to the /OE signal.
    -->
+
+  <MapperReadBackBits>5</MapperReadBackBits> <!-- Due to S-1985 -->
 
   <CassettePort/>
 

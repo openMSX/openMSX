@@ -17,7 +17,7 @@
        MSX-ENGINE: S1985
   -->
 
-  <MapperReadBackBits>largest</MapperReadBackBits>
+  <MapperReadBackBits>5</MapperReadBackBits> <!-- Due to S-1985 -->
 
   <CassettePort/>
 

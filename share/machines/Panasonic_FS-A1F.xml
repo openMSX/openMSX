@@ -17,6 +17,8 @@
        (It was identical to the concatenation of the separate ROM files.)
   -->
 
+  <MapperReadBackBits>5</MapperReadBackBits> <!-- Due to S-1985 -->
+
   <CassettePort/>
 
   <devices>

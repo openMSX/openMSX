@@ -15,7 +15,7 @@
     <max_ints>221</max_ints>
   </RenShaTurbo>
 
-  <MapperReadBackBits>largest</MapperReadBackBits>
+  <MapperReadBackBits>5</MapperReadBackBits> <!-- Due to S-1985 -->
 
   <CassettePort/>
 

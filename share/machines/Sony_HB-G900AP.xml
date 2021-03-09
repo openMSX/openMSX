@@ -11,6 +11,8 @@
     <!-- Note that superimpose is still missing! -->
   </info>
 
+  <MapperReadBackBits>5</MapperReadBackBits> <!-- Due to S-1985 -->
+
   <CassettePort/>
 
   <devices>

@@ -25,7 +25,7 @@
   PSGmask: AY8910-like.
   -->
 
-  <MapperReadBackBits>largest</MapperReadBackBits>
+  <MapperReadBackBits>5</MapperReadBackBits> <!-- Due to S-1985 -->
 
   <CassettePort/>
 
