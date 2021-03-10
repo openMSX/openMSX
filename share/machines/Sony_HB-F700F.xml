@@ -12,7 +12,7 @@
 
   <!-- ROM dumps and initial content provided by yang, based on machine with serial number 401749 -->
 
-  <MapperReadBackBits>5</MapperReadBackBits> <!-- Due to S-1985 -->
+  <MapperReadBackBits>5</MapperReadBackBits> <!-- Due to S-1985, confirmed by Manuel on HB-F700D -->
 
   <CassettePort/>
 

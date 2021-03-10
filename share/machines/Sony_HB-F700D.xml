@@ -12,7 +12,7 @@
 
 <!-- ROM dumps and initial content verified on George van Halderen's machine -->
 
-  <MapperReadBackBits>5</MapperReadBackBits> <!-- Due to S-1985 -->
+  <MapperReadBackBits>5</MapperReadBackBits> <!-- Due to S-1985, confirmed by Manuel -->
 
   <CassettePort/>
 
