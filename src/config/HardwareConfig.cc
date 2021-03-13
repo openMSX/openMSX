@@ -161,11 +161,14 @@ HardwareConfig::~HardwareConfig()
 
 void HardwareConfig::testRemove() const
 {
-	std::vector<MSXDevice*> alreadyRemoved;
-	for (auto& dev : view::reverse(devices)) {
-		dev->testRemove(alreadyRemoved);
-		alreadyRemoved.push_back(dev.get());
+	auto et = devices.end();
+	for (auto rit = devices.rbegin(), ret = devices.rend();
+	     rit != ret; ++rit) {
+		// c++20:  std::span alreadyRemoved{rit.base(), et};
+		span<const std::unique_ptr<MSXDevice>> alreadyRemoved{&*rit.base(), &*et};
+		(*rit)->testRemove(alreadyRemoved);
 	}
+
 	auto& slotManager = motherBoard.getSlotManager();
 	for (auto ps : xrange(4)) {
 		for (auto ss : xrange(4)) {
@@ -178,7 +181,7 @@ void HardwareConfig::testRemove() const
 		}
 		if (expandedSlots[ps]) {
 			motherBoard.getCPUInterface().testUnsetExpanded(
-				ps, alreadyRemoved);
+				ps, devices);
 		}
 	}
 }

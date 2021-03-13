@@ -5,6 +5,7 @@
 #include "EmuTime.hh"
 #include "openmsx.hh"
 #include "serialize_meta.hh"
+#include "span.hh"
 #include <string>
 #include <vector>
 #include <utility> // for pair
@@ -47,7 +48,7 @@ public:
 	/** Checks whether this device can be removed (no other device has a
 	  * reference to it). Throws an exception if it can't be removed.
 	  */
-	void testRemove(Devices alreadyRemoved) const;
+	void testRemove(span<const std::unique_ptr<MSXDevice>> removed) const;
 
 	/**
 	 * This method is called on reset.

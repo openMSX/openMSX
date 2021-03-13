@@ -78,19 +78,18 @@ MSXMotherBoard& MSXDevice::getMotherBoard() const
 	return getHardwareConfig().getMotherBoard();
 }
 
-void MSXDevice::testRemove(Devices removed) const
+void MSXDevice::testRemove(span<const std::unique_ptr<MSXDevice>> removed) const
 {
-	auto all = referencedBy;
-	ranges::sort(all);
-	ranges::sort(removed);
-	Devices rest;
-	ranges::set_difference(all, removed, back_inserter(rest));
-	if (!rest.empty()) {
-		string msg = "Still in use by";
-		for (auto& d : rest) {
-			strAppend(msg, ' ', d->getName());
+	// Typically 'referencedBy' contains very few elements, so a simple
+	// O(n*m) algorithm is fine.
+	std::string err;
+	for (const auto* dev : referencedBy) {
+		if (ranges::none_of(removed, [&](const auto& d) { return d.get() == dev; })) {
+			strAppend(err, ' ', dev->getName());
 		}
-		throw MSXException(std::move(msg));
+	}
+	if (!err.empty()) {
+		throw MSXException("Still in use by:", err);
 	}
 }
 

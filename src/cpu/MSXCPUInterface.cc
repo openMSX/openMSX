@@ -256,31 +256,36 @@ void MSXCPUInterface::setExpanded(int ps)
 }
 
 void MSXCPUInterface::testUnsetExpanded(
-		int ps, vector<MSXDevice*> allowed) const
+		int ps,
+		span<const std::unique_ptr<MSXDevice>> allowed) const
 {
-	// TODO handle multi-devices
-	allowed.push_back(dummyDevice.get());
-	ranges::sort(allowed); // for set_difference()
 	assert(isExpanded(ps));
 	if (expanded[ps] != 1) return; // ok, still expanded after this
 
 	std::vector<MSXDevice*> inUse;
+
+	auto isAllowed = [&](MSXDevice* dev) {
+		return (dev == dummyDevice.get()) ||
+		       ranges::any_of(allowed, [&](const auto& d) { return d.get() == dev; });
+	};
+	auto check = [&](MSXDevice* dev) {
+		if (!isAllowed(dev)) {
+			if (!contains(inUse, dev)) { // filter duplicates
+				inUse.push_back(dev);
+			}
+		}
+	};
+
 	for (auto ss : xrange(4)) {
 		for (auto page : xrange(4)) {
 			MSXDevice* device = slotLayout[ps][ss][page];
-			std::vector<MSXDevice*> devices;
-			std::vector<MSXDevice*>::iterator end_devices;
 			if (auto* memDev = dynamic_cast<MSXMultiMemDevice*>(device)) {
-				devices = memDev->getDevices();
-				ranges::sort(devices); // for set_difference()
-				end_devices = ranges::unique(devices);
+				for (auto* dev : memDev->getDevices()) {
+					check(dev);
+				}
 			} else {
-				devices.push_back(device);
-				end_devices = end(devices);
+				check(device);
 			}
-			std::set_difference(begin(devices), end_devices,
-			                    begin(allowed), end(allowed),
-			                    std::inserter(inUse, end(inUse)));
 
 		}
 	}
@@ -299,7 +304,7 @@ void MSXCPUInterface::unsetExpanded(int ps)
 {
 #ifndef NDEBUG
 	try {
-		vector<MSXDevice*> dummy;
+		span<const std::unique_ptr<MSXDevice>> dummy;
 		testUnsetExpanded(ps, dummy);
 	} catch (...) {
 		UNREACHABLE;

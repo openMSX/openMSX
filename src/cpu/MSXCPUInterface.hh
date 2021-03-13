@@ -244,7 +244,8 @@ public:
 
 	void setExpanded(int ps);
 	void unsetExpanded(int ps);
-	void testUnsetExpanded(int ps, std::vector<MSXDevice*> allowed) const;
+	void testUnsetExpanded(int ps,
+		               span<const std::unique_ptr<MSXDevice>> allowed) const;
 	[[nodiscard]] inline bool isExpanded(int ps) const { return expanded[ps] != 0; }
 	void changeExpanded(bool newExpanded);
 
