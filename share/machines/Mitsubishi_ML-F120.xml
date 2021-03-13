@@ -24,6 +24,8 @@
        PSGmask: AY8910-like
 
        See: https://plus.google.com/u/0/photos/112629367302659371233/albums/6162689764184673953
+
+       Note that an ML-F120D has the same ROMs, as checked by Tristan Zondag.
   -->
 
   <CassettePort/>
