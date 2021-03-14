@@ -161,11 +161,12 @@ HardwareConfig::~HardwareConfig()
 
 void HardwareConfig::testRemove() const
 {
-	auto et = devices.end();
+	//auto et = devices.end();
+	auto* et = devices.data() + devices.size();
 	for (auto rit = devices.rbegin(), ret = devices.rend();
 	     rit != ret; ++rit) {
 		// c++20:  std::span alreadyRemoved{rit.base(), et};
-		span<const std::unique_ptr<MSXDevice>> alreadyRemoved{&*rit.base(), &*et};
+		span<const std::unique_ptr<MSXDevice>> alreadyRemoved{devices.data() + (rit.base() - devices.begin()), et};
 		(*rit)->testRemove(alreadyRemoved);
 	}
 
