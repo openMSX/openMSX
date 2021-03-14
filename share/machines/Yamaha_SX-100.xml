@@ -26,6 +26,8 @@
      PSGmask: YM2149 like
 
      Only uses 6W of power, according to the type plate :)
+
+     It probably has an S-3527 MSX engine chip, like the Victor HC-30.
 -->
 
   <CassettePort/>
@@ -46,11 +48,11 @@
 
     <VDP id="VDP">
       <version>YM2220NTSC</version>
-      <io base="0x98" num="2"/>
+      <io base="0x98" num="8"/> <!-- S-3527 mirrors -->
     </VDP>
 
     <PSG id="PSG">
-      <type>YM2149</type>
+      <type>YM2149</type> <!-- in S-3527 MSX-ENGINE -->
       <keyboardlayout>50on</keyboardlayout>
       <sound>
         <volume>21000</volume>
