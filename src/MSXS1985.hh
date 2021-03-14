@@ -11,25 +11,12 @@
 #define S1985_HH
 
 #include "MSXDevice.hh"
-#include "MSXMemoryMapperBase.hh"
 #include "MSXSwitchedDevice.hh"
 #include <memory>
-#include <optional>
 
 namespace openmsx {
 
 class SRAM;
-
-class DummyMemoryMapper final : public MSXMemoryMapperBase
-{
-public:
-	explicit DummyMemoryMapper(const DeviceConfig& config);
-	byte peekIO(word port, EmuTime::param time) const override;
-	void writeIO(word port, byte value, EmuTime::param time) override;
-
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
-};
 
 class MSXS1985 final : public MSXDevice, public MSXSwitchedDevice
 {
@@ -50,13 +37,12 @@ public:
 
 private:
 	std::unique_ptr<SRAM> sram;
-	std::optional<DummyMemoryMapper> dummyMapper;
 	nibble address;
 	byte color1;
 	byte color2;
 	byte pattern;
 };
-SERIALIZE_CLASS_VERSION(MSXS1985, 3);
+SERIALIZE_CLASS_VERSION(MSXS1985, 2);
 
 } // namespace openmsx
 
