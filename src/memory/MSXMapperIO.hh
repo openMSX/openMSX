@@ -22,7 +22,12 @@ protected:
 class MSXMapperIO final : public MSXDevice
 {
 public:
+	enum class Mode { INTERNAL, EXTERNAL };
+
+public:
 	explicit MSXMapperIO(const DeviceConfig& config);
+
+	void setMode(Mode mode, byte mask, byte baseValue);
 
 	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
 	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
@@ -43,13 +48,12 @@ private:
 
 	std::vector<MSXMemoryMapperInterface*> mappers;
 
-	/**
-	 * OR-mask that limits which bits can be read back.
-	 * This is set using the MapperReadBackBits tag in the machine config.
-	 */
-	byte mask;
+	byte registers[4]; // (copy of) the mapper register state
+	byte mask; // bitmask: 1-bit -> take mapper register, 0-bit -> take baseValue
+	byte baseValue = 0xff;
+	Mode mode = Mode::EXTERNAL; // use the internal or the external mapper state
 };
-SERIALIZE_CLASS_VERSION(MSXMapperIO, 2);
+SERIALIZE_CLASS_VERSION(MSXMapperIO, 3);
 
 
 class MSXMapperIOClient : public MSXMemoryMapperInterface

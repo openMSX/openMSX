@@ -1,4 +1,6 @@
 #include "MSXS1985.hh"
+#include "MSXMapperIO.hh"
+#include "MSXMotherBoard.hh"
 #include "SRAM.hh"
 #include "enumerate.hh"
 #include "serialize.hh"
@@ -23,10 +25,19 @@ MSXS1985::MSXS1985(const DeviceConfig& config)
 			getName() + " SRAM", "S1985 Backup RAM",
 			0x10, config);
 	}
+
+	auto& mapperIO = getMotherBoard().createMapperIO();
+	byte mask = 0b0001'1111; // always(?) 5 bits
+	byte baseValue = config.getChildDataAsInt("MapperReadBackBaseValue", 0x80);
+	mapperIO.setMode(MSXMapperIO::Mode::INTERNAL, mask, baseValue);
+
 	reset(EmuTime::dummy());
 }
 
-MSXS1985::~MSXS1985() = default;
+MSXS1985::~MSXS1985()
+{
+	getMotherBoard().destroyMapperIO();
+}
 
 void MSXS1985::reset(EmuTime::param /*time*/)
 {
