@@ -237,7 +237,7 @@ public:
 		assert((size & 1) == 0);
 		unsigned endIndex = index + size - 1;
 		unsigned areaBits = Math::floodRight(index ^ endIndex);
-		areaBits = ((areaBits << 16) | (areaBits >> 1)) & 0x1FFFF;
+		areaBits = ((areaBits << 16) | (areaBits >> 1)) & 0x1FFFF & sizeMask;
 		(void)areaBits;
 		assert((areaBits & effectiveBaseMask) == areaBits);
 		assert((areaBits & ~indexMask)        == areaBits);
