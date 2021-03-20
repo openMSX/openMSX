@@ -8,6 +8,14 @@
 #include "xrange.hh"
 #include <array>
 
+// TODO (besides what's in the code below):
+// - behaviour of non unique values in configReg[0x28] is not properly
+//   implemented, but also not supported. So print a warning when that condition
+//   occurs. See e.g. https://godbolt.org/z/j6e7MW
+// - FM-PAC mono/stereo setting (bit 7)
+// - possibly the PPI volume setting
+// - slave slot support
+
 namespace openmsx {
 
 static constexpr auto sectorInfo = [] {
