@@ -196,7 +196,7 @@ template<uint32_t CYCLES> ALWAYS_INLINE uint32_t YM2413::envelopeKSLTL(const Pat
 	auto tl2 = [&]() -> uint32_t {
 		if ((rm_for_cycle(CYCLES) == one_of(rm_num_hh, rm_num_tom)) && use_rm_patches) {
 			return inst[ch] << (2 + 1);
-		} else if constexpr (mcsel == 1) {
+		} else if /*constexpr*/ (mcsel == 1) { // constexpr triggers compile error on visual studio
 			return vol8[ch];
 		} else {
 			return patch1.tl2;
