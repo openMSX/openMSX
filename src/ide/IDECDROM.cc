@@ -400,7 +400,7 @@ void IDECDROM::serialize(Archive& ar, unsigned /*version*/)
 
 	string filename = file.is_open() ? file.getURL() : string{};
 	ar.serialize("filename", filename);
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		// re-insert CD-ROM before restoring 'mediaChanged', 'senseKey'
 		if (filename.empty()) {
 			eject();

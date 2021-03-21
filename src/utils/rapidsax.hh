@@ -488,7 +488,7 @@ private:
 
 		// Trim trailing whitespace; leading was already trimmed by
 		// whitespace skip after >
-		if constexpr (FLAGS & trimWhitespace) {
+		if constexpr ((FLAGS & trimWhitespace) != 0) {
 			if constexpr (FLAGS & normalizeWhitespace) {
 				// Whitespace is already condensed to single
 				// space characters by skipping function, so

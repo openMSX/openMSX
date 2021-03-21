@@ -321,7 +321,7 @@ void MC6850::serialize(Archive& ar, unsigned version)
 		controlReg = 3;
 	}
 
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		setDataFormat();
 	}
 }

@@ -1902,7 +1902,7 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 	ar.serialize("cmdEngine",     *cmdEngine,
 	             "spriteChecker", *spriteChecker, // must come after displayMode
 	             "vram",          *vram); // must come after controlRegs and after spriteChecker
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		pendingCpuAccess = syncCpuVramAccess.pendingSyncPoint();
 		update(tooFastAccess);
 	}
@@ -1910,7 +1910,7 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 	if (ar.versionAtLeast(serVersion, 2)) {
 		ar.serialize("frameCount", frameCount);
 	} else {
-		assert(ar.IS_LOADER);
+		assert(Archive::IS_LOADER);
 		// We could estimate the frameCount (assume framerate was
 		// constant the whole time). But I think it's better to have
 		// an obviously wrong value than an almost correct value.
@@ -1921,7 +1921,7 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 		ar.serialize("syncSetSprites", syncSetSprites);
 		ar.serialize("spriteEnabled", spriteEnabled);
 	} else {
-		assert(ar.IS_LOADER);
+		assert(Archive::IS_LOADER);
 		spriteEnabled = (controlRegs[8] & 0x02) == 0;
 	}
 
@@ -1933,7 +1933,7 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 	// of this frame). But it will be correct at the start of the next
 	// frame. Probably good enough.
 
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		renderer->reInit();
 	}
 }

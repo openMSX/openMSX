@@ -127,7 +127,7 @@ void Paddle::serialize(Archive& ar, unsigned /*version*/)
 	             "analogValue", analogValue,
 	             "lastInput",   lastInput);
 
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		if (isPluggedIn()) {
 			plugHelper(*getConnector(), EmuTime::dummy());
 		}

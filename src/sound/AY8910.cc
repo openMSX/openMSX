@@ -1013,7 +1013,7 @@ void AY8910::serialize(Archive& ar, unsigned /*version*/)
 	             "registers",      regs);
 
 	// amplitude
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		for (auto i : xrange(3)) {
 			amplitude.setChannelVolume(i, regs[i + AY_AVOL]);
 		}

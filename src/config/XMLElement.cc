@@ -288,7 +288,7 @@ void XMLElement::serialize(Archive& ar, unsigned version)
 	             "children",   children);
 
 	if (ar.versionBelow(version, 2)) {
-		assert(ar.IS_LOADER);
+		assert(Archive::IS_LOADER);
 		unique_ptr<FileContext> context;
 		ar.serialize("context", context);
 		if (context) {

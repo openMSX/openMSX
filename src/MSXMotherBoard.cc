@@ -1134,7 +1134,7 @@ void MSXMotherBoard::serialize(Archive& ar, unsigned version)
 	ar.serialize("scheduler", *scheduler);
 	// MSXMixer has already set syncpoints, those are invalid now
 	// the following call will fix this
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		msxMixer->reInit();
 	}
 
@@ -1169,7 +1169,7 @@ void MSXMotherBoard::serialize(Archive& ar, unsigned version)
 		}
 	}
 
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		powered = true; // must come before changing power setting
 		powerSetting.setBoolean(true);
 		getLedStatus().setLed(LedStatus::POWER, true);
@@ -1177,7 +1177,7 @@ void MSXMotherBoard::serialize(Archive& ar, unsigned version)
 	}
 
 	if (version == 2) {
-		assert(ar.IS_LOADER);
+		assert(Archive::IS_LOADER);
 		unsigned reRecordCount = 0; // silence warning
 		ar.serialize("reRecordCount", reRecordCount);
 		getReverseManager().setReRecordCount(reRecordCount);

@@ -294,7 +294,7 @@ void RomFSA1FM2::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("SRAM",       *fsSram,
 	             "bankSelect", bankSelect,
 	             "control",    control);
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		// recalculate 'isRam' and 'isEmpty' from bankSelect
 		for (auto region : xrange(8)) {
 			changeBank(region, bankSelect[region]);

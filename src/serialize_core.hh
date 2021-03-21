@@ -303,7 +303,7 @@ template<typename T> struct EnumSaver
 	template<typename Archive> void operator()(Archive& ar, const T& t,
 	                                           bool /*saveId*/)
 	{
-		if constexpr (ar.TRANSLATE_ENUM_TO_STRING) {
+		if constexpr (Archive::TRANSLATE_ENUM_TO_STRING) {
 			serialize_as_enum<T> sae;
 			std::string str = sae.toString(t);
 			ar.save(str);
@@ -475,7 +475,7 @@ template<typename T> struct EnumLoader
 	{
 		static_assert(std::tuple_size_v<TUPLE> == 0,
 		              "can't have constructor arguments");
-		if constexpr (ar.TRANSLATE_ENUM_TO_STRING) {
+		if constexpr (Archive::TRANSLATE_ENUM_TO_STRING) {
 			std::string str;
 			ar.load(str);
 			serialize_as_enum<T> sae;
@@ -668,7 +668,7 @@ template<typename TC> struct CollectionLoader
 		int n = sac::size;
 		if (n < 0) {
 			// variable size
-			if constexpr (ar.CAN_COUNT_CHILDREN) {
+			if constexpr (Archive::CAN_COUNT_CHILDREN) {
 				n = ar.countChildren();
 			} else {
 				ar.serialize("size", n);

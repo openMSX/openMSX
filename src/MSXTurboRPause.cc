@@ -86,7 +86,7 @@ void MSXTurboRPause::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("status", status);
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		writeIO(0, status, EmuTime::dummy());
 	}
 }

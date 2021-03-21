@@ -537,7 +537,7 @@ void Y8950Adpcm::serialize(Archive& ar, unsigned version)
 	             "nextLeveling", emu.nextLeveling,
 	             "sampleStep",   emu.sampleStep,
 	             "adpcm_data",   emu.adpcm_data);
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		// ignore aud part for saving,
 		// for loading we make it the same as the emu part
 		aud = emu;

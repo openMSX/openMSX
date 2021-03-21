@@ -2600,7 +2600,7 @@ void VDPCmdEngine::serialize(Archive& ar, unsigned version)
 		ar.serialize("time", engineTime);
 	} else {
 		// in version 1, the 'engineTime' member had type 'Clock<>'
-		assert(ar.IS_LOADER);
+		assert(Archive::IS_LOADER);
 		VDP::VDPClock clock(EmuTime::dummy());
 		ar.serialize("clock", clock);
 		engineTime = clock.getTime();
@@ -2627,11 +2627,11 @@ void VDPCmdEngine::serialize(Archive& ar, unsigned version)
 		             "tmpSrc", tmpSrc,
 		             "tmpDst", tmpDst);
 	} else {
-		assert(ar.IS_LOADER);
+		assert(Archive::IS_LOADER);
 		phase = tmpSrc = tmpDst = 0;
 	}
 
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		if (CMD & 0xF0) {
 			assert(scrMode >= 0);
 		} else {

@@ -312,7 +312,7 @@ void VRAMWindow::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("baseAddr",  baseAddr,
 	             "baseMask",  origBaseMask,
 	             "indexMask", indexMask);
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		effectiveBaseMask = origBaseMask & sizeMask;
 		combiMask = ~effectiveBaseMask | indexMask;
 		// TODO ?  observer->updateWindow(isEnabled(), time);
@@ -322,7 +322,7 @@ void VRAMWindow::serialize(Archive& ar, unsigned /*version*/)
 template<typename Archive>
 void VDPVRAM::serialize(Archive& ar, unsigned /*version*/)
 {
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		vrMode = vdp.getVRMode();
 		setSizeMask(static_cast<MSXDevice&>(vdp).getCurrentTime());
 	}

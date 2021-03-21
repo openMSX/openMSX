@@ -329,19 +329,19 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 	}
 
 	vector<Filename> patches;
-	if constexpr (!ar.IS_LOADER) {
+	if constexpr (!Archive::IS_LOADER) {
 		patches = disk->getPatches();
 	}
 	ar.serialize("patches", patches);
 
 	auto& filePool = reactor.getFilePool();
 	string oldChecksum;
-	if constexpr (!ar.IS_LOADER) {
+	if constexpr (!Archive::IS_LOADER) {
 		oldChecksum = calcSha1(getSectorAccessibleDisk(), filePool);
 	}
 	ar.serialize("checksum", oldChecksum);
 
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		diskname.updateAfterLoadState();
 		string name = diskname.getResolved(); // TODO use Filename
 		if (!name.empty()) {

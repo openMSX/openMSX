@@ -343,7 +343,7 @@ void Mouse::stopReplay(EmuTime::param time) noexcept
 template<typename Archive>
 void Mouse::serialize(Archive& ar, unsigned version)
 {
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		if (isPluggedIn()) {
 			// Do this early, because if something goes wrong while loading
 			// some state below, then unplugHelper() gets called and that
@@ -353,7 +353,7 @@ void Mouse::serialize(Archive& ar, unsigned version)
 	}
 
 	if (ar.versionBelow(version, 4)) {
-		assert(ar.IS_LOADER);
+		assert(Archive::IS_LOADER);
 		Clock<1000> tmp(EmuTime::zero());
 		ar.serialize("lastTime", tmp);
 		lastTime = tmp.getTime();

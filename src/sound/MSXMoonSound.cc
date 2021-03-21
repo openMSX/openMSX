@@ -237,7 +237,7 @@ void MSXMoonSound::serialize(Archive& ar, unsigned version)
 		ar.serialize("loadTime", ymf278LoadTime,
 		             "busyTime", ymf278BusyTime);
 	} else {
-		assert(ar.IS_LOADER);
+		assert(Archive::IS_LOADER);
 		// For 100% backwards compatibility we should restore these two
 		// from the (old) YMF278 class. Though that's a lot of extra
 		// work for very little gain.

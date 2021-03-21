@@ -1877,7 +1877,7 @@ void V9990CmdEngine::serialize(Archive& ar, unsigned version)
 	             "partial",      partial,
 	             "endAfterRead", endAfterRead);
 
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		setCommandMode();
 	}
 }

@@ -17,7 +17,7 @@ void DynamicClock::serialize(Archive& ar, unsigned version)
 		// followed by 'setFreq(f)' is not guaranteed to reproduce the
 		// exact same result. So in newer versions serialize the period
 		// instead of the frequency.
-		assert(ar.IS_LOADER);
+		assert(Archive::IS_LOADER);
 		unsigned freq = 0;
 		ar.serialize("freq", freq);
 		setFreq(freq);

@@ -950,7 +950,7 @@ void V9990::serialize(Archive& ar, unsigned version)
 	// of this frame). But it will be correct at the start of the next
 	// frame. Good enough?
 
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		// TODO This uses 'mode' to calculate 'horTiming' and
 		//      'verTiming'. Are these always in sync? Or can for
 		//      example one change at any time and the other only

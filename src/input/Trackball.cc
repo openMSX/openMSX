@@ -305,7 +305,7 @@ void Trackball::serialize(Archive& ar, unsigned version)
 	ar.serialize("lastValue", lastValue,
 	             "status",    status);
 
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		if (isPluggedIn()) {
 			plugHelper(*getConnector(), EmuTime::dummy());
 		}

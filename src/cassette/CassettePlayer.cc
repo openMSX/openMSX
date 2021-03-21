@@ -866,7 +866,7 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 	ar.serialize("casImage", casImage);
 
 	Sha1Sum oldChecksum;
-	if constexpr (!ar.IS_LOADER) {
+	if constexpr (!Archive::IS_LOADER) {
 		if (playImage) {
 			oldChecksum = playImage->getSha1Sum();
 		}
@@ -881,7 +881,7 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 		            : Sha1Sum(oldChecksumStr);
 	}
 
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		FilePool& filePool = motherBoard.getReactor().getFilePool();
 		auto time = getCurrentTime();
 		casImage.updateAfterLoadState();
@@ -938,7 +938,7 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 	             "motor",        motor,
 	             "motorControl", motorControl);
 
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		auto time = getCurrentTime();
 		if (playImage && (tapePos > playImage->getEndTime())) {
 			tapePos = playImage->getEndTime();

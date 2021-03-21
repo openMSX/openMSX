@@ -286,7 +286,7 @@ void PanasonicAudioPeriphery::serialize(Archive& ar, unsigned /*version*/)
 	             "bankSelect", bankSelect);
 	byte tmpIoPorts = ioPorts;
 	ar.serialize("ioPorts", tmpIoPorts);
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		setIOPorts(tmpIoPorts);
 	}
 }

@@ -70,7 +70,7 @@ template<typename Archive>
 void PrinterPortSimpl::serialize(Archive& ar, unsigned /*version*/)
 {
 	if (isPluggedIn()) {
-		if constexpr (ar.IS_LOADER) {
+		if constexpr (Archive::IS_LOADER) {
 			createDAC();
 		}
 		ar.serialize("dac", *dac);

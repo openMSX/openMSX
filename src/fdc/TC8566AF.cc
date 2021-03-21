@@ -874,7 +874,7 @@ void TC8566AF::serialize(Archive& ar, unsigned version)
 	if (ar.versionAtLeast(version, 4)) {
 		ar.serialize("delayTime", delayTime);
 	} else {
-		assert(ar.IS_LOADER);
+		assert(Archive::IS_LOADER);
 		Clock<6250 * 5> c(EmuTime::dummy());
 		ar.serialize("delayTime", c);
 		delayTime.reset(c.getTime());
@@ -903,7 +903,7 @@ void TC8566AF::serialize(Archive& ar, unsigned version)
 		             "headUnloadTime", headUnloadTime,
 		             "seekValue",      seekValue);
 	} else {
-		assert(ar.IS_LOADER);
+		assert(Archive::IS_LOADER);
 		specifyData[0] = 0xDF; // values normally set by TurboR disk rom
 		specifyData[1] = 0x03;
 		headUnloadTime = EmuTime::zero();

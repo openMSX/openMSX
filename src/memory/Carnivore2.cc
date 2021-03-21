@@ -751,7 +751,7 @@ void Carnivore2::serialize(Archive& ar, unsigned /*version*/)
 	             "fmPac5ffe",         fmPac5ffe,
 	             "fmPac5fff",         fmPac5fff);
 
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		auto time = getCurrentTime();
 		writeSndLVL (configRegs[0x22], time);
 		writeCfgEEPR(configRegs[0x23], time);

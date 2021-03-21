@@ -154,7 +154,7 @@ void MSXFmPac::serialize(Archive& ar, unsigned version)
 	             "bank",   bank,
 	             "r1ffe",  r1ffe,
 	             "r1fff",  r1fff);
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		// sramEnabled can be calculated
 		checkSramEnable();
 	}

@@ -1269,7 +1269,7 @@ void Y8950::Slot::serialize(Archive& ar, unsigned version)
 	if (ar.versionAtLeast(version, 3)) {
 		ar.serialize("eg_mode", eg_mode);
 	} else {
-		assert(ar.IS_LOADER);
+		assert(Archive::IS_LOADER);
 		int tmp = 0; // dummy init to avoid warning
 		ar.serialize("eg_mode", tmp);
 		switch (tmp) {
@@ -1296,7 +1296,7 @@ void Y8950::Channel::serialize(Archive& ar, unsigned /*version*/)
 	             "freq", freq,
 	             "alg",  alg);
 
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		slot[MOD].updateAll(freq);
 		slot[CAR].updateAll(freq);
 	}
@@ -1326,7 +1326,7 @@ void Y8950::serialize(Archive& ar, unsigned /*version*/)
 	             "pm_mode",       pm_mode,
 	             "enabled",       enabled);
 
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		// TODO restore more state from registers
 		static constexpr byte rewriteRegs[] = {
 			6,       // connector

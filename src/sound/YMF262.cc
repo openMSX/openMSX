@@ -1627,7 +1627,7 @@ void YMF262::Slot::serialize(Archive& a, unsigned /*version*/)
 	// wavetable
 	auto waveform = unsigned((wavetable - sin.tab) / SIN_LEN);
 	a.serialize("waveform", waveform);
-	if constexpr (a.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		wavetable = &sin.tab[waveform * SIN_LEN];
 	}
 
@@ -1702,7 +1702,7 @@ void YMF262::serialize(Archive& a, unsigned version)
 	if (a.versionAtLeast(version, 2)) {
 		a.serialize("alreadySignaledNEW2", alreadySignaledNEW2);
 	} else {
-		assert(a.IS_LOADER);
+		assert(Archive::IS_LOADER);
 		alreadySignaledNEW2 = true; // we can't know the actual value,
 									// but 'true' is the safest value
 	}

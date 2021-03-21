@@ -192,7 +192,7 @@ void ArkanoidPad::serialize(Archive& ar, unsigned version)
 		ar.serialize("dialpos",      dialpos,
 		             "buttonStatus", buttonStatus);
 	}
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		if (isPluggedIn()) {
 			plugHelper(*getConnector(), EmuTime::dummy());
 		}

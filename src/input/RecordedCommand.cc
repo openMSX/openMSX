@@ -106,12 +106,12 @@ void MSXCommandEvent::serialize(Archive& ar, unsigned /*version*/)
 
 	// serialize vector<TclObject> as vector<string>
 	vector<string> str;
-	if constexpr (!ar.IS_LOADER) {
+	if constexpr (!Archive::IS_LOADER) {
 		str = to_vector(view::transform(
 			tokens, [](auto& t) { return string(t.getString()); }));
 	}
 	ar.serialize("tokens", str);
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		assert(tokens.empty());
 		tokens = to_vector(view::transform(
 			str, [](auto& s) { return TclObject(s); }));

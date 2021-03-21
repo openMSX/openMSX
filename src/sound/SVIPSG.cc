@@ -148,7 +148,7 @@ void SVIPSG::serialize(Archive& ar, unsigned /*version*/)
 	             "registerLatch", registerLatch);
 	byte portB = prev;
 	ar.serialize("portB", portB);
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		writeB(portB, getCurrentTime());
 	}
 }

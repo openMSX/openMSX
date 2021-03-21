@@ -66,7 +66,7 @@ void DACSound16S::serialize(Archive& ar, unsigned /*version*/)
 	//       This is for example done in MSXPPI/KeyClick.
 	int16_t lastValue = lastWrittenValue;
 	ar.serialize("lastValue", lastValue);
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		writeDAC(lastValue, getHostSampleClock().getTime());
 	}
 }

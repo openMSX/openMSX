@@ -1317,7 +1317,7 @@ void Slot::serialize(Archive& a, unsigned /*version*/)
 	//      other members
 	int waveform = (wavetable == &sinTab[0]) ? 0 : 1;
 	a.serialize("waveform", waveform);
-	if constexpr (a.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		setWaveform(waveform);
 	}
 
@@ -1355,7 +1355,7 @@ void Channel::serialize(Archive& a, unsigned /*version*/)
 	// mod/car were originally an array, keep serializing as such for bwc
 	Slot slots[2] = { mod, car };
 	a.serialize("slots", slots);
-	if constexpr (a.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		mod = slots[0];
 		car = slots[1];
 	}
@@ -1365,7 +1365,7 @@ void Channel::serialize(Archive& a, unsigned /*version*/)
 	            "ksl_base",   ksl_base,
 	            "sus",        sus);
 
-	if constexpr (a.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		mod.updateFrequency(*this);
 		car.updateFrequency(*this);
 	}

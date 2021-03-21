@@ -70,9 +70,9 @@ template<typename Archive>
 void JoyTap::serialize(Archive& ar, unsigned /*version*/)
 {
 	// saving only happens when plugged in
-	if constexpr (!ar.IS_LOADER) assert(isPluggedIn());
+	if constexpr (!Archive::IS_LOADER) assert(isPluggedIn());
 	// restore plugged state when loading
-	if constexpr (ar.IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		plugHelper(*getConnector(), pluggingController.getCurrentTime());
 	}
 
