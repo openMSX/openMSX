@@ -88,7 +88,7 @@ struct Replay
 		if (ar.versionAtLeast(version, 3)) {
 			ar.serialize("currentTime", currentTime);
 		} else {
-			assert(ar.isLoader());
+			assert(ar.IS_LOADER);
 			assert(!events->empty());
 			currentTime = events->back()->getTime();
 		}

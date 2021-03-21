@@ -161,7 +161,7 @@ void MidiOutALSA::recvMessage(
 template<typename Archive>
 void MidiOutALSA::serialize(Archive& ar, unsigned /*version*/)
 {
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		connect();
 	}
 }

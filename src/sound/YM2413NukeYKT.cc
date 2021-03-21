@@ -980,7 +980,7 @@ void YM2413::serialize(Archive& ar, unsigned /*version*/)
 	             "regs", regs,
 	             "latch", latch);
 
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		// restore redundant state
 		attackPtr = attack[eg_timer_shift_lock][eg_timer_lock];
 		auto idx = releaseIndex[eg_timer_shift_lock][eg_timer_lock][eg_counter_state];

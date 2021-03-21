@@ -331,7 +331,7 @@ void JoyMega::serialize(Archive& ar, unsigned /*version*/)
 	             "status",    status,
 	             "cycle",     cycle,
 	             "cycleMask", cycleMask);
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		if (isPluggedIn()) {
 			plugHelper2();
 		}

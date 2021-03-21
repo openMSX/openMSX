@@ -177,7 +177,7 @@ void PioneerLDControl::serialize(Archive& ar, unsigned /*version*/)
 	             "muter", muteR);
 	// videoEnabled is restored from LaserdiscPlayer. Set to false
 	// for now so that the irq does not get changed during load
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		videoEnabled = false;
 	}
 	ar.serialize("superimposing", superimposing,
@@ -185,7 +185,7 @@ void PioneerLDControl::serialize(Archive& ar, unsigned /*version*/)
 	             "irq",           irq);
 	if (laserdisc) ar.serialize("laserdisc", *laserdisc);
 
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		updateVideoSource();
 		if (laserdisc) {
 			laserdisc->setMuting(muteL, muteR, getCurrentTime());

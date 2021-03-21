@@ -822,7 +822,7 @@ void SCSILS120::serialize(Archive& ar, unsigned /*version*/)
 {
 	string filename = file.is_open() ? file.getURL() : string{};
 	ar.serialize("filename", filename);
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		// re-insert disk before restoring 'mediaChanged'
 		if (filename.empty()) {
 			eject();

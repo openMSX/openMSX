@@ -566,7 +566,7 @@ void SCC::serialize(Archive& ar, unsigned /*version*/)
 		ar.serialize(tag, wv); // signed char
 	}
 
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		// recalculate volAdjustedWave
 		for (auto channel : xrange(5)) {
 			for (auto p : xrange(32)) {

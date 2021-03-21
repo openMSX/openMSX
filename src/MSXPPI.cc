@@ -148,7 +148,7 @@ void MSXPPI::serialize(Archive& ar, unsigned /*version*/)
 	// merge prevBits and selectedRow into one byte
 	byte portC = (prevBits << 4) | (selectedRow << 0);
 	ar.serialize("portC", portC);
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		selectedRow = (portC >> 0) & 0xF;
 		nibble bits = (portC >> 4) & 0xF;
 		writeC1(bits, getCurrentTime());

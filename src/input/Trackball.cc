@@ -305,8 +305,10 @@ void Trackball::serialize(Archive& ar, unsigned version)
 	ar.serialize("lastValue", lastValue,
 	             "status",    status);
 
-	if (ar.isLoader() && isPluggedIn()) {
-		plugHelper(*getConnector(), EmuTime::dummy());
+	if constexpr (ar.IS_LOADER) {
+		if (isPluggedIn()) {
+			plugHelper(*getConnector(), EmuTime::dummy());
+		}
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(Trackball);

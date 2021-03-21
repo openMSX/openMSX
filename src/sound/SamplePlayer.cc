@@ -135,7 +135,7 @@ void SamplePlayer::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("index",            index,
 	             "currentSampleNum", currentSampleNum,
 	             "nextSampleNum",    nextSampleNum);
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		setWavParams();
 	}
 }

@@ -270,10 +270,10 @@ void RawTrack::serialize(Archive& ar, unsigned version)
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("trackLength", len);
 	} else {
-		assert(ar.isLoader());
+		assert(ar.IS_LOADER);
 		len = 6250;
 	}
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		data.resize(len);
 	}
 	ar.serialize_blob("data", data.data(), data.size());

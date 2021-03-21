@@ -1427,7 +1427,7 @@ void Keyboard::KeyInserter::serialize(Archive& ar, unsigned /*version*/)
 	             "releaseLast", releaseLast);
 
 	bool oldCodeKanaLockOn, oldGraphLockOn, oldCapsLockOn;
-	if (!ar.isLoader()) {
+	if constexpr (!ar.IS_LOADER) {
 		oldCodeKanaLockOn = oldLocksOn & KeyInfo::CODE_MASK;
 		oldGraphLockOn = oldLocksOn & KeyInfo::GRAPH_MASK;
 		oldCapsLockOn = oldLocksOn & KeyInfo::CAPS_MASK;
@@ -1435,7 +1435,7 @@ void Keyboard::KeyInserter::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("oldCodeKanaLockOn", oldCodeKanaLockOn,
 	             "oldGraphLockOn",    oldGraphLockOn,
 	             "oldCapsLockOn",     oldCapsLockOn);
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		oldLocksOn = (oldCodeKanaLockOn ? KeyInfo::CODE_MASK : 0)
 		           | (oldGraphLockOn ? KeyInfo::GRAPH_MASK : 0)
 		           | (oldCapsLockOn ? KeyInfo::CAPS_MASK : 0);
@@ -1467,7 +1467,7 @@ void Keyboard::serialize(Archive& ar, unsigned version)
 	}
 
 	bool msxCapsLockOn, msxCodeKanaLockOn, msxGraphLockOn;
-	if (!ar.isLoader()) {
+	if constexpr (!ar.IS_LOADER) {
 		msxCapsLockOn = locksOn & KeyInfo::CAPS_MASK;
 		msxCodeKanaLockOn = locksOn & KeyInfo::CODE_MASK;
 		msxGraphLockOn = locksOn & KeyInfo::GRAPH_MASK;
@@ -1475,7 +1475,7 @@ void Keyboard::serialize(Archive& ar, unsigned version)
 	ar.serialize("msxCapsLockOn",     msxCapsLockOn,
 	             "msxCodeKanaLockOn", msxCodeKanaLockOn,
 	             "msxGraphLockOn",    msxGraphLockOn);
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		locksOn = (msxCapsLockOn ? KeyInfo::CAPS_MASK : 0)
 		        | (msxCodeKanaLockOn ? KeyInfo::CODE_MASK : 0)
 		        | (msxGraphLockOn ? KeyInfo::GRAPH_MASK : 0);
@@ -1489,7 +1489,7 @@ void Keyboard::serialize(Archive& ar, unsigned version)
 	}
 	// don't serialize hostKeyMatrix
 
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		// force recalculation of keyMatrix
 		keysChanged = true;
 	}
@@ -1509,12 +1509,12 @@ void Keyboard::MsxKeyEventQueue::serialize(Archive& ar, unsigned /*version*/)
 	// empty or contain very few elements).
 	//ar.serialize("eventQueue", eventQueue);
 	vector<string> eventStrs;
-	if (!ar.isLoader()) {
+	if constexpr (!ar.IS_LOADER) {
 		eventStrs = to_vector(view::transform(
 			eventQueue, [](auto& e) { return e->toString(); }));
 	}
 	ar.serialize("eventQueue", eventStrs);
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		assert(eventQueue.empty());
 		for (auto& s : eventStrs) {
 			eventQueue.push_back(

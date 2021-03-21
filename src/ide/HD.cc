@@ -212,7 +212,7 @@ void HD::serialize(Archive& ar, unsigned version)
 {
 	Filename tmp = file.is_open() ? filename : Filename();
 	ar.serialize("filename", tmp);
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		if (tmp.empty()) {
 			// Lazily open file specified in config. And close if
 			// it was already opened (in the constructor). The
@@ -244,9 +244,12 @@ void HD::serialize(Archive& ar, unsigned version)
 
 		if (ar.versionAtLeast(version, 2)) {
 			// use tiger-tree-hash
-			string oldTiger = ar.isLoader() ? string{} : getTigerTreeHash();
+			string oldTiger;
+			if constexpr (!ar.IS_LOADER) {
+				oldTiger = getTigerTreeHash();
+			}
 			ar.serialize("tthsum", oldTiger);
-			if (ar.isLoader()) {
+			if constexpr (ar.IS_LOADER) {
 				string newTiger = getTigerTreeHash();
 				mismatch = oldTiger != newTiger;
 			}
@@ -254,7 +257,7 @@ void HD::serialize(Archive& ar, unsigned version)
 			// use sha1
 			auto& filepool = motherBoard.getReactor().getFilePool();
 			Sha1Sum oldChecksum;
-			if (!ar.isLoader()) {
+			if constexpr (!ar.IS_LOADER) {
 				oldChecksum = getSha1Sum(filepool);
 			}
 			string oldChecksumStr = oldChecksum.empty()
@@ -265,21 +268,23 @@ void HD::serialize(Archive& ar, unsigned version)
 				    ? Sha1Sum()
 				    : Sha1Sum(oldChecksumStr);
 
-			if (ar.isLoader()) {
+			if constexpr (ar.IS_LOADER) {
 				Sha1Sum newChecksum = getSha1Sum(filepool);
 				mismatch = oldChecksum != newChecksum;
 			}
 		}
 
-		if (ar.isLoader() && mismatch) {
-			motherBoard.getMSXCliComm().printWarning(
-				"The content of the harddisk ",
-				tmp.getResolved(),
-				" has changed since the time this savestate was "
-				"created. This might result in emulation problems "
-				"or even diskcorruption. To prevent the latter, "
-				"the harddisk is now write-protected.");
-			forceWriteProtect();
+		if constexpr (ar.IS_LOADER) {
+			if (mismatch) {
+				motherBoard.getMSXCliComm().printWarning(
+					"The content of the harddisk ",
+					tmp.getResolved(),
+					" has changed since the time this savestate was "
+					"created. This might result in emulation problems "
+					"or even diskcorruption. To prevent the latter, "
+					"the harddisk is now write-protected.");
+				forceWriteProtect();
+			}
 		}
 	}
 }

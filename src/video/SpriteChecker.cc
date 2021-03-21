@@ -494,7 +494,7 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 template<typename Archive>
 void SpriteChecker::serialize(Archive& ar, unsigned version)
 {
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		// Recalculate from VDP state:
 		//  - frameStartTime
 		frameStartTime.reset(vdp.getFrameStartTime());

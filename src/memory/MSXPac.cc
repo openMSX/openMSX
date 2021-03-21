@@ -101,7 +101,7 @@ void MSXPac::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("SRAM",  sram,
 	             "r1ffe", r1ffe,
 	             "r1fff", r1fff);
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		checkSramEnable();
 	}
 }

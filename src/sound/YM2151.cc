@@ -1642,7 +1642,7 @@ void YM2151::serialize(Archive& a, unsigned /*version*/)
 	            "ct",              ct);
 	a.serialize_blob("registers", regs, sizeof(regs));
 
-	if (a.isLoader()) {
+	if constexpr (a.IS_LOADER) {
 		// TODO restore more state from registers
 		EmuTime::param time = timer1->getCurrentTime();
 		for (auto r : xrange(0x20, 0x28)) {

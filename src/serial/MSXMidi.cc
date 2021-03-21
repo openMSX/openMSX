@@ -417,8 +417,10 @@ void MSXMidi::serialize(Archive& ar, unsigned version)
 		bool newIsLimitedTo8251 = isLimitedTo8251; // copy for saver
 		ar.serialize("isEnabled",       newIsEnabled,
 		             "isLimitedTo8251", newIsLimitedTo8251);
-		if (ar.isLoader() && isExternalMSXMIDI) {
-			registerIOports((newIsEnabled ? 0x00 : DISABLED_VALUE) | (newIsLimitedTo8251 ? LIMITED_RANGE_VALUE : 0x00));
+		if constexpr (ar.IS_LOADER) {
+			if (isExternalMSXMIDI) {
+				registerIOports((newIsEnabled ? 0x00 : DISABLED_VALUE) | (newIsLimitedTo8251 ? LIMITED_RANGE_VALUE : 0x00));
+			}
 		}
 	}
 

@@ -128,7 +128,7 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 	unsigned offsets[NUM_BANKS];
 	unsigned romSize = rom.getSize();
 	unsigned sramSize = sram ? sram->getSize() : 0;
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		ar.serialize("banks", offsets);
 		for (auto i : xrange(NUM_BANKS)) {
 			if (offsets[i] == unsigned(-1)) {
@@ -170,7 +170,7 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 	/*if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("blockNr", blockNr);
 	} else {
-		assert(ar.isLoader());
+		assert(ar.IS_LOADER);
 		// set dummy value, anyway only used for debuggable
 		ranges::fill(blockNr, 255);
 	}*/

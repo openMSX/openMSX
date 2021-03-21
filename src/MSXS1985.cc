@@ -100,7 +100,7 @@ void MSXS1985::serialize(Archive& ar, unsigned version)
 		// serialize normally...
 		ar.serialize("sram", *sram);
 	} else {
-		assert(ar.isLoader());
+		assert(ar.IS_LOADER);
 		// version 1 had here
 		//    <ram>
 		//      <ram encoding="..">...</ram>

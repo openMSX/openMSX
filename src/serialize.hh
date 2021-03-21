@@ -77,7 +77,7 @@ template<typename Derived> class ArchiveBase
 {
 public:
 	/** Is this archive a loader or a saver.
-	bool isLoader() const;*/
+	static constexpr bool IS_LOADER = ...;*/
 
 	/** Serialize the base class of this classtype.
 	 * Should preferably be called as the first statement in the
@@ -97,7 +97,7 @@ public:
 	 * See also serializeBase() above.
 	 *
 	 * The differece between serializeBase() and serializeInlinedBase()
-	 * is only relevant for versioned archives (see needVersion(), e.g.
+	 * is only relevant for versioned archives (see NEED_VERSION, e.g.
 	 * XML archives). In XML archives serializeBase() will put the base
 	 * class in a new subtag, serializeInlinedBase() puts the members
 	 * of the base class (inline) in the current tag. The advantage
@@ -213,7 +213,7 @@ public:
 	// be used by the serialization framework.
 
 	/** Does this archive store version information. */
-	[[nodiscard]] bool needVersion() const { return true; }
+	static constexpr bool NEED_VERSION = true;
 
 	/** Is this a reverse-snapshot? */
 	[[nodiscard]] bool isReverseSnapshot() const { return false; }
@@ -221,7 +221,7 @@ public:
 	/** Does this archive store enums as strings.
 	 * See also struct serialize_as_enum.
 	 */
-	[[nodiscard]] bool translateEnumToString() const { return false; }
+	static constexpr bool TRANSLATE_ENUM_TO_STRING = false;
 
 	/** Load/store an attribute from/in the archive.
 	 * Depending on the underlying concrete stream, attributes are either
@@ -240,7 +240,7 @@ public:
 	 * This can be used to for example in XML files don't store attributes
 	 * with default values (thus to make the XML look prettier).
 	 */
-	[[nodiscard]] bool canHaveOptionalAttributes() const { return false; }
+	static constexpr bool CAN_HAVE_OPTIONAL_ATTRIBUTES = false;
 
 	/** Check the presence of a (optional) attribute.
 	 * It's only allowed to call this method on archives that can have
@@ -267,7 +267,7 @@ public:
 	 * explicitly store the size of the collection, it can be derived from
 	 * the number of subtags.
 	 */
-	[[nodiscard]] bool canCountChildren() const { return false; }
+	static constexpr bool CAN_COUNT_CHILDREN = false;
 
 	/** Count the number of child tags.
 	 * It's only allowed to call this method on archives that have support
@@ -349,7 +349,7 @@ protected:
 class OutputArchiveBase2
 {
 public:
-	[[nodiscard]] inline bool isLoader() const { return false; }
+	static constexpr bool IS_LOADER = false;
 	[[nodiscard]] inline bool versionAtLeast(unsigned /*actual*/, unsigned /*required*/) const
 	{
 		return true;
@@ -505,7 +505,7 @@ protected:
 class InputArchiveBase2
 {
 public:
-	[[nodiscard]] inline bool isLoader() const { return true; }
+	static constexpr bool IS_LOADER = true;
 
 	void beginSection()
 	{
@@ -651,7 +651,7 @@ public:
 		assert(openSections.empty());
 	}
 
-	[[nodiscard]] bool needVersion() const { return false; }
+	static constexpr bool NEED_VERSION = false;
 	[[nodiscard]] bool isReverseSnapshot() const { return reverseSnapshot; }
 
 	template<typename T> void save(const T& t)
@@ -755,7 +755,7 @@ public:
 	{
 	}
 
-	[[nodiscard]] bool needVersion() const { return false; }
+	static constexpr bool NEED_VERSION = false;
 	[[nodiscard]] inline bool versionAtLeast(unsigned /*actual*/, unsigned /*required*/) const
 	{
 		return true;
@@ -878,9 +878,9 @@ public:
 	}
 
 //internal:
-	[[nodiscard]] inline bool translateEnumToString() const { return true; }
-	[[nodiscard]] inline bool canHaveOptionalAttributes() const { return true; }
-	[[nodiscard]] inline bool canCountChildren() const { return true; }
+	static constexpr bool TRANSLATE_ENUM_TO_STRING = true;
+	static constexpr bool CAN_HAVE_OPTIONAL_ATTRIBUTES = true;
+	static constexpr bool CAN_COUNT_CHILDREN = true;
 
 	void beginTag(const char* tag);
 	void endTag(const char* tag);
@@ -949,9 +949,9 @@ public:
 	}
 
 //internal:
-	[[nodiscard]] inline bool translateEnumToString() const { return true; }
-	[[nodiscard]] inline bool canHaveOptionalAttributes() const { return true; }
-	[[nodiscard]] inline bool canCountChildren() const { return true; }
+	static constexpr bool TRANSLATE_ENUM_TO_STRING = true;
+	static constexpr bool CAN_HAVE_OPTIONAL_ATTRIBUTES = true;
+	static constexpr bool CAN_COUNT_CHILDREN = true;
 
 	void beginTag(const char* tag);
 	void endTag(const char* tag);

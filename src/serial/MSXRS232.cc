@@ -437,7 +437,7 @@ void MSXRS232::serialize(Archive& ar, unsigned version)
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("ioAccessEnabled", ioAccessEnabled);
 	} else {
-		assert(ar.isLoader());
+		assert(ar.IS_LOADER);
 		ioAccessEnabled = !hasMemoryBasedIo; // we can't know the
 					// actual value, but this is probably
 					// safest

@@ -129,7 +129,7 @@ void MSXMapperIO::serialize(Archive& ar, unsigned version)
 	if (ar.versionBelow(version, 2)) {
 		// In version 1 we stored the mapper state in MSXMapperIO instead of
 		// in the individual mappers, so distribute the state to them.
-		assert(ar.isLoader());
+		assert(ar.IS_LOADER);
 		ar.serialize("registers", registers);
 		for (auto [page, reg] : enumerate(registers)) {
 			writeIO(word(page), reg, EmuTime::dummy());

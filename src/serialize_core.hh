@@ -303,7 +303,7 @@ template<typename T> struct EnumSaver
 	template<typename Archive> void operator()(Archive& ar, const T& t,
 	                                           bool /*saveId*/)
 	{
-		if (ar.translateEnumToString()) {
+		if constexpr (ar.TRANSLATE_ENUM_TO_STRING) {
 			serialize_as_enum<T> sae;
 			std::string str = sae.toString(t);
 			ar.save(str);
@@ -340,8 +340,8 @@ template<typename T> struct ClassSaver
 		}
 
 		unsigned version = SerializeClassVersion<T>::value;
-		if ((version != 0) && ar.needVersion()) {
-			if (!ar.canHaveOptionalAttributes() ||
+		if ((version != 0) && ar.NEED_VERSION) {
+			if (!ar.CAN_HAVE_OPTIONAL_ATTRIBUTES ||
 			    (version != 1)) {
 				ar.attribute("version", version);
 			}
@@ -413,7 +413,7 @@ template<typename TC> struct CollectionSaver
 		static_assert(sac::value, "must be serialized as collection");
 		auto begin = sac::begin(tc);
 		auto end   = sac::end  (tc);
-		if ((sac::size < 0) && (!ar.canCountChildren())) {
+		if ((sac::size < 0) && (!ar.CAN_COUNT_CHILDREN)) {
 			// variable size
 			// e.g. in an XML archive the loader can look-ahead and
 			// count the number of sub-tags, so no need to
@@ -475,7 +475,7 @@ template<typename T> struct EnumLoader
 	{
 		static_assert(std::tuple_size_v<TUPLE> == 0,
 		              "can't have constructor arguments");
-		if (ar.translateEnumToString()) {
+		if constexpr (ar.TRANSLATE_ENUM_TO_STRING) {
 			std::string str;
 			ar.load(str);
 			serialize_as_enum<T> sae;
@@ -495,7 +495,7 @@ unsigned loadVersionHelper(XmlInputArchive& ar, const char* className,
 template<typename T, typename Archive> unsigned loadVersion(Archive& ar)
 {
 	unsigned latestVersion = SerializeClassVersion<T>::value;
-	if ((latestVersion != 0) && ar.needVersion()) {
+	if ((latestVersion != 0) && ar.NEED_VERSION) {
 		return loadVersionHelper(ar, typeid(T).name(), latestVersion);
 	} else {
 		return latestVersion;
@@ -585,7 +585,7 @@ template<typename TP> struct PointerLoader
 		// in XML archives we use 'id_ref' or 'id', in other archives
 		// we don't care about the name
 		unsigned id;
-		if (ar.canHaveOptionalAttributes() &&
+		if (ar.CAN_HAVE_OPTIONAL_ATTRIBUTES &&
 		    ar.findAttribute("id_ref", id)) {
 			// nothing, 'id' already filled in
 		} else {
@@ -668,7 +668,7 @@ template<typename TC> struct CollectionLoader
 		int n = sac::size;
 		if (n < 0) {
 			// variable size
-			if (ar.canCountChildren()) {
+			if constexpr (ar.CAN_COUNT_CHILDREN) {
 				n = ar.countChildren();
 			} else {
 				ar.serialize("size", n);

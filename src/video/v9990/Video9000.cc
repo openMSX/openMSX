@@ -171,7 +171,7 @@ void Video9000::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("value", value);
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		recalc();
 	}
 }

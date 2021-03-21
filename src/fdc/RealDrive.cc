@@ -478,7 +478,7 @@ void RealDrive::serialize(Archive& ar, unsigned version)
 	if (ar.versionAtLeast(version, 3)) {
 		ar.serialize("startAngle", startAngle);
 	} else {
-		assert(ar.isLoader());
+		assert(ar.IS_LOADER);
 		startAngle = 0;
 	}
 	if (ar.versionAtLeast(version, 5)) {
@@ -486,7 +486,7 @@ void RealDrive::serialize(Archive& ar, unsigned version)
 		ar.serialize("trackValid", trackValid);
 		ar.serialize("trackDirty", trackDirty);
 	}
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		// Right after a loadstate, the 'loading indicator' state may
 		// be wrong, but that's OK. It's anyway only a heuristic and
 		// it will be correct after at most one second.

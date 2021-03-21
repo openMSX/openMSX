@@ -17,7 +17,7 @@ struct SyncPointBW
 {
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned /*version*/) {
-		assert(ar.isLoader());
+		assert(ar.IS_LOADER);
 		ar.serialize("time", time,
 		             "type", userData);
 	}
@@ -66,7 +66,7 @@ public:
 
 	template<typename Archive>
 	static std::vector<SyncPointBW> serializeBW(Archive& ar) {
-		assert(ar.isLoader());
+		assert(ar.IS_LOADER);
 		ar.beginTag("Schedulable");
 		std::vector<SyncPointBW> result;
 		ar.serialize("syncPoints", result);
@@ -75,7 +75,7 @@ public:
 	}
 	template<typename Archive>
 	static void restoreOld(Archive& ar, std::vector<Schedulable*> schedulables) {
-		assert(ar.isLoader());
+		assert(ar.IS_LOADER);
 		for (auto* s : schedulables) {
 			s->removeSyncPoints();
 		}

@@ -1648,7 +1648,7 @@ void YM2413::serialize(Archive& ar, unsigned version)
 	             "am_phase",   am_phase,
 	             "noise_seed", noise_seed);
 
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		patches[0][0].initModulator(&reg[0]);
 		patches[0][1].initCarrier  (&reg[0]);
 		for (auto [i, ch] : enumerate(channels)) {

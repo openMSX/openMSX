@@ -1040,7 +1040,7 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 		ar.serialize("RemoteBitNr", remoteBitNr,
 		             "RemoteBits",  remoteBits);
 		if (ar.versionBelow(version, 3)) {
-			assert(ar.isLoader());
+			assert(ar.IS_LOADER);
 			remoteBits = Math::reverseNBits(remoteBits, remoteBitNr);
 		}
 	}
@@ -1050,7 +1050,7 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 	if (remoteProtocol != IR_NONE) {
 		ar.serialize("RemoteCode", remoteCode);
 		if (ar.versionBelow(version, 3)) {
-			assert(ar.isLoader());
+			assert(ar.IS_LOADER);
 			remoteCode = Math::reverseByte(remoteCode);
 		}
 		ar.serialize("RemoteExecuteDelayed", remoteExecuteDelayed,
@@ -1059,7 +1059,7 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 
 	// Serialize filename
 	ar.serialize("OggImage", oggImage);
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		sampleReads = 0;
 		if (!oggImage.empty()) {
 			setImageName(oggImage.getResolved(), getCurrentTime());
@@ -1099,7 +1099,7 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 		             "FromSample",  playingFromSample,
 		             "SampleClock", sampleClock);
 
-		if (ar.isLoader()) {
+		if constexpr (ar.IS_LOADER) {
 			// If the samplerate differs, adjust accordingly
 			if (video->getSampleRate() != sampleClock.getFreq()) {
 				uint64_t pos = playingFromSample;
@@ -1128,7 +1128,7 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 		Schedulable::restoreOld(ar, {&syncEven, &syncOdd, &syncAck});
 	}
 
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		(void)isVideoOutputAvailable(getCurrentTime());
 	}
 }

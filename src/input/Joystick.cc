@@ -369,7 +369,7 @@ void Joystick::serialize(Archive& ar, unsigned version)
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("status", status);
 	}
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		if (joystick && isPluggedIn()) {
 			plugHelper2();
 		}

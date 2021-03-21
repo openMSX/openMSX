@@ -121,7 +121,7 @@ void MSXPSG::serialize(Archive& ar, unsigned version)
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("ay8910", *ay8910);
 	if (ar.versionBelow(version, 2)) {
-		assert(ar.isLoader());
+		assert(ar.IS_LOADER);
 		// in older versions there were always 2 real joystick ports
 		ar.serialize("joystickportA", *checked_cast<JoystickPort*>(ports[0]),
 		             "joystickportB", *checked_cast<JoystickPort*>(ports[1]));
@@ -129,7 +129,7 @@ void MSXPSG::serialize(Archive& ar, unsigned version)
 	ar.serialize("registerLatch", registerLatch);
 	byte portB = prev;
 	ar.serialize("portB", portB);
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		writeB(portB, getCurrentTime());
 	}
 	// selectedPort is derived from portB

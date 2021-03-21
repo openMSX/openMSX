@@ -908,7 +908,7 @@ void MegaFlashRomSCCPlusSD::serialize(Archive& ar, unsigned /*version*/)
 	             "mapperReg", mapperReg,
 	             "offsetReg", offsetReg,
 	             "bankRegsSubSlot1", bankRegsSubSlot1);
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		// Re-register PSG ports (if needed)
 		byte tmp = configReg;
 		configReg = 3; // set to un-registered

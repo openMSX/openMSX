@@ -1256,14 +1256,14 @@ void MSXCPUInterface::serialize(Archive& ar, unsigned /*version*/)
 
 	// primary and 4 secondary slot select registers
 	byte prim = 0;
-	if (!ar.isLoader()) {
+	if constexpr (!ar.IS_LOADER) {
 		for (auto i : xrange(4)) {
 			prim |= primarySlotState[i] << (2 * i);
 		}
 	}
 	ar.serialize("primarySlots", prim,
 	             "subSlotRegs",  subSlotRegister);
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		setPrimarySlots(prim);
 		for (auto i : xrange(4)) {
 			setSubSlot(i, subSlotRegister[i]);

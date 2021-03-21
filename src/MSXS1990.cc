@@ -117,7 +117,7 @@ void MSXS1990::serialize(Archive& ar, unsigned /*version*/)
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("registerSelect", registerSelect,
 	             "cpuStatus",      cpuStatus);
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		setCPUStatus(cpuStatus);
 	}
 }

@@ -133,7 +133,7 @@ void MSXAudio::serialize(Archive& ar, unsigned /*version*/)
 	             "dacValue",      dacValue,
 	             "dacEnabled",    dacEnabled);
 
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		// restore dac status
 		if (dacEnabled) {
 			assert(dac);

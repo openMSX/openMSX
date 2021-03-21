@@ -300,8 +300,10 @@ void Touchpad::serialize(Archive& ar, unsigned /*version*/)
 	             "channel", channel,
 	             "last",    last);
 
-	if (ar.isLoader() && isPluggedIn()) {
-		plugHelper(*getConnector(), EmuTime::dummy());
+	if constexpr (ar.IS_LOADER) {
+		if (isPluggedIn()) {
+			plugHelper(*getConnector(), EmuTime::dummy());
+		}
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(Touchpad);

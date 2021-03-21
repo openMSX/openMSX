@@ -453,7 +453,7 @@ void HardwareConfig::serialize(Archive& ar, unsigned version)
 		assert(ctxt);
 		context = *ctxt;
 	}
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		if (!motherBoard.getMachineConfig()) {
 			// must be done before parseSlots()
 			motherBoard.setMachineConfig(this);
@@ -471,7 +471,7 @@ void HardwareConfig::serialize(Archive& ar, unsigned version)
 	if (ar.versionAtLeast(version, 5)) {
 		ar.serialize("type", type);
 	} else {
-		assert(ar.isLoader());
+		assert(ar.IS_LOADER);
 		type = name == "rom" ? HardwareConfig::Type::ROM : HardwareConfig::Type::EXTENSION;
 	}
 }

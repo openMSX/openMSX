@@ -1038,14 +1038,14 @@ void YMF278::Slot::serialize(Archive& ar, unsigned version)
 
 	ar.serialize("state", state);
 	if (ar.versionBelow(version, 4)) {
-		assert(ar.isLoader());
+		assert(ar.IS_LOADER);
 		if (state == one_of(EG_REV, EG_DMP)) {
 			state = EG_REL;
 		}
 	}
 
 	// Recalculate redundant state
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		step = calcStep(OCT, FN);
 	}
 
@@ -1079,7 +1079,7 @@ void YMF278::serialize(Archive& ar, unsigned version)
 	if (ar.versionAtLeast(version, 3)) { // must come after 'regs'
 		ar.serialize("memadr", memAdr);
 	} else {
-		assert(ar.isLoader());
+		assert(ar.IS_LOADER);
 		// Old formats didn't store 'memAdr' so we also can't magically
 		// restore the correct value. The best we can do is restore the
 		// last set address.
@@ -1088,7 +1088,7 @@ void YMF278::serialize(Archive& ar, unsigned version)
 	}
 
 	// TODO restore more state from registers
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		for (auto [i, sl] : enumerate(slots)) {
 			auto t = regs[0x50 + i] >> 1;
 			sl.TLdest = (t != 0x7f) ? t : 0xff;

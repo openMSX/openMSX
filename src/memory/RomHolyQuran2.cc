@@ -107,7 +107,7 @@ void RomHolyQuran2::serialize(Archive& ar, unsigned /*version*/)
 	ar.template serializeBase<MSXDevice>(*this);
 
 	unsigned bb[4];
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		ar.serialize("banks", bb);
 		for (auto [i, b] : enumerate(bb)) {
 			bank[i] = &rom[(b & 127) * 0x2000];

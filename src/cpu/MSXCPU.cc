@@ -537,7 +537,7 @@ void MSXCPU::serialize(Archive& ar, unsigned version)
 		             "newZ80Active", newZ80Active);
 	} else {
 		// backwards-compatibility
-		assert(ar.isLoader());
+		assert(ar.IS_LOADER);
 
 		          ar.serializeWithID("z80",  *z80);
 		if (r800) ar.serializeWithID("r800", *r800);
@@ -554,7 +554,7 @@ void MSXCPU::serialize(Archive& ar, unsigned version)
 	}
 	ar.serialize("resetTime", reference);
 
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		invalidateMemCacheSlot();
 		invalidateAllSlotsRWCache(0x0000, 0x10000);
 	}

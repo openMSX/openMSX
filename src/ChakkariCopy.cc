@@ -220,7 +220,7 @@ void ChakkariCopy::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("biosRam", biosRam,
 	             "workRam", workRam,
 	             "reg", reg);
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		writeIO(0, reg, getCurrentTime());
 	}
 

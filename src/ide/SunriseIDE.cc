@@ -223,7 +223,7 @@ void SunriseIDE::serialize(Archive& ar, unsigned /*version*/)
 	             "control",        control,
 	             "softReset",      softReset);
 
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		// restore internalBank, ideRegsEnabled
 		writeControl(control);
 	}

@@ -85,7 +85,7 @@ template<typename Archive>
 void WavAudioInput::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("reference", reference);
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		update(audioInputFilenameSetting);
 	}
 }

@@ -122,7 +122,7 @@ public:
 	{
 		bool pending = request;
 		ar.serialize("pending", pending);
-		if (ar.isLoader()) {
+		if constexpr (ar.IS_LOADER) {
 			set(pending);
 		}
 	}

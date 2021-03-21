@@ -349,7 +349,7 @@ void ReproCartridgeV2::serialize(Archive& ar, unsigned /*version*/)
 	             "sccMode",       sccMode,
 	             "bankRegs",      bankRegs);
 
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		auto time = getCurrentTime();
 		setVolume(time, volumeReg);
 	}

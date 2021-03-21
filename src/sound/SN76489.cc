@@ -78,7 +78,7 @@ void SN76489::NoiseShifter::serialize(Archive& ar, unsigned /*version*/)
 {
 	// Make sure there are no queued steps, so we don't have to serialize them.
 	// If we're loading, initState() already set stepsBehind to 0.
-	if (!ar.isLoader()) {
+	if constexpr (!ar.IS_LOADER) {
 		catchUp();
 	}
 	assert(stepsBehind == 0);
@@ -314,7 +314,7 @@ void SN76489::serialize(Archive& ar, unsigned version)
 	             "counters",      counters,
 	             "outputs",       outputs);
 
-	if (ar.isLoader()) {
+	if constexpr (ar.IS_LOADER) {
 		// Initialize the computed NoiseShifter members, based on the
 		// register contents we just loaded, before we load the shift
 		// register state.

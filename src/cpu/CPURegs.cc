@@ -24,7 +24,7 @@ void CPURegs::serialize(Archive& ar, unsigned version)
 	             "i",   I_);
 	byte r = getR();
 	ar.serialize("r",   r);  // combined R_ and R2_
-	if (ar.isLoader()) setR(r);
+	if constexpr (ar.IS_LOADER) setR(r);
 	ar.serialize("im",   IM_,
 	             "iff1", IFF1_,
 	             "iff2", IFF2_);
