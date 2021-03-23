@@ -1,6 +1,7 @@
 #include "Carnivore2.hh"
 #include "IDEDevice.hh"
 #include "IDEDeviceFactory.hh"
+#include "CliComm.hh"
 #include "MSXCPU.hh"
 #include "cstd.hh"
 #include "one_of.hh"
@@ -9,9 +10,6 @@
 #include <array>
 
 // TODO (besides what's in the code below):
-// - behaviour of non unique values in configReg[0x28] is not properly
-//   implemented, but also not supported. So print a warning when that condition
-//   occurs. See e.g. https://godbolt.org/z/j6e7MW
 // - FM-PAC mono/stereo setting (bit 7)
 // - possibly the PPI volume setting
 // - slave slot support
@@ -261,6 +259,17 @@ void Carnivore2::writeCfgEEPR(byte value, EmuTime::param time)
 	eeprom.write_CS (value & 8, time);
 }
 
+// check whether each of the 4 bit pairs are unique in the given byte x
+[[nodiscard]] static bool bitPairsUnique(uint8_t x)
+{
+	uint8_t seen = 0;
+	for (int i = 0; i < 4; ++i) {
+		seen |= 1 << (x & 3);
+		x >>= 2;
+	}
+	return seen == 0b1111;
+}
+
 void Carnivore2::writeConfigRegister(word address, byte value, EmuTime::param time)
 {
 	address &= 0x3f;
@@ -280,6 +289,13 @@ void Carnivore2::writeConfigRegister(word address, byte value, EmuTime::param ti
 			case 0x22: writeSndLVL(value, time); break;
 			case 0x23: writeCfgEEPR(value, time); break;
 			//case 0x24: // TODO PSG key-click
+			case 0x28:
+				if (!bitPairsUnique(value)) {
+					   getCliComm().printWarning(
+						"Illegal value of ", value,
+						"written to SLM_cfg register");
+				}
+				[[fallthrough]];
 			default:   configRegs[address] = value; break;
 		}
 	}
