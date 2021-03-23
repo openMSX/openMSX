@@ -40,9 +40,8 @@ public:
 	 *   are not all equally large, that's why it's required to enumerate
 	 *   the size of each sector (instead of simply specifying the size and
 	 *   the number of sectors).
-	 * @param ID
-	 *   Contains manufacturer and device ID for this flash.
-	 * @param use12bitAddressing set to true for 12-bit command addresses, false for 11-bit command addresses
+	 * @param ID Contains manufacturer and device ID for this flash.
+	 * @param addressing Specify addressing mode (11-bit or 12-bit)
 	 * @param config The motherboard this flash belongs to
 	 * @param load Load initial content (hack for 'Matra INK')
 	 */
