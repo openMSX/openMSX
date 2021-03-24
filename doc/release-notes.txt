@@ -82,7 +82,8 @@ Build system, packaging, documentation:
 - better support for macOS < 10.13, using HFS+J DMG format
 - target macOS 10.13
 - build support for 64-bit RISC-V
-- SDLGL-PP renderer now requires OpenGL 2.1 again
+- SDLGL-PP renderer requirements are now relaxed to only OpenGL 2.1 again (was
+  3.3 in openMSX 16.0)
 - fixed building without SDL joystick support
 - C++ code is based on C++17 and thus requires a compiler supporting it, e.g.
   g++ 8 or later or Visual Studio 2019 or later
