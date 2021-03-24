@@ -17,8 +17,6 @@
        (It was identical to the concatenation of the separate ROM files.)
   -->
 
-  <MapperReadBackBits>5</MapperReadBackBits> <!-- Due to S-1985 -->
-
   <CassettePort/>
 
   <devices>
@@ -32,7 +30,7 @@
       <io base="0xD9" num="1" type="I"/>
     </Kanji>
 
-    <S1985 id="S1985">
+    <S1985 id="S1985"> <!-- includes 5 bits mapper-read-back -->
       <sramname>fs-a1f_s1985.sram</sramname>
     </S1985>
 

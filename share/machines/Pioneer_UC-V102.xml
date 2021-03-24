@@ -42,9 +42,11 @@
     <type>MSX2</type>
   </info>
 
-  <MapperReadBackBits>5</MapperReadBackBits> <!-- Due to S-1985 -->
-
   <devices>
+
+    <S1985 id="S1985"> <!-- includes 5 bits mapper-read-back -->
+      <sramname>uc-v102_s1985.sram</sramname>
+    </S1985>
 
     <Kanji id="Kanji ROM">
       <rom>
@@ -54,7 +56,6 @@
       <io base="0xD8" num="2" type="O"/>
       <io base="0xD9" num="1" type="I"/>
     </Kanji>
-
 
     <PPI id="ppi">
       <key_ghosting>true</key_ghosting>
@@ -75,10 +76,6 @@
       <io base="0x98" num="4" type="O"/>
       <io base="0x98" num="2" type="I"/>
     </VDP>
-
-    <S1985 id="S1985">
-      <sramname>uc-v102_s1985.sram</sramname>
-    </S1985>
 
     <PSG id="PSG">
       <type>YM2149</type>

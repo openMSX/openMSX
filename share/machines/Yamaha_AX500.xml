@@ -35,57 +35,94 @@
 
   -->
 
-  <MapperReadBackBits>5</MapperReadBackBits> <!-- Due to S-1985 -->
-
   <CassettePort/>
 
   <devices>
 
-    <S1985 id="S1985">
+    <S1985 id="S1985"> <!-- includes 5 bits mapper-read-back -->
       <sramname>ax500_s1985.sram</sramname>
     </S1985>
 
+    <PPI id="ppi">
+      <io base="0xA8" num="4"/>
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <keyboard_type>int</keyboard_type> <!-- Should be Arabic? -->
+      <has_keypad>true</has_keypad>
+      <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
+      <code_kana_locks>true</code_kana_locks>
+      <graph_locks>false</graph_locks> <!-- not sure, doesn't seem to matter in international BASIC and has no effect in Arabic basic -->
+    </PPI>
+
+    <VDP id="VDP">
+      <version>V9938</version>
+      <vram>128</vram>
+      <io base="0x98" num="8" type="O"/> <!-- S-1985 mirrors -->
+      <io base="0x98" num="8" type="I"/> <!-- S-1985 mirrors -->
+    </VDP>
+
+    <PSG id="PSG">
+      <type>YM2149</type> <!-- due to S1985, but mask is like AY8910... -->
+      <io base="0xA0" num="2" type="O"/>
+      <io base="0xA2" num="1" type="I"/>
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
+    </PSG>
+
+    <RTC id="Real time clock">
+      <io base="0xB4" num="2" type="O"/>
+      <io base="0xB5" num="1" type="I"/>
+      <sramname>ax500.cmos</sramname>
+    </RTC>
+
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
+
     <primary slot="0">
 
-    <secondary slot="0">
-      <ROM id="MSX BIOS with BASIC ROM">
-        <mem base="0x0000" size="0x8000"/>
-        <rom>
-          <sha1>dd1b577ea3ea69de84a68d311261392881f9eac3</sha1>
-          <filename>ax500_basic-bios2.rom</filename>
-        </rom>
-      </ROM>
-    </secondary>
+      <secondary slot="0">
+        <ROM id="MSX BIOS with BASIC ROM">
+          <mem base="0x0000" size="0x8000"/>
+          <rom>
+            <sha1>dd1b577ea3ea69de84a68d311261392881f9eac3</sha1>
+            <filename>ax500_basic-bios2.rom</filename>
+          </rom>
+        </ROM>
+      </secondary>
 
-    <secondary slot="1">
-      <ROM id="Arabic BASIC">
-        <mem base="0x4000" size="0x8000"/>
-        <rom>
-          <sha1>92bac0b2995f54f0eebf167cd447361a6a4923eb</sha1>
-          <filename>ax500_arabic.rom</filename>
-        </rom>
-      </ROM>
-    </secondary>
+      <secondary slot="1">
+        <ROM id="Arabic BASIC">
+          <mem base="0x4000" size="0x8000"/>
+          <rom>
+            <sha1>92bac0b2995f54f0eebf167cd447361a6a4923eb</sha1>
+            <filename>ax500_arabic.rom</filename>
+          </rom>
+        </ROM>
+      </secondary>
 
-    <secondary slot="2">
-      <ROM id="Arabic Word Processor">
-        <mem base="0x4000" size="0x8000"/>
-        <rom>
-          <sha1>8674d000a52ec01fd80c8cb7cbaa66d4c3ca5cf7</sha1>
-          <filename>ax500_swp.rom</filename>
-        </rom>
-      </ROM>
-    </secondary>
+      <secondary slot="2">
+        <ROM id="Arabic Word Processor">
+          <mem base="0x4000" size="0x8000"/>
+          <rom>
+            <sha1>8674d000a52ec01fd80c8cb7cbaa66d4c3ca5cf7</sha1>
+            <filename>ax500_swp.rom</filename>
+          </rom>
+        </ROM>
+      </secondary>
 
-    <secondary slot="3">
-      <ROM id="Sakhr Files">
-        <mem base="0x0000" size="0xC000"/>
-        <rom>
-          <sha1>8e889999ecec302f05d3bd0a0f127b489fcf3739</sha1>
-          <filename>ax500_sakhr_files.rom</filename>
-        </rom>
-      </ROM>
-    </secondary>
+      <secondary slot="3">
+        <ROM id="Sakhr Files">
+          <mem base="0x0000" size="0xC000"/>
+          <rom>
+            <sha1>8e889999ecec302f05d3bd0a0f127b489fcf3739</sha1>
+            <filename>ax500_sakhr_files.rom</filename>
+          </rom>
+        </ROM>
+      </secondary>
 
     </primary>
 
@@ -140,45 +177,6 @@
      <secondary external="true" slot="3"/>
 
     </primary>
-
-    <PPI id="ppi">
-      <io base="0xA8" num="4"/>
-      <sound>
-        <volume>16000</volume>
-      </sound>
-      <keyboard_type>int</keyboard_type> <!-- Should be Arabic? -->
-      <has_keypad>true</has_keypad>
-      <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
-      <code_kana_locks>true</code_kana_locks>
-      <graph_locks>false</graph_locks> <!-- not sure, doesn't seem to matter in international BASIC and has no effect in Arabic basic -->
-    </PPI>
-
-    <VDP id="VDP">
-      <io base="0x98" num="4" type="O"/>
-      <io base="0x98" num="2" type="I"/>
-      <version>V9938</version>
-      <vram>128</vram>
-    </VDP>
-
-    <PSG id="PSG">
-      <type>YM2149</type> <!-- due to S1985, but mask is like AY8910... -->
-      <io base="0xA0" num="2" type="O"/>
-      <io base="0xA2" num="1" type="I"/>
-      <sound>
-        <volume>21000</volume>
-      </sound>
-      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
-    </PSG>
-
-    <RTC id="Real time clock">
-      <io base="0xB4" num="2" type="O"/>
-      <io base="0xB5" num="1" type="I"/>
-      <sramname>ax500.cmos</sramname>
-    </RTC>
-
-    <PrinterPort id="Printer Port">
-      <io base="0x90" num="2"/>
-    </PrinterPort>
 
   </devices>
 

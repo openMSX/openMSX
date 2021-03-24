@@ -10,13 +10,11 @@
     <type>MSX2</type>
   </info>
 
-  <MapperReadBackBits>5</MapperReadBackBits> <!-- Due to S-1985 -->
-
   <CassettePort/>
 
   <devices>
 
-    <S1985 id="S1985">
+    <S1985 id="S1985"> <!-- includes 5 bits mapper-read-back -->
       <sramname>cpc-300_s1985.sram</sramname>
     </S1985>
 

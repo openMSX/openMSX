@@ -12,11 +12,13 @@
 
   <!-- ROM dumps and initial content provided by yang, based on machine with serial number 401749 -->
 
-  <MapperReadBackBits>5</MapperReadBackBits> <!-- Due to S-1985, confirmed by Manuel on HB-F700D -->
-
   <CassettePort/>
 
   <devices>
+
+    <S1985 id="S1985"> <!-- includes 5 bits mapper-read-back, confirmed by Manuel on HB-F700D-->
+      <sramname>hb-f700f_s1985.sram</sramname>
+    </S1985>
 
     <PPI id="ppi">
       <sound>
@@ -36,10 +38,6 @@
       <io base="0x98" num="8" type="O"/> <!-- S-1985 mirrors -->
       <io base="0x98" num="8" type="I"/> <!-- S-1985 mirrors -->
     </VDP>
-
-    <S1985 id="S1985">
-      <sramname>hb-f700f_s1985.sram</sramname>
-    </S1985>
 
     <PSG id="PSG">
       <type>YM2149</type> <!-- in S-1985 MSX-ENGINE -->

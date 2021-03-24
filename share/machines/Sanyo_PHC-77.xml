@@ -18,8 +18,6 @@
     seems to be connected to the /OE signal.
    -->
 
-  <MapperReadBackBits>5</MapperReadBackBits> <!-- Due to S-1985, confirmed by Peter Hanraets -->
-
   <CassettePort/>
 
   <devices>
@@ -33,7 +31,7 @@
       <io base="0xD9" num="1" type="I"/>
     </Kanji>
 
-    <S1985 id="S1985">
+    <S1985 id="S1985"> <!-- includes 5 bits mapper-read-back, confirmed by Peter Hanraets -->
       <sramname>phc-77_s1985.sram</sramname>
     </S1985>
 

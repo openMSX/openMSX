@@ -15,11 +15,13 @@
     <max_ints>221</max_ints>
   </RenShaTurbo>
 
-  <MapperReadBackBits>5</MapperReadBackBits> <!-- Due to S-1985, confirmed by Meits -->
-
   <CassettePort/>
 
   <devices>
+
+    <S1985 id="S1985"> <!-- includes 5 bits mapper-read-back, confirmed by Meits -->
+      <sramname>hb-f1xdj_s1985.sram</sramname>
+    </S1985>
 
     <Kanji id="Kanji ROM">
       <rom>
@@ -50,10 +52,6 @@
       <io base="0x98" num="8" type="O"/> <!-- S-1985 mirrors -->
       <io base="0x98" num="8" type="I"/> <!-- S-1985 mirrors -->
     </VDP>
-
-    <S1985 id="S1985">
-      <sramname>hb-f1xdj_s1985.sram</sramname>
-    </S1985>
 
     <PSG id="PSG">
       <type>YM2149</type> <!-- in S-1985 MSX-ENGINE -->

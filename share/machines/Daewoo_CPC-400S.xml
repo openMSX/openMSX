@@ -14,8 +14,6 @@
   <!-- Note that the content of these EPROMs were identical to what was
        specified in this file before using the EPROM dumps. -->
 
-  <MapperReadBackBits>5</MapperReadBackBits> <!-- Due to S-1985 -->
-
   <CassettePort/>
 
   <devices>
@@ -30,7 +28,7 @@
       <io base="0xD9" num="1" type="I"/>
     </Kanji>
 
-    <S1985 id="S1985">
+    <S1985 id="S1985"> <!-- includes 5 bits mapper-read-back -->
       <sramname>cpc-400s_s1985.sram</sramname>
     </S1985>
 
