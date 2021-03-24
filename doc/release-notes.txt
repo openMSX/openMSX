@@ -9,23 +9,53 @@ team! Keep these pull requests coming!
 Here's the list with all highlights and details:
 
 MSX device support:
+- V99x8:
+  - fixed timing of VDP settings getting applied. This fixes the screensplit in
+    Psycho World, Hydefos, Space Manbow and the Woei demo, and probably more.
+    Many thanks to Grauw for figuring out the real problem.
+  - fixed that sprites are not disabled instantly, but on the next line
+- Carnivore 2:
+  - updated initial (out-of-the-box) flash content, with bootmenu 2.40
+  - added support for firmware version readout (now hardcoded on 2.30)
+  - added support for SLM_cfg register
+  - added reading from SCC, which also works on real hardware
 - V9990: fix location of bitmap cursor
 - fixed OPL4 12-bit sample decoding
+- fixed stereo settings of Daewoo CPC-400(S)
+- fixed loading/saving of flash content for ReproCartridgeV1/V2 mappers
+- fixed bugs in RTC (thanks to KdL and HRA!) regarding leap-year and days-in-the-month
+- added support for proper mapper registers readout on S1985 systems without
+  mapper and with an external mapper that is larger than 512kB
 - added support for Zemina 25-in-1 mapper (thanks to BiFi and Hashem)
-- added new machines: Victor HC-7, (partial) Hitachi MB-H2, Sanyo PHC-23J, AVT
-  DPC-200 (thanks to Peter Hanraets)
-- added new extensions: (none)
+- added new machines, thanks to:
+  - Peter Hanraets: Victor HC-7, (partial) Hitachi MB-H2, Sanyo PHC-23J, Sanyo
+    PHC-23 (old), Sanyo PHC-33 (without built in tape drive features), Sanyo
+    PHC-77, Sony HB-F700F, Sony HB-F500, AVT DPC-200, Mitsubishi ML-G10,
+    Hitachi MB-H50 (without LEDS), Yamaha SX-100
+  - Arjen Zeilemaker and others: Toshiba HX-33 and HX-34 (except for the COPY
+    button and special hardware for that)
+  - Danilo Angel: Sanyo MPC-3
+  - others: Sony HB-75D, Sanyo PHC-28P
+- added new extensions: Popolon Sound Cartridge (with configurable size)
 
 New or improved emulator features:
 - by default also map the D-pad of a controller to the MSX joystick directions
 - fixed artifacts on 3x scaling with 512 wide MSX modes on SDLGL-PP
 - optimized file pool more, especially when alternative ROMs are to be found
 - more accurate resampling, without rounding errors
+- fixed possible crash when Tcl callbacks switch the active machine, e.g. using
+  step_back in watchpoints
 - fixed autorun of tapes/laserdiscs interrupting the replay
 - fixed OMR replays with ato-run type command
 - faster switching to/from fullscreen, without changing the videosource
 - fixed laserdiscplayer eject command still showing the file inserted
 - make number of columns for showdebuggable configurable
+- fixed broken color_matrix setting (a.k.a. monitor_type)
+- fixed drawing of OSD progress info (e.g. while calculating hashes)
+- improved performance of calculating hashes of HDD images, especially when
+  they're on a network drive
+- on Windows, make openmsx.exe a GUI application to avoid the separate extra
+  text output window
 - OSD menu:
   - menu button is now easy to disable with new osd_menu_button setting
   - removed useless frameskip controls
@@ -34,7 +64,8 @@ New or improved emulator features:
   - fixed navigating to file pools for disks
   - show media slot content the same way for all media
   - represent all media slots as slots, more similar to real hardware. You can
-    now but both ROM cartridges and extensions in cartridge slots
+    now put both ROM cartridges and extensions in cartridge slots via the same
+    menu
   - show I/O only extensions as such, as they will not take a physical slot in
     openMSX
   - allow searching also on _ and - characters in lists
@@ -44,12 +75,15 @@ New or improved emulator features:
   - fixed handling of multiple identical extensions
   - display a message if a cartridge is removed
   - display the slot behind extensions in the Extension -> Remove menu
+  - added Monitor type setting to the Video Settings menu
+  - added OSD icon set setting to the Misc Settings menu
 
 Build system, packaging, documentation:
 - better support for macOS < 10.13, using HFS+J DMG format
 - target macOS 10.13
 - build support for 64-bit RISC-V
 - SDLGL-PP renderer now requires OpenGL 2.1 again
+- fixed building without SDL joystick support
 - C++ code is based on C++17 and thus requires a compiler supporting it, e.g.
   g++ 8 or later or Visual Studio 2019 or later
 - 3rd party updates of Tcl (8.6.10) and libpng (1.6.37)
