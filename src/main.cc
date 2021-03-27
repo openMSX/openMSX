@@ -58,10 +58,8 @@ int setenv(const char *name, const char *value, int overwrite)
 void EnableConsoleOutput()
 {
     if (AttachConsole(ATTACH_PARENT_PROCESS)) {
-        FILE* pCout;
-        freopen_s(&pCout, "CONOUT$", "w", stdout);
-        std::cout.clear();
-        std::wcout.clear();
+        freopen("CONOUT$", "w", stdout);
+        freopen("CONOUT$", "w", stderr);
     }
 }
 #endif
