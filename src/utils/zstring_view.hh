@@ -3,6 +3,7 @@
 
 #include <cassert>
 #include <cstring>
+#include <iosfwd>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -125,4 +126,9 @@ static_assert(std::is_trivially_move_assignable_v<zstring_view>);
 	return std::string_view(x) != std::string_view(y);
 }
 
+inline std::ostream& operator<<(std::ostream& os, const zstring_view& str)
+{
+	os << std::string_view(str);
+	return os;
+}
 #endif

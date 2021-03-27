@@ -3,6 +3,7 @@
 
 #include "StringStorage.hh"
 #include "zstring_view.hh"
+#include <iosfwd>
 #include <string_view>
 
 
@@ -53,7 +54,12 @@ private:
 	char* ptr;
 	StringStorage owner;
 	char buffer[BUFSIZE + 1];
-
 };
+
+inline std::ostream& operator<<(std::ostream& os, const TemporaryString& str)
+{
+	os << std::string_view(str);
+	return os;
+}
 
 #endif

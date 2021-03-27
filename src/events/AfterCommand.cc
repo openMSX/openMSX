@@ -9,6 +9,7 @@
 #include "RTSchedulable.hh"
 #include "EmuTime.hh"
 #include "CommandException.hh"
+#include "StringOp.hh"
 #include "TclObject.hh"
 #include "ranges.hh"
 #include "stl.hh"
@@ -31,8 +32,9 @@ class AfterCmd
 {
 public:
 	virtual ~AfterCmd() = default;
-	[[nodiscard]] string_view getCommand() const;
-	[[nodiscard]] const string& getId() const;
+	[[nodiscard]] auto getCommand() const { return command.getString(); }
+	[[nodiscard]] auto getId()      const { return id; }
+	[[nodiscard]] auto getIdStr()   const { return tmpStrCat("after#", id); }
 	[[nodiscard]] virtual string getType() const = 0;
 	void execute();
 protected:
@@ -42,7 +44,7 @@ protected:
 
 	AfterCommand& afterCommand;
 	TclObject command;
-	string id;
+	const unsigned id;
 	static inline unsigned lastAfterId = 0;
 };
 
@@ -257,7 +259,7 @@ void AfterCommand::afterTime(span<const TclObject> tokens, TclObject& result)
 	double time = getTime(getInterpreter(), tokens[2]);
 	auto cmd = std::make_unique<AfterTimeCmd>(
 		motherBoard->getScheduler(), *this, tokens[3], time);
-	result = cmd->getId();
+	result = cmd->getIdStr();
 	afterCmds.push_back(move(cmd));
 }
 
@@ -267,7 +269,7 @@ void AfterCommand::afterRealTime(span<const TclObject> tokens, TclObject& result
 	double time = getTime(getInterpreter(), tokens[2]);
 	auto cmd = std::make_unique<AfterRealTimeCmd>(
 		reactor.getRTScheduler(), *this, tokens[3], time);
-	result = cmd->getId();
+	result = cmd->getIdStr();
 	afterCmds.push_back(move(cmd));
 }
 
@@ -278,7 +280,7 @@ void AfterCommand::afterTclTime(
 	command.addListElements(view::drop(tokens, 2));
 	auto cmd = std::make_unique<AfterRealTimeCmd>(
 		reactor.getRTScheduler(), *this, command, ms / 1000.0);
-	result = cmd->getId();
+	result = cmd->getIdStr();
 	afterCmds.push_back(move(cmd));
 }
 
@@ -286,7 +288,7 @@ void AfterCommand::afterSimpleEvent(span<const TclObject> tokens, TclObject& res
 {
 	checkNumArgs(tokens, 3, "command");
 	auto cmd = std::make_unique<AfterSimpleEventCmd>(*this, tokens[2], type);
-	result = cmd->getId();
+	result = cmd->getIdStr();
 	afterCmds.push_back(move(cmd));
 }
 
@@ -295,7 +297,7 @@ void AfterCommand::afterInputEvent(
 {
 	checkNumArgs(tokens, 3, "command");
 	auto cmd = std::make_unique<AfterInputEventCmd>(*this, event, tokens[2]);
-	result = cmd->getId();
+	result = cmd->getIdStr();
 	afterCmds.push_back(move(cmd));
 }
 
@@ -307,7 +309,7 @@ void AfterCommand::afterIdle(span<const TclObject> tokens, TclObject& result)
 	double time = getTime(getInterpreter(), tokens[2]);
 	auto cmd = std::make_unique<AfterIdleCmd>(
 		motherBoard->getScheduler(), *this, tokens[3], time);
-	result = cmd->getId();
+	result = cmd->getIdStr();
 	afterCmds.push_back(move(cmd));
 }
 
@@ -315,7 +317,7 @@ void AfterCommand::afterInfo(span<const TclObject> /*tokens*/, TclObject& result
 {
 	ostringstream str;
 	for (auto& cmd : afterCmds) {
-		str << cmd->getId() << ": ";
+		str << cmd->getIdStr() << ": ";
 		str << cmd->getType() << ' ';
 		if (const auto* cmd2 = dynamic_cast<const AfterTimedCmd*>(cmd.get())) {
 			str.precision(3);
@@ -331,12 +333,15 @@ void AfterCommand::afterCancel(span<const TclObject> tokens, TclObject& /*result
 {
 	checkNumArgs(tokens, AtLeast{3}, "id|command");
 	if (tokens.size() == 3) {
-		auto id = tokens[2].getString();
-		if (auto it = ranges::find_if(afterCmds,
-		                              [&](auto& e) { return e->getId() == id; });
-		    it != end(afterCmds)) {
-			afterCmds.erase(it);
-			return;
+		if (auto idStr = tokens[2].getString(); StringOp::startsWith(idStr, "after#")) {
+			if (auto id = StringOp::stringTo<unsigned>(idStr.substr(6))) {
+				if (auto it = ranges::find_if(afterCmds,
+							[id = *id](auto& e) { return e->getId() == id; });
+				    it != end(afterCmds)) {
+					afterCmds.erase(it);
+					return;
+				}
+			}
 		}
 	}
 	TclObject command;
@@ -460,21 +465,8 @@ int AfterCommand::signalEvent(const std::shared_ptr<const Event>& event) noexcep
 // class AfterCmd
 
 AfterCmd::AfterCmd(AfterCommand& afterCommand_, TclObject command_)
-	: afterCommand(afterCommand_), command(std::move(command_))
+	: afterCommand(afterCommand_), command(std::move(command_)), id(++lastAfterId)
 {
-	ostringstream str;
-	str << "after#" << ++lastAfterId;
-	id = str.str();
-}
-
-string_view AfterCmd::getCommand() const
-{
-	return command.getString();
-}
-
-const string& AfterCmd::getId() const
-{
-	return id;
 }
 
 void AfterCmd::execute()
