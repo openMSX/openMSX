@@ -389,7 +389,9 @@ void AfterCommand::tabCompletion(vector<string>& tokens) const
 // Execute the cmds for which the predicate returns true, and erase those from afterCmds.
 template<typename PRED> void AfterCommand::executeMatches(PRED pred)
 {
-	AfterCmds matches;
+	static AfterCmds matches; // static to keep capacity for next call
+	assert(matches.empty());
+
 	// Usually there are very few matches (typically even 0 or 1), so no
 	// need to reserve() space.
 	auto p = partition_copy_remove(afterCmds, std::back_inserter(matches), pred);
@@ -397,6 +399,7 @@ template<typename PRED> void AfterCommand::executeMatches(PRED pred)
 	for (auto& c : matches) {
 		c->execute();
 	}
+	matches.clear(); // for next call (but keep capacity)
 }
 
 struct AfterSimpleEventPred {
