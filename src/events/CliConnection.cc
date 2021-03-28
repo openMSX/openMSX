@@ -52,10 +52,10 @@ public:
 	{
 		return makeTclList("CliCmd", getCommand());
 	}
-	[[nodiscard]] bool lessImpl(const Event& other) const override
+	[[nodiscard]] bool equalImpl(const Event& other) const override
 	{
 		const auto& otherCmdEvent = checked_cast<const CliCommandEvent&>(other);
-		return getCommand() < otherCmdEvent.getCommand();
+		return getCommand() == otherCmdEvent.getCommand();
 	}
 private:
 	const string command;

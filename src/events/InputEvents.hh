@@ -36,7 +36,7 @@ protected:
 
 private:
 	[[nodiscard]] TclObject toTclList() const override;
-	[[nodiscard]] bool lessImpl(const Event& other) const override;
+	[[nodiscard]] bool equalImpl(const Event& other) const override;
 	const Keys::KeyCode keyCode;
 	const Keys::KeyCode scanCode; // 2nd class support, see comments in toTclList()
 	const uint32_t unicode;
@@ -84,7 +84,7 @@ protected:
 	[[nodiscard]] TclObject toTclHelper(std::string_view direction) const;
 
 private:
-	[[nodiscard]] bool lessImpl(const Event& other) const override;
+	[[nodiscard]] bool equalImpl(const Event& other) const override;
 	const unsigned button;
 };
 
@@ -111,7 +111,7 @@ public:
 	[[nodiscard]] TclObject toTclList() const override;
 
 private:
-	[[nodiscard]] bool lessImpl(const Event& other) const override;
+	[[nodiscard]] bool equalImpl(const Event& other) const override;
 	const int x;
 	const int y;
 };
@@ -127,7 +127,7 @@ public:
 	[[nodiscard]] TclObject toTclList() const override;
 
 private:
-	[[nodiscard]] bool lessImpl(const Event& other) const override;
+	[[nodiscard]] bool equalImpl(const Event& other) const override;
 	const int xrel;
 	const int yrel;
 	const int xabs;
@@ -145,8 +145,6 @@ protected:
 	[[nodiscard]] TclObject toTclHelper() const;
 
 private:
-	[[nodiscard]] bool lessImpl(const Event& other) const override;
-	[[nodiscard]] virtual bool lessImpl(const JoystickEvent& other) const = 0;
 	const unsigned joystick;
 };
 
@@ -161,7 +159,7 @@ protected:
 	[[nodiscard]] TclObject toTclHelper(std::string_view direction) const;
 
 private:
-	[[nodiscard]] bool lessImpl(const JoystickEvent& other) const override;
+	[[nodiscard]] bool equalImpl(const Event& other) const override;
 	const unsigned button;
 };
 
@@ -191,7 +189,7 @@ public:
 	[[nodiscard]] TclObject toTclList() const override;
 
 private:
-	[[nodiscard]] bool lessImpl(const JoystickEvent& other) const override;
+	[[nodiscard]] bool equalImpl(const Event& other) const override;
 	const unsigned axis;
 	const int value;
 };
@@ -205,7 +203,7 @@ public:
 	[[nodiscard]] TclObject toTclList() const override;
 
 private:
-	[[nodiscard]] bool lessImpl(const JoystickEvent& other) const override;
+	[[nodiscard]] bool equalImpl(const Event& other) const override;
 	const unsigned hat;
 	const unsigned value;
 };
@@ -219,7 +217,7 @@ public:
 	[[nodiscard]] TclObject toTclList() const override;
 
 private:
-	[[nodiscard]] bool lessImpl(const Event& other) const override;
+	[[nodiscard]] bool equalImpl(const Event& other) const override;
 	const bool gain;
 };
 
@@ -233,7 +231,7 @@ public:
 	[[nodiscard]] TclObject toTclList() const override;
 
 private:
-	[[nodiscard]] bool lessImpl(const Event& other) const override;
+	[[nodiscard]] bool equalImpl(const Event& other) const override;
 	const unsigned x;
 	const unsigned y;
 };
@@ -247,7 +245,7 @@ public:
 	[[nodiscard]] TclObject toTclList() const override;
 
 private:
-	[[nodiscard]] bool lessImpl(const Event& other) const override;
+	[[nodiscard]] bool equalImpl(const Event& other) const override;
 	const std::string fileName;
 };
 
@@ -258,7 +256,7 @@ public:
 	QuitEvent();
 	[[nodiscard]] TclObject toTclList() const override;
 private:
-	[[nodiscard]] bool lessImpl(const Event& other) const override;
+	[[nodiscard]] bool equalImpl(const Event& other) const override;
 };
 
 /** OSD events are triggered by other events. They aggregate keyboard and
@@ -293,7 +291,7 @@ protected:
 	[[nodiscard]] TclObject toTclHelper(std::string_view direction) const;
 
 private:
-	[[nodiscard]] bool lessImpl(const Event& other) const final;
+	[[nodiscard]] bool equalImpl(const Event& other) const final;
 	const std::shared_ptr<const Event> origEvent;
 	const unsigned button;
 };
@@ -322,7 +320,7 @@ public:
 	[[nodiscard]] TclObject toTclList() const override;
 
 private:
-	[[nodiscard]] bool lessImpl(const Event& other) const override;
+	[[nodiscard]] bool equalImpl(const Event& other) const override;
 	[[nodiscard]] bool matches(const Event& other) const override;
 	const std::vector<EventType> typesToMatch;
 	const TclObject tclListComponents;

@@ -42,10 +42,10 @@ public:
 		                   int(selectedSource),
 		                   skipped);
 	}
-	[[nodiscard]] bool lessImpl(const Event& other) const override
+	[[nodiscard]] bool equalImpl(const Event& other) const override
 	{
 		const auto& e = checked_cast<const FinishFrameEvent&>(other);
-		return std::tuple(  getSource(),   getSelectedSource(),   isSkipped()) <
+		return std::tuple(  getSource(),   getSelectedSource(),   isSkipped()) ==
 		       std::tuple(e.getSource(), e.getSelectedSource(), e.isSkipped());
 	}
 

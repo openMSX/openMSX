@@ -91,10 +91,6 @@ public:
 	/** Similar to toString(), but retains the structure of the event. */
 	[[nodiscard]] virtual TclObject toTclList() const = 0;
 
-	[[nodiscard]] bool operator< (const Event& other) const;
-	[[nodiscard]] bool operator> (const Event& other) const;
-	[[nodiscard]] bool operator<=(const Event& other) const;
-	[[nodiscard]] bool operator>=(const Event& other) const;
 	[[nodiscard]] bool operator==(const Event& other) const;
 	[[nodiscard]] bool operator!=(const Event& other) const;
 
@@ -117,7 +113,7 @@ protected:
 	~Event() = default;
 
 private:
-	[[nodiscard]] virtual bool lessImpl(const Event& other) const = 0;
+	[[nodiscard]] virtual bool equalImpl(const Event& other) const = 0;
 
 	const EventType type;
 };
@@ -128,7 +124,7 @@ class SimpleEvent final : public Event
 public:
 	explicit SimpleEvent(EventType type_) : Event(type_) {}
 	[[nodiscard]] TclObject toTclList() const override;
-	[[nodiscard]] bool lessImpl(const Event& other) const override;
+	[[nodiscard]] bool equalImpl(const Event& other) const override;
 };
 
 } // namespace openmsx
