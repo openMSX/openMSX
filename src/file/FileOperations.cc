@@ -419,15 +419,20 @@ string getUserHomeDir(string_view username)
 
 const string& getUserOpenMSXDir()
 {
+	static const string OPENMSX_DIR = []() -> string {
+		if (const char* home = getenv("OPENMSX_HOME")) {
+			return home;
+		}
 #ifdef _WIN32
-	static const string OPENMSX_DIR = expandTilde("~/openMSX");
+		return expandTilde("~/openMSX");
 #elif PLATFORM_ANDROID
-	// TODO: do something to query whether the storage is available
-	// via SDL_AndroidGetExternalStorageState
-	static const string OPENMSX_DIR = strCat(SDL_AndroidGetExternalStoragePath(), "/openMSX");
+		// TODO: do something to query whether the storage is available
+		// via SDL_AndroidGetExternalStorageState
+		return strCat(SDL_AndroidGetExternalStoragePath(), "/openMSX");
 #else
-	static const string OPENMSX_DIR = expandTilde("~/.openMSX");
+		return expandTilde("~/.openMSX");
 #endif
+	}();
 	return OPENMSX_DIR;
 }
 
