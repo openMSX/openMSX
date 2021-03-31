@@ -1,7 +1,8 @@
-Release Notes for openMSX 17.0 (2021-xx-xx)
+Release Notes for openMSX 17.0 (2021-03-31)
 ===========================================
 
-A release with mostly bug fixes and smaller improvements.
+A release with mostly bug fixes and smaller improvements. Most notable may be
+the usability improvements of the OSD menu.
 
 Special thanks to all the contributors of this release who are not in the core
 team! Keep these pull requests coming!
@@ -23,7 +24,8 @@ MSX device support:
 - fixed OPL4 12-bit sample decoding
 - fixed stereo settings of Daewoo CPC-400(S)
 - fixed loading/saving of flash content for ReproCartridgeV1/V2 mappers
-- fixed bugs in RTC (thanks to KdL and HRA!) regarding leap-year and days-in-the-month
+- fixed bugs in RTC (thanks to KdL and HRA!) regarding leap-year and
+  days-in-the-month
 - added support for proper mapper registers readout on S1985 systems without
   mapper and with an external mapper that is larger than 512kB
 - added support for Zemina 25-in-1 mapper (thanks to BiFi and Hashem)
