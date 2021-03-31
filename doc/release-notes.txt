@@ -31,9 +31,10 @@ MSX device support:
 - added support for Zemina 25-in-1 mapper (thanks to BiFi and Hashem)
 - added new machines, thanks to:
   - Peter Hanraets: Victor HC-7, (partial) Hitachi MB-H2, Sanyo PHC-23J, Sanyo
-    PHC-23 (old), Sanyo PHC-33 (without built in tape drive features), Sanyo
-    PHC-77, Sony HB-F700F, Sony HB-F500, AVT DPC-200, Mitsubishi ML-G10,
-    Hitachi MB-H50 (without LEDS), Yamaha SX-100
+    PHC-23 (old), Sanyo PHC-SPC, Sanyo PHC-30N, Sanyo PHC-33 (without built in
+    tape drive features), Sanyo PHC-77, Sony HB-75, Sony HB-F700F, Sony
+    HB-F500, AVT DPC-200, Mitsubishi ML-G10, Hitachi MB-H50 (without LEDS),
+    Yamaha SX-100
   - Arjen Zeilemaker and others: Toshiba HX-33 and HX-34 (except for the COPY
     button and special hardware for that)
   - Danilo Angel: Sanyo MPC-3
