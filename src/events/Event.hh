@@ -298,13 +298,13 @@ private:
 class FileDropEvent final : public EventBase
 {
 public:
-	explicit FileDropEvent(std::string fileName_)
+	explicit FileDropEvent(TclObject fileName_)
 		: fileName(std::move(fileName_)) {}
 
-	[[nodiscard]] const std::string& getFileName() const { return fileName; }
+	[[nodiscard]] const TclObject& getFileName() const { return fileName; }
 
 private:
-	const std::string fileName;
+	const TclObject fileName;
 };
 
 
@@ -404,14 +404,15 @@ private:
 class CliCommandEvent final : public EventBase
 {
 public:
-	CliCommandEvent(std::string command_, const CliConnection* id_)
+	CliCommandEvent(TclObject command_, const CliConnection* id_)
 		: command(std::move(command_)), id(id_) {}
 
-	[[nodiscard]] const std::string& getCommand() const { return command; }
+	[[nodiscard]] const TclObject& getCommandObj() const { return command; }
+	[[nodiscard]] zstring_view getCommand() const { return command.getString(); }
 	[[nodiscard]] const CliConnection* getId() const { return id; }
 
 private:
-	const std::string command;
+	const TclObject command;
 	const CliConnection* id;
 };
 
