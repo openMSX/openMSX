@@ -13,7 +13,7 @@
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "EventDistributor.hh"
-#include "FinishFrameEvent.hh"
+#include "Event.hh"
 #include "CommandException.hh"
 #include "MemBuffer.hh"
 #include "aligned.hh"
@@ -209,7 +209,7 @@ void PostProcessor::executeUntil(EmuTime::param /*time*/)
 {
 	// insert fake end of frame event
 	eventDistributor.distributeEvent(
-		std::make_shared<FinishFrameEvent>(
+		Event::create<FinishFrameEvent>(
 			getVideoSource(), getVideoSourceSetting(), false));
 }
 

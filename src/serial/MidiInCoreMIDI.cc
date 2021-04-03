@@ -51,13 +51,13 @@ MidiInCoreMIDI::MidiInCoreMIDI(EventDistributor& eventDistributor_,
 	}
 
 	eventDistributor.registerEventListener(
-			OPENMSX_MIDI_IN_COREMIDI_EVENT, *this);
+			EventType::MIDI_IN_COREMIDI, *this);
 }
 
 MidiInCoreMIDI::~MidiInCoreMIDI()
 {
 	eventDistributor.unregisterEventListener(
-			OPENMSX_MIDI_IN_COREMIDI_EVENT, *this);
+			EventType::MIDI_IN_COREMIDI, *this);
 }
 
 void MidiInCoreMIDI::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
@@ -118,7 +118,7 @@ void MidiInCoreMIDI::sendPacketList(const MIDIPacketList *packetList,
 		});
 	}
 	eventDistributor.distributeEvent(
-		std::make_shared<SimpleEvent>(OPENMSX_MIDI_IN_COREMIDI_EVENT));
+		Event::create<MidiInCoreMidiEvent>());
 }
 
 // MidiInDevice
@@ -144,7 +144,7 @@ void MidiInCoreMIDI::signal(EmuTime::param time)
 }
 
 // EventListener
-int MidiInCoreMIDI::signalEvent(const std::shared_ptr<const Event>& /*event*/) noexcept
+int MidiInCoreMIDI::signalEvent(const Event& /*event*/) noexcept
 {
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());
@@ -173,13 +173,13 @@ MidiInCoreMIDIVirtual::MidiInCoreMIDIVirtual(EventDistributor& eventDistributor_
 	, endpoint(0)
 {
 	eventDistributor.registerEventListener(
-			OPENMSX_MIDI_IN_COREMIDI_VIRTUAL_EVENT, *this);
+			EventType::MIDI_IN_COREMIDI_VIRTUAL, *this);
 }
 
 MidiInCoreMIDIVirtual::~MidiInCoreMIDIVirtual()
 {
 	eventDistributor.unregisterEventListener(
-			OPENMSX_MIDI_IN_COREMIDI_VIRTUAL_EVENT, *this);
+			EventType::MIDI_IN_COREMIDI_VIRTUAL, *this);
 }
 
 void MidiInCoreMIDIVirtual::plugHelper(Connector& /*connector*/,
@@ -243,7 +243,7 @@ void MidiInCoreMIDIVirtual::sendPacketList(const MIDIPacketList *packetList,
 		});
 	}
 	eventDistributor.distributeEvent(
-		std::make_shared<SimpleEvent>(OPENMSX_MIDI_IN_COREMIDI_VIRTUAL_EVENT));
+		Event::create<MidiInCoreMidiVirtualEvent>());
 }
 
 // MidiInDevice
@@ -270,7 +270,7 @@ void MidiInCoreMIDIVirtual::signal(EmuTime::param time)
 
 // EventListener
 int MidiInCoreMIDIVirtual::signalEvent(
-		const std::shared_ptr<const Event>& /*event*/) noexcept
+		const Event& /*event*/) noexcept
 {
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());

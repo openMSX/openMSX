@@ -54,14 +54,14 @@ FilePool::FilePool(CommandController& controller, Reactor& reactor_)
 	, reactor(reactor_)
 {
 	filePoolSetting.attach(*this);
-	reactor.getEventDistributor().registerEventListener(OPENMSX_QUIT_EVENT, *this);
+	reactor.getEventDistributor().registerEventListener(EventType::QUIT, *this);
 
 	sha1SumCommand = std::make_unique<Sha1SumCommand>(controller, *this);
 }
 
 FilePool::~FilePool()
 {
-	reactor.getEventDistributor().unregisterEventListener(OPENMSX_QUIT_EVENT, *this);
+	reactor.getEventDistributor().unregisterEventListener(EventType::QUIT, *this);
 	filePoolSetting.detach(*this);
 }
 
@@ -154,10 +154,10 @@ void FilePool::reportProgress(std::string_view message)
 	reactor.getDisplay().repaint();
 }
 
-int FilePool::signalEvent(const std::shared_ptr<const Event>& event) noexcept
+int FilePool::signalEvent(const Event& event) noexcept
 {
 	(void)event; // avoid warning for non-assert compiles
-	assert(event->getType() == OPENMSX_QUIT_EVENT);
+	assert(getType(event) == EventType::QUIT);
 	quit = true;
 	return 0;
 }

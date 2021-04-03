@@ -70,7 +70,7 @@ private:
 	void resetVideoSystem();
 
 	// EventListener interface
-	int signalEvent(const std::shared_ptr<const Event>& event) noexcept override;
+	int signalEvent(const Event& event) noexcept override;
 
 	// RTSchedulable
 	void executeRT() override;

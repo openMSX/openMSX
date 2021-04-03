@@ -2,10 +2,9 @@
 #include "PluggingController.hh"
 #include "MSXEventDistributor.hh"
 #include "StateChangeDistributor.hh"
-#include "InputEvents.hh"
+#include "Event.hh"
 #include "InputEventGenerator.hh"
 #include "StateChange.hh"
-#include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include "unreachable.hh"
@@ -224,63 +223,56 @@ unsigned JoyMega::calcInitialState()
 }
 
 // MSXEventListener
-void JoyMega::signalMSXEvent(const shared_ptr<const Event>& event, EmuTime::param time) noexcept
+void JoyMega::signalMSXEvent(const Event& event, EmuTime::param time) noexcept
 {
-	const auto* joyEvent = dynamic_cast<const JoystickEvent*>(event.get());
+	const auto* joyEvent = get_if<JoystickEvent>(event);
 	if (!joyEvent) return;
 
 	// TODO: It would be more efficient to make a dispatcher instead of
 	//       sending the event to all joysticks.
 	if (joyEvent->getJoystick() != joyNum) return;
 
-	switch (event->getType()) {
-	case OPENMSX_JOY_AXIS_MOTION_EVENT: {
-		const auto& mev = checked_cast<const JoystickAxisMotionEvent&>(*event);
-		int value = mev.getValue();
-		switch (mev.getAxis() & 1) {
-		case JoystickAxisMotionEvent::X_AXIS: // Horizontal
-			if (value < -THRESHOLD) {
-				// left, not right
-				createEvent(time, JOY_LEFT, JOY_RIGHT);
-			} else if (value > THRESHOLD) {
-				// not left, right
-				createEvent(time, JOY_RIGHT, JOY_LEFT);
-			} else {
-				// not left, not right
-				createEvent(time, 0, JOY_LEFT | JOY_RIGHT);
+	visit(overloaded{
+		[&](const JoystickAxisMotionEvent& e) {
+			int value = e.getValue();
+			switch (e.getAxis() & 1) {
+			case JoystickAxisMotionEvent::X_AXIS: // Horizontal
+				if (value < -THRESHOLD) {
+					// left, not right
+					createEvent(time, JOY_LEFT, JOY_RIGHT);
+				} else if (value > THRESHOLD) {
+					// not left, right
+					createEvent(time, JOY_RIGHT, JOY_LEFT);
+				} else {
+					// not left, not right
+					createEvent(time, 0, JOY_LEFT | JOY_RIGHT);
+				}
+				break;
+			case JoystickAxisMotionEvent::Y_AXIS: // Vertical
+				if (value < -THRESHOLD) {
+					// up, not down
+					createEvent(time, JOY_UP, JOY_DOWN);
+				} else if (value > THRESHOLD) {
+					// not up, down
+					createEvent(time, JOY_DOWN, JOY_UP);
+				} else {
+					// not up, not down
+					createEvent(time, 0, JOY_UP | JOY_DOWN);
+				}
+				break;
+			default:
+				// ignore other axis
+				break;
 			}
-			break;
-		case JoystickAxisMotionEvent::Y_AXIS: // Vertical
-			if (value < -THRESHOLD) {
-				// up, not down
-				createEvent(time, JOY_UP, JOY_DOWN);
-			} else if (value > THRESHOLD) {
-				// not up, down
-				createEvent(time, JOY_DOWN, JOY_UP);
-			} else {
-				// not up, not down
-				createEvent(time, 0, JOY_UP | JOY_DOWN);
-			}
-			break;
-		default:
-			// ignore other axis
-			break;
-		}
-		break;
-	}
-	case OPENMSX_JOY_BUTTON_DOWN_EVENT: {
-		const auto& butEv = checked_cast<const JoystickButtonEvent&>(*event);
-		createEvent(time, encodeButton(butEv.getButton(), cycleMask), 0);
-		break;
-	}
-	case OPENMSX_JOY_BUTTON_UP_EVENT: {
-		const auto& butEv = checked_cast<const JoystickButtonEvent&>(*event);
-		createEvent(time, 0, encodeButton(butEv.getButton(), cycleMask));
-		break;
-	}
-	default:
-		UNREACHABLE;
-	}
+		},
+		[&](const JoystickButtonDownEvent& e) {
+			createEvent(time, encodeButton(e.getButton(), cycleMask), 0);
+		},
+		[&](const JoystickButtonUpEvent& e) {
+			createEvent(time, 0, encodeButton(e.getButton(), cycleMask));
+		},
+		[&](const EventBase&) { UNREACHABLE; }
+	}, event);
 }
 
 void JoyMega::createEvent(EmuTime::param time, unsigned press, unsigned release)

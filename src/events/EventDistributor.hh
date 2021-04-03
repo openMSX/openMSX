@@ -16,8 +16,6 @@ class EventListener;
 class EventDistributor
 {
 public:
-	using EventPtr = std::shared_ptr<const Event>;
-
 	/** Priorities from high to low, higher priority listeners can block
 	  * events for lower priority listeners.
 	  */
@@ -52,7 +50,7 @@ public:
 	  * when the deliverEvents() method is called. Events are always
 	  * in the main thread.
 	  */
-	void distributeEvent(const EventPtr& event);
+	void distributeEvent(Event&& event);
 
 	/** This actually delivers the events. It may only be called from the
 	  * main loop in Reactor (and only from the main thread). Also see
@@ -75,8 +73,8 @@ private:
 	Reactor& reactor;
 
 	using PriorityMap = std::vector<std::pair<Priority, EventListener*>>; // sorted on priority
-	PriorityMap listeners[NUM_EVENT_TYPES];
-	using EventQueue = std::vector<EventPtr>;
+	PriorityMap listeners[size_t(EventType::NUM_EVENT_TYPES)];
+	using EventQueue = std::vector<Event>;
 	EventQueue scheduledEvents;
 	std::mutex mutex; // lock datastructures
 	std::mutex cvMutex; // lock condition_variable

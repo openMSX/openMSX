@@ -9,10 +9,9 @@
 #include "ReverseManager.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
-#include "InputEvents.hh"
+#include "Event.hh"
 #include "StateChange.hh"
 #include "TclArgParser.hh"
-#include "checked_cast.hh"
 #include "enumerate.hh"
 #include "openmsx.hh"
 #include "one_of.hh"
@@ -34,7 +33,6 @@
 using std::string;
 using std::vector;
 using std::shared_ptr;
-using std::make_shared;
 
 namespace openmsx {
 
@@ -398,13 +396,13 @@ void Keyboard::transferHostKeyMatrix(const Keyboard& source)
 
 /* Received an MSX event
  * Following events get processed:
- *  OPENMSX_KEY_DOWN_EVENT
- *  OPENMSX_KEY_UP_EVENT
+ *  EventType::KEY_DOWN
+ *  EventType::KEY_UP
  */
-void Keyboard::signalMSXEvent(const shared_ptr<const Event>& event,
+void Keyboard::signalMSXEvent(const Event& event,
                               EmuTime::param time) noexcept
 {
-	if (event->getType() == one_of(OPENMSX_KEY_DOWN_EVENT, OPENMSX_KEY_UP_EVENT)) {
+	if (getType(event) == one_of(EventType::KEY_DOWN, EventType::KEY_UP)) {
 		// Ignore possible console on/off events:
 		// we do not rescan the keyboard since this may lead to
 		// an unwanted pressing of <return> in MSX after typing
@@ -485,7 +483,7 @@ void Keyboard::changeKeyMatrixEvent(EmuTime::param time, byte row, byte newValue
 	if (diff == 0) return;
 	byte press   = userKeyMatrix[row] & diff;
 	byte release = newValue           & diff;
-	stateChangeDistributor.distributeNew(make_shared<KeyMatrixState>(
+	stateChangeDistributor.distributeNew(std::make_shared<KeyMatrixState>(
 		time, row, press, release));
 }
 
@@ -496,8 +494,8 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
 {
 	auto mode = keyboardSettings.getMappingMode();
 
-	const auto& keyEvent = checked_cast<const KeyEvent&>(event);
-	bool down = event.getType() == OPENMSX_KEY_DOWN_EVENT;
+	const auto& keyEvent = get<KeyEvent>(event);
+	bool down = getType(event) == EventType::KEY_DOWN;
 	auto code = (mode == KeyboardSettings::POSITIONAL_MAPPING)
 	          ? keyEvent.getScanCode() : keyEvent.getKeyCode();
 	auto key = static_cast<Keys::KeyCode>(int(code) & int(Keys::K_MASK));
@@ -1121,7 +1119,7 @@ Keyboard::MsxKeyEventQueue::MsxKeyEventQueue(
 }
 
 void Keyboard::MsxKeyEventQueue::process_asap(
-	EmuTime::param time, const shared_ptr<const Event>& event)
+	EmuTime::param time, const Event& event)
 {
 	bool processImmediately = eventQueue.empty();
 	eventQueue.push_back(event);
@@ -1139,15 +1137,15 @@ void Keyboard::MsxKeyEventQueue::clear()
 void Keyboard::MsxKeyEventQueue::executeUntil(EmuTime::param time)
 {
 	// Get oldest event from the queue and process it
-	shared_ptr<const Event> event = eventQueue.front();
+	Event event = eventQueue.front();
 	auto& keyboard = OUTER(Keyboard, msxKeyEventQueue);
-	bool insertCodeKanaRelease = keyboard.processQueuedEvent(*event, time);
+	bool insertCodeKanaRelease = keyboard.processQueuedEvent(event, time);
 
 	if (insertCodeKanaRelease) {
 		// The processor pressed the CODE/KANA key
 		// Schedule a CODE/KANA release event, to be processed
 		// before any of the other events in the queue
-		eventQueue.push_front(make_shared<KeyUpEvent>(
+		eventQueue.push_front(Event::create<KeyUpEvent>(
 			keyboard.keyboardSettings.getCodeKanaHostKey()));
 	} else {
 		// The event has been completely processed. Delete it from the queue
@@ -1318,17 +1316,17 @@ Keyboard::CapsLockAligner::CapsLockAligner(
 	, eventDistributor(eventDistributor_)
 {
 	state = IDLE;
-	eventDistributor.registerEventListener(OPENMSX_BOOT_EVENT,  *this);
-	eventDistributor.registerEventListener(OPENMSX_FOCUS_EVENT, *this);
+	eventDistributor.registerEventListener(EventType::BOOT,  *this);
+	eventDistributor.registerEventListener(EventType::FOCUS, *this);
 }
 
 Keyboard::CapsLockAligner::~CapsLockAligner()
 {
-	eventDistributor.unregisterEventListener(OPENMSX_FOCUS_EVENT, *this);
-	eventDistributor.unregisterEventListener(OPENMSX_BOOT_EVENT,  *this);
+	eventDistributor.unregisterEventListener(EventType::FOCUS, *this);
+	eventDistributor.unregisterEventListener(EventType::BOOT,  *this);
 }
 
-int Keyboard::CapsLockAligner::signalEvent(const shared_ptr<const Event>& event) noexcept
+int Keyboard::CapsLockAligner::signalEvent(const Event& event) noexcept
 {
 	if constexpr (!SANE_CAPSLOCK_BEHAVIOR) {
 		// don't even try
@@ -1337,15 +1335,16 @@ int Keyboard::CapsLockAligner::signalEvent(const shared_ptr<const Event>& event)
 
 	if (state == IDLE) {
 		EmuTime::param time = getCurrentTime();
-		EventType type = event->getType();
-		if (type == OPENMSX_FOCUS_EVENT) {
-			alignCapsLock(time);
-		} else if (type == OPENMSX_BOOT_EVENT) {
-			state = MUST_ALIGN_CAPSLOCK;
-			setSyncPoint(time + EmuDuration::sec(2)); // 2s (MSX time)
-		} else {
-			UNREACHABLE;
-		}
+		visit(overloaded{
+			[&](const FocusEvent&) {
+				alignCapsLock(time);
+			},
+			[&](const BootEvent&) {
+				state = MUST_ALIGN_CAPSLOCK;
+				setSyncPoint(time + EmuDuration::sec(2)); // 2s (MSX time)
+			},
+			[](const EventBase&) { UNREACHABLE; }
+		}, event);
 	}
 	return 0;
 }
@@ -1358,7 +1357,7 @@ void Keyboard::CapsLockAligner::executeUntil(EmuTime::param time)
 			break;
 		case MUST_DISTRIBUTE_KEY_RELEASE: {
 			auto& keyboard = OUTER(Keyboard, capsLockAligner);
-			auto event = make_shared<KeyUpEvent>(Keys::K_CAPSLOCK);
+			auto event = Event::create<KeyUpEvent>(Keys::K_CAPSLOCK);
 			keyboard.msxEventDistributor.distributeEvent(event, time);
 			state = IDLE;
 			break;
@@ -1386,7 +1385,7 @@ void Keyboard::CapsLockAligner::alignCapsLock(EmuTime::param time)
 		keyboard.debug("Resyncing host and MSX CAPS lock\n");
 		// note: send out another event iso directly calling
 		// processCapslockEvent() because we want this to be recorded
-		auto event = make_shared<KeyDownEvent>(Keys::K_CAPSLOCK);
+		auto event = Event::create<KeyDownEvent>(Keys::K_CAPSLOCK);
 		keyboard.msxEventDistributor.distributeEvent(event, time);
 		keyboard.debug("Sending fake CAPS release\n");
 		state = MUST_DISTRIBUTE_KEY_RELEASE;
@@ -1501,7 +1500,7 @@ void Keyboard::MsxKeyEventQueue::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Schedulable>(*this);
 
-	// serialization of deque<shared_ptr<const Event>> is not directly
+	// serialization of deque<Event> is not directly
 	// supported by the serialization framework (main problem is the
 	// constness, collections of shared_ptr to polymorphic objects are
 	// not a problem). Worked around this by serializing the events in
@@ -1511,7 +1510,7 @@ void Keyboard::MsxKeyEventQueue::serialize(Archive& ar, unsigned /*version*/)
 	vector<string> eventStrs;
 	if constexpr (!Archive::IS_LOADER) {
 		eventStrs = to_vector(view::transform(
-			eventQueue, [](auto& e) { return e->toString(); }));
+			eventQueue, [](const auto& e) { return toString(e); }));
 	}
 	ar.serialize("eventQueue", eventStrs);
 	if constexpr (Archive::IS_LOADER) {

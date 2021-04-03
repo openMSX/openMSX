@@ -72,7 +72,7 @@ private:
 	            std::string_view name, std::string_view value) noexcept override;
 
 	// EventListener
-	int signalEvent(const std::shared_ptr<const Event>& event) noexcept override;
+	int signalEvent(const Event& event) noexcept override;
 
 	CommandController& commandController;
 	EventDistributor& eventDistributor;

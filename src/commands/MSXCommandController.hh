@@ -77,7 +77,7 @@ private:
 	[[nodiscard]] TemporaryString getFullName(std::string_view name);
 
 	// MSXEventListener
-	void signalMSXEvent(const std::shared_ptr<const Event>& event,
+	void signalMSXEvent(const Event& event,
 	                    EmuTime::param time) noexcept override;
 
 	GlobalCommandController& globalCommandController;

@@ -44,12 +44,12 @@ MidiInWindows::MidiInWindows(EventDistributor& eventDistributor_,
 	name = w32_midiInGetVFN(num);
 	desc = w32_midiInGetRDN(num);
 
-	eventDistributor.registerEventListener(OPENMSX_MIDI_IN_WINDOWS_EVENT, *this);
+	eventDistributor.registerEventListener(EventType::MIDI_IN_WINDOWS, *this);
 }
 
 MidiInWindows::~MidiInWindows()
 {
-	eventDistributor.unregisterEventListener(OPENMSX_MIDI_IN_WINDOWS_EVENT, *this);
+	eventDistributor.unregisterEventListener(EventType::MIDI_IN_WINDOWS, *this);
 
 	//w32_midiInClean(); // TODO
 }
@@ -108,7 +108,7 @@ void MidiInWindows::procLongMsg(LPMIDIHDR p)
 			}
 		}
 		eventDistributor.distributeEvent(
-			std::make_shared<SimpleEvent>(OPENMSX_MIDI_IN_WINDOWS_EVENT));
+			Event::create<MidiInWindowsEvent>());
 	}
 }
 
@@ -129,7 +129,7 @@ void MidiInWindows::procShortMsg(DWORD param)
 		param >>= 8;
 	}
 	eventDistributor.distributeEvent(
-		std::make_shared<SimpleEvent>(OPENMSX_MIDI_IN_WINDOWS_EVENT));
+		Event::create<MidiInWindowsEvent>());
 }
 
 void MidiInWindows::run()
@@ -196,7 +196,7 @@ void MidiInWindows::signal(EmuTime::param time)
 }
 
 // EventListener
-int MidiInWindows::signalEvent(const std::shared_ptr<const Event>& /*event*/) noexcept
+int MidiInWindows::signalEvent(const Event& /*event*/) noexcept
 {
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());

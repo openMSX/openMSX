@@ -1,9 +1,8 @@
 #include "ArkanoidPad.hh"
 #include "MSXEventDistributor.hh"
 #include "StateChangeDistributor.hh"
-#include "InputEvents.hh"
+#include "Event.hh"
 #include "StateChange.hh"
-#include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include <algorithm>
@@ -117,43 +116,39 @@ void ArkanoidPad::write(byte value, EmuTime::param /*time*/)
 }
 
 // MSXEventListener
-void ArkanoidPad::signalMSXEvent(const shared_ptr<const Event>& event,
+void ArkanoidPad::signalMSXEvent(const Event& event,
                                  EmuTime::param time) noexcept
 {
-	switch (event->getType()) {
-	case OPENMSX_MOUSE_MOTION_EVENT: {
-		const auto& mEvent = checked_cast<const MouseMotionEvent&>(*event);
-		int newPos = std::min(POS_MAX,
-		                      std::max(POS_MIN,
-		                               dialpos + mEvent.getX() / SCALE));
-		int delta = newPos - dialpos;
-		if (delta != 0) {
-			stateChangeDistributor.distributeNew(
-				make_shared<ArkanoidState>(
-					time, delta, false, false));
-		}
-		break;
-	}
-	case OPENMSX_MOUSE_BUTTON_DOWN_EVENT:
-		// any button will press the Arkanoid Pad button
-		if (buttonStatus & 2) {
-			stateChangeDistributor.distributeNew(
-				make_shared<ArkanoidState>(
-					time, 0, true, false));
-		}
-		break;
-	case OPENMSX_MOUSE_BUTTON_UP_EVENT:
-		// any button will unpress the Arkanoid Pad button
-		if (!(buttonStatus & 2)) {
-			stateChangeDistributor.distributeNew(
-				make_shared<ArkanoidState>(
-					time, 0, false, true));
-		}
-		break;
-	default:
-		// ignore
-		break;
-	}
+	visit(overloaded{
+		[&](const MouseMotionEvent& e) {
+			int newPos = std::min(POS_MAX,
+					std::max(POS_MIN,
+						dialpos + e.getX() / SCALE));
+			int delta = newPos - dialpos;
+			if (delta != 0) {
+				stateChangeDistributor.distributeNew(
+					make_shared<ArkanoidState>(
+						time, delta, false, false));
+			}
+		},
+		[&](const MouseButtonDownEvent& /*e*/) {
+			// any button will press the Arkanoid Pad button
+			if (buttonStatus & 2) {
+				stateChangeDistributor.distributeNew(
+					make_shared<ArkanoidState>(
+						time, 0, true, false));
+			}
+		},
+		[&](const MouseButtonUpEvent& /*e*/) {
+			// any button will unpress the Arkanoid Pad button
+			if (!(buttonStatus & 2)) {
+				stateChangeDistributor.distributeNew(
+					make_shared<ArkanoidState>(
+						time, 0, false, true));
+			}
+		},
+		[](const EventBase&) { /*ignore */}
+	}, event);
 }
 
 // StateChangeListener

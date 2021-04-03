@@ -1,9 +1,8 @@
 #include "Paddle.hh"
 #include "MSXEventDistributor.hh"
 #include "StateChangeDistributor.hh"
-#include "InputEvents.hh"
+#include "Event.hh"
 #include "StateChange.hh"
-#include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include <algorithm>
@@ -93,18 +92,19 @@ void Paddle::write(byte value, EmuTime::param time)
 }
 
 // MSXEventListener
-void Paddle::signalMSXEvent(const std::shared_ptr<const Event>& event,
+void Paddle::signalMSXEvent(const Event& event,
                             EmuTime::param time) noexcept
 {
-	if (event->getType() != OPENMSX_MOUSE_MOTION_EVENT) return;
-
-	const auto& mev = checked_cast<const MouseMotionEvent&>(*event);
-	constexpr int SCALE = 2;
-	int delta = mev.getX() / SCALE;
-	if (delta == 0) return;
-
-	stateChangeDistributor.distributeNew(
-		std::make_shared<PaddleState>(time, delta));
+	visit(overloaded{
+		[&](const MouseMotionEvent& e) {
+			constexpr int SCALE = 2;
+			if (int delta = e.getX() / SCALE) {
+				stateChangeDistributor.distributeNew(
+					std::make_shared<PaddleState>(time, delta));
+			}
+		},
+		[](const EventBase&) { /*ignore*/ }
+	}, event);
 }
 
 // StateChangeListener

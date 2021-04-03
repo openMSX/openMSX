@@ -1012,7 +1012,7 @@ void MSXCPUInterface::doBreak()
 	breakedSetting->setReadOnlyValue(TclObject("true"));
 	reactor.getCliComm().update(CliComm::STATUS, "cpu", "suspended");
 	reactor.getEventDistributor().distributeEvent(
-		std::make_shared<SimpleEvent>(OPENMSX_BREAK_EVENT));
+		Event::create<BreakEvent>());
 }
 
 void MSXCPUInterface::doStep()

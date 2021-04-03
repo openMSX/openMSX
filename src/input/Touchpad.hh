@@ -46,7 +46,7 @@ private:
 	void write(byte value, EmuTime::param time) override;
 
 	// MSXEventListener
-	void signalMSXEvent(const std::shared_ptr<const Event>& event,
+	void signalMSXEvent(const Event& event,
 	                    EmuTime::param time) noexcept override;
 	// StateChangeListener
 	void signalStateChange(const std::shared_ptr<StateChange>& event) override;

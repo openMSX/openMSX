@@ -1,8 +1,6 @@
 #ifndef EVENTLISTENER_HH
 #define EVENTLISTENER_HH
 
-#include <memory>
-
 namespace openmsx {
 
 class Event;
@@ -19,7 +17,7 @@ public:
 	 *         listener. Returning 0 means don't block the event for any
 	 *         listeners.
 	 */
-	virtual int signalEvent(const std::shared_ptr<const Event>& event) noexcept = 0;
+	virtual int signalEvent(const Event& event) noexcept = 0;
 
 protected:
 	EventListener() = default;

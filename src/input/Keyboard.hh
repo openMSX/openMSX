@@ -69,7 +69,7 @@ public:
 
 private:
 	// MSXEventListener
-	void signalMSXEvent(const std::shared_ptr<const Event>& event,
+	void signalMSXEvent(const Event& event,
 	                    EmuTime::param time) noexcept override;
 	// StateChangeListener
 	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
@@ -173,7 +173,7 @@ private:
 
 	private:
 		// EventListener
-		int signalEvent(const std::shared_ptr<const Event>& event) noexcept override;
+		int signalEvent(const Event& event) noexcept override;
 
 		// Schedulable
 		void executeUntil(EmuTime::param time) override;
@@ -194,7 +194,7 @@ private:
 	public:
 		MsxKeyEventQueue(Scheduler& scheduler, Interpreter& interp);
 		void process_asap(EmuTime::param time,
-		                  const std::shared_ptr<const Event>& event);
+		                  const Event& event);
 		void clear();
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);
@@ -202,7 +202,7 @@ private:
 		// Schedulable
 		void executeUntil(EmuTime::param time) override;
 	private:
-		std::deque<std::shared_ptr<const Event>> eventQueue;
+		std::deque<Event> eventQueue;
 		Interpreter& interp;
 	} msxKeyEventQueue;
 

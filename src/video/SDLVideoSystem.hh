@@ -53,7 +53,7 @@ public:
 
 private:
 	// EventListener
-	int signalEvent(const std::shared_ptr<const Event>& event) noexcept override;
+	int signalEvent(const Event& event) noexcept override;
 	// Observer
 	void update(const Setting& subject) noexcept override;
 

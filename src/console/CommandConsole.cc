@@ -8,12 +8,12 @@
 #include "FileException.hh"
 #include "FileOperations.hh"
 #include "CliComm.hh"
-#include "InputEvents.hh"
+#include "Event.hh"
 #include "Display.hh"
 #include "VideoSystem.hh"
 #include "EventDistributor.hh"
 #include "Version.hh"
-#include "checked_cast.hh"
+#include "unreachable.hh"
 #include "utf8_unchecked.hh"
 #include "StringOp.hh"
 #include "ScopedAssign.hh"
@@ -112,16 +112,16 @@ CommandConsole::CommandConsole(
 
 	commandController.getInterpreter().setOutput(this);
 	eventDistributor.registerEventListener(
-		OPENMSX_KEY_DOWN_EVENT, *this, EventDistributor::CONSOLE);
+		EventType::KEY_DOWN, *this, EventDistributor::CONSOLE);
 	// also listen to KEY_UP events, so that we can consume them
 	eventDistributor.registerEventListener(
-		OPENMSX_KEY_UP_EVENT, *this, EventDistributor::CONSOLE);
+		EventType::KEY_UP, *this, EventDistributor::CONSOLE);
 }
 
 CommandConsole::~CommandConsole()
 {
-	eventDistributor.unregisterEventListener(OPENMSX_KEY_DOWN_EVENT, *this);
-	eventDistributor.unregisterEventListener(OPENMSX_KEY_UP_EVENT, *this);
+	eventDistributor.unregisterEventListener(EventType::KEY_DOWN, *this);
+	eventDistributor.unregisterEventListener(EventType::KEY_UP, *this);
 	commandController.getInterpreter().setOutput(nullptr);
 	Completer::setOutput(nullptr);
 }
@@ -168,34 +168,35 @@ gl::ivec2 CommandConsole::getCursorPosition() const
 	return {xPosition, yPosition};
 }
 
-int CommandConsole::signalEvent(const std::shared_ptr<const Event>& event) noexcept
+int CommandConsole::signalEvent(const Event& event) noexcept
 {
 	if (!consoleSetting.getBoolean()) return 0;
-	const auto& keyEvent = checked_cast<const KeyEvent&>(*event);
 
 	// If the console is open then don't pass the event to the MSX
 	// (whetever the (keyboard) event is). If the event has a meaning for
 	// the console, then also don't pass the event to the hotkey system.
 	// For example PgUp, PgDown are keys that have both a meaning in the
 	// console and are used by standard key bindings.
-	if (event->getType() == OPENMSX_KEY_DOWN_EVENT) {
-		if (!executingCommand) {
-			if (handleEvent(keyEvent)) {
-				// event was used
-				display.repaintDelayed(40000); // 25fps
-				return EventDistributor::HOTKEY; // block HOTKEY and MSX
+	return visit(overloaded{
+		[&](const KeyDownEvent& keyEvent) {
+			if (!executingCommand) {
+				if (handleEvent(keyEvent)) {
+					// event was used
+					display.repaintDelayed(40000); // 25fps
+					return EventDistributor::HOTKEY; // block HOTKEY and MSX
+				}
+			} else {
+				// For commands that take a long time to execute (e.g.
+				// a loadstate that needs to create a filepool index),
+				// we also send events during the execution (so that
+				// we can show progress on the OSD). In that case
+				// ignore extra input events.
 			}
-		} else {
-			// For commands that take a long time to execute (e.g.
-			// a loadstate that needs to create a filepool index),
-			// we also send events during the execution (so that
-			// we can show progress on the OSD). In that case
-			// ignore extra input events.
-		}
-	} else {
-		assert(event->getType() == OPENMSX_KEY_UP_EVENT);
-	}
-	return EventDistributor::MSX; // block MSX
+			return EventDistributor::MSX;
+		},
+		[](const KeyUpEvent&) { return EventDistributor::MSX; },
+		[](const EventBase&) { UNREACHABLE; return EventDistributor::MSX; }
+	}, event);
 }
 
 bool CommandConsole::handleEvent(const KeyEvent& keyEvent)

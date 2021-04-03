@@ -20,8 +20,6 @@ public:
 	using Index = uint32_t; // ObjectPool<T>::Index
 
 public:
-	using EventPtr = std::shared_ptr<const Event>;
-
 	AfterCommand(Reactor& reactor,
 	             EventDistributor& eventDistributor,
 	             CommandController& commandController);
@@ -35,7 +33,7 @@ private:
 	template<typename PRED> void executeMatches(PRED pred);
 	void executeSimpleEvents(EventType type);
 	void afterSimpleEvent(span<const TclObject> tokens, TclObject& result, EventType type);
-	void afterInputEvent(const EventPtr& event,
+	void afterInputEvent(const Event& event,
 	                   span<const TclObject> tokens, TclObject& result);
 	void afterTclTime (int ms,
 	                   span<const TclObject> tokens, TclObject& result);
@@ -46,7 +44,7 @@ private:
 	void afterCancel  (span<const TclObject> tokens, TclObject& result);
 
 	// EventListener
-	int signalEvent(const std::shared_ptr<const Event>& event) noexcept override;
+	int signalEvent(const Event& event) noexcept override;
 
 private:
 	std::vector<Index> afterCmds;

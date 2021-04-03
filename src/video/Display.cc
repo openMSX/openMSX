@@ -4,10 +4,9 @@
 #include "VideoSystem.hh"
 #include "VideoLayer.hh"
 #include "EventDistributor.hh"
-#include "FinishFrameEvent.hh"
+#include "Event.hh"
 #include "FileOperations.hh"
 #include "FileContext.hh"
-#include "InputEvents.hh"
 #include "CliComm.hh"
 #include "Timer.hh"
 #include "BooleanSetting.hh"
@@ -57,16 +56,16 @@ Display::Display(Reactor& reactor_)
 	prevTimeStamp = Timer::getTime();
 
 	EventDistributor& eventDistributor = reactor.getEventDistributor();
-	eventDistributor.registerEventListener(OPENMSX_FINISH_FRAME_EVENT,
+	eventDistributor.registerEventListener(EventType::FINISH_FRAME,
 			*this);
-	eventDistributor.registerEventListener(OPENMSX_SWITCH_RENDERER_EVENT,
+	eventDistributor.registerEventListener(EventType::SWITCH_RENDERER,
 			*this);
-	eventDistributor.registerEventListener(OPENMSX_MACHINE_LOADED_EVENT,
+	eventDistributor.registerEventListener(EventType::MACHINE_LOADED,
 			*this);
-	eventDistributor.registerEventListener(OPENMSX_EXPOSE_EVENT,
+	eventDistributor.registerEventListener(EventType::EXPOSE,
 			*this);
 #if PLATFORM_ANDROID
-	eventDistributor.registerEventListener(OPENMSX_FOCUS_EVENT,
+	eventDistributor.registerEventListener(EventType::FOCUS,
 			*this);
 #endif
 	renderSettings.getRendererSetting().attach(*this);
@@ -83,16 +82,16 @@ Display::~Display()
 
 	EventDistributor& eventDistributor = reactor.getEventDistributor();
 #if PLATFORM_ANDROID
-	eventDistributor.unregisterEventListener(OPENMSX_FOCUS_EVENT,
+	eventDistributor.unregisterEventListener(EventType::FOCUS,
 			*this);
 #endif
-	eventDistributor.unregisterEventListener(OPENMSX_EXPOSE_EVENT,
+	eventDistributor.unregisterEventListener(EventType::EXPOSE,
 			*this);
-	eventDistributor.unregisterEventListener(OPENMSX_MACHINE_LOADED_EVENT,
+	eventDistributor.unregisterEventListener(EventType::MACHINE_LOADED,
 			*this);
-	eventDistributor.unregisterEventListener(OPENMSX_SWITCH_RENDERER_EVENT,
+	eventDistributor.unregisterEventListener(EventType::SWITCH_RENDERER,
 			*this);
-	eventDistributor.unregisterEventListener(OPENMSX_FINISH_FRAME_EVENT,
+	eventDistributor.unregisterEventListener(EventType::FINISH_FRAME,
 			*this);
 
 	resetVideoSystem();
@@ -179,44 +178,51 @@ void Display::executeRT()
 	repaint();
 }
 
-int Display::signalEvent(const std::shared_ptr<const Event>& event) noexcept
+int Display::signalEvent(const Event& event) noexcept
 {
-	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
-		const auto& ffe = checked_cast<const FinishFrameEvent&>(*event);
-		if (ffe.needRender()) {
-			repaint();
-			reactor.getEventDistributor().distributeEvent(
-				std::make_shared<SimpleEvent>(
-					OPENMSX_FRAME_DRAWN_EVENT));
-		}
-	} else if (event->getType() == OPENMSX_SWITCH_RENDERER_EVENT) {
-		doRendererSwitch();
-	} else if (event->getType() == OPENMSX_MACHINE_LOADED_EVENT) {
-		videoSystem->updateWindowTitle();
-	} else if (event->getType() == OPENMSX_EXPOSE_EVENT) {
-		// Don't render too often, and certainly not when the screen
-		// will anyway soon be rendered.
-		repaintDelayed(100 * 1000); // 10fps
-	} else if (PLATFORM_ANDROID && event->getType() == OPENMSX_FOCUS_EVENT) {
-		// On Android, the rendering must be frozen when the app is sent to
-		// the background, because Android takes away all graphics resources
-		// from the app. It simply destroys the entire graphics context.
-		// Though, a repaint() must happen within the focus-lost event
-		// so that the SDL Android port realizes that the graphics context
-		// is gone and will re-build it again on the first flush to the
-		// surface after the focus has been regained.
+	visit(overloaded{
+		[&](const FinishFrameEvent& e) {
+			if (e.needRender()) {
+				repaint();
+				reactor.getEventDistributor().distributeEvent(
+					Event::create<FrameDrawnEvent>());
+			}
+		},
+		[&](const SwitchRendererEvent& /*e*/) {
+			doRendererSwitch();
+		},
+		[&](const MachineLoadedEvent& /*e*/) {
+			videoSystem->updateWindowTitle();
+		},
+		[&](const ExposeEvent& /*e*/) {
+			// Don't render too often, and certainly not when the screen
+			// will anyway soon be rendered.
+			repaintDelayed(100 * 1000); // 10fps
+		},
+		[&](const FocusEvent& e) {
+			(void)e;
+			if (PLATFORM_ANDROID) {
+				// On Android, the rendering must be frozen when the app is sent to
+				// the background, because Android takes away all graphics resources
+				// from the app. It simply destroys the entire graphics context.
+				// Though, a repaint() must happen within the focus-lost event
+				// so that the SDL Android port realizes that the graphics context
+				// is gone and will re-build it again on the first flush to the
+				// surface after the focus has been regained.
 
-		// Perform a repaint before updating the renderFrozen flag:
-		// -When loosing the focus, this repaint will flush a last
-		//  time the SDL surface, making sure that the Android SDL
-		//  port discovers that the graphics context is gone.
-		// -When gaining the focus, this repaint does nothing as
-		//  the renderFrozen flag is still false
-		repaint();
-		const auto& focusEvent = checked_cast<const FocusEvent&>(*event);
-		ad_printf("Setting renderFrozen to %d", !focusEvent.getGain());
-		renderFrozen = !focusEvent.getGain();
-	}
+				// Perform a repaint before updating the renderFrozen flag:
+				// -When loosing the focus, this repaint will flush a last
+				//  time the SDL surface, making sure that the Android SDL
+				//  port discovers that the graphics context is gone.
+				// -When gaining the focus, this repaint does nothing as
+				//  the renderFrozen flag is still false
+				repaint();
+				ad_printf("Setting renderFrozen to %d", !e.getGain());
+				renderFrozen = !e.getGain();
+			}
+		},
+		[](const EventBase&) { /*ignore*/ }
+	}, event);
 	return 0;
 }
 
@@ -267,8 +273,7 @@ void Display::checkRendererSwitch()
 		// causes problems???
 		switchInProgress = true;
 		reactor.getEventDistributor().distributeEvent(
-			std::make_shared<SimpleEvent>(
-				OPENMSX_SWITCH_RENDERER_EVENT));
+			Event::create<SwitchRendererEvent>());
 	}
 }
 

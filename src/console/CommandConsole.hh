@@ -82,7 +82,7 @@ private:
 	[[nodiscard]] unsigned getOutputColumns() const override;
 
 	// EventListener
-	int signalEvent(const std::shared_ptr<const Event>& event) noexcept override;
+	int signalEvent(const Event& event) noexcept override;
 
 	bool handleEvent(const KeyEvent& keyEvent);
 	void tabCompletion();

@@ -22,12 +22,12 @@ MidiInReader::MidiInReader(EventDistributor& eventDistributor_,
 		"filename of the file where the MIDI input is read from",
 		"/dev/midi")
 {
-	eventDistributor.registerEventListener(OPENMSX_MIDI_IN_READER_EVENT, *this);
+	eventDistributor.registerEventListener(EventType::MIDI_IN_READER, *this);
 }
 
 MidiInReader::~MidiInReader()
 {
-	eventDistributor.unregisterEventListener(OPENMSX_MIDI_IN_READER_EVENT, *this);
+	eventDistributor.unregisterEventListener(EventType::MIDI_IN_READER, *this);
 }
 
 // Pluggable
@@ -92,7 +92,7 @@ void MidiInReader::run()
 			queue.push_back(buf);
 		}
 		eventDistributor.distributeEvent(
-			std::make_shared<SimpleEvent>(OPENMSX_MIDI_IN_READER_EVENT));
+			Event::create<MidiInReaderEvent>());
 	}
 }
 
@@ -119,7 +119,7 @@ void MidiInReader::signal(EmuTime::param time)
 }
 
 // EventListener
-int MidiInReader::signalEvent(const std::shared_ptr<const Event>& /*event*/) noexcept
+int MidiInReader::signalEvent(const Event& /*event*/) noexcept
 {
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());

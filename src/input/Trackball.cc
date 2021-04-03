@@ -1,9 +1,8 @@
 #include "Trackball.hh"
 #include "MSXEventDistributor.hh"
 #include "StateChangeDistributor.hh"
-#include "InputEvents.hh"
+#include "Event.hh"
 #include "StateChange.hh"
-#include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include <algorithm>
@@ -204,54 +203,46 @@ void Trackball::syncCurrentWithTarget(EmuTime::param time)
 }
 
 // MSXEventListener
-void Trackball::signalMSXEvent(const shared_ptr<const Event>& event,
+void Trackball::signalMSXEvent(const Event& event,
                                EmuTime::param time) noexcept
 {
-	switch (event->getType()) {
-	case OPENMSX_MOUSE_MOTION_EVENT: {
-		const auto& mev = checked_cast<const MouseMotionEvent&>(*event);
-		constexpr int SCALE = 2;
-		int dx = mev.getX() / SCALE;
-		int dy = mev.getY() / SCALE;
-		if ((dx != 0) || (dy != 0)) {
-			createTrackballStateChange(time, dx, dy, 0, 0);
-		}
-		break;
-	}
-	case OPENMSX_MOUSE_BUTTON_DOWN_EVENT: {
-		const auto& butEv = checked_cast<const MouseButtonEvent&>(*event);
-		switch (butEv.getButton()) {
-		case MouseButtonEvent::LEFT:
-			createTrackballStateChange(time, 0, 0, JOY_BUTTONA, 0);
-			break;
-		case MouseButtonEvent::RIGHT:
-			createTrackballStateChange(time, 0, 0, JOY_BUTTONB, 0);
-			break;
-		default:
-			// ignore other buttons
-			break;
-		}
-		break;
-	}
-	case OPENMSX_MOUSE_BUTTON_UP_EVENT: {
-		const auto& butEv = checked_cast<const MouseButtonEvent&>(*event);
-		switch (butEv.getButton()) {
-		case MouseButtonEvent::LEFT:
-			createTrackballStateChange(time, 0, 0, 0, JOY_BUTTONA);
-			break;
-		case MouseButtonEvent::RIGHT:
-			createTrackballStateChange(time, 0, 0, 0, JOY_BUTTONB);
-			break;
-		default:
-			// ignore other buttons
-			break;
-		}
-		break;
-	}
-	default:
-		// ignore
-		break;
-	}
+	visit(overloaded{
+		[&](const MouseMotionEvent& e) {
+			constexpr int SCALE = 2;
+			int dx = e.getX() / SCALE;
+			int dy = e.getY() / SCALE;
+			if ((dx != 0) || (dy != 0)) {
+				createTrackballStateChange(time, dx, dy, 0, 0);
+			}
+		},
+		[&](const MouseButtonDownEvent& e) {
+			switch (e.getButton()) {
+			case MouseButtonEvent::LEFT:
+				createTrackballStateChange(time, 0, 0, JOY_BUTTONA, 0);
+				break;
+			case MouseButtonEvent::RIGHT:
+				createTrackballStateChange(time, 0, 0, JOY_BUTTONB, 0);
+				break;
+			default:
+				// ignore other buttons
+				break;
+			}
+		},
+		[&](const MouseButtonUpEvent& e) {
+			switch (e.getButton()) {
+			case MouseButtonEvent::LEFT:
+				createTrackballStateChange(time, 0, 0, 0, JOY_BUTTONA);
+				break;
+			case MouseButtonEvent::RIGHT:
+				createTrackballStateChange(time, 0, 0, 0, JOY_BUTTONB);
+				break;
+			default:
+				// ignore other buttons
+				break;
+			}
+		},
+		[](const EventBase&) { /*ignore*/ }
+	}, event);
 }
 
 void Trackball::createTrackballStateChange(

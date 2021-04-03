@@ -15,7 +15,7 @@ TODO:
 #include "VDPVRAM.hh"
 #include "SpriteChecker.hh"
 #include "EventDistributor.hh"
-#include "FinishFrameEvent.hh"
+#include "Event.hh"
 #include "RealTime.hh"
 #include "SpeedManager.hh"
 #include "ThrottleManager.hh"
@@ -247,7 +247,7 @@ void PixelRenderer::frameEnd(EmuTime::param time)
 	if (vdp.getMotherBoard().isActive() &&
 	    !vdp.getMotherBoard().isFastForwarding()) {
 		eventDistributor.distributeEvent(
-			std::make_shared<FinishFrameEvent>(
+			Event::create<FinishFrameEvent>(
 				rasterizer->getPostProcessor()->getVideoSource(),
 				videoSourceSetting.getSource(),
 				!paintFrame));

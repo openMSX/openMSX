@@ -1,11 +1,10 @@
 #include "InputEventGenerator.hh"
 #include "EventDistributor.hh"
-#include "InputEvents.hh"
+#include "Event.hh"
 #include "IntegerSetting.hh"
 #include "GlobalSettings.hh"
 #include "Keys.hh"
 #include "FileOperations.hh"
-#include "checked_cast.hh"
 #include "one_of.hh"
 #include "outer.hh"
 #include "unreachable.hh"
@@ -16,7 +15,6 @@
 
 using std::string;
 using std::vector;
-using std::make_shared;
 
 namespace openmsx {
 
@@ -33,7 +31,7 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 	, escapeGrabState(ESCAPE_GRAB_WAIT_CMD)
 {
 	setGrabInput(grabInput.getBoolean());
-	eventDistributor.registerEventListener(OPENMSX_FOCUS_EVENT, *this);
+	eventDistributor.registerEventListener(EventType::FOCUS, *this);
 
 	osdControlButtonsState = unsigned(~0); // 0 is pressed, 1 is released
 
@@ -44,7 +42,7 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 
 InputEventGenerator::~InputEventGenerator()
 {
-	eventDistributor.unregisterEventListener(OPENMSX_FOCUS_EVENT, *this);
+	eventDistributor.unregisterEventListener(EventType::FOCUS, *this);
 }
 
 void InputEventGenerator::wait()
@@ -123,7 +121,7 @@ void InputEventGenerator::poll()
 }
 
 void InputEventGenerator::setNewOsdControlButtonState(
-		unsigned newState, const EventPtr& origEvent)
+		unsigned newState, const Event& origEvent)
 {
 	unsigned deltaState = osdControlButtonsState ^ newState;
 	for (unsigned i = OsdControlEvent::LEFT_BUTTON;
@@ -131,11 +129,11 @@ void InputEventGenerator::setNewOsdControlButtonState(
 		if (deltaState & (1 << i)) {
 			if (newState & (1 << i)) {
 				eventDistributor.distributeEvent(
-					make_shared<OsdControlReleaseEvent>(
+					Event::create<OsdControlReleaseEvent>(
 						i, origEvent));
 			} else {
 				eventDistributor.distributeEvent(
-					make_shared<OsdControlPressEvent>(
+					Event::create<OsdControlPressEvent>(
 						i, origEvent));
 			}
 		}
@@ -144,7 +142,7 @@ void InputEventGenerator::setNewOsdControlButtonState(
 }
 
 void InputEventGenerator::triggerOsdControlEventsFromJoystickAxisMotion(
-	unsigned axis, int value, const EventPtr& origEvent)
+	unsigned axis, int value, const Event& origEvent)
 {
 	auto [neg_button, pos_button] = [&] {
 		switch (axis) {
@@ -180,7 +178,7 @@ void InputEventGenerator::triggerOsdControlEventsFromJoystickAxisMotion(
 }
 
 void InputEventGenerator::triggerOsdControlEventsFromJoystickHat(
-	int value, const EventPtr& origEvent)
+	int value, const Event& origEvent)
 {
 	unsigned dir = 0;
 	if (!(value & SDL_HAT_UP   )) dir |= 1 << OsdControlEvent::UP_BUTTON;
@@ -193,7 +191,7 @@ void InputEventGenerator::triggerOsdControlEventsFromJoystickHat(
 }
 
 void InputEventGenerator::osdControlChangeButton(
-	bool up, unsigned changedButtonMask, const EventPtr& origEvent)
+	bool up, unsigned changedButtonMask, const Event& origEvent)
 {
 	auto newButtonState = up
 		? osdControlButtonsState | changedButtonMask
@@ -202,7 +200,7 @@ void InputEventGenerator::osdControlChangeButton(
 }
 
 void InputEventGenerator::triggerOsdControlEventsFromJoystickButtonEvent(
-	unsigned button, bool up, const EventPtr& origEvent)
+	unsigned button, bool up, const Event& origEvent)
 {
 	osdControlChangeButton(
 		up,
@@ -212,7 +210,7 @@ void InputEventGenerator::triggerOsdControlEventsFromJoystickButtonEvent(
 }
 
 void InputEventGenerator::triggerOsdControlEventsFromKeyEvent(
-	Keys::KeyCode keyCode, bool up, bool repeat, const EventPtr& origEvent)
+	Keys::KeyCode keyCode, bool up, bool repeat, const Event& origEvent)
 {
 	unsigned buttonMask = [&] {
 		switch (static_cast<Keys::KeyCode>(keyCode & Keys::K_MASK)) {
@@ -250,14 +248,14 @@ static constexpr Uint16 normalizeModifier(SDL_Keycode sym, Uint16 mod)
 
 void InputEventGenerator::handleKeyDown(const SDL_KeyboardEvent& key, uint32_t unicode)
 {
-	EventPtr event;
+	Event event;
 	/*if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_93) {
-		event = make_shared<JoystickButtonDownEvent>(0, 0);
+		event = Event::create<JoystickButtonDownEvent>(0, 0);
 		triggerOsdControlEventsFromJoystickButtonEvent(
 			0, false, event);
 		androidButtonA = true;
 	} else if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_94) {
-		event = make_shared<JoystickButtonDownEvent>(0, 1);
+		event = Event::create<JoystickButtonDownEvent>(0, 1);
 		triggerOsdControlEventsFromJoystickButtonEvent(
 			1, false, event);
 		androidButtonB = true;
@@ -265,10 +263,10 @@ void InputEventGenerator::handleKeyDown(const SDL_KeyboardEvent& key, uint32_t u
 		auto mod = normalizeModifier(key.keysym.sym, key.keysym.mod);
 		auto [keyCode, scanCode] = Keys::getCodes(
 			key.keysym.sym, mod, key.keysym.scancode, false);
-		event = make_shared<KeyDownEvent>(keyCode, scanCode, unicode);
+		event = Event::create<KeyDownEvent>(keyCode, scanCode, unicode);
 		triggerOsdControlEventsFromKeyEvent(keyCode, false, key.repeat, event);
 	}
-	eventDistributor.distributeEvent(event);
+	eventDistributor.distributeEvent(std::move(event));
 }
 
 void InputEventGenerator::handleText(const char* utf8)
@@ -277,13 +275,13 @@ void InputEventGenerator::handleText(const char* utf8)
 		auto unicode = utf8::unchecked::next(utf8);
 		if (unicode == 0) return;
 		eventDistributor.distributeEvent(
-			make_shared<KeyDownEvent>(Keys::K_NONE, unicode));
+			Event::create<KeyDownEvent>(Keys::K_NONE, unicode));
 	}
 }
 
 void InputEventGenerator::handle(const SDL_Event& evt)
 {
-	EventPtr event;
+	Event event;
 	switch (evt.type) {
 	case SDL_KEYUP:
 		// Virtual joystick of SDL Android port does not have joystick
@@ -294,12 +292,12 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		// and 1).
 		// TODO Android code should be rewritten for SDL2
 		/*if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_93) {
-			event = make_shared<JoystickButtonUpEvent>(0, 0);
+			event = Event::create<JoystickButtonUpEvent>(0, 0);
 			triggerOsdControlEventsFromJoystickButtonEvent(
 				0, true, event);
 			androidButtonA = false;
 		} else if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_94) {
-			event = make_shared<JoystickButtonUpEvent>(0, 1);
+			event = Event::create<JoystickButtonUpEvent>(0, 1);
 			triggerOsdControlEventsFromJoystickButtonEvent(
 				1, true, event);
 			androidButtonB = false;
@@ -307,7 +305,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 			auto mod = normalizeModifier(evt.key.keysym.sym, evt.key.keysym.mod);
 			auto [keyCode, scanCode] = Keys::getCodes(
 				evt.key.keysym.sym, mod, evt.key.keysym.scancode, true);
-			event = make_shared<KeyUpEvent>(keyCode, scanCode);
+			event = Event::create<KeyUpEvent>(keyCode, scanCode);
 			bool repeat = false;
 			triggerOsdControlEventsFromKeyEvent(keyCode, true, repeat, event);
 		}
@@ -317,10 +315,10 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		break;
 
 	case SDL_MOUSEBUTTONUP:
-		event = make_shared<MouseButtonUpEvent>(evt.button.button);
+		event = Event::create<MouseButtonUpEvent>(evt.button.button);
 		break;
 	case SDL_MOUSEBUTTONDOWN:
-		event = make_shared<MouseButtonDownEvent>(evt.button.button);
+		event = Event::create<MouseButtonDownEvent>(evt.button.button);
 		break;
 	case SDL_MOUSEWHEEL: {
 		int x = evt.wheel.x;
@@ -329,23 +327,23 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 			x = -x;
 			y = -y;
 		}
-		event = make_shared<MouseWheelEvent>(x, y);
+		event = Event::create<MouseWheelEvent>(x, y);
 		break;
 	}
 	case SDL_MOUSEMOTION:
-		event = make_shared<MouseMotionEvent>(
+		event = Event::create<MouseMotionEvent>(
 			evt.motion.xrel, evt.motion.yrel,
 			evt.motion.x,    evt.motion.y);
 		break;
 
 	case SDL_JOYBUTTONUP:
-		event = make_shared<JoystickButtonUpEvent>(
+		event = Event::create<JoystickButtonUpEvent>(
 			evt.jbutton.which, evt.jbutton.button);
 		triggerOsdControlEventsFromJoystickButtonEvent(
 			evt.jbutton.button, true, event);
 		break;
 	case SDL_JOYBUTTONDOWN:
-		event = make_shared<JoystickButtonDownEvent>(
+		event = Event::create<JoystickButtonDownEvent>(
 			evt.jbutton.which, evt.jbutton.button);
 		triggerOsdControlEventsFromJoystickButtonEvent(
 			evt.jbutton.button, false, event);
@@ -356,14 +354,14 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		auto value = (evt.jaxis.value < -threshold) ? evt.jaxis.value
 		           : (evt.jaxis.value >  threshold) ? evt.jaxis.value
 		                                            : 0;
-		event = make_shared<JoystickAxisMotionEvent>(
+		event = Event::create<JoystickAxisMotionEvent>(
 			evt.jaxis.which, evt.jaxis.axis, value);
 		triggerOsdControlEventsFromJoystickAxisMotion(
 			evt.jaxis.axis, value, event);
 		break;
 	}
 	case SDL_JOYHATMOTION:
-		event = make_shared<JoystickHatEvent>(
+		event = Event::create<JoystickHatEvent>(
 			evt.jhat.which, evt.jhat.hat, evt.jhat.value);
 		triggerOsdControlEventsFromJoystickHat(evt.jhat.value, event);
 		break;
@@ -375,17 +373,17 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 	case SDL_WINDOWEVENT:
 		switch (evt.window.event) {
 		case SDL_WINDOWEVENT_FOCUS_GAINED:
-			event = make_shared<FocusEvent>(true);
+			event = Event::create<FocusEvent>(true);
 			break;
 		case SDL_WINDOWEVENT_FOCUS_LOST:
-			event = make_shared<FocusEvent>(false);
+			event = Event::create<FocusEvent>(false);
 			break;
 		case SDL_WINDOWEVENT_RESIZED:
-			event = make_shared<ResizeEvent>(
+			event = Event::create<ResizeEvent>(
 				evt.window.data1, evt.window.data2);
 			break;
 		case SDL_WINDOWEVENT_EXPOSED:
-			event = make_shared<SimpleEvent>(OPENMSX_EXPOSE_EVENT);
+			event = Event::create<ExposeEvent>();
 			break;
 		default:
 			break;
@@ -393,12 +391,12 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		break;
 
 	case SDL_DROPFILE:
-		event = make_shared<FileDropEvent>(FileOperations::getConventionalPath(evt.drop.file));
+		event = Event::create<FileDropEvent>(FileOperations::getConventionalPath(evt.drop.file));
 		SDL_free(evt.drop.file);
 		break;
 
 	case SDL_QUIT:
-		event = make_shared<QuitEvent>();
+		event = Event::create<QuitEvent>();
 		break;
 
 	default:
@@ -407,13 +405,13 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 
 #if 0
 	if (event) {
-		std::cerr << "SDL event converted to: " << event->toString() << '\n';
+		std::cerr << "SDL event converted to: " << toString(event) << '\n';
 	} else {
 		std::cerr << "SDL event was of unknown type, not converted to an openMSX event\n";
 	}
 #endif
 
-	if (event) eventDistributor.distributeEvent(event);
+	if (event) eventDistributor.distributeEvent(std::move(event));
 }
 
 
@@ -423,27 +421,31 @@ void InputEventGenerator::updateGrab(bool grab)
 	setGrabInput(grab);
 }
 
-int InputEventGenerator::signalEvent(const std::shared_ptr<const Event>& event) noexcept
+int InputEventGenerator::signalEvent(const Event& event) noexcept
 {
-	const auto& focusEvent = checked_cast<const FocusEvent&>(*event);
-	switch (escapeGrabState) {
-		case ESCAPE_GRAB_WAIT_CMD:
-			// nothing
-			break;
-		case ESCAPE_GRAB_WAIT_LOST:
-			if (!focusEvent.getGain()) {
-				escapeGrabState = ESCAPE_GRAB_WAIT_GAIN;
+	visit(overloaded{
+		[&](const FocusEvent& fe) {
+			switch (escapeGrabState) {
+				case ESCAPE_GRAB_WAIT_CMD:
+					// nothing
+					break;
+				case ESCAPE_GRAB_WAIT_LOST:
+					if (!fe.getGain()) {
+						escapeGrabState = ESCAPE_GRAB_WAIT_GAIN;
+					}
+					break;
+				case ESCAPE_GRAB_WAIT_GAIN:
+					if (fe.getGain()) {
+						escapeGrabState = ESCAPE_GRAB_WAIT_CMD;
+					}
+					setGrabInput(true);
+					break;
+				default:
+					UNREACHABLE;
 			}
-			break;
-		case ESCAPE_GRAB_WAIT_GAIN:
-			if (focusEvent.getGain()) {
-				escapeGrabState = ESCAPE_GRAB_WAIT_CMD;
-			}
-			setGrabInput(true);
-			break;
-		default:
-			UNREACHABLE;
-	}
+		},
+		[](const EventBase&) { UNREACHABLE; }
+	}, event);
 	return 0;
 }
 

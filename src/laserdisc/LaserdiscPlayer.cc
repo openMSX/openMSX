@@ -141,7 +141,7 @@ LaserdiscPlayer::LaserdiscPlayer(
 	reactor.getDisplay().attach(*this);
 
 	createRenderer();
-	reactor.getEventDistributor().registerEventListener(OPENMSX_BOOT_EVENT, *this);
+	reactor.getEventDistributor().registerEventListener(EventType::BOOT, *this);
 	scheduleDisplayStart(getCurrentTime());
 
 	static XMLElement xml = createXML();
@@ -153,7 +153,7 @@ LaserdiscPlayer::~LaserdiscPlayer()
 	unregisterSound();
 	Reactor& reactor = motherBoard.getReactor();
 	reactor.getDisplay().detach(*this);
-	reactor.getEventDistributor().unregisterEventListener(OPENMSX_BOOT_EVENT, *this);
+	reactor.getEventDistributor().unregisterEventListener(EventType::BOOT, *this);
 }
 
 void LaserdiscPlayer::scheduleDisplayStart(EmuTime::param time)
@@ -643,9 +643,9 @@ void LaserdiscPlayer::setImageName(string newImage, EmuTime::param time)
 	}
 }
 
-int LaserdiscPlayer::signalEvent(const std::shared_ptr<const Event>& event) noexcept
+int LaserdiscPlayer::signalEvent(const Event& event) noexcept
 {
-	if (event->getType() == OPENMSX_BOOT_EVENT && video) {
+	if (getType(event) == EventType::BOOT && video) {
 		autoRun();
 	}
 	return 0;

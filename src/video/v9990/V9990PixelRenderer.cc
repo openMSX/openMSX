@@ -7,7 +7,7 @@
 #include "Display.hh"
 #include "VideoSystem.hh"
 #include "VideoSourceSetting.hh"
-#include "FinishFrameEvent.hh"
+#include "Event.hh"
 #include "RealTime.hh"
 #include "Timer.hh"
 #include "EventDistributor.hh"
@@ -132,7 +132,7 @@ void V9990PixelRenderer::frameEnd(EmuTime::param time)
 	if (vdp.getMotherBoard().isActive() &&
 	    !vdp.getMotherBoard().isFastForwarding()) {
 		eventDistributor.distributeEvent(
-			std::make_shared<FinishFrameEvent>(
+			Event::create<FinishFrameEvent>(
 				rasterizer->getPostProcessor()->getVideoSource(),
 				videoSourceSetting.getSource(),
 				skipEvent));

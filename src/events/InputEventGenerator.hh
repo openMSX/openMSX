@@ -45,15 +45,13 @@ public:
 	void poll();
 
 private:
-	using EventPtr = std::shared_ptr<const Event>;
-
 	void handle(const SDL_Event& evt);
 	void handleKeyDown(const SDL_KeyboardEvent& key, uint32_t unicode);
 	void handleText(const char* utf8);
 	void setGrabInput(bool grab);
 
 	// EventListener
-	int signalEvent(const std::shared_ptr<const Event>& event) noexcept override;
+	int signalEvent(const Event& event) noexcept override;
 
 	EventDistributor& eventDistributor;
 	GlobalSettings& globalSettings;
@@ -73,17 +71,17 @@ private:
 
 	// OsdControl
 	void setNewOsdControlButtonState(
-		unsigned newState, const EventPtr& origEvent);
+		unsigned newState, const Event& origEvent);
 	void triggerOsdControlEventsFromJoystickAxisMotion(
-		unsigned axis, int value, const EventPtr& origEvent);
+		unsigned axis, int value, const Event& origEvent);
 	void triggerOsdControlEventsFromJoystickHat(
-		int value, const EventPtr& origEvent);
+		int value, const Event& origEvent);
 	void osdControlChangeButton(
-		bool up, unsigned changedButtonMask, const EventPtr& origEvent);
+		bool up, unsigned changedButtonMask, const Event& origEvent);
 	void triggerOsdControlEventsFromJoystickButtonEvent(
-		unsigned button, bool up, const EventPtr& origEvent);
+		unsigned button, bool up, const Event& origEvent);
 	void triggerOsdControlEventsFromKeyEvent(
-		Keys::KeyCode keyCode, bool up, bool repeat, const EventPtr& origEvent);
+		Keys::KeyCode keyCode, bool up, bool repeat, const Event& origEvent);
 
 
 	unsigned osdControlButtonsState; // 0 is pressed, 1 is released

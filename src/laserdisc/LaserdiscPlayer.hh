@@ -143,7 +143,7 @@ private:
 	[[nodiscard]] EmuTime::param getCurrentTime() const { return syncAck.getCurrentTime(); }
 
 	// EventListener
-	int signalEvent(const std::shared_ptr<const Event>& event) noexcept override;
+	int signalEvent(const Event& event) noexcept override;
 
 	// VideoSystemChangeListener interface:
 	void preVideoSystemChange() noexcept override;

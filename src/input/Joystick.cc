@@ -3,7 +3,7 @@
 #include "PlugException.hh"
 #include "MSXEventDistributor.hh"
 #include "StateChangeDistributor.hh"
-#include "InputEvents.hh"
+#include "Event.hh"
 #include "InputEventGenerator.hh"
 #include "StateChange.hh"
 #include "TclObject.hh"
@@ -305,10 +305,10 @@ bool Joystick::getState(Interpreter& interp, const TclObject& dict,
 }
 
 // MSXEventListener
-void Joystick::signalMSXEvent(const shared_ptr<const Event>& event,
+void Joystick::signalMSXEvent(const Event& event,
                               EmuTime::param time) noexcept
 {
-	const auto* joyEvent = dynamic_cast<const JoystickEvent*>(event.get());
+	const auto* joyEvent = get_if<JoystickEvent>(event);
 	if (!joyEvent) return;
 
 	// TODO: It would be more efficient to make a dispatcher instead of

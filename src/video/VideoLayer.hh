@@ -61,7 +61,7 @@ private:
 	void calcCoverage();
 
 	// MSXEventListener
-	void signalMSXEvent(const std::shared_ptr<const Event>& event,
+	void signalMSXEvent(const Event& event,
 	                    EmuTime::param time) noexcept override;
 
 private:

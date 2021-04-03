@@ -32,11 +32,11 @@ VisibleSurface::VisibleSurface(
 	renderSettings.getPointerHideDelaySetting().attach(*this);
 	renderSettings.getFullScreenSetting().attach(*this);
 	eventDistributor.registerEventListener(
-		OPENMSX_MOUSE_MOTION_EVENT, *this);
+		EventType::MOUSE_MOTION, *this);
 	eventDistributor.registerEventListener(
-		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this);
+		EventType::MOUSE_BUTTON_DOWN, *this);
 	eventDistributor.registerEventListener(
-		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this);
+		EventType::MOUSE_BUTTON_UP, *this);
 
 	updateCursor();
 }
@@ -44,11 +44,11 @@ VisibleSurface::VisibleSurface(
 VisibleSurface::~VisibleSurface()
 {
 	eventDistributor.unregisterEventListener(
-		OPENMSX_MOUSE_MOTION_EVENT, *this);
+		EventType::MOUSE_MOTION, *this);
 	eventDistributor.unregisterEventListener(
-		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this);
+		EventType::MOUSE_BUTTON_DOWN, *this);
 	eventDistributor.unregisterEventListener(
-		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this);
+		EventType::MOUSE_BUTTON_UP, *this);
 	inputEventGenerator.getGrabInput().detach(*this);
 	auto& renderSettings = display.getRenderSettings();
 	renderSettings.getPointerHideDelaySetting().detach(*this);
@@ -67,11 +67,11 @@ void VisibleSurface::executeRT()
 	inputEventGenerator.updateGrab(grab);
 }
 
-int VisibleSurface::signalEvent(const std::shared_ptr<const Event>& event) noexcept
+int VisibleSurface::signalEvent(const Event& event) noexcept
 {
-	assert(event->getType() == one_of(OPENMSX_MOUSE_MOTION_EVENT,
-	                                  OPENMSX_MOUSE_BUTTON_UP_EVENT,
-	                                  OPENMSX_MOUSE_BUTTON_DOWN_EVENT));
+	assert(getType(event) == one_of(EventType::MOUSE_MOTION,
+	                                EventType::MOUSE_BUTTON_UP,
+	                                EventType::MOUSE_BUTTON_DOWN));
 	(void)event;
 	updateCursor();
 	return 0;

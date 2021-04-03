@@ -441,4 +441,9 @@ template<typename Key, typename Value>
 	return (it != m.end()) ? &it->second : nullptr;
 }
 
+// will likely become part of future c++ standard
+template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
+// explicit deduction guide (not needed as of C++20)
+template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+
 #endif

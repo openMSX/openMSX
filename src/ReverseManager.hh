@@ -128,7 +128,7 @@ private:
 	[[nodiscard]] EmuTime::param getCurrentTime() const { return syncNewSnapshot.getCurrentTime(); }
 
 	// EventListener
-	int signalEvent(const std::shared_ptr<const Event>& event) noexcept override;
+	int signalEvent(const Event& event) noexcept override;
 
 	// StateChangeRecorder
 	void signalStateChange(const std::shared_ptr<StateChange>& event) override;

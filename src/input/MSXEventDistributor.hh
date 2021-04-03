@@ -2,7 +2,6 @@
 #define MSXEVENTDISTRIBUTOR_HH
 
 #include "EmuTime.hh"
-#include <memory>
 #include <vector>
 
 namespace openmsx {
@@ -13,8 +12,6 @@ class Event;
 class MSXEventDistributor
 {
 public:
-	using EventPtr = std::shared_ptr<const Event>;
-
 	MSXEventDistributor(const MSXEventDistributor&) = delete;
 	MSXEventDistributor& operator=(const MSXEventDistributor&) = delete;
 
@@ -40,7 +37,7 @@ public:
 	  *       method doesn't catch them (in case of an exception it's
 	  *       undefined which listeners receive the event)
 	  */
-	void distributeEvent(const EventPtr& event, EmuTime::param time);
+	void distributeEvent(const Event& event, EmuTime::param time);
 
 private:
 	[[nodiscard]] bool isRegistered(MSXEventListener* listener) const;

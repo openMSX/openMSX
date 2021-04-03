@@ -4,7 +4,7 @@
 #include "EventDistributor.hh"
 #include "GlobalCommandController.hh"
 #include "InputEventGenerator.hh"
-#include "InputEvents.hh"
+#include "Event.hh"
 #include "DiskFactory.hh"
 #include "DiskManipulator.hh"
 #include "DiskChanger.hh"
@@ -39,7 +39,6 @@
 #include "Thread.hh"
 #include "Timer.hh"
 #include "serialize.hh"
-#include "checked_cast.hh"
 #include "ranges.hh"
 #include "statp.hh"
 #include "stl.hh"
@@ -276,9 +275,9 @@ void Reactor::init()
 
 	getGlobalSettings().getPauseSetting().attach(*this);
 
-	eventDistributor->registerEventListener(OPENMSX_QUIT_EVENT, *this);
+	eventDistributor->registerEventListener(EventType::QUIT, *this);
 #if PLATFORM_ANDROID
-	eventDistributor->registerEventListener(OPENMSX_FOCUS_EVENT, *this);
+	eventDistributor->registerEventListener(EventType::FOCUS, *this);
 #endif
 	isInit = true;
 }
@@ -288,9 +287,9 @@ Reactor::~Reactor()
 	if (!isInit) return;
 	deleteBoard(activeBoard);
 
-	eventDistributor->unregisterEventListener(OPENMSX_QUIT_EVENT, *this);
+	eventDistributor->unregisterEventListener(EventType::QUIT, *this);
 #if PLATFORM_ANDROID
-	eventDistributor->unregisterEventListener(OPENMSX_FOCUS_EVENT, *this);
+	eventDistributor->unregisterEventListener(EventType::FOCUS, *this);
 #endif
 
 	getGlobalSettings().getPauseSetting().detach(*this);
@@ -468,7 +467,7 @@ void Reactor::switchBoard(Board newBoard)
 		activeBoard = newBoard;
 	}
 	eventDistributor->distributeEvent(
-		make_shared<SimpleEvent>(OPENMSX_MACHINE_LOADED_EVENT));
+		Event::create<MachineLoadedEvent>());
 	globalCliComm->update(CliComm::HARDWARE, getMachineID(), "select");
 	if (activeBoard) {
 		activeBoard->activate(true);
@@ -630,33 +629,36 @@ void Reactor::update(const Setting& setting) noexcept
 }
 
 // EventListener
-int Reactor::signalEvent(const std::shared_ptr<const Event>& event) noexcept
+int Reactor::signalEvent(const Event& event) noexcept
 {
-	auto type = event->getType();
-	if (type == OPENMSX_QUIT_EVENT) {
-		enterMainLoop();
-		running = false;
+	visit(overloaded{
+		[&](const QuitEvent& /*e*/) {
+			enterMainLoop();
+			running = false;
+		},
+		[&](const FocusEvent& e) {
+			(void)e;
 #if PLATFORM_ANDROID
-	} else if (type == OPENMSX_FOCUS_EVENT) {
-		// Android SDL port sends a (un)focus event when an app is put in background
-		// by the OS for whatever reason (like an incoming phone call) and all screen
-		// resources are taken away from the app.
-		// In such case the app is supposed to behave as a good citizen
-		// and minimize its resource usage and related battery drain.
-		// The SDL Android port already takes care of halting the Java
-		// part of the sound processing. The Display class makes sure that it wont try
-		// to render anything to the (temporary missing) graphics resources but the
-		// main emulation should also be temporary stopped, in order to minimize CPU usage
-		auto& focusEvent = checked_cast<const FocusEvent&>(*event);
-		if (focusEvent.getGain()) {
-			unblock();
-		} else {
-			block();
-		}
+			// Android SDL port sends a (un)focus event when an app is put in background
+			// by the OS for whatever reason (like an incoming phone call) and all screen
+			// resources are taken away from the app.
+			// In such case the app is supposed to behave as a good citizen
+			// and minimize its resource usage and related battery drain.
+			// The SDL Android port already takes care of halting the Java
+			// part of the sound processing. The Display class makes sure that it wont try
+			// to render anything to the (temporary missing) graphics resources but the
+			// main emulation should also be temporary stopped, in order to minimize CPU usage
+			if (e.getGain()) {
+				unblock();
+			} else {
+				block();
+			}
 #endif
-	} else {
-		UNREACHABLE; // we didn't subscribe to this event...
-	}
+		},
+		[](const EventBase /*e*/) {
+			UNREACHABLE; // we didn't subscribe to this event...
+		}
+	}, event);
 	return 0;
 }
 
@@ -681,7 +683,7 @@ void ExitCommand::execute(span<const TclObject> tokens, TclObject& /*result*/)
 		exitCode = tokens[1].getInt(getInterpreter());
 		break;
 	}
-	distributor.distributeEvent(make_shared<QuitEvent>());
+	distributor.distributeEvent(Event::create<QuitEvent>());
 }
 
 string ExitCommand::help(const vector<string>& /*tokens*/) const

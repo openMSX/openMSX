@@ -104,7 +104,7 @@ CassettePlayer::CassettePlayer(const HardwareConfig& hwConf)
 	registerSound(DeviceConfig(hwConf, xml));
 
 	motherBoard.getReactor().getEventDistributor().registerEventListener(
-		OPENMSX_BOOT_EVENT, *this);
+		EventType::BOOT, *this);
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, getCassettePlayerName(), "add");
 
 	removeTape(EmuTime::zero());
@@ -117,7 +117,7 @@ CassettePlayer::~CassettePlayer()
 		c->unplug(getCurrentTime());
 	}
 	motherBoard.getReactor().getEventDistributor().unregisterEventListener(
-		OPENMSX_BOOT_EVENT, *this);
+		EventType::BOOT, *this);
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, getCassettePlayerName(), "remove");
 }
 
@@ -583,9 +583,9 @@ float CassettePlayer::getAmplificationFactorImpl() const
 	return playImage ? playImage->getAmplificationFactorImpl() : 1.0f;
 }
 
-int CassettePlayer::signalEvent(const std::shared_ptr<const Event>& event) noexcept
+int CassettePlayer::signalEvent(const Event& event) noexcept
 {
-	if (event->getType() == OPENMSX_BOOT_EVENT) {
+	if (getType(event) == EventType::BOOT) {
 		if (!getImageName().empty()) {
 			// Reinsert tape to make sure everything is reset.
 			try {

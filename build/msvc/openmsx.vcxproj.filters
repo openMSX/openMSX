@@ -252,9 +252,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\events\InputEventGenerator.cc">
       <Filter>events</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\events\InputEvents.cc">
-      <Filter>events</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\events\Keys.cc">
       <Filter>events</Filter>
     </ClCompile>
@@ -1593,9 +1590,6 @@
     <None Include="$(OpenMSXSrcDir)\events\EventListener.hh">
       <Filter>events</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\events\FinishFrameEvent.hh">
-      <Filter>events</Filter>
-    </None>
     <None Include="$(OpenMSXSrcDir)\events\GlobalCliComm.hh">
       <Filter>events</Filter>
     </None>
@@ -1606,9 +1600,6 @@
       <Filter>events</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\events\InputEventGenerator.hh">
-      <Filter>events</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\events\InputEvents.hh">
       <Filter>events</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\events\Keys.hh">

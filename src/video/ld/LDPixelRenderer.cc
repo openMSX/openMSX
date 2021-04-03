@@ -5,7 +5,7 @@
 #include "VideoSystem.hh"
 #include "VideoSourceSetting.hh"
 #include "EventDistributor.hh"
-#include "FinishFrameEvent.hh"
+#include "Event.hh"
 #include "MSXMotherBoard.hh"
 #include "LaserdiscPlayer.hh"
 #include "Reactor.hh"
@@ -33,7 +33,7 @@ bool LDPixelRenderer::isActive() const
 
 void LDPixelRenderer::frameEnd()
 {
-	eventDistributor.distributeEvent(std::make_shared<FinishFrameEvent>(
+	eventDistributor.distributeEvent(Event::create<FinishFrameEvent>(
 		rasterizer->getPostProcessor()->getVideoSource(),
 		motherboard.getVideoSource().getSource(),
 		!isActive()));

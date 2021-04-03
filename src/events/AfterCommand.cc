@@ -1,6 +1,7 @@
 #include "AfterCommand.hh"
 #include "CommandController.hh"
 #include "CliComm.hh"
+#include "Event.hh"
 #include "Schedulable.hh"
 #include "EventDistributor.hh"
 #include "InputEventFactory.hh"
@@ -94,11 +95,11 @@ class AfterInputEventCmd final : public AfterCmd
 {
 public:
 	AfterInputEventCmd(AfterCommand& afterCommand,
-	                   AfterCommand::EventPtr event,
+	                   Event event,
 	                   TclObject command);
-	[[nodiscard]] AfterCommand::EventPtr getEvent() const { return event; }
+	[[nodiscard]] const Event& getEvent() const { return event; }
 private:
-	AfterCommand::EventPtr event;
+	Event event;
 };
 
 class AfterRealTimeCmd final : public AfterCmd, private RTSchedulable
@@ -129,37 +130,37 @@ AfterCommand::AfterCommand(Reactor& reactor_,
 	// TODO DETACHED <-> EMU types should be cleaned up
 	//      (moved to event iso listener?)
 	eventDistributor.registerEventListener(
-		OPENMSX_KEY_UP_EVENT, *this);
+		EventType::KEY_UP, *this);
 	eventDistributor.registerEventListener(
-		OPENMSX_KEY_DOWN_EVENT, *this);
+		EventType::KEY_DOWN, *this);
 	eventDistributor.registerEventListener(
-		OPENMSX_MOUSE_MOTION_EVENT, *this);
+		EventType::MOUSE_MOTION, *this);
 	eventDistributor.registerEventListener(
-		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this);
+		EventType::MOUSE_BUTTON_UP, *this);
 	eventDistributor.registerEventListener(
-		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this);
+		EventType::MOUSE_BUTTON_DOWN, *this);
 	eventDistributor.registerEventListener(
-		OPENMSX_MOUSE_WHEEL_EVENT, *this);
+		EventType::MOUSE_WHEEL, *this);
 	eventDistributor.registerEventListener(
-		OPENMSX_JOY_AXIS_MOTION_EVENT, *this);
+		EventType::JOY_AXIS_MOTION, *this);
 	eventDistributor.registerEventListener(
-		OPENMSX_JOY_HAT_EVENT, *this);
+		EventType::JOY_HAT, *this);
 	eventDistributor.registerEventListener(
-		OPENMSX_JOY_BUTTON_UP_EVENT, *this);
+		EventType::JOY_BUTTON_UP, *this);
 	eventDistributor.registerEventListener(
-		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this);
+		EventType::JOY_BUTTON_DOWN, *this);
 	eventDistributor.registerEventListener(
-		OPENMSX_FINISH_FRAME_EVENT, *this);
+		EventType::FINISH_FRAME, *this);
 	eventDistributor.registerEventListener(
-		OPENMSX_BREAK_EVENT, *this);
+		EventType::BREAK, *this);
 	eventDistributor.registerEventListener(
-		OPENMSX_QUIT_EVENT, *this);
+		EventType::QUIT, *this);
 	eventDistributor.registerEventListener(
-		OPENMSX_BOOT_EVENT, *this);
+		EventType::BOOT, *this);
 	eventDistributor.registerEventListener(
-		OPENMSX_MACHINE_LOADED_EVENT, *this);
+		EventType::MACHINE_LOADED, *this);
 	eventDistributor.registerEventListener(
-		OPENMSX_AFTER_TIMED_EVENT, *this);
+		EventType::AFTER_TIMED, *this);
 }
 
 AfterCommand::~AfterCommand()
@@ -169,37 +170,37 @@ AfterCommand::~AfterCommand()
 	}
 
 	eventDistributor.unregisterEventListener(
-		OPENMSX_AFTER_TIMED_EVENT, *this);
+		EventType::AFTER_TIMED, *this);
 	eventDistributor.unregisterEventListener(
-		OPENMSX_MACHINE_LOADED_EVENT, *this);
+		EventType::MACHINE_LOADED, *this);
 	eventDistributor.unregisterEventListener(
-		OPENMSX_BOOT_EVENT, *this);
+		EventType::BOOT, *this);
 	eventDistributor.unregisterEventListener(
-		OPENMSX_QUIT_EVENT, *this);
+		EventType::QUIT, *this);
 	eventDistributor.unregisterEventListener(
-		OPENMSX_BREAK_EVENT, *this);
+		EventType::BREAK, *this);
 	eventDistributor.unregisterEventListener(
-		OPENMSX_FINISH_FRAME_EVENT, *this);
+		EventType::FINISH_FRAME, *this);
 	eventDistributor.unregisterEventListener(
-		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this);
+		EventType::JOY_BUTTON_DOWN, *this);
 	eventDistributor.unregisterEventListener(
-		OPENMSX_JOY_BUTTON_UP_EVENT, *this);
+		EventType::JOY_BUTTON_UP, *this);
 	eventDistributor.unregisterEventListener(
-		OPENMSX_JOY_HAT_EVENT, *this);
+		EventType::JOY_HAT, *this);
 	eventDistributor.unregisterEventListener(
-		OPENMSX_JOY_AXIS_MOTION_EVENT, *this);
+		EventType::JOY_AXIS_MOTION, *this);
 	eventDistributor.unregisterEventListener(
-		OPENMSX_MOUSE_WHEEL_EVENT, *this);
+		EventType::MOUSE_WHEEL, *this);
 	eventDistributor.unregisterEventListener(
-		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this);
+		EventType::MOUSE_BUTTON_DOWN, *this);
 	eventDistributor.unregisterEventListener(
-		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this);
+		EventType::MOUSE_BUTTON_UP, *this);
 	eventDistributor.unregisterEventListener(
-		OPENMSX_MOUSE_MOTION_EVENT, *this);
+		EventType::MOUSE_MOTION, *this);
 	eventDistributor.unregisterEventListener(
-		OPENMSX_KEY_DOWN_EVENT, *this);
+		EventType::KEY_DOWN, *this);
 	eventDistributor.unregisterEventListener(
-		OPENMSX_KEY_UP_EVENT, *this);
+		EventType::KEY_UP, *this);
 }
 
 void AfterCommand::execute(span<const TclObject> tokens, TclObject& result)
@@ -215,15 +216,15 @@ void AfterCommand::execute(span<const TclObject> tokens, TclObject& result)
 	} else if (subCmd == "idle") {
 		afterIdle(tokens, result);
 	} else if (subCmd == "frame") {
-		afterSimpleEvent(tokens, result, OPENMSX_FINISH_FRAME_EVENT);
+		afterSimpleEvent(tokens, result, EventType::FINISH_FRAME);
 	} else if (subCmd == "break") {
-		afterSimpleEvent(tokens, result, OPENMSX_BREAK_EVENT);
+		afterSimpleEvent(tokens, result, EventType::BREAK);
 	} else if (subCmd == "quit") {
-		afterSimpleEvent(tokens, result, OPENMSX_QUIT_EVENT);
+		afterSimpleEvent(tokens, result, EventType::QUIT);
 	} else if (subCmd == "boot") {
-		afterSimpleEvent(tokens, result, OPENMSX_BOOT_EVENT);
+		afterSimpleEvent(tokens, result, EventType::BOOT);
 	} else if (subCmd == "machine_switch") {
-		afterSimpleEvent(tokens, result, OPENMSX_MACHINE_LOADED_EVENT);
+		afterSimpleEvent(tokens, result, EventType::MACHINE_LOADED);
 	} else if (subCmd == "info") {
 		afterInfo(tokens, result);
 	} else if (subCmd == "cancel") {
@@ -302,7 +303,7 @@ void AfterCommand::afterSimpleEvent(span<const TclObject> tokens, TclObject& res
 }
 
 void AfterCommand::afterInputEvent(
-	const EventPtr& event, span<const TclObject> tokens, TclObject& result)
+	const Event& event, span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, 3, "command");
 	auto [idx, ptr] = afterCmdPool.emplace(
@@ -325,11 +326,6 @@ void AfterCommand::afterIdle(span<const TclObject> tokens, TclObject& result)
 	afterCmds.push_back(idx);
 }
 
-// will likely become part of future c++ standard
-template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
-// explicit deduction guide (not needed as of C++20)
-template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
-
 void AfterCommand::afterInfo(span<const TclObject> /*tokens*/, TclObject& result)
 {
 	auto printTime = [](std::ostream& os, const AfterTimedCmd& cmd) {
@@ -345,7 +341,7 @@ void AfterCommand::afterInfo(span<const TclObject> /*tokens*/, TclObject& result
 			[&](AfterTimeCmd&        cmd ) { str << "time "; printTime(str, cmd); },
 			[&](AfterIdleCmd&        cmd ) { str << "idle "; printTime(str, cmd); },
 			[&](AfterSimpleEventCmd& cmd ) { str << cmd.getType() << ' '; },
-			[&](AfterInputEventCmd&  cmd ) { str << cmd.getEvent()->toString() << ' '; },
+			[&](AfterInputEventCmd&  cmd ) { str << toString(cmd.getEvent()) << ' '; },
 			[&](AfterRealTimeCmd& /*cmd*/) { str << "realtime "; }
 		}, var);
 		std::visit([&](AfterCmd& cmd) { str << cmd.getCommand().getString() << '\n'; }, var);
@@ -464,40 +460,36 @@ struct AfterEmuTimePred {
 };
 
 struct AfterInputEventPred {
-	explicit AfterInputEventPred(AfterCommand::EventPtr event_)
+	explicit AfterInputEventPred(Event event_)
 		: event(std::move(event_)) {}
 	bool operator()(AfterCommand::Index idx) const {
 		return std::visit(overloaded {
-			[&](AfterInputEventCmd& cmd) { return cmd.getEvent()->matches(*event); },
+			[&](AfterInputEventCmd& cmd) { return matches(cmd.getEvent(), event); },
 			[&](AfterCmd& /*cmd*/) { return false; }
 		}, afterCmdPool[idx]);
 	}
-	AfterCommand::EventPtr event;
+	Event event;
 };
 
-int AfterCommand::signalEvent(const std::shared_ptr<const Event>& event) noexcept
+int AfterCommand::signalEvent(const Event& event) noexcept
 {
-	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
-		executeSimpleEvents(OPENMSX_FINISH_FRAME_EVENT);
-	} else if (event->getType() == OPENMSX_BREAK_EVENT) {
-		executeSimpleEvents(OPENMSX_BREAK_EVENT);
-	} else if (event->getType() == OPENMSX_BOOT_EVENT) {
-		executeSimpleEvents(OPENMSX_BOOT_EVENT);
-	} else if (event->getType() == OPENMSX_QUIT_EVENT) {
-		executeSimpleEvents(OPENMSX_QUIT_EVENT);
-	} else if (event->getType() == OPENMSX_MACHINE_LOADED_EVENT) {
-		executeSimpleEvents(OPENMSX_MACHINE_LOADED_EVENT);
-	} else if (event->getType() == OPENMSX_AFTER_TIMED_EVENT) {
-		executeMatches(AfterEmuTimePred());
-	} else {
-		executeMatches(AfterInputEventPred(event));
-		for (auto idx : afterCmds) {
-			std::visit(overloaded {
-				[](AfterIdleCmd& cmd) { cmd.reschedule(); },
-				[](AfterCmd& /*cmd*/) { /*nothing*/ }
-			}, afterCmdPool[idx]);
+	visit(overloaded{
+		[&](const SimpleEvent&) {
+			executeSimpleEvents(getType(event));
+		},
+		[&](const AfterTimedEvent&) {
+			executeMatches(AfterEmuTimePred());
+		},
+		[&](const EventBase&) {
+			executeMatches(AfterInputEventPred(event));
+			for (auto idx : afterCmds) {
+				std::visit(overloaded {
+					[](AfterIdleCmd& cmd) { cmd.reschedule(); },
+					[](AfterCmd& /*cmd*/) { /*nothing*/ }
+				}, afterCmdPool[idx]);
+			}
 		}
-	}
+	}, event);
 	return 0;
 }
 
@@ -560,7 +552,7 @@ void AfterTimedCmd::executeUntil(EmuTime::param /*time*/)
 {
 	time = 0.0; // execute on next event
 	afterCommand.eventDistributor.distributeEvent(
-		std::make_shared<SimpleEvent>(OPENMSX_AFTER_TIMED_EVENT));
+		Event::create<AfterTimedEvent>());
 }
 
 void AfterTimedCmd::schedulerDeleted()
@@ -604,12 +596,12 @@ AfterSimpleEventCmd::AfterSimpleEventCmd(
 string_view AfterSimpleEventCmd::getType() const
 {
 	switch (type) {
-		case OPENMSX_FINISH_FRAME_EVENT:   return "frame";
-		case OPENMSX_BREAK_EVENT:          return "break";
-		case OPENMSX_BOOT_EVENT:           return "boot";
-		case OPENMSX_QUIT_EVENT:           return "quit";
-		case OPENMSX_MACHINE_LOADED_EVENT: return "machine_switch";
-		default: UNREACHABLE;              return "";
+		case EventType::FINISH_FRAME:   return "frame";
+		case EventType::BREAK:          return "break";
+		case EventType::BOOT:           return "boot";
+		case EventType::QUIT:           return "quit";
+		case EventType::MACHINE_LOADED: return "machine_switch";
+		default: UNREACHABLE;           return "";
 	}
 }
 
@@ -618,7 +610,7 @@ string_view AfterSimpleEventCmd::getType() const
 
 AfterInputEventCmd::AfterInputEventCmd(
 		AfterCommand& afterCommand_,
-		AfterCommand::EventPtr event_,
+		Event event_,
 		TclObject command_)
 	: AfterCmd(afterCommand_, std::move(command_))
 	, event(std::move(event_))

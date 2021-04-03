@@ -150,9 +150,9 @@ Interpreter& MSXCommandController::getInterpreter()
 }
 
 void MSXCommandController::signalMSXEvent(
-	const std::shared_ptr<const Event>& event, EmuTime::param /*time*/) noexcept
+	const Event& event, EmuTime::param /*time*/) noexcept
 {
-	if (event->getType() != OPENMSX_MACHINE_ACTIVATED) return;
+	if (getType(event) != EventType::MACHINE_ACTIVATED) return;
 
 	// simple way to synchronize proxy settings
 	for (auto* s : settings) {

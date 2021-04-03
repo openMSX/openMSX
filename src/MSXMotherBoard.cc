@@ -579,7 +579,7 @@ void MSXMotherBoard::doReset()
 	// let everyone know we're booting, note that the fact that this is
 	// done after the reset call to the devices is arbitrary here
 	reactor.getEventDistributor().distributeEvent(
-		std::make_shared<SimpleEvent>(OPENMSX_BOOT_EVENT));
+		Event::create<BootEvent>());
 }
 
 byte MSXMotherBoard::readIRQVector()
@@ -617,7 +617,7 @@ void MSXMotherBoard::powerUp()
 	// let everyone know we're booting, note that the fact that this is
 	// done after the reset call to the devices is arbitrary here
 	reactor.getEventDistributor().distributeEvent(
-		std::make_shared<SimpleEvent>(OPENMSX_BOOT_EVENT));
+		Event::create<BootEvent>());
 }
 
 void MSXMotherBoard::powerDown()
@@ -643,8 +643,8 @@ void MSXMotherBoard::powerDown()
 void MSXMotherBoard::activate(bool active_)
 {
 	active = active_;
-	auto event = std::make_shared<SimpleEvent>(
-		active ? OPENMSX_MACHINE_ACTIVATED : OPENMSX_MACHINE_DEACTIVATED);
+	auto event = active ? Event::create<MachineActivatedEvent>()
+	                    : Event::create<MachineDeactivatedEvent>();
 	msxEventDistributor->distributeEvent(event, scheduler->getCurrentTime());
 	if (active) {
 		realTime->resync();

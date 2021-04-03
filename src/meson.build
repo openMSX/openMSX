@@ -127,7 +127,6 @@ sources = files(
     'events/HotKey.cc',
     'events/InputEventFactory.cc',
     'events/InputEventGenerator.cc',
-    'events/InputEvents.cc',
     'events/Keys.cc',
     'events/MSXCliComm.cc',
     'events/MessageCommand.cc',

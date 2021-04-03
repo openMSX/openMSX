@@ -36,10 +36,8 @@ public:
 	void flush();
 
 private:
-	using EventPtr = std::shared_ptr<const Event>;
-
 	// EventListener
-	int signalEvent(const EventPtr& event) noexcept override;
+	int signalEvent(const Event& event) noexcept override;
 
 	// Schedulable
 	void executeUntil(EmuTime::param time) override;
@@ -48,11 +46,11 @@ private:
 	EventDistributor& eventDistributor;
 	MSXEventDistributor& msxEventDistributor;
 
-	std::vector<EventPtr> toBeScheduledEvents;
-	std::deque<EventPtr> scheduledEvents;
+	std::vector<Event> toBeScheduledEvents;
+	std::deque<Event> scheduledEvents;
 
 #if PLATFORM_ANDROID
-	std::vector<std::pair<int, EventPtr>> nonMatchedKeyPresses;
+	std::vector<std::pair<int, Event>> nonMatchedKeyPresses;
 #endif
 
 	EmuTime prevEmu;

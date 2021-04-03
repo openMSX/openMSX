@@ -1,10 +1,9 @@
 #include "Mouse.hh"
 #include "MSXEventDistributor.hh"
 #include "StateChangeDistributor.hh"
-#include "InputEvents.hh"
+#include "Event.hh"
 #include "StateChange.hh"
 #include "Clock.hh"
-#include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include "unreachable.hh"
@@ -242,54 +241,46 @@ void Mouse::write(byte value, EmuTime::param time)
 
 
 // MSXEventListener
-void Mouse::signalMSXEvent(const shared_ptr<const Event>& event, EmuTime::param time) noexcept
+void Mouse::signalMSXEvent(const Event& event, EmuTime::param time) noexcept
 {
-	switch (event->getType()) {
-	case OPENMSX_MOUSE_MOTION_EVENT: {
-		const auto& mev = checked_cast<const MouseMotionEvent&>(*event);
-		if (mev.getX() || mev.getY()) {
-			// note: X/Y are negated, do this already in this
-			//  routine to keep replays bw-compat. In a new
-			//  savestate version it may (or may not) be cleaner
-			//  to perform this operation closer to the MSX code.
-			createMouseStateChange(time, -mev.getX(), -mev.getY(), 0, 0);
-		}
-		break;
-	}
-	case OPENMSX_MOUSE_BUTTON_DOWN_EVENT: {
-		const auto& butEv = checked_cast<const MouseButtonEvent&>(*event);
-		switch (butEv.getButton()) {
-		case MouseButtonEvent::LEFT:
-			createMouseStateChange(time, 0, 0, JOY_BUTTONA, 0);
-			break;
-		case MouseButtonEvent::RIGHT:
-			createMouseStateChange(time, 0, 0, JOY_BUTTONB, 0);
-			break;
-		default:
-			// ignore other buttons
-			break;
-		}
-		break;
-	}
-	case OPENMSX_MOUSE_BUTTON_UP_EVENT: {
-		const auto& butEv = checked_cast<const MouseButtonEvent&>(*event);
-		switch (butEv.getButton()) {
-		case MouseButtonEvent::LEFT:
-			createMouseStateChange(time, 0, 0, 0, JOY_BUTTONA);
-			break;
-		case MouseButtonEvent::RIGHT:
-			createMouseStateChange(time, 0, 0, 0, JOY_BUTTONB);
-			break;
-		default:
-			// ignore other buttons
-			break;
-		}
-		break;
-	}
-	default:
-		// ignore
-		break;
-	}
+	visit(overloaded{
+		[&](const MouseMotionEvent& e) {
+			if (e.getX() || e.getY()) {
+				// note: X/Y are negated, do this already in this
+				//  routine to keep replays bw-compat. In a new
+				//  savestate version it may (or may not) be cleaner
+				//  to perform this operation closer to the MSX code.
+				createMouseStateChange(time, -e.getX(), -e.getY(), 0, 0);
+			}
+		},
+		[&](const MouseButtonDownEvent& e) {
+			switch (e.getButton()) {
+			case MouseButtonEvent::LEFT:
+				createMouseStateChange(time, 0, 0, JOY_BUTTONA, 0);
+				break;
+			case MouseButtonEvent::RIGHT:
+				createMouseStateChange(time, 0, 0, JOY_BUTTONB, 0);
+				break;
+			default:
+				// ignore other buttons
+				break;
+			}
+		},
+		[&](const MouseButtonUpEvent& e) {
+			switch (e.getButton()) {
+			case MouseButtonEvent::LEFT:
+				createMouseStateChange(time, 0, 0, 0, JOY_BUTTONA);
+				break;
+			case MouseButtonEvent::RIGHT:
+				createMouseStateChange(time, 0, 0, 0, JOY_BUTTONB);
+				break;
+			default:
+				// ignore other buttons
+				break;
+			}
+		},
+		[](const EventBase&) { /*ignore*/ }
+	}, event);
 }
 
 void Mouse::createMouseStateChange(

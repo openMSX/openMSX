@@ -1,4 +1,5 @@
 #include "ReverseManager.hh"
+#include "Event.hh"
 #include "MSXMotherBoard.hh"
 #include "EventDistributor.hh"
 #include "StateChangeDistributor.hh"
@@ -148,7 +149,7 @@ ReverseManager::ReverseManager(MSXMotherBoard& motherBoard_)
 	, pendingTakeSnapshot(false)
 	, reRecordCount(0)
 {
-	eventDistributor.registerEventListener(OPENMSX_TAKE_REVERSE_SNAPSHOT, *this);
+	eventDistributor.registerEventListener(EventType::TAKE_REVERSE_SNAPSHOT, *this);
 
 	assert(!isCollecting());
 	assert(!isReplaying());
@@ -157,7 +158,7 @@ ReverseManager::ReverseManager(MSXMotherBoard& motherBoard_)
 ReverseManager::~ReverseManager()
 {
 	stop();
-	eventDistributor.unregisterEventListener(OPENMSX_TAKE_REVERSE_SNAPSHOT, *this);
+	eventDistributor.unregisterEventListener(EventType::TAKE_REVERSE_SNAPSHOT, *this);
 }
 
 bool ReverseManager::isReplaying() const
@@ -798,7 +799,7 @@ void ReverseManager::execNewSnapshot()
 	//     should not be *exactly* equally far apart in time.
 	pendingTakeSnapshot = true;
 	eventDistributor.distributeEvent(
-		std::make_shared<SimpleEvent>(OPENMSX_TAKE_REVERSE_SNAPSHOT));
+		Event::create<TakeReverseSnapshotEvent>());
 }
 
 void ReverseManager::execInputEvent()
@@ -819,10 +820,10 @@ void ReverseManager::execInputEvent()
 	}
 }
 
-int ReverseManager::signalEvent(const shared_ptr<const Event>& event) noexcept
+int ReverseManager::signalEvent(const Event& event) noexcept
 {
 	(void)event;
-	assert(event->getType() == OPENMSX_TAKE_REVERSE_SNAPSHOT);
+	assert(getType(event) == EventType::TAKE_REVERSE_SNAPSHOT);
 
 	// This event is send to all MSX machines, make sure it's actually this
 	// machine that requested the snapshot.

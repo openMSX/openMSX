@@ -1,9 +1,8 @@
 #include "KeyJoystick.hh"
 #include "MSXEventDistributor.hh"
 #include "StateChangeDistributor.hh"
-#include "InputEvents.hh"
+#include "Event.hh"
 #include "StateChange.hh"
-#include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
 
@@ -107,38 +106,27 @@ void KeyJoystick::write(byte value, EmuTime::param /*time*/)
 
 
 // MSXEventListener
-void KeyJoystick::signalMSXEvent(const shared_ptr<const Event>& event,
+void KeyJoystick::signalMSXEvent(const Event& event,
                                  EmuTime::param time) noexcept
 {
 	byte press = 0;
 	byte release = 0;
-	switch (event->getType()) {
-	case OPENMSX_KEY_DOWN_EVENT:
-	case OPENMSX_KEY_UP_EVENT: {
-		const auto& keyEvent = checked_cast<const KeyEvent&>(*event);
+	auto getKey = [&](const KeyEvent& e) {
 		auto key = static_cast<Keys::KeyCode>(
-			int(keyEvent.getKeyCode()) & int(Keys::K_MASK));
-		if (event->getType() == OPENMSX_KEY_DOWN_EVENT) {
-			if      (key == up   .getKey()) press   = JOY_UP;
-			else if (key == down .getKey()) press   = JOY_DOWN;
-			else if (key == left .getKey()) press   = JOY_LEFT;
-			else if (key == right.getKey()) press   = JOY_RIGHT;
-			else if (key == trigA.getKey()) press   = JOY_BUTTONA;
-			else if (key == trigB.getKey()) press   = JOY_BUTTONB;
-		} else {
-			if      (key == up   .getKey()) release = JOY_UP;
-			else if (key == down .getKey()) release = JOY_DOWN;
-			else if (key == left .getKey()) release = JOY_LEFT;
-			else if (key == right.getKey()) release = JOY_RIGHT;
-			else if (key == trigA.getKey()) release = JOY_BUTTONA;
-			else if (key == trigB.getKey()) release = JOY_BUTTONB;
-		}
-		break;
-	}
-	default:
-		// ignore
-		break;
-	}
+			int(e.getKeyCode()) & int(Keys::K_MASK));
+		if      (key == up   .getKey()) return JOY_UP;
+		else if (key == down .getKey()) return JOY_DOWN;
+		else if (key == left .getKey()) return JOY_LEFT;
+		else if (key == right.getKey()) return JOY_RIGHT;
+		else if (key == trigA.getKey()) return JOY_BUTTONA;
+		else if (key == trigB.getKey()) return JOY_BUTTONB;
+		else                            return 0;
+	};
+	visit(overloaded{
+		[&](const KeyDownEvent& e) { press   = getKey(e); },
+		[&](const KeyUpEvent&   e) { release = getKey(e); },
+		[](const EventBase&) { /*ignore*/ }
+	}, event);
 
 	if (((status & ~press) | release) != status) {
 		stateChangeDistributor.distributeNew(std::make_shared<KeyJoyState>(

@@ -8,14 +8,13 @@
 #include "Touchpad.hh"
 #include "MSXEventDistributor.hh"
 #include "StateChangeDistributor.hh"
-#include "InputEvents.hh"
+#include "Event.hh"
 #include "StateChange.hh"
 #include "Display.hh"
 #include "OutputSurface.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
 #include "Clock.hh"
-#include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include "xrange.hh"
@@ -202,51 +201,45 @@ ivec2 Touchpad::transformCoords(ivec2 xy)
 }
 
 // MSXEventListener
-void Touchpad::signalMSXEvent(const shared_ptr<const Event>& event,
+void Touchpad::signalMSXEvent(const Event& event,
                               EmuTime::param time) noexcept
 {
 	ivec2 pos = hostPos;
 	int b = hostButtons;
-	switch (event->getType()) {
-	case OPENMSX_MOUSE_MOTION_EVENT: {
-		const auto& mev = checked_cast<const MouseMotionEvent&>(*event);
-		pos = transformCoords(ivec2(mev.getAbsX(), mev.getAbsY()));
-		break;
-	}
-	case OPENMSX_MOUSE_BUTTON_DOWN_EVENT: {
-		const auto& butEv = checked_cast<const MouseButtonEvent&>(*event);
-		switch (butEv.getButton()) {
-		case MouseButtonEvent::LEFT:
-			b |= 1;
-			break;
-		case MouseButtonEvent::RIGHT:
-			b |= 2;
-			break;
-		default:
-			// ignore other buttons
-			break;
-		}
-		break;
-	}
-	case OPENMSX_MOUSE_BUTTON_UP_EVENT: {
-		const auto& butEv = checked_cast<const MouseButtonEvent&>(*event);
-		switch (butEv.getButton()) {
-		case MouseButtonEvent::LEFT:
-			b &= ~1;
-			break;
-		case MouseButtonEvent::RIGHT:
-			b &= ~2;
-			break;
-		default:
-			// ignore other buttons
-			break;
-		}
-		break;
-	}
-	default:
-		// ignore
-		break;
-	}
+
+	visit(overloaded{
+		[&](const MouseMotionEvent& e) {
+			pos = transformCoords(ivec2(e.getAbsX(), e.getAbsY()));
+		},
+		[&](const MouseButtonDownEvent& e) {
+			switch (e.getButton()) {
+			case MouseButtonEvent::LEFT:
+				b |= 1;
+				break;
+			case MouseButtonEvent::RIGHT:
+				b |= 2;
+				break;
+			default:
+				// ignore other buttons
+				break;
+			}
+		},
+		[&](const MouseButtonUpEvent& e) {
+			switch (e.getButton()) {
+			case MouseButtonEvent::LEFT:
+				b &= ~1;
+				break;
+			case MouseButtonEvent::RIGHT:
+				b &= ~2;
+				break;
+			default:
+				// ignore other buttons
+				break;
+			}
+		},
+		[](const EventBase&) { /*ignore*/ }
+	}, event);
+
 	if ((pos != hostPos) || (b != hostButtons)) {
 		hostPos     = pos;
 		hostButtons = b;

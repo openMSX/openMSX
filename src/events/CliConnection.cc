@@ -13,7 +13,6 @@
 #include "TclObject.hh"
 #include "TemporaryString.hh"
 #include "XMLElement.hh"
-#include "checked_cast.hh"
 #include "cstdiop.hh"
 #include "openmsx.hh"
 #include "ranges.hh"
@@ -30,39 +29,6 @@ using std::string;
 
 namespace openmsx {
 
-// class CliCommandEvent
-
-class CliCommandEvent final : public Event
-{
-public:
-	CliCommandEvent(string command_, const CliConnection* id_)
-		: Event(OPENMSX_CLICOMMAND_EVENT)
-		, command(std::move(command_)), id(id_)
-	{
-	}
-	[[nodiscard]] const string& getCommand() const
-	{
-		return command;
-	}
-	[[nodiscard]] const CliConnection* getId() const
-	{
-		return id;
-	}
-	[[nodiscard]] TclObject toTclList() const override
-	{
-		return makeTclList("CliCmd", getCommand());
-	}
-	[[nodiscard]] bool equalImpl(const Event& other) const override
-	{
-		const auto& otherCmdEvent = checked_cast<const CliCommandEvent&>(other);
-		return getCommand() == otherCmdEvent.getCommand();
-	}
-private:
-	const string command;
-	const CliConnection* id;
-};
-
-
 // class CliConnection
 
 CliConnection::CliConnection(CommandController& commandController_,
@@ -73,12 +39,12 @@ CliConnection::CliConnection(CommandController& commandController_,
 {
 	ranges::fill(updateEnabled, false);
 
-	eventDistributor.registerEventListener(OPENMSX_CLICOMMAND_EVENT, *this);
+	eventDistributor.registerEventListener(EventType::CLICOMMAND, *this);
 }
 
 CliConnection::~CliConnection()
 {
-	eventDistributor.unregisterEventListener(OPENMSX_CLICOMMAND_EVENT, *this);
+	eventDistributor.unregisterEventListener(EventType::CLICOMMAND, *this);
 }
 
 void CliConnection::log(CliComm::LogLevel level, std::string_view message) noexcept
@@ -131,7 +97,7 @@ void CliConnection::end()
 void CliConnection::execute(const string& command)
 {
 	eventDistributor.distributeEvent(
-		std::make_shared<CliCommandEvent>(command, this));
+		Event::create<CliCommandEvent>(command, this));
 }
 
 static TemporaryString reply(std::string_view message, bool status)
@@ -140,9 +106,10 @@ static TemporaryString reply(std::string_view message, bool status)
 	              XMLElement::XMLEscape(message), "</reply>\n");
 }
 
-int CliConnection::signalEvent(const std::shared_ptr<const Event>& event) noexcept
+int CliConnection::signalEvent(const Event& event) noexcept
 {
-	const auto& commandEvent = checked_cast<const CliCommandEvent&>(*event);
+	assert(getType(event) == EventType::CLICOMMAND);
+	const auto& commandEvent = get<CliCommandEvent>(event);
 	if (commandEvent.getId() == this) {
 		try {
 			auto result = commandController.executeCommand(

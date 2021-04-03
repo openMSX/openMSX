@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
+#include "unreachable.hh"
+#include "xrange.hh"
 
 // ObjectPool
 //
@@ -95,6 +97,22 @@ public:
 		elem.t.~T();
 		elem.next = free;
 		free = idx;
+	}
+
+	void remove(const T* ptr) {
+		remove(ptr2Index(ptr));
+	}
+
+	Index ptr2Index(const T* ptr) const {
+		for (auto i : xrange(pool.size())) {
+			const auto& elem256 = *pool[i];
+			const T* begin = &elem256[0].t;
+			const T* end = begin + 256;
+			if ((begin <= ptr) && (ptr < end)) {
+				return (i << 8) + (ptr - begin);
+			}
+		}
+		UNREACHABLE;
 	}
 
 	// for unittest

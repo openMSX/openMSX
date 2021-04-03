@@ -377,7 +377,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\events\HotKey.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\InputEventFactory.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\InputEventGenerator.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\events\InputEvents.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\Keys.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\MSXCliComm.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\Socket.cc" />
@@ -918,12 +917,10 @@
     <None Include="$(OpenMSXSrcDir)\events\Event.hh" />
     <None Include="$(OpenMSXSrcDir)\events\EventDistributor.hh" />
     <None Include="$(OpenMSXSrcDir)\events\EventListener.hh" />
-    <None Include="$(OpenMSXSrcDir)\events\FinishFrameEvent.hh" />
     <None Include="$(OpenMSXSrcDir)\events\GlobalCliComm.hh" />
     <None Include="$(OpenMSXSrcDir)\events\HotKey.hh" />
     <None Include="$(OpenMSXSrcDir)\events\InputEventFactory.hh" />
     <None Include="$(OpenMSXSrcDir)\events\InputEventGenerator.hh" />
-    <None Include="$(OpenMSXSrcDir)\events\InputEvents.hh" />
     <None Include="$(OpenMSXSrcDir)\events\Keys.hh" />
     <None Include="$(OpenMSXSrcDir)\events\MSXCliComm.hh" />
     <None Include="$(OpenMSXSrcDir)\events\Socket.hh" />

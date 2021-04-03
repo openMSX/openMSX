@@ -43,13 +43,13 @@ SDLVideoSystem::SDLVideoSystem(Reactor& reactor_, CommandConsole& console)
 	renderSettings.getScaleFactorSetting().attach(*this);
 
 	reactor.getEventDistributor().registerEventListener(
-		OPENMSX_RESIZE_EVENT, *this);
+		EventType::RESIZE, *this);
 }
 
 SDLVideoSystem::~SDLVideoSystem()
 {
 	reactor.getEventDistributor().unregisterEventListener(
-		OPENMSX_RESIZE_EVENT, *this);
+		EventType::RESIZE, *this);
 
 	renderSettings.getScaleFactorSetting().detach(*this);
 
@@ -327,11 +327,11 @@ void SDLVideoSystem::update(const Setting& subject) noexcept
 	}
 }
 
-int SDLVideoSystem::signalEvent(const std::shared_ptr<const Event>& /*event*/) noexcept
+int SDLVideoSystem::signalEvent(const Event& /*event*/) noexcept
 {
 	// TODO: Currently window size depends only on scale factor.
 	//       Maybe in the future it will be handled differently.
-	//auto& resizeEvent = checked_cast<const ResizeEvent&>(event);
+	//const auto& resizeEvent = get<ResizeEvent>(event);
 	//resize(resizeEvent.getX(), resizeEvent.getY());
 	//resize();
 	return 0;
