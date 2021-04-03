@@ -1,8 +1,13 @@
 #ifndef STATIC_VECTOR_HH
 #define STATIC_VECTOR_HH
 
+#include <algorithm>
 #include <cassert>
 #include <cstddef>
+#include <cstdint>
+#include <initializer_list>
+#include <limits>
+#include <type_traits>
 
 // This is a _very_ minimal implementation of the following (we can easily
 // extend this when the need arises).
@@ -19,11 +24,20 @@
 template<typename T, size_t N>
 class static_vector
 {
-	T data[N] = {};
-	size_t sz = 0;
+	using SizeType =
+		std::conditional_t<N <= std::numeric_limits<uint8_t >::max(), uint8_t,
+	        std::conditional_t<N <= std::numeric_limits<uint16_t>::max(), uint16_t,
+	        std::conditional_t<N <= std::numeric_limits<uint32_t>::max(), uint32_t,
+	                                                                      uint64_t>>>;
 
 public:
 	constexpr static_vector() = default;
+
+	constexpr static_vector(std::initializer_list<T> list) {
+		assert(list.size() <= N);
+		std::copy(list.begin(), list.end(), data);
+		sz = list.size();
+	}
 
 	[[nodiscard]] constexpr const T* begin() const noexcept { return data; }
 	[[nodiscard]] constexpr const T* end()   const noexcept { return data + sz; }
@@ -36,6 +50,10 @@ public:
 	constexpr void push_back(const T& a) { assert(sz < N); data[sz++] = a; }
 
 	constexpr void clear() { sz = 0; }
+
+private:
+	T data[N] = {};
+	SizeType sz = 0;
 };
 
 #endif

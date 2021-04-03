@@ -3,6 +3,7 @@
 
 #include "ObjectPool.hh"
 #include "Keys.hh"
+#include "static_vector.hh"
 #include "TclObject.hh"
 #include "Thread.hh"
 #include "Timer.hh"
@@ -356,15 +357,15 @@ public:
 class GroupEvent final : public EventBase
 {
 public:
-	GroupEvent(std::vector<EventType> typesToMatch_, TclObject tclListComponents_)
-		: typesToMatch(std::move(typesToMatch_))
+	GroupEvent(std::initializer_list<EventType> typesToMatch_, TclObject tclListComponents_)
+		: typesToMatch(typesToMatch_)
 		, tclListComponents(std::move(tclListComponents_)) {}
 
 	[[nodiscard]] const auto& getTypesToMatch() const { return typesToMatch; }
 	[[nodiscard]] const auto& getTclListComponents() const { return tclListComponents; }
 
 private:
-	const std::vector<EventType> typesToMatch;
+	const static_vector<EventType, 3> typesToMatch;
 	const TclObject tclListComponents;
 };
 
