@@ -16,8 +16,6 @@ namespace openmsx {
 
 #if defined(_WIN32)
 constexpr int defaultsamples = 2048;
-#elif PLATFORM_ANDROID
-constexpr int defaultsamples = 2560;
 #else
 constexpr int defaultsamples = 1024;
 #endif
