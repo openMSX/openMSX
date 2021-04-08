@@ -1062,7 +1062,7 @@ proc create_hardware_menu {} {
 			 actions { A { osd_menu::menu_create $osd_menu::extensions_menu }}}
 	lappend items { text "Connectors..."
 			 actions { A { osd_menu::menu_create [osd_menu::menu_create_connectors_list] }}}
-	if {![catch {openmsx_info setting firmwareswitch}]} {
+	if {![catch {set ::firmwareswitch}]} {
 		lappend items { textexpr "Firmware switch: [osd_menu::boolean_to_text $::firmwareswitch]"
 			actions { LEFT  { osd_menu::menu_setting [cycle_back firmwareswitch] }
 			          RIGHT { osd_menu::menu_setting [cycle      firmwareswitch] }}}
