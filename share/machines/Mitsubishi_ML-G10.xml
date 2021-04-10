@@ -18,6 +18,15 @@
   Z80 out (c),0: 0 (MSX)
   PSG pin 6/7 quirk: C (YES)
   PSGmask: YM2149
+
+  From PCB picture provided by Alexey Podrezov:
+  - CPU: NEC D780C-1
+  - S3527
+  - 8256 EPROM
+  - HN613128P ROM
+  - HN613256P ROM
+  - RAM: 8x Mitsubishi M5K4164ANP
+  - VRAM: 8x Mitsubishi M5K4164ANP (on the front, and apparently also 8 on the back side)
   -->
 
   <CassettePort/>
