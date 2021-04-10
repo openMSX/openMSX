@@ -312,60 +312,58 @@ platform dependent:
 <tr><td>Android</td><td><code>&lt;external storage&gt;/openMSX/share</code>, whereby <code>&lt;external storage&gt;</code> stands for the default external storage location of your Android device. On the Samsung Galaxy Nexus it is for example <code>/sdcard</code></td></tr>
 </table>
 <p>
-That way, you do not need special privilages. Furtermore, the installer won't
-touch them for sure on Windows nor on Android.
-</p>
-<p>
-A template for the <code>systemroms</code> sub directory is present in the installation directory of openMSX, which is also platform dependent:
-</p>
-<table class="border_enabled">
-<tr><th>Platform</th><th>Typical openMSX file pool installation directory</th></tr>
-<tr><td>Windows (any version)</td><td><code>C:\Program Files\openMSX\share</code></td></tr>
-<tr><td>Unix and Linux</td><td><code>/opt/openMSX/share</code> or <code>/usr/share/openmsx</code></td></tr>
-<tr><td>Android</td><td><code>&lt;internal app install dir&gt;/org.openmsx.android.openmsx/files/openmsx_system</code>, whereby <code>&lt;internal app install dir&gt;</code> stands for the default internal app installation directory of your Android device. On the Samsung Galaxy Nexus it is for example <code>/sdcard/Android/data</code></td></tr>
-</table>
+Please note that the path part which comes before <code>share</code> can be
+overridden by setting the <code>OPENMSX_HOME</code> environment variable, see the <a class="internal" href="#settings">chapter about User Preferences</a>.</p>
+<p> That way, you do not need special privilages. Furtermore, the installer
+won't touch them for sure on Windows nor on Android. </p> <p> A template for
+the <code>systemroms</code> sub directory is present in the installation
+directory of openMSX, which is also platform dependent: </p> <table
+class="border_enabled"> <tr><th>Platform</th><th>Typical openMSX file pool
+installation directory</th></tr> <tr><td>Windows (any
+version)</td><td><code>C:\Program Files\openMSX\share</code></td></tr>
+<tr><td>Unix and Linux</td><td><code>/opt/openMSX/share</code> or
+<code>/usr/share/openmsx</code></td></tr>
+<tr><td>Android</td><td><code>&lt;internal app install
+dir&gt;/org.openmsx.android.openmsx/files/openmsx_system</code>, whereby
+<code>&lt;internal app install dir&gt;</code> stands for the default internal
+app installation directory of your Android device. On the Samsung Galaxy Nexus
+it is for example <code>/sdcard/Android/data</code></td></tr> </table>
 
-<p>
-So, you can just copy all your system ROMs to the <code>share/systemroms</code>
-directory of your user account. The ROM files can be zipped (or gzipped), but
-only one file can be in a ZIP file. If multiple ROM files are in a single ZIP
-file, openMSX will not find them. The directory structure below <code>share/systemroms</code> is not relevant, openMSX will search completely through it.
-</p>
+<p> So, you can just copy all your system ROMs to the
+<code>share/systemroms</code> directory of your user account. The ROM files can
+be zipped (or gzipped), but only one file can be in a ZIP file. If multiple ROM
+files are in a single ZIP file, openMSX will not find them. The directory
+structure below <code>share/systemroms</code> is not relevant, openMSX will
+search completely through it. </p>
 
-<p>
-More info about file pools is in the documentation of the <code><a
+<p> More info about file pools is in the documentation of the <code><a
 class="external" href="commands.html#filepool">filepool</a></code> command. If
 you can't get this working, please read one of the next sections about
-Checksums.
-</p>
+Checksums. </p>
 
-<p>
-For advanced users, it is also possible to let openMSX load a specific set of ROM images for a machine,
-independent of any file pool or the checksums of the ROM images. For that you
-copy the ROM file with the name and path as mentioned in the hardware
-configuration XML file that describes the machine, relative to the path of that
-machine description file.
-For example, if you dumped the ROMs of a Philips NMS 8250 machine,
-copy them to <code>share/machines</code>, because in the machine
-description file (in <code>share/machines/Philips_NMS_8250.xml</code>) the name
-of the ROMs is like this: <code>nms8250_msx2sub.rom</code>. We recommend
-to not use this feature, but use the file pools as mentioned above.
-</p>
+<p> For advanced users, it is also possible to let openMSX load a specific set
+of ROM images for a machine, independent of any file pool or the checksums of
+the ROM images. For that you copy the ROM file with the name and path as
+mentioned in the hardware configuration XML file that describes the machine,
+relative to the path of that machine description file. For example, if you
+dumped the ROMs of a Philips NMS 8250 machine, copy them to
+<code>share/machines</code>, because in the machine description file (in
+<code>share/machines/Philips_NMS_8250.xml</code>) the name of the ROMs is like
+this: <code>nms8250_msx2sub.rom</code>. We recommend to not use this feature,
+but use the file pools as mentioned above. </p>
 
 <h4><a id="romchecksums">3.4.2 Checksums</a></h4>
 
-<p>
-All necessary system ROM files used in machines and extensions are primarily
-identified with a checksum: a sha1sum. This enables openMSX to find the right
-ROM file from one of the <a class="external" href="commands.html#filepool">file
-pool</a>s of type <code>system_rom</code>, without depending on the file name.
-So the actual content is guaranteed to be what was intended. If the ROM is
-explicitly specified in the configuration file (which is also supported) and
-the sha1sum doesn't match, a warning will be printed.
-</p>
+<p> All necessary system ROM files used in machines and extensions are
+primarily identified with a checksum: a sha1sum. This enables openMSX to find
+the right ROM file from one of the <a class="external"
+href="commands.html#filepool">file pool</a>s of type <code>system_rom</code>,
+without depending on the file name. So the actual content is guaranteed to be
+what was intended. If the ROM is explicitly specified in the configuration file
+(which is also supported) and the sha1sum doesn't match, a warning will be
+printed. </p>
 
-<p>
-If you are trying to run an MSX machine and get an error like <code>Fatal
+<p> If you are trying to run an MSX machine and get an error like <code>Fatal
 error: Error in "broken" machine: Couldn't find ROM file for "MSX BIOS with
 BASIC ROM" (sha1: 12345c041975f31dc2ab1019cfdd4967999de53e).</code> it means
 that the required system ROM for that machine with the given sha1sum cannot be
@@ -373,134 +371,126 @@ found in one of the file pools as mentioned above (typically
 <code>share/systemroms</code>). This is the primary way to know that you are
 missing required system ROMs and thus something went wrong installing them
 (typically either not a file with the proper content or you put the file in the
-wrong place, or you put it in a large ZIP file with multiple files).
-</p>
+wrong place, or you put it in a large ZIP file with multiple files). </p>
 
-<p>
-You can also manually check whether you have the correct ROM images. The value
-in the &lt;sha1&gt; tag(s) in the hardware configuration XML files contain checksums of
-ROM images that are known to work. You can compare the checksums of your ROM
-images to the ones in the hardware configuration XML files with the
-<code>sha1sum</code> tool.
-It is installed by default on most UNIX systems,
-on Windows you would have to download it separately.
-If the checksums match, it is almost certain you have correct system ROMs.
-If the checksums do not match, it could mean something went wrong
-dumping the ROMs, or it could mean you have a slightly older/newer model
-which contains different system ROMs.
-</p>
+<p> You can also manually check whether you have the correct ROM images. The
+value in the &lt;sha1&gt; tag(s) in the hardware configuration XML files
+contain checksums of ROM images that are known to work. You can compare the
+checksums of your ROM images to the ones in the hardware configuration XML
+files with the <code>sha1sum</code> tool. It is installed by default on most
+UNIX systems, on Windows you would have to download it separately. If the
+checksums match, it is almost certain you have correct system ROMs. If the
+checksums do not match, it could mean something went wrong dumping the ROMs, or
+it could mean you have a slightly older/newer model which contains different
+system ROMs. </p>
 
-<p>
-A typical case in which you can have problems with checksums (or ROMs not getting found in a file pool) is disk ROMs.
-The ROM dump can be correct, and still have a different checksum. This is because part of
-the ROM is not actually ROM, but mapped on the registers of the floppy
-controller. When you are sure it is correct, don't put it in a file pool, but put it in the proper directory, which is explained above.
-Alternatively, you could add the checksum in the XML file that describes
-the machine you made the ROM dump for (multiple checksums can be present, they will be checked in the same order as they are in the file).
-</p>
+<p> A typical case in which you can have problems with checksums (or ROMs not
+getting found in a file pool) is disk ROMs. The ROM dump can be correct, and
+still have a different checksum. This is because part of the ROM is not
+actually ROM, but mapped on the registers of the floppy controller. When you
+are sure it is correct, don't put it in a file pool, but put it in the proper
+directory, which is explained above. Alternatively, you could add the checksum
+in the XML file that describes the machine you made the ROM dump for (multiple
+checksums can be present, they will be checked in the same order as they are in
+the file). </p>
 
 <h4><a id="romsplit">3.4.3 How to handle split ROMs</a></h4>
 
-<p>
-The machine configurations bundled with openMSX often refer to ROM files
-that span multiple 16 kB pages.
-For example, in the NMS 8250 configuration, the BIOS and MSX-BASIC are
-expected in a single 32 kB ROM image.
-If you created two 16 kB images when dumping or got those from downloading,
-you can concatenate them using tools included with your OS.
-In Linux and other Unix(-like) systems you can do it like this:
-</p>
-<div class="commandline">
-cat bios.rom basic.rom &gt; nms8250_basic-bios2.rom
-</div>
-<p>
-In Windows, open a command prompt and issue this command:
-</p>
-<div class="commandline">
-copy /b bios.rom + basic.rom nms8250_basic-bios2.rom
-</div>
+<p> The machine configurations bundled with openMSX often refer to ROM files
+that span multiple 16 kB pages. For example, in the NMS 8250 configuration, the
+BIOS and MSX-BASIC are expected in a single 32 kB ROM image. If you created two
+16 kB images when dumping or got those from downloading, you can concatenate
+them using tools included with your OS. In Linux and other Unix(-like) systems
+you can do it like this: </p> <div class="commandline"> cat bios.rom basic.rom
+&gt; nms8250_basic-bios2.rom </div> <p> In Windows, open a command prompt and
+issue this command: </p> <div class="commandline"> copy /b bios.rom + basic.rom
+nms8250_basic-bios2.rom </div>
 
 
 <h2><a id="laserdisc">4. Palcom Laserdiscs</a></h2>
 
-<p>
-The Pioneer PX-7 and Pioneer PX-V60 are both emulated including an emulated Laserdisc Player, making it possible to run Palcom Laserdisc software.
-</p>
+<p> The Pioneer PX-7 and Pioneer PX-V60 are both emulated including an emulated
+Laserdisc Player, making it possible to run Palcom Laserdisc software. </p>
 
-<p>
-The laserdisc must be captured before it can be used with an emulator. The file must adhere to the following rules:
-</p>
+<p> The laserdisc must be captured before it can be used with an emulator. The
+file must adhere to the following rules: </p>
 
-<ul>
- <li>Use the Ogg container format</li>
- <li>Use the Vorbis codec for audio</li>
- <li>Use the Theora codec for video</li>
- <li>Captured at 640&times;480, YUV420</li>
- <li>A bitrate of at least 200kpbs for audio, otherwise the computer code encoded on the right audio channel will degrade too much for it to be readable</li>
- <li>Theora frame numbers must correspond to laserdisc frame numbers</li>
- <li>Some laserdiscs have chapters and/or stop frames. This is encoded in the <a href="http://www.daphne-emu.com/mediawiki/index.php/VBIInfo">VBI signal</a>, and must be converted to plain text. This must be added to the theora meta data</li>
-</ul>
+<ul> <li>Use the Ogg container format</li> <li>Use the Vorbis codec for
+audio</li> <li>Use the Theora codec for video</li> <li>Captured at
+640&times;480, YUV420</li> <li>A bitrate of at least 200kpbs for audio,
+otherwise the computer code encoded on the right audio channel will degrade too
+much for it to be readable</li> <li>Theora frame numbers must correspond to
+laserdisc frame numbers</li> <li>Some laserdiscs have chapters and/or stop
+frames. This is encoded in the <a
+href="http://www.daphne-emu.com/mediawiki/index.php/VBIInfo">VBI signal</a>,
+and must be converted to plain text. This must be added to the theora meta
+data</li> </ul>
 
-<p>
-The metadata for chapters and stop frames has the form "chapter: &lt;chapter-no&gt;,&lt;first-frame&gt;-&lt;last-frame&gt;" and stop frames are "stop: &lt;frame-no&gt;". For example:
-</p>
+<p> The metadata for chapters and stop frames has the form "chapter:
+&lt;chapter-no&gt;,&lt;first-frame&gt;-&lt;last-frame&gt;" and stop frames are
+"stop: &lt;frame-no&gt;". For example: </p>
 
-<pre>
-chapter: 0,1-360
-chapter: 1,361-4500
-chapter: 2,4501-9450
-chapter: 3,9451-18660
-chapter: 4,18661-28950
-chapter: 5,28951-38340
-chapter: 6,38341-39432
-stop: 4796
-stop: 9089
-stop: 9178
-stop: 9751
-stop: 14818
-stop: 14908
-stop: 18270
-stop: 18360
-stop: 18968
-stop: 24815
-stop: 24903
-stop: 28553
-stop: 28641
-stop: 29258
-stop: 34561
-stop: 34649
-stop: 38095
-stop: 38181
-stop: 38341
-stop: 39127
-</pre>
+<pre> chapter: 0,1-360 chapter: 1,361-4500 chapter: 2,4501-9450 chapter:
+3,9451-18660 chapter: 4,18661-28950 chapter: 5,28951-38340 chapter:
+6,38341-39432 stop: 4796 stop: 9089 stop: 9178 stop: 9751 stop: 14818 stop:
+14908 stop: 18270 stop: 18360 stop: 18968 stop: 24815 stop: 24903 stop: 28553
+stop: 28641 stop: 29258 stop: 34561 stop: 34649 stop: 38095 stop: 38181 stop:
+38341 stop: 39127 </pre>
 
-<p>
-Note that the emulated Pioneer PX-7 and Pioneer PX-V60 are virtually identical, except that the Pioneer PX-7 has pseudo-stereo for its PSG.
-</p>
+<p> Note that the emulated Pioneer PX-7 and Pioneer PX-V60 are virtually
+identical, except that the Pioneer PX-7 has pseudo-stereo for its PSG. </p>
 
 <h2><a id="settings">5. User Preferences</a></h2>
 
-<p>
-Almost all user preferences can be done via the openMSX console, at openMSX run time. This is more thoroughly explained in <a class="external" href="user.html#controlling">the User's Manual</a>. In short: you can save your settings with the <code><a class="external" href="commands.html#save_settings">save_settings</a></code> command, which will save the settings in your personal settings file. The settings file will be loaded every time openMSX starts.
+<p> Almost all user preferences can be done via the openMSX console, at openMSX
+run time. This is more thoroughly explained in <a class="external"
+href="user.html#controlling">the User's Manual</a>. In short: you can save your
+settings with the <code><a class="external"
+href="commands.html#save_settings">save_settings</a></code> command, which will
+save the settings in your personal settings file. The settings file will be
+loaded every time openMSX starts. </p>
+
+<p> One of the preferences is the default machine: the machine openMSX uses if
+you did not specify one on the command line. The name of this setting is
+<code><a class="external"
+href="commands.html#default_machine">default_machine</a></code>. Switching
+machines at run time is done via the <code><a class="external"
+href="commands.html#machine">machine</a></code> command (more about this in <a
+class="external" href="user.html#controlling">the User's Manual</a>). </p>
+
+<p> By using the <code><a class="external"
+href="commands.html#bind">bind</a></code> command you can create custom key
+bindings. These bindings will also be saved as settings in your settings file
+if you issue a <code><a class="external"
+	href="commands.html#save_settings">save_settings</a></code> command.
+	</p>
+
+<p> The other settings are discussed in <a class="external"
+href="user.html#controlling">the User's Manual</a> and there is an overview in
+the <a class="external" href="commands.html">Console Command Reference</a>.
 </p>
 
-<p>
-One of the preferences is the default machine:
-the machine openMSX uses if you did not specify one on the command line. The name of this setting is <code><a class="external" href="commands.html#default_machine">default_machine</a></code>. Switching machines at run time is done via the <code><a class="external" href="commands.html#machine">machine</a></code> command (more about this in <a class="external" href="user.html#controlling">the User's Manual</a>).
-</p>
+<p> If you're a power user and want to specify commands which are executed at
+the start of each openMSX start up, put those commands in a text file, one
+command per line (i.e. a script) and put it in the <code>share/scripts</code>
+directory. You can also explicitly specify a Tcl file to be loaded and executed
+on the openMSX commandline. For this, use the <code>-script</code> command line
+option, which has the filename of the Tcl script as argument. </p>
 
-<p>
-By using the <code><a class="external" href="commands.html#bind">bind</a></code> command you can create custom key bindings. These bindings will also be saved as settings in your settings file if you issue a <code><a class="external" href="commands.html#save_settings">save_settings</a></code> command.
-</p>
-
-<p>
-The other settings are discussed in <a class="external" href="user.html#controlling">the User's Manual</a> and there is an overview in the <a class="external" href="commands.html">Console Command Reference</a>.
-</p>
-
-<p>
-If you're a power user and want to specify commands which are executed at the start of each openMSX start up, put those commands in a text file, one command per line (i.e. a script) and put it in the <code>share/scripts</code> directory. You can also explicitly specify a Tcl file to be loaded and executed on the openMSX commandline. For this, use the <code>-script</code> command line option, which has the filename of the Tcl script as argument.
-</p>
+<p> If you're a power user and want to tweak where openMSX reads and writes
+files from, you can use these hacky environment variables. Hacky, because we
+don't really expect anyone to change them. Just in case you really want to, do
+it at your own risk... Be warned that they may change without notice in a next
+release. </p> <table class="border_enabled">
+<tr><th>variable</th><th>meaning</th></tr>
+<tr><td><code>OPENMSX_HOME</code></td><td>The user's home folder, where all
+data will get stored that openMSX produces.</td></tr>
+<tr><td><code>OPENMSX_USER_DATA</code></td><td>The user's personal
+<code>share</code> folder, where amongst others, system ROMs are
+searched</td></tr> <tr><td><code>OPENMSX_SYSTEM_DATA</code></td><td>The system
+wide <code>share</code> folder in the openMSX installation directory</td></tr>
+</table>
+<p>In the <a class="internal" href="#romlocation">section about ROM locations</a> you get an idea about the default values of these on different platforms.</p>
 
 <h2><a id="tuning">6. Performance Tuning</a></h2>
 
