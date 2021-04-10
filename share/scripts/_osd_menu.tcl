@@ -737,7 +737,11 @@ proc create_media_menu_items {file_type_category} {
 			text-color 0x808080ff\
 		]
 	} else {
-		set slots [lsort [info command ${mediabasecommand}?]]; # TODO: make more generic
+		set slots [list]
+		foreach cmd [info command ${mediabasecommand}?] {
+			# Does the command actually work? E.g. might be a proxy because the current machine instance has fewer drives than another instace.
+			if {![catch $cmd]} { lappend slots $cmd }
+		}
 		set is_cart [expr {$file_type_category eq "rom"}]
 		if {[llength $slots] <= 2 && !($is_cart && [llength [get_io_extensions]] > 0)} {
 			foreach slot $slots {
