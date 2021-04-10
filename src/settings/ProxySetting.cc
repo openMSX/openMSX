@@ -42,7 +42,7 @@ std::string_view ProxySetting::getTypeString() const
 	if (const auto* setting = getSetting()) {
 		return setting->getTypeString();
 	} else {
-		return "proxy";
+		throw MSXException("No setting '", getFullName(), "' on current machine.");
 	}
 }
 

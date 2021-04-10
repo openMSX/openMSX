@@ -1,5 +1,6 @@
 #include "SettingsManager.hh"
 #include "GlobalCommandController.hh"
+#include "MSXException.hh"
 #include "TclObject.hh"
 #include "CommandException.hh"
 #include "XMLElement.hh"
@@ -147,7 +148,12 @@ void SettingsManager::SettingInfo::execute(
 		if (!setting) {
 			throw CommandException("No such setting: ", settingName);
 		}
-		setting->info(result);
+		try {
+			setting->info(result);
+		} catch (MSXException& e) {
+			throw CommandException(e.getMessage());
+
+		}
 		break;
 	}
 	default:
