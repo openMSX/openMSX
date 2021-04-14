@@ -473,7 +473,7 @@ RenShaTurbo& MSXMotherBoard::getRenShaTurbo()
 	if (!renShaTurbo) {
 		assert(getMachineConfig());
 		renShaTurbo = make_unique<RenShaTurbo>(
-			*msxCommandController,
+			*this,
 			getMachineConfig()->getConfig());
 	}
 	return *renShaTurbo;

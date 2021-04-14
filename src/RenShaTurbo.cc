@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-RenShaTurbo::RenShaTurbo(CommandController& commandController,
+RenShaTurbo::RenShaTurbo(MSXMotherBoard& motherBoard,
                          const XMLElement& machineConfig)
 {
 	if (const auto* config = machineConfig.findChild("RenShaTurbo")) {
@@ -18,7 +18,7 @@ RenShaTurbo::RenShaTurbo(CommandController& commandController,
 				"1 <= min_ints <= max_ints <= 6000.");
 		}
 		autofire = std::make_unique<Autofire>(
-			commandController, min_ints, max_ints, "renshaturbo");
+			motherBoard, min_ints, max_ints, "renshaturbo");
 	}
 }
 

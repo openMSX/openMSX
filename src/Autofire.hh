@@ -5,11 +5,14 @@
 #include "DynamicClock.hh"
 #include "EmuTime.hh"
 #include "IntegerSetting.hh"
-#include <string_view>
+#include "StateChangeListener.hh"
+#include "static_string_view.hh"
 
 namespace openmsx {
 
-class CommandController;
+class MSXMotherBoard;
+class Scheduler;
+class StateChangeDistributor;
 
 /**
  * Autofire is a device that is between two other devices and outside
@@ -19,12 +22,12 @@ class CommandController;
  * There can be multiple autofire circuits. For example, one used
  * by the Ren-Sha Turbo and another one built into a joystick.
  */
-class Autofire final : private Observer<Setting>
+class Autofire final : private Observer<Setting>, private StateChangeListener
 {
 public:
-	Autofire(CommandController& commandController,
+	Autofire(MSXMotherBoard& motherBoard,
 	         unsigned newMinInts, unsigned newMaxInts,
-	         std::string_view name);
+	         static_string_view name);
 	~Autofire();
 
 	/** Get the output signal in negative logic.
@@ -37,14 +40,25 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	void setSpeed(EmuTime::param time);
+
 	/** Sets the clock frequency according to the current value of the speed
 	  * settings.
 	  */
-	void setClock();
+	void setClock(int speed);
 
+	// Observer<Setting>
 	void update(const Setting& setting) noexcept override;
 
+	// StateChangeListener
+	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
+	void stopReplay(EmuTime::param time) noexcept override;
+
 private:
+	Scheduler& scheduler;
+	StateChangeDistributor& stateChangeDistributor;
+	const static_string_view name;
+
 	// Following two values specify the range of the autofire
 	// as measured by the test program:
 	/** Number of interrupts at fastest setting (>=1).
