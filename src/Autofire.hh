@@ -33,6 +33,9 @@ public:
 	  */
 	[[nodiscard]] bool getSignal(EmuTime::param time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	/** Sets the clock frequency according to the current value of the speed
 	  * settings.

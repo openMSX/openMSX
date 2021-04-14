@@ -29,4 +29,11 @@ bool RenShaTurbo::getSignal(EmuTime::param time)
 	return autofire ? autofire->getSignal(time) : false;
 }
 
+template<typename Archive>
+void RenShaTurbo::serialize(Archive& ar, unsigned /*version*/)
+{
+	if (autofire) ar.serialize("autofire", *autofire);
+}
+INSTANTIATE_SERIALIZE_METHODS(RenShaTurbo)
+
 } // namespace openmsx

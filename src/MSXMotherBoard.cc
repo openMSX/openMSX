@@ -1120,6 +1120,7 @@ void SettingObserver::update(const Setting& setting) noexcept
 // version 2: added reRecordCount
 // version 3: removed reRecordCount (moved to ReverseManager)
 // version 4: moved joystickportA/B from MSXPSG to here
+// version 5: do serialize renShaTurbo
 template<typename Archive>
 void MSXMotherBoard::serialize(Archive& ar, unsigned version)
 {
@@ -1127,8 +1128,7 @@ void MSXMotherBoard::serialize(Archive& ar, unsigned version)
 	//    machineID, userNames, availableDevices, addRemoveUpdate,
 	//    sharedStuffMap, msxCliComm, msxEventDistributor,
 	//    msxCommandController, slotManager, eventDelay,
-	//    debugger, msxMixer, panasonicMemory, renShaTurbo,
-	//    ledStatus
+	//    debugger, msxMixer, panasonicMemory, ledStatus
 
 	// Scheduler must come early so that devices can query current time
 	ar.serialize("scheduler", *scheduler);
@@ -1167,6 +1167,9 @@ void MSXMotherBoard::serialize(Archive& ar, unsigned version)
 				joystickPort[1].get())) {
 			ar.serialize("joystickportB", *port);
 		}
+	}
+	if (ar.versionAtLeast(version, 5)) {
+		if (renShaTurbo) ar.serialize("renShaTurbo", *renShaTurbo);
 	}
 
 	if constexpr (Archive::IS_LOADER) {

@@ -45,4 +45,11 @@ bool Autofire::getSignal(EmuTime::param time)
 		: (clock.getTicksTill(time) & 1);
 }
 
+template<typename Archive>
+void Autofire::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("clock", clock);
+}
+INSTANTIATE_SERIALIZE_METHODS(Autofire)
+
 } // namespace openmsx

@@ -30,6 +30,9 @@ public:
 	  */
 	[[nodiscard]] bool getSignal(EmuTime::param time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	// The Autofire circuit
 	std::unique_ptr<Autofire> autofire;

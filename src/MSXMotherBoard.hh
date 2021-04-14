@@ -274,7 +274,7 @@ private:
 	bool active;
 	bool fastForwarding;
 };
-SERIALIZE_CLASS_VERSION(MSXMotherBoard, 4);
+SERIALIZE_CLASS_VERSION(MSXMotherBoard, 5);
 
 class ExtCmd final : public RecordedCommand
 {
