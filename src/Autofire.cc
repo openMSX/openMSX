@@ -23,9 +23,12 @@ Autofire::~Autofire()
 
 void Autofire::setClock()
 {
-	int speed = speedSetting.getInt();
-	clock.setFreq(
-	    (2 * 50 * 60) / (max_ints - (speed * (max_ints - min_ints)) / 100));
+	if (int speed = speedSetting.getInt()) {
+		clock.setFreq(
+		    (2 * 50 * 60) / (max_ints - (speed * (max_ints - min_ints)) / 100));
+	} else {
+		clock.setPeriod(EmuDuration::zero()); // special value: disabled
+	}
 }
 
 void Autofire::update(const Setting& setting) noexcept
@@ -37,8 +40,9 @@ void Autofire::update(const Setting& setting) noexcept
 
 bool Autofire::getSignal(EmuTime::param time)
 {
-	return speedSetting.getInt() == 0 ?
-		false : clock.getTicksTill(time) & 1;
+	return (clock.getPeriod() == EmuDuration::zero())
+		? false // special value: disabled
+		: (clock.getTicksTill(time) & 1);
 }
 
 } // namespace openmsx
