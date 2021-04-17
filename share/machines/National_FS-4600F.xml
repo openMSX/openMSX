@@ -4,7 +4,7 @@
 
   <info>
     <manufacturer>National</manufacturer>
-    <code>FS-4600</code>
+    <code>FS-4600F</code>
     <release_year>1986</release_year>
     <description/>
     <type>MSX2</type>
@@ -16,7 +16,7 @@
 
     <Kanji id="Kanji ROM">
       <rom>
-        <filename>fs-4600_kanjifont.rom</filename>
+        <filename>fs-4600f_kanjifont.rom</filename>
         <sha1>5e872d5853698731a0ed22fb72dbcdfd59cd19c3</sha1>
       </rom>
       <io base="0xD8" num="2" type="O"/>
@@ -25,13 +25,13 @@
 
     <Kanji12 id="Kanji ROM 12X12">
       <rom>
-        <filename>fs-4600_kanjifont12.rom</filename>
+        <filename>fs-4600f_kanjifont12.rom</filename>
         <sha1>a7a23dc01314e88381eee88b4878b39931ab4818</sha1>
       </rom>
     </Kanji12>
 
     <S1985 id="S1985"> <!-- includes 5 bits mapper-read-back -->
-      <sramname>fs-4600_s1985.sram</sramname>
+      <sramname>fs-4600f_s1985.sram</sramname>
     </S1985>
 
     <PPI id="ppi">
@@ -65,7 +65,7 @@
     </PSG>
 
     <RTC id="Real time clock">
-      <sramname>fs-4600.cmos</sramname>
+      <sramname>fs-4600f.cmos</sramname>
       <io base="0xB4" num="2" type="O"/>
       <io base="0xB5" num="1" type="I"/>
     </RTC>
@@ -79,7 +79,7 @@
       <secondary slot="0">
         <ROM id="MSX BIOS with BASIC ROM">
           <rom>
-            <filename>fs-4600_basic-bios2.rom</filename>
+            <filename>fs-4600f_basic-bios2.rom</filename>
             <sha1>0081ea0d25bc5cd8d70b60ad8cfdc7307812c0fd</sha1>
           </rom>
           <mem base="0x0000" size="0x8000"/>
@@ -89,7 +89,7 @@
       <secondary slot="1">
         <ROM id="MSX Sub ROM">
           <rom>
-            <filename>fs-4600_msx2sub.rom</filename>
+            <filename>fs-4600f_msx2sub.rom</filename>
             <sha1>0fbd45ef3dd7bb82d4c31f1947884f411f1ca344</sha1>
           </rom>
           <mem base="0x0000" size="0x4000"/>
@@ -99,14 +99,14 @@
       <secondary slot="2">
         <ROM id="Word Font 1">
           <rom>
-            <filename>fs-4600_wordfont1.rom</filename>
+            <filename>fs-4600f_wordfont1.rom</filename>
             <sha1>31292b9ca9fe7d1d8833530f44c0a5671bfefe4e</sha1>
           </rom>
           <mem base="0x0000" size="0x4000"/>
         </ROM>
         <ROM id="MSX Kanji Driver">
           <rom>
-            <filename>fs-4600_kanjibasic.rom</filename>
+            <filename>fs-4600f_kanjibasic.rom</filename>
             <sha1>3a9a942ed888dd641cddf8deada1879c454df3c6</sha1>
           </rom>
           <mem base="0x4000" size="0x8000"/>
@@ -116,7 +116,7 @@
       <secondary slot="3">
         <ROM id="Word Font 2">
           <rom>
-            <filename>fs-4600_wordfont2.rom</filename>
+            <filename>fs-4600f_wordfont2.rom</filename>
             <sha1>02155fc25c9bd23e1654fe81c74486351e1ecc28</sha1>
           </rom>
           <mem base="0x0000" size="0x4000"/>
@@ -136,9 +136,9 @@
       <secondary slot="1">
         <ROM id="MSX Word">
           <mappertype>NATIONAL</mappertype>
-          <sramname>fs-4600.sram</sramname>
+          <sramname>fs-4600f.sram</sramname>
           <rom>
-            <filename>fs-4600_msxword.rom</filename>
+            <filename>fs-4600f_msxword.rom</filename>
             <sha1>005794c10a4237de3907ba4a44d436078d3c06c2</sha1>
           </rom>
           <mem base="0x0000" size="0x10000"/>
@@ -157,7 +157,7 @@
           <connectionstyle>National</connectionstyle>
           <drives>1</drives>
           <rom>
-            <filename>fs-4600_disk.rom</filename>
+            <filename>fs-4600f_disk.rom</filename>
             <sha1>073feb8bb645d935e099afaf61e6f04f52adee42</sha1>
           </rom>
           <mem base="0x4000" size="0x8000"/>
