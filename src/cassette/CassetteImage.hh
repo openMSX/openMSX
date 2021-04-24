@@ -14,7 +14,7 @@ public:
 	enum FileType { ASCII, BINARY, BASIC, UNKNOWN };
 
 	virtual ~CassetteImage() = default;
-	virtual int16_t getSampleAt(EmuTime::param time) = 0;
+	virtual int16_t getSampleAt(EmuTime::param time) const = 0;
 	[[nodiscard]] virtual EmuTime getEndTime() const = 0;
 	[[nodiscard]] virtual unsigned getFrequency() const = 0;
 	virtual void fillBuffer(unsigned pos, float** bufs, unsigned num) const = 0;

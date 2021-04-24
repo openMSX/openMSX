@@ -2,8 +2,7 @@
 #define CASIMAGE_HH
 
 #include "CassetteImage.hh"
-#include "openmsx.hh"
-#include "span.hh"
+#include <cstdint>
 #include <vector>
 
 namespace openmsx {
@@ -21,22 +20,22 @@ public:
 	CasImage(const Filename& fileName, FilePool& filePool, CliComm& cliComm);
 
 	// CassetteImage
-	int16_t getSampleAt(EmuTime::param time) override;
+	int16_t getSampleAt(EmuTime::param time) const override;
 	[[nodiscard]] EmuTime getEndTime() const override;
 	[[nodiscard]] unsigned getFrequency() const override;
 	void fillBuffer(unsigned pos, float** bufs, unsigned num) const override;
 	[[nodiscard]] float getAmplificationFactorImpl() const override;
 
-private:
-	void write0();
-	void write1();
-	void writeHeader(unsigned s);
-	void writeSilence(unsigned s);
-	void writeByte(byte b);
-	bool writeData(span<const byte> buf, size_t& pos);
-	void convert(const Filename& filename, FilePool& filePool, CliComm& cliComm);
+	struct Data {
+		std::vector<int8_t> wave;
+		unsigned frequency;
+	};
 
-	std::vector<signed char> output;
+private:
+	Data init(const Filename& filename, FilePool& filePool, CliComm& cliComm);
+
+private:
+	const Data data;
 };
 
 } // namespace openmsx
