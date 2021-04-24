@@ -64,6 +64,7 @@ New or improved emulator features:
   they're on a network drive
 - on Windows, make openmsx.exe a GUI application to avoid the separate extra
   text output window
+- added support for automatic internal conversion of SVI CAS files to WAV
 - OSD menu:
   - menu button is now easy to disable with new osd_menu_button setting
   - removed useless frameskip controls
