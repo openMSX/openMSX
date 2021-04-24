@@ -114,7 +114,7 @@ WavImage::~WavImage()
 	WavImageCache::instance().release(wav);
 }
 
-int16_t WavImage::getSampleAt(EmuTime::param time)
+int16_t WavImage::getSampleAt(EmuTime::param time) const
 {
 	// The WAV file is typically sampled at 44kHz, but the MSX may sample
 	// the signal at arbitrary moments in time. Initially we would simply
