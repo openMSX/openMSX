@@ -9,6 +9,10 @@
 #include "xrange.hh"
 #include <cstring> // for memcmp
 
+static constexpr uint8_t ASCII_HEADER [10] = { 0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA };
+static constexpr uint8_t BINARY_HEADER[10] = { 0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0 };
+static constexpr uint8_t BASIC_HEADER [10] = { 0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3 };
+
 namespace openmsx {
 
 // We oversample the audio signal for better sound quality (especially in
@@ -55,9 +59,6 @@ constexpr unsigned SHORT_HEADER =  4000 / 2;
 
 // headers definitions
 constexpr uint8_t CAS_HEADER   [ 8] = { 0x1F,0xA6,0xDE,0xBA,0xCC,0x13,0x7D,0x74 };
-constexpr uint8_t ASCII_HEADER [10] = { 0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA };
-constexpr uint8_t BINARY_HEADER[10] = { 0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0 };
-constexpr uint8_t BASIC_HEADER [10] = { 0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3 };
 
 static void write0(std::vector<int8_t>& wave)
 {
@@ -226,10 +227,19 @@ static void processBlock(span<const uint8_t> subBuf, std::vector<int8_t>& wave)
 	}
 }
 
-static CasImage::Data convert(span<const uint8_t> cas)
+static CasImage::Data convert(span<const uint8_t> cas, CassetteImage::FileType& firstFileType)
 {
 	CasImage::Data data;
 	data.frequency = 4800;
+
+	if (cas.size() >= 17 + 10) {
+		if (memcmp(&cas[17], ASCII_HEADER, 10) == 0)
+			firstFileType = CassetteImage::ASCII;
+		else if (memcmp(&cas[17], BINARY_HEADER, 10) == 0)
+			firstFileType = CassetteImage::BINARY;
+		else if (memcmp(&cas[17], BASIC_HEADER, 10) == 0)
+			firstFileType = CassetteImage::BASIC;
+	}
 
 	auto prevHeader = cas.begin() + header.size();
 	while (true) {
@@ -253,7 +263,7 @@ CasImage::Data CasImage::init(const Filename& filename, FilePool& filePool, CliC
 	auto result = [&] {
 		if ((cas.size() >= SVI_CAS::header.size()) &&
 		    (memcmp(cas.data(), SVI_CAS::header.data(), SVI_CAS::header.size()) == 0)) {
-			return SVI_CAS::convert(cas);
+			return SVI_CAS::convert(cas, fileType);
 		} else {
 			return MSX_CAS::convert(cas, filename.getOriginal(), cliComm, fileType);
 		}
