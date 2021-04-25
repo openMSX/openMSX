@@ -100,7 +100,7 @@ public:
 
 	[[nodiscard]] const HardwareConfig* getMachineConfig() const { return machineConfig; }
 	void setMachineConfig(HardwareConfig* machineConfig);
-	[[nodiscard]] std::string getMachineType() const;
+	[[nodiscard]] std::string_view getMachineType() const;
 	[[nodiscard]] bool isTurboR() const;
 
 	std::string loadMachine(const std::string& machine);

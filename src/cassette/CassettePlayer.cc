@@ -136,16 +136,10 @@ void CassettePlayer::autoRun()
 	if (!autoRunSetting.getBoolean() || type == CassetteImage::UNKNOWN) {
 		return;
 	}
-	string machine_type = motherBoard.getMachineType();
-	bool is_SVI = machine_type == "SVI";
-	if (!is_SVI && machine_type.compare(0, 3, "MSX") != 0) {
-		// Only SVI and MSX have BASIC hooks; other machine types
-		// (e.g. Coleco) don't have them.
-		return;
-	}
-	string instr1, instr2;
+	bool is_SVI = motherBoard.getMachineType() == "SVI"; // assume all other are 'MSX*' (might not be correct for 'Coleco')
 	string H_READ = is_SVI ? "0xFE8E" : "0xFF07"; // Hook for Ready
 	string H_MAIN = is_SVI ? "0xFE94" : "0xFF0C"; // Hook for Main Loop
+	string instr1, instr2;
 	switch (type) {
 		case CassetteImage::ASCII:
 			instr1 = R"({RUN\"CAS:\"\r})";

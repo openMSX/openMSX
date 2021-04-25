@@ -9,9 +9,12 @@
 #include "xrange.hh"
 #include <cstring> // for memcmp
 
-static constexpr uint8_t ASCII_HEADER [10] = { 0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA };
-static constexpr uint8_t BINARY_HEADER[10] = { 0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0 };
-static constexpr uint8_t BASIC_HEADER [10] = { 0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3 };
+static constexpr std::array<uint8_t, 10> ASCII_HEADER  = { 0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA };
+static constexpr std::array<uint8_t, 10> BINARY_HEADER = { 0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0 };
+static constexpr std::array<uint8_t, 10> BASIC_HEADER  = { 0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3 };
+// parsing code assumes these all have the same size
+static_assert(ASCII_HEADER.size() == BINARY_HEADER.size());
+static_assert(ASCII_HEADER.size() == BASIC_HEADER.size());
 
 namespace openmsx {
 
@@ -37,6 +40,12 @@ static void writeSilence(std::vector<int8_t>& wave, unsigned s)
 	append(wave, s, 0);
 }
 
+template<typename Array>
+static bool compare(const uint8_t* p, const Array& array)
+{
+	return memcmp(p, array.data(), array.size()) == 0;
+}
+
 namespace MSX_CAS {
 
 // a higher baudrate doesn't work anymore, but it is unclear why, because 4600
@@ -58,7 +67,7 @@ constexpr unsigned LONG_HEADER  = 16000 / 2;
 constexpr unsigned SHORT_HEADER =  4000 / 2;
 
 // headers definitions
-constexpr uint8_t CAS_HEADER   [ 8] = { 0x1F,0xA6,0xDE,0xBA,0xCC,0x13,0x7D,0x74 };
+constexpr std::array<uint8_t, 8> CAS_HEADER = { 0x1F,0xA6,0xDE,0xBA,0xCC,0x13,0x7D,0x74 };
 
 static void write0(std::vector<int8_t>& wave)
 {
@@ -95,8 +104,8 @@ static void writeByte(std::vector<int8_t>& wave, uint8_t b)
 static bool writeData(std::vector<int8_t>& wave, span<const uint8_t> cas, size_t& pos)
 {
 	bool eof = false;
-	while ((pos + 8) <= cas.size()) {
-		if (memcmp(&cas[pos], CAS_HEADER, 8) == 0) {
+	while ((pos + CAS_HEADER.size()) <= cas.size()) {
+		if (compare(&cas[pos], CAS_HEADER)) {
 			return eof;
 		}
 		writeByte(wave, cas[pos]);
@@ -123,23 +132,23 @@ static CasImage::Data convert(span<const uint8_t> cas, const std::string& filena
 	bool headerFound = false;
 	bool firstFile = true;
 	size_t pos = 0;
-	while ((pos + 8) <= cas.size()) {
-		if (memcmp(&cas[pos], CAS_HEADER, 8) == 0) {
+	while ((pos + CAS_HEADER.size()) <= cas.size()) {
+		if (compare(&cas[pos], CAS_HEADER)) {
 			// it probably works fine if a long header is used for every
 			// header but since the msx bios makes a distinction between
 			// them, we do also (hence a lot of code).
 			headerFound = true;
-			pos += 8;
+			pos += CAS_HEADER.size();
 			writeSilence(wave, LONG_SILENCE);
 			writeHeader(wave, LONG_HEADER);
-			if ((pos + 10) <= cas.size()) {
+			if ((pos + ASCII_HEADER.size()) <= cas.size()) {
 				// determine file type
 				auto type = [&] {
-					if (memcmp(&cas[pos], ASCII_HEADER, 10) == 0) {
+					if (compare(&cas[pos], ASCII_HEADER)) {
 						return CassetteImage::ASCII;
-					} else if (memcmp(&cas[pos], BINARY_HEADER, 10) == 0) {
+					} else if (compare(&cas[pos], BINARY_HEADER)) {
 						return CassetteImage::BINARY;
-					} else if (memcmp(&cas[pos], BASIC_HEADER, 10) == 0) {
+					} else if (compare(&cas[pos], BASIC_HEADER)) {
 						return CassetteImage::BASIC;
 					} else {
 						return CassetteImage::UNKNOWN;
@@ -151,18 +160,18 @@ static CasImage::Data convert(span<const uint8_t> cas, const std::string& filena
 						writeData(wave, cas, pos);
 						bool eof;
 						do {
-							pos += 8;
+							pos += CAS_HEADER.size();
 							writeSilence(wave, SHORT_SILENCE);
 							writeHeader(wave, SHORT_HEADER);
 							eof = writeData(wave, cas, pos);
-						} while (!eof && ((pos + 8) <= cas.size()));
+						} while (!eof && ((pos + CAS_HEADER.size()) <= cas.size()));
 						break;
 					case CassetteImage::BINARY:
 					case CassetteImage::BASIC:
 						writeData(wave, cas, pos);
 						writeSilence(wave, SHORT_SILENCE);
 						writeHeader(wave, SHORT_HEADER);
-						pos += 8;
+						pos += CAS_HEADER.size();
 						writeData(wave, cas, pos);
 						break;
 					default:
@@ -232,13 +241,14 @@ static CasImage::Data convert(span<const uint8_t> cas, CassetteImage::FileType& 
 	CasImage::Data data;
 	data.frequency = 4800;
 
-	if (cas.size() >= 17 + 10) {
-		if (memcmp(&cas[17], ASCII_HEADER, 10) == 0)
+	if (cas.size() >= (header.size() + ASCII_HEADER.size())) {
+		if (compare(&cas[header.size()], ASCII_HEADER)) {
 			firstFileType = CassetteImage::ASCII;
-		else if (memcmp(&cas[17], BINARY_HEADER, 10) == 0)
+		} else if (compare(&cas[header.size()], BINARY_HEADER)) {
 			firstFileType = CassetteImage::BINARY;
-		else if (memcmp(&cas[17], BASIC_HEADER, 10) == 0)
+		} else if (compare(&cas[header.size()], BASIC_HEADER)) {
 			firstFileType = CassetteImage::BASIC;
+		}
 	}
 
 	auto prevHeader = cas.begin() + header.size();
@@ -262,7 +272,7 @@ CasImage::Data CasImage::init(const Filename& filename, FilePool& filePool, CliC
 	auto fileType = CassetteImage::UNKNOWN;
 	auto result = [&] {
 		if ((cas.size() >= SVI_CAS::header.size()) &&
-		    (memcmp(cas.data(), SVI_CAS::header.data(), SVI_CAS::header.size()) == 0)) {
+		    (compare(cas.data(), SVI_CAS::header))) {
 			return SVI_CAS::convert(cas, fileType);
 		} else {
 			return MSX_CAS::convert(cas, filename.getOriginal(), cliComm, fileType);
