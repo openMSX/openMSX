@@ -65,6 +65,8 @@ New or improved emulator features:
 - on Windows, make openmsx.exe a GUI application to avoid the separate extra
   text output window
 - added support for automatic internal conversion of SVI CAS files to WAV
+- added support for autoruncassettes for SVI CAS files
+- fixed autoruncassettes on some models like Yamaha AX150
 - OSD menu:
   - menu button is now easy to disable with new osd_menu_button setting
   - removed useless frameskip controls

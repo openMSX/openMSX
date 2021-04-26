@@ -136,6 +136,9 @@ void CassettePlayer::autoRun()
 	if (!autoRunSetting.getBoolean() || type == CassetteImage::UNKNOWN) {
 		return;
 	}
+	bool is_SVI = motherBoard.getMachineType() == "SVI"; // assume all other are 'MSX*' (might not be correct for 'Coleco')
+	string H_READ = is_SVI ? "0xFE8E" : "0xFF07"; // Hook for Ready
+	string H_MAIN = is_SVI ? "0xFE94" : "0xFF0C"; // Hook for Main Loop
 	string instr1, instr2;
 	switch (type) {
 		case CassetteImage::ASCII:
@@ -172,11 +175,11 @@ void CassettePlayer::autoRun()
 		// H_READ is used by some firmwares; we need to hook the
 		// H_MAIN that happens immediately after H_READ.
 		"    set cmd \"openmsx::auto_run_cb $next\"\n"
-		"    set openmsx::auto_run_bp [debug set_bp 0xFF0C 1 \"$cmd\"]\n" // H_MAIN
+		"    set openmsx::auto_run_bp [debug set_bp ", H_MAIN, " 1 \"$cmd\"]\n"
 		"  }\n"
 
 		"  if {[info exists auto_run_bp]} {debug remove_bp $auto_run_bp\n}\n"
-		"  set auto_run_bp [debug set_bp 0xFF07 1 {\n" // H_READ
+		"  set auto_run_bp [debug set_bp ", H_READ, " 1 {\n"
 		"    openmsx::auto_run_cb {{}} ", instr1, ' ', instr2, "\n"
 		"  }]\n"
 

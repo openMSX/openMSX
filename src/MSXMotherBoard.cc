@@ -285,13 +285,16 @@ void MSXMotherBoard::setMachineConfig(HardwareConfig* machineConfig_)
 	msxCpuInterface = make_unique<MSXCPUInterface>(*this);
 }
 
-std::string MSXMotherBoard::getMachineType() const
+std::string_view MSXMotherBoard::getMachineType() const
 {
 	if (const HardwareConfig* machine = getMachineConfig()) {
-		return machine->getConfig().getChild("info").getChildData("type");
-	} else {
-		return "";
+		if (const auto* info = machine->getConfig().findChild("info")) {
+			if (const auto* type = info->findChild("type")) {
+				return type->getData();
+			}
+		}
 	}
+	return "";
 }
 
 bool MSXMotherBoard::isTurboR() const

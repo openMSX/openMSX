@@ -66,10 +66,10 @@ ReproCartridgeV2::ReproCartridgeV2(
 	: MSXRom(config, std::move(rom_))
 	, flash(rom, sectorInfo, 0x207E,
 	        AmdFlash::Addressing::BITS_12, config)
-	, scc("MGCV2 SCC", config, getCurrentTime(), SCC::SCC_Compatible)
-	, psg0x10("MGCV2 PSG@0x10", DummyAY8910Periphery::instance(), config,
+	, scc("ReproCartV2 SCC", config, getCurrentTime(), SCC::SCC_Compatible)
+	, psg0x10("ReproCartV2 PSG@0x10", DummyAY8910Periphery::instance(), config,
 	      getCurrentTime())
-	, psg0xA0("MGCV2 PSG@0xA0", DummyAY8910Periphery::instance(), config,
+	, psg0xA0("ReproCartV2 PSG@0xA0", DummyAY8910Periphery::instance(), config,
 	      getCurrentTime())
 {
 	powerUp(getCurrentTime());
