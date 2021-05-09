@@ -6,6 +6,7 @@
 #include "InfoTopic.hh"
 #include "EmuTime.hh"
 #include "DynamicClock.hh"
+#include "dynarray.hh"
 #include <vector>
 #include <memory>
 
@@ -121,16 +122,18 @@ public:
 
 private:
 	struct SoundDeviceInfo {
-		SoundDevice* device;
-		float defaultVolume;
+		SoundDeviceInfo(unsigned numChannels);
+
+		SoundDevice* device = nullptr;
 		std::unique_ptr<IntegerSetting> volumeSetting;
 		std::unique_ptr<IntegerSetting> balanceSetting;
 		struct ChannelSettings {
-			std::unique_ptr<StringSetting> recordSetting;
-			std::unique_ptr<BooleanSetting> muteSetting;
+			std::unique_ptr<StringSetting> record;
+			std::unique_ptr<BooleanSetting> mute;
 		};
-		std::vector<ChannelSettings> channelSettings;
-		float left1, right1, left2, right2;
+		dynarray<ChannelSettings> channelSettings;
+		float defaultVolume = 0.f;
+		float left1 = 0.f, right1 = 0.f, left2 = 0.f, right2 = 0.f;
 	};
 
 	void updateVolumeParams(SoundDeviceInfo& info);
