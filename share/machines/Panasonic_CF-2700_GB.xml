@@ -5,7 +5,7 @@
   <info>
     <manufacturer>Panasonic</manufacturer>
     <code>CF-2700 (GB)</code>
-    <release_year>?</release_year>
+    <release_year></release_year>
     <description>One of the few European MSX machines by Panasonic. Brittish version.</description>
     <type>MSX</type>
   </info>
@@ -19,7 +19,7 @@
         <volume>16000</volume>
       </sound>
       <io base="0xA8" num="8"/>
-      <keyboard_type>de</keyboard_type>
+      <keyboard_type>gb</keyboard_type>
       <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>
       <code_kana_locks>false</code_kana_locks>
