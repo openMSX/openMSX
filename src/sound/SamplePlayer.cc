@@ -6,43 +6,53 @@
 #include "serialize.hh"
 #include "xrange.hh"
 #include <cassert>
+#include <memory>
 
 namespace openmsx {
 
 constexpr unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on .wav files
 
-SamplePlayer::SamplePlayer(const std::string& name_, static_string_view desc,
-                           const DeviceConfig& config,
-                           const std::string& samplesBaseName, unsigned numSamples,
-                           const std::string& alternativeName)
-	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 1, DUMMY_INPUT_RATE, false)
+[[nodiscard]] static auto loadSamples(
+	std::string_view name, const DeviceConfig& config,
+	std::string_view baseName, std::string_view alternativeName,
+	unsigned numSamples)
 {
+	dynarray<WavData> result(numSamples); // initialize with empty WAVs
+
 	bool alreadyWarned = false;
-	samples.resize(numSamples); // initialize with empty WAVs
 	auto context = systemFileContext();
 	for (auto i : xrange(numSamples)) {
 		try {
-			auto filename = tmpStrCat(samplesBaseName, i, ".wav");
-			samples[i] = WavData(context.resolve(filename));
+			auto filename = tmpStrCat(baseName, i, ".wav");
+			result[i] = WavData(context.resolve(filename));
 		} catch (MSXException& e1) {
 			try {
 				if (alternativeName.empty()) throw;
 				auto filename = tmpStrCat(
 					alternativeName, i, ".wav");
-				samples[i] = WavData(context.resolve(filename));
+				result[i] = WavData(context.resolve(filename));
 			} catch (MSXException& /*e2*/) {
 				if (!alreadyWarned) {
 					alreadyWarned = true;
 					// print message from the 1st error
 					config.getCliComm().printWarning(
-						"Couldn't read ", name_, " sample data: ",
+						"Couldn't read ", name, " sample data: ",
 						e1.getMessage(),
 						". Continuing without sample data.");
 				}
 			}
 		}
 	}
+	return result;
+}
 
+SamplePlayer::SamplePlayer(const std::string& name_, static_string_view desc,
+                           const DeviceConfig& config,
+                           std::string_view samplesBaseName, unsigned numSamples,
+                           std::string_view alternativeName)
+	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 1, DUMMY_INPUT_RATE, false)
+	, samples(loadSamples(name_, config, samplesBaseName, alternativeName, numSamples))
+{
 	registerSound(config);
 	reset();
 
