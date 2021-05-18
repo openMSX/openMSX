@@ -3,7 +3,7 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
-openMSX 17.0 (2021-03-31)
+openMSX 17.0 (2021-05-18)
 -------------------------
 
 A release with mostly bug fixes and smaller improvements. Most notable may be

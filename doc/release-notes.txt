@@ -1,4 +1,4 @@
-Release Notes for openMSX 17.0 (2021-03-31)
+Release Notes for openMSX 17.0 (2021-05-18)
 ===========================================
 
 A release with mostly bug fixes and smaller improvements. Most notable may be

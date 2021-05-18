@@ -18,10 +18,10 @@ packageVersionNumber = '17.0'
 # Increase this number for each release build. For a dev build, the
 # version number is based on the git commit count but for a release
 # build, it must be hardcoded
-androidReleaseVersionCode=13
+androidReleaseVersionCode=14
 
 # Note: suffix should be empty or with dash, like "-rc1" or "-test1"
-packageVersionSuffix = '-rc1'
+packageVersionSuffix = ''
 packageVersion = packageVersionNumber + packageVersionSuffix
 
 # Is this a release version ("True") or development version ("False").
