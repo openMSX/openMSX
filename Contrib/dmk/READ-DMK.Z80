@@ -252,7 +252,7 @@ parse_end
 		ld	a,'S'
 		call	debug_log
 		call	print_pc
-		db	"Read-DMK version 0.41",13,10
+		db	"Read-DMK version 0.42",13,10
 		db	13,10
 		db	"Insert source      disk in drive A",13,10
 		db      "Insert destination disk in drive B",13,10
@@ -1205,7 +1205,7 @@ next_sector
 		add	hl,bc
 		ld	(sector_buf_ptr),hl
 		ld	a,h
-		cp	unique_buffer/256
+		cp	debug_buffer/256
 		jp	nc,buffer_overflow
 
 		;;call	print_pc
@@ -1715,7 +1715,7 @@ write_debug	call	print_pc
 		ld	c,#1a		; set disk transfer address
 		call	#0005
 
-		ld	hl,#4000
+		ld	hl,#5000	; write #8000 .. #D000 (20kB)
 		ld	de,fcb_debug
 		ld	c,#26		; random block write
 		call	#0005
@@ -2837,6 +2837,6 @@ offset_buffer	equ	addr_buffer+64*sizeof_amark	; can overlap part of addr_buffer
 dmk_header	equ	offset_buffer+sizeof_off_buf
 trck_buffer	equ	dmk_header+sizeof_dmk_h
 sector_buffer	equ	trck_buffer+#1A00	; overlaps 2nd copy of track``
-unique_buffer	equ	#BE00		; possibly overlaps sector buffer (that's OK)
+unique_buffer	equ	#CE00		; possibly overlaps sector buffer (that's OK)
                                         ; must start at a 256-byte boundary
-debug_buffer	equ	#BF00		; must be 256-bytes aligned
+debug_buffer	equ	#CF00		; must be 256-bytes aligned
