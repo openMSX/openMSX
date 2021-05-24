@@ -49,7 +49,7 @@ New or improved emulator features:
 - fixed possible crash when Tcl callbacks switch the active machine, e.g. using
   step_back in watchpoints
 - fixed autorun of tapes/laserdiscs interrupting the replay
-- fixed OMR replays with ato-run type command
+- fixed OMR replays with auto-run type command
 - faster switching to/from fullscreen, without changing the videosource
 - fixed laserdiscplayer eject command still showing the file inserted
 - make number of columns for showdebuggable configurable
