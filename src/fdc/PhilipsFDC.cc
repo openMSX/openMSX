@@ -30,6 +30,13 @@ byte PhilipsFDC::readMem(word address, EmuTime::param time)
 		return controller.getSectorReg(time);
 	case 0x3FFB:
 		return controller.getDataReg(time);
+	case 0x3FFD: {
+		byte res = driveReg & ~4;
+		if (!multiplexer.diskChanged()) {
+			res |= 4;
+		}
+		return res;
+	}
 	case 0x3FFF: {
 		byte value = 0xC0;
 		if (controller.getIRQ(time)) value &= ~0x40;
@@ -61,12 +68,20 @@ byte PhilipsFDC::peekMem(word address, EmuTime::param time) const
 		// bit 0 = side select
 		// TODO check other bits !!
 		return sideReg; // return multiplexer.getSideSelect();
-	case 0x3FFD:
+	case 0x3FFD: {
 		// bit 1,0 -> drive number
 		// (00 or 10: drive A, 01: drive B, 11: nothing)
+		// bit 2 -> 0 iff disk changed
+		//      TODO This is required on Sony_HB-F500P.
+		//           Do other machines have this bit as well?
 		// bit 7 -> motor on
 		// TODO check other bits !!
-		return driveReg; // multiplexer.getSelectedDrive();
+		byte res = driveReg & ~4;
+		if (!multiplexer.peekDiskChanged()) {
+			res |= 4;
+		}
+		return res;
+	}
 	case 0x3FFE:
 		// not used
 		return 255;
