@@ -115,28 +115,6 @@ void TC8566AF::reset(EmuTime::param time)
 	//interrupt = false;
 }
 
-byte TC8566AF::peekReg(int reg, EmuTime::param time) const
-{
-	switch (reg) {
-	case 4: // Main Status Register
-		return peekStatus();
-	case 5: // data port
-		return peekDataPort(time);
-	}
-	return 0xff;
-}
-
-byte TC8566AF::readReg(int reg, EmuTime::param time)
-{
-	switch (reg) {
-	case 4: // Main Status Register
-		return readStatus(time);
-	case 5: // data port
-		return readDataPort(time);
-	}
-	return 0xff;
-}
-
 byte TC8566AF::peekStatus() const
 {
 	bool nonDMAMode = specifyData[1] & 1;
@@ -317,27 +295,15 @@ byte TC8566AF::resultsPhaseRead(EmuTime::param time)
 	return result;
 }
 
-void TC8566AF::writeReg(int reg, byte data, EmuTime::param time)
+void TC8566AF::writeControlReg0(byte value, EmuTime::param time)
 {
-	switch (reg) {
-	case 2: // control register 0
-		drive[3]->setMotor((data & 0x80) != 0, time);
-		drive[2]->setMotor((data & 0x40) != 0, time);
-		drive[1]->setMotor((data & 0x20) != 0, time);
-		drive[0]->setMotor((data & 0x10) != 0, time);
-		//enableIntDma = data & 0x08;
-		//notReset     = data & 0x04;
-		driveSelect = data & 0x03;
-		break;
-
-	//case 3: // control register 1
-	//	controlReg1 = data;
-	//	break;
-
-	case 5: // data port
-		writeDataPort(data, time);
-		break;
-	}
+	drive[3]->setMotor((value & 0x80) != 0, time);
+	drive[2]->setMotor((value & 0x40) != 0, time);
+	drive[1]->setMotor((value & 0x20) != 0, time);
+	drive[0]->setMotor((value & 0x10) != 0, time);
+	//enableIntDma = value & 0x08;
+	//notReset     = value & 0x04;
+	driveSelect = value & 0x03;
 }
 
 void TC8566AF::writeDataPort(byte value, EmuTime::param time)

@@ -71,14 +71,14 @@ byte TurboRFDC::readMem(word address, EmuTime::param time_)
 				if (controller.diskChanged(1)) result &= ~0x20;
 				return result;
 			}
-			case 0x4: return controller.readReg(4, time);
-			case 0x5: return controller.readReg(5, time);
+			case 0x4: return controller.readStatus(time);
+			case 0x5: return controller.readDataPort(time);
 			}
 		}
 		if (type != R7FF2) { // non-turboR or BOTH
 			switch (address & 0xF) {
-			case 0xA: return controller.readReg(4, time);
-			case 0xB: return controller.readReg(5, time);
+			case 0xA: return controller.readStatus(time);
+			case 0xB: return controller.readDataPort(time);
 			}
 
 		}
@@ -107,14 +107,14 @@ byte TurboRFDC::peekMem(word address, EmuTime::param time) const
 				if (controller.peekDiskChanged(1)) result &= ~0x20;
 				return result;
 			}
-			case 0x4: return controller.peekReg(4, time);
-			case 0x5: return controller.peekReg(5, time);
+			case 0x4: return controller.peekStatus();
+			case 0x5: return controller.peekDataPort(time);
 			}
 		}
 		if (type != R7FF2) { // non-turboR or BOTH
 			switch (address & 0xF) {
-			case 0xA: return controller.peekReg(4, time);
-			case 0xB: return controller.peekReg(5, time);
+			case 0xA: return controller.peekStatus();
+			case 0xB: return controller.peekDataPort(time);
 			}
 		}
 		switch (address & 0xF) {
@@ -164,20 +164,20 @@ void TurboRFDC::writeMem(word address, byte value, EmuTime::param time_)
 		if (type != R7FF8) { // turboR or BOTH
 			switch (address & 0x3FFF) {
 			case 0x3FF2:
-			case 0x3FF3:
-			case 0x3FF4:
+				controller.writeControlReg0(value, time);
+				break;
 			case 0x3FF5:
-				controller.writeReg(address & 0xF, value, time);
+				controller.writeDataPort(value, time);
 				break;
 			}
 		}
 		if (type != R7FF2) { // non-turboR or BOTH
 			switch (address & 0x3FFF) {
 			case 0x3FF8:
-			case 0x3FF9:
-			case 0x3FFA:
+				controller.writeControlReg0(value, time);
+				break;
 			case 0x3FFB:
-				controller.writeReg((address & 0xF) - 6, value, time);
+				controller.writeDataPort(value, time);
 				break;
 			}
 		}

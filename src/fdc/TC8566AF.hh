@@ -20,9 +20,12 @@ public:
 	         EmuTime::param time);
 
 	void reset(EmuTime::param time);
-	byte readReg(int reg, EmuTime::param time);
-	[[nodiscard]] byte peekReg(int reg, EmuTime::param time) const;
-	void writeReg(int reg, byte data, EmuTime::param time);
+	[[nodiscard]] byte peekDataPort(EmuTime::param time) const;
+	byte readDataPort(EmuTime::param time);
+	[[nodiscard]] byte peekStatus() const;
+	byte readStatus(EmuTime::param time);
+	void writeControlReg0(byte data, EmuTime::param time);
+	void writeDataPort(byte value, EmuTime::param time);
 	bool diskChanged(unsigned driveNum);
 	[[nodiscard]] bool peekDiskChanged(unsigned driveNum) const;
 
@@ -59,15 +62,10 @@ private:
 	// Schedulable
 	void executeUntil(EmuTime::param time) override;
 
-	[[nodiscard]] byte peekDataPort(EmuTime::param time) const;
-	byte readDataPort(EmuTime::param time);
-	[[nodiscard]] byte peekStatus() const;
-	byte readStatus(EmuTime::param time);
 	[[nodiscard]] byte executionPhasePeek(EmuTime::param time) const;
 	byte executionPhaseRead(EmuTime::param time);
 	[[nodiscard]] byte resultsPhasePeek() const;
 	byte resultsPhaseRead(EmuTime::param time);
-	void writeDataPort(byte value, EmuTime::param time);
 	void idlePhaseWrite(byte value, EmuTime::param time);
 	void commandPhase1(byte value);
 	void commandPhaseWrite(byte value, EmuTime::param time);
