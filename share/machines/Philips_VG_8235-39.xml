@@ -1,0 +1,115 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <info>
+    <manufacturer>Philips</manufacturer>
+    <code>VG 8235/39</code>
+    <release_year>1986</release_year>
+    <description>French version of the 2nd edition of this machine.</description>
+    <type>MSX2</type>
+  </info>
+
+<!-- Info from the 8235/39 with serial FF00 635041626 kindly given by Peter
+     Hanraets
+-->
+
+  <MapperReadBackBits>largest</MapperReadBackBits>
+
+  <CassettePort/>
+
+  <devices>
+
+    <PPI id="ppi">
+      <has_keypad>false</has_keypad>
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <io base="0xA8" num="4"/>
+      <keyboard_type>fr</keyboard_type>
+      <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
+      <code_kana_locks>false</code_kana_locks>
+      <graph_locks>false</graph_locks>
+    </PPI>
+
+    <VDP id="VDP">
+      <version>V9938</version>
+      <vram>128</vram>
+      <io base="0x98" num="8" type="O"/> <!-- S-3527 mirrors -->
+      <io base="0x98" num="8" type="I"/> <!-- S-3527 mirrors -->
+    </VDP>
+
+    <PSG id="PSG">
+      <type>YM2149</type> <!-- in S-3527 MSX-ENGINE -->
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <io base="0xA0" num="2" type="O"/>
+      <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
+    </PSG>
+
+    <RTC id="Real time clock">
+      <sramname>vg_8235-39.cmos</sramname>
+      <io base="0xB4" num="2" type="O"/>
+      <io base="0xB5" num="1" type="I"/>
+    </RTC>
+
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
+
+    <primary slot="0">
+      <ROM id="MSX BIOS with BASIC ROM">
+        <rom>
+          <filename>vg8235-39_basic-bios2.rom</filename>
+          <sha1>b034764e6a8978db60b1d652917f5e24a66a7925</sha1>
+        </rom>
+        <mem base="0x0000" size="0x8000"/>
+      </ROM>
+    </primary>
+
+    <primary external="true" slot="1"/>
+
+    <primary external="true" slot="2"/>
+
+    <primary slot="3">
+
+      <secondary slot="0">
+        <ROM id="MSX Sub ROM">
+          <rom>
+            <filename>vg8235-39_msx2sub.rom</filename>
+            <sha1>fd4bcc81a8160a1dea06036c5f79d200f948f4d6</sha1>
+          </rom>
+          <mem base="0x0000" size="0x4000"/> <!-- Verified on real MSX: no mirroring at all! -->
+        </ROM>
+      </secondary>
+
+      <secondary slot="1"/>
+
+      <secondary slot="2">
+        <MemoryMapper id="Main RAM">
+          <size>128</size>
+          <initialContent encoding="gz-base64">eJxjYBhY8H+AAQAioH+B</initialContent> <!-- (chr(0) * 128 + chr(255) * 128) -->
+          <mem base="0x0000" size="0x10000"/>
+        </MemoryMapper>
+      </secondary>
+
+      <secondary slot="3">
+        <WD2793 id="Memory Mapped FDC">
+          <connectionstyle>Philips</connectionstyle>
+          <singlesided/>
+          <drives>1</drives>
+          <rom>
+            <filename>vg8235-39_disk.rom</filename>
+            <sha1>959060445e92eb980ddd9df3ef9cfefcae2de1d0</sha1>
+          </rom>
+          <mem base="0x4000" size="0x8000"/> <!-- Verified on real MSX: mirroring in page 2 -->
+        </WD2793>
+      </secondary>
+
+    </primary>
+
+  </devices>
+
+</msxconfig>
