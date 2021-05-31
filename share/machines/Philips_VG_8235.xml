@@ -110,10 +110,8 @@ see http://bilgisayarlarim.com/Philips/VG-8235
           <drives>1</drives>
           <rom>
             <filename>vg8235_disk.rom</filename>
-            <sha1>f283ad736a8f3b88ca3bd940e28adf27c12cbda1</sha1> <!-- marked NMS 2.2, from Luc's 8235/20 -->
-            <sha1>8954e59aa79310c7b719ecf0cde1e82fb731dcd1</sha1> <!-- same as first one, but different FDC registers -->
-            <sha1>383de340910981bc1e8a2acaec8663b020804ba1</sha1> <!-- same as first one, but different FDC registers, from Luc's 8235/00 -->
-            <sha1>849f93867ff7846b27f84d0be418569faf058ac2</sha1> <!-- also marked NMS 2.2, but 281 bytes different from the first one-->
+            <sha1>959060445e92eb980ddd9df3ef9cfefcae2de1d0</sha1> <!-- marked NMS 2.2, from Luc's 8235/20 and 8235/00-->
+            <sha1>95265cc2c5e6a2f334a99ef7042d5bdf2f877ec9</sha1> <!-- also marked NMS 2.2, but different from the first one (even after cleaning FDC regs -->
           </rom>
           <mem base="0x4000" size="0x8000"/> <!-- Verified on real MSX: mirroring in page 2 -->
         </WD2793>
