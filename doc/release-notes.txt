@@ -119,7 +119,7 @@ openMSX Home Page:
 Project page on GitHub:
   https://github.com/openMSX
 Contact options:
-- Talk to us on #openmsx on irc.freenode.net.
+- Talk to us on #openmsx on libera.chat.
 - Use the forum on https://www.msx.org/forum/semi-msx-talk/openmsx
 - File a ticket on https://github.com/openMSX/openMSX/issues
 
