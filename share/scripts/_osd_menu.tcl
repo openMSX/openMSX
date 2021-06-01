@@ -790,7 +790,7 @@ proc create_main_menu {} {
 		}
 	} else {
 		lappend items [list text "\[Tape Deck: [get_slot_content cassetteplayer]\]" \
-			actions [list A "osd_menu::menu_create \[osd_menu::menu_create_tape_list $::osd_tape_path\]; catch { osd_menu::select_menu_item [file tail [lindex [cassetteplayer] 1]]}" ] \
+			actions [list A "osd_menu::menu_create \[osd_menu::menu_create_tape_list \$::osd_tape_path\]; catch { osd_menu::select_menu_item [file tail [lindex [cassetteplayer] 1]]}" ] \
 	         post-spacing 3 ]
 	}
 	lappend items { text "Save State..."
