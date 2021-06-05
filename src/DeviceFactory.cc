@@ -50,6 +50,7 @@
 #include "SanyoFDC.hh"
 #include "ToshibaFDC.hh"
 #include "SpectravideoFDC.hh"
+#include "TalentTDC600.hh"
 #include "TurboRFDC.hh"
 #include "SVIFDC.hh"
 #include "YamahaFDC.hh"
@@ -220,6 +221,8 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<NationalFDC>(conf);
 	} else if (type == "TC8566AF") {
 		result = make_unique<TurboRFDC>(conf);
+	} else if (type == "TDC600") {
+		result = make_unique<TalentTDC600>(conf);
 	} else if (type == "ToshibaTCX-200x") {
 		result = make_unique<MSXToshibaTcx200x>(conf);
 	} else if (type == "SVIFDC") {
