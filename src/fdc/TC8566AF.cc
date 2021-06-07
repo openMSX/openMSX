@@ -102,13 +102,17 @@ void TC8566AF::reset(EmuTime::param time)
 	headNumber = 0;
 	sectorNumber = 0;
 	number = 0;
-	currentTrack = 0;
 	sectorsPerCylinder = 0;
 	fillerByte = 0;
 	gapLength = 0;
 	specifyData[0] = 0; // TODO check
 	specifyData[1] = 0; // TODO check
-	seekValue = 0;
+	for (auto& si : seekInfo) {
+		si.time = EmuTime::zero();
+		si.currentTrack = 0;
+		si.seekValue = 0;
+		si.state = SEEK_IDLE;
+	}
 	headUnloadTime = EmuTime::zero(); // head not loaded
 
 	mainStatus = STM_RQM;
@@ -242,7 +246,7 @@ byte TC8566AF::resultsPhasePeek() const
 		case 0:
 			return status0;
 		case 1:
-			return currentTrack;
+			return seekInfo[status0 & 3].currentTrack;
 		}
 		break;
 
@@ -275,6 +279,9 @@ byte TC8566AF::resultsPhaseRead(EmuTime::param time)
 
 	case CMD_SENSE_INTERRUPT_STATUS:
 		switch (phaseStep++) {
+		case 0:
+			status0 = 0; // TODO correct?  Reset _all_ bits?
+			break;
 		case 1:
 			endCommand(time);
 			break;
@@ -521,20 +528,32 @@ void TC8566AF::commandPhaseWrite(byte value, EmuTime::param time)
 		case 0:
 			commandPhase1(value);
 			break;
-		case 1:
-			seekValue = value; // target track
-			doSeek(time);
+		case 1: {
+			endCommand(time);
+			auto n = status0 & 3;
+			auto& si = seekInfo[n];
+			si.time = time;
+			si.seekValue = value; // target track
+			si.state = SEEK_SEEK;
+			doSeek(n);
 			break;
+		}
 		}
 		break;
 
 	case CMD_RECALIBRATE:
 		switch (phaseStep++) {
-		case 0:
+		case 0: {
 			commandPhase1(value);
-			seekValue = 255; // max try 255 steps
-			doSeek(time);
+			endCommand(time);
+			int n = status0 & 3;
+			auto& si = seekInfo[n];
+			si.time = time;
+			si.seekValue = 255; // max try 255 steps
+			si.state = SEEK_RECALIBRATE;
+			doSeek(n);
 			break;
+		}
 		}
 		break;
 
@@ -607,10 +626,10 @@ void TC8566AF::formatSector()
 	writeN(3, 0xA1); // addr mark
 	write1(0xFE, true); // addr mark + add idam
 	crc.init({0xA1, 0xA1, 0xA1, 0xFE});
-	writeU(currentTrack); // C: Cylinder number
-	writeU(headNumber);   // H: Head Address
-	writeU(sectorNumber); // R: Record
-	writeU(number);       // N: Length of sector
+	writeU(cylinderNumber); // C: Cylinder number
+	writeU(headNumber);     // H: Head Address
+	writeU(sectorNumber);   // R: Record
+	writeU(number);         // N: Length of sector
 	writeCRC();
 
 	writeN(22, 0x4E); // gap2
@@ -625,52 +644,70 @@ void TC8566AF::formatSector()
 	writeN(gapLength, 0x4E); // gap3
 }
 
-void TC8566AF::doSeek(EmuTime::param time)
+void TC8566AF::doSeek(int n)
 {
-	DiskDrive& currentDrive = *drive[driveSelect];
+	auto& si = seekInfo[n];
+	DiskDrive& currentDrive = *drive[n];
+
+	const auto stm_dbn = 1 << n; // STM_DB0..STM_DB3
+	mainStatus |= stm_dbn;
+
+	auto endSeek = [&] {
+		status0 |= ST0_SE;
+		si.state = SEEK_IDLE;
+		mainStatus &= ~stm_dbn;
+	};
+
+	if (currentDrive.isDummyDrive()) {
+		status0 |= ST0_NR;
+		endSeek();
+		return;
+	}
 
 	bool direction = false; // initialize to avoid warning
-	switch (command) {
-	case CMD_SEEK:
-		if (seekValue > currentTrack) {
-			++currentTrack;
+	switch (si.state) {
+	case SEEK_SEEK:
+		if (si.seekValue > si.currentTrack) {
+			++si.currentTrack;
 			direction = true;
-		} else if (seekValue < currentTrack) {
-			--currentTrack;
+		} else if (si.seekValue < si.currentTrack) {
+			--si.currentTrack;
 			direction = false;
 		} else {
-			assert(seekValue == currentTrack);
-			status0 |= ST0_SE;
-			endCommand(time);
+			assert(si.seekValue == si.currentTrack);
+			endSeek();
 			return;
 		}
 		break;
-	case CMD_RECALIBRATE:
-		if (currentDrive.isTrack00() || (seekValue == 0)) {
-			if (seekValue == 0) {
+	case SEEK_RECALIBRATE:
+		if (currentDrive.isTrack00() || (si.seekValue == 0)) {
+			if (si.seekValue == 0) {
 				status0 |= ST0_EC;
 			}
-			currentTrack = 0;
-			status0 |= ST0_SE;
-			endCommand(time);
+			si.currentTrack = 0;
+			endSeek();
 			return;
 		}
 		direction = false;
-		--seekValue;
+		--si.seekValue;
 		break;
 	default:
 		UNREACHABLE;
 	}
 
-	currentDrive.step(direction, time);
+	currentDrive.step(direction, si.time);
 
-	setSyncPoint(time + getSeekDelay());
+	si.time += getSeekDelay();
+	setSyncPoint(si.time);
 }
 
 void TC8566AF::executeUntil(EmuTime::param time)
 {
-	if (command == one_of(CMD_SEEK, CMD_RECALIBRATE)) {
-		doSeek(time);
+	for (auto n : xrange(4)) {
+		if ((seekInfo[n].state != SEEK_IDLE) &&
+		    (seekInfo[n].time == time)) {
+			doSeek(n);
+		}
 	}
 }
 
@@ -715,7 +752,7 @@ void TC8566AF::executionPhaseWrite(byte value, EmuTime::param time)
 		mainStatus &= ~STM_RQM;
 		switch (phaseStep & 3) {
 		case 0:
-			currentTrack = value;
+			cylinderNumber = value;
 			break;
 		case 1:
 			headNumber = value;
@@ -825,6 +862,22 @@ static constexpr std::initializer_list<enum_string<TC8566AF::Phase>> phaseInfo =
 };
 SERIALIZE_ENUM(TC8566AF::Phase, phaseInfo);
 
+static constexpr std::initializer_list<enum_string<TC8566AF::SeekState>> seekInfo = {
+	{ "IDLE",        TC8566AF::SEEK_IDLE },
+	{ "SEEK",        TC8566AF::SEEK_SEEK },
+	{ "RECALIBRATE", TC8566AF::SEEK_RECALIBRATE }
+};
+SERIALIZE_ENUM(TC8566AF::SeekState, seekInfo);
+
+template<typename Archive>
+void TC8566AF::SeekInfo::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("time",         time,
+	             "currentTrack", currentTrack,
+	             "seekValue",    seekValue,
+	             "state",        state);
+}
+
 // version 1: initial version
 // version 2: added specifyData, headUnloadTime, seekValue
 //            inherit from Schedulable
@@ -834,6 +887,7 @@ SERIALIZE_ENUM(TC8566AF::Phase, phaseInfo);
 //            Added 'crc' and 'gapLength'.
 // version 4: changed type of delayTime from Clock to DynamicClock
 // version 5: removed trackData
+// version 6: added seekInfo[4]
 template<typename Archive>
 void TC8566AF::serialize(Archive& ar, unsigned version)
 {
@@ -860,20 +914,17 @@ void TC8566AF::serialize(Archive& ar, unsigned version)
 	             "headNumber",         headNumber,
 	             "sectorNumber",       sectorNumber,
 	             "number",             number,
-	             "currentTrack",       currentTrack,
 	             "sectorsPerCylinder", sectorsPerCylinder,
 	             "fillerByte",         fillerByte);
 	if (ar.versionAtLeast(version, 2)) {
 		ar.template serializeBase<Schedulable>(*this);
 		ar.serialize("specifyData",    specifyData,
-		             "headUnloadTime", headUnloadTime,
-		             "seekValue",      seekValue);
+		             "headUnloadTime", headUnloadTime);
 	} else {
 		assert(Archive::IS_LOADER);
 		specifyData[0] = 0xDF; // values normally set by TurboR disk rom
 		specifyData[1] = 0x03;
 		headUnloadTime = EmuTime::zero();
-		seekValue = 0;
 	}
 	if (ar.versionAtLeast(version, 3)) {
 		ar.serialize("dataAvailable", dataAvailable,
@@ -891,6 +942,23 @@ void TC8566AF::serialize(Archive& ar, unsigned version)
 				"in-progress TC8566AF command. This is not "
 				"fully backwards-compatible and can cause "
 				"wrong emulation behavior.");
+		}
+	}
+	if (ar.versionAtLeast(version, 6)) {
+		ar.serialize("seekInfo", seekInfo);
+	} else {
+		if (command == one_of(CMD_SEEK, CMD_RECALIBRATE)) {
+			cliComm.printWarning(
+				"Loading an old savestate that has an "
+				"in-progress TC8566AF seek-command. This is "
+				"not fully backwards-compatible and can cause "
+				"wrong emulation behavior.");
+		}
+		byte currentTrack = 0;
+		ar.serialize("currentTrack", currentTrack);
+		for (auto& si : seekInfo) {
+			si.currentTrack = currentTrack;
+			assert(si.state == SEEK_IDLE);
 		}
 	}
 };

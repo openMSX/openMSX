@@ -57,6 +57,11 @@ public:
 		PHASE_DATATRANSFER,
 		PHASE_RESULT,
 	};
+	enum SeekState {
+		SEEK_IDLE,
+		SEEK_SEEK,
+		SEEK_RECALIBRATE
+	};
 
 private:
 	// Schedulable
@@ -69,7 +74,7 @@ private:
 	void idlePhaseWrite(byte value, EmuTime::param time);
 	void commandPhase1(byte value);
 	void commandPhaseWrite(byte value, EmuTime::param time);
-	void doSeek(EmuTime::param time);
+	void doSeek(int n);
 	void executionPhaseWrite(byte value, EmuTime::param time);
 	void resultPhase();
 	void endCommand(EmuTime::param time);
@@ -115,14 +120,22 @@ private:
 	byte headNumber;
 	byte sectorNumber;
 	byte number;
-	byte currentTrack;
 	byte sectorsPerCylinder;
 	byte fillerByte;
 	byte gapLength;
 	byte specifyData[2]; // filled in by SPECIFY command
-	byte seekValue;
+
+	struct SeekInfo {
+		EmuTime time = EmuTime::zero();
+		byte currentTrack = 0;
+		byte seekValue = 0;
+		SeekState state = SEEK_IDLE;
+
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
+	} seekInfo[4];
 };
-SERIALIZE_CLASS_VERSION(TC8566AF, 5);
+SERIALIZE_CLASS_VERSION(TC8566AF, 6);
 
 } // namespace openmsx
 
