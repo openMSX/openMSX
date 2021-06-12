@@ -369,6 +369,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\TC8566AF.cc">
       <Filter>fdc</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\fdc\TalentTDC600.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\TurboRFDC.cc">
       <Filter>fdc</Filter>
     </ClCompile>
@@ -1720,6 +1723,9 @@
       <Filter>fdc</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\fdc\TC8566AF.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\fdc\TalentTDC600.hh">
       <Filter>fdc</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\fdc\TurboRFDC.hh">

@@ -422,6 +422,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\RawTrack.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\DMKDiskImage.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\TC8566AF.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\fdc\TalentTDC600.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\TurboRFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\WD2793.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\WD2793BasedFDC.cc" />
@@ -968,6 +969,7 @@
     <None Include="$(OpenMSXSrcDir)\fdc\SectorAccessibleDisk.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\SectorBasedDisk.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\TC8566AF.hh" />
+    <None Include="$(OpenMSXSrcDir)\fdc\TalentTDC600.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\TurboRFDC.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\WD2793.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\WD2793BasedFDC.hh" />
