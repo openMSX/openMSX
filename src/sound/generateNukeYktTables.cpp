@@ -35,10 +35,10 @@ constexpr struct EnvTables {
 				}();
 				r.attack[timer_shift][timer][rate] = [&]() {
 					if ((rate_hi != 0xf)) {
-						int32_t shift = inc_lo ? 1
-						                       : rate_hi - 11 + inc_hi;
+						int32_t shift = (rate_hi < 12) ? inc_lo
+						                               : (rate_hi - 11 + inc_hi);
 						if (shift > 0) {
-							return 5 - std::min(4, shift);
+							return 5 - shift;
 						}
 					}
 					return 31;
