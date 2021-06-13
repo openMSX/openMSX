@@ -3,7 +3,7 @@
 
 #include "StringStorage.hh"
 #include "zstring_view.hh"
-#include <iosfwd>
+#include <iostream>
 #include <string_view>
 
 

@@ -3,7 +3,7 @@
 
 #include <cassert>
 #include <cstring>
-#include <iosfwd>
+#include <iostream>
 #include <string>
 #include <string_view>
 #include <type_traits>
