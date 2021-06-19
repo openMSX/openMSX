@@ -3,6 +3,7 @@
 
 #include "RecordedCommand.hh"
 #include "InfoTopic.hh"
+#include "TclObject.hh"
 #include <memory>
 #include <string_view>
 
@@ -52,7 +53,7 @@ private:
 			std::string_view commandName);
 		void execute(span<const TclObject> tokens, TclObject& result,
 			     EmuTime::param time) override;
-		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 		[[nodiscard]] bool needRecord(span<const TclObject> tokens) const override;
 	private:
@@ -65,7 +66,7 @@ private:
 		explicit CartridgeSlotInfo(InfoCommand& machineInfoCommand);
 		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
-		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 	} extSlotInfo;
 
 	struct Slot {

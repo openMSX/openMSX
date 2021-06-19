@@ -41,7 +41,7 @@ void ProxyCmd::execute(span<const TclObject> tokens, TclObject& result)
 	}
 }
 
-string ProxyCmd::help(const vector<string>& tokens) const
+string ProxyCmd::help(span<const TclObject> tokens) const
 {
 	if (Command* command = getMachineCommand()) {
 		return command->help(tokens);

@@ -507,7 +507,7 @@ void InputEventGenerator::EscapeGrabCmd::execute(
 }
 
 string InputEventGenerator::EscapeGrabCmd::help(
-	const vector<string>& /*tokens*/) const
+	span<const TclObject> /*tokens*/) const
 {
 	return "Temporarily release input grab.";
 }

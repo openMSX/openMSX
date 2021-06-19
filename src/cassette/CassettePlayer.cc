@@ -745,7 +745,7 @@ void CassettePlayer::TapeCommand::execute(
 	//}
 }
 
-string CassettePlayer::TapeCommand::help(const vector<string>& tokens) const
+string CassettePlayer::TapeCommand::help(span<const TclObject> tokens) const
 {
 	string helptext;
 	if (tokens.size() >= 2) {

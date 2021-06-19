@@ -388,7 +388,7 @@ void MSXCPU::TimeInfoTopic::execute(
 	result = dur.toDouble();
 }
 
-string MSXCPU::TimeInfoTopic::help(const vector<string>& /*tokens*/) const
+string MSXCPU::TimeInfoTopic::help(span<const TclObject> /*tokens*/) const
 {
 	return "Prints the time in seconds that the MSX is powered on\n";
 }
@@ -410,7 +410,7 @@ void MSXCPU::CPUFreqInfoTopic::execute(
 	result = clock.getFreq();
 }
 
-string MSXCPU::CPUFreqInfoTopic::help(const vector<string>& /*tokens*/) const
+string MSXCPU::CPUFreqInfoTopic::help(span<const TclObject> /*tokens*/) const
 {
 	return "Returns the actual frequency of this CPU.\n"
 	       "This frequency can vary because:\n"

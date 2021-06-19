@@ -565,7 +565,7 @@ void HotKey::BindCmd::execute(span<const TclObject> tokens, TclObject& result)
 	}
 	}
 }
-string HotKey::BindCmd::help(const vector<string>& /*tokens*/) const
+string HotKey::BindCmd::help(span<const TclObject> /*tokens*/) const
 {
 	auto cmd = getBindCmdName(defaultCmd);
 	return strCat(
@@ -627,7 +627,7 @@ void HotKey::UnbindCmd::execute(span<const TclObject> tokens, TclObject& /*resul
 		}
 	}
 }
-string HotKey::UnbindCmd::help(const vector<string>& /*tokens*/) const
+string HotKey::UnbindCmd::help(span<const TclObject> /*tokens*/) const
 {
 	auto cmd = getUnbindCmdName(defaultCmd);
 	return strCat(
@@ -674,7 +674,7 @@ void HotKey::ActivateCmd::execute(span<const TclObject> tokens, TclObject& resul
 	}
 }
 
-string HotKey::ActivateCmd::help(const vector<string>& /*tokens*/) const
+string HotKey::ActivateCmd::help(span<const TclObject> /*tokens*/) const
 {
 	return "activate_input_layer                         "
 	       ": show list of active layers (most recent on top)\n"
@@ -697,7 +697,7 @@ void HotKey::DeactivateCmd::execute(span<const TclObject> tokens, TclObject& /*r
 	hotKey.deactivateLayer(tokens[1].getString());
 }
 
-string HotKey::DeactivateCmd::help(const vector<string>& /*tokens*/) const
+string HotKey::DeactivateCmd::help(span<const TclObject> /*tokens*/) const
 {
 	return "deactivate_input_layer <layername> : deactivate the given input layer";
 }

@@ -35,14 +35,14 @@ private:
 	struct SaveSettingsCommand final : Command {
 		explicit SaveSettingsCommand(CommandController& commandController);
 		void execute(span<const TclObject> tokens, TclObject& result) override;
-		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} saveSettingsCommand;
 
 	struct LoadSettingsCommand final : Command {
 		explicit LoadSettingsCommand(CommandController& commandController);
 		void execute(span<const TclObject> tokens, TclObject& result) override;
-		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} loadSettingsCommand;
 

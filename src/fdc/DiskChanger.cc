@@ -40,7 +40,7 @@ public:
 	            DiskChanger& diskChanger);
 	void execute(span<const TclObject> tokens,
 	             TclObject& result) override;
-	[[nodiscard]] string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(span<const TclObject> tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 	[[nodiscard]] bool needRecord(span<const TclObject> tokens) const /*override*/;
 private:
@@ -275,7 +275,7 @@ void DiskCommand::execute(span<const TclObject> tokens, TclObject& result)
 	}
 }
 
-string DiskCommand::help(const vector<string>& /*tokens*/) const
+string DiskCommand::help(span<const TclObject> /*tokens*/) const
 {
 	const string& driveName = diskChanger.getDriveName();
 	return strCat(

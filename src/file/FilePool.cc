@@ -21,7 +21,7 @@ class Sha1SumCommand final : public Command
 public:
 	Sha1SumCommand(CommandController& commandController, FilePool& filePool);
 	void execute(span<const TclObject> tokens, TclObject& result) override;
-	[[nodiscard]] string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(span<const TclObject> tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
 	FilePool& filePool;
@@ -179,7 +179,7 @@ void Sha1SumCommand::execute(span<const TclObject> tokens, TclObject& result)
 	result = filePool.getSha1Sum(file).toString();
 }
 
-string Sha1SumCommand::help(const vector<string>& /*tokens*/) const
+string Sha1SumCommand::help(span<const TclObject> /*tokens*/) const
 {
 	return "Calculate sha1 value for the given file. If the file is "
 	       "(g)zipped the sha1 is calculated on the unzipped version.";

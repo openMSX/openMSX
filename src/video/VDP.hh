@@ -985,7 +985,7 @@ private:
 	public:
 		void execute(span<const TclObject> tokens,
 		             TclObject& result) const override;
-		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 		[[nodiscard]] virtual int calc(const EmuTime& time) const = 0;
 	protected:
 		Info(VDP& vdp_, const std::string& name, std::string helpText_);

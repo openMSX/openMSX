@@ -206,7 +206,7 @@ void DiskManipulator::execute(span<const TclObject> tokens, TclObject& result)
 	}
 }
 
-string DiskManipulator::help(const vector<string>& tokens) const
+string DiskManipulator::help(span<const TclObject> tokens) const
 {
 	string helptext;
 	if (tokens.size() >= 2) {
@@ -256,7 +256,7 @@ string DiskManipulator::help(const vector<string>& tokens) const
 	    "diskmanipulator dir <disk name>\n"
 	    "Shows the content of the current directory on <disk name>\n";
 	  } else {
-	  helptext = "Unknown diskmanipulator subcommand: " + tokens[1];
+	  helptext = strCat("Unknown diskmanipulator subcommand: ", tokens[1].getString());
 	  }
 	} else {
 	  helptext =

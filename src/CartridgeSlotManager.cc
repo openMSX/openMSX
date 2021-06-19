@@ -366,13 +366,14 @@ void CartridgeSlotManager::CartCmd::execute(
 	}
 }
 
-string CartridgeSlotManager::CartCmd::help(const vector<string>& tokens) const
+string CartridgeSlotManager::CartCmd::help(span<const TclObject> tokens) const
 {
+	auto cart = tokens[0].getString();
 	return strCat(
-		tokens[0], " eject              : remove the ROM cartridge from this slot\n",
-		tokens[0], " insert <filename>  : insert ROM cartridge with <filename>\n",
-		tokens[0], " <filename>         : insert ROM cartridge with <filename>\n",
-		tokens[0], "                    : show which ROM cartridge is in this slot\n",
+		cart, " eject              : remove the ROM cartridge from this slot\n",
+		cart, " insert <filename>  : insert ROM cartridge with <filename>\n",
+		cart, " <filename>         : insert ROM cartridge with <filename>\n",
+		cart, "                    : show which ROM cartridge is in this slot\n",
 		"The following options are supported when inserting a cartridge:\n"
 		"-ips <filename>    : apply the given IPS patch to the ROM image\n"
 		"-romtype <romtype> : specify the ROM mapper type\n");
@@ -448,7 +449,7 @@ void CartridgeSlotManager::CartridgeSlotInfo::execute(
 }
 
 string CartridgeSlotManager::CartridgeSlotInfo::help(
-	const vector<string>& /*tokens*/) const
+	span<const TclObject> /*tokens*/) const
 {
 	return "Without argument: show list of available external slots.\n"
 	       "With argument: show primary and secondary slot number for "

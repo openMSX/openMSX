@@ -9,6 +9,7 @@
 #include "HotKey.hh"
 #include "SettingsConfig.hh"
 #include "RomInfoTopic.hh"
+#include "TclObject.hh"
 #include "hash_map.hh"
 #include "xxhash.hh"
 #include <string>
@@ -110,20 +111,20 @@ private:
 	struct HelpCmd final : Command {
 		explicit HelpCmd(GlobalCommandController& controller);
 		void execute(span<const TclObject> tokens, TclObject& result) override;
-		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} helpCmd;
 
 	struct TabCompletionCmd final : Command {
 		explicit TabCompletionCmd(GlobalCommandController& controller);
 		void execute(span<const TclObject> tokens, TclObject& result) override;
-		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 	} tabCompletionCmd;
 
 	struct UpdateCmd final : Command {
 		explicit UpdateCmd(CommandController& commandController);
 		void execute(span<const TclObject> tokens, TclObject& result) override;
-		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	private:
 		CliConnection& getConnection();
@@ -133,14 +134,14 @@ private:
 		explicit PlatformInfo(InfoCommand& openMSXInfoCommand);
 		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
-		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 	} platformInfo;
 
 	struct VersionInfo final : InfoTopic {
 		explicit VersionInfo(InfoCommand& openMSXInfoCommand);
 		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
-		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 	} versionInfo;
 
 	RomInfoTopic romInfoTopic;

@@ -1127,7 +1127,7 @@ void MSXCPUInterface::SlotInfo::execute(span<const TclObject> tokens,
 	interface.slotLayout[ps][ss][page]->getNameList(result);
 }
 
-string MSXCPUInterface::SlotInfo::help(const vector<string>& /*tokens*/) const
+string MSXCPUInterface::SlotInfo::help(span<const TclObject> /*tokens*/) const
 {
 	return "Retrieve name of the device inserted in given "
 	       "primary slot / secondary slot / page.";
@@ -1152,7 +1152,7 @@ void MSXCPUInterface::SubSlottedInfo::execute(span<const TclObject> tokens,
 }
 
 string MSXCPUInterface::SubSlottedInfo::help(
-	const vector<string>& /*tokens*/) const
+	span<const TclObject> /*tokens*/) const
 {
 	return "Indicates whether a certain primary slot is expanded.";
 }
@@ -1187,7 +1187,7 @@ void MSXCPUInterface::ExternalSlotInfo::execute(
 }
 
 string MSXCPUInterface::ExternalSlotInfo::help(
-	const vector<string>& /*tokens*/) const
+	span<const TclObject> /*tokens*/) const
 {
 	return "Indicates whether a certain slot is external or internal.";
 }
@@ -1243,7 +1243,7 @@ void MSXCPUInterface::OInfo::execute(
 	helper(tokens, result, interface.IO_Out);
 }
 
-string MSXCPUInterface::IOInfo::help(const vector<string>& /*tokens*/) const
+string MSXCPUInterface::IOInfo::help(span<const TclObject> /*tokens*/) const
 {
 	return "Return the name of the device connected to the given IO port.";
 }

@@ -21,7 +21,7 @@ public:
 
 	/** Print help for this command.
 	  */
-	[[nodiscard]] virtual std::string help(const std::vector<std::string>& tokens) const = 0;
+	[[nodiscard]] virtual std::string help(span<const TclObject> tokens) const = 0;
 
 	/** Attempt tab completion for this command.
 	  * @param tokens Tokenized command line;

@@ -145,7 +145,7 @@ private:
 	struct FileTypeCategoryInfoTopic final : InfoTopic {
 		FileTypeCategoryInfoTopic(InfoCommand& openMSXInfoCommand, const CommandLineParser& parser);
 		void execute(span<const TclObject> tokens, TclObject& result) const override;
-		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 	private:
 		const CommandLineParser& parser;
 	};

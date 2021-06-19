@@ -67,7 +67,7 @@ void InfoCommand::execute(span<const TclObject> tokens,
 	}
 }
 
-string InfoCommand::help(const vector<string>& tokens) const
+string InfoCommand::help(span<const TclObject> tokens) const
 {
 	string result;
 	switch (tokens.size()) {
@@ -79,9 +79,10 @@ string InfoCommand::help(const vector<string>& tokens) const
 	default:
 		// show help on a certain topic
 		assert(tokens.size() >= 2);
-		auto it = infoTopics.find(tokens[1]);
+		auto topic = tokens[1].getString();
+		auto it = infoTopics.find(topic);
 		if (it == end(infoTopics)) {
-			throw CommandException("No info on: ", tokens[1]);
+			throw CommandException("No info on: ", topic);
 		}
 		result = (*it)->help(tokens);
 		break;

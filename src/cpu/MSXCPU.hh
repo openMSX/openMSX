@@ -183,7 +183,7 @@ private:
 		explicit TimeInfoTopic(InfoCommand& machineInfoCommand);
 		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
-		[[nodiscard]] std::string help (const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 	} timeInfo;
 
 	class CPUFreqInfoTopic final : public InfoTopic {
@@ -192,7 +192,7 @@ private:
 				 const std::string& name, CPUClock& clock);
 		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
-		[[nodiscard]] std::string help (const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 	private:
 		CPUClock& clock;
 	};

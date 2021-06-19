@@ -463,10 +463,7 @@ void GlobalCommandController::HelpCmd::execute(
 	}
 	default: {
 		if (const auto* v = lookup(controller.commandCompleters, tokens[1].getString())) {
-			auto tokens2 = to_vector(view::transform(
-				view::drop(tokens, 1),
-				[](auto& t) { return string(t.getString()); }));
-			result = (*v)->help(tokens2);
+			result = (*v)->help(tokens.subspan(1));
 		} else {
 			TclObject command = makeTclList("openmsx::help");
 			command.addListElements(view::drop(tokens, 1));
@@ -477,7 +474,7 @@ void GlobalCommandController::HelpCmd::execute(
 	}
 }
 
-string GlobalCommandController::HelpCmd::help(const vector<string>& /*tokens*/) const
+string GlobalCommandController::HelpCmd::help(span<const TclObject> /*tokens*/) const
 {
 	return "prints help information for commands\n";
 }
@@ -509,7 +506,7 @@ void GlobalCommandController::TabCompletionCmd::execute(
 	result = controller.tabCompletion(tokens[1].getString());
 }
 
-string GlobalCommandController::TabCompletionCmd::help(const vector<string>& /*tokens*/) const
+string GlobalCommandController::TabCompletionCmd::help(span<const TclObject> /*tokens*/) const
 {
 	return "!!! This command will change in the future !!!\n"
 	       "Tries to completes the given argument as if it were typed in "
@@ -559,7 +556,7 @@ void GlobalCommandController::UpdateCmd::execute(
 	}
 }
 
-string GlobalCommandController::UpdateCmd::help(const vector<string>& /*tokens*/) const
+string GlobalCommandController::UpdateCmd::help(span<const TclObject> /*tokens*/) const
 {
 	return "Enable or disable update events for external applications. See doc/openmsx-control-xml.txt.";
 }
@@ -593,7 +590,7 @@ void GlobalCommandController::PlatformInfo::execute(
 	result = TARGET_PLATFORM;
 }
 
-string GlobalCommandController::PlatformInfo::help(const vector<string>& /*tokens*/) const
+string GlobalCommandController::PlatformInfo::help(span<const TclObject> /*tokens*/) const
 {
 	return "Prints openMSX platform.";
 }
@@ -611,7 +608,7 @@ void GlobalCommandController::VersionInfo::execute(
 	result = Version::full();
 }
 
-string GlobalCommandController::VersionInfo::help(const vector<string>& /*tokens*/) const
+string GlobalCommandController::VersionInfo::help(span<const TclObject> /*tokens*/) const
 {
 	return "Prints openMSX version.";
 }

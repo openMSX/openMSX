@@ -125,7 +125,7 @@ void PluggingController::PlugCmd::execute(
 	result_ = result; // TODO return Tcl list
 }
 
-string PluggingController::PlugCmd::help(const vector<string>& /*tokens*/) const
+string PluggingController::PlugCmd::help(span<const TclObject> /*tokens*/) const
 {
 	return "Plugs a plug into a connector\n"
 	       " plug [connector] [plug]";
@@ -182,7 +182,7 @@ void PluggingController::UnplugCmd::execute(
 	pluggingController.getCliComm().update(CliComm::PLUG, connName, {});
 }
 
-string PluggingController::UnplugCmd::help(const vector<string>& /*tokens*/) const
+string PluggingController::UnplugCmd::help(span<const TclObject> /*tokens*/) const
 {
 	return "Unplugs a plug from a connector\n"
 	       " unplug [connector]";
@@ -269,7 +269,7 @@ void PluggingController::PluggableInfo::execute(
 	}
 }
 
-string PluggingController::PluggableInfo::help(const vector<string>& /*tokens*/) const
+string PluggingController::PluggableInfo::help(span<const TclObject> /*tokens*/) const
 {
 	return "Shows a list of available pluggables. "
 	       "Or show info on a specific pluggable.";
@@ -313,7 +313,7 @@ void PluggingController::ConnectorInfo::execute(
 	}
 }
 
-string PluggingController::ConnectorInfo::help(const vector<string>& /*tokens*/) const
+string PluggingController::ConnectorInfo::help(span<const TclObject> /*tokens*/) const
 {
 	return "Shows a list of available connectors.";
 }
@@ -371,7 +371,7 @@ void PluggingController::ConnectionClassInfo::execute(
 	}
 }
 
-string PluggingController::ConnectionClassInfo::help(const vector<string>& /*tokens*/) const
+string PluggingController::ConnectionClassInfo::help(span<const TclObject> /*tokens*/) const
 {
 	return "Shows the class a connector or pluggable belongs to.";
 }

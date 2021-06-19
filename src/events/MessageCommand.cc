@@ -37,7 +37,7 @@ void MessageCommand::execute(span<const TclObject> tokens, TclObject& /*result*/
 	}
 }
 
-std::string MessageCommand::help(const std::vector<std::string>& /*tokens*/) const
+std::string MessageCommand::help(span<const TclObject> /*tokens*/) const
 {
 	return "message <text> [<level>]\n"
 	       "Print a message. (By default) this message will be shown in "

@@ -106,7 +106,7 @@ void SettingsConfig::SaveSettingsCommand::execute(
 	}
 }
 
-string SettingsConfig::SaveSettingsCommand::help(const vector<string>& /*tokens*/) const
+string SettingsConfig::SaveSettingsCommand::help(span<const TclObject> /*tokens*/) const
 {
 	return "Save the current settings.";
 }
@@ -135,7 +135,7 @@ void SettingsConfig::LoadSettingsCommand::execute(
 	settingsConfig.loadSetting(systemFileContext(), tokens[1].getString());
 }
 
-string SettingsConfig::LoadSettingsCommand::help(const vector<string>& /*tokens*/) const
+string SettingsConfig::LoadSettingsCommand::help(span<const TclObject> /*tokens*/) const
 {
 	return "Load settings from given file.";
 }

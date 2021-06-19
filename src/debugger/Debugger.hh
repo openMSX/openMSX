@@ -67,7 +67,7 @@ private:
 		[[nodiscard]] bool needRecord(span<const TclObject> tokens) const override;
 		void execute(span<const TclObject> tokens,
 			     TclObject& result, EmuTime::param time) override;
-		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 
 	private:

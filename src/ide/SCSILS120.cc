@@ -88,7 +88,7 @@ public:
 	           Scheduler& scheduler, SCSILS120& ls);
 	void execute(span<const TclObject> tokens,
 	             TclObject& result, EmuTime::param time) override;
-	[[nodiscard]] string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(span<const TclObject> tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
 	SCSILS120& ls;
@@ -800,7 +800,7 @@ void LSXCommand::execute(span<const TclObject> tokens, TclObject& result,
 	}
 }
 
-string LSXCommand::help(const vector<string>& /*tokens*/) const
+string LSXCommand::help(span<const TclObject> /*tokens*/) const
 {
 	return strCat(
 		ls.name, "                   : display the disk image for this LS-120 drive\n",

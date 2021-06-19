@@ -632,7 +632,7 @@ void CommandLineParser::FileTypeCategoryInfoTopic::execute(
 	}
 }
 
-string CommandLineParser::FileTypeCategoryInfoTopic::help(const std::vector<std::string>& /*tokens*/) const
+string CommandLineParser::FileTypeCategoryInfoTopic::help(span<const TclObject> /*tokens*/) const
 {
 	return "Returns the file type category for the given file.";
 }

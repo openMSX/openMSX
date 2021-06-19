@@ -34,7 +34,7 @@ void RomInfoTopic::execute(span<const TclObject> tokens, TclObject& result) cons
 	}
 }
 
-string RomInfoTopic::help(const vector<string>& /*tokens*/) const
+string RomInfoTopic::help(span<const TclObject> /*tokens*/) const
 {
 	return "Shows a list of supported rom types. "
 	       "Or show info on a specific rom type.";

@@ -788,7 +788,7 @@ void MSXMixer::SoundDeviceInfoTopic::execute(
 	}
 }
 
-string MSXMixer::SoundDeviceInfoTopic::help(const vector<string>& /*tokens*/) const
+string MSXMixer::SoundDeviceInfoTopic::help(span<const TclObject> /*tokens*/) const
 {
 	return "Shows a list of available sound devices.\n";
 }

@@ -687,7 +687,7 @@ void Debugger::Cmd::probeListBreakPoints(
 	result = res;
 }
 
-string Debugger::Cmd::help(const vector<string>& tokens) const
+string Debugger::Cmd::help(span<const TclObject> tokens) const
 {
 	auto generalHelp =
 		"debug <subcommand> [<arguments>]\n"

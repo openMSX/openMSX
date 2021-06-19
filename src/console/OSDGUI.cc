@@ -186,7 +186,7 @@ void OSDGUI::OSDCommand::configure(OSDWidget& widget, span<const TclObject> toke
 	}
 }
 
-string OSDGUI::OSDCommand::help(const vector<string>& tokens) const
+string OSDGUI::OSDCommand::help(span<const TclObject> tokens) const
 {
 	if (tokens.size() >= 2) {
 		if (tokens[1] == "create") {

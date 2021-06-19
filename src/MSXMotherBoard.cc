@@ -75,7 +75,7 @@ public:
 	explicit ResetCmd(MSXMotherBoard& motherBoard);
 	void execute(span<const TclObject> tokens, TclObject& result,
 	             EmuTime::param time) override;
-	[[nodiscard]] string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(span<const TclObject> tokens) const override;
 private:
 	MSXMotherBoard& motherBoard;
 };
@@ -85,7 +85,7 @@ class LoadMachineCmd final : public Command
 public:
 	explicit LoadMachineCmd(MSXMotherBoard& motherBoard);
 	void execute(span<const TclObject> tokens, TclObject& result) override;
-	[[nodiscard]] string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(span<const TclObject> tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
 	MSXMotherBoard& motherBoard;
@@ -96,7 +96,7 @@ class ListExtCmd final : public Command
 public:
 	explicit ListExtCmd(MSXMotherBoard& motherBoard);
 	void execute(span<const TclObject> tokens, TclObject& result) override;
-	[[nodiscard]] string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(span<const TclObject> tokens) const override;
 private:
 	MSXMotherBoard& motherBoard;
 };
@@ -107,7 +107,7 @@ public:
 	explicit RemoveExtCmd(MSXMotherBoard& motherBoard);
 	void execute(span<const TclObject> tokens, TclObject& result,
 	             EmuTime::param time) override;
-	[[nodiscard]] string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(span<const TclObject> tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
 	MSXMotherBoard& motherBoard;
@@ -119,7 +119,7 @@ public:
 	explicit MachineNameInfo(MSXMotherBoard& motherBoard);
 	void execute(span<const TclObject> tokens,
 	             TclObject& result) const override;
-	[[nodiscard]] string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(span<const TclObject> tokens) const override;
 private:
 	MSXMotherBoard& motherBoard;
 };
@@ -130,7 +130,7 @@ public:
 	explicit MachineTypeInfo(MSXMotherBoard& motherBoard);
 	void execute(span<const TclObject> tokens,
 	             TclObject& result) const override;
-	[[nodiscard]] string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(span<const TclObject> tokens) const override;
 private:
 	MSXMotherBoard& motherBoard;
 };
@@ -141,7 +141,7 @@ public:
 	explicit MachineExtensionInfo(MSXMotherBoard& motherBoard);
 	void execute(span<const TclObject> tokens,
 	             TclObject& result) const override;
-	[[nodiscard]] string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(span<const TclObject> tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
 	MSXMotherBoard& motherBoard;
@@ -153,7 +153,7 @@ public:
 	explicit DeviceInfo(MSXMotherBoard& motherBoard);
 	void execute(span<const TclObject> tokens,
 	             TclObject& result) const override;
-	[[nodiscard]] string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(span<const TclObject> tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
 	MSXMotherBoard& motherBoard;
@@ -759,7 +759,7 @@ void ResetCmd::execute(span<const TclObject> /*tokens*/, TclObject& /*result*/,
 	motherBoard.doReset();
 }
 
-string ResetCmd::help(const vector<string>& /*tokens*/) const
+string ResetCmd::help(span<const TclObject> /*tokens*/) const
 {
 	return "Resets the MSX.";
 }
@@ -806,7 +806,7 @@ void LoadMachineCmd::execute(span<const TclObject> tokens, TclObject& result)
 	result = motherBoard.loadMachine(string(tokens[1].getString()));
 }
 
-string LoadMachineCmd::help(const vector<string>& /*tokens*/) const
+string LoadMachineCmd::help(span<const TclObject> /*tokens*/) const
 {
 	return "Load a msx machine configuration into an empty machine.";
 }
@@ -831,7 +831,7 @@ void ListExtCmd::execute(span<const TclObject> /*tokens*/, TclObject& result)
 		                [&](auto& e) { return e->getName(); }));
 }
 
-string ListExtCmd::help(const vector<string>& /*tokens*/) const
+string ListExtCmd::help(span<const TclObject> /*tokens*/) const
 {
 	return "Return a list of all inserted extensions.";
 }
@@ -863,7 +863,7 @@ void ExtCmd::execute(span<const TclObject> tokens, TclObject& result,
 	}
 }
 
-string ExtCmd::help(const vector<string>& /*tokens*/) const
+string ExtCmd::help(span<const TclObject> /*tokens*/) const
 {
 	return "Insert a hardware extension.";
 }
@@ -901,7 +901,7 @@ void RemoveExtCmd::execute(span<const TclObject> tokens, TclObject& /*result*/,
 	}
 }
 
-string RemoveExtCmd::help(const vector<string>& /*tokens*/) const
+string RemoveExtCmd::help(span<const TclObject> /*tokens*/) const
 {
 	return "Remove an extension from the MSX machine.";
 }
@@ -931,7 +931,7 @@ void MachineNameInfo::execute(span<const TclObject> /*tokens*/,
 	result = motherBoard.getMachineName();
 }
 
-string MachineNameInfo::help(const vector<string>& /*tokens*/) const
+string MachineNameInfo::help(span<const TclObject> /*tokens*/) const
 {
 	return "Returns the configuration name for this machine.";
 }
@@ -950,7 +950,7 @@ void MachineTypeInfo::execute(span<const TclObject> /*tokens*/,
 	result = motherBoard.getMachineType();
 }
 
-string MachineTypeInfo::help(const vector<string>& /*tokens*/) const
+string MachineTypeInfo::help(span<const TclObject> /*tokens*/) const
 {
 	return "Returns the machine type for this machine.";
 }
@@ -997,7 +997,7 @@ void MachineExtensionInfo::execute(span<const TclObject> tokens,
 	}
 }
 
-string MachineExtensionInfo::help(const vector<string>& /*tokens*/) const
+string MachineExtensionInfo::help(span<const TclObject> /*tokens*/) const
 {
 	return "Returns information about the given extension instance.";
 }
@@ -1042,7 +1042,7 @@ void DeviceInfo::execute(span<const TclObject> tokens, TclObject& result) const
 	}
 }
 
-string DeviceInfo::help(const vector<string>& /*tokens*/) const
+string DeviceInfo::help(span<const TclObject> /*tokens*/) const
 {
 	return "Without any arguments, returns the list of used device names.\n"
 	       "With a device name as argument, returns the type (and for some "

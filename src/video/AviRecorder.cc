@@ -315,7 +315,7 @@ void AviRecorder::Cmd::execute(span<const TclObject> tokens, TclObject& result)
 			recorder.status(tokens, result); });
 }
 
-string AviRecorder::Cmd::help(const vector<string>& /*tokens*/) const
+string AviRecorder::Cmd::help(span<const TclObject> /*tokens*/) const
 {
 	return "Controls video recording: Write openMSX audio/video to a .avi file.\n"
 	       "record start              Record to file 'openmsxNNNN.avi'\n"

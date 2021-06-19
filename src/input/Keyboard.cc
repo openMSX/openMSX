@@ -1079,7 +1079,7 @@ void Keyboard::KeyMatrixUpCmd::execute(
 	return keyboard.processCmd(getInterpreter(), tokens, true);
 }
 
-string Keyboard::KeyMatrixUpCmd::help(const vector<string>& /*tokens*/) const
+string Keyboard::KeyMatrixUpCmd::help(span<const TclObject> /*tokens*/) const
 {
 	return "keymatrixup <row> <bitmask>  release a key in the keyboardmatrix\n";
 }
@@ -1103,7 +1103,7 @@ void Keyboard::KeyMatrixDownCmd::execute(span<const TclObject> tokens,
 	return keyboard.processCmd(getInterpreter(), tokens, false);
 }
 
-string Keyboard::KeyMatrixDownCmd::help(const vector<string>& /*tokens*/) const
+string Keyboard::KeyMatrixDownCmd::help(span<const TclObject> /*tokens*/) const
 {
 	return "keymatrixdown <row> <bitmask>  press a key in the keyboardmatrix\n";
 }
@@ -1211,7 +1211,7 @@ void Keyboard::KeyInserter::execute(
 	type(arguments[0].getString());
 }
 
-string Keyboard::KeyInserter::help(const vector<string>& /*tokens*/) const
+string Keyboard::KeyInserter::help(span<const TclObject> /*tokens*/) const
 {
 	return "Type a string in the emulated MSX.\n" \
 	       "Use -release to make sure the keys are always released before typing new ones (necessary for some game input routines, but in general, this means typing is twice as slow).\n" \

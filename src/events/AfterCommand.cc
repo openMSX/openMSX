@@ -392,7 +392,7 @@ void AfterCommand::afterCancel(span<const TclObject> tokens, TclObject& /*result
 	// It's not an error if no match is found
 }
 
-string AfterCommand::help(const vector<string>& /*tokens*/) const
+string AfterCommand::help(span<const TclObject> /*tokens*/) const
 {
 	return "after time     <seconds> <command>  execute a command after some time (MSX time)\n"
 	       "after realtime <seconds> <command>  execute a command after some time (realtime)\n"

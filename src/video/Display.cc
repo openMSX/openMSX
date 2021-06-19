@@ -490,7 +490,7 @@ void Display::ScreenShotCmd::execute(span<const TclObject> tokens, TclObject& re
 	result = filename;
 }
 
-string Display::ScreenShotCmd::help(const vector<string>& /*tokens*/) const
+string Display::ScreenShotCmd::help(span<const TclObject> /*tokens*/) const
 {
 	// Note: -no-sprites option is implemented in Tcl
 	return "screenshot                   Write screenshot to file \"openmsxNNNN.png\"\n"
@@ -526,7 +526,7 @@ void Display::FpsInfoTopic::execute(span<const TclObject> /*tokens*/,
 	result = 1000000.0f * Display::NUM_FRAME_DURATIONS / display.frameDurationSum;
 }
 
-string Display::FpsInfoTopic::help(const vector<string>& /*tokens*/) const
+string Display::FpsInfoTopic::help(span<const TclObject> /*tokens*/) const
 {
 	return "Returns the current rendering speed in frames per second.";
 }

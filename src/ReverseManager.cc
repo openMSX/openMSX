@@ -992,7 +992,7 @@ void ReverseManager::ReverseCmd::execute(span<const TclObject> tokens, TclObject
 			}});
 }
 
-string ReverseManager::ReverseCmd::help(const vector<string>& /*tokens*/) const
+string ReverseManager::ReverseCmd::help(span<const TclObject> /*tokens*/) const
 {
 	return "start               start collecting reverse data\n"
 	       "stop                stop collecting\n"

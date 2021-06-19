@@ -5,6 +5,7 @@
 #include "EventListener.hh"
 #include "Command.hh"
 #include "Event.hh"
+#include "TclObject.hh"
 #include <map>
 #include <string_view>
 #include <vector>
@@ -76,7 +77,7 @@ private:
 		BindCmd(CommandController& commandController, HotKey& hotKey,
 			bool defaultCmd);
 		void execute(span<const TclObject> tokens, TclObject& result) override;
-		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 	private:
 		HotKey& hotKey;
 		const bool defaultCmd;
@@ -89,7 +90,7 @@ private:
 		UnbindCmd(CommandController& commandController, HotKey& hotKey,
 			  bool defaultCmd);
 		void execute(span<const TclObject> tokens, TclObject& result) override;
-		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 	private:
 		HotKey& hotKey;
 		const bool defaultCmd;
@@ -100,13 +101,13 @@ private:
 	struct ActivateCmd final : Command {
 		explicit ActivateCmd(CommandController& commandController);
 		void execute(span<const TclObject> tokens, TclObject& result) override;
-		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 	} activateCmd;
 
 	struct DeactivateCmd final : Command {
 		explicit DeactivateCmd(CommandController& commandController);
 		void execute(span<const TclObject> tokens, TclObject& result) override;
-		[[nodiscard]] std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 	} deactivateCmd;
 
 	BindMap cmdMap;

@@ -202,7 +202,7 @@ void UserSettings::Cmd::info(span<const TclObject> /*tokens*/, TclObject& result
 	result.addListElements(getSettingNames());
 }
 
-string UserSettings::Cmd::help(const vector<string>& tokens) const
+string UserSettings::Cmd::help(span<const TclObject> tokens) const
 {
 	if (tokens.size() < 2) {
 		return

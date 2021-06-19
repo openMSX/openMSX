@@ -29,7 +29,7 @@ public:
 	           Scheduler& scheduler, IDECDROM& cd);
 	void execute(span<const TclObject> tokens,
 		TclObject& result, EmuTime::param time) override;
-	[[nodiscard]] string help(const vector<string>& tokens) const override;
+	[[nodiscard]] string help(span<const TclObject> tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
 	IDECDROM& cd;
@@ -376,7 +376,7 @@ void CDXCommand::execute(span<const TclObject> tokens, TclObject& result,
 	}
 }
 
-string CDXCommand::help(const vector<string>& /*tokens*/) const
+string CDXCommand::help(span<const TclObject> /*tokens*/) const
 {
 	return strCat(
 		cd.name, "                   : display the cd image for this CD-ROM drive\n",

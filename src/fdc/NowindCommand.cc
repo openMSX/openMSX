@@ -277,7 +277,7 @@ void NowindCommand::execute(span<const TclObject> tokens, TclObject& result)
 	result = r;
 }
 
-string NowindCommand::help(const vector<string>& /*tokens*/) const
+string NowindCommand::help(span<const TclObject> /*tokens*/) const
 {
 	return "Similar to the disk<x> commands there is a nowind<x> command "
 	       "for each nowind interface. This command is modeled after the "

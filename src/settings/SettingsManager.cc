@@ -161,7 +161,7 @@ void SettingsManager::SettingInfo::execute(
 	}
 }
 
-string SettingsManager::SettingInfo::help(const vector<string>& /*tokens*/) const
+string SettingsManager::SettingInfo::help(span<const TclObject> /*tokens*/) const
 {
 	return "openmsx_info setting        : "
 	             "returns list of all settings\n"
@@ -187,11 +187,11 @@ SettingsManager::SetCompleter::SetCompleter(
 {
 }
 
-string SettingsManager::SetCompleter::help(const vector<string>& tokens) const
+string SettingsManager::SetCompleter::help(span<const TclObject> tokens) const
 {
 	if (tokens.size() == 2) {
 		auto& manager = OUTER(SettingsManager, setCompleter);
-		return string(manager.getByName("set", tokens[1]).getDescription());
+		return string(manager.getByName("set", tokens[1].getString()).getDescription());
 	}
 	return "Set or query the value of a openMSX setting or Tcl variable\n"
 	       "  set <setting>          shows current value\n"
@@ -229,7 +229,7 @@ SettingsManager::SettingCompleter::SettingCompleter(
 {
 }
 
-string SettingsManager::SettingCompleter::help(const vector<string>& /*tokens*/) const
+string SettingsManager::SettingCompleter::help(span<const TclObject> /*tokens*/) const
 {
 	return {}; // TODO
 }

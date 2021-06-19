@@ -67,7 +67,7 @@ void HDCommand::execute(span<const TclObject> tokens, TclObject& result,
 	}
 }
 
-string HDCommand::help(const vector<string>& /*tokens*/) const
+string HDCommand::help(span<const TclObject> /*tokens*/) const
 {
 	return hd.getName() + ": change the hard disk image for this hard disk drive\n";
 }
