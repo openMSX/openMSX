@@ -20,9 +20,12 @@ public:
 	         EmuTime::param time);
 
 	void reset(EmuTime::param time);
-	byte readReg(int reg, EmuTime::param time);
-	[[nodiscard]] byte peekReg(int reg, EmuTime::param time) const;
-	void writeReg(int reg, byte data, EmuTime::param time);
+	[[nodiscard]] byte peekDataPort(EmuTime::param time) const;
+	byte readDataPort(EmuTime::param time);
+	[[nodiscard]] byte peekStatus() const;
+	byte readStatus(EmuTime::param time);
+	void writeControlReg0(byte data, EmuTime::param time);
+	void writeDataPort(byte value, EmuTime::param time);
 	bool diskChanged(unsigned driveNum);
 	[[nodiscard]] bool peekDiskChanged(unsigned driveNum) const;
 
@@ -54,24 +57,24 @@ public:
 		PHASE_DATATRANSFER,
 		PHASE_RESULT,
 	};
+	enum SeekState {
+		SEEK_IDLE,
+		SEEK_SEEK,
+		SEEK_RECALIBRATE
+	};
 
 private:
 	// Schedulable
 	void executeUntil(EmuTime::param time) override;
 
-	[[nodiscard]] byte peekDataPort(EmuTime::param time) const;
-	byte readDataPort(EmuTime::param time);
-	[[nodiscard]] byte peekStatus() const;
-	byte readStatus(EmuTime::param time);
 	[[nodiscard]] byte executionPhasePeek(EmuTime::param time) const;
 	byte executionPhaseRead(EmuTime::param time);
 	[[nodiscard]] byte resultsPhasePeek() const;
 	byte resultsPhaseRead(EmuTime::param time);
-	void writeDataPort(byte value, EmuTime::param time);
 	void idlePhaseWrite(byte value, EmuTime::param time);
 	void commandPhase1(byte value);
 	void commandPhaseWrite(byte value, EmuTime::param time);
-	void doSeek(EmuTime::param time);
+	void doSeek(int n);
 	void executionPhaseWrite(byte value, EmuTime::param time);
 	void resultPhase();
 	void endCommand(EmuTime::param time);
@@ -117,14 +120,22 @@ private:
 	byte headNumber;
 	byte sectorNumber;
 	byte number;
-	byte currentTrack;
 	byte sectorsPerCylinder;
 	byte fillerByte;
 	byte gapLength;
 	byte specifyData[2]; // filled in by SPECIFY command
-	byte seekValue;
+
+	struct SeekInfo {
+		EmuTime time = EmuTime::zero();
+		byte currentTrack = 0;
+		byte seekValue = 0;
+		SeekState state = SEEK_IDLE;
+
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
+	} seekInfo[4];
 };
-SERIALIZE_CLASS_VERSION(TC8566AF, 5);
+SERIALIZE_CLASS_VERSION(TC8566AF, 6);
 
 } // namespace openmsx
 

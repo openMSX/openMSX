@@ -31,7 +31,7 @@ KeyEvent::KeyEvent(EventType type_, Keys::KeyCode keyCode_, Keys::KeyCode scanCo
 
 TclObject KeyEvent::toTclList() const
 {
-	// Note: 'scanCode' is not included (also not in lessImpl()).
+	// Note: 'scanCode' is not included (also not in equalImpl()).
 	//
 	// At the moment 'scanCode' is only used in the MSX Keyboard code when
 	// the POSITIONAL mapping mode is active. It is not used for key
@@ -49,11 +49,11 @@ TclObject KeyEvent::toTclList() const
 	return result;
 }
 
-bool KeyEvent::lessImpl(const Event& other) const
+bool KeyEvent::equalImpl(const Event& other) const
 {
 	// note: don't compare scancode, unicode
 	const auto& o = checked_cast<const KeyEvent&>(other);
-	return getKeyCode() < o.getKeyCode();
+	return getKeyCode() == o.getKeyCode();
 }
 
 
@@ -69,10 +69,10 @@ TclObject MouseButtonEvent::toTclHelper(std::string_view direction) const
 	return makeTclList("mouse", tmpStrCat("button", getButton()), direction);
 }
 
-bool MouseButtonEvent::lessImpl(const Event& other) const
+bool MouseButtonEvent::equalImpl(const Event& other) const
 {
 	const auto& o = checked_cast<const MouseButtonEvent&>(other);
-	return getButton() < o.getButton();
+	return getButton() == o.getButton();
 }
 
 
@@ -115,10 +115,10 @@ TclObject MouseWheelEvent::toTclList() const
 	return makeTclList("mouse", "wheel", getX(), getY());
 }
 
-bool MouseWheelEvent::lessImpl(const Event& other) const
+bool MouseWheelEvent::equalImpl(const Event& other) const
 {
 	const auto& o = checked_cast<const MouseWheelEvent&>(other);
-	return std::tuple(  getX(),   getY()) <
+	return std::tuple(  getX(),   getY()) ==
 	       std::tuple(o.getX(), o.getY());
 }
 
@@ -137,10 +137,10 @@ TclObject MouseMotionEvent::toTclList() const
 	return makeTclList("mouse", "motion", getX(), getY(), getAbsX(), getAbsY());
 }
 
-bool MouseMotionEvent::lessImpl(const Event& other) const
+bool MouseMotionEvent::equalImpl(const Event& other) const
 {
 	const auto& o = checked_cast<const MouseMotionEvent&>(other);
-	return std::tuple(  getX(),   getY(),   getAbsX(),   getAbsY()) <
+	return std::tuple(  getX(),   getY(),   getAbsX(),   getAbsY()) ==
 	       std::tuple(o.getX(), o.getY(), o.getAbsX(), o.getAbsY());
 }
 
@@ -155,14 +155,6 @@ JoystickEvent::JoystickEvent(EventType type_, unsigned joystick_)
 TclObject JoystickEvent::toTclHelper() const
 {
 	return makeTclList(tmpStrCat("joy", getJoystick() + 1));
-}
-
-bool JoystickEvent::lessImpl(const Event& other) const
-{
-	const auto& o = checked_cast<const JoystickEvent&>(other);
-	return (getJoystick() != o.getJoystick())
-	     ? (getJoystick() <  o.getJoystick())
-	     : lessImpl(o);
 }
 
 
@@ -181,10 +173,11 @@ TclObject JoystickButtonEvent::toTclHelper(std::string_view direction) const
 	return result;
 }
 
-bool JoystickButtonEvent::lessImpl(const JoystickEvent& other) const
+bool JoystickButtonEvent::equalImpl(const Event& other) const
 {
 	const auto& o = checked_cast<const JoystickButtonEvent&>(other);
-	return getButton() < o.getButton();
+	return std::tuple(  getJoystick(),   getButton()) ==
+	       std::tuple(o.getJoystick(), o.getButton());
 }
 
 
@@ -230,11 +223,11 @@ TclObject JoystickAxisMotionEvent::toTclList() const
 	return result;
 }
 
-bool JoystickAxisMotionEvent::lessImpl(const JoystickEvent& other) const
+bool JoystickAxisMotionEvent::equalImpl(const Event& other) const
 {
 	const auto& o = checked_cast<const JoystickAxisMotionEvent&>(other);
-	return std::tuple(  getAxis(),   getValue()) <
-	       std::tuple(o.getAxis(), o.getValue());
+	return std::tuple(  getJoystick(),   getAxis(),   getValue()) ==
+	       std::tuple(o.getJoystick(), o.getAxis(), o.getValue());
 }
 
 
@@ -266,11 +259,11 @@ TclObject JoystickHatEvent::toTclList() const
 	return result;
 }
 
-bool JoystickHatEvent::lessImpl(const JoystickEvent& other) const
+bool JoystickHatEvent::equalImpl(const Event& other) const
 {
 	const auto& o = checked_cast<const JoystickHatEvent&>(other);
-	return std::tuple(  getHat(),   getValue()) <
-	       std::tuple(o.getHat(), o.getValue());
+	return std::tuple(  getJoystick(),   getHat(),   getValue()) ==
+	       std::tuple(o.getJoystick(), o.getHat(), o.getValue());
 }
 
 
@@ -286,10 +279,10 @@ TclObject FocusEvent::toTclList() const
 	return makeTclList("focus", getGain());
 }
 
-bool FocusEvent::lessImpl(const Event& other) const
+bool FocusEvent::equalImpl(const Event& other) const
 {
 	const auto& o = checked_cast<const FocusEvent&>(other);
-	return getGain() < o.getGain();
+	return getGain() == o.getGain();
 }
 
 
@@ -305,10 +298,10 @@ TclObject ResizeEvent::toTclList() const
 	return makeTclList("resize", int(getX()), int(getY()));
 }
 
-bool ResizeEvent::lessImpl(const Event& other) const
+bool ResizeEvent::equalImpl(const Event& other) const
 {
 	const auto& o = checked_cast<const ResizeEvent&>(other);
-	return std::tuple(  getX(),   getY()) <
+	return std::tuple(  getX(),   getY()) ==
 	       std::tuple(o.getX(), o.getY());
 }
 
@@ -325,10 +318,10 @@ TclObject FileDropEvent::toTclList() const
 	return makeTclList("filedrop", fileName);
 }
 
-bool FileDropEvent::lessImpl(const Event& other) const
+bool FileDropEvent::equalImpl(const Event& other) const
 {
 	const auto& o = checked_cast<const FileDropEvent&>(other);
-	return getFileName() < o.getFileName();
+	return getFileName() == o.getFileName();
 }
 
 
@@ -343,9 +336,9 @@ TclObject QuitEvent::toTclList() const
 	return makeTclList("quit");
 }
 
-bool QuitEvent::lessImpl(const Event& /*other*/) const
+bool QuitEvent::equalImpl(const Event& /*other*/) const
 {
-	return false;
+	return true;
 }
 
 // class OsdControlEvent
@@ -381,10 +374,10 @@ TclObject OsdControlEvent::toTclHelper(std::string_view direction) const
 	return makeTclList("OSDcontrol", names[getButton()], direction);
 }
 
-bool OsdControlEvent::lessImpl(const Event& other) const
+bool OsdControlEvent::equalImpl(const Event& other) const
 {
 	const auto& o = checked_cast<const OsdControlEvent&>(other);
-	return getButton() < o.getButton();
+	return getButton() == o.getButton();
 }
 
 
@@ -430,10 +423,10 @@ TclObject GroupEvent::toTclList() const
 	return tclListComponents;
 }
 
-bool GroupEvent::lessImpl(const Event& /*other*/) const
+bool GroupEvent::equalImpl(const Event& /*other*/) const
 {
 	// All Group events are equivalent
-	return false;
+	return true;
 }
 
 bool GroupEvent::matches(const Event& other) const

@@ -6,9 +6,11 @@
 #include "InputEventFactory.hh"
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
+#include "ObjectPool.hh"
 #include "RTSchedulable.hh"
 #include "EmuTime.hh"
 #include "CommandException.hh"
+#include "StringOp.hh"
 #include "TclObject.hh"
 #include "ranges.hh"
 #include "stl.hh"
@@ -17,32 +19,29 @@
 #include <iterator>
 #include <memory>
 #include <sstream>
+#include <variant>
 
-using std::move;
-using std::ostringstream;
 using std::string;
 using std::string_view;
 using std::vector;
-using std::unique_ptr;
 
 namespace openmsx {
 
 class AfterCmd
 {
 public:
-	virtual ~AfterCmd() = default;
-	[[nodiscard]] string_view getCommand() const;
-	[[nodiscard]] const string& getId() const;
-	[[nodiscard]] virtual string getType() const = 0;
+	[[nodiscard]] const auto& getCommand() const { return command; }
+	[[nodiscard]] auto getId() const { return id; }
+	[[nodiscard]] auto getIdStr() const { return tmpStrCat("after#", id); }
 	void execute();
 protected:
 	AfterCmd(AfterCommand& afterCommand,
 		 TclObject command);
-	unique_ptr<AfterCmd> removeSelf();
+	AfterCommand::Index removeSelf();
 
 	AfterCommand& afterCommand;
 	TclObject command;
-	string id;
+	const unsigned id;
 	static inline unsigned lastAfterId = 0;
 };
 
@@ -69,7 +68,6 @@ public:
 	AfterTimeCmd(Scheduler& scheduler,
 		     AfterCommand& afterCommand,
 		     TclObject command, double time);
-	[[nodiscard]] string getType() const override;
 };
 
 class AfterIdleCmd final : public AfterTimedCmd
@@ -78,7 +76,6 @@ public:
 	AfterIdleCmd(Scheduler& scheduler,
 		     AfterCommand& afterCommand,
 		     TclObject command, double time);
-	[[nodiscard]] string getType() const override;
 };
 
 class AfterSimpleEventCmd final : public AfterCmd
@@ -87,7 +84,7 @@ public:
 	AfterSimpleEventCmd(AfterCommand& afterCommand,
 	                    TclObject command,
 	                    EventType type);
-	[[nodiscard]] string getType() const override;
+	[[nodiscard]] string_view getType() const;
 	[[nodiscard]] EventType getTypeEnum() const { return type; }
 private:
 	EventType type;
@@ -99,7 +96,6 @@ public:
 	AfterInputEventCmd(AfterCommand& afterCommand,
 	                   AfterCommand::EventPtr event,
 	                   TclObject command);
-	[[nodiscard]] string getType() const override;
 	[[nodiscard]] AfterCommand::EventPtr getEvent() const { return event; }
 private:
 	AfterCommand::EventPtr event;
@@ -110,11 +106,17 @@ class AfterRealTimeCmd final : public AfterCmd, private RTSchedulable
 public:
 	AfterRealTimeCmd(RTScheduler& rtScheduler, AfterCommand& afterCommand,
 	                 TclObject command, double time);
-	[[nodiscard]] string getType() const override;
 
 private:
 	void executeRT() override;
 };
+
+using AllAfterCmds = std::variant<AfterTimeCmd,
+                                  AfterIdleCmd,
+                                  AfterSimpleEventCmd,
+                                  AfterInputEventCmd,
+                                  AfterRealTimeCmd>;
+static ObjectPool<AllAfterCmds> afterCmdPool;
 
 
 AfterCommand::AfterCommand(Reactor& reactor_,
@@ -162,6 +164,10 @@ AfterCommand::AfterCommand(Reactor& reactor_,
 
 AfterCommand::~AfterCommand()
 {
+	for (auto idx : afterCmds) {
+		afterCmdPool.remove(idx);
+	}
+
 	eventDistributor.unregisterEventListener(
 		OPENMSX_AFTER_TIMED_EVENT, *this);
 	eventDistributor.unregisterEventListener(
@@ -255,20 +261,22 @@ void AfterCommand::afterTime(span<const TclObject> tokens, TclObject& result)
 	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
 	if (!motherBoard) return;
 	double time = getTime(getInterpreter(), tokens[2]);
-	auto cmd = std::make_unique<AfterTimeCmd>(
+	auto [idx, ptr] = afterCmdPool.emplace(
+		std::in_place_type_t<AfterTimeCmd>{},
 		motherBoard->getScheduler(), *this, tokens[3], time);
-	result = cmd->getId();
-	afterCmds.push_back(move(cmd));
+	result = std::get<AfterTimeCmd>(*ptr).getIdStr();
+	afterCmds.push_back(idx);
 }
 
 void AfterCommand::afterRealTime(span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, 4, Prefix{2}, "seconds command");
 	double time = getTime(getInterpreter(), tokens[2]);
-	auto cmd = std::make_unique<AfterRealTimeCmd>(
+	auto [idx, ptr] = afterCmdPool.emplace(
+		std::in_place_type_t<AfterRealTimeCmd>{},
 		reactor.getRTScheduler(), *this, tokens[3], time);
-	result = cmd->getId();
-	afterCmds.push_back(move(cmd));
+	result = std::get<AfterRealTimeCmd>(*ptr).getIdStr();
+	afterCmds.push_back(idx);
 }
 
 void AfterCommand::afterTclTime(
@@ -276,27 +284,32 @@ void AfterCommand::afterTclTime(
 {
 	TclObject command;
 	command.addListElements(view::drop(tokens, 2));
-	auto cmd = std::make_unique<AfterRealTimeCmd>(
+	auto [idx, ptr] = afterCmdPool.emplace(
+		std::in_place_type_t<AfterRealTimeCmd>{},
 		reactor.getRTScheduler(), *this, command, ms / 1000.0);
-	result = cmd->getId();
-	afterCmds.push_back(move(cmd));
+	result = std::get<AfterRealTimeCmd>(*ptr).getIdStr();
+	afterCmds.push_back(idx);
 }
 
 void AfterCommand::afterSimpleEvent(span<const TclObject> tokens, TclObject& result, EventType type)
 {
 	checkNumArgs(tokens, 3, "command");
-	auto cmd = std::make_unique<AfterSimpleEventCmd>(*this, tokens[2], type);
-	result = cmd->getId();
-	afterCmds.push_back(move(cmd));
+	auto [idx, ptr] = afterCmdPool.emplace(
+		std::in_place_type_t<AfterSimpleEventCmd>{},
+		*this, tokens[2], type);
+	result = std::get<AfterSimpleEventCmd>(*ptr).getIdStr();
+	afterCmds.push_back(idx);
 }
 
 void AfterCommand::afterInputEvent(
 	const EventPtr& event, span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, 3, "command");
-	auto cmd = std::make_unique<AfterInputEventCmd>(*this, event, tokens[2]);
-	result = cmd->getId();
-	afterCmds.push_back(move(cmd));
+	auto [idx, ptr] = afterCmdPool.emplace(
+		std::in_place_type_t<AfterInputEventCmd>{},
+		*this, event, tokens[2]);
+	result = std::get<AfterInputEventCmd>(*ptr).getIdStr();
+	afterCmds.push_back(idx);
 }
 
 void AfterCommand::afterIdle(span<const TclObject> tokens, TclObject& result)
@@ -305,24 +318,37 @@ void AfterCommand::afterIdle(span<const TclObject> tokens, TclObject& result)
 	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
 	if (!motherBoard) return;
 	double time = getTime(getInterpreter(), tokens[2]);
-	auto cmd = std::make_unique<AfterIdleCmd>(
+	auto [idx, ptr] = afterCmdPool.emplace(
+		std::in_place_type_t<AfterIdleCmd>{},
 		motherBoard->getScheduler(), *this, tokens[3], time);
-	result = cmd->getId();
-	afterCmds.push_back(move(cmd));
+	result = std::get<AfterIdleCmd>(*ptr).getIdStr();
+	afterCmds.push_back(idx);
 }
+
+// will likely become part of future c++ standard
+template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
+// explicit deduction guide (not needed as of C++20)
+template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
 void AfterCommand::afterInfo(span<const TclObject> /*tokens*/, TclObject& result)
 {
-	ostringstream str;
-	for (auto& cmd : afterCmds) {
-		str << cmd->getId() << ": ";
-		str << cmd->getType() << ' ';
-		if (const auto* cmd2 = dynamic_cast<const AfterTimedCmd*>(cmd.get())) {
-			str.precision(3);
-			str << std::fixed << std::showpoint << cmd2->getTime() << ' ';
-		}
-		str << cmd->getCommand()
-		    << '\n';
+	auto printTime = [](std::ostream& os, const AfterTimedCmd& cmd) {
+		os.precision(3);
+		os << std::fixed << std::showpoint << cmd.getTime() << ' ';
+	};
+
+	std::ostringstream str;
+	for (auto idx : afterCmds) {
+		auto& var = afterCmdPool[idx];
+		std::visit([&](AfterCmd& cmd) { str << cmd.getIdStr() << ": "; }, var);
+		std::visit(overloaded {
+			[&](AfterTimeCmd&        cmd ) { str << "time "; printTime(str, cmd); },
+			[&](AfterIdleCmd&        cmd ) { str << "idle "; printTime(str, cmd); },
+			[&](AfterSimpleEventCmd& cmd ) { str << cmd.getType() << ' '; },
+			[&](AfterInputEventCmd&  cmd ) { str << cmd.getEvent()->toString() << ' '; },
+			[&](AfterRealTimeCmd& /*cmd*/) { str << "realtime "; }
+		}, var);
+		std::visit([&](AfterCmd& cmd) { str << cmd.getCommand().getString() << '\n'; }, var);
 	}
 	result = str.str();
 }
@@ -331,21 +357,36 @@ void AfterCommand::afterCancel(span<const TclObject> tokens, TclObject& /*result
 {
 	checkNumArgs(tokens, AtLeast{3}, "id|command");
 	if (tokens.size() == 3) {
-		auto id = tokens[2].getString();
-		if (auto it = ranges::find_if(afterCmds,
-		                              [&](auto& e) { return e->getId() == id; });
-		    it != end(afterCmds)) {
-			afterCmds.erase(it);
-			return;
+		if (auto idStr = tokens[2].getString(); StringOp::startsWith(idStr, "after#")) {
+			if (auto id = StringOp::stringTo<unsigned>(idStr.substr(6))) {
+				auto equalId = [id = *id](Index idx) {
+					return std::visit([&](AfterCmd& cmd) {
+						 return cmd.getId() == id;
+					}, afterCmdPool[idx]);
+				};
+				if (auto it = ranges::find_if(afterCmds, equalId);
+				    it != end(afterCmds)) {
+					auto idx = *it;
+					afterCmds.erase(it);
+					afterCmdPool.remove(idx);
+					return;
+				}
+			}
 		}
 	}
 	TclObject command;
 	command.addListElements(view::drop(tokens, 2));
 	string_view cmdStr = command.getString();
-	if (auto it = ranges::find_if(afterCmds,
-	                              [&](auto& e) { return e->getCommand() == cmdStr; });
+	auto equalCmd = [&](Index idx) {
+		return std::visit([&](AfterCmd& cmd) {
+			return cmd.getCommand() == cmdStr;
+		}, afterCmdPool[idx]);
+	};
+	if (auto it = ranges::find_if(afterCmds, equalCmd);
 	    it != end(afterCmds)) {
+		auto idx = *it;
 		afterCmds.erase(it);
+		afterCmdPool.remove(idx);
 		// Tcl manual is not clear about this, but it seems
 		// there's only occurrences of this command canceled.
 		// It's also not clear which of the (possibly) several
@@ -384,22 +425,27 @@ void AfterCommand::tabCompletion(vector<string>& tokens) const
 // Execute the cmds for which the predicate returns true, and erase those from afterCmds.
 template<typename PRED> void AfterCommand::executeMatches(PRED pred)
 {
-	AfterCmds matches;
+	static std::vector<Index> matches; // static to keep capacity for next call
+	assert(matches.empty());
+
 	// Usually there are very few matches (typically even 0 or 1), so no
 	// need to reserve() space.
 	auto p = partition_copy_remove(afterCmds, std::back_inserter(matches), pred);
 	afterCmds.erase(p.second, end(afterCmds));
-	for (auto& c : matches) {
-		c->execute();
+	for (auto idx : matches) {
+		std::visit([](AfterCmd& cmd) { cmd.execute(); },
+		           afterCmdPool[idx]);
+		afterCmdPool.remove(idx);
 	}
+	matches.clear(); // for next call (but keep capacity)
 }
 
 struct AfterSimpleEventPred {
-	bool operator()(const unique_ptr<AfterCmd>& x) const {
-		if (auto* se = dynamic_cast<AfterSimpleEventCmd*>(x.get())) {
-			return se->getTypeEnum() == type;
-		}
-		return false;
+	bool operator()(AfterCommand::Index idx) const {
+		return std::visit(overloaded {
+			[&](AfterSimpleEventCmd& cmd) { return cmd.getTypeEnum() == type; },
+			[&](AfterCmd& /*cmd*/) { return false; }
+		}, afterCmdPool[idx]);
 	}
 	const EventType type;
 };
@@ -409,24 +455,22 @@ void AfterCommand::executeSimpleEvents(EventType type)
 }
 
 struct AfterEmuTimePred {
-	bool operator()(const unique_ptr<AfterCmd>& x) const {
-		if (auto* cmd = dynamic_cast<AfterTimedCmd*>(x.get())) {
-			if (cmd->getTime() == 0.0) {
-				return true;
-			}
-		}
-		return false;
+	bool operator()(AfterCommand::Index idx) const {
+		return std::visit(overloaded {
+			[&](AfterTimedCmd& cmd) { return cmd.getTime() == 0.0; },
+			[&](AfterCmd& /*cmd*/) { return false; }
+		}, afterCmdPool[idx]);
 	}
 };
 
 struct AfterInputEventPred {
 	explicit AfterInputEventPred(AfterCommand::EventPtr event_)
 		: event(std::move(event_)) {}
-	bool operator()(const unique_ptr<AfterCmd>& x) const {
-		if (auto* cmd = dynamic_cast<AfterInputEventCmd*>(x.get())) {
-			if (cmd->getEvent()->matches(*event)) return true;
-		}
-		return false;
+	bool operator()(AfterCommand::Index idx) const {
+		return std::visit(overloaded {
+			[&](AfterInputEventCmd& cmd) { return cmd.getEvent()->matches(*event); },
+			[&](AfterCmd& /*cmd*/) { return false; }
+		}, afterCmdPool[idx]);
 	}
 	AfterCommand::EventPtr event;
 };
@@ -447,10 +491,11 @@ int AfterCommand::signalEvent(const std::shared_ptr<const Event>& event) noexcep
 		executeMatches(AfterEmuTimePred());
 	} else {
 		executeMatches(AfterInputEventPred(event));
-		for (auto& c : afterCmds) {
-			if (auto* cmd = dynamic_cast<AfterIdleCmd*>(c.get())) {
-				cmd->reschedule();
-			}
+		for (auto idx : afterCmds) {
+			std::visit(overloaded {
+				[](AfterIdleCmd& cmd) { cmd.reschedule(); },
+				[](AfterCmd& /*cmd*/) { /*nothing*/ }
+			}, afterCmdPool[idx]);
 		}
 	}
 	return 0;
@@ -460,21 +505,8 @@ int AfterCommand::signalEvent(const std::shared_ptr<const Event>& event) noexcep
 // class AfterCmd
 
 AfterCmd::AfterCmd(AfterCommand& afterCommand_, TclObject command_)
-	: afterCommand(afterCommand_), command(std::move(command_))
+	: afterCommand(afterCommand_), command(std::move(command_)), id(++lastAfterId)
 {
-	ostringstream str;
-	str << "after#" << ++lastAfterId;
-	id = str.str();
-}
-
-string_view AfterCmd::getCommand() const
-{
-	return command.getString();
-}
-
-const string& AfterCmd::getId() const
-{
-	return id;
 }
 
 void AfterCmd::execute()
@@ -487,13 +519,16 @@ void AfterCmd::execute()
 	}
 }
 
-unique_ptr<AfterCmd> AfterCmd::removeSelf()
+AfterCommand::Index AfterCmd::removeSelf()
 {
-	auto it = rfind_if_unguarded(afterCommand.afterCmds,
-		[&](std::unique_ptr<AfterCmd>& e) { return e.get() == this; });
-	auto result = move(*it);
-	afterCommand.afterCmds.erase(it);
-	return result;
+	auto equalThis = [&](AfterCommand::Index idx) {
+		return std::visit([&](AfterCmd& cmd) { return &cmd == this; },
+			          afterCmdPool[idx]);
+	};
+	auto it = rfind_if_unguarded(afterCommand.afterCmds, equalThis);
+	auto idx = *it;
+	afterCommand.afterCmds.erase(it); // move_pop_back ?
+	return idx;
 }
 
 
@@ -530,7 +565,8 @@ void AfterTimedCmd::executeUntil(EmuTime::param /*time*/)
 
 void AfterTimedCmd::schedulerDeleted()
 {
-	removeSelf();
+	auto idx = removeSelf();
+	afterCmdPool.remove(idx);
 }
 
 
@@ -544,11 +580,6 @@ AfterTimeCmd::AfterTimeCmd(
 {
 }
 
-string AfterTimeCmd::getType() const
-{
-	return "time";
-}
-
 
 // class AfterIdleCmd
 
@@ -558,11 +589,6 @@ AfterIdleCmd::AfterIdleCmd(
 		TclObject command_, double time_)
 	: AfterTimedCmd(scheduler_, afterCommand_, std::move(command_), time_)
 {
-}
-
-string AfterIdleCmd::getType() const
-{
-	return "idle";
 }
 
 
@@ -575,7 +601,7 @@ AfterSimpleEventCmd::AfterSimpleEventCmd(
 {
 }
 
-string AfterSimpleEventCmd::getType() const
+string_view AfterSimpleEventCmd::getType() const
 {
 	switch (type) {
 		case OPENMSX_FINISH_FRAME_EVENT:   return "frame";
@@ -599,10 +625,6 @@ AfterInputEventCmd::AfterInputEventCmd(
 {
 }
 
-string AfterInputEventCmd::getType() const
-{
-	return event->toString();
-}
 
 // class AfterRealTimeCmd
 
@@ -615,18 +637,14 @@ AfterRealTimeCmd::AfterRealTimeCmd(
 	scheduleRT(uint64_t(time * 1e6)); // micro seconds
 }
 
-string AfterRealTimeCmd::getType() const
-{
-	return "realtime";
-}
-
 void AfterRealTimeCmd::executeRT()
 {
 	// Remove self before executing, but keep self alive till the end of
 	// this method. Otherwise execute could execute 'after cancel ..' and
 	// removeSelf() asserts that it can't find itself anymore.
-	auto self = removeSelf();
+	auto idx = removeSelf();
 	execute();
+	afterCmdPool.remove(idx);
 }
 
 } // namespace openmsx

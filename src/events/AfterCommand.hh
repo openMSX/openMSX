@@ -17,6 +17,9 @@ class AfterCmd;
 class AfterCommand final : public Command, private EventListener
 {
 public:
+	using Index = uint32_t; // ObjectPool<T>::Index
+
+public:
 	using EventPtr = std::shared_ptr<const Event>;
 
 	AfterCommand(Reactor& reactor,
@@ -46,8 +49,7 @@ private:
 	int signalEvent(const std::shared_ptr<const Event>& event) noexcept override;
 
 private:
-	using AfterCmds = std::vector<std::unique_ptr<AfterCmd>>;
-	AfterCmds afterCmds;
+	std::vector<Index> afterCmds;
 	Reactor& reactor;
 	EventDistributor& eventDistributor;
 
