@@ -4,20 +4,11 @@
 
   <info>
     <manufacturer>Panasonic</manufacturer>
-    <code>CF-2700 (DE)</code>
-    <release_year>?</release_year>
-    <description>One of the few European MSX machines by Panasonic. German version; one of the most common MSX machines in Germany.</description>
+    <code>CF-2700 (GB)</code>
+    <release_year></release_year>
+    <description>One of the few European MSX machines by Panasonic. Brittish version.</description>
     <type>MSX</type>
   </info>
-
-<!-- hap:
-CPU: NEC D780C-1
-PPI: NEC D8255AC-2
-PSG: GI AY-3-8910A - ANSI
-VDP: under heat sink (TMS9129 probably: has sprite clones, screen 2 mirrored,
-no 4k/16k effect)
-crystal: same for cpu/vdp/psg
--->
 
   <CassettePort/>
 
@@ -27,8 +18,8 @@ crystal: same for cpu/vdp/psg
       <sound>
         <volume>16000</volume>
       </sound>
-      <io base="0xA8" num="8"/> <!-- mirroring confirmed by hap -->
-      <keyboard_type>de</keyboard_type>
+      <io base="0xA8" num="8"/>
+      <keyboard_type>gb</keyboard_type>
       <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>
       <code_kana_locks>false</code_kana_locks>
@@ -37,7 +28,7 @@ crystal: same for cpu/vdp/psg
 
     <VDP id="VDP">
       <version>TMS9129</version>
-      <io base="0x98" num="8"/> <!-- mirroring confirmed by hap -->
+      <io base="0x98" num="8"/>
       <initialContent encoding="hex">FF00</initialContent>
     </VDP>
 
@@ -58,8 +49,8 @@ crystal: same for cpu/vdp/psg
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>cf-2700_basic-bios1_german.rom</filename>
-          <sha1>69bf27b610e11437dad1f7a1c37a63179a293d12</sha1> <!-- Verified on n_n's machine -->
+          <filename>cf-2700_basic-bios1_gb.rom</filename>
+          <sha1>5e6b1306a30bbb46af61487d1a3cc1b0a69004c3</sha1>
         </rom>
         <mem base="0x0000" size="0x8000"/>
       </ROM>
