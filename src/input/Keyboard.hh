@@ -8,6 +8,7 @@
 #include "Schedulable.hh"
 #include "RecordedCommand.hh"
 #include "SimpleDebuggable.hh"
+#include "Event.hh"
 #include "EventListener.hh"
 #include "serialize_meta.hh"
 #include "span.hh"
@@ -27,7 +28,6 @@ class DeviceConfig;
 class EventDistributor;
 class MSXEventDistributor;
 class StateChangeDistributor;
-class KeyEvent;
 class StateChange;
 class TclObject;
 class Interpreter;

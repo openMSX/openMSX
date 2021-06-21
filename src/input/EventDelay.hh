@@ -4,6 +4,7 @@
 #include "EventListener.hh"
 #include "Schedulable.hh"
 #include "EmuTime.hh"
+#include "Event.hh"
 #include "FloatSetting.hh"
 #include "build-info.hh"
 #include <vector>
@@ -14,7 +15,6 @@ namespace openmsx {
 
 class Scheduler;
 class CommandController;
-class Event;
 class EventDistributor;
 class MSXEventDistributor;
 class ReverseManager;
