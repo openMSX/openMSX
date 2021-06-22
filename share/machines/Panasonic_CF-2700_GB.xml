@@ -10,6 +10,8 @@
     <type>MSX</type>
   </info>
 
+  <!-- Based on the machine of Peter Hanraets with serial number 4kBMA 02953 -->
+
   <CassettePort/>
 
   <devices>
