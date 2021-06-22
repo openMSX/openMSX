@@ -28,7 +28,7 @@ namespace openmsx::InputEventFactory {
 	auto len = str.getListLength(interp);
 	if (len == 1) {
 		return Event::create<GroupEvent>(
-			std::initializer_list{EventType::KEY_UP, EventType::KEY_DOWN},
+			std::initializer_list<EventType>{EventType::KEY_UP, EventType::KEY_DOWN},
 			makeTclList("keyb"));
 	} else if (len == 2) {
 		auto comp1 = str.getListIndex(interp, 1).getString();
@@ -64,7 +64,7 @@ namespace openmsx::InputEventFactory {
 		if (comp1 == "motion") {
 			if (len == 2) {
 				return Event::create<GroupEvent>(
-					std::initializer_list{EventType::MOUSE_MOTION},
+					std::initializer_list<EventType>{EventType::MOUSE_MOTION},
 					makeTclList("mouse", comp1));
 			} else if (len == one_of(4u, 6u)) {
 				int absX = 0, absY = 0;
@@ -82,7 +82,7 @@ namespace openmsx::InputEventFactory {
 		} else if (StringOp::startsWith(comp1, "button")) {
 			if (len == 2) {
 				return Event::create<GroupEvent>(
-					std::initializer_list{EventType::MOUSE_BUTTON_UP, EventType::MOUSE_BUTTON_DOWN},
+					std::initializer_list<EventType>{EventType::MOUSE_BUTTON_UP, EventType::MOUSE_BUTTON_DOWN},
 					makeTclList("mouse", "button"));
 			} else if (len == 3) {
 				if (auto button = StringOp::stringToBase<10, unsigned>(comp1.substr(6))) {
@@ -96,7 +96,7 @@ namespace openmsx::InputEventFactory {
 		} else if (comp1 == "wheel") {
 			if (len == 2) {
 				return Event::create<GroupEvent>(
-					std::initializer_list{EventType::MOUSE_WHEEL},
+					std::initializer_list<EventType>{EventType::MOUSE_WHEEL},
 					makeTclList("mouse", comp1));
 			} else if (len == 4) {
 				return Event::create<MouseWheelEvent>(
@@ -151,15 +151,15 @@ namespace openmsx::InputEventFactory {
 		if (len == 2) {
 			if (StringOp::startsWith(comp1, "button")) {
 				return Event::create<GroupEvent>(
-					std::initializer_list{EventType::JOY_BUTTON_UP, EventType::JOY_BUTTON_DOWN},
+					std::initializer_list<EventType>{EventType::JOY_BUTTON_UP, EventType::JOY_BUTTON_DOWN},
 					makeTclList("joy", "button"));
 			} else if (StringOp::startsWith(comp1, "axis")) {
 				return Event::create<GroupEvent>(
-					std::initializer_list{EventType::JOY_AXIS_MOTION},
+					std::initializer_list<EventType>{EventType::JOY_AXIS_MOTION},
 					makeTclList("joy", "axis"));
 			} else if (StringOp::startsWith(comp1, "hat")) {
 				return Event::create<GroupEvent>(
-					std::initializer_list{EventType::JOY_HAT},
+					std::initializer_list<EventType>{EventType::JOY_HAT},
 					makeTclList("joy", "hat"));
 			}
 		} else if (len == 3) {
@@ -219,7 +219,7 @@ namespace openmsx::InputEventFactory {
 		throw CommandException("Invalid filedrop event: ", str.getString());
 	}
 	return Event::create<GroupEvent>(
-		std::initializer_list{EventType::FILEDROP},
+		std::initializer_list<EventType>{EventType::FILEDROP},
 		makeTclList("filename"));
 }
 
