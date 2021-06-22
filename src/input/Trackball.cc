@@ -187,7 +187,7 @@ void Trackball::syncCurrentWithTarget(EmuTime::param time)
 
 	static constexpr auto INTERVAL = EmuDuration::msec(1);
 
-	int maxSteps = (time - lastSync) / INTERVAL;
+	auto maxSteps = (time - lastSync) / INTERVAL;
 	lastSync += INTERVAL * maxSteps;
 
 	if (targetDeltaX >= currentDeltaX) {

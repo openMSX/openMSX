@@ -116,7 +116,7 @@ void Carnivore2::globalRead(word address, EmuTime::param /*time*/)
 
 Carnivore2::SubDevice Carnivore2::getSubDevice(word address) const
 {
-	byte subSlot(-1);
+	byte subSlot = 0xff;
 
 	if (slotExpanded()) {
 		byte page = address >> 14;

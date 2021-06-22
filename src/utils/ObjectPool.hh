@@ -109,7 +109,7 @@ public:
 			const T* begin = &elem256[0].t;
 			const T* end = begin + 256;
 			if ((begin <= ptr) && (ptr < end)) {
-				return (i << 8) + (ptr - begin);
+				return Index((i << 8) + (ptr - begin));
 			}
 		}
 		UNREACHABLE;

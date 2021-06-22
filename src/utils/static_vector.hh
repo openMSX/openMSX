@@ -36,7 +36,7 @@ public:
 	constexpr static_vector(std::initializer_list<T> list) {
 		assert(list.size() <= N);
 		std::copy(list.begin(), list.end(), data);
-		sz = list.size();
+		sz = SizeType(list.size());
 	}
 
 	[[nodiscard]] constexpr const T* begin() const noexcept { return data; }

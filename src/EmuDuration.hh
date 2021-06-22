@@ -68,7 +68,7 @@ public:
 		{ return EmuDuration(time % d.time); }
 	[[nodiscard]] constexpr EmuDuration operator+(EmuDuration::param d) const
 		{ return EmuDuration(time + d.time); }
-	[[nodiscard]] constexpr EmuDuration operator*(unsigned fact) const
+	[[nodiscard]] constexpr EmuDuration operator*(uint64_t fact) const
 		{ return EmuDuration(time * fact); }
 	[[nodiscard]] constexpr EmuDuration operator/(unsigned fact) const
 		{ return EmuDuration(time / fact); }
