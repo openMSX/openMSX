@@ -11,7 +11,6 @@
 #include "one_of.hh"
 #include "ranges.hh"
 #include "serialize.hh"
-#include "view.hh"
 #include "xrange.hh"
 #include <cstring>
 #include <cassert>
@@ -27,7 +26,7 @@ AmdFlash::AmdFlash(const Rom& rom, span<const SectorInfo> sectorInfo_,
                    const DeviceConfig& config, Load load)
 	: motherBoard(config.getMotherBoard())
 	, sectorInfo(std::move(sectorInfo_))
-	, size(sum(view::transform(sectorInfo, [](auto& i) { return i.size; })))
+	, size(sum(sectorInfo, &SectorInfo::size))
 	, ID(ID_)
 	, addressing(addressing_)
 {
@@ -39,7 +38,7 @@ AmdFlash::AmdFlash(const string& name, span<const SectorInfo> sectorInfo_,
                    const DeviceConfig& config)
 	: motherBoard(config.getMotherBoard())
 	, sectorInfo(std::move(sectorInfo_))
-	, size(sum(view::transform(sectorInfo, [](auto& i) { return i.size; })))
+	, size(sum(sectorInfo, &SectorInfo::size))
 	, ID(ID_)
 	, addressing(addressing_)
 {

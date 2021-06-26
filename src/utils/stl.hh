@@ -310,14 +310,21 @@ template<typename InputRange, typename Proj = identity>
 // Returns the sum of the elements in the given range.
 // Assumes: elements can be summed via operator+, with a default constructed
 // value being the identity-element for this operator.
-template<typename InputRange>
-[[nodiscard]] auto sum(InputRange&& range)
+template<typename InputRange, typename Proj = identity>
+[[nodiscard]] /*constexpr*/ auto sum(InputRange&& range, Proj proj = {})
 {
 	using Iter = decltype(std::begin(range));
-	using T = typename std::iterator_traits<Iter>::value_type;
-	return std::accumulate(std::begin(range), std::end(range), T());
-}
+	using VT = typename std::iterator_traits<Iter>::value_type;
+	using RT = decltype(std::invoke(proj, std::declval<VT>()));
 
+	auto first = std::begin(range);
+	auto last = std::end(range);
+	RT init{};
+	while (first != last) {
+		init = std::move(init) + std::invoke(proj, *first++);
+	}
+	return init;
+}
 
 // to_vector
 namespace detail {
