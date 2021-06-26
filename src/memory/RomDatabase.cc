@@ -1,5 +1,4 @@
 #include "RomDatabase.hh"
-#include "RomInfo.hh"
 #include "FileContext.hh"
 #include "File.hh"
 #include "FileOperations.hh"
@@ -383,9 +382,10 @@ String32 DBParser::cIndex(string_view str)
 void DBParser::addEntries()
 {
 	append(db, view::transform(dumps, [&](auto& d) {
-		return std::pair(d.hash,
-		                 RomInfo(title, year, company, country, d.origValue,
-		                         d.origData, d.remark, d.type, genMSXid));
+		return RomDatabase::Entry{
+			d.hash,
+			RomInfo(title, year, company, country, d.origValue,
+			        d.origData, d.remark, d.type, genMSXid)};
 	}));
 }
 
@@ -402,7 +402,7 @@ void DBParser::addAllEntries()
 	if (mid == last) return; // no new entries
 
 	// Sort new entries, old entries are already sorted.
-	std::sort(mid, last, LessTupleElement<0>());
+	ranges::sort(mid, last, {}, &RomDatabase::Entry::sha1);
 
 	// Filter duplicates from new entries. This is similar to the
 	// unique() algorithm, except that it also warns about duplicates.
@@ -410,15 +410,15 @@ void DBParser::addAllEntries()
 	auto it2 = mid + 1;
 	// skip initial non-duplicates
 	while (it2 != last) {
-		if (it1->first == it2->first) break;
+		if (it1->sha1 == it2->sha1) break;
 		++it1; ++it2;
 	}
 	// move non-duplicates up
 	while (it2 != last) {
-		if (it1->first == it2->first) {
+		if (it1->sha1 == it2->sha1) {
 			cliComm.printWarning(
 				"duplicate softwaredb entry SHA1: ",
-				it2->first.toString());
+				it2->sha1.toString());
 		} else {
 			++it1;
 			*it1 = std::move(*it2);
@@ -439,11 +439,11 @@ void DBParser::addAllEntries()
 	it2 = mid;
 	// while both new and old still have elements
 	while (it1 != mid && it2 != last) {
-		if (it1->first < it2->first) {
+		if (it1->sha1 < it2->sha1) {
 			result.push_back(std::move(*it1));
 			++it1;
 		} else {
-			if (it1->first != it2->first) { // *it2 < *it1
+			if (it1->sha1 != it2->sha1) { // *it2 < *it1
 				result.push_back(std::move(*it2));
 				++it2;
 			} else {
@@ -621,9 +621,9 @@ RomDatabase::RomDatabase(CliComm& cliComm)
 
 const RomInfo* RomDatabase::fetchRomInfo(const Sha1Sum& sha1sum) const
 {
-	auto it = ranges::lower_bound(db, sha1sum, LessTupleElement<0>());
-	return ((it != end(db)) && (it->first == sha1sum))
-		? &it->second : nullptr;
+	auto it = ranges::lower_bound(db, sha1sum, {}, &Entry::sha1);
+	return ((it != end(db)) && (it->sha1 == sha1sum))
+		? &it->romInfo : nullptr;
 }
 
 } // namespace openmsx

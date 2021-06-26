@@ -41,13 +41,19 @@ void sort(RandomAccessRange&& range, Compare comp)
 	std::sort(std::begin(range), std::end(range), comp);
 }
 
+template<typename RAIter, typename Compare = std::less<>, typename Proj>
+void sort(RAIter first, RAIter last, Compare comp, Proj proj)
+{
+	std::sort(first, last,
+		[&](const auto& x, const auto& y) {
+			return comp(std::invoke(proj, x), std::invoke(proj, y));
+		});
+}
+
 template<typename RandomAccessRange, typename Compare = std::less<>, typename Proj>
 void sort(RandomAccessRange&& range, Compare comp, Proj proj)
 {
-	sort(std::forward<RandomAccessRange>(range),
-	     [&](const auto& x, const auto& y) {
-		     return comp(std::invoke(proj, x), std::invoke(proj, y));
-	     });
+	sort(std::begin(range), std::end(range), comp, proj);
 }
 
 template<typename RandomAccessRange>
