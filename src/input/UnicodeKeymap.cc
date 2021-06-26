@@ -96,9 +96,9 @@ UnicodeKeymap::UnicodeKeymap(string_view keyboardType)
 
 UnicodeKeymap::KeyInfo UnicodeKeymap::get(unsigned unicode) const
 {
-	auto it = ranges::lower_bound(mapdata, unicode, LessTupleElement<0>());
-	return ((it != end(mapdata)) && (it->first == unicode))
-		? it->second : KeyInfo();
+	auto it = ranges::lower_bound(mapdata, unicode, {}, &Entry::unicode);
+	return ((it != end(mapdata)) && (it->unicode == unicode))
+		? it->keyInfo : KeyInfo();
 }
 
 UnicodeKeymap::KeyInfo UnicodeKeymap::getDeadkey(unsigned n) const
@@ -200,13 +200,13 @@ void UnicodeKeymap::parseUnicodeKeymapfile(string_view data)
 			}
 			deadKeys[deadKeyIndex] = KeyInfo(pos, 0);
 		} else {
-			mapdata.emplace_back(unicode, KeyInfo(pos, modmask));
+			mapdata.emplace_back(Entry{unicode, KeyInfo(pos, modmask)});
 			// Note: getRowCol() uses 3 bits for column, rowcol uses 4.
 			relevantMods[pos.getRowCol()] |= modmask;
 		}
 	}
 
-	ranges::sort(mapdata, LessTupleElement<0>());
+	ranges::sort(mapdata, {}, &Entry::unicode);
 }
 
 } // namespace openmsx

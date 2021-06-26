@@ -139,7 +139,12 @@ private:
 	void parseUnicodeKeymapfile(std::string_view data);
 
 private:
-	std::vector<std::pair<unsigned, KeyInfo>> mapdata;
+	struct Entry {
+		unsigned unicode;
+		KeyInfo keyInfo;
+	};
+	std::vector<Entry> mapdata; // sorted on unicode
+
 	/** Contains a mask for each key matrix position, which for each modifier
 	  * has the corresponding bit set if that modifier that affects the key.
 	  */
