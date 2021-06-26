@@ -15,7 +15,6 @@
 #include "TclArgParser.hh"
 #include "TclObject.hh"
 #include "outer.hh"
-#include "view.hh"
 #include "vla.hh"
 #include "xrange.hh"
 #include <cassert>

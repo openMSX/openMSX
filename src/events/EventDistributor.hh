@@ -72,7 +72,11 @@ private:
 private:
 	Reactor& reactor;
 
-	using PriorityMap = std::vector<std::pair<Priority, EventListener*>>; // sorted on priority
+	struct Entry {
+		Priority priority;
+		EventListener* listener;
+	};
+	using PriorityMap = std::vector<Entry>; // sorted on priority
 	PriorityMap listeners[size_t(EventType::NUM_EVENT_TYPES)];
 	using EventQueue = std::vector<Event>;
 	EventQueue scheduledEvents;

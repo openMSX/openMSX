@@ -13,7 +13,6 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "unreachable.hh"
-#include "view.hh"
 #include "xrange.hh"
 #include <cassert>
 #include <iostream>

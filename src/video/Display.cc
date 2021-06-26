@@ -27,7 +27,6 @@
 #include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include "view.hh"
 #include "xrange.hh"
 #include <cassert>
 

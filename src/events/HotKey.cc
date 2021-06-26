@@ -19,7 +19,6 @@
 
 using std::string;
 using std::vector;
-using std::make_shared;
 
 // This file implements all Tcl key bindings. These are the 'classical' hotkeys
 // (e.g. F12 to (un)mute sound) and the more recent input layers. The idea

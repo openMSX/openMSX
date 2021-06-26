@@ -10,7 +10,6 @@
 #include "stringsp.hh"
 #include "TclObject.hh"
 #include "utf8_unchecked.hh"
-#include "view.hh"
 #include "xrange.hh"
 
 using std::vector;
