@@ -119,7 +119,11 @@ private:
 
 	// Metadata
 	std::vector<size_t> stopFrames;
-	std::vector<std::pair<int, size_t>> chapters;
+	struct ChapterFrame {
+		int chapter;
+		size_t frame;
+	};
+	std::vector<ChapterFrame> chapters; // sorted on chapter
 };
 
 } // namespace openmsx

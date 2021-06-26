@@ -460,7 +460,7 @@ void OggReader::readMetadata(th_comment& tc)
 			++p;
 			size_t frame = atol(p);
 			if (frame) {
-				chapters.emplace_back(chapter, frame);
+				chapters.emplace_back(ChapterFrame{chapter, frame});
 			}
 		} else if (strncasecmp(p, "stop: ", 6) == 0) {
 			size_t stopframe = atol(p + 6);
@@ -472,7 +472,7 @@ void OggReader::readMetadata(th_comment& tc)
 		if (p) ++p;
 	}
 	ranges::sort(stopFrames);
-	ranges::sort(chapters, LessTupleElement<0>());
+	ranges::sort(chapters, {}, &ChapterFrame::chapter);
 }
 
 void OggReader::readTheora(ogg_packet* packet)
@@ -972,9 +972,9 @@ bool OggReader::stopFrame(size_t frame) const
 
 size_t OggReader::getChapter(int chapterNo) const
 {
-	auto it = ranges::lower_bound(chapters, chapterNo, LessTupleElement<0>());
-	return ((it != end(chapters)) && (it->first == chapterNo))
-		? it->second : 0;
+	auto it = ranges::lower_bound(chapters, chapterNo, {}, &ChapterFrame::chapter);
+	return ((it != end(chapters)) && (it->chapter == chapterNo))
+		? it->frame : 0;
 }
 
 } // namespace openmsx
