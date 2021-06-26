@@ -24,7 +24,13 @@ using std::vector;
 namespace openmsx {
 
 // See comments in traceProc()
-static std::vector<std::pair<uintptr_t, BaseSetting*>> traces; // sorted on first
+namespace {
+	struct Trace {
+		uintptr_t id;
+		BaseSetting* setting;
+	};
+}
+static std::vector<Trace> traces; // sorted on id
 static uintptr_t traceCount = 0;
 
 
@@ -310,7 +316,7 @@ void Interpreter::registerSetting(BaseSetting& variable)
 	// problems. TODO investigate this further.
 
 	uintptr_t traceID = traceCount++;
-	traces.emplace_back(traceID, &variable); // still in sorted order
+	traces.emplace_back(Trace{traceID, &variable}); // still in sorted order
 	Tcl_TraceVar(interp, name.getString().data(), // 0-terminated
 	             TCL_TRACE_READS | TCL_TRACE_WRITES | TCL_TRACE_UNSETS,
 	             traceProc, reinterpret_cast<ClientData>(traceID));
@@ -318,8 +324,8 @@ void Interpreter::registerSetting(BaseSetting& variable)
 
 void Interpreter::unregisterSetting(BaseSetting& variable)
 {
-	auto it = rfind_if_unguarded(traces, EqualTupleValue<1>(&variable));
-	uintptr_t traceID = it->first;
+	auto it = rfind_unguarded(traces, &variable, &Trace::setting);
+	uintptr_t traceID = it->id;
 	traces.erase(it);
 
 	const char* name = variable.getFullName().data(); // 0-terminated
@@ -331,9 +337,9 @@ void Interpreter::unregisterSetting(BaseSetting& variable)
 
 static BaseSetting* getTraceSetting(uintptr_t traceID)
 {
-	auto it = ranges::lower_bound(traces, traceID, LessTupleElement<0>());
-	return ((it != end(traces)) && (it->first == traceID))
-		? it->second : nullptr;
+	auto it = ranges::lower_bound(traces, traceID, {}, &Trace::id);
+	return ((it != end(traces)) && (it->id == traceID))
+		? it->setting : nullptr;
 }
 
 #ifndef NDEBUG
