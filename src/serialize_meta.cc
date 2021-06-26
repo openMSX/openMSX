@@ -21,8 +21,8 @@ void PolymorphicSaverRegistry<Archive>::registerHelper(
 	std::unique_ptr<PolymorphicSaverBase<Archive>> saver)
 {
 	assert(!initialized);
-	assert(ranges::none_of(saverMap, EqualTupleValue<0>(type)));
-	saverMap.emplace_back(type, std::move(saver));
+	assert(!contains(saverMap, type, &Entry::index)); // not yet sorted
+	saverMap.emplace_back(Entry{type, std::move(saver)});
 }
 
 template<typename Archive>
@@ -32,15 +32,15 @@ void PolymorphicSaverRegistry<Archive>::save(
 	auto& reg = PolymorphicSaverRegistry<Archive>::instance();
 	if (unlikely(!reg.initialized)) {
 		reg.initialized = true;
-		ranges::sort(reg.saverMap, LessTupleElement<0>());
+		ranges::sort(reg.saverMap, {}, &Entry::index);
 	}
-	auto it = ranges::lower_bound(reg.saverMap, typeInfo, LessTupleElement<0>());
-	if ((it == end(reg.saverMap)) || (it->first != typeInfo)) {
+	auto it = ranges::lower_bound(reg.saverMap, typeInfo, {}, &Entry::index);
+	if ((it == end(reg.saverMap)) || (it->index != typeInfo)) {
 		std::cerr << "Trying to save an unregistered polymorphic type: "
 			  << typeInfo.name() << '\n';
 		assert(false); return;
 	}
-	it->second->save(ar, t);
+	it->saver->save(ar, t);
 }
 template<typename Archive>
 void PolymorphicSaverRegistry<Archive>::save(

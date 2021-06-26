@@ -113,6 +113,22 @@ template<typename RANGE, typename VAL>
 	return contains(std::begin(range), std::end(range), val);
 }
 
+template<typename ITER, typename VAL, typename Proj>
+[[nodiscard]] /*constexpr*/ bool contains(ITER first, ITER last, const VAL& val, Proj proj)
+{
+	// c++20: return std::find(first, last, val) != last;
+	while (first != last) {
+		if (std::invoke(proj, *first) == val) return true;
+		++first;
+	}
+	return false;
+}
+template<typename RANGE, typename VAL, typename Proj>
+[[nodiscard]] /*constexpr*/ bool contains(const RANGE& range, const VAL& val, Proj proj)
+{
+	return contains(std::begin(range), std::end(range), val, proj);
+}
+
 
 /** Faster alternative to 'find' when it's guaranteed that the value will be
   * found (if not the behavior is undefined).

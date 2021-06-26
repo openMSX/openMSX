@@ -226,8 +226,11 @@ private:
 	static void save(const char* tag, Archive& ar, const void* t,
 	                 const std::type_info& typeInfo);
 
-	std::vector<std::pair<std::type_index,
-	                      std::unique_ptr<PolymorphicSaverBase<Archive>>>> saverMap;
+	struct Entry {
+		std::type_index index;
+		std::unique_ptr<PolymorphicSaverBase<Archive>> saver;
+	};
+	std::vector<Entry> saverMap;
 	bool initialized = false;
 };
 
