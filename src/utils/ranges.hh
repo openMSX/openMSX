@@ -1,6 +1,7 @@
 #ifndef RANGES_HH
 #define RANGES_HH
 
+#include "stl.hh"
 #include <algorithm>
 #include <iterator> // for std::begin(), std::end()
 #include <numeric>
@@ -19,16 +20,13 @@
 
 namespace ranges {
 
-template<typename ForwardRange>
-[[nodiscard]] bool is_sorted(ForwardRange&& range)
+template<typename ForwardRange, typename Compare = std::less<>, typename Proj = identity>
+[[nodiscard]] bool is_sorted(ForwardRange&& range, Compare comp = {}, Proj proj = {})
 {
-	return std::is_sorted(std::begin(range), std::end(range));
-}
-
-template<typename ForwardRange, typename Compare>
-[[nodiscard]] bool is_sorted(ForwardRange&& range, Compare comp)
-{
-	return std::is_sorted(std::begin(range), std::end(range), comp);
+	return std::is_sorted(std::begin(range), std::end(range),
+		[&](const auto& x, const auto& y) {
+			return comp(std::invoke(proj, x), std::invoke(proj, y));
+		});
 }
 
 template<typename RandomAccessRange>

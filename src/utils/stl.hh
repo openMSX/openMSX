@@ -11,6 +11,15 @@
 #include <utility>
 #include <vector>
 
+// Reimplementation of c++20 std::identity.
+struct identity {
+	template<typename T>
+	[[nodiscard]] constexpr T&& operator()(T&& t) const noexcept {
+		return std::forward<T>(t);
+	}
+};
+
+
 // Dereference the two given (pointer-like) parameters and then compare
 // them with the less-than operator.
 struct LessDeref

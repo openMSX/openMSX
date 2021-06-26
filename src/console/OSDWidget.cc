@@ -180,14 +180,6 @@ void OSDWidget::deleteWidget(OSDWidget& widget)
 	subWidgets.erase(it);
 }
 
-#ifdef DEBUG
-struct AscendingZ {
-	bool operator()(const unique_ptr<OSDWidget>& lhs,
-	                const unique_ptr<OSDWidget>& rhs) const {
-		return lhs->getZ() < rhs->getZ();
-	}
-};
-#endif
 void OSDWidget::resortUp(OSDWidget* elem)
 {
 	// z-coordinate was increased, first search for elements current position
@@ -201,7 +193,7 @@ void OSDWidget::resortUp(OSDWidget* elem)
 	// now move elements to correct position
 	rotate(it1, it1 + 1, it2);
 #ifdef DEBUG
-	assert(ranges::is_sorted(subWidgets, AscendingZ()));
+	assert(ranges::is_sorted(subWidgets, {}, &OSDWidget::getZ));
 #endif
 }
 void OSDWidget::resortDown(OSDWidget* elem)
@@ -220,7 +212,7 @@ void OSDWidget::resortDown(OSDWidget* elem)
 	// now move elements to correct position
 	rotate(it1, it2, it2 + 1);
 #ifdef DEBUG
-	assert(ranges::is_sorted(subWidgets, AscendingZ()));
+	assert(ranges::is_sorted(subWidgets, {}, &OSDWidget::getZ));
 #endif
 }
 
