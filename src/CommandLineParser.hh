@@ -71,6 +71,7 @@ public:
 
 private:
 	struct OptionData {
+		std::string_view name;
 		CLIOption* option;
 		ParsePhase phase;
 		unsigned length; // length in parameters
@@ -84,7 +85,7 @@ private:
 	void createMachineSetting();
 
 private:
-	std::vector<std::pair<std::string_view, OptionData>> options;
+	std::vector<OptionData> options;
 	std::vector<std::pair<std::string_view, CLIFileType*>> fileTypes;
 
 	Reactor& reactor;

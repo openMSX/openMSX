@@ -39,7 +39,6 @@ namespace openmsx {
 
 // class CommandLineParser
 
-using CmpOptions = LessTupleElement<0>;
 using CmpFileTypes = CmpTupleElement<0, StringOp::caseless>;
 
 CommandLineParser::CommandLineParser(Reactor& reactor_)
@@ -77,14 +76,14 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	registerFileType({"tcl"}, scriptOption);
 
 	// At this point all options and file-types must be registered
-	ranges::sort(options,   CmpOptions());
+	ranges::sort(options, {}, &OptionData::name);
 	ranges::sort(fileTypes, CmpFileTypes());
 }
 
 void CommandLineParser::registerOption(
 	const char* str, CLIOption& cliOption, ParsePhase phase, unsigned length)
 {
-	options.emplace_back(str, OptionData{&cliOption, phase, length});
+	options.emplace_back(OptionData{str, &cliOption, phase, length});
 }
 
 void CommandLineParser::registerFileType(
@@ -97,12 +96,12 @@ void CommandLineParser::registerFileType(
 bool CommandLineParser::parseOption(
 	const string& arg, span<string>& cmdLine, ParsePhase phase)
 {
-	if (auto it = ranges::lower_bound(options, arg, CmpOptions());
-	    (it != end(options)) && (it->first == arg)) {
+	if (auto it = ranges::lower_bound(options, arg, {}, &OptionData::name);
+	    (it != end(options)) && (it->name == arg)) {
 		// parse option
-		if (it->second.phase <= phase) {
+		if (it->phase <= phase) {
 			try {
-				it->second.option->parseOption(arg, cmdLine);
+				it->option->parseOption(arg, cmdLine);
 				return true;
 			} catch (MSXException& e) {
 				throw FatalError(std::move(e).getMessage());
@@ -254,9 +253,9 @@ void CommandLineParser::parse(int argc, char** argv)
 					    !parseFileName(arg, cmdLine)) {
 						// no option or known file
 						backupCmdLine.push_back(arg);
-						if (auto it = ranges::lower_bound(options, arg, CmpOptions());
-						    (it != end(options)) && (it->first == arg)) {
-							for (unsigned i = 0; i < it->second.length - 1; ++i) {
+						if (auto it = ranges::lower_bound(options, arg, {}, &OptionData::name);
+						    (it != end(options)) && (it->name == arg)) {
+							for (unsigned i = 0; i < it->length - 1; ++i) {
 								if (cmdLine.empty()) break;
 								backupCmdLine.push_back(std::move(cmdLine.front()));
 								cmdLine = cmdLine.subspan(1);
@@ -271,8 +270,8 @@ void CommandLineParser::parse(int argc, char** argv)
 			break;
 		}
 	}
-	for (const auto& opData : view::values(options)) {
-		opData.option->parseDone();
+	for (const auto& option : options) {
+		option.option->parseDone();
 	}
 	if (!cmdLine.empty() && (parseStatus != EXIT)) {
 		throw FatalError(
@@ -466,10 +465,10 @@ void CommandLineParser::HelpOption::parseOption(
 	        "  this is the list of supported options:\n";
 
 	GroupedItems itemMap;
-	for (const auto& [name, data] : parser.options) {
-		const auto& helpText = data.option->optionHelp();
+	for (const auto& option : parser.options) {
+		const auto& helpText = option.option->optionHelp();
 		if (!helpText.empty()) {
-			itemMap[helpText].push_back(name);
+			itemMap[helpText].push_back(option.name);
 		}
 	}
 	printItemMap(itemMap);
@@ -596,8 +595,8 @@ void CommandLineParser::BashOption::parseOption(
 			cout << s << '\n';
 		}
 	} else {
-		for (const auto& name : view::keys(parser.options)) {
-			cout << name << '\n';
+		for (const auto& option : parser.options) {
+			cout << option.name << '\n';
 		}
 	}
 	parser.parseStatus = CommandLineParser::EXIT;
