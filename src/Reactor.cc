@@ -413,8 +413,8 @@ void Reactor::replaceBoard(MSXMotherBoard& oldBoard_, Board newBoard)
 	boards.push_back(newBoard);
 
 	// Lookup old board (it must be present).
-	auto it = find_if_unguarded(boards,
-		[&](auto& b) { return b.get() == &oldBoard_; });
+	auto it = find_unguarded(boards, &oldBoard_,
+	                         [](auto& b) { return b.get(); });
 
 	// If the old board was the active board, then activate the new board
 	if (*it == activeBoard) {

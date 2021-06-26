@@ -35,8 +35,8 @@ void UserSettings::addSetting(Info&& info)
 
 void UserSettings::deleteSetting(Setting& setting)
 {
-	move_pop_back(settings, rfind_if_unguarded(settings,
-		[&](auto& info) { return info.setting.get() == &setting; }));
+	move_pop_back(settings, rfind_unguarded(settings, &setting,
+		[](auto& info) { return info.setting.get(); }));
 }
 
 Setting* UserSettings::findSetting(std::string_view name) const

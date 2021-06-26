@@ -175,8 +175,8 @@ void OSDWidget::addWidget(unique_ptr<OSDWidget> widget)
 
 void OSDWidget::deleteWidget(OSDWidget& widget)
 {
-	auto it = rfind_if_unguarded(subWidgets,
-		[&](const std::unique_ptr<OSDWidget>& p) { return p.get() == &widget; });
+	auto it = rfind_unguarded(subWidgets, &widget,
+	                          [](const auto& p) { return p.get(); });
 	subWidgets.erase(it);
 }
 

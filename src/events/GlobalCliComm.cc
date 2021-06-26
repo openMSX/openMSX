@@ -33,9 +33,8 @@ std::unique_ptr<CliListener> GlobalCliComm::removeListener(CliListener& listener
 {
 	// can be called from any thread
 	std::lock_guard<std::mutex> lock(mutex);
-	auto it = rfind_if_unguarded(listeners,
-		[&](const std::unique_ptr<CliListener>& ptr) {
-			return ptr.get() == &listener; });
+	auto it = rfind_unguarded(listeners, &listener,
+		[](const auto& ptr) { return ptr.get(); });
 	auto result = std::move(*it);
 	move_pop_back(listeners, it);
 	return result;

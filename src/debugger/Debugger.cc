@@ -138,8 +138,8 @@ void Debugger::removeProbeBreakPoint(string_view name)
 
 void Debugger::removeProbeBreakPoint(ProbeBreakPoint& bp)
 {
-	move_pop_back(probeBreakPoints, rfind_if_unguarded(probeBreakPoints,
-		[&](auto& v) { return v.get() == &bp; }));
+	move_pop_back(probeBreakPoints, rfind_unguarded(probeBreakPoints, &bp,
+		[](auto& v) { return v.get(); }));
 }
 
 unsigned Debugger::setWatchPoint(TclObject command, TclObject condition,

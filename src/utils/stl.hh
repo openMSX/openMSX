@@ -121,20 +121,16 @@ template<typename RANGE, typename VAL>
   * the 'last' parameter. Sometimes you see 'find_unguarded' without a 'last'
   * parameter, we could consider providing such an overload as well.
   */
-template<typename ITER, typename VAL>
-[[nodiscard]] constexpr ITER find_unguarded(ITER first, ITER last, const VAL& val)
+template<typename ITER, typename VAL, typename Proj = identity>
+[[nodiscard]] /*constexpr*/ ITER find_unguarded(ITER first, ITER last, const VAL& val, Proj proj = {})
 {
-	(void)last;
-	while (true) {
-		assert(first != last);
-		if (*first == val) return first;
-		++first;
-	}
+	return find_if_unguarded(first, last,
+		[&](const auto& e) { return std::invoke(proj, e) == val; });
 }
-template<typename RANGE, typename VAL>
-[[nodiscard]] constexpr auto find_unguarded(RANGE& range, const VAL& val)
+template<typename RANGE, typename VAL, typename Proj = identity>
+[[nodiscard]] /*constexpr*/ auto find_unguarded(RANGE& range, const VAL& val, Proj proj = {})
 {
-	return find_unguarded(std::begin(range), std::end(range), val);
+	return find_unguarded(std::begin(range), std::end(range), val, proj);
 }
 
 /** Faster alternative to 'find_if' when it's guaranteed that the predicate
@@ -162,10 +158,10 @@ template<typename RANGE, typename PRED>
   * Note that we only need to provide range versions. Because for the iterator
   * versions it is already possible to pass reverse iterators.
   */
-template<typename RANGE, typename VAL>
-[[nodiscard]] constexpr auto rfind_unguarded(RANGE& range, const VAL& val)
+template<typename RANGE, typename VAL, typename Proj = identity>
+[[nodiscard]] /*constexpr*/ auto rfind_unguarded(RANGE& range, const VAL& val, Proj proj = {})
 {
-	auto it = find_unguarded(std::rbegin(range), std::rend(range), val);
+	auto it = find_unguarded(std::rbegin(range), std::rend(range), val, proj);
 	++it;
 	return it.base();
 }

@@ -37,8 +37,8 @@ void EventDistributor::unregisterEventListener(
 {
 	std::lock_guard<std::mutex> lock(mutex);
 	auto& priorityMap = listeners[size_t(type)];
-	priorityMap.erase(rfind_if_unguarded(priorityMap,
-		[&](auto& v) { return v.second == &listener; }));
+	priorityMap.erase(rfind_unguarded(priorityMap, &listener,
+		[](auto& v) { return v.second; }));
 }
 
 void EventDistributor::distributeEvent(Event&& event)

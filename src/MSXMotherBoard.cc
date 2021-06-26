@@ -377,8 +377,8 @@ void MSXMotherBoard::removeExtension(const HardwareConfig& extension)
 {
 	extension.testRemove();
 	getMSXCliComm().update(CliComm::EXTENSION, extension.getName(), "remove");
-	auto it = rfind_if_unguarded(extensions,
-		[&](auto& e) { return e.get() == &extension; });
+	auto it = rfind_unguarded(extensions, &extension,
+	                          [](auto& e) { return e.get(); });
 	extensions.erase(it);
 }
 

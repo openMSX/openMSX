@@ -19,8 +19,7 @@ namespace openmsx {
 
 void XMLElement::removeChild(const XMLElement& child)
 {
-	children.erase(rfind_if_unguarded(children,
-		[&](auto& v) { return &v == &child; }));
+	children.erase(rfind_unguarded(children, &child, [](auto& v) { return &v; }));
 }
 
 XMLElement::Attributes::iterator XMLElement::getAttributeIter(string_view attrName)
