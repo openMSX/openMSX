@@ -65,8 +65,9 @@ private:
 	struct TextureData {
 		gl::ColorTexture tex;
 		gl::PixelBuffer<unsigned> pbo;
+		[[nodiscard]] unsigned width() const { return tex.getWidth(); }
 	};
-	std::vector<std::pair<unsigned, TextureData>> textures;
+	std::vector<TextureData> textures;
 
 	gl::ColorTexture superImposeTex;
 

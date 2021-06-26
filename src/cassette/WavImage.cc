@@ -89,7 +89,7 @@ const WavImageCache::Entry& WavImageCache::get(const Filename& filename, FilePoo
 void WavImageCache::release(const WavData* wav)
 {
 	// cache contains very few entries, so linear search is ok
-	auto it = ranges::find_if(cache, [&](auto& pr) { return &pr.second.first.wav == wav; });
+	auto it = ranges::find(cache, wav, [](auto& pr) { return &pr.second.first.wav; });
 	assert(it != end(cache));
 	auto& count = it->second.second;
 	--count; // decrease reference count

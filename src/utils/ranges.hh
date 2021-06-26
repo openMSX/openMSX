@@ -109,6 +109,13 @@ template<typename InputRange, typename T>
 	return std::find(std::begin(range), std::end(range), value);
 }
 
+template<typename InputRange, typename T, typename Proj>
+[[nodiscard]] auto find(InputRange&& range, const T& value, Proj proj)
+{
+	return find_if(std::forward<InputRange>(range),
+	               [&](const auto& e) { return std::invoke(proj, e) == value; });
+}
+
 template<typename InputRange, typename UnaryPredicate>
 [[nodiscard]] auto find_if(InputRange&& range, UnaryPredicate pred)
 {

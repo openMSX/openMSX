@@ -369,9 +369,7 @@ string MSXMotherBoard::insertExtension(
 
 HardwareConfig* MSXMotherBoard::findExtension(std::string_view extensionName)
 {
-	auto it = ranges::find_if(extensions, [&](auto& v) {
-		return v->getName() == extensionName;
-	});
+	auto it = ranges::find(extensions, extensionName, &HardwareConfig::getName);
 	return (it != end(extensions)) ? it->get() : nullptr;
 }
 
@@ -665,8 +663,7 @@ void MSXMotherBoard::exitCPULoopSync()
 
 MSXDevice* MSXMotherBoard::findDevice(std::string_view name)
 {
-	auto it = ranges::find_if(availableDevices,
-	                          [&](auto* d) { return d->getName() == name; });
+	auto it = ranges::find(availableDevices, name, &MSXDevice::getName);
 	return (it != end(availableDevices)) ? *it : nullptr;
 }
 

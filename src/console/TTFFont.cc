@@ -102,9 +102,8 @@ TTFFontPool& TTFFontPool::instance()
 
 TTF_Font* TTFFontPool::get(const string& filename, int ptSize)
 {
-	if (auto it = ranges::find_if(pool, [&](auto& info) {
-		return (info.name == filename) && (info.size == ptSize);
-	    });
+	if (auto it = ranges::find(pool, std::tuple(filename, ptSize),
+	        [](auto& info) { return std::tuple(info.name, info.size); });
 	    it != end(pool)) {
 		++it->count;
 		return it->font;

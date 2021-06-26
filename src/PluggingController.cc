@@ -201,8 +201,7 @@ void PluggingController::UnplugCmd::tabCompletion(vector<string>& tokens) const
 
 Connector* PluggingController::findConnector(string_view name) const
 {
-	auto it = ranges::find_if(connectors,
-	                          [&](auto* c) { return c->getName() == name; });
+	auto it = ranges::find(connectors, name, &Connector::getName);
 	return (it != end(connectors)) ? *it : nullptr;
 }
 
@@ -216,8 +215,7 @@ Connector& PluggingController::getConnector(string_view name) const
 
 Pluggable* PluggingController::findPluggable(string_view name) const
 {
-	auto it = ranges::find_if(pluggables,
-	                          [&](auto& p) { return p->getName() == name; });
+	auto it = ranges::find(pluggables, name, &Pluggable::getName);
 	return (it != end(pluggables)) ? it->get() : nullptr;
 }
 

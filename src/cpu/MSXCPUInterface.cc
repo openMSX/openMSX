@@ -798,8 +798,7 @@ void MSXCPUInterface::removeBreakPoint(const BreakPoint& bp)
 }
 void MSXCPUInterface::removeBreakPoint(unsigned id)
 {
-	if (auto it = ranges::find_if(breakPoints,
-		[&](const BreakPoint& i) { return i.getId() == id; });
+	if (auto it = ranges::find(breakPoints, id, &BreakPoint::getId);
 	    // could be ==end for a breakpoint that removes itself AND has the -once flag set
 	    it != breakPoints.end()) {
 		breakPoints.erase(it);
@@ -926,8 +925,7 @@ void MSXCPUInterface::removeCondition(const DebugCondition& cond)
 
 void MSXCPUInterface::removeCondition(unsigned id)
 {
-	if (auto it = ranges::find_if(conditions,
-		[&](DebugCondition& e) { return e.getId() == id; });
+	if (auto it = ranges::find(conditions, id, &DebugCondition::getId);
 	    // could be ==end for a condition that removes itself AND has the -once flag set
 	    it != conditions.end()) {
 		conditions.erase(it);

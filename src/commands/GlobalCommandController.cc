@@ -82,9 +82,8 @@ void GlobalCommandController::unregisterProxyCommand(string_view name)
 GlobalCommandController::ProxySettings::iterator
 GlobalCommandController::findProxySetting(string_view name)
 {
-	return ranges::find_if(proxySettings, [&](auto& v) {
-		return v.first->getFullName() == name;
-	});
+	return ranges::find(proxySettings, name,
+		[](auto& v) { return v.first->getFullName(); });
 }
 
 void GlobalCommandController::registerProxySetting(Setting& setting)

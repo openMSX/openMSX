@@ -73,7 +73,7 @@ bool Scheduler::pendingSyncPoint(const Schedulable& device,
                                  EmuTime& result) const
 {
 	assert(Thread::isMainThread());
-	if (auto it = ranges::find_if(queue, EqualSchedulable(device));
+	if (auto it = ranges::find(queue, &device, &SynchronizationPoint::getDevice);
 	    it != std::end(queue)) {
 		result = it->getTime();
 		return true;

@@ -116,10 +116,8 @@ void Debugger::removeProbeBreakPoint(string_view name)
 	if (StringOp::startsWith(name, "pp#")) {
 		// remove by id
 		if (auto id = StringOp::stringToBase<10, unsigned>(name.substr(3))) {
-			auto it = ranges::find_if(probeBreakPoints, [&](auto& bp) {
-				return bp->getId() == *id;
-			});
-			if (it != end(probeBreakPoints)) {
+			if (auto it = ranges::find(probeBreakPoints, id, &ProbeBreakPoint::getId);
+			    it != end(probeBreakPoints)) {
 				move_pop_back(probeBreakPoints, it);
 				return;
 			}
@@ -127,8 +125,8 @@ void Debugger::removeProbeBreakPoint(string_view name)
 		throw CommandException("No such breakpoint: ", name);
 	} else {
 		// remove by probe, only works for unconditional bp
-		auto it = ranges::find_if(probeBreakPoints, [&](auto& bp) {
-			return bp->getProbe().getName() == name;
+		auto it = ranges::find(probeBreakPoints, name, [](auto& bp) {
+			return bp->getProbe().getName();
 		});
 		if (it == end(probeBreakPoints)) {
 			throw CommandException(
@@ -376,10 +374,8 @@ void Debugger::Cmd::removeBreakPoint(
 	if (StringOp::startsWith(tmp, "bp#")) {
 		// remove by id
 		if (auto id = StringOp::stringToBase<10, unsigned>(tmp.substr(3))) {
-			auto it = ranges::find_if(breakPoints, [&](auto& bp) {
-				return bp.getId() == *id;
-			});
-			if (it != end(breakPoints)) {
+			if (auto it = ranges::find(breakPoints, id, &BreakPoint::getId);
+			    it != end(breakPoints)) {
 				interface.removeBreakPoint(*it);
 				return;
 			}
@@ -389,7 +385,7 @@ void Debugger::Cmd::removeBreakPoint(
 		// remove by addr, only works for unconditional bp
 		word addr = getAddress(getInterpreter(), tokens[2]);
 		auto [first, last] = ranges::equal_range(breakPoints, addr, CompareBreakpoints());
-		auto it = std::find_if(first, last, [&](auto& bp) {
+		auto it = std::find_if(first, last, [](auto& bp) {
 			return bp.getCondition().empty();
 		});
 		if (it == last) {

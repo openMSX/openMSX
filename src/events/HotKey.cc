@@ -347,8 +347,7 @@ void HotKey::deactivateLayer(std::string_view layer)
 {
 	// remove the first matching activation record from the end
 	// (it's not an error if there is no match at all)
-	if (auto it = ranges::find_if(view::reverse(activeLayers),
-	                              [&](auto& info) { return info.layer == layer; });
+	if (auto it = ranges::find(view::reverse(activeLayers), layer, &LayerInfo::layer);
 	    it != activeLayers.rend()) {
 		// 'reverse_iterator' -> 'iterator' conversion is a bit tricky
 		activeLayers.erase((it + 1).base());

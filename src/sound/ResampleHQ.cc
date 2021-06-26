@@ -90,7 +90,7 @@ ResampleCoeffs& ResampleCoeffs::instance()
 void ResampleCoeffs::getCoeffs(
 	double ratio, int16_t*& permute, float*& table, unsigned& filterLen)
 {
-	if (auto it = ranges::find_if(cache, [=](auto& e) { return e.ratio == ratio; });
+	if (auto it = ranges::find(cache, ratio, &Element::ratio);
 	    it != end(cache)) {
 		permute   = it->permute.data();
 		table     = it->table.data();

@@ -41,8 +41,8 @@ void UserSettings::deleteSetting(Setting& setting)
 
 Setting* UserSettings::findSetting(std::string_view name) const
 {
-	auto it = ranges::find_if(
-	        settings, [&](auto& info) { return info.setting->getFullName() == name; });
+	auto it = ranges::find(settings, name, [](auto& info) {
+		return info.setting->getFullName(); });
 	return (it != end(settings)) ? it->setting.get() : nullptr;
 }
 

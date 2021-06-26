@@ -183,11 +183,11 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 		//fprintf(stderr, "post processing lines %d-%d: %d\n",
 		//	r.srcStartY, r.srcEndY, r.lineWidth);
 		auto it = find_if_unguarded(textures,
-		                  EqualTupleValue<0>(r.lineWidth));
+			[&](const auto& td) { return td.width() == r.lineWidth; });
 		auto* superImpose = superImposeVideoFrame
 		                  ? &superImposeTex : nullptr;
 		currScaler->scaleImage(
-			it->second.tex, superImpose,
+			it->tex, superImpose,
 			r.srcStartY, r.srcEndY, r.lineWidth, // src
 			r.dstStartY, r.dstEndY, scrnWidth,   // dst
 			paintFrame->getHeight()); // dst
@@ -306,17 +306,17 @@ void GLPostProcessor::uploadBlock(
 	unsigned srcStartY, unsigned srcEndY, unsigned lineWidth)
 {
 	// create texture/pbo if needed
-	auto it = ranges::find_if(textures, EqualTupleValue<0>(lineWidth));
+	auto it = ranges::find(textures, lineWidth, &TextureData::width);
 	if (it == end(textures)) {
 		TextureData textureData;
 
 		textureData.tex.resize(lineWidth, height * 2); // *2 for interlace
 		textureData.pbo.setImage(lineWidth, height * 2);
-		textures.emplace_back(lineWidth, std::move(textureData));
+		textures.push_back(std::move(textureData));
 		it = end(textures) - 1;
 	}
-	auto& tex = it->second.tex;
-	auto& pbo = it->second.pbo;
+	auto& tex = it->tex;
+	auto& pbo = it->pbo;
 
 	// bind texture
 	tex.bind();

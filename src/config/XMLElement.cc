@@ -25,13 +25,13 @@ void XMLElement::removeChild(const XMLElement& child)
 
 XMLElement::Attributes::iterator XMLElement::getAttributeIter(string_view attrName)
 {
-	return ranges::find_if(attributes,
-	                       [&](auto& a) { return a.first == attrName; });
+	return ranges::find(attributes, attrName,
+	                    [](auto& a) { return a.first; });
 }
 XMLElement::Attributes::const_iterator XMLElement::getAttributeIter(string_view attrName) const
 {
-	return ranges::find_if(attributes,
-	                       [&](auto& a) { return a.first == attrName; });
+	return ranges::find(attributes, attrName,
+	                    [](auto& a) { return a.first; });
 }
 
 const string* XMLElement::findAttribute(string_view attrName) const
@@ -60,8 +60,7 @@ std::vector<const XMLElement*> XMLElement::getChildren(string_view childName) co
 
 XMLElement* XMLElement::findChild(string_view childName)
 {
-	auto it = ranges::find_if(
-	        children, [&](auto& c) { return c.getName() == childName; });
+	auto it = ranges::find(children, childName, &XMLElement::getName);
 	return (it != end(children)) ? &*it : nullptr;
 }
 const XMLElement* XMLElement::findChild(string_view childName) const

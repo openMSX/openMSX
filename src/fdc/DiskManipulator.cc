@@ -74,15 +74,13 @@ void DiskManipulator::unregisterDrive(DiskContainer& drive)
 DiskManipulator::Drives::iterator DiskManipulator::findDriveSettings(
 	DiskContainer& drive)
 {
-	return ranges::find_if(drives,
-	                       [&](auto& ds) { return ds.drive == &drive; });
+	return ranges::find(drives, &drive, &DriveSettings::drive);
 }
 
 DiskManipulator::Drives::iterator DiskManipulator::findDriveSettings(
 	string_view driveName)
 {
-	return ranges::find_if(drives,
-	                       [&](auto& ds) { return ds.driveName == driveName; });
+	return ranges::find(drives, driveName, &DriveSettings::driveName);
 }
 
 DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
