@@ -4,7 +4,6 @@
 #include "StringOp.hh"
 #include "ranges.hh"
 #include "stl.hh"
-#include "view.hh"
 
 namespace openmsx {
 
@@ -52,7 +51,7 @@ int VideoSourceSetting::getSource() noexcept
 		// This handles the "none" case, but also stuff like
 		// multiple V99x8/V9990 chips. Prefer the source with
 		// highest id (=newest).
-		for (int s : view::values(sources)) id = std::max(id, s);
+		id = max_value(sources, &Source::id);
 	}
 	setSource(id); // store new value
 	return id;
@@ -60,9 +59,8 @@ int VideoSourceSetting::getSource() noexcept
 
 void VideoSourceSetting::setSource(int id)
 {
-	auto it = find_unguarded(sources, id,
-		[](const auto& p) { return p.second; });
-	setValue(TclObject(it->first));
+	auto it = find_unguarded(sources, id, &Source::id);
+	setValue(TclObject(it->name));
 }
 
 std::string_view VideoSourceSetting::getTypeString() const
@@ -74,7 +72,7 @@ std::vector<std::string_view> VideoSourceSetting::getPossibleValues() const
 {
 	std::vector<std::string_view> result;
 	if (sources.size() == 1) {
-		assert(sources.front().first == "none");
+		assert(sources.front().name == "none");
 		result.emplace_back("none");
 	} else {
 		for (const auto& [name, val] : sources) {
@@ -104,7 +102,7 @@ int VideoSourceSetting::registerVideoSource(const std::string& source)
 	static int counter = 0; // id's are globally unique
 
 	assert(!has(source));
-	sources.emplace_back(source, ++counter);
+	sources.emplace_back(Source{source, ++counter});
 
 	// First announce extended set of allowed values before announcing a
 	// (possibly) different value.
@@ -116,8 +114,7 @@ int VideoSourceSetting::registerVideoSource(const std::string& source)
 
 void VideoSourceSetting::unregisterVideoSource(int source)
 {
-	move_pop_back(sources, rfind_unguarded(sources, source,
-		[](auto& p) { return p.second; }));
+	move_pop_back(sources, rfind_unguarded(sources, source, &Source::id));
 
 	// First notify the (possibly) changed value before announcing the
 	// shrinked set of values.
@@ -127,16 +124,16 @@ void VideoSourceSetting::unregisterVideoSource(int source)
 
 bool VideoSourceSetting::has(int val) const
 {
-	return contains(view::values(sources), val);
+	return contains(sources, val, &Source::id);
 }
 
 int VideoSourceSetting::has(std::string_view val) const
 {
 	auto it = ranges::find_if(sources, [&](auto& p) {
 		StringOp::casecmp cmp;
-		return cmp(p.first, val);
+		return cmp(p.name, val);
 	});
-	return (it != end(sources)) ? it->second : 0;
+	return (it != end(sources)) ? it->id : 0;
 }
 
 

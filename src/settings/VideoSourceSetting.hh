@@ -28,7 +28,11 @@ private:
 	[[nodiscard]] int has(std::string_view value) const;
 
 private:
-	std::vector<std::pair<std::string, int>> sources; // unordered
+	struct Source {
+		std::string name;
+		int id;
+	};
+	std::vector<Source> sources; // unordered
 };
 
 class VideoSourceActivator
