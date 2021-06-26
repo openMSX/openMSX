@@ -270,40 +270,40 @@ auto transform_in_place(ForwardRange&& range, UnaryOperation op)
 
 // Returns (a copy of) the minimum value in [first, last).
 // Requires: first != last.
-template<typename InputIterator>
-[[nodiscard]] constexpr auto min_value(InputIterator first, InputIterator last)
+template<typename InputIterator, typename Proj = identity>
+[[nodiscard]] /*constexpr*/ auto min_value(InputIterator first, InputIterator last, Proj proj = {})
 {
 	assert(first != last);
-	auto result = *first++;
+	auto result = std::invoke(proj, *first++);
 	while (first != last) {
-		result = std::min(result, *first++);
+		result = std::min(result, std::invoke(proj, *first++));
 	}
 	return result;
 }
 
-template<typename InputRange>
-[[nodiscard]] constexpr auto min_value(InputRange&& range)
+template<typename InputRange, typename Proj = identity>
+[[nodiscard]] /*constexpr*/ auto min_value(InputRange&& range, Proj proj = {})
 {
-	return min_value(std::begin(range), std::end(range));
+	return min_value(std::begin(range), std::end(range), proj);
 }
 
 // Returns (a copy of) the maximum value in [first, last).
 // Requires: first != last.
-template<typename InputIterator>
-[[nodiscard]] constexpr auto max_value(InputIterator first, InputIterator last)
+template<typename InputIterator, typename Proj = identity>
+[[nodiscard]] /*constexpr*/ auto max_value(InputIterator first, InputIterator last, Proj proj = {})
 {
 	assert(first != last);
-	auto result = *first++;
+	auto result = std::invoke(proj, *first++);
 	while (first != last) {
-		result = std::max(result, *first++);
+		result = std::max(result, std::invoke(proj, *first++));
 	}
 	return result;
 }
 
-template<typename InputRange>
-[[nodiscard]] constexpr auto max_value(InputRange&& range)
+template<typename InputRange, typename Proj = identity>
+[[nodiscard]] /*constexpr*/ auto max_value(InputRange&& range, Proj proj = {})
 {
-	return max_value(std::begin(range), std::end(range));
+	return max_value(std::begin(range), std::end(range), proj);
 }
 
 

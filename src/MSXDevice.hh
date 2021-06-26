@@ -318,7 +318,12 @@ private:
 	void unregisterPorts();
 
 private:
-	using MemRegions = std::vector<std::pair<unsigned, unsigned>>;
+	struct BaseSize {
+		unsigned base;
+		unsigned size;
+		[[nodiscard]] unsigned end() const { return base + size; }
+	};
+	using MemRegions = std::vector<BaseSize>;
 	MemRegions memRegions;
 	std::vector<byte> inPorts;
 	std::vector<byte> outPorts;

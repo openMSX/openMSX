@@ -14,7 +14,6 @@
 #include "serialize.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include "view.hh"
 #include "xrange.hh"
 #include <cassert>
 #include <cstring>
@@ -186,7 +185,7 @@ void MSXDevice::registerSlots()
 				getName(), " should be aligned on at least 0x",
 				hex_string<4>(align), '.');
 		}
-		tmpMemRegions.emplace_back(base, size);
+		tmpMemRegions.emplace_back(BaseSize{base, size});
 	}
 	if (tmpMemRegions.empty()) {
 		return;
@@ -278,7 +277,7 @@ void MSXDevice::registerSlots()
 	int logicalSS = (ss == -1) ? 0 : ss;
 	for (auto& r : tmpMemRegions) {
 		getCPUInterface().registerMemDevice(
-			*this, ps, logicalSS, r.first, r.second);
+			*this, ps, logicalSS, r.base, r.size);
 		memRegions.push_back(r);
 	}
 
@@ -315,10 +314,8 @@ void MSXDevice::getVisibleMemRegion(unsigned& base, unsigned& size) const
 		return;
 	}
 
-	auto lowest  = min_value(view::transform(memRegions,
-		[](auto& r) { return r.first; }));
-	auto highest = max_value(view::transform(memRegions,
-		[](auto& r) { return r.first + r.second; }));
+	auto lowest  = min_value(memRegions, &BaseSize::base);
+	auto highest = max_value(memRegions, &BaseSize::end);
 	assert(lowest <= highest);
 	base = lowest;
 	size = highest - lowest;
