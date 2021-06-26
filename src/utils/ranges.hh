@@ -43,6 +43,15 @@ void sort(RandomAccessRange&& range, Compare comp)
 	std::sort(std::begin(range), std::end(range), comp);
 }
 
+template<typename RandomAccessRange, typename Compare = std::less<>, typename Proj>
+void sort(RandomAccessRange&& range, Compare comp, Proj proj)
+{
+	sort(std::forward<RandomAccessRange>(range),
+	     [&](const auto& x, const auto& y) {
+		     return comp(std::invoke(proj, x), std::invoke(proj, y));
+	     });
+}
+
 template<typename RandomAccessRange>
 void stable_sort(RandomAccessRange&& range)
 {

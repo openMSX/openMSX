@@ -697,8 +697,7 @@ void DirAsDSK::addNewHostFiles(const string& hostSubDir, unsigned msxDirSector)
 			hostNames.emplace_back(d->d_name);
 		}
 	}
-	ranges::sort(hostNames,
-	     [](const string& l, const string& r) { return weight(l) < weight(r); });
+	ranges::sort(hostNames, {}, [](const string& n) { return weight(n); });
 
 	for (auto& hostName : hostNames) {
 		try {
