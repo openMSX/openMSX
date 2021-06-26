@@ -26,18 +26,6 @@ class CliComm;
 class BreakPoint;
 class CartridgeSlotManager;
 
-struct CompareBreakpoints {
-	[[nodiscard]] bool operator()(const BreakPoint& x, const BreakPoint& y) const {
-		return x.getAddress() < y.getAddress();
-	}
-	[[nodiscard]] bool operator()(const BreakPoint& x, word y) const {
-		return x.getAddress() < y;
-	}
-	[[nodiscard]] bool operator()(word x, const BreakPoint& y) const {
-		return x < y.getAddress();
-	}
-};
-
 constexpr bool PROFILE_CACHELINES = false;
 enum CacheLineCounters {
 	NonCachedRead,
@@ -279,7 +267,7 @@ public:
 	}
 	[[nodiscard]] static bool checkBreakPoints(unsigned pc, MSXMotherBoard& motherBoard)
 	{
-		auto range = ranges::equal_range(breakPoints, pc, CompareBreakpoints());
+		auto range = ranges::equal_range(breakPoints, pc, {}, &BreakPoint::getAddress);
 		if (conditions.empty() && (range.first == range.second)) {
 			return false;
 		}

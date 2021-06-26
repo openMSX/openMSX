@@ -167,7 +167,7 @@ private:
 	bool stop = false; // abort long search (set via reportProgress callback)
 	bool needWrite = false; // dirty '.filecache'? write on exit
 
-	friend class CompareSha1;
+	friend struct GetSha1;
 };
 
 } // namespace openmsx

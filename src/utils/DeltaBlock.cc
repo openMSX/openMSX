@@ -362,9 +362,8 @@ size_t DeltaBlockDiff::getDeltaSize() const
 std::shared_ptr<DeltaBlock> LastDeltaBlocks::createNew(
 		const void* id, const uint8_t* data, size_t size)
 {
-	auto it = ranges::lower_bound(infos, std::tuple(id, size),
-		[](const Info& info, const std::tuple<const void*, size_t>& info2) {
-			return std::tuple(info.id, info.size) < info2; });
+	auto it = ranges::lower_bound(infos, std::tuple(id, size), {},
+		[](const Info& info) { return std::tuple(info.id, info.size); });
 	if ((it == end(infos)) || (it->id != id) || (it->size != size)) {
 		// no previous info yet
 		it = infos.emplace(it, id, size);
@@ -399,9 +398,7 @@ std::shared_ptr<DeltaBlock> LastDeltaBlocks::createNew(
 std::shared_ptr<DeltaBlock> LastDeltaBlocks::createNullDiff(
 		const void* id, const uint8_t* data, size_t size)
 {
-	auto it = ranges::lower_bound(infos, id,
-		[](const Info& info, const void* id2) {
-			return info.id < id2; });
+	auto it = ranges::lower_bound(infos, id, {}, &Info::id);
 	if ((it == end(infos)) || (it->id != id)) {
 		// no previous block yet
 		it = infos.emplace(it, id, size);

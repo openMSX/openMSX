@@ -786,13 +786,13 @@ void MSXCPUInterface::writeSlottedMem(unsigned address, byte value,
 
 void MSXCPUInterface::insertBreakPoint(BreakPoint bp)
 {
-	auto it = ranges::upper_bound(breakPoints, bp, CompareBreakpoints());
+	auto it = ranges::upper_bound(breakPoints, bp.getAddress(), {}, &BreakPoint::getAddress);
 	breakPoints.insert(it, std::move(bp));
 }
 
 void MSXCPUInterface::removeBreakPoint(const BreakPoint& bp)
 {
-	auto [first, last] = ranges::equal_range(breakPoints, bp.getAddress(), CompareBreakpoints());
+	auto [first, last] = ranges::equal_range(breakPoints, bp.getAddress(), {}, &BreakPoint::getAddress);
 	breakPoints.erase(find_unguarded(first, last, &bp,
 	                                 [](const BreakPoint& i) { return &i; }));
 }

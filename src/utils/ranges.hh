@@ -74,40 +74,49 @@ template<typename ForwardRange, typename T, typename Compare>
 	return std::binary_search(std::begin(range), std::end(range), value, comp);
 }
 
-template<typename ForwardRange, typename T>
-[[nodiscard]] auto lower_bound(ForwardRange&& range, const T& value)
+template<typename ForwardRange, typename T, typename Compare = std::less<>, typename Proj = identity>
+[[nodiscard]] auto lower_bound(ForwardRange&& range, const T& value, Compare comp = {}, Proj proj = {})
 {
-	return std::lower_bound(std::begin(range), std::end(range), value);
+	auto comp2 = [&](const auto& x, const auto& y) {
+		return comp(std::invoke(proj, x), y);
+	};
+	return std::lower_bound(std::begin(range), std::end(range), value, comp2);
 }
 
-template<typename ForwardRange, typename T, typename Compare>
-[[nodiscard]] auto lower_bound(ForwardRange&& range, const T& value, Compare comp)
+template<typename ForwardRange, typename T, typename Compare = std::less<>, typename Proj = identity>
+[[nodiscard]] auto upper_bound(ForwardRange&& range, const T& value, Compare comp = {}, Proj proj = {})
 {
-	return std::lower_bound(std::begin(range), std::end(range), value, comp);
+	auto comp2 = [&](const auto& x, const auto& y) {
+		return comp(x, std::invoke(proj, y));
+	};
+	return std::upper_bound(std::begin(range), std::end(range), value, comp2);
 }
 
-template<typename ForwardRange, typename T>
-[[nodiscard]] auto upper_bound(ForwardRange&& range, const T& value)
-{
-	return std::upper_bound(std::begin(range), std::end(range), value);
-}
-
-template<typename ForwardRange, typename T, typename Compare>
-[[nodiscard]] auto upper_bound(ForwardRange&& range, const T& value, Compare comp)
-{
-	return std::upper_bound(std::begin(range), std::end(range), value, comp);
-}
-
-template<typename ForwardRange, typename T>
-[[nodiscard]] auto equal_range(ForwardRange&& range, const T& value)
-{
-	return std::equal_range(std::begin(range), std::end(range), value);
-}
-
-template<typename ForwardRange, typename T, typename Compare>
-[[nodiscard]] auto equal_range(ForwardRange&& range, const T& value, Compare comp)
+template<typename ForwardRange, typename T, typename Compare = std::less<>>
+[[nodiscard]] auto equal_range(ForwardRange&& range, const T& value, Compare comp = {})
 {
 	return std::equal_range(std::begin(range), std::end(range), value, comp);
+}
+template<typename ForwardRange, typename T, typename Compare = std::less<>, typename Proj = identity>
+[[nodiscard]] auto equal_range(ForwardRange&& range, const T& value, Compare comp, Proj proj)
+{
+	using Iter = decltype(std::begin(range));
+	using R = typename std::iterator_traits<Iter>::value_type;
+	struct Comp2 {
+		Compare comp;
+		Proj proj;
+
+		bool operator()(const R& x, const R& y) const {
+			return comp(std::invoke(proj, x), std::invoke(proj, y));
+		}
+		bool operator()(const R& x, const T& y) const {
+			return comp(std::invoke(proj, x), y);
+		}
+		bool operator()(const T& x, const R& y) const {
+			return comp(x, std::invoke(proj, y));
+		}
+	};
+	return std::equal_range(std::begin(range), std::end(range), value, Comp2{comp, proj});
 }
 
 template<typename InputRange, typename T>

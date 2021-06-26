@@ -14,18 +14,12 @@ using std::string;
 
 namespace openmsx {
 
-class CompareSha1 {
-public:
-	CompareSha1(const FilePoolCore::Pool& pool_) : pool(pool_) {}
-	template<typename X, typename Y>
-	[[nodiscard]] bool operator()(const X& x, const Y& y) const {
-		return get(x) < get(y);
-	}
-private:
-	[[nodiscard]] const Sha1Sum& get(const Sha1Sum& sum) const { return sum; }
-	[[nodiscard]] const Sha1Sum& get(FilePoolCore::Index idx) const { return pool[idx].sum; }
-private:
+struct GetSha1 {
 	const FilePoolCore::Pool& pool;
+
+	[[nodiscard]] const Sha1Sum& operator()(FilePoolCore::Index idx) const {
+		return pool[idx].sum;
+	}
 };
 
 
@@ -54,7 +48,7 @@ void FilePoolCore::insert(const Sha1Sum& sum, time_t time, const string& filenam
 {
 	stringBuffer.push_back(filename);
 	auto idx = pool.emplace(sum, time, stringBuffer.back()).idx;
-	auto it = ranges::upper_bound(sha1Index, sum, CompareSha1(pool));
+	auto it = ranges::upper_bound(sha1Index, sum, {}, GetSha1{pool});
 	sha1Index.insert(it, idx);
 	filenameIndex.insert(idx);
 	needWrite = true;
@@ -63,7 +57,7 @@ void FilePoolCore::insert(const Sha1Sum& sum, time_t time, const string& filenam
 FilePoolCore::Sha1Index::iterator FilePoolCore::getSha1Iterator(Index idx, Entry& entry)
 {
 	// There can be multiple entries for the same sha1, look for the specific one.
-	for (auto [b, e] = ranges::equal_range(sha1Index, entry.sum, CompareSha1(pool)); b != e; ++b) {
+	for (auto [b, e] = ranges::equal_range(sha1Index, entry.sum, {}, GetSha1{pool}); b != e; ++b) {
 		if (*b == idx) {
 			return b;
 		}
@@ -99,7 +93,7 @@ void FilePoolCore::remove(Index idx)
 bool FilePoolCore::adjustSha1(Sha1Index::iterator it, Entry& entry, const Sha1Sum& newSum)
 {
 	needWrite = true;
-	auto newIt = ranges::upper_bound(sha1Index, newSum, CompareSha1(pool));
+	auto newIt = ranges::upper_bound(sha1Index, newSum, {}, GetSha1{pool});
 	entry.sum = newSum; // update sum
 	if (newIt > it) {
 		// move to back
@@ -202,12 +196,12 @@ void FilePoolCore::readSha1sums()
 		});
 	}
 
-	if (!ranges::is_sorted(sha1Index, CompareSha1(pool))) {
+	if (!ranges::is_sorted(sha1Index, {}, GetSha1{pool})) {
 		// This should _rarely_ happen. In fact it should only happen
 		// when .filecache was manually edited. Though because it's
 		// very important that pool is indeed sorted I've added this
 		// safety mechanism.
-		ranges::sort(sha1Index, CompareSha1(pool));
+		ranges::sort(sha1Index, {}, GetSha1{pool});
 	}
 
 	// 'pool' is populated, 'sha1Index' is sorted, now build 'filenameIndex'
@@ -310,7 +304,7 @@ Sha1Sum FilePoolCore::calcSha1sum(File& file)
 
 File FilePoolCore::getFromPool(const Sha1Sum& sha1sum)
 {
-	auto [b, e] = ranges::equal_range(sha1Index, sha1sum, CompareSha1(pool));
+	auto [b, e] = ranges::equal_range(sha1Index, sha1sum, {}, GetSha1{pool});
 	// use indices instead of iterators
 	auto i    = distance(begin(sha1Index), b);
 	auto last = distance(begin(sha1Index), e);

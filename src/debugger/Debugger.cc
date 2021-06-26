@@ -384,7 +384,7 @@ void Debugger::Cmd::removeBreakPoint(
 	} else {
 		// remove by addr, only works for unconditional bp
 		word addr = getAddress(getInterpreter(), tokens[2]);
-		auto [first, last] = ranges::equal_range(breakPoints, addr, CompareBreakpoints());
+		auto [first, last] = ranges::equal_range(breakPoints, addr, {}, &BreakPoint::getAddress);
 		auto it = std::find_if(first, last, [](auto& bp) {
 			return bp.getCondition().empty();
 		});
