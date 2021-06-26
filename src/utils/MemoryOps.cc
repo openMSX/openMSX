@@ -226,17 +226,16 @@ public:
 
 	void insert(void* aligned, void* unaligned) {
 		if (!aligned) return;
-		assert(ranges::none_of(allocMap, EqualTupleValue<0>(aligned)));
-		allocMap.emplace_back(aligned, unaligned);
+		assert(!contains(allocMap, aligned, &Entry::aligned));
+		allocMap.emplace_back(Entry{aligned, unaligned});
 	}
 
 	void* remove(void* aligned) {
 		if (!aligned) return nullptr;
 		// LIFO order is more likely than FIFO -> search backwards
-		auto it = rfind_if_unguarded(allocMap,
-		               EqualTupleValue<0>(aligned));
+		auto it = rfind_unguarded(allocMap, aligned, &Entry::aligned);
 		// return the associated unaligned value
-		void* unaligned = it->second;
+		void* unaligned = it->unaligned;
 		move_pop_back(allocMap, it);
 		return unaligned;
 	}
@@ -248,7 +247,11 @@ private:
 	}
 
 	// typically contains 5-10 items, so (unsorted) vector is fine
-	std::vector<std::pair<void*, void*>> allocMap;
+	struct Entry {
+		void* aligned;
+		void* unaligned;
+	};
+	std::vector<Entry> allocMap;
 };
 
 void* mallocAligned(size_t alignment, size_t size)
