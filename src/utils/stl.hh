@@ -20,15 +20,6 @@ struct identity {
 };
 
 
-// Dereference the two given (pointer-like) parameters and then compare
-// them with the less-than operator.
-struct LessDeref
-{
-	template<typename PTR>
-	[[nodiscard]] constexpr bool operator()(PTR p1, PTR p2) const { return *p1 < *p2; }
-};
-
-
 // Compare the N-th element of two tuples using a custom comparison functor.
 // Also provides overloads to compare the N-the element of a tuple with a
 // single value (of a compatible type).
@@ -69,26 +60,6 @@ template<int N, typename CMP> struct CmpTupleElement
 private:
 	CMP cmp;
 };
-
-// Similar to CmpTupleElement above, but uses the less-than operator.
-template<int N> using LessTupleElement = CmpTupleElement<N, std::less<>>;
-
-
-// Check whether the N-the element of a tuple is equal to the given value.
-template<int N, typename T> struct EqualTupleValueImpl
-{
-	explicit EqualTupleValueImpl(const T& t_) : t(t_) {}
-	template<typename TUPLE>
-	[[nodiscard]] constexpr bool operator()(const TUPLE& tup) const {
-		return std::get<N>(tup) == t;
-	}
-private:
-	const T& t;
-};
-template<int N, typename T>
-[[nodiscard]] constexpr auto EqualTupleValue(const T& t) {
-	return EqualTupleValueImpl<N, T>(t);
-}
 
 
 /** Check if a range contains a given value, using linear search.
