@@ -122,8 +122,8 @@ void EventDelay::sync(EmuTime::param curEmu)
 		if (getType(e) == one_of(EventType::KEY_DOWN, EventType::KEY_UP)) {
 			const auto& keyEvent = get<KeyEvent>(e);
 			int maskedKeyCode = int(keyEvent.getKeyCode()) & int(Keys::K_MASK);
-			auto it = ranges::find_if(nonMatchedKeyPresses,
-				                  EqualTupleValue<0>(maskedKeyCode));
+			auto it = ranges::find(nonMatchedKeyPresses, maskedKeyCode,
+			                       [](const auto& p) { return p.first; });
 			if (getType(e) == EventType::KEY_DOWN) {
 				if (it == end(nonMatchedKeyPresses)) {
 					nonMatchedKeyPresses.emplace_back(maskedKeyCode, e);
