@@ -21,10 +21,8 @@ A million repetitions of "a"
 #include "sha1.hh"
 #include "MSXException.hh"
 #include "endian.hh"
-#include "enumerate.hh"
 #include "likely.hh"
 #include "ranges.hh"
-#include "xrange.hh"
 #include <cassert>
 #include <cstring>
 #ifdef __SSE2__

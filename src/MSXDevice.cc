@@ -4,7 +4,6 @@
 #include "HardwareConfig.hh"
 #include "CartridgeSlotManager.hh"
 #include "MSXCPUInterface.hh"
-#include "MSXCPU.hh"
 #include "CacheLine.hh"
 #include "TclObject.hh"
 #include "Math.hh"
@@ -17,7 +16,6 @@
 #include "xrange.hh"
 #include <cassert>
 #include <cstring>
-#include <iterator> // for back_inserter
 
 using std::string;
 

@@ -1,7 +1,6 @@
 #ifndef SOUNDDEVICE_HH
 #define SOUNDDEVICE_HH
 
-#include "MSXMixer.hh"
 #include "EmuTime.hh"
 #include "static_string_view.hh"
 #include <memory>
@@ -11,9 +10,10 @@
 namespace openmsx {
 
 class DeviceConfig;
-class Wav16Writer;
-class Filename;
 class DynamicClock;
+class Filename;
+class MSXMixer;
+class Wav16Writer;
 
 class SoundDevice
 {

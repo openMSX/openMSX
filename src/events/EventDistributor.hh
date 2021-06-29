@@ -3,9 +3,7 @@
 
 #include "Event.hh"
 #include <condition_variable>
-#include <memory>
 #include <mutex>
-#include <utility>
 #include <vector>
 
 namespace openmsx {

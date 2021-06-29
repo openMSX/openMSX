@@ -8,7 +8,6 @@
 #include "span.hh"
 #include <string>
 #include <vector>
-#include <utility> // for pair
 
 namespace openmsx {
 

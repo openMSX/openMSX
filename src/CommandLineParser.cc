@@ -15,7 +15,6 @@
 #include "XMLException.hh"
 #include "StringOp.hh"
 #include "xrange.hh"
-#include "GLUtil.hh"
 #include "Reactor.hh"
 #include "RomInfo.hh"
 #include "hash_map.hh"

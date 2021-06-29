@@ -3,7 +3,6 @@
 #include "BooleanSetting.hh"
 #include "SDLImage.hh"
 #include "Display.hh"
-#include "InputEventGenerator.hh"
 #include "Timer.hh"
 #include "FileContext.hh"
 #include "CliComm.hh"

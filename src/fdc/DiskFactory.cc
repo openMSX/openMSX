@@ -11,7 +11,6 @@
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include <memory>
-#include <stdexcept>
 
 using std::string;
 

@@ -6,7 +6,6 @@
 #include "xxhash.hh"
 #include "zstring_view.hh"
 #include <tcl.h>
-#include <algorithm>
 #include <cassert>
 #include <cstdint>
 #include <initializer_list>

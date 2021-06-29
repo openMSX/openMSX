@@ -4,7 +4,6 @@
 #include "RawFrame.hh"
 #include "ScalerOutput.hh"
 #include "RenderSettings.hh"
-#include "unreachable.hh"
 #include "vla.hh"
 #include <cassert>
 #include <cstddef>

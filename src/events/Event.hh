@@ -14,7 +14,6 @@
 #include <string>
 #include <utility>
 #include <variant>
-#include <vector>
 
 namespace openmsx {
 

@@ -6,7 +6,6 @@
 #include "GlobalSettings.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
-#include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
 #include "ThrottleManager.hh"
 #include "unreachable.hh"

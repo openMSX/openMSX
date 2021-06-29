@@ -6,7 +6,6 @@
 #include "MemoryOps.hh"
 #include "one_of.hh"
 #include "ranges.hh"
-#include "stl.hh"
 #include "stringsp.hh" // for strncasecmp
 #include "view.hh"
 #include "xrange.hh"

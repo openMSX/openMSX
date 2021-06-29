@@ -3,7 +3,6 @@
 
 #include "PatchInterface.hh"
 #include "Filename.hh"
-#include <utility>
 #include <vector>
 #include <memory>
 

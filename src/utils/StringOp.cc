@@ -1,10 +1,8 @@
 #include "StringOp.hh"
 #include "MSXException.hh"
-#include "likely.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include <cstdlib>
-#include <stdexcept>
 
 using std::string;
 using std::string_view;

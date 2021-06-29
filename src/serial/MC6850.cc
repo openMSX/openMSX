@@ -3,7 +3,6 @@
 #include "MSXMotherBoard.hh"
 #include "EmuTime.hh"
 #include "serialize.hh"
-#include "unreachable.hh"
 
 namespace openmsx {
 

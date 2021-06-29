@@ -4,7 +4,6 @@
 #include "OSDWidget.hh"
 #include "TclObject.hh"
 #include "hash_set.hh"
-#include "xxhash.hh"
 #include <vector>
 #include <string>
 

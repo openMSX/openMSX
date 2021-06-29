@@ -23,7 +23,6 @@
 #include <cassert>
 #include <cctype>
 #include <memory>
-#include <stdexcept>
 
 using std::string;
 using std::string_view;

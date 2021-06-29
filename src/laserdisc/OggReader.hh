@@ -8,7 +8,6 @@
 #include <theora/theoradec.h>
 #include <memory>
 #include <list>
-#include <utility>
 #include <vector>
 
 namespace openmsx {

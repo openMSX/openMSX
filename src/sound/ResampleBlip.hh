@@ -3,10 +3,10 @@
 
 #include "ResampleAlgo.hh"
 #include "BlipBuffer.hh"
-#include "DynamicClock.hh"
 
 namespace openmsx {
 
+class DynamicClock;
 class ResampledSoundDevice;
 
 template<unsigned CHANNELS>

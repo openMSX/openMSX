@@ -2,12 +2,12 @@
 #define RESAMPLELQ_HH
 
 #include "ResampleAlgo.hh"
-#include "DynamicClock.hh"
 #include "FixedPoint.hh"
 #include <memory>
 
 namespace openmsx {
 
+class DynamicClock;
 class ResampledSoundDevice;
 
 template<unsigned CHANNELS>

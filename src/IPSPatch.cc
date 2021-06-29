@@ -3,7 +3,6 @@
 #include "Filename.hh"
 #include "MSXException.hh"
 #include "ranges.hh"
-#include "stl.hh"
 #include "xrange.hh"
 #include <cstring>
 #include <cassert>

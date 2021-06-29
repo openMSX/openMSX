@@ -2,6 +2,7 @@
 #define GLSCALER_HH
 
 #include "GLUtil.hh"
+#include <string>
 
 namespace openmsx {
 

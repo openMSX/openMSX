@@ -7,7 +7,6 @@
 #include "serialize_stl.hh"
 #include "stl.hh"
 #include "strCat.hh"
-#include "unreachable.hh"
 #include "xrange.hh"
 #include <cassert>
 

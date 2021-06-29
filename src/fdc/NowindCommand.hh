@@ -4,7 +4,6 @@
 #include "NowindHost.hh"
 #include "Command.hh"
 #include <memory>
-#include <string_view>
 
 namespace openmsx {
 

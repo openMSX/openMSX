@@ -3,7 +3,6 @@
 
 #include "Setting.hh"
 #include <vector>
-#include <utility>
 
 namespace openmsx {
 

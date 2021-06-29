@@ -14,7 +14,6 @@
 #include "TemporaryString.hh"
 #include "XMLElement.hh"
 #include "cstdiop.hh"
-#include "openmsx.hh"
 #include "ranges.hh"
 #include "unistdp.hh"
 #include <cassert>

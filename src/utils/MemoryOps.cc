@@ -3,10 +3,8 @@
 #include "build-info.hh"
 #include "systemfuncs.hh"
 #include "Math.hh"
-#include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include <utility>
 #include <vector>
 #include <cassert>
 #include <cstdlib>

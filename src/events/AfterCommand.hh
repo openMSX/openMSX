@@ -4,7 +4,6 @@
 #include "Command.hh"
 #include "EventListener.hh"
 #include "Event.hh"
-#include <memory>
 #include <vector>
 
 namespace openmsx {
@@ -12,7 +11,6 @@ namespace openmsx {
 class Reactor;
 class EventDistributor;
 class CommandController;
-class AfterCmd;
 
 class AfterCommand final : public Command, private EventListener
 {

@@ -6,14 +6,12 @@
 #include "OSDGUILayer.hh"
 #include "Display.hh"
 #include "RenderSettings.hh"
-#include "CliComm.hh"
 #include "PNG.hh"
 #include "build-info.hh"
 #include "MemBuffer.hh"
 #include "outer.hh"
 #include "vla.hh"
 #include "InitException.hh"
-#include "unreachable.hh"
 #include <memory>
 
 #include "GLUtil.hh"

@@ -6,7 +6,6 @@
 #include "Command.hh"
 #include "Keys.hh"
 #include <SDL.h>
-#include <memory>
 
 namespace openmsx {
 

@@ -5,12 +5,10 @@
 #include "FloatSetting.hh"
 #include "OutputSurface.hh"
 #include "RawFrame.hh"
-#include "InitException.hh"
 #include "gl_transform.hh"
 #include "random.hh"
 #include "ranges.hh"
 #include "stl.hh"
-#include "vla.hh"
 #include "xrange.hh"
 #include <cassert>
 #include <cstdint>

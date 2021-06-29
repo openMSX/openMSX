@@ -19,7 +19,6 @@ namespace openmsx {
 
 class BooleanSetting;
 class CommandConsole;
-class ConsoleLine;
 class Display;
 class Reactor;
 

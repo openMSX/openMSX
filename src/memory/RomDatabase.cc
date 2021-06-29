@@ -1,7 +1,6 @@
 #include "RomDatabase.hh"
 #include "FileContext.hh"
 #include "File.hh"
-#include "FileOperations.hh"
 #include "CliComm.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
@@ -14,7 +13,6 @@
 #include "view.hh"
 #include "xxhash.hh"
 #include <cassert>
-#include <stdexcept>
 
 using std::string;
 using std::string_view;

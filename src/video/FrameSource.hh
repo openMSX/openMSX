@@ -1,13 +1,14 @@
 #ifndef FRAMESOURCE_HH
 #define FRAMESOURCE_HH
 
-#include "PixelFormat.hh"
 #include "aligned.hh"
 #include "xrange.hh"
 #include <algorithm>
 #include <cassert>
 
 namespace openmsx {
+
+class PixelFormat;
 
 /** Interface for getting lines from a video frame.
   */

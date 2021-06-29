@@ -6,7 +6,6 @@
 #include "vla.hh"
 #include "Version.hh"
 #include <iostream>
-#include <vector>
 #include <cstdio>
 
 using std::string;

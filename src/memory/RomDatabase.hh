@@ -4,7 +4,6 @@
 #include "MemBuffer.hh"
 #include "RomInfo.hh"
 #include "sha1.hh"
-#include <utility>
 #include <vector>
 
 namespace openmsx {

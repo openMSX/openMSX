@@ -20,7 +20,6 @@
 #include "xrange.hh"
 #include <cassert>
 #include <memory>
-#include <stdexcept>
 
 using std::shared_ptr;
 using std::make_shared;

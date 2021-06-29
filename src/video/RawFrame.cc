@@ -1,4 +1,5 @@
 #include "RawFrame.hh"
+#include "PixelFormat.hh"
 #include <cstdint>
 
 namespace openmsx {

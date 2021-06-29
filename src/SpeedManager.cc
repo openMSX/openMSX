@@ -1,8 +1,5 @@
 #include "SpeedManager.hh"
 
-#include "CommandController.hh"
-
-
 namespace openmsx {
 
 // class SpeedManager:

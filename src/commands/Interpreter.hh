@@ -1,7 +1,6 @@
 #ifndef INTERPRETER_HH
 #define INTERPRETER_HH
 
-#include "TemporaryString.hh"
 #include "TclParser.hh"
 #include "TclObject.hh"
 #include "zstring_view.hh"

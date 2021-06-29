@@ -2,7 +2,6 @@
 #define V9990CMDENGINE_HH
 
 #include "Observer.hh"
-#include "EmuDuration.hh"
 #include "EmuTime.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"

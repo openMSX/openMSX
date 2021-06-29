@@ -2,7 +2,6 @@
 #define USERSETTINGS_HH
 
 #include "Command.hh"
-#include "static_string_view.hh"
 #include <memory>
 #include <string_view>
 #include <vector>

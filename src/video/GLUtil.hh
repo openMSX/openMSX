@@ -16,7 +16,6 @@
 
 #include "MemBuffer.hh"
 #include "build-info.hh"
-#include <string>
 #include <string_view>
 #include <cassert>
 

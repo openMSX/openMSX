@@ -10,7 +10,6 @@
 #include "unreachable.hh"
 #include "utf8_unchecked.hh"
 #include "build-info.hh"
-#include <cassert>
 #include <memory>
 
 using std::string;

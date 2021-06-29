@@ -24,7 +24,6 @@ class MSXMotherBoard;
 class MSXCPU;
 class CliComm;
 class BreakPoint;
-class CartridgeSlotManager;
 
 constexpr bool PROFILE_CACHELINES = false;
 enum CacheLineCounters {

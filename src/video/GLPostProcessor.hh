@@ -4,7 +4,6 @@
 #include "PostProcessor.hh"
 #include "RenderSettings.hh"
 #include "GLUtil.hh"
-#include <utility>
 #include <vector>
 #include <memory>
 
