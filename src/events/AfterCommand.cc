@@ -477,6 +477,12 @@ int AfterCommand::signalEvent(const Event& event) noexcept
 		[&](const SimpleEvent&) {
 			executeSimpleEvents(getType(event));
 		},
+		[&](const FinishFrameEvent&) {
+			executeSimpleEvents(EventType::FINISH_FRAME);
+		},
+		[&](const QuitEvent&) {
+			executeSimpleEvents(EventType::QUIT);
+		},
 		[&](const AfterTimedEvent&) {
 			executeMatches(AfterEmuTimePred());
 		},
