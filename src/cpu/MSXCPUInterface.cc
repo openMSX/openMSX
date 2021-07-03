@@ -266,7 +266,7 @@ void MSXCPUInterface::testUnsetExpanded(
 
 	auto isAllowed = [&](MSXDevice* dev) {
 		return (dev == dummyDevice.get()) ||
-		       ranges::any_of(allowed, [&](const auto& d) { return d.get() == dev; });
+		       contains(allowed, dev, [](const auto& d) { return d.get(); });
 	};
 	auto check = [&](MSXDevice* dev) {
 		if (!isAllowed(dev)) {

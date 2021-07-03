@@ -81,7 +81,7 @@ void MSXDevice::testRemove(span<const std::unique_ptr<MSXDevice>> removed) const
 	// O(n*m) algorithm is fine.
 	std::string err;
 	for (const auto* dev : referencedBy) {
-		if (ranges::none_of(removed, [&](const auto& d) { return d.get() == dev; })) {
+		if (!contains(removed, dev, [](const auto& d) { return d.get(); })) {
 			strAppend(err, ' ', dev->getName());
 		}
 	}

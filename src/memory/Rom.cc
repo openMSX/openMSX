@@ -324,13 +324,9 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 bool Rom::checkSHA1(const XMLElement& config) const
 {
 	auto sums = config.getChildren("sha1");
-	if (sums.empty()) {
-		return true;
-	}
-	const auto& sha1sum = getOriginalSHA1();
-	return ranges::any_of(sums, [&](auto& s) {
-		return Sha1Sum(s->getData()) == sha1sum;
-	});
+	return sums.empty() ||
+	       contains(sums, getOriginalSHA1(),
+	                [](auto* s) { return Sha1Sum(s->getData()); });
 }
 
 Rom::Rom(Rom&& r) noexcept
