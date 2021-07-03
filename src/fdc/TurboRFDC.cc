@@ -166,6 +166,9 @@ void TurboRFDC::writeMem(word address, byte value, EmuTime::param time_)
 			case 0x3FF2:
 				controller.writeControlReg0(value, time);
 				break;
+			case 0x3ff3:
+				controller.writeControlReg1(value, time);
+				break;
 			case 0x3FF5:
 				controller.writeDataPort(value, time);
 				break;
@@ -175,6 +178,9 @@ void TurboRFDC::writeMem(word address, byte value, EmuTime::param time_)
 			switch (address & 0x3FFF) {
 			case 0x3FF8:
 				controller.writeControlReg0(value, time);
+				break;
+			case 0x3FF9:
+				controller.writeControlReg1(value, time);
 				break;
 			case 0x3FFB:
 				controller.writeDataPort(value, time);

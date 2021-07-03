@@ -102,6 +102,7 @@ void TC8566AF::reset(EmuTime::param time)
 	headNumber = 0;
 	sectorNumber = 0;
 	number = 0;
+	endOfTrack = 0;
 	sectorsPerCylinder = 0;
 	fillerByte = 0;
 	gapLength = 0;
@@ -207,8 +208,17 @@ byte TC8566AF::executionPhaseRead(EmuTime::param time)
 				status0 |= ST0_IC0;
 				status1 |= ST1_DE;
 				status2 |= ST2_DD;
+				resultPhase();
+			} else {
+				++sectorNumber;
+				if (sectorNumber > endOfTrack) {
+					// done
+					resultPhase();
+				} else {
+					// read next sector
+					startReadWriteSector(time);
+				}
 			}
-			resultPhase();
 		}
 		return result;
 	}
@@ -311,6 +321,15 @@ void TC8566AF::writeControlReg0(byte value, EmuTime::param time)
 	//enableIntDma = value & 0x08;
 	//notReset     = value & 0x04;
 	driveSelect = value & 0x03;
+}
+
+void TC8566AF::writeControlReg1(byte value, EmuTime::param /*time*/)
+{
+	if (value & 1) { // TC, terminate multi-sector read/write command
+		if (phase == PHASE_DATATRANSFER) {
+			resultPhase();
+		}
+	}
 }
 
 void TC8566AF::writeDataPort(byte value, EmuTime::param time)
@@ -455,44 +474,14 @@ void TC8566AF::commandPhaseWrite(byte value, EmuTime::param time)
 			number = value;
 			break;
 		case 5: // End Of Track
+			endOfTrack = value;
 			break;
 		case 6: // Gap Length
+			// ignore
 			break;
 		case 7: // Data length
-			phase = PHASE_DATATRANSFER;
-			phaseStep = 0;
-			//interrupt = true;
-
-			// load drive head, if not already loaded
-			EmuTime ready = time;
-			if (!isHeadLoaded(time)) {
-				ready += getHeadLoadDelay();
-				// set 'head is loaded'
-				headUnloadTime = EmuTime::infinity();
-			}
-
-			// actually read sector: fills in
-			//   dataAvailable and dataCurrent
-			ready = locateSector(ready);
-			if (ready == EmuTime::infinity()) {
-				status0 |= ST0_IC0;
-				status1 |= ST1_ND;
-				resultPhase();
-				return;
-			}
-			if (command == CMD_READ_DATA) {
-				mainStatus |= STM_DIO;
-			} else {
-				mainStatus &= ~STM_DIO;
-			}
-			// Initialize crc
-			// TODO 0xFB vs 0xF8 depends on deleted vs normal data
-			crc.init({0xA1, 0xA1, 0xA1, 0xFB});
-
-			// first byte is available when it's rotated below the
-			// drive-head
-			delayTime.reset(ready);
-			mainStatus &= ~STM_RQM;
+			// ignore value
+			startReadWriteSector(time);
 			break;
 		}
 		break;
@@ -578,6 +567,44 @@ void TC8566AF::commandPhaseWrite(byte value, EmuTime::param time)
 		// nothing
 		break;
 	}
+}
+
+void TC8566AF::startReadWriteSector(EmuTime::param time)
+{
+	phase = PHASE_DATATRANSFER;
+	phaseStep = 0;
+	//interrupt = true;
+
+	// load drive head, if not already loaded
+	EmuTime ready = time;
+	if (!isHeadLoaded(time)) {
+		ready += getHeadLoadDelay();
+		// set 'head is loaded'
+		headUnloadTime = EmuTime::infinity();
+	}
+
+	// actually read sector: fills in
+	//   dataAvailable and dataCurrent
+	ready = locateSector(ready);
+	if (ready == EmuTime::infinity()) {
+		status0 |= ST0_IC0;
+		status1 |= ST1_ND;
+		resultPhase();
+		return;
+	}
+	if (command == CMD_READ_DATA) {
+		mainStatus |= STM_DIO;
+	} else {
+		mainStatus &= ~STM_DIO;
+	}
+	// Initialize crc
+	// TODO 0xFB vs 0xF8 depends on deleted vs normal data
+	crc.init({0xA1, 0xA1, 0xA1, 0xFB});
+
+	// first byte is available when it's rotated below the
+	// drive-head
+	delayTime.reset(ready);
+	mainStatus &= ~STM_RQM;
 }
 
 void TC8566AF::initTrackHeader(EmuTime::param time)
@@ -739,11 +766,20 @@ void TC8566AF::executionPhaseWrite(byte value, EmuTime::param time)
 		} else if (!dataAvailable) {
 			try {
 				writeSector();
+
+				++sectorNumber;
+				if (sectorNumber > endOfTrack) {
+					// done
+					resultPhase();
+				} else {
+					// write next sector
+					startReadWriteSector(time);
+				}
 			} catch (MSXException&) {
 				status0 |= ST0_IC0;
 				status1 |= ST1_NW;
+				resultPhase();
 			}
-			resultPhase();
 		}
 		break;
 
@@ -888,6 +924,7 @@ void TC8566AF::SeekInfo::serialize(Archive& ar, unsigned /*version*/)
 // version 4: changed type of delayTime from Clock to DynamicClock
 // version 5: removed trackData
 // version 6: added seekInfo[4]
+// version 7: added 'endOfTrack'
 template<typename Archive>
 void TC8566AF::serialize(Archive& ar, unsigned version)
 {
@@ -960,6 +997,9 @@ void TC8566AF::serialize(Archive& ar, unsigned version)
 			si.currentTrack = currentTrack;
 			assert(si.state == SEEK_IDLE);
 		}
+	}
+	if (ar.versionAtLeast(version, 7)) {
+		ar.serialize("endOfTrack", endOfTrack);
 	}
 };
 INSTANTIATE_SERIALIZE_METHODS(TC8566AF);

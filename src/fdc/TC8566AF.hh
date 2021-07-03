@@ -25,6 +25,7 @@ public:
 	[[nodiscard]] byte peekStatus() const;
 	byte readStatus(EmuTime::param time);
 	void writeControlReg0(byte data, EmuTime::param time);
+	void writeControlReg1(byte data, EmuTime::param time);
 	void writeDataPort(byte value, EmuTime::param time);
 	bool diskChanged(unsigned driveNum);
 	[[nodiscard]] bool peekDiskChanged(unsigned driveNum) const;
@@ -85,6 +86,7 @@ private:
 	[[nodiscard]] EmuDuration getSeekDelay() const;
 
 	[[nodiscard]] EmuTime locateSector(EmuTime::param time);
+	void startReadWriteSector(EmuTime::param time);
 	void writeSector();
 	void initTrackHeader(EmuTime::param time);
 	void formatSector();
@@ -120,6 +122,7 @@ private:
 	byte headNumber;
 	byte sectorNumber;
 	byte number;
+	byte endOfTrack;
 	byte sectorsPerCylinder;
 	byte fillerByte;
 	byte gapLength;
@@ -135,7 +138,7 @@ private:
 		void serialize(Archive& ar, unsigned version);
 	} seekInfo[4];
 };
-SERIALIZE_CLASS_VERSION(TC8566AF, 6);
+SERIALIZE_CLASS_VERSION(TC8566AF, 7);
 
 } // namespace openmsx
 
