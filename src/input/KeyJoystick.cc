@@ -11,27 +11,43 @@ using std::shared_ptr;
 
 namespace openmsx {
 
+static std::string_view nameForId(KeyJoystick::ID id)
+{
+	switch (id) {
+		case KeyJoystick::ID1: return "keyjoystick1";
+		case KeyJoystick::ID2: return "keyjoystick2";
+		default: return "unknown-keyjoystick";
+	}
+}
+
 class KeyJoyState final : public StateChange
 {
 public:
 	KeyJoyState() = default; // for serialize
-	KeyJoyState(EmuTime::param time_, string name_,
+	KeyJoyState(EmuTime::param time_, KeyJoystick::ID id_,
 	            byte press_, byte release_)
 		: StateChange(time_)
-		, name(std::move(name_)), press(press_), release(release_) {}
-	[[nodiscard]] const string& getName() const { return name; }
+		, id(id_), press(press_), release(release_) {}
+	[[nodiscard]] auto getId() const { return id; }
 	[[nodiscard]] byte getPress()   const { return press; }
 	[[nodiscard]] byte getRelease() const { return release; }
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
+		// for backwards compatibility serialize 'id' as 'name'
+		std::string name = ar.IS_LOADER ? "" : std::string(nameForId(id));
 		ar.serialize("name",    name,
 		             "press",   press,
 		             "release", release);
+		if constexpr (ar.IS_LOADER) {
+			id = (name == nameForId(KeyJoystick::ID1)) ? KeyJoystick::ID1
+			   : (name == nameForId(KeyJoystick::ID2)) ? KeyJoystick::ID2
+			   :                                         KeyJoystick::UNKNOWN;
+		}
 	}
 
 private:
-	string name;
+	KeyJoystick::ID id;
 	byte press, release;
 };
 REGISTER_POLYMORPHIC_CLASS(StateChange, KeyJoyState, "KeyJoyState");
@@ -39,22 +55,22 @@ REGISTER_POLYMORPHIC_CLASS(StateChange, KeyJoyState, "KeyJoyState");
 KeyJoystick::KeyJoystick(CommandController& commandController,
                          MSXEventDistributor& eventDistributor_,
                          StateChangeDistributor& stateChangeDistributor_,
-                         std::string name_)
+                         ID id_)
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
-	, name(std::move(name_))
-	, up   (commandController, tmpStrCat(name, ".up"),
+	, up   (commandController, tmpStrCat(nameForId(id_), ".up"),
 		"key for direction up",    Keys::K_UP)
-	, down (commandController, tmpStrCat(name, ".down"),
+	, down (commandController, tmpStrCat(nameForId(id_), ".down"),
 		"key for direction down",  Keys::K_DOWN)
-	, left (commandController, tmpStrCat(name, ".left"),
+	, left (commandController, tmpStrCat(nameForId(id_), ".left"),
 		"key for direction left",  Keys::K_LEFT)
-	, right(commandController, tmpStrCat(name, ".right"),
+	, right(commandController, tmpStrCat(nameForId(id_), ".right"),
 		"key for direction right", Keys::K_RIGHT)
-	, trigA(commandController, tmpStrCat(name, ".triga"),
+	, trigA(commandController, tmpStrCat(nameForId(id_), ".triga"),
 		"key for trigger A",       Keys::K_SPACE)
-	, trigB(commandController, tmpStrCat(name, ".trigb"),
+	, trigB(commandController, tmpStrCat(nameForId(id_), ".trigb"),
 		"key for trigger B",       Keys::K_M)
+	, id(id_)
 {
 	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	         JOY_BUTTONA | JOY_BUTTONB;
@@ -71,7 +87,7 @@ KeyJoystick::~KeyJoystick()
 // Pluggable
 std::string_view KeyJoystick::getName() const
 {
-	return name;
+	return nameForId(id);
 }
 
 std::string_view KeyJoystick::getDescription() const
@@ -130,7 +146,7 @@ void KeyJoystick::signalMSXEvent(const Event& event,
 
 	if (((status & ~press) | release) != status) {
 		stateChangeDistributor.distributeNew(std::make_shared<KeyJoyState>(
-			time, name, press, release));
+			time, id, press, release));
 	}
 }
 
@@ -139,7 +155,7 @@ void KeyJoystick::signalStateChange(const shared_ptr<StateChange>& event)
 {
 	const auto* kjs = dynamic_cast<const KeyJoyState*>(event.get());
 	if (!kjs) return;
-	if (kjs->getName() != name) return;
+	if (kjs->getId() != id) return;
 
 	status = (status & ~kjs->getPress()) | kjs->getRelease();
 }
@@ -152,7 +168,7 @@ void KeyJoystick::stopReplay(EmuTime::param time) noexcept
 	if (newStatus != status) {
 		byte release = newStatus & ~status;
 		stateChangeDistributor.distributeNew(std::make_shared<KeyJoyState>(
-			time, name, 0, release));
+			time, id, 0, release));
 	}
 }
 

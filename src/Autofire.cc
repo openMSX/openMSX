@@ -8,39 +8,54 @@
 
 namespace openmsx {
 
+static std::string_view nameForId(Autofire::ID id)
+{
+	switch (id) {
+		case Autofire::RENSHATURBO: return "renshaturbo";
+		default: return "unknown-autofire";
+	}
+}
+
 class AutofireStateChange final : public StateChange
 {
 public:
 	AutofireStateChange() = default; // for serialize
-	AutofireStateChange(EmuTime::param time_, std::string name_, int value_)
+	AutofireStateChange(EmuTime::param time_, Autofire::ID id_, int value_)
 		: StateChange(time_)
-		, name(std::move(name_)), value(value_) {}
-	[[nodiscard]] const std::string& getName() const { return name; }
+		, id(id_), value(value_) {}
+	[[nodiscard]] auto getId() const { return id; }
 	[[nodiscard]] int getValue() const { return value; }
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
+		// for backwards compatibility serialize 'id' as 'name'
+		std::string name = ar.IS_LOADER ? "" : std::string(nameForId(id));
 		ar.serialize("name",    name,
 		             "value",   value);
+		if constexpr (ar.IS_LOADER) {
+			id = (name == nameForId(Autofire::RENSHATURBO))
+			   ? Autofire::RENSHATURBO
+			   : Autofire::UNKNOWN;
+		}
 	}
 
 private:
-	std::string name;
+	Autofire::ID id;
 	int value;
 };
 REGISTER_POLYMORPHIC_CLASS(StateChange, AutofireStateChange, "AutofireStateChange");
 
 
 Autofire::Autofire(MSXMotherBoard& motherBoard,
-                   unsigned newMinInts, unsigned newMaxInts, static_string_view name_)
+                   unsigned newMinInts, unsigned newMaxInts, ID id_)
 	: scheduler(motherBoard.getScheduler())
 	, stateChangeDistributor(motherBoard.getStateChangeDistributor())
-	, name(name_)
 	, min_ints(std::max(newMinInts, 1u))
 	, max_ints(std::max(newMaxInts, min_ints + 1))
-	, speedSetting(motherBoard.getCommandController(), name,
+	, speedSetting(motherBoard.getCommandController(), nameForId(id_),
 		"controls the speed of this autofire circuit", 0, 0, 100)
 	, clock(scheduler.getCurrentTime())
+	, id(id_)
 {
 	setClock(speedSetting.getInt());
 
@@ -57,7 +72,7 @@ Autofire::~Autofire()
 void Autofire::setSpeed(EmuTime::param time)
 {
 	stateChangeDistributor.distributeNew(std::make_shared<AutofireStateChange>(
-		time, std::string(name), speedSetting.getInt()));
+		time, id, speedSetting.getInt()));
 }
 
 void Autofire::setClock(int speed)
@@ -81,7 +96,7 @@ void Autofire::signalStateChange(const std::shared_ptr<StateChange>& event)
 {
 	auto* as = dynamic_cast<AutofireStateChange*>(event.get());
 	if (!as) return;
-	if (as->getName() != name) return;
+	if (as->getId() != id) return;
 
 	setClock(as->getValue());
 }

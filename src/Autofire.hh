@@ -25,9 +25,12 @@ class StateChangeDistributor;
 class Autofire final : private Observer<Setting>, private StateChangeListener
 {
 public:
+	enum ID { RENSHATURBO, UNKNOWN };
+
+public:
 	Autofire(MSXMotherBoard& motherBoard,
 	         unsigned newMinInts, unsigned newMaxInts,
-	         static_string_view name);
+	         ID id);
 	~Autofire();
 
 	/** Get the output signal in negative logic.
@@ -57,7 +60,6 @@ private:
 private:
 	Scheduler& scheduler;
 	StateChangeDistributor& stateChangeDistributor;
-	const static_string_view name;
 
 	// Following two values specify the range of the autofire
 	// as measured by the test program:
@@ -79,6 +81,8 @@ private:
 	  * Frequency is derived from speed, min_ints and max_ints.
 	  */
 	DynamicClock clock;
+
+	const ID id;
 };
 
 } // namespace openmsx

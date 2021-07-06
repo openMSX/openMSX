@@ -17,10 +17,13 @@ class KeyJoystick final : public JoystickDevice, private MSXEventListener
                         , private StateChangeListener
 {
 public:
+	enum ID { ID1, ID2, UNKNOWN };
+
+public:
 	KeyJoystick(CommandController& commandController,
 	            MSXEventDistributor& eventDistributor,
 	            StateChangeDistributor& stateChangeDistributor,
-	            std::string name);
+	            ID id);
 	~KeyJoystick() override;
 
 	template<typename Archive>
@@ -47,13 +50,13 @@ private:
 private:
 	MSXEventDistributor& eventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
-	const std::string name;
 	KeyCodeSetting up;
 	KeyCodeSetting down;
 	KeyCodeSetting left;
 	KeyCodeSetting right;
 	KeyCodeSetting trigA;
 	KeyCodeSetting trigB;
+	const ID id;
 
 	byte status;
 	bool pin8;
