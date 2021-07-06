@@ -33,10 +33,12 @@ protected:
 	~StateChangeListener() = default;
 };
 
-class StateChangeRecorder : public StateChangeListener
+class StateChangeRecorder
 {
 public:
 	[[nodiscard]] virtual bool isReplaying() const = 0;
+	virtual void record(const std::shared_ptr<StateChange>& event) = 0;
+	virtual void stopReplay(EmuTime::param time) noexcept = 0;
 protected:
 	~StateChangeRecorder() = default;
 };

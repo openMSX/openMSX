@@ -42,10 +42,13 @@ void StateChangeDistributor::unregisterRecorder(StateChangeRecorder& recorder_)
 
 void StateChangeDistributor::distributeNew(const EventPtr& event)
 {
-	if (viewOnlyMode && isReplaying()) return;
-
-	if (isReplaying()) {
-		stopReplay(event->getTime());
+	if (recorder) {
+		if (isReplaying()) {
+			if (viewOnlyMode) return;
+			stopReplay(event->getTime());
+		}
+		assert(!isReplaying());
+		recorder->record(event);
 	}
 	distribute(event); // might throw, ok
 }
@@ -63,7 +66,6 @@ void StateChangeDistributor::distribute(const EventPtr& event)
 	//   e.g. signalStateChange() -> .. -> PlugCmd::execute() -> .. ->
 	//        Connector::plug() -> .. -> Joystick::plugHelper() ->
 	//        registerListener()
-	if (recorder) recorder->signalStateChange(event);
 	auto copy = listeners;
 	for (auto& l : copy) {
 		if (isRegistered(l)) {

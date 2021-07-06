@@ -131,7 +131,7 @@ private:
 	int signalEvent(const Event& event) noexcept override;
 
 	// StateChangeRecorder
-	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
+	void record(const std::shared_ptr<StateChange>& event) override;
 	void stopReplay(EmuTime::param time) noexcept override;
 
 private:

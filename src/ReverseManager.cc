@@ -816,7 +816,8 @@ void ReverseManager::execInputEvent()
 		++replayIndex;
 		replayNextEvent();
 	} else {
-		assert(!isReplaying()); // stopped by replay of EndLogEvent
+		signalStopReplay(event->getTime());
+		assert(!isReplaying());
 	}
 }
 
@@ -876,22 +877,11 @@ void ReverseManager::replayNextEvent()
 	syncInputEvent.setSyncPoint(history.events[replayIndex]->getTime());
 }
 
-void ReverseManager::signalStateChange(const shared_ptr<StateChange>& event)
+void ReverseManager::record(const shared_ptr<StateChange>& event)
 {
-	if (isReplaying()) {
-		// this is an event we just replayed
-		assert(event == history.events[replayIndex]);
-		if (dynamic_cast<EndLogEvent*>(event.get())) {
-			signalStopReplay(event->getTime());
-		} else {
-			// ignore all other events
-		}
-	} else {
-		// record event
-		history.events.push_back(event);
-		++replayIndex;
-		assert(!isReplaying());
-	}
+	assert(!isReplaying());
+	history.events.push_back(event);
+	++replayIndex;
 }
 
 void ReverseManager::signalStopReplay(EmuTime::param time)
