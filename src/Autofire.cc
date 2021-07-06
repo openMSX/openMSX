@@ -71,8 +71,8 @@ Autofire::~Autofire()
 
 void Autofire::setSpeed(EmuTime::param time)
 {
-	stateChangeDistributor.distributeNew(std::make_shared<AutofireStateChange>(
-		time, id, speedSetting.getInt()));
+	stateChangeDistributor.distributeNew<AutofireStateChange>(
+		time, id, speedSetting.getInt());
 }
 
 void Autofire::setClock(int speed)

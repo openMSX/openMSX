@@ -145,8 +145,8 @@ void KeyJoystick::signalMSXEvent(const Event& event,
 	}, event);
 
 	if (((status & ~press) | release) != status) {
-		stateChangeDistributor.distributeNew(std::make_shared<KeyJoyState>(
-			time, id, press, release));
+		stateChangeDistributor.distributeNew<KeyJoyState>(
+			time, id, press, release);
 	}
 }
 
@@ -167,8 +167,8 @@ void KeyJoystick::stopReplay(EmuTime::param time) noexcept
 	                 JOY_BUTTONA | JOY_BUTTONB;
 	if (newStatus != status) {
 		byte release = newStatus & ~status;
-		stateChangeDistributor.distributeNew(std::make_shared<KeyJoyState>(
-			time, id, 0, release));
+		stateChangeDistributor.distributeNew<KeyJoyState>(
+			time, id, 0, release);
 	}
 }
 

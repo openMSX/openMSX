@@ -253,8 +253,8 @@ void Touchpad::signalMSXEvent(const Event& event,
 void Touchpad::createTouchpadStateChange(
 	EmuTime::param time, byte x_, byte y_, bool touch_, bool button_)
 {
-	stateChangeDistributor.distributeNew(std::make_shared<TouchpadState>(
-		time, x_, y_, touch_, button_));
+	stateChangeDistributor.distributeNew<TouchpadState>(
+		time, x_, y_, touch_, button_);
 }
 
 // StateChangeListener
@@ -272,9 +272,8 @@ void Touchpad::stopReplay(EmuTime::param time) noexcept
 {
 	// TODO Get actual mouse state. Is it worth the trouble?
 	if (x || y || touch || button) {
-		stateChangeDistributor.distributeNew(
-			std::make_shared<TouchpadState>(
-				time, 0, 0, false, false));
+		stateChangeDistributor.distributeNew<TouchpadState>(
+			time, 0, 0, false, false);
 	}
 }
 

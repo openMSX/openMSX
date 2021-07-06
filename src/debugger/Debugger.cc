@@ -22,7 +22,6 @@
 #include <memory>
 
 using std::shared_ptr;
-using std::make_shared;
 using std::string;
 using std::string_view;
 using std::vector;
@@ -148,11 +147,11 @@ unsigned Debugger::setWatchPoint(TclObject command, TclObject condition,
 {
 	shared_ptr<WatchPoint> wp;
 	if (type == one_of(WatchPoint::READ_IO, WatchPoint::WRITE_IO)) {
-		wp = make_shared<WatchIO>(
+		wp = std::make_shared<WatchIO>(
 			motherBoard, type, beginAddr, endAddr,
 			std::move(command), std::move(condition), once, newId);
 	} else {
-		wp = make_shared<WatchPoint>(
+		wp = std::make_shared<WatchPoint>(
 			std::move(command), std::move(condition), type, beginAddr, endAddr, once, newId);
 	}
 	motherBoard.getCPUInterface().setWatchPoint(wp);

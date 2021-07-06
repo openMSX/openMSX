@@ -22,8 +22,7 @@ class MSXCommandEvent final : public StateChange
 {
 public:
 	MSXCommandEvent() = default; // for serialize
-	MSXCommandEvent(span<std::string> tokens, EmuTime::param time);
-	MSXCommandEvent(span<const TclObject> tokens, EmuTime::param time);
+	MSXCommandEvent(EmuTime::param time, span<const TclObject> tokens);
 	[[nodiscard]] const auto& getTokens() const { return tokens; }
 
 	template<typename Archive>

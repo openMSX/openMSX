@@ -1,15 +1,12 @@
 #ifndef STATECHANGEDISTRIBUTOR_HH
 #define STATECHANGEDISTRIBUTOR_HH
 
+#include "StateChangeListener.hh"
 #include "EmuTime.hh"
 #include <memory>
 #include <vector>
 
 namespace openmsx {
-
-class StateChangeListener;
-class StateChangeRecorder;
-class StateChange;
 
 class StateChangeDistributor
 {
@@ -46,8 +43,27 @@ public:
 	 * always starts from a freshly restored snapshot.
 	 * @param event The event
 	 */
-	void distributeNew   (const EventPtr& event);
-	void distributeReplay(const EventPtr& event);
+	template<typename T, typename... Args>
+	void distributeNew(EmuTime::param time, Args&& ...args) {
+		if (recorder) {
+			if (isReplaying()) {
+				if (viewOnlyMode) return;
+				stopReplay(time);
+			}
+			assert(!isReplaying());
+			auto event = std::make_shared<T>(time, std::forward<Args>(args)...);
+			recorder->record(event);
+			distribute(event); // might throw, ok
+		} else {
+			auto event = std::make_shared<T>(time, std::forward<Args>(args)...);
+			distribute(event); // might throw, ok
+		}
+	}
+
+	void distributeReplay(const EventPtr& event) {
+		assert(isReplaying());
+		distribute(event);
+	}
 
 	/** Explicitly stop replay.
 	 * Should be called when replay->live transition cannot be signaled via

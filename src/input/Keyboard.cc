@@ -483,8 +483,8 @@ void Keyboard::changeKeyMatrixEvent(EmuTime::param time, byte row, byte newValue
 	if (diff == 0) return;
 	byte press   = userKeyMatrix[row] & diff;
 	byte release = newValue           & diff;
-	stateChangeDistributor.distributeNew(std::make_shared<KeyMatrixState>(
-		time, row, press, release));
+	stateChangeDistributor.distributeNew<KeyMatrixState>(
+		time, row, press, release);
 }
 
 /*

@@ -129,9 +129,8 @@ void DiskChanger::sendChangeDiskEvent(span<const TclObject> args)
 {
 	// note: might throw MSXException
 	if (stateChangeDistributor) {
-		stateChangeDistributor->distributeNew(
-			std::make_shared<MSXCommandEvent>(
-				args, scheduler->getCurrentTime()));
+		stateChangeDistributor->distributeNew<MSXCommandEvent>(
+			scheduler->getCurrentTime(), args);
 	} else {
 		execute(args);
 	}

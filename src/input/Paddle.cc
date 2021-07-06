@@ -99,8 +99,8 @@ void Paddle::signalMSXEvent(const Event& event,
 		[&](const MouseMotionEvent& e) {
 			constexpr int SCALE = 2;
 			if (int delta = e.getX() / SCALE) {
-				stateChangeDistributor.distributeNew(
-					std::make_shared<PaddleState>(time, delta));
+				stateChangeDistributor.distributeNew<PaddleState>(
+					time, delta);
 			}
 		},
 		[](const EventBase&) { /*ignore*/ }

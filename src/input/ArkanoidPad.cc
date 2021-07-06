@@ -18,7 +18,6 @@
 
 using std::string;
 using std::shared_ptr;
-using std::make_shared;
 
 namespace openmsx {
 
@@ -126,25 +125,22 @@ void ArkanoidPad::signalMSXEvent(const Event& event,
 						dialpos + e.getX() / SCALE));
 			int delta = newPos - dialpos;
 			if (delta != 0) {
-				stateChangeDistributor.distributeNew(
-					make_shared<ArkanoidState>(
-						time, delta, false, false));
+				stateChangeDistributor.distributeNew<ArkanoidState>(
+					time, delta, false, false);
 			}
 		},
 		[&](const MouseButtonDownEvent& /*e*/) {
 			// any button will press the Arkanoid Pad button
 			if (buttonStatus & 2) {
-				stateChangeDistributor.distributeNew(
-					make_shared<ArkanoidState>(
-						time, 0, true, false));
+				stateChangeDistributor.distributeNew<ArkanoidState>(
+					time, 0, true, false);
 			}
 		},
 		[&](const MouseButtonUpEvent& /*e*/) {
 			// any button will unpress the Arkanoid Pad button
 			if (!(buttonStatus & 2)) {
-				stateChangeDistributor.distributeNew(
-					make_shared<ArkanoidState>(
-						time, 0, false, true));
+				stateChangeDistributor.distributeNew<ArkanoidState>(
+					time, 0, false, true);
 			}
 		},
 		[](const EventBase&) { /*ignore */}
@@ -168,8 +164,8 @@ void ArkanoidPad::stopReplay(EmuTime::param time) noexcept
 	int delta = POS_CENTER - dialpos;
 	bool release = (buttonStatus & 2) == 0;
 	if ((delta != 0) || release) {
-		stateChangeDistributor.distributeNew(make_shared<ArkanoidState>(
-			time, delta, false, release));
+		stateChangeDistributor.distributeNew<ArkanoidState>(
+			time, delta, false, release);
 	}
 }
 

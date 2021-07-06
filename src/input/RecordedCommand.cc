@@ -37,8 +37,7 @@ void RecordedCommand::execute(span<const TclObject> tokens, TclObject& result)
 	auto time = scheduler.getCurrentTime();
 	if (needRecord(tokens)) {
 		ScopedAssign sa(currentResultObject, &result);
-		stateChangeDistributor.distributeNew(
-			std::make_shared<MSXCommandEvent>(tokens, time));
+		stateChangeDistributor.distributeNew<MSXCommandEvent>(time, tokens);
 	} else {
 		execute(tokens, result, time);
 	}
@@ -88,16 +87,7 @@ void RecordedCommand::stopReplay(EmuTime::param /*time*/) noexcept
 
 // class MSXCommandEvent
 
-MSXCommandEvent::MSXCommandEvent(span<string> tokens_, EmuTime::param time_)
-	: StateChange(time_)
-	, tokens(tokens_.size())
-{
-	for (auto i : xrange(tokens.size())) {
-		tokens[i] = TclObject(tokens_[i]);
-	}
-}
-
-MSXCommandEvent::MSXCommandEvent(span<const TclObject> tokens_, EmuTime::param time_)
+MSXCommandEvent::MSXCommandEvent(EmuTime::param time_, span<const TclObject> tokens_)
 	: StateChange(time_)
 	, tokens(tokens_.size())
 {

@@ -248,8 +248,8 @@ void Trackball::signalMSXEvent(const Event& event,
 void Trackball::createTrackballStateChange(
 	EmuTime::param time, int deltaX, int deltaY, byte press, byte release)
 {
-	stateChangeDistributor.distributeNew(std::make_shared<TrackballState>(
-		time, deltaX, deltaY, press, release));
+	stateChangeDistributor.distributeNew<TrackballState>(
+		time, deltaX, deltaY, press, release);
 }
 
 // StateChangeListener
@@ -269,9 +269,8 @@ void Trackball::stopReplay(EmuTime::param time) noexcept
 	// TODO Get actual mouse button(s) state. Is it worth the trouble?
 	byte release = (JOY_BUTTONA | JOY_BUTTONB) & ~status;
 	if ((currentDeltaX != 0) || (currentDeltaY != 0) || (release != 0)) {
-		stateChangeDistributor.distributeNew(
-			std::make_shared<TrackballState>(
-				time, -currentDeltaX, -currentDeltaY, 0, release));
+		stateChangeDistributor.distributeNew<TrackballState>(
+			time, -currentDeltaX, -currentDeltaY, 0, release);
 	}
 }
 
