@@ -19,7 +19,6 @@
 #include <memory>
 
 using std::string;
-using std::shared_ptr;
 
 namespace openmsx {
 
@@ -340,9 +339,9 @@ void Joystick::createEvent(EmuTime::param time, byte newStatus)
 }
 
 // StateChangeListener
-void Joystick::signalStateChange(const shared_ptr<StateChange>& event)
+void Joystick::signalStateChange(const StateChange& event)
 {
-	const auto* js = dynamic_cast<const JoyState*>(event.get());
+	const auto* js = dynamic_cast<const JoyState*>(&event);
 	if (!js) return;
 
 	// TODO: It would be more efficient to make a dispatcher instead of

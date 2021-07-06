@@ -54,9 +54,9 @@ bool RecordedCommand::needRecord(span<const TclObject> /*tokens*/) const
 	return (pos == std::string_view::npos) ? str : str.substr(pos + 2);
 }
 
-void RecordedCommand::signalStateChange(const std::shared_ptr<StateChange>& event)
+void RecordedCommand::signalStateChange(const StateChange& event)
 {
-	auto* commandEvent = dynamic_cast<MSXCommandEvent*>(event.get());
+	const auto* commandEvent = dynamic_cast<const MSXCommandEvent*>(&event);
 	if (!commandEvent) return;
 
 	const auto& tokens = commandEvent->getTokens();

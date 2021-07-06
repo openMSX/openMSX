@@ -71,7 +71,7 @@ private:
 	void execute(span<const TclObject> tokens, TclObject& result) override;
 
 	// StateChangeListener
-	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
+	void signalStateChange(const StateChange& event) override;
 	void stopReplay(EmuTime::param time) noexcept override;
 
 private:

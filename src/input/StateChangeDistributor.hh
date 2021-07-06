@@ -12,8 +12,6 @@ namespace openmsx {
 class StateChangeDistributor
 {
 public:
-	using EventPtr = std::shared_ptr<StateChange>;
-
 	StateChangeDistributor() = default;
 	~StateChangeDistributor();
 
@@ -52,16 +50,15 @@ public:
 				stopReplay(time);
 			}
 			assert(!isReplaying());
-			auto event = std::make_shared<T>(time, std::forward<Args>(args)...);
-			recorder->record(event);
+			const auto& event = recorder->record<T>(time, std::forward<Args>(args)...);
 			distribute(event); // might throw, ok
 		} else {
-			auto event = std::make_shared<T>(time, std::forward<Args>(args)...);
+			T event(time, std::forward<Args>(args)...);
 			distribute(event); // might throw, ok
 		}
 	}
 
-	void distributeReplay(const EventPtr& event) {
+	void distributeReplay(const StateChange& event) {
 		assert(isReplaying());
 		distribute(event);
 	}
@@ -86,7 +83,7 @@ public:
 
 private:
 	[[nodiscard]] bool isRegistered(StateChangeListener* listener) const;
-	void distribute(const EventPtr& event);
+	void distribute(const StateChange& event);
 
 private:
 	std::vector<StateChangeListener*> listeners; // unordered

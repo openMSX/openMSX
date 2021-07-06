@@ -51,8 +51,15 @@ public:
 	}
 
 	[[nodiscard]] bool isReplaying() const;
-	void record(const std::shared_ptr<StateChange>& event);
 	void stopReplay(EmuTime::param time) noexcept;
+
+	template<typename T, typename... Args>
+	StateChange& record(EmuTime::param time, Args&& ...args) {
+		assert(!isReplaying());
+		++replayIndex;
+		history.events.push_back(std::make_unique<T>(time, std::forward<Args>(args)...));
+		return *history.events.back();
+	}
 
 private:
 	struct ReverseChunk {
@@ -69,7 +76,7 @@ private:
 		unsigned eventCount;
 	};
 	using Chunks = std::map<unsigned, ReverseChunk>;
-	using Events = std::vector<std::shared_ptr<StateChange>>;
+	using Events = std::vector<std::unique_ptr<StateChange>>;
 
 	struct ReverseHistory {
 		void swap(ReverseHistory& other) noexcept;

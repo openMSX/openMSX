@@ -13,7 +13,6 @@
 #include <memory>
 
 using std::string;
-using std::shared_ptr;
 
 namespace openmsx {
 
@@ -296,9 +295,9 @@ void JoyMega::createEvent(EmuTime::param time, unsigned newStatus)
 }
 
 // StateChangeListener
-void JoyMega::signalStateChange(const shared_ptr<StateChange>& event)
+void JoyMega::signalStateChange(const StateChange& event)
 {
-	const auto* js = dynamic_cast<const JoyMegaState*>(event.get());
+	const auto* js = dynamic_cast<const JoyMegaState*>(&event);
 	if (!js) return;
 
 	// TODO: It would be more efficient to make a dispatcher instead of

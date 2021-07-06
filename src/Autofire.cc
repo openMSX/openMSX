@@ -92,9 +92,9 @@ void Autofire::update(const Setting& setting) noexcept
 	setSpeed(scheduler.getCurrentTime());
 }
 
-void Autofire::signalStateChange(const std::shared_ptr<StateChange>& event)
+void Autofire::signalStateChange(const StateChange& event)
 {
-	auto* as = dynamic_cast<AutofireStateChange*>(event.get());
+	const auto* as = dynamic_cast<const AutofireStateChange*>(&event);
 	if (!as) return;
 	if (as->getId() != id) return;
 

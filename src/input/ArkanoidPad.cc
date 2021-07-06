@@ -17,7 +17,6 @@
 // cause the shift register bits to return to 0.
 
 using std::string;
-using std::shared_ptr;
 
 namespace openmsx {
 
@@ -148,9 +147,9 @@ void ArkanoidPad::signalMSXEvent(const Event& event,
 }
 
 // StateChangeListener
-void ArkanoidPad::signalStateChange(const shared_ptr<StateChange>& event)
+void ArkanoidPad::signalStateChange(const StateChange& event)
 {
-	const auto* as = dynamic_cast<const ArkanoidState*>(event.get());
+	const auto* as = dynamic_cast<const ArkanoidState*>(&event);
 	if (!as) return;
 
 	dialpos += as->getDelta();

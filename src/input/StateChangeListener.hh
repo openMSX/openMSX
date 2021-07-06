@@ -2,7 +2,6 @@
 #define STATECHANGELISTENER_HH
 
 #include "EmuTime.hh"
-#include <memory>
 
 namespace openmsx {
 
@@ -16,8 +15,7 @@ public:
 	 * shouldn't matter, it should be handled in exactly the same way).
 	 * This might throw (e.g. on 'diska non-existing-file.dsk').
 	 */
-	virtual void signalStateChange(
-		const std::shared_ptr<StateChange>& event) = 0;
+	virtual void signalStateChange(const StateChange& event) = 0;
 
 	/** This method gets called when we switch from replayed events to
 	 * live events. A input device should resync its state with the current

@@ -7,7 +7,6 @@
 #include "serialize_meta.hh"
 
 using std::string;
-using std::shared_ptr;
 
 namespace openmsx {
 
@@ -151,9 +150,9 @@ void KeyJoystick::signalMSXEvent(const Event& event,
 }
 
 // StateChangeListener
-void KeyJoystick::signalStateChange(const shared_ptr<StateChange>& event)
+void KeyJoystick::signalStateChange(const StateChange& event)
 {
-	const auto* kjs = dynamic_cast<const KeyJoyState*>(event.get());
+	const auto* kjs = dynamic_cast<const KeyJoyState*>(&event);
 	if (!kjs) return;
 	if (kjs->getId() != id) return;
 

@@ -31,7 +31,6 @@
 
 using std::string;
 using std::vector;
-using std::shared_ptr;
 using std::move;
 
 namespace openmsx {
@@ -410,7 +409,7 @@ void ReverseManager::goTo(
 			if (hist.events.empty() ||
 			    !dynamic_cast<const EndLogEvent*>(hist.events.back().get())) {
 				hist.events.push_back(
-					std::make_shared<EndLogEvent>(currentTime));
+					std::make_unique<EndLogEvent>(currentTime));
 			}
 
 			// Transfer history to the new ReverseManager.
@@ -608,7 +607,7 @@ void ReverseManager::saveReplay(
 		!dynamic_cast<EndLogEvent*>(history.events.back().get());
 	if (addSentinel) {
 		/// make sure the replay log ends with a EndLogEvent
-		history.events.push_back(std::make_shared<EndLogEvent>(
+		history.events.push_back(std::make_unique<EndLogEvent>(
 			getCurrentTime()));
 	}
 	try {
@@ -804,7 +803,7 @@ void ReverseManager::execNewSnapshot()
 
 void ReverseManager::execInputEvent()
 {
-	auto event = history.events[replayIndex];
+	const auto& event = *history.events[replayIndex];
 	try {
 		// deliver current event at current time
 		motherBoard.getStateChangeDistributor().distributeReplay(event);
@@ -812,11 +811,11 @@ void ReverseManager::execInputEvent()
 		// can throw in case we replay a command that fails
 		// ignore
 	}
-	if (!dynamic_cast<const EndLogEvent*>(event.get())) {
+	if (!dynamic_cast<const EndLogEvent*>(&event)) {
 		++replayIndex;
 		replayNextEvent();
 	} else {
-		signalStopReplay(event->getTime());
+		signalStopReplay(event.getTime());
 		assert(!isReplaying());
 	}
 }
@@ -875,13 +874,6 @@ void ReverseManager::replayNextEvent()
 	// schedule next event at its own time
 	assert(replayIndex < history.events.size());
 	syncInputEvent.setSyncPoint(history.events[replayIndex]->getTime());
-}
-
-void ReverseManager::record(const shared_ptr<StateChange>& event)
-{
-	assert(!isReplaying());
-	history.events.push_back(event);
-	++replayIndex;
 }
 
 void ReverseManager::signalStopReplay(EmuTime::param time)

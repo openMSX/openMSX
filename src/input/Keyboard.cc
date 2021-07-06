@@ -32,7 +32,6 @@
 
 using std::string;
 using std::vector;
-using std::shared_ptr;
 
 namespace openmsx {
 
@@ -411,9 +410,9 @@ void Keyboard::signalMSXEvent(const Event& event,
 	}
 }
 
-void Keyboard::signalStateChange(const shared_ptr<StateChange>& event)
+void Keyboard::signalStateChange(const StateChange& event)
 {
-	const auto* kms = dynamic_cast<const KeyMatrixState*>(event.get());
+	const auto* kms = dynamic_cast<const KeyMatrixState*>(&event);
 	if (!kms) return;
 
 	userKeyMatrix[kms->getRow()] &= ~kms->getPress();

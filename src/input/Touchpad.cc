@@ -20,7 +20,6 @@
 #include "xrange.hh"
 #include <iostream>
 
-using std::shared_ptr;
 using namespace gl;
 
 namespace openmsx {
@@ -258,9 +257,9 @@ void Touchpad::createTouchpadStateChange(
 }
 
 // StateChangeListener
-void Touchpad::signalStateChange(const shared_ptr<StateChange>& event)
+void Touchpad::signalStateChange(const StateChange& event)
 {
-	if (auto* ts = dynamic_cast<TouchpadState*>(event.get())) {
+	if (const auto* ts = dynamic_cast<const TouchpadState*>(&event)) {
 		x      = ts->getX();
 		y      = ts->getY();
 		touch  = ts->getTouch();

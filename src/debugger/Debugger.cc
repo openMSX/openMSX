@@ -21,7 +21,6 @@
 #include <cassert>
 #include <memory>
 
-using std::shared_ptr;
 using std::string;
 using std::string_view;
 using std::vector;
@@ -145,7 +144,7 @@ unsigned Debugger::setWatchPoint(TclObject command, TclObject condition,
                                  unsigned beginAddr, unsigned endAddr,
                                  bool once, unsigned newId /*= -1*/)
 {
-	shared_ptr<WatchPoint> wp;
+	std::shared_ptr<WatchPoint> wp;
 	if (type == one_of(WatchPoint::READ_IO, WatchPoint::WRITE_IO)) {
 		wp = std::make_shared<WatchIO>(
 			motherBoard, type, beginAddr, endAddr,

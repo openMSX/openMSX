@@ -17,7 +17,6 @@
 //   against the real hardware.
 
 using std::string;
-using std::shared_ptr;
 
 namespace openmsx {
 
@@ -253,9 +252,9 @@ void Trackball::createTrackballStateChange(
 }
 
 // StateChangeListener
-void Trackball::signalStateChange(const shared_ptr<StateChange>& event)
+void Trackball::signalStateChange(const StateChange& event)
 {
-	const auto* ts = dynamic_cast<const TrackballState*>(event.get());
+	const auto* ts = dynamic_cast<const TrackballState*>(&event);
 	if (!ts) return;
 
 	targetDeltaX = std::clamp(targetDeltaX + ts->getDeltaX(), -8, 7);

@@ -108,9 +108,9 @@ void Paddle::signalMSXEvent(const Event& event,
 }
 
 // StateChangeListener
-void Paddle::signalStateChange(const std::shared_ptr<StateChange>& event)
+void Paddle::signalStateChange(const StateChange& event)
 {
-	const auto* ps = dynamic_cast<const PaddleState*>(event.get());
+	const auto* ps = dynamic_cast<const PaddleState*>(&event);
 	if (!ps) return;
 	int newAnalog = analogValue + ps->getDelta();
 	analogValue = std::min(std::max(newAnalog, 0), 255);

@@ -65,7 +65,7 @@ private:
 	void sendChangeDiskEvent(span<const TclObject> args);
 
 	// StateChangeListener
-	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
+	void signalStateChange(const StateChange& event) override;
 	void stopReplay(EmuTime::param time) noexcept override;
 
 private:

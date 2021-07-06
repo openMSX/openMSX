@@ -40,7 +40,7 @@ void StateChangeDistributor::unregisterRecorder(ReverseManager& recorder_)
 	recorder = nullptr;
 }
 
-void StateChangeDistributor::distribute(const EventPtr& event)
+void StateChangeDistributor::distribute(const StateChange& event)
 {
 	// Iterate over a copy because signalStateChange() may indirect call
 	// back into registerListener().

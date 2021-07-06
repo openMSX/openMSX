@@ -35,7 +35,6 @@
 using std::string;
 using std::vector;
 using std::min;
-using std::shared_ptr;
 
 namespace openmsx {
 
@@ -845,7 +844,7 @@ static void registerIOWatch(WatchPoint& watchPoint, MSXDevice** devices)
 	}
 }
 
-void MSXCPUInterface::setWatchPoint(const shared_ptr<WatchPoint>& watchPoint)
+void MSXCPUInterface::setWatchPoint(const std::shared_ptr<WatchPoint>& watchPoint)
 {
 	watchPoints.push_back(watchPoint);
 	WatchPoint::Type type = watchPoint->getType();
@@ -885,7 +884,7 @@ static void unregisterIOWatch(WatchPoint& watchPoint, MSXDevice** devices)
 	}
 }
 
-void MSXCPUInterface::removeWatchPoint(shared_ptr<WatchPoint> watchPoint)
+void MSXCPUInterface::removeWatchPoint(std::shared_ptr<WatchPoint> watchPoint)
 {
 	// Pass shared_ptr by value to keep the object alive for the duration
 	// of this function, otherwise it gets deleted as soon as it's removed

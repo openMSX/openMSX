@@ -11,7 +11,6 @@
 #include <algorithm>
 
 using std::string;
-using std::shared_ptr;
 
 namespace openmsx {
 
@@ -290,9 +289,9 @@ void Mouse::createMouseStateChange(
 		time, deltaX, deltaY, press, release);
 }
 
-void Mouse::signalStateChange(const shared_ptr<StateChange>& event)
+void Mouse::signalStateChange(const StateChange& event)
 {
-	const auto* ms = dynamic_cast<const MouseState*>(event.get());
+	const auto* ms = dynamic_cast<const MouseState*>(&event);
 	if (!ms) return;
 
 	// This is almost the same as

@@ -136,9 +136,9 @@ void DiskChanger::sendChangeDiskEvent(span<const TclObject> args)
 	}
 }
 
-void DiskChanger::signalStateChange(const std::shared_ptr<StateChange>& event)
+void DiskChanger::signalStateChange(const StateChange& event)
 {
-	auto* commandEvent = dynamic_cast<MSXCommandEvent*>(event.get());
+	const auto* commandEvent = dynamic_cast<const MSXCommandEvent*>(&event);
 	if (!commandEvent) return;
 
 	execute(commandEvent->getTokens());
