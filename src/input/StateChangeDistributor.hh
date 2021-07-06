@@ -1,6 +1,7 @@
 #ifndef STATECHANGEDISTRIBUTOR_HH
 #define STATECHANGEDISTRIBUTOR_HH
 
+#include "ReverseManager.hh"
 #include "StateChangeListener.hh"
 #include "EmuTime.hh"
 #include <memory>
@@ -29,8 +30,8 @@ public:
 	 * object is always the first object that gets informed about state
 	 * changing events.
 	 */
-	void registerRecorder  (StateChangeRecorder& recorder);
-	void unregisterRecorder(StateChangeRecorder& recorder);
+	void registerRecorder  (ReverseManager& recorder);
+	void unregisterRecorder(ReverseManager& recorder);
 
 	/** Deliver the event to all registered listeners
 	 * MSX input devices should call the distributeNew() version, only the
@@ -89,7 +90,7 @@ private:
 
 private:
 	std::vector<StateChangeListener*> listeners; // unordered
-	StateChangeRecorder* recorder = nullptr;
+	ReverseManager* recorder = nullptr;
 	bool viewOnlyMode = false;
 };
 

@@ -3,7 +3,6 @@
 
 #include "Schedulable.hh"
 #include "EventListener.hh"
-#include "StateChangeListener.hh"
 #include "Command.hh"
 #include "EmuTime.hh"
 #include "MemBuffer.hh"
@@ -17,14 +16,15 @@
 
 namespace openmsx {
 
-class MSXMotherBoard;
-class Keyboard;
 class EventDelay;
 class EventDistributor;
-class TclObject;
 class Interpreter;
+class MSXMotherBoard;
+class Keyboard;
+class StateChange;
+class TclObject;
 
-class ReverseManager final : private EventListener, private StateChangeRecorder
+class ReverseManager final : private EventListener
 {
 public:
 	explicit ReverseManager(MSXMotherBoard& motherBoard);
@@ -50,7 +50,9 @@ public:
 		reRecordCount = count;
 	}
 
-	[[nodiscard]] bool isReplaying() const override;
+	[[nodiscard]] bool isReplaying() const;
+	void record(const std::shared_ptr<StateChange>& event);
+	void stopReplay(EmuTime::param time) noexcept;
 
 private:
 	struct ReverseChunk {
@@ -129,10 +131,6 @@ private:
 
 	// EventListener
 	int signalEvent(const Event& event) noexcept override;
-
-	// StateChangeRecorder
-	void record(const std::shared_ptr<StateChange>& event) override;
-	void stopReplay(EmuTime::param time) noexcept override;
 
 private:
 	MSXMotherBoard& motherBoard;

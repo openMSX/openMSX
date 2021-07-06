@@ -27,13 +27,13 @@ void StateChangeDistributor::unregisterListener(StateChangeListener& listener)
 	move_pop_back(listeners, rfind_unguarded(listeners, &listener));
 }
 
-void StateChangeDistributor::registerRecorder(StateChangeRecorder& recorder_)
+void StateChangeDistributor::registerRecorder(ReverseManager& recorder_)
 {
 	assert(!recorder);
 	recorder = &recorder_;
 }
 
-void StateChangeDistributor::unregisterRecorder(StateChangeRecorder& recorder_)
+void StateChangeDistributor::unregisterRecorder(ReverseManager& recorder_)
 {
 	(void)recorder_;
 	assert(recorder == &recorder_);
