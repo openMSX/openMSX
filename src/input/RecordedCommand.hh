@@ -6,6 +6,7 @@
 #include "StateChange.hh"
 #include "TclObject.hh"
 #include "EmuTime.hh"
+#include "dynarray.hh"
 
 namespace openmsx {
 
@@ -23,12 +24,12 @@ public:
 	MSXCommandEvent() = default; // for serialize
 	MSXCommandEvent(span<std::string> tokens, EmuTime::param time);
 	MSXCommandEvent(span<const TclObject> tokens, EmuTime::param time);
-	[[nodiscard]] const std::vector<TclObject>& getTokens() const { return tokens; }
+	[[nodiscard]] const auto& getTokens() const { return tokens; }
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 private:
-	std::vector<TclObject> tokens;
+	dynarray<TclObject> tokens;
 };
 
 

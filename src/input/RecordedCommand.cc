@@ -8,6 +8,7 @@
 #include "serialize_stl.hh"
 #include "stl.hh"
 #include "view.hh"
+#include "xrange.hh"
 
 using std::vector;
 using std::string;
@@ -89,14 +90,20 @@ void RecordedCommand::stopReplay(EmuTime::param /*time*/) noexcept
 
 MSXCommandEvent::MSXCommandEvent(span<string> tokens_, EmuTime::param time_)
 	: StateChange(time_)
+	, tokens(tokens_.size())
 {
-	tokens = to_vector<TclObject>(tokens_);
+	for (auto i : xrange(tokens.size())) {
+		tokens[i] = TclObject(tokens_[i]);
+	}
 }
 
 MSXCommandEvent::MSXCommandEvent(span<const TclObject> tokens_, EmuTime::param time_)
 	: StateChange(time_)
-	, tokens(to_vector(tokens_))
+	, tokens(tokens_.size())
 {
+	for (auto i : xrange(tokens.size())) {
+		tokens[i] = tokens_[i];
+	}
 }
 
 template<typename Archive>
@@ -113,8 +120,11 @@ void MSXCommandEvent::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("tokens", str);
 	if constexpr (Archive::IS_LOADER) {
 		assert(tokens.empty());
-		tokens = to_vector(view::transform(
-			str, [](auto& s) { return TclObject(s); }));
+		size_t n = str.size();
+		tokens = dynarray<TclObject>(n);
+		for (auto i : xrange(n)) {
+			tokens[i] = TclObject(str[i]);
+		}
 	}
 }
 REGISTER_POLYMORPHIC_CLASS(StateChange, MSXCommandEvent, "MSXCommandEvent");
