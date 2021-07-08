@@ -116,13 +116,15 @@ VDP::VDP(const DeviceConfig& config)
 
 	int defaultSaturation = 54;
 
+    slotTimeShift = 0.0;
+
 	std::string versionString = config.getChildData("version");
 	if (versionString == "TMS99X8A") version = TMS99X8A;
 	else if (versionString == "TMS9918A") {
 		version = TMS99X8A;
 		defaultSaturation = 100;
 	} else if (versionString == "TMS9928A") version = TMS99X8A;
-	else if (versionString == "T6950PAL") version = T6950PAL;
+	else if (versionString == "T6950PAL") {version = T6950PAL; slotTimeShift = 4930.0;}
 	else if (versionString == "T6950NTSC") version = T6950NTSC;
 	else if (versionString == "T7937APAL") version = T7937APAL;
 	else if (versionString == "T7937ANTSC") version = T7937ANTSC;
@@ -130,9 +132,9 @@ VDP::VDP(const DeviceConfig& config)
 	else if (versionString == "TMS9118") {
 		version = TMS91X8;
 		defaultSaturation = 100;
-	} else if (versionString == "TMS9128") version = TMS91X8;
+	} else if (versionString == "TMS9128") {version = TMS91X8; slotTimeShift = 1440.0;}
 	else if (versionString == "TMS9929A") version = TMS9929A;
-	else if (versionString == "TMS9129") version = TMS9129;
+	else if (versionString == "TMS9129") {version = TMS9129; slotTimeShift = 2420.0;}
 	else if (versionString == "V9938") version = V9938;
 	else if (versionString == "V9958") version = V9958;
 	else if (versionString == "YM2220PAL") version = YM2220PAL;
@@ -820,9 +822,17 @@ void VDP::scheduleCpuVramAccess(bool isRead, byte write, EmuTime::param time)
 			// other variables that influence the exact timing (7
 			// vs 8 cycles).
 			pendingCpuAccess = true;
-			auto delta = isMSX1VDP() ? VDPAccessSlots::DELTA_28
+
+            // It seems that the actual slot time access happens slightly sooner in a
+            // real MSX 1. Thus, correct the scheduled time for the next access window.
+            // This fixes Karateka and gives the same color corruption that can be seen in
+            // https://youtu.be/7HXZHeZIuJY?t=1867
+            // [ToDo] Check if the timing needs also to be corrected in MSX2.
+            // Related bug: https://github.com/openMSX/openMSX/issues/949
+			EmuTime accessSlotTime = time - EmuDuration(double(slotTimeShift/MAIN_FREQ));
+			auto delta = isMSX1VDP() ? VDPAccessSlots::DELTA_32
 						 : VDPAccessSlots::DELTA_16;
-			syncCpuVramAccess.setSyncPoint(getAccessSlot(time, delta));
+			syncCpuVramAccess.setSyncPoint(getAccessSlot(accessSlotTime, delta));
 		}
 	}
 }
