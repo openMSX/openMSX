@@ -492,7 +492,7 @@ static void OPLL_PhaseGenerate(opll_t *chip) {
     }
     if ((chip->rm_enable & 0x80)) {
         switch (chip->cycles) {
-        case 13:
+        case 13: {
             /* HH */
             uint8_t rm_bit = (chip->rm_hh_bit2 ^ chip->rm_hh_bit7)
                    | (chip->rm_hh_bit3 ^ chip->rm_tc_bit5)
@@ -504,18 +504,20 @@ static void OPLL_PhaseGenerate(opll_t *chip) {
                 pg_out |= 0x34;
             }
             break;
+	}
         case 16:
             /* SD */
             pg_out = (chip->rm_hh_bit8 << 9)
                    | ((chip->rm_hh_bit8 ^ (chip->rm_noise & 1)) << 8);
             break;
-        case 17:
+        case 17: {
             /* TC */
-            rm_bit = (chip->rm_hh_bit2 ^ chip->rm_hh_bit7)
+            uint8_t rm_bit = (chip->rm_hh_bit2 ^ chip->rm_hh_bit7)
                    | (chip->rm_hh_bit3 ^ chip->rm_tc_bit5)
                    | (chip->rm_tc_bit3 ^ chip->rm_tc_bit5);
             pg_out = (rm_bit << 9) | 0x100;
             break;
+	}
         default:
             pg_out = phase >> 9;
         }
@@ -911,7 +913,7 @@ static void OPLL_Operator(opll_t *chip) {
     }
 
     op_mod = 0;
-    
+
     if (ismod3) {
         op_mod |= chip->op_mod << 1;
     }
@@ -1012,7 +1014,7 @@ static void OPLL_DoRhythm(opll_t *chip) {
 static void OPLL_DoLFO(opll_t *chip) {
     uint8_t am_inc = 0;
     uint8_t am_bit;
-    
+
     /* Update counter */
     if (chip->cycles == 17) {
         uint8_t vib_step = ((chip->lfo_counter & 0x3ff) + 1) >> 10;
@@ -1022,7 +1024,7 @@ static void OPLL_DoLFO(opll_t *chip) {
         chip->lfo_vib_counter &= 0x07;
         chip->lfo_counter++;
     }
-    
+
     /* LFO AM */
     if ((chip->lfo_am_step || (chip->testmode & 0x08)) && chip->cycles < 9) {
         am_inc = chip->lfo_am_dir | (chip->cycles == 0);
