@@ -41,13 +41,10 @@ namespace openmsx {
 
 #ifdef _WIN32
 // wrapper for Windows, as the MS runtime doesn't provide setenv!?
-int setenv(const char *name, const char *value, int overwrite);
-int setenv(const char *name, const char *value, int overwrite)
+static int setenv(const char* name, const char* value, int overwrite)
 {
-	if (!overwrite) {
-		if (getenv(name)) {
-			return 0;
-		}
+	if (!overwrite && getenv(name)) {
+		return 0;
 	}
 	return _putenv_s(name, value);
 }
@@ -55,8 +52,7 @@ int setenv(const char *name, const char *value, int overwrite)
 
 #ifdef _WIN32
 // enable console output on Windows
-void EnableConsoleOutput();
-void EnableConsoleOutput()
+static void EnableConsoleOutput()
 {
     if (AttachConsole(ATTACH_PARENT_PROCESS)) {
         freopen("CONOUT$", "w", stdout);
