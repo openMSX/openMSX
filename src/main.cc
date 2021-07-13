@@ -45,7 +45,7 @@ int setenv(const char *name, const char *value, int overwrite);
 int setenv(const char *name, const char *value, int overwrite)
 {
 	if (!overwrite) {
-		if (char* oldvalue = getenv(name)) {
+		if (getenv(name)) {
 			return 0;
 		}
 	}
@@ -55,6 +55,7 @@ int setenv(const char *name, const char *value, int overwrite)
 
 #ifdef _WIN32
 // enable console output on Windows
+void EnableConsoleOutput();
 void EnableConsoleOutput()
 {
     if (AttachConsole(ATTACH_PARENT_PROCESS)) {
