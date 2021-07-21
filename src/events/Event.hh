@@ -4,6 +4,7 @@
 #include "ObjectPool.hh"
 #include "Keys.hh"
 #include "static_vector.hh"
+#include "StringStorage.hh"
 #include "TclObject.hh"
 #include "Thread.hh"
 #include "Timer.hh"
@@ -298,13 +299,13 @@ private:
 class FileDropEvent final : public EventBase
 {
 public:
-	explicit FileDropEvent(TclObject fileName_)
-		: fileName(std::move(fileName_)) {}
+	explicit FileDropEvent(std::string_view fileName_)
+		: fileName(allocate_c_string(fileName_)) {}
 
-	[[nodiscard]] const TclObject& getFileName() const { return fileName; }
+	[[nodiscard]] zstring_view getFileName() const { return fileName.get(); }
 
 private:
-	const TclObject fileName;
+	const StringStorage fileName;
 };
 
 
@@ -404,15 +405,14 @@ private:
 class CliCommandEvent final : public EventBase
 {
 public:
-	CliCommandEvent(TclObject command_, const CliConnection* id_)
-		: command(std::move(command_)), id(id_) {}
+	CliCommandEvent(std::string_view command_, const CliConnection* id_)
+		: command(allocate_c_string(command_)), id(id_) {}
 
-	[[nodiscard]] const TclObject& getCommandObj() const { return command; }
-	[[nodiscard]] zstring_view getCommand() const { return command.getString(); }
+	[[nodiscard]] zstring_view getCommand() const { return command.get(); }
 	[[nodiscard]] const CliConnection* getId() const { return id; }
 
 private:
-	const TclObject command;
+	const StringStorage command;
 	const CliConnection* id;
 };
 
