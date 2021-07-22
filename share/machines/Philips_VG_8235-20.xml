@@ -1,0 +1,121 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <info>
+    <manufacturer>Philips</manufacturer>
+    <code>VG 8235/20</code>
+    <release_year>1986</release_year>
+    <description>Updated version of the regular VG 8235</description>
+    <type>MSX2</type>
+  </info>
+
+<!-- Info from the 8235/20 with serial FF01 639041448 from Meits
+TODO: check chips. At least we see on
+http://bilgisayarlarim.com/Philips/VG-8235 (with serial FF00 632042694):
+- S3527 MSX-ENGINE
+- TI TMS2793NL FDC
+- Kyocera M60003A gate array
+- Zilog Z8400APS Z80 CPU
+- LVA510 RF encoder
+-->
+
+  <MapperReadBackBits>largest</MapperReadBackBits>
+
+  <CassettePort/>
+
+  <devices>
+
+    <PPI id="ppi">
+      <has_keypad>false</has_keypad>
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <io base="0xA8" num="4"/>
+      <keyboard_type>int</keyboard_type>
+      <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
+      <code_kana_locks>false</code_kana_locks>
+      <graph_locks>false</graph_locks>
+    </PPI>
+
+    <VDP id="VDP">
+      <version>V9938</version>
+      <vram>128</vram>
+      <io base="0x98" num="8" type="O"/> <!-- S-3527 mirrors -->
+      <io base="0x98" num="8" type="I"/> <!-- S-3527 mirrors -->
+    </VDP>
+
+    <PSG id="PSG">
+      <type>YM2149</type> <!-- in S-3527 MSX-ENGINE -->
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <io base="0xA0" num="2" type="O"/>
+      <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
+    </PSG>
+
+    <RTC id="Real time clock">
+      <sramname>vg_8235-20.cmos</sramname>
+      <io base="0xB4" num="2" type="O"/>
+      <io base="0xB5" num="1" type="I"/>
+    </RTC>
+
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
+
+    <primary slot="0">
+      <ROM id="MSX BIOS with BASIC ROM">
+        <rom>
+          <filename>vg8235-20_basic-bios2.rom</filename>
+          <sha1>6103b39f1e38d1aa2d84b1c3219c44f1abb5436e</sha1>
+        </rom>
+        <mem base="0x0000" size="0x8000"/>
+      </ROM>
+    </primary>
+
+    <primary external="true" slot="1"/>
+
+    <primary external="true" slot="2"/>
+
+    <primary slot="3">
+
+      <secondary slot="0">
+        <ROM id="MSX Sub ROM">
+          <rom>
+            <filename>vg8235-20_msx2sub.rom</filename>
+            <sha1>5c1f9c7fb655e43d38e5dd1fcc6b942b2ff68b02</sha1>
+          </rom>
+          <mem base="0x0000" size="0x4000"/> <!-- Verified on real MSX: no mirroring at all! -->
+        </ROM>
+      </secondary>
+
+      <secondary slot="1"/>
+
+      <secondary slot="2">
+        <MemoryMapper id="Main RAM">
+          <size>128</size>
+          <!-- Note that on the above mentioned machine, the initial content looked like the default 0xFF everywhere -->
+          <mem base="0x0000" size="0x10000"/>
+        </MemoryMapper>
+      </secondary>
+
+      <secondary slot="3">
+        <WD2793 id="Memory Mapped FDC">
+          <connectionstyle>Philips</connectionstyle>
+          <singlesided/>
+          <drives>1</drives>
+          <rom>
+            <filename>vg8235-20_disk.rom</filename>
+            <sha1>1ee2abc68a81ae7e39548985021b6532f31171b2</sha1> <!-- marked NMS 2.2, ends with 0x00/0xFF checkerboard pattern, FDC regs removed -->
+          </rom>
+          <mem base="0x4000" size="0x8000"/> <!-- Verified on real MSX: mirroring in page 2 -->
+        </WD2793>
+      </secondary>
+
+    </primary>
+
+  </devices>
+
+</msxconfig>
