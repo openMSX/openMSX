@@ -53,6 +53,8 @@ def detectCPU():
 		return 'sheb' if cpu.endswith('eb') else 'sh'
 	elif cpu == 'avr32':
 		return 'avr32'
+	elif cpu == 'riscv64':
+		return 'riscv64'
 	elif cpu == '':
 		# Python couldn't figure it out.
 		os = system().lower()
