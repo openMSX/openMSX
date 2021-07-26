@@ -390,8 +390,8 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		break;
 
 	case SDL_DROPFILE:
-		event = Event::create<FileDropEvent>(TclObject(
-			FileOperations::getConventionalPath(evt.drop.file)));
+		event = Event::create<FileDropEvent>(
+			FileOperations::getConventionalPath(evt.drop.file));
 		SDL_free(evt.drop.file);
 		break;
 

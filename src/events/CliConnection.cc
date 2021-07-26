@@ -96,7 +96,7 @@ void CliConnection::end()
 void CliConnection::execute(const string& command)
 {
 	eventDistributor.distributeEvent(
-		Event::create<CliCommandEvent>(TclObject(command), this));
+		Event::create<CliCommandEvent>(command, this));
 }
 
 static TemporaryString reply(std::string_view message, bool status)
