@@ -10,51 +10,10 @@ using std::string;
 
 namespace openmsx {
 
-static std::string_view nameForId(KeyJoystick::ID id)
-{
-	switch (id) {
-		case KeyJoystick::ID1: return "keyjoystick1";
-		case KeyJoystick::ID2: return "keyjoystick2";
-		default: return "unknown-keyjoystick";
-	}
-}
-
-class KeyJoyState final : public StateChange
-{
-public:
-	KeyJoyState() = default; // for serialize
-	KeyJoyState(EmuTime::param time_, KeyJoystick::ID id_,
-	            byte press_, byte release_)
-		: StateChange(time_)
-		, id(id_), press(press_), release(release_) {}
-	[[nodiscard]] auto getId() const { return id; }
-	[[nodiscard]] byte getPress()   const { return press; }
-	[[nodiscard]] byte getRelease() const { return release; }
-	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
-	{
-		ar.template serializeBase<StateChange>(*this);
-		// for backwards compatibility serialize 'id' as 'name'
-		std::string name = ar.IS_LOADER ? "" : std::string(nameForId(id));
-		ar.serialize("name",    name,
-		             "press",   press,
-		             "release", release);
-		if constexpr (ar.IS_LOADER) {
-			id = (name == nameForId(KeyJoystick::ID1)) ? KeyJoystick::ID1
-			   : (name == nameForId(KeyJoystick::ID2)) ? KeyJoystick::ID2
-			   :                                         KeyJoystick::UNKNOWN;
-		}
-	}
-
-private:
-	KeyJoystick::ID id;
-	byte press, release;
-};
-REGISTER_POLYMORPHIC_CLASS(StateChange, KeyJoyState, "KeyJoyState");
-
 KeyJoystick::KeyJoystick(CommandController& commandController,
                          MSXEventDistributor& eventDistributor_,
                          StateChangeDistributor& stateChangeDistributor_,
-                         ID id_)
+                         KeyJoyID id_)
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
 	, up   (commandController, tmpStrCat(nameForId(id_), ".up"),
@@ -152,7 +111,7 @@ void KeyJoystick::signalMSXEvent(const Event& event,
 // StateChangeListener
 void KeyJoystick::signalStateChange(const StateChange& event)
 {
-	const auto* kjs = dynamic_cast<const KeyJoyState*>(&event);
+	const auto* kjs = std::get_if<KeyJoyState>(&event);
 	if (!kjs) return;
 	if (kjs->getId() != id) return;
 

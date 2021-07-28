@@ -19,7 +19,7 @@ RenShaTurbo::RenShaTurbo(MSXMotherBoard& motherBoard,
 		}
 		autofire = std::make_unique<Autofire>(
 			motherBoard, min_ints, max_ints,
-			Autofire::RENSHATURBO);
+			AutofireID::RENSHATURBO);
 	}
 }
 

@@ -3,6 +3,7 @@
 
 #include "JoystickDevice.hh"
 #include "MSXEventListener.hh"
+#include "StateChange.hh"
 #include "StateChangeListener.hh"
 #include "KeyCodeSetting.hh"
 #include "serialize_meta.hh"
@@ -17,13 +18,10 @@ class KeyJoystick final : public JoystickDevice, private MSXEventListener
                         , private StateChangeListener
 {
 public:
-	enum ID { ID1, ID2, UNKNOWN };
-
-public:
 	KeyJoystick(CommandController& commandController,
 	            MSXEventDistributor& eventDistributor,
 	            StateChangeDistributor& stateChangeDistributor,
-	            ID id);
+	            KeyJoyID id);
 	~KeyJoystick() override;
 
 	template<typename Archive>
@@ -56,7 +54,7 @@ private:
 	KeyCodeSetting right;
 	KeyCodeSetting trigA;
 	KeyCodeSetting trigB;
-	const ID id;
+	const KeyJoyID id;
 
 	byte status;
 	bool pin8;

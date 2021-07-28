@@ -28,6 +28,8 @@
 #include <cassert>
 #include <cmath>
 #include <iomanip>
+#include <utility>
+#include <variant>
 
 using std::string;
 using std::vector;
@@ -90,7 +92,7 @@ struct Replay
 		} else {
 			assert(Archive::IS_LOADER);
 			assert(!events->empty());
-			currentTime = events->back()->getTime();
+			currentTime = getTime(events->back());
 		}
 
 		if (ar.versionAtLeast(version, 4)) {
@@ -116,22 +118,6 @@ void ReverseManager::ReverseHistory::clear()
 	Events().swap(events);
 }
 
-
-class EndLogEvent final : public StateChange
-{
-public:
-	EndLogEvent() = default; // for serialize
-	explicit EndLogEvent(EmuTime::param time_)
-		: StateChange(time_)
-	{
-	}
-
-	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
-	{
-		ar.template serializeBase<StateChange>(*this);
-	}
-};
-REGISTER_POLYMORPHIC_CLASS(StateChange, EndLogEvent, "EndLog");
 
 // class ReverseManager
 
@@ -198,8 +184,7 @@ void ReverseManager::stop()
 EmuTime::param ReverseManager::getEndTime(const ReverseHistory& hist) const
 {
 	if (!hist.events.empty()) {
-		if (const auto* ev = dynamic_cast<const EndLogEvent*>(
-				hist.events.back().get())) {
+		if (const auto* ev = std::get_if<EndLogEvent>(&hist.events.back())) {
 			// last log element is EndLogEvent, use that
 			return ev->getTime();
 		}
@@ -232,10 +217,10 @@ void ReverseManager::status(TclObject& result) const
 	result.addDictKeyValue("snapshots", snapshots);
 
 	auto lastEvent = rbegin(history.events);
-	if (lastEvent != rend(history.events) && dynamic_cast<const EndLogEvent*>(lastEvent->get())) {
+	if (lastEvent != rend(history.events) && std::holds_alternative<EndLogEvent>(*lastEvent)) {
 		++lastEvent;
 	}
-	EmuTime le(isCollecting() && (lastEvent != rend(history.events)) ? (*lastEvent)->getTime() : EmuTime::zero());
+	EmuTime le(isCollecting() && (lastEvent != rend(history.events)) ? getTime(*lastEvent) : EmuTime::zero());
 	result.addDictKeyValue("last_event", (le - EmuTime::zero()).toDouble());
 }
 
@@ -407,9 +392,9 @@ void ReverseManager::goTo(
 
 			// terminate replay log with EndLogEvent (if not there already)
 			if (hist.events.empty() ||
-			    !dynamic_cast<const EndLogEvent*>(hist.events.back().get())) {
-				hist.events.push_back(
-					std::make_unique<EndLogEvent>(currentTime));
+			    !std::holds_alternative<EndLogEvent>(hist.events.back())) {
+				hist.events.emplace_back(std::in_place_type_t<EndLogEvent>{},
+				                         currentTime);
 			}
 
 			// Transfer history to the new ReverseManager.
@@ -604,11 +589,11 @@ void ReverseManager::saveReplay(
 
 	// add sentinel when there isn't one yet
 	bool addSentinel = history.events.empty() ||
-		!dynamic_cast<EndLogEvent*>(history.events.back().get());
+		!std::holds_alternative<EndLogEvent>(history.events.back());
 	if (addSentinel) {
 		/// make sure the replay log ends with a EndLogEvent
-		history.events.push_back(std::make_unique<EndLogEvent>(
-			getCurrentTime()));
+		history.events.emplace_back(std::in_place_type_t<EndLogEvent>{},
+		                            getCurrentTime());
 	}
 	try {
 		XmlOutputArchive out(filename);
@@ -726,7 +711,7 @@ void ReverseManager::loadReplay(
 		// update replayIdx
 		// TODO: should we use <= instead??
 		while (replayIdx < newEvents.size() &&
-		       (newEvents[replayIdx]->getTime() < newChunk.time)) {
+		       (getTime(newEvents[replayIdx]) < newChunk.time)) {
 			replayIdx++;
 		}
 		newChunk.eventCount = replayIdx;
@@ -803,7 +788,7 @@ void ReverseManager::execNewSnapshot()
 
 void ReverseManager::execInputEvent()
 {
-	const auto& event = *history.events[replayIndex];
+	const auto& event = history.events[replayIndex];
 	try {
 		// deliver current event at current time
 		motherBoard.getStateChangeDistributor().distributeReplay(event);
@@ -811,13 +796,16 @@ void ReverseManager::execInputEvent()
 		// can throw in case we replay a command that fails
 		// ignore
 	}
-	if (!dynamic_cast<const EndLogEvent*>(&event)) {
-		++replayIndex;
-		replayNextEvent();
-	} else {
-		signalStopReplay(event.getTime());
-		assert(!isReplaying());
-	}
+	std::visit(overloaded{
+		[&](const EndLogEvent& e) {
+			signalStopReplay(e.getTime());
+			assert(!isReplaying());
+		},
+		[&](const StateChangeBase&) {
+			++replayIndex;
+			replayNextEvent();
+		}
+	}, event);
 }
 
 int ReverseManager::signalEvent(const Event& event) noexcept
@@ -873,7 +861,7 @@ void ReverseManager::replayNextEvent()
 {
 	// schedule next event at its own time
 	assert(replayIndex < history.events.size());
-	syncInputEvent.setSyncPoint(history.events[replayIndex]->getTime());
+	syncInputEvent.setSyncPoint(getTime(history.events[replayIndex]));
 }
 
 void ReverseManager::signalStopReplay(EmuTime::param time)

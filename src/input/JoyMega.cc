@@ -51,35 +51,6 @@ void JoyMega::registerAll(MSXEventDistributor& eventDistributor,
 #endif
 }
 
-class JoyMegaState final : public StateChange
-{
-public:
-	JoyMegaState() = default; // for serialize
-	JoyMegaState(EmuTime::param time_, unsigned joyNum_,
-	             unsigned press_, unsigned release_)
-		: StateChange(time_)
-		, joyNum(joyNum_), press(press_), release(release_)
-	{
-		assert((press != 0) || (release != 0));
-		assert((press & release) == 0);
-	}
-	[[nodiscard]] unsigned getJoystick() const { return joyNum; }
-	[[nodiscard]] unsigned getPress()    const { return press; }
-	[[nodiscard]] unsigned getRelease()  const { return release; }
-
-	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
-	{
-		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("joyNum",  joyNum,
-		             "press",   press,
-		             "release", release);
-	}
-private:
-	unsigned joyNum;
-	unsigned press, release;
-};
-REGISTER_POLYMORPHIC_CLASS(StateChange, JoyMegaState, "JoyMegaState");
-
 #ifndef SDL_JOYSTICK_DISABLED
 // Note: It's OK to open/close the same SDL_Joystick multiple times (we open it
 // once per MSX machine). The SDL documentation doesn't state this, but I
@@ -297,7 +268,7 @@ void JoyMega::createEvent(EmuTime::param time, unsigned newStatus)
 // StateChangeListener
 void JoyMega::signalStateChange(const StateChange& event)
 {
-	const auto* js = dynamic_cast<const JoyMegaState*>(&event);
+	const auto* js = std::get_if<JoyMegaState>(&event);
 	if (!js) return;
 
 	// TODO: It would be more efficient to make a dispatcher instead of
