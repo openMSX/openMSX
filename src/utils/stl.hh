@@ -9,6 +9,7 @@
 #include <numeric>
 #include <tuple>
 #include <utility>
+#include <variant>
 #include <vector>
 
 // Reimplementation of c++20 std::identity.
@@ -402,5 +403,16 @@ template<typename Key, typename Value>
 template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 // explicit deduction guide (not needed as of C++20)
 template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+
+
+// --- Utility to retrieve the index for a given type from a std::variant ---
+
+template<typename> struct get_index_tag {};
+
+template<typename T, typename V> struct get_index;
+
+template<typename T, typename... Ts>
+struct get_index<T, std::variant<Ts...>>
+    : std::integral_constant<size_t, std::variant<get_index_tag<Ts>...>(get_index_tag<T>()).index()> {};
 
 #endif

@@ -4,13 +4,22 @@
 #include "serialize_constr.hh"
 #include "serialize_meta.hh"
 #include "one_of.hh"
+#include "unreachable.hh"
 #include "xrange.hh"
+#include <cassert>
+#include <initializer_list>
+#include <memory>
 #include <string>
 #include <type_traits>
-#include <cassert>
-#include <memory>
+#include <variant>
 
 namespace openmsx {
+
+// Is there a specialized way to serialize 'T'.
+template<typename T> struct Serializer : std::false_type {
+	struct Saver {};
+	struct Loader {};
+};
 
 // Type-queries for serialization framework
 // is_primitive<T>
@@ -31,7 +40,6 @@ template<> struct is_primitive<long double>        : std::true_type {};
 template<> struct is_primitive<long long>          : std::true_type {};
 template<> struct is_primitive<unsigned long long> : std::true_type {};
 template<> struct is_primitive<std::string>        : std::true_type {};
-
 
 
 // Normally to make a class serializable, you have to implement a serialize()
@@ -101,32 +109,113 @@ template<typename T> struct enum_string {
 	const char* str;
 	T e;
 };
-void enumError(const std::string& str);
-template<typename T> struct serialize_as_enum_impl : std::true_type {
-	explicit serialize_as_enum_impl(std::initializer_list<enum_string<T>> info_)
-		: info(info_) {}
-	std::string toString(T t) const {
-		for (auto& i : info) {
-			if (i.e == t) return i.str;
-		}
-		assert(false);
-		return "internal-error-unknown-enum-value";
+void enumError(const std::string_view str);
+
+template<typename T>
+inline std::string toString(std::initializer_list<enum_string<T>> list, T t_)
+{
+	for (auto& [str, t] : list) {
+		if (t == t_) return str;
 	}
-	T fromString(const std::string& str) const {
-		for (auto& i : info) {
-			if (i.str == str) return i.e;
-		}
-		enumError(str); // does not return (throws)
-		return T(); // avoid warning
+	assert(false);
+	return "internal-error-unknown-enum-value";
+}
+
+template<typename T>
+T fromString(std::initializer_list<enum_string<T>> list, std::string_view str_)
+{
+	for (auto& [str, t] : list) {
+		if (str == str_) return t;
 	}
-private:
-	std::initializer_list<enum_string<T>> info;
-};
+	enumError(str_); // does not return (throws)
+	return T(); // avoid warning
+}
 
 #define SERIALIZE_ENUM(TYPE,INFO) \
-template<> struct serialize_as_enum< TYPE > : serialize_as_enum_impl< TYPE > { \
-	serialize_as_enum() : serialize_as_enum_impl<TYPE>(INFO) {} \
+template<> struct serialize_as_enum< TYPE > : std::true_type { \
+	serialize_as_enum() : info(INFO) {} \
+	std::initializer_list<enum_string< TYPE >> info; \
 };
+
+template<typename Archive, typename T, typename SaveAction>
+void saveEnum(std::initializer_list<enum_string<T>> list, T t, SaveAction save)
+{
+	if constexpr (Archive::TRANSLATE_ENUM_TO_STRING) {
+		save(toString(list, t));
+	} else {
+		save(int(t));
+	}
+}
+
+template<typename Archive, typename T, typename LoadAction>
+void loadEnum(std::initializer_list<enum_string<T>> list, T& t, LoadAction load)
+{
+	if constexpr (Archive::TRANSLATE_ENUM_TO_STRING) {
+		std::string str;
+		load(str);
+		t = fromString(list, str);
+	} else {
+		int i;
+		load(i);
+		t = T(i);
+	}
+}
+
+///////////
+
+template<size_t I, typename Variant>
+struct DefaultConstructVariant {
+	Variant operator()(size_t index) const {
+		if constexpr (I == std::variant_size_v<Variant>) {
+			UNREACHABLE;
+		} else if (index == I) {
+			return std::variant_alternative_t<I, Variant>{};
+		} else {
+			return DefaultConstructVariant<I + 1, Variant>{}(index);
+		}
+	}
+};
+template<typename Variant>
+Variant defaultConstructVariant(size_t index)
+{
+	return DefaultConstructVariant<0, Variant>{}(index);
+}
+
+template<typename V> struct VariantSerializer : std::true_type
+{
+	template<typename A>
+	static inline constexpr size_t index = get_index<A, V>::value;
+
+	struct Saver {
+		template<typename Archive>
+		void operator()(Archive& ar, const V& v, bool saveId) {
+			saveEnum<Archive>(Serializer<V>::list, v.index(),
+				[&](const auto& t) { ar.attribute("type", t); });
+			std::visit([&](auto& e) {
+				// TODO c++20 std::remove_cvref_t<decltype(e)>;
+				using TNC = std::remove_const_t<std::remove_reference_t<decltype(e)>>;
+				auto& e2 = const_cast<TNC&>(e);
+				ClassSaver<TNC> saver;
+				saver(ar, e2, saveId);
+			}, v);
+		}
+	};
+	struct Loader {
+		template<typename Archive, typename TUPLE>
+		void operator()(Archive& ar, V& v, TUPLE args, int id) {
+			size_t index;
+			loadEnum<Archive>(Serializer<V>::list, index,
+				[&](auto& l) { ar.attribute("type", l); });
+			v = defaultConstructVariant<V>(index);
+			std::visit([&](auto& e) {
+				ClassLoader<decltype(e)> loader;
+				loader(ar, e, args, id);
+			}, v);
+		}
+	};
+};
+
+
 
 /////////////
 
@@ -303,13 +392,9 @@ template<typename T> struct EnumSaver
 	template<typename Archive> void operator()(Archive& ar, const T& t,
 	                                           bool /*saveId*/)
 	{
-		if constexpr (Archive::TRANSLATE_ENUM_TO_STRING) {
-			serialize_as_enum<T> sae;
-			std::string str = sae.toString(t);
-			ar.save(str);
-		} else {
-			ar.save(int(t));
-		}
+		serialize_as_enum<T> sae;
+		saveEnum<Archive>(sae.info, t,
+			[&](const auto& s) { ar.save(s); });
 	}
 };
 template<typename T> struct ClassSaver
@@ -435,10 +520,11 @@ template<typename TC> struct CollectionSaver
 // (implemented as inheriting from a specific baseclass).
 template<typename T> struct Saver
 	: std::conditional_t<is_primitive<T>::value,            PrimitiveSaver<T>,
+	  std::conditional_t<Serializer<T>::value,              typename Serializer<T>::Saver,
 	  std::conditional_t<serialize_as_enum<T>::value,       EnumSaver<T>,
 	  std::conditional_t<serialize_as_pointer<T>::value,    PointerSaver<T>,
 	  std::conditional_t<serialize_as_collection<T>::value, CollectionSaver<T>,
-	                                                        ClassSaver<T>>>>> {};
+	                                                        ClassSaver<T>>>>>> {};
 
 ////
 
@@ -475,16 +561,8 @@ template<typename T> struct EnumLoader
 	{
 		static_assert(std::tuple_size_v<TUPLE> == 0,
 		              "can't have constructor arguments");
-		if constexpr (Archive::TRANSLATE_ENUM_TO_STRING) {
-			std::string str;
-			ar.load(str);
-			serialize_as_enum<T> sae;
-			t = sae.fromString(str);
-		} else {
-			int i;
-			ar.load(i);
-			t = T(i);
-		}
+		serialize_as_enum<T> sae;
+		loadEnum<Archive>(sae.info, t, [&](auto& l) { ar.load(l); });
 	}
 };
 
@@ -685,10 +763,11 @@ template<typename TC> struct CollectionLoader
 };
 template<typename T> struct Loader
 	: std::conditional_t<is_primitive<T>::value,            PrimitiveLoader<T>,
+	  std::conditional_t<Serializer<T>::value,              typename Serializer<T>::Loader,
 	  std::conditional_t<serialize_as_enum<T>::value,       EnumLoader<T>,
 	  std::conditional_t<serialize_as_pointer<T>::value,    PointerLoader<T>,
 	  std::conditional_t<serialize_as_collection<T>::value, CollectionLoader<T>,
-	                                                        ClassLoader<T>>>>> {};
+	                                                        ClassLoader<T>>>>>> {};
 
 } // namespace openmsx
 

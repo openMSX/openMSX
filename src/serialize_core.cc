@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-void enumError(const std::string& str)
+void enumError(const std::string_view str)
 {
 	throw MSXException("Invalid enum value: ", str);
 }

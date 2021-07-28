@@ -5,6 +5,7 @@
 #include "Keys.hh"
 #include "static_vector.hh"
 #include "StringStorage.hh"
+#include "stl.hh"
 #include "TclObject.hh"
 #include "Thread.hh"
 #include "Timer.hh"
@@ -495,17 +496,6 @@ using EventVariant = std::variant<
 	MidiInCoreMidiVirtualEvent,
 	Rs232TesterEvent
 >;
-
-// --- Utility to retrieve the index for a given type from a std::variant ---
-// (possibly move to utils/ in the future)
-
-template<typename> struct get_index_tag {};
-
-template<typename T, typename V> struct get_index;
-
-template<typename T, typename... Ts>
-struct get_index<T, std::variant<Ts...>>
-    : std::integral_constant<size_t, std::variant<get_index_tag<Ts>...>(get_index_tag<T>()).index()> {};
 
 template<typename T>
 inline constexpr uint8_t event_index = get_index<T, EventVariant>::value;
