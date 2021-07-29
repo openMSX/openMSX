@@ -10,10 +10,11 @@
 #include "DeltaBlock.hh"
 #include "span.hh"
 #include "outer.hh"
-#include <vector>
+#include <cstdint>
+#include <deque>
 #include <map>
 #include <memory>
-#include <cstdint>
+#include <vector>
 
 namespace openmsx {
 
@@ -76,7 +77,7 @@ private:
 		unsigned eventCount;
 	};
 	using Chunks = std::map<unsigned, ReverseChunk>;
-	using Events = std::vector<StateChange>;
+	using Events = std::deque<StateChange>;
 
 	struct ReverseHistory {
 		void swap(ReverseHistory& other) noexcept;

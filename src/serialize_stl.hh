@@ -3,8 +3,9 @@
 
 #include "serialize_core.hh"
 #include "circular_buffer.hh"
-#include <vector>
+#include <deque>
 #include <iterator>
+#include <vector>
 
 namespace openmsx {
 
@@ -21,15 +22,15 @@ template<typename T> struct serialize_as_stl_collection : std::true_type
 		t.clear();
 	}
 	static auto output(T& t) {
-		return std::inserter(t, begin(t));
+		return std::back_inserter(t);
 	}
 };
 
 //template<typename T> struct serialize_as_collection<std::list<T>>
 //	: serialize_as_stl_collection<std::list<T>> {};
 
-//template<typename T> struct serialize_as_collection<std::deque<T>>
-//	: serialize_as_stl_collection<std::deque<T>> {};
+template<typename T> struct serialize_as_collection<std::deque<T>>
+	: serialize_as_stl_collection<std::deque<T>> {};
 
 //template<typename T1, typename T2> struct serialize_as_collection<std::map<T1, T2>>
 //	: serialize_as_stl_collection<std::map<T1, T2>> {};
