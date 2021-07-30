@@ -17,8 +17,7 @@ PolymorphicSaverRegistry<Archive>& PolymorphicSaverRegistry<Archive>::instance()
 
 template<typename Archive>
 void PolymorphicSaverRegistry<Archive>::registerHelper(
-	const std::type_info& type,
-	std::unique_ptr<PolymorphicSaverBase<Archive>> saver)
+	const std::type_info& type, SaveFunction saver)
 {
 	assert(!initialized);
 	assert(!contains(saverMap, type, &Entry::index)); // not yet sorted
@@ -40,7 +39,7 @@ void PolymorphicSaverRegistry<Archive>::save(
 			  << typeInfo.name() << '\n';
 		assert(false); return;
 	}
-	it->saver->save(ar, t);
+	it->saver(ar, t);
 }
 template<typename Archive>
 void PolymorphicSaverRegistry<Archive>::save(
@@ -65,8 +64,7 @@ PolymorphicLoaderRegistry<Archive>& PolymorphicLoaderRegistry<Archive>::instance
 
 template<typename Archive>
 void PolymorphicLoaderRegistry<Archive>::registerHelper(
-	const char* name,
-	std::unique_ptr<PolymorphicLoaderBase<Archive>> loader)
+	const char* name, LoadFunction loader)
 {
 	assert(!loaderMap.contains(name));
 	loaderMap.emplace_noDuplicateCheck(name, std::move(loader));
@@ -81,7 +79,7 @@ void* PolymorphicLoaderRegistry<Archive>::load(
 	auto& reg = PolymorphicLoaderRegistry<Archive>::instance();
 	auto v = lookup(reg.loaderMap, type);
 	assert(v);
-	return (*v)->load(ar, id, args);
+	return (*v)(ar, id, args);
 }
 
 template class PolymorphicLoaderRegistry<MemInputArchive>;
@@ -103,8 +101,7 @@ PolymorphicInitializerRegistry<Archive>& PolymorphicInitializerRegistry<Archive>
 
 template<typename Archive>
 void PolymorphicInitializerRegistry<Archive>::registerHelper(
-	const char* name,
-	std::unique_ptr<PolymorphicInitializerBase<Archive>> initializer)
+	const char* name, InitFunction initializer)
 {
 	assert(!initializerMap.contains(name));
 	initializerMap.emplace_noDuplicateCheck(name, std::move(initializer));
@@ -126,7 +123,7 @@ void PolymorphicInitializerRegistry<Archive>::init(
 	if (!v) {
 		throw MSXException("Deserialize unknown polymorphic type: '", type, "'.");
 	}
-	(*v)->init(ar, t, id);
+	(*v)(ar, t, id);
 
 	ar.endTag(tag);
 }
