@@ -167,7 +167,7 @@ main_exec = executable(
     hdr_version, hdr_config, hdr_components, hdr_systemfuncs,
     install: true,
     implicit_include_directories: false,
-    include_directories: incdirs,
+    include_directories: [incdirs, '.'],
     dependencies: [
         dep_alsa, dep_gl, dep_glew, dep_ogg, dep_png, dep_sdl2, dep_sdl2_ttf,
         dep_tcl, dep_theora, dep_threads, dep_vorbis, dep_zlib
@@ -184,7 +184,7 @@ test_exec = executable(
     build_by_default: false,
     install: false,
     implicit_include_directories: false,
-    include_directories: [incdirs, 'Contrib/catch2'],
+    include_directories: [incdirs, '.', 'Contrib/catch2'],
     dependencies: [
         dep_alsa, dep_gl, dep_glew, dep_ogg, dep_png, dep_sdl2, dep_sdl2_ttf,
         dep_tcl, dep_theora, dep_threads, dep_vorbis, dep_zlib
