@@ -4,7 +4,7 @@ project(
     license: 'GPL-2.0-only',
     default_options: ['warning_level=3', 'cpp_std=c++17'],
     meson_version: '>=0.50.0'
-    )
+)
 
 subdir('src')
 
@@ -77,7 +77,7 @@ components = {
     'ALSAMIDI':
         not get_option('alsamidi').disabled()
         and dep_alsa.found(),
-    }
+}
 
 # TODO: Subset the sources.
 
@@ -91,11 +91,11 @@ foreach name, enabled: components
 endforeach
 conf_components.set(
     'BUILD_COMPONENTS', '"' + ' '.join(enabled_components) + '"'
-    )
+)
 hdr_components = configure_file(
     output: 'components.hh',
     configuration: conf_components
-    )
+)
 
 # System Functions
 # ================
@@ -104,31 +104,31 @@ conf_systemfuncs = configuration_data()
 conf_systemfuncs.set10(
     'HAVE_FTRUNCATE',
     compiler.has_function('ftruncate', prefix: '#include <unistd.h>')
-    )
+)
 if host_machine.system() in ['darwin', 'openbsd']
     mmap_prefix = '\n'.join([
         '#include <sys/types.h>',
         '#include <sys/mman.h>'
-        ])
+    ])
 else
     mmap_prefix = '#include <sys/mman.h>'
 endif
 conf_systemfuncs.set10(
     'HAVE_MMAP',
     compiler.has_function('mmap', prefix: mmap_prefix)
-    )
+)
 conf_systemfuncs.set10(
     'HAVE_NFTW',
     compiler.has_function('nftw', prefix: '#include <ftw.h>')
-    )
+)
 conf_systemfuncs.set10(
     'HAVE_POSIX_MEMALIGN',
     compiler.has_function('posix_memalign', prefix: '#include <stdlib.h>')
-    )
+)
 hdr_systemfuncs = configure_file(
     output: 'systemfuncs.hh',
     configuration: conf_systemfuncs
-    )
+)
 
 # Other Generated Headers
 # =======================
@@ -141,7 +141,7 @@ hdr_version = custom_target(
     input: 'build/version2code.py',
     command: [prog_python, '@INPUT@', '@OUTPUT@'],
     build_always_stale: true,
-    )
+)
 
 abs_datadir = get_option('prefix') / get_option('datadir') / 'openmsx'
 
@@ -155,8 +155,8 @@ hdr_config = custom_target(
         host_machine.cpu_family(), # TODO: is cpu() more suitable?
         'devel', # OPENMSX_FLAVOUR
         abs_datadir
-        ],
-    )
+    ],
+)
 
 # Targets
 # =======
@@ -171,8 +171,8 @@ main_exec = executable(
     dependencies: [
         dep_alsa, dep_gl, dep_glew, dep_ogg, dep_png, dep_sdl2, dep_sdl2_ttf,
         dep_tcl, dep_theora, dep_threads, dep_vorbis, dep_zlib
-        ],
-    )
+    ],
+)
 
 objects = main_exec.extract_objects(sources)
 
@@ -188,7 +188,7 @@ test_exec = executable(
     dependencies: [
         dep_alsa, dep_gl, dep_glew, dep_ogg, dep_png, dep_sdl2, dep_sdl2_ttf,
         dep_tcl, dep_theora, dep_threads, dep_vorbis, dep_zlib
-        ],
-    )
+    ],
+)
 
 test('combined unit test', test_exec)
