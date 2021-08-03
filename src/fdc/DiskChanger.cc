@@ -4,7 +4,6 @@
 #include "RamDSKDiskImage.hh"
 #include "DirAsDSK.hh"
 #include "CommandController.hh"
-#include "RecordedCommand.hh"
 #include "StateChangeDistributor.hh"
 #include "Scheduler.hh"
 #include "FilePool.hh"
@@ -32,20 +31,6 @@ using std::string;
 using std::vector;
 
 namespace openmsx {
-
-class DiskCommand final : public Command // TODO RecordedCommand
-{
-public:
-	DiskCommand(CommandController& commandController,
-	            DiskChanger& diskChanger);
-	void execute(span<const TclObject> tokens,
-	             TclObject& result) override;
-	[[nodiscard]] string help(span<const TclObject> tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
-	[[nodiscard]] bool needRecord(span<const TclObject> tokens) const /*override*/;
-private:
-	DiskChanger& diskChanger;
-};
 
 DiskChanger::DiskChanger(MSXMotherBoard& board,
                          string driveName_,
@@ -88,7 +73,7 @@ void DiskChanger::init(std::string_view prefix, bool createCmd)
 void DiskChanger::createCommand()
 {
 	if (diskCommand) return;
-	diskCommand = std::make_unique<DiskCommand>(controller, *this);
+	diskCommand.emplace(controller, *this);
 }
 
 DiskChanger::~DiskChanger()
