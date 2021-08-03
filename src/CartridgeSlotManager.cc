@@ -1,5 +1,4 @@
 #include "CartridgeSlotManager.hh"
-#include "MSXMotherBoard.hh"
 #include "HardwareConfig.hh"
 #include "CommandException.hh"
 #include "FileContext.hh"
@@ -29,7 +28,7 @@ CartridgeSlotManager::Slot::~Slot()
 
 bool CartridgeSlotManager::Slot::exists() const
 {
-	return cartCommand != nullptr;
+	return cartCommand.has_value();
 }
 
 bool CartridgeSlotManager::Slot::used(const HardwareConfig* allowed) const
@@ -96,9 +95,9 @@ void CartridgeSlotManager::createExternalSlot(int ps, int ss)
 			extName[3] += slot;
 			motherBoard.getMSXCliComm().update(
 				CliComm::HARDWARE, slotName, "add");
-			slots[slot].cartCommand = std::make_unique<CartCmd>(
+			slots[slot].cartCommand.emplace(
 				*this, motherBoard, slotName);
-			slots[slot].extCommand = std::make_unique<ExtCmd>(
+			slots[slot].extCommand.emplace(
 				motherBoard, extName);
 			return;
 		}
