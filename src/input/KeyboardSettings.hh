@@ -4,7 +4,7 @@
 #include "Keys.hh"
 #include "EnumSetting.hh"
 #include "BooleanSetting.hh"
-#include <memory>
+#include <array>
 #include <cassert>
 
 namespace openmsx {
@@ -21,7 +21,7 @@ public:
 
 	[[nodiscard]] Keys::KeyCode getDeadkeyHostKey(unsigned n) const {
 		assert(n < 3);
-		return deadkeyHostKey[n]->getEnum();
+		return deadkeyHostKey[n].getEnum();
 	}
 	[[nodiscard]] Keys::KeyCode getCodeKanaHostKey() const {
 		return codeKanaHostKey.getEnum();
@@ -43,7 +43,7 @@ public:
 	}
 
 private:
-	std::unique_ptr<EnumSetting<Keys::KeyCode>> deadkeyHostKey[3];
+	std::array<EnumSetting<Keys::KeyCode>, 3> deadkeyHostKey;
 	EnumSetting<Keys::KeyCode> codeKanaHostKey;
 	EnumSetting<KpEnterMode> kpEnterMode;
 	EnumSetting<MappingMode> mappingMode;
