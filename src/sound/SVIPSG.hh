@@ -2,12 +2,12 @@
 #define SVIPSG_HH
 
 #include "MSXDevice.hh"
+#include "AY8910.hh"
 #include "AY8910Periphery.hh"
-#include <memory>
+#include <array>
 
 namespace openmsx {
 
-class AY8910;
 class JoystickPortIf;
 
 class SVIPSG final : public MSXDevice, public AY8910Periphery
@@ -31,9 +31,8 @@ private:
 	void writeB(byte value, EmuTime::param time) override;
 
 private:
-	std::unique_ptr<AY8910> ay8910;
-	JoystickPortIf* ports[2];
-
+	std::array<JoystickPortIf*, 2> ports;
+	AY8910 ay8910; // must come after ports
 	int registerLatch;
 	byte prev;
 };

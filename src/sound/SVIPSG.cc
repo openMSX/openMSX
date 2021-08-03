@@ -1,11 +1,10 @@
 #include "SVIPSG.hh"
-#include "AY8910.hh"
 #include "LedStatus.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXMotherBoard.hh"
 #include "JoystickPort.hh"
 #include "serialize.hh"
-#include <memory>
+#include "stl.hh"
 
 //        Slot 0    Slot 1    Slot 2    Slot 3
 // FFFF +---------+---------+---------+---------+
@@ -49,15 +48,11 @@ namespace openmsx {
 
 SVIPSG::SVIPSG(const DeviceConfig& config)
 	: MSXDevice(config)
+	, ports(generate_array<2>([&](auto i) { return &getMotherBoard().getJoystickPort(i); }))
+	, ay8910("PSG", *this, config, getCurrentTime())
 	, prev(255)
 {
-	ports[0] = &getMotherBoard().getJoystickPort(0);
-	ports[1] = &getMotherBoard().getJoystickPort(1);
-
-	// must come after initialisation of ports
-	EmuTime::param time = getCurrentTime();
-	ay8910 = std::make_unique<AY8910>("PSG", *this, config, time);
-	reset(time);
+	reset(getCurrentTime());
 }
 
 SVIPSG::~SVIPSG()
@@ -68,7 +63,7 @@ SVIPSG::~SVIPSG()
 void SVIPSG::reset(EmuTime::param time)
 {
 	registerLatch = 0;
-	ay8910->reset(time);
+	ay8910.reset(time);
 }
 
 void SVIPSG::powerDown(EmuTime::param /*time*/)
@@ -78,12 +73,12 @@ void SVIPSG::powerDown(EmuTime::param /*time*/)
 
 byte SVIPSG::readIO(word /*port*/, EmuTime::param time)
 {
-	return ay8910->readRegister(registerLatch, time);
+	return ay8910.readRegister(registerLatch, time);
 }
 
 byte SVIPSG::peekIO(word /*port*/, EmuTime::param time) const
 {
-	return ay8910->peekRegister(registerLatch, time);
+	return ay8910.peekRegister(registerLatch, time);
 }
 
 void SVIPSG::writeIO(word port, byte value, EmuTime::param time)
@@ -93,7 +88,7 @@ void SVIPSG::writeIO(word port, byte value, EmuTime::param time)
 		registerLatch = value & 0x0F;
 		break;
 	case 4:
-		ay8910->writeRegister(registerLatch, value, time);
+		ay8910.writeRegister(registerLatch, value, time);
 		break;
 	}
 }
@@ -144,7 +139,7 @@ template<typename Archive>
 void SVIPSG::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("ay8910",        *ay8910,
+	ar.serialize("ay8910",        ay8910,
 	             "registerLatch", registerLatch);
 	byte portB = prev;
 	ar.serialize("portB", portB);
