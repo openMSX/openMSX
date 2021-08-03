@@ -1,6 +1,7 @@
 #ifndef FILEPOOL_HH
 #define FILEPOOL_HH
 
+#include "Command.hh"
 #include "EventListener.hh"
 #include "FilePoolCore.hh"
 #include "StringSetting.hh"
@@ -45,7 +46,15 @@ private:
 	FilePoolCore core;
 	StringSetting filePoolSetting;
 	Reactor& reactor;
-	std::unique_ptr<Sha1SumCommand> sha1SumCommand;
+
+	class Sha1SumCommand final : public Command {
+	public:
+		explicit Sha1SumCommand(CommandController& commandController);
+		void execute(span<const TclObject> tokens, TclObject& result) override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		void tabCompletion(std::vector<std::string>& tokens) const override;
+	} sha1SumCommand;
+
 	bool quit = false;
 };
 
