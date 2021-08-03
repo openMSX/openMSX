@@ -12,11 +12,9 @@
 
 #include "MSXDevice.hh"
 #include "MSXSwitchedDevice.hh"
-#include <memory>
+#include "SRAM.hh"
 
 namespace openmsx {
-
-class SRAM;
 
 class MSXS1985 final : public MSXDevice, public MSXSwitchedDevice
 {
@@ -36,7 +34,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	std::unique_ptr<SRAM> sram;
+	SRAM sram;
 	nibble address;
 	byte color1;
 	byte color2;
