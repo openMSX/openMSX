@@ -1,6 +1,5 @@
 #include "MSXMatsushita.hh"
 #include "MSXCPU.hh"
-#include "SRAM.hh"
 #include "VDP.hh"
 #include "MSXCPUInterface.hh"
 #include "CliComm.hh"
@@ -19,7 +18,7 @@ MSXMatsushita::MSXMatsushita(const DeviceConfig& config)
 	, vdp(nullptr)
 	, lastTime(EmuTime::zero())
 	, firmwareSwitch(config)
-	, sram(config.findChild("sramname") ? std::make_unique<SRAM>(getName() + " SRAM", 0x800, config) : nullptr)
+	, sram(config.findChild("sramname") ? std::optional<SRAM>(std::in_place, getName() + " SRAM", 0x800, config) : std::nullopt)
 	, turboAvailable(config.getChildDataAsBool("hasturbo", false))
 	, turboEnabled(false)
 {

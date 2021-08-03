@@ -5,12 +5,13 @@
 #include "MSXSwitchedDevice.hh"
 #include "FirmwareSwitch.hh"
 #include "Clock.hh"
+#include "SRAM.hh"
 #include "serialize_meta.hh"
+#include <optional>
 
 namespace openmsx {
 
 class MSXCPU;
-class SRAM;
 class VDP;
 
 class MSXMatsushita final : public MSXDevice, public MSXSwitchedDevice
@@ -45,7 +46,7 @@ private:
 	Clock<5369318> lastTime; // 5.3MHz = 3.5MHz * 3/2
 
 	FirmwareSwitch firmwareSwitch;
-	const std::unique_ptr<SRAM> sram; // can be nullptr
+	std::optional<SRAM> sram;
 	word address;
 	nibble color1, color2;
 	byte pattern;
