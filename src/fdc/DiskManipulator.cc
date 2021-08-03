@@ -122,12 +122,12 @@ DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
 	return *it;
 }
 
-unique_ptr<DiskPartition> DiskManipulator::getPartition(
+DiskPartition DiskManipulator::getPartition(
 	const DriveSettings& driveData)
 {
 	auto* disk = driveData.drive->getSectorAccessibleDisk();
 	assert(disk);
-	return std::make_unique<DiskPartition>(*disk, driveData.partition);
+	return DiskPartition(*disk, driveData.partition);
 }
 
 
@@ -331,8 +331,8 @@ void DiskManipulator::savedsk(const DriveSettings& driveData,
 	auto partition = getPartition(driveData);
 	SectorBuffer buf;
 	File file(std::move(filename), File::CREATE);
-	for (auto i : xrange(partition->getNbSectors())) {
-		partition->readSector(i, buf);
+	for (auto i : xrange(partition.getNbSectors())) {
+		partition.readSector(i, buf);
 		file.write(&buf, sizeof(buf));
 	}
 }
@@ -424,7 +424,7 @@ void DiskManipulator::create(span<const TclObject> tokens)
 void DiskManipulator::format(DriveSettings& driveData, bool dos1)
 {
 	auto partition = getPartition(driveData);
-	DiskImageUtils::format(*partition, dos1);
+	DiskImageUtils::format(partition, dos1);
 	driveData.workingDir[driveData.partition] = '/';
 }
 
@@ -451,14 +451,14 @@ MSXtar DiskManipulator::getMSXtar(
 string DiskManipulator::dir(DriveSettings& driveData)
 {
 	auto partition = getPartition(driveData);
-	auto workhorse = getMSXtar(*partition, driveData);
+	auto workhorse = getMSXtar(partition, driveData);
 	return workhorse.dir();
 }
 
 string DiskManipulator::chdir(DriveSettings& driveData, string_view filename)
 {
 	auto partition = getPartition(driveData);
-	auto workhorse = getMSXtar(*partition, driveData);
+	auto workhorse = getMSXtar(partition, driveData);
 	try {
 		workhorse.chdir(filename);
 	} catch (MSXException& e) {
@@ -478,7 +478,7 @@ string DiskManipulator::chdir(DriveSettings& driveData, string_view filename)
 void DiskManipulator::mkdir(DriveSettings& driveData, string_view filename)
 {
 	auto partition = getPartition(driveData);
-	auto workhorse = getMSXtar(*partition, driveData);
+	auto workhorse = getMSXtar(partition, driveData);
 	try {
 		workhorse.mkdir(filename);
 	} catch (MSXException& e) {
@@ -490,7 +490,7 @@ string DiskManipulator::import(DriveSettings& driveData,
                                span<const TclObject> lists)
 {
 	auto partition = getPartition(driveData);
-	auto workhorse = getMSXtar(*partition, driveData);
+	auto workhorse = getMSXtar(partition, driveData);
 
 	string messages;
 	auto& interp = getInterpreter();
@@ -523,7 +523,7 @@ void DiskManipulator::exprt(DriveSettings& driveData, string_view dirname,
                             span<const TclObject> lists)
 {
 	auto partition = getPartition(driveData);
-	auto workhorse = getMSXtar(*partition, driveData);
+	auto workhorse = getMSXtar(partition, driveData);
 	try {
 		if (lists.empty()) {
 			// export all
