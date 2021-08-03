@@ -185,11 +185,11 @@ public:
 	{
 		ar.template serializeBase<StateChangeBase>(*this);
 		// for backwards compatibility serialize 'id' as 'name'
-		std::string name = ar.IS_LOADER ? "" : std::string(nameForId(id));
+		std::string name = Archive::IS_LOADER ? "" : std::string(nameForId(id));
 		ar.serialize("name",    name,
 		             "press",   press,
 		             "release", release);
-		if constexpr (ar.IS_LOADER) {
+		if constexpr (Archive::IS_LOADER) {
 			id = (name == nameForId(KeyJoyID::ID1)) ? KeyJoyID::ID1
 			   : (name == nameForId(KeyJoyID::ID2)) ? KeyJoyID::ID2
 			   :                                      KeyJoyID::UNKNOWN;
@@ -251,10 +251,10 @@ public:
 	{
 		ar.template serializeBase<StateChangeBase>(*this);
 		// for backwards compatibility serialize 'id' as 'name'
-		std::string name = ar.IS_LOADER ? "" : std::string(nameForId(id));
+		std::string name = Archive::IS_LOADER ? "" : std::string(nameForId(id));
 		ar.serialize("name",  name,
 		             "value", value);
-		if constexpr (ar.IS_LOADER) {
+		if constexpr (Archive::IS_LOADER) {
 			id = (name == nameForId(AutofireID::RENSHATURBO))
 			   ? AutofireID::RENSHATURBO
 			   : AutofireID::UNKNOWN;
