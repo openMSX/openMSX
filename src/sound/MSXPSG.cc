@@ -1,5 +1,4 @@
 #include "MSXPSG.hh"
-#include "AY8910.hh"
 #include "LedStatus.hh"
 #include "CassettePort.hh"
 #include "MSXMotherBoard.hh"
@@ -8,11 +7,11 @@
 #include "StringOp.hh"
 #include "serialize.hh"
 #include "checked_cast.hh"
-#include <memory>
+#include "stl.hh"
 
 namespace openmsx {
 
-static byte getKeyboardLayout(const MSXPSG& psg)
+[[nodiscard]] static byte getKeyboardLayout(const MSXPSG& psg)
 {
 	// As many (mostly European) configs do not specify the layout
 	// in the PSG config, assume 50on for these cases.
@@ -34,15 +33,13 @@ MSXPSG::MSXPSG(const DeviceConfig& config)
 	: MSXDevice(config)
 	, cassette(getMotherBoard().getCassettePort())
 	, renShaTurbo(getMotherBoard().getRenShaTurbo())
+	, ports(generate_array<2>([&](auto i) { return &getMotherBoard().getJoystickPort(i); }))
 	, selectedPort(0)
 	, prev(255)
 	, keyLayout(getKeyboardLayout(*this))
 	, addressMask(config.getChildDataAsBool("mirrored_registers", true) ? 0x0f : 0xff)
+	, ay8910("PSG", *this, config, getCurrentTime())
 {
-	ports[0] = &getMotherBoard().getJoystickPort(0);
-	ports[1] = &getMotherBoard().getJoystickPort(1);
-	ay8910 = std::make_unique<AY8910>("PSG", *this, config, getCurrentTime());
-
 	reset(getCurrentTime());
 }
 
@@ -54,7 +51,7 @@ MSXPSG::~MSXPSG()
 void MSXPSG::reset(EmuTime::param time)
 {
 	registerLatch = 0;
-	ay8910->reset(time);
+	ay8910.reset(time);
 }
 
 void MSXPSG::powerDown(EmuTime::param /*time*/)
@@ -64,12 +61,12 @@ void MSXPSG::powerDown(EmuTime::param /*time*/)
 
 byte MSXPSG::readIO(word /*port*/, EmuTime::param time)
 {
-	return ay8910->readRegister(registerLatch, time);
+	return ay8910.readRegister(registerLatch, time);
 }
 
 byte MSXPSG::peekIO(word /*port*/, EmuTime::param time) const
 {
-	return ay8910->peekRegister(registerLatch, time);
+	return ay8910.peekRegister(registerLatch, time);
 }
 
 void MSXPSG::writeIO(word port, byte value, EmuTime::param time)
@@ -79,7 +76,7 @@ void MSXPSG::writeIO(word port, byte value, EmuTime::param time)
 		registerLatch = value & addressMask;
 		break;
 	case 1:
-		ay8910->writeRegister(registerLatch, value, time);
+		ay8910.writeRegister(registerLatch, value, time);
 		break;
 	}
 }
@@ -119,7 +116,7 @@ template<typename Archive>
 void MSXPSG::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("ay8910", *ay8910);
+	ar.serialize("ay8910", ay8910);
 	if (ar.versionBelow(version, 2)) {
 		assert(Archive::IS_LOADER);
 		// in older versions there were always 2 real joystick ports
