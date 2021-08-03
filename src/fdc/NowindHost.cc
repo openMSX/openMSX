@@ -626,7 +626,7 @@ void NowindHost::deviceOpen()
 
 	unsigned fcb = getFCB();
 	unsigned dev = getFreeDeviceNum();
-	devices[dev].fs = std::make_unique<fstream>(); // takes care of deleting old fs
+	devices[dev].fs.emplace(); // takes care of deleting old fs
 	devices[dev].fcb = fcb;
 
 	sendHeader();
