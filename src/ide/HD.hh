@@ -1,20 +1,20 @@
 #ifndef HD_HH
 #define HD_HH
 
-#include "Filename.hh"
-#include "File.hh"
-#include "SectorAccessibleDisk.hh"
 #include "DiskContainer.hh"
+#include "File.hh"
+#include "Filename.hh"
+#include "HDCommand.hh"
+#include "SectorAccessibleDisk.hh"
 #include "TigerTree.hh"
 #include "serialize_meta.hh"
 #include <bitset>
 #include <string>
-#include <memory>
+#include <optional>
 
 namespace openmsx {
 
 class MSXMotherBoard;
-class HDCommand;
 class DeviceConfig;
 
 class HD : public SectorAccessibleDisk, public DiskContainer
@@ -59,8 +59,8 @@ private:
 private:
 	MSXMotherBoard& motherBoard;
 	std::string name;
-	std::unique_ptr<HDCommand> hdCommand;
-	std::unique_ptr<TigerTree> tigerTree;
+	std::optional<HDCommand> hdCommand; // delayed init
+	std::optional<TigerTree> tigerTree; // delayed init
 
 	File file;
 	Filename filename;

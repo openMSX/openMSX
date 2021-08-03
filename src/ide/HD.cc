@@ -9,7 +9,6 @@
 #include "Display.hh"
 #include "GlobalSettings.hh"
 #include "MSXException.hh"
-#include "HDCommand.hh"
 #include "Timer.hh"
 #include "serialize.hh"
 #include "tiger.hh"
@@ -58,11 +57,10 @@ HD::HD(const DeviceConfig& config)
 		file.truncate(size_t(config.getChildDataAsInt("size")) * 1024 * 1024);
 		filesize = file.getSize();
 	}
-	tigerTree = std::make_unique<TigerTree>(
-		*this, filesize, filename.getResolved());
+	tigerTree.emplace(*this, filesize, filename.getResolved());
 
 	(*hdInUse)[id] = true;
-	hdCommand = std::make_unique<HDCommand>(
+	hdCommand.emplace(
 		motherBoard.getCommandController(),
 		motherBoard.getStateChangeDistributor(),
 		motherBoard.getScheduler(),
@@ -86,8 +84,7 @@ void HD::switchImage(const Filename& newFilename)
 	file = File(newFilename);
 	filename = newFilename;
 	filesize = file.getSize();
-	tigerTree = std::make_unique<TigerTree>(*this, filesize,
-			filename.getResolved());
+	tigerTree.emplace(*this, filesize, filename.getResolved());
 	motherBoard.getMSXCliComm().update(CliComm::MEDIA, getName(),
 	                                   filename.getResolved());
 }
