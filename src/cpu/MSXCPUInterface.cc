@@ -31,6 +31,7 @@
 #include <iostream>
 #include <iterator>
 #include <memory>
+#include <optional>
 
 using std::string;
 using std::vector;
@@ -38,7 +39,7 @@ using std::min;
 
 namespace openmsx {
 
-static std::unique_ptr<ReadOnlySetting> breakedSetting;
+static std::optional<ReadOnlySetting> breakedSetting;
 static unsigned breakedSettingCount = 0;
 
 
@@ -125,7 +126,7 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 
 	if (breakedSettingCount++ == 0) {
 		assert(!breakedSetting);
-		breakedSetting = std::make_unique<ReadOnlySetting>(
+		breakedSetting.emplace(
 			motherBoard.getReactor().getCommandController(),
 			"breaked", "Similar to 'debug breaked'",
 			TclObject("false"));
@@ -137,7 +138,7 @@ MSXCPUInterface::~MSXCPUInterface()
 {
 	if (--breakedSettingCount == 0) {
 		assert(breakedSetting);
-		breakedSetting = nullptr;
+		breakedSetting.reset();
 	}
 
 	removeAllWatchPoints();
