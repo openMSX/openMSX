@@ -203,10 +203,10 @@ template<typename V> struct VariantSerializer : std::true_type
 	struct Loader {
 		template<typename Archive, typename TUPLE>
 		void operator()(Archive& ar, V& v, TUPLE args, int id) {
-			size_t index;
-			loadEnum<Archive>(Serializer<V>::list, index,
+			size_t idx;
+			loadEnum<Archive>(Serializer<V>::list, idx,
 				[&](auto& l) { ar.attribute("type", l); });
-			v = defaultConstructVariant<V>(index);
+			v = defaultConstructVariant<V>(idx);
 			std::visit([&](auto& e) {
 				ClassLoader<decltype(e)> loader;
 				loader(ar, e, args, id);
