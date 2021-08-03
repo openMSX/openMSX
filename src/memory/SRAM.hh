@@ -4,7 +4,7 @@
 #include "TrackedRam.hh"
 #include "DeviceConfig.hh"
 #include "RTSchedulable.hh"
-#include <memory>
+#include <optional>
 
 namespace openmsx {
 
@@ -48,7 +48,7 @@ private:
 	private:
 		SRAM& sram;
 	};
-	std::unique_ptr<SRAMSchedulable> schedulable;
+	std::optional<SRAMSchedulable> schedulable;
 
 	void load(bool* loaded);
 	void save();

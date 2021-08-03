@@ -10,7 +10,6 @@
 #include "openmsx.hh"
 #include "vla.hh"
 #include <cstring>
-#include <memory>
 
 using std::string;
 
@@ -39,7 +38,7 @@ SRAM::SRAM(const std::string& name, static_string_view description,
 
 SRAM::SRAM(const string& name, int size,
            const DeviceConfig& config_, const char* header_, bool* loaded)
-	: schedulable(std::make_unique<SRAMSchedulable>(config_.getReactor().getRTScheduler(), *this))
+	: schedulable(std::in_place, config_.getReactor().getRTScheduler(), *this)
 	, config(config_)
 	, ram(config, name, "sram", size)
 	, header(header_)
@@ -49,7 +48,7 @@ SRAM::SRAM(const string& name, int size,
 
 SRAM::SRAM(const string& name, static_string_view description, int size,
 	   const DeviceConfig& config_, const char* header_, bool* loaded)
-	: schedulable(std::make_unique<SRAMSchedulable>(config_.getReactor().getRTScheduler(), *this))
+	: schedulable(std::in_place, config_.getReactor().getRTScheduler(), *this)
 	, config(config_)
 	, ram(config, name, description, size)
 	, header(header_)
