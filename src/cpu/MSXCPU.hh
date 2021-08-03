@@ -196,8 +196,8 @@ private:
 	private:
 		CPUClock& clock;
 	};
-	CPUFreqInfoTopic                        z80FreqInfo;  // always present
-	const std::unique_ptr<CPUFreqInfoTopic> r800FreqInfo; // can be nullptr
+	CPUFreqInfoTopic                z80FreqInfo;  // always present
+	std::optional<CPUFreqInfoTopic> r800FreqInfo; // optionally present
 
 	struct Debuggable final : SimpleDebuggable {
 		explicit Debuggable(MSXMotherBoard& motherboard);

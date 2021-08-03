@@ -40,9 +40,9 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 	, timeInfo(motherboard.getMachineInfoCommand())
 	, z80FreqInfo(motherboard.getMachineInfoCommand(), "z80_freq", *z80)
 	, r800FreqInfo(r800
-		? std::make_unique<CPUFreqInfoTopic>(
+		? std::optional<CPUFreqInfoTopic>(std::in_place,
 			motherboard.getMachineInfoCommand(), "r800_freq", *r800)
-		: nullptr)
+		: std::nullopt)
 	, debuggable(motherboard_)
 	, reference(EmuTime::zero())
 {
