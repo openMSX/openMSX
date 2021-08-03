@@ -2,18 +2,17 @@
 #define PRINTERPORTSIMPLE_HH
 
 #include "PrinterPortDevice.hh"
-#include <memory>
+#include "DACSound8U.hh"
+#include <optional>
 
 namespace openmsx {
 
 class HardwareConfig;
-class DACSound8U;
 
 class PrinterPortSimpl final : public PrinterPortDevice
 {
 public:
 	explicit PrinterPortSimpl(const HardwareConfig& hwConf);
-	~PrinterPortSimpl() override;
 
 	// PrinterPortDevice
 	[[nodiscard]] bool getStatus(EmuTime::param time) override;
@@ -34,7 +33,7 @@ private:
 
 private:
 	const HardwareConfig& hwConf;
-	std::unique_ptr<DACSound8U> dac; // can be nullptr
+	std::optional<DACSound8U> dac;
 };
 
 } // namespace openmsx

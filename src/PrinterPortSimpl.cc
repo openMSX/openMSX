@@ -1,5 +1,4 @@
 #include "PrinterPortSimpl.hh"
-#include "DACSound8U.hh"
 #include "DeviceConfig.hh"
 #include "XMLElement.hh"
 #include "serialize.hh"
@@ -14,8 +13,6 @@ PrinterPortSimpl::PrinterPortSimpl(const HardwareConfig& hwConf_)
 	: hwConf(hwConf_)
 {
 }
-
-PrinterPortSimpl::~PrinterPortSimpl() = default;
 
 bool PrinterPortSimpl::getStatus(EmuTime::param /*time*/)
 {
@@ -42,8 +39,7 @@ static XMLElement createXML()
 void PrinterPortSimpl::createDAC()
 {
 	static XMLElement xml = createXML();
-	dac = std::make_unique<DACSound8U>("simpl", DESCRIPTION,
-	                                   DeviceConfig(hwConf, xml));
+	dac.emplace("simpl", DESCRIPTION, DeviceConfig(hwConf, xml));
 }
 
 void PrinterPortSimpl::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
