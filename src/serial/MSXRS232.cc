@@ -3,7 +3,6 @@
 #include "CacheLine.hh"
 #include "Ram.hh"
 #include "Rom.hh"
-#include "BooleanSetting.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
 #include "one_of.hh"
@@ -36,10 +35,13 @@ MSXRS232::MSXRS232(const DeviceConfig& config)
 	, rxrdyIRQenabled(false)
 	, hasMemoryBasedIo(config.getChildDataAsBool("memorybasedio", false))
 	, ioAccessEnabled(!hasMemoryBasedIo)
-	, switchSetting(config.getChildDataAsBool("toshiba_rs232c_switch",
-		false) ? std::make_unique<BooleanSetting>(getCommandController(),
-		"toshiba_rs232c_switch", "status of the RS-232C enable switch",
-		true) : nullptr)
+	, switchSetting(config.getChildDataAsBool("toshiba_rs232c_switch", false)
+		? std::optional<BooleanSetting>(std::in_place,
+			getCommandController(),
+			"toshiba_rs232c_switch",
+			"status of the RS-232C enable switch",
+			true)
+		: std::nullopt)
 {
 	if (rom && (rom->getSize() != one_of(0x2000u, 0x4000u))) {
 		throw MSXException("RS232C only supports 8kB or 16kB ROMs.");

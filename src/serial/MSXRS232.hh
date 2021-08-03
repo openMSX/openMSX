@@ -1,18 +1,19 @@
 #ifndef MSXRS232_HH
 #define MSXRS232_HH
 
+#include "BooleanSetting.hh"
 #include "MSXDevice.hh"
 #include "IRQHelper.hh"
 #include "RS232Connector.hh"
 #include "I8251.hh"
 #include "I8254.hh"
 #include <memory>
+#include <optional>
 
 namespace openmsx {
 
 class Ram;
 class Rom;
-class BooleanSetting;
 
 class MSXRS232 final : public MSXDevice, public RS232Connector
 {
@@ -88,7 +89,7 @@ private:
 	const bool hasMemoryBasedIo;
 	bool ioAccessEnabled;
 
-	const std::unique_ptr<BooleanSetting> switchSetting; // can be nullptr
+	const std::optional<BooleanSetting> switchSetting; // can be nullopt
 };
 SERIALIZE_CLASS_VERSION(MSXRS232, 2);
 
