@@ -3,12 +3,12 @@
 
 #include "MSXDevice.hh"
 #include "DiskDrive.hh"
+#include "Rom.hh"
 #include <memory>
+#include <optional>
 #include <string>
 
 namespace openmsx {
-
-class Rom;
 
 class MSXFDC : public MSXDevice
 {
@@ -25,10 +25,9 @@ protected:
 	explicit MSXFDC(const DeviceConfig& config, const std::string& romId = {},
 	                bool needROM = true,
 	                DiskDrive::TrackMode trackMode = DiskDrive::TrackMode::NORMAL);
-	~MSXFDC() override;
 
 protected:
-	std::unique_ptr<Rom> rom;
+	std::optional<Rom> rom;
 	std::unique_ptr<DiskDrive> drives[4];
 };
 

@@ -1,6 +1,5 @@
 #include "MSXFDC.hh"
 #include "RealDrive.hh"
-#include "Rom.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
 #include "enumerate.hh"
@@ -13,8 +12,8 @@ MSXFDC::MSXFDC(const DeviceConfig& config, const std::string& romId, bool needRO
                DiskDrive::TrackMode trackMode)
 	: MSXDevice(config)
 	, rom(needROM
-		? std::make_unique<Rom>(getName() + " ROM", "rom", config, romId)
-		: nullptr) // e.g. Spectravideo_SVI-328 doesn't have a diskrom
+		? std::optional<Rom>(std::in_place, getName() + " ROM", "rom", config, romId)
+		: std::nullopt) // e.g. Spectravideo_SVI-328 doesn't have a diskrom
 {
 	if (needROM && (rom->getSize() == 0)) {
 		throw MSXException(
@@ -39,8 +38,6 @@ MSXFDC::MSXFDC(const DeviceConfig& config, const std::string& romId, bool needRO
 		drives[i] = std::make_unique<DummyDrive>();
 	}
 }
-
-MSXFDC::~MSXFDC() = default;
 
 void MSXFDC::powerDown(EmuTime::param time)
 {
