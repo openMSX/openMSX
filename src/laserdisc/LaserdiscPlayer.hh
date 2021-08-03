@@ -8,17 +8,19 @@
 #include "Schedulable.hh"
 #include "DynamicClock.hh"
 #include "Filename.hh"
+#include "OggReader.hh"
 #include "VideoSystemChangeListener.hh"
 #include "EventListener.hh"
 #include "ThrottleManager.hh"
 #include "outer.hh"
+#include <memory>
+#include <optional>
 
 namespace openmsx {
 
 class PioneerLDControl;
 class HardwareConfig;
 class MSXMotherBoard;
-class OggReader;
 class LDRenderer;
 class RawFrame;
 
@@ -162,7 +164,7 @@ private:
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} laserdiscCommand;
 
-	std::unique_ptr<OggReader> video;
+	std::optional<OggReader> video;
 	Filename oggImage;
 	std::unique_ptr<LDRenderer> renderer;
 

@@ -14,7 +14,6 @@
 #include "ReverseManager.hh"
 #include "MSXMotherBoard.hh"
 #include "PioneerLDControl.hh"
-#include "OggReader.hh"
 #include "LDRenderer.hh"
 #include "RendererFactory.hh"
 #include "Math.hh"
@@ -633,7 +632,7 @@ void LaserdiscPlayer::setImageName(string newImage, EmuTime::param time)
 {
 	stop(time);
 	oggImage = Filename(std::move(newImage), userFileContext());
-	video = std::make_unique<OggReader>(oggImage, motherBoard.getMSXCliComm());
+	video.emplace(oggImage, motherBoard.getMSXCliComm());
 
 	unsigned inputRate = video->getSampleRate();
 	sampleClock.setFreq(inputRate);
