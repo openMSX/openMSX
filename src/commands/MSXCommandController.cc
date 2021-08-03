@@ -4,7 +4,6 @@
 #include "MSXEventDistributor.hh"
 #include "MSXMotherBoard.hh"
 #include "SettingsManager.hh"
-#include "InfoCommand.hh"
 #include "Interpreter.hh"
 #include "Setting.hh"
 #include "Event.hh"
@@ -33,7 +32,7 @@ MSXCommandController::MSXCommandController(
 {
 	globalCommandController.getInterpreter().createNamespace(machineID);
 
-	machineInfoCommand = std::make_unique<InfoCommand>(*this, "machine_info");
+	machineInfoCommand.emplace(*this, "machine_info");
 	machineInfoCommand->setAllowedInEmptyMachine(true);
 
 	msxEventDistributor.registerEventListener(*this);

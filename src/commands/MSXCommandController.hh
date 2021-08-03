@@ -3,6 +3,7 @@
 
 #include "CommandController.hh"
 #include "Command.hh"
+#include "InfoCommand.hh"
 #include "MSXEventListener.hh"
 #include "TemporaryString.hh"
 #include "hash_set.hh"
@@ -12,7 +13,6 @@
 namespace openmsx {
 
 class GlobalCommandController;
-class InfoCommand;
 class MSXEventDistributor;
 class MSXMotherBoard;
 class Reactor;
@@ -85,7 +85,7 @@ private:
 	MSXMotherBoard& motherboard;
 	MSXEventDistributor& msxEventDistributor;
 	std::string machineID;
-	std::unique_ptr<InfoCommand> machineInfoCommand;
+	std::optional<InfoCommand> machineInfoCommand;
 
 	struct NameFromCommand {
 		[[nodiscard]] const std::string& operator()(const Command* c) const {
