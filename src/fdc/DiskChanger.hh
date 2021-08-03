@@ -55,7 +55,8 @@ public:
 	[[nodiscard]] const DiskName& getDiskName() const;
 	[[nodiscard]] bool peekDiskChanged() const { return diskChangedFlag; }
 	void forceDiskChange() { diskChangedFlag = true; }
-	[[nodiscard]] Disk& getDisk() { return *disk; }
+	[[nodiscard]]       Disk& getDisk()       { return *disk; }
+	[[nodiscard]] const Disk& getDisk() const { return *disk; }
 
 	// DiskContainer
 	[[nodiscard]] SectorAccessibleDisk* getSectorAccessibleDisk() override;

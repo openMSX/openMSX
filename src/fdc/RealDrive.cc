@@ -1,6 +1,5 @@
 #include "RealDrive.hh"
 #include "Disk.hh"
-#include "DiskChanger.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "LedStatus.hh"
@@ -48,8 +47,8 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeo
 		throw MSXException("Duplicated drive name: ", driveName);
 	}
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, driveName, "add");
-	changer = std::make_unique<DiskChanger>(motherBoard, driveName, true, doubleSizedDrive,
-	                                        [this]() { invalidateTrack(); });
+	changer.emplace(motherBoard, driveName, true, doubleSizedDrive,
+	                [this]() { invalidateTrack(); });
 }
 
 RealDrive::~RealDrive()
@@ -96,7 +95,7 @@ bool RealDrive::isWriteProtected() const
 	return changer->getDisk().isWriteProtected();
 }
 
-bool RealDrive::isDoubleSided() const
+bool RealDrive::isDoubleSided()
 {
 	return doubleSizedDrive ? changer->getDisk().isDoubleSided()
 	                        : false;
