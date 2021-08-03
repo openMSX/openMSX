@@ -4,33 +4,13 @@
 #include "RawFrame.hh"
 #include "ScalerOutput.hh"
 #include "RenderSettings.hh"
-#include "Multiply32.hh"
 #include "vla.hh"
 #include <cstdint>
-#include <memory>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
 
 namespace openmsx {
-
-template<typename Pixel> class Blur_1on3
-{
-public:
-	explicit Blur_1on3(const PixelOperations<Pixel>& pixelOps);
-	inline void setBlur(unsigned blur_) { blur = blur_; }
-	void operator()(const Pixel* in, Pixel* out, size_t dstWidth);
-private:
-	Multiply32<Pixel> mult0;
-	Multiply32<Pixel> mult1;
-	Multiply32<Pixel> mult2;
-	Multiply32<Pixel> mult3;
-	unsigned blur;
-#ifdef __SSE2__
-	void blur_SSE(const Pixel* in_, Pixel* out_, size_t srcWidth);
-#endif
-};
-
 
 template<typename Pixel>
 Simple3xScaler<Pixel>::Simple3xScaler(
@@ -39,7 +19,7 @@ Simple3xScaler<Pixel>::Simple3xScaler(
 	: Scaler3<Pixel>(pixelOps_)
 	, pixelOps(pixelOps_)
 	, scanline(pixelOps_)
-	, blur_1on3(std::make_unique<Blur_1on3<Pixel>>(pixelOps_))
+	, blur_1on3(pixelOps_)
 	, settings(settings_)
 {
 }
@@ -147,8 +127,8 @@ void Simple3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	if (unsigned blur = settings.getBlurFactor() / 3) {
-		blur_1on3->setBlur(blur);
-		PolyScaleRef<Pixel, Blur_1on3<Pixel>> op(*blur_1on3);
+		blur_1on3.setBlur(blur);
+		PolyScaleRef<Pixel, Blur_1on3<Pixel>> op(blur_1on3);
 		doScale1(src, srcStartY, srcEndY, srcWidth,
 		         dst, dstStartY, dstEndY, op);
 	} else {
