@@ -6,7 +6,7 @@
 namespace gl {
 
 // Global variables
-std::unique_ptr<Context> context;
+std::optional<Context> context;
 
 Context::Context(int width, int height)
 {
