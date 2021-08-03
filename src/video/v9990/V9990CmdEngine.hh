@@ -55,22 +55,22 @@ public:
 
 	/** read the command data byte (without side-effects)
 	  */
-	[[nodiscard]] byte peekCmdData(EmuTime::param time);
+	[[nodiscard]] byte peekCmdData(EmuTime::param time) const;
 
 	/** Get command engine related status bits
 	  *  - TR command data transfer ready (bit 7)
 	  *  - BD border color detect         (bit 4)
 	  *  - CE command being executed      (bit 0)
 	  */
-	[[nodiscard]] byte getStatus(EmuTime::param time) {
+	[[nodiscard]] byte getStatus(EmuTime::param time) const {
 		// note: used for both normal and debug read
-		sync(time);
+		const_cast<V9990CmdEngine*>(this)->sync(time);
 		return status;
 	}
 
-	[[nodiscard]] word getBorderX(EmuTime::param time) {
+	[[nodiscard]] word getBorderX(EmuTime::param time) const {
 		// note: used for both normal and debug read
-		sync(time);
+		const_cast<V9990CmdEngine*>(this)->sync(time);
 		return borderX;
 	}
 

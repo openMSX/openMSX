@@ -5,8 +5,10 @@
 #include "Schedulable.hh"
 #include "VideoSystemChangeListener.hh"
 #include "IRQHelper.hh"
+#include "V9990CmdEngine.hh"
 #include "V9990DisplayTiming.hh"
 #include "V9990ModeEnum.hh"
+#include "V9990VRAM.hh"
 #include "SimpleDebuggable.hh"
 #include "Clock.hh"
 #include "serialize_meta.hh"
@@ -15,13 +17,12 @@
 #include "outer.hh"
 #include "unreachable.hh"
 #include <memory>
+#include <optional>
 
 namespace openmsx {
 
 class PostProcessor;
 class Display;
-class V9990VRAM;
-class V9990CmdEngine;
 class V9990Renderer;
 
 /** Implementation of the Yamaha V9990 VDP as used in the GFX9000
@@ -49,7 +50,7 @@ public:
 	/** Obtain a reference to the V9990's VRAM
 	  */
 	[[nodiscard]] inline V9990VRAM& getVRAM() {
-		return *vram;
+		return vram;
 	}
 
 	/** Get interlace status.
@@ -528,13 +529,13 @@ private:
 
 	/** VRAM
 	  */
-	std::unique_ptr<V9990VRAM> vram;
+	V9990VRAM vram;
 	unsigned vramReadPtr, vramWritePtr;
 	byte vramReadBuffer;
 
 	/** Command Engine
 	  */
-	std::unique_ptr<V9990CmdEngine> cmdEngine;
+	V9990CmdEngine cmdEngine;
 
 	/** Renderer
 	  */

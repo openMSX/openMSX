@@ -1,8 +1,6 @@
 #include "V9990.hh"
 #include "Display.hh"
 #include "RendererFactory.hh"
-#include "V9990VRAM.hh"
-#include "V9990CmdEngine.hh"
 #include "V9990Renderer.hh"
 #include "Reactor.hh"
 #include "serialize.hh"
@@ -64,6 +62,8 @@ V9990::V9990(const DeviceConfig& config)
 	, v9990PalDebug(*this)
 	, irq(getMotherBoard(), getName() + ".IRQ")
 	, display(getReactor().getDisplay())
+	, vram(*this, getCurrentTime())
+	, cmdEngine(*this, getCurrentTime(), display.getRenderSettings())
 	, frameStartTime(getCurrentTime())
 	, hScanSyncTime(getCurrentTime())
 	, pendingIRQs(0)
@@ -81,14 +81,7 @@ V9990::V9990(const DeviceConfig& config)
 		palette[4 * i + 3] = 0x00;
 	}
 
-	// create VRAM
-	EmuTime::param time = getCurrentTime();
-	vram = std::make_unique<V9990VRAM>(*this, time);
-
-	// create Command Engine
-	cmdEngine = std::make_unique<V9990CmdEngine>(
-		*this, time, display.getRenderSettings());
-	vram->setCmdEngine(*cmdEngine);
+	vram.setCmdEngine(cmdEngine);
 
 	// Start with NTSC timing
 	palTiming = false;
@@ -99,6 +92,7 @@ V9990::V9990(const DeviceConfig& config)
 	isDisplayArea = false;
 	displayEnabled = false; // avoid UMR (used by createRenderer())
 	superimposing  = false; // avoid UMR
+	EmuTime::param time = getCurrentTime();
 	createRenderer(time);
 
 	powerUp(time);
@@ -121,7 +115,7 @@ PostProcessor* V9990::getPostProcessor() const
 
 void V9990::powerUp(EmuTime::param time)
 {
-	vram->clear();
+	vram.clear();
 	reset(time);
 }
 
@@ -153,9 +147,9 @@ void V9990::reset(EmuTime::param time)
 
 	palTiming = false;
 	// Reset sub-systems
-	cmdEngine->sync(time);
+	cmdEngine.sync(time);
 	renderer->reset(time);
-	cmdEngine->reset(time);
+	cmdEngine.reset(time);
 
 	// Init scheduling
 	frameStart(time);
@@ -169,7 +163,7 @@ byte V9990::readIO(word port, EmuTime::param time)
 	byte result = [&] {
 		switch (port) {
 		case COMMAND_DATA:
-			return cmdEngine->getCmdData(time);
+			return cmdEngine.getCmdData(time);
 		case VRAM_DATA:
 		case PALETTE_DATA:
 		case REGISTER_DATA:
@@ -195,7 +189,7 @@ byte V9990::readIO(word port, EmuTime::param time)
 			vramReadPtr = getVRAMAddr(VRAM_READ_ADDRESS_0) + 1;
 			setVRAMAddr(VRAM_READ_ADDRESS_0, vramReadPtr);
 			// Update read buffer. TODO: timing?
-			vramReadBuffer = vram->readVRAMCPU(vramReadPtr, time);
+			vramReadBuffer = vram.readVRAMCPU(vramReadPtr, time);
 		}
 		break;
 
@@ -236,7 +230,7 @@ byte V9990::peekIO(word port, EmuTime::param time) const
 		return palette[regs[PALETTE_POINTER]];
 
 	case COMMAND_DATA:
-		return cmdEngine->peekCmdData(time);
+		return cmdEngine.peekCmdData(time);
 
 	case REGISTER_DATA:
 		return readRegister(regSelect & 0x3F, time);
@@ -255,7 +249,7 @@ byte V9990::peekIO(word port, EmuTime::param time) const
 		bool hr = (x < left) || (right  <= x);
 		bool vr = (y < top)  || (bottom <= y);
 
-		return cmdEngine->getStatus(time) |
+		return cmdEngine.getStatus(time) |
 		       (vr ? 0x40 : 0x00) |
 		       (hr ? 0x20 : 0x00) |
 		       (status & 0x06);
@@ -288,7 +282,7 @@ void V9990::writeIO(word port, byte val, EmuTime::param time)
 				return;
 			}
 			unsigned addr = getVRAMAddr(VRAM_WRITE_ADDRESS_0);
-			vram->writeVRAMCPU(addr, val, time);
+			vram.writeVRAMCPU(addr, val, time);
 			if (!(regs[VRAM_WRITE_ADDRESS_2] & 0x80)) {
 				setVRAMAddr(VRAM_WRITE_ADDRESS_0, addr + 1);
 			}
@@ -316,7 +310,7 @@ void V9990::writeIO(word port, byte val, EmuTime::param time)
 			// systemReset state doesn't matter:
 			//   command below has no effect in systemReset mode
 			//assert(cmdEngine);
-			cmdEngine->setCmdData(val, time);
+			cmdEngine.setCmdData(val, time);
 			break;
 
 		case REGISTER_DATA: {
@@ -445,14 +439,14 @@ void V9990::execSetMode(EmuTime::param time)
 
 void V9990::execCheckCmdEnd(EmuTime::param time)
 {
-	cmdEngine->sync(time);
+	cmdEngine.sync(time);
 	scheduleCmdEnd(time); // in case of underestimation
 }
 
 void V9990::scheduleCmdEnd(EmuTime::param time)
 {
 	if (regs[INTERRUPT_0] & 4) {
-		auto next = cmdEngine->estimateCmdEnd();
+		auto next = cmdEngine.estimateCmdEnd();
 		if (next > time) {
 			syncCmdEnd.setSyncPoint(next);
 		}
@@ -549,7 +543,7 @@ byte V9990::readRegister(byte reg, EmuTime::param time) const
 		if (reg < CMD_PARAM_BORDER_X_0) {
 			return regs[reg];
 		} else {
-			word borderX = cmdEngine->getBorderX(time);
+			word borderX = cmdEngine.getBorderX(time);
 			return (reg == CMD_PARAM_BORDER_X_0)
 			       ? (borderX & 0xFF) : (borderX >> 8);
 		}
@@ -583,7 +577,7 @@ void V9990::writeRegister(byte reg, byte val, EmuTime::param time)
 		return;
 	}
 	if (reg >= CMD_PARAM_SRC_ADDRESS_0) {
-		cmdEngine->setCmdReg(reg, val, time);
+		cmdEngine.setCmdReg(reg, val, time);
 		if (reg == CMD_PARAM_OPCODE) {
 			scheduleCmdEnd(time);
 		}
@@ -642,7 +636,7 @@ void V9990::writeRegister(byte reg, byte val, EmuTime::param time)
 			// write pointer is only updated on R#5 write
 			vramReadPtr = getVRAMAddr(VRAM_READ_ADDRESS_0);
 			// update read buffer immediately after read pointer changes. TODO: timing?
-			vramReadBuffer = vram->readVRAMCPU(vramReadPtr, time);
+			vramReadBuffer = vram.readVRAMCPU(vramReadPtr, time);
 			break;
 		case SCREEN_MODE_0:
 		case SCREEN_MODE_1:
@@ -910,8 +904,8 @@ void V9990::serialize(Archive& ar, unsigned version)
 	}
 
 	ar.serialize("displayMode", mode); // must be deserialized before cmdEngine (because it's used to restore some derived state in cmdEngine)
-	ar.serialize("vram",           *vram,
-	             "cmdEngine",      *cmdEngine,
+	ar.serialize("vram",           vram,
+	             "cmdEngine",      cmdEngine,
 	             "irq",            irq,
 	             "frameStartTime", frameStartTime,
 	             "hScanSyncTime",  hScanSyncTime);
@@ -936,7 +930,7 @@ void V9990::serialize(Archive& ar, unsigned version)
 	if (ar.versionBelow(version, 3)) {
 		vramReadPtr = getVRAMAddr(VRAM_READ_ADDRESS_0);
 		vramWritePtr = getVRAMAddr(VRAM_WRITE_ADDRESS_0);
-		vramReadBuffer = vram->readVRAMCPU(vramReadPtr, getCurrentTime());
+		vramReadBuffer = vram.readVRAMCPU(vramReadPtr, getCurrentTime());
 	} else {
 		ar.serialize("vramReadPtr",    vramReadPtr,
 		             "vramWritePtr",   vramWritePtr,
