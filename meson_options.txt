@@ -1,9 +1,9 @@
-option('alsamidi', type : 'feature', value : 'auto',
-    description : 'MIDI out pluggable using ALSA (Linux-only)'
-    )
-option('glrenderer', type : 'feature', value : 'auto',
-    description : 'renderer that uses OpenGL'
-    )
-option('laserdisc', type : 'feature', value : 'auto',
-    description : 'emulation of Laserdisc players'
-    )
+option('alsamidi', type: 'feature', value: 'auto',
+    description: 'MIDI out pluggable using ALSA (Linux-only)'
+)
+option('glrenderer', type: 'feature', value: 'auto',
+    description: 'renderer that uses OpenGL'
+)
+option('laserdisc', type: 'feature', value: 'auto',
+    description: 'emulation of Laserdisc players'
+)
