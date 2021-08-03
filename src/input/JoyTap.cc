@@ -1,5 +1,4 @@
 #include "JoyTap.hh"
-#include "JoystickPort.hh"
 #include "PluggingController.hh"
 #include "enumerate.hh"
 #include "serialize.hh"
@@ -16,11 +15,10 @@ JoyTap::JoyTap(PluggingController& pluggingController_, string name_)
 {
 }
 
-JoyTap::~JoyTap() = default;
-
-void JoyTap::createPorts(static_string_view description) {
+void JoyTap::createPorts(static_string_view description)
+{
 	for (auto [i, slave] : enumerate(slaves)) {
-		slave = std::make_unique<JoystickPort>(
+		slave.emplace(
 			pluggingController,
 			strCat(name, "_port_", char('1' + i)),
 			description);
