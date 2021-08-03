@@ -944,12 +944,12 @@ void Y8950::writeReg(byte rg, byte data, EmuTime::param time)
 			break;
 
 		case 0x02: // TIMER1 (resolution 80us)
-			timer1->setValue(data);
+			timer1.setValue(data);
 			reg[rg] = data;
 			break;
 
 		case 0x03: // TIMER2 (resolution 320us)
-			timer2->setValue(data);
+			timer2.setValue(data);
 			reg[rg] = data;
 			break;
 
@@ -958,8 +958,8 @@ void Y8950::writeReg(byte rg, byte data, EmuTime::param time)
 				resetStatus(0x78);	// reset all flags
 			} else {
 				changeStatusMask((~data) & 0x78);
-				timer1->setStart((data & Y8950::R04_ST1) != 0, time);
-				timer2->setStart((data & Y8950::R04_ST2) != 0, time);
+				timer1.setStart((data & Y8950::R04_ST1) != 0, time);
+				timer2.setStart((data & Y8950::R04_ST2) != 0, time);
 				reg[rg] = data;
 			}
 			adpcm.resetStatus();
@@ -1307,8 +1307,8 @@ void Y8950::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("keyboardConnector", connector,
 	             "adpcm",             adpcm,
-	             "timer1",            *timer1,
-	             "timer2",            *timer2,
+	             "timer1",            timer1,
+	             "timer2",            timer2,
 	             "irq",               irq);
 	ar.serialize_blob("registers", reg, sizeof(reg));
 	ar.serialize("pm_phase",      pm_phase,

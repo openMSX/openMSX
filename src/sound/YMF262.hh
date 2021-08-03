@@ -10,7 +10,6 @@
 #include "openmsx.hh"
 #include "serialize_meta.hh"
 #include <string>
-#include <memory>
 
 namespace openmsx {
 
@@ -186,8 +185,8 @@ private:
 	static constexpr int STATUS_T2      = R04_MASK_T2;
 	static constexpr int STATUS_T1      = R04_MASK_T1;
 	// Timers (see EmuTimer class for details about timing)
-	const std::unique_ptr<EmuTimer> timer1; //  80.8us OPL4  ( 80.5us OPL3)
-	const std::unique_ptr<EmuTimer> timer2; // 323.1us OPL4  (321.8us OPL3)
+	EmuTimer timer1; //  80.8us OPL4  ( 80.5us OPL3)
+	EmuTimer timer2; // 323.1us OPL4  (321.8us OPL3)
 
 	IRQHelper irq;
 

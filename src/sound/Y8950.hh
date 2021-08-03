@@ -12,7 +12,6 @@
 #include "FixedPoint.hh"
 #include "openmsx.hh"
 #include <string>
-#include <memory>
 
 namespace openmsx {
 
@@ -210,8 +209,8 @@ private:
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	} debuggable;
 
-	const std::unique_ptr<EmuTimer> timer1; //  80us timer
-	const std::unique_ptr<EmuTimer> timer2; // 320us timer
+	EmuTimer timer1; //  80us timer
+	EmuTimer timer2; // 320us timer
 	IRQHelper irq;
 
 	byte reg[0x100];
