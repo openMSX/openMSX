@@ -428,16 +428,16 @@ void DiskManipulator::format(DriveSettings& driveData, bool dos1)
 	driveData.workingDir[driveData.partition] = '/';
 }
 
-unique_ptr<MSXtar> DiskManipulator::getMSXtar(
+MSXtar DiskManipulator::getMSXtar(
 	SectorAccessibleDisk& disk, DriveSettings& driveData)
 {
 	if (DiskImageUtils::hasPartitionTable(disk)) {
 		throw CommandException("Please select partition number.");
 	}
 
-	auto result = std::make_unique<MSXtar>(disk);
+	MSXtar result(disk);
 	try {
-		result->chdir(driveData.workingDir[driveData.partition]);
+		result.chdir(driveData.workingDir[driveData.partition]);
 	} catch (MSXException&) {
 		driveData.workingDir[driveData.partition] = '/';
 		throw CommandException(
@@ -451,8 +451,8 @@ unique_ptr<MSXtar> DiskManipulator::getMSXtar(
 string DiskManipulator::dir(DriveSettings& driveData)
 {
 	auto partition = getPartition(driveData);
-	unique_ptr<MSXtar> workhorse = getMSXtar(*partition, driveData);
-	return workhorse->dir();
+	auto workhorse = getMSXtar(*partition, driveData);
+	return workhorse.dir();
 }
 
 string DiskManipulator::chdir(DriveSettings& driveData, string_view filename)
@@ -460,7 +460,7 @@ string DiskManipulator::chdir(DriveSettings& driveData, string_view filename)
 	auto partition = getPartition(driveData);
 	auto workhorse = getMSXtar(*partition, driveData);
 	try {
-		workhorse->chdir(filename);
+		workhorse.chdir(filename);
 	} catch (MSXException& e) {
 		throw CommandException("chdir failed: ", e.getMessage());
 	}
@@ -480,7 +480,7 @@ void DiskManipulator::mkdir(DriveSettings& driveData, string_view filename)
 	auto partition = getPartition(driveData);
 	auto workhorse = getMSXtar(*partition, driveData);
 	try {
-		workhorse->mkdir(filename);
+		workhorse.mkdir(filename);
 	} catch (MSXException& e) {
 		throw CommandException(std::move(e).getMessage());
 	}
@@ -504,9 +504,9 @@ string DiskManipulator::import(DriveSettings& driveData,
 						"Non-existing file ", s);
 				}
 				if (FileOperations::isDirectory(st)) {
-					messages += workhorse->addDir(s);
+					messages += workhorse.addDir(s);
 				} else if (FileOperations::isRegularFile(st)) {
-					messages += workhorse->addFile(s);
+					messages += workhorse.addFile(s);
 				} else {
 					// ignore other stuff (sockets, device nodes, ..)
 					strAppend(messages, "Ignoring ", s, '\n');
@@ -527,10 +527,10 @@ void DiskManipulator::exprt(DriveSettings& driveData, string_view dirname,
 	try {
 		if (lists.empty()) {
 			// export all
-			workhorse->getDir(dirname);
+			workhorse.getDir(dirname);
 		} else {
 			for (const auto& l : lists) {
-				workhorse->getItemFromDir(dirname, l.getString());
+				workhorse.getItemFromDir(dirname, l.getString());
 			}
 		}
 	} catch (MSXException& e) {

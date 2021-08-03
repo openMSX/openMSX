@@ -49,8 +49,8 @@ private:
 	[[nodiscard]] DriveSettings& getDriveSettings(std::string_view diskname);
 	[[nodiscard]] static std::unique_ptr<DiskPartition> getPartition(
 		const DriveSettings& driveData);
-	[[nodiscard]] static std::unique_ptr<MSXtar> getMSXtar(SectorAccessibleDisk& disk,
-	                                         DriveSettings& driveData);
+	[[nodiscard]] static MSXtar getMSXtar(SectorAccessibleDisk& disk,
+	                                      DriveSettings& driveData);
 
 	static void create(span<const TclObject> tokens);
 	void savedsk(const DriveSettings& driveData, std::string filename);

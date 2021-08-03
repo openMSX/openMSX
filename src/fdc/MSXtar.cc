@@ -152,6 +152,21 @@ MSXtar::MSXtar(SectorAccessibleDisk& sectordisk)
 	disk.readSectors(&fatBuffer[0], 1, sectorsPerFat);
 }
 
+// Not used when NRVO is used (but NRVO optimization is not (yet) mandated)
+MSXtar::MSXtar(MSXtar&& other)
+	: disk(other.disk)
+	, fatBuffer(std::move(other.fatBuffer))
+	, maxCluster(other.maxCluster)
+	, sectorsPerCluster(other.sectorsPerCluster)
+	, sectorsPerFat(other.sectorsPerFat)
+	, rootDirStart(other.rootDirStart)
+	, rootDirLast(other.rootDirLast)
+	, chrootSector(other.chrootSector)
+	, fatCacheDirty(other.fatCacheDirty)
+{
+	other.fatCacheDirty = false;
+}
+
 MSXtar::~MSXtar()
 {
 	if (!fatCacheDirty) return;
