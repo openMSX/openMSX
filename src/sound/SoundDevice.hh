@@ -2,8 +2,9 @@
 #define SOUNDDEVICE_HH
 
 #include "EmuTime.hh"
+#include "WavWriter.hh"
 #include "static_string_view.hh"
-#include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 
@@ -13,7 +14,6 @@ class DeviceConfig;
 class DynamicClock;
 class Filename;
 class MSXMixer;
-class Wav16Writer;
 
 class SoundDevice
 {
@@ -193,7 +193,7 @@ private:
 	const std::string name;
 	const static_string_view description;
 
-	std::unique_ptr<Wav16Writer> writer[MAX_CHANNELS];
+	std::optional<Wav16Writer> writer[MAX_CHANNELS];
 
 	float softwareVolumeLeft = 1.0f;
 	float softwareVolumeRight = 1.0f;

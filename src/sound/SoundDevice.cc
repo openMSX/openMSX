@@ -2,7 +2,6 @@
 #include "MSXMixer.hh"
 #include "DeviceConfig.hh"
 #include "XMLElement.hh"
-#include "WavWriter.hh"
 #include "Filename.hh"
 #include "StringOp.hh"
 #include "MemoryOps.hh"
@@ -159,14 +158,14 @@ void SoundDevice::setSoftwareVolume(float left, float right, EmuTime::param time
 void SoundDevice::recordChannel(unsigned channel, const Filename& filename)
 {
 	assert(channel < numChannels);
-	bool wasRecording = writer[channel] != nullptr;
+	bool wasRecording = writer[channel].has_value();
 	if (!filename.empty()) {
-		writer[channel] = std::make_unique<Wav16Writer>(
+		writer[channel].emplace(
 			filename, stereo, inputSampleRate);
 	} else {
 		writer[channel].reset();
 	}
-	bool recording = writer[channel] != nullptr;
+	bool recording = writer[channel].has_value();
 	if (recording != wasRecording) {
 		if (recording) {
 			if (numRecordChannels == 0) {
