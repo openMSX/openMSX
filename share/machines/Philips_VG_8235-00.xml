@@ -100,7 +100,7 @@
           <drives>1</drives>
           <rom>
             <filename>vg8235-00_disk.rom</filename>
-            <sha1>c289dad246364e2dd716c457ca5eecf98e76c9ab</sha1>
+            <sha1>7ce255ab63ba79f81d8b83d66f1108062d0b61f1</sha1>
           </rom>
           <mem base="0x4000" size="0x8000"/> <!-- Verified on real MSX: mirroring in page 2 -->
         </WD2793>
