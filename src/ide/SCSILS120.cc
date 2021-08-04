@@ -80,20 +80,6 @@ constexpr char fds120[28 + 1]  = "IODATA  LS-120 COSM     0001";
 constexpr unsigned BUFFER_BLOCK_SIZE = SCSIDevice::BUFFER_SIZE /
                                        SectorAccessibleDisk::SECTOR_SIZE;
 
-class LSXCommand final : public RecordedCommand
-{
-public:
-	LSXCommand(CommandController& commandController,
-	           StateChangeDistributor& stateChangeDistributor,
-	           Scheduler& scheduler, SCSILS120& ls);
-	void execute(span<const TclObject> tokens,
-	             TclObject& result, EmuTime::param time) override;
-	[[nodiscard]] string help(span<const TclObject> tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
-private:
-	SCSILS120& ls;
-};
-
 SCSILS120::SCSILS120(const DeviceConfig& targetconfig,
                      AlignedBuffer& buf, unsigned mode_)
 	: motherBoard(targetconfig.getMotherBoard())
@@ -113,7 +99,7 @@ SCSILS120::SCSILS120(const DeviceConfig& targetconfig,
 	}
 	name[2] = char('a' + id);
 	(*lsInUse)[id] = true;
-	lsxCommand = std::make_unique<LSXCommand>(
+	lsxCommand.emplace(
 		motherBoard.getCommandController(),
 		motherBoard.getStateChangeDistributor(),
 		motherBoard.getScheduler(), *this);

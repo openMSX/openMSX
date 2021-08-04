@@ -10,18 +10,33 @@
 #ifndef SCSILS120_HH
 #define SCSILS120_HH
 
+#include "RecordedCommand.hh"
 #include "SCSIDevice.hh"
 #include "SectorAccessibleDisk.hh"
 #include "DiskContainer.hh"
 #include "File.hh"
 #include <bitset>
-#include <memory>
+#include <optional>
 
 namespace openmsx {
 
 class DeviceConfig;
 class MSXMotherBoard;
-class LSXCommand;
+class SCSILS120;
+
+class LSXCommand final : public RecordedCommand
+{
+public:
+	LSXCommand(CommandController& commandController,
+	           StateChangeDistributor& stateChangeDistributor,
+	           Scheduler& scheduler, SCSILS120& ls);
+	void execute(span<const TclObject> tokens,
+	             TclObject& result, EmuTime::param time) override;
+	[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+	void tabCompletion(std::vector<std::string>& tokens) const override;
+private:
+	SCSILS120& ls;
+};
 
 class SCSILS120 final : public SCSIDevice, public SectorAccessibleDisk
                       , public DiskContainer
@@ -85,7 +100,7 @@ private:
 	MSXMotherBoard& motherBoard;
 	AlignedBuffer& buffer;
 	File file;
-	std::unique_ptr<LSXCommand> lsxCommand;
+	std::optional<LSXCommand> lsxCommand; // delayed init
 	std::string name;
 	const int mode;
 	unsigned keycode;      // Sense key, ASC, ASCQ
