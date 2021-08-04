@@ -20,38 +20,9 @@
 #include "xrange.hh"
 #include <iostream>
 
-using std::shared_ptr;
 using namespace gl;
 
 namespace openmsx {
-
-class TouchpadState final : public StateChange
-{
-public:
-	TouchpadState() = default; // for serialize
-	TouchpadState(EmuTime::param time_,
-	              byte x_, byte y_, bool touch_, bool button_)
-		: StateChange(time_)
-		, x(x_), y(y_), touch(touch_), button(button_) {}
-	[[nodiscard]] byte getX()      const { return x; }
-	[[nodiscard]] byte getY()      const { return y; }
-	[[nodiscard]] bool getTouch()  const { return touch; }
-	[[nodiscard]] bool getButton() const { return button; }
-
-	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
-	{
-		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("x",      x,
-		             "y",      y,
-		             "touch",  touch,
-		             "button", button);
-	}
-private:
-	byte x, y;
-	bool touch, button;
-};
-REGISTER_POLYMORPHIC_CLASS(StateChange, TouchpadState, "TouchpadState");
-
 
 Touchpad::Touchpad(MSXEventDistributor& eventDistributor_,
                    StateChangeDistributor& stateChangeDistributor_,
@@ -253,14 +224,14 @@ void Touchpad::signalMSXEvent(const Event& event,
 void Touchpad::createTouchpadStateChange(
 	EmuTime::param time, byte x_, byte y_, bool touch_, bool button_)
 {
-	stateChangeDistributor.distributeNew(std::make_shared<TouchpadState>(
-		time, x_, y_, touch_, button_));
+	stateChangeDistributor.distributeNew<TouchpadState>(
+		time, x_, y_, touch_, button_);
 }
 
 // StateChangeListener
-void Touchpad::signalStateChange(const shared_ptr<StateChange>& event)
+void Touchpad::signalStateChange(const StateChange& event)
 {
-	if (auto* ts = dynamic_cast<TouchpadState*>(event.get())) {
+	if (const auto* ts = std::get_if<TouchpadState>(&event)) {
 		x      = ts->getX();
 		y      = ts->getY();
 		touch  = ts->getTouch();
@@ -272,9 +243,8 @@ void Touchpad::stopReplay(EmuTime::param time) noexcept
 {
 	// TODO Get actual mouse state. Is it worth the trouble?
 	if (x || y || touch || button) {
-		stateChangeDistributor.distributeNew(
-			std::make_shared<TouchpadState>(
-				time, 0, 0, false, false));
+		stateChangeDistributor.distributeNew<TouchpadState>(
+			time, 0, 0, false, false);
 	}
 }
 

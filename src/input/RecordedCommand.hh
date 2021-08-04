@@ -6,31 +6,13 @@
 #include "StateChange.hh"
 #include "TclObject.hh"
 #include "EmuTime.hh"
+#include "dynarray.hh"
 
 namespace openmsx {
 
 class CommandController;
 class StateChangeDistributor;
 class Scheduler;
-
-/** This class is used to for Tcl commands that directly influence the MSX
-  * state (e.g. plug, disk<x>, cassetteplayer, reset). It's passed via an
-  * event because the recording needs to see these.
-  */
-class MSXCommandEvent final : public StateChange
-{
-public:
-	MSXCommandEvent() = default; // for serialize
-	MSXCommandEvent(span<std::string> tokens, EmuTime::param time);
-	MSXCommandEvent(span<const TclObject> tokens, EmuTime::param time);
-	[[nodiscard]] const std::vector<TclObject>& getTokens() const { return tokens; }
-
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
-private:
-	std::vector<TclObject> tokens;
-};
-
 
 /** Commands that directly influence the MSX state should send and events
   * so that they can be recorded by the event recorder. This class helps to
@@ -71,7 +53,7 @@ private:
 	void execute(span<const TclObject> tokens, TclObject& result) override;
 
 	// StateChangeListener
-	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
+	void signalStateChange(const StateChange& event) override;
 	void stopReplay(EmuTime::param time) noexcept override;
 
 private:

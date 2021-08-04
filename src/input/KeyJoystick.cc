@@ -7,54 +7,28 @@
 #include "serialize_meta.hh"
 
 using std::string;
-using std::shared_ptr;
 
 namespace openmsx {
-
-class KeyJoyState final : public StateChange
-{
-public:
-	KeyJoyState() = default; // for serialize
-	KeyJoyState(EmuTime::param time_, string name_,
-	            byte press_, byte release_)
-		: StateChange(time_)
-		, name(std::move(name_)), press(press_), release(release_) {}
-	[[nodiscard]] const string& getName() const { return name; }
-	[[nodiscard]] byte getPress()   const { return press; }
-	[[nodiscard]] byte getRelease() const { return release; }
-	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
-	{
-		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("name",    name,
-		             "press",   press,
-		             "release", release);
-	}
-
-private:
-	string name;
-	byte press, release;
-};
-REGISTER_POLYMORPHIC_CLASS(StateChange, KeyJoyState, "KeyJoyState");
 
 KeyJoystick::KeyJoystick(CommandController& commandController,
                          MSXEventDistributor& eventDistributor_,
                          StateChangeDistributor& stateChangeDistributor_,
-                         std::string name_)
+                         KeyJoyID id_)
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
-	, name(std::move(name_))
-	, up   (commandController, tmpStrCat(name, ".up"),
+	, up   (commandController, tmpStrCat(nameForId(id_), ".up"),
 		"key for direction up",    Keys::K_UP)
-	, down (commandController, tmpStrCat(name, ".down"),
+	, down (commandController, tmpStrCat(nameForId(id_), ".down"),
 		"key for direction down",  Keys::K_DOWN)
-	, left (commandController, tmpStrCat(name, ".left"),
+	, left (commandController, tmpStrCat(nameForId(id_), ".left"),
 		"key for direction left",  Keys::K_LEFT)
-	, right(commandController, tmpStrCat(name, ".right"),
+	, right(commandController, tmpStrCat(nameForId(id_), ".right"),
 		"key for direction right", Keys::K_RIGHT)
-	, trigA(commandController, tmpStrCat(name, ".triga"),
+	, trigA(commandController, tmpStrCat(nameForId(id_), ".triga"),
 		"key for trigger A",       Keys::K_SPACE)
-	, trigB(commandController, tmpStrCat(name, ".trigb"),
+	, trigB(commandController, tmpStrCat(nameForId(id_), ".trigb"),
 		"key for trigger B",       Keys::K_M)
+	, id(id_)
 {
 	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	         JOY_BUTTONA | JOY_BUTTONB;
@@ -71,7 +45,7 @@ KeyJoystick::~KeyJoystick()
 // Pluggable
 std::string_view KeyJoystick::getName() const
 {
-	return name;
+	return nameForId(id);
 }
 
 std::string_view KeyJoystick::getDescription() const
@@ -129,17 +103,17 @@ void KeyJoystick::signalMSXEvent(const Event& event,
 	}, event);
 
 	if (((status & ~press) | release) != status) {
-		stateChangeDistributor.distributeNew(std::make_shared<KeyJoyState>(
-			time, name, press, release));
+		stateChangeDistributor.distributeNew<KeyJoyState>(
+			time, id, press, release);
 	}
 }
 
 // StateChangeListener
-void KeyJoystick::signalStateChange(const shared_ptr<StateChange>& event)
+void KeyJoystick::signalStateChange(const StateChange& event)
 {
-	const auto* kjs = dynamic_cast<const KeyJoyState*>(event.get());
+	const auto* kjs = std::get_if<KeyJoyState>(&event);
 	if (!kjs) return;
-	if (kjs->getName() != name) return;
+	if (kjs->getId() != id) return;
 
 	status = (status & ~kjs->getPress()) | kjs->getRelease();
 }
@@ -151,8 +125,8 @@ void KeyJoystick::stopReplay(EmuTime::param time) noexcept
 	                 JOY_BUTTONA | JOY_BUTTONB;
 	if (newStatus != status) {
 		byte release = newStatus & ~status;
-		stateChangeDistributor.distributeNew(std::make_shared<KeyJoyState>(
-			time, name, 0, release));
+		stateChangeDistributor.distributeNew<KeyJoyState>(
+			time, id, 0, release);
 	}
 }
 

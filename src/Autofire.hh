@@ -5,6 +5,7 @@
 #include "DynamicClock.hh"
 #include "EmuTime.hh"
 #include "IntegerSetting.hh"
+#include "StateChange.hh"
 #include "StateChangeListener.hh"
 #include "static_string_view.hh"
 
@@ -27,7 +28,7 @@ class Autofire final : private Observer<Setting>, private StateChangeListener
 public:
 	Autofire(MSXMotherBoard& motherBoard,
 	         unsigned newMinInts, unsigned newMaxInts,
-	         static_string_view name);
+	         AutofireID id);
 	~Autofire();
 
 	/** Get the output signal in negative logic.
@@ -51,13 +52,12 @@ private:
 	void update(const Setting& setting) noexcept override;
 
 	// StateChangeListener
-	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
+	void signalStateChange(const StateChange& event) override;
 	void stopReplay(EmuTime::param time) noexcept override;
 
 private:
 	Scheduler& scheduler;
 	StateChangeDistributor& stateChangeDistributor;
-	const static_string_view name;
 
 	// Following two values specify the range of the autofire
 	// as measured by the test program:
@@ -79,6 +79,8 @@ private:
 	  * Frequency is derived from speed, min_ints and max_ints.
 	  */
 	DynamicClock clock;
+
+	const AutofireID id;
 };
 
 } // namespace openmsx

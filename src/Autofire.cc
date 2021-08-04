@@ -8,39 +8,16 @@
 
 namespace openmsx {
 
-class AutofireStateChange final : public StateChange
-{
-public:
-	AutofireStateChange() = default; // for serialize
-	AutofireStateChange(EmuTime::param time_, std::string name_, int value_)
-		: StateChange(time_)
-		, name(std::move(name_)), value(value_) {}
-	[[nodiscard]] const std::string& getName() const { return name; }
-	[[nodiscard]] int getValue() const { return value; }
-	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
-	{
-		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("name",    name,
-		             "value",   value);
-	}
-
-private:
-	std::string name;
-	int value;
-};
-REGISTER_POLYMORPHIC_CLASS(StateChange, AutofireStateChange, "AutofireStateChange");
-
-
 Autofire::Autofire(MSXMotherBoard& motherBoard,
-                   unsigned newMinInts, unsigned newMaxInts, static_string_view name_)
+                   unsigned newMinInts, unsigned newMaxInts, AutofireID id_)
 	: scheduler(motherBoard.getScheduler())
 	, stateChangeDistributor(motherBoard.getStateChangeDistributor())
-	, name(name_)
 	, min_ints(std::max(newMinInts, 1u))
 	, max_ints(std::max(newMaxInts, min_ints + 1))
-	, speedSetting(motherBoard.getCommandController(), name,
+	, speedSetting(motherBoard.getCommandController(), nameForId(id_),
 		"controls the speed of this autofire circuit", 0, 0, 100)
 	, clock(scheduler.getCurrentTime())
+	, id(id_)
 {
 	setClock(speedSetting.getInt());
 
@@ -56,8 +33,8 @@ Autofire::~Autofire()
 
 void Autofire::setSpeed(EmuTime::param time)
 {
-	stateChangeDistributor.distributeNew(std::make_shared<AutofireStateChange>(
-		time, std::string(name), speedSetting.getInt()));
+	stateChangeDistributor.distributeNew<AutofireStateChange>(
+		time, id, speedSetting.getInt());
 }
 
 void Autofire::setClock(int speed)
@@ -77,11 +54,11 @@ void Autofire::update(const Setting& setting) noexcept
 	setSpeed(scheduler.getCurrentTime());
 }
 
-void Autofire::signalStateChange(const std::shared_ptr<StateChange>& event)
+void Autofire::signalStateChange(const StateChange& event)
 {
-	auto* as = dynamic_cast<AutofireStateChange*>(event.get());
+	const auto* as = std::get_if<AutofireStateChange>(&event);
 	if (!as) return;
-	if (as->getName() != name) return;
+	if (as->getId() != id) return;
 
 	setClock(as->getValue());
 }

@@ -17,8 +17,6 @@
 // cause the shift register bits to return to 0.
 
 using std::string;
-using std::shared_ptr;
-using std::make_shared;
 
 namespace openmsx {
 
@@ -27,30 +25,6 @@ constexpr int POS_MAX = 325; // measured by hap
 constexpr int POS_CENTER = 236; // approx. middle used by games
 constexpr int SCALE = 2;
 
-
-class ArkanoidState final : public StateChange
-{
-public:
-	ArkanoidState() = default; // for serialize
-	ArkanoidState(EmuTime::param time_, int delta_, bool press_, bool release_)
-		: StateChange(time_)
-		, delta(delta_), press(press_), release(release_) {}
-	[[nodiscard]] int  getDelta()   const { return delta; }
-	[[nodiscard]] bool getPress()   const { return press; }
-	[[nodiscard]] bool getRelease() const { return release; }
-
-	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
-	{
-		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("delta",   delta,
-		             "press",   press,
-		             "release", release);
-	}
-private:
-	int delta;
-	bool press, release;
-};
-REGISTER_POLYMORPHIC_CLASS(StateChange, ArkanoidState, "ArkanoidState");
 
 ArkanoidPad::ArkanoidPad(MSXEventDistributor& eventDistributor_,
                          StateChangeDistributor& stateChangeDistributor_)
@@ -126,25 +100,22 @@ void ArkanoidPad::signalMSXEvent(const Event& event,
 						dialpos + e.getX() / SCALE));
 			int delta = newPos - dialpos;
 			if (delta != 0) {
-				stateChangeDistributor.distributeNew(
-					make_shared<ArkanoidState>(
-						time, delta, false, false));
+				stateChangeDistributor.distributeNew<ArkanoidState>(
+					time, delta, false, false);
 			}
 		},
 		[&](const MouseButtonDownEvent& /*e*/) {
 			// any button will press the Arkanoid Pad button
 			if (buttonStatus & 2) {
-				stateChangeDistributor.distributeNew(
-					make_shared<ArkanoidState>(
-						time, 0, true, false));
+				stateChangeDistributor.distributeNew<ArkanoidState>(
+					time, 0, true, false);
 			}
 		},
 		[&](const MouseButtonUpEvent& /*e*/) {
 			// any button will unpress the Arkanoid Pad button
 			if (!(buttonStatus & 2)) {
-				stateChangeDistributor.distributeNew(
-					make_shared<ArkanoidState>(
-						time, 0, false, true));
+				stateChangeDistributor.distributeNew<ArkanoidState>(
+					time, 0, false, true);
 			}
 		},
 		[](const EventBase&) { /*ignore */}
@@ -152,9 +123,9 @@ void ArkanoidPad::signalMSXEvent(const Event& event,
 }
 
 // StateChangeListener
-void ArkanoidPad::signalStateChange(const shared_ptr<StateChange>& event)
+void ArkanoidPad::signalStateChange(const StateChange& event)
 {
-	const auto* as = dynamic_cast<const ArkanoidState*>(event.get());
+	const auto* as = std::get_if<ArkanoidState>(&event);
 	if (!as) return;
 
 	dialpos += as->getDelta();
@@ -168,8 +139,8 @@ void ArkanoidPad::stopReplay(EmuTime::param time) noexcept
 	int delta = POS_CENTER - dialpos;
 	bool release = (buttonStatus & 2) == 0;
 	if ((delta != 0) || release) {
-		stateChangeDistributor.distributeNew(make_shared<ArkanoidState>(
-			time, delta, false, release));
+		stateChangeDistributor.distributeNew<ArkanoidState>(
+			time, delta, false, release);
 	}
 }
 

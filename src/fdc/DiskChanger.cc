@@ -125,25 +125,27 @@ std::string_view DiskChanger::getContainerName() const
 	return getDriveName();
 }
 
-void DiskChanger::sendChangeDiskEvent(span<string> args)
+void DiskChanger::sendChangeDiskEvent(span<const TclObject> args)
 {
 	// note: might throw MSXException
 	if (stateChangeDistributor) {
-		stateChangeDistributor->distributeNew(
-			std::make_shared<MSXCommandEvent>(
-				args, scheduler->getCurrentTime()));
+		stateChangeDistributor->distributeNew<MSXCommandEvent>(
+			scheduler->getCurrentTime(), args);
 	} else {
-		signalStateChange(std::make_shared<MSXCommandEvent>(
-			args, EmuTime::zero()));
+		execute(args);
 	}
 }
 
-void DiskChanger::signalStateChange(const std::shared_ptr<StateChange>& event)
+void DiskChanger::signalStateChange(const StateChange& event)
 {
-	auto* commandEvent = dynamic_cast<MSXCommandEvent*>(event.get());
+	const auto* commandEvent = std::get_if<MSXCommandEvent>(&event);
 	if (!commandEvent) return;
 
-	const auto& tokens = commandEvent->getTokens();
+	execute(commandEvent->getTokens());
+}
+
+void DiskChanger::execute(span<const TclObject> tokens)
+{
 	if (tokens[0] == getDriveName()) {
 		if (tokens[1] == "eject") {
 			ejectDisk();
@@ -229,20 +231,20 @@ void DiskCommand::execute(span<const TclObject> tokens, TclObject& result)
 		}
 
 	} else if (tokens[1] == "ramdsk") {
-		string args[] = {
-			diskChanger.getDriveName(), string(tokens[1].getString())
+		TclObject args[] = {
+			TclObject(diskChanger.getDriveName()), tokens[1]
 		};
 		diskChanger.sendChangeDiskEvent(args);
 	} else if (tokens[1] == "-ramdsk") {
-		string args[] = {diskChanger.getDriveName(), "ramdsk"};
+		TclObject args[] = {TclObject(diskChanger.getDriveName()), TclObject("ramdsk")};
 		diskChanger.sendChangeDiskEvent(args);
 		result = "Warning: use of '-ramdsk' is deprecated, instead use the 'ramdsk' subcommand";
 	} else if (tokens[1] == "-eject") {
-		string args[] = {diskChanger.getDriveName(), "eject"};
+		TclObject args[] = {TclObject(diskChanger.getDriveName()), TclObject("eject")};
 		diskChanger.sendChangeDiskEvent(args);
 		result = "Warning: use of '-eject' is deprecated, instead use the 'eject' subcommand";
 	} else if (tokens[1] == "eject") {
-		string args[] = {diskChanger.getDriveName(), "eject"};
+		TclObject args[] = {TclObject(diskChanger.getDriveName()), TclObject("eject")};
 		diskChanger.sendChangeDiskEvent(args);
 	} else {
 		int firstFileToken = 1;
@@ -254,7 +256,7 @@ void DiskCommand::execute(span<const TclObject> tokens, TclObject& result)
 			}
 		}
 		try {
-			vector<string> args = { diskChanger.getDriveName() };
+			vector<TclObject> args = { TclObject(diskChanger.getDriveName()) };
 			for (size_t i = firstFileToken; i < tokens.size(); ++i) { // 'i' changes in loop
 				std::string_view option = tokens[i].getString();
 				if (option == "-ips") {
@@ -262,7 +264,7 @@ void DiskCommand::execute(span<const TclObject> tokens, TclObject& result)
 						throw MSXException(
 							"Missing argument for option \"", option, '\"');
 					}
-					args.emplace_back(tokens[i].getString());
+					args.emplace_back(tokens[i]);
 				} else {
 					// backwards compatibility
 					args.emplace_back(option);

@@ -9,25 +9,6 @@
 
 namespace openmsx {
 
-class PaddleState final : public StateChange
-{
-public:
-	PaddleState() = default; // for serialize
-	PaddleState(EmuTime::param time_, int delta_)
-		: StateChange(time_), delta(delta_) {}
-	[[nodiscard]] int getDelta() const { return delta; }
-
-	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
-	{
-		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("delta", delta);
-	}
-private:
-	int delta;
-};
-REGISTER_POLYMORPHIC_CLASS(StateChange, PaddleState, "PaddleState");
-
-
 Paddle::Paddle(MSXEventDistributor& eventDistributor_,
                StateChangeDistributor& stateChangeDistributor_)
 	: eventDistributor(eventDistributor_)
@@ -99,8 +80,8 @@ void Paddle::signalMSXEvent(const Event& event,
 		[&](const MouseMotionEvent& e) {
 			constexpr int SCALE = 2;
 			if (int delta = e.getX() / SCALE) {
-				stateChangeDistributor.distributeNew(
-					std::make_shared<PaddleState>(time, delta));
+				stateChangeDistributor.distributeNew<PaddleState>(
+					time, delta);
 			}
 		},
 		[](const EventBase&) { /*ignore*/ }
@@ -108,9 +89,9 @@ void Paddle::signalMSXEvent(const Event& event,
 }
 
 // StateChangeListener
-void Paddle::signalStateChange(const std::shared_ptr<StateChange>& event)
+void Paddle::signalStateChange(const StateChange& event)
 {
-	const auto* ps = dynamic_cast<const PaddleState*>(event.get());
+	const auto* ps = std::get_if<PaddleState>(&event);
 	if (!ps) return;
 	int newAnalog = analogValue + ps->getDelta();
 	analogValue = std::min(std::max(newAnalog, 0), 255);

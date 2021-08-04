@@ -2,29 +2,30 @@
 #define REVERSEMANGER_HH
 
 #include "Schedulable.hh"
+#include "StateChange.hh"
 #include "EventListener.hh"
-#include "StateChangeListener.hh"
 #include "Command.hh"
 #include "EmuTime.hh"
 #include "MemBuffer.hh"
 #include "DeltaBlock.hh"
 #include "span.hh"
 #include "outer.hh"
-#include <vector>
+#include <cstdint>
+#include <deque>
 #include <map>
 #include <memory>
-#include <cstdint>
+#include <vector>
 
 namespace openmsx {
 
-class MSXMotherBoard;
-class Keyboard;
 class EventDelay;
 class EventDistributor;
-class TclObject;
 class Interpreter;
+class MSXMotherBoard;
+class Keyboard;
+class TclObject;
 
-class ReverseManager final : private EventListener, private StateChangeRecorder
+class ReverseManager final : private EventListener
 {
 public:
 	explicit ReverseManager(MSXMotherBoard& motherBoard);
@@ -50,7 +51,16 @@ public:
 		reRecordCount = count;
 	}
 
-	[[nodiscard]] bool isReplaying() const override;
+	[[nodiscard]] bool isReplaying() const;
+	void stopReplay(EmuTime::param time) noexcept;
+
+	template<typename T, typename... Args>
+	StateChange& record(EmuTime::param time, Args&& ...args) {
+		assert(!isReplaying());
+		++replayIndex;
+		history.events.emplace_back(std::in_place_type_t<T>{}, time, std::forward<Args>(args)...);
+		return history.events.back();
+	}
 
 private:
 	struct ReverseChunk {
@@ -67,7 +77,7 @@ private:
 		unsigned eventCount;
 	};
 	using Chunks = std::map<unsigned, ReverseChunk>;
-	using Events = std::vector<std::shared_ptr<StateChange>>;
+	using Events = std::deque<StateChange>;
 
 	struct ReverseHistory {
 		void swap(ReverseHistory& other) noexcept;
@@ -129,10 +139,6 @@ private:
 
 	// EventListener
 	int signalEvent(const Event& event) noexcept override;
-
-	// StateChangeRecorder
-	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
-	void stopReplay(EmuTime::param time) noexcept override;
 
 private:
 	MSXMotherBoard& motherBoard;

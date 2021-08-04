@@ -35,6 +35,7 @@ sources = files(
     'MSXS1985.cc',
     'MSXS1990.cc',
     'MSXSwitchedDevice.cc',
+    'MSXToshibaTcx200x.cc',
     'MSXTurboRPause.cc',
     'MSXVictorHC9xSystemControl.cc',
     'PasswordCart.cc',
@@ -169,6 +170,7 @@ sources = files(
     'fdc/SectorBasedDisk.cc',
     'fdc/SpectravideoFDC.cc',
     'fdc/TC8566AF.cc',
+    'fdc/TalentTDC600.cc',
     'fdc/ToshibaFDC.cc',
     'fdc/TurboRFDC.cc',
     'fdc/VictorFDC.cc',
@@ -504,12 +506,12 @@ sources = files(
     'video/v9990/V9990SDLRasterizer.cc',
     'video/v9990/V9990VRAM.cc',
     'video/v9990/Video9000.cc',
-    )
+)
 
 if not get_option('alsamidi').disabled()
     sources += files(
         'serial/MidiSessionALSA.cc',
-        )
+    )
 endif
 
 if not get_option('glrenderer').disabled()
@@ -531,7 +533,7 @@ if not get_option('glrenderer').disabled()
         'video/scalers/GLScalerFactory.cc',
         'video/scalers/GLSimpleScaler.cc',
         'video/scalers/GLTVScaler.cc',
-        )
+    )
 endif
 
 if not get_option('laserdisc').disabled()
@@ -544,12 +546,12 @@ if not get_option('laserdisc').disabled()
         'video/ld/LDDummyRenderer.cc',
         'video/ld/LDPixelRenderer.cc',
         'video/ld/LDSDLRasterizer.cc',
-        )
+    )
 endif
 
 main_sources = files(
     'main.cc',
-    )
+)
 
 test_sources = files(
     'unittest/AdhocCliCommParser_test.cc',
@@ -587,7 +589,7 @@ test_sources = files(
     'unittest/strCat.cc',
     'unittest/view_test.cc',
     'unittest/xrange_test.cc',
-    )
+)
 
 incdirs = include_directories(
     '.',
@@ -615,4 +617,4 @@ incdirs = include_directories(
     'video/ld',
     'video/scalers',
     'video/v9990',
-    )
+)

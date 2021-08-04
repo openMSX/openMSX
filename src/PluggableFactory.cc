@@ -69,10 +69,10 @@ void PluggableFactory::createAll(PluggingController& controller,
 		controller, "ninjatap"));
 	controller.registerPluggable(std::make_unique<KeyJoystick>(
 		commandController, msxEventDistributor,
-		stateChangeDistributor, "keyjoystick1"));
+		stateChangeDistributor, KeyJoyID::ID1));
 	controller.registerPluggable(std::make_unique<KeyJoystick>(
 		commandController, msxEventDistributor,
-		stateChangeDistributor, "keyjoystick2"));
+		stateChangeDistributor, KeyJoyID::ID2));
 	Joystick::registerAll(msxEventDistributor, stateChangeDistributor,
 	                      commandController, globalSettings, controller);
 	JoyMega::registerAll(msxEventDistributor, stateChangeDistributor,

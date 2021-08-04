@@ -18,7 +18,8 @@ RenShaTurbo::RenShaTurbo(MSXMotherBoard& motherBoard,
 				"1 <= min_ints <= max_ints <= 6000.");
 		}
 		autofire = std::make_unique<Autofire>(
-			motherBoard, min_ints, max_ints, "renshaturbo");
+			motherBoard, min_ints, max_ints,
+			AutofireID::RENSHATURBO);
 	}
 }
 

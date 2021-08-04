@@ -2,11 +2,9 @@
 #define STATECHANGELISTENER_HH
 
 #include "EmuTime.hh"
-#include <memory>
+#include "StateChange.hh"
 
 namespace openmsx {
-
-class StateChange;
 
 class StateChangeListener
 {
@@ -16,8 +14,7 @@ public:
 	 * shouldn't matter, it should be handled in exactly the same way).
 	 * This might throw (e.g. on 'diska non-existing-file.dsk').
 	 */
-	virtual void signalStateChange(
-		const std::shared_ptr<StateChange>& event) = 0;
+	virtual void signalStateChange(const StateChange& event) = 0;
 
 	/** This method gets called when we switch from replayed events to
 	 * live events. A input device should resync its state with the current
@@ -31,14 +28,6 @@ public:
 protected:
 	StateChangeListener() = default;
 	~StateChangeListener() = default;
-};
-
-class StateChangeRecorder : public StateChangeListener
-{
-public:
-	[[nodiscard]] virtual bool isReplaying() const = 0;
-protected:
-	~StateChangeRecorder() = default;
 };
 
 } // namespace openmsx

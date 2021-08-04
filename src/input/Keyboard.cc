@@ -32,7 +32,6 @@
 
 using std::string;
 using std::vector;
-using std::shared_ptr;
 
 namespace openmsx {
 
@@ -57,38 +56,6 @@ static constexpr bool SANE_CAPSLOCK_BEHAVIOR = true;
 static constexpr int TRY_AGAIN = 0x80; // see pressAscii()
 
 using KeyInfo = UnicodeKeymap::KeyInfo;
-
-class KeyMatrixState final : public StateChange
-{
-public:
-	KeyMatrixState() = default; // for serialize
-	KeyMatrixState(EmuTime::param time_, byte row_, byte press_, byte release_)
-		: StateChange(time_)
-		, row(row_), press(press_), release(release_)
-	{
-		// disallow useless events
-		assert((press != 0) || (release != 0));
-		// avoid confusion about what happens when some bits are both
-		// set and reset (in other words: don't rely on order of and-
-		// and or-operations)
-		assert((press & release) == 0);
-	}
-	[[nodiscard]] byte getRow()     const { return row; }
-	[[nodiscard]] byte getPress()   const { return press; }
-	[[nodiscard]] byte getRelease() const { return release; }
-
-	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
-	{
-		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("row",     row,
-		             "press",   press,
-		             "release", release);
-	}
-private:
-	byte row, press, release;
-};
-REGISTER_POLYMORPHIC_CLASS(StateChange, KeyMatrixState, "KeyMatrixState");
-
 
 constexpr const char* const defaultKeymapForMatrix[] = {
 	"int", // MATRIX_MSX
@@ -411,9 +378,9 @@ void Keyboard::signalMSXEvent(const Event& event,
 	}
 }
 
-void Keyboard::signalStateChange(const shared_ptr<StateChange>& event)
+void Keyboard::signalStateChange(const StateChange& event)
 {
-	const auto* kms = dynamic_cast<const KeyMatrixState*>(event.get());
+	const auto* kms = std::get_if<KeyMatrixState>(&event);
 	if (!kms) return;
 
 	userKeyMatrix[kms->getRow()] &= ~kms->getPress();
@@ -483,8 +450,8 @@ void Keyboard::changeKeyMatrixEvent(EmuTime::param time, byte row, byte newValue
 	if (diff == 0) return;
 	byte press   = userKeyMatrix[row] & diff;
 	byte release = newValue           & diff;
-	stateChangeDistributor.distributeNew(std::make_shared<KeyMatrixState>(
-		time, row, press, release));
+	stateChangeDistributor.distributeNew<KeyMatrixState>(
+		time, row, press, release);
 }
 
 /*

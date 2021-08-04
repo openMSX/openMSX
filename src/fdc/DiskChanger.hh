@@ -59,12 +59,13 @@ public:
 
 private:
 	void init(std::string_view prefix, bool createCmd);
+	void execute(span<const TclObject> tokens);
 	void insertDisk(span<const TclObject> args);
 	void ejectDisk();
-	void sendChangeDiskEvent(span<std::string> args);
+	void sendChangeDiskEvent(span<const TclObject> args);
 
 	// StateChangeListener
-	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
+	void signalStateChange(const StateChange& event) override;
 	void stopReplay(EmuTime::param time) noexcept override;
 
 private:

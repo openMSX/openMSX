@@ -3,6 +3,7 @@
 
 #include "JoystickDevice.hh"
 #include "MSXEventListener.hh"
+#include "StateChange.hh"
 #include "StateChangeListener.hh"
 #include "KeyCodeSetting.hh"
 #include "serialize_meta.hh"
@@ -20,7 +21,7 @@ public:
 	KeyJoystick(CommandController& commandController,
 	            MSXEventDistributor& eventDistributor,
 	            StateChangeDistributor& stateChangeDistributor,
-	            std::string name);
+	            KeyJoyID id);
 	~KeyJoystick() override;
 
 	template<typename Archive>
@@ -41,19 +42,19 @@ private:
 	void signalMSXEvent(const Event& event,
 	                    EmuTime::param time) noexcept override;
 	// StateChangeListener
-	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
+	void signalStateChange(const StateChange& event) override;
 	void stopReplay(EmuTime::param time) noexcept override;
 
 private:
 	MSXEventDistributor& eventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
-	const std::string name;
 	KeyCodeSetting up;
 	KeyCodeSetting down;
 	KeyCodeSetting left;
 	KeyCodeSetting right;
 	KeyCodeSetting trigA;
 	KeyCodeSetting trigB;
+	const KeyJoyID id;
 
 	byte status;
 	bool pin8;

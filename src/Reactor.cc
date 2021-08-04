@@ -49,7 +49,6 @@
 #include <cassert>
 #include <memory>
 
-using std::make_shared;
 using std::make_unique;
 using std::string;
 using std::string_view;
@@ -402,7 +401,7 @@ Reactor::Board Reactor::getMachine(string_view machineID) const
 
 Reactor::Board Reactor::createEmptyMotherBoard()
 {
-	return make_shared<MSXMotherBoard>(*this);
+	return std::make_shared<MSXMotherBoard>(*this);
 }
 
 void Reactor::replaceBoard(MSXMotherBoard& oldBoard_, Board newBoard)
