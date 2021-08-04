@@ -173,7 +173,7 @@ void CommandLineParser::parse(int argc, char** argv)
 		switch (phase) {
 		case PHASE_INIT:
 			reactor.init();
-			fileTypeCategoryInfo = std::make_unique<FileTypeCategoryInfoTopic>(
+			fileTypeCategoryInfo.emplace(
 				reactor.getOpenMSXInfoCommand(), *this);
 			getInterpreter().init(argv[0]);
 			break;

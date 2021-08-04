@@ -13,8 +13,9 @@
 #include "InfoTopic.hh"
 #include "span.hh"
 #include "components.hh"
-#include <memory>
 #include <initializer_list>
+#include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -153,7 +154,7 @@ private:
 	private:
 		const CommandLineParser& parser;
 	};
-	std::unique_ptr<FileTypeCategoryInfoTopic> fileTypeCategoryInfo;
+	std::optional<FileTypeCategoryInfoTopic> fileTypeCategoryInfo;
 
 	MSXRomCLI msxRomCLI;
 	CliExtension cliExtension;
