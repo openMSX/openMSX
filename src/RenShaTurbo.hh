@@ -1,12 +1,12 @@
 #ifndef RENSHATURBO_HH
 #define RENSHATURBO_HH
 
+#include "Autofire.hh"
 #include "EmuTime.hh"
-#include <memory>
+#include <optional>
 
 namespace openmsx {
 
-class Autofire;
 class MSXMotherBoard;
 class XMLElement;
 
@@ -22,7 +22,6 @@ class RenShaTurbo
 public:
 	RenShaTurbo(MSXMotherBoard& motherBoard,
 	            const XMLElement& machineConfig);
-	~RenShaTurbo();
 
 	/** Get the output signal in negative logic.
 	  * @result When auto-fire is on, result will alternate between true
@@ -35,7 +34,7 @@ public:
 
 private:
 	// The Autofire circuit
-	std::unique_ptr<Autofire> autofire;
+	std::optional<Autofire> autofire;
 };
 
 } // namespace openmsx

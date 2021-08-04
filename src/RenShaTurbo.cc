@@ -1,8 +1,6 @@
 #include "RenShaTurbo.hh"
 #include "XMLElement.hh"
-#include "Autofire.hh"
 #include "MSXException.hh"
-#include <memory>
 
 namespace openmsx {
 
@@ -17,13 +15,10 @@ RenShaTurbo::RenShaTurbo(MSXMotherBoard& motherBoard,
 				"Error in RenShaTurbo speed settings: "
 				"1 <= min_ints <= max_ints <= 6000.");
 		}
-		autofire = std::make_unique<Autofire>(
-			motherBoard, min_ints, max_ints,
-			Autofire::RENSHATURBO);
+		autofire.emplace(motherBoard, min_ints, max_ints,
+		                 Autofire::RENSHATURBO);
 	}
 }
-
-RenShaTurbo::~RenShaTurbo() = default;
 
 bool RenShaTurbo::getSignal(EmuTime::param time)
 {
