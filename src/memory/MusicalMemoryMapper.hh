@@ -2,11 +2,9 @@
 #define MUSICALMEMORYMAPPER_HH
 
 #include "MSXMemoryMapperBase.hh"
-#include <memory>
+#include "SN76489.hh"
 
 namespace openmsx {
-
-class SN76489;
 
 /** Memory mapper which also controls an SN76489AN sound chip.
   *
@@ -16,7 +14,6 @@ class MusicalMemoryMapper final : public MSXMemoryMapperBase
 {
 public:
 	MusicalMemoryMapper(const DeviceConfig& config);
-	~MusicalMemoryMapper() override;
 
 	void reset(EmuTime::param time) override;
 	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
@@ -54,7 +51,7 @@ private:
 	void updateControlReg(byte value);
 
 private:
-	std::unique_ptr<SN76489> sn76489;
+	SN76489 sn76489;
 	byte controlReg;
 };
 
