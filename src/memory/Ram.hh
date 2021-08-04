@@ -1,17 +1,29 @@
 #ifndef RAM_HH
 #define RAM_HH
 
+#include "SimpleDebuggable.hh"
 #include "MemBuffer.hh"
 #include "openmsx.hh"
 #include "static_string_view.hh"
+#include <optional>
 #include <string>
-#include <memory>
 
 namespace openmsx {
 
 class XMLElement;
 class DeviceConfig;
-class RamDebuggable;
+class Ram;
+
+class RamDebuggable final : public SimpleDebuggable
+{
+public:
+	RamDebuggable(MSXMotherBoard& motherBoard, const std::string& name,
+	              static_string_view description, Ram& ram);
+	byte read(unsigned address) override;
+	void write(unsigned address, byte value) override;
+private:
+	Ram& ram;
+};
 
 class Ram
 {
@@ -22,8 +34,6 @@ public:
 
 	/** Create Ram object without debuggable. */
 	Ram(const XMLElement& xml, unsigned size);
-
-	~Ram();
 
 	[[nodiscard]] const byte& operator[](unsigned addr) const {
 		return ram[addr];
@@ -45,7 +55,7 @@ private:
 	const XMLElement& xml;
 	MemBuffer<byte> ram;
 	unsigned size; // must come before debuggable
-	const std::unique_ptr<RamDebuggable> debuggable; // can be nullptr
+	const std::optional<RamDebuggable> debuggable; // can be nullopt
 };
 
 } // namespace openmsx

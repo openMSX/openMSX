@@ -1,6 +1,5 @@
 #include "Ram.hh"
 #include "DeviceConfig.hh"
-#include "SimpleDebuggable.hh"
 #include "XMLElement.hh"
 #include "Base64.hh"
 #include "HexDump.hh"
@@ -16,25 +15,13 @@ using std::string;
 
 namespace openmsx {
 
-class RamDebuggable final : public SimpleDebuggable
-{
-public:
-	RamDebuggable(MSXMotherBoard& motherBoard, const string& name,
-	              static_string_view description, Ram& ram);
-	byte read(unsigned address) override;
-	void write(unsigned address, byte value) override;
-private:
-	Ram& ram;
-};
-
-
 Ram::Ram(const DeviceConfig& config, const string& name,
          static_string_view description, unsigned size_)
 	: xml(*config.getXML())
 	, ram(size_)
 	, size(size_)
-	, debuggable(std::make_unique<RamDebuggable>(
-		config.getMotherBoard(), name, description, *this))
+	, debuggable(std::in_place,
+		config.getMotherBoard(), name, description, *this)
 {
 	clear();
 }
@@ -46,8 +33,6 @@ Ram::Ram(const XMLElement& xml_, unsigned size_)
 {
 	clear();
 }
-
-Ram::~Ram() = default;
 
 void Ram::clear(byte c)
 {
