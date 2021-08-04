@@ -2,17 +2,15 @@
 #define MSXRAM_HH
 
 #include "MSXDevice.hh"
-#include <memory>
+#include "CheckedRam.hh"
+#include <optional>
 
 namespace openmsx {
-
-class CheckedRam;
 
 class MSXRam final : public MSXDevice
 {
 public:
 	explicit MSXRam(const DeviceConfig& config);
-	~MSXRam() override;
 
 	void powerUp(EmuTime::param time) override;
 	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
@@ -31,7 +29,7 @@ private:
 private:
 	/*const*/ unsigned base;
 	/*const*/ unsigned size;
-	/*const*/ std::unique_ptr<CheckedRam> checkedRam;
+	/*const*/ std::optional<CheckedRam> checkedRam;
 };
 
 } // namespace openmsx
