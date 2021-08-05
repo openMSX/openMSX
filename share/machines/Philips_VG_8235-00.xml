@@ -10,7 +10,17 @@
     <type>MSX2</type>
   </info>
 
-<!-- Info from the 8235/00 with serial FF02 621010083 -->
+<!-- Info from the 8235/20 with serial FF00 632042694
+see http://bilgisayarlarim.com/Philips/VG-8235
+- S3527 MSX-ENGINE
+- TI TMS2793NL FDC
+- Kyocera M60003A gate array
+- Zilog Z8400APS Z80 CPU
+- LVA510 RF encoder
+
+ROM dumps verified with Luc's machine and and with Peter Hanraets his machine with serial FF02 621010083
+
+-->
 
   <MapperReadBackBits>largest</MapperReadBackBits>
 
@@ -61,7 +71,7 @@
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
           <filename>vg8235-00_basic-bios2.rom</filename>
-          <sha1>5e1a4bd6826b29302a1eb88c340477e7cbd0b50a</sha1>
+          <sha1>5e1a4bd6826b29302a1eb88c340477e7cbd0b50a</sha1> <!-- confirmed on Luc's and Peter's 8235/00 -->
         </rom>
         <mem base="0x0000" size="0x8000"/>
       </ROM>
@@ -77,7 +87,7 @@
         <ROM id="MSX Sub ROM">
           <rom>
             <filename>vg8235-00_msx2sub.rom</filename>
-	          <sha1>c289dad246364e2dd716c457ca5eecf98e76c9ab</sha1>
+	    <sha1>c289dad246364e2dd716c457ca5eecf98e76c9ab</sha1> <!-- from Luc and Peter, which is a 8235/00 -->
           </rom>
           <mem base="0x0000" size="0x4000"/> <!-- Verified on real MSX: no mirroring at all! -->
         </ROM>
@@ -100,7 +110,9 @@
           <drives>1</drives>
           <rom>
             <filename>vg8235-00_disk.rom</filename>
-            <sha1>7ce255ab63ba79f81d8b83d66f1108062d0b61f1</sha1>
+            <sha1>7ce255ab63ba79f81d8b83d66f1108062d0b61f1</sha1> <!-- marked NMS 2.2, from Peter's 8235/00-->
+            <sha1>959060445e92eb980ddd9df3ef9cfefcae2de1d0</sha1> <!-- marked NMS 2.2, from Luc's 8235/20 and 8235/00-->
+            <sha1>95265cc2c5e6a2f334a99ef7042d5bdf2f877ec9</sha1> <!-- also marked NMS 2.2, but different from the first one (even after cleaning FDC regs -->
           </rom>
           <mem base="0x4000" size="0x8000"/> <!-- Verified on real MSX: mirroring in page 2 -->
         </WD2793>
