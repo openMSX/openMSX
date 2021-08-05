@@ -11,6 +11,7 @@
   </info>
 
 <!-- Info from the 8235/20 with serial FF01 639041448 from Meits
+                                   and FF02 711030335 from Peter Hanraets.
 TODO: check chips. At least we see on
 http://bilgisayarlarim.com/Philips/VG-8235 (with serial FF00 632042694):
 - S3527 MSX-ENGINE
@@ -96,7 +97,7 @@ http://bilgisayarlarim.com/Philips/VG-8235 (with serial FF00 632042694):
       <secondary slot="2">
         <MemoryMapper id="Main RAM">
           <size>128</size>
-          <!-- Note that on the above mentioned machine, the initial content looked like the default 0xFF everywhere -->
+          <!-- Note that on the of Miets, the initial content looked like the default 0xFF everywhere -->
           <mem base="0x0000" size="0x10000"/>
         </MemoryMapper>
       </secondary>
@@ -108,7 +109,7 @@ http://bilgisayarlarim.com/Philips/VG-8235 (with serial FF00 632042694):
           <drives>1</drives>
           <rom>
             <filename>vg8235-20_disk.rom</filename>
-            <sha1>1ee2abc68a81ae7e39548985021b6532f31171b2</sha1> <!-- marked NMS 2.2, ends with 0x00/0xFF checkerboard pattern, FDC regs removed -->
+            <sha1>1ee2abc68a81ae7e39548985021b6532f31171b2</sha1> <!-- marked NMS 2.2, ends with 0x00/0xFF checkerboard pattern, FDC regs removed. Found in both machines from Peter and Meits -->
           </rom>
           <mem base="0x4000" size="0x8000"/> <!-- Verified on real MSX: mirroring in page 2 -->
         </WD2793>
