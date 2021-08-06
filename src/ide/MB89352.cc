@@ -104,7 +104,7 @@ MB89352::MB89352(const DeviceConfig& config)
 			throw MSXException("Duplicate SCSI id: ", id);
 		}
 		DeviceConfig conf(config, *t);
-		const auto& type = t->getChild("type").getData();
+		const auto& type = t->getChildData("type");
 		if (type == "SCSIHD") {
 			dev[id] = std::make_unique<SCSIHD>(conf, buffer,
 			        SCSIDevice::MODE_SCSI2 | SCSIDevice::MODE_MEGASCSI);

@@ -44,14 +44,14 @@ public:
 		: name(std::forward<String1>(name_)), data(std::forward<String2>(data_)) {}
 
 	// name
-	[[nodiscard]] const std::string& getName() const { return name; }
+	[[nodiscard]] std::string_view getName() const { return name; }
 	void clearName() { name.clear(); }
 
 	template<typename String>
 	void setName(String&& name_) { name = std::forward<String>(name_); }
 
 	// data
-	[[nodiscard]] const std::string& getData() const { return data; }
+	[[nodiscard]] std::string_view getData() const { return data; }
 
 	template<typename String>
 	void setData(String&& data_) {
@@ -80,7 +80,7 @@ public:
 
 	void removeAttribute(std::string_view name);
 	[[nodiscard]] bool hasAttribute(std::string_view name) const;
-	[[nodiscard]] const std::string& getAttribute(std::string_view attrName) const;
+	[[nodiscard]] std::string_view getAttribute(std::string_view attrName) const;
 	[[nodiscard]] std::string_view getAttribute(std::string_view attrName,
 	                                            std::string_view defaultValue) const;
 	// Returns ptr to attribute value, or nullptr when not found.
@@ -164,7 +164,7 @@ public:
 		return result;
 	}
 
-	[[nodiscard]] const std::string& getChildData(std::string_view childName) const;
+	[[nodiscard]] std::string_view getChildData(std::string_view childName) const;
 	[[nodiscard]] std::string_view getChildData(std::string_view childName,
 	                                            std::string_view defaultValue) const;
 	[[nodiscard]] bool getChildDataAsBool(std::string_view childName,

@@ -41,9 +41,8 @@ HD::HD(const DeviceConfig& config)
 	auto mode = File::NORMAL;
 	string cliImage = HDImageCLI::getImageForId(id);
 	if (cliImage.empty()) {
-		const string& original = config.getChildData("filename");
-		string resolved = config.getFileContext().resolveCreate(original);
-		filename = Filename(std::move(resolved));
+		const auto& original = config.getChildData("filename");
+		filename = Filename(config.getFileContext().resolveCreate(original));
 		mode = File::CREATE;
 	} else {
 		filename = Filename(std::move(cliImage), userFileContext());

@@ -155,7 +155,7 @@ namespace openmsx::RomFactory {
 
 std::unique_ptr<MSXDevice> create(const DeviceConfig& config)
 {
-	Rom rom(config.getAttribute("id"), "rom", config);
+	Rom rom(std::string(config.getAttribute("id")), "rom", config);
 
 	// Get specified mapper type from the config.
 	RomType type = [&] {

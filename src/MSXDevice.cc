@@ -19,7 +19,7 @@
 
 namespace openmsx {
 
-MSXDevice::MSXDevice(const DeviceConfig& config, const std::string& name)
+MSXDevice::MSXDevice(const DeviceConfig& config, std::string_view name)
 	: deviceConfig(config)
 {
 	initName(name);
@@ -31,7 +31,7 @@ MSXDevice::MSXDevice(const DeviceConfig& config)
 	initName(getDeviceConfig().getAttribute("id"));
 }
 
-void MSXDevice::initName(const std::string& name)
+void MSXDevice::initName(std::string_view name)
 {
 	deviceName = name;
 	if (getMotherBoard().findDevice(deviceName)) {

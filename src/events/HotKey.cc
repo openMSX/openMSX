@@ -168,7 +168,7 @@ static Event createEvent(const TclObject& obj, Interpreter& interp)
 	}
 	return event;
 }
-static Event createEvent(const string& str, Interpreter& interp)
+static Event createEvent(std::string_view str, Interpreter& interp)
 {
 	return createEvent(TclObject(str), interp);
 }
@@ -189,7 +189,7 @@ void HotKey::loadBindings(const XMLElement& config)
 			auto& interp = commandController.getInterpreter();
 			if (elem.getName() == "bind") {
 				bind(HotKeyInfo(createEvent(elem.getAttribute("key"), interp),
-				                elem.getData(),
+				                std::string(elem.getData()),
 				                elem.getAttributeAsBool("repeat", false),
 				                elem.getAttributeAsBool("event", false)));
 			} else if (elem.getName() == "unbind") {

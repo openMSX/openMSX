@@ -88,7 +88,7 @@ float SoundDevice::getAmplificationFactorImpl() const
 
 void SoundDevice::registerSound(const DeviceConfig& config)
 {
-	const XMLElement& soundConfig = config.getChild("sound");
+	const auto& soundConfig = config.getChild("sound");
 	float volume = soundConfig.getChildDataAsInt("volume") / 32767.0f;
 	int devBalance = 0;
 	std::string_view mode = soundConfig.getChildData("mode", "mono");
@@ -121,7 +121,7 @@ void SoundDevice::registerSound(const DeviceConfig& config)
 			balanceCenter = false;
 		}
 
-		const std::string& range = b->getAttribute("channel");
+		const auto& range = b->getAttribute("channel");
 		for (unsigned c : StringOp::parseRange(range, 1, numChannels)) {
 			channelBalance[c - 1] = *balance;
 		}

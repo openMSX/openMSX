@@ -114,7 +114,7 @@ const XMLElement& XMLElement::getChild(string_view childName) const
 	return const_cast<XMLElement*>(this)->getChild(childName);
 }
 
-const string& XMLElement::getChildData(string_view childName) const
+string_view XMLElement::getChildData(string_view childName) const
 {
 	return getChild(childName).getData();
 }
@@ -150,7 +150,7 @@ bool XMLElement::hasAttribute(string_view attrName) const
 	return findAttribute(attrName);
 }
 
-const string& XMLElement::getAttribute(string_view attrName) const
+string_view XMLElement::getAttribute(string_view attrName) const
 {
 	if (const auto* value = findAttribute(attrName)) {
 		return *value;

@@ -68,9 +68,9 @@ MSXSCCPlusCart::MSXSCCPlusCart(const DeviceConfig& config)
 	, scc(getName(), config, getCurrentTime(), SCC::SCC_Compatible)
 	, romBlockDebug(*this, mapper, 0x4000, 0x8000, 13)
 {
-	if (const XMLElement* fileElem = config.findChild("filename")) {
+	if (const auto* fileElem = config.findChild("filename")) {
 		// read the rom file
-		const std::string& filename = fileElem->getData();
+		const auto& filename = fileElem->getData();
 		try {
 			File file(config.getFileContext().resolve(filename));
 			auto size = std::min<size_t>(file.getSize(), ram.getSize());

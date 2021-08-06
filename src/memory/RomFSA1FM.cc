@@ -39,6 +39,7 @@
 #include "MSXException.hh"
 #include "one_of.hh"
 #include "serialize.hh"
+#include "strCat.hh"
 #include "xrange.hh"
 #include <memory>
 
@@ -50,7 +51,7 @@ namespace openmsx {
 {
 	return config.getMotherBoard().getSharedStuff<SRAM>(
 		"FSA1FM-sram",
-		config.getAttribute("id") + " SRAM", 0x2000, config);
+		strCat(config.getAttribute("id"), " SRAM"), 0x2000, config);
 }
 
 

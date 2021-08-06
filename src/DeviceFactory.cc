@@ -96,7 +96,7 @@ namespace openmsx {
 
 [[nodiscard]] static std::unique_ptr<MSXDevice> createWD2793BasedFDC(const DeviceConfig& conf)
 {
-	const XMLElement* styleEl = conf.findChild("connectionstyle");
+	const auto* styleEl = conf.findChild("connectionstyle");
 	std::string type;
 	if (!styleEl) {
 		conf.getCliComm().printWarning(
@@ -132,7 +132,7 @@ namespace openmsx {
 std::unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 {
 	std::unique_ptr<MSXDevice> result;
-	const std::string& type = conf.getXML()->getName();
+	const auto& type = conf.getXML()->getName();
 	if (type == "PPI") {
 		result = make_unique<MSXPPI>(conf);
 	} else if (type == "SVIPPI") {

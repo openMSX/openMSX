@@ -40,7 +40,7 @@ const XMLElement& DeviceConfig::getChild(std::string_view name) const
 {
 	return getXML()->getChild(name);
 }
-const std::string& DeviceConfig::getChildData(std::string_view name) const
+std::string_view DeviceConfig::getChildData(std::string_view name) const
 {
 	return getXML()->getChildData(name);
 }
@@ -62,7 +62,7 @@ const XMLElement* DeviceConfig::findChild(std::string_view name) const
 {
 	return getXML()->findChild(name);
 }
-const std::string& DeviceConfig::getAttribute(std::string_view attName) const
+std::string_view DeviceConfig::getAttribute(std::string_view attName) const
 {
 	return getXML()->getAttribute(attName);
 }

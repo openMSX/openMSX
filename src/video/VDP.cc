@@ -44,8 +44,7 @@ namespace openmsx {
 
 static byte getDelayCycles(const XMLElement& devices) {
 	byte cycles = 0;
-	const XMLElement* t9769Dev = devices.findChild("T9769");
-	if (t9769Dev) {
+	if (const auto* t9769Dev = devices.findChild("T9769")) {
 		if (t9769Dev->getChildData("subtype") == "C") {
 			cycles = 1;
 		} else {
@@ -113,7 +112,7 @@ VDP::VDP(const DeviceConfig& config)
 
 	int defaultSaturation = 54;
 
-	std::string versionString = config.getChildData("version");
+	const auto& versionString = config.getChildData("version");
 	if (versionString == "TMS99X8A") version = TMS99X8A;
 	else if (versionString == "TMS9918A") {
 		version = TMS99X8A;

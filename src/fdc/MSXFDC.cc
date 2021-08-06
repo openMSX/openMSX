@@ -25,7 +25,7 @@ MSXFDC::MSXFDC(const DeviceConfig& config, const std::string& romId, bool needRO
 		throw MSXException("Invalid number of drives: ", numDrives);
 	}
 	unsigned timeout = config.getChildDataAsInt("motor_off_timeout_ms", 0);
-	const XMLElement* styleEl = config.findChild("connectionstyle");
+	const auto* styleEl = config.findChild("connectionstyle");
 	bool signalsNeedMotorOn = !styleEl || (styleEl->getData() == "Philips");
 	EmuDuration motorTimeout = EmuDuration::msec(timeout);
 	int i = 0;

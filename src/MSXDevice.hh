@@ -258,7 +258,7 @@ protected:
 	  * @param config config entry for this device.
 	  * @param name The name for the MSXDevice (will be made unique)
 	  */
-	MSXDevice(const DeviceConfig& config, const std::string& name);
+	MSXDevice(const DeviceConfig& config, std::string_view name);
 	explicit MSXDevice(const DeviceConfig& config);
 
 	/** Constructing a MSXDevice is a 2-step process, after the constructor
@@ -304,7 +304,7 @@ private:
 	template<typename Action, typename... Args>
 	void clip(unsigned start, unsigned size, Action action, Args... args);
 
-	void initName(const std::string& name);
+	void initName(std::string_view name);
 	static void staticInit();
 
 	void lockDevices();
