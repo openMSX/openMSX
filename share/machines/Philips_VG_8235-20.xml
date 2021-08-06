@@ -97,7 +97,7 @@ http://bilgisayarlarim.com/Philips/VG-8235 (with serial FF00 632042694):
       <secondary slot="2">
         <MemoryMapper id="Main RAM">
           <size>128</size>
-          <!-- Note that on the of Miets, the initial content looked like the default 0xFF everywhere -->
+          <!-- Note that on the machine of Meits, the initial content looked like the default 0xFF everywhere; on Peter's machine it's 128 times 0x00, then 128 times 0xFF -->
           <mem base="0x0000" size="0x10000"/>
         </MemoryMapper>
       </secondary>
