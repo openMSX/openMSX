@@ -17,11 +17,9 @@
 #include <cassert>
 #include <cstring>
 
-using std::string;
-
 namespace openmsx {
 
-MSXDevice::MSXDevice(const DeviceConfig& config, const string& name)
+MSXDevice::MSXDevice(const DeviceConfig& config, const std::string& name)
 	: deviceConfig(config)
 {
 	initName(name);
@@ -33,7 +31,7 @@ MSXDevice::MSXDevice(const DeviceConfig& config)
 	initName(getDeviceConfig().getAttribute("id"));
 }
 
-void MSXDevice::initName(const string& name)
+void MSXDevice::initName(const std::string& name)
 {
 	deviceName = name;
 	if (getMotherBoard().findDevice(deviceName)) {
@@ -263,7 +261,7 @@ void MSXDevice::registerSlots()
 	assert(primaryConfig);
 	primaryConfig->setAttribute("slot", strCat(ps));
 	if (secondaryConfig) {
-		string slot = (ss == -1) ? "X" : strCat(ss);
+		std::string slot = (ss == -1) ? "X" : strCat(ss);
 		secondaryConfig->setAttribute("slot", std::move(slot));
 	} else {
 		if (ss != -1) {
@@ -373,7 +371,7 @@ void MSXDevice::powerUp(EmuTime::param time)
 	reset(time);
 }
 
-string MSXDevice::getName() const
+std::string MSXDevice::getName() const
 {
 	return deviceName;
 }

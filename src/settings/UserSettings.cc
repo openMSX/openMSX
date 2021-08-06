@@ -15,9 +15,6 @@
 #include <cassert>
 #include <memory>
 
-using std::string;
-using std::vector;
-
 namespace openmsx {
 
 // class UserSettings
@@ -168,7 +165,7 @@ UserSettings::Info UserSettings::Cmd::createEnum(span<const TclObject> tokens)
 	int i = 0;
 	auto map = to_vector(view::transform(list, [&](const auto& s) {
 		if (s == initStr) initVal = i;
-		return EnumSettingBase::MapEntry{string(s), i++};
+		return EnumSettingBase::MapEntry{std::string(s), i++};
 	}));
 	if (initVal == -1) {
 		throw CommandException(
@@ -202,7 +199,7 @@ void UserSettings::Cmd::info(span<const TclObject> /*tokens*/, TclObject& result
 	result.addListElements(getSettingNames());
 }
 
-string UserSettings::Cmd::help(span<const TclObject> tokens) const
+std::string UserSettings::Cmd::help(span<const TclObject> tokens) const
 {
 	if (tokens.size() < 2) {
 		return
@@ -257,7 +254,7 @@ string UserSettings::Cmd::help(span<const TclObject> tokens) const
 	}
 }
 
-void UserSettings::Cmd::tabCompletion(vector<string>& tokens) const
+void UserSettings::Cmd::tabCompletion(std::vector<std::string>& tokens) const
 {
 	using namespace std::literals;
 	if (tokens.size() == 2) {
@@ -275,7 +272,7 @@ void UserSettings::Cmd::tabCompletion(vector<string>& tokens) const
 	}
 }
 
-vector<std::string_view> UserSettings::Cmd::getSettingNames() const
+std::vector<std::string_view> UserSettings::Cmd::getSettingNames() const
 {
 	return to_vector(view::transform(
 		OUTER(UserSettings, userSettingCommand).getSettingsInfo(),

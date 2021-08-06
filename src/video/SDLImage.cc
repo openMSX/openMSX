@@ -9,7 +9,6 @@
 #include <cmath>
 #include <SDL.h>
 
-using std::string;
 using namespace gl;
 
 namespace openmsx {
@@ -203,7 +202,7 @@ static constexpr void gradient(const unsigned* rgba, SDL_Surface& surface, unsig
 
 // class SDLImage
 
-SDLImage::SDLImage(OutputSurface& output, const string& filename)
+SDLImage::SDLImage(OutputSurface& output, const std::string& filename)
 	: texture(loadImage(output, filename))
 	, flipX(false), flipY(false)
 {
@@ -219,7 +218,7 @@ SDLImage::SDLImage(OutputSurface& output, const std::string& filename, float sca
 }
 
 // TODO get rid of this constructor, see above
-SDLImage::SDLImage(OutputSurface& output, const string& filename, ivec2 size_)
+SDLImage::SDLImage(OutputSurface& output, const std::string& filename, ivec2 size_)
 	: texture(loadImage(output, filename))
 	, flipX(size_[0] < 0), flipY(size_[1] < 0)
 {
@@ -261,7 +260,7 @@ SDLTexturePtr SDLImage::toTexture(OutputSurface& output, SDL_Surface& surface)
 	return result;
 }
 
-SDLTexturePtr SDLImage::loadImage(OutputSurface& output, const string& filename)
+SDLTexturePtr SDLImage::loadImage(OutputSurface& output, const std::string& filename)
 {
 	bool want32bpp = true;
 	return toTexture(output, *PNG::load(filename, want32bpp));

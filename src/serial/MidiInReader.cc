@@ -9,8 +9,6 @@
 #include <cerrno>
 #include <cstring>
 
-using std::string;
-
 namespace openmsx {
 
 MidiInReader::MidiInReader(EventDistributor& eventDistributor_,

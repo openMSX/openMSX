@@ -16,8 +16,6 @@
 #include <cassert>
 #include <memory>
 
-using std::string;
-
 namespace openmsx {
 
 static MemBuffer<float, SSE_ALIGNMENT> mixBuffer;
@@ -31,9 +29,9 @@ static void allocateMixBuffer(unsigned size)
 	}
 }
 
-[[nodiscard]] static string makeUnique(MSXMixer& mixer, std::string_view name)
+[[nodiscard]] static std::string makeUnique(MSXMixer& mixer, std::string_view name)
 {
-	string result(name);
+	std::string result(name);
 	if (mixer.findDevice(result)) {
 		unsigned n = 0;
 		do {
@@ -123,7 +121,7 @@ void SoundDevice::registerSound(const DeviceConfig& config)
 			balanceCenter = false;
 		}
 
-		const string& range = b->getAttribute("channel");
+		const std::string& range = b->getAttribute("channel");
 		for (unsigned c : StringOp::parseRange(range, 1, numChannels)) {
 			channelBalance[c - 1] = *balance;
 		}

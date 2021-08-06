@@ -24,7 +24,6 @@
 #include <memory>
 
 using std::string;
-using std::unique_ptr;
 
 namespace openmsx {
 
@@ -229,7 +228,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 			// calculate before content is altered
 			(void)getOriginalSHA1(); // fills cache
 
-			unique_ptr<PatchInterface> patch =
+			std::unique_ptr<PatchInterface> patch =
 				std::make_unique<EmptyPatch>(rom, size);
 
 			for (auto& p : patchesElem->getChildren("ips")) {

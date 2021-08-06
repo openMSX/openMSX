@@ -39,9 +39,6 @@
 #include <memory>
 #include <vector>
 
-using std::string;
-using std::vector;
-
 namespace openmsx {
 
 // Medium type (value like LS-120)
@@ -222,7 +219,7 @@ unsigned SCSILS120::inquiry()
 	}
 
 	if (length > 36) {
-		string filename(FileOperations::getFilename(file.getURL()));
+		std::string filename(FileOperations::getFilename(file.getURL()));
 		filename.resize(20, ' ');
 		memcpy(buffer + 36, filename.data(), 20);
 	}
@@ -755,7 +752,7 @@ void LSXCommand::execute(span<const TclObject> tokens, TclObject& result,
 	if (tokens.size() == 1) {
 		auto& file = ls.file;
 		result.addListElement(tmpStrCat(ls.name, ':'),
-		                      file.is_open() ? file.getURL() : string{});
+		                      file.is_open() ? file.getURL() : std::string{});
 		if (!file.is_open()) result.addListElement("empty");
 	} else if ((tokens.size() == 2) && (tokens[1] == one_of("eject", "-eject"))) {
 		ls.eject();
@@ -786,7 +783,7 @@ void LSXCommand::execute(span<const TclObject> tokens, TclObject& result,
 	}
 }
 
-string LSXCommand::help(span<const TclObject> /*tokens*/) const
+std::string LSXCommand::help(span<const TclObject> /*tokens*/) const
 {
 	return strCat(
 		ls.name, "                   : display the disk image for this LS-120 drive\n",
@@ -795,7 +792,7 @@ string LSXCommand::help(span<const TclObject> /*tokens*/) const
 		ls.name, " <filename>        : change the disk image for this LS-120 drive\n");
 }
 
-void LSXCommand::tabCompletion(vector<string>& tokens) const
+void LSXCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
 	using namespace std::literals;
 	static constexpr std::array extra = {"eject"sv, "insert"sv};
@@ -806,7 +803,7 @@ void LSXCommand::tabCompletion(vector<string>& tokens) const
 template<typename Archive>
 void SCSILS120::serialize(Archive& ar, unsigned /*version*/)
 {
-	string filename = file.is_open() ? file.getURL() : string{};
+	std::string filename = file.is_open() ? file.getURL() : std::string{};
 	ar.serialize("filename", filename);
 	if constexpr (Archive::IS_LOADER) {
 		// re-insert disk before restoring 'mediaChanged'

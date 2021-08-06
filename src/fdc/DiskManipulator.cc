@@ -26,8 +26,6 @@
 
 using std::string;
 using std::string_view;
-using std::unique_ptr;
-using std::vector;
 
 namespace openmsx {
 
@@ -272,7 +270,7 @@ string DiskManipulator::help(span<const TclObject> tokens) const
 	return helptext;
 }
 
-void DiskManipulator::tabCompletion(vector<string>& tokens) const
+void DiskManipulator::tabCompletion(std::vector<string>& tokens) const
 {
 	using namespace std::literals;
 	if (tokens.size() == 2) {
@@ -286,7 +284,7 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 		completeFileName(tokens, userFileContext());
 
 	} else if (tokens.size() == 3) {
-		vector<string> names;
+		std::vector<string> names;
 		if (tokens[1] == one_of("format", "create")) {
 			names.emplace_back("-dos1");
 		}
@@ -339,7 +337,7 @@ void DiskManipulator::savedsk(const DriveSettings& driveData,
 
 void DiskManipulator::create(span<const TclObject> tokens)
 {
-	vector<unsigned> sizes;
+	std::vector<unsigned> sizes;
 	unsigned totalSectors = 0;
 	bool dos1 = false;
 

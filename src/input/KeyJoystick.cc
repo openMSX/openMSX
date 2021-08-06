@@ -6,8 +6,6 @@
 #include "serialize.hh"
 #include "serialize_meta.hh"
 
-using std::string;
-
 namespace openmsx {
 
 static std::string_view nameForId(KeyJoystick::ID id)

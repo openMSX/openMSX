@@ -52,7 +52,6 @@
 #include <memory>
 
 using std::string;
-using std::vector;
 
 namespace openmsx {
 
@@ -823,7 +822,7 @@ string CassettePlayer::TapeCommand::help(span<const TclObject> tokens) const
 	return helptext;
 }
 
-void CassettePlayer::TapeCommand::tabCompletion(vector<string>& tokens) const
+void CassettePlayer::TapeCommand::tabCompletion(std::vector<string>& tokens) const
 {
 	using namespace std::literals;
 	if (tokens.size() == 2) {

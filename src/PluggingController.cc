@@ -14,7 +14,6 @@
 
 using std::string;
 using std::string_view;
-using std::vector;
 
 namespace openmsx {
 
@@ -131,7 +130,7 @@ string PluggingController::PlugCmd::help(span<const TclObject> /*tokens*/) const
 	       " plug [connector] [plug]";
 }
 
-void PluggingController::PlugCmd::tabCompletion(vector<string>& tokens) const
+void PluggingController::PlugCmd::tabCompletion(std::vector<string>& tokens) const
 {
 	auto& pluggingController = OUTER(PluggingController, plugCmd);
 	if (tokens.size() == 2) {
@@ -142,7 +141,7 @@ void PluggingController::PlugCmd::tabCompletion(vector<string>& tokens) const
 		completeString(tokens, connectorNames);
 	} else if (tokens.size() == 3) {
 		// complete pluggable
-		vector<string_view> pluggableNames;
+		std::vector<string_view> pluggableNames;
 		auto* connector = pluggingController.findConnector(tokens[1]);
 		string_view className = connector ? connector->getClass() : string_view{};
 		for (auto& p : pluggingController.pluggables) {
@@ -188,7 +187,7 @@ string PluggingController::UnplugCmd::help(span<const TclObject> /*tokens*/) con
 	       " unplug [connector]";
 }
 
-void PluggingController::UnplugCmd::tabCompletion(vector<string>& tokens) const
+void PluggingController::UnplugCmd::tabCompletion(std::vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		// complete connector
@@ -273,7 +272,7 @@ string PluggingController::PluggableInfo::help(span<const TclObject> /*tokens*/)
 	       "Or show info on a specific pluggable.";
 }
 
-void PluggingController::PluggableInfo::tabCompletion(vector<string>& tokens) const
+void PluggingController::PluggableInfo::tabCompletion(std::vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		auto pluggableNames = to_vector(view::transform(
@@ -316,7 +315,7 @@ string PluggingController::ConnectorInfo::help(span<const TclObject> /*tokens*/)
 	return "Shows a list of available connectors.";
 }
 
-void PluggingController::ConnectorInfo::tabCompletion(vector<string>& tokens) const
+void PluggingController::ConnectorInfo::tabCompletion(std::vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		auto connectorNames = to_vector(view::transform(
@@ -374,7 +373,7 @@ string PluggingController::ConnectionClassInfo::help(span<const TclObject> /*tok
 	return "Shows the class a connector or pluggable belongs to.";
 }
 
-void PluggingController::ConnectionClassInfo::tabCompletion(vector<string>& tokens) const
+void PluggingController::ConnectionClassInfo::tabCompletion(std::vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		auto& pluggingController = OUTER(PluggingController, connectionClassInfo);

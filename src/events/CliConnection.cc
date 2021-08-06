@@ -24,8 +24,6 @@
 #include "SspiNegotiateServer.hh"
 #endif
 
-using std::string;
-
 namespace openmsx {
 
 // class CliConnection
@@ -59,7 +57,7 @@ void CliConnection::update(CliComm::UpdateType type, std::string_view machine,
 	if (!getUpdateEnable(type)) return;
 
 	auto updateStr = CliComm::getUpdateStrings();
-	string tmp = strCat("<update type=\"", updateStr[type], '\"');
+	auto tmp = strCat("<update type=\"", updateStr[type], '\"');
 	if (!machine.empty()) {
 		strAppend(tmp, " machine=\"", machine, '\"');
 	}
@@ -93,7 +91,7 @@ void CliConnection::end()
 	}
 }
 
-void CliConnection::execute(const string& command)
+void CliConnection::execute(const std::string& command)
 {
 	eventDistributor.distributeEvent(
 		Event::create<CliCommandEvent>(command, this));
@@ -115,7 +113,7 @@ int CliConnection::signalEvent(const Event& event) noexcept
 				commandEvent.getCommand(), this).getString();
 			output(reply(result, true));
 		} catch (CommandException& e) {
-			string result = std::move(e).getMessage() + '\n';
+			std::string result = std::move(e).getMessage() + '\n';
 			output(reply(result, false));
 		}
 	}
@@ -180,7 +178,7 @@ PipeConnection::PipeConnection(CommandController& commandController_,
                                std::string_view name)
 	: CliConnection(commandController_, eventDistributor_)
 {
-	string pipeName = strCat("\\\\.\\pipe\\", name);
+	auto pipeName = strCat("\\\\.\\pipe\\", name);
 	pipeHandle = CreateFileA(pipeName.c_str(), GENERIC_READ, 0, nullptr,
 	                         OPEN_EXISTING, FILE_FLAG_OVERLAPPED, nullptr);
 	if (pipeHandle == OPENMSX_INVALID_HANDLE_VALUE) {

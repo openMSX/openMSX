@@ -18,9 +18,6 @@
 #include <memory>
 
 using std::string;
-using std::string_view;
-using std::unique_ptr;
-using std::vector;
 
 namespace openmsx {
 
@@ -32,7 +29,7 @@ NowindCommand::NowindCommand(const string& basename,
 {
 }
 
-unique_ptr<DiskChanger> NowindCommand::createDiskChanger(
+std::unique_ptr<DiskChanger> NowindCommand::createDiskChanger(
 	const string& basename, unsigned n, MSXMotherBoard& motherBoard) const
 {
 	return std::make_unique<DiskChanger>(
@@ -61,7 +58,7 @@ void NowindCommand::processHdimage(
 	// Though <filename> itself can contain ':' characters. To solve this
 	// disambiguity we will always interpret the string as <filename> if
 	// it is an existing filename.
-	vector<unsigned> partitions;
+	std::vector<unsigned> partitions;
 	if (auto pos = hdImage.find_last_of(':');
 	    (pos != string::npos) && !FileOperations::exists(hdImage)) {
 		partitions = StringOp::parseRange(
@@ -87,7 +84,7 @@ void NowindCommand::processHdimage(
 			auto drive = createDiskChanger(
 				interface.basename, unsigned(drives.size()),
 				motherboard);
-			drive->changeDisk(unique_ptr<Disk>(std::move(partition)));
+			drive->changeDisk(std::unique_ptr<Disk>(std::move(partition)));
 			drives.push_back(std::move(drive));
 		} catch (MSXException&) {
 			if (failOnError) throw;
@@ -142,9 +139,9 @@ void NowindCommand::execute(span<const TclObject> tokens, TclObject& result)
 	span<const TclObject> args(&tokens[1], tokens.size() - 1);
 	while (error.empty() && !args.empty()) {
 		bool createDrive = false;
-		string_view image;
+		std::string_view image;
 
-		string_view arg = args.front().getString();
+		std::string_view arg = args.front().getString();
 		args = args.subspan(1);
 		if        (arg == one_of("--ctrl", "-c")) {
 			enablePhantom  = false;
@@ -329,7 +326,7 @@ string NowindCommand::help(span<const TclObject> /*tokens*/) const
 	       "                            B: and C:.\n";
 }
 
-void NowindCommand::tabCompletion(vector<string>& tokens) const
+void NowindCommand::tabCompletion(std::vector<string>& tokens) const
 {
 	using namespace std::literals;
 	static constexpr std::array extra = {

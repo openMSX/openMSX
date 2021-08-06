@@ -10,8 +10,6 @@
 #include <cassert>
 #include <chrono>
 
-using std::string;
-
 namespace openmsx {
 
 EventDistributor::EventDistributor(Reactor& reactor_)

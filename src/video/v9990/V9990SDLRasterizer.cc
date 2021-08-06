@@ -15,9 +15,6 @@
 #include <cstdint>
 #include <memory>
 
-using std::min;
-using std::max;
-
 namespace openmsx {
 
 template<typename Pixel>
@@ -127,8 +124,8 @@ void V9990SDLRasterizer<Pixel>::drawBorder(
 	              ? 0
 	              : palette64[vdp.getBackDropColor() & 63];
 
-	int startY = max(fromY  - lineRenderTop,   0);
-	int endY   = min(limitY - lineRenderTop, 240);
+	int startY = std::max(fromY  - lineRenderTop,   0);
+	int endY   = std::min(limitY - lineRenderTop, 240);
 	if (startY >= endY) return;
 
 	if ((fromX == 0) && (limitX == V9990DisplayTiming::UC_TICKS_PER_LINE)) {
@@ -140,10 +137,10 @@ void V9990SDLRasterizer<Pixel>::drawBorder(
 	}
 
 	static int const screenW = SCREEN_WIDTH * 8; // in ticks
-	int startX = max(0, V9990::UCtoX(fromX - colZero, displayMode));
+	int startX = std::max(0, V9990::UCtoX(fromX - colZero, displayMode));
 	int endX = V9990::UCtoX(
 		(limitX == V9990DisplayTiming::UC_TICKS_PER_LINE)
-		? screenW : min(screenW, limitX - colZero), displayMode);
+		? screenW : std::min(screenW, limitX - colZero), displayMode);
 	if (startX >= endX) return;
 
 	unsigned lineWidth = vdp.getLineWidth();

@@ -8,12 +8,10 @@
 #include <iostream>
 #include <cassert>
 
-using std::string;
-
 #if DEBUG_TCLPARSER
-void TclParser::DEBUG_PRINT(const string& s)
+void TclParser::DEBUG_PRINT(const std::string& s)
 {
-	std::cout << string(2 * level, ' ') << s << '\n';
+	std::cout << std::string(2 * level, ' ') << s << '\n';
 }
 
 static constexpr std::string_view type2string(int type)
@@ -84,7 +82,7 @@ TclParser::TclParser(Tcl_Interp* interp_, std::string_view input)
 void TclParser::parse(const char* p, int size, ParseType type)
 {
 	ScopedAssign<int> sa1(offset, offset + (p - parseStr.data()));
-	ScopedAssign sa2(parseStr, string(p, size));
+	ScopedAssign sa2(parseStr, std::string(p, size));
 	last.push_back(offset);
 
 	// The functions Tcl_ParseCommand() and Tcl_ParseExpr() are meant to

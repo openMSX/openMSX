@@ -5,8 +5,6 @@
 #include "CliComm.hh"
 #include "serialize.hh"
 
-using std::string;
-
 namespace openmsx {
 
 WavAudioInput::WavAudioInput(CommandController& commandController)
@@ -26,7 +24,7 @@ WavAudioInput::~WavAudioInput()
 
 void WavAudioInput::loadWave()
 {
-	wav = WavData(FileOperations::expandTilde(string(
+	wav = WavData(FileOperations::expandTilde(std::string(
 		audioInputFilenameSetting.getString())));
 }
 

@@ -8,8 +8,6 @@
 #include <memory>
 #include <vector>
 
-using std::unique_ptr;
-
 namespace openmsx {
 
 template<typename Pixel>
@@ -267,7 +265,7 @@ StretchScalerOutput288<Pixel>::StretchScalerOutput288(
 // class StretchScalerOutputFactory
 
 template<typename Pixel>
-unique_ptr<ScalerOutput<Pixel>> StretchScalerOutputFactory<Pixel>::create(
+std::unique_ptr<ScalerOutput<Pixel>> StretchScalerOutputFactory<Pixel>::create(
 	SDLOutputSurface& output,
 	PixelOperations<Pixel> pixelOps,
 	unsigned inWidth)

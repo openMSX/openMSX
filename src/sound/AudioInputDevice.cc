@@ -1,7 +1,5 @@
 #include "AudioInputDevice.hh"
 
-using std::string;
-
 namespace openmsx {
 
 std::string_view AudioInputDevice::getClass() const

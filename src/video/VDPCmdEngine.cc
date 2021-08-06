@@ -42,9 +42,6 @@ TODO:
 #include <cassert>
 #include <iostream>
 
-using std::min;
-using std::max;
-
 namespace openmsx {
 
 using namespace VDPAccessSlots;
@@ -67,8 +64,8 @@ static constexpr unsigned clipNX_1_pixel(unsigned DX, unsigned NX, byte ARG)
 	}
 	NX = NX ? NX : Mode::PIXELS_PER_LINE;
 	return (ARG & DIX)
-		? min(NX, DX + 1)
-		: min(NX, Mode::PIXELS_PER_LINE - DX);
+		? std::min(NX, DX + 1)
+		: std::min(NX, Mode::PIXELS_PER_LINE - DX);
 }
 
 template<typename Mode>
@@ -84,8 +81,8 @@ static constexpr unsigned clipNX_1_byte(unsigned DX, unsigned NX, byte ARG)
 	NX >>= Mode::PIXELS_PER_BYTE_SHIFT;
 	NX = NX ? NX : BYTES_PER_LINE;
 	return (ARG & DIX)
-		? min(NX, DX + 1)
-		: min(NX, BYTES_PER_LINE - DX);
+		? std::min(NX, DX + 1)
+		: std::min(NX, BYTES_PER_LINE - DX);
 }
 
 template<typename Mode>
@@ -97,8 +94,8 @@ static constexpr unsigned clipNX_2_pixel(unsigned SX, unsigned DX, unsigned NX, 
 	}
 	NX = NX ? NX : Mode::PIXELS_PER_LINE;
 	return (ARG & DIX)
-		? min(NX, min(SX, DX) + 1)
-		: min(NX, Mode::PIXELS_PER_LINE - max(SX, DX));
+		? std::min(NX, std::min(SX, DX) + 1)
+		: std::min(NX, Mode::PIXELS_PER_LINE - std::max(SX, DX));
 }
 
 template<typename Mode>
@@ -116,20 +113,20 @@ static constexpr unsigned clipNX_2_byte(unsigned SX, unsigned DX, unsigned NX, b
 	NX >>= Mode::PIXELS_PER_BYTE_SHIFT;
 	NX = NX ? NX : BYTES_PER_LINE;
 	return (ARG & DIX)
-		? min(NX, min(SX, DX) + 1)
-		: min(NX, BYTES_PER_LINE - max(SX, DX));
+		? std::min(NX, std::min(SX, DX) + 1)
+		: std::min(NX, BYTES_PER_LINE - std::max(SX, DX));
 }
 
 static constexpr unsigned clipNY_1(unsigned DY, unsigned NY, byte ARG)
 {
 	NY = NY ? NY : 1024;
-	return (ARG & DIY) ? min(NY, DY + 1) : NY;
+	return (ARG & DIY) ? std::min(NY, DY + 1) : NY;
 }
 
 static constexpr unsigned clipNY_2(unsigned SY, unsigned DY, unsigned NY, byte ARG)
 {
 	NY = NY ? NY : 1024;
-	return (ARG & DIY) ? min(NY, min(SY, DY) + 1) : NY;
+	return (ARG & DIY) ? std::min(NY, std::min(SY, DY) + 1) : NY;
 }
 
 

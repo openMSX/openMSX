@@ -9,8 +9,6 @@
 #include <functional>
 #include <memory>
 
-using std::string;
-
 namespace openmsx {
 
 NowindInterface::NowindInterface(const DeviceConfig& config)

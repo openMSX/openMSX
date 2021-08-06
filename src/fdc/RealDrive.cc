@@ -11,8 +11,6 @@
 #include "unreachable.hh"
 #include <memory>
 
-using std::string;
-
 namespace openmsx {
 
 RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeout_,
@@ -41,7 +39,7 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeo
 		}
 	}
 	(*drivesInUse)[i] = true;
-	string driveName = "diskX"; driveName[4] = char('a' + i);
+	std::string driveName = "diskX"; driveName[4] = char('a' + i);
 
 	if (motherBoard.getMSXCommandController().hasCommand(driveName)) {
 		throw MSXException("Duplicated drive name: ", driveName);

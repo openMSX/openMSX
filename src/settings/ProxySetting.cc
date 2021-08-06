@@ -5,9 +5,6 @@
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
 
-using std::string;
-using std::vector;
-
 namespace openmsx {
 
 ProxySetting::ProxySetting(Reactor& reactor_, const TclObject& name)
@@ -101,7 +98,7 @@ void ProxySetting::setValueDirect(const TclObject& value)
 	}
 }
 
-void ProxySetting::tabCompletion(vector<string>& tokens) const
+void ProxySetting::tabCompletion(std::vector<std::string>& tokens) const
 {
 	if (const auto* setting = getSetting()) {
 		setting->tabCompletion(tokens);

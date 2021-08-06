@@ -33,10 +33,6 @@
 #include <memory>
 #include <optional>
 
-using std::string;
-using std::vector;
-using std::min;
-
 namespace openmsx {
 
 static std::optional<ReadOnlySetting> breakedSetting;
@@ -291,8 +287,8 @@ void MSXCPUInterface::testUnsetExpanded(
 	}
 	if (inUse.empty()) return; // ok, no more devices in use
 
-	string msg = strCat("Can't remove slot expander from slot ", ps,
-	                    " because the following devices are still inserted:");
+	auto msg = strCat("Can't remove slot expander from slot ", ps,
+	                  " because the following devices are still inserted:");
 	for (auto& d : inUse) {
 		strAppend(msg, ' ', d->getName());
 	}
@@ -528,7 +524,7 @@ void MSXCPUInterface::registerMemDevice(
 	int base = base_;
 	int size = size_;
 	while (size > 0) {
-		int partialSize = min(size, ((base + 0x4000) & ~0x3FFF) - base);
+		int partialSize = std::min(size, ((base + 0x4000) & ~0x3FFF) - base);
 		testRegisterSlot(device, ps, ss, base, partialSize);
 		base += partialSize;
 		size -= partialSize;
@@ -537,7 +533,7 @@ void MSXCPUInterface::registerMemDevice(
 	base = base_;
 	size = size_;
 	while (size > 0) {
-		int partialSize = min(size, ((base + 0x4000) & ~0x3FFF) - base);
+		int partialSize = std::min(size, ((base + 0x4000) & ~0x3FFF) - base);
 		registerSlot(device, ps, ss, base, partialSize);
 		base += partialSize;
 		size -= partialSize;
@@ -549,7 +545,7 @@ void MSXCPUInterface::unregisterMemDevice(
 {
 	// split range on 16kb borders
 	while (size > 0) {
-		int partialSize = min(size, ((base + 0x4000) & ~0x3FFF) - base);
+		int partialSize = std::min(size, ((base + 0x4000) & ~0x3FFF) - base);
 		unregisterSlot(device, ps, ss, base, partialSize);
 		base += partialSize;
 		size -= partialSize;
@@ -1095,7 +1091,7 @@ void MSXCPUInterface::SlottedMemoryDebug::write(unsigned address, byte value,
 // class SlotInfo
 
 static unsigned getSlot(
-	Interpreter& interp, const TclObject& token, const string& itemName)
+	Interpreter& interp, const TclObject& token, const std::string& itemName)
 {
 	unsigned slot = token.getInt(interp);
 	if (slot >= 4) {
@@ -1125,7 +1121,7 @@ void MSXCPUInterface::SlotInfo::execute(span<const TclObject> tokens,
 	interface.slotLayout[ps][ss][page]->getNameList(result);
 }
 
-string MSXCPUInterface::SlotInfo::help(span<const TclObject> /*tokens*/) const
+std::string MSXCPUInterface::SlotInfo::help(span<const TclObject> /*tokens*/) const
 {
 	return "Retrieve name of the device inserted in given "
 	       "primary slot / secondary slot / page.";
@@ -1149,7 +1145,7 @@ void MSXCPUInterface::SubSlottedInfo::execute(span<const TclObject> tokens,
 		getSlot(getInterpreter(), tokens[2], "Slot"));
 }
 
-string MSXCPUInterface::SubSlottedInfo::help(
+std::string MSXCPUInterface::SubSlottedInfo::help(
 	span<const TclObject> /*tokens*/) const
 {
 	return "Indicates whether a certain primary slot is expanded.";
@@ -1184,7 +1180,7 @@ void MSXCPUInterface::ExternalSlotInfo::execute(
 	result = manager.isExternalSlot(ps, ss, true);
 }
 
-string MSXCPUInterface::ExternalSlotInfo::help(
+std::string MSXCPUInterface::ExternalSlotInfo::help(
 	span<const TclObject> /*tokens*/) const
 {
 	return "Indicates whether a certain slot is external or internal.";
@@ -1241,7 +1237,7 @@ void MSXCPUInterface::OInfo::execute(
 	helper(tokens, result, interface.IO_Out);
 }
 
-string MSXCPUInterface::IOInfo::help(span<const TclObject> /*tokens*/) const
+std::string MSXCPUInterface::IOInfo::help(span<const TclObject> /*tokens*/) const
 {
 	return "Return the name of the device connected to the given IO port.";
 }

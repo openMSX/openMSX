@@ -5,14 +5,12 @@
 #include <utility>
 #include <vector>
 
-using std::string;
-
 namespace openmsx {
 
 namespace {
 	struct IdImage {
 		int id;
-		string image;
+		std::string image;
 	};
 }
 static std::vector<IdImage> images;
@@ -24,18 +22,18 @@ HDImageCLI::HDImageCLI(CommandLineParser& parser_)
 	// TODO: offer more options in case you want to specify 2 hard disk images?
 }
 
-void HDImageCLI::parseOption(const string& option, span<string>& cmdLine)
+void HDImageCLI::parseOption(const std::string& option, span<std::string>& cmdLine)
 {
 	// Machine has not been loaded yet. Only remember the image.
 	int id = option[3] - 'a';
 	images.emplace_back(IdImage{id, getArgument(option, cmdLine)});
 }
 
-string HDImageCLI::getImageForId(int id)
+std::string HDImageCLI::getImageForId(int id)
 {
 	// HD queries image. Return (and clear) the remembered value, or return
 	// an empty string.
-	string result;
+	std::string result;
 	if (auto it = ranges::find(images, id, &IdImage::id);
 	    it != end(images)) {
 		result = std::move(it->image);

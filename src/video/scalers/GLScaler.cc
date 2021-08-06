@@ -4,12 +4,11 @@
 #include "strCat.hh"
 #include "xrange.hh"
 
-using std::string;
 using namespace gl;
 
 namespace openmsx {
 
-GLScaler::GLScaler(const string& progName)
+GLScaler::GLScaler(const std::string& progName)
 {
 	for (auto i : xrange(2)) {
 		auto header = tmpStrCat("#define SUPERIMPOSE ", char('0' + i), '\n');

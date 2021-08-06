@@ -15,7 +15,6 @@
 #include <memory>
 
 using std::string;
-using std::vector;
 
 namespace openmsx {
 
@@ -378,7 +377,7 @@ string CartridgeSlotManager::CartCmd::help(span<const TclObject> tokens) const
 		"-romtype <romtype> : specify the ROM mapper type\n");
 }
 
-void CartridgeSlotManager::CartCmd::tabCompletion(vector<string>& tokens) const
+void CartridgeSlotManager::CartCmd::tabCompletion(std::vector<string>& tokens) const
 {
 	using namespace std::literals;
 	static constexpr std::array extra = {"eject"sv, "insert"sv};

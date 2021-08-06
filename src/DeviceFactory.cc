@@ -91,11 +91,10 @@
 #endif
 
 using std::make_unique;
-using std::unique_ptr;
 
 namespace openmsx {
 
-[[nodiscard]] static unique_ptr<MSXDevice> createWD2793BasedFDC(const DeviceConfig& conf)
+[[nodiscard]] static std::unique_ptr<MSXDevice> createWD2793BasedFDC(const DeviceConfig& conf)
 {
 	const XMLElement* styleEl = conf.findChild("connectionstyle");
 	std::string type;
@@ -130,9 +129,9 @@ namespace openmsx {
 	throw MSXException("Unknown WD2793 FDC connection style ", type);
 }
 
-unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
+std::unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 {
-	unique_ptr<MSXDevice> result;
+	std::unique_ptr<MSXDevice> result;
 	const std::string& type = conf.getXML()->getName();
 	if (type == "PPI") {
 		result = make_unique<MSXPPI>(conf);
@@ -306,28 +305,28 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 	return config;
 }
 
-unique_ptr<DummyDevice> DeviceFactory::createDummyDevice(
+std::unique_ptr<DummyDevice> DeviceFactory::createDummyDevice(
 		const HardwareConfig& hwConf)
 {
 	static XMLElement xml(createConfig("Dummy", {}));
 	return make_unique<DummyDevice>(DeviceConfig(hwConf, xml));
 }
 
-unique_ptr<MSXDeviceSwitch> DeviceFactory::createDeviceSwitch(
+std::unique_ptr<MSXDeviceSwitch> DeviceFactory::createDeviceSwitch(
 		const HardwareConfig& hwConf)
 {
 	static XMLElement xml(createConfig("DeviceSwitch", "DeviceSwitch"));
 	return make_unique<MSXDeviceSwitch>(DeviceConfig(hwConf, xml));
 }
 
-unique_ptr<MSXMapperIO> DeviceFactory::createMapperIO(
+std::unique_ptr<MSXMapperIO> DeviceFactory::createMapperIO(
 		const HardwareConfig& hwConf)
 {
 	static XMLElement xml(createConfig("MapperIO", "MapperIO"));
 	return make_unique<MSXMapperIO>(DeviceConfig(hwConf, xml));
 }
 
-unique_ptr<VDPIODelay> DeviceFactory::createVDPIODelay(
+std::unique_ptr<VDPIODelay> DeviceFactory::createVDPIODelay(
 		const HardwareConfig& hwConf, MSXCPUInterface& cpuInterface)
 {
 	static XMLElement xml(createConfig("VDPIODelay", "VDPIODelay"));

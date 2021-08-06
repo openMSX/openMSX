@@ -18,8 +18,6 @@
 #include <cassert>
 #include <memory>
 
-using std::string;
-
 namespace openmsx {
 
 LocalFile::LocalFile(std::string filename_, File::OpenMode mode)
@@ -33,12 +31,12 @@ LocalFile::LocalFile(std::string filename_, File::OpenMode mode)
 	, readOnly(false)
 {
 	if (mode == File::SAVE_PERSISTENT) {
-		if (auto pos = filename.find_last_of('/'); pos != string::npos) {
+		if (auto pos = filename.find_last_of('/'); pos != std::string::npos) {
 			FileOperations::mkdirp(filename.substr(0, pos));
 		}
 	}
 
-	const string& name = FileOperations::getNativePath(filename);
+	const std::string& name = FileOperations::getNativePath(filename);
 	if (mode == one_of(File::SAVE_PERSISTENT, File::TRUNCATE)) {
 		// open file read/write truncated
 		file = FileOperations::openFile(name, "wb+");
@@ -83,7 +81,7 @@ LocalFile::LocalFile(std::string filename_, const char* mode)
 	, readOnly(false)
 {
 	assert(strchr(mode, 'b'));
-	const string name = FileOperations::getNativePath(filename);
+	const std::string name = FileOperations::getNativePath(filename);
 	file = FileOperations::openFile(name, mode);
 	if (!file) {
 		throw FileException("Error opening file \"", filename, '"');
@@ -266,12 +264,12 @@ void LocalFile::flush()
 	fflush(file.get());
 }
 
-const string& LocalFile::getURL() const
+const std::string& LocalFile::getURL() const
 {
 	return filename;
 }
 
-string LocalFile::getLocalReference()
+std::string LocalFile::getLocalReference()
 {
 	return filename;
 }

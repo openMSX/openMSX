@@ -8,8 +8,6 @@
 #include "xrange.hh"
 #include <cassert>
 
-using std::vector;
-
 namespace openmsx {
 
 RawTrack::RawTrack(unsigned size)
@@ -109,10 +107,10 @@ std::optional<RawTrack::Sector> RawTrack::decodeSectorImpl(int idx) const
 	return sector;
 }
 
-vector<RawTrack::Sector> RawTrack::decodeAll() const
+std::vector<RawTrack::Sector> RawTrack::decodeAll() const
 {
 	// only complete sectors (header + data block)
-	vector<Sector> result;
+	std::vector<Sector> result;
 	for (const auto& i : idam) {
 		if (auto sector = decodeSectorImpl(i);
 		    sector && (sector->dataIdx != -1)) {
@@ -122,7 +120,7 @@ vector<RawTrack::Sector> RawTrack::decodeAll() const
 	return result;
 }
 
-static vector<unsigned> rotateIdam(vector<unsigned> idam, unsigned startIdx)
+static std::vector<unsigned> rotateIdam(std::vector<unsigned> idam, unsigned startIdx)
 {
 	// find first element that is equal or bigger
 	auto it = ranges::lower_bound(idam, startIdx);

@@ -12,8 +12,6 @@
 #include "StringOp.hh"
 #include <memory>
 
-using std::string;
-
 namespace openmsx {
 
 DiskFactory::DiskFactory(Reactor& reactor_)
@@ -34,7 +32,7 @@ DiskFactory::DiskFactory(Reactor& reactor_)
 }
 
 std::unique_ptr<Disk> DiskFactory::createDisk(
-	const string& diskImage, DiskChanger& diskChanger)
+	const std::string& diskImage, DiskChanger& diskChanger)
 {
 	if (diskImage == "ramdsk") {
 		return std::make_unique<RamDSKDiskImage>();
@@ -79,7 +77,7 @@ std::unique_ptr<Disk> DiskFactory::createDisk(
 		// the name could not be interpreted as a valid
 		// filename.
 		auto pos = diskImage.find_last_of(':');
-		if (pos == string::npos) {
+		if (pos == std::string::npos) {
 			// does not contain ':', throw previous exception
 			throw;
 		}

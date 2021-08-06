@@ -1,8 +1,6 @@
 #include "StdioMessages.hh"
 #include <iostream>
 
-using std::string;
-
 namespace openmsx {
 
 void StdioMessages::log(CliComm::LogLevel level, std::string_view message) noexcept

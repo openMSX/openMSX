@@ -7,7 +7,6 @@
 
 namespace HexDump {
 
-using std::string;
 using openmsx::MemBuffer;
 
 [[nodiscard]] static constexpr char encode2(uint8_t x)
@@ -18,9 +17,9 @@ using openmsx::MemBuffer;
 {
 	return tmpStrCat(encode2(x >> 4), encode2(x & 15));
 }
-string encode(const uint8_t* input, size_t len, bool newlines)
+std::string encode(const uint8_t* input, size_t len, bool newlines)
 {
-	string ret;
+	std::string ret;
 	while (len) {
 		if (newlines && !ret.empty()) ret += '\n';
 		int t = int(std::min<size_t>(16, len));

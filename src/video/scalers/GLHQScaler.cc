@@ -8,8 +8,6 @@
 #include <cstring>
 #include <utility>
 
-using std::string;
-
 namespace openmsx {
 
 GLHQScaler::GLHQScaler(GLScaler& fallback_)
@@ -43,8 +41,8 @@ GLHQScaler::GLHQScaler(GLScaler& fallback_)
 
 	auto context = systemFileContext();
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	string offsetsName = "shaders/HQ_xOffsets.dat";
-	string weightsName = "shaders/HQ_xWeights.dat";
+	std::string offsetsName = "shaders/HQ_xOffsets.dat";
+	std::string weightsName = "shaders/HQ_xWeights.dat";
 	for (auto i : xrange(3)) {
 		int n = i + 2;
 		offsetsName[10] = char('0') + n;

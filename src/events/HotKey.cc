@@ -18,7 +18,6 @@
 #include <memory>
 
 using std::string;
-using std::vector;
 
 // This file implements all Tcl key bindings. These are the 'classical' hotkeys
 // (e.g. F12 to (un)mute sound) and the more recent input layers. The idea
@@ -239,13 +238,13 @@ void HotKey::saveBindings(XMLElement& config) const
 }
 
 template<typename T>
-static bool contains(const vector<T>& v, const Event& event)
+static bool contains(const std::vector<T>& v, const Event& event)
 {
 	return ranges::any_of(v, EqualEvent(event));
 }
 
 template<typename T>
-static void erase(vector<T>& v, const Event& event)
+static void erase(std::vector<T>& v, const Event& event)
 {
 	if (auto it = ranges::find_if(v, EqualEvent(event)); it != end(v)) {
 		move_pop_back(v, it);

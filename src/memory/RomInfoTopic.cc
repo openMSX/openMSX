@@ -3,9 +3,6 @@
 #include "TclObject.hh"
 #include "CommandException.hh"
 
-using std::vector;
-using std::string;
-
 namespace openmsx {
 
 RomInfoTopic::RomInfoTopic(InfoCommand& openMSXInfoCommand)
@@ -34,13 +31,13 @@ void RomInfoTopic::execute(span<const TclObject> tokens, TclObject& result) cons
 	}
 }
 
-string RomInfoTopic::help(span<const TclObject> /*tokens*/) const
+std::string RomInfoTopic::help(span<const TclObject> /*tokens*/) const
 {
 	return "Shows a list of supported rom types. "
 	       "Or show info on a specific rom type.";
 }
 
-void RomInfoTopic::tabCompletion(vector<string>& tokens) const
+void RomInfoTopic::tabCompletion(std::vector<std::string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		completeString(tokens, RomInfo::getAllRomTypes(), false);

@@ -4,7 +4,6 @@
 #include "ranges.hh"
 #include <array>
 
-using std::string;
 using std::string_view;
 
 namespace openmsx::Keys {
@@ -739,9 +738,9 @@ std::pair<KeyCode, KeyCode> getCodes(SDL_Keycode sdlkeycode, Uint16 mod, SDL_Sca
 	return {key, scan};
 }
 
-string getName(KeyCode keyCode)
+std::string getName(KeyCode keyCode)
 {
-	string result;
+	std::string result;
 	for (const auto& [name, code] : keys) {
 		if (code == (keyCode & K_MASK)) {
 			result = name;

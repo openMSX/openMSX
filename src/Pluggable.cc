@@ -4,8 +4,6 @@
 #include "unreachable.hh"
 #include <cassert>
 
-using std::string;
-
 namespace openmsx {
 
 Pluggable::Pluggable()

@@ -13,8 +13,6 @@
 #include "GLImage.hh"
 #endif
 
-using std::string;
-using std::vector;
 using namespace gl;
 
 namespace openmsx {
@@ -26,7 +24,7 @@ OSDRectangle::OSDRectangle(Display& display_, const TclObject& name_)
 {
 }
 
-vector<std::string_view> OSDRectangle::getProperties() const
+std::vector<std::string_view> OSDRectangle::getProperties() const
 {
 	auto result = OSDImageBasedWidget::getProperties();
 	static constexpr const char* const vals[] = {
@@ -74,7 +72,7 @@ void OSDRectangle::setProperty(
 		std::string_view val = value.getString();
 		if (imageName != val) {
 			if (!val.empty()) {
-				if (string file = systemFileContext().resolve(val);
+				if (auto file = systemFileContext().resolve(val);
 				    !FileOperations::isRegularFile(file)) {
 					throw CommandException("Not a valid image file: ", val);
 				}
@@ -176,7 +174,7 @@ template<typename IMAGE> std::unique_ptr<BaseImage> OSDRectangle::create(
 		assert(bs >= 0);
 		return std::make_unique<IMAGE>(output, iSize, getRGBA4(), bs, borderRGBA);
 	} else {
-		string file = systemFileContext().resolve(imageName);
+		auto file = systemFileContext().resolve(imageName);
 		if (takeImageDimensions()) {
 			float factor = getScaleFactor(output) * scale;
 			return std::make_unique<IMAGE>(output, file, factor);

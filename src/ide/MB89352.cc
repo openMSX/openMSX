@@ -24,11 +24,8 @@
 #include "serialize.hh"
 #include "xrange.hh"
 #include <cassert>
-#include <string>
 #include <cstring>
 #include <memory>
-
-using std::string;
 
 namespace openmsx {
 

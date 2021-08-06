@@ -142,7 +142,7 @@ unsigned SCSIHD::inquiry()
 	}
 
 	if (length > 36) {
-		string imageName(FileOperations::getFilename(
+		std::string imageName(FileOperations::getFilename(
 		                       getImageName().getOriginal()));
 		imageName.resize(20, ' ');
 		memcpy(buffer + 36, imageName.data(), 20);

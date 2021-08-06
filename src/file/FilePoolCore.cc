@@ -10,8 +10,6 @@
 #include <optional>
 #include <tuple>
 
-using std::string;
-
 namespace openmsx {
 
 struct GetSha1 {
@@ -23,7 +21,7 @@ struct GetSha1 {
 };
 
 
-FilePoolCore::FilePoolCore(string filecache_,
+FilePoolCore::FilePoolCore(std::string filecache_,
                            std::function<Directories()> getDirectories_,
                            std::function<void(std::string_view)> reportProgress_)
 	: filecache(std::move(filecache_))
@@ -44,7 +42,7 @@ FilePoolCore::~FilePoolCore()
 	}
 }
 
-void FilePoolCore::insert(const Sha1Sum& sum, time_t time, const string& filename)
+void FilePoolCore::insert(const Sha1Sum& sum, time_t time, const std::string& filename)
 {
 	stringBuffer.push_back(filename);
 	auto idx = pool.emplace(sum, time, stringBuffer.back()).idx;
@@ -252,7 +250,7 @@ File FilePoolCore::getFile(FileType fileType, const Sha1Sum& sha1sum)
 
 	for (auto& [path, types] : getDirectories()) {
 		if ((types & fileType) != FileType::NONE) {
-			result = scanDirectory(sha1sum, FileOperations::expandTilde(string(path)), path, progress);
+			result = scanDirectory(sha1sum, FileOperations::expandTilde(std::string(path)), path, progress);
 			if (result.is_open()) return result;
 		}
 	}
@@ -319,7 +317,7 @@ File FilePoolCore::getFromPool(const Sha1Sum& sha1sum)
 			continue;
 		}
 		try {
-			File file(string(entry.filename));
+			File file(std::string(entry.filename));
 			auto newTime = file.getModificationDate();
 			if (entry.getTime() == newTime) {
 				// When modification time is unchanged, assume
@@ -355,7 +353,7 @@ File FilePoolCore::getFromPool(const Sha1Sum& sha1sum)
 }
 
 File FilePoolCore::scanDirectory(
-	const Sha1Sum& sha1sum, const string& directory, std::string_view poolPath,
+	const Sha1Sum& sha1sum, const std::string& directory, std::string_view poolPath,
 	ScanProgress& progress)
 {
 	File result;
@@ -374,7 +372,7 @@ File FilePoolCore::scanDirectory(
 	return result;
 }
 
-File FilePoolCore::scanFile(const Sha1Sum& sha1sum, const string& filename,
+File FilePoolCore::scanFile(const Sha1Sum& sha1sum, const std::string& filename,
                             const FileOperations::Stat& st, std::string_view poolPath,
                             ScanProgress& progress)
 {

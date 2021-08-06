@@ -6,8 +6,6 @@
 #include "serialize.hh"
 #include <memory>
 
-using std::string;
-
 namespace openmsx {
 
 JoystickPort::JoystickPort(PluggingController& pluggingController_,

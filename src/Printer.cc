@@ -17,10 +17,6 @@
 #include <memory>
 #include <vector>
 
-using std::max;
-using std::min;
-using std::string;
-
 namespace openmsx {
 
 class Paper
@@ -225,8 +221,8 @@ void ImagePrinter::printGraphicByte(byte data)
 	// Print Data to high 8 bits
 	unsigned charBits = (graphicsHiLo ? Math::reverseByte(data) : data) << 1;
 
-	printAreaTop    = min(printAreaTop, destY);
-	printAreaBottom = max(printAreaBottom, destY + destHeight);
+	printAreaTop    = std::min(printAreaTop, destY);
+	printAreaBottom = std::max(printAreaBottom, destY + destHeight);
 
 	// Print bit-mask
 	plot9Dots(hpos * pixelSizeX, destY, charBits);
@@ -271,7 +267,7 @@ void ImagePrinter::flushEmulatedPrinter()
 	if (paper) {
 		if (printAreaBottom > printAreaTop) {
 			try {
-				string filename = paper->save();
+				auto filename = paper->save();
 				motherBoard.getMSXCliComm().printInfo(
 					"Printed to ", filename);
 			} catch (MSXException& e) {
@@ -328,8 +324,8 @@ void ImagePrinter::printVisibleCharacter(byte data)
 	double destY = vpos * pixelSizeY + iYPos;
 	double destHeight = pixelSizeY * 9.0;
 	double dblStrikeOffset = doubleStrike ? (pixelSizeY / 2.5) : 0.0;
-	printAreaTop    = min(printAreaTop, destY);
-	printAreaBottom = max(printAreaBottom, destY + destHeight + dblStrikeOffset);
+	printAreaTop    = std::min(printAreaTop, destY);
+	printAreaBottom = std::max(printAreaBottom, destY + destHeight + dblStrikeOffset);
 
 	for (auto i : xrange(start, end)) {
 		unsigned charBits = unsigned(charBitmap[i + 1]) << topBits;
@@ -1649,9 +1645,9 @@ Paper::Paper(unsigned x, unsigned y, double dotSizeX, double dotSizeY)
 	setDotSize(dotSizeX, dotSizeY);
 }
 
-string Paper::save() const
+std::string Paper::save() const
 {
-	string filename = FileOperations::getNextNumberedFileName(
+	auto filename = FileOperations::getNextNumberedFileName(
 		"prints", "page", ".png");
 	VLA(const void*, rowPointers, sizeY);
 	for (auto y : xrange(sizeY)) {
@@ -1724,10 +1720,10 @@ void Paper::setDotSize(double dotSizeX, double dotSizeY)
 
 void Paper::plot(double xPos, double yPos)
 {
-	unsigned xx1 = max<int>(int(floor(xPos - radiusX)), 0);
-	unsigned xx2 = min<int>(int(ceil (xPos + radiusX)), sizeX);
-	unsigned yy1 = max<int>(int(floor(yPos - radiusY)), 0);
-	unsigned yy2 = min<int>(int(ceil (yPos + radiusY)), sizeY);
+	unsigned xx1 = std::max<int>(int(floor(xPos - radiusX)), 0);
+	unsigned xx2 = std::min<int>(int(ceil (xPos + radiusX)), sizeX);
+	unsigned yy1 = std::max<int>(int(floor(yPos - radiusY)), 0);
+	unsigned yy2 = std::min<int>(int(ceil (yPos + radiusY)), sizeY);
 
 	int y = 16 * yy1 - int(16 * yPos) + 16 + radius16;
 	for (auto yy : xrange(yy1, yy2)) {
@@ -1739,16 +1735,16 @@ void Paper::plot(double xPos, double yPos)
 				if (x < -a) {
 					int t = 16 + a + x;
 					if (t > 0) {
-						sum += min(t, 2 * a);
+						sum += std::min(t, 2 * a);
 					}
 				} else {
 					int t = a - x;
 					if (t > 0) {
-						sum += min(16, t);
+						sum += std::min(16, t);
 					}
 				}
 			}
-			dot(xx, yy) = max(0, dot(xx, yy) - sum);
+			dot(xx, yy) = std::max(0, dot(xx, yy) - sum);
 			x += 16;
 		}
 		y += 16;

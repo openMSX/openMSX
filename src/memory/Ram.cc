@@ -11,11 +11,9 @@
 #include <cstring>
 #include <memory>
 
-using std::string;
-
 namespace openmsx {
 
-Ram::Ram(const DeviceConfig& config, const string& name,
+Ram::Ram(const DeviceConfig& config, const std::string& name,
          static_string_view description, unsigned size_)
 	: xml(*config.getXML())
 	, ram(size_)
@@ -38,7 +36,7 @@ void Ram::clear(byte c)
 {
 	if (const XMLElement* init = xml.findChild("initialContent")) {
 		// get pattern (and decode)
-		const string& encoding = init->getAttribute("encoding");
+		const std::string& encoding = init->getAttribute("encoding");
 		size_t done = 0;
 		if (encoding == "gz-base64") {
 			auto [buf, bufSize] = Base64::decode(init->getData());
@@ -78,13 +76,13 @@ void Ram::clear(byte c)
 
 }
 
-const string& Ram::getName() const
+const std::string& Ram::getName() const
 {
 	return debuggable->getName();
 }
 
 RamDebuggable::RamDebuggable(MSXMotherBoard& motherBoard_,
-                             const string& name_,
+                             const std::string& name_,
                              static_string_view description_, Ram& ram_)
 	: SimpleDebuggable(motherBoard_, name_, description_, ram_.getSize())
 	, ram(ram_)

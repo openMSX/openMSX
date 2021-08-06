@@ -13,9 +13,6 @@
 #include <iostream>
 #include <memory>
 
-using std::string;
-using std::string_view;
-
 namespace openmsx {
 
 MSXCommandController::MSXCommandController(
@@ -58,7 +55,7 @@ MSXCommandController::~MSXCommandController()
 	globalCommandController.getInterpreter().deleteNamespace(machineID);
 }
 
-TemporaryString MSXCommandController::getFullName(string_view name)
+TemporaryString MSXCommandController::getFullName(std::string_view name)
 {
 	return tmpStrCat(machineID, name);
 }
@@ -76,7 +73,7 @@ void MSXCommandController::registerCommand(Command& command, zstring_view str)
 	command.setAllowedInEmptyMachine(false);
 }
 
-void MSXCommandController::unregisterCommand(Command& command, string_view str)
+void MSXCommandController::unregisterCommand(Command& command, std::string_view str)
 {
 	assert(hasCommand(str));
 	assert(command.getName() == str);
@@ -88,14 +85,14 @@ void MSXCommandController::unregisterCommand(Command& command, string_view str)
 }
 
 void MSXCommandController::registerCompleter(CommandCompleter& completer,
-                                             string_view str)
+                                             std::string_view str)
 {
 	auto fullname = getFullName(str);
 	globalCommandController.registerCompleter(completer, fullname);
 }
 
 void MSXCommandController::unregisterCompleter(CommandCompleter& completer,
-                                               string_view str)
+                                               std::string_view str)
 {
 	auto fullname = getFullName(str);
 	globalCommandController.unregisterCompleter(completer, fullname);
@@ -121,13 +118,13 @@ void MSXCommandController::unregisterSetting(Setting& setting)
 	globalCommandController.getSettingsManager().unregisterSetting(setting);
 }
 
-Command* MSXCommandController::findCommand(string_view name) const
+Command* MSXCommandController::findCommand(std::string_view name) const
 {
 	auto it = commandMap.find(name);
 	return (it != end(commandMap)) ? *it : nullptr;
 }
 
-bool MSXCommandController::hasCommand(string_view command) const
+bool MSXCommandController::hasCommand(std::string_view command) const
 {
 	return findCommand(command) != nullptr;
 }

@@ -12,8 +12,6 @@
 #include <cstring>
 
 using std::string;
-using std::string_view;
-using std::vector;
 
 namespace openmsx {
 
@@ -45,7 +43,7 @@ void SettingsManager::unregisterSetting(BaseSetting& setting)
 	settings.erase(name);
 }
 
-BaseSetting* SettingsManager::findSetting(string_view name) const
+BaseSetting* SettingsManager::findSetting(std::string_view name) const
 {
 	if (auto it = settings.find(name); it != end(settings)) {
 		return *it;
@@ -64,18 +62,18 @@ BaseSetting* SettingsManager::findSetting(string_view name) const
 	return nullptr;
 }
 
-BaseSetting* SettingsManager::findSetting(string_view prefix, string_view baseName) const
+BaseSetting* SettingsManager::findSetting(std::string_view prefix, std::string_view baseName) const
 {
 	auto size = prefix.size() + baseName.size();
 	VLA(char, fullname, size);
 	memcpy(&fullname[0],             prefix  .data(), prefix  .size());
 	memcpy(&fullname[prefix.size()], baseName.data(), baseName.size());
-	return findSetting(string_view(fullname, size));
+	return findSetting(std::string_view(fullname, size));
 }
 
 // Helper functions for setting commands
 
-BaseSetting& SettingsManager::getByName(string_view cmd, string_view name) const
+BaseSetting& SettingsManager::getByName(std::string_view cmd, std::string_view name) const
 {
 	if (auto* setting = findSetting(name)) {
 		return *setting;
@@ -83,12 +81,12 @@ BaseSetting& SettingsManager::getByName(string_view cmd, string_view name) const
 	throw CommandException(cmd, ": ", name, ": no such setting");
 }
 
-vector<string> SettingsManager::getTabSettingNames() const
+std::vector<string> SettingsManager::getTabSettingNames() const
 {
-	vector<string> result;
+	std::vector<string> result;
 	result.reserve(settings.size() * 2);
 	for (auto* s : settings) {
-		string_view name = s->getFullName();
+		std::string_view name = s->getFullName();
 		result.emplace_back(name);
 		if (StringOp::startsWith(name, "::")) {
 			result.emplace_back(name.substr(2));
@@ -169,7 +167,7 @@ string SettingsManager::SettingInfo::help(span<const TclObject> /*tokens*/) cons
 	             "returns info on a specific setting\n";
 }
 
-void SettingsManager::SettingInfo::tabCompletion(vector<string>& tokens) const
+void SettingsManager::SettingInfo::tabCompletion(std::vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		// complete setting name
@@ -200,7 +198,7 @@ string SettingsManager::SetCompleter::help(span<const TclObject> tokens) const
 	       "openMSX setting.\n";
 }
 
-void SettingsManager::SetCompleter::tabCompletion(vector<string>& tokens) const
+void SettingsManager::SetCompleter::tabCompletion(std::vector<string>& tokens) const
 {
 	auto& manager = OUTER(SettingsManager, setCompleter);
 	switch (tokens.size()) {
@@ -234,7 +232,7 @@ string SettingsManager::SettingCompleter::help(span<const TclObject> /*tokens*/)
 	return {}; // TODO
 }
 
-void SettingsManager::SettingCompleter::tabCompletion(vector<string>& tokens) const
+void SettingsManager::SettingCompleter::tabCompletion(std::vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		// complete setting name

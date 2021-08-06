@@ -25,7 +25,6 @@
 #include <memory>
 
 using std::string;
-using std::vector;
 
 namespace openmsx {
 
@@ -82,7 +81,7 @@ string LaserdiscPlayer::Command::help(span<const TclObject> tokens) const
 	       ": eject the laserdisc\n";
 }
 
-void LaserdiscPlayer::Command::tabCompletion(vector<string>& tokens) const
+void LaserdiscPlayer::Command::tabCompletion(std::vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		using namespace std::literals;

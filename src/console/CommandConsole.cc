@@ -23,8 +23,6 @@
 #include <fstream>
 #include <cassert>
 
-using std::min;
-using std::max;
 using std::string;
 using std::string_view;
 
@@ -233,10 +231,10 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 	case Keys::KM_SHIFT:
 		switch (key) {
 		case Keys::K_PAGEUP:
-			scroll(max<int>(getRows() - 1, 1));
+			scroll(std::max<int>(getRows() - 1, 1));
 			return true;
 		case Keys::K_PAGEDOWN:
-			scroll(-max<int>(getRows() - 1, 1));
+			scroll(-std::max<int>(getRows() - 1, 1));
 			return true;
 		}
 		break;
@@ -510,7 +508,7 @@ void CommandConsole::tabCompletion()
 
 void CommandConsole::scroll(int delta)
 {
-	consoleScrollBack = max(min(consoleScrollBack + delta, int(lines.size()) - int(rows)), 0);
+	consoleScrollBack = std::max(std::min(consoleScrollBack + delta, int(lines.size()) - int(rows)), 0);
 }
 
 // Returns the position of the start of the word relative to the current cursor position.

@@ -40,9 +40,6 @@ TODO:
 #include <cassert>
 #include <memory>
 
-using std::string;
-using std::vector;
-
 namespace openmsx {
 
 static byte getDelayCycles(const XMLElement& devices) {
@@ -1685,7 +1682,7 @@ void VDP::VRAMPointerDebug::write(unsigned address, byte value, EmuTime::param /
 
 // class Info
 
-VDP::Info::Info(VDP& vdp_, const string& name_, string helpText_)
+VDP::Info::Info(VDP& vdp_, const std::string& name_, std::string helpText_)
 	: InfoTopic(vdp_.getMotherBoard().getMachineInfoCommand(),
 		    strCat(vdp_.getName(), '_', name_))
 	, vdp(vdp_)
@@ -1698,7 +1695,7 @@ void VDP::Info::execute(span<const TclObject> /*tokens*/, TclObject& result) con
 	result = calc(vdp.getCurrentTime());
 }
 
-string VDP::Info::help(span<const TclObject> /*tokens*/) const
+std::string VDP::Info::help(span<const TclObject> /*tokens*/) const
 {
 	return helpText;
 }

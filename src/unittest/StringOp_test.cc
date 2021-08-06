@@ -5,7 +5,6 @@
 using namespace StringOp;
 using std::string;
 using std::string_view;
-using std::vector;
 
 static void checkTrimRight(const string& s, char c, const string& expected)
 {
@@ -77,18 +76,18 @@ static void checkSplitOnLast(const string& s, const string& first, const string&
 	CHECK(l2 == last);
 }
 
-static void checkSplit(const string& s, const vector<string_view> expected)
+static void checkSplit(const string& s, const std::vector<string_view> expected)
 {
 	CHECK(split(s, '-') == expected);
 
-	vector<string_view> result;
+	std::vector<string_view> result;
 	for (const auto& ss : StringOp::split_view(s, '-')) {
 		result.push_back(ss);
 	}
 	CHECK(result == expected);
 }
 
-static void checkParseRange(const string& s, const vector<unsigned>& expected)
+static void checkParseRange(const string& s, const std::vector<unsigned>& expected)
 {
 	CHECK(parseRange(s, 0, 99) == expected);
 }

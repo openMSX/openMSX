@@ -23,8 +23,6 @@
 
 using std::string;
 using std::string_view;
-using std::vector;
-using std::end;
 
 namespace openmsx {
 
@@ -85,7 +83,7 @@ void Debugger::unregisterProbe(ProbeBase& probe)
 ProbeBase* Debugger::findProbe(string_view name)
 {
 	auto it = probes.find(name);
-	return (it != end(probes)) ? *it : nullptr;
+	return (it != std::end(probes)) ? *it : nullptr;
 }
 
 ProbeBase& Debugger::getProbe(string_view name)
@@ -114,7 +112,7 @@ void Debugger::removeProbeBreakPoint(string_view name)
 		// remove by id
 		if (auto id = StringOp::stringToBase<10, unsigned>(name.substr(3))) {
 			if (auto it = ranges::find(probeBreakPoints, id, &ProbeBreakPoint::getId);
-			    it != end(probeBreakPoints)) {
+			    it != std::end(probeBreakPoints)) {
 				move_pop_back(probeBreakPoints, it);
 				return;
 			}
@@ -125,7 +123,7 @@ void Debugger::removeProbeBreakPoint(string_view name)
 		auto it = ranges::find(probeBreakPoints, name, [](auto& bp) {
 			return bp->getProbe().getName();
 		});
-		if (it == end(probeBreakPoints)) {
+		if (it == std::end(probeBreakPoints)) {
 			throw CommandException(
 				"No (unconditional) breakpoint for probe: ", name);
 		}
@@ -372,7 +370,7 @@ void Debugger::Cmd::removeBreakPoint(
 		// remove by id
 		if (auto id = StringOp::stringToBase<10, unsigned>(tmp.substr(3))) {
 			if (auto it = ranges::find(breakPoints, id, &BreakPoint::getId);
-			    it != end(breakPoints)) {
+			    it != std::end(breakPoints)) {
 				interface.removeBreakPoint(*it);
 				return;
 			}
@@ -922,26 +920,26 @@ string Debugger::Cmd::help(span<const TclObject> tokens) const
 	}
 }
 
-vector<string> Debugger::Cmd::getBreakPointIds() const
+std::vector<string> Debugger::Cmd::getBreakPointIds() const
 {
 	return to_vector(view::transform(
 		debugger().motherBoard.getCPUInterface().getBreakPoints(),
 		[](auto& bp) { return strCat("bp#", bp.getId()); }));
 }
-vector<string> Debugger::Cmd::getWatchPointIds() const
+std::vector<string> Debugger::Cmd::getWatchPointIds() const
 {
 	return to_vector(view::transform(
 		debugger().motherBoard.getCPUInterface().getWatchPoints(),
 		[](auto& w) { return strCat("wp#", w->getId()); }));
 }
-vector<string> Debugger::Cmd::getConditionIds() const
+std::vector<string> Debugger::Cmd::getConditionIds() const
 {
 	return to_vector(view::transform(
 		debugger().motherBoard.getCPUInterface().getConditions(),
 		[](auto& c) { return strCat("cond#", c.getId()); }));
 }
 
-void Debugger::Cmd::tabCompletion(vector<string>& tokens) const
+void Debugger::Cmd::tabCompletion(std::vector<string>& tokens) const
 {
 	using namespace std::literals;
 	static constexpr std::array singleArgCmds = {

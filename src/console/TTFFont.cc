@@ -10,8 +10,6 @@
 #include <cassert>
 #include <vector>
 
-using std::string;
-
 namespace openmsx {
 
 class SDLTTF
@@ -34,7 +32,7 @@ public:
 	TTFFontPool& operator=(const TTFFontPool&) = delete;
 
 	static TTFFontPool& instance();
-	TTF_Font* get(const string& filename, int ptSize);
+	TTF_Font* get(const std::string& filename, int ptSize);
 	void release(TTF_Font* font);
 
 private:
@@ -100,7 +98,7 @@ TTFFontPool& TTFFontPool::instance()
 	return oneInstance;
 }
 
-TTF_Font* TTFFontPool::get(const string& filename, int ptSize)
+TTF_Font* TTFFontPool::get(const std::string& filename, int ptSize)
 {
 	if (auto it = ranges::find(pool, std::tuple(filename, ptSize),
 	        [](auto& info) { return std::tuple(info.name, info.size); });
@@ -177,7 +175,7 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 	unsigned width = 0;
 	unsigned lineHeight = 0; // initialize to avoid warning
 	for (auto& s : lines) {
-		auto [w, h] = getSize(string(s));
+		auto [w, h] = getSize(std::string(s));
 		width = std::max<unsigned>(width, w);
 		lineHeight = h;
 	}
@@ -205,7 +203,7 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 		}
 		SDLSurfacePtr line(TTF_RenderUTF8_Blended(
 			static_cast<TTF_Font*>(font),
-			string(lines[i]).c_str(), color));
+			std::string(lines[i]).c_str(), color));
 		if (!line) {
 			throw MSXException(TTF_GetError());
 		}

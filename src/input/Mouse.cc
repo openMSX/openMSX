@@ -10,8 +10,6 @@
 #include <SDL.h>
 #include <algorithm>
 
-using std::string;
-
 namespace openmsx {
 
 constexpr int TRESHOLD = 2;

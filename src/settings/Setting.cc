@@ -9,14 +9,11 @@
 #include "MSXException.hh"
 #include "checked_cast.hh"
 
-using std::string;
-using std::string_view;
-
 namespace openmsx {
 
 // class BaseSetting
 
-BaseSetting::BaseSetting(string_view name)
+BaseSetting::BaseSetting(std::string_view name)
 	: fullName(name)
 	, baseName(fullName)
 {
@@ -38,7 +35,7 @@ void BaseSetting::info(TclObject& result) const
 // class Setting
 
 Setting::Setting(CommandController& commandController_,
-                 string_view name, static_string_view description_,
+                 std::string_view name, static_string_view description_,
                  const TclObject& initialValue, SaveSetting save_)
 	: BaseSetting(name)
 	, commandController(commandController_)
@@ -81,7 +78,7 @@ Setting::~Setting()
 }
 
 
-string_view Setting::getDescription() const
+std::string_view Setting::getDescription() const
 {
 	return description;
 }
@@ -164,7 +161,7 @@ Interpreter& Setting::getInterpreter() const
 	return commandController.getInterpreter();
 }
 
-void Setting::tabCompletion(std::vector<string>& /*tokens*/) const
+void Setting::tabCompletion(std::vector<std::string>& /*tokens*/) const
 {
 	// nothing
 }

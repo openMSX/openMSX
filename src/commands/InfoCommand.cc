@@ -6,12 +6,9 @@
 #include <iostream>
 #include <cassert>
 
-using std::string;
-using std::vector;
-
 namespace openmsx {
 
-InfoCommand::InfoCommand(CommandController& commandController_, const string& name_)
+InfoCommand::InfoCommand(CommandController& commandController_, const std::string& name_)
 	: Command(commandController_, name_)
 {
 }
@@ -67,9 +64,9 @@ void InfoCommand::execute(span<const TclObject> tokens,
 	}
 }
 
-string InfoCommand::help(span<const TclObject> tokens) const
+std::string InfoCommand::help(span<const TclObject> tokens) const
 {
-	string result;
+	std::string result;
 	switch (tokens.size()) {
 	case 1:
 		// show help on info cmd
@@ -90,7 +87,7 @@ string InfoCommand::help(span<const TclObject> tokens) const
 	return result;
 }
 
-void InfoCommand::tabCompletion(vector<string>& tokens) const
+void InfoCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
 	switch (tokens.size()) {
 	case 2: {

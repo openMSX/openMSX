@@ -7,8 +7,6 @@
 #include <cstring>
 #include <cassert>
 
-using std::vector;
-
 namespace openmsx {
 
 std::vector<IPSPatch::Chunk> IPSPatch::parseChunks() const
@@ -27,7 +25,7 @@ std::vector<IPSPatch::Chunk> IPSPatch::parseChunks() const
 		size_t offset = 0x10000 * buf[0] + 0x100 * buf[1] + buf[2];
 		ipsFile.read(buf, 2);
 		size_t length = 0x100 * buf[0] + buf[1];
-		vector<byte> v;
+		std::vector<byte> v;
 		if (length == 0) {
 			// RLE encoded
 			ipsFile.read(buf, 3);
@@ -52,7 +50,7 @@ std::vector<IPSPatch::Chunk> IPSPatch::parseChunks() const
 			auto stop  = std::max(offset + length, e->stopAddress());
 			auto length2 = stop - start;
 			++e;
-			vector<byte> tmp(length2);
+			std::vector<byte> tmp(length2);
 			for (auto it : xrange(b, e)) {
 				memcpy(&tmp[it->startAddress - start],
 				       it->data(), it->size());

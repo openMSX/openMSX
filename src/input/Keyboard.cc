@@ -30,9 +30,6 @@
 #include <cassert>
 #include <cstdarg>
 
-using std::string;
-using std::vector;
-
 namespace openmsx {
 
 // How does the CAPSLOCK key behave?
@@ -1078,7 +1075,7 @@ void Keyboard::KeyMatrixUpCmd::execute(
 	return keyboard.processCmd(getInterpreter(), tokens, true);
 }
 
-string Keyboard::KeyMatrixUpCmd::help(span<const TclObject> /*tokens*/) const
+std::string Keyboard::KeyMatrixUpCmd::help(span<const TclObject> /*tokens*/) const
 {
 	return "keymatrixup <row> <bitmask>  release a key in the keyboardmatrix\n";
 }
@@ -1102,7 +1099,7 @@ void Keyboard::KeyMatrixDownCmd::execute(span<const TclObject> tokens,
 	return keyboard.processCmd(getInterpreter(), tokens, false);
 }
 
-string Keyboard::KeyMatrixDownCmd::help(span<const TclObject> /*tokens*/) const
+std::string Keyboard::KeyMatrixDownCmd::help(span<const TclObject> /*tokens*/) const
 {
 	return "keymatrixdown <row> <bitmask>  press a key in the keyboardmatrix\n";
 }
@@ -1210,14 +1207,14 @@ void Keyboard::KeyInserter::execute(
 	type(arguments[0].getString());
 }
 
-string Keyboard::KeyInserter::help(span<const TclObject> /*tokens*/) const
+std::string Keyboard::KeyInserter::help(span<const TclObject> /*tokens*/) const
 {
 	return "Type a string in the emulated MSX.\n" \
 	       "Use -release to make sure the keys are always released before typing new ones (necessary for some game input routines, but in general, this means typing is twice as slow).\n" \
 	       "Use -freq to tweak how fast typing goes and how long the keys will be pressed (and released in case -release was used). Keys will be typed at the given frequency and will remain pressed/released for 1/freq seconds";
 }
 
-void Keyboard::KeyInserter::tabCompletion(vector<string>& tokens) const
+void Keyboard::KeyInserter::tabCompletion(std::vector<std::string>& tokens) const
 {
 	using namespace std::literals;
 	static constexpr std::array options = {"-release"sv, "-freq"sv};
@@ -1506,7 +1503,7 @@ void Keyboard::MsxKeyEventQueue::serialize(Archive& ar, unsigned /*version*/)
 	// ascii format. (In all practical cases this queue will anyway be
 	// empty or contain very few elements).
 	//ar.serialize("eventQueue", eventQueue);
-	vector<string> eventStrs;
+	std::vector<std::string> eventStrs;
 	if constexpr (!Archive::IS_LOADER) {
 		eventStrs = to_vector(view::transform(
 			eventQueue, [](const auto& e) { return toString(e); }));

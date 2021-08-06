@@ -8,16 +8,14 @@
 #include <array>
 #include <cassert>
 
-using std::string_view;
-
 namespace openmsx {
 
 // This contains extra information for each RomType. This structure only
 // contains the primary (non-alias) romtypes.
 struct RomTypeInfo {
 	unsigned blockSize;
-	string_view name;
-	string_view description;
+	std::string_view name;
+	std::string_view description;
 };
 static constexpr auto romTypeInfoArray = [] {
 	std::array<RomTypeInfo, RomType::ROM_LAST> r = {};
@@ -176,7 +174,7 @@ static constexpr auto pmh = [] {
 	return PerfectMinimalHash::create<std::size(combinedRomTable)>(RomTypeNameHash{}, getKey);
 }();
 
-RomType RomInfo::nameToRomType(string_view name)
+RomType RomInfo::nameToRomType(std::string_view name)
 {
 	auto idx = pmh.lookupIndex(name);
 	assert(idx < std::size(combinedRomTable));
@@ -187,17 +185,17 @@ RomType RomInfo::nameToRomType(string_view name)
 	return ROM_UNKNOWN;
 }
 
-std::vector<string_view> RomInfo::getAllRomTypes()
+std::vector<std::string_view> RomInfo::getAllRomTypes()
 {
 	return to_vector(view::transform(romTypeInfoArray, [](const auto& r) { return r.name; }));
 }
 
-string_view RomInfo::romTypeToName(RomType type)
+std::string_view RomInfo::romTypeToName(RomType type)
 {
 	return romTypeInfoArray[type].name;
 }
 
-string_view RomInfo::getDescription(RomType type)
+std::string_view RomInfo::getDescription(RomType type)
 {
 	return romTypeInfoArray[type].description;
 }

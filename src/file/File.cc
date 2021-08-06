@@ -7,8 +7,6 @@
 #include <cstring>
 #include <memory>
 
-using std::string;
-
 namespace openmsx {
 
 File::File() = default;
@@ -135,12 +133,12 @@ void File::flush()
 	file->flush();
 }
 
-const string& File::getURL() const
+const std::string& File::getURL() const
 {
 	return file->getURL();
 }
 
-string File::getLocalReference() const
+std::string File::getLocalReference() const
 {
 	return file->getLocalReference();
 }

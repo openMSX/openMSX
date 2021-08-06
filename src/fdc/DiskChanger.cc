@@ -28,7 +28,6 @@
 #include <utility>
 
 using std::string;
-using std::vector;
 
 namespace openmsx {
 
@@ -241,7 +240,7 @@ void DiskCommand::execute(span<const TclObject> tokens, TclObject& result)
 			}
 		}
 		try {
-			vector<TclObject> args = { TclObject(diskChanger.getDriveName()) };
+			std::vector<TclObject> args = { TclObject(diskChanger.getDriveName()) };
 			for (size_t i = firstFileToken; i < tokens.size(); ++i) { // 'i' changes in loop
 				std::string_view option = tokens[i].getString();
 				if (option == "-ips") {
@@ -275,7 +274,7 @@ string DiskCommand::help(span<const TclObject> /*tokens*/) const
 		"-ips <filename> : apply the given IPS patch to the disk image");
 }
 
-void DiskCommand::tabCompletion(vector<string>& tokens) const
+void DiskCommand::tabCompletion(std::vector<string>& tokens) const
 {
 	if (tokens.size() >= 2) {
 		using namespace std::literals;
@@ -315,7 +314,7 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 		ar.serialize("disk", diskname);
 	}
 
-	vector<Filename> patches;
+	std::vector<Filename> patches;
 	if constexpr (!Archive::IS_LOADER) {
 		patches = disk->getPatches();
 	}
@@ -346,7 +345,7 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 					name = file.getURL();
 				}
 			}
-			vector<TclObject> args =
+			std::vector<TclObject> args =
 				{ TclObject("dummy"), TclObject(name) };
 			for (auto& p : patches) {
 				p.updateAfterLoadState();

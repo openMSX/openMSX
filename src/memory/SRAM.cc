@@ -11,8 +11,6 @@
 #include "vla.hh"
 #include <cstring>
 
-using std::string;
-
 namespace openmsx {
 
 // class SRAM
@@ -36,7 +34,7 @@ SRAM::SRAM(const std::string& name, static_string_view description,
 {
 }
 
-SRAM::SRAM(const string& name, int size,
+SRAM::SRAM(const std::string& name, int size,
            const DeviceConfig& config_, const char* header_, bool* loaded)
 	: schedulable(std::in_place, config_.getReactor().getRTScheduler(), *this)
 	, config(config_)
@@ -46,7 +44,7 @@ SRAM::SRAM(const string& name, int size,
 	load(loaded);
 }
 
-SRAM::SRAM(const string& name, static_string_view description, int size,
+SRAM::SRAM(const std::string& name, static_string_view description, int size,
 	   const DeviceConfig& config_, const char* header_, bool* loaded)
 	: schedulable(std::in_place, config_.getReactor().getRTScheduler(), *this)
 	, config(config_)
@@ -85,7 +83,7 @@ void SRAM::load(bool* loaded)
 {
 	assert(config.getXML());
 	if (loaded) *loaded = false;
-	const string& filename = config.getChildData("sramname");
+	const std::string& filename = config.getChildData("sramname");
 	try {
 		bool headerOk = true;
 		File file(config.getFileContext().resolveCreate(filename),
@@ -120,7 +118,7 @@ void SRAM::load(bool* loaded)
 void SRAM::save()
 {
 	assert(config.getXML());
-	const string& filename = config.getChildData("sramname");
+	const std::string& filename = config.getChildData("sramname");
 	try {
 		File file(config.getFileContext().resolveCreate(filename),
 			  File::SAVE_PERSISTENT);

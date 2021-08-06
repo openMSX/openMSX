@@ -3,8 +3,6 @@
 #include "unreachable.hh"
 #include <cassert>
 
-using std::string;
-
 namespace openmsx {
 
 constexpr byte STAT_TXRDY   = 0x01;

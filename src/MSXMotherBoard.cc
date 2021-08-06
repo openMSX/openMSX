@@ -53,8 +53,6 @@
 
 using std::make_unique;
 using std::string;
-using std::unique_ptr;
-using std::vector;
 
 namespace openmsx {
 
@@ -86,7 +84,7 @@ public:
 	explicit LoadMachineCmd(MSXMotherBoard& motherBoard);
 	void execute(span<const TclObject> tokens, TclObject& result) override;
 	[[nodiscard]] string help(span<const TclObject> tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
+	void tabCompletion(std::vector<string>& tokens) const override;
 private:
 	MSXMotherBoard& motherBoard;
 };
@@ -108,7 +106,7 @@ public:
 	void execute(span<const TclObject> tokens, TclObject& result,
 	             EmuTime::param time) override;
 	[[nodiscard]] string help(span<const TclObject> tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
+	void tabCompletion(std::vector<string>& tokens) const override;
 private:
 	MSXMotherBoard& motherBoard;
 };
@@ -142,7 +140,7 @@ public:
 	void execute(span<const TclObject> tokens,
 	             TclObject& result) const override;
 	[[nodiscard]] string help(span<const TclObject> tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
+	void tabCompletion(std::vector<string>& tokens) const override;
 private:
 	MSXMotherBoard& motherBoard;
 };
@@ -154,7 +152,7 @@ public:
 	void execute(span<const TclObject> tokens,
 	             TclObject& result) const override;
 	[[nodiscard]] string help(span<const TclObject> tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
+	void tabCompletion(std::vector<string>& tokens) const override;
 private:
 	MSXMotherBoard& motherBoard;
 };
@@ -337,7 +335,7 @@ string MSXMotherBoard::loadMachine(const string& machine)
 
 string MSXMotherBoard::loadExtension(std::string_view name, std::string_view slotname)
 {
-	unique_ptr<HardwareConfig> extension;
+	std::unique_ptr<HardwareConfig> extension;
 	try {
 		extension = HardwareConfig::createExtensionConfig(
 			*this, string(name), slotname);
@@ -352,7 +350,7 @@ string MSXMotherBoard::loadExtension(std::string_view name, std::string_view slo
 }
 
 string MSXMotherBoard::insertExtension(
-	std::string_view name, unique_ptr<HardwareConfig> extension)
+	std::string_view name, std::unique_ptr<HardwareConfig> extension)
 {
 	try {
 		extension->parseSlots();
@@ -808,7 +806,7 @@ string LoadMachineCmd::help(span<const TclObject> /*tokens*/) const
 	return "Load a msx machine configuration into an empty machine.";
 }
 
-void LoadMachineCmd::tabCompletion(vector<string>& tokens) const
+void LoadMachineCmd::tabCompletion(std::vector<string>& tokens) const
 {
 	completeString(tokens, Reactor::getHwConfigs("machines"));
 }
@@ -865,7 +863,7 @@ string ExtCmd::help(span<const TclObject> /*tokens*/) const
 	return "Insert a hardware extension.";
 }
 
-void ExtCmd::tabCompletion(vector<string>& tokens) const
+void ExtCmd::tabCompletion(std::vector<string>& tokens) const
 {
 	completeString(tokens, Reactor::getHwConfigs("extensions"));
 }
@@ -903,7 +901,7 @@ string RemoveExtCmd::help(span<const TclObject> /*tokens*/) const
 	return "Remove an extension from the MSX machine.";
 }
 
-void RemoveExtCmd::tabCompletion(vector<string>& tokens) const
+void RemoveExtCmd::tabCompletion(std::vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		auto names = to_vector(view::transform(
@@ -999,7 +997,7 @@ string MachineExtensionInfo::help(span<const TclObject> /*tokens*/) const
 	return "Returns information about the given extension instance.";
 }
 
-void MachineExtensionInfo::tabCompletion(vector<string>& tokens) const
+void MachineExtensionInfo::tabCompletion(std::vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		auto names = to_vector(view::transform(
@@ -1046,7 +1044,7 @@ string DeviceInfo::help(span<const TclObject> /*tokens*/) const
 	       "devices the subtype) of the given device.";
 }
 
-void DeviceInfo::tabCompletion(vector<string>& tokens) const
+void DeviceInfo::tabCompletion(std::vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		auto names = to_vector(view::transform(

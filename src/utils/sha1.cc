@@ -29,8 +29,6 @@ A million repetitions of "a"
 #include <emmintrin.h> // SSE2
 #endif
 
-using std::string;
-
 namespace openmsx {
 
 // Rotate x bits to the left
@@ -238,7 +236,7 @@ std::string Sha1Sum::toString() const
 			*p++ = digit((ai >> j) & 0xf);
 		}
 	}
-	return string(buf, 40);
+	return std::string(buf, 40);
 }
 
 bool Sha1Sum::empty() const

@@ -16,7 +16,6 @@
 #include <memory>
 
 using std::string;
-using std::vector;
 
 namespace openmsx {
 
@@ -369,7 +368,7 @@ string CDXCommand::help(span<const TclObject> /*tokens*/) const
 		cd.name, " <filename>        : change the cd image for this CD-ROM drive\n");
 }
 
-void CDXCommand::tabCompletion(vector<string>& tokens) const
+void CDXCommand::tabCompletion(std::vector<string>& tokens) const
 {
 	using namespace std::literals;
 	static constexpr std::array extra = {"eject"sv, "insert"sv};

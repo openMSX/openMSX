@@ -12,9 +12,6 @@
 #include "build-info.hh"
 #include <memory>
 
-using std::string;
-using std::vector;
-
 namespace openmsx {
 
 InputEventGenerator::InputEventGenerator(CommandController& commandController,
@@ -505,7 +502,7 @@ void InputEventGenerator::EscapeGrabCmd::execute(
 	}
 }
 
-string InputEventGenerator::EscapeGrabCmd::help(
+std::string InputEventGenerator::EscapeGrabCmd::help(
 	span<const TclObject> /*tokens*/) const
 {
 	return "Temporarily release input grab.";

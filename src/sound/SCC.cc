@@ -108,8 +108,6 @@
 #include "xrange.hh"
 #include <cmath>
 
-using std::string;
-
 namespace openmsx {
 
 static constexpr auto INPUT_RATE = unsigned(cstd::round(3579545.0 / 32));
@@ -120,7 +118,7 @@ static constexpr auto calcDescription(SCC::ChipMode mode)
 	                               : static_string_view("Konami SCC+");
 }
 
-SCC::SCC(const string& name_, const DeviceConfig& config,
+SCC::SCC(const std::string& name_, const DeviceConfig& config,
          EmuTime::param time, ChipMode mode)
 	: ResampledSoundDevice(
 		config.getMotherBoard(), name_, calcDescription(mode), 5, INPUT_RATE, false)
@@ -500,7 +498,7 @@ void SCC::generateChannels(float** bufs, unsigned num)
 
 // Debuggable
 
-SCC::Debuggable::Debuggable(MSXMotherBoard& motherBoard_, const string& name_)
+SCC::Debuggable::Debuggable(MSXMotherBoard& motherBoard_, const std::string& name_)
 	: SimpleDebuggable(motherBoard_, name_ + " SCC",
 	                   "SCC registers in SCC+ format", 0x100)
 {

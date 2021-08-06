@@ -22,8 +22,6 @@
 #include "GLImage.hh"
 #endif
 
-using std::string;
-using std::string_view;
 using namespace gl;
 
 namespace openmsx {
@@ -39,7 +37,7 @@ constexpr int CHAR_BORDER = 4;
 
 // class OSDConsoleRenderer
 
-constexpr string_view defaultFont = "skins/VeraMono.ttf.gz";
+constexpr std::string_view defaultFont = "skins/VeraMono.ttf.gz";
 
 OSDConsoleRenderer::OSDConsoleRenderer(
 		Reactor& reactor_, CommandConsole& console_,
@@ -256,9 +254,9 @@ bool OSDConsoleRenderer::updateConsoleRect()
 	return result;
 }
 
-void OSDConsoleRenderer::loadFont(string_view value)
+void OSDConsoleRenderer::loadFont(std::string_view value)
 {
-	string filename = systemFileContext().resolve(value);
+	auto filename = systemFileContext().resolve(value);
 	auto newFont = TTFFont(filename, fontSizeSetting.getInt());
 	if (!newFont.isFixedWidth()) {
 		throw MSXException(value, " is not a monospaced font");
@@ -267,7 +265,7 @@ void OSDConsoleRenderer::loadFont(string_view value)
 	clearCache();
 }
 
-void OSDConsoleRenderer::loadBackground(string_view value)
+void OSDConsoleRenderer::loadBackground(std::string_view value)
 {
 	if (value.empty()) {
 		backgroundImage.reset();
@@ -278,7 +276,7 @@ void OSDConsoleRenderer::loadBackground(string_view value)
 		backgroundImage.reset();
 		return;
 	}
-	string filename = systemFileContext().resolve(value);
+	auto filename = systemFileContext().resolve(value);
 	if (!openGL) {
 		backgroundImage = std::make_unique<SDLImage>(*output, filename, bgSize);
 	}
@@ -289,13 +287,13 @@ void OSDConsoleRenderer::loadBackground(string_view value)
 #endif
 }
 
-void OSDConsoleRenderer::drawText(OutputSurface& output, string_view text,
+void OSDConsoleRenderer::drawText(OutputSurface& output, std::string_view text,
                                   int cx, int cy, byte alpha, uint32_t rgb)
 {
 	auto xy = getTextPos(cx, cy);
 	auto [inCache, image, width] = getFromCache(text, rgb);
 	if (!inCache) {
-		string textStr(text);
+		std::string textStr(text);
 		SDLSurfacePtr surf;
 		uint32_t rgb2 = openGL ? 0xffffff : rgb; // openGL -> always render white
 		try {
@@ -341,7 +339,7 @@ void OSDConsoleRenderer::drawText(OutputSurface& output, string_view text,
 }
 
 std::tuple<bool, BaseImage*, unsigned> OSDConsoleRenderer::getFromCache(
-	string_view text, uint32_t rgb)
+	std::string_view text, uint32_t rgb)
 {
 	// Items are LRU sorted, so the next requested items will often be
 	// located right in front of the previously found item. (Though
@@ -373,7 +371,7 @@ found:		BaseImage* image = it->image.get();
 }
 
 void OSDConsoleRenderer::insertInCache(
-	string text, uint32_t rgb, std::unique_ptr<BaseImage> image,
+	std::string text, uint32_t rgb, std::unique_ptr<BaseImage> image,
 	unsigned width)
 {
 	constexpr unsigned MAX_TEXT_CACHE_SIZE = 250;
@@ -391,7 +389,7 @@ void OSDConsoleRenderer::clearCache()
 {
 	// cacheHint must always point to a valid item, so insert a dummy entry
 	textCache.clear();
-	textCache.emplace_back(string{}, 0, nullptr, 0);
+	textCache.emplace_back(std::string{}, 0, nullptr, 0);
 	cacheHint = begin(textCache);
 }
 

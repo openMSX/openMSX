@@ -18,12 +18,10 @@
 #include <cstdint>
 #include <memory>
 
-using std::unique_ptr;
-
 namespace openmsx {
 
 template<typename Pixel>
-unique_ptr<Scaler<Pixel>> ScalerFactory<Pixel>::createScaler(
+std::unique_ptr<Scaler<Pixel>> ScalerFactory<Pixel>::createScaler(
 	const PixelOperations<Pixel>& pixelOps, RenderSettings& renderSettings)
 {
 	switch (renderSettings.getScaleFactor()) {

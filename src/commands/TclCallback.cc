@@ -5,8 +5,6 @@
 #include <iostream>
 #include <memory>
 
-using std::string;
-
 namespace openmsx {
 
 TclCallback::TclCallback(
@@ -84,7 +82,7 @@ TclObject TclCallback::executeCommon(TclObject& command)
 	try {
 		return command.executeCommand(callbackSetting.getInterpreter());
 	} catch (CommandException& e) {
-		string message = strCat(
+		auto message = strCat(
 			"Error executing callback function \"",
 			getSetting().getFullName(), "\": ", e.getMessage());
 		if (useCliComm) {

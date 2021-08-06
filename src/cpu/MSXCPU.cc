@@ -16,9 +16,6 @@
 #include <cassert>
 #include <memory>
 
-using std::string;
-using std::vector;
-
 namespace openmsx {
 
 MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
@@ -388,7 +385,7 @@ void MSXCPU::TimeInfoTopic::execute(
 	result = dur.toDouble();
 }
 
-string MSXCPU::TimeInfoTopic::help(span<const TclObject> /*tokens*/) const
+std::string MSXCPU::TimeInfoTopic::help(span<const TclObject> /*tokens*/) const
 {
 	return "Prints the time in seconds that the MSX is powered on\n";
 }
@@ -398,7 +395,7 @@ string MSXCPU::TimeInfoTopic::help(span<const TclObject> /*tokens*/) const
 
 MSXCPU::CPUFreqInfoTopic::CPUFreqInfoTopic(
 		InfoCommand& machineInfoCommand,
-		const string& name_, CPUClock& clock_)
+		const std::string& name_, CPUClock& clock_)
 	: InfoTopic(machineInfoCommand, name_)
 	, clock(clock_)
 {
@@ -410,7 +407,7 @@ void MSXCPU::CPUFreqInfoTopic::execute(
 	result = clock.getFreq();
 }
 
-string MSXCPU::CPUFreqInfoTopic::help(span<const TclObject> /*tokens*/) const
+std::string MSXCPU::CPUFreqInfoTopic::help(span<const TclObject> /*tokens*/) const
 {
 	return "Returns the actual frequency of this CPU.\n"
 	       "This frequency can vary because:\n"

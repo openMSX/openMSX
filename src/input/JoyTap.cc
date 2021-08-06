@@ -7,9 +7,7 @@
 
 namespace openmsx {
 
-using std::string;
-
-JoyTap::JoyTap(PluggingController& pluggingController_, string name_)
+JoyTap::JoyTap(PluggingController& pluggingController_, std::string name_)
 	: pluggingController(pluggingController_)
 	, name(std::move(name_))
 {

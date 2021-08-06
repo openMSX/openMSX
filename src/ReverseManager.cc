@@ -29,10 +29,6 @@
 #include <cmath>
 #include <iomanip>
 
-using std::string;
-using std::vector;
-using std::move;
-
 namespace openmsx {
 
 // Time between two snapshots (in seconds)
@@ -80,7 +76,7 @@ struct Replay
 		} else {
 			Reactor::Board newBoard = reactor.createEmptyMotherBoard();
 			ar.serialize("snapshot", *newBoard);
-			motherBoards.push_back(move(newBoard));
+			motherBoards.push_back(std::move(newBoard));
 		}
 
 		ar.serialize("events", *events);
@@ -243,7 +239,7 @@ void ReverseManager::debugInfo(TclObject& result) const
 {
 	// TODO this is useful during development, but for the end user this
 	// information means nothing. We should remove this later.
-	string res;
+	std::string res;
 	size_t totalSize = 0;
 	for (const auto& [idx, chunk] : history.chunks) {
 		strAppend(res, idx, ' ',
@@ -544,7 +540,7 @@ void ReverseManager::saveReplay(
 		throw CommandException("Maximum number of snapshots should be at least 0");
 	}
 
-	string filename = FileOperations::parseCommandFileArgument(
+	auto filename = FileOperations::parseCommandFileArgument(
 		filenameArg, REPLAY_DIR, "openmsx", ".omr");
 
 	auto& reactor = motherBoard.getReactor();
@@ -561,7 +557,7 @@ void ReverseManager::saveReplay(
 	                   begin(chunks)->second.size,
 			   begin(chunks)->second.deltaBlocks);
 	in.serialize("machine", *initialBoard);
-	replay.motherBoards.push_back(move(initialBoard));
+	replay.motherBoards.push_back(std::move(initialBoard));
 
 	if (maxNofExtraSnapshots > 0) {
 		// determine which extra snapshots to put in the replay
@@ -590,7 +586,7 @@ void ReverseManager::saveReplay(
 							    it->second.size,
 							    it->second.deltaBlocks);
 					in2.serialize("machine", *board);
-					replay.motherBoards.push_back(move(board));
+					replay.motherBoards.push_back(std::move(board));
 					lastAddedIt = it;
 				}
 				++it;
@@ -647,8 +643,8 @@ void ReverseManager::loadReplay(
 
 	// resolve the filename
 	auto context = userDataFileContext(REPLAY_DIR);
-	string fileNameArg(arguments[0].getString());
-	string filename;
+	std::string fileNameArg(arguments[0].getString());
+	std::string filename;
 	try {
 		// Try filename as typed by user.
 		filename = context.resolve(fileNameArg);
@@ -732,7 +728,7 @@ void ReverseManager::loadReplay(
 		newChunk.eventCount = replayIdx;
 
 		newHistory.chunks[newHistory.getNextSeqNum(newChunk.time)] =
-			move(newChunk);
+			std::move(newChunk);
 	}
 
 	// Note: until this point we didn't make any changes to the current
@@ -974,7 +970,7 @@ void ReverseManager::ReverseCmd::execute(span<const TclObject> tokens, TclObject
 			}});
 }
 
-string ReverseManager::ReverseCmd::help(span<const TclObject> /*tokens*/) const
+std::string ReverseManager::ReverseCmd::help(span<const TclObject> /*tokens*/) const
 {
 	return "start               start collecting reverse data\n"
 	       "stop                stop collecting\n"
@@ -987,7 +983,7 @@ string ReverseManager::ReverseCmd::help(span<const TclObject> /*tokens*/) const
 	       "loadreplay [-goto <begin|end|savetime|<n>>] [-viewonly] <name>   load a replay (snapshot and replay data) with given name and start replaying\n";
 }
 
-void ReverseManager::ReverseCmd::tabCompletion(vector<string>& tokens) const
+void ReverseManager::ReverseCmd::tabCompletion(std::vector<std::string>& tokens) const
 {
 	using namespace std::literals;
 	if (tokens.size() == 2) {
