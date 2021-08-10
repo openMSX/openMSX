@@ -3,7 +3,8 @@
 
 #include "SettingsManager.hh"
 #include "Command.hh"
-#include "XMLElement.hh"
+#include "hash_map.hh"
+#include "xxhash.hh"
 #include <string>
 #include <string_view>
 
@@ -27,7 +28,11 @@ public:
 	void setSaveFilename(const FileContext& context, std::string_view filename);
 
 	[[nodiscard]] SettingsManager& getSettingsManager() { return settingsManager; }
-	[[nodiscard]] XMLElement& getXMLElement() { return xmlElement; }
+
+	// manipulate info that would be stored in settings.xml
+	const std::string* getValueForSetting(std::string_view setting) const;
+	void setValueForSetting(std::string_view setting, std::string_view value);
+	void removeValueForSetting(std::string_view setting);
 
 private:
 	CommandController& commandController;
@@ -47,7 +52,7 @@ private:
 	} loadSettingsCommand;
 
 	SettingsManager settingsManager;
-	XMLElement xmlElement;
+	hash_map<std::string, std::string, XXHasher> settingValues;
 	HotKey& hotKey;
 	std::string saveName;
 	bool mustSaveSettings;
