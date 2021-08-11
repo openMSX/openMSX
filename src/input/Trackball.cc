@@ -20,6 +20,35 @@ using std::string;
 
 namespace openmsx {
 
+class TrackballState final : public StateChange
+{
+public:
+	TrackballState() = default; // for serialize
+	TrackballState(EmuTime::param time_, int deltaX_, int deltaY_,
+	                                     byte press_, byte release_)
+		: StateChange(time_)
+		, deltaX(deltaX_), deltaY(deltaY_)
+		, press(press_), release(release_) {}
+	[[nodiscard]] int  getDeltaX()  const { return deltaX; }
+	[[nodiscard]] int  getDeltaY()  const { return deltaY; }
+	[[nodiscard]] byte getPress()   const { return press; }
+	[[nodiscard]] byte getRelease() const { return release; }
+
+	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
+	{
+		ar.template serializeBase<StateChange>(*this);
+		ar.serialize("deltaX",  deltaX,
+		             "deltaY",  deltaY,
+		             "press",   press,
+		             "release", release);
+	}
+private:
+	int deltaX, deltaY;
+	byte press, release;
+};
+REGISTER_POLYMORPHIC_CLASS(StateChange, TrackballState, "TrackballState");
+
+
 Trackball::Trackball(MSXEventDistributor& eventDistributor_,
                      StateChangeDistributor& stateChangeDistributor_)
 	: eventDistributor(eventDistributor_)
@@ -225,7 +254,7 @@ void Trackball::createTrackballStateChange(
 // StateChangeListener
 void Trackball::signalStateChange(const StateChange& event)
 {
-	const auto* ts = std::get_if<TrackballState>(&event);
+	const auto* ts = dynamic_cast<const TrackballState*>(&event);
 	if (!ts) return;
 
 	targetDeltaX = std::clamp(targetDeltaX + ts->getDeltaX(), -8, 7);

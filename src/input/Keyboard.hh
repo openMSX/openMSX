@@ -28,6 +28,7 @@ class DeviceConfig;
 class EventDistributor;
 class MSXEventDistributor;
 class StateChangeDistributor;
+class StateChange;
 class TclObject;
 class Interpreter;
 

@@ -23,6 +23,34 @@ constexpr int PHASE_YLOW  = 3;
 constexpr int STROBE = 0x04;
 
 
+class MouseState final : public StateChange
+{
+public:
+	MouseState() = default; // for serialize
+	MouseState(EmuTime::param time_, int deltaX_, int deltaY_,
+	           byte press_, byte release_)
+		: StateChange(time_)
+		, deltaX(deltaX_), deltaY(deltaY_)
+		, press(press_), release(release_) {}
+	[[nodiscard]] int  getDeltaX()  const { return deltaX; }
+	[[nodiscard]] int  getDeltaY()  const { return deltaY; }
+	[[nodiscard]] byte getPress()   const { return press; }
+	[[nodiscard]] byte getRelease() const { return release; }
+	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
+	{
+		ar.template serializeBase<StateChange>(*this);
+		ar.serialize("deltaX",  deltaX,
+		             "deltaY",  deltaY,
+		             "press",   press,
+		             "release", release);
+	}
+private:
+	int deltaX, deltaY;
+	byte press, release;
+};
+
+REGISTER_POLYMORPHIC_CLASS(StateChange, MouseState, "MouseState");
+
 Mouse::Mouse(MSXEventDistributor& eventDistributor_,
              StateChangeDistributor& stateChangeDistributor_)
 	: eventDistributor(eventDistributor_)
@@ -263,7 +291,7 @@ void Mouse::createMouseStateChange(
 
 void Mouse::signalStateChange(const StateChange& event)
 {
-	const auto* ms = std::get_if<MouseState>(&event);
+	const auto* ms = dynamic_cast<const MouseState*>(&event);
 	if (!ms) return;
 
 	// This is almost the same as
