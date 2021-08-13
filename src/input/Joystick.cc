@@ -58,6 +58,35 @@ void Joystick::registerAll(MSXEventDistributor& eventDistributor,
 }
 
 
+class JoyState final : public StateChange
+{
+public:
+	JoyState() = default; // for serialize
+	JoyState(EmuTime::param time_, unsigned joyNum_, byte press_, byte release_)
+		: StateChange(time_)
+		, joyNum(joyNum_), press(press_), release(release_)
+	{
+		assert((press != 0) || (release != 0));
+		assert((press & release) == 0);
+	}
+	[[nodiscard]] unsigned getJoystick() const { return joyNum; }
+	[[nodiscard]] byte     getPress()    const { return press; }
+	[[nodiscard]] byte     getRelease()  const { return release; }
+
+	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
+	{
+		ar.template serializeBase<StateChange>(*this);
+		ar.serialize("joyNum",  joyNum,
+		             "press",   press,
+		             "release", release);
+	}
+private:
+	unsigned joyNum;
+	byte press, release;
+};
+REGISTER_POLYMORPHIC_CLASS(StateChange, JoyState, "JoyState");
+
+
 #ifndef SDL_JOYSTICK_DISABLED
 static void checkJoystickConfig(Interpreter& interp, TclObject& newValue)
 {
@@ -312,7 +341,7 @@ void Joystick::createEvent(EmuTime::param time, byte newStatus)
 // StateChangeListener
 void Joystick::signalStateChange(const StateChange& event)
 {
-	const auto* js = std::get_if<JoyState>(&event);
+	const auto* js = dynamic_cast<const JoyState*>(&event);
 	if (!js) return;
 
 	// TODO: It would be more efficient to make a dispatcher instead of

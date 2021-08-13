@@ -9,6 +9,25 @@
 
 namespace openmsx {
 
+class PaddleState final : public StateChange
+{
+public:
+	PaddleState() = default; // for serialize
+	PaddleState(EmuTime::param time_, int delta_)
+		: StateChange(time_), delta(delta_) {}
+	[[nodiscard]] int getDelta() const { return delta; }
+
+	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
+	{
+		ar.template serializeBase<StateChange>(*this);
+		ar.serialize("delta", delta);
+	}
+private:
+	int delta;
+};
+REGISTER_POLYMORPHIC_CLASS(StateChange, PaddleState, "PaddleState");
+
+
 Paddle::Paddle(MSXEventDistributor& eventDistributor_,
                StateChangeDistributor& stateChangeDistributor_)
 	: eventDistributor(eventDistributor_)
@@ -91,7 +110,7 @@ void Paddle::signalMSXEvent(const Event& event,
 // StateChangeListener
 void Paddle::signalStateChange(const StateChange& event)
 {
-	const auto* ps = std::get_if<PaddleState>(&event);
+	const auto* ps = dynamic_cast<const PaddleState*>(&event);
 	if (!ps) return;
 	int newAnalog = analogValue + ps->getDelta();
 	analogValue = std::min(std::max(newAnalog, 0), 255);

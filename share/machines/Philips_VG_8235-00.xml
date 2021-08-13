@@ -18,8 +18,8 @@ see http://bilgisayarlarim.com/Philips/VG-8235
 - Zilog Z8400APS Z80 CPU
 - LVA510 RF encoder
 
-ROM dumps verified with Luc's machine and and with Peter Hanraets his machine with serial FF02 621010083
-
+ROM dumps verified with Luc's machine and and with Peter Hanraets his machines
+with serial FF02 621010083 and FF02 611010683
 -->
 
   <MapperReadBackBits>largest</MapperReadBackBits>
