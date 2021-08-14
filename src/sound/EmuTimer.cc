@@ -1,42 +1,51 @@
 #include "EmuTimer.hh"
 #include "serialize.hh"
+#include <memory>
+
+using std::unique_ptr;
 
 namespace openmsx {
 
-EmuTimer EmuTimer::createOPM_1(
+unique_ptr<EmuTimer> EmuTimer::createOPM_1(
 	Scheduler& scheduler, EmuTimerCallback& cb)
 {
-	return EmuTimer(scheduler, cb, 0x40,  3579545, 64 * 2     , 1024);
+	return std::make_unique<EmuTimer>(
+		scheduler, cb, 0x40,  3579545, 64 * 2     , 1024);
 }
 
-EmuTimer EmuTimer::createOPM_2(
+unique_ptr<EmuTimer> EmuTimer::createOPM_2(
 	Scheduler& scheduler, EmuTimerCallback& cb)
 {
-	return EmuTimer(scheduler, cb, 0x20,  3579545, 64 * 2 * 16, 256);
+	return std::make_unique<EmuTimer>(
+		scheduler, cb, 0x20,  3579545, 64 * 2 * 16, 256);
 }
 
-EmuTimer EmuTimer::createOPL3_1(
+unique_ptr<EmuTimer> EmuTimer::createOPL3_1(
 	Scheduler& scheduler, EmuTimerCallback& cb)
 {
-	return EmuTimer(scheduler, cb, 0x40,  3579545, 72 *  4    , 256);
+	return std::make_unique<EmuTimer>(
+		scheduler, cb, 0x40,  3579545, 72 *  4    , 256);
 }
 
-EmuTimer EmuTimer::createOPL3_2(
+unique_ptr<EmuTimer> EmuTimer::createOPL3_2(
 	Scheduler& scheduler, EmuTimerCallback& cb)
 {
-	return EmuTimer(scheduler, cb, 0x20,  3579545, 72 *  4 * 4, 256);
+	return std::make_unique<EmuTimer>(
+		scheduler, cb, 0x20,  3579545, 72 *  4 * 4, 256);
 }
 
-EmuTimer EmuTimer::createOPL4_1(
+unique_ptr<EmuTimer> EmuTimer::createOPL4_1(
 	Scheduler& scheduler, EmuTimerCallback& cb)
 {
-	return EmuTimer(scheduler, cb, 0x40, 33868800, 72 * 38    , 256);
+	return std::make_unique<EmuTimer>(
+		scheduler, cb, 0x40, 33868800, 72 * 38    , 256);
 }
 
-EmuTimer EmuTimer::createOPL4_2(
+unique_ptr<EmuTimer> EmuTimer::createOPL4_2(
 	Scheduler& scheduler, EmuTimerCallback& cb)
 {
-	return EmuTimer(scheduler, cb, 0x20, 33868800, 72 * 38 * 4, 256);
+	return std::make_unique<EmuTimer>(
+		scheduler, cb, 0x20, 33868800, 72 * 38 * 4, 256);
 }
 
 

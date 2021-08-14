@@ -38,6 +38,7 @@
 #include "IRQHelper.hh"
 #include "openmsx.hh"
 #include <string>
+#include <memory>
 
 namespace openmsx {
 
@@ -144,8 +145,8 @@ private:
 	IRQHelper irq;
 
 	// Timers (see EmuTimer class for details about timing)
-	EmuTimer timer1;
-	EmuTimer timer2;
+	const std::unique_ptr<EmuTimer> timer1;
+	const std::unique_ptr<EmuTimer> timer2;
 
 	YM2151Operator oper[32]; // the 32 operators
 

@@ -672,17 +672,17 @@ void YM2151::writeReg(byte r, byte v, EmuTime::param time)
 		case 0x10:
 			timer_A_val &= 0x03;
 			timer_A_val |= v << 2;
-			timer1.setValue(timer_A_val);
+			timer1->setValue(timer_A_val);
 			break;
 
 		case 0x11:
 			timer_A_val &= 0x03fc;
 			timer_A_val |= v & 3;
-			timer1.setValue(timer_A_val);
+			timer1->setValue(timer_A_val);
 			break;
 
 		case 0x12:
-			timer2.setValue(v);
+			timer2->setValue(v);
 			break;
 
 		case 0x14: // CSM, irq flag reset, irq enable, timer start/stop
@@ -693,8 +693,8 @@ void YM2151::writeReg(byte r, byte v, EmuTime::param time)
 			if (v & 0x20) { // reset timer B irq flag
 				resetStatus(2);
 			}
-			timer1.setStart((v & 4) != 0, time);
-			timer2.setStart((v & 8) != 0, time);
+			timer1->setStart((v & 4) != 0, time);
+			timer2->setStart((v & 8) != 0, time);
 			break;
 
 		case 0x18: // LFO frequency
@@ -941,8 +941,8 @@ void YM2151::reset(EmuTime::param time)
 	test = 0;
 
 	irq_enable = 0;
-	timer1.setStart(false, time);
-	timer2.setStart(false, time);
+	timer1->setStart(false, time);
+	timer2->setStart(false, time);
 
 	noise     = 0;
 	noise_rng = 0;
@@ -1609,8 +1609,8 @@ template<typename Archive>
 void YM2151::serialize(Archive& a, unsigned /*version*/)
 {
 	a.serialize("irq",             irq,
-	            "timer1",          timer1,
-	            "timer2",          timer2,
+	            "timer1",          *timer1,
+	            "timer2",          *timer2,
 	            "operators",       oper,
 	            //"pan",             pan, // recalculated from regs[0x20-0x27]
 	            "eg_cnt",          eg_cnt,
@@ -1644,7 +1644,7 @@ void YM2151::serialize(Archive& a, unsigned /*version*/)
 
 	if constexpr (Archive::IS_LOADER) {
 		// TODO restore more state from registers
-		EmuTime::param time = timer1.getCurrentTime();
+		EmuTime::param time = timer1->getCurrentTime();
 		for (auto r : xrange(0x20, 0x28)) {
 			writeReg(r , regs[r], time);
 		}

@@ -4,6 +4,7 @@
 #include "Schedulable.hh"
 #include "DynamicClock.hh"
 #include "openmsx.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -24,17 +25,17 @@ public:
 	         byte flag, unsigned freq_num, unsigned freq_denom,
 	         unsigned maxval);
 
-	[[nodiscard]] static EmuTimer createOPM_1(
+	[[nodiscard]] static std::unique_ptr<EmuTimer> createOPM_1(
 		Scheduler& scheduler, EmuTimerCallback& cb);
-	[[nodiscard]] static EmuTimer createOPM_2(
+	[[nodiscard]] static std::unique_ptr<EmuTimer> createOPM_2(
 		Scheduler& scheduler, EmuTimerCallback& cb);
-	[[nodiscard]] static EmuTimer createOPL3_1(
+	[[nodiscard]] static std::unique_ptr<EmuTimer> createOPL3_1(
 		Scheduler& scheduler, EmuTimerCallback& cb);
-	[[nodiscard]] static EmuTimer createOPL3_2(
+	[[nodiscard]] static std::unique_ptr<EmuTimer> createOPL3_2(
 		Scheduler& scheduler, EmuTimerCallback& cb);
-	[[nodiscard]] static EmuTimer createOPL4_1(
+	[[nodiscard]] static std::unique_ptr<EmuTimer> createOPL4_1(
 		Scheduler& scheduler, EmuTimerCallback& cb);
-	[[nodiscard]] static EmuTimer createOPL4_2(
+	[[nodiscard]] static std::unique_ptr<EmuTimer> createOPL4_2(
 		Scheduler& scheduler, EmuTimerCallback& cb);
 
 	void setValue(int value);

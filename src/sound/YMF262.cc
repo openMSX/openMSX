@@ -1110,11 +1110,11 @@ void YMF262::writeRegDirect(unsigned r, byte v, EmuTime::param time)
 			break;
 
 		case 0x02: // Timer 1
-			timer1.setValue(v);
+			timer1->setValue(v);
 			break;
 
 		case 0x03: // Timer 2
-			timer2.setValue(v);
+			timer2->setValue(v);
 			break;
 
 		case 0x04: // IRQ clear / mask and Timer enable
@@ -1123,8 +1123,8 @@ void YMF262::writeRegDirect(unsigned r, byte v, EmuTime::param time)
 				resetStatus(0x60);
 			} else {
 				changeStatusMask((~v) & 0x60);
-				timer1.setStart((v & R04_ST1) != 0, time);
-				timer2.setStart((v & R04_ST2) != 0, time);
+				timer1->setStart((v & R04_ST1) != 0, time);
+				timer2->setStart((v & R04_ST2) != 0, time);
 			}
 			break;
 
@@ -1681,8 +1681,8 @@ void YMF262::Channel::serialize(Archive& a, unsigned /*version*/)
 template<typename Archive>
 void YMF262::serialize(Archive& a, unsigned version)
 {
-	a.serialize("timer1",  timer1,
-	            "timer2",  timer2,
+	a.serialize("timer1",  *timer1,
+	            "timer2",  *timer2,
 	            "irq",     irq,
 	            "chanout", chanout);
 	a.serialize_blob("registers", reg, sizeof(reg));
@@ -1709,7 +1709,7 @@ void YMF262::serialize(Archive& a, unsigned version)
 
 	// TODO restore more state by rewriting register values
 	//   this handles pan
-	EmuTime::param time = timer1.getCurrentTime();
+	EmuTime::param time = timer1->getCurrentTime();
 	for (auto i : xrange(0xC0, 0xC9)) {
 		writeRegDirect(i + 0x000, reg[i + 0x000], time);
 		writeRegDirect(i + 0x100, reg[i + 0x100], time);
