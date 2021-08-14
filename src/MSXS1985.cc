@@ -1,6 +1,7 @@
 #include "MSXS1985.hh"
 #include "MSXMapperIO.hh"
 #include "MSXMotherBoard.hh"
+#include "SRAM.hh"
 #include "enumerate.hh"
 #include "serialize.hh"
 #include <memory>
@@ -12,14 +13,19 @@ constexpr byte ID = 0xFE;
 MSXS1985::MSXS1985(const DeviceConfig& config)
 	: MSXDevice(config)
 	, MSXSwitchedDevice(getMotherBoard(), ID)
-	, sram(config.findChild("sramname")
-		? SRAM(getName() + " SRAM", "S1985 Backup RAM",
-		       0x10, config)
-		: // special case for backwards compatibility (S1985 didn't
-		  // always have SRAM in its config...)
-		  SRAM(getName() + " SRAM", "S1985 Backup RAM",
-		       0x10, config, SRAM::DontLoadTag{}))
 {
+	if (!config.findChild("sramname")) {
+		// special case for backwards compatibility (S1985 didn't
+		// always have SRAM in its config...)
+		sram = std::make_unique<SRAM>(
+			getName() + " SRAM", "S1985 Backup RAM",
+			0x10, config, SRAM::DontLoadTag{});
+	} else {
+		sram = std::make_unique<SRAM>(
+			getName() + " SRAM", "S1985 Backup RAM",
+			0x10, config);
+	}
+
 	auto& mapperIO = getMotherBoard().createMapperIO();
 	byte mask = 0b0001'1111; // always(?) 5 bits
 	byte baseValue = config.getChildDataAsInt("MapperReadBackBaseValue", 0x80);
@@ -55,7 +61,7 @@ byte MSXS1985::peekSwitchedIO(word port, EmuTime::param /*time*/) const
 	case 0:
 		return byte(~ID);
 	case 2:
-		return sram[address];
+		return (*sram)[address];
 	case 7:
 		return (pattern & 0x80) ? color2 : color1;
 	default:
@@ -70,7 +76,7 @@ void MSXS1985::writeSwitchedIO(word port, byte value, EmuTime::param /*time*/)
 		address = value & 0x0F;
 		break;
 	case 2:
-		sram.write(address, value);
+		sram->write(address, value);
 		break;
 	case 6:
 		color2 = color1;
@@ -92,7 +98,7 @@ void MSXS1985::serialize(Archive& ar, unsigned version)
 
 	if (ar.versionAtLeast(version, 2)) {
 		// serialize normally...
-		ar.serialize("sram", sram);
+		ar.serialize("sram", *sram);
 	} else {
 		assert(Archive::IS_LOADER);
 		// version 1 had here
@@ -105,7 +111,7 @@ void MSXS1985::serialize(Archive& ar, unsigned version)
 		ar.serialize_blob("ram", tmp, sizeof(tmp));
 		ar.endTag("ram");
 		for (auto [i, t] : enumerate(tmp)) {
-			sram.write(unsigned(i), t);
+			sram->write(unsigned(i), t);
 		}
 	}
 
