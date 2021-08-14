@@ -4,17 +4,18 @@
 #include "openmsx.hh"
 #include "circular_buffer.hh"
 #include "DiskImageUtils.hh"
-#include "HD.hh"
-#include <optional>
+#include <memory>
 
 namespace openmsx {
 
 class DeviceConfig;
+class HD;
 
 class SdCard
 {
 public:
 	explicit SdCard(const DeviceConfig& config);
+	~SdCard();
 
 	byte transfer(byte value, bool cs);
 
@@ -35,7 +36,7 @@ private:
 	[[nodiscard]] byte readCurrentByteFromCurrentSector();
 
 private:
-	std::optional<HD> hd; // can be nullopt
+	const std::unique_ptr<HD> hd; // can be nullptr
 
 	byte cmdBuf[6];
 	SectorBuffer sectorBuf;

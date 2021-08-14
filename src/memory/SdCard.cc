@@ -1,10 +1,12 @@
 #include "SdCard.hh"
 #include "DeviceConfig.hh"
+#include "HD.hh"
 #include "MSXException.hh"
 #include "unreachable.hh"
 #include "endian.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
+#include <memory>
 
 // TODO:
 // - replace transferDelayCounter with 0xFF's in responseQueue?
@@ -33,8 +35,7 @@ constexpr byte R1_ILLEGAL_COMMAND = 0x04;
 constexpr byte R1_PARAMETER_ERROR = 0x80;
 
 SdCard::SdCard(const DeviceConfig& config)
-	: hd(config.getXML() ? std::optional<HD>(std::in_place, config)
-	                     : std::nullopt)
+	: hd(config.getXML() ? std::make_unique<HD>(config) : nullptr)
 	, cmdIdx(0)
 	, transferDelayCounter(0)
 	, mode(COMMAND)
@@ -42,6 +43,8 @@ SdCard::SdCard(const DeviceConfig& config)
 	, currentByteInSector(0)
 {
 }
+
+SdCard::~SdCard() = default;
 
 // helper methods for 'transfer' to avoid duplication
 byte SdCard::readCurrentByteFromCurrentSector()
