@@ -5,7 +5,6 @@
 #include "EventDistributor.hh"
 #include "CliComm.hh"
 #include "Event.hh"
-#include "XMLElement.hh"
 #include "TclArgParser.hh"
 #include "TclObject.hh"
 #include "SettingsConfig.hh"
@@ -173,33 +172,23 @@ static Event createEvent(std::string_view str, Interpreter& interp)
 	return createEvent(TclObject(str), interp);
 }
 
-void HotKey::loadBindings(const XMLElement& config)
+void HotKey::loadInit()
 {
 	// restore default bindings
 	unboundKeys.clear();
 	boundKeys.clear();
 	cmdMap = defaultMap;
+}
 
-	// load bindings
-	const auto* bindingsElement = config.findChild("bindings");
-	if (!bindingsElement) return;
-	auto copy = *bindingsElement; // dont iterate over changing container
-	for (const auto& elem : copy.getChildren()) {
-		try {
-			auto& interp = commandController.getInterpreter();
-			if (elem.getName() == "bind") {
-				bind(HotKeyInfo(createEvent(elem.getAttributeValue("key"), interp),
-				                std::string(elem.getData()),
-				                elem.getAttributeValueAsBool("repeat", false),
-				                elem.getAttributeValueAsBool("event", false)));
-			} else if (elem.getName() == "unbind") {
-				unbind(createEvent(elem.getAttributeValue("key"), interp));
-			}
-		} catch (MSXException& e) {
-			commandController.getCliComm().printWarning(
-				"Error while loading key bindings: ", e.getMessage());
-		}
-	}
+void HotKey::loadBind(std::string_view key, std::string_view cmd, bool repeat, bool event)
+{
+	bind(HotKeyInfo(createEvent(key, commandController.getInterpreter()),
+			std::string(cmd), repeat, event));
+}
+
+void HotKey::loadUnbind(std::string_view key)
+{
+	unbind(createEvent(key, commandController.getInterpreter()));
 }
 
 struct EqualEvent {

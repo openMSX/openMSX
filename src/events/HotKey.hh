@@ -16,7 +16,6 @@ namespace openmsx {
 class RTScheduler;
 class GlobalCommandController;
 class EventDistributor;
-class XMLElement;
 
 class HotKey final : public RTSchedulable, public EventListener
 {
@@ -40,7 +39,9 @@ public:
 	       EventDistributor& eventDistributor);
 	~HotKey();
 
-	void loadBindings(const XMLElement& config);
+	void loadInit();
+	void loadBind(std::string_view key, std::string_view cmd, bool repeat, bool event);
+	void loadUnbind(std::string_view key);
 
 	template<typename XmlStream>
 	void saveBindings(XmlStream& xml) const
