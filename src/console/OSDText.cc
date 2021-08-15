@@ -21,7 +21,6 @@
 
 using std::string;
 using std::string_view;
-using std::vector;
 using namespace gl;
 
 namespace openmsx {
@@ -34,7 +33,7 @@ OSDText::OSDText(Display& display_, const TclObject& name_)
 {
 }
 
-vector<string_view> OSDText::getProperties() const
+std::vector<string_view> OSDText::getProperties() const
 {
 	auto result = OSDImageBasedWidget::getProperties();
 	static constexpr const char* const vals[] = {
@@ -367,7 +366,7 @@ size_t OSDText::splitAtWord(const std::string& line, unsigned maxWidth) const
 
 string OSDText::getCharWrappedText(const string& txt, unsigned maxWidth) const
 {
-	vector<string_view> wrappedLines;
+	std::vector<string_view> wrappedLines;
 	for (auto line : StringOp::split_view(txt, '\n')) {
 		do {
 			auto p = splitAtChar(string(line), maxWidth);
@@ -380,7 +379,7 @@ string OSDText::getCharWrappedText(const string& txt, unsigned maxWidth) const
 
 string OSDText::getWordWrappedText(const string& txt, unsigned maxWidth) const
 {
-	vector<string_view> wrappedLines;
+	std::vector<string_view> wrappedLines;
 	for (auto line : StringOp::split_view(txt, '\n')) {
 		do {
 			auto p = splitAtWord(string(line), maxWidth);

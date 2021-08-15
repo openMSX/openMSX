@@ -2,14 +2,14 @@
 #define JOYTAP_HH
 
 #include "JoystickDevice.hh"
+#include "JoystickPort.hh"
 #include "serialize_meta.hh"
 #include "static_string_view.hh"
-#include <memory>
+#include <optional>
 
 namespace openmsx {
 
 class PluggingController;
-class JoystickPort;
 
 /** This device is plugged in into the joyports and consolidates several other
  * joysticks plugged into it. This joytap simply ANDs all the joystick
@@ -22,7 +22,6 @@ class JoyTap : public JoystickDevice
 {
 public:
 	JoyTap(PluggingController& pluggingController, std::string name);
-	~JoyTap() override;
 
 	// Pluggable
 	[[nodiscard]] std::string_view getName() const override;
@@ -41,7 +40,7 @@ protected:
 	void createPorts(static_string_view description);
 
 protected:
-	std::unique_ptr<JoystickPort> slaves[4];
+	std::optional<JoystickPort> slaves[4];
 	PluggingController& pluggingController;
 
 private:

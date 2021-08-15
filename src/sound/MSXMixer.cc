@@ -33,9 +33,6 @@
 #include "emmintrin.h"
 #endif
 
-using std::string;
-using std::vector;
-
 namespace openmsx {
 
 MSXMixer::MSXMixer(Mixer& mixer_, MSXMotherBoard& motherBoard_,
@@ -83,7 +80,7 @@ void MSXMixer::registerSound(SoundDevice& device, float volume,
                              int balance, unsigned numChannels)
 {
 	// TODO read volume/balance(mode) from config file
-	const string& name = device.getName();
+	const std::string& name = device.getName();
 	SoundDeviceInfo info;
 	info.device = &device;
 	info.defaultVolume = volume;
@@ -628,7 +625,7 @@ void MSXMixer::changeRecordSetting(const Setting& setting)
 			if (s.recordSetting.get() == &setting) {
 				info.device->recordChannel(
 					channel,
-					Filename(FileOperations::expandTilde(string(
+					Filename(FileOperations::expandTilde(std::string(
 						s.recordSetting->getString()))));
 				return;
 			}
@@ -785,12 +782,12 @@ void MSXMixer::SoundDeviceInfoTopic::execute(
 	}
 }
 
-string MSXMixer::SoundDeviceInfoTopic::help(span<const TclObject> /*tokens*/) const
+std::string MSXMixer::SoundDeviceInfoTopic::help(span<const TclObject> /*tokens*/) const
 {
 	return "Shows a list of available sound devices.\n";
 }
 
-void MSXMixer::SoundDeviceInfoTopic::tabCompletion(vector<string>& tokens) const
+void MSXMixer::SoundDeviceInfoTopic::tabCompletion(std::vector<std::string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		auto devices = to_vector(view::transform(

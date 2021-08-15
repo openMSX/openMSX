@@ -16,8 +16,6 @@
 //   seems to work now, though the detailed behaviour is still not tested
 //   against the real hardware.
 
-using std::string;
-
 namespace openmsx {
 
 class TrackballState final : public StateChange

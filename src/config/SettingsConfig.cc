@@ -12,8 +12,6 @@
 #include "outer.hh"
 
 using std::string;
-using std::string_view;
-using std::vector;
 
 namespace openmsx {
 
@@ -41,7 +39,7 @@ SettingsConfig::~SettingsConfig()
 	}
 }
 
-void SettingsConfig::loadSetting(const FileContext& context, string_view filename)
+void SettingsConfig::loadSetting(const FileContext& context, std::string_view filename)
 {
 	string resolved = context.resolve(filename);
 	xmlElement = XMLLoader::load(resolved, "settings.dtd");
@@ -52,7 +50,7 @@ void SettingsConfig::loadSetting(const FileContext& context, string_view filenam
 	saveName = resolved;
 }
 
-void SettingsConfig::setSaveFilename(const FileContext& context, string_view filename)
+void SettingsConfig::setSaveFilename(const FileContext& context, std::string_view filename)
 {
 	saveName = context.resolveCreate(filename);
 }
@@ -111,7 +109,7 @@ string SettingsConfig::SaveSettingsCommand::help(span<const TclObject> /*tokens*
 	return "Save the current settings.";
 }
 
-void SettingsConfig::SaveSettingsCommand::tabCompletion(vector<string>& tokens) const
+void SettingsConfig::SaveSettingsCommand::tabCompletion(std::vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		completeFileName(tokens, systemFileContext());
@@ -140,7 +138,7 @@ string SettingsConfig::LoadSettingsCommand::help(span<const TclObject> /*tokens*
 	return "Load settings from given file.";
 }
 
-void SettingsConfig::LoadSettingsCommand::tabCompletion(vector<string>& tokens) const
+void SettingsConfig::LoadSettingsCommand::tabCompletion(std::vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		completeFileName(tokens, systemFileContext());

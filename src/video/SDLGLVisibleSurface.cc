@@ -85,7 +85,7 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	setViewPort(gl::ivec2(width, height), fullscreen); // set initial values
 
 	setOpenGlPixelFormat();
-	gl::context = std::make_unique<gl::Context>(width, height);
+	gl::context.emplace(width, height);
 
 	getDisplay().getRenderSettings().getVSyncSetting().attach(vSyncObserver);
 	// set initial value

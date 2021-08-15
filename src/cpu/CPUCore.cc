@@ -196,9 +196,6 @@
 // flag to the compiler. This is for example done in the super-opt flavour.
 // See build/flavour-super-opt.mk
 
-
-using std::string;
-
 namespace openmsx {
 
 enum Reg8  : int { A, F, B, C, D, E, H, L, IXH, IXL, IYH, IYL, REG_I, REG_R, DUMMY };
@@ -280,7 +277,7 @@ struct CondPO { bool operator()(byte f) const { return !(f & V_FLAG); } };
 struct CondTrue { bool operator()(byte /*f*/) const { return true; } };
 
 template<typename T> CPUCore<T>::CPUCore(
-		MSXMotherBoard& motherboard_, const string& name,
+		MSXMotherBoard& motherboard_, const std::string& name,
 		const BooleanSetting& traceSetting_,
 		TclCallback& diHaltCallback_, EmuTime::param time)
 	: CPURegs(T::IS_R800)
@@ -2446,7 +2443,7 @@ template<typename T> inline void CPUCore<T>::cpuTracePost()
 template<typename T> void CPUCore<T>::cpuTracePost_slow()
 {
 	byte opBuf[4];
-	string dasmOutput;
+	std::string dasmOutput;
 	dasm(*interface, start_pc, opBuf, dasmOutput, T::getTimeFast());
 	std::cout << strCat(hex_string<4>(start_pc),
 	                    " : ", dasmOutput,

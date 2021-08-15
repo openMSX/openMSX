@@ -8,8 +8,6 @@
 #include <cstring>
 #include <utility>
 
-using std::string;
-
 namespace openmsx {
 
 GLHQLiteScaler::GLHQLiteScaler(GLScaler& fallback_)
@@ -42,7 +40,7 @@ GLHQLiteScaler::GLHQLiteScaler(GLScaler& fallback_)
 
 	auto context = systemFileContext();
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	string offsetName = "shaders/HQ_xLiteOffsets.dat";
+	std::string offsetName = "shaders/HQ_xLiteOffsets.dat";
 	for (auto i : xrange(3)) {
 		int n = i + 2;
 		offsetName[10] = char('0') + n;

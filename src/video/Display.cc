@@ -29,7 +29,6 @@
 #include <cassert>
 
 using std::string;
-using std::vector;
 
 namespace openmsx {
 
@@ -499,7 +498,7 @@ string Display::ScreenShotCmd::help(span<const TclObject> /*tokens*/) const
 	       "screenshot -no-sprites       Don't include sprites in the screenshot\n";
 }
 
-void Display::ScreenShotCmd::tabCompletion(vector<string>& tokens) const
+void Display::ScreenShotCmd::tabCompletion(std::vector<string>& tokens) const
 {
 	using namespace std::literals;
 	static constexpr std::array extra = {

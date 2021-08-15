@@ -5,8 +5,6 @@
 #include "serialize.hh"
 #include <memory>
 
-using std::string;
-
 namespace openmsx {
 
 MidiOutConnector::MidiOutConnector(PluggingController& pluggingController_,

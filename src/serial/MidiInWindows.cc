@@ -20,8 +20,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-using std::string;
-
 namespace openmsx {
 
 void MidiInWindows::registerAll(EventDistributor& eventDistributor,

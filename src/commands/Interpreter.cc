@@ -18,9 +18,6 @@
 #include <cstdint>
 //#include <tk.h>
 
-using std::string;
-using std::vector;
-
 namespace openmsx {
 
 // See comments in traceProc()
@@ -391,7 +388,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 		const TclObject& part1Obj = variable->getFullNameObj();
 		assert(removeColonColon(part1) == removeColonColon(part1Obj.getString()));
 
-		static string static_string;
+		static std::string static_string;
 		if (flags & TCL_TRACE_READS) {
 			try {
 				setVar(interp, part1Obj, variable->getValue());

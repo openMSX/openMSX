@@ -15,7 +15,7 @@ bool DummyDrive::isWriteProtected() const
 	return true;
 }
 
-bool DummyDrive::isDoubleSided() const
+bool DummyDrive::isDoubleSided()
 {
 	return false;
 }

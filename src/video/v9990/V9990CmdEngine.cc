@@ -1758,9 +1758,9 @@ byte V9990CmdEngine::getCmdData(EmuTime::param time)
 	return value;
 }
 
-byte V9990CmdEngine::peekCmdData(EmuTime::param time)
+byte V9990CmdEngine::peekCmdData(EmuTime::param time) const
 {
-	sync(time);
+	const_cast<V9990CmdEngine*>(this)->sync(time);
 	return (status & TR) ? data : 0xFF;
 }
 

@@ -2,8 +2,6 @@
 #include "CommandLineParser.hh"
 #include "TclObject.hh"
 
-using std::string;
-
 namespace openmsx {
 
 SaveStateCLI::SaveStateCLI(CommandLineParser& parser_)
@@ -13,7 +11,7 @@ SaveStateCLI::SaveStateCLI(CommandLineParser& parser_)
 	parser.registerFileType({"oms"}, *this);
 }
 
-void SaveStateCLI::parseOption(const string& option, span<string>& cmdLine)
+void SaveStateCLI::parseOption(const std::string& option, span<std::string>& cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine), cmdLine);
 }
@@ -23,8 +21,8 @@ std::string_view SaveStateCLI::optionHelp() const
 	return "Load savestate and start emulation from there";
 }
 
-void SaveStateCLI::parseFileType(const string& filename,
-                                 span<string>& /*cmdLine*/)
+void SaveStateCLI::parseFileType(const std::string& filename,
+                                 span<std::string>& /*cmdLine*/)
 {
 	// TODO: this is basically a C++ version of a part of savestate.tcl.
 	// Can that be improved?

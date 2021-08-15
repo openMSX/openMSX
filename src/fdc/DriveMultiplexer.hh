@@ -29,7 +29,7 @@ public:
 	// DiskDrive interface
 	[[nodiscard]] bool isDiskInserted() const override;
 	[[nodiscard]] bool isWriteProtected() const override;
-	[[nodiscard]] bool isDoubleSided() const override;
+	[[nodiscard]] bool isDoubleSided() override;
 	[[nodiscard]] bool isTrack00() const override;
 	void setSide(bool side) override;
 	[[nodiscard]] bool getSide() const override;

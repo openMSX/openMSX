@@ -6,16 +6,69 @@
 #ifndef I8254_HH
 #define I8254_HH
 
+#include "ClockPin.hh"
 #include "EmuTime.hh"
 #include "openmsx.hh"
-#include <memory>
+#include <array>
 
 namespace openmsx {
 
 class Scheduler;
-class Counter;
-class ClockPin;
 class ClockPinListener;
+
+class Counter {
+public:
+	Counter(Scheduler& scheduler, ClockPinListener* listener,
+		EmuTime::param time);
+	void reset(EmuTime::param time);
+	[[nodiscard]] byte readIO(EmuTime::param time);
+	[[nodiscard]] byte peekIO(EmuTime::param time) const;
+	void writeIO(byte value, EmuTime::param time);
+	void setGateStatus(bool status, EmuTime::param time);
+	void writeControlWord(byte value, EmuTime::param time);
+	void latchStatus(EmuTime::param time);
+	void latchCounter(EmuTime::param time);
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
+//private:
+	enum ByteOrder {LOW, HIGH};
+
+private:
+	static constexpr byte WRT_FRMT = 0x30;
+	static constexpr byte WF_LATCH = 0x00;
+	static constexpr byte WF_LOW   = 0x10;
+	static constexpr byte WF_HIGH  = 0x20;
+	static constexpr byte WF_BOTH  = 0x30;
+	static constexpr byte CNTR_MODE = 0x0E;
+	static constexpr byte CNTR_M0   = 0x00;
+	static constexpr byte CNTR_M1   = 0x02;
+	static constexpr byte CNTR_M2   = 0x04;
+	static constexpr byte CNTR_M3   = 0x06;
+	static constexpr byte CNTR_M4   = 0x08;
+	static constexpr byte CNTR_M5   = 0x0A;
+	static constexpr byte CNTR_M2_  = 0x0C;
+	static constexpr byte CNTR_M3_  = 0x0E;
+
+	void writeLoad(word value, EmuTime::param time);
+	void advance(EmuTime::param time);
+
+private:
+	ClockPin clock;
+	ClockPin output;
+	EmuTime currentTime;
+	int counter;
+	word latchedCounter, counterLoad;
+	byte control, latchedControl;
+	bool ltchCtrl, ltchCntr;
+	ByteOrder readOrder, writeOrder;
+	byte writeLatch;
+	bool gate;
+	bool active, triggered, counting;
+
+	friend class I8254;
+};
 
 class I8254
 {
@@ -23,7 +76,6 @@ public:
 	I8254(Scheduler& scheduler, ClockPinListener* output0,
 	      ClockPinListener* output1, ClockPinListener* output2,
 	      EmuTime::param time);
-	~I8254();
 
 	void reset(EmuTime::param time);
 	[[nodiscard]] byte readIO(word port, EmuTime::param time);
@@ -41,7 +93,7 @@ private:
 	void readBackHelper(byte value, unsigned cntr, EmuTime::param time);
 
 private:
-	std::unique_ptr<Counter> counter[3];
+	std::array<Counter, 3> counter;
 };
 
 } // namespace openmsx

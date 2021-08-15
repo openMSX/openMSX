@@ -7,13 +7,12 @@
 #include "File.hh"
 #include "FileBase.hh"
 #include "FileOperations.hh"
+#include "PreCacheFile.hh"
 #include "systemfuncs.hh"
 #include <cstdio>
-#include <memory>
+#include <optional>
 
 namespace openmsx {
-
-class PreCacheFile;
 
 class LocalFile final : public FileBase
 {
@@ -51,7 +50,7 @@ private:
 	uint8_t* mmem;
 	HANDLE hMmap;
 #endif
-	std::unique_ptr<PreCacheFile> cache;
+	std::optional<PreCacheFile> cache;
 	bool readOnly;
 };
 

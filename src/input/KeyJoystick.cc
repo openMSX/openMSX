@@ -6,8 +6,6 @@
 #include "serialize.hh"
 #include "serialize_meta.hh"
 
-using std::string;
-
 namespace openmsx {
 
 static std::string_view nameForId(KeyJoystick::ID id)
@@ -34,11 +32,11 @@ public:
 	{
 		ar.template serializeBase<StateChange>(*this);
 		// for backwards compatibility serialize 'id' as 'name'
-		std::string name = ar.IS_LOADER ? "" : std::string(nameForId(id));
+		std::string name = Archive::IS_LOADER ? "" : std::string(nameForId(id));
 		ar.serialize("name",    name,
 		             "press",   press,
 		             "release", release);
-		if constexpr (ar.IS_LOADER) {
+		if constexpr (Archive::IS_LOADER) {
 			id = (name == nameForId(KeyJoystick::ID1)) ? KeyJoystick::ID1
 			   : (name == nameForId(KeyJoystick::ID2)) ? KeyJoystick::ID2
 			   :                                         KeyJoystick::UNKNOWN;

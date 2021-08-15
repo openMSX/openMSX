@@ -1,6 +1,5 @@
 #include "RealDrive.hh"
 #include "Disk.hh"
-#include "DiskChanger.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "LedStatus.hh"
@@ -11,8 +10,6 @@
 #include "serialize.hh"
 #include "unreachable.hh"
 #include <memory>
-
-using std::string;
 
 namespace openmsx {
 
@@ -42,14 +39,14 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeo
 		}
 	}
 	(*drivesInUse)[i] = true;
-	string driveName = "diskX"; driveName[4] = char('a' + i);
+	std::string driveName = "diskX"; driveName[4] = char('a' + i);
 
 	if (motherBoard.getMSXCommandController().hasCommand(driveName)) {
 		throw MSXException("Duplicated drive name: ", driveName);
 	}
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, driveName, "add");
-	changer = std::make_unique<DiskChanger>(motherBoard, driveName, true, doubleSizedDrive,
-	                                        [this]() { invalidateTrack(); });
+	changer.emplace(motherBoard, driveName, true, doubleSizedDrive,
+	                [this]() { invalidateTrack(); });
 }
 
 RealDrive::~RealDrive()
@@ -96,7 +93,7 @@ bool RealDrive::isWriteProtected() const
 	return changer->getDisk().isWriteProtected();
 }
 
-bool RealDrive::isDoubleSided() const
+bool RealDrive::isDoubleSided()
 {
 	return doubleSizedDrive ? changer->getDisk().isDoubleSided()
 	                        : false;

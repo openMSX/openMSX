@@ -5,8 +5,6 @@
 #include <cstring>
 #include <utility>
 
-using std::string;
-
 namespace openmsx {
 
 class XSAExtractor

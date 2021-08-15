@@ -1,5 +1,4 @@
 #include "NowindInterface.hh"
-#include "NowindCommand.hh"
 #include "DiskChanger.hh"
 #include "Clock.hh"
 #include "MSXMotherBoard.hh"
@@ -9,8 +8,6 @@
 #include <cassert>
 #include <functional>
 #include <memory>
-
-using std::string;
 
 namespace openmsx {
 
@@ -34,8 +31,7 @@ NowindInterface::NowindInterface(const DeviceConfig& config)
 	(*nowindsInUse)[i] = true;
 	basename[6] = char('a' + i);
 
-	command = std::make_unique<NowindCommand>(
-		basename, getCommandController(), *this);
+	command.emplace(basename, getCommandController(), *this);
 
 	// start with one (empty) drive
 	auto drive = command->createDiskChanger(basename, 0, getMotherBoard());

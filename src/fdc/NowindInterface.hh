@@ -2,17 +2,16 @@
 #define NOWINDINTERFACE_HH
 
 #include "MSXDevice.hh"
+#include "NowindCommand.hh"
 #include "NowindHost.hh"
 #include "Rom.hh"
 #include "AmdFlash.hh"
 #include <bitset>
-#include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
 namespace openmsx {
-
-class NowindCommand;
 
 class NowindInterface final : public MSXDevice
 {
@@ -35,7 +34,7 @@ private:
 	const std::vector<AmdFlash::SectorInfo> flashConfig;
 	AmdFlash flash;
 	NowindHost host;
-	std::unique_ptr<NowindCommand> command;
+	std::optional<NowindCommand> command; // because of delayed initialization
 	NowindHost::Drives drives;
 	std::string basename;
 	byte bank;

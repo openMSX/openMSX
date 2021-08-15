@@ -3,7 +3,6 @@
 #include "MSXMotherBoard.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
-#include "RecordedCommand.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "CliComm.hh"
@@ -17,24 +16,8 @@
 #include <memory>
 
 using std::string;
-using std::vector;
 
 namespace openmsx {
-
-class CDXCommand final : public RecordedCommand
-{
-public:
-	CDXCommand(CommandController& commandController,
-	           StateChangeDistributor& stateChangeDistributor,
-	           Scheduler& scheduler, IDECDROM& cd);
-	void execute(span<const TclObject> tokens,
-		TclObject& result, EmuTime::param time) override;
-	[[nodiscard]] string help(span<const TclObject> tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
-private:
-	IDECDROM& cd;
-};
-
 
 IDECDROM::IDECDROM(const DeviceConfig& config)
 	: AbstractIDEDevice(config.getMotherBoard())
@@ -51,7 +34,7 @@ IDECDROM::IDECDROM(const DeviceConfig& config)
 	}
 	name[2] = char('a' + id);
 	(*cdInUse)[id] = true;
-	cdxCommand = std::make_unique<CDXCommand>(
+	cdxCommand.emplace(
 		getMotherBoard().getCommandController(),
 		getMotherBoard().getStateChangeDistributor(),
 		getMotherBoard().getScheduler(), *this);
@@ -385,7 +368,7 @@ string CDXCommand::help(span<const TclObject> /*tokens*/) const
 		cd.name, " <filename>        : change the cd image for this CD-ROM drive\n");
 }
 
-void CDXCommand::tabCompletion(vector<string>& tokens) const
+void CDXCommand::tabCompletion(std::vector<string>& tokens) const
 {
 	using namespace std::literals;
 	static constexpr std::array extra = {"eject"sv, "insert"sv};

@@ -2,19 +2,18 @@
 #define REALDRIVE_HH
 
 #include "DiskDrive.hh"
+#include "DiskChanger.hh"
 #include "Clock.hh"
 #include "Schedulable.hh"
 #include "ThrottleManager.hh"
 #include "outer.hh"
 #include "serialize_meta.hh"
 #include <bitset>
-#include <memory>
 #include <optional>
 
 namespace openmsx {
 
 class MSXMotherBoard;
-class DiskChanger;
 
 /** This class implements a real drive, single or double sided.
  */
@@ -29,7 +28,7 @@ public:
 	// DiskDrive interface
 	[[nodiscard]] bool isDiskInserted() const override;
 	[[nodiscard]] bool isWriteProtected() const override;
-	[[nodiscard]] bool isDoubleSided() const override;
+	[[nodiscard]] bool isDoubleSided() override;
 	[[nodiscard]] bool isTrack00() const override;
 	void setSide(bool side) override;
 	[[nodiscard]] bool getSide() const override;
@@ -97,7 +96,7 @@ private:
 
 	using MotorClock = Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND>;
 	MotorClock motorTimer;
-	std::unique_ptr<DiskChanger> changer;
+	std::optional<DiskChanger> changer; // delayed initialization
 	unsigned headPos;
 	unsigned side;
 	unsigned startAngle;

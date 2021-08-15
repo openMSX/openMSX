@@ -20,18 +20,15 @@
 #include <fcntl.h>
 #endif
 
-using std::string;
-
-
 namespace openmsx {
 
-[[nodiscard]] static string getUserName()
+[[nodiscard]] static std::string getUserName()
 {
 #if defined(_WIN32)
 	return "default";
 #else
 	struct passwd* pw = getpwuid(getuid());
-	return pw->pw_name ? pw->pw_name : string{};
+	return pw->pw_name ? pw->pw_name : std::string{};
 #endif
 }
 
@@ -189,10 +186,10 @@ void CliServer::exitAcceptLoop()
 	poller.abort();
 }
 
-static void deleteSocket(const string& socket)
+static void deleteSocket(const std::string& socket)
 {
 	FileOperations::unlink(socket); // ignore errors
-	string dir = socket.substr(0, socket.find_last_of('/'));
+	auto dir = socket.substr(0, socket.find_last_of('/'));
 	FileOperations::rmdir(dir); // ignore errors
 }
 

@@ -3,8 +3,6 @@
 #include <algorithm>
 #include <cstring>
 
-using std::string;
-
 namespace openmsx {
 
 span<const uint8_t> FileBase::mmap()
@@ -48,7 +46,7 @@ void FileBase::truncate(size_t newSize)
 	}
 }
 
-string FileBase::getLocalReference()
+std::string FileBase::getLocalReference()
 {
 	// default implementation, file is not backed (uncompressed) on
 	// the local file system

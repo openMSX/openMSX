@@ -6,7 +6,6 @@
 
 namespace Base64 {
 
-using std::string;
 using openmsx::MemBuffer;
 
 [[nodiscard]] static constexpr char encode(uint8_t c)
@@ -36,14 +35,14 @@ using openmsx::MemBuffer;
 	}
 }
 
-string encode(const uint8_t* input, size_t inSize)
+std::string encode(const uint8_t* input, size_t inSize)
 {
 	constexpr int CHUNKS = 19;
 	constexpr int IN_CHUNKS  = 3 * CHUNKS;
 	constexpr int OUT_CHUNKS = 4 * CHUNKS; // 76 chars per line
 
 	auto outSize = ((inSize + (IN_CHUNKS - 1)) / IN_CHUNKS) * (OUT_CHUNKS + 1); // overestimation
-	string ret(outSize, 0); // too big
+	std::string ret(outSize, 0); // too big
 
 	size_t out = 0;
 	while (inSize) {

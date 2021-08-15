@@ -13,8 +13,6 @@
 #include <algorithm>
 #include <cassert>
 
-using std::string;
-using std::vector;
 using namespace gl;
 
 namespace openmsx {
@@ -32,7 +30,7 @@ OSDImageBasedWidget::OSDImageBasedWidget(Display& display_, const TclObject& nam
 
 OSDImageBasedWidget::~OSDImageBasedWidget() = default;
 
-vector<std::string_view> OSDImageBasedWidget::getProperties() const
+std::vector<std::string_view> OSDImageBasedWidget::getProperties() const
 {
 	auto result = OSDWidget::getProperties();
 	static constexpr const char* const vals[] = {
@@ -227,7 +225,7 @@ vec2 OSDImageBasedWidget::getTransformedPos(const OutputSurface& output) const
 		output, float(getScaleFactor(output)) * getPos(), getRelPos());
 }
 
-void OSDImageBasedWidget::setError(string message)
+void OSDImageBasedWidget::setError(std::string message)
 {
 	error = true;
 

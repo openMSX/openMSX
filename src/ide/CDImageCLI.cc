@@ -4,8 +4,6 @@
 #include "TclObject.hh"
 #include "MSXException.hh"
 
-using std::string;
-
 namespace openmsx {
 
 CDImageCLI::CDImageCLI(CommandLineParser& parser_)
@@ -15,10 +13,10 @@ CDImageCLI::CDImageCLI(CommandLineParser& parser_)
 	// TODO: offer more options in case you want to specify 2 hard disk images?
 }
 
-void CDImageCLI::parseOption(const string& option, span<string>& cmdLine)
+void CDImageCLI::parseOption(const std::string& option, span<std::string>& cmdLine)
 {
 	auto cd = std::string_view(option).substr(1); // cda
-	string filename = getArgument(option, cmdLine);
+	std::string filename = getArgument(option, cmdLine);
 	if (!parser.getInterpreter().hasCommand(std::string(cd))) { // TODO WIP
 		throw MSXException("No CD-ROM named '", cd, "'.");
 	}

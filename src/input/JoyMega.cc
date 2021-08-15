@@ -12,8 +12,6 @@
 #include "build-info.hh"
 #include <memory>
 
-using std::string;
-
 namespace openmsx {
 
 #if PLATFORM_ANDROID
@@ -96,7 +94,7 @@ JoyMega::JoyMega(MSXEventDistributor& eventDistributor_,
 	, desc(SDL_JoystickName(joystick_))
 	, lastTime(EmuTime::zero())
 {
-	const_cast<string&>(name)[7] = char('1' + joyNum);
+	const_cast<std::string&>(name)[7] = char('1' + joyNum);
 }
 
 JoyMega::~JoyMega()

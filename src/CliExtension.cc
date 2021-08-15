@@ -4,8 +4,6 @@
 #include "MSXException.hh"
 #include <cassert>
 
-using std::string;
-
 namespace openmsx {
 
 CliExtension::CliExtension(CommandLineParser& cmdLineParser_)
@@ -18,13 +16,13 @@ CliExtension::CliExtension(CommandLineParser& cmdLineParser_)
 	cmdLineParser.registerOption("-extd", *this);
 }
 
-void CliExtension::parseOption(const string& option, span<string>& cmdLine)
+void CliExtension::parseOption(const std::string& option, span<std::string>& cmdLine)
 {
 	try {
-		string extensionName = getArgument(option, cmdLine);
+		std::string extensionName = getArgument(option, cmdLine);
 		MSXMotherBoard* motherboard = cmdLineParser.getMotherBoard();
 		assert(motherboard);
-		string slotname;
+		std::string slotname;
 		if (option.size() == 5) {
 			slotname = option[4];
 		} else {

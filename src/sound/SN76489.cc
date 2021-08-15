@@ -14,8 +14,6 @@
 #include <cmath>
 #include <iostream>
 
-using std::string;
-
 namespace openmsx {
 
 // The SN76489 divides the clock input by 8, but all users of the clock apply
@@ -337,7 +335,7 @@ constexpr byte SN76489_DEBUG_MAP[][2] = {
 	{6, 0}, {7, 0}
 };
 
-SN76489::Debuggable::Debuggable(MSXMotherBoard& motherBoard_, const string& name_)
+SN76489::Debuggable::Debuggable(MSXMotherBoard& motherBoard_, const std::string& name_)
 	: SimpleDebuggable(
 		motherBoard_, name_ + " regs",
 		"SN76489 regs - note the period regs are split over two entries", 11)

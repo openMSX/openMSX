@@ -15,13 +15,11 @@
 
 namespace openmsx {
 
-using std::vector;
-
 // --- Compressed integers ---
 
 // See https://en.wikipedia.org/wiki/LEB128 for a description of the
 // 'unsigned LEB' format.
-static void storeUleb(vector<uint8_t>& result, size_t value)
+static void storeUleb(std::vector<uint8_t>& result, size_t value)
 {
 	do {
 		uint8_t b = value & 0x7F;
@@ -182,10 +180,10 @@ end:	return std::mismatch(p, p_end, q);
 //   n2 number of bytes are different, and here are the bytes
 //   n3 number of bytes are equal
 //   ...
-[[nodiscard]] static vector<uint8_t> calcDelta(
+[[nodiscard]] static std::vector<uint8_t> calcDelta(
 	const uint8_t* oldBuf, const uint8_t* newBuf, size_t size)
 {
-	vector<uint8_t> result;
+	std::vector<uint8_t> result;
 
 	const auto* p = oldBuf;
 	const auto* q = newBuf;

@@ -13,8 +13,6 @@
 #include "serialize.hh"
 #include <memory>
 
-using std::string;
-
 namespace openmsx {
 
 // DummyCassettePort

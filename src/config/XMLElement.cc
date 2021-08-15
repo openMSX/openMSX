@@ -12,7 +12,6 @@
 
 using std::string;
 using std::string_view;
-using std::unique_ptr;
 
 namespace openmsx {
 
@@ -259,8 +258,8 @@ string XMLElement::XMLEscape(string_view s)
 	return result;
 }
 
-static unique_ptr<FileContext> lastSerializedFileContext;
-unique_ptr<FileContext> XMLElement::getLastSerializedFileContext()
+static std::unique_ptr<FileContext> lastSerializedFileContext;
+std::unique_ptr<FileContext> XMLElement::getLastSerializedFileContext()
 {
 	return std::move(lastSerializedFileContext); // this also sets value to nullptr;
 }
@@ -286,7 +285,7 @@ void XMLElement::serialize(Archive& ar, unsigned version)
 
 	if (ar.versionBelow(version, 2)) {
 		assert(Archive::IS_LOADER);
-		unique_ptr<FileContext> context;
+		std::unique_ptr<FileContext> context;
 		ar.serialize("context", context);
 		if (context) {
 			assert(!lastSerializedFileContext);

@@ -2,15 +2,14 @@
 #define CARTRIDGESLOTMANAGER_HH
 
 #include "RecordedCommand.hh"
+#include "MSXMotherBoard.hh"
 #include "InfoTopic.hh"
 #include "TclObject.hh"
-#include <memory>
+#include <optional>
 #include <string_view>
 
 namespace openmsx {
 
-class MSXMotherBoard;
-class ExtCmd;
 class HardwareConfig;
 
 class CartridgeSlotManager
@@ -74,8 +73,8 @@ private:
 		[[nodiscard]] bool exists() const;
 		[[nodiscard]] bool used(const HardwareConfig* allowed = nullptr) const;
 
-		std::unique_ptr<CartCmd> cartCommand;
-		std::unique_ptr<ExtCmd> extCommand;
+		std::optional<CartCmd> cartCommand;
+		std::optional<ExtCmd> extCommand;
 		const HardwareConfig* config = nullptr;
 		unsigned useCount = 0;
 		int ps = 0;

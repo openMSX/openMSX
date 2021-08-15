@@ -8,9 +8,6 @@
 
 namespace openmsx {
 
-using std::string;
-using std::vector;
-
 // class HDCommand
 
 HDCommand::HDCommand(CommandController& commandController_,
@@ -67,12 +64,12 @@ void HDCommand::execute(span<const TclObject> tokens, TclObject& result,
 	}
 }
 
-string HDCommand::help(span<const TclObject> /*tokens*/) const
+std::string HDCommand::help(span<const TclObject> /*tokens*/) const
 {
 	return hd.getName() + ": change the hard disk image for this hard disk drive\n";
 }
 
-void HDCommand::tabCompletion(vector<string>& tokens) const
+void HDCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
 	using namespace std::literals;
 	static constexpr std::array extra = {"insert"sv};

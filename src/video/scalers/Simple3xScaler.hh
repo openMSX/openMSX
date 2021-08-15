@@ -2,15 +2,31 @@
 #define SIMPLE3XSCALER_HH
 
 #include "Scaler3.hh"
+#include "Multiply32.hh"
 #include "PixelOperations.hh"
 #include "Scanline.hh"
-#include <memory>
 
 namespace openmsx {
 
 class RenderSettings;
-template<typename Pixel> class Blur_1on3;
 template<typename Pixel> class PolyLineScaler;
+
+template<typename Pixel> class Blur_1on3
+{
+public:
+	explicit Blur_1on3(const PixelOperations<Pixel>& pixelOps);
+	inline void setBlur(unsigned blur_) { blur = blur_; }
+	void operator()(const Pixel* in, Pixel* out, size_t dstWidth);
+private:
+	Multiply32<Pixel> mult0;
+	Multiply32<Pixel> mult1;
+	Multiply32<Pixel> mult2;
+	Multiply32<Pixel> mult3;
+	unsigned blur;
+#ifdef __SSE2__
+	void blur_SSE(const Pixel* in_, Pixel* out_, size_t srcWidth);
+#endif
+};
 
 template<typename Pixel>
 class Simple3xScaler final : public Scaler3<Pixel>
@@ -81,7 +97,7 @@ private:
 	Scanline<Pixel> scanline;
 
 	// in 16bpp calculation of LUTs can be expensive, so keep as member
-	std::unique_ptr<Blur_1on3<Pixel>> blur_1on3;
+	Blur_1on3<Pixel> blur_1on3;
 
 	const RenderSettings& settings;
 };

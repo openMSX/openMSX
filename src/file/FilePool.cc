@@ -8,25 +8,11 @@
 #include "EventDistributor.hh"
 #include "CliComm.hh"
 #include "Reactor.hh"
+#include "outer.hh"
 #include "xrange.hh"
 #include <memory>
 
-using std::string;
-using std::vector;
-
 namespace openmsx {
-
-class Sha1SumCommand final : public Command
-{
-public:
-	Sha1SumCommand(CommandController& commandController, FilePool& filePool);
-	void execute(span<const TclObject> tokens, TclObject& result) override;
-	[[nodiscard]] string help(span<const TclObject> tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
-private:
-	FilePool& filePool;
-};
-
 
 [[nodiscard]] static TclObject initialFilePoolSettingValue()
 {
@@ -52,11 +38,10 @@ FilePool::FilePool(CommandController& controller, Reactor& reactor_)
 		"instead use the 'filepool' command.",
 		initialFilePoolSettingValue().getString())
 	, reactor(reactor_)
+	, sha1SumCommand(controller)
 {
 	filePoolSetting.attach(*this);
 	reactor.getEventDistributor().registerEventListener(EventType::QUIT, *this);
-
-	sha1SumCommand = std::make_unique<Sha1SumCommand>(controller, *this);
 }
 
 FilePool::~FilePool()
@@ -165,27 +150,27 @@ int FilePool::signalEvent(const Event& event) noexcept
 
 // class Sha1SumCommand
 
-Sha1SumCommand::Sha1SumCommand(
-		CommandController& commandController_, FilePool& filePool_)
+FilePool::Sha1SumCommand::Sha1SumCommand(
+		CommandController& commandController_)
 	: Command(commandController_, "sha1sum")
-	, filePool(filePool_)
 {
 }
 
-void Sha1SumCommand::execute(span<const TclObject> tokens, TclObject& result)
+void FilePool::Sha1SumCommand::execute(span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, 2, "filename");
-	File file(FileOperations::expandTilde(string(tokens[1].getString())));
+	File file(FileOperations::expandTilde(std::string(tokens[1].getString())));
+	auto& filePool = OUTER(FilePool, sha1SumCommand);
 	result = filePool.getSha1Sum(file).toString();
 }
 
-string Sha1SumCommand::help(span<const TclObject> /*tokens*/) const
+std::string FilePool::Sha1SumCommand::help(span<const TclObject> /*tokens*/) const
 {
 	return "Calculate sha1 value for the given file. If the file is "
 	       "(g)zipped the sha1 is calculated on the unzipped version.";
 }
 
-void Sha1SumCommand::tabCompletion(vector<string>& tokens) const
+void FilePool::Sha1SumCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
 	completeFileName(tokens, userFileContext());
 }

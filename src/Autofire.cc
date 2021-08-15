@@ -29,10 +29,10 @@ public:
 	{
 		ar.template serializeBase<StateChange>(*this);
 		// for backwards compatibility serialize 'id' as 'name'
-		std::string name = ar.IS_LOADER ? "" : std::string(nameForId(id));
+		std::string name = Archive::IS_LOADER ? "" : std::string(nameForId(id));
 		ar.serialize("name",    name,
 		             "value",   value);
-		if constexpr (ar.IS_LOADER) {
+		if constexpr (Archive::IS_LOADER) {
 			id = (name == nameForId(Autofire::RENSHATURBO))
 			   ? Autofire::RENSHATURBO
 			   : Autofire::UNKNOWN;

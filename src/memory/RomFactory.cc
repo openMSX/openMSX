@@ -66,8 +66,6 @@
 
 using std::make_unique;
 using std::move;
-using std::string;
-using std::unique_ptr;
 
 namespace openmsx::RomFactory {
 
@@ -155,7 +153,7 @@ namespace openmsx::RomFactory {
 	}
 }
 
-unique_ptr<MSXDevice> create(const DeviceConfig& config)
+std::unique_ptr<MSXDevice> create(const DeviceConfig& config)
 {
 	Rom rom(config.getAttribute("id"), "rom", config);
 
@@ -205,7 +203,7 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	auto& writableConfig = const_cast<XMLElement&>(*config.getXML());
 	writableConfig.setChildData("mappertype", RomInfo::romTypeToName(type));
 
-	unique_ptr<MSXRom> result;
+	std::unique_ptr<MSXRom> result;
 	switch (type) {
 	case ROM_MIRRORED:
 	case ROM_MIRRORED0000:

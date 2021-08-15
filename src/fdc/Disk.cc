@@ -2,8 +2,6 @@
 #include "DiskExceptions.hh"
 #include "one_of.hh"
 
-using std::string;
-
 namespace openmsx {
 
 Disk::Disk(DiskName name_)

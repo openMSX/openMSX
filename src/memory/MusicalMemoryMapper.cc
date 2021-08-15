@@ -1,9 +1,7 @@
 #include "MusicalMemoryMapper.hh"
-#include "SN76489.hh"
 #include "enumerate.hh"
 #include "serialize.hh"
 #include "xrange.hh"
-#include <memory>
 
 namespace openmsx {
 
@@ -15,12 +13,10 @@ constexpr byte WRITE_PROTECT = 0x0F;
 
 MusicalMemoryMapper::MusicalMemoryMapper(const DeviceConfig& config)
 	: MSXMemoryMapperBase(config)
-	, sn76489(std::make_unique<SN76489>(config))
+	, sn76489(config)
 	, controlReg(0x00)
 {
 }
-
-MusicalMemoryMapper::~MusicalMemoryMapper() = default;
 
 void MusicalMemoryMapper::reset(EmuTime::param time)
 {
@@ -36,7 +32,7 @@ void MusicalMemoryMapper::reset(EmuTime::param time)
 	//       MMM either powers off the chip on reset or suppresses its audio
 	//       output. We instead keep the chip in a silent state until it is
 	//       activated.
-	sn76489->reset(time);
+	sn76489.reset(time);
 }
 
 byte MusicalMemoryMapper::readIO(word port, EmuTime::param time)
@@ -68,7 +64,7 @@ void MusicalMemoryMapper::writeIO(word port, byte value, EmuTime::param time)
 	} else if (port & 1) {
 		// Sound chip.
 		if (controlReg & SOUND_PORT_ENABLED) {
-			sn76489->write(value, time);
+			sn76489.write(value, time);
 		}
 	} else {
 		// Control port.
@@ -215,7 +211,7 @@ void MusicalMemoryMapper::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXMemoryMapperBase>(*this);
 	ar.serialize("ctrl",    controlReg,
-	             "sn76489", *sn76489);
+	             "sn76489", sn76489);
 }
 INSTANTIATE_SERIALIZE_METHODS(MusicalMemoryMapper);
 REGISTER_MSXDEVICE(MusicalMemoryMapper, "MusicalMemoryMapper");

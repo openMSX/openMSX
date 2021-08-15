@@ -1,8 +1,6 @@
 #include "DiskName.hh"
 #include "serialize.hh"
 
-using std::string;
-
 namespace openmsx {
 
 DiskName::DiskName(Filename name_)
@@ -10,18 +8,18 @@ DiskName::DiskName(Filename name_)
 {
 }
 
-DiskName::DiskName(Filename name_, string extra_)
+DiskName::DiskName(Filename name_, std::string extra_)
 	: name(std::move(name_))
 	, extra(std::move(extra_))
 {
 }
 
-string DiskName::getOriginal() const
+std::string DiskName::getOriginal() const
 {
 	return name.getOriginal() + extra;
 }
 
-string DiskName::getResolved() const
+std::string DiskName::getResolved() const
 {
 	return name.getResolved() + extra;
 }

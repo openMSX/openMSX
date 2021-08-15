@@ -1,15 +1,15 @@
 #ifndef PIONEERLDCONTROL_HH
 #define PIONEERLDCONTROL_HH
 
+#include "LaserdiscPlayer.hh"
 #include "MSXDevice.hh"
 #include "Clock.hh"
 #include "IRQHelper.hh"
 #include "Rom.hh"
-#include <memory>
+#include <optional>
 
 namespace openmsx {
 
-class LaserdiscPlayer;
 class MSXPPI;
 class VDP;
 
@@ -37,7 +37,7 @@ private:
 
 private:
 	Rom rom;
-	std::unique_ptr<LaserdiscPlayer> laserdisc; // can be nullptr
+	std::optional<LaserdiscPlayer> laserdisc; // can be nullopt
 	MSXPPI* ppi;
 	VDP* vdp;
 

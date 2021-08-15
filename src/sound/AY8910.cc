@@ -26,8 +26,6 @@
 #include <cstring>
 #include <iostream>
 
-using std::string;
-
 namespace openmsx {
 
 // The step clock for the tone and noise generators is the chip clock
@@ -986,7 +984,7 @@ void AY8910::update(const Setting& setting) noexcept
 
 // Debuggable
 
-AY8910::Debuggable::Debuggable(MSXMotherBoard& motherBoard_, const string& name_)
+AY8910::Debuggable::Debuggable(MSXMotherBoard& motherBoard_, const std::string& name_)
 	: SimpleDebuggable(motherBoard_, name_ + " regs", "PSG", 0x10)
 {
 }

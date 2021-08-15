@@ -15,8 +15,6 @@
 #include <memory>
 #include <string>
 
-using std::string;
-
 namespace openmsx {
 
 // Subclass declarations:
@@ -43,7 +41,7 @@ class PanasonicAudioPeriphery final : public Y8950Periphery
 public:
 	PanasonicAudioPeriphery(
 		MSXAudio& audio, const DeviceConfig& config,
-		const string& soundDeviceName);
+		const std::string& soundDeviceName);
 	~PanasonicAudioPeriphery() override;
 	PanasonicAudioPeriphery(const PanasonicAudioPeriphery&) = delete;
 	PanasonicAudioPeriphery& operator=(const PanasonicAudioPeriphery&) = delete;
@@ -159,7 +157,7 @@ nibble MusicModulePeriphery::read(EmuTime::param /*time*/)
 
 PanasonicAudioPeriphery::PanasonicAudioPeriphery(
 		MSXAudio& audio_, const DeviceConfig& config,
-		const string& soundDeviceName)
+		const std::string& soundDeviceName)
 	: audio(audio_)
 	, swSwitch(audio.getCommandController(), tmpStrCat(soundDeviceName, "_firmware"),
 	           "This setting controls the switch on the Panasonic "

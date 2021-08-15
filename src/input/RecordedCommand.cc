@@ -9,9 +9,8 @@
 #include "stl.hh"
 #include "view.hh"
 #include "xrange.hh"
-
-using std::vector;
-using std::string;
+#include <string>
+#include <vector>
 
 namespace openmsx {
 
@@ -102,10 +101,10 @@ void MSXCommandEvent::serialize(Archive& ar, unsigned /*version*/)
 	ar.template serializeBase<StateChange>(*this);
 
 	// serialize vector<TclObject> as vector<string>
-	vector<string> str;
+	std::vector<std::string> str;
 	if constexpr (!Archive::IS_LOADER) {
 		str = to_vector(view::transform(
-			tokens, [](auto& t) { return string(t.getString()); }));
+			tokens, [](auto& t) { return std::string(t.getString()); }));
 	}
 	ar.serialize("tokens", str);
 	if constexpr (Archive::IS_LOADER) {

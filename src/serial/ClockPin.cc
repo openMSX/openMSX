@@ -2,8 +2,6 @@
 #include "serialize.hh"
 #include <cassert>
 
-using std::string;
-
 namespace openmsx {
 
 ClockPin::ClockPin(Scheduler& scheduler_, ClockPinListener* listener_)

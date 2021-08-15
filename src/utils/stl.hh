@@ -415,4 +415,22 @@ template<typename T, typename... Ts>
 struct get_index<T, std::variant<Ts...>>
     : std::integral_constant<size_t, std::variant<get_index_tag<Ts>...>(get_index_tag<T>()).index()> {};
 
+
+// Utility to initialize an array via a generator function,
+// without first default constructing the elements.
+
+template<typename T, typename F, size_t... Is>
+[[nodiscard]] static constexpr auto generate_array(F f, std::index_sequence<Is...>)
+   -> std::array<T, sizeof...(Is)>
+{
+    return {{f(Is)...}};
+}
+
+template<size_t N, typename F>
+[[nodiscard]] static constexpr auto generate_array(F f)
+{
+    using T = decltype(f(0));
+    return generate_array<T>(f, std::make_index_sequence<N>{});
+}
+
 #endif

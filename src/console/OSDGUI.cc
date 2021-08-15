@@ -11,11 +11,6 @@
 #include <memory>
 #include <utility>
 
-using std::string;
-using std::string_view;
-using std::unique_ptr;
-using std::vector;
-
 namespace openmsx {
 
 // class OSDGUI
@@ -54,7 +49,7 @@ void OSDGUI::OSDCommand::execute(span<const TclObject> tokens, TclObject& result
 void OSDGUI::OSDCommand::create(span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, AtLeast{4}, Prefix{2}, "type name ?property value ...?");
-	string_view type = tokens[2].getString();
+	std::string_view type = tokens[2].getString();
 	const auto& fullname = tokens[3];
 	auto fullnameStr = fullname.getString();
 
@@ -85,8 +80,8 @@ void OSDGUI::OSDCommand::create(span<const TclObject> tokens, TclObject& result)
 	}
 }
 
-unique_ptr<OSDWidget> OSDGUI::OSDCommand::create(
-	string_view type, const TclObject& name) const
+std::unique_ptr<OSDWidget> OSDGUI::OSDCommand::create(
+	std::string_view type, const TclObject& name) const
 {
 	auto& gui = OUTER(OSDGUI, osdCommand);
 	if (type == "rectangle") {
@@ -186,7 +181,7 @@ void OSDGUI::OSDCommand::configure(OSDWidget& widget, span<const TclObject> toke
 	}
 }
 
-string OSDGUI::OSDCommand::help(span<const TclObject> tokens) const
+std::string OSDGUI::OSDCommand::help(span<const TclObject> tokens) const
 {
 	if (tokens.size() >= 2) {
 		if (tokens[1] == "create") {
@@ -249,7 +244,7 @@ string OSDGUI::OSDCommand::help(span<const TclObject> tokens) const
 	}
 }
 
-void OSDGUI::OSDCommand::tabCompletion(vector<string>& tokens) const
+void OSDGUI::OSDCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
 	using namespace std::literals;
 	auto& gui = OUTER(OSDGUI, osdCommand);
@@ -266,7 +261,7 @@ void OSDGUI::OSDCommand::tabCompletion(vector<string>& tokens) const
 		completeString(tokens, gui.getTopWidget().getAllWidgetNames());
 	} else {
 		try {
-			vector<string_view> properties;
+			std::vector<std::string_view> properties;
 			if (tokens[1] == "create") {
 				auto widget = create(tokens[2], TclObject());
 				properties = widget->getProperties();
@@ -281,7 +276,7 @@ void OSDGUI::OSDCommand::tabCompletion(vector<string>& tokens) const
 	}
 }
 
-OSDWidget& OSDGUI::OSDCommand::getWidget(string_view name) const
+OSDWidget& OSDGUI::OSDCommand::getWidget(std::string_view name) const
 {
 	auto& gui = OUTER(OSDGUI, osdCommand);
 	auto* widget = gui.getTopWidget().findByName(name);

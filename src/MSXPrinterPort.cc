@@ -6,8 +6,6 @@
 #include "unreachable.hh"
 #include <memory>
 
-using std::string;
-
 namespace openmsx {
 
 MSXPrinterPort::MSXPrinterPort(const DeviceConfig& config)

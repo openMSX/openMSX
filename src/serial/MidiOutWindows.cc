@@ -8,8 +8,6 @@
 #include "xrange.hh"
 #include <memory>
 
-using std::string;
-
 namespace openmsx {
 
 void MidiOutWindows::registerAll(PluggingController& controller)

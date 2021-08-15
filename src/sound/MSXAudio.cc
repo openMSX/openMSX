@@ -5,8 +5,6 @@
 #include "serialize.hh"
 #include <memory>
 
-using std::string;
-
 namespace openmsx {
 
 // MSXAudio
@@ -35,7 +33,7 @@ MSXAudio::~MSXAudio()
 	periphery.reset();
 }
 
-Y8950Periphery& MSXAudio::createPeriphery(const string& soundDeviceName)
+Y8950Periphery& MSXAudio::createPeriphery(const std::string& soundDeviceName)
 {
 	periphery = Y8950PeripheryFactory::create(
 		*this, getDeviceConfig2(), soundDeviceName);

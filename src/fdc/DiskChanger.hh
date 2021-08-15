@@ -3,10 +3,12 @@
 
 #include "DiskContainer.hh"
 #include "StateChangeListener.hh"
+#include "RecordedCommand.hh"
 #include "serialize_meta.hh"
 #include "span.hh"
 #include <functional>
 #include <memory>
+#include <optional>
 #include <string>
 
 namespace openmsx {
@@ -17,9 +19,23 @@ class Scheduler;
 class MSXMotherBoard;
 class Reactor;
 class Disk;
-class DiskCommand;
+class DiskChanger;
 class TclObject;
 class DiskName;
+
+class DiskCommand final : public Command // TODO RecordedCommand
+{
+public:
+	DiskCommand(CommandController& commandController,
+	            DiskChanger& diskChanger);
+	void execute(span<const TclObject> tokens,
+	             TclObject& result) override;
+	[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+	void tabCompletion(std::vector<std::string>& tokens) const override;
+	[[nodiscard]] bool needRecord(span<const TclObject> tokens) const /*override*/;
+private:
+	DiskChanger& diskChanger;
+};
 
 class DiskChanger final : public DiskContainer, private StateChangeListener
 {
@@ -39,7 +55,8 @@ public:
 	[[nodiscard]] const DiskName& getDiskName() const;
 	[[nodiscard]] bool peekDiskChanged() const { return diskChangedFlag; }
 	void forceDiskChange() { diskChangedFlag = true; }
-	[[nodiscard]] Disk& getDisk() { return *disk; }
+	[[nodiscard]]       Disk& getDisk()       { return *disk; }
+	[[nodiscard]] const Disk& getDisk() const { return *disk; }
 
 	// DiskContainer
 	[[nodiscard]] SectorAccessibleDisk* getSectorAccessibleDisk() override;
@@ -79,7 +96,7 @@ private:
 	std::unique_ptr<Disk> disk;
 
 	friend class DiskCommand;
-	std::unique_ptr<DiskCommand> diskCommand; // must come after driveName
+	std::optional<DiskCommand> diskCommand; // must come after driveName
 	const bool doubleSidedDrive; // for DirAsDSK
 
 	bool diskChangedFlag;

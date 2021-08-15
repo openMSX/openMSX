@@ -7,7 +7,6 @@
 #include "one_of.hh"
 #include "rapidsax.hh"
 
-using std::string;
 using std::string_view;
 
 namespace openmsx::XMLLoader {
@@ -31,7 +30,7 @@ private:
 	string_view systemID;
 };
 
-XMLElement load(const string& filename, string_view systemID)
+XMLElement load(const std::string& filename, string_view systemID)
 {
 	MemBuffer<char> buf;
 	try {

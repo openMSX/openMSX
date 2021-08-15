@@ -2,14 +2,14 @@
 #define TCLCALLBACK_HH
 
 #include "static_string_view.hh"
+#include "StringSetting.hh"
 #include "TclObject.hh"
-#include <memory>
+#include <optional>
 #include <string_view>
 
 namespace openmsx {
 
 class CommandController;
-class StringSetting;
 
 class TclCallback
 {
@@ -20,7 +20,6 @@ public:
 	            bool useCliComm = true,
 	            bool save = true);
 	explicit TclCallback(StringSetting& setting);
-	~TclCallback();
 
 	TclObject execute();
 	TclObject execute(int arg1);
@@ -34,7 +33,7 @@ public:
 private:
 	TclObject executeCommon(TclObject& command);
 
-	std::unique_ptr<StringSetting> callbackSetting2; // can be nullptr
+	std::optional<StringSetting> callbackSetting2;
 	StringSetting& callbackSetting;
 	const bool useCliComm;
 };

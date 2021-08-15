@@ -6,7 +6,6 @@
 
 using std::string;
 using std::string_view;
-using std::vector;
 
 namespace StringOp {
 
@@ -143,9 +142,9 @@ std::pair<string_view, string_view> splitOnLast(string_view str, char chars)
 	}
 }
 
-vector<string_view> split(string_view str, char chars)
+std::vector<string_view> split(string_view str, char chars)
 {
-	vector<string_view> result;
+	std::vector<string_view> result;
 	while (!str.empty()) {
 		auto [first, last] = splitOnFirst(str, chars);
 		result.push_back(first);
@@ -164,7 +163,7 @@ static unsigned parseNumber(string_view str)
 	return *r;
 }
 
-static void insert(unsigned x, vector<unsigned>& result, unsigned min, unsigned max)
+static void insert(unsigned x, std::vector<unsigned>& result, unsigned min, unsigned max)
 {
 	if ((x < min) || (x > max)) {
 		throw openmsx::MSXException("Out of range");
@@ -175,7 +174,7 @@ static void insert(unsigned x, vector<unsigned>& result, unsigned min, unsigned 
 	}
 }
 
-static void parseRange2(string_view str, vector<unsigned>& result,
+static void parseRange2(string_view str, std::vector<unsigned>& result,
                         unsigned min, unsigned max)
 {
 	// trimRight only: here we only care about all spaces
@@ -196,9 +195,9 @@ static void parseRange2(string_view str, vector<unsigned>& result,
 	}
 }
 
-vector<unsigned> parseRange(string_view str, unsigned min, unsigned max)
+std::vector<unsigned> parseRange(string_view str, unsigned min, unsigned max)
 {
-	vector<unsigned> result;
+	std::vector<unsigned> result;
 	while (true) {
 		auto next = str.find(',');
 		string_view sub = (next == string_view::npos)

@@ -40,7 +40,7 @@ bool DriveMultiplexer::isWriteProtected() const
 	return drive[selected]->isWriteProtected();
 }
 
-bool DriveMultiplexer::isDoubleSided() const
+bool DriveMultiplexer::isDoubleSided()
 {
 	return drive[selected]->isDoubleSided();
 }

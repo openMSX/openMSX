@@ -20,9 +20,6 @@
 #include <cassert>
 #include <memory>
 
-using std::string;
-using std::vector;
-
 namespace openmsx {
 
 AviRecorder::AviRecorder(Reactor& reactor_)
@@ -258,7 +255,7 @@ void AviRecorder::processStart(Interpreter& interp, span<const TclObject> tokens
 	bool recordVideo = !audioOnly;
 	std::string_view directory = recordVideo ? "videos" : "soundlogs";
 	std::string_view extension = recordVideo ? ".avi"   : ".wav";
-	string filename = FileOperations::parseCommandFileArgument(
+	auto filename = FileOperations::parseCommandFileArgument(
 		filenameArg, directory, prefix, extension);
 
 	if (aviWriter || wavWriter) {
@@ -314,7 +311,7 @@ void AviRecorder::Cmd::execute(span<const TclObject> tokens, TclObject& result)
 			recorder.status(tokens, result); });
 }
 
-string AviRecorder::Cmd::help(span<const TclObject> /*tokens*/) const
+std::string AviRecorder::Cmd::help(span<const TclObject> /*tokens*/) const
 {
 	return "Controls video recording: Write openMSX audio/video to a .avi file.\n"
 	       "record start              Record to file 'openmsxNNNN.avi'\n"
@@ -330,7 +327,7 @@ string AviRecorder::Cmd::help(span<const TclObject> /*tokens*/) const
 	       "-doublesize flag is used and at 960x720 when the -triplesize flag is used.";
 }
 
-void AviRecorder::Cmd::tabCompletion(vector<string>& tokens) const
+void AviRecorder::Cmd::tabCompletion(std::vector<std::string>& tokens) const
 {
 	using namespace std::literals;
 	if (tokens.size() == 2) {

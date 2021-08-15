@@ -22,10 +22,6 @@
 #include <sstream>
 #include <variant>
 
-using std::string;
-using std::string_view;
-using std::vector;
-
 namespace openmsx {
 
 class AfterCmd
@@ -85,7 +81,7 @@ public:
 	AfterSimpleEventCmd(AfterCommand& afterCommand,
 	                    TclObject command,
 	                    EventType type);
-	[[nodiscard]] string_view getType() const;
+	[[nodiscard]] std::string_view getType() const;
 	[[nodiscard]] EventType getTypeEnum() const { return type; }
 private:
 	EventType type;
@@ -208,7 +204,7 @@ void AfterCommand::execute(span<const TclObject> tokens, TclObject& result)
 	if (tokens.size() < 2) {
 		throw CommandException("Missing argument");
 	}
-	string_view subCmd = tokens[1].getString();
+	std::string_view subCmd = tokens[1].getString();
 	if (subCmd == "time") {
 		afterTime(tokens, result);
 	} else if (subCmd == "realtime") {
@@ -372,7 +368,7 @@ void AfterCommand::afterCancel(span<const TclObject> tokens, TclObject& /*result
 	}
 	TclObject command;
 	command.addListElements(view::drop(tokens, 2));
-	string_view cmdStr = command.getString();
+	std::string_view cmdStr = command.getString();
 	auto equalCmd = [&](Index idx) {
 		return std::visit([&](AfterCmd& cmd) {
 			return cmd.getCommand() == cmdStr;
@@ -392,7 +388,7 @@ void AfterCommand::afterCancel(span<const TclObject> tokens, TclObject& /*result
 	// It's not an error if no match is found
 }
 
-string AfterCommand::help(span<const TclObject> /*tokens*/) const
+std::string AfterCommand::help(span<const TclObject> /*tokens*/) const
 {
 	return "after time     <seconds> <command>  execute a command after some time (MSX time)\n"
 	       "after realtime <seconds> <command>  execute a command after some time (realtime)\n"
@@ -405,7 +401,7 @@ string AfterCommand::help(span<const TclObject> /*tokens*/) const
 	       "after cancel <id>                   cancel the postponed command with given id\n";
 }
 
-void AfterCommand::tabCompletion(vector<string>& tokens) const
+void AfterCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		using namespace std::literals;
@@ -599,7 +595,7 @@ AfterSimpleEventCmd::AfterSimpleEventCmd(
 {
 }
 
-string_view AfterSimpleEventCmd::getType() const
+std::string_view AfterSimpleEventCmd::getType() const
 {
 	switch (type) {
 		case EventType::FINISH_FRAME:   return "frame";

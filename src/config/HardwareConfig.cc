@@ -18,29 +18,25 @@
 #include <iostream>
 #include <memory>
 
-using std::move;
 using std::string;
-using std::string_view;
-using std::unique_ptr;
-using std::vector;
 
 namespace openmsx {
 
-unique_ptr<HardwareConfig> HardwareConfig::createMachineConfig(
+std::unique_ptr<HardwareConfig> HardwareConfig::createMachineConfig(
 	MSXMotherBoard& motherBoard, string machineName)
 {
 	auto result = std::make_unique<HardwareConfig>(
-		motherBoard, move(machineName));
+		motherBoard, std::move(machineName));
 	result->type = HardwareConfig::Type::MACHINE;
 	result->load("machines");
 	return result;
 }
 
-unique_ptr<HardwareConfig> HardwareConfig::createExtensionConfig(
+std::unique_ptr<HardwareConfig> HardwareConfig::createExtensionConfig(
 	MSXMotherBoard& motherBoard, string extensionName, std::string_view slotname)
 {
 	auto result = std::make_unique<HardwareConfig>(
-		motherBoard, move(extensionName));
+		motherBoard, std::move(extensionName));
 	result->load("extensions");
 	result->setName(result->hwName);
 	result->type = HardwareConfig::Type::EXTENSION;
@@ -48,7 +44,7 @@ unique_ptr<HardwareConfig> HardwareConfig::createExtensionConfig(
 	return result;
 }
 
-unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
+std::unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	MSXMotherBoard& motherBoard, string romfile,
 	string slotname, span<const TclObject> options)
 {
@@ -56,7 +52,7 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	result->setName(romfile);
 	result->type = HardwareConfig::Type::ROM;
 
-	vector<string_view> ipsfiles;
+	std::vector<std::string_view> ipsfiles;
 	string mapper;
 	ArgsInfo info[] = {
 		valueArg("-ips", ipsfiles),
@@ -87,7 +83,7 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	auto& primary = devices.addChild("primary");
 	primary.addAttribute("slot", slotname);
 	auto& secondary = primary.addChild("secondary");
-	secondary.addAttribute("slot", move(slotname));
+	secondary.addAttribute("slot", std::move(slotname));
 	auto& device = secondary.addChild("ROM");
 	device.addAttribute("id", "MSXRom");
 	auto& mem = device.addChild("mem");
@@ -98,7 +94,7 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	device.addChild("sramname", strCat(sramfile, ".SRAM"));
 	auto& rom = device.addChild("rom");
 	rom.addChild("resolvedFilename", resolvedFilename);
-	rom.addChild("filename", move(romfile));
+	rom.addChild("filename", std::move(romfile));
 	if (!ipsfiles.empty()) {
 		auto& patches = rom.addChild("patches");
 		for (auto& s : ipsfiles) {
@@ -106,14 +102,14 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 		}
 	}
 
-	result->setConfig(move(extension));
-	result->setFileContext(move(context));
+	result->setConfig(std::move(extension));
+	result->setFileContext(std::move(context));
 	return result;
 }
 
 HardwareConfig::HardwareConfig(MSXMotherBoard& motherBoard_, string hwName_)
 	: motherBoard(motherBoard_)
-	, hwName(move(hwName_))
+	, hwName(std::move(hwName_))
 {
 	for (auto& sub : externalSlots) {
 		ranges::fill(sub, false);
@@ -202,7 +198,7 @@ static XMLElement loadHelper(const string& filename)
 	}
 }
 
-static string getFilename(string_view type, string_view name)
+static string getFilename(std::string_view type, std::string_view name)
 {
 	auto context = systemFileContext();
 	try {
@@ -221,12 +217,12 @@ static string getFilename(string_view type, string_view name)
 	}
 }
 
-XMLElement HardwareConfig::loadConfig(string_view type_, string_view name)
+XMLElement HardwareConfig::loadConfig(std::string_view type_, std::string_view name)
 {
 	return loadHelper(getFilename(type_, name));
 }
 
-void HardwareConfig::load(string_view type_)
+void HardwareConfig::load(std::string_view type_)
 {
 	string filename = getFilename(type_, hwName);
 	setConfig(loadHelper(filename));
@@ -340,7 +336,7 @@ void HardwareConfig::createDevices(const XMLElement& elem,
 			auto device = DeviceFactory::create(
 				DeviceConfig(*this, c, primary, secondary));
 			if (device) {
-				addDevice(move(device));
+				addDevice(std::move(device));
 			} else {
 				// device is nullptr, so we are apparently ignoring it on purpose
 			}
@@ -389,10 +385,10 @@ int HardwareConfig::getSpecificFreePrimarySlot(unsigned slot)
 void HardwareConfig::addDevice(std::unique_ptr<MSXDevice> device)
 {
 	motherBoard.addDevice(*device);
-	devices.push_back(move(device));
+	devices.push_back(std::move(device));
 }
 
-void HardwareConfig::setName(string_view proposedName)
+void HardwareConfig::setName(std::string_view proposedName)
 {
 	if (!motherBoard.findExtension(proposedName)) {
 		name = proposedName;

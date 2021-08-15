@@ -16,8 +16,6 @@
 // will cause garbage reads, and too long delays at shifting will eventually
 // cause the shift register bits to return to 0.
 
-using std::string;
-
 namespace openmsx {
 
 constexpr int POS_MIN = 55; // measured by hap

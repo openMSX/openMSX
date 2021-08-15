@@ -18,8 +18,6 @@
 #include "xrange.hh"
 #include <memory>
 
-using std::string;
-
 namespace openmsx {
 
 void Joystick::registerAll(MSXEventDistributor& eventDistributor,
@@ -120,7 +118,7 @@ static void checkJoystickConfig(Interpreter& interp, TclObject& newValue)
 	}
 }
 
-[[nodiscard]] static string getJoystickName(unsigned joyNum)
+[[nodiscard]] static std::string getJoystickName(unsigned joyNum)
 {
 	return strCat("joystick", char('1' + joyNum));
 }

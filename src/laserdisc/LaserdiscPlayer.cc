@@ -14,7 +14,6 @@
 #include "ReverseManager.hh"
 #include "MSXMotherBoard.hh"
 #include "PioneerLDControl.hh"
-#include "OggReader.hh"
 #include "LDRenderer.hh"
 #include "RendererFactory.hh"
 #include "Math.hh"
@@ -26,7 +25,6 @@
 #include <memory>
 
 using std::string;
-using std::vector;
 
 namespace openmsx {
 
@@ -83,7 +81,7 @@ string LaserdiscPlayer::Command::help(span<const TclObject> tokens) const
 	       ": eject the laserdisc\n";
 }
 
-void LaserdiscPlayer::Command::tabCompletion(vector<string>& tokens) const
+void LaserdiscPlayer::Command::tabCompletion(std::vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		using namespace std::literals;
@@ -633,7 +631,7 @@ void LaserdiscPlayer::setImageName(string newImage, EmuTime::param time)
 {
 	stop(time);
 	oggImage = Filename(std::move(newImage), userFileContext());
-	video = std::make_unique<OggReader>(oggImage, motherBoard.getMSXCliComm());
+	video.emplace(oggImage, motherBoard.getMSXCliComm());
 
 	unsigned inputRate = video->getSampleRate();
 	sampleClock.setFreq(inputRate);

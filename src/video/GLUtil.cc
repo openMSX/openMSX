@@ -8,7 +8,6 @@
 #include <iostream>
 #include <cstdio>
 
-using std::string;
 using namespace openmsx;
 
 namespace gl {
@@ -18,7 +17,7 @@ void checkGLError(std::string_view prefix)
 	GLenum error = glGetError();
 	if (error != GL_NO_ERROR) {
 		// TODO this needs glu, but atm we don't link against glu (in windows)
-		//string err = (const char*)gluErrorString(error);
+		//std::string err = (const char*)gluErrorString(error);
 		std::cerr << "GL error: " << prefix << ": " << int(error) << '\n';
 		assert(false);
 	}
@@ -129,7 +128,7 @@ void FrameBufferObject::pop()
 void Shader::init(GLenum type, std::string_view header, std::string_view filename)
 {
 	// Load shader source.
-	string source;
+	std::string source;
 	if constexpr (OPENGL_VERSION == OPENGL_ES_2_0) {
 		source += "#version 100\n";
 		if (type == GL_FRAGMENT_SHADER) {

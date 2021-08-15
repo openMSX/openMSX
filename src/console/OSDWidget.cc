@@ -13,10 +13,6 @@
 #include <limits>
 #include <optional>
 
-using std::string;
-using std::string_view;
-using std::vector;
-using std::unique_ptr;
 using namespace gl;
 
 namespace openmsx {
@@ -150,7 +146,7 @@ OSDWidget::OSDWidget(Display& display_, TclObject name_)
 {
 }
 
-void OSDWidget::addWidget(unique_ptr<OSDWidget> widget)
+void OSDWidget::addWidget(std::unique_ptr<OSDWidget> widget)
 {
 	widget->setParent(this);
 
@@ -216,17 +212,17 @@ void OSDWidget::resortDown(OSDWidget* elem)
 #endif
 }
 
-vector<string_view> OSDWidget::getProperties() const
+std::vector<std::string_view> OSDWidget::getProperties() const
 {
 	static constexpr const char* const vals[] = {
 		"-type", "-x", "-y", "-z", "-relx", "-rely", "-scaled",
 		"-clip", "-mousecoord", "-suppressErrors",
 	};
-	return to_vector<string_view>(vals);
+	return to_vector<std::string_view>(vals);
 }
 
 void OSDWidget::setProperty(
-	Interpreter& interp, string_view propName, const TclObject& value)
+	Interpreter& interp, std::string_view propName, const TclObject& value)
 {
 	if (propName == "-type") {
 		throw CommandException("-type property is readonly");
@@ -269,7 +265,7 @@ void OSDWidget::setProperty(
 	}
 }
 
-void OSDWidget::getProperty(string_view propName, TclObject& result) const
+void OSDWidget::getProperty(std::string_view propName, TclObject& result) const
 {
 	if (propName == "-type") {
 		result = getType();

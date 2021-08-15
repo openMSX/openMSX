@@ -17,8 +17,6 @@
 #include <iterator>
 #include <memory>
 
-using std::string;
-
 namespace openmsx {
 
 AmdFlash::AmdFlash(const Rom& rom, span<const SectorInfo> sectorInfo_,
@@ -33,7 +31,7 @@ AmdFlash::AmdFlash(const Rom& rom, span<const SectorInfo> sectorInfo_,
 	init(rom.getName() + "_flash", config, load, &rom);
 }
 
-AmdFlash::AmdFlash(const string& name, span<const SectorInfo> sectorInfo_,
+AmdFlash::AmdFlash(const std::string& name, span<const SectorInfo> sectorInfo_,
                    word ID_, Addressing addressing_,
                    const DeviceConfig& config)
 	: motherBoard(config.getMotherBoard())
@@ -51,7 +49,7 @@ AmdFlash::AmdFlash(const string& name, span<const SectorInfo> sectorInfo_,
 	                      [&](auto i) { return ram[i] == 0xFF; });
 }
 
-void AmdFlash::init(const string& name, const DeviceConfig& config, Load load, const Rom* rom)
+void AmdFlash::init(const std::string& name, const DeviceConfig& config, Load load, const Rom* rom)
 {
 	assert(Math::ispow2(getSize()));
 

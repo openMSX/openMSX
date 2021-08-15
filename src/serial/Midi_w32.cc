@@ -40,8 +40,6 @@
 
 #define MAXPATHLEN MAX_PATH
 
-using std::string;
-
 namespace openmsx {
 
 /*
@@ -154,13 +152,13 @@ unsigned w32_midiOutGetVFNsNum()
 	return vfnt_midiout_num;
 }
 
-string w32_midiOutGetVFN(unsigned nmb)
+std::string w32_midiOutGetVFN(unsigned nmb)
 {
 	assert(nmb < vfnt_midiout_num);
 	return vfnt_midiout[nmb].vfname;
 }
 
-string w32_midiOutGetRDN(unsigned nmb)
+std::string w32_midiOutGetRDN(unsigned nmb)
 {
 	assert(nmb < vfnt_midiout_num);
 	return vfnt_midiout[nmb].devname;
@@ -286,13 +284,13 @@ unsigned w32_midiInGetVFNsNum()
 	return vfnt_midiin_num;
 }
 
-string w32_midiInGetVFN(unsigned nmb)
+std::string w32_midiInGetVFN(unsigned nmb)
 {
 	assert(nmb < vfnt_midiin_num);
 	return vfnt_midiin[nmb].vfname;
 }
 
-string w32_midiInGetRDN(unsigned nmb)
+std::string w32_midiInGetRDN(unsigned nmb)
 {
 	assert(nmb < vfnt_midiin_num);
 	return vfnt_midiin[nmb].devname;

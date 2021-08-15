@@ -32,7 +32,6 @@
 using std::cout;
 using std::string;
 using std::string_view;
-using std::vector;
 
 namespace openmsx {
 
@@ -165,7 +164,7 @@ void CommandLineParser::parse(int argc, char** argv)
 		return FileOperations::getConventionalPath(argv[i]);
 	}));
 	span<string> cmdLine(cmdLineBuf);
-	vector<string> backupCmdLine;
+	std::vector<string> backupCmdLine;
 
 	for (ParsePhase phase = PHASE_BEFORE_INIT;
 	     (phase <= PHASE_LAST) && (parseStatus != EXIT);
@@ -173,7 +172,7 @@ void CommandLineParser::parse(int argc, char** argv)
 		switch (phase) {
 		case PHASE_INIT:
 			reactor.init();
-			fileTypeCategoryInfo = std::make_unique<FileTypeCategoryInfoTopic>(
+			fileTypeCategoryInfo.emplace(
 				reactor.getOpenMSXInfoCommand(), *this);
 			getInterpreter().init(argv[0]);
 			break;
@@ -385,7 +384,7 @@ std::string_view CommandLineParser::CommandOption::optionHelp() const
 
 // Help option
 
-static string formatSet(const vector<string_view>& inputSet, string::size_type columns)
+static string formatSet(const std::vector<string_view>& inputSet, string::size_type columns)
 {
 	string outString;
 	string::size_type totalLength = 0; // ignore the starting spaces for now
@@ -433,7 +432,7 @@ static string formatHelptext(string_view helpText,
 }
 
 // items grouped per common help-text
-using GroupedItems = hash_map<string_view, vector<string_view>, XXHasher>;
+using GroupedItems = hash_map<string_view, std::vector<string_view>, XXHasher>;
 static void printItemMap(const GroupedItems& itemMap)
 {
 	auto printSet = to_vector(view::transform(itemMap, [](auto& p) {

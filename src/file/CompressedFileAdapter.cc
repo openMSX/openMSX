@@ -4,12 +4,10 @@
 #include "xxhash.hh"
 #include <cstring>
 
-using std::string;
-
 namespace openmsx {
 
 struct GetURLFromDecompressed {
-	template<typename Ptr> [[nodiscard]] const string& operator()(const Ptr& p) const {
+	template<typename Ptr> [[nodiscard]] const std::string& operator()(const Ptr& p) const {
 		return p->cachedURL;
 	}
 };
@@ -109,7 +107,7 @@ void CompressedFileAdapter::flush()
 	// nothing because writing is not supported
 }
 
-const string& CompressedFileAdapter::getURL() const
+const std::string& CompressedFileAdapter::getURL() const
 {
 	return file ? file->getURL() : decompressed->cachedURL;
 }

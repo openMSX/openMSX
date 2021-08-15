@@ -4,10 +4,11 @@
 #include "DiskImageUtils.hh"
 #include "circular_buffer.hh"
 #include "openmsx.hh"
-#include <vector>
-#include <string>
+#include <fstream>
 #include <memory>
-#include <iosfwd>
+#include <optional>
+#include <string>
+#include <vector>
 
 namespace openmsx {
 
@@ -109,7 +110,7 @@ private:
 	cb_queue<byte> hostToMsxFifo;
 
 	struct {
-		std::unique_ptr<std::fstream> fs; // not in use when fs == nullptr
+		std::optional<std::fstream> fs; // not in use when fs == nullopt
 		unsigned fcb;
 	} devices[MAX_DEVICES];
 

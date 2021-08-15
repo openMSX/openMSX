@@ -3,7 +3,7 @@
 #include "MSXCPU.hh"
 #include "MSXException.hh"
 #include "one_of.hh"
-#include <memory>
+#include "unreachable.hh"
 
 namespace openmsx {
 
@@ -25,50 +25,57 @@ void IRQSource::lower()
 }
 
 
-// IRQ sinks (used to implement OptionalIRQ)
-
-class NotConnectedIRQSink : public IRQSink
-{
-public:
-	void raise() override {}
-	void lower() override {}
-};
-
-class MaskableIRQSink : public IRQSink
-{
-public:
-	MaskableIRQSink(MSXCPU& cpu_) : cpu(cpu_) {}
-	void raise() override { cpu.raiseIRQ(); }
-	void lower() override { cpu.lowerIRQ(); }
-private:
-	MSXCPU& cpu;
-};
-
-class NonMaskableIRQSink : public IRQSink
-{
-public:
-	NonMaskableIRQSink(MSXCPU& cpu_) : cpu(cpu_) {}
-	void raise() override { cpu.raiseNMI(); }
-	void lower() override { cpu.lowerNMI(); }
-private:
-	MSXCPU& cpu;
-};
-
-
 // class OptionalIRQ
 
-OptionalIRQ::OptionalIRQ(MSXCPU& cpu, const DeviceConfig& config)
+OptionalIRQ::OptionalIRQ(MSXCPU& cpu_, const DeviceConfig& config)
+	: cpu(cpu_)
+	, type([&] {
+		auto connected = config.getChildData("irq_connected", "irq");
+		if (connected == one_of("irq", "true")) {
+			return Maskable;
+		} else if (connected == "nmi") {
+			return NonMaskable;
+		} else if (connected == "false") {
+			return NotConnected;
+		} else {
+			throw MSXException(
+				"Unknown IRQ sink \"", connected, "\" in <irq_connected>");
+		}
+	}())
 {
-	auto connected = config.getChildData("irq_connected", "irq");
-	if (connected == one_of("irq", "true")) {
-		sink = std::make_unique<MaskableIRQSink>(cpu);
-	} else if (connected == "nmi") {
-		sink = std::make_unique<NonMaskableIRQSink>(cpu);
-	} else if (connected == "false") {
-		sink = std::make_unique<NotConnectedIRQSink>();
-	} else {
-		throw MSXException(
-			"Unknown IRQ sink \"", connected, "\" in <irq_connected>");
+}
+
+void OptionalIRQ::raise()
+{
+	switch (type) {
+		case NotConnected:
+			// nothing
+			break;
+		case Maskable:
+			cpu.raiseIRQ();
+			break;
+		case NonMaskable:
+			cpu.raiseNMI();
+			break;
+		default:
+			UNREACHABLE;
+	}
+}
+
+void OptionalIRQ::lower()
+{
+	switch (type) {
+		case NotConnected:
+			// nothing
+			break;
+		case Maskable:
+			cpu.lowerIRQ();
+			break;
+		case NonMaskable:
+			cpu.lowerNMI();
+			break;
+		default:
+			UNREACHABLE;
 	}
 }
 

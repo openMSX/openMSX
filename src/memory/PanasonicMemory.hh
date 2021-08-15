@@ -1,21 +1,20 @@
 #ifndef PANASONICMEMORY_HH
 #define PANASONICMEMORY_HH
 
+#include "Rom.hh"
 #include "openmsx.hh"
-#include <memory>
+#include <optional>
 
 namespace openmsx {
 
 class MSXMotherBoard;
 class MSXCPU;
 class Ram;
-class Rom;
 
 class PanasonicMemory
 {
 public:
 	explicit PanasonicMemory(MSXMotherBoard& motherBoard);
-	~PanasonicMemory();
 
 	/**
 	 * Pass reference of the actual Ram block for use in DRAM mode and RAM
@@ -36,10 +35,10 @@ public:
 private:
 	MSXCPU& msxcpu;
 
-	const std::unique_ptr<Rom> rom; // can be nullptr
-	byte* ram;
-	unsigned ramSize;
-	bool dram;
+	const std::optional<Rom> rom; // can be nullptr
+	byte* ram = nullptr;
+	unsigned ramSize = 0;
+	bool dram = false;
 };
 
 } // namespace openmsx

@@ -14,13 +14,11 @@
 #include "xxhash.hh"
 #include <cassert>
 
-using std::string;
 using std::string_view;
-using std::vector;
 
 namespace openmsx {
 
-using UnknownTypes = hash_map<string, unsigned, XXHasher>;
+using UnknownTypes = hash_map<std::string, unsigned, XXHasher>;
 
 class DBParser : public rapidsax::NullHandler
 {
@@ -89,7 +87,7 @@ private:
 	string_view type;
 	string_view startVal;
 
-	vector<Dump> dumps;
+	std::vector<Dump> dumps;
 	string_view system;
 	String32 title;
 	String32 company;
@@ -517,7 +515,7 @@ void DBParser::stop()
 		}
 		RomType romType = RomInfo::nameToRomType(t);
 		if (romType == ROM_UNKNOWN) {
-			unknownTypes[string(t)]++;
+			unknownTypes[std::string(t)]++;
 		}
 		dumps.back().type = romType;
 		state = DUMP;
@@ -570,8 +568,8 @@ RomDatabase::RomDatabase(CliComm& cliComm)
 	db.reserve(3500);
 	UnknownTypes unknownTypes;
 	// first user- then system-directory
-	vector<string> paths = systemFileContext().getPaths();
-	vector<File> files;
+	std::vector<std::string> paths = systemFileContext().getPaths();
+	std::vector<File> files;
 	size_t bufferSize = 0;
 	for (auto& p : paths) {
 		try {
@@ -609,7 +607,7 @@ RomDatabase::RomDatabase(CliComm& cliComm)
 			"This may cause incorrect ROM mapper types to be used.");
 	}
 	if (!unknownTypes.empty()) {
-		string output = "Unknown mapper types in software database: ";
+		std::string output = "Unknown mapper types in software database: ";
 		for (const auto& [type, count] : unknownTypes) {
 			strAppend(output, type, " (", count, "x); ");
 		}

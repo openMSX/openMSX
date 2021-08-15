@@ -19,9 +19,6 @@
 #include <memory>
 
 using std::string;
-using std::vector;
-using std::fstream;
-using std::ios;
 
 namespace openmsx {
 
@@ -626,7 +623,7 @@ void NowindHost::deviceOpen()
 
 	unsigned fcb = getFCB();
 	unsigned dev = getFreeDeviceNum();
-	devices[dev].fs = std::make_unique<fstream>(); // takes care of deleting old fs
+	devices[dev].fs.emplace(); // takes care of deleting old fs
 	devices[dev].fcb = fcb;
 
 	sendHeader();
@@ -634,15 +631,15 @@ void NowindHost::deviceOpen()
 	byte openMode = cmdData[2]; // reg_e
 	switch (openMode) {
 	case 1: // read-only mode
-		devices[dev].fs->open(filename.c_str(), ios::in  | ios::binary);
+		devices[dev].fs->open(filename.c_str(), std::ios::in  | std::ios::binary);
 		errorCode = 53; // file not found
 		break;
 	case 2: // create new file, write-only
-		devices[dev].fs->open(filename.c_str(), ios::out | ios::binary);
+		devices[dev].fs->open(filename.c_str(), std::ios::out | std::ios::binary);
 		errorCode = 56; // bad file name
 		break;
 	case 8: // append to existing file, write-only
-		devices[dev].fs->open(filename.c_str(), ios::out | ios::binary | ios::app);
+		devices[dev].fs->open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::app);
 		errorCode = 53; // file not found
 		break;
 	case 4:
@@ -798,7 +795,7 @@ void NowindHost::serialize(Archive& ar, unsigned /*version*/)
 	// for backwards compatibility, serialize buffer as a vector<byte>
 	size_t bufSize = buffer.size() * sizeof(SectorBuffer);
 	byte* bufRaw = buffer.data()->raw;
-	vector<byte> tmp(bufRaw, bufRaw + bufSize);
+	std::vector<byte> tmp(bufRaw, bufRaw + bufSize);
 	ar.serialize("buffer", tmp);
 	memcpy(bufRaw, tmp.data(), bufSize);
 
