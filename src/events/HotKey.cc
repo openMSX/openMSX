@@ -188,12 +188,12 @@ void HotKey::loadBindings(const XMLElement& config)
 		try {
 			auto& interp = commandController.getInterpreter();
 			if (elem.getName() == "bind") {
-				bind(HotKeyInfo(createEvent(elem.getAttribute("key"), interp),
+				bind(HotKeyInfo(createEvent(elem.getAttributeValue("key"), interp),
 				                std::string(elem.getData()),
-				                elem.getAttributeAsBool("repeat", false),
-				                elem.getAttributeAsBool("event", false)));
+				                elem.getAttributeValueAsBool("repeat", false),
+				                elem.getAttributeValueAsBool("event", false)));
 			} else if (elem.getName() == "unbind") {
-				unbind(createEvent(elem.getAttribute("key"), interp));
+				unbind(createEvent(elem.getAttributeValue("key"), interp));
 			}
 		} catch (MSXException& e) {
 			commandController.getCliComm().printWarning(

@@ -150,7 +150,7 @@ bool XMLElement::hasAttribute(string_view attrName) const
 	return findAttribute(attrName);
 }
 
-string_view XMLElement::getAttribute(string_view attrName) const
+string_view XMLElement::getAttributeValue(string_view attrName) const
 {
 	if (const auto* value = findAttribute(attrName)) {
 		return *value;
@@ -158,22 +158,22 @@ string_view XMLElement::getAttribute(string_view attrName) const
 	throw ConfigException("Missing attribute \"", attrName, "\".");
 }
 
-string_view XMLElement::getAttribute(string_view attrName,
-                                     string_view defaultValue) const
+string_view XMLElement::getAttributeValue(string_view attrName,
+                                          string_view defaultValue) const
 {
 	const auto* value = findAttribute(attrName);
 	return value ? *value : defaultValue;
 }
 
-bool XMLElement::getAttributeAsBool(string_view attrName,
+bool XMLElement::getAttributeValueAsBool(string_view attrName,
                                     bool defaultValue) const
 {
 	const auto* value = findAttribute(attrName);
 	return value ? StringOp::stringToBool(*value) : defaultValue;
 }
 
-int XMLElement::getAttributeAsInt(string_view attrName,
-                                  int defaultValue) const
+int XMLElement::getAttributeValueAsInt(string_view attrName,
+                                       int defaultValue) const
 {
 	const auto* value = findAttribute(attrName);
 	if (!value) return defaultValue;

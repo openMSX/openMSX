@@ -9,7 +9,7 @@ namespace openmsx {
 
 [[nodiscard]] static unsigned getRamSize(const DeviceConfig& config)
 {
-	int kSize = config.getChildDataAsInt("size");
+	int kSize = config.getChildDataAsInt("size", 0);
 	if ((kSize % 16) != 0) {
 		throw MSXException("Mapper size is not a multiple of 16K: ", kSize);
 	}

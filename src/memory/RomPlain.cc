@@ -27,8 +27,8 @@ RomPlain::RomPlain(const DeviceConfig& config, Rom&& rom_, RomType type)
 	unsigned windowBase =  0x0000;
 	unsigned windowSize = 0x10000;
 	if (const auto* mem = config.findChild("mem")) {
-		windowBase = mem->getAttributeAsInt("base");
-		windowSize = mem->getAttributeAsInt("size");
+		windowBase = mem->getAttributeValueAsInt("base", 0);
+		windowSize = mem->getAttributeValueAsInt("size", 0);
 	}
 
 	unsigned romSize = rom.getSize();

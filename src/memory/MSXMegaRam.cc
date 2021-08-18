@@ -33,7 +33,7 @@ namespace openmsx {
 
 MSXMegaRam::MSXMegaRam(const DeviceConfig& config)
 	: MSXDevice(config)
-	, numBlocks(config.getChildDataAsInt("size") / 8) // 8kB blocks
+	, numBlocks(config.getChildDataAsInt("size", 0) / 8) // 8kB blocks
 	, ram(config, getName() + " RAM", "Mega-RAM", numBlocks * 0x2000)
 	, rom(config.findChild("rom")
 	      ? std::make_unique<Rom>(getName() + " ROM", "Mega-RAM DiskROM", config)

@@ -62,13 +62,13 @@ const XMLElement* DeviceConfig::findChild(std::string_view name) const
 {
 	return getXML()->findChild(name);
 }
-std::string_view DeviceConfig::getAttribute(std::string_view attName) const
+std::string_view DeviceConfig::getAttributeValue(std::string_view attName) const
 {
-	return getXML()->getAttribute(attName);
+	return getXML()->getAttributeValue(attName);
 }
-int DeviceConfig::getAttributeAsInt(std::string_view attName, int defaultValue) const
+int DeviceConfig::getAttributeValueAsInt(std::string_view attName, int defaultValue) const
 {
-	return getXML()->getAttributeAsInt(attName, defaultValue);
+	return getXML()->getAttributeValueAsInt(attName, defaultValue);
 }
 
 } // namespace openmsx

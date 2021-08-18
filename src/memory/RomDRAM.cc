@@ -8,8 +8,8 @@ namespace openmsx {
 
 [[nodiscard]] static unsigned calcBaseAddr(const DeviceConfig& config)
 {
-	int base = config.getChild("mem").getAttributeAsInt("base");
-	int first = config.getChild("rom").getChildDataAsInt("firstblock");
+	int base = config.getChild("mem").getAttributeValueAsInt("base", 0);
+	int first = config.getChild("rom").getChildDataAsInt("firstblock", 0);
 	return first * 0x2000 - base;
 }
 

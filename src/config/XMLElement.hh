@@ -80,9 +80,9 @@ public:
 
 	void removeAttribute(std::string_view name);
 	[[nodiscard]] bool hasAttribute(std::string_view name) const;
-	[[nodiscard]] std::string_view getAttribute(std::string_view attrName) const;
-	[[nodiscard]] std::string_view getAttribute(std::string_view attrName,
-	                                            std::string_view defaultValue) const;
+	[[nodiscard]] std::string_view getAttributeValue(std::string_view attrName) const;
+	[[nodiscard]] std::string_view getAttributeValue(std::string_view attrName,
+	                                                 std::string_view defaultValue) const;
 	// Returns ptr to attribute value, or nullptr when not found.
 	[[nodiscard]] const std::string* findAttribute(std::string_view attrName) const;
 
@@ -110,10 +110,10 @@ public:
 	//
 
 	// attribute
-	[[nodiscard]] bool getAttributeAsBool(std::string_view attrName,
-	                                      bool defaultValue = false) const;
-	[[nodiscard]] int getAttributeAsInt(std::string_view attrName,
-	                                    int defaultValue = 0) const;
+	[[nodiscard]] bool getAttributeValueAsBool(std::string_view attrName,
+	                                           bool defaultValue) const;
+	[[nodiscard]] int getAttributeValueAsInt(std::string_view attrName,
+	                                         int defaultValue) const;
 	[[nodiscard]] bool findAttributeInt(std::string_view attrName,
 	                                    unsigned& result) const;
 
@@ -170,7 +170,7 @@ public:
 	[[nodiscard]] bool getChildDataAsBool(std::string_view childName,
 	                                      bool defaultValue = false) const;
 	[[nodiscard]] int getChildDataAsInt(std::string_view childName,
-	                                    int defaultValue = 0) const;
+	                                    int defaultValue) const;
 
 	template<typename String1, typename String2>
 	void setChildData(String1&& childName, String2&& value) {

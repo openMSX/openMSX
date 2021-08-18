@@ -238,10 +238,10 @@ void HardwareConfig::parseSlots()
 	//      once machine and extensions are parsed separately move parsing
 	//      of 'expanded' to MSXCPUInterface
 	//
-	for (auto& psElem : getDevicesElem().getChildren("primary")) {
-		const auto& primSlot = psElem->getAttribute("slot");
+	for (const auto* psElem : getDevicesElem().getChildren("primary")) {
+		auto primSlot = psElem->getAttributeValue("slot");
 		int ps = CartridgeSlotManager::getSlotNum(primSlot);
-		if (psElem->getAttributeAsBool("external", false)) {
+		if (psElem->getAttributeValueAsBool("external", false)) {
 			if (ps < 0) {
 				throw MSXException(
 					"Cannot mark unspecified primary slot '",
@@ -257,8 +257,8 @@ void HardwareConfig::parseSlots()
 			createExternalSlot(ps);
 			continue;
 		}
-		for (auto& ssElem : psElem->getChildren("secondary")) {
-			const auto& secSlot = ssElem->getAttribute("slot");
+		for (const auto* ssElem : psElem->getChildren("secondary")) {
+			auto secSlot = ssElem->getAttributeValue("slot");
 			int ss = CartridgeSlotManager::getSlotNum(secSlot);
 			if ((-16 <= ss) && (ss <= -1) && (ss != ps)) {
 				throw MSXException(
@@ -283,7 +283,7 @@ void HardwareConfig::parseSlots()
 				mutableElem->setAttribute("slot", strCat(ps));
 			}
 			createExpandedSlot(ps);
-			if (ssElem->getAttributeAsBool("external", false)) {
+			if (ssElem->getAttributeValueAsBool("external", false)) {
 				if (ssElem->hasChildren()) {
 					throw MSXException(
 						"Secondary slot ", ps, '-', ss,
@@ -302,11 +302,11 @@ byte HardwareConfig::parseSlotMap() const
 	byte initialPrimarySlots = 0;
 	if (const auto* slotmap = getConfig().findChild("slotmap")) {
 		for (const auto* child : slotmap->getChildren("map")) {
-			int page = child->getAttributeAsInt("page", -1);
+			int page = child->getAttributeValueAsInt("page", -1);
 			if (page < 0 || page > 3) {
 				throw MSXException("Invalid or missing page in slotmap entry");
 			}
-			int slot = child->getAttributeAsInt("slot", -1);
+			int slot = child->getAttributeValueAsInt("slot", -1);
 			if (slot < 0 || slot > 3) {
 				throw MSXException("Invalid or missing slot in slotmap entry");
 			}
@@ -402,10 +402,9 @@ void HardwareConfig::setName(std::string_view proposedName)
 
 void HardwareConfig::setSlot(std::string_view slotname)
 {
-	for (auto& psElem : getDevicesElem().getChildren("primary")) {
-		const auto& primSlot = psElem->getAttribute("slot");
-		if (primSlot == "any") {
-			auto& mutableElem = const_cast<XMLElement*&>(psElem);
+	for (const auto* psElem : getDevicesElem().getChildren("primary")) {
+		if (psElem->getAttributeValue("slot") == "any") {
+			auto* mutableElem = const_cast<XMLElement*>(psElem);
 			mutableElem->setAttribute("slot", slotname);
 		}
 	}

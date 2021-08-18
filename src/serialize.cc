@@ -530,7 +530,7 @@ void XmlInputArchive::endTag(const char* tag)
 void XmlInputArchive::attribute(const char* name, string& t)
 {
 	try {
-		t = elems.back().first->getAttribute(name);
+		t = elems.back().first->getAttributeValue(name);
 	} catch (ConfigException& e) {
 		throw XMLException(std::move(e).getMessage());
 	}

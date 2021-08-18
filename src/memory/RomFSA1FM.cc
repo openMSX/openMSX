@@ -51,7 +51,7 @@ namespace openmsx {
 {
 	return config.getMotherBoard().getSharedStuff<SRAM>(
 		"FSA1FM-sram",
-		strCat(config.getAttribute("id"), " SRAM"), 0x2000, config);
+		strCat(config.getAttributeValue("id"), " SRAM"), 0x2000, config);
 }
 
 

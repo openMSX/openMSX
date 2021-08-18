@@ -28,7 +28,7 @@ MSXDevice::MSXDevice(const DeviceConfig& config, std::string_view name)
 MSXDevice::MSXDevice(const DeviceConfig& config)
 	: deviceConfig(config)
 {
-	initName(getDeviceConfig().getAttribute("id"));
+	initName(getDeviceConfig().getAttributeValue("id"));
 }
 
 void MSXDevice::initName(std::string_view name)
@@ -96,8 +96,8 @@ void MSXDevice::lockDevices()
 	// (an extension) uses it to refer to the VDP (inside a machine)). If
 	// needed we can implement something more sophisticated later without
 	// changing the format of the config files.
-	for (auto& c : getDeviceConfig().getChildren("device")) {
-		const auto& name = c->getAttribute("idref");
+	for (const auto* c : getDeviceConfig().getChildren("device")) {
+		auto name = c->getAttributeValue("idref");
 		auto* dev = getMotherBoard().findDevice(name);
 		if (!dev) {
 			throw MSXException(
@@ -165,9 +165,9 @@ void MSXDevice::registerSlots()
 	MemRegions tmpMemRegions;
 	unsigned align = getBaseSizeAlignment();
 	assert(Math::ispow2(align));
-	for (auto& m : getDeviceConfig().getChildren("mem")) {
-		unsigned base = m->getAttributeAsInt("base");
-		unsigned size = m->getAttributeAsInt("size");
+	for (const auto* m : getDeviceConfig().getChildren("mem")) {
+		unsigned base = m->getAttributeValueAsInt("base", 0);
+		unsigned size = m->getAttributeValueAsInt("size", 0);
 		if ((base >= 0x10000) || (size > 0x10000) || ((base + size) > 0x10000)) {
 			throw MSXException(
 				"Invalid memory specification for device ",
@@ -192,12 +192,12 @@ void MSXDevice::registerSlots()
 	auto* primaryConfig   = getDeviceConfig2().getPrimary();
 	auto* secondaryConfig = getDeviceConfig2().getSecondary();
 	if (primaryConfig) {
-		ps = slotManager.getSlotNum(primaryConfig->getAttribute("slot"));
+		ps = slotManager.getSlotNum(primaryConfig->getAttributeValue("slot"));
 	} else {
 		throw MSXException("Invalid memory specification");
 	}
 	if (secondaryConfig) {
-		const auto& ss_str = secondaryConfig->getAttribute("slot");
+		auto ss_str = secondaryConfig->getAttributeValue("slot");
 		ss = slotManager.getSlotNum(ss_str);
 		if ((-16 <= ss) && (ss <= -1) && (ss != ps)) {
 			throw MSXException(
@@ -217,11 +217,11 @@ void MSXDevice::registerSlots()
 	const auto& config = getDeviceConfig();
 	if (config.hasAttribute("primary_slot")) {
 		auto& mutableConfig = const_cast<XMLElement&>(config);
-		const auto& primSlot = config.getAttribute("primary_slot");
+		auto primSlot = config.getAttributeValue("primary_slot");
 		ps = slotManager.getSlotNum(primSlot);
 		mutableConfig.removeAttribute("primary_slot");
 		if (config.hasAttribute("secondary_slot")) {
-			const auto& secondSlot = config.getAttribute("secondary_slot");
+			auto secondSlot = config.getAttributeValue("secondary_slot");
 			ss = slotManager.getSlotNum(secondSlot);
 			mutableConfig.removeAttribute("secondary_slot");
 		}
@@ -319,10 +319,10 @@ void MSXDevice::getVisibleMemRegion(unsigned& base, unsigned& size) const
 
 void MSXDevice::registerPorts()
 {
-	for (auto& i : getDeviceConfig().getChildren("io")) {
-		unsigned base = i->getAttributeAsInt("base");
-		unsigned num  = i->getAttributeAsInt("num");
-		const auto& type = i->getAttribute("type", "IO");
+	for (const auto* i : getDeviceConfig().getChildren("io")) {
+		unsigned base = i->getAttributeValueAsInt("base", 0);
+		unsigned num  = i->getAttributeValueAsInt("num", 0);
+		auto type = i->getAttributeValue("type", "IO");
 		if (((base + num) > 256) || (num == 0) ||
 		    (type != one_of("I", "O", "IO"))) {
 			throw MSXException("Invalid IO port specification");

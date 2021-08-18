@@ -52,8 +52,8 @@ Rom::Rom(string name_, static_string_view description_,
 {
 	// Try all <rom> tags with matching "id" attribute.
 	string errors;
-	for (auto& c : config.getXML()->getChildren("rom")) {
-		if (c->getAttribute("id", {}) == id) {
+	for (const auto* c : config.getXML()->getChildren("rom")) {
+		if (c->getAttributeValue("id", {}) == id) {
 			try {
 				init(config.getMotherBoard(), *c, config.getFileContext());
 				return;
@@ -103,8 +103,8 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		//  first check firstblock, otherwise it will only load when
 		//  there is a file that matches the sha1sums of the
 		//  firstblock-lastblock portion of the containing file.
-		int first = config.getChildDataAsInt("firstblock");
-		int last  = config.getChildDataAsInt("lastblock");
+		int first = config.getChildDataAsInt("firstblock", 0);
+		int last  = config.getChildDataAsInt("lastblock", 0);
 		size = (last - first + 1) * 0x2000;
 		rom = motherBoard.getPanasonicMemory().getRomRange(first, last);
 		assert(rom);
@@ -231,7 +231,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 			std::unique_ptr<PatchInterface> patch =
 				std::make_unique<EmptyPatch>(rom, size);
 
-			for (auto& p : patchesElem->getChildren("ips")) {
+			for (const auto& p : patchesElem->getChildren("ips")) {
 				patch = std::make_unique<IPSPatch>(
 					Filename(p->getData(), context),
 					std::move(patch));
@@ -302,8 +302,8 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	// This must come after we store the 'resolvedSha1', because on
 	// loadstate we use that tag to search the complete rom in a filepool.
 	if (const auto* windowElem = config.findChild("window")) {
-		unsigned windowBase = windowElem->getAttributeAsInt("base", 0);
-		unsigned windowSize = windowElem->getAttributeAsInt("size", size);
+		unsigned windowBase = windowElem->getAttributeValueAsInt("base", 0);
+		unsigned windowSize = windowElem->getAttributeValueAsInt("size", size);
 		if ((windowBase + windowSize) > size) {
 			throw MSXException(
 				"The specified window [", windowBase, ',',
@@ -325,7 +325,7 @@ bool Rom::checkSHA1(const XMLElement& config) const
 	auto sums = config.getChildren("sha1");
 	return sums.empty() ||
 	       contains(sums, getOriginalSHA1(),
-	                [](auto* s) { return Sha1Sum(s->getData()); });
+	                [](const auto* s) { return Sha1Sum(s->getData()); });
 }
 
 Rom::Rom(Rom&& r) noexcept
