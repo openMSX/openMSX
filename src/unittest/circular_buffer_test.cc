@@ -8,9 +8,9 @@ using namespace std;
 
 static void check_buf(
 	const circular_buffer<int>& buf,
-	int expectedCapacity, const vector<int>& expectedElements)
+	size_t expectedCapacity, const vector<int>& expectedElements)
 {
-	int expectedSize = expectedElements.size();
+	auto expectedSize = expectedElements.size();
 	REQUIRE(buf.size() == expectedSize);
 	CHECK(buf.capacity() == expectedCapacity);
 	CHECK(buf.reserve() == expectedCapacity - expectedSize);
@@ -56,9 +56,9 @@ TEST_CASE("circular_buffer") {
 
 static void check_buf(
 	const circular_buffer<unique_ptr<int>>& buf,
-	int expectedCapacity, const vector<int>& expectedElements)
+	size_t expectedCapacity, const vector<int>& expectedElements)
 {
-	int expectedSize = expectedElements.size();
+	auto expectedSize = expectedElements.size();
 	REQUIRE(buf.size() == expectedSize);
 	CHECK(buf.capacity() == expectedCapacity);
 	CHECK(buf.reserve() == expectedCapacity - expectedSize);
