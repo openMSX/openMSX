@@ -171,7 +171,7 @@ template class InputArchiveBase<XmlInputArchive>;
 
 ////
 
-void MemOutputArchive::save(const std::string& s)
+void MemOutputArchive::save(std::string_view s)
 {
 	auto size = s.size();
 	uint8_t* buf = buffer.allocate(sizeof(size) + size);
@@ -254,47 +254,44 @@ void MemInputArchive::serialize_blob(const char* /*tag*/, void* data,
 
 ////
 
-XmlOutputArchive::XmlOutputArchive(zstring_view filename)
-	: root("serial")
+XmlOutputArchive::XmlOutputArchive(zstring_view filename_)
+	: filename(filename_)
+	, writer(*this)
 {
-	root.addAttribute("openmsx_version", Version::full());
-	root.addAttribute("date_time", Date::toString(time(nullptr)));
-	root.addAttribute("platform", TARGET_PLATFORM);
 	{
 		auto f = FileOperations::openFile(filename, "wb");
-		if (!f) goto error;
+		if (!f) error();
 		int duped_fd = dup(fileno(f.get()));
-		if (duped_fd == -1) goto error;
+		if (duped_fd == -1) error();
 		file = gzdopen(duped_fd, "wb9");
 		if (!file) {
 			::close(duped_fd);
-			goto error;
+			error();
 		}
-		current.push_back(&root);
-		return; // success
-		// on scope-exit 'File* f' is closed, and 'gzFile file'
+		// on scope-exit 'f' is closed, and 'file'
 		// uses the dup()'ed file descriptor.
 	}
 
-error:
-	throw XMLException("Could not open compressed file \"", filename, "\"");
+	static constexpr std::string_view header =
+		"<?xml version=\"1.0\" ?>\n"
+		"<!DOCTYPE openmsx-serialize SYSTEM 'openmsx-serialize.dtd'>\n";
+	write(header.data(), header.size());
+
+	writer.begin("serial");
+	writer.attribute("openmsx_version", Version::full());
+	writer.attribute("date_time", Date::toString(time(nullptr)));
+	writer.attribute("platform", TARGET_PLATFORM);
 }
 
 void XmlOutputArchive::close()
 {
 	if (!file) return; // already closed
 
-	assert(current.back() == &root);
-	const char* header =
-	    "<?xml version=\"1.0\" ?>\n"
-	    "<!DOCTYPE openmsx-serialize SYSTEM 'openmsx-serialize.dtd'>\n";
-	string dump = root.dump();
-	if ((gzwrite(file, const_cast<char*>(header), unsigned(strlen(header))) == 0) ||
-	    (gzwrite(file, const_cast<char*>(dump.data()), unsigned(dump.size())) == 0) ||
-	    (gzclose(file) != Z_OK)) {
-		throw XMLException("Could not write savestate file.");
-	}
+	writer.end("serial");
 
+	if (gzclose(file) != Z_OK) {
+		error();
+	}
 	file = nullptr;
 }
 
@@ -307,21 +304,41 @@ XmlOutputArchive::~XmlOutputArchive()
 	}
 }
 
+void XmlOutputArchive::write(const char* buf, size_t len)
+{
+	if (gzwrite(file, buf, len) == 0) {
+		error();
+	}
+}
+
+void XmlOutputArchive::write1(char c)
+{
+	if (gzputc(file, c) == -1) {
+		error();
+	}
+}
+
+void XmlOutputArchive::check(bool condition) const
+{
+	assert(condition); (void)condition;
+}
+
+void XmlOutputArchive::error()
+{
+	throw XMLException("could not write \"", filename, '"');
+}
+
 void XmlOutputArchive::saveChar(char c)
 {
-	save(string(1, c));
+	writer.data(std::string_view(&c, 1));
 }
-void XmlOutputArchive::save(const string& str)
+void XmlOutputArchive::save(std::string_view str)
 {
-	assert(!current.empty());
-	assert(current.back()->getData().empty());
-	current.back()->setData(str);
+	writer.data(str);
 }
 void XmlOutputArchive::save(bool b)
 {
-	assert(!current.empty());
-	assert(current.back()->getData().empty());
-	current.back()->setData(std::string_view(b ? "true" : "false"));
+	writer.data(b ? "true" : "false");
 }
 void XmlOutputArchive::save(unsigned char b)
 {
@@ -348,11 +365,9 @@ void XmlOutputArchive::save(unsigned long long ull)
 	saveImpl(ull);
 }
 
-void XmlOutputArchive::attribute(const char* name, string str)
+void XmlOutputArchive::attribute(const char* name, std::string_view str)
 {
-	assert(!current.empty());
-	assert(!current.back()->hasAttribute(name));
-	current.back()->addAttribute(name, std::move(str));
+	writer.attribute(name, str);
 }
 void XmlOutputArchive::attribute(const char* name, int i)
 {
@@ -365,15 +380,11 @@ void XmlOutputArchive::attribute(const char* name, unsigned u)
 
 void XmlOutputArchive::beginTag(const char* tag)
 {
-	assert(!current.empty());
-	auto& elem = current.back()->addChild(tag);
-	current.push_back(&elem);
+	writer.begin(tag);
 }
 void XmlOutputArchive::endTag(const char* tag)
 {
-	assert(!current.empty());
-	assert(current.back()->getName() == tag); (void)tag;
-	current.pop_back();
+	writer.end(tag);
 }
 
 ////

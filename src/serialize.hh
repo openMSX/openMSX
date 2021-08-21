@@ -4,6 +4,7 @@
 #include "serialize_core.hh"
 #include "SerializeBuffer.hh"
 #include "XMLElement.hh"
+#include "XMLOutputStream.hh"
 #include "MemBuffer.hh"
 #include "hash_map.hh"
 #include "inline.hh"
@@ -662,7 +663,8 @@ public:
 	{
 		save(c);
 	}
-	void save(const std::string& s);
+	void save(const std::string& s) { save(std::string_view(s)); }
+	void save(std::string_view s);
 	void serialize_blob(const char* tag, const void* data, size_t len,
 	                    bool diff = true);
 
@@ -847,14 +849,14 @@ public:
 	{
 		// TODO make sure floating point is printed with enough digits
 		//      maybe print as hex?
-		save(strCat(t));
+		save(std::string_view(tmpStrCat(t)));
 	}
 	template<typename T> void save(const T& t)
 	{
 		saveImpl(t);
 	}
 	void saveChar(char c);
-	void save(const std::string& str);
+	void save(std::string_view str);
 	void save(bool b);
 	void save(unsigned char b);
 	void save(signed char c);
@@ -877,6 +879,8 @@ public:
 		this->self().serialize(std::forward<Args>(args)...);
 	}
 
+	auto& getXMLOutputStream() { return writer; }
+
 //internal:
 	static constexpr bool TRANSLATE_ENUM_TO_STRING = true;
 	static constexpr bool CAN_HAVE_OPTIONAL_ATTRIBUTES = true;
@@ -887,20 +891,26 @@ public:
 
 	template<typename T> void attributeImpl(const char* name, const T& t)
 	{
-		attribute(name, strCat(t));
+		attribute(name, std::string_view(tmpStrCat(t)));
 	}
 	template<typename T> void attribute(const char* name, const T& t)
 	{
 		attributeImpl(name, t);
 	}
-	void attribute(const char* name, std::string str);
+	void attribute(const char* name, std::string_view str);
 	void attribute(const char* name, int i);
 	void attribute(const char* name, unsigned u);
 
+//internal: // called from XMLOutputStream
+	void write(const char* buf, size_t len);
+	void write1(char c);
+	void check(bool condition) const;
+	void error();
+
 private:
-	gzFile file;
-	XMLElement root;
-	std::vector<XMLElement*> current;
+	zstring_view filename;
+	gzFile file = nullptr;
+	XMLOutputStream<XmlOutputArchive> writer;
 };
 
 class XmlInputArchive final : public InputArchiveBase<XmlInputArchive>
