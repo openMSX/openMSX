@@ -9,6 +9,7 @@
 #include "CommandException.hh"
 #include "GlobalCommandController.hh"
 #include "TclObject.hh"
+#include "XMLOutputStream.hh"
 #include "outer.hh"
 
 using std::string;
@@ -55,24 +56,51 @@ void SettingsConfig::setSaveFilename(const FileContext& context, std::string_vie
 	saveName = context.resolveCreate(filename);
 }
 
-void SettingsConfig::saveSetting(string filename)
+void SettingsConfig::saveSetting(std::string filename)
 {
 	if (filename.empty()) filename = saveName;
 	if (filename.empty()) return;
 
-	// Normally the following isn't needed. Only when there was no
-	// settings.xml in either the user or the system directory (so an
-	// incomplete openMSX installation!!) the top level element will have
-	// an empty name. And we shouldn't write an invalid xml file.
-	xmlElement.setName("settings");
+	struct SettingsWriter {
+		SettingsWriter(std::string filename)
+			: file(filename, File::TRUNCATE)
+		{
+			std::string_view header =
+				"<!DOCTYPE settings SYSTEM 'settings.dtd'>\n";
+			write(header.data(), header.size());
+		}
 
-	// settings are kept up-to-date
-	hotKey.saveBindings(xmlElement);
+		void write(const char* buf, size_t len) {
+			file.write(buf, len);
+		}
+		void write1(char c) {
+			file.write(&c, 1);
+		}
+		void check(bool condition) const {
+			assert(condition);
+		}
 
-	File file(std::move(filename), File::TRUNCATE);
-	string data = "<!DOCTYPE settings SYSTEM 'settings.dtd'>\n" +
-	              xmlElement.dump();
-	file.write(data.data(), data.size());
+	private:
+		File file;
+	};
+
+	SettingsWriter writer(filename);
+	XMLOutputStream xml(writer);
+	xml.begin("settings");
+	{
+		xml.begin("settings");
+		for (const auto* s : xmlElement.getChild("settings").getChildren("setting")) {
+			xml.begin("setting");
+			xml.attribute("id", s->getAttributeValue("id"));
+			xml.data(s->getData());
+			xml.end("setting");
+		}
+		xml.end("settings");
+	}
+	{
+		hotKey.saveBindings(xml);
+	}
+	xml.end("settings");
 }
 
 

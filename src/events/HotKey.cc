@@ -213,30 +213,6 @@ struct EqualEvent {
 	const Event& event;
 };
 
-void HotKey::saveBindings(XMLElement& config) const
-{
-	auto& bindingsElement = config.getCreateChild("bindings");
-	bindingsElement.removeAllChildren();
-
-	// add explicit bind's
-	for (const auto& k : boundKeys) {
-		const auto& info = *find_if_unguarded(cmdMap, EqualEvent(k));
-		auto& elem = bindingsElement.addChild("bind", info.command);
-		elem.addAttribute("key", toString(k));
-		if (info.repeat) {
-			elem.addAttribute("repeat", "true");
-		}
-		if (info.passEvent) {
-			elem.addAttribute("event", "true");
-		}
-	}
-	// add explicit unbinds
-	for (const auto& k : unboundKeys) {
-		auto& elem = bindingsElement.addChild("unbind");
-		elem.addAttribute("key", toString(k));
-	}
-}
-
 template<typename T>
 static bool contains(const std::vector<T>& v, const Event& event)
 {
@@ -276,8 +252,6 @@ void HotKey::bind(HotKeyInfo&& info)
 	erase(defaultMap, info.event);
 	insert(boundKeys, info.event);
 	insert(cmdMap, std::move(info));
-
-	saveBindings(commandController.getSettingsConfig().getXMLElement());
 }
 
 void HotKey::unbind(const Event& event)
@@ -293,8 +267,6 @@ void HotKey::unbind(const Event& event)
 
 	erase(defaultMap, event);
 	erase(cmdMap, event);
-
-	saveBindings(commandController.getSettingsConfig().getXMLElement());
 }
 
 void HotKey::bindDefault(HotKeyInfo&& info)
