@@ -16,11 +16,6 @@ using std::string_view;
 
 namespace openmsx {
 
-void XMLElement::removeChild(const XMLElement& child)
-{
-	children.erase(rfind_unguarded(children, &child, [](auto& v) { return &v; }));
-}
-
 XMLElement::Attributes::iterator XMLElement::getAttributeIter(string_view attrName)
 {
 	return ranges::find(attributes, attrName,
@@ -84,25 +79,6 @@ const XMLElement* XMLElement::findNextChild(string_view childName,
 	return nullptr;
 }
 
-XMLElement* XMLElement::findChildWithAttribute(string_view childName,
-	string_view attrName, string_view attValue)
-{
-	auto it = ranges::find_if(children, [&](auto& c) {
-		if (c.getName() != childName) return false;
-		auto* value = c.findAttribute(attrName);
-		if (!value) return false;
-		return *value == attValue;
-	});
-	return (it != end(children)) ? &*it : nullptr;
-}
-
-const XMLElement* XMLElement::findChildWithAttribute(string_view childName,
-	string_view attrName, string_view attValue) const
-{
-	return const_cast<XMLElement*>(this)->findChildWithAttribute(
-		childName, attrName, attValue);
-}
-
 XMLElement& XMLElement::getChild(string_view childName)
 {
 	if (auto* elem = findChild(childName)) {
@@ -139,11 +115,6 @@ int XMLElement::getChildDataAsInt(string_view childName, int defaultValue) const
 	if (!child) return defaultValue;
 	auto r = StringOp::stringTo<int>(child->getData());
 	return r ? *r : defaultValue;
-}
-
-void XMLElement::removeAllChildren()
-{
-	children.clear();
 }
 
 bool XMLElement::hasAttribute(string_view attrName) const
@@ -192,35 +163,6 @@ bool XMLElement::findAttributeInt(string_view attrName,
 		}
 	}
 	return false;
-}
-
-string XMLElement::dump() const
-{
-	string result;
-	dump(result, 0);
-	return result;
-}
-
-void XMLElement::dump(string& result, unsigned indentNum) const
-{
-	strAppend(result, spaces(indentNum), '<', getName());
-	for (const auto& [attrName, value] : attributes) {
-		strAppend(result, ' ', attrName, "=\"", XMLEscape(value), '"');
-	}
-	if (children.empty()) {
-		if (data.empty()) {
-			strAppend(result, "/>\n");
-		} else {
-			strAppend(result, '>', XMLEscape(data), "</",
-			          getName(), ">\n");
-		}
-	} else {
-		strAppend(result, ">\n");
-		for (const auto& c : children) {
-			c.dump(result, indentNum + 2);
-		}
-		strAppend(result, spaces(indentNum), "</", getName(), ">\n");
-	}
 }
 
 static std::unique_ptr<FileContext> lastSerializedFileContext;

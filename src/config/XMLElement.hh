@@ -101,7 +101,6 @@ public:
 		                             std::forward<String2>(childData));
 	}
 
-	void removeChild(const XMLElement& child);
 	[[nodiscard]] const Children& getChildren() const { return children; }
 	[[nodiscard]] bool hasChildren() const { return !children.empty(); }
 
@@ -123,24 +122,10 @@ public:
 	[[nodiscard]] const XMLElement& getChild(std::string_view childName) const;
 	[[nodiscard]] XMLElement& getChild(std::string_view childName);
 
-	[[nodiscard]] const XMLElement* findChildWithAttribute(
-		std::string_view childName, std::string_view attrName,
-		std::string_view attValue) const;
-	[[nodiscard]] XMLElement* findChildWithAttribute(
-		std::string_view childName, std::string_view attrName,
-		std::string_view attValue);
 	[[nodiscard]] const XMLElement* findNextChild(std::string_view name,
 	                                              size_t& fromIndex) const;
 
 	[[nodiscard]] std::vector<const XMLElement*> getChildren(std::string_view childName) const;
-
-	template<typename String>
-	XMLElement& getCreateChild(String&& childName) {
-		if (auto* result = findChild(childName)) {
-			return *result;
-		}
-		return addChild(std::forward<String>(childName));
-	}
 
 	template<typename String1, typename String2>
 	XMLElement& getCreateChild(String1&& childName, String2&& defaultValue) {
@@ -149,19 +134,6 @@ public:
 		}
 		return addChild(std::forward<String1>(childName),
 		                std::forward<String2>(defaultValue));
-	}
-
-	template<typename String1, typename String2, typename String3>
-	XMLElement& getCreateChildWithAttribute(
-		String1&& childName, String2&& attrName, String3&& attValue)
-	{
-		if (auto* result = findChildWithAttribute(childName, attrName, attValue)) {
-			return *result;
-		}
-		auto& result = addChild(std::forward<String1>(childName));
-		result.addAttribute(std::forward<String2>(attrName),
-		                    std::forward<String3>(attValue));
-		return result;
 	}
 
 	[[nodiscard]] std::string_view getChildData(std::string_view childName) const;
@@ -182,11 +154,6 @@ public:
 		}
 	}
 
-	void removeAllChildren();
-
-	// various
-	[[nodiscard]] std::string dump() const;
-
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
@@ -198,7 +165,6 @@ private:
 	using Attributes = std::vector<Attribute>;
 	[[nodiscard]] Attributes::iterator getAttributeIter(std::string_view attrName);
 	[[nodiscard]] Attributes::const_iterator getAttributeIter(std::string_view attrName) const;
-	void dump(std::string& result, unsigned indentNum) const;
 
 	std::string name;
 	std::string data;
