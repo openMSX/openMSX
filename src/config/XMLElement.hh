@@ -186,7 +186,6 @@ public:
 
 	// various
 	[[nodiscard]] std::string dump() const;
-	[[nodiscard]] static std::string XMLEscape(std::string_view str);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

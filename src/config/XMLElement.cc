@@ -1,4 +1,5 @@
 #include "XMLElement.hh"
+#include "XMLEscape.hh"
 #include "StringOp.hh"
 #include "FileContext.hh" // for bwcompat
 #include "ConfigException.hh"
@@ -220,42 +221,6 @@ void XMLElement::dump(string& result, unsigned indentNum) const
 		}
 		strAppend(result, spaces(indentNum), "</", getName(), ">\n");
 	}
-}
-
-// This routine does the following substitutions:
-//  & -> &amp;   must always be done
-//  < -> &lt;    must always be done
-//  > -> &gt;    always allowed, but must be done when it appears as ]]>
-//  ' -> &apos;  always allowed, but must be done inside quoted attribute
-//  " -> &quot;  always allowed, but must be done inside quoted attribute
-//  all chars less than 32 -> &#xnn;
-// So to simplify things we always do these 5+32 substitutions.
-string XMLElement::XMLEscape(string_view s)
-{
-	string result;
-	result.reserve(s.size()); // By default assume no substitution will be needed
-	for (char c : s) {
-		if (auto uc = static_cast<unsigned char>(c); uc < 32) {
-			auto hex = [](unsigned x) { return (x < 10) ? char(x + '0') : char(x - 10 + 'a'); };
-			result += "&#x";
-			result += hex(uc / 16);
-			result += hex(uc % 16);
-			result += ';';
-		} else if (c == '<') {
-			result += "&lt;";
-		} else if (c == '>') {
-			result += "&gt;";
-		} else if (c == '&') {
-			result += "&amp;";
-		} else if (c == '"') {
-			result += "&quot;";
-		} else if (c == '\'') {
-			result += "&apos;";
-		} else {
-			result += c;
-		}
-	}
-	return result;
 }
 
 static std::unique_ptr<FileContext> lastSerializedFileContext;

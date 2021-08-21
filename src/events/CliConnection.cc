@@ -12,7 +12,7 @@
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "TemporaryString.hh"
-#include "XMLElement.hh"
+#include "XMLEscape.hh"
 #include "cstdiop.hh"
 #include "ranges.hh"
 #include "unistdp.hh"
@@ -48,7 +48,7 @@ void CliConnection::log(CliComm::LogLevel level, std::string_view message) noexc
 {
 	auto levelStr = CliComm::getLevelStrings();
 	output(tmpStrCat("<log level=\"", levelStr[level], "\">",
-	                 XMLElement::XMLEscape(message), "</log>\n"));
+	                 XMLEscape(message), "</log>\n"));
 }
 
 void CliConnection::update(CliComm::UpdateType type, std::string_view machine,
@@ -62,9 +62,9 @@ void CliConnection::update(CliComm::UpdateType type, std::string_view machine,
 		strAppend(tmp, " machine=\"", machine, '\"');
 	}
 	if (!name.empty()) {
-		strAppend(tmp, " name=\"", XMLElement::XMLEscape(name), '\"');
+		strAppend(tmp, " name=\"", XMLEscape(name), '\"');
 	}
-	strAppend(tmp, '>', XMLElement::XMLEscape(value), "</update>\n");
+	strAppend(tmp, '>', XMLEscape(value), "</update>\n");
 
 	output(tmp);
 }
@@ -100,7 +100,7 @@ void CliConnection::execute(const std::string& command)
 static TemporaryString reply(std::string_view message, bool status)
 {
 	return tmpStrCat("<reply result=\"", (status ? "ok" : "nok"), "\">",
-	              XMLElement::XMLEscape(message), "</reply>\n");
+	                 XMLEscape(message), "</reply>\n");
 }
 
 int CliConnection::signalEvent(const Event& event) noexcept
