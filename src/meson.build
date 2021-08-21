@@ -576,6 +576,7 @@ test_sources = files(
     'unittest/TigerTree_test.cc',
     'unittest/WavData_test.cc',
     'unittest/XMLEscape_test.cc',
+    'unittest/XMLOutputStream_test.cc',
     'unittest/circular_buffer_test.cc',
     'unittest/eeprom.cc',
     'unittest/endian_test.cc',
