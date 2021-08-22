@@ -958,7 +958,7 @@ public:
 		this->self().serialize(std::forward<Args>(args)...);
 	}
 
-	[[nodiscard]] const NewXMLElement* currentElement() const {
+	[[nodiscard]] const XMLElement* currentElement() const {
 		return elems.back().first;
 	}
 
@@ -991,7 +991,7 @@ public:
 
 private:
 	XMLDocument xmlDoc{16384}; // tweak: initial allocator buffer size
-	std::vector<std::pair<const NewXMLElement*, const NewXMLElement*>> elems;
+	std::vector<std::pair<const XMLElement*, const XMLElement*>> elems;
 };
 
 #define INSTANTIATE_SERIALIZE_METHODS(CLASS) \

@@ -88,7 +88,6 @@ sources = files(
     'config/HardwareConfig.cc',
     'config/SettingsConfig.cc',
     'config/XMLElement.cc',
-    'config/XMLLoader.cc',
     'console/CommandConsole.cc',
     'console/OSDConsoleRenderer.cc',
     'console/OSDGUI.cc',

@@ -209,8 +209,11 @@ static void erase_all(EEPROM_93C46& eeprom, EmuTime& time)
 
 TEST_CASE("EEPROM_93C46")
 {
-	XMLElement xml;
-	EEPROM_93C46 eeprom(xml);
+	static XMLElement* xml = [] {
+		auto& doc = XMLDocument::getStaticDocument();
+		return doc.allocateNode("dummy");
+	}();
+	EEPROM_93C46 eeprom(*xml);
 	const uint8_t* data = eeprom.backdoor();
 	EmuTime time = EmuTime::zero();
 

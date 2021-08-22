@@ -533,7 +533,7 @@ void XmlInputArchive::endTag(const char* tag)
 		throw XMLException("End tag \"", elem.getName(),
 		                   "\" not equal to begin tag \"", tag, "\"");
 	}
-	auto& elem2 = const_cast<NewXMLElement&>(elem);
+	auto& elem2 = const_cast<XMLElement&>(elem);
 	elem2.clearName(); // mark this elem for later beginTag() calls
 	elems.pop_back();
 }

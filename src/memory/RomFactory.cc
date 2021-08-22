@@ -200,8 +200,9 @@ std::unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	// was updated).
 	// We do it at this point so that constructors used below can use this
 	// information for warning messages etc.
-	auto& writableConfig = const_cast<XMLElement&>(*config.getXML());
-	writableConfig.setChildData("mappertype", RomInfo::romTypeToName(type));
+	auto& doc = const_cast<DeviceConfig&>(config).getXMLDocument();
+	doc.setChildData(const_cast<XMLElement&>(*config.getXML()),
+	                 "mappertype", RomInfo::romTypeToName(type).data());
 
 	std::unique_ptr<MSXRom> result;
 	switch (type) {

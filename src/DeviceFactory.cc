@@ -298,38 +298,39 @@ std::unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 	return result;
 }
 
-[[nodiscard]] static XMLElement createConfig(std::string_view name, std::string_view id)
+[[nodiscard]] static XMLElement& createConfig(const char* name, const char* id)
 {
-	XMLElement config(name);
-	config.addAttribute("id", id);
-	return config;
+	auto& doc = XMLDocument::getStaticDocument();
+	auto* config = doc.allocateElement(name);
+	config->setFirstAttribute(doc.allocateAttribute("id", id));
+	return *config;
 }
 
 std::unique_ptr<DummyDevice> DeviceFactory::createDummyDevice(
 		const HardwareConfig& hwConf)
 {
-	static XMLElement xml(createConfig("Dummy", {}));
+	static XMLElement& xml(createConfig("Dummy", ""));
 	return make_unique<DummyDevice>(DeviceConfig(hwConf, xml));
 }
 
 std::unique_ptr<MSXDeviceSwitch> DeviceFactory::createDeviceSwitch(
 		const HardwareConfig& hwConf)
 {
-	static XMLElement xml(createConfig("DeviceSwitch", "DeviceSwitch"));
+	static XMLElement& xml(createConfig("DeviceSwitch", "DeviceSwitch"));
 	return make_unique<MSXDeviceSwitch>(DeviceConfig(hwConf, xml));
 }
 
 std::unique_ptr<MSXMapperIO> DeviceFactory::createMapperIO(
 		const HardwareConfig& hwConf)
 {
-	static XMLElement xml(createConfig("MapperIO", "MapperIO"));
+	static XMLElement& xml(createConfig("MapperIO", "MapperIO"));
 	return make_unique<MSXMapperIO>(DeviceConfig(hwConf, xml));
 }
 
 std::unique_ptr<VDPIODelay> DeviceFactory::createVDPIODelay(
 		const HardwareConfig& hwConf, MSXCPUInterface& cpuInterface)
 {
-	static XMLElement xml(createConfig("VDPIODelay", "VDPIODelay"));
+	static XMLElement& xml(createConfig("VDPIODelay", "VDPIODelay"));
 	return make_unique<VDPIODelay>(DeviceConfig(hwConf, xml), cpuInterface);
 }
 

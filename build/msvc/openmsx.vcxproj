@@ -337,7 +337,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\config\DeviceConfig.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\config\SettingsConfig.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\config\XMLElement.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\config\XMLLoader.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\console\CommandConsole.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\console\OSDConsoleRenderer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\console\OSDGUI.cc" />
@@ -874,7 +873,6 @@
     <None Include="$(OpenMSXSrcDir)\config\SettingsConfig.hh" />
     <None Include="$(OpenMSXSrcDir)\config\XMLElement.hh" />
     <None Include="$(OpenMSXSrcDir)\config\XMLException.hh" />
-    <None Include="$(OpenMSXSrcDir)\config\XMLLoader.hh" />
     <None Include="$(OpenMSXSrcDir)\console\CommandConsole.hh" />
     <None Include="$(OpenMSXSrcDir)\console\OSDConsoleRenderer.hh" />
     <None Include="$(OpenMSXSrcDir)\console\OSDGUI.hh" />

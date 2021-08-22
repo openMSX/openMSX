@@ -64,13 +64,6 @@ constexpr unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on .cas/.wav
 constexpr unsigned RECORD_FREQ = 44100;
 constexpr double OUTPUT_AMP = 60.0;
 
-static XMLElement createXML()
-{
-	XMLElement xml("cassetteplayer");
-	xml.addChild("sound").addChild("volume", "5000");
-	return xml;
-}
-
 static std::string_view getCassettePlayerName()
 {
 	return "cassetteplayer";
@@ -99,8 +92,14 @@ CassettePlayer::CassettePlayer(const HardwareConfig& hwConf)
 	, motor(false), motorControl(true)
 	, syncScheduled(false)
 {
-	static XMLElement xml = createXML();
-	registerSound(DeviceConfig(hwConf, xml));
+	static XMLElement* xml = [] {
+		auto& doc = XMLDocument::getStaticDocument();
+		XMLElement* result = doc.allocateElement("cassetteplayer");
+		result->setFirstChild(doc.allocateElement("sound"))
+		      ->setFirstChild(doc.allocateElement("volume", "5000"));
+		return result;
+	}();
+	registerSound(DeviceConfig(hwConf, *xml));
 
 	motherBoard.getReactor().getEventDistributor().registerEventListener(
 		EventType::BOOT, *this);

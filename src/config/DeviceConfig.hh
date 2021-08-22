@@ -7,6 +7,7 @@
 namespace openmsx {
 
 class XMLElement;
+class XMLDocument;
 class HardwareConfig;
 class FileContext;
 class MSXMotherBoard;
@@ -66,6 +67,7 @@ public:
 	[[nodiscard]] Scheduler& getScheduler() const;
 	[[nodiscard]] Reactor& getReactor() const;
 	[[nodiscard]] GlobalSettings& getGlobalSettings() const;
+	[[nodiscard]] XMLDocument& getXMLDocument();
 
 	[[nodiscard]] const XMLElement& getChild(std::string_view name) const;
 	[[nodiscard]] std::string_view getChildData(std::string_view name) const;

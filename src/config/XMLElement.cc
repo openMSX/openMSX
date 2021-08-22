@@ -1,226 +1,4 @@
 #include "XMLElement.hh"
-#include "XMLEscape.hh"
-#include "StringOp.hh"
-#include "FileContext.hh" // for bwcompat
-#include "ConfigException.hh"
-#include "ranges.hh"
-#include "serialize.hh"
-#include "serialize_stl.hh"
-#include "stl.hh"
-#include "strCat.hh"
-#include "xrange.hh"
-#include <cassert>
-
-using std::string;
-using std::string_view;
-
-namespace openmsx {
-
-XMLElement::Attributes::iterator XMLElement::getAttributeIter(string_view attrName)
-{
-	return ranges::find(attributes, attrName,
-	                    [](auto& a) { return a.first; });
-}
-XMLElement::Attributes::const_iterator XMLElement::getAttributeIter(string_view attrName) const
-{
-	return ranges::find(attributes, attrName,
-	                    [](auto& a) { return a.first; });
-}
-
-const string* XMLElement::findAttribute(string_view attrName) const
-{
-	auto it = getAttributeIter(attrName);
-	return (it != end(attributes)) ? &it->second : nullptr;
-}
-
-void XMLElement::removeAttribute(string_view attrName)
-{
-	if (auto it = getAttributeIter(attrName); it != end(attributes)) {
-		attributes.erase(it);
-	}
-}
-
-std::vector<const XMLElement*> XMLElement::getChildren(string_view childName) const
-{
-	std::vector<const XMLElement*> result;
-	for (const auto& c : children) {
-		if (c.getName() == childName) {
-			result.push_back(&c);
-		}
-	}
-	return result;
-}
-
-XMLElement* XMLElement::findChild(string_view childName)
-{
-	auto it = ranges::find(children, childName, &XMLElement::getName);
-	return (it != end(children)) ? &*it : nullptr;
-}
-const XMLElement* XMLElement::findChild(string_view childName) const
-{
-	return const_cast<XMLElement*>(this)->findChild(childName);
-}
-
-const XMLElement* XMLElement::findNextChild(string_view childName,
-	                                    size_t& fromIndex) const
-{
-	for (auto i : xrange(fromIndex, children.size())) {
-		if (children[i].getName() == childName) {
-			fromIndex = i + 1;
-			return &children[i];
-		}
-	}
-	for (auto i : xrange(fromIndex)) {
-		if (children[i].getName() == childName) {
-			fromIndex = i + 1;
-			return &children[i];
-		}
-	}
-	return nullptr;
-}
-
-XMLElement& XMLElement::getChild(string_view childName)
-{
-	if (auto* elem = findChild(childName)) {
-		return *elem;
-	}
-	throw ConfigException("Missing tag \"", childName, "\".");
-}
-const XMLElement& XMLElement::getChild(string_view childName) const
-{
-	return const_cast<XMLElement*>(this)->getChild(childName);
-}
-
-string_view XMLElement::getChildData(string_view childName) const
-{
-	return getChild(childName).getData();
-}
-
-string_view XMLElement::getChildData(string_view childName,
-                                     string_view defaultValue) const
-{
-	const auto* child = findChild(childName);
-	return child ? child->getData() : defaultValue;
-}
-
-bool XMLElement::getChildDataAsBool(string_view childName, bool defaultValue) const
-{
-	const auto* child = findChild(childName);
-	return child ? StringOp::stringToBool(child->getData()) : defaultValue;
-}
-
-int XMLElement::getChildDataAsInt(string_view childName, int defaultValue) const
-{
-	const auto* child = findChild(childName);
-	if (!child) return defaultValue;
-	auto r = StringOp::stringTo<int>(child->getData());
-	return r ? *r : defaultValue;
-}
-
-bool XMLElement::hasAttribute(string_view attrName) const
-{
-	return findAttribute(attrName);
-}
-
-string_view XMLElement::getAttributeValue(string_view attrName) const
-{
-	if (const auto* value = findAttribute(attrName)) {
-		return *value;
-	}
-	throw ConfigException("Missing attribute \"", attrName, "\".");
-}
-
-string_view XMLElement::getAttributeValue(string_view attrName,
-                                          string_view defaultValue) const
-{
-	const auto* value = findAttribute(attrName);
-	return value ? *value : defaultValue;
-}
-
-bool XMLElement::getAttributeValueAsBool(string_view attrName,
-                                    bool defaultValue) const
-{
-	const auto* value = findAttribute(attrName);
-	return value ? StringOp::stringToBool(*value) : defaultValue;
-}
-
-int XMLElement::getAttributeValueAsInt(string_view attrName,
-                                       int defaultValue) const
-{
-	const auto* value = findAttribute(attrName);
-	if (!value) return defaultValue;
-	auto r = StringOp::stringTo<int>(*value);
-	return r ? *r : defaultValue;
-}
-
-bool XMLElement::findAttributeInt(string_view attrName,
-                                  unsigned& result) const
-{
-	if (const auto* value = findAttribute(attrName)) {
-		if (auto r = StringOp::stringTo<int>(*value)) {
-			result = *r;
-			return true;
-		}
-	}
-	return false;
-}
-
-static std::unique_ptr<FileContext> lastSerializedFileContext;
-std::unique_ptr<FileContext> XMLElement::getLastSerializedFileContext()
-{
-	return std::move(lastSerializedFileContext); // this also sets value to nullptr;
-}
-// version 1: initial version
-// version 2: removed 'context' tag
-//            also removed 'parent', but that was never serialized
-//        2b: (no need to increase version) name and data members are
-//            serialized as normal members instead of constructor parameters
-//        2c: (no need to increase version) attributes were initially stored as
-//            map<string, string>, later this was changed to
-//            vector<pair<string, string>>. To keep bw-compat the serialize()
-//            method converted between these two formats. Though (by luck) in
-//            the XML output both datastructures are serialized to the same
-//            format, so we can drop this conversion step without breaking
-//            bw-compat.
-template<typename Archive>
-void XMLElement::serialize(Archive& ar, unsigned version)
-{
-	ar.serialize("name",       name,
-	             "data",       data,
-	             "attributes", attributes,
-	             "children",   children);
-
-	if (ar.versionBelow(version, 2)) {
-		assert(Archive::IS_LOADER);
-		std::unique_ptr<FileContext> context;
-		ar.serialize("context", context);
-		if (context) {
-			assert(!lastSerializedFileContext);
-			lastSerializedFileContext = std::move(context);
-		}
-	}
-}
-INSTANTIATE_SERIALIZE_METHODS(XMLElement);
-
-} // namespace openmsx
-
-//-----------------------------------------------------------------------------
-// Work in progress:
-// - the code above this box is the old implementation
-// - the code below is the new implementation
-// During a (short) transition period they are both present. Later the code
-// above will be deleted.
-//
-// Both old and new code want to have a class named XMLElement. For now the
-// version in the new code is called 'NewXMLElement'. Once the old version is
-// removed, we can rename 'NewXMLElement' to plain 'XMLElement'.
-//
-// There's also (now already) a class called 'OldXMLElement'. This is a greatly
-// simplified version of the original 'XMLElement' class. And this (will be)
-// used to implement loading of old savestate files.
-//-----------------------------------------------------------------------------
-
-#include "XMLElement.hh"
 #include "ConfigException.hh"
 #include "File.hh"
 #include "FileContext.hh" // for bw compat
@@ -238,7 +16,7 @@ INSTANTIATE_SERIALIZE_METHODS(XMLElement);
 namespace openmsx {
 
 // Returns nullptr when not found.
-const NewXMLElement* NewXMLElement::findChild(std::string_view childName) const
+const XMLElement* XMLElement::findChild(std::string_view childName) const
 {
 	for (const auto* child = firstChild; child; child = child->nextSibling) {
 		if (child->name == childName) {
@@ -254,7 +32,7 @@ const NewXMLElement* NewXMLElement::findChild(std::string_view childName) const
 // point to the next child (so that the next search starts from there). If the
 // end of the list is reached we restart the search from the start (so that the
 // full list is searched before giving up).
-const NewXMLElement* NewXMLElement::findChild(std::string_view childName, const NewXMLElement*& hint) const
+const XMLElement* XMLElement::findChild(std::string_view childName, const XMLElement*& hint) const
 {
 	for (const auto* current = hint; current; current = current->nextSibling) {
 		if (current->name == childName) {
@@ -272,7 +50,7 @@ const NewXMLElement* NewXMLElement::findChild(std::string_view childName, const 
 }
 
 // Like findChild(), but throws when not found.
-const NewXMLElement& NewXMLElement::getChild(std::string_view childName) const
+const XMLElement& XMLElement::getChild(std::string_view childName) const
 {
 	if (auto* elem = findChild(childName)) {
 		return *elem;
@@ -281,26 +59,26 @@ const NewXMLElement& NewXMLElement::getChild(std::string_view childName) const
 }
 
 // Throws when not found.
-std::string_view NewXMLElement::getChildData(std::string_view childName) const
+std::string_view XMLElement::getChildData(std::string_view childName) const
 {
 	return getChild(childName).getData();
 }
 
 // Returns default value when not found.
-std::string_view NewXMLElement::getChildData(
+std::string_view XMLElement::getChildData(
 	std::string_view childName, std::string_view defaultValue) const
 {
 	const auto* child = findChild(childName);
 	return child ? child->getData() : defaultValue;
 }
 
-bool NewXMLElement::getChildDataAsBool(std::string_view childName, bool defaultValue) const
+bool XMLElement::getChildDataAsBool(std::string_view childName, bool defaultValue) const
 {
 	const auto* child = findChild(childName);
 	return child ? StringOp::stringToBool(child->getData()) : defaultValue;
 }
 
-int NewXMLElement::getChildDataAsInt(std::string_view childName, int defaultValue) const
+int XMLElement::getChildDataAsInt(std::string_view childName, int defaultValue) const
 {
 	const auto* child = findChild(childName);
 	if (!child) return defaultValue;
@@ -308,13 +86,13 @@ int NewXMLElement::getChildDataAsInt(std::string_view childName, int defaultValu
 	return r ? *r : defaultValue;
 }
 
-size_t NewXMLElement::numChildren() const
+size_t XMLElement::numChildren() const
 {
 	return std::distance(getChildren().begin(), getChildren().end());
 }
 
 // Return nullptr when not found.
-const XMLAttribute* NewXMLElement::findAttribute(std::string_view attrName) const
+const XMLAttribute* XMLElement::findAttribute(std::string_view attrName) const
 {
 	for (const auto* attr = firstAttribute; attr; attr = attr->nextAttribute) {
 		if (attr->getName() == attrName) {
@@ -325,7 +103,7 @@ const XMLAttribute* NewXMLElement::findAttribute(std::string_view attrName) cons
 }
 
 // Throws when not found.
-const XMLAttribute& NewXMLElement::getAttribute(std::string_view attrName) const
+const XMLAttribute& XMLElement::getAttribute(std::string_view attrName) const
 {
 	const auto result = findAttribute(attrName);
 	if (result) return *result;
@@ -333,12 +111,12 @@ const XMLAttribute& NewXMLElement::getAttribute(std::string_view attrName) const
 }
 
 // Throws when not found.
-std::string_view NewXMLElement::getAttributeValue(std::string_view attrName) const
+std::string_view XMLElement::getAttributeValue(std::string_view attrName) const
 {
 	return getAttribute(attrName).getValue();
 }
 
-std::string_view NewXMLElement::getAttributeValue(std::string_view attrName,
+std::string_view XMLElement::getAttributeValue(std::string_view attrName,
                                                std::string_view defaultValue) const
 {
 	const auto* attr = findAttribute(attrName);
@@ -346,14 +124,14 @@ std::string_view NewXMLElement::getAttributeValue(std::string_view attrName,
 }
 
 // Returns default value when not found.
-bool NewXMLElement::getAttributeValueAsBool(std::string_view attrName,
+bool XMLElement::getAttributeValueAsBool(std::string_view attrName,
                                          bool defaultValue) const
 {
 	const auto* attr = findAttribute(attrName);
 	return attr ? StringOp::stringToBool(attr->getValue()) : defaultValue;
 }
 
-int NewXMLElement::getAttributeValueAsInt(std::string_view attrName,
+int XMLElement::getAttributeValueAsInt(std::string_view attrName,
                                        int defaultValue) const
 {
 	const auto* attr = findAttribute(attrName);
@@ -364,7 +142,7 @@ int NewXMLElement::getAttributeValueAsInt(std::string_view attrName,
 
 // Like findAttribute(), but returns a pointer-to-the-XMLAttribute-pointer.
 // This is mainly useful in combination with removeAttribute().
-XMLAttribute** NewXMLElement::findAttributePointer(std::string_view attrName)
+XMLAttribute** XMLElement::findAttributePointer(std::string_view attrName)
 {
 	for (auto** attr = &firstAttribute; *attr; attr = &(*attr)->nextAttribute) {
 		if ((*attr)->getName() == attrName) {
@@ -375,13 +153,13 @@ XMLAttribute** NewXMLElement::findAttributePointer(std::string_view attrName)
 }
 
 // Remove a specific attribute from the (single-linked) list.
-void NewXMLElement::removeAttribute(XMLAttribute** attrPtr)
+void XMLElement::removeAttribute(XMLAttribute** attrPtr)
 {
 	auto* attr = *attrPtr;
 	*attrPtr = attr->nextAttribute;
 }
 
-size_t NewXMLElement::numAttributes() const
+size_t XMLElement::numAttributes() const
 {
 	return std::distance(getAttributes().begin(), getAttributes().end());
 }
@@ -389,7 +167,7 @@ size_t NewXMLElement::numAttributes() const
 
 // Search for child with given name, if it doesn't exist yet, then create it now
 // with given data. Don't change the data of an already existing child.
-NewXMLElement* XMLDocument::getOrCreateChild(NewXMLElement& parent, const char* childName, const char* childData)
+XMLElement* XMLDocument::getOrCreateChild(XMLElement& parent, const char* childName, const char* childData)
 {
 	auto** elem = &parent.firstChild;
 	while (true) {
@@ -408,7 +186,7 @@ NewXMLElement* XMLDocument::getOrCreateChild(NewXMLElement& parent, const char* 
 
 // Search for child with given name, and change the data of that child. If the
 // child didn't exist yet, then create it now (also with given data).
-NewXMLElement* XMLDocument::setChildData(NewXMLElement& parent, const char* childName, const char* childData)
+XMLElement* XMLDocument::setChildData(XMLElement& parent, const char* childName, const char* childData)
 {
 	auto** elem = &parent.firstChild;
 	while (true) {
@@ -428,7 +206,7 @@ NewXMLElement* XMLDocument::setChildData(NewXMLElement& parent, const char* chil
 
 // Set attribute to new value, if that attribute didn't exist yet, then also
 // create it.
-void XMLDocument::setAttribute(NewXMLElement& elem, const char* attrName, const char* attrValue)
+void XMLDocument::setAttribute(XMLElement& elem, const char* attrName, const char* attrValue)
 {
 	auto** attr = &elem.firstAttribute;
 	while (true) {
@@ -506,22 +284,22 @@ private:
 	XMLDocument& doc;
 
 	std::string_view systemID;
-	std::vector<NewXMLElement*> stack;
-	NewXMLElement* currentElement = nullptr;
-	NewXMLElement** nextElement = nullptr;
+	std::vector<XMLElement*> stack;
+	XMLElement* currentElement = nullptr;
+	XMLElement** nextElement = nullptr;
 	XMLAttribute** nextAttribute = nullptr;
 };
 
-NewXMLElement* XMLDocument::allocateElement(const char* name)
+XMLElement* XMLDocument::allocateElement(const char* name)
 {
-	void* p = allocator.allocate(sizeof(NewXMLElement), alignof(NewXMLElement));
-	return new (p) NewXMLElement(name);
+	void* p = allocator.allocate(sizeof(XMLElement), alignof(XMLElement));
+	return new (p) XMLElement(name);
 }
 
-NewXMLElement* XMLDocument::allocateElement(const char* name, const char* data)
+XMLElement* XMLDocument::allocateElement(const char* name, const char* data)
 {
-	void* p = allocator.allocate(sizeof(NewXMLElement), alignof(NewXMLElement));
-	return new (p) NewXMLElement(name, data);
+	void* p = allocator.allocate(sizeof(XMLElement), alignof(XMLElement));
+	return new (p) XMLElement(name, data);
 }
 
 XMLAttribute* XMLDocument::allocateAttribute(const char* name, const char* value)
@@ -574,7 +352,7 @@ void XMLDocument::load(const std::string& filename, std::string_view systemID)
 	}
 }
 
-NewXMLElement* XMLDocument::loadElement(MemInputArchive& ar)
+XMLElement* XMLDocument::loadElement(MemInputArchive& ar)
 {
 	auto name = ar.loadStr();
 	if (name.empty()) return nullptr; // should only happen for empty document
@@ -613,7 +391,7 @@ void XMLDocument::serialize(MemInputArchive& ar, unsigned /*version*/)
 	root = loadElement(ar);
 }
 
-static void saveElement(MemOutputArchive& ar, const NewXMLElement& elem)
+static void saveElement(MemOutputArchive& ar, const XMLElement& elem)
 {
 	ar.save(elem.getName());
 
@@ -644,7 +422,7 @@ void XMLDocument::serialize(MemOutputArchive& ar, unsigned /*version*/)
 	}
 }
 
-NewXMLElement* XMLDocument::clone(const NewXMLElement& inElem)
+XMLElement* XMLDocument::clone(const XMLElement& inElem)
 {
 	auto* outElem = allocateElement(allocateString(inElem.getName()));
 
@@ -673,15 +451,14 @@ NewXMLElement* XMLDocument::clone(const NewXMLElement& inElem)
 
 void XMLDocument::serialize(XmlInputArchive& ar, unsigned /*version*/)
 {
-	//// TODO enable this code in a later patch
-	////const auto* current = ar.currentElement();
-	////if (const auto* elem = current->getFirstChild()) {
-	////	assert(elem->nextSibling == nullptr); // at most 1 child
-	////	root = clone(*elem);
-	////}
+	const auto* current = ar.currentElement();
+	if (const auto* elem = current->getFirstChild()) {
+		assert(elem->nextSibling == nullptr); // at most 1 child
+		root = clone(*elem);
+	}
 }
 
-static void saveElement(XMLOutputStream<XmlOutputArchive>& stream, const NewXMLElement& elem)
+static void saveElement(XMLOutputStream<XmlOutputArchive>& stream, const XMLElement& elem)
 {
 	stream.begin(elem.getName());
 	for (const auto& attr : elem.getAttributes()) {
@@ -705,7 +482,7 @@ void XMLDocument::serialize(XmlOutputArchive& ar, unsigned /*version*/)
 	}
 }
 
-NewXMLElement* XMLDocument::clone(const OldXMLElement& inElem)
+XMLElement* XMLDocument::clone(const OldXMLElement& inElem)
 {
 	auto* outElem = allocateElement(allocateString(inElem.name));
 
@@ -738,11 +515,11 @@ void XMLDocument::load(OldXMLElement& elem)
 }
 
 
-////static std::unique_ptr<FileContext> lastSerializedFileContext;
-////std::unique_ptr<FileContext> OldXMLElement::getLastSerializedFileContext()
-////{
-////	return std::move(lastSerializedFileContext);
-////}
+static std::unique_ptr<FileContext> lastSerializedFileContext;
+std::unique_ptr<FileContext> OldXMLElement::getLastSerializedFileContext()
+{
+	return std::move(lastSerializedFileContext);
+}
 // version 1: initial version
 // version 2: removed 'context' tag
 //            also removed 'parent', but that was never serialized

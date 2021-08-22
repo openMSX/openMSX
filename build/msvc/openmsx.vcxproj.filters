@@ -135,9 +135,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\config\XMLElement.cc">
       <Filter>config</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\config\XMLLoader.cc">
-      <Filter>config</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\console\CommandConsole.cc">
       <Filter>console</Filter>
     </ClCompile>
@@ -1462,9 +1459,6 @@
       <Filter>config</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\config\XMLException.hh">
-      <Filter>config</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\config\XMLLoader.hh">
       <Filter>config</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\console\CommandConsole.hh">

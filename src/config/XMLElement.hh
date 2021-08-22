@@ -1,196 +1,6 @@
 #ifndef XMLELEMENT_HH
 #define XMLELEMENT_HH
 
-#include "serialize_meta.hh"
-#include <utility>
-#include <string>
-#include <string_view>
-#include <vector>
-#include <memory>
-
-namespace openmsx {
-
-class FileContext;
-
-class XMLElement
-{
-public:
-	//
-	// Basic functions
-	//
-
-	// Construction.
-	//  (copy, assign, move, destruct are default)
-	XMLElement() = default;
-	XMLElement(XMLElement&&) = default;
-	XMLElement& operator=(const XMLElement&) = default;
-	XMLElement& operator=(XMLElement&&) = default;
-
-	//workaround msvc bug(?)
-	//XMLElement(const XMLElement&) = default;
-	XMLElement(const XMLElement& e)
-		: name(e.name), data(e.data)
-		, children(e.children), attributes(e.attributes) {}
-
-	// needed because the template below hides this version
-	XMLElement(XMLElement& x) : XMLElement(const_cast<const XMLElement&>(x)) {}
-
-	template<typename String>
-	explicit XMLElement(String&& name_)
-		: name(std::forward<String>(name_)) {}
-
-	template<typename String1, typename String2>
-	XMLElement(String1&& name_, String2&& data_)
-		: name(std::forward<String1>(name_)), data(std::forward<String2>(data_)) {}
-
-	// name
-	[[nodiscard]] std::string_view getName() const { return name; }
-	void clearName() { name.clear(); }
-
-	template<typename String>
-	void setName(String&& name_) { name = std::forward<String>(name_); }
-
-	// data
-	[[nodiscard]] std::string_view getData() const { return data; }
-
-	template<typename String>
-	void setData(String&& data_) {
-		assert(children.empty()); // no mixed-content elements
-		data = std::forward<String>(data_);
-	}
-
-	// attribute
-	template<typename String1, typename String2>
-	void addAttribute(String1&& attrName, String2&& value) {
-		assert(!hasAttribute(attrName));
-		attributes.emplace_back(std::forward<String1>(attrName),
-		                        std::forward<String2>(value));
-	}
-
-	template<typename String1, typename String2>
-	void setAttribute(String1&& attrName, String2&& value) {
-		auto it = getAttributeIter(attrName);
-		if (it != end(attributes)) {
-			it->second = std::forward<String2>(value);
-		} else {
-			attributes.emplace_back(std::forward<String1>(attrName),
-			                        std::forward<String2>(value));
-		}
-	}
-
-	void removeAttribute(std::string_view name);
-	[[nodiscard]] bool hasAttribute(std::string_view name) const;
-	[[nodiscard]] std::string_view getAttributeValue(std::string_view attrName) const;
-	[[nodiscard]] std::string_view getAttributeValue(std::string_view attrName,
-	                                                 std::string_view defaultValue) const;
-	// Returns ptr to attribute value, or nullptr when not found.
-	[[nodiscard]] const std::string* findAttribute(std::string_view attrName) const;
-
-	// child
-	using Children = std::vector<XMLElement>;
-
-	//  note: returned XMLElement& is validated on the next addChild() call
-	template<typename String>
-	XMLElement& addChild(String&& childName) {
-		return children.emplace_back(std::forward<String>(childName));
-	}
-
-	template<typename String1, typename String2>
-	XMLElement& addChild(String1&& childName, String2&& childData) {
-		return children.emplace_back(std::forward<String1>(childName),
-		                             std::forward<String2>(childData));
-	}
-
-	[[nodiscard]] const Children& getChildren() const { return children; }
-	[[nodiscard]] bool hasChildren() const { return !children.empty(); }
-
-	//
-	// Convenience functions
-	//
-
-	// attribute
-	[[nodiscard]] bool getAttributeValueAsBool(std::string_view attrName,
-	                                           bool defaultValue) const;
-	[[nodiscard]] int getAttributeValueAsInt(std::string_view attrName,
-	                                         int defaultValue) const;
-	[[nodiscard]] bool findAttributeInt(std::string_view attrName,
-	                                    unsigned& result) const;
-
-	// child
-	[[nodiscard]] const XMLElement* findChild(std::string_view childName) const;
-	[[nodiscard]] XMLElement* findChild(std::string_view childName);
-	[[nodiscard]] const XMLElement& getChild(std::string_view childName) const;
-	[[nodiscard]] XMLElement& getChild(std::string_view childName);
-
-	[[nodiscard]] const XMLElement* findNextChild(std::string_view name,
-	                                              size_t& fromIndex) const;
-
-	[[nodiscard]] std::vector<const XMLElement*> getChildren(std::string_view childName) const;
-
-	template<typename String1, typename String2>
-	XMLElement& getCreateChild(String1&& childName, String2&& defaultValue) {
-		if (auto* result = findChild(childName)) {
-			return *result;
-		}
-		return addChild(std::forward<String1>(childName),
-		                std::forward<String2>(defaultValue));
-	}
-
-	[[nodiscard]] std::string_view getChildData(std::string_view childName) const;
-	[[nodiscard]] std::string_view getChildData(std::string_view childName,
-	                                            std::string_view defaultValue) const;
-	[[nodiscard]] bool getChildDataAsBool(std::string_view childName,
-	                                      bool defaultValue = false) const;
-	[[nodiscard]] int getChildDataAsInt(std::string_view childName,
-	                                    int defaultValue) const;
-
-	template<typename String1, typename String2>
-	void setChildData(String1&& childName, String2&& value) {
-		if (auto* child = findChild(childName)) {
-			child->setData(std::forward<String2>(value));
-		} else {
-			addChild(std::forward<String1>(childName),
-			         std::forward<String2>(value));
-		}
-	}
-
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
-
-	// For backwards compatibility with older savestates
-	static std::unique_ptr<FileContext> getLastSerializedFileContext();
-
-private:
-	using Attribute = std::pair<std::string, std::string>;
-	using Attributes = std::vector<Attribute>;
-	[[nodiscard]] Attributes::iterator getAttributeIter(std::string_view attrName);
-	[[nodiscard]] Attributes::const_iterator getAttributeIter(std::string_view attrName) const;
-
-	std::string name;
-	std::string data;
-	Children children;
-	Attributes attributes;
-};
-SERIALIZE_CLASS_VERSION(XMLElement, 2);
-
-} // namespace openmsx
-
-//-----------------------------------------------------------------------------
-// Work in progress:
-// - the code above this box is the old implementation
-// - the code below is the new implementation
-// During a (short) transition period they are both present. Later the code
-// above will be deleted.
-//
-// Both old and new code want to have a class named XMLElement. For now the
-// version in the new code is called 'NewXMLElement'. Once the old version is
-// removed, we can rename 'NewXMLElement' to plain 'XMLElement'.
-//
-// There's also (now already) a class called 'OldXMLElement'. This is a greatly
-// simplified version of the original 'XMLElement' class. And this (will be)
-// used to implement loading of old savestate files.
-//-----------------------------------------------------------------------------
-
 #include "MemBuffer.hh"
 #include "serialize_meta.hh"
 #include <cassert>
@@ -255,7 +65,7 @@ private:
 	const char* value;
 	XMLAttribute* nextAttribute = nullptr;
 
-	friend class NewXMLElement;
+	friend class XMLElement;
 	friend class XMLDocument;
 	friend class XMLDocumentHandler;
 };
@@ -276,41 +86,41 @@ private:
 // elements requires to first follow the 'firstChild' pointer, and from there on
 // follow the 'nextSibling' pointers (and stop when any of these pointers in
 // nullptr). XMLElement objects do not have a pointer to their parent.
-class NewXMLElement
+class XMLElement
 {
 	// iterator classes for children and attributes
 	// TODO c++20: use iterator + sentinel instead of 2 x iterator
 	struct ChildIterator {
 		using difference_type = ptrdiff_t;
-		using value_type = const NewXMLElement;
+		using value_type = const XMLElement;
 		using pointer = value_type*;
 		using reference = value_type&;
 		using iterator_category = std::forward_iterator_tag;
 
-		const NewXMLElement* elem;
+		const XMLElement* elem;
 
-		const NewXMLElement& operator*() const { return *elem; }
+		const XMLElement& operator*() const { return *elem; }
 		ChildIterator operator++() { elem = elem->nextSibling; return *this; }
 		bool operator==(const ChildIterator& i) { return elem == i.elem; }
 		bool operator!=(const ChildIterator& i) { return !(*this == i); }
 	};
 	struct ChildRange {
-		const NewXMLElement* elem;
+		const XMLElement* elem;
 		ChildIterator begin() const { return {elem->firstChild}; }
 		ChildIterator end()   const { return {nullptr}; }
 	};
 
 	struct NamedChildIterator {
 		using difference_type = ptrdiff_t;
-		using value_type = const NewXMLElement*;
+		using value_type = const XMLElement*;
 		using pointer = value_type*;
 		using reference = value_type&;
 		using iterator_category = std::forward_iterator_tag;
 
-		const NewXMLElement* elem;
+		const XMLElement* elem;
 		const std::string_view name;
 
-		NamedChildIterator(const NewXMLElement* elem_, std::string_view name_)
+		NamedChildIterator(const XMLElement* elem_, std::string_view name_)
 			: elem(elem_), name(name_)
 		{
 			while (elem && elem->getName() != name) {
@@ -318,7 +128,7 @@ class NewXMLElement
 			}
 		}
 
-		const NewXMLElement* operator*() const { return elem; }
+		const XMLElement* operator*() const { return elem; }
 		NamedChildIterator operator++() {
 			do {
 				elem = elem->nextSibling;
@@ -329,7 +139,7 @@ class NewXMLElement
 		bool operator!=(const NamedChildIterator& i) { return !(*this == i); }
 	};
 	struct NamedChildRange {
-		const NewXMLElement* elem;
+		const XMLElement* elem;
 		std::string_view name;
 		NamedChildIterator begin() const { return {elem->firstChild, name}; }
 		NamedChildIterator end()   const { return {nullptr, std::string_view{}}; }
@@ -350,14 +160,14 @@ class NewXMLElement
 		bool operator!=(const AttributeIterator& i) { return !(*this == i); }
 	};
 	struct AttributeRange {
-		const NewXMLElement* elem;
+		const XMLElement* elem;
 		AttributeIterator begin() const { return {elem->firstAttribute}; }
 		AttributeIterator end()   const { return {nullptr}; }
 	};
 
 public:
-	NewXMLElement(const char* name_) : name(name_) {}
-	NewXMLElement(const char* name_, const char* data_) : name(name_), data(data_) {}
+	XMLElement(const char* name_) : name(name_) {}
+	XMLElement(const char* name_, const char* data_) : name(name_), data(data_) {}
 
 	[[nodiscard]] std::string_view getName() const { return name; }
 	void clearName() { name = ""; } // hack to 'remove' child from findChild()
@@ -365,16 +175,16 @@ public:
 	[[nodiscard]] std::string_view getData() const {
 		return data ? std::string_view(data) : std::string_view();
 	}
-	NewXMLElement* setData(const char* data_) {
+	XMLElement* setData(const char* data_) {
 		data = data_;
 		return this;
 	}
 
 	[[nodiscard]] bool hasChildren() const { return firstChild; }
-	[[nodiscard]] const NewXMLElement* getFirstChild() const { return firstChild; }
-	[[nodiscard]] const NewXMLElement* findChild(std::string_view childName) const;
-	[[nodiscard]] const NewXMLElement* findChild(std::string_view childName, const NewXMLElement*& hint) const;
-	[[nodiscard]] const NewXMLElement& getChild(std::string_view childName) const;
+	[[nodiscard]] const XMLElement* getFirstChild() const { return firstChild; }
+	[[nodiscard]] const XMLElement* findChild(std::string_view childName) const;
+	[[nodiscard]] const XMLElement* findChild(std::string_view childName, const XMLElement*& hint) const;
+	[[nodiscard]] const XMLElement& getChild(std::string_view childName) const;
 
 	[[nodiscard]] std::string_view getChildData(std::string_view childName) const;
 	[[nodiscard]] std::string_view getChildData(std::string_view childName,
@@ -400,12 +210,12 @@ public:
 	[[nodiscard]] size_t numAttributes() const;
 	AttributeRange getAttributes() const { return {this}; }
 
-	NewXMLElement* setFirstChild(NewXMLElement* child) {
+	XMLElement* setFirstChild(XMLElement* child) {
 		assert(!firstChild);
 		firstChild = child;
 		return child;
 	}
-	NewXMLElement* setNextSibling(NewXMLElement* sibling) {
+	XMLElement* setNextSibling(XMLElement* sibling) {
 		assert(!nextSibling);
 		nextSibling = sibling;
 		return sibling;
@@ -419,8 +229,8 @@ public:
 private:
 	const char* name;
 	const char* data = nullptr;
-	NewXMLElement* firstChild = nullptr;
-	NewXMLElement* nextSibling = nullptr;
+	XMLElement* firstChild = nullptr;
+	XMLElement* nextSibling = nullptr;
 	XMLAttribute* firstAttribute = nullptr;
 
 	friend class XMLDocument;
@@ -458,21 +268,21 @@ public:
 	// Load/parse an xml file. Requires that the document is still empty.
 	void load(const std::string& filename, std::string_view systemID);
 
-	[[nodiscard]] const NewXMLElement* getRoot() const { return root; }
-	void setRoot(NewXMLElement* root_) { assert(!root); root = root_; }
+	[[nodiscard]] const XMLElement* getRoot() const { return root; }
+	void setRoot(XMLElement* root_) { assert(!root); root = root_; }
 
-	[[nodiscard]] NewXMLElement* allocateElement(const char* name);
-	[[nodiscard]] NewXMLElement* allocateElement(const char* name, const char* data);
+	[[nodiscard]] XMLElement* allocateElement(const char* name);
+	[[nodiscard]] XMLElement* allocateElement(const char* name, const char* data);
 	[[nodiscard]] XMLAttribute* allocateAttribute(const char* name, const char* value);
 	[[nodiscard]] const char* allocateString(std::string_view str);
 
-	[[nodiscard]] NewXMLElement* getOrCreateChild(NewXMLElement& parent, const char* childName, const char* childData);
-	NewXMLElement* setChildData(NewXMLElement& parent, const char* childName, const char* childData);
-	void setAttribute(NewXMLElement& elem, const char* attrName, const char* attrValue);
+	[[nodiscard]] XMLElement* getOrCreateChild(XMLElement& parent, const char* childName, const char* childData);
+	XMLElement* setChildData(XMLElement& parent, const char* childName, const char* childData);
+	void setAttribute(XMLElement& elem, const char* attrName, const char* attrValue);
 
 	template<typename Range, typename UnaryOp>
-	void generateList(NewXMLElement& parent, const char* itemName, Range&& range, UnaryOp op) {
-		NewXMLElement** next = &parent.firstChild;
+	void generateList(XMLElement& parent, const char* itemName, Range&& range, UnaryOp op) {
+		XMLElement** next = &parent.firstChild;
 		assert(!*next);
 		for (auto& r : range) {
 			auto* elem = allocateElement(itemName);
@@ -490,12 +300,12 @@ public:
 	void serialize(XmlOutputArchive& ar, unsigned version);
 
 private:
-	NewXMLElement* loadElement(MemInputArchive& ar);
-	NewXMLElement* clone(const NewXMLElement& inElem);
-	NewXMLElement* clone(const OldXMLElement& elem);
+	XMLElement* loadElement(MemInputArchive& ar);
+	XMLElement* clone(const XMLElement& inElem);
+	XMLElement* clone(const OldXMLElement& elem);
 
 private:
-	NewXMLElement* root = nullptr;
+	XMLElement* root = nullptr;
 	MemBuffer<char> buf;
 	std::pmr::monotonic_buffer_resource allocator;
 

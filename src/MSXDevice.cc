@@ -214,16 +214,13 @@ void MSXDevice::registerSlots()
 	// the (possibly shared) <primary> and <secondary> tags. When loading
 	// an old savestate these tags can still occur, so keep this code. Also
 	// remove these attributes to convert to the new format.
-	const auto& config = getDeviceConfig();
-	if (config.hasAttribute("primary_slot")) {
-		auto& mutableConfig = const_cast<XMLElement&>(config);
-		auto primSlot = config.getAttributeValue("primary_slot");
-		ps = slotManager.getSlotNum(primSlot);
-		mutableConfig.removeAttribute("primary_slot");
-		if (config.hasAttribute("secondary_slot")) {
-			auto secondSlot = config.getAttributeValue("secondary_slot");
-			ss = slotManager.getSlotNum(secondSlot);
-			mutableConfig.removeAttribute("secondary_slot");
+	auto& mutableConfig = const_cast<XMLElement&>(getDeviceConfig());
+	if (auto** primSlotPtr = mutableConfig.findAttributePointer("primary_slot")) {
+		ps = slotManager.getSlotNum((*primSlotPtr)->getValue());
+		mutableConfig.removeAttribute(primSlotPtr);
+		if (auto** secSlotPtr = mutableConfig.findAttributePointer("secondary_slot")) {
+			ss = slotManager.getSlotNum((*secSlotPtr)->getValue());
+			mutableConfig.removeAttribute(secSlotPtr);
 		}
 	}
 
@@ -259,10 +256,11 @@ void MSXDevice::registerSlots()
 	//  - Fix the slot number so that it remains the same after a
 	//    savestate/loadstate.
 	assert(primaryConfig);
-	primaryConfig->setAttribute("slot", strCat(ps));
+	XMLDocument& doc = deviceConfig.getXMLDocument();
+	doc.setAttribute(*primaryConfig, "slot", doc.allocateString(tmpStrCat(ps)));
 	if (secondaryConfig) {
-		std::string slot = (ss == -1) ? "X" : strCat(ss);
-		secondaryConfig->setAttribute("slot", std::move(slot));
+		doc.setAttribute(*secondaryConfig, "slot", doc.allocateString(
+			(ss == -1) ? std::string_view("X") : tmpStrCat(ss)));
 	} else {
 		if (ss != -1) {
 			throw MSXException(

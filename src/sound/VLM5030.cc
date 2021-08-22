@@ -500,17 +500,20 @@ void VLM5030::setST(bool pin)
 }
 
 
-static XMLElement getRomConfig(const std::string& name, std::string_view romFilename)
+static XMLElement* getRomConfig(
+	DeviceConfig& config, const std::string& name, std::string_view romFilename)
 {
-	XMLElement voiceROMconfig(name);
-	voiceROMconfig.addAttribute("id", "name");
-	auto& romElement = voiceROMconfig.addChild("rom");
-	romElement.addChild( // load by sha1sum
-		"sha1", "4f36d139ee4baa7d5980f765de9895570ee05f40");
-	romElement.addChild( // load by predefined filename in software rom's dir
-		"filename", strCat(FileOperations::stripExtension(romFilename), "_voice.rom"));
-	romElement.addChild( // or hardcoded filename in ditto dir
-		"filename", "keyboardmaster/voice.rom");
+	auto& doc = config.getXMLDocument();
+	auto* voiceROMconfig = doc.allocateElement(doc.allocateString(name));
+	voiceROMconfig->setFirstAttribute(doc.allocateAttribute("id", "name"));
+	auto* romElement = voiceROMconfig->setFirstChild(doc.allocateElement("rom"));
+	romElement->setFirstChild(doc.allocateElement( // load by sha1sum
+			"sha1", "4f36d139ee4baa7d5980f765de9895570ee05f40"))
+	         ->setNextSibling(doc.allocateElement( // load by predefined filename in software rom's dir
+			"filename",
+			doc.allocateString(tmpStrCat(FileOperations::stripExtension(romFilename), "_voice.rom"))))
+		 ->setNextSibling(doc.allocateElement( // or hardcoded filename in ditto dir
+			"filename", "keyboardmaster/voice.rom"));
 	return voiceROMconfig;
 }
 
@@ -519,7 +522,7 @@ constexpr auto INPUT_RATE = unsigned(cstd::round(3579545 / 440.0));
 VLM5030::VLM5030(const std::string& name_, static_string_view desc,
                  std::string_view romFilename, const DeviceConfig& config)
 	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 1, INPUT_RATE, false)
-	, rom(name_ + " ROM", "rom", DeviceConfig(config, getRomConfig(name_, romFilename)))
+	, rom(name_ + " ROM", "rom", DeviceConfig(config, *getRomConfig(const_cast<DeviceConfig&>(config), name_, romFilename)))
 {
 	// reset input pins
 	pin_RST = pin_ST = pin_VCU = false;

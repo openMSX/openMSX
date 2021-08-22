@@ -1,5 +1,6 @@
 #include "Rom.hh"
 #include "DeviceConfig.hh"
+#include "HardwareConfig.hh"
 #include "XMLElement.hh"
 #include "RomInfo.hh"
 #include "RomDatabase.hh"
@@ -19,6 +20,7 @@
 #include "StringOp.hh"
 #include "ranges.hh"
 #include "sha1.hh"
+#include "stl.hh"
 #include <cstring>
 #include <limits>
 #include <memory>
@@ -89,8 +91,8 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	// savestate. External state can be a .rom file or a patch file.
 	bool checkResolvedSha1 = false;
 
-	auto sums      = config.getChildren("sha1");
-	auto filenames = config.getChildren("filename");
+	auto sums      = to_vector(config.getChildren("sha1"));
+	auto filenames = to_vector(config.getChildren("filename"));
 	const auto* resolvedFilenameElem = config.findChild("resolvedFilename");
 	const auto* resolvedSha1Elem     = config.findChild("resolvedSha1");
 	if (config.findChild("firstblock")) {
@@ -231,7 +233,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 			std::unique_ptr<PatchInterface> patch =
 				std::make_unique<EmptyPatch>(rom, size);
 
-			for (const auto& p : patchesElem->getChildren("ips")) {
+			for (const auto* p : patchesElem->getChildren("ips")) {
 				patch = std::make_unique<IPSPatch>(
 					Filename(p->getData(), context),
 					std::move(patch));
@@ -284,11 +286,12 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	}
 
 	if (checkResolvedSha1) {
-		auto& mutableConfig = const_cast<XMLElement&>(config);
-		string patchedSha1Str = getSHA1().toString();
-		const auto& actualSha1Elem = mutableConfig.getCreateChild(
-			"resolvedSha1", patchedSha1Str);
-		if (actualSha1Elem.getData() != patchedSha1Str) {
+		auto& doc = motherBoard.getMachineConfig()->getXMLDocument();
+		auto patchedSha1Str = getSHA1().toString();
+		const auto* actualSha1Elem = doc.getOrCreateChild(
+			const_cast<XMLElement&>(config),
+			"resolvedSha1", doc.allocateString(patchedSha1Str));
+		if (actualSha1Elem->getData() != patchedSha1Str) {
 			std::string_view tmp = file.is_open() ? file.getURL() : name;
 			// can only happen in case of loadstate
 			motherBoard.getMSXCliComm().printWarning(
@@ -322,7 +325,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 bool Rom::checkSHA1(const XMLElement& config) const
 {
-	auto sums = config.getChildren("sha1");
+	auto sums = to_vector(config.getChildren("sha1"));
 	return sums.empty() ||
 	       contains(sums, getOriginalSHA1(),
 	                [](const auto* s) { return Sha1Sum(s->getData()); });
