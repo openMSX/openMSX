@@ -958,6 +958,10 @@ public:
 		this->self().serialize(std::forward<Args>(args)...);
 	}
 
+	[[nodiscard]] const NewXMLElement* currentElement() const {
+		return elems.back().first;
+	}
+
 //internal:
 	static constexpr bool TRANSLATE_ENUM_TO_STRING = true;
 	static constexpr bool CAN_HAVE_OPTIONAL_ATTRIBUTES = true;
@@ -986,8 +990,8 @@ public:
 	[[nodiscard]] int countChildren() const;
 
 private:
-	XMLElement rootElem;
-	std::vector<std::pair<const XMLElement*, size_t>> elems;
+	XMLDocument xmlDoc{16384}; // tweak: initial allocator buffer size
+	std::vector<std::pair<const NewXMLElement*, const NewXMLElement*>> elems;
 };
 
 #define INSTANTIATE_SERIALIZE_METHODS(CLASS) \

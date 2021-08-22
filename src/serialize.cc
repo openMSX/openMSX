@@ -1,13 +1,13 @@
 #include "serialize.hh"
 #include "Base64.hh"
 #include "HexDump.hh"
-#include "XMLLoader.hh"
 #include "XMLElement.hh"
 #include "ConfigException.hh"
 #include "XMLException.hh"
 #include "DeltaBlock.hh"
 #include "MemBuffer.hh"
 #include "FileOperations.hh"
+#include "StringOp.hh"
 #include "Version.hh"
 #include "Date.hh"
 #include "one_of.hh"
@@ -390,17 +390,18 @@ void XmlOutputArchive::endTag(const char* tag)
 ////
 
 XmlInputArchive::XmlInputArchive(const string& filename)
-	: rootElem(XMLLoader::load(filename, "openmsx-serialize.dtd"))
 {
-	elems.emplace_back(&rootElem, 0);
+	xmlDoc.load(filename, "openmsx-serialize.dtd");
+	const auto* root = xmlDoc.getRoot();
+	elems.emplace_back(root, root->getFirstChild());
 }
 
 string_view XmlInputArchive::loadStr()
 {
-	if (!elems.back().first->getChildren().empty()) {
+	if (currentElement()->hasChildren()) {
 		throw XMLException("No child tags expected for primitive type");
 	}
-	return elems.back().first->getData();
+	return currentElement()->getData();
 }
 void XmlInputArchive::load(string& t)
 {
@@ -514,8 +515,7 @@ void XmlInputArchive::load(char& c)
 
 void XmlInputArchive::beginTag(const char* tag)
 {
-	const auto* child = elems.back().first->findNextChild(
-		tag, elems.back().second);
+	const auto* child = currentElement()->findChild(tag, elems.back().second);
 	if (!child) {
 		string path;
 		for (auto& e : elems) {
@@ -524,27 +524,27 @@ void XmlInputArchive::beginTag(const char* tag)
 		throw XMLException("No child tag \"", tag,
 		                   "\" found at location \"", path, '\"');
 	}
-	elems.emplace_back(child, 0);
+	elems.emplace_back(child, child->getFirstChild());
 }
 void XmlInputArchive::endTag(const char* tag)
 {
-	const auto& elem = *elems.back().first;
+	const auto& elem = *currentElement();
 	if (elem.getName() != tag) {
 		throw XMLException("End tag \"", elem.getName(),
 		                   "\" not equal to begin tag \"", tag, "\"");
 	}
-	auto& elem2 = const_cast<XMLElement&>(elem);
+	auto& elem2 = const_cast<NewXMLElement&>(elem);
 	elem2.clearName(); // mark this elem for later beginTag() calls
 	elems.pop_back();
 }
 
 void XmlInputArchive::attribute(const char* name, string& t)
 {
-	try {
-		t = elems.back().first->getAttributeValue(name);
-	} catch (ConfigException& e) {
-		throw XMLException(std::move(e).getMessage());
+	const auto* attr = currentElement()->findAttribute(name);
+	if (!attr) {
+		throw XMLException("Missing attribute \"", name, "\".");
 	}
+	t = attr->getValue();
 }
 void XmlInputArchive::attribute(const char* name, int& i)
 {
@@ -556,15 +556,21 @@ void XmlInputArchive::attribute(const char* name, unsigned& u)
 }
 bool XmlInputArchive::hasAttribute(const char* name)
 {
-	return elems.back().first->hasAttribute(name);
+	return currentElement()->findAttribute(name);
 }
 bool XmlInputArchive::findAttribute(const char* name, unsigned& value)
 {
-	return elems.back().first->findAttributeInt(name, value);
+	if (const auto* attr = currentElement()->findAttribute(name)) {
+		if (auto r = StringOp::stringTo<int>(attr->getValue())) {
+			value = *r;
+			return true;
+		}
+	}
+	return false;
 }
 int XmlInputArchive::countChildren() const
 {
-	return int(elems.back().first->getChildren().size());
+	return int(currentElement()->numChildren());
 }
 
 } // namespace openmsx
