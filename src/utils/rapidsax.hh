@@ -50,6 +50,8 @@ constexpr int trimWhitespace      = 0x2;
 // Should sequences of whitespace characters be replaced with a single
 // space character?
 constexpr int normalizeWhitespace = 0x4;
+// Should strings be modified (in-place) with a zero-terminator?
+constexpr int zeroTerminateStrings = 0x8;
 
 
 // Callback handler with all empty implementations (can be used as a base
@@ -406,6 +408,9 @@ private:
 			}
 			++text;
 		}
+		if (FLAGS & zeroTerminateStrings) {
+			*text = '\0';
+		}
 		handler.comment(std::string_view(value, text - value));
 		text += 3; // skip '-->'
 	}
@@ -443,6 +448,9 @@ private:
 			}
 		}
 
+		if (FLAGS & zeroTerminateStrings) {
+			*text = '\0';
+		}
 		handler.doctype(std::string_view(value, text - value));
 		text += 1; // skip '>'
 	}
@@ -469,6 +477,10 @@ private:
 			++text;
 		}
 		// Set pi value (verbatim, no entity expansion or ws normalization)
+		if (FLAGS & zeroTerminateStrings) {
+			*nameEnd = '\0';
+			*text = '\0';
+		}
 		handler.procInstr(std::string_view(name,  nameEnd - name),
 			          std::string_view(value, text - value));
 		text += 2; // skip '?>'
@@ -513,7 +525,12 @@ private:
 
 		// Handle text, but only if non-empty.
 		auto len = end - value;
-		if (len) handler.text(std::string_view(value, len));
+		if (len) {
+			if (FLAGS & zeroTerminateStrings) {
+				*text = '\0';
+			}
+			handler.text(std::string_view(value, len));
+		}
 	}
 
 	void parseCdata(char*& text)
@@ -525,6 +542,9 @@ private:
 				throw ParseError("unexpected end of data", text);
 			}
 			++text;
+		}
+		if (FLAGS & zeroTerminateStrings) {
+			*text = '\0';
 		}
 		handler.cdata(std::string_view(value, text - value));
 		text += 3; // skip ]]>
@@ -546,9 +566,15 @@ private:
 
 		// Determine ending type
 		if (*text == '>') {
+			if (FLAGS & zeroTerminateStrings) {
+				*nameEnd = '\0';
+			}
 			++text;
 			parseNodeContents(text);
 		} else if (*text == '/') {
+			if (FLAGS & zeroTerminateStrings) {
+				*nameEnd = '\0';
+			}
 			handler.stop();
 			++text;
 			if (*text != '>') {
@@ -711,6 +737,10 @@ afterText:		// After parseText() jump here instead of continuing
 			}
 			++text; // skip quote
 
+			if (FLAGS & zeroTerminateStrings) {
+				*nameEnd = '\0';
+				*valueEnd = '\0';
+			}
 			if (!declaration) {
 				handler.attribute(std::string_view(name, nameEnd - name),
 				                  std::string_view(value, valueEnd - value));
