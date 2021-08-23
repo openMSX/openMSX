@@ -6,7 +6,7 @@
 namespace openmsx {
 
 /** Produces a video frame that has every line from the input frame twice
-  * plus a number of black lines at the top.
+  * plus a possibly repeated line at the top.
   * This class does not copy the data from the input FrameSource.
   */
 class DoubledFrame final : public FrameSource
