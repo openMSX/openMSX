@@ -9,10 +9,14 @@ namespace openmsx {
 template<typename T> class Observer
 {
 public:
+	Observer(const Observer&) = delete;
+	Observer& operator=(const Observer&) = delete;
+
 	virtual void update(const T& subject) noexcept = 0;
 	virtual void subjectDeleted(const T& /*subject*/) { /*nothing*/ }
 
 protected:
+	Observer() = default;
 	~Observer() = default;
 };
 

@@ -15,6 +15,9 @@ class InfoCommand;
 class InfoTopic : public Completer
 {
 public:
+	InfoTopic(const InfoTopic&) = delete;
+	InfoTopic& operator=(const InfoTopic&) = delete;
+
 	/** Show info on this topic
 	  * @param tokens Tokenized command line;
 	  *     tokens[1] is the topic.

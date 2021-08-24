@@ -11,6 +11,9 @@ class Event;
 class MSXEventListener
 {
 public:
+	MSXEventListener(const MSXEventListener&) = delete;
+	MSXEventListener& operator=(const MSXEventListener&) = delete;
+
 	/** This method gets called when an event you are subscribed to occurs.
 	  */
 	virtual void signalMSXEvent(const Event& event,

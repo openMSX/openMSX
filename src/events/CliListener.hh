@@ -8,6 +8,9 @@ namespace openmsx {
 class CliListener
 {
 public:
+	CliListener(const CliListener&) = delete;
+	CliListener& operator=(const CliListener&) = delete;
+
 	virtual ~CliListener() = default;
 
 	virtual void log(CliComm::LogLevel level, std::string_view message) noexcept = 0;

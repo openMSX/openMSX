@@ -17,6 +17,9 @@ class TclObject;
 class Completer
 {
 public:
+	Completer(const Completer&) = delete;
+	Completer& operator=(const Completer&) = delete;
+
 	[[nodiscard]] const std::string& getName() const { return theName; }
 
 	/** Print help for this command.

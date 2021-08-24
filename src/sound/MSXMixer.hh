@@ -34,6 +34,9 @@ public:
 	static constexpr int AMP_BITS = 9;
 
 public:
+	MSXMixer(const MSXMixer&) = delete;
+	MSXMixer& operator=(const MSXMixer&) = delete;
+
 	MSXMixer(Mixer& mixer, MSXMotherBoard& motherBoard,
 	         GlobalSettings& globalSettings);
 	~MSXMixer();

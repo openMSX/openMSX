@@ -20,6 +20,9 @@ class SoundDevice
 public:
 	static constexpr unsigned MAX_CHANNELS = 24;
 
+	SoundDevice(const SoundDevice&) = delete;
+	SoundDevice& operator=(const SoundDevice&) = delete;
+
 	/** Get the unique name that identifies this sound device.
 	  * Used to create setting names.
 	  */

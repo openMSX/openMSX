@@ -13,6 +13,9 @@ class Debugger;
 class ProbeBase : public Subject<ProbeBase>
 {
 public:
+	ProbeBase(const ProbeBase&) = delete;
+	ProbeBase& operator=(const ProbeBase&) = delete;
+
 	[[nodiscard]] const std::string& getName() const { return name; }
 	[[nodiscard]] std::string_view getDescription() const { return description; }
 	[[nodiscard]] virtual std::string getValue() const = 0;

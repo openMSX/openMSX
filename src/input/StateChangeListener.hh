@@ -10,6 +10,9 @@ class StateChange;
 class StateChangeListener
 {
 public:
+	StateChangeListener(const StateChangeListener&) = delete;
+	StateChangeListener& operator=(const StateChangeListener&) = delete;
+
 	/** This method gets called when a StateChange event occurs.
 	 * This can be either a replayed or a 'live' event, (though that
 	 * shouldn't matter, it should be handled in exactly the same way).
