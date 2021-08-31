@@ -2,11 +2,12 @@
 #define XMLELEMENT_HH
 
 #include "MemBuffer.hh"
+#include "monotonic_allocator.hh"
 #include "serialize_meta.hh"
 #include <cassert>
 #include <cstddef>
 #include <iterator>
-#include <memory_resource>
+//#include <memory_resource>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -307,7 +308,9 @@ private:
 private:
 	XMLElement* root = nullptr;
 	MemBuffer<char> buf;
-	std::pmr::monotonic_buffer_resource allocator;
+	// part of c++17, but not yet implemented in libc++
+	//    std::pmr::monotonic_buffer_resource allocator;
+	monotonic_allocator allocator;
 
 	friend class XMLDocumentHandler;
 };

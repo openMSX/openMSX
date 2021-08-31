@@ -176,7 +176,9 @@ void MemOutputArchive::save(std::string_view s)
 	auto size = s.size();
 	uint8_t* buf = buffer.allocate(sizeof(size) + size);
 	memcpy(buf, &size, sizeof(size));
-	memcpy(buf + sizeof(size), s.data(), size);
+	if (size) {
+		memcpy(buf + sizeof(size), s.data(), size);
+	}
 }
 
 MemBuffer<uint8_t> MemOutputArchive::releaseBuffer(size_t& size)
