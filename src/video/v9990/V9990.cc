@@ -71,7 +71,7 @@ V9990::V9990(const DeviceConfig& config)
 {
 	// clear regs TODO find realistic init values
 	memset(regs, 0, sizeof(regs));
-	calcDisplayMode();
+	setDisplayMode(calcDisplayMode());
 
 	// initialize palette
 	for (auto i : xrange(64)) {
@@ -136,7 +136,7 @@ void V9990::reset(EmuTime::param time)
 	vramReadPtr = 0;
 	vramReadBuffer = 0;
 	systemReset = false; // verified on real MSX
-	calcDisplayMode();
+	setDisplayMode(calcDisplayMode());
 
 	isDisplayArea = false;
 	displayEnabled = false;
@@ -432,9 +432,10 @@ void V9990::execHScan()
 
 void V9990::execSetMode(EmuTime::param time)
 {
-	calcDisplayMode();
-	renderer->setDisplayMode(getDisplayMode(), time);
+	auto newMode = calcDisplayMode();
+	renderer->setDisplayMode(newMode, time);
 	renderer->setColorMode(getColorMode(), time);
+	setDisplayMode(newMode);
 }
 
 void V9990::execCheckCmdEnd(EmuTime::param time)
@@ -797,42 +798,36 @@ V9990ColorMode V9990::getColorMode() const
 	return getColorMode(regs[PALETTE_CONTROL]);
 }
 
-void V9990::calcDisplayMode()
+V9990DisplayMode V9990::calcDisplayMode() const
 {
-	mode = INVALID_DISPLAY_MODE;
 	switch (regs[SCREEN_MODE_0] & 0xC0) {
 		case 0x00:
-			mode = P1;
-			break;
+			return P1;
 		case 0x40:
-			mode = P2;
-			break;
+			return P2;
 		case 0x80:
 			if (status & 0x04) { // MCLK timing
 				switch(regs[SCREEN_MODE_0] & 0x30) {
-				case 0x00: mode = B0; break;
-				case 0x10: mode = B2; break;
-				case 0x20: mode = B4; break;
-				case 0x30: mode = INVALID_DISPLAY_MODE; break;
-				default: UNREACHABLE;
+					case 0x00: return B0;
+					case 0x10: return B2;
+					case 0x20: return B4;
 				}
 			} else { // XTAL1 timing
 				switch(regs[SCREEN_MODE_0] & 0x30) {
-				case 0x00: mode = B1; break;
-				case 0x10: mode = B3; break;
-				case 0x20: mode = B7; break;
-				case 0x30: mode = INVALID_DISPLAY_MODE; break;
+					case 0x00: return B1;
+					case 0x10: return B3;
+					case 0x20: return B7;
 				}
 			}
 			break;
-		case 0xC0:
-			mode = INVALID_DISPLAY_MODE;
-			break;
 	}
+	// invalid display mode
+	return P1; // TODO Check
+}
 
-	// TODO Check
-	if (mode == INVALID_DISPLAY_MODE) mode = P1;
-
+void V9990::setDisplayMode(V9990DisplayMode newMode)
+{
+	mode = newMode;
 	setHorizontalTiming();
 }
 
