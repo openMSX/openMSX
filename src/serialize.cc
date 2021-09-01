@@ -308,7 +308,7 @@ XmlOutputArchive::~XmlOutputArchive()
 
 void XmlOutputArchive::write(const char* buf, size_t len)
 {
-	if (gzwrite(file, buf, len) == 0) {
+	if ((gzwrite(file, buf, len) == 0) && (len != 0)) {
 		error();
 	}
 }
@@ -327,6 +327,10 @@ void XmlOutputArchive::check(bool condition) const
 
 void XmlOutputArchive::error()
 {
+	if (file) {
+		gzclose(file);
+		file = nullptr;
+	}
 	throw XMLException("could not write \"", filename, '"');
 }
 
