@@ -33,17 +33,6 @@ OSDText::OSDText(Display& display_, const TclObject& name_)
 {
 }
 
-std::vector<string_view> OSDText::getProperties() const
-{
-	auto result = OSDImageBasedWidget::getProperties();
-	static constexpr const char* const vals[] = {
-		"-text", "-font", "-size", "-wrap", "-wrapw", "-wraprelw",
-		"-query-size",
-	};
-	append(result, vals);
-	return result;
-}
-
 void OSDText::setProperty(
 	Interpreter& interp, string_view propName, const TclObject& value)
 {

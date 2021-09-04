@@ -30,17 +30,6 @@ OSDImageBasedWidget::OSDImageBasedWidget(Display& display_, const TclObject& nam
 
 OSDImageBasedWidget::~OSDImageBasedWidget() = default;
 
-std::vector<std::string_view> OSDImageBasedWidget::getProperties() const
-{
-	auto result = OSDWidget::getProperties();
-	static constexpr const char* const vals[] = {
-		"-rgba", "-rgb", "-alpha", "-fadePeriod", "-fadeTarget",
-		"-fadeCurrent",
-	};
-	append(result, vals);
-	return result;
-}
-
 static void get4(Interpreter& interp, const TclObject& value, uint32_t* result)
 {
 	auto len = value.getListLength(interp);

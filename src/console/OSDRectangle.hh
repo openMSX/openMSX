@@ -10,10 +10,25 @@ class BaseImage;
 
 class OSDRectangle final : public OSDImageBasedWidget
 {
+protected:
+	static constexpr auto rectangleProperties = [] {
+		using namespace std::literals;
+		return concatArray(
+			imageBasedProperties,
+			std::array{
+				"-w"sv, "-h"sv, "-relw"sv, "-relh"sv,
+				"-scale"sv, "-image"sv,
+				"-bordersize"sv, "-relbordersize"sv,
+				"-borderrgba"sv,
+			});
+	}();
+
 public:
 	OSDRectangle(Display& display, const TclObject& name);
 
-	[[nodiscard]] std::vector<std::string_view> getProperties() const override;
+	[[nodiscard]] span<const std::string_view> getProperties() const override {
+		return rectangleProperties;
+	}
 	void setProperty(Interpreter& interp,
 	                 std::string_view name, const TclObject& value) override;
 	void getProperty(std::string_view name, TclObject& result) const override;

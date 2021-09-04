@@ -384,6 +384,19 @@ template<typename T, typename... Tail>
 }
 
 
+// Concatenate two std::arrays (at compile time).
+template<typename T, size_t X, size_t Y>
+constexpr auto concatArray(const std::array<T, X>& x, const std::array<T, Y>& y)
+{
+	std::array<T, X + Y> result = {};
+	// c++20:  std::ranges::copy(x, &result[0]);
+	// c++20:  std::ranges::copy(y, &result[X]);
+	for (size_t i = 0; i < X; ++i) result[0 + i] = x[i];
+	for (size_t i = 0; i < Y; ++i) result[X + i] = y[i];
+	return result;
+}
+
+
 // lookup in std::map
 template<typename Key, typename Value>
 [[nodiscard]] const Value* lookup(const std::map<Key, Value>& m, const Key& k)

@@ -261,14 +261,17 @@ void OSDGUI::OSDCommand::tabCompletion(std::vector<std::string>& tokens) const
 		completeString(tokens, gui.getTopWidget().getAllWidgetNames());
 	} else {
 		try {
-			std::vector<std::string_view> properties;
-			if (tokens[1] == "create") {
-				auto widget = create(tokens[2], TclObject());
-				properties = widget->getProperties();
-			} else if (tokens[1] == one_of("configure", "info")) {
-				const auto& widget = getWidget(tokens[2]);
-				properties = widget.getProperties();
-			}
+			auto properties = [&] {
+				if (tokens[1] == "create") {
+					auto widget = create(tokens[2], TclObject());
+					return widget->getProperties();
+				} else if (tokens[1] == one_of("configure", "info")) {
+					const auto& widget = getWidget(tokens[2]);
+					return widget.getProperties();
+				} else {
+					return span<const std::string_view>{};
+				}
+			}();
 			completeString(tokens, properties);
 		} catch (MSXException&) {
 			// ignore

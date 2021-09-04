@@ -3,6 +3,7 @@
 
 #include "OSDWidget.hh"
 #include "span.hh"
+#include "stl.hh"
 #include <cstdint>
 
 namespace openmsx {
@@ -12,13 +13,27 @@ class Display;
 
 class OSDImageBasedWidget : public OSDWidget
 {
+protected:
+	static constexpr auto imageBasedProperties = [] {
+		using namespace std::literals;
+		return concatArray(
+			widgetProperties,
+			std::array{
+				"-rgba"sv, "-rgb"sv, "-alpha"sv,
+				"-fadePeriod"sv, "-fadeTarget"sv,
+				"-fadeCurrent"sv,
+			});
+	}();
+
 public:
 	[[nodiscard]] uint32_t getRGBA(uint32_t corner) const { return rgba[corner]; }
 	[[nodiscard]] span<const uint32_t, 4> getRGBA4() const { return rgba; }
 
 	[[nodiscard]] virtual uint8_t getFadedAlpha() const = 0;
 
-	[[nodiscard]] std::vector<std::string_view> getProperties() const override;
+	[[nodiscard]] span<const std::string_view> getProperties() const override {
+		return imageBasedProperties;
+	}
 	void setProperty(Interpreter& interp,
 	                 std::string_view name, const TclObject& value) override;
 	void getProperty(std::string_view name, TclObject& result) const override;
