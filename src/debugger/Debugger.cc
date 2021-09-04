@@ -957,7 +957,7 @@ void Debugger::Cmd::tabCompletion(std::vector<string>& tokens) const
 	};
 	switch (tokens.size()) {
 	case 2: {
-		completeString(tokens, concat(singleArgCmds, debuggableArgCmds, otherCmds));
+		completeString(tokens, concatArray(singleArgCmds, debuggableArgCmds, otherCmds));
 		break;
 	}
 	case 3:
@@ -993,10 +993,9 @@ void Debugger::Cmd::tabCompletion(std::vector<string>& tokens) const
 	case 4:
 		if ((tokens[1] == "probe") &&
 		    (tokens[2] == one_of("desc", "read", "set_bp"))) {
-			auto probeNames = to_vector(view::transform(
+			completeString(tokens, view::transform(
 				debugger().probes,
-				[](auto* p) { return p->getName(); }));
-			completeString(tokens, probeNames);
+				[](auto* p) -> std::string_view { return p->getName(); }));
 		}
 		break;
 	}

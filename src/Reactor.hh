@@ -3,6 +3,7 @@
 
 #include "Observer.hh"
 #include "EventListener.hh"
+#include "view.hh"
 #include <cassert>
 #include <memory>
 #include <mutex>
@@ -116,7 +117,10 @@ private:
 	void switchBoard(Board newBoard);
 	void deleteBoard(Board board);
 	[[nodiscard]] Board getMachine(std::string_view machineID) const;
-	[[nodiscard]] std::vector<std::string_view> getMachineIDs() const;
+	[[nodiscard]] auto getMachineIDs() const {
+		return view::transform(boards,
+			[](auto& b) -> std::string_view { return b->getMachineID(); });
+	}
 
 	// Observer<Setting>
 	void update(const Setting& setting) noexcept override;

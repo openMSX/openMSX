@@ -9,9 +9,7 @@
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
 #include "checked_cast.hh"
-#include "outer.hh"
 #include "ranges.hh"
-#include "view.hh"
 #include <cassert>
 #include <memory>
 
@@ -270,13 +268,6 @@ void UserSettings::Cmd::tabCompletion(std::vector<std::string>& tokens) const
 	} else if ((tokens.size() == 3) && (tokens[1] == "destroy")) {
 		completeString(tokens, getSettingNames());
 	}
-}
-
-std::vector<std::string_view> UserSettings::Cmd::getSettingNames() const
-{
-	return to_vector(view::transform(
-		OUTER(UserSettings, userSettingCommand).getSettingsInfo(),
-		[](const auto& info) { return info.setting->getFullName(); }));
 }
 
 } // namespace openmsx

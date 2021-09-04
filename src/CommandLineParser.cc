@@ -588,7 +588,7 @@ void CommandLineParser::BashOption::parseOption(
 			cout << s << '\n';
 		}
 	} else if (last == "-romtype") {
-		for (auto& s : RomInfo::getAllRomTypes()) {
+		for (const auto& s : RomInfo::getAllRomTypes()) {
 			cout << s << '\n';
 		}
 	} else {

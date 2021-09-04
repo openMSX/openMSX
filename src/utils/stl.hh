@@ -395,6 +395,18 @@ constexpr auto concatArray(const std::array<T, X>& x, const std::array<T, Y>& y)
 	for (size_t i = 0; i < Y; ++i) result[X + i] = y[i];
 	return result;
 }
+// TODO implement in a generic way for any number of arrays
+template<typename T, size_t X, size_t Y, size_t Z>
+constexpr auto concatArray(const std::array<T, X>& x,
+                           const std::array<T, Y>& y,
+                           const std::array<T, Z>& z)
+{
+	std::array<T, X + Y + Z> result = {};
+	for (size_t i = 0; i < X; ++i) result[        i] = x[i];
+	for (size_t i = 0; i < Y; ++i) result[X     + i] = y[i];
+	for (size_t i = 0; i < Z; ++i) result[X + Y + i] = z[i];
+	return result;
+}
 
 
 // lookup in std::map

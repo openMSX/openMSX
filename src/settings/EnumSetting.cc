@@ -37,11 +37,6 @@ std::string_view EnumSettingBase::toStringBase(int value) const
 	UNREACHABLE; return {};
 }
 
-std::vector<std::string_view> EnumSettingBase::getPossibleValues() const
-{
-	return to_vector<std::string_view>(view::transform(baseMap, &MapEntry::name));
-}
-
 void EnumSettingBase::additionalInfoBase(TclObject& result) const
 {
 	TclObject valueList;

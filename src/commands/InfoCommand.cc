@@ -92,9 +92,8 @@ void InfoCommand::tabCompletion(std::vector<std::string>& tokens) const
 	switch (tokens.size()) {
 	case 2: {
 		// complete topic
-		auto topics = to_vector(view::transform(
-			infoTopics, [](auto* t) { return t->getName(); }));
-		completeString(tokens, topics);
+		completeString(tokens, view::transform(infoTopics,
+			[](auto* t) -> std::string_view { return t->getName(); }));
 		break;
 	}
 	default:

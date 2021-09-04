@@ -2,6 +2,7 @@
 #define ENUMSETTING_HH
 
 #include "Setting.hh"
+#include "view.hh"
 #include <iterator>
 #include <utility>
 #include <vector>
@@ -30,7 +31,11 @@ protected:
 	[[nodiscard]] int fromStringBase(std::string_view str) const;
 	[[nodiscard]] std::string_view toStringBase(int value) const;
 
-	[[nodiscard]] std::vector<std::string_view> getPossibleValues() const;
+	[[nodiscard]] auto getPossibleValues() const {
+		return view::transform(baseMap,
+			[](const auto& e) -> std::string_view { return e.name; });
+	}
+
 	void additionalInfoBase(TclObject& result) const;
 	void tabCompletionBase(std::vector<std::string>& tokens) const;
 

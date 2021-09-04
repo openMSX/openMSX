@@ -3,6 +3,8 @@
 
 #include "RomTypes.hh"
 #include "String32.hh"
+#include "view.hh"
+#include <array>
 #include <string_view>
 #include <utility>
 #include <vector>
@@ -11,6 +13,15 @@ namespace openmsx {
 
 class RomInfo
 {
+public:
+	// This contains extra information for each RomType. This structure only
+	// contains the primary (non-alias) romtypes.
+	struct RomTypeInfo {
+		unsigned blockSize;
+		std::string_view name;
+		std::string_view description;
+	};
+
 public:
 	RomInfo(String32 title_,   String32 year_,
 	        String32 company_, String32 country_,
@@ -52,10 +63,15 @@ public:
 	[[nodiscard]] int              getGenMSXid()  const { return genMSXid; }
 
 	[[nodiscard]] static RomType nameToRomType(std::string_view name);
-	[[nodiscard]] static std::vector<std::string_view> getAllRomTypes();
 	[[nodiscard]] static std::string_view romTypeToName (RomType type);
 	[[nodiscard]] static std::string_view getDescription(RomType type);
 	[[nodiscard]] static unsigned         getBlockSize  (RomType type);
+	[[nodiscard]] static auto getAllRomTypes() {
+		return view::transform(getRomTypeInfo(), &RomTypeInfo::name);
+	}
+
+private:
+	static const std::array<RomInfo::RomTypeInfo, RomType::ROM_LAST>& getRomTypeInfo();
 
 private:
 	String32 title;

@@ -44,7 +44,6 @@
 #include "stl.hh"
 #include "StringOp.hh"
 #include "unreachable.hh"
-#include "view.hh"
 #include "build-info.hh"
 #include <cassert>
 #include <memory>
@@ -381,12 +380,6 @@ MSXMotherBoard* Reactor::getMotherBoard() const
 string_view Reactor::getMachineID() const
 {
 	return activeBoard ? activeBoard->getMachineID() : string_view{};
-}
-
-vector<string_view> Reactor::getMachineIDs() const
-{
-	return to_vector(view::transform(
-		boards, [](auto& b) { return b->getMachineID(); }));
 }
 
 Reactor::Board Reactor::getMachine(string_view machineID) const

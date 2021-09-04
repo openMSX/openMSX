@@ -10,15 +10,8 @@
 
 namespace openmsx {
 
-// This contains extra information for each RomType. This structure only
-// contains the primary (non-alias) romtypes.
-struct RomTypeInfo {
-	unsigned blockSize;
-	std::string_view name;
-	std::string_view description;
-};
 static constexpr auto romTypeInfoArray = [] {
-	std::array<RomTypeInfo, RomType::ROM_LAST> r = {};
+	std::array<RomInfo::RomTypeInfo, RomType::ROM_LAST> r = {};
 
 	// Generic ROM types that don't exist in real ROMs
 	// (should not occur in any database!)
@@ -110,6 +103,10 @@ static constexpr auto romTypeInfoArray = [] {
 	r[ROM_PAGE0123]        = {0x2000, "Page0123",        "Plain 64kB"};
 	return r;
 }();
+const std::array<RomInfo::RomTypeInfo, RomType::ROM_LAST>& RomInfo::getRomTypeInfo()
+{
+	return romTypeInfoArray;
+}
 
 struct RomTypeAndName {
 	RomType romType;
@@ -183,11 +180,6 @@ RomType RomInfo::nameToRomType(std::string_view name)
 		return combinedRomTable[idx].romType;
 	}
 	return ROM_UNKNOWN;
-}
-
-std::vector<std::string_view> RomInfo::getAllRomTypes()
-{
-	return to_vector(view::transform(romTypeInfoArray, [](const auto& r) { return r.name; }));
 }
 
 std::string_view RomInfo::romTypeToName(RomType type)
