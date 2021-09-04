@@ -83,7 +83,7 @@ public:
 	 * Returns a human-readable name for this device.
 	 * Default implementation is normally ok.
 	 */
-	[[nodiscard]] virtual std::string getName() const;
+	[[nodiscard]] virtual const std::string& getName() const;
 
 	/** Returns list of name(s) of this device.
 	 * This is normally the same as getName() (but formatted as a Tcl list)
@@ -316,6 +316,9 @@ private:
 	void registerPorts();
 	void unregisterPorts();
 
+protected:
+	std::string deviceName;
+
 private:
 	struct BaseSize {
 		unsigned base;
@@ -328,7 +331,6 @@ private:
 	std::vector<byte> outPorts;
 
 	DeviceConfig deviceConfig;
-	std::string deviceName;
 
 	Devices references;
 	Devices referencedBy;

@@ -369,7 +369,7 @@ void MSXDevice::powerUp(EmuTime::param time)
 	reset(time);
 }
 
-std::string MSXDevice::getName() const
+const std::string& MSXDevice::getName() const
 {
 	return deviceName;
 }

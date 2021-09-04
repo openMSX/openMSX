@@ -83,7 +83,7 @@ MSXWatchIODevice::MSXWatchIODevice(
 {
 }
 
-std::string MSXWatchIODevice::getName() const
+const std::string& MSXWatchIODevice::getName() const
 {
 	assert(device);
 	return device->getName();

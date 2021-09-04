@@ -73,11 +73,12 @@ std::vector<MSXDevice*> MSXMultiMemDevice::getDevices() const
 	                                 [](auto& rn) { return rn.device; }));
 }
 
-std::string MSXMultiMemDevice::getName() const
+const std::string& MSXMultiMemDevice::getName() const
 {
 	TclObject list;
 	getNameList(list);
-	return std::string(list.getString());
+	const_cast<std::string&>(deviceName) = list.getString();
+	return deviceName;
 }
 void MSXMultiMemDevice::getNameList(TclObject& result) const
 {
