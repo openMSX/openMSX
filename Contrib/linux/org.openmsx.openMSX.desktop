@@ -34,6 +34,6 @@ Exec=openmsx
 Icon=openmsx
 Terminal=false
 Type=Application
-Categories=Game;Emulator;
+Categories=Game;Emulator
 Keywords=emulator;msx;openmsx;svi;colecovision
 MimeType=application/x-msx-rom;application/x-raw-disk-image;application/zip;application/gzip;
