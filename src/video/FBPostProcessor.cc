@@ -195,9 +195,9 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 			g += noise[4 * i + 1];
 			b += noise[4 * i + 2];
 
-			r = std::min(std::max(r, 0), mr);
-			g = std::min(std::max(g, 0), mg);
-			b = std::min(std::max(b, 0), mb);
+			r = std::clamp(r, 0, mr);
+			g = std::clamp(g, 0, mg);
+			b = std::clamp(b, 0, mb);
 
 			buf[i] = pixelOps.combine(r, g, b);
 		}

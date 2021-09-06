@@ -76,9 +76,9 @@ void OSDImageBasedWidget::setProperty(
 		fadePeriod = value.getDouble(interp);
 	} else if (propName == "-fadeTarget") {
 		updateCurrentFadeValue();
-		fadeTarget = std::max(0.0, std::min(1.0 , value.getDouble(interp)));
+		fadeTarget = std::clamp(value.getDouble(interp), 0.0, 1.0);
 	} else if (propName == "-fadeCurrent") {
-		startFadeValue = std::max(0.0, std::min(1.0, value.getDouble(interp)));
+		startFadeValue = std::clamp(value.getDouble(interp), 0.0, 1.0);
 		startFadeTime = Timer::getTime();
 	} else {
 		OSDWidget::setProperty(interp, propName, value);
