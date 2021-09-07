@@ -562,6 +562,7 @@ test_sources = files(
     'unittest/FilePoolCore_test.cc',
     'unittest/FixedPoint_test.cc',
     'unittest/HexDump_test.cc',
+    'unittest/IterableBitSet_test.cc',
     'unittest/Keys_test.cc',
     'unittest/Math_test.cc',
     'unittest/MemoryBufferFile.cc',
