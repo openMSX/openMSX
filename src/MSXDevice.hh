@@ -3,6 +3,7 @@
 
 #include "DeviceConfig.hh"
 #include "EmuTime.hh"
+#include "IterableBitSet.hh"
 #include "openmsx.hh"
 #include "serialize_meta.hh"
 #include "span.hh"
@@ -327,8 +328,8 @@ private:
 	};
 	using MemRegions = std::vector<BaseSize>;
 	MemRegions memRegions;
-	std::vector<byte> inPorts;
-	std::vector<byte> outPorts;
+	IterableBitSet<256> inPorts;
+	IterableBitSet<256> outPorts;
 
 	DeviceConfig deviceConfig;
 

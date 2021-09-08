@@ -317,6 +317,7 @@ void MSXDevice::getVisibleMemRegion(unsigned& base, unsigned& size) const
 
 void MSXDevice::registerPorts()
 {
+	// First calculate 'inPort' and 'outPorts' ..
 	for (const auto* i : getDeviceConfig().getChildren("io")) {
 		unsigned base = i->getAttributeValueAsInt("base", 0);
 		unsigned num  = i->getAttributeValueAsInt("num", 0);
@@ -325,27 +326,30 @@ void MSXDevice::registerPorts()
 		    (type != one_of("I", "O", "IO"))) {
 			throw MSXException("Invalid IO port specification");
 		}
-		for (auto port : xrange(base, base + num)) {
-			if (type == one_of("I", "IO")) {
-				getCPUInterface().register_IO_In(port, this);
-				inPorts.push_back(port);
-			}
-			if (type == one_of("O", "IO")) {
-				getCPUInterface().register_IO_Out(port, this);
-				outPorts.push_back(port);
-			}
+		if (type != "O") { // "I" or "IO"
+			inPorts.setPosN(base, num);
+		}
+		if (type != "I") { // "O" or "IO"
+			outPorts.setPosN(base, num);
 		}
 	}
+	// .. and only then register the ports. This filters possible overlaps.
+	inPorts.foreachSetBit([&](byte port) {
+		getCPUInterface().register_IO_In(port, this);
+	});
+	outPorts.foreachSetBit([&](byte port) {
+		getCPUInterface().register_IO_Out(port, this);
+	});
 }
 
 void MSXDevice::unregisterPorts()
 {
-	for (auto& p : inPorts) {
-		getCPUInterface().unregister_IO_In(p, this);
-	}
-	for (auto& p : outPorts) {
-		getCPUInterface().unregister_IO_Out(p, this);
-	}
+	inPorts.foreachSetBit([&](byte port) {
+		getCPUInterface().unregister_IO_In(port, this);
+	});
+	outPorts.foreachSetBit([&](byte port) {
+		getCPUInterface().unregister_IO_Out(port, this);
+	});
 }
 
 
