@@ -122,9 +122,10 @@ void SoundDevice::registerSound(const DeviceConfig& config)
 			balanceCenter = false;
 		}
 
-		for (unsigned c : StringOp::parseRange(channel->getValue(), 1, numChannels)) {
+		auto channels = StringOp::parseRange(channel->getValue(), 1, numChannels);
+		channels.foreachSetBit([&](unsigned c) {
 			channelBalance[c - 1] = *balance;
-		}
+		});
 	}
 
 	mixer.registerSound(*this, volume, devBalance, numChannels);

@@ -1,6 +1,7 @@
 #ifndef STRINGOP_HH
 #define STRINGOP_HH
 
+#include "IterableBitSet.hh"
 #include "likely.hh"
 #include "stringsp.hh"
 #include <algorithm>
@@ -75,8 +76,8 @@ namespace StringOp
 		std::string_view str, std::string_view chars);
 	[[nodiscard]] std::pair<std::string_view, std::string_view> splitOnLast(
 		std::string_view str, char chars);
-	[[nodiscard]] std::vector<unsigned> parseRange(std::string_view str,
-	                                               unsigned min, unsigned max);
+	[[nodiscard]] IterableBitSet<64> parseRange(std::string_view str,
+	                                            unsigned min, unsigned max);
 
 	[[nodiscard]] std::vector<std::string_view> split(std::string_view str, char chars);
 
