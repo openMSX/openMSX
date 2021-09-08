@@ -15,7 +15,6 @@
 #include <string_view>
 #include <type_traits>
 #include <utility>
-#include <vector>
 #if defined(__APPLE__)
 #include <CoreFoundation/CoreFoundation.h>
 #endif
@@ -79,7 +78,7 @@ namespace StringOp
 	[[nodiscard]] IterableBitSet<64> parseRange(std::string_view str,
 	                                            unsigned min, unsigned max);
 
-	[[nodiscard]] std::vector<std::string_view> split(std::string_view str, char chars);
+	//[[nodiscard]] std::vector<std::string_view> split(std::string_view str, char chars);
 
 	[[nodiscard]] inline auto split_view(std::string_view str, char c) {
 		struct Sentinel {};

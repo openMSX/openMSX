@@ -142,16 +142,16 @@ std::pair<string_view, string_view> splitOnLast(string_view str, char chars)
 	}
 }
 
-std::vector<string_view> split(string_view str, char chars)
-{
-	std::vector<string_view> result;
-	while (!str.empty()) {
-		auto [first, last] = splitOnFirst(str, chars);
-		result.push_back(first);
-		str = last;
-	}
-	return result;
-}
+//std::vector<string_view> split(string_view str, char chars)
+//{
+//	std::vector<string_view> result;
+//	while (!str.empty()) {
+//		auto [first, last] = splitOnFirst(str, chars);
+//		result.push_back(first);
+//		str = last;
+//	}
+//	return result;
+//}
 
 static unsigned parseNumber(string_view str)
 {
