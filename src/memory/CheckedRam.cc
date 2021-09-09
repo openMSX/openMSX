@@ -10,18 +10,9 @@
 
 namespace openmsx {
 
-[[nodiscard]] static std::bitset<CacheLine::SIZE> getBitSetAllTrue()
-{
-	std::bitset<CacheLine::SIZE> result;
-	result.set();
-	return result;
-}
-
 CheckedRam::CheckedRam(const DeviceConfig& config, const std::string& name,
                        static_string_view description, unsigned size)
-	: completely_initialized_cacheline(size / CacheLine::SIZE, false)
-	, uninitialized(size / CacheLine::SIZE, getBitSetAllTrue())
-	, ram(config, name, description, size)
+	: ram(config, name, description, size)
 	, msxcpu(config.getMotherBoard().getCPU())
 	, umrCallback(config.getGlobalSettings().getUMRCallBackSetting())
 {
@@ -99,19 +90,19 @@ void CheckedRam::clear()
 
 void CheckedRam::init()
 {
+	auto lines = ram.getSize() / CacheLine::SIZE;
 	if (umrCallback.getValue().empty()) {
 		// there is no callback function,
 		// do as if everything is initialized
-		completely_initialized_cacheline.assign(
-			completely_initialized_cacheline.size(), true);
-		uninitialized.assign(
-			uninitialized.size(), std::bitset<CacheLine::SIZE>());
+		completely_initialized_cacheline.assign(lines, true);
+		// 'uninitialized' won't be accessed, so don't even allocate
 	} else {
 		// new callback function, forget about initialized areas
-		completely_initialized_cacheline.assign(
-			completely_initialized_cacheline.size(), false);
-		uninitialized.assign(
-			uninitialized.size(), getBitSetAllTrue());
+		completely_initialized_cacheline.assign(lines, false);
+
+		std::bitset<CacheLine::SIZE> allTrue;
+		allTrue.set();
+		uninitialized.assign(lines, allTrue);
 	}
 	msxcpu.invalidateAllSlotsRWCache(0, 0x10000);
 }
