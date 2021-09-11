@@ -4,6 +4,7 @@
 #include "StringOp.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
+#include "span.hh"
 #include "stl.hh"
 #include <cassert>
 #include <utility>
@@ -26,7 +27,7 @@ const string SYSTEM_DATA  = "{{SYSTEM_DATA}}";
 	return strCat(after, path.substr(before.size()));
 }
 
-[[nodiscard]] static vector<string> getPathsHelper(const vector<string>& input)
+[[nodiscard]] static vector<string> getPathsHelper(span<const string> input)
 {
 	vector<string> result;
 	for (const auto& s : input) {
@@ -51,7 +52,7 @@ const string SYSTEM_DATA  = "{{SYSTEM_DATA}}";
 	return result;
 }
 
-[[nodiscard]] static string resolveHelper(const vector<string>& pathList,
+[[nodiscard]] static string resolveHelper(span<const string> pathList,
                             string_view filename)
 {
 	string filepath = FileOperations::expandTilde(
@@ -106,7 +107,7 @@ string FileContext::resolveCreate(string_view filename) const
 	return result;
 }
 
-const vector<string>& FileContext::getPaths() const
+span<const string> FileContext::getPaths() const
 {
 	if (paths2.empty()) {
 		paths2 = getPathsHelper(paths);

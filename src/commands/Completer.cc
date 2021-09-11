@@ -18,7 +18,7 @@ using std::string_view;
 
 namespace openmsx {
 
-static bool formatHelper(const vector<string_view>& input, size_t columnLimit,
+static bool formatHelper(span<const string_view> input, size_t columnLimit,
                          vector<string>& result)
 {
 	size_t column = 0;
@@ -38,7 +38,7 @@ static bool formatHelper(const vector<string_view>& input, size_t columnLimit,
 	return true;
 }
 
-static vector<string> format(const vector<string_view>& input, size_t columnLimit)
+static vector<string> format(span<const string_view> input, size_t columnLimit)
 {
 	vector<string> result;
 	for (auto lines : xrange(1u, input.size())) {
@@ -51,7 +51,7 @@ static vector<string> format(const vector<string_view>& input, size_t columnLimi
 	return result;
 }
 
-vector<string> Completer::formatListInColumns(const vector<string_view>& input)
+vector<string> Completer::formatListInColumns(span<const string_view> input)
 {
 	return format(input, output->getOutputColumns() - 1);
 }
@@ -137,9 +137,10 @@ void Completer::completeFileNameImpl(vector<string>& tokens,
 	filename = FileOperations::expandCurrentDirFromDrive(std::move(filename));
 	string_view dirname1 = FileOperations::getDirName(filename);
 
-	vector<string> paths;
+	span<const string> paths;
 	if (FileOperations::isAbsolutePath(filename)) {
-		paths.emplace_back();
+		static const string EMPTY[1] = {""};
+		paths = EMPTY;
 	} else {
 		paths = context.getPaths();
 	}

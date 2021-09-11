@@ -64,7 +64,7 @@ public:
 	void parseSlots();
 	void createDevices();
 
-	[[nodiscard]] const std::vector<std::unique_ptr<MSXDevice>>& getDevices() const { return devices; };
+	[[nodiscard]] const auto& getDevices() const { return devices; };
 
 	/** Checks whether this HardwareConfig can be deleted.
 	  * Throws an exception if not.

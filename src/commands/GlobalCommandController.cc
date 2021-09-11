@@ -250,7 +250,7 @@ static string removeEscaping(const string& str)
 	return result;
 }
 
-static vector<string> removeEscaping(const vector<string>& input, bool keepLastIfEmpty)
+static vector<string> removeEscaping(span<const string> input, bool keepLastIfEmpty)
 {
 	vector<string> result;
 	for (const auto& s : input) {

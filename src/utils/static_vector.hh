@@ -1,6 +1,7 @@
 #ifndef STATIC_VECTOR_HH
 #define STATIC_VECTOR_HH
 
+#include "span.hh"
 #include <algorithm>
 #include <cassert>
 #include <cstddef>
@@ -43,6 +44,7 @@ public:
 	[[nodiscard]] constexpr const T* end()   const noexcept { return data + sz; }
 
 	[[nodiscard]] constexpr size_t size() const { return sz; }
+	[[nodiscard]] constexpr bool empty() const { return sz == 0; }
 
 	[[nodiscard]] constexpr       T& operator[](size_t index)       { return data[index]; }
 	[[nodiscard]] constexpr const T& operator[](size_t index) const { return data[index]; }
@@ -50,6 +52,9 @@ public:
 	constexpr void push_back(const T& a) { assert(sz < N); data[sz++] = a; }
 
 	constexpr void clear() { sz = 0; }
+
+	operator span<      T>()       { return {data, sz}; }
+	operator span<const T>() const { return {data, sz}; }
 
 private:
 	T data[N] = {};

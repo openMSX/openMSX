@@ -384,7 +384,7 @@ std::string_view CommandLineParser::CommandOption::optionHelp() const
 
 // Help option
 
-static string formatSet(const std::vector<string_view>& inputSet, string::size_type columns)
+static string formatSet(span<const string_view> inputSet, string::size_type columns)
 {
 	string outString;
 	string::size_type totalLength = 0; // ignore the starting spaces for now

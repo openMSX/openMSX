@@ -8,6 +8,7 @@
 #include "MemBuffer.hh"
 #include "hash_map.hh"
 #include "inline.hh"
+#include "span.hh"
 #include "strCat.hh"
 #include "unreachable.hh"
 #include "zstring_view.hh"
@@ -751,7 +752,7 @@ class MemInputArchive final : public InputArchiveBase<MemInputArchive>
 {
 public:
 	MemInputArchive(const uint8_t* data, size_t size,
-	                const std::vector<std::shared_ptr<DeltaBlock>>& deltaBlocks_)
+	                span<const std::shared_ptr<DeltaBlock>> deltaBlocks_)
 		: buffer(data, size)
 		, deltaBlocks(deltaBlocks_)
 	{
@@ -833,7 +834,7 @@ private:
 
 private:
 	InputBuffer buffer;
-	const std::vector<std::shared_ptr<DeltaBlock>>& deltaBlocks;
+	span<const std::shared_ptr<DeltaBlock>> deltaBlocks;
 };
 
 ////

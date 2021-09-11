@@ -202,10 +202,10 @@ struct EqualEvent {
 	const Event& event;
 };
 
-template<typename T>
-static bool contains(const std::vector<T>& v, const Event& event)
+template<typename Range>
+static bool contains(const Range& range, const Event& event)
 {
-	return ranges::any_of(v, EqualEvent(event));
+	return ranges::any_of(range, EqualEvent(event));
 }
 
 template<typename T>

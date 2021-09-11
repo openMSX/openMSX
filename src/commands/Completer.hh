@@ -51,7 +51,7 @@ public:
 	                             const FileContext& context);
 
 	static std::vector<std::string> formatListInColumns(
-		const std::vector<std::string_view>& input);
+		span<const std::string_view> input);
 
 	// helper functions to check the number of arguments
 	struct AtLeast { unsigned min; };
