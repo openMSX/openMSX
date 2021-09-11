@@ -5,5 +5,5 @@ proc toggle_freq {} {
 	poke 0xFFE8 [expr {[peek 0xFFE8] ^ 2}]
 
 	set freq [expr {([vdpreg 9] & 2) ? 50 : 60}]
-	osd::display_message "Frequency set to $freq Hz" info
+	message "Frequency set to $freq Hz" info
 }

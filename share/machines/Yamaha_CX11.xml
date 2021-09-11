@@ -86,6 +86,7 @@
     standard MSX cartridgeslot, but a 60 pins card edge connector, carrying all
     MSX cartridgeslot signals. -->
       <YamahaSFG id="Yamaha SFG-01">
+        <variant>YM2151</variant>
         <mem base="0x0000" size="0x10000"/>
         <sound>
           <volume>30000</volume>
