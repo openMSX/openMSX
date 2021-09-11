@@ -258,7 +258,7 @@ proc toggle_mog_overlay {} {
 	if {$mog_overlay_active} {
 		init
 		update_overlay
-		message "MoG overlay activated" info
+		osd::display_message "MoG overlay activated" info
 		return "MoG overlay activated!"
 	} else {
 		set retval ""
@@ -266,7 +266,7 @@ proc toggle_mog_overlay {} {
 			set retval "[toggle_mog_editor]\n"
 		}
 		osd destroy mog
-		message "MoG overlay deactivated" info
+		osd::display_message "MoG overlay deactivated" info
 		return "${retval}MoG overlay deactivated."
 	}
 }

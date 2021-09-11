@@ -23,7 +23,6 @@ consider this device to have built in the Unit Connector. -->
     <primary slot="any">
       <secondary slot="any">
         <YamahaSFG id="Yamaha SFG-01">
-          <variant>YM2151</variant>
           <mem base="0x0000" size="0x10000"/> <!-- 16kB ROM mirrored over the whole slot -->
           <sound>
             <volume>30000</volume>

@@ -172,7 +172,7 @@ proc toggle_metal_gear_overlay {} {
 		osd destroy metal_gear
 		set text "Metal Gear overlay deactivated."
 	}
-	message $text info
+	osd::display_message $text info
 	return $text
 }
 

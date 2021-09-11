@@ -100,7 +100,6 @@
     MSX cartridgeslot signals. -->
       <secondary slot="3">
         <YamahaSFG id="Yamaha SFG-05">
-          <variant>YM2164</variant>
           <mem base="0x0000" size="0x10000"/>
           <sound>
             <volume>30000</volume>

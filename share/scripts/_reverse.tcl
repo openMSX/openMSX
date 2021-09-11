@@ -93,7 +93,7 @@ proc create_bookmark_from_current_time {name} {
 	variable bookmarks
 	dict set bookmarks $name [machine_info time]
 	# The next message is useful as part of a hotkey command for this
-#	message "Saved current time to bookmark '$name'"
+#	osd::display_message "Saved current time to bookmark '$name'"
 	return "Created bookmark '$name' at [dict get $bookmarks $name]"
 }
 
@@ -109,7 +109,7 @@ proc jump_to_bookmark {name} {
 		reverse goto [dict get $bookmarks $name]
 		# The next message is useful as part of a hotkey command for
 		# this
-		#message "Jumped to bookmark '$name'"
+		#osd::display_message "Jumped to bookmark '$name'"
 	} else {
 		error "Bookmark '$name' not defined..."
 	}

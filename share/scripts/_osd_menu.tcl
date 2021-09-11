@@ -1278,7 +1278,7 @@ proc menu_create_load_machine_list {{mode "replace"}} {
 
 proc menu_load_machine_exec_replace {item} {
 	if {[catch {machine $item} errorText]} {
-		message $errorText error
+		osd::display_message $errorText error
 	} else {
 		menu_close_all
 	}
@@ -1289,7 +1289,7 @@ proc menu_load_machine_exec_add {item} {
 	set err [catch {${id}::load_machine $item} error_result]
 	if {$err} {
 		delete_machine $id
-		message "Error starting [utils::get_machine_display_name_by_config_name $item]: $error_result" error
+		osd::display_message "Error starting [utils::get_machine_display_name_by_config_name $item]: $error_result" error
 	} else {
 		menu_close_top
 		activate_machine $id
@@ -1338,10 +1338,10 @@ proc menu_add_extension_exec {slot item} {
 	}
 	set ext [string index $slot end]
 	if {[catch {if {$slot ne ""} { cart${ext} eject }; set extname [ext${ext} $item]} errorText]} {
-		message $errorText error
+		osd::display_message $errorText error
 	} else {
 		menu_close_all
-		message "Extension [get_extension_display_name $extname] inserted in [get_extension_slot_description $extname]!"
+		osd::display_message "Extension [get_extension_display_name $extname] inserted in [get_extension_slot_description $extname]!"
 	}
 }
 
@@ -1371,7 +1371,7 @@ proc menu_create_plugged_extensions_list {} {
 
 proc menu_remove_extension_exec {item} {
 	menu_close_all
-	message "Extension [get_extension_display_name $item] removed from [get_extension_slot_description $item]!"
+	osd::display_message "Extension [get_extension_display_name $item] removed from [get_extension_slot_description $item]!"
 	remove_extension $item
 }
 
@@ -1467,7 +1467,7 @@ proc menu_plug_exec {connector pluggable} {
 	}
 	#note: NO braces around $command
 	if {[catch $command errorText]} {
-		message $errorText error
+		osd::display_message $errorText error
 	} else {
 		menu_close_top
 		# refresh the connectors menu
@@ -1517,7 +1517,7 @@ proc ls {directory extensions} {
 		set dirs [glob -nocomplain -tails -directory $directory -types {d r x} *]
 		set specialdir [glob -nocomplain -tails -directory $directory -types {hidden d} ".openMSX"]
 	} errorText]} {
-		message "Unable to read dir $directory: $errorText" error
+		osd::display_message "Unable to read dir $directory: $errorText" error
 	}
 	set dirs2 [list]
 	foreach dir [concat $dirs $specialdir] {
@@ -1619,7 +1619,7 @@ proc menu_create_rom_list {path slot} {
 proc menu_select_rom {slot item {open_main false}} {
 	if {$item eq "--eject--"} {
 		menu_close_all
-		message "Cartridge [get_slot_content $slot] removed from slot [get_slot_str $slot]!"
+		osd::display_message "Cartridge [get_slot_content $slot] removed from slot [get_slot_str $slot]!"
 		$slot eject
 		reset
 	} elseif {$item eq "--extension--"} {
@@ -1648,7 +1648,7 @@ proc menu_select_rom {slot item {open_main false}} {
 
 proc menu_rom_with_mappertype_exec {slot fullname mappertype} {
 	if {[catch {$slot $fullname -romtype $mappertype} errorText]} {
-		message "Can't insert ROM: $errorText" error
+		osd::display_message "Can't insert ROM: $errorText" error
 	} else {
 		menu_close_all
 
@@ -1698,7 +1698,7 @@ proc menu_rom_with_mappertype_exec {slot fullname mappertype} {
 				append message2 "$mappertype\n"
 			}
 		}
-		message $message1
+		osd::display_message $message1
 
 		set txt_size 6
 		set xpos 35
@@ -1782,7 +1782,7 @@ proc menu_select_disk {drive item {dummy false}} {
 		set cur_image [get_slot_content $drive]
 		menu_close_all
 		$drive eject
-		message "Disk $cur_image ejected from drive [get_slot_str $drive]!"
+		osd::display_message "Disk $cur_image ejected from drive [get_slot_str $drive]!"
 	} else {
 		set is_pool_item false
 		variable pool_prefix
@@ -1805,11 +1805,11 @@ proc menu_select_disk {drive item {dummy false}} {
 			menu_create [menu_create_disk_list $::osd_disk_path $drive]
 		} else {
 			if {[catch {$drive $fullname} errorText]} {
-				message "Can't insert disk: $errorText" error
+				osd::display_message "Can't insert disk: $errorText" error
 			} else {
 				menu_close_all
 				if {$item eq "."} { set item $fullname }
-				message "Disk $item inserted in drive [get_slot_str $drive]!"
+				osd::display_message "Disk $item inserted in drive [get_slot_str $drive]!"
 			}
 		}
 	}
@@ -1858,13 +1858,13 @@ proc menu_select_tape {item} {
 	variable taperecordings_directory
 	if {$item eq "--create--"} {
 		menu_close_all
-		message [cassetteplayer new [menu_free_tape_name]]
+		osd::display_message [cassetteplayer new [menu_free_tape_name]]
 	} elseif {$item eq "--eject--"} {
 		menu_close_all
-		message [cassetteplayer eject]
+		osd::display_message [cassetteplayer eject]
 	} elseif {$item eq "--rewind--"} {
 		menu_close_all
-		message [cassetteplayer rewind]
+		osd::display_message [cassetteplayer rewind]
 	} else {
 		set fullname [file join $::osd_tape_path $item]
 		if {[file isdirectory $fullname]} {
@@ -1873,9 +1873,9 @@ proc menu_select_tape {item} {
 			menu_create [menu_create_tape_list $::osd_tape_path]
 		} else {
 			if {[catch {cassetteplayer $fullname} errorText]} {
-				message "Can't set tape: $errorText" error
+				osd::display_message "Can't set tape: $errorText" error
 			} else {
-				message "Inserted tape $item!"
+				osd::display_message "Inserted tape $item!"
 				menu_close_all
 			}
 		}
@@ -1928,10 +1928,10 @@ proc confirm_change_hdd {item result} {
 	if {$result eq "Yes"} {
 		set fullname [file join $::osd_hdd_path [lindex $item 0]]
 		if {[catch {set ::power off; [lindex $item 1] $fullname} errorText]} {
-			message "Can't change hard disk image: $errorText" error
+			osd::display_message "Can't change hard disk image: $errorText" error
 			# TODO: we already powered off even though the file may be invalid... save state first?
 		} else {
-			message "Changed hard disk image to [lindex $item 0]!"
+			osd::display_message "Changed hard disk image to [lindex $item 0]!"
 			menu_close_all
 		}
 		set ::power on
@@ -1969,7 +1969,7 @@ proc menu_select_ld {item} {
 		menu_close_all
 		set cur_image [get_slot_content laserdiscplayer]
 		laserdiscplayer eject
-		message "LaserDisc $cur_image ejected!"
+		osd::display_message "LaserDisc $cur_image ejected!"
 	} else {
 		set fullname [file join $::osd_ld_path $item]
 		if {[file isdirectory $fullname]} {
@@ -1978,9 +1978,9 @@ proc menu_select_ld {item} {
 			menu_create [menu_create_ld_list $::osd_ld_path]
 		} else {
 			if {[catch {laserdiscplayer insert $fullname} errorText]} {
-				message "Can't load LaserDisc: $errorText" error
+				osd::display_message "Can't load LaserDisc: $errorText" error
 			} else {
-				message "Loaded LaserDisc $item!"
+				osd::display_message "Loaded LaserDisc $item!"
 				menu_close_all
 			}
 		}
@@ -2053,7 +2053,7 @@ proc menu_loadstate_deselect {item} {
 
 proc menu_loadstate_exec {item} {
 	if {[catch {loadstate $item} errorText]} {
-		message $errorText error
+		osd::display_message $errorText error
 	} else {
 		menu_close_all
 	}
@@ -2073,9 +2073,9 @@ proc confirm_save_state {item result} {
 	menu_close_top
 	if {$result eq "Yes"} {
 		if {[catch {savestate $item} errorText]} {
-			message $errorText error
+			osd::display_message $errorText error
 		} else {
-			message "State saved to $item!"
+			osd::display_message "State saved to $item!"
 			menu_close_all
 		}
 	}
@@ -2110,7 +2110,7 @@ proc confirm_action {text action item} {
 
 proc menu_loadreplay_exec {item} {
 	if {[catch {reverse loadreplay $item} errorText]} {
-		message $errorText error
+		osd::display_message $errorText error
 	} else {
 		menu_close_all
 	}
@@ -2118,7 +2118,7 @@ proc menu_loadreplay_exec {item} {
 
 proc menu_loadscript_exec {item} {
 	if {[catch {source $item} errorText]} {
-		message $errorText error
+		osd::display_message $errorText error
 	}
 }
 
@@ -2144,7 +2144,7 @@ proc drop_handler { event } {
 		set mediabasecommand [dict get $mediaslot_info $category mediabasecommand]
 		set slots [lsort [info command ${mediabasecommand}?]]
 		if {[llength $slots] == 0} {
-			message "Can't handle dropped $filetext $filename, no $longmediaslotname present." error
+			osd::display_message "Can't handle dropped $filetext $filename, no $longmediaslotname present." error
 		} elseif {[llength $slots] > 1} {
 			set path $filename
 			set menutitle "Select ${longmediaslotname}"
@@ -2157,11 +2157,11 @@ proc drop_handler { event } {
 		if {[info command laserdiscplayer] ne ""} {; # only exists on some Pioneers
 			osd_menu::menu_select_ld $filename
 		} else {
-			message "Can't handle dropped $filetext $filename, no laser disc player present." error
+			osd::display_message "Can't handle dropped $filetext $filename, no laser disc player present." error
 		}
 	} elseif {$category eq "cassette"} {
 		if {[catch "machine_info connector cassetteport"]} {; # example: turboR
-			message "Can't handle dropped $filetext $filename, no cassette port present." error
+			osd::display_message "Can't handle dropped $filetext $filename, no cassette port present." error
 		} else {
 			osd_menu::menu_select_tape $filename
 		}
@@ -2176,7 +2176,7 @@ proc drop_handler { event } {
 		if {[file extension $filename] eq ".txt"} {
 			type_from_file $filename
 		} else {
-			message "Don't know how to handle dropped $filetext $filename..." error
+			osd::display_message "Don't know how to handle dropped $filetext $filename..." error
 		}
 	}
 }

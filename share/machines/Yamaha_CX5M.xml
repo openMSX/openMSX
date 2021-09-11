@@ -72,7 +72,6 @@
 
     <!-- Note that this device can be plugged out. What is left is not a standard MSX cartridgeslot, but a 60 pins male edge connector, carrying all MSX cartridgeslot signals. -->
       <YamahaSFG id="Yamaha SFG-01">
-        <variant>YM2151</variant>
         <mem base="0x0000" size="0x10000"/>
         <sound>
           <volume>30000</volume>

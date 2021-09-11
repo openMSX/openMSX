@@ -13,10 +13,10 @@ variable after_mouse_button_id
 proc toggle_nemesis_1_shield {} {
 	if {[osd exists "nemesis1"]} {
 		disable_nemesis_1_shield
-		message "Nemesis 1 shield deactivated" info
+		osd::display_message "Nemesis 1 shield deactivated" info
 	} else {
 		enable_nemesis_1_shield
-		message "Nemesis 1 shield activated" info
+		osd::display_message "Nemesis 1 shield activated" info
 	}
 	return ""
 }
