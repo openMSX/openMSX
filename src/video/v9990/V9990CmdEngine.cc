@@ -1302,7 +1302,8 @@ void V9990CmdEngine::executeBMXL(EmuTime::param limit)
 		engineTime += delta;
 		byte d = vram.readVRAMBx(srcAddress++);
 		for (int i = 0; (ANY > 0) && (i < Mode::PIXELS_PER_BYTE); ++i) {
-			Mode::pset(vram, DX, DY, pitch, d, WM, lut, LOG);
+			auto d2 = Mode::shift(d, i, DX);
+			Mode::pset(vram, DX, DY, pitch, d2, WM, lut, LOG);
 			DX += dx;
 			if (!--(ANX)) {
 				DX -= (NX * dx);
