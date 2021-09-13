@@ -140,15 +140,11 @@ void PluggingController::PlugCmd::tabCompletion(std::vector<string>& tokens) con
 			[](auto& c) -> std::string_view { return c->getName(); }));
 	} else if (tokens.size() == 3) {
 		// complete pluggable
-		std::vector<string_view> pluggableNames;
 		auto* connector = pluggingController.findConnector(tokens[1]);
 		string_view className = connector ? connector->getClass() : string_view{};
-		for (auto& p : pluggingController.pluggables) {
-			if (p->getClass() == className) {
-				pluggableNames.emplace_back(p->getName());
-			}
-		}
-		completeString(tokens, pluggableNames);
+		completeString(tokens, view::transform(view::filter(pluggingController.pluggables,
+			[&](auto& p) { return p->getClass() == className; }),
+			[](auto& p) -> string_view { return p->getName(); }));
 	}
 }
 
