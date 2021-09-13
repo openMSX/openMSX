@@ -401,7 +401,7 @@ static void saveElement(MemOutputArchive& ar, const XMLElement& elem)
 		ar.save(attr.getValue());
 	}
 
-	unsigned numElems = elem.numChildren();
+	auto numElems = unsigned(elem.numChildren());
 	ar.save(numElems);
 	if (numElems) {
 		for (const auto& child : elem.getChildren()) {

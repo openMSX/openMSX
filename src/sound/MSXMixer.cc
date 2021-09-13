@@ -626,7 +626,7 @@ void MSXMixer::changeRecordSetting(const Setting& setting)
 		for (auto&& [channel, settings] : enumerate(info.channelSettings)) {
 			if (settings.record.get() == &setting) {
 				info.device->recordChannel(
-					channel,
+					unsigned(channel),
 					Filename(FileOperations::expandTilde(std::string(
 						 settings.record->getString()))));
 				return;
@@ -642,7 +642,7 @@ void MSXMixer::changeMuteSetting(const Setting& setting)
 		for (auto&& [channel, settings] : enumerate(info.channelSettings)) {
 			if (settings.mute.get() == &setting) {
 				info.device->muteChannel(
-					channel, settings.mute->getBoolean());
+					unsigned(channel), settings.mute->getBoolean());
 				return;
 			}
 		}

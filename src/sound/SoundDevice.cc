@@ -123,7 +123,7 @@ void SoundDevice::registerSound(const DeviceConfig& config)
 		}
 
 		auto channels = StringOp::parseRange(channel->getValue(), 1, numChannels);
-		channels.foreachSetBit([&](unsigned c) {
+		channels.foreachSetBit([&](size_t c) {
 			channelBalance[c - 1] = *balance;
 		});
 	}

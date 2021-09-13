@@ -111,7 +111,7 @@ void SettingsConfig::loadSetting(const FileContext& context, std::string_view fi
 	}
 
 	settingValues.clear();
-	settingValues.reserve(parser.settings.size());
+	settingValues.reserve(unsigned(parser.settings.size()));
 	for (const auto& [name, value] : parser.settings) {
 		settingValues.emplace(name, value);
 	}
@@ -171,7 +171,7 @@ void SettingsConfig::saveSetting(std::string filename)
 			file.write(&c, 1);
 		}
 		void check(bool condition) const {
-			assert(condition);
+			assert(condition); (void)condition;
 		}
 
 	private:

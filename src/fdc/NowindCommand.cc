@@ -73,13 +73,13 @@ void NowindCommand::processHdimage(
 		partitions.setRange(1, 32);
 	}
 
-	partitions.foreachSetBit([&](unsigned p) {
+	partitions.foreachSetBit([&](size_t p) {
 		try {
 			// Explicit conversion to shared_ptr<SectorAccessibleDisk> is
 			// for some reason needed in 32-bit vs2013 build (not in 64-bit
 			// and not in vs2012, nor gcc/clang). Compiler bug???
 			auto partition = std::make_unique<DiskPartition>(
-				*wholeDisk, p,
+				*wholeDisk, unsigned(p),
 				std::shared_ptr<SectorAccessibleDisk>(wholeDisk));
 			auto drive = createDiskChanger(
 				interface.basename, unsigned(drives.size()),

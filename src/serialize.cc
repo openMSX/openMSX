@@ -308,7 +308,7 @@ XmlOutputArchive::~XmlOutputArchive()
 
 void XmlOutputArchive::write(const char* buf, size_t len)
 {
-	if ((gzwrite(file, buf, len) == 0) && (len != 0)) {
+	if ((gzwrite(file, buf, unsigned(len)) == 0) && (len != 0)) {
 		error();
 	}
 }
