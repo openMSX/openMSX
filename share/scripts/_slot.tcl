@@ -215,10 +215,10 @@ proc iomap {} {
 			incr end
 		}
 		if {$in eq $out} {
-			append result [iomap_helper "I/O" $port $end $in ]
+			append result [iomap_helper "I/O" $port $end [join $in  ", "]]
 		} else {
-			append result [iomap_helper "I  " $port $end $in ]
-			append result [iomap_helper "  O" $port $end $out]
+			append result [iomap_helper "I  " $port $end [join $in  ", "]]
+			append result [iomap_helper "  O" $port $end [join $out ", "]]
 		}
 		set port $end
 	}

@@ -292,7 +292,8 @@ proc vgm_rec_start {} {
 		                    [debug set_watchpoint write_io 0xC1 {} {vgm::write_y8950_data}]
 
 		# Save the sample RAM as a datablock. If loaded before starting the recording it's fine, if loaded afterward it'll be saved as vgm commands which will be optimised to datablock by the vgmtools
-		set y8950_ram [concat [machine_info output_port 0xC0] RAM]
+		# Note that we only support the first Y8950 device on the I/O port
+		set y8950_ram [concat [lindex [machine_info output_port 0xC0] 0] RAM]
 		if {[lsearch -exact [debug list] $y8950_ram] >= 0} {
 			set y8950_ram_size [debug size $y8950_ram]
 			if {$y8950_ram_size > 0} {
@@ -323,7 +324,8 @@ proc vgm_rec_start {} {
 		                    [debug set_watchpoint write_io 0xC7 {} {vgm::write_opl4_data}]
 
 		# Save the sample RAM as a datablock. If loaded before starting the recording it's fine, if loaded afterward it'll be saved as vgm commands which will be optimised to datablock by the vgmtools
-		set moonsound_ram [concat [machine_info output_port 0x7E] {wave RAM}]
+		# Note that we only support the first MoonSound device on the I/O port
+		set moonsound_ram [concat [lindex [machine_info output_port 0x7E] 0] {wave RAM}]
 		if {[lsearch -exact [debug list] $moonsound_ram] >= 0} {
 			set moonsound_ram_size [debug size $moonsound_ram]
 			if {$moonsound_ram_size > 0} {
