@@ -654,9 +654,14 @@ void YM2151::writeReg(byte r, byte v, EmuTime::param time)
 	switch (r & 0xe0) {
 	case 0x00:
 		switch (r) {
-		case 0x01: // LFO reset(bit 1), Test Register (other bits)
-			test = v;
-			if (v & 2) lfo_phase = 0;
+		case 0x01:
+		case 0x09:
+			// the test register is located differently between the variants
+			if ((r == 1 && variant == Variant::YM2151) ||
+		            (r == 9 && variant == Variant::YM2164)) {
+				test = v;
+				if (v & 2) lfo_phase = 0; // bit 1: LFO reset
+			}
 			break;
 
 		case 0x08:
@@ -863,11 +868,13 @@ void YM2151::writeReg(byte r, byte v, EmuTime::param time)
 constexpr auto INPUT_RATE = unsigned(cstd::round(3579545 / 64.0));
 
 YM2151::YM2151(const std::string& name_, static_string_view desc,
-               const DeviceConfig& config, EmuTime::param time)
+               const DeviceConfig& config, EmuTime::param time, Variant variant_)
 	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 8, INPUT_RATE, true)
 	, irq(config.getMotherBoard(), getName() + ".IRQ")
 	, timer1(EmuTimer::createOPM_1(config.getScheduler(), *this))
-	, timer2(EmuTimer::createOPM_2(config.getScheduler(), *this))
+	, timer2(variant_ == Variant::YM2164 ? EmuTimer::createOPP_2(config.getScheduler(), *this)
+					     : EmuTimer::createOPM_2(config.getScheduler(), *this))
+	, variant(variant_)
 {
 	// Avoid UMR on savestate
 	// TODO Registers 0x20-0xFF are cleared on reset.

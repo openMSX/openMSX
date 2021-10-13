@@ -20,6 +20,13 @@ unique_ptr<EmuTimer> EmuTimer::createOPM_2(
 		scheduler, cb, 0x20,  3579545, 64 * 2 * 16, 256);
 }
 
+unique_ptr<EmuTimer> EmuTimer::createOPP_2(
+	Scheduler& scheduler, EmuTimerCallback& cb)
+{
+	return std::make_unique<EmuTimer>(
+		scheduler, cb, 0x20,  3579545, 64 * 2 * 32, 256);
+}
+
 unique_ptr<EmuTimer> EmuTimer::createOPL3_1(
 	Scheduler& scheduler, EmuTimerCallback& cb)
 {

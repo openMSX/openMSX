@@ -29,6 +29,8 @@
  ** Ishmair - for the datasheet and motivation.
  */
 
+// YM2164/OPP specifics info from http://map.grauw.nl/resources/sound/yamaha_ym2164.php
+
 #ifndef YM2151_HH
 #define YM2151_HH
 
@@ -47,8 +49,13 @@ class DeviceConfig;
 class YM2151 final : public ResampledSoundDevice, private EmuTimerCallback
 {
 public:
+	enum class Variant : char {
+	    YM2151,   // aka OPM
+	    YM2164,   // aka OPP
+	};
+
 	YM2151(const std::string& name, static_string_view desc,
-	       const DeviceConfig& config, EmuTime::param time);
+	       const DeviceConfig& config, EmuTime::param time, Variant variant);
 	~YM2151();
 
 	void reset(EmuTime::param time);
@@ -192,6 +199,7 @@ private:
 	byte ct;                 // output control pins (bit1-CT2, bit0-CT1)
 
 	byte regs[256];          // only used for serialization ATM
+	const Variant variant;   // Whether we're emulating YM2151 or YM2164
 };
 
 } // namespace openmsx
