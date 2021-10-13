@@ -324,7 +324,7 @@ proc vgm_rec_start {} {
 		                    [debug set_watchpoint write_io 0xC7 {} {vgm::write_opl4_data}]
 
 		# Save the sample RAM as a datablock. If loaded before starting the recording it's fine, if loaded afterward it'll be saved as vgm commands which will be optimised to datablock by the vgmtools
-		# Note that we only support the first MoonSound device on the I/O port
+		# Note that we only support the first Moonsound device on the I/O port
 		set moonsound_ram [concat [lindex [machine_info output_port 0x7E] 0] {wave RAM}]
 		if {[lsearch -exact [debug list] $moonsound_ram] >= 0} {
 			set moonsound_ram_size [debug size $moonsound_ram]
@@ -339,7 +339,7 @@ proc vgm_rec_start {} {
 				append temp_music_data [binary format cccc 0xD0 0x01 0x05 0x03]
 			}
 		}
-		append recording_text " Moondsound"
+		append recording_text " Moonsound"
 	}
 
 	variable scc_logged
