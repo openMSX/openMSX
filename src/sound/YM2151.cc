@@ -9,10 +9,12 @@
 #include "Math.hh"
 #include "cstd.hh"
 #include "enumerate.hh"
+#include "one_of.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include "xrange.hh"
 #include <array>
+#include <cassert>
 #include <cmath>
 #include <cstring>
 #include <iostream>
@@ -1535,18 +1537,11 @@ void YM2151::generateChannels(float** bufs, unsigned num)
 
 void YM2151::callback(byte flag)
 {
-	if (flag & 0x20) { // Timer 1
-		if (irq_enable & 0x04) {
-			setStatus(1);
-		}
-		if (irq_enable & 0x80) {
-			csm_req = 2; // request KEY ON / KEY OFF sequence
-		}
-	}
-	if (flag & 0x40) { // Timer 2
-		if (irq_enable & 0x08) {
-			setStatus(2);
-		}
+	assert(flag == one_of(1, 2));
+	setStatus(flag);
+
+	if ((flag == 1) && (irq_enable & 0x80)) { // Timer 1
+		csm_req = 2; // request KEY ON / KEY OFF sequence
 	}
 }
 
@@ -1558,7 +1553,8 @@ byte YM2151::readStatus() const
 void YM2151::setStatus(byte flags)
 {
 	status |= flags;
-	if (status) {
+	auto enable = (irq_enable >> 2) & 3;
+	if ((status & enable) != 0) {
 		irq.set();
 	}
 }
@@ -1566,7 +1562,8 @@ void YM2151::setStatus(byte flags)
 void YM2151::resetStatus(byte flags)
 {
 	status &= ~flags;
-	if (!status) {
+	auto enable = (irq_enable >> 2) & 3;
+	if ((status & enable) == 0) {
 		irq.reset();
 	}
 }

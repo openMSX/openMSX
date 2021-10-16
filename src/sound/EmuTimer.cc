@@ -10,21 +10,21 @@ unique_ptr<EmuTimer> EmuTimer::createOPM_1(
 	Scheduler& scheduler, EmuTimerCallback& cb)
 {
 	return std::make_unique<EmuTimer>(
-		scheduler, cb, 0x40,  3579545, 64 * 2     , 1024);
+		scheduler, cb, 1,  3579545, 64 * 2     , 1024);
 }
 
 unique_ptr<EmuTimer> EmuTimer::createOPM_2(
 	Scheduler& scheduler, EmuTimerCallback& cb)
 {
 	return std::make_unique<EmuTimer>(
-		scheduler, cb, 0x20,  3579545, 64 * 2 * 16, 256);
+		scheduler, cb, 2,  3579545, 64 * 2 * 16, 256);
 }
 
 unique_ptr<EmuTimer> EmuTimer::createOPP_2(
 	Scheduler& scheduler, EmuTimerCallback& cb)
 {
 	return std::make_unique<EmuTimer>(
-		scheduler, cb, 0x20,  3579545, 64 * 2 * 32, 256);
+		scheduler, cb, 2,  3579545, 64 * 2 * 32, 256);
 }
 
 unique_ptr<EmuTimer> EmuTimer::createOPL3_1(
