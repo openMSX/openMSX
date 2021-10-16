@@ -3,6 +3,7 @@
 
 #include "semiregular.hh"
 #include <algorithm>
+#include <functional>
 #include <iterator>
 #include <tuple>
 #include <type_traits>

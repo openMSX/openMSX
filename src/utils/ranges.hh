@@ -3,6 +3,7 @@
 
 #include "stl.hh"
 #include <algorithm>
+#include <functional>
 #include <iterator> // for std::begin(), std::end()
 #include <numeric>
 
