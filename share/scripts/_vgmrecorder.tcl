@@ -35,14 +35,14 @@ variable mbwave_title_hack       false
 variable mbwave_loop_hack	 false
 variable mbwave_basic_title_hack false
 
-variable supported_chips [list MSX-Music PSG Moonsound MSX-Audio SCC]
+variable supported_chips [list MSX-Music PSG MoonSound MSX-Audio SCC]
 
 set_help_proc vgm_rec [namespace code vgm_rec_help]
 proc vgm_rec_help {args} {
         switch -- [lindex $args 1] {
                 "start"    {return {VGM recording will be initialised, specify one or more soundchips to record.
 
-Syntax: vgm_rec start <MSX-Audio|MSX-Music|Moonsound|PSG|SCC>
+Syntax: vgm_rec start <MSX-Audio|MSX-Music|MoonSound|PSG|SCC>
 
 Actual recording will start when audio is detected to avoid silence at the beginning of the recording. This mechanism will only work if the MSX and/or playback routine does not send data to the soundchip when not playing, recording will start immediately in those cases.
 }}
@@ -219,7 +219,7 @@ proc vgm_rec {args} {
 			if     {[string compare -nocase $a "PSG"      ] == 0} {set psg_logged       true} \
 			elseif {[string compare -nocase $a "MSX-Music"] == 0} {set fm_logged        true} \
 			elseif {[string compare -nocase $a "MSX-Audio"] == 0} {set y8950_logged     true} \
-			elseif {[string compare -nocase $a "Moonsound"] == 0} {set moonsound_logged true} \
+			elseif {[string compare -nocase $a "MoonSound"] == 0} {set moonsound_logged true} \
 			elseif {[string compare -nocase $a "SCC"      ] == 0} {set scc_logged       true} \
 			else {
 				error "Invalid chip to record for specified, use tab completion"
@@ -324,7 +324,7 @@ proc vgm_rec_start {} {
 		                    [debug set_watchpoint write_io 0xC7 {} {vgm::write_opl4_data}]
 
 		# Save the sample RAM as a datablock. If loaded before starting the recording it's fine, if loaded afterward it'll be saved as vgm commands which will be optimised to datablock by the vgmtools
-		# Note that we only support the first Moonsound device on the I/O port
+		# Note that we only support the first MoonSound device on the I/O port
 		set moonsound_ram [concat [lindex [machine_info output_port 0x7E] 0] {wave RAM}]
 		if {[lsearch -exact [debug list] $moonsound_ram] >= 0} {
 			set moonsound_ram_size [debug size $moonsound_ram]
@@ -339,7 +339,7 @@ proc vgm_rec_start {} {
 				append temp_music_data [binary format cccc 0xD0 0x01 0x05 0x03]
 			}
 		}
-		append recording_text " Moonsound"
+		append recording_text " MoonSound"
 	}
 
 	variable scc_logged
