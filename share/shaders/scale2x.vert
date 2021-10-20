@@ -9,8 +9,8 @@ varying vec2 coord2pi;
 varying vec2 texCoord;
 varying vec2 videoCoord;
 
-const float pi = 4.0 * atan(1.0);
-const float pi2 = 2.0 * pi;
+float pi = 4.0 * atan(1.0);
+float pi2 = 2.0 * pi;
 
 void main()
 {
