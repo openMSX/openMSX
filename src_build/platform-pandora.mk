@@ -7,7 +7,7 @@ TARGET_FLAGS+=-march=armv7-a -mtune=cortex-a8 -mfpu=neon -mfloat-abi=softfp
 endif
 
 # Pandora is a Linux system.
-include build/platform-linux.mk
+include src_build/platform-linux.mk
 
 # Identify the binary executable file.
 EXEEXT:=.bin

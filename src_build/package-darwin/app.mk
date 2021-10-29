@@ -1,6 +1,6 @@
 # Create an application directory for Darwin.
 
-APP_SUPPORT_DIR:=build/package-darwin
+APP_SUPPORT_DIR:=src_build/package-darwin
 APP_DIR:=openMSX.app
 APP_EXE_DIR:=$(APP_DIR)/Contents/MacOS
 APP_PLIST:=$(APP_DIR)/Contents/Info.plist
@@ -35,7 +35,7 @@ $(DESTDIR)/$(APP_PLIST): $(DESTDIR)/$(APP_DIR)/Contents/%: $(APP_SUPPORT_DIR)/% 
 	@echo "  Writing meta-info..."
 	@mkdir -p $(@D)
 	@sed -e 's/%ICON%/$(notdir $(APP_ICON))/' \
-		-e 's/%VERSION%/$(shell $(PYTHON) build/version.py triple)/' < $< > $@
+		-e 's/%VERSION%/$(shell $(PYTHON) src_build/version.py triple)/' < $< > $@
 	@echo "APPLoMSX" > $(@D)/PkgInfo
 
 $(DESTDIR)/$(APP_ICON): $(DESTDIR)/$(APP_RES)/%: $(APP_SUPPORT_DIR)/% bindistclean

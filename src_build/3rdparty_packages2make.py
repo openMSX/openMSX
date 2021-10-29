@@ -3,14 +3,14 @@ from packages import getPackage, iterDownloadablePackages
 import sys
 
 def printPackagesMake():
-	patchesDir = 'build/3rdparty'
+	patchesDir = 'src_build/3rdparty'
 	sourceDir = 'derived/3rdparty/src'
 	tarballsDir = 'derived/3rdparty/download'
 	print('SOURCE_DIR:=%s' % sourceDir)
 	print()
 
 	print('# Information about packages.')
-	print('# Generated from the data in "build/packages.py".')
+	print('# Generated from the data in "src_build/packages.py".')
 	print()
 	tarballs = []
 	for package in iterDownloadablePackages():
@@ -23,7 +23,7 @@ def printPackagesMake():
 		print('# Download:')
 		print('%s:' % tarball)
 		print('\tmkdir -p %s' % tarballsDir)
-		print('\t$(PYTHON) build/download.py %s/%s %s' % (
+		print('\t$(PYTHON) src_build/download.py %s/%s %s' % (
 			package.downloadURL, package.getTarballName(), tarballsDir
 			))
 		packageSourceDirName = package.getSourceDirName()
@@ -32,7 +32,7 @@ def printPackagesMake():
 		print('# Verify:')
 		verifyMarker = '%s.verified' % tarball
 		print('%s: %s' % (verifyMarker, tarball))
-		print('\t$(PYTHON) build/checksum.py %s %d %s' % (
+		print('\t$(PYTHON) src_build/checksum.py %s %d %s' % (
 			tarball,
 			package.fileLength,
 			' '.join('%s=%s' % item for item in package.checksums.items())
@@ -43,10 +43,10 @@ def printPackagesMake():
 		print('%s: %s $(wildcard %s)' % (extractMarker, verifyMarker, patchFile))
 		print('\trm -rf %s' % packageSourceDir)
 		print('\tmkdir -p %s' % sourceDir)
-		print('\t$(PYTHON) build/extract.py %s %s %s' % (
+		print('\t$(PYTHON) src_build/extract.py %s %s %s' % (
 			tarball, sourceDir, packageSourceDirName
 			))
-		print('\ttest ! -e %s || $(PYTHON) build/patch.py %s %s' % (
+		print('\ttest ! -e %s || $(PYTHON) src_build/patch.py %s %s' % (
 			patchFile, patchFile, sourceDir
 			))
 		print('\ttouch %s' % extractMarker)

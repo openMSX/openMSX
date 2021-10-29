@@ -138,7 +138,7 @@ prog_python = import('python').find_installation('python3')
 hdr_version = custom_target(
     'version header',
     output: 'Version.ii',
-    input: 'build/version2code.py',
+    input: 'src_build/version2code.py',
     command: [prog_python, '@INPUT@', '@OUTPUT@'],
     build_always_stale: true,
 )
@@ -148,7 +148,7 @@ abs_datadir = get_option('prefix') / get_option('datadir') / 'openmsx'
 hdr_config = custom_target(
     'build info header',
     output: 'build-info.hh',
-    input: 'build/buildinfo2code.py',
+    input: 'src_build/buildinfo2code.py',
     command: [
         prog_python, '@INPUT@', '@OUTPUT@',
         host_machine.system(),

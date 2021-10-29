@@ -1,6 +1,6 @@
 # Create an OPK file for OpenDingux.
 
-PACKAGE_SUPPORT_DIR:=build/package-dingux
+PACKAGE_SUPPORT_DIR:=src_build/package-dingux
 
 # Override install locations.
 DESTDIR:=$(BINDIST_DIR)

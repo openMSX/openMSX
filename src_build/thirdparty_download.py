@@ -82,7 +82,7 @@ if __name__ == '__main__':
 			sys.argv[1],
 			'derived/3rdparty/download',
 			'derived/3rdparty/src',
-			'build/3rdparty'
+			'src_build/3rdparty'
 			)
 	else:
 		print('Usage: python3 thirdparty_download.py TARGET_OS', file=sys.stderr)

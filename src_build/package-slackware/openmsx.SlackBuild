@@ -122,8 +122,8 @@ cd $NAME-$VERSION
 echo "------------------------------- Patching -------------------------------"
 # Set installation directory to what we want
 SUBDEST=/usr/share/openmsx
-sed -i "s:\(INSTALL_BASE\:=\).*:\1$SUBDEST:" build/custom.mk
-sed -i "s:\(SYMLINK_FOR_BINARY\:=\).*:\1false:" build/custom.mk
+sed -i "s:\(INSTALL_BASE\:=\).*:\1$SUBDEST:" src_build/custom.mk
+sed -i "s:\(SYMLINK_FOR_BINARY\:=\).*:\1false:" src_build/custom.mk
 
 echo "------------------------------ Compiling -------------------------------"
 #CFLAGS=$SLCKFLAGS \
@@ -184,10 +184,10 @@ cd $GUINAME-$GUIVERSION
 echo "------------------------------- Patching -------------------------------"
 # Set installation directory to what we want
 GUISUBDEST=/usr/share/openmsx/catapult
-sed -i "s:\(INSTALL_BASE\:=\).*:\1$GUISUBDEST:" build/custom.mk
-sed -i "s:\(SYMLINK_FOR_BINARY\:=\).*:\1false:" build/custom.mk
-sed -i "s:\(CATAPULT_OPENMSX_BINARY\:=\).*:\1/usr/bin/openmsx:" build/custom.mk
-sed -i "s:\(CATAPULT_OPENMSX_SHARE\:=\).*:\1/usr/share/openmsx:" build/custom.mk
+sed -i "s:\(INSTALL_BASE\:=\).*:\1$GUISUBDEST:" src_build/custom.mk
+sed -i "s:\(SYMLINK_FOR_BINARY\:=\).*:\1false:" src_build/custom.mk
+sed -i "s:\(CATAPULT_OPENMSX_BINARY\:=\).*:\1/usr/bin/openmsx:" src_build/custom.mk
+sed -i "s:\(CATAPULT_OPENMSX_SHARE\:=\).*:\1/usr/share/openmsx:" src_build/custom.mk
 
 echo "------------------------------ Compiling -------------------------------"
 #CFLAGS=$SLCKFLAGS \

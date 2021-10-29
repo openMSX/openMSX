@@ -13,7 +13,7 @@ def installAll(
 	binaryBuildPath, targetPlatform, cbios, symlinkForBinary
 	):
 	platformVars = extractMakeVariables(
-		'build/platform-%s.mk' % targetPlatform,
+		'src_build/platform-%s.mk' % targetPlatform,
 		dict.fromkeys(
 			('COMPILE_FLAGS', 'LINK_FLAGS', 'TARGET_FLAGS',
 			 'OPENMSX_TARGET_CPU'),
@@ -102,7 +102,7 @@ def main(
 	installPrefix, binaryDestDir, shareDestDir, docDestDir,
 	binaryBuildPath, targetPlatform, verboseStr, cbiosStr
 	):
-	customVars = extractMakeVariables('build/custom.mk')
+	customVars = extractMakeVariables('src_build/custom.mk')
 
 	try:
 		verbose = parseBool(verboseStr)

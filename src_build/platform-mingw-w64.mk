@@ -2,7 +2,7 @@
 # Don't be fooled by the name: it can compile to both 32-bit and 64-bit Windows.
 #  http://mingw-w64.sourceforge.net/
 
-include build/platform-mingw32.mk
+include src_build/platform-mingw32.mk
 
 # File name extension of executables.... AGAIN.
 # Workaround because the makevar parsing doesn't do includes

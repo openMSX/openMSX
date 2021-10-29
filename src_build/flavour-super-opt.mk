@@ -2,7 +2,7 @@
 # not work everywhere or may not be benefical in all cases.
 
 # Start with generic optimisation flags.
-include build/flavour-opt.mk
+include src_build/flavour-opt.mk
 
 # Add CPU specific optimization flags:
 #  march=native is only supported starting from gcc-4.2.x

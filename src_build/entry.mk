@@ -32,13 +32,13 @@ endif
 
 ifeq ($(words $(MAKECMDGOALS)),1)
 # Single action, run it in this Make process.
-include build/main.mk
+include src_build/main.mk
 else
 # Multiple actions are given, process them sequentially.
 # If the same action is given more than once, some warnings will be displayed,
 # but they will all be executed.
 ACTION_COUNTER:=$(MAKECMDGOALS:%=x)
-include build/entry-seq.mk
+include src_build/entry-seq.mk
 $(MAKECMDGOALS): sequence-$(words $(MAKECMDGOALS))
 	@true
 endif

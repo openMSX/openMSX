@@ -33,7 +33,7 @@ jobs:
     - name: Determine version
       id: get_version
       run: |
-        OPENMSX_VERSION=`python3 build/version.py`
+        OPENMSX_VERSION=`python3 src_build/version.py`
         echo ::set-output name=OPENMSX_VERSION::$OPENMSX_VERSION
     - name: Prepare redistributable directory
       run: |

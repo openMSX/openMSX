@@ -2470,7 +2470,7 @@
 	* Various changes to reduce #include dependencies
 
 2006-10-04 Joost Damad <joost@lumatec.be>
-	* remove bashisms from build/install-recursive.sh
+	* remove bashisms from src_build/install-recursive.sh
 	* debian/ updates
 
 2006-10-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
@@ -5406,7 +5406,7 @@
 
 2004-10-13 Joost Damad <joost@lumatec.be>
 	* import of debian/
-	* some non-intrusive changes to the build/ dir
+	* some non-intrusive changes to the src_build/ dir
 	* Contrib moved when installed to share/
 	* bad timing of changes :(
 	* not softlink, but symbolic link
@@ -5876,7 +5876,7 @@
 	  the border colour is not influenced by the state change.
 	  This allows the scaler to draw border lines more efficiently.
 	* New feature in build system: version executables.
-	  See VERSION_EXEC in build/custom.mk (off by default).
+	  See VERSION_EXEC in src_build/custom.mk (off by default).
 
 2004-08-03 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed ROMBAS mapper for 8K ROMs.
@@ -6282,7 +6282,7 @@
 
 2004-05-05 Maarten ter Huurne <maarten@treewalker.org>
 	* Various small improvements to build system, including:
-	  - install dir is easier to customise (build/custom.mk)
+	  - install dir is easier to customise (src_build/custom.mk)
 	  - fixes for compiling on Mac OS X (thanks to Jalu for testing)
 
 2004-05-05 Wouter Vermaelen <wouter.vermaelen@pi.be>

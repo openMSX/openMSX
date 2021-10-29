@@ -280,7 +280,7 @@ def iterProbeResults(probeVars, configuration, logPath):
 			),
 		key = lambda package: package.niceName.lower()
 		)
-	customVars = extractMakeVariables('build/custom.mk')
+	customVars = extractMakeVariables('src_build/custom.mk')
 
 	yield ''
 	if not parseBool(probeVars['COMPILER']):
@@ -326,7 +326,7 @@ def iterProbeResults(probeVars, configuration, logPath):
 
 		yield 'Customisable options:'
 		yield formatStr % ('Install to', customVars['INSTALL_BASE'])
-		yield '  (you can edit these in build/custom.mk)'
+		yield '  (you can edit these in src_build/custom.mk)'
 		yield ''
 
 		if buildableComponents == desiredComponents:

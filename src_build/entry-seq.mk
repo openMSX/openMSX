@@ -9,9 +9,9 @@ NEXT_ACTION_COUNTER:=$(wordlist 2,999999,$(ACTION_COUNTER))
 
 sequence-$(words $(ACTION_COUNTER)): sequence-$(words $(NEXT_ACTION_COUNTER))
 	@echo Action: $(word $(@:sequence-%=%),$(MAKECMDGOALS))
-	@$(MAKE) --no-print-directory -f build/main.mk \
+	@$(MAKE) --no-print-directory -f src_build/main.mk \
 		$(word $(@:sequence-%=%),$(MAKECMDGOALS))
 
 ACTION_COUNTER:=$(NEXT_ACTION_COUNTER)
-include build/entry-seq.mk
+include src_build/entry-seq.mk
 endif

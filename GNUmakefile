@@ -1,1 +1,1 @@
-include build/entry.mk
+include src_build/entry.mk

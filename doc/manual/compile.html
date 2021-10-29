@@ -229,7 +229,7 @@ to build the Android version on a Windows host, then you must install a virtual 
 	unpack it to your favourite location and add the following Android NDK directory to your PATH environment
 	variable: <code>${ANDROID_NDK_HOME}</code>. It is advisable to do this in your <code>~/.profile</code>
 	script so that the setting remains available on each login. Note that <code>${ANDROID_NDK_HOME}</code> stands for the
-	directory in which you installed the Android NDK, for example <code>/opt/android/android-ndk-r18b</code>. We currently only support Android NDK 18b! On top of that, it is also necessary to create a stand-alone toolchain from this NDK. The following works: <code>$ANDROID_NDK_HOME/build/tools/make_standalone_toolchain.py --arch arm --api 16 --install-dir /opt/Android_NDK/r18b-android16-arm-standalone-toolchain</code>. The destination dir here is just an example. You must add the <code>bin</code> subdir to your <code>PATH</code> environment variable, e.g.: <code>/opt/Android_NDK/r18b-android16-arm-standalone-toolchain/bin/</code></dd>
+	directory in which you installed the Android NDK, for example <code>/opt/android/android-ndk-r18b</code>. We currently only support Android NDK 18b! On top of that, it is also necessary to create a stand-alone toolchain from this NDK. The following works: <code>$ANDROID_NDK_HOME/src_build/tools/make_standalone_toolchain.py --arch arm --api 16 --install-dir /opt/Android_NDK/r18b-android16-arm-standalone-toolchain</code>. The destination dir here is just an example. You must add the <code>bin</code> subdir to your <code>PATH</code> environment variable, e.g.: <code>/opt/Android_NDK/r18b-android16-arm-standalone-toolchain/bin/</code></dd>
 	<dt>The "commandergenius" SDL Android port</dt>
 	<dd>Download the SDL Android port from the git repository to your favourite location. You can download it
 	into the current directory with the following command: <code>git clone https://github.com/pelya/commandergenius.git</code>. Once that is done, you must set-up an environment variable called SDL_ANDROID_PORT_PATH with the location
@@ -561,7 +561,7 @@ If you are testing new openMSX developments or making changes in openMSX, you ca
 export OPENMSX_FLAVOUR=devel
 </div>
 <p>
-Although the default flavours will probably be OK for most cases, you may want to write a specific flavour for your particular wishes. The flavour files are all named <code>build/flavour-*.mk</code>.
+Although the default flavours will probably be OK for most cases, you may want to write a specific flavour for your particular wishes. The flavour files are all named <code>src_build/flavour-*.mk</code>.
 </p>
 
 <p>
@@ -606,7 +606,7 @@ that is written by the <code>configure</code> script in the directory
 
 <p>
 You can customise the build process by editing the file
-<code>build/custom.mk</code>.
+<code>src_build/custom.mk</code>.
 The most likely thing you might want to customise is the installation directory (<code>INSTALL_BASE</code>).
 If you are installing openMSX on a system on which you do not have
 superuser (root) privileges, you can set the installation directory
@@ -647,7 +647,7 @@ If you want to debug openMSX compilation problems yourself, you can add <code>V=
 Since openMSX 0.10.0, the minimum required macOS release to build openMSX out of the box is 10.7. This implies that only x86_64 CPUs (64-bit Intel) are supported.
 </p>
 <p>
-Building for older macOS releases should be possible in theory, but it requires a lot of effort to set up the compiler and SDK (C++11 support is required), adjust the openMSX build (<code>build/platform-darwin.mk</code>) etc. It's easier to try an older openMSX release instead.
+Building for older macOS releases should be possible in theory, but it requires a lot of effort to set up the compiler and SDK (C++11 support is required), adjust the openMSX build (<code>src_build/platform-darwin.mk</code>) etc. It's easier to try an older openMSX release instead.
 </p>
 
 <h4>Visual C++</h4>
@@ -705,7 +705,7 @@ The stand-alone binary is made by linking statically against all libraries which
 
 <h4>GCC / clang</h4>
 <p>
-If you want to change something about this process, for example switch to a newer library release, edit the <code>build/3rdparty.mk</code> Makefile.
+If you want to change something about this process, for example switch to a newer library release, edit the <code>src_build/3rdparty.mk</code> Makefile.
 </p>
 
 <p>
@@ -847,7 +847,7 @@ you must set that one up in order to be able to build openMSX. In order to do th
 commands, whereby <code>OPENMSX_SRC_HOME</code> stands for the directory into which the openMSX source has been loaded:</p>
 <div class="commandline">
 <pre>
-	cd $OPENMSX_SRC_HOME/build/android
+	cd $OPENMSX_SRC_HOME/src_build/android
 	./setup_anddev.sh
 </pre>
 </div>
@@ -859,7 +859,7 @@ commands, whereby <code>OPENMSX_SRC_HOME</code> stands for the directory into wh
 In order to build the Android version, you must enter the following commands:</p>
 <div class="commandline">
 <pre>
-	cd $OPENMSX_SRC_HOME/build/android/openmsx
+	cd $OPENMSX_SRC_HOME/src_build/android/openmsx
 	./launch_anddev_build.sh
 </pre>
 </div>
@@ -875,7 +875,7 @@ previous step with the following commands:</p>
 <div class="commandline">
 <pre>
 	cd $SDL_ANDROID_PORT_PATH
-	adb install -r project/app/build/outputs/apk/app-release.apk
+	adb install -r project/app/src_build/outputs/apk/app-release.apk
 </pre>
 </div>
 
@@ -886,7 +886,7 @@ previous step with the following commands:</p>
 In order to build and directly install the Android version, you must enter the following commands:</p>
 <div class="commandline">
 <pre>
-	cd $OPENMSX_SRC_HOME/build/android/openmsx
+	cd $OPENMSX_SRC_HOME/src_build/android/openmsx
 	./launch_anddev_build.sh -i
 </pre>
 </div>

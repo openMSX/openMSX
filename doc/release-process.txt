@@ -29,7 +29,7 @@ Creating a release candidate
   version number that ends with -rc1, so 1.2.3-rc1. Only the final release will
   be without the -rc suffix (in both tag and version numbers.)
 - Update the copyright year in src/resource/openmsx.rc
-- Edit the version number in build/version.py:
+- Edit the version number in src_build/version.py:
     packageVersionNumber = '1.2.3'
   And set releaseFlag to True.
   Additionally, increase the androidReleaseVersionCode with 1.
@@ -40,7 +40,7 @@ Creating a release candidate
     git tag -a RELEASE_1_2_3 -m "Tagging release 1.2.3."
     git push --tags
 - Create the distribution tar.gz file based on the new tag:
-    build/gitdist.py RELEASE_1_2_3
+    src_build/gitdist.py RELEASE_1_2_3
 - Save the created file somewhere you can find it again:
     mv derived/dist/openmsx-1.2.3.tar.gz <some_dir>/
   This is the release candidate.
@@ -113,7 +113,7 @@ Finally:
 - Update web site to point to new downloads.
 - On the openMSX home page, update the lists "features of current release"
   and "features in development".
-- Set releaseFlag to False in build/version.py
+- Set releaseFlag to False in src_build/version.py
 - Update libraries in the 3rd party build system to latest versions, so that
   next release will profit from this and you won't forget it. Just before the
   release is too late (unless it's some minor security fix)!

@@ -24,7 +24,7 @@ ifneq ($(origin PACKAGE_SDL2),undefined)
 
 # These libraries are part of the base system, therefore we do not need to
 # link them statically for building a redistributable binary.
-SYSTEM_LIBS:=$(shell $(PYTHON) build/list_system_libs.py $(OPENMSX_TARGET_OS))
+SYSTEM_LIBS:=$(shell $(PYTHON) src_build/list_system_libs.py $(OPENMSX_TARGET_OS))
 
 # Compiler selection, compiler flags, SDK selection.
 # These variables are already exported, but we make it explicit here.
@@ -105,7 +105,7 @@ else
 USE_VIDEO_X11:=enable
 endif
 
-PACKAGES_BUILD:=$(shell $(PYTHON) build/3rdparty_libraries.py $(OPENMSX_TARGET_OS) $(LINK_MODE)) PKG_CONFIG
+PACKAGES_BUILD:=$(shell $(PYTHON) src_build/3rdparty_libraries.py $(OPENMSX_TARGET_OS) $(LINK_MODE)) PKG_CONFIG
 PACKAGES_NOBUILD:=
 PACKAGES_3RD:=$(PACKAGES_BUILD) $(PACKAGES_NOBUILD)
 
@@ -362,6 +362,6 @@ endif
 # Rules for creating and updating generated Makefiles:
 
 derived/3rdparty/packages.mk: \
-  build/3rdparty_packages2make.py build/packages.py
+  src_build/3rdparty_packages2make.py src_build/packages.py
 	mkdir -p $(@D)
 	$(PYTHON) $< > $@

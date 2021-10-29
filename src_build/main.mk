@@ -100,7 +100,7 @@ TARGET_FLAGS:=
 # Customisation
 # =============
 
-include build/custom.mk
+include src_build/custom.mk
 $(call DEFCHECK,INSTALL_BASE)
 $(call BOOLCHECK,VERSION_EXEC)
 $(call BOOLCHECK,SYMLINK_FOR_BINARY)
@@ -120,7 +120,7 @@ LINK_MODE:=$(if $(filter true,$(3RDPARTY_FLAG)),3RD_STA,SYS_DYN)
 
 # Do not perform autodetection if platform was specified by the user.
 ifneq ($(filter undefined,$(origin OPENMSX_TARGET_CPU) $(origin OPENMSX_TARGET_OS)),)
-DETECTSYS_SCRIPT:=build/detectsys.py
+DETECTSYS_SCRIPT:=src_build/detectsys.py
 LOCAL_PLATFORM:=$(shell $(PYTHON) $(DETECTSYS_SCRIPT))
 ifeq ($(LOCAL_PLATFORM),)
 $(error No platform specified using OPENMSX_TARGET_CPU and OPENMSX_TARGET_OS and autodetection of local platform failed)
@@ -166,7 +166,7 @@ endif
 
 # Load OS specific settings.
 $(call DEFCHECK,OPENMSX_TARGET_OS)
-include build/platform-$(OPENMSX_TARGET_OS).mk
+include src_build/platform-$(OPENMSX_TARGET_OS).mk
 # Check that all expected variables were defined by OS specific Makefile:
 # - library file name extension
 $(call DEFCHECK,LIBRARYEXT)
@@ -176,14 +176,14 @@ $(call DEFCHECK,EXEEXT)
 $(call BOOLCHECK,USE_SYMLINK)
 
 # Get CPU specific flags.
-TARGET_FLAGS+=$(shell $(PYTHON) build/cpu2flags.py $(OPENMSX_TARGET_CPU))
+TARGET_FLAGS+=$(shell $(PYTHON) src_build/cpu2flags.py $(OPENMSX_TARGET_CPU))
 
 
 # Flavours
 # ========
 
 # Load flavour specific settings.
-include build/flavour-$(OPENMSX_FLAVOUR).mk
+include src_build/flavour-$(OPENMSX_FLAVOUR).mk
 
 UNITTEST?=false
 
@@ -228,14 +228,14 @@ else
 MAIN_EXECUTABLE:=$(BINARY_FULL)
 endif
 
-BUILDINFO_SCRIPT:=build/buildinfo2code.py
+BUILDINFO_SCRIPT:=src_build/buildinfo2code.py
 CONFIG_HEADER:=$(BUILD_PATH)/config/build-info.hh
-PROBE_SCRIPT:=build/probe.py
+PROBE_SCRIPT:=src_build/probe.py
 PROBE_MAKE:=$(BUILD_PATH)/config/probed_defs.mk
-VERSION_SCRIPT:=build/version2code.py
+VERSION_SCRIPT:=src_build/version2code.py
 VERSION_HEADER:=$(BUILD_PATH)/config/Version.ii
-COMPONENTS_HEADER_SCRIPT:=build/components2code.py
-COMPONENTS_DEFS_SCRIPT:=build/components2defs.py
+COMPONENTS_HEADER_SCRIPT:=src_build/components2code.py
+COMPONENTS_DEFS_SCRIPT:=src_build/components2defs.py
 COMPONENTS_HEADER:=$(BUILD_PATH)/config/components.hh
 COMPONENTS_DEFS:=$(BUILD_PATH)/config/components_defs.mk
 GENERATED_HEADERS:=$(VERSION_HEADER) $(CONFIG_HEADER) $(COMPONENTS_HEADER)
@@ -317,7 +317,7 @@ OBJECTS_FULL:=$(addsuffix .o,$(addprefix $(OBJECTS_PATH)/,$(SOURCES)))
 ifneq ($(filter mingw%,$(OPENMSX_TARGET_OS)),)
 RESOURCE_SRC:=src/resource/openmsx.rc
 RESOURCE_OBJ:=$(OBJECTS_PATH)/resources.o
-RESOURCE_SCRIPT:=build/win_resource.py
+RESOURCE_SCRIPT:=src_build/win_resource.py
 RESOURCE_HEADER:=$(BUILD_PATH)/config/resource-info.h
 else
 RESOURCE_OBJ:=
@@ -402,8 +402,8 @@ probe: $(PROBE_MAKE)
 endif
 
 # Probe for headers and functions.
-$(PROBE_MAKE): $(PROBE_SCRIPT) build/custom.mk \
-		build/systemfuncs2code.py build/systemfuncs.py
+$(PROBE_MAKE): $(PROBE_SCRIPT) src_build/custom.mk \
+		src_build/systemfuncs2code.py src_build/systemfuncs.py
 	$(CMD)$(PYTHON) $(PROBE_SCRIPT) \
 		"$(CXX) $(TARGET_FLAGS)" \
 		$(@D) $(OPENMSX_TARGET_OS) $(LINK_MODE) "$(3RDPARTY_INSTALL_DIR)"
@@ -413,7 +413,7 @@ $(PROBE_MAKE): $(PROBE_SCRIPT) build/custom.mk \
 # TODO: One platform file may include another, so the real solution would be
 #       for the Python script to write dependency info.
 $(CONFIG_HEADER): $(BUILDINFO_SCRIPT) \
-		build/custom.mk build/platform-$(OPENMSX_TARGET_OS).mk
+		src_build/custom.mk src_build/platform-$(OPENMSX_TARGET_OS).mk
 	$(CMD)$(PYTHON) $(BUILDINFO_SCRIPT) $@ \
 		$(OPENMSX_TARGET_OS) $(OPENMSX_TARGET_CPU) $(OPENMSX_FLAVOUR) \
 		$(INSTALL_SHARE_DIR)
@@ -427,13 +427,13 @@ $(VERSION_HEADER): forceversionextraction
 
 # Generate components header.
 $(COMPONENTS_HEADER): $(COMPONENTS_HEADER_SCRIPT) $(PROBE_MAKE) \
-		build/components.py
+		src_build/components.py
 	$(CMD)$(PYTHON) $(COMPONENTS_HEADER_SCRIPT) $@ $(PROBE_MAKE)
 	$(CMD)touch $@
 
 # Generate components Makefile.
 $(COMPONENTS_DEFS): $(COMPONENTS_DEFS_SCRIPT) $(PROBE_MAKE) \
-		build/components.py
+		src_build/components.py
 	$(CMD)$(PYTHON) $(COMPONENTS_DEFS_SCRIPT) $@ $(PROBE_MAKE)
 	$(CMD)touch $@
 
@@ -483,7 +483,7 @@ $(SUB_MAKEFILES):
 	$(SUM) "Creating $@..."
 	$(CMD)echo "export OPENMSX_SUBSET=$(@:$(SOURCES_PATH)/%GNUmakefile=%)" > $@
 	$(CMD)echo "all:" >> $@
-	$(CMD)echo "	@\$$(MAKE) -C $(RELPATH) -f build/main.mk all" >> $@
+	$(CMD)echo "	@\$$(MAKE) -C $(RELPATH) -f src_build/main.mk all" >> $@
 # Force re-creation every time this target is run.
 .PHONY: $(SUB_MAKEFILES)
 endif
@@ -587,11 +587,11 @@ ifeq ($(OPENMSX_TARGET_OS),darwin)
 # Application directory for Darwin.
 # This handles the "bindist" target, but can also be used with the "install"
 # target to create an app folder but no DMG.
-include build/package-darwin/app.mk
+include src_build/package-darwin/app.mk
 else
 ifeq ($(OPENMSX_TARGET_OS),dingux)
 # ZIP file package for Dingux.
-include build/package-dingux/opk.mk
+include src_build/package-dingux/opk.mk
 else
 # Note: Use OPENMSX_INSTALL only to create binary packages.
 #       To change installation dir for actual installations, edit "custom.mk".
@@ -607,7 +607,7 @@ endif
 # DESTDIR is a convention shared by at least GNU and FreeBSD to specify a path
 # prefix that will be used for all installed files.
 install: $(MAIN_EXECUTABLE)
-	$(CMD)$(PYTHON) build/install.py "$(DESTDIR)" \
+	$(CMD)$(PYTHON) src_build/install.py "$(DESTDIR)" \
 		"$(INSTALL_BINARY_DIR)" "$(INSTALL_SHARE_DIR)" "$(INSTALL_DOC_DIR)" \
 		$(MAIN_EXECUTABLE) $(OPENMSX_TARGET_OS) \
 		$(INSTALL_VERBOSE) $(INSTALL_CONTRIB)
@@ -617,7 +617,7 @@ install: $(MAIN_EXECUTABLE)
 # ================
 
 dist:
-	$(CMD)$(PYTHON) build/gitdist.py
+	$(CMD)$(PYTHON) src_build/gitdist.py
 
 
 # Binary Packaging Using 3rd Party Libraries
@@ -625,7 +625,7 @@ dist:
 
 # Recursive invocation with 3RDPARTY_FLAG=true.
 3rdparty:
-	$(MAKE) -f build/main.mk run-3rdparty \
+	$(MAKE) -f src_build/main.mk run-3rdparty \
 		OPENMSX_TARGET_CPU=$(OPENMSX_TARGET_CPU) \
 		OPENMSX_TARGET_OS=$(OPENMSX_TARGET_OS) \
 		OPENMSX_FLAVOUR=$(OPENMSX_FLAVOUR) \
@@ -635,7 +635,7 @@ dist:
 # Call third party Makefile with the right arguments.
 # This is an internal target, users should select "3rdparty" instead.
 run-3rdparty:
-	$(MAKE) -f build/3rdparty.mk \
+	$(MAKE) -f src_build/3rdparty.mk \
 		BUILD_PATH=$(BUILD_PATH)/3rdparty \
 		OPENMSX_TARGET_CPU=$(OPENMSX_TARGET_CPU) \
 		OPENMSX_TARGET_OS=$(OPENMSX_TARGET_OS) \
@@ -646,7 +646,7 @@ run-3rdparty:
 		PYTHON=$(PYTHON)
 
 staticbindist: 3rdparty
-	$(MAKE) -f build/main.mk bindist \
+	$(MAKE) -f src_build/main.mk bindist \
 		OPENMSX_TARGET_CPU=$(OPENMSX_TARGET_CPU) \
 		OPENMSX_TARGET_OS=$(OPENMSX_TARGET_OS) \
 		OPENMSX_FLAVOUR=$(OPENMSX_FLAVOUR) \

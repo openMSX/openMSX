@@ -194,7 +194,7 @@
 //
 // Probably the easiest way to enable this, is to pass the -DUSE_COMPUTED_GOTO
 // flag to the compiler. This is for example done in the super-opt flavour.
-// See build/flavour-super-opt.mk
+// See src_build/flavour-super-opt.mk
 
 namespace openmsx {
 

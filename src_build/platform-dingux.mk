@@ -9,7 +9,7 @@ endif
 endif
 
 # OpenDingux is a Linux-based system.
-include build/platform-linux.mk
+include src_build/platform-linux.mk
 
 # Build with OpenGL ES and Laserdisc support.
 LINK_MODE:=3RD_STA_GLES
