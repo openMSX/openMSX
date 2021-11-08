@@ -402,6 +402,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\MicrosolFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\MSXFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\MSXtar.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\fdc\CanonFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\NationalFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\SanyoFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\ToshibaFDC.cc" />
@@ -947,6 +948,7 @@
     <None Include="$(OpenMSXSrcDir)\fdc\MicrosolFDC.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\MSXFDC.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\MSXtar.hh" />
+    <None Include="$(OpenMSXSrcDir)\fdc\CanonFDC.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\NationalFDC.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\SanyoFDC.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\ToshibaFDC.hh" />

@@ -315,6 +315,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\MSXtar.cc">
       <Filter>fdc</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\fdc\CanonFDC.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\NationalFDC.cc">
       <Filter>fdc</Filter>
     </ClCompile>
@@ -1663,6 +1666,9 @@
       <Filter>fdc</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\fdc\MSXtar.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\fdc\CanonFDC.hh">
       <Filter>fdc</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\fdc\NationalFDC.hh">
