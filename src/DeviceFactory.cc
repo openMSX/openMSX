@@ -49,6 +49,7 @@
 #include "VictorFDC.hh"
 #include "SanyoFDC.hh"
 #include "ToshibaFDC.hh"
+#include "CanonFDC.hh"
 #include "SpectravideoFDC.hh"
 #include "TalentTDC600.hh"
 #include "TurboRFDC.hh"
@@ -119,6 +120,8 @@ namespace openmsx {
 		return make_unique<SanyoFDC>(conf);
 	} else if (type == "Toshiba") {
 		return make_unique<ToshibaFDC>(conf);
+	} else if (type == "Canon") {
+		return make_unique<CanonFDC>(conf);
 	} else if (type == "Spectravideo") {
 		return make_unique<SpectravideoFDC>(conf);
 	} else if (type == "Victor") {
