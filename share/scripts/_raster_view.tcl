@@ -20,7 +20,8 @@ proc toggle_raster_view {} {
 		set raster_view_enabled true
 		osd_widgets::msx_init showraster
 
-		osd create rectangle showraster.box -x -100 -y -100 -h 3 -w 3 -rgba 0xFF1111FF
+		osd create rectangle showraster.box -x -100 -y -100 -h 3 -w 3 \
+			-rgba 0xFF111140 -borderrgba 0xFF1111C0 -bordersize 1
 
 		set raster_view_after_id [after break [namespace code update_raster]]
 		return "Show raster enabled: will indicate raster beam with red square at next break..."
@@ -41,7 +42,7 @@ proc update_raster {} {
 		}
 		set x [machine_info [expr {$x256 ? "VDP_msx_x256_pos" : "VDP_msx_x512_pos"}]]
 		set y [machine_info VDP_line_in_frame]
-		osd configure showraster.box -x $x -y $y
+		osd configure showraster.box -x [expr {$x - 1}] -y [expr {$y - 1}]
 		message "Raster beam currently at: ($x, $y)"
 		set raster_view_after_id [after break [namespace code update_raster]]
 	}
@@ -52,4 +53,3 @@ namespace export toggle_raster_view
 };# namespace raster_view
 
 namespace import raster_view::*
-
