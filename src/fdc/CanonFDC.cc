@@ -77,12 +77,7 @@ byte CanonFDC::peekMem(word address, EmuTime::param time) const
 		return value;
 	}
 	default:
-		if (0x4000 <= address && address < 0x8000) {
-			// ROM only visible in 0x4000-0x7FFF.   TODO double check.
-			return MSXFDC::peekMem(address, time);
-		} else {
-			return 0xFF;
-		}
+		return MSXFDC::peekMem(address, time);
 	}
 }
 
@@ -91,11 +86,8 @@ const byte* CanonFDC::getReadCacheLine(word start) const
 	if ((start & 0x3FFF & CacheLine::HIGH) == (0x3FF0 & CacheLine::HIGH)) {
 		// FDC at 0x7FF8-0x7FFC and 0xBFF8-0xBFFC
 		return nullptr;
-	} else if (0x4000 <= start && start < 0x8000) {
-		// ROM at 0x4000-0x7FFF
-		return MSXFDC::getReadCacheLine(start);
 	} else {
-		return unmappedRead;
+		return MSXFDC::getReadCacheLine(start);
 	}
 }
 

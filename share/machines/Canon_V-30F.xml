@@ -6,7 +6,7 @@
     <manufacturer>Canon</manufacturer>
     <code>V-30F</code>
     <release_year>1985</release_year>
-    <description>Desktop MSX2 by Canon.</description>
+    <description>Early desktop MSX2 by Canon.</description>
     <type>MSX2</type>
   </info>
 
@@ -70,9 +70,9 @@
       </ROM>
     </primary>
 
-    <primary external="true" slot="1"/>
+    <primary external="true" slot="1"/> <!-- Rear slot! -->
 
-    <primary external="true" slot="2"/>
+    <primary external="true" slot="2"/> <!-- Front slot! -->
 
     <primary slot="3">
 
@@ -82,14 +82,16 @@
             <filename>v-30f_msx2sub.rom</filename>
             <sha1>b8e30d604d319d511cbfbc61e5d8c38fbb9c5a33</sha1>
           </rom>
-          <mem base="0x0000" size="0x4000"/> <!-- TODO: check NO mirroring -->
+          <mem base="0x0000" size="0x4000"/> <!-- NO mirroring -->
         </ROM>
       </secondary>
 
       <secondary slot="1">
         <WD2793 id="Memory Mapped FDC">
           <connectionstyle>Canon</connectionstyle>
-          <mem base="0x4000" size="0x8000"/> <!-- according to Arjen Zeilemaker -->
+          <!-- ROM is in page 1 and the 2nd half 6000-8000 is also visible in page 0 (2000-4000) and page 2: A000-C000, registers are also in pages 0, 1 and 2 -->
+          <mem base="0x2000" size="0x6000"/>
+          <mem base="0xA000" size="0x2000"/>
           <rom>
             <sha1>33117c47543a4eb00392cb9ff4e503004999a97a</sha1>
             <filename>v-30f_disk.rom</filename>
@@ -103,6 +105,7 @@
         <MemoryMapper id="Main RAM">
           <size>64</size>
           <mem base="0x0000" size="0x10000"/>
+          <initialContent encoding="gz-base64">eJxj+P+fgWEE44F3wcBiAJBx/wE=</initialContent> <!-- ((chr(0) + 2*chr(255) + chr(0)) * 64 + (chr(255) + 2*chr(0) + chr(255)) * 64) -->
         </MemoryMapper>
       </secondary>
 
