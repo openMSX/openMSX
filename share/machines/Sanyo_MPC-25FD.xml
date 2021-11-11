@@ -7,7 +7,7 @@
 
   <info>
     <manufacturer>Sanyo</manufacturer>
-    <code>MPC-25FD</code>
+    <code>MPC-25FD/Wavy25FD</code>
     <release_year></release_year>
     <description>An MSX2 with diskdrive and only one cartridge port.</description>
     <type>MSX2</type>
@@ -90,6 +90,7 @@
           <rom>
             <filename>mpc-25fd_disk.rom</filename>
             <sha1>58ac78bba29a06645ca8d6a94ef2ac68b743ad32</sha1>
+            <sha1>bdbc75aacba4ea0f359694f304ae436914733460</sha1> <!-- normalized version with register locations set to 0xFF -->
           </rom>
         </WD2793>
 
