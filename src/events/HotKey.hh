@@ -16,7 +16,6 @@ namespace openmsx {
 class RTScheduler;
 class GlobalCommandController;
 class EventDistributor;
-class XMLElement;
 
 class HotKey final : public RTSchedulable, public EventListener
 {
@@ -40,8 +39,36 @@ public:
 	       EventDistributor& eventDistributor);
 	~HotKey();
 
-	void loadBindings(const XMLElement& config);
-	void saveBindings(XMLElement& config) const;
+	void loadInit();
+	void loadBind(std::string_view key, std::string_view cmd, bool repeat, bool event);
+	void loadUnbind(std::string_view key);
+
+	template<typename XmlStream>
+	void saveBindings(XmlStream& xml) const
+	{
+		xml.begin("bindings");
+		// add explicit bind's
+		for (const auto& k : boundKeys) {
+			xml.begin("bind");
+			xml.attribute("key", toString(k));
+			const auto& info = *find_unguarded(cmdMap, k, &HotKeyInfo::event);
+			if (info.repeat) {
+				xml.attribute("repeat", "true");
+			}
+			if (info.passEvent) {
+				xml.attribute("event", "true");
+			}
+			xml.data(info.command);
+			xml.end("bind");
+		}
+		// add explicit unbinds
+		for (const auto& k : unboundKeys) {
+			xml.begin("unbind");
+			xml.attribute("key", toString(k));
+			xml.end("unbind");
+		}
+		xml.end("bindings");
+	}
 
 private:
 	struct LayerInfo {

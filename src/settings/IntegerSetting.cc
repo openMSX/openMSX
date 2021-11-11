@@ -14,7 +14,7 @@ IntegerSetting::IntegerSetting(CommandController& commandController_,
 	auto& interp = getInterpreter();
 	setChecker([this, &interp](TclObject& newValue) {
 		int val = newValue.getInt(interp); // may throw
-		newValue = std::min(std::max(val, minValue), maxValue);
+		newValue = std::clamp(val, minValue, maxValue);
 	});
 	init();
 }

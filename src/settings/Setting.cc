@@ -5,7 +5,6 @@
 #include "SettingsConfig.hh"
 #include "TclObject.hh"
 #include "CliComm.hh"
-#include "XMLElement.hh"
 #include "MSXException.hh"
 #include "checked_cast.hh"
 
@@ -51,16 +50,13 @@ Setting::Setting(CommandController& commandController_,
 void Setting::init()
 {
 	if (needLoadSave()) {
-		auto& settingsConfig = getGlobalCommandController()
-			.getSettingsConfig().getXMLElement();
-		if (auto* config = settingsConfig.findChild("settings")) {
-			if (auto* elem = config->findChildWithAttribute(
-			                                "setting", "id", getBaseName())) {
-				try {
-					setValueDirect(TclObject(elem->getData()));
-				} catch (MSXException&) {
-					// saved value no longer valid, just keep default
-				}
+		if (const auto* savedValue =
+		            getGlobalCommandController().getSettingsConfig()
+		                    .getValueForSetting(getBaseName())) {
+			try {
+				setValueDirect(TclObject(*savedValue));
+			} catch (MSXException&) {
+				// saved value no longer valid, just keep default
 			}
 		}
 	}
@@ -99,27 +95,20 @@ void Setting::notify() const
 	//  - SettingsConfig (keeps values, also of not yet created settings)
 	// This method takes care of the last 3 in this list.
 	Subject<Setting>::notify();
+	auto base = getBaseName();
 	TclObject val = getValue();
 	commandController.getCliComm().update(
-		CliComm::SETTING, getBaseName(), val.getString());
+		CliComm::SETTING, base, val.getString());
 
 	// Always keep SettingsConfig in sync.
-	auto& config = getGlobalCommandController().getSettingsConfig().getXMLElement();
-	auto& settings = config.getCreateChild("settings");
+	auto& config = getGlobalCommandController().getSettingsConfig();
 	if (!needLoadSave() || (val == getDefaultValue())) {
-		// remove setting
-		if (auto* elem = settings.findChildWithAttribute(
-				"setting", "id", getBaseName())) {
-			settings.removeChild(*elem);
-		}
+		config.removeValueForSetting(base);
 	} else {
-		// add (or overwrite) setting
-		auto& elem = settings.getCreateChildWithAttribute(
-				"setting", "id", getBaseName());
 		// check for non-saveable value
 		// (mechanism can be generalize later when needed)
 		if (val == dontSaveValue) val = getRestoreValue();
-		elem.setData(val.getString());
+		config.setValueForSetting(base, val.getString());
 	}
 }
 

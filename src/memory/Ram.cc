@@ -34,9 +34,9 @@ Ram::Ram(const XMLElement& xml_, unsigned size_)
 
 void Ram::clear(byte c)
 {
-	if (const XMLElement* init = xml.findChild("initialContent")) {
+	if (const auto* init = xml.findChild("initialContent")) {
 		// get pattern (and decode)
-		const std::string& encoding = init->getAttribute("encoding");
+		auto encoding = init->getAttributeValue("encoding");
 		size_t done = 0;
 		if (encoding == "gz-base64") {
 			auto [buf, bufSize] = Base64::decode(init->getData());

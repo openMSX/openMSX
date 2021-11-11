@@ -54,10 +54,10 @@ public:
 	void parse(int argc, char** argv);
 	[[nodiscard]] ParseStatus getParseStatus() const;
 
-	[[nodiscard]] const std::vector<std::string>& getStartupScripts() const {
+	[[nodiscard]] const auto& getStartupScripts() const {
 		return scriptOption.scripts;
 	}
-	[[nodiscard]] const std::vector<std::string>& getStartupCommands() const {
+	[[nodiscard]] const auto& getStartupCommands() const {
 		return commandOption.commands;
 	}
 

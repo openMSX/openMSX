@@ -29,17 +29,16 @@ void PrinterPortSimpl::writeData(byte data, EmuTime::param time)
 	dac->writeDAC(data, time);
 }
 
-static XMLElement createXML()
-{
-	XMLElement xml("simpl");
-	xml.addChild("sound").addChild("volume", "12000");
-	return xml;
-}
-
 void PrinterPortSimpl::createDAC()
 {
-	static XMLElement xml = createXML();
-	dac.emplace("simpl", DESCRIPTION, DeviceConfig(hwConf, xml));
+	static XMLElement* xml = [] {
+		auto& doc = XMLDocument::getStaticDocument();
+		auto* result = doc.allocateElement("simpl");
+		result->setFirstChild(doc.allocateElement("sound"))
+		      ->setFirstChild(doc.allocateElement("volume", "12000"));
+		return result;
+	}();
+	dac.emplace("simpl", DESCRIPTION, DeviceConfig(hwConf, *xml));
 }
 
 void PrinterPortSimpl::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)

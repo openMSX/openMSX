@@ -1,10 +1,10 @@
 #ifndef DISK_IMAGE_UTILS_HH
 #define DISK_IMAGE_UTILS_HH
 
-#include "openmsx.hh"
 #include "AlignedBuffer.hh"
 #include "endian.hh"
-#include <vector>
+#include "openmsx.hh"
+#include "span.hh"
 
 namespace openmsx {
 
@@ -128,7 +128,7 @@ namespace DiskImageUtils {
 	 * @param sizes The number of sectors for each partition.
 	 */
 	void partition(SectorAccessibleDisk& disk,
-	               const std::vector<unsigned>& sizes);
+	               span<const unsigned> sizes);
 };
 
 } // namespace openmsx

@@ -188,8 +188,9 @@ template<typename T>
 
 /** Count the number of leading zero-bits in the given word.
   * The result is undefined when the input is zero (all bits are zero).
+  * TODO in the future (c++20) replace with std::countl_zero()
   */
-[[nodiscard]] constexpr unsigned countLeadingZeros(unsigned x)
+[[nodiscard]] constexpr unsigned countLeadingZeros(uint32_t x)
 {
 #ifdef __GNUC__
 	// actually this only exists starting from gcc-3.4.x
@@ -205,11 +206,32 @@ template<typename T>
 #endif
 }
 
+/** Count the number of trailing zero-bits in the given word.
+  * In other words: return the position of the least significant 1-bit.
+  * The result is undefined when no bits are set.
+  * TODO in the future (c++20) replace with std::countr_zero()
+  */
+[[nodiscard]] constexpr int countTrailingZeros(uint64_t x)
+{
+#ifdef __GNUC__
+	return __builtin_ctzll(x); // undefined when x==0
+#else
+	int r = 0;
+	if ((x & 0xffffffff) == 0) { r += 32; x >>= 32; }
+	if ((x & 0x0000ffff) == 0) { r += 16; x >>= 16; }
+	if ((x & 0x000000ff) == 0) { r +=  8; x >>=  8; }
+	if ((x & 0x0000000f) == 0) { r +=  4; x >>=  4; }
+	if ((x & 0x00000003) == 0) { r +=  2; x >>=  2; }
+	if ((x & 0x00000001) == 0) { r +=  1; }
+	return r;
+#endif
+}
+
 /** Find the least significant bit that is set.
   * @return 0 if the input is zero (no bits are set),
   *   otherwise the index of the first set bit + 1.
   */
-[[nodiscard]] inline /*constexpr*/ unsigned findFirstSet(unsigned x)
+[[nodiscard]] inline /*constexpr*/ unsigned findFirstSet(uint32_t x)
 {
 #if defined(__GNUC__)
 	return __builtin_ffs(x);

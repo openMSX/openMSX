@@ -7,6 +7,7 @@
 namespace openmsx {
 
 class XMLElement;
+class XMLDocument;
 class HardwareConfig;
 class FileContext;
 class MSXMotherBoard;
@@ -66,17 +67,18 @@ public:
 	[[nodiscard]] Scheduler& getScheduler() const;
 	[[nodiscard]] Reactor& getReactor() const;
 	[[nodiscard]] GlobalSettings& getGlobalSettings() const;
+	[[nodiscard]] XMLDocument& getXMLDocument();
 
 	[[nodiscard]] const XMLElement& getChild(std::string_view name) const;
-	[[nodiscard]] const std::string& getChildData(std::string_view name) const;
+	[[nodiscard]] std::string_view getChildData(std::string_view name) const;
 	[[nodiscard]] std::string_view getChildData(std::string_view name,
 	                                            std::string_view defaultValue) const;
-	[[nodiscard]] int getChildDataAsInt(std::string_view name, int defaultValue = 0) const;
+	[[nodiscard]] int getChildDataAsInt(std::string_view name, int defaultValue) const;
 	[[nodiscard]] bool getChildDataAsBool(std::string_view name,
 	                                      bool defaultValue = false) const;
 	[[nodiscard]] const XMLElement* findChild(std::string_view name) const;
-	[[nodiscard]] const std::string& getAttribute(std::string_view attName) const;
-	[[nodiscard]] int getAttributeAsInt(std::string_view attName, int defaultValue = 0) const;
+	[[nodiscard]] std::string_view getAttributeValue(std::string_view attName) const;
+	[[nodiscard]] int getAttributeValueAsInt(std::string_view attName, int defaultValue) const;
 
 private:
 	const HardwareConfig* hwConf = nullptr;

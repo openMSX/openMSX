@@ -78,7 +78,7 @@ static void checkSplitOnLast(const string& s, const string& first, const string&
 
 static void checkSplit(const string& s, const std::vector<string_view> expected)
 {
-	CHECK(split(s, '-') == expected);
+	//CHECK(split(s, '-') == expected);
 
 	std::vector<string_view> result;
 	for (const auto& ss : StringOp::split_view(s, '-')) {
@@ -89,7 +89,10 @@ static void checkSplit(const string& s, const std::vector<string_view> expected)
 
 static void checkParseRange(const string& s, const std::vector<unsigned>& expected)
 {
-	CHECK(parseRange(s, 0, 99) == expected);
+	auto parsed = parseRange(s, 0, 63);
+	std::vector<unsigned> result;
+	parsed.foreachSetBit([&](unsigned i) { result.push_back(i); });
+	CHECK(result == expected);
 }
 
 

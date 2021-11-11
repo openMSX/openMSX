@@ -16,6 +16,16 @@ class Interpreter;
 class OSDWidget
 {
 	using SubWidgets = std::vector<std::unique_ptr<OSDWidget>>;
+
+protected:
+	static constexpr auto widgetProperties = [] {
+		using namespace std::literals;
+		return std::array{
+			"-type"sv, "-x"sv, "-y"sv, "-z"sv, "-relx"sv, "-rely"sv, "-scaled"sv,
+			"-clip"sv, "-mousecoord"sv, "-suppressErrors"sv,
+		};
+	}();
+
 public:
 	virtual ~OSDWidget() = default;
 
@@ -30,7 +40,9 @@ public:
 	void addWidget(std::unique_ptr<OSDWidget> widget);
 	void deleteWidget(OSDWidget& widget);
 
-	[[nodiscard]] virtual std::vector<std::string_view> getProperties() const;
+	[[nodiscard]] virtual span<const std::string_view> getProperties() const {
+		return widgetProperties;
+	}
 	virtual void setProperty(Interpreter& interp,
 	                         std::string_view name, const TclObject& value);
 	virtual void getProperty(std::string_view name, TclObject& result) const;

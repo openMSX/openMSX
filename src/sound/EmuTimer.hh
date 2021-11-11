@@ -29,6 +29,8 @@ public:
 		Scheduler& scheduler, EmuTimerCallback& cb);
 	[[nodiscard]] static std::unique_ptr<EmuTimer> createOPM_2(
 		Scheduler& scheduler, EmuTimerCallback& cb);
+	[[nodiscard]] static std::unique_ptr<EmuTimer> createOPP_2(
+		Scheduler& scheduler, EmuTimerCallback& cb);
 	[[nodiscard]] static std::unique_ptr<EmuTimer> createOPL3_1(
 		Scheduler& scheduler, EmuTimerCallback& cb);
 	[[nodiscard]] static std::unique_ptr<EmuTimer> createOPL3_2(

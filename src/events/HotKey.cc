@@ -5,7 +5,6 @@
 #include "EventDistributor.hh"
 #include "CliComm.hh"
 #include "Event.hh"
-#include "XMLElement.hh"
 #include "TclArgParser.hh"
 #include "TclObject.hh"
 #include "SettingsConfig.hh"
@@ -168,38 +167,28 @@ static Event createEvent(const TclObject& obj, Interpreter& interp)
 	}
 	return event;
 }
-static Event createEvent(const string& str, Interpreter& interp)
+static Event createEvent(std::string_view str, Interpreter& interp)
 {
 	return createEvent(TclObject(str), interp);
 }
 
-void HotKey::loadBindings(const XMLElement& config)
+void HotKey::loadInit()
 {
 	// restore default bindings
 	unboundKeys.clear();
 	boundKeys.clear();
 	cmdMap = defaultMap;
+}
 
-	// load bindings
-	const auto* bindingsElement = config.findChild("bindings");
-	if (!bindingsElement) return;
-	auto copy = *bindingsElement; // dont iterate over changing container
-	for (const auto& elem : copy.getChildren()) {
-		try {
-			auto& interp = commandController.getInterpreter();
-			if (elem.getName() == "bind") {
-				bind(HotKeyInfo(createEvent(elem.getAttribute("key"), interp),
-				                elem.getData(),
-				                elem.getAttributeAsBool("repeat", false),
-				                elem.getAttributeAsBool("event", false)));
-			} else if (elem.getName() == "unbind") {
-				unbind(createEvent(elem.getAttribute("key"), interp));
-			}
-		} catch (MSXException& e) {
-			commandController.getCliComm().printWarning(
-				"Error while loading key bindings: ", e.getMessage());
-		}
-	}
+void HotKey::loadBind(std::string_view key, std::string_view cmd, bool repeat, bool event)
+{
+	bind(HotKeyInfo(createEvent(key, commandController.getInterpreter()),
+			std::string(cmd), repeat, event));
+}
+
+void HotKey::loadUnbind(std::string_view key)
+{
+	unbind(createEvent(key, commandController.getInterpreter()));
 }
 
 struct EqualEvent {
@@ -213,34 +202,10 @@ struct EqualEvent {
 	const Event& event;
 };
 
-void HotKey::saveBindings(XMLElement& config) const
+template<typename Range>
+static bool contains(const Range& range, const Event& event)
 {
-	auto& bindingsElement = config.getCreateChild("bindings");
-	bindingsElement.removeAllChildren();
-
-	// add explicit bind's
-	for (const auto& k : boundKeys) {
-		const auto& info = *find_if_unguarded(cmdMap, EqualEvent(k));
-		auto& elem = bindingsElement.addChild("bind", info.command);
-		elem.addAttribute("key", toString(k));
-		if (info.repeat) {
-			elem.addAttribute("repeat", "true");
-		}
-		if (info.passEvent) {
-			elem.addAttribute("event", "true");
-		}
-	}
-	// add explicit unbinds
-	for (const auto& k : unboundKeys) {
-		auto& elem = bindingsElement.addChild("unbind");
-		elem.addAttribute("key", toString(k));
-	}
-}
-
-template<typename T>
-static bool contains(const std::vector<T>& v, const Event& event)
-{
-	return ranges::any_of(v, EqualEvent(event));
+	return ranges::any_of(range, EqualEvent(event));
 }
 
 template<typename T>
@@ -276,8 +241,6 @@ void HotKey::bind(HotKeyInfo&& info)
 	erase(defaultMap, info.event);
 	insert(boundKeys, info.event);
 	insert(cmdMap, std::move(info));
-
-	saveBindings(commandController.getSettingsConfig().getXMLElement());
 }
 
 void HotKey::unbind(const Event& event)
@@ -293,8 +256,6 @@ void HotKey::unbind(const Event& event)
 
 	erase(defaultMap, event);
 	erase(cmdMap, event);
-
-	saveBindings(commandController.getSettingsConfig().getXMLElement());
 }
 
 void HotKey::bindDefault(HotKeyInfo&& info)

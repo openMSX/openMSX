@@ -568,10 +568,9 @@ RomDatabase::RomDatabase(CliComm& cliComm)
 	db.reserve(3500);
 	UnknownTypes unknownTypes;
 	// first user- then system-directory
-	std::vector<std::string> paths = systemFileContext().getPaths();
 	std::vector<File> files;
 	size_t bufferSize = 0;
-	for (auto& p : paths) {
+	for (const auto& p : systemFileContext().getPaths()) {
 		try {
 			auto& f = files.emplace_back(p + "/softwaredb.xml");
 			bufferSize += f.getSize() + rapidsax::EXTRA_BUFFER_SPACE;

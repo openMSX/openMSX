@@ -33,6 +33,7 @@ register_lazy "_osd_widgets.tcl" {
 register_lazy "_psg_log.tcl" psg_log
 register_lazy "_psg_profile.tcl" psg_profile
 register_lazy "_quitmenu.tcl" quit_menu
+register_lazy "_raster_view.tcl" toggle_raster_view
 register_lazy "_record_channels.tcl" {
 	record_channels mute_channels unmute_channels solo}
 register_lazy "_record_chunks.tcl" {

@@ -135,9 +135,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\config\XMLElement.cc">
       <Filter>config</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\config\XMLLoader.cc">
-      <Filter>config</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\console\CommandConsole.cc">
       <Filter>console</Filter>
     </ClCompile>
@@ -316,6 +313,9 @@
       <Filter>fdc</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\MSXtar.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\fdc\CanonFDC.cc">
       <Filter>fdc</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\NationalFDC.cc">
@@ -1464,9 +1464,6 @@
     <None Include="$(OpenMSXSrcDir)\config\XMLException.hh">
       <Filter>config</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\config\XMLLoader.hh">
-      <Filter>config</Filter>
-    </None>
     <None Include="$(OpenMSXSrcDir)\console\CommandConsole.hh">
       <Filter>console</Filter>
     </None>
@@ -1669,6 +1666,9 @@
       <Filter>fdc</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\fdc\MSXtar.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\fdc\CanonFDC.hh">
       <Filter>fdc</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\fdc\NationalFDC.hh">

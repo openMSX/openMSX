@@ -4,6 +4,7 @@
 #include "OSDWidget.hh"
 #include "TclObject.hh"
 #include "hash_set.hh"
+#include "view.hh"
 #include <vector>
 #include <string>
 
@@ -25,7 +26,11 @@ public:
 	[[nodiscard]] const OSDWidget* findByName(std::string_view name) const;
 	void addName(OSDWidget& widget);
 	void removeName(OSDWidget& widget);
-	[[nodiscard]] std::vector<std::string_view> getAllWidgetNames() const;
+	[[nodiscard]] auto getAllWidgetNames() const {
+		return view::transform(widgetsByName,
+			[](auto* p) -> std::string_view { return p->getName(); });
+	}
+
 
 protected:
 	void invalidateLocal() override;

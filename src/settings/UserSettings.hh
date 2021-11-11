@@ -2,6 +2,8 @@
 #define USERSETTINGS_HH
 
 #include "Command.hh"
+#include "outer.hh"
+#include "view.hh"
 #include <memory>
 #include <string_view>
 #include <vector>
@@ -24,7 +26,6 @@ public:
 	void addSetting(Info&& info);
 	void deleteSetting(Setting& setting);
 	[[nodiscard]] Setting* findSetting(std::string_view name) const;
-	[[nodiscard]] const Settings& getSettingsInfo() const { return settings; }
 
 private:
 	class Cmd final : public Command {
@@ -46,7 +47,11 @@ private:
 		[[nodiscard]] Info createFloat  (span<const TclObject> tokens);
 		[[nodiscard]] Info createEnum   (span<const TclObject> tokens);
 
-		[[nodiscard]] std::vector<std::string_view> getSettingNames() const;
+		[[nodiscard]] auto getSettingNames() const {
+			return view::transform(
+				OUTER(UserSettings, userSettingCommand).settings,
+				[](const auto& info) { return info.setting->getFullName(); });
+		}
 	} userSettingCommand;
 
 	Settings settings; // unordered

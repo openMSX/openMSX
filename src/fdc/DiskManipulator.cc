@@ -16,6 +16,7 @@
 #include "TclObject.hh"
 #include "one_of.hh"
 #include "ranges.hh"
+#include "static_vector.hh"
 #include "stl.hh"
 #include "strCat.hh"
 #include "view.hh"
@@ -337,7 +338,7 @@ void DiskManipulator::savedsk(const DriveSettings& driveData,
 
 void DiskManipulator::create(span<const TclObject> tokens)
 {
-	std::vector<unsigned> sizes;
+	static_vector<unsigned, MAX_PARTITIONS> sizes;
 	unsigned totalSectors = 0;
 	bool dos1 = false;
 

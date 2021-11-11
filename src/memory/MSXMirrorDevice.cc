@@ -7,7 +7,7 @@ namespace openmsx {
 
 [[nodiscard]] static unsigned getAddressHigh(const DeviceConfig& config)
 {
-	unsigned prim = config.getChildDataAsInt("ps");
+	unsigned prim = config.getChildDataAsInt("ps", 0);
 	unsigned sec  = config.getChildDataAsInt("ss", 0);
 	if ((prim >= 4) || (sec >= 4)) {
 		throw MSXException("Invalid slot in mirror device.");

@@ -82,13 +82,13 @@ void GlobalCliComm::log(LogLevel level, std::string_view message)
 void GlobalCliComm::update(UpdateType type, std::string_view name, std::string_view value)
 {
 	assert(type < NUM_UPDATES);
-	if (auto* v = lookup(prevValues[type], name)) {
-		if (*v == value) {
-			return;
+	if (auto [it, inserted] = prevValues[type].try_emplace(name, value);
+	    !inserted) { // was already present ..
+		if (it->second == value) {
+			return; // .. with the same value
+		} else {
+			it->second = value; // .. but with a different value
 		}
-		*v = value;
-	} else {
-		prevValues[type].emplace_noDuplicateCheck(name, value);
 	}
 	updateHelper(type, {}, name, value);
 }

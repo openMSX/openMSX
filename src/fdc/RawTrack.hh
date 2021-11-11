@@ -114,7 +114,7 @@ public:
 
 	[[nodiscard]]       byte* getRawBuffer()       { return data.data(); }
 	[[nodiscard]] const byte* getRawBuffer() const { return data.data(); }
-	[[nodiscard]] const std::vector<unsigned>& getIdamBuffer() const { return idam; }
+	[[nodiscard]] const auto& getIdamBuffer() const { return idam; }
 
 	/** Get info on all sectors in this track. */
 	[[nodiscard]] std::vector<Sector> decodeAll() const;

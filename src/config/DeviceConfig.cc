@@ -35,12 +35,17 @@ GlobalSettings& DeviceConfig::getGlobalSettings() const
 {
 	return getReactor().getGlobalSettings();
 }
+XMLDocument& DeviceConfig::getXMLDocument()
+{
+	assert(hwConf);
+	return const_cast<HardwareConfig*>(hwConf)->getXMLDocument();
+}
 
 const XMLElement& DeviceConfig::getChild(std::string_view name) const
 {
 	return getXML()->getChild(name);
 }
-const std::string& DeviceConfig::getChildData(std::string_view name) const
+std::string_view DeviceConfig::getChildData(std::string_view name) const
 {
 	return getXML()->getChildData(name);
 }
@@ -62,13 +67,13 @@ const XMLElement* DeviceConfig::findChild(std::string_view name) const
 {
 	return getXML()->findChild(name);
 }
-const std::string& DeviceConfig::getAttribute(std::string_view attName) const
+std::string_view DeviceConfig::getAttributeValue(std::string_view attName) const
 {
-	return getXML()->getAttribute(attName);
+	return getXML()->getAttributeValue(attName);
 }
-int DeviceConfig::getAttributeAsInt(std::string_view attName, int defaultValue) const
+int DeviceConfig::getAttributeValueAsInt(std::string_view attName, int defaultValue) const
 {
-	return getXML()->getAttributeAsInt(attName, defaultValue);
+	return getXML()->getAttributeValueAsInt(attName, defaultValue);
 }
 
 } // namespace openmsx

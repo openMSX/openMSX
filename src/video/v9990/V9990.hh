@@ -684,7 +684,8 @@ private:
 
 	/** Precalculate the display mode
 	  */
-	void calcDisplayMode();
+	[[nodiscard]] V9990DisplayMode calcDisplayMode() const;
+	void setDisplayMode(V9990DisplayMode newMode);
 
 	/** Calculate the moment in time the next line interrupt will occur
 	  * @param time The current time

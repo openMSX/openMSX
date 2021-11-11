@@ -337,7 +337,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\config\DeviceConfig.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\config\SettingsConfig.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\config\XMLElement.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\config\XMLLoader.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\console\CommandConsole.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\console\OSDConsoleRenderer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\console\OSDGUI.cc" />
@@ -403,6 +402,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\MicrosolFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\MSXFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\MSXtar.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\fdc\CanonFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\NationalFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\SanyoFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\ToshibaFDC.cc" />
@@ -874,7 +874,6 @@
     <None Include="$(OpenMSXSrcDir)\config\SettingsConfig.hh" />
     <None Include="$(OpenMSXSrcDir)\config\XMLElement.hh" />
     <None Include="$(OpenMSXSrcDir)\config\XMLException.hh" />
-    <None Include="$(OpenMSXSrcDir)\config\XMLLoader.hh" />
     <None Include="$(OpenMSXSrcDir)\console\CommandConsole.hh" />
     <None Include="$(OpenMSXSrcDir)\console\OSDConsoleRenderer.hh" />
     <None Include="$(OpenMSXSrcDir)\console\OSDGUI.hh" />
@@ -949,6 +948,7 @@
     <None Include="$(OpenMSXSrcDir)\fdc\MicrosolFDC.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\MSXFDC.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\MSXtar.hh" />
+    <None Include="$(OpenMSXSrcDir)\fdc\CanonFDC.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\NationalFDC.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\SanyoFDC.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\ToshibaFDC.hh" />

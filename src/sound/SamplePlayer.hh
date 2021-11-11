@@ -3,7 +3,7 @@
 
 #include "ResampledSoundDevice.hh"
 #include "WavData.hh"
-#include <vector>
+#include "dynarray.hh"
 
 namespace openmsx {
 
@@ -12,8 +12,8 @@ class SamplePlayer final : public ResampledSoundDevice
 public:
 	SamplePlayer(const std::string& name, static_string_view desc,
 	             const DeviceConfig& config,
-	             const std::string& samplesBaseName, unsigned numSamples,
-	             const std::string& alternativeName = {});
+	             std::string_view samplesBaseName, unsigned numSamples,
+	             std::string_view alternativeName = {});
 	~SamplePlayer();
 
 	void reset();
@@ -52,7 +52,7 @@ private:
 	void generateChannels(float** bufs, unsigned num) override;
 
 private:
-	std::vector<WavData> samples;
+	const dynarray<WavData> samples;
 
 	unsigned index;
 	unsigned bufferSize;

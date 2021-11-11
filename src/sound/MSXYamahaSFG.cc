@@ -4,10 +4,18 @@
 
 namespace openmsx {
 
+static YM2151::Variant parseVariant(const DeviceConfig& config)
+{
+	auto variant = config.getChildData("variant", "YM2151");
+	if (variant == "YM2151") return YM2151::Variant::YM2151;
+	if (variant == "YM2164") return YM2151::Variant::YM2164;
+	throw MSXException("Invalid variant '", variant, "', expected 'YM2151' or 'YM2164'.");
+}
+
 MSXYamahaSFG::MSXYamahaSFG(const DeviceConfig& config)
 	: MSXDevice(config)
 	, rom(getName() + " ROM", "rom", config)
-	, ym2151(getName(), "Yamaha SFG-01/05", config, getCurrentTime())
+	, ym2151(getName(), "Yamaha SFG-01/05", config, getCurrentTime(), parseVariant(config))
 	, ym2148(getName(), getMotherBoard())
 {
 	reset(getCurrentTime());

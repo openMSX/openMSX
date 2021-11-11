@@ -58,7 +58,7 @@ void NowindCommand::processHdimage(
 	// Though <filename> itself can contain ':' characters. To solve this
 	// disambiguity we will always interpret the string as <filename> if
 	// it is an existing filename.
-	std::vector<unsigned> partitions;
+	IterableBitSet<64> partitions;
 	if (auto pos = hdImage.find_last_of(':');
 	    (pos != string::npos) && !FileOperations::exists(hdImage)) {
 		partitions = StringOp::parseRange(
@@ -70,16 +70,16 @@ void NowindCommand::processHdimage(
 	if (partitions.empty()) {
 		// insert all partitions
 		failOnError = false;
-		partitions = to_vector(xrange(1u, 32u));
+		partitions.setRange(1, 32);
 	}
 
-	for (auto& p : partitions) {
+	partitions.foreachSetBit([&](size_t p) {
 		try {
 			// Explicit conversion to shared_ptr<SectorAccessibleDisk> is
 			// for some reason needed in 32-bit vs2013 build (not in 64-bit
 			// and not in vs2012, nor gcc/clang). Compiler bug???
 			auto partition = std::make_unique<DiskPartition>(
-				*wholeDisk, p,
+				*wholeDisk, unsigned(p),
 				std::shared_ptr<SectorAccessibleDisk>(wholeDisk));
 			auto drive = createDiskChanger(
 				interface.basename, unsigned(drives.size()),
@@ -89,7 +89,7 @@ void NowindCommand::processHdimage(
 		} catch (MSXException&) {
 			if (failOnError) throw;
 		}
-	}
+	});
 }
 
 void NowindCommand::execute(span<const TclObject> tokens, TclObject& result)

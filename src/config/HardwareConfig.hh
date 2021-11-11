@@ -30,7 +30,7 @@ public:
 	HardwareConfig(const HardwareConfig&) = delete;
 	HardwareConfig& operator=(const HardwareConfig&) = delete;
 
-	[[nodiscard]] static XMLElement loadConfig(std::string_view type, std::string_view name);
+	static void loadConfig(XMLDocument& doc, std::string_view type, std::string_view name);
 
 	[[nodiscard]] static std::unique_ptr<HardwareConfig> createMachineConfig(
 		MSXMotherBoard& motherBoard, std::string machineName);
@@ -49,7 +49,8 @@ public:
 	[[nodiscard]] const FileContext& getFileContext() const { return context; }
 	void setFileContext(FileContext&& ctxt) { context = std::move(ctxt); }
 
-	[[nodiscard]] const XMLElement& getConfig() const { return config; }
+	[[nodiscard]] XMLDocument& getXMLDocument() { return config; }
+	[[nodiscard]] const XMLElement& getConfig() const { return *config.getRoot(); }
 	[[nodiscard]] const std::string& getName() const { return name; }
 	[[nodiscard]] const std::string& getConfigName() const { return hwName; }
 	[[nodiscard]] Type getType() const { return type; }
@@ -63,7 +64,7 @@ public:
 	void parseSlots();
 	void createDevices();
 
-	[[nodiscard]] const std::vector<std::unique_ptr<MSXDevice>>& getDevices() const { return devices; };
+	[[nodiscard]] const auto& getDevices() const { return devices; };
 
 	/** Checks whether this HardwareConfig can be deleted.
 	  * Throws an exception if not.
@@ -74,7 +75,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void setConfig(XMLElement config_) { config = std::move(config_); }
+	void setConfig(XMLElement* root) { config.setRoot(root); }
 	void load(std::string_view type);
 
 	[[nodiscard]] const XMLElement& getDevicesElem() const;
@@ -94,7 +95,7 @@ private:
 	std::string hwName;
 	Type type;
 	std::string userName;
-	XMLElement config;
+	XMLDocument config;
 	FileContext context;
 
 	bool externalSlots[4][4];
@@ -108,7 +109,7 @@ private:
 
 	friend struct SerializeConstructorArgs<HardwareConfig>;
 };
-SERIALIZE_CLASS_VERSION(HardwareConfig, 5);
+SERIALIZE_CLASS_VERSION(HardwareConfig, 6);
 
 template<> struct SerializeConstructorArgs<HardwareConfig>
 {

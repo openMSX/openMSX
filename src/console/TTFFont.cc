@@ -155,10 +155,14 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 	if (text.empty()) return SDLSurfacePtr(nullptr);
 
 	// Split on newlines
-	auto lines = StringOp::split(text, '\n');
-	assert(!lines.empty());
+	auto lines_view = StringOp::split_view(text, '\n');
+	auto lines_it = lines_view.begin();
+	auto lines_end = lines_view.end();
+	assert(lines_it != lines_end);
 
-	if (lines.size() == 1) {
+	auto current_line = *lines_it;
+	++lines_it;
+	if (lines_it == lines_end) {
 		// Special case for a single line: we can avoid the
 		// copy to an extra SDL_Surface
 		assert(!text.empty());
@@ -174,17 +178,22 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 	// Determine maximum width and lineHeight
 	unsigned width = 0;
 	unsigned lineHeight = 0; // initialize to avoid warning
-	for (auto& s : lines) {
-		auto [w, h] = getSize(std::string(s));
+	unsigned numLines = 1;
+	while (true) {
+		auto [w, h] = getSize(std::string(current_line));
 		width = std::max<unsigned>(width, w);
 		lineHeight = h;
+		if (lines_it == lines_end) break;
+		current_line = *lines_it;
+		++lines_it;
+		++numLines;
 	}
 	// There might be extra space between two successive lines
 	// (so lineSkip might be bigger than lineHeight).
 	unsigned lineSkip = getHeight();
 	// We assume that height is the same for all lines.
 	// For the last line we don't include spacing between two lines.
-	auto height = unsigned((lines.size() - 1) * lineSkip + lineHeight);
+	auto height = unsigned((numLines - 1) * lineSkip + lineHeight);
 
 	// Create destination surface (initial surface is fully transparent)
 	SDLSurfacePtr destination(SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
@@ -194,17 +203,20 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 	}
 
 	// Actually render the text:
-	for (auto i : xrange(lines.size())) {
+	// TODO use enumerate() in the future (c++20)
+	int i = -1;
+	for (auto line : lines_view) {
+		++i;
 		// Render single line
-		if (lines[i].empty()) {
+		if (line.empty()) {
 			// SDL_TTF gives an error on empty lines, but we can
 			// simply skip such lines
 			continue;
 		}
-		SDLSurfacePtr line(TTF_RenderUTF8_Blended(
+		SDLSurfacePtr surf(TTF_RenderUTF8_Blended(
 			static_cast<TTF_Font*>(font),
-			std::string(lines[i]).c_str(), color));
-		if (!line) {
+			std::string(line).c_str(), color));
+		if (!surf) {
 			throw MSXException(TTF_GetError());
 		}
 
@@ -212,8 +224,8 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 		SDL_Rect rect;
 		rect.x = 0;
 		rect.y = Sint16(i * lineSkip);
-		SDL_SetSurfaceBlendMode(line.get(), SDL_BLENDMODE_NONE); // no blending during copy
-		SDL_BlitSurface(line.get(), nullptr, destination.get(), &rect);
+		SDL_SetSurfaceBlendMode(surf.get(), SDL_BLENDMODE_NONE); // no blending during copy
+		SDL_BlitSurface(surf.get(), nullptr, destination.get(), &rect);
 	}
 	return destination;
 }

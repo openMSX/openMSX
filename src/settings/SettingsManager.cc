@@ -1,9 +1,9 @@
 #include "SettingsManager.hh"
+#include "SettingsConfig.hh"
 #include "GlobalCommandController.hh"
 #include "MSXException.hh"
 #include "TclObject.hh"
 #include "CommandException.hh"
-#include "XMLElement.hh"
 #include "outer.hh"
 #include "StringOp.hh"
 #include "view.hh"
@@ -97,24 +97,17 @@ std::vector<string> SettingsManager::getTabSettingNames() const
 	return result;
 }
 
-void SettingsManager::loadSettings(const XMLElement& config)
+void SettingsManager::loadSettings(const SettingsConfig& config)
 {
-	// restore default values
-	for (auto* s : settings) {
-		if (s->needLoadSave()) {
-			s->setValue(s->getRestoreValue());
-		}
-	}
-
-	// load new values
-	const auto* settingsElem = config.findChild("settings");
-	if (!settingsElem) return;
+	// restore default values or load new values
 	for (auto* s : settings) {
 		if (!s->needLoadSave()) continue;
-		if (const auto* elem = settingsElem->findChildWithAttribute(
-		                "setting", "id", s->getFullName())) {
+
+		s->setValue(s->getRestoreValue());
+
+		if (auto* savedValue = config.getValueForSetting(s->getFullName())) {
 			try {
-				s->setValue(TclObject(elem->getData()));
+				s->setValue(TclObject(*savedValue));
 			} catch (MSXException&) {
 				// ignore, keep default value
 			}

@@ -99,6 +99,7 @@ public:
 	[[nodiscard]] byte readIRQVector();
 
 	[[nodiscard]] const HardwareConfig* getMachineConfig() const { return machineConfig; }
+	[[nodiscard]] HardwareConfig* getMachineConfig() { return machineConfig; }
 	void setMachineConfig(HardwareConfig* machineConfig);
 	[[nodiscard]] std::string_view getMachineType() const;
 	[[nodiscard]] bool isTurboR() const;

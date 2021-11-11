@@ -41,9 +41,8 @@ HD::HD(const DeviceConfig& config)
 	auto mode = File::NORMAL;
 	string cliImage = HDImageCLI::getImageForId(id);
 	if (cliImage.empty()) {
-		const string& original = config.getChildData("filename");
-		string resolved = config.getFileContext().resolveCreate(original);
-		filename = Filename(std::move(resolved));
+		const auto& original = config.getChildData("filename");
+		filename = Filename(config.getFileContext().resolveCreate(original));
 		mode = File::CREATE;
 	} else {
 		filename = Filename(std::move(cliImage), userFileContext());
@@ -54,7 +53,7 @@ HD::HD(const DeviceConfig& config)
 	if (mode == File::CREATE && filesize == 0) {
 		// OK, the file was just newly created. Now make sure the file
 		// is of the right (default) size
-		file.truncate(size_t(config.getChildDataAsInt("size")) * 1024 * 1024);
+		file.truncate(size_t(config.getChildDataAsInt("size", 0)) * 1024 * 1024);
 		filesize = file.getSize();
 	}
 	tigerTree.emplace(*this, filesize, filename.getResolved());

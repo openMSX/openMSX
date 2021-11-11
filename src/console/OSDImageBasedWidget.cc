@@ -30,17 +30,6 @@ OSDImageBasedWidget::OSDImageBasedWidget(Display& display_, const TclObject& nam
 
 OSDImageBasedWidget::~OSDImageBasedWidget() = default;
 
-std::vector<std::string_view> OSDImageBasedWidget::getProperties() const
-{
-	auto result = OSDWidget::getProperties();
-	static constexpr const char* const vals[] = {
-		"-rgba", "-rgb", "-alpha", "-fadePeriod", "-fadeTarget",
-		"-fadeCurrent",
-	};
-	append(result, vals);
-	return result;
-}
-
 static void get4(Interpreter& interp, const TclObject& value, uint32_t* result)
 {
 	auto len = value.getListLength(interp);
@@ -87,9 +76,9 @@ void OSDImageBasedWidget::setProperty(
 		fadePeriod = value.getDouble(interp);
 	} else if (propName == "-fadeTarget") {
 		updateCurrentFadeValue();
-		fadeTarget = std::max(0.0, std::min(1.0 , value.getDouble(interp)));
+		fadeTarget = std::clamp(value.getDouble(interp), 0.0, 1.0);
 	} else if (propName == "-fadeCurrent") {
-		startFadeValue = std::max(0.0, std::min(1.0, value.getDouble(interp)));
+		startFadeValue = std::clamp(value.getDouble(interp), 0.0, 1.0);
 		startFadeTime = Timer::getTime();
 	} else {
 		OSDWidget::setProperty(interp, propName, value);

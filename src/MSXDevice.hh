@@ -3,6 +3,7 @@
 
 #include "DeviceConfig.hh"
 #include "EmuTime.hh"
+#include "IterableBitSet.hh"
 #include "openmsx.hh"
 #include "serialize_meta.hh"
 #include "span.hh"
@@ -83,7 +84,7 @@ public:
 	 * Returns a human-readable name for this device.
 	 * Default implementation is normally ok.
 	 */
-	[[nodiscard]] virtual std::string getName() const;
+	[[nodiscard]] virtual const std::string& getName() const;
 
 	/** Returns list of name(s) of this device.
 	 * This is normally the same as getName() (but formatted as a Tcl list)
@@ -258,7 +259,7 @@ protected:
 	  * @param config config entry for this device.
 	  * @param name The name for the MSXDevice (will be made unique)
 	  */
-	MSXDevice(const DeviceConfig& config, const std::string& name);
+	MSXDevice(const DeviceConfig& config, std::string_view name);
 	explicit MSXDevice(const DeviceConfig& config);
 
 	/** Constructing a MSXDevice is a 2-step process, after the constructor
@@ -304,7 +305,7 @@ private:
 	template<typename Action, typename... Args>
 	void clip(unsigned start, unsigned size, Action action, Args... args);
 
-	void initName(const std::string& name);
+	void initName(std::string_view name);
 	static void staticInit();
 
 	void lockDevices();
@@ -316,6 +317,9 @@ private:
 	void registerPorts();
 	void unregisterPorts();
 
+protected:
+	std::string deviceName;
+
 private:
 	struct BaseSize {
 		unsigned base;
@@ -324,11 +328,10 @@ private:
 	};
 	using MemRegions = std::vector<BaseSize>;
 	MemRegions memRegions;
-	std::vector<byte> inPorts;
-	std::vector<byte> outPorts;
+	IterableBitSet<256> inPorts;
+	IterableBitSet<256> outPorts;
 
 	DeviceConfig deviceConfig;
-	std::string deviceName;
 
 	Devices references;
 	Devices referencedBy;

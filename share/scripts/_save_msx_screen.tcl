@@ -81,21 +81,21 @@ proc save_msx_screen {basename} {
 	"5" - "6" {
 		set lines1 [expr {$R23 > 24 ? 256 - $R23 : 232}]            ;# Store 232 lines, even
 		set lines2 [expr {232 - $lines1}]                           ;# though only 212 are visible
-		set base2 [expr {$name_base_bitmap - (0x8000 * $interlace)}]
+		set base2 [expr {$name_base_bitmap ^ (0x8000 * $interlace)}]
 		set base1 [expr {$base2 + $R23 * 128}]
 		lappend sections "VRAM" $base1 [expr {$lines1 * 128}]       ;# Bitmap (part 1)
 		lappend sections "VRAM" $base2 [expr {$lines2 * 128}]       ;# Bitmap (part 2)
 		lappend sections "VRAM" $spr_att_base_2 0x280               ;# Sprite colors + attributes
 		lappend sections "VDP palette" 0 0x20                       ;# Palette
-		lappend sections "VRAM" [expr {$name_base_bitmap - (0x8000 * $interlace) + 0x76A0}] 0x160 ;# Fill (Bitmap)
+		lappend sections "VRAM" [expr {$name_base_bitmap ^ (0x8000 * $interlace) + 0x76A0}] 0x160 ;# Fill (Bitmap)
 		lappend sections "VRAM" $spr_pat_base 0x800                 ;# Sprite character patterns
 		if {$interlace} {
-			lappend sections2 "VRAM" [expr {$base1 + 0x8000}] [expr {$lines1 * 128}]   ;# Bitmap (part 1)
-			lappend sections2 "VRAM" [expr {$base2 + 0x8000}] [expr {$lines2 * 128}]   ;# Bitmap (part 2)
-			lappend sections2 "VRAM" [expr {$spr_att_base_2 + 0x8000}] 0x280           ;# Sprite colors + attributes
+			lappend sections2 "VRAM" [expr {$base1 ^ 0x8000}] [expr {$lines1 * 128}]   ;# Bitmap (part 1)
+			lappend sections2 "VRAM" [expr {$base2 ^ 0x8000}] [expr {$lines2 * 128}]   ;# Bitmap (part 2)
+			lappend sections2 "VRAM" [expr {$spr_att_base_2 ^ 0x8000}] 0x280           ;# Sprite colors + attributes
 			lappend sections2 "VDP palette" 0 0x20                                     ;# Palette
 			lappend sections2 "VRAM" [expr {$name_base_bitmap + 0x76A0}] 0x160         ;# Fill (Bitmap)
-			lappend sections2 "VRAM" [expr {$spr_pat_base + 0x8000}] 0x800             ;# Sprite character patterns
+			lappend sections2 "VRAM" [expr {$spr_pat_base ^ 0x8000}] 0x800             ;# Sprite character patterns
 		}
 	}
 	"7" - "8" - "11" - "12" {
@@ -109,10 +109,10 @@ proc save_msx_screen {basename} {
 		lappend sections "VRAM" $spr_att_base_2 0x280               ;# Sprite colors + attributes
 		lappend sections "VDP palette" 0 0x20                       ;# Palette
 		if {$interlace} {
-			lappend sections2 "VRAM" [expr {$base1 + 0x10000}] [expr {$lines1 * 256}]  ;# Bitmap (part 1)
-			lappend sections2 "VRAM" [expr {$base2 + 0x10000}] [expr {$lines2 * 256}]  ;# Bitmap (part 2)
-			lappend sections2 "VRAM" [expr {$spr_pat_base + 0x10000}] 0x800            ;# Sprite character patterns
-			lappend sections2 "VRAM" [expr {$spr_att_base_2 + 0x10000}] 0x280          ;# Sprite colors + attributes
+			lappend sections2 "VRAM" [expr {$base1 ^ 0x10000}] [expr {$lines1 * 256}]  ;# Bitmap (part 1)
+			lappend sections2 "VRAM" [expr {$base2 ^ 0x10000}] [expr {$lines2 * 256}]  ;# Bitmap (part 2)
+			lappend sections2 "VRAM" [expr {$spr_pat_base ^ 0x10000}] 0x800            ;# Sprite character patterns
+			lappend sections2 "VRAM" [expr {$spr_att_base_2 ^ 0x10000}] 0x280          ;# Sprite colors + attributes
 			lappend sections2 "VDP palette" 0 0x20                                     ;# Palette
 		}
 	}}

@@ -9,10 +9,24 @@ namespace openmsx {
 
 class OSDText final : public OSDImageBasedWidget
 {
+protected:
+	static constexpr auto textProperties = [] {
+		using namespace std::literals;
+		return concatArray(
+			imageBasedProperties,
+			std::array{
+				"-text"sv, "-font"sv, "-size"sv,
+				"-wrap"sv, "-wrapw"sv, "-wraprelw"sv,
+				"-query-size"sv,
+			});
+	}();
+
 public:
 	OSDText(Display& display, const TclObject& name);
 
-	[[nodiscard]] std::vector<std::string_view> getProperties() const override;
+	[[nodiscard]] span<const std::string_view> getProperties() const override {
+		return textProperties;
+	}
 	void setProperty(Interpreter& interp,
 	                 std::string_view name, const TclObject& value) override;
 	void getProperty(std::string_view name, TclObject& result) const override;

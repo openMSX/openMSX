@@ -83,7 +83,7 @@ void SRAM::load(bool* loaded)
 {
 	assert(config.getXML());
 	if (loaded) *loaded = false;
-	const std::string& filename = config.getChildData("sramname");
+	const auto& filename = config.getChildData("sramname");
 	try {
 		bool headerOk = true;
 		File file(config.getFileContext().resolveCreate(filename),
@@ -118,7 +118,7 @@ void SRAM::load(bool* loaded)
 void SRAM::save()
 {
 	assert(config.getXML());
-	const std::string& filename = config.getChildData("sramname");
+	const auto& filename = config.getChildData("sramname");
 	try {
 		File file(config.getFileContext().resolveCreate(filename),
 			  File::SAVE_PERSISTENT);

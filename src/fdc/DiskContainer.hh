@@ -14,6 +14,10 @@ class MSXMotherBoard;
 class DiskContainer
 {
 public:
+	DiskContainer(const DiskContainer&) = delete;
+	DiskContainer& operator=(const DiskContainer&) = delete;
+
+	DiskContainer() = default;
 	virtual ~DiskContainer() = default;
 
 	[[nodiscard]] virtual SectorAccessibleDisk* getSectorAccessibleDisk() = 0;

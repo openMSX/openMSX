@@ -230,7 +230,7 @@ string Display::getWindowTitle()
 	}
 	if (MSXMotherBoard* motherboard = reactor.getMotherBoard()) {
 		if (const HardwareConfig* machine = motherboard->getMachineConfig()) {
-			const XMLElement& config = machine->getConfig();
+			const auto& config = machine->getConfig();
 			strAppend(title, " - ",
 			          config.getChild("info").getChildData("manufacturer"), ' ',
 			          config.getChild("info").getChildData("code"));

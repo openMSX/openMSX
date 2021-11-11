@@ -3,6 +3,7 @@
 
 #include "semiregular.hh"
 #include <algorithm>
+#include <functional>
 #include <iterator>
 #include <tuple>
 #include <type_traits>
@@ -284,6 +285,89 @@ private:
 };
 
 
+template<typename Iterator, typename Sentinel, typename Predicate>
+class FilteredIterator
+{
+public:
+	using value_type = typename std::iterator_traits<Iterator>::value_type;
+	using reference = typename std::iterator_traits<Iterator>::reference;
+	using pointer = typename std::iterator_traits<Iterator>::pointer;
+	using difference_type = typename std::iterator_traits<Iterator>::difference_type;
+	using iterator_category = std::forward_iterator_tag;
+
+	constexpr FilteredIterator(Iterator it_, Sentinel last_, Predicate pred_)
+	        : it(it_), last(last_), pred(pred_)
+	{
+		while (isFiltered()) ++it;
+	}
+
+	[[nodiscard]] constexpr friend bool operator==(const FilteredIterator& x, const FilteredIterator& y)
+	{
+		return x.it == y.it;
+	}
+	[[nodiscard]] constexpr friend bool operator!=(const FilteredIterator& x, const FilteredIterator& y)
+	{
+		return !(x == y);
+	}
+
+	[[nodiscard]] constexpr reference operator*() const { return *it; }
+	[[nodiscard]] constexpr pointer operator->() const { return &*it; }
+
+	constexpr FilteredIterator& operator++()
+	{
+		do {
+			++it;
+		} while (isFiltered());
+		return *this;
+	}
+	constexpr FilteredIterator operator++(int)
+	{
+		FilteredIterator result = *this;
+		++(*this);
+		return result;
+	}
+
+private:
+	[[nodiscard]] constexpr bool isFiltered()
+	{
+		return (it != last) && !std::invoke(pred, *it);
+	}
+
+private:
+	Iterator it;
+	Sentinel last;
+	Predicate pred;
+};
+
+template<typename Range, typename Predicate>
+class Filter
+{
+public:
+	using Iterator = decltype(std::begin(std::declval<Range>()));
+	using Sentinel = decltype(std::end  (std::declval<Range>()));
+	using F_Iterator = FilteredIterator<Iterator, Sentinel, Predicate>;
+
+	constexpr Filter(Range&& range_, Predicate pred_)
+	        : range(std::forward<Range>(range_)), pred(pred_)
+	{
+	}
+
+	[[nodiscard]] constexpr F_Iterator begin() const
+	{
+		return {std::begin(range), std::end(range), pred};
+	}
+	[[nodiscard]] constexpr F_Iterator end() const
+	{
+		// TODO should be a 'FilteredSentinel', but that only works well
+		// in c++20 (and c++20 already has 'std::views::filter').
+		return {std::end(range), std::end(range), pred};
+	}
+
+private:
+	Range range;
+	Predicate pred;
+};
+
 } // namespace detail
 
 template<typename Range>
@@ -320,6 +404,12 @@ template<typename Map> [[nodiscard]] constexpr auto values(Map&& map)
 {
 	return transform(std::forward<Map>(map),
 	                 [](const auto& t) -> auto& { return std::get<1>(t); });
+}
+
+template<typename ForwardRange, typename Predicate>
+[[nodiscard]] auto filter(ForwardRange&& range, Predicate pred)
+{
+    return detail::Filter<ForwardRange, Predicate>{std::forward<ForwardRange>(range), pred};
 }
 
 } // namespace view

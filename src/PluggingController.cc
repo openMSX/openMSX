@@ -135,21 +135,16 @@ void PluggingController::PlugCmd::tabCompletion(std::vector<string>& tokens) con
 	auto& pluggingController = OUTER(PluggingController, plugCmd);
 	if (tokens.size() == 2) {
 		// complete connector
-		auto connectorNames = to_vector(view::transform(
+		completeString(tokens, view::transform(
 			pluggingController.connectors,
-			[](auto& c) { return c->getName(); }));
-		completeString(tokens, connectorNames);
+			[](auto& c) -> std::string_view { return c->getName(); }));
 	} else if (tokens.size() == 3) {
 		// complete pluggable
-		std::vector<string_view> pluggableNames;
 		auto* connector = pluggingController.findConnector(tokens[1]);
 		string_view className = connector ? connector->getClass() : string_view{};
-		for (auto& p : pluggingController.pluggables) {
-			if (p->getClass() == className) {
-				pluggableNames.emplace_back(p->getName());
-			}
-		}
-		completeString(tokens, pluggableNames);
+		completeString(tokens, view::transform(view::filter(pluggingController.pluggables,
+			[&](auto& p) { return p->getClass() == className; }),
+			[](auto& p) -> string_view { return p->getName(); }));
 	}
 }
 
@@ -191,10 +186,9 @@ void PluggingController::UnplugCmd::tabCompletion(std::vector<string>& tokens) c
 {
 	if (tokens.size() == 2) {
 		// complete connector
-		auto connectorNames = to_vector(view::transform(
+		completeString(tokens, view::transform(
 			OUTER(PluggingController, unplugCmd).connectors,
-			[](auto* c) { return c->getName(); }));
-		completeString(tokens, connectorNames);
+			[](auto* c) -> std::string_view { return c->getName(); }));
 	}
 }
 
@@ -275,10 +269,9 @@ string PluggingController::PluggableInfo::help(span<const TclObject> /*tokens*/)
 void PluggingController::PluggableInfo::tabCompletion(std::vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		auto pluggableNames = to_vector(view::transform(
+		completeString(tokens, view::transform(
 			OUTER(PluggingController, pluggableInfo).pluggables,
-			[](auto& p) { return p->getName(); }));
-		completeString(tokens, pluggableNames);
+			[](auto& p) -> std::string_view { return p->getName(); }));
 	}
 }
 
@@ -318,10 +311,9 @@ string PluggingController::ConnectorInfo::help(span<const TclObject> /*tokens*/)
 void PluggingController::ConnectorInfo::tabCompletion(std::vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		auto connectorNames = to_vector(view::transform(
+		completeString(tokens, view::transform(
 			OUTER(PluggingController, connectorInfo).connectors,
-			[](auto& c) { return c->getName(); }));
-		completeString(tokens, connectorNames);
+			[](auto& c) -> std::string_view { return c->getName(); }));
 	}
 }
 
@@ -377,11 +369,11 @@ void PluggingController::ConnectionClassInfo::tabCompletion(std::vector<string>&
 {
 	if (tokens.size() == 3) {
 		auto& pluggingController = OUTER(PluggingController, connectionClassInfo);
-		auto names = concat<string_view>(
+		auto names = concat(
 			view::transform(pluggingController.connectors,
-			                [](auto& c) { return c->getName(); }),
+			                [](auto& c) -> std::string_view { return c->getName(); }),
 			view::transform(pluggingController.pluggables,
-			                [](auto& p) { return p->getName(); }));
+			                [](auto& p) -> std::string_view { return p->getName(); }));
 		completeString(tokens, names);
 	}
 }

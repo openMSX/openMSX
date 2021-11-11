@@ -142,16 +142,16 @@ std::pair<string_view, string_view> splitOnLast(string_view str, char chars)
 	}
 }
 
-std::vector<string_view> split(string_view str, char chars)
-{
-	std::vector<string_view> result;
-	while (!str.empty()) {
-		auto [first, last] = splitOnFirst(str, chars);
-		result.push_back(first);
-		str = last;
-	}
-	return result;
-}
+//std::vector<string_view> split(string_view str, char chars)
+//{
+//	std::vector<string_view> result;
+//	while (!str.empty()) {
+//		auto [first, last] = splitOnFirst(str, chars);
+//		result.push_back(first);
+//		str = last;
+//	}
+//	return result;
+//}
 
 static unsigned parseNumber(string_view str)
 {
@@ -163,18 +163,15 @@ static unsigned parseNumber(string_view str)
 	return *r;
 }
 
-static void insert(unsigned x, std::vector<unsigned>& result, unsigned min, unsigned max)
+static void checkRange(unsigned x, unsigned min, unsigned max)
 {
-	if ((x < min) || (x > max)) {
-		throw openmsx::MSXException("Out of range");
-	}
-	if (auto it = ranges::lower_bound(result, x);
-	    (it == end(result)) || (*it != x)) {
-		result.insert(it, x);
-	}
+	if ((min <= x) && (x <= max)) return;
+	throw openmsx::MSXException(
+		"Out of range, should be between [, ", min, ", ", max,
+		"], but got: ", x);
 }
 
-static void parseRange2(string_view str, std::vector<unsigned>& result,
+static void parseRange2(string_view str, IterableBitSet<64>& result,
                         unsigned min, unsigned max)
 {
 	// trimRight only: here we only care about all spaces
@@ -182,22 +179,27 @@ static void parseRange2(string_view str, std::vector<unsigned>& result,
 	if (str.empty()) return;
 
 	if (auto pos = str.find('-'); pos == string_view::npos) {
-		insert(parseNumber(str), result, min, max);
+		auto x = parseNumber(str);
+		checkRange(x, min, max);
+		result.set(x);
 	} else {
 		unsigned begin = parseNumber(str.substr(0, pos));
 		unsigned end   = parseNumber(str.substr(pos + 1));
 		if (end < begin) {
 			std::swap(begin, end);
 		}
-		for (unsigned i = begin; i <= end; ++i) {
-			insert(i, result, min, max);
-		}
+		checkRange(begin, min, max);
+		checkRange(end,   min, max);
+		result.setRange(begin, end + 1);
 	}
 }
 
-std::vector<unsigned> parseRange(string_view str, unsigned min, unsigned max)
+IterableBitSet<64> parseRange(string_view str, unsigned min, unsigned max)
 {
-	std::vector<unsigned> result;
+	assert(min <= max);
+	assert(max < 64);
+
+	IterableBitSet<64> result;
 	while (true) {
 		auto next = str.find(',');
 		string_view sub = (next == string_view::npos)

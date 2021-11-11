@@ -98,18 +98,18 @@ static inline void yuv2rgb_sse2(
 	                                      _mm_packus_epi16(g00_odd,  g00_odd));
 	__m128i b00_0f    = _mm_unpackhi_epi8(_mm_packus_epi16(b00_even, b00_even),
 	                                      _mm_packus_epi16(b00_odd,  b00_odd));
-	__m128i br00_07   = _mm_unpacklo_epi8(b00_0f, r00_0f);
-	__m128i br00_8f   = _mm_unpackhi_epi8(b00_0f, r00_0f);
+	__m128i rb00_07   = _mm_unpacklo_epi8(r00_0f, b00_0f);
+	__m128i rb00_8f   = _mm_unpackhi_epi8(r00_0f, b00_0f);
 	__m128i ga00_07   = _mm_unpacklo_epi8(g00_0f, ALPHA);
 	__m128i ga00_8f   = _mm_unpackhi_epi8(g00_0f, ALPHA);
-	__m128i bgra00_03 = _mm_unpacklo_epi8(br00_07, ga00_07);
-	__m128i bgra00_47 = _mm_unpackhi_epi8(br00_07, ga00_07);
-	__m128i bgra00_8b = _mm_unpacklo_epi8(br00_8f, ga00_8f);
-	__m128i bgra00_cf = _mm_unpackhi_epi8(br00_8f, ga00_8f);
-	_mm_store_si128(out0 + 0, bgra00_03);
-	_mm_store_si128(out0 + 1, bgra00_47);
-	_mm_store_si128(out0 + 2, bgra00_8b);
-	_mm_store_si128(out0 + 3, bgra00_cf);
+	__m128i rgba00_03 = _mm_unpacklo_epi8(rb00_07, ga00_07);
+	__m128i rgba00_47 = _mm_unpackhi_epi8(rb00_07, ga00_07);
+	__m128i rgba00_8b = _mm_unpacklo_epi8(rb00_8f, ga00_8f);
+	__m128i rgba00_cf = _mm_unpackhi_epi8(rb00_8f, ga00_8f);
+	_mm_store_si128(out0 + 0, rgba00_03);
+	_mm_store_si128(out0 + 1, rgba00_47);
+	_mm_store_si128(out0 + 2, rgba00_8b);
+	_mm_store_si128(out0 + 3, rgba00_cf);
 
 	// block bottom,left
 	__m128i y10_0f    = _mm_load_si128(y1 + 0);
@@ -129,18 +129,18 @@ static inline void yuv2rgb_sse2(
 	                                      _mm_packus_epi16(g10_odd,  g10_odd));
 	__m128i b10_0f    = _mm_unpackhi_epi8(_mm_packus_epi16(b10_even, b10_even),
 	                                      _mm_packus_epi16(b10_odd,  b10_odd));
-	__m128i br10_07   = _mm_unpacklo_epi8(b10_0f, r10_0f);
-	__m128i br10_8f   = _mm_unpackhi_epi8(b10_0f, r10_0f);
+	__m128i rb10_07   = _mm_unpacklo_epi8(r10_0f, b10_0f);
+	__m128i rb10_8f   = _mm_unpackhi_epi8(r10_0f, b10_0f);
 	__m128i ga10_07   = _mm_unpacklo_epi8(g10_0f, ALPHA);
 	__m128i ga10_8f   = _mm_unpackhi_epi8(g10_0f, ALPHA);
-	__m128i bgra10_03 = _mm_unpacklo_epi8(br10_07, ga10_07);
-	__m128i bgra10_47 = _mm_unpackhi_epi8(br10_07, ga10_07);
-	__m128i bgra10_8b = _mm_unpacklo_epi8(br10_8f, ga10_8f);
-	__m128i bgra10_cf = _mm_unpackhi_epi8(br10_8f, ga10_8f);
-	_mm_store_si128(out1 + 0, bgra10_03);
-	_mm_store_si128(out1 + 1, bgra10_47);
-	_mm_store_si128(out1 + 2, bgra10_8b);
-	_mm_store_si128(out1 + 3, bgra10_cf);
+	__m128i rgba10_03 = _mm_unpacklo_epi8(rb10_07, ga10_07);
+	__m128i rgba10_47 = _mm_unpackhi_epi8(rb10_07, ga10_07);
+	__m128i rgba10_8b = _mm_unpacklo_epi8(rb10_8f, ga10_8f);
+	__m128i rgba10_cf = _mm_unpackhi_epi8(rb10_8f, ga10_8f);
+	_mm_store_si128(out1 + 0, rgba10_03);
+	_mm_store_si128(out1 + 1, rgba10_47);
+	_mm_store_si128(out1 + 2, rgba10_8b);
+	_mm_store_si128(out1 + 3, rgba10_cf);
 
 	// right
 	__m128i u8f  = _mm_unpackhi_epi8(u0f, ZERO);
@@ -172,18 +172,18 @@ static inline void yuv2rgb_sse2(
 	                                      _mm_packus_epi16(g01_odd,  g01_odd));
 	__m128i b01_0f    = _mm_unpackhi_epi8(_mm_packus_epi16(b01_even, b01_even),
 	                                      _mm_packus_epi16(b01_odd,  b01_odd));
-	__m128i br01_07   = _mm_unpacklo_epi8(b01_0f, r01_0f);
-	__m128i br01_8f   = _mm_unpackhi_epi8(b01_0f, r01_0f);
+	__m128i rb01_07   = _mm_unpacklo_epi8(r01_0f, b01_0f);
+	__m128i rb01_8f   = _mm_unpackhi_epi8(r01_0f, b01_0f);
 	__m128i ga01_07   = _mm_unpacklo_epi8(g01_0f, ALPHA);
 	__m128i ga01_8f   = _mm_unpackhi_epi8(g01_0f, ALPHA);
-	__m128i bgra01_03 = _mm_unpacklo_epi8(br01_07, ga01_07);
-	__m128i bgra01_47 = _mm_unpackhi_epi8(br01_07, ga01_07);
-	__m128i bgra01_8b = _mm_unpacklo_epi8(br01_8f, ga01_8f);
-	__m128i bgra01_cf = _mm_unpackhi_epi8(br01_8f, ga01_8f);
-	_mm_store_si128(out0 + 4, bgra01_03);
-	_mm_store_si128(out0 + 5, bgra01_47);
-	_mm_store_si128(out0 + 6, bgra01_8b);
-	_mm_store_si128(out0 + 7, bgra01_cf);
+	__m128i rgba01_03 = _mm_unpacklo_epi8(rb01_07, ga01_07);
+	__m128i rgba01_47 = _mm_unpackhi_epi8(rb01_07, ga01_07);
+	__m128i rgba01_8b = _mm_unpacklo_epi8(rb01_8f, ga01_8f);
+	__m128i rgba01_cf = _mm_unpackhi_epi8(rb01_8f, ga01_8f);
+	_mm_store_si128(out0 + 4, rgba01_03);
+	_mm_store_si128(out0 + 5, rgba01_47);
+	_mm_store_si128(out0 + 6, rgba01_8b);
+	_mm_store_si128(out0 + 7, rgba01_cf);
 
 	// block bottom,right
 	__m128i y11_0f    = _mm_load_si128(y1 + 1);
@@ -203,18 +203,18 @@ static inline void yuv2rgb_sse2(
 	                                      _mm_packus_epi16(g11_odd,  g11_odd));
 	__m128i b11_0f    = _mm_unpackhi_epi8(_mm_packus_epi16(b11_even, b11_even),
 	                                      _mm_packus_epi16(b11_odd,  b11_odd));
-	__m128i br11_07   = _mm_unpacklo_epi8(b11_0f, r11_0f);
-	__m128i br11_8f   = _mm_unpackhi_epi8(b11_0f, r11_0f);
+	__m128i rb11_07   = _mm_unpacklo_epi8(r11_0f, b11_0f);
+	__m128i rb11_8f   = _mm_unpackhi_epi8(r11_0f, b11_0f);
 	__m128i ga11_07   = _mm_unpacklo_epi8(g11_0f, ALPHA);
 	__m128i ga11_8f   = _mm_unpackhi_epi8(g11_0f, ALPHA);
-	__m128i bgra11_03 = _mm_unpacklo_epi8(br11_07, ga11_07);
-	__m128i bgra11_47 = _mm_unpackhi_epi8(br11_07, ga11_07);
-	__m128i bgra11_8b = _mm_unpacklo_epi8(br11_8f, ga11_8f);
-	__m128i bgra11_cf = _mm_unpackhi_epi8(br11_8f, ga11_8f);
-	_mm_store_si128(out1 + 4, bgra11_03);
-	_mm_store_si128(out1 + 5, bgra11_47);
-	_mm_store_si128(out1 + 6, bgra11_8b);
-	_mm_store_si128(out1 + 7, bgra11_cf);
+	__m128i rgba11_03 = _mm_unpacklo_epi8(rb11_07, ga11_07);
+	__m128i rgba11_47 = _mm_unpackhi_epi8(rb11_07, ga11_07);
+	__m128i rgba11_8b = _mm_unpacklo_epi8(rb11_8f, ga11_8f);
+	__m128i rgba11_cf = _mm_unpackhi_epi8(rb11_8f, ga11_8f);
+	_mm_store_si128(out1 + 4, rgba11_03);
+	_mm_store_si128(out1 + 5, rgba11_47);
+	_mm_store_si128(out1 + 6, rgba11_8b);
+	_mm_store_si128(out1 + 7, rgba11_cf);
 }
 
 static inline void convertHelperSSE2(
@@ -289,7 +289,7 @@ template<typename Pixel>
 	uint8_t g = Math::clipIntToByte((y + guv) >> PREC);
 	uint8_t b = Math::clipIntToByte((y + buv) >> PREC);
 	if constexpr (sizeof(Pixel) == 4) {
-		return (r << 16) | (g << 8) | (b << 0);
+		return (r << 0) | (g << 8) | (b << 16);
 	} else {
 		return static_cast<Pixel>(format.map(r, g, b));
 	}

@@ -83,7 +83,7 @@ SCSILS120::SCSILS120(const DeviceConfig& targetconfig,
 	, buffer(buf)
 	, name("lsX")
 	, mode(mode_)
-	, scsiId(targetconfig.getAttributeAsInt("id"))
+	, scsiId(targetconfig.getAttributeValueAsInt("id", 0))
 {
 	lsInUse = motherBoard.getSharedStuff<LSInUse>("lsInUse");
 

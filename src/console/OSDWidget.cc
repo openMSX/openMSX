@@ -212,15 +212,6 @@ void OSDWidget::resortDown(OSDWidget* elem)
 #endif
 }
 
-std::vector<std::string_view> OSDWidget::getProperties() const
-{
-	static constexpr const char* const vals[] = {
-		"-type", "-x", "-y", "-z", "-relx", "-rely", "-scaled",
-		"-clip", "-mousecoord", "-suppressErrors",
-	};
-	return to_vector<std::string_view>(vals);
-}
-
 void OSDWidget::setProperty(
 	Interpreter& interp, std::string_view propName, const TclObject& value)
 {

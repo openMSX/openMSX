@@ -44,7 +44,6 @@
 #include "stl.hh"
 #include "StringOp.hh"
 #include "unreachable.hh"
-#include "view.hh"
 #include "build-info.hh"
 #include <cassert>
 #include <memory>
@@ -381,12 +380,6 @@ MSXMotherBoard* Reactor::getMotherBoard() const
 string_view Reactor::getMachineID() const
 {
 	return activeBoard ? activeBoard->getMachineID() : string_view{};
-}
-
-vector<string_view> Reactor::getMachineIDs() const
-{
-	return to_vector(view::transform(
-		boards, [](auto& b) { return b->getMachineID(); }));
 }
 
 Reactor::Board Reactor::getMachine(string_view machineID) const
@@ -1071,11 +1064,13 @@ void ConfigInfo::execute(span<const TclObject> tokens, TclObject& result) const
 	}
 	case 3: {
 		try {
-			auto config = HardwareConfig::loadConfig(
-				configName, tokens[2].getString());
-			if (auto* info = config.findChild("info")) {
-				for (const auto& i : info->getChildren()) {
-					result.addDictKeyValue(i.getName(), i.getData());
+			char allocBuffer[8192]; // tweak
+			XMLDocument doc{allocBuffer, sizeof(allocBuffer)};
+			HardwareConfig::loadConfig(
+				doc, configName, tokens[2].getString());
+			if (auto* info = doc.getRoot()->findChild("info")) {
+				for (const auto& c : info->getChildren()) {
+					result.addDictKeyValue(c.getName(), c.getData());
 				}
 			}
 		} catch (MSXException& e) {

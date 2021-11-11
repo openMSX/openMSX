@@ -9,12 +9,16 @@ namespace openmsx {
 class CLIOption
 {
 public:
+	CLIOption(const CLIOption&) = delete;
+	CLIOption& operator=(const CLIOption&) = delete;
+
 	virtual void parseOption(const std::string& option,
 	                         span<std::string>& cmdLine) = 0;
 	virtual void parseDone() {}
 	[[nodiscard]] virtual std::string_view optionHelp() const = 0;
 
 protected:
+	CLIOption() = default;
 	~CLIOption() = default;
 	[[nodiscard]] static std::string getArgument(
 		const std::string& option, span<std::string>& cmdLine);
@@ -24,12 +28,16 @@ protected:
 class CLIFileType
 {
 public:
+	CLIFileType(const CLIFileType&) = delete;
+	CLIFileType& operator=(const CLIFileType&) = delete;
+
 	virtual void parseFileType(const std::string& filename,
 	                           span<std::string>& cmdLine) = 0;
 	[[nodiscard]] virtual std::string_view fileTypeCategoryName() const = 0;
 	[[nodiscard]] virtual std::string_view fileTypeHelp() const = 0;
 
 protected:
+	CLIFileType() = default;
 	~CLIFileType() = default;
 };
 

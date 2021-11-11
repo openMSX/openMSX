@@ -31,11 +31,12 @@ void MSXMultiIODevice::removeDevice(MSXDevice* device)
 	devices.erase(rfind_unguarded(devices, device));
 }
 
-std::string MSXMultiIODevice::getName() const
+const std::string& MSXMultiIODevice::getName() const
 {
 	TclObject list;
 	getNameList(list);
-	return std::string(list.getString());
+	const_cast<std::string&>(deviceName) = list.getString();
+	return deviceName;
 }
 void MSXMultiIODevice::getNameList(TclObject& result) const
 {

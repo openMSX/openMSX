@@ -9,10 +9,12 @@
 #include "Math.hh"
 #include "cstd.hh"
 #include "enumerate.hh"
+#include "one_of.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include "xrange.hh"
 #include <array>
+#include <cassert>
 #include <cmath>
 #include <cstring>
 #include <iostream>
@@ -654,9 +656,14 @@ void YM2151::writeReg(byte r, byte v, EmuTime::param time)
 	switch (r & 0xe0) {
 	case 0x00:
 		switch (r) {
-		case 0x01: // LFO reset(bit 1), Test Register (other bits)
-			test = v;
-			if (v & 2) lfo_phase = 0;
+		case 0x01:
+		case 0x09:
+			// the test register is located differently between the variants
+			if ((r == 1 && variant == Variant::YM2151) ||
+		            (r == 9 && variant == Variant::YM2164)) {
+				test = v;
+				if (v & 2) lfo_phase = 0; // bit 1: LFO reset
+			}
 			break;
 
 		case 0x08:
@@ -863,11 +870,13 @@ void YM2151::writeReg(byte r, byte v, EmuTime::param time)
 constexpr auto INPUT_RATE = unsigned(cstd::round(3579545 / 64.0));
 
 YM2151::YM2151(const std::string& name_, static_string_view desc,
-               const DeviceConfig& config, EmuTime::param time)
+               const DeviceConfig& config, EmuTime::param time, Variant variant_)
 	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 8, INPUT_RATE, true)
 	, irq(config.getMotherBoard(), getName() + ".IRQ")
 	, timer1(EmuTimer::createOPM_1(config.getScheduler(), *this))
-	, timer2(EmuTimer::createOPM_2(config.getScheduler(), *this))
+	, timer2(variant_ == Variant::YM2164 ? EmuTimer::createOPP_2(config.getScheduler(), *this)
+					     : EmuTimer::createOPM_2(config.getScheduler(), *this))
+	, variant(variant_)
 {
 	// Avoid UMR on savestate
 	// TODO Registers 0x20-0xFF are cleared on reset.
@@ -1528,18 +1537,11 @@ void YM2151::generateChannels(float** bufs, unsigned num)
 
 void YM2151::callback(byte flag)
 {
-	if (flag & 0x20) { // Timer 1
-		if (irq_enable & 0x04) {
-			setStatus(1);
-		}
-		if (irq_enable & 0x80) {
-			csm_req = 2; // request KEY ON / KEY OFF sequence
-		}
-	}
-	if (flag & 0x40) { // Timer 2
-		if (irq_enable & 0x08) {
-			setStatus(2);
-		}
+	assert(flag == one_of(1, 2));
+	setStatus(flag);
+
+	if ((flag == 1) && (irq_enable & 0x80)) { // Timer 1
+		csm_req = 2; // request KEY ON / KEY OFF sequence
 	}
 }
 
@@ -1551,7 +1553,8 @@ byte YM2151::readStatus() const
 void YM2151::setStatus(byte flags)
 {
 	status |= flags;
-	if (status) {
+	auto enable = (irq_enable >> 2) & 3;
+	if ((status & enable) != 0) {
 		irq.set();
 	}
 }
@@ -1559,7 +1562,8 @@ void YM2151::setStatus(byte flags)
 void YM2151::resetStatus(byte flags)
 {
 	status &= ~flags;
-	if (!status) {
+	auto enable = (irq_enable >> 2) & 3;
+	if ((status & enable) == 0) {
 		irq.reset();
 	}
 }

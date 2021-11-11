@@ -1,13 +1,13 @@
 #include "serialize.hh"
 #include "Base64.hh"
 #include "HexDump.hh"
-#include "XMLLoader.hh"
 #include "XMLElement.hh"
 #include "ConfigException.hh"
 #include "XMLException.hh"
 #include "DeltaBlock.hh"
 #include "MemBuffer.hh"
 #include "FileOperations.hh"
+#include "StringOp.hh"
 #include "Version.hh"
 #include "Date.hh"
 #include "one_of.hh"
@@ -171,12 +171,14 @@ template class InputArchiveBase<XmlInputArchive>;
 
 ////
 
-void MemOutputArchive::save(const std::string& s)
+void MemOutputArchive::save(std::string_view s)
 {
 	auto size = s.size();
 	uint8_t* buf = buffer.allocate(sizeof(size) + size);
 	memcpy(buf, &size, sizeof(size));
-	memcpy(buf + sizeof(size), s.data(), size);
+	if (size) {
+		memcpy(buf + sizeof(size), s.data(), size);
+	}
 }
 
 MemBuffer<uint8_t> MemOutputArchive::releaseBuffer(size_t& size)
@@ -254,47 +256,44 @@ void MemInputArchive::serialize_blob(const char* /*tag*/, void* data,
 
 ////
 
-XmlOutputArchive::XmlOutputArchive(zstring_view filename)
-	: root("serial")
+XmlOutputArchive::XmlOutputArchive(zstring_view filename_)
+	: filename(filename_)
+	, writer(*this)
 {
-	root.addAttribute("openmsx_version", Version::full());
-	root.addAttribute("date_time", Date::toString(time(nullptr)));
-	root.addAttribute("platform", TARGET_PLATFORM);
 	{
 		auto f = FileOperations::openFile(filename, "wb");
-		if (!f) goto error;
+		if (!f) error();
 		int duped_fd = dup(fileno(f.get()));
-		if (duped_fd == -1) goto error;
+		if (duped_fd == -1) error();
 		file = gzdopen(duped_fd, "wb9");
 		if (!file) {
 			::close(duped_fd);
-			goto error;
+			error();
 		}
-		current.push_back(&root);
-		return; // success
-		// on scope-exit 'File* f' is closed, and 'gzFile file'
+		// on scope-exit 'f' is closed, and 'file'
 		// uses the dup()'ed file descriptor.
 	}
 
-error:
-	throw XMLException("Could not open compressed file \"", filename, "\"");
+	static constexpr std::string_view header =
+		"<?xml version=\"1.0\" ?>\n"
+		"<!DOCTYPE openmsx-serialize SYSTEM 'openmsx-serialize.dtd'>\n";
+	write(header.data(), header.size());
+
+	writer.begin("serial");
+	writer.attribute("openmsx_version", Version::full());
+	writer.attribute("date_time", Date::toString(time(nullptr)));
+	writer.attribute("platform", TARGET_PLATFORM);
 }
 
 void XmlOutputArchive::close()
 {
 	if (!file) return; // already closed
 
-	assert(current.back() == &root);
-	const char* header =
-	    "<?xml version=\"1.0\" ?>\n"
-	    "<!DOCTYPE openmsx-serialize SYSTEM 'openmsx-serialize.dtd'>\n";
-	string dump = root.dump();
-	if ((gzwrite(file, const_cast<char*>(header), unsigned(strlen(header))) == 0) ||
-	    (gzwrite(file, const_cast<char*>(dump.data()), unsigned(dump.size())) == 0) ||
-	    (gzclose(file) != Z_OK)) {
-		throw XMLException("Could not write savestate file.");
-	}
+	writer.end("serial");
 
+	if (gzclose(file) != Z_OK) {
+		error();
+	}
 	file = nullptr;
 }
 
@@ -307,21 +306,45 @@ XmlOutputArchive::~XmlOutputArchive()
 	}
 }
 
+void XmlOutputArchive::write(const char* buf, size_t len)
+{
+	if ((gzwrite(file, buf, unsigned(len)) == 0) && (len != 0)) {
+		error();
+	}
+}
+
+void XmlOutputArchive::write1(char c)
+{
+	if (gzputc(file, c) == -1) {
+		error();
+	}
+}
+
+void XmlOutputArchive::check(bool condition) const
+{
+	assert(condition); (void)condition;
+}
+
+void XmlOutputArchive::error()
+{
+	if (file) {
+		gzclose(file);
+		file = nullptr;
+	}
+	throw XMLException("could not write \"", filename, '"');
+}
+
 void XmlOutputArchive::saveChar(char c)
 {
-	save(string(1, c));
+	writer.data(std::string_view(&c, 1));
 }
-void XmlOutputArchive::save(const string& str)
+void XmlOutputArchive::save(std::string_view str)
 {
-	assert(!current.empty());
-	assert(current.back()->getData().empty());
-	current.back()->setData(str);
+	writer.data(str);
 }
 void XmlOutputArchive::save(bool b)
 {
-	assert(!current.empty());
-	assert(current.back()->getData().empty());
-	current.back()->setData(std::string_view(b ? "true" : "false"));
+	writer.data(b ? "true" : "false");
 }
 void XmlOutputArchive::save(unsigned char b)
 {
@@ -348,11 +371,9 @@ void XmlOutputArchive::save(unsigned long long ull)
 	saveImpl(ull);
 }
 
-void XmlOutputArchive::attribute(const char* name, string str)
+void XmlOutputArchive::attribute(const char* name, std::string_view str)
 {
-	assert(!current.empty());
-	assert(!current.back()->hasAttribute(name));
-	current.back()->addAttribute(name, std::move(str));
+	writer.attribute(name, str);
 }
 void XmlOutputArchive::attribute(const char* name, int i)
 {
@@ -365,31 +386,28 @@ void XmlOutputArchive::attribute(const char* name, unsigned u)
 
 void XmlOutputArchive::beginTag(const char* tag)
 {
-	assert(!current.empty());
-	auto& elem = current.back()->addChild(tag);
-	current.push_back(&elem);
+	writer.begin(tag);
 }
 void XmlOutputArchive::endTag(const char* tag)
 {
-	assert(!current.empty());
-	assert(current.back()->getName() == tag); (void)tag;
-	current.pop_back();
+	writer.end(tag);
 }
 
 ////
 
 XmlInputArchive::XmlInputArchive(const string& filename)
-	: rootElem(XMLLoader::load(filename, "openmsx-serialize.dtd"))
 {
-	elems.emplace_back(&rootElem, 0);
+	xmlDoc.load(filename, "openmsx-serialize.dtd");
+	const auto* root = xmlDoc.getRoot();
+	elems.emplace_back(root, root->getFirstChild());
 }
 
 string_view XmlInputArchive::loadStr()
 {
-	if (!elems.back().first->getChildren().empty()) {
+	if (currentElement()->hasChildren()) {
 		throw XMLException("No child tags expected for primitive type");
 	}
-	return elems.back().first->getData();
+	return currentElement()->getData();
 }
 void XmlInputArchive::load(string& t)
 {
@@ -503,8 +521,7 @@ void XmlInputArchive::load(char& c)
 
 void XmlInputArchive::beginTag(const char* tag)
 {
-	const auto* child = elems.back().first->findNextChild(
-		tag, elems.back().second);
+	const auto* child = currentElement()->findChild(tag, elems.back().second);
 	if (!child) {
 		string path;
 		for (auto& e : elems) {
@@ -513,11 +530,11 @@ void XmlInputArchive::beginTag(const char* tag)
 		throw XMLException("No child tag \"", tag,
 		                   "\" found at location \"", path, '\"');
 	}
-	elems.emplace_back(child, 0);
+	elems.emplace_back(child, child->getFirstChild());
 }
 void XmlInputArchive::endTag(const char* tag)
 {
-	const auto& elem = *elems.back().first;
+	const auto& elem = *currentElement();
 	if (elem.getName() != tag) {
 		throw XMLException("End tag \"", elem.getName(),
 		                   "\" not equal to begin tag \"", tag, "\"");
@@ -529,11 +546,11 @@ void XmlInputArchive::endTag(const char* tag)
 
 void XmlInputArchive::attribute(const char* name, string& t)
 {
-	try {
-		t = elems.back().first->getAttribute(name);
-	} catch (ConfigException& e) {
-		throw XMLException(std::move(e).getMessage());
+	const auto* attr = currentElement()->findAttribute(name);
+	if (!attr) {
+		throw XMLException("Missing attribute \"", name, "\".");
 	}
+	t = attr->getValue();
 }
 void XmlInputArchive::attribute(const char* name, int& i)
 {
@@ -545,15 +562,21 @@ void XmlInputArchive::attribute(const char* name, unsigned& u)
 }
 bool XmlInputArchive::hasAttribute(const char* name)
 {
-	return elems.back().first->hasAttribute(name);
+	return currentElement()->findAttribute(name);
 }
 bool XmlInputArchive::findAttribute(const char* name, unsigned& value)
 {
-	return elems.back().first->findAttributeInt(name, value);
+	if (const auto* attr = currentElement()->findAttribute(name)) {
+		if (auto r = StringOp::stringTo<int>(attr->getValue())) {
+			value = *r;
+			return true;
+		}
+	}
+	return false;
 }
 int XmlInputArchive::countChildren() const
 {
-	return int(elems.back().first->getChildren().size());
+	return int(currentElement()->numChildren());
 }
 
 } // namespace openmsx

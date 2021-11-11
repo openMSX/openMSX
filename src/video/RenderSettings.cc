@@ -255,7 +255,7 @@ void RenderSettings::updateBrightnessAndContrast()
 
 static float conv2(float x, float gamma)
 {
-	return ::powf(std::min(std::max(0.0f, x), 1.0f), gamma);
+	return ::powf(std::clamp(x, 0.0f, 1.0f), gamma);
 }
 
 float RenderSettings::transformComponent(float c) const

@@ -1,11 +1,11 @@
 #ifndef FBPOSTPROCESSOR_HH
 #define FBPOSTPROCESSOR_HH
 
+#include "MemBuffer.hh"
+#include "PixelOperations.hh"
 #include "PostProcessor.hh"
 #include "RenderSettings.hh"
-#include "PixelOperations.hh"
 #include "ScalerOutput.hh"
-#include <vector>
 
 namespace openmsx {
 
@@ -69,7 +69,7 @@ private:
 
 	/** Remember the noise values to get a stable image when paused.
 	 */
-	std::vector<unsigned> noiseShift;
+	MemBuffer<uint16_t> noiseShift;
 
 	PixelOperations<Pixel> pixelOps;
 };

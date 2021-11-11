@@ -904,10 +904,9 @@ string RemoveExtCmd::help(span<const TclObject> /*tokens*/) const
 void RemoveExtCmd::tabCompletion(std::vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		auto names = to_vector(view::transform(
+		completeString(tokens, view::transform(
 			motherBoard.getExtensions(),
-			[](auto& e) { return e->getName(); }));
-		completeString(tokens, names);
+			[](auto& e) -> std::string_view { return e->getName(); }));
 	}
 }
 
@@ -1000,10 +999,9 @@ string MachineExtensionInfo::help(span<const TclObject> /*tokens*/) const
 void MachineExtensionInfo::tabCompletion(std::vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		auto names = to_vector(view::transform(
+		completeString(tokens, view::transform(
 			motherBoard.getExtensions(),
-			[](auto& e) { return e->getName(); }));
-		completeString(tokens, names);
+			[](auto& e) -> std::string_view { return e->getName(); }));
 	}
 }
 
@@ -1047,10 +1045,9 @@ string DeviceInfo::help(span<const TclObject> /*tokens*/) const
 void DeviceInfo::tabCompletion(std::vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		auto names = to_vector(view::transform(
+		completeString(tokens, view::transform(
 			motherBoard.availableDevices,
-			[](auto& d) { return d->getName(); }));
-		completeString(tokens, names);
+			[](auto& d) -> std::string_view { return d->getName(); }));
 	}
 }
 

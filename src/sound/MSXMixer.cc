@@ -16,6 +16,7 @@
 #include "CliComm.hh"
 #include "stl.hh"
 #include "aligned.hh"
+#include "enumerate.hh"
 #include "one_of.hh"
 #include "outer.hh"
 #include "ranges.hh"
@@ -76,12 +77,17 @@ MSXMixer::~MSXMixer()
 	mute(); // calls Mixer::unregisterMixer()
 }
 
+MSXMixer::SoundDeviceInfo::SoundDeviceInfo(unsigned numChannels)
+	: channelSettings(numChannels)
+{
+}
+
 void MSXMixer::registerSound(SoundDevice& device, float volume,
                              int balance, unsigned numChannels)
 {
 	// TODO read volume/balance(mode) from config file
 	const std::string& name = device.getName();
-	SoundDeviceInfo info;
+	SoundDeviceInfo info(numChannels);
 	info.device = &device;
 	info.defaultVolume = volume;
 	info.volumeSetting = std::make_unique<IntegerSetting>(
@@ -94,23 +100,20 @@ void MSXMixer::registerSound(SoundDevice& device, float volume,
 	info.volumeSetting->attach(*this);
 	info.balanceSetting->attach(*this);
 
-	for (auto i : xrange(numChannels)) {
-		SoundDeviceInfo::ChannelSettings channelSettings;
+	for (auto&& [i, channelSettings] : enumerate(info.channelSettings)) {
 		auto ch_name = tmpStrCat(name, "_ch", i + 1);
 
-		channelSettings.recordSetting = std::make_unique<StringSetting>(
+		channelSettings.record = std::make_unique<StringSetting>(
 			commandController, tmpStrCat(ch_name, "_record"),
 			"filename to record this channel to",
 			std::string_view{}, Setting::DONT_SAVE);
-		channelSettings.recordSetting->attach(*this);
+		channelSettings.record->attach(*this);
 
-		channelSettings.muteSetting = std::make_unique<BooleanSetting>(
+		channelSettings.mute = std::make_unique<BooleanSetting>(
 			commandController, tmpStrCat(ch_name, "_mute"),
 			"sets mute-status of individual sound channels",
 			false, Setting::DONT_SAVE);
-		channelSettings.muteSetting->attach(*this);
-
-		info.channelSettings.push_back(std::move(channelSettings));
+		channelSettings.mute->attach(*this);
 	}
 
 	device.setOutputRate(getSampleRate());
@@ -126,8 +129,8 @@ void MSXMixer::unregisterSound(SoundDevice& device)
 	it->volumeSetting->detach(*this);
 	it->balanceSetting->detach(*this);
 	for (auto& s : it->channelSettings) {
-		s.recordSetting->detach(*this);
-		s.muteSetting->detach(*this);
+		s.record->detach(*this);
+		s.mute->detach(*this);
 	}
 	move_pop_back(infos, it);
 	commandController.getCliComm().update(CliComm::SOUNDDEVICE, device.getName(), "remove");
@@ -620,16 +623,14 @@ void MSXMixer::update(const Setting& setting) noexcept
 void MSXMixer::changeRecordSetting(const Setting& setting)
 {
 	for (auto& info : infos) {
-		unsigned channel = 0;
-		for (auto& s : info.channelSettings) {
-			if (s.recordSetting.get() == &setting) {
+		for (auto&& [channel, settings] : enumerate(info.channelSettings)) {
+			if (settings.record.get() == &setting) {
 				info.device->recordChannel(
-					channel,
+					unsigned(channel),
 					Filename(FileOperations::expandTilde(std::string(
-						s.recordSetting->getString()))));
+						 settings.record->getString()))));
 				return;
 			}
-			++channel;
 		}
 	}
 	UNREACHABLE;
@@ -638,14 +639,12 @@ void MSXMixer::changeRecordSetting(const Setting& setting)
 void MSXMixer::changeMuteSetting(const Setting& setting)
 {
 	for (auto& info : infos) {
-		unsigned channel = 0;
-		for (auto& s : info.channelSettings) {
-			if (s.muteSetting.get() == &setting) {
+		for (auto&& [channel, settings] : enumerate(info.channelSettings)) {
+			if (settings.mute.get() == &setting) {
 				info.device->muteChannel(
-					channel, s.muteSetting->getBoolean());
+					unsigned(channel), settings.mute->getBoolean());
 				return;
 			}
-			++channel;
 		}
 	}
 	UNREACHABLE;
@@ -790,10 +789,9 @@ std::string MSXMixer::SoundDeviceInfoTopic::help(span<const TclObject> /*tokens*
 void MSXMixer::SoundDeviceInfoTopic::tabCompletion(std::vector<std::string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		auto devices = to_vector(view::transform(
+		completeString(tokens, view::transform(
 			OUTER(MSXMixer, soundDeviceInfo).infos,
-			[](auto& info) { return info.device->getName(); }));
-		completeString(tokens, devices);
+			[](auto& info) -> std::string_view { return info.device->getName(); }));
 	}
 }
 

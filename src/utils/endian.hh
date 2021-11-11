@@ -5,6 +5,7 @@
 #include "inline.hh"
 #include <cstdint>
 #include <cstring>
+#include <cassert>
 
 namespace Endian {
 
@@ -162,7 +163,7 @@ inline void writeL32(void* p, uint32_t x)
 	return *reinterpret_cast<const L32*>(p);
 }
 
-// Read/write big/little 16/32/64-bit values to/from a (possibly) unaligned
+// Read/write big/little 16/24/32/64-bit values to/from a (possibly) unaligned
 // memory location. If the host architecture supports unaligned load/stores
 // (e.g. x86), these functions perform a single load/store (with possibly an
 // adjust operation on the value if the endianess is different from the host
@@ -181,6 +182,14 @@ ALWAYS_INLINE void write_UA_B16(void* p, uint16_t x)
 ALWAYS_INLINE void write_UA_L16(void* p, uint16_t x)
 {
 	write_UA< openmsx::OPENMSX_BIGENDIAN>(p, x);
+}
+ALWAYS_INLINE void write_UA_L24(void* p, uint32_t x)
+{
+	assert(x < 0x1000000);
+	auto* v = static_cast<uint8_t*>(p);
+	v[0] = (x >>  0) & 0xff;
+	v[1] = (x >>  8) & 0xff;
+	v[2] = (x >> 16) & 0xff;
 }
 ALWAYS_INLINE void write_UA_B32(void* p, uint32_t x)
 {
@@ -213,6 +222,11 @@ template<bool SWAP, typename T> [[nodiscard]] static ALWAYS_INLINE T read_UA(con
 [[nodiscard]] ALWAYS_INLINE uint16_t read_UA_L16(const void* p)
 {
 	return read_UA< openmsx::OPENMSX_BIGENDIAN, uint16_t>(p);
+}
+[[nodiscard]] ALWAYS_INLINE uint32_t read_UA_L24(const void* p)
+{
+	const auto* v = static_cast<const uint8_t*>(p);
+	return (v[0] << 0) | (v[1] << 8) | (v[2] << 16);
 }
 [[nodiscard]] ALWAYS_INLINE uint32_t read_UA_B32(const void* p)
 {
@@ -250,6 +264,14 @@ private:
 	uint8_t x[2];
 };
 
+class UA_L24 {
+public:
+	inline operator uint32_t() const     { return read_UA_L24(x); }
+	inline UA_L24& operator=(uint32_t a) { write_UA_L24(x, a); return *this; }
+private:
+	uint8_t x[3];
+};
+
 class UA_B32 {
 public:
 	[[nodiscard]] inline operator uint32_t() const { return read_UA_B32(x); }
@@ -268,10 +290,12 @@ private:
 
 static_assert(sizeof(UA_B16)  == 2, "must have size 2");
 static_assert(sizeof(UA_L16)  == 2, "must have size 2");
+static_assert(sizeof(UA_L24)  == 3, "must have size 3");
 static_assert(sizeof(UA_B32)  == 4, "must have size 4");
 static_assert(sizeof(UA_L32)  == 4, "must have size 4");
 static_assert(alignof(UA_B16) == 1, "must have alignment 1");
 static_assert(alignof(UA_L16) == 1, "must have alignment 1");
+static_assert(alignof(UA_L24) == 1, "must have alignment 1");
 static_assert(alignof(UA_B32) == 1, "must have alignment 1");
 static_assert(alignof(UA_L32) == 1, "must have alignment 1");
 

@@ -24,7 +24,7 @@ void MSXRom::getExtraDeviceInfo(TclObject& result) const
 {
 	// Add detected rom type. This value is guaranteed to be stored in
 	// the device config (and 'auto' is already changed to actual type).
-	const XMLElement* mapper = getDeviceConfig().findChild("mappertype");
+	const auto* mapper = getDeviceConfig().findChild("mappertype");
 	assert(mapper);
 	result.addDictKeyValues("mappertype", mapper->getData(),
 

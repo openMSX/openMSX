@@ -1,6 +1,7 @@
 #ifndef FILECONTEXT_HH
 #define FILECONTEXT_HH
 
+#include "span.hh"
 #include <string>
 #include <string_view>
 #include <vector>
@@ -17,7 +18,7 @@ public:
 	[[nodiscard]] std::string resolve      (std::string_view filename) const;
 	[[nodiscard]] std::string resolveCreate(std::string_view filename) const;
 
-	[[nodiscard]] const std::vector<std::string>& getPaths() const;
+	[[nodiscard]] span<const std::string> getPaths() const;
 	[[nodiscard]] bool isUserContext() const;
 
 	template<typename Archive>

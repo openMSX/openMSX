@@ -17,6 +17,9 @@ class TclObject;
 class Completer
 {
 public:
+	Completer(const Completer&) = delete;
+	Completer& operator=(const Completer&) = delete;
+
 	[[nodiscard]] const std::string& getName() const { return theName; }
 
 	/** Print help for this command.
@@ -38,7 +41,7 @@ public:
 	                           bool caseSensitive = true);
 	template<typename RANGE>
 	static void completeString(std::vector<std::string>& tokens,
-	                           const RANGE& possibleValues,
+	                           RANGE&& possibleValues,
 	                           bool caseSensitive = true);
 	template<typename RANGE>
 	static void completeFileName(std::vector<std::string>& tokens,
@@ -48,7 +51,7 @@ public:
 	                             const FileContext& context);
 
 	static std::vector<std::string> formatListInColumns(
-		const std::vector<std::string_view>& input);
+		span<const std::string_view> input);
 
 	// helper functions to check the number of arguments
 	struct AtLeast { unsigned min; };
@@ -80,7 +83,7 @@ private:
 		std::string_view str, ITER begin, ITER end, bool caseSensitive);
 	template<typename RANGE>
 	static std::vector<std::string_view> filter(
-		std::string_view str, const RANGE& range, bool caseSensitive);
+		std::string_view str, RANGE&& range, bool caseSensitive);
 	static bool completeImpl(std::string& str, std::vector<std::string_view> matches,
 	                         bool caseSensitive);
 	static void completeFileNameImpl(std::vector<std::string>& tokens,
@@ -107,7 +110,7 @@ NEVER_INLINE std::vector<std::string_view> Completer::filter(
 
 template<typename RANGE>
 inline std::vector<std::string_view> Completer::filter(
-	std::string_view str, const RANGE& range, bool caseSensitive)
+	std::string_view str, RANGE&& range, bool caseSensitive)
 {
 	return filter(str, std::begin(range), std::end(range), caseSensitive);
 }
@@ -115,12 +118,12 @@ inline std::vector<std::string_view> Completer::filter(
 template<typename RANGE>
 void Completer::completeString(
 	std::vector<std::string>& tokens,
-	const RANGE& possibleValues,
+	RANGE&& possibleValues,
 	bool caseSensitive)
 {
 	auto& str = tokens.back();
 	if (completeImpl(str,
-	                 filter(str, possibleValues, caseSensitive),
+	                 filter(str, std::forward<RANGE>(possibleValues), caseSensitive),
 	                 caseSensitive)) {
 		tokens.emplace_back();
 	}

@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <functional>
 #include <iterator>
 #include <initializer_list>
 #include <map>
@@ -381,6 +382,31 @@ template<typename T, typename... Tail>
 {
 	append(v, std::forward<Tail>(tail)...);
 	return std::move(v);
+}
+
+
+// Concatenate two std::arrays (at compile time).
+template<typename T, size_t X, size_t Y>
+constexpr auto concatArray(const std::array<T, X>& x, const std::array<T, Y>& y)
+{
+	std::array<T, X + Y> result = {};
+	// c++20:  std::ranges::copy(x, &result[0]);
+	// c++20:  std::ranges::copy(y, &result[X]);
+	for (size_t i = 0; i < X; ++i) result[0 + i] = x[i];
+	for (size_t i = 0; i < Y; ++i) result[X + i] = y[i];
+	return result;
+}
+// TODO implement in a generic way for any number of arrays
+template<typename T, size_t X, size_t Y, size_t Z>
+constexpr auto concatArray(const std::array<T, X>& x,
+                           const std::array<T, Y>& y,
+                           const std::array<T, Z>& z)
+{
+	std::array<T, X + Y + Z> result = {};
+	for (size_t i = 0; i < X; ++i) result[        i] = x[i];
+	for (size_t i = 0; i < Y; ++i) result[X     + i] = y[i];
+	for (size_t i = 0; i < Z; ++i) result[X + Y + i] = z[i];
+	return result;
 }
 
 

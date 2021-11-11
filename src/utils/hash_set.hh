@@ -273,6 +273,7 @@ template<typename Value,
          typename Equal = std::equal_to<>>
 class hash_set
 {
+protected:
 	using PoolIndex = hash_set_impl::PoolIndex;
 	static constexpr auto invalidIndex = hash_set_impl::invalidIndex;
 
@@ -334,9 +335,7 @@ public:
 			return &hashSet->pool.get(elemIdx).value;
 		}
 
-	private:
-		friend class hash_set;
-
+	//internal:   should only be called from hash_set and hash_map
 		Iter(HashSet* m, PoolIndex idx)
 			: hashSet(m), elemIdx(idx) {}
 
@@ -650,7 +649,7 @@ public:
 	[[nodiscard]] friend auto end  (      hash_set& s) { return s.end();   }
 	[[nodiscard]] friend auto end  (const hash_set& s) { return s.end();   }
 
-private:
+protected:
 	// Returns the smallest value that is >= x that is also a power of 2.
 	// (for x=0 it returns 0)
 	[[nodiscard]] static inline unsigned nextPowerOf2(unsigned x)
@@ -792,7 +791,7 @@ private:
 		return invalidIndex;
 	}
 
-private:
+protected:
 	PoolIndex* table = nullptr;
 	hash_set_impl::Pool<Value> pool;
 	unsigned allocMask = unsigned(-1);

@@ -211,3 +211,30 @@ TEST_CASE("Math::countLeadingZeros")
 	CHECK(Math::countLeadingZeros(0x91421234) ==  0);
 	CHECK(Math::countLeadingZeros(0xF1421234) ==  0);
 }
+
+TEST_CASE("Math::countTrailingZeros")
+{
+	// undefined for 0
+	CHECK(Math::countTrailingZeros(0x00000000'00000001ull) ==  0);
+	CHECK(Math::countTrailingZeros(0x00000000'00000002ull) ==  1);
+	CHECK(Math::countTrailingZeros(0x00000000'00000003ull) ==  0);
+	CHECK(Math::countTrailingZeros(0x00000000'00000004ull) ==  2);
+	CHECK(Math::countTrailingZeros(0x00000000'00000100ull) ==  8);
+	CHECK(Math::countTrailingZeros(0x00000000'80000000ull) == 31);
+	CHECK(Math::countTrailingZeros(0x00000001'00000000ull) == 32);
+	CHECK(Math::countTrailingZeros(0x80000000'00000000ull) == 63);
+	CHECK(Math::countTrailingZeros(0x80000000'00000001ull) ==  0);
+}
+
+TEST_CASE("Math::findFirstSet")
+{
+	// undefined for 0
+	CHECK(Math::findFirstSet(0x00000000ull) ==  0);
+	CHECK(Math::findFirstSet(0x00000001ull) ==  1);
+	CHECK(Math::findFirstSet(0x00000002ull) ==  2);
+	CHECK(Math::findFirstSet(0x00000003ull) ==  1);
+	CHECK(Math::findFirstSet(0x00000004ull) ==  3);
+	CHECK(Math::findFirstSet(0x00000100ull) ==  9);
+	CHECK(Math::findFirstSet(0x80000000ull) == 32);
+	CHECK(Math::findFirstSet(0x80000001ull) ==  1);
+}

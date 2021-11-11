@@ -10,8 +10,8 @@
 
 namespace openmsx {
 
+class SettingsConfig;
 class GlobalCommandController;
-class XMLElement;
 
 /** Manages all settings.
   */
@@ -30,7 +30,7 @@ public:
 	[[nodiscard]] BaseSetting* findSetting(std::string_view name) const;
 	[[nodiscard]] BaseSetting* findSetting(std::string_view prefix, std::string_view baseName) const;
 
-	void loadSettings(const XMLElement& config);
+	void loadSettings(const SettingsConfig& config);
 
 	void registerSetting  (BaseSetting& setting);
 	void unregisterSetting(BaseSetting& setting);

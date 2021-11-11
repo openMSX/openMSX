@@ -112,8 +112,7 @@ void Paddle::signalStateChange(const StateChange& event)
 {
 	const auto* ps = dynamic_cast<const PaddleState*>(&event);
 	if (!ps) return;
-	int newAnalog = analogValue + ps->getDelta();
-	analogValue = std::min(std::max(newAnalog, 0), 255);
+	analogValue = std::clamp(analogValue + ps->getDelta(), 0, 255);
 }
 
 void Paddle::stopReplay(EmuTime::param /*time*/) noexcept

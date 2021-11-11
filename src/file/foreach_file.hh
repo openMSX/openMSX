@@ -8,6 +8,7 @@
 #include <functional>
 #include <string_view>
 #include <tuple>
+#include <type_traits>
 
 /** This file implemented 3 utility functions:
  *  - foreach_file              (path, fileAction)

@@ -3,6 +3,7 @@
 #include "CommandException.hh"
 #include "BootBlocks.hh"
 #include "endian.hh"
+#include "enumerate.hh"
 #include "random.hh"
 #include "xrange.hh"
 #include <cstring>
@@ -232,7 +233,7 @@ struct CHS {
 	return {cylinder, head, sector};
 }
 
-void partition(SectorAccessibleDisk& disk, const std::vector<unsigned>& sizes)
+void partition(SectorAccessibleDisk& disk, span<const unsigned> sizes)
 {
 	assert(sizes.size() <= 31);
 
@@ -242,8 +243,8 @@ void partition(SectorAccessibleDisk& disk, const std::vector<unsigned>& sizes)
 	buf.pt.end = 0xAA55;
 
 	unsigned partitionOffset = 1;
-	for (auto i : xrange(sizes.size())) {
-		unsigned partitionNbSectors = sizes[i];
+	for (auto [i, size] : enumerate(sizes)) {
+		unsigned partitionNbSectors = size;
 		auto& p = buf.pt.part[30 - i];
 		auto [startCylinder, startHead, startSector] =
 			logicalToCHS(partitionOffset);
@@ -258,7 +259,7 @@ void partition(SectorAccessibleDisk& disk, const std::vector<unsigned>& sizes)
 		p.end_sector = endSector;
 		p.end_cyl = endCylinder;
 		p.start = partitionOffset;
-		p.size = sizes[i];
+		p.size = size;
 		DiskPartition diskPartition(disk, partitionOffset, partitionNbSectors);
 		format(diskPartition);
 		partitionOffset += partitionNbSectors;
