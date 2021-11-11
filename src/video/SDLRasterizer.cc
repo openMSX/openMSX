@@ -565,7 +565,7 @@ void SDLRasterizer<Pixel>::drawDisplay(
 template<typename Pixel>
 void SDLRasterizer<Pixel>::drawSprites(
 	int /*fromX*/, int fromY,
-	int displayX, int displayY,
+	int displayX, int /*displayY*/,
 	int displayWidth, int displayHeight)
 {
 	// Clip to screen area.
@@ -575,7 +575,6 @@ void SDLRasterizer<Pixel>::drawSprites(
 		240);
 	int screenY = fromY - lineRenderTop;
 	if (screenY < 0) {
-		displayY -= screenY;
 		fromY = lineRenderTop;
 		screenY = 0;
 	}
