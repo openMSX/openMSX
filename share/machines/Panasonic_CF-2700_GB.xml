@@ -1,0 +1,73 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <info>
+    <manufacturer>Panasonic</manufacturer>
+    <code>CF-2700 (GB)</code>
+    <release_year></release_year>
+    <description>One of the few European MSX machines by Panasonic. Brittish version.</description>
+    <type>MSX</type>
+  </info>
+
+  <!-- Based on the machine of Peter Hanraets with serial number 4kBMA 02953 -->
+
+  <CassettePort/>
+
+  <devices>
+
+    <PPI id="ppi">
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <io base="0xA8" num="8"/>
+      <keyboard_type>gb</keyboard_type>
+      <has_keypad>false</has_keypad>
+      <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>
+      <code_kana_locks>false</code_kana_locks>
+      <graph_locks>false</graph_locks>
+    </PPI>
+
+    <VDP id="VDP">
+      <version>TMS9129</version>
+      <io base="0x98" num="8"/>
+      <initialContent encoding="hex">FF00</initialContent>
+    </VDP>
+
+    <PSG id="PSG">
+      <type>AY8910</type>
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <io base="0xA0" num="2" type="O"/>
+      <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>false</ignorePortDirections> <!-- not sure, but guess based on discrete PSG chip -->
+    </PSG>
+
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
+
+    <primary slot="0">
+      <ROM id="MSX BIOS with BASIC ROM">
+        <rom>
+          <filename>cf-2700_basic-bios1_gb.rom</filename>
+          <sha1>5e6b1306a30bbb46af61487d1a3cc1b0a69004c3</sha1>
+        </rom>
+        <mem base="0x0000" size="0x8000"/>
+      </ROM>
+    </primary>
+
+    <primary slot="1">
+       <RAM id="Main RAM">
+         <mem base="0x0000" size="0x10000"/>
+       </RAM>
+    </primary>
+
+    <primary external="true" slot="2"/>
+
+    <primary external="true" slot="3"/>
+
+  </devices>
+
+</msxconfig>

@@ -37,80 +37,66 @@ void SpectravideoFDC::reset(EmuTime::param /*time*/)
 
 byte SpectravideoFDC::readMem(word address, EmuTime::param time)
 {
-	byte value;
 	switch (address & 0x3FFF) {
 	case 0x3FB8:
-		value = controller.getStatusReg(time);
-		break;
+		return controller.getStatusReg(time);
 	case 0x3FB9:
-		value = controller.getTrackReg(time);
-		break;
+		return controller.getTrackReg(time);
 	case 0x3FBA:
-		value = controller.getSectorReg(time);
-		break;
+		return controller.getSectorReg(time);
 	case 0x3FBB:
-		value = controller.getDataReg(time);
-		break;
-	case 0x3FBC:
-		value = 0;
-		if ( controller.getIRQ(time))  value |= 0x80;
+		return controller.getDataReg(time);
+	case 0x3FBC: {
+		byte value = 0;
+		if ( controller.getIRQ (time)) value |= 0x80;
 		if (!controller.getDTRQ(time)) value |= 0x40;
-		break;
+		return value;
+	}
 	case 0x3FBE: // Software switch to turn on CP/M,
 	             // boot ROM and turn off MSX DOS ROM.
 		cpmRomEnabled = true;
-		value = 0xFF;
-		break;
+		return 0xFF;
 	case 0x3FBF: // Software switch to turn off CP/M,
 	             // boot ROM and turn on MSX DOS ROM.
 		cpmRomEnabled = false;
-		value = 0xFF;
-		break;
+		return 0xFF;
 	default:
-		value = SpectravideoFDC::peekMem(address, time);
-		break;
+		return SpectravideoFDC::peekMem(address, time);
 	}
-	return value;
 }
 
 byte SpectravideoFDC::peekMem(word address, EmuTime::param time) const
 {
-	byte value;
 	switch (address & 0x3FFF) {
 	case 0x3FB8:
-		value = controller.peekStatusReg(time);
-		break;
+		return controller.peekStatusReg(time);
 	case 0x3FB9:
-		value = controller.peekTrackReg(time);
-		break;
+		return controller.peekTrackReg(time);
 	case 0x3FBA:
-		value = controller.peekSectorReg(time);
-		break;
+		return controller.peekSectorReg(time);
 	case 0x3FBB:
-		value = controller.peekDataReg(time);
-		break;
-	case 0x3FBC:
+		return controller.peekDataReg(time);
+	case 0x3FBC: {
 		// Drive control IRQ and DRQ lines are not connected to Z80 interrupt request
 		// bit 7: interrupt of 1793 (1 for interrupt)
 		// bit 6: data request of 1793 (0 for request)
 		// TODO: other bits read 0?
-		value = 0;
-		if ( controller.peekIRQ(time))  value |= 0x80;
+		byte value = 0;
+		if ( controller.peekIRQ (time)) value |= 0x80;
 		if (!controller.peekDTRQ(time)) value |= 0x40;
-		break;
+		return value;
+	}
 	default:
 		if ((0x4000 <= address) && (address < 0x8000) && !cpmRomEnabled) {
 			// MSX-DOS ROM only visible in 0x4000-0x7FFF
-			value = MSXFDC::peekMem(address, time);
+			return MSXFDC::peekMem(address, time);
 		} else if ((0x4000 <= address) && (address < 0x5000) && cpmRomEnabled) {
 			// CP/M ROM only visible in 0x4000-0x4FFF
-			value = cpmRom[address & 0x0FFF];
+			return cpmRom[address & 0x0FFF];
 		} else {
-			value = 0xFF;
+			return 0xFF;
 		}
-		break;
 	}
-	return value;
 }
 
 const byte* SpectravideoFDC::getReadCacheLine(word start) const
@@ -149,8 +135,8 @@ void SpectravideoFDC::writeMem(word address, byte value, EmuTime::param time)
 		// bit 2 -> side select (0 for side 0)
 		// bit 3 -> motor on (1 for ON)
 		multiplexer.selectDrive((value & 0x01) != 0 ? DriveMultiplexer::DRIVE_A : DriveMultiplexer::NO_DRIVE, time);
-		multiplexer.setSide(    (value & 0x04) != 0);
-		multiplexer.setMotor(   (value & 0x08) != 0, time);
+		multiplexer.setSide    ((value & 0x04) != 0);
+		multiplexer.setMotor   ((value & 0x08) != 0, time);
 		break;
 	case 0x3FBE: // Software switch to turn on CP/M,
 	             // boot ROM and turn off MSX DOS ROM.

@@ -1,7 +1,7 @@
 #include "MusicalMemoryMapper.hh"
-#include "SN76489.hh"
+#include "enumerate.hh"
 #include "serialize.hh"
-#include <memory>
+#include "xrange.hh"
 
 namespace openmsx {
 
@@ -13,12 +13,10 @@ constexpr byte WRITE_PROTECT = 0x0F;
 
 MusicalMemoryMapper::MusicalMemoryMapper(const DeviceConfig& config)
 	: MSXMemoryMapperBase(config)
-	, sn76489(std::make_unique<SN76489>(config))
+	, sn76489(config)
 	, controlReg(0x00)
 {
 }
-
-MusicalMemoryMapper::~MusicalMemoryMapper() = default;
 
 void MusicalMemoryMapper::reset(EmuTime::param time)
 {
@@ -26,15 +24,15 @@ void MusicalMemoryMapper::reset(EmuTime::param time)
 
 	// MMM inits the page registers to 3, 2, 1, 0 instead of zeroes, so we
 	// don't call the superclass implementation.
-	for (unsigned page = 0; page < 4; page++) {
-		registers[page] = 3 - page;
+	for (auto [page, reg] : enumerate(registers)) {
+		reg = byte(3 - page);
 	}
 
 	// Note: The actual SN76489AN chip does not have a reset pin. I assume
 	//       MMM either powers off the chip on reset or suppresses its audio
 	//       output. We instead keep the chip in a silent state until it is
 	//       activated.
-	sn76489->reset(time);
+	sn76489.reset(time);
 }
 
 byte MusicalMemoryMapper::readIO(word port, EmuTime::param time)
@@ -66,7 +64,7 @@ void MusicalMemoryMapper::writeIO(word port, byte value, EmuTime::param time)
 	} else if (port & 1) {
 		// Sound chip.
 		if (controlReg & SOUND_PORT_ENABLED) {
-			sn76489->write(value, time);
+			sn76489.write(value, time);
 		}
 	} else {
 		// Control port.
@@ -128,17 +126,17 @@ void MusicalMemoryMapper::updateControlReg(byte value)
 
 		// Invalidate pages for which register access changes.
 		byte regAccessBefore = 0;
-		for (unsigned page = 0; page < 4; page++) {
+		for (auto page : xrange(4)) {
 			regAccessBefore |= registerAccessAt(0x4000 * page) << page;
 		}
 		controlReg = value;
 		byte regAccessAfter = 0;
-		for (unsigned page = 0; page < 4; page++) {
+		for (auto page : xrange(4)) {
 			regAccessAfter |= registerAccessAt(0x4000 * page) << page;
 		}
 		invalidate |= regAccessBefore ^ regAccessAfter;
 
-		for (unsigned page = 0; page < 4; page++) {
+		for (auto page : xrange(4)) {
 			if ((invalidate >> page) & 1) {
 				invalidateDeviceRWCache(0x4000 * page, 0x4000);
 			}
@@ -213,7 +211,7 @@ void MusicalMemoryMapper::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXMemoryMapperBase>(*this);
 	ar.serialize("ctrl",    controlReg,
-	             "sn76489", *sn76489);
+	             "sn76489", sn76489);
 }
 INSTANTIATE_SERIALIZE_METHODS(MusicalMemoryMapper);
 REGISTER_MSXDEVICE(MusicalMemoryMapper, "MusicalMemoryMapper");

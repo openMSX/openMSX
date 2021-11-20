@@ -5,12 +5,12 @@
 
 namespace openmsx {
 
-static char sign(unsigned char a)
+static constexpr char sign(unsigned char a)
 {
 	return (a & 128) ? '-' : '+';
 }
 
-static int abs(unsigned char a)
+static constexpr int abs(unsigned char a)
 {
 	return (a & 128) ? (256 - a) : a;
 }
@@ -18,40 +18,32 @@ static int abs(unsigned char a)
 unsigned dasm(const MSXCPUInterface& interf, word pc, byte buf[4],
               std::string& dest, EmuTime::param time)
 {
-	const char* s;
-	unsigned i = 0;
 	const char* r = nullptr;
 
 	buf[0] = interf.peekMem(pc, time);
-	switch (buf[0]) {
-		case 0xCB:
-			buf[1] = interf.peekMem(pc + 1, time);
-			s = mnemonic_cb[buf[1]];
-			i = 2;
-			break;
-		case 0xED:
-			buf[1] = interf.peekMem(pc + 1, time);
-			s = mnemonic_ed[buf[1]];
-			i = 2;
-			break;
-		case 0xDD:
-		case 0xFD:
-			r = (buf[0] == 0xDD) ? "ix" : "iy";
-			buf[1] = interf.peekMem(pc + 1, time);
-			if (buf[1] != 0xcb) {
-				s = mnemonic_xx[buf[1]];
-				i = 2;
-			} else {
-				buf[2] = interf.peekMem(pc + 2, time);
-				buf[3] = interf.peekMem(pc + 3, time);
-				s = mnemonic_xx_cb[buf[3]];
-				i = 4;
-			}
-			break;
-		default:
-			s = mnemonic_main[buf[0]];
-			i = 1;
-	}
+	auto [s, i] = [&]() -> std::pair<const char*, unsigned> {
+		switch (buf[0]) {
+			case 0xCB:
+				buf[1] = interf.peekMem(pc + 1, time);
+				return {mnemonic_cb[buf[1]], 2};
+			case 0xED:
+				buf[1] = interf.peekMem(pc + 1, time);
+				return {mnemonic_ed[buf[1]], 2};
+			case 0xDD:
+			case 0xFD:
+				r = (buf[0] == 0xDD) ? "ix" : "iy";
+				buf[1] = interf.peekMem(pc + 1, time);
+				if (buf[1] != 0xcb) {
+					return {mnemonic_xx[buf[1]], 2};
+				} else {
+					buf[2] = interf.peekMem(pc + 2, time);
+					buf[3] = interf.peekMem(pc + 3, time);
+					return {mnemonic_xx_cb[buf[3]], 4};
+				}
+			default:
+				return {mnemonic_main[buf[0]], 1};
+		}
+	}();
 
 	for (int j = 0; s[j]; ++j) {
 		switch (s[j]) {

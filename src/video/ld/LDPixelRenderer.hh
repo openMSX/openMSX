@@ -25,11 +25,12 @@ public:
 	void frameStart(EmuTime::param time) override;
 	void frameEnd() override;
 	void drawBlank(int r, int g, int b) override;
-	RawFrame* getRawFrame() override;
+	[[nodiscard]] RawFrame* getRawFrame() override;
 
 private:
-	bool isActive() const;
+	[[nodiscard]] bool isActive() const;
 
+private:
 	MSXMotherBoard& motherboard;
 	EventDistributor& eventDistributor;
 	const std::unique_ptr<LDRasterizer> rasterizer;

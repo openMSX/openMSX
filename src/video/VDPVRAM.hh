@@ -143,7 +143,7 @@ public:
 	  * TODO: Only used by dirty checking. Maybe a new dirty checking
 	  *       approach can obsolete this method?
 	  */
-	inline int getMask() const {
+	[[nodiscard]] inline int getMask() const {
 		assert(isEnabled());
 		return effectiveBaseMask;
 	}
@@ -187,7 +187,7 @@ public:
 	/** Is the given index range continuous in VRAM (iow there's no mirroring)
 	  * Only if the range is continuous it's allowed to call getReadArea().
 	  */
-	inline bool isContinuous(unsigned index, unsigned size) const {
+	[[nodiscard]] inline bool isContinuous(unsigned index, unsigned size) const {
 		assert(isEnabled());
 		unsigned endIndex = index + size - 1;
 		unsigned areaBits = Math::floodRight(index ^ endIndex);
@@ -204,7 +204,7 @@ public:
 	  * 1-bits in the parameter correspond with 'X' in the pattern above.
 	  * Or IOW it tests an aligned-power-of-2-sized region.
 	  */
-	inline bool isContinuous(unsigned mask) const {
+	[[nodiscard]] inline bool isContinuous(unsigned mask) const {
 		assert(isEnabled());
 		assert((mask & ~indexMask)        == mask);
 		return (mask & effectiveBaseMask) == mask;
@@ -216,7 +216,7 @@ public:
 	  * @param size Size of the block. This is only used to assert that
 	  *             requested block is not too large.
 	  */
-	inline const byte* getReadArea(unsigned index, unsigned size) const {
+	[[nodiscard]] inline const byte* getReadArea(unsigned index, unsigned size) const {
 		assert(isContinuous(index, size)); (void)size;
 		return &data[effectiveBaseMask & (indexMask | index)];
 	}
@@ -227,30 +227,31 @@ public:
 	  * @param index Index in table
 	  * @param size Size of the block. This is only used to assert that
 	  *             requested block is not too large.
-	  * @param ptr0 out Pointer to the block of even numbered bytes.
-	  * @param ptr1 out Pointer to the block of odd  numbered bytes.
+	  * @return pair{ptr0, ptr1}
+	  *    ptr0: Pointer to the block of even numbered bytes.
+	  *    ptr1: Pointer to the block of odd  numbered bytes.
 	  */
-	inline void getReadAreaPlanar(
-			unsigned index, unsigned size,
-			const byte*& ptr0, const byte*& ptr1) const {
+	[[nodiscard]] inline std::pair<const byte*, const byte*> getReadAreaPlanar(
+			unsigned index, unsigned size) const {
 		assert((index & 1) == 0);
 		assert((size & 1) == 0);
 		unsigned endIndex = index + size - 1;
 		unsigned areaBits = Math::floodRight(index ^ endIndex);
-		areaBits = ((areaBits << 16) | (areaBits >> 1)) & 0x1FFFF;
+		areaBits = ((areaBits << 16) | (areaBits >> 1)) & 0x1FFFF & sizeMask;
 		(void)areaBits;
 		assert((areaBits & effectiveBaseMask) == areaBits);
 		assert((areaBits & ~indexMask)        == areaBits);
 		assert(isEnabled());
 		unsigned addr = effectiveBaseMask & (indexMask | (index >> 1));
-		ptr0 = &data[addr | 0x00000];
-		ptr1 = &data[addr | 0x10000];
+		const byte* ptr0 = &data[addr | 0x00000];
+		const byte* ptr1 = &data[addr | 0x10000];
+		return {ptr0, ptr1};
 	}
 
 	/** Reads a byte from VRAM in its current state.
 	  * @param index Index in table, with unused bits set to 1.
 	  */
-	inline byte readNP(unsigned index) const {
+	[[nodiscard]] inline byte readNP(unsigned index) const {
 		assert(isEnabled());
 		return data[effectiveBaseMask & index];
 	}
@@ -258,7 +259,7 @@ public:
 	/** Similar to readNP, but now with planar addressing.
 	  * @param index Index in table, with unused bits set to 1.
 	  */
-	inline byte readPlanar(unsigned index) const {
+	[[nodiscard]] inline byte readPlanar(unsigned index) const {
 		assert(isEnabled());
 		index = ((index & 1) << 16) | ((index & 0x1FFFE) >> 1);
 		unsigned addr = effectiveBaseMask & index;
@@ -267,7 +268,7 @@ public:
 
 	/** Is there an observer registered for this window?
 	  */
-	inline bool hasObserver() const {
+	[[nodiscard]] inline bool hasObserver() const {
 		return observer != &dummyObserver;
 	}
 
@@ -293,7 +294,7 @@ public:
 	  * @param address The address to test.
 	  * @return true iff the address is inside this window.
 	  */
-	inline bool isInside(unsigned address) const {
+	[[nodiscard]] inline bool isInside(unsigned address) const {
 		return (address & combiMask) == unsigned(baseAddr);
 	}
 
@@ -323,10 +324,11 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	inline bool isEnabled() const {
+	[[nodiscard]] inline bool isEnabled() const {
 		return baseAddr != -1;
 	}
 
+private:
 	/** Only VDPVRAM may construct VRAMWindow objects.
 	  */
 	friend class VDPVRAM;
@@ -377,7 +379,7 @@ private:
 	static inline DummyVRAMOBserver dummyObserver;
 };
 
-/** Manages VRAM contents and synchronises the various users of the VRAM.
+/** Manages VRAM contents and synchronizes the various users of the VRAM.
   * VDPVRAM does not apply planar remapping to addresses, this is the
   * responsibility of the caller.
   */
@@ -469,7 +471,7 @@ public:
 	  * @param time The moment in emulated time this read occurs.
 	  * @return The VRAM contents at the specified address.
 	  */
-	inline byte cpuRead(unsigned address, EmuTime::param time) {
+	[[nodiscard]] inline byte cpuRead(unsigned address, EmuTime::param time) {
 		#ifdef DEBUG
 		// VRAM should never get ahead of CPU.
 		assert(time >= vramTime);
@@ -522,7 +524,7 @@ public:
 
 	/** Returns the size of VRAM in bytes
 	  */
-	unsigned getSize() const {
+	[[nodiscard]] unsigned getSize() const {
 		return actualSize;
 	}
 
@@ -597,6 +599,7 @@ private:
 
 	void setSizeMask(EmuTime::param time);
 
+private:
 	/** VDP this VRAM belongs to.
 	  */
 	VDP& vdp;
@@ -613,7 +616,7 @@ private:
 	class LogicalVRAMDebuggable final : public SimpleDebuggable {
 	public:
 		explicit LogicalVRAMDebuggable(VDP& vdp);
-		byte read(unsigned address, EmuTime::param time) override;
+		[[nodiscard]] byte read(unsigned address, EmuTime::param time) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	private:
 		unsigned transform(unsigned address);
@@ -625,7 +628,7 @@ private:
 	  */
 	struct PhysicalVRAMDebuggable final : SimpleDebuggable {
 		PhysicalVRAMDebuggable(VDP& vdp, unsigned actualSize);
-		byte read(unsigned address, EmuTime::param time) override;
+		[[nodiscard]] byte read(unsigned address, EmuTime::param time) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	} physicalVRAMDebug;
 
@@ -637,7 +640,7 @@ private:
 	VDPCmdEngine* cmdEngine;
 	SpriteChecker* spriteChecker;
 
-	/** The last time a CmdEngine write or a CPU read/write occured.
+	/** The last time a CmdEngine write or a CPU read/write occurred.
 	  * This is only used in a debug build to check if read/writes come
 	  * in the correct order.
 	  */

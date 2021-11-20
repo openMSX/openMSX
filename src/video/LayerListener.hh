@@ -8,7 +8,7 @@ class Layer;
 class LayerListener
 {
 public:
-	virtual void updateZ(Layer& layer) = 0;
+	virtual void updateZ(Layer& layer) noexcept = 0;
 
 protected:
 	~LayerListener() = default;

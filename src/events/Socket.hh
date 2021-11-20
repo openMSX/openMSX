@@ -26,12 +26,12 @@ using SOCKET = int;
 static const SOCKET OPENMSX_INVALID_SOCKET = static_cast<SOCKET>(~0);
 #endif
 
-std::string sock_error();
+[[nodiscard]] std::string sock_error();
 void sock_startup();
 void sock_cleanup();
 void sock_close(SOCKET sd);
-int sock_recv(SOCKET sd, char* buf, size_t count);
-int sock_send(SOCKET sd, const char* buf, size_t count);
+[[nodiscard]] int sock_recv(SOCKET sd, char* buf, size_t count);
+[[nodiscard]] int sock_send(SOCKET sd, const char* buf, size_t count);
 
 } // namespace openmsx
 

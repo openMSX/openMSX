@@ -35,7 +35,7 @@ public:
 	void setSignal(bool output, EmuTime::param time) override;
 
 	// Pluggable
-	const std::string& getName() const override;
+	std::string_view getName() const override;
 	std::string_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
@@ -112,7 +112,7 @@ private:
 	void autoRun();
 
 	// EventListener
-	int signalEvent(const std::shared_ptr<const Event>& event) override;
+	int signalEvent(const Event& event) noexcept override;
 
 	// Schedulable
 	struct SyncEndOfTape final : Schedulable {
@@ -163,9 +163,9 @@ private:
 			    Scheduler& scheduler);
 		void execute(span<const TclObject> tokens, TclObject& result,
 			     EmuTime::param time) override;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
-		bool needRecord(span<const TclObject> tokens) const override;
+		[[nodiscard]] bool needRecord(span<const TclObject> tokens) const override;
 	} tapeCommand;
 
 	LoadingIndicator loadingIndicator;

@@ -1,6 +1,9 @@
 #ifndef STRCAT_HH
 #define STRCAT_HH
 
+#include "TemporaryString.hh"
+#include "xrange.hh"
+#include "zstring_view.hh"
 #include <climits>
 #include <cstring>
 #include <limits>
@@ -36,6 +39,13 @@
 template<typename... Ts>
 [[nodiscard]] std::string strCat(Ts&& ...ts);
 
+// Consider using 'tmpStrCat()' as an alternative for 'strCat()'. The only
+// difference is that this one returns a 'TemporaryString' instead of a
+// 'std::string'. This can be faster (e.g. no heap allocation) when the result
+// is not required to be a 'std::string' (std::string_view is sufficient) and
+// when it really is a temporary (short lived) string.
+template<typename... Ts>
+[[nodiscard]] TemporaryString tmpStrCat(Ts&&... ts);
 
 // Apppend a bunch of 'printable' objects to an exiting string.
 //
@@ -169,7 +179,7 @@ template<> struct ConcatUnit<std::string_view>
 	[[nodiscard]] char* copy(char* dst) const
 	{
 		auto sz = v.size();
-		memcpy(dst, v.data(), sz);
+		if (sz) memcpy(dst, v.data(), sz);
 		return dst + sz;
 	}
 
@@ -376,12 +386,12 @@ template<size_t N, typename T> struct ConcatFixedWidthHexIntegral
 		char* p = dst + N;
 		auto u = static_cast<FastUnsigned<T>>(t);
 
-		for (size_t i = 0; i < N; ++i) {
+		repeat(N, [&] {
 			auto d = u & 15;
 			*--p = (d < 10) ? static_cast<char>(d + '0')
 			                : static_cast<char>(d - 10 + 'a');
 			u >>= 4;
-		}
+		});
 
 		return dst + N;
 	}
@@ -438,6 +448,14 @@ template<typename T>
 }
 
 [[nodiscard]] inline auto makeConcatUnit(char* s)
+{
+	return ConcatUnit<std::string_view>(s);
+}
+[[nodiscard]] inline auto makeConcatUnit(const TemporaryString& s)
+{
+	return ConcatUnit<std::string_view>(s);
+}
+[[nodiscard]] inline auto makeConcatUnit(zstring_view s)
 {
 	return ConcatUnit<std::string_view>(s);
 }
@@ -638,6 +656,13 @@ template<typename... Ts>
 [[nodiscard]] inline std::string strCat(std::string&&      x, const char*        y) { return x + y; }
 [[nodiscard]] inline std::string strCat(std::string&&      x, char               y) { return x + y; }
 
+template<typename... Ts> [[nodiscard]] TemporaryString tmpStrCat(Ts&&... ts)
+{
+	auto t = std::tuple(strCatImpl::makeConcatUnit(std::forward<Ts>(ts))...);
+	auto size = strCatImpl::calcTotalSize(t);
+	return TemporaryString(
+	        size, [&](char* dst) { strCatImpl::copyUnits(dst, t); });
+}
 
 // Generic version
 template<typename... Ts>

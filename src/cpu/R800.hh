@@ -7,6 +7,7 @@
 #include "likely.hh"
 #include "inline.hh"
 #include "one_of.hh"
+#include "xrange.hh"
 
 namespace openmsx {
 
@@ -32,9 +33,8 @@ protected:
 	template<bool B> struct Normalize { static constexpr bool value = B; };
 
 	static constexpr int CLOCK_FREQ = 7159090;
-
-	ALWAYS_INLINE unsigned haltStates() const { return 1; } // TODO check this
-	ALWAYS_INLINE bool isR800() const { return true; }
+	static constexpr unsigned HALT_STATES = 1; // TODO check this
+	static constexpr bool IS_R800 = true;
 
 	R800TYPE(EmuTime::param time, Scheduler& scheduler_)
 		: CPUClock(time, scheduler_)
@@ -43,25 +43,25 @@ protected:
 		R800ForcePageBreak();
 
 		// TODO currently hardcoded, move to config file?
-		for (int page = 0; page < 4; ++page) {
-			for (int prim = 0; prim < 4; ++prim) {
-				for (int sec = 0; sec < 4; ++sec) {
-					unsigned val;
-					if (prim == one_of(1, 2)) {
-						// external slot
-						val = 2;
-					} else if ((prim == 3) && (sec == 0)) {
-						// internal RAM
-						val = 0;
-					} else {
-						// internal ROM
-						val = 1;
-					}
-					extraMemoryDelays[page][prim][sec] = val;
+		for (auto page : xrange(4)) {
+			for (auto prim : xrange(4)) {
+				for (auto sec : xrange(4)) {
+					extraMemoryDelays[page][prim][sec] = [&] {
+						if (prim == one_of(1, 2)) {
+							// external slot
+							return 2;
+						} else if ((prim == 3) && (sec == 0)) {
+							// internal RAM
+							return 0;
+						} else {
+							// internal ROM
+							return 1;
+						}
+					}();
 				}
 			}
 		}
-		for (int page = 0; page < 4; ++page) {
+		for (auto page : xrange(4)) {
 			extraMemoryDelay[page] = extraMemoryDelays[page][0][0];
 		}
 	}
@@ -71,11 +71,11 @@ protected:
 		lastPage = -1;
 	}
 
-	template <bool PRE_PB, bool POST_PB>
+	template<bool PRE_PB, bool POST_PB>
 	ALWAYS_INLINE void PRE_MEM(unsigned address)
 	{
 		int newPage = address >> 8;
-		if (PRE_PB) {
+		if constexpr (PRE_PB) {
 			// there is a statically predictable page break at this
 			// point -> 'add(1)' moved to static cost table
 		} else {
@@ -84,23 +84,23 @@ protected:
 				add(1);
 			}
 		}
-		if (!POST_PB) {
+		if constexpr (!POST_PB) {
 			lastPage = newPage;
 		}
 	}
-	template <bool POST_PB>
+	template<bool POST_PB>
 	ALWAYS_INLINE void POST_MEM(unsigned address)
 	{
 		add(extraMemoryDelay[address >> 14]);
-		if (POST_PB) {
+		if constexpr (POST_PB) {
 			R800ForcePageBreak();
 		}
 	}
-	template <bool PRE_PB, bool POST_PB>
+	template<bool PRE_PB, bool POST_PB>
 	ALWAYS_INLINE void PRE_WORD(unsigned address)
 	{
 		int newPage = address >> 8;
-		if (PRE_PB) {
+		if constexpr (PRE_PB) {
 			// there is a statically predictable page break at this
 			// point -> 'add(1)' moved to static cost table
 			if (unlikely(extraMemoryDelay[address >> 14])) {
@@ -113,15 +113,15 @@ protected:
 				add(1);
 			}
 		}
-		if (!POST_PB) {
+		if constexpr (!POST_PB) {
 			lastPage = newPage;
 		}
 	}
-	template <bool POST_PB>
+	template<bool POST_PB>
 	ALWAYS_INLINE void POST_WORD(unsigned address)
 	{
 		add(2 * extraMemoryDelay[address >> 14]);
-		if (POST_PB) {
+		if constexpr (POST_PB) {
 			R800ForcePageBreak();
 		}
 	}
@@ -160,7 +160,7 @@ protected:
 	}
 
 	ALWAYS_INLINE void setMemPtr(unsigned /*x*/) { /* nothing*/ }
-	ALWAYS_INLINE unsigned getMemPtr() const { return 0; } // dummy value
+	[[nodiscard]] ALWAYS_INLINE unsigned getMemPtr() const { return 0; } // dummy value
 
 	static constexpr int I  = 6; // cycles for an I/O operation
 	static constexpr int O  = 1; // wait for one cycle and wait for next even

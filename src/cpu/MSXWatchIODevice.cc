@@ -16,7 +16,7 @@ WatchIO::WatchIO(MSXMotherBoard& motherboard_,
                  unsigned beginAddr_, unsigned endAddr_,
                  TclObject command_, TclObject condition_,
                  bool once_, unsigned newId /*= -1*/)
-	: WatchPoint(command_, condition_, type_, beginAddr_, endAddr_, once_, newId)
+	: WatchPoint(std::move(command_), std::move(condition_), type_, beginAddr_, endAddr_, once_, newId)
 	, motherboard(motherboard_)
 {
 	for (unsigned i = byte(beginAddr_); i <= byte(endAddr_); ++i) {
@@ -83,7 +83,7 @@ MSXWatchIODevice::MSXWatchIODevice(
 {
 }
 
-std::string MSXWatchIODevice::getName() const
+const std::string& MSXWatchIODevice::getName() const
 {
 	assert(device);
 	return device->getName();

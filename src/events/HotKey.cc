@@ -4,11 +4,11 @@
 #include "CommandException.hh"
 #include "EventDistributor.hh"
 #include "CliComm.hh"
-#include "InputEvents.hh"
-#include "XMLElement.hh"
+#include "Event.hh"
 #include "TclArgParser.hh"
 #include "TclObject.hh"
 #include "SettingsConfig.hh"
+#include "one_of.hh"
 #include "outer.hh"
 #include "ranges.hh"
 #include "view.hh"
@@ -17,8 +17,6 @@
 #include <memory>
 
 using std::string;
-using std::vector;
-using std::make_shared;
 
 // This file implements all Tcl key bindings. These are the 'classical' hotkeys
 // (e.g. F12 to (un)mute sound) and the more recent input layers. The idea
@@ -29,7 +27,7 @@ using std::make_shared;
 
 namespace openmsx {
 
-const bool META_HOT_KEYS =
+constexpr bool META_HOT_KEYS =
 #ifdef __APPLE__
 	true;
 #else
@@ -52,208 +50,175 @@ HotKey::HotKey(RTScheduler& rtScheduler,
 	initDefaultBindings();
 
 	eventDistributor.registerEventListener(
-		OPENMSX_KEY_DOWN_EVENT, *this, EventDistributor::HOTKEY);
+		EventType::KEY_DOWN, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
-		OPENMSX_KEY_UP_EVENT, *this, EventDistributor::HOTKEY);
+		EventType::KEY_UP, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
-		OPENMSX_MOUSE_MOTION_EVENT, *this, EventDistributor::HOTKEY);
+		EventType::MOUSE_MOTION, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
-		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this, EventDistributor::HOTKEY);
+		EventType::MOUSE_BUTTON_DOWN, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
-		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this, EventDistributor::HOTKEY);
+		EventType::MOUSE_BUTTON_UP, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
-		OPENMSX_MOUSE_WHEEL_EVENT, *this, EventDistributor::HOTKEY);
+		EventType::MOUSE_WHEEL, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
-		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this, EventDistributor::HOTKEY);
+		EventType::JOY_BUTTON_DOWN, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
-		OPENMSX_JOY_BUTTON_UP_EVENT, *this, EventDistributor::HOTKEY);
+		EventType::JOY_BUTTON_UP, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
-		OPENMSX_JOY_AXIS_MOTION_EVENT, *this, EventDistributor::HOTKEY);
+		EventType::JOY_AXIS_MOTION, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
-		OPENMSX_JOY_HAT_EVENT, *this, EventDistributor::HOTKEY);
+		EventType::JOY_HAT, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
-		OPENMSX_FOCUS_EVENT, *this, EventDistributor::HOTKEY);
+		EventType::FOCUS, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
-		OPENMSX_FILEDROP_EVENT, *this, EventDistributor::HOTKEY);
+		EventType::FILEDROP, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
-		OPENMSX_OSD_CONTROL_RELEASE_EVENT, *this, EventDistributor::HOTKEY);
+		EventType::OSD_CONTROL_RELEASE, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
-		OPENMSX_OSD_CONTROL_PRESS_EVENT, *this, EventDistributor::HOTKEY);
+		EventType::OSD_CONTROL_PRESS, *this, EventDistributor::HOTKEY);
 }
 
 HotKey::~HotKey()
 {
-	eventDistributor.unregisterEventListener(OPENMSX_OSD_CONTROL_PRESS_EVENT, *this);
-	eventDistributor.unregisterEventListener(OPENMSX_OSD_CONTROL_RELEASE_EVENT, *this);
-	eventDistributor.unregisterEventListener(OPENMSX_FILEDROP_EVENT, *this);
-	eventDistributor.unregisterEventListener(OPENMSX_FOCUS_EVENT, *this);
-	eventDistributor.unregisterEventListener(OPENMSX_JOY_BUTTON_UP_EVENT, *this);
-	eventDistributor.unregisterEventListener(OPENMSX_JOY_BUTTON_DOWN_EVENT, *this);
-	eventDistributor.unregisterEventListener(OPENMSX_JOY_AXIS_MOTION_EVENT, *this);
-	eventDistributor.unregisterEventListener(OPENMSX_JOY_HAT_EVENT, *this);
-	eventDistributor.unregisterEventListener(OPENMSX_MOUSE_WHEEL_EVENT, *this);
-	eventDistributor.unregisterEventListener(OPENMSX_MOUSE_BUTTON_UP_EVENT, *this);
-	eventDistributor.unregisterEventListener(OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this);
-	eventDistributor.unregisterEventListener(OPENMSX_MOUSE_MOTION_EVENT, *this);
-	eventDistributor.unregisterEventListener(OPENMSX_KEY_UP_EVENT, *this);
-	eventDistributor.unregisterEventListener(OPENMSX_KEY_DOWN_EVENT, *this);
+	eventDistributor.unregisterEventListener(EventType::OSD_CONTROL_PRESS, *this);
+	eventDistributor.unregisterEventListener(EventType::OSD_CONTROL_RELEASE, *this);
+	eventDistributor.unregisterEventListener(EventType::FILEDROP, *this);
+	eventDistributor.unregisterEventListener(EventType::FOCUS, *this);
+	eventDistributor.unregisterEventListener(EventType::JOY_BUTTON_UP, *this);
+	eventDistributor.unregisterEventListener(EventType::JOY_BUTTON_DOWN, *this);
+	eventDistributor.unregisterEventListener(EventType::JOY_AXIS_MOTION, *this);
+	eventDistributor.unregisterEventListener(EventType::JOY_HAT, *this);
+	eventDistributor.unregisterEventListener(EventType::MOUSE_WHEEL, *this);
+	eventDistributor.unregisterEventListener(EventType::MOUSE_BUTTON_UP, *this);
+	eventDistributor.unregisterEventListener(EventType::MOUSE_BUTTON_DOWN, *this);
+	eventDistributor.unregisterEventListener(EventType::MOUSE_MOTION, *this);
+	eventDistributor.unregisterEventListener(EventType::KEY_UP, *this);
+	eventDistributor.unregisterEventListener(EventType::KEY_DOWN, *this);
 }
 
 void HotKey::initDefaultBindings()
 {
 	// TODO move to Tcl script?
 
-	if (META_HOT_KEYS) {
+	if constexpr (META_HOT_KEYS) {
 		// Hot key combos using Mac's Command key.
-		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(
+		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(
 		                            Keys::combine(Keys::K_D, Keys::KM_META)),
 		                       "screenshot -guess-name"));
-		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(
+		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(
 		                            Keys::combine(Keys::K_P, Keys::KM_META)),
 		                       "toggle pause"));
-		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(
+		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(
 		                            Keys::combine(Keys::K_T, Keys::KM_META)),
 		                       "toggle fastforward"));
-		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(
+		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(
 		                            Keys::combine(Keys::K_L, Keys::KM_META)),
 		                       "toggle console"));
-		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(
+		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(
 		                            Keys::combine(Keys::K_U, Keys::KM_META)),
 		                       "toggle mute"));
-		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(
+		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(
 		                            Keys::combine(Keys::K_F, Keys::KM_META)),
 		                       "toggle fullscreen"));
-		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(
+		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(
 		                            Keys::combine(Keys::K_Q, Keys::KM_META)),
 		                       "exit"));
 	} else {
 		// Hot key combos for typical PC keyboards.
-		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(Keys::K_PRINT),
+		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(Keys::K_PRINT),
 		                       "screenshot -guess-name"));
-		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(Keys::K_PAUSE),
+		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(Keys::K_PAUSE),
 		                       "toggle pause"));
-		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(Keys::K_F9),
+		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(Keys::K_F9),
 		                       "toggle fastforward"));
-		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(Keys::K_F10),
+		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(Keys::K_F10),
 		                       "toggle console"));
-		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(Keys::K_F11),
+		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(Keys::K_F11),
 		                       "toggle fullscreen"));
-		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(Keys::K_F12),
+		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(Keys::K_F12),
 		                       "toggle mute"));
-		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(
+		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(
 		                            Keys::combine(Keys::K_F4, Keys::KM_ALT)),
 		                       "exit"));
-		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(
+		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(
 		                            Keys::combine(Keys::K_PAUSE, Keys::KM_CTRL)),
 		                       "exit"));
-		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(
+		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(
 		                            Keys::combine(Keys::K_RETURN, Keys::KM_ALT)),
 		                       "toggle fullscreen"));
 		// and for Android
-		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(Keys::K_BACK),
+		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(Keys::K_BACK),
 		                       "quitmenu::quit_menu"));
 	}
 }
 
-static HotKey::EventPtr createEvent(const TclObject& obj, Interpreter& interp)
+static Event createEvent(const TclObject& obj, Interpreter& interp)
 {
 	auto event = InputEventFactory::createInputEvent(obj, interp);
-	if (!dynamic_cast<const KeyEvent*>             (event.get()) &&
-	    !dynamic_cast<const MouseButtonEvent*>     (event.get()) &&
-	    !dynamic_cast<const GroupEvent*>           (event.get()) &&
-	    !dynamic_cast<const JoystickEvent*>        (event.get()) &&
-	    !dynamic_cast<const OsdControlEvent*>      (event.get()) &&
-	    !dynamic_cast<const FocusEvent*>           (event.get())) {
+	if (getType(event) != one_of(EventType::KEY_UP, EventType::KEY_DOWN,
+	                             EventType::MOUSE_BUTTON_UP, EventType::MOUSE_BUTTON_DOWN,
+				     EventType::GROUP,
+				     EventType::JOY_BUTTON_UP, EventType::JOY_BUTTON_DOWN,
+				     EventType::JOY_AXIS_MOTION, EventType::JOY_HAT,
+				     EventType::OSD_CONTROL_PRESS, EventType::OSD_CONTROL_RELEASE,
+				     EventType::FOCUS)) {
 		throw CommandException("Unsupported event type");
 	}
 	return event;
 }
-static HotKey::EventPtr createEvent(const string& str, Interpreter& interp)
+static Event createEvent(std::string_view str, Interpreter& interp)
 {
 	return createEvent(TclObject(str), interp);
 }
 
-void HotKey::loadBindings(const XMLElement& config)
+void HotKey::loadInit()
 {
 	// restore default bindings
 	unboundKeys.clear();
 	boundKeys.clear();
 	cmdMap = defaultMap;
+}
 
-	// load bindings
-	auto* bindingsElement = config.findChild("bindings");
-	if (!bindingsElement) return;
-	auto copy = *bindingsElement; // dont iterate over changing container
-	for (auto& elem : copy.getChildren()) {
-		try {
-			auto& interp = commandController.getInterpreter();
-			if (elem.getName() == "bind") {
-				bind(HotKeyInfo(createEvent(elem.getAttribute("key"), interp),
-				                elem.getData(),
-				                elem.getAttributeAsBool("repeat", false),
-				                elem.getAttributeAsBool("event", false)));
-			} else if (elem.getName() == "unbind") {
-				unbind(createEvent(elem.getAttribute("key"), interp));
-			}
-		} catch (MSXException& e) {
-			commandController.getCliComm().printWarning(
-				"Error while loading key bindings: ", e.getMessage());
-		}
-	}
+void HotKey::loadBind(std::string_view key, std::string_view cmd, bool repeat, bool event)
+{
+	bind(HotKeyInfo(createEvent(key, commandController.getInterpreter()),
+			std::string(cmd), repeat, event));
+}
+
+void HotKey::loadUnbind(std::string_view key)
+{
+	unbind(createEvent(key, commandController.getInterpreter()));
 }
 
 struct EqualEvent {
 	EqualEvent(const Event& event_) : event(event_) {}
-	bool operator()(const HotKey::EventPtr& e) const {
-		return event == *e;
+	bool operator()(const Event& e) const {
+		return event == e;
 	}
 	bool operator()(const HotKey::HotKeyInfo& info) const {
-		return event == *info.event;
+		return event == info.event;
 	}
 	const Event& event;
 };
 
-void HotKey::saveBindings(XMLElement& config) const
+template<typename Range>
+static bool contains(const Range& range, const Event& event)
 {
-	auto& bindingsElement = config.getCreateChild("bindings");
-	bindingsElement.removeAllChildren();
-
-	// add explicit bind's
-	for (auto& k : boundKeys) {
-		auto& info = *find_if_unguarded(cmdMap, EqualEvent(*k));
-		auto& elem = bindingsElement.addChild("bind", info.command);
-		elem.addAttribute("key", k->toString());
-		if (info.repeat) {
-			elem.addAttribute("repeat", "true");
-		}
-		if (info.passEvent) {
-			elem.addAttribute("event", "true");
-		}
-	}
-	// add explicit unbind's
-	for (auto& k : unboundKeys) {
-		auto& elem = bindingsElement.addChild("unbind");
-		elem.addAttribute("key", k->toString());
-	}
+	return ranges::any_of(range, EqualEvent(event));
 }
 
 template<typename T>
-static bool contains(const vector<T>& v, const Event& event)
-{
-	return ranges::any_of(v, EqualEvent(event));
-}
-
-template<typename T>
-static void erase(vector<T>& v, const Event& event)
+static void erase(std::vector<T>& v, const Event& event)
 {
 	if (auto it = ranges::find_if(v, EqualEvent(event)); it != end(v)) {
 		move_pop_back(v, it);
 	}
 }
 
-static void insert(HotKey::KeySet& set, HotKey::EventPtr event)
+static void insert(HotKey::KeySet& set, const Event& event)
 {
-	if (auto it = ranges::find_if(set, EqualEvent(*event)); it != end(set)) {
+	if (auto it = ranges::find_if(set, EqualEvent(event)); it != end(set)) {
 		*it = event;
 	} else {
 		set.push_back(event);
@@ -263,7 +228,7 @@ static void insert(HotKey::KeySet& set, HotKey::EventPtr event)
 template<typename HotKeyInfo>
 static void insert(HotKey::BindMap& map, HotKeyInfo&& info)
 {
-	if (auto it = ranges::find_if(map, EqualEvent(*info.event)); it != end(map)) {
+	if (auto it = ranges::find_if(map, EqualEvent(info.event)); it != end(map)) {
 		*it = std::forward<HotKeyInfo>(info);
 	} else {
 		map.push_back(std::forward<HotKeyInfo>(info));
@@ -272,17 +237,15 @@ static void insert(HotKey::BindMap& map, HotKeyInfo&& info)
 
 void HotKey::bind(HotKeyInfo&& info)
 {
-	erase(unboundKeys, *info.event);
-	erase(defaultMap, *info.event);
+	erase(unboundKeys, info.event);
+	erase(defaultMap, info.event);
 	insert(boundKeys, info.event);
 	insert(cmdMap, std::move(info));
-
-	saveBindings(commandController.getSettingsConfig().getXMLElement());
 }
 
-void HotKey::unbind(const EventPtr& event)
+void HotKey::unbind(const Event& event)
 {
-	if (auto it1 = ranges::find_if(boundKeys, EqualEvent(*event));
+	if (auto it1 = ranges::find_if(boundKeys, EqualEvent(event));
 	    it1 == end(boundKeys)) {
 		// only when not a regular bound event
 		insert(unboundKeys, event);
@@ -291,30 +254,28 @@ void HotKey::unbind(const EventPtr& event)
 		move_pop_back(boundKeys, it1);
 	}
 
-	erase(defaultMap, *event);
-	erase(cmdMap, *event);
-
-	saveBindings(commandController.getSettingsConfig().getXMLElement());
+	erase(defaultMap, event);
+	erase(cmdMap, event);
 }
 
 void HotKey::bindDefault(HotKeyInfo&& info)
 {
-	if (!contains(  boundKeys, *info.event) &&
-	    !contains(unboundKeys, *info.event)) {
+	if (!contains(  boundKeys, info.event) &&
+	    !contains(unboundKeys, info.event)) {
 		// not explicitly bound or unbound
 		insert(cmdMap, info);
 	}
 	insert(defaultMap, std::move(info));
 }
 
-void HotKey::unbindDefault(const EventPtr& event)
+void HotKey::unbindDefault(const Event& event)
 {
-	if (!contains(  boundKeys, *event) &&
-	    !contains(unboundKeys, *event)) {
+	if (!contains(  boundKeys, event) &&
+	    !contains(unboundKeys, event)) {
 		// not explicitly bound or unbound
-		erase(cmdMap, *event);
+		erase(cmdMap, event);
 	}
-	erase(defaultMap, *event);
+	erase(defaultMap, event);
 }
 
 void HotKey::bindLayer(HotKeyInfo&& info, const string& layer)
@@ -322,9 +283,9 @@ void HotKey::bindLayer(HotKeyInfo&& info, const string& layer)
 	insert(layerMap[layer], std::move(info));
 }
 
-void HotKey::unbindLayer(const EventPtr& event, const string& layer)
+void HotKey::unbindLayer(const Event& event, const string& layer)
 {
-	erase(layerMap[layer], *event);
+	erase(layerMap[layer], event);
 }
 
 void HotKey::unbindFullLayer(const string& layer)
@@ -334,7 +295,7 @@ void HotKey::unbindFullLayer(const string& layer)
 
 void HotKey::activateLayer(std::string layer, bool blocking)
 {
-	// Insert new activattion record at the end of the list.
+	// Insert new activation record at the end of the list.
 	// (it's not an error if the same layer was already active, in such
 	// as case it will now appear twice in the list of active layer,
 	// and it must also be deactivated twice).
@@ -345,8 +306,7 @@ void HotKey::deactivateLayer(std::string_view layer)
 {
 	// remove the first matching activation record from the end
 	// (it's not an error if there is no match at all)
-	if (auto it = ranges::find_if(view::reverse(activeLayers),
-	                              [&](auto& info) { return info.layer == layer; });
+	if (auto it = ranges::find(view::reverse(activeLayers), layer, &LayerInfo::layer);
 	    it != activeLayers.rend()) {
 		// 'reverse_iterator' -> 'iterator' conversion is a bit tricky
 		activeLayers.erase((it + 1).base());
@@ -357,7 +317,7 @@ static HotKey::BindMap::const_iterator findMatch(
 	const HotKey::BindMap& map, const Event& event)
 {
 	return ranges::find_if(map, [&](auto& p) {
-		return p.event->matches(event);
+		return matches(p.event, event);
 	});
 }
 
@@ -366,9 +326,9 @@ void HotKey::executeRT()
 	if (lastEvent) executeEvent(lastEvent);
 }
 
-int HotKey::signalEvent(const EventPtr& event)
+int HotKey::signalEvent(const Event& event) noexcept
 {
-	if (lastEvent != event) {
+	if (lastEvent.getPtr() != event.getPtr()) {
 		// If the newly received event is different from the repeating
 		// event, we stop the repeat process.
 		// Except when we're repeating a OsdControlEvent and the
@@ -377,20 +337,20 @@ int HotKey::signalEvent(const EventPtr& event)
 		// a corresponding osd event (the osd event is send before the
 		// original event). Without this hack, key-repeat will not work
 		// for osd key bindings.
-		if (lastEvent && lastEvent->isRepeatStopper(*event)) {
+		if (lastEvent && isRepeatStopper(lastEvent, event)) {
 			stopRepeat();
 		}
 	}
 	return executeEvent(event);
 }
 
-int HotKey::executeEvent(const EventPtr& event)
+int HotKey::executeEvent(const Event& event)
 {
 	// First search in active layers (from back to front)
 	bool blocking = false;
 	for (auto& info : view::reverse(activeLayers)) {
 		auto& cmap = layerMap[info.layer]; // ok, if this entry doesn't exist yet
-		if (auto it = findMatch(cmap, *event); it != end(cmap)) {
+		if (auto it = findMatch(cmap, event); it != end(cmap)) {
 			executeBinding(event, *it);
 			// Deny event to MSX listeners, also don't pass event
 			// to other layers (including the default layer).
@@ -401,7 +361,7 @@ int HotKey::executeEvent(const EventPtr& event)
 	}
 
 	// If the event was not yet handled, try the default layer.
-	if (auto it = findMatch(cmdMap, *event); it != end(cmdMap)) {
+	if (auto it = findMatch(cmdMap, event); it != end(cmdMap)) {
 		executeBinding(event, *it);
 		return EventDistributor::MSX; // deny event to MSX listeners
 	}
@@ -411,7 +371,7 @@ int HotKey::executeEvent(const EventPtr& event)
 	return blocking ? EventDistributor::MSX : 0;
 }
 
-void HotKey::executeBinding(const EventPtr& event, const HotKeyInfo& info)
+void HotKey::executeBinding(const Event& event, const HotKeyInfo& info)
 {
 	if (info.repeat) {
 		startRepeat(event);
@@ -433,7 +393,7 @@ void HotKey::executeBinding(const EventPtr& event, const HotKeyInfo& info)
 			// (If needed) the current command string is first
 			// converted to a list (thus split in a command name
 			// and arguments).
-			command.addListElement(event->toTclList());
+			command.addListElement(toTclList(event));
 		}
 
 		// ignore return value
@@ -444,7 +404,7 @@ void HotKey::executeBinding(const EventPtr& event, const HotKeyInfo& info)
 	}
 }
 
-void HotKey::startRepeat(const EventPtr& event)
+void HotKey::startRepeat(const Event& event)
 {
 	// I initially thought about using the builtin SDL key-repeat feature,
 	// but that won't work for example on joystick buttons. So we have to
@@ -464,14 +424,14 @@ void HotKey::startRepeat(const EventPtr& event)
 
 void HotKey::stopRepeat()
 {
-	lastEvent.reset();
+	lastEvent = Event{};
 	cancelRT();
 }
 
 
 // class BindCmd
 
-static std::string_view getBindCmdName(bool defaultCmd)
+static constexpr std::string_view getBindCmdName(bool defaultCmd)
 {
 	return defaultCmd ? "bind_default" : "bind";
 }
@@ -484,9 +444,9 @@ HotKey::BindCmd::BindCmd(CommandController& commandController_, HotKey& hotKey_,
 {
 }
 
-string HotKey::BindCmd::formatBinding(const HotKey::HotKeyInfo& info)
+static string formatBinding(const HotKey::HotKeyInfo& info)
 {
-	return strCat(info.event->toString(), (info.repeat ? " [repeat]" : ""),
+	return strCat(toString(info.event), (info.repeat ? " [repeat]" : ""),
 	              (info.passEvent ? " [event]" : ""), ":  ", info.command, '\n');
 }
 
@@ -536,7 +496,7 @@ void HotKey::BindCmd::execute(span<const TclObject> tokens, TclObject& result)
 	case 1: {
 		// show bindings for this key (in this layer)
 		auto it = ranges::find_if(cMap,
-		                          EqualEvent(*createEvent(arguments[0], getInterpreter())));
+		                          EqualEvent(createEvent(arguments[0], getInterpreter())));
 		if (it == end(cMap)) {
 			throw CommandException("Key not bound");
 		}
@@ -563,7 +523,7 @@ void HotKey::BindCmd::execute(span<const TclObject> tokens, TclObject& result)
 	}
 	}
 }
-string HotKey::BindCmd::help(const vector<string>& /*tokens*/) const
+string HotKey::BindCmd::help(span<const TclObject> /*tokens*/) const
 {
 	auto cmd = getBindCmdName(defaultCmd);
 	return strCat(
@@ -580,7 +540,7 @@ string HotKey::BindCmd::help(const vector<string>& /*tokens*/) const
 
 // class UnbindCmd
 
-static string getUnbindCmdName(bool defaultCmd)
+static constexpr std::string_view getUnbindCmdName(bool defaultCmd)
 {
 	return defaultCmd ? "unbind_default" : "unbind";
 }
@@ -606,7 +566,7 @@ void HotKey::UnbindCmd::execute(span<const TclObject> tokens, TclObject& /*resul
 		throw SyntaxError();
 	}
 
-	HotKey::EventPtr event;
+	Event event;
 	if (arguments.size() == 1) {
 		event = createEvent(arguments[0], getInterpreter());
 	}
@@ -625,7 +585,7 @@ void HotKey::UnbindCmd::execute(span<const TclObject> tokens, TclObject& /*resul
 		}
 	}
 }
-string HotKey::UnbindCmd::help(const vector<string>& /*tokens*/) const
+string HotKey::UnbindCmd::help(span<const TclObject> /*tokens*/) const
 {
 	auto cmd = getUnbindCmdName(defaultCmd);
 	return strCat(
@@ -672,7 +632,7 @@ void HotKey::ActivateCmd::execute(span<const TclObject> tokens, TclObject& resul
 	}
 }
 
-string HotKey::ActivateCmd::help(const vector<string>& /*tokens*/) const
+string HotKey::ActivateCmd::help(span<const TclObject> /*tokens*/) const
 {
 	return "activate_input_layer                         "
 	       ": show list of active layers (most recent on top)\n"
@@ -695,9 +655,9 @@ void HotKey::DeactivateCmd::execute(span<const TclObject> tokens, TclObject& /*r
 	hotKey.deactivateLayer(tokens[1].getString());
 }
 
-string HotKey::DeactivateCmd::help(const vector<string>& /*tokens*/) const
+string HotKey::DeactivateCmd::help(span<const TclObject> /*tokens*/) const
 {
-	return "deactivate_input_layer <layername> : deactive the given input layer";
+	return "deactivate_input_layer <layername> : deactivate the given input layer";
 }
 
 

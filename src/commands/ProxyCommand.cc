@@ -6,9 +6,6 @@
 #include "Reactor.hh"
 #include "checked_cast.hh"
 
-using std::vector;
-using std::string;
-
 namespace openmsx {
 
 ProxyCmd::ProxyCmd(Reactor& reactor_, std::string_view name_)
@@ -28,7 +25,7 @@ void ProxyCmd::execute(span<const TclObject> tokens, TclObject& result)
 {
 	if (Command* command = getMachineCommand()) {
 		if (!command->isAllowedInEmptyMachine()) {
-			auto controller = checked_cast<MSXCommandController*>(
+			auto* controller = checked_cast<MSXCommandController*>(
 				&command->getCommandController());
 			if (!controller->getMSXMotherBoard().getMachineConfig()) {
 				throw CommandException(
@@ -41,7 +38,7 @@ void ProxyCmd::execute(span<const TclObject> tokens, TclObject& result)
 	}
 }
 
-string ProxyCmd::help(const vector<string>& tokens) const
+std::string ProxyCmd::help(span<const TclObject> tokens) const
 {
 	if (Command* command = getMachineCommand()) {
 		return command->help(tokens);
@@ -50,7 +47,7 @@ string ProxyCmd::help(const vector<string>& tokens) const
 	}
 }
 
-void ProxyCmd::tabCompletion(vector<string>& tokens) const
+void ProxyCmd::tabCompletion(std::vector<std::string>& tokens) const
 {
 	if (Command* command = getMachineCommand()) {
 		command->tabCompletion(tokens);

@@ -3,10 +3,8 @@
 #include "build-info.hh"
 #include "systemfuncs.hh"
 #include "Math.hh"
-#include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include <utility>
 #include <vector>
 #include <cassert>
 #include <cstdlib>
@@ -27,7 +25,7 @@ namespace openmsx::MemoryOps {
 // only has it for 64 bit. So we add it ourselves for vc++/32-bit. An
 // alternative would be to always use this routine, but this generates worse
 // code than the real _mm_set1_epi64x() function for gcc (both 32 and 64 bit).
-static inline __m128i _mm_set1_epi64x(uint64_t val)
+[[nodiscard]] static inline __m128i _mm_set1_epi64x(uint64_t val)
 {
 	uint32_t low  = val >> 32;
 	uint32_t high = val >>  0;
@@ -180,9 +178,9 @@ static inline void memset_16(uint16_t* out, size_t num16, uint16_t val16)
 template<typename Pixel> void MemSet<Pixel>::operator()(
 	Pixel* out, size_t num, Pixel val) const
 {
-	if (sizeof(Pixel) == 2) {
+	if constexpr (sizeof(Pixel) == 2) {
 		memset_16(reinterpret_cast<uint16_t*>(out), num, val);
-	} else if (sizeof(Pixel) == 4) {
+	} else if constexpr (sizeof(Pixel) == 4) {
 		memset_32(reinterpret_cast<uint32_t*>(out), num, val);
 	} else {
 		UNREACHABLE;
@@ -192,9 +190,9 @@ template<typename Pixel> void MemSet<Pixel>::operator()(
 template<typename Pixel> void MemSet2<Pixel>::operator()(
 	Pixel* out, size_t num, Pixel val0, Pixel val1) const
 {
-	if (sizeof(Pixel) == 2) {
+	if constexpr (sizeof(Pixel) == 2) {
 		memset_16_2(reinterpret_cast<uint16_t*>(out), num, val0, val1);
-	} else if (sizeof(Pixel) == 4) {
+	} else if constexpr (sizeof(Pixel) == 4) {
 		memset_32_2(reinterpret_cast<uint32_t*>(out), num, val0, val1);
 	} else {
 		UNREACHABLE;
@@ -216,6 +214,9 @@ template struct MemSet2<uint32_t>;
 class AllocMap
 {
 public:
+	AllocMap(const AllocMap&) = delete;
+	AllocMap& operator=(const AllocMap&) = delete;
+
 	static AllocMap& instance() {
 		static AllocMap oneInstance;
 		return oneInstance;
@@ -223,17 +224,16 @@ public:
 
 	void insert(void* aligned, void* unaligned) {
 		if (!aligned) return;
-		assert(ranges::none_of(allocMap, EqualTupleValue<0>(aligned)));
-		allocMap.emplace_back(aligned, unaligned);
+		assert(!contains(allocMap, aligned, &Entry::aligned));
+		allocMap.emplace_back(Entry{aligned, unaligned});
 	}
 
 	void* remove(void* aligned) {
 		if (!aligned) return nullptr;
 		// LIFO order is more likely than FIFO -> search backwards
-		auto it = rfind_if_unguarded(allocMap,
-		               EqualTupleValue<0>(aligned));
+		auto it = rfind_unguarded(allocMap, aligned, &Entry::aligned);
 		// return the associated unaligned value
-		void* unaligned = it->second;
+		void* unaligned = it->unaligned;
 		move_pop_back(allocMap, it);
 		return unaligned;
 	}
@@ -245,7 +245,11 @@ private:
 	}
 
 	// typically contains 5-10 items, so (unsorted) vector is fine
-	std::vector<std::pair<void*, void*>> allocMap;
+	struct Entry {
+		void* aligned;
+		void* unaligned;
+	};
+	std::vector<Entry> allocMap;
 };
 
 void* mallocAligned(size_t alignment, size_t size)
@@ -253,7 +257,7 @@ void* mallocAligned(size_t alignment, size_t size)
 	assert("must be a power of 2" && Math::ispow2(alignment));
 	assert(alignment >= sizeof(void*));
 #if HAVE_POSIX_MEMALIGN
-	void* aligned;
+	void* aligned = nullptr;
 	if (posix_memalign(&aligned, alignment, size)) {
 		throw std::bad_alloc();
 	}

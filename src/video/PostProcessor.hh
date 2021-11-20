@@ -41,7 +41,7 @@ public:
 	  *             PAL/NTSC, frameskip).
 	  * @return RawFrame object that can be used for building the next frame.
 	  */
-	virtual std::unique_ptr<RawFrame> rotateFrames(
+	[[nodiscard]] virtual std::unique_ptr<RawFrame> rotateFrames(
 		std::unique_ptr<RawFrame> finishedFrame, EmuTime::param time);
 
 	/** Set the Video frame on which to superimpose the 'normal' output of
@@ -73,35 +73,35 @@ public:
 	/** Is recording active.
 	  * ATM used to keep frameskip constant during recording.
 	  */
-	bool isRecording() const { return recorder != nullptr; }
+	[[nodiscard]] bool isRecording() const { return recorder != nullptr; }
 
 	/** Get the number of bits per pixel for the pixels in these frames.
 	  * @return Possible values are 15, 16 or 32
 	  */
-	unsigned getBpp() const;
+	[[nodiscard]] unsigned getBpp() const;
 
 	/** Get the frame that would be displayed. E.g. so that it can be
 	  * superimposed over the output of another PostProcessor, see
 	  * setSuperimposeVdpFrame().
 	  */
-	FrameSource* getPaintFrame() const { return paintFrame; }
+	[[nodiscard]] FrameSource* getPaintFrame() const { return paintFrame; }
 
 	// VideoLayer
 	void takeRawScreenShot(unsigned height, const std::string& filename) override;
 
-
-	CliComm& getCliComm();
+	[[nodiscard]] CliComm& getCliComm();
 
 protected:
 	/** Returns the maximum width for lines [y..y+step).
 	  */
-	static unsigned getLineWidth(FrameSource* frame, unsigned y, unsigned step);
+	[[nodiscard]] static unsigned getLineWidth(FrameSource* frame, unsigned y, unsigned step);
 
 	PostProcessor(
 		MSXMotherBoard& motherBoard, Display& display,
 		OutputSurface& screen, const std::string& videoSource,
 		unsigned maxWidth, unsigned height, bool canDoInterlace);
 
+protected:
 	/** Render settings */
 	RenderSettings& renderSettings;
 
@@ -146,6 +146,7 @@ private:
 	// Schedulable
 	void executeUntil(EmuTime::param time) override;
 
+private:
 	Display& display;
 
 	/** Laserdisc cannot do interlace (better: the current implementation

@@ -21,11 +21,11 @@ public:
 
 	void powerUp(EmuTime::param time) override;
 	void reset(EmuTime::param time) override;
-	byte peekMem(word address, EmuTime::param time) const override;
-	byte readMem(word address, EmuTime::param time) override;
-	const byte* getReadCacheLine(word address) const override;
+	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;
+	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
+	[[nodiscard]] const byte* getReadCacheLine(word address) const override;
 	void writeMem(word address, byte value, EmuTime::param time) override;
-	byte* getWriteCacheLine(word address) const override;
+	[[nodiscard]] byte* getWriteCacheLine(word address) const override;
 
 	void writeIO(word port, byte value, EmuTime::param time) override;
 
@@ -34,10 +34,10 @@ public:
 
 private:
 	enum SCCEnable { EN_NONE, EN_SCC, EN_SCCPLUS };
-	SCCEnable getSCCEnable() const;
+	[[nodiscard]] SCCEnable getSCCEnable() const;
 	void updateConfigReg(byte value);
 
-	byte getSubSlot(unsigned addr) const;
+	[[nodiscard]] byte getSubSlot(unsigned addr) const;
 
 	/**
 	 * Writes to flash only if it was not write protected.
@@ -47,41 +47,41 @@ private:
 	byte subslotReg;
 
 	// subslot 0
-	byte readMemSubSlot0(word address);
-	byte peekMemSubSlot0(word address) const;
-	const byte* getReadCacheLineSubSlot0(word address) const;
-	byte* getWriteCacheLineSubSlot0(word address) const;
+	[[nodiscard]] byte readMemSubSlot0(word address);
+	[[nodiscard]] byte peekMemSubSlot0(word address) const;
+	[[nodiscard]] const byte* getReadCacheLineSubSlot0(word address) const;
+	[[nodiscard]] byte* getWriteCacheLineSubSlot0(word address) const;
 	void writeMemSubSlot0(word address, byte value);
 
 	// subslot 1
 	// mega flash rom scc+
-	byte readMemSubSlot1(word address, EmuTime::param time);
-	byte peekMemSubSlot1(word address, EmuTime::param time) const;
-	const byte* getReadCacheLineSubSlot1(word address) const;
-	byte* getWriteCacheLineSubSlot1(word address) const;
+	[[nodiscard]] byte readMemSubSlot1(word address, EmuTime::param time);
+	[[nodiscard]] byte peekMemSubSlot1(word address, EmuTime::param time) const;
+	[[nodiscard]] const byte* getReadCacheLineSubSlot1(word address) const;
+	[[nodiscard]] byte* getWriteCacheLineSubSlot1(word address) const;
 	void writeMemSubSlot1(word address, byte value, EmuTime::param time);
-	unsigned getFlashAddrSubSlot1(unsigned addr) const;
+	[[nodiscard]] unsigned getFlashAddrSubSlot1(unsigned addr) const;
 
 	SCC scc;
 	AY8910 psg;
 
 	byte mapperReg;
-	bool is64KmapperConfigured()               const { return (mapperReg & 0xC0) == 0x40; }
-	bool isKonamiSCCmapperConfigured()         const { return (mapperReg & 0xE0) == 0x00; }
-	bool isWritingKonamiBankRegisterDisabled() const { return (mapperReg & 0x08) != 0; }
-	bool isMapperRegisterDisabled()            const { return (mapperReg & 0x04) != 0; }
-	bool areBankRegsAndOffsetRegsDisabled()    const { return (mapperReg & 0x02) != 0; }
-	bool areKonamiMapperLimitsEnabled()        const { return (mapperReg & 0x01) != 0; }
+	[[nodiscard]] bool is64KmapperConfigured()               const { return (mapperReg & 0xC0) == 0x40; }
+	[[nodiscard]] bool isKonamiSCCmapperConfigured()         const { return (mapperReg & 0xE0) == 0x00; }
+	[[nodiscard]] bool isWritingKonamiBankRegisterDisabled() const { return (mapperReg & 0x08) != 0; }
+	[[nodiscard]] bool isMapperRegisterDisabled()            const { return (mapperReg & 0x04) != 0; }
+	[[nodiscard]] bool areBankRegsAndOffsetRegsDisabled()    const { return (mapperReg & 0x02) != 0; }
+	[[nodiscard]] bool areKonamiMapperLimitsEnabled()        const { return (mapperReg & 0x01) != 0; }
 	unsigned offsetReg;
 
 	byte configReg;
-	bool isConfigRegDisabled()           const { return  (configReg & 0x80) != 0; }
-	bool isMemoryMapperEnabled()         const { return ((configReg & 0x20) == 0) && checkedRam; }
-	bool isDSKmodeEnabled()              const { return  (configReg & 0x10) != 0; }
-	bool isPSGalsoMappedToNormalPorts()  const { return  (configReg & 0x08) != 0; }
-	bool isSlotExpanderEnabled()         const { return  (configReg & 0x04) == 0; }
-	bool isFlashRomBlockProtectEnabled() const { return  (configReg & 0x02) != 0; }
-	bool isFlashRomWriteEnabled()        const { return  (configReg & 0x01) != 0; }
+	[[nodiscard]] bool isConfigRegDisabled()           const { return  (configReg & 0x80) != 0; }
+	[[nodiscard]] bool isMemoryMapperEnabled()         const { return ((configReg & 0x20) == 0) && checkedRam; }
+	[[nodiscard]] bool isDSKmodeEnabled()              const { return  (configReg & 0x10) != 0; }
+	[[nodiscard]] bool isPSGalsoMappedToNormalPorts()  const { return  (configReg & 0x08) != 0; }
+	[[nodiscard]] bool isSlotExpanderEnabled()         const { return  (configReg & 0x04) == 0; }
+	[[nodiscard]] bool isFlashRomBlockProtectEnabled() const { return  (configReg & 0x02) != 0; }
+	[[nodiscard]] bool isFlashRomWriteEnabled()        const { return  (configReg & 0x01) != 0; }
 
 	byte bankRegsSubSlot1[4];
 	byte psgLatch;
@@ -90,14 +90,14 @@ private:
 
 	// subslot 2
 	// 512k memory mapper
-	byte readMemSubSlot2(word address);
-	byte peekMemSubSlot2(word address) const;
-	const byte* getReadCacheLineSubSlot2(word address) const;
-	byte* getWriteCacheLineSubSlot2(word address) const;
+	[[nodiscard]] byte readMemSubSlot2(word address);
+	[[nodiscard]] byte peekMemSubSlot2(word address) const;
+	[[nodiscard]] const byte* getReadCacheLineSubSlot2(word address) const;
+	[[nodiscard]] byte* getWriteCacheLineSubSlot2(word address) const;
 	void writeMemSubSlot2(word address, byte value);
 
-	unsigned calcMemMapperAddress(word address) const;
-	unsigned calcAddress(word address) const;
+	[[nodiscard]] unsigned calcMemMapperAddress(word address) const;
+	[[nodiscard]] unsigned calcAddress(word address) const;
 
 	class MapperIO final : public MSXMapperIOClient {
 	public:
@@ -107,10 +107,10 @@ private:
 		{
 		}
 
-		byte readIO(word port, EmuTime::param time) override;
-		byte peekIO(word port, EmuTime::param time) const override;
+		[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
+		[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
 		void writeIO(word port, byte value, EmuTime::param time) override;
-		byte getSelectedSegment(byte page) const override;
+		[[nodiscard]] byte getSelectedSegment(byte page) const override;
 
 	private:
 		MegaFlashRomSCCPlusSD& mega;
@@ -120,12 +120,12 @@ private:
 	byte memMapperRegs[4];
 
 	// subslot 3
-	byte readMemSubSlot3(word address, EmuTime::param time);
-	byte peekMemSubSlot3(word address, EmuTime::param time) const;
-	const byte* getReadCacheLineSubSlot3(word address) const;
-	byte* getWriteCacheLineSubSlot3(word address) const;
+	[[nodiscard]] byte readMemSubSlot3(word address, EmuTime::param time);
+	[[nodiscard]] byte peekMemSubSlot3(word address, EmuTime::param time) const;
+	[[nodiscard]] const byte* getReadCacheLineSubSlot3(word address) const;
+	[[nodiscard]] byte* getWriteCacheLineSubSlot3(word address) const;
 	void writeMemSubSlot3(word address, byte value, EmuTime::param time);
-	unsigned getFlashAddrSubSlot3(unsigned addr) const;
+	[[nodiscard]] unsigned getFlashAddrSubSlot3(unsigned addr) const;
 
 	byte bankRegsSubSlot3[4];
 

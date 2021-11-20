@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-void enumError(const std::string& str)
+void enumError(const std::string_view str)
 {
 	throw MSXException("Invalid enum value: ", str);
 }
@@ -36,7 +36,7 @@ unsigned loadVersionHelper(MemInputArchive& /*ar*/, const char* /*className*/,
 unsigned loadVersionHelper(XmlInputArchive& ar, const char* className,
                            unsigned latestVersion)
 {
-	assert(ar.canHaveOptionalAttributes());
+	assert(ar.CAN_HAVE_OPTIONAL_ATTRIBUTES);
 	unsigned version;
 	if (!ar.findAttribute("version", version)) {
 		return 1;

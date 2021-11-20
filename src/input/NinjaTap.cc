@@ -1,5 +1,6 @@
 #include "NinjaTap.hh"
 #include "JoystickPort.hh"
+#include "enumerate.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 
@@ -21,7 +22,7 @@ std::string_view NinjaTap::getDescription() const
 
 void NinjaTap::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
 {
-	createPorts("Ninja Tap port ");
+	createPorts("Ninja Tap port");
 }
 
 byte NinjaTap::read(EmuTime::param /*time*/)
@@ -39,8 +40,8 @@ void NinjaTap::write(byte value, EmuTime::param time)
 		if (!(value & 1) && (previous & 1)) {
 			// pin 6 1->0 :  query joysticks
 			// TODO does output change?
-			for (int i = 0; i < 4; ++i) {
-				byte t = slaves[i]->read(time);
+			for (auto [i, slave] : enumerate(slaves)) {
+				byte t = slave->read(time);
 				buf[i] = ((t & 0x0F) << 4) |
 				         ((t & 0x30) >> 4) |
 				         0x0C;
@@ -50,9 +51,9 @@ void NinjaTap::write(byte value, EmuTime::param time)
 			// pin 8 1->0 :  shift values
 			// TODO what about b4 and b5?
 			byte t = 0;
-			for (int i = 0; i < 4; ++i) {
-				if (buf[i] & 1) t |= (1 << i);
-				buf[i] >>= 1;
+			for (auto [i, b] : enumerate(buf)) {
+				if (b & 1) t |= (1 << i);
+				b >>= 1;
 			}
 			status = (status & ~0x0F) | t;
 		}

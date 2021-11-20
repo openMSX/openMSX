@@ -16,7 +16,7 @@
 
 #include "MemBuffer.hh"
 #include "build-info.hh"
-#include <string>
+#include <string_view>
 #include <cassert>
 
 // arbitrary but distinct values, (roughly) ordered according to version number
@@ -72,7 +72,7 @@ public:
 	/** Returns the underlying openGL handler id.
 	  * 0 iff no openGL texture is allocated.
 	  */
-	GLuint get() const { return textureId; }
+	[[nodiscard]] GLuint get() const { return textureId; }
 
 	/** Makes this texture the active GL texture.
 	  * The other methods of this class and its subclasses will implicitly
@@ -108,8 +108,8 @@ public:
 	ColorTexture(GLsizei width, GLsizei height);
 	void resize(GLsizei width, GLsizei height);
 
-	GLsizei getWidth () const { return width;  }
-	GLsizei getHeight() const { return height; }
+	[[nodiscard]] GLsizei getWidth () const { return width;  }
+	[[nodiscard]] GLsizei getHeight() const { return height; }
 
 private:
 	GLsizei width = 0;
@@ -149,13 +149,13 @@ private:
   * fallback implementation, maybe we can re-enable this when we switch to
   * openGL ES 3.0.
   */
-template <typename T> class PixelBuffer
+template<typename T> class PixelBuffer
 {
 public:
-	PixelBuffer();
+	PixelBuffer() = default;
+	//~PixelBuffer();
 	PixelBuffer(PixelBuffer&& other) noexcept;
 	PixelBuffer& operator=(PixelBuffer&& other) noexcept;
-	~PixelBuffer();
 
 	/** Sets the image for this buffer.
 	  * TODO: Actually, only image size for now;
@@ -179,7 +179,7 @@ public:
 	  * @pre This PixelBuffer must be bound (see bind()) before calling
 	  *      this method.
 	  */
-	T* getOffset(GLuint x, GLuint y);
+	[[nodiscard]] T* getOffset(GLuint x, GLuint y);
 
 	/** Maps the contents of this buffer into memory. The returned buffer
 	  * is write-only (reading could be very slow or even result in a
@@ -189,7 +189,7 @@ public:
 	  * @pre This PixelBuffer must be bound (see bind()) before calling
 	  *      this method.
 	  */
-	T* mapWrite();
+	[[nodiscard]] T* mapWrite();
 
 	/** Unmaps the contents of this buffer.
 	  * After this call, you must no longer use the pointer returned by
@@ -217,13 +217,19 @@ private:
 
 // class PixelBuffer
 
-template <typename T>
-PixelBuffer<T>::PixelBuffer()
-{
-	//glGenBuffers(1, &bufferId);
-}
+//template<typename T>
+//PixelBuffer<T>::PixelBuffer()
+//{
+//	glGenBuffers(1, &bufferId);
+//}
 
-template <typename T>
+//template<typename T>
+//PixelBuffer<T>::~PixelBuffer()
+//{
+//	glDeleteBuffers(1, &bufferId); // ok to delete '0'
+//}
+
+template<typename T>
 PixelBuffer<T>::PixelBuffer(PixelBuffer<T>&& other) noexcept
 	: allocated(std::move(other.allocated))
 	//, bufferId(other.bufferId)
@@ -233,7 +239,7 @@ PixelBuffer<T>::PixelBuffer(PixelBuffer<T>&& other) noexcept
 	//other.bufferId = 0;
 }
 
-template <typename T>
+template<typename T>
 PixelBuffer<T>& PixelBuffer<T>::operator=(PixelBuffer<T>&& other) noexcept
 {
 	std::swap(allocated, other.allocated);
@@ -243,13 +249,7 @@ PixelBuffer<T>& PixelBuffer<T>::operator=(PixelBuffer<T>&& other) noexcept
 	return *this;
 }
 
-template <typename T>
-PixelBuffer<T>::~PixelBuffer()
-{
-	//glDeleteBuffers(1, &bufferId); // ok to delete '0'
-}
-
-template <typename T>
+template<typename T>
 void PixelBuffer<T>::setImage(GLuint width_, GLuint height_)
 {
 	width = width_;
@@ -267,7 +267,7 @@ void PixelBuffer<T>::setImage(GLuint width_, GLuint height_)
 	//}
 }
 
-template <typename T>
+template<typename T>
 void PixelBuffer<T>::bind() const
 {
 	//if (bufferId != 0) {
@@ -275,7 +275,7 @@ void PixelBuffer<T>::bind() const
 	//}
 }
 
-template <typename T>
+template<typename T>
 void PixelBuffer<T>::unbind() const
 {
 	//if (bufferId != 0) {
@@ -283,7 +283,7 @@ void PixelBuffer<T>::unbind() const
 	//}
 }
 
-template <typename T>
+template<typename T>
 T* PixelBuffer<T>::getOffset(GLuint x, GLuint y)
 {
 	assert(x < width);
@@ -296,7 +296,7 @@ T* PixelBuffer<T>::getOffset(GLuint x, GLuint y)
 	//}
 }
 
-template <typename T>
+template<typename T>
 T* PixelBuffer<T>::mapWrite()
 {
 	//if (bufferId != 0) {
@@ -307,7 +307,7 @@ T* PixelBuffer<T>::mapWrite()
 	//}
 }
 
-template <typename T>
+template<typename T>
 void PixelBuffer<T>::unmap() const
 {
 	//if (bufferId != 0) {
@@ -325,24 +325,29 @@ class Shader
 public:
 	/** Returns true iff this shader is loaded and compiled without errors.
 	  */
-	bool isOK() const;
+	[[nodiscard]] bool isOK() const;
 
 protected:
 	/** Instantiates a shader.
 	  * @param type The shader type: GL_VERTEX_SHADER or GL_FRAGMENT_SHADER.
 	  * @param filename The GLSL source code for the shader.
 	  */
-	Shader(GLenum type, const std::string& filename);
-	Shader(GLenum type, const std::string& header,
-	                    const std::string& filename);
+	Shader(GLenum type, std::string_view filename) {
+		init(type, {}, filename);
+	}
+	Shader(GLenum type, std::string_view header, std::string_view filename) {
+		init(type, header, filename);
+	}
+
 	~Shader();
 
 private:
-	void init(GLenum type, const std::string& header,
-	                       const std::string& filename);
+	void init(GLenum type, std::string_view header,
+	                       std::string_view filename);
 
 	friend class ShaderProgram;
 
+private:
 	GLuint handle;
 };
 
@@ -355,8 +360,10 @@ public:
 	/** Instantiates a vertex shader.
 	  * @param filename The GLSL source code for the shader.
 	  */
-	explicit VertexShader(const std::string& filename);
-	VertexShader(const std::string& header, const std::string& filename);
+	explicit VertexShader(std::string_view filename)
+		: Shader(GL_VERTEX_SHADER, filename) {}
+	VertexShader(std::string_view header, std::string_view filename)
+		: Shader(GL_VERTEX_SHADER, header, filename) {}
 };
 
 /** Wrapper around an OpenGL fragment shader:
@@ -368,8 +375,10 @@ public:
 	/** Instantiates a fragment shader.
 	  * @param filename The GLSL source code for the shader.
 	  */
-	explicit FragmentShader(const std::string& filename);
-	FragmentShader(const std::string& header, const std::string& filename);
+	explicit FragmentShader(std::string_view filename)
+		: Shader(GL_FRAGMENT_SHADER, filename) {}
+	FragmentShader(std::string_view header, std::string_view filename)
+		: Shader(GL_FRAGMENT_SHADER, header, filename) {}
 };
 
 /** Wrapper around an OpenGL program:
@@ -399,12 +408,12 @@ public:
 	/** Returns the underlying openGL handler id.
 	  * 0 iff no openGL program is allocated.
 	  */
-	GLuint get() const { return handle; }
+	[[nodiscard]] GLuint get() const { return handle; }
 
 	/** Returns true iff this program was linked without errors.
 	  * Note that this will certainly return false until link() is called.
 	  */
-	bool isOK() const;
+	[[nodiscard]] bool isOK() const;
 
 	/** Adds a given shader to this program.
 	  */
@@ -424,7 +433,7 @@ public:
 	  * Note that you have to activate this program before you can change
 	  * the uniform variable's value.
 	  */
-	GLint getUniformLocation(const char* name) const;
+	[[nodiscard]] GLint getUniformLocation(const char* name) const;
 
 	/** Makes this program the active shader program.
 	  * This requires that the program is already linked.
@@ -452,7 +461,7 @@ public:
 		return *this;
 	}
 
-	GLuint get() const { return bufferId; }
+	[[nodiscard]] GLuint get() const { return bufferId; }
 
 private:
 	GLuint bufferId;

@@ -1,7 +1,5 @@
 #include "ScalerFactory.hh"
 #include "RenderSettings.hh"
-#include "EnumSetting.hh"
-#include "IntegerSetting.hh"
 #include "Simple2xScaler.hh"
 #include "Simple3xScaler.hh"
 #include "SaI2xScaler.hh"     // note: included even if MAX_SCALE_FACTOR == 1
@@ -20,12 +18,10 @@
 #include <cstdint>
 #include <memory>
 
-using std::unique_ptr;
-
 namespace openmsx {
 
-template <class Pixel>
-unique_ptr<Scaler<Pixel>> ScalerFactory<Pixel>::createScaler(
+template<typename Pixel>
+std::unique_ptr<Scaler<Pixel>> ScalerFactory<Pixel>::createScaler(
 	const PixelOperations<Pixel>& pixelOps, RenderSettings& renderSettings)
 {
 	switch (renderSettings.getScaleFactor()) {

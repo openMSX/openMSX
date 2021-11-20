@@ -4,7 +4,6 @@
 #include "Probe.hh"
 #include "MSXMotherBoard.hh"
 #include "serialize.hh"
-#include <memory>
 #include <string>
 
 namespace openmsx {
@@ -30,29 +29,22 @@ private:
 	MSXCPU& cpu;
 };
 
-// supports <optional_irq> tag in hardware config
-
-class IRQSink
-{
-public:
-	virtual ~IRQSink() = default;
-	virtual void raise() = 0;
-	virtual void lower() = 0;
-};
-
+// supports <irq_connected> tag in hardware config
 class OptionalIRQ
 {
 protected:
 	OptionalIRQ(MSXCPU& cpu, const DeviceConfig& config);
-	void raise() { sink->raise(); }
-	void lower() { sink->lower(); }
+	void raise();
+	void lower();
 private:
-	std::unique_ptr<IRQSink> sink;
+	MSXCPU& cpu;
+	enum Type { NotConnected, Maskable, NonMaskable };
+	const Type type;
 };
 
 
 // generic implementation
-template <typename SOURCE> class IntHelper : public SOURCE
+template<typename SOURCE> class IntHelper : public SOURCE
 {
 public:
 	IntHelper(const IntHelper&) = delete;
@@ -61,15 +53,10 @@ public:
 	/** Create a new IntHelper.
 	  * Initially there is no interrupt request on the bus.
 	  */
-	IntHelper(MSXMotherBoard& motherboard, const std::string& name)
-		: SOURCE(motherboard.getCPU())
-		, request(motherboard.getDebugger(), name,
-		          "Outgoing IRQ signal.", false)
-	{
-	}
+	template<typename ...Args>
 	IntHelper(MSXMotherBoard& motherboard, const std::string& name,
-	          const DeviceConfig& config)
-		: SOURCE(motherboard.getCPU(), config)
+	          Args&& ...args)
+		: SOURCE(motherboard.getCPU(), std::forward<Args>(args)...)
 		, request(motherboard.getDebugger(), name,
 		          "Outgoing IRQ signal.", false)
 	{
@@ -113,7 +100,7 @@ public:
 	/** Get the interrupt state.
 	  * @return true iff interrupt request is active.
 	  */
-	inline bool getState() const {
+	[[nodiscard]] inline bool getState() const {
 		return request;
 	}
 
@@ -122,7 +109,7 @@ public:
 	{
 		bool pending = request;
 		ar.serialize("pending", pending);
-		if (ar.isLoader()) {
+		if constexpr (Archive::IS_LOADER) {
 			set(pending);
 		}
 	}

@@ -14,17 +14,17 @@ class GlobalCliComm;
 class BreakPointBase
 {
 public:
-	std::string_view getCondition() const { return condition.getString(); }
-	std::string_view getCommand()   const { return command  .getString(); }
-	TclObject getConditionObj() const { return condition; }
-	TclObject getCommandObj()   const { return command; }
-	bool onlyOnce() const { return once; }
+	[[nodiscard]] std::string_view getCondition() const { return condition.getString(); }
+	[[nodiscard]] std::string_view getCommand()   const { return command  .getString(); }
+	[[nodiscard]] TclObject getConditionObj() const { return condition; }
+	[[nodiscard]] TclObject getCommandObj()   const { return command; }
+	[[nodiscard]] bool onlyOnce() const { return once; }
 
 	void checkAndExecute(GlobalCliComm& cliComm, Interpreter& interp);
 
 protected:
 	// Note: we require GlobalCliComm here because breakpoint objects can
-	// be transfered to different MSX machines, and so the MSXCliComm
+	// be transferred to different MSX machines, and so the MSXCliComm
 	// object won't remain valid.
 	BreakPointBase(TclObject command_, TclObject condition_, bool once_)
 		: command(std::move(command_))
@@ -32,8 +32,9 @@ protected:
 		, once(once_) {}
 
 private:
-	bool isTrue(GlobalCliComm& cliComm, Interpreter& interp) const;
+	[[nodiscard]] bool isTrue(GlobalCliComm& cliComm, Interpreter& interp) const;
 
+private:
 	TclObject command;
 	TclObject condition;
 	bool once;

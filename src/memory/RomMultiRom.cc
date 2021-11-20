@@ -4,22 +4,21 @@
 
 #include "RomMultiRom.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 
 namespace openmsx {
 
 RomMultiRom::RomMultiRom(const DeviceConfig& config, Rom&& rom_)
 	: Rom16kBBlocks(config, std::move(rom_))
 {
-	counter = 0;
-	for (int i = 0; i < 4; ++i) {
-		setRom(i, counter * 4 + i);
-	}
+	counter = 7;
+	reset(EmuTime::dummy());
 }
 
 void RomMultiRom::reset(EmuTime::param /*time*/)
 {
 	++counter &= 7;
-	for (int i = 0; i < 4; ++i) {
+	for (auto i : xrange(4)) {
 		setRom(i, counter * 4 + i);
 	}
 }

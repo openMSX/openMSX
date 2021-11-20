@@ -1,0 +1,68 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <info>
+    <manufacturer>Casio</manufacturer>
+    <code>MX-15</code>
+    <release_year>1986</release_year>
+    <description>European version of the MX-10. A cheap gaming MSX, with joystick buttons and bad keyboard and no printer port.</description>
+    <type>MSX</type>
+  </info>
+
+  <CassettePort/>
+
+  <devices>
+
+  <!--
+       based on machine from Peter Hanraets with serial 2001327
+       Machine says "TYPE B" on the top side.
+       CPU: scf: 01C529ED01D429FC (dunno) 
+       PSG mask is AY8910 like
+   -->
+
+    <PPI id="ppi">
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <io base="0xA8" num="4"/>
+      <keyboard_type>int</keyboard_type>
+      <has_keypad>false</has_keypad>
+      <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
+      <code_kana_locks>false</code_kana_locks>
+      <graph_locks>false</graph_locks>
+    </PPI>
+
+    <VDP id="VDP">
+      <version>T6950PAL</version> <!-- According to MSX.org, not confirmed. Seen from ident.bas: NO effect of 4k/16k switch, no latch, no clones, no screen 2 mirrored mode, HAS mode 3 mixed mode -->
+      <io base="0x98" num="2"/>
+    </VDP>
+
+    <PSG id="PSG">
+      <type>AY8910</type>
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <io base="0xA0" num="2" type="O"/>
+      <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>false</ignorePortDirections> <!-- not sure, but guess based on discrete PSG chip -->
+    </PSG>
+
+    <primary slot="0">
+      <RAM id="Main RAM">
+        <mem base="0xC000" size="0x4000"/>
+      </RAM>
+      <ROM id="MSX BIOS with BASIC ROM">
+        <rom>
+          <filename>mx-15_basic-bios1.rom</filename>
+          <sha1>a7ed5fd940f4e3a33e676840c0a83ac7ee54d972</sha1>
+        </rom>
+        <mem base="0x0000" size="0x8000"/>
+      </ROM>
+    </primary>
+
+    <primary external="true" slot="1"/>
+
+  </devices>
+
+</msxconfig>

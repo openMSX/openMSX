@@ -22,7 +22,7 @@ std::vector<TclObject> parseTclArgs(Interpreter& interp, span<const TclObject> i
 				append(outArgs, inArgs);
 				break;
 			}
-			auto it = ranges::find_if(table, [&](const auto& info) { return info.name == argStr; });
+			auto it = ranges::find(table, argStr, &ArgsInfo::name);
 			if (it == table.end()) {
 				throw CommandException(
 					"Invalid option: '", argStr, "'. Must be one of ",

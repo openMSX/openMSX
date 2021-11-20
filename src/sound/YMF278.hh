@@ -23,10 +23,10 @@ public:
 	void clearRam();
 	void reset(EmuTime::param time);
 	void writeReg(byte reg, byte data, EmuTime::param time);
-	byte readReg(byte reg);
-	byte peekReg(byte reg) const;
+	[[nodiscard]] byte readReg(byte reg);
+	[[nodiscard]] byte peekReg(byte reg) const;
 
-	byte readMem(unsigned address) const;
+	[[nodiscard]] byte readMem(unsigned address) const;
 	void writeMem(unsigned address, byte value);
 
 	void setMixLevel(uint8_t x, EmuTime::param time);
@@ -39,12 +39,12 @@ private:
 	public:
 		Slot();
 		void reset();
-		int compute_rate(int val) const;
-		int compute_decay_rate(int val) const;
-		unsigned decay_rate(int num, int sample_rate);
+		[[nodiscard]] int compute_rate(int val) const;
+		[[nodiscard]] int compute_decay_rate(int val) const;
+		[[nodiscard]] unsigned decay_rate(int num, int sample_rate);
 		void envelope_next(int sample_rate);
-		int16_t compute_vib() const;
-		uint16_t compute_am() const;
+		[[nodiscard]] int16_t compute_vib() const;
+		[[nodiscard]] uint16_t compute_am() const;
 
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);
@@ -91,23 +91,23 @@ private:
 	void generateChannels(float** bufs, unsigned num) override;
 
 	void writeRegDirect(byte reg, byte data, EmuTime::param time);
-	unsigned getRamAddress(unsigned addr) const;
-	int16_t getSample(Slot& op) const;
+	[[nodiscard]] unsigned getRamAddress(unsigned addr) const;
+	[[nodiscard]] int16_t getSample(Slot& op) const;
 	void advance();
-	bool anyActive();
+	[[nodiscard]] bool anyActive();
 	void keyOnHelper(Slot& slot);
 
 	MSXMotherBoard& motherBoard;
 
 	struct DebugRegisters final : SimpleDebuggable {
 		DebugRegisters(MSXMotherBoard& motherBoard, const std::string& name);
-		byte read(unsigned address) override;
+		[[nodiscard]] byte read(unsigned address) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	} debugRegisters;
 
 	struct DebugMemory final : SimpleDebuggable {
 		DebugMemory(MSXMotherBoard& motherBoard, const std::string& name);
-		byte read(unsigned address) override;
+		[[nodiscard]] byte read(unsigned address) override;
 		void write(unsigned address, byte value) override;
 	} debugMemory;
 
@@ -116,7 +116,7 @@ private:
 	/** Global envelope generator counter. */
 	unsigned eg_cnt;
 
-	int memadr;
+	int memAdr;
 
 	Rom rom;
 	TrackedRam ram;

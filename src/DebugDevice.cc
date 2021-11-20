@@ -5,8 +5,6 @@
 #include <iostream>
 #include <iomanip>
 
-using std::string;
-
 namespace openmsx {
 
 DebugDevice::DebugDevice(const DeviceConfig& config)
@@ -98,22 +96,15 @@ void DebugDevice::outputSingleByte(byte value, EmuTime::param time)
 
 void DebugDevice::outputMultiByte(byte value)
 {
-	DisplayType dispType;
-	switch (modeParameter) {
-	case 0:
-		dispType = HEX;
-		break;
-	case 1:
-		dispType = BIN;
-		break;
-	case 2:
-		dispType = DEC;
-		break;
-	case 3:
-	default:
-		dispType = ASC;
-		break;
-	}
+	DisplayType dispType = [&] {
+		switch (modeParameter) {
+			case 0:  return HEX;
+			case 1:  return BIN;
+			case 2:  return DEC;
+			case 3:
+			default: return ASC;
+		}
+	}();
 	displayByte(value, dispType);
 }
 
@@ -153,13 +144,13 @@ void DebugDevice::openOutput(std::string_view name)
 	} else if (name == "stderr") {
 		outputstrm = &std::cerr;
 	} else {
-		string realName = FileOperations::expandTilde(name);
+		auto realName = FileOperations::expandTilde(fileNameString);
 		FileOperations::openofstream(debugOut, realName, std::ios::app);
 		outputstrm = &debugOut;
 	}
 }
 
-static std::initializer_list<enum_string<DebugDevice::DebugMode>> debugModeInfo = {
+static constexpr std::initializer_list<enum_string<DebugDevice::DebugMode>> debugModeInfo = {
 	{ "OFF",        DebugDevice::OFF },
 	{ "SINGLEBYTE", DebugDevice::SINGLEBYTE },
 	{ "MULTIBYTE",  DebugDevice::MULTIBYTE },

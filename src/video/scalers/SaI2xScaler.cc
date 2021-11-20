@@ -8,20 +8,21 @@
 #include "FrameSource.hh"
 #include "ScalerOutput.hh"
 #include "vla.hh"
+#include "xrange.hh"
 #include "build-info.hh"
 #include <cassert>
 #include <cstdint>
 
 namespace openmsx {
 
-template <class Pixel>
+template<typename Pixel>
 SaI2xScaler<Pixel>::SaI2xScaler(const PixelOperations<Pixel>& pixelOps_)
 	: Scaler2<Pixel>(pixelOps_)
 	, pixelOps(pixelOps_)
 {
 }
 
-template <class Pixel>
+template<typename Pixel>
 void SaI2xScaler<Pixel>::scaleBlank1to2(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -44,13 +45,13 @@ void SaI2xScaler<Pixel>::scaleBlank1to2(
 	}
 }
 
-template <class Pixel>
-inline Pixel SaI2xScaler<Pixel>::blend(Pixel p1, Pixel p2)
+template<typename Pixel>
+inline Pixel SaI2xScaler<Pixel>::blend(Pixel p1, Pixel p2) const
 {
 	return pixelOps.template blend<1, 1>(p1, p2);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void SaI2xScaler<Pixel>::scaleLine1on2(
 	const Pixel* __restrict srcLine0, const Pixel* __restrict srcLine1,
 	const Pixel* __restrict srcLine2, const Pixel* __restrict srcLine3,
@@ -58,7 +59,7 @@ void SaI2xScaler<Pixel>::scaleLine1on2(
 	unsigned srcWidth)
 {
 	// TODO: Scale border pixels as well.
-	for (unsigned x = 0; x < srcWidth; x++) {
+	for (auto x : xrange(srcWidth)) {
 		// Map of the pixels:
 		//   I|E F|J
 		//   G|A B|K
@@ -169,7 +170,7 @@ void SaI2xScaler<Pixel>::scaleLine1on2(
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void SaI2xScaler<Pixel>::scaleLine1on1(
 	const Pixel* __restrict srcLine0, const Pixel* __restrict srcLine1,
 	const Pixel* __restrict srcLine2, const Pixel* __restrict srcLine3,
@@ -181,7 +182,7 @@ void SaI2xScaler<Pixel>::scaleLine1on1(
 	// like SimpleScaler does.
 	dstUpper[0] = srcLine1[0];
 	dstLower[0] = blend(srcLine1[0], srcLine2[0]);
-	for (unsigned x = 1; x < srcWidth - 1; x++) {
+	for (auto x : xrange(1u, srcWidth - 1)) {
 		// Map of the pixels:
 		//   I E F
 		//   G A B
@@ -239,7 +240,7 @@ void SaI2xScaler<Pixel>::scaleLine1on1(
 		blend(srcLine1[srcWidth - 1], srcLine2[srcWidth - 1]);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void SaI2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -273,7 +274,7 @@ void SaI2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void SaI2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)

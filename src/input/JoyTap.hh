@@ -2,44 +2,45 @@
 #define JOYTAP_HH
 
 #include "JoystickDevice.hh"
+#include "JoystickPort.hh"
 #include "serialize_meta.hh"
-#include <memory>
+#include "static_string_view.hh"
+#include <optional>
 
 namespace openmsx {
 
 class PluggingController;
-class JoystickPort;
 
-/** This device is pluged in into the joyports and consolidates several other
+/** This device is plugged in into the joyports and consolidates several other
  * joysticks plugged into it. This joytap simply ANDs all the joystick
  * outputs, acting as a simple wiring of all digital joysticks into one
  * connector.
  * This is the base class for the NinjaTap device and the FNano2 multiplayer
- * extension, who basicly have other read and write methods
+ * extension, who basically have other read and write methods
  */
 class JoyTap : public JoystickDevice
 {
 public:
 	JoyTap(PluggingController& pluggingController, std::string name);
-	~JoyTap() override;
 
 	// Pluggable
-	const std::string& getName() const override;
-	std::string_view getDescription() const override;
+	[[nodiscard]] std::string_view getName() const override;
+	[[nodiscard]] std::string_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 
 	// JoystickDevice
-	byte read(EmuTime::param time) override;
+	[[nodiscard]] byte read(EmuTime::param time) override;
 	void write(byte value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 protected:
-	void createPorts(const std::string& baseDescription);
+	void createPorts(static_string_view description);
 
-	std::unique_ptr<JoystickPort> slaves[4];
+protected:
+	std::optional<JoystickPort> slaves[4];
 	PluggingController& pluggingController;
 
 private:

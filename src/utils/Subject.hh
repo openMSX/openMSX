@@ -14,7 +14,7 @@ namespace openmsx {
  * Generic Gang-of-Four Subject class of the Observer pattern, templatized
  * edition.
  */
-template <typename T> class Subject
+template<typename T> class Subject
 {
 public:
 	void attach(Observer<T>& observer);
@@ -37,7 +37,7 @@ private:
 	mutable NotifyState notifyState = IDLE;
 };
 
-template <typename T> Subject<T>::~Subject()
+template<typename T> Subject<T>::~Subject()
 {
 	assert(notifyState == IDLE);
 	auto copy = observers;
@@ -47,13 +47,13 @@ template <typename T> Subject<T>::~Subject()
 	assert(observers.empty());
 }
 
-template <typename T> void Subject<T>::attach(Observer<T>& observer)
+template<typename T> void Subject<T>::attach(Observer<T>& observer)
 {
 	assert(notifyState == IDLE);
 	observers.push_back(&observer);
 }
 
-template <typename T> void Subject<T>::detach(Observer<T>& observer)
+template<typename T> void Subject<T>::detach(Observer<T>& observer)
 {
 	auto it = rfind_unguarded(observers, &observer);
 	if (notifyState == IDLE) {
@@ -64,13 +64,17 @@ template <typename T> void Subject<T>::detach(Observer<T>& observer)
 	}
 }
 
-template <typename T> void Subject<T>::notify() const
+template<typename T> void Subject<T>::notify() const
 {
 	assert(notifyState == IDLE);
 	notifyState = IN_PROGRESS;
 
 	for (auto& o : observers) {
-		o->update(*static_cast<const T*>(this));
+		try {
+			o->update(*static_cast<const T*>(this));
+		} catch (...) {
+			assert(false && "Observer::update() shouldn't throw");
+		}
 	}
 
 	if (notifyState == DETACH) {

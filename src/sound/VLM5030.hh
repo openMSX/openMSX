@@ -14,8 +14,8 @@ class DeviceConfig;
 class VLM5030 final : public ResampledSoundDevice
 {
 public:
-	VLM5030(const std::string& name, const std::string& desc,
-	        const std::string& romFilename, const DeviceConfig& config);
+	VLM5030(const std::string& name, static_string_view desc,
+	        std::string_view romFilename, const DeviceConfig& config);
 	~VLM5030();
 	void reset();
 
@@ -26,7 +26,7 @@ public:
 	void writeControl(byte data, EmuTime::param time);
 
 	/** get BSY pin level */
-	bool getBSY(EmuTime::param time) const;
+	[[nodiscard]] bool getBSY(EmuTime::param time) const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -38,12 +38,13 @@ private:
 
 	// SoundDevice
 	void generateChannels(float** bufs, unsigned num) override;
-	float getAmplificationFactorImpl() const override;
+	[[nodiscard]] float getAmplificationFactorImpl() const override;
 
 	void setupParameter(byte param);
-	int getBits(unsigned sbit, unsigned bits);
-	int parseFrame();
+	[[nodiscard]] int getBits(unsigned sBit, unsigned bits);
+	[[nodiscard]] int parseFrame();
 
+private:
 	Rom rom;
 	int address_mask;
 

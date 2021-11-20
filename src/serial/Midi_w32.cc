@@ -31,6 +31,7 @@
 #include "MemBuffer.hh"
 #include "cstdiop.hh"
 #include "one_of.hh"
+#include "xrange.hh"
 
 #include <cstring>
 #include <cstdlib>
@@ -38,8 +39,6 @@
 #include <cassert>
 
 #define MAXPATHLEN MAX_PATH
-
-using std::string;
 
 namespace openmsx {
 
@@ -77,8 +76,8 @@ static char inlongmes[OPENMSX_W32_MIDI_SYSMES_MAXLEN];
 static void w32_midiDevNameConv(char *dst, char *src)
 {
 	size_t len = strlen(src);
-	size_t i;
-	for (i = 0; i < len; ++i) {
+	size_t i = 0;
+	for (/**/; i < len; ++i) {
 		if ((src[i] < '0') || (src[i] > 'z') ||
 		    ((src[i] > '9') && (src[i] < 'A')) ||
 		    ((src[i] > 'Z') && (src[i] < 'a'))) {
@@ -94,7 +93,7 @@ static void w32_midiDevNameConv(char *dst, char *src)
 // MIDI-OUT
 static int w32_midiOutFindDev(unsigned *idx, unsigned *dev, const char *vfn)
 {
-	for (unsigned i = 0; i < vfnt_midiout_num; ++i) {
+	for (auto i : xrange(vfnt_midiout_num)) {
 		if (!strcmp(vfnt_midiout[i].vfname, vfn)) {
 			*idx = i;
 			*dev = vfnt_midiout[i].devid;
@@ -130,7 +129,7 @@ int w32_midiOutInit()
 	strncpy(vfnt_midiout[0].vfname, "midi-out", MAXPATHLEN + 1);
 	vfnt_midiout_num ++;
 
-	for (unsigned i = 0; i < num; ++i) {
+	for (auto i : xrange(num)) {
 		if (midiOutGetDevCapsA(i, &cap, sizeof(cap)) != MMSYSERR_NOERROR) {
 			return 0; // atleast MIDI-MAPPER is available...
 		}
@@ -153,13 +152,13 @@ unsigned w32_midiOutGetVFNsNum()
 	return vfnt_midiout_num;
 }
 
-string w32_midiOutGetVFN(unsigned nmb)
+std::string w32_midiOutGetVFN(unsigned nmb)
 {
 	assert(nmb < vfnt_midiout_num);
 	return vfnt_midiout[nmb].vfname;
 }
 
-string w32_midiOutGetRDN(unsigned nmb)
+std::string w32_midiOutGetRDN(unsigned nmb)
 {
 	assert(nmb < vfnt_midiout_num);
 	return vfnt_midiout[nmb].devname;
@@ -213,10 +212,10 @@ static int w32_midiOutFlushExclusiveMsg(unsigned idx)
 	return 0;
 }
 
-int w32_midiOutMsg(unsigned size, const uint8_t* data, unsigned idx)
+int w32_midiOutMsg(size_t size, const uint8_t* data, unsigned idx)
 {
-	if (size <= 0)
-		return 0;
+	if (size == 0) return 0;
+
 	HMIDIOUT hMidiOut = reinterpret_cast<HMIDIOUT>(vfnt_midiout[idx].handle);
 	if (data[0] == one_of(0xF0, 0xF7)) { // SysEx
 		if (size > OPENMSX_W32_MIDI_SYSMES_MAXLEN) {
@@ -227,12 +226,13 @@ int w32_midiOutMsg(unsigned size, const uint8_t* data, unsigned idx)
 		// Even though Windows doesn't write to the buffer, it fails if you don't have
 		// write access to the respective memory page.
 		buf.header.lpData = const_cast<LPSTR>(reinterpret_cast<LPCSTR>(data));
-		buf.header.dwBufferLength = size;
+		buf.header.dwBufferLength = unsigned(size);
 		w32_midiOutFlushExclusiveMsg(idx);
 	} else {
 		DWORD midiMsg = 0x000000;
-		for (unsigned i = 0; i < size && i < 4; i++)
+		for (unsigned i = 0; i < size && i < 4; i++) {
 			midiMsg |= data[i] << (8 * i);
+		}
 		midiOutShortMsg(hMidiOut, midiMsg);
 	}
 	return 0;
@@ -242,7 +242,7 @@ int w32_midiOutMsg(unsigned size, const uint8_t* data, unsigned idx)
 // MIDI-IN
 static int w32_midiInFindDev(unsigned *idx, unsigned *dev, const char *vfn)
 {
-	for (unsigned i = 0; i < vfnt_midiin_num; ++i) {
+	for (auto i : xrange(vfnt_midiin_num)) {
 		if (!strcmp(vfnt_midiin[i].vfname, vfn)) {
 			*idx = i;
 			*dev = vfnt_midiin[i].devid;
@@ -260,7 +260,7 @@ int w32_midiInInit()
 	if (!num) return 0;
 
 	vfnt_midiin.resize(num + 1);
-	for (unsigned i = 0; i < num; ++i) {
+	for (auto i : xrange(num)) {
 		MIDIINCAPSA cap;
 		if (midiInGetDevCapsA(i, &cap, sizeof(cap)) != MMSYSERR_NOERROR) {
 			return 1;
@@ -284,13 +284,13 @@ unsigned w32_midiInGetVFNsNum()
 	return vfnt_midiin_num;
 }
 
-string w32_midiInGetVFN(unsigned nmb)
+std::string w32_midiInGetVFN(unsigned nmb)
 {
 	assert(nmb < vfnt_midiin_num);
 	return vfnt_midiin[nmb].vfname;
 }
 
-string w32_midiInGetRDN(unsigned nmb)
+std::string w32_midiInGetRDN(unsigned nmb)
 {
 	assert(nmb < vfnt_midiin_num);
 	return vfnt_midiin[nmb].devname;

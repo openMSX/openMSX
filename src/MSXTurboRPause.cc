@@ -57,7 +57,7 @@ void MSXTurboRPause::writeIO(word /*port*/, byte value, EmuTime::param /*time*/)
 	updatePause();
 }
 
-void MSXTurboRPause::update(const Setting& /*setting*/)
+void MSXTurboRPause::update(const Setting& /*setting*/) noexcept
 {
 	updatePause();
 }
@@ -86,7 +86,7 @@ void MSXTurboRPause::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("status", status);
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		writeIO(0, status, EmuTime::dummy());
 	}
 }

@@ -3,11 +3,9 @@
 #include <algorithm>
 #include <cstring>
 
-using std::string;
-
 namespace openmsx {
 
-span<uint8_t> FileBase::mmap()
+span<const uint8_t> FileBase::mmap()
 {
 	auto size = getSize();
 	if (mmapBuf.empty()) {
@@ -48,17 +46,17 @@ void FileBase::truncate(size_t newSize)
 	}
 }
 
-string FileBase::getLocalReference()
+std::string FileBase::getLocalReference()
 {
 	// default implementation, file is not backed (uncompressed) on
 	// the local file system
 	return {};
 }
 
-string FileBase::getOriginalName()
+std::string_view FileBase::getOriginalName()
 {
 	// default implementation just returns filename portion of URL
-	return string(FileOperations::getFilename(getURL()));
+	return FileOperations::getFilename(getURL());
 }
 
 } // namespace openmsx

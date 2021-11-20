@@ -3,6 +3,7 @@
 #include "win32-arggen.hh"
 #include "MSXException.hh"
 #include "utf8_checked.hh"
+#include "xrange.hh"
 #include <windows.h>
 #include <shellapi.h>
 
@@ -10,7 +11,7 @@ namespace openmsx {
 
 ArgumentGenerator::~ArgumentGenerator()
 {
-	for (int i = 0; i < argc; ++i) {
+	for (auto i : xrange(argc)) {
 		free(argv[i]);
 	}
 }
@@ -24,7 +25,7 @@ char** ArgumentGenerator::GetArguments(int& argc_)
 		}
 
 		argv.resize(argc);
-		for (int i = 0; i < argc; ++i) {
+		for (auto i : xrange(argc)) {
 			argv[i] = strdup(utf8::utf16to8(pszArglist[i]).c_str());
 		}
 		LocalFree(pszArglist);

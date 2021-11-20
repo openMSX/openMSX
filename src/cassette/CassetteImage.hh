@@ -14,14 +14,14 @@ public:
 	enum FileType { ASCII, BINARY, BASIC, UNKNOWN };
 
 	virtual ~CassetteImage() = default;
-	virtual int16_t getSampleAt(EmuTime::param time) = 0;
-	virtual EmuTime getEndTime() const = 0;
-	virtual unsigned getFrequency() const = 0;
+	virtual int16_t getSampleAt(EmuTime::param time) const = 0;
+	[[nodiscard]] virtual EmuTime getEndTime() const = 0;
+	[[nodiscard]] virtual unsigned getFrequency() const = 0;
 	virtual void fillBuffer(unsigned pos, float** bufs, unsigned num) const = 0;
-	virtual float getAmplificationFactorImpl() const = 0;
+	[[nodiscard]] virtual float getAmplificationFactorImpl() const = 0;
 
-	FileType getFirstFileType() const { return firstFileType; }
-	std::string getFirstFileTypeAsString() const;
+	[[nodiscard]] FileType getFirstFileType() const { return firstFileType; }
+	[[nodiscard]] std::string getFirstFileTypeAsString() const;
 
 	/** Get sha1sum for this image.
 	 * This is based on the content of the file, not the logical meaning of
@@ -30,7 +30,7 @@ public:
 	 * different bits per sample). This method will give a different
 	 * sha1sum to such files.
 	 */
-	const Sha1Sum& getSha1Sum() const;
+	[[nodiscard]] const Sha1Sum& getSha1Sum() const;
 
 protected:
 	CassetteImage() = default;

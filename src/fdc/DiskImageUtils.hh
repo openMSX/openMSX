@@ -1,10 +1,10 @@
 #ifndef DISK_IMAGE_UTILS_HH
 #define DISK_IMAGE_UTILS_HH
 
-#include "openmsx.hh"
 #include "AlignedBuffer.hh"
 #include "endian.hh"
-#include <vector>
+#include "openmsx.hh"
+#include "span.hh"
 
 namespace openmsx {
 
@@ -114,7 +114,7 @@ namespace DiskImageUtils {
 
 	/** Check whether the given disk is partitioned.
 	 */
-	bool hasPartitionTable(SectorAccessibleDisk& disk);
+	[[nodiscard]] bool hasPartitionTable(SectorAccessibleDisk& disk);
 
 	/** Format the given disk (= a single partition).
 	 * The formatting depends on the size of the image.
@@ -128,7 +128,7 @@ namespace DiskImageUtils {
 	 * @param sizes The number of sectors for each partition.
 	 */
 	void partition(SectorAccessibleDisk& disk,
-	               const std::vector<unsigned>& sizes);
+	               span<const unsigned> sizes);
 };
 
 } // namespace openmsx

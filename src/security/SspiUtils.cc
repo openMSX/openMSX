@@ -2,6 +2,7 @@
 
 #include "SspiUtils.hh"
 #include "MSXException.hh"
+#include "xrange.hh"
 #include <sddl.h>
 #include <cassert>
 #include <iostream>
@@ -43,7 +44,7 @@ void InitTokenContextBuffer(PSecBufferDesc pSecBufferDesc, PSecBuffer pSecBuffer
 
 void ClearContextBuffers(PSecBufferDesc pSecBufferDesc)
 {
-	for (ULONG i = 0; i < pSecBufferDesc->cBuffers; i ++) {
+	for (auto i : xrange(pSecBufferDesc->cBuffers)) {
 		FreeContextBuffer(pSecBufferDesc->pBuffers[i].pvBuffer);
 		pSecBufferDesc->pBuffers[i].cbBuffer = 0;
 		pSecBufferDesc->pBuffers[i].pvBuffer = nullptr;

@@ -1,18 +1,14 @@
 #include "Mouse.hh"
 #include "MSXEventDistributor.hh"
 #include "StateChangeDistributor.hh"
-#include "InputEvents.hh"
+#include "Event.hh"
 #include "StateChange.hh"
 #include "Clock.hh"
-#include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include "unreachable.hh"
 #include <SDL.h>
 #include <algorithm>
-
-using std::string;
-using std::shared_ptr;
 
 namespace openmsx {
 
@@ -34,10 +30,10 @@ public:
 		: StateChange(time_)
 		, deltaX(deltaX_), deltaY(deltaY_)
 		, press(press_), release(release_) {}
-	int  getDeltaX()  const { return deltaX; }
-	int  getDeltaY()  const { return deltaY; }
-	byte getPress()   const { return press; }
-	byte getRelease() const { return release; }
+	[[nodiscard]] int  getDeltaX()  const { return deltaX; }
+	[[nodiscard]] int  getDeltaY()  const { return deltaY; }
+	[[nodiscard]] byte getPress()   const { return press; }
+	[[nodiscard]] byte getRelease() const { return release; }
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
@@ -75,10 +71,9 @@ Mouse::~Mouse()
 
 
 // Pluggable
-const string& Mouse::getName() const
+std::string_view Mouse::getName() const
 {
-	static const string name("mouse");
-	return name;
+	return "mouse";
 }
 
 std::string_view Mouse::getDescription() const
@@ -138,45 +133,45 @@ void Mouse::emulateJoystick()
 {
 	status &= ~(JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT);
 
-	int deltax = curxrel; curxrel = 0;
-	int deltay = curyrel; curyrel = 0;
-	int absx = (deltax > 0) ? deltax : -deltax;
-	int absy = (deltay > 0) ? deltay : -deltay;
+	int deltaX = curxrel; curxrel = 0;
+	int deltaY = curyrel; curyrel = 0;
+	int absX = (deltaX > 0) ? deltaX : -deltaX;
+	int absY = (deltaY > 0) ? deltaY : -deltaY;
 
-	if ((absx < TRESHOLD) && (absy < TRESHOLD)) {
+	if ((absX < TRESHOLD) && (absY < TRESHOLD)) {
 		return;
 	}
 
 	// tan(pi/8) ~= 5/12
-	if (deltax > 0) {
-		if (deltay > 0) {
-			if ((12 * absx) > (5 * absy)) {
+	if (deltaX > 0) {
+		if (deltaY > 0) {
+			if ((12 * absX) > (5 * absY)) {
 				status |= JOY_RIGHT;
 			}
-			if ((12 * absy) > (5 * absx)) {
+			if ((12 * absY) > (5 * absX)) {
 				status |= JOY_DOWN;
 			}
 		} else {
-			if ((12 * absx) > (5 * absy)) {
+			if ((12 * absX) > (5 * absY)) {
 				status |= JOY_RIGHT;
 			}
-			if ((12 * absy) > (5 * absx)) {
+			if ((12 * absY) > (5 * absX)) {
 				status |= JOY_UP;
 			}
 		}
 	} else {
-		if (deltay > 0) {
-			if ((12 * absx) > (5 * absy)) {
+		if (deltaY > 0) {
+			if ((12 * absX) > (5 * absY)) {
 				status |= JOY_LEFT;
 			}
-			if ((12 * absy) > (5 * absx)) {
+			if ((12 * absY) > (5 * absX)) {
 				status |= JOY_DOWN;
 			}
 		} else {
-			if ((12 * absx) > (5 * absy)) {
+			if ((12 * absX) > (5 * absY)) {
 				status |= JOY_LEFT;
 			}
-			if ((12 * absy) > (5 * absx)) {
+			if ((12 * absY) > (5 * absX)) {
 				status |= JOY_UP;
 			}
 		}
@@ -243,66 +238,58 @@ void Mouse::write(byte value, EmuTime::param time)
 
 
 // MSXEventListener
-void Mouse::signalMSXEvent(const shared_ptr<const Event>& event, EmuTime::param time)
+void Mouse::signalMSXEvent(const Event& event, EmuTime::param time) noexcept
 {
-	switch (event->getType()) {
-	case OPENMSX_MOUSE_MOTION_EVENT: {
-		auto& mev = checked_cast<const MouseMotionEvent&>(*event);
-		if (mev.getX() || mev.getY()) {
-			// note: X/Y are negated, do this already in this
-			//  routine to keep replays bw-compat. In a new
-			//  savestate version it may (or may not) be cleaner
-			//  to perform this operation closer to the MSX code.
-			createMouseStateChange(time, -mev.getX(), -mev.getY(), 0, 0);
-		}
-		break;
-	}
-	case OPENMSX_MOUSE_BUTTON_DOWN_EVENT: {
-		auto& butEv = checked_cast<const MouseButtonEvent&>(*event);
-		switch (butEv.getButton()) {
-		case MouseButtonEvent::LEFT:
-			createMouseStateChange(time, 0, 0, JOY_BUTTONA, 0);
-			break;
-		case MouseButtonEvent::RIGHT:
-			createMouseStateChange(time, 0, 0, JOY_BUTTONB, 0);
-			break;
-		default:
-			// ignore other buttons
-			break;
-		}
-		break;
-	}
-	case OPENMSX_MOUSE_BUTTON_UP_EVENT: {
-		auto& butEv = checked_cast<const MouseButtonEvent&>(*event);
-		switch (butEv.getButton()) {
-		case MouseButtonEvent::LEFT:
-			createMouseStateChange(time, 0, 0, 0, JOY_BUTTONA);
-			break;
-		case MouseButtonEvent::RIGHT:
-			createMouseStateChange(time, 0, 0, 0, JOY_BUTTONB);
-			break;
-		default:
-			// ignore other buttons
-			break;
-		}
-		break;
-	}
-	default:
-		// ignore
-		break;
-	}
+	visit(overloaded{
+		[&](const MouseMotionEvent& e) {
+			if (e.getX() || e.getY()) {
+				// note: X/Y are negated, do this already in this
+				//  routine to keep replays bw-compat. In a new
+				//  savestate version it may (or may not) be cleaner
+				//  to perform this operation closer to the MSX code.
+				createMouseStateChange(time, -e.getX(), -e.getY(), 0, 0);
+			}
+		},
+		[&](const MouseButtonDownEvent& e) {
+			switch (e.getButton()) {
+			case MouseButtonEvent::LEFT:
+				createMouseStateChange(time, 0, 0, JOY_BUTTONA, 0);
+				break;
+			case MouseButtonEvent::RIGHT:
+				createMouseStateChange(time, 0, 0, JOY_BUTTONB, 0);
+				break;
+			default:
+				// ignore other buttons
+				break;
+			}
+		},
+		[&](const MouseButtonUpEvent& e) {
+			switch (e.getButton()) {
+			case MouseButtonEvent::LEFT:
+				createMouseStateChange(time, 0, 0, 0, JOY_BUTTONA);
+				break;
+			case MouseButtonEvent::RIGHT:
+				createMouseStateChange(time, 0, 0, 0, JOY_BUTTONB);
+				break;
+			default:
+				// ignore other buttons
+				break;
+			}
+		},
+		[](const EventBase&) { /*ignore*/ }
+	}, event);
 }
 
 void Mouse::createMouseStateChange(
 	EmuTime::param time, int deltaX, int deltaY, byte press, byte release)
 {
-	stateChangeDistributor.distributeNew(std::make_shared<MouseState>(
-		time, deltaX, deltaY, press, release));
+	stateChangeDistributor.distributeNew<MouseState>(
+		time, deltaX, deltaY, press, release);
 }
 
-void Mouse::signalStateChange(const shared_ptr<StateChange>& event)
+void Mouse::signalStateChange(const StateChange& event)
 {
-	auto ms = dynamic_cast<MouseState*>(event.get());
+	const auto* ms = dynamic_cast<const MouseState*>(&event);
 	if (!ms) return;
 
 	// This is almost the same as
@@ -324,7 +311,7 @@ void Mouse::signalStateChange(const shared_ptr<StateChange>& event)
 	status = (status & ~ms->getPress()) | ms->getRelease();
 }
 
-void Mouse::stopReplay(EmuTime::param time)
+void Mouse::stopReplay(EmuTime::param time) noexcept
 {
 	// TODO read actual host mouse button state
 	int dx = 0 - curxrel;
@@ -344,15 +331,17 @@ void Mouse::stopReplay(EmuTime::param time)
 template<typename Archive>
 void Mouse::serialize(Archive& ar, unsigned version)
 {
-	if (ar.isLoader() && isPluggedIn()) {
-		// Do this early, because if something goes wrong while loading
-		// some state below, then unplugHelper() gets called and that
-		// will assert when plugHelper2() wasn't called yet.
-		plugHelper2();
+	if constexpr (Archive::IS_LOADER) {
+		if (isPluggedIn()) {
+			// Do this early, because if something goes wrong while loading
+			// some state below, then unplugHelper() gets called and that
+			// will assert when plugHelper2() wasn't called yet.
+			plugHelper2();
+		}
 	}
 
 	if (ar.versionBelow(version, 4)) {
-		assert(ar.isLoader());
+		assert(Archive::IS_LOADER);
 		Clock<1000> tmp(EmuTime::zero());
 		ar.serialize("lastTime", tmp);
 		lastTime = tmp.getTime();

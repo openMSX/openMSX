@@ -83,13 +83,13 @@ void YM2148::execRecv(EmuTime::param time)
 	getPluggedMidiInDev().signal(time); // trigger (possible) send of next char
 }
 
-// MidiInDevice querries whether it can send a new character 'now'.
+// MidiInDevice queries whether it can send a new character 'now'.
 bool YM2148::ready()
 {
 	return rxReady;
 }
 
-// MidiInDevice querries whether it can send characters at all.
+// MidiInDevice queries whether it can send characters at all.
 bool YM2148::acceptsData()
 {
 	return (commandReg & CMD_RXEN) != 0;
@@ -111,7 +111,7 @@ void YM2148::setParityBit(bool /*enable*/, ParityBit /*parity*/)
 }
 
 // MSX program reads the status register.
-byte YM2148::readStatus(EmuTime::param /*time*/)
+byte YM2148::readStatus(EmuTime::param /*time*/) const
 {
 	return status;
 }

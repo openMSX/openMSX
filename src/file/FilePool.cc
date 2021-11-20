@@ -8,59 +8,45 @@
 #include "EventDistributor.hh"
 #include "CliComm.hh"
 #include "Reactor.hh"
+#include "outer.hh"
+#include "xrange.hh"
 #include <memory>
-
-using std::string;
-using std::vector;
 
 namespace openmsx {
 
-class Sha1SumCommand final : public Command
-{
-public:
-	Sha1SumCommand(CommandController& commandController, FilePool& filePool);
-	void execute(span<const TclObject> tokens, TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
-private:
-	FilePool& filePool;
-};
-
-
-static string initialFilePoolSettingValue()
+[[nodiscard]] static TclObject initialFilePoolSettingValue()
 {
 	TclObject result;
 
 	for (auto& p : systemFileContext().getPaths()) {
 		result.addListElement(
-			makeTclDict("-path", FileOperations::join(p, "systemroms"),
+			makeTclDict("-path", tmpStrCat(p, "/systemroms"),
 			            "-types", "system_rom"),
-			makeTclDict("-path", FileOperations::join(p, "software"),
+			makeTclDict("-path", tmpStrCat(p, "/software"),
 			            "-types", "rom disk tape"));
 	}
-	return string(result.getString());
+	return result;
 }
 
 FilePool::FilePool(CommandController& controller, Reactor& reactor_)
 	: core(FileOperations::getUserDataDir() + "/.filecache",
 	       [&] { return getDirectories(); },
-	       [&](const std::string& message) { reportProgress(message); })
+	       [&](std::string_view message) { reportProgress(message); })
 	, filePoolSetting(
 		controller, "__filepool",
 		"This is an internal setting. Don't change this directly, "
 		"instead use the 'filepool' command.",
-		initialFilePoolSettingValue())
+		initialFilePoolSettingValue().getString())
 	, reactor(reactor_)
+	, sha1SumCommand(controller)
 {
 	filePoolSetting.attach(*this);
-	reactor.getEventDistributor().registerEventListener(OPENMSX_QUIT_EVENT, *this);
-
-	sha1SumCommand = std::make_unique<Sha1SumCommand>(controller, *this);
+	reactor.getEventDistributor().registerEventListener(EventType::QUIT, *this);
 }
 
 FilePool::~FilePool()
 {
-	reactor.getEventDistributor().unregisterEventListener(OPENMSX_QUIT_EVENT, *this);
+	reactor.getEventDistributor().unregisterEventListener(EventType::QUIT, *this);
 	filePoolSetting.detach(*this);
 }
 
@@ -74,11 +60,10 @@ Sha1Sum FilePool::getSha1Sum(File& file)
 	return core.getSha1Sum(file);
 }
 
-static FileType parseTypes(Interpreter& interp, const TclObject& list)
+[[nodiscard]] static FileType parseTypes(Interpreter& interp, const TclObject& list)
 {
 	auto result = FileType::NONE;
-	unsigned num = list.getListLength(interp);
-	for (unsigned i = 0; i < num; ++i) {
+	for (auto i : xrange(list.getListLength(interp))) {
 		std::string_view elem = list.getListIndex(interp, i).getString();
 		if (elem == "system_rom") {
 			result |= FileType::SYSTEM_ROM;
@@ -101,8 +86,7 @@ FilePoolCore::Directories FilePool::getDirectories() const
 	try {
 		auto& interp = filePoolSetting.getInterpreter();
 		const TclObject& all = filePoolSetting.getValue();
-		unsigned numLines = all.getListLength(interp);
-		for (unsigned i = 0; i < numLines; ++i) {
+		for (auto i : xrange(all.getListLength(interp))) {
 			FilePoolCore::Dir dir;
 			bool hasPath = false;
 			dir.types = FileType::NONE;
@@ -133,7 +117,7 @@ FilePoolCore::Directories FilePool::getDirectories() const
 				throw CommandException(
 					"Missing -types item: ", line.getString());
 			}
-			result.push_back(dir);
+			result.push_back(std::move(dir));
 		}
 	} catch (CommandException& e) {
 		reactor.getCliComm().printWarning(
@@ -142,23 +126,23 @@ FilePoolCore::Directories FilePool::getDirectories() const
 	return result;
 }
 
-void FilePool::update(const Setting& setting)
+void FilePool::update(const Setting& setting) noexcept
 {
 	assert(&setting == &filePoolSetting); (void)setting;
-	getDirectories(); // check for syntax errors
+	(void)getDirectories(); // check for syntax errors
 }
 
-void FilePool::reportProgress(const std::string& message)
+void FilePool::reportProgress(std::string_view message)
 {
 	if (quit) core.abort();
 	reactor.getCliComm().printProgress(message);
-	reactor.getDisplay().repaintDelayed(0);
+	reactor.getDisplay().repaint();
 }
 
-int FilePool::signalEvent(const std::shared_ptr<const Event>& event)
+int FilePool::signalEvent(const Event& event) noexcept
 {
 	(void)event; // avoid warning for non-assert compiles
-	assert(event->getType() == OPENMSX_QUIT_EVENT);
+	assert(getType(event) == EventType::QUIT);
 	quit = true;
 	return 0;
 }
@@ -166,27 +150,27 @@ int FilePool::signalEvent(const std::shared_ptr<const Event>& event)
 
 // class Sha1SumCommand
 
-Sha1SumCommand::Sha1SumCommand(
-		CommandController& commandController_, FilePool& filePool_)
+FilePool::Sha1SumCommand::Sha1SumCommand(
+		CommandController& commandController_)
 	: Command(commandController_, "sha1sum")
-	, filePool(filePool_)
 {
 }
 
-void Sha1SumCommand::execute(span<const TclObject> tokens, TclObject& result)
+void FilePool::Sha1SumCommand::execute(span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, 2, "filename");
-	File file(tokens[1].getString());
+	File file(FileOperations::expandTilde(std::string(tokens[1].getString())));
+	auto& filePool = OUTER(FilePool, sha1SumCommand);
 	result = filePool.getSha1Sum(file).toString();
 }
 
-string Sha1SumCommand::help(const vector<string>& /*tokens*/) const
+std::string FilePool::Sha1SumCommand::help(span<const TclObject> /*tokens*/) const
 {
 	return "Calculate sha1 value for the given file. If the file is "
 	       "(g)zipped the sha1 is calculated on the unzipped version.";
 }
 
-void Sha1SumCommand::tabCompletion(vector<string>& tokens) const
+void FilePool::Sha1SumCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
 	completeFileName(tokens, userFileContext());
 }

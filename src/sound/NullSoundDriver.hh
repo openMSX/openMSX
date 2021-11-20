@@ -11,8 +11,8 @@ public:
 	void mute() override;
 	void unmute() override;
 
-	unsigned getFrequency() const override;
-	unsigned getSamples() const override;
+	[[nodiscard]] unsigned getFrequency() const override;
+	[[nodiscard]] unsigned getSamples() const override;
 
 	void uploadBuffer(float* buffer, unsigned len) override;
 };

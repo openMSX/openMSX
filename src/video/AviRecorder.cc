@@ -15,13 +15,10 @@
 #include "TclArgParser.hh"
 #include "TclObject.hh"
 #include "outer.hh"
-#include "view.hh"
 #include "vla.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <memory>
-
-using std::string;
-using std::vector;
 
 namespace openmsx {
 
@@ -123,7 +120,7 @@ static int16_t float2int16(float f)
 	return Math::clipIntToShort(lrintf(32768.0f * f));
 }
 
-void AviRecorder::addWave(unsigned num, float* fdata)
+void AviRecorder::addWave(unsigned num, float* fData)
 {
 	if (!warnedSampleRate && (mixer->getSampleRate() != sampleRate)) {
 		warnedSampleRate = true;
@@ -134,8 +131,8 @@ void AviRecorder::addWave(unsigned num, float* fdata)
 	}
 	if (stereo) {
 		VLA(int16_t, buf, 2 * num);
-		for (unsigned i = 0; i < 2 * num; ++i) {
-			buf[i] = float2int16(fdata[i]);
+		for (auto i : xrange(2 * num)) {
+			buf[i] = float2int16(fData[i]);
 		}
 		if (wavWriter) {
 			wavWriter->write(buf, 2, num);
@@ -147,7 +144,7 @@ void AviRecorder::addWave(unsigned num, float* fdata)
 		VLA(int16_t, buf, num);
 		unsigned i = 0;
 		for (/**/; !warnedStereo && i < num; ++i) {
-			if (fdata[2 * i + 0] != fdata[2 * i + 1]) {
+			if (fData[2 * i + 0] != fData[2 * i + 1]) {
 				reactor.getCliComm().printWarning(
 				    "Detected stereo sound during mono recording. "
 				    "Channels will be mixed down to mono. To "
@@ -156,10 +153,10 @@ void AviRecorder::addWave(unsigned num, float* fdata)
 				warnedStereo = true;
 				break;
 			}
-			buf[i] = float2int16(fdata[2 * i]);
+			buf[i] = float2int16(fData[2 * i]);
 		}
 		for (/**/; i < num; ++i) {
-			buf[i] = float2int16((fdata[2 * i + 0] + fdata[2 * i + 1]) * 0.5f);
+			buf[i] = float2int16((fData[2 * i + 0] + fData[2 * i + 1]) * 0.5f);
 		}
 
 		if (wavWriter) {
@@ -256,9 +253,9 @@ void AviRecorder::processStart(Interpreter& interp, span<const TclObject> tokens
 	}
 	bool recordAudio = !videoOnly;
 	bool recordVideo = !audioOnly;
-	string directory = recordVideo ? "videos" : "soundlogs";
-	string extension = recordVideo ? ".avi"   : ".wav";
-	string filename = FileOperations::parseCommandFileArgument(
+	std::string_view directory = recordVideo ? "videos" : "soundlogs";
+	std::string_view extension = recordVideo ? ".avi"   : ".wav";
+	auto filename = FileOperations::parseCommandFileArgument(
 		filenameArg, directory, prefix, extension);
 
 	if (aviWriter || wavWriter) {
@@ -266,7 +263,7 @@ void AviRecorder::processStart(Interpreter& interp, span<const TclObject> tokens
 	} else {
 		start(recordAudio, recordVideo, recordMono, recordStereo,
 				Filename(filename));
-		result = "Recording to " + filename;
+		result = tmpStrCat("Recording to ", filename);
 	}
 }
 
@@ -314,7 +311,7 @@ void AviRecorder::Cmd::execute(span<const TclObject> tokens, TclObject& result)
 			recorder.status(tokens, result); });
 }
 
-string AviRecorder::Cmd::help(const vector<string>& /*tokens*/) const
+std::string AviRecorder::Cmd::help(span<const TclObject> /*tokens*/) const
 {
 	return "Controls video recording: Write openMSX audio/video to a .avi file.\n"
 	       "record start              Record to file 'openmsxNNNN.avi'\n"
@@ -330,17 +327,19 @@ string AviRecorder::Cmd::help(const vector<string>& /*tokens*/) const
 	       "-doublesize flag is used and at 960x720 when the -triplesize flag is used.";
 }
 
-void AviRecorder::Cmd::tabCompletion(vector<string>& tokens) const
+void AviRecorder::Cmd::tabCompletion(std::vector<std::string>& tokens) const
 {
+	using namespace std::literals;
 	if (tokens.size() == 2) {
-		static constexpr const char* const cmds[] = {
-			"start", "stop", "toggle", "status",
+		static constexpr std::array cmds = {
+			"start"sv, "stop"sv, "toggle"sv, "status"sv,
 		};
 		completeString(tokens, cmds);
 	} else if ((tokens.size() >= 3) && (tokens[1] == "start")) {
-		static constexpr const char* const options[] = {
-			"-prefix", "-videoonly", "-audioonly", "-doublesize", "-triplesize",
-			"-mono", "-stereo",
+		static constexpr std::array options = {
+			"-prefix"sv, "-videoonly"sv, "-audioonly"sv,
+			"-doublesize"sv, "-triplesize"sv,
+			"-mono"sv, "-stereo"sv,
 		};
 		completeFileName(tokens, userFileContext(), options);
 	}

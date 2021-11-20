@@ -3,6 +3,8 @@
 
 #include "openmsx.hh"
 #include "serialize_meta.hh"
+#include "span.hh"
+#include <optional>
 #include <vector>
 
 namespace openmsx {
@@ -94,45 +96,45 @@ public:
 	void clear(unsigned size);
 
 	/** Get track length. */
-	unsigned getLength() const { return unsigned(data.size()); }
+	[[nodiscard]] unsigned getLength() const { return unsigned(data.size()); }
 
 	void addIdam(unsigned idx);
 
 	// In the methods below, 'index' is allowed to be 'out-of-bounds',
 	// it will wrap like in a circular buffer.
 
-	byte read(int idx) const { return data[wrapIndex(idx)]; }
+	[[nodiscard]] byte read(int idx) const { return data[wrapIndex(idx)]; }
 	void write(int idx, byte val, bool setIdam = false);
-	int wrapIndex(int idx) const {
+	[[nodiscard]] int wrapIndex(int idx) const {
 		// operator% is not a modulo but a remainder operation (makes a
 		// difference for negative inputs). Hence the extra test.
 		int tmp = idx % int(data.size());
 		return (tmp >= 0) ? tmp : int(tmp + data.size());
 	}
 
-	      byte* getRawBuffer()       { return data.data(); }
-	const byte* getRawBuffer() const { return data.data(); }
-	const std::vector<unsigned>& getIdamBuffer() const { return idam; }
+	[[nodiscard]]       byte* getRawBuffer()       { return data.data(); }
+	[[nodiscard]] const byte* getRawBuffer() const { return data.data(); }
+	[[nodiscard]] const auto& getIdamBuffer() const { return idam; }
 
 	/** Get info on all sectors in this track. */
-	std::vector<Sector> decodeAll() const;
+	[[nodiscard]] std::vector<Sector> decodeAll() const;
 
 	/** Get the next sector (starting from a certain index). */
-	bool decodeNextSector(unsigned startIdx, Sector& sector) const;
+	[[nodiscard]] std::optional<Sector> decodeNextSector(unsigned startIdx) const;
 
 	/** Get a sector with a specific number.
 	  * Note that if a sector with the same number occurs multiple times,
 	  * this method will always return the same (the first) sector. So
 	  * don't use it in the implementation of FDC / DiskDrive code.
 	  */
-	bool decodeSector(byte sectorNum, Sector& sector) const;
+	[[nodiscard]] std::optional<Sector> decodeSector(byte sectorNum) const;
 
 	/** Like memcpy() but copy from/to circular buffer. */
-	void readBlock (int idx, unsigned size, byte* destination) const;
-	void writeBlock(int idx, unsigned size, const byte* source);
+	void readBlock (int idx, span<byte> destination) const;
+	void writeBlock(int idx, span<const byte> source);
 
 	/** Convenience method to calculate CRC for part of this track. */
-	word calcCrc(int idx, int size) const;
+	[[nodiscard]] word calcCrc(int idx, int size) const;
 	void updateCrc(CRC16& crc, int idx, int size) const;
 
 	void applyWd2793ReadTrackQuirk();
@@ -141,8 +143,9 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	bool decodeSectorImpl(int idx, Sector& sector) const;
+	[[nodiscard]] std::optional<Sector> decodeSectorImpl(int idx) const;
 
+private:
 	// Index into 'data'-array to positions where an address mark
 	// starts (it points to the 'FE' byte in the 'A1 A1 A1 FE ..'
 	// sequence.

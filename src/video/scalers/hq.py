@@ -32,8 +32,8 @@ class Variant(object):
                 #   6 | 7 | 8
                 # For the openGL shaders we want the following order:
                 #   (4,6), (3,7), (3,4), (1,3), (0,4), (4,7), (1,4), (5,7), (4,8), (4,5), (2,4), (1,5)
-                #   see comments in src/video/scalers/HQCommon.hh for why this order was choosen.
-                # Compare this to the orignal order in 'edges' in hq_gen.py.
+                #   see comments in src/video/scalers/HQCommon.hh for why this order was chosen.
+                # Compare this to the original order in 'edges' in hq_gen.py.
                 # To switch between these different orderings we use the following permutations.
 		pixelExpr = permuteCases(
 			(9, 2, 7, 3, 4, 10, 5, 1, 11, 8, 6, 0)  # openGL
@@ -116,24 +116,24 @@ def genSwitch(pixelExpr):
 				)
 
 def getBlendCode(weights):
-	wsum = sum(weights)
-	assert isPow2(wsum)
-	if wsum == 1:
+	wSum = sum(weights)
+	assert isPow2(wSum)
+	if wSum == 1:
 		index, = (index for index, weight in enumerate(weights) if weight != 0)
 		return 'c%d' % (index + 1)
-	elif wsum <= 8:
+	elif wSum <= 8:
 		# Because the lower 3 bits of each colour component (R,G,B)
 		# are zeroed out, we can operate on a single integer as if it
 		# is a vector.
 		return ' + '.join(
-			'(c%d / %d) * %d' % (index + 1, wsum, weight)
+			'(c%d / %d) * %d' % (index + 1, wSum, weight)
 			for index, weight in enumerate(weights)
 			if weight != 0
 			)
 	else:
 		return '((%s) & 0xFF00FF00) | (((%s) / %d) & 0x00FF00FF)' % (
 			' + '.join(
-				'((c%d & 0xFF00FF00) / %d) * %d' % (index + 1, wsum, weight)
+				'((c%d & 0xFF00FF00) / %d) * %d' % (index + 1, wSum, weight)
 				for index, weight in enumerate(weights)
 				if weight != 0
 				),
@@ -142,7 +142,7 @@ def getBlendCode(weights):
 				for index, weight in enumerate(weights)
 				if weight != 0
 				),
-			wsum
+			wSum
 			)
 
 # Table output as text:
@@ -418,8 +418,8 @@ def process2x():
 def process3x():
 	pixelExpr = expandQuadrant(genExpr3(), 3)
 
-	fullTableVariant = Variant(pixelExpr, lite = False, table = True )
-	liteTableVariant = Variant(pixelExpr, lite = True,  table = True )
+	fullTableVariant = Variant(pixelExpr, lite = False, table = True)
+	liteTableVariant = Variant(pixelExpr, lite = True,  table = True)
 
 	#printText(formatOffsetsTable(fullTableVariant.pixelExpr))
 	#printText(formatOffsetsTable(liteTableVariant.pixelExpr))

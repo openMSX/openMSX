@@ -12,10 +12,10 @@ public:
 	/**
 	 * Read wave data
 	 */
-	virtual int16_t readSample(EmuTime::param time) = 0;
+	[[nodiscard]] virtual int16_t readSample(EmuTime::param time) = 0;
 
 	// Pluggable
-	std::string_view getClass() const final override;
+	[[nodiscard]] std::string_view getClass() const final;
 };
 
 } // namespace openmsx

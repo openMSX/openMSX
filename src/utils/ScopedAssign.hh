@@ -4,7 +4,7 @@
 /** Assign new value to some variable and restore the original value
   * when this object goes out of scope.
   */
-template <typename T> class ScopedAssign
+template<typename T> class ScopedAssign
 {
 public:
 	ScopedAssign(T& var_, T newValue)

@@ -9,30 +9,26 @@
 #include "ReverseManager.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
-#include "InputEvents.hh"
+#include "Event.hh"
 #include "StateChange.hh"
 #include "TclArgParser.hh"
-#include "utf8_checked.hh"
-#include "checked_cast.hh"
-#include "unreachable.hh"
-#include "serialize.hh"
-#include "serialize_stl.hh"
-#include "serialize_meta.hh"
+#include "enumerate.hh"
 #include "openmsx.hh"
 #include "one_of.hh"
 #include "outer.hh"
+#include "serialize.hh"
+#include "serialize_stl.hh"
+#include "serialize_meta.hh"
 #include "stl.hh"
+#include "unreachable.hh"
+#include "utf8_checked.hh"
 #include "view.hh"
+#include "xrange.hh"
 #include <SDL.h>
 #include <cstdio>
 #include <cstring>
 #include <cassert>
 #include <cstdarg>
-
-using std::string;
-using std::vector;
-using std::shared_ptr;
-using std::make_shared;
 
 namespace openmsx {
 
@@ -54,7 +50,7 @@ static constexpr bool SANE_CAPSLOCK_BEHAVIOR = true;
 #endif
 
 
-static const int TRY_AGAIN = 0x80; // see pressAscii()
+static constexpr int TRY_AGAIN = 0x80; // see pressAscii()
 
 using KeyInfo = UnicodeKeymap::KeyInfo;
 
@@ -73,9 +69,9 @@ public:
 		// and or-operations)
 		assert((press & release) == 0);
 	}
-	byte getRow()     const { return row; }
-	byte getPress()   const { return press; }
-	byte getRelease() const { return release; }
+	[[nodiscard]] byte getRow()     const { return row; }
+	[[nodiscard]] byte getPress()   const { return press; }
+	[[nodiscard]] byte getRelease() const { return release; }
 
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
@@ -116,6 +112,133 @@ constexpr std::array<KeyMatrixPosition, UnicodeKeymap::KeyInfo::NUM_MODIFIERS>
 	},
 };
 
+/** Keyboard bindings ****************************************/
+
+// Mapping from SDL keys to emulated keys, ordered by MatrixType
+constexpr KeyMatrixPosition x = KeyMatrixPosition();
+static constexpr KeyMatrixPosition keyTabs[][Keyboard::MAX_KEYSYM] = {
+  {
+// MSX Key-Matrix table
+//
+// row/bit  7     6     5     4     3     2     1     0
+//       +-----+-----+-----+-----+-----+-----+-----+-----+
+//   0   |  7  |  6  |  5  |  4  |  3  |  2  |  1  |  0  |
+//   1   |  ;  |  ]  |  [  |  \  |  =  |  -  |  9  |  8  |
+//   2   |  B  |  A  | Acc |  /  |  .  |  ,  |  `  |  '  |
+//   3   |  J  |  I  |  H  |  G  |  F  |  E  |  D  |  C  |
+//   4   |  R  |  Q  |  P  |  O  |  N  |  M  |  L  |  K  |
+//   5   |  Z  |  Y  |  X  |  W  |  V  |  U  |  T  |  S  |
+//   6   |  F3 |  F2 |  F1 | code| caps|graph| ctrl|shift|
+//   7   | ret |selec|  bs | stop| tab | esc |  F5 |  F4 |
+//   8   |right| down|  up | left| del | ins | hom |space|
+//   9   |  4  |  3  |  2  |  1  |  0  |  /  |  +  |  *  |
+//  10   |  .  |  ,  |  -  |  9  |  8  |  7  |  6  |  5  |
+//  11   |     |     |     |     | 'NO'|     |'YES'|     |
+//       +-----+-----+-----+-----+-----+-----+-----+-----+
+// 0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f
+   x  , x  , x  , x  , x  , x  , x  , x  ,0x75,0x73, x  , x  , x  ,0x77, x  , x  , //000
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x72, x  , x  , x  , x  , //010
+  0x80, x  , x  , x  , x  , x  , x  ,0x20, x  , x  , x  , x  ,0x22,0x12,0x23,0x24, //020
+  0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x10,0x11, x  ,0x17, x  ,0x13, x  , x  , //030
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //040
+   x  ,0x84,0x85,0x87,0x86, x  , x  , x  , x  , x  , x  ,0x15,0x14,0x16, x  , x  , //050
+  0x21,0x26,0x27,0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x40,0x41,0x42,0x43,0x44, //060
+  0x45,0x46,0x47,0x50,0x51,0x52,0x53,0x54,0x55,0x56,0x57, x  , x  , x  , x  ,0x83, //070
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //080
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //090
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0A0
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0B0
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0C0
+   x  , x  , x  , x  , x  , x  , x  , x  ,0x81, x  , x  , x  , x  , x  , x  , x  , //0D0
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0E0
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0F0
+  0x93,0x94,0x95,0x96,0x97,0xA0,0xA1,0xA2,0xA3,0xA4,0xA7,0x92,0x90,0xA5,0x91,0xA6, //100
+   x  ,0x85,0x86,0x87,0x84,0x82,0x81, x  , x  , x  ,0x65,0x66,0x67,0x70,0x71, x  , //110
+  0x76,0x74, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x60, //120
+  0x60,0x25,0x61, x  , x  ,0xB3,0xB1,0xB3,0xB1,0xB1,0xB3, x  , x  , x  , x  , x  , //130
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //140
+  },
+  {
+// SVI Keyboard Matrix
+//
+// row/bit  7     6     5     4     3     2     1     0
+//       +-----+-----+-----+-----+-----+-----+-----+-----+
+//   0   |  7  |  6  |  5  |  4  |  3  |  2  |  1  |  0  |
+//   1   |  /  |  .  |  =  |  ,  |  '  |  :  |  9  |  8  |
+//   2   |  G  |  F  |  E  |  D  |  C  |  B  |  A  |  -  |
+//   3   |  O  |  N  |  M  |  L  |  K  |  J  |  I  |  H  |
+//   4   |  W  |  V  |  U  |  T  |  S  |  R  |  Q  |  P  |
+//   5   | UP  | BS  |  ]  |  \  |  [  |  Z  |  Y  |  X  |
+//   6   |LEFT |ENTER|STOP | ESC |RGRAP|LGRAP|CTRL |SHIFT|
+//   7   |DOWN | INS | CLS | F5  | F4  | F3  | F2  | F1  |
+//   8   |RIGHT|     |PRINT| SEL |CAPS | DEL | TAB |SPACE|
+//   9   |  7  |  6  |  5  |  4  |  3  |  2  |  1  |  0  |  Numerical keypad
+//  10   |  ,  |  .  |  /  |  *  |  -  |  +  |  9  |  8  |   SVI-328 only
+//       +-----+-----+-----+-----+-----+-----+-----+-----+
+// 0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f
+   x  , x  , x  , x  , x  , x  , x  , x  ,0x56,0x81, x  , x  , x  ,0x66, x  , x  , //000
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x64, x  , x  , x  , x  , //010
+  0x80, x  , x  , x  , x  , x  , x  ,0x20, x  , x  , x  , x  ,0x14,0x20,0x16,0x17, //020
+  0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x10,0x11,0x12, x  , x  ,0x15, x  , x  , //030
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //040
+   x  ,0x67,0x57,0x87,0x77, x  , x  , x  , x  , x  , x  ,0x53,0x54,0x55, x  , x  , //050
+   x  ,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37, //060
+  0x40,0x41,0x42,0x43,0x44,0x45,0x46,0x47,0x50,0x51,0x52, x  , x  , x  , x  ,0x82, //070
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //080
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //090
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0A0
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0B0
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0C0
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0D0
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0E0
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0F0
+  0x90,0x91,0x92,0x93,0x94,0x95,0x96,0x97,0xA0,0xA1,0xA6,0xA5,0xA4,0xA3,0xA2,0xA7, //100
+   x  ,0x57,0x77,0x87,0x67,0x76, x  , x  , x  , x  ,0x70,0x71,0x72,0x73,0x74, x  , //110
+  0x75,0x65, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x60, //120
+  0x60, x  ,0x61, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //130
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //140
+  },
+  {
+// ColecoVision Joystick "Matrix"
+//
+// The hardware consists of 2 controllers that each have 2 triggers
+// and a 12-key keypad. They're not actually connected in a matrix,
+// but a ghosting-free matrix is the easiest way to model it in openMSX.
+//
+// row/bit  7     6     5     4     3     2     1     0
+//       +-----+-----+-----+-----+-----+-----+-----+-----+
+//   0   |TRIGB|TRIGA|     |     |LEFT |DOWN |RIGHT| UP  |  controller 1
+//   1   |TRIGB|TRIGA|     |     |LEFT |DOWN |RIGHT| UP  |  controller 2
+//   2   |  7  |  6  |  5  |  4  |  3  |  2  |  1  |  0  |  controller 1
+//   3   |     |     |     |     |  #  |  *  |  9  |  8  |  controller 1
+//   4   |  7  |  6  |  5  |  4  |  3  |  2  |  1  |  0  |  controller 2
+//   5   |     |     |     |     |  #  |  *  |  9  |  8  |  controller 2
+//       +-----+-----+-----+-----+-----+-----+-----+-----+
+// 0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //000
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //010
+  0x06, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x32, x  , x  , //020
+  0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x30,0x31, x  , x  , x  ,0x33, x  , x  , //030
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //040
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //050
+   x  ,0x13,0x42, x  ,0x11, x  ,0x44,0x45,0x46, x  ,0x52, x  , x  ,0x53,0x43, x  , //060
+   x  , x  ,0x47,0x12,0x50,0x40,0x41,0x10, x  ,0x51, x  , x  , x  , x  , x  , x  , //070
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //080
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //090
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0A0
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0B0
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0C0
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0D0
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0E0
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0F0
+  0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x30,0x31, x  ,0x33,0x32,0x32,0x33, x  , //100
+   x  ,0x00,0x02,0x01,0x03, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //110
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x07, //120
+  0x17,0x06,0x16,0x07,0x07, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //130
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //140
+  }
+};
+
 Keyboard::Keyboard(MSXMotherBoard& motherBoard,
                    Scheduler& scheduler_,
                    CommandController& commandController_,
@@ -151,7 +274,7 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, locksOn(0)
 {
 	keysChanged = false;
-	msxmodifiers = 0xff;
+	msxModifiers = 0xff;
 	ranges::fill(keyMatrix,     255);
 	ranges::fill(cmdKeyMatrix,  255);
 	ranges::fill(typeKeyMatrix, 255);
@@ -174,7 +297,7 @@ Keyboard::~Keyboard()
 }
 
 template<unsigned NUM_ROWS>
-static void doKeyGhosting(byte (&matrix)[NUM_ROWS], bool protectRow6)
+static constexpr void doKeyGhosting(byte (&matrix)[NUM_ROWS], bool protectRow6)
 {
 	// This routine enables keyghosting as seen on a real MSX
 	//
@@ -192,12 +315,12 @@ static void doKeyGhosting(byte (&matrix)[NUM_ROWS], bool protectRow6)
 	// connected to row 6 via a diode. It prevents that
 	// SHIFT, GRAPH and CODE get ghosted to another
 	// row.
-	bool changedSomething;
+	bool changedSomething = false;
 	do {
 		changedSomething = false;
-		for (unsigned i = 0; i < NUM_ROWS - 1; i++) {
+		for (auto i : xrange(NUM_ROWS - 1)) {
 			auto row1 = matrix[i];
-			for (unsigned j = i + 1; j < NUM_ROWS; j++) {
+			for (auto j : xrange(i + 1, NUM_ROWS)) {
 				auto row2 = matrix[j];
 				if ((row1 != row2) && ((row1 | row2) != 0xff)) {
 					auto rowIold = matrix[i];
@@ -235,7 +358,7 @@ const byte* Keyboard::getKeys() const
 	if (keysChanged) {
 		keysChanged = false;
 		const auto* matrix = keyTypeCmd.isActive() ? typeKeyMatrix : userKeyMatrix;
-		for (unsigned row = 0; row < KeyMatrixPosition::NUM_ROWS; ++row) {
+		for (auto row : xrange(KeyMatrixPosition::NUM_ROWS)) {
 			keyMatrix[row] = cmdKeyMatrix[row] & matrix[row];
 		}
 		if (keyGhosting) {
@@ -258,24 +381,24 @@ void Keyboard::transferHostKeyMatrix(const Keyboard& source)
 	// msx keyboard with the host keyboard. In the past we assumed the host
 	// keyboard had no keys pressed. But this is wrong in the above
 	// scenario. Now we remember the state of the host keyboard and
-	// transfer that to the new keyboard(s) that get created for reverese.
+	// transfer that to the new keyboard(s) that get created for reverse.
 	// When replay is stopped we restore this host keyboard state, see
 	// stopReplay().
 
-	for (unsigned row = 0; row < KeyMatrixPosition::NUM_ROWS; ++row) {
+	for (auto row : xrange(KeyMatrixPosition::NUM_ROWS)) {
 		hostKeyMatrix[row] = source.hostKeyMatrix[row];
 	}
 }
 
 /* Received an MSX event
  * Following events get processed:
- *  OPENMSX_KEY_DOWN_EVENT
- *  OPENMSX_KEY_UP_EVENT
+ *  EventType::KEY_DOWN
+ *  EventType::KEY_UP
  */
-void Keyboard::signalMSXEvent(const shared_ptr<const Event>& event,
-                              EmuTime::param time)
+void Keyboard::signalMSXEvent(const Event& event,
+                              EmuTime::param time) noexcept
 {
-	if (event->getType() == one_of(OPENMSX_KEY_DOWN_EVENT, OPENMSX_KEY_UP_EVENT)) {
+	if (getType(event) == one_of(EventType::KEY_DOWN, EventType::KEY_UP)) {
 		// Ignore possible console on/off events:
 		// we do not rescan the keyboard since this may lead to
 		// an unwanted pressing of <return> in MSX after typing
@@ -284,9 +407,9 @@ void Keyboard::signalMSXEvent(const shared_ptr<const Event>& event,
 	}
 }
 
-void Keyboard::signalStateChange(const shared_ptr<StateChange>& event)
+void Keyboard::signalStateChange(const StateChange& event)
 {
-	auto kms = dynamic_cast<KeyMatrixState*>(event.get());
+	const auto* kms = dynamic_cast<const KeyMatrixState*>(&event);
 	if (!kms) return;
 
 	userKeyMatrix[kms->getRow()] &= ~kms->getPress();
@@ -294,12 +417,12 @@ void Keyboard::signalStateChange(const shared_ptr<StateChange>& event)
 	keysChanged = true; // do ghosting at next getKeys()
 }
 
-void Keyboard::stopReplay(EmuTime::param time)
+void Keyboard::stopReplay(EmuTime::param time) noexcept
 {
-	for (unsigned row = 0; row < KeyMatrixPosition::NUM_ROWS; ++row) {
-		changeKeyMatrixEvent(time, row, hostKeyMatrix[row]);
+	for (auto [row, hkm] : enumerate(hostKeyMatrix)) {
+		changeKeyMatrixEvent(time, byte(row), hkm);
 	}
-	msxmodifiers = 0xff;
+	msxModifiers = 0xff;
 	msxKeyEventQueue.clear();
 	memset(dynKeymap, 0, sizeof(dynKeymap));
 }
@@ -356,8 +479,8 @@ void Keyboard::changeKeyMatrixEvent(EmuTime::param time, byte row, byte newValue
 	if (diff == 0) return;
 	byte press   = userKeyMatrix[row] & diff;
 	byte release = newValue           & diff;
-	stateChangeDistributor.distributeNew(make_shared<KeyMatrixState>(
-		time, row, press, release));
+	stateChangeDistributor.distributeNew<KeyMatrixState>(
+		time, row, press, release);
 }
 
 /*
@@ -367,8 +490,8 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
 {
 	auto mode = keyboardSettings.getMappingMode();
 
-	auto& keyEvent = checked_cast<const KeyEvent&>(event);
-	bool down = event.getType() == OPENMSX_KEY_DOWN_EVENT;
+	const auto& keyEvent = get<KeyEvent>(event);
+	bool down = getType(event) == EventType::KEY_DOWN;
 	auto code = (mode == KeyboardSettings::POSITIONAL_MAPPING)
 	          ? keyEvent.getScanCode() : keyEvent.getKeyCode();
 	auto key = static_cast<Keys::KeyCode>(int(code) & int(Keys::K_MASK));
@@ -399,7 +522,7 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
 
 	// Process deadkeys.
 	if (mode == KeyboardSettings::CHARACTER_MAPPING) {
-		for (unsigned n = 0; n < 3; n++) {
+		for (auto n : xrange(3)) {
 			if (key == keyboardSettings.getDeadkeyHostKey(n)) {
 				UnicodeKeymap::KeyInfo deadkey = unicodeKeymap.getDeadkey(n);
 				if (deadkey.isValid()) {
@@ -527,16 +650,16 @@ void Keyboard::updateKeyMatrix(EmuTime::param time, bool down, KeyMatrixPosition
 		// The MSX modifiers sometimes get overruled by the unicode character
 		// processing, in which case the unicode processing must be able to
 		// restore them to the real key-combinations pressed by the user.
-		for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
-			if (pos == modifierPos[i]) {
-				msxmodifiers &= ~(1 << i);
+		for (auto [i, mp] : enumerate(modifierPos)) {
+			if (pos == mp) {
+				msxModifiers &= ~(1 << i);
 			}
 		}
 	} else {
 		releaseKeyMatrixEvent(time, pos);
-		for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
-			if (pos == modifierPos[i]) {
-				msxmodifiers |= 1 << i;
+		for (auto [i, mp] : enumerate(modifierPos)) {
+			if (pos == mp) {
+				msxModifiers |= 1 << i;
 			}
 		}
 	}
@@ -651,12 +774,9 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 			keyCode = key = Keys::K_INSERT;
 		}
 #endif
-		unsigned unicode;
-		if (key < MAX_KEYSYM) {
-			unicode = dynKeymap[key]; // Get the unicode that was derived from this key
-		} else {
-			unicode = 0;
-		}
+		unsigned unicode = (key < MAX_KEYSYM)
+			? dynKeymap[key] // Get the unicode that was derived from this key
+			: 0;
 		if (unicode == 0) {
 			// It was a special key, perform matrix to matrix mapping
 			// But only when it is not a first keystroke of a
@@ -749,7 +869,7 @@ bool Keyboard::pressUnicodeByUser(
 			// Ignore the GRAPH key in case that Graph locks
 			// Always ignore CAPSLOCK mask (assume that user will
 			// use real CAPS lock to switch/ between hiragana and
-			// katanana on japanese model)
+			// katakana on japanese model)
 			pressKeyMatrixEvent(time, keyInfo.pos);
 
 			byte modmask = keyInfo.modmask & ~modifierIsLock;
@@ -767,9 +887,9 @@ bool Keyboard::pressUnicodeByUser(
 			}
 			// Press required modifiers for our character.
 			// Note that these modifiers are only pressed, never released.
-			for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
+			for (auto [i, mp] : enumerate(modifierPos)) {
 				if ((modmask >> i) & 1) {
-					pressKeyMatrixEvent(time, modifierPos[i]);
+					pressKeyMatrixEvent(time, mp);
 				}
 			}
 		}
@@ -777,14 +897,14 @@ bool Keyboard::pressUnicodeByUser(
 		releaseKeyMatrixEvent(time, keyInfo.pos);
 
 		// Restore non-lock modifier keys.
-		for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
+		for (auto [i, mp] : enumerate(modifierPos)) {
 			if (!((modifierIsLock >> i) & 1)) {
 				// Do not simply unpress graph, ctrl, code and shift but
 				// restore them to the values currently pressed by the user.
-				if ((msxmodifiers >> i) & 1) {
-					releaseKeyMatrixEvent(time, modifierPos[i]);
+				if ((msxModifiers >> i) & 1) {
+					releaseKeyMatrixEvent(time, mp);
 				} else {
-					pressKeyMatrixEvent(time, modifierPos[i]);
+					pressKeyMatrixEvent(time, mp);
 				}
 			}
 		}
@@ -816,13 +936,12 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
 	if (down) {
 		// check for modifier toggles
 		byte toggleLocks = needsLockToggle(keyInfo);
-		for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
+		for (auto [i, mp] : enumerate(modifierPos)) {
 			if ((toggleLocks >> i) & 1) {
 				debug("Toggling lock %d\n", i);
 				locksOn ^= 1 << i;
 				releaseMask |= 1 << i;
-				auto lockPos = modifierPos[i];
-				typeKeyMatrix[lockPos.getRow()] &= ~lockPos.getMask();
+				typeKeyMatrix[mp.getRow()] &= ~mp.getMask();
 			}
 		}
 		if (releaseMask == 0) {
@@ -866,10 +985,9 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
 				}
 			}
 			// press modifiers
-			for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
+			for (auto [i, mp] : enumerate(modifierPos)) {
 				if ((modmask >> i) & 1) {
-					auto modPos = modifierPos[i];
-					typeKeyMatrix[modPos.getRow()] &= ~modPos.getMask();
+					typeKeyMatrix[mp.getRow()] &= ~mp.getMask();
 				}
 			}
 			if (releaseMask == 0) {
@@ -879,10 +997,9 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
 		}
 	} else {
 		typeKeyMatrix[keyInfo.pos.getRow()] |= keyInfo.pos.getMask();
-		for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
+		for (auto [i, mp] : enumerate(modifierPos)) {
 			if ((modmask >> i) & 1) {
-				auto modPos = modifierPos[i];
-				typeKeyMatrix[modPos.getRow()] |= modPos.getMask();
+				typeKeyMatrix[mp.getRow()] |= mp.getMask();
 			}
 		}
 	}
@@ -898,15 +1015,14 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
  */
 void Keyboard::pressLockKeys(byte lockKeysMask, bool down)
 {
-	for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
+	for (auto [i, mp] : enumerate(modifierPos)) {
 		if ((lockKeysMask >> i) & 1) {
-			auto lockPos = modifierPos[i];
 			if (down) {
 				// press lock key
-				typeKeyMatrix[lockPos.getRow()] &= ~lockPos.getMask();
+				typeKeyMatrix[mp.getRow()] &= ~mp.getMask();
 			} else {
 				// release lock key
-				typeKeyMatrix[lockPos.getRow()] |= lockPos.getMask();
+				typeKeyMatrix[mp.getRow()] |= mp.getMask();
 			}
 		}
 	}
@@ -959,11 +1075,9 @@ void Keyboard::KeyMatrixUpCmd::execute(
 	return keyboard.processCmd(getInterpreter(), tokens, true);
 }
 
-string Keyboard::KeyMatrixUpCmd::help(const vector<string>& /*tokens*/) const
+std::string Keyboard::KeyMatrixUpCmd::help(span<const TclObject> /*tokens*/) const
 {
-	static const string helpText =
-		"keymatrixup <row> <bitmask>  release a key in the keyboardmatrix\n";
-	return helpText;
+	return "keymatrixup <row> <bitmask>  release a key in the keyboardmatrix\n";
 }
 
 
@@ -985,11 +1099,9 @@ void Keyboard::KeyMatrixDownCmd::execute(span<const TclObject> tokens,
 	return keyboard.processCmd(getInterpreter(), tokens, false);
 }
 
-string Keyboard::KeyMatrixDownCmd::help(const vector<string>& /*tokens*/) const
+std::string Keyboard::KeyMatrixDownCmd::help(span<const TclObject> /*tokens*/) const
 {
-	static const string helpText =
-		"keymatrixdown <row> <bitmask>  press a key in the keyboardmatrix\n";
-	return helpText;
+	return "keymatrixdown <row> <bitmask>  press a key in the keyboardmatrix\n";
 }
 
 
@@ -1003,7 +1115,7 @@ Keyboard::MsxKeyEventQueue::MsxKeyEventQueue(
 }
 
 void Keyboard::MsxKeyEventQueue::process_asap(
-	EmuTime::param time, const shared_ptr<const Event>& event)
+	EmuTime::param time, const Event& event)
 {
 	bool processImmediately = eventQueue.empty();
 	eventQueue.push_back(event);
@@ -1021,15 +1133,15 @@ void Keyboard::MsxKeyEventQueue::clear()
 void Keyboard::MsxKeyEventQueue::executeUntil(EmuTime::param time)
 {
 	// Get oldest event from the queue and process it
-	shared_ptr<const Event> event = eventQueue.front();
+	Event event = eventQueue.front();
 	auto& keyboard = OUTER(Keyboard, msxKeyEventQueue);
-	bool insertCodeKanaRelease = keyboard.processQueuedEvent(*event, time);
+	bool insertCodeKanaRelease = keyboard.processQueuedEvent(event, time);
 
 	if (insertCodeKanaRelease) {
 		// The processor pressed the CODE/KANA key
 		// Schedule a CODE/KANA release event, to be processed
 		// before any of the other events in the queue
-		eventQueue.push_front(make_shared<KeyUpEvent>(
+		eventQueue.push_front(Event::create<KeyUpEvent>(
 			keyboard.keyboardSettings.getCodeKanaHostKey()));
 	} else {
 		// The event has been completely processed. Delete it from the queue
@@ -1095,23 +1207,17 @@ void Keyboard::KeyInserter::execute(
 	type(arguments[0].getString());
 }
 
-string Keyboard::KeyInserter::help(const vector<string>& /*tokens*/) const
+std::string Keyboard::KeyInserter::help(span<const TclObject> /*tokens*/) const
 {
-	static const string helpText = "Type a string in the emulated MSX.\n" \
-		"Use -release to make sure the keys are always released before typing new ones (necessary for some game input routines, but in general, this means typing is twice as slow).\n" \
-		"Use -freq to tweak how fast typing goes and how long the keys will be pressed (and released in case -release was used). Keys will be typed at the given frequency and will remain pressed/released for 1/freq seconds";
-	return helpText;
+	return "Type a string in the emulated MSX.\n" \
+	       "Use -release to make sure the keys are always released before typing new ones (necessary for some game input routines, but in general, this means typing is twice as slow).\n" \
+	       "Use -freq to tweak how fast typing goes and how long the keys will be pressed (and released in case -release was used). Keys will be typed at the given frequency and will remain pressed/released for 1/freq seconds";
 }
 
-void Keyboard::KeyInserter::tabCompletion(vector<string>& tokens) const
+void Keyboard::KeyInserter::tabCompletion(std::vector<std::string>& tokens) const
 {
-	vector<const char*> options;
-	if (!contains(tokens, "-release")) {
-		options.push_back("-release");
-	}
-	if (!contains(tokens, "-freq")) {
-		options.push_back("-freq");
-	}
+	using namespace std::literals;
+	static constexpr std::array options = {"-release"sv, "-freq"sv};
 	completeString(tokens, options);
 }
 
@@ -1206,34 +1312,35 @@ Keyboard::CapsLockAligner::CapsLockAligner(
 	, eventDistributor(eventDistributor_)
 {
 	state = IDLE;
-	eventDistributor.registerEventListener(OPENMSX_BOOT_EVENT,  *this);
-	eventDistributor.registerEventListener(OPENMSX_FOCUS_EVENT, *this);
+	eventDistributor.registerEventListener(EventType::BOOT,  *this);
+	eventDistributor.registerEventListener(EventType::FOCUS, *this);
 }
 
 Keyboard::CapsLockAligner::~CapsLockAligner()
 {
-	eventDistributor.unregisterEventListener(OPENMSX_FOCUS_EVENT, *this);
-	eventDistributor.unregisterEventListener(OPENMSX_BOOT_EVENT,  *this);
+	eventDistributor.unregisterEventListener(EventType::FOCUS, *this);
+	eventDistributor.unregisterEventListener(EventType::BOOT,  *this);
 }
 
-int Keyboard::CapsLockAligner::signalEvent(const shared_ptr<const Event>& event)
+int Keyboard::CapsLockAligner::signalEvent(const Event& event) noexcept
 {
-	if (!SANE_CAPSLOCK_BEHAVIOR) {
+	if constexpr (!SANE_CAPSLOCK_BEHAVIOR) {
 		// don't even try
 		return 0;
 	}
 
 	if (state == IDLE) {
 		EmuTime::param time = getCurrentTime();
-		EventType type = event->getType();
-		if (type == OPENMSX_FOCUS_EVENT) {
-			alignCapsLock(time);
-		} else if (type == OPENMSX_BOOT_EVENT) {
-			state = MUST_ALIGN_CAPSLOCK;
-			setSyncPoint(time + EmuDuration::sec(2)); // 2s (MSX time)
-		} else {
-			UNREACHABLE;
-		}
+		visit(overloaded{
+			[&](const FocusEvent&) {
+				alignCapsLock(time);
+			},
+			[&](const BootEvent&) {
+				state = MUST_ALIGN_CAPSLOCK;
+				setSyncPoint(time + EmuDuration::sec(2)); // 2s (MSX time)
+			},
+			[](const EventBase&) { UNREACHABLE; }
+		}, event);
 	}
 	return 0;
 }
@@ -1246,7 +1353,7 @@ void Keyboard::CapsLockAligner::executeUntil(EmuTime::param time)
 			break;
 		case MUST_DISTRIBUTE_KEY_RELEASE: {
 			auto& keyboard = OUTER(Keyboard, capsLockAligner);
-			auto event = make_shared<KeyUpEvent>(Keys::K_CAPSLOCK);
+			auto event = Event::create<KeyUpEvent>(Keys::K_CAPSLOCK);
 			keyboard.msxEventDistributor.distributeEvent(event, time);
 			state = IDLE;
 			break;
@@ -1274,7 +1381,7 @@ void Keyboard::CapsLockAligner::alignCapsLock(EmuTime::param time)
 		keyboard.debug("Resyncing host and MSX CAPS lock\n");
 		// note: send out another event iso directly calling
 		// processCapslockEvent() because we want this to be recorded
-		auto event = make_shared<KeyDownEvent>(Keys::K_CAPSLOCK);
+		auto event = Event::create<KeyDownEvent>(Keys::K_CAPSLOCK);
 		keyboard.msxEventDistributor.distributeEvent(event, time);
 		keyboard.debug("Sending fake CAPS release\n");
 		state = MUST_DISTRIBUTE_KEY_RELEASE;
@@ -1315,7 +1422,7 @@ void Keyboard::KeyInserter::serialize(Archive& ar, unsigned /*version*/)
 	             "releaseLast", releaseLast);
 
 	bool oldCodeKanaLockOn, oldGraphLockOn, oldCapsLockOn;
-	if (!ar.isLoader()) {
+	if constexpr (!Archive::IS_LOADER) {
 		oldCodeKanaLockOn = oldLocksOn & KeyInfo::CODE_MASK;
 		oldGraphLockOn = oldLocksOn & KeyInfo::GRAPH_MASK;
 		oldCapsLockOn = oldLocksOn & KeyInfo::CAPS_MASK;
@@ -1323,14 +1430,14 @@ void Keyboard::KeyInserter::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("oldCodeKanaLockOn", oldCodeKanaLockOn,
 	             "oldGraphLockOn",    oldGraphLockOn,
 	             "oldCapsLockOn",     oldCapsLockOn);
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		oldLocksOn = (oldCodeKanaLockOn ? KeyInfo::CODE_MASK : 0)
 		           | (oldGraphLockOn ? KeyInfo::GRAPH_MASK : 0)
 		           | (oldCapsLockOn ? KeyInfo::CAPS_MASK : 0);
 	}
 }
 
-// version 1: Initial version: {userKeyMatrix, dynKeymap, msxmodifiers,
+// version 1: Initial version: {userKeyMatrix, dynKeymap, msxModifiers,
 //            msxKeyEventQueue} was intentionally not serialized. The reason
 //            was that after a loadstate, you want the MSX keyboard to reflect
 //            the state of the host keyboard. So any pressed MSX keys from the
@@ -1355,7 +1462,7 @@ void Keyboard::serialize(Archive& ar, unsigned version)
 	}
 
 	bool msxCapsLockOn, msxCodeKanaLockOn, msxGraphLockOn;
-	if (!ar.isLoader()) {
+	if constexpr (!Archive::IS_LOADER) {
 		msxCapsLockOn = locksOn & KeyInfo::CAPS_MASK;
 		msxCodeKanaLockOn = locksOn & KeyInfo::CODE_MASK;
 		msxGraphLockOn = locksOn & KeyInfo::GRAPH_MASK;
@@ -1363,7 +1470,7 @@ void Keyboard::serialize(Archive& ar, unsigned version)
 	ar.serialize("msxCapsLockOn",     msxCapsLockOn,
 	             "msxCodeKanaLockOn", msxCodeKanaLockOn,
 	             "msxGraphLockOn",    msxGraphLockOn);
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		locksOn = (msxCapsLockOn ? KeyInfo::CAPS_MASK : 0)
 		        | (msxCodeKanaLockOn ? KeyInfo::CODE_MASK : 0)
 		        | (msxGraphLockOn ? KeyInfo::GRAPH_MASK : 0);
@@ -1372,12 +1479,12 @@ void Keyboard::serialize(Archive& ar, unsigned version)
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("userKeyMatrix",    userKeyMatrix,
 		             "dynKeymap",        dynKeymap,
-		             "msxmodifiers",     msxmodifiers,
+		             "msxmodifiers",     msxModifiers,
 		             "msxKeyEventQueue", msxKeyEventQueue);
 	}
 	// don't serialize hostKeyMatrix
 
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		// force recalculation of keyMatrix
 		keysChanged = true;
 	}
@@ -1389,20 +1496,20 @@ void Keyboard::MsxKeyEventQueue::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Schedulable>(*this);
 
-	// serialization of deque<shared_ptr<const Event>> is not directly
+	// serialization of deque<Event> is not directly
 	// supported by the serialization framework (main problem is the
-	// constness, collections of shared_ptr to polymorhpic objects are
+	// constness, collections of shared_ptr to polymorphic objects are
 	// not a problem). Worked around this by serializing the events in
 	// ascii format. (In all practical cases this queue will anyway be
 	// empty or contain very few elements).
 	//ar.serialize("eventQueue", eventQueue);
-	vector<string> eventStrs;
-	if (!ar.isLoader()) {
+	std::vector<std::string> eventStrs;
+	if constexpr (!Archive::IS_LOADER) {
 		eventStrs = to_vector(view::transform(
-			eventQueue, [](auto& e) { return e->toString(); }));
+			eventQueue, [](const auto& e) { return toString(e); }));
 	}
 	ar.serialize("eventQueue", eventStrs);
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		assert(eventQueue.empty());
 		for (auto& s : eventStrs) {
 			eventQueue.push_back(
@@ -1411,133 +1518,5 @@ void Keyboard::MsxKeyEventQueue::serialize(Archive& ar, unsigned /*version*/)
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(Keyboard::MsxKeyEventQueue);
-
-
-/** Keyboard bindings ****************************************/
-
-// Mapping from SDL keys to emulated keys, ordered by MatrixType
-constexpr KeyMatrixPosition x = KeyMatrixPosition();
-const KeyMatrixPosition Keyboard::keyTabs[][MAX_KEYSYM] = {
-  {
-// MSX Key-Matrix table
-//
-// row/bit  7     6     5     4     3     2     1     0
-//       +-----+-----+-----+-----+-----+-----+-----+-----+
-//   0   |  7  |  6  |  5  |  4  |  3  |  2  |  1  |  0  |
-//   1   |  ;  |  ]  |  [  |  \  |  =  |  -  |  9  |  8  |
-//   2   |  B  |  A  | Acc |  /  |  .  |  ,  |  `  |  '  |
-//   3   |  J  |  I  |  H  |  G  |  F  |  E  |  D  |  C  |
-//   4   |  R  |  Q  |  P  |  O  |  N  |  M  |  L  |  K  |
-//   5   |  Z  |  Y  |  X  |  W  |  V  |  U  |  T  |  S  |
-//   6   |  F3 |  F2 |  F1 | code| caps|graph| ctrl|shift|
-//   7   | ret |selec|  bs | stop| tab | esc |  F5 |  F4 |
-//   8   |right| down|  up | left| del | ins | hom |space|
-//   9   |  4  |  3  |  2  |  1  |  0  |  /  |  +  |  *  |
-//  10   |  .  |  ,  |  -  |  9  |  8  |  7  |  6  |  5  |
-//  11   |     |     |     |     | 'NO'|     |'YES'|     |
-//       +-----+-----+-----+-----+-----+-----+-----+-----+
-// 0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f
-   x  , x  , x  , x  , x  , x  , x  , x  ,0x75,0x73, x  , x  , x  ,0x77, x  , x  , //000
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x72, x  , x  , x  , x  , //010
-  0x80, x  , x  , x  , x  , x  , x  ,0x20, x  , x  , x  , x  ,0x22,0x12,0x23,0x24, //020
-  0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x10,0x11, x  ,0x17, x  ,0x13, x  , x  , //030
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //040
-   x  ,0x84,0x85,0x87,0x86, x  , x  , x  , x  , x  , x  ,0x15,0x14,0x16, x  , x  , //050
-  0x21,0x26,0x27,0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x40,0x41,0x42,0x43,0x44, //060
-  0x45,0x46,0x47,0x50,0x51,0x52,0x53,0x54,0x55,0x56,0x57, x  , x  , x  , x  ,0x83, //070
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //080
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //090
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0A0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0B0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0C0
-   x  , x  , x  , x  , x  , x  , x  , x  ,0x81, x  , x  , x  , x  , x  , x  , x  , //0D0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0E0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0F0
-  0x93,0x94,0x95,0x96,0x97,0xA0,0xA1,0xA2,0xA3,0xA4,0xA7,0x92,0x90,0xA5,0x91,0xA6, //100
-   x  ,0x85,0x86,0x87,0x84,0x82,0x81, x  , x  , x  ,0x65,0x66,0x67,0x70,0x71, x  , //110
-  0x76,0x74, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x60, //120
-  0x60,0x25,0x61, x  , x  ,0xB3,0xB1,0xB3,0xB1,0xB1,0xB3, x  , x  , x  , x  , x  , //130
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //140
-  },
-  {
-// SVI Keyboard Matrix
-//
-// row/bit  7     6     5     4     3     2     1     0
-//       +-----+-----+-----+-----+-----+-----+-----+-----+
-//   0   |  7  |  6  |  5  |  4  |  3  |  2  |  1  |  0  |
-//   1   |  /  |  .  |  =  |  ,  |  '  |  :  |  9  |  8  |
-//   2   |  G  |  F  |  E  |  D  |  C  |  B  |  A  |  -  |
-//   3   |  O  |  N  |  M  |  L  |  K  |  J  |  I  |  H  |
-//   4   |  W  |  V  |  U  |  T  |  S  |  R  |  Q  |  P  |
-//   5   | UP  | BS  |  ]  |  \  |  [  |  Z  |  Y  |  X  |
-//   6   |LEFT |ENTER|STOP | ESC |RGRAP|LGRAP|CTRL |SHIFT|
-//   7   |DOWN | INS | CLS | F5  | F4  | F3  | F2  | F1  |
-//   8   |RIGHT|     |PRINT| SEL |CAPS | DEL | TAB |SPACE|
-//   9   |  7  |  6  |  5  |  4  |  3  |  2  |  1  |  0  |  Numerical keypad
-//  10   |  ,  |  .  |  /  |  *  |  -  |  +  |  9  |  8  |   SVI-328 only
-//       +-----+-----+-----+-----+-----+-----+-----+-----+
-// 0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f
-   x  , x  , x  , x  , x  , x  , x  , x  ,0x56,0x81, x  , x  , x  ,0x66, x  , x  , //000
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x64, x  , x  , x  , x  , //010
-  0x80, x  , x  , x  , x  , x  , x  ,0x20, x  , x  , x  , x  ,0x14,0x20,0x16,0x17, //020
-  0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x10,0x11,0x12, x  , x  ,0x15, x  , x  , //030
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //040
-   x  ,0x67,0x57,0x87,0x77, x  , x  , x  , x  , x  , x  ,0x53,0x54,0x55, x  , x  , //050
-   x  ,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37, //060
-  0x40,0x41,0x42,0x43,0x44,0x45,0x46,0x47,0x50,0x51,0x52, x  , x  , x  , x  ,0x82, //070
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //080
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //090
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0A0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0B0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0C0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0D0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0E0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0F0
-  0x90,0x91,0x92,0x93,0x94,0x95,0x96,0x97,0xA0,0xA1,0xA6,0xA5,0xA4,0xA3,0xA2,0xA7, //100
-   x  ,0x57,0x77,0x87,0x67,0x76, x  , x  , x  , x  ,0x70,0x71,0x72,0x73,0x74, x  , //110
-  0x75,0x65, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x60, //120
-  0x60, x  ,0x61, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //130
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //140
-  },
-  {
-// ColecoVision Joystick "Matrix"
-//
-// The hardware consists of 2 controllers that each have 2 triggers
-// and a 12-key keypad. They're not actually connected in a matrix,
-// but a ghosting-free matrix is the easiest way to model it in openMSX.
-//
-// row/bit  7     6     5     4     3     2     1     0
-//       +-----+-----+-----+-----+-----+-----+-----+-----+
-//   0   |TRIGB|TRIGA|     |     |LEFT |DOWN |RIGHT| UP  |  controller 1
-//   1   |TRIGB|TRIGA|     |     |LEFT |DOWN |RIGHT| UP  |  controller 2
-//   2   |  7  |  6  |  5  |  4  |  3  |  2  |  1  |  0  |  controller 1
-//   3   |     |     |     |     |  #  |  *  |  9  |  8  |  controller 1
-//   4   |  7  |  6  |  5  |  4  |  3  |  2  |  1  |  0  |  controller 2
-//   5   |     |     |     |     |  #  |  *  |  9  |  8  |  controller 2
-//       +-----+-----+-----+-----+-----+-----+-----+-----+
-// 0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //000
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //010
-  0x06, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x32, x  , x  , //020
-  0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x30,0x31, x  , x  , x  ,0x33, x  , x  , //030
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //040
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //050
-   x  ,0x13,0x42, x  ,0x11, x  ,0x44,0x45,0x46, x  ,0x52, x  , x  ,0x53,0x43, x  , //060
-   x  , x  ,0x47,0x12,0x50,0x40,0x41,0x10, x  ,0x51, x  , x  , x  , x  , x  , x  , //070
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //080
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //090
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0A0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0B0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0C0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0D0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0E0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0F0
-  0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x30,0x31, x  ,0x33,0x32,0x32,0x33, x  , //100
-   x  ,0x00,0x02,0x01,0x03, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //110
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x07, //120
-  0x17,0x06,0x16,0x07,0x07, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //130
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //140
-  }
-};
 
 } // namespace openmsx

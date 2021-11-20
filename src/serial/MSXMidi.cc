@@ -5,6 +5,7 @@
 #include "outer.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -198,14 +199,14 @@ void MSXMidi::registerIOports(byte value)
 
 void MSXMidi::registerRange(byte port, unsigned num)
 {
-	for (unsigned i = 0; i < num; ++i) {
+	for (auto i : xrange(num)) {
 		getCPUInterface().register_IO_In (port + i, this);
 		getCPUInterface().register_IO_Out(port + i, this);
 	}
 }
 void MSXMidi::unregisterRange(byte port, unsigned num)
 {
-	for (unsigned i = 0; i < num; ++i) {
+	for (auto i : xrange(num)) {
 		getCPUInterface().unregister_IO_In (port + i, this);
 		getCPUInterface().unregister_IO_Out(port + i, this);
 	}
@@ -416,8 +417,10 @@ void MSXMidi::serialize(Archive& ar, unsigned version)
 		bool newIsLimitedTo8251 = isLimitedTo8251; // copy for saver
 		ar.serialize("isEnabled",       newIsEnabled,
 		             "isLimitedTo8251", newIsLimitedTo8251);
-		if (ar.isLoader() && isExternalMSXMIDI) {
-			registerIOports((newIsEnabled ? 0x00 : DISABLED_VALUE) | (newIsLimitedTo8251 ? LIMITED_RANGE_VALUE : 0x00));
+		if constexpr (Archive::IS_LOADER) {
+			if (isExternalMSXMIDI) {
+				registerIOports((newIsEnabled ? 0x00 : DISABLED_VALUE) | (newIsLimitedTo8251 ? LIMITED_RANGE_VALUE : 0x00));
+			}
 		}
 	}
 

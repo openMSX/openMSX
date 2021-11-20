@@ -14,9 +14,9 @@ LocalFileReference::LocalFileReference(File& file)
 	init(file);
 }
 
-LocalFileReference::LocalFileReference(const std::string& filename)
+LocalFileReference::LocalFileReference(std::string filename)
 {
-	File file(filename);
+	File file(std::move(filename));
 	init(file);
 }
 
@@ -25,14 +25,19 @@ LocalFileReference::LocalFileReference(const Filename& filename)
 {
 }
 
-LocalFileReference::LocalFileReference(LocalFileReference&& other)
+LocalFileReference::LocalFileReference(Filename&& filename)
+	: LocalFileReference(std::move(filename).getResolved())
+{
+}
+
+LocalFileReference::LocalFileReference(LocalFileReference&& other) noexcept
 	: tmpFile(std::move(other.tmpFile))
 	, tmpDir (std::move(other.tmpDir ))
 {
 	other.tmpDir.clear();
 }
 
-LocalFileReference& LocalFileReference::operator=(LocalFileReference&& other)
+LocalFileReference& LocalFileReference::operator=(LocalFileReference&& other) noexcept
 {
 	cleanup();
 	tmpFile = std::move(other.tmpFile);

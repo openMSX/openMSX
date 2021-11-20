@@ -72,6 +72,8 @@ struct TTCacheEntry;
 class TigerTree
 {
 public:
+	static constexpr size_t BLOCK_SIZE = 64 * 1024;
+
 	/** Create TigerTree calculator for the given (abstract) data block
 	 * of given size.
 	 */
@@ -103,6 +105,7 @@ private:
 
 	[[nodiscard]] const TigerHash& calcHash(Node node, const std::function<void(size_t, size_t)>& progressCallback);
 
+private:
 	TTData& data;
 	const size_t dataSize;
 	TTCacheEntry& entry;

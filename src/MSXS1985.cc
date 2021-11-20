@@ -1,5 +1,8 @@
 #include "MSXS1985.hh"
+#include "MSXMapperIO.hh"
+#include "MSXMotherBoard.hh"
 #include "SRAM.hh"
+#include "enumerate.hh"
 #include "serialize.hh"
 #include <memory>
 
@@ -22,10 +25,19 @@ MSXS1985::MSXS1985(const DeviceConfig& config)
 			getName() + " SRAM", "S1985 Backup RAM",
 			0x10, config);
 	}
+
+	auto& mapperIO = getMotherBoard().createMapperIO();
+	byte mask = 0b0001'1111; // always(?) 5 bits
+	byte baseValue = config.getChildDataAsInt("MapperReadBackBaseValue", 0x80);
+	mapperIO.setMode(MSXMapperIO::Mode::INTERNAL, mask, baseValue);
+
 	reset(EmuTime::dummy());
 }
 
-MSXS1985::~MSXS1985() = default;
+MSXS1985::~MSXS1985()
+{
+	getMotherBoard().destroyMapperIO();
+}
 
 void MSXS1985::reset(EmuTime::param /*time*/)
 {
@@ -45,21 +57,16 @@ byte MSXS1985::readSwitchedIO(word port, EmuTime::param time)
 
 byte MSXS1985::peekSwitchedIO(word port, EmuTime::param /*time*/) const
 {
-	byte result;
 	switch (port & 0x0F) {
 	case 0:
-		result = byte(~ID);
-		break;
+		return byte(~ID);
 	case 2:
-		result = (*sram)[address];
-		break;
+		return (*sram)[address];
 	case 7:
-		result = (pattern & 0x80) ? color2 : color1;
-		break;
+		return (pattern & 0x80) ? color2 : color1;
 	default:
-		result = 0xFF;
+		return 0xFF;
 	}
-	return result;
 }
 
 void MSXS1985::writeSwitchedIO(word port, byte value, EmuTime::param /*time*/)
@@ -93,7 +100,7 @@ void MSXS1985::serialize(Archive& ar, unsigned version)
 		// serialize normally...
 		ar.serialize("sram", *sram);
 	} else {
-		assert(ar.isLoader());
+		assert(Archive::IS_LOADER);
 		// version 1 had here
 		//    <ram>
 		//      <ram encoding="..">...</ram>
@@ -103,8 +110,8 @@ void MSXS1985::serialize(Archive& ar, unsigned version)
 		ar.beginTag("ram");
 		ar.serialize_blob("ram", tmp, sizeof(tmp));
 		ar.endTag("ram");
-		for (size_t i = 0; i < sizeof(tmp); ++i) {
-			sram->write(i, tmp[i]);
+		for (auto [i, t] : enumerate(tmp)) {
+			sram->write(unsigned(i), t);
 		}
 	}
 

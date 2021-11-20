@@ -9,6 +9,7 @@
 
 #include "MemBuffer.hh"
 #include "DiskImageUtils.hh"
+#include "zstring_view.hh"
 #include <string_view>
 
 namespace openmsx {
@@ -19,6 +20,7 @@ class MSXtar
 {
 public:
 	explicit MSXtar(SectorAccessibleDisk& disk);
+	MSXtar(MSXtar&& other);
 	~MSXtar();
 
 	void chdir(std::string_view newRootDir);
@@ -38,35 +40,32 @@ private:
 	void writeLogicalSector(unsigned sector, const SectorBuffer& buf);
 	void readLogicalSector (unsigned sector,       SectorBuffer& buf);
 
-	unsigned clusterToSector(unsigned cluster) const;
-	unsigned sectorToCluster(unsigned sector) const;
+	[[nodiscard]] unsigned clusterToSector(unsigned cluster) const;
+	[[nodiscard]] unsigned sectorToCluster(unsigned sector) const;
 	void parseBootSector(const MSXBootSector& boot);
-	unsigned readFAT(unsigned clnr) const;
-	void writeFAT(unsigned clnr, unsigned val);
+	[[nodiscard]] unsigned readFAT(unsigned clNr) const;
+	void writeFAT(unsigned clNr, unsigned val);
 	unsigned findFirstFreeCluster();
 	unsigned findUsableIndexInSector(unsigned sector);
 	unsigned getNextSector(unsigned sector);
-	unsigned getStartCluster(const MSXDirEntry& entry);
 	unsigned appendClusterToSubdir(unsigned sector);
 	DirEntry addEntryToDir(unsigned sector);
 	unsigned addSubdir(std::string_view msxName,
 	                   unsigned t, unsigned d, unsigned sector);
 	void alterFileInDSK(MSXDirEntry& msxDirEntry, const std::string& hostName);
-	unsigned addSubdirToDSK(const std::string& hostName,
+	unsigned addSubdirToDSK(zstring_view hostName,
 	                        std::string_view msxName, unsigned sector);
 	DirEntry findEntryInDir(const std::string& name, unsigned sector,
 	                        SectorBuffer& sectorBuf);
 	std::string addFileToDSK(const std::string& fullHostName, unsigned sector);
 	std::string recurseDirFill(std::string_view dirName, unsigned sector);
-	std::string condensName(const MSXDirEntry& dirEntry);
-	void changeTime (const std::string& resultFile, const MSXDirEntry& dirEntry);
 	void fileExtract(const std::string& resultFile, const MSXDirEntry& dirEntry);
 	void recurseDirExtract(std::string_view dirName, unsigned sector);
 	std::string singleItemExtract(std::string_view dirName, std::string_view itemName,
 	                              unsigned sector);
 	void chroot(std::string_view newRootDir, bool createDir);
 
-
+private:
 	SectorAccessibleDisk& disk;
 	MemBuffer<SectorBuffer> fatBuffer;
 

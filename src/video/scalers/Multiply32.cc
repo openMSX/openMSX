@@ -1,5 +1,6 @@
 #include "Multiply32.hh"
 #include "PixelOperations.hh"
+#include "enumerate.hh"
 #include <cstring>
 
 namespace openmsx {
@@ -18,7 +19,7 @@ Multiply32<uint32_t>::Multiply32(const PixelOperations<uint32_t>& /*pixelOps*/)
 // We don't really need a rotate, but we do need a shift over a positive or
 // negative (not known at compile time) distance, rotate handles this just fine.
 // Note that 0 <= n < 32; on x86 this doesn't matter but on PPC it does.
-static inline uint32_t rotLeft(uint32_t a, unsigned n)
+static constexpr uint32_t rotLeft(uint32_t a, unsigned n)
 {
 	return (a << n) | (a >> (32 - n));
 }
@@ -54,21 +55,19 @@ Multiply32<uint16_t>::Multiply32(const PixelOperations<uint16_t>& pixelOps)
 
 void Multiply32<uint16_t>::setFactor32(unsigned f)
 {
-	if (factor == f) {
-		return;
-	}
+	if (factor == f) return;
 	factor = f;
 
-	for (unsigned p = 0; p < 0x10000; ++p) {
+	for (auto [p, t] : enumerate(tab)) {
 		uint32_t r = rotLeft((p & Rmask1), Rshift1) |
 			     rotLeft((p & Rmask2), Rshift2);
 		uint32_t g = rotLeft((p & Gmask1), Gshift1) |
 			     rotLeft((p & Gmask2), Gshift2);
 		uint32_t b = rotLeft((p & Bmask1), Bshift1) |
 			     rotLeft((p & Bmask2), Bshift2);
-		tab[p] = (((r * factor) >> 8) <<  0) |
-		         (((g * factor) >> 8) << 10) |
-		         (((b * factor) >> 8) << 20);
+		t = (((r * factor) >> 8) <<  0) |
+		    (((g * factor) >> 8) << 10) |
+		    (((b * factor) >> 8) << 20);
 	}
 }
 

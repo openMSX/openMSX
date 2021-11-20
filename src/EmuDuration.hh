@@ -22,7 +22,7 @@ public:
 	// it's cheaper to pass this by value. On 32-bit CPUs pass-by-reference
 	// is cheaper.
 #ifdef __x86_64
-	using param = const EmuDuration;
+	using param = EmuDuration;
 #else
 	using param = const EmuDuration&;
 #endif
@@ -34,7 +34,7 @@ public:
 	constexpr EmuDuration() = default;
 	constexpr explicit EmuDuration(uint64_t n) : time(n) {}
 	constexpr explicit EmuDuration(double duration)
-		: time(uint64_t(duration * MAIN_FREQ)) {}
+		: time(uint64_t(duration * MAIN_FREQ + 0.5)) {}
 
 	static constexpr EmuDuration sec(unsigned x)
 		{ return EmuDuration(x * MAIN_FREQ); }
@@ -46,35 +46,35 @@ public:
 		{ return EmuDuration(MAIN_FREQ / x); }
 
 	// conversions
-	constexpr double toDouble() const { return double(time) / MAIN_FREQ32; }
-	constexpr uint64_t length() const { return time; }
+	[[nodiscard]] constexpr double toDouble() const { return double(time) / MAIN_FREQ32; }
+	[[nodiscard]] constexpr uint64_t length() const { return time; }
 
 	// comparison operators
-	constexpr bool operator==(EmuDuration::param d) const
+	[[nodiscard]] constexpr bool operator==(EmuDuration::param d) const
 		{ return time == d.time; }
-	constexpr bool operator!=(EmuDuration::param d) const
+	[[nodiscard]] constexpr bool operator!=(EmuDuration::param d) const
 		{ return time != d.time; }
-	constexpr bool operator< (EmuDuration::param d) const
+	[[nodiscard]] constexpr bool operator< (EmuDuration::param d) const
 		{ return time <  d.time; }
-	constexpr bool operator<=(EmuDuration::param d) const
+	[[nodiscard]] constexpr bool operator<=(EmuDuration::param d) const
 		{ return time <= d.time; }
-	constexpr bool operator> (EmuDuration::param d) const
+	[[nodiscard]] constexpr bool operator> (EmuDuration::param d) const
 		{ return time >  d.time; }
-	constexpr bool operator>=(EmuDuration::param d) const
+	[[nodiscard]] constexpr bool operator>=(EmuDuration::param d) const
 		{ return time >= d.time; }
 
 	// arithmetic operators
-	constexpr EmuDuration operator%(EmuDuration::param d) const
+	[[nodiscard]] constexpr EmuDuration operator%(EmuDuration::param d) const
 		{ return EmuDuration(time % d.time); }
-	constexpr EmuDuration operator+(EmuDuration::param d) const
+	[[nodiscard]] constexpr EmuDuration operator+(EmuDuration::param d) const
 		{ return EmuDuration(time + d.time); }
-	constexpr EmuDuration operator*(unsigned fact) const
+	[[nodiscard]] constexpr EmuDuration operator*(uint64_t fact) const
 		{ return EmuDuration(time * fact); }
-	constexpr EmuDuration operator/(unsigned fact) const
+	[[nodiscard]] constexpr EmuDuration operator/(unsigned fact) const
 		{ return EmuDuration(time / fact); }
-	constexpr EmuDuration divRoundUp(unsigned fact) const
+	[[nodiscard]] constexpr EmuDuration divRoundUp(unsigned fact) const
 		{ return EmuDuration((time + fact - 1) / fact); }
-	constexpr unsigned operator/(EmuDuration::param d) const
+	[[nodiscard]] constexpr unsigned operator/(EmuDuration::param d) const
 	{
 		uint64_t result = time / d.time;
 #ifdef DEBUG
@@ -83,14 +83,14 @@ public:
 #endif
 		return unsigned(result);
 	}
-	constexpr unsigned divUp(EmuDuration::param d) const {
+	[[nodiscard]] constexpr unsigned divUp(EmuDuration::param d) const {
 		uint64_t result = (time + d.time - 1) / d.time;
 #ifdef DEBUG
 		assert(result == unsigned(result));
 #endif
 		return unsigned(result);
 	}
-	constexpr double div(EmuDuration::param d) const
+	[[nodiscard]] constexpr double div(EmuDuration::param d) const
 		{ return double(time) / d.time; }
 
 	constexpr EmuDuration& operator*=(unsigned fact)
@@ -102,7 +102,7 @@ public:
 
 	// ticks
 	// TODO: Used in WavAudioInput. Keep or use DynamicClock instead?
-	constexpr unsigned getTicksAt(unsigned freq) const
+	[[nodiscard]] constexpr unsigned getTicksAt(unsigned freq) const
 	{
 		uint64_t result = time / (MAIN_FREQ32 / freq);
 #ifdef DEBUG
@@ -112,12 +112,12 @@ public:
 		return unsigned(result);
 	}
 
-	static constexpr EmuDuration zero()
+	[[nodiscard]] static constexpr EmuDuration zero()
 	{
 		return EmuDuration(uint64_t(0));
 	}
 
-	static constexpr EmuDuration infinity()
+	[[nodiscard]] static constexpr EmuDuration infinity()
 	{
 		return EmuDuration(std::numeric_limits<uint64_t>::max());
 	}
@@ -144,7 +144,7 @@ public:
 		assert(e.length() <= std::numeric_limits<T>::max());
 	}
 
-	constexpr operator EmuDuration() const
+	[[nodiscard]] constexpr operator EmuDuration() const
 	{
 		return EmuDuration(uint64_t(time));
 	}

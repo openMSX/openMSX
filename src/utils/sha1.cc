@@ -29,12 +29,10 @@ A million repetitions of "a"
 #include <emmintrin.h> // SSE2
 #endif
 
-using std::string;
-
 namespace openmsx {
 
 // Rotate x bits to the left
-inline static uint32_t rol32(uint32_t value, int bits)
+[[nodiscard]] static constexpr uint32_t rol32(uint32_t value, int bits)
 {
 	return (value << bits) | (value >> (32 - bits));
 }
@@ -43,12 +41,12 @@ class WorkspaceBlock {
 private:
 	uint32_t data[16];
 
-	uint32_t next0(int i)
+	[[nodiscard]] uint32_t next0(int i)
 	{
 		data[i] = Endian::readB32(&data[i]);
 		return data[i];
 	}
-	uint32_t next(int i)
+	[[nodiscard]] uint32_t next(int i)
 	{
 		return data[i & 15] = rol32(
 			data[(i + 13) & 15] ^ data[(i + 8) & 15] ^
@@ -110,25 +108,25 @@ Sha1Sum::Sha1Sum(std::string_view hex)
 
 #ifdef __SSE2__
 // emulate some missing unsigned-8-bit comparison functions
-static inline __m128i _mm_cmpge_epu8(__m128i a, __m128i b)
+[[nodiscard]] static inline __m128i _mm_cmpge_epu8(__m128i a, __m128i b)
 {
 	return _mm_cmpeq_epi8(_mm_max_epu8(a, b), a);
 }
 
-static inline __m128i _mm_cmple_epu8(__m128i a, __m128i b)
+[[nodiscard]] static inline __m128i _mm_cmple_epu8(__m128i a, __m128i b)
 {
 	return _mm_cmpge_epu8(b, a);
 }
 
 // load 64-bit (possibly unaligned) and swap bytes
-static inline uint64_t loadSwap64(const char* s)
+[[nodiscard]] static inline uint64_t loadSwap64(const char* s)
 {
-	return Endian::bswap64(*reinterpret_cast<const uint64_t*>(s));
+	return Endian::read_UA_B64(s);
 }
 
 #else
 
-static inline unsigned hex(char x, const char* str)
+[[nodiscard]] static /*constexpr*/ unsigned hex(char x, const char* str)
 {
 	if (('0' <= x) && (x <= '9')) return x - '0';
 	if (('a' <= x) && (x <= 'f')) return x - 'a' + 10;
@@ -216,16 +214,16 @@ void Sha1Sum::parse40(const char* str)
 	const char* p = str;
 	for (auto& ai : a) {
 		unsigned t = 0;
-		for (int j = 0; j < 8; ++j) {
+		repeat(8, [&] {
 			t <<= 4;
 			t |= hex(*p++, str);
-		}
+		});
 		ai = t;
 	}
 #endif
 }
 
-static inline char digit(unsigned x)
+[[nodiscard]] static constexpr char digit(unsigned x)
 {
 	return (x < 10) ? (x + '0') : (x - 10 + 'a');
 }
@@ -238,7 +236,7 @@ std::string Sha1Sum::toString() const
 			*p++ = digit((ai >> j) & 0xf);
 		}
 	}
-	return string(buf, 40);
+	return std::string(buf, 40);
 }
 
 bool Sha1Sum::empty() const
@@ -315,18 +313,21 @@ void SHA1::transform(const uint8_t buffer[64])
 }
 
 // Use this function to hash in binary data and strings
-void SHA1::update(const uint8_t* data, size_t len)
+void SHA1::update(span<const uint8_t> data_)
 {
-	assert(!m_finalized);
-	uint32_t j = (m_count >> 3) & 63;
+	const uint8_t* data = data_.data();
+	size_t len = data_.size();
 
-	m_count += uint64_t(len) << 3;
+	assert(!m_finalized);
+	uint32_t j = m_count & 63;
+
+	m_count += len;
 
 	size_t i;
 	if ((j + len) > 63) {
 		memcpy(&m_buffer[j], data, (i = 64 - j));
 		transform(m_buffer);
-		for (; i + 63 < len; i += 64) {
+		for (/**/; i + 63 < len; i += 64) {
 			transform(&data[i]);
 		}
 		j = 0;
@@ -339,16 +340,19 @@ void SHA1::update(const uint8_t* data, size_t len)
 void SHA1::finalize()
 {
 	assert(!m_finalized);
-	uint8_t finalcount[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-	for (int i = 0; i < 8; i++) {
-		finalcount[i] = uint8_t(m_count >> ((7 - i) * 8));
-	}
 
-	update(reinterpret_cast<const uint8_t*>("\200"), 1);
-	while ((m_count & 504) != 448) {
-		update(reinterpret_cast<const uint8_t*>("\0"), 1);
+	uint32_t j = m_count & 63;
+	m_buffer[j++] = 0x80;
+	if (j > 56) {
+		memset(&m_buffer[j], 0, 64 - j);
+		transform(m_buffer);
+		j = 0;
 	}
-	update(finalcount, 8); // cause a transform()
+	memset(&m_buffer[j], 0, 56 - j);
+	Endian::B64 finalCount = 8 * m_count; // convert number of bytes to bits
+	memcpy(&m_buffer[56], &finalCount, 8);
+	transform(m_buffer);
+
 	m_finalized = true;
 }
 
@@ -358,10 +362,10 @@ Sha1Sum SHA1::digest()
 	return m_state;
 }
 
-Sha1Sum SHA1::calc(const uint8_t* data, size_t len)
+Sha1Sum SHA1::calc(span<const uint8_t> data)
 {
 	SHA1 sha1;
-	sha1.update(data, len);
+	sha1.update(data);
 	return sha1.digest();
 }
 

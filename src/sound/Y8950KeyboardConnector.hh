@@ -14,13 +14,13 @@ public:
 	explicit Y8950KeyboardConnector(PluggingController& pluggingController);
 
 	void write(byte data, EmuTime::param time);
-	byte read(EmuTime::param time);
-	byte peek(EmuTime::param time) const;
-	Y8950KeyboardDevice& getPluggedKeyb() const;
+	[[nodiscard]] byte read(EmuTime::param time);
+	[[nodiscard]] byte peek(EmuTime::param time) const;
+	[[nodiscard]] Y8950KeyboardDevice& getPluggedKeyb() const;
 
 	// Connector
-	std::string_view getDescription() const final override;
-	std::string_view getClass() const final override;
+	[[nodiscard]] std::string_view getDescription() const final;
+	[[nodiscard]] std::string_view getClass() const final;
 	void plug(Pluggable& dev, EmuTime::param time) override;
 
 	template<typename Archive>

@@ -9,6 +9,7 @@
 #include "RomZemina80in1.hh"
 #include "CacheLine.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 
 namespace openmsx {
 
@@ -22,7 +23,7 @@ void RomZemina80in1::reset(EmuTime::param /*time*/)
 {
 	setUnmapped(0);
 	setUnmapped(1);
-	for (int i = 2; i < 6; i++) {
+	for (auto i : xrange(2, 6)) {
 		setRom(i, i - 2);
 	}
 	setUnmapped(6);

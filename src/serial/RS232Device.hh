@@ -10,7 +10,7 @@ class RS232Device : public Pluggable, public SerialDataInterface
 {
 public:
 	// Pluggable (part)
-	std::string_view getClass() const final override;
+	[[nodiscard]] std::string_view getClass() const final;
 
 	// input
 	virtual void signal(EmuTime::param time) = 0;
@@ -21,8 +21,8 @@ public:
 	void setParityBit(bool enable, ParityBit parity) override;
 
 	// control
-	virtual bool getCTS(EmuTime::param time) const;
-	virtual bool getDSR(EmuTime::param time) const;
+	[[nodiscard]] virtual bool getCTS(EmuTime::param time) const;
+	[[nodiscard]] virtual bool getDSR(EmuTime::param time) const;
 	virtual void setDTR(bool status, EmuTime::param time);
 	virtual void setRTS(bool status, EmuTime::param time);
 };

@@ -14,14 +14,14 @@
 
 namespace openmsx {
 
-template <typename Pixel>
+template<typename Pixel>
 SaI3xScaler<Pixel>::SaI3xScaler(const PixelOperations<Pixel>& pixelOps_)
 	: Scaler3<Pixel>(pixelOps_)
 	, pixelOps(pixelOps_)
 {
 }
 
-template <class Pixel>
+template<typename Pixel>
 void SaI3xScaler<Pixel>::scaleBlank1to3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -32,7 +32,7 @@ void SaI3xScaler<Pixel>::scaleBlank1to3(
 	unsigned srcY = srcStartY, dstY = dstStartY;
 	for (/* */; dstY < stopDstY; srcY += 1, dstY += 3) {
 		auto color = src.getLineColor<Pixel>(srcY);
-		for (int i = 0; i < 3; ++i) {
+		for (auto i : xrange(3)) {
 			dst.fillLine(dstY + i, color);
 		}
 	}
@@ -45,20 +45,20 @@ void SaI3xScaler<Pixel>::scaleBlank1to3(
 	}
 }
 
-template <typename Pixel>
-inline Pixel SaI3xScaler<Pixel>::blend(Pixel p1, Pixel p2)
+template<typename Pixel>
+inline Pixel SaI3xScaler<Pixel>::blend(Pixel p1, Pixel p2) const
 {
 	return pixelOps.template blend<1, 1>(p1, p2);
 }
 
-constexpr unsigned redblueMask = 0xF81F;
-constexpr unsigned greenMask = 0x7E0;
+static constexpr unsigned redblueMask = 0xF81F;
+static constexpr unsigned greenMask = 0x7E0;
 
 // TODO use PixelOperations::lerp()
-template <typename Pixel>
-static Pixel bilinear(unsigned a, unsigned b, unsigned x);
+template<typename Pixel>
+[[nodiscard]] static Pixel bilinear(unsigned a, unsigned b, unsigned x);
 
-template<> uint16_t bilinear<uint16_t>(unsigned a, unsigned b, unsigned x)
+template<> [[nodiscard]] uint16_t bilinear<uint16_t>(unsigned a, unsigned b, unsigned x)
 {
 	if (a == b) return a;
 
@@ -71,7 +71,7 @@ template<> uint16_t bilinear<uint16_t>(unsigned a, unsigned b, unsigned x)
 	return (result & redblueMask) | ((result >> 16) & greenMask);
 }
 
-template<> uint32_t bilinear<uint32_t>(unsigned a, unsigned b, unsigned x)
+template<> [[nodiscard]] uint32_t bilinear<uint32_t>(unsigned a, unsigned b, unsigned x)
 {
 	if (a == b) return a;
 
@@ -86,7 +86,7 @@ template<> uint32_t bilinear<uint32_t>(unsigned a, unsigned b, unsigned x)
 }
 
 // TODO move to PixelOperations
-template<typename Pixel> static Pixel bilinear4(
+template<typename Pixel> [[nodiscard]] static Pixel bilinear4(
 	unsigned a, unsigned b, unsigned c, unsigned d, unsigned x, unsigned y);
 
 template<> uint16_t bilinear4<uint16_t>(
@@ -111,7 +111,7 @@ template<> uint16_t bilinear4<uint16_t>(
 	return (result & redblueMask) | ((result >> 16) & greenMask);
 }
 
-template<> uint32_t bilinear4<uint32_t>(
+template<> [[nodiscard]] uint32_t bilinear4<uint32_t>(
 	unsigned a, unsigned b, unsigned c, unsigned d, unsigned x, unsigned y)
 {
 	x >>= 8;
@@ -132,26 +132,26 @@ template<> uint32_t bilinear4<uint32_t>(
 	return (result0 & 0x00FF00FF) | (result1 & 0xFF00FF00);
 }
 
-template <typename Pixel>
+template<typename Pixel>
 class Blender
 {
 public:
-	template <unsigned x>
-	inline static Pixel blend(unsigned a, unsigned b);
+	template<unsigned x>
+	[[nodiscard]] inline static Pixel blend(unsigned a, unsigned b);
 
-	template <unsigned x, unsigned y>
-	inline static Pixel blend(unsigned a, unsigned b, unsigned c, unsigned d);
+	template<unsigned x, unsigned y>
+	[[nodiscard]] inline static Pixel blend(unsigned a, unsigned b, unsigned c, unsigned d);
 };
 
-template <unsigned X, unsigned OLD, unsigned NEW>
+template<unsigned X, unsigned OLD, unsigned NEW>
 struct Round {
 	static_assert(OLD > NEW);
 	static constexpr unsigned result =
 		(X >> (OLD - NEW)) + ((X >> (OLD - NEW - 1)) & 1);
 };
 
-template <typename Pixel>
-template <unsigned x>
+template<typename Pixel>
+template<unsigned x>
 inline Pixel Blender<Pixel>::blend(unsigned a, unsigned b)
 {
 	if (a == b) return a;
@@ -160,7 +160,7 @@ inline Pixel Blender<Pixel>::blend(unsigned a, unsigned b)
 	const unsigned areaB = Round<x, 16, bits>::result;
 	const unsigned areaA = (1 << bits) - areaB;
 
-	if (sizeof(Pixel) == 2) {
+	if constexpr (sizeof(Pixel) == 2) {
 		a = (a & redblueMask) | ((a & greenMask) << 16);
 		b = (b & redblueMask) | ((b & greenMask) << 16);
 		const unsigned result = ((areaA * a) + (areaB * b)) >> bits;
@@ -176,8 +176,8 @@ inline Pixel Blender<Pixel>::blend(unsigned a, unsigned b)
 	}
 }
 
-template <typename Pixel>
-template <unsigned wx, unsigned wy>
+template<typename Pixel>
+template<unsigned wx, unsigned wy>
 inline Pixel Blender<Pixel>::blend(
 	unsigned a, unsigned b, unsigned c, unsigned d)
 {
@@ -188,7 +188,7 @@ inline Pixel Blender<Pixel>::blend(
 	const unsigned areaD = Round<xy,      16, bits>::result;
 	const unsigned areaA = (1 << bits) - areaB - areaC - areaD;
 
-	if (sizeof(Pixel) == 2) {
+	if constexpr (sizeof(Pixel) == 2) {
 		a = (a & redblueMask) | ((a & greenMask) << 16);
 		b = (b & redblueMask) | ((b & greenMask) << 16);
 		c = (c & redblueMask) | ((c & greenMask) << 16);
@@ -212,17 +212,17 @@ inline Pixel Blender<Pixel>::blend(
 	}
 }
 
-template <unsigned i>
+template<unsigned i>
 class PixelStripRepeater
 {
 public:
-	template <typename Pixel>
+	template<typename Pixel>
 	inline static void fill(Pixel*& dp, unsigned sa) {
 		*dp++ = sa;
 		PixelStripRepeater<i - 1>::template fill<Pixel>(dp, sa);
 	}
 
-	template <unsigned NX, unsigned y, typename Pixel>
+	template<unsigned NX, unsigned y, typename Pixel>
 	inline static void blendBackslash(
 		Pixel*& dp,
 		unsigned sa, unsigned sb, unsigned sc, unsigned sd,
@@ -247,10 +247,10 @@ public:
 			*dp++ = Blender<Pixel>::template blend<x1 - y1>(sa, sb);
 		}
 		PixelStripRepeater<i - 1>::template blendBackslash<NX, y, Pixel>(
-			dp, sa, sb, sc, sd, se, sg, sj, sl );
+			dp, sa, sb, sc, sd, se, sg, sj, sl);
 	}
 
-	template <unsigned NX, unsigned y, typename Pixel>
+	template<unsigned NX, unsigned y, typename Pixel>
 	inline static void blendSlash(
 		Pixel*& dp,
 		unsigned sa, unsigned sb, unsigned sc, unsigned sd,
@@ -277,10 +277,10 @@ public:
 			*dp++ = Blender<Pixel>::template blend<x1 - y2>(sb, sd);
 		}
 		PixelStripRepeater<i - 1>::template blendSlash<NX, y, Pixel>(
-			dp, sa, sb, sc, sd, sf, sh, si, sk );
+			dp, sa, sb, sc, sd, sf, sh, si, sk);
 	}
 
-	template <unsigned NX, unsigned y, typename Pixel>
+	template<unsigned NX, unsigned y, typename Pixel>
 	inline static void blend4(
 		Pixel*& dp, unsigned sa, unsigned sb, unsigned sc, unsigned sd)
 	{
@@ -289,35 +289,35 @@ public:
 		PixelStripRepeater<i - 1>::template blend4<NX, y, Pixel>(dp, sa, sb, sc, sd);
 	}
 };
-template <>
+template<>
 class PixelStripRepeater<0>
 {
 public:
-	template <typename Pixel>
+	template<typename Pixel>
 	inline static void fill(Pixel*& /*dp*/, unsigned /*sa*/) { }
 
-	template <unsigned NX, unsigned y, typename Pixel>
+	template<unsigned NX, unsigned y, typename Pixel>
 	inline static void blendBackslash(
 		Pixel*& /*dp*/, unsigned /*sa*/, unsigned /*sb*/,
 		unsigned /*sc*/, unsigned /*sd*/, unsigned /*se*/,
 		unsigned /*sg*/, unsigned /*sj*/, unsigned /*sl*/) { }
 
-	template <unsigned NX, unsigned y, typename Pixel>
+	template<unsigned NX, unsigned y, typename Pixel>
 	inline static void blendSlash(
 		Pixel*& /*dp*/, unsigned /*sa*/, unsigned /*sb*/,
 		unsigned /*sc*/, unsigned /*sd*/, unsigned /*sf*/,
 		unsigned /*sh*/, unsigned /*si*/, unsigned /*sk*/) { }
 
-	template <unsigned NX, unsigned y, typename Pixel>
+	template<unsigned NX, unsigned y, typename Pixel>
 	inline static void blend4(Pixel*& /*dp*/, unsigned /*sa*/,
 		unsigned /*sb*/, unsigned /*sc*/, unsigned /*sd*/) { }
 };
 
-template <unsigned i>
+template<unsigned i>
 class LineRepeater
 {
 public:
-	template <unsigned NX, unsigned NY, typename Pixel>
+	template<unsigned NX, unsigned NY, typename Pixel>
 	inline static void scaleFixedLine(
 		const Pixel* __restrict src0, const Pixel* __restrict src1,
 		const Pixel* __restrict src2, const Pixel* __restrict src3,
@@ -326,14 +326,14 @@ public:
 		auto* dstLine = dst.acquireLine(dstY);
 		auto* dp = dstLine;
 		// Calculate fixed point coordinate.
-		const unsigned y1 = ((NY - i) << 16) / NY;
+		static constexpr unsigned y1 = ((NY - i) << 16) / NY;
 
 		unsigned pos1 = 0;
 		unsigned pos2 = 0;
 		unsigned pos3 = 1;
 		Pixel sb = src1[0];
 		Pixel sd = src2[0];
-		for (unsigned srcX = 0; srcX < srcWidth; srcX++) {
+		repeat(srcWidth, [&] {
 			const unsigned pos0 = pos1;
 			pos1 = pos2;
 			pos2 = pos3;
@@ -361,7 +361,7 @@ public:
 				PixelStripRepeater<NX>::template blend4<NX, y1, Pixel>(
 					dp, sa, sb, sc, sd);
 			}
-		}
+		});
 		dst.releaseLine(dstY, dstLine);
 		++dstY;
 
@@ -369,11 +369,11 @@ public:
 			src0, src1, src2, src3, srcWidth, dst, dstY);
 	}
 };
-template <>
+template<>
 class LineRepeater<0>
 {
 public:
-	template <unsigned NX, unsigned NY, typename Pixel>
+	template<unsigned NX, unsigned NY, typename Pixel>
 	inline static void scaleFixedLine(
 		const Pixel* /*src0*/, const Pixel* /*src1*/, const Pixel* /*src2*/,
 		const Pixel* /*src3*/, unsigned /*srcWidth*/,
@@ -381,8 +381,8 @@ public:
 	{ }
 };
 
-template <typename Pixel>
-template <unsigned NX, unsigned NY>
+template<typename Pixel>
+template<unsigned NX, unsigned NY>
 void SaI3xScaler<Pixel>::scaleFixed(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -400,7 +400,7 @@ void SaI3xScaler<Pixel>::scaleFixed(FrameSource& src,
 	auto* src1 = src.getLinePtr(srcY + 0, srcWidth, buf1);
 	auto* src2 = src.getLinePtr(srcY + 1, srcWidth, buf2);
 
-	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY++) {
+	for (auto dstY : xrange(dstStartY, dstEndY)) {
 		auto* src3 = src.getLinePtr(srcY + 2, srcWidth, buf3);
 		LineRepeater<NY>::template scaleFixedLine<NX, NY, Pixel>(
 			src0, src1, src2, src3, srcWidth, dst, dstY);
@@ -413,16 +413,16 @@ void SaI3xScaler<Pixel>::scaleFixed(FrameSource& src,
 	}
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void SaI3xScaler<Pixel>::scaleAny(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) __restrict
 {
 	// Calculate fixed point end coordinates and deltas.
-	const unsigned wfinish = (srcWidth - 1) << 16;
-	const unsigned dw = wfinish / (dst.getWidth() - 1);
-	const unsigned hfinish = (src.getHeight() - 1) << 16;
-	const unsigned dh = hfinish / (dst.getHeight() - 1);
+	const unsigned wFinish = (srcWidth - 1) << 16;
+	const unsigned dw = wFinish / (dst.getWidth() - 1);
+	const unsigned hFinish = (src.getHeight() - 1) << 16;
+	const unsigned dh = hFinish / (dst.getHeight() - 1);
 
 	VLA_SSE_ALIGNED(Pixel, buf0, srcWidth);
 	VLA_SSE_ALIGNED(Pixel, buf1, srcWidth);
@@ -430,7 +430,7 @@ void SaI3xScaler<Pixel>::scaleAny(FrameSource& src,
 	VLA_SSE_ALIGNED(Pixel, buf3, srcWidth);
 
 	unsigned h = 0;
-	for (unsigned dstY = dstStartY; dstY < dstEndY; dstY++) {
+	for (auto dstY : xrange(dstStartY, dstEndY)) {
 		// Get source line pointers.
 		int line = srcStartY + (h >> 16);
 		// TODO possible optimization: reuse srcN from previous step
@@ -454,7 +454,7 @@ void SaI3xScaler<Pixel>::scaleAny(FrameSource& src,
 		unsigned pos3 = 1;
 		Pixel B = src1[0];
 		Pixel D = src2[0];
-		for (unsigned w = 0; w < wfinish; /**/) {
+		for (unsigned w = 0; w < wFinish; /**/) {
 			const unsigned pos0 = pos1;
 			pos1 = pos2;
 			pos2 = pos3;
@@ -533,7 +533,7 @@ void SaI3xScaler<Pixel>::scaleAny(FrameSource& src,
 	}
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void SaI3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)

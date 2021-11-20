@@ -4,6 +4,7 @@
 #include "Scaler3.hh"
 #include "PixelOperations.hh"
 #include "Scanline.hh"
+#include <utility>
 
 namespace openmsx {
 
@@ -12,7 +13,7 @@ template<typename Pixel> class PolyLineScaler;
 
 /** TODO
   */
-template <class Pixel>
+template<typename Pixel>
 class RGBTriplet3xScaler final : public Scaler3<Pixel>
 {
 public:
@@ -68,7 +69,7 @@ protected:
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
 
 private:
-	void calcBlur(unsigned& c1, unsigned& c2);
+	[[nodiscard]] std::pair<unsigned, unsigned> calcBlur();
 
 	/**
 	 * Calculates the RGB triplets.
@@ -76,7 +77,7 @@ private:
 	 * @param out Buffer of output pixels, should be 3x as long as input
 	 * @param inwidth Width of the input buffer (in pixels)
 	 */
-	void rgbify(const Pixel* in, Pixel* out, unsigned inwidth, unsigned c1, unsigned c2);
+	void rgbify(const Pixel* in, Pixel* out, unsigned inWidth, unsigned c1, unsigned c2);
 
 	void scaleLine(const Pixel* srcLine, Pixel* dstLine,
 	               PolyLineScaler<Pixel>& scale, unsigned tmpWidth,
@@ -90,6 +91,7 @@ private:
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY,
 		PolyLineScaler<Pixel>& scale);
 
+private:
 	PixelOperations<Pixel> pixelOps;
 	Scanline<Pixel> scanline;
 	const RenderSettings& settings;

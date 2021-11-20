@@ -5,11 +5,10 @@
 #include "Display.hh"
 #include "PostProcessor.hh"
 #include "EventDistributor.hh"
-#include "FinishFrameEvent.hh"
+#include "Event.hh"
 #include "MSXMotherBoard.hh"
 #include "VideoSourceSetting.hh"
 #include "CommandException.hh"
-#include "checked_cast.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -20,7 +19,7 @@ Video9000::Video9000(const DeviceConfig& config)
 	, videoSourceSetting(getMotherBoard().getVideoSource())
 {
 	EventDistributor& distributor = getReactor().getEventDistributor();
-	distributor.registerEventListener(OPENMSX_FINISH_FRAME_EVENT, *this);
+	distributor.registerEventListener(EventType::FINISH_FRAME, *this);
 	getReactor().getDisplay().attach(*this);
 
 	activeLayer = nullptr; // we can't set activeLayer yet
@@ -50,7 +49,7 @@ void Video9000::init()
 Video9000::~Video9000()
 {
 	EventDistributor& distributor = getReactor().getEventDistributor();
-	distributor.unregisterEventListener(OPENMSX_FINISH_FRAME_EVENT, *this);
+	distributor.unregisterEventListener(EventType::FINISH_FRAME, *this);
 	getReactor().getDisplay().detach(*this);
 }
 
@@ -102,12 +101,12 @@ void Video9000::recalcVideoSource()
 		superimpose && (videoSourceSetting.getSource() == getVideoSource()));
 }
 
-void Video9000::preVideoSystemChange()
+void Video9000::preVideoSystemChange() noexcept
 {
 	activeLayer = nullptr; // will be recalculated on next paint()
 }
 
-void Video9000::postVideoSystemChange()
+void Video9000::postVideoSystemChange() noexcept
 {
 	// We can't yet re-initialize 'activeLayer' here because the
 	// new v99x8/v9990 layer may not be created yet.
@@ -132,12 +131,12 @@ void Video9000::takeRawScreenShot(unsigned height, const std::string& filename)
 	layer->takeRawScreenShot(height, filename);
 }
 
-int Video9000::signalEvent(const std::shared_ptr<const Event>& event)
+int Video9000::signalEvent(const Event& event) noexcept
 {
 	int video9000id = getVideoSource();
 
-	assert(event->getType() == OPENMSX_FINISH_FRAME_EVENT);
-	auto& ffe = checked_cast<const FinishFrameEvent&>(*event);
+	assert(getType(event) == EventType::FINISH_FRAME);
+	const auto& ffe = get<FinishFrameEvent>(event);
 	if (ffe.isSkipped()) return 0;
 	if (videoSourceSetting.getSource() != video9000id) return 0;
 
@@ -152,13 +151,12 @@ int Video9000::signalEvent(const std::shared_ptr<const Event>& event)
 	if (( showV9990 && v9990Layer && (ffe.getSource() == v9990Layer->getVideoSource())) ||
 	    (!showV9990 && v99x8Layer && (ffe.getSource() == v99x8Layer->getVideoSource()))) {
 		getReactor().getEventDistributor().distributeEvent(
-			std::make_shared<FinishFrameEvent>(
-				video9000id, video9000id, false));
+			Event::create<FinishFrameEvent>(video9000id, video9000id, false));
 	}
 	return 0;
 }
 
-void Video9000::update(const Setting& setting)
+void Video9000::update(const Setting& setting) noexcept
 {
 	VideoLayer::update(setting);
 	if (&setting == &videoSourceSetting) {
@@ -171,7 +169,7 @@ void Video9000::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("value", value);
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		recalc();
 	}
 }

@@ -26,10 +26,10 @@ public:
 	void reset(EmuTime::param time);
 	void writeReg   (unsigned r, byte v, EmuTime::param time);
 	void writeReg512(unsigned r, byte v, EmuTime::param time);
-	byte readReg(unsigned reg);
-	byte peekReg(unsigned reg) const;
-	byte readStatus();
-	byte peekStatus() const;
+	[[nodiscard]] byte readReg(unsigned reg);
+	[[nodiscard]] byte peekReg(unsigned reg) const;
+	[[nodiscard]] byte readStatus();
+	[[nodiscard]] byte peekStatus() const;
 
 	void setMixLevel(uint8_t x, EmuTime::param time);
 
@@ -50,7 +50,7 @@ private:
 	class Slot {
 	public:
 		Slot();
-		inline int op_calc(unsigned phase, unsigned lfo_am) const;
+		[[nodiscard]] inline int op_calc(unsigned phase, unsigned lfo_am) const;
 		inline void FM_KEYON(byte key_set);
 		inline void FM_KEYOFF(byte key_clr);
 		inline void advanceEnvelopeGenerator(unsigned egCnt);
@@ -142,7 +142,7 @@ private:
 	};
 
 	// SoundDevice
-	float getAmplificationFactorImpl() const override;
+	[[nodiscard]] float getAmplificationFactorImpl() const override;
 	void generateChannels(float** bufs, unsigned num) override;
 
 	void callback(byte flag) override;
@@ -154,9 +154,9 @@ private:
 	void changeStatusMask(byte flag);
 	void advance();
 
-	inline int genPhaseHighHat();
-	inline int genPhaseSnare();
-	inline int genPhaseCymbal();
+	[[nodiscard]] inline int genPhaseHighHat();
+	[[nodiscard]] inline int genPhaseSnare();
+	[[nodiscard]] inline int genPhaseCymbal();
 
 	void chan_calc_rhythm(unsigned lfo_am);
 	void set_mul(unsigned sl, byte v);
@@ -165,13 +165,13 @@ private:
 	void set_sl_rr(unsigned sl, byte v);
 	bool checkMuteHelper();
 
-	inline bool isExtended(unsigned ch) const;
-	inline Channel& getFirstOfPair(unsigned ch);
-	inline Channel& getSecondOfPair(unsigned ch);
+	[[nodiscard]] inline bool isExtended(unsigned ch) const;
+	[[nodiscard]] inline Channel& getFirstOfPair(unsigned ch);
+	[[nodiscard]] inline Channel& getSecondOfPair(unsigned ch);
 
 	struct Debuggable final : SimpleDebuggable {
 		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
-		byte read(unsigned address) override;
+		[[nodiscard]] byte read(unsigned address) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	} debuggable;
 

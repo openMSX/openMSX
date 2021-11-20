@@ -1,6 +1,7 @@
 #ifndef CRC16_HH
 #define CRC16_HH
 
+#include "xrange.hh"
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -91,16 +92,16 @@ public:
 private:
 	static inline constexpr auto tab = [] {
 		std::array<std::array<uint16_t, 0x100>, 8> result = {}; // uint16_t[8][0x100]
-		for (unsigned i = 0; i < 0x100; ++i) {
+		for (auto i : xrange(0x100)) {
 			uint16_t x = i << 8;
-			for (int j = 0; j < 8; ++j) {
+			repeat(8, [&] {
 				x = (x << 1) ^ ((x & 0x8000) ? 0x1021 : 0);
-			}
+			});
 			result[0][i] = x;
 		}
-		for (unsigned i = 0; i < 0x100; ++i) {
+		for (auto i : xrange(0x100)) {
 			uint16_t c = result[0][i];
-			for (unsigned j = 1; j < 8; ++j) {
+			for (auto j : xrange(1, 8)) {
 				c = result[0][c >> 8] ^ (c << 8);
 				result[j][i] = c;
 			}

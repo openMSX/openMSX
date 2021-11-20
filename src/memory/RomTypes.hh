@@ -44,6 +44,10 @@ enum RomType {
 	ROM_MEGAFLASHROMSCC,
 	ROM_MEGAFLASHROMSCCPLUS,
 	ROM_MIRRORED,
+	ROM_MIRRORED0000,
+	ROM_MIRRORED4000,
+	ROM_MIRRORED8000,
+	ROM_MIRROREDC000,
 	ROM_MITSUBISHIMLTS2,
 	ROM_MSXDOS2,
 	ROM_MSXTRA,
@@ -52,8 +56,22 @@ enum RomType {
 	ROM_NATIONAL,
 	ROM_NETTOU_YAKYUU,
 	ROM_NORMAL,
+	ROM_NORMAL0000,
+	ROM_NORMAL4000,
+	ROM_NORMAL8000,
+	ROM_NORMALC000,
 	ROM_PADIAL8,
 	ROM_PADIAL16,
+	ROM_PAGE0,
+	ROM_PAGE1,
+	ROM_PAGE01,
+	ROM_PAGE2,
+	ROM_PAGE12,
+	ROM_PAGE012,
+	ROM_PAGE3,
+	ROM_PAGE23,
+	ROM_PAGE123,
+	ROM_PAGE0123,
 	ROM_PANASONIC,
 	ROM_PLAYBALL,
 	ROM_R_TYPE,
@@ -68,35 +86,9 @@ enum RomType {
 	ROM_ZEMINA90IN1,
 	ROM_ZEMINA126IN1,
 
-	ROM_END_OF_UNORDERED_LIST, // not an actual romtype
-
-	// For these the numeric value does matter
-	ROM_PAGE0        = 128 + 1,  // value of lower 4 bits matters
-	ROM_PAGE1        = 128 + 2,
-	ROM_PAGE01       = 128 + 3,
-	ROM_PAGE2        = 128 + 4,
-	ROM_PAGE12       = 128 + 6,
-	ROM_PAGE012      = 128 + 7,
-	ROM_PAGE3        = 128 + 8,
-	ROM_PAGE23       = 128 + 12,
-	ROM_PAGE123      = 128 + 14,
-	ROM_PAGE0123     = 128 + 15,
-	ROM_MIRRORED0000 = 144 + 0, // value of lower 3 bits matters
-	ROM_MIRRORED4000 = 144 + 2,
-	ROM_MIRRORED8000 = 144 + 4,
-	ROM_MIRROREDC000 = 144 + 6,
-	ROM_NORMAL0000   = 152 + 0, // value of lower 3 bits matters
-	ROM_NORMAL4000   = 152 + 2,
-	ROM_NORMAL8000   = 152 + 4,
-	ROM_NORMALC000   = 152 + 6,
-
-	ROM_UNKNOWN      = 256,
-	ROM_ALIAS        = 512, // no other enum value can have this bit set
+	ROM_LAST,
+	ROM_UNKNOWN = -1
 };
-
-// Make sure there is no overlap in numeric enum values between the unordered
-// and ordered part of the enum list.
-static_assert(int(ROM_END_OF_UNORDERED_LIST) < int(ROM_PAGE0), "renumber romtypes");
 
 } // namespace openmsx
 

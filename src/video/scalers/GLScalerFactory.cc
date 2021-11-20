@@ -11,11 +11,9 @@
 #include "unreachable.hh"
 #include <memory>
 
-using std::unique_ptr;
-
 namespace openmsx::GLScalerFactory {
 
-unique_ptr<GLScaler> createScaler(RenderSettings& renderSettings)
+std::unique_ptr<GLScaler> createScaler(RenderSettings& renderSettings)
 {
 	GLScaler& fallback = gl::context->getFallbackScaler();
 	switch (renderSettings.getScaleAlgorithm()) {

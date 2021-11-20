@@ -15,8 +15,8 @@ class AbstractIDEDevice : public IDEDevice
 public:
 	void reset(EmuTime::param time) override;
 
-	word readData(EmuTime::param time) override;
-	byte readReg(nibble reg, EmuTime::param time) override;
+	[[nodiscard]] word readData(EmuTime::param time) override;
+	[[nodiscard]] byte readReg(nibble reg, EmuTime::param time) override;
 
 	void writeData(word value, EmuTime::param time) override;
 	void writeReg(nibble reg, byte value, EmuTime::param time) override;
@@ -42,13 +42,13 @@ protected:
 	/** Is this device a packet (ATAPI) device?
 	  * @return True iff this device supports the packet commands.
 	  */
-	virtual bool isPacketDevice() = 0;
+	[[nodiscard]] virtual bool isPacketDevice() = 0;
 
 	/** Gets the device name to insert as "model number" into the identify
 	  * block.
 	  * @return An ASCII string, up to 40 characters long.
 	  */
-	virtual const std::string& getDeviceName() = 0;
+	[[nodiscard]] virtual std::string_view getDeviceName() = 0;
 
 	/** Tells a subclass to fill the device specific parts of the identify
 	  * block located in the buffer.
@@ -66,7 +66,7 @@ protected:
 	  *   or 0 if the transfer was aborted (the implementation of this method
 	  *   must set the relevant error flags as well).
 	  */
-	virtual unsigned readBlockStart(AlignedBuffer& buffer, unsigned count) = 0;
+	[[nodiscard]] virtual unsigned readBlockStart(AlignedBuffer& buffer, unsigned count) = 0;
 
 	/** Called when a read transfer completes.
 	  * The default implementation does nothing.
@@ -94,11 +94,11 @@ protected:
 	/** Creates an LBA sector address from the contents of the sectorNumReg,
 	  * cylinderLowReg, cylinderHighReg and devHeadReg registers.
 	  */
-	unsigned getSectorNumber() const;
+	[[nodiscard]] unsigned getSectorNumber() const;
 
 	/** Gets the number of sectors indicated by the sector count register.
 	  */
-	unsigned getNumSectors() const;
+	[[nodiscard]] unsigned getNumSectors() const;
 
 	/** Writes the interrupt reason register.
 	  * This is the same as register as sector count, but serves a different
@@ -109,7 +109,7 @@ protected:
 	/** Reads the byte count limit of a packet transfer in the registers.
 	  * The cylinder low/high registers are used for this.
 	  */
-	unsigned getByteCount() const;
+	[[nodiscard]] unsigned getByteCount() const;
 
 	/** Writes the byte count of a packet transfer in the registers.
 	  * The cylinder low/high registers are used for this.
@@ -136,7 +136,7 @@ protected:
 	  *   The caller should write the data there.
 	  *   The relevant part of the buffer contains zeroes.
 	  */
-	AlignedBuffer& startShortReadTransfer(unsigned count);
+	[[nodiscard]] AlignedBuffer& startShortReadTransfer(unsigned count);
 
 	/** Aborts the read transfer in progress.
 	  */
@@ -151,18 +151,18 @@ protected:
 	  */
 	void abortWriteTransfer(byte error);
 
-	byte getFeatureReg() const { return featureReg; }
+	[[nodiscard]] byte getFeatureReg() const { return featureReg; }
 	void setLBALow (byte value) { sectorNumReg    = value; }
 	void setLBAMid (byte value) { cylinderLowReg  = value; }
 	void setLBAHigh(byte value) { cylinderHighReg = value; }
 
-	MSXMotherBoard& getMotherBoard() const { return motherBoard; }
+	[[nodiscard]] MSXMotherBoard& getMotherBoard() const { return motherBoard; }
 
 private:
 	/** Perform diagnostic and return result.
 	  * Actually, just return success, because we don't emulate faulty hardware.
 	  */
-	byte diagnostic();
+	[[nodiscard]] byte diagnostic();
 
 	/** Puts special values in the sector address, sector count and device
 	  * registers to identify the type of device.
@@ -199,6 +199,7 @@ private:
 	  */
 	void setTransferWrite(bool status);
 
+private:
 	MSXMotherBoard& motherBoard;
 
 	/** Data buffer shared by all transfers.

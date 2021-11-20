@@ -6,19 +6,18 @@
 #include "OutputSurface.hh"
 #include "RenderSettings.hh"
 #include "MemoryOps.hh"
+#include "enumerate.hh"
+#include "one_of.hh"
+#include "xrange.hh"
 #include "build-info.hh"
 #include "components.hh"
-#include "one_of.hh"
 #include <algorithm>
 #include <cstdint>
 #include <memory>
 
-using std::min;
-using std::max;
-
 namespace openmsx {
 
-template <class Pixel>
+template<typename Pixel>
 V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
 		V9990& vdp_, Display& display, OutputSurface& screen_,
 		std::unique_ptr<PostProcessor> postProcessor_)
@@ -42,7 +41,7 @@ V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
 	renderSettings.getColorMatrixSetting().attach(*this);
 }
 
-template <class Pixel>
+template<typename Pixel>
 V9990SDLRasterizer<Pixel>::~V9990SDLRasterizer()
 {
 	renderSettings.getColorMatrixSetting().detach(*this);
@@ -51,13 +50,13 @@ V9990SDLRasterizer<Pixel>::~V9990SDLRasterizer()
 	renderSettings.getContrastSetting()   .detach(*this);
 }
 
-template <class Pixel>
+template<typename Pixel>
 PostProcessor* V9990SDLRasterizer<Pixel>::getPostProcessor() const
 {
 	return postProcessor.get();
 }
 
-template <class Pixel>
+template<typename Pixel>
 bool V9990SDLRasterizer<Pixel>::isActive()
 {
 	return postProcessor->needRender() &&
@@ -65,7 +64,7 @@ bool V9990SDLRasterizer<Pixel>::isActive()
 	       !vdp.getMotherBoard().isFastForwarding();
 }
 
-template <class Pixel>
+template<typename Pixel>
 void V9990SDLRasterizer<Pixel>::reset()
 {
 	setDisplayMode(vdp.getDisplayMode());
@@ -73,7 +72,7 @@ void V9990SDLRasterizer<Pixel>::reset()
 	resetPalette();
 }
 
-template <class Pixel>
+template<typename Pixel>
 void V9990SDLRasterizer<Pixel>::frameStart()
 {
 	const V9990DisplayPeriod& horTiming = vdp.getHorizontalTiming();
@@ -93,7 +92,7 @@ void V9990SDLRasterizer<Pixel>::frameStart()
 	                (verTiming.display - SCREEN_HEIGHT) / 2;
 }
 
-template <class Pixel>
+template<typename Pixel>
 void V9990SDLRasterizer<Pixel>::frameEnd(EmuTime::param time)
 {
 	workFrame = postProcessor->rotateFrames(std::move(workFrame), time);
@@ -103,21 +102,21 @@ void V9990SDLRasterizer<Pixel>::frameEnd(EmuTime::param time)
 	                       : RawFrame::FIELD_NONINTERLACED);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void V9990SDLRasterizer<Pixel>::setDisplayMode(V9990DisplayMode mode)
 {
 	displayMode = mode;
 	bitmapConverter.setColorMode(colorMode, displayMode);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void V9990SDLRasterizer<Pixel>::setColorMode(V9990ColorMode mode)
 {
 	colorMode = mode;
 	bitmapConverter.setColorMode(colorMode, displayMode);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void V9990SDLRasterizer<Pixel>::drawBorder(
 	int fromX, int fromY, int limitX, int limitY)
 {
@@ -125,35 +124,35 @@ void V9990SDLRasterizer<Pixel>::drawBorder(
 	              ? 0
 	              : palette64[vdp.getBackDropColor() & 63];
 
-	int startY = max(fromY  - lineRenderTop,   0);
-	int endY   = min(limitY - lineRenderTop, 240);
+	int startY = std::max(fromY  - lineRenderTop,   0);
+	int endY   = std::min(limitY - lineRenderTop, 240);
 	if (startY >= endY) return;
 
 	if ((fromX == 0) && (limitX == V9990DisplayTiming::UC_TICKS_PER_LINE)) {
 		// optimization
-		for (int y = startY; y < endY; ++y) {
+		for (auto y : xrange(startY, endY)) {
 			workFrame->setBlank(y, bgColor);
 		}
 		return;
 	}
 
 	static int const screenW = SCREEN_WIDTH * 8; // in ticks
-	int startX = max(0, V9990::UCtoX(fromX - colZero, displayMode));
+	int startX = std::max(0, V9990::UCtoX(fromX - colZero, displayMode));
 	int endX = V9990::UCtoX(
 		(limitX == V9990DisplayTiming::UC_TICKS_PER_LINE)
-		? screenW : min(screenW, limitX - colZero), displayMode);
+		? screenW : std::min(screenW, limitX - colZero), displayMode);
 	if (startX >= endX) return;
 
 	unsigned lineWidth = vdp.getLineWidth();
 	MemoryOps::MemSet<Pixel> memset;
-	for (int y = startY; y < endY; ++y) {
+	for (auto y : xrange(startY, endY)) {
 		memset(workFrame->getLinePtrDirect<Pixel>(y) + startX,
 		       endX - startX, bgColor);
 		workFrame->setLineWidth(y, lineWidth);
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void V9990SDLRasterizer<Pixel>::drawDisplay(
 	int fromX, int fromY, int toX, int toY,
 	int displayX, int displayY, int displayYA, int displayYB)
@@ -214,7 +213,7 @@ void V9990SDLRasterizer<Pixel>::drawDisplay(
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void V9990SDLRasterizer<Pixel>::drawP1Mode(
 	int fromX, int fromY, int displayX,
 	int displayY, int displayYA, int displayYB,
@@ -233,7 +232,7 @@ void V9990SDLRasterizer<Pixel>::drawP1Mode(
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void V9990SDLRasterizer<Pixel>::drawP2Mode(
 	int fromX, int fromY, int displayX, int displayY, int displayYA,
 	int displayWidth, int displayHeight, bool drawSprites)
@@ -249,7 +248,7 @@ void V9990SDLRasterizer<Pixel>::drawP2Mode(
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void V9990SDLRasterizer<Pixel>::drawBxMode(
 	int fromX, int fromY, int displayX, int displayY, int displayYA,
 	int displayWidth, int displayHeight, bool drawSprites)
@@ -288,7 +287,7 @@ void V9990SDLRasterizer<Pixel>::drawBxMode(
 }
 
 
-template <class Pixel>
+template<typename Pixel>
 void V9990SDLRasterizer<Pixel>::preCalcPalettes()
 {
 	// the 32768 color palette
@@ -296,20 +295,19 @@ void V9990SDLRasterizer<Pixel>::preCalcPalettes()
 		// Most users use the "normal" monitor type; making this a
 		// special case speeds up palette precalculation a lot.
 		int intensity[32];
-		for (int i = 0; i < 32; ++i) {
-			intensity[i] =
-				int(255 * renderSettings.transformComponent(i / 31.0f));
+		for (auto [i, r] : enumerate(intensity)) {
+			r = int(255 * renderSettings.transformComponent(i / 31.0f));
 		}
-		for (int grb = 0; grb < (1 << 15); ++grb) {
-			palette32768[grb] = screen.mapKeyedRGB255<Pixel>(gl::ivec3(
+		for (auto [grb, col] : enumerate(palette32768)) {
+			col = screen.mapKeyedRGB255<Pixel>(gl::ivec3(
 				intensity[(grb >>  5) & 31],
 				intensity[(grb >> 10) & 31],
 				intensity[(grb >>  0) & 31]));
 		}
 	} else {
-		for (int g = 0; g < 32; ++g) {
-			for (int r = 0; r < 32; ++r) {
-				for (int b = 0; b < 32; ++b) {
+		for (auto g : xrange(32)) {
+			for (auto r : xrange(32)) {
+				for (auto b : xrange(32)) {
 					palette32768[(g << 10) + (r << 5) + b] =
 						screen.mapRGB(renderSettings.transformRGB(
 							gl::vec3(r, g, b) / 31.0f));
@@ -321,9 +319,9 @@ void V9990SDLRasterizer<Pixel>::preCalcPalettes()
 	// the 256 color palette
 	int mapRG[8] = { 0, 4, 9, 13, 18, 22, 27, 31 };
 	int mapB [4] = { 0, 11, 21, 31 };
-	for (int g = 0; g < 8; ++g) {
-		for (int r = 0; r < 8; ++r) {
-			for (int b = 0; b < 4; ++b) {
+	for (auto g : xrange(8)) {
+		for (auto r : xrange(8)) {
+			for (auto b : xrange(4)) {
 				auto idx256 = (g << 5) | (r << 2) | b;
 				auto idx32768 = (mapRG[g] << 10) | (mapRG[r] << 5) | mapB[b];
 				palette256_32768[idx256] = idx32768;
@@ -335,7 +333,7 @@ void V9990SDLRasterizer<Pixel>::preCalcPalettes()
 	resetPalette();
 }
 
-template <class Pixel>
+template<typename Pixel>
 void V9990SDLRasterizer<Pixel>::setPalette(int index,
                                            byte r, byte g, byte b, bool ys)
 {
@@ -345,14 +343,12 @@ void V9990SDLRasterizer<Pixel>::setPalette(int index,
 	                           : palette32768[idx32768];
 }
 
-template <class Pixel>
+template<typename Pixel>
 void V9990SDLRasterizer<Pixel>::resetPalette()
 {
 	// get 64 color palette from VDP
-	for (int i = 0; i < 64; ++i) {
-		byte r, g, b;
-		bool ys;
-		vdp.getPalette(i, r, g, b, ys);
+	for (auto i : xrange(64)) {
+		auto [r, g, b, ys] = vdp.getPalette(i);
 		setPalette(i, r, g, b, ys);
 	}
 	palette256[0] = vdp.isSuperimposing() ? screen.getKeyColor<Pixel>()
@@ -360,20 +356,20 @@ void V9990SDLRasterizer<Pixel>::resetPalette()
 	// TODO what with palette256_32768[0]?
 }
 
-template <class Pixel>
+template<typename Pixel>
 void V9990SDLRasterizer<Pixel>::setSuperimpose(bool /*enabled*/)
 {
 	resetPalette();
 }
 
-template <class Pixel>
+template<typename Pixel>
 bool V9990SDLRasterizer<Pixel>::isRecording() const
 {
 	return postProcessor->isRecording();
 }
 
-template <class Pixel>
-void V9990SDLRasterizer<Pixel>::update(const Setting& setting)
+template<typename Pixel>
+void V9990SDLRasterizer<Pixel>::update(const Setting& setting) noexcept
 {
 	if (&setting == one_of(&renderSettings.getGammaSetting(),
 	                       &renderSettings.getBrightnessSetting(),

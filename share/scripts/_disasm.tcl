@@ -330,10 +330,16 @@ proc step_back {} {
 		# emulated.
 		reverse goto -novideo [expr {$curr + $cycle_period}]
 		set next [dict get [reverse status] "current"]
-		if {$next > $start} {
-			error "Internal error: overshot destination"
+		if {$next >= $start} {
+			# Check for '$next >= $start' (instead of $next == $start).
+			# IO is emulated with sub-instruction precision, it's
+			# possible to call this script from a watchpoint-callback
+			# (which triggers in the middle of an instruction). However
+			# 'reverse goto' always stops at instruction boundaries. So
+			# the combination of this may cause this algorithm to
+			# overshoot the destination timestamp.
+			break
 		}
-		if {$next == $start} break
 		set curr $next
 	}
 

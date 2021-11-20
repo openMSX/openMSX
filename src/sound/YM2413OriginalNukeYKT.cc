@@ -1,5 +1,7 @@
 #include "YM2413OriginalNukeYKT.hh"
+#include "ranges.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -13,15 +15,13 @@ YM2413::YM2413()
 void YM2413::reset()
 {
 	OPLL_Reset(&opll, opll_type_ym2413b);
-	for (int i = 0; i < 64; ++i) {
-		regs[i] = 0;
-	}
+	ranges::fill(regs, 0);
 }
 
 void YM2413::generateChannels(float* out_[9 + 5], uint32_t n)
 {
 	float* out[9 + 5];
-	for (int i = 0; i < 9 + 5; ++i) out[i] = out_[i];
+	std::copy_n(out_, 9 + 5, out);
 
 	auto f = [&] {
 		int32_t buf[2];
@@ -45,18 +45,14 @@ void YM2413::generateChannels(float* out_[9 + 5], uint32_t n)
 	};
 
 	assert(n != 0);
-	for (uint32_t i = 0; i < 18; ++i) {
-		auto& write = writes[i];
+	for (auto& write : writes) {
 		if (write.port != uint8_t(-1)) {
 			OPLL_Write(&opll, write.port, write.value);
 			write.port = uint8_t(-1);
 		}
 		f();
 	}
-	n = (n - 1) * 18;
-	for (uint32_t i = 0; i < n; ++i) {
-		f();
-	}
+	repeat((n - 1) * 18, f);
 
 	allowed_offset = std::max<int>(0, allowed_offset - 18); // see writePort()
 }

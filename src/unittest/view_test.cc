@@ -4,6 +4,7 @@
 #include "hash_map.hh"
 #include "ranges.hh"
 #include "stl.hh"
+#include "xrange.hh"
 #include <algorithm>
 #include <list>
 #include <map>
@@ -16,11 +17,7 @@ using namespace view;
 
 static vector<int> getVector(int n)
 {
-	vector<int> result;
-	for (int i = 0; i < n; ++i) {
-		result.push_back(i);
-	}
-	return result;
+	return to_vector(xrange(n));
 }
 
 TEST_CASE("view::drop random-access-range")
@@ -193,7 +190,6 @@ TEST_CASE("view::transform sizes")
 	}
 }*/
 
-
 template<typename RANGE, typename T>
 static void check(const RANGE& range, const vector<T>& expected)
 {
@@ -237,5 +233,50 @@ TEST_CASE("view::keys, view::values") {
 		};
 		check(keys  (v), vector<int>{1, 3, 5});
 		check(values(v), vector<char>{2, 4, 6});
+	}
+}
+
+struct F {
+	int i;
+	F(int i_) : i(i_) {}
+	operator int() const { return i; }
+	bool isOdd() const { return i & 1; }
+};
+
+TEST_CASE("view::filter") {
+	vector v = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+	SECTION("removed front") {
+		check(view::filter(v, [](int i) { return i > 5; }),
+		      vector{6, 7, 8, 9});
+	}
+	SECTION("removed back") {
+		check(view::filter(v, [](int i) { return i < 5; }),
+		      vector{1, 2, 3, 4});
+	}
+	SECTION("keep front and back") {
+		check(view::filter(v, [](int i) { return i & 1; }),
+		      vector{1, 3, 5, 7, 9});
+	}
+	SECTION("remove front and back") {
+		check(view::filter(v, [](int i) { return (i & 1) == 0; }),
+		      vector{2, 4, 6, 8});
+	}
+
+	SECTION("projection") {
+		vector<F> f = {1, 2, 3, 4, 5};
+		auto view = view::filter(f, &F::isOdd);
+		auto it = view.begin();
+		auto et = view.end();
+		REQUIRE(it != et);
+		CHECK(*it == 1);
+		++it;
+		REQUIRE(it != et);
+		CHECK(*it == 3);
+		it++;
+		REQUIRE(it != et);
+		CHECK(*it == 5);
+		++it;
+		REQUIRE(it == et);
 	}
 }

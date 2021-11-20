@@ -1,0 +1,88 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <info>
+    <manufacturer>Sanyo</manufacturer>
+    <code>MPC-3/Wavy3</code>
+    <release_year>1985</release_year>
+    <description>A 16kB Japanese MSX1 machine with 3 cartridge slots</description>
+    <type>MSX</type>
+  </info>
+
+  <!-- Based on machine of Danilo Angelo with serial number 10233077
+       composite video, RF and mono audio out. No printer port!
+       VDP: TMS9118NL
+       CPU: NEC D780C-1 8422X5
+       PPI: NEC D8255AC-5 8502EX
+       PSG: GI AY-3-8910A
+
+       ident.bas:
+       VDP: NO, NO, NO, YES YES YES
+       Z80 scf: 01c501ED01D401FC (NEC)
+       Z80 cpl: 3AF12D7 (standard)
+       Z80 out (c),0: 0 (MSX)
+       PSG pin 6/7 quirk: C (YES)
+       PSGmask: AY8910
+
+       TODO: Switched I/O scan shows ID=135 found. No idea what it is.
+
+       Slot 0 page 2 shows 0xB0 pattern. Not emulated.
+
+       The slot selector buttons are also not emulated.
+    -->
+
+  <CassettePort/>
+
+  <devices>
+
+    <PPI id="ppi">
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <io base="0xA8" num="4"/>
+      <keyboard_type>jp_ansi</keyboard_type>
+      <has_keypad>false</has_keypad>
+      <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
+      <code_kana_locks>true</code_kana_locks>
+      <graph_locks>false</graph_locks>
+    </PPI>
+
+    <VDP id="VDP">
+      <version>TMS9118</version>
+      <io base="0x98" num="2"/>
+    </VDP>
+
+    <PSG id="PSG">
+      <type>AY8910</type>
+      <keyboardlayout>50on</keyboardlayout>
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <io base="0xA0" num="2" type="O"/>
+      <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>false</ignorePortDirections> <!-- not sure, but guess based on discrete PSG chip -->
+    </PSG>
+
+    <primary slot="0">
+      <ROM id="MSX BIOS with BASIC ROM">
+        <rom>
+          <filename>mpc3_basic-bios1.rom</filename>
+          <sha1>302afb5d8be26c758309ca3df611ae69cced2821</sha1>
+        </rom>
+        <mem base="0x0000" size="0x8000"/>
+      </ROM>
+      <RAM id="Main RAM">
+        <initialContent encoding="hex">FF00</initialContent>
+        <mem base="0xC000" size="0x4000"/>
+      </RAM>
+    </primary>
+
+    <primary external="true" slot="1"/>
+
+    <primary external="true" slot="2"/>
+
+    <primary external="true" slot="3"/>
+  </devices>
+
+</msxconfig>

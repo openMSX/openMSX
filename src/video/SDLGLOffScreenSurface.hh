@@ -6,8 +6,6 @@
 
 namespace openmsx {
 
-class SDLGLVisibleSurface;
-
 /** This class installs a FrameBufferObject (FBO). So as long as this object
   * is live, all openGL draw commands will be redirected to this FBO.
   */
@@ -20,6 +18,7 @@ private:
 	// OutputSurface
 	void saveScreenshot(const std::string& filename) override;
 
+private:
 	gl::Texture fboTex;
 	gl::FrameBufferObject fbo;
 };

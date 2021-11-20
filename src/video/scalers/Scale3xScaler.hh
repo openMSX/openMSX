@@ -7,7 +7,7 @@ namespace openmsx {
 
 /** Runs the Scale3x scaler algorithm.
   */
-template <class Pixel>
+template<typename Pixel>
 class Scale3xScaler final : public Scaler3<Pixel>
 {
 public:

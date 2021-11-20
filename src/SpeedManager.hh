@@ -23,15 +23,15 @@ public:
 	/**
 	 * Return the desired ratio between emutime and real time.
 	 */
-	double getSpeed() const { return speed; }
+	[[nodiscard]] double getSpeed() const { return speed; }
 
 private:
-
 	void updateSpeed();
 
 	// Observer<Setting>
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
+private:
 	IntegerSetting speedSetting;
 	IntegerSetting fastforwardSpeedSetting;
 	BooleanSetting fastforwardSetting;

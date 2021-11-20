@@ -12,7 +12,7 @@ public:
 	explicit FirmwareSwitch(const DeviceConfig& config);
 	~FirmwareSwitch();
 
-	bool getStatus() const { return setting.getBoolean(); }
+	[[nodiscard]] bool getStatus() const { return setting.getBoolean(); }
 
 private:
 	const DeviceConfig config;

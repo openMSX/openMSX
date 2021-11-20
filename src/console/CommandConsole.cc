@@ -8,24 +8,21 @@
 #include "FileException.hh"
 #include "FileOperations.hh"
 #include "CliComm.hh"
-#include "InputEvents.hh"
+#include "Event.hh"
 #include "Display.hh"
+#include "VideoSystem.hh"
 #include "EventDistributor.hh"
-#include "SDL.h"
 #include "Version.hh"
-#include "checked_cast.hh"
+#include "unreachable.hh"
 #include "utf8_unchecked.hh"
 #include "StringOp.hh"
 #include "ScopedAssign.hh"
-#include "scope_exit.hh"
 #include "view.hh"
 #include "xrange.hh"
 #include <algorithm>
 #include <fstream>
 #include <cassert>
 
-using std::min;
-using std::max;
 using std::string;
 using std::string_view;
 
@@ -41,7 +38,7 @@ ConsoleLine::ConsoleLine(string line_, uint32_t rgb)
 
 void ConsoleLine::addChunk(string_view text, uint32_t rgb)
 {
-	chunks.emplace_back(rgb, line.size());
+	chunks.emplace_back(Chunk{rgb, line.size()});
 	line.append(text.data(), text.size());
 }
 
@@ -53,16 +50,16 @@ size_t ConsoleLine::numChars() const
 uint32_t ConsoleLine::chunkColor(size_t i) const
 {
 	assert(i < chunks.size());
-	return chunks[i].first;
+	return chunks[i].rgb;
 }
 
 string_view ConsoleLine::chunkText(size_t i) const
 {
 	assert(i < chunks.size());
-	auto pos = chunks[i].second;
+	auto pos = chunks[i].pos;
 	auto len = ((i + 1) == chunks.size())
 	         ? string_view::npos
-	         : chunks[i + 1].second - pos;
+	         : chunks[i + 1].pos - pos;
 	return string_view(line).substr(pos, len);
 }
 
@@ -113,16 +110,16 @@ CommandConsole::CommandConsole(
 
 	commandController.getInterpreter().setOutput(this);
 	eventDistributor.registerEventListener(
-		OPENMSX_KEY_DOWN_EVENT, *this, EventDistributor::CONSOLE);
+		EventType::KEY_DOWN, *this, EventDistributor::CONSOLE);
 	// also listen to KEY_UP events, so that we can consume them
 	eventDistributor.registerEventListener(
-		OPENMSX_KEY_UP_EVENT, *this, EventDistributor::CONSOLE);
+		EventType::KEY_UP, *this, EventDistributor::CONSOLE);
 }
 
 CommandConsole::~CommandConsole()
 {
-	eventDistributor.unregisterEventListener(OPENMSX_KEY_DOWN_EVENT, *this);
-	eventDistributor.unregisterEventListener(OPENMSX_KEY_UP_EVENT, *this);
+	eventDistributor.unregisterEventListener(EventType::KEY_DOWN, *this);
+	eventDistributor.unregisterEventListener(EventType::KEY_UP, *this);
 	commandController.getInterpreter().setOutput(nullptr);
 	Completer::setOutput(nullptr);
 }
@@ -161,41 +158,43 @@ void CommandConsole::loadHistory()
 	}
 }
 
-void CommandConsole::getCursorPosition(unsigned& xPosition, unsigned& yPosition) const
+gl::ivec2 CommandConsole::getCursorPosition() const
 {
-	xPosition = cursorPosition % getColumns();
+	int xPosition = cursorPosition % getColumns();
 	auto num = lines[0].numChars() / getColumns();
-	yPosition = unsigned(num - (cursorPosition / getColumns()));
+	int yPosition = unsigned(num - (cursorPosition / getColumns()));
+	return {xPosition, yPosition};
 }
 
-int CommandConsole::signalEvent(const std::shared_ptr<const Event>& event)
+int CommandConsole::signalEvent(const Event& event) noexcept
 {
 	if (!consoleSetting.getBoolean()) return 0;
-	auto& keyEvent = checked_cast<const KeyEvent&>(*event);
 
 	// If the console is open then don't pass the event to the MSX
 	// (whetever the (keyboard) event is). If the event has a meaning for
 	// the console, then also don't pass the event to the hotkey system.
 	// For example PgUp, PgDown are keys that have both a meaning in the
 	// console and are used by standard key bindings.
-	if (event->getType() == OPENMSX_KEY_DOWN_EVENT) {
-		if (!executingCommand) {
-			if (handleEvent(keyEvent)) {
-				// event was used
-				display.repaintDelayed(40000); // 25fps
-				return EventDistributor::HOTKEY; // block HOTKEY and MSX
+	return visit(overloaded{
+		[&](const KeyDownEvent& keyEvent) {
+			if (!executingCommand) {
+				if (handleEvent(keyEvent)) {
+					// event was used
+					display.repaintDelayed(40000); // 25fps
+					return EventDistributor::HOTKEY; // block HOTKEY and MSX
+				}
+			} else {
+				// For commands that take a long time to execute (e.g.
+				// a loadstate that needs to create a filepool index),
+				// we also send events during the execution (so that
+				// we can show progress on the OSD). In that case
+				// ignore extra input events.
 			}
-		} else {
-			// For commands that take a long time to execute (e.g.
-			// a loadstate that needs to create a filepool index),
-			// we also send events during the execution (so that
-			// we can show progress on the OSD). In that case
-			// ignore extra input events.
-		}
-	} else {
-		assert(event->getType() == OPENMSX_KEY_UP_EVENT);
-	}
-	return EventDistributor::MSX; // block MSX
+			return EventDistributor::MSX;
+		},
+		[](const KeyUpEvent&) { return EventDistributor::MSX; },
+		[](const EventBase&) { UNREACHABLE; return EventDistributor::MSX; }
+	}, event);
 }
 
 bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
@@ -232,16 +231,16 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 	case Keys::KM_SHIFT:
 		switch (key) {
 		case Keys::K_PAGEUP:
-			scroll(max<int>(getRows() - 1, 1));
+			scroll(std::max<int>(getRows() - 1, 1));
 			return true;
 		case Keys::K_PAGEDOWN:
-			scroll(-max<int>(getRows() - 1, 1));
+			scroll(-std::max<int>(getRows() - 1, 1));
 			return true;
 		}
 		break;
 	case Keys::KM_META:
-		switch (key) {
 #ifdef __APPLE__
+		switch (key) {
 		case Keys::K_V:
 			paste();
 			return true;
@@ -254,8 +253,8 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 		case Keys::K_RIGHT:
 			cursorPosition = unsigned(lines[0].numChars());
 			return true;
-#endif
 		}
+#endif
 		break;
 	case Keys::KM_ALT:
 		switch (key) {
@@ -430,7 +429,7 @@ void CommandConsole::commandExecute()
 	if (commandController.isComplete(commandBuffer)) {
 		// Normally the busy prompt is NOT shown (not even very briefly
 		// because the screen is not redrawn), though for some commands
-		// that potentially take a long time to execute, we explictly
+		// that potentially take a long time to execute, we explicitly
 		// send events, see also comment in signalEvent().
 		prompt = PROMPT_BUSY;
 		putPrompt();
@@ -471,16 +470,17 @@ ConsoleLine CommandConsole::highLight(string_view line)
 			++pos;
 		}
 		// TODO make these color configurable?
-		unsigned rgb;
-		switch (col) {
-		case 'E': rgb = 0xff0000; break; // error
-		case 'c': rgb = 0x5c5cff; break; // comment
-		case 'v': rgb = 0x00ffff; break; // variable
-		case 'l': rgb = 0xff00ff; break; // literal
-		case 'p': rgb = 0xcdcd00; break; // proc
-		case 'o': rgb = 0x00cdcd; break; // operator
-		default:  rgb = 0xffffff; break; // other
-		}
+		unsigned rgb = [&] {
+			switch (col) {
+			case 'E': return 0xff0000; // error
+			case 'c': return 0x5c5cff; // comment
+			case 'v': return 0x00ffff; // variable
+			case 'l': return 0xff00ff; // literal
+			case 'p': return 0xcdcd00; // proc
+			case 'o': return 0x00cdcd; // operator
+			default:  return 0xffffff; // other
+			}
+		}();
 		result.addChunk(line.substr(pos2, pos - pos2), rgb);
 	}
 	return result;
@@ -508,7 +508,7 @@ void CommandConsole::tabCompletion()
 
 void CommandConsole::scroll(int delta)
 {
-	consoleScrollBack = max(min(consoleScrollBack + delta, int(lines.size()) - int(rows)), 0);
+	consoleScrollBack = std::max(std::min(consoleScrollBack + delta, int(lines.size()) - int(rows)), 0);
 }
 
 // Returns the position of the start of the word relative to the current cursor position.
@@ -525,7 +525,7 @@ void CommandConsole::scroll(int delta)
 // returned for efficiency (this function calculates them anyway, and it's
 // likely the caller will need them as well).
 static std::tuple<std::string::const_iterator, std::string::const_iterator, unsigned>
-	getStartOfWord(const std::string& line, unsigned cursorPos, unsigned promptSize)
+	getStartOfWord(const std::string& line, unsigned cursorPos, size_t promptSize)
 {
 	auto begin  = std::begin(line);
 	auto prompt = begin + promptSize; // assumes prompt only contains single-byte utf8 chars
@@ -745,10 +745,8 @@ static std::vector<std::string_view> splitLines(std::string_view str)
 
 void CommandConsole::paste()
 {
-	char* text = SDL_GetClipboardText();
-	if (!text) return;
-	scope_exit e([&]{ SDL_free(text); });
-
+	auto text = display.getVideoSystem().getClipboardText();
+	if (text.empty()) return;
 	auto pastedLines = splitLines(text);
 	assert(!pastedLines.empty());
 
@@ -759,7 +757,7 @@ void CommandConsole::paste()
 		if (prefix.empty()) {
 			lines[0] = highLight(suffix);
 		} else {
-			lines[0] = highLight(strCat(prefix, suffix));
+			lines[0] = highLight(tmpStrCat(prefix, suffix));
 			prefix = "";
 		}
 	};

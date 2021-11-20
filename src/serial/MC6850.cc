@@ -3,7 +3,6 @@
 #include "MSXMotherBoard.hh"
 #include "EmuTime.hh"
 #include "serialize.hh"
-#include "unreachable.hh"
 
 namespace openmsx {
 
@@ -89,7 +88,7 @@ void MC6850::reset(EmuTime::param time)
 	setDataFormat();
 }
 
-byte MC6850::readStatusReg()
+byte MC6850::readStatusReg() const
 {
 	return peekStatusReg();
 }
@@ -262,7 +261,7 @@ void MC6850::execRecv(EmuTime::param time)
 	getPluggedMidiInDev().signal(time); // trigger (possible) send of next char
 }
 
-// MidiInDevice querries whether it can send a new character 'now'.
+// MidiInDevice queries whether it can send a new character 'now'.
 bool MC6850::ready()
 {
 	return rxReady;
@@ -321,7 +320,7 @@ void MC6850::serialize(Archive& ar, unsigned version)
 		controlReg = 3;
 	}
 
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		setDataFormat();
 	}
 }

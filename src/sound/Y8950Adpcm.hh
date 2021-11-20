@@ -20,11 +20,11 @@ public:
 
 	void clearRam();
 	void reset(EmuTime::param time);
-	bool isMuted() const;
+	[[nodiscard]] bool isMuted() const;
 	void writeReg(byte rg, byte data, EmuTime::param time);
-	byte readReg(byte rg, EmuTime::param time);
-	byte peekReg(byte rg, EmuTime::param time) const;
-	int calcSample();
+	[[nodiscard]] byte readReg(byte rg, EmuTime::param time);
+	[[nodiscard]] byte peekReg(byte rg, EmuTime::param time) const;
+	[[nodiscard]] int calcSample();
 	void sync(EmuTime::param time);
 	void resetStatus();
 
@@ -34,7 +34,7 @@ public:
 private:
 	// This data is updated while playing
 	struct PlayData {
-		unsigned memPntr;
+		unsigned memPtr;
 		unsigned nowStep;
 		int out;
 		int output;
@@ -50,15 +50,16 @@ private:
 	void schedule();
 	void restart(PlayData& pd);
 
-	bool isPlaying() const;
+	[[nodiscard]] bool isPlaying() const;
 	void writeData(byte data);
-	byte peekReg(byte rg) const;
-	byte readData();
-	byte peekData() const;
+	[[nodiscard]] byte peekReg(byte rg) const;
+	[[nodiscard]] byte readData();
+	[[nodiscard]] byte peekData() const;
 	void writeMemory(unsigned memPntr, byte value);
-	byte readMemory(unsigned memPntr) const;
-	int calcSample(bool doEmu);
+	[[nodiscard]] byte readMemory(unsigned memPntr) const;
+	[[nodiscard]] int calcSample(bool doEmu);
 
+private:
 	Y8950& y8950;
 	TrackedRam ram;
 

@@ -3,9 +3,7 @@
 
 #include "Event.hh"
 #include <condition_variable>
-#include <memory>
 #include <mutex>
-#include <utility>
 #include <vector>
 
 namespace openmsx {
@@ -16,8 +14,6 @@ class EventListener;
 class EventDistributor
 {
 public:
-	using EventPtr = std::shared_ptr<const Event>;
-
 	/** Priorities from high to low, higher priority listeners can block
 	  * events for lower priority listeners.
 	  */
@@ -26,6 +22,7 @@ public:
 		CONSOLE,
 		HOTKEY,
 		MSX,
+		LOWEST, // should only be used internally in EventDistributor
 	};
 
 	explicit EventDistributor(Reactor& reactor);
@@ -34,7 +31,7 @@ public:
 	 * Registers a given object to receive certain events.
 	 * @param type The type of the events you want to receive.
 	 * @param listener Listener that will be notified when an event arrives.
-	 * @param priority Listeners have a priority, higher priority liseners
+	 * @param priority Listeners have a priority, higher priority listeners
 	 *                 can block events for lower priority listeners.
 	 */
 	void registerEventListener(EventType type, EventListener& listener,
@@ -51,7 +48,7 @@ public:
 	  * when the deliverEvents() method is called. Events are always
 	  * in the main thread.
 	  */
-	void distributeEvent(const EventPtr& event);
+	void distributeEvent(Event&& event);
 
 	/** This actually delivers the events. It may only be called from the
 	  * main loop in Reactor (and only from the main thread). Also see
@@ -68,13 +65,18 @@ public:
 	bool sleep(unsigned us);
 
 private:
-	bool isRegistered(EventType type, EventListener* listener) const;
+	[[nodiscard]] bool isRegistered(EventType type, EventListener* listener) const;
 
+private:
 	Reactor& reactor;
 
-	using PriorityMap = std::vector<std::pair<Priority, EventListener*>>; // sorted on priority
-	PriorityMap listeners[NUM_EVENT_TYPES];
-	using EventQueue = std::vector<EventPtr>;
+	struct Entry {
+		Priority priority;
+		EventListener* listener;
+	};
+	using PriorityMap = std::vector<Entry>; // sorted on priority
+	PriorityMap listeners[size_t(EventType::NUM_EVENT_TYPES)];
+	using EventQueue = std::vector<Event>;
 	EventQueue scheduledEvents;
 	std::mutex mutex; // lock datastructures
 	std::mutex cvMutex; // lock condition_variable

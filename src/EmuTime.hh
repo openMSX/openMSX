@@ -12,13 +12,13 @@ namespace openmsx {
 // EmuTime is only a very small class (one 64-bit member). On 64-bit CPUs
 // it's cheaper to pass this by value. On 32-bit CPUs pass-by-reference
 // is cheaper.
-template <typename T, bool C = sizeof(void*) < 8> struct EmuTime_param_impl;
-template <typename T> struct EmuTime_param_impl<T, true> { // pass by reference
+template<typename T, bool C = sizeof(void*) < 8> struct EmuTime_param_impl;
+template<typename T> struct EmuTime_param_impl<T, true> { // pass by reference
 	using param = const T&;
 	static param dummy() { static constexpr auto e = T::zero(); return e; }
 };
-template <typename T> struct EmuTime_param_impl<T, false> { // pass by value
-	using param = const T;
+template<typename T> struct EmuTime_param_impl<T, false> { // pass by value
+	using param = T;
 	static param dummy() { return T(); }
 };
 
@@ -28,28 +28,28 @@ public:
 	using param = EmuTime_param_impl<EmuTime>::param;
 	static param dummy() { return EmuTime_param_impl<EmuTime>::dummy(); }
 
-	// Note: default copy constructor and assigment operator are ok.
+	// Note: default copy constructor and assignment operator are ok.
 
 	static constexpr EmuTime makeEmuTime(uint64_t u) { return EmuTime(u); }
 
 	// comparison operators
-	constexpr bool operator==(EmuTime::param e) const
+	[[nodiscard]] constexpr bool operator==(EmuTime::param e) const
 		{ return time == e.time; }
-	constexpr bool operator!=(EmuTime::param e) const
+	[[nodiscard]] constexpr bool operator!=(EmuTime::param e) const
 		{ return time != e.time; }
-	constexpr bool operator< (EmuTime::param e) const
+	[[nodiscard]] constexpr bool operator< (EmuTime::param e) const
 		{ return time <  e.time; }
-	constexpr bool operator<=(EmuTime::param e) const
+	[[nodiscard]] constexpr bool operator<=(EmuTime::param e) const
 		{ return time <= e.time; }
-	constexpr bool operator> (EmuTime::param e) const
+	[[nodiscard]] constexpr bool operator> (EmuTime::param e) const
 		{ return time >  e.time; }
-	constexpr bool operator>=(EmuTime::param e) const
+	[[nodiscard]] constexpr bool operator>=(EmuTime::param e) const
 		{ return time >= e.time; }
 
 	// arithmetic operators
-	constexpr EmuTime operator+(EmuDuration::param d) const
+	[[nodiscard]] constexpr EmuTime operator+(EmuDuration::param d) const
 		{ return EmuTime(time + d.time); }
-	constexpr EmuTime operator-(EmuDuration::param d) const
+	[[nodiscard]] constexpr EmuTime operator-(EmuDuration::param d) const
 		{ assert(time >= d.time);
 		  return EmuTime(time - d.time); }
 	constexpr EmuTime& operator+=(EmuDuration::param d)
@@ -57,15 +57,15 @@ public:
 	constexpr EmuTime& operator-=(EmuDuration::param d)
 		{ assert(time >= d.time);
 		  time -= d.time; return *this; }
-	constexpr EmuDuration operator-(EmuTime::param e) const
+	[[nodiscard]] constexpr EmuDuration operator-(EmuTime::param e) const
 		{ assert(time >= e.time);
 		  return EmuDuration(time - e.time); }
 
-	static constexpr EmuTime zero()
+	[[nodiscard]] static constexpr EmuTime zero()
 	{
 		return EmuTime(uint64_t(0));
 	}
-	static constexpr EmuTime infinity()
+	[[nodiscard]] static constexpr EmuTime infinity()
 	{
 		return EmuTime(std::numeric_limits<uint64_t>::max());
 	}
@@ -80,6 +80,7 @@ private:
 	EmuTime() = default; // uninitialized
 	constexpr explicit EmuTime(uint64_t n) : time(n) {}
 
+private:
 	uint64_t time;
 
 	// friends

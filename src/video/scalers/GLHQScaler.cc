@@ -8,8 +8,6 @@
 #include <cstring>
 #include <utility>
 
-using std::string;
-
 namespace openmsx {
 
 GLHQScaler::GLHQScaler(GLScaler& fallback_)
@@ -43,9 +41,9 @@ GLHQScaler::GLHQScaler(GLScaler& fallback_)
 
 	auto context = systemFileContext();
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	string offsetsName = "shaders/HQ_xOffsets.dat";
-	string weightsName = "shaders/HQ_xWeights.dat";
-	for (int i = 0; i < 3; ++i) {
+	std::string offsetsName = "shaders/HQ_xOffsets.dat";
+	std::string weightsName = "shaders/HQ_xWeights.dat";
+	for (auto i : xrange(3)) {
 		int n = i + 2;
 		offsetsName[10] = char('0') + n;
 		File offsetsFile(context.resolve(offsetsName));
@@ -122,14 +120,14 @@ void GLHQScaler::uploadBlock(
 
 	VLA_SSE_ALIGNED(Pixel, buf1_, lineWidth); auto* buf1 = buf1_;
 	VLA_SSE_ALIGNED(Pixel, buf2_, lineWidth); auto* buf2 = buf2_;
-	auto* curr = paintFrame.getLinePtr(srcStartY - 1, lineWidth, buf1);
-	auto* next = paintFrame.getLinePtr(srcStartY + 0, lineWidth, buf2);
+	const auto* curr = paintFrame.getLinePtr(srcStartY - 1, lineWidth, buf1);
+	const auto* next = paintFrame.getLinePtr(srcStartY + 0, lineWidth, buf2);
 	EdgeHQ edgeOp(0, 8, 16);
 	calcEdgesGL(curr, next, tmpBuf2, edgeOp);
 
 	edgeBuffer.bind();
 	if (auto* mapped = edgeBuffer.mapWrite()) {
-		for (unsigned y = srcStartY; y < srcEndY; ++y) {
+		for (auto y : xrange(srcStartY, srcEndY)) {
 			curr = next;
 			std::swap(buf1, buf2);
 			next = paintFrame.getLinePtr(y + 1, lineWidth, buf2);

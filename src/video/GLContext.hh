@@ -4,6 +4,7 @@
 #include "GLUtil.hh"
 #include "gl_mat.hh"
 #include <memory>
+#include <optional>
 
 namespace openmsx { class GLScaler; }
 
@@ -51,7 +52,7 @@ private:
 
 };
 
-extern std::unique_ptr<Context> context;
+extern std::optional<Context> context;
 
 } // namespace gl
 

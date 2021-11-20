@@ -32,24 +32,26 @@ class LocalFileReference
 public:
 	LocalFileReference() = default;
 	explicit LocalFileReference(const Filename& filename);
-	explicit LocalFileReference(const std::string& filename);
+	explicit LocalFileReference(Filename&& filename);
+	explicit LocalFileReference(std::string filename);
 	explicit LocalFileReference(File& file);
 	~LocalFileReference();
 	// non-copyable, but moveable
 	LocalFileReference(const LocalFileReference&) = delete;
 	LocalFileReference& operator=(const LocalFileReference&) = delete;
-	LocalFileReference(LocalFileReference&&);
-	LocalFileReference& operator=(LocalFileReference&&);
+	LocalFileReference(LocalFileReference&&) noexcept;
+	LocalFileReference& operator=(LocalFileReference&&) noexcept;
 
 	/** Returns path to a local uncompressed version of this file.
 	  * This path only remains valid as long as this object is in scope.
 	  */
-	const std::string& getFilename() const;
+	[[nodiscard]] const std::string& getFilename() const;
 
 private:
 	void init(File& file);
 	void cleanup();
 
+private:
 	std::string tmpFile;
 	std::string tmpDir;
 };

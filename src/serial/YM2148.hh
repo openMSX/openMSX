@@ -21,20 +21,20 @@ public:
 
 	void writeCommand(byte value);
 	void writeData(byte value, EmuTime::param time);
-	byte readStatus(EmuTime::param time);
-	byte readData(EmuTime::param time);
-	byte peekStatus(EmuTime::param time) const;
-	byte peekData(EmuTime::param time) const;
+	[[nodiscard]] byte readStatus(EmuTime::param time) const;
+	[[nodiscard]] byte readData(EmuTime::param time);
+	[[nodiscard]] byte peekStatus(EmuTime::param time) const;
+	[[nodiscard]] byte peekData(EmuTime::param time) const;
 
-	bool pendingIRQ() const;
+	[[nodiscard]] bool pendingIRQ() const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
 	// MidiInConnector
-	bool ready() override;
-	bool acceptsData() override;
+	[[nodiscard]] bool ready() override;
+	[[nodiscard]] bool acceptsData() override;
 	void setDataBits(DataBits bits) override;
 	void setStopBits(StopBits bits) override;
 	void setParityBit(bool enable, ParityBit parity) override;

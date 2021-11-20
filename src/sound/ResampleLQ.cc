@@ -2,6 +2,7 @@
 #include "ResampledSoundDevice.hh"
 #include "likely.hh"
 #include "ranges.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <cstring>
 #include <memory>
@@ -29,7 +30,7 @@ std::unique_ptr<ResampleLQ<CHANNELS>> ResampleLQ<CHANNELS>::create(
 	return result;
 }
 
-template <unsigned CHANNELS>
+template<unsigned CHANNELS>
 ResampleLQ<CHANNELS>::ResampleLQ(
 		ResampledSoundDevice& input_, const DynamicClock& hostClock_)
 	: ResampleAlgo(input_)
@@ -45,13 +46,13 @@ ResampleLQ<CHANNELS>::ResampleLQ(
 	ranges::fill(lastInput, 0.0f);
 }
 
-static bool isSilent(float x)
+[[nodiscard]] static bool isSilent(float x)
 {
 	constexpr float threshold = 1.0f / 32768;
 	return std::abs(x) < threshold;
 }
 
-template <unsigned CHANNELS>
+template<unsigned CHANNELS>
 bool ResampleLQ<CHANNELS>::fetchData(EmuTime::param time, unsigned& valid)
 {
 	auto& emuClk = getEmuClock();
@@ -84,7 +85,7 @@ bool ResampleLQ<CHANNELS>::fetchData(EmuTime::param time, unsigned& valid)
 		}
 		memset(&buffer[CHANNELS], 0, emuNum * CHANNELS * sizeof(float));
 	}
-	for (unsigned j = 0; j < 2 * CHANNELS; ++j) {
+	for (auto j : xrange(2 * CHANNELS)) {
 		buffer[j] = lastInput[j];
 		lastInput[j] = buffer[emuNum * CHANNELS + j];
 	}
@@ -93,7 +94,7 @@ bool ResampleLQ<CHANNELS>::fetchData(EmuTime::param time, unsigned& valid)
 
 ////
 
-template <unsigned CHANNELS>
+template<unsigned CHANNELS>
 ResampleLQUp<CHANNELS>::ResampleLQUp(
 		ResampledSoundDevice& input_, const DynamicClock& hostClock_)
 	: ResampleLQ<CHANNELS>(input_, hostClock_)
@@ -101,7 +102,7 @@ ResampleLQUp<CHANNELS>::ResampleLQUp(
 	assert(input_.getEmuClock().getFreq() <= hostClock_.getFreq()); // only upsampling
 }
 
-template <unsigned CHANNELS>
+template<unsigned CHANNELS>
 bool ResampleLQUp<CHANNELS>::generateOutputImpl(
 	float* __restrict dataOut, unsigned hostNum, EmuTime::param time)
 {
@@ -119,10 +120,10 @@ bool ResampleLQUp<CHANNELS>::generateOutputImpl(
 	// sound quality is not so important here, so use 0-th order
 	// interpolation (instead of 1st-order).
 	auto* buffer = &aBuffer[4 - 2 * CHANNELS];
-	for (unsigned i = 0; i < hostNum; ++i) {
+	for (auto i : xrange(hostNum)) {
 		unsigned p = pos.toInt();
 		assert(p < valid);
-		for (unsigned j = 0; j < CHANNELS; ++j) {
+		for (auto j : xrange(CHANNELS)) {
 			dataOut[i * CHANNELS + j] = buffer[p * CHANNELS + j];
 		}
 		pos += this->step;
@@ -133,7 +134,7 @@ bool ResampleLQUp<CHANNELS>::generateOutputImpl(
 
 ////
 
-template <unsigned CHANNELS>
+template<unsigned CHANNELS>
 ResampleLQDown<CHANNELS>::ResampleLQDown(
 		ResampledSoundDevice& input_, const DynamicClock& hostClock_)
 	: ResampleLQ<CHANNELS>(input_, hostClock_)
@@ -141,7 +142,7 @@ ResampleLQDown<CHANNELS>::ResampleLQDown(
 	assert(input_.getEmuClock().getFreq() >= hostClock_.getFreq()); // can only do downsampling
 }
 
-template <unsigned CHANNELS>
+template<unsigned CHANNELS>
 bool ResampleLQDown<CHANNELS>::generateOutputImpl(
 	float* __restrict dataOut, unsigned hostNum, EmuTime::param time)
 {
@@ -155,11 +156,11 @@ bool ResampleLQDown<CHANNELS>::generateOutputImpl(
 	if (!this->fetchData(time, valid)) return false;
 
 	auto* buffer = &aBuffer[4 - 2 * CHANNELS];
-	for (unsigned i = 0; i < hostNum; ++i) {
+	for (auto i : xrange(hostNum)) {
 		unsigned p = pos.toInt();
 		assert((p + 1) < valid);
 		FP fract = pos.fract();
-		for (unsigned j = 0; j < CHANNELS; ++j) {
+		for (auto j : xrange(CHANNELS)) {
 			auto s0 = buffer[(p + 0) * CHANNELS + j];
 			auto s1 = buffer[(p + 1) * CHANNELS + j];
 			auto out = s0 + (fract.toFloat() * (s1 - s0));

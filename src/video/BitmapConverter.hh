@@ -13,7 +13,7 @@ template<> struct DoublePixel<4> { using type = uint64_t; };
 
 /** Utility class for converting VRAM contents to host pixels.
   */
-template <class Pixel>
+template<typename Pixel>
 class BitmapConverter
 {
 public:
@@ -88,6 +88,7 @@ private:
 		Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1);
 	inline void renderBogus(Pixel* pixelPtr);
 
+private:
 	const Pixel* const __restrict palette16;
 	const Pixel* const __restrict palette256;
 	const Pixel* const __restrict palette32768;

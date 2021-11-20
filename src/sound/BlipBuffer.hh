@@ -27,13 +27,14 @@ public:
 	void addDelta(TimeIndex time, float delta);
 
 	// Read the given amount of samples into destination buffer.
-	template <unsigned PITCH>
+	template<unsigned PITCH>
 	bool readSamples(float* out, unsigned samples);
 
 private:
-	template <unsigned PITCH>
+	template<unsigned PITCH>
 	void readSamplesHelper(float* out, unsigned samples) __restrict;
 
+private:
 	static constexpr unsigned BUFFER_SIZE = 1 << 14;
 	static constexpr unsigned BUFFER_MASK = BUFFER_SIZE - 1;
 	float buffer[BUFFER_SIZE];

@@ -13,6 +13,7 @@
 #include "PrinterPortDevice.hh"
 #include "openmsx.hh"
 #include <memory>
+#include <utility>
 
 namespace openmsx {
 
@@ -26,7 +27,7 @@ class PrinterCore : public PrinterPortDevice
 {
 public:
 	// PrinterPortDevice
-	bool getStatus(EmuTime::param time) override;
+	[[nodiscard]] bool getStatus(EmuTime::param time) override;
 	void setStrobe(bool strobe, EmuTime::param time) override;
 	void writeData(byte data, EmuTime::param time) override;
 
@@ -56,8 +57,8 @@ public:
 	void write(byte data);
 	void forceFormFeed();
 	// Pluggable
-	const std::string& getName() const override;
-	const std::string getDescription() const override;
+	[[nodiscard]] std::string_view getName() const override;
+	[[nodiscard]] std::string_view getDescription() const override;
 
 private:
 	HANDLE hFile;
@@ -83,12 +84,13 @@ protected:
 	void printVisibleCharacter(byte data);
 	void plot9Dots(double x, double y, unsigned pattern);
 
-	virtual void getNumberOfDots(unsigned& dotsX, unsigned& dotsY) = 0;
+	[[nodiscard]] virtual std::pair<unsigned, unsigned> getNumberOfDots() = 0;
 	virtual void resetSettings() = 0;
-	virtual unsigned calcEscSequenceLength(byte character) = 0;
+	[[nodiscard]] virtual unsigned calcEscSequenceLength(byte character) = 0;
 	virtual void processEscSequence() = 0;
 	virtual void processCharacter(byte data) = 0;
 
+protected:
 	static constexpr unsigned PIXEL_WIDTH = 8;
 
 	double graphDensity;
@@ -174,19 +176,19 @@ public:
 	explicit ImagePrinterMSX(MSXMotherBoard& motherBoard);
 
 	// Pluggable
-	const std::string& getName() const override;
-	std::string_view getDescription() const override;
+	[[nodiscard]] std::string_view getName() const override;
+	[[nodiscard]] std::string_view getDescription() const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
 	void msxPrnSetFont(const byte* msxBits);
-	unsigned parseNumber(unsigned sizeStart, unsigned sizeChars);
+	[[nodiscard]] unsigned parseNumber(unsigned sizeStart, unsigned sizeChars);
 
-	void getNumberOfDots(unsigned& dotsX, unsigned& dotsY) override;
+	[[nodiscard]] std::pair<unsigned, unsigned> getNumberOfDots() override;
 	void resetSettings() override;
-	unsigned calcEscSequenceLength(byte character) override;
+	[[nodiscard]] unsigned calcEscSequenceLength(byte character) override;
 	void processEscSequence() override;
 	void processCharacter(byte data) override;
 };
@@ -198,18 +200,18 @@ public:
 	explicit ImagePrinterEpson(MSXMotherBoard& motherBoard);
 
 	// Pluggable
-	const std::string& getName() const override;
-	std::string_view getDescription() const override;
+	[[nodiscard]] std::string_view getName() const override;
+	[[nodiscard]] std::string_view getDescription() const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	unsigned parseNumber(unsigned sizeStart, unsigned sizeChars);
+	[[nodiscard]] unsigned parseNumber(unsigned sizeStart, unsigned sizeChars);
 
-	void getNumberOfDots(unsigned& dotsX, unsigned& dotsY) override;
+	[[nodiscard]] std::pair<unsigned, unsigned> getNumberOfDots() override;
 	void resetSettings() override;
-	unsigned calcEscSequenceLength(byte character) override;
+	[[nodiscard]] unsigned calcEscSequenceLength(byte character) override;
 	void processEscSequence() override;
 	void processCharacter(byte data) override;
 };

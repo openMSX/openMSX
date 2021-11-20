@@ -1,12 +1,12 @@
 #include "RawTrack.hh"
 #include "CRC16.hh"
+#include "enumerate.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
+#include "xrange.hh"
 #include <cassert>
-
-using std::vector;
 
 namespace openmsx {
 
@@ -46,14 +46,15 @@ void RawTrack::write(int idx, byte val, bool setIdam)
 	data[i2] = val;
 }
 
-bool RawTrack::decodeSectorImpl(int idx, Sector& sector) const
+std::optional<RawTrack::Sector> RawTrack::decodeSectorImpl(int idx) const
 {
 	// read (and check) address mark
 	// assume addr mark starts with three A1 bytes (should be
 	// located right before the current 'idx' position)
-	if (read(idx) != 0xFE) return false; // 'sector'-data not filled in
-
+	if (read(idx) != 0xFE) return {};
 	++idx;
+
+	Sector sector;
 	sector.addrIdx = idx;
 	CRC16 addrCrc;
 	addrCrc.init({0xA1, 0xA1, 0xA1, 0xFE});
@@ -73,7 +74,7 @@ bool RawTrack::decodeSectorImpl(int idx, Sector& sector) const
 	if (!sector.addrCrcErr) {
 		// Locate data mark, should starts within 43 bytes from current
 		// position (that's what the WD2793 does).
-		for (int i = 0; i < 43; ++i) {
+		for (auto i : xrange(43)) {
 			int idx2 = idx + i;
 			int j = 0;
 			for (; j < 3; ++j) {
@@ -103,24 +104,23 @@ bool RawTrack::decodeSectorImpl(int idx, Sector& sector) const
 			break;
 		}
 	}
-	return true;
+	return sector;
 }
 
-vector<RawTrack::Sector> RawTrack::decodeAll() const
+std::vector<RawTrack::Sector> RawTrack::decodeAll() const
 {
 	// only complete sectors (header + data block)
-	vector<Sector> result;
-	for (auto& i : idam) {
-		Sector sector;
-		if (decodeSectorImpl(i, sector) &&
-		    (sector.dataIdx != -1)) {
-			result.push_back(sector);
+	std::vector<Sector> result;
+	for (const auto& i : idam) {
+		if (auto sector = decodeSectorImpl(i);
+		    sector && (sector->dataIdx != -1)) {
+			result.push_back(*sector);
 		}
 	}
 	return result;
 }
 
-static vector<unsigned> rotateIdam(vector<unsigned> idam, unsigned startIdx)
+static std::vector<unsigned> rotateIdam(std::vector<unsigned> idam, unsigned startIdx)
 {
 	// find first element that is equal or bigger
 	auto it = ranges::lower_bound(idam, startIdx);
@@ -129,40 +129,41 @@ static vector<unsigned> rotateIdam(vector<unsigned> idam, unsigned startIdx)
 	return idam;
 }
 
-bool RawTrack::decodeNextSector(unsigned startIdx, Sector& sector) const
+std::optional<RawTrack::Sector> RawTrack::decodeNextSector(unsigned startIdx) const
 {
 	// get first valid sector-header
 	for (auto& i : rotateIdam(idam, startIdx)) {
-		if (decodeSectorImpl(i, sector)) {
-			return true;
+		if (auto sector = decodeSectorImpl(i)) {
+			return sector;
 		}
 	}
-	return false;
+	return {};
 }
 
-bool RawTrack::decodeSector(byte sectorNum, Sector& sector) const
+std::optional<RawTrack::Sector> RawTrack::decodeSector(byte sectorNum) const
 {
 	// only complete sectors (header + data block)
-	for (auto& i : idam) {
-		if (decodeSectorImpl(i, sector) &&
-		    (sector.sector == sectorNum) &&
-		    (sector.dataIdx != -1)) {
-			return true;
+	for (const auto& i : idam) {
+		if (auto sector = decodeSectorImpl(i);
+		    sector &&
+		    (sector->sector == sectorNum) &&
+		    (sector->dataIdx != -1)) {
+			return sector;
 		}
 	}
-	return false;
+	return {};
 }
 
-void RawTrack::readBlock(int idx, unsigned size, byte* destination) const
+void RawTrack::readBlock(int idx, span<byte> destination) const
 {
-	for (unsigned i = 0; i < size; ++i) {
-		destination[i] = read(idx + i);
+	for (auto [i, d] : enumerate(destination)) {
+		d = read(idx + int(i));
 	}
 }
-void RawTrack::writeBlock(int idx, unsigned size, const byte* source)
+void RawTrack::writeBlock(int idx, span<const byte> source)
 {
-	for (unsigned i = 0; i < size; ++i) {
-		write(idx + i, source[i]);
+	for (auto [i, s] : enumerate(source)) {
+		write(idx + int(i), s);
 	}
 }
 
@@ -246,10 +247,9 @@ void RawTrack::applyWd2793ReadTrackQuirk()
 		    (read(i - 0) != 0xFE)) continue;
 		write(i - 3, 0x14);
 
-		Sector sector;
-		if (decodeSectorImpl(i, sector) &&
-		    (sector.dataIdx != -1)) {
-			int d = sector.dataIdx;
+		if (auto sector = decodeSectorImpl(i);
+		    sector && (sector->dataIdx != -1)) {
+			int d = sector->dataIdx;
 			if ((read(d - 4) != 0xA1) ||
 			    (read(d - 3) != 0xA1) ||
 			    (read(d - 2) != 0xA1)) continue;
@@ -268,10 +268,10 @@ void RawTrack::serialize(Archive& ar, unsigned version)
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("trackLength", len);
 	} else {
-		assert(ar.isLoader());
+		assert(Archive::IS_LOADER);
 		len = 6250;
 	}
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		data.resize(len);
 	}
 	ar.serialize_blob("data", data.data(), data.size());

@@ -30,22 +30,22 @@ public:
 
 	void registerDebuggable   (std::string name, Debuggable& debuggable);
 	void unregisterDebuggable (std::string_view name, Debuggable& debuggable);
-	Debuggable* findDebuggable(std::string_view name);
+	[[nodiscard]] Debuggable* findDebuggable(std::string_view name);
 
 	void registerProbe  (ProbeBase& probe);
 	void unregisterProbe(ProbeBase& probe);
-	ProbeBase* findProbe(std::string_view name);
+	[[nodiscard]] ProbeBase* findProbe(std::string_view name);
 
 	void removeProbeBreakPoint(ProbeBreakPoint& bp);
 	void setCPU(MSXCPU* cpu_) { cpu = cpu_; }
 
 	void transfer(Debugger& other);
 
-	MSXMotherBoard& getMotherBoard() { return motherBoard; }
+	[[nodiscard]] MSXMotherBoard& getMotherBoard() { return motherBoard; }
 
 private:
-	Debuggable& getDebuggable(std::string_view name);
-	ProbeBase& getProbe(std::string_view name);
+	[[nodiscard]] Debuggable& getDebuggable(std::string_view name);
+	[[nodiscard]] ProbeBase& getProbe(std::string_view name);
 
 	unsigned insertProbeBreakPoint(
 		TclObject command, TclObject condition,
@@ -64,15 +64,15 @@ private:
 		Cmd(CommandController& commandController,
 		    StateChangeDistributor& stateChangeDistributor,
 		    Scheduler& scheduler);
-		bool needRecord(span<const TclObject> tokens) const override;
+		[[nodiscard]] bool needRecord(span<const TclObject> tokens) const override;
 		void execute(span<const TclObject> tokens,
 			     TclObject& result, EmuTime::param time) override;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 
 	private:
-		      Debugger& debugger()       { return OUTER(Debugger, cmd); }
-		const Debugger& debugger() const { return OUTER(Debugger, cmd); }
+		[[nodiscard]]       Debugger& debugger()       { return OUTER(Debugger, cmd); }
+		[[nodiscard]] const Debugger& debugger() const { return OUTER(Debugger, cmd); }
 		void list(TclObject& result);
 		void desc(span<const TclObject> tokens, TclObject& result);
 		void size(span<const TclObject> tokens, TclObject& result);
@@ -83,9 +83,9 @@ private:
 		void setBreakPoint(span<const TclObject> tokens, TclObject& result);
 		void removeBreakPoint(span<const TclObject> tokens, TclObject& result);
 		void listBreakPoints(span<const TclObject> tokens, TclObject& result);
-		std::vector<std::string> getBreakPointIds() const;
-		std::vector<std::string> getWatchPointIds() const;
-		std::vector<std::string> getConditionIds() const;
+		[[nodiscard]] std::vector<std::string> getBreakPointIds() const;
+		[[nodiscard]] std::vector<std::string> getWatchPointIds() const;
+		[[nodiscard]] std::vector<std::string> getConditionIds() const;
 		void setWatchPoint(span<const TclObject> tokens, TclObject& result);
 		void removeWatchPoint(span<const TclObject> tokens, TclObject& result);
 		void listWatchPoints(span<const TclObject> tokens, TclObject& result);
@@ -102,7 +102,7 @@ private:
 	} cmd;
 
 	struct NameFromProbe {
-		const std::string& operator()(const ProbeBase* p) const {
+		[[nodiscard]] const std::string& operator()(const ProbeBase* p) const {
 			return p->getName();
 		}
 	};

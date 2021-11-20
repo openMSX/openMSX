@@ -9,16 +9,15 @@
 #include "FileOperations.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
+#include "enumerate.hh"
 #include "one_of.hh"
 #include "span.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <memory>
 
 using std::string;
-using std::string_view;
-using std::unique_ptr;
-using std::vector;
 
 namespace openmsx {
 
@@ -30,7 +29,7 @@ NowindCommand::NowindCommand(const string& basename,
 {
 }
 
-unique_ptr<DiskChanger> NowindCommand::createDiskChanger(
+std::unique_ptr<DiskChanger> NowindCommand::createDiskChanger(
 	const string& basename, unsigned n, MSXMotherBoard& motherBoard) const
 {
 	return std::make_unique<DiskChanger>(
@@ -39,18 +38,18 @@ unique_ptr<DiskChanger> NowindCommand::createDiskChanger(
 			false, true);
 }
 
-unsigned NowindCommand::searchRomdisk(const NowindHost::Drives& drives) const
+[[nodiscard]] static unsigned searchRomdisk(const NowindHost::Drives& drives)
 {
-	for (size_t i = 0; i < drives.size(); ++i) {
-		if (drives[i]->isRomdisk()) {
-			return i;
+	for (auto [i, drv] : enumerate(drives)) {
+		if (drv->isRomdisk()) {
+			return unsigned(i);
 		}
 	}
 	return 255;
 }
 
 void NowindCommand::processHdimage(
-	const string& hdimage, NowindHost::Drives& drives) const
+	const string& hdImage, NowindHost::Drives& drives) const
 {
 	MSXMotherBoard& motherboard = interface.getMotherBoard();
 
@@ -59,40 +58,38 @@ void NowindCommand::processHdimage(
 	// Though <filename> itself can contain ':' characters. To solve this
 	// disambiguity we will always interpret the string as <filename> if
 	// it is an existing filename.
-	vector<unsigned> partitions;
-	if (auto pos = hdimage.find_last_of(':');
-	    (pos != string::npos) && !FileOperations::exists(hdimage)) {
+	IterableBitSet<64> partitions;
+	if (auto pos = hdImage.find_last_of(':');
+	    (pos != string::npos) && !FileOperations::exists(hdImage)) {
 		partitions = StringOp::parseRange(
-			hdimage.substr(pos + 1), 1, 31);
+			hdImage.substr(pos + 1), 1, 31);
 	}
 
-	auto wholeDisk = std::make_shared<DSKDiskImage>(Filename(hdimage));
+	auto wholeDisk = std::make_shared<DSKDiskImage>(Filename(hdImage));
 	bool failOnError = true;
 	if (partitions.empty()) {
 		// insert all partitions
 		failOnError = false;
-		for (unsigned i = 1; i <= 31; ++i) {
-			partitions.push_back(i);
-		}
+		partitions.setRange(1, 32);
 	}
 
-	for (auto& p : partitions) {
+	partitions.foreachSetBit([&](size_t p) {
 		try {
 			// Explicit conversion to shared_ptr<SectorAccessibleDisk> is
 			// for some reason needed in 32-bit vs2013 build (not in 64-bit
 			// and not in vs2012, nor gcc/clang). Compiler bug???
 			auto partition = std::make_unique<DiskPartition>(
-				*wholeDisk, p,
+				*wholeDisk, unsigned(p),
 				std::shared_ptr<SectorAccessibleDisk>(wholeDisk));
 			auto drive = createDiskChanger(
 				interface.basename, unsigned(drives.size()),
 				motherboard);
-			drive->changeDisk(unique_ptr<Disk>(std::move(partition)));
+			drive->changeDisk(std::unique_ptr<Disk>(std::move(partition)));
 			drives.push_back(std::move(drive));
 		} catch (MSXException&) {
 			if (failOnError) throw;
 		}
-	}
+	});
 }
 
 void NowindCommand::execute(span<const TclObject> tokens, TclObject& result)
@@ -105,12 +102,12 @@ void NowindCommand::execute(span<const TclObject> tokens, TclObject& result)
 		// no arguments, show general status
 		assert(!drives.empty());
 		string r;
-		for (size_t i = 0; i < drives.size(); ++i) {
+		for (auto [i, drv] : enumerate(drives)) {
 			strAppend(r, "nowind", i + 1, ": ");
-			if (dynamic_cast<NowindRomDisk*>(drives[i].get())) {
+			if (dynamic_cast<NowindRomDisk*>(drv.get())) {
 				strAppend(r, "romdisk\n");
-			} else if (auto changer = dynamic_cast<DiskChanger*>(
-						drives[i].get())) {
+			} else if (const auto* changer = dynamic_cast<const DiskChanger*>(
+						drv.get())) {
 				string filename = changer->getDiskName().getOriginal();
 				strAppend(r, (filename.empty() ? "--empty--" : filename),
 				          '\n');
@@ -142,9 +139,9 @@ void NowindCommand::execute(span<const TclObject> tokens, TclObject& result)
 	span<const TclObject> args(&tokens[1], tokens.size() - 1);
 	while (error.empty() && !args.empty()) {
 		bool createDrive = false;
-		string_view image;
+		std::string_view image;
 
-		string_view arg = args.front().getString();
+		std::string_view arg = args.front().getString();
 		args = args.subspan(1);
 		if        (arg == one_of("--ctrl", "-c")) {
 			enablePhantom  = false;
@@ -182,10 +179,10 @@ void NowindCommand::execute(span<const TclObject> tokens, TclObject& result)
 				error = strCat("Missing argument for option: ", arg);
 			} else {
 				try {
-					auto hdimage = FileOperations::expandTilde(
-						args.front().getString());
+					auto hdImage = FileOperations::expandTilde(
+						string(args.front().getString()));
 					args = args.subspan(1);
-					processHdimage(hdimage, tmpDrives);
+					processHdimage(hdImage, tmpDrives);
 					changeDrives = true;
 				} catch (MSXException& e) {
 					error = std::move(e).getMessage();
@@ -204,7 +201,7 @@ void NowindCommand::execute(span<const TclObject> tokens, TclObject& result)
 				interface.getMotherBoard());
 			changeDrives = true;
 			if (!image.empty()) {
-				if (drive->insertDisk(image)) {
+				if (drive->insertDisk(FileOperations::expandTilde(string(image)))) {
 					error = strCat("Invalid disk image: ", image);
 				}
 			}
@@ -245,7 +242,7 @@ void NowindCommand::execute(span<const TclObject> tokens, TclObject& result)
 	auto prevSize = tmpDrives.size();
 	tmpDrives.clear();
 	for (auto& d : drives) {
-		if (auto disk = dynamic_cast<DiskChanger*>(d.get())) {
+		if (auto* disk = dynamic_cast<DiskChanger*>(d.get())) {
 			disk->createCommand();
 		}
 	}
@@ -277,7 +274,7 @@ void NowindCommand::execute(span<const TclObject> tokens, TclObject& result)
 	result = r;
 }
 
-string NowindCommand::help(const vector<string>& /*tokens*/) const
+string NowindCommand::help(span<const TclObject> /*tokens*/) const
 {
 	return "Similar to the disk<x> commands there is a nowind<x> command "
 	       "for each nowind interface. This command is modeled after the "
@@ -329,16 +326,17 @@ string NowindCommand::help(const vector<string>& /*tokens*/) const
 	       "                            B: and C:.\n";
 }
 
-void NowindCommand::tabCompletion(vector<string>& tokens) const
+void NowindCommand::tabCompletion(std::vector<string>& tokens) const
 {
-	static constexpr const char* const extra[] = {
-		"-c", "--ctrl",
-		"-C", "--no-ctrl",
-		"-a", "--allow",
-		"-A", "--no-allow",
-		"-j", "--romdisk",
-		"-i", "--image",
-		"-m", "--hdimage",
+	using namespace std::literals;
+	static constexpr std::array extra = {
+		"-c"sv, "--ctrl"sv,
+		"-C"sv, "--no-ctrl"sv,
+		"-a"sv, "--allow"sv,
+		"-A"sv, "--no-allow"sv,
+		"-j"sv, "--romdisk"sv,
+		"-i"sv, "--image"sv,
+		"-m"sv, "--hdimage"sv,
 	};
 	completeFileName(tokens, userFileContext(), extra);
 }

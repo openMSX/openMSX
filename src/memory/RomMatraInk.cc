@@ -1,12 +1,23 @@
 #include "RomMatraInk.hh"
+#include "cstd.hh"
 #include "serialize.hh"
+#include <array>
 
 namespace openmsx {
 
+static constexpr auto sectorInfo = [] {
+	// 2 * 64kB, fully writeable
+	using Info = AmdFlash::SectorInfo;
+	std::array<Info, 2> result = {};
+	cstd::fill(result, Info{64 * 1024, false});
+	return result;
+}();
+
 RomMatraInk::RomMatraInk(const DeviceConfig& config, Rom&& rom_)
-	: MSXRom(config, std::move(rom_))
-	, flash(rom, std::vector<AmdFlash::SectorInfo>(2, {0x10000, false}),
-	        0x01A4, false, config, false) // don't load/save
+        : MSXRom(config, std::move(rom_))
+        , flash(rom, sectorInfo, 0x01A4,
+	        AmdFlash::Addressing::BITS_11, config,
+                AmdFlash::Load::DONT)
 {
 	reset(EmuTime::dummy());
 }

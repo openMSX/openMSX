@@ -19,10 +19,10 @@ public:
 	MC6850(const std::string& name, MSXMotherBoard& motherBoard, unsigned clockFreq);
 	void reset(EmuTime::param time);
 
-	byte readStatusReg();
-	byte peekStatusReg() const;
-	byte readDataReg();
-	byte peekDataReg() const;
+	[[nodiscard]] byte readStatusReg() const;
+	[[nodiscard]] byte peekStatusReg() const;
+	[[nodiscard]] byte readDataReg();
+	[[nodiscard]] byte peekDataReg() const;
 	void writeControlReg(byte value, EmuTime::param time);
 	void writeDataReg   (byte value, EmuTime::param time);
 
@@ -33,8 +33,8 @@ private:
 	void setDataFormat();
 
 	// MidiInConnector
-	bool ready() override;
-	bool acceptsData() override;
+	[[nodiscard]] bool ready() override;
+	[[nodiscard]] bool acceptsData() override;
 	void setDataBits(DataBits bits) override;
 	void setStopBits(StopBits bits) override;
 	void setParityBit(bool enable, ParityBit parity) override;

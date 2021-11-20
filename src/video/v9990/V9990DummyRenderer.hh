@@ -9,7 +9,7 @@ class V9990DummyRenderer final : public V9990Renderer
 {
 public:
 	// V9990Renderer interface:
-	PostProcessor* getPostProcessor() const override;
+	[[nodiscard]] PostProcessor* getPostProcessor() const override;
 	void reset(EmuTime::param time) override;
 	void frameStart(EmuTime::param time) override;
 	void frameEnd(EmuTime::param time) override;

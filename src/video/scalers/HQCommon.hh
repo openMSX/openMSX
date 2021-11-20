@@ -7,6 +7,7 @@
 #include "PixelOperations.hh"
 #include "endian.hh"
 #include "vla.hh"
+#include "xrange.hh"
 #include "build-info.hh"
 #include <algorithm>
 #include <cassert>
@@ -14,11 +15,11 @@
 
 namespace openmsx {
 
-template <typename Pixel>
-static inline uint32_t readPixel(Pixel p)
+template<typename Pixel>
+[[nodiscard]] inline uint32_t readPixel(Pixel p)
 {
 	// TODO: Use surface info instead.
-	if (sizeof(Pixel) == 2) {
+	if constexpr (sizeof(Pixel) == 2) {
 		return ((p & 0xF800) << 8) |
 		       ((p & 0x07C0) << 5) | // drop lowest green bit
 		       ((p & 0x001F) << 3);
@@ -27,11 +28,11 @@ static inline uint32_t readPixel(Pixel p)
 	}
 }
 
-template <typename Pixel>
-static inline Pixel writePixel(uint32_t p)
+template<typename Pixel>
+inline Pixel writePixel(uint32_t p)
 {
 	// TODO: Use surface info instead.
-	if (sizeof(Pixel) == 2) {
+	if constexpr (sizeof(Pixel) == 2) {
 		return ((p & 0xF80000) >> 8) |
 		       ((p & 0x00FC00) >> 5) |
 		       ((p & 0x0000F8) >> 3);
@@ -48,7 +49,7 @@ public:
 	{
 	}
 
-	inline bool operator()(uint32_t c1, uint32_t c2) const
+	[[nodiscard]] inline bool operator()(uint32_t c1, uint32_t c2) const
 	{
 		if (c1 == c2) return false;
 
@@ -84,7 +85,7 @@ private:
 template<typename Pixel>
 EdgeHQ createEdgeHQ(const PixelOperations<Pixel>& pixelOps)
 {
-	if (sizeof(Pixel) == 2) {
+	if constexpr (sizeof(Pixel) == 2) {
 		return EdgeHQ(0, 8, 16);
 	} else {
 		return EdgeHQ(pixelOps.getRshift(),
@@ -95,13 +96,13 @@ EdgeHQ createEdgeHQ(const PixelOperations<Pixel>& pixelOps)
 
 struct EdgeHQLite
 {
-	inline bool operator()(uint32_t c1, uint32_t c2) const
+	[[nodiscard]] inline bool operator()(uint32_t c1, uint32_t c2) const
 	{
 		return c1 != c2;
 	}
 };
 
-template <typename EdgeOp>
+template<typename EdgeOp>
 void calcEdgesGL(const uint32_t* __restrict curr, const uint32_t* __restrict next,
                  Endian::L32* __restrict edges2, EdgeOp edgeOp)
 {
@@ -151,7 +152,7 @@ void calcEdgesGL(const uint32_t* __restrict curr, const uint32_t* __restrict nex
 	Pixel c8 = next[0];
 	if (edgeOp(c5, c8)) pattern |= 0x1800'0000; // edges: 9,D (right pixel)
 
-	for (unsigned xx = 0; xx < (320 - 2) / 2; ++xx) {
+	for (auto xx : xrange((320 - 2) / 2)) {
 		pattern = (pattern >> (16 + 9)) & 0x001C;   // edges: 6,D,9 -> 4,7,C        (left pixel)
 		pattern |= (edges2[xx] << 3) & 0xC460'C460; // edges C,8,D,7,9 -> 1,2,3,A,B (left and right)
 
@@ -187,8 +188,8 @@ void calcEdgesGL(const uint32_t* __restrict curr, const uint32_t* __restrict nex
 	edges2[159] = pattern;
 }
 
-template <typename Pixel, typename EdgeOp>
-static void calcInitialEdges(
+template<typename Pixel, typename EdgeOp>
+void calcInitialEdges(
 	const Pixel* __restrict srcPrev, const Pixel* __restrict srcCurr,
 	unsigned srcWidth, unsigned* __restrict edgeBuf, EdgeOp edgeOp)
 {
@@ -211,8 +212,8 @@ static void calcInitialEdges(
 	edgeBuf[x] = pattern;
 }
 
-template <typename Pixel, typename HQScale, typename EdgeOp>
-static void doHQScale2(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& postScale,
+template<typename Pixel, typename HQScale, typename EdgeOp>
+void doHQScale2(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& postScale,
 	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
 {
@@ -252,8 +253,8 @@ static void doHQScale2(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& po
 	}
 }
 
-template <typename Pixel, typename HQScale, typename EdgeOp>
-static void doHQScale3(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& postScale,
+template<typename Pixel, typename HQScale, typename EdgeOp>
+void doHQScale3(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& postScale,
 	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
 {

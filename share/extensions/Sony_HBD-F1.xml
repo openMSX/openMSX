@@ -9,15 +9,16 @@
     <description>External Double Sided Double Density 3.5" disk drive.</description>
     <type>external disk drive</type>
   </info>
+  <!-- based on the unit of Peter Hanraets with serial number 209967 -->
   <devices>
     <primary slot="any">
       <secondary slot="any">
         <WD2793 id="Sony HBD-F1 diskROM/FDC">
           <connectionstyle>Philips</connectionstyle>
           <motor_off_timeout_ms>4000</motor_off_timeout_ms>
-          <mem base="0x4000" size="0x4000"/>
+          <mem base="0x4000" size="0x8000"/> <!-- registers on page 1 and 2 -->
           <rom>
-            <sha1>e067ce2b444ec7a3dd45d9e2df4b34c1ba732872</sha1>
+            <sha1>12f2cc79b3d09723840bae774be48c0d721ec1c6</sha1>
             <filename>hbd-f1.rom</filename>
           </rom>
           <drives>1</drives>

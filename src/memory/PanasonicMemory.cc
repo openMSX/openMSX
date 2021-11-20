@@ -11,28 +11,21 @@
 
 namespace openmsx {
 
-static std::unique_ptr<Rom> createRom(MSXMotherBoard& motherBoard)
-{
-	const XMLElement* elem = motherBoard.getMachineConfig()->
-	                      getConfig().findChild("PanasonicRom");
-	if (!elem) return nullptr;
-
-	const HardwareConfig* hwConf = motherBoard.getMachineConfig();
-	assert(hwConf);
-	return std::make_unique<Rom>(
-		"PanasonicRom", "Turbor-R main ROM",
-		DeviceConfig(*hwConf, *elem));
-}
-
 PanasonicMemory::PanasonicMemory(MSXMotherBoard& motherBoard)
 	: msxcpu(motherBoard.getCPU())
-	, rom(createRom(motherBoard))
-	, ram(nullptr), ramSize(0)
-	, dram(false)
+	, rom([&]() -> std::optional<Rom> {
+		const auto* elem = motherBoard.getMachineConfig()->
+				getConfig().findChild("PanasonicRom");
+		if (!elem) return std::nullopt;
+
+		const HardwareConfig* hwConf = motherBoard.getMachineConfig();
+		assert(hwConf);
+		return std::optional<Rom>(std::in_place,
+			"PanasonicRom", "Turbor-R main ROM",
+			DeviceConfig(*hwConf, *elem));
+	}())
 {
 }
-
-PanasonicMemory::~PanasonicMemory() = default;
 
 void PanasonicMemory::registerRam(Ram& ram_)
 {

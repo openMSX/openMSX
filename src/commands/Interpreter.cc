@@ -18,13 +18,16 @@
 #include <cstdint>
 //#include <tk.h>
 
-using std::string;
-using std::vector;
-
 namespace openmsx {
 
 // See comments in traceProc()
-static std::vector<std::pair<uintptr_t, BaseSetting*>> traces; // sorted on first
+namespace {
+	struct Trace {
+		uintptr_t id;
+		BaseSetting* setting;
+	};
+}
+static std::vector<Trace> traces; // sorted on id
 static uintptr_t traceCount = 0;
 
 
@@ -142,7 +145,14 @@ int Interpreter::outputProc(ClientData clientData, const char* buf,
 	return toWrite;
 }
 
-void Interpreter::registerCommand(const string& name, Command& command)
+bool Interpreter::hasCommand(zstring_view name) const
+{
+	// Note: these are not only the commands registered via
+	// registerCommand(), but all commands know to this Tcl-interpreter.
+	return Tcl_FindCommand(interp, name.c_str(), nullptr, 0);
+}
+
+void Interpreter::registerCommand(zstring_view name, Command& command)
 {
 	auto token = Tcl_CreateObjCommand(
 		interp, name.c_str(), commandProc,
@@ -167,7 +177,7 @@ int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
 		TclObject result;
 		try {
 			if (!command.isAllowedInEmptyMachine()) {
-				if (auto controller =
+				if (auto* controller =
 					dynamic_cast<MSXCommandController*>(
 						&command.getCommandController())) {
 					if (!controller->getMSXMotherBoard().getMachineConfig()) {
@@ -198,12 +208,12 @@ TclObject Interpreter::getCommandNames()
 	return execute("openmsx::all_command_names");
 }
 
-bool Interpreter::isComplete(const string& command) const
+bool Interpreter::isComplete(zstring_view command) const
 {
 	return Tcl_CommandComplete(command.c_str()) != 0;
 }
 
-TclObject Interpreter::execute(const string& command)
+TclObject Interpreter::execute(zstring_view command)
 {
 	int success = Tcl_Eval(interp, command.c_str());
 	if (success != TCL_OK) {
@@ -212,7 +222,7 @@ TclObject Interpreter::execute(const string& command)
 	return TclObject(Tcl_GetObjResult(interp));
 }
 
-TclObject Interpreter::executeFile(const string& filename)
+TclObject Interpreter::executeFile(zstring_view filename)
 {
 	int success = Tcl_EvalFile(interp, filename.c_str());
 	if (success != TCL_OK) {
@@ -252,11 +262,10 @@ void Interpreter::unsetVariable(const char* name)
 
 static TclObject getSafeValue(BaseSetting& setting)
 {
-	try {
-		return setting.getValue();
-	} catch (MSXException&) {
-		return TclObject(0); // 'safe' value, see comment in registerSetting()
+	if (auto val = setting.getOptionalValue()) {
+		return *val;
 	}
+	return TclObject(0); // 'safe' value, see comment in registerSetting()
 }
 void Interpreter::registerSetting(BaseSetting& variable)
 {
@@ -304,7 +313,7 @@ void Interpreter::registerSetting(BaseSetting& variable)
 	// problems. TODO investigate this further.
 
 	uintptr_t traceID = traceCount++;
-	traces.emplace_back(traceID, &variable); // still in sorted order
+	traces.emplace_back(Trace{traceID, &variable}); // still in sorted order
 	Tcl_TraceVar(interp, name.getString().data(), // 0-terminated
 	             TCL_TRACE_READS | TCL_TRACE_WRITES | TCL_TRACE_UNSETS,
 	             traceProc, reinterpret_cast<ClientData>(traceID));
@@ -312,8 +321,8 @@ void Interpreter::registerSetting(BaseSetting& variable)
 
 void Interpreter::unregisterSetting(BaseSetting& variable)
 {
-	auto it = rfind_if_unguarded(traces, EqualTupleValue<1>(&variable));
-	uintptr_t traceID = it->first;
+	auto it = rfind_unguarded(traces, &variable, &Trace::setting);
+	uintptr_t traceID = it->id;
 	traces.erase(it);
 
 	const char* name = variable.getFullName().data(); // 0-terminated
@@ -325,9 +334,9 @@ void Interpreter::unregisterSetting(BaseSetting& variable)
 
 static BaseSetting* getTraceSetting(uintptr_t traceID)
 {
-	auto it = ranges::lower_bound(traces, traceID, LessTupleElement<0>());
-	return ((it != end(traces)) && (it->first == traceID))
-		? it->second : nullptr;
+	auto it = ranges::lower_bound(traces, traceID, {}, &Trace::id);
+	return ((it != end(traces)) && (it->id == traceID))
+		? it->setting : nullptr;
 }
 
 #ifndef NDEBUG
@@ -379,7 +388,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 		const TclObject& part1Obj = variable->getFullNameObj();
 		assert(removeColonColon(part1) == removeColonColon(part1Obj.getString()));
 
-		static string static_string;
+		static std::string static_string;
 		if (flags & TCL_TRACE_READS) {
 			try {
 				setVar(interp, part1Obj, variable->getValue());
@@ -430,12 +439,12 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 
 void Interpreter::createNamespace(const std::string& name)
 {
-	execute(strCat("namespace eval ", name, " {}"));
+	execute(tmpStrCat("namespace eval ", name, " {}"));
 }
 
 void Interpreter::deleteNamespace(const std::string& name)
 {
-	execute("namespace delete " + name);
+	execute(tmpStrCat("namespace delete ", name));
 }
 
 void Interpreter::poll()

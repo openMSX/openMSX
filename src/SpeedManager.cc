@@ -1,8 +1,5 @@
 #include "SpeedManager.hh"
 
-#include "CommandController.hh"
-
-
 namespace openmsx {
 
 // class SpeedManager:
@@ -40,7 +37,7 @@ void SpeedManager::updateSpeed()
 	notify();
 }
 
-void SpeedManager::update(const Setting& /*setting*/)
+void SpeedManager::update(const Setting& /*setting*/) noexcept
 {
 	updateSpeed();
 }

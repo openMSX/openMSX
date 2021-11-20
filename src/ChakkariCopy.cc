@@ -37,8 +37,8 @@
 // buttons are no longer working. In this case CALL SCHANGE switches the BIOS
 // to the patched version again.
 //
-// In case a program switches screen modes in a way that prevents Chakkara Copy
-// from detecting the correct parameters Chakkara Copy can be started by
+// In case a program switches screen modes in a way that prevents Chakkari Copy
+// from detecting the correct parameters Chakkari Copy can be started by
 // keeping the COPY button pressed. In this case the screen-mode autodetect
 // will be skipped and the parameters can be entered manually.
 // This appears to be an undocumented feature, confirmed by typos and a very
@@ -207,7 +207,7 @@ byte* ChakkariCopy::getWriteCacheLine(word address) const
 	return unmappedWrite;
 }
 
-void ChakkariCopy::update(const Setting& /*setting*/)
+void ChakkariCopy::update(const Setting& /*setting*/) noexcept
 {
 	// switch COPY <-> RAM mode, memory layout changes
 	invalidateDeviceRWCache();
@@ -220,7 +220,7 @@ void ChakkariCopy::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("biosRam", biosRam,
 	             "workRam", workRam,
 	             "reg", reg);
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		writeIO(0, reg, getCurrentTime());
 	}
 

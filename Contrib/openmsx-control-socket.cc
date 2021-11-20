@@ -228,7 +228,7 @@ void OpenMSXComm::parseUpdate(const char** attrs)
 	}
 }
 
-void OpenMSXComm::cb_end_element(OpenMSXComm* comm, const xmlChar* name)
+void OpenMSXComm::cb_end_element(OpenMSXComm* comm, const xmlChar* /*name*/)
 {
 	if (comm->unknownLevel) {
 		--(comm->unknownLevel);
@@ -264,6 +264,9 @@ void OpenMSXComm::doReply()
 		case REPLY_NOK:
 			cout << "ERR: ";
 			break;
+		case REPLY_UNKNOWN:
+			// ignore
+			break;
 	}
 	cout << commandStack.front() << endl;
 	commandStack.pop_front();
@@ -280,6 +283,9 @@ void OpenMSXComm::doLog()
 			break;
 		case LOG_WARNING:
 			cout << "WARNING: ";
+			break;
+		case LOG_UNKNOWN:
+			// ignore
 			break;
 	}
 	cout << content << endl;

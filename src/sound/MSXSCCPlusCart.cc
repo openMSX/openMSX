@@ -7,20 +7,70 @@
 #include "FileException.hh"
 #include "XMLElement.hh"
 #include "CacheLine.hh"
+#include "Math.hh"
+#include "enumerate.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
+static auto getMapperConfig(const DeviceConfig& config)
+{
+	MSXSCCPlusCart::MapperConfig result;
+
+	std::string_view subtype = config.getChildData("subtype", "expanded");
+	if (subtype == "Snatcher") {
+		// blocks 0-7 in use, 8-15 unmapped, others are mirrored
+		result.numBlocks = 8; // 64kB
+		result.registerMask = 0b0000'1111; // ignore upper 4 bits
+		result.registerOffset = 0; // start at block 0
+	} else if (subtype == "SD-Snatcher") {
+		// blocks 0-7 unmapped, 8-15 in use, others are mirrored
+		result.numBlocks = 8; // 64kB
+		result.registerMask = 0b0000'1111; // ignore upper 4 bits
+		result.registerOffset = 8; // start at block 8
+	} else if (subtype == "mirrored") {
+		// blocks 0-7 in use, others are mirrored
+		result.numBlocks = 8; // 64kB
+		result.registerMask = 0b0000'0111; // ignore upper 5 bits
+		result.registerOffset = 0; // start at block 0
+	} else if (subtype == "Popolon") {
+		// this subtype supports configurable size (128, 256, 512, 1024, 2048)
+		unsigned ramSize = config.getChildDataAsInt("size", 2048);
+		if (!Math::ispow2(ramSize)) {
+			throw MSXException(
+				"Popolon type Sound Cartridge must have a power-of-2 RAM size: ",
+				ramSize);
+		}
+		if (ramSize < 128 || ramSize > 2048) {
+			throw MSXException(
+				"Popolon type Sound Cartridge must have a size between 128kB and 2048kB: ",
+				ramSize);
+		}
+		result.numBlocks = ramSize / 8;
+		result.registerMask = result.numBlocks - 1; // this assumes mirroring, correct?
+		result.registerOffset = 0; // start at block 0
+	} else {
+		// subtype "expanded", and all others
+		// blocks 0-15 in use, others are mirrored
+		result.numBlocks = 16; // 128kB
+		result.registerMask = 0b0000'1111; // ignore upper 4 bits
+		result.registerOffset = 0; // start at block 0
+	}
+	return result;
+}
+
+
 MSXSCCPlusCart::MSXSCCPlusCart(const DeviceConfig& config)
 	: MSXDevice(config)
-	, ram(config, getName() + " RAM", "SCC+ RAM", 0x20000)
+	, mapperConfig(getMapperConfig(config))
+	, ram(config, getName() + " RAM", "SCC+ RAM", mapperConfig.numBlocks * 0x2000)
 	, scc(getName(), config, getCurrentTime(), SCC::SCC_Compatible)
 	, romBlockDebug(*this, mapper, 0x4000, 0x8000, 13)
 {
-	if (const XMLElement* fileElem = config.findChild("filename")) {
+	if (const auto* fileElem = config.findChild("filename")) {
 		// read the rom file
-		const std::string& filename = fileElem->getData();
+		const auto& filename = fileElem->getData();
 		try {
 			File file(config.getFileContext().resolve(filename));
 			auto size = std::min<size_t>(file.getSize(), ram.getSize());
@@ -29,26 +79,6 @@ MSXSCCPlusCart::MSXSCCPlusCart(const DeviceConfig& config)
 			throw MSXException("Error reading file: ", filename);
 		}
 	}
-	std::string_view subtype = config.getChildData("subtype", "expanded");
-	if (subtype == "Snatcher") {
-		mapperMask = 0x0F;
-		lowRAM  = true;
-		highRAM = false;
-	} else if (subtype == "SD-Snatcher") {
-		mapperMask = 0x0F;
-		lowRAM  = false;
-		highRAM = true;
-	} else if (subtype == "mirrored") {
-		mapperMask = 0x07;
-		lowRAM  = true;
-		highRAM = true;
-	} else {
-		// subtype "expanded", and all others
-		mapperMask = 0x0F;
-		lowRAM  = true;
-		highRAM = true;
-	}
-
 	// make valgrind happy
 	ranges::fill(isRamSegment, true);
 	ranges::fill(mapper, 0);
@@ -75,14 +105,12 @@ void MSXSCCPlusCart::reset(EmuTime::param time)
 
 byte MSXSCCPlusCart::readMem(word addr, EmuTime::param time)
 {
-	byte result;
 	if (((enable == EN_SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
 	    ((enable == EN_SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
-		result = scc.readMem(addr & 0xFF, time);
+		return scc.readMem(addr & 0xFF, time);
 	} else {
-		result = MSXSCCPlusCart::peekMem(addr, time);
+		return MSXSCCPlusCart::peekMem(addr, time);
 	}
-	return result;
 }
 
 byte MSXSCCPlusCart::peekMem(word addr, EmuTime::param time) const
@@ -133,16 +161,16 @@ void MSXSCCPlusCart::writeMem(word address, byte value, EmuTime::param time)
 	}
 
 	// Write to RAM
-	int regio = (address >> 13) - 2;
-	if (isRamSegment[regio]) {
+	int region = (address >> 13) - 2;
+	if (isRamSegment[region]) {
 		// According to Sean Young
-		// when the regio's are in RAM mode you can read from
+		// when the regions are in RAM mode you can read from
 		// the SCC(+) but not write to them
 		// => we assume a write to the memory but maybe
 		//    they are just discarded
 		// TODO check this out => ask Sean...
-		if (isMapped[regio]) {
-			internalMemoryBank[regio][address & 0x1FFF] = value;
+		if (isMapped[region]) {
+			internalMemoryBank[region][address & 0x1FFF] = value;
 		}
 		return;
 	}
@@ -155,7 +183,7 @@ void MSXSCCPlusCart::writeMem(word address, byte value, EmuTime::param time)
 	 *   bank 4: 0xB000 - 0xB7FF (0xB000 used)
 	 */
 	if ((address & 0x1800) == 0x1000) {
-		setMapper(regio, value);
+		setMapper(region, value);
 		return;
 	}
 
@@ -183,9 +211,9 @@ byte* MSXSCCPlusCart::getWriteCacheLine(word start) const
 		if (start == (0xBFFF & CacheLine::HIGH)) {
 			return nullptr;
 		}
-		int regio = (start >> 13) - 2;
-		if (isRamSegment[regio] && isMapped[regio]) {
-			return &internalMemoryBank[regio][start & 0x1FFF];
+		int region = (start >> 13) - 2;
+		if (isRamSegment[region] && isMapped[region]) {
+			return &internalMemoryBank[region][start & 0x1FFF];
 		}
 		return nullptr;
 	}
@@ -193,24 +221,25 @@ byte* MSXSCCPlusCart::getWriteCacheLine(word start) const
 }
 
 
-void MSXSCCPlusCart::setMapper(int regio, byte value)
+void MSXSCCPlusCart::setMapper(int region, byte value)
 {
-	mapper[regio] = value;
-	value &= mapperMask;
+	mapper[region] = value;
 
-	byte* block;
-	if ((!lowRAM  && (value <  8)) ||
-	    (!highRAM && (value >= 8))) {
-		block = unmappedRead;
-		isMapped[regio] = false;
-	} else {
-		block = &ram[0x2000 * value];
-		isMapped[regio] = true;
-	}
+	value &= mapperConfig.registerMask;
+	value -= mapperConfig.registerOffset;
+	byte* block = [&] {
+		if (value < mapperConfig.numBlocks) {
+			isMapped[region] = true;
+			return &ram[0x2000 * value];
+		} else {
+			isMapped[region] = false;
+			return unmappedRead;
+		}
+	}();
 
 	checkEnable(); // invalidateDeviceRWCache() done below
-	internalMemoryBank[regio] = block;
-	invalidateDeviceRWCache(0x4000 + regio * 0x2000, 0x2000);
+	internalMemoryBank[region] = block;
+	invalidateDeviceRWCache(0x4000 + region * 0x2000, 0x2000);
 }
 
 void MSXSCCPlusCart::setModeRegister(byte value)
@@ -253,24 +282,15 @@ void MSXSCCPlusCart::checkEnable()
 template<typename Archive>
 void MSXSCCPlusCart::serialize(Archive& ar, unsigned /*version*/)
 {
-	// These are constants:
-	//   mapperMask, lowRAM, highRAM
-
-	// only serialize that part of the Ram object that's actually
-	// present in the cartridge
-	unsigned ramSize = (lowRAM && highRAM && (mapperMask == 0xF))
-	                 ? 0x20000 : 0x10000;
-	unsigned ramBase = lowRAM ? 0x00000 : 0x10000;
-	ar.serialize_blob("ram", &ram[ramBase], ramSize);
-
+	ar.serialize_blob("ram", &ram[0], ram.getSize());
 	ar.serialize("scc",    scc,
 	             "mapper", mapper,
 	             "mode",   modeRegister);
 
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		// recalculate: isMapped[4], internalMemoryBank[4]
-		for (int i = 0; i < 4; ++i) {
-			setMapper(i, mapper[i]);
+		for (auto [i, m] : enumerate(mapper)) {
+			setMapper(int(i), m);
 		}
 		// recalculate: enable, isRamSegment[4]
 		setModeRegister(modeRegister);

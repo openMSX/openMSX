@@ -11,13 +11,13 @@
 #include <cassert>
 
 template<typename TO, typename FROM>
-[[nodiscard]] static TO checked_cast(FROM* from)
+[[nodiscard]] constexpr TO checked_cast(FROM* from)
 {
 	assert(dynamic_cast<TO>(from) == static_cast<TO>(from));
 	return static_cast<TO>(from);
 }
 template<typename TO, typename FROM>
-[[nodiscard]] static TO checked_cast(FROM& from)
+[[nodiscard]] constexpr TO checked_cast(FROM& from)
 {
 	using TO_PTR = std::remove_reference_t<TO>*;
 	TO_PTR* suppress_warning = nullptr; (void)suppress_warning;

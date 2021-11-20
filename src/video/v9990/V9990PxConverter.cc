@@ -104,7 +104,7 @@ static unsigned getPatternAddress(
 }
 
 template<typename Policy>
-static unsigned nextNameAddr(unsigned addr)
+static constexpr unsigned nextNameAddr(unsigned addr)
 {
 	constexpr auto MASK = (2 * Policy::NAME_CHARS) - 1;
 	return (addr & ~MASK) | ((addr + 2) & MASK);
@@ -128,20 +128,20 @@ static void draw2(
 template<typename Policy, typename Pixel>
 static void renderPattern(
 	V9990VRAM& vram, Pixel* __restrict buffer, byte* __restrict info,
-	Pixel bgcol, int width, unsigned x, unsigned y,
+	Pixel bgCol, int width, unsigned x, unsigned y,
 	unsigned nameTable, unsigned patternBase, const Pixel* palette0, const Pixel* palette1)
 {
 	assert(x < Policy::IMAGE_WIDTH);
 	if (width == 0) return;
 
 	std::optional<ScopedAssign<Pixel>> col0, col1; // optimized away when not used
-	if (Policy::DRAW_BACKDROP) {
+	if constexpr (Policy::DRAW_BACKDROP) {
 		// Speedup drawing by temporarily replacing palette index 0.
 		// OK because palette0 and palette1 never partially overlap, IOW either:
 		// - palette0 == palette1           (fully overlap)
 		// - abs(palette0 - palette1) >= 16 (no overlap at all)
-		col0.emplace(const_cast<Pixel*>(palette0)[0], bgcol);
-		col1.emplace(const_cast<Pixel*>(palette1)[0], bgcol);
+		col0.emplace(const_cast<Pixel*>(palette0)[0], bgCol);
+		col1.emplace(const_cast<Pixel*>(palette1)[0], bgCol);
 	}
 
 	unsigned nameAddr = nameTable + (((y / 8) * Policy::NAME_CHARS + (x / 8)) * 2);
@@ -184,12 +184,12 @@ static void renderPattern(
 
 template<typename Policy, typename Pixel> // only used for P1
 static void renderPattern2(
-	V9990VRAM& vram, Pixel* buffer, byte* info, Pixel bgcol, unsigned width1, unsigned width2,
+	V9990VRAM& vram, Pixel* buffer, byte* info, Pixel bgCol, unsigned width1, unsigned width2,
 	unsigned displayAX, unsigned displayAY, unsigned nameA, unsigned patternA, const Pixel* palA,
 	unsigned displayBX, unsigned displayBY, unsigned nameB, unsigned patternB, const Pixel* palB)
 {
 	renderPattern<Policy>(
-		vram, buffer, info, bgcol, width1,
+		vram, buffer, info, bgCol, width1,
 		displayAX, displayAY, nameA, patternA, palA, palA);
 
 	buffer += width1;
@@ -198,7 +198,7 @@ static void renderPattern2(
 	displayBX = (displayBX + width1) & 511;
 
 	renderPattern<Policy>(
-		vram, buffer, info, bgcol, width2,
+		vram, buffer, info, bgCol, width2,
 		displayBX, displayBY, nameB, patternB, palB, palB);
 }
 
@@ -214,7 +214,7 @@ static void renderSprites(
 	int visibleSprites[16 + 1];
 	int index = 0;
 	int index_max = 16;
-	for (unsigned sprite = 0; sprite < 125; ++sprite) {
+	for (auto sprite : xrange(125)) {
 		unsigned spriteInfo = spriteTable + 4 * sprite;
 		byte spriteY = Policy::readSpriteAttr(vram, spriteInfo) + 1;
 		byte posY = displayY - spriteY;
@@ -291,12 +291,12 @@ void V9990P1Converter<Pixel>::convertLine(
 	unsigned end1 = std::max<int>(0, std::min<int>(prioX, displayEnd) - displayX);
 
 	// background + backdrop color
-	Pixel bgcol = palette64[vdp.getBackDropColor()];
+	Pixel bgCol = palette64[vdp.getBackDropColor()];
 	byte offset = vdp.getPaletteOffset();
 	const Pixel* palA = palette64 + ((offset & 0x03) << 4);
 	const Pixel* palB = palette64 + ((offset & 0x0C) << 2);
 	renderPattern2<P1BackgroundPolicy>(
-		vram, linePtr, nullptr, bgcol, end1, displayWidth,
+		vram, linePtr, nullptr, bgCol, end1, displayWidth,
 		displayBX, displayBY, 0x7E000, 0x40000, palB,
 		displayAX, displayAY, 0x7C000, 0x00000, palA);
 
@@ -305,7 +305,7 @@ void V9990P1Converter<Pixel>::convertLine(
 	byte info[256]; // left uninitialized
 	                // 0->background, 1->foreground, 2->sprite (front or back)
 	renderPattern2<P1ForegroundPolicy>(
-		vram, linePtr, info, bgcol, end1, displayWidth,
+		vram, linePtr, info, bgCol, end1, displayWidth,
 		displayAX, displayAY, 0x7C000, 0x00000, palA,
 		displayBX, displayBY, 0x7E000, 0x40000, palB);
 
@@ -336,12 +336,12 @@ void V9990P2Converter<Pixel>::convertLine(
 	assert(displayWidth <= 512);
 	byte info[512]; // left uninitialized
 	                // 0->background, 1->foreground, 2->sprite (front or back)
-	Pixel bgcol = palette64[vdp.getBackDropColor()];
+	Pixel bgCol = palette64[vdp.getBackDropColor()];
 	byte offset = vdp.getPaletteOffset();
 	const Pixel* palette0 = palette64 + ((offset & 0x03) << 4);
 	const Pixel* palette1 = palette64 + ((offset & 0x0C) << 2);
 	renderPattern<P2Policy>(
-		vram, linePtr, info, bgcol, displayWidth,
+		vram, linePtr, info, bgCol, displayWidth,
 		displayAX, displayAY, 0x7C000, 0x00000, palette0, palette1);
 
 	// combined back+front sprite plane

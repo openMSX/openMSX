@@ -2,17 +2,33 @@
 #define SIMPLE3XSCALER_HH
 
 #include "Scaler3.hh"
+#include "Multiply32.hh"
 #include "PixelOperations.hh"
 #include "Scanline.hh"
-#include <memory>
 
 namespace openmsx {
 
 class RenderSettings;
-template <class Pixel> class Blur_1on3;
-template <class Pixel> class PolyLineScaler;
+template<typename Pixel> class PolyLineScaler;
 
-template <class Pixel>
+template<typename Pixel> class Blur_1on3
+{
+public:
+	explicit Blur_1on3(const PixelOperations<Pixel>& pixelOps);
+	inline void setBlur(unsigned blur_) { blur = blur_; }
+	void operator()(const Pixel* in, Pixel* out, size_t dstWidth);
+private:
+	Multiply32<Pixel> mult0;
+	Multiply32<Pixel> mult1;
+	Multiply32<Pixel> mult2;
+	Multiply32<Pixel> mult3;
+	unsigned blur;
+#ifdef __SSE2__
+	void blur_SSE(const Pixel* in_, Pixel* out_, size_t srcWidth);
+#endif
+};
+
+template<typename Pixel>
 class Simple3xScaler final : public Scaler3<Pixel>
 {
 public:
@@ -31,11 +47,11 @@ private:
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
 	void scale2x1to9x3(FrameSource& src,
-		unsigned srcstarty, unsigned srcendy, unsigned srcwidth,
-		ScalerOutput<Pixel>& dst, unsigned dststarty, unsigned dstendy) override;
+		unsigned srcStartY, unsigned srcEndY, unsigned srcwidth,
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
 	void scale2x2to9x3(FrameSource& src,
-		unsigned srcstarty, unsigned srcendy, unsigned srcwidth,
-		ScalerOutput<Pixel>& dst, unsigned dststarty, unsigned dstendy) override;
+		unsigned srcStartY, unsigned srcEndY, unsigned srcwidth,
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
 	void scale1x1to3x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
@@ -76,11 +92,12 @@ private:
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY,
 		PolyLineScaler<Pixel>& scale);
 
+private:
 	PixelOperations<Pixel> pixelOps;
 	Scanline<Pixel> scanline;
 
 	// in 16bpp calculation of LUTs can be expensive, so keep as member
-	std::unique_ptr<Blur_1on3<Pixel>> blur_1on3;
+	Blur_1on3<Pixel> blur_1on3;
 
 	const RenderSettings& settings;
 };

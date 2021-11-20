@@ -18,80 +18,64 @@ ToshibaFDC::ToshibaFDC(const DeviceConfig& config)
 
 byte ToshibaFDC::readMem(word address, EmuTime::param time)
 {
-	byte value;
 	switch (address) {
 	case 0x7FF0:
-		value = controller.getStatusReg(time);
-		break;
+		return controller.getStatusReg(time);
 	case 0x7FF1:
-		value = controller.getTrackReg(time);
-		break;
+		return controller.getTrackReg(time);
 	case 0x7FF2:
-		value = controller.getSectorReg(time);
-		break;
+		return controller.getSectorReg(time);
 	case 0x7FF3:
-		value = controller.getDataReg(time);
-		break;
+		return controller.getDataReg(time);
 	case 0x7FF6:
-		value = 0xFE | (multiplexer.diskChanged() ? 0 : 1);
-		break;
-	case 0x7FF7:
-		value = 0xFF;
+		return 0xFE | (multiplexer.diskChanged() ? 0 : 1);
+	case 0x7FF7: {
+		byte value = 0xFF;
 		if (controller.getIRQ(time))  value &= ~0x40;
 		if (controller.getDTRQ(time)) value &= ~0x80;
-		break;
-	default:
-		value = ToshibaFDC::peekMem(address, time);
-		break;
+		return value;
 	}
-	return value;
+	default:
+		return ToshibaFDC::peekMem(address, time);
+	}
 }
 
 byte ToshibaFDC::peekMem(word address, EmuTime::param time) const
 {
-	byte value;
 	switch (address) { // checked on real HW: no mirroring
 	case 0x7FF0:
-		value = controller.peekStatusReg(time);
-		break;
+		return controller.peekStatusReg(time);
 	case 0x7FF1:
-		value = controller.peekTrackReg(time);
-		break;
+		return controller.peekTrackReg(time);
 	case 0x7FF2:
-		value = controller.peekSectorReg(time);
-		break;
+		return controller.peekSectorReg(time);
 	case 0x7FF3:
-		value = controller.peekDataReg(time);
-		break;
+		return controller.peekDataReg(time);
 	case 0x7FF4:
 		// ToshibaFDC HX-F101 disk ROM doesn't read this, but HX-34
 		// does. No idea if this location is actually readable on
 		// HX-F101, but currently the emulation is the same for both.
-		value = 0xFC
+		return 0xFC
 		      | (multiplexer.getSide() ? 1 : 0)
 		      | (multiplexer.getMotor() ? 2 : 0);
-		break;
 	case 0x7FF5:
-		value = 0xFE | ((multiplexer.getSelectedDrive() == DriveMultiplexer::DRIVE_B) ? 1 : 0);
-		break;
+		return 0xFE | ((multiplexer.getSelectedDrive() == DriveMultiplexer::DRIVE_B) ? 1 : 0);
 	case 0x7FF6:
-		value = 0xFE | (multiplexer.peekDiskChanged() ? 0 : 1);
-		break;
-	case 0x7FF7:
-		value = 0xFF; // unused bits read as 1
+		return 0xFE | (multiplexer.peekDiskChanged() ? 0 : 1);
+	case 0x7FF7: {
+		byte value = 0xFF; // unused bits read as 1
 		if (controller.peekIRQ(time))  value &= ~0x40;
 		if (controller.peekDTRQ(time)) value &= ~0x80;
-		break;
+		return value;
+	}
 	default:
 		if (0x4000 <= address && address < 0x8000) {
 			// ROM only visible in 0x4000-0x7FFF.
-			value = MSXFDC::peekMem(address, time);
+			return MSXFDC::peekMem(address, time);
 		} else {
-			value = 0xFF;
+			return 0xFF;
 		}
-		break;
 	}
-	return value;
 }
 
 const byte* ToshibaFDC::getReadCacheLine(word start) const

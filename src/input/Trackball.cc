@@ -1,9 +1,8 @@
 #include "Trackball.hh"
 #include "MSXEventDistributor.hh"
 #include "StateChangeDistributor.hh"
-#include "InputEvents.hh"
+#include "Event.hh"
 #include "StateChange.hh"
-#include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include <algorithm>
@@ -17,9 +16,6 @@
 //   seems to work now, though the detailed behaviour is still not tested
 //   against the real hardware.
 
-using std::string;
-using std::shared_ptr;
-
 namespace openmsx {
 
 class TrackballState final : public StateChange
@@ -31,10 +27,10 @@ public:
 		: StateChange(time_)
 		, deltaX(deltaX_), deltaY(deltaY_)
 		, press(press_), release(release_) {}
-	int  getDeltaX()  const { return deltaX; }
-	int  getDeltaY()  const { return deltaY; }
-	byte getPress()   const { return press; }
-	byte getRelease() const { return release; }
+	[[nodiscard]] int  getDeltaX()  const { return deltaX; }
+	[[nodiscard]] int  getDeltaY()  const { return deltaY; }
+	[[nodiscard]] byte getPress()   const { return press; }
+	[[nodiscard]] byte getRelease() const { return release; }
 
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
@@ -73,10 +69,9 @@ Trackball::~Trackball()
 
 
 // Pluggable
-const string& Trackball::getName() const
+std::string_view Trackball::getName() const
 {
-	static const string name("trackball");
-	return name;
+	return "trackball";
 }
 
 std::string_view Trackball::getDescription() const
@@ -189,7 +184,7 @@ void Trackball::syncCurrentWithTarget(EmuTime::param time)
 
 	static constexpr auto INTERVAL = EmuDuration::msec(1);
 
-	int maxSteps = (time - lastSync) / INTERVAL;
+	auto maxSteps = (time - lastSync) / INTERVAL;
 	lastSync += INTERVAL * maxSteps;
 
 	if (targetDeltaX >= currentDeltaX) {
@@ -205,67 +200,59 @@ void Trackball::syncCurrentWithTarget(EmuTime::param time)
 }
 
 // MSXEventListener
-void Trackball::signalMSXEvent(const shared_ptr<const Event>& event,
-                               EmuTime::param time)
+void Trackball::signalMSXEvent(const Event& event,
+                               EmuTime::param time) noexcept
 {
-	switch (event->getType()) {
-	case OPENMSX_MOUSE_MOTION_EVENT: {
-		auto& mev = checked_cast<const MouseMotionEvent&>(*event);
-		constexpr int SCALE = 2;
-		int dx = mev.getX() / SCALE;
-		int dy = mev.getY() / SCALE;
-		if ((dx != 0) || (dy != 0)) {
-			createTrackballStateChange(time, dx, dy, 0, 0);
-		}
-		break;
-	}
-	case OPENMSX_MOUSE_BUTTON_DOWN_EVENT: {
-		auto& butEv = checked_cast<const MouseButtonEvent&>(*event);
-		switch (butEv.getButton()) {
-		case MouseButtonEvent::LEFT:
-			createTrackballStateChange(time, 0, 0, JOY_BUTTONA, 0);
-			break;
-		case MouseButtonEvent::RIGHT:
-			createTrackballStateChange(time, 0, 0, JOY_BUTTONB, 0);
-			break;
-		default:
-			// ignore other buttons
-			break;
-		}
-		break;
-	}
-	case OPENMSX_MOUSE_BUTTON_UP_EVENT: {
-		auto& butEv = checked_cast<const MouseButtonEvent&>(*event);
-		switch (butEv.getButton()) {
-		case MouseButtonEvent::LEFT:
-			createTrackballStateChange(time, 0, 0, 0, JOY_BUTTONA);
-			break;
-		case MouseButtonEvent::RIGHT:
-			createTrackballStateChange(time, 0, 0, 0, JOY_BUTTONB);
-			break;
-		default:
-			// ignore other buttons
-			break;
-		}
-		break;
-	}
-	default:
-		// ignore
-		break;
-	}
+	visit(overloaded{
+		[&](const MouseMotionEvent& e) {
+			constexpr int SCALE = 2;
+			int dx = e.getX() / SCALE;
+			int dy = e.getY() / SCALE;
+			if ((dx != 0) || (dy != 0)) {
+				createTrackballStateChange(time, dx, dy, 0, 0);
+			}
+		},
+		[&](const MouseButtonDownEvent& e) {
+			switch (e.getButton()) {
+			case MouseButtonEvent::LEFT:
+				createTrackballStateChange(time, 0, 0, JOY_BUTTONA, 0);
+				break;
+			case MouseButtonEvent::RIGHT:
+				createTrackballStateChange(time, 0, 0, JOY_BUTTONB, 0);
+				break;
+			default:
+				// ignore other buttons
+				break;
+			}
+		},
+		[&](const MouseButtonUpEvent& e) {
+			switch (e.getButton()) {
+			case MouseButtonEvent::LEFT:
+				createTrackballStateChange(time, 0, 0, 0, JOY_BUTTONA);
+				break;
+			case MouseButtonEvent::RIGHT:
+				createTrackballStateChange(time, 0, 0, 0, JOY_BUTTONB);
+				break;
+			default:
+				// ignore other buttons
+				break;
+			}
+		},
+		[](const EventBase&) { /*ignore*/ }
+	}, event);
 }
 
 void Trackball::createTrackballStateChange(
 	EmuTime::param time, int deltaX, int deltaY, byte press, byte release)
 {
-	stateChangeDistributor.distributeNew(std::make_shared<TrackballState>(
-		time, deltaX, deltaY, press, release));
+	stateChangeDistributor.distributeNew<TrackballState>(
+		time, deltaX, deltaY, press, release);
 }
 
 // StateChangeListener
-void Trackball::signalStateChange(const shared_ptr<StateChange>& event)
+void Trackball::signalStateChange(const StateChange& event)
 {
-	auto ts = dynamic_cast<TrackballState*>(event.get());
+	const auto* ts = dynamic_cast<const TrackballState*>(&event);
 	if (!ts) return;
 
 	targetDeltaX = std::clamp(targetDeltaX + ts->getDeltaX(), -8, 7);
@@ -273,15 +260,14 @@ void Trackball::signalStateChange(const shared_ptr<StateChange>& event)
 	status = (status & ~ts->getPress()) | ts->getRelease();
 }
 
-void Trackball::stopReplay(EmuTime::param time)
+void Trackball::stopReplay(EmuTime::param time) noexcept
 {
 	syncCurrentWithTarget(time);
 	// TODO Get actual mouse button(s) state. Is it worth the trouble?
 	byte release = (JOY_BUTTONA | JOY_BUTTONB) & ~status;
 	if ((currentDeltaX != 0) || (currentDeltaY != 0) || (release != 0)) {
-		stateChangeDistributor.distributeNew(
-			std::make_shared<TrackballState>(
-				time, -currentDeltaX, -currentDeltaY, 0, release));
+		stateChangeDistributor.distributeNew<TrackballState>(
+			time, -currentDeltaX, -currentDeltaY, 0, release);
 	}
 }
 
@@ -306,8 +292,10 @@ void Trackball::serialize(Archive& ar, unsigned version)
 	ar.serialize("lastValue", lastValue,
 	             "status",    status);
 
-	if (ar.isLoader() && isPluggedIn()) {
-		plugHelper(*getConnector(), EmuTime::dummy());
+	if constexpr (Archive::IS_LOADER) {
+		if (isPluggedIn()) {
+			plugHelper(*getConnector(), EmuTime::dummy());
+		}
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(Trackball);

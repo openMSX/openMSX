@@ -59,22 +59,22 @@ public:
 	void clearRam();
 	void reset(EmuTime::param time);
 	void writeReg(byte rg, byte data, EmuTime::param time);
-	byte readReg(byte rg, EmuTime::param time);
-	byte peekReg(byte rg, EmuTime::param time) const;
-	byte readStatus(EmuTime::param time);
-	byte peekStatus(EmuTime::param time) const;
+	[[nodiscard]] byte readReg(byte rg, EmuTime::param time);
+	[[nodiscard]] byte peekReg(byte rg, EmuTime::param time) const;
+	[[nodiscard]] byte readStatus(EmuTime::param time) const;
+	[[nodiscard]] byte peekStatus(EmuTime::param time) const;
 
 	// for ADPCM
 	void setStatus(byte flags);
 	void resetStatus(byte flags);
-	byte peekRawStatus() const;
+	[[nodiscard]] byte peekRawStatus() const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
 	// SoundDevice
-	float getAmplificationFactorImpl() const override;
+	[[nodiscard]] float getAmplificationFactorImpl() const override;
 	void generateChannels(float** bufs, unsigned num) override;
 
 	inline void keyOn_BD();
@@ -90,7 +90,7 @@ private:
 	inline void setRythmMode(int data);
 	void update_key_status();
 
-	bool checkMuteHelper();
+	[[nodiscard]] bool checkMuteHelper();
 
 	void changeStatusMask(byte newMask);
 
@@ -140,18 +140,18 @@ private:
 	public:
 		void reset();
 
-		inline bool isActive() const;
+		[[nodiscard]] inline bool isActive() const;
 		inline void slotOn (KeyPart part);
 		inline void slotOff(KeyPart part);
 
-		inline unsigned calc_phase(int lfo_pm);
-		inline unsigned calc_envelope(int lfo_am);
-		inline int calc_slot_car(int lfo_pm, int lfo_am, int fm);
-		inline int calc_slot_mod(int lfo_pm, int lfo_am);
-		inline int calc_slot_tom(int lfo_pm, int lfo_am);
-		inline int calc_slot_snare(int lfo_pm, int lfo_am, int whitenoise);
-		inline int calc_slot_cym(int lfo_am, int a, int b);
-		inline int calc_slot_hat(int lfo_am, int a, int b, int whitenoise);
+		[[nodiscard]] inline unsigned calc_phase(int lfo_pm);
+		[[nodiscard]] inline unsigned calc_envelope(int lfo_am);
+		[[nodiscard]] inline int calc_slot_car(int lfo_pm, int lfo_am, int fm);
+		[[nodiscard]] inline int calc_slot_mod(int lfo_pm, int lfo_am);
+		[[nodiscard]] inline int calc_slot_tom(int lfo_pm, int lfo_am);
+		[[nodiscard]] inline int calc_slot_snare(int lfo_pm, int lfo_am, int whitenoise);
+		[[nodiscard]] inline int calc_slot_cym(int lfo_am, int a, int b);
+		[[nodiscard]] inline int calc_slot_hat(int lfo_am, int a, int b, int whitenoise);
 
 		inline void updateAll(unsigned freq);
 		inline void updatePG(unsigned freq);
@@ -168,15 +168,15 @@ private:
 
 		// for Phase Generator (PG)
 		unsigned phase;		// Phase
-		unsigned dphase;	// Phase increment amount
+		unsigned dPhase;	// Phase increment amount
 
 		// for Envelope Generator (EG)
-		const EnvPhaseIndex* dphaseARTableRks;
-		const EnvPhaseIndex* dphaseDRTableRks;
+		const EnvPhaseIndex* dPhaseARTableRks;
+		const EnvPhaseIndex* dPhaseDRTableRks;
 		int tll;		// Total Level + Key scale level
 		EnvelopeState eg_mode;  // Current state
 		EnvPhaseIndex eg_phase;	// Phase
-		EnvPhaseIndex eg_dphase;// Phase increment amount
+		EnvPhaseIndex eg_dPhase;// Phase increment amount
 
 		Patch patch;
 		byte key;
@@ -206,7 +206,7 @@ private:
 
 	struct Debuggable final : SimpleDebuggable {
 		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
-		byte read(unsigned address, EmuTime::param time) override;
+		[[nodiscard]] byte read(unsigned address, EmuTime::param time) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	} debuggable;
 
@@ -225,8 +225,8 @@ private:
 	int noise_seed;
 	unsigned noiseA_phase;
 	unsigned noiseB_phase;
-	unsigned noiseA_dphase;
-	unsigned noiseB_dphase;
+	unsigned noiseA_dPhase;
+	unsigned noiseB_dPhase;
 
 	byte status;     // STATUS Register
 	byte statusMask; // bit=0 -> masked

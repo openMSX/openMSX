@@ -1,5 +1,6 @@
 #include "Rom.hh"
 #include "DeviceConfig.hh"
+#include "HardwareConfig.hh"
 #include "XMLElement.hh"
 #include "RomInfo.hh"
 #include "RomDatabase.hh"
@@ -19,12 +20,12 @@
 #include "StringOp.hh"
 #include "ranges.hh"
 #include "sha1.hh"
+#include "stl.hh"
 #include <cstring>
 #include <limits>
 #include <memory>
 
 using std::string;
-using std::unique_ptr;
 
 namespace openmsx {
 
@@ -33,9 +34,12 @@ class RomDebuggable final : public Debuggable
 public:
 	RomDebuggable(Debugger& debugger, Rom& rom);
 	~RomDebuggable();
-	unsigned getSize() const override;
-	const std::string& getDescription() const override;
-	byte read(unsigned address) override;
+	RomDebuggable(const RomDebuggable&) = delete;
+	RomDebuggable& operator=(const RomDebuggable&) = delete;
+
+	[[nodiscard]] unsigned getSize() const override;
+	[[nodiscard]] std::string_view getDescription() const override;
+	[[nodiscard]] byte read(unsigned address) override;
 	void write(unsigned address, byte value) override;
 	void moved(Rom& r);
 private:
@@ -44,14 +48,14 @@ private:
 };
 
 
-Rom::Rom(string name_, string description_,
+Rom::Rom(string name_, static_string_view description_,
          const DeviceConfig& config, const string& id /*= {}*/)
-	: name(std::move(name_)), description(std::move(description_))
+	: name(std::move(name_)), description(description_)
 {
 	// Try all <rom> tags with matching "id" attribute.
 	string errors;
-	for (auto& c : config.getXML()->getChildren("rom")) {
-		if (c->getAttribute("id", {}) == id) {
+	for (const auto* c : config.getXML()->getChildren("rom")) {
+		if (c->getAttributeValue("id", {}) == id) {
 			try {
 				init(config.getMotherBoard(), *c, config.getFileContext());
 				return;
@@ -87,10 +91,10 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	// savestate. External state can be a .rom file or a patch file.
 	bool checkResolvedSha1 = false;
 
-	auto sums      = config.getChildren("sha1");
-	auto filenames = config.getChildren("filename");
-	auto* resolvedFilenameElem = config.findChild("resolvedFilename");
-	auto* resolvedSha1Elem     = config.findChild("resolvedSha1");
+	auto sums      = to_vector(config.getChildren("sha1"));
+	auto filenames = to_vector(config.getChildren("filename"));
+	const auto* resolvedFilenameElem = config.findChild("resolvedFilename");
+	const auto* resolvedSha1Elem     = config.findChild("resolvedSha1");
 	if (config.findChild("firstblock")) {
 		// part of the TurboR main ROM
 		//  If there is a firstblock/lastblock tag, (only) use these to
@@ -101,8 +105,8 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		//  first check firstblock, otherwise it will only load when
 		//  there is a file that matches the sha1sums of the
 		//  firstblock-lastblock portion of the containing file.
-		int first = config.getChildDataAsInt("firstblock");
-		int last  = config.getChildDataAsInt("lastblock");
+		int first = config.getChildDataAsInt("firstblock", 0);
+		int last  = config.getChildDataAsInt("lastblock", 0);
 		size = (last - first + 1) * 0x2000;
 		rom = motherBoard.getPanasonicMemory().getRomRange(first, last);
 		assert(rom);
@@ -116,7 +120,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		// first try already resolved filename ..
 		if (resolvedFilenameElem) {
 			try {
-				file = File(resolvedFilenameElem->getData());
+				file = File(std::string(resolvedFilenameElem->getData()));
 			} catch (FileException&) {
 				// ignore
 			}
@@ -136,8 +140,8 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		if (!file.is_open()) {
 			for (auto& f : filenames) {
 				try {
-					Filename filename(f->getData(), context);
-					file = File(filename);
+					file = File(Filename(f->getData(), context));
+					break;
 				} catch (FileException&) {
 					// ignore
 				}
@@ -222,14 +226,14 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	}
 
 	if (size != 0) {
-		if (auto* patchesElem = config.findChild("patches")) {
+		if (const auto* patchesElem = config.findChild("patches")) {
 			// calculate before content is altered
-			getOriginalSHA1();
+			(void)getOriginalSHA1(); // fills cache
 
-			unique_ptr<PatchInterface> patch =
+			std::unique_ptr<PatchInterface> patch =
 				std::make_unique<EmptyPatch>(rom, size);
 
-			for (auto& p : patchesElem->getChildren("ips")) {
+			for (const auto* p : patchesElem->getChildren("ips")) {
 				patch = std::make_unique<IPSPatch>(
 					Filename(p->getData(), context),
 					std::move(patch));
@@ -245,7 +249,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 			}
 
 			// calculated because it's different from original
-			actualSha1 = SHA1::calc(rom, size);
+			actualSha1 = SHA1::calc({rom, size});
 
 			// Content altered by external patch file -> check.
 			checkResolvedSha1 = true;
@@ -282,12 +286,13 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	}
 
 	if (checkResolvedSha1) {
-		auto& mutableConfig = const_cast<XMLElement&>(config);
-		string patchedSha1Str = getSHA1().toString();
-		const auto& actualSha1Elem = mutableConfig.getCreateChild(
-			"resolvedSha1", patchedSha1Str);
-		if (actualSha1Elem.getData() != patchedSha1Str) {
-			string tmp = file.is_open() ? file.getURL() : name;
+		auto& doc = motherBoard.getMachineConfig()->getXMLDocument();
+		auto patchedSha1Str = getSHA1().toString();
+		const auto* actualSha1Elem = doc.getOrCreateChild(
+			const_cast<XMLElement&>(config),
+			"resolvedSha1", doc.allocateString(patchedSha1Str));
+		if (actualSha1Elem->getData() != patchedSha1Str) {
+			std::string_view tmp = file.is_open() ? file.getURL() : name;
 			// can only happen in case of loadstate
 			motherBoard.getMSXCliComm().printWarning(
 				"The content of the rom ", tmp, " has "
@@ -299,9 +304,9 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 	// This must come after we store the 'resolvedSha1', because on
 	// loadstate we use that tag to search the complete rom in a filepool.
-	if (auto* windowElem = config.findChild("window")) {
-		unsigned windowBase = windowElem->getAttributeAsInt("base", 0);
-		unsigned windowSize = windowElem->getAttributeAsInt("size", size);
+	if (const auto* windowElem = config.findChild("window")) {
+		unsigned windowBase = windowElem->getAttributeValueAsInt("base", 0);
+		unsigned windowSize = windowElem->getAttributeValueAsInt("size", size);
 		if ((windowBase + windowSize) > size) {
 			throw MSXException(
 				"The specified window [", windowBase, ',',
@@ -320,14 +325,10 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 bool Rom::checkSHA1(const XMLElement& config) const
 {
-	auto sums = config.getChildren("sha1");
-	if (sums.empty()) {
-		return true;
-	}
-	auto& sha1sum = getOriginalSHA1();
-	return ranges::any_of(sums, [&](auto& s) {
-		return Sha1Sum(s->getData()) == sha1sum;
-	});
+	auto sums = to_vector(config.getChildren("sha1"));
+	return sums.empty() ||
+	       contains(sums, getOriginalSHA1(),
+	                [](const auto* s) { return Sha1Sum(s->getData()); });
 }
 
 Rom::Rom(Rom&& r) noexcept
@@ -346,15 +347,15 @@ Rom::Rom(Rom&& r) noexcept
 
 Rom::~Rom() = default;
 
-string Rom::getFilename() const
+std::string_view Rom::getFilename() const
 {
-	return file.is_open() ? file.getURL() : string{};
+	return file.is_open() ? file.getURL() : std::string_view();
 }
 
 const Sha1Sum& Rom::getOriginalSHA1() const
 {
 	if (originalSha1.empty()) {
-		originalSha1 = SHA1::calc(rom, size);
+		originalSha1 = SHA1::calc({rom, size});
 	}
 	return originalSha1;
 }
@@ -399,7 +400,7 @@ unsigned RomDebuggable::getSize() const
 	return rom->getSize();
 }
 
-const string& RomDebuggable::getDescription() const
+std::string_view RomDebuggable::getDescription() const
 {
 	return rom->getDescription();
 }

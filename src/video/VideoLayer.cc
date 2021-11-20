@@ -47,7 +47,7 @@ int VideoLayer::getVideoSourceSetting() const
 	return videoSourceSetting.getSource();
 }
 
-void VideoLayer::update(const Setting& setting)
+void VideoLayer::update(const Setting& setting) noexcept
 {
 	if (&setting == &videoSourceSetting) {
 		calcZ();
@@ -65,20 +65,17 @@ void VideoLayer::calcZ()
 
 void VideoLayer::calcCoverage()
 {
-	Coverage cov;
-	if (!powerSetting.getBoolean() || !motherBoard.isActive()) {
-		cov = COVER_NONE;
-	} else {
-		cov = COVER_FULL;
-	}
+	auto cov = (!powerSetting.getBoolean() || !motherBoard.isActive())
+	         ? COVER_NONE
+	         : COVER_FULL;
 	setCoverage(cov);
 }
 
-void VideoLayer::signalMSXEvent(const std::shared_ptr<const Event>& event,
-                                EmuTime::param /*time*/)
+void VideoLayer::signalMSXEvent(const Event& event,
+                                EmuTime::param /*time*/) noexcept
 {
-	if (event->getType() == one_of(OPENMSX_MACHINE_ACTIVATED,
-		                       OPENMSX_MACHINE_DEACTIVATED)) {
+	if (getType(event) == one_of(EventType::MACHINE_ACTIVATED,
+		                     EventType::MACHINE_DEACTIVATED)) {
 		calcCoverage();
 	}
 }

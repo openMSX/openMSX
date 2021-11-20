@@ -50,7 +50,7 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 		view::transform(xrange(SDL_NumJoysticks()), [&](auto i) {
 			return std::make_unique<IntegerSetting>(
 				commandController,
-				strCat("joystick", i + 1, "_deadzone"),
+				tmpStrCat("joystick", i + 1, "_deadzone"),
 				"size (as a percentage) of the dead center zone",
 				25, 0, 100);
 		}));
@@ -65,13 +65,18 @@ GlobalSettings::~GlobalSettings()
 }
 
 // Observer<Setting>
-void GlobalSettings::update(const Setting& setting)
+void GlobalSettings::update(const Setting& setting) noexcept
 {
 	if (&setting == &getPowerSetting()) { // either on or off
 		// automatically unpause after a power off/on cycle
 		// this solved a bug, but apart from that this behaviour also
 		// makes more sense
-		getPauseSetting().setBoolean(false);
+		try {
+			getPauseSetting().setBoolean(false);
+		} catch(...) {
+			// Ignore. E.g. can trigger when a Tcl trace on the
+			// pause setting triggers errors in the Tcl script.
+		}
 	}
 }
 

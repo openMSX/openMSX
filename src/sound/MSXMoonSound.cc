@@ -78,13 +78,11 @@ void MSXMoonSound::reset(EmuTime::param time)
 
 byte MSXMoonSound::readIO(word port, EmuTime::param time)
 {
-	byte result;
 	if ((port & 0xFF) < 0xC0) {
 		// WAVE part  0x7E-0x7F
 		switch (port & 0x01) {
 		case 0: // read latch, not supported
-			result = 255;
-			break;
+			return 255;
 		case 1: // read wave register
 			// Verified on real YMF278:
 			// Even if NEW2=0 reads happen normally. Also reads
@@ -101,60 +99,50 @@ byte MSXMoonSound::readIO(word port, EmuTime::param time)
 				// doesn't have any measurable effect on MSX.
 				ymf278BusyTime = time + MEM_READ_DELAY;
 			}
-			result = ymf278.readReg(opl4latch);
-			break;
+			return ymf278.readReg(opl4latch);
 		default: // unreachable, avoid warning
-			UNREACHABLE; result = 255;
+			UNREACHABLE; return 255;
 		}
 	} else {
 		// FM part  0xC4-0xC7
 		switch (port & 0x03) {
 		case 0: // read status
 		case 2:
-			result = ymf262.readStatus() | readYMF278Status(time);
-			break;
+			return ymf262.readStatus() | readYMF278Status(time);
 		case 1:
 		case 3: // read fm register
-			result = ymf262.readReg(opl3latch);
-			break;
+			return ymf262.readReg(opl3latch);
 		default: // unreachable, avoid warning
-			UNREACHABLE; result = 255;
+			UNREACHABLE; return 255;
 		}
 	}
-	return result;
 }
 
 byte MSXMoonSound::peekIO(word port, EmuTime::param time) const
 {
-	byte result;
 	if ((port & 0xFF) < 0xC0) {
 		// WAVE part  0x7E-0x7F
 		switch (port & 0x01) {
 		case 0: // read latch, not supported
-			result = 255;
-			break;
+			return 255;
 		case 1: // read wave register
-			result = ymf278.peekReg(opl4latch);
-			break;
+			return ymf278.peekReg(opl4latch);
 		default: // unreachable, avoid warning
-			UNREACHABLE; result = 255;
+			UNREACHABLE; return 255;
 		}
 	} else {
 		// FM part  0xC4-0xC7
 		switch (port & 0x03) {
 		case 0: // read status
 		case 2:
-			result = ymf262.peekStatus() | readYMF278Status(time);
-			break;
+			return ymf262.peekStatus() | readYMF278Status(time);
 		case 1:
 		case 3: // read fm register
-			result = ymf262.peekReg(opl3latch);
-			break;
+			return ymf262.peekReg(opl3latch);
 		default: // unreachable, avoid warning
-			UNREACHABLE; result = 255;
+			UNREACHABLE; return 255;
 		}
 	}
-	return result;
 }
 
 void MSXMoonSound::writeIO(word port, byte value, EmuTime::param time)
@@ -249,7 +237,7 @@ void MSXMoonSound::serialize(Archive& ar, unsigned version)
 		ar.serialize("loadTime", ymf278LoadTime,
 		             "busyTime", ymf278BusyTime);
 	} else {
-		assert(ar.isLoader());
+		assert(Archive::IS_LOADER);
 		// For 100% backwards compatibility we should restore these two
 		// from the (old) YMF278 class. Though that's a lot of extra
 		// work for very little gain.

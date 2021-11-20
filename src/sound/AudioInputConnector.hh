@@ -14,13 +14,13 @@ public:
 	AudioInputConnector(PluggingController& pluggingController,
 	                    std::string name);
 
-	AudioInputDevice& getPluggedAudioDev() const;
+	[[nodiscard]] AudioInputDevice& getPluggedAudioDev() const;
 
 	// Connector
-	std::string_view getDescription() const final override;
-	std::string_view getClass() const final override;
+	[[nodiscard]] std::string_view getDescription() const final;
+	[[nodiscard]] std::string_view getClass() const final;
 
-	int16_t readSample(EmuTime::param time) const;
+	[[nodiscard]] int16_t readSample(EmuTime::param time) const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

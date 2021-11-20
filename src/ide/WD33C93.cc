@@ -19,6 +19,7 @@
 #include "DeviceConfig.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
+#include "enumerate.hh"
 #include "serialize.hh"
 #include <cassert>
 #include <cstring>
@@ -107,8 +108,8 @@ WD33C93::WD33C93(const DeviceConfig& config)
 {
 	devBusy = false;
 
-	for (auto* t : config.getXML()->getChildren("target")) {
-		unsigned id = t->getAttributeAsInt("id");
+	for (const auto* t : config.getXML()->getChildren("target")) {
+		unsigned id = t->getAttributeValueAsInt("id", 0);
 		if (id >= MAX_DEV) {
 			throw MSXException("Invalid SCSI id: ", id,
 			                   " (should be 0..", MAX_DEV - 1, ')');
@@ -117,7 +118,7 @@ WD33C93::WD33C93(const DeviceConfig& config)
 			throw MSXException("Duplicate SCSI id: ", id);
 		}
 		DeviceConfig conf(config, *t);
-		auto& type = t->getChild("type").getData();
+		auto type = t->getChildData("type");
 		if (type == "SCSIHD") {
 			dev[id] = std::make_unique<SCSIHD>(conf, buffer,
 			        SCSIDevice::MODE_SCSI1 | SCSIDevice::MODE_UNITATTENTION |
@@ -238,7 +239,7 @@ void WD33C93::execCmd(byte value)
 
 	case 0x18: // Translate Address (Lv2)
 	default:
-		// unsupport command
+		// unsupported command
 		break;
 	}
 }
@@ -438,7 +439,7 @@ void WD33C93::reset(bool scsireset)
 }
 
 
-static std::initializer_list<enum_string<SCSI::Phase>> phaseInfo = {
+static constexpr std::initializer_list<enum_string<SCSI::Phase>> phaseInfo = {
 	{ "UNDEFINED",   SCSI::UNDEFINED   },
 	{ "BUS_FREE",    SCSI::BUS_FREE    },
 	{ "ARBITRATION", SCSI::ARBITRATION },
@@ -459,9 +460,9 @@ void WD33C93::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize_blob("buffer", buffer.data(), buffer.size());
 	char tag[8] = { 'd', 'e', 'v', 'i', 'c', 'e', 'X', 0 };
-	for (unsigned i = 0; i < MAX_DEV; ++i) {
+	for (auto [i, d] : enumerate(dev)) {
 		tag[6] = char('0' + i);
-		ar.serializePolymorphic(tag, *dev[i]);
+		ar.serializePolymorphic(tag, *d);
 	}
 	ar.serialize("bufIdx",       bufIdx,
 	             "counter",      counter,

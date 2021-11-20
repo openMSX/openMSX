@@ -4,6 +4,7 @@
 #include "XMLElement.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
+#include "enumerate.hh"
 #include "outer.hh"
 #include "serialize.hh"
 #include "stl.hh"
@@ -11,22 +12,21 @@
 
 namespace openmsx {
 
-static byte calcReadBackMask(MSXMotherBoard& motherBoard)
+[[nodiscard]] static byte calcReadBackMask(MSXMotherBoard& motherBoard)
 {
 	std::string_view type = motherBoard.getMachineConfig()->getConfig().getChildData(
 	                               "MapperReadBackBits", "largest");
 	if (type == "largest") {
-		return 0x00; // all bits can be read
+		return 0xff; // all bits can be read
 	}
-	std::string str(type);
-	int bits;
-	if (!StringOp::stringToInt(str, bits)) {
+	auto bits = StringOp::stringTo<int>(type);
+	if (!bits) {
 		throw FatalError("Unknown mapper type: \"", type, "\".");
 	}
-	if (bits < 0 || bits > 8) {
+	if (*bits < 0 || *bits > 8) {
 		throw FatalError("MapperReadBackBits out of range: \"", type, "\".");
 	}
-	return unsigned(-1) << bits;
+	return ~(unsigned(-1) << *bits);
 }
 
 MSXMapperIO::MSXMapperIO(const DeviceConfig& config)
@@ -35,6 +35,13 @@ MSXMapperIO::MSXMapperIO(const DeviceConfig& config)
 	, mask(calcReadBackMask(getMotherBoard()))
 {
 	reset(EmuTime::dummy());
+}
+
+void MSXMapperIO::setMode(Mode mode_, byte mask_, byte baseValue_)
+{
+	mode = mode_;
+	mask = mask_;
+	baseValue = baseValue_;
 }
 
 void MSXMapperIO::registerMapper(MSXMemoryMapperInterface* mapper)
@@ -49,24 +56,40 @@ void MSXMapperIO::unregisterMapper(MSXMemoryMapperInterface* mapper)
 
 byte MSXMapperIO::readIO(word port, EmuTime::param time)
 {
-	byte result = 0xFF;
-	for (auto* mapper : mappers) {
-		result &= mapper->readIO(port, time);
-	}
-	return result | mask;
+	byte value = [&] {
+		if (mode == Mode::EXTERNAL) {
+			byte result = 0xFF;
+			for (auto* mapper : mappers) {
+				result &= mapper->readIO(port, time);
+			}
+			return result;
+		} else {
+			return registers[port & 3];
+		}
+	}();
+	return (value & mask) | (baseValue & ~mask);
 }
 
 byte MSXMapperIO::peekIO(word port, EmuTime::param time) const
 {
-	byte result = 0xFF;
-	for (auto* mapper : mappers) {
-		result &= mapper->peekIO(port, time);
-	}
-	return result | mask;
+	byte value = [&] {
+		if (mode == Mode::EXTERNAL) {
+			byte result = 0xFF;
+			for (auto* mapper : mappers) {
+				result &= mapper->peekIO(port, time);
+			}
+			return result;
+		} else {
+			return registers[port & 3];
+		}
+	}();
+	return (value & mask) | (baseValue & ~mask);
 }
 
 void MSXMapperIO::writeIO(word port, byte value, EmuTime::param time)
 {
+	registers[port & 3] = value;
+
 	// Note: the mappers are responsible for invalidating/filling the CPU
 	// cache-lines.
 	for (auto* mapper : mappers) {
@@ -87,12 +110,9 @@ MSXMapperIO::Debuggable::Debuggable(MSXMotherBoard& motherBoard_,
 
 byte MSXMapperIO::Debuggable::read(unsigned address)
 {
+	// return the last written value, with full 8-bit precision.
 	auto& mapperIO = OUTER(MSXMapperIO, debuggable);
-	byte result = 0;
-	for (auto* mapper : mapperIO.mappers) {
-		result = std::max(result, mapper->getSelectedSegment(address));
-	}
-	return result;
+	return mapperIO.registers[address & 3];
 }
 
 void MSXMapperIO::Debuggable::write(unsigned address, byte value,
@@ -109,12 +129,20 @@ void MSXMapperIO::serialize(Archive& ar, unsigned version)
 	if (ar.versionBelow(version, 2)) {
 		// In version 1 we stored the mapper state in MSXMapperIO instead of
 		// in the individual mappers, so distribute the state to them.
-		assert(ar.isLoader());
-		byte registers[4];
+		assert(Archive::IS_LOADER);
 		ar.serialize("registers", registers);
-		for (int page = 0; page < 4; page++) {
-			writeIO(page, registers[page], EmuTime::dummy());
+		for (auto [page, reg] : enumerate(registers)) {
+			writeIO(word(page), reg, EmuTime::dummy());
 		}
+	}
+	if (ar.versionAtLeast(version, 3)) {
+		// In version 3 we store the mapper state BOTH here and in the
+		// individual mappers. The reason for this is:
+		// - There are MSX machines with a S1985 but without a memory
+		//   mapper. To support those we need to store the state here.
+		// - In rare cases (e.g. musical memory mapper) the mapper state
+		//   can be different for specific mappers.
+		ar.serialize("registers", registers);
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXMapperIO);

@@ -8,14 +8,14 @@ namespace openmsx {
 class DummyAY8910Periphery final : public AY8910Periphery
 {
 public:
-	static DummyAY8910Periphery& instance()
+	[[nodiscard]] static DummyAY8910Periphery& instance()
 	{
 		static DummyAY8910Periphery oneInstance;
 		return oneInstance;
 	}
 
-	byte readA(EmuTime::param /*time*/) override { return 255; }
-	byte readB(EmuTime::param /*time*/) override { return 255; }
+	[[nodiscard]] byte readA(EmuTime::param /*time*/) override { return 255; }
+	[[nodiscard]] byte readB(EmuTime::param /*time*/) override { return 255; }
 	void writeA(byte /*value*/, EmuTime::param /*time*/) override {}
 	void writeB(byte /*value*/, EmuTime::param /*time*/) override {}
 

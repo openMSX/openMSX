@@ -12,17 +12,17 @@ namespace openmsx {
 class ZlibInflate
 {
 public:
-	ZlibInflate(span<uint8_t> input);
+	ZlibInflate(span<const uint8_t> input);
 	~ZlibInflate();
 
 	void skip(size_t num);
-	uint8_t getByte();
-	unsigned get16LE();
-	unsigned get32LE();
-	std::string getString(size_t len);
-	std::string getCString();
+	[[nodiscard]] uint8_t getByte();
+	[[nodiscard]] unsigned get16LE();
+	[[nodiscard]] unsigned get32LE();
+	[[nodiscard]] std::string getString(size_t len);
+	[[nodiscard]] std::string getCString();
 
-	size_t inflate(MemBuffer<uint8_t>& output, size_t sizeHint = 65536);
+	[[nodiscard]] size_t inflate(MemBuffer<uint8_t>& output, size_t sizeHint = 65536);
 
 private:
 	z_stream s;

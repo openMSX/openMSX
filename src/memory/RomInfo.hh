@@ -3,6 +3,8 @@
 
 #include "RomTypes.hh"
 #include "String32.hh"
+#include "view.hh"
+#include <array>
 #include <string_view>
 #include <utility>
 #include <vector>
@@ -11,6 +13,15 @@ namespace openmsx {
 
 class RomInfo
 {
+public:
+	// This contains extra information for each RomType. This structure only
+	// contains the primary (non-alias) romtypes.
+	struct RomTypeInfo {
+		unsigned blockSize;
+		std::string_view name;
+		std::string_view description;
+	};
+
 public:
 	RomInfo(String32 title_,   String32 year_,
 	        String32 company_, String32 country_,
@@ -29,33 +40,38 @@ public:
 	{
 	}
 
-	std::string_view getTitle   (const char* buf) const {
+	[[nodiscard]] std::string_view getTitle   (const char* buf) const {
 		return fromString32(buf, title);
 	}
-	std::string_view getYear    (const char* buf) const {
+	[[nodiscard]] std::string_view getYear    (const char* buf) const {
 		return fromString32(buf, year);
 	}
-	std::string_view getCompany (const char* buf) const {
+	[[nodiscard]] std::string_view getCompany (const char* buf) const {
 		return fromString32(buf, company);
 	}
-	std::string_view getCountry (const char* buf) const {
+	[[nodiscard]] std::string_view getCountry (const char* buf) const {
 		return fromString32(buf, country);
 	}
-	std::string_view getOrigType(const char* buf) const {
+	[[nodiscard]] std::string_view getOrigType(const char* buf) const {
 		return fromString32(buf, origType);
 	}
-	std::string_view getRemark  (const char* buf) const {
+	[[nodiscard]] std::string_view getRemark  (const char* buf) const {
 		return fromString32(buf, remark);
 	}
-	RomType          getRomType()   const { return romType; }
-	bool             getOriginal()  const { return original; }
-	int              getGenMSXid()  const { return genMSXid; }
+	[[nodiscard]] RomType          getRomType()   const { return romType; }
+	[[nodiscard]] bool             getOriginal()  const { return original; }
+	[[nodiscard]] int              getGenMSXid()  const { return genMSXid; }
 
-	static RomType nameToRomType(std::string_view name);
-	static std::string_view romTypeToName(RomType type);
-	static std::vector<std::string_view> getAllRomTypes();
-	static std::string_view getDescription(RomType type);
-	static unsigned   getBlockSize  (RomType type);
+	[[nodiscard]] static RomType nameToRomType(std::string_view name);
+	[[nodiscard]] static std::string_view romTypeToName (RomType type);
+	[[nodiscard]] static std::string_view getDescription(RomType type);
+	[[nodiscard]] static unsigned         getBlockSize  (RomType type);
+	[[nodiscard]] static auto getAllRomTypes() {
+		return view::transform(getRomTypeInfo(), &RomTypeInfo::name);
+	}
+
+private:
+	static const std::array<RomInfo::RomTypeInfo, RomType::ROM_LAST>& getRomTypeInfo();
 
 private:
 	String32 title;

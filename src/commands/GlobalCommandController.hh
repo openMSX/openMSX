@@ -9,6 +9,7 @@
 #include "HotKey.hh"
 #include "SettingsConfig.hh"
 #include "RomInfoTopic.hh"
+#include "TclObject.hh"
 #include "hash_map.hh"
 #include "xxhash.hh"
 #include <string>
@@ -28,7 +29,9 @@ class GlobalCommandControllerBase
 protected:
 	~GlobalCommandControllerBase();
 
+#ifdef DEBUG
 	hash_map<std::string, Command*,          XXHasher> commands;
+#endif
 	hash_map<std::string, CommandCompleter*, XXHasher> commandCompleters;
 };
 
@@ -44,14 +47,14 @@ public:
 	                        Reactor& reactor);
 	~GlobalCommandController();
 
-	InfoCommand& getOpenMSXInfoCommand() { return openMSXInfoCommand; }
+	[[nodiscard]] InfoCommand& getOpenMSXInfoCommand() { return openMSXInfoCommand; }
 
 	/**
 	 * Executes all defined auto commands
 	 */
 	void source(const std::string& script);
 
-	void registerProxyCommand(const std::string& name);
+	void registerProxyCommand(std::string_view name);
 	void unregisterProxyCommand(std::string_view name);
 
 	void registerProxySetting(Setting& setting);
@@ -63,40 +66,32 @@ public:
 	void unregisterCompleter(CommandCompleter& completer,
 	                         std::string_view str) override;
 	void   registerCommand(Command& command,
-	                       const std::string& str) override;
+	                       zstring_view str) override;
 	void unregisterCommand(Command& command,
 	                       std::string_view str) override;
-	bool hasCommand(std::string_view command) const override;
-	TclObject executeCommand(const std::string& command,
+	TclObject executeCommand(zstring_view command,
 	                         CliConnection* connection = nullptr) override;
 	void registerSetting(Setting& setting) override;
 	void unregisterSetting(Setting& setting) override;
-	CliComm& getCliComm() override;
-	Interpreter& getInterpreter() override;
+	[[nodiscard]] CliComm& getCliComm() override;
+	[[nodiscard]] Interpreter& getInterpreter() override;
 
 	/**
 	 * Complete the given command.
 	 */
-	std::string tabCompletion(std::string_view command);
+	[[nodiscard]] std::string tabCompletion(std::string_view command);
 
 	/**
 	 * Returns true iff the command is complete (all braces, quotes etc. are
 	 * balanced).
 	 */
-	bool isComplete(const std::string& command);
+	[[nodiscard]] bool isComplete(zstring_view command);
 
-	SettingsConfig& getSettingsConfig() { return settingsConfig; }
-	SettingsManager& getSettingsManager() { return settingsConfig.getSettingsManager(); }
-	CliConnection* getConnection() const { return connection; }
+	[[nodiscard]] SettingsConfig& getSettingsConfig() { return settingsConfig; }
+	[[nodiscard]] SettingsManager& getSettingsManager() { return settingsConfig.getSettingsManager(); }
+	[[nodiscard]] CliConnection* getConnection() const { return connection; }
 
 private:
-	void split(std::string_view str,
-	           std::vector<std::string>& tokens, char delimiter);
-	std::string removeEscaping(const std::string& str);
-	std::vector<std::string> removeEscaping(
-		const std::vector<std::string>& input, bool keepLastIfEmpty);
-	std::string addEscaping(const std::string& str, bool quote, bool finished);
-
 	void tabCompletion(std::vector<std::string>& tokens);
 
 	using ProxySettings =
@@ -116,20 +111,20 @@ private:
 	struct HelpCmd final : Command {
 		explicit HelpCmd(GlobalCommandController& controller);
 		void execute(span<const TclObject> tokens, TclObject& result) override;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} helpCmd;
 
 	struct TabCompletionCmd final : Command {
 		explicit TabCompletionCmd(GlobalCommandController& controller);
 		void execute(span<const TclObject> tokens, TclObject& result) override;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 	} tabCompletionCmd;
 
 	struct UpdateCmd final : Command {
 		explicit UpdateCmd(CommandController& commandController);
 		void execute(span<const TclObject> tokens, TclObject& result) override;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	private:
 		CliConnection& getConnection();
@@ -139,21 +134,21 @@ private:
 		explicit PlatformInfo(InfoCommand& openMSXInfoCommand);
 		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 	} platformInfo;
 
 	struct VersionInfo final : InfoTopic {
 		explicit VersionInfo(InfoCommand& openMSXInfoCommand);
 		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 	} versionInfo;
 
 	RomInfoTopic romInfoTopic;
 
 	struct NameFromProxy {
 		template<typename Pair>
-		const std::string& operator()(const Pair& p) const {
+		[[nodiscard]] const std::string& operator()(const Pair& p) const {
 			return p.second->getName();
 		}
 	};

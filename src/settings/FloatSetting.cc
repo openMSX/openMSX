@@ -3,7 +3,7 @@
 namespace openmsx {
 
 FloatSetting::FloatSetting(CommandController& commandController_,
-                           std::string_view name_, std::string_view description_,
+                           std::string_view name_, static_string_view description_,
                            double initialValue,
                            double minValue_, double maxValue_)
 	: Setting(commandController_, name_, description_,
@@ -14,7 +14,7 @@ FloatSetting::FloatSetting(CommandController& commandController_,
 	auto& interp = getInterpreter();
 	setChecker([this, &interp](TclObject& newValue) {
 		double val = newValue.getDouble(interp); // may throw
-		newValue = std::min(std::max(val, minValue), maxValue);
+		newValue = std::clamp(val, minValue, maxValue);
 	});
 	init();
 }

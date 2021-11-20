@@ -23,8 +23,8 @@ public:
 	       const DeviceConfig& config, EmuTime::param time);
 	~AY8910();
 
-	byte readRegister(unsigned reg, EmuTime::param time);
-	byte peekRegister(unsigned reg, EmuTime::param time) const;
+	[[nodiscard]] byte readRegister(unsigned reg, EmuTime::param time);
+	[[nodiscard]] byte peekRegister(unsigned reg, EmuTime::param time) const;
 	void writeRegister(unsigned reg, byte value, EmuTime::param time);
 	void reset(EmuTime::param time);
 
@@ -35,7 +35,7 @@ private:
 	class Generator {
 	public:
 		inline void setPeriod(int value);
-		inline unsigned getNextEventTime() const;
+		[[nodiscard]] inline unsigned getNextEventTime() const;
 		inline void advanceFast(unsigned duration);
 
 		template<typename Archive>
@@ -73,14 +73,15 @@ private:
 
 		/** Gets the current output of this generator.
 		  */
-		bool getOutput() const { return output; }
+		[[nodiscard]] bool getOutput() const { return output; }
 
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);
 
 	private:
-		int getDetune(AY8910& ay8910);
+		[[nodiscard]] int getDetune(AY8910& ay8910);
 
+	private:
 		/** Time passed since start of vibrato cycle.
 		  */
 		unsigned vibratoCount = 0;
@@ -105,7 +106,7 @@ private:
 
 		/** Gets the current output of this generator.
 		  */
-		bool getOutput() const { return random & 1; }
+		[[nodiscard]] bool getOutput() const { return random & 1; }
 
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);
@@ -117,10 +118,10 @@ private:
 	class Amplitude {
 	public:
 		explicit Amplitude(const DeviceConfig& config);
-		const float* getEnvVolTable() const;
-		inline float getVolume(unsigned chan) const;
+		[[nodiscard]] const float* getEnvVolTable() const;
+		[[nodiscard]] inline float getVolume(unsigned chan) const;
 		inline void setChannelVolume(unsigned chan, unsigned value);
-		inline bool followsEnvelope(unsigned chan) const;
+		[[nodiscard]] inline bool followsEnvelope(unsigned chan) const;
 
 	private:
 		const float* envVolTable;
@@ -135,11 +136,11 @@ private:
 		inline void reset();
 		inline void setPeriod(int value);
 		inline void setShape(unsigned shape);
-		inline bool isChanging() const;
+		[[nodiscard]] inline bool isChanging() const;
 		inline void advance(int duration);
-		inline float getVolume() const;
+		[[nodiscard]] inline float getVolume() const;
 
-		inline unsigned getNextEventTime() const;
+		[[nodiscard]] inline unsigned getNextEventTime() const;
 		inline void advanceFast(unsigned duration);
 		inline void doNextEvent();
 
@@ -149,6 +150,7 @@ private:
 	private:
 		inline void doSteps(int steps);
 
+	private:
 		const float* envVolTable;
 		int period;
 		int count;
@@ -159,18 +161,19 @@ private:
 
 	// SoundDevice
 	void generateChannels(float** bufs, unsigned num) override;
-	float getAmplificationFactorImpl() const override;
+	[[nodiscard]] float getAmplificationFactorImpl() const override;
 
 	// Observer<Setting>
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
 	void wrtReg(unsigned reg, byte value, EmuTime::param time);
 
+private:
 	AY8910Periphery& periphery;
 
 	struct Debuggable final : SimpleDebuggable {
 		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
-		byte read(unsigned address, EmuTime::param time) override;
+		[[nodiscard]] byte read(unsigned address, EmuTime::param time) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	} debuggable;
 

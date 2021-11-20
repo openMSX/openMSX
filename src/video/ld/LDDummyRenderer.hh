@@ -11,7 +11,7 @@ public:
 	void frameStart(EmuTime::param time) override;
 	void frameEnd() override;
 	void drawBlank(int r, int g, int b) override;
-	RawFrame* getRawFrame() override;
+	[[nodiscard]] RawFrame* getRawFrame() override;
 };
 
 } // namespace openmsx

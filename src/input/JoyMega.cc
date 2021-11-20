@@ -2,18 +2,15 @@
 #include "PluggingController.hh"
 #include "MSXEventDistributor.hh"
 #include "StateChangeDistributor.hh"
-#include "InputEvents.hh"
+#include "Event.hh"
 #include "InputEventGenerator.hh"
 #include "StateChange.hh"
-#include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include "build-info.hh"
 #include <memory>
-
-using std::string;
-using std::shared_ptr;
 
 namespace openmsx {
 
@@ -32,8 +29,7 @@ void JoyMega::registerAll(MSXEventDistributor& eventDistributor,
 	(void)stateChangeDistributor;
 	(void)controller;
 #else
-	unsigned numJoysticks = SDL_NumJoysticks();
-	for (unsigned i = 0; i < numJoysticks; i++) {
+	for (auto i : xrange(SDL_NumJoysticks())) {
 		if (SDL_Joystick* joystick = SDL_JoystickOpen(i)) {
 			// Avoid devices that have axes but no buttons, like accelerometers.
 			// SDL 1.2.14 in Linux has an issue where it rejects a device from
@@ -65,9 +61,9 @@ public:
 		assert((press != 0) || (release != 0));
 		assert((press & release) == 0);
 	}
-	unsigned getJoystick() const { return joyNum; }
-	unsigned getPress()    const { return press; }
-	unsigned getRelease()  const { return release; }
+	[[nodiscard]] unsigned getJoystick() const { return joyNum; }
+	[[nodiscard]] unsigned getPress()    const { return press; }
+	[[nodiscard]] unsigned getRelease()  const { return release; }
 
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
@@ -95,10 +91,10 @@ JoyMega::JoyMega(MSXEventDistributor& eventDistributor_,
 	, joystick(joystick_)
 	, joyNum(SDL_JoystickInstanceID(joystick_))
 	, name("joymegaX") // 'X' is filled in below
-	, desc(string(SDL_JoystickName(joystick_)))
+	, desc(SDL_JoystickName(joystick_))
 	, lastTime(EmuTime::zero())
 {
-	const_cast<string&>(name)[7] = char('1' + joyNum);
+	const_cast<std::string&>(name)[7] = char('1' + joyNum);
 }
 
 JoyMega::~JoyMega()
@@ -110,7 +106,7 @@ JoyMega::~JoyMega()
 }
 
 // Pluggable
-const string& JoyMega::getName() const
+std::string_view JoyMega::getName() const
 {
 	return name;
 }
@@ -192,7 +188,7 @@ void JoyMega::checkTime(EmuTime::param time)
 	}
 }
 
-static unsigned encodeButton(unsigned button, byte cycleMask)
+static constexpr unsigned encodeButton(unsigned button, byte cycleMask)
 {
 	unsigned n = (cycleMask == 7) ? 7 : 3; // 6- or 3-button mode
 	return 1 << (4 + (button & n));
@@ -215,8 +211,7 @@ unsigned JoyMega::calcInitialState()
 		result &= ~JOY_DOWN;
 	}
 
-	int numButtons = InputEventGenerator::joystickNumButtons(joystick);
-	for (int button = 0; button < numButtons; ++button) {
+	for (auto button : xrange(InputEventGenerator::joystickNumButtons(joystick))) {
 		if (InputEventGenerator::joystickGetButton(joystick, button)) {
 			result &= ~encodeButton(button, 7);
 		}
@@ -225,63 +220,56 @@ unsigned JoyMega::calcInitialState()
 }
 
 // MSXEventListener
-void JoyMega::signalMSXEvent(const shared_ptr<const Event>& event, EmuTime::param time)
+void JoyMega::signalMSXEvent(const Event& event, EmuTime::param time) noexcept
 {
-	auto joyEvent = dynamic_cast<const JoystickEvent*>(event.get());
+	const auto* joyEvent = get_if<JoystickEvent>(event);
 	if (!joyEvent) return;
 
 	// TODO: It would be more efficient to make a dispatcher instead of
 	//       sending the event to all joysticks.
 	if (joyEvent->getJoystick() != joyNum) return;
 
-	switch (event->getType()) {
-	case OPENMSX_JOY_AXIS_MOTION_EVENT: {
-		auto& mev = checked_cast<const JoystickAxisMotionEvent&>(*event);
-		int value = mev.getValue();
-		switch (mev.getAxis() & 1) {
-		case JoystickAxisMotionEvent::X_AXIS: // Horizontal
-			if (value < -THRESHOLD) {
-				// left, not right
-				createEvent(time, JOY_LEFT, JOY_RIGHT);
-			} else if (value > THRESHOLD) {
-				// not left, right
-				createEvent(time, JOY_RIGHT, JOY_LEFT);
-			} else {
-				// not left, not right
-				createEvent(time, 0, JOY_LEFT | JOY_RIGHT);
+	visit(overloaded{
+		[&](const JoystickAxisMotionEvent& e) {
+			int value = e.getValue();
+			switch (e.getAxis() & 1) {
+			case JoystickAxisMotionEvent::X_AXIS: // Horizontal
+				if (value < -THRESHOLD) {
+					// left, not right
+					createEvent(time, JOY_LEFT, JOY_RIGHT);
+				} else if (value > THRESHOLD) {
+					// not left, right
+					createEvent(time, JOY_RIGHT, JOY_LEFT);
+				} else {
+					// not left, not right
+					createEvent(time, 0, JOY_LEFT | JOY_RIGHT);
+				}
+				break;
+			case JoystickAxisMotionEvent::Y_AXIS: // Vertical
+				if (value < -THRESHOLD) {
+					// up, not down
+					createEvent(time, JOY_UP, JOY_DOWN);
+				} else if (value > THRESHOLD) {
+					// not up, down
+					createEvent(time, JOY_DOWN, JOY_UP);
+				} else {
+					// not up, not down
+					createEvent(time, 0, JOY_UP | JOY_DOWN);
+				}
+				break;
+			default:
+				// ignore other axis
+				break;
 			}
-			break;
-		case JoystickAxisMotionEvent::Y_AXIS: // Vertical
-			if (value < -THRESHOLD) {
-				// up, not down
-				createEvent(time, JOY_UP, JOY_DOWN);
-			} else if (value > THRESHOLD) {
-				// not up, down
-				createEvent(time, JOY_DOWN, JOY_UP);
-			} else {
-				// not up, not down
-				createEvent(time, 0, JOY_UP | JOY_DOWN);
-			}
-			break;
-		default:
-			// ignore other axis
-			break;
-		}
-		break;
-	}
-	case OPENMSX_JOY_BUTTON_DOWN_EVENT: {
-		auto& butEv = checked_cast<const JoystickButtonEvent&>(*event);
-		createEvent(time, encodeButton(butEv.getButton(), cycleMask), 0);
-		break;
-	}
-	case OPENMSX_JOY_BUTTON_UP_EVENT: {
-		auto& butEv = checked_cast<const JoystickButtonEvent&>(*event);
-		createEvent(time, 0, encodeButton(butEv.getButton(), cycleMask));
-		break;
-	}
-	default:
-		UNREACHABLE;
-	}
+		},
+		[&](const JoystickButtonDownEvent& e) {
+			createEvent(time, encodeButton(e.getButton(), cycleMask), 0);
+		},
+		[&](const JoystickButtonUpEvent& e) {
+			createEvent(time, 0, encodeButton(e.getButton(), cycleMask));
+		},
+		[&](const EventBase&) { UNREACHABLE; }
+	}, event);
 }
 
 void JoyMega::createEvent(EmuTime::param time, unsigned press, unsigned release)
@@ -300,14 +288,14 @@ void JoyMega::createEvent(EmuTime::param time, unsigned newStatus)
 	// make sure we create an event with minimal changes
 	unsigned press   =    status & diff;
 	unsigned release = newStatus & diff;
-	stateChangeDistributor.distributeNew(std::make_shared<JoyMegaState>(
-		time, joyNum, press, release));
+	stateChangeDistributor.distributeNew<JoyMegaState>(
+		time, joyNum, press, release);
 }
 
 // StateChangeListener
-void JoyMega::signalStateChange(const shared_ptr<StateChange>& event)
+void JoyMega::signalStateChange(const StateChange& event)
 {
-	auto js = dynamic_cast<const JoyMegaState*>(event.get());
+	const auto* js = dynamic_cast<const JoyMegaState*>(&event);
 	if (!js) return;
 
 	// TODO: It would be more efficient to make a dispatcher instead of
@@ -320,7 +308,7 @@ void JoyMega::signalStateChange(const shared_ptr<StateChange>& event)
 	status = (status & ~js->getPress()) | js->getRelease();
 }
 
-void JoyMega::stopReplay(EmuTime::param time)
+void JoyMega::stopReplay(EmuTime::param time) noexcept
 {
 	createEvent(time, calcInitialState());
 }
@@ -332,7 +320,7 @@ void JoyMega::serialize(Archive& ar, unsigned /*version*/)
 	             "status",    status,
 	             "cycle",     cycle,
 	             "cycleMask", cycleMask);
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		if (isPluggedIn()) {
 			plugHelper2();
 		}

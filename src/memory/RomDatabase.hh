@@ -2,28 +2,31 @@
 #define ROMDATABASE_HH
 
 #include "MemBuffer.hh"
+#include "RomInfo.hh"
 #include "sha1.hh"
-#include <utility>
 #include <vector>
 
 namespace openmsx {
 
 class CliComm;
-class RomInfo;
 
 class RomDatabase
 {
 public:
-	using RomDB = std::vector<std::pair<Sha1Sum, RomInfo>>;
+	struct Entry {
+		Sha1Sum sha1;
+		RomInfo romInfo;
+	};
+	using RomDB = std::vector<Entry>; // sorted on sha1
 
 	RomDatabase(CliComm& cliComm);
 
 	/** Lookup an entry in the database by sha1sum.
 	 * Returns nullptr when no corresponding entry was found.
 	 */
-	const RomInfo* fetchRomInfo(const Sha1Sum& sha1sum) const;
+	[[nodiscard]] const RomInfo* fetchRomInfo(const Sha1Sum& sha1sum) const;
 
-	const char* getBufferStart() const { return buffer.data(); }
+	[[nodiscard]] const char* getBufferStart() const { return buffer.data(); }
 
 private:
 	RomDB db;

@@ -14,17 +14,21 @@ class MSXMotherBoard;
 class DiskContainer
 {
 public:
+	DiskContainer(const DiskContainer&) = delete;
+	DiskContainer& operator=(const DiskContainer&) = delete;
+
+	DiskContainer() = default;
 	virtual ~DiskContainer() = default;
 
-	virtual SectorAccessibleDisk* getSectorAccessibleDisk() = 0;
-	virtual const std::string& getContainerName() const = 0;
+	[[nodiscard]] virtual SectorAccessibleDisk* getSectorAccessibleDisk() = 0;
+	[[nodiscard]] virtual std::string_view getContainerName() const = 0;
 	virtual bool diskChanged() = 0;
 
 	// for nowind
 	//  - error handling with return values instead of exceptions
-	virtual int insertDisk(std::string_view filename) = 0;
+	virtual int insertDisk(const std::string& filename) = 0;
 	// for nowind
-	bool isRomdisk() const;
+	[[nodiscard]] bool isRomdisk() const;
 
 	template<typename Archive>
 	void serialize(Archive& /*ar*/, unsigned /*version*/) {}

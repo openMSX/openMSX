@@ -3,17 +3,17 @@
 
 #include "ResampledSoundDevice.hh"
 #include "WavData.hh"
-#include <vector>
+#include "dynarray.hh"
 
 namespace openmsx {
 
 class SamplePlayer final : public ResampledSoundDevice
 {
 public:
-	SamplePlayer(const std::string& name, const std::string& desc,
+	SamplePlayer(const std::string& name, static_string_view desc,
 	             const DeviceConfig& config,
-	             const std::string& samplesBaseName, unsigned numSamples,
-	             const std::string& alternativeName = {});
+	             std::string_view samplesBaseName, unsigned numSamples,
+	             std::string_view alternativeName = {});
 	~SamplePlayer();
 
 	void reset();
@@ -25,7 +25,7 @@ public:
 	/** Keep on repeating the given sample data.
 	 * If there is already a sample playing, that sample is still
 	 * finished. If there was no sample playing, the given sample
-	 * immediatly starts playing.
+	 * immediately starts playing.
 	 * Parameters are the same as for the play() method.
 	 * @see stopRepeat()
 	 */
@@ -39,7 +39,7 @@ public:
 	void stopRepeat() { nextSampleNum = unsigned(-1); }
 
 	/** Is there currently playing a sample. */
-	bool isPlaying() const { return currentSampleNum != unsigned(-1); }
+	[[nodiscard]] bool isPlaying() const { return currentSampleNum != unsigned(-1); }
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -51,7 +51,8 @@ private:
 	// SoundDevice
 	void generateChannels(float** bufs, unsigned num) override;
 
-	std::vector<WavData> samples;
+private:
+	const dynarray<WavData> samples;
 
 	unsigned index;
 	unsigned bufferSize;

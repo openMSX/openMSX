@@ -90,7 +90,7 @@ void MusicModuleMIDI::serialize(Archive& ar, unsigned version)
 INSTANTIATE_SERIALIZE_METHODS(MusicModuleMIDI);
 REGISTER_MSXDEVICE(MusicModuleMIDI, "MusicModuleMIDI");
 
-// For backwards compatility, also register this class with the old name (only
+// For backwards compatiblity, also register this class with the old name (only
 // needed for loading from disk). Versions 1-3 use the old name "MC6850",
 // version 4 (and above) use the name "MusicModuleMIDI".
 static RegisterInitializerHelper<XmlInputArchive, MusicModuleMIDI> registerbwCompat("MC6850");

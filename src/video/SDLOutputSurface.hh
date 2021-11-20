@@ -14,7 +14,7 @@ public:
 	~SDLDirectPixelAccess();
 
 	template<typename Pixel>
-	Pixel* getLinePtr(unsigned y) {
+	[[nodiscard]] Pixel* getLinePtr(unsigned y) {
 		return reinterpret_cast<Pixel*>(static_cast<char*>(surface->pixels) + y * surface->pitch);
 	}
 
@@ -32,8 +32,8 @@ public:
 	SDLOutputSurface(const SDLOutputSurface&) = delete;
 	SDLOutputSurface& operator=(const SDLOutputSurface&) = delete;
 
-	SDL_Surface*  getSDLSurface()  const { return surface; }
-	SDL_Renderer* getSDLRenderer() const { return renderer; }
+	[[nodiscard]] SDL_Surface*  getSDLSurface()  const { return surface; }
+	[[nodiscard]] SDL_Renderer* getSDLRenderer() const { return renderer; }
 
 	/** Return a SDLDirectPixelAccess object. Via this object pointers to
 	 * individual Pixel lines can be obtained. Those pointer only remain
@@ -46,7 +46,7 @@ public:
 	 * openGL based surfaces). TODO can we move this method down the class
 	 * hierarchy so that it's only available on classes that do support it?
 	 */
-	SDLDirectPixelAccess getDirectPixelAccess()
+	[[nodiscard]] SDLDirectPixelAccess getDirectPixelAccess()
 	{
 		return SDLDirectPixelAccess(getSDLSurface());
 	}

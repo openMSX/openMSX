@@ -8,8 +8,6 @@
 #include <cstring>
 #include <utility>
 
-using std::string;
-
 namespace openmsx {
 
 GLHQLiteScaler::GLHQLiteScaler(GLScaler& fallback_)
@@ -42,8 +40,8 @@ GLHQLiteScaler::GLHQLiteScaler(GLScaler& fallback_)
 
 	auto context = systemFileContext();
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	string offsetName = "shaders/HQ_xLiteOffsets.dat";
-	for (int i = 0; i < 3; ++i) {
+	std::string offsetName = "shaders/HQ_xLiteOffsets.dat";
+	for (auto i : xrange(3)) {
 		int n = i + 2;
 		offsetName[10] = char('0') + n;
 		File offsetFile(context.resolve(offsetName));
@@ -110,13 +108,13 @@ void GLHQLiteScaler::uploadBlock(
 
 	VLA_SSE_ALIGNED(Pixel, buf1_, lineWidth); auto* buf1 = buf1_;
 	VLA_SSE_ALIGNED(Pixel, buf2_, lineWidth); auto* buf2 = buf2_;
-	auto* curr = paintFrame.getLinePtr(srcStartY - 1, lineWidth, buf1);
-	auto* next = paintFrame.getLinePtr(srcStartY + 0, lineWidth, buf2);
+	const auto* curr = paintFrame.getLinePtr(srcStartY - 1, lineWidth, buf1);
+	const auto* next = paintFrame.getLinePtr(srcStartY + 0, lineWidth, buf2);
 	calcEdgesGL(curr, next, tmpBuf2, EdgeHQLite());
 
 	edgeBuffer.bind();
 	if (auto* mapped = edgeBuffer.mapWrite()) {
-		for (unsigned y = srcStartY; y < srcEndY; ++y) {
+		for (auto y : xrange(srcStartY, srcEndY)) {
 			curr = next;
 			std::swap(buf1, buf2);
 			next = paintFrame.getLinePtr(y + 1, lineWidth, buf2);

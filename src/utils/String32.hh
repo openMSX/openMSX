@@ -14,7 +14,7 @@
 //   slightly less efficient).
 // The String32 helper abstracts the difference between the two above
 // approaches. In both cases it is a 32-bit type (hence the name). And on
-// both 32/64-bit systems it uses the more effient implementation.
+// both 32/64-bit systems it uses the more efficient implementation.
 
 using String32 = std::conditional_t<
 	(sizeof(char*) > sizeof(uint32_t)), // is a pointer bigger than an uint32_t
@@ -22,20 +22,20 @@ using String32 = std::conditional_t<
 	const char*>;                       // no  -> directly use pointer
 
 // convert string in buffer to String32
-inline void toString32(const char* buffer, const char* str, uint32_t& result) {
+constexpr void toString32(const char* buffer, const char* str, uint32_t& result) {
 	assert(buffer <= str);
 	assert(str < (buffer + std::numeric_limits<uint32_t>::max()));
 	result = str - buffer;
 }
-inline void toString32(const char* /*buffer*/, const char* str, const char*& result) {
+constexpr void toString32(const char* /*buffer*/, const char* str, const char*& result) {
 	result = str;
 }
 
 // convert String32 back to string in buffer
-[[nodiscard]] inline const char* fromString32(const char* buffer, uint32_t str32) {
+[[nodiscard]] constexpr const char* fromString32(const char* buffer, uint32_t str32) {
 	return buffer + str32;
 }
-[[nodiscard]] inline const char* fromString32(const char* /*buffer*/, const char* str32) {
+[[nodiscard]] constexpr const char* fromString32(const char* /*buffer*/, const char* str32) {
 	return str32;
 }
 

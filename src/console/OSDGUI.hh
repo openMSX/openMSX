@@ -15,13 +15,13 @@ class OSDGUI
 public:
 	OSDGUI(CommandController& commandController, Display& display);
 
-	Display& getDisplay() const { return display; }
-	const OSDTopWidget& getTopWidget() const { return topWidget; }
-	      OSDTopWidget& getTopWidget()       { return topWidget; }
+	[[nodiscard]] Display& getDisplay() const { return display; }
+	[[nodiscard]] const OSDTopWidget& getTopWidget() const { return topWidget; }
+	[[nodiscard]]       OSDTopWidget& getTopWidget()       { return topWidget; }
 	void refresh() const;
 
 	void setOpenGL(bool openGL_) { openGL = openGL_; }
-	bool isOpenGL() const { return openGL; }
+	[[nodiscard]] bool isOpenGL() const { return openGL; }
 
 private:
 	Display& display;
@@ -30,7 +30,7 @@ private:
 	public:
 		explicit OSDCommand(CommandController& commandController);
 		void execute(span<const TclObject> tokens, TclObject& result) override;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 
 	private:
@@ -39,11 +39,11 @@ private:
 		void info     (span<const TclObject> tokens, TclObject& result);
 		void exists   (span<const TclObject> tokens, TclObject& result);
 		void configure(span<const TclObject> tokens, TclObject& result);
-		std::unique_ptr<OSDWidget> create(
+		[[nodiscard]] std::unique_ptr<OSDWidget> create(
 			std::string_view type, const TclObject& name) const;
 		void configure(OSDWidget& widget, span<const TclObject> tokens);
 
-		OSDWidget& getWidget(std::string_view name) const;
+		[[nodiscard]] OSDWidget& getWidget(std::string_view name) const;
 	} osdCommand;
 
 	OSDTopWidget topWidget;

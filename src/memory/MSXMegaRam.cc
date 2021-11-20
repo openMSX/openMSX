@@ -26,13 +26,14 @@
 #include "Rom.hh"
 #include "Math.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <memory>
 
 namespace openmsx {
 
 MSXMegaRam::MSXMegaRam(const DeviceConfig& config)
 	: MSXDevice(config)
-	, numBlocks(config.getChildDataAsInt("size") / 8) // 8kB blocks
+	, numBlocks(config.getChildDataAsInt("size", 0) / 8) // 8kB blocks
 	, ram(config, getName() + " RAM", "Mega-RAM", numBlocks * 0x2000)
 	, rom(config.findChild("rom")
 	      ? std::make_unique<Rom>(getName() + " ROM", "Mega-RAM DiskROM", config)
@@ -47,7 +48,7 @@ MSXMegaRam::~MSXMegaRam() = default;
 
 void MSXMegaRam::powerUp(EmuTime::param time)
 {
-	for (unsigned i = 0; i < 4; i++) {
+	for (auto i : xrange(4)) {
 		setBank(i, 0);
 	}
 	writeMode = false;

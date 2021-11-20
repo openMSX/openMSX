@@ -19,16 +19,15 @@ void MSXBunsetsu::reset(EmuTime::param /*time*/)
 
 byte MSXBunsetsu::readMem(word address, EmuTime::param /*time*/)
 {
-	byte result;
 	if (address == 0xBFFF) {
-		result = jisyoRom[jisyoAddress];
+		byte result = jisyoRom[jisyoAddress];
 		jisyoAddress = (jisyoAddress + 1) & 0x1FFFF;
+		return result;
 	} else if ((0x4000 <= address) && (address < 0xC000)) {
-		result = bunsetsuRom[address - 0x4000];
+		return bunsetsuRom[address - 0x4000];
 	} else {
-		result = 0xFF;
+		return 0xFF;
 	}
-	return result;
 }
 
 void MSXBunsetsu::writeMem(word address, byte value, EmuTime::param /*time*/)

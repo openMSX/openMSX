@@ -7,11 +7,13 @@
 #include "YM2413Okazaki.hh"
 #include "Math.hh"
 #include "cstd.hh"
+#include "enumerate.hh"
 #include "inline.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include <array>
 #include <cstring>
 #include <cassert>
@@ -26,7 +28,7 @@ constexpr int PM_FP_BITS =  8;
 // Dynamic range (Accuracy of sin table)
 constexpr int DB_BITS = 8;
 constexpr int DB_MUTE = 1 << DB_BITS;
-constexpr int DBTABLEN = 3 * DB_MUTE; // enough to not have to check for overflow
+constexpr int DBTABLEN = 4 * DB_MUTE; // enough to not have to check for overflow
 
 constexpr double DB_STEP = 48.0 / DB_MUTE;
 constexpr double EG_STEP = 0.375;
@@ -68,7 +70,7 @@ constexpr int AM_DP_MASK = AM_DP_WIDTH - 1;
 // because it closely matches the YM2413 AM parameters:
 //    speed = 3.7Hz
 //    depth = 4.875dB
-// Also this approch can be easily implemented in HW, the previous one (see SVN
+// Also this approach can be easily implemented in HW, the previous one (see SVN
 // history) could not.
 constexpr unsigned LFO_AM_TAB_ELEMENTS = 210;
 
@@ -159,15 +161,15 @@ constexpr uint8_t mlTable[16] = {
 //   [DBTABLEN, 2*DBTABLEN)  as above but for negative output values
 constexpr auto dB2LinTab = [] {
 	std::array<int, 2 * DBTABLEN> result = {};
-	for (int i = 0; i < DB_MUTE; ++i) {
+	for (int i : xrange(DB_MUTE - 1)) {
 		result[i] = int(double((1 << DB2LIN_AMP_BITS) - 1) *
 		                   cstd::pow<5, 3>(10, -double(i) * DB_STEP / 20));
 	}
 	result[DB_MUTE - 1] = 0;
-	for (int i = DB_MUTE; i < DBTABLEN; ++i) {
+	for (auto i : xrange(DB_MUTE, DBTABLEN)) {
 		result[i] = 0;
 	}
-	for (int i = 0; i < DBTABLEN; ++i) {
+	for (auto i : xrange(DBTABLEN)) {
 		result[i + DBTABLEN] = -result[i];
 	}
 	return result;
@@ -178,7 +180,7 @@ constexpr auto arAdjustTab = [] {
 	std::array<unsigned, 1 << EG_BITS> result = {};
 	result[0] = (1 << EG_BITS) - 1;
 	constexpr double l127 = cstd::log<5, 4>(127.0);
-	for (int i = 1; i < (1 << EG_BITS); ++i) {
+	for (int i : xrange(1, 1 << EG_BITS)) {
 		result[i] = unsigned(double(1 << EG_BITS) - 1 -
 		         ((1 << EG_BITS) - 1) * cstd::log<5, 4>(double(i)) / l127);
 	}
@@ -190,18 +192,18 @@ constexpr auto tllTab = [] {
 	std::array<std::array<uint8_t, 16 * 8>, 4> result = {};
 
 	// Processed version of Table III-5 from the Application Manual.
-	constexpr unsigned kltable[16] = {
+	constexpr unsigned klTable[16] = {
 		0, 24, 32, 37, 40, 43, 45, 47, 48, 50, 51, 52, 53, 54, 55, 56
 	};
 	// Note: KL [0..3] results in {0.0, 1.5, 3.0, 6.0} dB/oct.
 	// This is different from Y8950 and YMF262 which have {0, 3, 1.5, 6}.
 	// (2nd and 3rd elements are swapped). Verified on real YM2413.
 
-	for (unsigned freq = 0; freq < 16 * 8; ++freq) {
-		unsigned fnum = freq & 15;
+	for (auto freq : xrange(16 * 8u)) {
+		unsigned fnum  = freq % 16;
 		unsigned block = freq / 16;
-		int tmp = 2 * kltable[fnum] - 16 * (7 - block);
-		for (unsigned KL = 0; KL < 4; ++KL) {
+		int tmp = 2 * klTable[fnum] - 16 * (7 - block);
+		for (auto KL : xrange(4)) {
 			unsigned t = (tmp <= 0 || KL == 0) ? 0 : (tmp >> (3 - KL));
 			assert(t <= 112);
 			result[KL][freq] = t;
@@ -222,23 +224,23 @@ constexpr auto fullSinTable = [] {
 	};
 
 	std::array<unsigned, PG_WIDTH> result = {};
-	for (int i = 0; i < PG_WIDTH / 4; ++i) {
+	for (auto i : xrange(PG_WIDTH / 4)) {
 		result[i] = lin2db(cstd::sin<2>(double(2.0 * M_PI) * i / PG_WIDTH));
 	}
-	for (int i = 0; i < PG_WIDTH / 4; ++i) {
+	for (auto i : xrange(PG_WIDTH / 4)) {
 		result[PG_WIDTH / 2 - 1 - i] = result[i];
 	}
-	for (int i = 0; i < PG_WIDTH / 2; ++i) {
+	for (auto i : xrange(PG_WIDTH / 2)) {
 		result[PG_WIDTH / 2 + i] = DBTABLEN + result[i];
 	}
 	return result;
 }();
 constexpr auto halfSinTable = [] {
 	std::array<unsigned, PG_WIDTH> result = {};
-	for (int i = 0; i < PG_WIDTH / 2; ++i) {
+	for (auto i : xrange(PG_WIDTH / 2)) {
 		result[i] = fullSinTable[i];
 	}
-	for (int i = PG_WIDTH / 2; i < PG_WIDTH; ++i) {
+	for (auto i : xrange(PG_WIDTH / 2, PG_WIDTH)) {
 		result[i] = fullSinTable[0];
 	}
 	return result;
@@ -249,12 +251,12 @@ constexpr unsigned const * const waveform[2] = {fullSinTable.data(), halfSinTabl
 //  note: original code had indices swapped. It also had
 //        a separate table for attack
 //  17.15 fixed point
-constexpr auto dphaseDrTab = [] {
+constexpr auto dPhaseDrTab = [] {
 	std::array<std::array<int, 16>, 16> result = {};
-	for (unsigned Rks = 0; Rks < 16; ++Rks) {
+	for (auto Rks : xrange(16)) {
 		result[Rks][0] = 0;
-		for (unsigned DR = 1; DR < 16; ++DR) {
-			unsigned RM = std::min(DR + (Rks >> 2), 15u);
+		for (auto DR : xrange(1, 16)) {
+			unsigned RM = std::min(DR + (Rks >> 2), 15);
 			unsigned RL = Rks & 3;
 			result[Rks][DR] =
 				((RL + 4) << EP_FP_BITS) >> (16 - RM);
@@ -266,6 +268,7 @@ constexpr auto dphaseDrTab = [] {
 // Sustain level (17.15 fixed point)
 constexpr auto slTab = [] {
 	std::array<unsigned, 16> result = {};
+	//for (auto [i, r] : enumerate(result)) { msvc bug
 	for (int i = 0; i < 16; ++i) {
 		double x = (i == 15) ? 48.0 : (3.0 * i);
 		result[i] = int(x / EG_STEP) << EP_FP_BITS;
@@ -387,12 +390,12 @@ void Patch::setSL(uint8_t value)
 //
 void Slot::reset()
 {
-	cphase = 0;
-	ranges::fill(dphase, 0);
+	cPhase = 0;
+	ranges::fill(dPhase, 0);
 	output = 0;
 	feedback = 0;
 	setEnvelopeState(FINISH);
-	dphaseDRTableRks = dphaseDrTab[0].data();
+	dPhaseDRTableRks = dPhaseDrTab[0].data();
 	tll = 0;
 	sustain = false;
 	volume = TL2EG(0);
@@ -403,15 +406,15 @@ void Slot::updatePG(unsigned freq)
 {
 	// Pre-calculate all phase-increments. The 8 different values are for
 	// the 8 steps of the PM stuff (for mod and car phase calculation).
-	// When PM isn't used then dphase[0] is used (pmTable[.][0] == 0).
+	// When PM isn't used then dPhase[0] is used (pmTable[.][0] == 0).
 	// The original Okazaki core calculated the PM stuff in a different
 	// way. This algorithm was copied from the Burczynski core because it
 	// is much more suited for a (cheap) hardware calculation.
 	unsigned fnum  = freq & 511;
 	unsigned block = freq / 512;
-	for (int pm = 0; pm < 8; ++pm) {
+	for (auto [pm, dP] : enumerate(dPhase)) {
 		unsigned tmp = ((2 * fnum + pmTable[fnum >> 6][pm]) * patch.ML) << block;
-		dphase[pm] = tmp >> (21 - DP_BITS);
+		dP = tmp >> (21 - DP_BITS);
 	}
 }
 
@@ -424,7 +427,7 @@ void Slot::updateRKS(unsigned freq)
 {
 	unsigned rks = freq >> patch.KR;
 	assert(rks < 16);
-	dphaseDRTableRks = dphaseDrTab[rks].data();
+	dPhaseDRTableRks = dPhaseDrTab[rks].data();
 }
 
 void Slot::updateEG()
@@ -433,27 +436,27 @@ void Slot::updateEG()
 	case ATTACK:
 		// Original code had separate table for AR, the values in
 		// this table were 12 times bigger than the values in the
-		// dphaseDRTableRks table, expect for the value for AR=15.
+		// dPhaseDRTableRks table, expect for the value for AR=15.
 		// But when AR=15, the value doesn't matter.
 		//
 		// This factor 12 can also be seen in the attack/decay rates
 		// table in the ym2413 application manual (table III-7, page
 		// 13). For other chips like OPL1, OPL3 this ratio seems to be
 		// different.
-		eg_dphase = EnvPhaseIndex::create(
-			dphaseDRTableRks[patch.AR] * 12);
+		eg_dPhase = EnvPhaseIndex::create(
+			dPhaseDRTableRks[patch.AR] * 12);
 		break;
 	case DECAY:
-		eg_dphase = EnvPhaseIndex::create(dphaseDRTableRks[patch.DR]);
+		eg_dPhase = EnvPhaseIndex::create(dPhaseDRTableRks[patch.DR]);
 		break;
 	case SUSTAIN:
-		eg_dphase = EnvPhaseIndex::create(dphaseDRTableRks[patch.RR]);
+		eg_dPhase = EnvPhaseIndex::create(dPhaseDRTableRks[patch.RR]);
 		break;
 	case RELEASE: {
 		unsigned idx = sustain ? 5
 		                       : (patch.EG ? patch.RR
 		                                   : 7);
-		eg_dphase = EnvPhaseIndex::create(dphaseDRTableRks[idx]);
+		eg_dPhase = EnvPhaseIndex::create(dPhaseDRTableRks[idx]);
 		break;
 	}
 	case SETTLE:
@@ -470,11 +473,11 @@ void Slot::updateEG()
 		// state). Experiments showed that the with key-scaling the
 		// output matches closer the real HW. Also all other states use
 		// key-scaling.
-		eg_dphase = EnvPhaseIndex::create(dphaseDRTableRks[12]);
+		eg_dPhase = EnvPhaseIndex::create(dPhaseDRTableRks[12]);
 		break;
 	case SUSHOLD:
 	case FINISH:
-		eg_dphase = EnvPhaseIndex(0);
+		eg_dPhase = EnvPhaseIndex(0);
 		break;
 	}
 }
@@ -523,7 +526,7 @@ void Slot::slotOn()
 {
 	setEnvelopeState(ATTACK);
 	eg_phase = EnvPhaseIndex(0);
-	cphase = 0;
+	cPhase = 0;
 }
 
 // Slot key on, without resetting the phase
@@ -600,7 +603,7 @@ void Channel::keyOn()
 {
 	// TODO Should we also test mod.slot_on_flag?
 	//      Should we    set    mod.slot_on_flag?
-	//      Can make a difference for channel 7/8 in ryhthm mode.
+	//      Can make a difference for channel 7/8 in rythm mode.
 	if (!car.slot_on_flag) {
 		car.setEnvelopeState(SETTLE);
 		// this will shortly set both car and mod to ATTACK state
@@ -627,7 +630,7 @@ void Channel::keyOff()
 // YM2413
 //
 
-static uint8_t inst_data[16 + 3][8] = {
+static constexpr uint8_t inst_data[16 + 3][8] = {
 	{ 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 }, // user instrument
 	{ 0x61,0x61,0x1e,0x17,0xf0,0x7f,0x00,0x17 }, // violin
 	{ 0x13,0x41,0x16,0x0e,0xfd,0xf4,0x23,0x23 }, // guitar
@@ -652,40 +655,40 @@ static uint8_t inst_data[16 + 3][8] = {
 YM2413::YM2413()
 {
 	if (false) {
-		for (auto& e : dB2LinTab) std::cout << e << ' ';
+		for (const auto& e : dB2LinTab) std::cout << e << ' ';
 		std::cout << '\n';
 
-		for (auto& e : arAdjustTab) std::cout << e << ' ';
+		for (const auto& e : arAdjustTab) std::cout << e << ' ';
 		std::cout << '\n';
 
-		for (int i = 0; i < 4; ++i) {
-			for (int j = 0; j < 16 * 8; ++j) {
+		for (auto i : xrange(4)) {
+			for (auto j : xrange(16 * 8)) {
 				std::cout << int(tllTab[i][j]) << ' ';
 			}
 			std::cout << '\n';
 		}
 		std::cout << '\n';
 
-		for (auto& e : fullSinTable) std::cout << e << ' ';
+		for (const auto& e : fullSinTable) std::cout << e << ' ';
 		std::cout << '\n';
-		for (auto& e : halfSinTable) std::cout << e << ' ';
+		for (const auto& e : halfSinTable) std::cout << e << ' ';
 		std::cout << '\n';
 
-		for (int i = 0; i < 16; ++i) {
-			for (int j = 0; j < 16; ++j) {
-				std::cout << dphaseDrTab[i][j] << ' ';
+		for (auto i : xrange(16)) {
+			for (auto j : xrange(16)) {
+				std::cout << dPhaseDrTab[i][j] << ' ';
 			}
 			std::cout << '\n';
 		}
 		std::cout << '\n';
 
-		for (auto& e : slTab) std::cout << e << ' ';
+		for (const auto& e : slTab) std::cout << e << ' ';
 		std::cout << '\n';
 	}
 
 	memset(reg, 0, sizeof(reg)); // avoid UMR
 
-	for (unsigned i = 0; i < 16 + 3; ++i) {
+	for (auto i : xrange(16 + 3)) {
 		patches[i][0].initModulator(inst_data[i]);
 		patches[i][1].initCarrier  (inst_data[i]);
 	}
@@ -693,7 +696,7 @@ YM2413::YM2413()
 	reset();
 }
 
-// Reset whole of OPLL except patch datas
+// Reset whole of OPLL except patch data
 void YM2413::reset()
 {
 	pm_phase = 0;
@@ -703,7 +706,7 @@ void YM2413::reset()
 	for (auto& ch : channels) {
 		ch.reset(*this);
 	}
-	for (unsigned i = 0; i < 0x40; ++i) {
+	for (auto i : xrange(0x40)) {
 		writeReg(i, 0);
 	}
 	registerLatch = 0;
@@ -856,9 +859,8 @@ void YM2413::setRhythmFlags(uint8_t old)
 
 void YM2413::update_key_status()
 {
-	for (unsigned i = 0; i < 9; ++i) {
+	for (auto [i, ch] : enumerate(channels)) {
 		int slot_on = (reg[0x20 + i] & 0x10) ? 1 : 0;
-		Channel& ch = channels[i];
 		ch.mod.slot_on_flag = slot_on;
 		ch.car.slot_on_flag = slot_on;
 	}
@@ -889,8 +891,8 @@ static constexpr int wave2_8pi(int e)
 // PG
 ALWAYS_INLINE unsigned Slot::calc_phase(unsigned lfo_pm)
 {
-	cphase += dphase[lfo_pm];
-	return cphase >> DP_BASE_BITS;
+	cPhase += dPhase[lfo_pm];
+	return cPhase >> DP_BASE_BITS;
 }
 
 // EG
@@ -924,43 +926,43 @@ void Slot::calc_envelope_outline(unsigned& out)
 		break;
 	}
 }
-template <bool HAS_AM, bool FIXED_ENV>
+template<bool HAS_AM, bool FIXED_ENV>
 ALWAYS_INLINE unsigned Slot::calc_envelope(int lfo_am, unsigned fixed_env)
 {
 	assert(!FIXED_ENV || (state == one_of(SUSHOLD, FINISH)));
 
-	if (FIXED_ENV) {
+	if constexpr (FIXED_ENV) {
 		unsigned out = fixed_env;
-		if (HAS_AM) {
-			out += lfo_am; // [0, 512)
+		if constexpr (HAS_AM) {
+			out += lfo_am; // [0, 768)
 			out |= 3;
 		} else {
 			// out |= 3   is already done in calc_fixed_env()
 		}
 		return out;
 	} else {
-		unsigned out = eg_phase.toInt(); // in range [0, 128)
+		unsigned out = eg_phase.toInt(); // in range [0, 128]
 		if (state == ATTACK) {
-			out = arAdjustTab[out]; // [0, 128)
+			out = arAdjustTab[out]; // [0, 128]
 		}
-		eg_phase += eg_dphase;
+		eg_phase += eg_dPhase;
 		if (eg_phase >= eg_phase_max) {
 			calc_envelope_outline(out);
 		}
-		out = EG2DB(out + tll); // [0, 480)
-		if (HAS_AM) {
-			out += lfo_am; // [0, 512)
+		out = EG2DB(out + tll); // [0, 732]
+		if constexpr (HAS_AM) {
+			out += lfo_am; // [0, 758]
 		}
 		return out | 3;
 	}
 }
-template <bool HAS_AM> unsigned Slot::calc_fixed_env() const
+template<bool HAS_AM> unsigned Slot::calc_fixed_env() const
 {
 	assert(state == one_of(SUSHOLD, FINISH));
-	assert(eg_dphase == EnvPhaseIndex(0));
+	assert(eg_dPhase == EnvPhaseIndex(0));
 	unsigned out = eg_phase.toInt(); // in range [0, 128)
 	out = EG2DB(out + tll); // [0, 480)
-	if (!HAS_AM) {
+	if constexpr (!HAS_AM) {
 		out |= 3;
 	}
 	return out;
@@ -971,8 +973,8 @@ template<bool HAS_AM, bool FIXED_ENV>
 ALWAYS_INLINE int Slot::calc_slot_car(unsigned lfo_pm, int lfo_am, int fm, unsigned fixed_env)
 {
 	int phase = calc_phase(lfo_pm) + wave2_8pi(fm);
-	unsigned egout = calc_envelope<HAS_AM, FIXED_ENV>(lfo_am, fixed_env);
-	int newOutput = dB2LinTab[patch.WF[phase & PG_MASK] + egout];
+	unsigned egOut = calc_envelope<HAS_AM, FIXED_ENV>(lfo_am, fixed_env);
+	int newOutput = dB2LinTab[patch.WF[phase & PG_MASK] + egOut];
 	output = (output + newOutput) >> 1;
 	return output;
 }
@@ -983,11 +985,11 @@ ALWAYS_INLINE int Slot::calc_slot_mod(unsigned lfo_pm, int lfo_am, unsigned fixe
 {
 	assert((patch.FB != 0) == HAS_FB);
 	unsigned phase = calc_phase(lfo_pm);
-	unsigned egout = calc_envelope<HAS_AM, FIXED_ENV>(lfo_am, fixed_env);
-	if (HAS_FB) {
+	unsigned egOut = calc_envelope<HAS_AM, FIXED_ENV>(lfo_am, fixed_env);
+	if constexpr (HAS_FB) {
 		phase += wave2_8pi(feedback) >> patch.FB;
 	}
-	int newOutput = dB2LinTab[patch.WF[phase & PG_MASK] + egout];
+	int newOutput = dB2LinTab[patch.WF[phase & PG_MASK] + egOut];
 	feedback = (output + newOutput) >> 1;
 	output = newOutput;
 	return feedback;
@@ -997,46 +999,46 @@ ALWAYS_INLINE int Slot::calc_slot_mod(unsigned lfo_pm, int lfo_am, unsigned fixe
 ALWAYS_INLINE int Slot::calc_slot_tom()
 {
 	unsigned phase = calc_phase(0);
-	unsigned egout = calc_envelope<false, false>(0, 0);
-	return dB2LinTab[patch.WF[phase & PG_MASK] + egout];
+	unsigned egOut = calc_envelope<false, false>(0, 0);
+	return dB2LinTab[patch.WF[phase & PG_MASK] + egOut];
 }
 
 // SNARE (ch7 car)
 ALWAYS_INLINE int Slot::calc_slot_snare(bool noise)
 {
 	unsigned phase = calc_phase(0);
-	unsigned egout = calc_envelope<false, false>(0, 0);
+	unsigned egOut = calc_envelope<false, false>(0, 0);
 	return BIT(phase, 7)
-		? dB2LinTab[(noise ? DB_POS(0.0) : DB_POS(15.0)) + egout]
-		: dB2LinTab[(noise ? DB_NEG(0.0) : DB_NEG(15.0)) + egout];
+		? dB2LinTab[(noise ? DB_POS(0.0) : DB_POS(15.0)) + egOut]
+		: dB2LinTab[(noise ? DB_NEG(0.0) : DB_NEG(15.0)) + egOut];
 }
 
 // TOP-CYM (ch8 car)
 ALWAYS_INLINE int Slot::calc_slot_cym(unsigned phase7, unsigned phase8)
 {
-	unsigned egout = calc_envelope<false, false>(0, 0);
-	unsigned dbout = (((BIT(phase7, PG_BITS - 8) ^
+	unsigned egOut = calc_envelope<false, false>(0, 0);
+	unsigned dbOut = (((BIT(phase7, PG_BITS - 8) ^
 	                    BIT(phase7, PG_BITS - 1)) |
 	                   BIT(phase7, PG_BITS - 7)) ^
 	                  ( BIT(phase8, PG_BITS - 7) &
 	                   !BIT(phase8, PG_BITS - 5)))
 	               ? DB_NEG(3.0)
 	               : DB_POS(3.0);
-	return dB2LinTab[dbout + egout];
+	return dB2LinTab[dbOut + egOut];
 }
 
 // HI-HAT (ch7 mod)
 ALWAYS_INLINE int Slot::calc_slot_hat(unsigned phase7, unsigned phase8, bool noise)
 {
-	unsigned egout = calc_envelope<false, false>(0, 0);
-	unsigned dbout = (((BIT(phase7, PG_BITS - 8) ^
+	unsigned egOut = calc_envelope<false, false>(0, 0);
+	unsigned dbOut = (((BIT(phase7, PG_BITS - 8) ^
 	                    BIT(phase7, PG_BITS - 1)) |
 	                   BIT(phase7, PG_BITS - 7)) ^
 	                  ( BIT(phase8, PG_BITS - 7) &
 	                   !BIT(phase8, PG_BITS - 5)))
 	               ? (noise ? DB_NEG(12.0) : DB_NEG(24.0))
 	               : (noise ? DB_POS(12.0) : DB_POS(24.0));
-	return dB2LinTab[dbout + egout];
+	return dB2LinTab[dbOut + egOut];
 }
 
 float YM2413::getAmplificationFactor() const
@@ -1061,7 +1063,7 @@ Patch& YM2413::getPatch(unsigned instrument, bool carrier)
 	return patches[instrument][carrier];
 }
 
-template <unsigned FLAGS>
+template<unsigned FLAGS>
 ALWAYS_INLINE void YM2413::calcChannel(Channel& ch, float* buf, unsigned num)
 {
 	// VC++ requires explicit conversion to bool. Compiler bug??
@@ -1082,17 +1084,17 @@ ALWAYS_INLINE void YM2413::calcChannel(Channel& ch, float* buf, unsigned num)
 	unsigned tmp_am_phase = am_phase;
 	unsigned car_fixed_env = 0; // dummy
 	unsigned mod_fixed_env = 0; // dummy
-	if (HAS_CAR_FIXED_ENV) {
+	if constexpr (HAS_CAR_FIXED_ENV) {
 		car_fixed_env = ch.car.calc_fixed_env<HAS_CAR_AM>();
 	}
-	if (HAS_MOD_FIXED_ENV) {
+	if constexpr (HAS_MOD_FIXED_ENV) {
 		mod_fixed_env = ch.mod.calc_fixed_env<HAS_MOD_AM>();
 	}
 
 	unsigned sample = 0;
 	do {
 		unsigned lfo_pm = 0;
-		if (HAS_CAR_PM || HAS_MOD_PM) {
+		if constexpr (HAS_CAR_PM || HAS_MOD_PM) {
 			// Copied from Burczynski:
 			//  There are only 8 different steps for PM, and each
 			//  step lasts for 1024 samples. This results in a PM
@@ -1101,7 +1103,7 @@ ALWAYS_INLINE void YM2413::calcChannel(Channel& ch, float* buf, unsigned num)
 			lfo_pm = (tmp_pm_phase >> 10) & 7;
 		}
 		int lfo_am = 0; // avoid warning
-		if (HAS_CAR_AM || HAS_MOD_AM) {
+		if constexpr (HAS_CAR_AM || HAS_MOD_AM) {
 			++tmp_am_phase;
 			if (tmp_am_phase == (LFO_AM_TAB_ELEMENTS * 64)) {
 				tmp_am_phase = 0;
@@ -1120,8 +1122,7 @@ void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 {
 	assert(num != 0);
 
-	unsigned m = isRhythm() ? 6 : 9;
-	for (unsigned i = 0; i < m; ++i) {
+	for (auto i : xrange(isRhythm() ? 6 : 9)) {
 		Channel& ch = channels[i];
 		if (ch.car.isActive()) {
 			// Below we choose between 128 specialized versions of
@@ -1286,11 +1287,11 @@ void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 		Channel& ch8 = channels[8];
 
 		unsigned old_noise = noise_seed;
-		unsigned old_cphase7 = ch7.mod.cphase;
-		unsigned old_cphase8 = ch8.car.cphase;
+		unsigned old_cPhase7 = ch7.mod.cPhase;
+		unsigned old_cPhase8 = ch8.car.cPhase;
 
 		if (ch6.car.isActive()) {
-			for (unsigned sample = 0; sample < num; ++sample) {
+			for (auto sample : xrange(num)) {
 				bufs[ 9][sample] += 2 *
 				    ch6.car.calc_slot_car<false, false>(
 				        0, 0, ch6.mod.calc_slot_mod<
@@ -1301,7 +1302,7 @@ void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 		}
 
 		if (ch7.car.isActive()) {
-			for (unsigned sample = 0; sample < num; ++sample) {
+			for (auto sample : xrange(num)) {
 				noise_seed >>= 1;
 				bool noise_bit = noise_seed & 1;
 				if (noise_bit) noise_seed ^= 0x8003020;
@@ -1313,7 +1314,7 @@ void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 		}
 
 		if (ch8.car.isActive()) {
-			for (unsigned sample = 0; sample < num; ++sample) {
+			for (auto sample : xrange(num)) {
 				unsigned phase7 = ch7.mod.calc_phase(0);
 				unsigned phase8 = ch8.car.calc_phase(0);
 				bufs[11][sample] +=
@@ -1324,11 +1325,11 @@ void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 		}
 
 		if (ch7.mod.isActive()) {
-			// restore noise, ch7/8 cphase
+			// restore noise, ch7/8 cPhase
 			noise_seed = old_noise;
-			ch7.mod.cphase = old_cphase7;
-			ch8.car.cphase = old_cphase8;
-			for (unsigned sample = 0; sample < num; ++sample) {
+			ch7.mod.cPhase = old_cPhase7;
+			ch8.car.cPhase = old_cPhase8;
+			for (auto sample : xrange(num)) {
 				noise_seed >>= 1;
 				bool noise_bit = noise_seed & 1;
 				if (noise_bit) noise_seed ^= 0x8003020;
@@ -1342,7 +1343,7 @@ void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 		}
 
 		if (ch8.mod.isActive()) {
-			for (unsigned sample = 0; sample < num; ++sample) {
+			for (auto sample : xrange(num)) {
 				bufs[13][sample] += 2 * ch8.mod.calc_slot_tom();
 			}
 		} else {
@@ -1382,8 +1383,7 @@ void YM2413::writeReg(uint8_t r, uint8_t data)
 		patches[0][0].EG   = (data >> 5) & 1;
 		patches[0][0].setKR ((data >> 4) & 1);
 		patches[0][0].setML ((data >> 0) & 15);
-		unsigned m = isRhythm() ? 6 : 9;
-		for (unsigned i = 0; i < m; ++i) {
+		for (auto i : xrange(isRhythm() ? 6 : 9)) {
 			if ((reg[0x30 + i] & 0xF0) == 0) {
 				Channel& ch = channels[i];
 				ch.setPatch(0, *this); // TODO optimize
@@ -1401,8 +1401,7 @@ void YM2413::writeReg(uint8_t r, uint8_t data)
 		patches[0][1].EG   = (data >> 5) & 1;
 		patches[0][1].setKR ((data >> 4) & 1);
 		patches[0][1].setML ((data >> 0) & 15);
-		unsigned m = isRhythm() ? 6 : 9;
-		for (unsigned i = 0; i < m; ++i) {
+		for (auto i : xrange(isRhythm() ? 6 : 9)) {
 			if ((reg[0x30 + i] & 0xF0) == 0) {
 				Channel& ch = channels[i];
 				ch.setPatch(0, *this); // TODO optimize
@@ -1418,8 +1417,7 @@ void YM2413::writeReg(uint8_t r, uint8_t data)
 		reg[r] = data;
 		patches[0][0].setKL((data >> 6) &  3);
 		patches[0][0].setTL((data >> 0) & 63);
-		unsigned m = isRhythm() ? 6 : 9;
-		for (unsigned i = 0; i < m; ++i) {
+		for (auto i : xrange(isRhythm() ? 6 : 9)) {
 			if ((reg[0x30 + i] & 0xF0) == 0) {
 				Channel& ch = channels[i];
 				ch.setPatch(0, *this); // TODO optimize
@@ -1436,8 +1434,7 @@ void YM2413::writeReg(uint8_t r, uint8_t data)
 		patches[0][1].setWF((data >> 4) & 1);
 		patches[0][0].setWF((data >> 3) & 1);
 		patches[0][0].setFB((data >> 0) & 7);
-		unsigned m = isRhythm() ? 6 : 9;
-		for (unsigned i = 0; i < m; ++i) {
+		for (auto i : xrange(isRhythm() ? 6 : 9)) {
 			if ((reg[0x30 + i] & 0xF0) == 0) {
 				Channel& ch = channels[i];
 				ch.setPatch(0, *this); // TODO optimize
@@ -1449,8 +1446,7 @@ void YM2413::writeReg(uint8_t r, uint8_t data)
 		reg[r] = data;
 		patches[0][0].AR = (data >> 4) & 15;
 		patches[0][0].DR = (data >> 0) & 15;
-		unsigned m = isRhythm() ? 6 : 9;
-		for (unsigned i = 0; i < m; ++i) {
+		for (auto i : xrange(isRhythm() ? 6 : 9)) {
 			if ((reg[0x30 + i] & 0xF0) == 0) {
 				Channel& ch = channels[i];
 				ch.setPatch(0, *this); // TODO optimize
@@ -1466,8 +1462,7 @@ void YM2413::writeReg(uint8_t r, uint8_t data)
 		reg[r] = data;
 		patches[0][1].AR = (data >> 4) & 15;
 		patches[0][1].DR = (data >> 0) & 15;
-		unsigned m = isRhythm() ? 6 : 9;
-		for (unsigned i = 0; i < m; ++i) {
+		for (auto i : xrange(isRhythm() ? 6 : 9)) {
 			if ((reg[0x30 + i] & 0xF0) == 0) {
 				Channel& ch = channels[i];
 				ch.setPatch(0, *this); // TODO optimize
@@ -1483,8 +1478,7 @@ void YM2413::writeReg(uint8_t r, uint8_t data)
 		reg[r] = data;
 		patches[0][0].setSL((data >> 4) & 15);
 		patches[0][0].RR  = (data >> 0) & 15;
-		unsigned m = isRhythm() ? 6 : 9;
-		for (unsigned i = 0; i < m; ++i) {
+		for (auto i : xrange(isRhythm() ? 6 : 9)) {
 			if ((reg[0x30 + i] & 0xF0) == 0) {
 				Channel& ch = channels[i];
 				ch.setPatch(0, *this); // TODO optimize
@@ -1500,8 +1494,7 @@ void YM2413::writeReg(uint8_t r, uint8_t data)
 		reg[r] = data;
 		patches[0][1].setSL((data >> 4) & 15);
 		patches[0][1].RR  = (data >> 0) & 15;
-		unsigned m = isRhythm() ? 6 : 9;
-		for (unsigned i = 0; i < m; i++) {
+		for (auto i : xrange(isRhythm() ? 6 : 9)) {
 			if ((reg[0x30 + i] & 0xF0) == 0) {
 				Channel& ch = channels[i];
 				ch.setPatch(0, *this); // TODO optimize
@@ -1566,7 +1559,7 @@ void YM2413::writeReg(uint8_t r, uint8_t data)
 		Channel& ch = channels[cha];
 		if (isRhythm() && (cha >= 6)) {
 			if (cha > 6) {
-				// channel 7 or 8 in ryhthm mode
+				// channel 7 or 8 in rythm mode
 				ch.mod.setVolume(data >> 4);
 			}
 		} else {
@@ -1591,7 +1584,7 @@ uint8_t YM2413::peekReg(uint8_t r) const
 
 } // namespace YM2413Okazaki
 
-static std::initializer_list<enum_string<YM2413Okazaki::EnvelopeState>> envelopeStateInfo = {
+static constexpr std::initializer_list<enum_string<YM2413Okazaki::EnvelopeState>> envelopeStateInfo = {
 	{ "ATTACK",  YM2413Okazaki::ATTACK  },
 	{ "DECAY",   YM2413Okazaki::DECAY   },
 	{ "SUSHOLD", YM2413Okazaki::SUSHOLD },
@@ -1614,13 +1607,13 @@ void Slot::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("feedback", feedback,
 	             "output",   output,
-	             "cphase",   cphase,
+	             "cphase",   cPhase,
 	             "state",    state,
 	             "eg_phase", eg_phase,
 	             "sustain",  sustain);
 
 	// These are restored by calls to
-	//  updateAll():         eg_dphase, dphaseDRTableRks, tll, dphase
+	//  updateAll():         eg_dPhase, dPhaseDRTableRks, tll, dPhase
 	//  setEnvelopeState():  eg_phase_max
 	//  setPatch():          patch
 	//  setVolume():         volume
@@ -1655,24 +1648,23 @@ void YM2413::serialize(Archive& ar, unsigned version)
 	             "am_phase",   am_phase,
 	             "noise_seed", noise_seed);
 
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		patches[0][0].initModulator(&reg[0]);
 		patches[0][1].initCarrier  (&reg[0]);
-		for (int i = 0; i < 9; ++i) {
-			Channel& ch = channels[i];
+		for (auto [i, ch] : enumerate(channels)) {
 			// restore patch
 			unsigned p = ((i >= 6) && isRhythm())
-			           ? (16 + (i - 6))
+			           ? unsigned(16 + (i - 6))
 			           : (reg[0x30 + i] >> 4);
 			ch.setPatch(p, *this); // before updateAll()
 			// restore volume
 			ch.car.setVolume(reg[0x30 + i] & 15);
-			if (isRhythm() && (i >= 7)) { // ch 7/8 ryhthm
+			if (isRhythm() && (i >= 7)) { // ch 7/8 rythm
 				ch.mod.setVolume(reg[0x30 + i] >> 4);
 			}
 			// sync various variables
 			bool actAsCarrier = (i >= 7) && isRhythm();
-			unsigned freq = getFreq(i);
+			unsigned freq = getFreq(unsigned(i));
 			ch.mod.updateAll(freq, actAsCarrier);
 			ch.car.updateAll(freq, true);
 			ch.mod.setEnvelopeState(ch.mod.state);

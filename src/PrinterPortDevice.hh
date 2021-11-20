@@ -14,7 +14,7 @@ public:
 	 *  false = low  = ready,
 	 *  true  = high = not ready.
 	 */
-	virtual bool getStatus(EmuTime::param time) = 0;
+	[[nodiscard]] virtual bool getStatus(EmuTime::param time) = 0;
 
 	/**
 	 * Sets the strobe signal:
@@ -26,14 +26,14 @@ public:
 
 	/**
 	 * Sets the data signals.
-	 * Always use strobe to see wheter data is valid.
+	 * Always use strobe to see whether data is valid.
 	 * As an optimization, this method might not be called when the
 	 * new data is the same as the previous data.
 	 */
 	virtual void writeData(byte data, EmuTime::param time) = 0;
 
 	// Pluggable
-	std::string_view getClass() const final override;
+	[[nodiscard]] std::string_view getClass() const final;
 };
 
 } // namespace openmsx

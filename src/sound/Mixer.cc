@@ -16,8 +16,6 @@ namespace openmsx {
 
 #if defined(_WIN32)
 constexpr int defaultsamples = 2048;
-#elif PLATFORM_ANDROID
-constexpr int defaultsamples = 2560;
 #else
 constexpr int defaultsamples = 1024;
 #endif
@@ -155,7 +153,7 @@ void Mixer::uploadBuffer(MSXMixer& /*msxMixer*/, float* buffer, unsigned len)
 	driver->uploadBuffer(buffer, len);
 }
 
-void Mixer::update(const Setting& setting)
+void Mixer::update(const Setting& setting) noexcept
 {
 	if (&setting == &muteSetting) {
 		if (muteSetting.getBoolean()) {

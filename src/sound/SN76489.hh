@@ -46,7 +46,7 @@ private:
 
 		/** Gets the current output of this shifter: 0 or 1.
 		  */
-		inline unsigned getOutput() const;
+		[[nodiscard]] inline unsigned getOutput() const;
 
 		/** Advances the shift register one step, to the next output.
 		  */
@@ -80,11 +80,12 @@ private:
 	  */
 	void initNoise();
 
-	word peekRegister(unsigned reg, EmuTime::param time) const;
+	[[nodiscard]] word peekRegister(unsigned reg, EmuTime::param time) const;
 	void writeRegister(unsigned reg, word value, EmuTime::param time);
-	template <bool NOISE> void synthesizeChannel(
+	template<bool NOISE> void synthesizeChannel(
 		float*& buffer, unsigned num, unsigned generator);
 
+private:
 	NoiseShifter noiseShifter;
 
 	/** Register bank. The tone period registers (0, 2, 4) are 12 bits wide,
@@ -108,7 +109,7 @@ private:
 
 	struct Debuggable final : SimpleDebuggable {
 		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
-		byte read(unsigned address, EmuTime::param time) override;
+		[[nodiscard]] byte read(unsigned address, EmuTime::param time) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	} debuggable;
 };

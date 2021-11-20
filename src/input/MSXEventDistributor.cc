@@ -26,7 +26,7 @@ void MSXEventDistributor::unregisterEventListener(MSXEventListener& listener)
 	move_pop_back(listeners, rfind_unguarded(listeners, &listener));
 }
 
-void MSXEventDistributor::distributeEvent(const EventPtr& event, EmuTime::param time)
+void MSXEventDistributor::distributeEvent(const Event& event, EmuTime::param time)
 {
 	// Iterate over a copy because signalMSXEvent() may indirect call back into
 	// registerEventListener().

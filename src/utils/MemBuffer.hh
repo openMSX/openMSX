@@ -155,7 +155,7 @@ private:
 	[[nodiscard]] void* my_malloc(size_t bytes)
 	{
 		void* result;
-		if (SIMPLE_MALLOC) {
+		if constexpr (SIMPLE_MALLOC) {
 			result = malloc(bytes);
 			if (!result && bytes) throw std::bad_alloc();
 		} else {
@@ -167,7 +167,7 @@ private:
 
 	void my_free(void* p)
 	{
-		if (SIMPLE_MALLOC) {
+		if constexpr (SIMPLE_MALLOC) {
 			free(p);
 		} else {
 			MemoryOps::freeAligned(p);
@@ -177,7 +177,7 @@ private:
 	[[nodiscard]] void* my_realloc(void* old, size_t bytes)
 	{
 		void* result;
-		if (SIMPLE_MALLOC) {
+		if constexpr (SIMPLE_MALLOC) {
 			result = realloc(old, bytes);
 			if (!result && bytes) throw std::bad_alloc();
 		} else {

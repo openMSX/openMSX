@@ -1,12 +1,9 @@
 #include "InfoTopic.hh"
 #include "InfoCommand.hh"
 
-using std::string;
-using std::vector;
-
 namespace openmsx {
 
-InfoTopic::InfoTopic(InfoCommand& infoCommand_, const string& name_)
+InfoTopic::InfoTopic(InfoCommand& infoCommand_, const std::string& name_)
 	: Completer(name_)
 	, infoCommand(infoCommand_)
 {
@@ -18,7 +15,7 @@ InfoTopic::~InfoTopic()
 	infoCommand.unregisterTopic(*this);
 }
 
-void InfoTopic::tabCompletion(vector<string>& /*tokens*/) const
+void InfoTopic::tabCompletion(std::vector<std::string>& /*tokens*/) const
 {
 	// do nothing
 }

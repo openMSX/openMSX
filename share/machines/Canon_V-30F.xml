@@ -1,0 +1,116 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <info>
+    <manufacturer>Canon</manufacturer>
+    <code>V-30F</code>
+    <release_year>1985</release_year>
+    <description>Early desktop MSX2 by Canon.</description>
+    <type>MSX2</type>
+  </info>
+
+  <!--
+  Based on information from msx.org, which includes a prototype.
+  See: https://www.msx.org/forum/msx-talk/hardware/canon-v-30f-msx2
+  S-3527 based machine
+  NEC D780C CPU
+   -->
+
+  <CassettePort/>
+
+  <devices>
+
+    <PPI id="ppi">
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <io base="0xA8" num="4"/>
+      <keyboard_type>jp_jis</keyboard_type>
+      <has_keypad>true</has_keypad>
+      <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected> <!-- not confirmed -->
+      <code_kana_locks>true</code_kana_locks>
+      <graph_locks>false</graph_locks>
+    </PPI>
+
+    <VDP id="VDP">
+      <version>V9938</version>
+      <vram>128</vram> <!-- half of it is on some internal VRAM cartridge at the back -->
+      <io base="0x98" num="8" type="O"/> <!-- S-3527 mirrors -->
+      <io base="0x98" num="8" type="I"/> <!-- S-3527 mirrors -->
+    </VDP>
+
+    <PSG id="PSG">
+      <type>YM2149</type> <!-- in S-3527 MSX-ENGINE -->
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <io base="0xA0" num="2" type="O"/>
+      <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
+    </PSG>
+
+    <RTC id="Real time clock">
+      <sramname>v-30f.cmos</sramname>
+      <io base="0xB4" num="2" type="O"/>
+      <io base="0xB5" num="1" type="I"/>
+    </RTC>
+
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
+
+    <primary slot="0">
+      <ROM id="MSX BIOS with BASIC ROM">
+        <rom>
+          <filename>v-30f_basic-bios2.rom</filename>
+          <sha1>0081ea0d25bc5cd8d70b60ad8cfdc7307812c0fd</sha1>
+        </rom>
+        <mem base="0x0000" size="0x8000"/>
+      </ROM>
+    </primary>
+
+    <primary external="true" slot="1"/> <!-- Rear slot! -->
+
+    <primary external="true" slot="2"/> <!-- Front slot! -->
+
+    <primary slot="3">
+
+      <secondary slot="0">
+        <ROM id="MSX Sub ROM">
+          <rom>
+            <filename>v-30f_msx2sub.rom</filename>
+            <sha1>b8e30d604d319d511cbfbc61e5d8c38fbb9c5a33</sha1>
+          </rom>
+          <mem base="0x0000" size="0x4000"/> <!-- NO mirroring -->
+        </ROM>
+      </secondary>
+
+      <secondary slot="1">
+        <WD2793 id="Memory Mapped FDC">
+          <connectionstyle>Canon</connectionstyle>
+          <!-- ROM is in page 1 and the 2nd half 6000-8000 is also visible in page 0 (2000-4000) and page 2: A000-C000, registers are also in pages 0, 1 and 2 -->
+          <mem base="0x2000" size="0x6000"/>
+          <mem base="0xA000" size="0x2000"/>
+          <rom>
+            <sha1>33117c47543a4eb00392cb9ff4e503004999a97a</sha1>
+            <filename>v-30f_disk.rom</filename>
+          </rom>
+          <drives>1</drives>
+        </WD2793>
+
+      </secondary>
+
+      <secondary slot="2">
+        <MemoryMapper id="Main RAM">
+          <size>64</size>
+          <mem base="0x0000" size="0x10000"/>
+          <initialContent encoding="gz-base64">eJxj+P+fgWEE44F3wcBiAJBx/wE=</initialContent> <!-- ((chr(0) + 2*chr(255) + chr(0)) * 64 + (chr(255) + 2*chr(0) + chr(255)) * 64) -->
+        </MemoryMapper>
+      </secondary>
+
+    </primary>
+
+  </devices>
+
+</msxconfig>

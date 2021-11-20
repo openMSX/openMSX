@@ -34,19 +34,20 @@ private:
 	void recalcVideoSource();
 
 	// VideoSystemChangeListener
-	void preVideoSystemChange() override;
-	void postVideoSystemChange() override;
+	void preVideoSystemChange() noexcept override;
+	void postVideoSystemChange() noexcept override;
 
 	// VideoLayer
 	void paint(OutputSurface& output) override;
 	void takeRawScreenShot(unsigned height, const std::string& filename) override;
 
 	// EventListener
-	int signalEvent(const std::shared_ptr<const Event>& event) override;
+	int signalEvent(const Event& event) noexcept override;
 
 	// Observer<Setting>
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
+private:
 	VideoSourceSetting& videoSourceSetting;
 	VDP* vdp;
 	V9990* v9990;

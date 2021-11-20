@@ -33,11 +33,13 @@
 #include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
+#include "enumerate.hh"
 #include "likely.hh"
 #include "one_of.hh"
 #include "outer.hh"
 #include "ranges.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <algorithm>
 
 namespace openmsx {
@@ -100,7 +102,7 @@ constexpr byte eg_inc[15 * RATE_STEPS] = {
 	0, 0,  0, 0,  0, 0,  0, 0, // 14  infinity rates for attack and decay(s)
 };
 
-static constexpr byte O(int a) { return a * RATE_STEPS; }
+[[nodiscard]] static constexpr byte O(int a) { return a * RATE_STEPS; }
 constexpr byte eg_rate_select[64] = {
 	O(14),O(14),O(14),O(14), // inf rate
 	O( 0),O( 1),O( 2),O( 3),
@@ -145,7 +147,7 @@ constexpr byte eg_rate_shift[64] = {
 
 // number of steps the LFO counter advances per sample
 //   LFO frequency (Hz) -> LFO counter steps per sample
-static constexpr int L(double a) { return int((LFO_PERIOD * a) / 44100.0 + 0.5); }
+[[nodiscard]] static constexpr int L(double a) { return int((LFO_PERIOD * a) / 44100.0 + 0.5); }
 constexpr int lfo_period[8] = {
 	L(0.168), // step:  1, period: 262144 samples
 	L(2.019), // step: 12, period:  21845 samples
@@ -197,7 +199,7 @@ YMF278::Slot::Slot()
 
 // Sign extend a 4-bit value to int (32-bit)
 // require: x in range [0..15]
-static int sign_extend_4(int x)
+[[nodiscard]] static constexpr int sign_extend_4(int x)
 {
 	return (x ^ 8) - 8;
 }
@@ -208,7 +210,7 @@ static int sign_extend_4(int x)
 //    ((fn | 1024) + vib) << (5 + sign_extend_4(oct))
 // Though in this formula the shift can go over a negative distance (in that
 // case we should shift in the other direction).
-static unsigned calcStep(int8_t oct, uint16_t fn, int16_t vib = 0)
+[[nodiscard]] static constexpr unsigned calcStep(int8_t oct, uint16_t fn, int16_t vib = 0)
 {
 	if (oct == -8) return 0;
 	unsigned t = (fn + 1024 + vib) << (8 + oct); // use '+' iso '|' (generates slightly better code)
@@ -421,37 +423,32 @@ int16_t YMF278::getSample(Slot& op) const
 	// TODO How does this behave when R#2 bit 0 = 1?
 	//      As-if read returns 0xff? (Like for CPU memory reads.) Or is
 	//      sound generation blocked at some higher level?
-	int16_t sample;
 	switch (op.bits) {
 	case 0: {
 		// 8 bit
-		sample = readMem(op.startaddr + op.pos) << 8;
-		break;
+		return readMem(op.startaddr + op.pos) << 8;
 	}
 	case 1: {
 		// 12 bit
 		unsigned addr = op.startaddr + ((op.pos / 2) * 3);
 		if (op.pos & 1) {
-			sample = (readMem(addr + 2) << 8) |
-				 ((readMem(addr + 1) << 4) & 0xF0);
+			return (readMem(addr + 2) << 8) |
+			       (readMem(addr + 1) & 0xF0);
 		} else {
-			sample = (readMem(addr + 0) << 8) |
-				 (readMem(addr + 1) & 0xF0);
+			return (readMem(addr + 0) << 8) |
+			       ((readMem(addr + 1) << 4) & 0xF0);
 		}
-		break;
 	}
 	case 2: {
 		// 16 bit
 		unsigned addr = op.startaddr + (op.pos * 2);
-		sample = (readMem(addr + 0) << 8) |
-			 (readMem(addr + 1));
-		break;
+		return (readMem(addr + 0) << 8) |
+		        (readMem(addr + 1));
 	}
 	default:
 		// TODO unspecified
-		sample = 0;
+		return 0;
 	}
-	return sample;
 }
 
 bool YMF278::anyActive()
@@ -463,7 +460,7 @@ bool YMF278::anyActive()
 // Out: 'x' attenuated by the corresponding factor.
 // Note: microbenchmarks have shown that re-doing this calculation is about the
 // same speed as using a 4kB lookup table.
-static int vol_factor(int x, unsigned envVol)
+static constexpr int vol_factor(int x, unsigned envVol)
 {
 	if (envVol >= MAX_ATT_INDEX) return 0; // hardware clips to silence below -60dB
 	int vol_mul = 0x80 - (envVol & 0x3F); // 0x40 values per 6dB
@@ -491,14 +488,12 @@ void YMF278::generateChannels(float** bufs, unsigned num)
 	if (!anyActive()) {
 		// TODO update internal state, even if muted
 		// TODO also mute individual channels
-		for (int i = 0; i < 24; ++i) {
-			bufs[i] = nullptr;
-		}
+		std::fill_n(bufs, 24, nullptr);
 		return;
 	}
 
-	for (unsigned j = 0; j < num; ++j) {
-		for (int i = 0; i < 24; ++i) {
+	for (auto j : xrange(num)) {
+		for (auto i : xrange(24)) {
 			auto& sl = slots[i];
 			if (sl.state == EG_OFF) {
 				//bufs[i][2 * j + 0] += 0;
@@ -582,17 +577,17 @@ void YMF278::writeRegDirect(byte reg, byte data, EmuTime::param time)
 {
 	// Handle slot registers specifically
 	if (reg >= 0x08 && reg <= 0xF7) {
-		int snum = (reg - 8) % 24;
-		auto& slot = slots[snum];
+		int sNum = (reg - 8) % 24;
+		auto& slot = slots[sNum];
 		switch ((reg - 8) / 24) {
 		case 0: {
 			slot.wave = (slot.wave & 0x100) | data;
-			int wavetblhdr = (regs[2] >> 2) & 0x7;
-			int base = (slot.wave < 384 || !wavetblhdr) ?
+			int waveTblHdr = (regs[2] >> 2) & 0x7;
+			int base = (slot.wave < 384 || !waveTblHdr) ?
 			           (slot.wave * 12) :
-			           (wavetblhdr * 0x80000 + ((slot.wave - 384) * 12));
+			           (waveTblHdr * 0x80000 + ((slot.wave - 384) * 12));
 			byte buf[12];
-			for (int i = 0; i < 12; ++i) {
+			for (auto i : xrange(12)) {
 				// TODO What if R#2 bit 0 = 1?
 				//      See also getSample()
 				buf[i] = readMem(base + i);
@@ -601,11 +596,11 @@ void YMF278::writeRegDirect(byte reg, byte data, EmuTime::param time)
 			slot.startaddr = buf[2] | (buf[1] << 8) | ((buf[0] & 0x3F) << 16);
 			slot.loopaddr = buf[4] | (buf[3] << 8);
 			slot.endaddr  = buf[6] | (buf[5] << 8);
-			for (int i = 7; i < 12; ++i) {
+			for (auto i : xrange(7, 12)) {
 				// Verified on real YMF278:
 				// After tone loading, if you read these
 				// registers, their value actually has changed.
-				writeRegDirect(8 + snum + (i - 2) * 24, buf[i], time);
+				writeRegDirect(8 + sNum + (i - 2) * 24, buf[i], time);
 			}
 			if (slot.keyon) {
 				keyOnHelper(slot);
@@ -703,7 +698,7 @@ void YMF278::writeRegDirect(byte reg, byte data, EmuTime::param time)
 
 		case 0x03:
 			// Verified on real YMF278:
-			// * Don't update the 'memadr' variable on writes to
+			// * Don't update the 'memAdr' variable on writes to
 			//   reg 3 and 4. Only store the value in the 'regs'
 			//   array for later use.
 			// * The upper 2 bits are not used to address the
@@ -720,18 +715,18 @@ void YMF278::writeRegDirect(byte reg, byte data, EmuTime::param time)
 
 		case 0x05:
 			// Verified on real YMF278: (see above)
-			// Only writes to reg 5 change the (full) 'memadr'.
-			memadr = (regs[3] << 16) | (regs[4] << 8) | data;
+			// Only writes to reg 5 change the (full) 'memAdr'.
+			memAdr = (regs[3] << 16) | (regs[4] << 8) | data;
 			break;
 
 		case 0x06:  // memory data
 			if (regs[2] & 1) {
-				writeMem(memadr, data);
-				++memadr; // no need to mask (again) here
+				writeMem(memAdr, data);
+				++memAdr; // no need to mask (again) here
 			} else {
 				// Verified on real YMF278:
 				//  - writes are ignored
-				//  - memadr is NOT increased
+				//  - memAdr is NOT increased
 			}
 			break;
 
@@ -752,8 +747,8 @@ byte YMF278::readReg(byte reg)
 		// Memory Data Register
 		if (regs[2] & 1) {
 			// Verified on real YMF278:
-			// memadr is only increased when 'regs[2] & 1'
-			++memadr; // no need to mask (again) here
+			// memAdr is only increased when 'regs[2] & 1'
+			++memAdr; // no need to mask (again) here
 		}
 	}
 	return result;
@@ -761,26 +756,21 @@ byte YMF278::readReg(byte reg)
 
 byte YMF278::peekReg(byte reg) const
 {
-	byte result;
 	switch (reg) {
 		case 2: // 3 upper bits are device ID
-			result = (regs[2] & 0x1F) | 0x20;
-			break;
+			return (regs[2] & 0x1F) | 0x20;
 
 		case 6: // Memory Data Register
 			if (regs[2] & 1) {
-				result = readMem(memadr);
+				return readMem(memAdr);
 			} else {
 				// Verified on real YMF278
-				result = 0xff;
+				return 0xff;
 			}
-			break;
 
 		default:
-			result = regs[reg];
-			break;
+			return regs[reg];
 	}
-	return result;
 }
 
 constexpr unsigned INPUT_RATE = 44100;
@@ -814,7 +804,7 @@ YMF278::YMF278(const std::string& name_, int ramSize_,
 			"0, 128, 256, 512, 640, 1024 or 2048.");
 	}
 
-	memadr = 0; // avoid UMR
+	memAdr = 0; // avoid UMR
 	ranges::fill(regs, 0);
 
 	registerSound(config);
@@ -844,7 +834,7 @@ void YMF278::reset(EmuTime::param time)
 	for (int i = 0xf7; i >= 0; --i) { // reverse order to avoid UMR
 		writeRegDirect(i, 0, time);
 	}
-	memadr = 0;
+	memAdr = 0;
 	setMixLevel(0, time);
 }
 
@@ -1048,14 +1038,14 @@ void YMF278::Slot::serialize(Archive& ar, unsigned version)
 
 	ar.serialize("state", state);
 	if (ar.versionBelow(version, 4)) {
-		assert(ar.isLoader());
+		assert(Archive::IS_LOADER);
 		if (state == one_of(EG_REV, EG_DMP)) {
 			state = EG_REL;
 		}
 	}
 
 	// Recalculate redundant state
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		step = calcStep(OCT, FN);
 	}
 
@@ -1073,7 +1063,7 @@ void YMF278::Slot::serialize(Archive& ar, unsigned version)
 
 // version 1: initial version
 // version 2: loadTime and busyTime moved to MSXMoonSound class
-// version 3: memadr cannot be restored from register values
+// version 3: memAdr cannot be restored from register values
 // version 4: implement ram via Ram class
 template<typename Archive>
 void YMF278::serialize(Archive& ar, unsigned version)
@@ -1087,21 +1077,19 @@ void YMF278::serialize(Archive& ar, unsigned version)
 	}
 	ar.serialize_blob("registers", regs, sizeof(regs));
 	if (ar.versionAtLeast(version, 3)) { // must come after 'regs'
-		ar.serialize("memadr", memadr);
+		ar.serialize("memadr", memAdr);
 	} else {
-		assert(ar.isLoader());
-		// Old formats didn't store 'memadr' so we also can't magically
+		assert(Archive::IS_LOADER);
+		// Old formats didn't store 'memAdr' so we also can't magically
 		// restore the correct value. The best we can do is restore the
 		// last set address.
 		regs[3] &= 0x3F; // mask upper two bits
-		memadr = (regs[3] << 16) | (regs[4] << 8) | regs[5];
+		memAdr = (regs[3] << 16) | (regs[4] << 8) | regs[5];
 	}
 
 	// TODO restore more state from registers
-	if (ar.isLoader()) {
-		for (int i = 0; i < 24; ++i) {
-			Slot& sl = slots[i];
-
+	if constexpr (Archive::IS_LOADER) {
+		for (auto [i, sl] : enumerate(slots)) {
 			auto t = regs[0x50 + i] >> 1;
 			sl.TLdest = (t != 0x7f) ? t : 0xff;
 

@@ -39,9 +39,6 @@
 #include <memory>
 #include <vector>
 
-using std::string;
-using std::vector;
-
 namespace openmsx {
 
 // Medium type (value like LS-120)
@@ -57,17 +54,17 @@ constexpr byte MT_NO_DISK   = 0x70;
 constexpr byte MT_DOOR_OPEN = 0x71;
 constexpr byte MT_FMT_ERROR = 0x72;
 
-constexpr byte inqdata[36] = {
+constexpr byte inqData[36] = {
 	  0,   // bit5-0 device type code.
 	  0,   // bit7 = 1 removable device
 	  2,   // bit7,6 ISO version. bit5,4,3 ECMA version.
 	       // bit2,1,0 ANSI Version (001=SCSI1, 010=SCSI2)
 	  2,   // bit7 AENC. bit6 TrmIOP.
 	       // bit3-0 Response Data Format. (0000=SCSI1, 0001=CCS, 0010=SCSI2)
-	 51,   // addtional length
+	 51,   // additional length
 	  0, 0,// reserved
 	  0,   // bit7 RelAdr, bit6 WBus32, bit5 Wbus16, bit4 Sync, bit3 Linked,
-	       // bit2 reseved bit1 CmdQue, bit0 SftRe
+	       // bit2 reserved bit1 CmdQue, bit0 SftRe
 	'o', 'p', 'e', 'n', 'M', 'S', 'X', ' ',    // vendor ID (8bytes)
 	'S', 'C', 'S', 'I', '2', ' ', 'L', 'S',    // product ID (16bytes)
 	'-', '1', '2', '0', 'd', 'i', 's', 'k',
@@ -80,27 +77,13 @@ constexpr char fds120[28 + 1]  = "IODATA  LS-120 COSM     0001";
 constexpr unsigned BUFFER_BLOCK_SIZE = SCSIDevice::BUFFER_SIZE /
                                        SectorAccessibleDisk::SECTOR_SIZE;
 
-class LSXCommand final : public RecordedCommand
-{
-public:
-	LSXCommand(CommandController& commandController,
-	           StateChangeDistributor& stateChangeDistributor,
-	           Scheduler& scheduler, SCSILS120& ls);
-	void execute(span<const TclObject> tokens,
-	             TclObject& result, EmuTime::param time) override;
-	string help(const vector<string>& tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
-private:
-	SCSILS120& ls;
-};
-
 SCSILS120::SCSILS120(const DeviceConfig& targetconfig,
                      AlignedBuffer& buf, unsigned mode_)
 	: motherBoard(targetconfig.getMotherBoard())
 	, buffer(buf)
 	, name("lsX")
 	, mode(mode_)
-	, scsiId(targetconfig.getAttributeAsInt("id"))
+	, scsiId(targetconfig.getAttributeValueAsInt("id", 0))
 {
 	lsInUse = motherBoard.getSharedStuff<LSInUse>("lsInUse");
 
@@ -113,7 +96,7 @@ SCSILS120::SCSILS120(const DeviceConfig& targetconfig,
 	}
 	name[2] = char('a' + id);
 	(*lsInUse)[id] = true;
-	lsxCommand = std::make_unique<LSXCommand>(
+	lsxCommand.emplace(
 		motherBoard.getCommandController(),
 		motherBoard.getStateChangeDistributor(),
 		motherBoard.getScheduler(), *this);
@@ -202,10 +185,10 @@ unsigned SCSILS120::inquiry()
 	if (length == 0) return 0;
 
 	if (fdsmode) {
-		memcpy(buffer + 2, inqdata + 2, 6);
+		memcpy(buffer + 2, inqData + 2, 6);
 		memcpy(buffer + 8, fds120, 28);
 	} else {
-		memcpy(buffer + 2, inqdata + 2, 34);
+		memcpy(buffer + 2, inqData + 2, 34);
 	}
 
 	buffer[0] = SCSI::DT_DirectAccess;
@@ -236,7 +219,7 @@ unsigned SCSILS120::inquiry()
 	}
 
 	if (length > 36) {
-		string filename(FileOperations::getFilename(file.getURL()));
+		std::string filename(FileOperations::getFilename(file.getURL()));
 		filename.resize(20, ' ');
 		memcpy(buffer + 36, filename.data(), 20);
 	}
@@ -478,7 +461,7 @@ void SCSILS120::eject()
 	motherBoard.getMSXCliComm().update(CliComm::MEDIA, name, {});
 }
 
-void SCSILS120::insert(std::string_view filename)
+void SCSILS120::insert(const std::string& filename)
 {
 	file = File(filename);
 	mediaChanged = true;
@@ -574,7 +557,7 @@ unsigned SCSILS120::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& b
 		case SCSI::OP_SEEK6:
 			motherBoard.getLedStatus().setLed(LedStatus::FDD, true);
 			currentLength = 1;
-			checkAddress();
+			(void)checkAddress();
 			return 0;
 
 		case SCSI::OP_MODE_SENSE: {
@@ -635,7 +618,7 @@ unsigned SCSILS120::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& b
 		case SCSI::OP_SEEK10:
 			motherBoard.getLedStatus().setLed(LedStatus::FDD, true);
 			currentLength = 1;
-			checkAddress();
+			(void)checkAddress();
 			return 0;
 		}
 	}
@@ -713,10 +696,11 @@ Sha1Sum SCSILS120::getSha1SumImpl(FilePool& filePool)
 	return filePool.getSha1Sum(file);
 }
 
-void SCSILS120::readSectorImpl(size_t sector, SectorBuffer& buf)
+void SCSILS120::readSectorsImpl(
+	SectorBuffer* buffers, size_t startSector, size_t num)
 {
-	file.seek(sizeof(buf) * sector);
-	file.read(&buf, sizeof(buf));
+	file.seek(startSector * sizeof(SectorBuffer));
+	file.read(buffers, num * sizeof(SectorBuffer));
 }
 
 void SCSILS120::writeSectorImpl(size_t sector, const SectorBuffer& buf)
@@ -730,7 +714,7 @@ SectorAccessibleDisk* SCSILS120::getSectorAccessibleDisk()
 	return this;
 }
 
-const std::string& SCSILS120::getContainerName() const
+std::string_view SCSILS120::getContainerName() const
 {
 	return name;
 }
@@ -740,7 +724,7 @@ bool SCSILS120::diskChanged()
 	return mediaChanged; // TODO not reset on read
 }
 
-int SCSILS120::insertDisk(std::string_view filename)
+int SCSILS120::insertDisk(const std::string& filename)
 {
 	try {
 		insert(filename);
@@ -767,8 +751,8 @@ void LSXCommand::execute(span<const TclObject> tokens, TclObject& result,
 {
 	if (tokens.size() == 1) {
 		auto& file = ls.file;
-		result.addListElement(ls.name + ':',
-		                      file.is_open() ? file.getURL() : string{});
+		result.addListElement(tmpStrCat(ls.name, ':'),
+		                      file.is_open() ? file.getURL() : std::string{});
 		if (!file.is_open()) result.addListElement("empty");
 	} else if ((tokens.size() == 2) && (tokens[1] == one_of("eject", "-eject"))) {
 		ls.eject();
@@ -789,10 +773,7 @@ void LSXCommand::execute(span<const TclObject> tokens, TclObject& result,
 			}
 		}
 		try {
-			string filename = userFileContext().resolve(
-				string(tokens[fileToken].getString()));
-			ls.insert(filename);
-			// return filename; // Note: the diskX command doesn't do this either, so this has not been converted to TclObject style here
+			ls.insert(userFileContext().resolve(tokens[fileToken].getString()));
 		} catch (FileException& e) {
 			throw CommandException("Can't change disk image: ",
 			                       e.getMessage());
@@ -802,7 +783,7 @@ void LSXCommand::execute(span<const TclObject> tokens, TclObject& result,
 	}
 }
 
-string LSXCommand::help(const vector<string>& /*tokens*/) const
+std::string LSXCommand::help(span<const TclObject> /*tokens*/) const
 {
 	return strCat(
 		ls.name, "                   : display the disk image for this LS-120 drive\n",
@@ -811,9 +792,10 @@ string LSXCommand::help(const vector<string>& /*tokens*/) const
 		ls.name, " <filename>        : change the disk image for this LS-120 drive\n");
 }
 
-void LSXCommand::tabCompletion(vector<string>& tokens) const
+void LSXCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
-	static constexpr const char* const extra[] = { "eject", "insert" };
+	using namespace std::literals;
+	static constexpr std::array extra = {"eject"sv, "insert"sv};
 	completeFileName(tokens, userFileContext(), extra);
 }
 
@@ -821,9 +803,9 @@ void LSXCommand::tabCompletion(vector<string>& tokens) const
 template<typename Archive>
 void SCSILS120::serialize(Archive& ar, unsigned /*version*/)
 {
-	string filename = file.is_open() ? file.getURL() : string{};
+	std::string filename = file.is_open() ? file.getURL() : std::string{};
 	ar.serialize("filename", filename);
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		// re-insert disk before restoring 'mediaChanged'
 		if (filename.empty()) {
 			eject();

@@ -74,11 +74,11 @@ public:
 		temp.swap(*this);
 	}
 
-	SDL_Surface* get()
+	[[nodiscard]] SDL_Surface* get()
 	{
 		return surface;
 	}
-	const SDL_Surface* get() const
+	[[nodiscard]] const SDL_Surface* get() const
 	{
 		return surface;
 	}
@@ -96,35 +96,35 @@ public:
 		return *this;
 	}
 
-	SDL_Surface& operator*()
+	[[nodiscard]] SDL_Surface& operator*()
 	{
 		return *surface;
 	}
-	const SDL_Surface& operator*() const
+	[[nodiscard]] const SDL_Surface& operator*() const
 	{
 		return *surface;
 	}
 
-	SDL_Surface* operator->()
+	[[nodiscard]] SDL_Surface* operator->()
 	{
 		return surface;
 	}
-	const SDL_Surface* operator->() const
+	[[nodiscard]] const SDL_Surface* operator->() const
 	{
 		return surface;
 	}
 
-	explicit operator bool() const
+	[[nodiscard]] explicit operator bool() const
 	{
 		return get() != nullptr;
 	}
 
-	void* getLinePtr(unsigned y)
+	[[nodiscard]] void* getLinePtr(unsigned y)
 	{
 		assert(y < unsigned(surface->h));
 		return static_cast<Uint8*>(surface->pixels) + y * surface->pitch;
 	}
-	const void* getLinePtr(unsigned y) const
+	[[nodiscard]] const void* getLinePtr(unsigned y) const
 	{
 		return const_cast<SDLSurfacePtr*>(this)->getLinePtr(y);
 	}

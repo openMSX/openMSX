@@ -17,20 +17,20 @@ public:
 	 * Returns the currently selected segment for the given page.
 	 * @param page Z80 address page (0-3).
 	 */
-	byte getSelectedSegment(byte page) const override { return registers[page]; }
+	[[nodiscard]] byte getSelectedSegment(byte page) const override { return registers[page]; }
 
-	unsigned getSizeInBlocks() { return checkedRam.getSize() / 0x4000; }
+	[[nodiscard]] unsigned getSizeInBlocks() { return checkedRam.getSize() / 0x4000; }
 
 	void reset(EmuTime::param time) override;
 	void powerUp(EmuTime::param time) override;
-	byte readIO(word port, EmuTime::param time) override;
-	byte peekIO(word port, EmuTime::param time) const override;
-	byte readMem(word address, EmuTime::param time) override;
+	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
+	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
+	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
 	void writeMem(word address, byte value, EmuTime::param time) override;
-	const byte* getReadCacheLine(word start) const override;
-	byte* getWriteCacheLine(word start) const override;
-	byte peekMem(word address, EmuTime::param time) const override;
-	unsigned getBaseSizeAlignment() const override;
+	[[nodiscard]] const byte* getReadCacheLine(word start) const override;
+	[[nodiscard]] byte* getWriteCacheLine(word start) const override;
+	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;
+	[[nodiscard]] unsigned getBaseSizeAlignment() const override;
 
 	// Subclasses _must_ override this method and
 	//  - call MSXMemoryMapperBase::writeIOImpl()
@@ -45,8 +45,8 @@ protected:
 	  * @param address Index in Z80 address space.
 	  * @return Index in RAM address space.
 	  */
-	unsigned calcAddress(word address) const;
-	unsigned segmentOffset(byte page) const;
+	[[nodiscard]] unsigned calcAddress(word address) const;
+	[[nodiscard]] unsigned segmentOffset(byte page) const;
 
 	void writeIOImpl(word port, byte value, EmuTime::param time);
 
@@ -54,11 +54,9 @@ protected:
 	byte registers[4];
 
 private:
-	unsigned getRamSize() const;
-
 	struct Debuggable final : SimpleDebuggable {
 		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
-		byte read(unsigned address) override;
+		[[nodiscard]] byte read(unsigned address) override;
 		void write(unsigned address, byte value) override;
 	} debuggable;
 };

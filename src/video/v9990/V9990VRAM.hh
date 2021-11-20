@@ -28,19 +28,19 @@ public:
 	void clear();
 
 	/** Update VRAM state to specified moment in time.
-	  * @param time Moment in emulated time to synchronise VRAM to
+	  * @param time Moment in emulated time to synchronize VRAM to
 	  */
 	inline void sync(EmuTime::param time) {
 		cmdEngine->sync(time);
 	}
 
-	static inline unsigned transformBx(unsigned address) {
+	[[nodiscard]] static inline unsigned transformBx(unsigned address) {
 		return ((address & 1) << 18) | ((address & 0x7FFFE) >> 1);
 	}
-	static inline unsigned transformP1(unsigned address) {
+	[[nodiscard]] static inline unsigned transformP1(unsigned address) {
 		return address;
 	}
-	static inline unsigned transformP2(unsigned address) {
+	[[nodiscard]] static inline unsigned transformP2(unsigned address) {
 		// Verified on a real Graphics9000
 		if (address < 0x78000) {
 			return transformBx(address);
@@ -51,13 +51,13 @@ public:
 		}
 	}
 
-	inline byte readVRAMBx(unsigned address) {
+	[[nodiscard]] inline byte readVRAMBx(unsigned address) {
 		return data[transformBx(address)];
 	}
-	inline byte readVRAMP1(unsigned address) {
+	[[nodiscard]] inline byte readVRAMP1(unsigned address) {
 		return data[transformP1(address)];
 	}
-	inline byte readVRAMP2(unsigned address) {
+	[[nodiscard]] inline byte readVRAMP2(unsigned address) {
 		return data[transformP2(address)];
 	}
 
@@ -71,14 +71,14 @@ public:
 		data.write(transformP2(address), value);
 	}
 
-	inline byte readVRAMDirect(unsigned address) {
+	[[nodiscard]] inline byte readVRAMDirect(unsigned address) {
 		return data[address];
 	}
 	inline void writeVRAMDirect(unsigned address, byte value) {
 		data.write(address, value);
 	}
 
-	byte readVRAMCPU(unsigned address, EmuTime::param time);
+	[[nodiscard]] byte readVRAMCPU(unsigned address, EmuTime::param time);
 	void writeVRAMCPU(unsigned address, byte val, EmuTime::param time);
 
 	void setCmdEngine(V9990CmdEngine& cmdEngine_) { cmdEngine = &cmdEngine_; }
@@ -89,6 +89,7 @@ public:
 private:
 	unsigned mapAddress(unsigned address);
 
+private:
 	/** V9990 VDP this VRAM belongs to.
 	  */
 	V9990& vdp;

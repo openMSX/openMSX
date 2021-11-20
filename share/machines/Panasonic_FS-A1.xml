@@ -14,7 +14,7 @@
 
   <devices>
 
-    <S1985 id="S1985">
+    <S1985 id="S1985"> <!-- includes 5 bits mapper-read-back, as confirmed by Peter Hanraets -->
       <sramname>fs-a1_s1985.sram</sramname>
     </S1985>
 

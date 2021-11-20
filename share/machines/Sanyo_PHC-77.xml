@@ -1,0 +1,140 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <info>
+    <manufacturer>Sanyo</manufacturer>
+    <code>PHC-77</code>
+    <release_year>1987</release_year>
+    <description>Foldable MSX2 with built-in printer.</description>
+    <type>MSX2</type>
+  </info>
+
+ <!-- 
+    Built-in printer is NOT emulated as such.
+    Based on dumps by Peter Hanraets on machine with serial number 781 04902
+    Firmware switch not emulated yet, now always on 'enable'. When the switch
+    is on disabled on the real machine, slot 2 is totally empty (0xFF). It
+    seems to be connected to the /OE signal.
+   -->
+
+  <CassettePort/>
+
+  <devices>
+
+    <Kanji id="Kanji ROM">
+      <rom>
+        <filename>phc-77_kanjifont.rom</filename>
+        <sha1>db03211b7db46899df41db2b1dfbec972109a967</sha1>
+      </rom>
+      <io base="0xD8" num="2" type="O"/>
+      <io base="0xD9" num="1" type="I"/>
+    </Kanji>
+
+    <S1985 id="S1985"> <!-- includes 5 bits mapper-read-back, confirmed by Peter Hanraets -->
+      <sramname>phc-77_s1985.sram</sramname>
+    </S1985>
+
+    <PPI id="ppi">
+      <io base="0xA8" num="4"/>
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <keyboard_type>jp_ansi</keyboard_type>
+      <has_keypad>true</has_keypad>
+      <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
+      <code_kana_locks>true</code_kana_locks>
+      <graph_locks>false</graph_locks>
+    </PPI>
+
+    <VDP id="VDP">
+      <version>V9938</version>
+      <vram>128</vram>
+      <io base="0x98" num="8" type="O"/> <!-- S-1985 mirrors -->
+      <io base="0x98" num="8" type="I"/> <!-- S-1985 mirrors -->
+    </VDP>
+
+    <PSG id="PSG">
+      <type>YM2149</type> <!-- in S-1985 MSX-ENGINE -->
+      <keyboardlayout>50on</keyboardlayout>
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <io base="0xA0" num="2" type="O"/>
+      <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
+    </PSG>
+
+    <RTC id="Real time clock">
+      <sramname>phc-77.cmos</sramname>
+      <io base="0xB4" num="2" type="O"/>
+      <io base="0xB5" num="1" type="I"/>
+    </RTC>
+
+    <!-- It doesn't have a printer port but a built-in printer. But because that isn't emulated, we put in a printer port instead. -->
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
+
+    <primary slot="0">
+      <ROM id="MSX BIOS with BASIC ROM">
+        <rom>
+          <filename>phc-77_basic-bios2.rom</filename>
+          <sha1>4ce41fcc1a603411ec4e99556409c442078f0ecf</sha1>
+        </rom>
+        <mem base="0x0000" size="0x8000"/>
+      </ROM>
+    </primary>
+
+    <primary external="true" slot="1"/>
+
+    <primary slot="2">
+      <ROM id="Japanese MSX-Write">
+        <mem base="0x4000" size="0x8000"/>
+        <rom>
+          <sha1>4180544158a57c99162269e33e4f2c77c9fce84e</sha1>
+          <filename>phc-77_japanese_msx-write.rom</filename>
+        </rom>
+        <mappertype>MSXWrite</mappertype>
+        <sramname>phc-77_japanese_msx-write.sram</sramname>
+      </ROM>
+    </primary>
+
+    <primary slot="3">
+
+      <secondary slot="0">
+        <WD2793 id="Memory Mapped FDC">
+          <connectionstyle>Sanyo</connectionstyle>
+          <broken_fdc_read>false</broken_fdc_read>
+          <drives>1</drives>
+          <rom>
+            <sha1>a427b0c9a344c87b587568ecca7fee0abbe72189</sha1>
+            <filename>phc-77_disk.rom</filename>
+          </rom>
+          <mem base="0x4000" size="0x4000"/> <!-- no mirroring -->
+        </WD2793>
+        <ROM id="MSX Sub ROM">
+          <rom>
+            <filename>phc-77_msx2sub.rom</filename>
+            <sha1>0fbd45ef3dd7bb82d4c31f1947884f411f1ca344</sha1>
+          </rom>
+          <mem base="0x0000" size="0x4000"/>
+        </ROM>
+      </secondary>
+
+      <secondary external="true" slot="1"/>
+
+      <secondary slot="2"/>
+
+      <secondary slot="3">
+        <RAM id="Main RAM">
+          <mem base="0x0000" size="0x10000"/>
+          <initialContent encoding="hex">FF00</initialContent>
+        </RAM>
+      </secondary>
+
+    </primary>
+
+  </devices>
+
+</msxconfig>

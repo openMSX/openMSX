@@ -30,40 +30,41 @@ public:
 	HardwareConfig(const HardwareConfig&) = delete;
 	HardwareConfig& operator=(const HardwareConfig&) = delete;
 
-	static XMLElement loadConfig(std::string_view type, std::string_view name);
+	static void loadConfig(XMLDocument& doc, std::string_view type, std::string_view name);
 
-	static std::unique_ptr<HardwareConfig> createMachineConfig(
+	[[nodiscard]] static std::unique_ptr<HardwareConfig> createMachineConfig(
 		MSXMotherBoard& motherBoard, std::string machineName);
-	static std::unique_ptr<HardwareConfig> createExtensionConfig(
+	[[nodiscard]] static std::unique_ptr<HardwareConfig> createExtensionConfig(
 		MSXMotherBoard& motherBoard, std::string extensionName,
-		std::string slotname);
-	static std::unique_ptr<HardwareConfig> createRomConfig(
+		std::string_view slotname);
+	[[nodiscard]] static std::unique_ptr<HardwareConfig> createRomConfig(
 		MSXMotherBoard& motherBoard, std::string romfile,
 		std::string slotname, span<const TclObject> options);
 
 	HardwareConfig(MSXMotherBoard& motherBoard, std::string hwName);
 	~HardwareConfig();
 
-	MSXMotherBoard& getMotherBoard() const { return motherBoard; }
+	[[nodiscard]] MSXMotherBoard& getMotherBoard() const { return motherBoard; }
 
-	const FileContext& getFileContext() const { return context; }
+	[[nodiscard]] const FileContext& getFileContext() const { return context; }
 	void setFileContext(FileContext&& ctxt) { context = std::move(ctxt); }
 
-	const XMLElement& getConfig() const { return config; }
-	const std::string& getName() const { return name; }
-	const std::string& getConfigName() const { return hwName; }
-	Type getType() const { return type; }
+	[[nodiscard]] XMLDocument& getXMLDocument() { return config; }
+	[[nodiscard]] const XMLElement& getConfig() const { return *config.getRoot(); }
+	[[nodiscard]] const std::string& getName() const { return name; }
+	[[nodiscard]] const std::string& getConfigName() const { return hwName; }
+	[[nodiscard]] Type getType() const { return type; }
 
 	/** Parses a slot mapping.
 	  * Returns the slot selection: two bits per page for the slot to be
 	  * selected in that page, like MSX port 0xA8.
 	  */
-	byte parseSlotMap() const;
+	[[nodiscard]] byte parseSlotMap() const;
 
 	void parseSlots();
 	void createDevices();
 
-	const std::vector<std::unique_ptr<MSXDevice>>& getDevices() const { return devices; };
+	[[nodiscard]] const auto& getDevices() const { return devices; };
 
 	/** Checks whether this HardwareConfig can be deleted.
 	  * Throws an exception if not.
@@ -74,26 +75,27 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void setConfig(XMLElement config_) { config = std::move(config_); }
+	void setConfig(XMLElement* root) { config.setRoot(root); }
 	void load(std::string_view type);
 
-	const XMLElement& getDevicesElem() const;
+	[[nodiscard]] const XMLElement& getDevicesElem() const;
 	void createDevices(const XMLElement& elem,
 	                   const XMLElement* primary, const XMLElement* secondary);
 	void createExternalSlot(int ps);
 	void createExternalSlot(int ps, int ss);
 	void createExpandedSlot(int ps);
-	int getAnyFreePrimarySlot();
-	int getSpecificFreePrimarySlot(unsigned slot);
+	[[nodiscard]] int getAnyFreePrimarySlot();
+	[[nodiscard]] int getSpecificFreePrimarySlot(unsigned slot);
 	void addDevice(std::unique_ptr<MSXDevice> device);
 	void setName(std::string_view proposedName);
-	void setSlot(std::string slotname);
+	void setSlot(std::string_view slotname);
 
+private:
 	MSXMotherBoard& motherBoard;
 	std::string hwName;
 	Type type;
 	std::string userName;
-	XMLElement config;
+	XMLDocument config;
 	FileContext context;
 
 	bool externalSlots[4][4];
@@ -107,17 +109,20 @@ private:
 
 	friend struct SerializeConstructorArgs<HardwareConfig>;
 };
-SERIALIZE_CLASS_VERSION(HardwareConfig, 5);
+SERIALIZE_CLASS_VERSION(HardwareConfig, 6);
 
 template<> struct SerializeConstructorArgs<HardwareConfig>
 {
 	using type = std::tuple<std::string>;
-	template<typename Archive> void save(
-		Archive& ar, const HardwareConfig& config)
+
+	template<typename Archive>
+	void save(Archive& ar, const HardwareConfig& config)
 	{
 		ar.serialize("hwname", config.hwName);
 	}
-	template<typename Archive> type load(Archive& ar, unsigned /*version*/)
+
+	template<typename Archive>
+	[[nodiscard]] type load(Archive& ar, unsigned /*version*/)
 	{
 		std::string name;
 		ar.serialize("hwname", name);

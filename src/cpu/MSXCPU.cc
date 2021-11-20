@@ -12,11 +12,9 @@
 #include "ranges.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <memory>
-
-using std::string;
-using std::vector;
 
 namespace openmsx {
 
@@ -120,8 +118,8 @@ void MSXCPU::execute(bool fastForward)
 		auto rCache = r800->getCacheLines();
 		auto from = z80Active ? rCache : zCache;
 		auto to   = z80Active ? zCache : rCache;
-		std::copy_n(from.first,  CacheLine::NUM, to.first );
-		std::copy_n(from.second, CacheLine::NUM, to.second);
+		std::copy_n(from.read,  CacheLine::NUM, to.read );
+		std::copy_n(from.write, CacheLine::NUM, to.write);
 	}
 	z80Active ? z80 ->execute(fastForward)
 	          : r800->execute(fastForward);
@@ -155,7 +153,7 @@ void MSXCPU::invalidateMemCacheSlot()
 	ranges::fill(slots, 0);
 
 	// nullptr: means not a valid entry and not yet attempted to fill this entry
-	for (int i = 0; i < 16; ++i) {
+	for (auto i : xrange(16)) {
 		ranges::fill(slotReadLines[i], nullptr);
 		ranges::fill(slotWriteLines[i], nullptr);
 	}
@@ -189,8 +187,8 @@ void MSXCPU::invalidateAllSlotsRWCache(word start, unsigned size)
 	std::fill_n(cpuReadLines  + first, num, nullptr); // nullptr: means not a valid entry and not
 	std::fill_n(cpuWriteLines + first, num, nullptr); //   yet attempted to fill this entry
 
-	for (int i = 0; i < 16; ++i) {
-		std::fill_n(slotReadLines[i] + first, num, nullptr);
+	for (auto i : xrange(16)) {
+		std::fill_n(slotReadLines [i] + first, num, nullptr);
 		std::fill_n(slotWriteLines[i] + first, num, nullptr);
 	}
 }
@@ -199,7 +197,7 @@ template<bool READ, bool WRITE, bool SUB_START>
 void MSXCPU::setRWCache(unsigned start, unsigned size, const byte* rData, byte* wData, int ps, int ss,
                              const byte* disallowRead, const byte* disallowWrite)
 {
-	if (!SUB_START) {
+	if constexpr (!SUB_START) {
 		assert(rData == nullptr);
 		assert(wData == nullptr);
 	}
@@ -211,20 +209,18 @@ void MSXCPU::setRWCache(unsigned start, unsigned size, const byte* rData, byte* 
 	int slot = 4 * ps + ss;
 	unsigned page = start >> 14;
 	assert(((start + size - 1) >> 14) == page); // all in same page
-	if (SUB_START && READ)  rData -= start;
-	if (SUB_START && WRITE) wData -= start;
+	if constexpr (SUB_START && READ)  rData -= start;
+	if constexpr (SUB_START && WRITE) wData -= start;
 
 	// select between 'active' or 'shadow' cache lines
-	const byte** readLines;
-	      byte** writeLines;
-	if (slot == slots[page]) {
-		auto cache = z80Active ? z80->getCacheLines() : r800->getCacheLines();
-		readLines  = cache.first;
-		writeLines = cache.second;
-	} else {
-		readLines  = slotReadLines [slot];
-		writeLines = slotWriteLines[slot];
-	}
+	auto [readLines, writeLines] = [&] {
+		if (slot == slots[page]) {
+			return z80Active ? z80->getCacheLines() : r800->getCacheLines();
+		} else {
+			return CacheLines{slotReadLines [slot],
+			                  slotWriteLines[slot]};
+		}
+	}();
 
 	unsigned first = start / CacheLine::SIZE;
 	readLines     += first;
@@ -233,16 +229,16 @@ void MSXCPU::setRWCache(unsigned start, unsigned size, const byte* rData, byte* 
 	disallowWrite += first;
 	unsigned num = size / CacheLine::SIZE;
 
-	static const auto NON_CACHEABLE = reinterpret_cast<byte*>(1);
-	for (unsigned i = 0; i < num; ++i) {
-		if (READ)  readLines [i] = disallowRead [i] ? NON_CACHEABLE : rData;
-		if (WRITE) writeLines[i] = disallowWrite[i] ? NON_CACHEABLE : wData;
+	static auto* const NON_CACHEABLE = reinterpret_cast<byte*>(1);
+	for (auto i : xrange(num)) {
+		if constexpr (READ)  readLines [i] = disallowRead [i] ? NON_CACHEABLE : rData;
+		if constexpr (WRITE) writeLines[i] = disallowWrite[i] ? NON_CACHEABLE : wData;
 	}
 }
 
-static void extendForAlignment(unsigned& start, unsigned& size)
+static constexpr void extendForAlignment(unsigned& start, unsigned& size)
 {
-	static constexpr unsigned MASK = ~(CacheLine::LOW); // not CacheLine::HIGH because 0x0000ff00 != 0xffffff00
+	constexpr unsigned MASK = ~(CacheLine::LOW); // not CacheLine::HIGH because 0x0000ff00 != 0xffffff00
 
 	auto end = start + size;
 	start &= MASK;                            // round down to cacheline
@@ -345,7 +341,7 @@ CPURegs& MSXCPU::getRegisters()
 	}
 }
 
-void MSXCPU::update(const Setting& setting)
+void MSXCPU::update(const Setting& setting) noexcept
 {
 	          z80 ->update(setting);
 	if (r800) r800->update(setting);
@@ -389,7 +385,7 @@ void MSXCPU::TimeInfoTopic::execute(
 	result = dur.toDouble();
 }
 
-string MSXCPU::TimeInfoTopic::help(const vector<string>& /*tokens*/) const
+std::string MSXCPU::TimeInfoTopic::help(span<const TclObject> /*tokens*/) const
 {
 	return "Prints the time in seconds that the MSX is powered on\n";
 }
@@ -399,7 +395,7 @@ string MSXCPU::TimeInfoTopic::help(const vector<string>& /*tokens*/) const
 
 MSXCPU::CPUFreqInfoTopic::CPUFreqInfoTopic(
 		InfoCommand& machineInfoCommand,
-		const string& name_, CPUClock& clock_)
+		const std::string& name_, CPUClock& clock_)
 	: InfoTopic(machineInfoCommand, name_)
 	, clock(clock_)
 {
@@ -411,7 +407,7 @@ void MSXCPU::CPUFreqInfoTopic::execute(
 	result = clock.getFreq();
 }
 
-string MSXCPU::CPUFreqInfoTopic::help(const vector<string>& /*tokens*/) const
+std::string MSXCPU::CPUFreqInfoTopic::help(span<const TclObject> /*tokens*/) const
 {
 	return "Returns the actual frequency of this CPU.\n"
 	       "This frequency can vary because:\n"
@@ -423,7 +419,7 @@ string MSXCPU::CPUFreqInfoTopic::help(const vector<string>& /*tokens*/) const
 
 // class Debuggable
 
-constexpr const char* const CPU_REGS_DESC =
+constexpr static_string_view CPU_REGS_DESC =
 	"Registers of the active CPU (Z80 or R800).\n"
 	"Each byte in this debuggable represents one 8 bit register:\n"
 	"  0 ->  A      1 ->  F      2 -> B       3 -> C\n"
@@ -538,7 +534,7 @@ void MSXCPU::serialize(Archive& ar, unsigned version)
 		             "newZ80Active", newZ80Active);
 	} else {
 		// backwards-compatibility
-		assert(ar.isLoader());
+		assert(Archive::IS_LOADER);
 
 		          ar.serializeWithID("z80",  *z80);
 		if (r800) ar.serializeWithID("r800", *r800);
@@ -555,7 +551,7 @@ void MSXCPU::serialize(Archive& ar, unsigned version)
 	}
 	ar.serialize("resetTime", reference);
 
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		invalidateMemCacheSlot();
 		invalidateAllSlotsRWCache(0x0000, 0x10000);
 	}

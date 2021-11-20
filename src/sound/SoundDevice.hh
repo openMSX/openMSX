@@ -1,37 +1,42 @@
 #ifndef SOUNDDEVICE_HH
 #define SOUNDDEVICE_HH
 
-#include "MSXMixer.hh"
 #include "EmuTime.hh"
-#include <memory>
+#include "WavWriter.hh"
+#include "static_string_view.hh"
+#include <optional>
+#include <string>
 #include <string_view>
 
 namespace openmsx {
 
 class DeviceConfig;
-class Wav16Writer;
-class Filename;
 class DynamicClock;
+class Filename;
+class MSXMixer;
 
 class SoundDevice
 {
 public:
 	static constexpr unsigned MAX_CHANNELS = 24;
 
+	SoundDevice(const SoundDevice&) = delete;
+	SoundDevice& operator=(const SoundDevice&) = delete;
+
 	/** Get the unique name that identifies this sound device.
 	  * Used to create setting names.
 	  */
-	const std::string& getName() const { return name; }
+	[[nodiscard]] const std::string& getName() const { return name; }
 
 	/** Gets a description of this sound device,
 	  * to be presented to the user.
 	  */
-	const std::string& getDescription() const { return description; }
+	[[nodiscard]] std::string_view getDescription() const { return description; }
 
 	/** Is this a stereo device?
 	  * This is set in the constructor and cannot be changed anymore
 	  */
-	bool isStereo() const;
+	[[nodiscard]] bool isStereo() const;
 
 	/** Gets this device its 'amplification factor'.
 	  *
@@ -45,7 +50,11 @@ public:
 	  * The influence of the different volume settings is not part of this
 	  * factor.
 	  */
-	std::pair<float, float> getAmplificationFactor() const {
+	struct AmplificationFactors {
+		float left;
+		float right;
+	};
+	[[nodiscard]] AmplificationFactors getAmplificationFactor() const {
 		auto f = getAmplificationFactorImpl();
 		return {f * softwareVolumeLeft, f * softwareVolumeRight};
 	}
@@ -75,7 +84,7 @@ protected:
 	  * @param inputRate The sample rate of this sound device
 	  * @param stereo Is this a stereo device
 	  */
-	SoundDevice(MSXMixer& mixer, std::string_view name, std::string_view description,
+	SoundDevice(MSXMixer& mixer, std::string_view name, static_string_view description,
 	            unsigned numChannels, unsigned inputRate, bool stereo);
 	~SoundDevice();
 
@@ -87,7 +96,7 @@ protected:
 	  * factor should be used to scale the output to the correct range.
 	  * The default implementation returns '1.0 / 32768.0'.
 	  */
-	virtual float getAmplificationFactorImpl() const;
+	[[nodiscard]] virtual float getAmplificationFactorImpl() const;
 
 	/**
 	 * Registers this sound device with the Mixer.
@@ -107,7 +116,7 @@ protected:
 	void updateStream(EmuTime::param time);
 
 	void setInputRate(unsigned sampleRate) { inputSampleRate = sampleRate; }
-	unsigned getInputRate() const { return inputSampleRate; }
+	[[nodiscard]] unsigned getInputRate() const { return inputSampleRate; }
 
 public: // Will be called by Mixer:
 	/**
@@ -135,8 +144,8 @@ public: // Will be called by Mixer:
 	  * samples should be ignored, though the caller must make sure the
 	  * buffer has enough space to hold them.
 	  */
-	virtual bool updateBuffer(unsigned length, float* buffer,
-	                          EmuTime::param time) = 0;
+	[[nodiscard]] virtual bool updateBuffer(unsigned length, float* buffer,
+	                                        EmuTime::param time) = 0;
 
 protected:
 	/** Adds a number of samples that all have the same value.
@@ -176,18 +185,18 @@ protected:
 	  * samples should be ignored, though the caller must make sure the
 	  * buffer has enough space to hold them.
 	  */
-	bool mixChannels(float* dataOut, unsigned samples);
+	[[nodiscard]] bool mixChannels(float* dataOut, unsigned samples);
 
 	/** See MSXMixer::getHostSampleClock(). */
-	const DynamicClock& getHostSampleClock() const;
-	double getEffectiveSpeed() const;
+	[[nodiscard]] const DynamicClock& getHostSampleClock() const;
+	[[nodiscard]] double getEffectiveSpeed() const;
 
 private:
 	MSXMixer& mixer;
 	const std::string name;
-	const std::string description;
+	const static_string_view description;
 
-	std::unique_ptr<Wav16Writer> writer[MAX_CHANNELS];
+	std::optional<Wav16Writer> writer[MAX_CHANNELS];
 
 	float softwareVolumeLeft = 1.0f;
 	float softwareVolumeRight = 1.0f;

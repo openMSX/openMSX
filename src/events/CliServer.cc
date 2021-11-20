@@ -7,6 +7,7 @@
 #include "random.hh"
 #include "statp.hh"
 #include "StringOp.hh"
+#include "xrange.hh"
 #include <memory>
 #include <string>
 
@@ -19,22 +20,19 @@
 #include <fcntl.h>
 #endif
 
-using std::string;
-
-
 namespace openmsx {
 
-static string getUserName()
+[[nodiscard]] static std::string getUserName()
 {
 #if defined(_WIN32)
 	return "default";
 #else
 	struct passwd* pw = getpwuid(getuid());
-	return pw->pw_name ? pw->pw_name : string{};
+	return pw->pw_name ? pw->pw_name : std::string{};
 #endif
 }
 
-static bool checkSocketDir(const string& dir)
+[[nodiscard]] static bool checkSocketDir(zstring_view dir)
 {
 	struct stat st;
 	if (stat(dir.c_str(), &st)) {
@@ -59,7 +57,7 @@ static bool checkSocketDir(const string& dir)
 	return true;
 }
 
-static bool checkSocket(const string& socket)
+[[nodiscard]] static bool checkSocket(zstring_view socket)
 {
 	std::string_view name = FileOperations::getFilename(socket);
 	if (!StringOp::startsWith(name, "socket.")) {
@@ -99,14 +97,14 @@ static bool checkSocket(const string& socket)
 }
 
 #ifdef _WIN32
-static int openPort(SOCKET listenSock)
+[[nodiscard]] static int openPort(SOCKET listenSock)
 {
 	const int BASE = 9938;
 	const int RANGE = 64;
 
 	int first = random_int(0, RANGE - 1); // [0, RANGE)
 
-	for (int n = 0; n < RANGE; ++n) {
+	for (auto n : xrange(RANGE)) {
 		int port = BASE + ((first + n) % RANGE);
 		sockaddr_in server_address;
 		memset(&server_address, 0, sizeof(server_address));
@@ -124,7 +122,7 @@ static int openPort(SOCKET listenSock)
 
 SOCKET CliServer::createSocket()
 {
-	string dir = strCat(FileOperations::getTempDir(), "/openmsx-", getUserName());
+	auto dir = tmpStrCat(FileOperations::getTempDir(), "/openmsx-", getUserName());
 	FileOperations::mkdir(dir, 0700);
 	if (!checkSocketDir(dir)) {
 		throw MSXException("Couldn't create socket directory.");
@@ -188,10 +186,10 @@ void CliServer::exitAcceptLoop()
 	poller.abort();
 }
 
-static void deleteSocket(const string& socket)
+static void deleteSocket(const std::string& socket)
 {
 	FileOperations::unlink(socket); // ignore errors
-	string dir = socket.substr(0, socket.find_last_of('/'));
+	auto dir = socket.substr(0, socket.find_last_of('/'));
 	FileOperations::rmdir(dir); // ignore errors
 }
 

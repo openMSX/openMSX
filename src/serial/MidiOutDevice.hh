@@ -21,7 +21,7 @@ public:
 	static constexpr size_t MAX_MESSAGE_SIZE = 256;
 
 	// Pluggable (part)
-	std::string_view getClass() const final override;
+	[[nodiscard]] std::string_view getClass() const final;
 
 	// SerialDataInterface (part)
 	void recvByte(byte value, EmuTime::param time) override;
@@ -41,7 +41,7 @@ protected:
 	  * instead, in which case this method will not be called.
 	  */
 	virtual void recvMessage(
-			const std::vector<uint8_t>& message, EmuTime::param time);
+		const std::vector<uint8_t>& message, EmuTime::param time);
 
 private:
 	std::vector<uint8_t> buffer;

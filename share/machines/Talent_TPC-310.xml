@@ -10,13 +10,11 @@
     <type>MSX2</type>
   </info>
 
-  <MapperReadBackBits>largest</MapperReadBackBits>
-
   <CassettePort/>
 
   <devices>
 
-    <S1985 id="S1985"> <!-- Actually seems to be an YM3814, which is the same? -->
+    <S1985 id="S1985"> <!-- includes 5 bits mapper-read-back. Actually seems to be an YM3814, which is the same? -->
       <sramname>tpc-310_s1985.sram</sramname>
     </S1985>
 

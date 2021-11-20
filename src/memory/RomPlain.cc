@@ -1,32 +1,34 @@
 #include "RomPlain.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
+#include "one_of.hh"
 #include "serialize.hh"
+#include "unreachable.hh"
+#include "xrange.hh"
 
 namespace openmsx {
 
 // return x inside [start, start+len)
-static inline bool isInside(unsigned x, unsigned start, unsigned len)
+[[nodiscard]] static constexpr bool isInside(unsigned x, unsigned start, unsigned len)
 {
 	unsigned tmp = x - start;
 	return tmp < len;
 }
 
-static std::string toString(unsigned start, unsigned len)
+[[nodiscard]] static std::string toString(unsigned start, unsigned len)
 {
 	return strCat("[0x", hex_string<4>(start), ", "
 	               "0x", hex_string<4>(start + len), ')');
 }
 
-RomPlain::RomPlain(const DeviceConfig& config, Rom&& rom_,
-                   MirrorType mirrored, int start)
+RomPlain::RomPlain(const DeviceConfig& config, Rom&& rom_, RomType type)
 	: Rom8kBBlocks(config, std::move(rom_))
 {
 	unsigned windowBase =  0x0000;
 	unsigned windowSize = 0x10000;
-	if (auto* mem = config.findChild("mem")) {
-		windowBase = mem->getAttributeAsInt("base");
-		windowSize = mem->getAttributeAsInt("size");
+	if (const auto* mem = config.findChild("mem")) {
+		windowBase = mem->getAttributeValueAsInt("base", 0);
+		windowSize = mem->getAttributeValueAsInt("size", 0);
 	}
 
 	unsigned romSize = rom.getSize();
@@ -35,6 +37,25 @@ RomPlain::RomPlain(const DeviceConfig& config, Rom&& rom_,
 			": invalid rom size: must be smaller than or equal to 64kB "
 			"and must be a multiple of 8kB.");
 	}
+
+	const int start = [&] {
+		switch (type) {
+			case ROM_MIRRORED: return -1;
+			case ROM_NORMAL:   return -1;
+			case ROM_MIRRORED0000: return 0x0000;
+			case ROM_MIRRORED4000: return 0x4000;
+			case ROM_MIRRORED8000: return 0x8000;
+			case ROM_MIRROREDC000: return 0xC000;
+			case ROM_NORMAL0000: return 0x0000;
+			case ROM_NORMAL4000: return 0x4000;
+			case ROM_NORMAL8000: return 0x8000;
+			case ROM_NORMALC000: return 0xC000;
+			default: UNREACHABLE; return -1;
+		}
+	}();
+	const bool mirrored = type == one_of(ROM_MIRRORED,
+	                                     ROM_MIRRORED0000, ROM_MIRRORED4000,
+	                                     ROM_MIRRORED8000, ROM_MIRROREDC000);
 
 	unsigned romBase = (start == -1)
 	                 ? guessLocation(windowBase, windowSize)
@@ -57,12 +78,12 @@ RomPlain::RomPlain(const DeviceConfig& config, Rom&& rom_,
 
 	unsigned firstPage = romBase / 0x2000;
 	unsigned numPages = romSize / 0x2000;
-	for (unsigned page = 0; page < 8; ++page) {
+	for (auto page : xrange(8)) {
 		unsigned romPage = page - firstPage;
 		if (romPage < numPages) {
 			setRom(page, romPage);
 		} else {
-			if (mirrored == MIRRORED) {
+			if (mirrored) {
 				setRom(page, romPage & (numPages - 1));
 			} else {
 				setUnmapped(page);
@@ -89,11 +110,9 @@ RomPlain::RomPlain(const DeviceConfig& config, Rom&& rom_,
 void RomPlain::guessHelper(unsigned offset, int* pages)
 {
 	if ((rom[offset++] == 'A') && (rom[offset++] =='B')) {
-		for (int i = 0; i < 4; i++) {
-			word addr = rom[offset + 0] +
-			            rom[offset + 1] * 256;
-			offset += 2;
-			if (addr) {
+		for (auto i : xrange(4)) {
+			if (word addr = rom[offset + 2 * i + 0] +
+			                rom[offset + 2 * i + 1] * 256) {
 				int page = (addr >> 14) - (offset >> 14);
 				if ((0 <= page) && (page <= 2)) {
 					pages[page]++;

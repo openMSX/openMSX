@@ -20,18 +20,18 @@ public:
 	/** Creates a periphery object for this MSXAudio cartridge.
 	  * The ownership of the object remains with the MSXAudio instance.
 	  */
-	Y8950Periphery& createPeriphery(const std::string& soundDeviceName);
+	[[nodiscard]] Y8950Periphery& createPeriphery(const std::string& soundDeviceName);
 
 	void powerUp(EmuTime::param time) override;
 	void reset(EmuTime::param time) override;
-	byte readIO(word port, EmuTime::param time) override;
-	byte peekIO(word port, EmuTime::param time) const override;
+	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
+	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
 	void writeIO(word port, byte value, EmuTime::param time) override;
-	byte readMem(word address, EmuTime::param time) override;
-	byte peekMem(word address, EmuTime::param time) const override;
+	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
+	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;
 	void writeMem(word address, byte value, EmuTime::param time) override;
-	const byte* getReadCacheLine(word start) const override;
-	byte* getWriteCacheLine(word start) const override;
+	[[nodiscard]] const byte* getReadCacheLine(word start) const override;
+	[[nodiscard]] byte* getWriteCacheLine(word start) const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -39,6 +39,7 @@ public:
 private:
 	void enableDAC(bool enable, EmuTime::param time);
 
+private:
 	std::unique_ptr<Y8950Periphery> periphery; // polymorphic
 	Y8950 y8950;
 	std::unique_ptr<DACSound8U> dac; // can be nullptr

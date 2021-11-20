@@ -8,8 +8,6 @@
 #include <memory>
 #include <vector>
 
-using std::unique_ptr;
-
 namespace openmsx {
 
 template<typename Pixel>
@@ -19,14 +17,16 @@ public:
 	StretchScalerOutputBase(SDLOutputSurface& out,
 	                        PixelOperations<Pixel> pixelOps);
 	~StretchScalerOutputBase() override;
+	StretchScalerOutputBase(const StretchScalerOutputBase&) = delete;
+	StretchScalerOutputBase& operator=(const StretchScalerOutputBase&) = delete;
 
-	unsigned getWidth()  const override;
-	unsigned getHeight() const override;
-	Pixel* acquireLine(unsigned y) override;
-	void   fillLine   (unsigned y, Pixel color) override;
+	[[nodiscard]] unsigned getWidth()  const override;
+	[[nodiscard]] unsigned getHeight() const override;
+	[[nodiscard]] Pixel* acquireLine(unsigned y) override;
+	void fillLine(unsigned y, Pixel color) override;
 
 protected:
-	Pixel* releasePre(unsigned y, Pixel* buf);
+	[[nodiscard]] Pixel* releasePre(unsigned y, Pixel* buf);
 	void releasePost(unsigned y, Pixel* dstLine);
 
 	const PixelOperations<Pixel> pixelOps;
@@ -265,7 +265,7 @@ StretchScalerOutput288<Pixel>::StretchScalerOutput288(
 // class StretchScalerOutputFactory
 
 template<typename Pixel>
-unique_ptr<ScalerOutput<Pixel>> StretchScalerOutputFactory<Pixel>::create(
+std::unique_ptr<ScalerOutput<Pixel>> StretchScalerOutputFactory<Pixel>::create(
 	SDLOutputSurface& output,
 	PixelOperations<Pixel> pixelOps,
 	unsigned inWidth)

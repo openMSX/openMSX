@@ -49,7 +49,7 @@
 
     <PSG id="PSG">
       <type>YM2149</type> <!-- in S-3527 MSX-ENGINE -->
-      <keyboardlayout>jis</keyboardlayout>
+      <keyboardlayout>JIS</keyboardlayout>
       <sound>
         <volume>21000</volume>
       </sound>

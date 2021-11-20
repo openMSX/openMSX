@@ -24,7 +24,7 @@ SDLVisibleSurfaceBase::~SDLVisibleSurfaceBase()
 	}
 }
 
-// TODO: The video subsystem is not de-inited on errors.
+// TODO: The video subsystem is not de-initialized on errors.
 //       While it would be consistent to do so, doing it in this class is
 //       not ideal since the init doesn't happen here.
 void SDLVisibleSurfaceBase::createSurface(int width, int height, unsigned flags)
@@ -32,7 +32,10 @@ void SDLVisibleSurfaceBase::createSurface(int width, int height, unsigned flags)
 	if (getDisplay().getRenderSettings().getFullScreen()) {
 		flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 	}
+#ifdef __APPLE__
+	// See SDLGLVisibleSurface::setViewPort() for why only macos (for now).
 	flags |= SDL_WINDOW_ALLOW_HIGHDPI;
+#endif
 
 	assert(!window);
 	window.reset(SDL_CreateWindow(
@@ -51,7 +54,7 @@ void SDLVisibleSurfaceBase::createSurface(int width, int height, unsigned flags)
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
 
 	// set icon
-	if (OPENMSX_SET_WINDOW_ICON) {
+	if constexpr (OPENMSX_SET_WINDOW_ICON) {
 		SDLSurfacePtr iconSurf;
 		// always use 32x32 icon on Windows, for some reason you get badly scaled icons there
 #ifndef _WIN32

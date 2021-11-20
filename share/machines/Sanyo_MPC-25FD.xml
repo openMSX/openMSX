@@ -22,7 +22,7 @@
       <sound>
         <volume>16000</volume>
       </sound>
-      <keyboard_type>jp_jis</keyboard_type>
+      <keyboard_type>jp_ansi</keyboard_type>
       <has_keypad>true</has_keypad>
       <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>
       <code_kana_locks>true</code_kana_locks>
@@ -38,7 +38,7 @@
 
     <PSG id="PSG">
       <type>YM2149</type> <!-- In S3527 -->
-      <keyboardlayout>JIS</keyboardlayout>
+      <keyboardlayout>50on</keyboardlayout>
       <sound>
         <volume>21000</volume>
       </sound>
@@ -89,7 +89,8 @@
           <drives>1</drives>
           <rom>
             <filename>mpc-25fd_disk.rom</filename>
-            <sha1>58ac78bba29a06645ca8d6a94ef2ac68b743ad32</sha1>
+            <sha1>bdbc75aacba4ea0f359694f304ae436914733460</sha1>
+            <sha1>58ac78bba29a06645ca8d6a94ef2ac68b743ad32</sha1> <!-- dirty register region -->
           </rom>
         </WD2793>
 

@@ -7,7 +7,7 @@
 #include <type_traits>
 
 /** Utility class to optimize 64-bit divide/module by a 32-bit constant.
- * For 32-bit by 32-bit gcc already does this optimiztion (on 64-bit
+ * For 32-bit by 32-bit gcc already does this optimization (on 64-bit
  * CPUs gcc also does it for 64-bit operands). This optimization especially
  * helps on CPU without a HW division instruction (like ARM).
  *
@@ -22,7 +22,7 @@ namespace DivModByConstPrivate {
 struct Reduce0Result {
 	uint32_t divisor, shift;
 };
-constexpr Reduce0Result reduce0(uint32_t divisor)
+[[nodiscard]] constexpr Reduce0Result reduce0(uint32_t divisor)
 {
 	uint32_t shift = 0;
 	while ((divisor & 1) == 0) {
@@ -36,7 +36,7 @@ struct Reduce1Result {
 	uint64_t m;
 	uint32_t s;
 };
-constexpr Reduce1Result reduce1(uint64_t m, uint32_t s)
+[[nodiscard]] constexpr Reduce1Result reduce1(uint64_t m, uint32_t s)
 {
 	while (!(m & 1)) {
 		m >>= 1;
@@ -49,7 +49,7 @@ struct Reduce2Result {
 	uint128 m_low, m_high;
 	uint32_t l;
 };
-constexpr Reduce2Result reduce2(uint128 m_low, uint128 m_high, uint32_t l)
+[[nodiscard]] constexpr Reduce2Result reduce2(uint128 m_low, uint128 m_high, uint32_t l)
 {
 	while (((m_low >> 1) < (m_high >> 1)) && (l > 0)) {
 		m_low  >>= 1;
@@ -160,4 +160,4 @@ template<uint32_t DIVISOR> struct DivModByConst
 	}
 };
 
-#endif // DIVMODBYCONST
+#endif // DIVMODBYCONST_HH

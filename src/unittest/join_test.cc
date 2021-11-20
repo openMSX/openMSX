@@ -5,14 +5,10 @@
 #include "view.hh"
 #include <string_view>
 
-using std::string;
-using std::vector;
-
-
 TEST_CASE("join: vector<string_view>, char")
 {
-	auto check = [](const vector<std::string_view>& v, const string& expected) {
-		string result = join(v, '-');
+	auto check = [](const std::vector<std::string_view>& v, const std::string& expected) {
+		std::string result = join(v, '-');
 		CHECK(result == expected);
 	};
 
@@ -30,22 +26,22 @@ TEST_CASE("join: vector<string_view>, char")
 
 TEST_CASE("join: various types")
 {
-	vector<string> vs = {"foo", "bar", "qux"};
-	vector<int> vi = {1, -89, 673, 0};
+	std::vector<std::string> vs = {"foo", "bar", "qux"};
+	std::vector<int> vi = {1, -89, 673, 0};
 	const char* ac[] = {"blabla", "xyz", "4567"};
 
 	char sep1 = '-';
 	const char* sep2 = ", ";
-	string sep3 = "<-->";
+	std::string sep3 = "<-->";
 	int sep4 = 123;
 
-	auto check = [](const auto& range, const auto& sep, const string& expected) {
-		string result1 = join(range, sep);
+	auto check = [](const auto& range, const auto& sep, const std::string& expected) {
+		std::string result1 = join(range, sep);
 		CHECK(result1 == expected);
 
 		std::ostringstream ss;
 		ss << join(range, sep);
-		string result2 = ss.str();
+		std::string result2 = ss.str();
 		CHECK(result2 == expected);
 	};
 

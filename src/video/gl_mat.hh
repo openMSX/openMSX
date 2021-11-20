@@ -2,8 +2,8 @@
 #define GL_MAT_HH
 
 // This code implements a mathematical matrix, comparable in functionality
-// and syntax to the matrix types in GLSL. 
-// 
+// and syntax to the matrix types in GLSL.
+//
 // The code was tuned for 4x4 matrixes, but when it didn't complicate the
 // code, other sizes (even non-square) are supported as well.
 //
@@ -11,14 +11,13 @@
 // operation 'matrix x column-vector' is supported and not e.g. 'row-vector x
 // matrix'. The internal layout is also compatible with openGL(ES).
 //
-// This code itself doesn't have many SSE optimizations, but because it is built
-// on top of an optimized vector type the generated code for 4x4 matrix
-// multiplication is as efficient as a hand-written SSE assembly routine
-// (verified with gcc-4.8 on x86_64). The efficiency for other matrix sizes was
-// not a goal for this code (smaller sizes might be ok, bigger sizes most
-// likely not).
+// In the past we had (some) manual SSE optimizations in this code. Though for
+// the functions that matter (matrix-vector and matrix-matrix multiplication),
+// the compiler's auto-vectorization has become as good as the manually
+// vectorized code.
 
 #include "gl_vec.hh"
+#include "xrange.hh"
 #include <cassert>
 
 namespace gl {
@@ -33,50 +32,50 @@ public:
 	// Default copy-constructor and assignment operator.
 
 	// Construct identity matrix.
-	matMxN()
+	constexpr matMxN()
 	{
-		for (int i = 0; i < N; ++i) {
-			for (int j = 0; j < M; ++j) {
+		for (auto i : xrange(N)) {
+			for (auto j : xrange(M)) {
 				c[i][j] = (i == j) ? T(1) : T(0);
 			}
 		}
 	}
-	
+
 	// Construct diagonal matrix.
-	explicit matMxN(const vecN<(M < N ? M : N), T>& d)
+	constexpr explicit matMxN(const vecN<(M < N ? M : N), T>& d)
 	{
-		for (int i = 0; i < N; ++i) {
-			for (int j = 0; j < M; ++j) {
+		for (auto i : xrange(N)) {
+			for (auto j : xrange(M)) {
 				c[i][j] = (i == j) ? d[i] : T(0);
 			}
 		}
 	}
 
 	// Construct from larger matrix (higher order elements are dropped).
-	template<int M2, int N2> explicit matMxN(const matMxN<M2, N2, T>& x)
+	template<int M2, int N2> constexpr explicit matMxN(const matMxN<M2, N2, T>& x)
 	{
 		static_assert(((M2 > M) && (N2 >= N)) || ((M2 >= M) && (N2 > N)),
 		              "matrix must have strictly larger dimensions");
-		for (int i = 0; i < N; ++i) c[i] = vecN<M, T>(x[i]);
+		for (auto i : xrange(N)) c[i] = vecN<M, T>(x[i]);
 	}
 
 	// Construct matrix from 2 given columns (only valid when N == 2).
-	matMxN(const vecN<M, T>& x, const vecN<M, T>& y)
+	constexpr matMxN(const vecN<M, T>& x, const vecN<M, T>& y)
 	{
 		static_assert(N == 2, "wrong #constructor arguments");
 		c[0] = x; c[1] = y;
 	}
 
 	// Construct matrix from 3 given columns (only valid when N == 3).
-	matMxN(const vecN<M, T>& x, const vecN<M, T>& y, const vecN<M, T>& z)
+	constexpr matMxN(const vecN<M, T>& x, const vecN<M, T>& y, const vecN<M, T>& z)
 	{
 		static_assert(N == 3, "wrong #constructor arguments");
 		c[0] = x; c[1] = y; c[2] = z;
 	}
 
 	// Construct matrix from 4 given columns (only valid when N == 4).
-	matMxN(const vecN<M, T>& x, const vecN<M, T>& y,
-	       const vecN<M, T>& z, const vecN<M, T>& w)
+	constexpr matMxN(const vecN<M, T>& x, const vecN<M, T>& y,
+	                 const vecN<M, T>& z, const vecN<M, T>& w)
 	{
 		static_assert(N == 4, "wrong #constructor arguments");
 		c[0] = x; c[1] = y; c[2] = z; c[3] = w;
@@ -85,13 +84,13 @@ public:
 	// Access the i-the column of the matrix.
 	// Vectors are also indexable, so 'A[i][j]' returns the element
 	// at the i-th column, j-th row.
-	const vecN<M, T>& operator[](unsigned i) const {
+	[[nodiscard]] constexpr const vecN<M, T>& operator[](unsigned i) const {
 		#ifdef DEBUG
 		assert(i < N);
 		#endif
 		return c[i];
 	}
-	vecN<M, T>& operator[](unsigned i) {
+	[[nodiscard]] constexpr vecN<M, T>& operator[](unsigned i) {
 		#ifdef DEBUG
 		assert(i < N);
 		#endif
@@ -99,57 +98,13 @@ public:
 	}
 
 	// Assignment version of the +,-,* operations defined below.
-	matMxN& operator+=(const matMxN& x) { *this = *this + x; return *this; }
-	matMxN& operator-=(const matMxN& x) { *this = *this - x; return *this; }
-	matMxN& operator*=(T             x) { *this = *this * x; return *this; }
-	matMxN& operator*=(const matMxN<N, N, T>& x) { *this = *this * x; return *this; }
+	constexpr matMxN& operator+=(const matMxN& x) { *this = *this + x; return *this; }
+	constexpr matMxN& operator-=(const matMxN& x) { *this = *this - x; return *this; }
+	constexpr matMxN& operator*=(T             x) { *this = *this * x; return *this; }
+	constexpr matMxN& operator*=(const matMxN<N, N, T>& x) { *this = *this * x; return *this; }
 
 private:
 	vecN<M, T> c[N];
-};
-
-
-// Specialization for 4x4 matrix.
-// This specialization is not needed for correctness, but it does help gcc-4.8
-// to generate better code for the constructors (clang-3.4 doesn't need help).
-// Maybe remove this specialization in the future?
-template<typename T> class matMxN<4, 4, T>
-{
-public:
-	matMxN()
-	{
-		T one(1); T zero(0);
-		c[0] = vecN<4,T>( one, zero, zero, zero);
-		c[1] = vecN<4,T>(zero,  one, zero, zero);
-		c[2] = vecN<4,T>(zero, zero,  one, zero);
-		c[3] = vecN<4,T>(zero, zero, zero,  one);
-	}
-
-	explicit matMxN(vecN<4, T> d)
-	{
-		T zero(0);
-		c[0] = vecN<4,T>(d[0], zero, zero, zero);
-		c[1] = vecN<4,T>(zero, d[1], zero, zero);
-		c[2] = vecN<4,T>(zero, zero, d[2], zero);
-		c[3] = vecN<4,T>(zero, zero, zero, d[3]);
-	}
-
-	matMxN(vecN<4, T> x, vecN<4, T> y, vecN<4, T> z, vecN<4, T> w)
-	{
-		c[0] = x; c[1] = y; c[2] = z; c[3] = w;
-	}
-
-	vecN<4, T>  operator[](int i) const { return c[i]; }
-	vecN<4, T>& operator[](int i)       { return c[i]; }
-
-	// Assignment version of the +,-,* operations defined below.
-	matMxN& operator+=(const matMxN& x) { *this = *this + x; return *this; }
-	matMxN& operator-=(const matMxN& x) { *this = *this - x; return *this; }
-	matMxN& operator*=(T             x) { *this = *this * x; return *this; }
-	matMxN& operator*=(const matMxN& x) { *this = *this * x; return *this; }
-
-private:
-	vecN<4, T> c[4];
 };
 
 
@@ -163,91 +118,85 @@ using mat4 = matMxN<4, 4, float>;
 
 // matrix equality / inequality
 template<int M, int N, typename T>
-inline bool operator==(const matMxN<M, N, T>& A, const matMxN<M, N, T>& B)
+[[nodiscard]] constexpr bool operator==(const matMxN<M, N, T>& A, const matMxN<M, N, T>& B)
 {
-	for (int i = 0; i < N; ++i) if (A[i] != B[i]) return false;
+	for (auto i : xrange(N)) if (A[i] != B[i]) return false;
 	return true;
 }
 template<int M, int N, typename T>
-inline bool operator!=(const matMxN<M, N, T>& A, const matMxN<M, N, T>& B)
+[[nodiscard]] constexpr bool operator!=(const matMxN<M, N, T>& A, const matMxN<M, N, T>& B)
 {
 	return !(A == B);
 }
 
 // matrix + matrix
 template<int M, int N, typename T>
-inline matMxN<M, N, T> operator+(const matMxN<M, N, T>& A, const matMxN<M, N, T>& B)
+[[nodiscard]] constexpr matMxN<M, N, T> operator+(const matMxN<M, N, T>& A, const matMxN<M, N, T>& B)
 {
 	matMxN<M, N, T> R;
-	for (int i = 0; i < N; ++i) R[i] = A[i] + B[i];
+	for (auto i : xrange(N)) R[i] = A[i] + B[i];
 	return R;
 }
 
 // matrix - matrix
 template<int M, int N, typename T>
-inline matMxN<M, N, T> operator-(const matMxN<M, N, T>& A, const matMxN<M, N, T>& B)
+[[nodiscard]] constexpr matMxN<M, N, T> operator-(const matMxN<M, N, T>& A, const matMxN<M, N, T>& B)
 {
 	matMxN<M, N, T> R;
-	for (int i = 0; i < N; ++i) R[i] = A[i] - B[i];
+	for (auto i : xrange(N)) R[i] = A[i] - B[i];
 	return R;
 }
 
 // matrix negation
 template<int M, int N, typename T>
-inline matMxN<M, N, T> operator-(const matMxN<M, N, T>& A)
+[[nodiscard]] constexpr matMxN<M, N, T> operator-(const matMxN<M, N, T>& A)
 {
 	return matMxN<M, N, T>(vecN<(M < N ? M : N), T>()) - A;
 }
 
 // scalar * matrix
 template<int M, int N, typename T>
-inline matMxN<M, N, T> operator*(T x, const matMxN<M, N, T>& A)
+[[nodiscard]] constexpr matMxN<M, N, T> operator*(T x, const matMxN<M, N, T>& A)
 {
 	matMxN<M, N, T> R;
-	for (int i = 0; i < N; ++i) R[i] = x * A[i];
+	for (auto i : xrange(N)) R[i] = x * A[i];
 	return R;
 }
 
 // matrix * scalar
 template<int M, int N, typename T>
-inline matMxN<M, N, T> operator*(const matMxN<M, N, T>& A, T x)
+[[nodiscard]] constexpr matMxN<M, N, T> operator*(const matMxN<M, N, T>& A, T x)
 {
 	matMxN<M, N, T> R;
-	for (int i = 0; i < N; ++i) R[i] = A[i] * x;
+	for (auto i : xrange(N)) R[i] = A[i] * x;
 	return R;
 }
 
 // matrix * column-vector
 template<int M, int N, typename T>
-inline vecN<M, T> operator*(const matMxN<M, N, T>& A, const vecN<N, T>& x)
+[[nodiscard]] constexpr vecN<M, T> operator*(const matMxN<M, N, T>& A, const vecN<N, T>& x)
 {
 	vecN<M, T> r;
-	for (int i = 0; i < N; ++i) r += A[i] * x[i];
+	for (auto i : xrange(N)) r += A[i] * x[i];
 	return r;
-}
-template<typename T>
-inline vecN<4, T> operator*(const matMxN<4, 4, T>& A, vecN<4, T> x)
-{
-	// Small optimization for 4x4 matrix: reassociate add-chain
-	return (A[0] * x[0] + A[1] * x[1]) + (A[2] * x[2] + A[3] * x[3]);
 }
 
 // matrix * matrix
 template<int M, int N, int O, typename T>
-inline matMxN<M, O, T> operator*(const matMxN<M, N, T>& A, const matMxN<N, O, T>& B)
+[[nodiscard]] constexpr matMxN<M, O, T> operator*(const matMxN<M, N, T>& A, const matMxN<N, O, T>& B)
 {
 	matMxN<M, O, T> R;
-	for (int i = 0; i < O; ++i) R[i] = A * B[i];
+	for (auto i : xrange(O)) R[i] = A * B[i];
 	return R;
 }
 
 // matrix transpose
 template<int M, int N, typename T>
-inline matMxN<N, M, T> transpose(const matMxN<M, N, T>& A)
+[[nodiscard]] constexpr matMxN<N, M, T> transpose(const matMxN<M, N, T>& A)
 {
 	matMxN<N, M, T> R;
-	for (int i = 0; i < N; ++i) {
-		for (int j = 0; j < M; ++j) {
+	for (auto i : xrange(N)) {
+		for (auto j : xrange(M)) {
 			R[j][i] = A[i][j];
 		}
 	}
@@ -256,14 +205,14 @@ inline matMxN<N, M, T> transpose(const matMxN<M, N, T>& A)
 
 // determinant of a 2x2 matrix
 template<typename T>
-inline T determinant(const matMxN<2, 2, T>& A)
+[[nodiscard]] constexpr T determinant(const matMxN<2, 2, T>& A)
 {
 	return A[0][0] * A[1][1] - A[0][1] * A[1][0];
 }
 
 // determinant of a 3x3 matrix
 template<typename T>
-inline T determinant(const matMxN<3, 3, T>& A)
+[[nodiscard]] constexpr T determinant(const matMxN<3, 3, T>& A)
 {
 	return A[0][0] * (A[1][1] * A[2][2] - A[1][2] * A[2][1])
 	     - A[1][0] * (A[0][1] * A[2][2] - A[0][2] * A[2][1])
@@ -272,7 +221,7 @@ inline T determinant(const matMxN<3, 3, T>& A)
 
 // determinant of a 4x4 matrix
 template<typename T>
-inline T determinant(const matMxN<4, 4, T>& A)
+[[nodiscard]] constexpr T determinant(const matMxN<4, 4, T>& A)
 {
 	// Implementation based on glm:  http://glm.g-truc.net
 	T f0 = A[2][2] * A[3][3] - A[3][2] * A[2][3];
@@ -290,7 +239,7 @@ inline T determinant(const matMxN<4, 4, T>& A)
 
 // inverse of a 2x2 matrix
 template<typename T>
-inline matMxN<2, 2, T> inverse(const matMxN<2, 2, T>& A)
+[[nodiscard]] constexpr matMxN<2, 2, T> inverse(const matMxN<2, 2, T>& A)
 {
 	T d = T(1) / determinant(A);
 	return d * matMxN<2, 2, T>(vecN<2, T>( A[1][1], -A[0][1]),
@@ -299,7 +248,7 @@ inline matMxN<2, 2, T> inverse(const matMxN<2, 2, T>& A)
 
 // inverse of a 3x3 matrix
 template<typename T>
-inline matMxN<3, 3, T> inverse(const matMxN<3, 3, T>& A)
+[[nodiscard]] constexpr matMxN<3, 3, T> inverse(const matMxN<3, 3, T>& A)
 {
 	T d = T(1) / determinant(A);
 	return d * matMxN<3, 3, T>(
@@ -316,7 +265,7 @@ inline matMxN<3, 3, T> inverse(const matMxN<3, 3, T>& A)
 
 // inverse of a 4x4 matrix
 template<typename T>
-inline matMxN<4, 4, T> inverse(const matMxN<4, 4, T>& A)
+[[nodiscard]] constexpr matMxN<4, 4, T> inverse(const matMxN<4, 4, T>& A)
 {
 	// Implementation based on glm:  http://glm.g-truc.net
 
@@ -373,10 +322,10 @@ inline matMxN<4, 4, T> inverse(const matMxN<4, 4, T>& A)
 
 // norm-2 squared
 template<int M, int N, typename T>
-inline T norm2_2(const matMxN<M, N, T>& A)
+[[nodiscard]] constexpr T norm2_2(const matMxN<M, N, T>& A)
 {
 	vecN<M, T> t;
-	for (int i = 0; i < N; ++i) t += A[i] * A[i];
+	for (auto i : xrange(N)) t += A[i] * A[i];
 	return sum(t);
 }
 
@@ -384,8 +333,8 @@ inline T norm2_2(const matMxN<M, N, T>& A)
 template<int M, int N, typename T>
 std::ostream& operator<<(std::ostream& os, const matMxN<M, N, T>& A)
 {
-	for (int j = 0; j < M; ++j) {
-		for (int i = 0; i < N; ++i) {
+	for (auto j : xrange(M)) {
+		for (auto i : xrange(N)) {
 			os << A[i][j] << ' ';
 		}
 		os << '\n';
@@ -394,113 +343,5 @@ std::ostream& operator<<(std::ostream& os, const matMxN<M, N, T>& A)
 }
 
 } // namespace gl
-
-
-// --- SSE optimizations ---
-
-#ifdef __SSE__
-#include <xmmintrin.h>
-
-namespace gl {
-
-// transpose of 4x4-float matrix
-inline mat4 transpose(const mat4& A)
-{
-	mat4 R;
-	__m128 t0 = _mm_shuffle_ps(A[0].sse(), A[1].sse(), _MM_SHUFFLE(1,0,1,0));
-	__m128 t1 = _mm_shuffle_ps(A[0].sse(), A[1].sse(), _MM_SHUFFLE(3,2,3,2));
-	__m128 t2 = _mm_shuffle_ps(A[2].sse(), A[3].sse(), _MM_SHUFFLE(1,0,1,0));
-	__m128 t3 = _mm_shuffle_ps(A[2].sse(), A[3].sse(), _MM_SHUFFLE(3,2,3,2));
-	R[0] = vec4(_mm_shuffle_ps(t0, t2, _MM_SHUFFLE(2,0,2,0)));
-	R[1] = vec4(_mm_shuffle_ps(t0, t2, _MM_SHUFFLE(3,1,3,1)));
-	R[2] = vec4(_mm_shuffle_ps(t1, t3, _MM_SHUFFLE(2,0,2,0)));
-	R[3] = vec4(_mm_shuffle_ps(t1, t3, _MM_SHUFFLE(3,1,3,1)));
-	return R;
-}
-
-// inverse of a 4x4-float matrix
-inline mat4 inverse(const mat4& A)
-{
-	// Implementation based on glm:  http://glm.g-truc.net
-
-	__m128 sa0 = _mm_shuffle_ps(A[3].sse(), A[2].sse(), _MM_SHUFFLE(3,3,3,3));
-	__m128 sb0 = _mm_shuffle_ps(A[3].sse(), A[2].sse(), _MM_SHUFFLE(2,2,2,2));
-	__m128 s00 = _mm_shuffle_ps(A[2].sse(), A[1].sse(), _MM_SHUFFLE(2,2,2,2));
-	__m128 s10 = _mm_shuffle_ps(sa0,        sa0,        _MM_SHUFFLE(2,0,0,0));
-	__m128 s20 = _mm_shuffle_ps(sb0,        sb0,        _MM_SHUFFLE(2,0,0,0));
-	__m128 s30 = _mm_shuffle_ps(A[2].sse(), A[1].sse(), _MM_SHUFFLE(3,3,3,3));
-	__m128 f0  = _mm_sub_ps(_mm_mul_ps(s00, s10), _mm_mul_ps(s20, s30));
-
-	__m128 sa1 = _mm_shuffle_ps(A[3].sse(), A[2].sse(), _MM_SHUFFLE(3,3,3,3));
-	__m128 sb1 = _mm_shuffle_ps(A[3].sse(), A[2].sse(), _MM_SHUFFLE(1,1,1,1));
-	__m128 s01 = _mm_shuffle_ps(A[2].sse(), A[1].sse(), _MM_SHUFFLE(1,1,1,1));
-	__m128 s11 = _mm_shuffle_ps(sa1,        sa1,        _MM_SHUFFLE(2,0,0,0));
-	__m128 s21 = _mm_shuffle_ps(sb1,        sb1,        _MM_SHUFFLE(2,0,0,0));
-	__m128 s31 = _mm_shuffle_ps(A[2].sse(), A[1].sse(), _MM_SHUFFLE(3,3,3,3));
-	__m128 f1  = _mm_sub_ps(_mm_mul_ps(s01, s11), _mm_mul_ps(s21, s31));
-
-	__m128 sa2 = _mm_shuffle_ps(A[3].sse(), A[2].sse(), _MM_SHUFFLE(2,2,2,2));
-	__m128 sb2 = _mm_shuffle_ps(A[3].sse(), A[2].sse(), _MM_SHUFFLE(1,1,1,1));
-	__m128 s02 = _mm_shuffle_ps(A[2].sse(), A[1].sse(), _MM_SHUFFLE(1,1,1,1));
-	__m128 s12 = _mm_shuffle_ps(sa2,        sa2,        _MM_SHUFFLE(2,0,0,0));
-	__m128 s22 = _mm_shuffle_ps(sb2,        sb2,        _MM_SHUFFLE(2,0,0,0));
-	__m128 s32 = _mm_shuffle_ps(A[2].sse(), A[1].sse(), _MM_SHUFFLE(2,2,2,2));
-	__m128 f2  = _mm_sub_ps(_mm_mul_ps(s02, s12), _mm_mul_ps(s22, s32));
-
-	__m128 sa3 = _mm_shuffle_ps(A[3].sse(), A[2].sse(), _MM_SHUFFLE(3,3,3,3));
-	__m128 sb3 = _mm_shuffle_ps(A[3].sse(), A[2].sse(), _MM_SHUFFLE(0,0,0,0));
-	__m128 s03 = _mm_shuffle_ps(A[2].sse(), A[1].sse(), _MM_SHUFFLE(0,0,0,0));
-	__m128 s13 = _mm_shuffle_ps(sa3,        sa3,        _MM_SHUFFLE(2,0,0,0));
-	__m128 s23 = _mm_shuffle_ps(sb3,        sb3,        _MM_SHUFFLE(2,0,0,0));
-	__m128 s33 = _mm_shuffle_ps(A[2].sse(), A[1].sse(), _MM_SHUFFLE(3,3,3,3));
-	__m128 f3  = _mm_sub_ps(_mm_mul_ps(s03, s13), _mm_mul_ps(s23, s33));
-
-	__m128 sa4 = _mm_shuffle_ps(A[3].sse(), A[2].sse(), _MM_SHUFFLE(2,2,2,2));
-	__m128 sb4 = _mm_shuffle_ps(A[3].sse(), A[2].sse(), _MM_SHUFFLE(0,0,0,0));
-	__m128 s04 = _mm_shuffle_ps(A[2].sse(), A[1].sse(), _MM_SHUFFLE(0,0,0,0));
-	__m128 s14 = _mm_shuffle_ps(sa4,        sa4,        _MM_SHUFFLE(2,0,0,0));
-	__m128 s24 = _mm_shuffle_ps(sb4,        sb4,        _MM_SHUFFLE(2,0,0,0));
-	__m128 s34 = _mm_shuffle_ps(A[2].sse(), A[1].sse(), _MM_SHUFFLE(2,2,2,2));
-	__m128 f4  = _mm_sub_ps(_mm_mul_ps(s04, s14), _mm_mul_ps(s24, s34));
-
-	__m128 sa5 = _mm_shuffle_ps(A[3].sse(), A[2].sse(), _MM_SHUFFLE(1,1,1,1));
-	__m128 sb5 = _mm_shuffle_ps(A[3].sse(), A[2].sse(), _MM_SHUFFLE(0,0,0,0));
-	__m128 s05 = _mm_shuffle_ps(A[2].sse(), A[1].sse(), _MM_SHUFFLE(0,0,0,0));
-	__m128 s15 = _mm_shuffle_ps(sa5,        sa5,        _MM_SHUFFLE(2,0,0,0));
-	__m128 s25 = _mm_shuffle_ps(sb5,        sb5,        _MM_SHUFFLE(2,0,0,0));
-	__m128 s35 = _mm_shuffle_ps(A[2].sse(), A[1].sse(), _MM_SHUFFLE(1,1,1,1));
-	__m128 f5  = _mm_sub_ps(_mm_mul_ps(s05, s15), _mm_mul_ps(s25, s35));
-
-	__m128 t0 = _mm_shuffle_ps(A[1].sse(), A[0].sse(), _MM_SHUFFLE(0,0,0,0));
-	__m128 t1 = _mm_shuffle_ps(A[1].sse(), A[0].sse(), _MM_SHUFFLE(1,1,1,1));
-	__m128 t2 = _mm_shuffle_ps(A[1].sse(), A[0].sse(), _MM_SHUFFLE(2,2,2,2));
-	__m128 t3 = _mm_shuffle_ps(A[1].sse(), A[0].sse(), _MM_SHUFFLE(3,3,3,3));
-	__m128 v0 = _mm_shuffle_ps(t0, t0, _MM_SHUFFLE(2,2,2,0));
-	__m128 v1 = _mm_shuffle_ps(t1, t1, _MM_SHUFFLE(2,2,2,0));
-	__m128 v2 = _mm_shuffle_ps(t2, t2, _MM_SHUFFLE(2,2,2,0));
-	__m128 v3 = _mm_shuffle_ps(t3, t3, _MM_SHUFFLE(2,2,2,0));
-
-	__m128 s0 = _mm_sub_ps(_mm_mul_ps(v1, f0), _mm_mul_ps(v2, f1));
-	__m128 s1 = _mm_sub_ps(_mm_mul_ps(v0, f0), _mm_mul_ps(v2, f3));
-	__m128 s2 = _mm_sub_ps(_mm_mul_ps(v0, f1), _mm_mul_ps(v1, f3));
-	__m128 s3 = _mm_sub_ps(_mm_mul_ps(v0, f2), _mm_mul_ps(v1, f4));
-	__m128 sa = _mm_set_ps( 1.0f,-1.0f, 1.0f,-1.0f);
-	__m128 sb = _mm_set_ps(-1.0f, 1.0f,-1.0f, 1.0f);
-	__m128 i0 = _mm_mul_ps(sb, _mm_add_ps(s0, _mm_mul_ps(v3, f2)));
-	__m128 i1 = _mm_mul_ps(sa, _mm_add_ps(s1, _mm_mul_ps(v3, f4)));
-	__m128 i2 = _mm_mul_ps(sb, _mm_add_ps(s2, _mm_mul_ps(v3, f5)));
-	__m128 i3 = _mm_mul_ps(sa, _mm_add_ps(s3, _mm_mul_ps(v2, f5)));
-
-	__m128 ra = _mm_shuffle_ps(i0, i1, _MM_SHUFFLE(0,0,0,0));
-	__m128 rb = _mm_shuffle_ps(i2, i3, _MM_SHUFFLE(0,0,0,0));
-	vec4 row0 = vec4(_mm_shuffle_ps(ra, rb, _MM_SHUFFLE(2,0,2,0)));
-
-	vec4 rd =  recip(dot_broadcast(A[0], row0));
-	return mat4(vec4(i0) * rd, vec4(i1) * rd, vec4(i2) * rd, vec4(i3) * rd);
-}
-
-} // namespace gl
-
-#endif // __SSE__
 
 #endif

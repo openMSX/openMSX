@@ -4,7 +4,6 @@
 #include "openmsx.hh"
 #include <cassert>
 #include <string_view>
-#include <utility>
 #include <vector>
 
 namespace openmsx {
@@ -47,14 +46,14 @@ public:
 
 	/** Returns true iff this position is valid.
 	  */
-	constexpr bool isValid() const {
+	[[nodiscard]] constexpr bool isValid() const {
 		return rowCol != INVALID;
 	}
 
 	/** Returns the matrix row.
 	  * Must only be called on valid positions.
 	  */
-	constexpr unsigned getRow() const {
+	[[nodiscard]] constexpr unsigned getRow() const {
 		assert(isValid());
 		return rowCol >> 3;
 	}
@@ -62,7 +61,7 @@ public:
 	/** Returns the matrix column.
 	  * Must only be called on valid positions.
 	  */
-	constexpr unsigned getColumn() const {
+	[[nodiscard]] constexpr unsigned getColumn() const {
 		assert(isValid());
 		return rowCol & 0x07;
 	}
@@ -71,7 +70,7 @@ public:
 	  * is stored in the lower 3 bits, the row is stored in the higher bits.
 	  * Must only be called on valid positions.
 	  */
-	constexpr byte getRowCol() const {
+	[[nodiscard]] constexpr byte getRowCol() const {
 		assert(isValid());
 		return rowCol;
 	}
@@ -80,12 +79,12 @@ public:
 	  * column set, all other bits clear.
 	  * Must only be called on valid positions.
 	  */
-	constexpr unsigned getMask() const {
+	[[nodiscard]] constexpr unsigned getMask() const {
 		assert(isValid());
 		return 1 << getColumn();
 	}
 
-	constexpr friend bool operator==(const KeyMatrixPosition& x, const KeyMatrixPosition& y) {
+	[[nodiscard]] constexpr friend bool operator==(const KeyMatrixPosition& x, const KeyMatrixPosition& y) {
 		return x.rowCol == y.rowCol;
 	}
 
@@ -111,7 +110,7 @@ public:
 		{
 			assert(pos.isValid());
 		}
-		constexpr bool isValid() const {
+		[[nodiscard]] constexpr bool isValid() const {
 			return pos.isValid();
 		}
 		KeyMatrixPosition pos;
@@ -120,8 +119,8 @@ public:
 
 	explicit UnicodeKeymap(std::string_view keyboardType);
 
-	KeyInfo get(unsigned unicode) const;
-	KeyInfo getDeadkey(unsigned n) const;
+	[[nodiscard]] KeyInfo get(unsigned unicode) const;
+	[[nodiscard]] KeyInfo getDeadkey(unsigned n) const;
 
 	/** Returns a mask in which a bit is set iff the corresponding modifier
 	  * is relevant for the given key. A modifier is considered relevant if
@@ -129,7 +128,7 @@ public:
 	  * modifier to be active.
 	  * Must only be called on valid KeyInfos.
 	  */
-	byte getRelevantMods(const KeyInfo& keyInfo) const {
+	[[nodiscard]] byte getRelevantMods(const KeyInfo& keyInfo) const {
 		return relevantMods[keyInfo.pos.getRowCol()];
 	}
 
@@ -138,7 +137,13 @@ private:
 
 	void parseUnicodeKeymapfile(std::string_view data);
 
-	std::vector<std::pair<unsigned, KeyInfo>> mapdata;
+private:
+	struct Entry {
+		unsigned unicode;
+		KeyInfo keyInfo;
+	};
+	std::vector<Entry> mapdata; // sorted on unicode
+
 	/** Contains a mask for each key matrix position, which for each modifier
 	  * has the corresponding bit set if that modifier that affects the key.
 	  */

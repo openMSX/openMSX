@@ -2,6 +2,7 @@
 #define DISKIMAGEMANAGER_HH
 
 #include "CLIOption.hh"
+#include "zstring_view.hh"
 
 namespace openmsx {
 
@@ -13,16 +14,17 @@ public:
 	explicit DiskImageCLI(CommandLineParser& parser);
 	void parseOption(const std::string& option,
 	                 span<std::string>& cmdLine) override;
-	std::string_view optionHelp() const override;
+	[[nodiscard]] std::string_view optionHelp() const override;
 	void parseFileType(const std::string& filename,
 	                   span<std::string>& cmdLine) override;
-	std::string_view fileTypeHelp() const override;
-	std::string_view fileTypeCategoryName() const override;
+	[[nodiscard]] std::string_view fileTypeHelp() const override;
+	[[nodiscard]] std::string_view fileTypeCategoryName() const override;
 
 private:
-	void parse(std::string_view drive, std::string_view image,
+	void parse(zstring_view drive, std::string_view image,
 	           span<std::string>& cmdLine);
 
+private:
 	CommandLineParser& parser;
 	char driveLetter;
 };

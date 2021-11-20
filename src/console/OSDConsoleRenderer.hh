@@ -13,12 +13,12 @@
 #include <list>
 #include <memory>
 #include <string_view>
+#include <tuple>
 
 namespace openmsx {
 
 class BooleanSetting;
 class CommandConsole;
-class ConsoleLine;
 class Display;
 class Reactor;
 
@@ -30,14 +30,14 @@ public:
 	~OSDConsoleRenderer() override;
 
 private:
-	int initFontAndGetColumns();
-	int getRows();
+	[[nodiscard]] int initFontAndGetColumns();
+	[[nodiscard]] int getRows();
 
 	// Layer
 	void paint(OutputSurface& output) override;
 
 	// Observer
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
 	void adjustColRow();
 	void setActive(bool active);
@@ -48,15 +48,16 @@ private:
 	byte getVisibility() const;
 	void drawText(OutputSurface& output, std::string_view text,
 	              int cx, int cy, byte alpha, uint32_t rgb);
-	gl::ivec2 getTextPos(int cursorX, int cursorY) const;
+	[[nodiscard]] gl::ivec2 getTextPos(int cursorX, int cursorY) const;
 	void drawConsoleText(OutputSurface& output, byte visibility);
 
-	bool getFromCache(std::string_view text, uint32_t rgb,
-	                  BaseImage*& image, unsigned& width);
+	[[nodiscard]] std::tuple<bool, BaseImage*, unsigned> getFromCache(
+		std::string_view text, uint32_t rgb);
 	void insertInCache(std::string text, uint32_t rgb,
 	                   std::unique_ptr<BaseImage> image, unsigned width);
 	void clearCache();
 
+private:
 	enum Placement {
 		CP_TOPLEFT,    CP_TOP,    CP_TOPRIGHT,
 		CP_LEFT,       CP_CENTER, CP_RIGHT,
@@ -72,7 +73,7 @@ private:
 		std::string text;
 		std::unique_ptr<BaseImage> image;
 		uint32_t rgb;
-		unsigned width;
+		unsigned width; // in case of trailing whitespace width != image->getWidth()
 	};
 	using TextCache = std::list<TextCacheElement>;
 

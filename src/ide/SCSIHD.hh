@@ -33,28 +33,29 @@ private:
 	// SCSI Device
 	void reset() override;
 	bool isSelected() override;
-	unsigned executeCmd(const byte* cdb, SCSI::Phase& phase,
+	[[nodiscard]] unsigned executeCmd(const byte* cdb, SCSI::Phase& phase,
 	                    unsigned& blocks) override;
-	unsigned executingCmd(SCSI::Phase& phase, unsigned& blocks) override;
-	byte getStatusCode() override;
+	[[nodiscard]] unsigned executingCmd(SCSI::Phase& phase, unsigned& blocks) override;
+	[[nodiscard]] byte getStatusCode() override;
 	int msgOut(byte value) override;
 	byte msgIn() override;
 	void disconnect() override;
 	void busReset() override;
 
-	unsigned dataIn(unsigned& blocks) override;
-	unsigned dataOut(unsigned& blocks) override;
+	[[nodiscard]] unsigned dataIn(unsigned& blocks) override;
+	[[nodiscard]] unsigned dataOut(unsigned& blocks) override;
 
-	unsigned inquiry();
-	unsigned modeSense();
-	unsigned requestSense();
-	bool checkReadOnly();
-	unsigned readCapacity();
-	bool checkAddress();
-	unsigned readSectors(unsigned& blocks);
-	unsigned writeSectors(unsigned& blocks);
+	[[nodiscard]] unsigned inquiry();
+	[[nodiscard]] unsigned modeSense();
+	[[nodiscard]] unsigned requestSense();
+	[[nodiscard]] bool checkReadOnly();
+	[[nodiscard]] unsigned readCapacity();
+	[[nodiscard]] bool checkAddress();
+	[[nodiscard]] unsigned readSectors(unsigned& blocks);
+	[[nodiscard]] unsigned writeSectors(unsigned& blocks);
 	void formatUnit();
 
+private:
 	AlignedBuffer& buffer;
 
 	const unsigned mode;

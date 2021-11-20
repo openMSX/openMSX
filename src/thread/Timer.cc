@@ -7,10 +7,9 @@ namespace openmsx::Timer {
 uint64_t getTime()
 {
 	static uint64_t lastTime = 0;
-	uint64_t now;
 
 	using namespace std::chrono;
-	now = duration_cast<microseconds>(
+	uint64_t now = duration_cast<microseconds>(
 		steady_clock::now().time_since_epoch()).count();
 
 	// Other parts of openMSX may crash if this function ever returns a

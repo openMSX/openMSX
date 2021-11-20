@@ -1,6 +1,7 @@
 #ifndef PROFILECOUNTERS_HH
 #define PROFILECOUNTERS_HH
 
+#include "enumerate.hh"
 #include <iostream>
 
 //
@@ -88,8 +89,8 @@ public:
 	// Print counters on destruction.
 	~ProfileCounters() {
 		std::cout << "-- Profile counters: " << EnumTypeName<ENUM>() << " -- " << static_cast<void*>(this) << '\n';
-		for (size_t i = 0; i < NUM; ++i) {
-			std::cout << EnumValueName{ENUM(i)} << ": " << counters[i] << '\n';
+		for (auto [i, count] : enumerate(counters)) {
+			std::cout << EnumValueName{ENUM(i)} << ": " << count << '\n';
 		}
 	}
 

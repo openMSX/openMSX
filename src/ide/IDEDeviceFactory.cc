@@ -13,7 +13,7 @@ std::unique_ptr<IDEDevice> create(const DeviceConfig& config)
 	if (!config.getXML()) {
 		return std::make_unique<DummyIDEDevice>();
 	}
-	const std::string& type = config.getChildData("type");
+	const auto& type = config.getChildData("type");
 	if (type == "IDEHD") {
 		return std::make_unique<IDEHD>(config);
 	} else if (type == "IDECDROM") {

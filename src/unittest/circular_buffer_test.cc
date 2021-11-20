@@ -1,5 +1,6 @@
 #include "catch.hpp"
 #include "circular_buffer.hh"
+#include "xrange.hh"
 #include <memory>
 #include <vector>
 
@@ -7,9 +8,9 @@ using namespace std;
 
 static void check_buf(
 	const circular_buffer<int>& buf,
-	int expectedCapacity, const vector<int>& expectedElements)
+	size_t expectedCapacity, const vector<int>& expectedElements)
 {
-	int expectedSize = expectedElements.size();
+	auto expectedSize = expectedElements.size();
 	REQUIRE(buf.size() == expectedSize);
 	CHECK(buf.capacity() == expectedCapacity);
 	CHECK(buf.reserve() == expectedCapacity - expectedSize);
@@ -21,7 +22,7 @@ static void check_buf(
 		CHECK(buf.back()  == expectedElements.back());
 	}
 
-	for (int i = 0; i < expectedSize; ++i) {
+	for (auto i : xrange(expectedSize)) {
 		CHECK(buf[i] == expectedElements[i]);
 	}
 
@@ -55,9 +56,9 @@ TEST_CASE("circular_buffer") {
 
 static void check_buf(
 	const circular_buffer<unique_ptr<int>>& buf,
-	int expectedCapacity, const vector<int>& expectedElements)
+	size_t expectedCapacity, const vector<int>& expectedElements)
 {
-	int expectedSize = expectedElements.size();
+	auto expectedSize = expectedElements.size();
 	REQUIRE(buf.size() == expectedSize);
 	CHECK(buf.capacity() == expectedCapacity);
 	CHECK(buf.reserve() == expectedCapacity - expectedSize);
@@ -69,7 +70,7 @@ static void check_buf(
 		CHECK(*buf.back()  == expectedElements.back());
 	}
 
-	for (int i = 0; i < expectedSize; ++i) {
+	for (auto i : xrange(expectedSize)) {
 		CHECK(*buf[i] == expectedElements[i]);
 	}
 

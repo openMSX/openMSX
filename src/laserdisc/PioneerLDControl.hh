@@ -1,15 +1,15 @@
 #ifndef PIONEERLDCONTROL_HH
 #define PIONEERLDCONTROL_HH
 
+#include "LaserdiscPlayer.hh"
 #include "MSXDevice.hh"
 #include "Clock.hh"
 #include "IRQHelper.hh"
 #include "Rom.hh"
-#include <memory>
+#include <optional>
 
 namespace openmsx {
 
-class LaserdiscPlayer;
 class MSXPPI;
 class VDP;
 
@@ -20,11 +20,11 @@ public:
 	~PioneerLDControl() override;
 
 	void reset(EmuTime::param time) override;
-	byte readMem(word address, EmuTime::param time) override;
-	byte peekMem(word address, EmuTime::param time) const override;
+	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
+	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;
 	void writeMem(word address, byte value, EmuTime::param time) override;
-	const byte* getReadCacheLine(word address) const override;
-	byte* getWriteCacheLine(word address) const override;
+	[[nodiscard]] const byte* getReadCacheLine(word address) const override;
+	[[nodiscard]] byte* getWriteCacheLine(word address) const override;
 	void init() override;
 
 	void videoIn(bool enabled);
@@ -35,8 +35,9 @@ public:
 private:
 	void updateVideoSource();
 
+private:
 	Rom rom;
-	std::unique_ptr<LaserdiscPlayer> laserdisc; // can be nullptr
+	std::optional<LaserdiscPlayer> laserdisc; // can be nullopt
 	MSXPPI* ppi;
 	VDP* vdp;
 
@@ -55,7 +56,7 @@ private:
 	IRQHelper irq;
 
 	bool extint;
-	bool mutel, muter;
+	bool muteL, muteR;
 	bool videoEnabled;
 	bool superimposing;
 };

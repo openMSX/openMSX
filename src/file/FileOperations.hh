@@ -1,8 +1,10 @@
 #ifndef FILEOPERATIONS_HH
 #define FILEOPERATIONS_HH
 
+#include "Date.hh"
 #include "unistdp.hh" // needed for mode_t definition when building with VC++
 #include "statp.hh"
+#include "zstring_view.hh"
 #include <sys/types.h>
 #include <fstream>
 #include <memory>
@@ -27,20 +29,26 @@ namespace openmsx::FileOperations {
 	 * @param path Pathname, with or without '~' character
 	 * @result The expanded pathname
 	 */
-	std::string expandTilde(std::string_view path);
+	[[nodiscard]] std::string expandTilde(std::string path);
+
+	/** Returns true iff expandTilde(s) would have an effect.
+	  * In other words: expandTilde(s) != s
+	  * Mostly useful to assert that tilde expansion has already been done.
+	  */
+	[[nodiscard]] bool needsTildeExpansion(std::string_view path);
 
 	/**
 	 * Create the specified directory. Does some sanity checks so that
 	 * it bahaves the same on all platforms. The mode parameter is ignored
 	 * on windows. For compatibility with *nix creating the root dir (or a
 	 * drivename) is not an error instead the operation is silently
-	 * ignored. This function can only create one dircetory at-a-time. You
+	 * ignored. This function can only create one directory at-a-time. You
 	 * probably want to use the mkdirp function (see below).
 	 * @param path The path of the directory to create
 	 * @param mode The permission bits (*nix only)
 	 * @throw FileException
 	 */
-	void mkdir(const std::string& path, mode_t mode);
+	void mkdir(zstring_view path, mode_t mode);
 
 	/**
 	 * Acts like the unix command "mkdir -p". Creates the
@@ -48,22 +56,22 @@ namespace openmsx::FileOperations {
 	 * @param path The path of the directory to create
 	 * @throw FileException
 	 */
-	void mkdirp(std::string_view path);
+	void mkdirp(std::string path);
 
 	/**
 	 * Call unlink() in a platform-independent manner
 	 */
-	int unlink(const std::string& path);
+	int unlink(zstring_view path);
 
 	/**
 	 * Call rmdir() in a platform-independent manner
 	 */
-	int rmdir(const std::string& path);
+	int rmdir(zstring_view path);
 
-	/** Recurively delete a file or directory and (in case of a directory)
+	/** Recursively delete a file or directory and (in case of a directory)
 	  * all its sub-components.
 	  */
-	int deleteRecursive(const std::string& path);
+	int deleteRecursive(zstring_view path);
 
 	/** Call fopen() in a platform-independent manner
 	  * @param filename the file path
@@ -71,14 +79,14 @@ namespace openmsx::FileOperations {
 	  * @result A pointer to the opened file, or nullptr on error
 	  *         On error the global variable 'errno' is filled in (see
 	  *         man fopen for details). */
-	FILE_t openFile(const std::string& filename, const std::string& mode);
+	[[nodiscard]] FILE_t openFile(zstring_view filename, zstring_view mode);
 
 	/**
 	 * Open an ofstream in a platform-independent manner
 	 * @param stream an ofstream
 	 * @param filename the file path
 	 */
-	void openofstream(std::ofstream& stream, const std::string& filename);
+	void openofstream(std::ofstream& stream, zstring_view filename);
 
 	/**
 	 * Open an ofstream in a platform-independent manner
@@ -86,15 +94,15 @@ namespace openmsx::FileOperations {
 	 * @param filename the file path
 	 * @param mode the open mode
 	 */
-	void openofstream(std::ofstream& stream, const std::string& filename,
-		std::ios_base::openmode mode);
+        void openofstream(std::ofstream& stream, zstring_view filename,
+	                  std::ios_base::openmode mode);
 
-	/**
+        /**
 	 * Returns the file portion of a path name.
 	 * @param path The pathname
 	 * @result The file portion
 	 */
-	std::string_view getFilename(std::string_view path);
+	[[nodiscard]] std::string_view getFilename(std::string_view path);
 
 	/**
 	 * Returns the directory portion of a path.
@@ -103,7 +111,7 @@ namespace openmsx::FileOperations {
 	 *         If path doesn't have a directory portion the result
 	 *         is an empty string.
 	 */
-	std::string_view getDirName(std::string_view path);
+	[[nodiscard]] std::string_view getDirName(std::string_view path);
 
 	/**
 	 * Returns the extension portion of a path.
@@ -112,7 +120,7 @@ namespace openmsx::FileOperations {
 	 *         If path doesn't have an extension portion the result
 	 *         is an empty string.
 	 */
-	std::string_view getExtension(std::string_view path);
+	[[nodiscard]] std::string_view getExtension(std::string_view path);
 
 	/**
 	 * Returns the path without extension.
@@ -121,18 +129,18 @@ namespace openmsx::FileOperations {
 	 *         If path doesn't have an extension portion the result
 	 *         remains unchanged.
 	 */
-	std::string_view stripExtension(std::string_view path);
+	[[nodiscard]] std::string_view stripExtension(std::string_view path);
 
 	/** Join two paths.
 	 * Returns the equivalent of 'path1 + '/' + path2'. If 'part2' is an
 	 * absolute path, that path is returned ('part1' is ignored). If
 	 * 'part1' is empty or if it already ends with '/', there will be no
-	 * extra '/' added inbetween 'part1' and 'part2'.
+	 * extra '/' added between 'part1' and 'part2'.
 	 */
-	std::string join(std::string_view part1, std::string_view part2);
-	std::string join(std::string_view part1, std::string_view part2, std::string_view part3);
-	std::string join(std::string_view part1, std::string_view part2,
-	                 std::string_view part3, std::string_view part4);
+	[[nodiscard]] std::string join(std::string_view part1, std::string_view part2);
+	[[nodiscard]] std::string join(std::string_view part1, std::string_view part2, std::string_view part3);
+	[[nodiscard]] std::string join(std::string_view part1, std::string_view part2,
+	                               std::string_view part3, std::string_view part4);
 
 	/**
 	 * Returns the path in conventional path-delimiter.
@@ -142,10 +150,10 @@ namespace openmsx::FileOperations {
 	 *    Just for portability issue. (Especially for Win32)
 	 */
 #ifdef _WIN32
-	std::string getConventionalPath(std::string path);
+	[[nodiscard]]              std::string  getConventionalPath(      std::string   path);
 #else
-	inline const std::string& getConventionalPath(const std::string& path) { return path; }
-	inline std::string getConventionalPath(std::string&& path) { return std::move(path); }
+	[[nodiscard]] inline const std::string& getConventionalPath(const std::string&  path) { return           path;  }
+	[[nodiscard]] inline       std::string  getConventionalPath(      std::string&& path) { return std::move(path); }
 #endif
 
 	/**
@@ -155,23 +163,39 @@ namespace openmsx::FileOperations {
 	 *    On UNI*Y systems, it will have no effect indeed.
 	 *    Just for portability issue. (Especially for Win32)
 	 */
-	std::string getNativePath(std::string_view path);
+#ifdef _WIN32
+	[[nodiscard]]              std::string  getNativePath(      std::string   path);
+#else
+	[[nodiscard]] inline const std::string& getNativePath(const std::string&  path) { return           path;  }
+	[[nodiscard]] inline       std::string  getNativePath(      std::string&& path) { return std::move(path); }
+#endif
+
+	/**
+	* Get the current directory of the specified drive
+	* Linux: return the given string unchanged
+	*/
+#ifdef _WIN32
+	[[nodiscard]]              std::string  expandCurrentDirFromDrive(std::string path);
+#else
+	[[nodiscard]] inline const std::string& expandCurrentDirFromDrive(const std::string&  path) { return           path;  }
+	[[nodiscard]] inline       std::string  expandCurrentDirFromDrive(      std::string&& path) { return std::move(path); }
+#endif
 
 	/** Returns the current working directory.
 	 * @throw FileException (for example when directory has been deleted).
 	 */
-	std::string getCurrentWorkingDirectory();
+	[[nodiscard]] std::string getCurrentWorkingDirectory();
 
 	/** Transform given path into an absolute path
 	 * @throw FileException
 	 */
-	std::string getAbsolutePath(std::string_view path);
+	[[nodiscard]] std::string getAbsolutePath(std::string_view path);
 
 	/**
 	 * Checks whether it's a absolute path or not.
 	 * @param path The pathname.
 	 */
-	bool isAbsolutePath(std::string_view path);
+	[[nodiscard]] bool isAbsolutePath(std::string_view path);
 
 	/**
 	 * Get user's home directory.
@@ -184,32 +208,26 @@ namespace openmsx::FileOperations {
 	 *        This is because to support Win9x.
 	 *        Ignores the username parameter
 	 */
-	std::string getUserHomeDir(std::string_view username);
+	[[nodiscard]] std::string getUserHomeDir(std::string_view username);
 
 	/**
 	 * Get the openMSX dir in the user's home directory.
 	 * Default value is "~/.openMSX" (UNIX) or "~/openMSX" (win)
 	 */
-	const std::string& getUserOpenMSXDir();
+	[[nodiscard]] const std::string& getUserOpenMSXDir();
 
 	/**
 	 * Get the openMSX data dir in the user's home directory.
 	 * Default value is "~/.openMSX/share" (UNIX) or "~/openMSX/share" (win)
 	 */
-	std::string getUserDataDir();
+	[[nodiscard]] const std::string& getUserDataDir();
 
 	/**
 	 * Get system directory.
 	 * UNI*Y: statically defined as "/opt/openMSX/share".
 	 * Win32: use "same directory as .exe" + "/share".
 	 */
-	std::string getSystemDataDir();
-
-	/**
-	* Get the current directory of the specified drive
-	* Linux: just return an empty string
-	*/
-	std::string expandCurrentDirFromDrive(std::string_view path);
+	[[nodiscard]] const std::string& getSystemDataDir();
 
 #ifdef _WIN32
 	typedef struct _stat Stat;
@@ -219,31 +237,34 @@ namespace openmsx::FileOperations {
 	/**
 	 * Call stat() and return the stat structure
 	 * @param filename the file path (will be tilde expanded)
-	 * @param st The stat structute that will be filled in
+	 * @param st The stat structure that will be filled in
 	 * @result true iff success
 	 */
-	bool getStat(const std::string& filename, Stat& st);
+	[[nodiscard]] bool getStat(zstring_view filename, Stat& st);
 
 	/**
 	 * Is this a regular file (no directory, device, ..)?
 	 */
-	bool isRegularFile(const std::string& filename);
-	bool isRegularFile(const Stat& st);
+	[[nodiscard]] bool isRegularFile(zstring_view filename);
+	[[nodiscard]] bool isRegularFile(const Stat& st);
 
 	/**
 	 * Is this a directory?
 	 */
-	bool isDirectory(const std::string& directory);
-	bool isDirectory(const Stat& st);
+	[[nodiscard]] bool isDirectory(zstring_view directory);
+	[[nodiscard]] bool isDirectory(const Stat& st);
 
 	/**
 	 * Does this file (directory) exists?
 	 */
-	bool exists(const std::string& filename);
+	[[nodiscard]] bool exists(zstring_view filename);
 
-	/** Get the date/time of last modification
-	 */
-	time_t getModificationDate(const Stat& st);
+	/** Get the date/time of last modification.
+	  * Is guaranteed to not be INVALID_TIME_T.
+	  */
+	[[nodiscard]] inline time_t getModificationDate(const Stat& st) {
+		return Date::adjustTimeT(st.st_mtime);
+	}
 
 	/**
 	 * Gets the next numbered file name with the specified prefix in the
@@ -254,7 +275,7 @@ namespace openmsx::FileOperations {
 	 * @param prefix Prefix of the filename with numbers
 	 * @param extension Extension of the filename with numbers
 	 */
-	std::string getNextNumberedFileName(
+	[[nodiscard]] std::string getNextNumberedFileName(
 		std::string_view directory, std::string_view prefix, std::string_view extension);
 
 	/** Helper function for parsing filename arguments in Tcl commands.
@@ -265,7 +286,7 @@ namespace openmsx::FileOperations {
 	 * - If argument doesn't already include a directory, the given
 	 *   directory is used (and created if required).
 	 */
-	std::string parseCommandFileArgument(
+	[[nodiscard]] std::string parseCommandFileArgument(
 		std::string_view argument, std::string_view directory,
 		std::string_view prefix,   std::string_view extension);
 
@@ -273,7 +294,7 @@ namespace openmsx::FileOperations {
 	 * Get the name of the temp directory on the system.
 	 * Typically /tmp on *nix and C:/WINDOWS/TEMP on windows
 	 */
-	std::string getTempDir();
+	[[nodiscard]] std::string getTempDir();
 
 	/**
 	 * Open a new file with a unique name in the provided directory
@@ -281,7 +302,7 @@ namespace openmsx::FileOperations {
 	 * @param filename [output param] the name of the resulting file
 	 * @result pointer to the opened file
 	 */
-	FILE_t openUniqueFile(const std::string& directory, std::string& filename);
+	[[nodiscard]] FILE_t openUniqueFile(const std::string& directory, std::string& filename);
 
 } // namespace openmsx::FileOperations
 

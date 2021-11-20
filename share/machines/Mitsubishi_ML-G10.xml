@@ -1,0 +1,124 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <info>
+    <manufacturer>Mitsubishi</manufacturer>
+    <code>ML-G10</code>
+    <release_year>1985</release_year>
+    <description>Mitsubishi's first MSX2</description>
+    <type>MSX2</type>
+  </info>
+
+  <!-- Info taken by Peter Hanraets of his machine with serial number 1002054
+
+  ident:
+  Z80 scf: 01C501ED01D401FC (NEC)
+  z80 cpl: 3AFF12D7 (standard)
+  Z80 out (c),0: 0 (MSX)
+  PSG pin 6/7 quirk: C (YES)
+  PSGmask: YM2149
+
+  From PCB picture provided by Alexey Podrezov:
+  - CPU: NEC D780C-1
+  - S3527
+  - 8256 EPROM
+  - HN613128P ROM
+  - HN613256P ROM
+  - RAM: 8x Mitsubishi M5K4164ANP
+  - VRAM: 8x Mitsubishi M5K4164ANP (on the front, and apparently also 8 on the back side)
+  -->
+
+  <CassettePort/>
+
+  <devices>
+
+    <PPI id="ppi">
+      <io base="0xA8" num="4"/>
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <keyboard_type>jp_jis</keyboard_type>
+      <has_keypad>true</has_keypad>
+      <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
+      <code_kana_locks>true</code_kana_locks>
+      <graph_locks>false</graph_locks>
+    </PPI>
+
+    <VDP id="VDP">
+      <version>V9938</version>
+      <vram>128</vram>
+      <io base="0x98" num="8" type="O"/> <!-- S-3527 mirrors -->
+      <io base="0x98" num="8" type="I"/> <!-- S-3527 mirrors -->
+    </VDP>
+
+    <PSG id="PSG">
+      <type>YM2149</type> <!-- in S-3527 MSX-ENGINE -->
+      <keyboardlayout>JIS</keyboardlayout>
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <io base="0xA0" num="2" type="O"/>
+      <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
+    </PSG>
+
+    <RTC id="Real time clock">
+      <sramname>ml-g10.cmos</sramname>
+      <io base="0xB4" num="2" type="O"/>
+      <io base="0xB5" num="1" type="I"/>
+    </RTC>
+
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
+
+    <primary slot="0">
+      <ROM id="MSX BIOS with BASIC ROM">
+        <rom>
+          <filename>ml-g10_basic-bios2.rom</filename>
+          <sha1>c1e46c00f1e38fc9e0ab487bf0513bd93ce61f3f</sha1>
+        </rom>
+        <mem base="0x0000" size="0x8000"/>
+      </ROM>
+    </primary>
+
+    <primary external="true" slot="1"/>
+
+    <primary external="true" slot="2"/>
+
+    <primary slot="3">
+
+      <secondary slot="0">
+        <ROM id="MSX Sub ROM">
+          <rom>
+            <filename>ml-g10_msx2sub.rom</filename>
+            <sha1>b8e30d604d319d511cbfbc61e5d8c38fbb9c5a33</sha1>
+          </rom>
+          <mem base="0x0000" size="0x4000"/>
+        </ROM>
+      </secondary>
+
+      <secondary external="true" slot="1"/> <!-- Not sure, but this could be the I/O Port 60-pin expansion slot on the back. We assume that for now. It's not a standard MSX cartridge slot! -->
+
+      <secondary slot="2">
+        <RAM id="Main RAM"> <!-- plain RAM confirmed -->
+          <mem base="0x0000" size="0x10000"/>
+          <initialContent encoding="gz-base64">eJz7z/B/QOEAW/8fAASAf4E=</initialContent> <!-- 64x FF00, 64x 00FF, etc. In the RAM dump, the first byte of each 256 byte group seems to be random, but that's not emulated. -->
+        </RAM>
+      </secondary>
+
+      <secondary slot="3">
+        <ROM id="Hot Paper Firmware">
+          <rom>
+            <filename>ml-g10_firmware.rom</filename>
+            <sha1>789bb6cdb2d1ed0348f36336da11b149d74e4d9f</sha1>
+          </rom>
+          <mem base="0x0000" size="0x8000"/>
+        </ROM>
+      </secondary>
+    </primary>
+
+  </devices>
+
+</msxconfig>

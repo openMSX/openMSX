@@ -17,11 +17,11 @@ public:
 	SynchronizationPoint() = default;
 	SynchronizationPoint(EmuTime::param time, Schedulable* dev)
 		: timeStamp(time), device(dev) {}
-	EmuTime::param getTime() const { return timeStamp; }
+	[[nodiscard]] EmuTime::param getTime() const { return timeStamp; }
 	void setTime(EmuTime::param time) { timeStamp = time; }
-	Schedulable* getDevice() const { return device; }
+	[[nodiscard]] Schedulable* getDevice() const { return device; }
 
-	template <typename Archive>
+	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
@@ -46,12 +46,12 @@ public:
 	/**
 	 * Get the current scheduler time.
 	 */
-	EmuTime::param getCurrentTime() const;
+	[[nodiscard]] EmuTime::param getCurrentTime() const;
 
 	/**
 	 * TODO
 	 */
-	inline EmuTime::param getNext() const
+	[[nodiscard]] inline EmuTime::param getNext() const
 	{
 		return queue.front().getTime();
 	}
@@ -68,7 +68,7 @@ public:
 		scheduleTime = limit;
 	}
 
-	template <typename Archive>
+	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private: // -> intended for Schedulable
@@ -85,7 +85,7 @@ private: // -> intended for Schedulable
 	 */
 	void setSyncPoint(EmuTime::param timestamp, Schedulable& device);
 
-	SyncPoints getSyncPoints(const Schedulable& device) const;
+	[[nodiscard]] SyncPoints getSyncPoints(const Schedulable& device) const;
 
 	/**
 	 * Removes a syncPoint of a given device.
@@ -103,11 +103,12 @@ private: // -> intended for Schedulable
 	/**
 	 * Is there a pending syncPoint for this device?
 	 */
-	bool pendingSyncPoint(const Schedulable& device, EmuTime& result) const;
+	[[nodiscard]] bool pendingSyncPoint(const Schedulable& device, EmuTime& result) const;
 
 private:
 	void scheduleHelper(EmuTime::param limit, EmuTime next);
 
+private:
 	/** Vector used as heap, not a priority queue because that
 	  * doesn't allow removal of non-top element.
 	  */

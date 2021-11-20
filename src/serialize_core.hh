@@ -4,12 +4,22 @@
 #include "serialize_constr.hh"
 #include "serialize_meta.hh"
 #include "one_of.hh"
+#include "unreachable.hh"
+#include "xrange.hh"
+#include <cassert>
+#include <initializer_list>
+#include <memory>
 #include <string>
 #include <type_traits>
-#include <cassert>
-#include <memory>
+#include <variant>
 
 namespace openmsx {
+
+// Is there a specialized way to serialize 'T'.
+template<typename T> struct Serializer : std::false_type {
+	struct Saver {};
+	struct Loader {};
+};
 
 // Type-queries for serialization framework
 // is_primitive<T>
@@ -32,12 +42,11 @@ template<> struct is_primitive<unsigned long long> : std::true_type {};
 template<> struct is_primitive<std::string>        : std::true_type {};
 
 
-
 // Normally to make a class serializable, you have to implement a serialize()
 // method on the class. For some classes we cannot extend the source code. So
 // we need an alternative, non-intrusive, way to make those classes
 // serializable.
-template <typename Archive, typename T>
+template<typename Archive, typename T>
 void serialize(Archive& ar, T& t, unsigned version)
 {
 	// By default use the serialize() member. But this function can
@@ -45,7 +54,7 @@ void serialize(Archive& ar, T& t, unsigned version)
 	t.serialize(ar, version);
 }
 
-template <typename Archive, typename T1, typename T2>
+template<typename Archive, typename T1, typename T2>
 void serialize(Archive& ar, std::pair<T1, T2>& p, unsigned /*version*/)
 {
 	ar.serialize("first",  p.first,
@@ -62,7 +71,7 @@ template<typename T1, typename T2> struct SerializeClassVersion<std::pair<T1, T2
  *
  * For serialization of enums to work you have to specialize the
  * serialize_as_enum struct for that specific enum. This has a double purpose:
- *  - let the framework know this type should be traited as an enum
+ *  - let the framework know this type should be treated as an enum
  *  - define a mapping between enum values and string representations
  *
  * The serialize_as_enum class has the following members:
@@ -100,32 +109,113 @@ template<typename T> struct enum_string {
 	const char* str;
 	T e;
 };
-void enumError(const std::string& str);
-template<typename T> struct serialize_as_enum_impl : std::true_type {
-	explicit serialize_as_enum_impl(std::initializer_list<enum_string<T>> info_)
-		: info(info_) {}
-	std::string toString(T t) const {
-		for (auto& i : info) {
-			if (i.e == t) return i.str;
-		}
-		assert(false);
-		return "internal-error-unknown-enum-value";
+void enumError(const std::string_view str);
+
+template<typename T>
+inline std::string toString(std::initializer_list<enum_string<T>> list, T t_)
+{
+	for (auto& [str, t] : list) {
+		if (t == t_) return str;
 	}
-	T fromString(const std::string& str) const {
-		for (auto& i : info) {
-			if (i.str == str) return i.e;
-		}
-		enumError(str); // does not return (throws)
-		return T(); // avoid warning
+	assert(false);
+	return "internal-error-unknown-enum-value";
+}
+
+template<typename T>
+T fromString(std::initializer_list<enum_string<T>> list, std::string_view str_)
+{
+	for (auto& [str, t] : list) {
+		if (str == str_) return t;
 	}
-private:
-	std::initializer_list<enum_string<T>> info;
-};
+	enumError(str_); // does not return (throws)
+	return T(); // avoid warning
+}
 
 #define SERIALIZE_ENUM(TYPE,INFO) \
-template<> struct serialize_as_enum< TYPE > : serialize_as_enum_impl< TYPE > { \
-	serialize_as_enum() : serialize_as_enum_impl< TYPE >( INFO ) {} \
+template<> struct serialize_as_enum< TYPE > : std::true_type { \
+	serialize_as_enum() : info(INFO) {} \
+	std::initializer_list<enum_string< TYPE >> info; \
 };
+
+template<typename Archive, typename T, typename SaveAction>
+void saveEnum(std::initializer_list<enum_string<T>> list, T t, SaveAction save)
+{
+	if constexpr (Archive::TRANSLATE_ENUM_TO_STRING) {
+		save(toString(list, t));
+	} else {
+		save(int(t));
+	}
+}
+
+template<typename Archive, typename T, typename LoadAction>
+void loadEnum(std::initializer_list<enum_string<T>> list, T& t, LoadAction load)
+{
+	if constexpr (Archive::TRANSLATE_ENUM_TO_STRING) {
+		std::string str;
+		load(str);
+		t = fromString(list, str);
+	} else {
+		int i;
+		load(i);
+		t = T(i);
+	}
+}
+
+///////////
+
+template<size_t I, typename Variant>
+struct DefaultConstructVariant {
+	Variant operator()(size_t index) const {
+		if constexpr (I == std::variant_size_v<Variant>) {
+			UNREACHABLE;
+		} else if (index == I) {
+			return std::variant_alternative_t<I, Variant>{};
+		} else {
+			return DefaultConstructVariant<I + 1, Variant>{}(index);
+		}
+	}
+};
+template<typename Variant>
+Variant defaultConstructVariant(size_t index)
+{
+	return DefaultConstructVariant<0, Variant>{}(index);
+}
+
+template<typename V> struct VariantSerializer : std::true_type
+{
+	template<typename A>
+	static inline constexpr size_t index = get_index<A, V>::value;
+
+	struct Saver {
+		template<typename Archive>
+		void operator()(Archive& ar, const V& v, bool saveId) {
+			saveEnum<Archive>(Serializer<V>::list, v.index(),
+				[&](const auto& t) { ar.attribute("type", t); });
+			std::visit([&](auto& e) {
+				// TODO c++20 std::remove_cvref_t<decltype(e)>;
+				using TNC = std::remove_const_t<std::remove_reference_t<decltype(e)>>;
+				auto& e2 = const_cast<TNC&>(e);
+				ClassSaver<TNC> saver;
+				saver(ar, e2, saveId);
+			}, v);
+		}
+	};
+	struct Loader {
+		template<typename Archive, typename TUPLE>
+		void operator()(Archive& ar, V& v, TUPLE args, int id) {
+			size_t idx;
+			loadEnum<Archive>(Serializer<V>::list, idx,
+				[&](auto& l) { ar.attribute("type", l); });
+			v = defaultConstructVariant<V>(idx);
+			std::visit([&](auto& e) {
+				ClassLoader<decltype(e)> loader;
+				loader(ar, e, args, id);
+			}, v);
+		}
+	};
+};
+
+
 
 /////////////
 
@@ -137,7 +227,7 @@ template<> struct serialize_as_enum< TYPE > : serialize_as_enum_impl< TYPE > { \
 // a reference to this first object.
 //
 // By default all pointer types are treated as pointer, but also smart pointer
-// can be traited as such. Though only unique_ptr<T> is implemented ATM.
+// can be treated as such. Though only unique_ptr<T> is implemented ATM.
 //
 // The serialize_as_pointer class has the following members:
 //  - static bool value
@@ -213,7 +303,7 @@ template<typename T> struct serialize_as_pointer<std::shared_ptr<T>>
 //  - int size
 //      The size of the collection, -1 for variable sized collections.
 //      Fixed sized collections can be serialized slightly more efficient
-//      becuase we don't need to explicitly store the size.
+//      because we don't need to explicitly store the size.
 //  - using value_type = ...
 //      The type stored in the collection (only homogeneous collections are
 //      supported).
@@ -302,13 +392,9 @@ template<typename T> struct EnumSaver
 	template<typename Archive> void operator()(Archive& ar, const T& t,
 	                                           bool /*saveId*/)
 	{
-		if (ar.translateEnumToString()) {
-			serialize_as_enum<T> sae;
-			std::string str = sae.toString(t);
-			ar.save(str);
-		} else {
-			ar.save(int(t));
-		}
+		serialize_as_enum<T> sae;
+		saveEnum<Archive>(sae.info, t,
+			[&](const auto& s) { ar.save(s); });
 	}
 };
 template<typename T> struct ClassSaver
@@ -339,8 +425,8 @@ template<typename T> struct ClassSaver
 		}
 
 		unsigned version = SerializeClassVersion<T>::value;
-		if ((version != 0) && ar.needVersion()) {
-			if (!ar.canHaveOptionalAttributes() ||
+		if ((version != 0) && ar.NEED_VERSION) {
+			if (!ar.CAN_HAVE_OPTIONAL_ATTRIBUTES ||
 			    (version != 1)) {
 				ar.attribute("version", version);
 			}
@@ -412,7 +498,7 @@ template<typename TC> struct CollectionSaver
 		static_assert(sac::value, "must be serialized as collection");
 		auto begin = sac::begin(tc);
 		auto end   = sac::end  (tc);
-		if ((sac::size < 0) && (!ar.canCountChildren())) {
+		if ((sac::size < 0) && (!ar.CAN_COUNT_CHILDREN)) {
 			// variable size
 			// e.g. in an XML archive the loader can look-ahead and
 			// count the number of sub-tags, so no need to
@@ -434,10 +520,11 @@ template<typename TC> struct CollectionSaver
 // (implemented as inheriting from a specific baseclass).
 template<typename T> struct Saver
 	: std::conditional_t<is_primitive<T>::value,            PrimitiveSaver<T>,
+	  std::conditional_t<Serializer<T>::value,              typename Serializer<T>::Saver,
 	  std::conditional_t<serialize_as_enum<T>::value,       EnumSaver<T>,
 	  std::conditional_t<serialize_as_pointer<T>::value,    PointerSaver<T>,
 	  std::conditional_t<serialize_as_collection<T>::value, CollectionSaver<T>,
-	                                                        ClassSaver<T>>>>> {};
+	                                                        ClassSaver<T>>>>>> {};
 
 ////
 
@@ -474,16 +561,8 @@ template<typename T> struct EnumLoader
 	{
 		static_assert(std::tuple_size_v<TUPLE> == 0,
 		              "can't have constructor arguments");
-		if (ar.translateEnumToString()) {
-			std::string str;
-			ar.load(str);
-			serialize_as_enum<T> sae;
-			t = sae.fromString(str);
-		} else {
-			int i;
-			ar.load(i);
-			t = T(i);
-		}
+		serialize_as_enum<T> sae;
+		loadEnum<Archive>(sae.info, t, [&](auto& l) { ar.load(l); });
 	}
 };
 
@@ -494,7 +573,7 @@ unsigned loadVersionHelper(XmlInputArchive& ar, const char* className,
 template<typename T, typename Archive> unsigned loadVersion(Archive& ar)
 {
 	unsigned latestVersion = SerializeClassVersion<T>::value;
-	if ((latestVersion != 0) && ar.needVersion()) {
+	if ((latestVersion != 0) && ar.NEED_VERSION) {
 		return loadVersionHelper(ar, typeid(T).name(), latestVersion);
 	} else {
 		return latestVersion;
@@ -584,7 +663,7 @@ template<typename TP> struct PointerLoader
 		// in XML archives we use 'id_ref' or 'id', in other archives
 		// we don't care about the name
 		unsigned id;
-		if (ar.canHaveOptionalAttributes() &&
+		if (ar.CAN_HAVE_OPTIONAL_ATTRIBUTES &&
 		    ar.findAttribute("id_ref", id)) {
 			// nothing, 'id' already filled in
 		} else {
@@ -667,7 +746,7 @@ template<typename TC> struct CollectionLoader
 		int n = sac::size;
 		if (n < 0) {
 			// variable size
-			if (ar.canCountChildren()) {
+			if constexpr (Archive::CAN_COUNT_CHILDREN) {
 				n = ar.countChildren();
 			} else {
 				ar.serialize("size", n);
@@ -676,17 +755,19 @@ template<typename TC> struct CollectionLoader
 		sac::prepare(tc, n);
 		auto it = sac::output(tc);
 		CollectionLoaderHelper<sac> loadOneElement;
-		for (int i = 0; i < n; ++i, ++it) {
+		repeat(n, [&] {
 			loadOneElement(ar, args, it, id);
-		}
+			++it;
+		});
 	}
 };
 template<typename T> struct Loader
 	: std::conditional_t<is_primitive<T>::value,            PrimitiveLoader<T>,
+	  std::conditional_t<Serializer<T>::value,              typename Serializer<T>::Loader,
 	  std::conditional_t<serialize_as_enum<T>::value,       EnumLoader<T>,
 	  std::conditional_t<serialize_as_pointer<T>::value,    PointerLoader<T>,
 	  std::conditional_t<serialize_as_collection<T>::value, CollectionLoader<T>,
-	                                                        ClassLoader<T>>>>> {};
+	                                                        ClassLoader<T>>>>>> {};
 
 } // namespace openmsx
 

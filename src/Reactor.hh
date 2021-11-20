@@ -3,6 +3,7 @@
 
 #include "Observer.hh"
 #include "EventListener.hh"
+#include "view.hh"
 #include <cassert>
 #include <memory>
 #include <mutex>
@@ -51,7 +52,7 @@ class AviRecorder;
 class ConfigInfo;
 class RealTimeInfo;
 class SoftwareInfoTopic;
-template <typename T> class EnumSetting;
+template<typename T> class EnumSetting;
 
 extern int exitCode;
 
@@ -77,62 +78,66 @@ public:
 
 	void enterMainLoop();
 
-	RTScheduler& getRTScheduler() { return *rtScheduler; }
-	EventDistributor& getEventDistributor() { return *eventDistributor; }
-	GlobalCliComm& getGlobalCliComm() { return *globalCliComm; }
-	GlobalCommandController& getGlobalCommandController() { return *globalCommandController; }
-	InputEventGenerator& getInputEventGenerator() { return *inputEventGenerator; }
-	Display& getDisplay() { assert(display); return *display; }
-	Mixer& getMixer() { return *mixer; }
-	DiskFactory& getDiskFactory() { return *diskFactory; }
-	DiskManipulator& getDiskManipulator() { return *diskManipulator; }
-	EnumSetting<int>& getMachineSetting() { return *machineSetting; }
-	FilePool& getFilePool() { return *filePool; }
+	[[nodiscard]] RTScheduler& getRTScheduler() { return *rtScheduler; }
+	[[nodiscard]] EventDistributor& getEventDistributor() { return *eventDistributor; }
+	[[nodiscard]] GlobalCliComm& getGlobalCliComm() { return *globalCliComm; }
+	[[nodiscard]] GlobalCommandController& getGlobalCommandController() { return *globalCommandController; }
+	[[nodiscard]] InputEventGenerator& getInputEventGenerator() { return *inputEventGenerator; }
+	[[nodiscard]] Display& getDisplay() { assert(display); return *display; }
+	[[nodiscard]] Mixer& getMixer();
+	[[nodiscard]] DiskFactory& getDiskFactory() { return *diskFactory; }
+	[[nodiscard]] DiskManipulator& getDiskManipulator() { return *diskManipulator; }
+	[[nodiscard]] EnumSetting<int>& getMachineSetting() { return *machineSetting; }
+	[[nodiscard]] FilePool& getFilePool() { return *filePool; }
 
-	RomDatabase& getSoftwareDatabase();
+	[[nodiscard]] RomDatabase& getSoftwareDatabase();
 
 	void switchMachine(const std::string& machine);
-	MSXMotherBoard* getMotherBoard() const;
+	[[nodiscard]] MSXMotherBoard* getMotherBoard() const;
 
-	static std::vector<std::string> getHwConfigs(std::string_view type);
+	[[nodiscard]] static std::vector<std::string> getHwConfigs(std::string_view type);
 
 	void block();
 	void unblock();
 
 	// convenience methods
-	GlobalSettings& getGlobalSettings() { return *globalSettings; }
-	InfoCommand& getOpenMSXInfoCommand();
-	CommandController& getCommandController();
-	CliComm& getCliComm();
-	Interpreter& getInterpreter();
-	std::string_view getMachineID() const;
+	[[nodiscard]] GlobalSettings& getGlobalSettings() { return *globalSettings; }
+	[[nodiscard]] InfoCommand& getOpenMSXInfoCommand();
+	[[nodiscard]] CommandController& getCommandController();
+	[[nodiscard]] CliComm& getCliComm();
+	[[nodiscard]] Interpreter& getInterpreter();
+	[[nodiscard]] std::string_view getMachineID() const;
 
-	using Board = std::unique_ptr<MSXMotherBoard>;
-	Board createEmptyMotherBoard();
+	using Board = std::shared_ptr<MSXMotherBoard>;
+	[[nodiscard]] Board createEmptyMotherBoard();
 	void replaceBoard(MSXMotherBoard& oldBoard, Board newBoard); // for reverse
 
 private:
 	void createMachineSetting();
-	void switchBoard(MSXMotherBoard* newBoard);
-	void deleteBoard(MSXMotherBoard* board);
-	MSXMotherBoard& getMachine(std::string_view machineID) const;
-	std::vector<std::string_view> getMachineIDs() const;
+	void switchBoard(Board newBoard);
+	void deleteBoard(Board board);
+	[[nodiscard]] Board getMachine(std::string_view machineID) const;
+	[[nodiscard]] auto getMachineIDs() const {
+		return view::transform(boards,
+			[](auto& b) -> std::string_view { return b->getMachineID(); });
+	}
 
 	// Observer<Setting>
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
 	// EventListener
-	int signalEvent(const std::shared_ptr<const Event>& event) override;
+	int signalEvent(const Event& event) noexcept override;
 
 	// Run 1 iteration of the openMSX event loop. Typically this will
 	// emulate about 1 frame (but could be more or less depending on
 	// various factors). Returns true when openMSX wants to continue
 	// running.
-	bool doOneIteration();
+	[[nodiscard]] bool doOneIteration();
 
 	void unpause();
 	void pause();
 
+private:
 	std::mutex mbMutex; // this should come first, because it's still used by
 	                    // the destructors of the unique_ptr below
 
@@ -144,7 +149,7 @@ private:
 	std::unique_ptr<GlobalSettings> globalSettings;
 	std::unique_ptr<InputEventGenerator> inputEventGenerator;
 	std::unique_ptr<Display> display;
-	std::unique_ptr<Mixer> mixer;
+	std::unique_ptr<Mixer> mixer; // lazy initialized
 	std::unique_ptr<DiskFactory> diskFactory;
 	std::unique_ptr<DiskManipulator> diskManipulator;
 	std::unique_ptr<DiskChanger> virtualDrive;
@@ -152,7 +157,7 @@ private:
 
 	std::unique_ptr<EnumSetting<int>> machineSetting;
 	std::unique_ptr<UserSettings> userSettings;
-	std::unique_ptr<RomDatabase> softwareDatabase;
+	std::unique_ptr<RomDatabase> softwareDatabase; // lazy initialized
 
 	std::unique_ptr<AfterCommand> afterCommand;
 	std::unique_ptr<ExitCommand> exitCommand;
@@ -182,8 +187,7 @@ private:
 	//    member functions (atm only via enterMainLoop()), it needs to take
 	//    the mbMutex lock
 	std::vector<Board> boards; // unordered
-	std::vector<Board> garbageBoards;
-	MSXMotherBoard* activeBoard = nullptr; // either nullptr or a board inside 'boards'
+	Board activeBoard; // either nullptr or a board inside 'boards'
 
 	int blockedCounter = 0;
 	bool paused = false;

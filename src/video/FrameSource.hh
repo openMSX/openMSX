@@ -1,12 +1,14 @@
 #ifndef FRAMESOURCE_HH
 #define FRAMESOURCE_HH
 
-#include "PixelFormat.hh"
 #include "aligned.hh"
+#include "xrange.hh"
 #include <algorithm>
 #include <cassert>
 
 namespace openmsx {
+
+class PixelFormat;
 
 /** Interface for getting lines from a video frame.
   */
@@ -34,20 +36,20 @@ public:
 
 	/** Gets the role this frame plays in interlacing.
 	  */
-	FieldType getField() const {
+	[[nodiscard]] FieldType getField() const {
 		return fieldType;
 	}
 
 	/** Gets the number of lines in this frame.
 	  */
-	unsigned getHeight() const {
+	[[nodiscard]] unsigned getHeight() const {
 		return height;
 	}
 
 	/** Gets the number of display pixels on the given line.
 	  * @return line width (=1 for a vertical border line)
 	  */
-	virtual unsigned getLineWidth(unsigned line) const = 0;
+	[[nodiscard]] virtual unsigned getLineWidth(unsigned line) const = 0;
 
 	/** Get the width of (all) lines in this frame.
 	 * This only makes sense when all lines have the same width, so this
@@ -55,11 +57,11 @@ public:
 	 * is for example not always the case for MSX frames, but it is for
 	 * video frames (for superimpose).
 	 */
-	unsigned getWidth() const {
+	[[nodiscard]] unsigned getWidth() const {
 		assert(height > 0);
 		unsigned result = getLineWidth(0);
-		for (unsigned line = 1; line < height; ++line) {
-			assert(result == getLineWidth(line));
+		for (auto line : xrange(1u, height)) {
+			assert(result == getLineWidth(line)); (void)line;
 		}
 		return result;
 	}
@@ -69,8 +71,8 @@ public:
 	  * line. But it's fine to call this on non-border lines as well, in
 	  * that case the color of the first pixel of the line is returned.
 	  */
-	template <typename Pixel>
-	inline Pixel getLineColor(unsigned line) const {
+	template<typename Pixel>
+	[[nodiscard]] inline Pixel getLineColor(unsigned line) const {
 		ALIGNAS_SSE Pixel buf[1280]; // large enough for widest line
 		unsigned width; // not used
 		return reinterpret_cast<const Pixel*>(
@@ -86,8 +88,8 @@ public:
 	  * value of this function will point to the line data (some internal
 	  * buffer or the work buffer).
 	  */
-	template <typename Pixel>
-	inline const Pixel* getLinePtr(int line, unsigned width, Pixel* buf) const
+	template<typename Pixel>
+	[[nodiscard]] inline const Pixel* getLinePtr(int line, unsigned width, Pixel* buf) const
 	{
 		line = std::min<unsigned>(std::max(0, line), getHeight() - 1);
 		unsigned internalWidth;
@@ -108,8 +110,8 @@ public:
 	  * number of lines is returned in 'actualLines', it will always be at
 	  * least 1.
 	  */
-	template <typename Pixel>
-	inline const Pixel* getMultiLinePtr(
+	template<typename Pixel>
+	[[nodiscard]] inline const Pixel* getMultiLinePtr(
 		int line, unsigned numLines, unsigned& actualLines,
 		unsigned width, Pixel* buf) const
 	{
@@ -140,7 +142,7 @@ public:
 	/** Abstract implementation of getLinePtr().
 	  * Pixel type is unspecified (implementations that care about the
 	  * exact type should get it via some other mechanism).
-	  * @param line The line number for the requisted line.
+	  * @param line The line number for the requested line.
 	  * @param lineWidth Output parameter, the width of the returned line
 	  *                  in pixel units.
 	  * @param buf Buffer space that can _optionally_ be used by the
@@ -150,7 +152,7 @@ public:
 	  *         be the same as the given 'buf' parameter or it might be some
 	  *         internal buffer.
 	  */
-	virtual const void* getLineInfo(
+	[[nodiscard]] virtual const void* getLineInfo(
 		unsigned line, unsigned& lineWidth,
 		void* buf, unsigned bufWidth) const = 0;
 
@@ -159,22 +161,22 @@ public:
 	  * getLinePtr() is that this method also does vertical scaling.
 	  * This is used for video recording.
 	  */
-	template <typename Pixel>
-	const Pixel* getLinePtr320_240(unsigned line, Pixel* buf) const;
+	template<typename Pixel>
+	[[nodiscard]] const Pixel* getLinePtr320_240(unsigned line, Pixel* buf) const;
 
 	/** Get a pointer to a given line in this frame, the frame is scaled
 	  * to 640x480 pixels. Same as getLinePtr320_240, but then for a
 	  * higher resolution output.
 	  */
-	template <typename Pixel>
-	const Pixel* getLinePtr640_480(unsigned line, Pixel* buf) const;
+	template<typename Pixel>
+	[[nodiscard]] const Pixel* getLinePtr640_480(unsigned line, Pixel* buf) const;
 
 	/** Get a pointer to a given line in this frame, the frame is scaled
 	  * to 960x720 pixels. Same as getLinePtr320_240, but then for a
 	  * higher resolution output.
 	  */
-	template <typename Pixel>
-	const Pixel* getLinePtr960_720(unsigned line, Pixel* buf) const;
+	template<typename Pixel>
+	[[nodiscard]] const Pixel* getLinePtr960_720(unsigned line, Pixel* buf) const;
 
 	/** Returns the distance (in pixels) between two consecutive lines.
 	  * Is meant to be used in combination with getMultiLinePtr(). The
@@ -182,11 +184,11 @@ public:
 	  * true (also only in that case does getMultiLinePtr() return more
 	  * than 1 line).
 	  */
-	virtual unsigned getRowLength() const {
+	[[nodiscard]] virtual unsigned getRowLength() const {
 		return 0;
 	}
 
-	const PixelFormat& getPixelFormat() const {
+	[[nodiscard]] const PixelFormat& getPixelFormat() const {
 		return pixelFormat;
 	}
 
@@ -199,11 +201,11 @@ protected:
 	/** Returns true when two consecutive rows are also consecutive in
 	  * memory.
 	  */
-	virtual bool hasContiguousStorage() const {
+	[[nodiscard]] virtual bool hasContiguousStorage() const {
 		return false;
 	}
 
-	template <typename Pixel> void scaleLine(
+	template<typename Pixel> void scaleLine(
 		const Pixel* in, Pixel* out,
 		unsigned inWidth, unsigned outWidth) const;
 

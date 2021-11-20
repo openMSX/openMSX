@@ -26,12 +26,12 @@ public:
 	 */
 	void updateGenerators(Channel& channel);
 
-	inline int calcOutput(Channel& channel, unsigned eg_cnt, bool carrier,
+	[[nodiscard]] inline int calcOutput(Channel& channel, unsigned eg_cnt, bool carrier,
 	                      unsigned lfo_am, int phase);
-	inline int calc_slot_mod(Channel& channel, unsigned eg_cnt, bool carrier,
+	[[nodiscard]] inline int calc_slot_mod(Channel& channel, unsigned eg_cnt, bool carrier,
 	                         unsigned lfo_pm, unsigned lfo_am);
-	inline int calc_envelope(Channel& channel, unsigned eg_cnt, bool carrier);
-	inline int calc_phase(Channel& channel, unsigned lfo_pm);
+	[[nodiscard]] inline int calc_envelope(Channel& channel, unsigned eg_cnt, bool carrier);
+	[[nodiscard]] inline int calc_phase(Channel& channel, unsigned lfo_pm);
 
 	enum KeyPart { KEY_MAIN = 1, KEY_RHYTHM = 2 };
 	void setKeyOn(KeyPart part);
@@ -40,7 +40,7 @@ public:
 
 	/** Does this slot currently produce an output signal?
 	 */
-	bool isActive() const;
+	[[nodiscard]] bool isActive() const;
 
 	/** Sets the frequency multiplier [0..15].
 	 */
@@ -129,7 +129,7 @@ private:
 	// Envelope Generator
 	int TL;		// total level: TL << 2
 	int TLL;	// adjusted now TL
-	int egout;	// envelope counter
+	int egOut;	// envelope counter
 	int sl;		// sustain level: sl_tab[SL]
 	EnvelopeState state;
 
@@ -174,7 +174,7 @@ public:
 
 	/** Calculate the value of the current sample produced by this channel.
 	 */
-	inline int calcOutput(unsigned eg_cnt, unsigned lfo_pm, unsigned lfo_am, int fm);
+	[[nodiscard]] inline int calcOutput(unsigned eg_cnt, unsigned lfo_pm, unsigned lfo_am, int fm);
 
 	/** Sets the frequency for this channel.
 	 */
@@ -199,11 +199,11 @@ public:
 	 */
 	void updateInstrument(const uint8_t* inst);
 
-	int getBlockFNum() const;
-	FreqIndex getFrequencyIncrement() const;
-	int getKeyScaleLevelBase() const;
-	uint8_t getKeyCode() const;
-	bool isSustained() const;
+	[[nodiscard]] int getBlockFNum() const;
+	[[nodiscard]] FreqIndex getFrequencyIncrement() const;
+	[[nodiscard]] int getKeyScaleLevelBase() const;
+	[[nodiscard]] uint8_t getKeyCode() const;
+	[[nodiscard]] bool isSustained() const;
 	void setSustain(bool sustained);
 
 	template<typename Archive>
@@ -215,7 +215,7 @@ public:
 private:
 	// phase generator state
 	int block_fnum;	// block+fnum
-	FreqIndex fc;	// Freq. freqement base
+	FreqIndex fc;	// Freq. increment base
 	int ksl_base;	// KeyScaleLevel Base step
 	bool sus;	// sus on/off (release speed in percussive mode)
 };
@@ -229,9 +229,9 @@ public:
 	void reset() override;
 	void writePort(bool port, uint8_t value, int offset) override;
 	void pokeReg(uint8_t reg, uint8_t value) override;
-	uint8_t peekReg(uint8_t reg) const override;
+	[[nodiscard]] uint8_t peekReg(uint8_t reg) const override;
 	void generateChannels(float* bufs[9 + 5], unsigned num) override;
-	float getAmplificationFactor() const override;
+	[[nodiscard]] float getAmplificationFactor() const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -243,9 +243,9 @@ private:
 	 */
 	void resetOperators();
 
-	inline bool isRhythm() const;
+	[[nodiscard]] inline bool isRhythm() const;
 
-	Channel& getChannelForReg(uint8_t reg);
+	[[nodiscard]] Channel& getChannelForReg(uint8_t reg);
 
 	/** Called when the custom instrument (instrument 0) has changed.
 	 * @param part Part [0..7] of the instrument.
@@ -255,6 +255,7 @@ private:
 
 	void setRhythmFlags(uint8_t old);
 
+private:
 	/** OPLL chips have 9 channels. */
 	Channel channels[9];
 

@@ -42,7 +42,7 @@ ColecoSuperGameModule::~ColecoSuperGameModule()
 	getCPUInterface().unregister_IO_Out(0x7F, this);
 }
 
-unsigned ColecoSuperGameModule::translateMainRamAddress(unsigned address) const
+static constexpr unsigned translateMainRamAddress(unsigned address)
 {
 	return address & (MAIN_RAM_SIZE - 1);
 }

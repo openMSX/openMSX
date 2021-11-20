@@ -3,6 +3,8 @@
 
 #include "SDLSurfacePtr.hh"
 #include "openmsx.hh"
+#include "gl_vec.hh"
+#include "zstring_view.hh"
 #include <string>
 #include <utility>
 
@@ -46,31 +48,31 @@ public:
 	~TTFFont();
 
 	/** Is this an empty font? (a default constructed object). */
-	bool empty() const { return font == nullptr; }
+	[[nodiscard]] bool empty() const { return font == nullptr; }
 
 	/** Render the given text to a new SDL_Surface.
 	  * The text must be UTF-8 encoded.
 	  * The result is a 32bpp RGBA SDL_Surface.
 	  */
-	SDLSurfacePtr render(std::string text, byte r, byte g, byte b) const;
+	[[nodiscard]] SDLSurfacePtr render(std::string text, byte r, byte g, byte b) const;
 
 	/** Return the height of the font.
 	  * This is the recommended number of pixels between two text lines.
 	  */
-	unsigned getHeight() const;
+	[[nodiscard]] unsigned getHeight() const;
 
 	/** Returns true iff this is a fixed-with (=mono-spaced) font. */
-	bool isFixedWidth() const;
+	[[nodiscard]] bool isFixedWidth() const;
 
 	/** Return the width of the font.
 	  * This is the recommended number of pixels between two characters.
 	  * This number only makes sense for fixed-width fonts.
 	  */
-	unsigned getWidth() const;
+	[[nodiscard]] unsigned getWidth() const;
 
 	/** Return the size in pixels of the text if it would be rendered.
 	 */
-	void getSize(const std::string& text, unsigned& width, unsigned& height) const;
+	[[nodiscard]] gl::ivec2 getSize(zstring_view text) const;
 
 private:
 	void* font = nullptr;  // TTF_Font*

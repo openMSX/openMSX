@@ -6,7 +6,7 @@
      Information provided by http://msxarcheology.blogspot.nl/ (Piter Punk)
      Serial number JL1000114
 
-     - Uses same keyboard as Mitsubishi ML-G30
+     - Uses same keyboard as Mitsubishi ML-G30, but is labeled UK-V101
      - 2 FDD's
      - RS-232C interface
      - superimpose capabilities (not emulated!)
@@ -42,9 +42,11 @@
     <type>MSX2</type>
   </info>
 
-  <MapperReadBackBits>largest</MapperReadBackBits>
-
   <devices>
+
+    <S1985 id="S1985"> <!-- includes 5 bits mapper-read-back -->
+      <sramname>uc-v102_s1985.sram</sramname>
+    </S1985>
 
     <Kanji id="Kanji ROM">
       <rom>
@@ -55,14 +57,13 @@
       <io base="0xD9" num="1" type="I"/>
     </Kanji>
 
-
     <PPI id="ppi">
       <key_ghosting>true</key_ghosting>
       <sound>
         <volume>16000</volume>
       </sound>
       <io base="0xA8" num="4"/>
-      <keyboard_type>jp_ansi</keyboard_type>
+      <keyboard_type>jp_jis</keyboard_type>
       <has_keypad>true</has_keypad>
       <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>
       <code_kana_locks>true</code_kana_locks>
@@ -76,13 +77,9 @@
       <io base="0x98" num="2" type="I"/>
     </VDP>
 
-    <S1985 id="S1985">
-      <sramname>uc-v102_s1985.sram</sramname>
-    </S1985>
-
     <PSG id="PSG">
       <type>YM2149</type>
-      <keyboardlayout>50on</keyboardlayout>
+      <keyboardlayout>JIS</keyboardlayout>
       <sound>
         <volume>21000</volume>
       </sound>

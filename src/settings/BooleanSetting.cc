@@ -5,7 +5,7 @@ namespace openmsx {
 
 BooleanSetting::BooleanSetting(
 		CommandController& commandController_, std::string_view name,
-		std::string_view description_, bool initialValue, SaveSetting save_)
+		static_string_view description_, bool initialValue, SaveSetting save_)
 	: Setting(commandController_, name, description_,
 	          TclObject(toString(initialValue)), save_)
 {
@@ -25,9 +25,10 @@ std::string_view BooleanSetting::getTypeString() const
 
 void BooleanSetting::tabCompletion(std::vector<std::string>& tokens) const
 {
-	static constexpr const char* const values[] = {
-		"true",  "on",  "yes",
-		"false", "off", "no",
+	using namespace std::literals;
+	static constexpr std::array values = {
+		"true"sv,  "on"sv,  "yes"sv,
+		"false"sv, "off"sv, "no"sv,
 	};
 	Completer::completeString(tokens, values, false); // case insensitive
 }

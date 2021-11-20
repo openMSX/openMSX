@@ -35,6 +35,7 @@ sources = files(
     'MSXS1985.cc',
     'MSXS1990.cc',
     'MSXSwitchedDevice.cc',
+    'MSXToshibaTcx200x.cc',
     'MSXTurboRPause.cc',
     'MSXVictorHC9xSystemControl.cc',
     'PasswordCart.cc',
@@ -87,7 +88,6 @@ sources = files(
     'config/HardwareConfig.cc',
     'config/SettingsConfig.cc',
     'config/XMLElement.cc',
-    'config/XMLLoader.cc',
     'console/CommandConsole.cc',
     'console/OSDConsoleRenderer.cc',
     'console/OSDGUI.cc',
@@ -127,7 +127,6 @@ sources = files(
     'events/HotKey.cc',
     'events/InputEventFactory.cc',
     'events/InputEventGenerator.cc',
-    'events/InputEvents.cc',
     'events/Keys.cc',
     'events/MSXCliComm.cc',
     'events/MessageCommand.cc',
@@ -170,6 +169,7 @@ sources = files(
     'fdc/SectorBasedDisk.cc',
     'fdc/SpectravideoFDC.cc',
     'fdc/TC8566AF.cc',
+    'fdc/TalentTDC600.cc',
     'fdc/ToshibaFDC.cc',
     'fdc/TurboRFDC.cc',
     'fdc/VictorFDC.cc',
@@ -182,7 +182,7 @@ sources = files(
     'file/FileBase.cc',
     'file/FileContext.cc',
     'file/FileOperations.cc',
-    'file/Fileool.cc',
+    'file/FilePool.cc',
     'file/FilePoolCore.cc',
     'file/Filename.cc',
     'file/GZFileAdapter.cc',
@@ -233,11 +233,6 @@ sources = files(
     'input/Touchpad.cc',
     'input/Trackball.cc',
     'input/UnicodeKeymap.cc',
-    'laserdisc/LaserdiscPlayer.cc',
-    'laserdisc/LaserdiscPlayerCLI.cc',
-    'laserdisc/OggReader.cc',
-    'laserdisc/PioneerLDControl.cc',
-    'laserdisc/yuv2rgb.cc',
     'memory/AmdFlash.cc',
     'memory/Carnivore2.cc',
     'memory/CheckedRam.cc',
@@ -330,6 +325,7 @@ sources = files(
     'serial/DummyRS232Device.cc',
     'serial/I8251.cc',
     'serial/I8254.cc',
+    'serial/JVCMSXMIDI.cc',
     'serial/MC6850.cc',
     'serial/MSXFacMidiInterface.cc',
     'serial/MSXMidi.cc',
@@ -344,8 +340,8 @@ sources = files(
     'serial/MidiOutDevice.cc',
     'serial/MidiOutLogger.cc',
     'serial/MidiOutWindows.cc',
-    'serial/MidiSessionALSA.cc',
     'serial/Midi_w32.cc',
+    'serial/MusicModuleMIDI.cc',
     'serial/RS232Connector.cc',
     'serial/RS232Device.cc',
     'serial/RS232Tester.cc',
@@ -412,9 +408,12 @@ sources = files(
     'sound/YM2151.cc',
     'sound/YM2413.cc',
     'sound/YM2413Burczynski.cc',
+    'sound/YM2413NukeYKT.cc',
     'sound/YM2413Okazaki.cc',
+    'sound/YM2413OriginalNukeYKT.cc',
     'sound/YMF262.cc',
     'sound/YMF278.cc',
+    'sound/opll.cc',
     'thread/Thread.cc',
     'thread/Timer.cc',
     'utils/Base64.cc',
@@ -448,11 +447,6 @@ sources = files(
     'video/DummyVideoSystem.cc',
     'video/FBPostProcessor.cc',
     'video/FrameSource.cc',
-    'video/GLContext.cc',
-    'video/GLImage.cc',
-    'video/GLPostProcessor.cc',
-    'video/GLSnow.cc',
-    'video/GLUtil.cc',
     'video/Icon.cc',
     'video/Layer.cc',
     'video/OutputSurface.cc',
@@ -461,10 +455,7 @@ sources = files(
     'video/PostProcessor.cc',
     'video/RawFrame.cc',
     'video/RenderSettings.cc',
-    'video/Renderer.cc',
     'video/RendererFactory.cc',
-    'video/SDLGLOffScreenSurface.cc',
-    'video/SDLGLVisibleSurface.cc',
     'video/SDLImage.cc',
     'video/SDLOffScreenSurface.cc',
     'video/SDLOutputSurface.cc',
@@ -484,20 +475,7 @@ sources = files(
     'video/VideoSystem.cc',
     'video/VisibleSurface.cc',
     'video/ZMBVEncoder.cc',
-    'video/ld/LDDummyRenderer.cc',
-    'video/ld/LDPixelRenderer.cc',
-    'video/ld/LDSDLRasterizer.cc',
     'video/scalers/DirectScalerOutput.cc',
-    'video/scalers/GLDefaultScaler.cc',
-    'video/scalers/GLHQLiteScaler.cc',
-    'video/scalers/GLHQScaler.cc',
-    'video/scalers/GLRGBScaler.cc',
-    'video/scalers/GLSaIScaler.cc',
-    'video/scalers/GLScaleNxScaler.cc',
-    'video/scalers/GLScaler.cc',
-    'video/scalers/GLScalerFactory.cc',
-    'video/scalers/GLSimpleScaler.cc',
-    'video/scalers/GLTVScaler.cc',
     'video/scalers/HQ2xLiteScaler.cc',
     'video/scalers/HQ2xScaler.cc',
     'video/scalers/HQ3xLiteScaler.cc',
@@ -527,11 +505,52 @@ sources = files(
     'video/v9990/V9990SDLRasterizer.cc',
     'video/v9990/V9990VRAM.cc',
     'video/v9990/Video9000.cc',
+)
+
+if not get_option('alsamidi').disabled()
+    sources += files(
+        'serial/MidiSessionALSA.cc',
     )
+endif
+
+if not get_option('glrenderer').disabled()
+    sources += files(
+        'video/GLContext.cc',
+        'video/GLImage.cc',
+        'video/GLPostProcessor.cc',
+        'video/GLSnow.cc',
+        'video/GLUtil.cc',
+        'video/SDLGLOffScreenSurface.cc',
+        'video/SDLGLVisibleSurface.cc',
+        'video/scalers/GLDefaultScaler.cc',
+        'video/scalers/GLHQLiteScaler.cc',
+        'video/scalers/GLHQScaler.cc',
+        'video/scalers/GLRGBScaler.cc',
+        'video/scalers/GLSaIScaler.cc',
+        'video/scalers/GLScaleNxScaler.cc',
+        'video/scalers/GLScaler.cc',
+        'video/scalers/GLScalerFactory.cc',
+        'video/scalers/GLSimpleScaler.cc',
+        'video/scalers/GLTVScaler.cc',
+    )
+endif
+
+if not get_option('laserdisc').disabled()
+    sources += files(
+        'laserdisc/LaserdiscPlayer.cc',
+        'laserdisc/LaserdiscPlayerCLI.cc',
+        'laserdisc/OggReader.cc',
+        'laserdisc/PioneerLDControl.cc',
+        'laserdisc/yuv2rgb.cc',
+        'video/ld/LDDummyRenderer.cc',
+        'video/ld/LDPixelRenderer.cc',
+        'video/ld/LDSDLRasterizer.cc',
+    )
+endif
 
 main_sources = files(
     'main.cc',
-    )
+)
 
 test_sources = files(
     'unittest/AdhocCliCommParser_test.cc',
@@ -543,6 +562,7 @@ test_sources = files(
     'unittest/FilePoolCore_test.cc',
     'unittest/FixedPoint_test.cc',
     'unittest/HexDump_test.cc',
+    'unittest/IterableBitSet_test.cc',
     'unittest/Keys_test.cc',
     'unittest/Math_test.cc',
     'unittest/MemoryBufferFile.cc',
@@ -555,6 +575,8 @@ test_sources = files(
     'unittest/TclObject_test.cc',
     'unittest/TigerTree_test.cc',
     'unittest/WavData_test.cc',
+    'unittest/XMLEscape_test.cc',
+    'unittest/XMLOutputStream_test.cc',
     'unittest/circular_buffer_test.cc',
     'unittest/eeprom.cc',
     'unittest/endian_test.cc',
@@ -563,13 +585,14 @@ test_sources = files(
     'unittest/gl_vec.cc',
     'unittest/join_test.cc',
     'unittest/main.cc',
+    'unittest/monotonic_allocator_test.cc',
     'unittest/semiregular_test.cc',
     'unittest/sha1.cc',
     'unittest/stl_test.cc',
     'unittest/strCat.cc',
     'unittest/view_test.cc',
     'unittest/xrange_test.cc',
-    )
+)
 
 incdirs = include_directories(
     '.',
@@ -597,4 +620,4 @@ incdirs = include_directories(
     'video/ld',
     'video/scalers',
     'video/v9990',
-    )
+)

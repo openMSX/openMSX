@@ -6,6 +6,7 @@
 #include "StateChange.hh"
 #include "TclObject.hh"
 #include "EmuTime.hh"
+#include "dynarray.hh"
 
 namespace openmsx {
 
@@ -21,14 +22,13 @@ class MSXCommandEvent final : public StateChange
 {
 public:
 	MSXCommandEvent() = default; // for serialize
-	MSXCommandEvent(span<std::string> tokens, EmuTime::param time);
-	MSXCommandEvent(span<const TclObject> tokens, EmuTime::param time);
-	const std::vector<TclObject>& getTokens() const { return tokens; }
+	MSXCommandEvent(EmuTime::param time, span<const TclObject> tokens);
+	[[nodiscard]] const auto& getTokens() const { return tokens; }
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 private:
-	std::vector<TclObject> tokens;
+	dynarray<TclObject> tokens;
 };
 
 
@@ -57,7 +57,7 @@ public:
 	  * override this method. Return false iff the command doesn't need
 	  * to be recorded.
 	  */
-	virtual bool needRecord(span<const TclObject> tokens) const;
+	[[nodiscard]] virtual bool needRecord(span<const TclObject> tokens) const;
 
 protected:
 	RecordedCommand(CommandController& commandController,
@@ -71,9 +71,10 @@ private:
 	void execute(span<const TclObject> tokens, TclObject& result) override;
 
 	// StateChangeListener
-	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
-	void stopReplay(EmuTime::param time) override;
+	void signalStateChange(const StateChange& event) override;
+	void stopReplay(EmuTime::param time) noexcept override;
 
+private:
 	StateChangeDistributor& stateChangeDistributor;
 	Scheduler& scheduler;
 	TclObject dummyResultObject;

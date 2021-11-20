@@ -15,13 +15,11 @@
 
 namespace openmsx {
 
-using std::vector;
-
 // --- Compressed integers ---
 
 // See https://en.wikipedia.org/wiki/LEB128 for a description of the
 // 'unsigned LEB' format.
-static void storeUleb(vector<uint8_t>& result, size_t value)
+static void storeUleb(std::vector<uint8_t>& result, size_t value)
 {
 	do {
 		uint8_t b = value & 0x7F;
@@ -31,7 +29,7 @@ static void storeUleb(vector<uint8_t>& result, size_t value)
 	} while (value);
 }
 
-static size_t loadUleb(const uint8_t*& data)
+[[nodiscard]] static constexpr size_t loadUleb(const uint8_t*& data)
 {
 	size_t result = 0;
 	int shift = 0;
@@ -151,7 +149,7 @@ end:	return std::mismatch(p, p_end, q);
 // Unlike scan_mismatch() it's less obvious how to perform this function
 // word-at-a-time (it's possible with some bit hacks). Though luckily this
 // function is also less performance critical.
-static std::pair<const uint8_t*, const uint8_t*> scan_match(
+[[nodiscard]] static constexpr std::pair<const uint8_t*, const uint8_t*> scan_match(
 	const uint8_t* p, const uint8_t* p_end, const uint8_t* q, const uint8_t* q_end)
 {
 	assert((p_end - p) == (q_end - q));
@@ -182,17 +180,18 @@ static std::pair<const uint8_t*, const uint8_t*> scan_match(
 //   n2 number of bytes are different, and here are the bytes
 //   n3 number of bytes are equal
 //   ...
-static vector<uint8_t> calcDelta(const uint8_t* oldBuf, const uint8_t* newBuf, size_t size)
+[[nodiscard]] static std::vector<uint8_t> calcDelta(
+	const uint8_t* oldBuf, const uint8_t* newBuf, size_t size)
 {
-	vector<uint8_t> result;
+	std::vector<uint8_t> result;
 
-	auto* p = oldBuf;
-	auto* q = newBuf;
-	auto* p_end = p + size;
-	auto* q_end = q + size;
+	const auto* p = oldBuf;
+	const auto* q = newBuf;
+	const auto* p_end = p + size;
+	const auto* q_end = q + size;
 
 	// scan equal bytes (possibly zero)
-	auto* q1 = q;
+	const auto* q1 = q;
 	std::tie(p, q) = scan_mismatch(p, p_end, q, q_end);
 	auto n1 = q - q1;
 	storeUleb(result, n1);
@@ -200,12 +199,12 @@ static vector<uint8_t> calcDelta(const uint8_t* oldBuf, const uint8_t* newBuf, s
 	while (q != q_end) {
 		assert(*p != *q);
 
-		auto* q2 = q;
+		const auto* q2 = q;
 	different:
 		std::tie(p, q) = scan_match(p + 1, p_end, q + 1, q_end);
 		auto n2 = q - q2;
 
-		auto* q3 = q;
+		const auto* q3 = q;
 		std::tie(p, q) = scan_mismatch(p, p_end, q, q_end);
 		auto n3 = q - q3;
 		if ((q != q_end) && (n3 <= 2)) goto different;
@@ -257,7 +256,7 @@ DeltaBlockCopy::DeltaBlockCopy(const uint8_t* data, size_t size)
 	, compressedSize(0)
 {
 #ifdef DEBUG
-	sha1 = SHA1::calc(data, size);
+	sha1 = SHA1::calc({data, size});
 #endif
 	memcpy(block.data(), data, size);
 	assert(!compressed());
@@ -277,7 +276,7 @@ void DeltaBlockCopy::apply(uint8_t* dst, size_t size) const
 		memcpy(dst, block.data(), size);
 	}
 #ifdef DEBUG
-	assert(SHA1::calc(dst, size) == sha1);
+	assert(SHA1::calc({dst, size}) == sha1);
 #endif
 }
 
@@ -285,7 +284,7 @@ void DeltaBlockCopy::compress(size_t size)
 {
 	if (compressed()) return;
 
-	size_t dstLen = LZ4::compressBound(size);
+	size_t dstLen = LZ4::compressBound(int(size));
 	MemBuffer<uint8_t> buf2(dstLen);
 	dstLen = LZ4::compress(block.data(), buf2.data(), int(size));
 
@@ -327,7 +326,7 @@ DeltaBlockDiff::DeltaBlockDiff(
 	, delta(calcDelta(prev->getData(), data, size))
 {
 #ifdef DEBUG
-	sha1 = SHA1::calc(data, size);
+	sha1 = SHA1::calc({data, size});
 
 	MemBuffer<uint8_t> buf(size);
 	apply(buf.data(), size);
@@ -346,7 +345,7 @@ void DeltaBlockDiff::apply(uint8_t* dst, size_t size) const
 	prev->apply(dst, size);
 	applyDeltaInPlace(dst, size, delta.data());
 #ifdef DEBUG
-	assert(SHA1::calc(dst, size) == sha1);
+	assert(SHA1::calc({dst, size}) == sha1);
 #endif
 }
 
@@ -361,9 +360,8 @@ size_t DeltaBlockDiff::getDeltaSize() const
 std::shared_ptr<DeltaBlock> LastDeltaBlocks::createNew(
 		const void* id, const uint8_t* data, size_t size)
 {
-	auto it = ranges::lower_bound(infos, std::tuple(id, size),
-		[](const Info& info, const std::tuple<const void*, size_t>& info2) {
-			return std::tuple(info.id, info.size) < info2; });
+	auto it = ranges::lower_bound(infos, std::tuple(id, size), {},
+		[](const Info& info) { return std::tuple(info.id, info.size); });
 	if ((it == end(infos)) || (it->id != id) || (it->size != size)) {
 		// no previous info yet
 		it = infos.emplace(it, id, size);
@@ -398,9 +396,7 @@ std::shared_ptr<DeltaBlock> LastDeltaBlocks::createNew(
 std::shared_ptr<DeltaBlock> LastDeltaBlocks::createNullDiff(
 		const void* id, const uint8_t* data, size_t size)
 {
-	auto it = ranges::lower_bound(infos, id,
-		[](const Info& info, const void* id2) {
-			return info.id < id2; });
+	auto it = ranges::lower_bound(infos, id, {}, &Info::id);
 	if ((it == end(infos)) || (it->id != id)) {
 		// no previous block yet
 		it = infos.emplace(it, id, size);
@@ -416,7 +412,7 @@ std::shared_ptr<DeltaBlock> LastDeltaBlocks::createNullDiff(
 		return b;
 	} else {
 #ifdef DEBUG
-		assert(SHA1::calc(data, size) == last->sha1);
+		assert(SHA1::calc({data, size}) == last->sha1);
 #endif
 		return last;
 	}

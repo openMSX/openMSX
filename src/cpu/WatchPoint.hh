@@ -20,7 +20,7 @@ public:
 	WatchPoint(TclObject command_, TclObject condition_,
 	           Type type_, unsigned beginAddr_, unsigned endAddr_,
 	           bool once_, unsigned newId = -1)
-		: BreakPointBase(command_, condition_, once_)
+		: BreakPointBase(std::move(command_), std::move(condition_), once_)
 		, id((newId == unsigned(-1)) ? ++lastId : newId)
 		, beginAddr(beginAddr_), endAddr(endAddr_), type(type_)
 	{
@@ -29,10 +29,10 @@ public:
 
 	virtual ~WatchPoint() = default; // needed for dynamic_cast
 
-	unsigned getId()           const { return id; }
-	Type     getType()         const { return type; }
-	unsigned getBeginAddress() const { return beginAddr; }
-	unsigned getEndAddress()   const { return endAddr; }
+	[[nodiscard]] unsigned getId()           const { return id; }
+	[[nodiscard]] Type     getType()         const { return type; }
+	[[nodiscard]] unsigned getBeginAddress() const { return beginAddr; }
+	[[nodiscard]] unsigned getEndAddress()   const { return endAddr; }
 
 private:
 	unsigned id;

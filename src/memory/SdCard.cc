@@ -47,24 +47,26 @@ SdCard::SdCard(const DeviceConfig& config)
 SdCard::~SdCard() = default;
 
 // helper methods for 'transfer' to avoid duplication
-byte SdCard::readCurrentByteFromCurrentSector() {
-	byte retval;
-	if (currentByteInSector == -1) {
-		retval = START_BLOCK_TOKEN;
-		try {
-			hd->readSector(currentSector, sectorBuf);
-		} catch (MSXException&) {
-			retval = DATA_ERROR_TOKEN_ERROR;
+byte SdCard::readCurrentByteFromCurrentSector()
+{
+	byte result = [&] {
+		if (currentByteInSector == -1) {
+			try {
+				hd->readSector(currentSector, sectorBuf);
+				return START_BLOCK_TOKEN;
+			} catch (MSXException&) {
+				return DATA_ERROR_TOKEN_ERROR;
+			}
+		} else {
+			// output next byte from stream
+			return sectorBuf.raw[currentByteInSector];
 		}
-	} else {
-		// output next byte from stream
-		retval = sectorBuf.raw[currentByteInSector];
-	}
+	}();
 	currentByteInSector++;
 	if (currentByteInSector == sizeof(sectorBuf)) {
 		responseQueue.push_back({0x00, 0x00}); // 2 CRC's (dummy)
 	}
-	return retval;
+	return result;
 }
 
 byte SdCard::transfer(byte value, bool cs)
@@ -201,7 +203,7 @@ byte SdCard::transfer(byte value, bool cs)
 		}
 		break;
 	}
-	
+
 	return retval;
 }
 
@@ -226,7 +228,7 @@ void SdCard::executeCommand()
 			byte(0x01), // voltage accepted
 			cmdBuf[4]});// check pattern
 		break;
-	case 9:{ // SEND_CSD 
+	case 9:{ // SEND_CSD
 		responseQueue.push_back({
 			R1_BUSY, // OK (ignored on MegaSD code, used in FUZIX)
 		// now follows a CSD version 2.0 (for SDHC)
@@ -315,14 +317,14 @@ void SdCard::executeCommand()
 			byte(0x00),   // OCR Reg part 3
 			byte(0x00)}); // OCR Reg part 4
 		break;
-	
+
 	default:
 		responseQueue.push_back(R1_ILLEGAL_COMMAND);
 		break;
 	}
 }
 
-static std::initializer_list<enum_string<SdCard::Mode>> modeInfo = {
+static constexpr std::initializer_list<enum_string<SdCard::Mode>> modeInfo = {
 	{ "COMMAND",     SdCard::COMMAND  },
 	{ "READ",        SdCard::READ },
 	{ "MULTI_READ",  SdCard::MULTI_READ },

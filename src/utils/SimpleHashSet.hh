@@ -66,16 +66,16 @@ public:
 		grow(Math::ceil2(2 * n));
 		assert(capacity() >= n);
 	}
-	size_t capacity() const
+	[[nodiscard]] size_t capacity() const
 	{
 		return (mask + 1) / 2;
 	}
 
-	size_t size() const
+	[[nodiscard]] size_t size() const
 	{
 		return num_elems;
 	}
-	bool empty() const
+	[[nodiscard]] bool empty() const
 	{
 		return size() == 0;
 	}
@@ -106,7 +106,7 @@ public:
 	bool erase(const Value2& val)
 	{
 		auto pos1 = locate(val);
-		if (pos1 == size_t(-1)) return false; // was not presnt
+		if (pos1 == size_t(-1)) return false; // was not present
 
 		// Element found, now plug the hole created at position 'pos1'.
 		auto mustMove = [&](size_t p1, size_t p2, size_t p3) {
@@ -137,33 +137,33 @@ public:
 	}
 
 	template<typename Value2>
-	Value* find(const Value2& val) const
+	[[nodiscard]] Value* find(const Value2& val) const
 	{
 		auto h = locate(val);
 		return (h == size_t(-1)) ? nullptr : &table[h];
 	}
 
 	template<typename Value2>
-	bool contains(const Value2& val) const
+	[[nodiscard]] bool contains(const Value2& val) const
 	{
 		return locate(val) != size_t(-1);
 	}
 
 private:
 	template<typename Value2>
-	size_t hash(const Value2& val) const
+	[[nodiscard]] size_t hash(const Value2& val) const
 	{
 		return hasher(val);
 	}
 
 	template<typename Value2>
-	bool equal(const Value& val, const Value2& val2) const
+	[[nodiscard]] bool equal(const Value& val, const Value2& val2) const
 	{
 		return equality(val, val2);
 	}
 
 	template<typename Value2>
-	size_t locate(const Value2& val) const
+	[[nodiscard]] size_t locate(const Value2& val) const
 	{
 		if (table) {
 			auto h = hash(val) & mask;
@@ -207,7 +207,7 @@ private:
 		}
 
 		table = newTable;
-		mask = newMask;
+		mask = static_cast<decltype(mask)>(newMask);
 	}
 
 	template<typename Value2>

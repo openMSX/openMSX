@@ -69,7 +69,7 @@ struct ArgsInfo
 };
 
 // Parse a flag.
-inline ArgsInfo flagArg(std::string_view name, bool& flag)
+[[nodiscard]] inline ArgsInfo flagArg(std::string_view name, bool& flag)
 {
 	return {
 		name,
@@ -82,7 +82,7 @@ inline ArgsInfo flagArg(std::string_view name, bool& flag)
 
 // Parse a value (like a flag but with associated value).
 template<typename T>
-ArgsInfo valueArg(std::string_view name, T& value)
+[[nodiscard]] ArgsInfo valueArg(std::string_view name, T& value)
 {
 	return {
 		name,
@@ -100,7 +100,8 @@ ArgsInfo valueArg(std::string_view name, T& value)
 // The recognized flags/values are described in 'table'.
 // The result of this parser is the collection of non-flag arguments.
 // See src/unittest/TclArgParser.cc for example usages.
-std::vector<TclObject> parseTclArgs(Interpreter& interp, span<const TclObject> inArgs, span<const ArgsInfo> table);
+[[nodiscard]] std::vector<TclObject> parseTclArgs(
+	Interpreter& interp, span<const TclObject> inArgs, span<const ArgsInfo> table);
 
 } // namespace openmsx
 

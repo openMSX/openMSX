@@ -36,18 +36,20 @@ public:
 	 * @throws FileNotFoundException if file not found
 	 * @throws FileException for other errors
 	 */
-	explicit File(std::string_view filename, OpenMode mode = NORMAL);
+	explicit File(std::string filename, OpenMode mode = NORMAL);
 	explicit File(const Filename& filename, OpenMode mode = NORMAL);
+	explicit File(Filename&& filename, OpenMode mode = NORMAL);
 
 	/** This constructor maps very closely on the fopen() libc function.
-	  * Compared to constructor above, it does not transparantly
+	  * Compared to constructor above, it does not transparently
 	  * uncompress files.
 	  * @param filename Name of the file to be opened.
 	  * @param mode Open mode, same meaning as in fopen(), but we assert
 	  *             that it contains a 'b' character.
 	  */
-	File(std::string_view filename, const char* mode);
+	File(std::string filename, const char* mode);
 	File(const Filename& filename, const char* mode);
+	File(Filename&& filename, const char* mode);
 	File(File&& other) noexcept;
 
 	/* Used by MemoryBufferFile. */
@@ -58,7 +60,7 @@ public:
 	File& operator=(File&& other) noexcept;
 
 	/** Return true iff this file handle refers to an open file. */
-	bool is_open() const { return file != nullptr; }
+	[[nodiscard]] bool is_open() const { return file != nullptr; }
 
 	/** Close the current file.
 	 * Equivalent to assigning a default constructed value to this object.
@@ -83,7 +85,7 @@ public:
 	 * @result Pointer/size to/of memory block.
 	 * @throws FileException
 	 */
-	span<uint8_t> mmap();
+	[[nodiscard]] span<const uint8_t> mmap();
 
 	/** Unmap file from memory.
 	 */
@@ -93,7 +95,7 @@ public:
 	 * @result The size of this file
 	 * @throws FileException
 	 */
-	size_t getSize();
+	[[nodiscard]] size_t getSize();
 
 	/** Move read/write pointer to the specified position.
 	 * @param pos Position in bytes from the beginning of the file.
@@ -105,7 +107,7 @@ public:
 	 * @result Position in bytes from the beginning of the file.
 	 * @throws FileException
 	 */
-	size_t getPos();
+	[[nodiscard]] size_t getPos();
 
 	/** Truncate file size. Enlarging file size always works, but
 	 *  making file smaller doesn't work on some platforms (windows)
@@ -121,7 +123,7 @@ public:
 	/** Returns the URL of this file object.
 	 * @throws FileException
 	 */
-	std::string getURL() const;
+	[[nodiscard]] const std::string& getURL() const;
 
 	/** Get Original filename for this object. This will usually just
 	 *  return the filename portion of the URL. However for compressed
@@ -129,18 +131,18 @@ public:
 	 * @result Original file name
 	 * @throws FileException
 	 */
-	std::string getOriginalName();
+	[[nodiscard]] std::string_view getOriginalName();
 
 	/** Check if this file is readonly
 	 * @result true iff file is readonly
 	 * @throws FileException
 	 */
-	bool isReadOnly() const;
+	[[nodiscard]] bool isReadOnly() const;
 
 	/** Get the date/time of last modification
 	 * @throws FileException
 	 */
-	time_t getModificationDate();
+	[[nodiscard]] time_t getModificationDate();
 
 private:
 	friend class LocalFileReference;
@@ -148,7 +150,7 @@ private:
 	 * Returns the path to the (uncompressed) file on the local,
 	 * filesystem. Or an empty string in case there is no such path.
 	 */
-	std::string getLocalReference() const;
+	[[nodiscard]] std::string getLocalReference() const;
 
 	std::unique_ptr<FileBase> file;
 };

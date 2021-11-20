@@ -1,5 +1,4 @@
 #include "CartridgeSlotManager.hh"
-#include "MSXMotherBoard.hh"
 #include "HardwareConfig.hh"
 #include "CommandException.hh"
 #include "FileContext.hh"
@@ -9,13 +8,13 @@
 #include "unreachable.hh"
 #include "one_of.hh"
 #include "outer.hh"
+#include "ranges.hh"
 #include "StringOp.hh"
 #include "xrange.hh"
 #include <cassert>
 #include <memory>
 
 using std::string;
-using std::vector;
 
 namespace openmsx {
 
@@ -28,7 +27,7 @@ CartridgeSlotManager::Slot::~Slot()
 
 bool CartridgeSlotManager::Slot::exists() const
 {
-	return cartCommand != nullptr;
+	return cartCommand.has_value();
 }
 
 bool CartridgeSlotManager::Slot::used(const HardwareConfig* allowed) const
@@ -95,9 +94,9 @@ void CartridgeSlotManager::createExternalSlot(int ps, int ss)
 			extName[3] += slot;
 			motherBoard.getMSXCliComm().update(
 				CliComm::HARDWARE, slotName, "add");
-			slots[slot].cartCommand = std::make_unique<CartCmd>(
+			slots[slot].cartCommand.emplace(
 				*this, motherBoard, slotName);
-			slots[slot].extCommand = std::make_unique<ExtCmd>(
+			slots[slot].extCommand.emplace(
 				motherBoard, extName);
 			return;
 		}
@@ -265,14 +264,10 @@ void CartridgeSlotManager::freeSlot(
 
 bool CartridgeSlotManager::isExternalSlot(int ps, int ss, bool convert) const
 {
-	for (auto slot : xrange(MAX_SLOTS)) {
+	return ranges::any_of(xrange(MAX_SLOTS), [&](auto slot) {
 		int tmp = (convert && (slots[slot].ss == -1)) ? 0 : slots[slot].ss;
-		if (slots[slot].exists() &&
-		    (slots[slot].ps == ps) && (tmp == ss)) {
-			return true;
-		}
-	}
-	return false;
+		return slots[slot].exists() && (slots[slot].ps == ps) && (tmp == ss);
+	});
 }
 
 
@@ -313,8 +308,8 @@ void CartridgeSlotManager::CartCmd::execute(
 	}
 	if (tokens.size() == 1) {
 		// query name of cartridge
-		auto* extConf = getExtensionConfig(cartname);
-		result.addListElement(strCat(cartname, ':'),
+		const auto* extConf = getExtensionConfig(cartname);
+		result.addListElement(tmpStrCat(cartname, ':'),
 		                      extConf ? extConf->getName() : string{});
 		if (!extConf) {
 			TclObject options = makeTclList("empty");
@@ -369,25 +364,26 @@ void CartridgeSlotManager::CartCmd::execute(
 	}
 }
 
-string CartridgeSlotManager::CartCmd::help(const vector<string>& tokens) const
+string CartridgeSlotManager::CartCmd::help(span<const TclObject> tokens) const
 {
+	auto cart = tokens[0].getString();
 	return strCat(
-		tokens[0], " eject              : remove the ROM cartridge from this slot\n",
-		tokens[0], " insert <filename>  : insert ROM cartridge with <filename>\n",
-		tokens[0], " <filename>         : insert ROM cartridge with <filename>\n",
-		tokens[0], "                    : show which ROM cartridge is in this slot\n",
+		cart, " eject              : remove the ROM cartridge from this slot\n",
+		cart, " insert <filename>  : insert ROM cartridge with <filename>\n",
+		cart, " <filename>         : insert ROM cartridge with <filename>\n",
+		cart, "                    : show which ROM cartridge is in this slot\n",
 		"The following options are supported when inserting a cartridge:\n"
 		"-ips <filename>    : apply the given IPS patch to the ROM image\n"
 		"-romtype <romtype> : specify the ROM mapper type\n");
 }
 
-void CartridgeSlotManager::CartCmd::tabCompletion(vector<string>& tokens) const
+void CartridgeSlotManager::CartCmd::tabCompletion(std::vector<string>& tokens) const
 {
-	vector<const char*> extra;
-	if (tokens.size() < 3) {
-		extra = { "eject", "insert" };
-	}
-	completeFileName(tokens, userFileContext(), extra);
+	using namespace std::literals;
+	static constexpr std::array extra = {"eject"sv, "insert"sv};
+	completeFileName(tokens, userFileContext(),
+	                 (tokens.size() < 3) ? extra : span<const std::string_view>{});
+
 }
 
 bool CartridgeSlotManager::CartCmd::needRecord(span<const TclObject> tokens) const
@@ -451,7 +447,7 @@ void CartridgeSlotManager::CartridgeSlotInfo::execute(
 }
 
 string CartridgeSlotManager::CartridgeSlotInfo::help(
-	const vector<string>& /*tokens*/) const
+	span<const TclObject> /*tokens*/) const
 {
 	return "Without argument: show list of available external slots.\n"
 	       "With argument: show primary and secondary slot number for "

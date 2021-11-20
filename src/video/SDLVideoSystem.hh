@@ -32,30 +32,35 @@ public:
 	~SDLVideoSystem() override;
 
 	// VideoSystem interface:
-	std::unique_ptr<Rasterizer> createRasterizer(VDP& vdp) override;
-	std::unique_ptr<V9990Rasterizer> createV9990Rasterizer(
+	[[nodiscard]] std::unique_ptr<Rasterizer> createRasterizer(VDP& vdp) override;
+	[[nodiscard]] std::unique_ptr<V9990Rasterizer> createV9990Rasterizer(
 		V9990& vdp) override;
 #if COMPONENT_LASERDISC
 	std::unique_ptr<LDRasterizer> createLDRasterizer(
 		LaserdiscPlayer& ld) override;
 #endif
-	bool checkSettings() override;
+	[[nodiscard]] bool checkSettings() override;
 	void flush() override;
 	void takeScreenShot(const std::string& filename, bool withOsd) override;
 	void updateWindowTitle() override;
-	OutputSurface* getOutputSurface() override;
+	[[nodiscard]] gl::ivec2 getMouseCoord() override;
+	[[nodiscard]] OutputSurface* getOutputSurface() override;
 	void showCursor(bool show) override;
+	[[nodiscard]] bool getCursorEnabled() override;
+	[[nodiscard]] std::string getClipboardText() override;
+	void setClipboardText(zstring_view text) override;
 	void repaint() override;
 
 private:
 	// EventListener
-	int signalEvent(const std::shared_ptr<const Event>& event) override;
+	int signalEvent(const Event& event) noexcept override;
 	// Observer
-	void update(const Setting& subject) override;
+	void update(const Setting& subject) noexcept override;
 
-	gl::ivec2 getWindowSize();
+	[[nodiscard]] gl::ivec2 getWindowSize();
 	void resize();
 
+private:
 	Reactor& reactor;
 	Display& display;
 	RenderSettings& renderSettings;

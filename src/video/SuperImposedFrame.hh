@@ -14,7 +14,7 @@ namespace openmsx {
 class SuperImposedFrame : public FrameSource
 {
 public:
-	static std::unique_ptr<SuperImposedFrame> create(
+	[[nodiscard]] static std::unique_ptr<SuperImposedFrame> create(
 		const PixelFormat& format);
 	void init(const FrameSource* top, const FrameSource* bottom);
 	virtual ~SuperImposedFrame() = default;
@@ -22,6 +22,7 @@ public:
 protected:
 	explicit SuperImposedFrame(const PixelFormat& format);
 
+protected:
 	const FrameSource* top;
 	const FrameSource* bottom;
 };

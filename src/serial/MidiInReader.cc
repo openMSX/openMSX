@@ -9,8 +9,6 @@
 #include <cerrno>
 #include <cstring>
 
-using std::string;
-
 namespace openmsx {
 
 MidiInReader::MidiInReader(EventDistributor& eventDistributor_,
@@ -22,18 +20,18 @@ MidiInReader::MidiInReader(EventDistributor& eventDistributor_,
 		"filename of the file where the MIDI input is read from",
 		"/dev/midi")
 {
-	eventDistributor.registerEventListener(OPENMSX_MIDI_IN_READER_EVENT, *this);
+	eventDistributor.registerEventListener(EventType::MIDI_IN_READER, *this);
 }
 
 MidiInReader::~MidiInReader()
 {
-	eventDistributor.unregisterEventListener(OPENMSX_MIDI_IN_READER_EVENT, *this);
+	eventDistributor.unregisterEventListener(EventType::MIDI_IN_READER, *this);
 }
 
 // Pluggable
 void MidiInReader::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 {
-	file = FileOperations::openFile(string(readFilenameSetting.getString()), "rb");
+	file = FileOperations::openFile(readFilenameSetting.getString(), "rb");
 	if (!file) {
 		throw PlugException("Failed to open input: ", strerror(errno));
 	}
@@ -55,10 +53,9 @@ void MidiInReader::unplugHelper(EmuTime::param /*time*/)
 	file.reset();
 }
 
-const string& MidiInReader::getName() const
+std::string_view MidiInReader::getName() const
 {
-	static const string name("midi-in-reader");
-	return name;
+	return "midi-in-reader";
 }
 
 std::string_view MidiInReader::getDescription() const
@@ -71,7 +68,6 @@ std::string_view MidiInReader::getDescription() const
 
 void MidiInReader::run()
 {
-	byte buf;
 	if (!file) return;
 	while (true) {
 #ifndef _WIN32
@@ -79,6 +75,7 @@ void MidiInReader::run()
 			break;
 		}
 #endif
+		byte buf;
 		size_t num = fread(&buf, 1, 1, file.get());
 		if (poller.aborted()) {
 			break;
@@ -93,7 +90,7 @@ void MidiInReader::run()
 			queue.push_back(buf);
 		}
 		eventDistributor.distributeEvent(
-			std::make_shared<SimpleEvent>(OPENMSX_MIDI_IN_READER_EVENT));
+			Event::create<MidiInReaderEvent>());
 	}
 }
 
@@ -120,7 +117,7 @@ void MidiInReader::signal(EmuTime::param time)
 }
 
 // EventListener
-int MidiInReader::signalEvent(const std::shared_ptr<const Event>& /*event*/)
+int MidiInReader::signalEvent(const Event& /*event*/) noexcept
 {
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());

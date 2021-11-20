@@ -45,7 +45,12 @@ enum class ExecIRQ {
 	NONE, // about to execute regular instruction
 };
 
-template<class CPU_POLICY>
+struct CacheLines {
+	const byte** read;
+	      byte** write;
+};
+
+template<typename CPU_POLICY>
 class CPUCore final : public CPUBase, public CPURegs, public CPU_POLICY
 {
 public:
@@ -75,14 +80,14 @@ public:
 	void exitCPULoopAsync();
 
 	void warp(EmuTime::param time);
-	EmuTime::param getCurrentTime() const;
+	[[nodiscard]] EmuTime::param getCurrentTime() const;
 	void wait(EmuTime::param time);
 	EmuTime waitCycles(EmuTime::param time, unsigned cycles);
 	void setNextSyncPoint(EmuTime::param time);
-	auto getCacheLines() {
-		return std::pair(readCacheLine, writeCacheLine);
+	[[nodiscard]] CacheLines getCacheLines() {
+		return {readCacheLine, writeCacheLine};
 	}
-	bool isM1Cycle(unsigned address) const;
+	[[nodiscard]] bool isM1Cycle(unsigned address) const;
 
 	void disasmCommand(Interpreter& interp,
 	                   span<const TclObject> tokens,
@@ -122,13 +127,14 @@ public:
 
 private:
 	void execute2(bool fastForward);
-	bool needExitCPULoop();
+	[[nodiscard]] bool needExitCPULoop();
 	void setSlowInstructions();
 	void doSetFreq();
 
 	// Observer<Setting>  !! non-virtual !!
-	void update(const Setting& setting);
+	void update(const Setting& setting) noexcept;
 
+private:
 	// memory cache
 	const byte* readCacheLine[CacheLine::NUM];
 	byte* writeCacheLine[CacheLine::NUM];
@@ -167,7 +173,7 @@ private:
 	/** 'normal' Z80 and Z80 in a turboR behave slightly different */
 	const bool isTurboR;
 
-
+private:
 	inline void cpuTracePre();
 	inline void cpuTracePost();
 	void cpuTracePost_slow();
@@ -218,11 +224,11 @@ private:
 	inline void irq0();
 	inline void irq1();
 	inline void irq2();
-	ExecIRQ getExecIRQ() const;
+	[[nodiscard]] ExecIRQ getExecIRQ() const;
 	void executeSlow(ExecIRQ execIRQ);
 
-	template<Reg8>  inline byte     get8()  const;
-	template<Reg16> inline unsigned get16() const;
+	template<Reg8>  [[nodiscard]] inline byte     get8()  const;
+	template<Reg16> [[nodiscard]] inline unsigned get16() const;
 	template<Reg8>  inline void set8 (byte     x);
 	template<Reg16> inline void set16(unsigned x);
 

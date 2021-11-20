@@ -44,6 +44,7 @@
 #include "cstd.hh"
 #include "outer.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <array>
 #include <cmath>
 #include <cstring>
@@ -51,7 +52,7 @@
 
 namespace openmsx {
 
-static inline YMF262::FreqIndex fnumToIncrement(unsigned block_fnum)
+[[nodiscard]] static constexpr YMF262::FreqIndex fnumToIncrement(unsigned block_fnum)
 {
 	// opn phase increment counter = 20bit
 	// chip works with 10.10 fixed point, while we use 16.16
@@ -92,7 +93,7 @@ constexpr int slot_array[32] = {
 // table is 3dB/octave , DV converts this into 6dB/octave
 // 0.1875 is bit 0 weight of the envelope counter (volume) expressed
 // in the 'decibel' scale
-static constexpr int DV(double x) { return int(x / (0.1875 / 2.0)); }
+[[nodiscard]] static constexpr int DV(double x) { return int(x / (0.1875 / 2.0)); }
 constexpr unsigned ksl_tab[8 * 16] = {
 	// OCT 0
 	DV( 0.000), DV( 0.000), DV( 0.000), DV( 0.000),
@@ -138,7 +139,7 @@ constexpr unsigned ksl_tab[8 * 16] = {
 
 // sustain level table (3dB per step)
 // 0 - 15: 0, 3, 6, 9,12,15,18,21,24,27,30,33,36,39,42,93 (dB)
-static constexpr unsigned SC(int db) { return unsigned(db * (2.0 / ENV_STEP)); }
+[[nodiscard]] static constexpr unsigned SC(int db) { return unsigned(db * (2.0 / ENV_STEP)); }
 constexpr unsigned sl_tab[16] = {
 	SC( 0), SC( 1), SC( 2), SC(3 ), SC(4 ), SC(5 ), SC(6 ), SC( 7),
 	SC( 8), SC( 9), SC(10), SC(11), SC(12), SC(13), SC(14), SC(31)
@@ -170,7 +171,7 @@ constexpr byte eg_inc[15 * RATE_STEPS] = {
 
 
 // note that there is no O(13) in this table - it's directly in the code
-static constexpr byte O(int a) { return a * RATE_STEPS; }
+[[nodiscard]] static constexpr byte O(int a) { return a * RATE_STEPS; }
 constexpr byte eg_rate_select[16 + 64 + 16] = {
 	// Envelope Generator rates (16 + 64 rates + 16 RKS)
 	// 16 infinite time rates
@@ -241,7 +242,7 @@ constexpr byte eg_rate_shift[16 + 64 + 16] =
 
 
 // multiple table
-static constexpr byte ML(double x) { return byte(2 * x); }
+[[nodiscard]] static constexpr byte ML(double x) { return byte(2 * x); }
 constexpr byte mul_tab[16] = {
 	// 1/2, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,10,12,12,15,15
 	ML( 0.5), ML( 1.0), ML( 2.0), ML( 3.0),
@@ -367,7 +368,7 @@ constexpr int ENV_QUIET = TL_TAB_LEN >> 4;
 constexpr auto tlTab = [] {
 	std::array<int, TL_TAB_LEN> result = {};
 	// this _is_ different from OPL2 (verified on real YMF262)
-	for (int x = 0; x < TL_RES_LEN; x++) {
+	for (auto x : xrange(TL_RES_LEN)) {
 		double m = (1 << 16) / cstd::exp2<6>((x + 1) * (ENV_STEP / 4.0) / 8.0);
 
 		// we never reach (1<<16) here due to the (x+1)
@@ -380,7 +381,7 @@ constexpr auto tlTab = [] {
 		result[x * 2 + 0] = n;
 		result[x * 2 + 1] = ~result[x * 2 + 0];
 
-		for (int i = 1; i < 13; i++) {
+		for (int i : xrange(1, 13)) {
 			result[x * 2 + 0 + i * 2 * TL_RES_LEN] =
 			        result[x * 2 + 0] >> i;
 			result[x * 2 + 1 + i * 2 * TL_RES_LEN] =
@@ -401,7 +402,7 @@ static constexpr SinTab getSinTab()
 {
 	SinTab sin = {};
 
-	for (int i = 0; i < SIN_LEN / 4; i++) {
+	for (auto i : xrange(SIN_LEN / 4)) {
 		// non-standard sinus
 		double m = cstd::sin<2>(((i * 2) + 1) * M_PI / SIN_LEN); // checked against the real chip
 		// we never reach zero here due to ((i * 2) + 1)
@@ -412,14 +413,14 @@ static constexpr SinTab getSinTab()
 		n = (n >> 1) + (n & 1); // round to nearest
 		sin.tab[i] = 2 * n;
 	}
-	for (int i = 0; i < SIN_LEN / 4; i++) {
+	for (auto i : xrange(SIN_LEN / 4)) {
 		sin.tab[SIN_LEN / 2 - 1 - i] = sin.tab[i];
 	}
-	for (int i = 0; i < SIN_LEN / 2; i++) {
+	for (auto i : xrange(SIN_LEN / 2)) {
 		sin.tab[SIN_LEN / 2 + i] = sin.tab[i] + 1;
 	}
 
-	for (int i = 0; i < SIN_LEN; ++i) {
+	for (auto i : xrange(SIN_LEN)) {
 		// these 'pictures' represent _two_ cycles
 		// waveform 1:  __      __
 		//             /  \____/  \____
@@ -575,7 +576,7 @@ void YMF262::Slot::advanceEnvelopeGenerator(unsigned egCnt)
 
 	case EG_SUSTAIN:
 		// this is important behaviour:
-		// one can change percusive/non-percussive
+		// one can change percussive/non-percussive
 		// modes on the fly and the chip will remain
 		// in sustain phase - verified on real YM3812
 		if (eg_type) {
@@ -942,7 +943,7 @@ void YMF262::Slot::calc_fc(const Channel& ch)
 	update_rr();
 }
 
-constexpr unsigned channelPairTab[18] = {
+static constexpr unsigned channelPairTab[18] = {
 	0,  1,  2,  0,  1,  2, unsigned(~0), unsigned(~0), unsigned(~0),
 	9, 10, 11,  9, 10, 11, unsigned(~0), unsigned(~0), unsigned(~0),
 };
@@ -953,7 +954,7 @@ inline bool YMF262::isExtended(unsigned ch) const
 	if (channelPairTab[ch] == unsigned(~0)) return false;
 	return channel[channelPairTab[ch]].extended;
 }
-static inline unsigned getFirstOfPairNum(unsigned ch)
+static constexpr unsigned getFirstOfPairNum(unsigned ch)
 {
 	assert((ch < 18) && (channelPairTab[ch] != unsigned(~0)));
 	return channelPairTab[ch];
@@ -1271,7 +1272,7 @@ void YMF262::writeRegDirect(unsigned r, byte v, EmuTime::param time)
 			ch.kcode = (ch.block_fnum & 0x1C00) >> 9;
 
 			// the info below is actually opposite to what is stated
-			// in the Manuals (verifed on real YMF262)
+			// in the Manuals (verified on real YMF262)
 			// if notesel == 0 -> lsb of kcode is bit 10 (MSB) of fnum
 			// if notesel == 1 -> lsb of kcode is bit 9 (MSB-1) of fnum
 			if (nts) {
@@ -1475,9 +1476,9 @@ YMF262::YMF262(const std::string& name_,
 	// For debugging: print out tables to be able to compare before/after
 	// when the calculation changes.
 	if (false) {
-		for (auto& e : tlTab) std::cout << e << '\n';
+		for (const auto& e : tlTab) std::cout << e << '\n';
 		std::cout << '\n';
-		for (auto& e : sin.tab) std::cout << e << '\n';
+		for (const auto& e : sin.tab) std::cout << e << '\n';
 	}
 
 	registerSound(config);
@@ -1545,15 +1546,13 @@ void YMF262::generateChannels(float** bufs, unsigned num)
 	// TODO output rhythm on separate channels?
 	if (checkMuteHelper()) {
 		// TODO update internal state, even if muted
-		for (int i = 0; i < 18; ++i) {
-			bufs[i] = nullptr;
-		}
+		std::fill_n(bufs, 18, nullptr);
 		return;
 	}
 
 	bool rhythmEnabled = (rhythm & 0x20) != 0;
 
-	for (unsigned j = 0; j < num; ++j) {
+	for (auto j : xrange(num)) {
 		// Amplitude modulation: 27 output levels (triangle waveform);
 		// 1 level takes one of: 192, 256 or 448 samples
 		// One entry from LFO_AM_TABLE lasts for 64 samples
@@ -1571,7 +1570,7 @@ void YMF262::generateChannels(float** bufs, unsigned num)
 		// channels 0,3 1,4 2,5  9,12 10,13 11,14
 		// in either 2op or 4op mode
 		for (int k = 0; k <= 9; k += 9) {
-			for (int i = 0; i < 3; ++i) {
+			for (auto i : xrange(3)) {
 				auto& ch0 = channel[k + i + 0];
 				auto& ch3 = channel[k + i + 3];
 				// extended 4op ch#0 part 1 or 2op ch#0
@@ -1601,7 +1600,7 @@ void YMF262::generateChannels(float** bufs, unsigned num)
 		channel[16].chan_calc(lfo_am);
 		channel[17].chan_calc(lfo_am);
 
-		for (int i = 0; i < 18; ++i) {
+		for (auto i : xrange(18)) {
 			bufs[i][2 * j + 0] += int(chanout[i] & pan[4 * i + 0]);
 			bufs[i][2 * j + 1] += int(chanout[i] & pan[4 * i + 1]);
 			// unused c        += int(chanout[i] & pan[4 * i + 2]);
@@ -1613,7 +1612,7 @@ void YMF262::generateChannels(float** bufs, unsigned num)
 }
 
 
-static std::initializer_list<enum_string<YMF262::EnvelopeState>> envelopeStateInfo = {
+static constexpr std::initializer_list<enum_string<YMF262::EnvelopeState>> envelopeStateInfo = {
 	{ "ATTACK",  YMF262::EG_ATTACK  },
 	{ "DECAY",   YMF262::EG_DECAY   },
 	{ "SUSTAIN", YMF262::EG_SUSTAIN },
@@ -1628,7 +1627,7 @@ void YMF262::Slot::serialize(Archive& a, unsigned /*version*/)
 	// wavetable
 	auto waveform = unsigned((wavetable - sin.tab) / SIN_LEN);
 	a.serialize("waveform", waveform);
-	if (a.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		wavetable = &sin.tab[waveform * SIN_LEN];
 	}
 
@@ -1703,7 +1702,7 @@ void YMF262::serialize(Archive& a, unsigned version)
 	if (a.versionAtLeast(version, 2)) {
 		a.serialize("alreadySignaledNEW2", alreadySignaledNEW2);
 	} else {
-		assert(a.isLoader());
+		assert(Archive::IS_LOADER);
 		alreadySignaledNEW2 = true; // we can't know the actual value,
 									// but 'true' is the safest value
 	}
@@ -1711,7 +1710,7 @@ void YMF262::serialize(Archive& a, unsigned version)
 	// TODO restore more state by rewriting register values
 	//   this handles pan
 	EmuTime::param time = timer1->getCurrentTime();
-	for (int i = 0xC0; i <= 0xC8; ++i) {
+	for (auto i : xrange(0xC0, 0xC9)) {
 		writeRegDirect(i + 0x000, reg[i + 0x000], time);
 		writeRegDirect(i + 0x100, reg[i + 0x100], time);
 	}

@@ -38,7 +38,7 @@
 
 
 #ifdef __APPLE__
-#include <Carbon/Carbon.h>
+#include "FileOperationsMac.hh"
 #endif
 
 #include "ReadDir.hh"
@@ -76,135 +76,24 @@ using namespace utf8;
 
 namespace openmsx::FileOperations {
 
-#ifdef __APPLE__
-
-static std::string findShareDir()
+bool needsTildeExpansion(std::string_view path)
 {
-	// Find bundle location:
-	// for an app folder, this is the outer directory,
-	// for an unbundled executable, it is the executable itself.
-	ProcessSerialNumber psn;
-	if (GetCurrentProcess(&psn) != noErr) {
-		throw FatalError("Failed to get process serial number");
-	}
-	FSRef location;
-	if (GetProcessBundleLocation(&psn, &location) != noErr) {
-		throw FatalError("Failed to get process bundle location");
-	}
-	// Get info about the location.
-	FSCatalogInfo catalogInfo;
-	FSRef parentRef;
-	if (FSGetCatalogInfo(
-		&location, kFSCatInfoVolume | kFSCatInfoNodeFlags,
-		&catalogInfo, nullptr, nullptr, &parentRef
-		) != noErr) {
-		throw FatalError("Failed to get info about bundle path");
-	}
-	// Get reference to root directory of the volume we are searching.
-	// We will need this later to know when to give up.
-	FSRef root;
-	if (FSGetVolumeInfo(
-		catalogInfo.volume, 0, nullptr, kFSVolInfoNone, nullptr, nullptr, &root
-		) != noErr) {
-		throw FatalError("Failed to get reference to root directory");
-	}
-	// Make sure we are looking at a directory.
-	if (~catalogInfo.nodeFlags & kFSNodeIsDirectoryMask) {
-		// Location is not a directory, so it is the path to the executable.
-		location = parentRef;
-	}
-	while (true) {
-		// Iterate through the files in the directory.
-		FSIterator iterator;
-		if (FSOpenIterator(&location, kFSIterateFlat, &iterator) != noErr) {
-			throw FatalError("Failed to open iterator");
-		}
-		bool filesLeft = true; // iterator has files left for next call
-		while (filesLeft) {
-			// Get info about several files at a time.
-			const int MAX_SCANNED_FILES = 100;
-			ItemCount actualObjects;
-			FSRef refs[MAX_SCANNED_FILES];
-			FSCatalogInfo catalogInfos[MAX_SCANNED_FILES];
-			HFSUniStr255 names[MAX_SCANNED_FILES];
-			OSErr err = FSGetCatalogInfoBulk(
-				iterator,
-				MAX_SCANNED_FILES,
-				&actualObjects,
-				nullptr /*containerChanged*/,
-				kFSCatInfoNodeFlags,
-				catalogInfos,
-				refs,
-				nullptr /*specs*/,
-				names
-				);
-			if (err == errFSNoMoreItems) {
-				filesLeft = false;
-			} else if (err != noErr) {
-				throw FatalError("Catalog get failed");
-			}
-			for (ItemCount i = 0; i < actualObjects; i++) {
-				// We're only interested in subdirectories.
-				if (catalogInfos[i].nodeFlags & kFSNodeIsDirectoryMask) {
-					// Convert the name to a CFString.
-					CFStringRef name = CFStringCreateWithCharactersNoCopy(
-						kCFAllocatorDefault,
-						names[i].unicode,
-						names[i].length,
-						kCFAllocatorNull // do not deallocate character buffer
-						);
-					// Is this the directory we are looking for?
-					static const CFStringRef SHARE = CFSTR("share");
-					CFComparisonResult cmp = CFStringCompare(SHARE, name, 0);
-					CFRelease(name);
-					if (cmp == kCFCompareEqualTo) {
-						// Clean up.
-						OSErr closeErr = FSCloseIterator(iterator);
-						assert(closeErr == noErr); (void)closeErr;
-						// Get full path of directory.
-						UInt8 path[256];
-						if (FSRefMakePath(
-							&refs[i], path, sizeof(path)) != noErr
-							) {
-							throw FatalError("Path too long");
-						}
-						return std::string(reinterpret_cast<char*>(path));
-					}
-				}
-			}
-		}
-		OSErr closeErr = FSCloseIterator(iterator);
-		assert(closeErr == noErr); (void)closeErr;
-		// Are we in the root yet?
-		if (FSCompareFSRefs(&location, &root) == noErr) {
-			throw FatalError("Could not find \"share\" directory anywhere");
-		}
-		// Go up one level.
-		if (FSGetCatalogInfo(
-			&location, kFSCatInfoNone, nullptr, nullptr, nullptr, &parentRef
-			) != noErr
-		) {
-			throw FatalError("Failed to get parent directory");
-		}
-		location = parentRef;
-	}
+	return !path.empty() && (path[0] == '~');
 }
 
-#endif // __APPLE__
-
-string expandTilde(string_view path)
+string expandTilde(string path)
 {
-	if (path.empty() || path[0] != '~') {
-		return string(path);
+	if (!needsTildeExpansion(path)) {
+		return path;
 	}
 	auto pos = path.find_first_of('/');
 	string_view user = ((path.size() == 1) || (pos == 1))
 	                ? string_view{}
-	                : path.substr(1, (pos == string_view::npos) ? pos : pos - 1);
+	                : string_view(path).substr(1, (pos == string::npos) ? pos : pos - 1);
 	string result = getUserHomeDir(user);
 	if (result.empty()) {
 		// failed to find homedir, return the path unchanged
-		return string(path);
+		return path;
 	}
 	if (pos == string_view::npos) {
 		return result;
@@ -212,12 +101,12 @@ string expandTilde(string_view path)
 	if (result.back() != '/') {
 		result += '/';
 	}
-	string_view last = path.substr(pos + 1);
+	string_view last = string_view(path).substr(pos + 1);
 	result.append(last.data(), last.size());
 	return result;
 }
 
-void mkdir(const string& path, mode_t mode)
+void mkdir(zstring_view path, mode_t mode)
 {
 #ifdef _WIN32
 	(void)&mode; // Suppress C4100 VC++ warning
@@ -226,7 +115,7 @@ void mkdir(const string& path, mode_t mode)
 		StringOp::endsWith(path, ":/")) {
 		return;
 	}
-	int result = _wmkdir(utf8to16(getNativePath(path)).c_str());
+	int result = _wmkdir(utf8to16(getNativePath(string(path))).c_str());
 #else
 	int result = ::mkdir(path.c_str(), mode);
 #endif
@@ -245,14 +134,14 @@ static bool isUNCPath(string_view path)
 #endif
 }
 
-void mkdirp(string_view path_)
+void mkdirp(string path)
 {
-	if (path_.empty()) {
+	if (path.empty()) {
 		return;
 	}
 
 	// We may receive platform-specific paths here, so conventionalize early
-	string path = getConventionalPath(expandTilde(path_));
+	path = getConventionalPath(std::move(path));
 
 	// If the directory already exists, don't try to recreate it
 	if (isDirectory(path))
@@ -279,7 +168,7 @@ void mkdirp(string_view path_)
 	}
 }
 
-int unlink(const std::string& path)
+int unlink(zstring_view path)
 {
 #ifdef _WIN32
 	return _wunlink(utf8to16(path).c_str());
@@ -288,7 +177,7 @@ int unlink(const std::string& path)
 #endif
 }
 
-int rmdir(const std::string& path)
+int rmdir(zstring_view path)
 {
 #ifdef _WIN32
 	return _wrmdir(utf8to16(path).c_str());
@@ -298,21 +187,21 @@ int rmdir(const std::string& path)
 }
 
 #ifdef _WIN32
-int deleteRecursive(const std::string& path)
+int deleteRecursive(zstring_view path)
 {
 	std::wstring pathW = utf8to16(path);
 
-	SHFILEOPSTRUCTW rmdirFileop;
-	rmdirFileop.hwnd = nullptr;
-	rmdirFileop.wFunc = FO_DELETE;
-	rmdirFileop.pFrom = pathW.c_str();
-	rmdirFileop.pTo = nullptr;
-	rmdirFileop.fFlags = FOF_SILENT | FOF_NOCONFIRMATION | FOF_NOERRORUI;
-	rmdirFileop.fAnyOperationsAborted = FALSE;
-	rmdirFileop.hNameMappings = nullptr;
-	rmdirFileop.lpszProgressTitle = nullptr;
+	SHFILEOPSTRUCTW rmdirFileOp;
+	rmdirFileOp.hwnd = nullptr;
+	rmdirFileOp.wFunc = FO_DELETE;
+	rmdirFileOp.pFrom = pathW.c_str();
+	rmdirFileOp.pTo = nullptr;
+	rmdirFileOp.fFlags = FOF_SILENT | FOF_NOCONFIRMATION | FOF_NOERRORUI;
+	rmdirFileOp.fAnyOperationsAborted = FALSE;
+	rmdirFileOp.hNameMappings = nullptr;
+	rmdirFileOp.lpszProgressTitle = nullptr;
 
-	return SHFileOperationW(&rmdirFileop);
+	return SHFileOperationW(&rmdirFileOp);
 }
 #elif HAVE_NFTW
 static int deleteRecursive_cb(const char* fpath, const struct stat* /*sb*/,
@@ -320,7 +209,7 @@ static int deleteRecursive_cb(const char* fpath, const struct stat* /*sb*/,
 {
 	return remove(fpath);
 }
-int deleteRecursive(const std::string& path)
+int deleteRecursive(zstring_view path)
 {
 	return nftw(path.c_str(), deleteRecursive_cb, 64, FTW_DEPTH | FTW_PHYS);
 }
@@ -350,7 +239,7 @@ int deleteRecursive(const std::string& path)
 }
 #endif
 
-FILE_t openFile(const std::string& filename, const std::string& mode)
+FILE_t openFile(zstring_view filename, zstring_view mode)
 {
 	// Mode must contain a 'b' character. On unix this doesn't make any
 	// difference. But on windows this is required to open the file
@@ -364,7 +253,7 @@ FILE_t openFile(const std::string& filename, const std::string& mode)
 #endif
 }
 
-void openofstream(std::ofstream& stream, const std::string& filename)
+void openofstream(std::ofstream& stream, zstring_view filename)
 {
 #if defined _WIN32 && defined _MSC_VER
 	// MinGW 3.x doesn't support ofstream.open(wchar_t*)
@@ -375,8 +264,8 @@ void openofstream(std::ofstream& stream, const std::string& filename)
 #endif
 }
 
-void openofstream(std::ofstream& stream, const std::string& filename,
-				  std::ios_base::openmode mode)
+void openofstream(std::ofstream& stream, zstring_view filename,
+                  std::ios_base::openmode mode)
 {
 #if defined _WIN32 && defined _MSC_VER
 	// MinGW 3.x doesn't support ofstream.open(wchar_t*)
@@ -441,16 +330,13 @@ string join(string_view part1, string_view part2,
 	return join(part1, join(part2, join(part3, part4)));
 }
 
-string getNativePath(string_view path)
-{
-	string result(path);
 #ifdef _WIN32
-	ranges::replace(result, '/', '\\');
-#endif
-	return result;
+string getNativePath(string path)
+{
+	ranges::replace(path, '/', '\\');
+	return path;
 }
 
-#ifdef _WIN32
 string getConventionalPath(string path)
 {
 	ranges::replace(path, '\\', '/');
@@ -484,8 +370,7 @@ string getAbsolutePath(string_view path)
 	if (isAbsolutePath(path)) {
 		return string(path);
 	}
-	string currentDir = getCurrentWorkingDirectory();
-	return join(currentDir, path);
+	return join(getCurrentWorkingDirectory(), path);
 }
 
 bool isAbsolutePath(string_view path)
@@ -534,58 +419,66 @@ string getUserHomeDir(string_view username)
 
 const string& getUserOpenMSXDir()
 {
+	static const string OPENMSX_DIR = []() -> string {
+		if (const char* home = getenv("OPENMSX_HOME")) {
+			return home;
+		}
 #ifdef _WIN32
-	static const string OPENMSX_DIR = expandTilde("~/openMSX");
+		return expandTilde("~/openMSX");
 #elif PLATFORM_ANDROID
-	// TODO: do something to query whether the storage is available
-	// via SDL_AndroidGetExternalStorageState
-	static const string OPENMSX_DIR = strCat(SDL_AndroidGetExternalStoragePath(), "/openMSX");
+		// TODO: do something to query whether the storage is available
+		// via SDL_AndroidGetExternalStorageState
+		return strCat(SDL_AndroidGetExternalStoragePath(), "/openMSX");
 #else
-	static const string OPENMSX_DIR = expandTilde("~/.openMSX");
+		return expandTilde("~/.openMSX");
 #endif
+	}();
 	return OPENMSX_DIR;
 }
 
-string getUserDataDir()
+const string& getUserDataDir()
 {
-	const char* const NAME = "OPENMSX_USER_DATA";
-	char* value = getenv(NAME);
-	return value ? value : getUserOpenMSXDir() + "/share";
+	static std::optional<string> result;
+	if (!result) {
+		const char* const NAME = "OPENMSX_USER_DATA";
+		char* value = getenv(NAME);
+		result = value ? value : getUserOpenMSXDir() + "/share";
+	}
+	return *result;
 }
 
-string getSystemDataDir()
+const string& getSystemDataDir()
 {
-	const char* const NAME = "OPENMSX_SYSTEM_DATA";
-	if (char* value = getenv(NAME)) {
-		return value;
-	}
-
-	string newValue;
+	static std::optional<string> result;
+	if (!result) result = []() -> string {
+		if (char* value = getenv("OPENMSX_SYSTEM_DATA")) {
+			return value;
+		}
 #ifdef _WIN32
-	wchar_t bufW[MAXPATHLEN + 1];
-	int res = GetModuleFileNameW(nullptr, bufW, std::size(bufW));
-	if (!res) {
-		throw FatalError(
-			"Cannot detect openMSX directory. GetModuleFileNameW failed: ",
-			GetLastError());
-	}
+		wchar_t bufW[MAXPATHLEN + 1];
+		int res = GetModuleFileNameW(nullptr, bufW, DWORD(std::size(bufW)));
+		if (!res) {
+			throw FatalError(
+				"Cannot detect openMSX directory. GetModuleFileNameW failed: ",
+				GetLastError());
+		}
 
-	string filename = utf16to8(bufW);
-	auto pos = filename.find_last_of('\\');
-	if (pos == string::npos) {
-		throw FatalError("openMSX is not in directory!?");
-	}
-	newValue = getConventionalPath(filename.substr(0, pos)) + "/share";
+		string filename = utf16to8(bufW);
+		auto pos = filename.find_last_of('\\');
+		if (pos == string::npos) {
+			throw FatalError("openMSX is not in directory!?");
+		}
+		return getConventionalPath(filename.substr(0, pos)) + "/share";
 #elif defined(__APPLE__)
-	newValue = findShareDir();
+		return findShareDir();
 #elif PLATFORM_ANDROID
-	newValue = getAbsolutePath("openmsx_system");
-	ad_printf("System data dir: %s", newValue.c_str());
+		return getAbsolutePath("openmsx_system");
 #else
-	// defined in build-info.hh (default /opt/openMSX/share)
-	newValue = DATADIR;
+		// defined in build-info.hh (default /opt/openMSX/share)
+		return DATADIR;
 #endif
-	return newValue;
+	}();
+	return *result;
 }
 
 #ifdef _WIN32
@@ -596,10 +489,10 @@ static bool driveExists(char driveLetter)
 }
 #endif
 
-string expandCurrentDirFromDrive(string_view path)
-{
-	string result(path);
 #ifdef _WIN32
+string expandCurrentDirFromDrive(string path)
+{
+	string result = path;
 	if (((path.size() == 2) && (path[1] == ':')) ||
 		((path.size() >= 3) && (path[1] == ':') && (path[2] != '/'))) {
 		// get current directory for this drive
@@ -619,14 +512,14 @@ string expandCurrentDirFromDrive(string_view path)
 			}
 		}
 	}
-#endif
 	return result;
 }
+#endif
 
-bool getStat(const std::string& filename, Stat& st)
+bool getStat(zstring_view filename, Stat& st)
 {
 #ifdef _WIN32
-	std::string filename2 = filename;
+	std::string filename2(filename);
 	// workaround for VC++: strip trailing slashes (but keep it if it's the
 	// only character in the path)
 	if (auto pos = filename2.find_last_not_of('/'); pos != string::npos) {
@@ -645,7 +538,7 @@ bool isRegularFile(const Stat& st)
 {
 	return S_ISREG(st.st_mode);
 }
-bool isRegularFile(const std::string& filename)
+bool isRegularFile(zstring_view filename)
 {
 	Stat st;
 	return getStat(filename, st) && isRegularFile(st);
@@ -656,21 +549,16 @@ bool isDirectory(const Stat& st)
 	return S_ISDIR(st.st_mode);
 }
 
-bool isDirectory(const std::string& directory)
+bool isDirectory(zstring_view directory)
 {
 	Stat st;
 	return getStat(directory, st) && isDirectory(st);
 }
 
-bool exists(const std::string& filename)
+bool exists(zstring_view filename)
 {
 	Stat st; // dummy
 	return getStat(filename, st);
-}
-
-time_t getModificationDate(const Stat& st)
-{
-	return st.st_mtime;
 }
 
 static unsigned getNextNum(dirent* d, string_view prefix, string_view extension,
@@ -685,11 +573,10 @@ static unsigned getNextNum(dirent* d, string_view prefix, string_view extension,
 	    (name.substr(prefixLen + nofdigits, extensionLen) != extension)) {
 		return 0;
 	}
-	try {
-		return StringOp::fast_stou(name.substr(prefixLen, nofdigits));
-	} catch (std::invalid_argument&) {
-		return 0;
+	if (auto n = StringOp::stringToBase<10, unsigned>(name.substr(prefixLen, nofdigits))) {
+		return *n;
 	}
+	return 0;
 }
 
 string getNextNumberedFileName(
@@ -735,7 +622,7 @@ string parseCommandFileArgument(
 		mkdirp(dir);
 		filename = strCat(dir, '/', filename);
 	} else {
-		filename = expandTilde(filename);
+		filename = expandTilde(std::move(filename));
 	}
 
 	if (!StringOp::endsWith(filename, extension) &&
@@ -796,7 +683,7 @@ FILE_t openUniqueFile(const std::string& directory, std::string& filename)
 	int fd = mkstemp(const_cast<char*>(filename.c_str()));
 	umask(oldMask);
 	if (fd == -1) {
-		throw FileException("Coundn't get temp file name");
+		throw FileException("Couldnt get temp file name");
 	}
 	return FILE_t(fdopen(fd, "wb"));
 #endif

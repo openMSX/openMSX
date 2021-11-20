@@ -56,14 +56,14 @@ public:
 	}
 
 	/** Has 'time' advanced to or past 'limit'? */
-	inline bool limitReached() const {
+	[[nodiscard]] inline bool limitReached() const {
 		return ticks >= limit;
 	}
 
 	/** Get the current time. Initially this will return the 'time'
 	  * constructor parameter. Each call to next() will increase this
 	  * value. */
-	inline EmuTime getTime() const {
+	[[nodiscard]] inline EmuTime getTime() const {
 		return ref.getFastAdd(ticks);
 	}
 
@@ -88,12 +88,12 @@ private:
 /** Return the time of the next available access slot that is at least 'delta'
   * cycles later than 'time'. The start of the current 'frame' is needed for
   * reference. */
-EmuTime getAccessSlot(EmuTime::param frame, EmuTime::param time, Delta delta,
+[[nodiscard]] EmuTime getAccessSlot(EmuTime::param frame, EmuTime::param time, Delta delta,
                       const VDP& vdp);
 
 /** When many calls to getAccessSlot() are needed, it's more efficient to
   * instead use this function. */
-Calculator getCalculator(
+[[nodiscard]] Calculator getCalculator(
 	EmuTime::param frame, EmuTime::param time, EmuTime::param limit,
 	const VDP& vdp);
 

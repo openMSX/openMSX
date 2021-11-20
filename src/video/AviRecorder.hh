@@ -29,7 +29,7 @@ public:
 	void addWave(unsigned num, float* data);
 	void addImage(FrameSource* frame, EmuTime::param time);
 	void stop();
-	unsigned getFrameHeight() const;
+	[[nodiscard]] unsigned getFrameHeight() const;
 
 private:
 	void start(bool recordAudio, bool recordVideo, bool recordMono,
@@ -40,12 +40,13 @@ private:
 	void processStop  (span<const TclObject> tokens);
 	void processToggle(Interpreter& interp, span<const TclObject> tokens, TclObject& result);
 
+private:
 	Reactor& reactor;
 
 	struct Cmd final : Command {
 		explicit Cmd(CommandController& commandController);
 		void execute(span<const TclObject> tokens, TclObject& result) override;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} recordCommand;
 

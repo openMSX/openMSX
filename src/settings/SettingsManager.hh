@@ -10,8 +10,8 @@
 
 namespace openmsx {
 
+class SettingsConfig;
 class GlobalCommandController;
-class XMLElement;
 
 /** Manages all settings.
   */
@@ -27,29 +27,30 @@ public:
 	/** Find the setting with given name.
 	  * @return The requested setting or nullptr.
 	  */
-	BaseSetting* findSetting(std::string_view name) const;
-	BaseSetting* findSetting(std::string_view prefix, std::string_view baseName) const;
+	[[nodiscard]] BaseSetting* findSetting(std::string_view name) const;
+	[[nodiscard]] BaseSetting* findSetting(std::string_view prefix, std::string_view baseName) const;
 
-	void loadSettings(const XMLElement& config);
+	void loadSettings(const SettingsConfig& config);
 
 	void registerSetting  (BaseSetting& setting);
 	void unregisterSetting(BaseSetting& setting);
 
 private:
-	BaseSetting& getByName(std::string_view cmd, std::string_view name) const;
-	std::vector<std::string> getTabSettingNames() const;
+	[[nodiscard]] BaseSetting& getByName(std::string_view cmd, std::string_view name) const;
+	[[nodiscard]] std::vector<std::string> getTabSettingNames() const;
 
+private:
 	struct SettingInfo final : InfoTopic {
 		explicit SettingInfo(InfoCommand& openMSXInfoCommand);
 		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} settingInfo;
 
 	struct SetCompleter final : CommandCompleter {
 		explicit SetCompleter(CommandController& commandController);
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} setCompleter;
 
@@ -58,7 +59,7 @@ private:
 		SettingCompleter(CommandController& commandController,
 				 SettingsManager& manager,
 				 const std::string& name);
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	private:
 		SettingsManager& manager;
@@ -67,7 +68,7 @@ private:
 	SettingCompleter unsetCompleter;
 
 	struct NameFromSetting {
-		const TclObject& operator()(BaseSetting* s) const {
+		[[nodiscard]] const TclObject& operator()(BaseSetting* s) const {
 			return s->getFullNameObj();
 		}
 	};

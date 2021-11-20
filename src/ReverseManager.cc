@@ -1,4 +1,5 @@
 #include "ReverseManager.hh"
+#include "Event.hh"
 #include "MSXMotherBoard.hh"
 #include "EventDistributor.hh"
 #include "StateChangeDistributor.hh"
@@ -27,11 +28,6 @@
 #include <cassert>
 #include <cmath>
 #include <iomanip>
-
-using std::string;
-using std::vector;
-using std::shared_ptr;
-using std::move;
 
 namespace openmsx {
 
@@ -80,7 +76,7 @@ struct Replay
 		} else {
 			Reactor::Board newBoard = reactor.createEmptyMotherBoard();
 			ar.serialize("snapshot", *newBoard);
-			motherBoards.push_back(move(newBoard));
+			motherBoards.push_back(std::move(newBoard));
 		}
 
 		ar.serialize("events", *events);
@@ -88,7 +84,7 @@ struct Replay
 		if (ar.versionAtLeast(version, 3)) {
 			ar.serialize("currentTime", currentTime);
 		} else {
-			assert(ar.isLoader());
+			assert(Archive::IS_LOADER);
 			assert(!events->empty());
 			currentTime = events->back()->getTime();
 		}
@@ -103,7 +99,7 @@ SERIALIZE_CLASS_VERSION(Replay, 4);
 
 // struct ReverseHistory
 
-void ReverseManager::ReverseHistory::swap(ReverseHistory& other)
+void ReverseManager::ReverseHistory::swap(ReverseHistory& other) noexcept
 {
 	std::swap(chunks, other.chunks);
 	std::swap(events, other.events);
@@ -148,7 +144,7 @@ ReverseManager::ReverseManager(MSXMotherBoard& motherBoard_)
 	, pendingTakeSnapshot(false)
 	, reRecordCount(0)
 {
-	eventDistributor.registerEventListener(OPENMSX_TAKE_REVERSE_SNAPSHOT, *this);
+	eventDistributor.registerEventListener(EventType::TAKE_REVERSE_SNAPSHOT, *this);
 
 	assert(!isCollecting());
 	assert(!isReplaying());
@@ -157,7 +153,7 @@ ReverseManager::ReverseManager(MSXMotherBoard& motherBoard_)
 ReverseManager::~ReverseManager()
 {
 	stop();
-	eventDistributor.unregisterEventListener(OPENMSX_TAKE_REVERSE_SNAPSHOT, *this);
+	eventDistributor.unregisterEventListener(EventType::TAKE_REVERSE_SNAPSHOT, *this);
 }
 
 bool ReverseManager::isReplaying() const
@@ -198,7 +194,7 @@ void ReverseManager::stop()
 EmuTime::param ReverseManager::getEndTime(const ReverseHistory& hist) const
 {
 	if (!hist.events.empty()) {
-		if (auto* ev = dynamic_cast<const EndLogEvent*>(
+		if (const auto* ev = dynamic_cast<const EndLogEvent*>(
 				hist.events.back().get())) {
 			// last log element is EndLogEvent, use that
 			return ev->getTime();
@@ -243,7 +239,7 @@ void ReverseManager::debugInfo(TclObject& result) const
 {
 	// TODO this is useful during development, but for the end user this
 	// information means nothing. We should remove this later.
-	string res;
+	std::string res;
 	size_t totalSize = 0;
 	for (const auto& [idx, chunk] : history.chunks) {
 		strAppend(res, idx, ' ',
@@ -257,22 +253,20 @@ void ReverseManager::debugInfo(TclObject& result) const
 	result = res;
 }
 
-static void parseGoTo(Interpreter& interp, span<const TclObject> tokens,
-                      bool& novideo, double& time)
+static std::pair<bool, double> parseGoTo(Interpreter& interp, span<const TclObject> tokens)
 {
-	novideo = false;
+	bool novideo = false;
 	ArgsInfo info[] = { flagArg("-novideo", novideo) };
 	auto args = parseTclArgs(interp, tokens.subspan(2), info);
 	if (args.size() != 1) throw SyntaxError();
-	time = args[0].getDouble(interp);
+	double time = args[0].getDouble(interp);
+	return {novideo, time};
 }
 
 void ReverseManager::goBack(span<const TclObject> tokens)
 {
-	bool novideo;
-	double t;
 	auto& interp = motherBoard.getReactor().getInterpreter();
-	parseGoTo(interp, tokens, novideo, t);
+	auto [novideo, t] = parseGoTo(interp, tokens);
 
 	EmuTime now = getCurrentTime();
 	EmuTime target(EmuTime::dummy());
@@ -291,10 +285,8 @@ void ReverseManager::goBack(span<const TclObject> tokens)
 
 void ReverseManager::goTo(span<const TclObject> tokens)
 {
-	bool novideo;
-	double t;
 	auto& interp = motherBoard.getReactor().getInterpreter();
-	parseGoTo(interp, tokens, novideo, t);
+	auto [novideo, t] = parseGoTo(interp, tokens);
 
 	EmuTime target = EmuTime::zero() + EmuDuration(t);
 	goTo(target, novideo);
@@ -321,7 +313,7 @@ static void reportProgress(Reactor& reactor, const EmuTime& targetTime, int perc
 		std::fmod(targetTimeDisp, 60.0) <<
 		"... " << percentage << '%';
 	reactor.getCliComm().printProgress(sstr.str());
-	reactor.getDisplay().repaintDelayed(0);
+	reactor.getDisplay().repaint();
 }
 
 void ReverseManager::goTo(
@@ -413,7 +405,7 @@ void ReverseManager::goTo(
 			if (hist.events.empty() ||
 			    !dynamic_cast<const EndLogEvent*>(hist.events.back().get())) {
 				hist.events.push_back(
-					std::make_shared<EndLogEvent>(currentTime));
+					std::make_unique<EndLogEvent>(currentTime));
 			}
 
 			// Transfer history to the new ReverseManager.
@@ -548,7 +540,7 @@ void ReverseManager::saveReplay(
 		throw CommandException("Maximum number of snapshots should be at least 0");
 	}
 
-	string filename = FileOperations::parseCommandFileArgument(
+	auto filename = FileOperations::parseCommandFileArgument(
 		filenameArg, REPLAY_DIR, "openmsx", ".omr");
 
 	auto& reactor = motherBoard.getReactor();
@@ -565,7 +557,7 @@ void ReverseManager::saveReplay(
 	                   begin(chunks)->second.size,
 			   begin(chunks)->second.deltaBlocks);
 	in.serialize("machine", *initialBoard);
-	replay.motherBoards.push_back(move(initialBoard));
+	replay.motherBoards.push_back(std::move(initialBoard));
 
 	if (maxNofExtraSnapshots > 0) {
 		// determine which extra snapshots to put in the replay
@@ -594,7 +586,7 @@ void ReverseManager::saveReplay(
 							    it->second.size,
 							    it->second.deltaBlocks);
 					in2.serialize("machine", *board);
-					replay.motherBoards.push_back(move(board));
+					replay.motherBoards.push_back(std::move(board));
 					lastAddedIt = it;
 				}
 				++it;
@@ -611,7 +603,7 @@ void ReverseManager::saveReplay(
 		!dynamic_cast<EndLogEvent*>(history.events.back().get());
 	if (addSentinel) {
 		/// make sure the replay log ends with a EndLogEvent
-		history.events.push_back(std::make_shared<EndLogEvent>(
+		history.events.push_back(std::make_unique<EndLogEvent>(
 			getCurrentTime()));
 	}
 	try {
@@ -634,7 +626,7 @@ void ReverseManager::saveReplay(
 		history.events.pop_back();
 	}
 
-	result = "Saved replay to " + filename;
+	result = tmpStrCat("Saved replay to ", filename);
 }
 
 void ReverseManager::loadReplay(
@@ -651,18 +643,18 @@ void ReverseManager::loadReplay(
 
 	// resolve the filename
 	auto context = userDataFileContext(REPLAY_DIR);
-	string fileNameArg(arguments[0].getString());
-	string filename;
+	std::string fileNameArg(arguments[0].getString());
+	std::string filename;
 	try {
 		// Try filename as typed by user.
 		filename = context.resolve(fileNameArg);
 	} catch (MSXException& /*e1*/) { try {
 		// Not found, try adding '.omr'.
-		filename = context.resolve(fileNameArg + ".omr");
+		filename = context.resolve(tmpStrCat(fileNameArg, ".omr"));
 	} catch (MSXException& e2) { try {
 		// Again not found, try adding '.gz'.
 		// (this is for backwards compatibility).
-		filename = context.resolve(fileNameArg + ".gz");
+		filename = context.resolve(tmpStrCat(fileNameArg, ".gz"));
 	} catch (MSXException& /*e3*/) {
 		// Show error message that includes the default extension.
 		throw e2;
@@ -736,16 +728,16 @@ void ReverseManager::loadReplay(
 		newChunk.eventCount = replayIdx;
 
 		newHistory.chunks[newHistory.getNextSeqNum(newChunk.time)] =
-			move(newChunk);
+			std::move(newChunk);
 	}
 
-	// Note: untill this point we didn't make any changes to the current
+	// Note: until this point we didn't make any changes to the current
 	// ReverseManager/MSXMotherBoard yet
 	reRecordCount = newReverseManager.reRecordCount;
 	bool novideo = false;
 	goTo(destination, novideo, newHistory, false); // move to different time-line
 
-	result = "Loaded replay from " + filename;
+	result = tmpStrCat("Loaded replay from ", filename);
 }
 
 void ReverseManager::transferHistory(ReverseHistory& oldHistory,
@@ -802,12 +794,12 @@ void ReverseManager::execNewSnapshot()
 	//     should not be *exactly* equally far apart in time.
 	pendingTakeSnapshot = true;
 	eventDistributor.distributeEvent(
-		std::make_shared<SimpleEvent>(OPENMSX_TAKE_REVERSE_SNAPSHOT));
+		Event::create<TakeReverseSnapshotEvent>());
 }
 
 void ReverseManager::execInputEvent()
 {
-	auto event = history.events[replayIndex];
+	const auto& event = *history.events[replayIndex];
 	try {
 		// deliver current event at current time
 		motherBoard.getStateChangeDistributor().distributeReplay(event);
@@ -815,18 +807,19 @@ void ReverseManager::execInputEvent()
 		// can throw in case we replay a command that fails
 		// ignore
 	}
-	if (!dynamic_cast<const EndLogEvent*>(event.get())) {
+	if (!dynamic_cast<const EndLogEvent*>(&event)) {
 		++replayIndex;
 		replayNextEvent();
 	} else {
-		assert(!isReplaying()); // stopped by replay of EndLogEvent
+		signalStopReplay(event.getTime());
+		assert(!isReplaying());
 	}
 }
 
-int ReverseManager::signalEvent(const shared_ptr<const Event>& event)
+int ReverseManager::signalEvent(const Event& event) noexcept
 {
 	(void)event;
-	assert(event->getType() == OPENMSX_TAKE_REVERSE_SNAPSHOT);
+	assert(getType(event) == EventType::TAKE_REVERSE_SNAPSHOT);
 
 	// This event is send to all MSX machines, make sure it's actually this
 	// machine that requested the snapshot.
@@ -879,24 +872,6 @@ void ReverseManager::replayNextEvent()
 	syncInputEvent.setSyncPoint(history.events[replayIndex]->getTime());
 }
 
-void ReverseManager::signalStateChange(const shared_ptr<StateChange>& event)
-{
-	if (isReplaying()) {
-		// this is an event we just replayed
-		assert(event == history.events[replayIndex]);
-		if (dynamic_cast<EndLogEvent*>(event.get())) {
-			signalStopReplay(event->getTime());
-		} else {
-			// ignore all other events
-		}
-	} else {
-		// record event
-		history.events.push_back(event);
-		++replayIndex;
-		assert(!isReplaying());
-	}
-}
-
 void ReverseManager::signalStopReplay(EmuTime::param time)
 {
 	motherBoard.getStateChangeDistributor().stopReplay(time);
@@ -905,7 +880,7 @@ void ReverseManager::signalStopReplay(EmuTime::param time)
 	reRecordCount--;
 }
 
-void ReverseManager::stopReplay(EmuTime::param time)
+void ReverseManager::stopReplay(EmuTime::param time) noexcept
 {
 	if (isReplaying()) {
 		// if we're replaying, stop it and erase remainder of event log
@@ -995,7 +970,7 @@ void ReverseManager::ReverseCmd::execute(span<const TclObject> tokens, TclObject
 			}});
 }
 
-string ReverseManager::ReverseCmd::help(const vector<string>& /*tokens*/) const
+std::string ReverseManager::ReverseCmd::help(span<const TclObject> /*tokens*/) const
 {
 	return "start               start collecting reverse data\n"
 	       "stop                stop collecting\n"
@@ -1008,24 +983,23 @@ string ReverseManager::ReverseCmd::help(const vector<string>& /*tokens*/) const
 	       "loadreplay [-goto <begin|end|savetime|<n>>] [-viewonly] <name>   load a replay (snapshot and replay data) with given name and start replaying\n";
 }
 
-void ReverseManager::ReverseCmd::tabCompletion(vector<string>& tokens) const
+void ReverseManager::ReverseCmd::tabCompletion(std::vector<std::string>& tokens) const
 {
+	using namespace std::literals;
 	if (tokens.size() == 2) {
-		static constexpr const char* const subCommands[] = {
-			"start", "stop", "status", "goback", "goto",
-			"savereplay", "loadreplay", "viewonlymode",
-			"truncatereplay",
+		static constexpr std::array subCommands = {
+			"start"sv, "stop"sv, "status"sv, "goback"sv, "goto"sv,
+			"savereplay"sv, "loadreplay"sv, "viewonlymode"sv,
+			"truncatereplay"sv,
 		};
 		completeString(tokens, subCommands);
 	} else if ((tokens.size() == 3) || (tokens[1] == "loadreplay")) {
 		if (tokens[1] == one_of("loadreplay", "savereplay")) {
-			std::vector<const char*> cmds;
-			if (tokens[1] == "loadreplay") {
-				cmds = { "-goto", "-viewonly" };
-			}
-			completeFileName(tokens, userDataFileContext(REPLAY_DIR), cmds);
+			static constexpr std::array cmds = {"-goto"sv, "-viewonly"sv};
+			completeFileName(tokens, userDataFileContext(REPLAY_DIR),
+				(tokens[1] == "loadreplay") ? cmds : span<const std::string_view>{});
 		} else if (tokens[1] == "viewonlymode") {
-			static constexpr const char* const options[] = { "true", "false" };
+			static constexpr std::array options = {"true"sv, "false"sv};
 			completeString(tokens, options);
 		}
 	}

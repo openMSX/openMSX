@@ -10,10 +10,10 @@ namespace openmsx {
 class PostProcessor;
 
 /** Abstract base class for V9990 renderers.
-  * A V9990Renderer is a class that covnerts the V9990 state into
+  * A V9990Renderer is a class that converts the V9990 state into
   * visual information (e.g. pixels on a screen).
   *
-  * @see Renderer.cc
+  * @see Renderer.hh
   */
 class V9990Renderer
 {
@@ -21,7 +21,7 @@ public:
 	virtual ~V9990Renderer() = default;
 
 	/** See V9990::getPostProcessor. */
-	virtual PostProcessor* getPostProcessor() const = 0;
+	[[nodiscard]] virtual PostProcessor* getPostProcessor() const = 0;
 
 	/** Re-initialise the V9990Renderer's state.
 	  * @param time The moment in emulated time this reset occurs.

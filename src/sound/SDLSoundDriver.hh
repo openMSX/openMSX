@@ -22,18 +22,19 @@ public:
 	void mute() override;
 	void unmute() override;
 
-	unsigned getFrequency() const override;
-	unsigned getSamples() const override;
+	[[nodiscard]] unsigned getFrequency() const override;
+	[[nodiscard]] unsigned getSamples() const override;
 
 	void uploadBuffer(float* buffer, unsigned len) override;
 
 private:
 	void reInit();
-	unsigned getBufferFilled() const;
-	unsigned getBufferFree() const;
+	[[nodiscard]] unsigned getBufferFilled() const;
+	[[nodiscard]] unsigned getBufferFree() const;
 	static void audioCallbackHelper(void* userdata, uint8_t* strm, int len);
 	void audioCallback(float* stream, unsigned len);
 
+private:
 	Reactor& reactor;
 	SDL_AudioDeviceID deviceID;
 	MemBuffer<float> mixBuffer;

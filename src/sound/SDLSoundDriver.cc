@@ -1,5 +1,6 @@
 #include "SDLSoundDriver.hh"
 #include "Reactor.hh"
+#include "MSXMixer.hh"
 #include "MSXMotherBoard.hh"
 #include "RealTime.hh"
 #include "GlobalSettings.hh"

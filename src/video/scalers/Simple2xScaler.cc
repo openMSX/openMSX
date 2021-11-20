@@ -4,7 +4,6 @@
 #include "RawFrame.hh"
 #include "ScalerOutput.hh"
 #include "RenderSettings.hh"
-#include "unreachable.hh"
 #include "vla.hh"
 #include <cassert>
 #include <cstddef>
@@ -17,7 +16,7 @@ namespace openmsx {
 
 // class Simple2xScaler
 
-template <class Pixel>
+template<typename Pixel>
 Simple2xScaler<Pixel>::Simple2xScaler(
 		const PixelOperations<Pixel>& pixelOps_,
 		RenderSettings& renderSettings)
@@ -31,7 +30,7 @@ Simple2xScaler<Pixel>::Simple2xScaler(
 {
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Simple2xScaler<Pixel>::scaleBlank1to2(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -85,8 +84,8 @@ static void blur1on2_SSE2(
 	assert((reinterpret_cast<uintptr_t>(out_) % sizeof(__m128i)) == 0);
 
 	ptrdiff_t x = -ptrdiff_t(width - sizeof(__m128i));
-	auto* in  = reinterpret_cast<const char*>(in_ ) -     x;
-	auto* out = reinterpret_cast<      char*>(out_) - 2 * x;
+	const auto* in  = reinterpret_cast<const char*>(in_ ) -     x;
+	      auto* out = reinterpret_cast<      char*>(out_) - 2 * x;
 
 	// Setup first iteration
 	__m128i c1 = _mm_set1_epi16(c1_);
@@ -142,16 +141,9 @@ static void blur1on2_SSE2(
 	*reinterpret_cast<__m128i*>(out + 16) = _mm_shuffle_epi32(cdcd, 0xd8);
 }
 
-// no SSE2 16bpp routine yet (probably not worth the effort)
-static void blur1on2_SSE2(const uint16_t* /*in*/, uint16_t* /*out*/,
-                          unsigned /*c1*/, unsigned /*c2*/, size_t /*width*/)
-{
-	UNREACHABLE;
-}
-
 #endif
 
-template <class Pixel>
+template<typename Pixel>
 void Simple2xScaler<Pixel>::blur1on2(
 	const Pixel* __restrict pIn, Pixel* __restrict pOut,
 	unsigned alpha, size_t srcWidth)
@@ -166,8 +158,8 @@ void Simple2xScaler<Pixel>::blur1on2(
 	 *         Pixel prev, curr, next;
 	 *         prev = curr = pIn[0];
 	 *
-	 *         unsigned x;
-	 *         for (x = 0; x < (srcWidth - 1); ++x) {
+	 *         unsigned x = 0;
+	 *         for (; x < (srcWidth - 1); ++x) {
 	 *                 pOut[2 * x + 0] = (c1 * prev + c2 * curr) >> 8;
 	 *                 Pixel next = pIn[x + 1];
 	 *                 pOut[2 * x + 1] = (c1 * next + c2 * curr) >> 8;
@@ -192,7 +184,7 @@ void Simple2xScaler<Pixel>::blur1on2(
 	unsigned c2 = 256 - c1;
 
 #ifdef __SSE2__
-	if (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		// SSE2, only 32bpp
 		blur1on2_SSE2(pIn, pOut, c1, c2, srcWidth);
 		return;
@@ -210,8 +202,8 @@ void Simple2xScaler<Pixel>::blur1on2(
 	unsigned f1 = f0;
 	unsigned tmp;
 
-	size_t x;
-	for (x = 0; x < (srcWidth - 2); x += 2) {
+	size_t x = 0;
+	for (/**/; x < (srcWidth - 2); x += 2) {
 		tmp = mult2.mul32(p0);
 		pOut[2 * x + 0] = mult1.conv32(f1 + tmp);
 
@@ -253,8 +245,8 @@ static void blur1on1_SSE2(
 	assert((reinterpret_cast<uintptr_t>(out_) % sizeof(__m128i)) == 0);
 
 	ptrdiff_t x = -ptrdiff_t(width - sizeof(__m128i));
-	auto* in  = reinterpret_cast<const char*>(in_ ) - x;
-	auto* out = reinterpret_cast<      char*>(out_) - x;
+	const auto* in  = reinterpret_cast<const char*>(in_ ) - x;
+	      auto* out = reinterpret_cast<      char*>(out_) - x;
 
 	// Setup first iteration
 	__m128i c1 = _mm_set1_epi16(c1_);
@@ -298,15 +290,8 @@ static void blur1on1_SSE2(
 	*reinterpret_cast<__m128i*>(out) = _mm_packus_epi16(aabb, ccdd);
 }
 
-// no SSE2 16bpp routine yet (probably not worth the effort)
-static void blur1on1_SSE2(const uint16_t* /*in*/, uint16_t* /*out*/,
-                          unsigned /*c1*/, unsigned /*c2*/, size_t /*width*/)
-{
-	UNREACHABLE;
-}
-
 #endif
-template <class Pixel>
+template<typename Pixel>
 void Simple2xScaler<Pixel>::blur1on1(
 	const Pixel* __restrict pIn, Pixel* __restrict pOut,
 	unsigned alpha, size_t srcWidth)
@@ -321,8 +306,8 @@ void Simple2xScaler<Pixel>::blur1on1(
 	 *         Pixel prev, curr, next;
 	 *         prev = curr = pIn[0];
 	 *
-	 *         unsigned x;
-	 *         for (x = 0; x < (srcWidth - 1); ++x) {
+	 *         unsigned x = 0;
+	 *         for (; x < (srcWidth - 1); ++x) {
 	 *                 next = pIn[x + 1];
 	 *                 pOut[x] = (c1 * prev + c2 * curr + c1 * next) >> 8;
 	 *                 prev = curr;
@@ -344,7 +329,7 @@ void Simple2xScaler<Pixel>::blur1on1(
 	unsigned c2 = 256 - alpha / 2;
 
 #ifdef __SSE2__
-	if (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		// SSE2, only 32bpp
 		blur1on1_SSE2(pIn, pOut, c1, c2, srcWidth);
 		return;
@@ -361,8 +346,8 @@ void Simple2xScaler<Pixel>::blur1on1(
 	unsigned f0 = mult1.mul32(p0);
 	unsigned f1 = f0;
 
-	size_t x;
-	for (x = 0; x < (srcWidth - 2); x += 2) {
+	size_t x = 0;
+	for (/**/; x < (srcWidth - 2); x += 2) {
 		p1 = pIn[x + 1];
 		unsigned t0 = mult1.mul32(p1);
 		pOut[x] = mult1.conv32(f0 + mult3.mul32(p0) + t0);
@@ -381,7 +366,7 @@ void Simple2xScaler<Pixel>::blur1on1(
 	pOut[x + 1] = mult1.conv32(f1 + mult3.mul32(p1) + t0);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Simple2xScaler<Pixel>::drawScanline(
 		const Pixel* in1, const Pixel* in2, Pixel* out, int factor,
 		unsigned dstWidth)
@@ -394,7 +379,7 @@ void Simple2xScaler<Pixel>::drawScanline(
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Simple2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -432,7 +417,7 @@ void Simple2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	dst.releaseLine(dstY + 1, dstLine1);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Simple2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -470,7 +455,7 @@ void Simple2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	dst.releaseLine(dstY + 1, dstLine1);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Simple2xScaler<Pixel>::scaleImage(
 	FrameSource& src, const RawFrame* superImpose,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,

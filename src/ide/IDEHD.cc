@@ -7,6 +7,7 @@
 #include "endian.hh"
 #include "serialize.hh"
 #include "strCat.hh"
+#include "xrange.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -18,7 +19,7 @@ IDEHD::IDEHD(const DeviceConfig& config)
 {
 	transferSectorNumber = 0; // avoid UMR is serialize()
 	diskManipulator.registerDrive(
-		*this, strCat(config.getMotherBoard().getMachineID(), "::"));
+		*this, tmpStrCat(config.getMotherBoard().getMachineID(), "::"));
 }
 
 IDEHD::~IDEHD()
@@ -31,10 +32,9 @@ bool IDEHD::isPacketDevice()
 	return false;
 }
 
-const std::string& IDEHD::getDeviceName()
+std::string_view IDEHD::getDeviceName()
 {
-	static const std::string NAME = "OPENMSX HARD DISK";
-	return NAME;
+	return "OPENMSX HARD DISK";
 }
 
 void IDEHD::fillIdentifyBlock(AlignedBuffer& buf)
@@ -78,7 +78,7 @@ void IDEHD::writeBlockComplete(AlignedBuffer& buf, unsigned count)
 	try {
 		assert((count % 512) == 0);
 		unsigned num = count / 512;
-		for (unsigned i = 0; i < num; ++i) {
+		for (auto i : xrange(num)) {
 			writeSector(transferSectorNumber++,
 			            *aligned_cast<SectorBuffer*>(buf + 512 * i));
 		}

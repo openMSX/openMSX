@@ -26,7 +26,7 @@ constexpr unsigned NOISE_SHIFT = 8192;
 constexpr unsigned NOISE_BUF_SIZE = 2 * NOISE_SHIFT;
 ALIGNAS_SSE static signed char noiseBuf[NOISE_BUF_SIZE];
 
-template <class Pixel>
+template<typename Pixel>
 void FBPostProcessor<Pixel>::preCalcNoise(float factor)
 {
 	// We skip noise drawing if the factor is 0, so there is no point in
@@ -38,7 +38,7 @@ void FBPostProcessor<Pixel>::preCalcNoise(float factor)
 	// depend on it.
 
 	float scale[4];
-	if (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		// 32bpp
 		// TODO ATM we compensate for big endian here. A better
 		// alternative is to turn noiseBuf into an array of ints (it's
@@ -86,7 +86,7 @@ static inline void drawNoiseLineSse2(uint32_t* buf_, signed char* noise, size_t 
 	//   x + 128 == x - 128 == x ^ 128
 	// So the expression becomes:
 	//   signed_add_sat(value ^ 128, noise) ^ 128
-	// The follwoing loop does just that, though it processes 64 bytes per
+	// The following loop does just that, though it processes 64 bytes per
 	// iteration.
 	ptrdiff_t x = width * sizeof(uint32_t);
 	assert((x & 63) == 0);
@@ -124,7 +124,7 @@ static inline void drawNoiseLineSse2(uint32_t* buf_, signed char* noise, size_t 
  * @param n contains 4 8-bit   signed components, so components have range [-128, 127]
  * @result per component result of clip<0, 255>(p + n)
  */
-static inline uint32_t addNoise4(uint32_t p, uint32_t n)
+static constexpr uint32_t addNoise4(uint32_t p, uint32_t n)
 {
 	// unclipped result (lower 8 bits of each component)
 	// alternative:
@@ -161,12 +161,12 @@ static inline uint32_t addNoise4(uint32_t p, uint32_t n)
 	return (s & (~u8)) | o8;
 }
 
-template <class Pixel>
+template<typename Pixel>
 void FBPostProcessor<Pixel>::drawNoiseLine(
 		Pixel* buf, signed char* noise, size_t width)
 {
 #ifdef __SSE2__
-	if (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		// cast to avoid compilation error in case of 16bpp (even
 		// though this code is dead in that case).
 		auto* buf32 = reinterpret_cast<uint32_t*>(buf);
@@ -175,17 +175,17 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 	}
 #endif
 	// c++ version
-	if (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		// optimized version for 32bpp
-		auto noise4 = reinterpret_cast<uint32_t*>(noise);
-		for (size_t i = 0; i < width; ++i) {
+		auto* noise4 = reinterpret_cast<uint32_t*>(noise);
+		for (auto i : xrange(width)) {
 			buf[i] = addNoise4(buf[i], noise4[i]);
 		}
 	} else {
 		int mr = pixelOps.getMaxRed();
 		int mg = pixelOps.getMaxGreen();
 		int mb = pixelOps.getMaxBlue();
-		for (size_t i = 0; i < width; ++i) {
+		for (auto i : xrange(width)) {
 			Pixel p = buf[i];
 			int r = pixelOps.red(p);
 			int g = pixelOps.green(p);
@@ -195,16 +195,16 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 			g += noise[4 * i + 1];
 			b += noise[4 * i + 2];
 
-			r = std::min(std::max(r, 0), mr);
-			g = std::min(std::max(g, 0), mg);
-			b = std::min(std::max(b, 0), mb);
+			r = std::clamp(r, 0, mr);
+			g = std::clamp(g, 0, mg);
+			b = std::clamp(b, 0, mb);
 
 			buf[i] = pixelOps.combine(r, g, b);
 		}
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void FBPostProcessor<Pixel>::drawNoise(OutputSurface& output_)
 {
 	if (renderSettings.getNoise() == 0.0f) return;
@@ -212,14 +212,14 @@ void FBPostProcessor<Pixel>::drawNoise(OutputSurface& output_)
 	auto& output = checked_cast<SDLOutputSurface&>(output_);
 	auto [w, h] = output.getLogicalSize();
 	auto pixelAccess = output.getDirectPixelAccess();
-	for (int y = 0; y < h; ++y) {
+	for (auto y : xrange(h)) {
 		auto* buf = pixelAccess.getLinePtr<Pixel>(y);
 		drawNoiseLine(buf, &noiseBuf[noiseShift[y]], w);
 	}
 }
 
-template <class Pixel>
-void FBPostProcessor<Pixel>::update(const Setting& setting)
+template<typename Pixel>
+void FBPostProcessor<Pixel>::update(const Setting& setting) noexcept
 {
 	VideoLayer::update(setting);
 	auto& noiseSetting = renderSettings.getNoiseSetting();
@@ -229,7 +229,7 @@ void FBPostProcessor<Pixel>::update(const Setting& setting)
 }
 
 
-template <class Pixel>
+template<typename Pixel>
 FBPostProcessor<Pixel>::FBPostProcessor(MSXMotherBoard& motherBoard_,
 	Display& display_, OutputSurface& screen_, const std::string& videoSource,
 	unsigned maxWidth_, unsigned height_, bool canDoInterlace_)
@@ -249,13 +249,13 @@ FBPostProcessor<Pixel>::FBPostProcessor(MSXMotherBoard& motherBoard_,
 	assert((screen.getLogicalWidth() * sizeof(Pixel)) < NOISE_SHIFT);
 }
 
-template <class Pixel>
+template<typename Pixel>
 FBPostProcessor<Pixel>::~FBPostProcessor()
 {
 	renderSettings.getNoiseSetting().detach(*this);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void FBPostProcessor<Pixel>::paint(OutputSurface& output_)
 {
 	auto& output = checked_cast<SDLOutputSurface&>(output_);
@@ -273,10 +273,12 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output_)
 	auto algo = renderSettings.getScaleAlgorithm();
 	unsigned factor = renderSettings.getScaleFactor();
 	unsigned inWidth = lrintf(renderSettings.getHorizontalStretch());
-	if ((scaleAlgorithm != algo) || (scaleFactor != factor) || (inWidth != stretchWidth)) {
+	if ((scaleAlgorithm != algo) || (scaleFactor != factor) ||
+	    (inWidth != stretchWidth) || (lastOutput != &output)) {
 		scaleAlgorithm = algo;
 		scaleFactor = factor;
 		stretchWidth = inWidth;
+		lastOutput = &output;
 		currScaler = ScalerFactory<Pixel>::createScaler(
 			PixelOperations<Pixel>(output.getPixelFormat()),
 			renderSettings);
@@ -313,7 +315,7 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output_)
 
 		// fill region
 		//fprintf(stderr, "post processing lines %d-%d: %d\n",
-		//	srcStartY, srcEndY, lineWidth );
+		//        srcStartY, srcEndY, lineWidth);
 		currScaler->scaleImage(
 			*paintFrame, superImposeVideoFrame,
 			srcStartY, srcEndY, lineWidth, // source
@@ -329,7 +331,7 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output_)
 	output.flushFrameBuffer();
 }
 
-template <class Pixel>
+template<typename Pixel>
 std::unique_ptr<RawFrame> FBPostProcessor<Pixel>::rotateFrames(
 	std::unique_ptr<RawFrame> finishedFrame, EmuTime::param time)
 {

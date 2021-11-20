@@ -25,19 +25,19 @@ namespace RendererFactory
 {
 	/** Create the video system required by the current renderer setting.
 	  */
-	std::unique_ptr<VideoSystem> createVideoSystem(Reactor& reactor);
+	[[nodiscard]] std::unique_ptr<VideoSystem> createVideoSystem(Reactor& reactor);
 
 	/** Create the Renderer selected by the current renderer setting.
 	  * @param vdp The VDP whose display will be rendered.
 	  * @param display TODO
 	  */
-	std::unique_ptr<Renderer> createRenderer(VDP& vdp, Display& display);
+	[[nodiscard]] std::unique_ptr<Renderer> createRenderer(VDP& vdp, Display& display);
 
 	/** Create the V9990 Renderer selected by the current renderer setting.
 	  * @param vdp The V9990 VDP whose display will be rendered.
 	  * @param display TODO
 	  */
-	std::unique_ptr<V9990Renderer> createV9990Renderer(
+	[[nodiscard]] std::unique_ptr<V9990Renderer> createV9990Renderer(
 		V9990& vdp, Display& display);
 
 #if COMPONENT_LASERDISC
@@ -45,7 +45,7 @@ namespace RendererFactory
 	  * @param ld The Laserdisc player whose display will be rendered.
 	  * @param display TODO
 	  */
-	std::unique_ptr<LDRenderer> createLDRenderer(
+	[[nodiscard]] std::unique_ptr<LDRenderer> createLDRenderer(
 		LaserdiscPlayer& ld, Display& display);
 #endif
 

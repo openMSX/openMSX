@@ -15,7 +15,7 @@ TODO:
 #include "VDPVRAM.hh"
 #include "SpriteChecker.hh"
 #include "EventDistributor.hh"
-#include "FinishFrameEvent.hh"
+#include "Event.hh"
 #include "RealTime.hh"
 #include "SpeedManager.hh"
 #include "ThrottleManager.hh"
@@ -79,7 +79,7 @@ void PixelRenderer::draw(
 
 void PixelRenderer::subdivide(
 	int startX, int startY, int endX, int endY, int clipL, int clipR,
-	DrawType drawType )
+	DrawType drawType)
 {
 	// Partial first line.
 	if (startX > clipL) {
@@ -153,6 +153,7 @@ void PixelRenderer::reInit()
 	// This for example can happen after a loadstate or after switching
 	// renderer in the middle of a frame.
 	renderFrame = false;
+	paintFrame = false;
 
 	rasterizer->reset();
 	displayEnabled = vdp.isDisplayEnabled();
@@ -246,7 +247,7 @@ void PixelRenderer::frameEnd(EmuTime::param time)
 	if (vdp.getMotherBoard().isActive() &&
 	    !vdp.getMotherBoard().isFastForwarding()) {
 		eventDistributor.distributeEvent(
-			std::make_shared<FinishFrameEvent>(
+			Event::create<FinishFrameEvent>(
 				rasterizer->getPostProcessor()->getVideoSource(),
 				videoSourceSetting.getSource(),
 				!paintFrame));
@@ -402,7 +403,7 @@ void PixelRenderer::updateSpritesEnabled(
 	if (displayEnabled) sync(time);
 }
 
-static inline bool overlap(
+static constexpr bool overlap(
 	int displayY0, // start of display region, inclusive
 	int displayY1, // end of display region, exclusive
 	int vramLine0, // start of VRAM region, inclusive
@@ -446,9 +447,9 @@ inline bool PixelRenderer::checkSync(int offset, EmuTime::param time)
 		if (vram.colorTable.isInside(offset)) {
 			int vramQuarter = (offset & 0x1800) >> 11;
 			int mask = (vram.colorTable.getMask() & 0x1800) >> 11;
-			for (int i = 0; i < 4; i++) {
-				if ( (i & mask) == vramQuarter
-				&& overlap(displayY0, displayY1, i * 64, (i + 1) * 64) ) {
+			for (auto i : xrange(4)) {
+				if ((i & mask) == vramQuarter
+				&& overlap(displayY0, displayY1, i * 64, (i + 1) * 64)) {
 					/*fprintf(stderr,
 						"color table: %05X %04X - quarter %d\n",
 						offset, offset & 0x1FFF, i
@@ -460,9 +461,9 @@ inline bool PixelRenderer::checkSync(int offset, EmuTime::param time)
 		if (vram.patternTable.isInside(offset)) {
 			int vramQuarter = (offset & 0x1800) >> 11;
 			int mask = (vram.patternTable.getMask() & 0x1800) >> 11;
-			for (int i = 0; i < 4; i++) {
-				if ( (i & mask) == vramQuarter
-				&& overlap(displayY0, displayY1, i * 64, (i + 1) * 64) ) {
+			for (auto i : xrange(4)) {
+				if ((i & mask) == vramQuarter
+				&& overlap(displayY0, displayY1, i * 64, (i + 1) * 64)) {
 					/*fprintf(stderr,
 						"pattern table: %05X %04X - quarter %d\n",
 						offset, offset & 0x1FFF, i
@@ -556,28 +557,25 @@ void PixelRenderer::renderUntil(EmuTime::param time)
 	// Translate from time to pixel position.
 	int limitTicks = vdp.getTicksThisFrame(time);
 	assert(limitTicks <= vdp.getTicksPerFrame());
-	int limitX, limitY;
-	switch (accuracy) {
-	case RenderSettings::ACC_PIXEL: {
-		limitX = limitTicks % VDP::TICKS_PER_LINE;
-		limitY = limitTicks / VDP::TICKS_PER_LINE;
-		break;
-	}
-	case RenderSettings::ACC_LINE:
-	case RenderSettings::ACC_SCREEN: {
-		// Note: I'm not sure the rounding point is optimal.
-		//       It used to be based on the left margin, but that doesn't work
-		//       because the margin can change which leads to a line being
-		//       rendered even though the time doesn't advance.
-		limitX = 0;
-		limitY =
-			(limitTicks + VDP::TICKS_PER_LINE - 400) / VDP::TICKS_PER_LINE;
-		break;
-	}
-	default:
-		UNREACHABLE;
-		limitX = limitY = 0; // avoid warning
-	}
+	auto [limitX, limitY] = [&]() -> std::pair<int, int> {
+		switch (accuracy) {
+		case RenderSettings::ACC_PIXEL: {
+			return {limitTicks % VDP::TICKS_PER_LINE,
+			        limitTicks / VDP::TICKS_PER_LINE};
+		}
+		case RenderSettings::ACC_LINE:
+		case RenderSettings::ACC_SCREEN:
+			// Note: I'm not sure the rounding point is optimal.
+			//       It used to be based on the left margin, but that doesn't work
+			//       because the margin can change which leads to a line being
+			//       rendered even though the time doesn't advance.
+			return {0,
+				(limitTicks + VDP::TICKS_PER_LINE - 400) / VDP::TICKS_PER_LINE};
+		default:
+			UNREACHABLE;
+			return {0, 0}; // avoid warning
+		}
+	}();
 
 	// Stop here if there is nothing to render.
 	// This ensures that no pixels are rendered in a series of updates that
@@ -623,7 +621,7 @@ void PixelRenderer::renderUntil(EmuTime::param time)
 	nextY = limitY;
 }
 
-void PixelRenderer::update(const Setting& setting)
+void PixelRenderer::update(const Setting& setting) noexcept
 {
 	assert(&setting == one_of(&renderSettings.getMinFrameSkipSetting(),
 	                          &renderSettings.getMaxFrameSkipSetting()));

@@ -9,6 +9,7 @@
 #include <cassert>
 #include <cstring>
 #include <ctime>
+#include <limits>
 
 namespace openmsx {
 
@@ -211,14 +212,14 @@ AviWriter::~AviWriter()
 	// a much nicer way
 
 	// Finish stream list, i.e. put number of bytes in the list to proper pos
-	int nmain = header_pos - main_list - 4;
-	int njunk = AVI_HEADER_SIZE - 8 - 12 - header_pos;
-	assert(njunk > 0); // increase AVI_HEADER_SIZE if this occurs
+	int nMain = header_pos - main_list - 4;
+	int nJunk = AVI_HEADER_SIZE - 8 - 12 - header_pos;
+	assert(nJunk > 0); // increase AVI_HEADER_SIZE if this occurs
 	AVIOUT4("JUNK");
-	AVIOUTd(njunk);
+	AVIOUTd(nJunk);
 	// Fix the size of the main list
 	header_pos = main_list;
-	AVIOUTd(nmain);
+	AVIOUTd(nMain);
 	header_pos = AVI_HEADER_SIZE - 12;
 
 	AVIOUT4("LIST");
@@ -238,12 +239,16 @@ AviWriter::~AviWriter()
 	}
 }
 
-void AviWriter::addAviChunk(const char* tag, unsigned size, void* data, unsigned flags)
+void AviWriter::addAviChunk(const char* tag, size_t size_, const void* data, unsigned flags)
 {
 	struct {
 		char t[4];
 		Endian::L32 s;
 	} chunk;
+
+	assert(size_ <= std::numeric_limits<uint32_t>::max());
+	auto size = uint32_t(size_);
+
 	memcpy(chunk.t, tag, sizeof(chunk.t));
 	chunk.s = size;
 	file.write(&chunk, sizeof(chunk));
@@ -264,15 +269,13 @@ void AviWriter::addAviChunk(const char* tag, unsigned size, void* data, unsigned
 void AviWriter::addFrame(FrameSource* frame, unsigned samples, int16_t* sampleData)
 {
 	bool keyFrame = (frames++ % 300 == 0);
-	void* buffer;
-	unsigned size;
-	codec.compressFrame(keyFrame, frame, buffer, size);
-	addAviChunk("00dc", size, buffer, keyFrame ? 0x10 : 0x0);
+	auto buffer = codec.compressFrame(keyFrame, frame);
+	addAviChunk("00dc", buffer.size(), buffer.data(), keyFrame ? 0x10 : 0x0);
 
 	if (samples) {
 		assert((samples % channels) == 0);
 		assert(audiorate != 0);
-		if (OPENMSX_BIGENDIAN) {
+		if constexpr (OPENMSX_BIGENDIAN) {
 			// See comment in WavWriter::write()
 			//VLA(Endian::L16, buf, samples); // doesn't work in clang
 			std::vector<Endian::L16> buf(sampleData, sampleData + samples);

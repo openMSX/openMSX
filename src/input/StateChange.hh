@@ -6,6 +6,12 @@
 
 namespace openmsx {
 
+// TODO:
+//  See commit '2b0c6cf467d510' for how to turn this class hierarchy into
+//  std::variant. That saves a lot of heap-memory allocations.  Though we
+//  reverted that commit because it triggered internal compiler errors in msvc.
+//  In the future, when msvc gets fixed, we can try again.
+
 /** Base class for all external MSX state changing events.
  * These are typically triggered by user input, like keyboard presses. The main
  * reason why these events exist is to be able to record and replay them.
@@ -13,9 +19,9 @@ namespace openmsx {
 class StateChange
 {
 public:
-	virtual ~StateChange() = default; // must be polymorhpic
+	virtual ~StateChange() = default; // must be polymorphic
 
-	EmuTime::param getTime() const
+	[[nodiscard]] EmuTime::param getTime() const
 	{
 		return time;
 	}

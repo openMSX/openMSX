@@ -24,9 +24,9 @@ public:
 	// logical sector emulation for SectorAccessibleDisk
 	void readSectorImpl (size_t sector,       SectorBuffer& buf) override;
 	void writeSectorImpl(size_t sector, const SectorBuffer& buf) override;
-	size_t getNbSectorsImpl() const override;
-	bool isWriteProtectedImpl() const override;
-	Sha1Sum getSha1SumImpl(FilePool& filepool) override;
+	[[nodiscard]] size_t getNbSectorsImpl() const override;
+	[[nodiscard]] bool isWriteProtectedImpl() const override;
+	[[nodiscard]] Sha1Sum getSha1SumImpl(FilePool& filepool) override;
 
 private:
 	void detectGeometryFallback() override;
@@ -35,6 +35,7 @@ private:
 	void doWriteTrack(byte track, byte side, const RawTrack& input);
 	void extendImageToTrack(byte track);
 
+private:
 	std::shared_ptr<File> file;
 	unsigned numTracks;
 	unsigned dmkTrackLen;

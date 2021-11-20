@@ -22,13 +22,13 @@ public:
 
 	// MSXDevice
 	void reset(EmuTime::param time) override;
-	byte readIO(word port, EmuTime::param time) override;
-	byte peekIO(word port, EmuTime::param time) const override;
+	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
+	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
 	void writeIO(word port, byte value, EmuTime::param time) override;
 
 	// MSXSwitchedDevice
-	byte readSwitchedIO(word port, EmuTime::param time) override;
-	byte peekSwitchedIO(word port, EmuTime::param time) const override;
+	[[nodiscard]] byte readSwitchedIO(word port, EmuTime::param time) override;
+	[[nodiscard]] byte peekSwitchedIO(word port, EmuTime::param time) const override;
 	void writeSwitchedIO(word port, byte value, EmuTime::param time) override;
 
 	template<typename Archive>
@@ -38,6 +38,7 @@ private:
 	void unwrap();
 	void delay(EmuTime::param time);
 
+private:
 	MSXCPU& cpu;
 	VDP* vdp;
 	/** Remembers the time at which last VDP I/O action took place. */

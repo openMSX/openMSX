@@ -14,7 +14,7 @@ namespace openmsx::PNG {
 	 * surface. The surface will use RGB(A) or BGR(A) format depending on
 	 * the current display format.
 	 */
-	SDLSurfacePtr load(const std::string& filename, bool want32bpp);
+	[[nodiscard]] SDLSurfacePtr load(const std::string& filename, bool want32bpp);
 
 	void save(unsigned width, unsigned height, const void** rowPointers,
 	          const PixelFormat& format, const std::string& filename);

@@ -24,34 +24,34 @@ public:
 	explicit DriveMultiplexer(DiskDrive* drv[4]);
 
 	void selectDrive(DriveNum num, EmuTime::param time);
-	DriveNum getSelectedDrive() const { return selected; }
+	[[nodiscard]] DriveNum getSelectedDrive() const { return selected; }
 
 	// DiskDrive interface
-	bool isDiskInserted() const override;
-	bool isWriteProtected() const override;
-	bool isDoubleSided() const override;
-	bool isTrack00() const override;
+	[[nodiscard]] bool isDiskInserted() const override;
+	[[nodiscard]] bool isWriteProtected() const override;
+	[[nodiscard]] bool isDoubleSided() override;
+	[[nodiscard]] bool isTrack00() const override;
 	void setSide(bool side) override;
-	bool getSide() const override;
+	[[nodiscard]] bool getSide() const override;
 	void step(bool direction, EmuTime::param time) override;
 	void setMotor(bool status, EmuTime::param time) override;
-	bool getMotor() const override;
-	bool indexPulse(EmuTime::param time) override;
-	EmuTime getTimeTillIndexPulse(EmuTime::param time, int count) override;
-	unsigned getTrackLength() override;
+	[[nodiscard]] bool getMotor() const override;
+	[[nodiscard]] bool indexPulse(EmuTime::param time) override;
+	[[nodiscard]] EmuTime getTimeTillIndexPulse(EmuTime::param time, int count) override;
+	[[nodiscard]] unsigned getTrackLength() override;
 	void writeTrackByte(int idx, byte val, bool addIdam) override;
-	byte  readTrackByte(int idx) override;
+	[[nodiscard]] byte  readTrackByte(int idx) override;
 	EmuTime getNextSector(EmuTime::param time, RawTrack::Sector& sector) override;
 	void flushTrack() override;
 	bool diskChanged() override;
-	bool peekDiskChanged() const override;
-	bool isDummyDrive() const override;
+	[[nodiscard]] bool peekDiskChanged() const override;
+	[[nodiscard]] bool isDummyDrive() const override;
 	void applyWd2793ReadTrackQuirk() override;
 	void invalidateWd2793ReadTrackQuirk() override;
 
-	bool isDiskInserted(DriveNum num) const;
+	[[nodiscard]] bool isDiskInserted(DriveNum num) const;
 	bool diskChanged(DriveNum num);
-	bool peekDiskChanged(DriveNum num) const;
+	[[nodiscard]] bool peekDiskChanged(DriveNum num) const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

@@ -1,11 +1,12 @@
 #include "ZlibInflate.hh"
 #include "FileException.hh"
 #include "MemBuffer.hh"
+#include "xrange.hh"
 #include <limits>
 
 namespace openmsx {
 
-ZlibInflate::ZlibInflate(span<uint8_t> input)
+ZlibInflate::ZlibInflate(span<const uint8_t> input)
 {
 	if (input.size() > std::numeric_limits<decltype(s.avail_in)>::max()) {
 		throw FileException(
@@ -30,9 +31,7 @@ ZlibInflate::~ZlibInflate()
 
 void ZlibInflate::skip(size_t num)
 {
-	for (size_t i = 0; i < num; ++i) {
-		getByte();
-	}
+	repeat(num, [&] { (void)getByte(); });
 }
 
 uint8_t ZlibInflate::getByte()
@@ -64,9 +63,8 @@ unsigned ZlibInflate::get32LE()
 std::string ZlibInflate::getString(size_t len)
 {
 	std::string result;
-	for (size_t i = 0; i < len; ++i) {
-		result.push_back(getByte());
-	}
+	result.reserve(len);
+	repeat(len, [&] { result.push_back(getByte()); });
 	return result;
 }
 

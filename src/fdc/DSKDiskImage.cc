@@ -19,10 +19,11 @@ DSKDiskImage::DSKDiskImage(const Filename& fileName,
 	setNbSectors(file->getSize() / sizeof(SectorBuffer));
 }
 
-void DSKDiskImage::readSectorImpl(size_t sector, SectorBuffer& buf)
+void DSKDiskImage::readSectorsImpl(
+	SectorBuffer* buffers, size_t startSector, size_t num)
 {
-	file->seek(sector * sizeof(buf));
-	file->read(&buf, sizeof(buf));
+	file->seek(startSector * sizeof(SectorBuffer));
+	file->read(buffers, num * sizeof(SectorBuffer));
 }
 
 void DSKDiskImage::writeSectorImpl(size_t sector, const SectorBuffer& buf)

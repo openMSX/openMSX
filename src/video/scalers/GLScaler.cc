@@ -2,16 +2,16 @@
 #include "GLContext.hh"
 #include "gl_vec.hh"
 #include "strCat.hh"
+#include "xrange.hh"
 
-using std::string;
 using namespace gl;
 
 namespace openmsx {
 
-GLScaler::GLScaler(const string& progName)
+GLScaler::GLScaler(const std::string& progName)
 {
-	for (int i = 0; i < 2; ++i) {
-		string header = strCat("#define SUPERIMPOSE ", char('0' + i), '\n');
+	for (auto i : xrange(2)) {
+		auto header = tmpStrCat("#define SUPERIMPOSE ", char('0' + i), '\n');
 		VertexShader   vShader(header, progName + ".vert");
 		FragmentShader fShader(header, progName + ".frag");
 		program[i].attach(vShader);
@@ -61,10 +61,11 @@ void GLScaler::execute(
 	//       by srcHeight later on.
 	// Note: The coordinate is put just past zero, to avoid fract() in the
 	//       fragment shader to wrap around on rounding errors.
-	float hShift = textureFromZero ? 0.501f / dstWidth : 0.0f;
-	float vShift = textureFromZero ? 0.501f * (
-		float(srcEndY - srcStartY) / float(dstEndY - dstStartY)
-		) : 0.0f;
+	constexpr float BIAS = 0.001f;
+	float samplePos = (textureFromZero ? 0.5f : 0.0f) + BIAS;
+	float hShift = samplePos / dstWidth;
+	float yRatio = float(srcEndY - srcStartY) / float(dstEndY - dstStartY);
+	float vShift = samplePos * yRatio;
 
 	// vertex positions
 	vec2 pos[4] = {

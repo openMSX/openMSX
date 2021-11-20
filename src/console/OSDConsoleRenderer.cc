@@ -3,7 +3,6 @@
 #include "BooleanSetting.hh"
 #include "SDLImage.hh"
 #include "Display.hh"
-#include "InputEventGenerator.hh"
 #include "Timer.hh"
 #include "FileContext.hh"
 #include "CliComm.hh"
@@ -23,8 +22,6 @@
 #include "GLImage.hh"
 #endif
 
-using std::string;
-using std::string_view;
 using namespace gl;
 
 namespace openmsx {
@@ -40,7 +37,7 @@ constexpr int CHAR_BORDER = 4;
 
 // class OSDConsoleRenderer
 
-constexpr string_view defaultFont = "skins/VeraMono.ttf.gz";
+constexpr std::string_view defaultFont = "skins/VeraMono.ttf.gz";
 
 OSDConsoleRenderer::OSDConsoleRenderer(
 		Reactor& reactor_, CommandConsole& console_,
@@ -99,7 +96,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 
 	adjustColRow();
 
-	// background (only load backgound on first paint())
+	// background (only load background on first paint())
 	backgroundSetting.setChecker([this](TclObject& value) {
 		loadBackground(value.getString());
 	});
@@ -115,7 +112,7 @@ int OSDConsoleRenderer::initFontAndGetColumns()
 {
 	// init font
 	fontSetting.setChecker([this](TclObject& value) {
-		loadFont(string(value.getString()));
+		loadFont(value.getString());
 	});
 	try {
 		loadFont(fontSetting.getString());
@@ -160,7 +157,7 @@ void OSDConsoleRenderer::adjustColRow()
 	console.setRows(consoleRows);
 }
 
-void OSDConsoleRenderer::update(const Setting& setting)
+void OSDConsoleRenderer::update(const Setting& setting) noexcept
 {
 	if (&setting == &consoleSetting) {
 		setActive(consoleSetting.getBoolean());
@@ -257,9 +254,9 @@ bool OSDConsoleRenderer::updateConsoleRect()
 	return result;
 }
 
-void OSDConsoleRenderer::loadFont(string_view value)
+void OSDConsoleRenderer::loadFont(std::string_view value)
 {
-	string filename = systemFileContext().resolve(value);
+	auto filename = systemFileContext().resolve(value);
 	auto newFont = TTFFont(filename, fontSizeSetting.getInt());
 	if (!newFont.isFixedWidth()) {
 		throw MSXException(value, " is not a monospaced font");
@@ -268,7 +265,7 @@ void OSDConsoleRenderer::loadFont(string_view value)
 	clearCache();
 }
 
-void OSDConsoleRenderer::loadBackground(string_view value)
+void OSDConsoleRenderer::loadBackground(std::string_view value)
 {
 	if (value.empty()) {
 		backgroundImage.reset();
@@ -279,7 +276,7 @@ void OSDConsoleRenderer::loadBackground(string_view value)
 		backgroundImage.reset();
 		return;
 	}
-	string filename = systemFileContext().resolve(value);
+	auto filename = systemFileContext().resolve(value);
 	if (!openGL) {
 		backgroundImage = std::make_unique<SDLImage>(*output, filename, bgSize);
 	}
@@ -290,19 +287,17 @@ void OSDConsoleRenderer::loadBackground(string_view value)
 #endif
 }
 
-void OSDConsoleRenderer::drawText(OutputSurface& output, string_view text,
+void OSDConsoleRenderer::drawText(OutputSurface& output, std::string_view text,
                                   int cx, int cy, byte alpha, uint32_t rgb)
 {
 	auto xy = getTextPos(cx, cy);
-	unsigned width;
-	BaseImage* image;
-	if (!getFromCache(text, rgb, image, width)) {
-		string textStr(text);
+	auto [inCache, image, width] = getFromCache(text, rgb);
+	if (!inCache) {
+		std::string textStr(text);
 		SDLSurfacePtr surf;
 		uint32_t rgb2 = openGL ? 0xffffff : rgb; // openGL -> always render white
 		try {
-			unsigned dummyHeight;
-			font.getSize(textStr, width, dummyHeight);
+			width = font.getSize(textStr)[0];
 			surf = font.render(textStr,
 			                   (rgb2 >> 16) & 0xff,
 			                   (rgb2 >>  8) & 0xff,
@@ -343,8 +338,8 @@ void OSDConsoleRenderer::drawText(OutputSurface& output, string_view text,
 	}
 }
 
-bool OSDConsoleRenderer::getFromCache(string_view text, uint32_t rgb,
-                                      BaseImage*& image, unsigned& width)
+std::tuple<bool, BaseImage*, unsigned> OSDConsoleRenderer::getFromCache(
+	std::string_view text, uint32_t rgb)
 {
 	// Items are LRU sorted, so the next requested items will often be
 	// located right in front of the previously found item. (Though
@@ -362,21 +357,21 @@ bool OSDConsoleRenderer::getFromCache(string_view text, uint32_t rgb,
 	for (it = begin(textCache); it != end(textCache); ++it) {
 		if (it->text != text) continue;
 		if (!openGL && (it->rgb  != rgb)) continue;
-found:		image = it->image.get();
-		width = it->width;
+found:		BaseImage* image = it->image.get();
+		unsigned width = it->width;
 		cacheHint = it;
 		if (it != begin(textCache)) {
-			--cacheHint; // likely candiate for next item
+			--cacheHint; // likely candidate for next item
 			// move to front (to keep in LRU order)
 			textCache.splice(begin(textCache), textCache, it);
 		}
-		return true;
+		return {true, image, width};
 	}
-	return false;
+	return {false, nullptr, 0};
 }
 
 void OSDConsoleRenderer::insertInCache(
-	string text, uint32_t rgb, std::unique_ptr<BaseImage> image,
+	std::string text, uint32_t rgb, std::unique_ptr<BaseImage> image,
 	unsigned width)
 {
 	constexpr unsigned MAX_TEXT_CACHE_SIZE = 250;
@@ -394,7 +389,7 @@ void OSDConsoleRenderer::clearCache()
 {
 	// cacheHint must always point to a valid item, so insert a dummy entry
 	textCache.clear();
-	textCache.emplace_back(string{}, 0, nullptr, 0);
+	textCache.emplace_back(std::string{}, 0, nullptr, 0);
 	cacheHint = begin(textCache);
 }
 
@@ -448,9 +443,8 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 		blink = !blink;
 	}
 
-	unsigned cursorX, cursorY;
-	console.getCursorPosition(cursorX, cursorY);
-	if ((cursorX != lastCursorX) || (cursorY != lastCursorY)) {
+	auto [cursorX, cursorY] = console.getCursorPosition();
+	if ((unsigned(cursorX) != lastCursorX) || (unsigned(cursorY) != lastCursorY)) {
 		blink = true; // force cursor
 		lastBlinkTime = now + BLINK_RATE; // maximum time
 		lastCursorX = cursorX;
@@ -478,7 +472,7 @@ void OSDConsoleRenderer::drawConsoleText(OutputSurface& output, byte visibility)
 				return std::tuple(int(rows - 1), int(count - target), idx);
 			}
 		}
-		int y = count - 1 - scrollBack;
+		int y = int(count - 1 - scrollBack);
 		return std::tuple(y, 0, lines.size() - 1);
 	}();
 	int cursorY = cursorY_; // clang workaround
@@ -491,7 +485,7 @@ void OSDConsoleRenderer::drawConsoleText(OutputSurface& output, byte visibility)
 	std::string_view::size_type idx = it - begin(text);
 	unsigned chunkIdx = 1;
 	const auto& chunks0 = lines[lineIdx].getChunks();
-	while ((chunkIdx < chunks0.size()) && (chunks0[chunkIdx].second <= idx)) {
+	while ((chunkIdx < chunks0.size()) && (chunks0[chunkIdx].pos <= idx)) {
 		++chunkIdx;
 	}
 
@@ -506,7 +500,7 @@ void OSDConsoleRenderer::drawConsoleText(OutputSurface& output, byte visibility)
 				auto e = it;
 				auto nextColorIt = (chunkIdx == chunks.size())
 				                  ? endIt
-				                  : begin(text) + chunks[chunkIdx].second;
+				                  : begin(text) + chunks[chunkIdx].pos;
 				auto maxIt = std::min(endIt, nextColorIt);
 				while (remainingColumns && (e < maxIt)) {
 					utf8::unchecked::next(e);
@@ -514,7 +508,7 @@ void OSDConsoleRenderer::drawConsoleText(OutputSurface& output, byte visibility)
 				}
 				//std::string_view subText(it, e); // c++20
 				std::string_view subText(&*it, e - it);
-				auto rgb = chunks[chunkIdx - 1].first;
+				auto rgb = chunks[chunkIdx - 1].rgb;
 				auto cursorX = columns - startColumn;
 				drawText(output, subText, cursorX, cursorY, visibility, rgb);
 

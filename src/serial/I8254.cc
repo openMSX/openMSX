@@ -1,11 +1,11 @@
 #include "I8254.hh"
 #include "EmuTime.hh"
-#include "ClockPin.hh"
+#include "enumerate.hh"
 #include "one_of.hh"
 #include "serialize.hh"
+#include "stl.hh"
 #include "unreachable.hh"
 #include <cassert>
-#include <memory>
 
 namespace openmsx {
 
@@ -17,77 +17,24 @@ constexpr byte RB_STATUS = 0x10;
 constexpr byte RB_COUNT  = 0x20;
 
 
-class Counter {
-public:
-	Counter(Scheduler& scheduler, ClockPinListener* listener,
-		EmuTime::param time);
-	void reset(EmuTime::param time);
-	byte readIO(EmuTime::param time);
-	byte peekIO(EmuTime::param time) const;
-	void writeIO(byte value, EmuTime::param time);
-	void setGateStatus(bool status, EmuTime::param time);
-	void writeControlWord(byte value, EmuTime::param time);
-	void latchStatus(EmuTime::param time);
-	void latchCounter(EmuTime::param time);
-
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
-
-//private:
-	enum ByteOrder {LOW, HIGH};
-
-private:
-	static constexpr byte WRT_FRMT = 0x30;
-	static constexpr byte WF_LATCH = 0x00;
-	static constexpr byte WF_LOW   = 0x10;
-	static constexpr byte WF_HIGH  = 0x20;
-	static constexpr byte WF_BOTH  = 0x30;
-	static constexpr byte CNTR_MODE = 0x0E;
-	static constexpr byte CNTR_M0   = 0x00;
-	static constexpr byte CNTR_M1   = 0x02;
-	static constexpr byte CNTR_M2   = 0x04;
-	static constexpr byte CNTR_M3   = 0x06;
-	static constexpr byte CNTR_M4   = 0x08;
-	static constexpr byte CNTR_M5   = 0x0A;
-	static constexpr byte CNTR_M2_  = 0x0C;
-	static constexpr byte CNTR_M3_  = 0x0E;
-
-	void writeLoad(word value, EmuTime::param time);
-	void advance(EmuTime::param time);
-
-	ClockPin clock;
-	ClockPin output;
-	EmuTime currentTime;
-	int counter;
-	word latchedCounter, counterLoad;
-	byte control, latchedControl;
-	bool ltchCtrl, ltchCntr;
-	ByteOrder readOrder, writeOrder;
-	byte writeLatch;
-	bool gate;
-	bool active, triggered, counting;
-
-	friend class I8254;
-};
-
-
 // class I8254
 
 I8254::I8254(Scheduler& scheduler, ClockPinListener* output0,
              ClockPinListener* output1, ClockPinListener* output2,
              EmuTime::param time)
+	: counter(generate_array<3>([&](auto i) {
+		auto* output = (i == 0) ? output0
+		             : (i == 1) ? output1
+		                        : output2;
+		return Counter(scheduler, output, time);
+	}))
 {
-	counter[0] = std::make_unique<Counter>(scheduler, output0, time);
-	counter[1] = std::make_unique<Counter>(scheduler, output1, time);
-	counter[2] = std::make_unique<Counter>(scheduler, output2, time);
 }
-
-I8254::~I8254() = default;
 
 void I8254::reset(EmuTime::param time)
 {
 	for (auto& c : counter) {
-		c->reset(time);
+		c.reset(time);
 	}
 }
 
@@ -96,7 +43,7 @@ byte I8254::readIO(word port, EmuTime::param time)
 	port &= 3;
 	switch (port) {
 		case 0: case 1: case 2: // read counter 0, 1, 2
-			return counter[port]->readIO(time);
+			return counter[port].readIO(time);
 		case 3: // read from control word, illegal
 			return 255; // TODO check value
 		default:
@@ -109,7 +56,7 @@ byte I8254::peekIO(word port, EmuTime::param time) const
 	port &= 3;
 	switch (port) {
 		case 0: case 1: case 2:// read counter 0, 1, 2
-			return counter[port]->peekIO(time);
+			return counter[port].peekIO(time);
 		case 3: // read from control word, illegal
 			return 255; // TODO check value
 		default:
@@ -122,13 +69,13 @@ void I8254::writeIO(word port, byte value, EmuTime::param time)
 	port &= 3;
 	switch (port) {
 		case 0: case 1: case 2: // write counter 0, 1, 2
-			counter[port]->writeIO(value, time);
+			counter[port].writeIO(value, time);
 			break;
 		case 3:
 			// write to control register
 			if ((value & READ_BACK) != READ_BACK) {
 				// set control word of a counter
-				counter[value >> 6]->writeControlWord(
+				counter[value >> 6].writeControlWord(
 				                           value & 0x3F, time);
 			} else {
 				// Read-Back-Command
@@ -152,29 +99,29 @@ void I8254::readBackHelper(byte value, unsigned cntr, EmuTime::param time)
 {
 	assert(cntr < 3);
 	if (!(value & RB_STATUS)) {
-		counter[cntr]->latchStatus(time);
+		counter[cntr].latchStatus(time);
 	}
 	if (!(value & RB_COUNT)) {
-		counter[cntr]->latchCounter(time);
+		counter[cntr].latchCounter(time);
 	}
 }
 
 void I8254::setGate(unsigned cntr, bool status, EmuTime::param time)
 {
 	assert(cntr < 3);
-	counter[cntr]->setGateStatus(status, time);
+	counter[cntr].setGateStatus(status, time);
 }
 
 ClockPin& I8254::getClockPin(unsigned cntr)
 {
 	assert(cntr < 3);
-	return counter[cntr]->clock;
+	return counter[cntr].clock;
 }
 
 ClockPin& I8254::getOutputPin(unsigned cntr)
 {
 	assert(cntr < 3);
-	return counter[cntr]->output;
+	return counter[cntr].output;
 }
 
 
@@ -284,7 +231,7 @@ void Counter::writeIO(byte value, EmuTime::param time)
 			writeOrder = HIGH;
 			writeLatch = value;
 			if ((control & CNTR_MODE) == CNTR_M0)
-				// pauze counting when in mode 0
+				// pause counting when in mode 0
 				counting = false;
 		} else {
 			writeOrder = LOW;
@@ -506,7 +453,7 @@ void Counter::advance(EmuTime::param time)
 }
 
 
-static std::initializer_list<enum_string<Counter::ByteOrder>> byteOrderInfo = {
+static constexpr std::initializer_list<enum_string<Counter::ByteOrder>> byteOrderInfo = {
 	{ "LOW",  Counter::LOW  },
 	{ "HIGH", Counter::HIGH }
 };
@@ -538,9 +485,9 @@ template<typename Archive>
 void I8254::serialize(Archive& ar, unsigned /*version*/)
 {
 	char tag[9] = { 'c', 'o', 'u', 'n', 't', 'e', 'r', 'X', 0 };
-	for (int i = 0; i < 3; ++i) {
+	for (auto [i, cntr] : enumerate(counter)) {
 		tag[7] = char('0' + i);
-		ar.serialize(tag, *counter[i]);
+		ar.serialize(tag, cntr);
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(I8254);

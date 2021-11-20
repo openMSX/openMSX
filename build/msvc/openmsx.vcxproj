@@ -134,7 +134,7 @@
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <DelayLoadDLLs>shell32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <LinkTimeCodeGeneration>
       </LinkTimeCodeGeneration>
       <TargetMachine>MachineX86</TargetMachine>
@@ -166,7 +166,7 @@
       <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\$(Platform);$(ThirdPartyOutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DelayLoadDLLs>shell32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
   </ItemDefinitionGroup>
@@ -203,7 +203,7 @@
       <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\$(PlatformShortName);$(ThirdPartyOutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DelayLoadDLLs>shell32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
@@ -244,7 +244,7 @@
       <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\$(Platform);$(ThirdPartyOutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DelayLoadDLLs>shell32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX64</TargetMachine>
@@ -274,7 +274,7 @@
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <DelayLoadDLLs>shell32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <LinkTimeCodeGeneration>
       </LinkTimeCodeGeneration>
       <TargetMachine>MachineX86</TargetMachine>
@@ -307,7 +307,7 @@
       <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\$(Platform);$(ThirdPartyOutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DelayLoadDLLs>shell32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
   </ItemDefinitionGroup>
@@ -337,7 +337,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\config\DeviceConfig.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\config\SettingsConfig.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\config\XMLElement.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\config\XMLLoader.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\console\CommandConsole.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\console\OSDConsoleRenderer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\console\OSDGUI.cc" />
@@ -377,7 +376,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\events\HotKey.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\InputEventFactory.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\InputEventGenerator.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\events\InputEvents.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\Keys.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\MSXCliComm.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\Socket.cc" />
@@ -404,6 +402,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\MicrosolFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\MSXFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\MSXtar.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\fdc\CanonFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\NationalFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\SanyoFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\ToshibaFDC.cc" />
@@ -422,6 +421,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\RawTrack.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\DMKDiskImage.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\TC8566AF.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\fdc\TalentTDC600.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\TurboRFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\WD2793.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\WD2793BasedFDC.cc" />
@@ -694,7 +694,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\PNG.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\PostProcessor.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\RawFrame.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\Renderer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\RendererFactory.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\RenderSettings.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\RGBTriplet3xScaler.cc" />
@@ -811,6 +810,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\MSXS1985.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXS1990.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXSwitchedDevice.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\MSXToshibaTcx200x.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXTurboRPause.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\PasswordCart.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\Pluggable.cc" />
@@ -874,7 +874,6 @@
     <None Include="$(OpenMSXSrcDir)\config\SettingsConfig.hh" />
     <None Include="$(OpenMSXSrcDir)\config\XMLElement.hh" />
     <None Include="$(OpenMSXSrcDir)\config\XMLException.hh" />
-    <None Include="$(OpenMSXSrcDir)\config\XMLLoader.hh" />
     <None Include="$(OpenMSXSrcDir)\console\CommandConsole.hh" />
     <None Include="$(OpenMSXSrcDir)\console\OSDConsoleRenderer.hh" />
     <None Include="$(OpenMSXSrcDir)\console\OSDGUI.hh" />
@@ -917,12 +916,10 @@
     <None Include="$(OpenMSXSrcDir)\events\Event.hh" />
     <None Include="$(OpenMSXSrcDir)\events\EventDistributor.hh" />
     <None Include="$(OpenMSXSrcDir)\events\EventListener.hh" />
-    <None Include="$(OpenMSXSrcDir)\events\FinishFrameEvent.hh" />
     <None Include="$(OpenMSXSrcDir)\events\GlobalCliComm.hh" />
     <None Include="$(OpenMSXSrcDir)\events\HotKey.hh" />
     <None Include="$(OpenMSXSrcDir)\events\InputEventFactory.hh" />
     <None Include="$(OpenMSXSrcDir)\events\InputEventGenerator.hh" />
-    <None Include="$(OpenMSXSrcDir)\events\InputEvents.hh" />
     <None Include="$(OpenMSXSrcDir)\events\Keys.hh" />
     <None Include="$(OpenMSXSrcDir)\events\MSXCliComm.hh" />
     <None Include="$(OpenMSXSrcDir)\events\Socket.hh" />
@@ -951,6 +948,7 @@
     <None Include="$(OpenMSXSrcDir)\fdc\MicrosolFDC.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\MSXFDC.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\MSXtar.hh" />
+    <None Include="$(OpenMSXSrcDir)\fdc\CanonFDC.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\NationalFDC.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\SanyoFDC.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\ToshibaFDC.hh" />
@@ -968,6 +966,7 @@
     <None Include="$(OpenMSXSrcDir)\fdc\SectorAccessibleDisk.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\SectorBasedDisk.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\TC8566AF.hh" />
+    <None Include="$(OpenMSXSrcDir)\fdc\TalentTDC600.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\TurboRFDC.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\WD2793.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\WD2793BasedFDC.hh" />
@@ -1462,6 +1461,7 @@
     <None Include="$(OpenMSXSrcDir)\MSXS1985.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXS1990.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXSwitchedDevice.hh" />
+    <None Include="$(OpenMSXSrcDir)\MSXToshibaTcx200x.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXTurboRPause.hh" />
     <CustomBuild Include="$(OpenMSXSrcDir)\openmsx.hh">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Generating config headers...</Message>

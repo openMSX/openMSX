@@ -14,7 +14,7 @@ class RenderSettings;
   * the average color from the pixel above and below). It can also optionally
   * perform a horizontal blur.
   */
-template <class Pixel>
+template<typename Pixel>
 class Simple2xScaler final : public Scaler2<Pixel>
 {
 public:
@@ -43,6 +43,7 @@ private:
 	void blur1on1(const Pixel* pIn, Pixel* pOut, unsigned alpha,
 	              size_t srcWidth);
 
+private:
 	RenderSettings& settings;
 	PixelOperations<Pixel> pixelOps;
 

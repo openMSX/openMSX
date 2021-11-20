@@ -3,7 +3,7 @@
 namespace openmsx {
 
 IntegerSetting::IntegerSetting(CommandController& commandController_,
-                               std::string_view name_, std::string_view description_,
+                               std::string_view name_, static_string_view description_,
                                int initialValue, int minValue_, int maxValue_,
                                SaveSetting save_)
 	: Setting(commandController_, name_, description_,
@@ -14,7 +14,7 @@ IntegerSetting::IntegerSetting(CommandController& commandController_,
 	auto& interp = getInterpreter();
 	setChecker([this, &interp](TclObject& newValue) {
 		int val = newValue.getInt(interp); // may throw
-		newValue = std::min(std::max(val, minValue), maxValue);
+		newValue = std::clamp(val, minValue, maxValue);
 	});
 	init();
 }

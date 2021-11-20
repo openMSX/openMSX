@@ -8,7 +8,7 @@ namespace openmsx {
 
 constexpr unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on frequency setting
 
-DACSound16S::DACSound16S(std::string_view name_, std::string_view desc,
+DACSound16S::DACSound16S(std::string_view name_, static_string_view desc,
                          const DeviceConfig& config)
 	: SoundDevice(config.getMotherBoard().getMSXMixer(), name_, desc, 1, DUMMY_INPUT_RATE, false)
 	, lastWrittenValue(0)
@@ -66,7 +66,7 @@ void DACSound16S::serialize(Archive& ar, unsigned /*version*/)
 	//       This is for example done in MSXPPI/KeyClick.
 	int16_t lastValue = lastWrittenValue;
 	ar.serialize("lastValue", lastValue);
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		writeDAC(lastValue, getHostSampleClock().getTime());
 	}
 }

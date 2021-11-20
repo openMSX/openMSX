@@ -23,7 +23,7 @@ class PostProcessor;
 /** Rasterizer using a frame buffer approach: it writes pixels to a single
   * rectangular pixel buffer.
   */
-template <class Pixel>
+template<typename Pixel>
 class SDLRasterizer final : public Rasterizer
                           , private Observer<Setting>
 {
@@ -37,8 +37,8 @@ public:
 	~SDLRasterizer() override;
 
 	// Rasterizer interface:
-	PostProcessor* getPostProcessor() const override;
-	bool isActive() override;
+	[[nodiscard]] PostProcessor* getPostProcessor() const override;
+	[[nodiscard]] bool isActive() override;
 	void reset() override;
 	void frameStart(EmuTime::param time) override;
 	void frameEnd() override;
@@ -59,7 +59,7 @@ public:
 		int fromX, int fromY,
 		int displayX, int displayY,
 		int displayWidth, int displayHeight) override;
-	bool isRecording() const override;
+	[[nodiscard]] bool isRecording() const override;
 
 private:
 	inline void renderBitmapLine(Pixel* buf, unsigned vramLine);
@@ -81,15 +81,13 @@ private:
 	void precalcColorIndex0(DisplayMode mode, bool transparency,
 	                        const RawFrame* superimposing, byte bgcolorIndex);
 
-	// Some of the border-related settings changed.
-	void borderSettingChanged();
-
 	// Get the border color(s). These are 16bpp or 32bpp host pixels.
-	void getBorderColors(Pixel& border0, Pixel& border1);
+	std::pair<Pixel, Pixel> getBorderColors();
 
 	// Observer<Setting>
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
+private:
 	/** The VDP of which the video output is being rendered.
 	  */
 	VDP& vdp;
@@ -158,15 +156,6 @@ private:
 	/** Host colors corresponding to each possible V9958 color.
 	  */
 	Pixel V9958_COLORS[32768];
-
-	// True iff left/right border optimization can (still) be applied
-	// this frame.
-	bool canSkipLeftRightBorders;
-
-	// True iff some of the left/right border related settings changed
-	// during this frame (meaning the border pixels of this frame cannot
-	// be reused for future frames).
-	bool mixedLeftRightBorders;
 };
 
 } // namespace openmsx

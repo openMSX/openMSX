@@ -1,5 +1,6 @@
 #include "GLSimpleScaler.hh"
 #include "RenderSettings.hh"
+#include "xrange.hh"
 
 namespace openmsx {
 
@@ -9,7 +10,7 @@ GLSimpleScaler::GLSimpleScaler(
 	, renderSettings(renderSettings_)
 	, fallback(fallback_)
 {
-	for (int i = 0; i < 2; ++i) {
+	for (auto i : xrange(2)) {
 		program[i].activate();
 		unifTexStepX[i] = program[i].getUniformLocation("texStepX");
 		unifCnst[i]     = program[i].getUniformLocation("cnst");

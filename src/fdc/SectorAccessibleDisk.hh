@@ -20,35 +20,34 @@ public:
 	// sector stuff
 	void readSector (size_t sector,       SectorBuffer& buf);
 	void writeSector(size_t sector, const SectorBuffer& buf);
-	size_t getNbSectors() const;
+	void readSectors (      SectorBuffer* buffers, size_t startSector,
+	                  size_t nbSectors);
+	void writeSectors(const SectorBuffer* buffers, size_t startSector,
+	                  size_t nbSectors);
+	[[nodiscard]] size_t getNbSectors() const;
 
 	// write protected stuff
-	bool isWriteProtected() const;
+	[[nodiscard]] bool isWriteProtected() const;
 	void forceWriteProtect();
 
-	virtual bool isDummyDisk() const;
+	[[nodiscard]] virtual bool isDummyDisk() const;
 
 	// patch stuff
 	void applyPatch(Filename patchFile);
-	std::vector<Filename> getPatches() const;
-	bool hasPatches() const;
+	[[nodiscard]] std::vector<Filename> getPatches() const;
+	[[nodiscard]] bool hasPatches() const;
 
 	/** Calculate SHA1 of the content of this disk.
 	 * This value is cached (and flushed on writes).
 	 */
-	Sha1Sum getSha1Sum(FilePool& filepool);
-
-	// For compatibility with nowind
-	//  - read/write multiple sectors instead of one-per-one
-	//  - use error codes instead of exceptions
-	//  - different order of parameters
-	int readSectors (      SectorBuffer* buffers, size_t startSector,
-	                 size_t nbSectors);
-	int writeSectors(const SectorBuffer* buffers, size_t startSector,
-	                 size_t nbSectors);
+	[[nodiscard]] Sha1Sum getSha1Sum(FilePool& filepool);
 
 	// should only be called by EmptyDiskPatch
-	virtual void readSectorImpl (size_t sector, SectorBuffer& buf) = 0;
+	virtual void readSectorsImpl(
+		SectorBuffer* buffers, size_t startSector, size_t nbSectors);
+	// Default readSectorsImpl() implementation delegates to readSectorImpl.
+	// Subclasses should override exactly one of these two.
+	virtual void readSectorImpl(size_t sector, SectorBuffer& buf);
 
 protected:
 	SectorAccessibleDisk();
@@ -58,7 +57,7 @@ protected:
 	// an effect on DirAsDSK. See comment in DirAsDSK::readSectorImpl()
 	// for more details.
 	void setPeekMode(bool peek) { peekMode = peek; }
-	bool isPeekMode() const { return peekMode; }
+	[[nodiscard]] bool isPeekMode() const { return peekMode; }
 
 	virtual void checkCaches();
 	virtual void flushCaches();
@@ -66,9 +65,10 @@ protected:
 
 private:
 	virtual void writeSectorImpl(size_t sector, const SectorBuffer& buf) = 0;
-	virtual size_t getNbSectorsImpl() const = 0;
-	virtual bool isWriteProtectedImpl() const = 0;
+	[[nodiscard]] virtual size_t getNbSectorsImpl() const = 0;
+	[[nodiscard]] virtual bool isWriteProtectedImpl() const = 0;
 
+private:
 	std::unique_ptr<const PatchInterface> patch;
 	Sha1Sum sha1cache;
 	bool forcedWriteProtect = false;

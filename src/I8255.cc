@@ -335,7 +335,7 @@ void I8255::writeControlPort(byte value, EmuTime::param time)
 		}
 		outputPortC(latchPortC, time);
 		// check for special (re)set commands
-		// not releant for mode 0
+		// not relevant for mode 0
 		switch (control & MODE_A) {
 		case MODEA_0:
 			// do nothing

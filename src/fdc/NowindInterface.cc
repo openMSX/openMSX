@@ -1,5 +1,4 @@
 #include "NowindInterface.hh"
-#include "NowindCommand.hh"
 #include "DiskChanger.hh"
 #include "Clock.hh"
 #include "MSXMotherBoard.hh"
@@ -10,15 +9,14 @@
 #include <functional>
 #include <memory>
 
-using std::string;
-
 namespace openmsx {
 
 NowindInterface::NowindInterface(const DeviceConfig& config)
 	: MSXDevice(config)
 	, rom(getName() + " ROM", "rom", config)
-	, flash(rom, std::vector<AmdFlash::SectorInfo>(rom.getSize() / 0x10000, {0x10000, false}),
-	        0x01A4, false, config)
+	, flashConfig(rom.getSize() / 0x10000, {0x10000, false})
+	, flash(rom, flashConfig, 0x01A4,
+	        AmdFlash::Addressing::BITS_11, config)
 	, host(drives)
 	, basename("nowindX")
 {
@@ -33,8 +31,7 @@ NowindInterface::NowindInterface(const DeviceConfig& config)
 	(*nowindsInUse)[i] = true;
 	basename[6] = char('a' + i);
 
-	command = std::make_unique<NowindCommand>(
-		basename, getCommandController(), *this);
+	command.emplace(basename, getCommandController(), *this);
 
 	// start with one (empty) drive
 	auto drive = command->createDiskChanger(basename, 0, getMotherBoard());
@@ -91,7 +88,7 @@ const byte* NowindInterface::getReadCacheLine(word address) const
 {
 	if (((0x2000 <= address) && (address < 0x4000)) ||
 	    ((0x8000 <= address) && (address < 0xA000))) {
-		// nowind region, not cachable
+		// nowind region, not cacheable
 		return nullptr;
 	} else if ((0x4000 <= address) && (address < 0xC000)) {
 		// note: range 0x8000-0xA000 is already handled above
@@ -121,7 +118,7 @@ void NowindInterface::writeMem(word address, byte value, EmuTime::param time)
 byte* NowindInterface::getWriteCacheLine(word address) const
 {
 	if (address < 0xC000) {
-		// not cachable
+		// not cacheable
 		return nullptr;
 	} else {
 		return unmappedWrite;

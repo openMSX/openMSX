@@ -1,0 +1,87 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <info>
+    <manufacturer>Yamaha</manufacturer>
+    <code>SX-100</code>
+    <release_year>1985</release_year>
+    <description>A funky game oriented MSX.</description>
+    <type>MSX</type>
+  </info>
+
+<!-- Thanks to Peter Hanraets for the information from his machine with serial
+     number 005938.
+     ident.bas:
+     4k/16k: NO
+     address latch: NO
+     sprite clones: NO
+     screen 2 mirrored mode: YES
+     mode 3 mixed mode: YES
+     (last VDP test not sure, probably has Yamaha YM2220)
+     Z80 scf: 01ED29ED01FC29FC (standard)
+     Z80 cpl: 3AFF12D7 (standard)
+     Z80 out (c),0: 0 (MSX)
+     PSG pin 6/7 quirk: C (YES)
+     PSGmask: YM2149 like
+
+     Only uses 6W of power, according to the type plate :)
+
+     It probably has an S-3527 MSX engine chip, like the Victor HC-30.
+-->
+
+  <CassettePort/>
+
+  <devices>
+
+    <PPI id="ppi">
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <io base="0xA8" num="4"/>
+      <keyboard_type>jp_ansi</keyboard_type>
+      <has_keypad>false</has_keypad>
+      <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>
+      <code_kana_locks>true</code_kana_locks>
+      <graph_locks>false</graph_locks>
+    </PPI>
+
+    <VDP id="VDP">
+      <version>YM2220NTSC</version>
+      <io base="0x98" num="8"/> <!-- S-3527 mirrors -->
+    </VDP>
+
+    <PSG id="PSG">
+      <type>YM2149</type> <!-- in S-3527 MSX-ENGINE -->
+      <keyboardlayout>50on</keyboardlayout>
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <io base="0xA0" num="2" type="O"/>
+      <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>false</ignorePortDirections> <!-- not sure, but guess based on discrete PSG chip -->
+    </PSG>
+
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
+
+    <primary slot="0">
+      <RAM id="Main RAM">
+        <mem base="0x8000" size="0x8000"/>
+        <initialContent encoding="hex">FF00</initialContent>
+      </RAM>
+      <ROM id="MSX BIOS with BASIC ROM">
+        <rom>
+          <filename>sx-100_basic-bios1.rom</filename>
+          <sha1>4d0c37ad722366ac7aa3d64291c3db72884deb2d</sha1>
+        </rom>
+        <mem base="0x0000" size="0x8000"/>
+      </ROM>
+    </primary>
+
+    <primary external="true" slot="1"/>
+
+  </devices>
+
+</msxconfig>

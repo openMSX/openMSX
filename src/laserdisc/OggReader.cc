@@ -6,9 +6,9 @@
 #include "MemoryOps.hh"
 #include "one_of.hh"
 #include "ranges.hh"
-#include "stl.hh"
 #include "stringsp.hh" // for strncasecmp
 #include "view.hh"
+#include "xrange.hh"
 #include <cstring> // for memcpy, memcmp
 #include <cstdlib> // for atoi
 #include <cctype> // for isspace
@@ -435,7 +435,7 @@ size_t OggReader::frameNo(ogg_packet* packet) const
 void OggReader::readMetadata(th_comment& tc)
 {
 	char* metadata = nullptr;
-	for (int i = 0; i < tc.comments; ++i) {
+	for (auto i : xrange(tc.comments)) {
 		if (!strncasecmp(tc.user_comments[i], "location=",
 				 strlen("location="))) {
 			metadata = tc.user_comments[i] + strlen("location=");
@@ -459,7 +459,7 @@ void OggReader::readMetadata(th_comment& tc)
 			++p;
 			size_t frame = atol(p);
 			if (frame) {
-				chapters.emplace_back(chapter, frame);
+				chapters.emplace_back(ChapterFrame{chapter, frame});
 			}
 		} else if (strncasecmp(p, "stop: ", 6) == 0) {
 			size_t stopframe = atol(p + 6);
@@ -471,7 +471,7 @@ void OggReader::readMetadata(th_comment& tc)
 		if (p) ++p;
 	}
 	ranges::sort(stopFrames);
-	ranges::sort(chapters, LessTupleElement<0>());
+	ranges::sort(chapters, {}, &ChapterFrame::chapter);
 }
 
 void OggReader::readTheora(ogg_packet* packet)
@@ -801,7 +801,7 @@ size_t OggReader::bisection(
 	size_t frame, size_t sample,
 	size_t maxOffset, size_t maxSamples, size_t maxFrames)
 {
-	// Defined to be a power-of-two such that the arthmetic can be done faster.
+	// Defined to be a power-of-two such that the calculations can be done faster.
 	// Note that the sample-number is in the range of: 1..(44100*60*60)
 	constexpr uint64_t SHIFT = 0x20000000ull;
 
@@ -971,9 +971,9 @@ bool OggReader::stopFrame(size_t frame) const
 
 size_t OggReader::getChapter(int chapterNo) const
 {
-	auto it = ranges::lower_bound(chapters, chapterNo, LessTupleElement<0>());
-	return ((it != end(chapters)) && (it->first == chapterNo))
-		? it->second : 0;
+	auto it = ranges::lower_bound(chapters, chapterNo, {}, &ChapterFrame::chapter);
+	return ((it != end(chapters)) && (it->chapter == chapterNo))
+		? it->frame : 0;
 }
 
 } // namespace openmsx

@@ -21,7 +21,7 @@ public:
 	size_t getPos() override;
 	void flush() override;
 
-	std::string getURL() const override;
+	const std::string& getURL() const override;
 	bool isReadOnly() const override;
 	time_t getModificationDate() override;
 

@@ -20,11 +20,15 @@ public:
 	         EmuTime::param time);
 
 	void reset(EmuTime::param time);
-	byte readReg(int reg, EmuTime::param time);
-	byte peekReg(int reg, EmuTime::param time) const;
-	void writeReg(int reg, byte data, EmuTime::param time);
+	[[nodiscard]] byte peekDataPort(EmuTime::param time) const;
+	byte readDataPort(EmuTime::param time);
+	[[nodiscard]] byte peekStatus() const;
+	byte readStatus(EmuTime::param time);
+	void writeControlReg0(byte data, EmuTime::param time);
+	void writeControlReg1(byte data, EmuTime::param time);
+	void writeDataPort(byte value, EmuTime::param time);
 	bool diskChanged(unsigned driveNum);
-	bool peekDiskChanged(unsigned driveNum) const;
+	[[nodiscard]] bool peekDiskChanged(unsigned driveNum) const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -54,34 +58,35 @@ public:
 		PHASE_DATATRANSFER,
 		PHASE_RESULT,
 	};
+	enum SeekState {
+		SEEK_IDLE,
+		SEEK_SEEK,
+		SEEK_RECALIBRATE
+	};
 
 private:
 	// Schedulable
 	void executeUntil(EmuTime::param time) override;
 
-	byte peekDataPort(EmuTime::param time) const;
-	byte readDataPort(EmuTime::param time);
-	byte peekStatus() const;
-	byte readStatus(EmuTime::param time);
-	byte executionPhasePeek(EmuTime::param time) const;
+	[[nodiscard]] byte executionPhasePeek(EmuTime::param time) const;
 	byte executionPhaseRead(EmuTime::param time);
-	byte resultsPhasePeek() const;
+	[[nodiscard]] byte resultsPhasePeek() const;
 	byte resultsPhaseRead(EmuTime::param time);
-	void writeDataPort(byte value, EmuTime::param time);
 	void idlePhaseWrite(byte value, EmuTime::param time);
 	void commandPhase1(byte value);
 	void commandPhaseWrite(byte value, EmuTime::param time);
-	void doSeek(EmuTime::param time);
+	void doSeek(int n);
 	void executionPhaseWrite(byte value, EmuTime::param time);
 	void resultPhase();
 	void endCommand(EmuTime::param time);
 
-	bool isHeadLoaded(EmuTime::param time) const;
-	EmuDuration getHeadLoadDelay() const;
-	EmuDuration getHeadUnloadDelay() const;
-	EmuDuration getSeekDelay() const;
+	[[nodiscard]] bool isHeadLoaded(EmuTime::param time) const;
+	[[nodiscard]] EmuDuration getHeadLoadDelay() const;
+	[[nodiscard]] EmuDuration getHeadUnloadDelay() const;
+	[[nodiscard]] EmuDuration getSeekDelay() const;
 
-	EmuTime locateSector(EmuTime::param time);
+	[[nodiscard]] EmuTime locateSector(EmuTime::param time);
+	void startReadWriteSector(EmuTime::param time);
 	void writeSector();
 	void initTrackHeader(EmuTime::param time);
 	void formatSector();
@@ -117,14 +122,23 @@ private:
 	byte headNumber;
 	byte sectorNumber;
 	byte number;
-	byte currentTrack;
+	byte endOfTrack;
 	byte sectorsPerCylinder;
 	byte fillerByte;
 	byte gapLength;
 	byte specifyData[2]; // filled in by SPECIFY command
-	byte seekValue;
+
+	struct SeekInfo {
+		EmuTime time = EmuTime::zero();
+		byte currentTrack = 0;
+		byte seekValue = 0;
+		SeekState state = SEEK_IDLE;
+
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
+	} seekInfo[4];
 };
-SERIALIZE_CLASS_VERSION(TC8566AF, 5);
+SERIALIZE_CLASS_VERSION(TC8566AF, 7);
 
 } // namespace openmsx
 

@@ -21,7 +21,7 @@ class CPUClock;
 class CPURegs;
 class Z80TYPE;
 class R800TYPE;
-template <typename T> class CPUCore;
+template<typename T> class CPUCore;
 class TclObject;
 class Interpreter;
 
@@ -50,13 +50,13 @@ public:
 	void updateVisiblePage(byte page, byte primarySlot, byte secondarySlot);
 
 	/** Invalidate the CPU its cache for the interval [start, start + size)
-	  * For example MSXMemoryMapper and MSXGameCartrigde need to call this
+	  * For example MSXMemoryMapper and MSXGameCartridge need to call this
 	  * method when a 'memory switch' occurs. */
 	void invalidateAllSlotsRWCache(word start, unsigned size);
 
 	/** Similar to the method above, but only invalidates one specific slot.
 	  * One small tweak: lines that are in 'disallowRead/Write' are
-	  * immediately marked as 'non-cachable' instead of (first) as
+	  * immediately marked as 'non-cacheable' instead of (first) as
 	  * 'unknown'.
 	  */
 	void invalidateRWCache(unsigned start, unsigned size, int ps, int ss,
@@ -67,7 +67,7 @@ public:
                                const byte* disallowWrite);
 
 	/** Fill the read and write cache lines for a specific slot with the
-	 * specified value. Except for the lines where the correponding
+	 * specified value. Except for the lines where the corresponding
 	 * 'disallow{Read,Write}' array is non-zero, those lines are marked
 	 * non-cacheable.
 	 * This is useful on e.g. a memory mapper bank switch because:
@@ -113,7 +113,7 @@ public:
 	  * (the Z80 M1 pin is active). This implementation is not 100%
 	  * accurate, but good enough for now.
 	  */
-	bool isM1Cycle(unsigned address) const;
+	[[nodiscard]] bool isM1Cycle(unsigned address) const;
 
 	/** See CPUCore::exitCPULoopsync() */
 	void exitCPULoopSync();
@@ -121,7 +121,7 @@ public:
 	void exitCPULoopAsync();
 
 	/** Is the R800 currently active? */
-	bool isR800Active() const { return !z80Active; }
+	[[nodiscard]] bool isR800Active() const { return !z80Active; }
 
 	/** Switch the Z80 clock freq. */
 	void setZ80Freq(unsigned freq);
@@ -142,7 +142,7 @@ public:
 	EmuTime waitCyclesZ80(EmuTime::param time, unsigned cycles);
 	EmuTime waitCyclesR800(EmuTime::param time, unsigned cycles);
 
-	CPURegs& getRegisters();
+	[[nodiscard]] CPURegs& getRegisters();
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -162,7 +162,7 @@ private:
 	EmuTime::param getCurrentTime() const;
 
 	// Observer<Setting>
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
 	template<bool READ, bool WRITE, bool SUB_START>
 	void setRWCache(unsigned start, unsigned size, const byte* rData, byte* wData, int ps, int ss,
@@ -183,7 +183,7 @@ private:
 		explicit TimeInfoTopic(InfoCommand& machineInfoCommand);
 		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
-		std::string help (const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 	} timeInfo;
 
 	class CPUFreqInfoTopic final : public InfoTopic {
@@ -192,7 +192,7 @@ private:
 				 const std::string& name, CPUClock& clock);
 		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
-		std::string help (const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 	private:
 		CPUClock& clock;
 	};
@@ -201,7 +201,7 @@ private:
 
 	struct Debuggable final : SimpleDebuggable {
 		explicit Debuggable(MSXMotherBoard& motherboard);
-		byte read(unsigned address) override;
+		[[nodiscard]] byte read(unsigned address) override;
 		void write(unsigned address, byte value) override;
 	} debuggable;
 

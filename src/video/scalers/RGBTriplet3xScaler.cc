@@ -4,13 +4,14 @@
 #include "RawFrame.hh"
 #include "ScalerOutput.hh"
 #include "RenderSettings.hh"
+#include "enumerate.hh"
 #include "vla.hh"
 #include "build-info.hh"
 #include <cstdint>
 
 namespace openmsx {
 
-template <class Pixel>
+template<typename Pixel>
 RGBTriplet3xScaler<Pixel>::RGBTriplet3xScaler(
 		const PixelOperations<Pixel>& pixelOps_,
 		const RenderSettings& renderSettings)
@@ -21,56 +22,57 @@ RGBTriplet3xScaler<Pixel>::RGBTriplet3xScaler(
 {
 }
 
-template <class Pixel>
-void RGBTriplet3xScaler<Pixel>::calcBlur(unsigned& c1, unsigned& c2)
+template<typename Pixel>
+std::pair<unsigned, unsigned> RGBTriplet3xScaler<Pixel>::calcBlur()
 {
-	c1 = settings.getBlurFactor();
-	c2 = (3 * 256) - (2 * c1);
+	unsigned c1 = settings.getBlurFactor();
+	unsigned c2 = (3 * 256) - (2 * c1);
+	return {c1, c2};
 }
 
-static inline void calcSpil(unsigned c1, unsigned c2, unsigned x, unsigned& r, unsigned& s)
+[[nodiscard]] static inline std::pair<unsigned, unsigned> calcSpill(unsigned c1, unsigned c2, unsigned x)
 {
-	r = (c2 * x) >> 8;
-	s = (c1 * x) >> 8;
+	unsigned r = (c2 * x) >> 8;
+	unsigned s = (c1 * x) >> 8;
 	if (r > 255) {
 		s += (r - 255) / 2;
 		r = 255;
 	}
+	return {r, s};
 }
 
-template <class Pixel>
+template<typename Pixel>
 void RGBTriplet3xScaler<Pixel>::rgbify(
-	const Pixel* __restrict in, Pixel* __restrict out, unsigned inwidth,
+	const Pixel* __restrict in, Pixel* __restrict out, unsigned inWidth,
 	unsigned c1, unsigned c2)
 {
-	unsigned r, g, b, rs, gs, bs;
 	unsigned i = 0;
 
-	calcSpil(c1, c2, pixelOps.red256  (in[i + 0]), r, rs);
-	calcSpil(c1, c2, pixelOps.green256(in[i + 0]), g, gs);
-	out[3 * i + 0] = pixelOps.combine256(r , gs, 0 );
-	calcSpil(c1, c2, pixelOps.blue256 (in[i + 0]), b, bs);
+	auto    [r, rs] = calcSpill(c1, c2, pixelOps.red256  (in[i + 0]));
+	auto    [g, gs] = calcSpill(c1, c2, pixelOps.green256(in[i + 0]));
+	out[3 * i + 0] = pixelOps.combine256(r , gs, 0);
+	auto    [b, bs] = calcSpill(c1, c2, pixelOps.blue256 (in[i + 0]));
 	out[3 * i + 1] = pixelOps.combine256(rs, g , bs);
-	calcSpil(c1, c2, pixelOps.red256  (in[i + 1]), r, rs);
-	out[3 * i + 2] = pixelOps.combine256(rs, gs, b );
+	std::tie(r, rs) = calcSpill(c1, c2, pixelOps.red256  (in[i + 1]));
+	out[3 * i + 2] = pixelOps.combine256(rs, gs, b);
 
-	for (++i; i < (inwidth - 1); ++i) {
-		calcSpil(c1, c2, pixelOps.green256(in[i + 0]), g, gs);
+	for (++i; i < (inWidth - 1); ++i) {
+		std::tie(g, gs) = calcSpill(c1, c2, pixelOps.green256(in[i + 0]));
 		out[3 * i + 0] = pixelOps.combine256(r , gs, bs);
-		calcSpil(c1, c2, pixelOps.blue256 (in[i + 0]), b, bs);
+		std::tie(b, bs) = calcSpill(c1, c2, pixelOps.blue256 (in[i + 0]));
 		out[3 * i + 1] = pixelOps.combine256(rs, g , bs);
-		calcSpil(c1, c2, pixelOps.red256  (in[i + 1]), r, rs);
-		out[3 * i + 2] = pixelOps.combine256(rs, gs, b );
+		std::tie(r, rs) = calcSpill(c1, c2, pixelOps.red256  (in[i + 1]));
+		out[3 * i + 2] = pixelOps.combine256(rs, gs, b);
 	}
 
-	calcSpil(c1, c2, pixelOps.green256(in[i + 0]), g, gs);
+	std::tie(g, gs) = calcSpill(c1, c2, pixelOps.green256(in[i + 0]));
 	out[3 * i + 0] = pixelOps.combine256(r , gs, bs);
-	calcSpil(c1, c2, pixelOps.blue256 (in[i + 0]), b, bs);
+	std::tie(b, bs) = calcSpill(c1, c2, pixelOps.blue256 (in[i + 0]));
 	out[3 * i + 1] = pixelOps.combine256(rs, g , bs);
-	out[3 * i + 2] = pixelOps.combine256(0 , gs, b );
+	out[3 * i + 2] = pixelOps.combine256(0 , gs, b);
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void RGBTriplet3xScaler<Pixel>::scaleLine(
 	const Pixel* srcLine, Pixel* dstLine, PolyLineScaler<Pixel>& scale,
 	unsigned tmpWidth, unsigned c1, unsigned c2)
@@ -87,7 +89,7 @@ void RGBTriplet3xScaler<Pixel>::scaleLine(
 // Note: the idea is that this method RGBifies a line that is first scaled
 // to output-width / 3. So, when calling this, keep this in mind and pass a
 // scale functor that scales the input with correctly.
-template <typename Pixel>
+template<typename Pixel>
 void RGBTriplet3xScaler<Pixel>::doScale1(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY,
@@ -95,8 +97,7 @@ void RGBTriplet3xScaler<Pixel>::doScale1(FrameSource& src,
 {
 	VLA_SSE_ALIGNED(Pixel, buf, srcWidth);
 
-	unsigned c1, c2;
-	calcBlur(c1, c2);
+	auto [c1, c2] = calcBlur();
 
 	unsigned dstWidth = dst.getWidth();
 	unsigned tmpWidth = dstWidth / 3;
@@ -139,15 +140,14 @@ void RGBTriplet3xScaler<Pixel>::doScale1(FrameSource& src,
 	dst.releaseLine(y + 2, dstLine2);
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void RGBTriplet3xScaler<Pixel>::doScale2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY,
 	PolyLineScaler<Pixel>& scale)
 {
 	VLA_SSE_ALIGNED(Pixel, buf, srcWidth);
-	unsigned c1, c2;
-	calcBlur(c1, c2);
+	auto [c1, c2] = calcBlur();
 
 	unsigned dstWidth = dst.getWidth();
 	unsigned tmpWidth = dstWidth / 3;
@@ -172,7 +172,7 @@ void RGBTriplet3xScaler<Pixel>::doScale2(FrameSource& src,
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void RGBTriplet3xScaler<Pixel>::scale2x1to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -182,7 +182,7 @@ void RGBTriplet3xScaler<Pixel>::scale2x1to9x3(FrameSource& src,
 	         dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void RGBTriplet3xScaler<Pixel>::scale2x2to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -192,7 +192,7 @@ void RGBTriplet3xScaler<Pixel>::scale2x2to9x3(FrameSource& src,
 	         dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void RGBTriplet3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -202,7 +202,7 @@ void RGBTriplet3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 	         dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void RGBTriplet3xScaler<Pixel>::scale1x2to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -212,7 +212,7 @@ void RGBTriplet3xScaler<Pixel>::scale1x2to3x3(FrameSource& src,
 	         dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void RGBTriplet3xScaler<Pixel>::scale4x1to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -222,7 +222,7 @@ void RGBTriplet3xScaler<Pixel>::scale4x1to9x3(FrameSource& src,
 	         dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void RGBTriplet3xScaler<Pixel>::scale4x2to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -232,7 +232,7 @@ void RGBTriplet3xScaler<Pixel>::scale4x2to9x3(FrameSource& src,
 	         dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void RGBTriplet3xScaler<Pixel>::scale2x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -242,7 +242,7 @@ void RGBTriplet3xScaler<Pixel>::scale2x1to3x3(FrameSource& src,
 	         dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void RGBTriplet3xScaler<Pixel>::scale2x2to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -252,7 +252,7 @@ void RGBTriplet3xScaler<Pixel>::scale2x2to3x3(FrameSource& src,
 	         dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void RGBTriplet3xScaler<Pixel>::scale8x1to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -262,7 +262,7 @@ void RGBTriplet3xScaler<Pixel>::scale8x1to9x3(FrameSource& src,
 	         dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void RGBTriplet3xScaler<Pixel>::scale8x2to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -272,7 +272,7 @@ void RGBTriplet3xScaler<Pixel>::scale8x2to9x3(FrameSource& src,
 	         dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void RGBTriplet3xScaler<Pixel>::scale4x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -282,7 +282,7 @@ void RGBTriplet3xScaler<Pixel>::scale4x1to3x3(FrameSource& src,
 	         dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void RGBTriplet3xScaler<Pixel>::scale4x2to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -292,9 +292,9 @@ void RGBTriplet3xScaler<Pixel>::scale4x2to3x3(FrameSource& src,
 	         dst, dstStartY, dstEndY, op);
 }
 
-template <typename Pixel>
-static void fillLoop(const Pixel* __restrict in, Pixel* __restrict out,
-                     unsigned dstWidth)
+template<typename Pixel>
+static constexpr void fillLoop(const Pixel* __restrict in, Pixel* __restrict out,
+                               unsigned dstWidth)
 {
 	out[0] = in[0];
 	out[1] = in[1];
@@ -309,13 +309,12 @@ static void fillLoop(const Pixel* __restrict in, Pixel* __restrict out,
 	out[dstWidth - 1] = in[8];
 }
 
-template <class Pixel>
+template<typename Pixel>
 void RGBTriplet3xScaler<Pixel>::scaleBlank1to3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	unsigned c1, c2;
-	calcBlur(c1, c2);
+	auto [c1, c2] = calcBlur();
 	int scanlineFactor = settings.getScanlineFactor();
 
 	unsigned dstWidth  = dst.getWidth();
@@ -331,9 +330,8 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank1to3(
 		inNormal[0] = inNormal[1] = inNormal[2] = color;
 		rgbify(inNormal, outNormal, 3, c1, c2);
 		Pixel outScanline[3 * 3];
-		for (int i = 0; i < (3 * 3); ++i) {
-			outScanline[i] = scanline.darken(
-					outNormal[i], scanlineFactor);
+		for (auto [i, out] : enumerate(outScanline)) {
+			out = scanline.darken(outNormal[i], scanlineFactor);
 		}
 
 		auto* dstLine0 = dst.acquireLine(dstY + 0);
@@ -357,13 +355,12 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank1to3(
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void RGBTriplet3xScaler<Pixel>::scaleBlank2to3(
 		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	unsigned c1, c2;
-	calcBlur(c1, c2);
+	auto [c1, c2] = calcBlur();
 	int scanlineFactor = settings.getScanlineFactor();
 	unsigned dstWidth = dst.getWidth();
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
@@ -381,8 +378,8 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank2to3(
 		inNormal[0] = inNormal[1] = inNormal[2] = color1;
 		rgbify(inNormal, out1Normal, 3, c1, c2);
 
-		for (int i = 0; i < (3 * 3); ++i) {
-			outScanline[i] = scanline.darken(
+		for (auto [i, out] : enumerate(outScanline)) {
+			out = scanline.darken(
 				out0Normal[i], out1Normal[i],
 				scanlineFactor);
 		}
@@ -401,7 +398,7 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank2to3(
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void RGBTriplet3xScaler<Pixel>::scaleImage(FrameSource& src, const RawFrame* superImpose,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)

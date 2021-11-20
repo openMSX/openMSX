@@ -1,10 +1,12 @@
 #ifndef FILEPOOL_HH
 #define FILEPOOL_HH
 
+#include "Command.hh"
 #include "EventListener.hh"
 #include "FilePoolCore.hh"
 #include "StringSetting.hh"
 #include "Observer.hh"
+#include <string_view>
 
 namespace openmsx {
 
@@ -22,29 +24,37 @@ public:
 	 * If found it returns the (already opened) file,
 	 * if not found it returns nullptr.
 	 */
-	File getFile(FileType fileType, const Sha1Sum& sha1sum);
+	[[nodiscard]] File getFile(FileType fileType, const Sha1Sum& sha1sum);
 
 	/** Calculate sha1sum for the given File object.
 	 * If possible the result is retrieved from cache, avoiding the
 	 * relatively expensive calculation.
 	 */
-	Sha1Sum getSha1Sum(File& file);
+	[[nodiscard]] Sha1Sum getSha1Sum(File& file);
 
 private:
-	FilePoolCore::Directories getDirectories() const;
-	void reportProgress(const std::string& message);
+	[[nodiscard]] FilePoolCore::Directories getDirectories() const;
+	void reportProgress(std::string_view message);
 
 	// Observer<Setting>
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
 	// EventListener
-	int signalEvent(const std::shared_ptr<const Event>& event) override;
+	int signalEvent(const Event& event) noexcept override;
 
 private:
 	FilePoolCore core;
 	StringSetting filePoolSetting;
 	Reactor& reactor;
-	std::unique_ptr<Sha1SumCommand> sha1SumCommand;
+
+	class Sha1SumCommand final : public Command {
+	public:
+		explicit Sha1SumCommand(CommandController& commandController);
+		void execute(span<const TclObject> tokens, TclObject& result) override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		void tabCompletion(std::vector<std::string>& tokens) const override;
+	} sha1SumCommand;
+
 	bool quit = false;
 };
 

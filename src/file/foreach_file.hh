@@ -8,6 +8,7 @@
 #include <functional>
 #include <string_view>
 #include <tuple>
+#include <type_traits>
 
 /** This file implemented 3 utility functions:
  *  - foreach_file              (path, fileAction)
@@ -58,7 +59,7 @@ namespace openmsx {
 		// non-optional, but (possibly) ignores those parameters when
 		// delegating to the wrapped action.
 		template<typename Action>
-		auto adaptParams(Action action) {
+		[[nodiscard]] auto adaptParams(Action action) {
 			if constexpr (std::is_invocable_v<Action, std::string&, std::string_view, Stat&>) {
 				return std::tuple(action, true);
 			} else if constexpr (std::is_invocable_v<Action, std::string&, std::string_view>) {
@@ -82,7 +83,7 @@ namespace openmsx {
 		// - return it unchanged if it already returned a non-void result
 		// - otherwise return a wrapper that invokes the given action and then returns 'true'.
 		template<typename Action>
-		auto adaptReturn(Action action) {
+		[[nodiscard]] auto adaptReturn(Action action) {
 			using ResultType = std::invoke_result_t<Action, std::string&, std::string_view, Stat&>;
 			if constexpr (std::is_same_v<ResultType, void>) {
 				return [=](auto&&... params) {
@@ -103,7 +104,8 @@ namespace openmsx {
 			bool needStat = statFile || statDir;
 
 			ReadDir dir(path);
-			if (!path.empty() && (path.back() != '/')) path += '/';
+			bool addSlash = !path.empty() && (path.back() != '/');
+			if (addSlash) path += '/';
 			auto origLen = path.size();
 			while (dirent* d = dir.getEntry()) {
 				std::string_view f(d->d_name);
@@ -139,7 +141,7 @@ namespace openmsx {
 
 				path.resize(origLen);
 			}
-			path.pop_back();
+			if (addSlash) path.pop_back();
 
 			return true; // finished normally
 		}

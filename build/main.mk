@@ -256,6 +256,9 @@ endif # goal requires dependencies
 SOURCE_DIRS:=$(sort $(shell find src -type d))
 
 SOURCES_FULL:=$(foreach dir,$(SOURCE_DIRS),$(sort $(wildcard $(dir)/*.cc)))
+ifeq ($(OPENMSX_TARGET_OS),darwin)
+SOURCES_FULL+=$(foreach dir,$(SOURCE_DIRS),$(sort $(wildcard $(dir)/*.mm)))
+endif
 SOURCES_FULL:=$(filter-out %Test.cc,$(SOURCES_FULL))
 
 # TODO: This doesn't work since MAX_SCALE_FACTOR is not a Make variable,
@@ -303,7 +306,7 @@ $(error Sources list empty $(if \
    $(OPENMSX_SUBSET),after applying subset "$(OPENMSX_SUBSET)*"))
 endif
 
-SOURCES:=$(SOURCES_FULL:$(SOURCES_PATH)/%.cc=%)
+SOURCES:=$(SOURCES_FULL:$(SOURCES_PATH)/%=%)
 
 DEPEND_PATH:=$(BUILD_PATH)/dep
 DEPEND_FULL:=$(addsuffix .d,$(addprefix $(DEPEND_PATH)/,$(SOURCES)))
@@ -333,7 +336,7 @@ WINDRES?=windres
 DEPEND_FLAGS:=
 ifneq ($(filter %clang++,$(CXX))$(filter clang++%,$(CXX)),)
   # Enable C++17 (for the most part supported since clang-5)
-  COMPILE_FLAGS+=-std=c++17
+  COMPILE_FLAGS+=-std=c++17 -fconstexpr-steps=2000000
   COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion -Wmissing-declarations -Wshadow -Wold-style-cast -Wzero-as-null-pointer-constant
   # Hardware descriptions can contain constants that are not used in the code
   # but still useful as documentation.
@@ -486,8 +489,8 @@ $(SUB_MAKEFILES):
 endif
 
 # Compile and generate dependency files in one go.
-DEPEND_SUBST=$(patsubst $(SOURCES_PATH)/%.cc,$(DEPEND_PATH)/%.d,$<)
-$(OBJECTS_FULL): $(OBJECTS_PATH)/%.o: $(SOURCES_PATH)/%.cc $(DEPEND_PATH)/%.d \
+DEPEND_SUBST=$(patsubst $(SOURCES_PATH)/%,$(DEPEND_PATH)/%.d,$<)
+$(OBJECTS_FULL): $(OBJECTS_PATH)/%.o: $(SOURCES_PATH)/% $(DEPEND_PATH)/%.d \
 		| config $(GENERATED_HEADERS)
 	$(SUM) "Compiling $(patsubst $(SOURCES_PATH)/%,%,$<)..."
 	$(CMD)mkdir -p $(@D)

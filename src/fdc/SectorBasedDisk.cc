@@ -1,5 +1,6 @@
 #include "SectorBasedDisk.hh"
 #include "MSXException.hh"
+#include "xrange.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -21,7 +22,7 @@ void SectorBasedDisk::writeTrackImpl(byte track, byte side, const RawTrack& inpu
 		// Ignore sectors that are outside the range 1..sectorsPerTrack
 		if ((s.sector < 1) || (s.sector > getSectorsPerTrack())) continue;
 		SectorBuffer buf;
-		input.readBlock(s.dataIdx, 512, buf.raw);
+		input.readBlock(s.dataIdx, buf.raw);
 		auto logicalSector = physToLog(track, side, s.sector);
 		writeSector(logicalSector, buf);
 		// it's important to use writeSector() and not writeSectorImpl()
@@ -82,17 +83,21 @@ void SectorBasedDisk::readTrack(byte track, byte side, RawTrack& output)
 		output.clear(RawTrack::STANDARD_SIZE); // clear idam positions
 
 		unsigned idx = 0;
-		for (int i = 0; i < 80; ++i) output.write(idx++, 0x4E); // gap4a
-		for (int i = 0; i < 12; ++i) output.write(idx++, 0x00); // sync
-		for (int i = 0; i <  3; ++i) output.write(idx++, 0xC2); // index mark (1)
-		for (int i = 0; i <  1; ++i) output.write(idx++, 0xFC); //            (2)
-		for (int i = 0; i < 50; ++i) output.write(idx++, 0x4E); // gap1
+		auto write = [&](unsigned n, byte value) {
+			repeat(n, [&] { output.write(idx++, value); });
+		};
 
-		for (int j = 0; j < 9; ++j) {
-			for (int i = 0; i < 12; ++i) output.write(idx++, 0x00); // sync
+		write(80, 0x4E); // gap4a
+		write(12, 0x00); // sync
+		write( 3, 0xC2); // index mark (1)
+		write( 1, 0xFC); //            (2)
+		write(50, 0x4E); // gap1
 
-			for (int i = 0; i <  3; ++i) output.write(idx++, 0xA1); // addr mark (1)
-			for (int i = 0; i <  1; ++i) output.write(idx++, 0xFE, true); //     (2) add idam
+		for (auto j : xrange(9)) {
+			write(12, 0x00); // sync
+
+			write( 3, 0xA1);                 // addr mark (1)
+			output.write(idx++, 0xFE, true); //           (2) add idam
 			output.write(idx++, track); // C: Cylinder number
 			output.write(idx++, side);  // H: Head Address
 			output.write(idx++, j + 1); // R: Record
@@ -101,11 +106,11 @@ void SectorBasedDisk::readTrack(byte track, byte side, RawTrack& output)
 			output.write(idx++, addrCrc >> 8);   // CRC (high byte)
 			output.write(idx++, addrCrc & 0xff); //     (low  byte)
 
-			for (int i = 0; i < 22; ++i) output.write(idx++, 0x4E); // gap2
-			for (int i = 0; i < 12; ++i) output.write(idx++, 0x00); // sync
+			write(22, 0x4E); // gap2
+			write(12, 0x00); // sync
 
-			for (int i = 0; i <  3; ++i) output.write(idx++, 0xA1); // data mark (1)
-			for (int i = 0; i <  1; ++i) output.write(idx++, 0xFB); //           (2)
+			write( 3, 0xA1); // data mark (1)
+			write( 1, 0xFB); //           (2)
 
 			auto logicalSector = physToLog(track, side, j + 1);
 			SectorBuffer buf;
@@ -116,10 +121,10 @@ void SectorBasedDisk::readTrack(byte track, byte side, RawTrack& output)
 			output.write(idx++, dataCrc >> 8);   // CRC (high byte)
 			output.write(idx++, dataCrc & 0xff); //     (low  byte)
 
-			for (int i = 0; i < 84; ++i) output.write(idx++, 0x4E); // gap3
+			write(84, 0x4E); // gap3
 		}
 
-		for (int i = 0; i < 182; ++i) output.write(idx++, 0x4E); // gap4b
+		write(182, 0x4E); // gap4b
 		assert(idx == RawTrack::STANDARD_SIZE);
 	} catch (MSXException& /*e*/) {
 		// There was an error while reading the actual sector data.

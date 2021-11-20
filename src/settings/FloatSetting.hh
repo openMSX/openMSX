@@ -11,13 +11,13 @@ class FloatSetting final : public Setting
 {
 public:
 	FloatSetting(CommandController& commandController,
-	             std::string_view name, std::string_view description,
+	             std::string_view name, static_string_view description,
 	             double initialValue, double minValue, double maxValue);
 
-	std::string_view getTypeString() const override;
+	[[nodiscard]] std::string_view getTypeString() const override;
 	void additionalInfo(TclObject& result) const override;
 
-	double getDouble() const noexcept { return getValue().getDouble(getInterpreter()); }
+	[[nodiscard]] double getDouble() const noexcept { return getValue().getDouble(getInterpreter()); }
 	void setDouble (double d);
 
 private:

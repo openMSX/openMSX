@@ -153,56 +153,44 @@ byte MSXRS232::readIO(word port, EmuTime::param time)
 
 byte MSXRS232::readIOImpl(word port, EmuTime::param time)
 {
-	byte result;
 	switch (port) {
 		case 0: // UART data register
 		case 1: // UART status register
-			result = i8251.readIO(port, time);
-			break;
+			return i8251.readIO(port, time);
 		case 2: // Status sense port
-			result = readStatus(time);
-			break;
+			return readStatus(time);
 		case 3: // no function
-			result = 0xFF;
-			break;
+			return 0xFF;
 		case 4: // counter 0 data port
 		case 5: // counter 1 data port
 		case 6: // counter 2 data port
 		case 7: // timer command register
-			result = i8254.readIO(port - 4, time);
-			break;
+			return i8254.readIO(port - 4, time);
 		default:
 			UNREACHABLE; return 0;
 	}
-	return result;
 }
 
 byte MSXRS232::peekIO(word port, EmuTime::param time) const
 {
 	if (hasMemoryBasedIo && !ioAccessEnabled) return 0xFF;
-	byte result;
 	port &= 0x07;
 	switch (port) {
 		case 0: // UART data register
 		case 1: // UART status register
-			result = i8251.peekIO(port, time);
-			break;
+			return i8251.peekIO(port, time);
 		case 2: // Status sense port
-			result = 0; // TODO not implemented
-			break;
+			return 0; // TODO not implemented
 		case 3: // no function
-			result = 0xFF;
-			break;
+			return 0xFF;
 		case 4: // counter 0 data port
 		case 5: // counter 1 data port
 		case 6: // counter 2 data port
 		case 7: // timer command register
-			result = i8254.peekIO(port - 4, time);
-			break;
+			return i8254.peekIO(port - 4, time);
 		default:
 			UNREACHABLE; return 0;
 	}
-	return result;
 }
 
 void MSXRS232::writeIO(word port, byte value, EmuTime::param time)
@@ -449,7 +437,7 @@ void MSXRS232::serialize(Archive& ar, unsigned version)
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("ioAccessEnabled", ioAccessEnabled);
 	} else {
-		assert(ar.isLoader());
+		assert(Archive::IS_LOADER);
 		ioAccessEnabled = !hasMemoryBasedIo; // we can't know the
 					// actual value, but this is probably
 					// safest

@@ -26,11 +26,11 @@ public:
 
 	// VisibleSurface
 	void finish() override;
-	std::unique_ptr<Layer> createSnowLayer() override;
-	std::unique_ptr<Layer> createConsoleLayer(
+	[[nodiscard]] std::unique_ptr<Layer> createSnowLayer() override;
+	[[nodiscard]] std::unique_ptr<Layer> createConsoleLayer(
 		Reactor& reactor, CommandConsole& console) override;
-	std::unique_ptr<Layer> createOSDGUILayer(OSDGUI& gui) override;
-	std::unique_ptr<OutputSurface> createOffScreenSurface() override;
+	[[nodiscard]] std::unique_ptr<Layer> createOSDGUILayer(OSDGUI& gui) override;
+	[[nodiscard]] std::unique_ptr<OutputSurface> createOffScreenSurface() override;
 	void fullScreenUpdated(bool fullscreen) override;
 
 private:

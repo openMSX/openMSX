@@ -8,8 +8,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-using namespace std;
-
 static const int TRACK_LENGTH = 6250;
 static const int DMK_TRACK_LEN = TRACK_LENGTH + 128;
 static const int NUM_CYLINDERS = 40;
@@ -36,7 +34,7 @@ public:
 		: f(fopen(filename, mode))
 	{
 		if (!f) {
-			throw runtime_error(string("Couldn't open: ") + filename);
+			throw std::runtime_error(std::string("Couldn't open: ") + filename);
 		}
 	}
 
@@ -48,13 +46,13 @@ public:
 	void read(void* data, int size)
 	{
 		if (fread(data, size, 1, f) != 1) {
-			throw runtime_error("Couldn't read file");
+			throw std::runtime_error("Couldn't read file");
 		}
 	}
 	void write(const void* data, int size)
 	{
 		if (fwrite(data, size, 1, f) != 1) {
-			throw runtime_error("Couldn't write file");
+			throw std::runtime_error("Couldn't write file");
 		}
 	}
 
@@ -145,7 +143,7 @@ static void convert(const char* input, const char* output)
 		doubleSided = true;
 		break;
 	default:
-		throw runtime_error(
+		throw std::runtime_error(
 			"input filesize should be exactly 172032 or 346112 bytes.\n");
 	}
 

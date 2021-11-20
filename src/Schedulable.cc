@@ -51,15 +51,15 @@ EmuTime::param Schedulable::getCurrentTime() const
 	return scheduler.getCurrentTime();
 }
 
-template <typename Archive>
+template<typename Archive>
 void Schedulable::serialize(Archive& ar, unsigned /*version*/)
 {
 	Scheduler::SyncPoints syncPoints;
-	if (!ar.isLoader()) {
+	if constexpr (!Archive::IS_LOADER) {
 		syncPoints = scheduler.getSyncPoints(*this);
 	}
 	ar.serialize("syncPoints", syncPoints);
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		removeSyncPoints();
 		for (auto& s : syncPoints) {
 			setSyncPoint(s.getTime());

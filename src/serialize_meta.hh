@@ -55,7 +55,7 @@ template<typename T> struct ClassLoader;
 /** Store association between polymorphic class (base- or subclass) and
  *  the list of constructor arguments.
  * Specializations of this class should store the constructor arguments
- * as a 'using type = tupple<...>'.
+ * as a 'using type = tuple<...>'.
  */
 template<typename T> struct PolymorphicConstructorArgs;
 
@@ -110,87 +110,15 @@ template<typename Base, typename Derived> struct MapConstructorArguments
  */
 template<typename Base> struct BaseClassName;
 
-template<typename Archive> class PolymorphicSaverBase
-{
-public:
-	virtual ~PolymorphicSaverBase() = default;
-	virtual void save(Archive& ar, const void* p) const = 0;
-};
-
-template<typename Archive> class PolymorphicLoaderBase
-{
-public:
-	virtual ~PolymorphicLoaderBase() = default;
-	virtual void* load(Archive& ar, unsigned id, const void* args) const = 0;
-};
-
-template<typename Archive> class PolymorphicInitializerBase
-{
-public:
-	virtual ~PolymorphicInitializerBase() = default;
-	virtual void init(Archive& ar, void* t, unsigned id) const = 0;
-};
-
-template<typename Archive, typename T>
-class PolymorphicSaver : public PolymorphicSaverBase<Archive>
-{
-public:
-	explicit PolymorphicSaver(const char* name_)
-		: name(name_)
-	{
-	}
-	void save(Archive& ar, const void* v) const override
-	{
-		using BaseType = typename PolymorphicBaseClass<T>::type;
-		auto base = static_cast<const BaseType*>(v);
-		auto tp = static_cast<const T*>(base);
-		ClassSaver<T> saver;
-		saver(ar, *tp, true, name, true); // save id, type, constr-args
-	}
-private:
-	const char* name;
-};
-
-template<typename Archive, typename T>
-class PolymorphicLoader : public PolymorphicLoaderBase<Archive>
-{
-public:
-	void* load(Archive& ar, unsigned id, const void* args) const override
-	{
-		using BaseType = typename PolymorphicBaseClass<T>::type;
-		using TUPLEIn  = typename PolymorphicConstructorArgs<BaseType>::type;
-		using TUPLEOut = typename PolymorphicConstructorArgs<T>::type;
-		auto& argsIn = *static_cast<const TUPLEIn*>(args);
-		MapConstructorArguments<BaseType, T> mapArgs;
-		TUPLEOut argsOut = mapArgs(argsIn);
-		NonPolymorphicPointerLoader<T> loader;
-		return loader(ar, id, argsOut);
-	}
-};
-
 void polyInitError(const char* expected, const char* actual);
-template<typename Archive, typename T>
-class PolymorphicInitializer : public PolymorphicInitializerBase<Archive>
-{
-public:
-	void init(Archive& ar, void* v, unsigned id) const override
-	{
-		using BaseType = typename PolymorphicBaseClass<T>::type;
-		auto base = static_cast<BaseType*>(v);
-		if (unlikely(dynamic_cast<T*>(base) != static_cast<T*>(base))) {
-			polyInitError(typeid(T).name(), typeid(*base).name());
-		}
-		auto t = static_cast<T*>(base);
-		ClassLoader<T> loader;
-		loader(ar, *t, std::tuple<>(), id);
-	}
-};
-
 
 template<typename Archive>
 class PolymorphicSaverRegistry
 {
 public:
+	PolymorphicSaverRegistry(const PolymorphicSaverRegistry&) = delete;
+	PolymorphicSaverRegistry& operator=(const PolymorphicSaverRegistry&) = delete;
+
 	static PolymorphicSaverRegistry& instance();
 
 	template<typename T> void registerClass(const char* name)
@@ -199,8 +127,13 @@ public:
 		              "must be a polymorphic type");
 		static_assert(!std::is_abstract_v<T>,
 		              "can't be an abstract type");
-		registerHelper(typeid(T),
-		               std::make_unique<PolymorphicSaver<Archive, T>>(name));
+		registerHelper(typeid(T), [name](Archive& ar, const void* v) {
+			using BaseType = typename PolymorphicBaseClass<T>::type;
+			auto base = static_cast<const BaseType*>(v);
+			auto tp = static_cast<const T*>(base);
+			ClassSaver<T> saver;
+			saver(ar, *tp, true, name, true); // save id, type, constr-args
+		});
 	}
 
 	template<typename T> static void save(Archive& ar, T* t)
@@ -215,15 +148,20 @@ public:
 private:
 	PolymorphicSaverRegistry() = default;
 	~PolymorphicSaverRegistry() = default;
+
+	using SaveFunction = std::function<void(Archive&, const void*)>;
 	void registerHelper(const std::type_info& type,
-	                    std::unique_ptr<PolymorphicSaverBase<Archive>> saver);
+	                    SaveFunction saver);
 	static void save(Archive& ar, const void* t,
 	                 const std::type_info& typeInfo);
 	static void save(const char* tag, Archive& ar, const void* t,
 	                 const std::type_info& typeInfo);
 
-	std::vector<std::pair<std::type_index,
-	                      std::unique_ptr<PolymorphicSaverBase<Archive>>>> saverMap;
+	struct Entry {
+		std::type_index index;
+		SaveFunction saver;
+	};
+	std::vector<Entry> saverMap;
 	bool initialized = false;
 };
 
@@ -231,6 +169,9 @@ template<typename Archive>
 class PolymorphicLoaderRegistry
 {
 public:
+	PolymorphicLoaderRegistry(const PolymorphicLoaderRegistry&) = delete;
+	PolymorphicLoaderRegistry& operator=(const PolymorphicLoaderRegistry&) = delete;
+
 	static PolymorphicLoaderRegistry& instance();
 
 	template<typename T> void registerClass(const char* name)
@@ -239,8 +180,16 @@ public:
 		              "must be a polymorphic type");
 		static_assert(!std::is_abstract_v<T>,
 		              "can't be an abstract type");
-		registerHelper(name,
-		               std::make_unique<PolymorphicLoader<Archive, T>>());
+		registerHelper(name, [](Archive& ar, unsigned id, const void* args) {
+			using BaseType = typename PolymorphicBaseClass<T>::type;
+			using TUPLEIn  = typename PolymorphicConstructorArgs<BaseType>::type;
+			using TUPLEOut = typename PolymorphicConstructorArgs<T>::type;
+			auto& argsIn = *static_cast<const TUPLEIn*>(args);
+			MapConstructorArguments<BaseType, T> mapArgs;
+			TUPLEOut argsOut = mapArgs(argsIn);
+			NonPolymorphicPointerLoader<T> loader;
+			return loader(ar, id, argsOut);
+		});
 	}
 
 	static void* load(Archive& ar, unsigned id, const void* args);
@@ -248,18 +197,20 @@ public:
 private:
 	PolymorphicLoaderRegistry() = default;
 	~PolymorphicLoaderRegistry() = default;
-	void registerHelper(
-		const char* name,
-		std::unique_ptr<PolymorphicLoaderBase<Archive>> loader);
 
-	hash_map<std::string_view, std::unique_ptr<PolymorphicLoaderBase<Archive>>, XXHasher>
-		loaderMap;
+	using LoadFunction = std::function<void*(Archive&, unsigned, const void*)>;
+	void registerHelper(const char* name, LoadFunction loader);
+
+	hash_map<std::string_view, LoadFunction, XXHasher> loaderMap;
 };
 
 template<typename Archive>
 class PolymorphicInitializerRegistry
 {
 public:
+	PolymorphicInitializerRegistry(const PolymorphicInitializerRegistry&) = delete;
+	PolymorphicInitializerRegistry& operator=(const PolymorphicInitializerRegistry&) = delete;
+
 	static PolymorphicInitializerRegistry& instance();
 
 	template<typename T> void registerClass(const char* name)
@@ -268,8 +219,16 @@ public:
 		              "must be a polymorphic type");
 		static_assert(!std::is_abstract_v<T>,
 		              "can't be an abstract type");
-		registerHelper(name,
-		               std::make_unique<PolymorphicInitializer<Archive, T>>());
+		registerHelper(name, [](Archive& ar, void* v, unsigned id) {
+			using BaseType = typename PolymorphicBaseClass<T>::type;
+			auto base = static_cast<BaseType*>(v);
+			if (unlikely(dynamic_cast<T*>(base) != static_cast<T*>(base))) {
+				polyInitError(typeid(T).name(), typeid(*base).name());
+			}
+			auto t = static_cast<T*>(base);
+			ClassLoader<T> loader;
+			loader(ar, *t, std::tuple<>(), id);
+		});
 	}
 
 	static void init(const char* tag, Archive& ar, void* t);
@@ -277,12 +236,11 @@ public:
 private:
 	PolymorphicInitializerRegistry() = default;
 	~PolymorphicInitializerRegistry() = default;
-	void registerHelper(
-		const char* name,
-		std::unique_ptr<PolymorphicInitializerBase<Archive>> initializer);
 
-	hash_map<std::string_view, std::unique_ptr<PolymorphicInitializerBase<Archive>>, XXHasher>
-		initializerMap;
+	using InitFunction = std::function<void(Archive&, void*, unsigned)>;
+	void registerHelper(const char* name, InitFunction initializer);
+
+	hash_map<std::string_view, InitFunction, XXHasher> initializerMap;
 };
 
 

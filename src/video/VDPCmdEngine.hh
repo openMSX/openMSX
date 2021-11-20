@@ -24,12 +24,12 @@ class VDPCmdEngine
 public:
 	VDPCmdEngine(VDP& vdp, CommandController& commandController);
 
-	/** Reinitialise Renderer state.
+	/** Reinitialize Renderer state.
 	  * @param time The moment in time the reset occurs.
 	  */
 	void reset(EmuTime::param time);
 
-	/** Synchronises the command engine with the VDP.
+	/** Synchronizes the command engine with the VDP.
 	  * Ideally this would be a private method, but the current
 	  * design doesn't allow that.
 	  * @param time The moment in emulated time to sync to.
@@ -56,7 +56,7 @@ public:
 	  * Bit 4 (BD) is set when the boundary color is detected.
 	  * Bit 0 (CE) is set when a command is in progress.
 	  */
-	inline byte getStatus(EmuTime::param time) {
+	[[nodiscard]] inline byte getStatus(EmuTime::param time) {
 		if (time >= statusChangeTime) {
 			sync(time);
 		}
@@ -68,7 +68,7 @@ public:
 	  * @param time The moment in emulated time this read occurs.
 	  * @return Color value of the pixel.
 	  */
-	inline byte readColor(EmuTime::param time) {
+	[[nodiscard]] inline byte readColor(EmuTime::param time) {
 		sync(time);
 		return COL;
 	}
@@ -87,7 +87,7 @@ public:
           * recently
 	  * @param time The moment in emulated time this get occurs.
 	  */
-	inline unsigned getBorderX(EmuTime::param time) {
+	[[nodiscard]] inline unsigned getBorderX(EmuTime::param time) {
 		sync(time);
 		return ASX;
 	}
@@ -105,7 +105,7 @@ public:
 	  * time (IOW this method does not sync the complete CmdEngine)
 	  * @param index The register [0..14] to read from.
 	  */
-	byte peekCmdReg(byte index) const;
+	[[nodiscard]] byte peekCmdReg(byte index) const;
 
 	/** Informs the command engine of a VDP display mode change.
 	  * @param mode The new display mode.
@@ -174,7 +174,7 @@ private:
 	  */
 	void reportVdpCommand() const;
 
-
+private:
 	/** The VDP this command engine is part of.
 	  */
 	VDP& vdp;

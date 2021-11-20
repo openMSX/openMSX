@@ -38,12 +38,14 @@ template<typename Archive>
 void Connector::serialize(Archive& ar, unsigned /*version*/)
 {
 	std::string plugName;
-	if (!ar.isLoader() && (plugged != dummy.get())) {
-		plugName = plugged->getName();
+	if constexpr (!Archive::IS_LOADER) {
+		if (plugged != dummy.get()) {
+			plugName = plugged->getName();
+		}
 	}
 	ar.serialize("plugName", plugName);
 
-	if (!ar.isLoader()) {
+	if constexpr (!Archive::IS_LOADER) {
 		if (!plugName.empty()) {
 			ar.beginSection();
 			ar.serializePolymorphic("pluggable", *plugged);

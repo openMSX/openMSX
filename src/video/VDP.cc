@@ -40,15 +40,11 @@ TODO:
 #include <cassert>
 #include <memory>
 
-using std::string;
-using std::vector;
-
 namespace openmsx {
 
 static byte getDelayCycles(const XMLElement& devices) {
 	byte cycles = 0;
-	const XMLElement* t9769Dev = devices.findChild("T9769");
-	if (t9769Dev) {
+	if (const auto* t9769Dev = devices.findChild("T9769")) {
 		if (t9769Dev->getChildData("subtype") == "C") {
 			cycles = 1;
 		} else {
@@ -71,6 +67,7 @@ VDP::VDP(const DeviceConfig& config)
 	, syncHorAdjust(*this)
 	, syncSetMode(*this)
 	, syncSetBlank(*this)
+	, syncSetSprites(*this)
 	, syncCpuVramAccess(*this)
 	, syncCmdDone(*this)
 	, display(getReactor().getDisplay())
@@ -115,7 +112,7 @@ VDP::VDP(const DeviceConfig& config)
 
 	int defaultSaturation = 54;
 
-	std::string versionString = config.getChildData("version");
+	const auto& versionString = config.getChildData("version");
 	if (versionString == "TMS99X8A") version = TMS99X8A;
 	else if (versionString == "TMS9918A") {
 		version = TMS99X8A;
@@ -138,9 +135,9 @@ VDP::VDP(const DeviceConfig& config)
 	else if (versionString == "YM2220NTSC") version = YM2220NTSC;
 	else throw MSXException("Unknown VDP version \"", versionString, '"');
 
-	// saturation parameters only make sense when using TMS VDP's
+	// saturation parameters only make sense when using TMS VDPs
 	if ((versionString.find("TMS") != 0) && ((config.findChild("saturationPr") != nullptr) || (config.findChild("saturationPb") != nullptr) || (config.findChild("saturation") != nullptr))) {
-		throw MSXException("Specifying saturation parameters only makes sense for TMS VDP's");
+		throw MSXException("Specifying saturation parameters only makes sense for TMS VDPs");
 	}
 
 	int saturation = config.getChildDataAsInt("saturation", defaultSaturation);
@@ -187,7 +184,7 @@ VDP::VDP(const DeviceConfig& config)
 	// Video RAM.
 	EmuTime::param time = getCurrentTime();
 	unsigned vramSize =
-		(isMSX1VDP() ? 16 : config.getChildDataAsInt("vram"));
+		(isMSX1VDP() ? 16 : config.getChildDataAsInt("vram", 0));
 	if (vramSize != one_of(16u, 64u, 128u, 192u)) {
 		throw MSXException(
 			"VRAM size of ", vramSize, "kB is not supported!");
@@ -222,12 +219,12 @@ VDP::~VDP()
 	display      .detach(*this);
 }
 
-void VDP::preVideoSystemChange()
+void VDP::preVideoSystemChange() noexcept
 {
 	renderer.reset();
 }
 
-void VDP::postVideoSystemChange()
+void VDP::postVideoSystemChange() noexcept
 {
 	createRenderer();
 }
@@ -278,6 +275,7 @@ void VDP::resetInit()
 	// TODO: Real VDP probably resets timing as well.
 	isDisplayArea = false;
 	displayEnabled = false;
+	spriteEnabled = true;
 	superimposing = nullptr;
 	externalVideo = nullptr;
 
@@ -326,6 +324,7 @@ void VDP::reset(EmuTime::param time)
 	syncHorAdjust    .removeSyncPoint();
 	syncSetMode      .removeSyncPoint();
 	syncSetBlank     .removeSyncPoint();
+	syncSetSprites   .removeSyncPoint();
 	syncCpuVramAccess.removeSyncPoint();
 	syncCmdDone      .removeSyncPoint();
 	pendingCpuAccess = false;
@@ -356,8 +355,9 @@ void VDP::execVSync(EmuTime::param time)
 
 	if (isFastBlinkEnabled()) {
 		// adjust blinkState and blinkCount for next frame
-		std::tie(blinkState, blinkCount) =
-			calculateLineBlinkState(getLinesPerFrame());
+		auto next = calculateLineBlinkState(getLinesPerFrame());
+		blinkState = next.state;
+		blinkCount = next.count;
 	}
 
 	// Finish the previous frame, because access-slot calculations work within a frame.
@@ -432,6 +432,13 @@ void VDP::execSetBlank(EmuTime::param time)
 		vram->updateDisplayEnabled(newDisplayEnabled, time);
 	}
 	displayEnabled = newDisplayEnabled;
+}
+
+void VDP::execSetSprites(EmuTime::param time)
+{
+	bool newSpriteEnabled = (controlRegs[8] & 0x02) == 0;
+	vram->updateSpritesEnabled(newSpriteEnabled, time);
+	spriteEnabled = newSpriteEnabled;
 }
 
 void VDP::execCpuVramAccess(EmuTime::param time)
@@ -601,8 +608,8 @@ void VDP::frameStart(EmuTime::param time)
 		if (blinkCount == 0) {
 			renderer->updateBlinkState(!blinkState, time);
 			blinkState = !blinkState;
-			blinkCount = ( blinkState
-				? controlRegs[13] >> 4 : controlRegs[13] & 0x0F ) * 10;
+			blinkCount = (blinkState
+				? controlRegs[13] >> 4 : controlRegs[13] & 0x0F) * 10;
 		}
 	}
 
@@ -673,7 +680,7 @@ void VDP::writeIO(word port, byte value, EmuTime::param time_)
 					// that breaks "SNOW26" demo
 				}
 				if (isMSX1VDP()) {
-					// For these VDP's the VRAM pointer is modified when
+					// For these VDPs the VRAM pointer is modified when
 					// writing to VDP registers. Without this some demos won't
 					// run as on real MSX1, e.g. Planet of the Epas, Utopia and
 					// Waves 1.2. Thanks to dvik for finding this out.
@@ -686,7 +693,7 @@ void VDP::writeIO(word port, byte value, EmuTime::param time_)
 				vramPointer = (value << 8 | dataLatch) & 0x3FFF;
 				if (!(value & 0x40)) {
 					// Read ahead.
-					vramRead(time);
+					(void)vramRead(time);
 				}
 			}
 			registerDataStored = false;
@@ -826,15 +833,16 @@ void VDP::executeCpuVramAccess(EmuTime::param time)
 		addr = ((addr << 16) | (addr >> 1)) & 0x1FFFF;
 	}
 
-	bool doAccess;
-	if (likely(!cpuExtendedVram)) {
-		doAccess = true;
-	} else if (likely(vram->getSize() == 192 * 1024)) {
-		addr = 0x20000 | (addr & 0xFFFF);
-		doAccess = true;
-	} else {
-		doAccess = false;
-	}
+	bool doAccess = [&] {
+		if (likely(!cpuExtendedVram)) {
+			return true;
+		} else if (likely(vram->getSize() == 192 * 1024)) {
+			addr = 0x20000 | (addr & 0xFFFF);
+			return true;
+		} else {
+			return false;
+		}
+	}();
 	if (doAccess) {
 		if (cpuVramReqIsRead) {
 			cpuVramData = vram->cpuRead(addr, time);
@@ -1076,7 +1084,7 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 			spriteChecker->updateTransparency((val & 0x20) == 0, time);
 		}
 		if (change & 0x02) {
-			vram->updateSpritesEnabled((val & 0x02) == 0, time);
+			syncAtNextLine(syncSetSprites, time);
 		}
 		if (change & 0x08) {
 			vram->updateVRMode((val & 0x08) != 0, time);
@@ -1222,8 +1230,11 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 
 void VDP::syncAtNextLine(SyncBase& type, EmuTime::param time)
 {
-	int line = getTicksThisFrame(time) / TICKS_PER_LINE;
-	int ticks = (line + 1) * TICKS_PER_LINE;
+	// The processing of a new line starts in the middle of the left erase,
+	// ~144 cycles after the sync signal. Adjust affects it. See issue #1310.
+	int offset = 144 + (horizontalAdjust - 7) * 4;
+	int line = (getTicksThisFrame(time) + TICKS_PER_LINE - offset) / TICKS_PER_LINE;
+	int ticks = line * TICKS_PER_LINE + offset;
 	EmuTime nextTime = frameStartTime + ticks;
 	type.setSyncPoint(nextTime);
 }
@@ -1325,7 +1336,7 @@ void VDP::updateSpriteAttributeBase(EmuTime::param time)
 	int indexMask = mode == 1 ? ~0u << 7 : ~0u << 10;
 	if (displayMode.isPlanar()) {
 		baseMask = ((baseMask << 16) | (baseMask >> 1)) & 0x1FFFF;
-		indexMask = ((indexMask << 16) | ~(1 << 16)) & (indexMask >> 1);
+		indexMask = ((unsigned(indexMask) << 16) | ~(1 << 16)) & (indexMask >> 1);
 	}
 	vram->spriteAttribTable.setMask(baseMask, indexMask, time);
 }
@@ -1340,14 +1351,14 @@ void VDP::updateSpritePatternBase(EmuTime::param time)
 	int indexMask = ~0u << 11;
 	if (displayMode.isPlanar()) {
 		baseMask = ((baseMask << 16) | (baseMask >> 1)) & 0x1FFFF;
-		indexMask = ((indexMask << 16) | ~(1 << 16)) & (indexMask >> 1);
+		indexMask = ((unsigned(indexMask) << 16) | ~(1 << 16)) & (indexMask >> 1);
 	}
 	vram->spritePatternTable.setMask(baseMask, indexMask, time);
 }
 
 void VDP::updateDisplayMode(DisplayMode newMode, bool cmdBit, EmuTime::param time)
 {
-	// Synchronise subsystems.
+	// Synchronize subsystems.
 	vram->updateDisplayMode(newMode, cmdBit, time);
 
 	// TODO: Is this a useful optimisation, or doesn't it help
@@ -1384,7 +1395,7 @@ void VDP::updateDisplayMode(DisplayMode newMode, bool cmdBit, EmuTime::param tim
 	//       It's one line of code and overhead is not huge either.
 }
 
-void VDP::update(const Setting& setting)
+void VDP::update(const Setting& setting) noexcept
 {
 	assert(&setting == one_of(&cmdTiming, &tooFastAccess));
 	(void)setting;
@@ -1436,7 +1447,7 @@ constexpr std::array<std::array<uint8_t, 3>, 16> TOSHIBA_PALETTE = {{
 }};
 
 /*
- * Palette for the YM2220 is a crude approximantion based on the fact that the
+ * Palette for the YM2220 is a crude approximation based on the fact that the
  * pictures of a Yamaha AX-150 (YM2220) and a Philips NMS-8250 (V9938) have a
  * quite similar appearance. See first post here:
  *
@@ -1467,7 +1478,7 @@ Because it has an additional circuit that rework the palette for the same one
 used in the Fujitsu FM-7. It's encoded in 3-bit RGB.
 
 This seems to be the 24-bit RGB equivalent to the palette output by the FM-X on
-its RGB conector:
+its RGB connector:
 */
 constexpr std::array<std::array<uint8_t, 3>, 16> THREE_BIT_RGB_PALETTE = {{
 	{   0,   0,   0 },
@@ -1523,7 +1534,7 @@ std::array<std::array<uint8_t, 3>, 16> VDP::getMSX1Palette() const
 		return YM2220_PALETTE;
 	}
 	std::array<std::array<uint8_t, 3>, 16> tmsPalette;
-	for (int color = 0; color < 16; color++) {
+	for (auto color : xrange(16)) {
 		// convert from analog output to YPbPr
 		float Y  = TMS9XXXA_ANALOG_OUTPUT[color][0];
 		float Pr = TMS9XXXA_ANALOG_OUTPUT[color][1] - 0.5f;
@@ -1583,7 +1594,7 @@ void VDP::RegDebug::write(unsigned address, byte value, EmuTime::param time)
 	auto& vdp = OUTER(VDP, vdpRegDebug);
 	// Ignore writes to registers >= 8 on MSX1. An alternative is to only
 	// expose 8 registers. But changing that now breaks backwards
-	// compatibilty with some existing scripts. E.g. script that queries
+	// compatibility with some existing scripts. E.g. script that queries
 	// PAL vs NTSC in a VDP agnostic way.
 	if ((address >= 8) && vdp.isMSX1VDP()) return;
 	vdp.changeRegister(address, value, time);
@@ -1670,7 +1681,7 @@ void VDP::VRAMPointerDebug::write(unsigned address, byte value, EmuTime::param /
 
 // class Info
 
-VDP::Info::Info(VDP& vdp_, const string& name_, string helpText_)
+VDP::Info::Info(VDP& vdp_, const std::string& name_, std::string helpText_)
 	: InfoTopic(vdp_.getMotherBoard().getMachineInfoCommand(),
 		    strCat(vdp_.getName(), '_', name_))
 	, vdp(vdp_)
@@ -1683,7 +1694,7 @@ void VDP::Info::execute(span<const TclObject> /*tokens*/, TclObject& result) con
 	result = calc(vdp.getCurrentTime());
 }
 
-string VDP::Info::help(const vector<string>& /*tokens*/) const
+std::string VDP::Info::help(span<const TclObject> /*tokens*/) const
 {
 	return helpText;
 }
@@ -1820,6 +1831,7 @@ int VDP::MsxX512PosInfo::calc(const EmuTime& time) const
 // version 6: added cpuVramReqAddr to solve too_fast_vram_access issue
 // version 7: removed cpuVramReqAddr again, fixed issue in a different way
 // version 8: removed 'userData' from Schedulable
+// version 9: update sprite-enabled-status only once per line
 template<typename Archive>
 void VDP::serialize(Archive& ar, unsigned serVersion)
 {
@@ -1887,7 +1899,7 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 	ar.serialize("cmdEngine",     *cmdEngine,
 	             "spriteChecker", *spriteChecker, // must come after displayMode
 	             "vram",          *vram); // must come after controlRegs and after spriteChecker
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		pendingCpuAccess = syncCpuVramAccess.pendingSyncPoint();
 		update(tooFastAccess);
 	}
@@ -1895,11 +1907,19 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 	if (ar.versionAtLeast(serVersion, 2)) {
 		ar.serialize("frameCount", frameCount);
 	} else {
-		assert(ar.isLoader());
+		assert(Archive::IS_LOADER);
 		// We could estimate the frameCount (assume framerate was
 		// constant the whole time). But I think it's better to have
 		// an obviously wrong value than an almost correct value.
 		frameCount = 0;
+	}
+
+	if (ar.versionAtLeast(serVersion, 9)) {
+		ar.serialize("syncSetSprites", syncSetSprites);
+		ar.serialize("spriteEnabled", spriteEnabled);
+	} else {
+		assert(Archive::IS_LOADER);
+		spriteEnabled = (controlRegs[8] & 0x02) == 0;
 	}
 
 	// externalVideo does not need serializing. It is set on load by the
@@ -1910,7 +1930,7 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 	// of this frame). But it will be correct at the start of the next
 	// frame. Probably good enough.
 
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		renderer->reInit();
 	}
 }

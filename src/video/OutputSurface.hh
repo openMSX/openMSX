@@ -24,30 +24,30 @@ public:
 
 	virtual ~OutputSurface() = default;
 
-	int getLogicalWidth()  const { return m_logicalSize[0]; }
-	int getLogicalHeight() const { return m_logicalSize[1]; }
-	gl::ivec2 getLogicalSize()  const { return m_logicalSize; }
-	gl::ivec2 getPhysicalSize() const { return m_physSize; }
+	[[nodiscard]] int getLogicalWidth()  const { return m_logicalSize[0]; }
+	[[nodiscard]] int getLogicalHeight() const { return m_logicalSize[1]; }
+	[[nodiscard]] gl::ivec2 getLogicalSize()  const { return m_logicalSize; }
+	[[nodiscard]] gl::ivec2 getPhysicalSize() const { return m_physSize; }
 
-	gl::ivec2 getViewOffset() const { return m_viewOffset; }
-	gl::ivec2 getViewSize()   const { return m_viewSize; }
-	gl::vec2  getViewScale()  const { return m_viewScale; }
-	bool      isViewScaled()  const { return m_viewScale != gl::vec2(1.0f); }
+	[[nodiscard]] gl::ivec2 getViewOffset() const { return m_viewOffset; }
+	[[nodiscard]] gl::ivec2 getViewSize()   const { return m_viewSize; }
+	[[nodiscard]] gl::vec2  getViewScale()  const { return m_viewScale; }
+	[[nodiscard]] bool      isViewScaled()  const { return m_viewScale != gl::vec2(1.0f); }
 
-	const PixelFormat& getPixelFormat() const { return pixelFormat; }
+	[[nodiscard]] const PixelFormat& getPixelFormat() const { return pixelFormat; }
 
 	/** Returns the pixel value for the given RGB color.
 	  * No effort is made to ensure that the returned pixel value is not the
 	  * color key for this output surface.
 	  */
-	uint32_t mapRGB(gl::vec3 rgb) const
+	[[nodiscard]] uint32_t mapRGB(gl::vec3 rgb) const
 	{
 		return mapRGB255(gl::ivec3(rgb * 255.0f));
 	}
 
 	/** Same as mapRGB, but RGB components are in range [0..255].
 	 */
-	uint32_t mapRGB255(gl::ivec3 rgb) const
+	[[nodiscard]] uint32_t mapRGB255(gl::ivec3 rgb) const
 	{
 		auto [r, g, b] = rgb;
 		return getPixelFormat().map(r, g, b);
@@ -55,7 +55,7 @@ public:
 
 	/** Returns the color key for this output surface.
 	  */
-	template<typename Pixel> inline Pixel getKeyColor() const
+	template<typename Pixel> [[nodiscard]] inline Pixel getKeyColor() const
 	{
 		return sizeof(Pixel) == 2
 			? 0x0001      // lowest bit of 'some' color component is set
@@ -66,7 +66,7 @@ public:
 	  * The returned color can be used as an alternative for pixels that would
 	  * otherwise have the key color.
 	  */
-	template<typename Pixel> inline Pixel getKeyColorClash() const
+	template<typename Pixel> [[nodiscard]] inline Pixel getKeyColorClash() const
 	{
 		assert(sizeof(Pixel) != 4); // shouldn't get clashes in 32bpp
 		return 0; // is visually very close, practically
@@ -77,10 +77,10 @@ public:
 	  * It is guaranteed that the returned pixel value is different from the
 	  * color key for this output surface.
 	  */
-	template<typename Pixel> Pixel mapKeyedRGB255(gl::ivec3 rgb)
+	template<typename Pixel> [[nodiscard]] Pixel mapKeyedRGB255(gl::ivec3 rgb)
 	{
 		Pixel p = mapRGB255(rgb);
-		if (sizeof(Pixel) == 2) {
+		if constexpr (sizeof(Pixel) == 2) {
 			return (p != getKeyColor<Pixel>())
 				? p
 				: getKeyColorClash<Pixel>();
@@ -94,7 +94,7 @@ public:
 	  * It is guaranteed that the returned pixel value is different from the
 	  * color key for this output surface.
 	  */
-	template<typename Pixel> Pixel mapKeyedRGB(gl::vec3 rgb)
+	template<typename Pixel> [[nodiscard]] Pixel mapKeyedRGB(gl::vec3 rgb)
 	{
 		return mapKeyedRGB255<Pixel>(gl::ivec3(rgb * 255.0f));
 	}

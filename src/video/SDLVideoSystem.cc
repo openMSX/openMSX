@@ -43,13 +43,13 @@ SDLVideoSystem::SDLVideoSystem(Reactor& reactor_, CommandConsole& console)
 	renderSettings.getScaleFactorSetting().attach(*this);
 
 	reactor.getEventDistributor().registerEventListener(
-		OPENMSX_RESIZE_EVENT, *this);
+		EventType::RESIZE, *this);
 }
 
 SDLVideoSystem::~SDLVideoSystem()
 {
 	reactor.getEventDistributor().unregisterEventListener(
-		OPENMSX_RESIZE_EVENT, *this);
+		EventType::RESIZE, *this);
 
 	renderSettings.getScaleFactorSetting().detach(*this);
 
@@ -229,7 +229,7 @@ void SDLVideoSystem::takeScreenShot(const std::string& filename, bool withOsd)
 		ScopedLayerHider hideConsole(*consoleLayer);
 		ScopedLayerHider hideOsd(*osdGuiLayer);
 		std::unique_ptr<OutputSurface> surf = screen->createOffScreenSurface();
-		display.repaint(*surf);
+		display.repaintImpl(*surf);
 		surf->saveScreenshot(filename);
 	}
 }
@@ -237,6 +237,13 @@ void SDLVideoSystem::takeScreenShot(const std::string& filename, bool withOsd)
 void SDLVideoSystem::updateWindowTitle()
 {
 	screen->updateWindowTitle();
+}
+
+gl::ivec2 SDLVideoSystem::getMouseCoord()
+{
+	int mouseX, mouseY;
+	SDL_GetMouseState(&mouseX, &mouseY);
+	return gl::ivec2(mouseX, mouseY);
 }
 
 OutputSurface* SDLVideoSystem::getOutputSurface()
@@ -249,9 +256,34 @@ void SDLVideoSystem::showCursor(bool show)
 	SDL_ShowCursor(show ? SDL_ENABLE : SDL_DISABLE);
 }
 
+bool SDLVideoSystem::getCursorEnabled()
+{
+	return SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE;
+}
+
+std::string SDLVideoSystem::getClipboardText()
+{
+	std::string result;
+	if (char* text = SDL_GetClipboardText()) {
+		result = text;
+		SDL_free(text);
+	}
+	return result;
+}
+
+void SDLVideoSystem::setClipboardText(zstring_view text)
+{
+	if (SDL_SetClipboardText(text.c_str()) != 0) {
+		const char* err = SDL_GetError();
+		SDL_ClearError();
+		throw CommandException(err);
+	}
+}
+
 void SDLVideoSystem::repaint()
 {
-	display.repaint();
+	// With SDL we can simply repaint the display directly.
+	display.repaintImpl();
 }
 
 void SDLVideoSystem::resize()
@@ -284,7 +316,7 @@ void SDLVideoSystem::resize()
 	}
 }
 
-void SDLVideoSystem::update(const Setting& subject)
+void SDLVideoSystem::update(const Setting& subject) noexcept
 {
 	if (&subject == &renderSettings.getScaleFactorSetting()) {
 		// TODO: This is done via checkSettings instead,
@@ -295,11 +327,11 @@ void SDLVideoSystem::update(const Setting& subject)
 	}
 }
 
-int SDLVideoSystem::signalEvent(const std::shared_ptr<const Event>& /*event*/)
+int SDLVideoSystem::signalEvent(const Event& /*event*/) noexcept
 {
 	// TODO: Currently window size depends only on scale factor.
 	//       Maybe in the future it will be handled differently.
-	//auto& resizeEvent = checked_cast<const ResizeEvent&>(event);
+	//const auto& resizeEvent = get<ResizeEvent>(event);
 	//resize(resizeEvent.getX(), resizeEvent.getY());
 	//resize();
 	return 0;

@@ -22,25 +22,25 @@ public:
 	void reset(EmuTime::param time);
 
 	byte getStatusReg(EmuTime::param time);
-	byte getTrackReg (EmuTime::param time);
-	byte getSectorReg(EmuTime::param time);
+	byte getTrackReg (EmuTime::param time) const;
+	byte getSectorReg(EmuTime::param time) const;
 	byte getDataReg  (EmuTime::param time);
 
-	byte peekStatusReg(EmuTime::param time) const;
-	byte peekTrackReg (EmuTime::param time) const;
-	byte peekSectorReg(EmuTime::param time) const;
-	byte peekDataReg  (EmuTime::param time) const;
+	[[nodiscard]] byte peekStatusReg(EmuTime::param time) const;
+	[[nodiscard]] byte peekTrackReg (EmuTime::param time) const;
+	[[nodiscard]] byte peekSectorReg(EmuTime::param time) const;
+	[[nodiscard]] byte peekDataReg  (EmuTime::param time) const;
 
 	void setCommandReg(byte value, EmuTime::param time);
 	void setTrackReg  (byte value, EmuTime::param time);
 	void setSectorReg (byte value, EmuTime::param time);
 	void setDataReg   (byte value, EmuTime::param time);
 
-	bool getIRQ (EmuTime::param time);
-	bool getDTRQ(EmuTime::param time);
+	bool getIRQ (EmuTime::param time) const;
+	bool getDTRQ(EmuTime::param time) const;
 
-	bool peekIRQ (EmuTime::param time) const;
-	bool peekDTRQ(EmuTime::param time) const;
+	[[nodiscard]] bool peekIRQ (EmuTime::param time) const;
+	[[nodiscard]] bool peekDTRQ(EmuTime::param time) const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -98,7 +98,7 @@ private:
 	void endCmd(EmuTime::param time);
 
 	void setDrqRate(unsigned trackLength);
-	bool isReady() const;
+	[[nodiscard]] bool isReady() const;
 
 	void schedule(FSMState state, EmuTime::param time);
 

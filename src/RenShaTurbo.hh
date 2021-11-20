@@ -1,14 +1,14 @@
 #ifndef RENSHATURBO_HH
 #define RENSHATURBO_HH
 
+#include "Autofire.hh"
 #include "EmuTime.hh"
-#include <memory>
+#include <optional>
 
 namespace openmsx {
 
-class CommandController;
+class MSXMotherBoard;
 class XMLElement;
-class Autofire;
 
 /**
  * Ren-Sha Turbo is the autofire in several MSX 2+ models and in
@@ -20,19 +20,21 @@ class Autofire;
 class RenShaTurbo
 {
 public:
-	RenShaTurbo(CommandController& commandController,
+	RenShaTurbo(MSXMotherBoard& motherBoard,
 	            const XMLElement& machineConfig);
-	~RenShaTurbo();
 
 	/** Get the output signal in negative logic.
 	  * @result When auto-fire is on, result will alternate between true
 	  *         and false. When auto-fire if off result is false.
 	  */
-	bool getSignal(EmuTime::param time);
+	[[nodiscard]] bool getSignal(EmuTime::param time);
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	// The Autofire circuit
-	std::unique_ptr<Autofire> autofire;
+	std::optional<Autofire> autofire;
 };
 
 } // namespace openmsx

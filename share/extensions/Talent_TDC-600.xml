@@ -1,0 +1,26 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <name>Talent TDC-600 disk drive</name>
+    <manufacturer>Talent</manufacturer>
+    <code>TDC-600</code>
+    <release_year>????</release_year>
+    <description>Double Sided Double Density external floppy disk drive.</description>
+    <type>external disk drive</type>
+  </info>
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <TDC600 id="TDC600">
+          <drives>1</drives>
+          <mem base="0x0000" size="0xC000"/>
+          <rom>
+            <filename>TDC600.rom</filename>
+            <sha1>29cacf13e45447a9e6d336483935ccb44b3b2d5d</sha1>
+          </rom>
+        </TDC600>
+      </secondary>
+    </primary>
+  </devices>
+</msxconfig>

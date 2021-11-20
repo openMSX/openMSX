@@ -22,15 +22,15 @@ public:
 	CommandCompleter(const CommandCompleter&) = delete;
 	CommandCompleter& operator=(const CommandCompleter&) = delete;
 
-	CommandController& getCommandController() const { return commandController; }
-	Interpreter& getInterpreter() const final;
+	[[nodiscard]] CommandController& getCommandController() const { return commandController; }
+	[[nodiscard]] Interpreter& getInterpreter() const final;
 
 protected:
 	CommandCompleter(CommandController& controller, std::string_view name);
 	~CommandCompleter();
 
-	GlobalCommandController& getGlobalCommandController() const;
-	CliComm& getCliComm() const;
+	[[nodiscard]] GlobalCommandController& getGlobalCommandController() const;
+	[[nodiscard]] CliComm& getCliComm() const;
 
 private:
 	CommandController& commandController;
@@ -62,11 +62,11 @@ public:
 
 	// see comments in MSXMotherBoard::loadMachineCommand
 	void setAllowedInEmptyMachine(bool value) { allowInEmptyMachine = value; }
-	bool isAllowedInEmptyMachine() const { return allowInEmptyMachine; }
+	[[nodiscard]] bool isAllowedInEmptyMachine() const { return allowInEmptyMachine; }
 
 	// used by Interpreter::(un)registerCommand()
 	void setToken(void* token_) { assert(!token); token = token_; }
-	void* getToken() const { return token; }
+	[[nodiscard]] void* getToken() const { return token; }
 
 	// helper to delegate to a subcommand
 	template<typename... Args>

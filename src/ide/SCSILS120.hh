@@ -10,18 +10,33 @@
 #ifndef SCSILS120_HH
 #define SCSILS120_HH
 
+#include "RecordedCommand.hh"
 #include "SCSIDevice.hh"
 #include "SectorAccessibleDisk.hh"
 #include "DiskContainer.hh"
 #include "File.hh"
 #include <bitset>
-#include <memory>
+#include <optional>
 
 namespace openmsx {
 
 class DeviceConfig;
 class MSXMotherBoard;
-class LSXCommand;
+class SCSILS120;
+
+class LSXCommand final : public RecordedCommand
+{
+public:
+	LSXCommand(CommandController& commandController,
+	           StateChangeDistributor& stateChangeDistributor,
+	           Scheduler& scheduler, SCSILS120& ls);
+	void execute(span<const TclObject> tokens,
+	             TclObject& result, EmuTime::param time) override;
+	[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+	void tabCompletion(std::vector<std::string>& tokens) const override;
+private:
+	SCSILS120& ls;
+};
 
 class SCSILS120 final : public SCSIDevice, public SectorAccessibleDisk
                       , public DiskContainer
@@ -39,51 +54,53 @@ public:
 
 private:
 	// SectorAccessibleDisk:
-	void readSectorImpl (size_t sector,       SectorBuffer& buf) override;
+	void readSectorsImpl(
+		SectorBuffer* buffers, size_t startSector, size_t num) override;
 	void writeSectorImpl(size_t sector, const SectorBuffer& buf) override;
-	size_t getNbSectorsImpl() const override;
-	bool isWriteProtectedImpl() const override;
-	Sha1Sum getSha1SumImpl(FilePool& filePool) override;
+	[[nodiscard]] size_t getNbSectorsImpl() const override;
+	[[nodiscard]] bool isWriteProtectedImpl() const override;
+	[[nodiscard]] Sha1Sum getSha1SumImpl(FilePool& filePool) override;
 
 	// Diskcontainer:
-	SectorAccessibleDisk* getSectorAccessibleDisk() override;
-	const std::string& getContainerName() const override;
-	bool diskChanged() override;
-	int insertDisk(std::string_view filename) override;
+	[[nodiscard]] SectorAccessibleDisk* getSectorAccessibleDisk() override;
+	[[nodiscard]] std::string_view getContainerName() const override;
+	[[nodiscard]] bool diskChanged() override;
+	int insertDisk(const std::string& filename) override;
 
 	// SCSI Device
 	void reset() override;
-	bool isSelected() override;
-	unsigned executeCmd(const byte* cdb, SCSI::Phase& phase, unsigned& blocks) override;
-	unsigned executingCmd(SCSI::Phase& phase, unsigned& blocks) override;
-	byte getStatusCode() override;
+	[[nodiscard]] bool isSelected() override;
+	[[nodiscard]] unsigned executeCmd(const byte* cdb, SCSI::Phase& phase, unsigned& blocks) override;
+	[[nodiscard]] unsigned executingCmd(SCSI::Phase& phase, unsigned& blocks) override;
+	[[nodiscard]] byte getStatusCode() override;
 	int msgOut(byte value) override;
 	byte msgIn() override;
 	void disconnect() override;
 	void busReset() override;
-	unsigned dataIn(unsigned& blocks) override;
-	unsigned dataOut(unsigned& blocks) override;
+	[[nodiscard]] unsigned dataIn(unsigned& blocks) override;
+	[[nodiscard]] unsigned dataOut(unsigned& blocks) override;
 
 	void eject();
-	void insert(std::string_view filename);
+	void insert(const std::string& filename);
 
-	bool getReady();
+	[[nodiscard]] bool getReady();
 	void testUnitReady();
 	void startStopUnit();
-	unsigned inquiry();
-	unsigned modeSense();
-	unsigned requestSense();
-	bool checkReadOnly();
-	unsigned readCapacity();
-	bool checkAddress();
-	unsigned readSector(unsigned& blocks);
-	unsigned writeSector(unsigned& blocks);
+	[[nodiscard]] unsigned inquiry();
+	[[nodiscard]] unsigned modeSense();
+	[[nodiscard]] unsigned requestSense();
+	[[nodiscard]] bool checkReadOnly();
+	[[nodiscard]] unsigned readCapacity();
+	[[nodiscard]] bool checkAddress();
+	[[nodiscard]] unsigned readSector(unsigned& blocks);
+	[[nodiscard]] unsigned writeSector(unsigned& blocks);
 	void formatUnit();
 
+private:
 	MSXMotherBoard& motherBoard;
 	AlignedBuffer& buffer;
 	File file;
-	std::unique_ptr<LSXCommand> lsxCommand;
+	std::optional<LSXCommand> lsxCommand; // delayed init
 	std::string name;
 	const int mode;
 	unsigned keycode;      // Sense key, ASC, ASCQ

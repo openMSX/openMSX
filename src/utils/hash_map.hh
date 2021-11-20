@@ -61,22 +61,49 @@ public:
 		return it->second;
 	}
 
-	// Proposed for C++17. Is equivalent to 'operator[](key) = value', but:
-	// - also works for non-default-constructible types
-	// - returns more information
-	// - is slightly more efficient
+	template<typename K, typename V>
+	std::pair<iterator, bool> try_emplace(K&& key, V&& value)
+	{
+		auto hash = unsigned(this->hasher(key));
+		auto tableIdx = hash & this->allocMask;
+		auto primary = BaseType::invalidIndex;
+
+		if (this->elemCount > 0) {
+			primary = this->table[tableIdx];
+			for (auto elemIdx = primary; elemIdx != BaseType::invalidIndex; /**/) {
+				auto& elem = this->pool.get(elemIdx);
+				if ((elem.hash == hash) && this->equal(this->extract(elem.value), key)) {
+					// key already exists (possibly value is different)
+					return std::pair(iterator(this, elemIdx), false);
+				}
+				elemIdx = elem.nextIdx;
+			}
+		}
+
+		if (this->elemCount >= ((this->allocMask + 1) / 4 * 3)) {
+			this->grow();
+			tableIdx = hash & this->allocMask;
+			primary = this->table[tableIdx];
+		}
+
+		++this->elemCount;
+		auto poolIdx = this->pool.emplace(std::forward<K>(key), std::forward<V>(value));
+		auto& poolElem = this->pool.get(poolIdx);
+		poolElem.hash = hash;
+		poolElem.nextIdx = primary;
+		this->table[tableIdx] = poolIdx;
+		return std::pair(iterator(this, poolIdx), true);
+	}
+
 	template<typename K, typename V>
 	std::pair<iterator, bool> insert_or_assign(K&& key, V&& value)
 	{
-		auto it = this->find(key);
-		if (it == this->end()) {
-			// insert, return pair<iterator, true>
-			return this->insert(value_type(std::forward<K>(key), std::forward<V>(value)));
-		} else {
-			// assign, return pair<iterator, false>
-			it->second = std::forward<V>(value);
-			return std::pair(it, false);
+		auto result = try_emplace(std::forward<K>(key), std::forward<V>(value));
+		if (!result.second) {
+			// was already present, also overwrite value
+			result.first->second = std::forward<V>(value);
 		}
+		return result;
 	}
 
 	template<typename K>

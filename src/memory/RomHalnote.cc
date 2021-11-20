@@ -29,6 +29,7 @@
 #include "MSXException.hh"
 #include "one_of.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <memory>
 
 namespace openmsx {
@@ -52,7 +53,7 @@ void RomHalnote::reset(EmuTime::param /*time*/)
 
 	setUnmapped(0);
 	setUnmapped(1);
-	for (int i = 2; i < 6; i++) {
+	for (auto i : xrange(2, 6)) {
 		setRom(i, 0);
 	}
 	setUnmapped(6);

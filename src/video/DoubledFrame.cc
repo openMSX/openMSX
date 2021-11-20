@@ -25,14 +25,7 @@ unsigned DoubledFrame::getLineWidth(unsigned line) const
 const void* DoubledFrame::getLineInfo(
 	unsigned line, unsigned& width, void* buf, unsigned bufWidth) const
 {
-	static constexpr uint32_t blackPixel = 0; // both 16bppp and 32bpp
-	int t = line - skip;
-	if (t >= 0) {
-		return field->getLineInfo(t / 2, width, buf, bufWidth);
-	} else {
-		width = 1;
-		return &blackPixel;
-	}
+	return field->getLineInfo(std::max<int>(line - skip, 0) / 2, width, buf, bufWidth);
 }
 
 } // namespace openmsx

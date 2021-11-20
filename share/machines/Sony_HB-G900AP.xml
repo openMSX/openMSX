@@ -15,6 +15,10 @@
 
   <devices>
 
+    <S1985 id="S1985"> <!-- includes 5 bits mapper-read-back -->
+      <sramname>hb-g900ap_s1985.sram</sramname>
+    </S1985>
+
     <PPI id="ppi">
       <sound>
         <volume>16000</volume>
@@ -30,10 +34,6 @@
       <io base="0x98" num="4" type="O"/>
       <io base="0x98" num="2" type="I"/>
     </VDP>
-
-    <S1985 id="S1985">
-      <sramname>hb-g900ap_s1985.sram</sramname>
-    </S1985>
 
     <PSG id="PSG">
       <type>YM2149</type> <!-- in S-1985 MSX-ENGINE -->

@@ -4,6 +4,7 @@
 #include "SuperImposeScalerOutput.hh"
 #include "vla.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include "build-info.hh"
 #include <algorithm>
 #include <cassert>
@@ -11,25 +12,25 @@
 
 namespace openmsx {
 
-template <typename Pixel>
+template<typename Pixel>
 Scaler1<Pixel>::Scaler1(const PixelOperations<Pixel>& pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-/*template <typename Pixel>
+/*template<typename Pixel>
 void Scaler1<Pixel>::averageHalve(const Pixel* pIn0, const Pixel* pIn1, Pixel* pOut, unsigned dstWidth)
 {
 	// TODO SSE optimizations
 	// pure C++ version
-	for (int i = 0; i < dstWidth; ++i) {
+	for (auto i : xrange(dstWidth)) {
 		Pixel tmp0 = blend(pIn0[2 * i + 0], pIn0[2 * i + 1]);
 		Pixel tmp1 = blend(pIn1[2 * i + 0], pIn1[2 * i + 1]);
 		pOut[i] = blend(tmp0, tmp1);
 	}
 }*/
 
-template <class Pixel>
+template<typename Pixel>
 void Scaler1<Pixel>::scaleBlank1to1(
 		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -41,7 +42,7 @@ void Scaler1<Pixel>::scaleBlank1to1(
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scaler1<Pixel>::scaleBlank2to1(
 		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -55,7 +56,7 @@ void Scaler1<Pixel>::scaleBlank2to1(
 	}
 }
 
-template <typename Pixel>
+template<typename Pixel>
 static void doScale1(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY,
@@ -72,7 +73,7 @@ static void doScale1(FrameSource& src,
 	}
 }
 
-template <typename Pixel>
+template<typename Pixel>
 static void doScaleDV(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY,
@@ -95,7 +96,7 @@ static void doScaleDV(FrameSource& src,
 }
 
 
-template <class Pixel>
+template<typename Pixel>
 void Scaler1<Pixel>::scale2x1to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -105,7 +106,7 @@ void Scaler1<Pixel>::scale2x1to3x1(FrameSource& src,
 	                dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scaler1<Pixel>::scale2x2to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -115,7 +116,7 @@ void Scaler1<Pixel>::scale2x2to3x1(FrameSource& src,
 	                 dst, dstStartY, dstEndY, pixelOps, op);
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void Scaler1<Pixel>::scale1x1to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -133,7 +134,7 @@ void Scaler1<Pixel>::scale1x1to1x1(FrameSource& src,
 	}
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void Scaler1<Pixel>::scale1x2to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -142,7 +143,7 @@ void Scaler1<Pixel>::scale1x2to1x1(FrameSource& src,
 	VLA_SSE_ALIGNED(Pixel, buf, srcWidth);
 	unsigned dstWidth = dst.getWidth();
 	BlendLines<Pixel> blend(pixelOps);
-	for (unsigned dstY = dstStartY; dstY < dstEndY; ++dstY) {
+	for (auto dstY : xrange(dstStartY, dstEndY)) {
 		auto* dstLine = dst.acquireLine(dstY);
 		auto* srcLine0 = src.getLinePtr(srcStartY++, srcWidth, dstLine);
 		auto* srcLine1 = src.getLinePtr(srcStartY++, srcWidth, buf);
@@ -151,7 +152,7 @@ void Scaler1<Pixel>::scale1x2to1x1(FrameSource& src,
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scaler1<Pixel>::scale4x1to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -161,7 +162,7 @@ void Scaler1<Pixel>::scale4x1to3x1(FrameSource& src,
 	                dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scaler1<Pixel>::scale4x2to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -171,7 +172,7 @@ void Scaler1<Pixel>::scale4x2to3x1(FrameSource& src,
 	                 dst, dstStartY, dstEndY, pixelOps, op);
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void Scaler1<Pixel>::scale2x1to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -181,7 +182,7 @@ void Scaler1<Pixel>::scale2x1to1x1(FrameSource& src,
 	                dst, dstStartY, dstEndY, op);
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void Scaler1<Pixel>::scale2x2to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -191,7 +192,7 @@ void Scaler1<Pixel>::scale2x2to1x1(FrameSource& src,
 	                 dst, dstStartY, dstEndY, pixelOps, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scaler1<Pixel>::scale8x1to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -201,7 +202,7 @@ void Scaler1<Pixel>::scale8x1to3x1(FrameSource& src,
 	                dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scaler1<Pixel>::scale8x2to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -211,7 +212,7 @@ void Scaler1<Pixel>::scale8x2to3x1(FrameSource& src,
 	                 dst, dstStartY, dstEndY, pixelOps, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scaler1<Pixel>::scale4x1to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -221,7 +222,7 @@ void Scaler1<Pixel>::scale4x1to1x1(FrameSource& src,
 	                dst, dstStartY, dstEndY, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scaler1<Pixel>::scale4x2to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -231,7 +232,7 @@ void Scaler1<Pixel>::scale4x2to1x1(FrameSource& src,
 	                 dst, dstStartY, dstEndY, pixelOps, op);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scaler1<Pixel>::dispatchScale(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -306,7 +307,7 @@ void Scaler1<Pixel>::dispatchScale(FrameSource& src,
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scaler1<Pixel>::scaleImage(FrameSource& src, const RawFrame* superImpose,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)

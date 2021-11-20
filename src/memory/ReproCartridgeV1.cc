@@ -1,8 +1,9 @@
 #include "ReproCartridgeV1.hh"
 #include "DummyAY8910Periphery.hh"
 #include "MSXCPUInterface.hh"
+#include "cstd.hh"
 #include "serialize.hh"
-#include <vector>
+#include <array>
 
 
 /******************************************************************************
@@ -27,22 +28,22 @@ Otherwise, the mapper is enabled and the flash is readonly.
 
 namespace openmsx {
 
-static std::vector<AmdFlash::SectorInfo> getSectorInfo()
-{
-	std::vector<AmdFlash::SectorInfo> sectorInfo;
-	// 8 * 8kB
-	sectorInfo.insert(end(sectorInfo), 8, {8 * 1024, false});
-	// 127 * 64kB
-	sectorInfo.insert(end(sectorInfo), 127, {64 * 1024, false});
-	return sectorInfo;
-}
+static constexpr auto sectorInfo = [] {
+	// 8 * 8kB, followed by 127 * 64kB
+	using Info = AmdFlash::SectorInfo;
+	std::array<Info, 8 + 127> result = {};
+	cstd::fill(result.begin(), result.begin() + 8, Info{ 8 * 1024, false});
+	cstd::fill(result.begin() + 8, result.end(),   Info{64 * 1024, false});
+	return result;
+}();
 
 ReproCartridgeV1::ReproCartridgeV1(
 		const DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
-	, flash(rom, getSectorInfo(), 0x207E, true, config, false)
-	, scc("MGCV1 SCC", config, getCurrentTime(), SCC::SCC_Compatible)
-	, psg("MGCV1 PSG", DummyAY8910Periphery::instance(), config,
+	, flash(rom, sectorInfo, 0x207E,
+	        AmdFlash::Addressing::BITS_12, config)
+	, scc("ReproCartV1 SCC", config, getCurrentTime(), SCC::SCC_Compatible)
+	, psg("ReproCartV1 PSG", DummyAY8910Periphery::instance(), config,
 	      getCurrentTime())
 {
 	powerUp(getCurrentTime());
@@ -70,9 +71,7 @@ void ReproCartridgeV1::reset(EmuTime::param time)
 	flashRomWriteEnabled = false;
 	mainBankReg = 0;
 	sccMode = 0;
-	for (int bank = 0; bank < 4; ++bank) {
-		bankRegs[bank] = bank;
-	}
+	ranges::iota(bankRegs, 0);
 
 	scc.reset(time);
 	psgLatch = 0;

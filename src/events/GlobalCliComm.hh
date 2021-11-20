@@ -37,6 +37,7 @@ private:
 	void updateHelper(UpdateType type, std::string_view machine,
 	                  std::string_view name, std::string_view value);
 
+private:
 	hash_map<std::string, std::string, XXHasher> prevValues[NUM_UPDATES];
 
 	std::vector<std::unique_ptr<CliListener>> listeners; // unordered

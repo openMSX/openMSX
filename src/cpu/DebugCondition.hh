@@ -12,10 +12,10 @@ class DebugCondition final : public BreakPointBase
 {
 public:
 	DebugCondition(TclObject command_, TclObject condition_, bool once_)
-		: BreakPointBase(command_, condition_, once_)
+		: BreakPointBase(std::move(command_), std::move(condition_), once_)
 		, id(++lastId) {}
 
-	unsigned getId() const { return id; }
+	[[nodiscard]] unsigned getId() const { return id; }
 
 private:
 	unsigned id;

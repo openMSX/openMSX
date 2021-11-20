@@ -33,7 +33,7 @@ public:
 
 	virtual void drawBlank(int r, int g, int b) = 0;
 
-	virtual RawFrame* getRawFrame() = 0;
+	[[nodiscard]] virtual RawFrame* getRawFrame() = 0;
 
 protected:
 	LDRenderer() = default;

@@ -66,14 +66,14 @@ public:
 	explicit MSXMotherBoard(Reactor& reactor);
 	~MSXMotherBoard();
 
-	std::string_view getMachineID()   const { return machineID; }
-	std::string_view getMachineName() const { return machineName; }
+	[[nodiscard]] std::string_view getMachineID()   const { return machineID; }
+	[[nodiscard]] std::string_view getMachineName() const { return machineName; }
 
 	/** Run emulation.
 	 * @return True if emulation steps were done,
 	 *   false if emulation is suspended.
 	 */
-	bool execute();
+	[[nodiscard]] bool execute();
 
 	/** Run emulation until a certain time in fast forward mode.
 	 */
@@ -93,56 +93,57 @@ public:
 
 	void doReset();
 	void activate(bool active);
-	bool isActive() const { return active; }
-	bool isFastForwarding() const { return fastForwarding; }
+	[[nodiscard]] bool isActive() const { return active; }
+	[[nodiscard]] bool isFastForwarding() const { return fastForwarding; }
 
-	byte readIRQVector();
+	[[nodiscard]] byte readIRQVector();
 
-	const HardwareConfig* getMachineConfig() const { return machineConfig; }
+	[[nodiscard]] const HardwareConfig* getMachineConfig() const { return machineConfig; }
+	[[nodiscard]] HardwareConfig* getMachineConfig() { return machineConfig; }
 	void setMachineConfig(HardwareConfig* machineConfig);
-	std::string getMachineType() const;
-	bool isTurboR() const;
+	[[nodiscard]] std::string_view getMachineType() const;
+	[[nodiscard]] bool isTurboR() const;
 
 	std::string loadMachine(const std::string& machine);
 
 	using Extensions = std::vector<std::unique_ptr<HardwareConfig>>;
-	const Extensions& getExtensions() const { return extensions; }
-	HardwareConfig* findExtension(std::string_view extensionName);
-	std::string loadExtension(std::string_view extensionName, std::string slotname);
+	[[nodiscard]] const Extensions& getExtensions() const { return extensions; }
+	[[nodiscard]] HardwareConfig* findExtension(std::string_view extensionName);
+	std::string loadExtension(std::string_view extensionName, std::string_view slotname);
 	std::string insertExtension(std::string_view name,
 	                            std::unique_ptr<HardwareConfig> extension);
 	void removeExtension(const HardwareConfig& extension);
 
 	// The following classes are unique per MSX machine
-	CliComm& getMSXCliComm();
-	MSXCommandController& getMSXCommandController() { return *msxCommandController; }
-	Scheduler& getScheduler() { return *scheduler; }
-	MSXEventDistributor& getMSXEventDistributor() { return *msxEventDistributor; }
-	StateChangeDistributor& getStateChangeDistributor() { return *stateChangeDistributor; }
-	CartridgeSlotManager& getSlotManager() { return *slotManager; }
-	RealTime& getRealTime() { return *realTime; }
-	Debugger& getDebugger() { return *debugger; }
-	MSXMixer& getMSXMixer() { return *msxMixer; }
-	PluggingController& getPluggingController();
-	MSXCPU& getCPU();
-	MSXCPUInterface& getCPUInterface();
-	PanasonicMemory& getPanasonicMemory();
-	MSXDeviceSwitch& getDeviceSwitch();
-	CassettePortInterface& getCassettePort();
-	JoystickPortIf& getJoystickPort(unsigned port);
-	RenShaTurbo& getRenShaTurbo();
-	LedStatus& getLedStatus();
-	ReverseManager& getReverseManager() { return *reverseManager; }
-	Reactor& getReactor() { return reactor; }
-	VideoSourceSetting& getVideoSource() { return videoSourceSetting; }
+	[[nodiscard]] CliComm& getMSXCliComm();
+	[[nodiscard]] MSXCommandController& getMSXCommandController() { return *msxCommandController; }
+	[[nodiscard]] Scheduler& getScheduler() { return *scheduler; }
+	[[nodiscard]] MSXEventDistributor& getMSXEventDistributor() { return *msxEventDistributor; }
+	[[nodiscard]] StateChangeDistributor& getStateChangeDistributor() { return *stateChangeDistributor; }
+	[[nodiscard]] CartridgeSlotManager& getSlotManager() { return *slotManager; }
+	[[nodiscard]] RealTime& getRealTime() { return *realTime; }
+	[[nodiscard]] Debugger& getDebugger() { return *debugger; }
+	[[nodiscard]] MSXMixer& getMSXMixer() { return *msxMixer; }
+	[[nodiscard]] PluggingController& getPluggingController();
+	[[nodiscard]] MSXCPU& getCPU();
+	[[nodiscard]] MSXCPUInterface& getCPUInterface();
+	[[nodiscard]] PanasonicMemory& getPanasonicMemory();
+	[[nodiscard]] MSXDeviceSwitch& getDeviceSwitch();
+	[[nodiscard]] CassettePortInterface& getCassettePort();
+	[[nodiscard]] JoystickPortIf& getJoystickPort(unsigned port);
+	[[nodiscard]] RenShaTurbo& getRenShaTurbo();
+	[[nodiscard]] LedStatus& getLedStatus();
+	[[nodiscard]] ReverseManager& getReverseManager() { return *reverseManager; }
+	[[nodiscard]] Reactor& getReactor() { return reactor; }
+	[[nodiscard]] VideoSourceSetting& getVideoSource() { return videoSourceSetting; }
 
 	// convenience methods
-	CommandController& getCommandController();
-	InfoCommand& getMachineInfoCommand();
+	[[nodiscard]] CommandController& getCommandController();
+	[[nodiscard]] InfoCommand& getMachineInfoCommand();
 
 	/** Convenience method:
 	  * This is the same as getScheduler().getCurrentTime(). */
-	EmuTime::param getCurrentTime();
+	[[nodiscard]] EmuTime::param getCurrentTime();
 
 	/** All MSXDevices should be registered by the MotherBoard.
 	 */
@@ -155,7 +156,7 @@ public:
 	  * @return A pointer to the device or nullptr if the device could not
 	  *         be found.
 	  */
-	MSXDevice* findDevice(std::string_view name);
+	[[nodiscard]] MSXDevice* findDevice(std::string_view name);
 
 	/** Some MSX device parts are shared between several MSX devices
 	  * (e.g. all memory mappers share IO ports 0xFC-0xFF). But this
@@ -166,7 +167,7 @@ public:
 	  *      Maybe this method can be removed when savestates are finished.
 	  */
 	template<typename T, typename ... Args>
-	std::shared_ptr<T> getSharedStuff(std::string_view name, Args&& ...args)
+	[[nodiscard]] std::shared_ptr<T> getSharedStuff(std::string_view name, Args&& ...args)
 	{
 		auto& weak = sharedStuffMap[name];
 		auto shared = std::static_pointer_cast<T>(weak.lock());
@@ -180,8 +181,8 @@ public:
 	/** All memory mappers in one MSX machine share the same four (logical)
 	 * memory mapper registers. These two methods handle this sharing.
 	 */
-	MSXMapperIO& createMapperIO();
-	MSXMapperIO& getMapperIO() const
+	[[nodiscard]] MSXMapperIO& createMapperIO();
+	[[nodiscard]] MSXMapperIO& getMapperIO() const
 	{
 		assert(mapperIOCounter);
 		return *mapperIO;
@@ -195,7 +196,7 @@ public:
 	 * ATM the usernames always have the format 'untitled[N]'. In the future
 	 * we might allow really user specified names.
 	 */
-	std::string getUserName(const std::string& hwName);
+	[[nodiscard]] std::string getUserName(const std::string& hwName);
 	void freeUserName(const std::string& hwName, const std::string& userName);
 
 	template<typename Archive>
@@ -205,6 +206,7 @@ private:
 	void powerDown();
 	void deleteMachine();
 
+private:
 	Reactor& reactor;
 	std::string machineID;
 	std::string machineName;
@@ -273,7 +275,7 @@ private:
 	bool active;
 	bool fastForwarding;
 };
-SERIALIZE_CLASS_VERSION(MSXMotherBoard, 4);
+SERIALIZE_CLASS_VERSION(MSXMotherBoard, 5);
 
 class ExtCmd final : public RecordedCommand
 {
@@ -281,7 +283,7 @@ public:
 	ExtCmd(MSXMotherBoard& motherBoard, std::string commandName);
 	void execute(span<const TclObject> tokens, TclObject& result,
 	             EmuTime::param time) override;
-	std::string help(const std::vector<std::string>& tokens) const override;
+	[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 	void tabCompletion(std::vector<std::string>& tokens) const override;
 private:
 	MSXMotherBoard& motherBoard;

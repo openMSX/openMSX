@@ -3,14 +3,12 @@
 #include "EventDistributor.hh"
 #include "EventDelay.hh"
 #include "Event.hh"
-#include "FinishFrameEvent.hh"
 #include "GlobalSettings.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
-#include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
 #include "ThrottleManager.hh"
-#include "checked_cast.hh"
+#include "unreachable.hh"
 
 namespace openmsx {
 
@@ -39,14 +37,14 @@ RealTime::RealTime(
 
 	resync();
 
-	eventDistributor.registerEventListener(OPENMSX_FINISH_FRAME_EVENT, *this);
-	eventDistributor.registerEventListener(OPENMSX_FRAME_DRAWN_EVENT,  *this);
+	eventDistributor.registerEventListener(EventType::FINISH_FRAME, *this);
+	eventDistributor.registerEventListener(EventType::FRAME_DRAWN,  *this);
 }
 
 RealTime::~RealTime()
 {
-	eventDistributor.unregisterEventListener(OPENMSX_FRAME_DRAWN_EVENT,  *this);
-	eventDistributor.unregisterEventListener(OPENMSX_FINISH_FRAME_EVENT, *this);
+	eventDistributor.unregisterEventListener(EventType::FRAME_DRAWN,  *this);
+	eventDistributor.unregisterEventListener(EventType::FINISH_FRAME, *this);
 
 	powerSetting.detach(*this);
 	pauseSetting.detach(*this);
@@ -121,37 +119,42 @@ void RealTime::executeUntil(EmuTime::param time)
 	setSyncPoint(time + getEmuDuration(SYNC_INTERVAL));
 }
 
-int RealTime::signalEvent(const std::shared_ptr<const Event>& event)
+int RealTime::signalEvent(const Event& event) noexcept
 {
 	if (!motherBoard.isActive() || !enabled) {
 		// these are global events, only the active machine should
 		// synchronize with real time
 		return 0;
 	}
-	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
-		auto& ffe = checked_cast<const FinishFrameEvent&>(*event);
-		if (!ffe.needRender()) {
-			// sync but don't sleep
-			sync(getCurrentTime(), false);
+	visit(overloaded{
+		[&](const FinishFrameEvent& ffe) {
+			if (!ffe.needRender()) {
+				// sync but don't sleep
+				sync(getCurrentTime(), false);
+			}
+		},
+		[&](const FrameDrawnEvent&) {
+			// sync and possibly sleep
+			sync(getCurrentTime(), true);
+		},
+		[&](const EventBase /*e*/) {
+			UNREACHABLE;
 		}
-	} else if (event->getType() == OPENMSX_FRAME_DRAWN_EVENT) {
-		// sync and possibly sleep
-		sync(getCurrentTime(), true);
-	}
+	}, event);
 	return 0;
 }
 
-void RealTime::update(const Setting& /*setting*/)
+void RealTime::update(const Setting& /*setting*/) noexcept
 {
 	resync();
 }
 
-void RealTime::update(const SpeedManager& /*speedManager*/)
+void RealTime::update(const SpeedManager& /*speedManager*/) noexcept
 {
 	resync();
 }
 
-void RealTime::update(const ThrottleManager& /*throttleManager*/)
+void RealTime::update(const ThrottleManager& /*throttleManager*/) noexcept
 {
 	resync();
 }

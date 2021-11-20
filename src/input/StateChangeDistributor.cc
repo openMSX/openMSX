@@ -27,49 +27,32 @@ void StateChangeDistributor::unregisterListener(StateChangeListener& listener)
 	move_pop_back(listeners, rfind_unguarded(listeners, &listener));
 }
 
-void StateChangeDistributor::registerRecorder(StateChangeRecorder& recorder_)
+void StateChangeDistributor::registerRecorder(ReverseManager& recorder_)
 {
 	assert(!recorder);
 	recorder = &recorder_;
 }
 
-void StateChangeDistributor::unregisterRecorder(StateChangeRecorder& recorder_)
+void StateChangeDistributor::unregisterRecorder(ReverseManager& recorder_)
 {
 	(void)recorder_;
 	assert(recorder == &recorder_);
 	recorder = nullptr;
 }
 
-void StateChangeDistributor::distributeNew(const EventPtr& event)
-{
-	if (viewOnlyMode && isReplaying()) return;
-
-	if (isReplaying()) {
-		stopReplay(event->getTime());
-	}
-	distribute(event);
-}
-
-void StateChangeDistributor::distributeReplay(const EventPtr& event)
-{
-	assert(isReplaying());
-	distribute(event);
-}
-
-void StateChangeDistributor::distribute(const EventPtr& event)
+void StateChangeDistributor::distribute(const StateChange& event)
 {
 	// Iterate over a copy because signalStateChange() may indirect call
 	// back into registerListener().
 	//   e.g. signalStateChange() -> .. -> PlugCmd::execute() -> .. ->
 	//        Connector::plug() -> .. -> Joystick::plugHelper() ->
 	//        registerListener()
-	if (recorder) recorder->signalStateChange(event);
 	auto copy = listeners;
 	for (auto& l : copy) {
 		if (isRegistered(l)) {
 			// it's possible the listener unregistered itself
 			// (but is still present in the copy)
-			l->signalStateChange(event);
+			l->signalStateChange(event); // might throw
 		}
 	}
 }

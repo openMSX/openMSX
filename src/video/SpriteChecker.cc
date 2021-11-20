@@ -38,7 +38,7 @@ void SpriteChecker::reset(EmuTime::param time)
 	updateSpritesMethod = &SpriteChecker::updateSprites1;
 }
 
-static inline SpriteChecker::SpritePattern doublePattern(SpriteChecker::SpritePattern a)
+static constexpr SpriteChecker::SpritePattern doublePattern(SpriteChecker::SpritePattern a)
 {
 	// bit-pattern "abcd...." gets expanded to "aabbccdd"
 	// upper 16 bits (of a 32 bit number) contain the pattern
@@ -65,9 +65,7 @@ inline SpriteChecker::SpritePattern SpriteChecker::calculatePatternNP(
 inline SpriteChecker::SpritePattern SpriteChecker::calculatePatternPlanar(
 	unsigned patternNr, unsigned y)
 {
-	const byte* ptr0;
-	const byte* ptr1;
-	vram.spritePatternTable.getReadAreaPlanar(0, 256 * 8, ptr0, ptr1);
+	auto [ptr0, ptr1] = vram.spritePatternTable.getReadAreaPlanar(0, 256 * 8);
 	unsigned index = patternNr * 8 + y;
 	const byte* patternPtr = (index & 1) ? ptr1 : ptr0;
 	index /= 2;
@@ -133,7 +131,7 @@ inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 		int y = attributePtr[4 * sprite + 0];
 		if (y == 208) break;
 
-		for (int line = minLine; line < maxLine; ++line) {
+		for (int line = minLine; line < maxLine; ++line) { // 'line' changes in loop
 			// Calculate line number within the sprite.
 			int displayLine = line + displayDelta;
 			int spriteLine = (displayLine - y) & 0xFF;
@@ -207,14 +205,14 @@ inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 	If any collision is found, method returns at once.
 	*/
 	bool can0collide = vdp.canSpriteColor0Collide();
-	for (int line = minLine; line < maxLine; ++line) {
+	for (auto line : xrange(minLine, maxLine)) {
 		int minXCollision = 999;
 		for (int i = std::min<int>(4, spriteCount[line]); --i >= 1; /**/) {
 			auto color1 = spriteBuffer[line][i].colorAttrib & 0xf;
 			if (!can0collide && (color1 == 0)) continue;
 			int x_i = spriteBuffer[line][i].x;
 			SpritePattern pattern_i = spriteBuffer[line][i].pattern;
-			for (int j = i; --j >= 0; ) {
+			for (int j = i; --j >= 0; /**/) {
 				auto color2 = spriteBuffer[line][j].colorAttrib & 0xf;
 				if (!can0collide && (color2 == 0)) continue;
 				// Do sprite i and sprite j collide?
@@ -293,16 +291,14 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 	// code for planar and non-planar modes.
 	int sprite = 0;
 	if (planar) {
-		const byte* attributePtr0;
-		const byte* attributePtr1;
-		vram.spriteAttribTable.getReadAreaPlanar(
-			512, 32 * 4, attributePtr0, attributePtr1);
+		auto [attributePtr0, attributePtr1] =
+			vram.spriteAttribTable.getReadAreaPlanar(512, 32 * 4);
 		// TODO: Verify CC implementation.
 		for (/**/; sprite < 32; ++sprite) {
 			int y = attributePtr0[2 * sprite + 0];
 			if (y == 216) break;
 
-			for (int line = minLine; line < maxLine; ++line) {
+			for (int line = minLine; line < maxLine; ++line) { // 'line' changes in loop
 				// Calculate line number within the sprite.
 				int displayLine = line + displayDelta;
 				int spriteLine = (displayLine - y) & 0xFF;
@@ -347,7 +343,7 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 			int y = attributePtr0[4 * sprite + 0];
 			if (y == 216) break;
 
-			for (int line = minLine; line < maxLine; ++line) {
+			for (int line = minLine; line < maxLine; ++line) { // 'line' changes in loop
 				// Calculate line number within the sprite.
 				int displayLine = line + displayDelta;
 				int spriteLine = (displayLine - y) & 0xFF;
@@ -442,7 +438,7 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 	        Probably new approach is needed anyway for OR-ing.
 	*/
 	bool can0collide = vdp.canSpriteColor0Collide();
-	for (int line = minLine; line < maxLine; ++line) {
+	for (auto line : xrange(minLine, maxLine)) {
 		int minXCollision = 999; // no collision
 		SpriteInfo* visibleSprites = spriteBuffer[line];
 		for (int i = std::min<int>(8, spriteCount[line]); --i >= 1; /**/) {
@@ -453,7 +449,7 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 
 			int x_i = visibleSprites[i].x;
 			SpritePattern pattern_i = visibleSprites[i].pattern;
-			for (int j = i; --j >= 0; ) {
+			for (int j = i; --j >= 0; /**/) {
 				auto colorAttrib2 = visibleSprites[j].colorAttrib;
 				if (!can0collide && ((colorAttrib2 & 0xf) == 0)) continue;
 				// If CC or IC is set, this sprite cannot collide.
@@ -498,7 +494,7 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 template<typename Archive>
 void SpriteChecker::serialize(Archive& ar, unsigned version)
 {
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		// Recalculate from VDP state:
 		//  - frameStartTime
 		frameStartTime.reset(vdp.getFrameStartTime());

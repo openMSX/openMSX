@@ -2,6 +2,7 @@
 #define GLSCALER_HH
 
 #include "GLUtil.hh"
+#include <string>
 
 namespace openmsx {
 
@@ -48,7 +49,7 @@ protected:
 	/** Helper method to draw a rectangle with multiple texture coordinates.
 	  * This method is similar to Texture::drawRect() but it calculates a
 	  * seconds set of texture coordinates. The first tex-coords are used
-	  * for the MSX texture (textur unit 0), and are calculated from
+	  * for the MSX texture (texture unit 0), and are calculated from
 	  * src{Start,End}Y and src.getHeight(). The second set of tex-coord are
 	  * used for the superimpose texture (texture unit 1) and are calculated
 	  * from src{Start,End}Y and logSrcHeight.

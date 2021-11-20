@@ -11,10 +11,13 @@ class Event;
 class MSXEventListener
 {
 public:
+	MSXEventListener(const MSXEventListener&) = delete;
+	MSXEventListener& operator=(const MSXEventListener&) = delete;
+
 	/** This method gets called when an event you are subscribed to occurs.
 	  */
-	virtual void signalMSXEvent(const std::shared_ptr<const Event>& event,
-	                            EmuTime::param time) = 0;
+	virtual void signalMSXEvent(const Event& event,
+	                            EmuTime::param time) noexcept = 0;
 
 protected:
 	MSXEventListener() = default;

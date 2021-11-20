@@ -14,13 +14,13 @@ public:
 	explicit MSXFacMidiInterface(const DeviceConfig& config);
 
 	void reset(EmuTime::param time) override;
-	byte readIO(word port, EmuTime::param time) override;
-	byte peekIO(word port, EmuTime::param time) const override;
+	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
+	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
 	void writeIO(word port, byte value, EmuTime::param time) override;
 
 	// MidiInConnector
-	bool ready() override;
-	bool acceptsData() override;
+	[[nodiscard]] bool ready() override;
+	[[nodiscard]] bool acceptsData() override;
 	void setDataBits(DataBits bits) override;
 	void setStopBits(StopBits bits) override;
 	void setParityBit(bool enable, ParityBit parity) override;
@@ -34,8 +34,8 @@ private:
 		void setRxRDY(bool status, EmuTime::param time) override;
 		void setDTR(bool status, EmuTime::param time) override;
 		void setRTS(bool status, EmuTime::param time) override;
-		bool getDSR(EmuTime::param time) override;
-		bool getCTS(EmuTime::param time) override;
+		[[nodiscard]] bool getDSR(EmuTime::param time) override;
+		[[nodiscard]] bool getCTS(EmuTime::param time) override;
 		void setDataBits(DataBits bits) override;
 		void setStopBits(StopBits bits) override;
 		void setParityBit(bool enable, ParityBit parity) override;

@@ -76,56 +76,56 @@ public:
 
 	void powerUp(EmuTime::param time) override;
 	void reset(EmuTime::param time) override;
-	byte readIO(word port, EmuTime::param time) override;
-	byte peekIO(word port, EmuTime::param time) const override;
+	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
+	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
 	void writeIO(word port, byte value, EmuTime::param time) override;
 
 	/** Used by Video9000 to be able to couple the VDP and V9990 output.
 	 * Can return nullptr in case of renderer=none. This value can change
 	 * over the lifetime of the VDP object (on renderer switch).
 	 */
-	PostProcessor* getPostProcessor() const;
+	[[nodiscard]] PostProcessor* getPostProcessor() const;
 
 	/** Is this an MSX1 VDP?
 	  * @return True if this is an MSX1 VDP
 	  *   False otherwise.
 	  */
-	inline bool isMSX1VDP() const {
+	[[nodiscard]] inline bool isMSX1VDP() const {
 		return (version & VM_MSX1) != 0;
 	}
 
 	/** Is this a VDP only capable of PAL?
 	  * @return True iff this is a PAL only VDP
 	  */
-	inline bool isVDPwithPALonly() const {
+	[[nodiscard]] inline bool isVDPwithPALonly() const {
 		return (version & VM_PAL) != 0;
 	}
 
 	/** Is this a VDP that lacks mirroring?
 	  * @return True iff this VDP lacks the screen 2 mirrored mode
 	  */
-	inline bool vdpLacksMirroring() const {
+	[[nodiscard]] inline bool vdpLacksMirroring() const {
 		return (version & VM_NO_MIRRORING) != 0;
 	}
 
 	/** Is this a VDP that has pattern/colortable mirroring?
 	 * @return True iff this VDP has pattern/colortable mirroring
 	 */
-	inline bool vdpHasPatColMirroring() const {
+	[[nodiscard]] inline bool vdpHasPatColMirroring() const {
 		return (version & VM_PALCOL_MIRRORING) != 0;
 	}
 
 	/** Does this VDP have VRAM remapping when switching from 4k to 8/16k mode?
 	  * @return True iff this is a VDP with VRAM remapping
 	  */
-	inline bool isVDPwithVRAMremapping() const {
+	[[nodiscard]] inline bool isVDPwithVRAMremapping() const {
 		return (version & VM_VRAM_REMAPPING) != 0;
 	}
 
 	/** Does this VDP support YJK display?
 	  * @return True for V9958, false otherwise.
 	  */
-	inline bool hasYJK() const {
+	[[nodiscard]] inline bool hasYJK() const {
 		return (version & VM_YJK) != 0;
 	}
 
@@ -133,18 +133,18 @@ public:
 	  * Don't use this if it's not an MSX1 VDP!
 	  * @return an array of 16 RGB triplets
 	  */
-	std::array<std::array<uint8_t, 3>, 16> getMSX1Palette() const;
+	[[nodiscard]] std::array<std::array<uint8_t, 3>, 16> getMSX1Palette() const;
 
 	/** Get the display mode the VDP is in.
 	  * @return The current display mode.
 	  */
-	inline DisplayMode getDisplayMode() const {
+	[[nodiscard]] inline DisplayMode getDisplayMode() const {
 		return displayMode;
 	}
 
 	/** Get the VRAM object for this VDP.
 	  */
-	inline VDPVRAM& getVRAM() {
+	[[nodiscard]] inline VDPVRAM& getVRAM() {
 		return *vram;
 	}
 
@@ -152,7 +152,7 @@ public:
 	 * In case of superimpose, returns a pointer to the to-be-superimposed
 	 * frame. Returns nullptr if superimpose is not active.
 	 */
-	inline const RawFrame* isSuperimposing() const {
+	[[nodiscard]] inline const RawFrame* isSuperimposing() const {
 		// Note that bit 0 of r#0 has no effect on an V9938 or higher,
 		// but this bit is masked out. Also note that on an MSX1, if
 		// bit 0 of r#0 is enabled and there is no external video
@@ -164,20 +164,20 @@ public:
 
 	/** Get the sprite checker for this VDP.
 	  */
-	inline SpriteChecker& getSpriteChecker() {
+	[[nodiscard]] inline SpriteChecker& getSpriteChecker() {
 		return *spriteChecker;
 	}
 
 	/** Gets the current transparency setting.
 	  * @return True iff color 0 is transparent.
 	  */
-	inline bool getTransparency() const {
+	[[nodiscard]] inline bool getTransparency() const {
 		return (controlRegs[8] & 0x20) == 0;
 	}
 
 	/** Can a sprite which has color=0 collide with some other sprite?
 	 */
-	bool canSpriteColor0Collide() const {
+	[[nodiscard]] bool canSpriteColor0Collide() const {
 		// On MSX1 (so far only tested a TMS9129(?)) sprites with
 		// color=0 can always collide with other sprites. Though on
 		// V99x8 (only tested V9958) collisions only occur when color 0
@@ -189,7 +189,7 @@ public:
 	/** Gets the current foreground color.
 	  * @return Color index [0..15].
 	  */
-	inline int getForegroundColor() const {
+	[[nodiscard]] inline int getForegroundColor() const {
 		return controlRegs[7] >> 4;
 	}
 
@@ -201,7 +201,7 @@ public:
 	  *   In Graphic7 mode with YJK off, the range is [0..255].
 	  *   In other modes, the range is [0..15].
 	  */
-	inline int getBackgroundColor() const {
+	[[nodiscard]] inline int getBackgroundColor() const {
 		byte reg7 = controlRegs[7];
 		if (displayMode.getByte() == DisplayMode::GRAPHIC7) {
 			return reg7;
@@ -213,21 +213,21 @@ public:
 	/** Gets the current blinking color for blinking text.
 	  * @return Color index [0..15].
 	  */
-	inline int getBlinkForegroundColor() const {
+	[[nodiscard]] inline int getBlinkForegroundColor() const {
 		return controlRegs[12] >> 4;
 	}
 
 	/** Gets the current blinking color for blinking text.
 	  * @return Color index [0..15].
 	  */
-	inline int getBlinkBackgroundColor() const {
+	[[nodiscard]] inline int getBlinkBackgroundColor() const {
 		return controlRegs[12] & 0x0F;
 	}
 
 	/** Gets the current blink state.
 	  * @return True iff alternate colors / page should be displayed.
 	  */
-	inline bool getBlinkState() const {
+	[[nodiscard]] inline bool getBlinkState() const {
 		return blinkState;
 	}
 
@@ -236,7 +236,7 @@ public:
 	  * @return Color value in the format of the palette registers:
 	  *   bit 10..8 is green, bit 6..4 is red and bit 2..0 is blue.
 	  */
-	inline word getPalette(int index) const {
+	[[nodiscard]] inline word getPalette(int index) const {
 		return palette[index];
 	}
 
@@ -245,7 +245,7 @@ public:
 	  * the display enable bit are considered disabled display.
 	  * @return true iff enabled.
 	  */
-	inline bool isDisplayEnabled() const {
+	[[nodiscard]] inline bool isDisplayEnabled() const {
 		return isDisplayArea && displayEnabled;
 	}
 
@@ -253,31 +253,31 @@ public:
 	  * @return True iff blanking is off, the current mode supports
 	  *   sprites and sprites are not disabled.
 	  */
-	inline bool spritesEnabled() const {
+	[[nodiscard]] inline bool spritesEnabled() const {
 		return displayEnabled &&
 		       (displayMode.getSpriteMode(isMSX1VDP()) != 0) &&
-		       ((controlRegs[8] & 0x02) == 0x00);
+		       spriteEnabled;
 	}
 
 	/** Same as spritesEnabled(), but may only be called in sprite
 	  * mode 1 or 2. Is a tiny bit faster.
 	  */
-	inline bool spritesEnabledFast() const {
+	[[nodiscard]] inline bool spritesEnabledFast() const {
 		assert(displayMode.getSpriteMode(isMSX1VDP()) != 0);
-		return displayEnabled && ((controlRegs[8] & 0x02) == 0x00);
+		return displayEnabled && spriteEnabled;
 	}
 
 	/** Still faster variant (just looks at the sprite-enabled-bit).
 	  * But only valid in sprite mode 1/2 with screen enabled.
 	  */
-	inline bool spritesEnabledRegister() const {
-		return (controlRegs[8] & 0x02) == 0x00;
+	[[nodiscard]] inline bool spritesEnabledRegister() const {
+		return spriteEnabled;
 	}
 
 	/** Gets the current vertical scroll (line displayed at Y=0).
 	  * @return Vertical scroll register value.
 	  */
-	inline byte getVerticalScroll() const {
+	[[nodiscard]] inline byte getVerticalScroll() const {
 		return controlRegs[23];
 	}
 
@@ -286,7 +286,7 @@ public:
 	  * screen 0..7 bytes to the right.
 	  * @return Horizontal scroll low register value.
 	  */
-	inline byte getHorizontalScrollLow() const {
+	[[nodiscard]] inline byte getHorizontalScrollLow() const {
 		return controlRegs[27];
 	}
 
@@ -295,7 +295,7 @@ public:
 	  * rotated to the left.
 	  * @return Horizontal scroll high register value.
 	  */
-	inline byte getHorizontalScrollHigh() const {
+	[[nodiscard]] inline byte getHorizontalScrollHigh() const {
 		return controlRegs[26];
 	}
 
@@ -304,7 +304,7 @@ public:
 	  * This is a V9958 feature, on older VDPs it always returns false.
 	  * @return true iff enabled.
 	  */
-	inline bool isBorderMasked() const {
+	[[nodiscard]] inline bool isBorderMasked() const {
 		return (controlRegs[25] & 0x02) != 0;
 	}
 
@@ -314,7 +314,7 @@ public:
 	  * lower even page.
 	  * @return true iff enabled.
 	  */
-	inline bool isMultiPageScrolling() const {
+	[[nodiscard]] inline bool isMultiPageScrolling() const {
 		return (controlRegs[25] & 0x01) && (controlRegs[2] & 0x20);
 	}
 
@@ -322,7 +322,7 @@ public:
 	  * Usually this is equal to the height of the top border,
 	  * but not so during overscan.
 	  */
-	inline int getLineZero() const {
+	[[nodiscard]] inline int getLineZero() const {
 		return displayStart / TICKS_PER_LINE;
 	}
 
@@ -330,7 +330,7 @@ public:
 	  * This setting is fixed at start of frame.
 	  * @return True if PAL timing, false if NTSC timing.
 	  */
-	inline bool isPalTiming() const {
+	[[nodiscard]] inline bool isPalTiming() const {
 		return palTiming;
 	}
 
@@ -341,7 +341,7 @@ public:
 	  * This setting is fixed at start of frame.
 	  * @return True iff interlace is enabled.
 	  */
-	inline bool isInterlaced() const {
+	[[nodiscard]] inline bool isInterlaced() const {
 		return interlaced;
 	}
 
@@ -355,7 +355,7 @@ public:
 	  *    https://github.com/openMSX/openMSX/issues/1091
 	  * for testcases and links to more information.
 	  */
-	inline bool isFastBlinkEnabled() const {
+	[[nodiscard]] inline bool isFastBlinkEnabled() const {
 		return (controlRegs[1] & 4) != 0;
 	}
 
@@ -370,7 +370,7 @@ public:
 	  *       should be added on the Renderer interface.
 	  * @return True iff even/odd page alternation is enabled.
 	  */
-	inline bool isEvenOddEnabled() const {
+	[[nodiscard]] inline bool isEvenOddEnabled() const {
 		if (isFastBlinkEnabled()) return false;
 		return (controlRegs[9] & 4) != 0;
 	}
@@ -378,7 +378,7 @@ public:
 	/** Is the even or odd field being displayed?
 	  * @return True iff this field should be displayed half a line lower.
 	  */
-	inline bool getEvenOdd() const {
+	[[nodiscard]] inline bool getEvenOdd() const {
 		return (statusReg2 & 2) != 0;
 	}
 
@@ -393,7 +393,7 @@ public:
 	  * @pre !isFastBlinkEnabled()
 	  * @return Line number mask that expressed even/odd state.
 	  */
-	inline int getEvenOddMask() const {
+	[[nodiscard]] inline int getEvenOddMask() const {
 		// TODO: Verify which page is displayed on even fields.
 		assert(!isFastBlinkEnabled());
 		return (((~controlRegs[9] & 4) << 6) | ((statusReg2 & 2) << 7)) &
@@ -402,15 +402,15 @@ public:
 
 	/** Similar to the above getEvenOddMask() method, but can also be
 	  * called when 'isFastBlinkEnabled() == true'. In the latter case
-	  * the timinig is based on lines instead of frames. This means the
+	  * the timing is based on lines instead of frames. This means the
 	  * result is no longer fixed per frame, and thus this method takes
 	  * an additional line parameter.
 	  */
-	inline int getEvenOddMask(int line) const {
+	[[nodiscard]] inline int getEvenOddMask(int line) const {
 		if (isFastBlinkEnabled()) {
 			// EO and IL not considered in this mode
 			auto p = calculateLineBlinkState(line);
-			return (!p.first) << 8;
+			return (!p.state) << 8;
 		} else {
 			return getEvenOddMask();
 		}
@@ -420,7 +420,11 @@ public:
 	  * (The actual 'blinkState' and 'blinkCount' variables represent the values
 	  * for line 0 and remain fixed for the duration of the frame.
 	  */
-	inline std::pair<bool, int> calculateLineBlinkState(unsigned line) const {
+	struct BlinkStateCount {
+		bool state;
+		int count;
+	};
+	[[nodiscard]] BlinkStateCount calculateLineBlinkState(unsigned line) const {
 		assert(isFastBlinkEnabled());
 
 		if (blinkCount == 0) { // not changing
@@ -459,42 +463,42 @@ public:
 	/** Gets the number of VDP clock ticks (21MHz) elapsed between
 	  * a given time and the start of this frame.
 	  */
-	inline int getTicksThisFrame(EmuTime::param time) const {
+	[[nodiscard]] inline int getTicksThisFrame(EmuTime::param time) const {
 		return frameStartTime.getTicksTill_fast(time);
 	}
 
-	inline EmuTime::param getFrameStartTime() const {
+	[[nodiscard]] inline EmuTime::param getFrameStartTime() const {
 		return frameStartTime.getTime();
 	}
 
 	/** Gets the sprite size in pixels (8/16).
 	  */
-	inline int getSpriteSize() const {
+	[[nodiscard]] inline int getSpriteSize() const {
 		return ((controlRegs[1] & 2) << 2) + 8;
 	}
 
 	/** Are sprites magnified?
 	  */
-	inline bool isSpriteMag() const {
+	[[nodiscard]] inline bool isSpriteMag() const {
 		return controlRegs[1] & 1;
 	}
 
 	/** Are commands possible in non Graphic modes? (V9958 only)
 	  * @return True iff CMD bit set.
 	  */
-	inline bool getCmdBit() const {
+	[[nodiscard]] inline bool getCmdBit() const {
 		return (controlRegs[25] & 0x40) != 0;
 	}
 
 	/** Gets the number of lines per frame.
 	  */
-	inline int getLinesPerFrame() const {
+	[[nodiscard]] inline int getLinesPerFrame() const {
 		return palTiming ? 313 : 262;
 	}
 
 	/** Gets the number of VDP clockticks (21MHz) per frame.
 	  */
-	inline int getTicksPerFrame() const {
+	[[nodiscard]] inline int getTicksPerFrame() const {
 		return getLinesPerFrame() * TICKS_PER_LINE;
 	}
 
@@ -507,7 +511,7 @@ public:
 	  * @param time Timestamp to check.
 	  * @return True iff the timestamp is inside the current frame.
 	  */
-	inline bool isInsideFrame(EmuTime::param time) const {
+	[[nodiscard]] inline bool isInsideFrame(EmuTime::param time) const {
 		return time >= frameStartTime.getTime() &&
 			getTicksThisFrame(time) <= getTicksPerFrame();
 	}
@@ -515,7 +519,7 @@ public:
 	/** This is a combination of the (horizontal) set adjust register and
 	  * the YJK-mode bit.
 	  */
-	inline int getHorizontalAdjust() const {
+	[[nodiscard]] inline int getHorizontalAdjust() const {
 		return horizontalAdjust;
 	}
 
@@ -526,7 +530,7 @@ public:
 	  * TODO: Leave out the text mode case, since there are no sprites
 	  *       in text mode?
 	  */
-	inline int getLeftSprites() const {
+	[[nodiscard]] inline int getLeftSprites() const {
 		return 100 + 102 + 56
 			+ (horizontalAdjust - 7) * 4
 			+ (displayMode.isTextMode() ? 36 : 0);
@@ -537,14 +541,14 @@ public:
 	  * Does not include extra pixels of horizontal scroll low, since those
 	  * are not actually border pixels (sprites appear in front of them).
 	  */
-	inline int getLeftBorder() const {
+	[[nodiscard]] inline int getLeftBorder() const {
 		return getLeftSprites() + (isBorderMasked() ? 8 * 4 : 0);
 	}
 
 	/** Gets the number of VDP clockticks between start of line and the start
 	  * of the right border.
 	  */
-	inline int getRightBorder() const {
+	[[nodiscard]] inline int getRightBorder() const {
 		return getLeftSprites()
 			+ (displayMode.isTextMode() ? 960 : 1024);
 	}
@@ -554,14 +558,14 @@ public:
 	  * This includes extra pixels of horizontal scroll low,
 	  * but disregards border mask.
 	  */
-	inline int getLeftBackground() const {
+	[[nodiscard]] inline int getLeftBackground() const {
 		return getLeftSprites() + getHorizontalScrollLow() * 4;
 	}
 
 	/** Should only be used by SpriteChecker. Returns the current value
 	  * of status register 0 (both the F-flag and the sprite related bits).
 	  */
-	byte getStatusReg0() const { return statusReg0; }
+	[[nodiscard]] byte getStatusReg0() const { return statusReg0; }
 
 	/** Should only be used by SpriteChecker. Change the sprite related
 	  * bits of status register 0 (leaves the F-flag unchanged).
@@ -579,7 +583,7 @@ public:
 	/** Returns current VR mode.
 	  * false -> VR=0,  true -> VR=1
 	  */
-	bool getVRMode() const {
+	[[nodiscard]] bool getVRMode() const {
 		return (controlRegs[8] & 8) != 0;
 	}
 
@@ -591,13 +595,13 @@ public:
 
 	/** Value of the cmdTiming setting, true means commands have infinite speed.
 	 */
-	bool getBrokenCmdTiming() const {
+	[[nodiscard]] bool getBrokenCmdTiming() const {
 		return brokenCmdTiming;
 	}
 
 	/** Get the earliest access slot that is at least 'delta' cycles in
 	  * the future. */
-	EmuTime getAccessSlot(EmuTime::param time, VDPAccessSlots::Delta delta) const;
+	[[nodiscard]] EmuTime getAccessSlot(EmuTime::param time, VDPAccessSlots::Delta delta) const;
 
 	/** Same as getAccessSlot(), but it can be _much_ faster for repeated
 	  * calls, e.g. in the implementation of VDP commands. However it does
@@ -608,7 +612,7 @@ public:
 	  * (So this means that in every VDPCmd::execute() method you need
 	  * to construct a new calculator).
 	  */
-	VDPAccessSlots::Calculator getAccessSlotCalculator(
+	[[nodiscard]] VDPAccessSlots::Calculator getAccessSlotCalculator(
 		EmuTime::param time, EmuTime::param limit) const;
 
 	/** Only used when there are commandExecuting-probe listeners.
@@ -766,6 +770,14 @@ private:
 		}
 	} syncSetBlank;
 
+	struct SyncSetSprites final : public SyncBase {
+		explicit SyncSetSprites(VDP& vdp) : SyncBase(vdp) {}
+		void executeUntil(EmuTime::param time) override {
+			auto& vdp = OUTER(VDP, syncSetSprites);
+			vdp.execSetSprites(time);
+		}
+	} syncSetSprites;
+
 	struct SyncCpuVramAccess final : public SyncBase {
 		explicit SyncCpuVramAccess(VDP& vdp) : SyncBase(vdp) {}
 		void executeUntil(EmuTime::param time) override {
@@ -789,20 +801,21 @@ private:
 	void execHorAdjust(EmuTime::param time);
 	void execSetMode(EmuTime::param time);
 	void execSetBlank(EmuTime::param time);
+	void execSetSprites(EmuTime::param time);
 	void execCpuVramAccess(EmuTime::param time);
 	void execSyncCmdDone(EmuTime::param time);
 
 	/** Gets the number of display lines per screen.
 	  * @return 192 or 212.
 	  */
-	inline int getNumberOfLines() const {
+	[[nodiscard]] inline int getNumberOfLines() const {
 		return controlRegs[9] & 0x80 ? 212 : 192;
 	}
 
 	/** Returns the amount of vertical set-adjust 0..15.
 	  * Neutral set-adjust (that is 'set adjust(0,0)') returns the value '7'.
 	  */
-	int getVerticalAdjust() const {
+	[[nodiscard]] int getVerticalAdjust() const {
 		return (controlRegs[18] >> 4) ^ 0x07;
 	}
 
@@ -815,7 +828,7 @@ private:
 	  *   border or left/right erase or horizontal sync.
 	  *   False iff the VDP scanning is in the display range.
 	  */
-	inline bool getHR(int ticksThisFrame) const {
+	[[nodiscard]] inline bool getHR(int ticksThisFrame) const {
 		// Note: These constants are located inside this function because
 		//       GCC 4.0.x won't link if they are in the class scope.
 		/** Length of horizontal blank (HR=1) in text mode, measured in VDP
@@ -826,15 +839,13 @@ private:
 		  * ticks.
 		  */
 		static constexpr int HBLANK_LEN_GFX = 312;
-		return
-			( ticksThisFrame + TICKS_PER_LINE - getRightBorder()
-				) % TICKS_PER_LINE
-			< (displayMode.isTextMode() ? HBLANK_LEN_TXT : HBLANK_LEN_GFX);
+		return (ticksThisFrame + TICKS_PER_LINE - getRightBorder()) % TICKS_PER_LINE
+		     < (displayMode.isTextMode() ? HBLANK_LEN_TXT : HBLANK_LEN_GFX);
 	}
 
 	// VideoSystemChangeListener interface:
-	void preVideoSystemChange() override;
-	void postVideoSystemChange() override;
+	void preVideoSystemChange() noexcept override;
+	void postVideoSystemChange() noexcept override;
 
 	/** Called both on init and on reset.
 	  * Puts VDP into reset state.
@@ -882,7 +893,7 @@ private:
 
 	/** Byte is read from VRAM by the CPU.
 	  */
-	byte vramRead(EmuTime::param time);
+	[[nodiscard]] byte vramRead(EmuTime::param time);
 
 	/** Helper methods for CPU-VRAM access. */
 	void scheduleCpuVramAccess(bool isRead, byte write, EmuTime::param time);
@@ -890,8 +901,8 @@ private:
 
 	/** Read the contents of a status register
 	  */
-	byte peekStatusReg(byte reg, EmuTime::param time) const;
-	byte readStatusReg(byte reg, EmuTime::param time);
+	[[nodiscard]] byte peekStatusReg(byte reg, EmuTime::param time) const;
+	[[nodiscard]] byte readStatusReg(byte reg, EmuTime::param time);
 
 	/** VDP control register has changed, work out the consequences.
 	  */
@@ -944,7 +955,7 @@ private:
 	void setPalette(int index, word grb, EmuTime::param time);
 
 	// Observer<Setting>
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
 private:
 	Display& display;
@@ -953,24 +964,24 @@ private:
 
 	struct RegDebug final : SimpleDebuggable {
 		explicit RegDebug(VDP& vdp);
-		byte read(unsigned address) override;
+		[[nodiscard]] byte read(unsigned address) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	} vdpRegDebug;
 
 	struct StatusRegDebug final : SimpleDebuggable {
 		explicit StatusRegDebug(VDP& vdp);
-		byte read(unsigned address, EmuTime::param time) override;
+		[[nodiscard]] byte read(unsigned address, EmuTime::param time) override;
 	} vdpStatusRegDebug;
 
 	struct PaletteDebug final : SimpleDebuggable {
 		explicit PaletteDebug(VDP& vdp);
-		byte read(unsigned address) override;
+		[[nodiscard]] byte read(unsigned address) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	} vdpPaletteDebug;
 
 	struct VRAMPointerDebug final : SimpleDebuggable {
 		explicit VRAMPointerDebug(VDP& vdp);
-		byte read(unsigned address) override;
+		[[nodiscard]] byte read(unsigned address) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	} vramPointerDebug;
 
@@ -978,8 +989,8 @@ private:
 	public:
 		void execute(span<const TclObject> tokens,
 		             TclObject& result) const override;
-		std::string help(const std::vector<std::string>& tokens) const override;
-		virtual int calc(const EmuTime& time) const = 0;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		[[nodiscard]] virtual int calc(const EmuTime& time) const = 0;
 	protected:
 		Info(VDP& vdp_, const std::string& name, std::string helpText_);
 		~Info() = default;
@@ -989,37 +1000,37 @@ private:
 
 	struct FrameCountInfo final : Info {
 		explicit FrameCountInfo(VDP& vdp);
-		int calc(const EmuTime& time) const override;
+		[[nodiscard]] int calc(const EmuTime& time) const override;
 	} frameCountInfo;
 
 	struct CycleInFrameInfo final : Info {
 		explicit CycleInFrameInfo(VDP& vdp);
-		int calc(const EmuTime& time) const override;
+		[[nodiscard]] int calc(const EmuTime& time) const override;
 	} cycleInFrameInfo;
 
 	struct LineInFrameInfo final : Info {
 		explicit LineInFrameInfo(VDP& vdp);
-		int calc(const EmuTime& time) const override;
+		[[nodiscard]] int calc(const EmuTime& time) const override;
 	} lineInFrameInfo;
 
 	struct CycleInLineInfo final : Info {
 		explicit CycleInLineInfo(VDP& vdp);
-		int calc(const EmuTime& time) const override;
+		[[nodiscard]] int calc(const EmuTime& time) const override;
 	} cycleInLineInfo;
 
 	struct MsxYPosInfo final : Info {
 		explicit MsxYPosInfo(VDP& vdp);
-		int calc(const EmuTime& time) const override;
+		[[nodiscard]] int calc(const EmuTime& time) const override;
 	} msxYPosInfo;
 
 	struct MsxX256PosInfo final : Info {
 		explicit MsxX256PosInfo(VDP& vdp);
-		int calc(const EmuTime& time) const override;
+		[[nodiscard]] int calc(const EmuTime& time) const override;
 	} msxX256PosInfo;
 
 	struct MsxX512PosInfo final : Info {
 		explicit MsxX512PosInfo(VDP& vdp);
-		int calc(const EmuTime& time) const override;
+		[[nodiscard]] int calc(const EmuTime& time) const override;
 	} msxX512PosInfo;
 
 	/** Renderer that converts this VDP's state into an image.
@@ -1229,6 +1240,13 @@ private:
 	  */
 	bool displayEnabled;
 
+	/** Are sprites enabled. This only reflects the SPD bit in R#8. It does
+	  * not take screen mode, screen enabled or vertical borders into
+	  * account. It's not identical to the SPD bit because this variable is
+	  * only updated at the start of the next line.
+	  */
+	bool spriteEnabled;
+
 	/** Has a warning been printed.
 	  * This is set when a warning about setting the dotclock direction
 	  * is printed.  */
@@ -1242,7 +1260,7 @@ private:
 	MSXCPU& cpu;
 	const byte fixedVDPIOdelayCycles;
 };
-SERIALIZE_CLASS_VERSION(VDP, 8);
+SERIALIZE_CLASS_VERSION(VDP, 9);
 
 } // namespace openmsx
 

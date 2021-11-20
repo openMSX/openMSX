@@ -15,7 +15,7 @@ namespace openmsx {
 
 /** Utility class for converting VRAM contents to host pixels.
   */
-template <class Pixel>
+template<typename Pixel>
 class SpriteConverter
 {
 public:
@@ -139,7 +139,7 @@ public:
 	  * @param maxX Maximum X coordinate to draw (exclusive).
 	  * @param pixelPtr Pointer to memory to draw to.
 	  */
-	template <unsigned MODE>
+	template<unsigned MODE>
 	void drawMode2(int absLine, int minX, int maxX,
 	               Pixel* __restrict pixelPtr) __restrict
 	{
@@ -182,14 +182,14 @@ public:
 							color |= info2.colorAttrib & 0x0F;
 						}
 					}
-					if (MODE == DisplayMode::GRAPHIC5) {
+					if constexpr (MODE == DisplayMode::GRAPHIC5) {
 						Pixel pixL = palette[color >> 2];
 						Pixel pixR = palette[color & 3];
 						pixelPtr[x * 2 + 0] = pixL;
 						pixelPtr[x * 2 + 1] = pixR;
 					} else {
 						Pixel pix = palette[color];
-						if (MODE == DisplayMode::GRAPHIC6) {
+						if constexpr (MODE == DisplayMode::GRAPHIC6) {
 							pixelPtr[x * 2 + 0] = pix;
 							pixelPtr[x * 2 + 1] = pix;
 						} else {

@@ -11,8 +11,8 @@ public:
 	RomColecoMegaCart(const DeviceConfig& config, Rom&& rom);
 
 	void reset(EmuTime::param time) override;
-	byte readMem(word address, EmuTime::param time) override;
-	const byte* getReadCacheLine(word start) const override;
+	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
+	[[nodiscard]] const byte* getReadCacheLine(word start) const override;
 };
 
 } // namespace openmsx

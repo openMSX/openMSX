@@ -21,11 +21,9 @@
 #include "LDPixelRenderer.hh"
 #endif
 
-using std::unique_ptr;
-
 namespace openmsx::RendererFactory {
 
-unique_ptr<VideoSystem> createVideoSystem(Reactor& reactor)
+std::unique_ptr<VideoSystem> createVideoSystem(Reactor& reactor)
 {
 	Display& display = reactor.getDisplay();
 	switch (display.getRenderSettings().getRenderer()) {
@@ -40,7 +38,7 @@ unique_ptr<VideoSystem> createVideoSystem(Reactor& reactor)
 	}
 }
 
-unique_ptr<Renderer> createRenderer(VDP& vdp, Display& display)
+std::unique_ptr<Renderer> createRenderer(VDP& vdp, Display& display)
 {
 	switch (display.getRenderSettings().getRenderer()) {
 		case RenderSettings::DUMMY:
@@ -53,7 +51,7 @@ unique_ptr<Renderer> createRenderer(VDP& vdp, Display& display)
 	}
 }
 
-unique_ptr<V9990Renderer> createV9990Renderer(V9990& vdp, Display& display)
+std::unique_ptr<V9990Renderer> createV9990Renderer(V9990& vdp, Display& display)
 {
 	switch (display.getRenderSettings().getRenderer()) {
 		case RenderSettings::DUMMY:
@@ -67,7 +65,7 @@ unique_ptr<V9990Renderer> createV9990Renderer(V9990& vdp, Display& display)
 }
 
 #if COMPONENT_LASERDISC
-unique_ptr<LDRenderer> createLDRenderer(LaserdiscPlayer& ld, Display& display)
+std::unique_ptr<LDRenderer> createLDRenderer(LaserdiscPlayer& ld, Display& display)
 {
 	switch (display.getRenderSettings().getRenderer()) {
 		case RenderSettings::DUMMY:

@@ -33,7 +33,7 @@ public:
 	~PixelRenderer() override;
 
 	// Renderer interface:
-	PostProcessor* getPostProcessor() const override;
+	[[nodiscard]] PostProcessor* getPostProcessor() const override;
 	void reInit() override;
 	void frameStart(EmuTime::param time) override;
 	void frameEnd(EmuTime::param time) override;
@@ -65,7 +65,7 @@ private:
 	enum DrawType { DRAW_BORDER, DRAW_DISPLAY };
 
 	// Observer<Setting> interface:
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
 	/** Call the right draw method in the subclass,
 	  * depending on passed drawType.
@@ -83,9 +83,9 @@ private:
 	  */
 	void subdivide(
 		int startX, int startY, int endX, int endY,
-		int clipL, int clipR, DrawType drawType );
+		int clipL, int clipR, DrawType drawType);
 
-	inline bool checkSync(int offset, EmuTime::param time);
+	[[nodiscard]] inline bool checkSync(int offset, EmuTime::param time);
 
 	/** Update renderer state to specified moment in time.
 	  * @param time Moment in emulated time to update to.
@@ -102,6 +102,7 @@ private:
 	  */
 	void renderUntil(EmuTime::param time);
 
+private:
 	/** The VDP of which the video output is being rendered.
 	  */
 	VDP& vdp;

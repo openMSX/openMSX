@@ -182,7 +182,7 @@ struct CycleTable : AccessTable
 		for (auto step : delta) {
 			int p = 0;
 			while (slots[p] < step) ++p;
-			for (int i = 0; i < TICKS; ++i) {
+			for (auto i : xrange(TICKS)) {
 				if ((slots[p] - i) < step) ++p;
 				assert((slots[p] - i) >= step);
 				unsigned t = slots[p] - i;
@@ -214,7 +214,7 @@ constexpr CycleTable tabMsx1ScreenOff (true,  slotsMsx1ScreenOff);
 constexpr ZeroTable  tabBroken;
 
 
-static inline const uint8_t* getTab(const VDP& vdp)
+[[nodiscard]] static inline const uint8_t* getTab(const VDP& vdp)
 {
 	if (vdp.getBrokenCmdTiming()) return tabBroken;
 	bool enabled = vdp.isDisplayEnabled();
@@ -246,7 +246,7 @@ EmuTime getAccessSlot(
 {
 	VDP::VDPClock frame(frame_);
 	unsigned ticks = frame.getTicksTill_fast(time) % TICKS;
-	auto* tab = getTab(vdp);
+	const auto* tab = getTab(vdp);
 	return time + VDP::VDPClock::duration(tab[delta + ticks]);
 }
 
@@ -254,7 +254,7 @@ Calculator getCalculator(
 	EmuTime::param frame, EmuTime::param time, EmuTime::param limit,
 	const VDP& vdp)
 {
-	auto* tab = getTab(vdp);
+	const auto* tab = getTab(vdp);
 	return Calculator(frame, time, limit, tab);
 }
 

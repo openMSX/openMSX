@@ -15,6 +15,7 @@ Visit the Scale2x site for info:
 #include "ScalerOutput.hh"
 #include "unreachable.hh"
 #include "vla.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
@@ -33,7 +34,7 @@ namespace openmsx {
 // (aligned) words. This either maps directly to the _mm_alignr_epi8()
 // intrinsic or emulates that behavior.
 template<int BYTES, int TMP = sizeof(__m128i) - BYTES>
-static inline __m128i align(__m128i high, __m128i low)
+[[nodiscard]] static inline __m128i align(__m128i high, __m128i low)
 {
 #ifdef __SSSE3__
 	return _mm_alignr_epi8(high, low, BYTES);
@@ -46,7 +47,7 @@ static inline __m128i align(__m128i high, __m128i low)
 
 // Select bits from either one of the two inputs depending on the value of the
 // corresponding bit in a selection mask.
-static inline __m128i select(__m128i a0, __m128i a1, __m128i mask)
+[[nodiscard]] static inline __m128i select(__m128i a0, __m128i a1, __m128i mask)
 {
 	// The traditional formula is:
 	//   (a0 & ~mask) | (a1 & mask)
@@ -61,31 +62,31 @@ static inline __m128i select(__m128i a0, __m128i a1, __m128i mask)
 }
 
 // These three functions are abstracted to work either on 16bpp or 32bpp.
-template<typename Pixel> static inline __m128i isEqual(__m128i x, __m128i y)
+template<typename Pixel> [[nodiscard]] static inline __m128i isEqual(__m128i x, __m128i y)
 {
-	if (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		return _mm_cmpeq_epi32(x, y);
-	} else if (sizeof(Pixel) == 2) {
+	} else if constexpr (sizeof(Pixel) == 2) {
 		return _mm_cmpeq_epi16(x, y);
 	} else {
 		UNREACHABLE;
 	}
 }
-template<typename Pixel> static inline __m128i unpacklo(__m128i x, __m128i y)
+template<typename Pixel> [[nodiscard]] static inline __m128i unpacklo(__m128i x, __m128i y)
 {
-	if (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		return _mm_unpacklo_epi32(x, y);
-	} else if (sizeof(Pixel) == 2) {
+	} else if constexpr (sizeof(Pixel) == 2) {
 		return _mm_unpacklo_epi16(x, y);
 	} else {
 		UNREACHABLE;
 	}
 }
-template<typename Pixel> static inline __m128i unpackhi(__m128i x, __m128i y)
+template<typename Pixel> [[nodiscard]] static inline __m128i unpackhi(__m128i x, __m128i y)
 {
-	if (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		return _mm_unpackhi_epi32(x, y);
-	} else if (sizeof(Pixel) == 2) {
+	} else if constexpr (sizeof(Pixel) == 2) {
 		return _mm_unpackhi_epi16(x, y);
 	} else {
 		UNREACHABLE;
@@ -113,17 +114,17 @@ template<typename Pixel, bool DOUBLE_X> static inline void scale1(
 	__m128i leqb = isEqual<Pixel>(left, bottom);
 	__m128i reqb = isEqual<Pixel>(right, bottom);
 
-	__m128i cnda = _mm_andnot_si128(_mm_or_si128(teqb, reqt), leqt);
-	__m128i cndb = _mm_andnot_si128(_mm_or_si128(teqb, leqt), reqt);
-	__m128i cndc = _mm_andnot_si128(_mm_or_si128(teqb, reqb), leqb);
-	__m128i cndd = _mm_andnot_si128(_mm_or_si128(teqb, leqb), reqb);
+	__m128i cndA = _mm_andnot_si128(_mm_or_si128(teqb, reqt), leqt);
+	__m128i cndB = _mm_andnot_si128(_mm_or_si128(teqb, leqt), reqt);
+	__m128i cndC = _mm_andnot_si128(_mm_or_si128(teqb, reqb), leqb);
+	__m128i cndD = _mm_andnot_si128(_mm_or_si128(teqb, leqb), reqb);
 
-	__m128i a = select(mid, top,    cnda);
-	__m128i b = select(mid, top,    cndb);
-	__m128i c = select(mid, bottom, cndc);
-	__m128i d = select(mid, bottom, cndd);
+	__m128i a = select(mid, top,    cndA);
+	__m128i b = select(mid, top,    cndB);
+	__m128i c = select(mid, bottom, cndC);
+	__m128i d = select(mid, bottom, cndD);
 
-	if (DOUBLE_X) {
+	if constexpr (DOUBLE_X) {
 		out0[0] = unpacklo<Pixel>(a, b);
 		out0[1] = unpackhi<Pixel>(a, b);
 		out1[0] = unpacklo<Pixel>(c, d);
@@ -164,11 +165,11 @@ static inline void scaleSSE(
 	// Generated code seems more efficient when all address calculations
 	// are done in bytes. Negative loop counter allows for a more efficient
 	// loop-end test.
-	auto* in0  = reinterpret_cast<const char*>(in0_ ) +         width;
-	auto* in1  = reinterpret_cast<const char*>(in1_ ) +         width;
-	auto* in2  = reinterpret_cast<const char*>(in2_ ) +         width;
-	auto* out0 = reinterpret_cast<      char*>(out0_) + SCALE * width;
-	auto* out1 = reinterpret_cast<      char*>(out1_) + SCALE * width;
+	const auto* in0  = reinterpret_cast<const char*>(in0_ ) +         width;
+	const auto* in1  = reinterpret_cast<const char*>(in1_ ) +         width;
+	const auto* in2  = reinterpret_cast<const char*>(in2_ ) +         width;
+	      auto* out0 = reinterpret_cast<      char*>(out0_) + SCALE * width;
+	      auto* out1 = reinterpret_cast<      char*>(out1_) + SCALE * width;
 	ptrdiff_t x = -ptrdiff_t(width);
 
 	// Setup for first unit
@@ -203,13 +204,13 @@ static inline void scaleSSE(
 #endif
 
 
-template <class Pixel>
+template<typename Pixel>
 Scale2xScaler<Pixel>::Scale2xScaler(const PixelOperations<Pixel>& pixelOps_)
 	: Scaler2<Pixel>(pixelOps_)
 {
 }
 
-template <class Pixel>
+template<typename Pixel>
 inline void Scale2xScaler<Pixel>::scaleLine_1on2(
 	Pixel* __restrict dst0, Pixel* __restrict dst1,
 	const Pixel* __restrict src0, const Pixel* __restrict src1,
@@ -228,14 +229,14 @@ inline void Scale2xScaler<Pixel>::scaleLine_1on2(
 #endif
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scale2xScaler<Pixel>::scaleLineHalf_1on2(
 	Pixel* __restrict dst, const Pixel* __restrict src0,
 	const Pixel* __restrict src1, const Pixel* __restrict src2,
 	size_t srcWidth) __restrict
 {
-	//   n      m is expaned to a b
-	// w m e                    c d
+	//   n      m is expanded to a b
+	// w m e                     c d
 	//   s         a = (w == n) && (s != n) && (e != n) ? n : m
 	//             b =   .. swap w/e
 	//             c =   .. swap n/s
@@ -248,7 +249,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on2(
 	dst[1] = (right == src0[0] && src2[0] != src0[0]) ? src0[0] : mid;
 
 	// Central pixels.
-	for (size_t x = 1; x < srcWidth - 1; ++x) {
+	for (auto x : xrange(1u, srcWidth - 1)) {
 		Pixel left = mid;
 		mid   = right;
 		right = src1[x + 1];
@@ -266,7 +267,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on2(
 		src1[srcWidth - 1];
 }
 
-template <class Pixel>
+template<typename Pixel>
 inline void Scale2xScaler<Pixel>::scaleLine_1on1(
 	Pixel* __restrict dst0, Pixel* __restrict dst1,
 	const Pixel* __restrict src0, const Pixel* __restrict src1,
@@ -280,7 +281,7 @@ inline void Scale2xScaler<Pixel>::scaleLine_1on1(
 #endif
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scale2xScaler<Pixel>::scaleLineHalf_1on1(
 	Pixel* __restrict dst, const Pixel* __restrict src0,
 	const Pixel* __restrict src1, const Pixel* __restrict src2,
@@ -296,7 +297,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on1(
 	dst[0] = mid;
 
 	// Central pixels.
-	for (size_t x = 1; x < srcWidth - 1; ++x) {
+	for (auto x : xrange(1u, srcWidth - 1)) {
 		Pixel left = mid;
 		mid   = right;
 		right = src1[x + 1];
@@ -311,7 +312,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on1(
 		? src0[srcWidth - 1] : right;
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scale2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -340,7 +341,7 @@ void Scale2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scale2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)

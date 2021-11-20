@@ -3,9 +3,11 @@
 
 #include "Subject.hh"
 #include "TclObject.hh"
+#include "static_string_view.hh"
 #include "strCat.hh"
 #include "StringOp.hh"
 #include <functional>
+#include <optional>
 #include <string_view>
 #include <vector>
 
@@ -19,7 +21,7 @@ class BaseSetting
 {
 protected:
 	explicit BaseSetting(std::string_view name);
-	explicit BaseSetting(const TclObject& name);
+	explicit BaseSetting(TclObject name);
 	~BaseSetting() = default;
 
 public:
@@ -30,16 +32,16 @@ public:
 	  *   fullName = "::machine1::PSG_volume"
 	  *   baseName = "PSG_volume"
 	  */
-	const TclObject& getFullNameObj() const { return fullName; }
-	const TclObject& getBaseNameObj() const { return baseName; }
-	std::string_view getFullName()    const { return fullName.getString(); }
-	std::string_view getBaseName()    const { return baseName.getString(); }
+	[[nodiscard]] const TclObject& getFullNameObj() const { return fullName; }
+	[[nodiscard]] const TclObject& getBaseNameObj() const { return baseName; }
+	[[nodiscard]] std::string_view getFullName()    const { return fullName.getString(); }
+	[[nodiscard]] std::string_view getBaseName()    const { return baseName.getString(); }
 
 	/** Set a machine specific prefix.
 	 */
 	void setPrefix(std::string_view prefix) {
 		assert(StringOp::startsWith(prefix, "::"));
-		fullName = strCat(prefix, getBaseName());
+		fullName = tmpStrCat(prefix, getBaseName());
 	}
 
 	/** For SettingInfo
@@ -50,12 +52,12 @@ public:
 
 	/** Get a description of this setting that can be presented to the user.
 	  */
-	virtual std::string_view getDescription() const = 0;
+	[[nodiscard]] virtual std::string_view getDescription() const = 0;
 
 	/** Returns a string describing the setting type (integer, string, ..)
 	  * Could be used in a GUI to pick an appropriate setting widget.
 	  */
-	virtual std::string_view getTypeString() const = 0;
+	[[nodiscard]] virtual std::string_view getTypeString() const = 0;
 
 	/** Helper method for info().
 	 */
@@ -70,19 +72,24 @@ public:
 
 	/** Get current value as a TclObject.
 	 */
-	virtual const TclObject& getValue() const = 0;
+	[[nodiscard]] virtual const TclObject& getValue() const = 0;
+
+	/** Like getValue(), but in case of error returns an empty optional
+	  * instead of throwing an exception.
+	  */
+	[[nodiscard]] virtual std::optional<TclObject> getOptionalValue() const = 0;
 
 	/** Get the default value of this setting.
 	  * This is the initial value of the setting. Default values don't
 	  * get saved in 'settings.xml'.
 	  */
-	virtual TclObject getDefaultValue() const = 0;
+	[[nodiscard]] virtual TclObject getDefaultValue() const = 0;
 
 	/** Get the value that will be set after a Tcl 'unset' command.
 	  * Usually this is the same as the default value. Though one
 	  * exception is 'renderer', see comments in RendererFactory.cc.
 	  */
-	virtual TclObject getRestoreValue() const = 0;
+	[[nodiscard]] virtual TclObject getRestoreValue() const = 0;
 
 	/** Change the value of this setting to the given value.
 	  * This method will trigger Tcl traces.
@@ -100,11 +107,11 @@ public:
 
 	/** Does this setting need to be loaded or saved (settings.xml).
 	  */
-	virtual bool needLoadSave() const = 0;
+	[[nodiscard]] virtual bool needLoadSave() const = 0;
 
 	/** Does this setting need to be transfered on reverse.
 	  */
-	virtual bool needTransfer() const = 0;
+	[[nodiscard]] virtual bool needTransfer() const = 0;
 
 	/** This value will never end up in the settings.xml file
 	 */
@@ -132,7 +139,8 @@ public:
 
 	/** Gets the current value of this setting as a TclObject.
 	  */
-	const TclObject& getValue() const final override { return value; }
+	[[nodiscard]] const TclObject& getValue() const final { return value; }
+	[[nodiscard]] std::optional<TclObject> getOptionalValue() const final { return value; }
 
 	/** Set restore value. See getDefaultValue() and getRestoreValue().
 	  */
@@ -142,7 +150,7 @@ public:
 
 	/** Set value-check-callback.
 	 * The callback is called on each change of this settings value.
-	 * The callback has to posibility to
+	 * The callback has the possibility to
 	 *  - change the value (modify the parameter)
 	 *  - disallow the change (throw an exception)
 	 * The callback is only executed on each value change, even if the
@@ -154,35 +162,35 @@ public:
 	}
 
 	// BaseSetting
-	void setValue(const TclObject& newValue) final override;
-	std::string_view getDescription() const final override;
-	TclObject getDefaultValue() const final override { return defaultValue; }
-	TclObject getRestoreValue() const final override { return restoreValue; }
-	void setValueDirect(const TclObject& newValue) final override;
+	void setValue(const TclObject& newValue) final;
+	[[nodiscard]] std::string_view getDescription() const final;
+	[[nodiscard]] TclObject getDefaultValue() const final { return defaultValue; }
+	[[nodiscard]] TclObject getRestoreValue() const final { return restoreValue; }
+	void setValueDirect(const TclObject& newValue) final;
 	void tabCompletion(std::vector<std::string>& tokens) const override;
-	bool needLoadSave() const final override;
+	[[nodiscard]] bool needLoadSave() const final;
 	void additionalInfo(TclObject& result) const override;
-	bool needTransfer() const final override;
-	void setDontSaveValue(const TclObject& dontSaveValue) final override;
+	[[nodiscard]] bool needTransfer() const final;
+	void setDontSaveValue(const TclObject& dontSaveValue) final;
 
 	// convenience functions
-	CommandController& getCommandController() const { return commandController; }
-	Interpreter& getInterpreter() const;
+	[[nodiscard]] CommandController& getCommandController() const { return commandController; }
+	[[nodiscard]] Interpreter& getInterpreter() const;
 
 protected:
 	Setting(CommandController& commandController,
-	        std::string_view name, std::string_view description,
+	        std::string_view name, static_string_view description,
 	        const TclObject& initialValue, SaveSetting save = SAVE);
 	void init();
 	void notifyPropertyChange() const;
 
 private:
-	GlobalCommandController& getGlobalCommandController() const;
+	[[nodiscard]] GlobalCommandController& getGlobalCommandController() const;
 	void notify() const;
 
 private:
 	CommandController& commandController;
-	const std::string description;
+	const static_string_view description;
 	std::function<void(TclObject&)> checkFunc;
 	TclObject value; // TODO can we share the underlying Tcl var storage?
 	const TclObject defaultValue;

@@ -14,7 +14,7 @@ class Disk : public SectorAccessibleDisk
 public:
 	virtual ~Disk() = default;
 
-	const DiskName& getName() const { return name; }
+	[[nodiscard]] const DiskName& getName() const { return name; }
 
 	/** Replace a full track in this image with the given track. */
 	        void writeTrack(byte track, byte side, const RawTrack& input);
@@ -26,14 +26,15 @@ public:
 
 protected:
 	explicit Disk(DiskName name);
-	size_t physToLog(byte track, byte side, byte sector);
-	void logToPhys(size_t log, byte& track, byte& side, byte& sector);
+	[[nodiscard]] size_t physToLog(byte track, byte side, byte sector);
+	struct TSS { byte track, side, sector; };
+	[[nodiscard]] TSS logToPhys(size_t log);
 
 	virtual void detectGeometry();
 	virtual void detectGeometryFallback();
 
 	void setSectorsPerTrack(unsigned num) { sectorsPerTrack = num; }
-	unsigned getSectorsPerTrack();
+	[[nodiscard]] unsigned getSectorsPerTrack();
 	void setNbSides(unsigned num) {	nbSides = num; }
 
 	virtual void writeTrackImpl(byte track, byte side, const RawTrack& input) = 0;

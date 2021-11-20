@@ -5,6 +5,7 @@
  *   compile: g++ `xml2-config --cflags` `xml2-config --libs` openmsx-control.cc
  */
 
+#include <cstring>
 #include <string>
 #include <list>
 #include <iostream>
@@ -242,7 +243,7 @@ void OpenMSXComm::parseUpdate(const char** attrs)
 	}
 }
 
-void OpenMSXComm::cb_end_element(OpenMSXComm* comm, const xmlChar* name)
+void OpenMSXComm::cb_end_element(OpenMSXComm* comm, const xmlChar* /*name*/)
 {
 	if (comm->unknownLevel) {
 		--(comm->unknownLevel);
@@ -295,6 +296,9 @@ void OpenMSXComm::doReply()
 		case REPLY_NOK:
 			openmsx_cmd_nok(content);
 			break;
+		case REPLY_UNKNOWN:
+			// ignore
+			break;
 	}
 }
 
@@ -307,6 +311,9 @@ void OpenMSXComm::doLog()
 		case LOG_WARNING:
 			openmsx_cmd_warning(content);
 			break;
+		case LOG_UNKNOWN:
+			// ignore
+			break;
 	}
 }
 
@@ -315,6 +322,9 @@ void OpenMSXComm::doUpdate()
 	switch (updateType) {
 		case UPDATE_LED:
 			openmsx_cmd_update(updateName, content);
+			break;
+		case UPDATE_UNKNOWN:
+			// ignore
 			break;
 	}
 }

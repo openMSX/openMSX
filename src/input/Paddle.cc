@@ -1,9 +1,8 @@
 #include "Paddle.hh"
 #include "MSXEventDistributor.hh"
 #include "StateChangeDistributor.hh"
-#include "InputEvents.hh"
+#include "Event.hh"
 #include "StateChange.hh"
-#include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include <algorithm>
@@ -16,7 +15,7 @@ public:
 	PaddleState() = default; // for serialize
 	PaddleState(EmuTime::param time_, int delta_)
 		: StateChange(time_), delta(delta_) {}
-	int getDelta() const { return delta; }
+	[[nodiscard]] int getDelta() const { return delta; }
 
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
@@ -48,10 +47,9 @@ Paddle::~Paddle()
 
 
 // Pluggable
-const std::string& Paddle::getName() const
+std::string_view Paddle::getName() const
 {
-	static const std::string name("paddle");
-	return name;
+	return "paddle";
 }
 
 std::string_view Paddle::getDescription() const
@@ -94,30 +92,30 @@ void Paddle::write(byte value, EmuTime::param time)
 }
 
 // MSXEventListener
-void Paddle::signalMSXEvent(const std::shared_ptr<const Event>& event,
-                            EmuTime::param time)
+void Paddle::signalMSXEvent(const Event& event,
+                            EmuTime::param time) noexcept
 {
-	if (event->getType() != OPENMSX_MOUSE_MOTION_EVENT) return;
-
-	auto& mev = checked_cast<const MouseMotionEvent&>(*event);
-	constexpr int SCALE = 2;
-	int delta = mev.getX() / SCALE;
-	if (delta == 0) return;
-
-	stateChangeDistributor.distributeNew(
-		std::make_shared<PaddleState>(time, delta));
+	visit(overloaded{
+		[&](const MouseMotionEvent& e) {
+			constexpr int SCALE = 2;
+			if (int delta = e.getX() / SCALE) {
+				stateChangeDistributor.distributeNew<PaddleState>(
+					time, delta);
+			}
+		},
+		[](const EventBase&) { /*ignore*/ }
+	}, event);
 }
 
 // StateChangeListener
-void Paddle::signalStateChange(const std::shared_ptr<StateChange>& event)
+void Paddle::signalStateChange(const StateChange& event)
 {
-	auto ps = dynamic_cast<PaddleState*>(event.get());
+	const auto* ps = dynamic_cast<const PaddleState*>(&event);
 	if (!ps) return;
-	int newAnalog = analogValue + ps->getDelta();
-	analogValue = std::min(std::max(newAnalog, 0), 255);
+	analogValue = std::clamp(analogValue + ps->getDelta(), 0, 255);
 }
 
-void Paddle::stopReplay(EmuTime::param /*time*/)
+void Paddle::stopReplay(EmuTime::param /*time*/) noexcept
 {
 }
 
@@ -128,8 +126,10 @@ void Paddle::serialize(Archive& ar, unsigned /*version*/)
 	             "analogValue", analogValue,
 	             "lastInput",   lastInput);
 
-	if (ar.isLoader() && isPluggedIn()) {
-		plugHelper(*getConnector(), EmuTime::dummy());
+	if constexpr (Archive::IS_LOADER) {
+		if (isPluggedIn()) {
+			plugHelper(*getConnector(), EmuTime::dummy());
+		}
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(Paddle);

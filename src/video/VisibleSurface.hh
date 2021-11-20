@@ -37,19 +37,19 @@ public:
 	  */
 	virtual void finish() = 0;
 
-	virtual std::unique_ptr<Layer> createSnowLayer() = 0;
-	virtual std::unique_ptr<Layer> createConsoleLayer(
+	[[nodiscard]] virtual std::unique_ptr<Layer> createSnowLayer() = 0;
+	[[nodiscard]] virtual std::unique_ptr<Layer> createConsoleLayer(
 		Reactor& reactor, CommandConsole& console) = 0;
-	virtual std::unique_ptr<Layer> createOSDGUILayer(OSDGUI& gui) = 0;
+	[[nodiscard]] virtual std::unique_ptr<Layer> createOSDGUILayer(OSDGUI& gui) = 0;
 
 	/** Create an off-screen OutputSurface which has similar properties
 	  * as this VisibleSurface. E.g. used to re-render the current frame
 	  * without OSD elements to take a screenshot.
 	  */
-	virtual std::unique_ptr<OutputSurface> createOffScreenSurface() = 0;
+	[[nodiscard]] virtual std::unique_ptr<OutputSurface> createOffScreenSurface() = 0;
 
-	CliComm& getCliComm() const { return cliComm; }
-	Display& getDisplay() const { return display; }
+	[[nodiscard]] CliComm& getCliComm() const { return cliComm; }
+	[[nodiscard]] Display& getDisplay() const { return display; }
 
 protected:
 	VisibleSurface(Display& display,
@@ -63,12 +63,13 @@ private:
 	void updateCursor();
 
 	// Observer
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 	// EventListener
-	int signalEvent(const std::shared_ptr<const Event>& event) override;
+	int signalEvent(const Event& event) noexcept override;
 	// RTSchedulable
 	void executeRT() override;
 
+private:
 	Display& display;
 	EventDistributor& eventDistributor;
 	InputEventGenerator& inputEventGenerator;

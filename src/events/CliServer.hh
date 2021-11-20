@@ -22,9 +22,10 @@ public:
 
 private:
 	void mainLoop();
-	SOCKET createSocket();
+	[[nodiscard]] SOCKET createSocket();
 	void exitAcceptLoop();
 
+private:
 	CommandController& commandController;
 	EventDistributor& eventDistributor;
 	GlobalCliComm& cliComm;

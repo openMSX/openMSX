@@ -4,7 +4,6 @@
 #include "Command.hh"
 #include "EventListener.hh"
 #include "Event.hh"
-#include <memory>
 #include <vector>
 
 namespace openmsx {
@@ -12,28 +11,27 @@ namespace openmsx {
 class Reactor;
 class EventDistributor;
 class CommandController;
-class AfterCmd;
 
 class AfterCommand final : public Command, private EventListener
 {
 public:
-	using EventPtr = std::shared_ptr<const Event>;
+	using Index = uint32_t; // ObjectPool<T>::Index
 
+public:
 	AfterCommand(Reactor& reactor,
 	             EventDistributor& eventDistributor,
 	             CommandController& commandController);
 	~AfterCommand();
 
 	void execute(span<const TclObject> tokens, TclObject& result) override;
-	std::string help(const std::vector<std::string>& tokens) const override;
+	[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 	void tabCompletion(std::vector<std::string>& tokens) const override;
 
 private:
 	template<typename PRED> void executeMatches(PRED pred);
-	template<EventType T> void executeEvents();
-	template<EventType T> void afterEvent(
-	                   span<const TclObject> tokens, TclObject& result);
-	void afterInputEvent(const EventPtr& event,
+	void executeSimpleEvents(EventType type);
+	void afterSimpleEvent(span<const TclObject> tokens, TclObject& result, EventType type);
+	void afterInputEvent(const Event& event,
 	                   span<const TclObject> tokens, TclObject& result);
 	void afterTclTime (int ms,
 	                   span<const TclObject> tokens, TclObject& result);
@@ -44,10 +42,10 @@ private:
 	void afterCancel  (span<const TclObject> tokens, TclObject& result);
 
 	// EventListener
-	int signalEvent(const std::shared_ptr<const Event>& event) override;
+	int signalEvent(const Event& event) noexcept override;
 
-	using AfterCmds = std::vector<std::unique_ptr<AfterCmd>>;
-	AfterCmds afterCmds;
+private:
+	std::vector<Index> afterCmds;
 	Reactor& reactor;
 	EventDistributor& eventDistributor;
 

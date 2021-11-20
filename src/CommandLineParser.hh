@@ -13,12 +13,12 @@
 #include "InfoTopic.hh"
 #include "span.hh"
 #include "components.hh"
-#include <memory>
 #include <initializer_list>
+#include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
-#include <utility>
 
 #if COMPONENT_LASERDISC
 #include "LaserdiscPlayerCLI.hh"
@@ -38,7 +38,7 @@ public:
 	enum ParsePhase {
 		PHASE_BEFORE_INIT,       // --help, --version, -bash
 		PHASE_INIT,              // calls Reactor::init()
-		PHASE_BEFORE_SETTINGS,   // -setting, -nommx, ...
+		PHASE_BEFORE_SETTINGS,   // -setting, ...
 		PHASE_LOAD_SETTINGS,     // loads settings.xml
 		PHASE_BEFORE_MACHINE,    // before -machine
 		PHASE_LOAD_MACHINE,      // -machine
@@ -52,103 +52,109 @@ public:
 	void registerFileType(std::initializer_list<std::string_view> extensions,
 	                      CLIFileType& cliFileType);
 	void parse(int argc, char** argv);
-	ParseStatus getParseStatus() const;
+	[[nodiscard]] ParseStatus getParseStatus() const;
 
-	const std::vector<std::string>& getStartupScripts() const {
+	[[nodiscard]] const auto& getStartupScripts() const {
 		return scriptOption.scripts;
 	}
-	const std::vector<std::string>& getStartupCommands() const {
+	[[nodiscard]] const auto& getStartupCommands() const {
 		return commandOption.commands;
 	}
 
-	MSXMotherBoard* getMotherBoard() const;
-	GlobalCommandController& getGlobalCommandController() const;
-	Interpreter& getInterpreter() const;
+	[[nodiscard]] MSXMotherBoard* getMotherBoard() const;
+	[[nodiscard]] GlobalCommandController& getGlobalCommandController() const;
+	[[nodiscard]] Interpreter& getInterpreter() const;
 
 	/** Need to suppress renderer window on startup?
 	  */
-	bool isHiddenStartup() const;
+	[[nodiscard]] bool isHiddenStartup() const;
 
 private:
 	struct OptionData {
+		std::string_view name;
 		CLIOption* option;
 		ParsePhase phase;
 		unsigned length; // length in parameters
 	};
+	struct FileTypeData {
+		std::string_view extension;
+		CLIFileType* fileType;
+	};
 
-	bool parseFileName(const std::string& arg,
+	[[nodiscard]] bool parseFileName(const std::string& arg,
 	                   span<std::string>& cmdLine);
-	CLIFileType* getFileTypeHandlerForFileName(std::string_view filename) const;
-	bool parseOption(const std::string& arg,
+	[[nodiscard]] CLIFileType* getFileTypeHandlerForFileName(std::string_view filename) const;
+	[[nodiscard]] bool parseOption(const std::string& arg,
 	                 span<std::string>& cmdLine, ParsePhase phase);
 	void createMachineSetting();
 
-	std::vector<std::pair<std::string_view, OptionData>> options;
-	std::vector<std::pair<std::string_view, CLIFileType*>> fileTypes;
+private:
+	std::vector<OptionData> options;
+	std::vector<FileTypeData> fileTypes;
 
 	Reactor& reactor;
 
 	struct HelpOption final : CLIOption {
 		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
-		std::string_view optionHelp() const override;
+		[[nodiscard]] std::string_view optionHelp() const override;
 	} helpOption;
 
 	struct VersionOption final : CLIOption {
 		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
-		std::string_view optionHelp() const override;
+		[[nodiscard]] std::string_view optionHelp() const override;
 	} versionOption;
 
 	struct ControlOption final : CLIOption {
 		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
-		std::string_view optionHelp() const override;
+		[[nodiscard]] std::string_view optionHelp() const override;
 	} controlOption;
 
 	struct ScriptOption final : CLIOption, CLIFileType {
 		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
-		std::string_view optionHelp() const override;
+		[[nodiscard]] std::string_view optionHelp() const override;
 		void parseFileType(const std::string& filename,
 				   span<std::string>& cmdLine) override;
-		std::string_view fileTypeCategoryName() const override;
-		std::string_view fileTypeHelp() const override;
+		[[nodiscard]] std::string_view fileTypeCategoryName() const override;
+		[[nodiscard]] std::string_view fileTypeHelp() const override;
 
 		std::vector<std::string> scripts;
 	} scriptOption;
 
 	struct CommandOption final : CLIOption {
 		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
-		std::string_view optionHelp() const override;
+		[[nodiscard]] std::string_view optionHelp() const override;
 
 		std::vector<std::string> commands;
 	} commandOption;
 
 	struct MachineOption final : CLIOption {
 		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
-		std::string_view optionHelp() const override;
+		[[nodiscard]] std::string_view optionHelp() const override;
 	} machineOption;
 
 	struct SettingOption final : CLIOption {
 		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
-		std::string_view optionHelp() const override;
+		[[nodiscard]] std::string_view optionHelp() const override;
 	} settingOption;
 
 	struct TestConfigOption final : CLIOption {
 		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
-		std::string_view optionHelp() const override;
+		[[nodiscard]] std::string_view optionHelp() const override;
 	} testConfigOption;
 
 	struct BashOption final : CLIOption {
 		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
-		std::string_view optionHelp() const override;
+		[[nodiscard]] std::string_view optionHelp() const override;
 	} bashOption;
 
 	struct FileTypeCategoryInfoTopic final : InfoTopic {
 		FileTypeCategoryInfoTopic(InfoCommand& openMSXInfoCommand, const CommandLineParser& parser);
 		void execute(span<const TclObject> tokens, TclObject& result) const override;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 	private:
 		const CommandLineParser& parser;
 	};
-	std::unique_ptr<FileTypeCategoryInfoTopic> fileTypeCategoryInfo;
+	std::optional<FileTypeCategoryInfoTopic> fileTypeCategoryInfo;
 
 	MSXRomCLI msxRomCLI;
 	CliExtension cliExtension;

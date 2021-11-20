@@ -21,11 +21,10 @@
 #include "one_of.hh"
 #include "outer.hh"
 #include "random.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <cstring>
 #include <iostream>
-
-using std::string;
 
 namespace openmsx {
 
@@ -73,7 +72,7 @@ constexpr auto AY8910EnvelopeTab = [] {
 constexpr auto volumeTab = [] {
 	std::array<float, 16> result = {};
 	result[0] = 0.0f;
-	for (int i = 1; i < 16; ++i) {
+	for (auto i : xrange(1, 16)) {
 		result[i] = YM2149EnvelopeTab[2 * i + 1];
 	}
 	return result;
@@ -89,7 +88,7 @@ static void initDetune()
 	auto& generator = global_urng(); // fast (non-cryptographic) random numbers
 	std::uniform_real_distribution<float> distribution(-1.0f, 1.0f);
 
-	for (int i = 0; i < 256; ++i) {
+	for (auto i : xrange(256)) {
 		noiseTab[i] = distribution(generator);
 	}
 	noiseTab[256] = noiseTab[0];
@@ -224,7 +223,7 @@ inline void AY8910::NoiseGenerator::doNextEvent()
 	// The input to the shift register is bit0 XOR bit3 (bit0 is the
 	// output). Verified on real AY8910 and YM2149 chips.
 	//
-	// Fibonacci configuartion:
+	// Fibonacci configuration:
 	//   random ^= ((random & 1) ^ ((random >> 3) & 1)) << 17;
 	//   random >>= 1;
 	// Galois configuration:
@@ -282,14 +281,14 @@ inline void AY8910::NoiseGenerator::advance(int duration)
 
 static bool checkAY8910(const DeviceConfig& config)
 {
-	string type = StringOp::toLower(config.getChildData("type", "ay8910"));
-	if (type == "ay8910") {
+	auto type = config.getChildData("type", "ay8910");
+	StringOp::casecmp cmp;
+	if (cmp(type, "ay8910")) {
 		return true;
-	} else if (type == "ym2149") {
+	} else if (cmp(type, "ym2149")) {
 		return false;
-	} else {
-		throw FatalError("Unknown PSG type: ", type);
 	}
+	throw FatalError("Unknown PSG type: ", type);
 }
 
 AY8910::Amplitude::Amplitude(const DeviceConfig& config)
@@ -301,18 +300,18 @@ AY8910::Amplitude::Amplitude(const DeviceConfig& config)
 	envChan[2] = false;
 	envVolTable = isAY8910 ? AY8910EnvelopeTab.data() : YM2149EnvelopeTab.data();
 
-	if (0) {
+	if (false) {
 		std::cout << "YM2149Envelope:";
-		for (int i = 0; i < 32; ++i) {
-			std::cout << ' ' << std::hexfloat << YM2149EnvelopeTab[i];
+		for (const auto& e : YM2149EnvelopeTab) {
+			std::cout << ' ' << std::hexfloat << e;
 		}
 		std::cout << "\nAY8910Envelope:";
-		for (int i = 0; i < 32; ++i) {
-			std::cout << ' ' << std::hexfloat << AY8910EnvelopeTab[i];
+		for (const auto& e : AY8910EnvelopeTab) {
+			std::cout << ' ' << std::hexfloat << e;
 		}
 		std::cout << "\nvolume:";
-		for (int i = 0; i < 16; ++i) {
-			std::cout << ' ' << std::hexfloat << volumeTab[i];
+		for (const auto& e : volumeTab) {
+			std::cout << ' ' << std::hexfloat << e;
 		}
 		std::cout << '\n';
 	}
@@ -482,16 +481,16 @@ AY8910::AY8910(const std::string& name_, AY8910Periphery& periphery_,
 	, periphery(periphery_)
 	, debuggable(config.getMotherBoard(), getName())
 	, vibratoPercent(
-		config.getCommandController(), getName() + "_vibrato_percent",
+		config.getCommandController(), tmpStrCat(getName(), "_vibrato_percent"),
 		"controls strength of vibrato effect", 0.0, 0.0, 10.0)
 	, vibratoFrequency(
-		config.getCommandController(), getName() + "_vibrato_frequency",
+		config.getCommandController(), tmpStrCat(getName(), "_vibrato_frequency"),
 		"frequency of vibrato effect in Hertz", 5, 1.0, 10.0)
 	, detunePercent(
-		config.getCommandController(), getName() + "_detune_percent",
+		config.getCommandController(), tmpStrCat(getName(), "_detune_percent"),
 		"controls strength of detune effect", 0.0, 0.0, 10.0)
 	, detuneFrequency(
-		config.getCommandController(), getName() + "_detune_frequency",
+		config.getCommandController(), tmpStrCat(getName(), "_detune_frequency"),
 		"frequency of detune effect in Hertz", 5.0, 1.0, 100.0)
 	, directionsCallback(
 		config.getGlobalSettings().getInvalidPsgDirectionsSetting())
@@ -530,7 +529,7 @@ void AY8910::reset(EmuTime::param time)
 	noise.reset();
 	envelope.reset();
 	// Reset registers and values derived from them.
-	for (unsigned reg = 0; reg <= 15; ++reg) {
+	for (auto reg : xrange(16)) {
 		wrtReg(reg, 0, time);
 	}
 }
@@ -682,7 +681,7 @@ void AY8910::generateChannels(float** bufs, unsigned num)
 	// Disable channels with volume 0: since the sample value doesn't matter,
 	// we can use the fastest path.
 	unsigned chanEnable = regs[AY_ENABLE];
-	for (unsigned chan = 0; chan < 3; ++chan) {
+	for (auto chan : xrange(3)) {
 		if ((!amplitude.followsEnvelope(chan) &&
 		     (amplitude.getVolume(chan) == 0.0f)) ||
 		    (amplitude.followsEnvelope(chan) &&
@@ -968,7 +967,7 @@ float AY8910::getAmplificationFactorImpl() const
 	return 1.0f;
 }
 
-void AY8910::update(const Setting& setting)
+void AY8910::update(const Setting& setting) noexcept
 {
 	if (&setting == one_of(&vibratoPercent, &detunePercent)) {
 		doDetune = (vibratoPercent.getDouble() != 0) ||
@@ -985,7 +984,7 @@ void AY8910::update(const Setting& setting)
 
 // Debuggable
 
-AY8910::Debuggable::Debuggable(MSXMotherBoard& motherBoard_, const string& name_)
+AY8910::Debuggable::Debuggable(MSXMotherBoard& motherBoard_, const std::string& name_)
 	: SimpleDebuggable(motherBoard_, name_ + " regs", "PSG", 0x10)
 {
 }
@@ -1012,8 +1011,8 @@ void AY8910::serialize(Archive& ar, unsigned /*version*/)
 	             "registers",      regs);
 
 	// amplitude
-	if (ar.isLoader()) {
-		for (int i = 0; i < 3; ++i) {
+	if constexpr (Archive::IS_LOADER) {
+		for (auto i : xrange(3)) {
 			amplitude.setChannelVolume(i, regs[i + AY_AVOL]);
 		}
 	}

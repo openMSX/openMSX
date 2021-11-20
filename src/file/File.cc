@@ -7,18 +7,16 @@
 #include <cstring>
 #include <memory>
 
-using std::string;
-
 namespace openmsx {
 
 File::File() = default;
 
-static std::unique_ptr<FileBase> init(std::string_view filename, File::OpenMode mode)
+[[nodiscard]] static std::unique_ptr<FileBase> init(std::string filename, File::OpenMode mode)
 {
 	static constexpr uint8_t GZ_HEADER[3]  = { 0x1F, 0x8B, 0x08 };
 	static constexpr uint8_t ZIP_HEADER[4] = { 0x50, 0x4B, 0x03, 0x04 };
 
-	std::unique_ptr<FileBase> file = std::make_unique<LocalFile>(filename, mode);
+	std::unique_ptr<FileBase> file = std::make_unique<LocalFile>(std::move(filename), mode);
 	if (file->getSize() >= 4) {
 		uint8_t buf[4];
 		file->read(buf, 4);
@@ -37,8 +35,8 @@ static std::unique_ptr<FileBase> init(std::string_view filename, File::OpenMode 
 	return file;
 }
 
-File::File(std::string_view filename, OpenMode mode)
-	: file(init(filename, mode))
+File::File(std::string filename, OpenMode mode)
+	: file(init(std::move(filename), mode))
 {
 }
 
@@ -47,13 +45,23 @@ File::File(const Filename& filename, OpenMode mode)
 {
 }
 
-File::File(std::string_view filename, const char* mode)
-	: file(std::make_unique<LocalFile>(filename, mode))
+File::File(Filename&& filename, OpenMode mode)
+	: File(std::move(filename).getResolved(), mode)
+{
+}
+
+File::File(std::string filename, const char* mode)
+	: file(std::make_unique<LocalFile>(std::move(filename), mode))
 {
 }
 
 File::File(const Filename& filename, const char* mode)
 	: File(filename.getResolved(), mode)
+{
+}
+
+File::File(Filename&& filename, const char* mode)
+	: File(std::move(filename).getResolved(), mode)
 {
 }
 
@@ -90,7 +98,7 @@ void File::write(const void* buffer, size_t num)
 	file->write(buffer, num);
 }
 
-span<uint8_t> File::mmap()
+span<const uint8_t> File::mmap()
 {
 	return file->mmap();
 }
@@ -125,19 +133,19 @@ void File::flush()
 	file->flush();
 }
 
-string File::getURL() const
+const std::string& File::getURL() const
 {
 	return file->getURL();
 }
 
-string File::getLocalReference() const
+std::string File::getLocalReference() const
 {
 	return file->getLocalReference();
 }
 
-string File::getOriginalName()
+std::string_view File::getOriginalName()
 {
-	string orig = file->getOriginalName();
+	std::string_view orig = file->getOriginalName();
 	return !orig.empty() ? orig : getURL();
 }
 

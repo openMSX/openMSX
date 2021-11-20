@@ -28,6 +28,7 @@
 #include "endian.hh"
 #include "one_of.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <algorithm>
 #include <cstring>
 
@@ -48,17 +49,17 @@ constexpr byte MT_NO_DISK   = 0x70;
 constexpr byte MT_DOOR_OPEN = 0x71;
 constexpr byte MT_FMT_ERROR = 0x72;
 
-constexpr byte inqdata[36] = {
+constexpr byte inqData[36] = {
 	  0,   // bit5-0 device type code.
 	  0,   // bit7 = 1 removable device
 	  2,   // bit7,6 ISO version. bit5,4,3 ECMA version.
 	       // bit2,1,0 ANSI Version (001=SCSI1, 010=SCSI2)
 	  2,   // bit7 AENC. bit6 TrmIOP.
 	       // bit3-0 Response Data Format. (0000=SCSI1, 0001=CCS, 0010=SCSI2)
-	 51,   // addtional length
+	 51,   // additional length
 	  0, 0,// reserved
 	  0,   // bit7 RelAdr, bit6 WBus32, bit5 Wbus16, bit4 Sync, bit3 Linked,
-	       // bit2 reseved bit1 CmdQue, bit0 SftRe
+	       // bit2 reserved bit1 CmdQue, bit0 SftRe
 	'o', 'p', 'e', 'n', 'M', 'S', 'X', ' ',    // vendor ID (8bytes)
 	'S', 'C', 'S', 'I', '2', ' ', 'H', 'a',    // product ID (16bytes)
 	'r', 'd', 'd', 'i', 's', 'k', ' ', ' ',
@@ -73,7 +74,7 @@ SCSIHD::SCSIHD(const DeviceConfig& targetconfig,
 	: HD(targetconfig)
 	, buffer(buf)
 	, mode(mode_)
-	, scsiId(targetconfig.getAttributeAsInt("id"))
+	, scsiId(targetconfig.getAttributeValueAsInt("id", 0))
 {
 	lun = 0; // move to reset() ?
 	message = 0;
@@ -111,7 +112,7 @@ unsigned SCSIHD::inquiry()
 
 	if (length == 0) return 0;
 
-	memcpy(buffer + 2, inqdata + 2, 34);
+	memcpy(buffer + 2, inqData + 2, 34);
 
 	buffer[0] = SCSI::DT_DirectAccess;
 	buffer[1] = 0; // removable
@@ -141,7 +142,7 @@ unsigned SCSIHD::inquiry()
 	}
 
 	if (length > 36) {
-		string imageName(FileOperations::getFilename(
+		std::string imageName(FileOperations::getFilename(
 		                       getImageName().getOriginal()));
 		imageName.resize(20, ' ');
 		memcpy(buffer + 36, imageName.data(), 20);
@@ -277,7 +278,7 @@ unsigned SCSIHD::readSectors(unsigned& blocks)
 	unsigned counter = currentLength * SECTOR_SIZE;
 
 	try {
-		for (unsigned i = 0; i < numSectors; ++i) {
+		for (auto i : xrange(numSectors)) {
 			auto* sbuf = aligned_cast<SectorBuffer*>(buffer);
 			readSector(currentSector, sbuf[i]);
 			++currentSector;
@@ -311,8 +312,8 @@ unsigned SCSIHD::writeSectors(unsigned& blocks)
 	unsigned numSectors = std::min(currentLength, BUFFER_BLOCK_SIZE);
 
 	try {
-		for (unsigned i = 0; i < numSectors; ++i) {
-			auto* sbuf = aligned_cast<const SectorBuffer*>(buffer);
+		for (auto i : xrange(numSectors)) {
+			const auto* sbuf = aligned_cast<const SectorBuffer*>(buffer);
 			writeSector(currentSector, sbuf[i]);
 			++currentSector;
 			--currentLength;
@@ -444,7 +445,7 @@ unsigned SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& bloc
 		case SCSI::OP_SEEK6:
 			getMotherBoard().getLedStatus().setLed(LedStatus::FDD, true);
 			currentLength = 1;
-			checkAddress();
+			(void)checkAddress();
 			return 0;
 
 		case SCSI::OP_MODE_SENSE: {
@@ -505,7 +506,7 @@ unsigned SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& bloc
 		case SCSI::OP_SEEK10:
 			getMotherBoard().getLedStatus().setLed(LedStatus::FDD, true);
 			currentLength = 1;
-			checkAddress();
+			(void)checkAddress();
 			return 0;
 		}
 	}

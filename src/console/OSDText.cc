@@ -21,7 +21,6 @@
 
 using std::string;
 using std::string_view;
-using std::vector;
 using namespace gl;
 
 namespace openmsx {
@@ -32,17 +31,6 @@ OSDText::OSDText(Display& display_, const TclObject& name_)
 	, size(12)
 	, wrapMode(NONE), wrapw(0.0), wraprelw(1.0)
 {
-}
-
-vector<string_view> OSDText::getProperties() const
-{
-	auto result = OSDImageBasedWidget::getProperties();
-	static constexpr const char* const vals[] = {
-		"-text", "-font", "-size", "-wrap", "-wrapw", "-wraprelw",
-		"-query-size",
-	};
-	append(result, vals);
-	return result;
 }
 
 void OSDText::setProperty(
@@ -74,18 +62,19 @@ void OSDText::setProperty(
 		}
 	} else if (propName == "-wrap") {
 		string_view val = value.getString();
-		WrapMode wrapMode2;
-		if (val == "none") {
-			wrapMode2 = NONE;
-		} else if (val == "word") {
-			wrapMode2 = WORD;
-		} else if (val == "char") {
-			wrapMode2 = CHAR;
-		} else {
-			throw CommandException("Not a valid value for -wrap, "
-				"expected one of 'none word char', but got '",
-				val, "'.");
-		}
+		WrapMode wrapMode2 = [&] {
+			if (val == "none") {
+				return NONE;
+			} else if (val == "word") {
+				return WORD;
+			} else if (val == "char") {
+				return CHAR;
+			} else {
+				throw CommandException("Not a valid value for -wrap, "
+					"expected one of 'none word char', but got '",
+					val, "'.");
+			}
+		}();
 		if (wrapMode != wrapMode2) {
 			wrapMode = wrapMode2;
 			invalidateRecursive();
@@ -166,7 +155,7 @@ uint8_t OSDText::getFadedAlpha() const
 	return byte((getRGBA(0) & 0xff) * getRecursiveFadeValue());
 }
 
-template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
+template<typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 	OutputSurface& output)
 {
 	if (text.empty()) {
@@ -175,9 +164,8 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 	int scale = getScaleFactor(output);
 	if (font.empty()) {
 		try {
-			string file = systemFileContext().resolve(fontfile);
-			int ptSize = size * scale;
-			font = TTFFont(file, ptSize);
+			font = TTFFont(systemFileContext().resolve(fontfile),
+			               size * scale);
 		} catch (MSXException& e) {
 			throw MSXException("Couldn't open font: ", e.getMessage());
 		}
@@ -220,7 +208,7 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 // Search for a position strictly between min and max which also points to the
 // start of a (possibly multi-byte) utf8-character. If no such position exits,
 // this function returns 'min'.
-static size_t findCharSplitPoint(const string& line, size_t min, size_t max)
+static constexpr size_t findCharSplitPoint(string_view line, size_t min, size_t max)
 {
 	auto pos = (min + max) / 2;
 	auto beginIt = line.data();
@@ -244,9 +232,9 @@ static size_t findCharSplitPoint(const string& line, size_t min, size_t max)
 // exits, this function returns 'min'.
 // This function works correctly with multi-byte utf8-encoding as long as
 // all delimiter characters are single byte chars.
-static size_t findWordSplitPoint(string_view line, size_t min, size_t max)
+static constexpr size_t findWordSplitPoint(string_view line, size_t min, size_t max)
 {
-	static constexpr const char* const delimiters = " -/";
+	constexpr const char* const delimiters = " -/";
 
 	// initial guess for a good position
 	assert(min < max);
@@ -280,7 +268,7 @@ static size_t findWordSplitPoint(string_view line, size_t min, size_t max)
 	return min;
 }
 
-static size_t takeSingleChar(const string& /*line*/, unsigned /*maxWidth*/)
+static constexpr size_t takeSingleChar(string_view /*line*/, unsigned /*maxWidth*/)
 {
 	return 1;
 }
@@ -297,8 +285,7 @@ size_t OSDText::split(const string& line, unsigned maxWidth,
 		return 0;
 	}
 
-	unsigned width, height;
-	font.getSize(line, width, height);
+	unsigned width = font.getSize(line)[0];
 	if (width <= maxWidth) {
 		// whole line fits
 		return line.size();
@@ -323,8 +310,8 @@ size_t OSDText::split(const string& line, unsigned maxWidth,
 		if (removeTrailingSpaces) {
 			StringOp::trimRight(curStr, ' ');
 		}
-		font.getSize(curStr, width, height);
-		if (width <= maxWidth) {
+		unsigned width2 = font.getSize(curStr)[0];
+		if (width2 <= maxWidth) {
 			// still fits, try to enlarge
 			size_t next = findSplitPoint(line, cur, max);
 			if (next == cur) {
@@ -368,8 +355,8 @@ size_t OSDText::splitAtWord(const std::string& line, unsigned maxWidth) const
 
 string OSDText::getCharWrappedText(const string& txt, unsigned maxWidth) const
 {
-	vector<string_view> wrappedLines;
-	for (auto& line : StringOp::split(txt, '\n')) {
+	std::vector<string_view> wrappedLines;
+	for (auto line : StringOp::split_view(txt, '\n')) {
 		do {
 			auto p = splitAtChar(string(line), maxWidth);
 			wrappedLines.push_back(line.substr(0, p));
@@ -381,8 +368,8 @@ string OSDText::getCharWrappedText(const string& txt, unsigned maxWidth) const
 
 string OSDText::getWordWrappedText(const string& txt, unsigned maxWidth) const
 {
-	vector<string_view> wrappedLines;
-	for (auto& line : StringOp::split(txt, '\n')) {
+	std::vector<string_view> wrappedLines;
+	for (auto line : StringOp::split_view(txt, '\n')) {
 		do {
 			auto p = splitAtWord(string(line), maxWidth);
 			string_view first = line.substr(0, p);

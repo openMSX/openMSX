@@ -33,8 +33,9 @@ public:
 
 private:
 	void executeCommand();
-	byte readCurrentByteFromCurrentSector();
+	[[nodiscard]] byte readCurrentByteFromCurrentSector();
 
+private:
 	const std::unique_ptr<HD> hd; // can be nullptr
 
 	byte cmdBuf[6];

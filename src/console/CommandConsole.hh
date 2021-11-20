@@ -5,6 +5,7 @@
 #include "InterpreterOutput.hh"
 #include "BooleanSetting.hh"
 #include "IntegerSetting.hh"
+#include "gl_vec.hh"
 #include "CircularBuffer.hh"
 #include "circular_buffer.hh"
 #include <string_view>
@@ -34,23 +35,27 @@ public:
 
 	/** Get the number of UTF8 characters in this line. So multi-byte
 	  * characters are counted as a single character. */
-	size_t numChars() const;
+	[[nodiscard]] size_t numChars() const;
 	/** Get the total string, ignoring color differences. */
-	const std::string& str() const { return line; }
+	[[nodiscard]] const std::string& str() const { return line; }
 
 	/** Get the number of different chunks. Each chunk is a a part of the
 	  * line that has the same color. */
-	size_t numChunks() const { return chunks.size(); }
+	[[nodiscard]] size_t numChunks() const { return chunks.size(); }
 	/** Get the color for the i-th chunk. */
-	uint32_t chunkColor(size_t i) const;
+	[[nodiscard]] uint32_t chunkColor(size_t i) const;
 	/** Get the text for the i-th chunk. */
-	std::string_view chunkText(size_t i) const;
+	[[nodiscard]] std::string_view chunkText(size_t i) const;
 
-	const auto& getChunks() const { return chunks; }
+	[[nodiscard]] const auto& getChunks() const { return chunks; }
 
 private:
 	std::string line;
-	std::vector<std::pair<uint32_t, std::string_view::size_type>> chunks; // [rgb, pos]
+	struct Chunk {
+		uint32_t rgb;
+		std::string_view::size_type pos;
+	};
+	std::vector<Chunk> chunks;
 };
 
 
@@ -63,25 +68,25 @@ public:
 	               Display& display);
 	~CommandConsole();
 
-	BooleanSetting& getConsoleSetting() { return consoleSetting; }
+	[[nodiscard]] BooleanSetting& getConsoleSetting() { return consoleSetting; }
 
-	unsigned getScrollBack() const { return consoleScrollBack; }
-	void getCursorPosition(unsigned& xPosition, unsigned& yPosition) const;
+	[[nodiscard]] unsigned getScrollBack() const { return consoleScrollBack; }
+	[[nodiscard]] gl::ivec2 getCursorPosition() const;
 
 	void setColumns(unsigned columns_) { columns = columns_; }
-	unsigned getColumns() const { return columns; }
+	[[nodiscard]] unsigned getColumns() const { return columns; }
 	void setRows(unsigned rows_) { rows = rows_; }
-	unsigned getRows() const { return rows; }
+	[[nodiscard]] unsigned getRows() const { return rows; }
 
-	const auto& getLines() const { return lines; }
+	[[nodiscard]] const auto& getLines() const { return lines; }
 
 private:
 	// InterpreterOutput
 	void output(std::string_view text) override;
-	unsigned getOutputColumns() const override;
+	[[nodiscard]] unsigned getOutputColumns() const override;
 
 	// EventListener
-	int signalEvent(const std::shared_ptr<const Event>& event) override;
+	int signalEvent(const Event& event) noexcept override;
 
 	bool handleEvent(const KeyEvent& keyEvent);
 	void tabCompletion();
@@ -104,7 +109,7 @@ private:
 	void putPrompt();
 	void resetScrollBack();
 	void paste();
-	ConsoleLine highLight(std::string_view line);
+	[[nodiscard]] ConsoleLine highLight(std::string_view line);
 
 	/** Prints a string on the console.
 	  */
@@ -113,6 +118,7 @@ private:
 	void loadHistory();
 	void saveHistory();
 
+private:
 	GlobalCommandController& commandController;
 	EventDistributor& eventDistributor;
 	Display& display;

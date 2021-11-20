@@ -7,7 +7,7 @@
 
 namespace openmsx {
 
-template <typename Pixel>
+template<typename Pixel>
 SuperImposedVideoFrame<Pixel>::SuperImposedVideoFrame(
 		const FrameSource& src_, const FrameSource& super_,
 		const PixelOperations<Pixel>& pixelOps_)
@@ -17,14 +17,14 @@ SuperImposedVideoFrame<Pixel>::SuperImposedVideoFrame(
 	setHeight(src.getHeight());
 }
 
-template <typename Pixel>
+template<typename Pixel>
 unsigned SuperImposedVideoFrame<Pixel>::getLineWidth(unsigned line) const
 {
 	unsigned width = src.getLineWidth(line);
 	return (width == 1) ? 320 : width;
 }
 
-template <typename Pixel>
+template<typename Pixel>
 const void* SuperImposedVideoFrame<Pixel>::getLineInfo(
 	unsigned line, unsigned& width, void* buf1_, unsigned bufWidth) const
 {
@@ -44,20 +44,21 @@ const void* SuperImposedVideoFrame<Pixel>::getLineInfo(
 	// (possibly) srcLine == buf1
 
 	// Adjust the two inputs to the same height.
-	const Pixel* supLine;
 	VLA_SSE_ALIGNED(Pixel, buf2, width);
 	assert(super.getHeight() == 480); // TODO possibly extend in the future
-	if (src.getHeight() == 240) {
-		VLA_SSE_ALIGNED(Pixel, buf3, width);
-		auto* sup0 = super.getLinePtr(2 * line + 0, width, buf2);
-		auto* sup1 = super.getLinePtr(2 * line + 1, width, buf3);
-		BlendLines<Pixel> blend(pixelOps);
-		blend(sup0, sup1, buf2, width); // possibly sup0 == buf2
-		supLine = buf2;
-	} else {
-		assert(src.getHeight() == super.getHeight());
-		supLine = super.getLinePtr(line, width, buf2); // scale line
-	}
+	const Pixel* supLine = [&]() -> const Pixel* {
+		if (src.getHeight() == 240) {
+			VLA_SSE_ALIGNED(Pixel, buf3, width);
+			auto* sup0 = super.getLinePtr(2 * line + 0, width, buf2);
+			auto* sup1 = super.getLinePtr(2 * line + 1, width, buf3);
+			BlendLines<Pixel> blend(pixelOps);
+			blend(sup0, sup1, buf2, width); // possibly sup0 == buf2
+			return buf2;
+		} else {
+			assert(src.getHeight() == super.getHeight());
+			return super.getLinePtr(line, width, buf2); // scale line
+		}
+	}();
 	// (possibly) supLine == buf2
 
 	// Actually blend the lines of both frames.

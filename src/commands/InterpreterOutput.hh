@@ -9,7 +9,7 @@ class InterpreterOutput
 {
 public:
 	virtual void output(std::string_view text) = 0;
-	virtual unsigned getOutputColumns() const = 0;
+	[[nodiscard]] virtual unsigned getOutputColumns() const = 0;
 
 protected:
 	~InterpreterOutput() = default;

@@ -1,10 +1,10 @@
-// Based on libsamplerate-0.1.2 (aka Secret Rabit Code)
+// Based on libsamplerate-0.1.2 (aka Secret Rabbit Code)
 //
 //  simplified code in several ways:
 //   - resample algorithm is no longer switchable, we took this variant:
 //        Band limited sinc interpolation, fastest, 97dB SNR, 80% BW
 //   - don't allow to change sample rate on-the-fly
-//   - assume input (and thus also output) signals have infinte length, so
+//   - assume input (and thus also output) signals have infinite length, so
 //     there is no special code to handle the ending of the signal
 //   - changed/simplified API to better match openmsx use model
 //     (e.g. remove all error checking)
@@ -18,6 +18,7 @@
 #include "ranges.hh"
 #include "stl.hh"
 #include "vla.hh"
+#include "xrange.hh"
 #include "build-info.hh"
 #include <vector>
 #include <cmath>
@@ -41,7 +42,7 @@ constexpr float coeffs[] = {
 using FilterIndex = FixedPoint<16>;
 
 constexpr int INDEX_INC = 128;
-constexpr int COEFF_LEN = std::size(coeffs);
+constexpr int COEFF_LEN = int(std::size(coeffs));
 constexpr int COEFF_HALF_LEN = COEFF_LEN - 1;
 constexpr unsigned TAB_LEN = 4096;
 constexpr unsigned HALF_TAB_LEN = TAB_LEN / 2;
@@ -49,6 +50,9 @@ constexpr unsigned HALF_TAB_LEN = TAB_LEN / 2;
 class ResampleCoeffs
 {
 public:
+	ResampleCoeffs(const ResampleCoeffs&) = delete;
+	ResampleCoeffs& operator=(const ResampleCoeffs&) = delete;
+
 	static ResampleCoeffs& instance();
 	void getCoeffs(double ratio, int16_t*& permute, float*& table, unsigned& filterLen);
 	void releaseCoeffs(double ratio);
@@ -60,7 +64,7 @@ private:
 	ResampleCoeffs() = default;
 	~ResampleCoeffs();
 
-	Table calcTable(double ratio, int16_t* permute, unsigned& filterLen);
+	static Table calcTable(double ratio, int16_t* permute, unsigned& filterLen);
 
 	struct Element {
 		double ratio;
@@ -86,7 +90,7 @@ ResampleCoeffs& ResampleCoeffs::instance()
 void ResampleCoeffs::getCoeffs(
 	double ratio, int16_t*& permute, float*& table, unsigned& filterLen)
 {
-	if (auto it = ranges::find_if(cache, [=](auto& e) { return e.ratio == ratio; });
+	if (auto it = ranges::find(cache, ratio, &Element::ratio);
 	    it != end(cache)) {
 		permute   = it->permute.data();
 		table     = it->table.data();
@@ -107,8 +111,7 @@ void ResampleCoeffs::getCoeffs(
 
 void ResampleCoeffs::releaseCoeffs(double ratio)
 {
-	auto it = rfind_if_unguarded(cache,
-		[=](const Element& e) { return e.ratio == ratio; });
+	auto it = rfind_unguarded(cache, ratio, &Element::ratio);
 	it->count--;
 	if (it->count == 0) {
 		move_pop_back(cache, it);
@@ -226,13 +229,13 @@ constexpr unsigned N = TAB_LEN;
 constexpr unsigned N1 = N - 1;
 constexpr unsigned N2 = N / 2;
 
-static unsigned mapIdx(unsigned x)
+static constexpr unsigned mapIdx(unsigned x)
 {
 	unsigned t = x & N1; // first wrap
 	return (t < N2) ? t : N1 - t; // then fold
 }
 
-static std::pair<unsigned, unsigned> next(unsigned x, unsigned step)
+static constexpr std::pair<unsigned, unsigned> next(unsigned x, unsigned step)
 {
 	return {mapIdx(x + step), mapIdx(N1 - x + step)};
 }
@@ -242,27 +245,26 @@ static void calcPermute(double ratio, int16_t* permute)
 	double r2 = ratio * N;
 	double fract = r2 - floor(r2);
 	unsigned step = floor(r2);
-	bool incr;
-	if (fract > 0.5) {
-		// mostly (> 50%) take steps of 'floor(r2) + 1'
-		step += 1;
-		incr = false; // assign from high to low
-	} else {
-		// mostly take steps of 'floor(r2)'
-		incr = true; // assign from low to high
-	}
+	bool incr = [&] {
+		if (fract > 0.5) {
+			// mostly (> 50%) take steps of 'floor(r2) + 1'
+			step += 1;
+			return false; // assign from high to low
+		} else {
+			// mostly take steps of 'floor(r2)'
+			return true; // assign from low to high
+		}
+	}();
 
 	// initially set all as unassigned
-	for (unsigned i = 0; i < N2; ++i) {
-		permute[i] = -1;
-	}
+	std::fill_n(permute, N2, -1);
 
 	unsigned nxt1, nxt2;
 	unsigned restart = incr ? 0 : N2 - 1;
 	unsigned curr = restart;
 	// check for chain (instead of cycles)
 	if (incr) {
-		for (unsigned i = 0; i < N2; ++i) {
+		for (auto i : xrange(N2)) {
 			std::tie(nxt1, nxt2) = next(i, step);
 			if ((nxt1 == i) || (nxt2 == i)) { curr = i; break; }
 		}
@@ -307,12 +309,12 @@ static void calcPermute(double ratio, int16_t* permute)
 
 #ifdef DEBUG
 	int16_t testPerm[N2];
-	for (unsigned i = 0; i < N2; ++i) testPerm[i] = i;
+	ranges::iota(testPerm, 0);
 	assert(std::is_permutation(permute, permute + N2, testPerm));
 #endif
 }
 
-static double getCoeff(FilterIndex index)
+static constexpr double getCoeff(FilterIndex index)
 {
 	double fraction = index.fractionAsDouble();
 	int indx = index.toInt();
@@ -327,7 +329,7 @@ ResampleCoeffs::Table ResampleCoeffs::calcTable(
 
 	double floatIncr = (ratio > 1.0) ? INDEX_INC / ratio : INDEX_INC;
 	double normFactor = floatIncr / INDEX_INC;
-	FilterIndex increment = FilterIndex(floatIncr);
+	auto increment = FilterIndex(floatIncr);
 	FilterIndex maxFilterIndex(COEFF_HALF_LEN);
 
 	int min_idx = -maxFilterIndex.divAsInt(increment);
@@ -338,7 +340,7 @@ ResampleCoeffs::Table ResampleCoeffs::calcTable(
 	Table table(HALF_TAB_LEN * filterLen);
 	memset(table.data(), 0, HALF_TAB_LEN * filterLen * sizeof(float));
 
-	for (unsigned t = 0; t < HALF_TAB_LEN; ++t) {
+	for (auto t : xrange(HALF_TAB_LEN)) {
 		float* tab = &table[permute[t] * filterLen];
 		double lastPos = (double(t) + 0.5) / TAB_LEN;
 		FilterIndex startFilterIndex(lastPos * floatIncr);
@@ -369,7 +371,7 @@ ResampleCoeffs::Table ResampleCoeffs::calcTable(
 }
 
 
-template <unsigned CHANNELS>
+template<unsigned CHANNELS>
 ResampleHQ<CHANNELS>::ResampleHQ(
 		ResampledSoundDevice& input_, const DynamicClock& hostClock_)
 	: ResampleAlgo(input_)
@@ -387,7 +389,7 @@ ResampleHQ<CHANNELS>::ResampleHQ(
 	buffer.resize((initialSize + extra) * CHANNELS); // zero-initialized
 }
 
-template <unsigned CHANNELS>
+template<unsigned CHANNELS>
 ResampleHQ<CHANNELS>::~ResampleHQ()
 {
 	ResampleCoeffs::instance().releaseCoeffs(double(ratio));
@@ -412,7 +414,7 @@ static inline void calcSseMono(const float* buf_, const float* tab_, size_t len,
 		__m128 b0 = _mm_loadu_ps(reinterpret_cast<const float*>(buf + x +  0));
 		__m128 b1 = _mm_loadu_ps(reinterpret_cast<const float*>(buf + x + 16));
 		__m128 t0, t1;
-		if (REVERSE) {
+		if constexpr (REVERSE) {
 			t0 = _mm_loadr_ps(reinterpret_cast<const float*>(tab - x - 16));
 			t1 = _mm_loadr_ps(reinterpret_cast<const float*>(tab - x - 32));
 		} else {
@@ -428,7 +430,7 @@ static inline void calcSseMono(const float* buf_, const float* tab_, size_t len,
 	if (len & 4) {
 		__m128 b0 = _mm_loadu_ps(reinterpret_cast<const float*>(buf));
 		__m128 t0;
-		if (REVERSE) {
+		if constexpr (REVERSE) {
 			t0 = _mm_loadr_ps(reinterpret_cast<const float*>(tab - 16));
 		} else {
 			t0 = _mm_load_ps (reinterpret_cast<const float*>(tab));
@@ -471,7 +473,7 @@ static inline void calcSseStereo(const float* buf_, const float* tab_, size_t le
 		__m128 b2 = _mm_loadu_ps(reinterpret_cast<const float*>(buf + x + 32));
 		__m128 b3 = _mm_loadu_ps(reinterpret_cast<const float*>(buf + x + 48));
 		__m128 ta, tb;
-		if (REVERSE) {
+		if constexpr (REVERSE) {
 			ta = _mm_loadr_ps(reinterpret_cast<const float*>(tab - 16));
 			tb = _mm_loadr_ps(reinterpret_cast<const float*>(tab - 32));
 			tab -= 2 * sizeof(__m128);
@@ -498,7 +500,7 @@ static inline void calcSseStereo(const float* buf_, const float* tab_, size_t le
 		__m128 b0 = _mm_loadu_ps(reinterpret_cast<const float*>(buf +  0));
 		__m128 b1 = _mm_loadu_ps(reinterpret_cast<const float*>(buf + 16));
 		__m128 ta;
-		if (REVERSE) {
+		if constexpr (REVERSE) {
 			ta = _mm_loadr_ps(reinterpret_cast<const float*>(tab - 16));
 		} else {
 			ta = _mm_load_ps (reinterpret_cast<const float*>(tab +  0));
@@ -522,7 +524,7 @@ static inline void calcSseStereo(const float* buf_, const float* tab_, size_t le
 
 #endif
 
-template <unsigned CHANNELS>
+template<unsigned CHANNELS>
 void ResampleHQ<CHANNELS>::calcOutput(
 	float pos, float* __restrict output)
 {
@@ -540,7 +542,7 @@ void ResampleHQ<CHANNELS>::calcOutput(
 		const float* tab = &table[t * filterLen];
 
 #ifdef __SSE2__
-		if (CHANNELS == 1) {
+		if constexpr (CHANNELS == 1) {
 			calcSseMono  <false>(buf, tab, filterLen, output);
 		} else {
 			calcSseStereo<false>(buf, tab, filterLen, output);
@@ -549,7 +551,7 @@ void ResampleHQ<CHANNELS>::calcOutput(
 #endif
 
 		// c++ version, both mono and stereo
-		for (unsigned ch = 0; ch < CHANNELS; ++ch) {
+		for (auto ch : xrange(CHANNELS)) {
 			float r0 = 0.0f;
 			float r1 = 0.0f;
 			float r2 = 0.0f;
@@ -569,7 +571,7 @@ void ResampleHQ<CHANNELS>::calcOutput(
 		const float* tab = &table[(t + 1) * filterLen];
 
 #ifdef __SSE2__
-		if (CHANNELS == 1) {
+		if constexpr (CHANNELS == 1) {
 			calcSseMono  <true>(buf, tab, filterLen, output);
 		} else {
 			calcSseStereo<true>(buf, tab, filterLen, output);
@@ -578,7 +580,7 @@ void ResampleHQ<CHANNELS>::calcOutput(
 #endif
 
 		// c++ version, both mono and stereo
-		for (unsigned ch = 0; ch < CHANNELS; ++ch) {
+		for (auto ch : xrange(CHANNELS)) {
 			float r0 = 0.0f;
 			float r1 = 0.0f;
 			float r2 = 0.0f;
@@ -595,7 +597,7 @@ void ResampleHQ<CHANNELS>::calcOutput(
 	}
 }
 
-template <unsigned CHANNELS>
+template<unsigned CHANNELS>
 void ResampleHQ<CHANNELS>::prepareData(unsigned emuNum)
 {
 	// Still enough free space at end of buffer?
@@ -638,7 +640,7 @@ void ResampleHQ<CHANNELS>::prepareData(unsigned emuNum)
 	assert(bufEnd <= (buffer.size() / CHANNELS));
 }
 
-template <unsigned CHANNELS>
+template<unsigned CHANNELS>
 bool ResampleHQ<CHANNELS>::generateOutputImpl(
 	float* __restrict dataOut, unsigned hostNum, EmuTime::param time)
 {
@@ -655,7 +657,7 @@ bool ResampleHQ<CHANNELS>::generateOutputImpl(
 		assert(host1 > emuClk.getTime());
 		float pos = emuClk.getTicksTillDouble(host1);
 		assert(pos <= (ratio + 2));
-		for (unsigned i = 0; i < hostNum; ++i) {
+		for (auto i : xrange(hostNum)) {
 			calcOutput(pos, &dataOut[i * CHANNELS]);
 			pos += ratio;
 		}

@@ -60,17 +60,17 @@ def expandQuadrant(topLeftQuadrant, zoom):
 		qy, qx = divmod(quadrantIndex, quadrantWidth)
 		for ty, py in ((zoom - qy - 1, permTB), (qy, permId)):
 			for tx, px in ((zoom - qx - 1, permLR), (qx, permId)):
-				nperm = permute(px, py)
-				cperm = computeCasePermutation(nperm)
-				mirrorMap[ty * zoom + tx] = (quadrantIndex, cperm, nperm)
+				nPerm = permute(px, py)
+				cPerm = computeCasePermutation(nPerm)
+				mirrorMap[ty * zoom + tx] = (quadrantIndex, cPerm, nPerm)
 	return [
 		[	permute(
 				expandTopLeftWeights(
-					topLeftQuadrant[permuteCase(case, cperm)][quadrantIndex]
+					topLeftQuadrant[permuteCase(case, cPerm)][quadrantIndex]
 					),
-				nperm
+				nPerm
 				)
-			for quadrantIndex, cperm, nperm in mirrorMap
+			for quadrantIndex, cPerm, nPerm in mirrorMap
 			]
 		for case in range(len(topLeftQuadrant))
 		]

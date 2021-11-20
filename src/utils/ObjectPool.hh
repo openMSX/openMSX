@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
+#include "unreachable.hh"
+#include "xrange.hh"
 
 // ObjectPool
 //
@@ -79,7 +81,7 @@ public:
 			if (cntr == 0) {
 				pool.push_back(std::make_unique<Element256>());
 			}
-			idx = ((pool.size() - 1) << 8) + cntr;
+			idx = Index(((pool.size() - 1) << 8) + cntr);
 			++cntr;
 		}
 		T* ptr = &get(idx).t;
@@ -95,6 +97,22 @@ public:
 		elem.t.~T();
 		elem.next = free;
 		free = idx;
+	}
+
+	void remove(const T* ptr) {
+		remove(ptr2Index(ptr));
+	}
+
+	Index ptr2Index(const T* ptr) const {
+		for (auto i : xrange(pool.size())) {
+			const auto& elem256 = *pool[i];
+			const T* begin = &elem256[0].t;
+			const T* end = begin + 256;
+			if ((begin <= ptr) && (ptr < end)) {
+				return Index((i << 8) + (ptr - begin));
+			}
+		}
+		UNREACHABLE;
 	}
 
 	// for unittest

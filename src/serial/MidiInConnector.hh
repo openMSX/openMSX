@@ -12,14 +12,14 @@ class MidiInDevice;
 class MidiInConnector : public Connector, public SerialDataInterface
 {
 public:
-	MidiInDevice& getPluggedMidiInDev() const;
+	[[nodiscard]] MidiInDevice& getPluggedMidiInDev() const;
 
 	// Connector
-	std::string_view getDescription() const final override;
-	std::string_view getClass() const final override;
+	[[nodiscard]] std::string_view getDescription() const final;
+	[[nodiscard]] std::string_view getClass() const final;
 
-	virtual bool ready() = 0;
-	virtual bool acceptsData() = 0;
+	[[nodiscard]] virtual bool ready() = 0;
+	[[nodiscard]] virtual bool acceptsData() = 0;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

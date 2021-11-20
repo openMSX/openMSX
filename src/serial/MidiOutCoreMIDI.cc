@@ -40,10 +40,8 @@ void MidiOutMessageBuffer::recvMessage(
 
 void MidiOutCoreMIDI::registerAll(PluggingController& controller)
 {
-	ItemCount numberOfEndpoints = MIDIGetNumberOfDestinations();
-	for (ItemCount i = 0; i < numberOfEndpoints; i++) {
-		MIDIEndpointRef endpoint = MIDIGetDestination(i);
-		if (endpoint) {
+	for (auto i : xrange(MIDIGetNumberOfDestinations())) {
+		if (MIDIEndpointRef endpoint = MIDIGetDestination(i)) {
 			controller.registerPluggable(
 				std::make_unique<MidiOutCoreMIDI>(endpoint));
 		}
@@ -96,7 +94,7 @@ void MidiOutCoreMIDI::unplugHelper(EmuTime::param /*time*/)
 	client = 0;
 }
 
-const std::string& MidiOutCoreMIDI::getName() const
+std::string_view MidiOutCoreMIDI::getName() const
 {
 	return name;
 }
@@ -155,10 +153,9 @@ void MidiOutCoreMIDIVirtual::unplugHelper(EmuTime::param /*time*/)
 	client = 0;
 }
 
-const std::string& MidiOutCoreMIDIVirtual::getName() const
+std::string_view MidiOutCoreMIDIVirtual::getName() const
 {
-	static const std::string name("Virtual OUT");
-	return name;
+	return "Virtual OUT";
 }
 
 std::string_view MidiOutCoreMIDIVirtual::getDescription() const

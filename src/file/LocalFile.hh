@@ -7,37 +7,36 @@
 #include "File.hh"
 #include "FileBase.hh"
 #include "FileOperations.hh"
+#include "PreCacheFile.hh"
 #include "systemfuncs.hh"
 #include <cstdio>
-#include <memory>
+#include <optional>
 
 namespace openmsx {
-
-class PreCacheFile;
 
 class LocalFile final : public FileBase
 {
 public:
-	LocalFile(std::string_view filename, File::OpenMode mode);
-	LocalFile(std::string_view filename, const char* mode);
+	LocalFile(std::string filename, File::OpenMode mode);
+	LocalFile(std::string filename, const char* mode);
 	~LocalFile() override;
 	void read (void* buffer, size_t num) override;
 	void write(const void* buffer, size_t num) override;
 #if HAVE_MMAP || defined _WIN32
-	span<uint8_t> mmap() override;
+	[[nodiscard]] span<const uint8_t> mmap() override;
 	void munmap() override;
 #endif
-	size_t getSize() override;
+	[[nodiscard]] size_t getSize() override;
 	void seek(size_t pos) override;
-	size_t getPos() override;
+	[[nodiscard]] size_t getPos() override;
 #if HAVE_FTRUNCATE
 	void truncate(size_t size) override;
 #endif
 	void flush() override;
-	std::string getURL() const override;
-	std::string getLocalReference() override;
-	bool isReadOnly() const override;
-	time_t getModificationDate() override;
+	[[nodiscard]] const std::string& getURL() const override;
+	[[nodiscard]] std::string getLocalReference() override;
+	[[nodiscard]] bool isReadOnly() const override;
+	[[nodiscard]] time_t getModificationDate() override;
 
 	void preCacheFile();
 
@@ -51,7 +50,7 @@ private:
 	uint8_t* mmem;
 	HANDLE hMmap;
 #endif
-	std::unique_ptr<PreCacheFile> cache;
+	std::optional<PreCacheFile> cache;
 	bool readOnly;
 };
 

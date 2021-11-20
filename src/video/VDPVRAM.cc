@@ -95,7 +95,7 @@ void VDPVRAM::PhysicalVRAMDebuggable::write(
 
 // class VDPVRAM
 
-static unsigned bufferSize(unsigned size)
+static constexpr unsigned bufferSize(unsigned size)
 {
 	// Always allocate at least a buffer of 128kB, this makes the VR0/VR1
 	// swapping a lot easier. Actually only in case there is also extended
@@ -129,7 +129,7 @@ VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, EmuTime::param time)
 	vrMode = vdp.getVRMode();
 	setSizeMask(time);
 
-	// Whole VRAM is cachable.
+	// Whole VRAM is cacheable.
 	// Because this window has no observer, any EmuTime can be passed.
 	// TODO: Move this to cache registration.
 	bitmapCacheWindow.setMask(0x1FFFF, ~0u << 17, EmuTime::zero());
@@ -192,7 +192,7 @@ void VDPVRAM::setSizeMask(EmuTime::param time)
 	spriteAttribTable.setSizeMask(sizeMask, time);
 	spritePatternTable.setSizeMask(sizeMask, time);
 }
-static inline unsigned swapAddr(unsigned x)
+static constexpr unsigned swapAddr(unsigned x)
 {
 	// translate VR0 address to corresponding VR1 address
 	//  note: output bit 0 is always 1
@@ -217,7 +217,7 @@ void VDPVRAM::updateVRMode(bool newVRmode, EmuTime::param time)
 		}
 	} else {
 		// switch from VR=1 to VR=0
-		for (int i = 0; i < 0x8000; ++i) {
+		for (auto i : xrange(0x8000)) {
 			std::swap(data[i], data[swapAddr(i)]);
 		}
 	}
@@ -312,7 +312,7 @@ void VRAMWindow::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("baseAddr",  baseAddr,
 	             "baseMask",  origBaseMask,
 	             "indexMask", indexMask);
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		effectiveBaseMask = origBaseMask & sizeMask;
 		combiMask = ~effectiveBaseMask | indexMask;
 		// TODO ?  observer->updateWindow(isEnabled(), time);
@@ -322,7 +322,7 @@ void VRAMWindow::serialize(Archive& ar, unsigned /*version*/)
 template<typename Archive>
 void VDPVRAM::serialize(Archive& ar, unsigned /*version*/)
 {
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		vrMode = vdp.getVRMode();
 		setSizeMask(static_cast<MSXDevice&>(vdp).getCurrentTime());
 	}

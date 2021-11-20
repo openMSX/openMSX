@@ -59,29 +59,33 @@ public:
 
 	template<typename... Args>
 	void printInfo(Args&& ...args) {
-		printInfo(std::string_view(strCat(std::forward<Args>(args)...)));
+		auto tmp = tmpStrCat(std::forward<Args>(args)...);
+		printInfo(std::string_view(tmp));
 	}
 	template<typename... Args>
 	void printWarning(Args&& ...args) {
-		printWarning(std::string_view(strCat(std::forward<Args>(args)...)));
+		auto tmp = tmpStrCat(std::forward<Args>(args)...);
+		printWarning(std::string_view(tmp));
 	}
 	template<typename... Args>
 	void printError(Args&& ...args) {
-		printError(std::string_view(strCat(std::forward<Args>(args)...)));
+		auto tmp = tmpStrCat(std::forward<Args>(args)...);
+		printError(std::string_view(tmp));
 	}
 	template<typename... Args>
 	void printProgress(Args&& ...args) {
-		printProgress(std::string_view(strCat(std::forward<Args>(args)...)));
+		auto tmp = tmpStrCat(std::forward<Args>(args)...);
+		printProgress(std::string_view(tmp));
 	}
 
 	// string representations of the LogLevel and UpdateType enums
-	static span<const char* const> getLevelStrings()  {
+	[[nodiscard]] static span<const char* const> getLevelStrings()  {
 		static constexpr const char* const levelStr [NUM_LEVELS] = {
 			"info", "warning", "error", "progress"
 		};
 		return levelStr;
 	}
-	static span<const char* const> getUpdateStrings() {
+	[[nodiscard]] static span<const char* const> getUpdateStrings() {
 		static constexpr const char* const updateStr[NUM_UPDATES] = {
 			"led", "setting", "setting-info", "hardware", "plug",
 			"media", "status", "extension", "sounddevice", "connector"

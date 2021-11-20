@@ -17,7 +17,7 @@ class WavWriter
 public:
 	/** Returns false if there has been data written to the wav image.
 	 */
-	bool isEmpty() const { return bytes == 0; }
+	[[nodiscard]] bool isEmpty() const { return bytes == 0; }
 
 	/** Flush data to file and update header. Try to make (possibly)
 	  * incomplete file already usable for external programs.
@@ -29,6 +29,7 @@ protected:
 	          unsigned channels, unsigned bits, unsigned frequency);
 	~WavWriter();
 
+protected:
 	File file;
 	unsigned bytes;
 };

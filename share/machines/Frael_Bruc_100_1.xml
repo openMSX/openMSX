@@ -5,7 +5,7 @@
 
   <info>
     <manufacturer>Frael</manufacturer>
-    <code>BRUC 100</code>
+    <code>BRUC 100 (v1)</code>
     <release_year>1987</release_year>
     <description>First version of this Italian machine, which is mostly MSX compatible</description>
     <type>MSX</type>
@@ -57,11 +57,11 @@
         <io base="0x90" num="1" type="O"/>
         <rom id="basicbios">
           <filename>bruc100_1_basic-bios1.rom</filename>
-          <sha1>3abca440cba16ac5e162b602557d30169f77adab</sha1>
+          <sha1>3abca440cba16ac5e162b602557d30169f77adab</sha1> <!-- V1.1 MCL 06-87 27256 EPROM dump confirmed by Alessandro Liberalato -->
         </rom>
         <rom id="firmware">
           <filename>bruc100_1_firmware.rom</filename>
-          <sha1>3abca440cba16ac5e162b602557d30169f77adab</sha1> <!-- There should be the 1.0 (or 1.1.) firmware here, but it is not dumped yet... so for now I simply use the basicbios ROM here too. -->
+          <sha1>e4ffe02abbda17986cb161c332e9e54d24fd053c</sha1> <!-- Firmware 1.0 06-87 2764 EPROM dump by Alessandro Liberalato-->
         </rom>
         <mem base="0x0000" size="0x8000"/>
       </FraelSwitchableROM>

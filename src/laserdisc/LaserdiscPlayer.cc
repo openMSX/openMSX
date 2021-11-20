@@ -14,7 +14,6 @@
 #include "ReverseManager.hh"
 #include "MSXMotherBoard.hh"
 #include "PioneerLDControl.hh"
-#include "OggReader.hh"
 #include "LDRenderer.hh"
 #include "RendererFactory.hh"
 #include "Math.hh"
@@ -26,7 +25,6 @@
 #include <memory>
 
 using std::string;
-using std::vector;
 
 namespace openmsx {
 
@@ -48,7 +46,7 @@ void LaserdiscPlayer::Command::execute(
 	if (tokens.size() == 1) {
 		// Returning Tcl lists here, similar to the disk commands in
 		// DiskChanger
-		result.addListElement(getName() + ':',
+		result.addListElement(tmpStrCat(getName(), ':'),
 		                      laserdiscPlayer.getImageName().getResolved());
 	} else if (tokens[1] == "eject") {
 		checkNumArgs(tokens, 2, Prefix{2}, nullptr);
@@ -67,7 +65,7 @@ void LaserdiscPlayer::Command::execute(
 	}
 }
 
-string LaserdiscPlayer::Command::help(const vector<string>& tokens) const
+string LaserdiscPlayer::Command::help(span<const TclObject> tokens) const
 {
 	if (tokens.size() >= 2) {
 		if (tokens[1] == "insert") {
@@ -83,10 +81,11 @@ string LaserdiscPlayer::Command::help(const vector<string>& tokens) const
 	       ": eject the laserdisc\n";
 }
 
-void LaserdiscPlayer::Command::tabCompletion(vector<string>& tokens) const
+void LaserdiscPlayer::Command::tabCompletion(std::vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		static constexpr const char* const extra[] = { "eject", "insert" };
+		using namespace std::literals;
+		static constexpr std::array extra = {"eject"sv, "insert"sv};
 		completeString(tokens, extra);
 	} else if (tokens.size() == 3 && tokens[1] == "insert") {
 		completeFileName(tokens, userFileContext());
@@ -97,22 +96,15 @@ void LaserdiscPlayer::Command::tabCompletion(vector<string>& tokens) const
 
 constexpr unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on .ogg file
 
-static XMLElement createXML()
-{
-	XMLElement xml("laserdiscplayer");
-	xml.addChild("sound").addChild("volume", "30000");
-	return xml;
-}
-
 LaserdiscPlayer::LaserdiscPlayer(
-		const HardwareConfig& hwConf, PioneerLDControl& ldcontrol_)
+		const HardwareConfig& hwConf, PioneerLDControl& ldControl_)
 	: ResampledSoundDevice(hwConf.getMotherBoard(), "laserdiscplayer",
 	                       "Laserdisc Player", 1, DUMMY_INPUT_RATE, true)
 	, syncAck (hwConf.getMotherBoard().getScheduler())
 	, syncOdd (hwConf.getMotherBoard().getScheduler())
 	, syncEven(hwConf.getMotherBoard().getScheduler())
 	, motherBoard(hwConf.getMotherBoard())
-	, ldcontrol(ldcontrol_)
+	, ldControl(ldControl_)
 	, laserdiscCommand(motherBoard.getCommandController(),
 		           motherBoard.getStateChangeDistributor(),
 		           motherBoard.getScheduler())
@@ -140,11 +132,17 @@ LaserdiscPlayer::LaserdiscPlayer(
 	reactor.getDisplay().attach(*this);
 
 	createRenderer();
-	reactor.getEventDistributor().registerEventListener(OPENMSX_BOOT_EVENT, *this);
+	reactor.getEventDistributor().registerEventListener(EventType::BOOT, *this);
 	scheduleDisplayStart(getCurrentTime());
 
-	static XMLElement xml = createXML();
-	registerSound(DeviceConfig(hwConf, xml));
+	static XMLElement* xml = [] {
+		auto& doc = XMLDocument::getStaticDocument();
+		auto* result = doc.allocateElement("laserdiscplayer");
+		result->setFirstChild(doc.allocateElement("sound"))
+		      ->setFirstChild(doc.allocateElement("volume", "30000"));
+		return result;
+	}();
+	registerSound(DeviceConfig(hwConf, *xml));
 }
 
 LaserdiscPlayer::~LaserdiscPlayer()
@@ -152,7 +150,7 @@ LaserdiscPlayer::~LaserdiscPlayer()
 	unregisterSound();
 	Reactor& reactor = motherBoard.getReactor();
 	reactor.getDisplay().detach(*this);
-	reactor.getEventDistributor().unregisterEventListener(OPENMSX_BOOT_EVENT, *this);
+	reactor.getEventDistributor().unregisterEventListener(EventType::BOOT, *this);
 }
 
 void LaserdiscPlayer::scheduleDisplayStart(EmuTime::param time)
@@ -632,7 +630,7 @@ void LaserdiscPlayer::setImageName(string newImage, EmuTime::param time)
 {
 	stop(time);
 	oggImage = Filename(std::move(newImage), userFileContext());
-	video = std::make_unique<OggReader>(oggImage, motherBoard.getMSXCliComm());
+	video.emplace(oggImage, motherBoard.getMSXCliComm());
 
 	unsigned inputRate = video->getSampleRate();
 	sampleClock.setFreq(inputRate);
@@ -642,9 +640,9 @@ void LaserdiscPlayer::setImageName(string newImage, EmuTime::param time)
 	}
 }
 
-int LaserdiscPlayer::signalEvent(const std::shared_ptr<const Event>& event)
+int LaserdiscPlayer::signalEvent(const Event& event) noexcept
 {
-	if (event->getType() == OPENMSX_BOOT_EVENT && video) {
+	if (getType(event) == EventType::BOOT && video) {
 		autoRun();
 	}
 	return 0;
@@ -885,13 +883,13 @@ void LaserdiscPlayer::stepFrame(bool forwards)
 	}
 }
 
-void LaserdiscPlayer::seekFrame(size_t toframe, EmuTime::param time)
+void LaserdiscPlayer::seekFrame(size_t toFrame, EmuTime::param time)
 {
 	if ((playerState != PLAYER_STOPPED) && video) {
 		updateStream(time);
 
-		if (toframe <= 0) toframe = 1;
-		if (toframe > video->getFrames()) toframe = video->getFrames();
+		if (toFrame <= 0) toFrame = 1;
+		if (toFrame > video->getFrames()) toFrame = video->getFrames();
 
 		// Seek time needs to be emulated correctly since
 		// e.g. Astron Belt does not wait for the seek
@@ -900,26 +898,22 @@ void LaserdiscPlayer::seekFrame(size_t toframe, EmuTime::param time)
 		//
 		// This calculation is based on measurements on
 		// a Pioneer LD-92000.
-		auto dist = std::abs(int64_t(toframe) - int64_t(currentFrame));
-		int seektime; // time in ms
+		auto dist = std::abs(int64_t(toFrame) - int64_t(currentFrame));
+		int seektime = (dist < 1000) // time in ms
+		             ? (dist + 300)
+		             : (1800 + dist / 12);
 
-		if (dist < 1000) {
-			seektime = dist + 300;
-		} else {
-			seektime = 1800 + dist / 12;
-		}
-
-		int64_t samplePos = (toframe - 1ll) * 1001ll *
+		int64_t samplePos = (toFrame - 1ll) * 1001ll *
 				    video->getSampleRate() / 30000ll;
 
 		if (video->getFrameRate() == 60) {
-			video->seek(toframe * 2, samplePos);
+			video->seek(toFrame * 2, samplePos);
 		} else {
-			video->seek(toframe, samplePos);
+			video->seek(toFrame, samplePos);
 		}
 		playerState = PLAYER_STILL;
 		playingFromSample = samplePos;
-		currentFrame = toframe;
+		currentFrame = toFrame;
 
 		// Seeking clears the frame to wait for
 		waitFrame = 0;
@@ -932,9 +926,9 @@ void LaserdiscPlayer::seekFrame(size_t toframe, EmuTime::param time)
 void LaserdiscPlayer::seekChapter(int chapter, EmuTime::param time)
 {
 	if ((playerState != PLAYER_STOPPED) && video) {
-		auto frameno = video->getChapter(chapter);
-		if (!frameno) return;
-		seekFrame(frameno, time);
+		auto frameNo = video->getChapter(chapter);
+		if (!frameNo) return;
+		seekFrame(frameNo, time);
 	}
 }
 
@@ -960,28 +954,27 @@ bool LaserdiscPlayer::isVideoOutputAvailable(EmuTime::param time)
 {
 	updateStream(time);
 
-	bool videoOut;
-	switch (playerState) {
-	case PLAYER_PLAYING:
-	case PLAYER_MULTISPEED:
-	case PLAYER_STILL:
-		videoOut = !seeking;
-		break;
-	default:
-		videoOut = false;
-		break;
-	}
-	ldcontrol.videoIn(videoOut);
+	bool videoOut = [&] {
+		switch (playerState) {
+		case PLAYER_PLAYING:
+		case PLAYER_MULTISPEED:
+		case PLAYER_STILL:
+			return !seeking;
+		default:
+			return false;
+		}
+	}();
+	ldControl.videoIn(videoOut);
 
 	return videoOut;
 }
 
-void LaserdiscPlayer::preVideoSystemChange()
+void LaserdiscPlayer::preVideoSystemChange() noexcept
 {
 	renderer.reset();
 }
 
-void LaserdiscPlayer::postVideoSystemChange()
+void LaserdiscPlayer::postVideoSystemChange() noexcept
 {
 	createRenderer();
 }
@@ -992,7 +985,7 @@ void LaserdiscPlayer::createRenderer()
 	renderer = RendererFactory::createLDRenderer(*this, display);
 }
 
-static std::initializer_list<enum_string<LaserdiscPlayer::RemoteState>> RemoteStateInfo = {
+static constexpr std::initializer_list<enum_string<LaserdiscPlayer::RemoteState>> RemoteStateInfo = {
 	{ "IDLE",		LaserdiscPlayer::REMOTE_IDLE		},
 	{ "HEADER_PULSE",	LaserdiscPlayer::REMOTE_HEADER_PULSE	},
 	{ "NEC_HEADER_SPACE",	LaserdiscPlayer::NEC_HEADER_SPACE	},
@@ -1001,7 +994,7 @@ static std::initializer_list<enum_string<LaserdiscPlayer::RemoteState>> RemoteSt
 };
 SERIALIZE_ENUM(LaserdiscPlayer::RemoteState, RemoteStateInfo);
 
-static std::initializer_list<enum_string<LaserdiscPlayer::PlayerState>> PlayerStateInfo = {
+static constexpr std::initializer_list<enum_string<LaserdiscPlayer::PlayerState>> PlayerStateInfo = {
 	{ "STOPPED",		LaserdiscPlayer::PLAYER_STOPPED		},
 	{ "PLAYING",		LaserdiscPlayer::PLAYER_PLAYING		},
 	{ "MULTISPEED",		LaserdiscPlayer::PLAYER_MULTISPEED	},
@@ -1010,7 +1003,7 @@ static std::initializer_list<enum_string<LaserdiscPlayer::PlayerState>> PlayerSt
 };
 SERIALIZE_ENUM(LaserdiscPlayer::PlayerState, PlayerStateInfo);
 
-static std::initializer_list<enum_string<LaserdiscPlayer::SeekState>> SeekStateInfo = {
+static constexpr std::initializer_list<enum_string<LaserdiscPlayer::SeekState>> SeekStateInfo = {
 	{ "NONE",		LaserdiscPlayer::SEEK_NONE		},
 	{ "CHAPTER",		LaserdiscPlayer::SEEK_CHAPTER		},
 	{ "FRAME",		LaserdiscPlayer::SEEK_FRAME		},
@@ -1018,14 +1011,14 @@ static std::initializer_list<enum_string<LaserdiscPlayer::SeekState>> SeekStateI
 };
 SERIALIZE_ENUM(LaserdiscPlayer::SeekState, SeekStateInfo);
 
-static std::initializer_list<enum_string<LaserdiscPlayer::StereoMode>> StereoModeInfo = {
+static constexpr std::initializer_list<enum_string<LaserdiscPlayer::StereoMode>> StereoModeInfo = {
 	{ "LEFT",		LaserdiscPlayer::LEFT			},
 	{ "RIGHT",		LaserdiscPlayer::RIGHT			},
 	{ "STEREO",		LaserdiscPlayer::STEREO			}
 };
 SERIALIZE_ENUM(LaserdiscPlayer::StereoMode, StereoModeInfo);
 
-static std::initializer_list<enum_string<LaserdiscPlayer::RemoteProtocol>> RemoteProtocolInfo = {
+static constexpr std::initializer_list<enum_string<LaserdiscPlayer::RemoteProtocol>> RemoteProtocolInfo = {
 	{ "NONE",		LaserdiscPlayer::IR_NONE		},
 	{ "NEC",		LaserdiscPlayer::IR_NEC			},
 };
@@ -1044,7 +1037,7 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 		ar.serialize("RemoteBitNr", remoteBitNr,
 		             "RemoteBits",  remoteBits);
 		if (ar.versionBelow(version, 3)) {
-			assert(ar.isLoader());
+			assert(Archive::IS_LOADER);
 			remoteBits = Math::reverseNBits(remoteBits, remoteBitNr);
 		}
 	}
@@ -1054,7 +1047,7 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 	if (remoteProtocol != IR_NONE) {
 		ar.serialize("RemoteCode", remoteCode);
 		if (ar.versionBelow(version, 3)) {
-			assert(ar.isLoader());
+			assert(Archive::IS_LOADER);
 			remoteCode = Math::reverseByte(remoteCode);
 		}
 		ar.serialize("RemoteExecuteDelayed", remoteExecuteDelayed,
@@ -1063,7 +1056,7 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 
 	// Serialize filename
 	ar.serialize("OggImage", oggImage);
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		sampleReads = 0;
 		if (!oggImage.empty()) {
 			setImageName(oggImage.getResolved(), getCurrentTime());
@@ -1103,7 +1096,7 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 		             "FromSample",  playingFromSample,
 		             "SampleClock", sampleClock);
 
-		if (ar.isLoader()) {
+		if constexpr (Archive::IS_LOADER) {
 			// If the samplerate differs, adjust accordingly
 			if (video->getSampleRate() != sampleClock.getFreq()) {
 				uint64_t pos = playingFromSample;
@@ -1132,8 +1125,8 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 		Schedulable::restoreOld(ar, {&syncEven, &syncOdd, &syncAck});
 	}
 
-	if (ar.isLoader()) {
-		isVideoOutputAvailable(getCurrentTime());
+	if constexpr (Archive::IS_LOADER) {
+		(void)isVideoOutputAvailable(getCurrentTime());
 	}
 }
 

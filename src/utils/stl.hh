@@ -3,83 +3,23 @@
 
 #include <algorithm>
 #include <cassert>
+#include <functional>
 #include <iterator>
 #include <initializer_list>
 #include <map>
 #include <numeric>
 #include <tuple>
 #include <utility>
+#include <variant>
 #include <vector>
 
-// Dereference the two given (pointer-like) parameters and then compare
-// them with the less-than operator.
-struct LessDeref
-{
-	template<typename PTR>
-	[[nodiscard]] bool operator()(PTR p1, PTR p2) const { return *p1 < *p2; }
+// Reimplementation of c++20 std::identity.
+struct identity {
+	template<typename T>
+	[[nodiscard]] constexpr T&& operator()(T&& t) const noexcept {
+		return std::forward<T>(t);
+	}
 };
-
-
-// Compare the N-th element of two tuples using a custom comparison functor.
-// Also provides overloads to compare the N-the element of a tuple with a
-// single value (of a compatible type).
-// ATM the functor cannot take constructor arguments, possibly refactor this in
-// the future.
-template<int N, typename CMP> struct CmpTupleElement
-{
-	template<typename... Args>
-	[[nodiscard]] bool operator()(const std::tuple<Args...>& x, const std::tuple<Args...>& y) const {
-		return cmp(std::get<N>(x), std::get<N>(y));
-	}
-
-	template<typename T, typename... Args>
-	[[nodiscard]] bool operator()(const T& x, const std::tuple<Args...>& y) const {
-		return cmp(x, std::get<N>(y));
-	}
-
-	template<typename T, typename... Args>
-	[[nodiscard]] bool operator()(const std::tuple<Args...>& x, const T& y) const {
-		return cmp(std::get<N>(x), y);
-	}
-
-	template<typename T1, typename T2>
-	[[nodiscard]] bool operator()(const std::pair<T1, T2>& x, const std::pair<T1, T2>& y) const {
-		return cmp(std::get<N>(x), std::get<N>(y));
-	}
-
-	template<typename T, typename T1, typename T2>
-	[[nodiscard]] bool operator()(const T& x, const std::pair<T1, T2>& y) const {
-		return cmp(x, std::get<N>(y));
-	}
-
-	template<typename T, typename T1, typename T2>
-	[[nodiscard]] bool operator()(const std::pair<T1, T2>& x, const T& y) const {
-		return cmp(std::get<N>(x), y);
-	}
-
-private:
-	CMP cmp;
-};
-
-// Similar to CmpTupleElement above, but uses the less-than operator.
-template<int N> using LessTupleElement = CmpTupleElement<N, std::less<>>;
-
-
-// Check whether the N-the element of a tuple is equal to the given value.
-template<int N, typename T> struct EqualTupleValueImpl
-{
-	explicit EqualTupleValueImpl(const T& t_) : t(t_) {}
-	template<typename TUPLE>
-	[[nodiscard]] bool operator()(const TUPLE& tup) const {
-		return std::get<N>(tup) == t;
-	}
-private:
-	const T& t;
-};
-template<int N, typename T>
-[[nodiscard]] auto EqualTupleValue(const T& t) {
-	return EqualTupleValueImpl<N, T>(t);
-}
 
 
 /** Check if a range contains a given value, using linear search.
@@ -89,14 +29,35 @@ template<int N, typename T>
   * STL already has the 'any_of' algorithm.
   */
 template<typename ITER, typename VAL>
-[[nodiscard]] inline bool contains(ITER first, ITER last, const VAL& val)
+[[nodiscard]] constexpr bool contains(ITER first, ITER last, const VAL& val)
 {
-	return std::find(first, last, val) != last;
+	// c++20: return std::find(first, last, val) != last;
+	while (first != last) {
+		if (*first == val) return true;
+		++first;
+	}
+	return false;
 }
 template<typename RANGE, typename VAL>
-[[nodiscard]] inline bool contains(const RANGE& range, const VAL& val)
+[[nodiscard]] constexpr bool contains(const RANGE& range, const VAL& val)
 {
 	return contains(std::begin(range), std::end(range), val);
+}
+
+template<typename ITER, typename VAL, typename Proj>
+[[nodiscard]] /*constexpr*/ bool contains(ITER first, ITER last, const VAL& val, Proj proj)
+{
+	// c++20: return std::find(first, last, val) != last;
+	while (first != last) {
+		if (std::invoke(proj, *first) == val) return true;
+		++first;
+	}
+	return false;
+}
+template<typename RANGE, typename VAL, typename Proj>
+[[nodiscard]] /*constexpr*/ bool contains(const RANGE& range, const VAL& val, Proj proj)
+{
+	return contains(std::begin(range), std::end(range), val, proj);
 }
 
 
@@ -107,20 +68,16 @@ template<typename RANGE, typename VAL>
   * the 'last' parameter. Sometimes you see 'find_unguarded' without a 'last'
   * parameter, we could consider providing such an overload as well.
   */
-template<typename ITER, typename VAL>
-[[nodiscard]] inline ITER find_unguarded(ITER first, ITER last, const VAL& val)
+template<typename ITER, typename VAL, typename Proj = identity>
+[[nodiscard]] /*constexpr*/ ITER find_unguarded(ITER first, ITER last, const VAL& val, Proj proj = {})
 {
-	(void)last;
-	while (true) {
-		assert(first != last);
-		if (*first == val) return first;
-		++first;
-	}
+	return find_if_unguarded(first, last,
+		[&](const auto& e) { return std::invoke(proj, e) == val; });
 }
-template<typename RANGE, typename VAL>
-[[nodiscard]] inline auto find_unguarded(RANGE& range, const VAL& val)
+template<typename RANGE, typename VAL, typename Proj = identity>
+[[nodiscard]] /*constexpr*/ auto find_unguarded(RANGE& range, const VAL& val, Proj proj = {})
 {
-	return find_unguarded(std::begin(range), std::end(range), val);
+	return find_unguarded(std::begin(range), std::end(range), val, proj);
 }
 
 /** Faster alternative to 'find_if' when it's guaranteed that the predicate
@@ -128,7 +85,7 @@ template<typename RANGE, typename VAL>
   * See also 'find_unguarded'.
   */
 template<typename ITER, typename PRED>
-[[nodiscard]] inline ITER find_if_unguarded(ITER first, ITER last, PRED pred)
+[[nodiscard]] constexpr ITER find_if_unguarded(ITER first, ITER last, PRED pred)
 {
 	(void)last;
 	while (true) {
@@ -138,7 +95,7 @@ template<typename ITER, typename PRED>
 	}
 }
 template<typename RANGE, typename PRED>
-[[nodiscard]] inline auto find_if_unguarded(RANGE& range, PRED pred)
+[[nodiscard]] constexpr auto find_if_unguarded(RANGE& range, PRED pred)
 {
 	return find_if_unguarded(std::begin(range), std::end(range), pred);
 }
@@ -148,16 +105,16 @@ template<typename RANGE, typename PRED>
   * Note that we only need to provide range versions. Because for the iterator
   * versions it is already possible to pass reverse iterators.
   */
-template<typename RANGE, typename VAL>
-[[nodiscard]] inline auto rfind_unguarded(RANGE& range, const VAL& val)
+template<typename RANGE, typename VAL, typename Proj = identity>
+[[nodiscard]] /*constexpr*/ auto rfind_unguarded(RANGE& range, const VAL& val, Proj proj = {})
 {
-	auto it = find_unguarded(std::rbegin(range), std::rend(range), val);
+	auto it = find_unguarded(std::rbegin(range), std::rend(range), val, proj);
 	++it;
 	return it.base();
 }
 
 template<typename RANGE, typename PRED>
-[[nodiscard]] inline auto rfind_if_unguarded(RANGE& range, PRED pred)
+[[nodiscard]] constexpr auto rfind_if_unguarded(RANGE& range, PRED pred)
 {
 	auto it = find_if_unguarded(std::rbegin(range), std::rend(range), pred);
 	++it;
@@ -244,54 +201,61 @@ auto transform_in_place(ForwardRange&& range, UnaryOperation op)
 
 // Returns (a copy of) the minimum value in [first, last).
 // Requires: first != last.
-template<typename InputIterator>
-[[nodiscard]] auto min_value(InputIterator first, InputIterator last)
+template<typename InputIterator, typename Proj = identity>
+[[nodiscard]] /*constexpr*/ auto min_value(InputIterator first, InputIterator last, Proj proj = {})
 {
 	assert(first != last);
-	auto result = *first++;
+	auto result = std::invoke(proj, *first++);
 	while (first != last) {
-		result = std::min(result, *first++);
+		result = std::min(result, std::invoke(proj, *first++));
 	}
 	return result;
 }
 
-template<typename InputRange>
-[[nodiscard]] auto min_value(InputRange&& range)
+template<typename InputRange, typename Proj = identity>
+[[nodiscard]] /*constexpr*/ auto min_value(InputRange&& range, Proj proj = {})
 {
-	return min_value(std::begin(range), std::end(range));
+	return min_value(std::begin(range), std::end(range), proj);
 }
 
 // Returns (a copy of) the maximum value in [first, last).
 // Requires: first != last.
-template<typename InputIterator>
-[[nodiscard]] auto max_value(InputIterator first, InputIterator last)
+template<typename InputIterator, typename Proj = identity>
+[[nodiscard]] /*constexpr*/ auto max_value(InputIterator first, InputIterator last, Proj proj = {})
 {
 	assert(first != last);
-	auto result = *first++;
+	auto result = std::invoke(proj, *first++);
 	while (first != last) {
-		result = std::max(result, *first++);
+		result = std::max(result, std::invoke(proj, *first++));
 	}
 	return result;
 }
 
-template<typename InputRange>
-[[nodiscard]] auto max_value(InputRange&& range)
+template<typename InputRange, typename Proj = identity>
+[[nodiscard]] /*constexpr*/ auto max_value(InputRange&& range, Proj proj = {})
 {
-	return max_value(std::begin(range), std::end(range));
+	return max_value(std::begin(range), std::end(range), proj);
 }
 
 
 // Returns the sum of the elements in the given range.
 // Assumes: elements can be summed via operator+, with a default constructed
 // value being the identity-element for this operator.
-template<typename InputRange>
-[[nodiscard]] auto sum(InputRange&& range)
+template<typename InputRange, typename Proj = identity>
+[[nodiscard]] /*constexpr*/ auto sum(InputRange&& range, Proj proj = {})
 {
 	using Iter = decltype(std::begin(range));
-	using T = typename std::iterator_traits<Iter>::value_type;
-	return std::accumulate(std::begin(range), std::end(range), T());
-}
+	using VT = typename std::iterator_traits<Iter>::value_type;
+	using RT = decltype(std::invoke(proj, std::declval<VT>()));
 
+	auto first = std::begin(range);
+	auto last = std::end(range);
+	RT init{};
+	while (first != last) {
+		init = std::move(init) + std::invoke(proj, *first++);
+	}
+	return init;
+}
 
 // to_vector
 namespace detail {
@@ -326,7 +290,7 @@ template<typename T>
 namespace detail {
 
 template<typename... Ranges>
-[[nodiscard]] size_t sum_of_sizes(const Ranges&... ranges)
+[[nodiscard]] constexpr size_t sum_of_sizes(const Ranges&... ranges)
 {
     return (0 + ... + std::distance(std::begin(ranges), std::end(ranges)));
 }
@@ -421,6 +385,31 @@ template<typename T, typename... Tail>
 }
 
 
+// Concatenate two std::arrays (at compile time).
+template<typename T, size_t X, size_t Y>
+constexpr auto concatArray(const std::array<T, X>& x, const std::array<T, Y>& y)
+{
+	std::array<T, X + Y> result = {};
+	// c++20:  std::ranges::copy(x, &result[0]);
+	// c++20:  std::ranges::copy(y, &result[X]);
+	for (size_t i = 0; i < X; ++i) result[0 + i] = x[i];
+	for (size_t i = 0; i < Y; ++i) result[X + i] = y[i];
+	return result;
+}
+// TODO implement in a generic way for any number of arrays
+template<typename T, size_t X, size_t Y, size_t Z>
+constexpr auto concatArray(const std::array<T, X>& x,
+                           const std::array<T, Y>& y,
+                           const std::array<T, Z>& z)
+{
+	std::array<T, X + Y + Z> result = {};
+	for (size_t i = 0; i < X; ++i) result[        i] = x[i];
+	for (size_t i = 0; i < Y; ++i) result[X     + i] = y[i];
+	for (size_t i = 0; i < Z; ++i) result[X + Y + i] = z[i];
+	return result;
+}
+
+
 // lookup in std::map
 template<typename Key, typename Value>
 [[nodiscard]] const Value* lookup(const std::map<Key, Value>& m, const Key& k)
@@ -434,6 +423,40 @@ template<typename Key, typename Value>
 {
 	auto it = m.find(k);
 	return (it != m.end()) ? &it->second : nullptr;
+}
+
+// will likely become part of future c++ standard
+template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
+// explicit deduction guide (not needed as of C++20)
+template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+
+
+// --- Utility to retrieve the index for a given type from a std::variant ---
+
+template<typename> struct get_index_tag {};
+
+template<typename T, typename V> struct get_index;
+
+template<typename T, typename... Ts>
+struct get_index<T, std::variant<Ts...>>
+    : std::integral_constant<size_t, std::variant<get_index_tag<Ts>...>(get_index_tag<T>()).index()> {};
+
+
+// Utility to initialize an array via a generator function,
+// without first default constructing the elements.
+
+template<typename T, typename F, size_t... Is>
+[[nodiscard]] static constexpr auto generate_array(F f, std::index_sequence<Is...>)
+   -> std::array<T, sizeof...(Is)>
+{
+    return {{f(Is)...}};
+}
+
+template<size_t N, typename F>
+[[nodiscard]] static constexpr auto generate_array(F f)
+{
+    using T = decltype(f(0));
+    return generate_array<T>(f, std::make_index_sequence<N>{});
 }
 
 #endif

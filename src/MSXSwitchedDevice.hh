@@ -11,8 +11,8 @@ class MSXMotherBoard;
 class MSXSwitchedDevice
 {
 public:
-	virtual byte readSwitchedIO(word port, EmuTime::param time) = 0;
-	virtual byte peekSwitchedIO(word port, EmuTime::param time) const = 0;
+	[[nodiscard]] virtual byte readSwitchedIO(word port, EmuTime::param time) = 0;
+	[[nodiscard]] virtual byte peekSwitchedIO(word port, EmuTime::param time) const = 0;
 	virtual void writeSwitchedIO(word port, byte value, EmuTime::param time) = 0;
 
 protected:

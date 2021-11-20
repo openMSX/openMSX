@@ -12,12 +12,13 @@ Visit the HiEnd3D site for info:
 #include "HQCommon.hh"
 #include "LineScalers.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include "build-info.hh"
 #include <cstdint>
 
 namespace openmsx {
 
-template <typename Pixel> struct HQLite_1x1on3x3
+template<typename Pixel> struct HQLite_1x1on3x3
 {
 	void operator()(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 	                Pixel* out0, Pixel* out1, Pixel* out2,
@@ -25,7 +26,7 @@ template <typename Pixel> struct HQLite_1x1on3x3
 	               __restrict;
 };
 
-template <typename Pixel>
+template<typename Pixel>
 void HQLite_1x1on3x3<Pixel>::operator()(
 	const Pixel* __restrict in0, const Pixel* __restrict in1,
 	const Pixel* __restrict in2,
@@ -34,17 +35,18 @@ void HQLite_1x1on3x3<Pixel>::operator()(
 	unsigned srcWidth, unsigned* __restrict edgeBuf,
 	EdgeHQLite /*edgeOp*/) __restrict
 {
-	unsigned c2, c4, c5, c6, c8, c9;
-	c2 =      readPixel(in0[0]);
-	c5 = c6 = readPixel(in1[0]);
-	c8 = c9 = readPixel(in2[0]);
+	unsigned c2 = readPixel(in0[0]);
+	unsigned c5 = readPixel(in1[0]); unsigned c6 = c5;
+	unsigned c8 = readPixel(in2[0]); unsigned c9 = c8;
 
 	unsigned pattern = 0;
 	if (c5 != c8) pattern |= 3 <<  6;
 	if (c5 != c2) pattern |= 3 <<  9;
 
-	for (unsigned x = 0; x < srcWidth; ++x) {
-		c4 = c5; c5 = c6; c8 = c9;
+	for (auto x : xrange(srcWidth)) {
+		unsigned c4 = c5;
+		c5 = c6;
+		c8 = c9;
 		if (x != srcWidth - 1) {
 			c6 = readPixel(in1[x + 1]);
 			c9 = readPixel(in2[x + 1]);
@@ -89,14 +91,14 @@ void HQLite_1x1on3x3<Pixel>::operator()(
 }
 
 
-template <class Pixel>
+template<typename Pixel>
 HQ3xLiteScaler<Pixel>::HQ3xLiteScaler(const PixelOperations<Pixel>& pixelOps_)
 	: Scaler3<Pixel>(pixelOps_)
 	, pixelOps(pixelOps_)
 {
 }
 
-template <class Pixel>
+template<typename Pixel>
 void HQ3xLiteScaler<Pixel>::scale2x1to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -108,7 +110,7 @@ void HQ3xLiteScaler<Pixel>::scale2x1to9x3(FrameSource& src,
 	                  dst, dstStartY, dstEndY, (srcWidth * 9) / 2);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void HQ3xLiteScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -120,7 +122,7 @@ void HQ3xLiteScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 	                  dst, dstStartY, dstEndY, srcWidth * 3);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void HQ3xLiteScaler<Pixel>::scale4x1to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -132,7 +134,7 @@ void HQ3xLiteScaler<Pixel>::scale4x1to9x3(FrameSource& src,
 	                  dst, dstStartY, dstEndY, (srcWidth * 9) / 4);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void HQ3xLiteScaler<Pixel>::scale2x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -144,7 +146,7 @@ void HQ3xLiteScaler<Pixel>::scale2x1to3x3(FrameSource& src,
 	                  dst, dstStartY, dstEndY, (srcWidth * 3) / 2);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void HQ3xLiteScaler<Pixel>::scale8x1to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -156,7 +158,7 @@ void HQ3xLiteScaler<Pixel>::scale8x1to9x3(FrameSource& src,
 	                  dst, dstStartY, dstEndY, (srcWidth * 9) / 8);
 }
 
-template <class Pixel>
+template<typename Pixel>
 void HQ3xLiteScaler<Pixel>::scale4x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)

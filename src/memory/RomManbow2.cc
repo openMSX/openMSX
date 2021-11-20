@@ -3,40 +3,63 @@
 #include "DummyAY8910Periphery.hh"
 #include "SCC.hh"
 #include "MSXCPUInterface.hh"
+#include "cstd.hh"
 #include "one_of.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
+#include <array>
 #include <cassert>
 #include <memory>
-#include <vector>
 
 namespace openmsx {
 
-static std::vector<AmdFlash::SectorInfo> getSectorInfo(RomType type)
+using Info = AmdFlash::SectorInfo;
+
+// 512kB, only last 64kB writable
+static constexpr auto config1 = [] {
+	std::array<Info, 512 / 64> result = {};
+	cstd::fill(result, Info{64 * 1024, true}); // read-only
+	result[7].writeProtected = false;
+	return result;
+}();
+// 512kB, only 128kB writable
+static constexpr auto config2 = [] {
+	std::array<Info, 512 / 64> result = {};
+	cstd::fill(result, Info{64 * 1024, true}); // read-only
+	result[4].writeProtected = false;
+	result[5].writeProtected = false;
+	return result;
+}();
+// fully writeable, 512kB
+static constexpr auto config3 = [] {
+	std::array<Info, 512 / 64> result = {};
+	cstd::fill(result, Info{64 * 1024, false});
+	return result;
+}();
+// fully writeable, 2MB
+static constexpr auto config4 = [] {
+	std::array<Info, 2048 / 64> result = {};
+	cstd::fill(result, Info{64 * 1024, false});
+	return result;
+}();
+[[nodiscard]] static constexpr span<const Info> getSectorInfo(RomType type)
 {
 	switch (type) {
 	case ROM_MANBOW2:
-	case ROM_MANBOW2_2: { // only the last 64kb is writeable
-		std::vector<AmdFlash::SectorInfo> sectorInfo(512 / 64, {0x10000, true}); // none writable
-		sectorInfo[7].writeProtected = false;
-		return sectorInfo;
-	}
-	case ROM_HAMARAJANIGHT: { // only 128kb is writeable
-		std::vector<AmdFlash::SectorInfo> sectorInfo(512 / 64, {0x10000, true}); // none writable
-		sectorInfo[4].writeProtected = false;
-		sectorInfo[5].writeProtected = false;
-		return sectorInfo;
-	}
-	case ROM_MEGAFLASHROMSCC: // fully writeable, 512kB
-		return std::vector<AmdFlash::SectorInfo>(512 / 64, {0x10000, false});
-	case ROM_RBSC_FLASH_KONAMI_SCC: // fully writeable, 2MB
-		return std::vector<AmdFlash::SectorInfo>(2048 / 64, {0x10000, false});
+	case ROM_MANBOW2_2:
+		return config1;
+	case ROM_HAMARAJANIGHT:
+		return config2;
+	case ROM_MEGAFLASHROMSCC:
+		return config3;
+	case ROM_RBSC_FLASH_KONAMI_SCC:
+		return config4;
 	default:
 		UNREACHABLE;
-		return std::vector<AmdFlash::SectorInfo>{};
+		return config1; // dummy
 	}
 }
-
 
 RomManbow2::RomManbow2(const DeviceConfig& config, Rom&& rom_,
                        RomType type)
@@ -50,7 +73,9 @@ RomManbow2::RomManbow2(const DeviceConfig& config, Rom&& rom_,
 			getName() + " PSG", DummyAY8910Periphery::instance(),
 			config, getCurrentTime())
 		: nullptr)
-	, flash(rom, getSectorInfo(type), type == ROM_RBSC_FLASH_KONAMI_SCC ? 0x01AD : 0x01A4, false, config)
+	, flash(rom, getSectorInfo(type),
+	        type == ROM_RBSC_FLASH_KONAMI_SCC ? 0x01AD : 0x01A4,
+		AmdFlash::Addressing::BITS_11, config)
 	, romBlockDebug(*this, bank, 0x4000, 0x8000, 13)
 {
 	powerUp(getCurrentTime());
@@ -81,7 +106,7 @@ void RomManbow2::powerUp(EmuTime::param time)
 
 void RomManbow2::reset(EmuTime::param time)
 {
-	for (int i = 0; i < 4; i++) {
+	for (auto i : xrange(4)) {
 		setRom(i, i);
 	}
 

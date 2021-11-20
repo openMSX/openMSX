@@ -1,10 +1,8 @@
 #include "LaserdiscPlayerCLI.hh"
 #include "CommandLineParser.hh"
-#include "GlobalCommandController.hh"
+#include "Interpreter.hh"
 #include "MSXException.hh"
 #include "TclObject.hh"
-
-using std::string;
 
 namespace openmsx {
 
@@ -15,7 +13,7 @@ LaserdiscPlayerCLI::LaserdiscPlayerCLI(CommandLineParser& parser_)
 	parser.registerFileType({"ogv"}, *this);
 }
 
-void LaserdiscPlayerCLI::parseOption(const string& option, span<string>& cmdLine)
+void LaserdiscPlayerCLI::parseOption(const std::string& option, span<std::string>& cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine), cmdLine);
 }
@@ -26,10 +24,10 @@ std::string_view LaserdiscPlayerCLI::optionHelp() const
 	       "virtual LaserDisc player";
 }
 
-void LaserdiscPlayerCLI::parseFileType(const string& filename,
-                                       span<string>& /*cmdLine*/)
+void LaserdiscPlayerCLI::parseFileType(const std::string& filename,
+                                       span<std::string>& /*cmdLine*/)
 {
-	if (!parser.getGlobalCommandController().hasCommand("laserdiscplayer")) {
+	if (!parser.getInterpreter().hasCommand("laserdiscplayer")) {
 		throw MSXException("No LaserDisc player present.");
 	}
 	TclObject command = makeTclList("laserdiscplayer", "insert", filename);

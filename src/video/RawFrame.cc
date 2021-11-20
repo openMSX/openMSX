@@ -1,4 +1,5 @@
 #include "RawFrame.hh"
+#include "PixelFormat.hh"
 #include <cstdint>
 
 namespace openmsx {
@@ -22,7 +23,7 @@ RawFrame::RawFrame(
 
 	// Start with a black frame.
 	init(FIELD_NONINTERLACED);
-	for (unsigned line = 0; line < height_; line++) {
+	for (auto line : xrange(height_)) {
 		if (bytesPerPixel == 2) {
 			setBlank(line, static_cast<uint16_t>(0));
 		} else {

@@ -49,65 +49,53 @@ void VictorFDC::reset(EmuTime::param time)
 
 byte VictorFDC::readMem(word address, EmuTime::param time)
 {
-	byte value;
 	switch (address) {
 	case 0x7FF8:
-		value = controller.getStatusReg(time);
-		break;
+		return controller.getStatusReg(time);
 	case 0x7FF9:
-		value = controller.getTrackReg(time);
-		break;
+		return controller.getTrackReg(time);
 	case 0x7FFA:
-		value = controller.getSectorReg(time);
-		break;
+		return controller.getSectorReg(time);
 	case 0x7FFB:
-		value = controller.getDataReg(time);
-		break;
-	case 0x7FFC:
-		value = driveControls;
+		return controller.getDataReg(time);
+	case 0x7FFC: {
+		byte value = driveControls;
 		if (controller.getIRQ(time))  value |= INTR_REQUEST;
 		if (controller.getDTRQ(time)) value |= DATA_REQUEST;
 		value ^= SIDE_SELECT; // inverted
-		break;
-	default:
-		value = VictorFDC::peekMem(address, time);
-		break;
+		return value;
 	}
-	return value;
+	default:
+		return VictorFDC::peekMem(address, time);
+	}
 }
 
 byte VictorFDC::peekMem(word address, EmuTime::param time) const
 {
-	byte value;
 	switch (address) {
 	case 0x7FF8:
-		value = controller.peekStatusReg(time);
-		break;
+		return controller.peekStatusReg(time);
 	case 0x7FF9:
-		value = controller.peekTrackReg(time);
-		break;
+		return controller.peekTrackReg(time);
 	case 0x7FFA:
-		value = controller.peekSectorReg(time);
-		break;
+		return controller.peekSectorReg(time);
 	case 0x7FFB:
-		value = controller.peekDataReg(time);
-		break;
-	case 0x7FFC:
-		value = driveControls;
+		return controller.peekDataReg(time);
+	case 0x7FFC: {
+		byte value = driveControls;
 		if (controller.peekIRQ(time))  value |= INTR_REQUEST;
 		if (controller.peekDTRQ(time)) value |= DATA_REQUEST;
 		value ^= SIDE_SELECT; // inverted
-		break;
+		return value;
+	}
 	default:
 		if ((0x4000 <= address) && (address < 0x8000)) {
 			// ROM only visible in 0x4000-0x7FFF
-			value = MSXFDC::peekMem(address, time);
+			return MSXFDC::peekMem(address, time);
 		} else {
-			value = 255;
+			return 255;
 		}
-		break;
 	}
-	return value;
 }
 
 const byte* VictorFDC::getReadCacheLine(word start) const
@@ -139,12 +127,11 @@ void VictorFDC::writeMem(word address, byte value, EmuTime::param time)
 		controller.setDataReg(value, time);
 		break;
 	case 0x7FFC:
-		DriveMultiplexer::DriveNum drive;
-		if ((value & DRIVE_DISABLE) != 0) {
-			drive = DriveMultiplexer::NO_DRIVE;
-		} else {
-			drive = ((value & DRIVE_SELECT) != 0) ? DriveMultiplexer::DRIVE_B : DriveMultiplexer::DRIVE_A;
-		}
+		DriveMultiplexer::DriveNum drive
+			= ((value & DRIVE_DISABLE) != 0)
+			? DriveMultiplexer::NO_DRIVE
+			: (((value & DRIVE_SELECT) != 0) ? DriveMultiplexer::DRIVE_B
+			                                 : DriveMultiplexer::DRIVE_A);
 		multiplexer.selectDrive(drive, time);
 		multiplexer.setSide((value & SIDE_SELECT) != 0);
 		multiplexer.setMotor((drive == DriveMultiplexer::DRIVE_A) ? ((value & DRIVE_A_MOTOR) != 0) : ((value & DRIVE_B_MOTOR) != 0), time); // this is not 100% correct: the motors can be controlled independently via bit 0 and 1

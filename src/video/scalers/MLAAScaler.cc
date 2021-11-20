@@ -12,7 +12,7 @@
 
 namespace openmsx {
 
-template <class Pixel>
+template<typename Pixel>
 MLAAScaler<Pixel>::MLAAScaler(
 		unsigned dstWidth_, const PixelOperations<Pixel>& pixelOps_)
 	: pixelOps(pixelOps_)
@@ -20,7 +20,7 @@ MLAAScaler<Pixel>::MLAAScaler(
 {
 }
 
-template <class Pixel>
+template<typename Pixel>
 void MLAAScaler<Pixel>::scaleImage(
 		FrameSource& src, const RawFrame* superImpose,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
@@ -45,7 +45,7 @@ void MLAAScaler<Pixel>::scaleImage(
 	std::vector<MemBuffer<Pixel, SSE_ALIGNMENT>> workBuffer;
 	const Pixel* line = nullptr;
 	Pixel* work = nullptr;
-	for (int y = -1; y < srcNumLines + 1; y++) {
+	for (auto y : xrange(-1, srcNumLines + 1)) {
 		if (line == work) {
 			// Allocate new workBuffer when needed
 			// e.g. when used in previous iteration
@@ -58,9 +58,9 @@ void MLAAScaler<Pixel>::scaleImage(
 	enum { UP = 1 << 0, RIGHT = 1 << 1, DOWN = 1 << 2, LEFT = 1 << 3 };
 	MemBuffer<uint8_t> edges(srcNumLines * srcWidth);
 	uint8_t* edgeGenPtr = edges.data();
-	for (int y = 0; y < srcNumLines; y++) {
+	for (auto y : xrange(srcNumLines)) {
 		auto* srcLinePtr = srcLinePtrs[y];
-		for (unsigned x = 0; x < srcWidth; x++) {
+		for (auto x : xrange(srcWidth)) {
 			Pixel colMid = srcLinePtr[x];
 			uint8_t pixEdges = 0;
 			if (x > 0 && srcLinePtr[x - 1] != colMid) {
@@ -107,7 +107,7 @@ void MLAAScaler<Pixel>::scaleImage(
 	MemBuffer<unsigned> horizontals(srcNumLines * srcWidth);
 	unsigned* horizontalGenPtr = horizontals.data();
 	const uint8_t* edgePtr = edges.data();
-	for (int y = 0; y < srcNumLines; y++) {
+	for (auto y : xrange(srcNumLines)) {
 		unsigned x = 0;
 		while (x < srcWidth) {
 			// Check which corners are part of a slope.
@@ -173,7 +173,7 @@ void MLAAScaler<Pixel>::scaleImage(
 					*horizontalGenPtr++ = EDGE_START | EDGE_END | slopes | lengths;
 				} else {
 					*horizontalGenPtr++ = EDGE_START | slopes | lengths;
-					for (unsigned i = 1; i < length - 1; i++) {
+					for (auto i : xrange(1u, length - 1)) {
 						*horizontalGenPtr++ = EDGE_INNER | slopes | i;
 					}
 					*horizontalGenPtr++ = EDGE_END | slopes | lengths;
@@ -190,7 +190,7 @@ void MLAAScaler<Pixel>::scaleImage(
 	// Find vertical edges.
 	MemBuffer<unsigned> verticals(srcNumLines * srcWidth);
 	edgePtr = edges.data();
-	for (unsigned x = 0; x < srcWidth; x++) {
+	for (auto x : xrange(srcWidth)) {
 		unsigned* verticalGenPtr = &verticals[x];
 		int y = 0;
 		while (y < srcNumLines) {
@@ -257,7 +257,7 @@ void MLAAScaler<Pixel>::scaleImage(
 				} else {
 					*verticalGenPtr = EDGE_START | slopes | lengths;
 					verticalGenPtr += srcWidth;
-					for (unsigned i = 1; i < length - 1; i++) {
+					for (auto i : xrange(1u, length - 1)) {
 						// TODO: To be fully accurate we need to have separate
 						//       start/stop points for the two possible edges
 						//       of this pixel. No code uses the inner info yet
@@ -278,18 +278,18 @@ void MLAAScaler<Pixel>::scaleImage(
 	assert(unsigned(edgePtr - edges.data()) == srcWidth);
 
 	VLA(Pixel*, dstLines, dst.getHeight());
-	for (unsigned i = dstStartY; i < dstEndY; ++i) {
+	for (auto i : xrange(dstStartY, dstEndY)) {
 		dstLines[i] = dst.acquireLine(i);
 	}
 
 	// Do a mosaic scale so every destination pixel has a color.
 	unsigned dstY = dstStartY;
-	for (int y = 0; y < srcNumLines; y++) {
+	for (auto y : xrange(srcNumLines)) {
 		auto* srcLinePtr = srcLinePtrs[y];
-		for (unsigned x = 0; x < srcWidth; x++) {
+		for (auto x : xrange(srcWidth)) {
 			Pixel col = srcLinePtr[x];
-			for (unsigned iy = 0; iy < zoomFactorY; ++iy) {
-				for (unsigned ix = 0; ix < zoomFactorX; ++ix) {
+			for (auto iy : xrange(zoomFactorY)) {
+				for (auto ix : xrange(zoomFactorX)) {
 					dstLines[dstY + iy][x * zoomFactorX + ix] = col;
 				}
 			}
@@ -300,7 +300,7 @@ void MLAAScaler<Pixel>::scaleImage(
 	// Render the horizontal edges.
 	const unsigned* horizontalPtr = horizontals.data();
 	dstY = dstStartY;
-	for (int y = 0; y < srcNumLines; y++) {
+	for (auto y : xrange(srcNumLines)) {
 		unsigned x = 0;
 		while (x < srcWidth) {
 			// Fetch information about the edge, if any, at the current pixel.
@@ -347,19 +347,17 @@ void MLAAScaler<Pixel>::scaleImage(
 			const unsigned x1 =
 				  slopeTopLeft
 				? (startX + topEndX) * zoomFactorX
-				: ( slopeBotLeft
+				: (slopeBotLeft
 				  ? (startX + botEndX) * zoomFactorX
-				  : x0
-				  );
+				  : x0);
 			const unsigned x3 = endX * 2 * zoomFactorX;
 			const unsigned x2 =
 				  slopeTopRight
 				? (startX + topEndX) * zoomFactorX
-				: ( slopeBotRight
+				: (slopeBotRight
 				  ? (startX + botEndX) * zoomFactorX
-				  : x3
-				  );
-			for (unsigned iy = 0; iy < zoomFactorY; iy++) {
+				  : x3);
+			for (auto iy : xrange(zoomFactorY)) {
 				auto* dstLinePtr = dstLines[dstY + iy];
 
 				// Figure out which parts of the line should be blended.
@@ -381,15 +379,12 @@ void MLAAScaler<Pixel>::scaleImage(
 					// TODO: This is implied by !(slopeTopLeft && slopeBotLeft),
 					//       which is ensured by a temporary measure.
 					assert(!(blendTopLeft && blendBotLeft));
-					const Pixel* srcMixLinePtr;
-					float lineY;
-					if (blendTopLeft) {
-						srcMixLinePtr = srcTopLinePtr;
-						lineY = (zoomFactorY - 1 - iy) / float(zoomFactorY);
-					} else {
-						srcMixLinePtr = srcBotLinePtr;
-						lineY = iy / float(zoomFactorY);
-					}
+					const Pixel* srcMixLinePtr = blendTopLeft
+						? srcTopLinePtr
+						: srcBotLinePtr;
+					float lineY = blendTopLeft
+						? ((zoomFactorY - 1 - iy) / float(zoomFactorY))
+						: (iy / float(zoomFactorY));
 					for (unsigned fx = x0 | 1; fx < x1; fx += 2) {
 						float rx = (fx - x0) / float(x1 - x0);
 						float ry = 0.5f + rx * 0.5f;
@@ -406,15 +401,12 @@ void MLAAScaler<Pixel>::scaleImage(
 					// TODO: This is implied by !(slopeTopRight && slopeBotRight),
 					//       which is ensured by a temporary measure.
 					assert(!(blendTopRight && blendBotRight));
-					const Pixel* srcMixLinePtr;
-					float lineY;
-					if (blendTopRight) {
-						srcMixLinePtr = srcTopLinePtr;
-						lineY = (zoomFactorY - 1 - iy) / float(zoomFactorY);
-					} else {
-						srcMixLinePtr = srcBotLinePtr;
-						lineY = iy / float(zoomFactorY);
-					}
+					const Pixel* srcMixLinePtr = blendTopRight
+						? srcTopLinePtr
+						: srcBotLinePtr;
+					float lineY = blendTopRight
+						? ((zoomFactorY - 1 - iy) / float(zoomFactorY))
+						: (iy / float(zoomFactorY));
 					// TODO: The weight is slightly too high for the middle
 					//       pixel when zoomFactorX is odd and we are rendering
 					//       a U-shape.
@@ -467,7 +459,7 @@ void MLAAScaler<Pixel>::scaleImage(
 	assert(unsigned(horizontalPtr - horizontals.data()) == srcNumLines * srcWidth);
 
 	// Render the vertical edges.
-	for (unsigned x = 0; x < srcWidth; x++) {
+	for (auto x : xrange(srcWidth)) {
 		const unsigned* verticalPtr = &verticals[x];
 		int y = 0;
 		while (y < srcNumLines) {
@@ -514,19 +506,17 @@ void MLAAScaler<Pixel>::scaleImage(
 			const unsigned y1 =
 				  slopeTopLeft
 				? (startY + leftEndY) * zoomFactorY
-				: ( slopeTopRight
+				: (slopeTopRight
 				  ? (startY + rightEndY) * zoomFactorY
-				  : y0
-				  );
+				  : y0);
 			const unsigned y3 = endY * 2 * zoomFactorY;
 			const unsigned y2 =
 				  slopeBotLeft
 				? (startY + leftEndY) * zoomFactorY
-				: ( slopeBotRight
+				: (slopeBotRight
 				  ? (startY + rightEndY) * zoomFactorY
-				  : y3
-				  );
-			for (unsigned ix = 0; ix < zoomFactorX; ix++) {
+				  : y3);
+			for (auto ix : xrange(zoomFactorX)) {
 				const unsigned fx = x * zoomFactorX + ix;
 
 				// Figure out which parts of the line should be blended.
@@ -546,15 +536,10 @@ void MLAAScaler<Pixel>::scaleImage(
 				// Render top side.
 				if (blendTopLeft || blendTopRight) {
 					assert(!(blendTopLeft && blendTopRight));
-					unsigned mixX;
-					float lineX;
-					if (blendTopLeft) {
-						mixX = leftX;
-						lineX = (zoomFactorX - 1 - ix) / float(zoomFactorX);
-					} else {
-						mixX = rightX;
-						lineX = ix / float(zoomFactorX);
-					}
+					unsigned mixX = blendTopLeft ? leftX : rightX;
+					float lineX = blendTopLeft
+						? ((zoomFactorX - 1 - ix) / float(zoomFactorX))
+						: (ix / float(zoomFactorX));
 					for (unsigned fy = y0 | 1; fy < y1; fy += 2) {
 						auto* dstLinePtr = dstLines[dstStartY + fy / 2];
 						float ry = (fy - y0) / float(y1 - y0);
@@ -570,15 +555,10 @@ void MLAAScaler<Pixel>::scaleImage(
 				// Render bottom side.
 				if (blendBotLeft || blendBotRight) {
 					assert(!(blendBotLeft && blendBotRight));
-					unsigned mixX;
-					float lineX;
-					if (blendBotLeft) {
-						mixX = leftX;
-						lineX = (zoomFactorX - 1 - ix) / float(zoomFactorX);
-					} else {
-						mixX = rightX;
-						lineX = ix / float(zoomFactorX);
-					}
+					unsigned mixX = blendBotLeft ? leftX : rightX;
+					float lineX = blendBotLeft
+						? ((zoomFactorX - 1 - ix) / float(zoomFactorX))
+						: (ix / float(zoomFactorX));
 					for (unsigned fy = y2 | 1; fy < y3; fy += 2) {
 						auto* dstLinePtr = dstLines[dstStartY + fy / 2];
 						float ry = (fy - y2) / float(y3 - y2);
@@ -637,13 +617,13 @@ void MLAAScaler<Pixel>::scaleImage(
 	// TODO: This is compensation for the fact that we do not support
 	//       non-integer zoom factors yet.
 	if (srcWidth * zoomFactorX != dstWidth) {
-		for (unsigned dy = dstStartY; dy < dstY; dy++) {
+		for (auto dy : xrange(dstStartY, dstY)) {
 			unsigned sy = std::min(
 				(dy - dstStartY) / zoomFactorY - srcStartY,
 				unsigned(srcNumLines)
 				);
 			Pixel col = srcLinePtrs[sy][srcWidth - 1];
-			for (unsigned dx = srcWidth * zoomFactorX; dx < dstWidth; dx++) {
+			for (auto dx : xrange(srcWidth * zoomFactorX, dstWidth)) {
 				dstLines[dy][dx] = col;
 			}
 		}
@@ -652,14 +632,14 @@ void MLAAScaler<Pixel>::scaleImage(
 		// Typically this will pick the border color, but there is no guarantee.
 		// However, we're inside a workaround anyway, so it's good enough.
 		Pixel col = srcLinePtrs[srcNumLines - 1][srcWidth - 1];
-		for (unsigned dy = dstY; dy < dstEndY; dy++) {
-			for (unsigned dx = 0; dx < dstWidth; dx++) {
+		for (auto dy : xrange(dstY, dstEndY)) {
+			for (auto dx : xrange(dstWidth)) {
 				dstLines[dy][dx] = col;
 			}
 		}
 	}
 
-	for (unsigned i = dstStartY; i < dstEndY; ++i) {
+	for (auto i : xrange(dstStartY, dstEndY)) {
 		dst.releaseLine(i, dstLines[i]);
 	}
 }

@@ -3,6 +3,7 @@
 
 #include "BaseImage.hh"
 #include "GLUtil.hh"
+#include "span.hh"
 #include <cstdint>
 #include <string>
 
@@ -18,7 +19,7 @@ public:
 	GLImage(OutputSurface& output, const std::string& filename, float scaleFactor);
 	GLImage(OutputSurface& output, const std::string& filename, gl::ivec2 size);
 	GLImage(OutputSurface& output, gl::ivec2 size, unsigned rgba);
-	GLImage(OutputSurface& output, gl::ivec2 size, const unsigned* rgba,
+	GLImage(OutputSurface& output, gl::ivec2 size, span<const unsigned, 4> rgba,
 	        int borderSize, unsigned borderRGBA);
 
 	void draw(OutputSurface& output, gl::ivec2 pos,
@@ -27,6 +28,7 @@ public:
 private:
 	void initBuffers();
 
+private:
 	gl::BufferObject vbo[3];
 	gl::BufferObject elementsBuffer;
 	gl::Texture texture; // must come after size

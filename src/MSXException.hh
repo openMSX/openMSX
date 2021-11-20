@@ -20,8 +20,8 @@ public:
 	{
 	}
 
-	const std::string& getMessage() const &  { return message; }
-	      std::string  getMessage()       && { return std::move(message); }
+	[[nodiscard]] const std::string& getMessage() const &  { return message; }
+	[[nodiscard]]       std::string  getMessage()       && { return std::move(message); }
 
 private:
 	std::string message;
@@ -39,8 +39,8 @@ public:
 	{
 	}
 
-	const std::string& getMessage() const &  { return message; }
-	      std::string  getMessage()       && { return std::move(message); }
+	[[nodiscard]] const std::string& getMessage() const &  { return message; }
+	[[nodiscard]]       std::string  getMessage()       && { return std::move(message); }
 
 private:
 	std::string message;

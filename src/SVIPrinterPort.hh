@@ -13,17 +13,17 @@ class SVIPrinterPort final : public MSXDevice, public Connector
 public:
 	SVIPrinterPort(const DeviceConfig& config);
 
-	PrinterPortDevice& getPluggedPrintDev() const;
+	[[nodiscard]] PrinterPortDevice& getPluggedPrintDev() const;
 
 	// MSXDevice
 	void reset(EmuTime::param time) override;
-	byte readIO(word port, EmuTime::param time) override;
-	byte peekIO(word port, EmuTime::param time) const override;
+	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
+	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
 	void writeIO(word port, byte value, EmuTime::param time) override;
 
 	// Connector
-	std::string_view getDescription() const override;
-	std::string_view getClass() const override;
+	[[nodiscard]] std::string_view getDescription() const override;
+	[[nodiscard]] std::string_view getClass() const override;
 	void plug(Pluggable& dev, EmuTime::param time) override;
 
 	template<typename Archive>
@@ -33,6 +33,7 @@ private:
 	void setStrobe(bool newStrobe, EmuTime::param time);
 	void writeData(byte newData, EmuTime::param time);
 
+private:
 	bool strobe;
 	byte data;
 };

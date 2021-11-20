@@ -1,5 +1,6 @@
 #include "tiger.hh"
 #include "endian.hh"
+#include "xrange.hh"
 #include "build-info.hh"
 #include <cassert>
 #include <cstring>
@@ -16,21 +17,24 @@ std::string TigerHash::toString() const
 	const uint8_t* end = src + 24;
 
 	unsigned bit = 0;
-	uint8_t tmp;
 	while (src != end) {
-		if (bit > 3) {
-			tmp = *src & (0xFF >> bit);
-			bit = (bit + 5) % 8;
-			tmp <<= bit;
-			++src;
-			if (src != end) {
-				tmp |= *src >> (8 - bit);
+		uint8_t tmp = [&] {
+			if (bit > 3) {
+				uint8_t t = *src & (0xFF >> bit);
+				bit = (bit + 5) % 8;
+				t <<= bit;
+				++src;
+				if (src != end) {
+					t |= *src >> (8 - bit);
+				}
+				return t;
+			} else {
+				uint8_t t = (*src >> (3 - bit)) & 0x1F;
+				bit = (bit + 5) % 8;
+				if (bit == 0) ++src;
+				return t;
 			}
-		} else {
-			tmp = (*src >> (3 - bit)) & 0x1F;
-			bit = (bit + 5) % 8;
-			if (bit == 0) ++src;
-		}
+		}();
 		assert(tmp < 32);
 		result += chars[tmp];
 	}
@@ -554,7 +558,7 @@ constexpr uint64_t table[4 * 256] = {
 	0xC83223F1720AEF96ULL, 0xC3A0396F7363A51FULL,  // 1022
 };
 
-static inline void round(uint64_t& a, uint64_t& b, uint64_t& c, uint64_t x, int mul)
+static constexpr void round(uint64_t& a, uint64_t& b, uint64_t& c, uint64_t x, int mul)
 {
 	c ^= x;
 	a -= table[uint8_t(c >>  0) + 0 * 256] ^
@@ -653,7 +657,7 @@ static void tiger_compress(const uint8_t* str, uint64_t state[3])
 	state[2] = c + cc;
 }
 
-static inline void initState(uint64_t state[3])
+static constexpr void initState(uint64_t state[3])
 {
 	state[0] = 0x0123456789ABCDEFULL;
 	state[1] = 0xFEDCBA9876543210ULL;
@@ -661,10 +665,10 @@ static inline void initState(uint64_t state[3])
 }
 static inline void returnState(uint64_t state[3])
 {
-	if (OPENMSX_BIGENDIAN) {
-		state[0] = Endian::bswap64(state[0]);
-		state[1] = Endian::bswap64(state[1]);
-		state[2] = Endian::bswap64(state[2]);
+	if constexpr (OPENMSX_BIGENDIAN) {
+		state[0] = Endian::byteswap64(state[0]);
+		state[1] = Endian::byteswap64(state[1]);
+		state[2] = Endian::byteswap64(state[2]);
 	}
 }
 
@@ -674,14 +678,14 @@ void tiger(const uint8_t* str, size_t length, TigerHash& result)
 
 	initState(result.h64);
 
-	size_t i;
-	for (i = length; i >= 64; i -= 64) {
+	size_t i = length;
+	for (/**/; i >= 64; i -= 64) {
 		tiger_compress(str, result.h64);
 		str += 64;
 	}
 
-	size_t j;
-	for (j = 0; j < i; ++j) {
+	size_t j = 0;
+	for (/**/; j < i; ++j) {
 		temp[j] = str[j];
 	}
 
@@ -743,7 +747,7 @@ void tiger_leaf(/*const*/ uint8_t data[1024], TigerHash& result)
 
 	auto backup = data[-1];
 	data[-1] = 0;
-	for (int i = 0; i < 16; ++i) {
+	for (auto i : xrange(16)) {
 		tiger_compress(data - 1 + i * 64, result.h64);
 	}
 	data[-1] = backup;

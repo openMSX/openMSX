@@ -13,17 +13,17 @@ union T32 {
 	L32 le;
 };
 
-TEST_CASE("endian: bswap")
+TEST_CASE("endian: byteswap")
 {
-	CHECK(bswap16(0x1122) == 0x2211);
-	CHECK(bswap32(0x11223344) == 0x44332211);
-	CHECK(bswap64(0x1122334455667788) == 0x8877665544332211);
+	CHECK(byteswap16(0x1122) == 0x2211);
+	CHECK(byteswap32(0x11223344) == 0x44332211);
+	CHECK(byteswap64(0x1122334455667788) == 0x8877665544332211);
 
-	CHECK(bswap(uint16_t(0x1234)) == 0x3412);
-	CHECK(bswap(uint32_t(0x12345678)) == 0x78563412);
-	CHECK(bswap(uint64_t(0x123456789abcdef0)) == 0xf0debc9a78563412);
+	CHECK(byteswap(uint16_t(0x1234)) == 0x3412);
+	CHECK(byteswap(uint32_t(0x12345678)) == 0x78563412);
+	CHECK(byteswap(uint64_t(0x123456789abcdef0)) == 0xf0debc9a78563412);
 
-	BSwap swapper;
+	ByteSwap swapper;
 	CHECK(swapper(uint16_t(0xaabb)) == 0xbbaa);
 	CHECK(swapper(uint32_t(0xaabbccdd)) == 0xddccbbaa);
 	CHECK(swapper(uint64_t(0xaabbccddeeff0011)) == 0x1100ffeeddccbbaa);
@@ -95,10 +95,10 @@ TEST_CASE("endian: 32-bit")
 
 // Small functions to inspect code quality
 
-uint16_t testSwap16(uint16_t x) { return bswap16(x); }
-uint16_t testSwap16()           { return bswap16(0x1234); }
-uint32_t testSwap32(uint32_t x) { return bswap32(x); }
-uint32_t testSwap32()           { return bswap32(0x12345678); }
+uint16_t testSwap16(uint16_t x) { return byteswap16(x); }
+uint16_t testSwap16()           { return byteswap16(0x1234); }
+uint32_t testSwap32(uint32_t x) { return byteswap32(x); }
+uint32_t testSwap32()           { return byteswap32(0x12345678); }
 
 void test1(T16& t, uint16_t x) { t.le = x; }
 void test2(T16& t, uint16_t x) { t.be = x; }

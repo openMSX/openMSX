@@ -2,16 +2,16 @@
 #define NOWINDINTERFACE_HH
 
 #include "MSXDevice.hh"
+#include "NowindCommand.hh"
 #include "NowindHost.hh"
 #include "Rom.hh"
 #include "AmdFlash.hh"
 #include <bitset>
-#include <memory>
+#include <optional>
 #include <string>
+#include <vector>
 
 namespace openmsx {
-
-class NowindCommand;
 
 class NowindInterface final : public MSXDevice
 {
@@ -20,20 +20,21 @@ public:
 	~NowindInterface() override;
 
 	void reset(EmuTime::param time) override;
-	byte peekMem(word address, EmuTime::param time) const override;
-	byte readMem(word address, EmuTime::param time) override;
+	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;
+	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
 	void writeMem(word address, byte value, EmuTime::param time) override;
-	const byte* getReadCacheLine(word address) const override;
-	byte* getWriteCacheLine(word address) const override;
+	[[nodiscard]] const byte* getReadCacheLine(word address) const override;
+	[[nodiscard]] byte* getWriteCacheLine(word address) const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
 	Rom rom;
+	const std::vector<AmdFlash::SectorInfo> flashConfig;
 	AmdFlash flash;
 	NowindHost host;
-	std::unique_ptr<NowindCommand> command;
+	std::optional<NowindCommand> command; // because of delayed initialization
 	NowindHost::Drives drives;
 	std::string basename;
 	byte bank;

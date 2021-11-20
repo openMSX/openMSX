@@ -21,22 +21,20 @@ void MSXPac::reset(EmuTime::param /*time*/)
 
 byte MSXPac::readMem(word address, EmuTime::param /*time*/)
 {
-	byte result;
 	address &= 0x3FFF;
 	if (sramEnabled) {
 		if (address < 0x1FFE) {
-			result = sram[address];
+			return sram[address];
 		} else if (address == 0x1FFE) {
-			result = r1ffe;
+			return r1ffe;
 		} else if (address == 0x1FFF) {
-			result = r1fff;
+			return r1fff;
 		} else {
-			result = 0xFF;
+			return 0xFF;
 		}
 	} else {
-		result = 0xFF;
+		return 0xFF;
 	}
-	return result;
 }
 
 const byte* MSXPac::getReadCacheLine(word address) const
@@ -103,7 +101,7 @@ void MSXPac::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("SRAM",  sram,
 	             "r1ffe", r1ffe,
 	             "r1fff", r1fff);
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		checkSramEnable();
 	}
 }

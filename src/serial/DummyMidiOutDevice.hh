@@ -10,7 +10,7 @@ class DummyMidiOutDevice final : public MidiOutDevice
 public:
 	// SerialDataInterface (part)
 	void recvByte(byte value, EmuTime::param time) override;
-	std::string_view getDescription() const override;
+	[[nodiscard]] std::string_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 };

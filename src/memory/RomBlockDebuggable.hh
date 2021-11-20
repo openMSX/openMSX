@@ -45,7 +45,7 @@ public:
 	{
 	}
 
-	byte read(unsigned address) override
+	[[nodiscard]] byte read(unsigned address) override
 	{
 		unsigned addr = address - startAddress;
 		if (addr < mappedSize) {

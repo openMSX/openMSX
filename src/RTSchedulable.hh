@@ -17,7 +17,7 @@ public:
 
 	void scheduleRT(uint64_t delta);
 	bool cancelRT();
-	bool isPendingRT() const;
+	[[nodiscard]] bool isPendingRT() const;
 
 protected:
 	explicit RTSchedulable(RTScheduler& scheduler);

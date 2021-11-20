@@ -9,7 +9,7 @@ namespace openmsx {
 
 /**
  * Read the complete file once and discard result. Hopefully the file
- * sticks in the OS cache. Mainly useful to avoid CDROM spinups or to
+ * sticks in the OS cache. Mainly useful to avoid CD-ROM spinups or to
  * speed up real floppy disk (/dev/fd0) reads.
  */
 class PreCacheFile final
@@ -21,6 +21,7 @@ public:
 private:
 	void run();
 
+private:
 	const std::string name;
 	std::thread thread;
 	std::atomic<bool> exitLoop;

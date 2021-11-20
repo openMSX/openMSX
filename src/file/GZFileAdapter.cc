@@ -17,7 +17,7 @@ GZFileAdapter::GZFileAdapter(std::unique_ptr<FileBase> file_)
 {
 }
 
-static bool skipHeader(ZlibInflate& zlib, std::string& originalName)
+[[nodiscard]] static bool skipHeader(ZlibInflate& zlib, std::string& originalName)
 {
 	// check magic bytes
 	if (zlib.get16LE() != 0x8B1F) {
@@ -44,7 +44,7 @@ static bool skipHeader(ZlibInflate& zlib, std::string& originalName)
 	}
 	if ((flags & COMMENT) != 0) {
 		// skip the .gz file comment
-		zlib.getCString();
+		(void)zlib.getCString();
 	}
 	if ((flags & HEAD_CRC) != 0) {
 		// skip the header crc

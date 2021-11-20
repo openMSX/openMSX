@@ -4,7 +4,7 @@
 using namespace gl;
 
 // Test approximations.
-static bool approxEq(const mat4& x, const mat4&y)
+static constexpr bool approxEq(const mat4& x, const mat4&y)
 {
 	return norm2_2(x - y) < 1.0e-3f;
 }

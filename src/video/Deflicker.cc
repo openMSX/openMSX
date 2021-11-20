@@ -4,6 +4,7 @@
 #include "one_of.hh"
 #include "unreachable.hh"
 #include "vla.hh"
+#include "xrange.hh"
 #include "build-info.hh"
 #include <memory>
 #ifdef __SSE2__
@@ -19,10 +20,11 @@ public:
 	              std::unique_ptr<RawFrame>* lastFrames);
 
 private:
-	const void* getLineInfo(
+	[[nodiscard]] const void* getLineInfo(
 		unsigned line, unsigned& width,
 		void* buf, unsigned bufWidth) const override;
 
+private:
 	PixelOperations<Pixel> pixelOps;
 };
 
@@ -76,7 +78,7 @@ DeflickerImpl<Pixel>::DeflickerImpl(const PixelFormat& format,
 template<typename Pixel>
 static __m128i blend(__m128i x, __m128i y, Pixel blendMask)
 {
-	if (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		// 32bpp
 		return _mm_avg_epu8(x, y);
 	} else {
@@ -93,8 +95,8 @@ static __m128i blend(__m128i x, __m128i y, Pixel blendMask)
 template<typename Pixel>
 static __m128i uload(const Pixel* ptr, ptrdiff_t byteOffst)
 {
-	auto* p8   = reinterpret_cast<const   char *>(ptr);
-	auto* p128 = reinterpret_cast<const __m128i*>(p8 + byteOffst);
+	const auto* p8   = reinterpret_cast<const   char *>(ptr);
+	const auto* p128 = reinterpret_cast<const __m128i*>(p8 + byteOffst);
 	return _mm_loadu_si128(p128);
 }
 
@@ -110,7 +112,7 @@ template<typename Pixel>
 static __m128i compare(__m128i x, __m128i y)
 {
 	static_assert(sizeof(Pixel) == one_of(2u, 4u));
-	if (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		return _mm_cmpeq_epi32(x, y);
 	} else {
 		return _mm_cmpeq_epi16(x, y);
@@ -180,7 +182,7 @@ const void* DeflickerImpl<Pixel>::getLineInfo(
 	}
 	remaining &= pixelsPerSSE - 1;
 #endif
-	for (unsigned x = 0; x < remaining; ++x) {
+	for (auto x : xrange(remaining)) {
 		dst[x] = ((line0[x] == line2[x]) && (line1[x] == line3[x]))
 		       ? pixelOps.template blend<1, 1>(line0[x], line1[x])
 	               : line0[x];

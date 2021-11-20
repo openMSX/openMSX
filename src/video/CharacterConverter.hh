@@ -12,7 +12,7 @@ class DisplayMode;
 
 /** Utility class for converting VRAM contents to host pixels.
   */
-template <class Pixel>
+template<typename Pixel>
 class CharacterConverter
 {
 public:
@@ -54,8 +54,9 @@ private:
 	inline void renderMultiHelper(Pixel* pixelPtr, int line,
 	                       int mask, int patternQuarter);
 
-	const byte* getNamePtr(int line, int scroll);
+	[[nodiscard]] const byte* getNamePtr(int line, int scroll);
 
+private:
 	VDP& vdp;
 	VDPVRAM& vram;
 

@@ -7,7 +7,7 @@
     <manufacturer>Yamaha</manufacturer>
     <code>SFG-05</code>
     <release_year>1985</release_year>
-    <description>Yamaha YM-2151 based sound cartridge with MIDI</description>
+    <description>Yamaha YM-2164 based sound cartridge with MIDI</description>
     <type>sound expansion</type>
   </info>
 
@@ -23,6 +23,7 @@ consider this device to have built in the Unit Connector. -->
     <primary slot="any">
       <secondary slot="any">
         <YamahaSFG id="Yamaha SFG-05">
+          <variant>YM2164</variant>
           <mem base="0x0000" size="0x10000"/>
           <sound>
             <volume>30000</volume>

@@ -21,28 +21,28 @@ RS232Tester::RS232Tester(EventDistributor& eventDistributor_,
 	        "filename of the file where the RS232 output is written to",
 	        "rs232-output")
 {
-	eventDistributor.registerEventListener(OPENMSX_RS232_TESTER_EVENT, *this);
+	eventDistributor.registerEventListener(EventType::RS232_TESTER, *this);
 }
 
 RS232Tester::~RS232Tester()
 {
-	eventDistributor.unregisterEventListener(OPENMSX_RS232_TESTER_EVENT, *this);
+	eventDistributor.unregisterEventListener(EventType::RS232_TESTER, *this);
 }
 
 // Pluggable
 void RS232Tester::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 {
 	// output
-	std::string_view outName = rs232OutputFilenameSetting.getString();
-	FileOperations::openofstream(outFile, std::string(outName));
+	auto outName = rs232OutputFilenameSetting.getString();
+	FileOperations::openofstream(outFile, outName);
 	if (outFile.fail()) {
 		outFile.clear();
 		throw PlugException("Error opening output file: ", outName);
 	}
 
 	// input
-	std::string_view inName = rs232InputFilenameSetting.getString();
-	inFile = FileOperations::openFile(std::string(inName), "rb");
+	auto inName = rs232InputFilenameSetting.getString();
+	inFile = FileOperations::openFile(inName, "rb");
 	if (!inFile) {
 		outFile.close();
 		throw PlugException("Error opening input file: ", inName);
@@ -69,10 +69,9 @@ void RS232Tester::unplugHelper(EmuTime::param /*time*/)
 	inFile.reset();
 }
 
-const std::string& RS232Tester::getName() const
+std::string_view RS232Tester::getName() const
 {
-	static const std::string name("rs232-tester");
-	return name;
+	return "rs232-tester";
 }
 
 std::string_view RS232Tester::getDescription() const
@@ -85,7 +84,6 @@ std::string_view RS232Tester::getDescription() const
 
 void RS232Tester::run()
 {
-	byte buf;
 	if (!inFile) return;
 	while (!feof(inFile.get())) {
 #ifndef _WIN32
@@ -93,6 +91,7 @@ void RS232Tester::run()
 			break;
 		}
 #endif
+		byte buf;
 		size_t num = fread(&buf, 1, 1, inFile.get());
 		if (poller.aborted()) {
 			break;
@@ -104,7 +103,7 @@ void RS232Tester::run()
 		std::lock_guard<std::mutex> lock(mutex);
 		queue.push_back(buf);
 		eventDistributor.distributeEvent(
-			std::make_shared<SimpleEvent>(OPENMSX_RS232_TESTER_EVENT));
+			Event::create<Rs232TesterEvent>());
 	}
 }
 
@@ -125,7 +124,7 @@ void RS232Tester::signal(EmuTime::param time)
 }
 
 // EventListener
-int RS232Tester::signalEvent(const std::shared_ptr<const Event>& /*event*/)
+int RS232Tester::signalEvent(const Event& /*event*/) noexcept
 {
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());

@@ -20,8 +20,8 @@ public:
 	// interaction with realCartridge
 	void powerUp(EmuTime::param time);
 	void reset(EmuTime::param time);
-	byte readMem(byte address,EmuTime::param time);
-	byte peekMem(byte address,EmuTime::param time) const;
+	[[nodiscard]] byte readMem(byte address,EmuTime::param time);
+	[[nodiscard]] byte peekMem(byte address,EmuTime::param time) const;
 	void writeMem(byte address, byte value, EmuTime::param time);
 	void setChipMode(ChipMode newMode);
 
@@ -30,22 +30,22 @@ public:
 
 private:
 	// SoundDevice
-	float getAmplificationFactorImpl() const override;
+	[[nodiscard]] float getAmplificationFactorImpl() const override;
 	void generateChannels(float** bufs, unsigned num) override;
 
-	inline float adjust(signed char wav, byte vol);
-	byte readWave(unsigned channel, unsigned address, EmuTime::param time) const;
+	[[nodiscard]] byte readWave(unsigned channel, unsigned address, EmuTime::param time) const;
 	void writeWave(unsigned channel, unsigned address, byte value);
 	void setDeformReg(byte value, EmuTime::param time);
 	void setDeformRegHelper(byte value);
 	void setFreqVol(unsigned address, byte value, EmuTime::param time);
-	byte getFreqVol(unsigned address) const;
+	[[nodiscard]] byte getFreqVol(unsigned address) const;
 
+private:
 	static constexpr int CLOCK_FREQ = 3579545;
 
 	struct Debuggable final : SimpleDebuggable {
 		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
-		byte read(unsigned address, EmuTime::param time) override;
+		[[nodiscard]] byte read(unsigned address, EmuTime::param time) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	} debuggable;
 

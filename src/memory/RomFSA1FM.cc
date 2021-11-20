@@ -39,17 +39,19 @@
 #include "MSXException.hh"
 #include "one_of.hh"
 #include "serialize.hh"
+#include "strCat.hh"
+#include "xrange.hh"
 #include <memory>
 
 namespace openmsx {
 
 // 8kb shared sram //
 
-static std::shared_ptr<SRAM> getSram(const DeviceConfig& config)
+[[nodiscard]] static std::shared_ptr<SRAM> getSram(const DeviceConfig& config)
 {
 	return config.getMotherBoard().getSharedStuff<SRAM>(
 		"FSA1FM-sram",
-		config.getAttribute("id") + " SRAM", 0x2000, config);
+		strCat(config.getAttributeValue("id"), " SRAM"), 0x2000, config);
 }
 
 
@@ -104,7 +106,7 @@ byte RomFSA1FM1::readMem(word address, EmuTime::param time)
 const byte* RomFSA1FM1::getReadCacheLine(word address) const
 {
 	if (address == (0x7FC0 & CacheLine::HIGH)) {
-		// dont't cache IO area
+		// don't cache IO area
 		return nullptr;
 	} else if ((0x4000 <= address) && (address < 0x6000)) {
 		// read rom
@@ -167,7 +169,7 @@ RomFSA1FM2::RomFSA1FM2(const DeviceConfig& config, Rom&& rom_)
 void RomFSA1FM2::reset(EmuTime::param /*time*/)
 {
 	control = 0;
-	for (int region = 0; region < 6; ++region) {
+	for (auto region : xrange(6)) {
 		changeBank(region, 0xA8);
 	}
 	changeBank(6, 0); // for mapper-state read-back
@@ -178,20 +180,18 @@ void RomFSA1FM2::reset(EmuTime::param /*time*/)
 
 byte RomFSA1FM2::peekMem(word address, EmuTime::param time) const
 {
-	byte result;
 	if (0xC000 <= address) {
-		result = 0xFF;
+		return 0xFF;
 	} else if ((control & 0x04) && (0x7FF0 <= address) && (address < 0x7FF8)) {
 		// read mapper state
-		result = bankSelect[address & 7];
+		return bankSelect[address & 7];
 	} else if (isRam[address >> 13]) {
-		result = (*fsSram)[address & 0x1FFF];
+		return (*fsSram)[address & 0x1FFF];
 	} else if (isEmpty[address >> 13]) {
-		result = 0xFF;
+		return 0xFF;
 	} else {
-		result = Rom8kBBlocks::peekMem(address, time);
+		return Rom8kBBlocks::peekMem(address, time);
 	}
-	return result;
 }
 
 byte RomFSA1FM2::readMem(word address, EmuTime::param time)
@@ -295,9 +295,9 @@ void RomFSA1FM2::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("SRAM",       *fsSram,
 	             "bankSelect", bankSelect,
 	             "control",    control);
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		// recalculate 'isRam' and 'isEmpty' from bankSelect
-		for (int region = 0; region < 8; ++region) {
+		for (auto region : xrange(8)) {
 			changeBank(region, bankSelect[region]);
 		}
 	}

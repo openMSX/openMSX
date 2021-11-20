@@ -15,13 +15,13 @@ public:
 	explicit PrinterPortLogger(CommandController& commandController);
 
 	// PrinterPortDevice
-	bool getStatus(EmuTime::param time) override;
+	[[nodiscard]] bool getStatus(EmuTime::param time) override;
 	void setStrobe(bool strobe, EmuTime::param time) override;
 	void writeData(byte data, EmuTime::param time) override;
 
 	// Pluggable
-	const std::string& getName() const override;
-	std::string_view getDescription() const override;
+	[[nodiscard]] std::string_view getName() const override;
+	[[nodiscard]] std::string_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 

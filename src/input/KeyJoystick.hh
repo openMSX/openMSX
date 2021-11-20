@@ -17,10 +17,13 @@ class KeyJoystick final : public JoystickDevice, private MSXEventListener
                         , private StateChangeListener
 {
 public:
+	enum ID { ID1, ID2, UNKNOWN };
+
+public:
 	KeyJoystick(CommandController& commandController,
 	            MSXEventDistributor& eventDistributor,
 	            StateChangeDistributor& stateChangeDistributor,
-	            std::string name);
+	            ID id);
 	~KeyJoystick() override;
 
 	template<typename Archive>
@@ -28,31 +31,32 @@ public:
 
 private:
 	// Pluggable
-	const std::string& getName() const override;
-	std::string_view getDescription() const override;
+	[[nodiscard]] std::string_view getName() const override;
+	[[nodiscard]] std::string_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 
 	// KeyJoystickDevice
-	byte read(EmuTime::param time) override;
+	[[nodiscard]] byte read(EmuTime::param time) override;
 	void write(byte value, EmuTime::param time) override;
 
 	// MSXEventListener
-	void signalMSXEvent(const std::shared_ptr<const Event>& event,
-	                    EmuTime::param time) override;
+	void signalMSXEvent(const Event& event,
+	                    EmuTime::param time) noexcept override;
 	// StateChangeListener
-	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
-	void stopReplay(EmuTime::param time) override;
+	void signalStateChange(const StateChange& event) override;
+	void stopReplay(EmuTime::param time) noexcept override;
 
+private:
 	MSXEventDistributor& eventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
-	const std::string name;
 	KeyCodeSetting up;
 	KeyCodeSetting down;
 	KeyCodeSetting left;
 	KeyCodeSetting right;
 	KeyCodeSetting trigA;
 	KeyCodeSetting trigB;
+	const ID id;
 
 	byte status;
 	bool pin8;

@@ -17,7 +17,7 @@ namespace openmsx {
 EnumSetting<RenderSettings::ScaleAlgorithm>::Map RenderSettings::getScalerMap()
 {
 	EnumSetting<ScaleAlgorithm>::Map scalerMap = { { "simple", SCALER_SIMPLE } };
-	if (MAX_SCALE_FACTOR > 1) {
+	if constexpr (MAX_SCALE_FACTOR > 1) {
 		append(scalerMap, {{"SaI",        SCALER_SAI},
 		                   {"ScaleNx",    SCALER_SCALE},
 		                   {"hq",         SCALER_HQ},
@@ -234,7 +234,7 @@ RenderSettings::~RenderSettings()
 	contrastSetting  .detach(*this);
 }
 
-void RenderSettings::update(const Setting& setting)
+void RenderSettings::update(const Setting& setting) noexcept
 {
 	if (&setting == &brightnessSetting) {
 		updateBrightnessAndContrast();
@@ -255,7 +255,7 @@ void RenderSettings::updateBrightnessAndContrast()
 
 static float conv2(float x, float gamma)
 {
-	return ::powf(std::min(std::max(0.0f, x), 1.0f), gamma);
+	return ::powf(std::clamp(x, 0.0f, 1.0f), gamma);
 }
 
 float RenderSettings::transformComponent(float c) const
@@ -279,15 +279,15 @@ void RenderSettings::parseColorMatrix(Interpreter& interp, const TclObject& valu
 		throw CommandException("must have 3 rows");
 	}
 	bool identity = true;
-	for (int i = 0; i < 3; ++i) {
+	for (auto i : xrange(3)) {
 		TclObject row = value.getListIndex(interp, i);
 		if (row.getListLength(interp) != 3) {
 			throw CommandException("each row must have 3 elements");
 		}
-		for (int j = 0; j < 3; ++j) {
+		for (auto j : xrange(3)) {
 			TclObject element = row.getListIndex(interp, j);
 			float val = element.getDouble(interp);
-			colorMatrix[i][j] = val;
+			colorMatrix[j][i] = val;
 			identity &= (val == (i == j ? 1.0f : 0.0f));
 		}
 	}

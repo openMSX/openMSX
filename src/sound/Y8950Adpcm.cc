@@ -93,7 +93,7 @@ bool Y8950Adpcm::isMuted() const
 
 void Y8950Adpcm::restart(PlayData& pd)
 {
-	pd.memPntr = startAddr;
+	pd.memPtr = startAddr;
 	pd.nowStep = (1 << STEP_BITS) - delta;
 	pd.out = 0;
 	pd.output = 0;
@@ -108,7 +108,7 @@ void Y8950Adpcm::sync(EmuTime::param time)
 	if (isPlaying()) { // optimization, also correct without this test
 		unsigned ticks = clock.getTicksTill(time);
 		for (unsigned i = 0; isPlaying() && (i < ticks); ++i) {
-			calcSample(true); // ignore result
+			(void)calcSample(true); // ignore result
 		}
 	}
 	clock.advance(time);
@@ -124,7 +124,7 @@ void Y8950Adpcm::schedule()
 		if (reg7 & R07_MEMORY_DATA) {
 			// we already did a sync(time), so clock is up-to-date
 			Clock<Y8950::CLOCK_FREQ, Y8950::CLOCK_FREQ_DIV> stop(clock);
-			uint64_t samples = stopAddr - emu.memPntr + 1;
+			uint64_t samples = stopAddr - emu.memPtr + 1;
 			uint64_t length = (samples << STEP_BITS) +
 					((1 << STEP_BITS) - emu.nowStep) +
 					(delta - 1);
@@ -169,8 +169,8 @@ void Y8950Adpcm::writeReg(byte rg, byte data, EmuTime::param time)
 		}
 		if (reg7 & R07_MEMORY_DATA) {
 			// access external memory?
-			emu.memPntr = startAddr;
-			aud.memPntr = startAddr;
+			emu.memPtr = startAddr;
+			aud.memPtr = startAddr;
 			readDelay = 2; // two dummy reads
 			if ((reg7 & 0xA0) == 0x20) {
 				// Memory read or write
@@ -178,8 +178,8 @@ void Y8950Adpcm::writeReg(byte rg, byte data, EmuTime::param time)
 			}
 		} else {
 			// access via CPU
-			emu.memPntr = 0;
-			aud.memPntr = 0;
+			emu.memPtr = 0;
+			aud.memPtr = 0;
 		}
 		removeSyncPoint();
 		if (isPlaying()) {
@@ -258,12 +258,12 @@ void Y8950Adpcm::writeData(byte data)
 		// external memory write
 		assert(!isPlaying()); // no need to update the 'aud' data
 		if (readDelay) {
-			emu.memPntr = startAddr;
+			emu.memPtr = startAddr;
 			readDelay = 0;
 		}
-		if (emu.memPntr <= stopAddr) {
-			writeMemory(emu.memPntr, data);
-			emu.memPntr += 2; // two nibbles at a time
+		if (emu.memPtr <= stopAddr) {
+			writeMemory(emu.memPtr, data);
+			emu.memPtr += 2; // two nibbles at a time
 
 			// reset BRDY bit in status register,
 			// which means we are processing the write
@@ -278,14 +278,14 @@ void Y8950Adpcm::writeData(byte data)
 			// will work.
 			y8950.setStatus(Y8950::STATUS_BUF_RDY);
 
-			if (emu.memPntr > stopAddr) {
+			if (emu.memPtr > stopAddr) {
 				// we just received the last byte: set EOS
 				// verified on real HW:
 				//  in case of EOS, BUF_RDY is set as well
 				y8950.setStatus(Y8950::STATUS_EOS);
 				// Eugeny tested that pointer wraps when
 				// continue writing after EOS
-				emu.memPntr = startAddr;
+				emu.memPtr = startAddr;
 			}
 		}
 
@@ -361,7 +361,7 @@ byte Y8950Adpcm::readData()
 		// external memory read
 		assert(!isPlaying()); // no need to update the 'aud' data
 		if (readDelay) {
-			emu.memPntr = startAddr;
+			emu.memPtr = startAddr;
 		}
 	}
 	byte result = peekData();
@@ -371,11 +371,11 @@ byte Y8950Adpcm::readData()
 			// two dummy reads
 			--readDelay;
 			y8950.setStatus(Y8950::STATUS_BUF_RDY);
-		} else if (emu.memPntr > stopAddr) {
+		} else if (emu.memPtr > stopAddr) {
 			// set EOS bit in status register
 			y8950.setStatus(Y8950::STATUS_EOS);
 		} else {
-			emu.memPntr += 2; // two nibbles at a time
+			emu.memPtr += 2; // two nibbles at a time
 
 			// reset BRDY bit in status register, which means we
 			// are reading the memory now
@@ -401,26 +401,26 @@ byte Y8950Adpcm::peekData() const
 		assert(!isPlaying()); // no need to update the 'aud' data
 		if (readDelay) {
 			return reg15;
-		} else if (emu.memPntr > stopAddr) {
+		} else if (emu.memPtr > stopAddr) {
 			return 0;
 		} else {
-			return readMemory(emu.memPntr);
+			return readMemory(emu.memPtr);
 		}
 	} else {
 		return 0; // TODO check
 	}
 }
 
-void Y8950Adpcm::writeMemory(unsigned memPntr, byte value)
+void Y8950Adpcm::writeMemory(unsigned memPtr, byte value)
 {
-	unsigned addr = (memPntr / 2) & addrMask;
+	unsigned addr = (memPtr / 2) & addrMask;
 	if ((addr < ram.getSize()) && !romBank) {
 		ram.write(addr, value);
 	}
 }
-byte Y8950Adpcm::readMemory(unsigned memPntr) const
+byte Y8950Adpcm::readMemory(unsigned memPtr) const
 {
-	unsigned addr = (memPntr / 2) & addrMask;
+	unsigned addr = (memPtr / 2) & addrMask;
 	if (romBank || (addr >= ram.getSize())) {
 		return 0; // checked on a real machine
 	} else {
@@ -450,23 +450,24 @@ int Y8950Adpcm::calcSample(bool doEmu)
 	pd.nowStep += delta;
 	if (pd.nowStep & ~STEP_MASK) {
 		pd.nowStep &= STEP_MASK;
-		byte val;
-		if (!(pd.memPntr & 1)) {
-			// even nibble
-			if (reg7 & R07_MEMORY_DATA) {
-				pd.adpcm_data = readMemory(pd.memPntr);
-			} else {
-				pd.adpcm_data = reg15;
-				// set BRDY bit, ready to accept new data
-				if (doEmu) {
-					y8950.setStatus(Y8950::STATUS_BUF_RDY);
+		byte val = [&] {
+			if (!(pd.memPtr & 1)) {
+				// even nibble
+				if (reg7 & R07_MEMORY_DATA) {
+					pd.adpcm_data = readMemory(pd.memPtr);
+				} else {
+					pd.adpcm_data = reg15;
+					// set BRDY bit, ready to accept new data
+					if (doEmu) {
+						y8950.setStatus(Y8950::STATUS_BUF_RDY);
+					}
 				}
+				return pd.adpcm_data >> 4;
+			} else {
+				// odd nibble
+				return pd.adpcm_data & 0x0F;
 			}
-			val = pd.adpcm_data >> 4;
-		} else {
-			// odd nibble
-			val = pd.adpcm_data & 0x0F;
-		}
+		}();
 		int prevOut = pd.out;
 		pd.out = Math::clipIntToShort(pd.out + (pd.diff * F1[val]) / 8);
 		pd.diff = std::clamp((pd.diff * F2[val]) / 64, DMIN, DMAX);
@@ -478,13 +479,13 @@ int Y8950Adpcm::calcSample(bool doEmu)
 		int tmp = deltaLeveling * ((volume * pd.nowStep) >> STEP_BITS);
 		pd.output = prevLeveling * volume + tmp;
 
-		++pd.memPntr;
+		++pd.memPtr;
 		if ((reg7 & R07_MEMORY_DATA) &&
-		    (pd.memPntr > stopAddr)) {
+		    (pd.memPtr > stopAddr)) {
 			// On 2003/06/21 I commited a patch with comment:
 			//   generate end-of-sample interrupt at every sample
 			//   end, including loops
-			// Unfortunatly it doesn't give any reason why and now
+			// Unfortunately it doesn't give any reason why and now
 			// I can't remember it :-(
 			// This is different from e.g. the MAME implementation.
 			if (doEmu) {
@@ -507,7 +508,7 @@ int Y8950Adpcm::calcSample(bool doEmu)
 
 
 // version 1:
-//  Initial verson
+//  Initial version
 // version 2:
 //  - Split PlayData in emu and audio part (though this doesn't add new state
 //    to the savestate).
@@ -528,7 +529,7 @@ void Y8950Adpcm::serialize(Archive& ar, unsigned version)
 	             "reg15",        reg15,
 	             "romBank",      romBank,
 
-	             "memPntr",      emu.memPntr,
+	             "memPntr",      emu.memPtr, // keep 'memPntr' for bw compat
 	             "nowStep",      emu.nowStep,
 	             "out",          emu.out,
 	             "output",       emu.output,
@@ -536,7 +537,7 @@ void Y8950Adpcm::serialize(Archive& ar, unsigned version)
 	             "nextLeveling", emu.nextLeveling,
 	             "sampleStep",   emu.sampleStep,
 	             "adpcm_data",   emu.adpcm_data);
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		// ignore aud part for saving,
 		// for loading we make it the same as the emu part
 		aud = emu;

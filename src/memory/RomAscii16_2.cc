@@ -3,7 +3,7 @@
 // Examples 2kB SRAM: Daisenryaku, Harry Fox MSX Special, Hydlide 2, Jyansei
 // Examples 8kB SRAM: A-Train
 //
-// this type is is almost completely a ASCII16 cartrdige
+// this type is is almost completely a ASCII16 cartridge
 // However, it has 2 or 8kB of SRAM (and 128 kB ROM)
 // Use value 0x10 to select the SRAM.
 // SRAM in page 1 => read-only

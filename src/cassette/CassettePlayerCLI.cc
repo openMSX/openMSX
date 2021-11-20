@@ -1,10 +1,8 @@
 #include "CassettePlayerCLI.hh"
 #include "CommandLineParser.hh"
-#include "GlobalCommandController.hh"
+#include "Interpreter.hh"
 #include "MSXException.hh"
 #include "TclObject.hh"
-
-using std::string;
 
 namespace openmsx {
 
@@ -15,7 +13,8 @@ CassettePlayerCLI::CassettePlayerCLI(CommandLineParser& parser_)
 	parser.registerFileType({"cas", "wav"}, *this);
 }
 
-void CassettePlayerCLI::parseOption(const string& option, span<string>& cmdLine)
+void CassettePlayerCLI::parseOption(const std::string& option,
+                                    span<std::string>& cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine), cmdLine);
 }
@@ -26,10 +25,10 @@ std::string_view CassettePlayerCLI::optionHelp() const
 	       "virtual cassetteplayer";
 }
 
-void CassettePlayerCLI::parseFileType(const string& filename,
-                                      span<string>& /*cmdLine*/)
+void CassettePlayerCLI::parseFileType(const std::string& filename,
+                                      span<std::string>& /*cmdLine*/)
 {
-	if (!parser.getGlobalCommandController().hasCommand("cassetteplayer")) {
+	if (!parser.getInterpreter().hasCommand("cassetteplayer")) {
 		throw MSXException("No cassette player present.");
 	}
 	TclObject command = makeTclList("cassetteplayer", filename);

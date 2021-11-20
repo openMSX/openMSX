@@ -43,7 +43,7 @@ void MSXCielTurbo::serialize(Archive& ar, unsigned /*version*/)
 	ar.template serializeBase<MSXDevice>(*this);
 
 	ar.serialize("value", lastValue);
-	if (!ar.isLoader()) {
+	if constexpr (!Archive::IS_LOADER) {
 		word port = 0; // dummy
 		writeIO(port, lastValue, EmuTime::dummy());
 	}

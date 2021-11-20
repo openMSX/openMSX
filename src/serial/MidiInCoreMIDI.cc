@@ -8,6 +8,7 @@
 #include "Scheduler.hh"
 #include "serialize.hh"
 #include "StringOp.hh"
+#include "xrange.hh"
 #include <mach/mach_time.h>
 #include <memory>
 
@@ -20,10 +21,8 @@ void MidiInCoreMIDI::registerAll(EventDistributor& eventDistributor,
                                  Scheduler& scheduler,
                                  PluggingController& controller)
 {
-	ItemCount numberOfEndpoints = MIDIGetNumberOfSources();
-	for (ItemCount i = 0; i < numberOfEndpoints; i++) {
-		MIDIEndpointRef endpoint = MIDIGetSource(i);
-		if (endpoint) {
+	for (auto i : xrange(MIDIGetNumberOfSources())) {
+		if (MIDIEndpointRef endpoint = MIDIGetSource(i)) {
 			controller.registerPluggable(std::make_unique<MidiInCoreMIDI>(
 					eventDistributor, scheduler, endpoint));
 		}
@@ -52,13 +51,13 @@ MidiInCoreMIDI::MidiInCoreMIDI(EventDistributor& eventDistributor_,
 	}
 
 	eventDistributor.registerEventListener(
-			OPENMSX_MIDI_IN_COREMIDI_EVENT, *this);
+			EventType::MIDI_IN_COREMIDI, *this);
 }
 
 MidiInCoreMIDI::~MidiInCoreMIDI()
 {
 	eventDistributor.unregisterEventListener(
-			OPENMSX_MIDI_IN_COREMIDI_EVENT, *this);
+			EventType::MIDI_IN_COREMIDI, *this);
 }
 
 void MidiInCoreMIDI::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
@@ -89,7 +88,7 @@ void MidiInCoreMIDI::unplugHelper(EmuTime::param /*time*/)
 	client = 0;
 }
 
-const std::string& MidiInCoreMIDI::getName() const
+std::string_view MidiInCoreMIDI::getName() const
 {
 	return name;
 }
@@ -110,16 +109,16 @@ void MidiInCoreMIDI::sendPacketList(const MIDIPacketList *packetList,
                                     void * /*srcConnRefCon*/) {
 	{
 		std::lock_guard<std::mutex> lock(mutex);
-		const MIDIPacket *packet = &packetList->packet[0];
-		for (UInt32 i = 0; i < packetList->numPackets; i++) {
-			for (UInt16 j = 0; j < packet->length; j++) {
+		const MIDIPacket* packet = &packetList->packet[0];
+		repeat(packetList->numPackets, [&] {
+			for (auto j : xrange(packet->length)) {
 				queue.push_back(packet->data[j]);
 			}
 			packet = MIDIPacketNext(packet);
-		}
+		});
 	}
 	eventDistributor.distributeEvent(
-		std::make_shared<SimpleEvent>(OPENMSX_MIDI_IN_COREMIDI_EVENT));
+		Event::create<MidiInCoreMidiEvent>());
 }
 
 // MidiInDevice
@@ -145,7 +144,7 @@ void MidiInCoreMIDI::signal(EmuTime::param time)
 }
 
 // EventListener
-int MidiInCoreMIDI::signalEvent(const std::shared_ptr<const Event>& /*event*/)
+int MidiInCoreMIDI::signalEvent(const Event& /*event*/) noexcept
 {
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());
@@ -174,13 +173,13 @@ MidiInCoreMIDIVirtual::MidiInCoreMIDIVirtual(EventDistributor& eventDistributor_
 	, endpoint(0)
 {
 	eventDistributor.registerEventListener(
-			OPENMSX_MIDI_IN_COREMIDI_VIRTUAL_EVENT, *this);
+			EventType::MIDI_IN_COREMIDI_VIRTUAL, *this);
 }
 
 MidiInCoreMIDIVirtual::~MidiInCoreMIDIVirtual()
 {
 	eventDistributor.unregisterEventListener(
-			OPENMSX_MIDI_IN_COREMIDI_VIRTUAL_EVENT, *this);
+			EventType::MIDI_IN_COREMIDI_VIRTUAL, *this);
 }
 
 void MidiInCoreMIDIVirtual::plugHelper(Connector& /*connector*/,
@@ -212,10 +211,9 @@ void MidiInCoreMIDIVirtual::unplugHelper(EmuTime::param /*time*/)
 	client = 0;
 }
 
-const std::string& MidiInCoreMIDIVirtual::getName() const
+std::string_view MidiInCoreMIDIVirtual::getName() const
 {
-	static const std::string name("Virtual IN");
-	return name;
+	return "Virtual IN";
 }
 
 std::string_view MidiInCoreMIDIVirtual::getDescription() const
@@ -236,16 +234,16 @@ void MidiInCoreMIDIVirtual::sendPacketList(const MIDIPacketList *packetList,
 {
 	{
 		std::lock_guard<std::mutex> lock(mutex);
-		const MIDIPacket *packet = &packetList->packet[0];
-		for (UInt32 i = 0; i < packetList->numPackets; i++) {
-			for (UInt16 j = 0; j < packet->length; j++) {
+		const MIDIPacket* packet = &packetList->packet[0];
+		repeat(packetList->numPackets, [&] {
+			for (auto j : xrange(packet->length)) {
 				queue.push_back(packet->data[j]);
 			}
 			packet = MIDIPacketNext(packet);
-		}
+		});
 	}
 	eventDistributor.distributeEvent(
-		std::make_shared<SimpleEvent>(OPENMSX_MIDI_IN_COREMIDI_VIRTUAL_EVENT));
+		Event::create<MidiInCoreMidiVirtualEvent>());
 }
 
 // MidiInDevice
@@ -272,7 +270,7 @@ void MidiInCoreMIDIVirtual::signal(EmuTime::param time)
 
 // EventListener
 int MidiInCoreMIDIVirtual::signalEvent(
-		const std::shared_ptr<const Event>& /*event*/)
+		const Event& /*event*/) noexcept
 {
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());

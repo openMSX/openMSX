@@ -3,10 +3,12 @@
 
 #include "DiskContainer.hh"
 #include "StateChangeListener.hh"
+#include "RecordedCommand.hh"
 #include "serialize_meta.hh"
 #include "span.hh"
 #include <functional>
 #include <memory>
+#include <optional>
 #include <string>
 
 namespace openmsx {
@@ -17,9 +19,23 @@ class Scheduler;
 class MSXMotherBoard;
 class Reactor;
 class Disk;
-class DiskCommand;
+class DiskChanger;
 class TclObject;
 class DiskName;
+
+class DiskCommand final : public Command // TODO RecordedCommand
+{
+public:
+	DiskCommand(CommandController& commandController,
+	            DiskChanger& diskChanger);
+	void execute(span<const TclObject> tokens,
+	             TclObject& result) override;
+	[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+	void tabCompletion(std::vector<std::string>& tokens) const override;
+	[[nodiscard]] bool needRecord(span<const TclObject> tokens) const /*override*/;
+private:
+	DiskChanger& diskChanger;
+};
 
 class DiskChanger final : public DiskContainer, private StateChangeListener
 {
@@ -35,38 +51,41 @@ public:
 
 	void createCommand();
 
-	const std::string& getDriveName() const { return driveName; }
-	const DiskName& getDiskName() const;
-	bool peekDiskChanged() const { return diskChangedFlag; }
+	[[nodiscard]] const std::string& getDriveName() const { return driveName; }
+	[[nodiscard]] const DiskName& getDiskName() const;
+	[[nodiscard]] bool peekDiskChanged() const { return diskChangedFlag; }
 	void forceDiskChange() { diskChangedFlag = true; }
-	Disk& getDisk() { return *disk; }
+	[[nodiscard]]       Disk& getDisk()       { return *disk; }
+	[[nodiscard]] const Disk& getDisk() const { return *disk; }
 
 	// DiskContainer
-	SectorAccessibleDisk* getSectorAccessibleDisk() override;
-	const std::string& getContainerName() const override;
+	[[nodiscard]] SectorAccessibleDisk* getSectorAccessibleDisk() override;
+	[[nodiscard]] std::string_view getContainerName() const override;
 	bool diskChanged() override;
-	int insertDisk(std::string_view filename) override;
+	int insertDisk(const std::string& filename) override;
 
 	// for NowindCommand
 	void changeDisk(std::unique_ptr<Disk> newDisk);
 
 	// for DirAsDSK
-	Scheduler* getScheduler() const { return scheduler; }
-	bool isDoubleSidedDrive() const { return doubleSidedDrive; }
+	[[nodiscard]] Scheduler* getScheduler() const { return scheduler; }
+	[[nodiscard]] bool isDoubleSidedDrive() const { return doubleSidedDrive; }
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void init(const std::string& prefix, bool createCmd);
+	void init(std::string_view prefix, bool createCmd);
+	void execute(span<const TclObject> tokens);
 	void insertDisk(span<const TclObject> args);
 	void ejectDisk();
-	void sendChangeDiskEvent(span<std::string> args);
+	void sendChangeDiskEvent(span<const TclObject> args);
 
 	// StateChangeListener
-	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
-	void stopReplay(EmuTime::param time) override;
+	void signalStateChange(const StateChange& event) override;
+	void stopReplay(EmuTime::param time) noexcept override;
 
+private:
 	Reactor& reactor;
 	CommandController& controller;
 	StateChangeDistributor* stateChangeDistributor;
@@ -77,7 +96,7 @@ private:
 	std::unique_ptr<Disk> disk;
 
 	friend class DiskCommand;
-	std::unique_ptr<DiskCommand> diskCommand; // must come after driveName
+	std::optional<DiskCommand> diskCommand; // must come after driveName
 	const bool doubleSidedDrive; // for DirAsDSK
 
 	bool diskChangedFlag;

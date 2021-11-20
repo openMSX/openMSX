@@ -39,7 +39,7 @@ public:
 	 * last bit written to CasOut.
 	 * for use in Pluggable::plugHelper()
 	 */
-	virtual bool lastOut() const = 0;
+	[[nodiscard]] virtual bool lastOut() const = 0;
 
 	/**
 	* Reads one bit from the cassette port.
@@ -71,18 +71,18 @@ public:
 #if COMPONENT_LASERDISC
 	void setLaserdiscPlayer(LaserdiscPlayer* laserdisc) override;
 #endif
-	bool lastOut() const override;
+	[[nodiscard]] bool lastOut() const override;
 
 	// Connector
-	std::string_view getDescription() const override;
-	std::string_view getClass() const override;
+	[[nodiscard]] std::string_view getDescription() const override;
+	[[nodiscard]] std::string_view getClass() const override;
 	void unplug(EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	CassetteDevice& getPluggedCasDev() const;
+	[[nodiscard]] CassetteDevice& getPluggedCasDev() const;
 
 	MSXMotherBoard& motherBoard;
 
@@ -105,7 +105,7 @@ public:
 #if COMPONENT_LASERDISC
 	void setLaserdiscPlayer(LaserdiscPlayer *laserdisc) override;
 #endif
-	bool lastOut() const override;
+	[[nodiscard]] bool lastOut() const override;
 };
 
 } // namespace openmsx

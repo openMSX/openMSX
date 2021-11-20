@@ -33,11 +33,11 @@ private:
 	friend class RTSchedulable;
 	void add(uint64_t delta, RTSchedulable& schedulable);
 	bool remove(RTSchedulable& schedulable);
-	bool isPending(const RTSchedulable& schedulable) const;
+	[[nodiscard]] bool isPending(const RTSchedulable& schedulable) const;
 
-private:
 	void scheduleHelper(uint64_t limit);
 
+private:
 	SchedulerQueue<RTSyncPoint> queue;
 };
 

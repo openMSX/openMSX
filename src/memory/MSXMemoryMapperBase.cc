@@ -7,9 +7,9 @@
 
 namespace openmsx {
 
-unsigned MSXMemoryMapperBase::getRamSize() const
+[[nodiscard]] static unsigned getRamSize(const DeviceConfig& config)
 {
-	int kSize = getDeviceConfig().getChildDataAsInt("size");
+	int kSize = config.getChildDataAsInt("size", 0);
 	if ((kSize % 16) != 0) {
 		throw MSXException("Mapper size is not a multiple of 16K: ", kSize);
 	}
@@ -22,7 +22,7 @@ unsigned MSXMemoryMapperBase::getRamSize() const
 MSXMemoryMapperBase::MSXMemoryMapperBase(const DeviceConfig& config)
 	: MSXDevice(config)
 	, MSXMapperIOClient(getMotherBoard())
-	, checkedRam(config, getName(), "memory mapper", getRamSize())
+	, checkedRam(config, getName(), "memory mapper", getRamSize(config))
 	, debuggable(getMotherBoard(), getName())
 {
 }

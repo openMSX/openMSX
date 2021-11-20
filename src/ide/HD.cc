@@ -9,11 +9,9 @@
 #include "Display.hh"
 #include "GlobalSettings.hh"
 #include "MSXException.hh"
-#include "HDCommand.hh"
 #include "Timer.hh"
 #include "serialize.hh"
 #include "tiger.hh"
-#include "xrange.hh"
 #include <cassert>
 #include <memory>
 
@@ -43,12 +41,11 @@ HD::HD(const DeviceConfig& config)
 	auto mode = File::NORMAL;
 	string cliImage = HDImageCLI::getImageForId(id);
 	if (cliImage.empty()) {
-		string original = config.getChildData("filename");
-		string resolved = config.getFileContext().resolveCreate(original);
-		filename = Filename(resolved);
+		const auto& original = config.getChildData("filename");
+		filename = Filename(config.getFileContext().resolveCreate(original));
 		mode = File::CREATE;
 	} else {
-		filename = Filename(cliImage, userFileContext());
+		filename = Filename(std::move(cliImage), userFileContext());
 	}
 
 	file = File(filename, mode);
@@ -56,14 +53,13 @@ HD::HD(const DeviceConfig& config)
 	if (mode == File::CREATE && filesize == 0) {
 		// OK, the file was just newly created. Now make sure the file
 		// is of the right (default) size
-		file.truncate(size_t(config.getChildDataAsInt("size")) * 1024 * 1024);
+		file.truncate(size_t(config.getChildDataAsInt("size", 0)) * 1024 * 1024);
 		filesize = file.getSize();
 	}
-	tigerTree = std::make_unique<TigerTree>(
-		*this, filesize, filename.getResolved());
+	tigerTree.emplace(*this, filesize, filename.getResolved());
 
 	(*hdInUse)[id] = true;
-	hdCommand = std::make_unique<HDCommand>(
+	hdCommand.emplace(
 		motherBoard.getCommandController(),
 		motherBoard.getStateChangeDistributor(),
 		motherBoard.getScheduler(),
@@ -87,8 +83,7 @@ void HD::switchImage(const Filename& newFilename)
 	file = File(newFilename);
 	filename = newFilename;
 	filesize = file.getSize();
-	tigerTree = std::make_unique<TigerTree>(*this, filesize,
-			filename.getResolved());
+	tigerTree.emplace(*this, filesize, filename.getResolved());
 	motherBoard.getMSXCliComm().update(CliComm::MEDIA, getName(),
 	                                   filename.getResolved());
 }
@@ -98,10 +93,11 @@ size_t HD::getNbSectorsImpl() const
 	return filesize / sizeof(SectorBuffer);
 }
 
-void HD::readSectorImpl(size_t sector, SectorBuffer& buf)
+void HD::readSectorsImpl(
+	SectorBuffer* buffers, size_t startSector, size_t num)
 {
-	file.seek(sector * sizeof(buf));
-	file.read(&buf, sizeof(buf));
+	file.seek(startSector * sizeof(SectorBuffer));
+	file.read(buffers, num * sizeof(SectorBuffer));
 }
 
 void HD::writeSectorImpl(size_t sector, const SectorBuffer& buf)
@@ -139,7 +135,7 @@ void HD::showProgress(size_t position, size_t maxPosition)
 		motherBoard.getMSXCliComm().printProgress(
 			"Calculating hash for ", filename.getResolved(),
 			"... ", percentage, '%');
-		motherBoard.getReactor().getDisplay().repaintDelayed(0);
+		motherBoard.getReactor().getDisplay().repaint();
 		everDidProgress = true;
 	}
 }
@@ -154,22 +150,20 @@ std::string HD::getTigerTreeHash()
 
 uint8_t* HD::getData(size_t offset, size_t size)
 {
-	assert(size <= 1024);
+	assert(size <= TigerTree::BLOCK_SIZE);
 	assert((offset % sizeof(SectorBuffer)) == 0);
 	assert((size   % sizeof(SectorBuffer)) == 0);
 
 	struct Work {
 		char extra; // at least one byte before 'bufs'
-		// likely here are padding bytes inbetween
-		SectorBuffer bufs[1024 / sizeof(SectorBuffer)];
+		// likely here are padding bytes in between
+		SectorBuffer bufs[TigerTree::BLOCK_SIZE / sizeof(SectorBuffer)];
 	};
 	static Work work; // not reentrant
 
 	size_t sector = offset / sizeof(SectorBuffer);
-	for (auto i : xrange(size / sizeof(SectorBuffer))) {
-		// This possibly applies IPS patches.
-		readSector(sector++, work.bufs[i]);
-	}
+	size_t num    = size   / sizeof(SectorBuffer);
+	readSectors(work.bufs, sector, num); // This possibly applies IPS patches.
 	return work.bufs[0].raw;
 }
 
@@ -186,7 +180,7 @@ SectorAccessibleDisk* HD::getSectorAccessibleDisk()
 	return this;
 }
 
-const std::string& HD::getContainerName() const
+std::string_view HD::getContainerName() const
 {
 	return getName();
 }
@@ -196,10 +190,10 @@ bool HD::diskChanged()
 	return false; // TODO not implemented
 }
 
-int HD::insertDisk(std::string_view newFilename)
+int HD::insertDisk(const std::string& newFilename)
 {
 	try {
-		switchImage(Filename(string(newFilename)));
+		switchImage(Filename(newFilename));
 		return 0;
 	} catch (MSXException&) {
 		return -1;
@@ -213,7 +207,7 @@ void HD::serialize(Archive& ar, unsigned version)
 {
 	Filename tmp = file.is_open() ? filename : Filename();
 	ar.serialize("filename", tmp);
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		if (tmp.empty()) {
 			// Lazily open file specified in config. And close if
 			// it was already opened (in the constructor). The
@@ -245,9 +239,12 @@ void HD::serialize(Archive& ar, unsigned version)
 
 		if (ar.versionAtLeast(version, 2)) {
 			// use tiger-tree-hash
-			string oldTiger = ar.isLoader() ? string{} : getTigerTreeHash();
+			string oldTiger;
+			if constexpr (!Archive::IS_LOADER) {
+				oldTiger = getTigerTreeHash();
+			}
 			ar.serialize("tthsum", oldTiger);
-			if (ar.isLoader()) {
+			if constexpr (Archive::IS_LOADER) {
 				string newTiger = getTigerTreeHash();
 				mismatch = oldTiger != newTiger;
 			}
@@ -255,7 +252,7 @@ void HD::serialize(Archive& ar, unsigned version)
 			// use sha1
 			auto& filepool = motherBoard.getReactor().getFilePool();
 			Sha1Sum oldChecksum;
-			if (!ar.isLoader()) {
+			if constexpr (!Archive::IS_LOADER) {
 				oldChecksum = getSha1Sum(filepool);
 			}
 			string oldChecksumStr = oldChecksum.empty()
@@ -266,21 +263,23 @@ void HD::serialize(Archive& ar, unsigned version)
 				    ? Sha1Sum()
 				    : Sha1Sum(oldChecksumStr);
 
-			if (ar.isLoader()) {
+			if constexpr (Archive::IS_LOADER) {
 				Sha1Sum newChecksum = getSha1Sum(filepool);
 				mismatch = oldChecksum != newChecksum;
 			}
 		}
 
-		if (ar.isLoader() && mismatch) {
-			motherBoard.getMSXCliComm().printWarning(
-				"The content of the harddisk ",
-				tmp.getResolved(),
-				" has changed since the time this savestate was "
-				"created. This might result in emulation problems "
-				"or even diskcorruption. To prevent the latter, "
-				"the harddisk is now write-protected.");
-			forceWriteProtect();
+		if constexpr (Archive::IS_LOADER) {
+			if (mismatch) {
+				motherBoard.getMSXCliComm().printWarning(
+					"The content of the harddisk ",
+					tmp.getResolved(),
+					" has changed since the time this savestate was "
+					"created. This might result in emulation problems "
+					"or even diskcorruption. To prevent the latter, "
+					"the harddisk is now write-protected.");
+				forceWriteProtect();
+			}
 		}
 	}
 }

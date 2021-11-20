@@ -1,5 +1,6 @@
 #include "catch.hpp"
 #include "sha1.hh"
+#include "xrange.hh"
 #include <cstring>
 #include <sstream>
 
@@ -106,7 +107,7 @@ TEST_CASE("Sha1Sum: stream")
 TEST_CASE("sha1: calc")
 {
 	const char* in = "abc";
-	Sha1Sum output = SHA1::calc(reinterpret_cast<const uint8_t*>(in), strlen(in));
+	Sha1Sum output = SHA1::calc({reinterpret_cast<const uint8_t*>(in), strlen(in)});
 	CHECK(output.toString() == "a9993e364706816aba3e25717850c26c9cd0d89d");
 }
 
@@ -115,7 +116,7 @@ TEST_CASE("sha1: update,digest")
 	SHA1 sha1;
 	SECTION("single block") {
 		const char* in = "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq";
-		sha1.update(reinterpret_cast<const uint8_t*>(in), strlen(in));
+		sha1.update({reinterpret_cast<const uint8_t*>(in), strlen(in)});
 		Sha1Sum sum1 = sha1.digest();
 		Sha1Sum sum2 = sha1.digest(); // call 2nd time is ok
 		CHECK(sum1 == sum2);
@@ -124,11 +125,54 @@ TEST_CASE("sha1: update,digest")
 	SECTION("multiple blocks") {
 		const char* in = "aaaaaaaaaaaaaaaaaaaaaaaaa";
 		REQUIRE(strlen(in) == 25);
-		for (int i = 0; i < 40000; ++i) {
-			sha1.update(reinterpret_cast<const uint8_t*>(in), strlen(in));
-		}
+		repeat(40000, [&] {
+			sha1.update({reinterpret_cast<const uint8_t*>(in), strlen(in)});
+		});
 		// 25 * 40'000 = 1'000'000 repetitions of "a"
 		Sha1Sum sum = sha1.digest();
 		CHECK(sum.toString() == "34aa973cd4c4daa4f61eeb2bdbad27316534016f");
+	}
+}
+
+TEST_CASE("sha1: finalize")
+{
+	// white-box test for boundary cases in finalize()
+	SHA1 sha1;
+	const char* in = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+	                 "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+	SECTION("0") {
+		sha1.update({reinterpret_cast<const uint8_t*>(in), size_t(0)});
+		auto sum = sha1.digest();
+		CHECK(sum.toString() == "da39a3ee5e6b4b0d3255bfef95601890afd80709");
+	}
+	SECTION("25") {
+		sha1.update({reinterpret_cast<const uint8_t*>(in), 25});
+		auto sum = sha1.digest();
+		CHECK(sum.toString() == "44f4647e1542a79d7d68ceb7f75d1dbf77fdebfc");
+	}
+	SECTION("55") {
+		sha1.update({reinterpret_cast<const uint8_t*>(in), 55});
+		auto sum = sha1.digest();
+		CHECK(sum.toString() == "c1c8bbdc22796e28c0e15163d20899b65621d65a");
+	}
+	SECTION("56") {
+		sha1.update({reinterpret_cast<const uint8_t*>(in), 56});
+		auto sum = sha1.digest();
+		CHECK(sum.toString() == "c2db330f6083854c99d4b5bfb6e8f29f201be699");
+	}
+	SECTION("60") {
+		sha1.update({reinterpret_cast<const uint8_t*>(in), 60});
+		auto sum = sha1.digest();
+		CHECK(sum.toString() == "13d956033d9af449bfe2c4ef78c17c20469c4bf1");
+	}
+	SECTION("63") {
+		sha1.update({reinterpret_cast<const uint8_t*>(in), 63});
+		auto sum = sha1.digest();
+		CHECK(sum.toString() == "03f09f5b158a7a8cdad920bddc29b81c18a551f5");
+	}
+	SECTION("64") {
+		sha1.update({reinterpret_cast<const uint8_t*>(in), 64});
+		auto sum = sha1.digest();
+		CHECK(sum.toString() == "0098ba824b5c16427bd7a1122a5a442a25ec644d");
 	}
 }

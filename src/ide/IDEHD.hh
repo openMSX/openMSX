@@ -23,13 +23,14 @@ public:
 
 private:
 	// AbstractIDEDevice:
-	bool isPacketDevice() override;
-	const std::string& getDeviceName() override;
+	[[nodiscard]] bool isPacketDevice() override;
+	[[nodiscard]] std::string_view getDeviceName() override;
 	void fillIdentifyBlock (AlignedBuffer& buffer) override;
-	unsigned readBlockStart(AlignedBuffer& buffer, unsigned count) override;
+	[[nodiscard]] unsigned readBlockStart(AlignedBuffer& buffer, unsigned count) override;
 	void writeBlockComplete(AlignedBuffer& buffer, unsigned count) override;
 	void executeCommand(byte cmd) override;
 
+private:
 	DiskManipulator& diskManipulator;
 	unsigned transferSectorNumber;
 };

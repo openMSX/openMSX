@@ -6,8 +6,6 @@
 #include "unreachable.hh"
 #include <memory>
 
-using std::string;
-
 namespace openmsx {
 
 MSXPrinterPort::MSXPrinterPort(const DeviceConfig& config)
@@ -98,14 +96,14 @@ MSXPrinterPort::Debuggable::Debuggable(MSXMotherBoard& motherBoard_, const std::
 
 byte MSXPrinterPort::Debuggable::read(unsigned address)
 {
-	auto& pport = OUTER(MSXPrinterPort, debuggable);
-	return (address == 0) ? pport.strobe : pport.data;
+	auto& pPort = OUTER(MSXPrinterPort, debuggable);
+	return (address == 0) ? pPort.strobe : pPort.data;
 }
 
 void MSXPrinterPort::Debuggable::write(unsigned address, byte value)
 {
-	auto& pport = OUTER(MSXPrinterPort, debuggable);
-	pport.writeIO(address, value, pport.getCurrentTime());
+	auto& pPort = OUTER(MSXPrinterPort, debuggable);
+	pPort.writeIO(address, value, pPort.getCurrentTime());
 }
 
 

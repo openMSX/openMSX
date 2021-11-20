@@ -12,8 +12,8 @@ class RomDRAM final : public MSXRom
 public:
 	RomDRAM(const DeviceConfig& config, Rom&& rom);
 
-	byte readMem(word address, EmuTime::param time) override;
-	const byte* getReadCacheLine(word address) const override;
+	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
+	[[nodiscard]] const byte* getReadCacheLine(word address) const override;
 
 private:
 	PanasonicMemory& panasonicMemory;

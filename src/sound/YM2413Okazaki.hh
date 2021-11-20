@@ -61,7 +61,7 @@ public:
 	void reset();
 
 	inline void setEnvelopeState(EnvelopeState state);
-	inline bool isActive() const;
+	[[nodiscard]] inline bool isActive() const;
 
 	inline void slotOn();
 	inline void slotOn2();
@@ -69,20 +69,20 @@ public:
 	inline void setPatch(const Patch& patch);
 	inline void setVolume(unsigned value);
 
-	inline unsigned calc_phase(unsigned lfo_pm);
-	template <bool HAS_AM, bool FIXED_ENV>
-	inline unsigned calc_envelope(int lfo_am, unsigned fixed_env);
-	template <bool HAS_AM> unsigned calc_fixed_env() const;
+	[[nodiscard]] inline unsigned calc_phase(unsigned lfo_pm);
+	template<bool HAS_AM, bool FIXED_ENV>
+	[[nodiscard]] inline unsigned calc_envelope(int lfo_am, unsigned fixed_env);
+	template<bool HAS_AM> [[nodiscard]] unsigned calc_fixed_env() const;
 	void calc_envelope_outline(unsigned& out);
 	template<bool HAS_AM, bool FIXED_ENV>
-	inline int calc_slot_car(unsigned lfo_pm, int lfo_am, int fm, unsigned fixed_env);
+	[[nodiscard]] inline int calc_slot_car(unsigned lfo_pm, int lfo_am, int fm, unsigned fixed_env);
 	template<bool HAS_AM, bool HAS_FB, bool FIXED_ENV>
-	inline int calc_slot_mod(unsigned lfo_pm, int lfo_am, unsigned fixed_env);
+	[[nodiscard]] inline int calc_slot_mod(unsigned lfo_pm, int lfo_am, unsigned fixed_env);
 
-	inline int calc_slot_tom();
-	inline int calc_slot_snare(bool noise);
-	inline int calc_slot_cym(unsigned phase7, unsigned phase8);
-	inline int calc_slot_hat(unsigned phase7, unsigned phase8, bool noise);
+	[[nodiscard]] inline int calc_slot_tom();
+	[[nodiscard]] inline int calc_slot_snare(bool noise);
+	[[nodiscard]] inline int calc_slot_cym(unsigned phase7, unsigned phase8);
+	[[nodiscard]] inline int calc_slot_hat(unsigned phase7, unsigned phase8, bool noise);
 	inline void updatePG(unsigned freq);
 	inline void updateTLL(unsigned freq, bool actAsCarrier);
 	inline void updateRKS(unsigned freq);
@@ -97,16 +97,16 @@ public:
 	int output;		// Output value of slot
 
 	// for Phase Generator (PG)
-	unsigned cphase;	// Phase counter
-	unsigned dphase[8];	// Phase increment
+	unsigned cPhase;	// Phase counter
+	unsigned dPhase[8];	// Phase increment
 
 	// for Envelope Generator (EG)
 	unsigned volume;             // Current volume
 	unsigned tll;                // Total Level + Key scale level
-	const int* dphaseDRTableRks; // (converted to EnvPhaseIndex)
+	const int* dPhaseDRTableRks; // (converted to EnvPhaseIndex)
 	EnvelopeState state;         // Current state
 	EnvPhaseIndex eg_phase;      // Phase
-	EnvPhaseIndex eg_dphase;     // Phase increment amount
+	EnvPhaseIndex eg_dPhase;     // Phase increment amount
 	EnvPhaseIndex eg_phase_max;
 	uint8_t slot_on_flag;
 	bool sustain;                // Sustain
@@ -139,11 +139,11 @@ public:
 	void reset() override;
 	void writePort(bool port, uint8_t value, int offset) override;
 	void pokeReg(uint8_t reg, uint8_t data) override;
-	uint8_t peekReg(uint8_t reg) const override;
+	[[nodiscard]] uint8_t peekReg(uint8_t reg) const override;
 	void generateChannels(float* bufs[9 + 5], unsigned num) override;
-	float getAmplificationFactor() const override;
+	[[nodiscard]] float getAmplificationFactor() const override;
 
-	Patch& getPatch(unsigned instrument, bool carrier);
+	[[nodiscard]] Patch& getPatch(unsigned instrument, bool carrier);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -163,10 +163,10 @@ private:
 	inline void keyOff_CYM();
 	inline void setRhythmFlags(uint8_t old);
 	inline void update_key_status();
-	inline bool isRhythm() const;
-	inline unsigned getFreq(unsigned channel) const;
+	[[nodiscard]] inline bool isRhythm() const;
+	[[nodiscard]] inline unsigned getFreq(unsigned channel) const;
 
-	template <unsigned FLAGS>
+	template<unsigned FLAGS>
 	inline void calcChannel(Channel& ch, float* buf, unsigned num);
 
 private:

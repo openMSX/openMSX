@@ -23,7 +23,7 @@
 #ifndef OPLL_H
 #define OPLL_H
 
-#include <stdint.h>
+#include <cstdint>
 
 enum {
     opll_type_ym2413 = 0x00,    /* Yamaha YM2413  */
@@ -60,7 +60,7 @@ enum {
     opll_patch_max
 };
 
-typedef struct {
+struct opll_patch_t {
     uint8_t tl;
     uint8_t dc;
     uint8_t dm;
@@ -75,9 +75,9 @@ typedef struct {
     uint8_t dr[2];
     uint8_t sl[2];
     uint8_t rr[2];
-} opll_patch_t;
+};
 
-typedef struct {
+struct opll_t {
     uint32_t chip_type;
     uint32_t cycles;
     uint32_t slot;
@@ -190,10 +190,10 @@ typedef struct {
 
     int16_t output_m;
     int16_t output_r;
-
-} opll_t;
+};
 
 void OPLL_Reset(opll_t *chip, uint32_t chip_type);
 void OPLL_Clock(opll_t *chip, int32_t *buffer);
 void OPLL_Write(opll_t *chip, uint32_t port, uint8_t data);
+
 #endif

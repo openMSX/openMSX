@@ -1,44 +1,13 @@
 #include "StringOp.hh"
 #include "MSXException.hh"
-#include "likely.hh"
 #include "ranges.hh"
 #include "stl.hh"
-#include "view.hh"
 #include <cstdlib>
-#include <stdexcept>
 
 using std::string;
 using std::string_view;
-using std::vector;
 
 namespace StringOp {
-
-int stringToInt(const string& str)
-{
-	return strtol(str.c_str(), nullptr, 0);
-}
-bool stringToInt(const string& str, int& result)
-{
-	char* endptr;
-	result = strtol(str.c_str(), &endptr, 0);
-	return *endptr == '\0';
-}
-
-unsigned stringToUint(const string& str)
-{
-	return strtoul(str.c_str(), nullptr, 0);
-}
-bool stringToUint(const string& str, unsigned& result)
-{
-	char* endptr;
-	result = strtoul(str.c_str(), &endptr, 0);
-	return *endptr == '\0';
-}
-
-uint64_t stringToUint64(const string& str)
-{
-	return strtoull(str.c_str(), nullptr, 0);
-}
 
 bool stringToBool(string_view str)
 {
@@ -50,23 +19,12 @@ bool stringToBool(string_view str)
 	return false;
 }
 
-double stringToDouble(const string& str)
-{
-	return strtod(str.c_str(), nullptr);
-}
-bool stringToDouble(const string& str, double& result)
-{
-	char* endptr;
-	result = strtod(str.c_str(), &endptr);
-	return *endptr == '\0';
-}
-
-string toLower(string_view str)
-{
-	string result(str);
-	transform_in_place(result, ::tolower);
-	return result;
-}
+//string toLower(string_view str)
+//{
+//	string result(str);
+//	transform_in_place(result, ::tolower);
+//	return result;
+//}
 
 bool startsWith(string_view total, string_view part)
 {
@@ -184,42 +142,36 @@ std::pair<string_view, string_view> splitOnLast(string_view str, char chars)
 	}
 }
 
-vector<string_view> split(string_view str, char chars)
-{
-	vector<string_view> result;
-	while (!str.empty()) {
-		auto [first, last] = splitOnFirst(str, chars);
-		result.push_back(first);
-		str = last;
-	}
-	return result;
-}
+//std::vector<string_view> split(string_view str, char chars)
+//{
+//	std::vector<string_view> result;
+//	while (!str.empty()) {
+//		auto [first, last] = splitOnFirst(str, chars);
+//		result.push_back(first);
+//		str = last;
+//	}
+//	return result;
+//}
 
 static unsigned parseNumber(string_view str)
 {
 	trim(str, " \t");
-	if (!str.empty()) {
-		try {
-			return fast_stou(str);
-		} catch (std::invalid_argument&) {
-			// parse error
-		}
+	auto r = stringToBase<10, unsigned>(str);
+	if (!r) {
+		throw openmsx::MSXException("Invalid integer: ", str);
 	}
-	throw openmsx::MSXException("Invalid integer: ", str);
+	return *r;
 }
 
-static void insert(unsigned x, vector<unsigned>& result, unsigned min, unsigned max)
+static void checkRange(unsigned x, unsigned min, unsigned max)
 {
-	if ((x < min) || (x > max)) {
-		throw openmsx::MSXException("Out of range");
-	}
-	if (auto it = ranges::lower_bound(result, x);
-	    (it == end(result)) || (*it != x)) {
-		result.insert(it, x);
-	}
+	if ((min <= x) && (x <= max)) return;
+	throw openmsx::MSXException(
+		"Out of range, should be between [, ", min, ", ", max,
+		"], but got: ", x);
 }
 
-static void parseRange2(string_view str, vector<unsigned>& result,
+static void parseRange2(string_view str, IterableBitSet<64>& result,
                         unsigned min, unsigned max)
 {
 	// trimRight only: here we only care about all spaces
@@ -227,22 +179,27 @@ static void parseRange2(string_view str, vector<unsigned>& result,
 	if (str.empty()) return;
 
 	if (auto pos = str.find('-'); pos == string_view::npos) {
-		insert(parseNumber(str), result, min, max);
+		auto x = parseNumber(str);
+		checkRange(x, min, max);
+		result.set(x);
 	} else {
 		unsigned begin = parseNumber(str.substr(0, pos));
 		unsigned end   = parseNumber(str.substr(pos + 1));
 		if (end < begin) {
 			std::swap(begin, end);
 		}
-		for (unsigned i = begin; i <= end; ++i) {
-			insert(i, result, min, max);
-		}
+		checkRange(begin, min, max);
+		checkRange(end,   min, max);
+		result.setRange(begin, end + 1);
 	}
 }
 
-vector<unsigned> parseRange(string_view str, unsigned min, unsigned max)
+IterableBitSet<64> parseRange(string_view str, unsigned min, unsigned max)
 {
-	vector<unsigned> result;
+	assert(min <= max);
+	assert(max < 64);
+
+	IterableBitSet<64> result;
 	while (true) {
 		auto next = str.find(',');
 		string_view sub = (next == string_view::npos)
@@ -251,20 +208,6 @@ vector<unsigned> parseRange(string_view str, unsigned min, unsigned max)
 		parseRange2(sub, result, min, max);
 		if (next == string_view::npos) break;
 		str = str.substr(next);
-	}
-	return result;
-}
-
-unsigned fast_stou(string_view s)
-{
-	unsigned result = 0;
-	for (char c : s) {
-		unsigned d = c - '0';
-		if (unlikely(d > 9)) {
-			throw std::invalid_argument("fast_stoi");
-		}
-		result *= 10;
-		result += d;
 	}
 	return result;
 }

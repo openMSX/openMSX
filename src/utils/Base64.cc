@@ -1,16 +1,16 @@
 #include "Base64.hh"
 #include "likely.hh"
+#include "xrange.hh"
 #include <algorithm>
 #include <cassert>
 
 namespace Base64 {
 
-using std::string;
 using openmsx::MemBuffer;
 
-static inline char encode(uint8_t c)
+[[nodiscard]] static constexpr char encode(uint8_t c)
 {
-	static constexpr const char* const base64_chars =
+	constexpr const char* const base64_chars =
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		"abcdefghijklmnopqrstuvwxyz"
 		"0123456789+/";
@@ -18,7 +18,7 @@ static inline char encode(uint8_t c)
 	return base64_chars[c];
 }
 
-static inline uint8_t decode(uint8_t c)
+[[nodiscard]] static constexpr uint8_t decode(uint8_t c)
 {
 	if        ('A' <= c && c <= 'Z') {
 		return c - 'A';
@@ -35,14 +35,14 @@ static inline uint8_t decode(uint8_t c)
 	}
 }
 
-string encode(const uint8_t* input, size_t inSize)
+std::string encode(const uint8_t* input, size_t inSize)
 {
 	constexpr int CHUNKS = 19;
 	constexpr int IN_CHUNKS  = 3 * CHUNKS;
 	constexpr int OUT_CHUNKS = 4 * CHUNKS; // 76 chars per line
 
 	auto outSize = ((inSize + (IN_CHUNKS - 1)) / IN_CHUNKS) * (OUT_CHUNKS + 1); // overestimation
-	string ret(outSize, 0); // too big
+	std::string ret(outSize, 0); // too big
 
 	size_t out = 0;
 	while (inSize) {
@@ -60,7 +60,7 @@ string encode(const uint8_t* input, size_t inSize)
 		}
 		if (n) {
 			uint8_t buf3[3] = { 0, 0, 0 };
-			for (unsigned i = 0; i < n; ++i) {
+			for (auto i : xrange(n)) {
 				buf3[i] = input[i];
 			}
 			uint8_t buf4[4];
@@ -70,7 +70,7 @@ string encode(const uint8_t* input, size_t inSize)
 			buf4[2] = ((buf3[1] & 0x0f) << 2) +
 				  ((buf3[2] & 0xc0) >> 6);
 			buf4[3] =  (buf3[2] & 0x3f) >> 0;
-			for (unsigned j = 0; (j < n + 1); ++j) {
+			for (auto j : xrange(n + 1)) {
 				ret[out++] = encode(buf4[j]);
 			}
 			for (/**/; n < 3; ++n) {
@@ -105,14 +105,14 @@ std::pair<MemBuffer<uint8_t>, size_t> decode(std::string_view input)
 		}
 	}
 	if (i) {
-		for (unsigned j = i; j < 4; ++j) {
+		for (auto j : xrange(i, 4u)) {
 			buf4[j] = 0;
 		}
 		uint8_t buf3[3];
 		buf3[0] = ((buf4[0] & 0xff) << 2) + ((buf4[1] & 0x30) >> 4);
 		buf3[1] = ((buf4[1] & 0x0f) << 4) + ((buf4[2] & 0x3c) >> 2);
 		buf3[2] = ((buf4[2] & 0x03) << 6) + ((buf4[3] & 0xff) >> 0);
-		for (unsigned j = 0; (j < i - 1); ++j) {
+		for (auto j : xrange(i - 1)) {
 			ret[out++] = buf3[j];
 		}
 	}
@@ -140,14 +140,14 @@ bool decode_inplace(std::string_view input, uint8_t* output, size_t outSize)
 		}
 	}
 	if (i) {
-		for (unsigned j = i; j < 4; ++j) {
+		for (auto j : xrange(i, 4u)) {
 			buf4[j] = 0;
 		}
 		uint8_t buf3[3];
 		buf3[0] = ((buf4[0] & 0xff) << 2) + ((buf4[1] & 0x30) >> 4);
 		buf3[1] = ((buf4[1] & 0x0f) << 4) + ((buf4[2] & 0x3c) >> 2);
 		buf3[2] = ((buf4[2] & 0x03) << 6) + ((buf4[3] & 0xff) >> 0);
-		for (unsigned j = 0; (j < i - 1); ++j) {
+		for (auto j : xrange(i - 1)) {
 			if (unlikely(out == outSize)) return false;
 			output[out++] = buf3[j];
 		}

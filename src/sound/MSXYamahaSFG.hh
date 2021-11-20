@@ -15,12 +15,12 @@ public:
 	explicit MSXYamahaSFG(const DeviceConfig& config);
 
 	void reset(EmuTime::param time) override;
-	byte readMem(word address, EmuTime::param time) override;
-	byte peekMem(word address, EmuTime::param time) const override;
-	const byte* getReadCacheLine(word start) const override;
+	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
+	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;
+	[[nodiscard]] const byte* getReadCacheLine(word start) const override;
 	void writeMem(word address, byte value, EmuTime::param time) override;
-	byte* getWriteCacheLine(word start) const override;
-	byte readIRQVector() override;
+	[[nodiscard]] byte* getWriteCacheLine(word start) const override;
+	[[nodiscard]] byte readIRQVector() override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -29,6 +29,7 @@ private:
 	void writeRegisterPort(byte value, EmuTime::param time);
 	void writeDataPort(byte value, EmuTime::param time);
 
+private:
 	Rom rom;
 	YM2151 ym2151;
 	YM2148 ym2148;

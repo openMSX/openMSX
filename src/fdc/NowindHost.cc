@@ -1,10 +1,14 @@
 #include "NowindHost.hh"
 #include "DiskContainer.hh"
+#include "FileOperations.hh"
+#include "MSXException.hh"
 #include "SectorAccessibleDisk.hh"
+#include "enumerate.hh"
+#include "one_of.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
-#include "one_of.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include <algorithm>
 #include <cassert>
 #include <cctype>
@@ -15,9 +19,6 @@
 #include <memory>
 
 using std::string;
-using std::vector;
-using std::fstream;
-using std::ios;
 
 namespace openmsx {
 
@@ -267,7 +268,9 @@ void NowindHost::DSKCHG()
 		send(255); // changed
 		// read first FAT sector (contains media descriptor)
 		SectorBuffer sectorBuffer;
-		if (disk->readSectors(&sectorBuffer, 1, 1)) {
+		try {
+			disk->readSectors(&sectorBuffer, 1, 1);
+		} catch (MSXException&) {
 			// TODO read error
 			sectorBuffer.raw[0] = 0;
 		}
@@ -281,7 +284,7 @@ void NowindHost::DSKCHG()
 
 void NowindHost::DRIVES()
 {
-	// at least one drive (MSXDOS1 cannot handle 0 drives)
+	// at least one drive (MSX-DOS1 cannot handle 0 drives)
 	byte numberOfDrives = std::max<byte>(1, byte(drives.size()));
 
 	byte reg_a = cmdData[7];
@@ -291,9 +294,9 @@ void NowindHost::DRIVES()
 	send(numberOfDrives);
 
 	romdisk = 255; // no romdisk
-	for (size_t i = 0; i < drives.size(); ++i) {
-		if (drives[i]->isRomdisk()) {
-			romdisk = i;
+	for (auto [i, drv] : enumerate(drives)) {
+		if (drv->isRomdisk()) {
+			romdisk = byte(i);
 			break;
 		}
 	}
@@ -342,8 +345,8 @@ unsigned NowindHost::getStartAddress() const
 }
 unsigned NowindHost::getCurrentAddress() const
 {
-	unsigned startAdress = getStartAddress();
-	return startAdress + transferred;
+	unsigned startAddress = getStartAddress();
+	return startAddress + transferred;
 }
 
 
@@ -352,7 +355,9 @@ void NowindHost::diskReadInit(SectorAccessibleDisk& disk)
 	unsigned sectorAmount = getSectorAmount();
 	buffer.resize(sectorAmount);
 	unsigned startSector = getStartSector();
-	if (disk.readSectors(buffer.data(), startSector, sectorAmount)) {
+	try {
+		disk.readSectors(buffer.data(), startSector, sectorAmount);
+	} catch (MSXException&) {
 		// read error
 		state = STATE_SYNC1;
 		return;
@@ -445,7 +450,7 @@ void NowindHost::transferSectors(unsigned transferAddress, unsigned amount)
 	send16(amount);
 
 	auto* bufferPointer = buffer[0].raw + transferred;
-	for (unsigned i = 0; i < amount; ++i) {
+	for (auto i : xrange(amount)) {
 		send(bufferPointer[i]);
 	}
 	send(0xAF);
@@ -493,7 +498,9 @@ void NowindHost::doDiskWrite1()
 		auto sectorAmount = unsigned(buffer.size());
 		unsigned startSector = getStartSector();
 		if (auto* disk = getDisk()) {
-			if (disk->writeSectors(&buffer[0], startSector, sectorAmount)) {
+			try {
+				disk->writeSectors(&buffer[0], startSector, sectorAmount);
+			} catch (MSXException&) {
 				// TODO write error
 			}
 		}
@@ -528,7 +535,7 @@ void NowindHost::doDiskWrite2()
 {
 	assert(recvCount == (transferSize + 2));
 	auto* buf = buffer[0].raw + transferred;
-	for (unsigned i = 0; i < transferSize; ++i) {
+	for (auto i : xrange(transferSize)) {
 		buf[i] = extraData[i + 1];
 	}
 
@@ -566,7 +573,7 @@ unsigned NowindHost::getFCB() const
 string NowindHost::extractName(int begin, int end) const
 {
 	string result;
-	for (int i = begin; i < end; ++i) {
+	for (auto i : xrange(begin, end)) {
 		char c = extraData[i];
 		if (c == ' ') break;
 		result += char(toupper(c));
@@ -577,9 +584,9 @@ string NowindHost::extractName(int begin, int end) const
 int NowindHost::getDeviceNum() const
 {
 	unsigned fcb = getFCB();
-	for (unsigned i = 0; i < MAX_DEVICES; ++i) {
-		if (devices[i].fs && devices[i].fcb == fcb) {
-			return i;
+	for (auto [i, dev] : enumerate(devices)) {
+		if (dev.fs && dev.fcb == fcb) {
+			return int(i);
 		}
 	}
 	return -1;
@@ -587,17 +594,14 @@ int NowindHost::getDeviceNum() const
 
 int NowindHost::getFreeDeviceNum()
 {
-	int dev = getDeviceNum();
-	if (dev != -1) {
+	if (int dev = getDeviceNum(); dev != -1) {
 		// There already was a device open with this fcb address,
 		// reuse that device.
 		return dev;
 	}
 	// Search for free device.
-	for (unsigned i = 0; i < MAX_DEVICES; ++i) {
-		if (!devices[i].fs) {
-			return i;
-		}
+	for (auto [i, dev] : enumerate(devices)) {
+		if (!dev.fs) return int(i);
 	}
 	// All devices are in use. This can't happen when the MSX software
 	// functions correctly. We'll simply reuse the first device. It would
@@ -619,7 +623,7 @@ void NowindHost::deviceOpen()
 
 	unsigned fcb = getFCB();
 	unsigned dev = getFreeDeviceNum();
-	devices[dev].fs = std::make_unique<fstream>(); // takes care of deleting old fs
+	devices[dev].fs.emplace(); // takes care of deleting old fs
 	devices[dev].fcb = fcb;
 
 	sendHeader();
@@ -627,15 +631,15 @@ void NowindHost::deviceOpen()
 	byte openMode = cmdData[2]; // reg_e
 	switch (openMode) {
 	case 1: // read-only mode
-		devices[dev].fs->open(filename.c_str(), ios::in  | ios::binary);
+		devices[dev].fs->open(filename.c_str(), std::ios::in  | std::ios::binary);
 		errorCode = 53; // file not found
 		break;
 	case 2: // create new file, write-only
-		devices[dev].fs->open(filename.c_str(), ios::out | ios::binary);
+		devices[dev].fs->open(filename.c_str(), std::ios::out | std::ios::binary);
 		errorCode = 56; // bad file name
 		break;
 	case 8: // append to existing file, write-only
-		devices[dev].fs->open(filename.c_str(), ios::out | ios::binary | ios::app);
+		devices[dev].fs->open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::app);
 		errorCode = 53; // file not found
 		break;
 	case 4:
@@ -725,7 +729,7 @@ unsigned NowindHost::readHelper1(unsigned dev, char* buf)
 
 void NowindHost::readHelper2(unsigned len, const char* buf)
 {
-	for (unsigned i = 0; i < len; ++i) {
+	for (auto i : xrange(len)) {
 		send(buf[i]);
 	}
 	if (len < 256) {
@@ -736,7 +740,7 @@ void NowindHost::readHelper2(unsigned len, const char* buf)
 
 // strips a string from outer double-quotes and anything outside them
 // ie: 'pre("foo")bar' will result in 'foo'
-static std::string_view stripquotes(std::string_view str)
+static constexpr std::string_view stripquotes(std::string_view str)
 {
 	auto first = str.find_first_of('\"');
 	if (first == string::npos) {
@@ -759,13 +763,13 @@ void NowindHost::callImage(const string& filename)
 		// invalid drive number
 		return;
 	}
-	if (drives[num]->insertDisk(stripquotes(filename))) {
+	if (drives[num]->insertDisk(FileOperations::expandTilde(string(stripquotes(filename))))) {
 		// TODO error handling
 	}
 }
 
 
-static std::initializer_list<enum_string<NowindHost::State>> stateInfo = {
+static constexpr std::initializer_list<enum_string<NowindHost::State>> stateInfo = {
 	{ "SYNC1",     NowindHost::STATE_SYNC1     },
 	{ "SYNC2",     NowindHost::STATE_SYNC2     },
 	{ "COMMAND",   NowindHost::STATE_COMMAND   },
@@ -791,7 +795,7 @@ void NowindHost::serialize(Archive& ar, unsigned /*version*/)
 	// for backwards compatibility, serialize buffer as a vector<byte>
 	size_t bufSize = buffer.size() * sizeof(SectorBuffer);
 	byte* bufRaw = buffer.data()->raw;
-	vector<byte> tmp(bufRaw, bufRaw + bufSize);
+	std::vector<byte> tmp(bufRaw, bufRaw + bufSize);
 	ar.serialize("buffer", tmp);
 	memcpy(bufRaw, tmp.data(), bufSize);
 

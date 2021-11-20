@@ -1,38 +1,50 @@
 #include "KeyJoystick.hh"
 #include "MSXEventDistributor.hh"
 #include "StateChangeDistributor.hh"
-#include "InputEvents.hh"
+#include "Event.hh"
 #include "StateChange.hh"
-#include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
 
-using std::string;
-using std::shared_ptr;
-
 namespace openmsx {
+
+static std::string_view nameForId(KeyJoystick::ID id)
+{
+	switch (id) {
+		case KeyJoystick::ID1: return "keyjoystick1";
+		case KeyJoystick::ID2: return "keyjoystick2";
+		default: return "unknown-keyjoystick";
+	}
+}
 
 class KeyJoyState final : public StateChange
 {
 public:
 	KeyJoyState() = default; // for serialize
-	KeyJoyState(EmuTime::param time_, string name_,
+	KeyJoyState(EmuTime::param time_, KeyJoystick::ID id_,
 	            byte press_, byte release_)
 		: StateChange(time_)
-		, name(std::move(name_)), press(press_), release(release_) {}
-	const string& getName() const { return name; }
-	byte getPress()   const { return press; }
-	byte getRelease() const { return release; }
+		, id(id_), press(press_), release(release_) {}
+	[[nodiscard]] auto getId() const { return id; }
+	[[nodiscard]] byte getPress()   const { return press; }
+	[[nodiscard]] byte getRelease() const { return release; }
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
+		// for backwards compatibility serialize 'id' as 'name'
+		std::string name = Archive::IS_LOADER ? "" : std::string(nameForId(id));
 		ar.serialize("name",    name,
 		             "press",   press,
 		             "release", release);
+		if constexpr (Archive::IS_LOADER) {
+			id = (name == nameForId(KeyJoystick::ID1)) ? KeyJoystick::ID1
+			   : (name == nameForId(KeyJoystick::ID2)) ? KeyJoystick::ID2
+			   :                                         KeyJoystick::UNKNOWN;
+		}
 	}
 
 private:
-	string name;
+	KeyJoystick::ID id;
 	byte press, release;
 };
 REGISTER_POLYMORPHIC_CLASS(StateChange, KeyJoyState, "KeyJoyState");
@@ -40,22 +52,22 @@ REGISTER_POLYMORPHIC_CLASS(StateChange, KeyJoyState, "KeyJoyState");
 KeyJoystick::KeyJoystick(CommandController& commandController,
                          MSXEventDistributor& eventDistributor_,
                          StateChangeDistributor& stateChangeDistributor_,
-                         std::string name_)
+                         ID id_)
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
-	, name(std::move(name_))
-	, up   (commandController, name + ".up",
+	, up   (commandController, tmpStrCat(nameForId(id_), ".up"),
 		"key for direction up",    Keys::K_UP)
-	, down (commandController, name + ".down",
+	, down (commandController, tmpStrCat(nameForId(id_), ".down"),
 		"key for direction down",  Keys::K_DOWN)
-	, left (commandController, name + ".left",
+	, left (commandController, tmpStrCat(nameForId(id_), ".left"),
 		"key for direction left",  Keys::K_LEFT)
-	, right(commandController, name + ".right",
+	, right(commandController, tmpStrCat(nameForId(id_), ".right"),
 		"key for direction right", Keys::K_RIGHT)
-	, trigA(commandController, name + ".triga",
+	, trigA(commandController, tmpStrCat(nameForId(id_), ".triga"),
 		"key for trigger A",       Keys::K_SPACE)
-	, trigB(commandController, name + ".trigb",
+	, trigB(commandController, tmpStrCat(nameForId(id_), ".trigb"),
 		"key for trigger B",       Keys::K_M)
+	, id(id_)
 {
 	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	         JOY_BUTTONA | JOY_BUTTONB;
@@ -70,9 +82,9 @@ KeyJoystick::~KeyJoystick()
 
 
 // Pluggable
-const string& KeyJoystick::getName() const
+std::string_view KeyJoystick::getName() const
 {
-	return name;
+	return nameForId(id);
 }
 
 std::string_view KeyJoystick::getDescription() const
@@ -107,64 +119,53 @@ void KeyJoystick::write(byte value, EmuTime::param /*time*/)
 
 
 // MSXEventListener
-void KeyJoystick::signalMSXEvent(const shared_ptr<const Event>& event,
-                                 EmuTime::param time)
+void KeyJoystick::signalMSXEvent(const Event& event,
+                                 EmuTime::param time) noexcept
 {
 	byte press = 0;
 	byte release = 0;
-	switch (event->getType()) {
-	case OPENMSX_KEY_DOWN_EVENT:
-	case OPENMSX_KEY_UP_EVENT: {
-		auto& keyEvent = checked_cast<const KeyEvent&>(*event);
+	auto getKey = [&](const KeyEvent& e) {
 		auto key = static_cast<Keys::KeyCode>(
-			int(keyEvent.getKeyCode()) & int(Keys::K_MASK));
-		if (event->getType() == OPENMSX_KEY_DOWN_EVENT) {
-			if      (key == up   .getKey()) press   = JOY_UP;
-			else if (key == down .getKey()) press   = JOY_DOWN;
-			else if (key == left .getKey()) press   = JOY_LEFT;
-			else if (key == right.getKey()) press   = JOY_RIGHT;
-			else if (key == trigA.getKey()) press   = JOY_BUTTONA;
-			else if (key == trigB.getKey()) press   = JOY_BUTTONB;
-		} else {
-			if      (key == up   .getKey()) release = JOY_UP;
-			else if (key == down .getKey()) release = JOY_DOWN;
-			else if (key == left .getKey()) release = JOY_LEFT;
-			else if (key == right.getKey()) release = JOY_RIGHT;
-			else if (key == trigA.getKey()) release = JOY_BUTTONA;
-			else if (key == trigB.getKey()) release = JOY_BUTTONB;
-		}
-		break;
-	}
-	default:
-		// ignore
-		break;
-	}
+			int(e.getKeyCode()) & int(Keys::K_MASK));
+		if      (key == up   .getKey()) return JOY_UP;
+		else if (key == down .getKey()) return JOY_DOWN;
+		else if (key == left .getKey()) return JOY_LEFT;
+		else if (key == right.getKey()) return JOY_RIGHT;
+		else if (key == trigA.getKey()) return JOY_BUTTONA;
+		else if (key == trigB.getKey()) return JOY_BUTTONB;
+		else                            return 0;
+	};
+	visit(overloaded{
+		[&](const KeyDownEvent& e) { press   = getKey(e); },
+		[&](const KeyUpEvent&   e) { release = getKey(e); },
+		[](const EventBase&) { /*ignore*/ }
+	}, event);
 
 	if (((status & ~press) | release) != status) {
-		stateChangeDistributor.distributeNew(std::make_shared<KeyJoyState>(
-			time, name, press, release));
+		stateChangeDistributor.distributeNew<KeyJoyState>(
+			time, id, press, release);
 	}
 }
 
 // StateChangeListener
-void KeyJoystick::signalStateChange(const shared_ptr<StateChange>& event)
+void KeyJoystick::signalStateChange(const StateChange& event)
 {
-	auto kjs = dynamic_cast<const KeyJoyState*>(event.get());
+	const auto* kjs = dynamic_cast<const KeyJoyState*>(&event);
 	if (!kjs) return;
-	if (kjs->getName() != name) return;
+	if (kjs->getId() != id) return;
 
 	status = (status & ~kjs->getPress()) | kjs->getRelease();
 }
 
-void KeyJoystick::stopReplay(EmuTime::param time)
+void KeyJoystick::stopReplay(EmuTime::param time) noexcept
 {
 	// TODO read actual host key state
 	byte newStatus = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	                 JOY_BUTTONA | JOY_BUTTONB;
 	if (newStatus != status) {
 		byte release = newStatus & ~status;
-		stateChangeDistributor.distributeNew(std::make_shared<KeyJoyState>(
-			time, name, 0, release));
+		stateChangeDistributor.distributeNew<KeyJoyState>(
+			time, id, 0, release);
 	}
 }
 
@@ -178,8 +179,10 @@ void KeyJoystick::serialize(Archive& ar, unsigned version)
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("status", status);
 	}
-	if (ar.isLoader() && isPluggedIn()) {
-		plugHelper(*getConnector(), EmuTime::dummy());
+	if constexpr (Archive::IS_LOADER) {
+		if (isPluggedIn()) {
+			plugHelper(*getConnector(), EmuTime::dummy());
+		}
 	}
 	// no need to serialize 'pin8'
 }

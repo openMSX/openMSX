@@ -10,15 +10,15 @@
 
 namespace openmsx {
 
-template <typename Pixel>
+template<typename Pixel>
 class SuperImposedFrameImpl final : public SuperImposedFrame
 {
 public:
 	explicit SuperImposedFrameImpl(const PixelFormat& format);
 
 private:
-	unsigned getLineWidth(unsigned line) const override;
-	const void* getLineInfo(
+	[[nodiscard]] unsigned getLineWidth(unsigned line) const override;
+	[[nodiscard]] const void* getLineInfo(
 		unsigned line, unsigned& width,
 		void* buf, unsigned bufWidth) const override;
 
@@ -60,7 +60,7 @@ void SuperImposedFrame::init(
 
 // class SuperImposedFrameImpl
 
-template <typename Pixel>
+template<typename Pixel>
 SuperImposedFrameImpl<Pixel>::SuperImposedFrameImpl(
 		const PixelFormat& format)
 	: SuperImposedFrame(format)
@@ -68,7 +68,7 @@ SuperImposedFrameImpl<Pixel>::SuperImposedFrameImpl(
 {
 }
 
-template <typename Pixel>
+template<typename Pixel>
 unsigned SuperImposedFrameImpl<Pixel>::getLineWidth(unsigned line) const
 {
 	unsigned tNum = (getHeight() == top   ->getHeight()) ? line : line / 2;
@@ -78,7 +78,7 @@ unsigned SuperImposedFrameImpl<Pixel>::getLineWidth(unsigned line) const
 	return std::max(tWidth, bWidth);
 }
 
-template <typename Pixel>
+template<typename Pixel>
 const void* SuperImposedFrameImpl<Pixel>::getLineInfo(
 	unsigned line, unsigned& width, void* buf, unsigned bufWidth) const
 {

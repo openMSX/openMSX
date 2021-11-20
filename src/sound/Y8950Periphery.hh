@@ -34,16 +34,16 @@ public:
 	  * as-if they were all programmed as input.
 	  * @param time The moment in time the read occurs
 	  */
-	virtual nibble read(EmuTime::param time) = 0;
+	[[nodiscard]] virtual nibble read(EmuTime::param time) = 0;
 
 	/** SP-OFF bit (bit 3 in Y8950 register 7) */
 	virtual void setSPOFF(bool value, EmuTime::param time);
 
-	virtual byte readMem(word address, EmuTime::param time);
-	virtual byte peekMem(word address, EmuTime::param time) const;
+	[[nodiscard]] virtual byte readMem(word address, EmuTime::param time);
+	[[nodiscard]] virtual byte peekMem(word address, EmuTime::param time) const;
 	virtual void writeMem(word address, byte value, EmuTime::param time);
-	virtual const byte* getReadCacheLine(word start) const;
-	virtual byte* getWriteCacheLine(word start) const;
+	[[nodiscard]] virtual const byte* getReadCacheLine(word start) const;
+	[[nodiscard]] virtual byte* getWriteCacheLine(word start) const;
 };
 
 class MSXAudio;
@@ -52,7 +52,7 @@ class DeviceConfig;
 class Y8950PeripheryFactory
 {
 public:
-	static std::unique_ptr<Y8950Periphery> create(
+	[[nodiscard]] static std::unique_ptr<Y8950Periphery> create(
 		MSXAudio& audio, const DeviceConfig& config,
 		const std::string& soundDeviceName);
 };

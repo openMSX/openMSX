@@ -3,6 +3,7 @@
 
 #include "PixelOperations.hh"
 #include "likely.hh"
+#include "xrange.hh"
 #include <type_traits>
 #include <cstddef>
 #include <cstring>
@@ -18,7 +19,7 @@ namespace openmsx {
 
 // Tag classes
 struct TagCopy {};
-template <typename CLASS, typename TAG> struct IsTagged
+template<typename CLASS, typename TAG> struct IsTagged
 	: std::is_base_of<TAG, CLASS> {};
 
 
@@ -31,37 +32,37 @@ template <typename CLASS, typename TAG> struct IsTagged
  * @param out Output line
  * @param width Width of the output line in pixels
  */
-template <typename Pixel> class Scale_1on3
+template<typename Pixel> class Scale_1on3
 {
 public:
 	void operator()(const Pixel* in, Pixel* out, size_t width);
 };
 
-template <typename Pixel> class Scale_1on4
+template<typename Pixel> class Scale_1on4
 {
 public:
 	void operator()(const Pixel* in, Pixel* out, size_t width);
 };
 
-template <typename Pixel> class Scale_1on6
+template<typename Pixel> class Scale_1on6
 {
 public:
 	void operator()(const Pixel* in, Pixel* out, size_t width);
 };
 
-template <typename Pixel> class Scale_1on2
+template<typename Pixel> class Scale_1on2
 {
 public:
 	void operator()(const Pixel* in, Pixel* out, size_t width);
 };
 
-template <typename Pixel> class Scale_1on1 : public TagCopy
+template<typename Pixel> class Scale_1on1 : public TagCopy
 {
 public:
 	void operator()(const Pixel* in, Pixel* out, size_t width);
 };
 
-template <typename Pixel> class Scale_2on1
+template<typename Pixel> class Scale_2on1
 {
 public:
 	explicit Scale_2on1(PixelOperations<Pixel> pixelOps);
@@ -70,7 +71,7 @@ private:
 	PixelOperations<Pixel> pixelOps;
 };
 
-template <typename Pixel> class Scale_6on1
+template<typename Pixel> class Scale_6on1
 {
 public:
 	explicit Scale_6on1(PixelOperations<Pixel> pixelOps);
@@ -79,7 +80,7 @@ private:
 	PixelOperations<Pixel> pixelOps;
 };
 
-template <typename Pixel> class Scale_4on1
+template<typename Pixel> class Scale_4on1
 {
 public:
 	explicit Scale_4on1(PixelOperations<Pixel> pixelOps);
@@ -88,7 +89,7 @@ private:
 	PixelOperations<Pixel> pixelOps;
 };
 
-template <typename Pixel> class Scale_3on1
+template<typename Pixel> class Scale_3on1
 {
 public:
 	explicit Scale_3on1(PixelOperations<Pixel> pixelOps);
@@ -97,7 +98,7 @@ private:
 	PixelOperations<Pixel> pixelOps;
 };
 
-template <typename Pixel> class Scale_3on2
+template<typename Pixel> class Scale_3on2
 {
 public:
 	explicit Scale_3on2(PixelOperations<Pixel> pixelOps);
@@ -106,7 +107,7 @@ private:
 	PixelOperations<Pixel> pixelOps;
 };
 
-template <typename Pixel> class Scale_3on4
+template<typename Pixel> class Scale_3on4
 {
 public:
 	explicit Scale_3on4(PixelOperations<Pixel> pixelOps);
@@ -115,7 +116,7 @@ private:
 	PixelOperations<Pixel> pixelOps;
 };
 
-template <typename Pixel> class Scale_3on8
+template<typename Pixel> class Scale_3on8
 {
 public:
 	explicit Scale_3on8(PixelOperations<Pixel> pixelOps);
@@ -124,7 +125,7 @@ private:
 	PixelOperations<Pixel> pixelOps;
 };
 
-template <typename Pixel> class Scale_2on3
+template<typename Pixel> class Scale_2on3
 {
 public:
 	explicit Scale_2on3(PixelOperations<Pixel> pixelOps);
@@ -133,7 +134,7 @@ private:
 	PixelOperations<Pixel> pixelOps;
 };
 
-template <typename Pixel> class Scale_4on3
+template<typename Pixel> class Scale_4on3
 {
 public:
 	explicit Scale_4on3(PixelOperations<Pixel> pixelOps);
@@ -142,7 +143,7 @@ private:
 	PixelOperations<Pixel> pixelOps;
 };
 
-template <typename Pixel> class Scale_8on3
+template<typename Pixel> class Scale_8on3
 {
 public:
 	explicit Scale_8on3(PixelOperations<Pixel> pixelOps);
@@ -151,7 +152,7 @@ private:
 	PixelOperations<Pixel> pixelOps;
 };
 
-template <typename Pixel> class Scale_2on9
+template<typename Pixel> class Scale_2on9
 {
 public:
 	explicit Scale_2on9(PixelOperations<Pixel> pixelOps);
@@ -160,7 +161,7 @@ private:
 	PixelOperations<Pixel> pixelOps;
 };
 
-template <typename Pixel> class Scale_4on9
+template<typename Pixel> class Scale_4on9
 {
 public:
 	explicit Scale_4on9(PixelOperations<Pixel> pixelOps);
@@ -169,7 +170,7 @@ private:
 	PixelOperations<Pixel> pixelOps;
 };
 
-template <typename Pixel> class Scale_8on9
+template<typename Pixel> class Scale_8on9
 {
 public:
 	explicit Scale_8on9(PixelOperations<Pixel> pixelOps);
@@ -178,7 +179,7 @@ private:
 	PixelOperations<Pixel> pixelOps;
 };
 
-template <typename Pixel> class Scale_4on5
+template<typename Pixel> class Scale_4on5
 {
 public:
 	explicit Scale_4on5(PixelOperations<Pixel> pixelOps);
@@ -187,7 +188,7 @@ private:
 	PixelOperations<Pixel> pixelOps;
 };
 
-template <typename Pixel> class Scale_7on8
+template<typename Pixel> class Scale_7on8
 {
 public:
 	explicit Scale_7on8(PixelOperations<Pixel> pixelOps);
@@ -196,7 +197,7 @@ private:
 	PixelOperations<Pixel> pixelOps;
 };
 
-template <typename Pixel> class Scale_17on20
+template<typename Pixel> class Scale_17on20
 {
 public:
 	explicit Scale_17on20(PixelOperations<Pixel> pixelOps);
@@ -205,7 +206,7 @@ private:
 	PixelOperations<Pixel> pixelOps;
 };
 
-template <typename Pixel> class Scale_9on10
+template<typename Pixel> class Scale_9on10
 {
 public:
 	explicit Scale_9on10(PixelOperations<Pixel> pixelOps);
@@ -216,13 +217,13 @@ private:
 
 
 /**  BlendLines functor
- * Generate an output line that is an iterpolation of two input lines.
+ * Generate an output line that is an interpolation of two input lines.
  * @param in1 First input line
  * @param in2 Second input line
  * @param out Output line
  * @param width Width of the lines in pixels
  */
-template <typename Pixel, unsigned w1 = 1, unsigned w2 = 1> class BlendLines
+template<typename Pixel, unsigned w1 = 1, unsigned w2 = 1> class BlendLines
 {
 public:
 	explicit BlendLines(PixelOperations<Pixel> pixelOps);
@@ -254,7 +255,7 @@ private:
  * @param out Output line
  * @param width Width of the lines in pixels
  */
-template <typename Pixel> class AlphaBlendLines
+template<typename Pixel> class AlphaBlendLines
 {
 public:
 	explicit AlphaBlendLines(PixelOperations<Pixel> pixelOps);
@@ -298,7 +299,7 @@ public:
 	 * produce the output of the previous step in this step's output buffer,
 	 * so effectively skipping this step.
 	 */
-	virtual bool isCopy() const = 0;
+	[[nodiscard]] virtual bool isCopy() const = 0;
 
 protected:
 	~PolyLineScaler() = default;
@@ -323,7 +324,7 @@ public:
 	{
 		scaler(in, out, outWidth);
 	}
-	bool isCopy() const override
+	[[nodiscard]] bool isCopy() const override
 	{
 		return IsTagged<Scaler, TagCopy>::value;
 	}
@@ -346,7 +347,7 @@ public:
 	{
 		scaler(in, out, outWidth);
 	}
-	bool isCopy() const override
+	[[nodiscard]] bool isCopy() const override
 	{
 		return IsTagged<Scaler, TagCopy>::value;
 	}
@@ -357,56 +358,56 @@ private:
 
 // implementation
 
-template <typename Pixel, unsigned N>
+template<typename Pixel, unsigned N>
 static inline void scale_1onN(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
 	size_t i = 0, j = 0;
 	for (/* */; i < (width - (N - 1)); i += N, j += 1) {
 		Pixel pix = in[j];
-		for (unsigned k = 0; k < N; ++k) {
+		for (auto k : xrange(N)) {
 			out[i + k] = pix;
 		}
 	}
-	for (unsigned k = 0; k < (N - 1); ++k) {
+	for (auto k : xrange(N - 1)) {
 		if ((i + k) < width) out[i + k] = 0;
 	}
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void Scale_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, size_t width)
 {
 	scale_1onN<Pixel, 3>(in, out, width);
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void Scale_1on4<Pixel>::operator()(const Pixel* in, Pixel* out, size_t width)
 {
 	scale_1onN<Pixel, 4>(in, out, width);
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void Scale_1on6<Pixel>::operator()(const Pixel* in, Pixel* out, size_t width)
 {
 	scale_1onN<Pixel, 6>(in, out, width);
 }
 
 #ifdef __SSE2__
-template<typename Pixel> static inline __m128i unpacklo(__m128i x, __m128i y)
+template<typename Pixel> inline __m128i unpacklo(__m128i x, __m128i y)
 {
-	if (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		return _mm_unpacklo_epi32(x, y);
-	} else if (sizeof(Pixel) == 2) {
+	} else if constexpr (sizeof(Pixel) == 2) {
 		return _mm_unpacklo_epi16(x, y);
 	} else {
 		UNREACHABLE;
 	}
 }
-template<typename Pixel> static inline __m128i unpackhi(__m128i x, __m128i y)
+template<typename Pixel> inline __m128i unpackhi(__m128i x, __m128i y)
 {
-	if (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		return _mm_unpackhi_epi32(x, y);
-	} else if (sizeof(Pixel) == 2) {
+	} else if constexpr (sizeof(Pixel) == 2) {
 		return _mm_unpackhi_epi16(x, y);
 	} else {
 		UNREACHABLE;
@@ -414,14 +415,14 @@ template<typename Pixel> static inline __m128i unpackhi(__m128i x, __m128i y)
 }
 
 template<typename Pixel>
-static inline void scale_1on2_SSE(const Pixel* in_, Pixel* out_, size_t srcWidth)
+inline void scale_1on2_SSE(const Pixel* in_, Pixel* out_, size_t srcWidth)
 {
 	size_t bytes = srcWidth * sizeof(Pixel);
 	assert((bytes % (4 * sizeof(__m128i))) == 0);
 	assert(bytes != 0);
 
-	auto* in  = reinterpret_cast<const char*>(in_)  +     bytes;
-	auto* out = reinterpret_cast<      char*>(out_) + 2 * bytes;
+	const auto* in  = reinterpret_cast<const char*>(in_)  +     bytes;
+	      auto* out = reinterpret_cast<      char*>(out_) + 2 * bytes;
 
 	auto x = -ptrdiff_t(bytes);
 	do {
@@ -450,7 +451,7 @@ static inline void scale_1on2_SSE(const Pixel* in_, Pixel* out_, size_t srcWidth
 }
 #endif
 
-template <typename Pixel>
+template<typename Pixel>
 void Scale_1on2<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t dstWidth)
 {
@@ -462,10 +463,10 @@ void Scale_1on2<Pixel>::operator()(
 	//   SSE-intrinsics version.
 	// - Gcc can auto-vectorize this routine. Though my best tuned version
 	//   (I mean tuned to further improve the auto-vectorization, including
-	//   using the new __builtin_assume_aligned() instrinsic) still runs
+	//   using the new __builtin_assume_aligned() intrinsic) still runs
 	//   approx 40% slower than the intrinsics version.
 	// Hopefully in some years the compilers have improved further so that
-	// the instrinsic version is no longer needed.
+	// the intrinsic version is no longer needed.
 	size_t srcWidth = dstWidth / 2;
 
 #ifdef __SSE2__
@@ -479,7 +480,7 @@ void Scale_1on2<Pixel>::operator()(
 
 	// C++ version. Used both on non-x86 machines and (possibly) on x86 for
 	// the last few pixels of the line.
-	for (size_t x = 0; x < srcWidth; ++x) {
+	for (auto x : xrange(srcWidth)) {
 		out[x * 2] = out[x * 2 + 1] = in[x];
 	}
 }
@@ -488,7 +489,7 @@ void Scale_1on2<Pixel>::operator()(
 // Memcpy-like routine, it can be faster than a generic memcpy because:
 // - It requires that both input and output are 16-bytes aligned.
 // - It can only copy (non-zero) integer multiples of 128 bytes.
-static inline void memcpy_SSE_128(
+inline void memcpy_SSE_128(
 	const void* __restrict in_, void* __restrict out_, size_t size)
 {
 	assert((reinterpret_cast<size_t>(in_ ) % 16) == 0);
@@ -496,9 +497,9 @@ static inline void memcpy_SSE_128(
 	assert((size % 128) == 0);
 	assert(size != 0);
 
-	auto* in  = reinterpret_cast<const __m128i*>(in_);
-	auto* out = reinterpret_cast<      __m128i*>(out_);
-	auto* end = in + (size / sizeof(__m128i));
+	const auto* in  = reinterpret_cast<const __m128i*>(in_);
+	      auto* out = reinterpret_cast<      __m128i*>(out_);
+	const auto* end = in + (size / sizeof(__m128i));
 	do {
 		out[0] = in[0];
 		out[1] = in[1];
@@ -514,7 +515,7 @@ static inline void memcpy_SSE_128(
 }
 #endif
 
-template <typename Pixel>
+template<typename Pixel>
 void Scale_1on1<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
@@ -536,7 +537,7 @@ void Scale_1on1<Pixel>::operator()(
 }
 
 
-template <typename Pixel>
+template<typename Pixel>
 Scale_2on1<Pixel>::Scale_2on1(PixelOperations<Pixel> pixelOps_)
 	: pixelOps(pixelOps_)
 {
@@ -550,9 +551,9 @@ template<int IMM8> static inline __m128i shuffle(__m128i x, __m128i y)
 }
 
 template<typename Pixel>
-static inline __m128i blend(__m128i x, __m128i y, Pixel mask)
+inline __m128i blend(__m128i x, __m128i y, Pixel mask)
 {
-	if (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		// 32bpp
 		__m128i p = shuffle<0x88>(x, y);
 		__m128i q = shuffle<0xDD>(x, y);
@@ -600,15 +601,15 @@ static inline __m128i blend(__m128i x, __m128i y, Pixel mask)
 }
 
 template<typename Pixel>
-static inline void scale_2on1_SSE(
+inline void scale_2on1_SSE(
 	const Pixel* __restrict in_, Pixel* __restrict out_, size_t dstBytes,
 	Pixel mask)
 {
 	assert((dstBytes % (4 * sizeof(__m128i))) == 0);
 	assert(dstBytes != 0);
 
-	auto* in  = reinterpret_cast<const char*>(in_)  + 2 * dstBytes;
-	auto* out = reinterpret_cast<      char*>(out_) +     dstBytes;
+	const auto* in  = reinterpret_cast<const char*>(in_)  + 2 * dstBytes;
+	      auto* out = reinterpret_cast<      char*>(out_) +     dstBytes;
 
 	auto x = -ptrdiff_t(dstBytes);
 	do {
@@ -633,7 +634,7 @@ static inline void scale_2on1_SSE(
 }
 #endif
 
-template <typename Pixel>
+template<typename Pixel>
 void Scale_2on1<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t dstWidth)
 {
@@ -648,68 +649,68 @@ void Scale_2on1<Pixel>::operator()(
 #endif
 
 	// pure C++ version
-	for (size_t i = 0; i < dstWidth; ++i) {
+	for (auto i : xrange(dstWidth)) {
 		out[i] = pixelOps.template blend<1, 1>(
 			in[2 * i + 0], in[2 * i + 1]);
 	}
 }
 
 
-template <typename Pixel>
+template<typename Pixel>
 Scale_6on1<Pixel>::Scale_6on1(PixelOperations<Pixel> pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void Scale_6on1<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
-	for (size_t i = 0; i < width; ++i) {
+	for (auto i : xrange(width)) {
 		out[i] = pixelOps.template blend6<1, 1, 1, 1, 1, 1>(&in[6 * i]);
 	}
 }
 
 
-template <typename Pixel>
+template<typename Pixel>
 Scale_4on1<Pixel>::Scale_4on1(PixelOperations<Pixel> pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void Scale_4on1<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
-	for (size_t i = 0; i < width; ++i) {
+	for (auto i : xrange(width)) {
 		out[i] = pixelOps.template blend4<1, 1, 1, 1>(&in[4 * i]);
 	}
 }
 
 
-template <typename Pixel>
+template<typename Pixel>
 Scale_3on1<Pixel>::Scale_3on1(PixelOperations<Pixel> pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void Scale_3on1<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
-	for (size_t i = 0; i < width; ++i) {
+	for (auto i : xrange(width)) {
 		out[i] = pixelOps.template blend3<1, 1, 1>(&in[3 * i]);
 	}
 }
 
 
-template <typename Pixel>
+template<typename Pixel>
 Scale_3on2<Pixel>::Scale_3on2(PixelOperations<Pixel> pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void Scale_3on2<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
@@ -722,13 +723,13 @@ void Scale_3on2<Pixel>::operator()(
 }
 
 
-template <typename Pixel>
+template<typename Pixel>
 Scale_3on4<Pixel>::Scale_3on4(PixelOperations<Pixel> pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void Scale_3on4<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
@@ -739,19 +740,19 @@ void Scale_3on4<Pixel>::operator()(
 		out[i + 2] = pixelOps.template blend2<2, 1>(&in[j + 1]);
 		out[i + 3] =                                 in[j + 2];
 	}
-	for (size_t k = 0; k < (4 - 1); ++k) {
+	for (auto k : xrange(4 - 1)) {
 		if ((i + k) < width) out[i + k] = 0;
 	}
 }
 
 
-template <typename Pixel>
+template<typename Pixel>
 Scale_3on8<Pixel>::Scale_3on8(PixelOperations<Pixel> pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void Scale_3on8<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
@@ -766,19 +767,19 @@ void Scale_3on8<Pixel>::operator()(
 		out[i + 6] =                                 in[j + 2];
 		out[i + 7] =                                 in[j + 2];
 	}
-	for (size_t k = 0; k < (8 - 1); ++k) {
+	for (auto k : xrange(8 - 1)) {
 		if ((i + k) < width) out[i + k] = 0;
 	}
 }
 
 
-template <typename Pixel>
+template<typename Pixel>
 Scale_2on3<Pixel>::Scale_2on3(PixelOperations<Pixel> pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void Scale_2on3<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
@@ -793,13 +794,13 @@ void Scale_2on3<Pixel>::operator()(
 }
 
 
-template <typename Pixel>
+template<typename Pixel>
 Scale_4on3<Pixel>::Scale_4on3(PixelOperations<Pixel> pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void Scale_4on3<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
@@ -814,13 +815,13 @@ void Scale_4on3<Pixel>::operator()(
 }
 
 
-template <typename Pixel>
+template<typename Pixel>
 Scale_8on3<Pixel>::Scale_8on3(PixelOperations<Pixel> pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void Scale_8on3<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
@@ -835,13 +836,13 @@ void Scale_8on3<Pixel>::operator()(
 }
 
 
-template <typename Pixel>
+template<typename Pixel>
 Scale_2on9<Pixel>::Scale_2on9(PixelOperations<Pixel> pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void Scale_2on9<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
@@ -868,13 +869,13 @@ void Scale_2on9<Pixel>::operator()(
 }
 
 
-template <typename Pixel>
+template<typename Pixel>
 Scale_4on9<Pixel>::Scale_4on9(PixelOperations<Pixel> pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void Scale_4on9<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
@@ -901,13 +902,13 @@ void Scale_4on9<Pixel>::operator()(
 }
 
 
-template <typename Pixel>
+template<typename Pixel>
 Scale_8on9<Pixel>::Scale_8on9(PixelOperations<Pixel> pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void Scale_8on9<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
@@ -934,13 +935,13 @@ void Scale_8on9<Pixel>::operator()(
 }
 
 
-template <typename Pixel>
+template<typename Pixel>
 Scale_4on5<Pixel>::Scale_4on5(PixelOperations<Pixel> pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void Scale_4on5<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
@@ -955,13 +956,13 @@ void Scale_4on5<Pixel>::operator()(
 }
 
 
-template <typename Pixel>
+template<typename Pixel>
 Scale_7on8<Pixel>::Scale_7on8(PixelOperations<Pixel> pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void Scale_7on8<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
@@ -979,13 +980,13 @@ void Scale_7on8<Pixel>::operator()(
 }
 
 
-template <typename Pixel>
+template<typename Pixel>
 Scale_17on20<Pixel>::Scale_17on20(PixelOperations<Pixel> pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void Scale_17on20<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
@@ -1015,13 +1016,13 @@ void Scale_17on20<Pixel>::operator()(
 }
 
 
-template <typename Pixel>
+template<typename Pixel>
 Scale_9on10<Pixel>::Scale_9on10(PixelOperations<Pixel> pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void Scale_9on10<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
@@ -1041,20 +1042,20 @@ void Scale_9on10<Pixel>::operator()(
 }
 
 
-template <typename Pixel, unsigned w1, unsigned w2>
+template<typename Pixel, unsigned w1, unsigned w2>
 BlendLines<Pixel, w1, w2>::BlendLines(PixelOperations<Pixel> pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template <typename Pixel, unsigned w1, unsigned w2>
+template<typename Pixel, unsigned w1, unsigned w2>
 void BlendLines<Pixel, w1, w2>::operator()(
 	const Pixel* in1, const Pixel* in2, Pixel* out, size_t width)
 {
 	// It _IS_ allowed that the output is the same as one of the inputs.
 	// TODO SSE optimizations
 	// pure C++ version
-	for (size_t i = 0; i < width; ++i) {
+	for (auto i : xrange(width)) {
 		out[i] = pixelOps.template blend<w1, w2>(in1[i], in2[i]);
 	}
 }
@@ -1075,7 +1076,7 @@ void ZoomLine<Pixel>::operator()(
 
 	unsigned step = FACTOR * inWidth / outWidth;
 	unsigned i = 0 * FACTOR;
-	for (unsigned o = 0; o < outWidth; ++o) {
+	for (auto o : xrange(outWidth)) {
 		Pixel p0 = in[(i / FACTOR) + 0];
 		Pixel p1 = in[(i / FACTOR) + 1];
 		out[o] = pixelOps.lerp(p0, p1, i % FACTOR);
@@ -1084,23 +1085,23 @@ void ZoomLine<Pixel>::operator()(
 }
 
 
-template <typename Pixel>
+template<typename Pixel>
 AlphaBlendLines<Pixel>::AlphaBlendLines(PixelOperations<Pixel> pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void AlphaBlendLines<Pixel>::operator()(
 	const Pixel* in1, const Pixel* in2, Pixel* out, size_t width)
 {
 	// It _IS_ allowed that the output is the same as one of the inputs.
-	for (size_t i = 0; i < width; ++i) {
+	for (auto i : xrange(width)) {
 		out[i] = pixelOps.alphaBlend(in1[i], in2[i]);
 	}
 }
 
-template <typename Pixel>
+template<typename Pixel>
 void AlphaBlendLines<Pixel>::operator()(
 	Pixel in1, const Pixel* in2, Pixel* out, size_t width)
 {
@@ -1115,12 +1116,12 @@ void AlphaBlendLines<Pixel>::operator()(
 	// When one of the two colors is loop-invariant, using the
 	// pre-multiplied-alpha-blending equation is a tiny bit more efficient
 	// than using alphaBlend() or even lerp().
-	//    for (size_t i = 0; i < width; ++i) {
+	//    for (auto i : xrange(width)) {
 	//        out[i] = pixelOps.lerp(in1, in2[i], alpha);
 	//    }
 	Pixel in1M = pixelOps.multiply(in1, alpha);
 	unsigned alpha2 = 256 - alpha;
-	for (size_t i = 0; i < width; ++i) {
+	for (auto i : xrange(width)) {
 		out[i] = in1M + pixelOps.multiply(in2[i], alpha2);
 	}
 }

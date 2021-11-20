@@ -31,6 +31,7 @@
 #include "MSXKanji.hh"
 #include "MSXBunsetsu.hh"
 #include "MSXMemoryMapper.hh"
+#include "MSXToshibaTcx200x.hh"
 #include "MegaFlashRomSCCPlusSD.hh"
 #include "MusicalMemoryMapper.hh"
 #include "Carnivore2.hh"
@@ -48,7 +49,9 @@
 #include "VictorFDC.hh"
 #include "SanyoFDC.hh"
 #include "ToshibaFDC.hh"
+#include "CanonFDC.hh"
 #include "SpectravideoFDC.hh"
+#include "TalentTDC600.hh"
 #include "TurboRFDC.hh"
 #include "SVIFDC.hh"
 #include "YamahaFDC.hh"
@@ -89,13 +92,12 @@
 #endif
 
 using std::make_unique;
-using std::unique_ptr;
 
 namespace openmsx {
 
-static unique_ptr<MSXDevice> createWD2793BasedFDC(const DeviceConfig& conf)
+[[nodiscard]] static std::unique_ptr<MSXDevice> createWD2793BasedFDC(const DeviceConfig& conf)
 {
-	const XMLElement* styleEl = conf.findChild("connectionstyle");
+	const auto* styleEl = conf.findChild("connectionstyle");
 	std::string type;
 	if (!styleEl) {
 		conf.getCliComm().printWarning(
@@ -118,6 +120,8 @@ static unique_ptr<MSXDevice> createWD2793BasedFDC(const DeviceConfig& conf)
 		return make_unique<SanyoFDC>(conf);
 	} else if (type == "Toshiba") {
 		return make_unique<ToshibaFDC>(conf);
+	} else if (type == "Canon") {
+		return make_unique<CanonFDC>(conf);
 	} else if (type == "Spectravideo") {
 		return make_unique<SpectravideoFDC>(conf);
 	} else if (type == "Victor") {
@@ -128,10 +132,10 @@ static unique_ptr<MSXDevice> createWD2793BasedFDC(const DeviceConfig& conf)
 	throw MSXException("Unknown WD2793 FDC connection style ", type);
 }
 
-unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
+std::unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 {
-	unique_ptr<MSXDevice> result;
-	const std::string& type = conf.getXML()->getName();
+	std::unique_ptr<MSXDevice> result;
+	const auto& type = conf.getXML()->getName();
 	if (type == "PPI") {
 		result = make_unique<MSXPPI>(conf);
 	} else if (type == "SVIPPI") {
@@ -219,6 +223,10 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<NationalFDC>(conf);
 	} else if (type == "TC8566AF") {
 		result = make_unique<TurboRFDC>(conf);
+	} else if (type == "TDC600") {
+		result = make_unique<TalentTDC600>(conf);
+	} else if (type == "ToshibaTCX-200x") {
+		result = make_unique<MSXToshibaTcx200x>(conf);
 	} else if (type == "SVIFDC") {
 		result = make_unique<SVIFDC>(conf);
 	} else if (type == "BeerIDE") {
@@ -293,38 +301,39 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 	return result;
 }
 
-static XMLElement createConfig(std::string name, std::string id)
+[[nodiscard]] static XMLElement& createConfig(const char* name, const char* id)
 {
-	XMLElement config(std::move(name));
-	config.addAttribute("id", std::move(id));
-	return config;
+	auto& doc = XMLDocument::getStaticDocument();
+	auto* config = doc.allocateElement(name);
+	config->setFirstAttribute(doc.allocateAttribute("id", id));
+	return *config;
 }
 
-unique_ptr<DummyDevice> DeviceFactory::createDummyDevice(
+std::unique_ptr<DummyDevice> DeviceFactory::createDummyDevice(
 		const HardwareConfig& hwConf)
 {
-	static XMLElement xml(createConfig("Dummy", {}));
+	static XMLElement& xml(createConfig("Dummy", ""));
 	return make_unique<DummyDevice>(DeviceConfig(hwConf, xml));
 }
 
-unique_ptr<MSXDeviceSwitch> DeviceFactory::createDeviceSwitch(
+std::unique_ptr<MSXDeviceSwitch> DeviceFactory::createDeviceSwitch(
 		const HardwareConfig& hwConf)
 {
-	static XMLElement xml(createConfig("DeviceSwitch", "DeviceSwitch"));
+	static XMLElement& xml(createConfig("DeviceSwitch", "DeviceSwitch"));
 	return make_unique<MSXDeviceSwitch>(DeviceConfig(hwConf, xml));
 }
 
-unique_ptr<MSXMapperIO> DeviceFactory::createMapperIO(
+std::unique_ptr<MSXMapperIO> DeviceFactory::createMapperIO(
 		const HardwareConfig& hwConf)
 {
-	static XMLElement xml(createConfig("MapperIO", "MapperIO"));
+	static XMLElement& xml(createConfig("MapperIO", "MapperIO"));
 	return make_unique<MSXMapperIO>(DeviceConfig(hwConf, xml));
 }
 
-unique_ptr<VDPIODelay> DeviceFactory::createVDPIODelay(
+std::unique_ptr<VDPIODelay> DeviceFactory::createVDPIODelay(
 		const HardwareConfig& hwConf, MSXCPUInterface& cpuInterface)
 {
-	static XMLElement xml(createConfig("VDPIODelay", "VDPIODelay"));
+	static XMLElement& xml(createConfig("VDPIODelay", "VDPIODelay"));
 	return make_unique<VDPIODelay>(DeviceConfig(hwConf, xml), cpuInterface);
 }
 

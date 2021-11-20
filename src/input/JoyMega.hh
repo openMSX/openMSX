@@ -25,17 +25,21 @@ public:
 	JoyMega(MSXEventDistributor& eventDistributor,
 	         StateChangeDistributor& stateChangeDistributor,
 	         SDL_Joystick* joystick);
-	~JoyMega() override;
+	~JoyMega()
+#ifndef SDL_JOYSTICK_DISABLED
+		override
+#endif
+		;
 
 #ifndef SDL_JOYSTICK_DISABLED
 	// Pluggable
-	const std::string& getName() const override;
-	std::string_view getDescription() const override;
+	[[nodiscard]] std::string_view getName() const override;
+	[[nodiscard]] std::string_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 
 	// JoystickDevice
-	byte read(EmuTime::param time) override;
+	[[nodiscard]] byte read(EmuTime::param time) override;
 	void write(byte value, EmuTime::param time) override;
 
 	template<typename Archive>
@@ -43,18 +47,19 @@ public:
 
 private:
 	void plugHelper2();
-	unsigned calcInitialState();
+	[[nodiscard]] unsigned calcInitialState();
 	void checkTime(EmuTime::param time);
 	void createEvent(EmuTime::param time, unsigned press, unsigned release);
 	void createEvent(EmuTime::param time, unsigned newStatus);
 
 	// MSXEventListener
-	void signalMSXEvent(const std::shared_ptr<const Event>& event,
-	                    EmuTime::param time) override;
+	void signalMSXEvent(const Event& event,
+	                    EmuTime::param time) noexcept override;
 	// StateChangeListener
-	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
-	void stopReplay(EmuTime::param time) override;
+	void signalStateChange(const StateChange& event) override;
+	void stopReplay(EmuTime::param time) noexcept override;
 
+private:
 	MSXEventDistributor& eventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
 

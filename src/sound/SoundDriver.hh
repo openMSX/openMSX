@@ -19,12 +19,12 @@ public:
 	/** Returns the actual sample frequency. This might be different
 	  * from the requested frequency ('frequency' setting).
 	  */
-	virtual unsigned getFrequency() const = 0;
+	[[nodiscard]] virtual unsigned getFrequency() const = 0;
 
 	/** Get the number of samples that should be created 'per fragment'.
 	  * This is not the same value as the 'samples setting'.
 	  */
-	virtual unsigned getSamples() const = 0;
+	[[nodiscard]] virtual unsigned getSamples() const = 0;
 
 	virtual void uploadBuffer(float* buffer, unsigned len) = 0;
 

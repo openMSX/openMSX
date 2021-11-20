@@ -47,8 +47,7 @@ void MSXRomCLI::parseFileType(const string& arg, span<string>& cmdLine)
 
 std::string_view MSXRomCLI::fileTypeHelp() const
 {
-	static const string text("ROM image of a cartridge");
-	return text;
+	return "ROM image of a cartridge";
 }
 
 std::string_view MSXRomCLI::fileTypeCategoryName() const

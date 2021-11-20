@@ -22,7 +22,7 @@ public:
 	void setUpdateEnable(CliComm::UpdateType type, bool value) {
 		updateEnabled[type] = value;
 	}
-	bool getUpdateEnable(CliComm::UpdateType type) const {
+	[[nodiscard]] bool getUpdateEnable(CliComm::UpdateType type) const {
 		return updateEnabled[type];
 	}
 
@@ -67,12 +67,12 @@ private:
 	void execute(const std::string& command);
 
 	// CliListener
-	void log(CliComm::LogLevel level, std::string_view message) override;
+	void log(CliComm::LogLevel level, std::string_view message) noexcept override;
 	void update(CliComm::UpdateType type, std::string_view machine,
-	            std::string_view name, std::string_view value) override;
+	            std::string_view name, std::string_view value) noexcept override;
 
 	// EventListener
-	int signalEvent(const std::shared_ptr<const Event>& event) override;
+	int signalEvent(const Event& event) noexcept override;
 
 	CommandController& commandController;
 	EventDistributor& eventDistributor;

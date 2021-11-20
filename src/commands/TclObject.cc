@@ -79,6 +79,15 @@ int TclObject::getInt(Interpreter& interp_) const
 	return result;
 }
 
+std::optional<int> TclObject::getOptionalInt() const
+{
+	int result;
+	if (Tcl_GetIntFromObj(nullptr, obj, &result) != TCL_OK) {
+		return {};
+	}
+	return result;
+}
+
 bool TclObject::getBoolean(Interpreter& interp_) const
 {
 	auto* interp = interp_.interp;
@@ -99,11 +108,11 @@ double TclObject::getDouble(Interpreter& interp_) const
 	return result;
 }
 
-std::string_view TclObject::getString() const
+zstring_view TclObject::getString() const
 {
 	int length;
 	char* buf = Tcl_GetStringFromObj(obj, &length);
-	return std::string_view(buf, length);
+	return zstring_view(buf, length);
 }
 
 span<const uint8_t> TclObject::getBinary() const

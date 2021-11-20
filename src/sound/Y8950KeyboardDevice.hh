@@ -25,10 +25,10 @@ public:
 	 * A 0-bit means corresponding key is pressed
 	 *   1-bit                        not pressed
 	 */
-	virtual byte read(EmuTime::param time) = 0;
+	[[nodiscard]] virtual byte read(EmuTime::param time) = 0;
 
 	// pluggable
-	std::string_view getClass() const final override;
+	[[nodiscard]] std::string_view getClass() const final;
 };
 
 } // namespace openmsx

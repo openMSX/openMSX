@@ -6,10 +6,10 @@
 
 namespace openmsx {
 
-static unsigned calcBaseAddr(const DeviceConfig& config)
+[[nodiscard]] static unsigned calcBaseAddr(const DeviceConfig& config)
 {
-	int base = config.getChild("mem").getAttributeAsInt("base");
-	int first = config.getChild("rom").getChildDataAsInt("firstblock");
+	int base = config.getChild("mem").getAttributeValueAsInt("base", 0);
+	int first = config.getChild("rom").getChildDataAsInt("firstblock", 0);
 	return first * 0x2000 - base;
 }
 
@@ -19,7 +19,7 @@ RomDRAM::RomDRAM(const DeviceConfig& config, Rom&& rom_)
 	, baseAddr(calcBaseAddr(config))
 {
 	// ignore result, only called to trigger 'missing rom' error early
-	panasonicMemory.getRomBlock(baseAddr);
+	(void)panasonicMemory.getRomBlock(baseAddr);
 }
 
 byte RomDRAM::readMem(word address, EmuTime::param /*time*/)

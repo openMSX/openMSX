@@ -15,16 +15,16 @@ public:
 
 	/** Name used to identify this pluggable.
 	  */
-	virtual const std::string& getName() const;
+	[[nodiscard]] virtual std::string_view getName() const;
 
 	/** A pluggable belongs to a certain class. A pluggable only fits in
 	  * connectors of the same class.
 	  */
-	virtual std::string_view getClass() const = 0;
+	[[nodiscard]] virtual std::string_view getClass() const = 0;
 
 	/** Description for this pluggable.
 	  */
-	virtual std::string_view getDescription() const = 0;
+	[[nodiscard]] virtual std::string_view getDescription() const = 0;
 
 	/** This method is called when this pluggable is inserted in a
 	  * connector.
@@ -33,20 +33,20 @@ public:
 	void plug(Connector& connector, EmuTime::param time);
 
 	/** This method is called when this pluggable is removed from a
-	  * conector.
+	  * connector.
 	  */
 	void unplug(EmuTime::param time);
 
 	/** Get the connector this Pluggable is plugged into. Returns nullptr
 	  * if this Pluggable is not plugged.
 	  */
-	Connector* getConnector() const { return connector; }
+	[[nodiscard]] Connector* getConnector() const { return connector; }
 
 	/** Returns true if this pluggable is currently plugged into a connector.
 	  * The method getConnector() can also be used, but this is more
 	  * descriptive.
 	  */
-	bool isPluggedIn() const { return getConnector() != nullptr; }
+	[[nodiscard]] bool isPluggedIn() const { return getConnector() != nullptr; }
 
 protected:
 	Pluggable();

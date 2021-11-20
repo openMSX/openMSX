@@ -12,7 +12,7 @@ public:
 	void setSignal(bool output, EmuTime::param time) override;
 	int16_t readSample(EmuTime::param time) override;
 
-	std::string_view getDescription() const override;
+	[[nodiscard]] std::string_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 };

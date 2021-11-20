@@ -50,6 +50,8 @@ constexpr int trimWhitespace      = 0x2;
 // Should sequences of whitespace characters be replaced with a single
 // space character?
 constexpr int normalizeWhitespace = 0x4;
+// Should strings be modified (in-place) with a zero-terminator?
+constexpr int zeroTerminateStrings = 0x8;
 
 
 // Callback handler with all empty implementations (can be used as a base
@@ -149,7 +151,7 @@ struct TextPureNoWsPred {
 };
 
 // Detect text character (PCDATA) that does not require processing when ws
-// normalizationis is enabled (anything but < \0 & space \n \r \t)
+// normalization is enabled (anything but < \0 & space \n \r \t)
 struct TextPureWithWsPred {
 	[[nodiscard]] static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x0F); }
 };
@@ -175,7 +177,7 @@ struct AttPurePred2 {
 };
 
 // Insert coded character, using UTF8
-static inline void insertUTF8char(char*& text, uint32_t code)
+inline void insertUTF8char(char*& text, uint32_t code)
 {
 	if (code < 0x80) { // 1 byte sequence
 		text[0] = char(code);
@@ -220,7 +222,7 @@ template<char C0, char C1, char C2, char C3, char C4, char C5>
 
 
 // Skip characters until predicate evaluates to true
-template<class StopPred> static inline void skip(char*& text)
+template<typename StopPred> static inline void skip(char*& text)
 {
 	char* tmp = text;
 	while (StopPred::test(*tmp)) ++tmp;
@@ -231,14 +233,14 @@ template<class StopPred> static inline void skip(char*& text)
 // - replacing XML character entity references with proper characters
 //   (&apos; &amp; &quot; &lt; &gt; &#...;)
 // - condensing whitespace sequences to single space character
-template<class StopPred, class StopPredPure, int FLAGS>
+template<typename StopPred, class StopPredPure, int FLAGS>
 [[nodiscard]] static inline char* skipAndExpand(char*& text)
 {
 	// If entity translation, whitespace condense and whitespace
 	// trimming is disabled, use plain skip.
-	if ( (FLAGS & noEntityTranslation) &&
-	    !(FLAGS & normalizeWhitespace)  &&
-	    !(FLAGS & trimWhitespace)) {
+	if constexpr ( (FLAGS & noEntityTranslation) &&
+	              !(FLAGS & normalizeWhitespace)  &&
+	              !(FLAGS & trimWhitespace)) {
 		skip<StopPred>(text);
 		return text;
 	}
@@ -349,7 +351,7 @@ template<class StopPred, class StopPredPure, int FLAGS>
 	return dest;
 }
 
-static inline void skipBOM(char*& text)
+inline void skipBOM(char*& text)
 {
 	if (next<char(0xEF), char(0xBB), char(0xBF)>(text)) {
 		text += 3; // skip utf-8 bom
@@ -406,6 +408,9 @@ private:
 			}
 			++text;
 		}
+		if (FLAGS & zeroTerminateStrings) {
+			*text = '\0';
+		}
 		handler.comment(std::string_view(value, text - value));
 		text += 3; // skip '-->'
 	}
@@ -443,6 +448,9 @@ private:
 			}
 		}
 
+		if (FLAGS & zeroTerminateStrings) {
+			*text = '\0';
+		}
 		handler.doctype(std::string_view(value, text - value));
 		text += 1; // skip '>'
 	}
@@ -469,6 +477,10 @@ private:
 			++text;
 		}
 		// Set pi value (verbatim, no entity expansion or ws normalization)
+		if (FLAGS & zeroTerminateStrings) {
+			*nameEnd = '\0';
+			*text = '\0';
+		}
 		handler.procInstr(std::string_view(name,  nameEnd - name),
 			          std::string_view(value, text - value));
 		text += 2; // skip '?>'
@@ -477,7 +489,7 @@ private:
 	void parseText(char*& text, char* contentsStart)
 	{
 		// Backup to contents start if whitespace trimming is disabled
-		if (!(FLAGS & trimWhitespace)) {
+		if constexpr (!(FLAGS & trimWhitespace)) {
 			text = contentsStart;
 		}
 		// Skip until end of data
@@ -488,8 +500,8 @@ private:
 
 		// Trim trailing whitespace; leading was already trimmed by
 		// whitespace skip after >
-		if (FLAGS & trimWhitespace) {
-			if (FLAGS & normalizeWhitespace) {
+		if constexpr ((FLAGS & trimWhitespace) != 0) {
+			if constexpr (FLAGS & normalizeWhitespace) {
 				// Whitespace is already condensed to single
 				// space characters by skipping function, so
 				// just trim 1 char off the end.
@@ -513,7 +525,12 @@ private:
 
 		// Handle text, but only if non-empty.
 		auto len = end - value;
-		if (len) handler.text(std::string_view(value, len));
+		if (len) {
+			if (FLAGS & zeroTerminateStrings) {
+				*text = '\0';
+			}
+			handler.text(std::string_view(value, len));
+		}
 	}
 
 	void parseCdata(char*& text)
@@ -525,6 +542,9 @@ private:
 				throw ParseError("unexpected end of data", text);
 			}
 			++text;
+		}
+		if (FLAGS & zeroTerminateStrings) {
+			*text = '\0';
 		}
 		handler.cdata(std::string_view(value, text - value));
 		text += 3; // skip ]]>
@@ -546,9 +566,15 @@ private:
 
 		// Determine ending type
 		if (*text == '>') {
+			if (FLAGS & zeroTerminateStrings) {
+				*nameEnd = '\0';
+			}
 			++text;
 			parseNodeContents(text);
 		} else if (*text == '/') {
+			if (FLAGS & zeroTerminateStrings) {
+				*nameEnd = '\0';
+			}
 			handler.stop();
 			++text;
 			if (*text != '>') {
@@ -711,6 +737,10 @@ afterText:		// After parseText() jump here instead of continuing
 			}
 			++text; // skip quote
 
+			if (FLAGS & zeroTerminateStrings) {
+				*nameEnd = '\0';
+				*valueEnd = '\0';
+			}
 			if (!declaration) {
 				handler.attribute(std::string_view(name, nameEnd - name),
 				                  std::string_view(value, valueEnd - value));

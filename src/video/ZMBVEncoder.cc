@@ -32,7 +32,7 @@ struct CodecVector {
 
 constexpr unsigned VECTOR_TAB_SIZE =
 	1 +                                       // center
-	8 * MAX_VECTOR +                          // horizontal, vertial, diagonal
+	8 * MAX_VECTOR +                          // horizontal, vertical, diagonal
 	MAX_VECTOR * MAX_VECTOR - 2 * MAX_VECTOR; // rest (only MAX_VECTOR/2)
 
 constexpr auto vectorTable = [] {
@@ -42,7 +42,7 @@ constexpr auto vectorTable = [] {
 	// center
 	result[p] = {0, 0};
 	p += 1;
-	// horizontal, vertial, diagonal
+	// horizontal, vertical, diagonal
 	for (int i = 1; i <= int(MAX_VECTOR); ++i, p += 8) {
 		result[p + 0] = {int8_t( i), int8_t( 0)};
 		result[p + 1] = {int8_t(-i), int8_t( 0)};
@@ -181,12 +181,12 @@ void ZMBVEncoder::setupBuffers(unsigned bpp)
 
 	assert((width  % BLOCK_WIDTH ) == 0);
 	assert((height % BLOCK_HEIGHT) == 0);
-	unsigned xblocks = width / BLOCK_WIDTH;
-	unsigned yblocks = height / BLOCK_HEIGHT;
-	blockOffsets.resize(xblocks * yblocks);
-	for (unsigned y = 0; y < yblocks; ++y) {
-		for (unsigned x = 0; x < xblocks; ++x) {
-			blockOffsets[y * xblocks + x] =
+	unsigned xBlocks = width / BLOCK_WIDTH;
+	unsigned yBlocks = height / BLOCK_HEIGHT;
+	blockOffsets.resize(xBlocks * yBlocks);
+	for (auto y : xrange(yBlocks)) {
+		for (auto x : xrange(xBlocks)) {
+			blockOffsets[y * xBlocks + x] =
 				((y * BLOCK_HEIGHT) + MAX_VECTOR) * pitch +
 				(x * BLOCK_WIDTH) + MAX_VECTOR;
 		}
@@ -200,85 +200,85 @@ unsigned ZMBVEncoder::neededSize() const
 	return f + f / 1000;
 }
 
-template<class P>
+template<typename P>
 unsigned ZMBVEncoder::possibleBlock(int vx, int vy, unsigned offset)
 {
 	int ret = 0;
-	auto* pold = &(reinterpret_cast<P*>(oldframe.data()))[offset + (vy * pitch) + vx];
-	auto* pnew = &(reinterpret_cast<P*>(newframe.data()))[offset];
+	auto* pOld = &(reinterpret_cast<P*>(oldframe.data()))[offset + (vy * pitch) + vx];
+	auto* pNew = &(reinterpret_cast<P*>(newframe.data()))[offset];
 	for (unsigned y = 0; y < BLOCK_HEIGHT; y += 4) {
 		for (unsigned x = 0; x < BLOCK_WIDTH; x += 4) {
-			if (pold[x] != pnew[x]) ++ret;
+			if (pOld[x] != pNew[x]) ++ret;
 		}
-		pold += pitch * 4;
-		pnew += pitch * 4;
+		pOld += pitch * 4;
+		pNew += pitch * 4;
 	}
 	return ret;
 }
 
-template<class P>
+template<typename P>
 unsigned ZMBVEncoder::compareBlock(int vx, int vy, unsigned offset)
 {
 	int ret = 0;
-	auto* pold = &(reinterpret_cast<P*>(oldframe.data()))[offset + (vy * pitch) + vx];
-	auto* pnew = &(reinterpret_cast<P*>(newframe.data()))[offset];
-	for (unsigned y = 0; y < BLOCK_HEIGHT; ++y) {
-		for (unsigned x = 0; x < BLOCK_WIDTH; ++x) {
-			if (pold[x] != pnew[x]) ++ret;
+	auto* pOld = &(reinterpret_cast<P*>(oldframe.data()))[offset + (vy * pitch) + vx];
+	auto* pNew = &(reinterpret_cast<P*>(newframe.data()))[offset];
+	repeat(BLOCK_HEIGHT, [&] {
+		for (auto x : xrange(BLOCK_WIDTH)) {
+			if (pOld[x] != pNew[x]) ++ret;
 		}
-		pold += pitch;
-		pnew += pitch;
-	}
+		pOld += pitch;
+		pNew += pitch;
+	});
 	return ret;
 }
 
-template<class P>
+template<typename P>
 void ZMBVEncoder::addXorBlock(
 	const PixelOperations<P>& pixelOps, int vx, int vy, unsigned offset, unsigned& workUsed)
 {
 	using LE_P = typename Endian::Little<P>::type;
 
-	auto* pold = &(reinterpret_cast<P*>(oldframe.data()))[offset + (vy * pitch) + vx];
-	auto* pnew = &(reinterpret_cast<P*>(newframe.data()))[offset];
-	for (unsigned y = 0; y < BLOCK_HEIGHT; ++y) {
-		for (unsigned x = 0; x < BLOCK_WIDTH; ++x) {
-			P pxor = pnew[x] ^ pold[x];
-			writePixel(pixelOps, pxor, *reinterpret_cast<LE_P*>(&work[workUsed]));
+	auto* pOld = &(reinterpret_cast<P*>(oldframe.data()))[offset + (vy * pitch) + vx];
+	auto* pNew = &(reinterpret_cast<P*>(newframe.data()))[offset];
+	repeat(BLOCK_HEIGHT, [&] {
+		for (auto x : xrange(BLOCK_WIDTH)) {
+			P pXor = pNew[x] ^ pOld[x];
+			writePixel(pixelOps, pXor, *reinterpret_cast<LE_P*>(&work[workUsed]));
 			workUsed += sizeof(P);
 		}
-		pold += pitch;
-		pnew += pitch;
-	}
+		pOld += pitch;
+		pNew += pitch;
+	});
 }
 
-template<class P>
+template<typename P>
 void ZMBVEncoder::addXorFrame(const PixelFormat& pixelFormat, unsigned& workUsed)
 {
 	PixelOperations<P> pixelOps(pixelFormat);
 	auto* vectors = reinterpret_cast<int8_t*>(&work[workUsed]);
 
-	unsigned xblocks = width / BLOCK_WIDTH;
-	unsigned yblocks = height / BLOCK_HEIGHT;
-	unsigned blockcount = xblocks * yblocks;
+	unsigned xBlocks = width / BLOCK_WIDTH;
+	unsigned yBlocks = height / BLOCK_HEIGHT;
+	unsigned blockcount = xBlocks * yBlocks;
 
 	// Align the following xor data on 4 byte boundary
 	workUsed = (workUsed + blockcount * 2 + 3) & ~3;
 
-	int bestvx = 0;
-	int bestvy = 0;
-	for (unsigned b = 0; b < blockcount; ++b) {
+	int bestVx = 0;
+	int bestVy = 0;
+	for (auto b : xrange(blockcount)) {
 		unsigned offset = blockOffsets[b];
 		// first try best vector of previous block
-		unsigned bestchange = compareBlock<P>(bestvx, bestvy, offset);
+		unsigned bestchange = compareBlock<P>(bestVx, bestVy, offset);
 		if (bestchange >= 4) {
 			int possibles = 64;
-			for (auto& v : vectorTable) {
+			for (const auto& v : vectorTable) {
 				if (possibleBlock<P>(v.x, v.y, offset) < 4) {
 					unsigned testchange = compareBlock<P>(v.x, v.y, offset);
 					if (testchange < bestchange) {
 						bestchange = testchange;
-						bestvx = v.x;
-						bestvy = v.y;
+						bestVx = v.x;
+						bestVy = v.y;
 						if (bestchange < 4) break;
 					}
 					--possibles;
@@ -286,16 +286,16 @@ void ZMBVEncoder::addXorFrame(const PixelFormat& pixelFormat, unsigned& workUsed
 				}
 			}
 		}
-		vectors[b * 2 + 0] = (bestvx << 1);
-		vectors[b * 2 + 1] = (bestvy << 1);
+		vectors[b * 2 + 0] = (bestVx << 1);
+		vectors[b * 2 + 1] = (bestVy << 1);
 		if (bestchange) {
 			vectors[b * 2 + 0] |= 1;
-			addXorBlock<P>(pixelOps, bestvx, bestvy, offset, workUsed);
+			addXorBlock<P>(pixelOps, bestVx, bestVy, offset, workUsed);
 		}
 	}
 }
 
-template<class P>
+template<typename P>
 void ZMBVEncoder::addFullFrame(const PixelFormat& pixelFormat, unsigned& workUsed)
 {
 	using LE_P = typename Endian::Little<P>::type;
@@ -303,15 +303,15 @@ void ZMBVEncoder::addFullFrame(const PixelFormat& pixelFormat, unsigned& workUse
 	PixelOperations<P> pixelOps(pixelFormat);
 	auto* readFrame =
 		&newframe[pixelSize * (MAX_VECTOR + MAX_VECTOR * pitch)];
-	for (unsigned y = 0; y < height; ++y) {
+	repeat(height, [&] {
 		auto* pixelsIn  = reinterpret_cast<P*>   (readFrame);
 		auto* pixelsOut = reinterpret_cast<LE_P*>(&work[workUsed]);
-		for (unsigned x = 0; x < width; ++x) {
+		for (auto x : xrange(width)) {
 			writePixel(pixelOps, pixelsIn[x], pixelsOut[x]);
 		}
 		readFrame += pitch * sizeof(P);
 		workUsed += width * sizeof(P);
-	}
+	});
 }
 
 const void* ZMBVEncoder::getScaledLine(FrameSource* frame, unsigned y, void* workBuf_) const
@@ -350,8 +350,7 @@ const void* ZMBVEncoder::getScaledLine(FrameSource* frame, unsigned y, void* wor
 	return nullptr; // avoid warning
 }
 
-void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
-                                void*& buffer, unsigned& written)
+span<const uint8_t> ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame)
 {
 	std::swap(newframe, oldframe); // replace oldframe with newframe
 
@@ -380,8 +379,8 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 	unsigned lineWidth = width * pixelSize;
 	uint8_t* dest =
 		&newframe[pixelSize * (MAX_VECTOR + MAX_VECTOR * pitch)];
-	for (unsigned i = 0; i < height; ++i) {
-		auto* scaled = getScaledLine(frame, i, dest);
+	for (auto i : xrange(height)) {
+		const auto* scaled = getScaledLine(frame, i, dest);
 		if (scaled != dest) memcpy(dest, scaled, lineWidth);
 		dest += linePitch;
 	}
@@ -431,8 +430,7 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 	auto r = deflate(&zstream, Z_SYNC_FLUSH);
 	assert(r == Z_OK); (void)r;
 
-	buffer = output.data();
-	written = writeDone + zstream.total_out;
+	return {output.data(), writeDone + zstream.total_out};
 }
 
 } // namespace openmsx

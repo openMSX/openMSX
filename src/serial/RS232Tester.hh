@@ -29,8 +29,8 @@ public:
 	// Pluggable
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
-	const std::string& getName() const override;
-	std::string_view getDescription() const override;
+	[[nodiscard]] std::string_view getName() const override;
+	[[nodiscard]] std::string_view getDescription() const override;
 
 	// input
 	void signal(EmuTime::param time) override;
@@ -45,8 +45,9 @@ private:
 	void run();
 
 	// EventListener
-	int signalEvent(const std::shared_ptr<const Event>& event) override;
+	int signalEvent(const Event& event) noexcept override;
 
+private:
 	EventDistributor& eventDistributor;
 	Scheduler& scheduler;
 	std::thread thread;

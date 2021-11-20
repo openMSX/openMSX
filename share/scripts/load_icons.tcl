@@ -11,13 +11,17 @@ set_help_text load_icons \
  example: load_icons set1 top
 }
 
+proc all_icons {} {
+	set r1 [glob -nocomplain -tails -type d -directory $::env(OPENMSX_USER_DATA)/skins *]
+	set r2 [glob -nocomplain -tails -type d -directory $::env(OPENMSX_SYSTEM_DATA)/skins *]
+	lsort -unique [concat $r1 $r2]
+}
+
 set_tabcompletion_proc load_icons [namespace code tab_load_icons]
 proc tab_load_icons {args} {
 	set num [llength $args]
 	if {$num == 2} {
-		set r1 [glob -nocomplain -tails -type d -directory $::env(OPENMSX_USER_DATA)/skins *]
-		set r2 [glob -nocomplain -tails -type d -directory $::env(OPENMSX_SYSTEM_DATA)/skins *]
-		concat $r1 $r2
+		all_icons
 	} elseif {$num == 3} {
 		list "top" "bottom" "left" "right"
 	}
@@ -30,6 +34,15 @@ variable current_osd_leds_pos
 variable current_fade_delay_active
 variable current_fade_delay_non_active
 variable fade_id
+
+# default is set1, but if only scale_factor 1 is supported, use handheld
+if {[lindex [openmsx_info setting scale_factor] 2 1] == 1} {
+	variable default_set "handheld"
+} else {
+	variable default_set "set1"
+}
+
+variable possible_positions [list "top" "bottom" "left" "right" "default"]
 
 # temporary hack: for now map the new 'fastforward' setting onto the old 'throttle' setting
 proc trace_icon_status {name1 name2 op} {
@@ -97,8 +110,7 @@ proc load_icons {{set_name "-show"} {position_param "default"}} {
 	variable current_osd_leds_pos
 	variable current_fade_delay_active
 	variable current_fade_delay_non_active
-
-	set possible_positions [list "top" "bottom" "left" "right" "default"]
+	variable possible_positions
 
 	if {$set_name eq "-show"} {
 		# Show list of available skins
@@ -330,13 +342,8 @@ namespace export load_icons
 namespace import load_icons::*
 
 # Restore settings from previous session
-# default is set1, but if only scale_factor 1 is supported, use handheld
-if {[lindex [openmsx_info setting scale_factor] 2 1] == 1} {
-	user_setting create string osd_leds_set "Name of the OSD icon set" "handheld"
-} else {
-	user_setting create string osd_leds_set "Name of the OSD icon set" "set1"
-}
-user_setting create string osd_leds_pos "Position of the OSD icons" "default"
+user_setting create enum osd_leds_set "Name of the OSD icon set" $load_icons::default_set [load_icons::all_icons]
+user_setting create enum osd_leds_pos "Position of the OSD icons" "default" $load_icons::possible_positions
 set load_icons::current_osd_leds_set $osd_leds_set
 set load_icons::current_osd_leds_pos $osd_leds_pos
 trace add variable osd_leds_set write load_icons::trace_osd_icon_vars

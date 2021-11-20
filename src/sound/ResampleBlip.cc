@@ -4,11 +4,12 @@
 #include "one_of.hh"
 #include "ranges.hh"
 #include "vla.hh"
+#include "xrange.hh"
 #include <cassert>
 
 namespace openmsx {
 
-template <unsigned CHANNELS>
+template<unsigned CHANNELS>
 ResampleBlip<CHANNELS>::ResampleBlip(
 		ResampledSoundDevice& input_, const DynamicClock& hostClock_)
 	: ResampleAlgo(input_)
@@ -24,7 +25,7 @@ ResampleBlip<CHANNELS>::ResampleBlip(
 	ranges::fill(lastInput, 0.0f);
 }
 
-template <unsigned CHANNELS>
+template<unsigned CHANNELS>
 bool ResampleBlip<CHANNELS>::generateOutputImpl(float* dataOut, unsigned hostNum,
                                                 EmuTime::param time)
 {
@@ -41,7 +42,7 @@ bool ResampleBlip<CHANNELS>::generateOutputImpl(float* dataOut, unsigned hostNum
 		if (input.generateInput(buf, emuNum)) {
 			FP pos1;
 			hostClock.getTicksTill(emu1, pos1);
-			for (unsigned ch = 0; ch < CHANNELS; ++ch) {
+			for (auto ch : xrange(CHANNELS)) {
 				// In case of PSG (and to a lesser degree SCC) it happens
 				// very often that two consecutive samples have the same
 				// value. We can benefit from this by setting a sentinel
@@ -71,7 +72,7 @@ bool ResampleBlip<CHANNELS>::generateOutputImpl(float* dataOut, unsigned hostNum
 			// input all zero
 			BlipBuffer::TimeIndex pos;
 			hostClock.getTicksTill(emu1, pos);
-			for (unsigned ch = 0; ch < CHANNELS; ++ch) {
+			for (auto ch : xrange(CHANNELS)) {
 				if (lastInput[ch] != 0.0f) {
 					auto delta = -lastInput[ch];
 					lastInput[ch] = 0.0f;
@@ -83,28 +84,26 @@ bool ResampleBlip<CHANNELS>::generateOutputImpl(float* dataOut, unsigned hostNum
 	}
 
 	bool results[CHANNELS];
-	for (unsigned ch = 0; ch < CHANNELS; ++ch) {
+	for (auto ch : xrange(CHANNELS)) {
 		results[ch] = blip[ch].template readSamples<CHANNELS>(dataOut + ch, hostNum);
 	}
 	static_assert(CHANNELS == one_of(1u, 2u), "either mono or stereo");
-	bool result;
-	if (CHANNELS == 1) {
-		result = results[0];
+	if constexpr (CHANNELS == 1) {
+		return results[0];
 	} else {
 		if (results[0] == results[1]) {
 			// Both muted or both unmuted
-			result = results[0];
+			return results[0];
 		} else {
 			// One channel muted, the other not.
 			// We have to set the muted channel to all-zero.
 			unsigned offset = results[0] ? 1 : 0;
-			for (unsigned i = 0; i < hostNum; ++i) {
+			for (auto i : xrange(hostNum)) {
 				dataOut[2 * i + offset] = 0.0f;
 			}
-			result = true;
+			return true;
 		}
 	}
-	return result;
 }
 
 // Force template instantiation.

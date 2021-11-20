@@ -15,6 +15,9 @@ class InfoCommand;
 class InfoTopic : public Completer
 {
 public:
+	InfoTopic(const InfoTopic&) = delete;
+	InfoTopic& operator=(const InfoTopic&) = delete;
+
 	/** Show info on this topic
 	  * @param tokens Tokenized command line;
 	  *     tokens[1] is the topic.
@@ -30,7 +33,7 @@ public:
 	  * @param tokens Tokenized command line;
 	  *     tokens[1] is the topic.
 	  */
-	std::string help(const std::vector<std::string>& tokens) const override = 0;
+	[[nodiscard]] std::string help(span<const TclObject> tokens) const override = 0;
 
 	/** Attempt tab completion for this topic.
 	  * Default implementation does nothing.
@@ -40,7 +43,7 @@ public:
 	  */
 	void tabCompletion(std::vector<std::string>& tokens) const override;
 
-	Interpreter& getInterpreter() const final;
+	[[nodiscard]] Interpreter& getInterpreter() const final;
 
 protected:
 	InfoTopic(InfoCommand& infoCommand, const std::string& name);

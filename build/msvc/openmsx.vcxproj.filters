@@ -135,9 +135,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\config\XMLElement.cc">
       <Filter>config</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\config\XMLLoader.cc">
-      <Filter>config</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\console\CommandConsole.cc">
       <Filter>console</Filter>
     </ClCompile>
@@ -252,9 +249,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\events\InputEventGenerator.cc">
       <Filter>events</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\events\InputEvents.cc">
-      <Filter>events</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\events\Keys.cc">
       <Filter>events</Filter>
     </ClCompile>
@@ -321,6 +315,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\MSXtar.cc">
       <Filter>fdc</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\fdc\CanonFDC.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\NationalFDC.cc">
       <Filter>fdc</Filter>
     </ClCompile>
@@ -367,6 +364,9 @@
       <Filter>fdc</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\TC8566AF.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\fdc\TalentTDC600.cc">
       <Filter>fdc</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\TurboRFDC.cc">
@@ -1050,9 +1050,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\RawFrame.cc">
       <Filter>video</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\Renderer.cc">
-      <Filter>video</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\RendererFactory.cc">
       <Filter>video</Filter>
     </ClCompile>
@@ -1285,6 +1282,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\MSXS1985.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXS1990.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXSwitchedDevice.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\MSXToshibaTcx200x.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXTurboRPause.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\PasswordCart.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\Pluggable.cc" />
@@ -1388,6 +1386,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\SVIPSG.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\SVIFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\ColecoJoystickIO.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\SpeedManager.cc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(OpenMSXSrcDir)\cassette\CasImage.hh">
@@ -1463,9 +1462,6 @@
       <Filter>config</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\config\XMLException.hh">
-      <Filter>config</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\config\XMLLoader.hh">
       <Filter>config</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\console\CommandConsole.hh">
@@ -1591,9 +1587,6 @@
     <None Include="$(OpenMSXSrcDir)\events\EventListener.hh">
       <Filter>events</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\events\FinishFrameEvent.hh">
-      <Filter>events</Filter>
-    </None>
     <None Include="$(OpenMSXSrcDir)\events\GlobalCliComm.hh">
       <Filter>events</Filter>
     </None>
@@ -1604,9 +1597,6 @@
       <Filter>events</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\events\InputEventGenerator.hh">
-      <Filter>events</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\events\InputEvents.hh">
       <Filter>events</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\events\Keys.hh">
@@ -1678,6 +1668,9 @@
     <None Include="$(OpenMSXSrcDir)\fdc\MSXtar.hh">
       <Filter>fdc</Filter>
     </None>
+    <None Include="$(OpenMSXSrcDir)\fdc\CanonFDC.hh">
+      <Filter>fdc</Filter>
+    </None>
     <None Include="$(OpenMSXSrcDir)\fdc\NationalFDC.hh">
       <Filter>fdc</Filter>
     </None>
@@ -1721,6 +1714,9 @@
       <Filter>fdc</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\fdc\TC8566AF.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\fdc\TalentTDC600.hh">
       <Filter>fdc</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\fdc\TurboRFDC.hh">
@@ -2811,6 +2807,7 @@
     <None Include="$(OpenMSXSrcDir)\MSXS1985.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXS1990.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXSwitchedDevice.hh" />
+    <None Include="$(OpenMSXSrcDir)\MSXToshibaTcx200x.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXTurboRPause.hh" />
     <None Include="$(OpenMSXSrcDir)\PasswordCart.hh" />
     <None Include="$(OpenMSXSrcDir)\PatchInterface.hh" />
@@ -2939,6 +2936,8 @@
     <None Include="$(OpenMSXSrcDir)\memory\RomColecoMegaCart.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
+    <None Include="$(OpenMSXSrcDir)\SpeedManager.hh" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(OpenMSXSrcDir)\resource\openmsx.rc">

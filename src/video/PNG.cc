@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
+#include <tuple>
 #include <png.h>
 #include <SDL.h>
 
@@ -18,14 +19,14 @@ namespace openmsx::PNG {
 
 static void handleError(png_structp png_ptr, png_const_charp error_msg)
 {
-	auto operation = reinterpret_cast<const char*>(
+	const auto* operation = reinterpret_cast<const char*>(
 		png_get_error_ptr(png_ptr));
 	throw MSXException("Error while ", operation, " PNG: ", error_msg);
 }
 
 static void handleWarning(png_structp png_ptr, png_const_charp warning_msg)
 {
-	auto operation = reinterpret_cast<const char*>(
+	const auto* operation = reinterpret_cast<const char*>(
 		png_get_error_ptr(png_ptr));
 	std::cerr << "Warning while " << operation << " PNG: "
 		<< warning_msg << '\n';
@@ -71,12 +72,15 @@ imported from SDL_image 1.2.10, file "IMG_png.c", function "IMG_LoadPNG_RW".
 */
 
 struct PNGReadHandle {
+	PNGReadHandle() = default;
 	~PNGReadHandle()
 	{
 		if (ptr) {
 			png_destroy_read_struct(&ptr, info ? &info : nullptr, nullptr);
 		}
 	}
+	PNGReadHandle(const PNGReadHandle&) = delete;
+	PNGReadHandle& operator=(const PNGReadHandle&) = delete;
 
 	png_structp ptr = nullptr;
 	png_infop info = nullptr;
@@ -84,7 +88,7 @@ struct PNGReadHandle {
 
 static void readData(png_structp ctx, png_bytep area, png_size_t size)
 {
-	auto file = reinterpret_cast<File*>(png_get_io_ptr(ctx));
+	auto* file = reinterpret_cast<File*>(png_get_io_ptr(ctx));
 	file->read(area, size);
 }
 
@@ -199,53 +203,36 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 		}
 		int bpp = png_get_channels(png.ptr, png.info) * 8;
 		assert(bpp == one_of(24, 32));
-		Uint32 redMask, grnMask, bluMask, alpMask;
-		if (OPENMSX_BIGENDIAN) {
-			if (bpp == 32) {
-				if (swapAlpha) {
-					redMask = 0x00FF0000;
-					grnMask = 0x0000FF00;
-					bluMask = 0x000000FF;
-					alpMask = 0xFF000000;
+		auto [redMask, grnMask, bluMask, alpMask] = [&]()-> std::tuple<Uint32, Uint32, Uint32, Uint32> {
+			if constexpr (OPENMSX_BIGENDIAN) {
+				if (bpp == 32) {
+					if (swapAlpha) {
+						return {0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000};
+					} else {
+						return {0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF};
+					}
 				} else {
-					redMask = 0xFF000000;
-					grnMask = 0x00FF0000;
-					bluMask = 0x0000FF00;
-					alpMask = 0x000000FF;
+					return {0x00FF0000, 0x0000FF00, 0x000000FF, 0x00000000};
 				}
 			} else {
-				redMask = 0x00FF0000;
-				grnMask = 0x0000FF00;
-				bluMask = 0x000000FF;
-				alpMask = 0x00000000;
-			}
-		} else {
-			if (bpp == 32) {
-				if (swapAlpha) {
-					redMask = 0x0000FF00;
-					grnMask = 0x00FF0000;
-					bluMask = 0xFF000000;
-					alpMask = 0x000000FF;
+				if (bpp == 32) {
+					if (swapAlpha) {
+						return {0x0000FF00, 0x00FF0000, 0xFF000000, 0x000000FF};
+					} else {
+						return {0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000};
+					}
 				} else {
-					redMask = 0x000000FF;
-					grnMask = 0x0000FF00;
-					bluMask = 0x00FF0000;
-					alpMask = 0xFF000000;
+					return {0x000000FF, 0x0000FF00, 0x00FF0000, 0x00000000};
 				}
-			} else {
-				redMask = 0x000000FF;
-				grnMask = 0x0000FF00;
-				bluMask = 0x00FF0000;
-				alpMask = 0x00000000;
 			}
-		}
+		}();
 		if (bgr) std::swap(redMask, bluMask);
 		SDLSurfacePtr surface(width, height, bpp,
 		                      redMask, grnMask, bluMask, alpMask);
 
 		// Create the array of pointers to image data.
 		VLA(png_bytep, row_pointers, height);
-		for (png_uint_32 row = 0; row < height; ++row) {
+		for (auto row : xrange(height)) {
 			row_pointers[row] = reinterpret_cast<png_bytep>(
 				surface.getLinePtr(row));
 		}
@@ -253,7 +240,7 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 		// Read the entire image in one go.
 		png_read_image(png.ptr, row_pointers);
 
-		// In some cases it can't read PNG's created by some popular programs
+		// In some cases it can't read PNGs created by some popular programs
 		// (ACDSEE), we do not want to process comments, so we omit png_read_end
 		//png_read_end(png.ptr, png.info);
 
@@ -270,12 +257,15 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 /* heavily modified for openMSX by Joost Damad joost@lumatec.be */
 
 struct PNGWriteHandle {
+	PNGWriteHandle() = default;
 	~PNGWriteHandle()
 	{
 		if (ptr) {
 			png_destroy_write_struct(&ptr, info ? &info : nullptr);
 		}
 	}
+	PNGWriteHandle(const PNGWriteHandle&) = delete;
+	PNGWriteHandle& operator=(const PNGWriteHandle&) = delete;
 
 	png_structp ptr = nullptr;
 	png_infop info = nullptr;
@@ -283,13 +273,13 @@ struct PNGWriteHandle {
 
 static void writeData(png_structp ctx, png_bytep area, png_size_t size)
 {
-	auto file = reinterpret_cast<File*>(png_get_io_ptr(ctx));
+	auto* file = reinterpret_cast<File*>(png_get_io_ptr(ctx));
 	file->write(area, size);
 }
 
 static void flushData(png_structp ctx)
 {
-	auto file = reinterpret_cast<File*>(png_get_io_ptr(ctx));
+	auto* file = reinterpret_cast<File*>(png_get_io_ptr(ctx));
 	file->flush();
 }
 
@@ -371,7 +361,7 @@ static void save(SDL_Surface* image, const std::string& filename)
 
 	// Create the array of pointers to image data
 	VLA(const void*, row_pointers, image->h);
-	for (int i = 0; i < image->h; ++i) {
+	for (auto i : xrange(image->h)) {
 		row_pointers[i] = surf24.getLinePtr(i);
 	}
 
@@ -385,7 +375,7 @@ void save(unsigned width, unsigned height, const void** rowPointers,
 	SDLSurfacePtr surface(
 		width, height, format.getBpp(),
 		format.getRmask(), format.getGmask(), format.getBmask(), format.getAmask());
-	for (unsigned y = 0; y < height; ++y) {
+	for (auto y : xrange(height)) {
 		memcpy(surface.getLinePtr(y),
 		       rowPointers[y], width * format.getBytesPerPixel());
 	}

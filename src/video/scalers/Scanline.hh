@@ -16,9 +16,9 @@ template<> class Multiply<uint16_t>
 public:
 	explicit Multiply(const PixelOperations<uint16_t>& pixelOps);
 	void setFactor(unsigned f);
-	inline uint16_t multiply(uint16_t p, unsigned factor) const;
-	inline uint16_t multiply(uint16_t p) const;
-	inline const uint16_t* getTable() const;
+	[[nodiscard]] inline uint16_t multiply(uint16_t p, unsigned factor) const;
+	[[nodiscard]] inline uint16_t multiply(uint16_t p) const;
+	[[nodiscard]] inline const uint16_t* getTable() const;
 private:
 	const PixelOperations<uint16_t>& pixelOps;
 	unsigned factor;
@@ -30,17 +30,17 @@ template<> class Multiply<uint32_t>
 public:
 	explicit Multiply(const PixelOperations<uint32_t>& pixelOps);
 	void setFactor(unsigned f);
-	inline uint32_t multiply(uint32_t p, unsigned factor) const;
-	inline uint32_t multiply(uint32_t p) const;
-	const uint32_t* getTable() const;
+	[[nodiscard]] inline uint32_t multiply(uint32_t p, unsigned factor) const;
+	[[nodiscard]] inline uint32_t multiply(uint32_t p) const;
+	[[nodiscard]] const uint32_t* getTable() const;
 private:
 	unsigned factor;
 };
 
 /**
- * Helper class to draw scalines
+ * Helper class to draw scanlines
  */
-template <class Pixel> class Scanline
+template<typename Pixel> class Scanline
 {
 public:
 	explicit Scanline(const PixelOperations<Pixel>& pixelOps);
@@ -59,11 +59,11 @@ public:
 
 	/** Darken one pixel. Typically used to implement drawBlank().
 	 */
-	Pixel darken(Pixel p, unsigned factor);
+	[[nodiscard]] Pixel darken(Pixel p, unsigned factor) const;
 
 	/** Darken and blend two pixels.
 	 */
-	Pixel darken(Pixel p1, Pixel p2, unsigned factor);
+	[[nodiscard]] Pixel darken(Pixel p1, Pixel p2, unsigned factor) const;
 
 private:
 	Multiply<Pixel> darkener;

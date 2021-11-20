@@ -8,7 +8,7 @@ namespace openmsx {
 
 /** Base class for 2x scalers.
   */
-template <class Pixel> class Scaler2 : public Scaler<Pixel>
+template<typename Pixel> class Scaler2 : public Scaler<Pixel>
 {
 public:
 	void scaleImage(FrameSource& src, const RawFrame* superImpose,
@@ -64,6 +64,7 @@ protected:
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
 
+protected:
 	const PixelOperations<Pixel> pixelOps;
 };
 

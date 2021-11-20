@@ -8,20 +8,18 @@
 #include "stl.hh"
 #include "StringOp.hh"
 #include <cstring>
+#include <optional>
 
 using std::string_view;
 
 namespace openmsx {
 
-/** Parses the given string reference as a hexadecimal integer.
-  * If successful, returns the parsed value and sets "ok" to true.
-  * If unsuccessful, returns 0 and sets "ok" to false.
+/** Parses the given string as a hexadecimal integer.
   */
-static unsigned parseHex(string_view str, bool& ok)
+[[nodiscard]] static constexpr std::optional<unsigned> parseHex(string_view str)
 {
 	if (str.empty()) {
-		ok = false;
-		return 0;
+		return {};
 	}
 	unsigned value = 0;
 	for (const char c : str) {
@@ -33,11 +31,9 @@ static unsigned parseHex(string_view str, bool& ok)
 		} else if ('a' <= c && c <= 'f') {
 			value += c - 'a' + 10;
 		} else {
-			ok = false;
-			return 0;
+			return {};
 		}
 	}
-	ok = true;
 	return value;
 }
 
@@ -45,7 +41,7 @@ static unsigned parseHex(string_view str, bool& ok)
   * Separators are: comma, whitespace and hash mark.
   * Newline (\n) is not considered a separator.
   */
-static inline bool isSep(char c)
+[[nodiscard]] static constexpr bool isSep(char c)
 {
 	return c == one_of(',',             // comma
 	                   ' ', '\t', '\r', // whitespace
@@ -55,7 +51,7 @@ static inline bool isSep(char c)
 /** Removes separator characters at the start of the given string reference.
   * Characters between a hash mark and the following newline are also skipped.
   */
-static void skipSep(string_view& str)
+static constexpr void skipSep(string_view& str)
 {
 	while (!str.empty()) {
 		const char c = str.front();
@@ -72,10 +68,10 @@ static void skipSep(string_view& str)
 /** Returns the next token in the given string.
   * The token and any separators preceding it are removed from the string.
   */
-static string_view nextToken(string_view& str)
+[[nodiscard]] static constexpr string_view nextToken(string_view& str)
 {
 	skipSep(str);
-	auto tokenBegin = str.data();
+	const auto* tokenBegin = str.data();
 	while (!str.empty() && str.front() != '\n' && !isSep(str.front())) {
 		// Pop non-separator character.
 		str.remove_prefix(1);
@@ -87,7 +83,7 @@ static string_view nextToken(string_view& str)
 UnicodeKeymap::UnicodeKeymap(string_view keyboardType)
 {
 	auto filename = systemFileContext().resolve(
-		strCat("unicodemaps/unicodemap.", keyboardType));
+		tmpStrCat("unicodemaps/unicodemap.", keyboardType));
 	try {
 		File file(filename);
 		auto buf = file.mmap();
@@ -100,9 +96,9 @@ UnicodeKeymap::UnicodeKeymap(string_view keyboardType)
 
 UnicodeKeymap::KeyInfo UnicodeKeymap::get(unsigned unicode) const
 {
-	auto it = ranges::lower_bound(mapdata, unicode, LessTupleElement<0>());
-	return ((it != end(mapdata)) && (it->first == unicode))
-		? it->second : KeyInfo();
+	auto it = ranges::lower_bound(mapdata, unicode, {}, &Entry::unicode);
+	return ((it != end(mapdata)) && (it->unicode == unicode))
+		? it->keyInfo : KeyInfo();
 }
 
 UnicodeKeymap::KeyInfo UnicodeKeymap::getDeadkey(unsigned n) const
@@ -139,21 +135,20 @@ void UnicodeKeymap::parseUnicodeKeymapfile(string_view data)
 				// but for backwards compatibility also still recognize
 				//    DEADKEY
 			} else {
-				bool ok;
-				deadKeyIndex = parseHex(token, ok);
-				deadKeyIndex--; // Make index 0 based instead of 1 based
-				if (!ok || deadKeyIndex >= NUM_DEAD_KEYS) {
+				auto d = parseHex(token);
+				if (!d || *d > NUM_DEAD_KEYS) {
 					throw MSXException(
 						"Wrong deadkey number in keymap file. "
 						"It must be 1..", NUM_DEAD_KEYS);
 				}
+				deadKeyIndex = *d - 1; // Make index 0 based instead of 1 based
 			}
 		} else {
-			bool ok;
-			unicode = parseHex(token, ok);
-			if (!ok || unicode > 0x1FBAF) {
+			auto u = parseHex(token);
+			if (!u || *u > 0x1FBAF) {
 				throw MSXException("Wrong unicode value in keymap file");
 			}
+			unicode = *u;
 		}
 
 		// Parse second token. It must be <ROW><COL>
@@ -162,20 +157,19 @@ void UnicodeKeymap::parseUnicodeKeymapfile(string_view data)
 			// Skip -- for now, it means the character cannot be typed.
 			continue;
 		}
-		bool ok;
-		unsigned rowcol = parseHex(token, ok);
-		if (!ok || rowcol >= 0x100) {
+		auto rowcol = parseHex(token);
+		if (!rowcol || *rowcol >= 0x100) {
 			throw MSXException(
 				(token.empty() ? "Missing" : "Wrong"),
 				" <ROW><COL> value in keymap file");
 		}
-		if ((rowcol >> 4) >= KeyMatrixPosition::NUM_ROWS) {
+		if ((*rowcol >> 4) >= KeyMatrixPosition::NUM_ROWS) {
 			throw MSXException("Too high row value in keymap file");
 		}
-		if ((rowcol & 0x0F) >= KeyMatrixPosition::NUM_COLS) {
+		if ((*rowcol & 0x0F) >= KeyMatrixPosition::NUM_COLS) {
 			throw MSXException("Too high column value in keymap file");
 		}
-		auto pos = KeyMatrixPosition(rowcol);
+		auto pos = KeyMatrixPosition(*rowcol);
 
 		// Parse remaining tokens. It is an optional list of modifier keywords.
 		byte modmask = 0;
@@ -206,13 +200,13 @@ void UnicodeKeymap::parseUnicodeKeymapfile(string_view data)
 			}
 			deadKeys[deadKeyIndex] = KeyInfo(pos, 0);
 		} else {
-			mapdata.emplace_back(unicode, KeyInfo(pos, modmask));
+			mapdata.emplace_back(Entry{unicode, KeyInfo(pos, modmask)});
 			// Note: getRowCol() uses 3 bits for column, rowcol uses 4.
 			relevantMods[pos.getRowCol()] |= modmask;
 		}
 	}
 
-	ranges::sort(mapdata, LessTupleElement<0>());
+	ranges::sort(mapdata, {}, &Entry::unicode);
 }
 
 } // namespace openmsx

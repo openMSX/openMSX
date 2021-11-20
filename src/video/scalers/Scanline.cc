@@ -1,6 +1,8 @@
 #include "Scanline.hh"
 #include "PixelOperations.hh"
+#include "enumerate.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <cstddef>
 #include <cstring>
@@ -21,15 +23,14 @@ Multiply<uint16_t>::Multiply(const PixelOperations<uint16_t>& pixelOps_)
 
 void Multiply<uint16_t>::setFactor(unsigned f)
 {
-	if (f == factor) {
-		return;
-	}
+	if (f == factor) return;
 	factor = f;
 
-	for (unsigned p = 0; p < 0x10000; ++p) {
-		tab[p] = ((((p & pixelOps.getRmask()) * f) >> 8) & pixelOps.getRmask()) |
-		         ((((p & pixelOps.getGmask()) * f) >> 8) & pixelOps.getGmask()) |
-		         ((((p & pixelOps.getBmask()) * f) >> 8) & pixelOps.getBmask());
+	for (auto [p, t] : enumerate(tab)) {
+		auto pix = uint32_t(p);
+		t = ((((pix & pixelOps.getRmask()) * f) >> 8) & pixelOps.getRmask()) |
+		    ((((pix & pixelOps.getGmask()) * f) >> 8) & pixelOps.getGmask()) |
+		    ((((pix & pixelOps.getBmask()) * f) >> 8) & pixelOps.getBmask());
 	}
 }
 
@@ -111,9 +112,9 @@ static inline void drawSSE2(
 	assert((reinterpret_cast<uintptr_t>(in1_) % sizeof(__m128i)) == 0);
 	assert((reinterpret_cast<uintptr_t>(in2_) % sizeof(__m128i)) == 0);
 	assert((reinterpret_cast<uintptr_t>(out_) % sizeof(__m128i)) == 0);
-	auto* in1 = reinterpret_cast<const char*>(in1_) + width;
-	auto* in2 = reinterpret_cast<const char*>(in2_) + width;
-	auto* out = reinterpret_cast<      char*>(out_) + width;
+	const auto* in1 = reinterpret_cast<const char*>(in1_) + width;
+	const auto* in2 = reinterpret_cast<const char*>(in2_) + width;
+	      auto* out = reinterpret_cast<      char*>(out_) + width;
 
 	__m128i f = _mm_set1_epi16(factor << 8);
 	ptrdiff_t x = -ptrdiff_t(width);
@@ -138,9 +139,9 @@ static inline void drawSSE2(
 {
 	width *= sizeof(uint16_t); // in bytes
 	assert(width >= 16);
-	auto* in1 = reinterpret_cast<const char*>(in1_) + width;
-	auto* in2 = reinterpret_cast<const char*>(in2_) + width;
-	auto* out = reinterpret_cast<      char*>(out_) + width;
+	const auto* in1 = reinterpret_cast<const char*>(in1_) + width;
+	const auto* in2 = reinterpret_cast<const char*>(in2_) + width;
+	      auto* out = reinterpret_cast<      char*>(out_) + width;
 
 	darkener.setFactor(factor);
 	const uint16_t* table = darkener.getTable();
@@ -189,14 +190,14 @@ static inline void drawSSE2(
 
 // class Scanline
 
-template <class Pixel>
+template<typename Pixel>
 Scanline<Pixel>::Scanline(const PixelOperations<Pixel>& pixelOps_)
 	: darkener(pixelOps_)
 	, pixelOps(pixelOps_)
 {
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scanline<Pixel>::draw(
 	const Pixel* __restrict src1, const Pixel* __restrict src2,
 	Pixel* __restrict dst, unsigned factor, size_t width)
@@ -206,21 +207,21 @@ void Scanline<Pixel>::draw(
 #else
 	// non-SSE2 routine, both 16bpp and 32bpp
 	darkener.setFactor(factor);
-	for (unsigned x = 0; x < width; ++x) {
+	for (auto x : xrange(width)) {
 		dst[x] = darkener.multiply(
 			pixelOps.template blend<1, 1>(src1[x], src2[x]));
 	}
 #endif
 }
 
-template <class Pixel>
-Pixel Scanline<Pixel>::darken(Pixel p, unsigned factor)
+template<typename Pixel>
+Pixel Scanline<Pixel>::darken(Pixel p, unsigned factor) const
 {
 	return darkener.multiply(p, factor);
 }
 
-template <class Pixel>
-Pixel Scanline<Pixel>::darken(Pixel p1, Pixel p2, unsigned factor)
+template<typename Pixel>
+Pixel Scanline<Pixel>::darken(Pixel p1, Pixel p2, unsigned factor) const
 {
 	return darkener.multiply(pixelOps.template blend<1, 1>(p1, p2), factor);
 }

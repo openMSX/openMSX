@@ -1,11 +1,10 @@
 #include "SVIPSG.hh"
-#include "AY8910.hh"
 #include "LedStatus.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXMotherBoard.hh"
 #include "JoystickPort.hh"
 #include "serialize.hh"
-#include <memory>
+#include "stl.hh"
 
 //        Slot 0    Slot 1    Slot 2    Slot 3
 // FFFF +---------+---------+---------+---------+
@@ -36,7 +35,7 @@
 // 2   /BK22   Memory bank 22, RAM 8000-FFFF
 // 3   /BK31   Memory bank 31, RAM 0000-7FFF
 // 4   /BK32   Memory bank 32, RAM 8000-7FFF
-// 5   CAPS    Caps-Lock diod
+// 5   CAPS    Caps-Lock LED
 // 6   /ROMEN0 Memory bank 12, ROM 8000-BFFF* (cartridge /CCS3)
 // 7   /ROMEN1 Memory bank 12, ROM C000-FFFF* (cartridge /CCS4)
 //
@@ -49,15 +48,11 @@ namespace openmsx {
 
 SVIPSG::SVIPSG(const DeviceConfig& config)
 	: MSXDevice(config)
+	, ports(generate_array<2>([&](auto i) { return &getMotherBoard().getJoystickPort(unsigned(i)); }))
+	, ay8910("PSG", *this, config, getCurrentTime())
 	, prev(255)
 {
-	ports[0] = &getMotherBoard().getJoystickPort(0);
-	ports[1] = &getMotherBoard().getJoystickPort(1);
-
-	// must come after initialisation of ports
-	EmuTime::param time = getCurrentTime();
-	ay8910 = std::make_unique<AY8910>("PSG", *this, config, time);
-	reset(time);
+	reset(getCurrentTime());
 }
 
 SVIPSG::~SVIPSG()
@@ -68,7 +63,7 @@ SVIPSG::~SVIPSG()
 void SVIPSG::reset(EmuTime::param time)
 {
 	registerLatch = 0;
-	ay8910->reset(time);
+	ay8910.reset(time);
 }
 
 void SVIPSG::powerDown(EmuTime::param /*time*/)
@@ -78,12 +73,12 @@ void SVIPSG::powerDown(EmuTime::param /*time*/)
 
 byte SVIPSG::readIO(word /*port*/, EmuTime::param time)
 {
-	return ay8910->readRegister(registerLatch, time);
+	return ay8910.readRegister(registerLatch, time);
 }
 
 byte SVIPSG::peekIO(word /*port*/, EmuTime::param time) const
 {
-	return ay8910->peekRegister(registerLatch, time);
+	return ay8910.peekRegister(registerLatch, time);
 }
 
 void SVIPSG::writeIO(word port, byte value, EmuTime::param time)
@@ -93,7 +88,7 @@ void SVIPSG::writeIO(word port, byte value, EmuTime::param time)
 		registerLatch = value & 0x0F;
 		break;
 	case 4:
-		ay8910->writeRegister(registerLatch, value, time);
+		ay8910.writeRegister(registerLatch, value, time);
 		break;
 	}
 }
@@ -111,31 +106,31 @@ void SVIPSG::writeB(byte value, EmuTime::param /*time*/)
 	getMotherBoard().getLedStatus().setLed(LedStatus::CAPS, (value & 0x20) != 0);
 
 	// Default to bank 1 and 2
-	byte psreg = 0;
+	byte psReg = 0;
 	switch (~value & 0x14) {
 	case 0x04: // bk22
-		psreg = 0xa0;
+		psReg = 0xa0;
 		break;
 	case 0x10: // bk32
-		psreg = 0xf0;
+		psReg = 0xf0;
 		break;
 	}
 	switch (~value & 0x0B) {
 	case 1: // bk12 (cart)?
 		if ((~value & 0x80) || (~value & 0x40)) {
-			psreg = 0x50;
+			psReg = 0x50;
 		}
 		// bk11 (cart)
-		psreg |= 0x05;
+		psReg |= 0x05;
 		break;
 	case 2: // bk21
-		psreg |= 0x0a;
+		psReg |= 0x0a;
 		break;
 	case 8: // bk31
-		psreg |= 0x0f;
+		psReg |= 0x0f;
 		break;
 	}
-	getMotherBoard().getCPUInterface().setPrimarySlots(psreg);
+	getMotherBoard().getCPUInterface().setPrimarySlots(psReg);
 
 	prev = value;
 }
@@ -144,11 +139,11 @@ template<typename Archive>
 void SVIPSG::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("ay8910",        *ay8910,
+	ar.serialize("ay8910",        ay8910,
 	             "registerLatch", registerLatch);
 	byte portB = prev;
 	ar.serialize("portB", portB);
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		writeB(portB, getCurrentTime());
 	}
 }

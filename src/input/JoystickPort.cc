@@ -6,15 +6,13 @@
 #include "serialize.hh"
 #include <memory>
 
-using std::string;
-
 namespace openmsx {
 
 JoystickPort::JoystickPort(PluggingController& pluggingController_,
-                           std::string name_, std::string description_)
+                           std::string name_, static_string_view description_)
 	: Connector(pluggingController_, std::move(name_), std::make_unique<DummyJoystick>())
 	, lastValue(255) // != 0
-	, description(std::move(description_))
+	, description(description_)
 {
 }
 
@@ -58,7 +56,7 @@ template<typename Archive>
 void JoystickPort::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Connector>(*this);
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		// The value of 'lastValue', is already restored via MSXPSG,
 		// but we still need to re-write this value to the plugged
 		// devices (do this after those devices have been re-plugged).

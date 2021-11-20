@@ -3,17 +3,19 @@
 #include "CommandException.hh"
 #include "BootBlocks.hh"
 #include "endian.hh"
+#include "enumerate.hh"
 #include "random.hh"
+#include "xrange.hh"
 #include <cstring>
 #include <cassert>
 #include <ctime>
 
 namespace openmsx::DiskImageUtils {
 
-constexpr char PARTAB_HEADER[11] = {
+static constexpr char PARTAB_HEADER[11] = {
 	'\353', '\376', '\220', 'M', 'S', 'X', '_', 'I', 'D', 'E', ' '
 };
-static bool isPartitionTableSector(const PartitionTable& pt)
+[[nodiscard]] static bool isPartitionTableSector(const PartitionTable& pt)
 {
 	return memcmp(pt.header, PARTAB_HEADER, sizeof(PARTAB_HEADER)) == 0;
 }
@@ -26,8 +28,8 @@ bool hasPartitionTable(SectorAccessibleDisk& disk)
 }
 
 
-static Partition& checkImpl(SectorAccessibleDisk& disk, unsigned partition,
-                            SectorBuffer& buf)
+static Partition& checkImpl(
+	SectorAccessibleDisk& disk, unsigned partition, SectorBuffer& buf)
 {
 	// check number in range
 	if (partition < 1 || partition > 31) {
@@ -67,11 +69,15 @@ void checkFAT12Partition(SectorAccessibleDisk& disk, unsigned partition)
 
 
 // Create a correct bootsector depending on the required size of the filesystem
-static void setBootSector(MSXBootSector& boot, size_t nbSectors,
-                          unsigned& firstDataSector, byte& descriptor, bool dos1)
+struct SetBootSectorResult {
+	unsigned firstDataSector;
+	byte descriptor;
+};
+static SetBootSectorResult setBootSector(
+	MSXBootSector& boot, size_t nbSectors, bool dos1)
 {
 	// start from the default bootblock ..
-	auto& defaultBootBlock = dos1 ? BootBlocks::dos1BootBlock : BootBlocks::dos2BootBlock;
+	const auto& defaultBootBlock = dos1 ? BootBlocks::dos1BootBlock : BootBlocks::dos2BootBlock;
 	memcpy(&boot, &defaultBootBlock, sizeof(boot));
 
 	// .. and fill-in image-size dependent parameters ..
@@ -85,6 +91,7 @@ static void setBootSector(MSXBootSector& boot, size_t nbSectors,
 	byte nbSectorsPerFat;
 	byte nbSectorsPerCluster;
 	word nbDirEntry;
+	byte descriptor;
 
 	// now set correct info according to size of image (in sectors!)
 	// and using the same layout as used by Jon in IDEFDISK v 3.1
@@ -176,7 +183,8 @@ static void setBootSector(MSXBootSector& boot, size_t nbSectors,
 	}
 	unsigned nbRootDirSectors = nbDirEntry / 16;
 	unsigned rootDirStart = 1 + nbFats * nbSectorsPerFat;
-	firstDataSector = rootDirStart + nbRootDirSectors;
+	unsigned firstDataSector = rootDirStart + nbRootDirSectors;
+	return {firstDataSector, descriptor};
 }
 
 void format(SectorAccessibleDisk& disk, bool dos1)
@@ -184,14 +192,12 @@ void format(SectorAccessibleDisk& disk, bool dos1)
 	// first create a bootsector for given partition size
 	size_t nbSectors = disk.getNbSectors();
 	SectorBuffer buf;
-	unsigned firstDataSector;
-	byte descriptor;
-	setBootSector(buf.bootSector, nbSectors, firstDataSector, descriptor, dos1);
+	auto [firstDataSector, descriptor] = setBootSector(buf.bootSector, nbSectors, dos1);
 	disk.writeSector(0, buf);
 
 	// write empty FAT and directory sectors
 	memset(&buf, 0, sizeof(buf));
-	for (unsigned i = 2; i < firstDataSector; ++i) {
+	for (auto i : xrange(2u, firstDataSector)) {
 		disk.writeSector(i, buf);
 	}
 	// first FAT sector is special:
@@ -204,43 +210,46 @@ void format(SectorAccessibleDisk& disk, bool dos1)
 
 	// write 'empty' data sectors
 	memset(&buf, 0xE5, sizeof(buf));
-	for (size_t i = firstDataSector; i < nbSectors; ++i) {
+	for (auto i : xrange(firstDataSector, nbSectors)) {
 		disk.writeSector(i, buf);
 	}
 }
 
-static void logicalToCHS(unsigned logical, unsigned& cylinder,
-                         unsigned& head, unsigned& sector)
+struct CHS {
+	unsigned cylinder;
+	unsigned head;
+	unsigned sector;
+};
+[[nodiscard]] static constexpr CHS logicalToCHS(unsigned logical)
 {
 	// This is made to fit the openMSX harddisk configuration:
 	//  32 sectors/track   16 heads
 	unsigned tmp = logical + 1;
-	sector = tmp % 32;
+	unsigned sector = tmp % 32;
 	if (sector == 0) sector = 32;
 	tmp = (tmp - sector) / 32;
-	head = tmp % 16;
-	cylinder = tmp / 16;
+	unsigned head = tmp % 16;
+	unsigned cylinder = tmp / 16;
+	return {cylinder, head, sector};
 }
 
-void partition(SectorAccessibleDisk& disk, const std::vector<unsigned>& sizes)
+void partition(SectorAccessibleDisk& disk, span<const unsigned> sizes)
 {
 	assert(sizes.size() <= 31);
 
-	SectorBuffer buf;
+	SectorBuffer buf{};
 	memset(&buf, 0, sizeof(buf));
 	memcpy(buf.pt.header, PARTAB_HEADER, sizeof(PARTAB_HEADER));
 	buf.pt.end = 0xAA55;
 
 	unsigned partitionOffset = 1;
-	for (size_t i = 0; i < sizes.size(); ++i) {
-		unsigned partitionNbSectors = sizes[i];
+	for (auto [i, size] : enumerate(sizes)) {
+		unsigned partitionNbSectors = size;
 		auto& p = buf.pt.part[30 - i];
-		unsigned startCylinder, startHead, startSector;
-		logicalToCHS(partitionOffset,
-		             startCylinder, startHead, startSector);
-		unsigned endCylinder, endHead, endSector;
-		logicalToCHS(partitionOffset + partitionNbSectors - 1,
-		             endCylinder, endHead, endSector);
+		auto [startCylinder, startHead, startSector] =
+			logicalToCHS(partitionOffset);
+		auto [endCylinder, endHead, endSector] =
+			logicalToCHS(partitionOffset + partitionNbSectors - 1);
 		p.boot_ind = (i == 0) ? 0x80 : 0x00; // bootflag
 		p.head = startHead;
 		p.sector = startSector;
@@ -250,7 +259,7 @@ void partition(SectorAccessibleDisk& disk, const std::vector<unsigned>& sizes)
 		p.end_sector = endSector;
 		p.end_cyl = endCylinder;
 		p.start = partitionOffset;
-		p.size = sizes[i];
+		p.size = size;
 		DiskPartition diskPartition(disk, partitionOffset, partitionNbSectors);
 		format(diskPartition);
 		partitionOffset += partitionNbSectors;

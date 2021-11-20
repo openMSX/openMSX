@@ -4,7 +4,6 @@
 #include "PostProcessor.hh"
 #include "RenderSettings.hh"
 #include "GLUtil.hh"
-#include <utility>
 #include <vector>
 #include <memory>
 
@@ -28,12 +27,12 @@ public:
 	// Layer interface:
 	void paint(OutputSurface& output) override;
 
-	std::unique_ptr<RawFrame> rotateFrames(
+	[[nodiscard]] std::unique_ptr<RawFrame> rotateFrames(
 		std::unique_ptr<RawFrame> finishedFrame, EmuTime::param time) override;
 
 protected:
 	// Observer<Setting> interface:
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
 private:
 	void initBuffers();
@@ -49,6 +48,7 @@ private:
 	void preCalcMonitor3D(float width);
 	void drawMonitor3D();
 
+private:
 	/** The currently active scaler.
 	  */
 	std::unique_ptr<GLScaler> currScaler;
@@ -64,8 +64,9 @@ private:
 	struct TextureData {
 		gl::ColorTexture tex;
 		gl::PixelBuffer<unsigned> pbo;
+		[[nodiscard]] unsigned width() const { return tex.getWidth(); }
 	};
-	std::vector<std::pair<unsigned, TextureData>> textures;
+	std::vector<TextureData> textures;
 
 	gl::ColorTexture superImposeTex;
 

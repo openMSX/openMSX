@@ -33,9 +33,8 @@ std::unique_ptr<CliListener> GlobalCliComm::removeListener(CliListener& listener
 {
 	// can be called from any thread
 	std::lock_guard<std::mutex> lock(mutex);
-	auto it = rfind_if_unguarded(listeners,
-		[&](const std::unique_ptr<CliListener>& ptr) {
-			return ptr.get() == &listener; });
+	auto it = rfind_unguarded(listeners, &listener,
+		[](const auto& ptr) { return ptr.get(); });
 	auto result = std::move(*it);
 	move_pop_back(listeners, it);
 	return result;
@@ -83,13 +82,13 @@ void GlobalCliComm::log(LogLevel level, std::string_view message)
 void GlobalCliComm::update(UpdateType type, std::string_view name, std::string_view value)
 {
 	assert(type < NUM_UPDATES);
-	if (auto v = lookup(prevValues[type], name)) {
-		if (*v == value) {
-			return;
+	if (auto [it, inserted] = prevValues[type].try_emplace(name, value);
+	    !inserted) { // was already present ..
+		if (it->second == value) {
+			return; // .. with the same value
+		} else {
+			it->second = value; // .. but with a different value
 		}
-		*v = value;
-	} else {
-		prevValues[type].emplace_noDuplicateCheck(name, value);
 	}
 	updateHelper(type, {}, name, value);
 }

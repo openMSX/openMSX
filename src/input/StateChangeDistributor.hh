@@ -1,21 +1,17 @@
 #ifndef STATECHANGEDISTRIBUTOR_HH
 #define STATECHANGEDISTRIBUTOR_HH
 
+#include "ReverseManager.hh"
+#include "StateChangeListener.hh"
 #include "EmuTime.hh"
 #include <memory>
 #include <vector>
 
 namespace openmsx {
 
-class StateChangeListener;
-class StateChangeRecorder;
-class StateChange;
-
 class StateChangeDistributor
 {
 public:
-	using EventPtr = std::shared_ptr<StateChange>;
-
 	StateChangeDistributor() = default;
 	~StateChangeDistributor();
 
@@ -32,8 +28,8 @@ public:
 	 * object is always the first object that gets informed about state
 	 * changing events.
 	 */
-	void registerRecorder  (StateChangeRecorder& recorder);
-	void unregisterRecorder(StateChangeRecorder& recorder);
+	void registerRecorder  (ReverseManager& recorder);
+	void unregisterRecorder(ReverseManager& recorder);
 
 	/** Deliver the event to all registered listeners
 	 * MSX input devices should call the distributeNew() version, only the
@@ -46,8 +42,26 @@ public:
 	 * always starts from a freshly restored snapshot.
 	 * @param event The event
 	 */
-	void distributeNew   (const EventPtr& event);
-	void distributeReplay(const EventPtr& event);
+	template<typename T, typename... Args>
+	void distributeNew(EmuTime::param time, Args&& ...args) {
+		if (recorder) {
+			if (isReplaying()) {
+				if (viewOnlyMode) return;
+				stopReplay(time);
+			}
+			assert(!isReplaying());
+			const auto& event = recorder->record<T>(time, std::forward<Args>(args)...);
+			distribute(event); // might throw, ok
+		} else {
+			T event(time, std::forward<Args>(args)...);
+			distribute(event); // might throw, ok
+		}
+	}
+
+	void distributeReplay(const StateChange& event) {
+		assert(isReplaying());
+		distribute(event);
+	}
 
 	/** Explicitly stop replay.
 	 * Should be called when replay->live transition cannot be signaled via
@@ -63,16 +77,17 @@ public:
 	 * @param value false if new events stop replay mode
 	 */
 	void setViewOnlyMode(bool value) { viewOnlyMode = value; }
-	bool isViewOnlyMode() const { return viewOnlyMode; }
+	[[nodiscard]] bool isViewOnlyMode() const { return viewOnlyMode; }
 
-	bool isReplaying() const;
+	[[nodiscard]] bool isReplaying() const;
 
 private:
-	bool isRegistered(StateChangeListener* listener) const;
-	void distribute(const EventPtr& event);
+	[[nodiscard]] bool isRegistered(StateChangeListener* listener) const;
+	void distribute(const StateChange& event);
 
+private:
 	std::vector<StateChangeListener*> listeners; // unordered
-	StateChangeRecorder* recorder = nullptr;
+	ReverseManager* recorder = nullptr;
 	bool viewOnlyMode = false;
 };
 

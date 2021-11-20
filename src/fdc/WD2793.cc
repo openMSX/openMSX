@@ -87,7 +87,7 @@ void WD2793::reset(EmuTime::param time)
 	setCommandReg(0x03, time);
 }
 
-bool WD2793::getDTRQ(EmuTime::param time)
+bool WD2793::getDTRQ(EmuTime::param time) const
 {
 	return peekDTRQ(time);
 }
@@ -102,7 +102,7 @@ void WD2793::setDrqRate(unsigned trackLength)
 	drqTime.setFreq(trackLength * DiskDrive::ROTATIONS_PER_SECOND);
 }
 
-bool WD2793::getIRQ(EmuTime::param time)
+bool WD2793::getIRQ(EmuTime::param time) const
 {
 	return peekIRQ(time);
 }
@@ -218,7 +218,7 @@ void WD2793::setTrackReg(byte value, EmuTime::param /*time*/)
 	trackReg = value;
 }
 
-byte WD2793::getTrackReg(EmuTime::param time)
+byte WD2793::getTrackReg(EmuTime::param time) const
 {
 	return peekTrackReg(time);
 }
@@ -233,7 +233,7 @@ void WD2793::setSectorReg(byte value, EmuTime::param /*time*/)
 	sectorReg = value;
 }
 
-byte WD2793::getSectorReg(EmuTime::param time)
+byte WD2793::getSectorReg(EmuTime::param time) const
 {
 	return peekSectorReg(time);
 }
@@ -1075,7 +1075,7 @@ void WD2793::endCmd(EmuTime::param time)
 }
 
 
-static std::initializer_list<enum_string<WD2793::FSMState>> fsmStateInfo = {
+static constexpr std::initializer_list<enum_string<WD2793::FSMState>> fsmStateInfo = {
 	{ "NONE",              WD2793::FSM_NONE },
 	{ "SEEK",              WD2793::FSM_SEEK },
 	{ "TYPE2_LOADED",      WD2793::FSM_TYPE2_LOADED },
@@ -1127,7 +1127,7 @@ void WD2793::serialize(Archive& ar, unsigned version)
 	} else {
 		constexpr int SCHED_FSM     = 0;
 		constexpr int SCHED_IDX_IRQ = 1;
-		assert(ar.isLoader());
+		assert(Archive::IS_LOADER);
 		removeSyncPoint();
 		for (auto& old : Schedulable::serializeBW(ar)) {
 			if (old.userData == SCHED_FSM) {
@@ -1155,14 +1155,14 @@ void WD2793::serialize(Archive& ar, unsigned version)
 		if (ar.versionAtLeast(version, 4)) {
 			ar.serialize("drqTime", drqTime);
 		} else {
-			assert(ar.isLoader());
+			assert(Archive::IS_LOADER);
 			Clock<6250 * 5> c(EmuTime::dummy());
 			ar.serialize("drqTime", c);
 			drqTime.reset(c.getTime());
 			drqTime.setFreq(6250 * 5);
 		}
 	} else {
-		assert(ar.isLoader());
+		assert(Archive::IS_LOADER);
 		//ar.serialize("commandStart", commandStart,
 		//             "DRQTimer",     DRQTimer,
 		//             "DRQ",          DRQ,
@@ -1189,7 +1189,7 @@ void WD2793::serialize(Archive& ar, unsigned version)
 	if (ar.versionAtLeast(version, 7)) {
 		ar.serialize("irqTime", irqTime);
 	} else {
-		assert(ar.isLoader());
+		assert(Archive::IS_LOADER);
 		bool INTRQ = false; // dummy init to avoid warning
 		ar.serialize("INTRQ", INTRQ);
 		irqTime = INTRQ ? EmuTime::zero() : EmuTime::infinity();
@@ -1203,14 +1203,14 @@ void WD2793::serialize(Archive& ar, unsigned version)
 		             "dataRegWritten", dataRegWritten,
 		             "lastWasCRC",     lastWasCRC);
 	} else {
-		assert(ar.isLoader());
+		assert(Archive::IS_LOADER);
 		dataOutReg = dataReg;
 		dataRegWritten = false;
 		lastWasCRC = false;
 	}
 
 	if (ar.versionBelow(version, 11)) {
-		assert(ar.isLoader());
+		assert(Archive::IS_LOADER);
 		// version 9->10: 'trackData' moved from FDC to RealDrive
 		// version 10->11: write commands are different
 		if (statusReg & BUSY) {

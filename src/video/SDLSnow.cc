@@ -3,24 +3,25 @@
 #include "Display.hh"
 #include "build-info.hh"
 #include "checked_cast.hh"
+#include "enumerate.hh"
 #include "random.hh"
 #include <cstring>
 #include <cstdint>
 
 namespace openmsx {
 
-template <class Pixel>
+template<typename Pixel>
 SDLSnow<Pixel>::SDLSnow(OutputSurface& output, Display& display_)
 	: Layer(COVER_FULL, Z_BACKGROUND)
 	, display(display_)
 {
 	// Precalc gray values for noise
-	for (int i = 0; i < 256; ++i) {
-		gray[i] = output.mapRGB255(gl::ivec3(i));
+	for (auto [i, g] : enumerate(gray)) {
+		g = output.mapRGB255(gl::ivec3(int(i)));
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void SDLSnow<Pixel>::paint(OutputSurface& output_)
 {
 	auto& generator = global_urng(); // fast (non-cryptographic) random numbers

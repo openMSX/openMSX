@@ -19,7 +19,6 @@ register_lazy "_guess_title.tcl" {guess_title guess_rom_title guess_rom_device}
 register_lazy "_info_panel.tcl" toggle_info_panel
 register_lazy "_metal_gear_overlay.tcl" {toggle_metal_gear_overlay}
 register_lazy "_mog-overlay.tcl" {toggle_mog_overlay toggle_mog_editor}
-register_lazy "_monitor.tcl" monitor_type
 register_lazy "_multi_screenshot.tcl" multi_screenshot
 register_lazy "_music_keyboard.tcl" {toggle_music_keyboard}
 register_lazy "_osd.tcl" {show_osd display_message is_cursor_in}
@@ -34,6 +33,7 @@ register_lazy "_osd_widgets.tcl" {
 register_lazy "_psg_log.tcl" psg_log
 register_lazy "_psg_profile.tcl" psg_profile
 register_lazy "_quitmenu.tcl" quit_menu
+register_lazy "_raster_view.tcl" toggle_raster_view
 register_lazy "_record_channels.tcl" {
 	record_channels mute_channels unmute_channels solo}
 register_lazy "_record_chunks.tcl" {

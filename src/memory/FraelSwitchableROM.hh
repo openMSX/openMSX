@@ -13,8 +13,8 @@ public:
 
 	void reset(EmuTime::param time) override;
 
-	byte readMem(word address, EmuTime::param time) override;
-	const byte* getReadCacheLine(word start) const override;
+	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
+	[[nodiscard]] const byte* getReadCacheLine(word start) const override;
 
 	void writeIO(word port, byte value, EmuTime::param time) override;
 

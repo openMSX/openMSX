@@ -3,13 +3,29 @@
 
 #include "AbstractIDEDevice.hh"
 #include "File.hh"
+#include "RecordedCommand.hh"
 #include <bitset>
 #include <memory>
+#include <optional>
 
 namespace openmsx {
 
 class DeviceConfig;
-class CDXCommand;
+class IDECDROM;
+
+class CDXCommand final : public RecordedCommand
+{
+public:
+	CDXCommand(CommandController& commandController,
+	           StateChangeDistributor& stateChangeDistributor,
+	           Scheduler& scheduler, IDECDROM& cd);
+	void execute(span<const TclObject> tokens,
+		TclObject& result, EmuTime::param time) override;
+	[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+	void tabCompletion(std::vector<std::string>& tokens) const override;
+private:
+	IDECDROM& cd;
+};
 
 class IDECDROM final : public AbstractIDEDevice
 {
@@ -28,10 +44,10 @@ public:
 
 protected:
 	// AbstractIDEDevice:
-	bool isPacketDevice() override;
-	const std::string& getDeviceName() override;
+	[[nodiscard]] bool isPacketDevice() override;
+	[[nodiscard]] std::string_view getDeviceName() override;
 	void fillIdentifyBlock (AlignedBuffer& buffer) override;
-	unsigned readBlockStart(AlignedBuffer& buffer, unsigned count) override;
+	[[nodiscard]] unsigned readBlockStart(AlignedBuffer& buffer, unsigned count) override;
 	void readEnd() override;
 	void writeBlockComplete(AlignedBuffer& buffer, unsigned count) override;
 	void executeCommand(byte cmd) override;
@@ -53,7 +69,7 @@ private:
 	void executePacketCommand(AlignedBuffer& packet);
 
 	std::string name;
-	std::unique_ptr<CDXCommand> cdxCommand;
+	std::optional<CDXCommand> cdxCommand; // delayed init
 	File file;
 	unsigned byteCountLimit;
 	unsigned transferOffset;

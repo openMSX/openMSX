@@ -7,11 +7,8 @@
 #include "Thread.hh"
 #include "ranges.hh"
 #include "stl.hh"
-#include "view.hh"
 #include <cassert>
 #include <chrono>
-
-using std::string;
 
 namespace openmsx {
 
@@ -24,24 +21,23 @@ void EventDistributor::registerEventListener(
 		EventType type, EventListener& listener, Priority priority)
 {
 	std::lock_guard<std::mutex> lock(mutex);
-	auto& priorityMap = listeners[type];
+	auto& priorityMap = listeners[size_t(type)];
 	// a listener may only be registered once for each type
-	assert(!contains(view::values(priorityMap), &listener));
+	assert(!contains(priorityMap, &listener, &Entry::listener));
 	// insert at highest position that keeps listeners sorted on priority
-	auto it = ranges::upper_bound(priorityMap, priority, LessTupleElement<0>());
-	priorityMap.insert(it, {priority, &listener});
+	auto it = ranges::upper_bound(priorityMap, priority, {}, &Entry::priority);
+	priorityMap.emplace(it, Entry{priority, &listener});
 }
 
 void EventDistributor::unregisterEventListener(
 		EventType type, EventListener& listener)
 {
 	std::lock_guard<std::mutex> lock(mutex);
-	auto& priorityMap = listeners[type];
-	priorityMap.erase(rfind_if_unguarded(priorityMap,
-		[&](auto& v) { return v.second == &listener; }));
+	auto& priorityMap = listeners[size_t(type)];
+	priorityMap.erase(rfind_unguarded(priorityMap, &listener, &Entry::listener));
 }
 
-void EventDistributor::distributeEvent(const EventPtr& event)
+void EventDistributor::distributeEvent(Event&& event)
 {
 	// TODO: Implement a real solution against modifying data structure while
 	//       iterating through it.
@@ -51,8 +47,8 @@ void EventDistributor::distributeEvent(const EventPtr& event)
 	//       queue the event?
 	assert(event);
 	std::unique_lock<std::mutex> lock(mutex);
-	if (!listeners[event->getType()].empty()) {
-		scheduledEvents.push_back(event);
+	if (!listeners[size_t(getType(event))].empty()) {
+		scheduledEvents.push_back(std::move(event));
 		// must release lock, otherwise there's a deadlock:
 		//   thread 1: Reactor::deleteMotherBoard()
 		//             EventDistributor::unregisterEventListener()
@@ -66,7 +62,7 @@ void EventDistributor::distributeEvent(const EventPtr& event)
 
 bool EventDistributor::isRegistered(EventType type, EventListener* listener) const
 {
-	return contains(view::values(listeners[type]), listener);
+	return contains(listeners[size_t(type)], listener, &Entry::listener);
 }
 
 void EventDistributor::deliverEvents()
@@ -92,19 +88,19 @@ void EventDistributor::deliverEvents()
 		assert(eventsCopy.empty());
 		swap(eventsCopy, scheduledEvents);
 		for (auto& event : eventsCopy) {
-			auto type = event->getType();
-			priorityMapCopy = listeners[type];
+			auto type = getType(event);
+			priorityMapCopy = listeners[size_t(type)];
 			lock.unlock();
-			auto blockPriority = unsigned(-1); // allow all
-			for (const auto& [priority, listener] : priorityMapCopy) {
+			int blockPriority = Priority::LOWEST; // allow all
+			for (const auto& e : priorityMapCopy) {
 				// It's possible delivery to one of the previous
 				// Listeners unregistered the current Listener.
-				if (!isRegistered(type, listener)) continue;
+				if (!isRegistered(type, e.listener)) continue;
 
-				if (priority >= blockPriority) break;
+				if (e.priority >= blockPriority) break;
 
-				if (unsigned block = listener->signalEvent(event)) {
-					assert(block > priority);
+				if (int block = e.listener->signalEvent(event)) {
+					assert(block > e.priority);
 					blockPriority = block;
 				}
 			}

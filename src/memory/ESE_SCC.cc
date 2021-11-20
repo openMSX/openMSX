@@ -1,5 +1,5 @@
 /*
- * 'Ese-SCC' cartride and 'MEGA-SCSI with SCC'(alias WAVE-SCSI) cartrige.
+ * 'Ese-SCC' cartride and 'MEGA-SCSI with SCC'(alias WAVE-SCSI) cartridge.
  *
  * Specification:
  *  SRAM(MegaROM) controller: KONAMI_SCC type
@@ -7,11 +7,11 @@
  *  SCSI Protocol controller: Fujitsu MB89352A
  *
  * ESE-SCC sram write control register:
- *  7FFEH, 7FFFH SRAM write control.
- *   bit4       = 1..SRAM writing in 4000H-7FFDH can be done.
+ *  0x7FFE, 0x7FFF SRAM write control.
+ *   bit4       = 1..SRAM writing in 0x4000-0x7FFD can be done.
  *                   It is given priority more than bank changing.
  *              = 0..SRAM read only
- *   othet bit  = not used
+ *   other bit  = not used
  *
  * WAVE-SCSI bank control register
  *             6bit register (MA13-MA18, B0-B5)
@@ -49,7 +49,9 @@
 #include "MB89352.hh"
 #include "MSXException.hh"
 #include "one_of.hh"
+#include "ranges.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <memory>
 
 namespace openmsx {
@@ -81,9 +83,7 @@ ESE_SCC::ESE_SCC(const DeviceConfig& config, bool withSCSI)
 	sccEnable   = false;
 	spcEnable   = false;
 	writeEnable = false;
-	for (int i = 0; i < 4; ++i) {
-		mapper[i] = i;
-	}
+	ranges::iota(mapper, 0);
 }
 
 void ESE_SCC::powerUp(EmuTime::param time)
@@ -95,7 +95,7 @@ void ESE_SCC::powerUp(EmuTime::param time)
 void ESE_SCC::reset(EmuTime::param time)
 {
 	setMapperHigh(0);
-	for (int i = 0; i < 4; ++i) {
+	for (auto i : xrange(4)) {
 		setMapperLow(i, i);
 	}
 	scc.reset(time);
@@ -229,7 +229,7 @@ void ESE_SCC::writeMem(word address, byte value, EmuTime::param time)
 		return;
 	}
 
-	// SRAM write (processing of 4000-7FFDH)
+	// SRAM write (processing of 0x4000-0x7FFD)
 	if (writeEnable && (page < 2)) {
 		sram.write(mapper[page] * 0x2000 + (address & 0x1FFF), value);
 		return;

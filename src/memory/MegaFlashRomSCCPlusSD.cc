@@ -4,9 +4,13 @@
 #include "CacheLine.hh"
 #include "CheckedRam.hh"
 #include "SdCard.hh"
+#include "cstd.hh"
+#include "enumerate.hh"
+#include "ranges.hh"
 #include "serialize.hh"
+#include "xrange.hh"
+#include <array>
 #include <memory>
-#include <vector>
 
 /******************************************************************************
  * DOCUMENTATION AS PROVIDED BY MANUEL PAZOS, WHO DEVELOPED THE CARTRIDGE     *
@@ -258,19 +262,20 @@ constexpr unsigned MEMORY_MAPPER_MASK = (MEMORY_MAPPER_SIZE / 16) - 1;
 
 namespace openmsx {
 
-static std::vector<AmdFlash::SectorInfo> getSectorInfo()
-{
-	std::vector<AmdFlash::SectorInfo> sectorInfo;
-	// 8 * 8kB
-	sectorInfo.insert(end(sectorInfo), 8, {8 * 1024, false});
-	// 127 * 64kB
-	sectorInfo.insert(end(sectorInfo), 127, {64 * 1024, false});
-	return sectorInfo;
-}
+static constexpr auto sectorInfo = [] {
+	// 8 * 8kB, followed by 127 * 64kB
+	using Info = AmdFlash::SectorInfo;
+	std::array<Info, 8 + 127> result = {};
+	cstd::fill(result.begin(), result.begin() + 8, Info{ 8 * 1024, false});
+	cstd::fill(result.begin() + 8, result.end(),   Info{64 * 1024, false});
+	return result;
+}();
+
 
 MegaFlashRomSCCPlusSD::MegaFlashRomSCCPlusSD(const DeviceConfig& config)
 	: MSXDevice(config)
-	, flash("MFR SCC+ SD flash", getSectorInfo(), 0x207E, true, config)
+	, flash("MFR SCC+ SD flash", sectorInfo, 0x207E,
+	        AmdFlash::Addressing::BITS_12, config)
 	, scc("MFR SCC+ SD SCC-I", config, getCurrentTime(), SCC::SCC_Compatible)
 	, psg("MFR SCC+ SD PSG", DummyAY8910Periphery::instance(), config,
 	      getCurrentTime())
@@ -310,14 +315,10 @@ void MegaFlashRomSCCPlusSD::reset(EmuTime::param time)
 	offsetReg = 0;
 	updateConfigReg(3);
 	subslotReg = 0;
-	for (int bank = 0; bank < 4; ++bank) {
-		bankRegsSubSlot1[bank] = bank;
-	}
+	ranges::iota(bankRegsSubSlot1, 0);
 
 	sccMode = 0;
-	for (int i = 0; i < 4; ++i) {
-		sccBanks[i] = i;
-	}
+	ranges::iota(sccBanks, 0);
 	scc.reset(time);
 
 	psgLatch = 0;
@@ -326,12 +327,12 @@ void MegaFlashRomSCCPlusSD::reset(EmuTime::param time)
 	flash.reset();
 
 	// memory mapper
-	for (auto i = 0; i < 4; ++i) {
-		memMapperRegs[i] = 3 - i;
+	for (auto [i, mr] : enumerate(memMapperRegs)) {
+		mr = byte(3 - i);
 	}
 
-	for (int bank = 0; bank < 4; ++bank) {
-		bankRegsSubSlot3[bank] = (bank == 1) ? 1 : 0;
+	for (auto [bank, reg] : enumerate(bankRegsSubSlot3)) {
+		reg = (bank == 1) ? 1 : 0;
 	}
 
 	selectedCard = 0;
@@ -413,7 +414,7 @@ void MegaFlashRomSCCPlusSD::writeMem(word addr, byte value, EmuTime::param time)
 		// write subslot register
 		byte diff = value ^ subslotReg;
 		subslotReg = value;
-		for (int i = 0; i < 4; ++i) {
+		for (auto i : xrange(4)) {
 			if (diff & (3 << (2 * i))) {
 				invalidateDeviceRWCache(0x4000 * i, 0x4000);
 			}
@@ -455,14 +456,14 @@ byte* MegaFlashRomSCCPlusSD::getWriteCacheLine(word addr) const
 byte MegaFlashRomSCCPlusSD::readMemSubSlot0(word addr)
 {
 	// read from the first 16kB of flash
-	// Pazos: ROM and flash can be accessed in all pages (0,1,2,3) (#0000-#FFFF) 
+	// Pazos: ROM and flash can be accessed in all pages (0,1,2,3) (#0000-#FFFF)
 	return flash.read(addr & 0x3FFF);
 }
 
 byte MegaFlashRomSCCPlusSD::peekMemSubSlot0(word addr) const
 {
 	// read from the first 16kB of flash
-	// Pazos: ROM and flash can be accessed in all pages (0,1,2,3) (#0000-#FFFF) 
+	// Pazos: ROM and flash can be accessed in all pages (0,1,2,3) (#0000-#FFFF)
 	return flash.peek(addr & 0x3FFF);
 }
 
@@ -473,7 +474,7 @@ const byte* MegaFlashRomSCCPlusSD::getReadCacheLineSubSlot0(word addr) const
 
 void MegaFlashRomSCCPlusSD::writeMemSubSlot0(word addr, byte value)
 {
-	// Pazos: ROM and flash can be accessed in all pages (0,1,2,3) (#0000-#FFFF) 
+	// Pazos: ROM and flash can be accessed in all pages (0,1,2,3) (#0000-#FFFF)
 	writeToFlash(addr & 0x3FFF, value);
 }
 
@@ -634,7 +635,7 @@ void MegaFlashRomSCCPlusSD::writeMemSubSlot1(word addr, byte value, EmuTime::par
 		    ((enable == EN_SCCPLUS) && !isRamSegment3 &&
 		     (0xB800 <= addr) && (addr < 0xC000))) {
 			scc.writeMem(addr & 0xFF, value, time);
-			return; // Pazos: when SCC registers are selected flashROM is not seen, so it does not accept commands. 
+			return; // Pazos: when SCC registers are selected flashROM is not seen, so it does not accept commands.
 		}
 	}
 
@@ -907,7 +908,7 @@ void MegaFlashRomSCCPlusSD::serialize(Archive& ar, unsigned /*version*/)
 	             "mapperReg", mapperReg,
 	             "offsetReg", offsetReg,
 	             "bankRegsSubSlot1", bankRegsSubSlot1);
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		// Re-register PSG ports (if needed)
 		byte tmp = configReg;
 		configReg = 3; // set to un-registered

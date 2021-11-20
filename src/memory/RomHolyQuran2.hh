@@ -6,17 +6,17 @@
 
 namespace openmsx {
 
-class RomHolyQuran2 : public MSXRom
+class RomHolyQuran2 final : public MSXRom
 {
 public:
 	RomHolyQuran2(const DeviceConfig& config, Rom&& rom);
 
 	void reset(EmuTime::param time) override;
-	byte readMem(word address, EmuTime::param time) override;
-	byte peekMem(word address, EmuTime::param time) const override;
+	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
+	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;
 	void writeMem(word address, byte value, EmuTime::param time) override;
-	const byte* getReadCacheLine(word address) const override;
-	byte* getWriteCacheLine(word address) const override;
+	[[nodiscard]] const byte* getReadCacheLine(word address) const override;
+	[[nodiscard]] byte* getWriteCacheLine(word address) const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -24,7 +24,7 @@ public:
 private:
 	struct Blocks final : RomBlockDebuggableBase {
 		explicit Blocks(RomHolyQuran2& device);
-		byte read(unsigned address) override;
+		[[nodiscard]] byte read(unsigned address) override;
 	} romBlocks;
 
 	const byte* bank[4];

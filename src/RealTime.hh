@@ -61,14 +61,14 @@ private:
 	void executeUntil(EmuTime::param time) override;
 
 	// EventListener
-	int signalEvent(const std::shared_ptr<const Event>& event) override;
+	int signalEvent(const Event& event) noexcept override;
 
 	// Observer<Setting>
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 	// Observer<SpeedManager>
-	void update(const SpeedManager& speedManager) override;
+	void update(const SpeedManager& speedManager) noexcept override;
 	// Observer<ThrottleManager>
-	void update(const ThrottleManager& throttleManager) override;
+	void update(const ThrottleManager& throttleManager) noexcept override;
 
 	void internalSync(EmuTime::param time, bool allowSleep);
 

@@ -40,7 +40,7 @@ bool DriveMultiplexer::isWriteProtected() const
 	return drive[selected]->isWriteProtected();
 }
 
-bool DriveMultiplexer::isDoubleSided() const
+bool DriveMultiplexer::isDoubleSided()
 {
 	return drive[selected]->isDoubleSided();
 }
@@ -148,7 +148,7 @@ void DriveMultiplexer::invalidateWd2793ReadTrackQuirk()
 }
 
 
-static std::initializer_list<enum_string<DriveMultiplexer::DriveNum>> driveNumInfo = {
+static constexpr std::initializer_list<enum_string<DriveMultiplexer::DriveNum>> driveNumInfo = {
 	{ "A",    DriveMultiplexer::DRIVE_A },
 	{ "B",    DriveMultiplexer::DRIVE_B },
 	{ "C",    DriveMultiplexer::DRIVE_C },

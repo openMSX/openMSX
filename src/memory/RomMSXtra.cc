@@ -1,5 +1,6 @@
 #include "RomMSXtra.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 
 namespace openmsx {
 
@@ -7,7 +8,7 @@ RomMSXtra::RomMSXtra(const DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
 	, ram(config, getName() + " RAM", "MSXtra RAM", 0x0800)
 {
-	for (int i = 0; i < 0x800; ++i) {
+	for (auto i : xrange(0x800)) {
 		ram[i] = (i & 1) ? 0x5a : 0xa5;
 	}
 }

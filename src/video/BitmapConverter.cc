@@ -1,6 +1,7 @@
 #include "BitmapConverter.hh"
 #include "likely.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include "build-info.hh"
 #include "components.hh"
 #include <algorithm>
@@ -9,7 +10,7 @@
 
 namespace openmsx {
 
-template <class Pixel>
+template<typename Pixel>
 BitmapConverter<Pixel>::BitmapConverter(
 	const Pixel* palette16_, const Pixel* palette256_,
 	const Pixel* palette32768_)
@@ -20,14 +21,14 @@ BitmapConverter<Pixel>::BitmapConverter(
 {
 }
 
-template <class Pixel>
+template<typename Pixel>
 void BitmapConverter<Pixel>::calcDPalette()
 {
 	dPaletteValid = true;
 	unsigned bits = sizeof(Pixel) * 8;
-	for (unsigned i = 0; i < 16; ++i) {
+	for (auto i : xrange(16)) {
 		DPixel p0 = palette16[i];
-		for (unsigned j = 0; j < 16; ++j) {
+		for (auto j : xrange(16)) {
 			DPixel p1 = palette16[j];
 			DPixel dp = OPENMSX_BIGENDIAN
 				  ? (p0 << bits) | p1
@@ -37,7 +38,7 @@ void BitmapConverter<Pixel>::calcDPalette()
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void BitmapConverter<Pixel>::convertLine(
 	Pixel* linePtr, const byte* vramPtr)
 {
@@ -71,7 +72,7 @@ void BitmapConverter<Pixel>::convertLine(
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void BitmapConverter<Pixel>::convertLinePlanar(
 	Pixel* linePtr, const byte* vramPtr0, const byte* vramPtr1)
 {
@@ -108,7 +109,7 @@ void BitmapConverter<Pixel>::convertLinePlanar(
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void BitmapConverter<Pixel>::renderGraphic4(
 	Pixel*      __restrict pixelPtr,
 	const byte* __restrict vramPtr0)
@@ -131,9 +132,9 @@ void BitmapConverter<Pixel>::renderGraphic4(
 		// First write one pixel to get aligned
 		// Then write double pixels in a loop with 4 double pixels (is 8 single pixels) per iteration
 		// Finally write the last pixel unaligned
-		auto in  = reinterpret_cast<const unsigned*>(vramPtr0);
+		const auto* in  = reinterpret_cast<const unsigned*>(vramPtr0);
 		unsigned data = in[0];
-		if (OPENMSX_BIGENDIAN) {
+		if constexpr (OPENMSX_BIGENDIAN) {
 			pixelPtr[0] = palette16[(data >> 28) & 0x0F];
 			data <<=4;
 		} else {
@@ -143,9 +144,9 @@ void BitmapConverter<Pixel>::renderGraphic4(
 
 		pixelPtr += 1; // Move to next pixel, which is on word boundary
 		auto out = reinterpret_cast<DPixel*>(pixelPtr);
-		for (unsigned i = 0; i < 256 / 8; ++i) {
+		for (auto i : xrange(256 / 8)) {
 			// 8 pixels per iteration
-			if (OPENMSX_BIGENDIAN) {
+			if constexpr (OPENMSX_BIGENDIAN) {
 				out[4 * i + 0] = dPalette[(data >> 24) & 0xFF];
 				out[4 * i + 1] = dPalette[(data >> 16) & 0xFF];
 				out[4 * i + 2] = dPalette[(data >>  8) & 0xFF];
@@ -154,7 +155,7 @@ void BitmapConverter<Pixel>::renderGraphic4(
 					pixelPtr[254] = palette16[(data >> 0) & 0x0F];
 				} else {
 					// Last double-pixel must be composed of
-					// remaing 4 bits in (previous) data
+					// remaining 4 bits in (previous) data
 					// and first 4 bits from (next) data
 					unsigned prevData = data;
 					data = in[i+1];
@@ -170,7 +171,7 @@ void BitmapConverter<Pixel>::renderGraphic4(
 					pixelPtr[254] = palette16[(data >> 24) & 0x0F];
 				} else {
 					// Last double-pixel must be composed of
-					// remaing 4 bits in (previous) data
+					// remaining 4 bits in (previous) data
 					// and first 4 bits from (next) data
 					unsigned prevData = data;
 					data = in[i+1];
@@ -182,12 +183,12 @@ void BitmapConverter<Pixel>::renderGraphic4(
 		return;
 	}
 
-	auto out = reinterpret_cast<DPixel*>(pixelPtr);
-	auto in  = reinterpret_cast<const unsigned*>(vramPtr0);
-	for (unsigned i = 0; i < 256 / 8; ++i) {
+	      auto* out = reinterpret_cast<DPixel*>(pixelPtr);
+	const auto* in  = reinterpret_cast<const unsigned*>(vramPtr0);
+	for (auto i : xrange(256 / 8)) {
 		// 8 pixels per iteration
 		unsigned data = in[i];
-		if (OPENMSX_BIGENDIAN) {
+		if constexpr (OPENMSX_BIGENDIAN) {
 			out[4 * i + 0] = dPalette[(data >> 24) & 0xFF];
 			out[4 * i + 1] = dPalette[(data >> 16) & 0xFF];
 			out[4 * i + 2] = dPalette[(data >>  8) & 0xFF];
@@ -201,12 +202,12 @@ void BitmapConverter<Pixel>::renderGraphic4(
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void BitmapConverter<Pixel>::renderGraphic5(
 	Pixel*      __restrict pixelPtr,
 	const byte* __restrict vramPtr0)
 {
-	for (unsigned i = 0; i < 128; ++i) {
+	for (auto i : xrange(128)) {
 		unsigned data = vramPtr0[i];
 		pixelPtr[4 * i + 0] = palette16[ 0 +  (data >> 6)     ];
 		pixelPtr[4 * i + 1] = palette16[16 + ((data >> 4) & 3)];
@@ -215,13 +216,13 @@ void BitmapConverter<Pixel>::renderGraphic5(
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void BitmapConverter<Pixel>::renderGraphic6(
 	Pixel*      __restrict pixelPtr,
 	const byte* __restrict vramPtr0,
 	const byte* __restrict vramPtr1)
 {
-	/*for (unsigned i = 0; i < 128; ++i) {
+	/*for (auto i : xrange(128)) {
 		unsigned data0 = vramPtr0[i];
 		unsigned data1 = vramPtr1[i];
 		pixelPtr[4 * i + 0] = palette16[data0 >> 4];
@@ -232,14 +233,14 @@ void BitmapConverter<Pixel>::renderGraphic6(
 	if (unlikely(!dPaletteValid)) {
 		calcDPalette();
 	}
-	auto out = reinterpret_cast<DPixel*>(pixelPtr);
-	auto in0 = reinterpret_cast<const unsigned*>(vramPtr0);
-	auto in1 = reinterpret_cast<const unsigned*>(vramPtr1);
-	for (unsigned i = 0; i < 512 / 16; ++i) {
+	      auto* out = reinterpret_cast<DPixel*>(pixelPtr);
+	const auto* in0 = reinterpret_cast<const unsigned*>(vramPtr0);
+	const auto* in1 = reinterpret_cast<const unsigned*>(vramPtr1);
+	for (auto i : xrange(512 / 16)) {
 		// 16 pixels per iteration
 		unsigned data0 = in0[i];
 		unsigned data1 = in1[i];
-		if (OPENMSX_BIGENDIAN) {
+		if constexpr (OPENMSX_BIGENDIAN) {
 			out[8 * i + 0] = dPalette[(data0 >> 24) & 0xFF];
 			out[8 * i + 1] = dPalette[(data1 >> 24) & 0xFF];
 			out[8 * i + 2] = dPalette[(data0 >> 16) & 0xFF];
@@ -261,19 +262,19 @@ void BitmapConverter<Pixel>::renderGraphic6(
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void BitmapConverter<Pixel>::renderGraphic7(
 	Pixel*      __restrict pixelPtr,
 	const byte* __restrict vramPtr0,
 	const byte* __restrict vramPtr1)
 {
-	for (unsigned i = 0; i < 128; ++i) {
+	for (auto i : xrange(128)) {
 		pixelPtr[2 * i + 0] = palette256[vramPtr0[i]];
 		pixelPtr[2 * i + 1] = palette256[vramPtr1[i]];
 	}
 }
 
-static std::tuple<int, int, int> yjk2rgb(int y, int j, int k)
+static constexpr std::tuple<int, int, int> yjk2rgb(int y, int j, int k)
 {
 	int r = std::clamp(y + j,                   0, 31);
 	int g = std::clamp(y + k,                   0, 31);
@@ -281,13 +282,13 @@ static std::tuple<int, int, int> yjk2rgb(int y, int j, int k)
 	return {r, g, b};
 }
 
-template <class Pixel>
+template<typename Pixel>
 void BitmapConverter<Pixel>::renderYJK(
 	Pixel*      __restrict pixelPtr,
 	const byte* __restrict vramPtr0,
 	const byte* __restrict vramPtr1)
 {
-	for (unsigned i = 0; i < 64; ++i) {
+	for (auto i : xrange(64)) {
 		unsigned p[4];
 		p[0] = vramPtr0[2 * i + 0];
 		p[1] = vramPtr1[2 * i + 0];
@@ -297,7 +298,7 @@ void BitmapConverter<Pixel>::renderYJK(
 		int j = (p[2] & 7) + ((p[3] & 3) << 3) - ((p[3] & 4) << 3);
 		int k = (p[0] & 7) + ((p[1] & 3) << 3) - ((p[1] & 4) << 3);
 
-		for (unsigned n = 0; n < 4; ++n) {
+		for (auto n : xrange(4)) {
 			int y = p[n] >> 3;
 			auto [r, g, b] = yjk2rgb(y, j, k);
 			int col = (r << 10) + (g << 5) + b;
@@ -306,13 +307,13 @@ void BitmapConverter<Pixel>::renderYJK(
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void BitmapConverter<Pixel>::renderYAE(
 	Pixel*      __restrict pixelPtr,
 	const byte* __restrict vramPtr0,
 	const byte* __restrict vramPtr1)
 {
-	for (unsigned i = 0; i < 64; ++i) {
+	for (auto i : xrange(64)) {
 		unsigned p[4];
 		p[0] = vramPtr0[2 * i + 0];
 		p[1] = vramPtr1[2 * i + 0];
@@ -322,7 +323,7 @@ void BitmapConverter<Pixel>::renderYAE(
 		int j = (p[2] & 7) + ((p[3] & 3) << 3) - ((p[3] & 4) << 3);
 		int k = (p[0] & 7) + ((p[1] & 3) << 3) - ((p[1] & 4) << 3);
 
-		for (unsigned n = 0; n < 4; ++n) {
+		for (auto n : xrange(4)) {
 			Pixel pix;
 			if (p[n] & 0x08) {
 				// YAE
@@ -338,14 +339,14 @@ void BitmapConverter<Pixel>::renderYAE(
 	}
 }
 
-template <class Pixel>
+template<typename Pixel>
 void BitmapConverter<Pixel>::renderBogus(Pixel* pixelPtr)
 {
 	// Verified on real V9958: all bogus modes behave like this, always
 	// show palette color 15.
 	// When this is in effect, the VRAM is not refreshed anymore, but that
 	// is not emulated.
-	for (int n = 256; n--; ) *pixelPtr++ = palette16[15];
+	std::fill_n(pixelPtr, 256, palette16[15]);
 }
 
 // Force template instantiation.

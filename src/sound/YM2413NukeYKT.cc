@@ -28,10 +28,13 @@
 #include "YM2413NukeYKT.hh"
 #include "serialize.hh"
 #include "cstd.hh"
+#include "enumerate.hh"
 #include "likely.hh"
 #include "Math.hh"
 #include "one_of.hh"
+#include "ranges.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include <algorithm>
 #include <array>
 #include <cstring>
@@ -47,17 +50,18 @@ enum RmNum : uint8_t {
 	rm_num_sd = 4,   //           15
 	rm_num_tc = 5,   //           16
 };
-constexpr bool is_rm_cycle(int cycle)
+[[nodiscard]] constexpr bool is_rm_cycle(int cycle)
 {
 	return (11 <= cycle) && (cycle <= 16);
 }
-constexpr RmNum rm_for_cycle(int cycle)
+[[nodiscard]] constexpr RmNum rm_for_cycle(int cycle)
 {
 	return RmNum(cycle - 11);
 }
 
 constexpr auto logsinTab = [] {
 	std::array<uint16_t, 256> result = {};
+	//for (auto [i, r] : enumerate(result)) { msvc bug
 	for (int i = 0; i < 256; ++i) {
 		result[i] = cstd::round(-cstd::log2<8, 3>(cstd::sin<2>((double(i) + 0.5) * M_PI / 256.0 / 2.0)) * 256.0);
 	}
@@ -65,6 +69,7 @@ constexpr auto logsinTab = [] {
 }();
 constexpr auto expTab = [] {
 	std::array<uint16_t, 256> result = {};
+	//for (auto [i, r] : enumerate(result)) { msvc bug
 	for (int i = 0; i < 256; ++i) {
 		result[i] = cstd::round((cstd::exp2<6>(double(255 - i) / 256.0)) * 1024.0);
 	}
@@ -108,7 +113,7 @@ static constexpr int8_t VIB_TAB[8] = {0, 1, 2, 1, 0, -1, -2, -1};
 //    constexpr uint8_t attack[14][4][64] = { ... };
 //    constexpr uint8_t releaseIndex[14][4][4] = { ... };
 //    constexpr uint8_t releaseData[64][64] = { ... };
-// Theoretically these could all be initialized via some constepr functions.
+// Theoretically these could all be initialized via some constexpr functions.
 // The calculation isn't difficult, but it's a bit long. 'clang' can handle it,
 // but 'gcc' cannot. So instead, for now, we pre-calculate these tables and
 // #include them. See 'generateNukeYktTables.cpp' for the generator code.
@@ -118,9 +123,7 @@ static constexpr int8_t VIB_TAB[8] = {0, 1, 2, 1, 0, -1, -2, -1};
 YM2413::YM2413()
 {
 	// copy ROM patches to array (for faster lookup)
-	for (int i = 0; i < 15; ++i) {
-		patches[i + 1] = m_patches[i];
-	}
+	ranges::copy(m_patches, patches + 1);
 	reset();
 }
 
@@ -136,23 +139,18 @@ void YM2413::reset()
 	attackPtr  = attack[eg_timer_shift_lock][eg_timer_lock];
 	auto idx = releaseIndex[eg_timer_shift_lock][eg_timer_lock][eg_counter_state];
 	releasePtr = releaseData[idx];
-	for (int i = 0; i < 18; i++) {
-		eg_state[i] = EgState::release;
-		eg_level[i] = 0x7f;
-		eg_dokon[i] = false;
-	}
+	ranges::fill(eg_state, EgState::release);
+	ranges::fill(eg_level, 0x7f);
+	ranges::fill(eg_dokon, false);
 	eg_rate[0] = eg_rate[1] = 0;
 	eg_sl[0] = eg_sl[1] = eg_out[0] = eg_out[1] = 0;
 	eg_timer_shift_stop = false;
 	eg_kon[0] = eg_kon[1] = eg_off[0] = eg_off[1] = false;
 
-	for (int i = 0; i < 18; ++i) {
-		pg_phase[i] = 0;
-	}
+	ranges::fill(pg_phase, 0);
+	ranges::fill(op_fb1, 0);
+	ranges::fill(op_fb2, 0);
 
-	for (int i = 0; i < 9; ++i) {
-		op_fb1[i] = op_fb2[i] = 0;
-	}
 	op_mod = 0;
 	op_phase[0] = op_phase[1] = 0;
 
@@ -160,10 +158,13 @@ void YM2413::reset()
 	lfo_vib = VIB_TAB[lfo_vib_counter];
 	lfo_am_step = lfo_am_dir = false;
 
-	for (int i = 0; i < 9; ++i) {
-		fnum[i] = block[i] = vol8[i] = inst[i] = 0;
+	ranges::fill(fnum, 0);
+	ranges::fill(block, 0);
+	ranges::fill(vol8, 0);
+	ranges::fill(inst, 0);
+	ranges::fill(sk_on, 0);
+	for (auto i : xrange(9)) {
 		p_inst[i] = &patches[inst[i]];
-		sk_on[i] = 0;
 		changeFnumBlock(i);
 	}
 	rhythm = testmode = 0;
@@ -175,9 +176,7 @@ void YM2413::reset()
 
 	delay6 = delay7 = delay10 = delay11 = delay12 = 0;
 
-	for (int i = 0; i < 64; ++i) {
-		regs[i] = 0;
-	}
+	ranges::fill(regs, 0);
 	latch = 0;
 }
 
@@ -197,7 +196,7 @@ template<uint32_t CYCLES> ALWAYS_INLINE uint32_t YM2413::envelopeKSLTL(const Pat
 	auto tl2 = [&]() -> uint32_t {
 		if ((rm_for_cycle(CYCLES) == one_of(rm_num_hh, rm_num_tom)) && use_rm_patches) {
 			return inst[ch] << (2 + 1);
-		} else if (mcsel == 1) {
+		} else if /*constexpr*/ (mcsel == 1) { // constexpr triggers compile error on visual studio
 			return vol8[ch];
 		} else {
 			return patch1.tl2;
@@ -208,7 +207,7 @@ template<uint32_t CYCLES> ALWAYS_INLINE uint32_t YM2413::envelopeKSLTL(const Pat
 
 template<uint32_t CYCLES> ALWAYS_INLINE void YM2413::envelopeTimer1()
 {
-	if (CYCLES == 0) {
+	if constexpr (CYCLES == 0) {
 		eg_counter_state = (eg_counter_state + 1) & 3;
 		auto idx = releaseIndex[eg_timer_shift_lock][eg_timer_lock][eg_counter_state];
 		releasePtr = releaseData[idx];
@@ -217,7 +216,7 @@ template<uint32_t CYCLES> ALWAYS_INLINE void YM2413::envelopeTimer1()
 
 template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::envelopeTimer2(bool& eg_timer_carry)
 {
-	if (TEST_MODE) {
+	if constexpr (TEST_MODE) {
 		if (CYCLES == 0 && (eg_counter_state & 1) == 0) {
 			eg_timer_lock = eg_timer & 3;
 			eg_timer_shift_lock = likely(eg_timer_shift <= 13) ? eg_timer_shift : 0;
@@ -228,7 +227,7 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::envelopeTim
 			releasePtr = releaseData[idx];
 		}
 		{ // EG timer
-			bool timer_inc = (eg_counter_state != 3) ? 0
+			bool timer_inc = (eg_counter_state != 3) ? false
 				       : (CYCLES == 0)           ? true
 								 : eg_timer_carry;
 			auto timer_bit = (eg_timer & 1) + timer_inc;
@@ -241,14 +240,14 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::envelopeTim
 				eg_timer |= (data << (16 - 2)) & 0x10000;
 			}
 		}
-		if (CYCLES == 0) {
+		if constexpr (CYCLES == 0) {
 			eg_timer_shift_stop = false;
 		} else if (!eg_timer_shift_stop && ((eg_timer >> 16) & 1)) {
 			eg_timer_shift = CYCLES;
 			eg_timer_shift_stop = true;
 		}
 	} else {
-		if (CYCLES == 0) {
+		if constexpr (CYCLES == 0) {
 			if ((eg_counter_state & 1) == 0) {
 				eg_timer_lock = eg_timer & 3;
 				eg_timer_shift_lock = (eg_timer_shift > 13) ? 0 : eg_timer_shift;
@@ -387,9 +386,9 @@ template<uint32_t CYCLES> ALWAYS_INLINE void YM2413::envelopeGenerate2(const Pat
 
 template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::doLFO(bool& lfo_am_car)
 {
-	if (TEST_MODE) {
+	if constexpr (TEST_MODE) {
 		// Update counter
-		if (CYCLES == 17) {
+		if constexpr (CYCLES == 17) {
 			lfo_counter++;
 			if (((lfo_counter & 0x3ff) == 0) || (testmode & 8)) {
 				lfo_vib_counter = (lfo_vib_counter + 1) & 7;
@@ -403,7 +402,7 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::doLFO(bool&
 		            ? (lfo_am_dir | (CYCLES == 0))
 		            : 0;
 
-		if (CYCLES == 0) {
+		if constexpr (CYCLES == 0) {
 			if (lfo_am_dir && (lfo_am_counter & 0x7f) == 0) {
 				lfo_am_dir = false;
 			} else if (!lfo_am_dir && (lfo_am_counter & 0x69) == 0x69) {
@@ -412,7 +411,7 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::doLFO(bool&
 		}
 
 		auto am_bit = (lfo_am_counter & 1) + am_inc + ((CYCLES < 9) ? lfo_am_car : false);
-		if (CYCLES < 8) {
+		if constexpr (CYCLES < 8) {
 			lfo_am_car = am_bit & 2;
 		}
 		lfo_am_counter = ((am_bit & 1) << 8) | (lfo_am_counter >> 1);
@@ -426,7 +425,7 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::doLFO(bool&
 			lfo_am_counter &= 0xff;
 		}
 	} else {
-		if (CYCLES == 17) {
+		if constexpr (CYCLES == 17) {
 			int delta = lfo_am_dir ? -1 : 1;
 
 			if (lfo_am_dir && (lfo_am_counter & 0x7f) == 0) {
@@ -447,14 +446,14 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::doLFO(bool&
 			lfo_am_step = (lfo_counter & 0x3f) == 0;
 		}
 	}
-	if (CYCLES == 17) {
+	if constexpr (CYCLES == 17) {
 		lfo_am_out = (lfo_am_counter >> 3) & 0x0f;
 	}
 }
 
 template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::doRhythm()
 {
-	if (TEST_MODE) {
+	if constexpr (TEST_MODE) {
 		bool nbit = (rm_noise ^ (rm_noise >> 14)) & 1;
 		nbit |= bool(testmode & 2);
 		rm_noise = (nbit << 22) | (rm_noise >> 1);
@@ -464,7 +463,7 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::doRhythm()
 		// From this we can easily derive the value of the noise bit (bit 0)
 		// 13 and 16 steps in the future (see getPhase()). We can also
 		// derive a formula that takes 18 steps at once.
-		if (CYCLES == 17) {
+		if constexpr (CYCLES == 17) {
 			rm_noise = ((rm_noise & 0x1ff) << 14)
 			         ^ ((rm_noise & 0x3ffff) << 5)
 			         ^ (rm_noise & 0x7fc000)
@@ -663,7 +662,7 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE uint32_t YM2413::getPhas
 	uint32_t phase = pg_phase[CYCLES];
 
 	// Rhythm mode
-	if (CYCLES == 12) {
+	if constexpr (CYCLES == 12) {
 		rm_hh_bits = phase >> (2 + 9);
 	} else if (CYCLES == 16 && (rhythm & 0x20)) {
 		rm_tc_bits = phase >> 8;
@@ -778,7 +777,7 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE uint8_t YM2413::envelope
 template<uint32_t CYCLES, bool TEST_MODE>
 ALWAYS_INLINE void YM2413::step(Locals& l)
 {
-	if (CYCLES == 11) {
+	if constexpr (CYCLES == 11) {
 		// the value for 'use_rm_patches' is only meaningful in cycles 11..16
 		// and it remains constant during that time.
 		l.use_rm_patches = rhythm & 0x20;
@@ -817,17 +816,13 @@ ALWAYS_INLINE void YM2413::step(Locals& l)
 void YM2413::generateChannels(float* out_[9 + 5], uint32_t n)
 {
 	float* out[9 + 5];
-	for (int i = 0; i < 9 + 5; ++i) out[i] = out_[i];
+	std::copy_n(out_, 9 + 5, out);
 
 	// Loop here (instead of in step18) seems faster. (why?)
 	if (unlikely(test_mode_active)) {
-		for (uint32_t i = 0; i < n; ++i) {
-			step18<true>(out);
-		}
+		repeat(n, [&] { step18<true >(out); });
 	} else {
-		for (uint32_t i = 0; i < n; ++i) {
-			step18<false>(out);
-		}
+		repeat(n, [&] { step18<false>(out); });
 	}
 	test_mode_active = testmode;
 }
@@ -924,7 +919,7 @@ float YM2413::getAmplificationFactor() const
 } // namespace YM2413NukeYKT
 
 
-static std::initializer_list<enum_string<YM2413NukeYKT::YM2413::EgState>> egStateInfo = {
+static constexpr std::initializer_list<enum_string<YM2413NukeYKT::YM2413::EgState>> egStateInfo = {
 	{ "attack",  YM2413NukeYKT::YM2413::EgState::attack },
 	{ "decay",   YM2413NukeYKT::YM2413::EgState::decay },
 	{ "sustain", YM2413NukeYKT::YM2413::EgState::sustain },
@@ -985,7 +980,7 @@ void YM2413::serialize(Archive& ar, unsigned /*version*/)
 	             "regs", regs,
 	             "latch", latch);
 
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		// restore redundant state
 		attackPtr = attack[eg_timer_shift_lock][eg_timer_lock];
 		auto idx = releaseIndex[eg_timer_shift_lock][eg_timer_lock][eg_counter_state];
@@ -998,7 +993,7 @@ void YM2413::serialize(Archive& ar, unsigned /*version*/)
 		// Restore these from register values:
 		//   fnum, block, p_ksl, p_incr, p_ksr_freq, sk_on, vol8,
 		//   inst, p_inst, rhythm, testmode, patches[0]
-		for (int i = 0; i < 64; ++i) {
+		for (auto i : xrange(64)) {
 			pokeReg(i, regs[i]);
 		}
 	}

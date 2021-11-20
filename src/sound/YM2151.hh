@@ -29,6 +29,8 @@
  ** Ishmair - for the datasheet and motivation.
  */
 
+// YM2164/OPP specifics info from http://map.grauw.nl/resources/sound/yamaha_ym2164.php
+
 #ifndef YM2151_HH
 #define YM2151_HH
 
@@ -47,13 +49,18 @@ class DeviceConfig;
 class YM2151 final : public ResampledSoundDevice, private EmuTimerCallback
 {
 public:
-	YM2151(const std::string& name, const std::string& desc,
-	       const DeviceConfig& config, EmuTime::param time);
+	enum class Variant : char {
+	    YM2151,   // aka OPM
+	    YM2164,   // aka OPP
+	};
+
+	YM2151(const std::string& name, static_string_view desc,
+	       const DeviceConfig& config, EmuTime::param time, Variant variant);
 	~YM2151();
 
 	void reset(EmuTime::param time);
 	void writeReg(byte r, byte v, EmuTime::param time);
-	byte readStatus() const;
+	[[nodiscard]] byte readStatus() const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -127,9 +134,9 @@ private:
 	// operator methods
 	void envelopeKONKOFF(YM2151Operator* op, int v);
 	static void refreshEG(YM2151Operator* op);
-	int opCalc(YM2151Operator* op, unsigned env, int pm);
-	int opCalc1(YM2151Operator* op, unsigned env, int pm);
-	inline unsigned volumeCalc(YM2151Operator* op, unsigned AM);
+	[[nodiscard]] int opCalc(YM2151Operator* op, unsigned env, int pm);
+	[[nodiscard]] int opCalc1(YM2151Operator* op, unsigned env, int pm);
+	[[nodiscard]] inline unsigned volumeCalc(YM2151Operator* op, unsigned AM);
 	inline void keyOn(YM2151Operator* op, unsigned keySet);
 	inline void keyOff(YM2151Operator* op, unsigned keyClear);
 
@@ -140,7 +147,7 @@ private:
 	void advanceEG();
 	void advance();
 
-	bool checkMuteHelper();
+	[[nodiscard]] bool checkMuteHelper();
 
 	IRQHelper irq;
 
@@ -192,6 +199,7 @@ private:
 	byte ct;                 // output control pins (bit1-CT2, bit0-CT1)
 
 	byte regs[256];          // only used for serialization ATM
+	const Variant variant;   // Whether we're emulating YM2151 or YM2164
 };
 
 } // namespace openmsx

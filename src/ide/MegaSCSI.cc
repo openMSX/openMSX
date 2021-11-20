@@ -15,14 +15,14 @@
  *  bank A(0xa000-0xbfff): 0x7800 - 0x7FFF (0x7800 used)
  *
  * ESE-RAM Bank Map:
- *  BANK 00H-7FH (read only)
- *  BANK 80H-FFH (write and read. mirror of 00H-7FH)
+ *  BANK 0x00-0x7F (read only)
+ *  BANK 0x80-0xFF (write and read. mirror of 0x00-0x7F)
  *
  * MEGA-SCSI Bank Map:
- *  BANK 00H-3FH (sram read only. mirror of 80H-BFH)
- *  BANK 40H-7EH (mirror of 7FH. Use is prohibited)
- *  BANK 7FH     (SPC)
- *  BANK 80H-FFH (sram write and read)
+ *  BANK 0x00-0x3F (sram read only. mirror of 0x80-0xBF)
+ *  BANK 0x40-0x7E (mirror of 0x7F. Use is prohibited)
+ *  BANK 0x7F      (SPC)
+ *  BANK 0x80-0xFF (sram write and read)
  *
  * SPC Bank:
  *  0x0000 - 0x0FFF :
@@ -36,14 +36,15 @@
  *      un mapped
  *
  * Note:
- *  It is possible to access it by putting it out to 8000H - BFFFH
- *  though the SPC bank is arranged in chiefly 4000H-5FFF.
+ *  It is possible to access it by putting it out to 0x8000 - 0xBFFF
+ *  though the SPC bank is arranged in chiefly 0x4000-0x5FFF.
  */
 
 #include "MegaSCSI.hh"
 #include "MSXException.hh"
 #include "one_of.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -73,7 +74,7 @@ MegaSCSI::MegaSCSI(const DeviceConfig& config)
 
 void MegaSCSI::reset(EmuTime::param /*time*/)
 {
-	for (int i = 0; i < 4; ++i) {
+	for (auto i : xrange(4)) {
 		setSRAM(i, 0);
 	}
 	mb89352.reset(true);
@@ -81,7 +82,6 @@ void MegaSCSI::reset(EmuTime::param /*time*/)
 
 byte MegaSCSI::readMem(word address, EmuTime::param /*time*/)
 {
-	byte result;
 	if ((0x4000 <= address) && (address < 0xC000)) {
 		unsigned page = (address / 0x2000) - 2;
 		word addr = address & 0x1FFF;
@@ -89,17 +89,16 @@ byte MegaSCSI::readMem(word address, EmuTime::param /*time*/)
 			// SPC read
 			if (addr < 0x1000) {
 				// Data Register
-				result = mb89352.readDREG();
+				return mb89352.readDREG();
 			} else {
-				result = mb89352.readRegister(addr & 0x0F);
+				return mb89352.readRegister(addr & 0x0F);
 			}
 		} else {
-			result = sram[0x2000 * mapped[page] + addr];
+			return sram[0x2000 * mapped[page] + addr];
 		}
 	} else {
-		result = 0xFF;
+		return 0xFF;
 	}
-	return result;
 }
 
 byte MegaSCSI::peekMem(word address, EmuTime::param /*time*/) const

@@ -19,9 +19,7 @@ GLSnow::GLSnow(Display& display_)
 	auto& generator = global_urng(); // fast (non-cryptographic) random numbers
 	std::uniform_int_distribution<int> distribution(0, 255);
 	byte buf[128 * 128];
-	for (auto& b : buf) {
-		b = distribution(generator);
-	}
+	ranges::generate(buf, [&] { return distribution(generator); });
 #if OPENGL_VERSION < OPENGL_3_3
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, 128, 128, 0,
 	             GL_LUMINANCE, GL_UNSIGNED_BYTE, buf);
@@ -33,7 +31,7 @@ GLSnow::GLSnow(Display& display_)
 	glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
 #endif
 
-	static const vec2 pos[8][4] = {
+	static constexpr vec2 pos[8][4] = {
 		{{-1, -1}, { 1, -1}, { 1,  1}, {-1,  1}},
 		{{-1,  1}, { 1,  1}, { 1, -1}, {-1, -1}},
 		{{-1,  1}, {-1, -1}, { 1, -1}, { 1,  1}},

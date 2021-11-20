@@ -4,6 +4,7 @@
 #include "endian.hh"
 #include "one_of.hh"
 #include "vla.hh"
+#include "xrange.hh"
 #include <cstring>
 #include <vector>
 
@@ -43,7 +44,7 @@ WavWriter::WavWriter(const Filename& filename,
 	header.blockAlign    = (channels * bits) / 8;
 	header.bitsPerSample = bits;
 	memcpy(header.subChunk2ID, "data", sizeof(header.subChunk2ID));
-	header.subChunk2Size = 0; // actaul value filled in later
+	header.subChunk2Size = 0; // actual value filled in later
 
 	file.write(&header, sizeof(header));
 }
@@ -85,7 +86,7 @@ void Wav8Writer::write(const uint8_t* buffer, unsigned samples)
 void Wav16Writer::write(const int16_t* buffer, unsigned samples)
 {
 	unsigned size = sizeof(int16_t) * samples;
-	if (OPENMSX_BIGENDIAN) {
+	if constexpr (OPENMSX_BIGENDIAN) {
 		// Variable length arrays (VLA) are part of c99 but not of c++
 		// (not even c++11). Some compilers (like gcc) do support VLA
 		// in c++ mode, others (like VC++) don't. Still other compilers
@@ -113,13 +114,13 @@ void Wav16Writer::write(const float* buffer, unsigned stereo, unsigned samples,
 	std::vector<Endian::L16> buf(samples * stereo);
 	if (stereo == 1) {
 		assert(ampLeft == ampRight);
-		for (unsigned i = 0; i < samples; ++i) {
+		for (auto i : xrange(samples)) {
 			buf[i] = float2int16(buffer[i] * ampLeft);
 		}
 	} else {
-		for (unsigned i = 0; i < samples; ++i) {
+		for (auto i : xrange(samples)) {
 			buf[2 * i + 0] = float2int16(buffer[2 * i + 0] * ampLeft);
-			buf[2 * i + 0] = float2int16(buffer[2 * i + 0] * ampRight);
+			buf[2 * i + 1] = float2int16(buffer[2 * i + 1] * ampRight);
 		}
 	}
 	unsigned size = sizeof(int16_t) * samples * stereo;

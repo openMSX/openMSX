@@ -41,7 +41,7 @@
 
     <PSG id="PSG">
       <type>AY8910</type>
-      <keyboardlayout>jis</keyboardlayout>
+      <keyboardlayout>JIS</keyboardlayout>
       <sound>
         <volume>21000</volume>
         <!-- There's a switch in the back to select stereo or mono sound -->

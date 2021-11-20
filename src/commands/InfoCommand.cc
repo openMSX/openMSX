@@ -6,12 +6,9 @@
 #include <iostream>
 #include <cassert>
 
-using std::string;
-using std::vector;
-
 namespace openmsx {
 
-InfoCommand::InfoCommand(CommandController& commandController_, const string& name_)
+InfoCommand::InfoCommand(CommandController& commandController_, const std::string& name_)
 	: Command(commandController_, name_)
 {
 }
@@ -67,9 +64,9 @@ void InfoCommand::execute(span<const TclObject> tokens,
 	}
 }
 
-string InfoCommand::help(const vector<string>& tokens) const
+std::string InfoCommand::help(span<const TclObject> tokens) const
 {
-	string result;
+	std::string result;
 	switch (tokens.size()) {
 	case 1:
 		// show help on info cmd
@@ -79,9 +76,10 @@ string InfoCommand::help(const vector<string>& tokens) const
 	default:
 		// show help on a certain topic
 		assert(tokens.size() >= 2);
-		auto it = infoTopics.find(tokens[1]);
+		auto topic = tokens[1].getString();
+		auto it = infoTopics.find(topic);
 		if (it == end(infoTopics)) {
-			throw CommandException("No info on: ", tokens[1]);
+			throw CommandException("No info on: ", topic);
 		}
 		result = (*it)->help(tokens);
 		break;
@@ -89,14 +87,13 @@ string InfoCommand::help(const vector<string>& tokens) const
 	return result;
 }
 
-void InfoCommand::tabCompletion(vector<string>& tokens) const
+void InfoCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
 	switch (tokens.size()) {
 	case 2: {
 		// complete topic
-		auto topics = to_vector(view::transform(
-			infoTopics, [](auto* t) { return t->getName(); }));
-		completeString(tokens, topics);
+		completeString(tokens, view::transform(infoTopics,
+			[](auto* t) -> std::string_view { return t->getName(); }));
 		break;
 	}
 	default:

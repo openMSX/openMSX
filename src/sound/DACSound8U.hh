@@ -10,7 +10,7 @@ namespace openmsx {
 class DACSound8U final : public DACSound16S
 {
 public:
-	DACSound8U(std::string_view name, std::string_view desc,
+	DACSound8U(std::string_view name, static_string_view desc,
 	           const DeviceConfig& config);
 
 	void writeDAC(uint8_t value, EmuTime::param time);

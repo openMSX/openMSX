@@ -26,10 +26,10 @@ public:
 	explicit MB89352(const DeviceConfig& config);
 
 	void reset(bool scsireset);
-	byte readRegister(byte reg);
-	byte peekRegister(byte reg) const;
-	byte readDREG();
-	byte peekDREG() const;
+	[[nodiscard]] byte readRegister(byte reg);
+	[[nodiscard]] byte peekRegister(byte reg) const;
+	[[nodiscard]] byte readDREG();
+	[[nodiscard]] byte peekDREG() const;
 	void writeRegister(byte reg, byte value);
 	void writeDREG(byte value);
 
@@ -41,9 +41,12 @@ private:
 	void softReset();
 	void setACKREQ(byte& value);
 	void resetACKREQ();
-	byte getSSTS() const;
+	[[nodiscard]] byte getSSTS() const;
 
-	std::unique_ptr<SCSIDevice> dev[8];
+private:
+	static constexpr unsigned MAX_DEV = 8;
+
+	std::unique_ptr<SCSIDevice> dev[MAX_DEV];
 	AlignedByteArray<SCSIDevice::BUFFER_SIZE> buffer; // buffer for transfer
 	unsigned cdbIdx;                // cdb index
 	unsigned bufIdx;                // buffer index
@@ -63,7 +66,7 @@ private:
 	bool isEnabled;                 // spc enable flag
 	bool isBusy;                    // spc now working
 	bool isTransfer;                // hardware transfer mode
-	//TODO: bool devBusy;           // CDROM busy (buffer conflict prevention)
+	//TODO: bool devBusy;           // CD-ROM busy (buffer conflict prevention)
 	byte cdb[12];                   // Command Descripter Block
 };
 

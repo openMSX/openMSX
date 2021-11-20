@@ -50,7 +50,7 @@
 *      * ...
 *
 * TODO:
-* - In openMSX the YM2413 is often silent for large periods of time (e.g. maybe 
+* - In openMSX the YM2413 is often silent for large periods of time (e.g. maybe
 *   the emulated MSX program doesn't use the YM2413). Can we easily detect an
 *   idle YM2413 and then bypass large parts of the emulation?
 */
@@ -62,19 +62,18 @@
 #include "inline.hh"
 #include <array>
 
-namespace openmsx {
-namespace YM2413NukeYKT {
+namespace openmsx::YM2413NukeYKT {
 
-class YM2413 : public YM2413Core
+class YM2413 final : public YM2413Core
 {
 public:
 	YM2413();
 	void reset() override;
 	void writePort(bool port, uint8_t value, int cycle_offset) override;
 	void pokeReg(uint8_t reg, uint8_t value) override;
-	uint8_t peekReg(uint8_t reg) const override;
+	[[nodiscard]] uint8_t peekReg(uint8_t reg) const override;
 	void generateChannels(float* out[9 + 5], uint32_t n) override;
-	float getAmplificationFactor() const override;
+	[[nodiscard]] float getAmplificationFactor() const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -269,7 +268,6 @@ private:
 	int allowed_offset = 0; // Hack: see comments in writePort()
 };
 
-} // namespace NukeYKT
-} // namespace openmsx
+} // namespace openmsx::NukeYKT
 
 #endif

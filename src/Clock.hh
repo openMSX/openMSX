@@ -14,7 +14,7 @@ namespace openmsx {
   * A clock has a current time, which can be increased by
   * an integer number of ticks.
   */
-template <unsigned FREQ_NUM, unsigned FREQ_DENOM = 1>
+template<unsigned FREQ_NUM, unsigned FREQ_DENOM = 1>
 class Clock
 {
 private:
@@ -27,12 +27,12 @@ private:
 	static constexpr unsigned MASTER_TICKS32 = MASTER_TICKS;
 
 public:
-	// Note: default copy constructor and assigment operator are ok.
+	// Note: default copy constructor and assignment operator are ok.
 
 	/** Calculates the duration of the given number of ticks at this
 	  * clock's frequency.
 	  */
-	static constexpr EmuDuration duration(unsigned ticks) {
+	[[nodiscard]] static constexpr EmuDuration duration(unsigned ticks) {
 		return EmuDuration(ticks * MASTER_TICKS);
 	}
 
@@ -43,19 +43,19 @@ public:
 
 	/** Gets the time at which the last clock tick occurred.
 	  */
-	constexpr EmuTime::param getTime() const { return lastTick; }
+	[[nodiscard]] constexpr EmuTime::param getTime() const { return lastTick; }
 
 	/** Checks whether this clock's last tick is or is not before the
 	  * given time stamp.
 	  */
-	constexpr bool before(EmuTime::param e) const {
+	[[nodiscard]] constexpr bool before(EmuTime::param e) const {
 		return lastTick.time < e.time;
 	}
 
 	/** Calculate the number of ticks for this clock until the given time.
 	  * It is not allowed to call this method for a time in the past.
 	  */
-	constexpr unsigned getTicksTill(EmuTime::param e) const {
+	[[nodiscard]] constexpr unsigned getTicksTill(EmuTime::param e) const {
 		assert(e.time >= lastTick.time);
 		uint64_t result = (e.time - lastTick.time) / MASTER_TICKS;
 #ifdef DEBUG
@@ -67,7 +67,7 @@ public:
 	/** Same as above, only faster, Though the time interval may not
 	  * be too large.
 	  */
-	constexpr unsigned getTicksTill_fast(EmuTime::param e) const {
+	[[nodiscard]] constexpr unsigned getTicksTill_fast(EmuTime::param e) const {
 		assert(e.time >= lastTick.time);
 		DivModByConst<MASTER_TICKS32> dm;
 		return dm.div(e.time - lastTick.time);
@@ -76,7 +76,7 @@ public:
 	  * or go past the given time.
 	  * It is not allowed to call this method for a time in the past.
 	  */
-	constexpr uint64_t getTicksTillUp(EmuTime::param e) const {
+	[[nodiscard]] constexpr uint64_t getTicksTillUp(EmuTime::param e) const {
 		assert(e.time >= lastTick.time);
 		return (e.time - lastTick.time + MASTER_TICKS - 1) / MASTER_TICKS;
 	}
@@ -84,13 +84,13 @@ public:
 	/** Calculate the time at which this clock will have ticked the given
 	  * number of times (counted from its last tick).
 	  */
-	constexpr EmuTime operator+(uint64_t n) const {
+	[[nodiscard]] constexpr EmuTime operator+(uint64_t n) const {
 		return EmuTime(lastTick.time + n * MASTER_TICKS);
 	}
 
 	/** Like operator+() but faster, though the step can't be too big (max
 	  * a little over 1 second). */
-	constexpr EmuTime getFastAdd(unsigned n) const {
+	[[nodiscard]] constexpr EmuTime getFastAdd(unsigned n) const {
 		#ifdef DEBUG
 		assert((uint64_t(n) * MASTER_TICKS) < (1ull << 32));
 		#endif

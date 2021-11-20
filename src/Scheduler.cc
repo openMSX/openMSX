@@ -13,7 +13,7 @@ namespace openmsx {
 struct EqualSchedulable {
 	explicit EqualSchedulable(const Schedulable& schedulable_)
 		: schedulable(schedulable_) {}
-	bool operator()(const SynchronizationPoint& sp) const {
+	[[nodiscard]] bool operator()(const SynchronizationPoint& sp) const {
 		return sp.getDevice() == &schedulable;
 	}
 	const Schedulable& schedulable;
@@ -73,7 +73,7 @@ bool Scheduler::pendingSyncPoint(const Schedulable& device,
                                  EmuTime& result) const
 {
 	assert(Thread::isMainThread());
-	if (auto it = ranges::find_if(queue, EqualSchedulable(device));
+	if (auto it = ranges::find(queue, &device, &SynchronizationPoint::getDevice);
 	    it != std::end(queue)) {
 		result = it->getTime();
 		return true;
@@ -111,7 +111,7 @@ void Scheduler::scheduleHelper(EmuTime::param limit, EmuTime next)
 }
 
 
-template <typename Archive>
+template<typename Archive>
 void SynchronizationPoint::serialize(Archive& ar, unsigned /*version*/)
 {
 	// SynchronizationPoint is always serialized via Schedulable. A
@@ -122,7 +122,7 @@ void SynchronizationPoint::serialize(Archive& ar, unsigned /*version*/)
 }
 INSTANTIATE_SERIALIZE_METHODS(SynchronizationPoint);
 
-template <typename Archive>
+template<typename Archive>
 void Scheduler::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("currentTime", scheduleTime);

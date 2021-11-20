@@ -8,9 +8,6 @@
 
 namespace openmsx {
 
-using std::string;
-using std::vector;
-
 // class HDCommand
 
 HDCommand::HDCommand(CommandController& commandController_,
@@ -28,7 +25,7 @@ void HDCommand::execute(span<const TclObject> tokens, TclObject& result,
                         EmuTime::param /*time*/)
 {
 	if (tokens.size() == 1) {
-		result.addListElement(hd.getName() + ':',
+		result.addListElement(tmpStrCat(hd.getName(), ':'),
 		                      hd.getImageName().getResolved());
 
 		if (hd.isWriteProtected()) {
@@ -52,7 +49,7 @@ void HDCommand::execute(span<const TclObject> tokens, TclObject& result,
 			}
 		}
 		try {
-			Filename filename(string(tokens[fileToken].getString()),
+			Filename filename(tokens[fileToken].getString(),
 			                  userFileContext());
 			hd.switchImage(filename);
 			// Note: the diskX command doesn't do this either,
@@ -67,18 +64,18 @@ void HDCommand::execute(span<const TclObject> tokens, TclObject& result,
 	}
 }
 
-string HDCommand::help(const vector<string>& /*tokens*/) const
+std::string HDCommand::help(span<const TclObject> /*tokens*/) const
 {
 	return hd.getName() + ": change the hard disk image for this hard disk drive\n";
 }
 
-void HDCommand::tabCompletion(vector<string>& tokens) const
+void HDCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
-	vector<const char*> extra;
-	if (tokens.size() < 3) {
-		extra = { "insert" };
-	}
-	completeFileName(tokens, userFileContext(), extra);
+	using namespace std::literals;
+	static constexpr std::array extra = {"insert"sv};
+	completeFileName(tokens, userFileContext(),
+		(tokens.size() < 3) ? extra : span<const std::string_view>{});
+
 }
 
 bool HDCommand::needRecord(span<const TclObject> tokens) const

@@ -14,18 +14,19 @@ Visit the Scale2x site for info:
 #include "FrameSource.hh"
 #include "ScalerOutput.hh"
 #include "vla.hh"
+#include "xrange.hh"
 #include "build-info.hh"
 #include <cstdint>
 
 namespace openmsx {
 
-template <class Pixel>
+template<typename Pixel>
 Scale3xScaler<Pixel>::Scale3xScaler(const PixelOperations<Pixel>& pixelOps_)
 	: Scaler3<Pixel>(pixelOps_)
 {
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scale3xScaler<Pixel>::scaleLine1on3Half(
 	Pixel* __restrict dst, const Pixel* __restrict src0,
 	const Pixel* __restrict src1, const Pixel* __restrict src2,
@@ -49,14 +50,14 @@ void Scale3xScaler<Pixel>::scaleLine1on3Half(
 
 	dst[0] = mid;
 	dst[1] = (mid != right) && (top != bot) &&
-	         (((top == mid ) && (mid != src0[1])) ||
+	         (((top == mid) && (mid != src0[1])) ||
 	          ((top == right) && (mid != top)))
 	       ? top : mid;
 	dst[2] = (mid != right) && (top != bot) && (top == right)
 	       ? top : mid;
 
 	// Central pixels.
-	for (unsigned x = 1; x < srcWidth - 1; ++x) {
+	for (auto x : xrange(1u, srcWidth - 1)) {
 		Pixel left = mid;
 		mid   = right;
 		right = src1[x + 1];
@@ -88,7 +89,7 @@ void Scale3xScaler<Pixel>::scaleLine1on3Half(
 	dst[3 * srcWidth - 1] = mid;
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scale3xScaler<Pixel>::scaleLine1on3Mid(
 	Pixel* __restrict dst, const Pixel* __restrict src0,
 	const Pixel* __restrict src1, const Pixel* __restrict src2,
@@ -119,7 +120,7 @@ void Scale3xScaler<Pixel>::scaleLine1on3Mid(
 	       ? right : mid;
 
 	// Central pixels.
-	for (unsigned x = 1; x < srcWidth - 1; ++x) {
+	for (auto x : xrange(1u, srcWidth - 1)) {
 		Pixel left = mid;
 		mid   = right;
 		right = src1[x + 1];
@@ -149,7 +150,7 @@ void Scale3xScaler<Pixel>::scaleLine1on3Mid(
 	dst[3 * srcWidth - 1] = mid;
 }
 
-template <class Pixel>
+template<typename Pixel>
 void Scale3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)

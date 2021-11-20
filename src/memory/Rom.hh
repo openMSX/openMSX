@@ -4,8 +4,10 @@
 #include "File.hh"
 #include "MemBuffer.hh"
 #include "sha1.hh"
+#include "static_string_view.hh"
 #include "openmsx.hh"
 #include <string>
+#include <string_view>
 #include <memory>
 #include <cassert>
 
@@ -20,29 +22,29 @@ class RomDebuggable;
 class Rom final
 {
 public:
-	Rom(std::string name, std::string description,
+	Rom(std::string name, static_string_view description,
 	    const DeviceConfig& config, const std::string& id = {});
 	Rom(Rom&& other) noexcept;
 	~Rom();
 
-	const byte& operator[](unsigned address) const {
+	[[nodiscard]] const byte& operator[](unsigned address) const {
 		assert(address < size);
 		return rom[address];
 	}
-	unsigned getSize() const { return size; }
+	[[nodiscard]] unsigned getSize() const { return size; }
 
-	std::string getFilename() const;
-	const std::string& getName() const { return name; }
-	const std::string& getDescription() const { return description; }
-	const Sha1Sum& getOriginalSHA1() const;
-	const Sha1Sum& getSHA1() const;
+	[[nodiscard]] std::string_view getFilename() const;
+	[[nodiscard]] const std::string& getName() const { return name; }
+	[[nodiscard]] std::string_view getDescription() const { return description; }
+	[[nodiscard]] const Sha1Sum& getOriginalSHA1() const;
+	[[nodiscard]] const Sha1Sum& getSHA1() const;
 
 	void addPadding(unsigned newSize, byte filler = 0xff);
 
 private:
 	void init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	          const FileContext& context);
-	bool checkSHA1(const XMLElement& config) const;
+	[[nodiscard]] bool checkSHA1(const XMLElement& config) const;
 
 private:
 	// !! update the move constructor when changing these members !!
@@ -54,7 +56,7 @@ private:
 	mutable Sha1Sum originalSha1;
 	mutable Sha1Sum actualSha1;
 	std::string name;
-	/*const*/ std::string description; // not const to allow move
+	/*const*/ static_string_view description; // not const to allow move
 	unsigned size;
 
 	// This must come after 'name':

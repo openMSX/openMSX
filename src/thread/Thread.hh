@@ -11,7 +11,7 @@ namespace openmsx::Thread {
 
 	/** Returns true when called from the main thread.
 	  */
-	bool isMainThread();
+	[[nodiscard]] bool isMainThread();
 
 } // namespace openmsx::Thread
 

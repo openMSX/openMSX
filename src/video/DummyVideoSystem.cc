@@ -33,12 +33,31 @@ void DummyVideoSystem::flush()
 {
 }
 
+gl::ivec2 DummyVideoSystem::getMouseCoord()
+{
+	return gl::ivec2(0, 0);
+}
+
 OutputSurface* DummyVideoSystem::getOutputSurface()
 {
 	return nullptr;
 }
 
 void DummyVideoSystem::showCursor(bool /*show*/)
+{
+}
+
+bool DummyVideoSystem::getCursorEnabled()
+{
+	return false;
+}
+
+std::string DummyVideoSystem::getClipboardText()
+{
+	return "";
+}
+
+void DummyVideoSystem::setClipboardText(zstring_view /*text*/)
 {
 }
 

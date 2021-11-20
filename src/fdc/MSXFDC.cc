@@ -1,8 +1,8 @@
 #include "MSXFDC.hh"
 #include "RealDrive.hh"
-#include "Rom.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
+#include "enumerate.hh"
 #include "serialize.hh"
 #include <memory>
 
@@ -12,8 +12,8 @@ MSXFDC::MSXFDC(const DeviceConfig& config, const std::string& romId, bool needRO
                DiskDrive::TrackMode trackMode)
 	: MSXDevice(config)
 	, rom(needROM
-		? std::make_unique<Rom>(getName() + " ROM", "rom", config, romId)
-		: nullptr) // e.g. Spectravideo_SVI-328 doesn't have a diskrom
+		? std::optional<Rom>(std::in_place, getName() + " ROM", "rom", config, romId)
+		: std::nullopt) // e.g. Spectravideo_SVI-328 doesn't have a diskrom
 {
 	if (needROM && (rom->getSize() == 0)) {
 		throw MSXException(
@@ -25,21 +25,19 @@ MSXFDC::MSXFDC(const DeviceConfig& config, const std::string& romId, bool needRO
 		throw MSXException("Invalid number of drives: ", numDrives);
 	}
 	unsigned timeout = config.getChildDataAsInt("motor_off_timeout_ms", 0);
-	const XMLElement* styleEl = config.findChild("connectionstyle");
+	const auto* styleEl = config.findChild("connectionstyle");
 	bool signalsNeedMotorOn = !styleEl || (styleEl->getData() == "Philips");
 	EmuDuration motorTimeout = EmuDuration::msec(timeout);
 	int i = 0;
-	for ( ; i < numDrives; ++i) {
+	for (/**/; i < numDrives; ++i) {
 		drives[i] = std::make_unique<RealDrive>(
 			getMotherBoard(), motorTimeout, signalsNeedMotorOn,
 			!singleSided, trackMode);
 	}
-	for ( ; i < 4; ++i) {
+	for (/**/; i < 4; ++i) {
 		drives[i] = std::make_unique<DummyDrive>();
 	}
 }
-
-MSXFDC::~MSXFDC() = default;
 
 void MSXFDC::powerDown(EmuTime::param time)
 {
@@ -74,8 +72,8 @@ void MSXFDC::serialize(Archive& ar, unsigned /*version*/)
 	// Destroying and reconstructing the drives is not an option because
 	// DriveMultiplexer already has pointers to the drives.
 	char tag[7] = { 'd', 'r', 'i', 'v', 'e', 'X', 0 };
-	for (int i = 0; i < 4; ++i) {
-		if (auto drive = dynamic_cast<RealDrive*>(drives[i].get())) {
+	for (auto [i, drv] : enumerate(drives)) {
+		if (auto* drive = dynamic_cast<RealDrive*>(drv.get())) {
 			tag[5] = char('a' + i);
 			ar.serialize(tag, *drive);
 		}

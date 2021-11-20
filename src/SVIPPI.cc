@@ -174,7 +174,7 @@ void SVIPPI::writeC1(nibble value, EmuTime::param time)
 		cassettePort.cassetteOut((value & 2) != 0, time);
 	}
 	//if ((prevBits ^ value) & 4) {
-	//	cassetteDevice.Mute(); // CASAUD, mute case speker (1=enable, 0=disable)
+	//	cassetteDevice.Mute(); // CASAUD, mute case speaker (1=enable, 0=disable)
 	//}
 	if ((prevBits ^ value) & 8) {
 		click.setClick((value & 8) != 0, time);
@@ -195,7 +195,7 @@ void SVIPPI::serialize(Archive& ar, unsigned /*version*/)
 	// merge prevBits and selectedRow into one byte
 	byte portC = (prevBits << 4) | (selectedRow << 0);
 	ar.serialize("portC", portC);
-	if (ar.isLoader()) {
+	if constexpr (Archive::IS_LOADER) {
 		selectedRow = (portC >> 0) & 0xF;
 		nibble bits = (portC >> 4) & 0xF;
 		writeC1(bits, getCurrentTime());

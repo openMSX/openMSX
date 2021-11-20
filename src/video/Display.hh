@@ -38,19 +38,20 @@ public:
 	~Display();
 
 	void createVideoSystem();
-	VideoSystem& getVideoSystem();
+	[[nodiscard]] VideoSystem& getVideoSystem();
 
-	CliComm& getCliComm() const;
-	RenderSettings& getRenderSettings() { return renderSettings; }
-	OSDGUI& getOSDGUI() { return osdGui; }
-	CommandConsole& getCommandConsole() { return commandConsole; }
+	[[nodiscard]] CliComm& getCliComm() const;
+	[[nodiscard]] RenderSettings& getRenderSettings() { return renderSettings; }
+	[[nodiscard]] OSDGUI& getOSDGUI() { return osdGui; }
+	[[nodiscard]] CommandConsole& getCommandConsole() { return commandConsole; }
 
 	/** Redraw the display.
-	  * repaint() should only be called from the VideoSystem.
+	  * The repaintImpl() methods are for internal and VideoSystem/VisibleSurface use only.
 	  */
 	void repaint();
-	void repaint(OutputSurface& surface);
 	void repaintDelayed(uint64_t delta);
+	void repaintImpl();
+	void repaintImpl(OutputSurface& surface);
 
 	void addLayer(Layer& layer);
 	void removeLayer(Layer& layer);
@@ -58,24 +59,24 @@ public:
 	void attach(VideoSystemChangeListener& listener);
 	void detach(VideoSystemChangeListener& listener);
 
-	Layer* findActiveLayer() const;
-	const Layers& getAllLayers() const { return layers; }
+	[[nodiscard]] Layer* findActiveLayer() const;
+	[[nodiscard]] const Layers& getAllLayers() const { return layers; }
 
-	OutputSurface* getOutputSurface();
+	[[nodiscard]] OutputSurface* getOutputSurface();
 
-	std::string getWindowTitle();
+	[[nodiscard]] std::string getWindowTitle();
 
 private:
 	void resetVideoSystem();
 
 	// EventListener interface
-	int signalEvent(const std::shared_ptr<const Event>& event) override;
+	int signalEvent(const Event& event) noexcept override;
 
 	// RTSchedulable
 	void executeRT() override;
 
 	// Observer<Setting> interface
-	void update(const Setting& setting) override;
+	void update(const Setting& setting) noexcept override;
 
 	void checkRendererSwitch();
 	void doRendererSwitch();
@@ -83,11 +84,12 @@ private:
 
 	/** Find frontmost opaque layer.
 	  */
-	Layers::iterator baseLayer();
+	[[nodiscard]] Layers::iterator baseLayer();
 
 	// LayerListener interface
-	void updateZ(Layer& layer) override;
+	void updateZ(Layer& layer) noexcept override;
 
+private:
 	Layers layers; // sorted on z
 	std::unique_ptr<VideoSystem> videoSystem;
 
@@ -102,7 +104,7 @@ private:
 	struct ScreenShotCmd final : Command {
 		explicit ScreenShotCmd(CommandController& commandController);
 		void execute(span<const TclObject> tokens, TclObject& result) override;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} screenShotCmd;
 
@@ -110,7 +112,7 @@ private:
 		explicit FpsInfoTopic(InfoCommand& openMSXInfoCommand);
 		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
-		std::string help(const std::vector<std::string>& tokens) const override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
 	} fpsInfo;
 
 	OSDGUI osdGui;

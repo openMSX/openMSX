@@ -7,6 +7,7 @@
 namespace openmsx {
 
 class XMLElement;
+class XMLDocument;
 class HardwareConfig;
 class FileContext;
 class MSXMotherBoard;
@@ -39,44 +40,45 @@ public:
 	{
 	}
 
-	const HardwareConfig& getHardwareConfig() const
+	[[nodiscard]] const HardwareConfig& getHardwareConfig() const
 	{
 		assert(hwConf);
 		return *hwConf;
 	}
-	const XMLElement* getXML() const
+	[[nodiscard]] const XMLElement* getXML() const
 	{
 		return devConf;
 	}
-	XMLElement* getPrimary() const
+	[[nodiscard]] XMLElement* getPrimary() const
 	{
 		return const_cast<XMLElement*>(primary);
 	}
-	XMLElement* getSecondary() const
+	[[nodiscard]] XMLElement* getSecondary() const
 	{
 		return const_cast<XMLElement*>(secondary);
 	}
 
 	// convenience methods:
 	//  methods below simply delegate to HardwareConfig or XMLElement
-	const FileContext& getFileContext() const;
-	MSXMotherBoard& getMotherBoard() const;
-	CliComm& getCliComm() const;
-	CommandController& getCommandController() const;
-	Scheduler& getScheduler() const;
-	Reactor& getReactor() const;
-	GlobalSettings& getGlobalSettings() const;
+	[[nodiscard]] const FileContext& getFileContext() const;
+	[[nodiscard]] MSXMotherBoard& getMotherBoard() const;
+	[[nodiscard]] CliComm& getCliComm() const;
+	[[nodiscard]] CommandController& getCommandController() const;
+	[[nodiscard]] Scheduler& getScheduler() const;
+	[[nodiscard]] Reactor& getReactor() const;
+	[[nodiscard]] GlobalSettings& getGlobalSettings() const;
+	[[nodiscard]] XMLDocument& getXMLDocument();
 
-	const XMLElement& getChild(std::string_view name) const;
-	const std::string& getChildData(std::string_view name) const;
-	std::string_view getChildData(std::string_view name,
-	                              std::string_view defaultValue) const;
-	int getChildDataAsInt(std::string_view name, int defaultValue = 0) const;
-	bool getChildDataAsBool(std::string_view name,
-	                        bool defaultValue = false) const;
-	const XMLElement* findChild(std::string_view name) const;
-	const std::string& getAttribute(std::string_view attName) const;
-	int getAttributeAsInt(std::string_view attName, int defaultValue = 0) const;
+	[[nodiscard]] const XMLElement& getChild(std::string_view name) const;
+	[[nodiscard]] std::string_view getChildData(std::string_view name) const;
+	[[nodiscard]] std::string_view getChildData(std::string_view name,
+	                                            std::string_view defaultValue) const;
+	[[nodiscard]] int getChildDataAsInt(std::string_view name, int defaultValue) const;
+	[[nodiscard]] bool getChildDataAsBool(std::string_view name,
+	                                      bool defaultValue = false) const;
+	[[nodiscard]] const XMLElement* findChild(std::string_view name) const;
+	[[nodiscard]] std::string_view getAttributeValue(std::string_view attName) const;
+	[[nodiscard]] int getAttributeValueAsInt(std::string_view attName, int defaultValue) const;
 
 private:
 	const HardwareConfig* hwConf = nullptr;

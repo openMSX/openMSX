@@ -31,15 +31,15 @@
 
 namespace openmsx {
 
-static const int DRIVE_A_SELECT = 0x01;
-static const int DRIVE_B_SELECT = 0x02;
-static const int DRIVE_A_NOT_READY = 0x01;
-static const int DRIVE_B_NOT_READY = 0x02;
-static const int DISK_A_CHANGED = 0x04;
-static const int DISK_B_CHANGED = 0x08;
-static const int MOTOR_ON = 0x04;
-static const int DATA_REQUEST  = 0x40;
-static const int INTR_REQUEST  = 0x80;
+static constexpr int DRIVE_A_SELECT = 0x01;
+static constexpr int DRIVE_B_SELECT = 0x02;
+static constexpr int DRIVE_A_NOT_READY = 0x01;
+static constexpr int DRIVE_B_NOT_READY = 0x02;
+static constexpr int DISK_A_CHANGED = 0x04;
+static constexpr int DISK_B_CHANGED = 0x08;
+static constexpr int MOTOR_ON = 0x04;
+static constexpr int DATA_REQUEST  = 0x40;
+static constexpr int INTR_REQUEST  = 0x80;
 
 
 YamahaFDC::YamahaFDC(const DeviceConfig& config)
@@ -59,22 +59,17 @@ void YamahaFDC::reset(EmuTime::param time)
 
 byte YamahaFDC::readMem(word address, EmuTime::param time)
 {
-	byte value;
 	switch (address & 0x3FFF) {
 	case 0x3FC0:
-		value = controller.getStatusReg(time);
-		break;
+		return controller.getStatusReg(time);
 	case 0x3FC1:
-		value = controller.getTrackReg(time);
-		break;
+		return controller.getTrackReg(time);
 	case 0x3FC2:
-		value = controller.getSectorReg(time);
-		break;
+		return controller.getSectorReg(time);
 	case 0x3FC3:
-		value = controller.getDataReg(time);
-		break;
-	case 0x3FE0:
-		value = 0;
+		return controller.getDataReg(time);
+	case 0x3FE0: {
+		byte value = 0;
 		if (!multiplexer.isDiskInserted(DriveMultiplexer::DRIVE_A)) value |= DRIVE_A_NOT_READY;
 		if (!multiplexer.isDiskInserted(DriveMultiplexer::DRIVE_B)) value |= DRIVE_B_NOT_READY;
 		// note: peekDiskChanged() instead of diskChanged() because we don't want an implicit reset
@@ -82,55 +77,47 @@ byte YamahaFDC::readMem(word address, EmuTime::param time)
 		if (multiplexer.peekDiskChanged(DriveMultiplexer::DRIVE_B)) value |= DISK_B_CHANGED;
 		if (controller.getIRQ(time))  value |= INTR_REQUEST;
 		if (controller.getDTRQ(time)) value |= DATA_REQUEST;
-		break;
-	case 0x3FF0:
-		multiplexer.diskChanged(DriveMultiplexer::DRIVE_B);
-		value = peekMem(address, time);
-		break;
-	default:
-		value = peekMem(address, time);
-		break;
+		return value;
 	}
-	return value;
+	case 0x3FF0:
+		multiplexer.diskChanged(DriveMultiplexer::DRIVE_B); // clear
+		[[fallthrough]];
+	default:
+		return peekMem(address, time);
+	}
 }
 
 byte YamahaFDC::peekMem(word address, EmuTime::param time) const
 {
-	byte value;
 	switch (address & 0x3FFF) {
 	case 0x3FC0:
-		value = controller.peekStatusReg(time);
-		break;
+		return controller.peekStatusReg(time);
 	case 0x3FC1:
-		value = controller.peekTrackReg(time);
-		break;
+		return controller.peekTrackReg(time);
 	case 0x3FC2:
-		value = controller.peekSectorReg(time);
-		break;
+		return controller.peekSectorReg(time);
 	case 0x3FC3:
-		value = controller.peekDataReg(time);
-		break;
-	case 0x3FE0:
-		value = 0;
+		return controller.peekDataReg(time);
+	case 0x3FE0: {
+		byte value = 0;
 		if (!multiplexer.isDiskInserted(DriveMultiplexer::DRIVE_A)) value |= DRIVE_A_NOT_READY;
 		if (!multiplexer.isDiskInserted(DriveMultiplexer::DRIVE_B)) value |= DRIVE_B_NOT_READY;
 		if (multiplexer.peekDiskChanged(DriveMultiplexer::DRIVE_A)) value |= DISK_A_CHANGED;
 		if (multiplexer.peekDiskChanged(DriveMultiplexer::DRIVE_B)) value |= DISK_B_CHANGED;
 		if (controller.peekIRQ(time))  value |= INTR_REQUEST;
 		if (controller.peekDTRQ(time)) value |= DATA_REQUEST;
-		break;
+		return value;
+	}
 	case 0x3FF0:
 		// don't clear on peek
 		[[fallthrough]];
 	default:
 		if (unsigned(address - 0x4000) < rom->getSize()) {
-			value = (*rom)[address - 0x4000];
+			return (*rom)[address - 0x4000];
 		} else {
-			value = 255;
+			return 255;
 		}
-		break;
 	}
-	return value;
 }
 
 const byte* YamahaFDC::getReadCacheLine(word start) const
@@ -160,27 +147,27 @@ void YamahaFDC::writeMem(word address, byte value, EmuTime::param time)
 	case 0x3FC3:
 		controller.setDataReg(value, time);
 		break;
-	case 0x3FE0:
-		DriveMultiplexer::DriveNum drive;
-		switch (value & (DRIVE_A_SELECT | DRIVE_B_SELECT)) {
-		case DRIVE_A_SELECT:
-			drive = DriveMultiplexer::DRIVE_A;
-			break;
-		case DRIVE_B_SELECT:
-			drive = DriveMultiplexer::DRIVE_B;
-			break;
-		default:
-			// No drive selected or two drives at same time
-			// The motor is enabled for all drives at the same time, so
-			// in a real machine you must take care to do not select more
-			// than one drive at the same time (you could get data
-			// collision).
-			drive = DriveMultiplexer::NO_DRIVE;
-		}
+	case 0x3FE0: {
+		DriveMultiplexer::DriveNum drive = [&] {
+			switch (value & (DRIVE_A_SELECT | DRIVE_B_SELECT)) {
+			case DRIVE_A_SELECT:
+				return DriveMultiplexer::DRIVE_A;
+			case DRIVE_B_SELECT:
+				return DriveMultiplexer::DRIVE_B;
+			default:
+				// No drive selected or two drives at same time
+				// The motor is enabled for all drives at the same time, so
+				// in a real machine you must take care to do not select more
+				// than one drive at the same time (you could get data
+				// collision).
+				return DriveMultiplexer::NO_DRIVE;
+			}
+		}();
 		multiplexer.selectDrive(drive, time);
 		multiplexer.setSide(false);
 		multiplexer.setMotor((value & MOTOR_ON) != 0, time);
 		break;
+	}
 	case 0x3FF0:
 		multiplexer.diskChanged(DriveMultiplexer::DRIVE_A);
 		break;

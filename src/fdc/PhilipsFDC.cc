@@ -21,35 +21,35 @@ void PhilipsFDC::reset(EmuTime::param time)
 
 byte PhilipsFDC::readMem(word address, EmuTime::param time)
 {
-	byte value;
 	switch (address & 0x3FFF) {
 	case 0x3FF8:
-		value = controller.getStatusReg(time);
-		break;
+		return controller.getStatusReg(time);
 	case 0x3FF9:
-		value = controller.getTrackReg(time);
-		break;
+		return controller.getTrackReg(time);
 	case 0x3FFA:
-		value = controller.getSectorReg(time);
-		break;
+		return controller.getSectorReg(time);
 	case 0x3FFB:
-		value = controller.getDataReg(time);
-		break;
-	case 0x3FFF:
-		value = 0xC0;
+		return controller.getDataReg(time);
+	case 0x3FFD: {
+		byte res = driveReg & ~4;
+		if (!multiplexer.diskChanged()) {
+			res |= 4;
+		}
+		return res;
+	}
+	case 0x3FFF: {
+		byte value = 0xC0;
 		if (controller.getIRQ(time)) value &= ~0x40;
 		if (controller.getDTRQ(time)) value &= ~0x80;
-		break;
-	default:
-		value = PhilipsFDC::peekMem(address, time);
-		break;
+		return value;
 	}
-	return value;
+	default:
+		return PhilipsFDC::peekMem(address, time);
+	}
 }
 
 byte PhilipsFDC::peekMem(word address, EmuTime::param time) const
 {
-	byte value;
 	// FDC registers are mirrored in
 	//   0x3FF8-0x3FFF
 	//   0x7FF8-0x7FFF
@@ -57,54 +57,53 @@ byte PhilipsFDC::peekMem(word address, EmuTime::param time) const
 	//   0xFFF8-0xFFFF
 	switch (address & 0x3FFF) {
 	case 0x3FF8:
-		value = controller.peekStatusReg(time);
-		break;
+		return controller.peekStatusReg(time);
 	case 0x3FF9:
-		value = controller.peekTrackReg(time);
-		break;
+		return controller.peekTrackReg(time);
 	case 0x3FFA:
-		value = controller.peekSectorReg(time);
-		break;
+		return controller.peekSectorReg(time);
 	case 0x3FFB:
-		value = controller.peekDataReg(time);
-		break;
+		return controller.peekDataReg(time);
 	case 0x3FFC:
 		// bit 0 = side select
 		// TODO check other bits !!
-		value = sideReg; // value = multiplexer.getSideSelect();
-		break;
-	case 0x3FFD:
+		return sideReg; // return multiplexer.getSideSelect();
+	case 0x3FFD: {
 		// bit 1,0 -> drive number
 		// (00 or 10: drive A, 01: drive B, 11: nothing)
+		// bit 2 -> 0 iff disk changed
+		//      TODO This is required on Sony_HB-F500P.
+		//           Do other machines have this bit as well?
 		// bit 7 -> motor on
 		// TODO check other bits !!
-		value = driveReg; // multiplexer.getSelectedDrive();
-		break;
+		byte res = driveReg & ~4;
+		if (!multiplexer.peekDiskChanged()) {
+			res |= 4;
+		}
+		return res;
+	}
 	case 0x3FFE:
 		// not used
-		value = 255;
-		break;
-	case 0x3FFF:
+		return 255;
+	case 0x3FFF: {
 		// Drive control IRQ and DRQ lines are not connected to Z80
 		// interrupt request
 		// bit 6: !intrq
 		// bit 7: !dtrq
 		// TODO check other bits !!
-		value = 0xC0;
+		byte value = 0xC0;
 		if (controller.peekIRQ(time)) value &= ~0x40;
 		if (controller.peekDTRQ(time)) value &= ~0x80;
-		break;
-
+		return value;
+	}
 	default:
 		if ((0x4000 <= address) && (address < 0x8000)) {
 			// ROM only visible in 0x4000-0x7FFF
-			value = MSXFDC::peekMem(address, time);
+			return MSXFDC::peekMem(address, time);
 		} else {
-			value = 255;
+			return 255;
 		}
-		break;
 	}
-	return value;
 }
 
 const byte* PhilipsFDC::getReadCacheLine(word start) const
@@ -149,19 +148,18 @@ void PhilipsFDC::writeMem(word address, byte value, EmuTime::param time)
 		// bit 7 -> motor on
 		// TODO check other bits !!
 		driveReg = value;
-		DriveMultiplexer::DriveNum drive;
-		switch (value & 3) {
-			case 0:
-			case 2:
-				drive = DriveMultiplexer::DRIVE_A;
-				break;
-			case 1:
-				drive = DriveMultiplexer::DRIVE_B;
-				break;
-			case 3:
-			default:
-				drive = DriveMultiplexer::NO_DRIVE;
-		}
+		DriveMultiplexer::DriveNum drive = [&] {
+			switch (value & 3) {
+				case 0:
+				case 2:
+					return DriveMultiplexer::DRIVE_A;
+				case 1:
+					return DriveMultiplexer::DRIVE_B;
+				case 3:
+				default:
+					return DriveMultiplexer::NO_DRIVE;
+			}
+		}();
 		multiplexer.selectDrive(drive, time);
 		multiplexer.setMotor((value & 128) != 0, time);
 		break;

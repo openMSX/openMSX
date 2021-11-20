@@ -11,10 +11,9 @@
 #include "CommandController.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
-#include "XMLElement.hh"
-#include "checked_cast.hh"
+#include "TemporaryString.hh"
+#include "XMLEscape.hh"
 #include "cstdiop.hh"
-#include "openmsx.hh"
 #include "ranges.hh"
 #include "unistdp.hh"
 #include <cassert>
@@ -25,42 +24,7 @@
 #include "SspiNegotiateServer.hh"
 #endif
 
-using std::string;
-
 namespace openmsx {
-
-// class CliCommandEvent
-
-class CliCommandEvent final : public Event
-{
-public:
-	CliCommandEvent(string command_, const CliConnection* id_)
-		: Event(OPENMSX_CLICOMMAND_EVENT)
-		, command(std::move(command_)), id(id_)
-	{
-	}
-	const string& getCommand() const
-	{
-		return command;
-	}
-	const CliConnection* getId() const
-	{
-		return id;
-	}
-	TclObject toTclList() const override
-	{
-		return makeTclList("CliCmd", getCommand());
-	}
-	bool lessImpl(const Event& other) const override
-	{
-		auto& otherCmdEvent = checked_cast<const CliCommandEvent&>(other);
-		return getCommand() < otherCmdEvent.getCommand();
-	}
-private:
-	const string command;
-	const CliConnection* id;
-};
-
 
 // class CliConnection
 
@@ -72,35 +36,35 @@ CliConnection::CliConnection(CommandController& commandController_,
 {
 	ranges::fill(updateEnabled, false);
 
-	eventDistributor.registerEventListener(OPENMSX_CLICOMMAND_EVENT, *this);
+	eventDistributor.registerEventListener(EventType::CLICOMMAND, *this);
 }
 
 CliConnection::~CliConnection()
 {
-	eventDistributor.unregisterEventListener(OPENMSX_CLICOMMAND_EVENT, *this);
+	eventDistributor.unregisterEventListener(EventType::CLICOMMAND, *this);
 }
 
-void CliConnection::log(CliComm::LogLevel level, std::string_view message)
+void CliConnection::log(CliComm::LogLevel level, std::string_view message) noexcept
 {
 	auto levelStr = CliComm::getLevelStrings();
-	output(strCat("<log level=\"", levelStr[level], "\">",
-	              XMLElement::XMLEscape(message), "</log>\n"));
+	output(tmpStrCat("<log level=\"", levelStr[level], "\">",
+	                 XMLEscape(message), "</log>\n"));
 }
 
 void CliConnection::update(CliComm::UpdateType type, std::string_view machine,
-                           std::string_view name, std::string_view value)
+                           std::string_view name, std::string_view value) noexcept
 {
 	if (!getUpdateEnable(type)) return;
 
 	auto updateStr = CliComm::getUpdateStrings();
-	string tmp = strCat("<update type=\"", updateStr[type], '\"');
+	auto tmp = strCat("<update type=\"", updateStr[type], '\"');
 	if (!machine.empty()) {
 		strAppend(tmp, " machine=\"", machine, '\"');
 	}
 	if (!name.empty()) {
-		strAppend(tmp, " name=\"", XMLElement::XMLEscape(name), '\"');
+		strAppend(tmp, " name=\"", XMLEscape(name), '\"');
 	}
-	strAppend(tmp, '>', XMLElement::XMLEscape(value), "</update>\n");
+	strAppend(tmp, '>', XMLEscape(value), "</update>\n");
 
 	output(tmp);
 }
@@ -127,28 +91,29 @@ void CliConnection::end()
 	}
 }
 
-void CliConnection::execute(const string& command)
+void CliConnection::execute(const std::string& command)
 {
 	eventDistributor.distributeEvent(
-		std::make_shared<CliCommandEvent>(command, this));
+		Event::create<CliCommandEvent>(command, this));
 }
 
-static string reply(const string& message, bool status)
+static TemporaryString reply(std::string_view message, bool status)
 {
-	return strCat("<reply result=\"", (status ? "ok" : "nok"), "\">",
-	              XMLElement::XMLEscape(message), "</reply>\n");
+	return tmpStrCat("<reply result=\"", (status ? "ok" : "nok"), "\">",
+	                 XMLEscape(message), "</reply>\n");
 }
 
-int CliConnection::signalEvent(const std::shared_ptr<const Event>& event)
+int CliConnection::signalEvent(const Event& event) noexcept
 {
-	auto& commandEvent = checked_cast<const CliCommandEvent&>(*event);
+	assert(getType(event) == EventType::CLICOMMAND);
+	const auto& commandEvent = get<CliCommandEvent>(event);
 	if (commandEvent.getId() == this) {
 		try {
-			string result(commandController.executeCommand(
-				commandEvent.getCommand(), this).getString());
+			auto result = commandController.executeCommand(
+				commandEvent.getCommand(), this).getString();
 			output(reply(result, true));
 		} catch (CommandException& e) {
-			string result = std::move(e).getMessage() + '\n';
+			std::string result = std::move(e).getMessage() + '\n';
 			output(reply(result, false));
 		}
 	}
@@ -213,7 +178,7 @@ PipeConnection::PipeConnection(CommandController& commandController_,
                                std::string_view name)
 	: CliConnection(commandController_, eventDistributor_)
 {
-	string pipeName = strCat("\\\\.\\pipe\\", name);
+	auto pipeName = strCat("\\\\.\\pipe\\", name);
 	pipeHandle = CreateFileA(pipeName.c_str(), GENERIC_READ, 0, nullptr,
 	                         OPEN_EXISTING, FILE_FLAG_OVERLAPPED, nullptr);
 	if (pipeHandle == OPENMSX_INVALID_HANDLE_VALUE) {

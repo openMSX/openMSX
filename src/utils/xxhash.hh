@@ -15,14 +15,14 @@
    Redistribution and use in source and binary forms, with or without
    modification, are permitted provided that the following conditions are
    met:
-  
+
        * Redistributions of source code must retain the above copyright
    notice, this list of conditions and the following disclaimer.
        * Redistributions in binary form must reproduce the above
    copyright notice, this list of conditions and the following disclaimer
    in the documentation and/or other materials provided with the
    distribution.
-  
+
    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -55,15 +55,15 @@ constexpr uint32_t PRIME32_5 =  374761393;
 
 
 template<int R>
-[[nodiscard]] static inline uint32_t rotl(uint32_t x)
+[[nodiscard]] constexpr uint32_t rotl(uint32_t x)
 {
 	return (x << R) | (x >> (32 - R));
 }
 
 template<bool ALIGNED>
-[[nodiscard]] static inline uint32_t read32(const uint8_t* ptr)
+[[nodiscard]] inline uint32_t read32(const uint8_t* ptr)
 {
-	if (ALIGNED) {
+	if constexpr (ALIGNED) {
 #ifdef DEBUG
 		assert((reinterpret_cast<intptr_t>(ptr) & 3) == 0);
 #endif
@@ -77,7 +77,7 @@ template<bool ALIGNED>
 
 
 template<bool ALIGNED, uint8_t MASK8 = 0xFF, uint32_t SEED = 0>
-[[nodiscard]] static inline uint32_t xxhash_impl(const uint8_t* p, size_t size)
+[[nodiscard]] inline uint32_t xxhash_impl(const uint8_t* p, size_t size)
 {
 	constexpr uint32_t MASK32 = MASK8 * 0x01010101U;
 
@@ -129,9 +129,9 @@ template<bool ALIGNED, uint8_t MASK8 = 0xFF, uint32_t SEED = 0>
 	return  h32 ^ (h32 >> 16);
 }
 
-template<uint8_t MASK8> [[nodiscard]] static inline uint32_t xxhash_impl(std::string_view key)
+template<uint8_t MASK8> [[nodiscard]] inline uint32_t xxhash_impl(std::string_view key)
 {
-	auto* data = reinterpret_cast<const uint8_t*>(key.data());
+	const auto* data = reinterpret_cast<const uint8_t*>(key.data());
 	auto  size = key.size();
 	if (reinterpret_cast<intptr_t>(data) & 3) {
 		return xxhash_impl<false, MASK8>(data, size);

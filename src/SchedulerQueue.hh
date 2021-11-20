@@ -29,21 +29,21 @@ public:
 	{
 	}
 
-	size_t capacity()   const { return storageEnd - storage.data(); }
-	size_t spareFront() const { return useBegin   - storage.data(); }
-	size_t spareBack()  const { return storageEnd - useEnd;       }
-	size_t size()  const { return useEnd -  useBegin; }
-	bool   empty() const { return useEnd == useBegin; }
+	[[nodiscard]] size_t capacity()   const { return storageEnd - storage.data(); }
+	[[nodiscard]] size_t spareFront() const { return useBegin   - storage.data(); }
+	[[nodiscard]] size_t spareBack()  const { return storageEnd - useEnd;       }
+	[[nodiscard]] size_t size()  const { return useEnd -  useBegin; }
+	[[nodiscard]] bool   empty() const { return useEnd == useBegin; }
 
 	// Returns reference to the first element, This is the smallest element
 	// according to the sorting criteria, see insert().
-	      T& front()       { return *useBegin; }
-	const T& front() const { return *useBegin; }
+	[[nodiscard]]       T& front()       { return *useBegin; }
+	[[nodiscard]] const T& front() const { return *useBegin; }
 
-	      T* begin()       { return useBegin; }
-	const T* begin() const { return useBegin; }
-	      T* end()         { return useEnd;   }
-	const T* end()   const { return useEnd;   }
+	[[nodiscard]]       T* begin()       { return useBegin; }
+	[[nodiscard]] const T* begin() const { return useBegin; }
+	[[nodiscard]]       T* end()         { return useEnd;   }
+	[[nodiscard]] const T* end()   const { return useEnd;   }
 
 	// Insert new element.
 	// Elements are sorted according to the given LESS predicate.

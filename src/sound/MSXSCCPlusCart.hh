@@ -14,24 +14,33 @@ namespace openmsx {
 class MSXSCCPlusCart final : public MSXDevice
 {
 public:
+	struct MapperConfig {
+		unsigned numBlocks;  // number of 8kB blocks
+		byte registerMask;   // mapper selection bits to ignore
+		byte registerOffset; // first mapped block
+	};
+
+public:
 	explicit MSXSCCPlusCart(const DeviceConfig& config);
 
 	void powerUp(EmuTime::param time) override;
 	void reset(EmuTime::param time) override;
-	byte readMem(word address, EmuTime::param time) override;
-	byte peekMem(word address, EmuTime::param time) const override;
+	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
+	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;
 	void writeMem(word address, byte value, EmuTime::param time) override;
-	const byte* getReadCacheLine(word start) const override;
-	byte* getWriteCacheLine(word start) const override;
+	[[nodiscard]] const byte* getReadCacheLine(word start) const override;
+	[[nodiscard]] byte* getWriteCacheLine(word start) const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void setMapper(int regio, byte value);
+	void setMapper(int region, byte value);
 	void setModeRegister(byte value);
 	void checkEnable();
 
+private:
+	const MapperConfig mapperConfig;
 	Ram ram;
 	SCC scc;
 	RomBlockDebuggable romBlockDebug;
@@ -41,8 +50,6 @@ private:
 	bool isRamSegment[4];
 	bool isMapped[4];
 	byte mapper[4];
-	/*const*/ byte mapperMask;
-	/*const*/ bool lowRAM, highRAM;
 };
 
 } // namespace openmsx

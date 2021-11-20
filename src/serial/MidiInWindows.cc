@@ -7,6 +7,7 @@
 #include "Scheduler.hh"
 #include "one_of.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 #include <cstring>
 #include <cerrno>
 #include "Midi_w32.hh"
@@ -19,8 +20,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-using std::string;
-
 namespace openmsx {
 
 void MidiInWindows::registerAll(EventDistributor& eventDistributor,
@@ -28,8 +27,7 @@ void MidiInWindows::registerAll(EventDistributor& eventDistributor,
                                 PluggingController& controller)
 {
 	w32_midiInInit();
-	unsigned devnum = w32_midiInGetVFNsNum();
-	for (unsigned i = 0 ; i <devnum; ++i) {
+	for (auto i : xrange(w32_midiInGetVFNsNum())) {
 		controller.registerPluggable(std::make_unique<MidiInWindows>(
 			eventDistributor, scheduler, i));
 	}
@@ -44,12 +42,12 @@ MidiInWindows::MidiInWindows(EventDistributor& eventDistributor_,
 	name = w32_midiInGetVFN(num);
 	desc = w32_midiInGetRDN(num);
 
-	eventDistributor.registerEventListener(OPENMSX_MIDI_IN_WINDOWS_EVENT, *this);
+	eventDistributor.registerEventListener(EventType::MIDI_IN_WINDOWS, *this);
 }
 
 MidiInWindows::~MidiInWindows()
 {
-	eventDistributor.unregisterEventListener(OPENMSX_MIDI_IN_WINDOWS_EVENT, *this);
+	eventDistributor.unregisterEventListener(EventType::MIDI_IN_WINDOWS, *this);
 
 	//w32_midiInClean(); // TODO
 }
@@ -88,7 +86,7 @@ void MidiInWindows::unplugHelper(EmuTime::param /*time*/)
 	thread.join();
 }
 
-const string& MidiInWindows::getName() const
+std::string_view MidiInWindows::getName() const
 {
 	return name;
 }
@@ -103,12 +101,12 @@ void MidiInWindows::procLongMsg(LPMIDIHDR p)
 	if (p->dwBytesRecorded) {
 		{
 			std::lock_guard<std::mutex> lock(queueMutex);
-			for (unsigned i = 0; i < p->dwBytesRecorded; ++i) {
+			for (auto i : xrange(p->dwBytesRecorded)) {
 				queue.push_back(p->lpData[i]);
 			}
 		}
 		eventDistributor.distributeEvent(
-			std::make_shared<SimpleEvent>(OPENMSX_MIDI_IN_WINDOWS_EVENT));
+			Event::create<MidiInWindowsEvent>());
 	}
 }
 
@@ -129,7 +127,7 @@ void MidiInWindows::procShortMsg(DWORD param)
 		param >>= 8;
 	}
 	eventDistributor.distributeEvent(
-		std::make_shared<SimpleEvent>(OPENMSX_MIDI_IN_WINDOWS_EVENT));
+		Event::create<MidiInWindowsEvent>());
 }
 
 void MidiInWindows::run()
@@ -196,7 +194,7 @@ void MidiInWindows::signal(EmuTime::param time)
 }
 
 // EventListener
-int MidiInWindows::signalEvent(const std::shared_ptr<const Event>& /*event*/)
+int MidiInWindows::signalEvent(const Event& /*event*/) noexcept
 {
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());

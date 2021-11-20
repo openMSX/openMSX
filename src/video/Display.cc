@@ -4,10 +4,9 @@
 #include "VideoSystem.hh"
 #include "VideoLayer.hh"
 #include "EventDistributor.hh"
-#include "FinishFrameEvent.hh"
+#include "Event.hh"
 #include "FileOperations.hh"
 #include "FileContext.hh"
-#include "InputEvents.hh"
 #include "CliComm.hh"
 #include "Timer.hh"
 #include "BooleanSetting.hh"
@@ -20,19 +19,16 @@
 #include "XMLElement.hh"
 #include "VideoSystemChangeListener.hh"
 #include "CommandException.hh"
-#include "StringOp.hh"
 #include "Version.hh"
 #include "build-info.hh"
-#include "checked_cast.hh"
 #include "outer.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include "view.hh"
+#include "xrange.hh"
 #include <cassert>
 
 using std::string;
-using std::vector;
 
 namespace openmsx {
 
@@ -49,23 +45,23 @@ Display::Display(Reactor& reactor_)
 	, switchInProgress(false)
 {
 	frameDurationSum = 0;
-	for (unsigned i = 0; i < NUM_FRAME_DURATIONS; ++i) {
+	repeat(NUM_FRAME_DURATIONS, [&] {
 		frameDurations.addFront(20);
 		frameDurationSum += 20;
-	}
+	});
 	prevTimeStamp = Timer::getTime();
 
 	EventDistributor& eventDistributor = reactor.getEventDistributor();
-	eventDistributor.registerEventListener(OPENMSX_FINISH_FRAME_EVENT,
+	eventDistributor.registerEventListener(EventType::FINISH_FRAME,
 			*this);
-	eventDistributor.registerEventListener(OPENMSX_SWITCH_RENDERER_EVENT,
+	eventDistributor.registerEventListener(EventType::SWITCH_RENDERER,
 			*this);
-	eventDistributor.registerEventListener(OPENMSX_MACHINE_LOADED_EVENT,
+	eventDistributor.registerEventListener(EventType::MACHINE_LOADED,
 			*this);
-	eventDistributor.registerEventListener(OPENMSX_EXPOSE_EVENT,
+	eventDistributor.registerEventListener(EventType::EXPOSE,
 			*this);
 #if PLATFORM_ANDROID
-	eventDistributor.registerEventListener(OPENMSX_FOCUS_EVENT,
+	eventDistributor.registerEventListener(EventType::FOCUS,
 			*this);
 #endif
 	renderSettings.getRendererSetting().attach(*this);
@@ -82,16 +78,16 @@ Display::~Display()
 
 	EventDistributor& eventDistributor = reactor.getEventDistributor();
 #if PLATFORM_ANDROID
-	eventDistributor.unregisterEventListener(OPENMSX_FOCUS_EVENT,
+	eventDistributor.unregisterEventListener(EventType::FOCUS,
 			*this);
 #endif
-	eventDistributor.unregisterEventListener(OPENMSX_EXPOSE_EVENT,
+	eventDistributor.unregisterEventListener(EventType::EXPOSE,
 			*this);
-	eventDistributor.unregisterEventListener(OPENMSX_MACHINE_LOADED_EVENT,
+	eventDistributor.unregisterEventListener(EventType::MACHINE_LOADED,
 			*this);
-	eventDistributor.unregisterEventListener(OPENMSX_SWITCH_RENDERER_EVENT,
+	eventDistributor.unregisterEventListener(EventType::SWITCH_RENDERER,
 			*this);
-	eventDistributor.unregisterEventListener(OPENMSX_FINISH_FRAME_EVENT,
+	eventDistributor.unregisterEventListener(EventType::FINISH_FRAME,
 			*this);
 
 	resetVideoSystem();
@@ -146,7 +142,7 @@ void Display::detach(VideoSystemChangeListener& listener)
 
 Layer* Display::findActiveLayer() const
 {
-	for (auto& l : layers) {
+	for (auto* l : layers) {
 		if (l->getZ() == Layer::Z_MSX_ACTIVE) {
 			return l;
 		}
@@ -175,47 +171,54 @@ Display::Layers::iterator Display::baseLayer()
 
 void Display::executeRT()
 {
-	videoSystem->repaint();
+	repaint();
 }
 
-int Display::signalEvent(const std::shared_ptr<const Event>& event)
+int Display::signalEvent(const Event& event) noexcept
 {
-	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
-		auto& ffe = checked_cast<const FinishFrameEvent&>(*event);
-		if (ffe.needRender()) {
-			videoSystem->repaint();
-			reactor.getEventDistributor().distributeEvent(
-				std::make_shared<SimpleEvent>(
-					OPENMSX_FRAME_DRAWN_EVENT));
-		}
-	} else if (event->getType() == OPENMSX_SWITCH_RENDERER_EVENT) {
-		doRendererSwitch();
-	} else if (event->getType() == OPENMSX_MACHINE_LOADED_EVENT) {
-		videoSystem->updateWindowTitle();
-	} else if (event->getType() == OPENMSX_EXPOSE_EVENT) {
-		// Don't render too often, and certainly not when the screen
-		// will anyway soon be rendered.
-		repaintDelayed(100 * 1000); // 10fps
-	} else if (PLATFORM_ANDROID && event->getType() == OPENMSX_FOCUS_EVENT) {
-		// On Android, the rendering must be frozen when the app is sent to
-		// the background, because Android takes away all graphics resources
-		// from the app. It simply destroys the entire graphics context.
-		// Though, a repaint() must happen within the focus-lost event
-		// so that the SDL Android port realises that the graphix context
-		// is gone and will re-build it again on the first flush to the
-		// surface after the focus has been regained.
+	visit(overloaded{
+		[&](const FinishFrameEvent& e) {
+			if (e.needRender()) {
+				repaint();
+				reactor.getEventDistributor().distributeEvent(
+					Event::create<FrameDrawnEvent>());
+			}
+		},
+		[&](const SwitchRendererEvent& /*e*/) {
+			doRendererSwitch();
+		},
+		[&](const MachineLoadedEvent& /*e*/) {
+			videoSystem->updateWindowTitle();
+		},
+		[&](const ExposeEvent& /*e*/) {
+			// Don't render too often, and certainly not when the screen
+			// will anyway soon be rendered.
+			repaintDelayed(100 * 1000); // 10fps
+		},
+		[&](const FocusEvent& e) {
+			(void)e;
+			if (PLATFORM_ANDROID) {
+				// On Android, the rendering must be frozen when the app is sent to
+				// the background, because Android takes away all graphics resources
+				// from the app. It simply destroys the entire graphics context.
+				// Though, a repaint() must happen within the focus-lost event
+				// so that the SDL Android port realizes that the graphics context
+				// is gone and will re-build it again on the first flush to the
+				// surface after the focus has been regained.
 
-		// Perform a repaint before updating the renderFrozen flag:
-		// -When loosing the focus, this repaint will flush a last
-		//  time the SDL surface, making sure that the Android SDL
-		//  port discovers that the graphics context is gone.
-		// -When gaining the focus, this repaint does nothing as
-		//  the renderFrozen flag is still false
-		videoSystem->repaint();
-		auto& focusEvent = checked_cast<const FocusEvent&>(*event);
-		ad_printf("Setting renderFrozen to %d", !focusEvent.getGain());
-		renderFrozen = !focusEvent.getGain();
-	}
+				// Perform a repaint before updating the renderFrozen flag:
+				// -When loosing the focus, this repaint will flush a last
+				//  time the SDL surface, making sure that the Android SDL
+				//  port discovers that the graphics context is gone.
+				// -When gaining the focus, this repaint does nothing as
+				//  the renderFrozen flag is still false
+				repaint();
+				ad_printf("Setting renderFrozen to %d", !e.getGain());
+				renderFrozen = !e.getGain();
+			}
+		},
+		[](const EventBase&) { /*ignore*/ }
+	}, event);
 	return 0;
 }
 
@@ -227,7 +230,7 @@ string Display::getWindowTitle()
 	}
 	if (MSXMotherBoard* motherboard = reactor.getMotherBoard()) {
 		if (const HardwareConfig* machine = motherboard->getMachineConfig()) {
-			const XMLElement& config = machine->getConfig();
+			const auto& config = machine->getConfig();
 			strAppend(title, " - ",
 			          config.getChild("info").getChildData("manufacturer"), ' ',
 			          config.getChild("info").getChildData("code"));
@@ -236,7 +239,7 @@ string Display::getWindowTitle()
 	return title;
 }
 
-void Display::update(const Setting& setting)
+void Display::update(const Setting& setting) noexcept
 {
 	if (&setting == &renderSettings.getRendererSetting()) {
 		checkRendererSwitch();
@@ -266,8 +269,7 @@ void Display::checkRendererSwitch()
 		// causes problems???
 		switchInProgress = true;
 		reactor.getEventDistributor().distributeEvent(
-			std::make_shared<SimpleEvent>(
-				OPENMSX_SWITCH_RENDERER_EVENT));
+			Event::create<SwitchRendererEvent>());
 	}
 }
 
@@ -324,7 +326,7 @@ void Display::doRendererSwitch2()
 	}
 }
 
-void Display::repaint()
+void Display::repaintImpl()
 {
 	if (switchInProgress) {
 		// The checkRendererSwitch() method will queue a
@@ -342,7 +344,7 @@ void Display::repaint()
 	if (!renderFrozen) {
 		assert(videoSystem);
 		if (OutputSurface* surface = videoSystem->getOutputSurface()) {
-			repaint(*surface);
+			repaintImpl(*surface);
 			videoSystem->flush();
 		}
 	}
@@ -355,13 +357,20 @@ void Display::repaint()
 	frameDurations.addFront(duration);
 }
 
-void Display::repaint(OutputSurface& surface)
+void Display::repaintImpl(OutputSurface& surface)
 {
 	for (auto it = baseLayer(); it != end(layers); ++it) {
 		if ((*it)->getCoverage() != Layer::COVER_NONE) {
 			(*it)->paint(surface);
 		}
 	}
+}
+
+void Display::repaint()
+{
+	// Request a repaint from the VideoSystem. This may call repaintImpl()
+	// directly or for example defer to a signal callback on VisibleSurface.
+	videoSystem->repaint();
 }
 
 void Display::repaintDelayed(uint64_t delta)
@@ -386,7 +395,7 @@ void Display::removeLayer(Layer& layer)
 	layers.erase(rfind_unguarded(layers, &layer));
 }
 
-void Display::updateZ(Layer& layer)
+void Display::updateZ(Layer& layer) noexcept
 {
 	// Remove at old Z-index...
 	removeLayer(layer);
@@ -458,7 +467,7 @@ void Display::ScreenShotCmd::execute(span<const TclObject> tokens, TclObject& re
 				"Failed to take screenshot: ", e.getMessage());
 		}
 	} else {
-		auto videoLayer = dynamic_cast<VideoLayer*>(
+		auto* videoLayer = dynamic_cast<VideoLayer*>(
 			display.findActiveLayer());
 		if (!videoLayer) {
 			throw CommandException(
@@ -477,7 +486,7 @@ void Display::ScreenShotCmd::execute(span<const TclObject> tokens, TclObject& re
 	result = filename;
 }
 
-string Display::ScreenShotCmd::help(const vector<string>& /*tokens*/) const
+string Display::ScreenShotCmd::help(span<const TclObject> /*tokens*/) const
 {
 	// Note: -no-sprites option is implemented in Tcl
 	return "screenshot                   Write screenshot to file \"openmsxNNNN.png\"\n"
@@ -489,10 +498,11 @@ string Display::ScreenShotCmd::help(const vector<string>& /*tokens*/) const
 	       "screenshot -no-sprites       Don't include sprites in the screenshot\n";
 }
 
-void Display::ScreenShotCmd::tabCompletion(vector<string>& tokens) const
+void Display::ScreenShotCmd::tabCompletion(std::vector<string>& tokens) const
 {
-	static constexpr const char* const extra[] = {
-		"-prefix", "-raw", "-doublesize", "-with-osd", "-no-sprites",
+	using namespace std::literals;
+	static constexpr std::array extra = {
+		"-prefix"sv, "-raw"sv, "-doublesize"sv, "-with-osd"sv, "-no-sprites"sv,
 	};
 	completeFileName(tokens, userFileContext(), extra);
 }
@@ -512,7 +522,7 @@ void Display::FpsInfoTopic::execute(span<const TclObject> /*tokens*/,
 	result = 1000000.0f * Display::NUM_FRAME_DURATIONS / display.frameDurationSum;
 }
 
-string Display::FpsInfoTopic::help(const vector<string>& /*tokens*/) const
+string Display::FpsInfoTopic::help(span<const TclObject> /*tokens*/) const
 {
 	return "Returns the current rendering speed in frames per second.";
 }

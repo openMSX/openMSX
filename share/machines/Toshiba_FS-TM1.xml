@@ -26,11 +26,9 @@
 
   <CassettePort/>
 
-  <MapperReadBackBits>5</MapperReadBackBits>
-
   <devices>
 
-    <S1985 id="S1985">
+    <S1985 id="S1985"> <!-- includes 5 bits mapper-read-back -->
       <sramname>fs-tm1_s1985.sram</sramname>
     </S1985>
 
@@ -49,8 +47,8 @@
     <VDP id="VDP">
       <version>V9938</version>
       <vram>128</vram>
-      <io base="0x98" num="4" type="O"/>
-      <io base="0x98" num="2" type="I"/>
+      <io base="0x98" num="8" type="O"/> <!-- S-1985 mirrors -->
+      <io base="0x98" num="8" type="I"/> <!-- S-1985 mirrors -->
     </VDP>
 
     <PSG id="PSG">

@@ -9,12 +9,12 @@ public:
 	constexpr one_of(Ts... ts) : tup(ts...) {}
 
 	template<typename T>
-	friend constexpr bool operator==(const T& t, const one_of& o) {
+	[[nodiscard]] friend constexpr bool operator==(const T& t, const one_of& o) {
 		return std::apply([&](const Ts& ... ts) { return (... || (t == ts)); }, o.tup);
 	}
 
 	template<typename T>
-	friend constexpr bool operator!=(const T& t, const one_of& o) {
+	[[nodiscard]] friend constexpr bool operator!=(const T& t, const one_of& o) {
 		return !(t == o);
 	}
 

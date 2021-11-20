@@ -2,12 +2,13 @@
 #include "PNG.hh"
 #include "SDLOutputSurface.hh"
 #include "checked_cast.hh"
+#include "ranges.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <cstdlib>
 #include <cmath>
 #include <SDL.h>
 
-using std::string;
 using namespace gl;
 
 namespace openmsx {
@@ -44,31 +45,38 @@ static SDLSurfacePtr getTempSurface(ivec2 size_)
 //  Extract R,G,B,A components to 8.16 bit fixed point.
 //  Note the order R,G,B,A is arbitrary, the actual pixel value may have the
 //  components in a different order.
-static void unpackRGBA(unsigned rgba,
-                       unsigned& r, unsigned&g, unsigned&b, unsigned& a)
+struct UnpackedRGBA {
+	unsigned r, g, b, a;
+};
+static constexpr UnpackedRGBA unpackRGBA(unsigned rgba)
 {
-	r = (((rgba >> 24) & 0xFF) << 16) + 0x8000;
-	g = (((rgba >> 16) & 0xFF) << 16) + 0x8000;
-	b = (((rgba >>  8) & 0xFF) << 16) + 0x8000;
-	a = (((rgba >>  0) & 0xFF) << 16) + 0x8000;
+	unsigned r = (((rgba >> 24) & 0xFF) << 16) + 0x8000;
+	unsigned g = (((rgba >> 16) & 0xFF) << 16) + 0x8000;
+	unsigned b = (((rgba >>  8) & 0xFF) << 16) + 0x8000;
+	unsigned a = (((rgba >>  0) & 0xFF) << 16) + 0x8000;
+	return {r, g, b, a};
 }
 // Setup outer loop (vertical) interpolation parameters.
 //  For each component there is a pair of (initial,delta) values. These values
 //  are 8.16 bit fixed point, delta is signed.
-static void setupInterp1(unsigned rgba0, unsigned rgba1, unsigned length,
-                         unsigned& r0, unsigned& g0, unsigned& b0, unsigned& a0,
-                         int& dr, int& dg, int& db, int& da)
+struct Interp1Result {
+	unsigned r0, g0, b0, a0;
+	int dr, dg, db, da;
+};
+static constexpr Interp1Result setupInterp1(unsigned rgba0, unsigned rgba1, unsigned length)
 {
-	unpackRGBA(rgba0, r0, g0, b0, a0);
+	auto [r0, g0, b0, a0] = unpackRGBA(rgba0);
 	if (length == 1) {
-		dr = dg = db = da = 0;
+		return {r0, g0, b0, a0,
+		        0,  0,  0,  0};
 	} else {
-		unsigned r1, g1, b1, a1;
-		unpackRGBA(rgba1, r1, g1, b1, a1);
-		dr = int(r1 - r0) / int(length - 1);
-		dg = int(g1 - g0) / int(length - 1);
-		db = int(b1 - b0) / int(length - 1);
-		da = int(a1 - a0) / int(length - 1);
+		auto [r1, g1, b1, a1] = unpackRGBA(rgba1);
+		int dr = int(r1 - r0) / int(length - 1);
+		int dg = int(g1 - g0) / int(length - 1);
+		int db = int(b1 - b0) / int(length - 1);
+		int da = int(a1 - a0) / int(length - 1);
+		return {r0, g0, b0, a0,
+		        dr, dg, db, da};
 	}
 }
 // Setup inner loop (horizontal) interpolation parameters.
@@ -86,24 +94,28 @@ static void setupInterp1(unsigned rgba0, unsigned rgba1, unsigned length,
 //   because in this routine we need the individual components of the values
 //   that are calculated by setupInterp1(). (It would also make the code even
 //   more complex).
-static void setupInterp2(unsigned r0, unsigned g0, unsigned b0, unsigned a0,
-                         unsigned r1, unsigned g1, unsigned b1, unsigned a1,
-                         unsigned length,
-                         unsigned&  rb, unsigned&  ga,
-                         unsigned& drb, unsigned& dga,
-                         bool&   subRB, bool&   subGA)
+struct Interp2Result {
+	unsigned rb, ga;
+	unsigned drb, dga;
+	bool subRB, subGA;
+};
+static constexpr Interp2Result setupInterp2(
+	unsigned r0, unsigned g0, unsigned b0, unsigned a0,
+	unsigned r1, unsigned g1, unsigned b1, unsigned a1,
+	unsigned length)
 {
 	// Pack the initial values for the components R,B and G,A into
 	// a vector-type: two 8.16 scalars -> one [8.8 ; 8.8] vector
-	rb = ((r0 << 8) & 0xffff0000) |
-	     ((b0 >> 8) & 0x0000ffff);
-	ga = ((g0 << 8) & 0xffff0000) |
-	     ((a0 >> 8) & 0x0000ffff);
-	subRB = subGA = false;
+	unsigned rb = ((r0 << 8) & 0xffff0000) |
+	              ((b0 >> 8) & 0x0000ffff);
+	unsigned ga = ((g0 << 8) & 0xffff0000) |
+	              ((a0 >> 8) & 0x0000ffff);
 	if (length == 1) {
-		drb = dga = 0;
+		return {rb, ga, 0, 0, false, false};
 	} else {
 		// calculate delta values
+		bool subRB = false;
+		bool subGA = false;
 		int dr = int(r1 - r0) / int(length - 1);
 		int dg = int(g1 - g0) / int(length - 1);
 		int db = int(b1 - b0) / int(length - 1);
@@ -119,14 +131,15 @@ static void setupInterp2(unsigned r0, unsigned g0, unsigned b0, unsigned a0,
 			subGA = true;
 		}
 		// also pack two 8.16 delta values in one [8.8 ; 8.8] vector
-		drb = ((unsigned(dr) << 8) & 0xffff0000) |
-		      ((unsigned(db) >> 8) & 0x0000ffff);
-		dga = ((unsigned(dg) << 8) & 0xffff0000) |
-		      ((unsigned(da) >> 8) & 0x0000ffff);
+		unsigned drb = ((unsigned(dr) << 8) & 0xffff0000) |
+		               ((unsigned(db) >> 8) & 0x0000ffff);
+		unsigned dga = ((unsigned(dg) << 8) & 0xffff0000) |
+		               ((unsigned(da) >> 8) & 0x0000ffff);
+		return {rb, ga, drb, dga, subRB, subGA};
 	}
 }
 // Pack two [8.8 ; 8.8] vectors into one pixel.
-static unsigned packRGBA(unsigned rb, unsigned ga)
+static constexpr unsigned packRGBA(unsigned rb, unsigned ga)
 {
 	return (rb & 0xff00ff00) | ((ga & 0xff00ff00) >> 8);
 }
@@ -136,52 +149,45 @@ static unsigned packRGBA(unsigned rb, unsigned ga)
 //    0 -- 1
 //    |    |
 //    2 -- 3
-static void gradient(const unsigned* rgba, SDL_Surface& surface, unsigned borderSize)
+static constexpr void gradient(const unsigned* rgba, SDL_Surface& surface, unsigned borderSize)
 {
 	int width  = surface.w - 2 * borderSize;
 	int height = surface.h - 2 * borderSize;
 	if ((width <= 0) || (height <= 0)) return;
 
-	unsigned r0, g0, b0, a0;
-	unsigned r1, g1, b1, a1;
-	int dr02, dg02, db02, da02;
-	int dr13, dg13, db13, da13;
-	setupInterp1(rgba[0], rgba[2], height, r0, g0, b0, a0, dr02, dg02, db02, da02);
-	setupInterp1(rgba[1], rgba[3], height, r1, g1, b1, a1, dr13, dg13, db13, da13);
+	auto [r0, g0, b0, a0, dr02, dg02, db02, da02] = setupInterp1(rgba[0], rgba[2], height);
+	auto [r1, g1, b1, a1, dr13, dg13, db13, da13] = setupInterp1(rgba[1], rgba[3], height);
 
-	auto buffer = static_cast<unsigned*>(surface.pixels);
+	auto* buffer = static_cast<unsigned*>(surface.pixels);
 	buffer += borderSize;
 	buffer += borderSize * (surface.pitch / sizeof(unsigned));
-	for (int y = 0; y < height; ++y) {
-		unsigned  rb,  ga;
-		unsigned drb, dga;
-		bool   subRB, subGA;
-		setupInterp2(r0, g0, b0, a0, r1, g1, b1, a1, width,
-		             rb, ga, drb, dga, subRB, subGA);
+	repeat(height, [&, r0=r0, g0=g0, b0=b0, a0=a0, dr02=dr02, dg02=dg02, db02=db02, da02=da02,
+	                   r1=r1, g1=g1, b1=b1, a1=a1, dr13=dr13, dg13=dg13, db13=db13, da13=da13] () mutable {
+		auto [rb,  ga, drb, dga, subRB, subGA] = setupInterp2(r0, g0, b0, a0, r1, g1, b1, a1, width);
 
 		// Depending on the subRB/subGA booleans, we need to add or
 		// subtract the delta to/from the initial value. There are
 		// 2 booleans so 4 combinations:
 		if (!subRB) {
 			if (!subGA) {
-				for (int x = 0; x < width; ++x) {
+				for (auto x : xrange(width)) {
 					buffer[x] = packRGBA(rb, ga);
 					rb += drb; ga += dga;
 				}
 			} else {
-				for (int x = 0; x < width; ++x) {
+				for (auto x : xrange(width)) {
 					buffer[x] = packRGBA(rb, ga);
 					rb += drb; ga -= dga;
 				}
 			}
 		} else {
 			if (!subGA) {
-				for (int x = 0; x < width; ++x) {
+				for (auto x : xrange(width)) {
 					buffer[x] = packRGBA(rb, ga);
 					rb -= drb; ga += dga;
 				}
 			} else {
-				for (int x = 0; x < width; ++x) {
+				for (auto x : xrange(width)) {
 					buffer[x] = packRGBA(rb, ga);
 					rb -= drb; ga -= dga;
 				}
@@ -191,12 +197,12 @@ static void gradient(const unsigned* rgba, SDL_Surface& surface, unsigned border
 		r0 += dr02; g0 += dg02; b0 += db02; a0 += da02;
 		r1 += dr13; g1 += dg13; b1 += db13; a1 += da13;
 		buffer += (surface.pitch / sizeof(unsigned));
-	}
+	});
 }
 
 // class SDLImage
 
-SDLImage::SDLImage(OutputSurface& output, const string& filename)
+SDLImage::SDLImage(OutputSurface& output, const std::string& filename)
 	: texture(loadImage(output, filename))
 	, flipX(false), flipY(false)
 {
@@ -212,7 +218,7 @@ SDLImage::SDLImage(OutputSurface& output, const std::string& filename, float sca
 }
 
 // TODO get rid of this constructor, see above
-SDLImage::SDLImage(OutputSurface& output, const string& filename, ivec2 size_)
+SDLImage::SDLImage(OutputSurface& output, const std::string& filename, ivec2 size_)
 	: texture(loadImage(output, filename))
 	, flipX(size_[0] < 0), flipY(size_[1] < 0)
 {
@@ -226,7 +232,7 @@ SDLImage::SDLImage(OutputSurface& output, ivec2 size_, unsigned rgba)
 }
 
 
-SDLImage::SDLImage(OutputSurface& output, ivec2 size_, const unsigned* rgba,
+SDLImage::SDLImage(OutputSurface& output, ivec2 size_, span<const unsigned, 4> rgba,
                    unsigned borderSize, unsigned borderRGBA)
 	: flipX(size_[0] < 0), flipY(size_[1] < 0)
 {
@@ -254,7 +260,7 @@ SDLTexturePtr SDLImage::toTexture(OutputSurface& output, SDL_Surface& surface)
 	return result;
 }
 
-SDLTexturePtr SDLImage::loadImage(OutputSurface& output, const string& filename)
+SDLTexturePtr SDLImage::loadImage(OutputSurface& output, const std::string& filename)
 {
 	bool want32bpp = true;
 	return toTexture(output, *PNG::load(filename, want32bpp));
@@ -329,7 +335,7 @@ void SDLImage::initSolid(OutputSurface& output, ivec2 size_, unsigned rgba,
 	texture = toTexture(output, *tmp32);
 }
 
-void SDLImage::initGradient(OutputSurface& output, ivec2 size_, const unsigned* rgba_,
+void SDLImage::initGradient(OutputSurface& output, ivec2 size_, span<const unsigned, 4> rgba_,
                             unsigned borderSize, unsigned borderRGBA)
 {
 	checkSize(size_);
@@ -338,9 +344,7 @@ void SDLImage::initGradient(OutputSurface& output, ivec2 size_, const unsigned* 
 	}
 
 	unsigned rgba[4];
-	for (unsigned i = 0; i < 4; ++i) {
-		rgba[i] = rgba_[i];
-	}
+	ranges::copy(rgba_, rgba);
 
 	if (flipX) {
 		std::swap(rgba[0], rgba[1]);
@@ -374,7 +378,7 @@ void SDLImage::draw(OutputSurface& output, gl::ivec2 pos, uint8_t r, uint8_t g, 
 	if (flipX) x -= w;
 	if (flipY) y -= h;
 
-	auto renderer = checked_cast<SDLOutputSurface&>(output).getSDLRenderer();
+	auto* renderer = checked_cast<SDLOutputSurface&>(output).getSDLRenderer();
 	SDL_SetTextureAlphaMod(texture.get(), alpha);
 	SDL_Rect dst = {x, y, w, h};
 	SDL_RenderCopy(renderer, texture.get(), nullptr, &dst);

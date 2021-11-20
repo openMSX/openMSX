@@ -1,6 +1,8 @@
 #ifndef SHA1_HH
 #define SHA1_HH
 
+#include "span.hh"
+#include "xrange.hh"
 #include <ostream>
 #include <string>
 #include <string_view>
@@ -39,17 +41,17 @@ public:
 	void clear();
 
 	[[nodiscard]] bool operator==(const Sha1Sum& other) const {
-		for (int i = 0; i < 5; ++i) {
+		for (int i : xrange(5)) {
 			if (a[i] != other.a[i]) return false;
 		}
 		return true;
 	}
 	[[nodiscard]] bool operator!=(const Sha1Sum& other) const { return !(*this == other); }
 	[[nodiscard]] bool operator< (const Sha1Sum& other) const {
-		for (int i = 0; i < 5-1; ++i) {
+		for (int i : xrange(5 - 1)) {
 			if (a[i] != other.a[i]) return a[i] < other.a[i];
 		}
-		return a[5-1] < other.a[5-1];
+		return a[5 - 1] < other.a[5 - 1];
 	}
 
 	[[nodiscard]] bool operator<=(const Sha1Sum& other) const { return !(other <  *this); }
@@ -81,20 +83,21 @@ public:
 	SHA1();
 
 	/** Incrementally calculate the hash value. */
-	void update(const uint8_t* data, size_t len);
+	void update(span<const uint8_t> data);
 
 	/** Get the final hash. After this method is called, calls to update()
 	  * are invalid. */
 	[[nodiscard]] Sha1Sum digest();
 
 	/** Easier to use interface, if you can pass all data in one go. */
-	[[nodiscard]] static Sha1Sum calc(const uint8_t* data, size_t len);
+	[[nodiscard]] static Sha1Sum calc(span<const uint8_t> data);
 
 private:
 	void transform(const uint8_t buffer[64]);
 	void finalize();
 
-	uint64_t m_count;
+private:
+	uint64_t m_count; // in bytes (sha1 reference implementation counts in bits)
 	Sha1Sum m_state;
 	uint8_t m_buffer[64];
 	bool m_finalized;

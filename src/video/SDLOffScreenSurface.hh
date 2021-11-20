@@ -18,6 +18,7 @@ private:
 	void saveScreenshot(const std::string& filename) override;
 	void clearScreen() override;
 
+private:
 	MemBuffer<char, SSE_ALIGNMENT> buffer;
 	SDLSurfacePtr surface;
 	SDLRendererPtr renderer;

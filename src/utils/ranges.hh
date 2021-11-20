@@ -1,7 +1,9 @@
 #ifndef RANGES_HH
 #define RANGES_HH
 
+#include "stl.hh"
 #include <algorithm>
+#include <functional>
 #include <iterator> // for std::begin(), std::end()
 #include <numeric>
 
@@ -19,16 +21,13 @@
 
 namespace ranges {
 
-template<typename ForwardRange>
-[[nodiscard]] bool is_sorted(ForwardRange&& range)
+template<typename ForwardRange, typename Compare = std::less<>, typename Proj = identity>
+[[nodiscard]] bool is_sorted(ForwardRange&& range, Compare comp = {}, Proj proj = {})
 {
-	return std::is_sorted(std::begin(range), std::end(range));
-}
-
-template<typename ForwardRange, typename Compare>
-[[nodiscard]] bool is_sorted(ForwardRange&& range, Compare comp)
-{
-	return std::is_sorted(std::begin(range), std::end(range), comp);
+	return std::is_sorted(std::begin(range), std::end(range),
+		[&](const auto& x, const auto& y) {
+			return comp(std::invoke(proj, x), std::invoke(proj, y));
+		});
 }
 
 template<typename RandomAccessRange>
@@ -41,6 +40,21 @@ template<typename RandomAccessRange, typename Compare>
 void sort(RandomAccessRange&& range, Compare comp)
 {
 	std::sort(std::begin(range), std::end(range), comp);
+}
+
+template<typename RAIter, typename Compare = std::less<>, typename Proj>
+void sort(RAIter first, RAIter last, Compare comp, Proj proj)
+{
+	std::sort(first, last,
+		[&](const auto& x, const auto& y) {
+			return comp(std::invoke(proj, x), std::invoke(proj, y));
+		});
+}
+
+template<typename RandomAccessRange, typename Compare = std::less<>, typename Proj>
+void sort(RandomAccessRange&& range, Compare comp, Proj proj)
+{
+	sort(std::begin(range), std::end(range), comp, proj);
 }
 
 template<typename RandomAccessRange>
@@ -67,46 +81,62 @@ template<typename ForwardRange, typename T, typename Compare>
 	return std::binary_search(std::begin(range), std::end(range), value, comp);
 }
 
-template<typename ForwardRange, typename T>
-[[nodiscard]] auto lower_bound(ForwardRange&& range, const T& value)
+template<typename ForwardRange, typename T, typename Compare = std::less<>, typename Proj = identity>
+[[nodiscard]] auto lower_bound(ForwardRange&& range, const T& value, Compare comp = {}, Proj proj = {})
 {
-	return std::lower_bound(std::begin(range), std::end(range), value);
+	auto comp2 = [&](const auto& x, const auto& y) {
+		return comp(std::invoke(proj, x), y);
+	};
+	return std::lower_bound(std::begin(range), std::end(range), value, comp2);
 }
 
-template<typename ForwardRange, typename T, typename Compare>
-[[nodiscard]] auto lower_bound(ForwardRange&& range, const T& value, Compare comp)
+template<typename ForwardRange, typename T, typename Compare = std::less<>, typename Proj = identity>
+[[nodiscard]] auto upper_bound(ForwardRange&& range, const T& value, Compare comp = {}, Proj proj = {})
 {
-	return std::lower_bound(std::begin(range), std::end(range), value, comp);
+	auto comp2 = [&](const auto& x, const auto& y) {
+		return comp(x, std::invoke(proj, y));
+	};
+	return std::upper_bound(std::begin(range), std::end(range), value, comp2);
 }
 
-template<typename ForwardRange, typename T>
-[[nodiscard]] auto upper_bound(ForwardRange&& range, const T& value)
-{
-	return std::upper_bound(std::begin(range), std::end(range), value);
-}
-
-template<typename ForwardRange, typename T, typename Compare>
-[[nodiscard]] auto upper_bound(ForwardRange&& range, const T& value, Compare comp)
-{
-	return std::upper_bound(std::begin(range), std::end(range), value, comp);
-}
-
-template<typename ForwardRange, typename T>
-[[nodiscard]] auto equal_range(ForwardRange&& range, const T& value)
-{
-	return std::equal_range(std::begin(range), std::end(range), value);
-}
-
-template<typename ForwardRange, typename T, typename Compare>
-[[nodiscard]] auto equal_range(ForwardRange&& range, const T& value, Compare comp)
+template<typename ForwardRange, typename T, typename Compare = std::less<>>
+[[nodiscard]] auto equal_range(ForwardRange&& range, const T& value, Compare comp = {})
 {
 	return std::equal_range(std::begin(range), std::end(range), value, comp);
+}
+template<typename ForwardRange, typename T, typename Compare = std::less<>, typename Proj = identity>
+[[nodiscard]] auto equal_range(ForwardRange&& range, const T& value, Compare comp, Proj proj)
+{
+	using Iter = decltype(std::begin(range));
+	using R = typename std::iterator_traits<Iter>::value_type;
+	struct Comp2 {
+		Compare comp;
+		Proj proj;
+
+		bool operator()(const R& x, const R& y) const {
+			return comp(std::invoke(proj, x), std::invoke(proj, y));
+		}
+		bool operator()(const R& x, const T& y) const {
+			return comp(std::invoke(proj, x), y);
+		}
+		bool operator()(const T& x, const R& y) const {
+			return comp(x, std::invoke(proj, y));
+		}
+	};
+	return std::equal_range(std::begin(range), std::end(range), value, Comp2{comp, proj});
 }
 
 template<typename InputRange, typename T>
 [[nodiscard]] auto find(InputRange&& range, const T& value)
 {
 	return std::find(std::begin(range), std::end(range), value);
+}
+
+template<typename InputRange, typename T, typename Proj>
+[[nodiscard]] auto find(InputRange&& range, const T& value, Proj proj)
+{
+	return find_if(std::forward<InputRange>(range),
+	               [&](const auto& e) { return std::invoke(proj, e) == value; });
 }
 
 template<typename InputRange, typename UnaryPredicate>
@@ -163,6 +193,12 @@ auto transform(InputRange&& range, OutputIter out, UnaryOperation op)
 	return std::transform(std::begin(range), std::end(range), out, op);
 }
 
+template<typename ForwardRange, typename Generator>
+void generate(ForwardRange&& range, Generator&& g)
+{
+	std::generate(std::begin(range), std::end(range), std::forward<Generator>(g));
+}
+
 template<typename ForwardRange, typename T>
 [[nodiscard]] auto remove(ForwardRange&& range, const T& value)
 {
@@ -191,6 +227,22 @@ template<typename ForwardRange, typename T>
 void fill(ForwardRange&& range, const T& value)
 {
 	std::fill(std::begin(range), std::end(range), value);
+}
+
+// part of c++20
+template<typename ForwardIt, typename T>
+constexpr void iota(ForwardIt first, ForwardIt last, T value)
+{
+    while (first != last) {
+        *first++ = value;
+        ++value;
+    }
+}
+
+template<typename ForwardRange, typename T>
+constexpr void iota(ForwardRange&& range, T&& value)
+{
+	iota(std::begin(range), std::end(range), std::forward<T>(value));
 }
 
 template<typename InputRange, typename T>
