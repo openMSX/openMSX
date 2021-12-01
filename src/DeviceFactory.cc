@@ -2,6 +2,7 @@
 #include "XMLElement.hh"
 #include "DeviceConfig.hh"
 #include "ChakkariCopy.hh"
+#include "CanonWordProcessor.hh"
 #include "FraelSwitchableROM.hh"
 #include "MSXRam.hh"
 #include "MSXPPI.hh"
@@ -285,6 +286,8 @@ std::unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<FraelSwitchableROM>(conf);
 	} else if (type == "ChakkariCopy") {
 		result = make_unique<ChakkariCopy>(conf);
+	} else if (type == "CanonWordProcessor") {
+		result = make_unique<CanonWordProcessor>(conf);
 	} else if (type == "MegaFlashRomSCCPlusSD") {
 		result = make_unique<MegaFlashRomSCCPlusSD>(conf);
 	} else if (type == "MusicalMemoryMapper") {

@@ -777,6 +777,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\CartridgeSlotManager.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\CliExtension.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\ChakkariCopy.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\CanonWordProcessor.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\CLIOption.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\CommandLineParser.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\Connector.cc" />
@@ -1424,6 +1425,7 @@
     <None Include="$(OpenMSXSrcDir)\CartridgeSlotManager.hh" />
     <None Include="$(OpenMSXSrcDir)\CliExtension.hh" />
     <None Include="$(OpenMSXSrcDir)\ChakkariCopy.hh" />
+    <None Include="$(OpenMSXSrcDir)\CanonWordProcessor.hh" />
     <None Include="$(OpenMSXSrcDir)\CLIOption.hh" />
     <None Include="$(OpenMSXSrcDir)\Clock.hh" />
     <None Include="$(OpenMSXSrcDir)\CommandLineParser.hh" />
