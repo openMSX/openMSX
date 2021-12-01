@@ -555,6 +555,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\CheckedRam.cc">
       <Filter>memory</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\CanonWordProcessor.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\memory\ColecoSuperGameModule.cc">
       <Filter>memory</Filter>
     </ClCompile>
@@ -1248,7 +1251,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\Autofire.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\CartridgeSlotManager.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\ChakkariCopy.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\CanonWordProcessor.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\CliExtension.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\CLIOption.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\CommandLineParser.cc" />
@@ -1925,6 +1927,9 @@
       <Filter>memory</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\memory\CheckedRam.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\memory\CanonWordProcessor.hh">
       <Filter>memory</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\memory\ColecoSuperGameModule.hh">
@@ -2770,7 +2775,6 @@
     <None Include="$(OpenMSXSrcDir)\Autofire.hh" />
     <None Include="$(OpenMSXSrcDir)\CartridgeSlotManager.hh" />
     <None Include="$(OpenMSXSrcDir)\ChakkariCopy.hh" />
-    <None Include="$(OpenMSXSrcDir)\CanonWordProcessor.hh" />
     <None Include="$(OpenMSXSrcDir)\CliExtension.hh" />
     <None Include="$(OpenMSXSrcDir)\CLIOption.hh" />
     <None Include="$(OpenMSXSrcDir)\Clock.hh" />
