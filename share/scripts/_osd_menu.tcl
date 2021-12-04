@@ -25,6 +25,9 @@ variable input_buffer ""
 variable input_last_time [openmsx_info realtime]
 variable input_timeout 1; #sec
 
+variable controller_capture_timeout 5; #sec
+variable controller_capture_after_id ""
+
 variable pool_prefix "pool::"
 
 proc push_menu_info {} {
@@ -802,7 +805,7 @@ proc create_main_menu {} {
 	         actions { A { osd_menu::menu_create [osd_menu::create_hardware_menu] }}
 	         post-spacing 3 }
 	lappend items { text "Misc Settings..."
-	         actions { A { osd_menu::menu_create $osd_menu::misc_setting_menu }}}
+	         actions { A { osd_menu::menu_create [osd_menu::create_misc_setting_menu] }}}
 	lappend items { text "Sound Settings..."
 	         actions { A { osd_menu::menu_create $osd_menu::sound_setting_menu }}}
 	lappend items { text "Video Settings..."
@@ -819,13 +822,15 @@ proc create_main_menu {} {
 	return $menu_def
 }
 
-set misc_setting_menu {
-	font-size 8
-	border-size 2
-	width 160
-	xpos 100
-	ypos 120
-	items {{ text "Misc Settings"
+proc create_misc_setting_menu {} {
+	set menu_def {
+		font-size 8
+		border-size 2
+		width 160
+		xpos 100
+		ypos 120
+	}
+	set items {{ text "Misc Settings"
 	         font-size 10
 	         post-spacing 6
 	         selectable false }
@@ -844,7 +849,209 @@ set misc_setting_menu {
 	       { textexpr "OSD icon set: $osd_leds_set"
 	         actions { LEFT  { osd_menu::menu_setting [cycle_back osd_leds_set] }
 	                   RIGHT { osd_menu::menu_setting [cycle      osd_leds_set] }}}
-              }}
+        }
+	if {[info exists ::joystick1_config]} {
+		lappend items { text "Host to MSX controller mapping..."
+	                        actions { A { osd_menu::menu_create_controller_mapping }}}
+	}
+
+	dict set menu_def items $items
+	return $menu_def
+}
+
+proc menu_create_controller_mapping {} {
+	set joysticks [info global joystick?_config]
+	if {[llength $joysticks] == 1} {
+		menu_controller_mapping_exec [lindex $joysticks 0]
+	} else {
+		set menu_def {
+			 execute menu_controller_mapping_exec
+			 font-size 8
+			 border-size 2
+			 width 200
+			 xpos 110
+			 ypos 130
+			 header { text "Select Host Controller to configure"
+				  font-size 10
+				  post-spacing 6 }}
+
+		set presentation [list]
+		foreach i $joysticks {
+			set joystick [lindex [split $i _] 0]
+			lappend presentation [format "%s: %s" $joystick [machine_info pluggable $joystick]]
+		}
+		lappend menu_def presentation $presentation
+
+		osd_menu::menu_create [prepare_menu_list $joysticks 5 $menu_def]
+	}
+}
+
+proc menu_controller_mapping_exec {config_item} {
+	set menu_def [list \
+		 execute "menu_controller_button_mapping_exec $config_item"\
+		 font-size 8 \
+		 border-size 2 \
+		 width 170 \
+		 xpos 115 \
+		 ypos 135 \
+		 header [list text "Select MSX input to configure" \
+			  font-size 10 \
+			  post-spacing 6] ]
+
+	set items [dict keys [set ::$config_item]]
+	foreach i $items {
+		set prefix [expr {([string length $i] == 1) ? "Trigger" : "Direction"}]
+		set mapping [dict get [set ::$config_item] $i]
+		if {[llength $mapping] == 0} {
+			set mapping "(Not mapped.)"
+		}
+		lappend presentation [format "%s %s: %s" $prefix $i $mapping]
+	}
+	lappend menu_def presentation $presentation
+
+	osd_menu::menu_create [prepare_menu_list $items [llength $items] $menu_def]
+}
+
+proc menu_controller_button_mapping_exec {config_item button} {
+	set menu_def [list \
+		 execute "menu_controller_button_mapping_add_remove_exec $config_item $button"\
+		 font-size 8 \
+		 border-size 2 \
+		 width 170 \
+		 xpos 120 \
+		 ypos 140 \
+		 header [list text "Select option for MSX input $button" \
+			  font-size 10 \
+			  post-spacing 6] ]
+
+	set items [list "add"]
+	set presentation [list "Add new mapping"]
+	set mappings [dict get [set ::$config_item] $button]
+	foreach mapping $mappings {
+		lappend items $mapping
+		lappend presentation [format "Remove %s mapping" $mapping]
+	}
+	lappend menu_def presentation $presentation
+
+	osd_menu::menu_create [prepare_menu_list $items 5 $menu_def]
+}
+
+proc menu_controller_button_mapping_add_exec {config_item button} {
+	# capture something
+	set event [string map {"stick" "" "_config" ""} $config_item]
+	if {[string length $button] == 1} {
+		#trigger
+		set subevents [list "button"]
+	} else {
+		set subevents [list "axis" "hat"]
+	}
+	# It would sound more logical to use after, instead of bind,
+	# but then we cannot block the input for the menu itself.
+	foreach se $subevents {
+		# execute the bind command in a new stack frame,
+		# because openMSX may send a joystick event directly
+		# after having executed this script (OSDControl event
+		# may have caused this script to be called) and that
+		# would then be directly captured.
+		set bind_cmd [list bind -layer capture "$event $se" -event [list osd_menu::joy_event_capture $event $button $config_item]]
+		after realtime 0 $bind_cmd
+	}
+	activate_input_layer -blocking capture
+	variable controller_capture_timeout
+	message "Press button on host controller to map to MSX button $button within $controller_capture_timeout seconds..."
+	variable controller_capture_after_id
+	# the escaping and expansion is a bit tricky, so let's go pedantic here
+	set cmd1 [list message "Timed out... canceling!"]
+	set cmd2 [list osd_menu::cancel_capture]
+	set cmds "$cmd1;$cmd2"
+	set controller_capture_after_id [after realtime $controller_capture_timeout $cmds]
+}
+
+proc menu_controller_button_mapping_remove_exec {config_item button target} {
+	set config [dict get [set ::$config_item] $button]
+	set idx [lsearch $config $target]
+	dict set ::$config_item $button [lreplace $config $idx $idx]
+	message "Removed mapping for $button: $target"
+	# recreate previous menu, to refresh the presentation
+	menu_close_top
+	menu_close_top
+	menu_controller_mapping_exec $config_item
+}
+
+proc menu_controller_button_mapping_add_remove_exec {config_item button target} {
+	if {$target eq "add"} {
+		menu_controller_button_mapping_add_exec $config_item $button
+	} else {
+		menu_controller_button_mapping_remove_exec $config_item $button $target
+	}
+}
+
+proc cancel_capture {} {
+	unbind -layer capture
+	deactivate_input_layer capture
+}
+
+proc joy_event_capture { bound_host_input msx_input config_item captured_event } {
+	# parse event
+	set value ""
+	lassign [split $captured_event] joy part1 part2
+	# there could also be events from other host controllers, ignore these
+	if {$joy ne $bound_host_input} return
+
+	if {[string match "hat*" $part1]} {
+		# directions LEFT RIGHT UP DOWN:
+		#  hatN left -> L_hatN
+		#  hatN right -> R_hatN
+		#  hatN up -> U_hatN
+		#  hatN down -> D_hatN
+
+		# silently ignore 'center' events
+		if {$part2 eq "center"} return
+
+		set value "[string toupper [string range $part2 0 0]]_$part1"
+	} elseif {[string match "axis*" $part1]} {
+		# directions LEFT RIGHT UP DOWN:
+		#  axisN <negval> -> -axisN
+		#  axisN <posval> -> +axisN
+
+		# silently ignore neutral axis events
+		if {$part2 == 0} return
+
+		if {$part2 < 0} {
+			set value "-$part1"
+		} else {
+			set value "+$part1"
+		}
+	} elseif {[string match "button*" $part1]} {
+		# triggers A B:
+		# buttonN down -> buttonN
+
+		# silently ignore other events than down-events
+		if {$part2 ne "down"} return
+
+		set value $part1
+	} else {
+		message "DEBUG: Don't know how to bind unexpected event $captured_event"
+		return
+	}
+
+	# if we get here, we can stop capturing
+	cancel_capture
+	variable controller_capture_after_id
+	after cancel $controller_capture_after_id
+
+	# avoid double entries in the mapping
+	set config [dict get [set ::$config_item] $msx_input]
+	if {$value ni $config} {
+		message "Added mapping for $msx_input: $value"
+		dict lappend ::$config_item $msx_input $value
+	}
+
+	# recreate previous menu, to refresh the presentation
+	menu_close_top
+	menu_close_top
+	menu_controller_mapping_exec $config_item
+}
 
 set resampler_desc [dict create fast "fast (but low quality)" blip "blip (good speed/quality)" hq "hq (best but uses more CPU)"]
 
