@@ -47,7 +47,7 @@ static std::unique_ptr<YM2413Core> createCore(const DeviceConfig& config)
 		return std::make_unique<YM2413NukeYKT::YM2413>();
 	} else if (core == "Original-NukeYKT") {
 		return std::make_unique<YM2413OriginalNukeYKT::YM2413>(); // for debug
-	} else if (core == "") {
+	} else if (core.empty()) {
 		// The preferred way to select the core is via the <core> tag.
 		// But for backwards compatibility, when that tag is missing,
 		// fallback to using the <alternative> tag.

@@ -232,7 +232,7 @@ public:
 		: doc(doc_)
 		, nextElement(&doc.root) {}
 
-	std::string_view getSystemID() const { return systemID; }
+	[[nodiscard]] std::string_view getSystemID() const { return systemID; }
 
 	void start(std::string_view name) {
 		stack.push_back(currentElement);
