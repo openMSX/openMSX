@@ -188,7 +188,7 @@ void CommandLineParser::parse(int argc, char** argv)
 					reactor.getGlobalCommandController().getSettingsConfig();
 				// Load default settings file in case the user
 				// didn't specify one.
-				auto context = systemFileContext();
+				const auto& context = systemFileContext();
 				string filename = "settings.xml";
 				try {
 					settingsConfig.loadSetting(context, filename);

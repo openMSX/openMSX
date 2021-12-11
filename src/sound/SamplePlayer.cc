@@ -20,7 +20,7 @@ constexpr unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on .wav file
 	dynarray<WavData> result(numSamples); // initialize with empty WAVs
 
 	bool alreadyWarned = false;
-	auto context = systemFileContext();
+	const auto& context = systemFileContext();
 	for (auto i : xrange(numSamples)) {
 		try {
 			auto filename = tmpStrCat(baseName, i, ".wav");

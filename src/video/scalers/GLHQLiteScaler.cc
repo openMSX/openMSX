@@ -38,7 +38,7 @@ GLHQLiteScaler::GLHQLiteScaler(GLScaler& fallback_)
 #endif
 	edgeBuffer.setImage(320, 240);
 
-	auto context = systemFileContext();
+	const auto& context = systemFileContext();
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	std::string offsetName = "shaders/HQ_xLiteOffsets.dat";
 	for (auto i : xrange(3)) {
