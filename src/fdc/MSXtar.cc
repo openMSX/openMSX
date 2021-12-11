@@ -153,7 +153,7 @@ MSXtar::MSXtar(SectorAccessibleDisk& sectordisk)
 }
 
 // Not used when NRVO is used (but NRVO optimization is not (yet) mandated)
-MSXtar::MSXtar(MSXtar&& other)
+MSXtar::MSXtar(MSXtar&& other) noexcept
 	: disk(other.disk)
 	, fatBuffer(std::move(other.fatBuffer))
 	, maxCluster(other.maxCluster)
