@@ -94,12 +94,11 @@ VDP::VDP(const DeviceConfig& config)
 		getCommandController(),
 		getName() + ".too_fast_vram_access_callback",
 		"Tcl proc called when the VRAM is read or written too fast")
+	, interlaced(false)
 	, warningPrinted(false)
 	, cpu(getCPU()) // used frequently, so cache it
 	, fixedVDPIOdelayCycles(getDelayCycles(getMotherBoard().getMachineConfig()->getConfig().getChild("devices")))
 {
-	interlaced = false;
-
 	// Current general defaults for saturation:
 	// - Any MSX with a TMS9x18 VDP: SatPr=SatPb=100%
 	// - Other machines with a TMS9x2x VDP and RGB output:

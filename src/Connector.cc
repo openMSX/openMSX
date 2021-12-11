@@ -12,8 +12,8 @@ Connector::Connector(PluggingController& pluggingController_,
 	: pluggingController(pluggingController_)
 	, name(std::move(name_))
 	, dummy(std::move(dummy_))
+	, plugged(dummy.get())
 {
-	plugged = dummy.get();
 	pluggingController.registerConnector(*this);
 }
 

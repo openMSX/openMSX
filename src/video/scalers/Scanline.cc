@@ -16,8 +16,8 @@ namespace openmsx {
 
 Multiply<uint16_t>::Multiply(const PixelOperations<uint16_t>& pixelOps_)
 	: pixelOps(pixelOps_)
+	, factor(0)
 {
-	factor = 0;
 	memset(tab, 0, sizeof(tab));
 }
 

@@ -17,15 +17,14 @@ Video9000::Video9000(const DeviceConfig& config)
 	: MSXDevice(config)
 	, VideoLayer(getMotherBoard(), getName())
 	, videoSourceSetting(getMotherBoard().getVideoSource())
+	, activeLayer(nullptr) // we can't set activeLayer yet
+	, v99x8Layer(nullptr)
+	, v9990Layer(nullptr)
+	, value(0x10)
 {
 	EventDistributor& distributor = getReactor().getEventDistributor();
 	distributor.registerEventListener(EventType::FINISH_FRAME, *this);
 	getReactor().getDisplay().attach(*this);
-
-	activeLayer = nullptr; // we can't set activeLayer yet
-	v99x8Layer = nullptr;
-	v9990Layer = nullptr;
-	value = 0x10;
 }
 
 void Video9000::init()

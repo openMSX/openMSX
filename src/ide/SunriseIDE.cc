@@ -11,15 +11,13 @@ SunriseIDE::SunriseIDE(const DeviceConfig& config)
 	: MSXDevice(config)
 	, romBlockDebug(*this)
 	, rom(getName() + " ROM", "rom", config)
+	, internalBank(nullptr) // make valgrind happy
+	, ideRegsEnabled(false)
 {
 	device[0] = IDEDeviceFactory::create(
 		DeviceConfig(config, config.findChild("master")));
 	device[1] = IDEDeviceFactory::create(
 		DeviceConfig(config, config.findChild("slave")));
-
-	// make valgrind happy
-	internalBank = nullptr;
-	ideRegsEnabled = false;
 
 	powerUp(getCurrentTime());
 }

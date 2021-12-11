@@ -13,15 +13,13 @@ namespace openmsx {
 
 AbstractIDEDevice::AbstractIDEDevice(MSXMotherBoard& motherBoard_)
 	: motherBoard(motherBoard_)
+	, transferIdx(0) // avoid UMR on serialize
+	, bufferLeft(0)
+	, transferCount(0)
+	, transferRead(false)
+	, transferWrite(false)
 {
-	transferRead = false;
-	transferWrite = false;
-	transferIdx = 0;
-
-	// avoid UMR on serialize
 	memset(buffer, 0, sizeof(buffer));
-	bufferLeft = 0;
-	transferCount = 0;
 }
 
 byte AbstractIDEDevice::diagnostic()

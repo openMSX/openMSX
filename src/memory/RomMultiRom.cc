@@ -10,8 +10,8 @@ namespace openmsx {
 
 RomMultiRom::RomMultiRom(const DeviceConfig& config, Rom&& rom_)
 	: Rom16kBBlocks(config, std::move(rom_))
+	, counter(7)
 {
-	counter = 7;
 	reset(EmuTime::dummy());
 }
 

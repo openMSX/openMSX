@@ -51,10 +51,9 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	, hdImageCLI(*this)
 	, cdImageCLI(*this)
 	, parseStatus(UNPARSED)
+	, haveConfig(false)
+	, haveSettings(false)
 {
-	haveConfig = false;
-	haveSettings = false;
-
 	registerOption("-h",          helpOption,    PHASE_BEFORE_INIT, 1);
 	registerOption("--help",      helpOption,    PHASE_BEFORE_INIT, 1);
 	registerOption("-v",          versionOption, PHASE_BEFORE_INIT, 1);

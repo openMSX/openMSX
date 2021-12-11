@@ -25,15 +25,14 @@ AviWriter::AviWriter(const Filename& filename, unsigned width_,
 	, height(height_)
 	, channels(channels_)
 	, audiorate(freq_)
+	, frames(0)
+	, audiowritten(0)
+	, written(0)
 {
 	uint8_t dummy[AVI_HEADER_SIZE] = {};
 	file.write(dummy, sizeof(dummy));
 
 	index.resize(2);
-
-	frames = 0;
-	written = 0;
-	audiowritten = 0;
 }
 
 AviWriter::~AviWriter()

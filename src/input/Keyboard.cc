@@ -262,6 +262,7 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, keybDebuggable(motherBoard)
 	, unicodeKeymap(config.getChildData(
 		"keyboard_type", defaultKeymapForMatrix[matrix]))
+	, msxModifiers(0xff)
 	, hasKeypad(config.getChildDataAsBool("has_keypad", true))
 	, blockRow11(matrix == MATRIX_MSX
 		&& !config.getChildDataAsBool("has_yesno_keys", false))
@@ -271,10 +272,9 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, modifierIsLock(KeyInfo::CAPS_MASK
 		| (config.getChildDataAsBool("code_kana_locks", false) ? KeyInfo::CODE_MASK : 0)
 		| (config.getChildDataAsBool("graph_locks", false) ? KeyInfo::GRAPH_MASK : 0))
+	, keysChanged(false)
 	, locksOn(0)
 {
-	keysChanged = false;
-	msxModifiers = 0xff;
 	ranges::fill(keyMatrix,     255);
 	ranges::fill(cmdKeyMatrix,  255);
 	ranges::fill(typeKeyMatrix, 255);
@@ -1169,14 +1169,13 @@ Keyboard::KeyInserter::KeyInserter(
 	: RecordedCommand(commandController_, stateChangeDistributor_,
 		scheduler_, "type_via_keyboard")
 	, Schedulable(scheduler_)
+	, last(0) // avoid UMR
 	, lockKeysMask(0)
 	, releaseLast(false)
+	, oldLocksOn(0)
+	, releaseBeforePress(false)
+	, typingFrequency(15)
 {
-	// avoid UMR
-	last = 0;
-	oldLocksOn = 0;
-	releaseBeforePress = false;
-	typingFrequency = 15;
 }
 
 void Keyboard::KeyInserter::execute(
@@ -1310,8 +1309,8 @@ Keyboard::CapsLockAligner::CapsLockAligner(
 		Scheduler& scheduler_)
 	: Schedulable(scheduler_)
 	, eventDistributor(eventDistributor_)
+	, state(IDLE)
 {
-	state = IDLE;
 	eventDistributor.registerEventListener(EventType::BOOT,  *this);
 	eventDistributor.registerEventListener(EventType::FOCUS, *this);
 }

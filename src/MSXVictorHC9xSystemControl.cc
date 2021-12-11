@@ -20,8 +20,8 @@ namespace openmsx {
 
 MSXVictorHC9xSystemControl::MSXVictorHC9xSystemControl(const DeviceConfig& config)
 	: MSXDevice(config)
+	, systemControlRegister(0x80)
 {
-	systemControlRegister = 0x80;
 }
 
 byte MSXVictorHC9xSystemControl::readMem(word address, EmuTime::param time)

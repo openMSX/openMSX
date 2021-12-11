@@ -86,11 +86,11 @@ CommandConsole::CommandConsole(
 		commandController, "console_remove_doubles",
 		"don't add the command to history if it's the same as the previous one",
 		true)
+	, prompt(PROMPT_NEW)
 	, history(std::max(1, historySizeSetting.getInt()))
 	, executingCommand(false)
 {
 	resetScrollBack();
-	prompt = PROMPT_NEW;
 	newLineConsole(prompt);
 	loadHistory();
 	putPrompt();

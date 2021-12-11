@@ -348,15 +348,15 @@ inline bool AY8910::Amplitude::followsEnvelope(unsigned chan) const
 //  repeat every level twice in the envVolTable
 
 inline AY8910::Envelope::Envelope(const float* envVolTable_)
+	: envVolTable(envVolTable_)
+	, period(1)
+	, count(0)
+	, step(0)
+	, attack(0)
+	, hold(false)
+	, alternate(false)
+	, holding(false)
 {
-	envVolTable = envVolTable_;
-	period = 1;
-	count  = 0;
-	step   = 0;
-	attack = 0;
-	hold      = false;
-	alternate = false;
-	holding   = false;
 }
 
 inline void AY8910::Envelope::reset()
@@ -498,9 +498,8 @@ AY8910::AY8910(const std::string& name_, AY8910Periphery& periphery_,
 	, envelope(amplitude.getEnvVolTable())
 	, isAY8910(checkAY8910(config))
 	, ignorePortDirections(config.getChildDataAsBool("ignorePortDirections", true))
+	, detuneInitialized(false) // (lazily) initialize detune stuff
 {
-	// (lazily) initialize detune stuff
-	detuneInitialized = false;
 	update(vibratoPercent);
 
 	// make valgrind happy

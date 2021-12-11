@@ -52,12 +52,10 @@ SamplePlayer::SamplePlayer(const std::string& name_, static_string_view desc,
                            std::string_view alternativeName)
 	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 1, DUMMY_INPUT_RATE, false)
 	, samples(loadSamples(name_, config, samplesBaseName, alternativeName, numSamples))
+	, index(0) // avoid UMR on serialize
 {
 	registerSound(config);
 	reset();
-
-	// avoid UMR on serialize
-	index = 0;
 }
 
 SamplePlayer::~SamplePlayer()

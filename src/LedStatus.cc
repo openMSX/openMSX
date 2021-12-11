@@ -32,8 +32,8 @@ LedStatus::LedStatus(
 			"Current status for LED",
 			TclObject("off"));
 	}))
+	, lastTime(Timer::getTime())
 {
-	lastTime = Timer::getTime();
 	ranges::fill(ledValue, false);
 }
 

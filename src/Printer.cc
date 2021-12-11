@@ -108,44 +108,13 @@ void RawPrinter::forceFormFeed()
 
 ImagePrinter::ImagePrinter(MSXMotherBoard& motherBoard_, bool graphicsHiLo_)
 	: motherBoard(motherBoard_)
-	, graphicsHiLo(graphicsHiLo_)
-{
-	dpiSetting = motherBoard.getSharedStuff<IntegerSetting>(
+	, dpiSetting(motherBoard.getSharedStuff<IntegerSetting>(
 		"print-resolution",
 		motherBoard.getCommandController(), "print-resolution",
 		"resolution of the output image of emulated dot matrix printer in DPI",
-		300, 72, 1200);
-
-	letterQuality = false;
-	bold = false;
-	proportional = false;
-	italic = false;
-	superscript = false;
-	subscript = false;
-	doubleWidth = false;
-	underline = false;
-	doubleStrike = false;
-	escSequence = false;
-	alternateChar = false;
-	detectPaperOut = false;
-	japanese = false;
-	normalAfterLine = false;
-	ninePinGraphics = false;
-	leftToRight = false;
-	elite = false;
-	compressed = false;
-	noHighEscapeCodes = false;
-	eightBit = 0;
-	perforationSkip = 0;
-	remainingCommandBytes = 0;
-	sizeEscPos = 0;
-	sizeRemainingDataBytes = 0;
-	ramLoadOffset = 0;
-	ramLoadEnd = 0;
-	countryCode = CC_USA;
-
-	printAreaTop = -1.0;
-	printAreaBottom = 0.0;
+		300, 72, 1200))
+	, graphicsHiLo(graphicsHiLo_)
+{
 }
 
 ImagePrinter::~ImagePrinter()

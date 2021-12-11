@@ -252,6 +252,8 @@ void Sha1Sum::clear()
 // class SHA1
 
 SHA1::SHA1()
+	: m_count(0)
+	, m_finalized(false)
 {
 	// SHA1 initialization constants
 	m_state.a[0] = 0x67452301;
@@ -259,9 +261,6 @@ SHA1::SHA1()
 	m_state.a[2] = 0x98BADCFE;
 	m_state.a[3] = 0x10325476;
 	m_state.a[4] = 0xC3D2E1F0;
-
-	m_count = 0;
-	m_finalized = false;
 }
 
 void SHA1::transform(const uint8_t buffer[64])

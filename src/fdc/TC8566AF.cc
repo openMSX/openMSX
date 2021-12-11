@@ -67,10 +67,9 @@ TC8566AF::TC8566AF(Scheduler& scheduler_, DiskDrive* drv[4], CliComm& cliComm_,
 	, cliComm(cliComm_)
 	, delayTime(EmuTime::zero())
 	, headUnloadTime(EmuTime::zero()) // head not loaded
+	, dataAvailable(0) // avoid UMR (on savestate)
+	, dataCurrent(0)
 {
-	// avoid UMR (on savestate)
-	dataAvailable = 0;
-	dataCurrent = 0;
 	setDrqRate(RawTrack::STANDARD_SIZE);
 
 	drive[0] = drv[0];

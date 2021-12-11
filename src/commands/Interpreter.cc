@@ -74,8 +74,8 @@ void Interpreter::init(const char* programName)
 }
 
 Interpreter::Interpreter()
+	: interp(Tcl_CreateInterp())
 {
-	interp = Tcl_CreateInterp();
 	Tcl_Preserve(interp);
 
 	// TODO need to investigate this: doesn't work on windows
