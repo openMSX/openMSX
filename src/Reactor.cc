@@ -1068,7 +1068,7 @@ void ConfigInfo::execute(span<const TclObject> tokens, TclObject& result) const
 			XMLDocument doc{allocBuffer, sizeof(allocBuffer)};
 			HardwareConfig::loadConfig(
 				doc, configName, tokens[2].getString());
-			if (auto* info = doc.getRoot()->findChild("info")) {
+			if (const auto* info = doc.getRoot()->findChild("info")) {
 				for (const auto& c : info->getChildren()) {
 					result.addDictKeyValue(c.getName(), c.getData());
 				}

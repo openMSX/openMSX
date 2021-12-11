@@ -146,7 +146,7 @@ void Completer::completeFileNameImpl(vector<string>& tokens,
 	}
 
 	vector<string> filenames;
-	for (auto& p : paths) {
+	for (const auto& p : paths) {
 		auto pLen = p.size();
 		if (!p.empty() && (p.back() != '/')) ++pLen;
 		auto fileAction = [&](const string& path) {

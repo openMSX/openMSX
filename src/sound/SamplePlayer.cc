@@ -81,7 +81,7 @@ void SamplePlayer::setWavParams()
 {
 	if ((currentSampleNum < samples.size()) &&
 	    samples[currentSampleNum].getSize()) {
-		auto& wav = samples[currentSampleNum];
+		const auto& wav = samples[currentSampleNum];
 		bufferSize = wav.getSize();
 
 		unsigned freq = wav.getFreq();
@@ -114,7 +114,7 @@ void SamplePlayer::generateChannels(float** bufs, unsigned num)
 		return;
 	}
 
-	auto& wav = samples[currentSampleNum];
+	const auto& wav = samples[currentSampleNum];
 	for (auto i : xrange(num)) {
 		if (index >= bufferSize) {
 			if (nextSampleNum != unsigned(-1)) {
