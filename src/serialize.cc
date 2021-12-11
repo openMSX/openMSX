@@ -564,16 +564,6 @@ bool XmlInputArchive::hasAttribute(const char* name)
 {
 	return currentElement()->findAttribute(name);
 }
-bool XmlInputArchive::findAttribute(const char* name, unsigned& value)
-{
-	if (const auto* attr = currentElement()->findAttribute(name)) {
-		if (auto r = StringOp::stringTo<int>(attr->getValue())) {
-			value = *r;
-			return true;
-		}
-	}
-	return false;
-}
 int XmlInputArchive::countChildren() const
 {
 	return int(currentElement()->numChildren());

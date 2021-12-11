@@ -158,13 +158,13 @@ static CasImage::Data convert(span<const uint8_t> cas, const std::string& filena
 				switch (type) {
 					case CassetteImage::ASCII:
 						writeData(wave, cas, pos);
-						bool eof;
 						do {
 							pos += CAS_HEADER.size();
 							writeSilence(wave, SHORT_SILENCE);
 							writeHeader(wave, SHORT_HEADER);
-							eof = writeData(wave, cas, pos);
-						} while (!eof && ((pos + CAS_HEADER.size()) <= cas.size()));
+							bool eof = writeData(wave, cas, pos);
+							if (eof) break;
+						} while ((pos + CAS_HEADER.size()) <= cas.size());
 						break;
 					case CassetteImage::BINARY:
 					case CassetteImage::BASIC:

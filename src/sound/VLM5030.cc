@@ -247,7 +247,6 @@ void VLM5030::generateChannels(float** bufs, unsigned num)
 	if (phase == one_of(PH_RUN, PH_STOP)) {
 		// playing speech
 		while (num > 0) {
-			int current_val;
 			// check new interpolator or new frame
 			if (sample_count == 0) {
 				if (phase == PH_STOP) {
@@ -295,17 +294,19 @@ void VLM5030::generateChannels(float** bufs, unsigned num)
 					current_k[i] = old_k[i] + (target_k[i] - old_k[i]) * interp_effect / FR_SIZE;
 			}
 			// calcrate digital filter
-			if (old_energy == 0) {
-				// generate silent samples here
-				current_val = 0x00;
-			} else if (old_pitch <= 1) {
-				// generate unvoiced samples here
-				current_val = random_bool() ?  int(current_energy)
-				                            : -int(current_energy);
-			} else {
-				// generate voiced samples here
-				current_val = (pitch_count == 0) ? current_energy : 0;
-			}
+			int current_val = [&] {
+				if (old_energy == 0) {
+					// generate silent samples here
+					return 0;
+				} else if (old_pitch <= 1) {
+					// generate unvoiced samples here
+					return random_bool() ?  int(current_energy)
+					                     : -int(current_energy);
+				} else {
+					// generate voiced samples here
+					return (pitch_count == 0) ? int(current_energy) : 0;
+				}
+			}();
 
 			// Lattice filter here
 			int u[11];

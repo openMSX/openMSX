@@ -91,8 +91,8 @@ void RS232Tester::run()
 			break;
 		}
 #endif
-		byte buf;
-		size_t num = fread(&buf, 1, 1, inFile.get());
+		byte buf[1];
+		size_t num = fread(buf, 1, 1, inFile.get());
 		if (poller.aborted()) {
 			break;
 		}
@@ -101,7 +101,7 @@ void RS232Tester::run()
 		}
 		assert(isPluggedIn());
 		std::lock_guard<std::mutex> lock(mutex);
-		queue.push_back(buf);
+		queue.push_back(buf[0]);
 		eventDistributor.distributeEvent(
 			Event::create<Rs232TesterEvent>());
 	}

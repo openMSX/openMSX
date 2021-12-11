@@ -3,6 +3,7 @@
 
 #include "serialize_core.hh"
 #include "SerializeBuffer.hh"
+#include "StringOp.hh"
 #include "XMLElement.hh"
 #include "XMLOutputStream.hh"
 #include "MemBuffer.hh"
@@ -13,13 +14,14 @@
 #include "unreachable.hh"
 #include "zstring_view.hh"
 #include <zlib.h>
+#include <cassert>
+#include <memory>
+#include <optional>
+#include <sstream>
 #include <string>
 #include <typeindex>
 #include <type_traits>
 #include <vector>
-#include <sstream>
-#include <cassert>
-#include <memory>
 
 namespace openmsx {
 
@@ -987,8 +989,16 @@ public:
 	void attribute(const char* name, unsigned& u);
 
 	[[nodiscard]] bool hasAttribute(const char* name);
-	bool findAttribute(const char* name, unsigned& value);
 	[[nodiscard]] int countChildren() const;
+
+	template<typename T>
+	std::optional<T> findAttributeAs(const char* name)
+	{
+		if (const auto* attr = currentElement()->findAttribute(name)) {
+			return StringOp::stringTo<T>(attr->getValue());
+		}
+		return {};
+	}
 
 private:
 	XMLDocument xmlDoc{16384}; // tweak: initial allocator buffer size

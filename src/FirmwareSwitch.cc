@@ -20,9 +20,9 @@ FirmwareSwitch::FirmwareSwitch(const DeviceConfig& config_)
 	try {
 		File file(config.getFileContext().resolveCreate(filename),
 		          File::LOAD_PERSISTENT);
-		byte bytebuf;
-		file.read(&bytebuf, 1);
-		setting.setBoolean(bytebuf != 0);
+		byte bytebuf[1];
+		file.read(bytebuf, 1);
+		setting.setBoolean(bytebuf[0] != 0);
 	} catch (FileException& e) {
 		config.getCliComm().printWarning(
 			"Couldn't load firmwareswitch status: ", e.getMessage());

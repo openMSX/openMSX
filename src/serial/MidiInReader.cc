@@ -75,8 +75,8 @@ void MidiInReader::run()
 			break;
 		}
 #endif
-		byte buf;
-		size_t num = fread(&buf, 1, 1, file.get());
+		byte buf[1];
+		size_t num = fread(buf, 1, 1, file.get());
 		if (poller.aborted()) {
 			break;
 		}
@@ -87,7 +87,7 @@ void MidiInReader::run()
 
 		{
 			std::lock_guard<std::mutex> lock(mutex);
-			queue.push_back(buf);
+			queue.push_back(buf[0]);
 		}
 		eventDistributor.distributeEvent(
 			Event::create<MidiInReaderEvent>());

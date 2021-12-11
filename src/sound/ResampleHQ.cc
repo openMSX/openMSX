@@ -259,18 +259,17 @@ static void calcPermute(double ratio, int16_t* permute)
 	// initially set all as unassigned
 	std::fill_n(permute, N2, -1);
 
-	unsigned nxt1, nxt2;
 	unsigned restart = incr ? 0 : N2 - 1;
 	unsigned curr = restart;
 	// check for chain (instead of cycles)
 	if (incr) {
 		for (auto i : xrange(N2)) {
-			std::tie(nxt1, nxt2) = next(i, step);
+			auto [nxt1, nxt2] = next(i, step);
 			if ((nxt1 == i) || (nxt2 == i)) { curr = i; break; }
 		}
 	} else {
 		for (unsigned i = N2 - 1; int(i) >= 0; --i) {
-			std::tie(nxt1, nxt2) = next(i, step);
+			auto [nxt1, nxt2] = next(i, step);
 			if ((nxt1 == i) || (nxt2 == i)) { curr = i; break; }
 		}
 	}
@@ -282,7 +281,7 @@ static void calcPermute(double ratio, int16_t* permute)
 		assert(cnt < N2);
 		permute[curr] = cnt++;
 
-		std::tie(nxt1, nxt2) = next(curr, step);
+		auto [nxt1, nxt2] = next(curr, step);
 		if (permute[nxt1] == -1) {
 			curr = nxt1;
 			continue;
