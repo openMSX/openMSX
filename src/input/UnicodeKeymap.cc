@@ -76,7 +76,7 @@ static constexpr void skipSep(string_view& str)
 		// Pop non-separator character.
 		str.remove_prefix(1);
 	}
-	return string_view(tokenBegin, str.data() - tokenBegin);
+	return {tokenBegin, size_t(str.data() - tokenBegin)};
 }
 
 

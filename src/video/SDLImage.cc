@@ -37,8 +37,8 @@ static SDLSurfacePtr getTempSurface(ivec2 size_)
 		bmask = 0x000000ff;
 	}
 
-	return SDLSurfacePtr(abs(size_[0]), abs(size_[1]), 32,
-	                     rmask, gmask, bmask, amask);
+	return {unsigned(abs(size_[0])), unsigned(abs(size_[1])), 32,
+	        rmask, gmask, bmask, amask};
 }
 
 // Helper functions to draw a gradient

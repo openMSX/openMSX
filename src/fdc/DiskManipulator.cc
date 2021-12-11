@@ -126,7 +126,7 @@ DiskPartition DiskManipulator::getPartition(
 {
 	auto* disk = driveData.drive->getSectorAccessibleDisk();
 	assert(disk);
-	return DiskPartition(*disk, driveData.partition);
+	return {*disk, driveData.partition};
 }
 
 

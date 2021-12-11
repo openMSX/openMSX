@@ -204,7 +204,7 @@ string_view MemInputArchive::loadStr()
 	load(length);
 	const uint8_t* p = buffer.getCurrentPos();
 	buffer.skip(length);
-	return string_view(reinterpret_cast<const char*>(p), length);
+	return {reinterpret_cast<const char*>(p), length};
 }
 
 ////

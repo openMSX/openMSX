@@ -35,7 +35,7 @@ void DummyVideoSystem::flush()
 
 gl::ivec2 DummyVideoSystem::getMouseCoord()
 {
-	return gl::ivec2(0, 0);
+	return {0, 0};
 }
 
 OutputSurface* DummyVideoSystem::getOutputSurface()

@@ -35,45 +35,45 @@ TclObject TclCallback::getValue() const
 TclObject TclCallback::execute()
 {
 	const auto& callback = getValue();
-	if (callback.empty()) return TclObject();
+	if (callback.empty()) return {};
 
-	TclObject command = makeTclList(callback);
+	auto command = makeTclList(callback);
 	return executeCommon(command);
 }
 
 TclObject TclCallback::execute(int arg1)
 {
 	const auto& callback = getValue();
-	if (callback.empty()) return TclObject();
+	if (callback.empty()) return {};
 
-	TclObject command = makeTclList(callback, arg1);
+	auto command = makeTclList(callback, arg1);
 	return executeCommon(command);
 }
 
 TclObject TclCallback::execute(int arg1, int arg2)
 {
 	const auto& callback = getValue();
-	if (callback.empty()) return TclObject();
+	if (callback.empty()) return {};
 
-	TclObject command = makeTclList(callback, arg1, arg2);
+	auto command = makeTclList(callback, arg1, arg2);
 	return executeCommon(command);
 }
 
 TclObject TclCallback::execute(int arg1, std::string_view arg2)
 {
 	const auto& callback = getValue();
-	if (callback.empty()) return TclObject();
+	if (callback.empty()) return {};
 
-	TclObject command = makeTclList(callback, arg1, arg2);
+	auto command = makeTclList(callback, arg1, arg2);
 	return executeCommon(command);
 }
 
 TclObject TclCallback::execute(std::string_view arg1, std::string_view arg2)
 {
 	const auto& callback = getValue();
-	if (callback.empty()) return TclObject();
+	if (callback.empty()) return {};
 
-	TclObject command = makeTclList(callback, arg1, arg2);
+	auto command = makeTclList(callback, arg1, arg2);
 	return executeCommon(command);
 }
 
@@ -91,7 +91,7 @@ TclObject TclCallback::executeCommon(TclObject& command)
 		} else {
 			std::cerr << message << '\n';
 		}
-		return TclObject();
+		return {};
 	}
 }
 

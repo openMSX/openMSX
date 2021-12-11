@@ -236,7 +236,7 @@ std::string Sha1Sum::toString() const
 			*p++ = digit((ai >> j) & 0xf);
 		}
 	}
-	return std::string(buf, 40);
+	return {buf, 40};
 }
 
 bool Sha1Sum::empty() const

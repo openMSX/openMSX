@@ -255,7 +255,7 @@ Calculator getCalculator(
 	const VDP& vdp)
 {
 	const auto* tab = getTab(vdp);
-	return Calculator(frame, time, limit, tab);
+	return {frame, time, limit, tab};
 }
 
 } // namespace openmsx::VDPAccessSlots

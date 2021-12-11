@@ -119,7 +119,7 @@ std::pair<MemBuffer<uint8_t>, size_t> decode(std::string_view input)
 
 	assert(outSize >= out);
 	ret.resize(out); // shrink to correct size
-	return std::pair(std::move(ret), out);
+	return {std::move(ret), out};
 }
 
 bool decode_inplace(std::string_view input, uint8_t* output, size_t outSize)

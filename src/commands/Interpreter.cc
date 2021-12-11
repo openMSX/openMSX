@@ -455,7 +455,7 @@ void Interpreter::poll()
 
 TclParser Interpreter::parse(std::string_view command)
 {
-	return TclParser(interp, command);
+	return {interp, command};
 }
 
 void Interpreter::wrongNumArgs(unsigned argc, span<const TclObject> tokens, const char* message)
