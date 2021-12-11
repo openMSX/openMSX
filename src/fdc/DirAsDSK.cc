@@ -972,7 +972,7 @@ std::pair<unsigned, unsigned> DirAsDSK::getChainStart(unsigned cluster)
 	// because usually FAT chains are allocated in ascending order, this
 	// search is fast O(N).
 	unsigned chainLength = 0;
-	for (auto i : xrange(FIRST_CLUSTER, maxCluster)) {
+	for (unsigned i = FIRST_CLUSTER; i < maxCluster; ++i) { // note: i changed in loop!
 		if (readFAT(i) == cluster) {
 			// Found a predecessor.
 			cluster = i;
