@@ -55,8 +55,8 @@ private:
 	[[nodiscard]] byte peekReg(byte rg) const;
 	[[nodiscard]] byte readData();
 	[[nodiscard]] byte peekData() const;
-	void writeMemory(unsigned memPntr, byte value);
-	[[nodiscard]] byte readMemory(unsigned memPntr) const;
+	void writeMemory(unsigned memPtr, byte value);
+	[[nodiscard]] byte readMemory(unsigned memPtr) const;
 	[[nodiscard]] int calcSample(bool doEmu);
 
 private:

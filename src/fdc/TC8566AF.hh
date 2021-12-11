@@ -24,8 +24,8 @@ public:
 	byte readDataPort(EmuTime::param time);
 	[[nodiscard]] byte peekStatus() const;
 	byte readStatus(EmuTime::param time);
-	void writeControlReg0(byte data, EmuTime::param time);
-	void writeControlReg1(byte data, EmuTime::param time);
+	void writeControlReg0(byte value, EmuTime::param time);
+	void writeControlReg1(byte value, EmuTime::param time);
 	void writeDataPort(byte value, EmuTime::param time);
 	bool diskChanged(unsigned driveNum);
 	[[nodiscard]] bool peekDiskChanged(unsigned driveNum) const;

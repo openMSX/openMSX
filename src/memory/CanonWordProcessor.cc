@@ -61,12 +61,12 @@ byte CanonWordProcessor::peekMem(word address, EmuTime::param /*time*/) const
 	}
 }
 
-const byte* CanonWordProcessor::getReadCacheLine(word address) const
+const byte* CanonWordProcessor::getReadCacheLine(word start) const
 {
-	if ((address & CacheLine::HIGH) == (0xbfff & CacheLine::HIGH)) {
+	if ((start & CacheLine::HIGH) == (0xbfff & CacheLine::HIGH)) {
 		return nullptr; // select register
 	} else {
-		return readHelper(address);
+		return readHelper(start);
 	}
 }
 
