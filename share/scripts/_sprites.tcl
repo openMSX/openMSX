@@ -128,8 +128,106 @@ proc draw_matrix {matrixname x y blocksize matrixsize matrixgap} {
 	return ""
 }
 
+variable sprite_locator_enabled false
+variable sprite_locator_after_id 0
+
+set_help_text toggle_sprite_locator \
+"Enables/disables showing the locations of all 32 sprites according to the current VDP state."
+
+proc toggle_sprite_locator {} {
+	variable sprite_locator_enabled
+	variable sprite_locator_after_id
+
+	if {$sprite_locator_enabled} {
+		set sprite_locator_enabled false
+		osd destroy sprite_locator
+		after cancel $sprite_locator_after_id
+		return "Sprite locator disabled"
+	} else {
+		set sprite_locator_enabled true
+		osd_widgets::msx_init sprite_locator
+
+		set position_max 40.0
+		for {set i 0} {$i < 32} {incr i} {
+			osd create rectangle sprite_locator.box$i -relx -100 -rely -100 -relh 8 -relw 8 \
+				-rgba 0xFF111140 -borderrgba 0xFF1111C0 -bordersize 1
+			# position text on X depending on the sprite number, to avoid overlapping
+			# the idea is that most sprites for overlapping will have subsequent pattern numbers...
+			set j [expr {($i % 2 == 0) ? $i : (31 - $i)}]
+			osd create text sprite_locator.box$i.snr -text $i   -size 6 -y -6 -relx [expr $j/$position_max] -rgba 0xFFFFFFFF
+			osd create text sprite_locator.box$i.pnr -text "00" -size 4 -y  0 -relx [expr $j/$position_max] -rgba 0xFFFFFFFF
+		}
+		set sprite_locator_after_id [after frame [namespace code update_locator]]
+		return "Sprite locator enabled, showing red rectangles around sprites..."
+	}
+}
+
+proc read_sat {base_mask index_mask index} {
+	vpeek [expr {($index_mask | $index) & $base_mask}]
+}
+proc update_locator {} {
+	# Note: this proc samples all sprite parameters at a single moment in
+	# time within the frame. This can easily go wrong in case of screen-
+	# splits. E.g. sprites disabled at the top of the frame (to draw the
+	# score) and enabled lower in the frame (to draw the playing field).
+
+	variable sprite_locator_enabled
+	if {!$sprite_locator_enabled} return
+
+	osd_widgets::msx_update sprite_locator
+
+	# parameters that depend on sprite mode (mode 0 handled below)
+	set mode [get_screen_mode_number]
+	set base_mask [expr {([vdpreg 11] << 15) | ([vdpreg 5] << 7) | 0x7f}]
+	set index_mask [expr {($mode < 4) ? 0x1ff80 : 0x1fc00}]
+	set index      [expr {($mode < 4) ? 0 : 0x200}]
+	set special_y  [expr {($mode < 4) ? 208 : 216}]
+	set lines [expr {([vdpreg 9] & 0x80) ? 212 : 192}]
+
+	# parameters that depend on sprite shape (8x8 vs 16x16, magnified or not)
+	set r1 [vdpreg 1]
+	set pattern_mask [expr {($r1 & 2) ? 0xfc : 0xff}]
+	set size [expr {8 * (($r1 & 2) ? 2 : 1) * (($r1 & 1) ? 2 : 1)}]
+
+	# VDP draws sprites 1 pixel lower than the coordinate in VRAM
+	# and take the vertical scroll register 23 into account
+	set adjust_y [expr {1 - [vdpreg 23]}]
+
+	set next_are_hidden [expr {($mode == 0) || ([vdpreg 8] & 2)}]
+	# note that when all sprites are hidden, we still need the following
+	# loop to (possibly) hide the widgets from the previous frame
+	for {set i 0} {$i < 32} {incr i; incr index 4} {
+		if {$next_are_hidden} {
+			set y -100
+			set x -100
+		} else {
+			set y [read_sat $base_mask $index_mask $index]
+			if {$y == $special_y} {
+				set next_are_hidden true
+				set x -100
+				set y -100
+			} else {
+				set y [expr {($y + $adjust_y) & 0xff}]
+				if {$y > 224} { incr y -256 } ; # wrap to the top
+				if {($y <= -$size) || ($y >= $lines)} { set y -100 } ; # hide invisible
+				set x [read_sat $base_mask $index_mask [expr {$index | 1}]]
+				set pnr [expr {[read_sat $base_mask $index_mask [expr {$index | 2}]] & $pattern_mask}]
+				set attr_index [expr {($mode < 4) ? ($index | 3) : (16 * $i)}]
+				set attr [read_sat $base_mask $index_mask $attr_index]
+				if {$attr & 0x80} { incr x -32 }
+				osd configure sprite_locator.box$i.pnr -text [format %02X $pnr]
+			}
+		}
+		osd configure sprite_locator.box$i -relx $x -rely $y -relw $size -relh $size
+	}
+
+	variable sprite_locator_after_id
+	set sprite_locator_after_id [after frame [namespace code update_locator]]
+}
+
+namespace export toggle_sprite_locator
 namespace export sprite_viewer
 
-} ;# namespace osd_menu
+} ;# namespace osd_sprite_info
 
 namespace import osd_sprite_info::*
