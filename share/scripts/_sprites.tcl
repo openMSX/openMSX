@@ -1,6 +1,3 @@
-#attributes
-#expr {([vdpreg 11] << 15) + (([vdpreg 5] & 0xf8) << 7)}
-
 namespace eval osd_sprite_info {
 
 #todo: more sprite info / better layout (sprite mode/ hex values/ any other info)
@@ -130,19 +127,30 @@ proc draw_matrix {matrixname x y blocksize matrixsize matrixgap} {
 
 variable sprite_locator_enabled false
 variable sprite_locator_after_id 0
+variable frame_position 0.0
 
 set_help_text toggle_sprite_locator \
-"Enables/disables showing the locations of all 32 sprites according to the current VDP state."
+"Enables/disables showing the locations of all 32 sprites according to the current VDP state.\n
+Optionally, you can pass a parameter that indicates the fraction of the frame
+to sample the VRAM data (default 0.0, start of frame). This is usually
+necessary if there are screen splits or other raster effects used."
 
-proc toggle_sprite_locator {} {
+proc toggle_sprite_locator {{rel_frame_position 0.0}} {
 	variable sprite_locator_enabled
 	variable sprite_locator_after_id
+	variable frame_position
+
+	if {$rel_frame_position < 0.0 || $rel_frame_position >= 1.0} {
+		error "Please use a value for rel_frame_position in the \[0.0, 1.0> range."
+	}
+
+	set frame_position $rel_frame_position
 
 	if {$sprite_locator_enabled} {
 		set sprite_locator_enabled false
 		osd destroy sprite_locator
 		after cancel $sprite_locator_after_id
-		return "Sprite locator disabled"
+		message "Sprite locator disabled"
 	} else {
 		set sprite_locator_enabled true
 		osd_widgets::msx_init sprite_locator
@@ -157,20 +165,23 @@ proc toggle_sprite_locator {} {
 			osd create text sprite_locator.box$i.snr -text $i   -size 6 -y -6 -relx [expr $j/$position_max] -rgba 0xFFFFFFFF
 			osd create text sprite_locator.box$i.pnr -text "00" -size 4 -y  0 -relx [expr $j/$position_max] -rgba 0xFFFFFFFF
 		}
-		set sprite_locator_after_id [after frame [namespace code update_locator]]
-		return "Sprite locator enabled, showing red rectangles around sprites..."
+		set sprite_locator_after_id [after frame [namespace code locator_frame_callback]]
+		message "Sprite locator enabled, showing red rectangles around sprites..."
 	}
 }
 
 proc read_sat {base_mask index_mask index} {
 	vpeek [expr {($index_mask | $index) & $base_mask}]
 }
-proc update_locator {} {
-	# Note: this proc samples all sprite parameters at a single moment in
-	# time within the frame. This can easily go wrong in case of screen-
-	# splits. E.g. sprites disabled at the top of the frame (to draw the
-	# score) and enabled lower in the frame (to draw the playing field).
 
+proc locator_frame_callback {} {
+	variable frame_position
+	variable sprite_locator_after_id
+	set offset [expr {[vdp::get_frame_duration] * $frame_position}]
+	set sprite_locator_after_id [after time $offset [namespace code update_locator]]
+}
+
+proc update_locator {} {
 	variable sprite_locator_enabled
 	if {!$sprite_locator_enabled} return
 
@@ -222,7 +233,7 @@ proc update_locator {} {
 	}
 
 	variable sprite_locator_after_id
-	set sprite_locator_after_id [after frame [namespace code update_locator]]
+	set sprite_locator_after_id [after frame [namespace code locator_frame_callback]]
 }
 
 namespace export toggle_sprite_locator
