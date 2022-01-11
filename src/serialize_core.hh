@@ -663,7 +663,7 @@ template<typename TP> struct PointerLoader
 		// in XML archives we use 'id_ref' or 'id', in other archives
 		// we don't care about the name
 		unsigned id = [&] {
-			if constexpr (ar.CAN_HAVE_OPTIONAL_ATTRIBUTES) {
+			if constexpr (Archive::CAN_HAVE_OPTIONAL_ATTRIBUTES) {
 				if (auto i = ar.template findAttributeAs<unsigned>("id_ref")) {
 					return *i;
 				}
