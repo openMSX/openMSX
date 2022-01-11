@@ -258,7 +258,8 @@ public:
 	/** Optimization: combination of hasAttribute() and getAttribute().
 	 * Returns true if hasAttribute() and (if so) also fills in the value.
 	 */
-	[[nodiscard]] bool findAttribute(const char* /*name*/, unsigned& /*value*/)
+	template<typename T>
+	[[nodiscard]] std::optional<T> findAttributeAs(const char* /*name*/)
 	{
 		UNREACHABLE; return false;
 	}
