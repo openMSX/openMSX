@@ -276,9 +276,14 @@ void BitmapConverter<Pixel>::renderGraphic7(
 
 static constexpr std::tuple<int, int, int> yjk2rgb(int y, int j, int k)
 {
-	int r = std::clamp(y + j,                   0, 31);
-	int g = std::clamp(y + k,                   0, 31);
-	int b = std::clamp((5 * y - 2 * j - k) / 4, 0, 31);
+	// Note the formula for 'blue' differs from the 'traditional' formula
+	// (e.g. as specified in the V9958 datasheet) in the rounding behavior.
+	// Confirmed on real turbor machine. For details see:
+	//    https://github.com/openMSX/openMSX/issues/1394
+	//    https://twitter.com/mdpc___/status/1480432007180341251?s=20
+	int r = std::clamp(y + j,                       0, 31);
+	int g = std::clamp(y + k,                       0, 31);
+	int b = std::clamp((5 * y - 2 * j - k + 2) / 4, 0, 31);
 	return {r, g, b};
 }
 
