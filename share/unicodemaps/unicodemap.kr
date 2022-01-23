@@ -39,7 +39,6 @@
 001d, 84,            # Left  (SDL maps ^] to this code)
 001e, 85,            # Up    (SDL maps ^6 to this code)
 001f, 86,            # Down  (SDL maps ^/ to this code)
-007f, 83,            # Delete
 0020, 80,
 0021, 01, SHIFT
 0022, 02, SHIFT
@@ -135,6 +134,7 @@
 007c, 14, SHIFT
 007d, 21, SHIFT
 007e, 13, SHIFT
+007f, 83,            # Delete
 00a0, 80,
 00a1, 80,
 00a2, 36, CODE

@@ -139,8 +139,8 @@
 007f, 34,             # Delete
 00a0, 14,             # No-break space (&nbsp;)
 03c0, 35, SHIFT       # π
-2191, 70, GRAPH       # ↑
 2190, 80, GRAPH       # ←
+2191, 70, GRAPH       # ↑
 2500, 10, GRAPH       # ─
 2501, 42, GRAPH       # ━ (rectangle mapped to box line, see below)
 2502, 20, GRAPH       # │
