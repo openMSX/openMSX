@@ -9,255 +9,255 @@
 #
 # Example characters in comments are encoded in UTF-8
 #
-0000, 37, CTRL        # ^@
-0001, 02, CTRL        # ^A
-0002, 43, CTRL        # ^B
-0003, 23, CTRL        # ^C
-0004, 22, CTRL        # ^D
-0005, 21, CTRL        # ^E
-0006, 32, CTRL        # ^F
-0007, 42, CTRL        # ^G
-0008, 34,             # Delete (no Backspace key)
-0009, 07, CTRL        # ^I
-000a, 62, CTRL        # ^J
-000b, 24, SHIFT       # Home (is Home a unicode character?)
-000c, 16, CTRL        # ^L
-000d, 56,             # Enter/CR
-000e, 53, CTRL        # ^N
-000f, 17, CTRL        # ^O
-0010, 27, CTRL        # ^P
-0011, 01, CTRL        # ^Q
-0012, 34, SHIFT       # Insert (is Insert a unicode character?)
-0013, 12, CTRL        # ^S
-0014, 41, CTRL        # ^T
-0015, 61, CTRL        # ^U
-0016, 33, CTRL        # ^V
-0017, 11, CTRL        # ^W
-0018, 13, CTRL        # ^X
-0019, 51, CTRL        # ^Y
-001a, 03, CTRL        # ^Z
-001b, 47, CTRL        # ^[ (no ESC key
-001c, 65,             # Right (SDL maps ^\ to this code)
-001d, 55,             # Left  (SDL maps ^] to this code)
-001e, 66,             # Up    (SDL maps ^6 to this code)
-001f, 45,             # Down  (SDL maps ^/ to this code)
-0020, 14,             # Space
-0021, 00, SHIFT       # !
-0022, 10, SHIFT       # "
-0023, 20, SHIFT       # #
-0024, 30, SHIFT       # $
-0025, 40, SHIFT       # %
-0026, 50, SHIFT       # &
-0027, 60, SHIFT       # '
-0028, 70, SHIFT       # (
-0029, 80, SHIFT       # )
-002a, 36, SHIFT       # *
-002b, 26, SHIFT       # +
-002c, 05,             # ,
-002d, a0,             # -
-002e, 15,             # .
-002f, 25,             # /
-0030, 90,             # 0
-0031, 00,             # 1
-0032, 10,             # 2
-0033, 20,             # 3
-0034, 30,             # 4
-0035, 40,             # 5
-0036, 50,             # 6
-0037, 60,             # 7
-0038, 70,             # 8
-0039, 80,             # 9
-003a, 36,             # :
-003b, 26,             # ;
-003c, 05, SHIFT       # <
-003d, a0, SHIFT       # =
-003e, 15, SHIFT       # >
-003f, 25, SHIFT       # ?
-0040, 37,             # @
-0041, 02,             # A
-0042, 43,             # B
-0043, 23,             # C
-0044, 22,             # D
-0045, 21,             # E
-0046, 32,             # F
-0047, 42,             # G
-0048, 52,             # H
-0049, 07,             # I
-004a, 62,             # J
-004b, 06,             # K
-004c, 16,             # L
-004d, 63,             # M
-004e, 53,             # N
-004f, 17,             # O
-0050, 27,             # P
-0051, 01,             # Q
-0052, 31,             # R
-0053, 12,             # S
-0054, 41,             # T
-0055, 61,             # U
-0056, 33,             # V
-0057, 11,             # W
-0058, 13,             # X
-0059, 51,             # Y
-005a, 03,             # Z
-005b, 47,             # [
-005c, c0,             # \ (no Backslash, font contains currency symbol at this code point)
-005d, 46,             # ]
-005e, b0,             # ^
-005f, 35, SHIFT       # _ (no Underscore, font contains Pi at this code point)
-0060, 37, SHIFT       # `
-0061, 02, SHIFT       # a
-0062, 43, SHIFT       # b
-0063, 23, SHIFT       # c
-0064, 22, SHIFT       # d
-0065, 21, SHIFT       # e
-0066, 32, SHIFT       # f
-0067, 42, SHIFT       # g
-0068, 52, SHIFT       # h
-0069, 07, SHIFT       # i
-006a, 62, SHIFT       # j
-006b, 06, SHIFT       # k
-006c, 16, SHIFT       # l
-006d, 63, SHIFT       # m
-006e, 53, SHIFT       # n
-006f, 17, SHIFT       # o
-0070, 27, SHIFT       # p
-0071, 01, SHIFT       # q
-0072, 31, SHIFT       # r
-0073, 12, SHIFT       # s
-0074, 41, SHIFT       # t
-0075, 61, SHIFT       # u
-0076, 33, SHIFT       # v
-0077, 11, SHIFT       # w
-0078, 13, SHIFT       # x
-0079, 51, SHIFT       # y
-007a, 03, SHIFT       # z
-007b, 47, SHIFT       # {
-007c, c0, SHIFT       # |
-007d, 46, SHIFT       # }
-007e, b0, SHIFT       # ~
-007f, 34,             # Delete
-00a0, 14,             # No-break space (&nbsp;)
-03c0, 35, SHIFT       # π
-2190, 80, GRAPH       # ←
-2191, 70, GRAPH       # ↑
-2500, 10, GRAPH       # ─
-2501, 42, GRAPH       # ━ (rectangle mapped to box line, see below)
-2502, 20, GRAPH       # │
-2503, 41, GRAPH       # ┃ (rectangle mapped to box line, see below)
-2505, 42, SHIFT GRAPH # ┅ (rectangle mapped to box line, see below)
-2507, 41, SHIFT GRAPH # ┇ (rectangle mapped to box line, see below)
-250c, 01, GRAPH       # ┌
-2510, 11, GRAPH       # ┐
-2514, 02, GRAPH       # └
-2518, 12, GRAPH       # ┘
-251c, 01, SHIFT GRAPH # ├
-2524, 12, SHIFT GRAPH # ┤
-252c, 11, SHIFT GRAPH # ┬
-2534, 02, SHIFT GRAPH # ┴
-253c, 00, GRAPH       # ┼
-256d, 21, SHIFT GRAPH # ╭
-256e, 31, SHIFT GRAPH # ╮
-2571, a0, GRAPH       # ╱
-2572, c0, GRAPH       # ╲
-2573, b0, GRAPH       # ╳
-2580, 43, SHIFT GRAPH # ▀
-2581, 03, SHIFT GRAPH # ▁
-2582, 13, SHIFT GRAPH # ▂
-2584, 23, SHIFT GRAPH # ▄
-2588, 33, GRAPH       # █
-258c, 43, GRAPH       # ▌
-258e, 53, GRAPH       # ▎
-258f, 63, GRAPH       # ▏
-2590, 23, GRAPH       # ▐
-2592, 33, SHIFT GRAPH # ▒
-2594, 63, SHIFT GRAPH # ▔
-2595, 03, GRAPH       # ▕
-259e, 52, GRAPH       # ▞
-25cb, 61, SHIFT GRAPH # ○
-25cf, 62, SHIFT GRAPH # ●
-25de, 32, SHIFT GRAPH # ◞
-25df, 22, SHIFT GRAPH # ◟
-25e2, 21, GRAPH       # ◢
-25e3, 31, GRAPH       # ◣
-25e4, 32, GRAPH       # ◤
-25e5, 22, GRAPH       # ◥
-263b, 62, GRAPH       # ☻
-2660, 30, GRAPH       # ♠
-2663, 60, GRAPH       # ♣
-2665, 40, GRAPH       # ♥
-2666, 50, GRAPH       # ♦
-3001, 05, CODE SHIFT  # 、 (comma)
-3002, 15, CODE SHIFT  # 。 (full stop)
-300c, 47, CODE SHIFT  # 「
-300d, 46, CODE SHIFT  # 」
-309b, 37, CODE        # ゛ (voiced sound mark)
-309c, 47, CODE        # ゜ (semi-voiced sound mark)
-30a1, 20, CODE SHIFT  # ァ
-30a2, 20, CODE        # ア
-30a3, 21, CODE SHIFT  # ィ
-30a4, 21, CODE        # イ
-30a5, 30, CODE SHIFT  # ゥ
-30a6, 30, CODE        # ウ
-30a7, 40, CODE SHIFT  # ェ
-30a8, 40, CODE        # エ
-30a9, 50, CODE SHIFT  # ォ
-30aa, 50, CODE        # オ
-30ab, 41, CODE        # カ
-30ad, 42, CODE        # キ
-30af, 52, CODE        # ク
-30b1, 36, CODE        # ケ
-30b3, 43, CODE        # コ
-30b5, 13, CODE        # サ
-30b7, 22, CODE        # シ
-30b9, 31, CODE        # ス
-30bb, 27, CODE        # セ
-30bd, 23, CODE        # ソ
-30bf, 01, CODE        # タ
-30c1, 02, CODE        # チ
-30c3, 03, CODE SHIFT  # ッ
-30c4, 03, CODE        # ツ
-30c6, 11, CODE        # テ
-30c8, 12, CODE        # ト
-30ca, 61, CODE        # ナ
-30cb, 07, CODE        # ニ
-30cc, 00, CODE        # ヌ
-30cd, 05, CODE        # ネ
-30ce, 06, CODE        # ノ
-30cf, 32, CODE        # ハ
-30d2, 33, CODE        # ヒ
-30d5, 10, CODE        # フ
-30d8, b0, CODE        # ヘ
-30db, a0, CODE        # ホ
-30de, 62, CODE        # マ
-30df, 53, CODE        # ミ
-30e0, 46, CODE        # ム
-30e1, 25, CODE        # メ
-30e2, 63, CODE        # モ
-30e3, 60, CODE SHIFT  # ャ
-30e4, 60, CODE        # ヤ
-30e5, 70, CODE SHIFT  # ュ
-30e6, 70, CODE        # ユ
-30e7, 80, CODE SHIFT  # ョ
-30e8, 80, CODE        # ヨ
-30e9, 17, CODE        # ラ
-30ea, 16, CODE        # リ
-30eb, 15, CODE        # ル
-30ec, 26, CODE        # レ
-30ed, 35, CODE        # ロ
-30ef, 90, CODE        # ワ
-30f2, 90, CODE SHIFT  # ヲ
-30f3, 51, CODE        # ン
-30fb, 25, CODE SHIFT  # ・ (middle dot)
-30fc, c0, CODE        # ー (prolonged sound mark)
-571f, 37, GRAPH       # 土 (Saturday)
-5e74, 16, GRAPH       # 年 (year)
-65e5, 36, GRAPH       # 日 (Sunday / day)
-6708, 26, GRAPH       # 月 (Monday / month)
-6728, 17, GRAPH       # 木 (Thursday)
-6c34, 07, GRAPH       # 水 (Wednesday)
-706b, 61, GRAPH       # 火 (Tuesday)
-91d1, 27, GRAPH       # 金 (Friday)
+00000, 37, CTRL        # ^@
+00001, 02, CTRL        # ^A
+00002, 43, CTRL        # ^B
+00003, 23, CTRL        # ^C
+00004, 22, CTRL        # ^D
+00005, 21, CTRL        # ^E
+00006, 32, CTRL        # ^F
+00007, 42, CTRL        # ^G
+00008, 34,             # Delete (no Backspace key)
+00009, 07, CTRL        # ^I
+0000a, 62, CTRL        # ^J
+0000b, 24, SHIFT       # Home (is Home a unicode character?)
+0000c, 16, CTRL        # ^L
+0000d, 56,             # Enter/CR
+0000e, 53, CTRL        # ^N
+0000f, 17, CTRL        # ^O
+00010, 27, CTRL        # ^P
+00011, 01, CTRL        # ^Q
+00012, 34, SHIFT       # Insert (is Insert a unicode character?)
+00013, 12, CTRL        # ^S
+00014, 41, CTRL        # ^T
+00015, 61, CTRL        # ^U
+00016, 33, CTRL        # ^V
+00017, 11, CTRL        # ^W
+00018, 13, CTRL        # ^X
+00019, 51, CTRL        # ^Y
+0001a, 03, CTRL        # ^Z
+0001b, 47, CTRL        # ^[ (no ESC key
+0001c, 65,             # Right (SDL maps ^\ to this code)
+0001d, 55,             # Left  (SDL maps ^] to this code)
+0001e, 66,             # Up    (SDL maps ^6 to this code)
+0001f, 45,             # Down  (SDL maps ^/ to this code)
+00020, 14,             # Space
+00021, 00, SHIFT       # !
+00022, 10, SHIFT       # "
+00023, 20, SHIFT       # #
+00024, 30, SHIFT       # $
+00025, 40, SHIFT       # %
+00026, 50, SHIFT       # &
+00027, 60, SHIFT       # '
+00028, 70, SHIFT       # (
+00029, 80, SHIFT       # )
+0002a, 36, SHIFT       # *
+0002b, 26, SHIFT       # +
+0002c, 05,             # ,
+0002d, a0,             # -
+0002e, 15,             # .
+0002f, 25,             # /
+00030, 90,             # 0
+00031, 00,             # 1
+00032, 10,             # 2
+00033, 20,             # 3
+00034, 30,             # 4
+00035, 40,             # 5
+00036, 50,             # 6
+00037, 60,             # 7
+00038, 70,             # 8
+00039, 80,             # 9
+0003a, 36,             # :
+0003b, 26,             # ;
+0003c, 05, SHIFT       # <
+0003d, a0, SHIFT       # =
+0003e, 15, SHIFT       # >
+0003f, 25, SHIFT       # ?
+00040, 37,             # @
+00041, 02,             # A
+00042, 43,             # B
+00043, 23,             # C
+00044, 22,             # D
+00045, 21,             # E
+00046, 32,             # F
+00047, 42,             # G
+00048, 52,             # H
+00049, 07,             # I
+0004a, 62,             # J
+0004b, 06,             # K
+0004c, 16,             # L
+0004d, 63,             # M
+0004e, 53,             # N
+0004f, 17,             # O
+00050, 27,             # P
+00051, 01,             # Q
+00052, 31,             # R
+00053, 12,             # S
+00054, 41,             # T
+00055, 61,             # U
+00056, 33,             # V
+00057, 11,             # W
+00058, 13,             # X
+00059, 51,             # Y
+0005a, 03,             # Z
+0005b, 47,             # [
+0005c, c0,             # \ (no Backslash, font contains currency symbol at this code point)
+0005d, 46,             # ]
+0005e, b0,             # ^
+0005f, 35, SHIFT       # _ (no Underscore, font contains Pi at this code point)
+00060, 37, SHIFT       # `
+00061, 02, SHIFT       # a
+00062, 43, SHIFT       # b
+00063, 23, SHIFT       # c
+00064, 22, SHIFT       # d
+00065, 21, SHIFT       # e
+00066, 32, SHIFT       # f
+00067, 42, SHIFT       # g
+00068, 52, SHIFT       # h
+00069, 07, SHIFT       # i
+0006a, 62, SHIFT       # j
+0006b, 06, SHIFT       # k
+0006c, 16, SHIFT       # l
+0006d, 63, SHIFT       # m
+0006e, 53, SHIFT       # n
+0006f, 17, SHIFT       # o
+00070, 27, SHIFT       # p
+00071, 01, SHIFT       # q
+00072, 31, SHIFT       # r
+00073, 12, SHIFT       # s
+00074, 41, SHIFT       # t
+00075, 61, SHIFT       # u
+00076, 33, SHIFT       # v
+00077, 11, SHIFT       # w
+00078, 13, SHIFT       # x
+00079, 51, SHIFT       # y
+0007a, 03, SHIFT       # z
+0007b, 47, SHIFT       # {
+0007c, c0, SHIFT       # |
+0007d, 46, SHIFT       # }
+0007e, b0, SHIFT       # ~
+0007f, 34,             # Delete
+000a0, 14,             # No-break space (&nbsp;)
+003c0, 35, SHIFT       # π
+02190, 80, GRAPH       # ←
+02191, 70, GRAPH       # ↑
+02500, 10, GRAPH       # ─
+02501, 42, GRAPH       # ━ (rectangle mapped to box line, see below)
+02502, 20, GRAPH       # │
+02503, 41, GRAPH       # ┃ (rectangle mapped to box line, see below)
+02505, 42, SHIFT GRAPH # ┅ (rectangle mapped to box line, see below)
+02507, 41, SHIFT GRAPH # ┇ (rectangle mapped to box line, see below)
+0250c, 01, GRAPH       # ┌
+02510, 11, GRAPH       # ┐
+02514, 02, GRAPH       # └
+02518, 12, GRAPH       # ┘
+0251c, 01, SHIFT GRAPH # ├
+02524, 12, SHIFT GRAPH # ┤
+0252c, 11, SHIFT GRAPH # ┬
+02534, 02, SHIFT GRAPH # ┴
+0253c, 00, GRAPH       # ┼
+0256d, 21, SHIFT GRAPH # ╭
+0256e, 31, SHIFT GRAPH # ╮
+02571, a0, GRAPH       # ╱
+02572, c0, GRAPH       # ╲
+02573, b0, GRAPH       # ╳
+02580, 43, SHIFT GRAPH # ▀
+02581, 03, SHIFT GRAPH # ▁
+02582, 13, SHIFT GRAPH # ▂
+02584, 23, SHIFT GRAPH # ▄
+02588, 33, GRAPH       # █
+0258c, 43, GRAPH       # ▌
+0258e, 53, GRAPH       # ▎
+0258f, 63, GRAPH       # ▏
+02590, 23, GRAPH       # ▐
+02592, 33, SHIFT GRAPH # ▒
+02594, 63, SHIFT GRAPH # ▔
+02595, 03, GRAPH       # ▕
+0259e, 52, GRAPH       # ▞
+025cb, 61, SHIFT GRAPH # ○
+025cf, 62, SHIFT GRAPH # ●
+025de, 32, SHIFT GRAPH # ◞
+025df, 22, SHIFT GRAPH # ◟
+025e2, 21, GRAPH       # ◢
+025e3, 31, GRAPH       # ◣
+025e4, 32, GRAPH       # ◤
+025e5, 22, GRAPH       # ◥
+0263b, 62, GRAPH       # ☻
+02660, 30, GRAPH       # ♠
+02663, 60, GRAPH       # ♣
+02665, 40, GRAPH       # ♥
+02666, 50, GRAPH       # ♦
+03001, 05, CODE SHIFT  # 、 (comma)
+03002, 15, CODE SHIFT  # 。 (full stop)
+0300c, 47, CODE SHIFT  # 「
+0300d, 46, CODE SHIFT  # 」
+0309b, 37, CODE        # ゛ (voiced sound mark)
+0309c, 47, CODE        # ゜ (semi-voiced sound mark)
+030a1, 20, CODE SHIFT  # ァ
+030a2, 20, CODE        # ア
+030a3, 21, CODE SHIFT  # ィ
+030a4, 21, CODE        # イ
+030a5, 30, CODE SHIFT  # ゥ
+030a6, 30, CODE        # ウ
+030a7, 40, CODE SHIFT  # ェ
+030a8, 40, CODE        # エ
+030a9, 50, CODE SHIFT  # ォ
+030aa, 50, CODE        # オ
+030ab, 41, CODE        # カ
+030ad, 42, CODE        # キ
+030af, 52, CODE        # ク
+030b1, 36, CODE        # ケ
+030b3, 43, CODE        # コ
+030b5, 13, CODE        # サ
+030b7, 22, CODE        # シ
+030b9, 31, CODE        # ス
+030bb, 27, CODE        # セ
+030bd, 23, CODE        # ソ
+030bf, 01, CODE        # タ
+030c1, 02, CODE        # チ
+030c3, 03, CODE SHIFT  # ッ
+030c4, 03, CODE        # ツ
+030c6, 11, CODE        # テ
+030c8, 12, CODE        # ト
+030ca, 61, CODE        # ナ
+030cb, 07, CODE        # ニ
+030cc, 00, CODE        # ヌ
+030cd, 05, CODE        # ネ
+030ce, 06, CODE        # ノ
+030cf, 32, CODE        # ハ
+030d2, 33, CODE        # ヒ
+030d5, 10, CODE        # フ
+030d8, b0, CODE        # ヘ
+030db, a0, CODE        # ホ
+030de, 62, CODE        # マ
+030df, 53, CODE        # ミ
+030e0, 46, CODE        # ム
+030e1, 25, CODE        # メ
+030e2, 63, CODE        # モ
+030e3, 60, CODE SHIFT  # ャ
+030e4, 60, CODE        # ヤ
+030e5, 70, CODE SHIFT  # ュ
+030e6, 70, CODE        # ユ
+030e7, 80, CODE SHIFT  # ョ
+030e8, 80, CODE        # ヨ
+030e9, 17, CODE        # ラ
+030ea, 16, CODE        # リ
+030eb, 15, CODE        # ル
+030ec, 26, CODE        # レ
+030ed, 35, CODE        # ロ
+030ef, 90, CODE        # ワ
+030f2, 90, CODE SHIFT  # ヲ
+030f3, 51, CODE        # ン
+030fb, 25, CODE SHIFT  # ・ (middle dot)
+030fc, c0, CODE        # ー (prolonged sound mark)
+0571f, 37, GRAPH       # 土 (Saturday)
+05e74, 16, GRAPH       # 年 (year)
+065e5, 36, GRAPH       # 日 (Sunday / day)
+06708, 26, GRAPH       # 月 (Monday / month)
+06728, 17, GRAPH       # 木 (Thursday)
+06c34, 07, GRAPH       # 水 (Wednesday)
+0706b, 61, GRAPH       # 火 (Tuesday)
+091d1, 27, GRAPH       # 金 (Friday)
 #
 # Some symbols I couldn't find a good matching Unicode code point for:
 # - GRAPH + (SHIFT +) 'T'/'G' produce rectangles, the BASIC font contains no spacing, unlike the Unicode rectangles.
