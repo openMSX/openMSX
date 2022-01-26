@@ -39,7 +39,7 @@
 0001b, 47, CTRL        # ^[ (no ESC key
 0001c, 65,             # Right (SDL maps ^\ to this code)
 0001d, 55,             # Left  (SDL maps ^] to this code)
-0001e, 66,             # Up    (SDL maps ^6 to this code)
+0001e, 66,             # Up    (SDL maps ^^ to this code)
 0001f, 45,             # Down  (SDL maps ^/ to this code)
 00020, 14,             # Space
 00021, 00, SHIFT       # !

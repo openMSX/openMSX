@@ -38,7 +38,7 @@
 0001b, 64,             # Escape(SDL maps ESC and ^[ to this code)
 0001c, 87,             # Right (SDL maps ^\ to this code)
 0001d, 67,             # Left  (SDL maps ^] to this code)
-0001e, 57,             # Up    (SDL maps ^6 to this code)
+0001e, 57,             # Up    (SDL maps ^^ to this code)
 0001f, 77,             # Down  (SDL maps ^/ to this code)
 00020, 80,             # Space
 00021, 01, SHIFT       # !

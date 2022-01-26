@@ -41,7 +41,7 @@ DEADKEY1, 54,
 0001b, 72,             # Escape(SDL maps ESC and ^[ to this code)
 0001c, 87,             # Right (SDL maps ^\ to this code)
 0001d, 84,             # Left  (SDL maps ^] to this code)
-0001e, 85,             # Up    (SDL maps ^6 to this code)
+0001e, 85,             # Up    (SDL maps ^^ to this code)
 0001f, 86,             # Down  (SDL maps ^/ to this code)
 00020, 80,             # Space
 00021, 26,             # !
