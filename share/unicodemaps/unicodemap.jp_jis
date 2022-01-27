@@ -5,6 +5,9 @@
 # <COL>: column in keyboard matrix (0-7)
 # <MODIFIERS>: space separated list of modifiers:
 #              SHIFT CTRL GRAPH CODE CAPSLOCK
+#
+# Example characters in comments are encoded in UTF-8
+#
 00000, 02, CTRL SHIFT          # ^@
 00001, 26, CTRL                # ^A
 00002, 27, CTRL                # ^B
@@ -37,22 +40,22 @@
 0001d, 84,                     # Left  (SDL maps ^] to this code)
 0001e, 85,                     # Up    (SDL maps ^^ to this code)
 0001f, 86,                     # Down  (SDL maps ^/ to this code)
-00020, 80,
-00021, 01, SHIFT
-00022, 02, SHIFT
-00023, 03, SHIFT
-00024, 04, SHIFT
-00025, 05, SHIFT
-00026, 06, SHIFT
-00027, 07, SHIFT
-00028, 10, SHIFT
-00029, 11, SHIFT
-0002a, 20, SHIFT
-0002b, 17, SHIFT
-0002c, 22,
-0002d, 12,
-0002e, 23,
-0002f, 24,
+00020, 80,                     # Space
+00021, 01, SHIFT               # !
+00022, 02, SHIFT               # "
+00023, 03, SHIFT               # #
+00024, 04, SHIFT               # $
+00025, 05, SHIFT               # %
+00026, 06, SHIFT               # &
+00027, 07, SHIFT               # '
+00028, 10, SHIFT               # (
+00029, 11, SHIFT               # )
+0002a, 20, SHIFT               # *
+0002b, 17, SHIFT               # +
+0002c, 22,                     # ,
+0002d, 12,                     # -
+0002e, 23,                     # .
+0002f, 24,                     # /
 00030, 00,                     # 0
 00031, 01,                     # 1
 00032, 02,                     # 2
@@ -65,290 +68,290 @@
 00039, 11,                     # 9
 0003a, 20,                     # :
 0003b, 17,                     # ;
-0003c, 22, SHIFT
-0003d, 12, SHIFT
-0003e, 23, SHIFT
-0003f, 24, SHIFT
-00040, 15,
-00041, 26, SHIFT
-00042, 27, SHIFT
-00043, 30, SHIFT
-00044, 31, SHIFT
-00045, 32, SHIFT
-00046, 33, SHIFT
-00047, 34, SHIFT
-00048, 35, SHIFT
-00049, 36, SHIFT
-0004a, 37, SHIFT
-0004b, 40, SHIFT
-0004c, 41, SHIFT
-0004d, 42, SHIFT
-0004e, 43, SHIFT
-0004f, 44, SHIFT
-00050, 45, SHIFT
-00051, 46, SHIFT
-00052, 47, SHIFT
-00053, 50, SHIFT
-00054, 51, SHIFT
-00055, 52, SHIFT
-00056, 53, SHIFT
-00057, 54, SHIFT
-00058, 55, SHIFT
-00059, 56, SHIFT
-0005a, 57, SHIFT
-0005b, 16,
+0003c, 22, SHIFT               # <
+0003d, 12, SHIFT               # =
+0003e, 23, SHIFT               # >
+0003f, 24, SHIFT               # ?
+00040, 15,                     # @
+00041, 26, SHIFT               # A
+00042, 27, SHIFT               # B
+00043, 30, SHIFT               # C
+00044, 31, SHIFT               # D
+00045, 32, SHIFT               # E
+00046, 33, SHIFT               # F
+00047, 34, SHIFT               # G
+00048, 35, SHIFT               # H
+00049, 36, SHIFT               # I
+0004a, 37, SHIFT               # J
+0004b, 40, SHIFT               # K
+0004c, 41, SHIFT               # L
+0004d, 42, SHIFT               # M
+0004e, 43, SHIFT               # N
+0004f, 44, SHIFT               # O
+00050, 45, SHIFT               # P
+00051, 46, SHIFT               # Q
+00052, 47, SHIFT               # R
+00053, 50, SHIFT               # S
+00054, 51, SHIFT               # T
+00055, 52, SHIFT               # U
+00056, 53, SHIFT               # V
+00057, 54, SHIFT               # W
+00058, 55, SHIFT               # X
+00059, 56, SHIFT               # Y
+0005a, 57, SHIFT               # Z
+0005b, 16,                     # [
 0005c, 14,                     # backslash
-0005d, 21,
-0005e, 13,
-0005f, 25, SHIFT
-00060, 15, SHIFT
-00061, 26,
-00062, 27,
-00063, 30,
-00064, 31,
-00065, 32,
-00066, 33,
-00067, 34,
-00068, 35,
-00069, 36,
-0006a, 37,
-0006b, 40,
-0006c, 41,
-0006d, 42,
-0006e, 43,
-0006f, 44,
-00070, 45,
-00071, 46,
-00072, 47,
-00073, 50,
-00074, 51,
-00075, 52,
-00076, 53,
-00077, 54,
-00078, 55,
-00079, 56,
-0007a, 57,
-0007b, 16, SHIFT
-0007c, 14, SHIFT
-0007d, 21, SHIFT
+0005d, 21,                     # ]
+0005e, 13,                     # ^
+0005f, 25, SHIFT               # _
+00060, 15, SHIFT               # `
+00061, 26,                     # a
+00062, 27,                     # b
+00063, 30,                     # c
+00064, 31,                     # d
+00065, 32,                     # e
+00066, 33,                     # f
+00067, 34,                     # g
+00068, 35,                     # h
+00069, 36,                     # i
+0006a, 37,                     # j
+0006b, 40,                     # k
+0006c, 41,                     # l
+0006d, 42,                     # m
+0006e, 43,                     # n
+0006f, 44,                     # o
+00070, 45,                     # p
+00071, 46,                     # q
+00072, 47,                     # r
+00073, 50,                     # s
+00074, 51,                     # t
+00075, 52,                     # u
+00076, 53,                     # v
+00077, 54,                     # w
+00078, 55,                     # x
+00079, 56,                     # y
+0007a, 57,                     # z
+0007b, 16, SHIFT               # {
+0007c, 14, SHIFT               # |
+0007d, 21, SHIFT               # }
 #007e, 00, SHIFT               # ~
-0007e, 13, SHIFT
+0007e, 13, SHIFT               # ~
 0007f, 83,                     # Delete
-000a0, 80,
-000a1, 42, SHIFT CAPSLOCK CODE
+000a0, 80,                     # No-break space (&nbsp;)
+000a1, 42, SHIFT CAPSLOCK CODE # ¡
 000a5, 14,                     # yen
-000aa, 24, CAPSLOCK CODE
-000ab, 22, SHIFT CAPSLOCK CODE
-000ac, 04, SHIFT CAPSLOCK CODE
-000b2, 25, CODE
-000ba, 01, SHIFT CAPSLOCK CODE
-000bb, 30, SHIFT CAPSLOCK CODE
-000bc, 43, SHIFT CAPSLOCK CODE
-000bd, 05, SHIFT CAPSLOCK CODE
-000bf, 02, SHIFT CAPSLOCK CODE
-000c5, 30, SHIFT CODE
-000c9, 80,
-000d1, 25, SHIFT CODE
-000e1, 80,
-000e7, 01, SHIFT CODE
-000ea, 02, SHIFT CODE
-000ec, 42, SHIFT CODE
-000ee, 43, SHIFT CODE
-003c0, 45, GRAPH
-02310, 03, SHIFT CAPSLOCK CODE
-02500, 12, GRAPH
-02502, 36, GRAPH
-0250c, 32, GRAPH
-02510, 51, GRAPH
-02514, 30, GRAPH
-02518, 27, GRAPH
-0251c, 31, GRAPH
-02524, 34, GRAPH
-0252c, 47, GRAPH
-02534, 53, GRAPH
-0253c, 33, GRAPH
-02550, 44, CAPSLOCK CODE
-02551, 51, CAPSLOCK CODE
-02552, 42, CAPSLOCK CODE
-02553, 22, CAPSLOCK CODE
-02554, 00, CAPSLOCK CODE
-02555, 32, CAPSLOCK CODE
-02556, 54, CAPSLOCK CODE
-02557, 26, CAPSLOCK CODE
-02558, 43, CAPSLOCK CODE
-02559, 17, CAPSLOCK CODE
-0255a, 11, CAPSLOCK CODE
-0255b, 33, CAPSLOCK CODE
-0255c, 31, CAPSLOCK CODE
-0255d, 50, CAPSLOCK CODE
-0255e, 07, CAPSLOCK CODE
-0255f, 10, CAPSLOCK CODE
-02560, 36, CAPSLOCK CODE
-02561, 05, CAPSLOCK CODE
-02562, 46, CAPSLOCK CODE
-02563, 47, CAPSLOCK CODE
-02564, 40, CAPSLOCK CODE
-02565, 41, CAPSLOCK CODE
-02566, 52, CAPSLOCK CODE
-02567, 35, CAPSLOCK CODE
-02568, 37, CAPSLOCK CODE
-02569, 56, CAPSLOCK CODE
-0256a, 13, CAPSLOCK CODE
-0256b, 12, CAPSLOCK CODE
-0256c, 45, CAPSLOCK CODE
-02573, 55, GRAPH
-02584, 23, CAPSLOCK CODE
-02588, 16, CAPSLOCK CODE
-0258c, 25, CAPSLOCK CODE
-02591, 20, SHIFT CODE
-02592, 01, CAPSLOCK CODE
-02593, 02, CAPSLOCK CODE
-025a0, 80,
-025cb, 16, GRAPH
-025cf, 21, GRAPH
-02660, 24, GRAPH
-02663, 17, GRAPH
-02665, 20, GRAPH
-02666, 25, GRAPH
-03001, 22, SHIFT CODE
-03002, 23, SHIFT CODE
-03008, 16, SHIFT CODE
-03009, 21, SHIFT CODE
-03041, 03, SHIFT CODE
-03042, 03, CODE
-03043, 32, SHIFT CODE
-03044, 32, CODE
-03045, 04, SHIFT CODE
-03046, 04, CODE
-03047, 05, SHIFT CODE
-03048, 05, CODE
-03049, 06, SHIFT CODE
-0304a, 06, CODE
-0304b, 51, CODE
-0304d, 34, CODE
-0304f, 35, CODE
-03051, 20, CODE
-03053, 27, CODE
-03055, 55, CODE
-03057, 31, CODE
-03059, 47, CODE
-0305b, 45, CODE
-0305d, 30, CODE
-0305f, 46, CODE
-03061, 26, CODE
-03063, 57, SHIFT CODE
-03064, 57, CODE
-03066, 54, CODE
-03068, 50, CODE
-0306a, 52, CODE
-0306b, 36, CODE
-0306d, 22, CODE
-0306e, 40, CODE
-0306f, 33, CODE
-03072, 53, CODE
-03075, 02, CODE
-03078, 13, CODE
-0307b, 12, CODE
-0307e, 37, CODE
-0307f, 43, CODE
-03080, 21, CODE
-03081, 24, CODE
-03082, 42, CODE
-03083, 07, SHIFT CODE
-03084, 07, CODE
-03085, 10, SHIFT CODE
-03086, 10, CODE
-03087, 11, SHIFT CODE
-03088, 11, CODE
-03089, 44, CODE
-0308a, 41, CODE
-0308b, 23, CODE
-0308c, 17, CODE
-0308d, 25, CODE
-0308f, 00, CODE
-03092, 00, SHIFT CODE
-03093, 56, CODE
-0309b, 15, CODE
-0309b, 15, CODE
-0309c, 16, CODE
-030a1, 03, SHIFT CODE CAPSLOCK
-030a2, 03, CODE CAPSLOCK
-030a3, 32, SHIFT CODE CAPSLOCK
-030a4, 32, CODE CAPSLOCK
-030a5, 04, SHIFT CODE CAPSLOCK
-030a6, 04, CODE CAPSLOCK
-030a7, 05, SHIFT CODE CAPSLOCK
-030a8, 05, CODE CAPSLOCK
-030a9, 06, SHIFT CODE CAPSLOCK
-030aa, 06, CODE CAPSLOCK
-030ab, 51, CODE CAPSLOCK
-030ad, 34, CODE CAPSLOCK
-030af, 35, CODE CAPSLOCK
-030b1, 20, CODE CAPSLOCK
-030b3, 27, CODE CAPSLOCK
-030b5, 55, CODE CAPSLOCK
-030b7, 31, CODE CAPSLOCK
-030b9, 47, CODE CAPSLOCK
-030bb, 45, CODE CAPSLOCK
-030bd, 30, CODE CAPSLOCK
-030bf, 46, CODE CAPSLOCK
-030c1, 26, CODE CAPSLOCK
-030c3, 57, SHIFT CODE CAPSLOCK
-030c4, 57, CODE CAPSLOCK
-030c6, 54, CODE CAPSLOCK
-030c8, 50, CODE CAPSLOCK
-030ca, 52, CODE CAPSLOCK
-030cb, 36, CODE CAPSLOCK
-030cc, 01, CODE CAPSLOCK
-030cd, 22, CODE CAPSLOCK
-030ce, 40, CODE CAPSLOCK
-030cf, 33, CODE CAPSLOCK
-030d2, 53, CODE CAPSLOCK
-030d5, 02, CODE CAPSLOCK
-030d8, 13, CODE CAPSLOCK
-030db, 12, CODE CAPSLOCK
-030de, 37, CODE CAPSLOCK
-030df, 43, CODE CAPSLOCK
-030e0, 21, CODE CAPSLOCK
-030e1, 24, CODE CAPSLOCK
-030e2, 42, CODE CAPSLOCK
-030e3, 07, SHIFT CODE CAPSLOCK
-030e4, 07, CODE CAPSLOCK
-030e5, 10, SHIFT CODE CAPSLOCK
-030e6, 10, CODE CAPSLOCK
-030e7, 11, SHIFT CODE CAPSLOCK
-030e8, 11, CODE CAPSLOCK
-030e9, 44, CODE CAPSLOCK
-030ea, 41, CODE CAPSLOCK
-030eb, 23, CODE CAPSLOCK
-030ec, 17, CODE CAPSLOCK
-030ed, 25, CODE CAPSLOCK
-030ed, 25, CODE CAPSLOCK
-030ef, 00, CODE CAPSLOCK
-030f2, 00, SHIFT CODE CAPSLOCK
-030f3, 56, CODE CAPSLOCK
-030fb, 24, SHIFT CODE CAPSLOCK
-030fc, 14, CODE CAPSLOCK
-04e07, 00, GRAPH
-04e2d, 41, GRAPH
-05186, 14, GRAPH
-05206, 42, GRAPH
-05343, 11, GRAPH
-0571f, 07, GRAPH
-05927, 23, GRAPH
-05c0f, 22, GRAPH
-05e74, 56, GRAPH
-065e5, 01, GRAPH
-06642, 35, GRAPH
-06708, 02, GRAPH
-06728, 05, GRAPH
-06c34, 04, GRAPH
-0706b, 03, GRAPH
-0767e, 10, GRAPH
-079d2, 50, GRAPH
-091d1, 06, GRAPH
-0ff61, 23, SHIFT CODE
-0ff62, 16, SHIFT CODE
-0ff63, 21, SHIFT CODE
-0ff64, 22, SHIFT CODE
-0ff65, 24, SHIFT CODE
+000aa, 24, CAPSLOCK CODE       # ª
+000ab, 22, SHIFT CAPSLOCK CODE # «
+000ac, 04, SHIFT CAPSLOCK CODE # ¬
+000b2, 25, CODE                # ²
+000ba, 01, SHIFT CAPSLOCK CODE # º
+000bb, 30, SHIFT CAPSLOCK CODE # »
+000bc, 43, SHIFT CAPSLOCK CODE # ¼
+000bd, 05, SHIFT CAPSLOCK CODE # ½
+000bf, 02, SHIFT CAPSLOCK CODE # ¿
+000c5, 30, SHIFT CODE          # Å
+000c9, 80,                     # É
+000d1, 25, SHIFT CODE          # Ñ
+000e1, 80,                     # á
+000e7, 01, SHIFT CODE          # ç
+000ea, 02, SHIFT CODE          # ê
+000ec, 42, SHIFT CODE          # ì
+000ee, 43, SHIFT CODE          # î
+003c0, 45, GRAPH               # π
+02310, 03, SHIFT CAPSLOCK CODE # ⌐
+02500, 12, GRAPH               # ─
+02502, 36, GRAPH               # │
+0250c, 32, GRAPH               # ┌
+02510, 51, GRAPH               # ┐
+02514, 30, GRAPH               # └
+02518, 27, GRAPH               # ┘
+0251c, 31, GRAPH               # ├
+02524, 34, GRAPH               # ┤
+0252c, 47, GRAPH               # ┬
+02534, 53, GRAPH               # ┴
+0253c, 33, GRAPH               # ┼
+02550, 44, CAPSLOCK CODE       # ═
+02551, 51, CAPSLOCK CODE       # ║
+02552, 42, CAPSLOCK CODE       # ╒
+02553, 22, CAPSLOCK CODE       # ╓
+02554, 00, CAPSLOCK CODE       # ╔
+02555, 32, CAPSLOCK CODE       # ╕
+02556, 54, CAPSLOCK CODE       # ╖
+02557, 26, CAPSLOCK CODE       # ╗
+02558, 43, CAPSLOCK CODE       # ╘
+02559, 17, CAPSLOCK CODE       # ╙
+0255a, 11, CAPSLOCK CODE       # ╚
+0255b, 33, CAPSLOCK CODE       # ╛
+0255c, 31, CAPSLOCK CODE       # ╜
+0255d, 50, CAPSLOCK CODE       # ╝
+0255e, 07, CAPSLOCK CODE       # ╞
+0255f, 10, CAPSLOCK CODE       # ╟
+02560, 36, CAPSLOCK CODE       # ╠
+02561, 05, CAPSLOCK CODE       # ╡
+02562, 46, CAPSLOCK CODE       # ╢
+02563, 47, CAPSLOCK CODE       # ╣
+02564, 40, CAPSLOCK CODE       # ╤
+02565, 41, CAPSLOCK CODE       # ╥
+02566, 52, CAPSLOCK CODE       # ╦
+02567, 35, CAPSLOCK CODE       # ╧
+02568, 37, CAPSLOCK CODE       # ╨
+02569, 56, CAPSLOCK CODE       # ╩
+0256a, 13, CAPSLOCK CODE       # ╪
+0256b, 12, CAPSLOCK CODE       # ╫
+0256c, 45, CAPSLOCK CODE       # ╬
+02573, 55, GRAPH               # ╳
+02584, 23, CAPSLOCK CODE       # ▄
+02588, 16, CAPSLOCK CODE       # █
+0258c, 25, CAPSLOCK CODE       # ▌
+02591, 20, SHIFT CODE          # ░
+02592, 01, CAPSLOCK CODE       # ▒
+02593, 02, CAPSLOCK CODE       # ▓
+025a0, 80,                     # ■
+025cb, 16, GRAPH               # ○
+025cf, 21, GRAPH               # ●
+02660, 24, GRAPH               # ♠
+02663, 17, GRAPH               # ♣
+02665, 20, GRAPH               # ♥
+02666, 25, GRAPH               # ♦
+03001, 22, SHIFT CODE          # 、
+03002, 23, SHIFT CODE          # 。
+03008, 16, SHIFT CODE          # 〈
+03009, 21, SHIFT CODE          # 〉
+03041, 03, SHIFT CODE          # ぁ
+03042, 03, CODE                # あ
+03043, 32, SHIFT CODE          # ぃ
+03044, 32, CODE                # い
+03045, 04, SHIFT CODE          # ぅ
+03046, 04, CODE                # う
+03047, 05, SHIFT CODE          # ぇ
+03048, 05, CODE                # え
+03049, 06, SHIFT CODE          # ぉ
+0304a, 06, CODE                # お
+0304b, 51, CODE                # か
+0304d, 34, CODE                # き
+0304f, 35, CODE                # く
+03051, 20, CODE                # け
+03053, 27, CODE                # こ
+03055, 55, CODE                # さ
+03057, 31, CODE                # し
+03059, 47, CODE                # す
+0305b, 45, CODE                # せ
+0305d, 30, CODE                # そ
+0305f, 46, CODE                # た
+03061, 26, CODE                # ち
+03063, 57, SHIFT CODE          # っ
+03064, 57, CODE                # つ
+03066, 54, CODE                # て
+03068, 50, CODE                # と
+0306a, 52, CODE                # な
+0306b, 36, CODE                # に
+0306d, 22, CODE                # ね
+0306e, 40, CODE                # の
+0306f, 33, CODE                # は
+03072, 53, CODE                # ひ
+03075, 02, CODE                # ふ
+03078, 13, CODE                # へ
+0307b, 12, CODE                # ほ
+0307e, 37, CODE                # ま
+0307f, 43, CODE                # み
+03080, 21, CODE                # む
+03081, 24, CODE                # め
+03082, 42, CODE                # も
+03083, 07, SHIFT CODE          # ゃ
+03084, 07, CODE                # や
+03085, 10, SHIFT CODE          # ゅ
+03086, 10, CODE                # ゆ
+03087, 11, SHIFT CODE          # ょ
+03088, 11, CODE                # よ
+03089, 44, CODE                # ら
+0308a, 41, CODE                # り
+0308b, 23, CODE                # る
+0308c, 17, CODE                # れ
+0308d, 25, CODE                # ろ
+0308f, 00, CODE                # わ
+03092, 00, SHIFT CODE          # を
+03093, 56, CODE                # ん
+0309b, 15, CODE                # ゛
+0309b, 15, CODE                # ゛
+0309c, 16, CODE                # ゜
+030a1, 03, SHIFT CODE CAPSLOCK # ァ
+030a2, 03, CODE CAPSLOCK       # ア
+030a3, 32, SHIFT CODE CAPSLOCK # ィ
+030a4, 32, CODE CAPSLOCK       # イ
+030a5, 04, SHIFT CODE CAPSLOCK # ゥ
+030a6, 04, CODE CAPSLOCK       # ウ
+030a7, 05, SHIFT CODE CAPSLOCK # ェ
+030a8, 05, CODE CAPSLOCK       # エ
+030a9, 06, SHIFT CODE CAPSLOCK # ォ
+030aa, 06, CODE CAPSLOCK       # オ
+030ab, 51, CODE CAPSLOCK       # カ
+030ad, 34, CODE CAPSLOCK       # キ
+030af, 35, CODE CAPSLOCK       # ク
+030b1, 20, CODE CAPSLOCK       # ケ
+030b3, 27, CODE CAPSLOCK       # コ
+030b5, 55, CODE CAPSLOCK       # サ
+030b7, 31, CODE CAPSLOCK       # シ
+030b9, 47, CODE CAPSLOCK       # ス
+030bb, 45, CODE CAPSLOCK       # セ
+030bd, 30, CODE CAPSLOCK       # ソ
+030bf, 46, CODE CAPSLOCK       # タ
+030c1, 26, CODE CAPSLOCK       # チ
+030c3, 57, SHIFT CODE CAPSLOCK # ッ
+030c4, 57, CODE CAPSLOCK       # ツ
+030c6, 54, CODE CAPSLOCK       # テ
+030c8, 50, CODE CAPSLOCK       # ト
+030ca, 52, CODE CAPSLOCK       # ナ
+030cb, 36, CODE CAPSLOCK       # ニ
+030cc, 01, CODE CAPSLOCK       # ヌ
+030cd, 22, CODE CAPSLOCK       # ネ
+030ce, 40, CODE CAPSLOCK       # ノ
+030cf, 33, CODE CAPSLOCK       # ハ
+030d2, 53, CODE CAPSLOCK       # ヒ
+030d5, 02, CODE CAPSLOCK       # フ
+030d8, 13, CODE CAPSLOCK       # ヘ
+030db, 12, CODE CAPSLOCK       # ホ
+030de, 37, CODE CAPSLOCK       # マ
+030df, 43, CODE CAPSLOCK       # ミ
+030e0, 21, CODE CAPSLOCK       # ム
+030e1, 24, CODE CAPSLOCK       # メ
+030e2, 42, CODE CAPSLOCK       # モ
+030e3, 07, SHIFT CODE CAPSLOCK # ャ
+030e4, 07, CODE CAPSLOCK       # ヤ
+030e5, 10, SHIFT CODE CAPSLOCK # ュ
+030e6, 10, CODE CAPSLOCK       # ユ
+030e7, 11, SHIFT CODE CAPSLOCK # ョ
+030e8, 11, CODE CAPSLOCK       # ヨ
+030e9, 44, CODE CAPSLOCK       # ラ
+030ea, 41, CODE CAPSLOCK       # リ
+030eb, 23, CODE CAPSLOCK       # ル
+030ec, 17, CODE CAPSLOCK       # レ
+030ed, 25, CODE CAPSLOCK       # ロ
+030ed, 25, CODE CAPSLOCK       # ロ
+030ef, 00, CODE CAPSLOCK       # ワ
+030f2, 00, SHIFT CODE CAPSLOCK # ヲ
+030f3, 56, CODE CAPSLOCK       # ン
+030fb, 24, SHIFT CODE CAPSLOCK # ・
+030fc, 14, CODE CAPSLOCK       # ー
+04e07, 00, GRAPH               # 万
+04e2d, 41, GRAPH               # 中
+05186, 14, GRAPH               # 円
+05206, 42, GRAPH               # 分
+05343, 11, GRAPH               # 千
+0571f, 07, GRAPH               # 土
+05927, 23, GRAPH               # 大
+05c0f, 22, GRAPH               # 小
+05e74, 56, GRAPH               # 年
+065e5, 01, GRAPH               # 日
+06642, 35, GRAPH               # 時
+06708, 02, GRAPH               # 月
+06728, 05, GRAPH               # 木
+06c34, 04, GRAPH               # 水
+0706b, 03, GRAPH               # 火
+0767e, 10, GRAPH               # 百
+079d2, 50, GRAPH               # 秒
+091d1, 06, GRAPH               # 金
+0ff61, 23, SHIFT CODE          # ｡
+0ff62, 16, SHIFT CODE          # ｢
+0ff63, 21, SHIFT CODE          # ｣
+0ff64, 22, SHIFT CODE          # ､
+0ff65, 24, SHIFT CODE          # ･
