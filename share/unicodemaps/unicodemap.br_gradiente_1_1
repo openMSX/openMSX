@@ -1,4 +1,4 @@
-#region: Brazil, gradient MSX basic 1.1
+#region: Brazil, Gradiente MSX-BASIC 1.1
 #format: <UNICODE>, <ROW><COL>, <MODIFIERS>
 # <UNICODE>: hexadecimal unicode number or DEADKEY<N>
 # <ROW>: row in keyboard matrix (hexadecimal: 0-B)

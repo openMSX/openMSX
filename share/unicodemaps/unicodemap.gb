@@ -267,7 +267,7 @@ DEADKEY1, 25,
 0259e, 31, GRAPH       # ▞
 025a0, 26, SHIFT GRAPH # ■
 025ac, 26, GRAPH       # ▬
-25b5, --,             # ▵
+025b5, --,             # ▵
 025ca, 30, GRAPH       # ◊
 025cb, 00, GRAPH       # ○
 025d8, 11, SHIFT GRAPH # ◘
