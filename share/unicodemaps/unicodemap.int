@@ -206,13 +206,12 @@ DEADKEY1, 25,
 00192, 01, CODE        # ƒ
 00393, 10, SHIFT CODE  # Γ
 00394, 00, SHIFT CODE  # Δ
+00398, 13, CODE        # Θ
 003a3, 21, SHIFT CODE  # Σ
 003a6, 15, SHIFT CODE  # Φ
 003a9, 16, SHIFT CODE  # Ω
 003b1, 06, CODE        # α
 003b4, 00, CODE        # δ
-003b5, 12, CODE        # ε
-003b8, 13, CODE        # θ
 003c0, 45, SHIFT CODE  # π
 003c3, 21, CODE        # σ
 003c4, 10, CODE        # τ
@@ -222,6 +221,8 @@ DEADKEY1, 25,
 02030, 05, GRAPH       # ‰
 0207f, 03, SHIFT GRAPH # ⁿ
 020a7, 02, SHIFT CODE  # ₧
+02205, 15, CODE        # ∅
+02208, 12, CODE        # ∈
 02219, 55, SHIFT GRAPH # ∙
 0221a, 07, GRAPH       # √
 0221e, 10, GRAPH       # ∞
@@ -231,7 +232,7 @@ DEADKEY1, 25,
 02261, 13, SHIFT GRAPH # ≡
 02264, 22, GRAPH       # ≤
 02265, 23, GRAPH       # ≥
-02300, 15, CODE        # ⌀
+02302, --,             # ⌂
 02310, 47, SHIFT GRAPH # ⌐
 02320, 06, GRAPH       # ⌠
 02321, 06, SHIFT GRAPH # ⌡
@@ -266,8 +267,7 @@ DEADKEY1, 25,
 0259e, 31, GRAPH       # ▞
 025a0, 26, SHIFT GRAPH # ■
 025ac, 26, GRAPH       # ▬
-025b5, --,             # ▵
-025ca, 30, GRAPH       # ◊
+025c7, 30, GRAPH       # ◇
 025cb, 00, GRAPH       # ○
 025d8, 11, SHIFT GRAPH # ◘
 025d9, 00, SHIFT GRAPH # ◙
