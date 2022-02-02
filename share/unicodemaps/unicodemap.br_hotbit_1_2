@@ -1,4 +1,4 @@
-#region: Brazil, Sharp Hotbit MSX-BASIC 1.1
+#region: Brazil, Sharp Hotbit MSX-BASIC 1.2
 #format: <UNICODE>, <ROW><COL>, <MODIFIERS>
 # <UNICODE>: hexadecimal unicode number or DEADKEY<N>
 # <ROW>: row in keyboard matrix (hexadecimal: 0-B)
@@ -8,9 +8,9 @@
 #
 # Example characters in comments are encoded in UTF-8
 #
-DEADKEY1, 15,         # ´ -> á, é, ú, í, ó
-DEADKEY2, 16,         # ¨ -> ü
-DEADKEY3, 20,         # ~ -> ã, õ
+DEADKEY1, 15,          # ´ -> á, é, ú, í, ó
+DEADKEY2, 16,          # ¨ -> ü
+DEADKEY3, 20,          # ~ -> ã, õ
 00000, 02, CTRL SHIFT  # ^@
 00001, 26, CTRL        # ^A
 00002, 27, CTRL        # ^B
