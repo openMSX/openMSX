@@ -8,33 +8,33 @@
 #
 # Example characters in comments are encoded in UTF-8
 #
-00000, 02, CTRL SHIFT  # ^@
-00001, 26, CTRL        # ^A
-00002, 27, CTRL        # ^B
-00003, 30, CTRL        # ^C
-00004, 31, CTRL        # ^D
-00005, 32, CTRL        # ^E
-00006, 33, CTRL        # ^F
-00007, 34, CTRL        # ^G
+00000, 23, CTRL        # ^@
+00001, 33, CTRL        # ^A
+00002, 22, CTRL        # ^B
+00003, 54, CTRL        # ^C
+00004, 41, CTRL        # ^D
+00005, 51, CTRL        # ^E
+00006, 26, CTRL        # ^F
+00007, 52, CTRL        # ^G
 00008, 75,             # Backspace
 00009, 73,             # Tab
-0000a, 37, CTRL        # ^J
+0000a, 46, CTRL        # ^J
 0000b, 81,             # Home (is Home a unicode character?)
-0000c, 41, CTRL        # ^L
+0000c, 40, CTRL        # ^L
 0000d, 77,             # Enter/CR
-0000e, 43, CTRL        # ^N
-0000f, 44, CTRL        # ^O
-00010, 45, CTRL        # ^P
-00011, 46, CTRL        # ^Q
+0000e, 56, CTRL        # ^N
+0000f, 37, CTRL        # ^O
+00010, 34, CTRL        # ^P
+00011, 57, CTRL        # ^Q
 00012, 82,             # Insert (is Insert a unicode character?)
-00013, 50, CTRL        # ^S
-00014, 51, CTRL        # ^T
-00015, 52, CTRL        # ^U
-00016, 53, CTRL        # ^V
-00017, 54, CTRL        # ^W
+00013, 30, CTRL        # ^S
+00014, 43, CTRL        # ^T
+00015, 32, CTRL        # ^U
+00016, 17, CTRL        # ^V
+00017, 31, CTRL        # ^W
 00018, 76,             # Select (is Select a unicode character?)
-00019, 56, CTRL        # ^Y
-0001a, 57, CTRL        # ^Z
+00019, 50, CTRL        # ^Y
+0001a, 45, CTRL        # ^Z
 0001b, 72,             # Escape(SDL maps ESC and ^[ to this code)
 0001c, 87,             # Right (SDL maps ^\ to this code)
 0001d, 84,             # Left  (SDL maps ^] to this code)
