@@ -106,6 +106,7 @@ DEADKEY2, 17,         # ~ -> ã, ũ, ĩ, õ
 0005d, 16, SHIFT       # ]
 0005e, 06, SHIFT       # ^
 0005f, 12, SHIFT       # _
+00060, --,             # `
 00061, 26,             # a
 00062, 27,             # b
 00063, 30,             # c
@@ -135,6 +136,7 @@ DEADKEY2, 17,         # ~ -> ã, ũ, ĩ, õ
 0007b, 14,             # {
 0007c, 25, SHIFT GRAPH # |
 0007d, 14, SHIFT       # }
+0007e, --,             # ~
 0007f, 83,             # Delete
 000a0, 80,             # No-break space (&nbsp;)
 000a1, 01, SHIFT CODE  # ¡
@@ -142,6 +144,7 @@ DEADKEY2, 17,         # ~ -> ã, ũ, ĩ, õ
 000a3, 04, SHIFT CODE  # £
 000a5, 05, SHIFT CODE  # ¥
 000a7, 03, CODE        # §
+000a8, 22, CODE        # ¨
 000aa, 23, CODE        # ª
 000ab, 22, SHIFT GRAPH # «
 000ac, 56, SHIFT GRAPH # ¬
@@ -157,32 +160,32 @@ DEADKEY2, 17,         # ~ -> ã, ũ, ĩ, õ
 000bd, 02, GRAPH       # ½
 000be, 03, GRAPH       # ¾
 000bf, 24, SHIFT CODE  # ¿
+000c0, 22, SHIFT CODE  # À
+000c1, 26, CODE        # Á
+000c2, 32, CODE        # Â
 000c3, 35, SHIFT CODE  # Ã
-000c4, 26, SHIFT CODE  # Ä
-000c5, 22, SHIFT CODE  # Å
 000c6, 37, SHIFT CODE  # Æ
 000c7, 21, SHIFT       # Ç
 000c9, 52, SHIFT CODE  # É
+000ca, 30, CODE        # Ê
+000cd, 50, CODE        # Í
 000d1, 43, SHIFT CODE  # Ñ
+000d3, 55, CODE        # Ó
+000d4, 26, SHIFT CODE  # Ô
 000d5, 41, SHIFT CODE  # Õ
 000d6, 33, SHIFT CODE  # Ö
+000da, 31, CODE        # Ú
 000dc, 34, SHIFT CODE  # Ü
 000df, 07, CODE        # ß
 000e0, 57, CODE        # à
 000e1, 56, CODE        # á
 000e2, 46, CODE        # â
 000e3, 35, CODE        # ã
-000e4, 26, CODE        # ä
-000e5, 22, CODE        # å
 000e6, 37, CODE        # æ
 000e7, 21,             # ç
 000e9, 52, CODE        # é
 000ea, 54, CODE        # ê
-000eb, 50, CODE        # ë
-000ec, 30, CODE        # ì
 000ed, 36, CODE        # í
-000ee, 32, CODE        # î
-000ef, 31, CODE        # ï
 000f1, 43, CODE        # ñ
 000f2, 53, CODE        # ò
 000f3, 44, CODE        # ó
@@ -294,3 +297,4 @@ DEADKEY2, 17,         # ~ -> ã, ũ, ĩ, õ
 1fb99, 46, SHIFT GRAPH # UPPER RIGHT TO LOWER LEFT FILL
 1fb9a, 50, SHIFT GRAPH # UPPER AND LOWER TRIANGULAR HALF BLOCK
 1fb9b, 50, GRAPH       # LEFT AND RIGHT TRIANGULAR HALF BLOCK
+1fbaf, 12, SHIFT GRAPH # BOX DRAWINGS LIGHT HORIZONTAL WITH VERTICAL STROKE
