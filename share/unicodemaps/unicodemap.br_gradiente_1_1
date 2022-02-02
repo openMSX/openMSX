@@ -221,7 +221,7 @@ DEADKEY2, 17,         # ~ -> ã, ũ, ĩ, õ
 02022, 11, GRAPH       # •
 02030, 05, GRAPH       # ‰
 0207f, 03, SHIFT GRAPH # ⁿ
-020a7, 02, SHIFT CODE  # ₧
+020a2, 02, SHIFT CODE  # ₢
 02205, 15, CODE        # ∅
 02208, 12, CODE        # ∈
 02219, 55, SHIFT GRAPH # ∙
