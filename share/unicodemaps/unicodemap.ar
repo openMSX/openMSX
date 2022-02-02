@@ -1,0 +1,252 @@
+#region: Arabic
+#format: <UNICODE>, <ROW><COL>, <MODIFIERS>
+# <UNICODE>: hexadecimal unicode number or DEADKEY<N>
+# <ROW>: row in keyboard matrix (hexadecimal: 0-B)
+# <COL>: column in keyboard matrix (0-7)
+# <MODIFIERS>: space separated list of modifiers:
+#              SHIFT CTRL GRAPH CODE
+#
+# Example characters in comments are encoded in UTF-8
+#
+# NOTE: for now, only the international mapping is supported and only the
+# Left-To-Right characters
+00000, 02, CTRL SHIFT  # ^@
+00001, 26, CTRL        # ^A
+00002, 27, CTRL        # ^B
+00003, 30, CTRL        # ^C
+00004, 31, CTRL        # ^D
+00005, 32, CTRL        # ^E
+00006, 33, CTRL        # ^F
+00007, 34, CTRL        # ^G
+00008, 75,             # Backspace
+00009, 73,             # Tab
+0000a, 37, CTRL        # ^J
+0000b, 81,             # Home (is Home a unicode character?)
+0000c, 41, CTRL        # ^L
+0000d, 77,             # Enter/CR
+0000e, 43, CTRL        # ^N
+0000f, 44, CTRL        # ^O
+00010, 45, CTRL        # ^P
+00011, 46, CTRL        # ^Q
+00012, 82,             # Insert (is Insert a unicode character?)
+00013, 50, CTRL        # ^S
+00014, 51, CTRL        # ^T
+00015, 52, CTRL        # ^U
+00016, 53, CTRL        # ^V
+00017, 54, CTRL        # ^W
+00018, 76,             # Select (is Select a unicode character?)
+00019, 56, CTRL        # ^Y
+0001a, 57, CTRL        # ^Z
+0001b, 72,             # Escape(SDL maps ESC and ^[ to this code)
+0001c, 87,             # Right (SDL maps ^\ to this code)
+0001d, 84,             # Left  (SDL maps ^] to this code)
+0001e, 85,             # Up    (SDL maps ^^ to this code)
+0001f, 86,             # Down  (SDL maps ^/ to this code)
+00020, 80,             # Space
+00021, 01, SHIFT       # !
+00022, 20, SHIFT       # "
+00023, 03, SHIFT       # #
+00024, 04, SHIFT       # $
+00025, 05, SHIFT       # %
+00026, 07, SHIFT       # &
+00027, 20,             # '
+00028, 11, SHIFT       # (
+00029, 00, SHIFT       # )
+0002a, 10, SHIFT       # *
+0002b, 13, SHIFT       # +
+0002c, 22,             # ,
+0002d, 12,             # -
+0002e, 23,             # .
+0002f, 24,             # /
+00030, 00,             # 0
+00031, 01,             # 1
+00032, 02,             # 2
+00033, 03,             # 3
+00034, 04,             # 4
+00035, 05,             # 5
+00036, 06,             # 6
+00037, 07,             # 7
+00038, 10,             # 8
+00039, 11,             # 9
+0003a, 17, SHIFT       # :
+0003b, 17,             # ;
+0003c, 22, SHIFT       # <
+0003d, 13,             # =
+0003e, 23, SHIFT       # >
+0003f, 24, SHIFT       # ?
+00040, 02, SHIFT       # @
+00041, 26, SHIFT       # A
+00042, 27, SHIFT       # B
+00043, 30, SHIFT       # C
+00044, 31, SHIFT       # D
+00045, 32, SHIFT       # E
+00046, 33, SHIFT       # F
+00047, 34, SHIFT       # G
+00048, 35, SHIFT       # H
+00049, 36, SHIFT       # I
+0004a, 37, SHIFT       # J
+0004b, 40, SHIFT       # K
+0004c, 41, SHIFT       # L
+0004d, 42, SHIFT       # M
+0004e, 43, SHIFT       # N
+0004f, 44, SHIFT       # O
+00050, 45, SHIFT       # P
+00051, 46, SHIFT       # Q
+00052, 47, SHIFT       # R
+00053, 50, SHIFT       # S
+00054, 51, SHIFT       # T
+00055, 52, SHIFT       # U
+00056, 53, SHIFT       # V
+00057, 54, SHIFT       # W
+00058, 55, SHIFT       # X
+00059, 56, SHIFT       # Y
+0005a, 57, SHIFT       # Z
+0005b, 15,             # [
+0005c, 14,             # \
+0005d, 16,             # ]
+0005e, 06, SHIFT       # ^
+0005f, 12, SHIFT       # _
+00060, 21,             # `
+00062, 27,             # b
+00063, 30,             # c
+00064, 31,             # d
+00065, 32,             # e
+00066, 33,             # f
+00067, 34,             # g
+00068, 35,             # h
+00069, 36,             # i
+0006a, 37,             # j
+0006b, 40,             # k
+0006c, 41,             # l
+0006d, 42,             # m
+0006e, 43,             # n
+0006f, 44,             # o
+00070, 45,             # p
+00071, 46,             # q
+00072, 47,             # r
+00073, 50,             # s
+00074, 51,             # t
+00075, 52,             # u
+00076, 53,             # v
+00077, 54,             # w
+00078, 55,             # x
+00079, 56,             # y
+0007a, 57,             # z
+0007b, 15, SHIFT       # {
+0007c, 14, SHIFT       # |
+0007d, 16, SHIFT       # }
+0007e, 21, SHIFT       # ~
+0007f, 83,             # Delete
+000a0, 80,             # No-break space (&nbsp;)
+003c0, 34, SHIFT GRAPH # π
+0060c, 32, CODE        # ،
+0061b, 04, CODE        # ؛
+0061f, 01, CODE        # ؟
+00621, 13, SHIFT GRAPH # ء
+00622, 45, SHIFT GRAPH # آ
+00623, 02, CODE        # أ
+00624, 36, SHIFT GRAPH # ؤ
+00625, 06, CODE        # إ
+00626, 44, CODE        # ئ
+00627, 10, SHIFT CODE  # ا
+00628, 43, CODE        # ب
+00629, 21, SHIFT CODE  # ة
+0062a, 23, CODE        # ت
+0062b, 24, SHIFT CODE  # ث
+0062c, 56, SHIFT GRAPH # ج
+0062d, 01, GRAPH       # ح
+0062e, 22, SHIFT GRAPH # خ
+0062f, 21, CODE        # د
+00630, 42, CODE        # ذ
+00631, 10, CODE        # ر
+00632, 15, SHIFT CODE  # ز
+00633, 35, SHIFT CODE  # س
+00634, 40, SHIFT CODE  # ش
+00635, 41, SHIFT CODE  # ص
+00636, 17, SHIFT CODE  # ض
+00637, 17, CODE        # ط
+00638, 20, SHIFT CODE  # ظ
+00639, 03, GRAPH       # ع
+0063a, 44, SHIFT GRAPH # غ
+00640, 13, GRAPH       # ـ
+00641, 31, GRAPH       # ف
+00642, 41, SHIFT GRAPH # ق
+00643, 46, SHIFT GRAPH # ك
+00644, 32, GRAPH       # ل
+00645, 54, GRAPH       # م
+00646, 50, SHIFT GRAPH # ن
+00647, 43, SHIFT GRAPH # ه
+00648, 13, CODE        # و
+00649, 16, SHIFT CODE  # ى
+0064a, 53, SHIFT GRAPH # ي
+0064b, 23, GRAPH       # ً
+0064c, 22, GRAPH       # ٌ
+0064d, 06, GRAPH       # ٍ
+0064e, 06, SHIFT GRAPH # َ
+0064f, 21, SHIFT GRAPH # ُ
+00650, 55, SHIFT GRAPH # ِ
+00651, 07, GRAPH       # ّ
+00652, 02, SHIFT GRAPH # ْ
+00660, 52, SHIFT CODE  # ٠
+00661, 37, CODE        # ١
+00662, 37, SHIFT CODE  # ٢
+00663, 47, CODE        # ٣
+00664, 33, CODE        # ٤
+00665, 53, CODE        # ٥
+00666, 51, CODE        # ٦
+00667, 27, CODE        # ٧
+00668, 05, CODE        # ٨
+00669, 33, SHIFT CODE  # ٩
+0066a, 26,             # ٪
+02500, 12, GRAPH       # ─
+02502, 14, SHIFT GRAPH # │
+0250c, 47, GRAPH       # ┌
+02510, 56, GRAPH       # ┐
+02514, 53, GRAPH       # └
+02518, 43, GRAPH       # ┘
+0251c, 33, GRAPH       # ├
+02524, 35, GRAPH       # ┤
+0252c, 51, GRAPH       # ┬
+02534, 27, GRAPH       # ┴
+0253c, 34, GRAPH       # ┼
+02573, 55, GRAPH       # ╳
+0fe77, 24, SHIFT GRAPH # ﹷ
+0fe79, 57, SHIFT GRAPH # ﹹ
+0fe7b, 30, SHIFT GRAPH # ﹻ
+0fe7d, 03, SHIFT GRAPH # ﹽ
+0fe7f, 26, SHIFT GRAPH # ﹿ
+0fe82, 00, SHIFT CODE  # ﺂ
+0fe84, 16, CODE        # ﺄ
+0fe88, 07, CODE        # ﺈ
+0fe8c, 36, CODE        # ﺌ
+0fe8e, 45, SHIFT CODE  # ﺎ
+0fe92, 45, CODE        # ﺒ
+0fe98, 43, SHIFT CODE  # ﺘ
+0fe9c, 24, CODE        # ﺜ
+0fea0, 47, SHIFT GRAPH # ﺠ
+0fea4, 02, GRAPH       # ﺤ
+0fea8, 01, SHIFT CODE  # ﺨ
+0feb4, 23, SHIFT GRAPH # ﺴ
+0feb8, 35, CODE        # ﺸ
+0febc, 40, CODE        # ﺼ
+0fec0, 41, CODE        # ﻀ
+0feca, 31, SHIFT GRAPH # ﻊ
+0fecb, 20, CODE        # ﻋ
+0fecc, 52, GRAPH       # ﻌ
+0fece, 52, SHIFT GRAPH # ﻎ
+0fecf, 44, GRAPH       # ﻏ
+0fed0, 26, GRAPH       # ﻐ
+0fed4, 37, GRAPH       # ﻔ
+0fed8, 41, GRAPH       # ﻘ
+0fedc, 37, SHIFT GRAPH # ﻜ
+0fee0, 46, GRAPH       # ﻠ
+0fee4, 32, SHIFT GRAPH # ﻤ
+0fee8, 54, SHIFT GRAPH # ﻨ
+0feec, 50, GRAPH       # ﻬ
+0fef0, 00, CODE        # ﻰ
+0fef2, 35, SHIFT GRAPH # ﻲ
+0fef4, 33, SHIFT GRAPH # ﻴ
+0fef6, 12, CODE        # ﻶ
+0fef8, 15, CODE        # ﻸ
+0fefa, 04, GRAPH       # ﻺ
+0fefc, 10, GRAPH       # ﻼ
