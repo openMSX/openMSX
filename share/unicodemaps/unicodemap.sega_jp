@@ -258,14 +258,13 @@
 06c34, 07, GRAPH       # 水 (Wednesday)
 0706b, 61, GRAPH       # 火 (Tuesday)
 091d1, 27, GRAPH       # 金 (Friday)
+1f47e, 06, SHIFT GRAPH # ALIEN MONSTER
+1fb82, 53, SHIFT GRAPH # UPPER ONE QUARTER BLOCK
+1fbc5, 51, GRAPH       # STICK FIGURE
 #
 # Some symbols I couldn't find a good matching Unicode code point for:
 # - GRAPH + (SHIFT +) 'T'/'G' produce rectangles, the BASIC font contains no spacing, unlike the Unicode rectangles.
 #   So I mapped them to heavy box lines instead.
-# - GRAPH + 'Y' produces a stick figure
 # - GRAPH + SHIFT + 'H' produces a kind of 'H'
 # - GRAPH + SHIFT + 'Y' produces a kind of sideways 'H'
-# - GRAPH + SHIFT + 'K' produces a space invader
-#   There is a code point for this: 1f47e 👾 (alien monster), but openMSX doesn't support code points over 0x10000 yet.
 # - GRAPH + 'X' produces a right-aligned 2/6 block, but Unicode has nothing between 1/8 and 1/2
-# - GRAPH + SHIFT + 'N' produces a quarter upper block, but Unicode has nothing between 1/8 and 1/2

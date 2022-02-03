@@ -236,6 +236,9 @@
 02663, 60, GRAPH       # ♣
 02665, 40, GRAPH       # ♥
 02666, 50, GRAPH       # ♦
+1f47e, 06, SHIFT GRAPH # ALIEN MONSTER
+1fb82, 53, SHIFT GRAPH # UPPER ONE QUARTER BLOCK
+1fbc5, 51, GRAPH       # STICK FIGURE
 #
 # Some characters on the keyboard do not have a single Unicode code point:
 # - CODE + '^' produces a capital O with cedilla
@@ -245,10 +248,6 @@
 # Some symbols I couldn't find a good matching Unicode code point for:
 # - GRAPH + (SHIFT +) 'T'/'G' produce rectangles, the BASIC font contains no spacing, unlike the Unicode rectangles.
 #   So I mapped them to heavy box lines instead.
-# - GRAPH + 'Y' produces a stick figure
 # - GRAPH + SHIFT + 'H' produces a kind of 'H'
 # - GRAPH + SHIFT + 'Y' produces a kind of sideways 'H'
-# - GRAPH + SHIFT + 'K' produces a space invader
-#   There is a code point for this: 1f47e 👾 (alien monster), but openMSX doesn't support code points over 0x10000 yet.
 # - GRAPH + 'X' produces a right-aligned 2/6 block, but Unicode has nothing between 1/8 and 1/2
-# - GRAPH + SHIFT + 'N' produces a quarter upper block, but Unicode has nothing between 1/8 and 1/2
