@@ -41,155 +41,155 @@
 0001e, 57,             # Up    (SDL maps ^^ to this code)
 0001f, 77,             # Down  (SDL maps ^/ to this code)
 00020, 80,             # Space
-00021, 01, SHIFT       # !
-00022, 13, SHIFT       # "
-00023, 03, SHIFT       # #
-00024, 04, SHIFT       # $
-00025, 05, SHIFT       # %
-00026, 07, SHIFT       # &
-00027, 13,             # '
-00028, 11, SHIFT       # (
-00029, 00, SHIFT       # )
-0002a, 10, SHIFT       # *
-0002b, 15, SHIFT       # +
-0002c, 14,             # ,
-0002d, 20,             # -
-0002e, 16,             # .
-0002f, 17,             # /
-00030, 00,             # 0
-00031, 01,             # 1
-00032, 02,             # 2
-00033, 03,             # 3
-00034, 04,             # 4
-00035, 05,             # 5
-00036, 06,             # 6
-00037, 07,             # 7
-00038, 10,             # 8
-00039, 11,             # 9
-0003a, 12,             # :
-0003b, 12, SHIFT       # ;
-0003c, 14, SHIFT       # <
-0003d, 15,             # =
-0003e, 16, SHIFT       # >
-0003f, 17, SHIFT       # ?
-00040, 02, SHIFT       # @
-00041, 21, SHIFT       # A
-00042, 22, SHIFT       # B
-00043, 23, SHIFT       # C
-00044, 24, SHIFT       # D
-00045, 25, SHIFT       # E
-00046, 26, SHIFT       # F
-00047, 27, SHIFT       # G
-00048, 30, SHIFT       # H
-00049, 31, SHIFT       # I
-0004a, 32, SHIFT       # J
-0004b, 33, SHIFT       # K
-0004c, 34, SHIFT       # L
-0004d, 35, SHIFT       # M
-0004e, 36, SHIFT       # N
-0004f, 37, SHIFT       # O
-00050, 40, SHIFT       # P
-00051, 41, SHIFT       # Q
-00052, 42, SHIFT       # R
-00053, 43, SHIFT       # S
-00054, 44, SHIFT       # T
-00055, 45, SHIFT       # U
-00056, 46, SHIFT       # V
-00057, 47, SHIFT       # W
-00058, 50, SHIFT       # X
-00059, 51, SHIFT       # Y
-0005a, 52, SHIFT       # Z
-0005b, 53,             # [
-0005c, 54,             # \
-0005d, 55,             # ]
-0005e, 06, SHIFT       # ^
-0005f, 20, SHIFT       # _
-00060, 53, CODE        # `
-00061, 21,             # a
-00062, 22,             # b
-00063, 23,             # c
-00064, 24,             # d
-00065, 25,             # e
-00066, 26,             # f
-00067, 27,             # g
-00068, 30,             # h
-00069, 31,             # i
-0006a, 32,             # j
-0006b, 33,             # k
-0006c, 34,             # l
-0006d, 35,             # m
-0006e, 36,             # n
-0006f, 37,             # o
-00070, 40,             # p
-00071, 41,             # q
-00072, 42,             # r
-00073, 43,             # s
-00074, 44,             # t
-00075, 45,             # u
-00076, 46,             # v
-00077, 47,             # w
-00078, 50,             # x
-00079, 51,             # y
-0007a, 52,             # z
-0007b, 53, SHIFT       # {
-0007c, 53, GRAPH       # |
-0007d, 55, SHIFT       # }
-0007e, 54, SHIFT       # ~
+00021, 01, SHIFT       # ! (EXCLAMATION MARK)
+00022, 13, SHIFT       # " (QUOTATION MARK)
+00023, 03, SHIFT       # # (NUMBER SIGN)
+00024, 04, SHIFT       # $ (DOLLAR SIGN)
+00025, 05, SHIFT       # % (PERCENT SIGN)
+00026, 07, SHIFT       # & (AMPERSAND)
+00027, 13,             # ' (APOSTROPHE)
+00028, 11, SHIFT       # ( (LEFT PARENTHESIS)
+00029, 00, SHIFT       # ) (RIGHT PARENTHESIS)
+0002a, 10, SHIFT       # * (ASTERISK)
+0002b, 15, SHIFT       # + (PLUS SIGN)
+0002c, 14,             # , (COMMA)
+0002d, 20,             # - (HYPHEN-MINUS)
+0002e, 16,             # . (FULL STOP)
+0002f, 17,             # / (SOLIDUS)
+00030, 00,             # 0 (DIGIT ZERO)
+00031, 01,             # 1 (DIGIT ONE)
+00032, 02,             # 2 (DIGIT TWO)
+00033, 03,             # 3 (DIGIT THREE)
+00034, 04,             # 4 (DIGIT FOUR)
+00035, 05,             # 5 (DIGIT FIVE)
+00036, 06,             # 6 (DIGIT SIX)
+00037, 07,             # 7 (DIGIT SEVEN)
+00038, 10,             # 8 (DIGIT EIGHT)
+00039, 11,             # 9 (DIGIT NINE)
+0003a, 12,             # : (COLON)
+0003b, 12, SHIFT       # ; (SEMICOLON)
+0003c, 14, SHIFT       # < (LESS-THAN SIGN)
+0003d, 15,             # = (EQUALS SIGN)
+0003e, 16, SHIFT       # > (GREATER-THAN SIGN)
+0003f, 17, SHIFT       # ? (QUESTION MARK)
+00040, 02, SHIFT       # @ (COMMERCIAL AT)
+00041, 21, SHIFT       # A (LATIN CAPITAL LETTER A)
+00042, 22, SHIFT       # B (LATIN CAPITAL LETTER B)
+00043, 23, SHIFT       # C (LATIN CAPITAL LETTER C)
+00044, 24, SHIFT       # D (LATIN CAPITAL LETTER D)
+00045, 25, SHIFT       # E (LATIN CAPITAL LETTER E)
+00046, 26, SHIFT       # F (LATIN CAPITAL LETTER F)
+00047, 27, SHIFT       # G (LATIN CAPITAL LETTER G)
+00048, 30, SHIFT       # H (LATIN CAPITAL LETTER H)
+00049, 31, SHIFT       # I (LATIN CAPITAL LETTER I)
+0004a, 32, SHIFT       # J (LATIN CAPITAL LETTER J)
+0004b, 33, SHIFT       # K (LATIN CAPITAL LETTER K)
+0004c, 34, SHIFT       # L (LATIN CAPITAL LETTER L)
+0004d, 35, SHIFT       # M (LATIN CAPITAL LETTER M)
+0004e, 36, SHIFT       # N (LATIN CAPITAL LETTER N)
+0004f, 37, SHIFT       # O (LATIN CAPITAL LETTER O)
+00050, 40, SHIFT       # P (LATIN CAPITAL LETTER P)
+00051, 41, SHIFT       # Q (LATIN CAPITAL LETTER Q)
+00052, 42, SHIFT       # R (LATIN CAPITAL LETTER R)
+00053, 43, SHIFT       # S (LATIN CAPITAL LETTER S)
+00054, 44, SHIFT       # T (LATIN CAPITAL LETTER T)
+00055, 45, SHIFT       # U (LATIN CAPITAL LETTER U)
+00056, 46, SHIFT       # V (LATIN CAPITAL LETTER V)
+00057, 47, SHIFT       # W (LATIN CAPITAL LETTER W)
+00058, 50, SHIFT       # X (LATIN CAPITAL LETTER X)
+00059, 51, SHIFT       # Y (LATIN CAPITAL LETTER Y)
+0005a, 52, SHIFT       # Z (LATIN CAPITAL LETTER Z)
+0005b, 53,             # [ (LEFT SQUARE BRACKET)
+0005c, 54,             # \ (REVERSE SOLIDUS)
+0005d, 55,             # ] (RIGHT SQUARE BRACKET)
+0005e, 06, SHIFT       # ^ (CIRCUMFLEX ACCENT)
+0005f, 20, SHIFT       # _ (LOW LINE)
+00060, 53, CODE        # ` (GRAVE ACCENT)
+00061, 21,             # a (LATIN SMALL LETTER A)
+00062, 22,             # b (LATIN SMALL LETTER B)
+00063, 23,             # c (LATIN SMALL LETTER C)
+00064, 24,             # d (LATIN SMALL LETTER D)
+00065, 25,             # e (LATIN SMALL LETTER E)
+00066, 26,             # f (LATIN SMALL LETTER F)
+00067, 27,             # g (LATIN SMALL LETTER G)
+00068, 30,             # h (LATIN SMALL LETTER H)
+00069, 31,             # i (LATIN SMALL LETTER I)
+0006a, 32,             # j (LATIN SMALL LETTER J)
+0006b, 33,             # k (LATIN SMALL LETTER K)
+0006c, 34,             # l (LATIN SMALL LETTER L)
+0006d, 35,             # m (LATIN SMALL LETTER M)
+0006e, 36,             # n (LATIN SMALL LETTER N)
+0006f, 37,             # o (LATIN SMALL LETTER O)
+00070, 40,             # p (LATIN SMALL LETTER P)
+00071, 41,             # q (LATIN SMALL LETTER Q)
+00072, 42,             # r (LATIN SMALL LETTER R)
+00073, 43,             # s (LATIN SMALL LETTER S)
+00074, 44,             # t (LATIN SMALL LETTER T)
+00075, 45,             # u (LATIN SMALL LETTER U)
+00076, 46,             # v (LATIN SMALL LETTER V)
+00077, 47,             # w (LATIN SMALL LETTER W)
+00078, 50,             # x (LATIN SMALL LETTER X)
+00079, 51,             # y (LATIN SMALL LETTER Y)
+0007a, 52,             # z (LATIN SMALL LETTER Z)
+0007b, 53, SHIFT       # { (LEFT CURLY BRACKET)
+0007c, 53, GRAPH       # | (VERTICAL LINE)
+0007d, 55, SHIFT       # } (RIGHT CURLY BRACKET)
+0007e, 54, SHIFT       # ~ (TILDE)
 0007f, 82,             # Delete
 000a0, 80,             # No-break space (&nbsp;)
-02190, --,             # ←
-02191, --,             # ↑
-02192, --,             # →
-02193, --,             # ↓
-02500, 50, CODE        # ─
-02502, 52, CODE        # │
-0250c, 41, GRAPH       # ┌
-02510, 25, GRAPH       # ┐
-02514, 52, GRAPH       # └
-02518, 23, GRAPH       # ┘
-0251c, 21, GRAPH       # ├
-02524, 24, GRAPH       # ┤
-0252c, 47, GRAPH       # ┬
-02534, 50, GRAPH       # ┴
-0253c, 43, GRAPH       # ┼
-02550, 35, GRAPH       # ═
-0256d, 45, CODE        # ╭
-0256e, 31, CODE        # ╮
-0256f, 33, CODE        # ╯
-02570, 32, CODE        # ╰
-02571, 23, CODE        # ╱
-02572, 25, CODE        # ╲
-02573, 24, CODE        # ╳
-02580, 22, GRAPH       # ▀
-02581, 34, GRAPH       # ▁
-02584, 44, GRAPH       # ▄
-02588, 40, CODE        # █
-0258c, 30, GRAPH       # ▌
-0258f, 34, CODE        # ▏
-02590, 26, GRAPH       # ▐
-02592, 51, CODE        # ▒
-02594, 37, GRAPH       # ▔
-02595, 37, CODE        # ▕
-02596, 51, GRAPH       # ▖
-02597, 42, GRAPH       # ▗
-02598, 36, GRAPH       # ▘
-0259a, 27, GRAPH       # ▚
-0259d, 46, GRAPH       # ▝
-0259e, 27, CODE        # ▞
-025a1, 40, GRAPH       # □
-025cb, 26, CODE        # ○
-025cf, 30, CODE        # ●
-025e2, 43, CODE        # ◢
-025e3, 21, CODE        # ◣
-025e4, 41, CODE        # ◤
-025e5, 47, CODE        # ◥
-02660, 46, CODE        # ♠
-02663, 35, CODE        # ♣
-02665, 22, CODE        # ♥
-02666, 36, CODE        # ♦
-1fb7c, 32, GRAPH       # LEFT AND LOWER ONE EIGHTH BLOCK
-1fb7d, 45, GRAPH       # LEFT AND UPPER ONE EIGHTH BLOCK
-1fb7e, 31, GRAPH       # RIGHT AND UPPER ONE EIGHTH BLOCK
-1fb7f, 33, GRAPH       # RIGHT AND LOWER ONE EIGHTH BLOCK
-1fb8c, 44, CODE        # LEFT HALF MEDIUM SHADE
-1fb8f, 42, CODE        # LOWER HALF MEDIUM SHADE
+02190, --,             # ← (LEFTWARDS ARROW)
+02191, --,             # ↑ (UPWARDS ARROW)
+02192, --,             # → (RIGHTWARDS ARROW)
+02193, --,             # ↓ (DOWNWARDS ARROW)
+02500, 50, CODE        # ─ (BOX DRAWINGS LIGHT HORIZONTAL)
+02502, 52, CODE        # │ (BOX DRAWINGS LIGHT VERTICAL)
+0250c, 41, GRAPH       # ┌ (BOX DRAWINGS LIGHT DOWN AND RIGHT)
+02510, 25, GRAPH       # ┐ (BOX DRAWINGS LIGHT DOWN AND LEFT)
+02514, 52, GRAPH       # └ (BOX DRAWINGS LIGHT UP AND RIGHT)
+02518, 23, GRAPH       # ┘ (BOX DRAWINGS LIGHT UP AND LEFT)
+0251c, 21, GRAPH       # ├ (BOX DRAWINGS LIGHT VERTICAL AND RIGHT)
+02524, 24, GRAPH       # ┤ (BOX DRAWINGS LIGHT VERTICAL AND LEFT)
+0252c, 47, GRAPH       # ┬ (BOX DRAWINGS LIGHT DOWN AND HORIZONTAL)
+02534, 50, GRAPH       # ┴ (BOX DRAWINGS LIGHT UP AND HORIZONTAL)
+0253c, 43, GRAPH       # ┼ (BOX DRAWINGS LIGHT VERTICAL AND HORIZONTAL)
+02550, 35, GRAPH       # ═ (BOX DRAWINGS DOUBLE HORIZONTAL)
+0256d, 45, CODE        # ╭ (BOX DRAWINGS LIGHT ARC DOWN AND RIGHT)
+0256e, 31, CODE        # ╮ (BOX DRAWINGS LIGHT ARC DOWN AND LEFT)
+0256f, 33, CODE        # ╯ (BOX DRAWINGS LIGHT ARC UP AND LEFT)
+02570, 32, CODE        # ╰ (BOX DRAWINGS LIGHT ARC UP AND RIGHT)
+02571, 23, CODE        # ╱ (BOX DRAWINGS LIGHT DIAGONAL UPPER RIGHT TO LOWER LEFT)
+02572, 25, CODE        # ╲ (BOX DRAWINGS LIGHT DIAGONAL UPPER LEFT TO LOWER RIGHT)
+02573, 24, CODE        # ╳ (BOX DRAWINGS LIGHT DIAGONAL CROSS)
+02580, 22, GRAPH       # ▀ (UPPER HALF BLOCK)
+02581, 34, GRAPH       # ▁ (LOWER ONE EIGHTH BLOCK)
+02584, 44, GRAPH       # ▄ (LOWER HALF BLOCK)
+02588, 40, CODE        # █ (FULL BLOCK)
+0258c, 30, GRAPH       # ▌ (LEFT HALF BLOCK)
+0258f, 34, CODE        # ▏ (LEFT ONE EIGHTH BLOCK)
+02590, 26, GRAPH       # ▐ (RIGHT HALF BLOCK)
+02592, 51, CODE        # ▒ (MEDIUM SHADE)
+02594, 37, GRAPH       # ▔ (UPPER ONE EIGHTH BLOCK)
+02595, 37, CODE        # ▕ (RIGHT ONE EIGHTH BLOCK)
+02596, 51, GRAPH       # ▖ (QUADRANT LOWER LEFT)
+02597, 42, GRAPH       # ▗ (QUADRANT LOWER RIGHT)
+02598, 36, GRAPH       # ▘ (QUADRANT UPPER LEFT)
+0259a, 27, GRAPH       # ▚ (QUADRANT UPPER LEFT AND LOWER RIGHT)
+0259d, 46, GRAPH       # ▝ (QUADRANT UPPER RIGHT)
+0259e, 27, CODE        # ▞ (QUADRANT UPPER RIGHT AND LOWER LEFT)
+025a1, 40, GRAPH       # □ (WHITE SQUARE)
+025cb, 26, CODE        # ○ (WHITE CIRCLE)
+025cf, 30, CODE        # ● (BLACK CIRCLE)
+025e2, 43, CODE        # ◢ (BLACK LOWER RIGHT TRIANGLE)
+025e3, 21, CODE        # ◣ (BLACK LOWER LEFT TRIANGLE)
+025e4, 41, CODE        # ◤ (BLACK UPPER LEFT TRIANGLE)
+025e5, 47, CODE        # ◥ (BLACK UPPER RIGHT TRIANGLE)
+02660, 46, CODE        # ♠ (BLACK SPADE SUIT)
+02663, 35, CODE        # ♣ (BLACK CLUB SUIT)
+02665, 22, CODE        # ♥ (BLACK HEART SUIT)
+02666, 36, CODE        # ♦ (BLACK DIAMOND SUIT)
+1fb7c, 32, GRAPH       # 🭼 (LEFT AND LOWER ONE EIGHTH BLOCK)
+1fb7d, 45, GRAPH       # 🭽 (LEFT AND UPPER ONE EIGHTH BLOCK)
+1fb7e, 31, GRAPH       # 🭾 (RIGHT AND UPPER ONE EIGHTH BLOCK)
+1fb7f, 33, GRAPH       # 🭿 (RIGHT AND LOWER ONE EIGHTH BLOCK)
+1fb8c, 44, CODE        # 🮌 (LEFT HALF MEDIUM SHADE)
+1fb8f, 42, CODE        # 🮏 (LOWER HALF MEDIUM SHADE)
