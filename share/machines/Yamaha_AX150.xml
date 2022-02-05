@@ -40,7 +40,7 @@ Motherboard ID: GCMK-77X YAMAHA XB155[B]
         <volume>16000</volume>
       </sound>
       <io base="0xA8" num="4"/>
-      <keyboard_type>int</keyboard_type> <!-- Should be Arabic? -->
+      <keyboard_type>ar</keyboard_type>
       <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
       <code_kana_locks>false</code_kana_locks>
