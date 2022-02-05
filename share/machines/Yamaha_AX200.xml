@@ -1,0 +1,112 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <info>
+    <manufacturer>Yamaha</manufacturer>
+    <code>AX200</code>
+    <release_year></release_year>
+    <description>Arabic MSX with built in software and Yamaha SFG-05 module</description>
+    <type>MSX</type>
+  </info>
+
+  <!-- Thanks to Ricardo Jurczyk Pinheiro for the information.
+  -->
+
+  <CassettePort/>
+
+  <devices>
+
+    <PPI id="ppi">
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <io base="0xA8" num="4"/>
+      <keyboard_type>ar</keyboard_type> <!-- Not sure if ar or ar_eu or something else...-->
+      <has_keypad>false</has_keypad>
+      <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
+      <code_kana_locks>false</code_kana_locks>
+      <graph_locks>false</graph_locks>
+    </PPI>
+
+    <VDP id="VDP">
+      <io base="0x98" num="8" type="O"/> <!-- S-3527 mirrors -->
+      <io base="0x98" num="8" type="I"/> <!-- S-3527 mirrors -->
+      <version>V9938</version>
+      <vram>16</vram>
+    </VDP>
+
+    <PSG id="PSG">
+      <type>YM2149</type> <!-- in S-3527 MSX-ENGINE -->
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <io base="0xA0" num="2" type="O"/>
+      <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
+    </PSG>
+
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
+
+    <primary slot="0">
+
+      <secondary slot="0">
+
+        <ROM id="MSX BIOS with BASIC ROM">
+          <rom>
+            <sha1>079c018739c37485f3d64ef2145a0267fce6e20e</sha1>
+            <filename>ax200_basic-bios1.rom</filename>
+          </rom>
+          <mem base="0x0000" size="0x8000"/>
+        </ROM>
+        <RAM id="Main RAM 1">
+          <mem base="0x8000" size="0x8000"/>
+          <initialContent encoding="gz-base64">eJz7/x8/YCAAAAqKH+E=</initialContent> <!-- (chr(255) * 32 + chr(0) * 32) -->
+        </RAM>
+
+      </secondary>
+
+      <secondary slot="2">
+        <RAM id="Main RAM 2">
+          <mem base="0x0000" size="0x8000"/>
+          <initialContent encoding="gz-base64">eJz7/x8/YCAAAAqKH+E=</initialContent> <!-- (chr(255) * 32 + chr(0) * 32) -->
+        </RAM>
+      </secondary>
+
+      <secondary slot="3">
+        <ROM id="Arabic ROM">
+          <rom>
+            <filename>ax200_arabic.rom</filename>
+            <sha1>7574cc5655805ea316011a8123b064917f06f83c</sha1>
+          </rom>
+          <mem base="0x4000" size="0x8000"/>
+        </ROM>
+      </secondary>
+
+    </primary>
+
+    <primary external="true" slot="1"/>
+
+    <primary external="true" slot="2"/>
+
+    <primary slot="3">
+
+      <YamahaSFG id="Yamaha SFG-05">
+        <variant>YM2164</variant>
+        <mem base="0x0000" size="0x10000"/>
+        <sound>
+          <volume>13000</volume>
+        </sound>
+        <rom>
+          <sha1>fcc385b90c65575e29fc009aa00b5120fc4c251a</sha1>
+          <filename>sfg-05.rom</filename>
+        </rom>
+      </YamahaSFG>
+
+    </primary>
+
+  </devices>
+
+</msxconfig>
