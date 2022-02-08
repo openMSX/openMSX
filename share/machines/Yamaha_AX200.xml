@@ -22,7 +22,7 @@
         <volume>16000</volume>
       </sound>
       <io base="0xA8" num="4"/>
-      <keyboard_type>ar</keyboard_type> <!-- Not sure if ar or ar_eu or something else...-->
+      <keyboard_type>ar</keyboard_type>
       <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
       <code_kana_locks>false</code_kana_locks>
