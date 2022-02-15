@@ -8,3 +8,5 @@ EXEEXT:=
 LIBRARYEXT:=.so
 
 COMPILE_FLAGS+=-D_REENTRANT -D_THREAD_SAFE
+
+LINK_FLAGS:= -static-libgcc -static-libstdc++ $(LINK_FLAGS)
