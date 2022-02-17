@@ -47,7 +47,7 @@
     </PPI>
 
     <VDP id="VDP">
-      <version>TMS9918A</version>
+      <version>TMS9918A</version> <!-- TMS9918ANL MHS 8306 2840 PHILIPINES in Peter's machine -->
       <io base="0x98" num="2"/>
     </VDP>
 
