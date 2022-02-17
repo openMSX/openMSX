@@ -356,7 +356,8 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\SDL_gamecontroller.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\SDL_joystick.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\windows\SDL_dinputjoystick.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\windows\SDL_mmjoystick.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\windows\SDL_rawinputjoystick.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\windows\SDL_windows_gameing_input.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\windows\SDL_windowsjoystick.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\windows\SDL_xinputjoystick.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\libm\e_atan2.c" />
