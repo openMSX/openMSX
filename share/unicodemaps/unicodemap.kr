@@ -6,273 +6,288 @@
 # <MODIFIERS>: space separated list of modifiers:
 #              SHIFT CTRL GRAPH CODE CAPSLOCK
 #
+# Example characters in comments are encoded in UTF-8
+#
 # NOTE: looks like this map isn't complete??
-0000, 02, CTRL SHIFT # ^@
-0001, 26, CTRL       # ^A
-0002, 27, CTRL       # ^B
-0003, 30, CTRL       # ^C
-0004, 31, CTRL       # ^D
-0005, 32, CTRL       # ^E
-0006, 33, CTRL       # ^F
-0007, 34, CTRL       # ^G
-0008, 75,            # Backspace
-0009, 73,            # Tab
-000a, 37, CTRL       # ^J
-000b, 81,            # Home (is Home a unicode character?)
-000c, 41, CTRL       # ^L
-000d, 77,            # Enter/CR
-000e, 43, CTRL       # ^N
-000f, 44, CTRL       # ^O
-0010, 45, CTRL       # ^P
-0011, 46, CTRL       # ^Q
-0012, 82,            # Insert (is Insert a unicode character?)
-0013, 50, CTRL       # ^S
-0014, 51, CTRL       # ^T
-0015, 52, CTRL       # ^U
-0016, 53, CTRL       # ^V
-0017, 54, CTRL       # ^W
-0018, 76,            # Select (is Select a unicode character?)
-0019, 56, CTRL       # ^Y
-001a, 57, CTRL       # ^Z
-001b, 72,            # Escape(SDL maps ESC and ^[ to this code)
-001c, 87,            # Right (SDL maps ^\ to this code)
-001d, 84,            # Left  (SDL maps ^] to this code)
-001e, 85,            # Up    (SDL maps ^6 to this code)
-001f, 86,            # Down  (SDL maps ^/ to this code)
-007f, 83,            # Delete
-0020, 80,
-0021, 01, SHIFT
-0022, 02, SHIFT
-0023, 03, SHIFT
-0024, 04, SHIFT
-0025, 05, SHIFT
-0026, 06, SHIFT
-0027, 07, SHIFT
-0028, 10, SHIFT
-0029, 11, SHIFT
-002a, 20, SHIFT
-002b, 17, SHIFT
-002c, 22,
-002d, 12,
-002e, 23,
-002f, 24,
-0030, 00,
-0031, 01,
-0032, 02,
-0033, 03,
-0034, 04,
-0035, 05,
-0036, 06,
-0037, 07,
-0038, 10,
-0039, 11,
-003a, 20,
-003b, 17,
-003c, 22, SHIFT
-003d, 12, SHIFT
-003e, 23, SHIFT
-003f, 24, SHIFT
-0040, 15,
-0041, 26, SHIFT
-0042, 27, SHIFT
-0043, 30, SHIFT
-0044, 31, SHIFT
-0045, 32, SHIFT
-0046, 33, SHIFT
-0047, 34, SHIFT
-0048, 35, SHIFT
-0049, 36, SHIFT
-004a, 37, SHIFT
-004b, 40, SHIFT
-004c, 41, SHIFT
-004d, 42, SHIFT
-004e, 43, SHIFT
-004f, 44, SHIFT
-0050, 45, SHIFT
-0051, 46, SHIFT
-0052, 47, SHIFT
-0053, 50, SHIFT
-0054, 51, SHIFT
-0055, 52, SHIFT
-0056, 53, SHIFT
-0057, 54, SHIFT
-0058, 55, SHIFT
-0059, 56, SHIFT
-005a, 57, SHIFT
-005b, 16,
-005c, 14,
-005d, 21,
-005e, 13,
-005f, 25, SHIFT
-0060, 15, SHIFT
-0061, 26,
-0062, 27,
-0063, 30,
-0064, 31,
-0065, 32,
-0066, 33,
-0067, 34,
-0068, 35,
-0069, 36,
-006a, 37,
-006b, 40,
-006c, 41,
-006d, 42,
-006e, 43,
-006f, 44,
-0070, 45,
-0071, 46,
-0072, 47,
-0073, 50,
-0074, 51,
-0075, 52,
-0076, 53,
-0077, 54,
-0078, 55,
-0079, 56,
-007a, 57,
-007b, 16, SHIFT
-007c, 14, SHIFT
-007d, 21, SHIFT
-007e, 13, SHIFT
-00a0, 80,
-00a1, 80,
-00a2, 36, CODE
-00a3, 44, SHIFT CODE
-00a5, 37, CODE
-00a7, 33, GRAPH
-00aa, 41, CODE
-00ab, 80,
-00ac, 80,
-00b0, 80,
-00b1, 80,
-00b2, 80,
-00b5, 80,
-00b6, 31, GRAPH
-00b7, 80,
-00ba, 80,
-00bb, 80,
-00bc, 80,
-00bd, 80,
-00bf, 80,
-00c4, 46, SHIFT CODE
-00c5, 51, CODE
-00c6, 54, CODE
-00c7, 24, GRAPH
-00c9, 51, SHIFT CODE
-00d1, 42, CODE
-00d6, 40, CODE
-00dc, 44, CODE
-00df, 80,
-00e0, 21, GRAPH
-00e1, 45, SHIFT CODE
-00e2, 25, GRAPH
-00e4, 16, GRAPH
-00e5, 47, CODE
-00e6, 31, CODE
-00e7, 47, SHIFT CODE
-00e8, 32, SHIFT CODE
-00e9, 17, GRAPH
-00ea, 50, CODE
-00eb, 32, CODE
-00ec, 46, CODE
-00ed, 35, CODE
-00ee, 26, CODE
-00ef, 33, CODE
-00f1, 27, CODE
-00f2, 57, CODE
-00f3, 56, CODE
-00f4, 54, SHIFT CODE
-00f6, 30, CODE
-00f7, 80,
-00f9, 53, CODE
-00fa, 43, CODE
-00fb, 55, CODE
-00fc, 20, GRAPH
-00ff, 34, CODE
-0192, 52, CODE
-0393, 80,
-0398, 80,
-03a3, 80,
-03a6, 80,
-03a9, 80,
-03b1, 80,
-03b4, 80,
-03b5, 80,
-03c0, 80,
-03c3, 80,
-03c4, 80,
-03c6, 80,
-203c, 34, GRAPH
-207f, 80,
-20a7, 45, CODE
-2190, 27, GRAPH
-2191, 32, GRAPH
-2192, 30, GRAPH
-2193, 51, GRAPH
-2195, 47, GRAPH
-21a8, 12, GRAPH
-2219, 80,
-221a, 80,
-221e, 80,
-221f, 55, GRAPH
-2229, 80,
-2248, 80,
-2261, 80,
-2264, 80,
-2265, 80,
-2310, 80,
-2320, 80,
-2321, 80,
-2500, 80,
-2502, 80,
-250c, 80,
-2510, 80,
-2514, 80,
-2518, 80,
-251c, 80,
-2524, 80,
-252c, 80,
-2534, 80,
-253c, 80,
-2550, 80,
-2551, 80,
-2552, 80,
-2553, 80,
-2554, 80,
-2555, 80,
-2556, 80,
-2557, 80,
-2558, 80,
-2559, 80,
-255a, 80,
-255b, 80,
-255c, 80,
-255d, 80,
-255e, 80,
-255f, 80,
-2560, 80,
-2561, 80,
-2562, 80,
-2563, 80,
-2564, 80,
-2565, 80,
-2566, 80,
-2567, 80,
-2568, 80,
-2569, 80,
-256a, 80,
-256b, 80,
-256c, 80,
-2580, 80,
-2584, 80,
-2588, 80,
-258c, 80,
-2590, 80,
-2591, 80,
-2592, 80,
-2593, 80,
-25a0, 80,
-25ac, 36, GRAPH
-25ba, 45, GRAPH
-25c4, 53, GRAPH
+00000, 15, CTRL        # ^@
+00001, 26, CTRL        # ^A
+00002, 27, CTRL        # ^B
+00003, 30, CTRL        # ^C
+00004, 31, CTRL        # ^D
+00005, 32, CTRL        # ^E
+00006, 33, CTRL        # ^F
+00007, 34, CTRL        # ^G
+00008, 75,             # Backspace
+00009, 73,             # Tab
+0000a, 37, CTRL        # ^J
+0000b, 81,             # Home (is Home a unicode character?)
+0000c, 41, CTRL        # ^L
+0000d, 77,             # Enter/CR
+0000e, 43, CTRL        # ^N
+0000f, 44, CTRL        # ^O
+00010, 45, CTRL        # ^P
+00011, 46, CTRL        # ^Q
+00012, 82,             # Insert (is Insert a unicode character?)
+00013, 50, CTRL        # ^S
+00014, 51, CTRL        # ^T
+00015, 52, CTRL        # ^U
+00016, 53, CTRL        # ^V
+00017, 54, CTRL        # ^W
+00018, 76,             # Select (is Select a unicode character?)
+00019, 56, CTRL        # ^Y
+0001a, 57, CTRL        # ^Z
+0001b, 72,             # Escape(SDL maps ESC and ^[ to this code)
+0001c, 87,             # Right (SDL maps ^\ to this code)
+0001d, 84,             # Left  (SDL maps ^] to this code)
+0001e, 85,             # Up    (SDL maps ^^ to this code)
+0001f, 86,             # Down  (SDL maps ^/ to this code)
+00020, 80,             # Space
+00021, 01, SHIFT       # ! (EXCLAMATION MARK)
+00022, 02, SHIFT       # " (QUOTATION MARK)
+00023, 03, SHIFT       # # (NUMBER SIGN)
+00024, 04, SHIFT       # $ (DOLLAR SIGN)
+00025, 05, SHIFT       # % (PERCENT SIGN)
+00026, 06, SHIFT       # & (AMPERSAND)
+00027, 07, SHIFT       # ' (APOSTROPHE)
+00028, 10, SHIFT       # ( (LEFT PARENTHESIS)
+00029, 11, SHIFT       # ) (RIGHT PARENTHESIS)
+0002a, 20, SHIFT       # * (ASTERISK)
+0002b, 17, SHIFT       # + (PLUS SIGN)
+0002c, 22,             # , (COMMA)
+0002d, 12,             # - (HYPHEN-MINUS)
+0002e, 23,             # . (FULL STOP)
+0002f, 24,             # / (SOLIDUS)
+00030, 00,             # 0 (DIGIT ZERO)
+00031, 01,             # 1 (DIGIT ONE)
+00032, 02,             # 2 (DIGIT TWO)
+00033, 03,             # 3 (DIGIT THREE)
+00034, 04,             # 4 (DIGIT FOUR)
+00035, 05,             # 5 (DIGIT FIVE)
+00036, 06,             # 6 (DIGIT SIX)
+00037, 07,             # 7 (DIGIT SEVEN)
+00038, 10,             # 8 (DIGIT EIGHT)
+00039, 11,             # 9 (DIGIT NINE)
+0003a, 20,             # : (COLON)
+0003b, 17,             # ; (SEMICOLON)
+0003c, 22, SHIFT       # < (LESS-THAN SIGN)
+0003d, 12, SHIFT       # = (EQUALS SIGN)
+0003e, 23, SHIFT       # > (GREATER-THAN SIGN)
+0003f, 24, SHIFT       # ? (QUESTION MARK)
+00040, 15,             # @ (COMMERCIAL AT)
+00041, 26, SHIFT       # A (LATIN CAPITAL LETTER A)
+00042, 27, SHIFT       # B (LATIN CAPITAL LETTER B)
+00043, 30, SHIFT       # C (LATIN CAPITAL LETTER C)
+00044, 31, SHIFT       # D (LATIN CAPITAL LETTER D)
+00045, 32, SHIFT       # E (LATIN CAPITAL LETTER E)
+00046, 33, SHIFT       # F (LATIN CAPITAL LETTER F)
+00047, 34, SHIFT       # G (LATIN CAPITAL LETTER G)
+00048, 35, SHIFT       # H (LATIN CAPITAL LETTER H)
+00049, 36, SHIFT       # I (LATIN CAPITAL LETTER I)
+0004a, 37, SHIFT       # J (LATIN CAPITAL LETTER J)
+0004b, 40, SHIFT       # K (LATIN CAPITAL LETTER K)
+0004c, 41, SHIFT       # L (LATIN CAPITAL LETTER L)
+0004d, 42, SHIFT       # M (LATIN CAPITAL LETTER M)
+0004e, 43, SHIFT       # N (LATIN CAPITAL LETTER N)
+0004f, 44, SHIFT       # O (LATIN CAPITAL LETTER O)
+00050, 45, SHIFT       # P (LATIN CAPITAL LETTER P)
+00051, 46, SHIFT       # Q (LATIN CAPITAL LETTER Q)
+00052, 47, SHIFT       # R (LATIN CAPITAL LETTER R)
+00053, 50, SHIFT       # S (LATIN CAPITAL LETTER S)
+00054, 51, SHIFT       # T (LATIN CAPITAL LETTER T)
+00055, 52, SHIFT       # U (LATIN CAPITAL LETTER U)
+00056, 53, SHIFT       # V (LATIN CAPITAL LETTER V)
+00057, 54, SHIFT       # W (LATIN CAPITAL LETTER W)
+00058, 55, SHIFT       # X (LATIN CAPITAL LETTER X)
+00059, 56, SHIFT       # Y (LATIN CAPITAL LETTER Y)
+0005a, 57, SHIFT       # Z (LATIN CAPITAL LETTER Z)
+0005b, 16,             # [ (LEFT SQUARE BRACKET)
+0005c, 14,             # \
+0005d, 21,             # ] (RIGHT SQUARE BRACKET)
+0005e, 13,             # ^ (CIRCUMFLEX ACCENT)
+0005f, 25, SHIFT       # _ (LOW LINE)
+00060, 15, SHIFT       # ` (GRAVE ACCENT)
+00061, 26,             # a (LATIN SMALL LETTER A)
+00062, 27,             # b (LATIN SMALL LETTER B)
+00063, 30,             # c (LATIN SMALL LETTER C)
+00064, 31,             # d (LATIN SMALL LETTER D)
+00065, 32,             # e (LATIN SMALL LETTER E)
+00066, 33,             # f (LATIN SMALL LETTER F)
+00067, 34,             # g (LATIN SMALL LETTER G)
+00068, 35,             # h (LATIN SMALL LETTER H)
+00069, 36,             # i (LATIN SMALL LETTER I)
+0006a, 37,             # j (LATIN SMALL LETTER J)
+0006b, 40,             # k (LATIN SMALL LETTER K)
+0006c, 41,             # l (LATIN SMALL LETTER L)
+0006d, 42,             # m (LATIN SMALL LETTER M)
+0006e, 43,             # n (LATIN SMALL LETTER N)
+0006f, 44,             # o (LATIN SMALL LETTER O)
+00070, 45,             # p (LATIN SMALL LETTER P)
+00071, 46,             # q (LATIN SMALL LETTER Q)
+00072, 47,             # r (LATIN SMALL LETTER R)
+00073, 50,             # s (LATIN SMALL LETTER S)
+00074, 51,             # t (LATIN SMALL LETTER T)
+00075, 52,             # u (LATIN SMALL LETTER U)
+00076, 53,             # v (LATIN SMALL LETTER V)
+00077, 54,             # w (LATIN SMALL LETTER W)
+00078, 55,             # x (LATIN SMALL LETTER X)
+00079, 56,             # y (LATIN SMALL LETTER Y)
+0007a, 57,             # z (LATIN SMALL LETTER Z)
+0007b, 16, SHIFT       # { (LEFT CURLY BRACKET)
+0007c, 14, SHIFT       # | (VERTICAL LINE)
+0007d, 21, SHIFT       # } (RIGHT CURLY BRACKET)
+0007e, 13, SHIFT       # ~ (TILDE)
+0007f, 83,             # Delete
+000a0, 80,             # No-break space (&nbsp;)
+003c0, 45, GRAPH       # π (GREEK SMALL LETTER PI)
+02018, --,             # ‘ (LEFT SINGLE QUOTATION MARK)
+02019, --,             # ’ (RIGHT SINGLE QUOTATION MARK)
+0201c, --,             # “ (LEFT DOUBLE QUOTATION MARK)
+0201d, --,             # ” (RIGHT DOUBLE QUOTATION MARK)
+020a9, 14,             # ₩ (WON SIGN)
+02500, 12, GRAPH       # ─ (BOX DRAWINGS LIGHT HORIZONTAL)
+02502, 36, GRAPH       # │ (BOX DRAWINGS LIGHT VERTICAL)
+0250c, 32, GRAPH       # ┌ (BOX DRAWINGS LIGHT DOWN AND RIGHT)
+02510, 51, GRAPH       # ┐ (BOX DRAWINGS LIGHT DOWN AND LEFT)
+02514, 30, GRAPH       # └ (BOX DRAWINGS LIGHT UP AND RIGHT)
+02518, 27, GRAPH       # ┘ (BOX DRAWINGS LIGHT UP AND LEFT)
+0251c, 31, GRAPH       # ├ (BOX DRAWINGS LIGHT VERTICAL AND RIGHT)
+02524, 34, GRAPH       # ┤ (BOX DRAWINGS LIGHT VERTICAL AND LEFT)
+0252c, 47, GRAPH       # ┬ (BOX DRAWINGS LIGHT DOWN AND HORIZONTAL)
+02534, 53, GRAPH       # ┴ (BOX DRAWINGS LIGHT UP AND HORIZONTAL)
+0253c, 33, GRAPH       # ┼ (BOX DRAWINGS LIGHT VERTICAL AND HORIZONTAL)
+02573, 55, GRAPH       # ╳ (BOX DRAWINGS LIGHT DIAGONAL CROSS)
+025cb, 16, GRAPH       # ○ (WHITE CIRCLE)
+025cf, 21, GRAPH       # ● (BLACK CIRCLE)
+02660, 24, GRAPH       # ♠ (BLACK SPADE SUIT)
+02663, 17, GRAPH       # ♣ (BLACK CLUB SUIT)
+02665, 20, GRAPH       # ♥ (BLACK HEART SUIT)
+02666, 25, GRAPH       # ♦ (BLACK DIAMOND SUIT)
+03000, --,             # 　 (IDEOGRAPHIC SPACE)
+03131, 47, CODE        # ㄱ (HANGUL LETTER KIYEOK)
+03132, 47, SHIFT CODE  # ㄲ (HANGUL LETTER SSANGKIYEOK)
+03134, 50, CODE        # ㄴ (HANGUL LETTER NIEUN)
+03137, 32, CODE        # ㄷ (HANGUL LETTER TIKEUT)
+03138, 32, SHIFT CODE  # ㄸ (HANGUL LETTER SSANGTIKEUT)
+03139, 33, CODE        # ㄹ (HANGUL LETTER RIEUL)
+03141, 26, CODE        # ㅁ (HANGUL LETTER MIEUM)
+03142, 46, CODE        # ㅂ (HANGUL LETTER PIEUP)
+03143, 46, SHIFT CODE  # ㅃ (HANGUL LETTER SSANGPIEUP)
+03145, 51, CODE        # ㅅ (HANGUL LETTER SIOS)
+03146, 51, SHIFT CODE  # ㅆ (HANGUL LETTER SSANGSIOS)
+03147, 31, CODE        # ㅇ (HANGUL LETTER IEUNG)
+03148, 54, CODE        # ㅈ (HANGUL LETTER CIEUC)
+03149, 54, SHIFT CODE  # ㅉ (HANGUL LETTER SSANGCIEUC)
+0314a, 30, CODE        # ㅊ (HANGUL LETTER CHIEUCH)
+0314b, 57, CODE        # ㅋ (HANGUL LETTER KHIEUKH)
+0314c, 55, CODE        # ㅌ (HANGUL LETTER THIEUTH)
+0314d, 53, CODE        # ㅍ (HANGUL LETTER PHIEUPH)
+0314e, 34, CODE        # ㅎ (HANGUL LETTER HIEUH)
+0314f, 40, CODE        # ㅏ (HANGUL LETTER A)
+03150, 44, CODE        # ㅐ (HANGUL LETTER AE)
+03151, 36, CODE        # ㅑ (HANGUL LETTER YA)
+03152, 44, SHIFT CODE  # ㅒ (HANGUL LETTER YAE)
+03153, 37, CODE        # ㅓ (HANGUL LETTER EO)
+03154, 45, CODE        # ㅔ (HANGUL LETTER E)
+03155, 52, CODE        # ㅕ (HANGUL LETTER YEO)
+03156, 45, SHIFT CODE  # ㅖ (HANGUL LETTER YE)
+03157, 35, CODE        # ㅗ (HANGUL LETTER O)
+0315b, 56, CODE        # ㅛ (HANGUL LETTER YO)
+0315c, 43, CODE        # ㅜ (HANGUL LETTER U)
+03160, 27, CODE        # ㅠ (HANGUL LETTER YU)
+03161, 42, CODE        # ㅡ (HANGUL LETTER EU)
+03163, 41, CODE        # ㅣ (HANGUL LETTER I)
+0ace0, --,             # 고
+0ad50, --,             # 교
+0ad6c, --,             # 구
+0addc, --,             # 규
+0adf8, --,             # 그
+0af2c, --,             # 꼬
+0af9c, --,             # 꾜
+0afb8, --,             # 꾸
+0b028, --,             # 뀨
+0b044, --,             # 끄
+0b178, --,             # 노
+0b1e8, --,             # 뇨
+0b204, --,             # 누
+0b274, --,             # 뉴
+0b290, --,             # 느
+0b3c4, --,             # 도
+0b434, --,             # 됴
+0b450, --,             # 두
+0b4c0, --,             # 듀
+0b4dc, --,             # 드
+0b610, --,             # 또
+0b680, --,             # 뚀
+0b69c, --,             # 뚜
+0b70c, --,             # 뜌
+0b728, --,             # 뜨
+0b85c, --,             # 로
+0b8cc, --,             # 료
+0b8e8, --,             # 루
+0b958, --,             # 류
+0b974, --,             # 르
+0baa8, --,             # 모
+0bb18, --,             # 묘
+0bb34, --,             # 무
+0bba4, --,             # 뮤
+0bbc0, --,             # 므
+0bcf4, --,             # 보
+0bd64, --,             # 뵤
+0bd80, --,             # 부
+0bdf0, --,             # 뷰
+0be0c, --,             # 브
+0bf40, --,             # 뽀
+0bfb0, --,             # 뾰
+0bfcc, --,             # 뿌
+0c03c, --,             # 쀼
+0c058, --,             # 쁘
+0c18c, --,             # 소
+0c1fc, --,             # 쇼
+0c218, --,             # 수
+0c288, --,             # 슈
+0c2a4, --,             # 스
+0c3d8, --,             # 쏘
+0c448, --,             # 쑈
+0c464, --,             # 쑤
+0c4d4, --,             # 쓔
+0c4f0, --,             # 쓰
+0c624, --,             # 오
+0c694, --,             # 요
+0c6b0, --,             # 우
+0c720, --,             # 유
+0c73c, --,             # 으
+0c870, --,             # 조
+0c8e0, --,             # 죠
+0c8fc, --,             # 주
+0c96c, --,             # 쥬
+0c988, --,             # 즈
+0cabc, --,             # 쪼
+0cb2c, --,             # 쬬
+0cb48, --,             # 쭈
+0cbb8, --,             # 쮸
+0cbd4, --,             # 쯔
+0cd08, --,             # 초
+0cd78, --,             # 쵸
+0cd94, --,             # 추
+0ce04, --,             # 츄
+0ce20, --,             # 츠
+0cf54, --,             # 코
+0cfc4, --,             # 쿄
+0cfe0, --,             # 쿠
+0d050, --,             # 큐
+0d06c, --,             # 크
+0d1a0, --,             # 토
+0d210, --,             # 툐
+0d22c, --,             # 투
+0d29c, --,             # 튜
+0d2b8, --,             # 트
+0d3ec, --,             # 포
+0d45c, --,             # 표
+0d478, --,             # 푸
+0d4e8, --,             # 퓨
+0d504, --,             # 프
+0d638, --,             # 호
+0d6a8, --,             # 효
+0d6c4, --,             # 후
+0d734, --,             # 휴
+0d750, --,             # 흐

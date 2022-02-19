@@ -37,14 +37,12 @@ unsigned loadVersionHelper(XmlInputArchive& ar, const char* className,
                            unsigned latestVersion)
 {
 	assert(ar.CAN_HAVE_OPTIONAL_ATTRIBUTES);
-	unsigned version;
-	if (!ar.findAttribute("version", version)) {
-		return 1;
+	auto version = ar.findAttributeAs<unsigned>("version");
+	if (!version) return 1;
+	if (unlikely(*version > latestVersion)) {
+		versionError(className, latestVersion, *version);
 	}
-	if (unlikely(version > latestVersion)) {
-		versionError(className, latestVersion, version);
-	}
-	return version;
+	return *version;
 }
 
 } // namespace openmsx

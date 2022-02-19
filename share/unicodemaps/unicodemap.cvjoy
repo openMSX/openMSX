@@ -7,15 +7,15 @@
 # <COL>: column in keyboard matrix (0-7)
 # <MODIFIERS>: not relevant for ColecoVision
 #
-0023, 33,             # #
-002a, 32,             # *
-0030, 20,             # 0
-0031, 21,             # 1
-0032, 22,             # 2
-0033, 23,             # 3
-0034, 24,             # 4
-0035, 25,             # 5
-0036, 26,             # 6
-0037, 27,             # 7
-0038, 30,             # 8
-0039, 31,             # 9
+00023, 33,             # # (NUMBER SIGN)
+0002a, 32,             # * (ASTERISK)
+00030, 20,             # 0 (DIGIT ZERO)
+00031, 21,             # 1 (DIGIT ONE)
+00032, 22,             # 2 (DIGIT TWO)
+00033, 23,             # 3 (DIGIT THREE)
+00034, 24,             # 4 (DIGIT FOUR)
+00035, 25,             # 5 (DIGIT FIVE)
+00036, 26,             # 6 (DIGIT SIX)
+00037, 27,             # 7 (DIGIT SEVEN)
+00038, 30,             # 8 (DIGIT EIGHT)
+00039, 31,             # 9 (DIGIT NINE)

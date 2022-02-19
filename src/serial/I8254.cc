@@ -131,10 +131,10 @@ Counter::Counter(Scheduler& scheduler, ClockPinListener* listener,
                  EmuTime::param time)
 	: clock(scheduler), output(scheduler, listener)
 	, currentTime(time)
+	, counter(0)
+	, counterLoad(0)
+	, gate(true)
 {
-	gate = true;
-	counter = 0;
-	counterLoad = 0;
 	reset(time);
 }
 

@@ -140,8 +140,8 @@ int VideoSourceSetting::has(std::string_view val) const
 VideoSourceActivator::VideoSourceActivator(
 	VideoSourceSetting& setting_, const std::string& name)
 	: setting(setting_)
+	, id(setting.registerVideoSource(name))
 {
-	id = setting.registerVideoSource(name);
 }
 
 VideoSourceActivator::~VideoSourceActivator()

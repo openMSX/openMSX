@@ -13,14 +13,14 @@ namespace openmsx {
 
 VRAMWindow::VRAMWindow(Ram& vram)
 	: data(&vram[0])
-{
-	observer = &dummyObserver;
-	baseAddr  = -1; // disable window
-	origBaseMask = 0;
-	effectiveBaseMask = 0;
-	indexMask = 0; // these 4 don't matter but it makes valgrind happy
-	combiMask = 0;
+	, observer(&dummyObserver)
+	, origBaseMask(0)
+	, effectiveBaseMask(0)
+	, indexMask(0) // these 4 don't matter but it makes valgrind happy
+	, baseAddr(-1) // disable window
+	, combiMask(0)
 	// sizeMask will be initialized shortly by the VDPVRAM class
+{
 }
 
 
@@ -114,6 +114,7 @@ VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, EmuTime::param time)
 	, vramTime(EmuTime::zero())
 	#endif
 	, actualSize(size)
+	, vrMode(vdp.getVRMode())
 	, cmdReadWindow(data)
 	, cmdWriteWindow(data)
 	, nameTable(data)
@@ -124,9 +125,6 @@ VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, EmuTime::param time)
 	, spriteAttribTable(data)
 	, spritePatternTable(data)
 {
-	(void)time;
-
-	vrMode = vdp.getVRMode();
 	setSizeMask(time);
 
 	// Whole VRAM is cacheable.

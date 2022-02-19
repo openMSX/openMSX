@@ -243,7 +243,7 @@ gl::ivec2 SDLVideoSystem::getMouseCoord()
 {
 	int mouseX, mouseY;
 	SDL_GetMouseState(&mouseX, &mouseY);
-	return gl::ivec2(mouseX, mouseY);
+	return {mouseX, mouseY};
 }
 
 OutputSurface* SDLVideoSystem::getOutputSurface()

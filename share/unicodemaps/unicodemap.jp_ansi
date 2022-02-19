@@ -5,346 +5,292 @@
 # <COL>: column in keyboard matrix (0-7)
 # <MODIFIERS>: space separated list of modifiers:
 #              SHIFT CTRL GRAPH CODE CAPSLOCK
-0000, 02, CTRL SHIFT          # ^@
-0001, 26, CTRL                # ^A
-0002, 27, CTRL                # ^B
-0003, 30, CTRL                # ^C
-0004, 31, CTRL                # ^D
-0005, 32, CTRL                # ^E
-0006, 33, CTRL                # ^F
-0007, 34, CTRL                # ^G
-0008, 75,                     # Backspace
-0009, 73,                     # Tab
-000a, 37, CTRL                # ^J
-000b, 81,                     # Home (is Home a unicode character?)
-000c, 41, CTRL                # ^L
-000d, 77,                     # Enter/CR
-000e, 43, CTRL                # ^N
-000f, 44, CTRL                # ^O
-0010, 45, CTRL                # ^P
-0011, 46, CTRL                # ^Q
-0012, 82,                     # Insert (is Insert a unicode character?)
-0013, 50, CTRL                # ^S
-0014, 51, CTRL                # ^T
-0015, 52, CTRL                # ^U
-0016, 53, CTRL                # ^V
-0017, 54, CTRL                # ^W
-0018, 76,                     # Select (is Select a unicode character?)
-0019, 56, CTRL                # ^Y
-001a, 57, CTRL                # ^Z
-001b, 72,                     # Escape(SDL maps ESC and ^[ to this code)
-001c, 87,                     # Right (SDL maps ^\ to this code)
-001d, 84,                     # Left  (SDL maps ^] to this code)
-001e, 85,                     # Up    (SDL maps ^6 to this code)
-001f, 86,                     # Down  (SDL maps ^/ to this code)
-0020, 80,
-0021, 01, SHIFT
-0022, 02, SHIFT
-0023, 03, SHIFT
-0024, 04, SHIFT
-0025, 05, SHIFT
-0026, 06, SHIFT
-0027, 07, SHIFT
-0028, 10, SHIFT
-0029, 11, SHIFT
-002a, 20, SHIFT
-002b, 17, SHIFT
-002c, 22,
-002d, 12,
-002e, 23,
-002f, 24,
-0030, 00,
-0031, 01,
-0032, 02,
-0033, 03,
-0034, 04,
-0035, 05,
-0036, 06,
-0037, 07,
-0038, 10,
-0039, 11,
-003a, 20,
-003b, 17,
-003c, 22, SHIFT
-003d, 12, SHIFT
-003e, 23, SHIFT
-003f, 24, SHIFT
-0040, 15,
-0041, 26, SHIFT
-0042, 27, SHIFT
-0043, 30, SHIFT
-0044, 31, SHIFT
-0045, 32, SHIFT
-0046, 33, SHIFT
-0047, 34, SHIFT
-0048, 35, SHIFT
-0049, 36, SHIFT
-004a, 37, SHIFT
-004b, 40, SHIFT
-004c, 41, SHIFT
-004d, 42, SHIFT
-004e, 43, SHIFT
-004f, 44, SHIFT
-0050, 45, SHIFT
-0051, 46, SHIFT
-0052, 47, SHIFT
-0053, 50, SHIFT
-0054, 51, SHIFT
-0055, 52, SHIFT
-0056, 53, SHIFT
-0057, 54, SHIFT
-0058, 55, SHIFT
-0059, 56, SHIFT
-005a, 57, SHIFT
-005b, 16,
-005c, 14,                     # backslash
-005d, 21,
-005e, 13,
-005f, 25, SHIFT
-0060, 15, SHIFT
-0061, 26,
-0062, 27,
-0063, 30,
-0064, 31,
-0065, 32,
-0066, 33,
-0067, 34,
-0068, 35,
-0069, 36,
-006a, 37,
-006b, 40,
-006c, 41,
-006d, 42,
-006e, 43,
-006f, 44,
-0070, 45,
-0071, 46,
-0072, 47,
-0073, 50,
-0074, 51,
-0075, 52,
-0076, 53,
-0077, 54,
-0078, 55,
-0079, 56,
-007a, 57,
-007b, 16, SHIFT
-007c, 14, SHIFT
-007d, 21, SHIFT
-007e, 13, SHIFT
-007f, 83,                     # Delete
-00a0, 80,
-00a1, 42, SHIFT CAPSLOCK CODE
-00a5, 14,                     # yen
-00aa, 24, CAPSLOCK CODE
-00ab, 22, SHIFT CAPSLOCK CODE
-00ac, 04, SHIFT CAPSLOCK CODE
-00b2, 25, CODE
-00ba, 01, SHIFT CAPSLOCK CODE
-00bb, 30, SHIFT CAPSLOCK CODE
-00bc, 43, SHIFT CAPSLOCK CODE
-00bd, 05, SHIFT CAPSLOCK CODE
-00bf, 02, SHIFT CAPSLOCK CODE
-00c9, 80,
-00d1, 25, SHIFT CODE
-00e1, 80,
-03C0, 45, GRAPH
-2310, 03, SHIFT CAPSLOCK CODE
-2500, 12, GRAPH
-2502, 36, GRAPH
-250C, 32, GRAPH
-2510, 51, GRAPH
-2514, 30, GRAPH
-2518, 27, GRAPH
-251C, 31, GRAPH
-2524, 34, GRAPH
-252C, 47, GRAPH
-2534, 53, GRAPH
-253C, 33, GRAPH
-2550, 44, CAPSLOCK CODE
-2551, 51, CAPSLOCK CODE
-2552, 42, CAPSLOCK CODE
-2553, 22, CAPSLOCK CODE
-2554, 00, CAPSLOCK CODE
-2555, 32, CAPSLOCK CODE
-2556, 54, CAPSLOCK CODE
-2557, 26, CAPSLOCK CODE
-2558, 43, CAPSLOCK CODE
-2559, 17, CAPSLOCK CODE
-255a, 11, CAPSLOCK CODE
-255b, 33, CAPSLOCK CODE
-255c, 31, CAPSLOCK CODE
-255d, 50, CAPSLOCK CODE
-255e, 07, CAPSLOCK CODE
-255f, 10, CAPSLOCK CODE
-2560, 36, CAPSLOCK CODE
-2561, 05, CAPSLOCK CODE
-2562, 46, CAPSLOCK CODE
-2563, 47, CAPSLOCK CODE
-2564, 40, CAPSLOCK CODE
-2565, 41, CAPSLOCK CODE
-2566, 52, CAPSLOCK CODE
-2567, 35, CAPSLOCK CODE
-2568, 37, CAPSLOCK CODE
-2569, 56, CAPSLOCK CODE
-256a, 13, CAPSLOCK CODE
-256b, 12, CAPSLOCK CODE
-256c, 45, CAPSLOCK CODE
-2573, 55, GRAPH
-2584, 23, CAPSLOCK CODE
-2588, 16, CAPSLOCK CODE
-258c, 25, CAPSLOCK CODE
-2592, 01, CAPSLOCK CODE
-2593, 02, CAPSLOCK CODE
-25a0, 80,
-25CB, 16, GRAPH
-25CF, 21, GRAPH
-2660, 24, GRAPH
-2663, 17, GRAPH
-2665, 20, GRAPH
-2666, 25, GRAPH
-3001, 22, SHIFT CODE
-3002, 23, SHIFT CODE
-3008, 16, SHIFT CODE
-3009, 21, SHIFT CODE
-3041, 01, SHIFT CODE
-3042, 01, CODE
-3043, 02, SHIFT CODE
-3044, 02, CODE
-3045, 03, SHIFT CODE
-3046, 03, CODE
-3047, 04, SHIFT CODE
-3048, 04, CODE
-3049, 05, SHIFT CODE
-304A, 05, CODE
-304B, 46, CODE
-304D, 54, CODE
-304F, 32, CODE
-3051, 47, CODE
-3053, 51, CODE
-3055, 26, CODE
-3057, 50, CODE
-3059, 31, CODE
-305B, 33, CODE
-305D, 34, CODE
-305F, 57, CODE
-3061, 55, CODE
-3063, 30, SHIFT CODE
-3064, 30, CODE
-3066, 53, CODE
-3068, 27, CODE
-306A, 06, CODE
-306B, 07, CODE
-306C, 10, CODE
-306D, 11, CODE
-306E, 00, CODE
-306F, 56, CODE
-3072, 52, CODE
-3075, 36, CODE
-3078, 44, CODE
-307B, 45, CODE
-307E, 35, CODE
-307F, 37, CODE
-3080, 40, CODE
-3081, 41, CODE
-3082, 17, CODE
-3083, 43, SHIFT CODE
-3084, 43, CODE
-3085, 42, SHIFT CODE
-3086, 42, CODE
-3087, 22, SHIFT CODE
-3088, 22, CODE
-3089, 12, CODE
-308A, 13, CODE
-308B, 14, CODE
-308C, 15, CODE
-308D, 16, CODE
-308F, 23, CODE
-3092, 24, CODE
-3093, 25, CODE
-309b, 15, CODE
-309B, 20, CODE
-309c, 16, CODE
-309C, 21, CODE
-30a1, 03, SHIFT CODE
-30a2, 03, CODE
-30a3, 32, SHIFT CODE
-30a4, 32, CODE
-30a5, 04, SHIFT CODE
-30a6, 04, CODE
-30a7, 05, SHIFT CODE
-30a8, 05, CODE
-30a9, 06, SHIFT CODE
-30aa, 06, CODE
-30ab, 51, CODE
-30ad, 34, CODE
-30af, 35, CODE
-30b1, 20, CODE
-30b3, 27, CODE
-30b5, 55, CODE
-30b7, 31, CODE
-30b9, 47, CODE
-30bb, 45, CODE
-30bd, 30, CODE
-30bf, 46, CODE
-30c1, 26, CODE
-30c3, 57, SHIFT CODE
-30c4, 57, CODE
-30c6, 54, CODE
-30c8, 50, CODE
-30ca, 52, CODE
-30cb, 36, CODE
-30cc, 01, CODE
-30cd, 22, CODE
-30ce, 40, CODE
-30cf, 33, CODE
-30d2, 53, CODE
-30d5, 02, CODE
-30d8, 13, CODE
-30db, 12, CODE
-30de, 37, CODE
-30df, 43, CODE
-30e0, 21, CODE
-30e1, 24, CODE
-30e2, 42, CODE
-30e3, 07, SHIFT CODE
-30e4, 07, CODE
-30e5, 10, SHIFT CODE
-30e6, 10, CODE
-30e7, 11, SHIFT CODE
-30e8, 11, CODE
-30e9, 44, CODE
-30ea, 41, CODE
-30eb, 23, CODE
-30ec, 17, CODE
-30ed, 25, CODE
-30ed, 25, CODE
-30ef, 00, CODE
-30f2, 00, SHIFT CODE
-30f3, 56, CODE
-30fb, 24, SHIFT CODE
-30fc, 14, CODE
-30FC, 20, SHIFT CODE
-4E07, 00, GRAPH
-4E2D, 41, GRAPH
-5186, 14, GRAPH
-5206, 42, GRAPH
-5343, 11, GRAPH
-571F, 07, GRAPH
-5927, 23, GRAPH
-5C0F, 22, GRAPH
-5E74, 56, GRAPH
-65E5, 01, GRAPH
-6642, 35, GRAPH
-6708, 02, GRAPH
-6728, 05, GRAPH
-6C34, 04, GRAPH
-706B, 03, GRAPH
-767E, 10, GRAPH
-79D2, 50, GRAPH
-91D1, 06, GRAPH
-FF61, 24, SHIFT CODE
-FF62, 16, SHIFT CODE
-FF63, 21, SHIFT CODE
-FF64, 23, SHIFT CODE
-FF65, 25, SHIFT CODE
+#
+# Example characters in comments are encoded in UTF-8
+#
+00000, 15, CTRL                # ^@
+00001, 26, CTRL                # ^A
+00002, 27, CTRL                # ^B
+00003, 30, CTRL                # ^C
+00004, 31, CTRL                # ^D
+00005, 32, CTRL                # ^E
+00006, 33, CTRL                # ^F
+00007, 34, CTRL                # ^G
+00008, 75,                     # Backspace
+00009, 73,                     # Tab
+0000a, 37, CTRL                # ^J
+0000b, 81,                     # Home (is Home a unicode character?)
+0000c, 41, CTRL                # ^L
+0000d, 77,                     # Enter/CR
+0000e, 43, CTRL                # ^N
+0000f, 44, CTRL                # ^O
+00010, 45, CTRL                # ^P
+00011, 46, CTRL                # ^Q
+00012, 82,                     # Insert (is Insert a unicode character?)
+00013, 50, CTRL                # ^S
+00014, 51, CTRL                # ^T
+00015, 52, CTRL                # ^U
+00016, 53, CTRL                # ^V
+00017, 54, CTRL                # ^W
+00018, 76,                     # Select (is Select a unicode character?)
+00019, 56, CTRL                # ^Y
+0001a, 57, CTRL                # ^Z
+0001b, 72,                     # Escape(SDL maps ESC and ^[ to this code)
+0001c, 87,                     # Right (SDL maps ^\ to this code)
+0001d, 84,                     # Left  (SDL maps ^] to this code)
+0001e, 85,                     # Up    (SDL maps ^^ to this code)
+0001f, 86,                     # Down  (SDL maps ^/ to this code)
+00020, 80,                     # Space
+00021, 01, SHIFT               # ! (EXCLAMATION MARK)
+00022, 02, SHIFT               # " (QUOTATION MARK)
+00023, 03, SHIFT               # # (NUMBER SIGN)
+00024, 04, SHIFT               # $ (DOLLAR SIGN)
+00025, 05, SHIFT               # % (PERCENT SIGN)
+00026, 06, SHIFT               # & (AMPERSAND)
+00027, 07, SHIFT               # ' (APOSTROPHE)
+00028, 10, SHIFT               # ( (LEFT PARENTHESIS)
+00029, 11, SHIFT               # ) (RIGHT PARENTHESIS)
+0002a, 20, SHIFT               # * (ASTERISK)
+0002b, 17, SHIFT               # + (PLUS SIGN)
+0002c, 22,                     # , (COMMA)
+0002d, 12,                     # - (HYPHEN-MINUS)
+0002e, 23,                     # . (FULL STOP)
+0002f, 24,                     # / (SOLIDUS)
+00030, 00,                     # 0 (DIGIT ZERO)
+00031, 01,                     # 1 (DIGIT ONE)
+00032, 02,                     # 2 (DIGIT TWO)
+00033, 03,                     # 3 (DIGIT THREE)
+00034, 04,                     # 4 (DIGIT FOUR)
+00035, 05,                     # 5 (DIGIT FIVE)
+00036, 06,                     # 6 (DIGIT SIX)
+00037, 07,                     # 7 (DIGIT SEVEN)
+00038, 10,                     # 8 (DIGIT EIGHT)
+00039, 11,                     # 9 (DIGIT NINE)
+0003a, 20,                     # : (COLON)
+0003b, 17,                     # ; (SEMICOLON)
+0003c, 22, SHIFT               # < (LESS-THAN SIGN)
+0003d, 12, SHIFT               # = (EQUALS SIGN)
+0003e, 23, SHIFT               # > (GREATER-THAN SIGN)
+0003f, 24, SHIFT               # ? (QUESTION MARK)
+00040, 15,                     # @ (COMMERCIAL AT)
+00041, 26, SHIFT               # A (LATIN CAPITAL LETTER A)
+00042, 27, SHIFT               # B (LATIN CAPITAL LETTER B)
+00043, 30, SHIFT               # C (LATIN CAPITAL LETTER C)
+00044, 31, SHIFT               # D (LATIN CAPITAL LETTER D)
+00045, 32, SHIFT               # E (LATIN CAPITAL LETTER E)
+00046, 33, SHIFT               # F (LATIN CAPITAL LETTER F)
+00047, 34, SHIFT               # G (LATIN CAPITAL LETTER G)
+00048, 35, SHIFT               # H (LATIN CAPITAL LETTER H)
+00049, 36, SHIFT               # I (LATIN CAPITAL LETTER I)
+0004a, 37, SHIFT               # J (LATIN CAPITAL LETTER J)
+0004b, 40, SHIFT               # K (LATIN CAPITAL LETTER K)
+0004c, 41, SHIFT               # L (LATIN CAPITAL LETTER L)
+0004d, 42, SHIFT               # M (LATIN CAPITAL LETTER M)
+0004e, 43, SHIFT               # N (LATIN CAPITAL LETTER N)
+0004f, 44, SHIFT               # O (LATIN CAPITAL LETTER O)
+00050, 45, SHIFT               # P (LATIN CAPITAL LETTER P)
+00051, 46, SHIFT               # Q (LATIN CAPITAL LETTER Q)
+00052, 47, SHIFT               # R (LATIN CAPITAL LETTER R)
+00053, 50, SHIFT               # S (LATIN CAPITAL LETTER S)
+00054, 51, SHIFT               # T (LATIN CAPITAL LETTER T)
+00055, 52, SHIFT               # U (LATIN CAPITAL LETTER U)
+00056, 53, SHIFT               # V (LATIN CAPITAL LETTER V)
+00057, 54, SHIFT               # W (LATIN CAPITAL LETTER W)
+00058, 55, SHIFT               # X (LATIN CAPITAL LETTER X)
+00059, 56, SHIFT               # Y (LATIN CAPITAL LETTER Y)
+0005a, 57, SHIFT               # Z (LATIN CAPITAL LETTER Z)
+0005b, 16,                     # [ (LEFT SQUARE BRACKET)
+0005c, 14,                     # \
+0005d, 21,                     # ] (RIGHT SQUARE BRACKET)
+0005e, 13,                     # ^ (CIRCUMFLEX ACCENT)
+0005f, 25, SHIFT               # _ (LOW LINE)
+00060, 15, SHIFT               # ` (GRAVE ACCENT)
+00061, 26,                     # a (LATIN SMALL LETTER A)
+00062, 27,                     # b (LATIN SMALL LETTER B)
+00063, 30,                     # c (LATIN SMALL LETTER C)
+00064, 31,                     # d (LATIN SMALL LETTER D)
+00065, 32,                     # e (LATIN SMALL LETTER E)
+00066, 33,                     # f (LATIN SMALL LETTER F)
+00067, 34,                     # g (LATIN SMALL LETTER G)
+00068, 35,                     # h (LATIN SMALL LETTER H)
+00069, 36,                     # i (LATIN SMALL LETTER I)
+0006a, 37,                     # j (LATIN SMALL LETTER J)
+0006b, 40,                     # k (LATIN SMALL LETTER K)
+0006c, 41,                     # l (LATIN SMALL LETTER L)
+0006d, 42,                     # m (LATIN SMALL LETTER M)
+0006e, 43,                     # n (LATIN SMALL LETTER N)
+0006f, 44,                     # o (LATIN SMALL LETTER O)
+00070, 45,                     # p (LATIN SMALL LETTER P)
+00071, 46,                     # q (LATIN SMALL LETTER Q)
+00072, 47,                     # r (LATIN SMALL LETTER R)
+00073, 50,                     # s (LATIN SMALL LETTER S)
+00074, 51,                     # t (LATIN SMALL LETTER T)
+00075, 52,                     # u (LATIN SMALL LETTER U)
+00076, 53,                     # v (LATIN SMALL LETTER V)
+00077, 54,                     # w (LATIN SMALL LETTER W)
+00078, 55,                     # x (LATIN SMALL LETTER X)
+00079, 56,                     # y (LATIN SMALL LETTER Y)
+0007a, 57,                     # z (LATIN SMALL LETTER Z)
+0007b, 16, SHIFT               # { (LEFT CURLY BRACKET)
+0007c, 14, SHIFT               # | (VERTICAL LINE)
+0007d, 21, SHIFT               # } (RIGHT CURLY BRACKET)
+0007e, 13, SHIFT               # ~ (TILDE)
+0007f, 83,                     # Delete
+000a0, 80,                     # No-break space (&nbsp;)
+000a5, 14,                     # ¥ (YEN SIGN)
+003c0, 45, GRAPH               # π (GREEK SMALL LETTER PI)
+02500, 12, GRAPH               # ─ (BOX DRAWINGS LIGHT HORIZONTAL)
+02502, 36, GRAPH               # │ (BOX DRAWINGS LIGHT VERTICAL)
+0250c, 32, GRAPH               # ┌ (BOX DRAWINGS LIGHT DOWN AND RIGHT)
+02510, 51, GRAPH               # ┐ (BOX DRAWINGS LIGHT DOWN AND LEFT)
+02514, 30, GRAPH               # └ (BOX DRAWINGS LIGHT UP AND RIGHT)
+02518, 27, GRAPH               # ┘ (BOX DRAWINGS LIGHT UP AND LEFT)
+0251c, 31, GRAPH               # ├ (BOX DRAWINGS LIGHT VERTICAL AND RIGHT)
+02524, 34, GRAPH               # ┤ (BOX DRAWINGS LIGHT VERTICAL AND LEFT)
+0252c, 47, GRAPH               # ┬ (BOX DRAWINGS LIGHT DOWN AND HORIZONTAL)
+02534, 53, GRAPH               # ┴ (BOX DRAWINGS LIGHT UP AND HORIZONTAL)
+0253c, 33, GRAPH               # ┼ (BOX DRAWINGS LIGHT VERTICAL AND HORIZONTAL)
+02573, 55, GRAPH               # ╳ (BOX DRAWINGS LIGHT DIAGONAL CROSS)
+025cb, 16, GRAPH               # ○ (WHITE CIRCLE)
+025cf, 21, GRAPH               # ● (BLACK CIRCLE)
+02660, 24, GRAPH               # ♠ (BLACK SPADE SUIT)
+02663, 17, GRAPH               # ♣ (BLACK CLUB SUIT)
+02665, 20, GRAPH               # ♥ (BLACK HEART SUIT)
+02666, 25, GRAPH               # ♦ (BLACK DIAMOND SUIT)
+03000, --,                     # 　 (IDEOGRAPHIC SPACE)
+03001, 23, SHIFT CODE          # 、 (IDEOGRAPHIC COMMA)
+03002, 24, SHIFT CODE          # 。 (IDEOGRAPHIC FULL STOP)
+0300c, 16, SHIFT CODE          # 「 (LEFT CORNER BRACKET)
+0300d, 21, SHIFT CODE          # 」 (RIGHT CORNER BRACKET)
+03041, 01, SHIFT CODE          # ぁ (HIRAGANA LETTER SMALL A)
+03042, 01, CODE                # あ (HIRAGANA LETTER A)
+03043, 02, SHIFT CODE          # ぃ (HIRAGANA LETTER SMALL I)
+03044, 02, CODE                # い (HIRAGANA LETTER I)
+03045, 03, SHIFT CODE          # ぅ (HIRAGANA LETTER SMALL U)
+03046, 03, CODE                # う (HIRAGANA LETTER U)
+03047, 04, SHIFT CODE          # ぇ (HIRAGANA LETTER SMALL E)
+03048, 04, CODE                # え (HIRAGANA LETTER E)
+03049, 05, SHIFT CODE          # ぉ (HIRAGANA LETTER SMALL O)
+0304a, 05, CODE                # お (HIRAGANA LETTER O)
+0304b, 46, CODE                # か (HIRAGANA LETTER KA)
+0304d, 54, CODE                # き (HIRAGANA LETTER KI)
+0304f, 32, CODE                # く (HIRAGANA LETTER KU)
+03051, 47, CODE                # け (HIRAGANA LETTER KE)
+03053, 51, CODE                # こ (HIRAGANA LETTER KO)
+03055, 26, CODE                # さ (HIRAGANA LETTER SA)
+03057, 50, CODE                # し (HIRAGANA LETTER SI)
+03059, 31, CODE                # す (HIRAGANA LETTER SU)
+0305b, 33, CODE                # せ (HIRAGANA LETTER SE)
+0305d, 34, CODE                # そ (HIRAGANA LETTER SO)
+0305f, 57, CODE                # た (HIRAGANA LETTER TA)
+03061, 55, CODE                # ち (HIRAGANA LETTER TI)
+03063, 30, SHIFT CODE          # っ (HIRAGANA LETTER SMALL TU)
+03064, 30, CODE                # つ (HIRAGANA LETTER TU)
+03066, 53, CODE                # て (HIRAGANA LETTER TE)
+03068, 27, CODE                # と (HIRAGANA LETTER TO)
+0306a, 06, CODE                # な (HIRAGANA LETTER NA)
+0306b, 07, CODE                # に (HIRAGANA LETTER NI)
+0306c, 10, CODE                # ぬ (HIRAGANA LETTER NU)
+0306d, 11, CODE                # ね (HIRAGANA LETTER NE)
+0306e, 00, CODE                # の (HIRAGANA LETTER NO)
+0306f, 56, CODE                # は (HIRAGANA LETTER HA)
+03072, 52, CODE                # ひ (HIRAGANA LETTER HI)
+03075, 36, CODE                # ふ (HIRAGANA LETTER HU)
+03078, 44, CODE                # へ (HIRAGANA LETTER HE)
+0307b, 45, CODE                # ほ (HIRAGANA LETTER HO)
+0307e, 35, CODE                # ま (HIRAGANA LETTER MA)
+0307f, 37, CODE                # み (HIRAGANA LETTER MI)
+03080, 40, CODE                # む (HIRAGANA LETTER MU)
+03081, 41, CODE                # め (HIRAGANA LETTER ME)
+03082, 17, CODE                # も (HIRAGANA LETTER MO)
+03083, 43, SHIFT CODE          # ゃ (HIRAGANA LETTER SMALL YA)
+03084, 43, CODE                # や (HIRAGANA LETTER YA)
+03085, 42, SHIFT CODE          # ゅ (HIRAGANA LETTER SMALL YU)
+03086, 42, CODE                # ゆ (HIRAGANA LETTER YU)
+03087, 22, SHIFT CODE          # ょ (HIRAGANA LETTER SMALL YO)
+03088, 22, CODE                # よ (HIRAGANA LETTER YO)
+03089, 12, CODE                # ら (HIRAGANA LETTER RA)
+0308a, 13, CODE                # り (HIRAGANA LETTER RI)
+0308b, 14, CODE                # る (HIRAGANA LETTER RU)
+0308c, 15, CODE                # れ (HIRAGANA LETTER RE)
+0308d, 16, CODE                # ろ (HIRAGANA LETTER RO)
+0308f, 23, CODE                # わ (HIRAGANA LETTER WA)
+03092, 24, CODE                # を (HIRAGANA LETTER WO)
+03093, 25, CODE                # ん (HIRAGANA LETTER N)
+0309b, 20, CODE                # ゛ (KATAKANA-HIRAGANA VOICED SOUND MARK)
+0309c, 21, CODE                # ゜ (KATAKANA-HIRAGANA SEMI-VOICED SOUND MARK)
+030a1, 01, SHIFT CODE CAPSLOCK # ァ (KATAKANA LETTER SMALL A)
+030a2, 01, CODE CAPSLOCK       # ア (KATAKANA LETTER A)
+030a3, 02, SHIFT CODE CAPSLOCK # ィ (KATAKANA LETTER SMALL I)
+030a4, 02, CODE CAPSLOCK       # イ (KATAKANA LETTER I)
+030a5, 03, SHIFT CODE CAPSLOCK # ゥ (KATAKANA LETTER SMALL U)
+030a6, 03, CODE CAPSLOCK       # ウ (KATAKANA LETTER U)
+030a7, 04, SHIFT CODE CAPSLOCK # ェ (KATAKANA LETTER SMALL E)
+030a8, 04, CODE CAPSLOCK       # エ (KATAKANA LETTER E)
+030a9, 05, SHIFT CODE CAPSLOCK # ォ (KATAKANA LETTER SMALL O)
+030aa, 05, CODE CAPSLOCK       # オ (KATAKANA LETTER O)
+030ab, 46, CODE CAPSLOCK       # カ (KATAKANA LETTER KA)
+030ad, 54, CODE CAPSLOCK       # キ (KATAKANA LETTER KI)
+030af, 32, CODE CAPSLOCK       # ク (KATAKANA LETTER KU)
+030b1, 47, CODE CAPSLOCK       # ケ (KATAKANA LETTER KE)
+030b3, 51, CODE CAPSLOCK       # コ (KATAKANA LETTER KO)
+030b5, 26, CODE CAPSLOCK       # サ (KATAKANA LETTER SA)
+030b7, 50, CODE CAPSLOCK       # シ (KATAKANA LETTER SI)
+030b9, 31, CODE CAPSLOCK       # ス (KATAKANA LETTER SU)
+030bb, 33, CODE CAPSLOCK       # セ (KATAKANA LETTER SE)
+030bd, 34, CODE CAPSLOCK       # ソ (KATAKANA LETTER SO)
+030bf, 57, CODE CAPSLOCK       # タ (KATAKANA LETTER TA)
+030c1, 55, CODE CAPSLOCK       # チ (KATAKANA LETTER TI)
+030c3, 30, SHIFT CODE CAPSLOCK # ッ (KATAKANA LETTER SMALL TU)
+030c4, 30, CODE CAPSLOCK       # ツ (KATAKANA LETTER TU)
+030c6, 53, CODE CAPSLOCK       # テ (KATAKANA LETTER TE)
+030c8, 27, CODE CAPSLOCK       # ト (KATAKANA LETTER TO)
+030ca, 06, CODE CAPSLOCK       # ナ (KATAKANA LETTER NA)
+030cb, 07, CODE CAPSLOCK       # ニ (KATAKANA LETTER NI)
+030cc, 10, CODE CAPSLOCK       # ヌ (KATAKANA LETTER NU)
+030cd, 11, CODE CAPSLOCK       # ネ (KATAKANA LETTER NE)
+030ce, 00, CODE CAPSLOCK       # ノ (KATAKANA LETTER NO)
+030cf, 56, CODE CAPSLOCK       # ハ (KATAKANA LETTER HA)
+030d2, 52, CODE CAPSLOCK       # ヒ (KATAKANA LETTER HI)
+030d5, 36, CODE CAPSLOCK       # フ (KATAKANA LETTER HU)
+030d8, 44, CODE CAPSLOCK       # ヘ (KATAKANA LETTER HE)
+030db, 45, CODE CAPSLOCK       # ホ (KATAKANA LETTER HO)
+030de, 35, CODE CAPSLOCK       # マ (KATAKANA LETTER MA)
+030df, 37, CODE CAPSLOCK       # ミ (KATAKANA LETTER MI)
+030e0, 40, CODE CAPSLOCK       # ム (KATAKANA LETTER MU)
+030e1, 41, CODE CAPSLOCK       # メ (KATAKANA LETTER ME)
+030e2, 17, CODE CAPSLOCK       # モ (KATAKANA LETTER MO)
+030e3, 43, SHIFT CODE CAPSLOCK # ャ (KATAKANA LETTER SMALL YA)
+030e4, 43, CODE CAPSLOCK       # ヤ (KATAKANA LETTER YA)
+030e5, 42, SHIFT CODE CAPSLOCK # ュ (KATAKANA LETTER SMALL YU)
+030e6, 42, CODE CAPSLOCK       # ユ (KATAKANA LETTER YU)
+030e7, 22, SHIFT CODE CAPSLOCK # ョ (KATAKANA LETTER SMALL YO)
+030e8, 22, CODE CAPSLOCK       # ヨ (KATAKANA LETTER YO)
+030e9, 12, CODE CAPSLOCK       # ラ (KATAKANA LETTER RA)
+030ea, 13, CODE CAPSLOCK       # リ (KATAKANA LETTER RI)
+030eb, 14, CODE CAPSLOCK       # ル (KATAKANA LETTER RU)
+030ec, 15, CODE CAPSLOCK       # レ (KATAKANA LETTER RE)
+030ed, 16, CODE CAPSLOCK       # ロ (KATAKANA LETTER RO)
+030ef, 23, CODE CAPSLOCK       # ワ (KATAKANA LETTER WA)
+030f2, 24, CODE CAPSLOCK       # ヲ (KATAKANA LETTER WO)
+030f3, 25, CODE CAPSLOCK       # ン (KATAKANA LETTER N)
+030fb, 25, SHIFT CODE          # ・ (KATAKANA MIDDLE DOT)
+030fc, 20, SHIFT CODE          # ー (KATAKANA-HIRAGANA PROLONGED SOUND MARK)
+04e07, 00, GRAPH               # 万 (CJK UNIFIED IDEOGRAPH-4E07 (ten thousand))
+04e2d, 41, GRAPH               # 中 (CJK UNIFIED IDEOGRAPH-4E2D (middle))
+05186, 14, GRAPH               # 円 (CJK UNIFIED IDEOGRAPH-5186 (yen))
+05206, 42, GRAPH               # 分 (CJK UNIFIED IDEOGRAPH-5206 (minute))
+05343, 11, GRAPH               # 千 (CJK UNIFIED IDEOGRAPH-5343 (thousand))
+0571f, 07, GRAPH               # 土 (CJK UNIFIED IDEOGRAPH-571F (Saturday, earth))
+05927, 23, GRAPH               # 大 (CJK UNIFIED IDEOGRAPH-5927 (big))
+05c0f, 22, GRAPH               # 小 (CJK UNIFIED IDEOGRAPH-5C0F (small))
+05e74, 56, GRAPH               # 年 (CJK UNIFIED IDEOGRAPH-5E74 (year))
+065e5, 01, GRAPH               # 日 (CJK UNIFIED IDEOGRAPH-65E5 (Sunday, day))
+06642, 35, GRAPH               # 時 (CJK UNIFIED IDEOGRAPH-6642 (hour, time))
+06708, 02, GRAPH               # 月 (CJK UNIFIED IDEOGRAPH-6708 (Monday, month))
+06728, 05, GRAPH               # 木 (CJK UNIFIED IDEOGRAPH-6728 (Thursday, wood))
+06c34, 04, GRAPH               # 水 (CJK UNIFIED IDEOGRAPH-6C34 (Wednesday, water))
+0706b, 03, GRAPH               # 火 (CJK UNIFIED IDEOGRAPH-706B (Tuesday, fire))
+0767e, 10, GRAPH               # 百 (CJK UNIFIED IDEOGRAPH-767E (hundred))
+079d2, 50, GRAPH               # 秒 (CJK UNIFIED IDEOGRAPH-79D2 (second))
+091d1, 06, GRAPH               # 金 (CJK UNIFIED IDEOGRAPH-91D1 (Friday, metal))

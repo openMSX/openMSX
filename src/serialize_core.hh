@@ -662,26 +662,30 @@ template<typename TP> struct PointerLoader
 		              "must be serialized as a pointer");
 		// in XML archives we use 'id_ref' or 'id', in other archives
 		// we don't care about the name
-		unsigned id;
-		if (ar.CAN_HAVE_OPTIONAL_ATTRIBUTES &&
-		    ar.findAttribute("id_ref", id)) {
-			// nothing, 'id' already filled in
-		} else {
-			ar.attribute("id", id);
-		}
+		unsigned id = [&] {
+			if constexpr (Archive::CAN_HAVE_OPTIONAL_ATTRIBUTES) {
+				if (auto i = ar.template findAttributeAs<unsigned>("id_ref")) {
+					return *i;
+				}
+			}
+			unsigned i;
+			ar.attribute("id", i);
+			return i;
+		}();
 
 		using T = typename serialize_as_pointer<TP>::type;
-		T* tp;
-		if (id == 0) {
-			tp = nullptr;
-		} else {
-			if (void* p = ar.getPointer(id)) {
-				tp = static_cast<T*>(p);
+		T* tp = [&]() -> T* {
+			if (id == 0) {
+				return nullptr;
 			} else {
-				PointerLoader2<T> loader;
-				tp = loader(ar, id, globalArgs);
+				if (void* p = ar.getPointer(id)) {
+					return static_cast<T*>(p);
+				} else {
+					PointerLoader2<T> loader;
+					return loader(ar, id, globalArgs);
+				}
 			}
-		}
+		}();
 		serialize_as_pointer<TP>::setPointer(tp2, tp, ar);
 	}
 };

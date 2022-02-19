@@ -136,8 +136,8 @@ void TTFFontPool::release(TTF_Font* font)
 // class TTFFont
 
 TTFFont::TTFFont(const std::string& filename, int ptSize)
+	: font(TTFFontPool::instance().get(filename, ptSize))
 {
-	font = TTFFontPool::instance().get(filename, ptSize);
 }
 
 TTFFont::~TTFFont()

@@ -204,7 +204,7 @@ string_view MemInputArchive::loadStr()
 	load(length);
 	const uint8_t* p = buffer.getCurrentPos();
 	buffer.skip(length);
-	return string_view(reinterpret_cast<const char*>(p), length);
+	return {reinterpret_cast<const char*>(p), length};
 }
 
 ////
@@ -563,16 +563,6 @@ void XmlInputArchive::attribute(const char* name, unsigned& u)
 bool XmlInputArchive::hasAttribute(const char* name)
 {
 	return currentElement()->findAttribute(name);
-}
-bool XmlInputArchive::findAttribute(const char* name, unsigned& value)
-{
-	if (const auto* attr = currentElement()->findAttribute(name)) {
-		if (auto r = StringOp::stringTo<int>(attr->getValue())) {
-			value = *r;
-			return true;
-		}
-	}
-	return false;
 }
 int XmlInputArchive::countChildren() const
 {

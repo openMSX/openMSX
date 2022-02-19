@@ -20,7 +20,7 @@ class MSXtar
 {
 public:
 	explicit MSXtar(SectorAccessibleDisk& disk);
-	MSXtar(MSXtar&& other);
+	MSXtar(MSXtar&& other) noexcept;
 	~MSXtar();
 
 	void chdir(std::string_view newRootDir);

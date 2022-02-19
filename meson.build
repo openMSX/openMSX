@@ -1,6 +1,5 @@
 project(
     'openMSX', 'cpp',
-    version: '0.15.0',
     license: 'GPL-2.0-only',
     default_options: ['warning_level=3', 'cpp_std=c++17'],
     meson_version: '>=0.50.0'

@@ -54,12 +54,16 @@ Mouse::Mouse(MSXEventDistributor& eventDistributor_,
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
 	, lastTime(EmuTime::zero())
+	, phase(PHASE_YLOW)
+	, xrel(0)
+	, yrel(0)
+	, curxrel(0)
+	, curyrel(0)
+	, absHostX(0)
+	, absHostY(0)
+	, status(JOY_BUTTONA | JOY_BUTTONB)
+	, mouseMode(true)
 {
-	status = JOY_BUTTONA | JOY_BUTTONB;
-	phase = PHASE_YLOW;
-	xrel = yrel = curxrel = curyrel = 0;
-	absHostX = absHostY = 0;
-	mouseMode = true;
 }
 
 Mouse::~Mouse()

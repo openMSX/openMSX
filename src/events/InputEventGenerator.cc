@@ -25,11 +25,10 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 		false, Setting::DONT_SAVE)
 	, escapeGrabCmd(commandController)
 	, escapeGrabState(ESCAPE_GRAB_WAIT_CMD)
+	, osdControlButtonsState(unsigned(~0)) // 0 is pressed, 1 is released
 {
 	setGrabInput(grabInput.getBoolean());
 	eventDistributor.registerEventListener(EventType::FOCUS, *this);
-
-	osdControlButtonsState = unsigned(~0); // 0 is pressed, 1 is released
 
 #ifndef SDL_JOYSTICK_DISABLED
 	SDL_JoystickEventState(SDL_ENABLE); // joysticks generate events

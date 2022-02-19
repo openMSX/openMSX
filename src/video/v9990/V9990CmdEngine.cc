@@ -80,7 +80,7 @@ constexpr EDStorage SRCH_TIMING[4][3][4] = {
 
 [[nodiscard]] static EmuDuration getTiming(const V9990CmdEngine& cmdEngine, const EDStorage table[4][3][4])
 {
-	if (unlikely(cmdEngine.getBrokenTiming())) return EmuDuration();
+	if (unlikely(cmdEngine.getBrokenTiming())) return {};
 
 	const auto& vdp = cmdEngine.getVDP();
 	auto mode = vdp.getDisplayMode();

@@ -175,7 +175,7 @@ void EventDelay::executeUntil(EmuTime::param time)
 	try {
 		auto event = std::move(scheduledEvents.front());
 		scheduledEvents.pop_front();
-		msxEventDistributor.distributeEvent(std::move(event), time);
+		msxEventDistributor.distributeEvent(event, time);
 	} catch (MSXException&) {
 		// ignore
 	}

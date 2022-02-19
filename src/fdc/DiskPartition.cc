@@ -11,10 +11,10 @@ using namespace DiskImageUtils;
 [[nodiscard]] static DiskName getDiskName(SectorAccessibleDisk* disk, unsigned partition)
 {
 	if (auto* dsk = dynamic_cast<Disk*>(disk)) {
-		return DiskName(dsk->getName().getFilename(),
-		                strCat(':', partition));
+		return {dsk->getName().getFilename(),
+		        strCat(':', partition)};
 	} else {
-		return DiskName(Filename("dummy"));
+		return {Filename("dummy")};
 	}
 }
 

@@ -53,6 +53,7 @@ public:
 	[[nodiscard]] const XMLElement& getConfig() const { return *config.getRoot(); }
 	[[nodiscard]] const std::string& getName() const { return name; }
 	[[nodiscard]] const std::string& getConfigName() const { return hwName; }
+	[[nodiscard]] const XMLElement& getDevicesElem() const;
 	[[nodiscard]] Type getType() const { return type; }
 
 	/** Parses a slot mapping.
@@ -78,7 +79,6 @@ private:
 	void setConfig(XMLElement* root) { config.setRoot(root); }
 	void load(std::string_view type);
 
-	[[nodiscard]] const XMLElement& getDevicesElem() const;
 	void createDevices(const XMLElement& elem,
 	                   const XMLElement* primary, const XMLElement* secondary);
 	void createExternalSlot(int ps);

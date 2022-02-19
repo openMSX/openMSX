@@ -20,7 +20,7 @@ constexpr unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on .wav file
 	dynarray<WavData> result(numSamples); // initialize with empty WAVs
 
 	bool alreadyWarned = false;
-	auto context = systemFileContext();
+	const auto& context = systemFileContext();
 	for (auto i : xrange(numSamples)) {
 		try {
 			auto filename = tmpStrCat(baseName, i, ".wav");
@@ -52,12 +52,10 @@ SamplePlayer::SamplePlayer(const std::string& name_, static_string_view desc,
                            std::string_view alternativeName)
 	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 1, DUMMY_INPUT_RATE, false)
 	, samples(loadSamples(name_, config, samplesBaseName, alternativeName, numSamples))
+	, index(0) // avoid UMR on serialize
 {
 	registerSound(config);
 	reset();
-
-	// avoid UMR on serialize
-	index = 0;
 }
 
 SamplePlayer::~SamplePlayer()
@@ -83,7 +81,7 @@ void SamplePlayer::setWavParams()
 {
 	if ((currentSampleNum < samples.size()) &&
 	    samples[currentSampleNum].getSize()) {
-		auto& wav = samples[currentSampleNum];
+		const auto& wav = samples[currentSampleNum];
 		bufferSize = wav.getSize();
 
 		unsigned freq = wav.getFreq();
@@ -116,7 +114,7 @@ void SamplePlayer::generateChannels(float** bufs, unsigned num)
 		return;
 	}
 
-	auto& wav = samples[currentSampleNum];
+	const auto& wav = samples[currentSampleNum];
 	for (auto i : xrange(num)) {
 		if (index >= bufferSize) {
 			if (nextSampleNum != unsigned(-1)) {

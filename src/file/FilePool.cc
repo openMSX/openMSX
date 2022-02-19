@@ -18,7 +18,7 @@ namespace openmsx {
 {
 	TclObject result;
 
-	for (auto& p : systemFileContext().getPaths()) {
+	for (const auto& p : systemFileContext().getPaths()) {
 		result.addListElement(
 			makeTclDict("-path", tmpStrCat(p, "/systemroms"),
 			            "-types", "system_rom"),

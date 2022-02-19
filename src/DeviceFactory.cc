@@ -2,6 +2,7 @@
 #include "XMLElement.hh"
 #include "DeviceConfig.hh"
 #include "ChakkariCopy.hh"
+#include "CanonWordProcessor.hh"
 #include "FraelSwitchableROM.hh"
 #include "MSXRam.hh"
 #include "MSXPPI.hh"
@@ -17,6 +18,9 @@
 #include "MSXS1990.hh"
 #include "ColecoJoystickIO.hh"
 #include "ColecoSuperGameModule.hh"
+#include "SG1000JoystickIO.hh"
+#include "SG1000Pause.hh"
+#include "SC3000PPI.hh"
 #include "MSXPSG.hh"
 #include "SVIPSG.hh"
 #include "SNPSG.hh"
@@ -162,6 +166,12 @@ std::unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<ColecoJoystickIO>(conf);
 	} else if (type == "SuperGameModule") {
 		result = make_unique<ColecoSuperGameModule>(conf);
+	} else if (type == "SG1000Joystick") {
+		result = make_unique<SG1000JoystickIO>(conf);
+	} else if (type == "SG1000Pause") {
+		result = make_unique<SG1000Pause>(conf);
+	} else if (type == "SC3000PPI") {
+		result = make_unique<SC3000PPI>(conf);
 	} else if (type == "PSG") {
 		result = make_unique<MSXPSG>(conf);
 	} else if (type == "SVIPSG") {
@@ -285,6 +295,8 @@ std::unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<FraelSwitchableROM>(conf);
 	} else if (type == "ChakkariCopy") {
 		result = make_unique<ChakkariCopy>(conf);
+	} else if (type == "CanonWordProcessor") {
+		result = make_unique<CanonWordProcessor>(conf);
 	} else if (type == "MegaFlashRomSCCPlusSD") {
 		result = make_unique<MegaFlashRomSCCPlusSD>(conf);
 	} else if (type == "MusicalMemoryMapper") {

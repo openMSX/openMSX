@@ -8,11 +8,11 @@ namespace openmsx {
 
 DiskImageCLI::DiskImageCLI(CommandLineParser& parser_)
 	: parser(parser_)
+	, driveLetter('a')
 {
 	parser.registerOption("-diska", *this);
 	parser.registerOption("-diskb", *this);
 	parser.registerFileType({"di1", "di2", "dmk", "dsk", "xsa", "fd1", "fd2"}, *this);
-	driveLetter = 'a';
 }
 
 void DiskImageCLI::parseOption(const std::string& option, span<std::string>& cmdLine)

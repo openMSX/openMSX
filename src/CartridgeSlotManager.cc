@@ -322,7 +322,7 @@ void CartridgeSlotManager::CartCmd::execute(
 				"Warning: use of '-eject' is deprecated, "
 				"instead use the 'eject' subcommand";
 		}
-		if (auto* extConf = getExtensionConfig(cartname)) {
+		if (const auto* extConf = getExtensionConfig(cartname)) {
 			try {
 				manager.motherBoard.removeExtension(*extConf);
 				cliComm.update(CliComm::MEDIA, cartname, {});
@@ -350,7 +350,7 @@ void CartridgeSlotManager::CartCmd::execute(
 			auto extension = HardwareConfig::createRomConfig(
 				manager.motherBoard, string(romname), string(slotname), options);
 			if (slotname != "any") {
-				if (auto* extConf = getExtensionConfig(cartname)) {
+				if (const auto* extConf = getExtensionConfig(cartname)) {
 					// still a cartridge inserted, (try to) remove it now
 					manager.motherBoard.removeExtension(*extConf);
 				}

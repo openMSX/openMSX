@@ -17,9 +17,9 @@ SVIPrinterPort::SVIPrinterPort(const DeviceConfig& config)
 	: MSXDevice(config)
 	, Connector(MSXDevice::getPluggingController(), "printerport",
 	            std::make_unique<DummyPrinterPortDevice>())
+	, strobe(false) // != true
+	, data(255)     // != 0
 {
-	data = 255;     // != 0;
-	strobe = false; // != true;
 	reset(getCurrentTime());
 }
 

@@ -349,7 +349,7 @@ File FilePoolCore::getFromPool(const Sha1Sum& sha1sum)
 			--last;
 		}
 	}
-	return File(); // not found
+	return {}; // not found
 }
 
 File FilePoolCore::scanDirectory(
@@ -425,7 +425,7 @@ File FilePoolCore::scanFile(const Sha1Sum& sha1sum, const std::string& filename,
 			remove(idx, *entry);
 		}
 	}
-	return File(); // not found
+	return {}; // not found
 }
 
 std::pair<FilePoolCore::Index, FilePoolCore::Entry*> FilePoolCore::findInDatabase(std::string_view filename)

@@ -72,6 +72,10 @@ bool operator==(const Event& x, const Event& y)
 		[](const CliCommandEvent& a, const CliCommandEvent& b) {
 			return a.getCommand() == b.getCommand();
 		},
+		[](const GroupEvent& a, const GroupEvent& b) {
+			return a.getTclListComponents() ==
+			       b.getTclListComponents();
+		},
 		[&](const EventBase& /*a*/, const EventBase& /*b*/) {
 			return getType(x) == getType(y);
 		}

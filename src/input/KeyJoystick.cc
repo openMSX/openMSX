@@ -68,9 +68,9 @@ KeyJoystick::KeyJoystick(CommandController& commandController,
 	, trigB(commandController, tmpStrCat(nameForId(id_), ".trigb"),
 		"key for trigger B",       Keys::K_M)
 	, id(id_)
+	, status(JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
+	         JOY_BUTTONA | JOY_BUTTONB)
 {
-	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
-	         JOY_BUTTONA | JOY_BUTTONB;
 }
 
 KeyJoystick::~KeyJoystick()

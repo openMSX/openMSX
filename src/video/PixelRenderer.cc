@@ -121,16 +121,15 @@ PixelRenderer::PixelRenderer(VDP& vdp_, Display& display)
 	, videoSourceSetting(vdp.getMotherBoard().getVideoSource())
 	, spriteChecker(vdp.getSpriteChecker())
 	, rasterizer(display.getVideoSystem().createRasterizer(vdp))
+	, finishFrameDuration(0)
+	, frameSkipCounter(999) // force drawing of frame
+	, prevRenderFrame(false)
 {
 	// In case of loadstate we can't yet query any state from the VDP
 	// (because that object is not yet fully deserialized). But
 	// VDP::serialize() will call Renderer::reInit() again when it is
 	// safe to query.
 	reInit();
-
-	finishFrameDuration = 0;
-	frameSkipCounter = 999; // force drawing of frame
-	prevRenderFrame = false;
 
 	renderSettings.getMaxFrameSkipSetting().attach(*this);
 	renderSettings.getMinFrameSkipSetting().attach(*this);

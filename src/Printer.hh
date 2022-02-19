@@ -100,20 +100,20 @@ protected:
 	double pageTop;
 	double lineFeed;
 	double pageHeight;
-	double printAreaTop;
-	double printAreaBottom;
+	double printAreaTop = -1.0;
+	double printAreaBottom = 0.0;
 	double pixelSizeX;
 	double pixelSizeY;
-	int  eightBit;
-	unsigned perforationSkip;
+	int  eightBit = 0;
+	unsigned perforationSkip = 0;
 	unsigned leftBorder;
 	unsigned rightBorder;
 	unsigned fontWidth;
-	unsigned remainingCommandBytes;
-	unsigned sizeEscPos;
-	unsigned sizeRemainingDataBytes;
-	unsigned ramLoadOffset;
-	unsigned ramLoadEnd;
+	unsigned remainingCommandBytes = 0;
+	unsigned sizeEscPos = 0;
+	unsigned sizeRemainingDataBytes = 0;
+	unsigned ramLoadOffset = 0;
+	unsigned ramLoadEnd = 0;
 	unsigned lines;
 	enum CountryCode {
 		CC_USA              = 0,
@@ -126,7 +126,7 @@ protected:
 		CC_SPAIN            = 7,
 		CC_JAPAN            = 8
 	};
-	CountryCode countryCode;
+	CountryCode countryCode = CC_USA;
 
 	static constexpr int MAX_ESC_CMDSIZE = 8;
 	byte abEscSeq[MAX_ESC_CMDSIZE];
@@ -140,25 +140,25 @@ protected:
 		bool useRam;
 	} fontInfo;
 
-	bool letterQuality;
-	bool bold;
-	bool proportional;
-	bool italic;
-	bool superscript;
-	bool subscript;
-	bool doubleWidth;
-	bool underline;
-	bool doubleStrike;
-	bool escSequence;
-	bool alternateChar;
-	bool detectPaperOut;
-	bool japanese;
-	bool normalAfterLine;
-	bool ninePinGraphics;
-	bool leftToRight;
-	bool elite;
-	bool compressed;
-	bool noHighEscapeCodes;
+	bool letterQuality = false;
+	bool bold = false;
+	bool proportional = false;
+	bool italic = false;
+	bool superscript = false;
+	bool subscript = false;
+	bool doubleWidth = false;
+	bool underline = false;
+	bool doubleStrike = false;
+	bool escSequence = false;
+	bool alternateChar = false;
+	bool detectPaperOut = false;
+	bool japanese = false;
+	bool normalAfterLine = false;
+	bool ninePinGraphics = false;
+	bool leftToRight = false;
+	bool elite = false;
+	bool compressed = false;
+	bool noHighEscapeCodes = false;
 
 private:
 	MSXMotherBoard& motherBoard;

@@ -59,7 +59,7 @@ register_lazy "_slot.tcl" {
 register_lazy "_soundchip_utils.tcl" {
 	get_num_channels get_volume_expr get_frequency_expr}
 register_lazy "_soundlog.tcl" soundlog
-register_lazy "_sprites.tcl" {sprite_viewer draw_matrix}
+register_lazy "_sprites.tcl" {toggle_sprite_locator sprite_viewer draw_matrix}
 register_lazy "_stack.tcl" stack
 register_lazy "_tas_tools.tcl" {
 	toggle_frame_counter prev_frame next_frame start_of_frame
@@ -77,11 +77,12 @@ register_lazy "_utils.tcl" {
 	get_machine_display_name get_machine_display_name_by_config_name
 	get_extension_display_name_by_config_name
 	get_display_name_by_config_name get_machine_time format_time
-	format_time_subseconds get_ordered_machine_list get_random_number clip
-	file_completion filename_clean get_next_numbered_filename}
+	format_time_subseconds format_time_hours_and_subseconds
+	get_ordered_machine_list get_random_number clip file_completion
+	filename_clean get_next_numbered_filename}
 register_lazy "_vdp.tcl" {
 	getcolor setcolor get_screen_mode get_screen_mode_number vdpreg vdpregs
-	v9990regs vpeek vpoke palette}
+	v9990regs vpeek vpoke palette get_frame_duration}
 register_lazy "_vdp_access_test.tcl" toggle_vdp_access_test
 register_lazy "_vdp_busy.tcl" toggle_vdp_busy
 register_lazy "_vdrive.tcl" vdrive

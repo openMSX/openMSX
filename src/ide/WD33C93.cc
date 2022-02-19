@@ -105,9 +105,11 @@ constexpr byte AS_INT          = 0x80;
 */
 
 WD33C93::WD33C93(const DeviceConfig& config)
+	: counter(0)
+	, blockCounter(0)
+	, targetId(0)
+	, devBusy(false)
 {
-	devBusy = false;
-
 	for (const auto* t : config.getXML()->getChildren("target")) {
 		unsigned id = t->getAttributeValueAsInt("id", 0);
 		if (id >= MAX_DEV) {
@@ -139,9 +141,6 @@ WD33C93::WD33C93(const DeviceConfig& config)
 
 	// avoid UMR on savestate
 	memset(buffer.data(), 0, SCSIDevice::BUFFER_SIZE);
-	counter = 0;
-	blockCounter = 0;
-	targetId = 0;
 }
 
 void WD33C93::disconnect()

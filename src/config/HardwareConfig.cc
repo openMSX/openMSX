@@ -230,7 +230,7 @@ static void loadHelper(XMLDocument& doc, std::string filename)
 
 static string getFilename(std::string_view type, std::string_view name)
 {
-	auto context = systemFileContext();
+	const auto& context = systemFileContext();
 	try {
 		// try <name>.xml
 		return context.resolve(tmpStrCat(

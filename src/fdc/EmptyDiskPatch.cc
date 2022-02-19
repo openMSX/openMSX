@@ -26,8 +26,7 @@ size_t EmptyDiskPatch::getSize() const
 
 std::vector<Filename> EmptyDiskPatch::getFilenames() const
 {
-	// return {};
-	return std::vector<Filename>();
+	return {};
 }
 
 } // namespace openmsx

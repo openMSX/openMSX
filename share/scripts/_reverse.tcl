@@ -451,7 +451,7 @@ proc update_reversebar2 {} {
 	# Hide when mouse hasn't moved for some time
 	if {$mouseInside && $overlay_counter < 8} {
 		variable overlayOffset
-		set mousetext [utils::format_time_subseconds [expr {$x * $totLenght}]]
+		set mousetext [utils::format_time_hours_and_subseconds [expr {$x * $totLenght}]]
 		osd configure reverse.mousetime.text -text $mousetext -relx 0.05
 		set textsize [lindex [osd info reverse.mousetime.text -query-size] 0]
 		osd configure reverse.mousetime -rely $overlayOffset -relx [expr {$x - 0.05}] -w [expr {1.1 * $textsize}]
@@ -500,7 +500,7 @@ proc update_reversebar2 {} {
 	osd configure reverse.int.bar -relw $fraction
 	osd configure reverse.int.end -relx $fraction
 	osd configure reverse.int.text \
-		-text "[utils::format_time_subseconds $playLength] / [utils::format_time_subseconds $totLenght]"
+		-text "[utils::format_time_hours_and_subseconds $playLength] / [utils::format_time_hours_and_subseconds $totLenght]"
 }
 
 proc check_mouse {} {

@@ -112,7 +112,7 @@ zstring_view TclObject::getString() const
 {
 	int length;
 	char* buf = Tcl_GetStringFromObj(obj, &length);
-	return zstring_view(buf, length);
+	return {buf, size_t(length)};
 }
 
 span<const uint8_t> TclObject::getBinary() const
@@ -153,7 +153,7 @@ TclObject TclObject::getListIndexUnchecked(unsigned index) const
 {
 	Tcl_Obj* element;
 	if (Tcl_ListObjIndex(nullptr, obj, index, &element) != TCL_OK) {
-		return TclObject();
+		return {};
 	}
 	return element ? TclObject(element) : TclObject();
 }

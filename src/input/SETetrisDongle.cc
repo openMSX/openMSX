@@ -5,9 +5,9 @@
 namespace openmsx {
 
 SETetrisDongle::SETetrisDongle()
+	: status(JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
+	         JOY_BUTTONA | JOY_BUTTONB)
 {
-	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
-	         JOY_BUTTONA | JOY_BUTTONB;
 }
 
 // Pluggable

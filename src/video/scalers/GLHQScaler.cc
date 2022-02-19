@@ -39,7 +39,7 @@ GLHQScaler::GLHQScaler(GLScaler& fallback_)
 #endif
 	edgeBuffer.setImage(320, 240);
 
-	auto context = systemFileContext();
+	const auto& context = systemFileContext();
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	std::string offsetsName = "shaders/HQ_xOffsets.dat";
 	std::string weightsName = "shaders/HQ_xWeights.dat";

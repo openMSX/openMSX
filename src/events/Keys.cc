@@ -13,14 +13,6 @@ struct P {
 	constexpr P(string_view s, KeyCode k)
 		: first(s), second(k) {}
 
-	// Needed for gcc-6.3. Compiler bug?
-	constexpr P& operator=(const P& o) {
-		first = o.first;
-		second = o.second;
-		return *this;
-	}
-	constexpr P(const P& p) = default;
-
 	string_view first;
 	KeyCode second;
 };

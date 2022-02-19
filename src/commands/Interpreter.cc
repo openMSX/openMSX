@@ -74,8 +74,8 @@ void Interpreter::init(const char* programName)
 }
 
 Interpreter::Interpreter()
+	: interp(Tcl_CreateInterp())
 {
-	interp = Tcl_CreateInterp();
 	Tcl_Preserve(interp);
 
 	// TODO need to investigate this: doesn't work on windows
@@ -455,7 +455,7 @@ void Interpreter::poll()
 
 TclParser Interpreter::parse(std::string_view command)
 {
-	return TclParser(interp, command);
+	return {interp, command};
 }
 
 void Interpreter::wrongNumArgs(unsigned argc, span<const TclObject> tokens, const char* message)

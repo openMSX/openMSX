@@ -26,16 +26,16 @@ GLPostProcessor::GLPostProcessor(
 	                videoSource, maxWidth_, height_, canDoInterlace_)
 	, noiseTextureA(true, true) // interpolate + wrap
 	, noiseTextureB(true, true)
+	, noiseX(0.0f)
+	, noiseY(0.0f)
 	, height(height_)
+	, frameCounter(0)
+	, scaleAlgorithm(RenderSettings::NO_SCALER)
+	, storedFrame(false)
 {
-	scaleAlgorithm = RenderSettings::NO_SCALER;
-
-	frameCounter = 0;
-	noiseX = noiseY = 0.0f;
 	preCalcNoise(renderSettings.getNoise());
 	initBuffers();
 
-	storedFrame = false;
 	for (auto i : xrange(2)) {
 		colorTex[i].bind();
 		colorTex[i].setInterpolation(true);

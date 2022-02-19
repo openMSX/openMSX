@@ -236,13 +236,12 @@ FBPostProcessor<Pixel>::FBPostProcessor(MSXMotherBoard& motherBoard_,
 	: PostProcessor(
 		motherBoard_, display_, screen_, videoSource, maxWidth_, height_,
 		canDoInterlace_)
+	, scaleAlgorithm(RenderSettings::NO_SCALER)
+	, scaleFactor(unsigned(-1))
+	, stretchWidth(unsigned(-1))
 	, noiseShift(screen.getLogicalHeight())
 	, pixelOps(screen.getPixelFormat())
 {
-	scaleAlgorithm = RenderSettings::NO_SCALER;
-	scaleFactor = unsigned(-1);
-	stretchWidth = unsigned(-1);
-
 	auto& noiseSetting = renderSettings.getNoiseSetting();
 	noiseSetting.attach(*this);
 	preCalcNoise(noiseSetting.getDouble());

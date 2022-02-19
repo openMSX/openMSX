@@ -86,8 +86,9 @@
           <drives>1</drives>
           <rom>
             <filename>svi-738_disk.rom</filename>
-            <sha1>17b2810545e55d3fa5821d74d8b5ab5475165fba</sha1>
-            <sha1>e3130d89a422db291142f366ab24cd0dbc921467</sha1>
+            <sha1>99a40266bc296cef1d432cb0caa8df1a7e570be4</sha1>
+            <sha1>55d5d1fd57d35384b821af62083f2a23d85580e6</sha1>
+            <sha1>465fab904a22b3e29f0c00daaf326dc4a6862088</sha1>
           </rom>
           <mem base="0x4000" size="0x8000"/>
         </WD2793>

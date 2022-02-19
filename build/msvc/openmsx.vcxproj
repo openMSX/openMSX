@@ -477,6 +477,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\input\Paddle.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\RecordedCommand.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\SETetrisDongle.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\input\SG1000JoystickIO.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\StateChangeDistributor.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\Trackball.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\UnicodeKeymap.cc" />
@@ -487,6 +488,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\EEPROM_93C46.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\Carnivore2.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\CheckedRam.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\CanonWordProcessor.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\ColecoSuperGameModule.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\TrackedRam.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\ESE_RAM.cc" />
@@ -835,6 +837,8 @@
     <ClCompile Include="$(OpenMSXSrcDir)\serialize.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serialize_core.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serialize_meta.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\SC3000PPI.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\SG1000Pause.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\SpeedManager.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\ThrottleManager.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\Version.cc" />
@@ -1027,6 +1031,7 @@
     <None Include="$(OpenMSXSrcDir)\input\Paddle.hh" />
     <None Include="$(OpenMSXSrcDir)\input\RecordedCommand.hh" />
     <None Include="$(OpenMSXSrcDir)\input\SETetrisDongle.hh" />
+    <None Include="$(OpenMSXSrcDir)\input\SG1000JoystickIO.hh" />
     <None Include="$(OpenMSXSrcDir)\input\StateChange.hh" />
     <None Include="$(OpenMSXSrcDir)\input\StateChangeDistributor.hh" />
     <None Include="$(OpenMSXSrcDir)\input\StateChangeListener.hh" />
@@ -1039,6 +1044,7 @@
     <None Include="$(OpenMSXSrcDir)\memory\EEPROM_93C46.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\Carnivore2.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\CheckedRam.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\CanonWordProcessor.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\ColecoSuperGameModule.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\TrackedRam.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\ESE_RAM.hh" />
@@ -1582,6 +1588,8 @@ popd</Command>
     <None Include="$(OpenMSXSrcDir)\serialize_core.hh" />
     <None Include="$(OpenMSXSrcDir)\serialize_meta.hh" />
     <None Include="$(OpenMSXSrcDir)\serialize_stl.hh" />
+    <None Include="$(OpenMSXSrcDir)\SC3000PPI.hh" />
+    <None Include="$(OpenMSXSrcDir)\SG1000Pause.hh" />
     <None Include="$(OpenMSXSrcDir)\SpeedManager.hh" />
     <None Include="$(OpenMSXSrcDir)\ThrottleManager.hh" />
     <None Include="$(OpenMSXSrcDir)\Version.hh" />

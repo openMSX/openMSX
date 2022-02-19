@@ -38,7 +38,7 @@
       <sound>
         <volume>16000</volume>
       </sound>
-      <keyboard_type>fr</keyboard_type> <!-- Should be French-Arabic? -->
+      <keyboard_type>ar_fr</keyboard_type>
       <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
       <code_kana_locks>false</code_kana_locks>

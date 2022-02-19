@@ -51,10 +51,9 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	, hdImageCLI(*this)
 	, cdImageCLI(*this)
 	, parseStatus(UNPARSED)
+	, haveConfig(false)
+	, haveSettings(false)
 {
-	haveConfig = false;
-	haveSettings = false;
-
 	registerOption("-h",          helpOption,    PHASE_BEFORE_INIT, 1);
 	registerOption("--help",      helpOption,    PHASE_BEFORE_INIT, 1);
 	registerOption("-v",          versionOption, PHASE_BEFORE_INIT, 1);
@@ -189,7 +188,7 @@ void CommandLineParser::parse(int argc, char** argv)
 					reactor.getGlobalCommandController().getSettingsConfig();
 				// Load default settings file in case the user
 				// didn't specify one.
-				auto context = systemFileContext();
+				const auto& context = systemFileContext();
 				string filename = "settings.xml";
 				try {
 					settingsConfig.loadSetting(context, filename);

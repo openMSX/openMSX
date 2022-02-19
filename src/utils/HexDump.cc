@@ -11,7 +11,7 @@ using openmsx::MemBuffer;
 
 [[nodiscard]] static constexpr char encode2(uint8_t x)
 {
-	return (x < 10) ? (x + '0') : (x - 10 + 'A');
+	return (x < 10) ? char(x + '0') : char(x - 10 + 'A');
 }
 [[nodiscard]] static auto encode(uint8_t x)
 {
@@ -66,7 +66,7 @@ std::pair<MemBuffer<uint8_t>, size_t> decode(std::string_view input)
 
 	assert(outSize >= out);
 	ret.resize(out); // shrink to correct size
-	return std::pair(std::move(ret), out);
+	return {std::move(ret), out};
 }
 
 bool decode_inplace(std::string_view input, uint8_t* output, size_t outSize)

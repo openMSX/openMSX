@@ -52,7 +52,7 @@ const XMLElement* XMLElement::findChild(std::string_view childName, const XMLEle
 // Like findChild(), but throws when not found.
 const XMLElement& XMLElement::getChild(std::string_view childName) const
 {
-	if (auto* elem = findChild(childName)) {
+	if (const auto* elem = findChild(childName)) {
 		return *elem;
 	}
 	throw ConfigException("Missing tag \"", childName, "\".");
@@ -105,7 +105,7 @@ const XMLAttribute* XMLElement::findAttribute(std::string_view attrName) const
 // Throws when not found.
 const XMLAttribute& XMLElement::getAttribute(std::string_view attrName) const
 {
-	const auto result = findAttribute(attrName);
+	const auto* result = findAttribute(attrName);
 	if (result) return *result;
 	throw ConfigException("Missing attribute \"", attrName, "\".");
 }
@@ -232,7 +232,7 @@ public:
 		: doc(doc_)
 		, nextElement(&doc.root) {}
 
-	std::string_view getSystemID() const { return systemID; }
+	[[nodiscard]] std::string_view getSystemID() const { return systemID; }
 
 	void start(std::string_view name) {
 		stack.push_back(currentElement);

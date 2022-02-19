@@ -46,11 +46,11 @@ class FreeType(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/freetype'
 	niceName = 'FreeType'
 	sourceName = 'freetype'
-	version = '2.9.1'
-	fileLength = 2533956
+	version = '2.11.1'
+	fileLength = 3451359
 	checksums = {
 		'sha256':
-			'ec391504e55498adceb30baceebd147a6e963f636eb617424bcfc47a169898ce',
+			'f8db94d307e9c54961b39a1cc799a67d46681480696ed72ecf78d4473770f09b',
 		}
 
 class GLEW(DownloadablePackage):
@@ -87,11 +87,11 @@ class OGG(DownloadablePackage):
 	downloadURL = 'http://downloads.xiph.org/releases/ogg'
 	niceName = 'libogg'
 	sourceName = 'libogg'
-	version = '1.3.3'
-	fileLength = 579853
+	version = '1.3.5'
+	fileLength = 593071
 	checksums = {
 		'sha256':
-			'c2e8a485110b97550f453226ec644ebac6cb29d1caef2902c007edab4308d985',
+			'0eb4b4b9420a0f51db142ba3f9c64b333f826532dc0f48c6410ae51f4799b664',
 		}
 
 	@classmethod
@@ -117,11 +117,11 @@ class SDL2(DownloadablePackage):
 	downloadURL = 'https://www.libsdl.org/release'
 	niceName = 'SDL2'
 	sourceName = 'SDL2'
-	version = '2.0.12'
-	fileLength = 5720162
+	version = '2.0.20'
+	fileLength = 7207221
 	checksums = {
 		'sha256':
-			'349268f695c02efbc9b9148a70b85e58cefbbf704abd3e91be654db7f1e2c863',
+			'c56aba1d7b5b0e7e999e4a7698c70b63a3394ff9704b5f6e1c57e0c16f04dd06',
 		}
 
 class SDL2_ttf(DownloadablePackage):
@@ -139,11 +139,11 @@ class TCL(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/tcl'
 	niceName = 'Tcl'
 	sourceName = 'tcl'
-	version = '8.6.10'
-	fileLength = 10144235
+	version = '8.6.12'
+	fileLength = 10353486
 	checksums = {
 		'sha256':
-			'5196dbf6638e3df8d5c87b5815c8c2b758496eb6f0e41446596c9a4e638d87ed',
+			'26c995dd0f167e48b11961d891ee555f680c175f7173ff8cb829f4ebcde4c1a6',
 		}
 
 	@classmethod
@@ -173,11 +173,11 @@ class Vorbis(DownloadablePackage):
 	downloadURL = 'http://downloads.xiph.org/releases/vorbis'
 	niceName = 'libvorbis'
 	sourceName = 'libvorbis'
-	version = '1.3.6'
-	fileLength = 1634357
+	version = '1.3.7'
+	fileLength = 1658963
 	checksums = {
 		'sha256':
-			'6ed40e0241089a42c48604dc00e362beee00036af2d8b3f46338031c9e0351cb',
+			'0e982409a9c3fc82ee06e08205b1355e5c6aa4c36bca58146ef399621b0ce5ab',
 		}
 
 	@classmethod

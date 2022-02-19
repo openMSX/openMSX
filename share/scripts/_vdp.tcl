@@ -148,6 +148,10 @@ proc vpoke {addr val} {
 	debug write VRAM $addr $val
 }
 
+proc get_frame_duration {} {
+	expr {(1368.0 * (([vdpreg 9] & 2) ? 313 : 262)) / (6 * 3579545)}
+}
+
 namespace export getcolor
 namespace export setcolor
 namespace export get_screen_mode
@@ -158,7 +162,9 @@ namespace export v9990regs
 namespace export vpeek
 namespace export vpoke
 namespace export palette
+namespace export get_frame_duration
 
 } ;# namespace vdp
 
 namespace import vdp::*
+namespace forget vdp::get_frame_duration;# keep this out of the global namespace

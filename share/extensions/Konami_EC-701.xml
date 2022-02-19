@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <name>Japanese Word Processor Cartridge</name>
+    <manufacturer>Konami</manufacturer>
+    <code>EC-701</code>
+    <release_year>1985</release_year>
+    <description>Japanese Word Processor with dictionary.</description>
+    <type>word processor with dictionary</type>
+  </info>
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <CanonWordProcessor id="Konami EC-701">
+          <mem base="0x4000" size="0x8000"/>
+          <rom id="program">
+            <sha1>4cc5be7536c11a89b5ec736a62a2b832361cd23d</sha1> <!-- original -->
+            <sha1>bad9ae862957b6fe7752647e0799537448a8568e</sha1> <!-- With BiFi's bug fix patch to fix the program on MSX2+/MSXturboR -->
+            <filename>Konami EC-701 program.rom</filename>
+          </rom>
+          <rom id="dictionary">
+            <sha1>661c7261dc261e9ef2106755946f95d8b9b699b4</sha1>
+            <filename>Konami EC-701 dictionary.rom</filename>
+          </rom>
+        </ROM>
+      </secondary>
+    </primary>
+
+  </devices>
+</msxconfig>

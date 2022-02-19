@@ -326,7 +326,7 @@ static inline std::tuple<float, float> filterStereoNull(
 		tl0 = tl1;
 		tr0 = tr1;
 	} while (++i < n);
-	return std::tuple(tl0, tr0);
+	return {tl0, tr0};
 }
 
 // New input is mono, previous output was also mono.
@@ -361,7 +361,7 @@ filterStereoMono(float tl0, float tr0, const float* __restrict in,
 		tl0 = tl1;
 		tr0 = tr1;
 	} while (++i < n);
-	return std::tuple(tl0, tr0);
+	return {tl0, tr0};
 }
 
 // New input is stereo, (previous output either mono/stereo)
@@ -379,7 +379,7 @@ filterStereoStereo(float tl0, float tr0, const float* __restrict in,
 		tl0 = tl1;
 		tr0 = tr1;
 	} while (++i < n);
-	return std::tuple(tl0, tr0);
+	return {tl0, tr0};
 }
 
 // We have both mono and stereo input (and produce stereo output)
@@ -398,7 +398,7 @@ filterBothStereo(float tl0, float tr0, const float* __restrict inM,
 		tl0 = tl1;
 		tr0 = tr1;
 	} while (++i < n);
-	return std::tuple(tl0, tr0);
+	return {tl0, tr0};
 }
 
 static bool approxEqual(float x, float y)
