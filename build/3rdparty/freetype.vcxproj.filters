@@ -110,6 +110,9 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\builds\windows\ftdebug.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\sdf\sdf.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\include\ft2build.h">
