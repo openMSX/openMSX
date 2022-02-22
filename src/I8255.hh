@@ -22,11 +22,17 @@ public:
 	I8255(I8255Interface& interf, EmuTime::param time,
 	      StringSetting& invalidPpiModeSetting);
 
+	// CPU side
 	void reset(EmuTime::param time);
-
 	[[nodiscard]] byte read(byte port, EmuTime::param time);
 	[[nodiscard]] byte peek(byte port, EmuTime::param time) const;
 	void write(byte port, byte value, EmuTime::param time);
+
+	// Peripheral side, pull-interface
+	// (the I8255Interface class implements the push-interface)
+	byte getPortA() const;
+	byte getPortB() const;
+	byte getPortC() const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
