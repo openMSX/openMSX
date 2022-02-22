@@ -151,7 +151,7 @@ void MSXHBI55::writeC1(nibble value, EmuTime::param /*time*/)
 void MSXHBI55::writeStuff()
 {
 	byte B = i8255.getPortB();
-	if ((B & 0x40) == 0) {
+	if ((B & 0x70) != 0x40) {
 		// /CE of RAM chip(s) not active
 		return;
 	}
@@ -177,7 +177,7 @@ void MSXHBI55::writeStuff()
 byte MSXHBI55::readStuff() const
 {
 	byte B = i8255.getPortB();
-	if ((B & 0x40) == 0) {
+	if ((B & 0x70) != 0x40) {
 		// /CE of RAM chip(s) not active
 		return lastC; // actually floating value
 	}
