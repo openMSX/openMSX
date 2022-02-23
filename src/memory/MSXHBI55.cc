@@ -161,7 +161,7 @@ void MSXHBI55::writeStuff()
 	} else {
 		// write
 		byte A = i8255.getPortA();
-		unsigned addr = ((B & 0x0f) << 4) | A;
+		unsigned addr = ((B & 0x0f) << 8) | A;
 		// In the normal case port C should be programmed as an output,
 		// and then we can get the value like this:
 		//     byte C = i8255.getPortC();
@@ -185,7 +185,7 @@ byte MSXHBI55::readStuff() const
 	if (B & 0x80) {
 		// read
 		byte A = i8255.getPortA();
-		unsigned addr = ((B & 0x0f) << 4) | A;
+		unsigned addr = ((B & 0x0f) << 8) | A;
 		return sram[addr];
 	} else {
 		// write
