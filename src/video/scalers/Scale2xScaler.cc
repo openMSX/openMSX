@@ -94,15 +94,9 @@ template<typename Pixel> [[nodiscard]] static inline __m128i unpackhi(__m128i x,
 }
 
 // Scale one 'unit'. A unit is 8x16bpp or 4x32bpp pixels.
-// Workaround: it's more logical to pass the parameters
-//   'top', 'bottom', 'prev', 'mid' and 'next'
-// by value instead of by reference. Though this triggers a compile error in
-// the 32-bit build on 'Visual Studio 2012 Version 11.0.60315.01 Update 2'
-// Passing those parameter by-reference works around that compiler bug. I did
-// verify that gcc still generates equally efficient code.
 template<typename Pixel, bool DOUBLE_X> static inline void scale1(
-	__m128i& top,	__m128i& bottom,
-	__m128i& prev,	__m128i& mid,	__m128i& next,
+	__m128i top,	__m128i bottom,
+	__m128i prev,	__m128i mid,	__m128i next,
 	__m128i* out0,	__m128i* out1)
 {
 	__m128i left  = align<sizeof(__m128i) - sizeof(Pixel)>(mid, prev);
