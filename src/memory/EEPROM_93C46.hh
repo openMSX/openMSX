@@ -72,8 +72,7 @@ private:
 	bool pinDI = false;
 	bool writeProtected = true;
 
-	//static constexpr int SHIFT_REG_BITS = sizeof(shiftRegister) * CHAR_BIT;
-	static constexpr int SHIFT_REG_BITS = sizeof(uint16_t) * CHAR_BIT; // vs workaround ??
+	static constexpr int SHIFT_REG_BITS = sizeof(shiftRegister) * CHAR_BIT;
 };
 
 } // namespace openmsx
