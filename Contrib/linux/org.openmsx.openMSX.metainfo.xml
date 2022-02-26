@@ -26,8 +26,8 @@
 		</p>
 		<p>
 			In addition to emulating MSX, MSX2, MSX2+, MSX Turbo R and many of it's
-			peripherals, openMSX also supports emulating the ColecoVision game console
-			and the SpectraVideo SVI-318 and SVI-328 home computer systems.
+			peripherals, openMSX also supports emulating the ColecoVision and Sega SG-1000
+			game consoles and the SpectraVideo SVI-318 and SVI-328 home computer systems.
 		</p>
 		<p>
 			Note: by default the openMSX emulator only ships with the C-BIOS open-source
