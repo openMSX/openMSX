@@ -5,6 +5,7 @@
 #include "I8255Interface.hh"
 #include "I8255.hh"
 #include "SRAM.hh"
+#include "serialize_meta.hh"
 
 namespace openmsx {
 
@@ -36,17 +37,15 @@ private:
 	void writeC0(nibble value, EmuTime::param time) override;
 	void writeC1(nibble value, EmuTime::param time) override;
 
-	[[nodiscard]] byte readSRAM(word address) const;
+	void writeStuff();
+	byte readStuff() const;
 
 private:
 	I8255 i8255;
 	SRAM sram;
-	word readAddress;
-	word writeAddress;
-	byte addressLatch;
-	byte writeLatch;
-	byte mode;
+	byte lastC; // hack to approach a 'floating value'
 };
+SERIALIZE_CLASS_VERSION(MSXHBI55, 2);
 
 } // namespace openmsx
 

@@ -1390,6 +1390,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\SVIFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\ColecoJoystickIO.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\SpeedManager.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\input\SG1000JoystickIO.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\SC3000PPI.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\SG1000Pause.cc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(OpenMSXSrcDir)\cassette\CasImage.hh">
@@ -2944,6 +2947,10 @@
     <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
     <None Include="$(OpenMSXSrcDir)\SpeedManager.hh" />
+    <None Include="$(OpenMSXSrcDir)\input\SG1000JoystickIO.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
+    <None Include="$(OpenMSXSrcDir)\SC3000PPI.hh" />
+    <None Include="$(OpenMSXSrcDir)\SG1000Pause.hh" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(OpenMSXSrcDir)\resource\openmsx.rc">

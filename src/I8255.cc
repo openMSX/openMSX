@@ -320,6 +320,10 @@ void I8255::writeControlPort(byte value, EmuTime::param time)
 		if ((control & (MODE_A | MODE_B))) {
 			ppiModeCallback.execute();
 		}
+		// Some PPI datasheets state that port A and C (and sometimes
+		// also B) are reset to zero on a mode change. But the
+		// documentation is not consistent.
+		// TODO investigate this further.
 		outputPortA(latchPortA, time);
 		outputPortB(latchPortB, time);
 		outputPortC(latchPortC, time);
@@ -354,6 +358,42 @@ void I8255::writeControlPort(byte value, EmuTime::param time)
 			break;
 		}
 	}
+}
+
+// Returns the value that's current being output on port A.
+// Or a floating value if port A is actually programmed as input.
+byte I8255::getPortA() const
+{
+	byte result = latchPortA;
+	if (control & DIRECTION_A) {
+		// actually set as input -> return floating value
+		result = 255; // real floating value not yet supported
+	}
+	return result;
+}
+
+byte I8255::getPortB() const
+{
+	byte result = latchPortB;
+	if (control & DIRECTION_B) {
+		// actually set as input -> return floating value
+		result = 255; // real floating value not yet supported
+	}
+	return result;
+}
+
+byte I8255::getPortC() const
+{
+	byte result = latchPortC;
+	if (control & DIRECTION_C0) {
+		// actually set as input -> return floating value
+		result |= 0x0f; // real floating value not yet supported
+	}
+	if (control & DIRECTION_C1) {
+		// actually set as input -> return floating value
+		result |= 0xf0; // real floating value not yet supported
+	}
+	return result;
 }
 
 template<typename Archive>
