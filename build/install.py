@@ -65,18 +65,21 @@ def installAll(
 			for i in ['16', '32', '48', '64', '128', '256']:
 				Path(desktopShareDestDir + '/icons/hicolor/' + i + 'x' + i + '/apps').mkdir(parents=True, exist_ok=True)
 				installFile(
-					'share/icons/openMSX-logo-' + i + '.png', desktopShareDestDir + '/icons/hicolor/' + i + 'x' + i + '/apps/openmsx.png'
+					'share/icons/openMSX-logo-' + i + '.png',
+					desktopShareDestDir + '/icons/hicolor/' + i + 'x' + i + '/apps/openmsx.png'
 				)
 
 			print('  Desktop file...')
 			Path(desktopShareDestDir + '/applications').mkdir(parents=True, exist_ok=True)
 			installFile(
-				'Contrib/linux/org.openmsx.openMSX.desktop', desktopShareDestDir + '/applications/org.openmsx.openMSX.desktop'
+				'Contrib/linux/org.openmsx.openMSX.desktop',
+				desktopShareDestDir + '/applications/org.openmsx.openMSX.desktop'
 				)
 			print('  Metainfo file...')
 			Path(desktopShareDestDir + '/metainfo').mkdir(parents=True, exist_ok=True)
 			installFile(
-				'Contrib/linux/org.openmsx.openMSX.metainfo.xml', desktopShareDestDir + '/metainfo/org.openmsx.openMSX.metainfo.xml'
+				'Contrib/linux/org.openmsx.openMSX.metainfo.xml',
+				desktopShareDestDir + '/metainfo/org.openmsx.openMSX.metainfo.xml'
 				)
 		else:
 			print('  Failed to install icon, desktop and metainfo files. ' + desktopShareDestDir + ' does not exist.')
