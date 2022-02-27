@@ -123,6 +123,15 @@ void UnicodeKeymap::parseUnicodeKeymapfile(string_view data)
 			continue;
 		}
 
+		if (token == "MSX-Video-Characterset:") {
+			auto vidFileName = nextToken(data);
+			if (vidFileName.empty()) {
+				throw MSXException("Missing filename for MSX-Video-Characterset");
+			}
+			msxChars.emplace(vidFileName);
+			continue;
+		}
+
 		// Parse first token: a unicode value or the keyword DEADKEY.
 		unsigned unicode = 0;
 		unsigned deadKeyIndex = 0;

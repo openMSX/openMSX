@@ -1,8 +1,11 @@
 #ifndef UNICODEKEYMAP_HH
 #define UNICODEKEYMAP_HH
 
+#include "CommandException.hh"
+#include "MsxChar2Unicode.hh"
 #include "openmsx.hh"
 #include <cassert>
+#include <optional>
 #include <string_view>
 #include <vector>
 
@@ -132,6 +135,11 @@ public:
 		return relevantMods[keyInfo.pos.getRowCol()];
 	}
 
+	[[nodiscard]] const MsxChar2Unicode& getMsxChars() const {
+		if (!msxChars) throw CommandException("Missing MSX-Video-characterset file"); // TODO make this required for MSX/SVI machines
+		return *msxChars;
+	}
+
 private:
 	static constexpr unsigned NUM_DEAD_KEYS = 3;
 
@@ -149,6 +157,8 @@ private:
 	  */
 	byte relevantMods[KeyMatrixPosition::NUM_ROWCOL];
 	KeyInfo deadKeys[NUM_DEAD_KEYS];
+
+	std::optional<MsxChar2Unicode> msxChars; // TODO should this be required for MSX/SVI machines?
 };
 
 } // namespace openmsx

@@ -165,6 +165,18 @@ private:
 		int typingFrequency;
 	} keyTypeCmd;
 
+	struct Msxcode2UnicodeCmd final : public Command {
+		Msxcode2UnicodeCmd(CommandController& commandController);
+		void execute(span<const TclObject> tokens, TclObject& result) override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+	} msxcode2UnicodeCmd;
+
+	struct Unicode2MsxcodeCmd final : public Command {
+		Unicode2MsxcodeCmd(CommandController& commandController);
+		void execute(span<const TclObject> tokens, TclObject& result) override;
+		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+	} unicode2MsxcodeCmd;
+
 	class CapsLockAligner final : private EventListener, private Schedulable {
 	public:
 		CapsLockAligner(EventDistributor& eventDistributor,

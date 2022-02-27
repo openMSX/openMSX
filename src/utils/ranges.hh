@@ -69,6 +69,21 @@ void stable_sort(RandomAccessRange&& range, Compare comp)
 	std::stable_sort(std::begin(range), std::end(range), comp);
 }
 
+template<typename RAIter, typename Compare = std::less<>, typename Proj>
+void stable_sort(RAIter first, RAIter last, Compare comp, Proj proj)
+{
+	std::stable_sort(first, last,
+		[&](const auto& x, const auto& y) {
+			return comp(std::invoke(proj, x), std::invoke(proj, y));
+		});
+}
+
+template<typename RandomAccessRange, typename Compare = std::less<>, typename Proj>
+void stable_sort(RandomAccessRange&& range, Compare comp, Proj proj)
+{
+	stable_sort(std::begin(range), std::end(range), comp, proj);
+}
+
 template<typename ForwardRange, typename T>
 [[nodiscard]] bool binary_search(ForwardRange&& range, const T& value)
 {
@@ -173,6 +188,21 @@ template<typename ForwardRange, typename BinaryPredicate>
 [[nodiscard]] auto unique(ForwardRange&& range, BinaryPredicate pred)
 {
 	return std::unique(std::begin(range), std::end(range), pred);
+}
+
+template<typename RAIter, typename Compare = std::equal_to<>, typename Proj>
+[[nodiscard]] auto unique(RAIter first, RAIter last, Compare comp, Proj proj)
+{
+	return std::unique(first, last,
+		[&](const auto& x, const auto& y) {
+			return comp(std::invoke(proj, x), std::invoke(proj, y));
+		});
+}
+
+template<typename RandomAccessRange, typename Compare = std::equal_to<>, typename Proj>
+[[nodiscard]] auto unique(RandomAccessRange&& range, Compare comp, Proj proj)
+{
+	return unique(std::begin(range), std::end(range), comp, proj);
 }
 
 template<typename InputRange, typename OutputIter>
