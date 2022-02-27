@@ -516,6 +516,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\input\Mouse.cc">
       <Filter>input</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\input\MsxChar2Unicode.cc">
+      <Filter>input</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\input\MSXEventDistributor.cc">
       <Filter>input</Filter>
     </ClCompile>
@@ -1882,6 +1885,9 @@
       <Filter>input</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\input\Mouse.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\input\MsxChar2Unicode.hh">
       <Filter>input</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\input\MSXEventDistributor.hh">

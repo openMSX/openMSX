@@ -472,6 +472,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\input\KeyJoystick.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\MagicKey.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\Mouse.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\input\MsxChar2Unicode.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\MSXEventDistributor.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\NinjaTap.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\Paddle.cc" />
@@ -1025,6 +1026,7 @@
     <None Include="$(OpenMSXSrcDir)\input\KeyJoystick.hh" />
     <None Include="$(OpenMSXSrcDir)\input\MagicKey.hh" />
     <None Include="$(OpenMSXSrcDir)\input\Mouse.hh" />
+    <None Include="$(OpenMSXSrcDir)\input\MsxChar2Unicode.hh" />
     <None Include="$(OpenMSXSrcDir)\input\MSXEventDistributor.hh" />
     <None Include="$(OpenMSXSrcDir)\input\MSXEventListener.hh" />
     <None Include="$(OpenMSXSrcDir)\input\NinjaTap.hh" />
