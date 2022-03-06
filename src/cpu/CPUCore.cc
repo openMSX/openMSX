@@ -4120,7 +4120,6 @@ template<typename T> II CPUCore<T>::ldir() { return BLOCK_LD( 1, true ); }
 
 // block IN
 template<typename T> inline II CPUCore<T>::BLOCK_IN(int increase, bool repeat) {
-	// TODO R800 flags
 	if constexpr (T::IS_R800) T::waitForEvenCycle(T::CC_INI_1);
 	T::setMemPtr(getBC() + increase);
 	setBC(getBC() - 0x100); // decr before use
@@ -4129,10 +4128,14 @@ template<typename T> inline II CPUCore<T>::BLOCK_IN(int increase, bool repeat) {
 	setHL(getHL() + increase);
 	unsigned k = val + ((getC() + increase) & 0xFF);
 	byte b = getB();
-	setF(((val & S_FLAG) >> 6) | // N_FLAG
-	       ((k & 0x100) ? (H_FLAG | C_FLAG) : 0) |
-	       table.ZSXY[b] |
-	       (table.ZSPXY[(k & 0x07) ^ b] & P_FLAG));
+	if constexpr (T::IS_R800) {
+		setF((getF() & ~Z_FLAG) | (b ? 0 : Z_FLAG) | N_FLAG);
+	} else {
+		setF(((val & S_FLAG) >> 6) | // N_FLAG
+		       ((k & 0x100) ? (H_FLAG | C_FLAG) : 0) |
+		       table.ZSXY[b] |
+		       (table.ZSPXY[(k & 0x07) ^ b] & P_FLAG));
+	}
 	if (repeat && b) {
 		//setPC(getPC() - 2);
 		return {-1/*1*/, T::CC_INIR};
@@ -4148,7 +4151,6 @@ template<typename T> II CPUCore<T>::inir() { return BLOCK_IN( 1, true ); }
 
 // block OUT
 template<typename T> inline II CPUCore<T>::BLOCK_OUT(int increase, bool repeat) {
-	// TODO R800 flags
 	byte val = RDMEM(getHL(), T::CC_OUTI_1);
 	setHL(getHL() + increase);
 	if constexpr (T::IS_R800) T::waitForEvenCycle(T::CC_OUTI_2);
@@ -4157,10 +4159,14 @@ template<typename T> inline II CPUCore<T>::BLOCK_OUT(int increase, bool repeat) 
 	T::setMemPtr(getBC() + increase);
 	unsigned k = val + getL();
 	byte b = getB();
-	setF(((val & S_FLAG) >> 6) | // N_FLAG
-	       ((k & 0x100) ? (H_FLAG | C_FLAG) : 0) |
-	       table.ZSXY[b] |
-	       (table.ZSPXY[(k & 0x07) ^ b] & P_FLAG));
+	if constexpr (T::IS_R800) {
+		setF((getF() & ~Z_FLAG) | (b ? 0 : Z_FLAG) | N_FLAG);
+	} else {
+		setF(((val & S_FLAG) >> 6) | // N_FLAG
+		       ((k & 0x100) ? (H_FLAG | C_FLAG) : 0) |
+		       table.ZSXY[b] |
+		       (table.ZSPXY[(k & 0x07) ^ b] & P_FLAG));
+	}
 	if (repeat && b) {
 		//setPC(getPC() - 2);
 		return {-1/*1*/, T::CC_OTIR};
