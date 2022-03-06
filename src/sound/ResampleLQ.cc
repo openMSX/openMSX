@@ -1,6 +1,5 @@
 #include "ResampleLQ.hh"
 #include "ResampledSoundDevice.hh"
-#include "likely.hh"
 #include "ranges.hh"
 #include "xrange.hh"
 #include <cassert>
@@ -60,7 +59,7 @@ bool ResampleLQ<CHANNELS>::fetchData(EmuTime::param time, unsigned& valid)
 	valid = 2 + emuNum;
 
 	unsigned required = emuNum + 4;
-	if (unlikely(required > bufferSize)) {
+	if (required > bufferSize) [[unlikely]] {
 		// grow buffer (3 extra to be able to align)
 		bufferStorage.resize(required + 3);
 		// align at 16-byte boundary

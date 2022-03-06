@@ -42,7 +42,6 @@
 #ifndef XXHASH_HH
 #define XXHASH_HH
 
-#include "likely.hh"
 #include <bit>
 #include <cstdint>
 #include <cstring>
@@ -79,7 +78,7 @@ template<bool ALIGNED, uint8_t MASK8 = 0xFF, uint32_t SEED = 0>
 	const uint8_t* const bEnd = p + size;
 	uint32_t h32;
 
-	if (unlikely(size >= 16)) {
+	if (size >= 16) [[unlikely]] {
 		const uint8_t* const limit = bEnd - 16;
 
 		// casts to avoid: warning C4307: '+': integral constant overflow

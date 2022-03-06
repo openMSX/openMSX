@@ -2,7 +2,6 @@
 #define STRINGOP_HH
 
 #include "IterableBitSet.hh"
-#include "likely.hh"
 #include "stringsp.hh"
 #include <algorithm>
 #include <charconv>
@@ -156,32 +155,32 @@ namespace StringOp
 	template<typename T>
 	[[nodiscard]] std::optional<T> stringTo(std::string_view s)
 	{
-		if (unlikely(s.empty())) return {};
+		if (s.empty()) [[unlikely]] return {};
 		if constexpr (std::is_signed_v<T>) {
 			bool negate = false;
-			if (unlikely(s[0] == '-')) {
+			if (s[0] == '-') [[unlikely]] {
 				negate = true;
 				s.remove_prefix(1);
 			}
 
 			using U = std::make_unsigned_t<T>;
 			auto tmp = stringTo<U>(s);
-			if (unlikely(!tmp)) return {};
+			if (!tmp) [[unlikely]] return {};
 
 			U max = U(std::numeric_limits<T>::max()) + 1; // 0x8000
-			if (unlikely(negate)) {
-				if (unlikely(*tmp > max)) return {}; // 0x8000
+			if (negate) [[unlikely]] {
+				if (*tmp > max) [[unlikely]] return {}; // 0x8000
 				return T(~*tmp + 1);
 			} else {
-				if (unlikely(*tmp >= max)) return {}; // 0x7fff
+				if (*tmp >= max) [[unlikely]] return {}; // 0x7fff
 				return T(*tmp);
 			}
 		} else {
-			if (likely(s[0] != '0')) {
+			if (s[0] != '0') [[likely]] {
 				return stringToBase<10, T>(s);
 			} else {
 				if (s.size() == 1) return T(0);
-				if (likely((s[1] == 'x') || (s[1] == 'X'))) {
+				if ((s[1] == 'x') || (s[1] == 'X')) [[likely]] {
 					s.remove_prefix(2);
 					return stringToBase<16, T>(s);
 				} else if ((s[1] == 'b') || (s[1] == 'B')) {

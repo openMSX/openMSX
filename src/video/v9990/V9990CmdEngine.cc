@@ -9,7 +9,6 @@
 #include "MemBuffer.hh"
 #include "Clock.hh"
 #include "serialize.hh"
-#include "likely.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
 #include <array>
@@ -81,7 +80,7 @@ constexpr EDStorage SRCH_TIMING[4][3][4] = {
 
 [[nodiscard]] static EmuDuration getTiming(const V9990CmdEngine& cmdEngine, const EDStorage table[4][3][4])
 {
-	if (unlikely(cmdEngine.getBrokenTiming())) return {};
+	if (cmdEngine.getBrokenTiming()) [[unlikely]] return {};
 
 	const auto& vdp = cmdEngine.getVDP();
 	auto mode = vdp.getDisplayMode();

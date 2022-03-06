@@ -2,7 +2,6 @@
 #define SCHEDULERQUEUE_HH
 
 #include "MemBuffer.hh"
-#include "likely.hh"
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
@@ -62,7 +61,7 @@ public:
 		while (!less(t, *it)) ++it;
 
 		if ((it - useBegin) <= (useEnd - it)) {
-			if (likely(useBegin != storage.data())) {
+			if (useBegin != storage.data()) [[likely]] {
 				insertFront(it, t);
 			} else if (useEnd != storageEnd) {
 				insertBack(it, t);
@@ -70,7 +69,7 @@ public:
 				insertRealloc(it, t);
 			}
 		} else {
-			if (likely(useEnd != storageEnd)) {
+			if (useEnd != storageEnd) [[likely]] {
 				insertBack(it, t);
 			} else if (useBegin != storage.data()) {
 				insertFront(it, t);
@@ -93,7 +92,7 @@ public:
 		T* it = std::find_if(useBegin, useEnd, p);
 		if (it == useEnd) return false;
 
-		if (unlikely((it - useBegin) < (useEnd - it - 1))) {
+		if ((it - useBegin) < (useEnd - it - 1)) [[unlikely]] {
 			++useBegin;
 			std::copy_backward(useBegin - 1, it, it + 1);
 		} else {

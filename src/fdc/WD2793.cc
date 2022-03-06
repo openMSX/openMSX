@@ -267,7 +267,7 @@ byte WD2793::getDataReg(EmuTime::param time)
 		crc.update(dataReg);
 		dataAvailable--;
 		drqTime += 1; // time when the next byte will be available
-		while (dataAvailable && unlikely(getDTRQ(time))) {
+		while (dataAvailable && /*unlikely*/(getDTRQ(time))) {
 			statusReg |= LOST_DATA;
 			dataReg = drive.readTrackByte(dataCurrent++);
 			crc.update(dataReg);

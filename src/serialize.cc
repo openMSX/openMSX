@@ -473,7 +473,7 @@ template<typename T> static inline void fastAtoi(string_view str, T& t)
 	}
 	for (/**/; i < l; ++i) {
 		unsigned d = str[i] - '0';
-		if (unlikely(d > 9)) {
+		if (d > 9) [[unlikely]] {
 			throw XMLException("Invalid integer: ", str);
 		}
 		t = 10 * t + d;

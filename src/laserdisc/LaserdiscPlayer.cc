@@ -17,7 +17,6 @@
 #include "LDRenderer.hh"
 #include "RendererFactory.hh"
 #include "Math.hh"
-#include "likely.hh"
 #include "one_of.hh"
 #include <cstdint>
 #include <cstdlib>
@@ -682,7 +681,7 @@ void LaserdiscPlayer::generateChannels(float** buffers, unsigned num)
 	unsigned pos = 0;
 	size_t currentSample;
 
-	if (unlikely(!sampleClock.before(start))) {
+	if (!sampleClock.before(start)) [[unlikely]] {
 		// Before playing of sounds begins
 		EmuDuration duration = sampleClock.getTime() - start;
 		unsigned len = duration.getTicksAt(video->getSampleRate());

@@ -169,7 +169,6 @@
 #include "R800.hh"
 #include "Thread.hh"
 #include "endian.hh"
-#include "likely.hh"
 #include "inline.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
@@ -404,7 +403,7 @@ template<typename T> void CPUCore<T>::exitCPULoopSync()
 template<typename T> inline bool CPUCore<T>::needExitCPULoop()
 {
 	// always executed in main thread
-	if (unlikely(exitLoop)) {
+	if (exitLoop) [[unlikely]] {
 		// Note: The test-and-set is _not_ atomic! But that's fine.
 		//   An atomic implementation is trivial (see below), but
 		//   this version (at least on x86) avoids the more expensive
@@ -597,7 +596,7 @@ template<typename T> template<bool PRE_PB, bool POST_PB>
 ALWAYS_INLINE byte CPUCore<T>::RDMEM_impl2(unsigned address, unsigned cc)
 {
 	const byte* line = readCacheLine[address >> CacheLine::BITS];
-	if (likely(uintptr_t(line) > 1)) {
+	if (uintptr_t(line) > 1) [[likely]] {
 		// cached, fast path
 		T::template PRE_MEM<PRE_PB, POST_PB>(address);
 		T::template POST_MEM<       POST_PB>(address);
@@ -643,7 +642,7 @@ template<typename T> template<bool PRE_PB, bool POST_PB>
 ALWAYS_INLINE unsigned CPUCore<T>::RD_WORD_impl2(unsigned address, unsigned cc)
 {
 	const byte* line = readCacheLine[address >> CacheLine::BITS];
-	if (likely(((address & CacheLine::LOW) != CacheLine::LOW) && (uintptr_t(line) > 1))) {
+	if (((address & CacheLine::LOW) != CacheLine::LOW) && (uintptr_t(line) > 1)) [[likely]] {
 		// fast path: cached and two bytes in same cache line
 		T::template PRE_WORD<PRE_PB, POST_PB>(address);
 		T::template POST_WORD<       POST_PB>(address);
@@ -702,7 +701,7 @@ ALWAYS_INLINE void CPUCore<T>::WRMEM_impl2(
 	unsigned address, byte value, unsigned cc)
 {
 	byte* line = writeCacheLine[address >> CacheLine::BITS];
-	if (likely(uintptr_t(line) > 1)) {
+	if (uintptr_t(line) > 1) [[likely]] {
 		// cached, fast path
 		T::template PRE_MEM<PRE_PB, POST_PB>(address);
 		T::template POST_MEM<       POST_PB>(address);
@@ -735,7 +734,7 @@ template<typename T> ALWAYS_INLINE void CPUCore<T>::WR_WORD(
 	unsigned address, unsigned value, unsigned cc)
 {
 	byte* line = writeCacheLine[address >> CacheLine::BITS];
-	if (likely(((address & CacheLine::LOW) != CacheLine::LOW) && (uintptr_t(line) > 1))) {
+	if (((address & CacheLine::LOW) != CacheLine::LOW) && (uintptr_t(line) > 1)) [[likely]] {
 		// fast path: cached and two bytes in same cache line
 		T::template PRE_WORD<true, true>(address);
 		T::template POST_WORD<     true>(address);
@@ -759,7 +758,7 @@ ALWAYS_INLINE void CPUCore<T>::WR_WORD_rev2(
 	unsigned address, unsigned value, unsigned cc)
 {
 	byte* line = writeCacheLine[address >> CacheLine::BITS];
-	if (likely(((address & CacheLine::LOW) != CacheLine::LOW) && (uintptr_t(line) > 1))) {
+	if (((address & CacheLine::LOW) != CacheLine::LOW) && (uintptr_t(line) > 1)) [[likely]] {
 		// fast path: cached and two bytes in same cache line
 		T::template PRE_WORD<PRE_PB, POST_PB>(address);
 		T::template POST_WORD<       POST_PB>(address);
@@ -881,11 +880,11 @@ void CPUCore<T>::executeInstructions()
 	setPC(getPC() + ii.length); \
 	T::add(ii.cycles); \
 	T::R800Refresh(*this); \
-	if (likely(!T::limitReached())) { \
+	if (!T::limitReached()) [[likely]] { \
 		incR(1); \
 		unsigned address = getPC(); \
 		const byte* line = readCacheLine[address >> CacheLine::BITS]; \
-		if (likely(uintptr_t(line) > 1)) { \
+		if (uintptr_t(line) > 1) [[likely]] { \
 			T::template PRE_MEM<false, false>(address); \
 			T::template POST_MEM<      false>(address); \
 			byte op = line[address]; \
@@ -920,7 +919,7 @@ void CPUCore<T>::executeInstructions()
 	setPC(getPC() + ii.length); \
 	T::add(ii.cycles); \
 	T::R800Refresh(*this); \
-	if (likely(!T::limitReached())) { \
+	if (!T::limitReached()) [[likely]] { \
 		goto start; \
 	} \
 	return;
@@ -2436,7 +2435,7 @@ template<typename T> inline void CPUCore<T>::cpuTracePre()
 }
 template<typename T> inline void CPUCore<T>::cpuTracePost()
 {
-	if (unlikely(tracingEnabled)) {
+	if (tracingEnabled) [[unlikely]] {
 		cpuTracePost_slow();
 	}
 }
@@ -2460,19 +2459,19 @@ template<typename T> void CPUCore<T>::cpuTracePost_slow()
 
 template<typename T> ExecIRQ CPUCore<T>::getExecIRQ() const
 {
-	if (unlikely(nmiEdge)) return ExecIRQ::NMI;
-	if (unlikely(IRQStatus && getIFF1() && !prevWasEI())) return ExecIRQ::IRQ;
+	if (nmiEdge) [[unlikely]] return ExecIRQ::NMI;
+	if (IRQStatus && getIFF1() && !prevWasEI()) [[unlikely]] return ExecIRQ::IRQ;
 	return ExecIRQ::NONE;
 }
 
 template<typename T> void CPUCore<T>::executeSlow(ExecIRQ execIRQ)
 {
-	if (unlikely(execIRQ == ExecIRQ::NMI)) {
+	if (execIRQ == ExecIRQ::NMI) [[unlikely]] {
 		nmiEdge = false;
 		nmi(); // NMI occurred
-	} else if (unlikely(execIRQ == ExecIRQ::IRQ)) {
+	} else if (execIRQ == ExecIRQ::IRQ) [[unlikely]] {
 		// normal interrupt
-		if (unlikely(prevWasLDAI())) {
+		if (prevWasLDAI()) [[unlikely]] {
 			// HACK!!!
 			// The 'ld a,i' or 'ld a,r' instruction copies the IFF2
 			// bit to the V flag. Though when the Z80 accepts an
@@ -2504,7 +2503,7 @@ template<typename T> void CPUCore<T>::executeSlow(ExecIRQ execIRQ)
 			default:
 				UNREACHABLE;
 		}
-	} else if (unlikely(getHALT())) {
+	} else if (getHALT()) [[unlikely]] {
 		// in halt mode
 		incR(T::advanceHalt(T::HALT_STATES, scheduler.getNext()));
 		setSlowInstructions();
@@ -2515,7 +2514,7 @@ template<typename T> void CPUCore<T>::executeSlow(ExecIRQ execIRQ)
 		endInstruction();
 
 		if constexpr (T::IS_R800) {
-			if (unlikely(prev2WasCall()) && likely(!prevWasPopRet())) {
+			if (/*unlikely*/(prev2WasCall()) && /*likely*/(!prevWasPopRet())) [[unlikely]] {
 				// On R800 a CALL or RST instruction not _immediately_
 				// followed by a (single-byte) POP or RET instruction
 				// causes an extra cycle in that following instruction.
@@ -2568,7 +2567,7 @@ template<typename T> void CPUCore<T>::execute2(bool fastForward)
 			} else {
 				while (slowInstructions == 0) {
 					T::enableLimit(); // does CPUClock::sync()
-					if (likely(!T::limitReached())) {
+					if (!T::limitReached()) [[likely]] {
 						// multiple instructions
 						executeInstructions();
 						// note: pipeline only shifted one

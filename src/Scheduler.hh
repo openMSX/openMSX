@@ -3,7 +3,6 @@
 
 #include "EmuTime.hh"
 #include "SchedulerQueue.hh"
-#include "likely.hh"
 #include <vector>
 
 namespace openmsx {
@@ -62,7 +61,7 @@ public:
 	inline void schedule(EmuTime::param limit)
 	{
 		EmuTime next = getNext();
-		if (unlikely(limit >= next)) {
+		if (limit >= next) [[unlikely]] {
 			scheduleHelper(limit, next); // slow path not inlined
 		}
 		scheduleTime = limit;

@@ -3,7 +3,6 @@
 #include "aligned.hh"
 #include "endian.hh"
 #include "inline.hh"
-#include "likely.hh"
 #include "unreachable.hh"
 #include <bit>
 #include <cstring>
@@ -148,7 +147,7 @@ static void memcpy_using_offset(uint8_t* dstPtr, const uint8_t* srcPtr, uint8_t*
 {
 	const uint8_t* const pStart = pIn;
 
-	if (likely(pIn < pInLimit - (STEPSIZE - 1))) {
+	if (pIn < pInLimit - (STEPSIZE - 1)) [[likely]] {
 		reg_t diff = read_ARCH(pMatch) ^ read_ARCH(pIn);
 		if (!diff) {
 			pIn    += STEPSIZE;
@@ -157,7 +156,7 @@ static void memcpy_using_offset(uint8_t* dstPtr, const uint8_t* srcPtr, uint8_t*
 			return NbCommonBytes(diff);
 		}
 	}
-	while (likely(pIn < pInLimit - (STEPSIZE - 1))) {
+	while (pIn < pInLimit - (STEPSIZE - 1)) [[likely]] {
 		reg_t diff = read_ARCH(pMatch) ^ read_ARCH(pIn);
 		if (!diff) {
 			pIn    += STEPSIZE;
@@ -307,7 +306,7 @@ ALWAYS_INLINE int compress_impl(const uint8_t* src, uint8_t* const dst, const in
 				forwardIp += step;
 				step = searchMatchNb++ >> SKIP_TRIGGER;
 
-				if (unlikely(forwardIp > mflimitPlusOne)) goto _last_literals;
+				if (forwardIp > mflimitPlusOne) [[unlikely]] goto _last_literals;
 
 				match = hashTable.getPositionOnHash(h, src);
 				forwardH = hashTable.hashPosition(forwardIp);
@@ -327,7 +326,7 @@ ALWAYS_INLINE int compress_impl(const uint8_t* src, uint8_t* const dst, const in
 				forwardIp += step;
 				step = searchMatchNb++ >> SKIP_TRIGGER;
 
-				if (unlikely(forwardIp > mflimitPlusOne)) goto _last_literals;
+				if (forwardIp > mflimitPlusOne) [[unlikely]] goto _last_literals;
 
 				match = src + matchIndex;
 				forwardH = hashTable.hashPosition(forwardIp);
@@ -344,7 +343,7 @@ ALWAYS_INLINE int compress_impl(const uint8_t* src, uint8_t* const dst, const in
 		}
 
 		// Catch up
-		while (((ip > anchor) & (match > src)) && (unlikely(ip[-1] == match[-1]))) {
+		while (((ip > anchor) & (match > src)) && (/*unlikely*/(ip[-1] == match[-1]))) {
 			ip--;
 			match--;
 		}
@@ -561,7 +560,7 @@ int decompress(const uint8_t* src, uint8_t* dst, int compressedSize, int dstCapa
 			// copy match within block
 			cpy = op + length;
 
-			if (unlikely(offset < 16)) {
+			if (offset < 16) [[unlikely]] {
 				memcpy_using_offset(op, match, cpy, offset);
 			} else {
 				wildCopy32(op, match, cpy);
@@ -586,7 +585,7 @@ int decompress(const uint8_t* src, uint8_t* dst, int compressedSize, int dstCapa
 		// there is a combined check for both stages).
 		if ((length != RUN_MASK) &&
 		    // strictly "less than" on input, to re-enter the loop with at least one byte
-		    likely((ip < shortiend) & (op <= shortoend))) {
+		    /*likely*/((ip < shortiend) & (op <= shortoend))) {
 			// Copy the literals
 			memcpy(op, ip, 16);
 			op += length;
@@ -656,7 +655,7 @@ safe_match_copy:
 		// copy match within block
 		cpy = op + length;
 
-		if (unlikely(offset < 8)) {
+		if (offset < 8) [[unlikely]] {
 			unalignedStore32(op, 0); // silence msan warning when offset == 0
 			op[0] = match[0];
 			op[1] = match[1];
@@ -671,7 +670,7 @@ safe_match_copy:
 		}
 		op += 8;
 
-		if (unlikely(cpy > oend - MATCH_SAFEGUARD_DISTANCE)) {
+		if (cpy > oend - MATCH_SAFEGUARD_DISTANCE) [[unlikely]] {
 			uint8_t* const oCopyLimit = oend - (WILDCOPYLENGTH - 1);
 			if (op < oCopyLimit) {
 				wildCopy8(op, match, oCopyLimit);

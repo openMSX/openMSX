@@ -60,8 +60,8 @@ void YM2413::generateChannels(float* out_[9 + 5], uint32_t n)
 void YM2413::writePort(bool port, uint8_t value, int cycle_offset)
 {
 	// see comments in YM2413NukeYKT.cc
-	if (unlikely(speedUpHack)) {
-		while (unlikely(cycle_offset < allowed_offset)) {
+	if (speedUpHack) [[unlikely]] {
+		while (cycle_offset < allowed_offset) [[unlikely]] {
 			float d = 0.0f;
 			float* dummy[9 + 5] = {
 				&d, &d, &d, &d, &d, &d, &d, &d, &d,

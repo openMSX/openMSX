@@ -1,6 +1,5 @@
 #include "BitmapConverter.hh"
 #include "endian.hh"
-#include "likely.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
 #include "components.hh"
@@ -122,7 +121,7 @@ void BitmapConverter<Pixel>::renderGraphic4(
 		pixelPtr[2 * i + 3] = palette16[data1 & 15];
 	}*/
 
-	if (unlikely(!dPaletteValid)) {
+	if (!dPaletteValid) [[unlikely]] {
 		calcDPalette();
 	}
 
@@ -229,7 +228,7 @@ void BitmapConverter<Pixel>::renderGraphic6(
 		pixelPtr[4 * i + 2] = palette16[data1 >> 4];
 		pixelPtr[4 * i + 3] = palette16[data1 & 15];
 	}*/
-	if (unlikely(!dPaletteValid)) {
+	if (!dPaletteValid) [[unlikely]] {
 		calcDPalette();
 	}
 	      auto* out = reinterpret_cast<DPixel*>(pixelPtr);

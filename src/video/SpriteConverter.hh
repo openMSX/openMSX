@@ -8,7 +8,6 @@ TODO:
 
 #include "SpriteChecker.hh"
 #include "DisplayMode.hh"
-#include "likely.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
@@ -155,7 +154,7 @@ public:
 		// with CC=0. Therefor search for first sprite with CC=0.
 		int first = 0;
 		do {
-			if (likely((visibleSprites[first].colorAttrib & 0x40) == 0)) {
+			if ((visibleSprites[first].colorAttrib & 0x40) == 0) [[likely]] {
 				break;
 			}
 			++first;

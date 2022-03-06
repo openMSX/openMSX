@@ -10,7 +10,6 @@
 #include "WatchPoint.hh"
 #include "ProfileCounters.hh"
 #include "openmsx.hh"
-#include "likely.hh"
 #include "ranges.hh"
 #include <bitset>
 #include <vector>
@@ -123,7 +122,7 @@ public:
 	 */
 	inline byte readMem(word address, EmuTime::param time) {
 		tick(CacheLineCounters::SlowRead);
-		if (unlikely(disallowReadCache[address >> CacheLine::BITS])) {
+		if (disallowReadCache[address >> CacheLine::BITS]) [[unlikely]] {
 			return readMemSlow(address, time);
 		}
 		return visibleDevices[address >> 14]->readMem(address, time);
@@ -134,7 +133,7 @@ public:
 	 */
 	inline void writeMem(word address, byte value, EmuTime::param time) {
 		tick(CacheLineCounters::SlowWrite);
-		if (unlikely(disallowWriteCache[address >> CacheLine::BITS])) {
+		if (disallowWriteCache[address >> CacheLine::BITS]) [[unlikely]] {
 			writeMemSlow(address, value, time);
 			return;
 		}
@@ -171,7 +170,7 @@ public:
 	 */
 	[[nodiscard]] inline const byte* getReadCacheLine(word start) const {
 		tick(CacheLineCounters::GetReadCacheLine);
-		if (unlikely(disallowReadCache[start >> CacheLine::BITS])) {
+		if (disallowReadCache[start >> CacheLine::BITS]) [[unlikely]] {
 			return nullptr;
 		}
 		return visibleDevices[start >> 14]->getReadCacheLine(start);
@@ -191,7 +190,7 @@ public:
 	 */
 	[[nodiscard]] inline byte* getWriteCacheLine(word start) const {
 		tick(CacheLineCounters::GetWriteCacheLine);
-		if (unlikely(disallowWriteCache[start >> CacheLine::BITS])) {
+		if (disallowWriteCache[start >> CacheLine::BITS]) [[unlikely]] {
 			return nullptr;
 		}
 		return visibleDevices[start >> 14]->getWriteCacheLine(start);

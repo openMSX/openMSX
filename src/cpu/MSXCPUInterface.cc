@@ -186,12 +186,12 @@ byte MSXCPUInterface::readMemSlow(word address, EmuTime::param time)
 {
 	tick(CacheLineCounters::DisallowCacheRead);
 	// something special in this region?
-	if (unlikely(disallowReadCache[address >> CacheLine::BITS])) {
+	if (disallowReadCache[address >> CacheLine::BITS]) [[unlikely]] {
 		// slot-select-ignore reads (e.g. used in 'Carnivore2')
 		for (auto& g : globalReads) {
 			// very primitive address selection mechanism,
 			// but more than enough for now
-			if (unlikely(g.addr == address)) {
+			if (g.addr == address) [[unlikely]] {
 				g.device->globalRead(address, time);
 			}
 		}
@@ -201,7 +201,7 @@ byte MSXCPUInterface::readMemSlow(word address, EmuTime::param time)
 			executeMemWatch(WatchPoint::READ_MEM, address);
 		}
 	}
-	if (unlikely((address == 0xFFFF) && isExpanded(primarySlotState[3]))) {
+	if ((address == 0xFFFF) && isExpanded(primarySlotState[3])) [[unlikely]] {
 		return 0xFF ^ subSlotRegister[primarySlotState[3]];
 	} else {
 		return visibleDevices[address >> 14]->readMem(address, time);
@@ -211,7 +211,7 @@ byte MSXCPUInterface::readMemSlow(word address, EmuTime::param time)
 void MSXCPUInterface::writeMemSlow(word address, byte value, EmuTime::param time)
 {
 	tick(CacheLineCounters::DisallowCacheWrite);
-	if (unlikely((address == 0xFFFF) && isExpanded(primarySlotState[3]))) {
+	if ((address == 0xFFFF) && isExpanded(primarySlotState[3])) [[unlikely]] {
 		setSubSlot(primarySlotState[3], value);
 		// Confirmed on turboR GT machine: write does _not_ also go to
 		// the underlying (hidden) device. But it's theoretically
@@ -220,12 +220,12 @@ void MSXCPUInterface::writeMemSlow(word address, byte value, EmuTime::param time
 		visibleDevices[address>>14]->writeMem(address, value, time);
 	}
 	// something special in this region?
-	if (unlikely(disallowWriteCache[address >> CacheLine::BITS])) {
+	if (disallowWriteCache[address >> CacheLine::BITS]) [[unlikely]] {
 		// slot-select-ignore writes (Super Lode Runner)
 		for (auto& g : globalWrites) {
 			// very primitive address selection mechanism,
 			// but more than enough for now
-			if (unlikely(g.addr == address)) {
+			if (g.addr == address) [[unlikely]] {
 				g.device->globalWrite(address, value, time);
 			}
 		}
@@ -676,35 +676,35 @@ void MSXCPUInterface::setPrimarySlots(byte value)
 	// (EmuTime) is not unusual. So this routine ended up quite high
 	// (top-10) in some profile results.
 	int ps0 = (value >> 0) & 3;
-	if (unlikely(primarySlotState[0] != ps0)) {
+	if (primarySlotState[0] != ps0) [[unlikely]] {
 		primarySlotState[0] = ps0;
 		int ss0 = (subSlotRegister[ps0] >> 0) & 3;
 		secondarySlotState[0] = ss0;
 		updateVisible(0, ps0, ss0);
 	}
 	int ps1 = (value >> 2) & 3;
-	if (unlikely(primarySlotState[1] != ps1)) {
+	if (primarySlotState[1] != ps1) [[unlikely]] {
 		primarySlotState[1] = ps1;
 		int ss1 = (subSlotRegister[ps1] >> 2) & 3;
 		secondarySlotState[1] = ss1;
 		updateVisible(1, ps1, ss1);
 	}
 	int ps2 = (value >> 4) & 3;
-	if (unlikely(primarySlotState[2] != ps2)) {
+	if (primarySlotState[2] != ps2) [[unlikely]] {
 		primarySlotState[2] = ps2;
 		int ss2 = (subSlotRegister[ps2] >> 4) & 3;
 		secondarySlotState[2] = ss2;
 		updateVisible(2, ps2, ss2);
 	}
 	int ps3 = (value >> 6) & 3;
-	if (unlikely(primarySlotState[3] != ps3)) {
+	if (primarySlotState[3] != ps3) [[unlikely]] {
 		bool oldExpanded = isExpanded(primarySlotState[3]);
 		bool newExpanded = isExpanded(ps3);
 		primarySlotState[3] = ps3;
 		int ss3 = (subSlotRegister[ps3] >> 6) & 3;
 		secondarySlotState[3] = ss3;
 		updateVisible(3, ps3, ss3);
-		if (unlikely(oldExpanded != newExpanded)) {
+		if (oldExpanded != newExpanded) [[unlikely]] {
 			changeExpanded(newExpanded);
 		}
 	}

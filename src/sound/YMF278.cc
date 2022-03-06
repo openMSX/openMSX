@@ -34,7 +34,6 @@
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
 #include "enumerate.hh"
-#include "likely.hh"
 #include "one_of.hh"
 #include "outer.hh"
 #include "ranges.hh"
@@ -890,7 +889,7 @@ void YMF278::reset(EmuTime::param time)
 unsigned YMF278::getRamAddress(unsigned addr) const
 {
 	addr -= 0x200000; // RAM starts at 0x200000
-	if (unlikely(regs[2] & 2)) {
+	if (regs[2] & 2) [[unlikely]] {
 		// Normally MoonSound is used in 'memory access mode = 0'. But
 		// in the rare case that mode=1 we adjust the address.
 		if ((0x180000 <= addr) && (addr <= 0x1FFFFF)) {

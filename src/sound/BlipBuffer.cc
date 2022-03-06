@@ -1,6 +1,5 @@
 #include "BlipBuffer.hh"
 #include "cstd.hh"
-#include "likely.hh"
 #include "Math.hh"
 #include "ranges.hh"
 #include "xrange.hh"
@@ -107,7 +106,7 @@ void BlipBuffer::addDelta(TimeIndex time, float delta)
 	unsigned phase = time.fractAsInt();
 	unsigned ofst = time.toInt() + offset;
 	const float* __restrict impulse = impulses[phase].data();
-	if (likely((ofst + BLIP_IMPULSE_WIDTH) <= BUFFER_SIZE)) {
+	if ((ofst + BLIP_IMPULSE_WIDTH) <= BUFFER_SIZE) [[likely]] {
 		float* __restrict result = &buffer[ofst];
 		for (auto i : xrange(BLIP_IMPULSE_WIDTH)) {
 			result[i] += impulse[i] * delta;

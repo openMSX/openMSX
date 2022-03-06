@@ -2,7 +2,6 @@
 #define LINESCALERS_HH
 
 #include "PixelOperations.hh"
-#include "likely.hh"
 #include "xrange.hh"
 #include <type_traits>
 #include <cstddef>
@@ -528,7 +527,7 @@ void Scale_1on1<Pixel>::operator()(
 	size_t n128 = nBytes & ~127;
 	memcpy_SSE_128(in, out, n128); // copy 128 byte chunks
 	nBytes &= 127; // remaning bytes (if any)
-	if (likely(nBytes == 0)) return;
+	if (nBytes == 0) [[likely]] return;
 	in  += n128 / sizeof(Pixel);
 	out += n128 / sizeof(Pixel);
 #endif
@@ -643,7 +642,7 @@ void Scale_2on1<Pixel>::operator()(
 	Pixel mask = pixelOps.getBlendMask();
 	scale_2on1_SSE(in, out, n64, mask); // process 64 byte chunks
 	dstWidth &= ((64 / sizeof(Pixel)) - 1); // remaning pixels (if any)
-	if (likely(dstWidth == 0)) return;
+	if (dstWidth == 0) [[likely]] return;
 	in  += (2 * n64) / sizeof(Pixel);
 	out +=      n64  / sizeof(Pixel);
 #endif

@@ -4,7 +4,6 @@
 #include "LineScalers.hh"
 #include "unreachable.hh"
 #include "aligned.hh"
-#include "likely.hh"
 #include "vla.hh"
 #include "build-info.hh"
 #include "components.hh"
@@ -74,7 +73,7 @@ void FrameSource::scaleLine(
 	PixelOperations<Pixel> pixelOps(pixelFormat);
 
 	VLA_SSE_ALIGNED(Pixel, tmpBuf, inWidth);
-	if (unlikely(in == out)) {
+	if (in == out) [[unlikely]] {
 		// Only happens in case getLineInfo() already used buf.
 		// E.g. when a line of a SuperImposedFrame also needs to be
 		// scaled.

@@ -29,7 +29,6 @@
 #include "serialize.hh"
 #include "cstd.hh"
 #include "enumerate.hh"
-#include "likely.hh"
 #include "Math.hh"
 #include "one_of.hh"
 #include "ranges.hh"
@@ -219,7 +218,7 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::envelopeTim
 	if constexpr (TEST_MODE) {
 		if (CYCLES == 0 && (eg_counter_state & 1) == 0) {
 			eg_timer_lock = eg_timer & 3;
-			eg_timer_shift_lock = likely(eg_timer_shift <= 13) ? eg_timer_shift : 0;
+			eg_timer_shift_lock = /*likely*/(eg_timer_shift <= 13) ? eg_timer_shift : 0;
 			eg_timer_shift = 0;
 
 			attackPtr  = attack[eg_timer_shift_lock][eg_timer_lock];
@@ -272,13 +271,13 @@ template<uint32_t CYCLES> ALWAYS_INLINE bool YM2413::envelopeGenerate1()
 	bool prev2_eg_dokon = eg_dokon[(CYCLES + 16) % 18];
 
 	auto state = eg_state[(CYCLES + 16) % 18];
-	if (unlikely(prev2_eg_dokon)) {
+	if (prev2_eg_dokon) [[unlikely]] {
 		eg_state[(CYCLES + 16) % 18] = EgState::attack;
 	} else if (!prev2_eg_kon) {
 		eg_state[(CYCLES + 16) % 18] = EgState::release;
-	} else if (unlikely((state == EgState::attack) && (level == 0))) {
+	} else if ((state == EgState::attack) && (level == 0)) [[unlikely]] {
 		eg_state[(CYCLES + 16) % 18] = EgState::decay;
-	} else if (unlikely((state == EgState::decay) && ((level >> 3) == eg_sl[CYCLES & 1]))) {
+	} else if ((state == EgState::decay) && ((level >> 3) == eg_sl[CYCLES & 1])) [[unlikely]] {
 		eg_state[(CYCLES + 16) % 18] = EgState::sustain;
 	}
 
@@ -290,7 +289,7 @@ template<uint32_t CYCLES> ALWAYS_INLINE bool YM2413::envelopeGenerate1()
 	auto step = [&]() -> int {
 		switch (state) {
 		case EgState::attack:
-			if (likely(prev2_eg_kon && (level != 0))) {
+			if (prev2_eg_kon && (level != 0)) [[likely]] {
 				return (level ^ 0xfff) >> attackPtr[prev2_rate];
 			}
 			break;
@@ -352,7 +351,7 @@ template<uint32_t CYCLES> ALWAYS_INLINE void YM2413::envelopeGenerate2(const Pat
 
 	// Calculate rate
 	auto state_rate = eg_state[CYCLES];
-	if (unlikely(state_rate == EgState::release && new_eg_kon && new_eg_off)) {
+	if (state_rate == EgState::release && new_eg_kon && new_eg_off) [[unlikely]] {
 		state_rate = EgState::attack;
 		eg_dokon[CYCLES] = true;
 	} else {
@@ -493,7 +492,7 @@ template<uint32_t CYCLES> ALWAYS_INLINE uint32_t YM2413::getPhaseMod(uint8_t fb_
 
 template<uint32_t CYCLES> ALWAYS_INLINE void YM2413::doRegWrite()
 {
-	if (unlikely(write_fm_cycle == CYCLES)) {
+	if (write_fm_cycle == CYCLES) [[unlikely]] {
 		doRegWrite(CYCLES % 9);
 	}
 }
@@ -541,7 +540,7 @@ void YM2413::doRegWrite(uint8_t regBlock, uint8_t channel, uint8_t data)
 
 template<uint32_t CYCLES> ALWAYS_INLINE void YM2413::doIO()
 {
-	if (unlikely(writes[CYCLES].port != uint8_t(-1))) {
+	if (writes[CYCLES].port != uint8_t(-1)) [[unlikely]] {
 		doIO((CYCLES + 1) % 18, writes[CYCLES]);
 	}
 }
@@ -637,7 +636,7 @@ template<uint32_t CYCLES> ALWAYS_INLINE void YM2413::doOperator(float* out[9 + 5
 		uint32_t op_exp_m = expTab[op_level & 0xff];
 		auto  op_exp_s = op_level >> 8;
 		if (prev2_phase & 0x200) {
-			return unlikely(c_dcm[(CYCLES + 16) % 3] & (ismod1 ? 1 : 2))
+			return /*unlikely*/(c_dcm[(CYCLES + 16) % 3] & (ismod1 ? 1 : 2))
 			       ? ~0
 			       : ~(op_exp_m >> op_exp_s);
 		} else {
@@ -819,7 +818,7 @@ void YM2413::generateChannels(float* out_[9 + 5], uint32_t n)
 	std::copy_n(out_, 9 + 5, out);
 
 	// Loop here (instead of in step18) seems faster. (why?)
-	if (unlikely(test_mode_active)) {
+	if (test_mode_active) [[unlikely]] {
 		repeat(n, [&] { step18<true >(out); });
 	} else {
 		repeat(n, [&] { step18<false>(out); });
@@ -868,8 +867,8 @@ void YM2413::writePort(bool port, uint8_t value, int cycle_offset)
 	//  faster this can result in artificial too-fast-access. We need to
 	//  solve this properly, but for now this hack should suffice.
 
-	if (unlikely(speedUpHack)) {
-		while (unlikely(cycle_offset < allowed_offset)) {
+	if (speedUpHack) [[unlikely]] {
+		while (cycle_offset < allowed_offset) [[unlikely]] {
 			float d = 0.0f;
 			float* dummy[9 + 5] = {
 				&d, &d, &d, &d, &d, &d, &d, &d, &d,

@@ -1,7 +1,6 @@
 #ifndef MATH_HH
 #define MATH_HH
 
-#include "likely.hh"
 #include <cassert>
 #include <cmath>
 #include <cstdint>
@@ -100,7 +99,11 @@ template<typename T>
 [[nodiscard]] inline int16_t clipIntToShort(int x)
 {
 	static_assert((-1 >> 1) == -1, "right-shift must preserve sign");
-	return likely(int16_t(x) == x) ? x : (0x7FFF - (x >> 31));
+	if (int16_t(x) == x) [[likely]] {
+		return x;
+	} else {
+		return 0x7FFF - (x >> 31);
+	}
 }
 
 /** Clip x to range [0,255].
@@ -109,7 +112,11 @@ template<typename T>
 [[nodiscard]] inline uint8_t clipIntToByte(int x)
 {
 	static_assert((-1 >> 1) == -1, "right-shift must preserve sign");
-	return likely(uint8_t(x) == x) ? x : ~(x >> 31);
+	if (uint8_t(x) == x) [[likely]] {
+		return x;
+	} else {
+		return ~(x >> 31);
+	}
 }
 
 /** Reverse the lower N bits of a given value.

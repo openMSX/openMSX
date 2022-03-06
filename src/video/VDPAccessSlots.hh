@@ -2,7 +2,6 @@
 #define VDPACCESSSLOTS_HH
 
 #include "VDP.hh"
-#include "likely.hh"
 #include <cassert>
 #include <cstdint>
 
@@ -71,7 +70,7 @@ public:
 	  * ticks later than the current time. */
 	inline void next(Delta delta) {
 		ticks += tab[delta + ticks];
-		if (unlikely(ticks >= TICKS)) {
+		if (ticks >= TICKS) [[unlikely]] {
 			ticks -= TICKS;
 			limit -= TICKS;
 			ref   += TICKS;

@@ -2,7 +2,6 @@
 #define SERIALIZE_META_HH
 
 #include "hash_map.hh"
-#include "likely.hh"
 #include "xxhash.hh"
 #include <memory>
 #include <tuple>
@@ -222,7 +221,7 @@ public:
 		registerHelper(name, [](Archive& ar, void* v, unsigned id) {
 			using BaseType = typename PolymorphicBaseClass<T>::type;
 			auto base = static_cast<BaseType*>(v);
-			if (unlikely(dynamic_cast<T*>(base) != static_cast<T*>(base))) {
+			if (dynamic_cast<T*>(base) != static_cast<T*>(base)) [[unlikely]] {
 				polyInitError(typeid(T).name(), typeid(*base).name());
 			}
 			auto t = static_cast<T*>(base);

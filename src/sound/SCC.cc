@@ -100,7 +100,6 @@
 #include "DeviceConfig.hh"
 #include "cstd.hh"
 #include "enumerate.hh"
-#include "likely.hh"
 #include "outer.hh"
 #include "ranges.hh"
 #include "serialize.hh"
@@ -474,7 +473,7 @@ void SCC::generateChannels(float** bufs, unsigned num)
 				count2 += incr2;
 				// Note: only for very small periods
 				//       this will take more than 1 iteration
-				while (unlikely(count2 >= period2)) {
+				while (count2 >= period2) [[unlikely]] {
 					count2 -= period2;
 					pos2 = (pos2 + 1) % 32;
 					out2 = volAdjustedWave[i][pos2];

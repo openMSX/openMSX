@@ -17,7 +17,6 @@
 #include "CommandException.hh"
 #include "MemBuffer.hh"
 #include "aligned.hh"
-#include "likely.hh"
 #include "vla.hh"
 #include "xrange.hh"
 #include "build-info.hh"
@@ -195,7 +194,7 @@ std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
 
 	// Return recycled frame to the caller
 	if (canDoInterlace) {
-		if (unlikely(!recycleFrame)) {
+		if (!recycleFrame) [[unlikely]] {
 			recycleFrame = std::make_unique<RawFrame>(
 				screen.getPixelFormat(), maxWidth, height);
 		}

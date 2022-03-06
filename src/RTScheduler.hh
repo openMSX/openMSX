@@ -3,7 +3,6 @@
 
 #include "SchedulerQueue.hh"
 #include "Timer.hh"
-#include "likely.hh"
 #include <cstdint>
 
 namespace openmsx {
@@ -22,9 +21,11 @@ public:
 	/** Execute all expired RTSchedulables. */
 	inline void execute()
 	{
-		auto limit = Timer::getTime();
-		if (!queue.empty() && unlikely(limit >= queue.front().time)) {
-			scheduleHelper(limit); // slow path not inlined
+		if (!queue.empty()) {
+			auto limit = Timer::getTime();
+			if (limit >= queue.front().time) [[unlikely]] {
+				scheduleHelper(limit); // slow path not inlined
+			}
 		}
 	}
 

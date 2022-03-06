@@ -1,7 +1,6 @@
 #include "serialize_core.hh"
 #include "serialize.hh"
 #include "MSXException.hh"
-#include "likely.hh"
 
 namespace openmsx {
 
@@ -39,7 +38,7 @@ unsigned loadVersionHelper(XmlInputArchive& ar, const char* className,
 	assert(ar.CAN_HAVE_OPTIONAL_ATTRIBUTES);
 	auto version = ar.findAttributeAs<unsigned>("version");
 	if (!version) return 1;
-	if (unlikely(*version > latestVersion)) {
+	if (*version > latestVersion) [[unlikely]] {
 		versionError(className, latestVersion, *version);
 	}
 	return *version;

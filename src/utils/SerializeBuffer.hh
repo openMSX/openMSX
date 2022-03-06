@@ -3,7 +3,6 @@
 
 #include "MemBuffer.hh"
 #include "inline.hh"
-#include "likely.hh"
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
@@ -69,7 +68,7 @@ public:
 		std::apply([&](auto&&... args) { (accum(args), ...); }, tuple);
 
 		uint8_t* newEnd = end + len;
-		if (unlikely(newEnd > finish)) {
+		if (newEnd > finish) [[unlikely]] {
 			grow(len); // reallocates, thus newEnd is no longer valid.
 		}
 

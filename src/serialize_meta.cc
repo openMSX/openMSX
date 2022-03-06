@@ -29,7 +29,7 @@ void PolymorphicSaverRegistry<Archive>::save(
 	Archive& ar, const void* t, const std::type_info& typeInfo)
 {
 	auto& reg = PolymorphicSaverRegistry<Archive>::instance();
-	if (unlikely(!reg.initialized)) {
+	if (!reg.initialized) [[unlikely]] {
 		reg.initialized = true;
 		ranges::sort(reg.saverMap, {}, &Entry::index);
 	}

@@ -8,7 +8,6 @@
 #include "MemBuffer.hh"
 #include "MSXException.hh"
 #include "aligned.hh"
-#include "likely.hh"
 #include "ranges.hh"
 #include "one_of.hh"
 #include "vla.hh"
@@ -23,7 +22,7 @@ static unsigned mixBufferSize = 0;
 
 static void allocateMixBuffer(unsigned size)
 {
-	if (unlikely(mixBufferSize < size)) {
+	if (mixBufferSize < size) [[unlikely]] {
 		mixBufferSize = size;
 		mixBuffer.resize(mixBufferSize);
 	}

@@ -21,7 +21,6 @@ A million repetitions of "a"
 #include "sha1.hh"
 #include "MSXException.hh"
 #include "endian.hh"
-#include "likely.hh"
 #include "ranges.hh"
 #include <cassert>
 #include <cstring>
@@ -176,7 +175,7 @@ void Sha1Sum::parse40(const char* str)
 	__m128i ok1 = _mm_or_si128(c1_0, c1_a);
 	__m128i ok2 = _mm_or_si128(c2_0, c2_a);
 	__m128i ok = _mm_and_si128(_mm_and_si128(ok0, ok1), ok2);
-	if (unlikely(_mm_movemask_epi8(ok) != 0xffff)) {
+	if (_mm_movemask_epi8(ok) != 0xffff) [[unlikely]] {
 		throw MSXException("Invalid sha1, digits should be 0-9, a-f: ",
 		                   std::string_view(str, 40));
 	}
