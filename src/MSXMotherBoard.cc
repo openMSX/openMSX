@@ -302,6 +302,17 @@ bool MSXMotherBoard::isTurboR() const
 	return config->getConfig().getChild("devices").findChild("S1990") != nullptr;
 }
 
+bool MSXMotherBoard::hasToshibaEngine() const
+{
+	const HardwareConfig* config = getMachineConfig();
+	assert(config);
+	const XMLElement& devices = config->getConfig().getChild("devices");
+	return devices.findChild("T7775") != nullptr ||
+	       devices.findChild("T7937") != nullptr ||
+		   devices.findChild("T9763") != nullptr ||
+		   devices.findChild("T9769") != nullptr;
+}
+
 string MSXMotherBoard::loadMachine(const string& machine)
 {
 	assert(machineName.empty());

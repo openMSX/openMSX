@@ -308,7 +308,7 @@ template<typename T> CPUCore<T>::CPUCore(
 	, nmiEdge(false)
 	, exitLoop(false)
 	, tracingEnabled(traceSetting.getBoolean())
-	, isTurboR(motherboard.isTurboR())
+	, isCMOS(motherboard.hasToshibaEngine())  // Toshiba MSX-ENGINEs embed a CMOS Z80
 {
 	static_assert(!std::is_polymorphic_v<CPUCore<T>>,
 		"keep CPUCore non-virtual to keep PC at offset 0");
@@ -4038,7 +4038,7 @@ template<typename T> II CPUCore<T>::out_c_0() {
 	// TODO not on R800
 	if constexpr (T::IS_R800) T::waitForEvenCycle(T::CC_OUT_C_R_1);
 	T::setMemPtr(getBC() + 1);
-	byte out_c_x = isTurboR ? 255 : 0;
+	byte out_c_x = isCMOS ? 255 : 0;
 	WRITE_PORT(getBC(), out_c_x, T::CC_OUT_C_R_1);
 	return {1, T::CC_OUT_C_R};
 }
@@ -4190,8 +4190,8 @@ template<typename T> II CPUCore<T>::ccf() {
 	} else {
 		f |= (getF() & C_FLAG) << 4; // H_FLAG
 		// only set X(Y) flag (don't reset if already set)
-		if (isTurboR) {
-			// Y flag is not changed on a turboR-Z80
+		if (isCMOS) {
+			// Y flag is not changed on a CMOS Z80
 			f |= getF() & (S_FLAG | Z_FLAG | P_FLAG | C_FLAG | Y_FLAG);
 			f |= (getF() | getA()) & X_FLAG;
 		} else {
@@ -4258,8 +4258,8 @@ template<typename T> II CPUCore<T>::scf() {
 		f |= getF() & (S_FLAG | Z_FLAG | P_FLAG | X_FLAG | Y_FLAG);
 	} else {
 		// only set X(Y) flag (don't reset if already set)
-		if (isTurboR) {
-			// Y flag is not changed on a turboR-Z80
+		if (isCMOS) {
+			// Y flag is not changed on a CMOS Z80
 			f |= getF() & (S_FLAG | Z_FLAG | P_FLAG | Y_FLAG);
 			f |= (getF() | getA()) & X_FLAG;
 		} else {

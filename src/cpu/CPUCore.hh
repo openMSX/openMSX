@@ -170,8 +170,8 @@ private:
 	/** In sync with traceSetting.getBoolean(). */
 	bool tracingEnabled;
 
-	/** 'normal' Z80 and Z80 in a turboR behave slightly different */
-	const bool isTurboR;
+	/** An NMOS Z80 and a CMOS Z80 behave slightly differently */
+	const bool isCMOS;
 
 private:
 	inline void cpuTracePre();

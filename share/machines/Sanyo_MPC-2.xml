@@ -35,6 +35,8 @@
 
   <devices>
 
+    <T7775 id="T7775" />
+
     <PPI id="ppi">
       <sound>
         <volume>16000</volume>

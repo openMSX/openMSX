@@ -103,6 +103,7 @@ public:
 	void setMachineConfig(HardwareConfig* machineConfig);
 	[[nodiscard]] std::string_view getMachineType() const;
 	[[nodiscard]] bool isTurboR() const;
+	[[nodiscard]] bool hasToshibaEngine() const;
 
 	std::string loadMachine(const std::string& machine);
 

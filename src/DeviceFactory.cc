@@ -303,7 +303,7 @@ std::unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<MusicalMemoryMapper>(conf);
 	} else if (type == "Carnivore2") {
 		result = make_unique<Carnivore2>(conf);
-	} else if (type == "T9769") {
+	} else if (type == one_of("T7775", "T7937", "T9763", "T9769")) {
 		// Ignore for now. We might want to create a real device for it later.
 	} else {
 		throw MSXException("Unknown device \"", type,
