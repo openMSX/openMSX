@@ -465,10 +465,10 @@ string DiskManipulator::chdir(DriveSettings& driveData, string_view filename)
 	}
 	// TODO clean-up this temp hack, used to enable relative paths
 	string& cwd = driveData.workingDir[driveData.partition];
-	if (StringOp::startsWith(filename, '/')) {
+	if (filename.starts_with('/')) {
 		cwd = filename;
 	} else {
-		if (!StringOp::endsWith(cwd, '/')) cwd += '/';
+		if (!cwd.ends_with('/')) cwd += '/';
 		cwd.append(filename.data(), filename.size());
 	}
 	return "New working directory: " + cwd;

@@ -334,7 +334,7 @@ vector<string> Reactor::getHwConfigs(string_view type)
 	vector<string> result;
 	for (const auto& p : systemFileContext().getPaths()) {
 		auto fileAction = [&](const std::string& /*path*/, std::string_view name) {
-			if (StringOp::endsWith(name, ".xml")) {
+			if (name.ends_with(".xml")) {
 				name.remove_suffix(4);
 				result.emplace_back(name);
 			}

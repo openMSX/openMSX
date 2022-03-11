@@ -687,8 +687,8 @@ static size_t weight(const string& hostName)
 
 void DirAsDSK::addNewHostFiles(const string& hostSubDir, unsigned msxDirSector)
 {
-	assert(!StringOp::startsWith(hostSubDir, '/'));
-	assert(hostSubDir.empty() || StringOp::endsWith(hostSubDir, '/'));
+	assert(!hostSubDir.starts_with('/'));
+	assert(hostSubDir.empty() || hostSubDir.ends_with('/'));
 
 	vector<string> hostNames;
 	{
@@ -701,7 +701,7 @@ void DirAsDSK::addNewHostFiles(const string& hostSubDir, unsigned msxDirSector)
 
 	for (auto& hostName : hostNames) {
 		try {
-			if (StringOp::startsWith(hostName, '.')) {
+			if (hostName.starts_with('.')) {
 				// skip '.' and '..'
 				// also skip hidden files on unix
 				continue;
@@ -823,7 +823,7 @@ DirAsDSK::DirIndex DirAsDSK::fillMSXDirEntry(
 		}
 
 		// Fill in hostName / msx filename.
-		assert(!StringOp::endsWith(hostPath, '/'));
+		assert(!hostPath.ends_with('/'));
 		mapDirs[dirIndex].hostName = hostPath;
 		memset(&msxDir(dirIndex), 0, sizeof(MSXDirEntry)); // clear entry
 		memcpy(msxDir(dirIndex).filename, msxFilename.data(), 8 + 3);
@@ -1169,7 +1169,7 @@ void DirAsDSK::exportToHost(DirIndex dirIndex, DirIndex dirDirIndex)
 			auto* v2 = lookup(mapDirs, dirDirIndex);
 			assert(v2);
 			hostSubDir = v2->hostName;
-			assert(!StringOp::endsWith(hostSubDir, '/'));
+			assert(!hostSubDir.ends_with('/'));
 			hostSubDir += '/';
 		}
 		hostName = hostSubDir + msxToHostName(msxName);

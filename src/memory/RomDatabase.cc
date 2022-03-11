@@ -460,7 +460,7 @@ void DBParser::addAllEntries()
 static const char* parseStart(string_view s)
 {
 	// we expect "0x0000", "0x4000", "0x8000", "0xc000" or ""
-	return ((s.size() == 6) && StringOp::startsWith(s, "0x")) ? (s.data() + 2) : nullptr;
+	return ((s.size() == 6) && s.starts_with("0x")) ? (s.data() + 2) : nullptr;
 }
 
 void DBParser::stop()

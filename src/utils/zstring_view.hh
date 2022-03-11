@@ -57,6 +57,25 @@ public:
 		return zstring_view(dat + pos, siz - pos);
 	}
 
+	[[nodiscard]] constexpr bool starts_with(std::string_view sv) const {
+		return view().starts_with(sv);
+	}
+	[[nodiscard]] constexpr bool starts_with(char c) const {
+		return view().starts_with(c);
+	}
+	[[nodiscard]] constexpr bool starts_with(const char* s) const {
+		return view().starts_with(s);
+	}
+	[[nodiscard]] constexpr bool ends_with(std::string_view sv) const {
+		return view().ends_with(sv);
+	}
+	[[nodiscard]] constexpr bool ends_with(char c) const {
+		return view().ends_with(c);
+	}
+	[[nodiscard]] constexpr bool ends_with(const char* s) const {
+		return view().ends_with(s);
+	}
+
 	[[nodiscard]] explicit operator std::string() const {
 		return {dat, siz};
 	}

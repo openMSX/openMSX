@@ -9,7 +9,6 @@
 #include "one_of.hh"
 #include "outer.hh"
 #include "ranges.hh"
-#include "StringOp.hh"
 #include "xrange.hh"
 #include <cassert>
 #include <memory>
@@ -419,7 +418,7 @@ void CartridgeSlotManager::CartridgeSlotInfo::execute(
 	case 3: {
 		// return info on a particular slot
 		const auto& slotName = tokens[2].getString();
-		if ((slotName.size() != 5) || (!StringOp::startsWith(slotName, "slot"))) {
+		if ((slotName.size() != 5) || !slotName.starts_with("slot")) {
 			throw CommandException("Invalid slot name: ", slotName);
 		}
 		unsigned num = slotName[4] - 'a';

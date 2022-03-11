@@ -582,7 +582,7 @@ void CommandLineParser::BashOption::parseOption(
 		for (auto& s : Reactor::getHwConfigs("machines")) {
 			cout << s << '\n';
 		}
-	} else if (StringOp::startsWith(last, "-ext")) {
+	} else if (last.starts_with("-ext")) {
 		for (auto& s : Reactor::getHwConfigs("extensions")) {
 			cout << s << '\n';
 		}

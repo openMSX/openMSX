@@ -51,11 +51,6 @@ namespace StringOp
 
 	//[[nodiscard]] std::string toLower(std::string_view str);
 
-	[[nodiscard]] bool startsWith(std::string_view total, std::string_view part);
-	[[nodiscard]] bool startsWith(std::string_view total, char part);
-	[[nodiscard]] bool endsWith  (std::string_view total, std::string_view part);
-	[[nodiscard]] bool endsWith  (std::string_view total, char part);
-
 	void trimRight(std::string& str, const char* chars);
 	void trimRight(std::string& str, char chars);
 	void trimRight(std::string_view& str, std::string_view chars);

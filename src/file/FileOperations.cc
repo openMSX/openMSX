@@ -110,9 +110,7 @@ void mkdir(zstring_view path, mode_t mode)
 {
 #ifdef _WIN32
 	(void)&mode; // Suppress C4100 VC++ warning
-	if ((path == "/") ||
-		StringOp::endsWith(path, ':') ||
-		StringOp::endsWith(path, ":/")) {
+	if ((path == "/") || path.ends_with(':') || path.ends_with(":/")) {
 		return;
 	}
 	int result = _wmkdir(utf8to16(getNativePath(string(path))).c_str());
@@ -127,7 +125,7 @@ void mkdir(zstring_view path, mode_t mode)
 static bool isUNCPath(string_view path)
 {
 #ifdef _WIN32
-	return StringOp::startsWith(path, "//") || StringOp::startsWith(path, "\\\\");
+	return path.starts_with("//") || path.starts_with("\\\\");
 #else
 	(void)path;
 	return false;
@@ -625,8 +623,7 @@ string parseCommandFileArgument(
 		filename = expandTilde(std::move(filename));
 	}
 
-	if (!StringOp::endsWith(filename, extension) &&
-	    !exists(filename)) {
+	if (!filename.ends_with(extension) && !exists(filename)) {
 		// Expected extension not already given, append it. But only
 		// when the filename without extension doesn't already exist.
 		// Without this exception stuff like 'soundlog start /dev/null'

@@ -342,7 +342,7 @@ static BaseSetting* getTraceSetting(uintptr_t traceID)
 #ifndef NDEBUG
 static std::string_view removeColonColon(std::string_view s)
 {
-	if (StringOp::startsWith(s, "::")) s.remove_prefix(2);
+	if (s.starts_with("::")) s.remove_prefix(2);
 	return s;
 }
 #endif

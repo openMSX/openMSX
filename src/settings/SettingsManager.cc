@@ -5,7 +5,6 @@
 #include "TclObject.hh"
 #include "CommandException.hh"
 #include "outer.hh"
-#include "StringOp.hh"
 #include "view.hh"
 #include "vla.hh"
 #include <cassert>
@@ -48,7 +47,7 @@ BaseSetting* SettingsManager::findSetting(std::string_view name) const
 	if (auto it = settings.find(name); it != end(settings)) {
 		return *it;
 	}
-	if (StringOp::startsWith(name, "::")) {
+	if (name.starts_with("::")) {
 		// try without leading ::
 		if (auto it = settings.find(name.substr(2)); it != end(settings)) {
 			return *it;
@@ -88,7 +87,7 @@ std::vector<string> SettingsManager::getTabSettingNames() const
 	for (auto* s : settings) {
 		std::string_view name = s->getFullName();
 		result.emplace_back(name);
-		if (StringOp::startsWith(name, "::")) {
+		if (name.starts_with("::")) {
 			result.emplace_back(name.substr(2));
 		} else {
 			result.push_back(strCat("::", name));

@@ -623,7 +623,7 @@ void CommandConsole::prevCommand()
 	unsigned tmp = commandScrollBack;
 	while ((tmp != 0) && !match) {
 		--tmp;
-		match = StringOp::startsWith(history[tmp], currentLine);
+		match = history[tmp].starts_with(currentLine);
 	}
 	if (match) {
 		commandScrollBack = tmp;
@@ -641,7 +641,7 @@ void CommandConsole::nextCommand()
 	bool match = false;
 	auto tmp = commandScrollBack;
 	while ((++tmp != history.size()) && !match) {
-		match = StringOp::startsWith(history[tmp], currentLine);
+		match = history[tmp].starts_with(currentLine);
 	}
 	if (match) {
 		--tmp; // one time to many

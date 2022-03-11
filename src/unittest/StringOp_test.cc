@@ -231,31 +231,6 @@ TEST_CASE("StringOp")
 		CHECK(toLower("fOo") == "foo");
 		CHECK(toLower(string("FoO")) == "foo");
 	}*/
-	SECTION("startsWith") {
-		CHECK      (startsWith("foobar", "foo"));
-		CHECK_FALSE(startsWith("foobar", "bar"));
-		CHECK_FALSE(startsWith("ba", "bar"));
-		CHECK      (startsWith("", ""));
-		CHECK_FALSE(startsWith("", "bar"));
-		CHECK      (startsWith("foobar", ""));
-
-		CHECK      (startsWith("foobar", 'f'));
-		CHECK_FALSE(startsWith("foobar", 'b'));
-		CHECK_FALSE(startsWith("", 'b'));
-	}
-	SECTION("endsWith") {
-		CHECK      (endsWith("foobar", "bar"));
-		CHECK_FALSE(endsWith("foobar", "foo"));
-		CHECK_FALSE(endsWith("ba", "bar"));
-		CHECK_FALSE(endsWith("ba", "baba"));
-		CHECK      (endsWith("", ""));
-		CHECK_FALSE(endsWith("", "bar"));
-		CHECK      (endsWith("foobar", ""));
-
-		CHECK      (endsWith("foobar", 'r'));
-		CHECK_FALSE(endsWith("foobar", 'o'));
-		CHECK_FALSE(endsWith("", 'b'));
-	}
 	SECTION("trimRight") {
 		checkTrimRight("", ' ', "");
 		checkTrimRight("  ", ' ', "");

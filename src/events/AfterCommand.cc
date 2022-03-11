@@ -349,7 +349,7 @@ void AfterCommand::afterCancel(span<const TclObject> tokens, TclObject& /*result
 {
 	checkNumArgs(tokens, AtLeast{3}, "id|command");
 	if (tokens.size() == 3) {
-		if (auto idStr = tokens[2].getString(); StringOp::startsWith(idStr, "after#")) {
+		if (auto idStr = tokens[2].getString(); idStr.starts_with("after#")) {
 			if (auto id = StringOp::stringTo<unsigned>(idStr.substr(6))) {
 				auto equalId = [id = *id](Index idx) {
 					return std::visit([&](AfterCmd& cmd) {

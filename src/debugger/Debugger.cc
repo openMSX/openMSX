@@ -108,7 +108,7 @@ unsigned Debugger::insertProbeBreakPoint(
 
 void Debugger::removeProbeBreakPoint(string_view name)
 {
-	if (StringOp::startsWith(name, "pp#")) {
+	if (name.starts_with("pp#")) {
 		// remove by id
 		if (auto id = StringOp::stringToBase<10, unsigned>(name.substr(3))) {
 			if (auto it = ranges::find(probeBreakPoints, id, &ProbeBreakPoint::getId);
@@ -366,7 +366,7 @@ void Debugger::Cmd::removeBreakPoint(
 	auto& breakPoints = interface.getBreakPoints();
 
 	string_view tmp = tokens[2].getString();
-	if (StringOp::startsWith(tmp, "bp#")) {
+	if (tmp.starts_with("bp#")) {
 		// remove by id
 		if (auto id = StringOp::stringToBase<10, unsigned>(tmp.substr(3))) {
 			if (auto it = ranges::find(breakPoints, id, &BreakPoint::getId);
@@ -479,7 +479,7 @@ void Debugger::Cmd::removeWatchPoint(
 {
 	checkNumArgs(tokens, 3, "id");
 	string_view tmp = tokens[2].getString();
-	if (StringOp::startsWith(tmp, "wp#")) {
+	if (tmp.starts_with("wp#")) {
 		// remove by id
 		if (auto id = StringOp::stringToBase<10, unsigned>(tmp.substr(3))) {
 			auto& interface = debugger().motherBoard.getCPUInterface();
@@ -569,7 +569,7 @@ void Debugger::Cmd::removeCondition(
 	checkNumArgs(tokens, 3, "id");
 
 	string_view tmp = tokens[2].getString();
-	if (StringOp::startsWith(tmp, "cond#")) {
+	if (tmp.starts_with("cond#")) {
 		// remove by id
 		if (auto id = StringOp::stringToBase<10, unsigned>(tmp.substr(5))) {
 			auto& interface = debugger().motherBoard.getCPUInterface();
