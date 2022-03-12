@@ -24,13 +24,13 @@
 #include "win32-dirent.hh"
 #include "utf8_checked.hh"
 #include "MSXException.hh"
-#include "StringOp.hh"
 #include "xrange.hh"
 #include <windows.h>
 #include <cstring>
 #include <cstdlib>
 #include <exception>
 #include <iterator>
+#include <string_view>
 
 namespace openmsx {
 
@@ -38,8 +38,9 @@ DIR* opendir(const char* name)
 {
 	if (!name || !*name) return nullptr;
 
-	std::wstring nameW = utf8::utf8to16(name);
-	if (!name.ends_with('/') && !name.ends_with("\\")) {
+	std::string_view name2 = name;
+	std::wstring nameW = utf8::utf8to16(name2);
+	if (!name2.ends_with('/') && !name2.ends_with("\\")) {
 		nameW += L"\\*";
 	} else {
 		nameW += L"*";
