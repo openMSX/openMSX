@@ -1,7 +1,6 @@
 #ifndef VIEW_HH
 #define VIEW_HH
 
-#include "semiregular.hh"
 #include <algorithm>
 #include <functional>
 #include <iterator>
@@ -234,7 +233,7 @@ public:
 	}
 
 private:
-	std::tuple<Iterator, semiregular_t<UnaryOp>> storage;
+	std::tuple<Iterator, UnaryOp> storage;
 
 	[[nodiscard]] constexpr       Iterator& it()       { return std::get<0>(storage); }
 	[[nodiscard]] constexpr const Iterator& it() const { return std::get<0>(storage); }

@@ -589,7 +589,6 @@ test_sources = files(
     'unittest/join_test.cc',
     'unittest/main.cc',
     'unittest/monotonic_allocator_test.cc',
-    'unittest/semiregular_test.cc',
     'unittest/sha1.cc',
     'unittest/stl_test.cc',
     'unittest/strCat.cc',
