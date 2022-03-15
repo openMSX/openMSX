@@ -7,7 +7,7 @@
 template<typename T> class ScopedAssign
 {
 public:
-	ScopedAssign(T& var_, T newValue)
+	[[nodiscard]] ScopedAssign(T& var_, T newValue)
 		: var(var_)
 	{
 		oldValue = var;
