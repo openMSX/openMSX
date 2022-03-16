@@ -153,7 +153,7 @@ void UnicodeKeymap::parseUnicodeKeymapfile(string_view data)
 			}
 		} else {
 			auto u = parseHex(token);
-			if (!u || *u > 0x1FBAF) {
+			if (!u || *u > 0x1FBFF) {
 				throw MSXException("Wrong unicode value in keymap file");
 			}
 			unicode = *u;
