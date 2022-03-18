@@ -66,6 +66,7 @@
     <primary slot="0">
       <RAM id="Main RAM">
         <mem base="0x8000" size="0x8000"/>
+        <initialContent encoding="hex">FF00</initialContent> <!-- on the machine of Peter Hanraets -->
       </RAM>
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
