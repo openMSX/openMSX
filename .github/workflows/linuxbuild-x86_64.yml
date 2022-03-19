@@ -14,12 +14,14 @@ env:
 jobs:
   build:
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     
     steps:
     - uses: actions/checkout@v2
     - name: Fetch entire repository
       run: git fetch --prune --unshallow
+    - name: Update package repodb
+      run: sudo apt-get update
     - name: Install prerequisites
       run: sudo apt-get install libgl1-mesa-dev
     - name: Make
