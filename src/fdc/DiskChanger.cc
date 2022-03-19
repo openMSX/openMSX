@@ -91,7 +91,7 @@ const DiskName& DiskChanger::getDiskName() const
 
 bool DiskChanger::diskChanged()
 {
-	bool ret = diskChangedFlag;
+	bool ret = diskChangedFlag || disk->hasChanged();
 	diskChangedFlag = false;
 	return ret;
 }

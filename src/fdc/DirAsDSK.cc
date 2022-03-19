@@ -328,6 +328,16 @@ bool DirAsDSK::isWriteProtectedImpl() const
 	return syncMode == SYNC_READONLY;
 }
 
+bool DirAsDSK::hasChanged() const
+{
+	// For simplicity, for now, always report content has (possibly) changed
+	// (in the future we could try to detect that no host files have
+	// actually changed).
+	// The effect is that the MSX always see a 'disk-changed-signal'.
+	// This fixes: https://github.com/openMSX/openMSX/issues/1410
+	return true;
+}
+
 void DirAsDSK::checkCaches()
 {
 	bool needSync = [&] {
@@ -373,7 +383,7 @@ void DirAsDSK::readSectorImpl(size_t sector, SectorBuffer& buf)
 			// Let the diskdrive report the disk has been ejected.
 			// E.g. a turbor machine uses this to flush its
 			// internal disk caches.
-			diskChanger.forceDiskChange();
+			diskChanger.forceDiskChange(); // maybe redundant now? (see hasChanged()).
 		}
 	}
 
