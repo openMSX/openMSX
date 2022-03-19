@@ -669,6 +669,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\input\Keyboard.cc">
       <Filter>input</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\input\KeyboardInfo.cc">
+      <Filter>input</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\input\KeyboardSettings.cc">
       <Filter>input</Filter>
     </ClCompile>
@@ -2191,6 +2194,9 @@
       <Filter>input</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\input\Keyboard.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\input\KeyboardInfo.hh">
       <Filter>input</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\input\KeyboardSettings.hh">

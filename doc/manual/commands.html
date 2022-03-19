@@ -43,6 +43,7 @@
         <li><a class="internal" href="#machine_info">machine_info</a></li>
         <li><a class="internal" href="#message">message</a></li>
         <li><a class="internal" href="#monitor_type">monitor_type</a></li>
+        <li><a class="internal" href="#msx_key_position">msx_key_position</a></li>
         <li><a class="internal" href="#mute_channels">mute_channels / unmute_channels / solo</a></li>
         <li><a class="internal" href="#nowind">nowind&lt;x&gt;</a></li>
         <li><a class="internal" href="#openmsx_info">openmsx_info</a></li>
@@ -1267,6 +1268,32 @@
 
   <div class="note">
     Note: This command is a convenience wrapper around the <code><a class="internal" href="#color_matrix">color_matrix</a></code> setting.
+  </div>
+
+  <h3><a id="msx_key_position">msx_key_position</a></h3>
+
+  <p>Query names or positions of MSX keyboard keys.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+  <table>
+    <tr>
+      <td><code>msx_key_position</code></td>
+      <td>Returns a list of all MSX key names</td>
+    </tr>
+    <tr>
+      <td><code>msx_key_position [key-name]</code></td>
+      <td>Returns a 'row,column' pair indicating the position of the given key in the MSX keyboard matrix</td>
+    </tr>
+  </table>
+
+  <div class="subsectiontitle">
+    examples:
+  </div>
+  <div class="examples">
+    <code>lassign [msx_key_position ESCAPE] row column</code><br />
+    <code>keymatrixdown $row [expr {1 &lt;&lt; $column}]</code><br />
   </div>
 
   <h3><a id="mute_channels">mute_channels / unmute_channels / solo</a></h3>
