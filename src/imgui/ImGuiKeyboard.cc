@@ -8,6 +8,7 @@
 #include "ImGuiUtils.hh"
 
 #include "Keyboard.hh"
+#include "KeyboardInfo.hh"
 #include "MSXMotherBoard.hh"
 #include "UnicodeKeymap.hh"
 
@@ -312,14 +313,14 @@ static constexpr std::array segaKeys = {
 };
 
 // The label of a key: for keys that type a character, what they type on this
-// machine (without and with SHIFT), according to the unicodemap of the
-// machine. That's also what the 'type' command and the CHARACTER mapping mode
-// use. Other keys keep the label of the table.
-static std::string getLabel(const Key& key, const UnicodeKeymap& keymap)
+// machine (without and with SHIFT), according to the unicodemap (and the
+// character set) of the machine. That's also what the 'type' command and the
+// CHARACTER mapping mode use. Other keys keep the label of the table.
+static std::string getLabel(const Key& key, const KeyboardInfo& info)
 {
 	using Mask = UnicodeKeymap::KeyInfo;
 	auto printable = [&](uint8_t mods) -> std::optional<unsigned> {
-		auto u = keymap.getUnicode(key.matrixPos, mods);
+		auto u = info.getUnicode(key.matrixPos, mods);
 		if (u && (*u > 0x20) && (*u != 0x7f) && (*u != 0xa0)) return u;
 		return {};
 	};
@@ -330,7 +331,7 @@ static std::string getLabel(const Key& key, const UnicodeKeymap& keymap)
 		utf8::unchecked::append(u, std::back_inserter(result));
 		return result;
 	};
-	if (keymap.isDeadKey(key.matrixPos)) return "Dead";
+	if (info.isDeadKey(key.matrixPos)) return "Dead";
 	if (!base && !shift) return key.label;
 	if (!base) return toUtf8(*shift);
 	if (!shift || (*shift == *base)) return toUtf8(*base);
@@ -371,10 +372,10 @@ void ImGuiKeyboard::paint(MSXMotherBoard* motherBoard)
 
 	if (motherBoard->getMachineID() != labelsMachineID) {
 		labelsMachineID = motherBoard->getMachineID();
-		const auto& keymap = keyboard->getUnicodeKeymap();
+		const auto& info = keyboard->getKeyboardInfo();
 		labels.clear();
 		for (const auto& key : keys) {
-			labels.push_back(getLabel(key, keymap));
+			labels.push_back(getLabel(key, info));
 		}
 	}
 	// the keypad keys only when the machine has a keypad

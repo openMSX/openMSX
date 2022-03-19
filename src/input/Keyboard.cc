@@ -754,9 +754,8 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, keyboardSettings(commandController)
 	, msxKeyEventQueue(scheduler_, commandController.getInterpreter())
 	, keybDebuggable(motherBoard)
-	, unicodeKeymap(config.getChildData(
+	, keyboardInfo(config.getChildData(
 		"keyboard_type", defaultKeymapForMatrix[matrix_]))
-	, keyboardInfo(unicodeKeymap, modifierPos)
 	, matrixType(matrix_)
 	, hasKeypad(config.getChildDataAsBool("has_keypad", true))
 	, blockRow11(matrix_ == Matrix::MSX
@@ -768,7 +767,7 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 		| (config.getChildDataAsBool("code_kana_locks", false) ? KeyInfo::CODE_MASK : 0)
 		| (config.getChildDataAsBool("graph_locks", false) ? KeyInfo::GRAPH_MASK : 0))
 {
-	characterKeyCodeTab = adaptToKeymap(keyCodeTab, unicodeKeymap);
+	characterKeyCodeTab = adaptToKeymap(keyCodeTab, keyboardInfo.getUnicodeKeymap());
 
 	std::ranges::fill(keyMatrix,     255);
 	std::ranges::fill(cmdKeyMatrix,  255);
@@ -799,7 +798,7 @@ Keyboard::~Keyboard()
 
 const MsxChar2Unicode& Keyboard::getMsxChar2Unicode() const
 {
-	return unicodeKeymap.getMsxChars();
+	return keyboardInfo.getMsxChars();
 }
 
 static constexpr void doKeyGhosting(std::span<uint8_t, KeyMatrixPosition::NUM_ROWS> matrix,
@@ -976,6 +975,7 @@ void Keyboard::syncHostKeyMatrix(EmuTime time)
 
 uint8_t Keyboard::needsLockToggle(const UnicodeKeymap::KeyInfo& keyInfo) const
 {
+	const auto& unicodeKeymap = keyboardInfo.getUnicodeKeymap();
 	return modifierIsLock
 	     & (locksOn ^ keyInfo.modMask)
 	     & unicodeKeymap.getRelevantMods(keyInfo);
@@ -1112,6 +1112,7 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime time)
 
 	// Process dead keys.
 	if (mode == KeyboardSettings::MappingMode::CHARACTER) {
+		const auto& unicodeKeymap = keyboardInfo.getUnicodeKeymap();
 		for (auto n : xrange(3)) {
 			if (key.keycode == keyboardSettings.getDeadKeyHostKey(n)) {
 				UnicodeKeymap::KeyInfo deadKey = unicodeKeymap.getDeadKey(n);
@@ -1378,6 +1379,7 @@ bool Keyboard::processKeyEvent(EmuTime time, bool down, const KeyEvent& keyEvent
 				// For example the Mac's cursor keys are in this range.
 				unicode = 0;
 			} else {
+				const auto& unicodeKeymap = keyboardInfo.getUnicodeKeymap();
 				keyInfo = unicodeKeymap.get(unicode);
 				if (!keyInfo.isValid()) {
 					// Unicode does not exist in our mapping; try to process
@@ -1435,6 +1437,7 @@ bool Keyboard::processKeyEvent(EmuTime time, bool down, const KeyEvent& keyEvent
 			}
 		} else {
 			// It was a unicode character; map it to the right key-combination
+			const auto& unicodeKeymap = keyboardInfo.getUnicodeKeymap();
 			pressUnicodeByUser(time, unicodeKeymap.get(unicode), unicode, false);
 		}
 		return false;
@@ -1586,6 +1589,7 @@ bool Keyboard::pressUnicodeByUser(
 uint8_t Keyboard::pressAscii(unsigned unicode, bool down)
 {
 	uint8_t releaseMask = 0;
+	const auto& unicodeKeymap = keyboardInfo.getUnicodeKeymap();
 	UnicodeKeymap::KeyInfo keyInfo = unicodeKeymap.get(unicode);
 	if (!keyInfo.isValid()) {
 		return releaseMask;
@@ -1705,6 +1709,7 @@ void Keyboard::pressLockKeys(uint8_t lockKeysMask, bool down)
 bool Keyboard::commonKeys(unsigned unicode1, unsigned unicode2) const
 {
 	// get row / mask of key (note: ignore modifier mask)
+	const auto& unicodeKeymap = keyboardInfo.getUnicodeKeymap();
 	auto keyPos1 = unicodeKeymap.get(unicode1).pos;
 	auto keyPos2 = unicodeKeymap.get(unicode2).pos;
 
@@ -2037,7 +2042,7 @@ void Keyboard::Msxcode2UnicodeCmd::execute(std::span<const TclObject> tokens, Tc
 
 	auto& interp = getInterpreter();
 	const auto& keyboard = OUTER(Keyboard, msxcode2UnicodeCmd);
-	const auto& msxChars = keyboard.unicodeKeymap.getMsxChars();
+	const auto& msxChars = keyboard.keyboardInfo.getMsxChars();
 
 	auto msx = tokens[1].getBinary(getInterpreter());
 	auto fallback = [&] -> std::function<uint32_t(uint8_t)> {
@@ -2087,7 +2092,7 @@ void Keyboard::Unicode2MsxcodeCmd::execute(std::span<const TclObject> tokens, Tc
 
 	auto& interp = getInterpreter();
 	const auto& keyboard = OUTER(Keyboard, unicode2MsxcodeCmd);
-	const auto& msxChars = keyboard.unicodeKeymap.getMsxChars();
+	const auto& msxChars = keyboard.keyboardInfo.getMsxChars();
 
 	const auto& unicode = tokens[1].getString();
 	auto fallback = [&] -> std::function<uint8_t(uint32_t)> {

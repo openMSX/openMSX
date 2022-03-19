@@ -6,7 +6,6 @@
 #include "ParseUtils.hh"
 
 #include "narrow.hh"
-#include "one_of.hh"
 #include "ranges.hh"
 #include "stl.hh"
 
@@ -58,19 +57,13 @@ using namespace std::literals;
 	return KeyMatrixPosition(narrow_cast<uint8_t>(*rowCol));
 }
 
-UnicodeKeymap::UnicodeKeymap(std::string_view keyboardType)
+UnicodeKeymap::UnicodeKeymap(std::string_view extension)
 {
 	auto filename = systemFileContext().resolve(
-		tmpStrCat("unicodemaps/unicodemap.", keyboardType));
+		tmpStrCat("keyboard_info/unicodemap.", extension));
 	try {
 		auto buf = File(filename).mmap<const char>();
 		parseUnicodeKeyMapFile(std::string_view(buf.data(), buf.size())); // TODO c++23
-		// TODO in the future we'll require the presence of
-		//      "MSX-Video-Characterset" in the keyboard information
-		//      file, then we don't need this fallback.
-		if (!msxChars.has_value()) {
-			msxChars.emplace("MSXVID.TXT");
-		}
 	} catch (FileException&) {
 		throw MSXException("Couldn't load unicode keymap file: ", filename);
 	}
@@ -88,18 +81,17 @@ UnicodeKeymap::KeyInfo UnicodeKeymap::getDeadKey(unsigned n) const
 	return deadKeys[n];
 }
 
-std::optional<unsigned> UnicodeKeymap::getUnicode(KeyMatrixPosition pos, uint8_t modMask) const
+std::optional<unsigned> UnicodeKeymap::getUnicode(KeyMatrixPosition pos, uint8_t modMask,
+                                                  const MsxChar2Unicode& msxChars) const
 {
 	std::optional<unsigned> result;
 	for (const auto& e : mapData) { // sorted on unicode
 		if ((e.keyInfo.pos != pos) || (e.keyInfo.modMask != modMask)) continue;
-		if (msxChars) {
-			// the character the MSX character maps to (not an alias):
-			// it maps to an MSX character and back to itself
-			if (auto m = msxChars->unicodeToMsx(e.unicode);
-			    m && (msxChars->msxToUnicode(*m) == e.unicode)) {
-				return e.unicode;
-			}
+		// the character the MSX character maps to (not an alias):
+		// it maps to an MSX character and back to itself
+		if (auto m = msxChars.unicodeToMsx(e.unicode);
+		    m && (msxChars.msxToUnicode(*m) == e.unicode)) {
+			return e.unicode;
 		}
 		result = e.unicode; // otherwise the highest code point
 	}
@@ -123,14 +115,7 @@ void UnicodeKeymap::parseUnicodeKeyMapFile(std::string_view file)
 		auto token1 = getToken(line, ',');
 		if (token1.empty()) continue; // empty line (or only whitespace / comments)
 
-		if (token1 == "MSX-Video-Characterset:") {
-			auto vidFileName = getToken(line);
-			if (vidFileName.empty()) {
-				throw MSXException("Missing filename for MSX-Video-Characterset");
-			}
-			msxChars.emplace(vidFileName);
-
-		} else if (token1.starts_with("DEADKEY")) {
+		if (token1.starts_with("DEADKEY")) {
 			// DEADKEY<n> ...
 			auto n = token1.substr(strlen("DEADKEY"));
 			unsigned deadKeyIndex = [&] {

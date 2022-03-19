@@ -1,57 +1,89 @@
 #include "KeyboardInfo.hh"
 
+#include "ParseUtils.hh"
+
+#include "File.hh"
+#include "FileContext.hh"
+#include "FileException.hh"
+#include "MSXException.hh"
+
 #include "StringOp.hh"
 #include "ranges.hh"
 #include "stl.hh"
-#include "xrange.hh"
-
-#include <algorithm>
 
 namespace openmsx {
 
-// The name of a key that types the given character (without modifiers).
-static std::string charKeyName(unsigned u)
+KeyboardInfo::KeyboardInfo(std::string_view keyboardType)
 {
-	if (('0' <= u && u <= '9') || ('A' <= u && u <= 'Z')) return std::string(1, char(u));
-	if ('a' <= u && u <= 'z') return std::string(1, char(u - 'a' + 'A'));
-	switch (u) {
-		case 0x08: return "BACKSPACE";
-		case 0x09: return "TAB";
-		case 0x0B: return "HOME";
-		case 0x0D: return "RETURN";
-		case 0x1B: return "ESCAPE";
-		case 0x1C: return "RIGHT";
-		case 0x1D: return "LEFT";
-		case 0x1E: return "UP";
-		case 0x1F: return "DOWN";
-		case 0x20: return "SPACE";
-		case 0x7F: return "DELETE";
-		default:   return {};
+	auto filename = systemFileContext().resolve(
+		tmpStrCat("keyboard_info/keyboard_info.", keyboardType));
+	try {
+		auto buf = File(filename).mmap<const char>();
+		parseKeyboardInfoFile(std::string_view(buf.data(), buf.size())); // TODO c++23
+	} catch (FileException&) {
+		throw MSXException("Couldn't load keyboard_info file: ", filename);
+	}
+
+	if (!unicodeKeymap) {
+		throw MSXException("Missing UnicodeMap reference in ", filename);
+	}
+	if (!msxChars) {
+		throw MSXException("Missing MSX-Video-Characterset reference in ", filename);
 	}
 }
 
-KeyboardInfo::KeyboardInfo(
-	const UnicodeKeymap& unicodeKeymap,
-	const array_with_enum_index<UnicodeKeymap::KeyInfo::Modifier, KeyMatrixPosition>& modifierPos)
+void KeyboardInfo::parseKeyboardInfoFile(std::string_view file)
 {
-	auto add = [&](std::string name, KeyMatrixPosition pos) {
-		if (name.empty() || !pos.isValid()) return;
-		if (contains(msxKeyNames, name, &MsxKeyName::name) ||
-		    contains(msxKeyNames, pos, &MsxKeyName::key)) return;
-		msxKeyNames.emplace_back(std::move(name), pos);
-	};
-	using enum UnicodeKeymap::KeyInfo::Modifier;
-	add("SHIFT",    modifierPos[SHIFT]);
-	add("CTRL",     modifierPos[CTRL]);
-	add("GRAPH",    modifierPos[GRAPH]);
-	add("CAPSLOCK", modifierPos[CAPS]);
-	add("CODE",     modifierPos[CODE]);
-	for (auto row : xrange(KeyMatrixPosition::NUM_ROWS)) {
-		for (auto col : xrange(KeyMatrixPosition::NUM_COLS)) {
-			KeyMatrixPosition pos(row, col);
-			if (auto u = unicodeKeymap.getUnicode(pos, 0)) add(charKeyName(*u), pos);
+	while (!file.empty()) {
+		auto origLine = getLine(file);
+		auto line = stripComments(origLine);
+
+		auto token1 = getToken(line);
+		if (token1.empty()) continue; // empty line (or only whitespace / comments)
+
+		if (token1 == "UnicodeMap:") {
+			auto unicodeMapFileExtension = getToken(line);
+			if (unicodeMapFileExtension.empty()) {
+				throw MSXException("Missing extension for UnicodeMap file");
+			}
+			unicodeKeymap.emplace(unicodeMapFileExtension);
+
+		} else if (token1 == "MSX-Video-Characterset:") {
+			auto vidFileName = getToken(line);
+			if (vidFileName.empty()) {
+				throw MSXException("Missing filename for MSX-Video-Characterset");
+			}
+			msxChars.emplace(vidFileName);
+
+		} else if (token1 == "row") {
+			auto rowToken = getToken(line);
+			auto row = StringOp::stringTo<unsigned>(rowToken);
+			if (!row || (*row >= KeyMatrixPosition::NUM_ROWS)) {
+				throw MSXException("Invalid row value msx-keyboard-matrix-row line: ", rowToken);
+			}
+
+			auto separator = getToken(line);
+			if (separator.size() != 1) {
+				throw MSXException("Invalid msx-keyboard-matrix-row line: ", origLine);
+			}
+
+			for (int column = 7; column >= 0; --column) {
+				auto name = getToken(line);
+				if (name == separator) continue;
+
+				auto sep2 = getToken(line);
+				if (sep2 != separator) {
+					throw MSXException("Invalid msx-keyboard-matrix-row line: ", origLine);
+				}
+
+				msxKeyNames.emplace_back(std::string(name), KeyMatrixPosition(*row, column));
+			}
+
+		} else {
+			throw MSXException("Unrecognized directive in keyboard_info file: ", origLine);
 		}
 	}
+
 	std::ranges::sort(msxKeyNames, StringOp::caseless{}, &MsxKeyName::name);
 }
 
