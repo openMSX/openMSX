@@ -3,7 +3,7 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
-#include "MSXException.hh"
+#include "ParseUtils.hh"
 
 #include "narrow.hh"
 #include "one_of.hh"
@@ -41,48 +41,22 @@ using namespace std::literals;
 	return value;
 }
 
-/** Returns true iff the given character is a separator.
-  * Separators are: comma, whitespace and hash mark.
-  * Newline (\n) is not considered a separator.
-  */
-[[nodiscard]] static constexpr bool isSep(char c)
+[[nodiscard]] static constexpr KeyMatrixPosition parseRowCol(std::string_view token)
 {
-	return c == one_of(',',             // comma
-	                   ' ', '\t', '\r', // whitespace
-	                   '#');            // comment
-}
-
-/** Removes separator characters at the start of the given string reference.
-  * Characters between a hash mark and the following newline are also skipped.
-  */
-static constexpr void skipSep(std::string_view& str)
-{
-	while (!str.empty()) {
-		const char c = str.front();
-		if (!isSep(c)) break;
-		if (c == '#') {
-			// Skip till end of line.
-			while (!str.empty() && str.front() != '\n') str.remove_prefix(1);
-			break;
-		}
-		str.remove_prefix(1);
+	auto rowCol = parseHex(token);
+	if (!rowCol || *rowCol >= 0x100) {
+		throw MSXException(
+			(token.empty() ? "Missing" : "Wrong"),
+			" <ROW><COL> value in keymap file");
 	}
-}
-
-/** Returns the next token in the given string.
-  * The token and any separators preceding it are removed from the string.
-  */
-[[nodiscard]] static constexpr std::string_view nextToken(std::string_view& str)
-{
-	skipSep(str);
-	const auto* tokenBegin = str.data();
-	while (!str.empty() && str.front() != '\n' && !isSep(str.front())) {
-		// Pop non-separator character.
-		str.remove_prefix(1);
+	if ((*rowCol >> 4) >= KeyMatrixPosition::NUM_ROWS) {
+		throw MSXException("Too high row value in keymap file");
 	}
-	return {tokenBegin, size_t(str.data() - tokenBegin)};
+	if ((*rowCol & 0x0F) >= KeyMatrixPosition::NUM_COLS) {
+		throw MSXException("Too high column value in keymap file");
+	}
+	return KeyMatrixPosition(narrow_cast<uint8_t>(*rowCol));
 }
-
 
 UnicodeKeymap::UnicodeKeymap(std::string_view keyboardType)
 {
@@ -114,108 +88,92 @@ UnicodeKeymap::KeyInfo UnicodeKeymap::getDeadKey(unsigned n) const
 	return deadKeys[n];
 }
 
-void UnicodeKeymap::parseUnicodeKeyMapFile(std::string_view data)
+void UnicodeKeymap::parseUnicodeKeyMapFile(std::string_view file)
 {
 	std::ranges::fill(relevantMods, 0);
 
-	while (!data.empty()) {
-		if (data.front() == '\n') {
-			// Next line.
-			data.remove_prefix(1);
-		}
+	while (!file.empty()) {
+		auto origLine = getLine(file);
+		auto line = stripComments(origLine);
 
-		std::string_view token = nextToken(data);
-		if (token.empty()) {
-			// Skip empty line.
-			continue;
-		}
+		auto token1 = getToken(line, ',');
+		if (token1.empty()) continue; // empty line (or only whitespace / comments)
 
-		if (token == "MSX-Video-Characterset:") {
-			auto vidFileName = nextToken(data);
+		if (token1 == "MSX-Video-Characterset:") {
+			auto vidFileName = getToken(line);
 			if (vidFileName.empty()) {
 				throw MSXException("Missing filename for MSX-Video-Characterset");
 			}
 			msxChars.emplace(vidFileName);
-			continue;
-		}
 
-		// Parse first token: a unicode value or the keyword DEADKEY.
-		unsigned unicode = 0;
-		unsigned deadKeyIndex = 0;
-		bool isDeadKey = token.starts_with("DEADKEY");
-		if (isDeadKey) {
-			token.remove_prefix(strlen("DEADKEY"));
-			if (token.empty()) {
-				// The normal keywords are
-				//    DEADKEY1  DEADKEY2  DEADKEY3
-				// but for backwards compatibility also still recognize
-				//    DEADKEY
-			} else {
-				auto d = parseHex(token);
-				if (!d || *d > NUM_DEAD_KEYS) {
-					throw MSXException(
-						"Wrong deadkey number in keymap file. "
-						"It must be 1..", NUM_DEAD_KEYS);
+		} else if (token1.starts_with("DEADKEY")) {
+			// DEADKEY<n> ...
+			auto n = token1.substr(strlen("DEADKEY"));
+			unsigned deadKeyIndex = [&] {
+				if (n.empty()) {
+					// The normal keywords are
+					//    DEADKEY1  DEADKEY2  DEADKEY3
+					// but for backwards compatibility also still recognize
+					//    DEADKEY
+					return unsigned(0);
+				} else {
+					auto d = parseHex(n);
+					if (!d || *d > NUM_DEAD_KEYS) {
+						throw MSXException(
+							"Wrong deadkey number in keymap file. "
+							"It must be 1..", NUM_DEAD_KEYS);
+					}
+					return *d - 1; // Make index 0 based instead of 1 based
 				}
-				deadKeyIndex = *d - 1; // Make index 0 based instead of 1 based
-			}
-		} else {
-			auto u = parseHex(token);
-			if (!u || *u > 0x1FBFF) {
-				throw MSXException("Wrong unicode value in keymap file");
-			}
-			unicode = *u;
-		}
+			}();
 
-		// Parse second token. It must be <ROW><COL>
-		token = nextToken(data);
-		if (token == "--") {
-			// Skip -- for now, it means the character cannot be typed.
-			continue;
-		}
-		auto rowcol = parseHex(token);
-		if (!rowcol || *rowcol >= 0x100) {
-			throw MSXException(
-				(token.empty() ? "Missing"sv : "Wrong"sv),
-				" <ROW><COL> value in keymap file");
-		}
-		if ((*rowcol >> 4) >= KeyMatrixPosition::NUM_ROWS) {
-			throw MSXException("Too high row value in keymap file");
-		}
-		if ((*rowcol & 0x0F) >= KeyMatrixPosition::NUM_COLS) {
-			throw MSXException("Too high column value in keymap file");
-		}
-		auto pos = KeyMatrixPosition(narrow_cast<uint8_t>(*rowcol));
+			auto pos = parseRowCol(getToken(line, ','));
 
-		// Parse remaining tokens. It is an optional list of modifier keywords.
-		uint8_t modMask = 0;
-		while (true) {
-			token = nextToken(data);
-			if (token.empty()) {
-				break;
-			} else if (token == "SHIFT") {
-				modMask |= KeyInfo::SHIFT_MASK;
-			} else if (token == "CTRL") {
-				modMask |= KeyInfo::CTRL_MASK;
-			} else if (token == "GRAPH") {
-				modMask |= KeyInfo::GRAPH_MASK;
-			} else if (token == "CAPSLOCK") {
-				modMask |= KeyInfo::CAPS_MASK;
-			} else if (token == "CODE") {
-				modMask |= KeyInfo::CODE_MASK;
-			} else {
-				throw MSXException(
-					"Invalid modifier \"", token, "\" in keymap file");
-			}
-		}
-
-		if (isDeadKey) {
-			if (modMask != 0) {
+			if (!getToken(line).empty()) {
 				throw MSXException(
 					"DEADKEY entry in keymap file cannot have modifiers");
 			}
+
 			deadKeys[deadKeyIndex] = KeyInfo(pos, 0);
+
 		} else {
+			// <unicode>, <rowcol>, [<modifiers>...]
+			auto u = parseHex(token1);
+			if (!u || *u > 0x1FBFF) {
+				throw MSXException("Wrong unicode value in keymap file");
+			}
+			unsigned unicode = *u;
+
+			// Parse second token. It must be <ROW><COL>
+			auto rowColToken = getToken(line, ',');
+			if (rowColToken == "--") {
+				// Skip -- for now, it means the character cannot be typed.
+				continue;
+			}
+			auto pos = parseRowCol(rowColToken);
+
+			// Parse remaining tokens. It is an optional list of modifier keywords.
+			uint8_t modMask = 0;
+			while (true) {
+				auto modToken = getToken(line);
+				if (modToken.empty()) {
+					break;
+				} else if (modToken == "SHIFT") {
+					modMask |= KeyInfo::SHIFT_MASK;
+				} else if (modToken == "CTRL") {
+					modMask |= KeyInfo::CTRL_MASK;
+				} else if (modToken == "GRAPH") {
+					modMask |= KeyInfo::GRAPH_MASK;
+				} else if (modToken == "CAPSLOCK") {
+					modMask |= KeyInfo::CAPS_MASK;
+				} else if (modToken == "CODE") {
+					modMask |= KeyInfo::CODE_MASK;
+				} else {
+					throw MSXException(
+						"Invalid modifier \"", modToken, "\" in keymap file");
+				}
+			}
+
 			mapData.emplace_back(Entry{.unicode = unicode, .keyInfo = KeyInfo(pos, modMask)});
 			// Note: getRowCol() uses 3 bits for column, rowcol uses 4.
 			relevantMods[pos.getRowCol()] |= modMask;
