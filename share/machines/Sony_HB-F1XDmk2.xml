@@ -106,7 +106,7 @@
       <secondary slot="2"/>
 
       <secondary slot="3">
-        <MemoryMapper id="Main RAM">
+        <RAM id="Main RAM">
           <initialContent encoding="gz-base64">eJztzzFqJUAQxNB//0uvYzsx7lmECjRpD9TT5/P9/fvxPr/c//r/5/2v///3/rqf7rX56V6bn+61+elem5/utfnbb7/99tu/7a/76V6bn+61+elem7/9t/11P91r89O9Nj/da/PTvTY/3Wvzt99++/f9dT/da/PTvTY/3Wvz0702P91r87f/tr/up3ttfrrX5qd7bf7222+//fZv++t+utfmp3ttfrrX5qd7bX661+Zv/21/3U/32vx0r81P99r87bfffvvt3/bX/XSvzU/32vx0r81P99r8dK/NT/fa/HSvzU/32vx0r81P99r8dK/NT/fa/O2333777d/21/10r81P99r8dK/N3/7b/rqf7rX56V6bn+61+elem5/utfnbb7/9+/66n+61+elem5/utfnpXpuf7rX523/bX/fTvTY/3Wvz0702f/vtt99++7f9dT/da/PTvTY/3Wvz0702P91r87f/tr/up3ttfrrX5qd7bf7222+//fZv++t+utfmp3ttfrrX5qd7bX661+Zv/21/3U/32vx0r81P99r8dK/NT/fa/O2333777d/21/10r81P99r8dK/N3/7b/rqf7rX56V6bn+61+elem5/utfnbb7/99tu/7a/76V6bn+61+elem7/9t/11P91r89O9Nj/da/PTvTY/3Wvzt99++/f9dT/da/PTvTY/3Wvz0702P91r87f/tr/up3ttfrrX5qd7bf7222+//fZv++t+utfmp3ttfrrX5qd7bX661+ane21+utfmp3ttfrrX5qd7bX661+ane23+9ttvv/32b/vrfrrX5qd7bX661+Zv/21/3U/32vx0r81P99r8dK/NT/fa/O2333777d/21/10r81P99r8dK/N3/7b/rqf7rX56V6bn+61+elem5/utfnbb7/9+/66n+61+elem5/utfnpXpuf7rX523/bX/fTvTY/3Wvz0702f/vtt99++7f9dT/da/PTvTY/3Wvz0702P91r87/ufwE704dy</initialContent>
           <!-- pattern:
                let a = (chr(  0)*16 + chr(255)*16)*2
@@ -134,9 +134,8 @@
                let m3 = m30 + m31 + m32 + m33
                content = (m0+m1+m2+m3).encode('zip').encode('base64')
                -->
-          <size>64</size>
           <mem base="0x0000" size="0x10000"/>
-        </MemoryMapper>
+        </RAM>
       </secondary>
 
     </primary>
