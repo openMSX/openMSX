@@ -705,6 +705,7 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, modifierPos(modifierPosForMatrix[matrix])
 	, keyMatrixUpCmd  (commandController, stateChangeDistributor, scheduler_)
 	, keyMatrixDownCmd(commandController, stateChangeDistributor, scheduler_)
+	, keyPositionCmd(commandController)
 	, keyTypeCmd      (commandController, stateChangeDistributor, scheduler_)
 	, msxcode2UnicodeCmd(commandController)
 	, unicode2MsxcodeCmd(commandController)
@@ -712,7 +713,7 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, keyboardSettings(commandController)
 	, msxKeyEventQueue(scheduler_, commandController.getInterpreter())
 	, keybDebuggable(motherBoard)
-	, unicodeKeymap(config.getChildData(
+	, keyboardInfo(config.getChildData(
 		"keyboard_type", defaultKeymapForMatrix[matrix]))
 	, hasKeypad(config.getChildDataAsBool("has_keypad", true))
 	, blockRow11(matrix == Matrix::MSX
@@ -749,7 +750,7 @@ Keyboard::~Keyboard()
 
 const MsxChar2Unicode& Keyboard::getMsxChar2Unicode() const
 {
-	return unicodeKeymap.getMsxChars();
+	return keyboardInfo.getMsxChars();
 }
 
 static constexpr void doKeyGhosting(std::span<uint8_t, KeyMatrixPosition::NUM_ROWS> matrix,
@@ -905,6 +906,7 @@ void Keyboard::syncHostKeyMatrix(EmuTime time)
 
 uint8_t Keyboard::needsLockToggle(const UnicodeKeymap::KeyInfo& keyInfo) const
 {
+	const auto& unicodeKeymap = keyboardInfo.getUnicodeKeymap();
 	return modifierIsLock
 	     & (locksOn ^ keyInfo.modMask)
 	     & unicodeKeymap.getRelevantMods(keyInfo);
@@ -1005,6 +1007,7 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime time)
 
 	// Process dead keys.
 	if (mode == KeyboardSettings::MappingMode::CHARACTER) {
+		const auto& unicodeKeymap = keyboardInfo.getUnicodeKeymap();
 		for (auto n : xrange(3)) {
 			if (key.sym.sym == keyboardSettings.getDeadKeyHostKey(n)) {
 				UnicodeKeymap::KeyInfo deadKey = unicodeKeymap.getDeadKey(n);
@@ -1235,6 +1238,7 @@ bool Keyboard::processKeyEvent(EmuTime time, bool down, const KeyEvent& keyEvent
 				// For example the Mac's cursor keys are in this range.
 				unicode = 0;
 			} else {
+				const auto& unicodeKeymap = keyboardInfo.getUnicodeKeymap();
 				keyInfo = unicodeKeymap.get(unicode);
 				if (!keyInfo.isValid()) {
 					// Unicode does not exist in our mapping; try to process
@@ -1292,6 +1296,7 @@ bool Keyboard::processKeyEvent(EmuTime time, bool down, const KeyEvent& keyEvent
 			}
 		} else {
 			// It was a unicode character; map it to the right key-combination
+			const auto& unicodeKeymap = keyboardInfo.getUnicodeKeymap();
 			pressUnicodeByUser(time, unicodeKeymap.get(unicode), unicode, false);
 		}
 		return false;
@@ -1434,6 +1439,7 @@ bool Keyboard::pressUnicodeByUser(
 uint8_t Keyboard::pressAscii(unsigned unicode, bool down)
 {
 	uint8_t releaseMask = 0;
+	const auto& unicodeKeymap = keyboardInfo.getUnicodeKeymap();
 	UnicodeKeymap::KeyInfo keyInfo = unicodeKeymap.get(unicode);
 	if (!keyInfo.isValid()) {
 		return releaseMask;
@@ -1545,6 +1551,7 @@ void Keyboard::pressLockKeys(uint8_t lockKeysMask, bool down)
 bool Keyboard::commonKeys(unsigned unicode1, unsigned unicode2) const
 {
 	// get row / mask of key (note: ignore modifier mask)
+	const auto& unicodeKeymap = keyboardInfo.getUnicodeKeymap();
 	auto keyPos1 = unicodeKeymap.get(unicode1).pos;
 	auto keyPos2 = unicodeKeymap.get(unicode2).pos;
 
@@ -1608,6 +1615,50 @@ void Keyboard::KeyMatrixDownCmd::execute(std::span<const TclObject> tokens,
 std::string Keyboard::KeyMatrixDownCmd::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "keymatrixdown <row> <bitmask>  press a key in the keyboard matrix\n";
+}
+
+
+// class KeyPositionCmd
+
+Keyboard::KeyPositionCmd::KeyPositionCmd(CommandController& commandController_)
+	: Command(commandController_, "msx_key_position")
+{
+}
+
+void Keyboard::KeyPositionCmd::execute(std::span<const TclObject> tokens, TclObject& result)
+{
+	checkNumArgs(tokens, Between{1, 2}, Prefix{1}, "?msxkeyname?");
+
+	const auto& keyboardInfo = OUTER(Keyboard, keyPositionCmd).keyboardInfo;
+
+	if (tokens.size() == 1) {
+		result.addListElements(keyboardInfo.getMsxKeyNames());
+	} else {
+		auto name = tokens[1].getString();
+		if (auto pos = keyboardInfo.getMsxKeyPosition(name);
+		    pos.isValid()) {
+			result.addListElement(pos.getRow());
+			result.addListElement(pos.getColumn());
+		} else {
+			throw CommandException("No MSX-key with name: ", name);
+		}
+	}
+}
+
+std::string Keyboard::KeyPositionCmd::help(std::span<const TclObject> /*tokens*/) const
+{
+	return "msx_key_position                    Returns a list of all MSX key names\n"
+	       "msx_key_position [<msx-key-name>]   Returns a 'row,column' pair indicating the position of the given key in the MSX keyboard matrix\n"
+	       "\n"
+	       "Example usage:\n"
+	       "  lassign [msx_key_position ESCAPE] row column\n"
+	       "  keymatrixdown $row [expr {1 << $column}]\n";
+}
+
+void Keyboard::KeyPositionCmd::tabCompletion(std::vector<std::string>& tokens) const
+{
+	const auto& keyboardInfo = OUTER(Keyboard, keyPositionCmd).keyboardInfo;
+	completeString(tokens, keyboardInfo.getMsxKeyNames(), false);
 }
 
 
@@ -1806,7 +1857,7 @@ void Keyboard::Msxcode2UnicodeCmd::execute(std::span<const TclObject> tokens, Tc
 
 	auto& interp = getInterpreter();
 	const auto& keyboard = OUTER(Keyboard, msxcode2UnicodeCmd);
-	const auto& msxChars = keyboard.unicodeKeymap.getMsxChars();
+	const auto& msxChars = keyboard.keyboardInfo.getMsxChars();
 
 	auto msx = tokens[1].getBinary();
 	auto fallback = [&] -> std::function<uint32_t(uint8_t)> {
@@ -1856,7 +1907,7 @@ void Keyboard::Unicode2MsxcodeCmd::execute(std::span<const TclObject> tokens, Tc
 
 	auto& interp = getInterpreter();
 	const auto& keyboard = OUTER(Keyboard, unicode2MsxcodeCmd);
-	const auto& msxChars = keyboard.unicodeKeymap.getMsxChars();
+	const auto& msxChars = keyboard.keyboardInfo.getMsxChars();
 
 	const auto& unicode = tokens[1].getString();
 	auto fallback = [&] -> std::function<uint8_t(uint32_t)> {

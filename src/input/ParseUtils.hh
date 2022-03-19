@@ -12,7 +12,7 @@ namespace openmsx {
  * A line is everything upto the first newline character. The character is
  * removed from 'text' but not included in the return value.
  */
-inline constexpr std::string_view getLine(std::string_view& text)
+[[nodiscard]] inline constexpr std::string_view getLine(std::string_view& text)
 {
 	if (auto pos = text.find_first_of('\n'); pos != std::string_view::npos) {
 		// handle both 'LF' and 'CR LF'
