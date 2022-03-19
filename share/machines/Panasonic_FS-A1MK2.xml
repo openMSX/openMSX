@@ -70,10 +70,9 @@
     <primary slot="3">
 
       <secondary slot="0">
-        <MemoryMapper id="Main RAM">
-          <size>64</size>
+        <RAM id="Main RAM">
           <mem base="0x0000" size="0x10000"/>
-        </MemoryMapper>
+        </RAM>
       </secondary>
 
       <secondary slot="1">
