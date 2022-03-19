@@ -24,15 +24,15 @@ MsxChar2Unicode::MsxChar2Unicode(std::string_view mappingName)
 	std::string filename;
 	try {
 		filename = systemFileContext().resolve(
-			tmpStrCat("unicodemaps/character_set_mappings/", mappingName));
+			tmpStrCat("keyboard_info/", mappingName));
 	} catch (FileException& e) {
-		throw MSXException("Couldn't find MSX character mapping file that was specified in unicodemap: ", mappingName, " (", e.getMessage(), ")");
+		throw MSXException("Couldn't find MSX character mapping file: ", mappingName, " (", e.getMessage(), ")");
 	}
 	try {
 		auto buf = File(filename).mmap<const char>();
 		parseVid(std::string_view(buf.data(), buf.size()));
 	} catch (FileException&) {
-		throw MSXException("Couldn't load MSX character mapping file that was specified in unicodemap: ", filename);
+		throw MSXException("Couldn't load MSX character mapping file: ", filename);
 	} catch (MSXException& e) {
 		throw MSXException(e.getMessage(), " in ", filename);
 	}

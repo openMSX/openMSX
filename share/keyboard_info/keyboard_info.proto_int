@@ -1,0 +1,16 @@
+UnicodeMap: proto_int
+
+MSX-Video-Characterset: MSXVID.TXT
+
+# MSX key names in the keyboard matrix
+#------+- bit 7 -+- bit 6 -+- bit 5 ---+- bit 4 --------------+- bit 3 --+- bit 2 -+- bit 1 -+- bit 0 -+
+row  0 | B       | L       |           | BACKSLASH            | 1        | S       | X       | COMMA   |
+row  1 | V       | J       | EQUALS    | BACKQUOTE            | Q        | A       | C       | N       |
+row  2 | G       | 8       | 0         | RIGHT_SQUARE_BRACKET | W        | F       | Z       | M       |
+row  3 | T       | I       | MINUS     | SEMICOLON            | 2        | D       | U       | SLASH   |
+row  4 | 6       | K       | P         | QUOTE                | 3        | R       | 7       | H       |
+row  5 | 5       | O       | 9         | LEFT_SQUARE_BRACKET  | 4        | E       | Y       | PERIOD  |
+row  6 | F3      | F2      | F1        | CODE                 | CAPSLOCK | GRAPH   | CTRL    | SHIFT   |
+row  7 | RETURN  | SELECT  | BACKSPACE | STOP                 | TAB      | ESCAPE  | F5      | F4      |
+row  8 | RIGHT   | DOWN    | UP        | LEFT                 | DELETE   | INSERT  | HOME    | SPACE   |
+#------+---------+---------+-----------+----------------------+----------+---------+---------+---------+

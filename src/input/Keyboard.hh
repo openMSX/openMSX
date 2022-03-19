@@ -2,9 +2,9 @@
 #define KEYBOARD_HH
 
 #include "KeyboardSettings.hh"
+#include "KeyboardInfo.hh"
 #include "MSXEventListener.hh"
 #include "StateChangeListener.hh"
-#include "UnicodeKeymap.hh"
 
 #include "Event.hh"
 #include "EventListener.hh"
@@ -87,7 +87,7 @@ public:
 	[[nodiscard]] bool isKeypadEnabled() const {
 		return hasKeypad || keyboardSettings.getAlwaysEnableKeypad();
 	}
-	[[nodiscard]] const UnicodeKeymap& getUnicodeKeymap() const { return unicodeKeymap; }
+	[[nodiscard]] const KeyboardInfo& getKeyboardInfo() const { return keyboardInfo; }
 
 	void transferHostKeyMatrix(const Keyboard& source);
 	void setFocus(bool newFocus, EmuTime time);
@@ -171,6 +171,13 @@ private:
 			     EmuTime time) override;
 		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	} keyMatrixDownCmd;
+
+	struct KeyPositionCmd final : Command {
+		KeyPositionCmd(CommandController& commandController);
+		void execute(std::span<const TclObject> tokens, TclObject& result) override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
+		void tabCompletion(std::vector<std::string>& tokens) const override;
+	} keyPositionCmd;
 
 	class KeyInserter final : public RecordedCommand, public Schedulable {
 	public:
@@ -283,7 +290,7 @@ private:
 		void readBlock(unsigned start, std::span<uint8_t> output) override;
 	} keybDebuggable;
 
-	UnicodeKeymap unicodeKeymap;
+	KeyboardInfo keyboardInfo;
 	const Matrix matrixType;
 
 	// Remembers the last unicode for a key-press-scancode. To be used later
