@@ -312,6 +312,13 @@ class SDL2(Library):
 	def isSystemLibrary(cls, platform):
 		return platform in ('dingux',)
 
+	@classmethod
+	def getLinkFlags(cls, platform, linkStatic, distroRoot):
+		flags = super().getLinkFlags(platform, linkStatic, distroRoot)
+		if platform in ('android',):
+			flags += ' -lOpenSLES'
+		return flags
+
 class SDL2_ttf(Library):
 	libName = 'SDL2_ttf'
 	makeName = 'SDL2_TTF'
