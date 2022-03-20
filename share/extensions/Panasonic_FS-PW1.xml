@@ -1,0 +1,34 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <!-- Note: based on https://uniabis.net/pico/msx/hbij1/ -->
+    <name>Word Processor with Kanji ROM Cartridge</name>
+    <manufacturer>Panasonic</manufacturer>
+    <code>FS-PW1</code>
+    <release_year>1988</release_year>
+    <description>Panasonic Word Processor III with Kanji ROM JIS level 1.</description>
+    <type>kanji font expansion</type>
+  </info>
+  <devices>
+    <Kanji id="Kanji ROM">
+      <rom>
+        <filename>fs-pw1_kanjifont.rom</filename>
+        <sha1>5e872d5853698731a0ed22fb72dbcdfd59cd19c3</sha1>
+      </rom>
+      <io base="0xD8" num="2" type="O"/>
+      <io base="0xD9" num="1" type="I"/>
+    </Kanji>
+    <primary slot="any">
+        <ROM id="MSX Word">
+          <mappertype>NATIONAL</mappertype>
+          <sramname>fs-pw1.sram</sramname>
+          <rom>
+            <filename>fs-pw1_msxword.rom</filename>
+            <sha1>74ca23c2ced63d348018ebd3fdcf784565486808</sha1>
+          </rom>
+          <mem base="0x0000" size="0x10000"/>
+        </ROM>
+      </primary>
+  </devices>
+</msxconfig>
