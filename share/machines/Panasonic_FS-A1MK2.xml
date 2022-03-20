@@ -71,6 +71,7 @@
 
       <secondary slot="0">
         <RAM id="Main RAM">
+          <initialContent encoding="hex">00FF</initialContent> <!-- as found in the machine of Peter Hanraets with serial 8ABMB27565. -->
           <mem base="0x0000" size="0x10000"/>
         </RAM>
       </secondary>

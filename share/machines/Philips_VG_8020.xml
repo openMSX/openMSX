@@ -64,6 +64,7 @@
     <primary slot="3">
        <RAM id="Main RAM">
          <mem base="0x0000" size="0x10000"/>
+         <initialContent encoding="gz-base64">eJz7/5+B4f8IxgPvgoHFAJBx/wE=</initialContent> <!-- 64*FFFF0000 + 64*0000FFFF, as found on the machine of Peter Hanraets with serial FF05 532012109 -->
        </RAM>
     </primary>
 
