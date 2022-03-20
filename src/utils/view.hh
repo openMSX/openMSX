@@ -1,6 +1,7 @@
 #ifndef VIEW_HH
 #define VIEW_HH
 
+#include "semiregular.hh"
 #include <algorithm>
 #include <functional>
 #include <iterator>
@@ -234,7 +235,18 @@ public:
 
 private:
 	Iterator it;
-	[[no_unique_address]] UnaryOp op;
+
+#ifndef _MSC_VER
+	// Wrapping in 'semiregular_t' is needed on libc++,
+	// see commit e81b34b5ed9f for more details.
+	using UO = semiregular_t<UnaryOp>;
+#else
+	// But it triggers compile errors on visual studio, though only in c++20
+	// mode. Hopefully we can remove this workaround in the future when we
+	// use std::views::transform().
+	using UO = UnaryOp;
+#endif
+	[[no_unique_address]] UO op;
 };
 
 template<typename Range, typename UnaryOp> class Transform
