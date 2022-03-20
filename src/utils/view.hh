@@ -1,7 +1,9 @@
 #ifndef VIEW_HH
 #define VIEW_HH
 
+#ifndef _MSC_VER
 #include "semiregular.hh"
+#endif
 #include <algorithm>
 #include <functional>
 #include <iterator>
