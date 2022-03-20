@@ -685,8 +685,8 @@ public:
 		serialize_group(std::tuple<>(), tag, t, std::forward<Args>(args)...);
 	}
 	template<typename T, size_t N>
-	ALWAYS_INLINE void serialize(const char* /*tag*/, const T(&t)[N],
-		std::enable_if_t<SerializeAsMemcpy<T>::value>* = nullptr)
+	ALWAYS_INLINE void serialize(const char* /*tag*/, const T(&t)[N])
+		requires(SerializeAsMemcpy<T>::value)
 	{
 		buffer.insert(&t[0], N * sizeof(T));
 	}
@@ -793,8 +793,8 @@ public:
 	}
 
 	template<typename T, size_t N>
-	ALWAYS_INLINE void serialize(const char* /*tag*/, T(&t)[N],
-		std::enable_if_t<SerializeAsMemcpy<T>::value>* = nullptr)
+	ALWAYS_INLINE void serialize(const char* /*tag*/, T(&t)[N])
+		requires(SerializeAsMemcpy<T>::value)
 	{
 		buffer.read(&t[0], N * sizeof(T));
 	}
