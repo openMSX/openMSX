@@ -4,6 +4,7 @@
 #include <bit>
 #include <cassert>
 #include <cmath>
+#include <concepts>
 #include <cstdint>
 #include <numbers>
 
@@ -25,8 +26,7 @@ constexpr inline double pi   = std::numbers::pi_v  <double>;
   * but starting from the first 1-bit in the input all bits more to the right
   * are also 1.
   */
-template<typename T>
-[[nodiscard]] constexpr T floodRight(T x) noexcept
+[[nodiscard]] constexpr auto floodRight(std::unsigned_integral auto x) noexcept
 {
 	x |= x >> 1;
 	x |= x >> 2;

@@ -3,6 +3,7 @@
 
 #include "serialize.hh"
 #include <cassert>
+#include <concepts>
 #include <cstdint>
 #include <limits>
 #include <type_traits>
@@ -125,7 +126,7 @@ private:
 template<> struct SerializeAsMemcpy<EmuDuration> : std::true_type {};
 
 
-template<typename T> class EmuDurationCompactStorage
+template<std::unsigned_integral T> class EmuDurationCompactStorage
 {
 public:
 	constexpr EmuDurationCompactStorage(EmuDuration e)

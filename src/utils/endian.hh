@@ -3,9 +3,10 @@
 
 #include "inline.hh"
 #include <bit>
+#include <cassert>
+#include <concepts>
 #include <cstdint>
 #include <cstring>
-#include <cassert>
 
 namespace Endian {
 
@@ -61,23 +62,23 @@ static_assert(BIG || LITTLE, "mixed endian not supported");
 
 // Identity operator, simply returns the given value.
 struct Ident {
-	template<typename T> [[nodiscard]] inline T operator()(T t) const { return t; }
+	[[nodiscard]] inline auto operator()(std::integral auto t) const { return t; }
 };
 
 // Byte-swap operator, swap bytes in the given value (16 or 32 bit).
 struct ByteSwap {
-	template<typename T> [[nodiscard]] inline T operator()(T t) const { return byteswap(t); }
+	[[nodiscard]] inline auto operator()(std::integral auto t) const { return byteswap(t); }
 };
 
 // Helper class that stores a value and allows to read/write that value. Though
 // right before it is loaded/stored the value is transformed by a configurable
 // operation.
 // TODO If needed this can be extended with stuff like operator+= ....
-template<typename T, typename Op> class EndianT {
+template<std::integral T, std::invocable<T> Op> class EndianT {
 public:
 	EndianT() = default; // leave uninitialized
 	EndianT(T t_)                  { Op op; t = op(t_); }
-	[[nodiscard]] inline operator T() const      { Op op; return op(t); }
+	[[nodiscard]] inline operator T() const { Op op; return op(t); }
 	inline EndianT& operator=(T a) { Op op; t = op(a); return *this; }
 private:
 	T t;
@@ -174,7 +175,7 @@ inline void writeL32(void* p, uint32_t x)
 // endianess). If the architecture does not support unaligned memory operations
 // (e.g. early ARM architectures), the operation is split into byte accesses.
 
-template<bool SWAP, typename T> static ALWAYS_INLINE void write_UA(void* p, T x)
+template<bool SWAP> static ALWAYS_INLINE void write_UA(void* p, std::integral auto x)
 {
 	if constexpr (SWAP) x = byteswap(x);
 	memcpy(p, &x, sizeof(x));
@@ -212,7 +213,7 @@ ALWAYS_INLINE void write_UA_L64(void* p, uint64_t x)
 	write_UA<BIG>(p, x);
 }
 
-template<bool SWAP, typename T> [[nodiscard]] static ALWAYS_INLINE T read_UA(const void* p)
+template<bool SWAP, std::integral T> [[nodiscard]] static ALWAYS_INLINE T read_UA(const void* p)
 {
 	T x;
 	memcpy(&x, p, sizeof(x));

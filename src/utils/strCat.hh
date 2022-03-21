@@ -314,7 +314,7 @@ template<> struct PutSignHelper<false>
 //
 // Next to the internal buffer we also store the size (in characters) of the
 // result. This size can be used to calculate the start position in the buffer.
-template<typename T> struct ConcatIntegral
+template<std::integral T> struct ConcatIntegral
 {
 	static constexpr bool IS_SIGNED = std::numeric_limits<T>::is_signed;
 	static constexpr size_t BUF_SIZE = 1 + std::numeric_limits<T>::digits10 + IS_SIGNED;
@@ -369,7 +369,7 @@ private:
 // Format an integral as a hexadecimal value with a fixed number of characters.
 // This fixed width means it either adds leading zeros or truncates the result
 // (it keeps the rightmost digits).
-template<size_t N, typename T> struct ConcatFixedWidthHexIntegral
+template<size_t N, std::integral T> struct ConcatFixedWidthHexIntegral
 {
 	ConcatFixedWidthHexIntegral(T t_)
 		: t(t_)
@@ -534,7 +534,7 @@ template<typename T>
 }
 #endif
 
-template<size_t N, typename T>
+template<size_t N, std::integral T>
 [[nodiscard]] inline auto makeConcatUnit(const ConcatFixedWidthHexIntegral<N, T>& t)
 {
 	return t;
@@ -577,10 +577,9 @@ void copyUnits(char* dst, const std::tuple<Ts...>& t)
 
 // Fast integral -> string conversion. (Standalone version, result is not part
 // of a larger string).
-template<typename T>
-[[nodiscard]] inline std::string to_string(T x)
+[[nodiscard]] inline std::string to_string(std::integral auto x)
 {
-	return ConcatIntegral<T>(x);
+	return ConcatIntegral(x);
 }
 
 } // namespace strCatImpl
@@ -691,7 +690,7 @@ inline void strAppend(std::string& x, const char*        y) { x += y; }
 inline void strAppend(std::string& x, std::string_view   y) { x.append(y.data(), y.size()); }
 
 
-template<size_t N, typename T>
+template<size_t N, std::integral T>
 [[nodiscard]] inline strCatImpl::ConcatFixedWidthHexIntegral<N, T> hex_string(T t)
 {
 	return {t};

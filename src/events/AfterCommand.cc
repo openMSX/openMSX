@@ -415,7 +415,7 @@ void AfterCommand::tabCompletion(std::vector<std::string>& tokens) const
 }
 
 // Execute the cmds for which the predicate returns true, and erase those from afterCmds.
-template<typename PRED> void AfterCommand::executeMatches(PRED pred)
+void AfterCommand::executeMatches(std::predicate<Index> auto pred)
 {
 	static std::vector<Index> matches; // static to keep capacity for next call
 	assert(matches.empty());

@@ -1,16 +1,17 @@
 #include "catch.hpp"
 #include "gl_vec.hh"
 #include "Math.hh"
+#include <concepts>
 
 using namespace gl;
 
 // Test approximations.
-template<typename T>
+template<std::floating_point T>
 bool approxEq(T x, T y)
 {
 	return std::abs(x - y) < T(1.0e-5);
 }
-template<int N, typename T>
+template<int N, std::floating_point T>
 bool approxEq(const vecN<N, T>& x, const vecN<N, T>&y)
 {
 	return length2(x - y) < T(1.0e-4);

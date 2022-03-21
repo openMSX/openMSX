@@ -82,24 +82,24 @@ TEST_CASE("Math::reverseByte")
 
 TEST_CASE("Math::floodRight")
 {
-	CHECK(Math::floodRight(0) == 0);
-	CHECK(Math::floodRight(1) == 1);
-	CHECK(Math::floodRight(2) == 3);
-	CHECK(Math::floodRight(3) == 3);
-	CHECK(Math::floodRight(4) == 7);
-	CHECK(Math::floodRight(5) == 7);
-	CHECK(Math::floodRight(6) == 7);
-	CHECK(Math::floodRight(7) == 7);
-	CHECK(Math::floodRight(8) == 15);
-	CHECK(Math::floodRight(9) == 15);
-	CHECK(Math::floodRight(15) == 15);
-	CHECK(Math::floodRight(16) == 31);
-	CHECK(Math::floodRight(32) == 63);
-	CHECK(Math::floodRight(64) == 127);
-	CHECK(Math::floodRight(12345) == 16383);
-	CHECK(Math::floodRight(0x7F001234) == 0x7FFFFFFF);
-	CHECK(Math::floodRight(0x80000000) == 0xFFFFFFFF);
-	CHECK(Math::floodRight(0xF0FEDCBA) == 0xFFFFFFFF);
+	CHECK(Math::floodRight(0u) == 0);
+	CHECK(Math::floodRight(1u) == 1);
+	CHECK(Math::floodRight(2u) == 3);
+	CHECK(Math::floodRight(3u) == 3);
+	CHECK(Math::floodRight(4u) == 7);
+	CHECK(Math::floodRight(5u) == 7);
+	CHECK(Math::floodRight(6u) == 7);
+	CHECK(Math::floodRight(7u) == 7);
+	CHECK(Math::floodRight(8u) == 15);
+	CHECK(Math::floodRight(9u) == 15);
+	CHECK(Math::floodRight(15u) == 15);
+	CHECK(Math::floodRight(16u) == 31);
+	CHECK(Math::floodRight(32u) == 63);
+	CHECK(Math::floodRight(64u) == 127);
+	CHECK(Math::floodRight(12345u) == 16383);
+	CHECK(Math::floodRight(0x7F001234u) == 0x7FFFFFFF);
+	CHECK(Math::floodRight(0x80000000u) == 0xFFFFFFFF);
+	CHECK(Math::floodRight(0xF0FEDCBAu) == 0xFFFFFFFF);
 	CHECK(Math::floodRight(0x1234F0FEDCBAULL) == 0x1FFFFFFFFFFFULL);
 	CHECK(Math::floodRight(uint8_t(0x12)) == uint8_t(0x1F));
 	CHECK(Math::floodRight(uint16_t(0x2512)) == uint16_t(0x3FFF));

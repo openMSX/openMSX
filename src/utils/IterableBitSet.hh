@@ -5,6 +5,7 @@
 #include "xrange.hh"
 #include <bit>
 #include <cassert>
+#include <concepts>
 #include <cstddef>
 #include <cstdint>
 #include <type_traits>
@@ -112,8 +113,7 @@ public:
 	  * The operation is called with the index of the bit as parameter.
 	  * The bits are visited in ascending order.
 	  */
-	template<typename Operation>
-	void foreachSetBit(Operation op) const
+	void foreachSetBit(std::invocable<size_t> auto op) const
 	{
 		for (auto i : xrange(NUM_WORDS)) {
 			auto w = words[i];

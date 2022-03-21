@@ -1,6 +1,7 @@
 #include "Date.hh"
-#include <sstream>
+#include <concepts>
 #include <iomanip>
+#include <sstream>
 
 namespace openmsx::Date {
 
@@ -13,8 +14,8 @@ const char* const months[12] = {
 	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 };
 
-template<bool FIRST, unsigned MUL, typename T>
-[[nodiscard]] static constexpr bool parseDigit(unsigned c, T& t)
+template<bool FIRST, unsigned MUL>
+[[nodiscard]] static constexpr bool parseDigit(unsigned c, std::integral auto& t)
 {
 	c -= '0';
 	if (c > 9) return false;

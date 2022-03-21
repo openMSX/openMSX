@@ -4,6 +4,7 @@
 #include "MemBuffer.hh"
 #include <algorithm>
 #include <cassert>
+#include <concepts>
 #include <cstdlib>
 
 namespace openmsx {
@@ -51,8 +52,7 @@ public:
 	// (Important) two elements that are equivalent according to 'less'
 	// keep their relative order, IOW newly inserted elements are inserted
 	// after existing equivalent elements.
-	template<typename SET_SENTINEL, typename LESS>
-	void insert(const T& t, SET_SENTINEL setSentinel, LESS less)
+	void insert(const T& t, std::invocable<T&> auto setSentinel, std::equivalence_relation<T, T> auto less)
 	{
 		setSentinel(*useEnd); // put sentinel at the end
 		assert(less(t, *useEnd));
@@ -87,7 +87,7 @@ public:
 	}
 
 	// Remove the first element for which the given predicate returns true.
-	template<typename PRED> bool remove(PRED p)
+	bool remove(std::predicate<T> auto p)
 	{
 		T* it = std::find_if(useBegin, useEnd, p);
 		if (it == useEnd) return false;
@@ -103,7 +103,7 @@ public:
 	}
 
 	// Remove all elements for which the given predicate returns true.
-	template<typename PRED> void remove_all(PRED p)
+	void remove_all(std::predicate<T> auto p)
 	{
 		useEnd = std::remove_if(useBegin, useEnd, p);
 	}

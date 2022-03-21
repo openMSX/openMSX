@@ -3,6 +3,7 @@
 
 #include "StringStorage.hh"
 #include "zstring_view.hh"
+#include <concepts>
 #include <iostream>
 #include <string_view>
 
@@ -25,8 +26,7 @@ class TemporaryString {
 public:
 	static constexpr size_t BUFSIZE = 127;
 
-	template<typename FillOp>
-	TemporaryString(size_t n_, FillOp op)
+	TemporaryString(size_t n_, std::invocable<char*> auto fillOp)
 		: n(n_)
 	{
 		if (n <= BUFSIZE) {
@@ -35,7 +35,7 @@ public:
 			owner = allocate_string_storage(n + 1);
 			ptr = owner.get();
 		}
-		op(ptr);
+		fillOp(ptr);
 		ptr[n] = '\0';
 	}
 	TemporaryString(const TemporaryString&) = delete;

@@ -12,6 +12,7 @@
 #include "openmsx.hh"
 #include "ranges.hh"
 #include <bitset>
+#include <concepts>
 #include <vector>
 #include <memory>
 
@@ -433,26 +434,24 @@ struct CT_Interval
 };
 
 // Execute an 'action' for every element in the given interval(s).
-template<typename ACTION, typename CT_INTERVAL>
-inline void foreach_ct_interval(ACTION action, CT_INTERVAL interval)
+inline void foreach_ct_interval(std::invocable<unsigned> auto action, auto ct_interval)
 {
-	for (auto i = interval.begin(); i != interval.end(); ++i) {
+	for (auto i = ct_interval.begin(); i != ct_interval.end(); ++i) {
 		action(i);
 	}
 }
-template<typename ACTION, typename CT_INTERVAL, typename... CT_INTERVALS>
-inline void foreach_ct_interval(ACTION action, CT_INTERVAL front, CT_INTERVALS... tail)
+inline void foreach_ct_interval(std::invocable<unsigned> auto action,
+                                auto front_interval, auto... tail_intervals)
 {
-	foreach_ct_interval(action, front);
-	foreach_ct_interval(action, tail...);
+	foreach_ct_interval(action, front_interval);
+	foreach_ct_interval(action, tail_intervals...);
 }
 
 
 template<typename MSXDEVICE, typename... CT_INTERVALS>
 struct GlobalRWHelper
 {
-	template<typename ACTION>
-	void execute(ACTION action)
+	void execute(std::invocable<MSXCPUInterface&, MSXDevice&, unsigned> auto action)
 	{
 		auto& dev = static_cast<MSXDEVICE&>(*this);
 		auto& cpu = dev.getCPUInterface();

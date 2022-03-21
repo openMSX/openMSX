@@ -4,6 +4,7 @@
 #include "Command.hh"
 #include "EventListener.hh"
 #include "Event.hh"
+#include <concepts>
 #include <vector>
 
 namespace openmsx {
@@ -28,7 +29,7 @@ public:
 	void tabCompletion(std::vector<std::string>& tokens) const override;
 
 private:
-	template<typename PRED> void executeMatches(PRED pred);
+	void executeMatches(std::predicate<Index> auto pred);
 	void executeSimpleEvents(EventType type);
 	void afterSimpleEvent(std::span<const TclObject> tokens, TclObject& result, EventType type);
 	void afterInputEvent(const Event& event,

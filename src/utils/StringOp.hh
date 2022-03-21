@@ -5,6 +5,7 @@
 #include "stringsp.hh"
 #include <algorithm>
 #include <charconv>
+#include <concepts>
 #include <cstdint>
 #include <iomanip>
 #include <limits>
@@ -39,12 +40,12 @@ namespace StringOp
 	  * - The input is a 'string_view' (rather than a 'const char*'), so it
 	  *   is not required to be zero-terminated.
 	  */
-	template<typename T> [[nodiscard]] std::optional<T> stringTo(std::string_view s);
+	template<std::integral T> [[nodiscard]] std::optional<T> stringTo(std::string_view s);
 
 	/** As above, but without dynamic base detection. Moreover leading
 	  * prefixes like '0x' for hexadecimal are seen as invalid input.
 	  */
-	template<int BASE, typename T> [[nodiscard]] std::optional<T> stringToBase(std::string_view s);
+	template<int BASE, std::integral T> [[nodiscard]] std::optional<T> stringToBase(std::string_view s);
 
 	[[nodiscard]] bool stringToBool(std::string_view str);
 
@@ -139,7 +140,7 @@ namespace StringOp
 	[[nodiscard]] std::string fromCFString(CFStringRef str);
 #endif
 
-	template<int BASE, typename T>
+	template<int BASE, std::integral T>
 	[[nodiscard]] std::optional<T> stringToBase(std::string_view s)
 	{
 		T result;
@@ -152,7 +153,7 @@ namespace StringOp
 		return std::nullopt;
 	}
 
-	template<typename T>
+	template<std::integral T>
 	[[nodiscard]] std::optional<T> stringTo(std::string_view s)
 	{
 		if (s.empty()) [[unlikely]] return {};
