@@ -210,10 +210,24 @@ public:
 		}
 	}
 
-	void push_back (const T&  t) { push_back_impl <const T& >(          t ); }
-	void push_back (      T&& t) { push_back_impl <      T&&>(std::move(t)); }
-	void push_front(const T&  t) { push_front_impl<const T& >(          t ); }
-	void push_front(      T&& t) { push_front_impl<      T&&>(std::move(t)); }
+	template<typename T2>
+	void push_back(T2&& t) {
+		::new (last) T(std::forward<T2>(t));
+		increment(last);
+		++siz;
+	}
+
+	template<typename T2>
+	void push_front(T2&& t) {
+		try {
+			decrement(first);
+			::new (first) T(std::forward<T2>(t));
+			++siz;
+		} catch (...) {
+			increment(first);
+			throw;
+		}
+	}
 
 	void push_back(std::initializer_list<T> list) {
 		for (auto& e : list) push_back(e);
@@ -264,36 +278,19 @@ private:
 		return dst;
 	}
 
-	template<typename ValT> void push_back_impl(ValT t) {
-		::new (last) T(static_cast<ValT>(t));
-		increment(last);
-		++siz;
-	}
-
-	template<typename ValT> void push_front_impl(ValT t) {
-		try {
-			decrement(first);
-			::new (first) T(static_cast<ValT>(t));
-			++siz;
-		} catch (...) {
-			increment(first);
-			throw;
-		}
-	}
-
-	template<typename Pointer> void increment(Pointer& p) const {
+	void increment(auto*& p) const {
 		if (++p == stop) p = buf;
 	}
-	template<typename Pointer> void decrement(Pointer& p) const {
+	void decrement(auto*& p) const {
 		if (p == buf) p = stop;
 		--p;
 	}
-	template<typename Pointer> [[nodiscard]] Pointer add(Pointer p, difference_type n) const {
+	[[nodiscard]] auto* add(auto* p, difference_type n) const {
 		p += n;
 		if (p >= stop) p -= capacity();
 		return p;
 	}
-	template<typename Pointer> [[nodiscard]] Pointer sub(Pointer p, difference_type n) const {
+	[[nodiscard]] auto* sub(auto* p, difference_type n) const {
 		p -= n;
 		if (p < buf) p += capacity();
 		return p;

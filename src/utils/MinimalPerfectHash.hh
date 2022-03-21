@@ -66,8 +66,7 @@ struct Result
 	std::array<uint8_t, M2> tab2; // half size (space optimization)
 	[[no_unique_address]] Hash hash;
 
-	template<typename Key>
-	[[nodiscard]] constexpr uint8_t lookupIndex(const Key& key) const {
+	[[nodiscard]] constexpr uint8_t lookupIndex(const auto& key) const {
 		const uint32_t h = hash(key);
 		const uint8_t d = tab1[h % M];
 		if ((d & 0x80) == 0) {

@@ -40,8 +40,7 @@ static void writeSilence(std::vector<int8_t>& wave, unsigned s)
 	append(wave, s, 0);
 }
 
-template<typename Array>
-static bool compare(const uint8_t* p, const Array& array)
+static bool compare(const uint8_t* p, const auto& array)
 {
 	return memcmp(p, array.data(), array.size()) == 0;
 }
