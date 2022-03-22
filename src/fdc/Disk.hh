@@ -23,7 +23,7 @@ public:
 	virtual void readTrack (byte track, byte side, RawTrack& output) = 0;
 
 	/** Has the content of this disk changed, by some other means than the
-	 * MSX writing to the disk. In other words: should caches om the MSX
+	 * MSX writing to the disk. In other words: should caches on the MSX
 	 * side be dropped? (E.g. via the 'disk-changed-signal' that's present
 	 * in (some) MSX disk interfaces). */
 	[[nodiscard]] virtual bool hasChanged() const { return false; }
