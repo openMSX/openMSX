@@ -11,14 +11,14 @@
 
 namespace openmsx {
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 V9990P1Converter<Pixel>::V9990P1Converter(V9990& vdp_, const Pixel* palette64_)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, palette64(palette64_)
 {
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 V9990P2Converter<Pixel>::V9990P2Converter(V9990& vdp_, const Pixel* palette64_)
 	: vdp(vdp_), vram(vdp.getVRAM()), palette64(palette64_)
 {
@@ -44,7 +44,7 @@ struct P1Policy {
 	static constexpr unsigned PATTERN_CHARS = SCREEN_WIDTH / 8;
 };
 struct P1BackgroundPolicy : P1Policy {
-	template<typename Pixel> static void draw1(
+	template<std::unsigned_integral Pixel> static void draw1(
 		const Pixel* palette, Pixel* __restrict buffer,
 		byte* __restrict /*info*/, size_t p)
 	{
@@ -53,7 +53,7 @@ struct P1BackgroundPolicy : P1Policy {
 	static constexpr bool DRAW_BACKDROP = true;
 };
 struct P1ForegroundPolicy : P1Policy {
-	template<typename Pixel> static void draw1(
+	template<std::unsigned_integral Pixel> static void draw1(
 		const Pixel* palette, Pixel* __restrict buffer,
 		byte* __restrict info, size_t p)
 	{
@@ -76,7 +76,7 @@ struct P2Policy {
 		return (256 * (((spriteNo & 0xE0) >> 1) + spriteY))
 		     + (  8 *  (spriteNo & 0x1F));
 	}
-	template<typename Pixel> static void draw1(
+	template<std::unsigned_integral Pixel> static void draw1(
 		const Pixel* palette, Pixel* __restrict buffer,
 		byte* __restrict info, size_t p)
 	{
@@ -110,7 +110,7 @@ static constexpr unsigned nextNameAddr(unsigned addr)
 	return (addr & ~MASK) | ((addr + 2) & MASK);
 }
 
-template<typename Policy, bool CHECK_WIDTH, typename Pixel>
+template<typename Policy, bool CHECK_WIDTH, std::unsigned_integral Pixel>
 static void draw2(
 	V9990VRAM& vram, const Pixel* palette, Pixel* __restrict& buffer, byte* __restrict& info,
 	unsigned& address, int& width)
@@ -125,7 +125,7 @@ static void draw2(
 	info   += 2;
 }
 
-template<typename Policy, typename Pixel>
+template<typename Policy, std::unsigned_integral Pixel>
 static void renderPattern(
 	V9990VRAM& vram, Pixel* __restrict buffer, byte* __restrict info,
 	Pixel bgCol, int width, unsigned x, unsigned y,
@@ -182,7 +182,7 @@ static void renderPattern(
 	}
 }
 
-template<typename Policy, typename Pixel> // only used for P1
+template<typename Policy, std::unsigned_integral Pixel> // only used for P1
 static void renderPattern2(
 	V9990VRAM& vram, Pixel* buffer, byte* info, Pixel bgCol, unsigned width1, unsigned width2,
 	unsigned displayAX, unsigned displayAY, unsigned nameA, unsigned patternA, const Pixel* palA,
@@ -202,7 +202,7 @@ static void renderPattern2(
 		displayBX, displayBY, nameB, patternB, palB, palB);
 }
 
-template<typename Policy, typename Pixel>
+template<typename Policy, std::unsigned_integral Pixel>
 static void renderSprites(
 	V9990VRAM& vram, unsigned spritePatternTable, const Pixel* palette64,
 	Pixel* __restrict buffer, byte* __restrict info,
@@ -265,7 +265,7 @@ static void renderSprites(
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void V9990P1Converter<Pixel>::convertLine(
 	Pixel* linePtr, unsigned displayX, unsigned displayWidth,
 	unsigned displayY, unsigned displayYA, unsigned displayYB,
@@ -318,7 +318,7 @@ void V9990P1Converter<Pixel>::convertLine(
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void V9990P2Converter<Pixel>::convertLine(
 	Pixel* linePtr, unsigned displayX, unsigned displayWidth,
 	unsigned displayY, unsigned displayYA, bool drawSprites)

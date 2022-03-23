@@ -9,11 +9,11 @@
 namespace openmsx {
 
 class RenderSettings;
-template<typename Pixel> class PolyLineScaler;
+template<std::unsigned_integral Pixel> class PolyLineScaler;
 
 /** TODO
   */
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 class RGBTriplet3xScaler final : public Scaler3<Pixel>
 {
 public:

@@ -10,7 +10,7 @@ namespace openmsx {
 /**
  * Helper class to perform 'pixel x scalar' calculations.
  */
-template<typename Pixel> class Multiply;
+template<std::unsigned_integral Pixel> class Multiply;
 
 template<> class Multiply<uint16_t>
 {
@@ -41,7 +41,7 @@ private:
 /**
  * Helper class to draw scanlines
  */
-template<typename Pixel> class Scanline
+template<std::unsigned_integral Pixel> class Scanline
 {
 public:
 	explicit Scanline(const PixelOperations<Pixel>& pixelOps);

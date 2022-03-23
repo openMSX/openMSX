@@ -9,7 +9,7 @@
 
 namespace openmsx {
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 SuperImposeScalerOutput<Pixel>::SuperImposeScalerOutput(
 		ScalerOutput<Pixel>& output_,
 		const RawFrame& superImpose_,
@@ -20,25 +20,25 @@ SuperImposeScalerOutput<Pixel>::SuperImposeScalerOutput(
 {
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 unsigned SuperImposeScalerOutput<Pixel>::getWidth() const
 {
 	return output.getWidth();
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 unsigned SuperImposeScalerOutput<Pixel>::getHeight() const
 {
 	return output.getHeight();
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 Pixel* SuperImposeScalerOutput<Pixel>::acquireLine(unsigned y)
 {
 	return output.acquireLine(y);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void SuperImposeScalerOutput<Pixel>::releaseLine(unsigned y, Pixel* buf)
 {
 	unsigned width = output.getWidth();
@@ -49,7 +49,7 @@ void SuperImposeScalerOutput<Pixel>::releaseLine(unsigned y, Pixel* buf)
 	output.releaseLine(y, buf);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void SuperImposeScalerOutput<Pixel>::fillLine(unsigned y, Pixel color)
 {
 	auto* dstLine = output.acquireLine(y);
@@ -75,7 +75,7 @@ void SuperImposeScalerOutput<Pixel>::fillLine(unsigned y, Pixel color)
 	output.releaseLine(y, dstLine);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 const Pixel* SuperImposeScalerOutput<Pixel>::getSrcLine(unsigned y, Pixel* buf)
 {
 	unsigned width = output.getWidth();

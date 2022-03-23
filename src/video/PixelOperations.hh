@@ -5,10 +5,11 @@
 #include "unreachable.hh"
 #include "build-info.hh"
 #include <bit>
+#include <concepts>
 
 namespace openmsx {
 
-template<typename Pixel> class PixelOpBase
+template<std::unsigned_integral Pixel> class PixelOpBase
 {
 public:
 	explicit PixelOpBase(const PixelFormat& format_)
@@ -140,7 +141,7 @@ public:
 
 
 
-template<typename Pixel> class PixelOperations : public PixelOpBase<Pixel>
+template<std::unsigned_integral Pixel> class PixelOperations : public PixelOpBase<Pixel>
 {
 public:
 	using PixelOpBase<Pixel>::getPixelFormat;
@@ -247,13 +248,13 @@ private:
 };
 
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 PixelOperations<Pixel>::PixelOperations(const PixelFormat& format_)
 	: PixelOpBase<Pixel>(format_)
 {
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 inline unsigned PixelOperations<Pixel>::red(Pixel p) const
 {
 	if constexpr (sizeof(Pixel) == 4) {
@@ -262,7 +263,7 @@ inline unsigned PixelOperations<Pixel>::red(Pixel p) const
 		return (p & getRmask()) >> getRshift();
 	}
 }
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 inline unsigned PixelOperations<Pixel>::green(Pixel p) const
 {
 	if constexpr (sizeof(Pixel) == 4) {
@@ -271,7 +272,7 @@ inline unsigned PixelOperations<Pixel>::green(Pixel p) const
 		return (p & getGmask()) >> getGshift();
 	}
 }
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 inline unsigned PixelOperations<Pixel>::blue(Pixel p) const
 {
 	if constexpr (sizeof(Pixel) == 4) {
@@ -280,7 +281,7 @@ inline unsigned PixelOperations<Pixel>::blue(Pixel p) const
 		return (p & getBmask()) >> getBshift();
 	}
 }
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 inline unsigned PixelOperations<Pixel>::alpha(Pixel p) const
 {
 	if constexpr (sizeof(Pixel) == 4) {
@@ -291,7 +292,7 @@ inline unsigned PixelOperations<Pixel>::alpha(Pixel p) const
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 inline bool PixelOperations<Pixel>::isFullyOpaque(Pixel p) const
 {
 	if constexpr (sizeof(Pixel) == 4) {
@@ -300,7 +301,7 @@ inline bool PixelOperations<Pixel>::isFullyOpaque(Pixel p) const
 		return p != 0x0001;
 	}
 }
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 inline bool PixelOperations<Pixel>::isFullyTransparent(Pixel p) const
 {
 	if constexpr (sizeof(Pixel) == 4) {
@@ -310,7 +311,7 @@ inline bool PixelOperations<Pixel>::isFullyTransparent(Pixel p) const
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 inline unsigned PixelOperations<Pixel>::red256(Pixel p) const
 {
 	if constexpr (sizeof(Pixel) == 4) {
@@ -319,7 +320,7 @@ inline unsigned PixelOperations<Pixel>::red256(Pixel p) const
 		return ((p >> getRshift()) << getRloss()) & 0xFF;
 	}
 }
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 inline unsigned PixelOperations<Pixel>::green256(Pixel p) const
 {
 	if constexpr (sizeof(Pixel) == 4) {
@@ -328,7 +329,7 @@ inline unsigned PixelOperations<Pixel>::green256(Pixel p) const
 		return ((p >> getGshift()) << getGloss()) & 0xFF;
 	}
 }
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 inline unsigned PixelOperations<Pixel>::blue256(Pixel p) const
 {
 	if constexpr (sizeof(Pixel) == 4) {
@@ -338,7 +339,7 @@ inline unsigned PixelOperations<Pixel>::blue256(Pixel p) const
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 inline Pixel PixelOperations<Pixel>::combine(
 		unsigned r, unsigned g, unsigned b) const
 {
@@ -347,7 +348,7 @@ inline Pixel PixelOperations<Pixel>::combine(
 	             (b << getBshift()));
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 inline Pixel PixelOperations<Pixel>::combine256(
 		unsigned r, unsigned g, unsigned b) const
 {
@@ -362,7 +363,7 @@ inline Pixel PixelOperations<Pixel>::combine256(
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 inline unsigned PixelOperations<Pixel>::getMaxRed() const
 {
 	if constexpr (sizeof(Pixel) == 4) {
@@ -371,7 +372,7 @@ inline unsigned PixelOperations<Pixel>::getMaxRed() const
 		return 255 >> getRloss();
 	}
 }
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 inline unsigned PixelOperations<Pixel>::getMaxGreen() const
 {
 	if constexpr (sizeof(Pixel) == 4) {
@@ -380,7 +381,7 @@ inline unsigned PixelOperations<Pixel>::getMaxGreen() const
 		return 255 >> getGloss();
 	}
 }
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 inline unsigned PixelOperations<Pixel>::getMaxBlue() const
 {
 	if constexpr (sizeof(Pixel) == 4) {
@@ -390,7 +391,7 @@ inline unsigned PixelOperations<Pixel>::getMaxBlue() const
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 inline Pixel PixelOperations<Pixel>::avgDown(Pixel p1, Pixel p2) const
 {
 	// Average can be calculated as:
@@ -398,7 +399,7 @@ inline Pixel PixelOperations<Pixel>::avgDown(Pixel p1, Pixel p2) const
 	// see "Average of Integers" on http://aggregate.org/MAGIC/
 	return (p1 & p2) + (((p1 ^ p2) & getBlendMask()) >> 1);
 }
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 inline Pixel PixelOperations<Pixel>::avgUp(Pixel p1, Pixel p2) const
 {
 	// Similar to above, but rounds up
@@ -406,7 +407,7 @@ inline Pixel PixelOperations<Pixel>::avgUp(Pixel p1, Pixel p2) const
 	return (p1 | p2) - (((p1 ^ p2) & getBlendMask()) >> 1);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 template<unsigned w1, unsigned w2>
 inline Pixel PixelOperations<Pixel>::blend(Pixel p1, Pixel p2) const
 {
@@ -482,7 +483,7 @@ inline Pixel PixelOperations<Pixel>::blend(Pixel p1, Pixel p2) const
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 template<unsigned w1, unsigned w2, unsigned w3>
 inline Pixel PixelOperations<Pixel>::blend(Pixel p1, Pixel p2, Pixel p3) const
 {
@@ -504,7 +505,7 @@ inline Pixel PixelOperations<Pixel>::blend(Pixel p1, Pixel p2, Pixel p3) const
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 template<unsigned w1, unsigned w2, unsigned w3, unsigned w4>
 inline Pixel PixelOperations<Pixel>::blend(
 		Pixel p1, Pixel p2, Pixel p3, Pixel p4) const
@@ -532,7 +533,7 @@ inline Pixel PixelOperations<Pixel>::blend(
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 template<unsigned w1, unsigned w2, unsigned w3,
           unsigned w4, unsigned w5, unsigned w6>
 inline Pixel PixelOperations<Pixel>::blend(
@@ -569,28 +570,28 @@ inline Pixel PixelOperations<Pixel>::blend(
 }
 
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 template<unsigned w1, unsigned w2>
 inline Pixel PixelOperations<Pixel>::blend2(const Pixel* p) const
 {
 	return blend<w1, w2>(p[0], p[1]);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 template<unsigned w1, unsigned w2, unsigned w3>
 inline Pixel PixelOperations<Pixel>::blend3(const Pixel* p) const
 {
 	return blend<w1, w2, w3>(p[0], p[1], p[2]);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 template<unsigned w1, unsigned w2, unsigned w3, unsigned w4>
 inline Pixel PixelOperations<Pixel>::blend4(const Pixel* p) const
 {
 	return blend<w1, w2, w3, w4>(p[0], p[1], p[2], p[3]);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 template<unsigned w1, unsigned w2, unsigned w3,
           unsigned w4, unsigned w5, unsigned w6>
 inline Pixel PixelOperations<Pixel>::blend6(const Pixel* p) const
@@ -598,7 +599,7 @@ inline Pixel PixelOperations<Pixel>::blend6(const Pixel* p) const
 	return blend<w1, w2, w3, w4, w5, w6>(p[0], p[1], p[2], p[3], p[4], p[5]);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 inline Pixel PixelOperations<Pixel>::multiply(Pixel p, unsigned x)
 {
 	if constexpr (sizeof(Pixel) == 4) {
@@ -609,7 +610,7 @@ inline Pixel PixelOperations<Pixel>::multiply(Pixel p, unsigned x)
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 inline Pixel PixelOperations<Pixel>::lerp(Pixel p1, Pixel p2, unsigned x) const
 {
 	if constexpr (sizeof(Pixel) == 4) { // 32 bpp
@@ -658,7 +659,7 @@ inline Pixel PixelOperations<Pixel>::lerp(Pixel p1, Pixel p2, unsigned x) const
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 inline Pixel PixelOperations<Pixel>::alphaBlend(Pixel p1, Pixel p2) const
 {
 	if constexpr (sizeof(Pixel) == 2) {

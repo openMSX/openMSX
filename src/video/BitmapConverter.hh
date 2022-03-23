@@ -3,6 +3,7 @@
 
 #include "DisplayMode.hh"
 #include "openmsx.hh"
+#include <concepts>
 #include <cstdint>
 
 namespace openmsx {
@@ -13,7 +14,7 @@ template<> struct DoublePixel<4> { using type = uint64_t; };
 
 /** Utility class for converting VRAM contents to host pixels.
   */
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 class BitmapConverter
 {
 public:

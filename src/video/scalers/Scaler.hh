@@ -1,16 +1,18 @@
 #ifndef SCALER_HH
 #define SCALER_HH
 
+#include <concepts>
+
 namespace openmsx {
 
 class FrameSource;
 class RawFrame;
-template<typename Pixel> class ScalerOutput;
+template<std::unsigned_integral Pixel> class ScalerOutput;
 
 /** Abstract base class for scalers.
   * A scaler is an algorithm that converts low-res graphics to hi-res graphics.
   */
-template<typename Pixel> class Scaler
+template<std::unsigned_integral Pixel> class Scaler
 {
 public:
 	virtual ~Scaler() = default;

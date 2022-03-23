@@ -200,7 +200,7 @@ unsigned ZMBVEncoder::neededSize() const
 	return f + f / 1000;
 }
 
-template<typename P>
+template<std::unsigned_integral P>
 unsigned ZMBVEncoder::possibleBlock(int vx, int vy, unsigned offset)
 {
 	int ret = 0;
@@ -216,7 +216,7 @@ unsigned ZMBVEncoder::possibleBlock(int vx, int vy, unsigned offset)
 	return ret;
 }
 
-template<typename P>
+template<std::unsigned_integral P>
 unsigned ZMBVEncoder::compareBlock(int vx, int vy, unsigned offset)
 {
 	int ret = 0;
@@ -232,7 +232,7 @@ unsigned ZMBVEncoder::compareBlock(int vx, int vy, unsigned offset)
 	return ret;
 }
 
-template<typename P>
+template<std::unsigned_integral P>
 void ZMBVEncoder::addXorBlock(
 	const PixelOperations<P>& pixelOps, int vx, int vy, unsigned offset, unsigned& workUsed)
 {
@@ -251,7 +251,7 @@ void ZMBVEncoder::addXorBlock(
 	});
 }
 
-template<typename P>
+template<std::unsigned_integral P>
 void ZMBVEncoder::addXorFrame(const PixelFormat& pixelFormat, unsigned& workUsed)
 {
 	PixelOperations<P> pixelOps(pixelFormat);
@@ -295,7 +295,7 @@ void ZMBVEncoder::addXorFrame(const PixelFormat& pixelFormat, unsigned& workUsed
 	}
 }
 
-template<typename P>
+template<std::unsigned_integral P>
 void ZMBVEncoder::addFullFrame(const PixelFormat& pixelFormat, unsigned& workUsed)
 {
 	using LE_P = typename Endian::Little<P>::type;

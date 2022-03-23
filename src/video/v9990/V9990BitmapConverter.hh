@@ -3,6 +3,7 @@
 
 #include "V9990ModeEnum.hh"
 #include "one_of.hh"
+#include <concepts>
 #include <cstdint>
 
 namespace openmsx {
@@ -12,7 +13,7 @@ class V9990VRAM;
 
 /** Utility class to convert VRAM content to host pixels.
   */
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 class V9990BitmapConverter
 {
 public:

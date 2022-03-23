@@ -9,7 +9,7 @@
 
 namespace openmsx {
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 V9990BitmapConverter<Pixel>::V9990BitmapConverter(
 		V9990& vdp_,
 		const Pixel* palette64_,  const int16_t* palette64_32768_,
@@ -23,7 +23,7 @@ V9990BitmapConverter<Pixel>::V9990BitmapConverter(
 	setColorMode(PP, B0); // initialize with dummy values
 }
 
-template<bool YJK, bool PAL, bool SKIP, typename Pixel, typename ColorLookup>
+template<bool YJK, bool PAL, bool SKIP, std::unsigned_integral Pixel, typename ColorLookup>
 static inline void draw_YJK_YUV_PAL(
 	ColorLookup color, V9990VRAM& vram,
 	Pixel* __restrict& out, unsigned& address, int firstX = 0)
@@ -52,7 +52,7 @@ static inline void draw_YJK_YUV_PAL(
 	}
 }
 
-template<typename Pixel, typename ColorLookup>
+template<std::unsigned_integral Pixel, typename ColorLookup>
 static void rasterBYUV(
 	ColorLookup color, V9990& vdp, V9990VRAM& vram,
 	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
@@ -70,7 +70,7 @@ static void rasterBYUV(
 	// Note: this can draw up to 3 pixels too many, but that's ok.
 }
 
-template<typename Pixel, typename ColorLookup>
+template<std::unsigned_integral Pixel, typename ColorLookup>
 static void rasterBYUVP(
 	ColorLookup color, V9990& vdp, V9990VRAM& vram,
 	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
@@ -90,7 +90,7 @@ static void rasterBYUVP(
 	// Note: this can draw up to 3 pixels too many, but that's ok.
 }
 
-template<typename Pixel, typename ColorLookup>
+template<std::unsigned_integral Pixel, typename ColorLookup>
 static void rasterBYJK(
 	ColorLookup color, V9990& vdp, V9990VRAM& vram,
 	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
@@ -108,7 +108,7 @@ static void rasterBYJK(
 	// Note: this can draw up to 3 pixels too many, but that's ok.
 }
 
-template<typename Pixel, typename ColorLookup>
+template<std::unsigned_integral Pixel, typename ColorLookup>
 static void rasterBYJKP(
 	ColorLookup color, V9990& vdp, V9990VRAM& vram,
 	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
@@ -128,7 +128,7 @@ static void rasterBYJKP(
 	// Note: this can draw up to 3 pixels too many, but that's ok.
 }
 
-template<typename Pixel, typename ColorLookup>
+template<std::unsigned_integral Pixel, typename ColorLookup>
 static void rasterBD16(
 	ColorLookup color, V9990& vdp, V9990VRAM& vram,
 	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
@@ -156,7 +156,7 @@ static void rasterBD16(
 	}
 }
 
-template<typename Pixel, typename ColorLookup>
+template<std::unsigned_integral Pixel, typename ColorLookup>
 static void rasterBD8(
 	ColorLookup color, V9990& vdp, V9990VRAM& vram,
 	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
@@ -167,7 +167,7 @@ static void rasterBD8(
 	}
 }
 
-template<typename Pixel, typename ColorLookup>
+template<std::unsigned_integral Pixel, typename ColorLookup>
 static void rasterBP6(
 	ColorLookup color, V9990& vdp, V9990VRAM& vram,
 	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
@@ -178,7 +178,7 @@ static void rasterBP6(
 	}
 }
 
-template<typename Pixel, typename ColorLookup>
+template<std::unsigned_integral Pixel, typename ColorLookup>
 static void rasterBP4(
 	ColorLookup color, V9990& vdp, V9990VRAM& vram,
 	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
@@ -198,7 +198,7 @@ static void rasterBP4(
 	}
 	// Note: this possibly draws 1 pixel too many, but that's ok.
 }
-template<typename Pixel, typename ColorLookup>
+template<std::unsigned_integral Pixel, typename ColorLookup>
 static void rasterBP4HiRes(
 	ColorLookup color, V9990& vdp, V9990VRAM& vram,
 	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
@@ -221,7 +221,7 @@ static void rasterBP4HiRes(
 	// Note: this possibly draws 1 pixel too many, but that's ok.
 }
 
-template<typename Pixel, typename ColorLookup>
+template<std::unsigned_integral Pixel, typename ColorLookup>
 static void rasterBP2(
 	ColorLookup color, V9990& vdp, V9990VRAM& vram,
 	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
@@ -245,7 +245,7 @@ static void rasterBP2(
 	}
 	// Note: this can draw up to 3 pixels too many, but that's ok.
 }
-template<typename Pixel, typename ColorLookup>
+template<std::unsigned_integral Pixel, typename ColorLookup>
 static void rasterBP2HiRes(
 	ColorLookup color, V9990& vdp, V9990VRAM& vram,
 	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
@@ -274,7 +274,7 @@ static void rasterBP2HiRes(
 }
 
 // Helper class to translate V9990 palette indices into host Pixel values.
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 class PaletteLookup
 {
 public:
@@ -318,7 +318,7 @@ private:
 	const int16_t* palette256_32768;
 };
 
-template<typename Pixel, typename ColorLookup>
+template<std::unsigned_integral Pixel, typename ColorLookup>
 static void raster(V9990ColorMode colorMode, bool highRes,
                    ColorLookup color, V9990& vdp, V9990VRAM& vram,
                    Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
@@ -435,7 +435,7 @@ public:
 	bool doXor;
 };
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void V9990BitmapConverter<Pixel>::convertLine(
 	Pixel* linePtr, unsigned x, unsigned y, int nrPixels,
 	int cursorY, bool drawCursors)
@@ -447,7 +447,7 @@ void V9990BitmapConverter<Pixel>::convertLine(
 
 	if (cursor0.isVisible() || cursor1.isVisible()) {
 		// raster background into a temporary buffer
-		int16_t buf[1024];
+		uint16_t buf[1024];
 		raster(colorMode, highRes,
 		       IndexLookup(palette64_32768, palette256_32768),
 		       vdp, vram,

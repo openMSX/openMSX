@@ -2,17 +2,18 @@
 #define MULTIPLY32_HH
 
 #include <bit>
+#include <concepts>
 #include <cstdint>
 
 namespace openmsx {
 
-template<typename Pixel> class PixelOperations;
+template<std::unsigned_integral Pixel> class PixelOperations;
 
 /**
  * Helper class to perform 'pixel x scalar' calculations.
  * Also converts the result to 32bpp.
  */
-template<typename Pixel> class Multiply32;
+template<std::unsigned_integral Pixel> class Multiply32;
 
 template<> class Multiply32<uint32_t>
 {

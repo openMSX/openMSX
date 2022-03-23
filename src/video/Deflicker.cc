@@ -6,6 +6,7 @@
 #include "vla.hh"
 #include "xrange.hh"
 #include "build-info.hh"
+#include <concepts>
 #include <memory>
 #ifdef __SSE2__
 #include <emmintrin.h>
@@ -13,7 +14,7 @@
 
 namespace openmsx {
 
-template<typename Pixel> class DeflickerImpl final : public Deflicker
+template<std::unsigned_integral Pixel> class DeflickerImpl final : public Deflicker
 {
 public:
 	DeflickerImpl(const PixelFormat& format,
@@ -66,7 +67,7 @@ unsigned Deflicker::getLineWidth(unsigned line) const
 }
 
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 DeflickerImpl<Pixel>::DeflickerImpl(const PixelFormat& format,
                                     std::unique_ptr<RawFrame>* lastFrames_)
 	: Deflicker(format, lastFrames_)
@@ -75,7 +76,7 @@ DeflickerImpl<Pixel>::DeflickerImpl(const PixelFormat& format,
 }
 
 #ifdef __SSE2__
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 static __m128i blend(__m128i x, __m128i y, Pixel blendMask)
 {
 	if constexpr (sizeof(Pixel) == 4) {
@@ -92,7 +93,7 @@ static __m128i blend(__m128i x, __m128i y, Pixel blendMask)
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 static __m128i uload(const Pixel* ptr, ptrdiff_t byteOffst)
 {
 	const auto* p8   = reinterpret_cast<const   char *>(ptr);
@@ -100,7 +101,7 @@ static __m128i uload(const Pixel* ptr, ptrdiff_t byteOffst)
 	return _mm_loadu_si128(p128);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 static void ustore(Pixel* ptr, ptrdiff_t byteOffst, __m128i val)
 {
 	auto* p8   = reinterpret_cast<  char *>(ptr);
@@ -108,7 +109,7 @@ static void ustore(Pixel* ptr, ptrdiff_t byteOffst, __m128i val)
 	return _mm_storeu_si128(p128, val);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 static __m128i compare(__m128i x, __m128i y)
 {
 	static_assert(sizeof(Pixel) == one_of(2u, 4u));
@@ -120,7 +121,7 @@ static __m128i compare(__m128i x, __m128i y)
 }
 #endif
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 const void* DeflickerImpl<Pixel>::getLineInfo(
 	unsigned line, unsigned& width, void* buf_, unsigned bufWidth) const
 {

@@ -8,7 +8,7 @@ namespace openmsx {
 
 class RawFrame;
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 class SuperImposeScalerOutput final : public ScalerOutput<Pixel>
 {
 public:

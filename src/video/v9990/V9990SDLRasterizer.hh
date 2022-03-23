@@ -5,6 +5,7 @@
 #include "V9990BitmapConverter.hh"
 #include "V9990PxConverter.hh"
 #include "Observer.hh"
+#include <concepts>
 #include <memory>
 
 namespace openmsx {
@@ -20,7 +21,7 @@ class PostProcessor;
 
 /** Rasterizer using SDL.
   */
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 class V9990SDLRasterizer final : public V9990Rasterizer
                                , private Observer<Setting>
 {

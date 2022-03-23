@@ -14,7 +14,7 @@ class RenderSettings;
   * the average color from the pixel above and below). It can also optionally
   * perform a horizontal blur.
   */
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 class Simple2xScaler final : public Scaler2<Pixel>
 {
 public:

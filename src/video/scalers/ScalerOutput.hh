@@ -1,9 +1,11 @@
 #ifndef SCALEROUTPUT_HH
 #define SCALEROUTPUT_HH
 
+#include <concepts>
+
 namespace openmsx {
 
-template<typename Pixel> class ScalerOutput
+template<std::unsigned_integral Pixel> class ScalerOutput
 {
 public:
 	virtual ~ScalerOutput() = default;

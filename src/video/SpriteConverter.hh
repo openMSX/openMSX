@@ -9,12 +9,13 @@ TODO:
 #include "SpriteChecker.hh"
 #include "DisplayMode.hh"
 #include "openmsx.hh"
+#include <concepts>
 
 namespace openmsx {
 
 /** Utility class for converting VRAM contents to host pixels.
   */
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 class SpriteConverter
 {
 public:

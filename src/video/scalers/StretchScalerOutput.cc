@@ -10,7 +10,7 @@
 
 namespace openmsx {
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 class StretchScalerOutputBase : public ScalerOutput<Pixel>
 {
 public:
@@ -36,7 +36,7 @@ private:
 	std::vector<Pixel*> pool;
 };
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 class StretchScalerOutput : public StretchScalerOutputBase<Pixel>
 {
 public:
@@ -49,7 +49,7 @@ private:
 	unsigned inWidth;
 };
 
-template<typename Pixel, unsigned IN_WIDTH, typename SCALE>
+template<std::unsigned_integral Pixel, unsigned IN_WIDTH, typename SCALE>
 class StretchScalerOutputN : public StretchScalerOutputBase<Pixel>
 {
 public:
@@ -58,7 +58,7 @@ public:
 	void releaseLine(unsigned y, Pixel* buf) override;
 };
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 class StretchScalerOutput256
 	: public StretchScalerOutputN<Pixel, 256, Scale_4on5<Pixel>>
 {
@@ -67,7 +67,7 @@ public:
 	                       PixelOperations<Pixel> pixelOps);
 };
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 class StretchScalerOutput272
 	: public StretchScalerOutputN<Pixel, 272, Scale_17on20<Pixel>>
 {
@@ -76,7 +76,7 @@ public:
 	                       PixelOperations<Pixel> pixelOps);
 };
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 class StretchScalerOutput280
 	: public StretchScalerOutputN<Pixel, 280, Scale_7on8<Pixel>>
 {
@@ -85,7 +85,7 @@ public:
 	                       PixelOperations<Pixel> pixelOps);
 };
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 class StretchScalerOutput288
 	: public StretchScalerOutputN<Pixel, 288, Scale_9on10<Pixel>>
 {
@@ -97,7 +97,7 @@ public:
 
 // class StretchScalerOutputBase
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 StretchScalerOutputBase<Pixel>::StretchScalerOutputBase(
 		SDLOutputSurface& out,
 		PixelOperations<Pixel> pixelOps_)
@@ -106,7 +106,7 @@ StretchScalerOutputBase<Pixel>::StretchScalerOutputBase(
 {
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 StretchScalerOutputBase<Pixel>::~StretchScalerOutputBase()
 {
 	for (auto& p : pool) {
@@ -114,19 +114,19 @@ StretchScalerOutputBase<Pixel>::~StretchScalerOutputBase()
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 unsigned StretchScalerOutputBase<Pixel>::getWidth() const
 {
 	return output.getWidth();
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 unsigned StretchScalerOutputBase<Pixel>::getHeight() const
 {
 	return output.getHeight();
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 Pixel* StretchScalerOutputBase<Pixel>::acquireLine(unsigned /*y*/)
 {
 	if (!pool.empty()) {
@@ -139,20 +139,20 @@ Pixel* StretchScalerOutputBase<Pixel>::acquireLine(unsigned /*y*/)
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 Pixel* StretchScalerOutputBase<Pixel>::releasePre(unsigned y, Pixel* buf)
 {
 	pool.push_back(buf);
 	return output.acquireLine(y);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void StretchScalerOutputBase<Pixel>::releasePost(unsigned y, Pixel* dstLine)
 {
 	output.releaseLine(y, dstLine);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void StretchScalerOutputBase<Pixel>::fillLine(unsigned y, Pixel color)
 {
 	Pixel* dstLine = output.acquireLine(y);
@@ -164,7 +164,7 @@ void StretchScalerOutputBase<Pixel>::fillLine(unsigned y, Pixel color)
 
 // class StretchScalerOutput
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 StretchScalerOutput<Pixel>::StretchScalerOutput(
 		SDLOutputSurface& out,
 		PixelOperations<Pixel> pixelOps_,
@@ -174,7 +174,7 @@ StretchScalerOutput<Pixel>::StretchScalerOutput(
 {
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void StretchScalerOutput<Pixel>::releaseLine(unsigned y, Pixel* buf)
 {
 	Pixel* dstLine = this->releasePre(y, buf);
@@ -191,7 +191,7 @@ void StretchScalerOutput<Pixel>::releaseLine(unsigned y, Pixel* buf)
 
 // class StretchScalerOutputN
 
-template<typename Pixel, unsigned IN_WIDTH, typename SCALE>
+template<std::unsigned_integral Pixel, unsigned IN_WIDTH, typename SCALE>
 StretchScalerOutputN<Pixel, IN_WIDTH, SCALE>::StretchScalerOutputN(
 		SDLOutputSurface& out,
 		PixelOperations<Pixel> pixelOps_)
@@ -199,7 +199,7 @@ StretchScalerOutputN<Pixel, IN_WIDTH, SCALE>::StretchScalerOutputN(
 {
 }
 
-template<typename Pixel, unsigned IN_WIDTH, typename SCALE>
+template<std::unsigned_integral Pixel, unsigned IN_WIDTH, typename SCALE>
 void StretchScalerOutputN<Pixel, IN_WIDTH, SCALE>::releaseLine(unsigned y, Pixel* buf)
 {
 	Pixel* dstLine = this->releasePre(y, buf);
@@ -216,7 +216,7 @@ void StretchScalerOutputN<Pixel, IN_WIDTH, SCALE>::releaseLine(unsigned y, Pixel
 
 // class StretchScalerOutput256
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 StretchScalerOutput256<Pixel>::StretchScalerOutput256(
 		SDLOutputSurface& out,
 		PixelOperations<Pixel> pixelOps_)
@@ -228,7 +228,7 @@ StretchScalerOutput256<Pixel>::StretchScalerOutput256(
 
 // class StretchScalerOutput272
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 StretchScalerOutput272<Pixel>::StretchScalerOutput272(
 		SDLOutputSurface& out,
 		PixelOperations<Pixel> pixelOps_)
@@ -240,7 +240,7 @@ StretchScalerOutput272<Pixel>::StretchScalerOutput272(
 
 // class StretchScalerOutput280
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 StretchScalerOutput280<Pixel>::StretchScalerOutput280(
 		SDLOutputSurface& out,
 		PixelOperations<Pixel> pixelOps_)
@@ -252,7 +252,7 @@ StretchScalerOutput280<Pixel>::StretchScalerOutput280(
 
 // class StretchScalerOutput288
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 StretchScalerOutput288<Pixel>::StretchScalerOutput288(
 		SDLOutputSurface& out,
 		PixelOperations<Pixel> pixelOps_)
@@ -264,7 +264,7 @@ StretchScalerOutput288<Pixel>::StretchScalerOutput288(
 
 // class StretchScalerOutputFactory
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 std::unique_ptr<ScalerOutput<Pixel>> StretchScalerOutputFactory<Pixel>::create(
 	SDLOutputSurface& output,
 	PixelOperations<Pixel> pixelOps,

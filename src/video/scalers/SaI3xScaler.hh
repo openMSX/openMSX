@@ -9,7 +9,7 @@ namespace openmsx {
 /** 2xSaI algorithm: edge-detection which produces a rounded look.
   * Algorithm was developed by Derek Liauw Kie Fa.
   */
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 class SaI3xScaler final : public Scaler3<Pixel>
 {
 public:

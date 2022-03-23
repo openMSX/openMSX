@@ -20,13 +20,13 @@ Visit the Scale2x site for info:
 
 namespace openmsx {
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 Scale3xScaler<Pixel>::Scale3xScaler(const PixelOperations<Pixel>& pixelOps_)
 	: Scaler3<Pixel>(pixelOps_)
 {
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void Scale3xScaler<Pixel>::scaleLine1on3Half(
 	Pixel* __restrict dst, const Pixel* __restrict src0,
 	const Pixel* __restrict src1, const Pixel* __restrict src2,
@@ -89,7 +89,7 @@ void Scale3xScaler<Pixel>::scaleLine1on3Half(
 	dst[3 * srcWidth - 1] = mid;
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void Scale3xScaler<Pixel>::scaleLine1on3Mid(
 	Pixel* __restrict dst, const Pixel* __restrict src0,
 	const Pixel* __restrict src1, const Pixel* __restrict src2,
@@ -150,7 +150,7 @@ void Scale3xScaler<Pixel>::scaleLine1on3Mid(
 	dst[3 * srcWidth - 1] = mid;
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void Scale3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)

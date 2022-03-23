@@ -15,7 +15,7 @@ namespace openmsx {
   * hand-drawn 2D images we apply the scaler to, as opposed to the 3D rendered
   * images that the original algorithm was designed for.
   */
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 class MLAAScaler final : public Scaler<Pixel>
 {
 public:

@@ -8,7 +8,7 @@ namespace openmsx {
 
 /** Runs the Scale2x scaler algorithm.
   */
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 class Scale2xScaler final : public Scaler2<Pixel>
 {
 public:

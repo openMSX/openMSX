@@ -9,7 +9,7 @@
 
 namespace openmsx {
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 BitmapConverter<Pixel>::BitmapConverter(
 	const Pixel* palette16_, const Pixel* palette256_,
 	const Pixel* palette32768_)
@@ -20,7 +20,7 @@ BitmapConverter<Pixel>::BitmapConverter(
 {
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void BitmapConverter<Pixel>::calcDPalette()
 {
 	dPaletteValid = true;
@@ -36,7 +36,7 @@ void BitmapConverter<Pixel>::calcDPalette()
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void BitmapConverter<Pixel>::convertLine(
 	Pixel* linePtr, const byte* vramPtr)
 {
@@ -70,7 +70,7 @@ void BitmapConverter<Pixel>::convertLine(
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void BitmapConverter<Pixel>::convertLinePlanar(
 	Pixel* linePtr, const byte* vramPtr0, const byte* vramPtr1)
 {
@@ -107,7 +107,7 @@ void BitmapConverter<Pixel>::convertLinePlanar(
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void BitmapConverter<Pixel>::renderGraphic4(
 	Pixel*      __restrict pixelPtr,
 	const byte* __restrict vramPtr0)
@@ -200,7 +200,7 @@ void BitmapConverter<Pixel>::renderGraphic4(
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void BitmapConverter<Pixel>::renderGraphic5(
 	Pixel*      __restrict pixelPtr,
 	const byte* __restrict vramPtr0)
@@ -214,7 +214,7 @@ void BitmapConverter<Pixel>::renderGraphic5(
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void BitmapConverter<Pixel>::renderGraphic6(
 	Pixel*      __restrict pixelPtr,
 	const byte* __restrict vramPtr0,
@@ -260,7 +260,7 @@ void BitmapConverter<Pixel>::renderGraphic6(
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void BitmapConverter<Pixel>::renderGraphic7(
 	Pixel*      __restrict pixelPtr,
 	const byte* __restrict vramPtr0,
@@ -285,7 +285,7 @@ static constexpr std::tuple<int, int, int> yjk2rgb(int y, int j, int k)
 	return {r, g, b};
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void BitmapConverter<Pixel>::renderYJK(
 	Pixel*      __restrict pixelPtr,
 	const byte* __restrict vramPtr0,
@@ -310,7 +310,7 @@ void BitmapConverter<Pixel>::renderYJK(
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void BitmapConverter<Pixel>::renderYAE(
 	Pixel*      __restrict pixelPtr,
 	const byte* __restrict vramPtr0,
@@ -342,7 +342,7 @@ void BitmapConverter<Pixel>::renderYAE(
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void BitmapConverter<Pixel>::renderBogus(Pixel* pixelPtr)
 {
 	// Verified on real V9958: all bogus modes behave like this, always

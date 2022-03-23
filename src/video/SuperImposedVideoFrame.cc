@@ -7,7 +7,7 @@
 
 namespace openmsx {
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 SuperImposedVideoFrame<Pixel>::SuperImposedVideoFrame(
 		const FrameSource& src_, const FrameSource& super_,
 		const PixelOperations<Pixel>& pixelOps_)
@@ -17,14 +17,14 @@ SuperImposedVideoFrame<Pixel>::SuperImposedVideoFrame(
 	setHeight(src.getHeight());
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 unsigned SuperImposedVideoFrame<Pixel>::getLineWidth(unsigned line) const
 {
 	unsigned width = src.getLineWidth(line);
 	return (width == 1) ? 320 : width;
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 const void* SuperImposedVideoFrame<Pixel>::getLineInfo(
 	unsigned line, unsigned& width, void* buf1_, unsigned bufWidth) const
 {
