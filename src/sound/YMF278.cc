@@ -234,7 +234,7 @@ void YMF278::Slot::reset()
 	state = EG_OFF;
 
 	// not strictly needed, but avoid UMR on savestate
-	pos = sample1 = sample2 = 0;
+	pos = 0;
 }
 
 int YMF278::Slot::compute_rate(int val) const
@@ -418,20 +418,20 @@ void YMF278::advance()
 	}
 }
 
-int16_t YMF278::getSample(Slot& op) const
+int16_t YMF278::getSample(Slot& slot, uint16_t pos) const
 {
 	// TODO How does this behave when R#2 bit 0 = 1?
 	//      As-if read returns 0xff? (Like for CPU memory reads.) Or is
 	//      sound generation blocked at some higher level?
-	switch (op.bits) {
+	switch (slot.bits) {
 	case 0: {
 		// 8 bit
-		return readMem(op.startaddr + op.pos) << 8;
+		return readMem(slot.startaddr + pos) << 8;
 	}
 	case 1: {
 		// 12 bit
-		unsigned addr = op.startaddr + ((op.pos / 2) * 3);
-		if (op.pos & 1) {
+		unsigned addr = slot.startaddr + ((pos / 2) * 3);
+		if (pos & 1) {
 			return (readMem(addr + 2) << 8) |
 			       (readMem(addr + 1) & 0xF0);
 		} else {
@@ -441,7 +441,7 @@ int16_t YMF278::getSample(Slot& op) const
 	}
 	case 2: {
 		// 16 bit
-		unsigned addr = op.startaddr + (op.pos * 2);
+		unsigned addr = slot.startaddr + (pos * 2);
 		return (readMem(addr + 0) << 8) |
 		        (readMem(addr + 1));
 	}
@@ -449,6 +449,17 @@ int16_t YMF278::getSample(Slot& op) const
 		// TODO unspecified
 		return 0;
 	}
+}
+
+uint16_t YMF278::nextPos(Slot& slot, uint16_t pos, uint16_t increment)
+{
+	// If there is a 4-sample loop and you advance 12 samples per step,
+	// it may exceed the end offset.
+	// This is abused by the "Lizard Star" song to generate noise at 0:52. -Valley Bell
+	pos += increment;
+	if ((uint32_t(pos) + slot.endaddr) >= 0x10000) // check position >= (negated) end address
+		pos += slot.endaddr + slot.loopaddr; // This is how the actual chip does it.
+	return pos;
 }
 
 bool YMF278::anyActive()
@@ -501,8 +512,8 @@ void YMF278::generateChannels(float** bufs, unsigned num)
 				continue;
 			}
 
-			int16_t sample = (sl.sample1 * (0x10000 - sl.stepptr) +
-			                  sl.sample2 * sl.stepptr) >> 16;
+			int16_t sample = (getSample(sl, sl.pos) * (0x10000 - sl.stepptr) +
+			                  getSample(sl, nextPos(sl, sl.pos, 1)) * sl.stepptr) >> 16;
 			// TL levels are 00..FF internally (TL register value 7F is mapped to TL level FF)
 			// Envelope levels have 4x the resolution (000..3FF)
 			// Volume levels are approximate logarithmic. -6dB result in half volume. Steps in between use linear interpolation.
@@ -530,17 +541,9 @@ void YMF278::generateChannels(float** bufs, unsigned num)
 			              : sl.step;
 			sl.stepptr += step;
 
-			// If there is a 4-sample loop and you advance 12 samples per step,
-			// it may exceed the end offset.
-			// This is abused by the "Lizard Star" song to generate noise at 0:52. -Valley Bell
 			if (sl.stepptr >= 0x10000) {
-				sl.sample1 = sl.sample2;
-				sl.sample2 = getSample(sl);
-				sl.pos += (sl.stepptr >> 16);
+				sl.pos = nextPos(sl, sl.pos, sl.stepptr >> 16);
 				sl.stepptr &= 0xffff;
-				if ((uint32_t(sl.pos) + sl.endaddr) >= 0x10000) { // check position >= (negated) end address
-					sl.pos += sl.endaddr + sl.loopaddr; // This is how the actual chip does it.
-				}
 			}
 		}
 		advance();
@@ -562,9 +565,6 @@ void YMF278::keyOnHelper(YMF278::Slot& slot)
 	}
 	slot.stepptr = 0;
 	slot.pos = 0;
-	slot.sample1 = getSample(slot);
-	slot.pos = 1;
-	slot.sample2 = getSample(slot);
 }
 
 void YMF278::writeReg(byte reg, byte data, EmuTime::param time)
@@ -979,6 +979,8 @@ void YMF278::writeMem(unsigned address, byte value)
 //    restored from register values in YMF278::serialize()
 //  - removed members 'lfo_step' and ' 'lfo_max'
 //  - 'lfo_cnt' has changed meaning (but we don't try to translate old to new meaning)
+// version 6:
+//  - removed members: 'sample1', 'sample2'
 template<typename Archive>
 void YMF278::Slot::serialize(Archive& ar, unsigned version)
 {
@@ -987,8 +989,6 @@ void YMF278::Slot::serialize(Archive& ar, unsigned version)
 	             "loopaddr",  loopaddr,
 	             "stepptr",   stepptr,
 	             "pos",       pos,
-	             "sample1",   sample1,
-	             "sample2",   sample2,
 	             "env_vol",   env_vol,
 	             "lfo_cnt",   lfo_cnt,
 	             "DL",        DL,
