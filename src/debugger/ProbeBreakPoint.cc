@@ -32,8 +32,8 @@ void ProbeBreakPoint::update(const ProbeBase& /*subject*/) noexcept
 	auto& reactor = debugger.getMotherBoard().getReactor();
 	auto& cliComm = reactor.getGlobalCliComm();
 	auto& interp  = reactor.getInterpreter();
-	checkAndExecute(cliComm, interp);
-	if (onlyOnce()) {
+	bool remove = checkAndExecute(cliComm, interp);
+	if (remove) {
 		debugger.removeProbeBreakPoint(*this);
 	}
 }

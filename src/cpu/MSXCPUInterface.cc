@@ -816,15 +816,15 @@ void MSXCPUInterface::checkBreakPoints(
 	auto& globalCliComm = motherBoard.getReactor().getGlobalCliComm();
 	auto& interp        = motherBoard.getReactor().getInterpreter();
 	for (auto& p : bpCopy) {
-		p.checkAndExecute(globalCliComm, interp);
-		if (p.onlyOnce()) {
+		bool remove = p.checkAndExecute(globalCliComm, interp);
+		if (remove) {
 			removeBreakPoint(p.getId());
 		}
 	}
 	auto condCopy = conditions;
 	for (auto& c : condCopy) {
-		c.checkAndExecute(globalCliComm, interp);
-		if (c.onlyOnce()) {
+		bool remove = c.checkAndExecute(globalCliComm, interp);
+		if (remove) {
 			removeCondition(c.getId());
 		}
 	}
@@ -985,8 +985,8 @@ void MSXCPUInterface::executeMemWatch(WatchPoint::Type type,
 		if ((w->getBeginAddress() <= address) &&
 		    (w->getEndAddress()   >= address) &&
 		    (w->getType()         == type)) {
-			w->checkAndExecute(globalCliComm, interp);
-			if (w->onlyOnce()) {
+			bool remove = w->checkAndExecute(globalCliComm, interp);
+			if (remove) {
 				removeWatchPoint(w);
 			}
 		}

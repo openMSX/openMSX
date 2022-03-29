@@ -43,8 +43,8 @@ void WatchIO::doReadCallback(unsigned port)
 	// keep this object alive by holding a shared_ptr to it, for the case
 	// this watchpoint deletes itself in checkAndExecute()
 	auto keepAlive = shared_from_this();
-	checkAndExecute(cliComm, interp);
-	if (onlyOnce()) {
+	bool remove = checkAndExecute(cliComm, interp);
+	if (remove) {
 		cpuInterface.removeWatchPoint(keepAlive);
 	}
 
@@ -63,8 +63,8 @@ void WatchIO::doWriteCallback(unsigned port, unsigned value)
 
 	// see comment in doReadCallback() above
 	auto keepAlive = shared_from_this();
-	checkAndExecute(cliComm, interp);
-	if (onlyOnce()) {
+	bool remove = checkAndExecute(cliComm, interp);
+	if (remove) {
 		cpuInterface.removeWatchPoint(keepAlive);
 	}
 

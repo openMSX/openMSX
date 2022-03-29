@@ -20,7 +20,7 @@ public:
 	[[nodiscard]] TclObject getCommandObj()   const { return command; }
 	[[nodiscard]] bool onlyOnce() const { return once; }
 
-	void checkAndExecute(GlobalCliComm& cliComm, Interpreter& interp);
+	bool checkAndExecute(GlobalCliComm& cliComm, Interpreter& interp);
 
 protected:
 	// Note: we require GlobalCliComm here because breakpoint objects can
