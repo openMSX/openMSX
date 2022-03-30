@@ -19,11 +19,11 @@ bool BreakPointBase::isTrue(GlobalCliComm& cliComm, Interpreter& interp) const
 	}
 }
 
-void BreakPointBase::checkAndExecute(GlobalCliComm& cliComm, Interpreter& interp)
+bool BreakPointBase::checkAndExecute(GlobalCliComm& cliComm, Interpreter& interp)
 {
 	if (executing) {
 		// no recursive execution
-		return;
+		return false;
 	}
 	ScopedAssign sa(executing, true);
 	if (isTrue(cliComm, interp)) {
@@ -32,7 +32,9 @@ void BreakPointBase::checkAndExecute(GlobalCliComm& cliComm, Interpreter& interp
 		} catch (CommandException& e) {
 			cliComm.printWarning(e.getMessage());
 		}
+		return onlyOnce();
 	}
+	return false;
 }
 
 } // namespace openmsx
