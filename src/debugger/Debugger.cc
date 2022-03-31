@@ -1,5 +1,6 @@
 #include "Debugger.hh"
 #include "Debuggable.hh"
+#include "CliComm.hh"
 #include "ProbeBreakPoint.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
@@ -102,6 +103,7 @@ unsigned Debugger::insertProbeBreakPoint(
 	auto bp = std::make_unique<ProbeBreakPoint>(
 		std::move(command), std::move(condition), *this, probe, once, newId);
 	unsigned result = bp->getId();
+	motherBoard.getMSXCliComm().update(CliComm::DEBUG, tmpStrCat("pp#", result), "add");
 	probeBreakPoints.push_back(std::move(bp));
 	return result;
 }
@@ -113,6 +115,8 @@ void Debugger::removeProbeBreakPoint(string_view name)
 		if (auto id = StringOp::stringToBase<10, unsigned>(name.substr(3))) {
 			if (auto it = ranges::find(probeBreakPoints, id, &ProbeBreakPoint::getId);
 			    it != std::end(probeBreakPoints)) {
+				motherBoard.getMSXCliComm().update(
+					CliComm::DEBUG, name, "remove");
 				move_pop_back(probeBreakPoints, it);
 				return;
 			}
@@ -127,12 +131,16 @@ void Debugger::removeProbeBreakPoint(string_view name)
 			throw CommandException(
 				"No (unconditional) breakpoint for probe: ", name);
 		}
+		motherBoard.getMSXCliComm().update(
+			CliComm::DEBUG, tmpStrCat("pp#", (*it)->getId()), "remove");
 		move_pop_back(probeBreakPoints, it);
 	}
 }
 
 void Debugger::removeProbeBreakPoint(ProbeBreakPoint& bp)
 {
+	motherBoard.getMSXCliComm().update(
+		CliComm::DEBUG, tmpStrCat("pp#", bp.getId()), "remove");
 	move_pop_back(probeBreakPoints, rfind_unguarded(probeBreakPoints, &bp,
 		[](auto& v) { return v.get(); }));
 }

@@ -2630,7 +2630,7 @@ template<typename T> void CPUCore<T>::execute2(bool fastForward)
 			//
 			auto execIRQ = getExecIRQ();
 			if ((execIRQ == ExecIRQ::NONE) &&
-			    interface->checkBreakPoints(getPC(), motherboard)) {
+			    interface->checkBreakPoints(getPC())) {
 				assert(interface->isBreaked());
 				break;
 			}

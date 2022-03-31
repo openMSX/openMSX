@@ -28,6 +28,7 @@ public:
 		EXTENSION,
 		SOUNDDEVICE,
 		CONNECTOR,
+		DEBUG,
 		NUM_UPDATES // must be last
 	};
 
@@ -88,7 +89,8 @@ public:
 	[[nodiscard]] static span<const char* const> getUpdateStrings() {
 		static constexpr const char* const updateStr[NUM_UPDATES] = {
 			"led", "setting", "setting-info", "hardware", "plug",
-			"media", "status", "extension", "sounddevice", "connector"
+			"media", "status", "extension", "sounddevice", "connector",
+			"debug"
 		};
 		return updateStr;
 	}

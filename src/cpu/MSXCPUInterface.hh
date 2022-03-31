@@ -238,8 +238,8 @@ public:
 
 	[[nodiscard]] DummyDevice& getDummyDevice() { return *dummyDevice; }
 
-	static void insertBreakPoint(BreakPoint bp);
-	static void removeBreakPoint(const BreakPoint& bp);
+	void insertBreakPoint(BreakPoint bp);
+	void removeBreakPoint(const BreakPoint& bp);
 	using BreakPoints = std::vector<BreakPoint>;
 	[[nodiscard]] static const BreakPoints& getBreakPoints() { return breakPoints; }
 
@@ -249,8 +249,8 @@ public:
 	using WatchPoints = std::vector<std::shared_ptr<WatchPoint>>;
 	[[nodiscard]] const WatchPoints& getWatchPoints() const { return watchPoints; }
 
-	static void setCondition(DebugCondition cond);
-	static void removeCondition(const DebugCondition& cond);
+	void setCondition(DebugCondition cond);
+	void removeCondition(const DebugCondition& cond);
 	using Conditions = std::vector<DebugCondition>;
 	[[nodiscard]] static const Conditions& getConditions() { return conditions; }
 
@@ -264,7 +264,7 @@ public:
 	{
 		return !breakPoints.empty() || !conditions.empty();
 	}
-	[[nodiscard]] static bool checkBreakPoints(unsigned pc, MSXMotherBoard& motherBoard)
+	[[nodiscard]] bool checkBreakPoints(unsigned pc)
 	{
 		auto range = ranges::equal_range(breakPoints, pc, {}, &BreakPoint::getAddress);
 		if (conditions.empty() && (range.first == range.second)) {
@@ -272,7 +272,7 @@ public:
 		}
 
 		// slow path non-inlined
-		checkBreakPoints(range, motherBoard);
+		checkBreakPoints(range);
 		return isBreaked();
 	}
 
@@ -304,11 +304,10 @@ private:
 	                    int ps, int ss, int base, int size);
 
 
-	static void checkBreakPoints(std::pair<BreakPoints::const_iterator,
-	                                       BreakPoints::const_iterator> range,
-	                             MSXMotherBoard& motherBoard);
-	static void removeBreakPoint(unsigned id);
-	static void removeCondition(unsigned id);
+	void checkBreakPoints(std::pair<BreakPoints::const_iterator,
+	                                BreakPoints::const_iterator> range);
+	void removeBreakPoint(unsigned id);
+	void removeCondition(unsigned id);
 
 	void removeAllWatchPoints();
 	void updateMemWatch(WatchPoint::Type type);
