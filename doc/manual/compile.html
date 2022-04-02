@@ -332,13 +332,16 @@ href="#getsource">Getting the source code</a> chapter.
 
 <h5>Debian and Ubuntu Linux</h5>
 <p>
-You can easily install all required packages using the "build dependencies" feature of the APT package manager:
+You can easily install all required packages using the "build dependencies" feature of the APT package manager (if you have source packages in your package sources list):
 </p>
 <div class="commandline">
 sudo apt-get build-dep openmsx
 </div>
 <p>
 Do note that if the Debian/Ubuntu package that is in the version of the distribution you are currently running is older than the openMSX version you are trying to compile (which is typically so), you might miss some dependencies that were added in the newer version. The build system will complain and you will have to install the remaining (missing) packages manually. Read on to get some tips about that.
+</p>
+<p>
+Typical dependending packages are: <code>libsdl2-ttf-dev</code> <code>libogg-dev</code>  <code>tcl-dev</code>  <code>libogg-dev</code>  <code>libpng-dev</code>  <code>libtheora-dev</code>  <code>libvorbis-dev</code>  <code>libsdl2-dev</code>. The complete list for Debian (which will be very very similar) is <a class="external" href="https://packages.debian.org/source/sid/openmsx">here</a>.
 </p>
 
 <h5>OpenDingux</h5>
