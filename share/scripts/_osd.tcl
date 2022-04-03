@@ -3,6 +3,7 @@ namespace eval osd {
 variable default_color "0x7090aae8 0xa0c0dde8 0x90b0cce8 0xc0e0ffe8"
 variable error_color "0xaa0000e8 0xdd0000e8 0xcc0000e8 0xff0000e8"
 variable warning_color "0xaa6600e8 0xdd9900e8 0xcc8800e8 0xffaa00e8"
+variable message_counter 0
 
 set_help_text show_osd \
 {Give an overview of all currently defined OSD elements and their properties.
@@ -26,9 +27,8 @@ proc show_osd {{widgets ""}} {
 	return $result
 }
 
-# this can display only one message at a time, the previous message
-# will get overwritten by a new one
 proc display_message {message {category info}} {
+	variable message_counter
 	variable default_color
 	variable error_color
 	variable warning_color
@@ -40,17 +40,29 @@ proc display_message {message {category info}} {
 		"default"  {error "Invalid category: $category"}
 	}
 
-	osd_widgets::text_box osd_display_message \
-					-text $message \
-					-textrgba 0xffffffff \
-					-textsize 6 \
-					-rgba $bg_color \
-					-x 3 -y 12 -z 5 -w 314 \
-					-bordersize 0.5 \
-					-borderrgba 0x000000ff \
-					-clip true \
-					-scaled true \
-					-suppressErrors true
+	set old_count $message_counter
+	incr message_counter
+	set new_name "osd_display_message_${message_counter}"
+
+	osd_widgets::text_box $new_name \
+		-text $message \
+		-textrgba 0xffffffff \
+		-textsize 6 \
+		-rgba $bg_color \
+		-x 3 -y 12 -z 5 -w 314 \
+		-bordersize 0.5 \
+		-borderrgba 0x000000ff \
+		-clip true \
+		-scaled true \
+		-suppressErrors true
+
+	set offset [expr {[osd info $new_name -h] + 1}]
+	while {1} {
+		set old_name "osd_display_message_${old_count}"
+		if {![osd exists $old_name]} break
+		osd configure $old_name -y [expr {$offset + [osd info $old_name -y]}]
+		incr old_count -1
+	}
 }
 
 proc is_cursor_in {widget} {
