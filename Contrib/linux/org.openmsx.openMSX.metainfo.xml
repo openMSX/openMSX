@@ -10,6 +10,7 @@
 		<category>Emulation</category>
 	</categories>
 	<releases>
+		<release version="17.0" date="2021-05-18"/>
 		<release version="16.0" date="2020-08-26"/>
 	</releases>
 	<description>
