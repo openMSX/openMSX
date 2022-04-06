@@ -82,6 +82,12 @@ void GlobalCliComm::log(LogLevel level, std::string_view message)
 void GlobalCliComm::update(UpdateType type, std::string_view name, std::string_view value)
 {
 	assert(type < NUM_UPDATES);
+	updateHelper(type, {}, name, value);
+}
+
+void GlobalCliComm::updateFiltered(UpdateType type, std::string_view name, std::string_view value)
+{
+	assert(type < NUM_UPDATES);
 	if (auto [it, inserted] = prevValues[type].try_emplace(name, value);
 	    !inserted) { // was already present ..
 		if (it->second == value) {

@@ -35,6 +35,10 @@ public:
 	virtual void log(LogLevel level, std::string_view message) = 0;
 	virtual void update(UpdateType type, std::string_view name,
 	                    std::string_view value) = 0;
+	/** Same as update(), but checks that the value for type-name is the
+	    same as in the previous call. If so do nothing. */
+	virtual void updateFiltered(UpdateType type, std::string_view name,
+	                            std::string_view value) = 0;
 
 	// convenience methods (shortcuts for log())
 	void printInfo    (std::string_view message);
