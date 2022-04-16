@@ -1916,8 +1916,10 @@ proc menu_rom_with_mappertype_exec {slot fullname mappertype} {
 			set xpos 53
 		}
 
-		# TODO: this code knows the internal name of the widget of osd::display_message proc... it shouldn't need to.
-		osd create text osd_display_message.rominfo_text -x $xpos -y 2 -size $txt_size -rgba 0xffffffff -text "$message2"
+		set message_widget [osd::peek_latest_display_message_widget]
+		if {$message_widget ne ""} {
+			osd create text ${message_widget}.rominfo_text -x $xpos -y 2 -size $txt_size -rgba 0xffffffff -text "$message2"
+		}
 		reset
 	}
 }

@@ -4,6 +4,7 @@ variable default_color "0x7090aae8 0xa0c0dde8 0x90b0cce8 0xc0e0ffe8"
 variable error_color "0xaa0000e8 0xdd0000e8 0xcc0000e8 0xff0000e8"
 variable warning_color "0xaa6600e8 0xdd9900e8 0xcc8800e8 0xffaa00e8"
 variable message_counter 0
+variable latest_display_message_widget ""
 
 set_help_text show_osd \
 {Give an overview of all currently defined OSD elements and their properties.
@@ -28,6 +29,7 @@ proc show_osd {{widgets ""}} {
 }
 
 proc display_message {message {category info}} {
+	variable latest_display_message_widget
 	variable message_counter
 	variable default_color
 	variable error_color
@@ -42,9 +44,9 @@ proc display_message {message {category info}} {
 
 	set old_count $message_counter
 	incr message_counter
-	set new_name "osd_display_message_${message_counter}"
+	set latest_display_message_widget "osd_display_message_${message_counter}"
 
-	osd_widgets::text_box $new_name \
+	osd_widgets::text_box $latest_display_message_widget \
 		-text $message \
 		-textrgba 0xffffffff \
 		-textsize 6 \
@@ -56,13 +58,18 @@ proc display_message {message {category info}} {
 		-scaled true \
 		-suppressErrors true
 
-	set offset [expr {[osd info $new_name -h] + 1}]
+	set offset [expr {[osd info $latest_display_message_widget -h] + 1}]
 	while {1} {
 		set old_name "osd_display_message_${old_count}"
 		if {![osd exists $old_name]} break
 		osd configure $old_name -y [expr {$offset + [osd info $old_name -y]}]
 		incr old_count -1
 	}
+}
+
+proc peek_latest_display_message_widget {} {
+	variable latest_display_message_widget
+	return $latest_display_message_widget
 }
 
 proc is_cursor_in {widget} {
@@ -75,6 +82,7 @@ proc is_cursor_in {widget} {
 namespace export show_osd
 namespace export display_message
 namespace export is_cursor_in
+namespace export peek_latest_display_message_widget
 
 };# namespace osd
 
