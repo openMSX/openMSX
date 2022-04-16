@@ -40,7 +40,10 @@ proc getlist_rom_info {{romdevice ""}} {
 	set slotname ""
 	set slot ""
 	foreach slotcmd [info command cart?] {
-		if {[lindex [$slotcmd] 1] eq $filename} {
+		set extname [lindex [$slotcmd] 1]
+		if {$extname eq ""} continue
+		set devicename [lindex [dict get [machine_info extension $extname] devices] 0]
+		if {$devicename eq $romdevice} {
 			set slotname [string index $slotcmd end]
 			set slotinfo [machine_info external_slot slot$slotname]
 			set slotname [string toupper $slotname]
