@@ -39,7 +39,7 @@ proc get_matching_commands {keyword} {
 	foreach command [info commands] {
 		catch {
 			if {[regexp -nocase -- $keyword [help $command]] ||
-			    ($command eq $keyword)} {
+			    [regexp -nocase -- $keyword $command]} {
 				lappend matches $command
 			}
 		}
@@ -52,7 +52,7 @@ proc get_matching_settings {keyword} {
 	foreach setting [openmsx_info setting] {
 		catch {
 			if {[regexp -nocase -- $keyword [help set $setting]] ||
-			    ($setting eq $keyword)} {
+			    [regexp -nocase -- $keyword $setting]} {
 				lappend matches $setting
 			}
 		}
