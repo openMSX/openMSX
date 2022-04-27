@@ -10,7 +10,7 @@ Here's the list with all highlights and details:
 
 MSX device support:
 - V99x8:
-  - when displaying interlacing, repeat lines instead of inserting a black one
+  - fix ugly looking top line when displaying interlacing
   - fixed rounding for 'blue' in YJK modes
 - V9990:
   - fixed possible crash when switching display modes (seen in SymbOS)
@@ -73,7 +73,8 @@ New or improved emulator features:
 
 Build system, packaging, documentation:
 - C++ code is based on C++20 and thus requires a compiler supporting it, e.g.
-  g++ 9 or later or Visual Studio 2022 or later
+  g++ 9 or later (10 is recommended and will be necessary for the next release)
+  or Visual Studio 2022 or later
 - Updated catch2 to 2.13.7
 - 3rd party updates of SDL (2.0.20), FreeType (2.11.1), Tcl (8.6.12), libogg
   (1.3.5) and libvorbis (1.3.7)
