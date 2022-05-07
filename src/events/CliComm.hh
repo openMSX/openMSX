@@ -28,7 +28,7 @@ public:
 		EXTENSION,
 		SOUNDDEVICE,
 		CONNECTOR,
-		DEBUG,
+		DEBUG_UPDT,
 		NUM_UPDATES // must be last
 	};
 
