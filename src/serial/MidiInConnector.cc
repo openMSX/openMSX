@@ -29,8 +29,7 @@ MidiInDevice& MidiInConnector::getPluggedMidiInDev() const
 	return *checked_cast<MidiInDevice*>(&getPlugged());
 }
 
-template<typename Archive>
-void MidiInConnector::serialize(Archive& ar, unsigned /*version*/)
+void MidiInConnector::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Connector>(*this);
 }

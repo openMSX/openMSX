@@ -64,8 +64,7 @@ void MidiOutWindows::recvMessage(const std::vector<uint8_t>& message, EmuTime::p
 	}
 }
 
-template<typename Archive>
-void MidiOutWindows::serialize(Archive& /*ar*/, unsigned /*version*/)
+void MidiOutWindows::serialize(Archive auto& /*ar*/, unsigned /*version*/)
 {
 	// don't restore this after loadstate
 }

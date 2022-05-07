@@ -18,8 +18,7 @@ public:
 
 	void writeIO(word port, byte value, EmuTime::param time) override;
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	Rom basicbiosRom;

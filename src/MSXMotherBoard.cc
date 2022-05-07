@@ -1127,8 +1127,8 @@ void SettingObserver::update(const Setting& setting) noexcept
 // version 3: removed reRecordCount (moved to ReverseManager)
 // version 4: moved joystickportA/B from MSXPSG to here
 // version 5: do serialize renShaTurbo
-template<typename Archive>
-void MSXMotherBoard::serialize(Archive& ar, unsigned version)
+template<Archive Ar>
+void MSXMotherBoard::serialize(Ar& ar, unsigned version)
 {
 	// don't serialize:
 	//    machineID, userNames, availableDevices, addRemoveUpdate,
@@ -1140,7 +1140,7 @@ void MSXMotherBoard::serialize(Archive& ar, unsigned version)
 	ar.serialize("scheduler", *scheduler);
 	// MSXMixer has already set syncpoints, those are invalid now
 	// the following call will fix this
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		msxMixer->reInit();
 	}
 
@@ -1178,7 +1178,7 @@ void MSXMotherBoard::serialize(Archive& ar, unsigned version)
 		if (renShaTurbo) ar.serialize("renShaTurbo", *renShaTurbo);
 	}
 
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		powered = true; // must come before changing power setting
 		powerSetting.setBoolean(true);
 		getLedStatus().setLed(LedStatus::POWER, true);
@@ -1186,7 +1186,7 @@ void MSXMotherBoard::serialize(Archive& ar, unsigned version)
 	}
 
 	if (version == 2) {
-		assert(Archive::IS_LOADER);
+		assert(Ar::IS_LOADER);
 		unsigned reRecordCount = 0; // silence warning
 		ar.serialize("reRecordCount", reRecordCount);
 		getReverseManager().setReRecordCount(reRecordCount);

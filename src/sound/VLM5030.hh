@@ -28,8 +28,7 @@ public:
 	/** get BSY pin level */
 	[[nodiscard]] bool getBSY(EmuTime::param time) const;
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	void setRST(bool pin);

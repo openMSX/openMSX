@@ -1569,8 +1569,7 @@ void YM2151::resetStatus(byte flags)
 }
 
 
-template<typename Archive>
-void YM2151::YM2151Operator::serialize(Archive& a, unsigned /*version*/)
+void YM2151::YM2151Operator::serialize(Archive auto& a, unsigned /*version*/)
 {
 	//int* connect; // recalculated from regs[0x20-0x27]
 	//int* mem_connect; // recalculated from regs[0x20-0x27]
@@ -1609,8 +1608,8 @@ void YM2151::YM2151Operator::serialize(Archive& a, unsigned /*version*/)
 	            "eg_sel_rr",   eg_sel_rr);
 };
 
-template<typename Archive>
-void YM2151::serialize(Archive& a, unsigned /*version*/)
+template<Archive A>
+void YM2151::serialize(A& a, unsigned /*version*/)
 {
 	a.serialize("irq",             irq,
 	            "timer1",          *timer1,
@@ -1646,7 +1645,7 @@ void YM2151::serialize(Archive& a, unsigned /*version*/)
 	            "ct",              ct);
 	a.serialize_blob("registers", regs, sizeof(regs));
 
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (A::IS_LOADER) {
 		// TODO restore more state from registers
 		EmuTime::param time = timer1->getCurrentTime();
 		for (auto r : xrange(0x20, 0x28)) {

@@ -983,8 +983,8 @@ void YMF278::writeMem(unsigned address, byte value)
 //  - 'lfo_cnt' has changed meaning (but we don't try to translate old to new meaning)
 // version 6:
 //  - removed members: 'sample1', 'sample2'
-template<typename Archive>
-void YMF278::Slot::serialize(Archive& ar, unsigned version)
+template<Archive Ar>
+void YMF278::Slot::serialize(Ar& ar, unsigned version)
 {
 	// TODO restore more state from registers
 	ar.serialize("startaddr", startaddr,
@@ -1040,14 +1040,14 @@ void YMF278::Slot::serialize(Archive& ar, unsigned version)
 
 	ar.serialize("state", state);
 	if (ar.versionBelow(version, 4)) {
-		assert(Archive::IS_LOADER);
+		assert(Ar::IS_LOADER);
 		if (state == one_of(EG_REV, EG_DMP)) {
 			state = EG_REL;
 		}
 	}
 
 	// Recalculate redundant state
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		step = calcStep(OCT, FN);
 	}
 
@@ -1067,8 +1067,8 @@ void YMF278::Slot::serialize(Archive& ar, unsigned version)
 // version 2: loadTime and busyTime moved to MSXMoonSound class
 // version 3: memAdr cannot be restored from register values
 // version 4: implement ram via Ram class
-template<typename Archive>
-void YMF278::serialize(Archive& ar, unsigned version)
+template<Archive Ar>
+void YMF278::serialize(Ar& ar, unsigned version)
 {
 	ar.serialize("slots",  slots,
 	             "eg_cnt", eg_cnt);
@@ -1081,7 +1081,7 @@ void YMF278::serialize(Archive& ar, unsigned version)
 	if (ar.versionAtLeast(version, 3)) { // must come after 'regs'
 		ar.serialize("memadr", memAdr);
 	} else {
-		assert(Archive::IS_LOADER);
+		assert(Ar::IS_LOADER);
 		// Old formats didn't store 'memAdr' so we also can't magically
 		// restore the correct value. The best we can do is restore the
 		// last set address.
@@ -1090,7 +1090,7 @@ void YMF278::serialize(Archive& ar, unsigned version)
 	}
 
 	// TODO restore more state from registers
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		for (auto [i, sl] : enumerate(slots)) {
 			auto t = regs[0x50 + i] >> 1;
 			sl.TLdest = (t != 0x7f) ? t : 0xff;

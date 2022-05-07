@@ -99,8 +99,7 @@ public:
 	 */
 	void updateFrequency(Channel& channel);
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 public: // public for serialization, otherwise could be private
 	/** Envelope Generator phases
@@ -206,8 +205,7 @@ public:
 	[[nodiscard]] bool isSustained() const;
 	void setSustain(bool sustained);
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 	Slot mod;
 	Slot car;
@@ -233,8 +231,7 @@ public:
 	void generateChannels(float* bufs[9 + 5], unsigned num) override;
 	[[nodiscard]] float getAmplificationFactor() const override;
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	void writeReg(uint8_t reg, uint8_t value);

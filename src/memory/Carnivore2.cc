@@ -851,8 +851,8 @@ byte Carnivore2::getSelectedSegment(byte page) const
 // version 1: initial version
 // version 2: removed fmPacRegSelect
 // version 3: added PSG and user-defined ID and control port I/O
-template<typename Archive>
-void Carnivore2::serialize(Archive& ar, unsigned version)
+template<Archive Ar>
+void Carnivore2::serialize(Ar& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("flash",            flash,
@@ -891,7 +891,7 @@ void Carnivore2::serialize(Archive& ar, unsigned version)
 	             "fmPac5ffe",         fmPac5ffe,
 	             "fmPac5fff",         fmPac5fff);
 
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		auto time = getCurrentTime();
 		writeSndLVL (configRegs[0x22], time);
 		writeCfgEEPR(configRegs[0x23], time);

@@ -513,8 +513,8 @@ int Y8950Adpcm::calcSample(bool doEmu)
 //  - Split PlayData in emu and audio part (though this doesn't add new state
 //    to the savestate).
 //  - Added clock object.
-template<typename Archive>
-void Y8950Adpcm::serialize(Archive& ar, unsigned version)
+template<Archive Ar>
+void Y8950Adpcm::serialize(Ar& ar, unsigned version)
 {
 	ar.template serializeBase<Schedulable>(*this);
 	ar.serialize("ram",          ram,
@@ -537,7 +537,7 @@ void Y8950Adpcm::serialize(Archive& ar, unsigned version)
 	             "nextLeveling", emu.nextLeveling,
 	             "sampleStep",   emu.sampleStep,
 	             "adpcm_data",   emu.adpcm_data);
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		// ignore aud part for saving,
 		// for loading we make it the same as the emu part
 		aud = emu;

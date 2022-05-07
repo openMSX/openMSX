@@ -459,8 +459,7 @@ static constexpr std::initializer_list<enum_string<Counter::ByteOrder>> byteOrde
 };
 SERIALIZE_ENUM(Counter::ByteOrder, byteOrderInfo);
 
-template<typename Archive>
-void Counter::serialize(Archive& ar, unsigned /*version*/)
+void Counter::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.serialize("clock",          clock,
 	             "output",         output,
@@ -481,8 +480,7 @@ void Counter::serialize(Archive& ar, unsigned /*version*/)
 	             "counting",       counting);
 }
 
-template<typename Archive>
-void I8254::serialize(Archive& ar, unsigned /*version*/)
+void I8254::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	char tag[9] = { 'c', 'o', 'u', 'n', 't', 'e', 'r', 'X', 0 };
 	for (auto [i, cntr] : enumerate(counter)) {

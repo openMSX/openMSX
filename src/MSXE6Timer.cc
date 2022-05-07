@@ -45,8 +45,7 @@ byte MSXE6Timer::peekIO(word port, EmuTime::param time) const
 	return (port & 1) ? ((counter >> 8) & 0xFF) : (counter & 0xFF);
 }
 
-template<typename Archive>
-void MSXE6Timer::serialize(Archive& ar, unsigned /*version*/)
+void MSXE6Timer::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("reference", reference);

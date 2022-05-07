@@ -58,15 +58,15 @@ bool DACSound16S::updateBuffer(unsigned length, float* buffer,
 	return mixChannels(buffer, length);
 }
 
-template<typename Archive>
-void DACSound16S::serialize(Archive& ar, unsigned /*version*/)
+template<Archive Ar>
+void DACSound16S::serialize(Ar& ar, unsigned /*version*/)
 {
 	// Note: It's ok to NOT serialize a DAC object if you call the
 	//       writeDAC() method in some other way during de-serialization.
 	//       This is for example done in MSXPPI/KeyClick.
 	int16_t lastValue = lastWrittenValue;
 	ar.serialize("lastValue", lastValue);
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		writeDAC(lastValue, getHostSampleClock().getTime());
 	}
 }

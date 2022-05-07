@@ -19,8 +19,7 @@ public:
 	[[nodiscard]] const byte* getReadCacheLine(word address) const override;
 	[[nodiscard]] byte* getWriteCacheLine(word address) const override;
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	[[nodiscard]] unsigned getSramSize() const;

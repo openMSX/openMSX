@@ -51,8 +51,7 @@ public:
 	[[nodiscard]] Ram& getUncheckedRam() { return ram; }
 
 	// TODO
-	//template<typename Archive>
-	//void serialize(Archive& ar, unsigned version);
+	//void serialize(Archive auto& ar, unsigned version);
 
 private:
 	void init();

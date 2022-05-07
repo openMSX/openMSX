@@ -77,8 +77,7 @@ byte* RomDooly::getWriteCacheLine(word address) const
 	}
 }
 
-template<typename Archive>
-void RomDooly::serialize(Archive& ar, unsigned /*version*/)
+void RomDooly::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("conversion", conversion);

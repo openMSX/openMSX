@@ -1602,8 +1602,7 @@ namespace YM2413Okazaki {
 //            a calculated value
 // version 3: don't serialize slot_on_flag anymore
 // version 4: don't serialize volume anymore
-template<typename Archive>
-void Slot::serialize(Archive& ar, unsigned /*version*/)
+void Slot::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.serialize("feedback", feedback,
 	             "output",   output,
@@ -1622,8 +1621,7 @@ void Slot::serialize(Archive& ar, unsigned /*version*/)
 
 // version 1: initial version
 // version 2: removed patch_number, freq
-template<typename Archive>
-void Channel::serialize(Archive& ar, unsigned /*version*/)
+void Channel::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.serialize("mod", mod,
 	             "car", car);
@@ -1634,8 +1632,8 @@ void Channel::serialize(Archive& ar, unsigned /*version*/)
 // version 2: 'registers' are moved here (no longer serialized in base class)
 // version 3: no longer serialize 'user_patch_mod' and 'user_patch_car'
 // version 4: added 'registerLatch'
-template<typename Archive>
-void YM2413::serialize(Archive& ar, unsigned version)
+template<Archive Ar>
+void YM2413::serialize(Ar& ar, unsigned version)
 {
 	if (ar.versionBelow(version, 2)) ar.beginTag("YM2413Core");
 	ar.serialize("registers", reg);
@@ -1648,7 +1646,7 @@ void YM2413::serialize(Archive& ar, unsigned version)
 	             "am_phase",   am_phase,
 	             "noise_seed", noise_seed);
 
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		patches[0][0].initModulator(&reg[0]);
 		patches[0][1].initCarrier  (&reg[0]);
 		for (auto [i, ch] : enumerate(channels)) {

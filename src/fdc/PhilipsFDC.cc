@@ -176,8 +176,7 @@ byte* PhilipsFDC::getWriteCacheLine(word address) const
 }
 
 
-template<typename Archive>
-void PhilipsFDC::serialize(Archive& ar, unsigned /*version*/)
+void PhilipsFDC::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<WD2793BasedFDC>(*this);
 	ar.serialize("sideReg",  sideReg,

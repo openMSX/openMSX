@@ -100,8 +100,7 @@ void RamDebuggable::write(unsigned address, byte value)
 }
 
 
-template<typename Archive>
-void Ram::serialize(Archive& ar, unsigned /*version*/)
+void Ram::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.serialize_blob("ram", ram.data(), size);
 }

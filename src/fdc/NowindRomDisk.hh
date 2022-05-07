@@ -13,8 +13,7 @@ public:
 	[[nodiscard]] bool diskChanged() override;
 	int insertDisk(const std::string& filename) override;
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 };
 
 } // namespace openmsx

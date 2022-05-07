@@ -29,8 +29,7 @@ RS232Device& RS232Connector::getPluggedRS232Dev() const
 	return *checked_cast<RS232Device*>(&getPlugged());
 }
 
-template<typename Archive>
-void RS232Connector::serialize(Archive& ar, unsigned /*version*/)
+void RS232Connector::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Connector>(*this);
 }

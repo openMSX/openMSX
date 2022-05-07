@@ -28,15 +28,15 @@ public:
 	[[nodiscard]] auto getId() const { return id; }
 	[[nodiscard]] byte getPress()   const { return press; }
 	[[nodiscard]] byte getRelease() const { return release; }
-	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
+	template<Archive Ar> void serialize(Ar& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
 		// for backwards compatibility serialize 'id' as 'name'
-		std::string name = Archive::IS_LOADER ? "" : std::string(nameForId(id));
+		std::string name = Ar::IS_LOADER ? "" : std::string(nameForId(id));
 		ar.serialize("name",    name,
 		             "press",   press,
 		             "release", release);
-		if constexpr (Archive::IS_LOADER) {
+		if constexpr (Ar::IS_LOADER) {
 			id = (name == nameForId(KeyJoystick::ID1)) ? KeyJoystick::ID1
 			   : (name == nameForId(KeyJoystick::ID2)) ? KeyJoystick::ID2
 			   :                                         KeyJoystick::UNKNOWN;
@@ -173,13 +173,13 @@ void KeyJoystick::stopReplay(EmuTime::param time) noexcept
 // version 1: Initial version, the variable status was not serialized.
 // version 2: Also serialize the above variable, this is required for
 //            record/replay, see comment in Keyboard.cc for more details.
-template<typename Archive>
-void KeyJoystick::serialize(Archive& ar, unsigned version)
+template<Archive Ar>
+void KeyJoystick::serialize(Ar& ar, unsigned version)
 {
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("status", status);
 	}
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		if (isPluggedIn()) {
 			plugHelper(*getConnector(), EmuTime::dummy());
 		}

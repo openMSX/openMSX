@@ -52,8 +52,7 @@ byte* RomMatraInk::getWriteCacheLine(word /*address*/) const
 	return nullptr;
 }
 
-template<typename Archive>
-void RomMatraInk::serialize(Archive& ar, unsigned /*version*/)
+void RomMatraInk::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);

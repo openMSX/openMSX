@@ -101,8 +101,7 @@ byte* RomRamFile::getWriteCacheLine(word address) const
 	}
 }
 
-template<typename Archive>
-void RomRamFile::serialize(Archive& ar, unsigned /*version*/)
+void RomRamFile::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);

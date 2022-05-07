@@ -26,8 +26,7 @@ public:
 	void write(nibble outputs, nibble values, EmuTime::param time) override;
 	[[nodiscard]] nibble read(EmuTime::param time) override;
 
-	template<typename Archive>
-	void serialize(Archive& /*ar*/, unsigned /*version*/) {
+	void serialize(Archive auto& /*ar*/, unsigned /*version*/) {
 		// nothing
 	}
 
@@ -56,8 +55,7 @@ public:
 	[[nodiscard]] const byte* getReadCacheLine(word address) const override;
 	[[nodiscard]] byte* getWriteCacheLine(word address) const override;
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	void setBank(byte value);
@@ -82,8 +80,7 @@ public:
 	[[nodiscard]] nibble read(EmuTime::param time) override;
 	void setSPOFF(bool value, EmuTime::param time) override;
 
-	template<typename Archive>
-	void serialize(Archive& /*ar*/, unsigned /*version*/) {
+	void serialize(Archive auto& /*ar*/, unsigned /*version*/) {
 		// nothing
 	}
 
@@ -277,14 +274,14 @@ void PanasonicAudioPeriphery::setIOPortsHelper(unsigned base, bool enable)
 	}
 }
 
-template<typename Archive>
-void PanasonicAudioPeriphery::serialize(Archive& ar, unsigned /*version*/)
+template<Archive Ar>
+void PanasonicAudioPeriphery::serialize(Ar& ar, unsigned /*version*/)
 {
 	ar.serialize("ram",        ram,
 	             "bankSelect", bankSelect);
 	byte tmpIoPorts = ioPorts;
 	ar.serialize("ioPorts", tmpIoPorts);
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		setIOPorts(tmpIoPorts);
 	}
 }

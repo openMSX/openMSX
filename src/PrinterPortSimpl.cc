@@ -61,11 +61,11 @@ std::string_view PrinterPortSimpl::getDescription() const
 	return DESCRIPTION;
 }
 
-template<typename Archive>
-void PrinterPortSimpl::serialize(Archive& ar, unsigned /*version*/)
+template<Archive Ar>
+void PrinterPortSimpl::serialize(Ar& ar, unsigned /*version*/)
 {
 	if (isPluggedIn()) {
-		if constexpr (Archive::IS_LOADER) {
+		if constexpr (Ar::IS_LOADER) {
 			createDAC();
 		}
 		ar.serialize("dac", *dac);

@@ -46,16 +46,15 @@ template<> struct is_primitive<std::string>        : std::true_type {};
 // method on the class. For some classes we cannot extend the source code. So
 // we need an alternative, non-intrusive, way to make those classes
 // serializable.
-template<typename Archive, typename T>
-void serialize(Archive& ar, T& t, unsigned version)
+void serialize(Archive auto& ar, auto& t, unsigned version)
 {
 	// By default use the serialize() member. But this function can
 	// be overloaded to serialize classes in a non-intrusive way.
 	t.serialize(ar, version);
 }
 
-template<typename Archive, typename T1, typename T2>
-void serialize(Archive& ar, std::pair<T1, T2>& p, unsigned /*version*/)
+template<typename T1, typename T2>
+void serialize(Archive auto& ar, std::pair<T1, T2>& p, unsigned /*version*/)
 {
 	ar.serialize("first",  p.first,
 	             "second", p.second);
@@ -137,20 +136,20 @@ template<> struct serialize_as_enum< TYPE > : std::true_type { \
 	std::initializer_list<enum_string< TYPE >> info; \
 };
 
-template<typename Archive, typename T, typename SaveAction>
+template<Archive Ar, typename T, typename SaveAction>
 void saveEnum(std::initializer_list<enum_string<T>> list, T t, SaveAction save)
 {
-	if constexpr (Archive::TRANSLATE_ENUM_TO_STRING) {
+	if constexpr (Ar::TRANSLATE_ENUM_TO_STRING) {
 		save(toString(list, t));
 	} else {
 		save(int(t));
 	}
 }
 
-template<typename Archive, typename T, typename LoadAction>
+template<Archive Ar, typename T, typename LoadAction>
 void loadEnum(std::initializer_list<enum_string<T>> list, T& t, LoadAction load)
 {
-	if constexpr (Archive::TRANSLATE_ENUM_TO_STRING) {
+	if constexpr (Ar::TRANSLATE_ENUM_TO_STRING) {
 		std::string str;
 		load(str);
 		t = fromString(list, str);
@@ -187,9 +186,9 @@ template<typename V> struct VariantSerializer : std::true_type
 	static inline constexpr size_t index = get_index<A, V>::value;
 
 	struct Saver {
-		template<typename Archive>
-		void operator()(Archive& ar, const V& v, bool saveId) {
-			saveEnum<Archive>(Serializer<V>::list, v.index(),
+		template<Archive Ar>
+		void operator()(Ar& ar, const V& v, bool saveId) {
+			saveEnum<Ar>(Serializer<V>::list, v.index(),
 				[&](const auto& t) { ar.attribute("type", t); });
 			std::visit([&](auto& e) {
 				using TNC = std::remove_cvref_t<decltype(e)>;
@@ -200,10 +199,10 @@ template<typename V> struct VariantSerializer : std::true_type
 		}
 	};
 	struct Loader {
-		template<typename Archive, typename TUPLE>
-		void operator()(Archive& ar, V& v, TUPLE args, int id) {
+		template<Archive Ar, typename TUPLE>
+		void operator()(Ar& ar, V& v, TUPLE args, int id) {
 			size_t idx;
-			loadEnum<Archive>(Serializer<V>::list, idx,
+			loadEnum<Ar>(Serializer<V>::list, idx,
 				[&](auto& l) { ar.attribute("type", l); });
 			v = defaultConstructVariant<V>(idx);
 			std::visit([&](auto& e) {
@@ -255,8 +254,7 @@ template<typename T> struct serialize_as_pointer<T*>
 	: serialize_as_pointer_impl<T>
 {
 	static inline T* getPointer(T* t) { return t; }
-	template<typename Archive>
-	static inline void setPointer(T*& t, T* p, Archive& /*ar*/) {
+	static inline void setPointer(T*& t, T* p, Archive auto& /*ar*/) {
 		t = p;
 	}
 };
@@ -264,8 +262,7 @@ template<typename T> struct serialize_as_pointer<std::unique_ptr<T>>
 	: serialize_as_pointer_impl<T>
 {
 	static inline T* getPointer(const std::unique_ptr<T>& t) { return t.get(); }
-	template<typename Archive>
-	static inline void setPointer(std::unique_ptr<T>& t, T* p, Archive& /*ar*/) {
+	static inline void setPointer(std::unique_ptr<T>& t, T* p, Archive auto& /*ar*/) {
 		t.reset(p);
 	}
 };
@@ -273,8 +270,7 @@ template<typename T> struct serialize_as_pointer<std::shared_ptr<T>>
 	: serialize_as_pointer_impl<T>
 {
 	static T* getPointer(const std::shared_ptr<T>& t) { return t.get(); }
-	template<typename Archive>
-	static void setPointer(std::shared_ptr<T>& t, T* p, Archive& ar) {
+	static void setPointer(std::shared_ptr<T>& t, T* p, Archive auto& ar) {
 		ar.resetSharedPtr(t, p);
 	}
 };
@@ -372,15 +368,14 @@ template<typename T, int N> struct serialize_as_collection<T[N]> : std::true_typ
 //      Saves a whole collection. See also serialize_as_collection
 //
 // All these strategies have a method:
-//   template<typename Archive> void operator()(Archive& ar, const T& t)
+//   void operator()(Archive auto& ar, const T& t)
 //     'ar' is archive where the serialized stream will go
 //     't'  is the to-be-saved object
 //     'saveId' Should ID be saved
 
 template<typename T> struct PrimitiveSaver
 {
-	template<typename Archive> void operator()(Archive& ar, const T& t,
-	                                           bool /*saveId*/)
+	void operator()(Archive auto& ar, const T& t, bool /*saveId*/)
 	{
 		static_assert(is_primitive<T>::value, "must be primitive type");
 		ar.save(t);
@@ -388,18 +383,18 @@ template<typename T> struct PrimitiveSaver
 };
 template<typename T> struct EnumSaver
 {
-	template<typename Archive> void operator()(Archive& ar, const T& t,
-	                                           bool /*saveId*/)
+	template<Archive Ar>
+	void operator()(Ar& ar, const T& t, bool /*saveId*/)
 	{
 		serialize_as_enum<T> sae;
-		saveEnum<Archive>(sae.info, t,
+		saveEnum<Ar>(sae.info, t,
 			[&](const auto& s) { ar.save(s); });
 	}
 };
 template<typename T> struct ClassSaver
 {
-	template<typename Archive> void operator()(
-		Archive& ar, const T& t, bool saveId,
+	void operator()(
+		Archive auto& ar, const T& t, bool saveId,
 		const char* type = nullptr, bool saveConstrArgs = false)
 	{
 		// Order is important (for non-xml archives). We use this order:
@@ -445,8 +440,8 @@ template<typename T> struct ClassSaver
 template<typename TP> struct PointerSaver
 {
 	// note: we only support pointer to class
-	template<typename Archive> void operator()(Archive& ar, const TP& tp2,
-	                                           bool /*saveId*/)
+	template<Archive Ar>
+	void operator()(Ar& ar, const TP& tp2, bool /*saveId*/)
 	{
 		static_assert(serialize_as_pointer<TP>::value,
 		              "must be serialized as pointer");
@@ -461,7 +456,7 @@ template<typename TP> struct PointerSaver
 			ar.attribute("id_ref", id);
 		} else {
 			if constexpr (std::is_polymorphic_v<T>) {
-				PolymorphicSaverRegistry<Archive>::save(ar, tp);
+				PolymorphicSaverRegistry<Ar>::save(ar, tp);
 			} else {
 				ClassSaver<T> saver;
 				// don't store type
@@ -473,7 +468,7 @@ template<typename TP> struct PointerSaver
 };
 template<typename TP> struct IDSaver
 {
-	template<typename Archive> void operator()(Archive& ar, const TP& tp2)
+	void operator()(Archive auto& ar, const TP& tp2)
 	{
 		static_assert(serialize_as_pointer<TP>::value,
 		              "must be serialized as pointer");
@@ -490,8 +485,7 @@ template<typename TP> struct IDSaver
 };
 template<typename TC> struct CollectionSaver
 {
-	template<typename Archive> void operator()(Archive& ar, const TC& tc,
-	                                           bool saveId)
+	void operator()(Archive auto& ar, const TC& tc, bool saveId)
 	{
 		using sac = serialize_as_collection<TC>;
 		static_assert(sac::value, "must be serialized as collection");
@@ -532,8 +526,8 @@ template<typename T> struct Saver
 // This matches very closely with the save-strategies above.
 //
 // All these strategies have a method:
-//   template<typename Archive, typename TUPLE>
-//   void operator()(Archive& ar, const T& t, TUPLE args)
+//   template<typename TUPLE>
+//   void operator()(Archive auto& ar, const T& t, TUPLE args)
 //     'ar' Is archive where the serialized stream will go
 //     't'  Is the object that has to be restored.
 //          In case of a class (not a pointer to a class) the actual object
@@ -545,8 +539,8 @@ template<typename T> struct Saver
 
 template<typename T> struct PrimitiveLoader
 {
-	template<typename Archive, typename TUPLE>
-	void operator()(Archive& ar, T& t, TUPLE /*args*/, int /*id*/)
+	template<typename TUPLE>
+	void operator()(Archive auto& ar, T& t, TUPLE /*args*/, int /*id*/)
 	{
 		static_assert(std::tuple_size_v<TUPLE> == 0,
 		              "can't have constructor arguments");
@@ -555,13 +549,13 @@ template<typename T> struct PrimitiveLoader
 };
 template<typename T> struct EnumLoader
 {
-	template<typename Archive, typename TUPLE>
-	void operator()(Archive& ar, T& t, TUPLE /*args*/, int /*id*/)
+	template<Archive Ar, typename TUPLE>
+	void operator()(Ar& ar, T& t, TUPLE /*args*/, int /*id*/)
 	{
 		static_assert(std::tuple_size_v<TUPLE> == 0,
 		              "can't have constructor arguments");
 		serialize_as_enum<T> sae;
-		loadEnum<Archive>(sae.info, t, [&](auto& l) { ar.load(l); });
+		loadEnum<Ar>(sae.info, t, [&](auto& l) { ar.load(l); });
 	}
 };
 
@@ -569,7 +563,7 @@ unsigned loadVersionHelper(MemInputArchive& ar, const char* className,
                            unsigned latestVersion);
 unsigned loadVersionHelper(XmlInputArchive& ar, const char* className,
                            unsigned latestVersion);
-template<typename T, typename Archive> unsigned loadVersion(Archive& ar)
+template<typename T> unsigned loadVersion(Archive auto& ar)
 {
 	unsigned latestVersion = SerializeClassVersion<T>::value;
 	if ((latestVersion != 0) && ar.NEED_VERSION) {
@@ -580,8 +574,8 @@ template<typename T, typename Archive> unsigned loadVersion(Archive& ar)
 }
 template<typename T> struct ClassLoader
 {
-	template<typename Archive, typename TUPLE>
-	void operator()(Archive& ar, T& t, TUPLE /*args*/, int id = 0,
+	template<typename TUPLE>
+	void operator()(Archive auto& ar, T& t, TUPLE /*args*/, int id = 0,
 	                int version = -1)
 	{
 		static_assert(std::tuple_size_v<TUPLE> == 0,
@@ -610,8 +604,8 @@ template<typename T> struct ClassLoader
 };
 template<typename T> struct NonPolymorphicPointerLoader
 {
-	template<typename Archive, typename GlobalTuple>
-	T* operator()(Archive& ar, unsigned id, GlobalTuple globalArgs)
+	template<typename GlobalTuple>
+	T* operator()(Archive auto& ar, unsigned id, GlobalTuple globalArgs)
 	{
 		int version = loadVersion<T>(ar);
 
@@ -634,14 +628,14 @@ template<typename T> struct NonPolymorphicPointerLoader
 };
 template<typename T> struct PolymorphicPointerLoader
 {
-	template<typename Archive, typename TUPLE>
-	T* operator()(Archive& ar, unsigned id, TUPLE args)
+	template<Archive Ar, typename TUPLE>
+	T* operator()(Ar& ar, unsigned id, TUPLE args)
 	{
 		using ArgsType = typename PolymorphicConstructorArgs<T>::type;
 		static_assert(std::is_same_v<TUPLE, ArgsType>,
 		              "constructor arguments types must match");
 		return static_cast<T*>(
-			PolymorphicLoaderRegistry<Archive>::load(ar, id, &args));
+			PolymorphicLoaderRegistry<Ar>::load(ar, id, &args));
 	}
 };
 template<typename T> struct PointerLoader2
@@ -654,15 +648,15 @@ template<typename T> struct PointerLoader2
 
 template<typename TP> struct PointerLoader
 {
-	template<typename Archive, typename GlobalTuple>
-	void operator()(Archive& ar, TP& tp2, GlobalTuple globalArgs, int /*id*/)
+	template<Archive Ar, typename GlobalTuple>
+	void operator()(Ar& ar, TP& tp2, GlobalTuple globalArgs, int /*id*/)
 	{
 		static_assert(serialize_as_pointer<TP>::value,
 		              "must be serialized as a pointer");
 		// in XML archives we use 'id_ref' or 'id', in other archives
 		// we don't care about the name
 		unsigned id = [&] {
-			if constexpr (Archive::CAN_HAVE_OPTIONAL_ATTRIBUTES) {
+			if constexpr (Ar::CAN_HAVE_OPTIONAL_ATTRIBUTES) {
 				if (auto i = ar.template findAttributeAs<unsigned>("id_ref")) {
 					return *i;
 				}
@@ -691,8 +685,7 @@ template<typename TP> struct PointerLoader
 void pointerError(unsigned id);
 template<typename TP> struct IDLoader
 {
-	template<typename Archive>
-	void operator()(Archive& ar, TP& tp2)
+	void operator()(Archive auto& ar, TP& tp2)
 	{
 		static_assert(serialize_as_pointer<TP>::value,
 		              "must be serialized as a pointer");
@@ -718,8 +711,8 @@ template<typename sac, bool IN_PLACE = sac::loadInPlace> struct CollectionLoader
 template<typename sac> struct CollectionLoaderHelper<sac, true>
 {
 	// used for array and vector
-	template<typename Archive, typename TUPLE, typename OUT_ITER>
-	void operator()(Archive& ar, TUPLE args, OUT_ITER it, int id)
+	template<typename TUPLE, typename OUT_ITER>
+	void operator()(Archive auto& ar, TUPLE args, OUT_ITER it, int id)
 	{
 		ar.doSerialize("item", *it, args, id);
 	}
@@ -730,8 +723,8 @@ template<typename sac> struct CollectionLoaderHelper<sac, false>
 	// This screws-up id/pointer management because the element is still
 	// copied after construction (and pointer value of initial object is
 	// stored).
-	template<typename Archive, typename TUPLE, typename OUT_ITER>
-	void operator()(Archive& ar, TUPLE args, OUT_ITER it, int id)
+	template<typename TUPLE, typename OUT_ITER>
+	void operator()(Archive auto& ar, TUPLE args, OUT_ITER it, int id)
 	{
 		typename sac::value_type elem;
 		ar.doSerialize("item", elem, args, id);
@@ -740,8 +733,8 @@ template<typename sac> struct CollectionLoaderHelper<sac, false>
 };
 template<typename TC> struct CollectionLoader
 {
-	template<typename Archive, typename TUPLE>
-	void operator()(Archive& ar, TC& tc, TUPLE args, int id = 0)
+	template<Archive Ar, typename TUPLE>
+	void operator()(Ar& ar, TC& tc, TUPLE args, int id = 0)
 	{
 		assert(id == one_of(0, -1));
 		using sac = serialize_as_collection<TC>;
@@ -749,7 +742,7 @@ template<typename TC> struct CollectionLoader
 		int n = sac::size;
 		if (n < 0) {
 			// variable size
-			if constexpr (Archive::CAN_COUNT_CHILDREN) {
+			if constexpr (Ar::CAN_COUNT_CHILDREN) {
 				n = ar.countChildren();
 			} else {
 				ar.serialize("size", n);

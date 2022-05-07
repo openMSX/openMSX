@@ -90,8 +90,8 @@ void MSXS1985::writeSwitchedIO(word port, byte value, EmuTime::param /*time*/)
 
 // version 1: initial version
 // version 2: replaced RAM with SRAM
-template<typename Archive>
-void MSXS1985::serialize(Archive& ar, unsigned version)
+template<Archive Ar>
+void MSXS1985::serialize(Ar& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	// no need to serialize MSXSwitchedDevice base class
@@ -100,7 +100,7 @@ void MSXS1985::serialize(Archive& ar, unsigned version)
 		// serialize normally...
 		ar.serialize("sram", *sram);
 	} else {
-		assert(Archive::IS_LOADER);
+		assert(Ar::IS_LOADER);
 		// version 1 had here
 		//    <ram>
 		//      <ram encoding="..">...</ram>

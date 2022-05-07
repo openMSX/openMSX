@@ -40,8 +40,7 @@ public:
 	[[nodiscard]] bool ready() override;
 	[[nodiscard]] bool acceptsData() override;
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	[[nodiscard]] byte readIOImpl(word port, EmuTime::param time);

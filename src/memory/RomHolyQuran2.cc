@@ -99,14 +99,14 @@ byte* RomHolyQuran2::getWriteCacheLine(word address) const
 	}
 }
 
-template<typename Archive>
-void RomHolyQuran2::serialize(Archive& ar, unsigned /*version*/)
+template<Archive Ar>
+void RomHolyQuran2::serialize(Ar& ar, unsigned /*version*/)
 {
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);
 
 	unsigned bb[4];
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		ar.serialize("banks", bb);
 		for (auto [i, b] : enumerate(bb)) {
 			bank[i] = &rom[(b & 127) * 0x2000];

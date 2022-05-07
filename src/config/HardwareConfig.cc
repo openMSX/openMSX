@@ -454,8 +454,8 @@ SERIALIZE_ENUM(HardwareConfig::Type, configTypeInfo);
 // version 4: hold 'context' by-value instead of by-pointer
 // version 5: added hwconfig type info
 // version 6: switch from old to new XMLElement
-template<typename Archive>
-void HardwareConfig::serialize(Archive& ar, unsigned version)
+template<Archive Ar>
+void HardwareConfig::serialize(Ar& ar, unsigned version)
 {
 	// filled-in by constructor:
 	//   motherBoard, hwName, userName
@@ -482,7 +482,7 @@ void HardwareConfig::serialize(Archive& ar, unsigned version)
 		assert(ctxt);
 		context = *ctxt;
 	}
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		if (!motherBoard.getMachineConfig()) {
 			// must be done before parseSlots()
 			motherBoard.setMachineConfig(this);
@@ -500,7 +500,7 @@ void HardwareConfig::serialize(Archive& ar, unsigned version)
 	if (ar.versionAtLeast(version, 5)) {
 		ar.serialize("type", type);
 	} else {
-		assert(Archive::IS_LOADER);
+		assert(Ar::IS_LOADER);
 		type = name == "rom" ? HardwareConfig::Type::ROM : HardwareConfig::Type::EXTENSION;
 	}
 }

@@ -122,8 +122,7 @@ public:
 	 */
 	void setFreq(unsigned freq);
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	void execute2(bool fastForward);

@@ -50,8 +50,7 @@ public:
 	void applyWd2793ReadTrackQuirk() override;
 	void invalidateWd2793ReadTrackQuirk() override;
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	struct SyncLoadingTimeout final : Schedulable {

@@ -24,8 +24,7 @@ bool Filename::empty() const
 	return getOriginal().empty();
 }
 
-template<typename Archive>
-void Filename::serialize(Archive& ar, unsigned /*version*/)
+void Filename::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.serialize("original", originalFilename,
 	             "resolved", resolvedFilename);

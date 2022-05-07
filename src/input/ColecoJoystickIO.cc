@@ -81,8 +81,7 @@ void ColecoJoystickIO::writeIO(word port, byte /*value*/, EmuTime::param /*time*
 	joyMode = (port >> 6) & 1;
 }
 
-template<typename Archive>
-void ColecoJoystickIO::serialize(Archive& ar, unsigned version)
+void ColecoJoystickIO::serialize(Archive auto& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("joyMode", joyMode);

@@ -145,8 +145,8 @@ void MSXFmPac::checkSramEnable()
 }
 
 
-template<typename Archive>
-void MSXFmPac::serialize(Archive& ar, unsigned version)
+template<Archive Ar>
+void MSXFmPac::serialize(Ar& ar, unsigned version)
 {
 	ar.template serializeInlinedBase<MSXMusicBase>(*this, version);
 	ar.serialize("sram",   sram,
@@ -154,7 +154,7 @@ void MSXFmPac::serialize(Archive& ar, unsigned version)
 	             "bank",   bank,
 	             "r1ffe",  r1ffe,
 	             "r1fff",  r1fff);
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		// sramEnabled can be calculated
 		checkSramEnable();
 	}

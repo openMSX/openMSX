@@ -32,7 +32,7 @@ public:
 	[[nodiscard]] byte getPress()   const { return press; }
 	[[nodiscard]] byte getRelease() const { return release; }
 
-	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
+	void serialize(Archive auto& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
 		ar.serialize("deltaX",  deltaX,
@@ -273,8 +273,8 @@ void Trackball::stopReplay(EmuTime::param time) noexcept
 
 // version 1: initial version
 // version 2: replaced deltaXY with targetDeltaXY and currentDeltaXY
-template<typename Archive>
-void Trackball::serialize(Archive& ar, unsigned version)
+template<Archive Ar>
+void Trackball::serialize(Ar& ar, unsigned version)
 {
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("lastSync",      lastSync,
@@ -292,7 +292,7 @@ void Trackball::serialize(Archive& ar, unsigned version)
 	ar.serialize("lastValue", lastValue,
 	             "status",    status);
 
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		if (isPluggedIn()) {
 			plugHelper(*getConnector(), EmuTime::dummy());
 		}

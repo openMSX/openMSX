@@ -29,8 +29,7 @@ public:
 	void latchStatus(EmuTime::param time);
 	void latchCounter(EmuTime::param time);
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 //private:
 	enum ByteOrder {LOW, HIGH};
@@ -86,8 +85,7 @@ public:
 	[[nodiscard]] ClockPin& getClockPin(unsigned cntr);
 	[[nodiscard]] ClockPin& getOutputPin(unsigned cntr);
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	void readBackHelper(byte value, unsigned cntr, EmuTime::param time);

@@ -111,7 +111,7 @@ void MSXS1990::Debuggable::write(unsigned address, byte value)
 }
 
 
-template<typename Archive>
+template<Archive Archive>
 void MSXS1990::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);

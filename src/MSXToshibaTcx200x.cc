@@ -106,8 +106,7 @@ byte* MSXToshibaTcx200x::getWriteCacheLine(word start) const
 	}
 }
 
-template<typename Archive>
-void MSXToshibaTcx200x::serialize(Archive& ar, unsigned /*version*/)
+void MSXToshibaTcx200x::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("sram", sram,

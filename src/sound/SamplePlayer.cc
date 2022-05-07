@@ -137,13 +137,13 @@ void SamplePlayer::doRepeat()
 	play(nextSampleNum);
 }
 
-template<typename Archive>
-void SamplePlayer::serialize(Archive& ar, unsigned /*version*/)
+template<Archive Ar>
+void SamplePlayer::serialize(Ar& ar, unsigned /*version*/)
 {
 	ar.serialize("index",            index,
 	             "currentSampleNum", currentSampleNum,
 	             "nextSampleNum",    nextSampleNum);
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		setWavParams();
 	}
 }

@@ -71,8 +71,7 @@ std::string_view PrinterPortLogger::getDescription() const
 	       "'printerlogfilename' setting.";
 }
 
-template<typename Archive>
-void PrinterPortLogger::serialize(Archive& /*ar*/, unsigned /*version*/)
+void PrinterPortLogger::serialize(Archive auto& /*ar*/, unsigned /*version*/)
 {
 	// We don't try to resume logging to the same file.
 	// And to not accidentally loose a previous log, we don't

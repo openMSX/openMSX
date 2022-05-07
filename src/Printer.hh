@@ -12,6 +12,7 @@
 
 #include "PrinterPortDevice.hh"
 #include "openmsx.hh"
+#include "serialize_meta.hh"
 #include <memory>
 #include <utility>
 
@@ -179,8 +180,7 @@ public:
 	[[nodiscard]] std::string_view getName() const override;
 	[[nodiscard]] std::string_view getDescription() const override;
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	void msxPrnSetFont(const byte* msxBits);
@@ -203,8 +203,7 @@ public:
 	[[nodiscard]] std::string_view getName() const override;
 	[[nodiscard]] std::string_view getDescription() const override;
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	[[nodiscard]] unsigned parseNumber(unsigned sizeStart, unsigned sizeChars);

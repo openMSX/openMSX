@@ -225,8 +225,8 @@ byte MSXMoonSound::readYMF278Status(EmuTime::param time) const
 // version 2: added alreadyReadID
 // version 3: moved loadTime and busyTime from YMF278 to here
 //            removed alreadyReadID
-template<typename Archive>
-void MSXMoonSound::serialize(Archive& ar, unsigned version)
+template<Archive Ar>
+void MSXMoonSound::serialize(Ar& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("ymf262",    ymf262,
@@ -237,7 +237,7 @@ void MSXMoonSound::serialize(Archive& ar, unsigned version)
 		ar.serialize("loadTime", ymf278LoadTime,
 		             "busyTime", ymf278BusyTime);
 	} else {
-		assert(Archive::IS_LOADER);
+		assert(Ar::IS_LOADER);
 		// For 100% backwards compatibility we should restore these two
 		// from the (old) YMF278 class. Though that's a lot of extra
 		// work for very little gain.

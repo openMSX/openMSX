@@ -72,8 +72,7 @@ public:
 	  */
 	void testRemove() const;
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	void setConfig(XMLElement* root) { config.setRoot(root); }
@@ -115,14 +114,12 @@ template<> struct SerializeConstructorArgs<HardwareConfig>
 {
 	using type = std::tuple<std::string>;
 
-	template<typename Archive>
-	void save(Archive& ar, const HardwareConfig& config)
+	void save(Archive auto& ar, const HardwareConfig& config)
 	{
 		ar.serialize("hwname", config.hwName);
 	}
 
-	template<typename Archive>
-	[[nodiscard]] type load(Archive& ar, unsigned /*version*/)
+	[[nodiscard]] type load(Archive auto& ar, unsigned /*version*/)
 	{
 		std::string name;
 		ar.serialize("hwname", name);

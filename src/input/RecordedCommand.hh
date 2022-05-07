@@ -25,8 +25,7 @@ public:
 	MSXCommandEvent(EmuTime::param time, std::span<const TclObject> tokens);
 	[[nodiscard]] const auto& getTokens() const { return tokens; }
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 private:
 	dynarray<TclObject> tokens;
 };

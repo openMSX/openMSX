@@ -70,8 +70,7 @@ void NinjaTap::write(byte value, EmuTime::param time)
 }
 
 
-template<typename Archive>
-void NinjaTap::serialize(Archive& ar, unsigned /*version*/)
+void NinjaTap::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<JoyTap>(*this);
 	ar.serialize("status",   status,

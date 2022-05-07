@@ -26,8 +26,7 @@ public:
 
 	void setVolume(EmuTime::param time, byte value);
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	[[nodiscard]] bool isSCCAccess(word addr) const;

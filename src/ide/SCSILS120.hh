@@ -49,8 +49,7 @@ public:
 	          AlignedBuffer& buf, unsigned mode);
 	~SCSILS120() override;
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	// SectorAccessibleDisk:

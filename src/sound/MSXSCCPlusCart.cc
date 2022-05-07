@@ -279,15 +279,15 @@ void MSXSCCPlusCart::checkEnable()
 }
 
 
-template<typename Archive>
-void MSXSCCPlusCart::serialize(Archive& ar, unsigned /*version*/)
+template<Archive Ar>
+void MSXSCCPlusCart::serialize(Ar& ar, unsigned /*version*/)
 {
 	ar.serialize_blob("ram", &ram[0], ram.getSize());
 	ar.serialize("scc",    scc,
 	             "mapper", mapper,
 	             "mode",   modeRegister);
 
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		// recalculate: isMapped[4], internalMemoryBank[4]
 		for (auto [i, m] : enumerate(mapper)) {
 			setMapper(int(i), m);

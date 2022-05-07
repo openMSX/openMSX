@@ -102,8 +102,7 @@ void EmuTimer::executeUntil(EmuTime::param time)
 	schedule(time);
 }
 
-template<typename Archive>
-void EmuTimer::serialize(Archive& ar, unsigned /*version*/)
+void EmuTimer::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Schedulable>(*this);
 	ar.serialize("count",    count,

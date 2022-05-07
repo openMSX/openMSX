@@ -2,6 +2,7 @@
 #define DISKNAME_HH
 
 #include "Filename.hh"
+#include "serialize_meta.hh"
 
 namespace openmsx {
 
@@ -17,8 +18,7 @@ public:
 	[[nodiscard]] bool empty() const;
 	[[nodiscard]] const Filename& getFilename() const { return name; }
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	Filename name;

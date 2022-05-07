@@ -29,8 +29,7 @@ void DummyIDEDevice::writeReg(nibble /*reg*/, byte /*value*/,
 	// do nothing
 }
 
-template<typename Archive>
-void DummyIDEDevice::serialize(Archive& /*ar*/, unsigned /*version*/)
+void DummyIDEDevice::serialize(Archive auto& /*ar*/, unsigned /*version*/)
 {
 	// nothing
 }

@@ -12,6 +12,17 @@
 
 namespace openmsx {
 
+class MemInputArchive;
+class MemOutputArchive;
+class XmlInputArchive;
+class XmlOutputArchive;
+
+template<typename T>
+concept Archive = std::same_as<T, MemInputArchive>
+               || std::same_as<T, MemOutputArchive>
+               || std::same_as<T, XmlInputArchive>
+               || std::same_as<T, XmlOutputArchive>;
+
 /** Utility to do     T* t = new T(...)
  *
  * The tricky part is that the constructor of T can have a variable number
@@ -111,7 +122,7 @@ template<typename Base> struct BaseClassName;
 
 void polyInitError(const char* expected, const char* actual);
 
-template<typename Archive>
+template<Archive Ar>
 class PolymorphicSaverRegistry
 {
 public:
@@ -126,7 +137,7 @@ public:
 		              "must be a polymorphic type");
 		static_assert(!std::is_abstract_v<T>,
 		              "can't be an abstract type");
-		registerHelper(typeid(T), [name](Archive& ar, const void* v) {
+		registerHelper(typeid(T), [name](Ar& ar, const void* v) {
 			using BaseType = typename PolymorphicBaseClass<T>::type;
 			auto base = static_cast<const BaseType*>(v);
 			auto tp = static_cast<const T*>(base);
@@ -135,11 +146,11 @@ public:
 		});
 	}
 
-	template<typename T> static void save(Archive& ar, T* t)
+	template<typename T> static void save(Ar& ar, T* t)
 	{
 		save(ar, t, typeid(*t));
 	}
-	template<typename T> static void save(const char* tag, Archive& ar, T& t)
+	template<typename T> static void save(const char* tag, Ar& ar, T& t)
 	{
 		save(tag, ar, &t, typeid(t));
 	}
@@ -148,12 +159,12 @@ private:
 	PolymorphicSaverRegistry() = default;
 	~PolymorphicSaverRegistry() = default;
 
-	using SaveFunction = std::function<void(Archive&, const void*)>;
+	using SaveFunction = std::function<void(Ar&, const void*)>;
 	void registerHelper(const std::type_info& type,
 	                    SaveFunction saver);
-	static void save(Archive& ar, const void* t,
+	static void save(Ar& ar, const void* t,
 	                 const std::type_info& typeInfo);
-	static void save(const char* tag, Archive& ar, const void* t,
+	static void save(const char* tag, Ar& ar, const void* t,
 	                 const std::type_info& typeInfo);
 
 	struct Entry {
@@ -164,7 +175,7 @@ private:
 	bool initialized = false;
 };
 
-template<typename Archive>
+template<Archive Ar>
 class PolymorphicLoaderRegistry
 {
 public:
@@ -179,7 +190,7 @@ public:
 		              "must be a polymorphic type");
 		static_assert(!std::is_abstract_v<T>,
 		              "can't be an abstract type");
-		registerHelper(name, [](Archive& ar, unsigned id, const void* args) {
+		registerHelper(name, [](Ar& ar, unsigned id, const void* args) {
 			using BaseType = typename PolymorphicBaseClass<T>::type;
 			using TUPLEIn  = typename PolymorphicConstructorArgs<BaseType>::type;
 			using TUPLEOut = typename PolymorphicConstructorArgs<T>::type;
@@ -191,19 +202,19 @@ public:
 		});
 	}
 
-	static void* load(Archive& ar, unsigned id, const void* args);
+	static void* load(Ar& ar, unsigned id, const void* args);
 
 private:
 	PolymorphicLoaderRegistry() = default;
 	~PolymorphicLoaderRegistry() = default;
 
-	using LoadFunction = std::function<void*(Archive&, unsigned, const void*)>;
+	using LoadFunction = std::function<void*(Ar&, unsigned, const void*)>;
 	void registerHelper(const char* name, LoadFunction loader);
 
 	hash_map<std::string_view, LoadFunction, XXHasher> loaderMap;
 };
 
-template<typename Archive>
+template<Archive Ar>
 class PolymorphicInitializerRegistry
 {
 public:
@@ -218,7 +229,7 @@ public:
 		              "must be a polymorphic type");
 		static_assert(!std::is_abstract_v<T>,
 		              "can't be an abstract type");
-		registerHelper(name, [](Archive& ar, void* v, unsigned id) {
+		registerHelper(name, [](Ar& ar, void* v, unsigned id) {
 			using BaseType = typename PolymorphicBaseClass<T>::type;
 			auto base = static_cast<BaseType*>(v);
 			if (dynamic_cast<T*>(base) != static_cast<T*>(base)) [[unlikely]] {
@@ -230,40 +241,40 @@ public:
 		});
 	}
 
-	static void init(const char* tag, Archive& ar, void* t);
+	static void init(const char* tag, Ar& ar, void* t);
 
 private:
 	PolymorphicInitializerRegistry() = default;
 	~PolymorphicInitializerRegistry() = default;
 
-	using InitFunction = std::function<void(Archive&, void*, unsigned)>;
+	using InitFunction = std::function<void(Ar&, void*, unsigned)>;
 	void registerHelper(const char* name, InitFunction initializer);
 
 	hash_map<std::string_view, InitFunction, XXHasher> initializerMap;
 };
 
 
-template<typename Archive, typename T> struct RegisterSaverHelper
+template<Archive Ar, typename T> struct RegisterSaverHelper
 {
 	explicit RegisterSaverHelper(const char* name)
 	{
-		PolymorphicSaverRegistry<Archive>::instance().
+		PolymorphicSaverRegistry<Ar>::instance().
 			template registerClass<T>(name);
 	}
 };
-template<typename Archive, typename T> struct RegisterLoaderHelper
+template<Archive Ar, typename T> struct RegisterLoaderHelper
 {
 	explicit RegisterLoaderHelper(const char* name)
 	{
-		PolymorphicLoaderRegistry<Archive>::instance().
+		PolymorphicLoaderRegistry<Ar>::instance().
 			template registerClass<T>(name);
 	}
 };
-template<typename Archive, typename T> struct RegisterInitializerHelper
+template<Archive Ar, typename T> struct RegisterInitializerHelper
 {
 	explicit RegisterInitializerHelper(const char* name)
 	{
-		PolymorphicInitializerRegistry<Archive>::instance().
+		PolymorphicInitializerRegistry<Ar>::instance().
 			template registerClass<T>(name);
 	}
 };
@@ -283,11 +294,6 @@ template<> struct PolymorphicConstructorArgs<C> \
 #define REGISTER_CONSTRUCTOR_ARGS_3(C,T1,T2,T3) \
 template<> struct PolymorphicConstructorArgs<C> \
 { using type = std::tuple<T1,T2,T3>; };
-
-class MemInputArchive;
-class MemOutputArchive;
-class XmlInputArchive;
-class XmlOutputArchive;
 
 /*#define REGISTER_POLYMORPHIC_CLASS_HELPER(B,C,N) \
 static_assert(std::is_base_of_v<B,C>, "must be base and sub class"); \

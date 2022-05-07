@@ -36,8 +36,7 @@ public:
 	void registerMapper(MSXMemoryMapperInterface* mapper);
 	void unregisterMapper(MSXMemoryMapperInterface* mapper);
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	struct Debuggable final : SimpleDebuggable {

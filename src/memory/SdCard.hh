@@ -4,6 +4,7 @@
 #include "openmsx.hh"
 #include "circular_buffer.hh"
 #include "DiskImageUtils.hh"
+#include "serialize_meta.hh"
 #include <memory>
 
 namespace openmsx {
@@ -19,8 +20,7 @@ public:
 
 	byte transfer(byte value, bool cs);
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 // private:
 	enum Mode {

@@ -213,14 +213,14 @@ void ChakkariCopy::update(const Setting& /*setting*/) noexcept
 	invalidateDeviceRWCache();
 }
 
-template<typename Archive>
-void ChakkariCopy::serialize(Archive& ar, unsigned /*version*/)
+template<Archive Ar>
+void ChakkariCopy::serialize(Ar& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("biosRam", biosRam,
 	             "workRam", workRam,
 	             "reg", reg);
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		writeIO(0, reg, getCurrentTime());
 	}
 

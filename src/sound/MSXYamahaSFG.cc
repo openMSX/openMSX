@@ -135,8 +135,7 @@ const byte* MSXYamahaSFG::getReadCacheLine(word start) const
 
 // version 1: initial version
 // version 2: moved irqVector2148 from ym2148 to here
-template<typename Archive>
-void MSXYamahaSFG::serialize(Archive& ar, unsigned version)
+void MSXYamahaSFG::serialize(Archive auto& ar, unsigned version)
 {
 	ar.serialize("YM2151",        ym2151,
 	             "YM2148",        ym2148,

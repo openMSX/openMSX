@@ -532,10 +532,10 @@ std::unique_ptr<FileContext> OldXMLElement::getLastSerializedFileContext()
 //            the XML output both datastructures are serialized to the same
 //            format, so we can drop this conversion step without breaking
 //            bw-compat.
-template<typename Archive>
-void OldXMLElement::serialize(Archive& ar, unsigned version)
+template<Archive Ar>
+void OldXMLElement::serialize(Ar& ar, unsigned version)
 {
-	assert(Archive::IS_LOADER);
+	assert(Ar::IS_LOADER);
 	ar.serialize("name",       name,
 	             "data",       data,
 	             "attributes", attributes,

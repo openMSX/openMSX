@@ -204,8 +204,7 @@ void MSXMatsushita::delay(EmuTime::param time)
 	lastTime.reset(time);
 }
 
-template<typename Archive>
-void MSXMatsushita::serialize(Archive& ar, unsigned version)
+void MSXMatsushita::serialize(Archive auto& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	// no need to serialize MSXSwitchedDevice base class

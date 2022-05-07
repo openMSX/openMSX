@@ -567,8 +567,7 @@ int SCSIHD::msgOut(byte value)
 }
 
 
-template<typename Archive>
-void SCSIHD::serialize(Archive& ar, unsigned /*version*/)
+void SCSIHD::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	// don't serialize SCSIDevice, SectorAccessibleDisk, DiskContainer
 	// base classes

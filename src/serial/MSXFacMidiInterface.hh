@@ -26,8 +26,7 @@ public:
 	void setParityBit(bool enable, ParityBit parity) override;
 	void recvByte(byte value, EmuTime::param time) override;
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	struct I8251Interf final : I8251Interface {

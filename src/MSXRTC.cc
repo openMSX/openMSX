@@ -45,8 +45,7 @@ void MSXRTC::writeIO(word port, byte value, EmuTime::param time)
 	}
 }
 
-template<typename Archive>
-void MSXRTC::serialize(Archive& ar, unsigned /*version*/)
+void MSXRTC::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("sram",          sram,

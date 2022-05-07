@@ -27,8 +27,7 @@ public:
 	[[nodiscard]] std::string_view getClass() const override;
 	void plug(Pluggable& dev, EmuTime::param time) override;
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	void setStrobe(bool newStrobe, EmuTime::param time);

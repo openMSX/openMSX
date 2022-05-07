@@ -3,6 +3,7 @@
 
 #include "FileContext.hh"
 #include "FileOperations.hh"
+#include "serialize_meta.hh"
 #include <string>
 
 namespace openmsx {
@@ -73,8 +74,7 @@ public:
 		return resolvedFilename == other.resolvedFilename;
 	}
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	// non-const because we want this class to be assignable

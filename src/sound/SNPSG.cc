@@ -21,8 +21,7 @@ void SNPSG::writeIO(word /*port*/, byte value, EmuTime::param time)
 	sn76489.write(value, time);
 }
 
-template<typename Archive>
-void SNPSG::serialize(Archive& ar, unsigned /*version*/)
+void SNPSG::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("sn76489", sn76489);

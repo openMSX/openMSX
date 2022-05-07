@@ -393,15 +393,13 @@ static constexpr std::initializer_list<enum_string<AmdFlash::State>> stateInfo =
 };
 SERIALIZE_ENUM(AmdFlash::State, stateInfo);
 
-template<typename Archive>
-void AmdFlash::AmdCmd::serialize(Archive& ar, unsigned /*version*/)
+void AmdFlash::AmdCmd::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.serialize("address", addr,
 	             "value",   value);
 }
 
-template<typename Archive>
-void AmdFlash::serialize(Archive& ar, unsigned version)
+void AmdFlash::serialize(Archive auto& ar, unsigned version)
 {
 	ar.serialize("ram",    *ram,
 	             "cmd",    cmd,

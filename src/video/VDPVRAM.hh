@@ -319,8 +319,7 @@ public:
 		}
 	}
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	[[nodiscard]] inline bool isEnabled() const {
@@ -544,8 +543,7 @@ public:
 	  */
 	void change4k8kMapping(bool mapping8k);
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	/* Common code of cmdWrite() and cpuWrite()

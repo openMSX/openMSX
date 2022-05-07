@@ -106,8 +106,7 @@ byte* CanonWordProcessor::getWriteCacheLine(word /*start*/) const
 	return nullptr;
 }
 
-template<typename Archive>
-void CanonWordProcessor::serialize(Archive& ar, unsigned /*version*/)
+void CanonWordProcessor::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("select", select);

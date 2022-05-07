@@ -802,12 +802,12 @@ void LSXCommand::tabCompletion(std::vector<std::string>& tokens) const
 }
 
 
-template<typename Archive>
-void SCSILS120::serialize(Archive& ar, unsigned /*version*/)
+template<Archive Ar>
+void SCSILS120::serialize(Ar& ar, unsigned /*version*/)
 {
 	std::string filename = file.is_open() ? file.getURL() : std::string{};
 	ar.serialize("filename", filename);
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		// re-insert disk before restoring 'mediaChanged'
 		if (filename.empty()) {
 			eject();

@@ -117,8 +117,7 @@ float YM2413::getAmplificationFactorImpl() const
 }
 
 
-template<typename Archive>
-void YM2413::serialize(Archive& ar, unsigned /*version*/)
+void YM2413::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.serializePolymorphic("ym2413", *core);
 }

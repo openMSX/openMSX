@@ -18,8 +18,7 @@ public:
 	[[nodiscard]] const byte* getReadCacheLine(word start) const override;
 	[[nodiscard]] byte* getWriteCacheLine(word address) const override;
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	TC8566AF controller;

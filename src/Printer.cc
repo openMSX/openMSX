@@ -888,8 +888,7 @@ void ImagePrinterMSX::processCharacter(byte data)
 	}
 }
 
-template<typename Archive>
-void ImagePrinterMSX::serialize(Archive& /*ar*/, unsigned /*version*/)
+void ImagePrinterMSX::serialize(Archive auto& /*ar*/, unsigned /*version*/)
 {
 	// TODO is this worth it?
 }
@@ -1595,8 +1594,7 @@ void ImagePrinterEpson::processCharacter(byte data)
 	}
 }
 
-template<typename Archive>
-void ImagePrinterEpson::serialize(Archive& /*ar*/, unsigned /*version*/)
+void ImagePrinterEpson::serialize(Archive auto& /*ar*/, unsigned /*version*/)
 {
 	// TODO is this worth it?
 }

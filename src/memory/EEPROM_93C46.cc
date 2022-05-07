@@ -234,8 +234,7 @@ static constexpr std::initializer_list<enum_string<EEPROM_93C46::State>> stateIn
 };
 SERIALIZE_ENUM(EEPROM_93C46::State, stateInfo);
 
-template<typename Archive>
-void EEPROM_93C46::serialize(Archive& ar, unsigned /*version*/)
+void EEPROM_93C46::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.serialize("sram",           sram,
 	             "completionTime", completionTime,

@@ -126,8 +126,7 @@ byte* NowindInterface::getWriteCacheLine(word address) const
 }
 
 
-template<typename Archive>
-void NowindInterface::serialize(Archive& ar, unsigned /*version*/)
+void NowindInterface::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("flash", flash);

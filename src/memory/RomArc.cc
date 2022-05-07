@@ -48,8 +48,7 @@ byte RomArc::peekIO(word /*port*/, EmuTime::param /*time*/) const
 	return ((offset & 0x03) == 0x03) ? 0xda : 0xff;
 }
 
-template<typename Archive>
-void RomArc::serialize(Archive& ar, unsigned /*version*/)
+void RomArc::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom16kBBlocks>(*this);
 	ar.serialize("offset", offset);

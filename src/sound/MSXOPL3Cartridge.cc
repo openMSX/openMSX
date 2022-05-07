@@ -66,8 +66,7 @@ void MSXOPL3Cartridge::writeIO(word port, byte value, EmuTime::param time)
 	}
 }
 
-template<typename Archive>
-void MSXOPL3Cartridge::serialize(Archive& ar, unsigned /*version*/)
+void MSXOPL3Cartridge::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("ymf262",    ymf262,

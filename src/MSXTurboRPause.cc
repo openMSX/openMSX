@@ -81,12 +81,12 @@ void MSXTurboRPause::updatePause()
 	}
 }
 
-template<typename Archive>
-void MSXTurboRPause::serialize(Archive& ar, unsigned /*version*/)
+template<Archive Ar>
+void MSXTurboRPause::serialize(Ar& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("status", status);
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		writeIO(0, status, EmuTime::dummy());
 	}
 }

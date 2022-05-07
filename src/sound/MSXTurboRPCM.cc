@@ -126,8 +126,7 @@ void MSXTurboRPCM::hardwareMute(bool mute)
 }
 
 
-template<typename Archive>
-void MSXTurboRPCM::serialize(Archive& ar, unsigned /*version*/)
+void MSXTurboRPCM::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("audioConnector", connector,

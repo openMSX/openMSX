@@ -68,8 +68,8 @@ struct Replay
 	// there is no way to verify this number.
 	unsigned reRecordCount;
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version)
+	template<Archive Ar>
+	void serialize(Ar& ar, unsigned version)
 	{
 		if (ar.versionAtLeast(version, 2)) {
 			ar.serializeWithID("snapshots", motherBoards, std::ref(reactor));
@@ -84,7 +84,7 @@ struct Replay
 		if (ar.versionAtLeast(version, 3)) {
 			ar.serialize("currentTime", currentTime);
 		} else {
-			assert(Archive::IS_LOADER);
+			assert(Ar::IS_LOADER);
 			assert(!events->empty());
 			currentTime = events->back()->getTime();
 		}
@@ -122,7 +122,7 @@ public:
 	{
 	}
 
-	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
+	void serialize(Archive auto& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
 	}

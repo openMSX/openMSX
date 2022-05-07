@@ -318,8 +318,7 @@ private:
 class FileContext;
 struct OldXMLElement
 {
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 	// For backwards compatibility with version=1 savestates
 	static std::unique_ptr<FileContext> getLastSerializedFileContext();

@@ -230,8 +230,7 @@ void RomManbow2::writeIO(word port, byte value, EmuTime::param time)
 // version 1: initial version
 // version 2: added optional built-in PSG
 // version 3: made SCC optional (for ROM_RBSC_FLASH_KONAMI_SCC)
-template<typename Archive>
-void RomManbow2::serialize(Archive& ar, unsigned version)
+void RomManbow2::serialize(Archive auto& ar, unsigned version)
 {
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);

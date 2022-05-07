@@ -128,8 +128,7 @@ void SensorKid::putPort(byte data, byte diff)
 	}
 }
 
-template<typename Archive>
-void SensorKid::serialize(Archive& ar, unsigned /*version*/)
+void SensorKid::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("prev",         prev,

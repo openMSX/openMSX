@@ -780,8 +780,7 @@ static constexpr std::initializer_list<enum_string<NowindHost::State>> stateInfo
 };
 SERIALIZE_ENUM(NowindHost::State, stateInfo);
 
-template<typename Archive>
-void NowindHost::serialize(Archive& ar, unsigned /*version*/)
+void NowindHost::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	// drives is serialized elsewhere
 

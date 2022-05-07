@@ -26,8 +26,7 @@ public:
 	void writeControlReg(byte value, EmuTime::param time);
 	void writeDataReg   (byte value, EmuTime::param time);
 
-        template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	void setDataFormat();

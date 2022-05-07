@@ -138,9 +138,8 @@ void MSXPPI::writeC0(nibble value, EmuTime::param /*time*/)
 	selectedRow = value;
 }
 
-
-template<typename Archive>
-void MSXPPI::serialize(Archive& ar, unsigned /*version*/)
+template<Archive Ar>
+void MSXPPI::serialize(Ar& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("i8255", i8255);
@@ -148,7 +147,7 @@ void MSXPPI::serialize(Archive& ar, unsigned /*version*/)
 	// merge prevBits and selectedRow into one byte
 	byte portC = (prevBits << 4) | (selectedRow << 0);
 	ar.serialize("portC", portC);
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		selectedRow = (portC >> 0) & 0xF;
 		nibble bits = (portC >> 4) & 0xF;
 		writeC1(bits, getCurrentTime());

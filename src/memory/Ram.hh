@@ -48,8 +48,7 @@ public:
 	[[nodiscard]] const std::string& getName() const;
 	void clear(byte c = 0xff);
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	const XMLElement& xml;

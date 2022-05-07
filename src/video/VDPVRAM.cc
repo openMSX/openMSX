@@ -304,23 +304,23 @@ void VDPVRAM::change4k8kMapping(bool mapping8k)
 }
 
 
-template<typename Archive>
-void VRAMWindow::serialize(Archive& ar, unsigned /*version*/)
+template<Archive Ar>
+void VRAMWindow::serialize(Ar& ar, unsigned /*version*/)
 {
 	ar.serialize("baseAddr",  baseAddr,
 	             "baseMask",  origBaseMask,
 	             "indexMask", indexMask);
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		effectiveBaseMask = origBaseMask & sizeMask;
 		combiMask = ~effectiveBaseMask | indexMask;
 		// TODO ?  observer->updateWindow(isEnabled(), time);
 	}
 }
 
-template<typename Archive>
-void VDPVRAM::serialize(Archive& ar, unsigned /*version*/)
+template<Archive Ar>
+void VDPVRAM::serialize(Ar& ar, unsigned /*version*/)
 {
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		vrMode = vdp.getVRMode();
 		setSizeMask(static_cast<MSXDevice&>(vdp).getCurrentTime());
 	}

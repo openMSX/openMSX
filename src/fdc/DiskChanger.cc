@@ -297,8 +297,8 @@ static string calcSha1(SectorAccessibleDisk* disk, FilePool& filePool)
 
 // version 1:  initial version
 // version 2:  replaced Filename with DiskName
-template<typename Archive>
-void DiskChanger::serialize(Archive& ar, unsigned version)
+template<Archive Ar>
+void DiskChanger::serialize(Ar& ar, unsigned version)
 {
 	DiskName diskname = disk->getName();
 	if (ar.versionBelow(version, 2)) {
@@ -315,19 +315,19 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 	}
 
 	std::vector<Filename> patches;
-	if constexpr (!Archive::IS_LOADER) {
+	if constexpr (!Ar::IS_LOADER) {
 		patches = disk->getPatches();
 	}
 	ar.serialize("patches", patches);
 
 	auto& filePool = reactor.getFilePool();
 	string oldChecksum;
-	if constexpr (!Archive::IS_LOADER) {
+	if constexpr (!Ar::IS_LOADER) {
 		oldChecksum = calcSha1(getSectorAccessibleDisk(), filePool);
 	}
 	ar.serialize("checksum", oldChecksum);
 
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		diskname.updateAfterLoadState();
 		string name = diskname.getResolved(); // TODO use Filename
 		if (!name.empty()) {
@@ -386,13 +386,12 @@ template<> struct SerializeConstructorArgs<DiskChanger>
 {
 	using type = std::tuple<std::string>;
 
-	template<typename Archive>
-	void save(Archive& ar, const DiskChanger& changer)
+	void save(Archive auto& ar, const DiskChanger& changer)
 	{
 		ar.serialize("driveName", changer.getDriveName());
 	}
 
-	template<typename Archive> type load(Archive& ar, unsigned /*version*/)
+	type load(Archive auto& ar, unsigned /*version*/)
 	{
 		string driveName;
 		ar.serialize("driveName", driveName);

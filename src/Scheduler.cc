@@ -111,8 +111,7 @@ void Scheduler::scheduleHelper(EmuTime::param limit, EmuTime next)
 }
 
 
-template<typename Archive>
-void SynchronizationPoint::serialize(Archive& ar, unsigned /*version*/)
+void SynchronizationPoint::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	// SynchronizationPoint is always serialized via Schedulable. A
 	// Schedulable has a collection of SynchronizationPoints, all with the
@@ -122,8 +121,7 @@ void SynchronizationPoint::serialize(Archive& ar, unsigned /*version*/)
 }
 INSTANTIATE_SERIALIZE_METHODS(SynchronizationPoint);
 
-template<typename Archive>
-void Scheduler::serialize(Archive& ar, unsigned /*version*/)
+void Scheduler::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.serialize("currentTime", scheduleTime);
 	// don't serialize 'queue', each Schedulable serializes its own

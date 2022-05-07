@@ -135,15 +135,15 @@ void SVIPSG::writeB(byte value, EmuTime::param /*time*/)
 	prev = value;
 }
 
-template<typename Archive>
-void SVIPSG::serialize(Archive& ar, unsigned /*version*/)
+template<Archive Ar>
+void SVIPSG::serialize(Ar& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("ay8910",        ay8910,
 	             "registerLatch", registerLatch);
 	byte portB = prev;
 	ar.serialize("portB", portB);
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		writeB(portB, getCurrentTime());
 	}
 }

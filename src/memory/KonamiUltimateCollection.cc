@@ -221,8 +221,7 @@ byte* KonamiUltimateCollection::getWriteCacheLine(word addr) const
 	       : unmappedWrite;
 }
 
-template<typename Archive>
-void KonamiUltimateCollection::serialize(Archive& ar, unsigned /*version*/)
+void KonamiUltimateCollection::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);

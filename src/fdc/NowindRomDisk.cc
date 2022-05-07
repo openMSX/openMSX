@@ -24,8 +24,7 @@ int NowindRomDisk::insertDisk(const std::string& /*filename*/)
 	return -1; // Can't change NowindRomDisk disk image
 }
 
-template<typename Archive>
-void NowindRomDisk::serialize(Archive& /*ar*/, unsigned /*version*/)
+void NowindRomDisk::serialize(Archive auto& /*ar*/, unsigned /*version*/)
 {
 }
 INSTANTIATE_SERIALIZE_METHODS(NowindRomDisk);

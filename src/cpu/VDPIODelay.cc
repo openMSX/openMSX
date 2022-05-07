@@ -68,8 +68,7 @@ void VDPIODelay::delay(EmuTime::param time)
 	lastTime.advance(time);
 }
 
-template<typename Archive>
-void VDPIODelay::serialize(Archive& ar, unsigned /*version*/)
+void VDPIODelay::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.serialize("lastTime", lastTime);
 }

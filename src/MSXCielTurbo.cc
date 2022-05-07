@@ -37,13 +37,13 @@ void MSXCielTurbo::writeIO(word /*port*/, byte value, EmuTime::param /*time*/)
 	getLedStatus().setLed(LedStatus::TURBO, enabled);
 }
 
-template<typename Archive>
-void MSXCielTurbo::serialize(Archive& ar, unsigned /*version*/)
+template<Archive Ar>
+void MSXCielTurbo::serialize(Ar& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 
 	ar.serialize("value", lastValue);
-	if constexpr (!Archive::IS_LOADER) {
+	if constexpr (!Ar::IS_LOADER) {
 		word port = 0; // dummy
 		writeIO(port, lastValue, EmuTime::dummy());
 	}

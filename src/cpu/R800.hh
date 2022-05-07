@@ -264,8 +264,7 @@ protected:
 		CC_RDMEM     = 1,
 		CC_WRMEM     = 2;
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version)
+	void serialize(Archive auto& ar, unsigned version)
 	{
 		CPUClock::serialize(ar, version);
 		ar.serialize("lastRefreshTime",  lastRefreshTime,

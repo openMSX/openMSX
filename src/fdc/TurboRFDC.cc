@@ -208,13 +208,13 @@ byte* TurboRFDC::getWriteCacheLine(word address) const
 }
 
 
-template<typename Archive>
-void TurboRFDC::serialize(Archive& ar, unsigned /*version*/)
+template<Archive Ar>
+void TurboRFDC::serialize(Ar& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXFDC>(*this);
 	ar.serialize("TC8566AF", controller,
 	             "bank",     bank);
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		setBank(bank);
 	}
 }

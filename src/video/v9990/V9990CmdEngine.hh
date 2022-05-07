@@ -90,8 +90,7 @@ public:
 	[[nodiscard]] const V9990& getVDP() const { return vdp; }
 	[[nodiscard]] bool getBrokenTiming() const { return brokenTiming; }
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	class V9990P1 {

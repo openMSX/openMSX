@@ -94,14 +94,14 @@ void MSXPac::checkSramEnable()
 	}
 }
 
-template<typename Archive>
-void MSXPac::serialize(Archive& ar, unsigned /*version*/)
+template<Archive Ar>
+void MSXPac::serialize(Ar& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("SRAM",  sram,
 	             "r1ffe", r1ffe,
 	             "r1fff", r1fff);
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		checkSramEnable();
 	}
 }

@@ -29,8 +29,7 @@ public:
 	  */
 	[[nodiscard]] bool getSignal(EmuTime::param time);
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	// The Autofire circuit

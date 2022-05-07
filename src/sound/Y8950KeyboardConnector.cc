@@ -55,8 +55,7 @@ Y8950KeyboardDevice& Y8950KeyboardConnector::getPluggedKeyb() const
 	return *checked_cast<Y8950KeyboardDevice*>(&getPlugged());
 }
 
-template<typename Archive>
-void Y8950KeyboardConnector::serialize(Archive& ar, unsigned /*version*/)
+void Y8950KeyboardConnector::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Connector>(*this);
 	// don't serialize 'data', done in Y8950

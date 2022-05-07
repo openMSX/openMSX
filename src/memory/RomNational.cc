@@ -114,8 +114,7 @@ byte* RomNational::getWriteCacheLine(word address) const
 	}
 }
 
-template<typename Archive>
-void RomNational::serialize(Archive& ar, unsigned /*version*/)
+void RomNational::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom16kBBlocks>(*this);
 	ar.serialize("control",    control,

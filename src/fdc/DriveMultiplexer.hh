@@ -2,6 +2,7 @@
 #define DRIVEMULTIPLEXER_HH
 
 #include "DiskDrive.hh"
+#include "serialize_meta.hh"
 
 namespace openmsx {
 
@@ -53,8 +54,7 @@ public:
 	bool diskChanged(DriveNum num);
 	[[nodiscard]] bool peekDiskChanged(DriveNum num) const;
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	DummyDrive dummyDrive;

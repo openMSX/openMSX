@@ -60,6 +60,7 @@
 
 #include "YM2413Core.hh"
 #include "inline.hh"
+#include "serialize_meta.hh"
 #include <array>
 
 namespace openmsx::YM2413NukeYKT {
@@ -76,8 +77,7 @@ public:
 	[[nodiscard]] float getAmplificationFactor() const override;
 	void setSpeed(double speed) override;
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 	enum class EgState : uint8_t {
 		attack,
@@ -154,8 +154,7 @@ private:
 		uint8_t port;
 		uint8_t value;
 
-		template<typename Archive>
-		void serialize(Archive& ar, unsigned version);
+		void serialize(Archive auto& ar, unsigned version);
 	};
 
 private:

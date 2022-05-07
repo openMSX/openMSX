@@ -41,8 +41,7 @@ public:
 	/** Is there currently playing a sample. */
 	[[nodiscard]] bool isPlaying() const { return currentSampleNum != unsigned(-1); }
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	void setWavParams();

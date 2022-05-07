@@ -30,8 +30,7 @@ public:
 	void write_CLK(bool value, EmuTime::param time);
 	void write_DI (bool value, EmuTime::param time);
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 	// for unittest
 	[[nodiscard]] const uint8_t* backdoor() const {

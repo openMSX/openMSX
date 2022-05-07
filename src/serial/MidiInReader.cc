@@ -129,8 +129,7 @@ int MidiInReader::signalEvent(const Event& /*event*/) noexcept
 }
 
 
-template<typename Archive>
-void MidiInReader::serialize(Archive& /*ar*/, unsigned /*version*/)
+void MidiInReader::serialize(Archive auto& /*ar*/, unsigned /*version*/)
 {
 	// don't try to resume a previous logfile (see PrinterPortLogger)
 }

@@ -21,8 +21,7 @@ public:
 	[[nodiscard]] virtual bool ready() = 0;
 	[[nodiscard]] virtual bool acceptsData() = 0;
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 protected:
 	MidiInConnector(PluggingController& pluggingController,

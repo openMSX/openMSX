@@ -71,8 +71,7 @@ public:
 	[[nodiscard]] Scheduler* getScheduler() const { return scheduler; }
 	[[nodiscard]] bool isDoubleSidedDrive() const { return doubleSidedDrive; }
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	void init(std::string_view prefix, bool createCmd);

@@ -523,8 +523,7 @@ void MSXDevice::fillDeviceWCache(unsigned start, unsigned size, byte* wData)
 	clip(start, size, [&](auto... args) { getCPUInterface().fillWCache(args...); }, wData);
 }
 
-template<typename Archive>
-void MSXDevice::serialize(Archive& ar, unsigned /*version*/)
+void MSXDevice::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	// When this method is called, the method init() has already been
 	// called (thus also registerSlots() and registerPorts()).

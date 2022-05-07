@@ -39,8 +39,7 @@ byte MSXHiResTimer::peekIO(word port, EmuTime::param time) const
 	return tmp >> (8 * (port & 3));
 }
 
-template<typename Archive>
-void MSXHiResTimer::serialize(Archive& ar, unsigned /*version*/)
+void MSXHiResTimer::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("reference",    reference,

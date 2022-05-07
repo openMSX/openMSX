@@ -59,8 +59,7 @@ byte* RomKonami::getWriteCacheLine(word address) const
 	return (0x6000 <= address && address < 0xC000) ? nullptr : unmappedWrite;
 }
 
-template<typename Archive>
-void RomKonami::serialize(Archive& ar, unsigned /*version*/)
+void RomKonami::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom8kBBlocks>(*this);
 }

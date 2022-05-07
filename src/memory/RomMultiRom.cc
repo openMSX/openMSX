@@ -23,8 +23,7 @@ void RomMultiRom::reset(EmuTime::param /*time*/)
 	}
 }
 
-template<typename Archive>
-void RomMultiRom::serialize(Archive& ar, unsigned /*version*/)
+void RomMultiRom::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom16kBBlocks>(*this);
 	ar.serialize("counter", counter);

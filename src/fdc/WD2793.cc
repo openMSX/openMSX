@@ -1116,8 +1116,8 @@ SERIALIZE_ENUM(WD2793::FSMState, fsmStateInfo);
 // version 10: removed 'trackData' and 'trackDataValid' (moved to RealDrive)
 // version 11: added 'dataOutReg', 'dataRegWritten', 'lastWasCRC'
 // version 12: added 'hldTime'
-template<typename Archive>
-void WD2793::serialize(Archive& ar, unsigned version)
+template<Archive Ar>
+void WD2793::serialize(Ar& ar, unsigned version)
 {
 	EmuTime bw_irqTime = EmuTime::zero();
 	if (ar.versionAtLeast(version, 8)) {
@@ -1125,7 +1125,7 @@ void WD2793::serialize(Archive& ar, unsigned version)
 	} else {
 		constexpr int SCHED_FSM     = 0;
 		constexpr int SCHED_IDX_IRQ = 1;
-		assert(Archive::IS_LOADER);
+		assert(Ar::IS_LOADER);
 		removeSyncPoint();
 		for (auto& old : Schedulable::serializeBW(ar)) {
 			if (old.userData == SCHED_FSM) {
@@ -1153,14 +1153,14 @@ void WD2793::serialize(Archive& ar, unsigned version)
 		if (ar.versionAtLeast(version, 4)) {
 			ar.serialize("drqTime", drqTime);
 		} else {
-			assert(Archive::IS_LOADER);
+			assert(Ar::IS_LOADER);
 			Clock<6250 * 5> c(EmuTime::dummy());
 			ar.serialize("drqTime", c);
 			drqTime.reset(c.getTime());
 			drqTime.setFreq(6250 * 5);
 		}
 	} else {
-		assert(Archive::IS_LOADER);
+		assert(Ar::IS_LOADER);
 		//ar.serialize("commandStart", commandStart,
 		//             "DRQTimer",     DRQTimer,
 		//             "DRQ",          DRQ,
@@ -1187,7 +1187,7 @@ void WD2793::serialize(Archive& ar, unsigned version)
 	if (ar.versionAtLeast(version, 7)) {
 		ar.serialize("irqTime", irqTime);
 	} else {
-		assert(Archive::IS_LOADER);
+		assert(Ar::IS_LOADER);
 		bool INTRQ = false; // dummy init to avoid warning
 		ar.serialize("INTRQ", INTRQ);
 		irqTime = INTRQ ? EmuTime::zero() : EmuTime::infinity();
@@ -1201,14 +1201,14 @@ void WD2793::serialize(Archive& ar, unsigned version)
 		             "dataRegWritten", dataRegWritten,
 		             "lastWasCRC",     lastWasCRC);
 	} else {
-		assert(Archive::IS_LOADER);
+		assert(Ar::IS_LOADER);
 		dataOutReg = dataReg;
 		dataRegWritten = false;
 		lastWasCRC = false;
 	}
 
 	if (ar.versionBelow(version, 11)) {
-		assert(Archive::IS_LOADER);
+		assert(Ar::IS_LOADER);
 		// version 9->10: 'trackData' moved from FDC to RealDrive
 		// version 10->11: write commands are different
 		if (statusReg & BUSY) {

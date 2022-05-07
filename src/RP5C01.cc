@@ -265,8 +265,7 @@ void RP5C01::resetAlarm()
 	}
 }
 
-template<typename Archive>
-void RP5C01::serialize(Archive& ar, unsigned /*version*/)
+void RP5C01::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.serialize("reference", reference,
 	             "fraction",  fraction,

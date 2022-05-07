@@ -84,8 +84,7 @@ byte* RomMitsubishiMLTS2::getWriteCacheLine(word address) const
 	return unmappedWrite;
 }
 
-template<typename Archive>
-void RomMitsubishiMLTS2::serialize(Archive& ar, unsigned /*version*/)
+void RomMitsubishiMLTS2::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom8kBBlocks>(*this);
 }

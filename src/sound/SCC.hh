@@ -25,8 +25,7 @@ public:
 	void writeMem(byte address, byte value, EmuTime::param time);
 	void setChipMode(ChipMode newMode);
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	// SoundDevice

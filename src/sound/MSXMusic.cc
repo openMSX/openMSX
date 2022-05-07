@@ -53,8 +53,7 @@ const byte* MSXMusicBase::getReadCacheLine(word start) const
 // version 1: initial version
 // version 2: refactored YM2413 class structure
 // version 3: removed 'registerLatch' (moved to YM2413 cores)
-template<typename Archive>
-void MSXMusicBase::serialize(Archive& ar, unsigned version)
+void MSXMusicBase::serialize(Archive auto& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 
@@ -77,8 +76,7 @@ MSXMusic::MSXMusic(const DeviceConfig& config)
 {
 }
 
-template<typename Archive>
-void MSXMusic::serialize(Archive& ar, unsigned version)
+void MSXMusic::serialize(Archive auto& ar, unsigned version)
 {
 	ar.template serializeInlinedBase<MSXMusicBase>(*this, version);
 }
@@ -157,8 +155,7 @@ byte* MSXMusicWX::getWriteCacheLine(word start) const
 	}
 }
 
-template<typename Archive>
-void MSXMusicWX::serialize(Archive& ar, unsigned version)
+void MSXMusicWX::serialize(Archive auto& ar, unsigned version)
 {
 	ar.template serializeInlinedBase<MSXMusicBase>(*this, version);
 	ar.serialize("control", control);

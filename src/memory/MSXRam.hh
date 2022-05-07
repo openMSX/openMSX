@@ -19,8 +19,7 @@ public:
 	[[nodiscard]] byte* getWriteCacheLine(word start) const override;
 	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	void init() override;

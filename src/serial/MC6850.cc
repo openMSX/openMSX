@@ -291,8 +291,8 @@ void MC6850::setParityBit(bool /*enable*/, ParityBit /*parity*/)
 // version 1: initial version
 // version 2: added control
 // version 3: actually working MC6850 with many more member variables
-template<typename Archive>
-void MC6850::serialize(Archive& ar, unsigned version)
+template<Archive Ar>
+void MC6850::serialize(Ar& ar, unsigned version)
 {
 	if (ar.versionAtLeast(version, 3)) {
 		ar.template serializeBase<MidiInConnector>(*this);
@@ -320,7 +320,7 @@ void MC6850::serialize(Archive& ar, unsigned version)
 		controlReg = 3;
 	}
 
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		setDataFormat();
 	}
 }

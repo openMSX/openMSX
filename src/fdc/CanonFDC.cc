@@ -132,8 +132,7 @@ byte* CanonFDC::getWriteCacheLine(word address) const
 	}
 }
 
-template<typename Archive>
-void CanonFDC::serialize(Archive& ar, unsigned /*version*/)
+void CanonFDC::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<WD2793BasedFDC>(*this);
 	ar.serialize("controlReg", controlReg);

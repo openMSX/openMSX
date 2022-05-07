@@ -166,15 +166,15 @@ void PioneerLDControl::updateVideoSource()
 	vdp->setExternalVideoSource(videoSource);
 }
 
-template<typename Archive>
-void PioneerLDControl::serialize(Archive& ar, unsigned /*version*/)
+template<Archive Ar>
+void PioneerLDControl::serialize(Ar& ar, unsigned /*version*/)
 {
 	ar.serialize("clock", clock,
 	             "mutel", muteL,
 	             "muter", muteR);
 	// videoEnabled is restored from LaserdiscPlayer. Set to false
 	// for now so that the irq does not get changed during load
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		videoEnabled = false;
 	}
 	ar.serialize("superimposing", superimposing,
@@ -182,7 +182,7 @@ void PioneerLDControl::serialize(Archive& ar, unsigned /*version*/)
 	             "irq",           irq);
 	if (laserdisc) ar.serialize("laserdisc", *laserdisc);
 
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		updateVideoSource();
 		if (laserdisc) {
 			laserdisc->setMuting(muteL, muteR, getCurrentTime());

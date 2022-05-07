@@ -110,8 +110,7 @@ byte* RomGameMaster2::getWriteCacheLine(word address) const
 	}
 }
 
-template<typename Archive>
-void RomGameMaster2::serialize(Archive& ar, unsigned /*version*/)
+void RomGameMaster2::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom4kBBlocks>(*this);
 	ar.serialize("sramOffset",  sramOffset,

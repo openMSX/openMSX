@@ -745,8 +745,7 @@ static constexpr std::initializer_list<enum_string<SCSI::Phase>> phaseInfo = {
 };
 SERIALIZE_ENUM(SCSI::Phase, phaseInfo);
 
-template<typename Archive>
-void MB89352::serialize(Archive& ar, unsigned /*version*/)
+void MB89352::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.serialize_blob("buffer", buffer.data(), buffer.size());
 	char tag[8] = { 'd', 'e', 'v', 'i', 'c', 'e', 'X', 0 };

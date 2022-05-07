@@ -28,8 +28,7 @@ public:
 	void sync(EmuTime::param time);
 	void resetStatus();
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	// This data is updated while playing

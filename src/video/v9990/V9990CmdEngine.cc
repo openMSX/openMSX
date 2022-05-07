@@ -1840,8 +1840,8 @@ EmuTime V9990CmdEngine::estimateCmdEnd() const
 
 // version 1: initial version
 // version 2: we forgot to serialize the time (or clock) member
-template<typename Archive>
-void V9990CmdEngine::serialize(Archive& ar, unsigned version)
+template<Archive Ar>
+void V9990CmdEngine::serialize(Ar& ar, unsigned version)
 {
 	// note: V9990Cmd objects are stateless
 	if (ar.versionAtLeast(version, 2)) {
@@ -1878,7 +1878,7 @@ void V9990CmdEngine::serialize(Archive& ar, unsigned version)
 	             "partial",      partial,
 	             "endAfterRead", endAfterRead);
 
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		setCommandMode();
 	}
 }

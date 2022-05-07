@@ -113,8 +113,7 @@ protected:
 		return remaining < 0;
 	}
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	mutable DynamicClock clock;

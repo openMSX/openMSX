@@ -1253,21 +1253,21 @@ std::string MSXCPUInterface::IOInfo::help(std::span<const TclObject> /*tokens*/)
 }
 
 
-template<typename Archive>
-void MSXCPUInterface::serialize(Archive& ar, unsigned /*version*/)
+template<Archive Ar>
+void MSXCPUInterface::serialize(Ar& ar, unsigned /*version*/)
 {
 	// TODO watchPoints ???
 
 	// primary and 4 secondary slot select registers
 	byte prim = 0;
-	if constexpr (!Archive::IS_LOADER) {
+	if constexpr (!Ar::IS_LOADER) {
 		for (auto i : xrange(4)) {
 			prim |= primarySlotState[i] << (2 * i);
 		}
 	}
 	ar.serialize("primarySlots", prim,
 	             "subSlotRegs",  subSlotRegister);
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		setPrimarySlots(prim);
 		for (auto i : xrange(4)) {
 			setSubSlot(i, subSlotRegister[i]);

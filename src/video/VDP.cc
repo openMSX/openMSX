@@ -1831,8 +1831,8 @@ int VDP::MsxX512PosInfo::calc(const EmuTime& time) const
 // version 7: removed cpuVramReqAddr again, fixed issue in a different way
 // version 8: removed 'userData' from Schedulable
 // version 9: update sprite-enabled-status only once per line
-template<typename Archive>
-void VDP::serialize(Archive& ar, unsigned serVersion)
+template<Archive Ar>
+void VDP::serialize(Ar& ar, unsigned serVersion)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 
@@ -1898,7 +1898,7 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 	ar.serialize("cmdEngine",     *cmdEngine,
 	             "spriteChecker", *spriteChecker, // must come after displayMode
 	             "vram",          *vram); // must come after controlRegs and after spriteChecker
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		pendingCpuAccess = syncCpuVramAccess.pendingSyncPoint();
 		update(tooFastAccess);
 	}
@@ -1906,7 +1906,7 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 	if (ar.versionAtLeast(serVersion, 2)) {
 		ar.serialize("frameCount", frameCount);
 	} else {
-		assert(Archive::IS_LOADER);
+		assert(Ar::IS_LOADER);
 		// We could estimate the frameCount (assume framerate was
 		// constant the whole time). But I think it's better to have
 		// an obviously wrong value than an almost correct value.
@@ -1917,7 +1917,7 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 		ar.serialize("syncSetSprites", syncSetSprites);
 		ar.serialize("spriteEnabled", spriteEnabled);
 	} else {
-		assert(Archive::IS_LOADER);
+		assert(Ar::IS_LOADER);
 		spriteEnabled = (controlRegs[8] & 0x02) == 0;
 	}
 
@@ -1929,7 +1929,7 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 	// of this frame). But it will be correct at the start of the next
 	// frame. Probably good enough.
 
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		renderer->reInit();
 	}
 }

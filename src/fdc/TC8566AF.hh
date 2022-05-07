@@ -30,8 +30,7 @@ public:
 	bool diskChanged(unsigned driveNum);
 	[[nodiscard]] bool peekDiskChanged(unsigned driveNum) const;
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 	// public for serialization
 	enum Command {
@@ -134,8 +133,7 @@ private:
 		byte seekValue = 0;
 		SeekState state = SEEK_IDLE;
 
-		template<typename Archive>
-		void serialize(Archive& ar, unsigned version);
+		void serialize(Archive auto& ar, unsigned version);
 	} seekInfo[4];
 };
 SERIALIZE_CLASS_VERSION(TC8566AF, 7);

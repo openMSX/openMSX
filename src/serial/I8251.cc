@@ -344,8 +344,7 @@ SERIALIZE_ENUM(I8251::CmdFaze, cmdFazeInfo);
 
 // version 1: initial version
 // version 2: removed 'userData' from Schedulable
-template<typename Archive>
-void I8251::serialize(Archive& ar, unsigned version)
+void I8251::serialize(Archive auto& ar, unsigned version)
 {
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("syncRecv",  syncRecv,

@@ -34,7 +34,7 @@ public:
 	[[nodiscard]] int  getDeltaY()  const { return deltaY; }
 	[[nodiscard]] byte getPress()   const { return press; }
 	[[nodiscard]] byte getRelease() const { return release; }
-	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
+	void serialize(Archive auto& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
 		ar.serialize("deltaX",  deltaX,
@@ -332,10 +332,10 @@ void Mouse::stopReplay(EmuTime::param time) noexcept
 //            record/replay, see comment in Keyboard.cc for more details.
 // version 3: variables '(cur){x,y}rel' are scaled to MSX coordinates
 // version 4: simplified type of 'lastTime' from Clock<> to EmuTime
-template<typename Archive>
-void Mouse::serialize(Archive& ar, unsigned version)
+template<Archive Ar>
+void Mouse::serialize(Ar& ar, unsigned version)
 {
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		if (isPluggedIn()) {
 			// Do this early, because if something goes wrong while loading
 			// some state below, then unplugHelper() gets called and that
@@ -345,7 +345,7 @@ void Mouse::serialize(Archive& ar, unsigned version)
 	}
 
 	if (ar.versionBelow(version, 4)) {
-		assert(Archive::IS_LOADER);
+		assert(Ar::IS_LOADER);
 		Clock<1000> tmp(EmuTime::zero());
 		ar.serialize("lastTime", tmp);
 		lastTime = tmp.getTime();

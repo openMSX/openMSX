@@ -1621,13 +1621,13 @@ static constexpr std::initializer_list<enum_string<YMF262::EnvelopeState>> envel
 };
 SERIALIZE_ENUM(YMF262::EnvelopeState, envelopeStateInfo);
 
-template<typename Archive>
-void YMF262::Slot::serialize(Archive& a, unsigned /*version*/)
+template<Archive A>
+void YMF262::Slot::serialize(A& a, unsigned /*version*/)
 {
 	// wavetable
 	auto waveform = unsigned((wavetable - sin.tab) / SIN_LEN);
 	a.serialize("waveform", waveform);
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (A::IS_LOADER) {
 		wavetable = &sin.tab[waveform * SIN_LEN];
 	}
 
@@ -1665,8 +1665,7 @@ void YMF262::Slot::serialize(Archive& a, unsigned /*version*/)
 	            "mul",       mul);
 }
 
-template<typename Archive>
-void YMF262::Channel::serialize(Archive& a, unsigned /*version*/)
+void YMF262::Channel::serialize(Archive auto& a, unsigned /*version*/)
 {
 	a.serialize("slots",      slot,
 	            "block_fnum", block_fnum,
@@ -1678,8 +1677,8 @@ void YMF262::Channel::serialize(Archive& a, unsigned /*version*/)
 
 // version 1: initial version
 // version 2: added alreadySignaledNEW2
-template<typename Archive>
-void YMF262::serialize(Archive& a, unsigned version)
+template<Archive A>
+void YMF262::serialize(A& a, unsigned version)
 {
 	a.serialize("timer1",  *timer1,
 	            "timer2",  *timer2,
@@ -1702,9 +1701,9 @@ void YMF262::serialize(Archive& a, unsigned version)
 	if (a.versionAtLeast(version, 2)) {
 		a.serialize("alreadySignaledNEW2", alreadySignaledNEW2);
 	} else {
-		assert(Archive::IS_LOADER);
+		assert(A::IS_LOADER);
 		alreadySignaledNEW2 = true; // we can't know the actual value,
-									// but 'true' is the safest value
+		                            // but 'true' is the safest value
 	}
 
 	// TODO restore more state by rewriting register values

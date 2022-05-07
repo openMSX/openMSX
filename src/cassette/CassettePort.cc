@@ -128,8 +128,7 @@ CassetteDevice& CassettePort::getPluggedCasDev() const
 	return *checked_cast<CassetteDevice*>(&getPlugged());
 }
 
-template<typename Archive>
-void CassettePort::serialize(Archive& ar, unsigned version)
+void CassettePort::serialize(Archive auto& ar, unsigned version)
 {
 	ar.template serializeBase<Connector>(*this);
 	// don't serialize 'lastOutput', done via MSXPPI

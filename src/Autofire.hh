@@ -6,6 +6,7 @@
 #include "EmuTime.hh"
 #include "IntegerSetting.hh"
 #include "StateChangeListener.hh"
+#include "serialize_meta.hh"
 #include "static_string_view.hh"
 
 namespace openmsx {
@@ -39,8 +40,7 @@ public:
 	  */
 	[[nodiscard]] bool getSignal(EmuTime::param time);
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	void setSpeed(EmuTime::param time);

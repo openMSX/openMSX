@@ -22,8 +22,7 @@ public:
 	[[nodiscard]] MSXDevice*& getInDevicePtr (byte port);
 	[[nodiscard]] MSXDevice*& getOutDevicePtr(byte port);
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	void delay(EmuTime::param time);

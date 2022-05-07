@@ -524,8 +524,8 @@ void MSXCPU::Debuggable::write(unsigned address, byte value)
 
 // version 1: initial version
 // version 2: activeCPU,newCPU -> z80Active,newZ80Active
-template<typename Archive>
-void MSXCPU::serialize(Archive& ar, unsigned version)
+template<Archive Ar>
+void MSXCPU::serialize(Ar& ar, unsigned version)
 {
 	if (ar.versionAtLeast(version, 2)) {
 		          ar.serialize("z80",  *z80);
@@ -534,7 +534,7 @@ void MSXCPU::serialize(Archive& ar, unsigned version)
 		             "newZ80Active", newZ80Active);
 	} else {
 		// backwards-compatibility
-		assert(Archive::IS_LOADER);
+		assert(Ar::IS_LOADER);
 
 		          ar.serializeWithID("z80",  *z80);
 		if (r800) ar.serializeWithID("r800", *r800);
@@ -551,7 +551,7 @@ void MSXCPU::serialize(Archive& ar, unsigned version)
 	}
 	ar.serialize("resetTime", reference);
 
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		invalidateMemCacheSlot();
 		invalidateAllSlotsRWCache(0x0000, 0x10000);
 	}

@@ -117,8 +117,8 @@ void RomBlocks<BANK_SIZE>::setRom(byte region, unsigned block)
 // version 1: initial version
 // version 2: added blockNr
 template<unsigned BANK_SIZE>
-template<typename Archive>
-void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
+template<Archive Ar>
+void RomBlocks<BANK_SIZE>::serialize(Ar& ar, unsigned /*version*/)
 {
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);
@@ -128,7 +128,7 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 	unsigned offsets[NUM_BANKS];
 	unsigned romSize = rom.getSize();
 	unsigned sramSize = sram ? sram->getSize() : 0;
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		ar.serialize("banks", offsets);
 		for (auto i : xrange(NUM_BANKS)) {
 			if (offsets[i] == unsigned(-1)) {
@@ -170,7 +170,7 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 	/*if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("blockNr", blockNr);
 	} else {
-		assert(Archive::IS_LOADER);
+		assert(Ar::IS_LOADER);
 		// set dummy value, anyway only used for debuggable
 		ranges::fill(blockNr, 255);
 	}*/

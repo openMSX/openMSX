@@ -37,7 +37,7 @@ public:
 	[[nodiscard]] bool getTouch()  const { return touch; }
 	[[nodiscard]] bool getButton() const { return button; }
 
-	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
+	void serialize(Archive auto& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
 		ar.serialize("x",      x,
@@ -277,8 +277,8 @@ void Touchpad::stopReplay(EmuTime::param time) noexcept
 }
 
 
-template<typename Archive>
-void Touchpad::serialize(Archive& ar, unsigned /*version*/)
+template<Archive Ar>
+void Touchpad::serialize(Ar& ar, unsigned /*version*/)
 {
 	// no need to serialize hostX, hostY, hostButtons,
 	//                      transformSetting, m[][]
@@ -291,7 +291,7 @@ void Touchpad::serialize(Archive& ar, unsigned /*version*/)
 	             "channel", channel,
 	             "last",    last);
 
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		if (isPluggedIn()) {
 			plugHelper(*getConnector(), EmuTime::dummy());
 		}

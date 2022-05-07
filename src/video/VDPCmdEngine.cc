@@ -2615,8 +2615,8 @@ void VDPCmdEngine::commandDone(EmuTime::param time)
 // version 1: initial version
 // version 2: replaced member 'Clock<> clock' with 'Emutime time'
 // version 3: added 'phase', 'tmpSrc', 'tmpDst'
-template<typename Archive>
-void VDPCmdEngine::serialize(Archive& ar, unsigned version)
+template<Archive Ar>
+void VDPCmdEngine::serialize(Ar& ar, unsigned version)
 {
 	// In older (development) versions CMD was split in a CMD and a LOG
 	// member, though it was combined for the savestate. Only the CMD part
@@ -2627,7 +2627,7 @@ void VDPCmdEngine::serialize(Archive& ar, unsigned version)
 		ar.serialize("time", engineTime);
 	} else {
 		// in version 1, the 'engineTime' member had type 'Clock<>'
-		assert(Archive::IS_LOADER);
+		assert(Ar::IS_LOADER);
 		VDP::VDPClock clock(EmuTime::dummy());
 		ar.serialize("clock", clock);
 		engineTime = clock.getTime();
@@ -2654,11 +2654,11 @@ void VDPCmdEngine::serialize(Archive& ar, unsigned version)
 		             "tmpSrc", tmpSrc,
 		             "tmpDst", tmpDst);
 	} else {
-		assert(Archive::IS_LOADER);
+		assert(Ar::IS_LOADER);
 		phase = tmpSrc = tmpDst = 0;
 	}
 
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		if (CMD & 0xF0) {
 			assert(scrMode >= 0);
 		} else {

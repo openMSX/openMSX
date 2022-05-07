@@ -44,8 +44,7 @@ public:
 	void generateChannels(float** buffers, unsigned num) override;
 	float getAmplificationFactorImpl() const override;
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 	enum State { PLAY, RECORD, STOP }; // public for serialization
 

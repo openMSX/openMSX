@@ -884,8 +884,8 @@ void MegaFlashRomSCCPlusSD::writeIO(word port, byte value, EmuTime::param time)
 	}
 }
 
-template<typename Archive>
-void MegaFlashRomSCCPlusSD::serialize(Archive& ar, unsigned /*version*/)
+template<Archive Ar>
+void MegaFlashRomSCCPlusSD::serialize(Ar& ar, unsigned /*version*/)
 {
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);
@@ -907,7 +907,7 @@ void MegaFlashRomSCCPlusSD::serialize(Archive& ar, unsigned /*version*/)
 	             "mapperReg", mapperReg,
 	             "offsetReg", offsetReg,
 	             "bankRegsSubSlot1", bankRegsSubSlot1);
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		// Re-register PSG ports (if needed)
 		byte tmp = configReg;
 		configReg = 3; // set to un-registered

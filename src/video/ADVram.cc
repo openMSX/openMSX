@@ -81,8 +81,7 @@ void ADVram::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-template<typename Archive>
-void ADVram::serialize(Archive& ar, unsigned /*version*/)
+void ADVram::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("baseAddr", baseAddr,

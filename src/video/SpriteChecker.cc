@@ -492,10 +492,10 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 
 // version 1: initial version
 // version 2: bug fix: also serialize 'currentLine'
-template<typename Archive>
-void SpriteChecker::serialize(Archive& ar, unsigned version)
+template<Archive Ar>
+void SpriteChecker::serialize(Ar& ar, unsigned version)
 {
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		// Recalculate from VDP state:
 		//  - frameStartTime
 		frameStartTime.reset(vdp.getFrameStartTime());

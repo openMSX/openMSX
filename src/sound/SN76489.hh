@@ -33,8 +33,7 @@ public:
 	void reset(EmuTime::param time);
 	void write(byte value, EmuTime::param time);
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	class NoiseShifter {
@@ -61,8 +60,7 @@ private:
 		  */
 		void catchUp();
 
-		template<typename Archive>
-		void serialize(Archive& ar, unsigned version);
+		void serialize(Archive auto& ar, unsigned version);
 
 	private:
 		unsigned pattern;

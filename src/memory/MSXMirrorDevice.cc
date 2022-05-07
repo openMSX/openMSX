@@ -53,8 +53,7 @@ bool MSXMirrorDevice::allowUnaligned() const
 	return true;
 }
 
-template<typename Archive>
-void MSXMirrorDevice::serialize(Archive& ar, unsigned /*version*/)
+void MSXMirrorDevice::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 }

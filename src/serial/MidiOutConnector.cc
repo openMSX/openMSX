@@ -49,8 +49,7 @@ void MidiOutConnector::recvByte(byte value, EmuTime::param time)
 	getPluggedMidiOutDev().recvByte(value, time);
 }
 
-template<typename Archive>
-void MidiOutConnector::serialize(Archive& ar, unsigned /*version*/)
+void MidiOutConnector::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Connector>(*this);
 }

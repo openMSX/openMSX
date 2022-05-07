@@ -146,8 +146,7 @@ byte* RomFSA1FM1::getWriteCacheLine(word address) const
 	}
 }
 
-template<typename Archive>
-void RomFSA1FM1::serialize(Archive& ar, unsigned /*version*/)
+void RomFSA1FM1::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);
@@ -286,8 +285,8 @@ void RomFSA1FM2::changeBank(byte region, byte bank)
 	}
 }
 
-template<typename Archive>
-void RomFSA1FM2::serialize(Archive& ar, unsigned /*version*/)
+template<Archive Ar>
+void RomFSA1FM2::serialize(Ar& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom8kBBlocks>(*this);
 	// note: SRAM can be serialized in this class (as opposed to
@@ -295,7 +294,7 @@ void RomFSA1FM2::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("SRAM",       *fsSram,
 	             "bankSelect", bankSelect,
 	             "control",    control);
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		// recalculate 'isRam' and 'isEmpty' from bankSelect
 		for (auto region : xrange(8)) {
 			changeBank(region, bankSelect[region]);

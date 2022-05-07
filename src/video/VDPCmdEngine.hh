@@ -120,8 +120,7 @@ public:
 
 	/** Interface for logical operations.
 	  */
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 private:
 	void executeCommand(EmuTime::param time);

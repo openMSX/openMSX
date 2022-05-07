@@ -333,8 +333,7 @@ static constexpr std::initializer_list<enum_string<SdCard::Mode>> modeInfo = {
 };
 SERIALIZE_ENUM(SdCard::Mode, modeInfo);
 
-template<typename Archive>
-void SdCard::serialize(Archive& ar, unsigned /*version*/)
+void SdCard::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.serialize("mode",   mode,
 	             "cmdBuf", cmdBuf);

@@ -64,8 +64,7 @@ byte* MSXRam::getWriteCacheLine(word start) const
 	return checkedRam->getWriteCacheLine(translate(start));
 }
 
-template<typename Archive>
-void MSXRam::serialize(Archive& ar, unsigned /*version*/)
+void MSXRam::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	// TODO ar.serialize("checkedRam", checkedRam);

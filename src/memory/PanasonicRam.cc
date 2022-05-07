@@ -44,8 +44,7 @@ void PanasonicRam::writeIO(word port, byte value, EmuTime::param time)
 	}
 }
 
-template<typename Archive>
-void PanasonicRam::serialize(Archive& ar, unsigned /*version*/)
+void PanasonicRam::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXMemoryMapperBase>(*this);
 }

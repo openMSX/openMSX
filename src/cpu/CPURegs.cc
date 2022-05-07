@@ -6,8 +6,8 @@ namespace openmsx {
 // version 1: Initial version.
 // version 2: Replaced 'afterEI' boolean with 'after' byte
 //            (holds both afterEI and afterLDAI information).
-template<typename Archive>
-void CPURegs::serialize(Archive& ar, unsigned version)
+template<Archive Ar>
+void CPURegs::serialize(Ar& ar, unsigned version)
 {
 	ar.serialize("af",  AF_.w,
 	             "bc",  BC_.w,
@@ -24,7 +24,7 @@ void CPURegs::serialize(Archive& ar, unsigned version)
 	             "i",   I_);
 	byte r = getR();
 	ar.serialize("r",   r);  // combined R_ and R2_
-	if constexpr (Archive::IS_LOADER) setR(r);
+	if constexpr (Ar::IS_LOADER) setR(r);
 	ar.serialize("im",   IM_,
 	             "iff1", IFF1_,
 	             "iff2", IFF2_);

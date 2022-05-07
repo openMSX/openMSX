@@ -74,8 +74,7 @@ void MSXKanji12::writeSwitchedIO(word port, byte value, EmuTime::param /*time*/)
 	}
 }
 
-template<typename Archive>
-void MSXKanji12::serialize(Archive& ar, unsigned /*version*/)
+void MSXKanji12::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	// no need to serialize MSXSwitchedDevice base class

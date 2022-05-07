@@ -124,8 +124,7 @@ void MSXMemoryMapperBase::Debuggable::write(unsigned address, byte value)
 }
 
 
-template<typename Archive>
-void MSXMemoryMapperBase::serialize(Archive& ar, unsigned version)
+void MSXMemoryMapperBase::serialize(Archive auto& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	if (ar.versionAtLeast(version, 2)) {

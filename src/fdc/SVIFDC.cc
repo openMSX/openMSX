@@ -114,8 +114,7 @@ void SVIFDC::writeIO(word port, byte value, EmuTime::param time)
 	}
 }
 
-template<typename Archive>
-void SVIFDC::serialize(Archive& ar, unsigned /*version*/)
+void SVIFDC::serialize(Archive auto& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<WD2793BasedFDC>(*this);
 }

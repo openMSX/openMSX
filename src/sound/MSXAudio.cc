@@ -122,8 +122,8 @@ void MSXAudio::enableDAC(bool enable, EmuTime::param time)
 	}
 }
 
-template<typename Archive>
-void MSXAudio::serialize(Archive& ar, unsigned /*version*/)
+template<Archive Ar>
+void MSXAudio::serialize(Ar& ar, unsigned /*version*/)
 {
 	ar.serializePolymorphic("periphery", *periphery);
 	ar.serialize("Y8950",         y8950,
@@ -131,7 +131,7 @@ void MSXAudio::serialize(Archive& ar, unsigned /*version*/)
 	             "dacValue",      dacValue,
 	             "dacEnabled",    dacEnabled);
 
-	if constexpr (Archive::IS_LOADER) {
+	if constexpr (Ar::IS_LOADER) {
 		// restore dac status
 		if (dacEnabled) {
 			assert(dac);

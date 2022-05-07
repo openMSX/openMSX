@@ -155,8 +155,7 @@ int MidiInCoreMIDI::signalEvent(const Event& /*event*/) noexcept
 	return 0;
 }
 
-template<typename Archive>
-void MidiInCoreMIDI::serialize(Archive& /*ar*/, unsigned /*version*/)
+void MidiInCoreMIDI::serialize(Archive auto& /*ar*/, unsigned /*version*/)
 {
 }
 INSTANTIATE_SERIALIZE_METHODS(MidiInCoreMIDI);
@@ -281,8 +280,7 @@ int MidiInCoreMIDIVirtual::signalEvent(
 	return 0;
 }
 
-template<typename Archive>
-void MidiInCoreMIDIVirtual::serialize(Archive& /*ar*/, unsigned /*version*/)
+void MidiInCoreMIDIVirtual::serialize(Archive auto& /*ar*/, unsigned /*version*/)
 {
 }
 INSTANTIATE_SERIALIZE_METHODS(MidiInCoreMIDIVirtual);

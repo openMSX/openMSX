@@ -4388,8 +4388,8 @@ template<typename T> template<Reg16 REG> II CPUCore<T>::muluw_hl_SS() {
 //  3 -> timing of the emulation changed (no changes in serialization)
 //  4 -> timing of the emulation changed again (see doc/internal/r800-call.txt)
 //  5 -> added serialization of nmiEdge
-template<typename T> template<typename Archive>
-void CPUCore<T>::serialize(Archive& ar, unsigned version)
+template<typename T>
+void CPUCore<T>::serialize(Archive auto& ar, unsigned version)
 {
 	T::serialize(ar, version);
 	ar.serialize("regs", static_cast<CPURegs&>(*this));

@@ -33,8 +33,7 @@ public:
 
 	void setMixLevel(uint8_t x, EmuTime::param time);
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 public:
 	/** 16.16 fixed point type for frequency calculations */
@@ -65,8 +64,7 @@ private:
 			fb_shift = value ? 9 - value : 0;
 		}
 
-		template<typename Archive>
-		void serialize(Archive& ar, unsigned version);
+		void serialize(Archive auto& ar, unsigned version);
 
 		// Phase Generator
 		FreqIndex Cnt;	// frequency counter
@@ -118,8 +116,7 @@ private:
 		void chan_calc(unsigned lfo_am);
 		void chan_calc_ext(unsigned lfo_am);
 
-		template<typename Archive>
-		void serialize(Archive& ar, unsigned version);
+		void serialize(Archive auto& ar, unsigned version);
 
 		Slot slot[2];
 

@@ -2,6 +2,7 @@
 #define DUMMYIDEDEVICE_HH
 
 #include "IDEDevice.hh"
+#include "serialize_meta.hh"
 
 namespace openmsx {
 
@@ -14,8 +15,7 @@ public:
 	void writeData(word value, EmuTime::param time) override;
 	void writeReg(nibble reg, byte value, EmuTime::param time) override;
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 };
 
 } // namespace openmsx

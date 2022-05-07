@@ -48,8 +48,7 @@ void MidiOutLogger::recvByte(byte value, EmuTime::param /*time*/)
 	}
 }
 
-template<typename Archive>
-void MidiOutLogger::serialize(Archive& /*ar*/, unsigned /*version*/)
+void MidiOutLogger::serialize(Archive auto& /*ar*/, unsigned /*version*/)
 {
 	// don't try to resume a previous logfile (see PrinterPortLogger)
 }

@@ -18,8 +18,7 @@ public:
 	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;
 	[[nodiscard]] const byte* getReadCacheLine(word start) const override;
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(Archive auto& ar, unsigned version);
 
 protected:
 	explicit MSXFDC(const DeviceConfig& config, const std::string& romId = {},
