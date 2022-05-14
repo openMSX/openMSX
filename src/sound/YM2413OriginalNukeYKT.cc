@@ -60,15 +60,17 @@ void YM2413::generateChannels(float* out_[9 + 5], uint32_t n)
 void YM2413::writePort(bool port, uint8_t value, int cycle_offset)
 {
 	// see comments in YM2413NukeYKT.cc
-	while (unlikely(cycle_offset < allowed_offset)) {
-		float d = 0.0f;
-		float* dummy[9 + 5] = {
-			&d, &d, &d, &d, &d, &d, &d, &d, &d,
-			&d, &d, &d, &d, &d,
-		};
-		generateChannels(dummy, 1);
+	if (unlikely(speedUpHack)) {
+		while (unlikely(cycle_offset < allowed_offset)) {
+			float d = 0.0f;
+			float* dummy[9 + 5] = {
+				&d, &d, &d, &d, &d, &d, &d, &d, &d,
+				&d, &d, &d, &d, &d,
+			};
+			generateChannels(dummy, 1);
+		}
+		allowed_offset = ((port ? 84 : 12) / 4) + cycle_offset;
 	}
-	allowed_offset = ((port ? 84 : 12) / 4) + cycle_offset;
 
 	writes[cycle_offset] = {port, value};
 
@@ -93,6 +95,11 @@ uint8_t YM2413::peekReg(uint8_t reg) const
 float YM2413::getAmplificationFactor() const
 {
 	return 1.0f / 256.0f;
+}
+
+void YM2413::setSpeed(double speed)
+{
+	speedUpHack = speed > 1.0;
 }
 
 template<typename Archive>

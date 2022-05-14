@@ -100,6 +100,12 @@ void YM2413::pokeReg(byte reg, byte value, EmuTime::param time)
 	core->pokeReg(reg, value);
 }
 
+void YM2413::setOutputRate(unsigned hostSampleRate, double speed)
+{
+	ResampledSoundDevice::setOutputRate(hostSampleRate, speed);
+	core->setSpeed(speed);
+}
+
 void YM2413::generateChannels(float** bufs, unsigned num)
 {
 	core->generateChannels(bufs, num);

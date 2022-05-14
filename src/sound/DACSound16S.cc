@@ -21,9 +21,9 @@ DACSound16S::~DACSound16S()
 	unregisterSound();
 }
 
-void DACSound16S::setOutputRate(unsigned sampleRate)
+void DACSound16S::setOutputRate(unsigned hostSampleRate, double /*speed*/)
 {
-	setInputRate(sampleRate);
+	setInputRate(hostSampleRate);
 }
 
 void DACSound16S::reset(EmuTime::param time)

@@ -116,7 +116,7 @@ void MSXMixer::registerSound(SoundDevice& device, float volume,
 		channelSettings.mute->attach(*this);
 	}
 
-	device.setOutputRate(getSampleRate());
+	device.setOutputRate(getSampleRate(), speedManager.getSpeed());
 	auto& i = infos.emplace_back(std::move(info));
 	updateVolumeParams(i);
 
@@ -589,7 +589,7 @@ void MSXMixer::setMixerParams(unsigned newFragmentSize, unsigned newSampleRate)
 	reInit(); // must come before call to setOutputRate()
 
 	for (auto& info : infos) {
-		info.device->setOutputRate(newSampleRate);
+		info.device->setOutputRate(newSampleRate, speedManager.getSpeed());
 	}
 }
 

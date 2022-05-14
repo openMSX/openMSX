@@ -21,6 +21,8 @@ MSX device support:
 - Implemented the known differences between OPM (YM2151, as used in Yamaha
   SFG-01)) and OPP (YM2164, as used in Yamaha SFG-05)
 - Fixed YM2151/YM2164 timer
+- YM2413 (MSX-Music): accurately emulate the effect of too-fast register
+  access
 - Fixed Sony HBI-55 emulation
 - Fixed swapped redblue colors in laserdisc with SDLGL-PP
 - Added disk-changed bit in Sony FDC interface, required for HB-F500P for

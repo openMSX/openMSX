@@ -33,7 +33,7 @@ protected:
 	~ResampledSoundDevice();
 
 	// SoundDevice
-	void setOutputRate(unsigned sampleRate) override;
+	void setOutputRate(unsigned hostSampleRate, double speed) override;
 	bool updateBuffer(unsigned length, float* buffer,
 	                  EmuTime::param time) override;
 

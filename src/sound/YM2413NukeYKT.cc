@@ -868,18 +868,20 @@ void YM2413::writePort(bool port, uint8_t value, int cycle_offset)
 	//  faster this can result in artificial too-fast-access. We need to
 	//  solve this properly, but for now this hack should suffice.
 
-	while (unlikely(cycle_offset < allowed_offset)) {
-		float d = 0.0f;
-		float* dummy[9 + 5] = {
-			&d, &d, &d, &d, &d, &d, &d, &d, &d,
-			&d, &d, &d, &d, &d,
-		};
-		step18<false>(dummy); // discard result
+	if (unlikely(speedUpHack)) {
+		while (unlikely(cycle_offset < allowed_offset)) {
+			float d = 0.0f;
+			float* dummy[9 + 5] = {
+				&d, &d, &d, &d, &d, &d, &d, &d, &d,
+				&d, &d, &d, &d, &d,
+			};
+			step18<false>(dummy); // discard result
+		}
+		// Need 12 cycles (@3.57MHz) wait after address-port access, 84 cycles
+		// after data-port access. Divide by 4 to translate to our 18-step
+		// timescale.
+		allowed_offset = ((port ? 84 : 12) / 4) + cycle_offset;
 	}
-	// Need 12 cycles (@3.57MHz) wait after address-port access, 84 cycles
-	// after data-port access. Divide by 4 to translate to our 18-step
-	// timescale.
-	allowed_offset = ((port ? 84 : 12) / 4) + cycle_offset;
 
 	writes[cycle_offset] = {port, value};
 	if (port && (write_address == 0xf)) {
@@ -914,6 +916,11 @@ uint8_t YM2413::peekReg(uint8_t reg) const
 float YM2413::getAmplificationFactor() const
 {
 	return 1.0f / 256.0f;
+}
+
+void YM2413::setSpeed(double speed)
+{
+	speedUpHack = speed > 1.0;
 }
 
 } // namespace YM2413NukeYKT
