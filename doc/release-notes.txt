@@ -35,7 +35,7 @@ MSX device support:
   and Takamichi Suzukawa
 - Added initial support for Sega SG-1000 (and some preparations for SC-3000)
 - Carnivore 2:
-  - TODO updated initial (out-of-the-box) flash content, with bootmenu 2.50
+  - updated initial (out-of-the-box) flash content, with bootmenu 2.50
 - Use cleaned up disk ROMs in several configurations (without registers)
 - Fixed several configs that had wronly a memory mapper: Sony HB-F1XD,
   HB-F1XDmk2, Panasonic FS-A1mk2
