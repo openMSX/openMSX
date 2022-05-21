@@ -9,6 +9,7 @@
 #include "Math.hh"
 #include "Ram.hh"
 #include "SCC.hh"
+#include "AY8910.hh"
 #include "YM2413.hh"
 #include "serialize_meta.hh"
 #include <utility>
@@ -49,6 +50,8 @@ private:
 	[[nodiscard]] byte readConfigRegister(word address, EmuTime::param time);
 	void writeSndLVL(byte value, EmuTime::param time);
 	void writeCfgEEPR(byte value, EmuTime::param time);
+	void writePSGCtrl(byte value, EmuTime::param time);
+	void writePSGAlt(byte value);
 	void writeConfigRegister(word address, byte value, EmuTime::param time);
 
 	[[nodiscard]] bool sccEnabled()        const { return configRegs[0x00] & 0x10; }
@@ -122,6 +125,10 @@ private:
 	SCC scc;
 	byte sccMode;
 	byte sccBank[4]; // mostly write-only, except to test for scc-bank
+
+	// PSG
+	AY8910 psg;
+	byte psgLatch;
 
 	// ide
 	std::unique_ptr<IDEDevice> ideDevices[2];
