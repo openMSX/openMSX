@@ -137,7 +137,7 @@
       <vram>128</vram>
     </VDP>
 
-    <PSG id="psg">
+    <PSG id="PSG">
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
       <sound>

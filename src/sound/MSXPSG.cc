@@ -38,7 +38,7 @@ MSXPSG::MSXPSG(const DeviceConfig& config)
 	, prev(255)
 	, keyLayout(getKeyboardLayout(*this))
 	, addressMask(config.getChildDataAsBool("mirrored_registers", true) ? 0x0f : 0xff)
-	, ay8910("PSG", *this, config, getCurrentTime())
+	, ay8910(getName(), *this, config, getCurrentTime())
 {
 	reset(getCurrentTime());
 }
