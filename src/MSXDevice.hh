@@ -320,6 +320,8 @@ private:
 protected:
 	std::string deviceName;
 
+	[[nodiscard]] byte getPrimarySlot() const { return ps; };
+
 private:
 	struct BaseSize {
 		unsigned base;

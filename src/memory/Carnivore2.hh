@@ -52,6 +52,7 @@ private:
 	void writeCfgEEPR(byte value, EmuTime::param time);
 	void writePSGCtrl(byte value, EmuTime::param time);
 	void writePSGAlt(byte value);
+	void writePFXN(byte value);
 	void writeConfigRegister(word address, byte value, EmuTime::param time);
 
 	[[nodiscard]] bool sccEnabled()        const { return configRegs[0x00] & 0x10; }
@@ -111,6 +112,8 @@ private:
 	[[nodiscard]] bool fmPacSramEnabled() const {
 		return (fmPac5ffe == 0x4d) && (fmPac5fff == 0x69);
 	}
+	// User-defined ID and control port I/O
+	[[nodiscard]] byte idControlPort() const { return configRegs[0x35]; }
 
 private:
 	AmdFlash flash; // 8MB
@@ -147,8 +150,11 @@ private:
 	byte fmPacBank; // bank
 	byte fmPac5ffe;
 	byte fmPac5fff;
+
+	// User-defined ID and control port I/O
+	byte PF0_RV;
 };
-SERIALIZE_CLASS_VERSION(Carnivore2, 2);
+SERIALIZE_CLASS_VERSION(Carnivore2, 3);
 
 } // namespace openmsx
 
