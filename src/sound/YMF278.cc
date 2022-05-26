@@ -604,6 +604,9 @@ void YMF278::writeRegDirect(byte reg, byte data, EmuTime::param time)
 			}
 			if (slot.keyon) {
 				keyOnHelper(slot);
+			} else {
+				slot.stepptr = 0;
+				slot.pos = 0;
 			}
 			break;
 		}
