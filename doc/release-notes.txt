@@ -16,7 +16,9 @@ MSX device support:
   - fixed possible crash when switching display modes (seen in SymbOS)
   - fixed BMXL and BMLX commands in P1 in 4bpp modes
 - R800: fixed flag behavior of block I/O instructions (only affect Z and N)
-- OPL4: fixed aliasing in high pitched notes introduced in 0.15.0
+- OPL4:
+  - fixed aliasing in high pitched notes introduced in 0.15.0
+  - fixed missing reset of sample position when wave is changed during release
 - Apply Z80 CMOS behaviours to all MSX-ENGINE machines (not only turboR)
 - Implemented the known differences between OPM (YM2151, as used in Yamaha
   SFG-01) and OPP (YM2164, as used in Yamaha SFG-05)
