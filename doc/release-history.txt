@@ -3,6 +3,102 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
+openMSX 18.0 (2022-05-26)
+-------------------------
+
+Again a release with mostly bug fixes and smaller improvements.
+
+Special thanks to all the contributors of this release who are not in the core
+team! Keep these pull requests coming!
+
+Here's the list with all highlights and details:
+
+MSX device support:
+- V99x8:
+  - fix ugly looking top line when displaying interlacing
+  - fixed rounding for 'blue' in YJK modes
+- V9990:
+  - fixed possible crash when switching display modes (seen in SymbOS)
+  - fixed BMXL and BMLX commands in P1 in 4bpp modes
+- R800: fixed flag behavior of block I/O instructions (only affect Z and N)
+- OPL4:
+  - fixed aliasing in high pitched notes introduced in 0.15.0
+  - fixed missing reset of sample position when wave is changed during release
+- Apply Z80 CMOS behaviours to all MSX-ENGINE machines (not only turboR)
+- Implemented the known differences between OPM (YM2151, as used in Yamaha
+  SFG-01) and OPP (YM2164, as used in Yamaha SFG-05)
+- Fixed YM2151/YM2164 timer
+- YM2413/OPLL (MSX-Music):
+  - Incorporated bug fixes in NukeYKT OPLL core from the upstream authors
+  - Emulate effects of too fast access to YM2413/OPLL when using the (default)
+    NukeYKT core. Note: this only works when the speed setting is set to 100%.
+- Fixed Sony HBI-55 emulation
+- Fixed swapped redblue colors in laserdisc with SDLGL-PP
+- Added disk-changed bit in Sony FDC interface, required for HB-F500P for
+  instance
+- Added support for Talent TDC-600 external floppy disk drive
+- Added support for Canon FDC connectionstyle
+- More accurate TC8566AF emulation (turboR FDC)
+- Implemented proper emulation of Konami EC-701, thanks to Albert Beevendorp
+  and Takamichi Suzukawa
+- Added initial support for Sega SG-1000 (and some preparations for SC-3000)
+- Carnivore 2:
+  - updated initial (out-of-the-box) flash content, with bootmenu 2.50
+  - added 2nd PSG feature with configurable I/O ports (new in 2.50 firmware)
+  - added user-defined ID and control port I/O (new in 2.50 firmware)
+  - report firmware as version 2.50
+  - fixed bug that prevented multiple Carnivore 2 cartridges inserted in a
+    single machine
+- Added 2nd PSG on I/O ports 0x10-0x12 for Boosted configs and also added an
+  artificial 2nd PSG extension, for convenience, as alternative to using a
+  MegaFlashROM SCC+ SD or Carnivore 2 cartridge for that feature.
+- Use cleaned up disk ROMs in several configurations (without registers)
+- Fixed several configs that had wrongly a memory mapper: Sony HB-F1XD,
+  HB-F1XDmk2, Panasonic FS-A1mk2
+- added new machines/extensions, thanks to:
+  - Peter Hanraets: Philips VG 8235/39, Panasonic CF-2700 (UK), Casio MX-15,
+    Mitsubishi ML-G30 model 1, Mitsubishi ML-G30 model 2, Sanyo MPC-25FS,
+    Mitsubishi ML-8000, Daewoo DPC-200 (French), Sony HB-F1XDmk2, Sony HBD-20W,
+    Panasonic FS-PW1
+  - sergarbes: Sony HB-F700S
+  - Meits/Peter Hanraets: Philips VG 8235/20, several VG 8235 improvements.
+  - Ricardo Jurcyk Pinheiro: Yamaha AX200
+  - NYYRIKKI: Swedish/Finnish localized Spectravideo machines
+  - friguron: Spanish Philips NMS 8250
+  - Others: Canon V-30F
+
+New or improved emulator features:
+- Huge clean ups and fixes of the unicodemaps (using Rebecca Bettencourt's
+  mapping tables, which were released as part of Unicode) and other keyboard
+  fixes/improvements (e.g. a French/Arabic unicodemap)
+- Added MSX character to unicode (and vice versa) mapping, which is used in the
+  get_screen script
+- Fixed several bugs in save_msx_screen script (as seen in Yupipati)
+- Fixed bug in DirAsDSK which could lead to corruption
+- Fixed DirAsDSK on MSX systems that require a disk-change signal to notice
+  changes
+- OSD menu:
+  - fixed tape deck OSD menu when there are spaces in the path
+  - added menu option to change host to MSX joystick mapping
+- Added script that can show where the raster beam is on the screen
+- Added script that shows sprite locations and information on the OSD
+- Also display hours in the reverse bar
+- Fixed crash when using "record_channels cassetteplayer" with resampler=blip
+- Don't remove once-breakpoints if condition fails
+- Added internal events on breakpoint/watchpoint/condition/probe add/remove
+  (unused so far, but may help debugger development)
+- Allow multiple errors/warnings to be displayed on OSD
+- Large update of the ROM database
+
+Build system, packaging, documentation:
+- C++ code is based on C++20 and thus requires a compiler supporting it, e.g.
+  g++ 9 or later (10 is recommended and will be necessary for the next release)
+  or Visual Studio 2022 or later
+- Updated catch2 to 2.13.7
+- 3rd party updates of SDL (2.0.20), FreeType (2.11.1), Tcl (8.6.12), libogg
+  (1.3.5) and libvorbis (1.3.7)
+- Fixed FreeBSD run time crash at startup
+
 openMSX 17.0 (2021-05-18)
 -------------------------
 
