@@ -1,5 +1,5 @@
 // Compile with:
-//   g++ -O3 -g -Wall -Wextra tsx2wav.cc TsxParser.cc -o tsx2wav
+//   g++ -std=c++20 -O3 -g -Wall -Wextra -I ../../src/utils/ tsx2wav.cc TsxParser.cc -o tsx2wav
 
 #include "TsxParser.hh"
 #include "endian.hh"
