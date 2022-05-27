@@ -20,8 +20,8 @@ packageVersionNumber = '18.0'
 # build, it must be hardcoded
 androidReleaseVersionCode=15
 
-# Note: suffix should be empty or with dash, like "-rc1" or "-test1"
-packageVersionSuffix = '-rc1'
+# Note: suffix should be empty or with dash, like "-rc2" or "-test1"
+packageVersionSuffix = '-rc2'
 packageVersion = packageVersionNumber + packageVersionSuffix
 
 # Is this a release version ("True") or development version ("False").

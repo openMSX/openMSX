@@ -1,5 +1,5 @@
-Release Notes for openMSX 18.0 (2022-06-xx)
-===========================================
+Release Notes for openMSX 18.0-rc2 (2022-06-27)
+===============================================
 
 Again a release with mostly bug fixes and smaller improvements.
 

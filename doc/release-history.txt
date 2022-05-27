@@ -3,8 +3,8 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
-openMSX 18.0 (2022-05-26)
--------------------------
+openMSX 18.0-rc2 (2022-05-27)
+-----------------------------
 
 Again a release with mostly bug fixes and smaller improvements.
 
