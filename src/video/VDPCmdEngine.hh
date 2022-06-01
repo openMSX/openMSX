@@ -45,7 +45,7 @@ public:
 	 */
 	void stealAccessSlot(EmuTime::param time) {
 		if (!CMD) return;
-		engineTime = time;
+		if (engineTime < time) engineTime = time;
 		nextAccessSlot(VDPAccessSlots::DELTA_1); // skip one slot
 		assert(engineTime > time);
 	}
@@ -166,7 +166,7 @@ private:
 		return vdp.getAccessSlotCalculator(engineTime, limit);
 	}
 
-	/** Finshed executing graphical operation.
+	/** Finished executing graphical operation.
 	  */
 	void commandDone(EmuTime::param time);
 

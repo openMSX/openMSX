@@ -736,7 +736,7 @@ void VDPCmdEngine::calcFinishTime(unsigned nx, unsigned ny, unsigned ticksPerPix
 	// we never have to wait for access slots and that there's no overhead
 	// per line.
 	auto t = VDP::VDPClock::duration(ticksPerPixel);
-	t *= ((nx * (ny - 1)) + ANX);
+	t *= ((nx * (ny - 1)) + (ANX - 1));
 	setStatusChangeTime(engineTime + t);
 }
 
