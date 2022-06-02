@@ -43,11 +43,15 @@ public:
 	 * Used when the CPU reads/writes VRAM.
 	 * @param time The moment in time the CPU read/write is performed.
 	 */
-	void stealAccessSlot(EmuTime::param time) {
-		if (!CMD) return;
-		if (engineTime < time) engineTime = time;
-		nextAccessSlot(VDPAccessSlots::DELTA_1); // skip one slot
-		assert(engineTime > time);
+	EmuTime stealAccessSlot(EmuTime::param time) {
+		auto cpuSlot = getNextAccessSlot(time, VDPAccessSlots::DELTA_16);
+		assert(cpuSlot > time);
+		if (CMD && engineTime <= cpuSlot) {
+			// take the next available slot
+			engineTime = getNextAccessSlot(cpuSlot, VDPAccessSlots::DELTA_1);
+			assert(engineTime > cpuSlot);
+		}
+		return cpuSlot;
 	}
 
 	/** Gets the command engine status (part of S#2).
@@ -153,13 +157,19 @@ private:
 	template<typename Mode>                 void executeHmmc(EmuTime::param limit);
 
 	// Advance to the next access slot at or past the given time.
+	inline EmuTime getNextAccessSlot(EmuTime::param time) {
+		return vdp.getAccessSlot(time, VDPAccessSlots::DELTA_0);
+	}
 	inline void nextAccessSlot(EmuTime::param time) {
-		engineTime = vdp.getAccessSlot(time, VDPAccessSlots::DELTA_0);
+		engineTime = getNextAccessSlot(time);
 	}
 	// Advance to the next access slot that is at least 'delta' cycles past
 	// the current one.
+	inline EmuTime getNextAccessSlot(EmuTime::param time, VDPAccessSlots::Delta delta) {
+		return vdp.getAccessSlot(time, delta);
+	}
 	inline void nextAccessSlot(VDPAccessSlots::Delta delta) {
-		engineTime = vdp.getAccessSlot(engineTime, delta);
+		engineTime = getNextAccessSlot(engineTime, delta);
 	}
 	inline VDPAccessSlots::Calculator getSlotCalculator(
 			EmuTime::param limit) const {
