@@ -202,22 +202,9 @@ inline void insertUTF8char(char*& text, uint32_t code)
 	}
 }
 
-template<char C0, char C1> [[nodiscard]] static inline bool next(const char* p)
+template<StringLiteral Str> [[nodiscard]] static inline bool next(const char* p)
 {
-	return small_compare<C0, C1>(p);
-}
-template<char C0, char C1, char C2> [[nodiscard]] static inline bool next(const char* p)
-{
-	return small_compare<C0, C1, C2>(p);
-}
-template<char C0, char C1, char C2, char C3> [[nodiscard]] static inline bool next(const char* p)
-{
-	return small_compare<C0, C1, C2, C3>(p);
-}
-template<char C0, char C1, char C2, char C3, char C4, char C5>
-[[nodiscard]] static inline bool next(const char* p)
-{
-	return small_compare<C0, C1, C2, C3, C4, C5>(p);
+	return small_compare<Str>(p);
 }
 
 
@@ -257,13 +244,13 @@ template<typename StopPred, class StopPredPure, int FLAGS>
 		    (src[0] == '&')) {
 			switch (src[1]) {
 			case 'a': // &amp; &apos;
-				if (next<'m','p',';'>(&src[2])) {
+				if (next<"amp;">(&src[1])) {
 					*dest = '&';
 					++dest;
 					src += 5;
 					continue;
 				}
-				if (next<'p','o','s',';'>(&src[2])) {
+				if (next<"pos;">(&src[2])) {
 					*dest = '\'';
 					++dest;
 					src += 6;
@@ -272,7 +259,7 @@ template<typename StopPred, class StopPredPure, int FLAGS>
 				break;
 
 			case 'q': // &quot;
-				if (next<'u','o','t',';'>(&src[2])) {
+				if (next<"uot;">(&src[2])) {
 					*dest = '"';
 					++dest;
 					src += 6;
@@ -281,7 +268,7 @@ template<typename StopPred, class StopPredPure, int FLAGS>
 				break;
 
 			case 'g': // &gt;
-				if (next<'t',';'>(&src[2])) {
+				if (next<"t;">(&src[2])) {
 					*dest = '>';
 					++dest;
 					src += 4;
@@ -290,7 +277,7 @@ template<typename StopPred, class StopPredPure, int FLAGS>
 				break;
 
 			case 'l': // &lt;
-				if (next<'t',';'>(&src[2])) {
+				if (next<"t;">(&src[2])) {
 					*dest = '<';
 					++dest;
 					src += 4;
@@ -353,7 +340,7 @@ template<typename StopPred, class StopPredPure, int FLAGS>
 
 inline void skipBOM(char*& text)
 {
-	if (next<char(0xEF), char(0xBB), char(0xBF)>(text)) {
+	if (next<"\357\273\277">(text)) { // char(0xEF), char(0xBB), char(0xBF)
 		text += 3; // skip utf-8 bom
 	}
 }
@@ -391,7 +378,7 @@ private:
 		handler.declarationStop();
 
 		// skip ?>
-		if (!next<'?','>'>(text)) {
+		if (!next<"?>">(text)) {
 			throw ParseError("expected ?>", text);
 		}
 		text += 2;
@@ -402,7 +389,7 @@ private:
 	{
 		// Skip until end of comment
 		char* value = text; // remember value start
-		while (!next<'-','-','>'>(text)) {
+		while (!next<"-->">(text)) {
 			if (text[0] == 0) {
 				throw ParseError("unexpected end of data", text);
 			}
@@ -470,7 +457,7 @@ private:
 
 		// Skip to '?>'
 		char* value = text; // Remember start of pi
-		while (!next<'?','>'>(text)) {
+		while (!next<"?>">(text)) {
 			if (*text == 0) {
 				throw ParseError("unexpected end of data", text);
 			}
@@ -537,7 +524,7 @@ private:
 	{
 		// Skip until end of cdata
 		char* value = text;
-		while (!next<']',']','>'>(text)) {
+		while (!next<"]]>">(text)) {
 			if (text[0] == 0) {
 				throw ParseError("unexpected end of data", text);
 			}
@@ -594,8 +581,7 @@ private:
 			++text; // skip ?
 			// Note: this doesn't detect mixed case (xMl), does
 			// that matter?
-			if ((next<'x','m','l'>(text) ||
-			     next<'X','M','L'>(text)) &&
+			if ((next<"xml">(text) || next<"XML">(text)) &&
 			    WhitespacePred::test(text[3])) {
 				// '<?xml ' - xml declaration
 				text += 4; // skip 'xml '
@@ -618,7 +604,7 @@ private:
 				break;
 
 			case '[': // <![
-				if (next<'C','D','A','T','A','['>(&text[2])) {
+				if (next<"CDATA[">(&text[2])) {
 					// '<![CDATA[' - cdata
 					text += 8; // skip '![CDATA['
 					parseCdata(text);
@@ -627,7 +613,7 @@ private:
 				break;
 
 			case 'D': // <!D
-				if (next<'O','C','T','Y','P','E'>(&text[2]) &&
+				if (next<"OCTYPE">(&text[2]) &&
 				    WhitespacePred::test(text[8])) {
 					// '<!DOCTYPE ' - doctype
 					text += 9; // skip '!DOCTYPE '

@@ -116,7 +116,7 @@ void DBParser::start(string_view tag)
 		}
 		throw MSXException("Expected <softwaredb> as root tag.");
 	case SOFTWAREDB:
-		if (small_compare<'s','o','f','t','w','a','r','e'>(tag)) {
+		if (small_compare<"software">(tag)) {
 			system = string_view();
 			toString32(bufStart, bufStart, title);
 			toString32(bufStart, bufStart, company);
@@ -131,41 +131,41 @@ void DBParser::start(string_view tag)
 	case SOFTWARE: {
 		switch (tag.front()) {
 		case 's':
-			if (small_compare<'s','y','s','t','e','m'>(tag)) {
+			if (small_compare<"system">(tag)) {
 				state = SYSTEM;
 				return;
 			}
 			break;
 		case 't':
 			tag.remove_prefix(1);
-			if (small_compare<'i','t','l','e'>(tag)) {
+			if (small_compare<"itle">(tag)) {
 				state = TITLE;
 				return;
 			}
 			break;
 		case 'c':
-			if (small_compare<'c','o','m','p','a','n','y'>(tag)) {
+			if (small_compare<"company">(tag)) {
 				state = COMPANY;
 				return;
-			} else if (small_compare<'c','o','u','n','t','r','y'>(tag)) {
+			} else if (small_compare<"country">(tag)) {
 				state = COUNTRY;
 				return;
 			}
 			break;
 		case 'y':
-			if (small_compare<'y','e','a','r'>(tag)) {
+			if (small_compare<"year">(tag)) {
 				state = YEAR;
 				return;
 			}
 			break;
 		case 'g':
-			if (small_compare<'g','e','n','m','s','x','i','d'>(tag)) {
+			if (small_compare<"genmsxid">(tag)) {
 				state = GENMSXID;
 				return;
 			}
 			break;
 		case 'd':
-			if (small_compare<'d','u','m','p'>(tag)) {
+			if (small_compare<"dump">(tag)) {
 				dumps.resize(dumps.size() + 1);
 				dumps.back().type = ROM_UNKNOWN;
 				dumps.back().origValue = false;
@@ -181,14 +181,14 @@ void DBParser::start(string_view tag)
 	case DUMP: {
 		switch (tag.front()) {
 		case 'o':
-			if (small_compare<'o','r','i','g','i','n','a','l'>(tag)) {
+			if (small_compare<"original">(tag)) {
 				dumps.back().origValue = false;
 				state = ORIGINAL;
 				return;
 			}
 			break;
 		case 'm':
-			if (small_compare<'m','e','g','a','r','o','m'>(tag)) {
+			if (small_compare<"megarom">(tag)) {
 				type = string_view();
 				startVal = string_view();
 				state = ROM;
@@ -197,7 +197,7 @@ void DBParser::start(string_view tag)
 			break;
 		case 'r':
 			tag.remove_prefix(1);
-			if (small_compare<'o','m'>(tag)) {
+			if (small_compare<"om">(tag)) {
 				type = "Mirrored";
 				startVal = string_view();
 				state = ROM;
@@ -210,26 +210,26 @@ void DBParser::start(string_view tag)
 	case ROM: {
 		switch (tag.front()) {
 		case 't':
-			if (small_compare<'t','y','p','e'>(tag)) {
+			if (small_compare<"type">(tag)) {
 				state = TYPE;
 				return;
 			}
 			break;
 		case 's':
 			tag.remove_prefix(1);
-			if (small_compare<'t','a','r','t'>(tag)) {
+			if (small_compare<"tart">(tag)) {
 				state = START;
 				return;
 			}
 			break;
 		case 'r':
-			if (small_compare<'r','e','m','a','r','k'>(tag)) {
+			if (small_compare<"remark">(tag)) {
 				state = DUMP_REMARK;
 				return;
 			}
 			break;
 		case 'h':
-			if (small_compare<'h','a','s','h'>(tag)) {
+			if (small_compare<"hash">(tag)) {
 				state = HASH;
 				return;
 			}
@@ -238,7 +238,7 @@ void DBParser::start(string_view tag)
 		break;
 	}
 	case DUMP_REMARK:
-		if (small_compare<'t','e','x','t'>(tag)) {
+		if (small_compare<"text">(tag)) {
 			state = DUMP_TEXT;
 			return;
 		}
@@ -272,7 +272,7 @@ void DBParser::attribute(string_view name, string_view value)
 
 	switch (state) {
 	case ORIGINAL:
-		if (small_compare<'v','a','l','u','e'>(name)) {
+		if (small_compare<"value">(name)) {
 			dumps.back().origValue = StringOp::stringToBool(value);
 		}
 		break;
@@ -500,13 +500,13 @@ void DBParser::stop()
 	case ROM: {
 		string_view t = type;
 		char buf[12];
-		if (small_compare<'M','i','r','r','o','r','e','d'>(t)) {
+		if (small_compare<"Mirrored">(t)) {
 			if (const char* s = parseStart(startVal)) {
 				memcpy(buf, t.data(), 8);
 				memcpy(buf + 8, s, 4);
 				t = string_view(buf, 12);
 			}
-		} else if (small_compare<'N','o','r','m','a','l'>(t)) {
+		} else if (small_compare<"Normal">(t)) {
 			if (const char* s = parseStart(startVal)) {
 				memcpy(buf, t.data(), 6);
 				memcpy(buf + 6, s, 4);
