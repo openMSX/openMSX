@@ -79,9 +79,12 @@ namespace StringOp
 		struct Sentinel {};
 
 		struct Iterator {
-			std::string_view str;
-			std::string_view::size_type p;
-			const char c;
+			using value_type      = std::string_view;
+			using difference_type = ptrdiff_t;
+
+			Iterator() = default;
+			Iterator(const Iterator&) = default;
+			Iterator& operator=(const Iterator&) = default;
 
 			Iterator(std::string_view str_, char c_)
 				: str(str_), c(c_) {
@@ -101,14 +104,23 @@ namespace StringOp
 				}
 				return *this;
 			}
+			Iterator operator++(int) { auto copy = *this; ++(*this); return copy; }
 
+			[[nodiscard]] bool operator==(const Iterator&) const = default;
 			[[nodiscard]] bool operator==(Sentinel) const { return str.empty(); }
 
 			void next_p() {
 				p = 0;
 				while ((p < str.size()) && (str[p] != c)) ++p;
 			}
+
+		private:
+			std::string_view str;
+			std::string_view::size_type p;
+			char c;
 		};
+		static_assert(std::forward_iterator<Iterator>);
+		static_assert(std::sentinel_for<Sentinel, Iterator>);
 
 		struct Splitter {
 			std::string_view str;

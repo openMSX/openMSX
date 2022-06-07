@@ -47,7 +47,7 @@ template<typename... Ts>
 template<typename... Ts>
 [[nodiscard]] TemporaryString tmpStrCat(Ts&&... ts);
 
-// Apppend a bunch of 'printable' objects to an exiting string.
+// Append a bunch of 'printable' objects to an exiting string.
 //
 // Can be used to optimize
 //     s += strCat(a, b, c);
