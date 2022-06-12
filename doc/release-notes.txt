@@ -1,7 +1,8 @@
-Release Notes for openMSX 18.0-rc2 (2022-06-27)
-===============================================
+Release Notes for openMSX 18.0 (2022-06-12)
+===========================================
 
-Again a release with mostly bug fixes and smaller improvements.
+Again a release with mostly bug fixes and smaller improvements. And of course a
+little more blasphemy out there adding support for Sega SG-1000.
 
 Special thanks to all the contributors of this release who are not in the core
 team! Keep these pull requests coming!
@@ -10,8 +11,11 @@ Here's the list with all highlights and details:
 
 MSX device support:
 - V99x8:
-  - fix ugly looking top line when displaying interlacing
+  - fixed ugly looking top line when displaying interlacing
   - fixed rounding for 'blue' in YJK modes
+  - fixed bug in VRAM access timing, in cases where VDP and CPU are
+    simultaneously accessing VRAM, like in Maze of Galious Enhanced. This was
+    mostly noticable when replaying a recorded replay.
 - V9990:
   - fixed possible crash when switching display modes (seen in SymbOS)
   - fixed BMXL and BMLX commands in P1 in 4bpp modes
@@ -24,11 +28,11 @@ MSX device support:
   SFG-01) and OPP (YM2164, as used in Yamaha SFG-05)
 - Fixed YM2151/YM2164 timer
 - YM2413/OPLL (MSX-Music):
-  - Incorporated bug fixes in NukeYKT OPLL core from the upstream authors
-  - Emulate effects of too fast access to YM2413/OPLL when using the (default)
+  - incorporated bug fixes in NukeYKT OPLL core from the upstream authors
+  - emulate effects of too fast access to YM2413/OPLL when using the (default)
     NukeYKT core. Note: this only works when the speed setting is set to 100%.
 - Fixed Sony HBI-55 emulation
-- Fixed swapped redblue colors in laserdisc with SDLGL-PP
+- Fixed swapped red/blue colors in laserdisc with SDLGL-PP
 - Added disk-changed bit in Sony FDC interface, required for HB-F500P for
   instance
 - Added support for Talent TDC-600 external floppy disk drive
