@@ -142,7 +142,7 @@ template<size_t N, typename Hash, typename GetKey>
 	}
 
 	// Change unused entries to zero because it must be valid indices (< N).
-	cstd::replace(r.tab2, UNUSED, uint8_t(0));
+	ranges::replace(r.tab2, UNUSED, uint8_t(0));
 	return r;
 }
 
