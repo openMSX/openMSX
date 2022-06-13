@@ -2,7 +2,6 @@
 #define CSTD_HH
 
 #include "xrange.hh"
-#include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <cstddef>
@@ -11,20 +10,6 @@
 #include <utility>
 
 namespace cstd {
-
-template<typename ForwardIt, typename T>
-constexpr void fill(ForwardIt first, ForwardIt last, const T& value)
-{
-	while (first != last) {
-		*first = value;
-		++first;
-	}
-}
-template<typename ForwardRange, typename T>
-constexpr void fill(ForwardRange& range, const T& value)
-{
-	cstd::fill(std::begin(range), std::end(range), value);
-}
 
 template<typename T>
 [[nodiscard]] constexpr T abs(T t)

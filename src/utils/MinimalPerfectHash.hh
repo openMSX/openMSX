@@ -106,7 +106,7 @@ template<size_t N, typename Hash, typename GetKey>
 
 	// Step 3: Map the items in buckets into hash tables.
 	constexpr auto UNUSED = uint8_t(-1);
-	cstd::fill(r.tab2, UNUSED);
+	ranges::fill(r.tab2, UNUSED);
 	for (const auto& bucket : buckets) {
 		auto const bSize = bucket.size();
 		if (bSize == 0) break; // done

@@ -254,7 +254,7 @@ void replace_if(ForwardRange&& range, UnaryPredicate pred, const T& new_value)
 }
 
 template<typename ForwardRange, typename T>
-void fill(ForwardRange&& range, const T& value)
+constexpr void fill(ForwardRange&& range, const T& value)
 {
 	std::fill(std::begin(range), std::end(range), value);
 }

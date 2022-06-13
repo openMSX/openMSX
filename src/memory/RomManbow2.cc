@@ -3,8 +3,8 @@
 #include "DummyAY8910Periphery.hh"
 #include "SCC.hh"
 #include "MSXCPUInterface.hh"
-#include "cstd.hh"
 #include "one_of.hh"
+#include "ranges.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
@@ -19,14 +19,14 @@ using Info = AmdFlash::SectorInfo;
 // 512kB, only last 64kB writable
 static constexpr auto config1 = [] {
 	std::array<Info, 512 / 64> result = {};
-	cstd::fill(result, Info{64 * 1024, true}); // read-only
+	ranges::fill(result, Info{64 * 1024, true}); // read-only
 	result[7].writeProtected = false;
 	return result;
 }();
 // 512kB, only 128kB writable
 static constexpr auto config2 = [] {
 	std::array<Info, 512 / 64> result = {};
-	cstd::fill(result, Info{64 * 1024, true}); // read-only
+	ranges::fill(result, Info{64 * 1024, true}); // read-only
 	result[4].writeProtected = false;
 	result[5].writeProtected = false;
 	return result;
@@ -34,13 +34,13 @@ static constexpr auto config2 = [] {
 // fully writeable, 512kB
 static constexpr auto config3 = [] {
 	std::array<Info, 512 / 64> result = {};
-	cstd::fill(result, Info{64 * 1024, false});
+	ranges::fill(result, Info{64 * 1024, false});
 	return result;
 }();
 // fully writeable, 2MB
 static constexpr auto config4 = [] {
 	std::array<Info, 2048 / 64> result = {};
-	cstd::fill(result, Info{64 * 1024, false});
+	ranges::fill(result, Info{64 * 1024, false});
 	return result;
 }();
 [[nodiscard]] static constexpr std::span<const Info> getSectorInfo(RomType type)
