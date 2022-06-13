@@ -6,9 +6,9 @@
 #define TSXPARSER_HH
 
 #include "endian.hh"
-#include "span.hh"
 #include <cstdint>
 #include <optional>
+#include <span>
 #include <string>
 #include <vector>
 
@@ -24,7 +24,7 @@ public:
 	};
 
 public:
-	explicit TsxParser(span<const uint8_t> file);
+	explicit TsxParser(std::span<const uint8_t> file);
 
 	[[nodiscard]] std::vector<int8_t>&& stealOutput() { return std::move(output); }
 	[[nodiscard]] std::optional<FileType> getFirstFileType() const { return firstFileType; }

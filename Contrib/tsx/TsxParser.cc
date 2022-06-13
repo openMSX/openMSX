@@ -47,7 +47,7 @@ static constexpr uint8_t B33_HARDWARE_TYPE  = 0x33; // Hardware type
 	return ss.str();
 }
 
-TsxParser::TsxParser(span<const uint8_t> file)
+TsxParser::TsxParser(std::span<const uint8_t> file)
 {
 	buf = file.data();
 	remaining = file.size();
