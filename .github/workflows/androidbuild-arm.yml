@@ -21,6 +21,6 @@ jobs:
     - name: Fetch entire repository
       run: git fetch --prune --unshallow
     - name: Add NDK path to PATH
-      echo "$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin" >> $GITHUB_PATH
+      run: echo "$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin" >> $GITHUB_PATH
     - name: Make
       run: make OPENMSX_TARGET_CPU=${{ env.target_cpu }} OPENMSX_TARGET_OS=${{ env.target_os }} OPENMSX_FLAVOUR=${{ env.target_flavour }} staticbindist
