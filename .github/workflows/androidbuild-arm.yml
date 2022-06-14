@@ -36,4 +36,4 @@ jobs:
         # Add toolchain to the path
         #add-to-path: # optional, default is true
     - name: Make
-      run: make OPENMSX_TARGET_CPU=${{ env.target_cpu }} OPENMSX_TARGET_OS=${{ env.target_os }} OPENMSX_FLAVOUR=${{ env.target_flavour }} CXX=${{ env.cxx }} staticbindist
+      run: make OPENMSX_TARGET_CPU=${{ env.target_cpu }} OPENMSX_TARGET_OS=${{ env.target_os }} OPENMSX_FLAVOUR=${{ env.target_flavour }} staticbindist
