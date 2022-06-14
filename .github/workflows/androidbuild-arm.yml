@@ -24,13 +24,13 @@ jobs:
       # You may pin to the exact commit or the version.
       # uses: ravinderjangra/android-ndk-toolchain-setup@88bfbd8e61af597832637fb9d2f81a7cc68d1331
       uses: ravinderjangra/android-ndk-toolchain-setup@0.2
-      #with:
+      with:
         # Android API
         #api: # default is 21
         # Platform arch
-        #arch: 
+        arch: 'arm'
         # Path to use for NDK toolchain
-        #install-location: 
+        install-location: 'toolchains'
         # Force install toolchain
         #force: # optional, default is false
         # Add toolchain to the path
