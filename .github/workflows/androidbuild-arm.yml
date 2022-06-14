@@ -20,20 +20,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Fetch entire repository
       run: git fetch --prune --unshallow
-    - name: Android NDK toolchain Setup
-      # You may pin to the exact commit or the version.
-      # uses: ravinderjangra/android-ndk-toolchain-setup@88bfbd8e61af597832637fb9d2f81a7cc68d1331
-      uses: ravinderjangra/android-ndk-toolchain-setup@0.2
-      with:
-        # Android API
-        #api: # default is 21
-        # Platform arch
-        arch: 'arm'
-        # Path to use for NDK toolchain
-        install-location: 'toolchains'
-        # Force install toolchain
-        #force: # optional, default is false
-        # Add toolchain to the path
-        #add-to-path: # optional, default is true
+    - name: Add NDK path to PATH
+      echo "$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin" >> $GITHUB_PATH
     - name: Make
       run: make OPENMSX_TARGET_CPU=${{ env.target_cpu }} OPENMSX_TARGET_OS=${{ env.target_os }} OPENMSX_FLAVOUR=${{ env.target_flavour }} staticbindist
