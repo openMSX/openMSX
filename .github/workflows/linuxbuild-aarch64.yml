@@ -10,12 +10,13 @@ env:
   target_cpu: aarch64
   target_os: linux
   target_flavour: opt
+  cxx: g++-10
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v2
     - name: Fetch entire repository
@@ -25,7 +26,7 @@ jobs:
     - name: Install prerequisites
       run: sudo apt-get install libgl1-mesa-dev
     - name: Make
-      run: make OPENMSX_TARGET_CPU=${{ env.target_cpu }} OPENMSX_TARGET_OS=${{ env.target_os }} OPENMSX_FLAVOUR=${{ env.target_flavour }} staticbindist
+      run: make OPENMSX_TARGET_CPU=${{ env.target_cpu }} OPENMSX_TARGET_OS=${{ env.target_os }} OPENMSX_FLAVOUR=${{ env.target_flavour }} CXX=${{ env.target.cxx }} staticbindist
     - name: Determine version
       id: get_version
       run: |
