@@ -15,7 +15,7 @@ jobs:
   build:
 
     runs-on: ubuntu-20.04
-    
+
     steps:
     - uses: actions/checkout@v2
     - name: Fetch entire repository
@@ -27,7 +27,7 @@ jobs:
         sudo update-alternatives --set i686-w64-mingw32-gcc /usr/bin/i686-w64-mingw32-gcc-posix
         sudo update-alternatives --set i686-w64-mingw32-g++ /usr/bin/i686-w64-mingw32-g++-posix
         sudo update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix
-        sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix   
+        sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
     - name: Make
       run: make OPENMSX_TARGET_CPU=${{ env.target_cpu }} OPENMSX_TARGET_OS=${{ env.target_os }} OPENMSX_FLAVOUR=${{ env.target_flavour }} staticbindist
     - name: Determine version
