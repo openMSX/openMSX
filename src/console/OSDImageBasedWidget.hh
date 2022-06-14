@@ -3,6 +3,7 @@
 
 #include "OSDWidget.hh"
 #include "stl.hh"
+#include <array>
 #include <cstdint>
 #include <span>
 

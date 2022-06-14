@@ -2,6 +2,8 @@
 #define OSDRECTANGLE_HH
 
 #include "OSDImageBasedWidget.hh"
+#include "stl.hh"
+#include <array>
 #include <memory>
 
 namespace openmsx {

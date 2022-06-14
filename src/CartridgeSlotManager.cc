@@ -10,6 +10,7 @@
 #include "outer.hh"
 #include "ranges.hh"
 #include "xrange.hh"
+#include <array>
 #include <cassert>
 #include <memory>
 

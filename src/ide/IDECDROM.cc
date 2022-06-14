@@ -11,6 +11,7 @@
 #include "serialize.hh"
 #include "xrange.hh"
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <cstdio>
 #include <memory>

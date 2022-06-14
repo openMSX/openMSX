@@ -21,6 +21,7 @@
 #include "strCat.hh"
 #include "view.hh"
 #include "xrange.hh"
+#include <array>
 #include <cassert>
 #include <cctype>
 #include <memory>

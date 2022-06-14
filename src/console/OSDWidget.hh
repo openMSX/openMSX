@@ -3,6 +3,7 @@
 
 #include "TclObject.hh"
 #include "gl_vec.hh"
+#include <array>
 #include <span>
 #include <string_view>
 #include <vector>

@@ -12,6 +12,7 @@
 #include "likely.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+#include <array>
 #include <cassert>
 #include <iostream>
 

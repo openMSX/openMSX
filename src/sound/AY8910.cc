@@ -22,6 +22,7 @@
 #include "outer.hh"
 #include "random.hh"
 #include "xrange.hh"
+#include <array>
 #include <cassert>
 #include <cstring>
 #include <iostream>

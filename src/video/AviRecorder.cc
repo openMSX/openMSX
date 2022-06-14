@@ -17,6 +17,7 @@
 #include "outer.hh"
 #include "vla.hh"
 #include "xrange.hh"
+#include <array>
 #include <cassert>
 #include <memory>
 

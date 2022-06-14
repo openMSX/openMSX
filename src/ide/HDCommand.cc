@@ -5,6 +5,7 @@
 #include "CommandException.hh"
 #include "BooleanSetting.hh"
 #include "TclObject.hh"
+#include <array>
 
 namespace openmsx {
 

@@ -8,6 +8,7 @@
 #include "StringOp.hh"
 #include "one_of.hh"
 #include "outer.hh"
+#include <array>
 #include <memory>
 #include <utility>
 

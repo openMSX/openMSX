@@ -13,6 +13,7 @@
 #include "one_of.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+#include <array>
 #include <cassert>
 #include <span>
 #include <memory>
