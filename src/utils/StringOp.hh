@@ -102,8 +102,7 @@ namespace StringOp
 				return *this;
 			}
 
-			[[nodiscard]] bool operator==(Sentinel) const { return  str.empty(); }
-			[[nodiscard]] bool operator!=(Sentinel) const { return !str.empty(); }
+			[[nodiscard]] bool operator==(Sentinel) const { return str.empty(); }
 
 			void next_p() {
 				p = 0;

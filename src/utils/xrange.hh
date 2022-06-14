@@ -69,10 +69,6 @@ template<typename T> struct XRange
 		{
 			return x == other.x;
 		}
-		[[nodiscard]] constexpr bool operator!=(const Iter& other) const
-		{
-			return x != other.x;
-		}
 
 		// BidirectionalIterator
 		constexpr Iter& operator--()

@@ -123,11 +123,6 @@ template<int M, int N, typename T>
 	for (auto i : xrange(N)) if (A[i] != B[i]) return false;
 	return true;
 }
-template<int M, int N, typename T>
-[[nodiscard]] constexpr bool operator!=(const matMxN<M, N, T>& A, const matMxN<M, N, T>& B)
-{
-	return !(A == B);
-}
 
 // matrix + matrix
 template<int M, int N, typename T>

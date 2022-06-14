@@ -186,9 +186,6 @@ public:
 	[[nodiscard]] constexpr friend bool operator==(FixedPoint x, FixedPoint y) {
 		return x.value == y.value;
 	}
-	[[nodiscard]] constexpr friend bool operator!=(FixedPoint x, FixedPoint y) {
-		return x.value != y.value;
-	}
 	[[nodiscard]] constexpr friend bool operator<(FixedPoint x, FixedPoint y) {
 		return x.value < y.value;
 	}

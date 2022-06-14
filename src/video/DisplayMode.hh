@@ -88,12 +88,6 @@ public:
 		return mode == otherMode.mode;
 	}
 
-	/** Does-not-equal operator.
-	  */
-	[[nodiscard]] constexpr bool operator!=(const DisplayMode& otherMode) const {
-		return mode != otherMode.mode;
-	}
-
 	/** Get the dispay mode as a byte: YAE YJK M5..M1 combined.
 	  * @return The byte representation of this display mode,
 	  *     in the range [0..0x7F].

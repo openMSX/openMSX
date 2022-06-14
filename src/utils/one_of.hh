@@ -13,11 +13,6 @@ public:
 		return std::apply([&](const Ts& ... ts) { return (... || (t == ts)); }, o.tup);
 	}
 
-	template<typename T>
-	[[nodiscard]] friend constexpr bool operator!=(const T& t, const one_of& o) {
-		return !(t == o);
-	}
-
 private:
 	std::tuple<Ts...> tup;
 };

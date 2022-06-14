@@ -157,11 +157,6 @@ public:
 		return x.it == y.it;
 	}
 
-	[[nodiscard]] constexpr friend bool operator!=(const TransformIterator& x, const TransformIterator& y)
-	{
-		return x.it != y.it;
-	}
-
 	// BidirectionalIterator
 
 	constexpr TransformIterator& operator--()
@@ -311,10 +306,6 @@ public:
 	[[nodiscard]] constexpr friend bool operator==(const FilteredIterator& x, const FilteredIterator& y)
 	{
 		return x.it == y.it;
-	}
-	[[nodiscard]] constexpr friend bool operator!=(const FilteredIterator& x, const FilteredIterator& y)
-	{
-		return !(x == y);
 	}
 
 	[[nodiscard]] constexpr reference operator*() const { return *it; }

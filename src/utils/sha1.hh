@@ -46,7 +46,6 @@ public:
 		}
 		return true;
 	}
-	[[nodiscard]] bool operator!=(const Sha1Sum& other) const { return !(*this == other); }
 	[[nodiscard]] bool operator< (const Sha1Sum& other) const {
 		for (int i : xrange(5 - 1)) {
 			if (a[i] != other.a[i]) return a[i] < other.a[i];

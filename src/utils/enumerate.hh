@@ -34,15 +34,9 @@ constexpr auto enumerate(Iterable&& iterable)
 		constexpr bool operator==(const iterator& other) const {
 			return iter == other.iter;
 		}
-		constexpr bool operator!=(const iterator& other) const {
-			return iter != other.iter;
-		}
 
 		constexpr bool operator==(const Iter& other) const {
 			return iter == other;
-		}
-		constexpr bool operator!=(const Iter& other) const {
-			return iter != other;
 		}
 
 		constexpr void operator++() {

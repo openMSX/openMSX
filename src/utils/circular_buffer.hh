@@ -77,7 +77,6 @@ public:
 	[[nodiscard]] T& operator[](difference_type n) const { return *(*this + n); }
 
 	[[nodiscard]] bool operator==(const cb_iterator& it) const { return p == it.p; }
-	[[nodiscard]] bool operator!=(const cb_iterator& it) const { return p != it.p; }
 
 	[[nodiscard]] bool operator<(const cb_iterator& it) const {
 		return index(p) < index(it.p);

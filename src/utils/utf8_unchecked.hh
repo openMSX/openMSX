@@ -201,10 +201,6 @@ public:
 	{
 		return it == rhs.it;
 	}
-	[[nodiscard]] bool operator!=(const iterator& rhs) const
-	{
-		return !(operator==(rhs));
-	}
 	iterator& operator++()
 	{
 		std::advance(it, internal::sequence_length(*it));

@@ -176,11 +176,6 @@ template<int N, typename T>
 	for (auto i : xrange(N)) if (x[i] != y[i]) return false;
 	return true;
 }
-template<int N, typename T>
-[[nodiscard]] constexpr bool operator!=(const vecN<N, T>& x, const vecN<N, T>& y)
-{
-	return !(x == y);
-}
 
 // vector negation
 template<int N, typename T>

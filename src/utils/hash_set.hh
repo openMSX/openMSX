@@ -32,7 +32,6 @@ struct PoolIndex {
 };
 static constexpr PoolIndex invalidIndex{unsigned(-1)};
 constexpr bool operator==(PoolIndex i, PoolIndex j) { return i.idx == j.idx; }
-constexpr bool operator!=(PoolIndex i, PoolIndex j) { return i.idx != j.idx; }
 
 // Holds the data that will be stored in the hash_set plus some extra
 // administrative data.
@@ -301,9 +300,6 @@ public:
 		[[nodiscard]] bool operator==(const Iter& rhs) const {
 			assert((hashSet == rhs.hashSet) || !hashSet || !rhs.hashSet);
 			return elemIdx == rhs.elemIdx;
-		}
-		[[nodiscard]] bool operator!=(const Iter& rhs) const {
-			return !(*this == rhs);
 		}
 
 		Iter& operator++() {

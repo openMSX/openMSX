@@ -37,9 +37,6 @@ class TclObject
 			assert(obj == other.obj);
 			return i == other.i;
 		}
-		[[nodiscard]] bool operator!=(const iterator& other) const {
-			return !(*this == other);
-		}
 
 		[[nodiscard]] zstring_view operator*() const {
 			return obj->getListIndexUnchecked(i).getString();
@@ -188,13 +185,6 @@ public:
 	[[nodiscard]] friend bool operator==(const TclObject& x, std::string_view y) {
 		return x.getString() == y;
 	}
-	[[nodiscard]] friend bool operator==(std::string_view x, const TclObject& y) {
-		return x == y.getString();
-	}
-
-	[[nodiscard]] friend bool operator!=(const TclObject& x, const TclObject& y) { return !(x == y); }
-	[[nodiscard]] friend bool operator!=(const TclObject& x, std::string_view y) { return !(x == y); }
-	[[nodiscard]] friend bool operator!=(std::string_view x, const TclObject& y) { return !(x == y); }
 
 private:
 	void init(Tcl_Obj* obj_) noexcept {

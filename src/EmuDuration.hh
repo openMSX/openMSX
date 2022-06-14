@@ -52,8 +52,6 @@ public:
 	// comparison operators
 	[[nodiscard]] constexpr bool operator==(EmuDuration::param d) const
 		{ return time == d.time; }
-	[[nodiscard]] constexpr bool operator!=(EmuDuration::param d) const
-		{ return time != d.time; }
 	[[nodiscard]] constexpr bool operator< (EmuDuration::param d) const
 		{ return time <  d.time; }
 	[[nodiscard]] constexpr bool operator<=(EmuDuration::param d) const

@@ -239,10 +239,6 @@ private:
 {
 	return (high64(a) == high64(b)) && (low64(a) == low64(b));
 }
-[[nodiscard]] constexpr bool operator!=(const uint128& a, const uint128& b)
-{
-	return !(a == b);
-}
 
 [[nodiscard]] constexpr bool operator&&(const uint128& a, const uint128& b)
 {
