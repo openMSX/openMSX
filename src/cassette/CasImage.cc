@@ -255,7 +255,9 @@ static CasImage::Data convert(std::span<const uint8_t> cas, CassetteImage::FileT
 	while (true) {
 		auto nextHeader = std::search(prevHeader, cas.end(),
 		                              header.begin(), header.end());
-		processBlock(std::span(prevHeader, nextHeader), data.wave);
+		// Workaround clang-13/libc++ bug
+		//processBlock(std::span(prevHeader, nextHeader), data.wave);
+		processBlock(std::span(&*prevHeader, nextHeader - prevHeader), data.wave);
 		if (nextHeader == cas.end()) break;
 		prevHeader = nextHeader + header.size();
 	}

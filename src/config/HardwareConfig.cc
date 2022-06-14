@@ -189,7 +189,9 @@ void HardwareConfig::testRemove() const
 	auto et = devices.end();
 	for (auto rit = devices.rbegin(), ret = devices.rend();
 	     rit != ret; ++rit) {
-		std::span alreadyRemoved{rit.base(), et};
+		// Workaround clang-13/libc++ bug
+		//std::span alreadyRemoved{rit.base(), et};
+		std::span alreadyRemoved(&*rit.base(), et - rit.base());
 		(*rit)->testRemove(alreadyRemoved);
 	}
 
