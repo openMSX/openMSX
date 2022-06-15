@@ -38,14 +38,18 @@ jobs:
         cd ${{ steps.get_dist_name.outputs.dist_name }}
         pwd
     - name: Make
-      run: make OPENMSX_TARGET_CPU=${{ env.target_cpu }} OPENMSX_TARGET_OS=${{ env.target_os }} OPENMSX_FLAVOUR=${{ env.target_flavour }} staticbindist
+      run: |
+        pwd
+        make OPENMSX_TARGET_CPU=${{ env.target_cpu }} OPENMSX_TARGET_OS=${{ env.target_os }} OPENMSX_FLAVOUR=${{ env.target_flavour }} staticbindist
     - name: Determine version
       id: get_version
       run: |
+        pwd
         OPENMSX_VERSION=`python3 build/version.py`
         echo ::set-output name=OPENMSX_VERSION::$OPENMSX_VERSION
     - name: Change directory to build output folder
       run: |
+        pwd
         cd derived/${{ env.target_cpu }}-${{ env.target_os }}-${{ env.target_flavour }}-3rd
         pwd
     - name: Upload redistributable dmg
