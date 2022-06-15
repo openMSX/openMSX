@@ -40,6 +40,9 @@ public:
 	[[nodiscard]] bool empty() const;
 	void clear();
 
+	// gcc-10.2 miscompiles this (fixed in gcc-11),
+	//  so still manually implement operator==.
+	//[[nodiscard]] constexpr bool operator==(const Sha1Sum&) const = default;
 	[[nodiscard]] bool operator==(const Sha1Sum& other) const {
 		for (int i : xrange(5)) {
 			if (a[i] != other.a[i]) return false;

@@ -130,6 +130,8 @@ public:
 	constexpr vecN& operator*=(const vecN& x) { *this = *this * x; return *this; }
 	constexpr vecN& operator*=(T           x) { *this = *this * x; return *this; }
 
+	[[nodiscard]] constexpr bool operator==(const vecN&) const = default;
+
 private:
 	T e[N];
 };
@@ -168,14 +170,6 @@ template<typename T> [[nodiscard]] constexpr T degrees(T r)
 
 
 // -- Vector functions --
-
-// vector equality / inequality
-template<int N, typename T>
-[[nodiscard]] constexpr bool operator==(const vecN<N, T>& x, const vecN<N, T>& y)
-{
-	for (auto i : xrange(N)) if (x[i] != y[i]) return false;
-	return true;
-}
 
 // vector negation
 template<int N, typename T>

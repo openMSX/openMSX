@@ -338,7 +338,7 @@ ifneq ($(filter %clang++,$(CXX))$(filter clang++%,$(CXX)),)
   # Enable C++20 (partially supported since clang-8)
   COMPILE_FLAGS+=-std=c++2a -fconstexpr-steps=2000000
   #COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion -Wmissing-declarations -Wshadow -Wold-style-cast -Wzero-as-null-pointer-constant
-  COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion -Wmissing-declarations -Wshadow -Wzero-as-null-pointer-constant
+  COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion -Wmissing-declarations -Wshadow
   # Hardware descriptions can contain constants that are not used in the code
   # but still useful as documentation.
   COMPILE_FLAGS+=-Wno-unused-const-variable

@@ -399,10 +399,7 @@ private:
 	struct GlobalRwInfo {
 		MSXDevice* device;
 		word addr;
-		[[nodiscard]] bool operator==(const GlobalRwInfo& rhs) const {
-			return (device == rhs.device) &&
-			       (addr   == rhs.addr);
-		}
+		[[nodiscard]] constexpr bool operator==(const GlobalRwInfo&) const = default;
 	};
 	std::vector<GlobalRwInfo> globalReads;
 	std::vector<GlobalRwInfo> globalWrites;

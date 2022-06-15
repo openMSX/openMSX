@@ -65,10 +65,7 @@ template<typename T> struct XRange
 			return copy;
 		}
 
-		[[nodiscard]] constexpr bool operator==(const Iter& other) const
-		{
-			return x == other.x;
-		}
+		[[nodiscard]] constexpr bool operator==(const Iter&) const = default;
 
 		// BidirectionalIterator
 		constexpr Iter& operator--()

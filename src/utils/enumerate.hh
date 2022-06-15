@@ -31,11 +31,11 @@ constexpr auto enumerate(Iterable&& iterable)
 		size_t i;
 		Iter iter;
 
-		constexpr bool operator==(const iterator& other) const {
+		[[nodiscard]] constexpr bool operator==(const iterator& other) const {
 			return iter == other.iter;
 		}
 
-		constexpr bool operator==(const Iter& other) const {
+		[[nodiscard]] constexpr bool operator==(const Iter& other) const {
 			return iter == other;
 		}
 

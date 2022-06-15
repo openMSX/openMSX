@@ -87,9 +87,7 @@ public:
 		return 1 << getColumn();
 	}
 
-	[[nodiscard]] constexpr friend bool operator==(const KeyMatrixPosition& x, const KeyMatrixPosition& y) {
-		return x.rowCol == y.rowCol;
-	}
+	[[nodiscard]] constexpr bool operator==(const KeyMatrixPosition&) const = default;
 
 private:
 	byte rowCol = INVALID;

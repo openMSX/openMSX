@@ -102,7 +102,7 @@ class XMLElement
 
 		const XMLElement& operator*() const { return *elem; }
 		ChildIterator operator++() { elem = elem->nextSibling; return *this; }
-		bool operator==(const ChildIterator& i) const { return elem == i.elem; }
+		[[nodiscard]] bool operator==(const ChildIterator& i) const { return elem == i.elem; }
 	};
 	struct ChildRange {
 		const XMLElement* elem;
@@ -135,7 +135,7 @@ class XMLElement
 			} while (elem && elem->getName() != name);
 			return *this;
 		}
-		bool operator==(const NamedChildIterator& i) const { return elem == i.elem; }
+		[[nodiscard]] bool operator==(const NamedChildIterator& i) const { return elem == i.elem; }
 	};
 	struct NamedChildRange {
 		const XMLElement* elem;
@@ -155,7 +155,7 @@ class XMLElement
 
 		const XMLAttribute& operator*() const { return *attr; }
 		AttributeIterator operator++() { attr = attr->nextAttribute; return *this; }
-		bool operator==(const AttributeIterator& i) const { return attr == i.attr; }
+		[[nodiscard]] bool operator==(const AttributeIterator& i) const { return attr == i.attr; }
 	};
 	struct AttributeRange {
 		const XMLElement* elem;

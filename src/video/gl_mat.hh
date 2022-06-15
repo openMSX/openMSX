@@ -103,6 +103,8 @@ public:
 	constexpr matMxN& operator*=(T             x) { *this = *this * x; return *this; }
 	constexpr matMxN& operator*=(const matMxN<N, N, T>& x) { *this = *this * x; return *this; }
 
+	[[nodiscard]] constexpr bool operator==(const matMxN&) const = default;
+
 private:
 	vecN<M, T> c[N];
 };
@@ -115,14 +117,6 @@ using mat4 = matMxN<4, 4, float>;
 
 
 // -- Matrix functions --
-
-// matrix equality / inequality
-template<int M, int N, typename T>
-[[nodiscard]] constexpr bool operator==(const matMxN<M, N, T>& A, const matMxN<M, N, T>& B)
-{
-	for (auto i : xrange(N)) if (A[i] != B[i]) return false;
-	return true;
-}
 
 // matrix + matrix
 template<int M, int N, typename T>

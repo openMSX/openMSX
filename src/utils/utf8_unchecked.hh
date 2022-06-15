@@ -197,10 +197,7 @@ public:
 		octet_iterator temp = it;
 		return next(temp);
 	}
-	[[nodiscard]] bool operator==(const iterator& rhs) const
-	{
-		return it == rhs.it;
-	}
+	[[nodiscard]] bool operator==(const iterator&) const = default;
 	iterator& operator++()
 	{
 		std::advance(it, internal::sequence_length(*it));

@@ -36,10 +36,8 @@ private:
 		DirIndex() = default;
 		DirIndex(unsigned sector_, unsigned idx_)
 			: sector(sector_), idx(idx_) {}
-		friend bool operator==(const DirIndex& x, const DirIndex& y) {
-			return (x.sector == y.sector) &&
-			       (x.idx    == y.idx);
-		}
+		[[nodiscard]] constexpr bool operator==(const DirIndex&) const = default;
+
 		unsigned sector;
 		unsigned idx;
 	};

@@ -17,13 +17,6 @@ MSXMultiMemDevice::Range::Range(
 {
 }
 
-bool MSXMultiMemDevice::Range::operator==(const Range& other) const
-{
-	return (base   == other.base) &&
-	       (size   == other.size) &&
-	       (device == other.device);
-}
-
 
 MSXMultiMemDevice::MSXMultiMemDevice(const HardwareConfig& hwConf)
 	: MSXMultiDevice(hwConf)
