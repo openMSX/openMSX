@@ -20,20 +20,23 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Fetch entire repository
-      run: git fetch --prune --unshallow
+      with:
+        ref: ${{ inputs.tag }}
     - name: Create tarball
       run: build/gitdist.py ${{ inputs.tag }}
     - name: Determine tarball name
       id: get_dist_name
       run: |
-        NAME=`PYTHONPATH=build python3 -c "import gitdist; rel='RELEASE_18_0'; print (f'openmsx-{gitdist.niceVersionFromGitDescription(gitdist.getDescription(rel))}')"`
+        NAME=`PYTHONPATH=build python3 -c "import gitdist; rel='${{ inputs.tag }}'; print (f'openmsx-{gitdist.niceVersionFromGitDescription(gitdist.getDescription(rel))}')"`
         echo ::set-output name=tarball_name::$NAME.tar.gz
         echo ::set-output name=dist_name::$NAME
     - name: Extract tarball
       run: tar xzvf derived/dist/${{ steps.get_dist_name.outputs.tarball_name }}
     - name: Enter source dir
-      run: cd ${{ steps.get_dist_name.outputs.dist_name }}
+      run: |
+        pwd
+        cd ${{ steps.get_dist_name.outputs.dist_name }}
+        pwd
     - name: Make
       run: make OPENMSX_TARGET_CPU=${{ env.target_cpu }} OPENMSX_TARGET_OS=${{ env.target_os }} OPENMSX_FLAVOUR=${{ env.target_flavour }} staticbindist
     - name: Determine version
@@ -42,7 +45,9 @@ jobs:
         OPENMSX_VERSION=`python3 build/version.py`
         echo ::set-output name=OPENMSX_VERSION::$OPENMSX_VERSION
     - name: Change directory to build output folder
-      run: cd derived/${{ env.target_cpu }}-${{ env.target_os }}-${{ env.target_flavour }}-3rd
+      run: |
+        cd derived/${{ env.target_cpu }}-${{ env.target_os }}-${{ env.target_flavour }}-3rd
+        pwd
     - name: Upload redistributable dmg
       uses: actions/upload-artifact@v1
       with:
