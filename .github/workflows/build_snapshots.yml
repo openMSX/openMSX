@@ -1,0 +1,104 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+env:
+  target_flavour: opt
+
+jobs:
+  build:
+    name: ${{ matrix.name }} ${{ matrix.cpu }}
+    runs-on: ${{ matrix.image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: ubuntu-latest
+            name: Linux
+            cpu: x86_64
+            os: linux
+          - image: ubuntu-latest
+            name: Linux
+            cpu: aarch64
+            os: linux
+          - image: ubuntu-22.04
+            name: Windows
+            cpu: x86_64
+            os: mingw-w64
+          - image: macos-12
+            name: MacOS
+            cpu: x86_64
+            os: darwin
+          - image: macos-12
+            name: MacOS
+            cpu: aarch64
+            os: darwin
+          - image: ubuntu-latest
+            name: Android
+            cpu: arm
+            os: android
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Install Linux prerequisites
+      if: ${{ matrix.os == 'linux' }}
+      run: sudo apt-get install libgl1-mesa-dev
+    - name: Install Windows prerequisites
+      if: ${{ contains(matrix.os, 'mingw') }}
+      run: sudo apt-get install mingw-w64 gcc make tcl
+    - name: Add NDK to PATH
+      if: ${{ contains(matrix.os, 'android') }}
+      run: echo "$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin" >> $GITHUB_PATH
+    - name: Configure MinGW to use Posix threads
+      if: ${{ contains(matrix.os, 'mingw') }}
+      run: |
+        sudo update-alternatives --set i686-w64-mingw32-gcc /usr/bin/i686-w64-mingw32-gcc-posix
+        sudo update-alternatives --set i686-w64-mingw32-g++ /usr/bin/i686-w64-mingw32-g++-posix
+        sudo update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix
+        sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
+    - name: Make
+      run: |
+        CXX_PART=""
+        if [ "${{ matrix.os }}" = "linux" ]; then
+          CXX_PART=" CXX=g++-10"
+        fi
+        make \
+          OPENMSX_TARGET_CPU=${{ matrix.cpu }} \
+          OPENMSX_TARGET_OS=${{ matrix.os }} \
+          OPENMSX_FLAVOUR=${{ env.target_flavour }} \
+          $CXX_PART \
+          staticbindist
+    - name: Determine version and file path
+      id: openmsx
+      run: |
+        OPENMSX_VERSION=`python3 build/version.py`
+        BUILD_PATH=derived/${{ matrix.cpu }}-${{ matrix.os }}-${{ env.target_flavour }}-3rd
+        if [ "${{ matrix.os }}" = "darwin" ]; then
+          FILE_EXTENSION="dmg"
+          ORIGINAL_FILE=openmsx-${OPENMSX_VERSION}-mac-${{ matrix.cpu }}-bin.dmg
+        else
+          FILE_EXTENSION="zip"
+          ORIGINAL_FILE=install
+          BUILD_PATH="${BUILD_PATH}/bindist"
+        fi
+        echo "::set-output name=version::$OPENMSX_VERSION"
+        echo "::set-output name=path::$BUILD_PATH"
+        echo "::set-output name=original_file::$ORIGINAL_FILE"
+        echo "::set-output name=target_file::openmsx-$OPENMSX_VERSION-${{ matrix.cpu }}-${{ matrix.os }}-${{ env.target_flavour }}"
+        echo "::set-output name=target_extension::$FILE_EXTENSION"
+    - name: Prepare redistributable file
+      run: |
+        cd ${{ steps.openmsx.outputs.path }}
+        mv ${{ steps.openmsx.outputs.original_file }} ${{ steps.openmsx.outputs.target_file }}
+    - name: Upload redistributable ${{ steps.openmsx.outputs.target_extension }}
+      uses: actions/upload-artifact@v1
+      with:
+        name: ${{ steps.openmsx.outputs.target_file }}.${{ steps.openmsx.outputs.target_extension }}
+        path: ${{ steps.openmsx.outputs.path }}/${{ steps.openmsx.outputs.target_file }}
