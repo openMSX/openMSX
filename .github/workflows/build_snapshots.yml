@@ -79,17 +79,19 @@ jobs:
       id: openmsx
       run: |
         OPENMSX_VERSION=`python3 build/version.py`
-        BUILD_PATH=derived/${{ matrix.cpu }}-${{ matrix.os }}-${{ env.target_flavour }}-3rd
+        DERIVED_PATH=derived/${{ matrix.cpu }}-${{ matrix.os }}-${{ env.target_flavour }}-3rd
         if [ "${{ matrix.os }}" = "darwin" ]; then
           FILE_EXTENSION="dmg"
           ORIGINAL_FILE=openmsx-${OPENMSX_VERSION}-mac-${{ matrix.cpu }}-bin.dmg
+          BUILD_PATH="${DERIVED_PATH}"
         else
           FILE_EXTENSION="zip"
           ORIGINAL_FILE=install
-          BUILD_PATH="${BUILD_PATH}/bindist"
+          BUILD_PATH="${DERIVED_PATH}/bindist"
         fi
         echo "::set-output name=version::$OPENMSX_VERSION"
         echo "::set-output name=path::$BUILD_PATH"
+        echo "::set-output name=derived_path::$DERIVED_PATH"
         echo "::set-output name=original_file::$ORIGINAL_FILE"
         echo "::set-output name=target_file::openmsx-$OPENMSX_VERSION-${{ matrix.cpu }}-${{ matrix.os }}-${{ env.target_flavour }}"
         echo "::set-output name=target_extension::$FILE_EXTENSION"
@@ -102,3 +104,8 @@ jobs:
       with:
         name: ${{ steps.openmsx.outputs.target_file }}.${{ steps.openmsx.outputs.target_extension }}
         path: ${{ steps.openmsx.outputs.path }}/${{ steps.openmsx.outputs.target_file }}
+    - name: Upload probe logging zip
+      uses: actions/upload-artifact@v1
+      with:
+        name: ${{ steps.openmsx.outputs.target_file }}-proberesults.zip
+        path: ${{ steps.openmsx.outputs.derived_path }}/config
