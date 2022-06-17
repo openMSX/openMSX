@@ -49,7 +49,7 @@ jobs:
         fetch-depth: 0
     - name: Install Linux prerequisites
       if: ${{ matrix.os == 'linux' }}
-      run: sudo apt-get install libgl1-mesa-dev
+      run: sudo apt-get install libgl1-mesa-dev libasound2-dev
     - name: Install Windows prerequisites
       if: ${{ contains(matrix.os, 'mingw') }}
       run: sudo apt-get install mingw-w64 gcc make tcl
