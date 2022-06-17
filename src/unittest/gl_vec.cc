@@ -1,5 +1,6 @@
 #include "catch.hpp"
 #include "gl_vec.hh"
+#include "Math.hh"
 
 using namespace gl;
 
@@ -24,12 +25,12 @@ TEST_CASE("gl_vec: rsqrt")
 
 TEST_CASE("gl_vec: radians, degrees")
 {
-	CHECK(approxEq(radians(  0.0), 0.0     ));
-	CHECK(approxEq(radians( 90.0), M_PI / 2));
-	CHECK(approxEq(radians(180.0), M_PI    ));
-	CHECK(approxEq(degrees(0.0     ),   0.0));
-	CHECK(approxEq(degrees(M_PI / 2),  90.0));
-	CHECK(approxEq(degrees(M_PI    ), 180.0));
+	CHECK(approxEq(radians(  0.0), 0.0         ));
+	CHECK(approxEq(radians( 90.0), Math::pi / 2));
+	CHECK(approxEq(radians(180.0), Math::pi    ));
+	CHECK(approxEq(degrees(0.0         ),   0.0));
+	CHECK(approxEq(degrees(Math::pi / 2),  90.0));
+	CHECK(approxEq(degrees(Math::pi    ), 180.0));
 }
 
 // It's useful to test both integer and float variants because the

@@ -1,6 +1,7 @@
 #ifndef CSTD_HH
 #define CSTD_HH
 
+#include "Math.hh"
 #include "xrange.hh"
 #include <cassert>
 #include <cmath>
@@ -75,7 +76,7 @@ template<int ITERATIONS>
 
 	// Approximate exp(i) by squaring.
 	int p = (i >= 0) ? i : -i; // abs(i);
-	double s = upow(M_E, p);
+	double s = upow(Math::e, p);
 
 	// Combine the results.
 	if (i >= 0) {
@@ -145,22 +146,22 @@ template<int ITERATIONS>
 	}
 
 	// reduce to [0, 2pi)
-	x = simple_fmod(x, 2 * M_PI);
+	x = simple_fmod(x, 2 * Math::pi);
 
 	// reduce to [0, pi]
-	if (x > M_PI) {
+	if (x > Math::pi) {
 		sign = -sign;
-		x -= M_PI;
+		x -= Math::pi;
 	}
 
 	// reduce to [0, pi/2]
-	if (x > M_PI/2) {
-		x = M_PI - x;
+	if (x > Math::pi / 2) {
+		x = Math::pi - x;
 	}
 
 	// reduce to [0, pi/4]
-	if (x > M_PI/4) {
-		x = M_PI/2 - x;
+	if (x > Math::pi / 4) {
+		x = Math::pi / 2 - x;
 		return sign * cos_iter<ITERATIONS>(x);
 	} else {
 		return sign * sin_iter<ITERATIONS>(x);
@@ -178,22 +179,22 @@ template<int ITERATIONS>
 	}
 
 	// reduce to [0, 2pi)
-	x = simple_fmod(x, 2 * M_PI);
+	x = simple_fmod(x, 2 * Math::pi);
 
 	// reduce to [0, pi]
-	if (x > M_PI) {
-		x = 2.0 * M_PI - x;
+	if (x > Math::pi) {
+		x = 2.0 * Math::pi - x;
 	}
 
 	// reduce to [0, pi/2]
-	if (x > M_PI/2) {
+	if (x > Math::pi / 2) {
 		sign = -sign;
-		x = M_PI - x;
+		x = Math::pi - x;
 	}
 
 	// reduce to [0, pi/4]
-	if (x > M_PI/4) {
-		x = M_PI/2 - x;
+	if (x > Math::pi / 4) {
+		x = Math::pi / 2 - x;
 		return sign * sin_iter<ITERATIONS>(x);
 	} else {
 		return sign * cos_iter<ITERATIONS>(x);
@@ -207,7 +208,7 @@ template<int E_ITERATIONS, int L_ITERATIONS>
 {
 	int a = 0;
 	while (x <= 0.25) {
-		x *= M_E;
+		x *= Math::e;
 		++a;
 	}
 	double y = 0.0;
@@ -221,13 +222,13 @@ template<int E_ITERATIONS, int L_ITERATIONS>
 template<int E_ITERATIONS, int L_ITERATIONS>
 [[nodiscard]] constexpr double log2(double x)
 {
-	return cstd::log<E_ITERATIONS, L_ITERATIONS>(x) / M_LN2;
+	return cstd::log<E_ITERATIONS, L_ITERATIONS>(x) / Math::ln2;
 }
 
 template<int E_ITERATIONS, int L_ITERATIONS>
 [[nodiscard]] constexpr double log10(double x)
 {
-	return cstd::log<E_ITERATIONS, L_ITERATIONS>(x) / M_LN10;
+	return cstd::log<E_ITERATIONS, L_ITERATIONS>(x) / Math::ln10;
 }
 
 template<int E_ITERATIONS, int L_ITERATIONS>
@@ -239,7 +240,7 @@ template<int E_ITERATIONS, int L_ITERATIONS>
 template<int ITERATIONS>
 [[nodiscard]] constexpr double exp2(double x)
 {
-	return cstd::exp<ITERATIONS>(M_LN2 * x);
+	return cstd::exp<ITERATIONS>(Math::ln2 * x);
 }
 
 [[nodiscard]] constexpr double round(double x)

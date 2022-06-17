@@ -62,7 +62,7 @@ constexpr auto logsinTab = [] {
 	std::array<uint16_t, 256> result = {};
 	//for (auto [i, r] : enumerate(result)) { msvc bug
 	for (int i = 0; i < 256; ++i) {
-		result[i] = cstd::round(-cstd::log2<8, 3>(cstd::sin<2>((double(i) + 0.5) * M_PI / 256.0 / 2.0)) * 256.0);
+		result[i] = cstd::round(-cstd::log2<8, 3>(cstd::sin<2>((double(i) + 0.5) * Math::pi / 256.0 / 2.0)) * 256.0);
 	}
 	return result;
 }();

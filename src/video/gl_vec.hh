@@ -161,11 +161,11 @@ using ivec4 = vecN<4, int>;
 // convert radians <-> degrees
 template<typename T> [[nodiscard]] constexpr T radians(T d)
 {
-	return d * T(M_PI / 180.0);
+	return d * T(Math::pi / 180.0);
 }
 template<typename T> [[nodiscard]] constexpr T degrees(T r)
 {
-	return r * T(180.0 / M_PI);
+	return r * T(180.0 / Math::pi);
 }
 
 

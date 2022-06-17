@@ -241,7 +241,7 @@ constexpr auto sinTab = [] {
 	for (auto i : xrange(SIN_LEN / 4)) {
 		// checked on real hardware, see also
 		//   http://docs.google.com/Doc?id=dd8kqn9f_13cqjkf4gp
-		double m = cstd::sin<2>(((i * 2) + 1) * M_PI / SIN_LEN);
+		double m = cstd::sin<2>(((i * 2) + 1) * Math::pi / SIN_LEN);
 		int n = int(cstd::round(cstd::log2<8, 3>(m) * -256.0));
 		result[i] = 2 * n;
 	}

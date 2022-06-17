@@ -5,29 +5,19 @@
 #include <cassert>
 #include <cmath>
 #include <cstdint>
+#include <numbers>
 
 #ifdef _MSC_VER
 #include <intrin.h>
 #pragma intrinsic(_BitScanForward)
 #endif
 
-// These constants are very common extensions, but not guaranteed to be defined
-// by <cmath> when compiling in a strict standards compliant mode. Also e.g.
-// visual studio does not provide them.
-#ifndef M_E
-#define M_E    2.7182818284590452354
-#endif
-#ifndef M_LN2
-#define M_LN2  0.69314718055994530942 // log_e 2
-#endif
-#ifndef M_LN10
-#define M_LN10 2.30258509299404568402 // log_e 10
-#endif
-#ifndef M_PI
-#define M_PI   3.14159265358979323846
-#endif
-
 namespace Math {
+
+constexpr inline double e    = std::numbers::e_v   <double>;
+constexpr inline double ln2  = std::numbers::ln2_v <double>;
+constexpr inline double ln10 = std::numbers::ln10_v<double>;
+constexpr inline double pi   = std::numbers::pi_v  <double>;
 
 /** Returns the smallest number of the form 2^n-1 that is greater or equal
   * to the given number.

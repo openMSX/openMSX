@@ -163,7 +163,7 @@ int AY8910::ToneGenerator::getDetune(AY8910& ay8910)
 		vibratoCount += period;
 		vibratoCount %= vibratoPeriod;
 		result += int(
-			sinf((float(2 * M_PI) * vibratoCount) / vibratoPeriod)
+			sinf((float(2 * Math::pi) * vibratoCount) / vibratoPeriod)
 			* vibPerc * 0.01f * period);
 	}
 	float detunePerc = ay8910.detunePercent.getDouble();

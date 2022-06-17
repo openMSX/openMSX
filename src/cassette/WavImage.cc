@@ -17,7 +17,7 @@ class DCFilter {
 public:
 	void setFreq(unsigned sampleFreq) {
 		const float cuttOffFreq = 800.0f; // trial-and-error
-		R = 1.0f - ((float(2 * M_PI) * cuttOffFreq) / sampleFreq);
+		R = 1.0f - ((float(2 * Math::pi) * cuttOffFreq) / sampleFreq);
 	}
 	int16_t operator()(int16_t x) {
 		float t1 = R * t0 + x;
