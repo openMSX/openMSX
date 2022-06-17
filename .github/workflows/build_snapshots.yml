@@ -55,7 +55,7 @@ jobs:
       run: sudo apt-get install mingw-w64 gcc make tcl
     - name: Add NDK to PATH
       if: ${{ contains(matrix.os, 'android') }}
-      run: echo "$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin" >> $GITHUB_PATH
+      run: echo "$ANDROID_NDK_LATEST_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin" >> $GITHUB_PATH
     - name: Configure MinGW to use Posix threads
       if: ${{ contains(matrix.os, 'mingw') }}
       run: |
