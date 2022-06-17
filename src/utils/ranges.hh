@@ -1,7 +1,6 @@
 #ifndef RANGES_HH
 #define RANGES_HH
 
-#include "stl.hh"
 #include <algorithm>
 #include <functional>
 #include <iterator> // for std::begin(), std::end()
@@ -21,7 +20,7 @@
 
 namespace ranges {
 
-template<typename ForwardRange, typename Compare = std::less<>, typename Proj = identity>
+template<typename ForwardRange, typename Compare = std::less<>, typename Proj = std::identity>
 [[nodiscard]] bool is_sorted(ForwardRange&& range, Compare comp = {}, Proj proj = {})
 {
 	return std::is_sorted(std::begin(range), std::end(range),
@@ -96,7 +95,7 @@ template<typename ForwardRange, typename T, typename Compare>
 	return std::binary_search(std::begin(range), std::end(range), value, comp);
 }
 
-template<typename ForwardRange, typename T, typename Compare = std::less<>, typename Proj = identity>
+template<typename ForwardRange, typename T, typename Compare = std::less<>, typename Proj = std::identity>
 [[nodiscard]] auto lower_bound(ForwardRange&& range, const T& value, Compare comp = {}, Proj proj = {})
 {
 	auto comp2 = [&](const auto& x, const auto& y) {
@@ -105,7 +104,7 @@ template<typename ForwardRange, typename T, typename Compare = std::less<>, type
 	return std::lower_bound(std::begin(range), std::end(range), value, comp2);
 }
 
-template<typename ForwardRange, typename T, typename Compare = std::less<>, typename Proj = identity>
+template<typename ForwardRange, typename T, typename Compare = std::less<>, typename Proj = std::identity>
 [[nodiscard]] auto upper_bound(ForwardRange&& range, const T& value, Compare comp = {}, Proj proj = {})
 {
 	auto comp2 = [&](const auto& x, const auto& y) {
@@ -119,7 +118,7 @@ template<typename ForwardRange, typename T, typename Compare = std::less<>>
 {
 	return std::equal_range(std::begin(range), std::end(range), value, comp);
 }
-template<typename ForwardRange, typename T, typename Compare = std::less<>, typename Proj = identity>
+template<typename ForwardRange, typename T, typename Compare = std::less<>, typename Proj = std::identity>
 [[nodiscard]] auto equal_range(ForwardRange&& range, const T& value, Compare comp, Proj proj)
 {
 	using Iter = decltype(std::begin(range));
