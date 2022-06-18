@@ -75,35 +75,39 @@ jobs:
           OPENMSX_FLAVOUR=${{ env.target_flavour }} \
           $CXX_PART \
           staticbindist
-    - name: Determine version and file path
+    - name: Determine version and redistributable paths and names
       id: openmsx
       run: |
         OPENMSX_VERSION=`python3 build/version.py`
         DERIVED_PATH=derived/${{ matrix.cpu }}-${{ matrix.os }}-${{ env.target_flavour }}-3rd
         if [ "${{ matrix.os }}" = "darwin" ]; then
-          FILE_EXTENSION="dmg"
-          ORIGINAL_FILE=openmsx-${OPENMSX_VERSION}-mac-${{ matrix.cpu }}-bin.dmg
-          BUILD_PATH="${DERIVED_PATH}"
+          HAS_SINGLE_FILE_OUTPUT=true
+          SINGLE_OUTPUT_FILE=openmsx-${OPENMSX_VERSION}-mac-${{ matrix.cpu }}-bin.dmg
         else
-          FILE_EXTENSION="zip"
-          ORIGINAL_FILE=install
-          BUILD_PATH="${DERIVED_PATH}/bindist"
+          HAS_SINGLE_FILE_OUTPUT=false
         fi
         echo "::set-output name=version::$OPENMSX_VERSION"
-        echo "::set-output name=path::$BUILD_PATH"
         echo "::set-output name=derived_path::$DERIVED_PATH"
-        echo "::set-output name=original_file::$ORIGINAL_FILE"
-        echo "::set-output name=target_file::openmsx-$OPENMSX_VERSION-${{ matrix.cpu }}-${{ matrix.os }}-${{ env.target_flavour }}"
-        echo "::set-output name=target_extension::$FILE_EXTENSION"
-    - name: Prepare redistributable file
+        echo "::set-output name=single_output_file::$SINGLE_OUTPUT_FILE"
+        echo "::set-output name=target_file::openmsx-$OPENMSX_VERSION-${{ matrix.os }}-${{ matrix.cpu }}-bin"
+        echo "::set-output name=single_file::$HAS_SINGLE_FILE_OUTPUT"
+    - name: Rename output folder for upload
+      if: ${{ steps.openmsx.outputs.single_file == 'false' }}
       run: |
-        cd ${{ steps.openmsx.outputs.path }}
-        mv ${{ steps.openmsx.outputs.original_file }} ${{ steps.openmsx.outputs.target_file }}
-    - name: Upload redistributable ${{ steps.openmsx.outputs.target_extension }}
+        cd ${{ steps.openmsx.outputs.derived_path }}/bindist
+        mv install ../${{ steps.openmsx.outputs.target_file }}
+    - name: Upload redistributable zip
+      if: ${{ steps.openmsx.outputs.single_file == 'false' }}
       uses: actions/upload-artifact@v1
       with:
-        name: ${{ steps.openmsx.outputs.target_file }}.${{ steps.openmsx.outputs.target_extension }}
-        path: ${{ steps.openmsx.outputs.path }}/${{ steps.openmsx.outputs.target_file }}
+        name: ${{ steps.openmsx.outputs.target_file }}.zip
+        path: ${{ steps.openmsx.outputs.derived_path }}/${{ steps.openmsx.outputs.target_file }}
+    - name: Upload single redistributable ${{ steps.openmsx.outputs.single_output_file}}
+      if: ${{ steps.openmsx.outputs.single_file == 'true' }}
+      uses: actions/upload-artifact@v1
+      with:
+        name: ${{ steps.openmsx.outputs.single_output_file }}
+        path: ${{ steps.openmsx.outputs.derived_path }}/${{ steps.openmsx.outputs.single_output_file }}
     - name: Upload probe logging zip
       uses: actions/upload-artifact@v1
       with:
