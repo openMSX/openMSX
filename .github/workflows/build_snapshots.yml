@@ -101,13 +101,13 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: ${{ steps.openmsx.outputs.target_file }}.zip
-        path: ${{ steps.openmsx.outputs.target_file }}
+        path: ${{ steps.openmsx.outputs.derived_path }}/${{ steps.openmsx.outputs.target_file }}
     - name: Upload single redistributable ${{ steps.openmsx.outputs.single_output_file}}
       if: ${{ steps.openmsx.outputs.single_file == 'true' }}
       uses: actions/upload-artifact@v1
       with:
         name: ${{ steps.openmsx.outputs.single_output_file }}
-        path: ${{ steps.openmsx.outputs.single_output_file }}
+        path: ${{ steps.openmsx.outputs.derived_path }}/${{ steps.openmsx.outputs.single_output_file }}
     - name: Upload probe logging zip
       uses: actions/upload-artifact@v1
       with:
