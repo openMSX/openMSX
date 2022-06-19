@@ -15,7 +15,6 @@
 #include "build-info.hh"
 #include <cassert>
 #include <memory>
-#include <ranges>
 
 using std::string;
 
@@ -203,7 +202,7 @@ struct EqualEvent {
 	const Event& event;
 };
 
-static bool contains(std::ranges::input_range auto&& range, const Event& event)
+static bool contains(auto&& range, const Event& event)
 {
 	return ranges::any_of(range, EqualEvent(event));
 }
