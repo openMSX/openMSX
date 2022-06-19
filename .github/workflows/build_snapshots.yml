@@ -10,6 +10,7 @@ on:
 
 env:
   target_flavour: opt
+  BUILD_CONFIGURATION: Release
 
 jobs:
   build:
