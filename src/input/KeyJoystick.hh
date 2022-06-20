@@ -26,7 +26,8 @@ public:
 	            ID id);
 	~KeyJoystick() override;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	// Pluggable

@@ -221,7 +221,8 @@ void ReproCartridgeV1::writeIO(word port, byte value, EmuTime::param time)
 	}
 }
 
-void ReproCartridgeV1::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void ReproCartridgeV1::serialize(Archive& ar, unsigned /*version*/)
 {
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);

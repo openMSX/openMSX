@@ -163,12 +163,12 @@ void Video9000::update(const Setting& setting) noexcept
 	}
 }
 
-template<Archive Ar>
-void Video9000::serialize(Ar& ar, unsigned /*version*/)
+template<typename Archive>
+void Video9000::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("value", value);
-	if constexpr (Ar::IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		recalc();
 	}
 }

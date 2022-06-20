@@ -37,7 +37,8 @@ public:
 	//  - handle CPU cacheline stuff (e.g. invalidate)
 	void writeIO(word port, byte value, EmuTime::param time) override = 0;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 protected:
 	/** Converts a Z80 address to a RAM address.

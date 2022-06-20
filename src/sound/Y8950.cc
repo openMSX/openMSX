@@ -1227,7 +1227,8 @@ void Y8950::changeStatusMask(byte newMask)
 }
 
 
-void Y8950::Patch::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void Y8950::Patch::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("AM", AM,
 	             "PM", PM,
@@ -1257,8 +1258,8 @@ SERIALIZE_ENUM(Y8950::EnvelopeState, envelopeStateInfo);
 //            instead it's recalculated via update_key_status()
 // version 3: serialize 'eg_mode' as an enum instead of an int, also merged
 //            the 2 enum values SUSHOLD and SUSTINE into SUSTAIN
-template<Archive Ar>
-void Y8950::Slot::serialize(Ar& ar, unsigned version)
+template<typename Archive>
+void Y8950::Slot::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("feedback", feedback,
 	             "output",   output,
@@ -1268,7 +1269,7 @@ void Y8950::Slot::serialize(Ar& ar, unsigned version)
 	if (ar.versionAtLeast(version, 3)) {
 		ar.serialize("eg_mode", eg_mode);
 	} else {
-		assert(Ar::IS_LOADER);
+		assert(Archive::IS_LOADER);
 		int tmp = 0; // dummy init to avoid warning
 		ar.serialize("eg_mode", tmp);
 		switch (tmp) {
@@ -1287,22 +1288,22 @@ void Y8950::Slot::serialize(Ar& ar, unsigned version)
 	//  key
 }
 
-template<Archive Ar>
-void Y8950::Channel::serialize(Ar& ar, unsigned /*version*/)
+template<typename Archive>
+void Y8950::Channel::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("mod",  slot[MOD],
 	             "car",  slot[CAR],
 	             "freq", freq,
 	             "alg",  alg);
 
-	if constexpr (Ar::IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		slot[MOD].updateAll(freq);
 		slot[CAR].updateAll(freq);
 	}
 }
 
-template<Archive Ar>
-void Y8950::serialize(Ar& ar, unsigned /*version*/)
+template<typename Archive>
+void Y8950::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("keyboardConnector", connector,
 	             "adpcm",             adpcm,
@@ -1325,7 +1326,7 @@ void Y8950::serialize(Ar& ar, unsigned /*version*/)
 	             "pm_mode",       pm_mode,
 	             "enabled",       enabled);
 
-	if constexpr (Ar::IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		// TODO restore more state from registers
 		static constexpr byte rewriteRegs[] = {
 			6,       // connector

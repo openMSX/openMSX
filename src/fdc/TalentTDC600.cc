@@ -86,7 +86,8 @@ byte* TalentTDC600::getWriteCacheLine(word address) const
 }
 
 
-void TalentTDC600::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void TalentTDC600::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXFDC>(*this);
 	ar.serialize("TC8566AF", controller);

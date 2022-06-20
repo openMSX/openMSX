@@ -113,7 +113,8 @@ void ESE_RAM::setSRAM(unsigned region, byte block)
 	mapped[region] = block & blockMask;
 }
 
-void ESE_RAM::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void ESE_RAM::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("SRAM",        sram,

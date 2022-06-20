@@ -68,14 +68,16 @@ public:
 	void write(unsigned address, byte value);
 	[[nodiscard]] const byte* getReadCacheLine(unsigned address) const;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 //private:
 	struct AmdCmd {
 		unsigned addr;
 		byte value;
 
-		void serialize(Archive auto& ar, unsigned version);
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
 	};
 
 	enum State { ST_IDLE, ST_IDENT };

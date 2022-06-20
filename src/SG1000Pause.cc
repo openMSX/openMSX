@@ -42,7 +42,8 @@ void SG1000Pause::executeUntil(EmuTime::param /*time*/)
 	cpu.lowerNMI();
 }
 
-void SG1000Pause::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void SG1000Pause::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 }

@@ -113,7 +113,8 @@ void MicrosolFDC::writeIO(word port, byte value, EmuTime::param time)
 }
 
 
-void MicrosolFDC::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void MicrosolFDC::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<WD2793BasedFDC>(*this);
 }

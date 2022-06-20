@@ -158,7 +158,8 @@ bool VictorFDC::allowUnaligned() const
 }
 
 
-void VictorFDC::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void VictorFDC::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<WD2793BasedFDC>(*this);
 	ar.serialize("driveControls", driveControls);

@@ -75,7 +75,8 @@ void MusicModuleMIDI::writeIO(word port, byte value, EmuTime::param time)
 
 // versions 1-3: were for type "MC6850", see that class for details
 // version 4: first version for "MusicModuleMIDI"
-void MusicModuleMIDI::serialize(Archive auto& ar, unsigned version)
+template<typename Archive>
+void MusicModuleMIDI::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	if (ar.versionAtLeast(version, 4)) {

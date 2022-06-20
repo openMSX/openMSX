@@ -159,7 +159,8 @@ byte* SpectravideoFDC::getWriteCacheLine(word address) const
 	}
 }
 
-void SpectravideoFDC::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void SpectravideoFDC::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<WD2793BasedFDC>(*this);
 	ar.serialize("cpmRomEnabled", cpmRomEnabled);

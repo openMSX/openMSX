@@ -31,7 +31,8 @@ public:
 
 	void setMixLevel(uint8_t x, EmuTime::param time);
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	class Slot {
@@ -45,7 +46,8 @@ private:
 		[[nodiscard]] int16_t compute_vib() const;
 		[[nodiscard]] uint16_t compute_am() const;
 
-		void serialize(Archive auto& ar, unsigned version);
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
 
 		uint32_t startaddr;
 		uint16_t loopaddr;

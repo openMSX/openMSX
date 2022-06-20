@@ -397,8 +397,8 @@ void MSXMidi::recvByte(byte value, EmuTime::param time)
 }
 
 
-template<Archive Ar>
-void MSXMidi::serialize(Ar& ar, unsigned version)
+template<typename Archive>
+void MSXMidi::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 
@@ -417,7 +417,7 @@ void MSXMidi::serialize(Ar& ar, unsigned version)
 		bool newIsLimitedTo8251 = isLimitedTo8251; // copy for saver
 		ar.serialize("isEnabled",       newIsEnabled,
 		             "isLimitedTo8251", newIsLimitedTo8251);
-		if constexpr (Ar::IS_LOADER) {
+		if constexpr (Archive::IS_LOADER) {
 			if (isExternalMSXMIDI) {
 				registerIOports((newIsEnabled ? 0x00 : DISABLED_VALUE) | (newIsLimitedTo8251 ? LIMITED_RANGE_VALUE : 0x00));
 			}

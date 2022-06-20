@@ -458,8 +458,8 @@ void RealDrive::invalidateWd2793ReadTrackQuirk()
 // version 4: removed 'userData' from Schedulable
 // version 5: added 'track', 'trackValid', 'trackDirty'
 // version 6: removed 'headLoadStatus' and 'headLoadTimer'
-template<Archive Ar>
-void RealDrive::serialize(Ar& ar, unsigned version)
+template<typename Archive>
+void RealDrive::serialize(Archive& ar, unsigned version)
 {
 	if (ar.versionAtLeast(version, 4)) {
 		ar.serialize("syncLoadingTimeout", syncLoadingTimeout,
@@ -475,7 +475,7 @@ void RealDrive::serialize(Ar& ar, unsigned version)
 	if (ar.versionAtLeast(version, 3)) {
 		ar.serialize("startAngle", startAngle);
 	} else {
-		assert(Ar::IS_LOADER);
+		assert(Archive::IS_LOADER);
 		startAngle = 0;
 	}
 	if (ar.versionAtLeast(version, 5)) {
@@ -483,7 +483,7 @@ void RealDrive::serialize(Ar& ar, unsigned version)
 		ar.serialize("trackValid", trackValid);
 		ar.serialize("trackDirty", trackDirty);
 	}
-	if constexpr (Ar::IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		// Right after a loadstate, the 'loading indicator' state may
 		// be wrong, but that's OK. It's anyway only a heuristic and
 		// it will be correct after at most one second.

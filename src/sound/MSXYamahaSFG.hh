@@ -22,7 +22,8 @@ public:
 	[[nodiscard]] byte* getWriteCacheLine(word start) const override;
 	[[nodiscard]] byte readIRQVector() override;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	void writeRegisterPort(byte value, EmuTime::param time);

@@ -23,7 +23,8 @@ public:
 	[[nodiscard]] byte* getWriteCacheLine(word address) const override;
 	[[nodiscard]] const byte* getReadCacheLine(word address) const override;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	Ram ram;

@@ -19,7 +19,8 @@ void MSXMemoryMapper::writeIO(word port, byte value, EmuTime::param time)
 	}
 }
 
-void MSXMemoryMapper::serialize(Archive auto& ar, unsigned version)
+template<typename Archive>
+void MSXMemoryMapper::serialize(Archive& ar, unsigned version)
 {
 	// use serializeInlinedBase instead of serializeBase for bw-compat savestates
 	ar.template serializeInlinedBase<MSXMemoryMapperBase>(*this, version);

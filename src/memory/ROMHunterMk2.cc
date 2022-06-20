@@ -153,7 +153,8 @@ byte* ROMHunterMk2::getWriteCacheLine(word /*addr*/) const
 	return nullptr;
 }
 
-void ROMHunterMk2::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void ROMHunterMk2::serialize(Archive& ar, unsigned /*version*/)
 {
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);

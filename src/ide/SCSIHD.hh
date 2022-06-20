@@ -26,7 +26,8 @@ public:
 	SCSIHD(const DeviceConfig& targetconfig,
 	       AlignedBuffer& buf, unsigned mode);
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	// SCSI Device

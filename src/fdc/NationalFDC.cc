@@ -134,7 +134,8 @@ byte* NationalFDC::getWriteCacheLine(word address) const
 }
 
 
-void NationalFDC::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void NationalFDC::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<WD2793BasedFDC>(*this);
 }

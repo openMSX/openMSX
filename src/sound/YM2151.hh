@@ -62,12 +62,14 @@ public:
 	void writeReg(byte r, byte v, EmuTime::param time);
 	[[nodiscard]] byte readStatus() const;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	// a single operator
 	struct YM2151Operator {
-		void serialize(Archive auto& ar, unsigned version);
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
 
 		int* connect;      // operator output 'direction'
 		int* mem_connect;  // where to put the delayed sample (MEM)

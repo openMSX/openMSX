@@ -34,7 +34,8 @@ bool DiskName::empty() const
 	return name.empty() && extra.empty();
 }
 
-void DiskName::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void DiskName::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("filename", name,
 	             "extra",    extra);

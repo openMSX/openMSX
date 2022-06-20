@@ -173,7 +173,8 @@ void MegaSCSI::setSRAM(unsigned region, byte block)
 	mapped[region] = ((block & 0xC0) == 0x40) ? 0x7F : (block & blockMask);
 }
 
-void MegaSCSI::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void MegaSCSI::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("SRAM",        sram,
 	             "MB89352",     mb89352,

@@ -11,7 +11,6 @@
 #include "ProfileCounters.hh"
 #include "openmsx.hh"
 #include "ranges.hh"
-#include "serialize_meta.hh"
 #include <bitset>
 #include <concepts>
 #include <vector>
@@ -285,7 +284,8 @@ public:
 	void setFastForward(bool fastForward_) { fastForward = fastForward_; }
 	[[nodiscard]] bool isFastForward() const { return fastForward; }
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	byte readMemSlow(word address, EmuTime::param time);

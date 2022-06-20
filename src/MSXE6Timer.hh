@@ -25,7 +25,8 @@ public:
 	void writeIO(word port, byte value, EmuTime::param time) override;
 	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	Clock<3579545, 14> reference; // (3.58 / 14)MHz

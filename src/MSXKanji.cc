@@ -86,7 +86,8 @@ byte MSXKanji::peekIO(word port, EmuTime::param /*time*/) const
 	return result;
 }
 
-void MSXKanji::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void MSXKanji::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("adr1", adr1,

@@ -139,7 +139,8 @@ void BeerIDE::changeControl(byte value, EmuTime::param time)
 	}
 }
 
-void BeerIDE::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void BeerIDE::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("i8255", i8255);

@@ -1,7 +1,6 @@
 #ifndef FILECONTEXT_HH
 #define FILECONTEXT_HH
 
-#include "serialize_meta.hh"
 #include <span>
 #include <string>
 #include <string_view>
@@ -22,7 +21,8 @@ public:
 	[[nodiscard]] std::span<const std::string> getPaths() const;
 	[[nodiscard]] bool isUserContext() const;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	std::vector<std::string> paths;

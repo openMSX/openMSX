@@ -133,7 +133,8 @@ void ClockPin::executeUntil(EmuTime::param time)
 }
 
 
-void ClockPin::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void ClockPin::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Schedulable>(*this);
 	ar.serialize("totalDur",      totalDur,

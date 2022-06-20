@@ -19,7 +19,8 @@ public:
 	void reset(EmuTime::param time);
 	void writeDAC(int16_t value, EmuTime::param time);
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	// SoundDevice

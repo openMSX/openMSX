@@ -116,7 +116,8 @@ byte* RomAscii8_8::getWriteCacheLine(word address) const
 	}
 }
 
-void RomAscii8_8::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void RomAscii8_8::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom8kBBlocks>(*this);
 	ar.serialize("sramEnabled", sramEnabled,

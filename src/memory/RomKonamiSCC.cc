@@ -133,7 +133,8 @@ byte* RomKonamiSCC::getWriteCacheLine(word address) const
 	}
 }
 
-void RomKonamiSCC::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void RomKonamiSCC::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom8kBBlocks>(*this);
 	ar.serialize("scc",        scc,

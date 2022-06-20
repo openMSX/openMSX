@@ -79,11 +79,11 @@ int16_t WavAudioInput::readSample(EmuTime::param time)
 	return 0;
 }
 
-template<Archive Ar>
-void WavAudioInput::serialize(Ar& ar, unsigned /*version*/)
+template<typename Archive>
+void WavAudioInput::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("reference", reference);
-	if constexpr (Ar::IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		update(audioInputFilenameSetting);
 	}
 }

@@ -115,7 +115,8 @@ byte* RomNettouYakyuu::getWriteCacheLine(word /*address*/) const
 	return nullptr;
 }
 
-void RomNettouYakyuu::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void RomNettouYakyuu::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom8kBBlocks>(*this);
 	ar.serialize("SamplePlayer",           samplePlayer,

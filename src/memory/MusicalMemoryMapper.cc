@@ -206,7 +206,8 @@ byte* MusicalMemoryMapper::getWriteCacheLine(word start) const
 	}
 }
 
-void MusicalMemoryMapper::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void MusicalMemoryMapper::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXMemoryMapperBase>(*this);
 	ar.serialize("ctrl",    controlReg,

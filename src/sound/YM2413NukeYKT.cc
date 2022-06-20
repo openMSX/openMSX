@@ -935,14 +935,15 @@ SERIALIZE_ENUM(YM2413NukeYKT::YM2413::EgState, egStateInfo);
 
 namespace YM2413NukeYKT {
 
-void YM2413::Write::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void YM2413::Write::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("port", port,
 	             "value", value);
 }
 
-template<Archive Ar>
-void YM2413::serialize(Ar& ar, unsigned /*version*/)
+template<typename Archive>
+void YM2413::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("writes", writes,
 	             "write_data", write_data,
@@ -985,7 +986,7 @@ void YM2413::serialize(Ar& ar, unsigned /*version*/)
 	             "regs", regs,
 	             "latch", latch);
 
-	if constexpr (Ar::IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		// restore redundant state
 		attackPtr = attack[eg_timer_shift_lock][eg_timer_lock];
 		auto idx = releaseIndex[eg_timer_shift_lock][eg_timer_lock][eg_counter_state];

@@ -34,7 +34,8 @@ AudioInputDevice& AudioInputConnector::getPluggedAudioDev() const
 	return *checked_cast<AudioInputDevice*>(&getPlugged());
 }
 
-void AudioInputConnector::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void AudioInputConnector::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Connector>(*this);
 }

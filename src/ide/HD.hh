@@ -30,7 +30,8 @@ public:
 
 	[[nodiscard]] std::string getTigerTreeHash();
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 	[[nodiscard]] MSXMotherBoard& getMotherBoard() const { return motherBoard; }
 

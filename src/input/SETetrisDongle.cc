@@ -48,7 +48,8 @@ void SETetrisDongle::write(byte value, EmuTime::param /*time*/)
 	}
 }
 
-void SETetrisDongle::serialize(Archive auto& /*ar*/, unsigned /*version*/)
+template<typename Archive>
+void SETetrisDongle::serialize(Archive& /*ar*/, unsigned /*version*/)
 {
 	// no need to serialize 'status', port will anyway be re-written
 	// on de-serialize

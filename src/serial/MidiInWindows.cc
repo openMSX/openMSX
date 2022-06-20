@@ -205,7 +205,8 @@ int MidiInWindows::signalEvent(const Event& /*event*/) noexcept
 	return 0;
 }
 
-void MidiInWindows::serialize(Archive auto& /*ar*/, unsigned /*version*/)
+template<typename Archive>
+void MidiInWindows::serialize(Archive& /*ar*/, unsigned /*version*/)
 {
 	// don't restore this after loadstate
 }

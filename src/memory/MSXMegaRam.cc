@@ -148,7 +148,8 @@ void MSXMegaRam::setBank(byte page, byte block)
 	invalidateDeviceRWCache(adr + 0x8000, 0x2000);
 }
 
-void MSXMegaRam::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void MSXMegaRam::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("ram",       ram,

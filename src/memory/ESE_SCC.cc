@@ -248,7 +248,8 @@ byte* ESE_SCC::getWriteCacheLine(word /*address*/) const
 }
 
 
-void ESE_SCC::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void ESE_SCC::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("sram", sram,

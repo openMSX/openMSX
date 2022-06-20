@@ -18,7 +18,8 @@ public:
 	explicit SG1000Pause(const DeviceConfig& config);
 	~SG1000Pause();
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	// MSXEventListener

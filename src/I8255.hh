@@ -10,7 +10,6 @@
 #include "EmuTime.hh"
 #include "TclCallback.hh"
 #include "openmsx.hh"
-#include "serialize_meta.hh"
 
 namespace openmsx {
 
@@ -35,7 +34,8 @@ public:
 	byte getPortB() const;
 	byte getPortC() const;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	[[nodiscard]] byte readPortA(EmuTime::param time);

@@ -1,7 +1,6 @@
 #ifndef SERIALIZE_CONSTR_HH
 #define SERIALIZE_CONSTR_HH
 
-#include "serialize_meta.hh"
 #include <tuple>
 
 namespace openmsx {
@@ -32,8 +31,10 @@ namespace openmsx {
 template<typename T> struct SerializeConstructorArgs
 {
 	using type = std::tuple<>;
-	void save(Archive auto& /*ar*/, const T& /*t*/) { }
-	type load(Archive auto& /*ar*/, unsigned /*version*/) { return std::tuple<>(); }
+	template<typename Archive>
+	void save(Archive& /*ar*/, const T& /*t*/) { }
+	template<typename Archive>
+	type load(Archive& /*ar*/, unsigned /*version*/) { return std::tuple<>(); }
 };
 
 } // namespace openmsx

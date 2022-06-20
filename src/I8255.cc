@@ -396,7 +396,8 @@ byte I8255::getPortC() const
 	return result;
 }
 
-void I8255::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void I8255::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("latchPortA", latchPortA,
 	             "latchPortB", latchPortB,

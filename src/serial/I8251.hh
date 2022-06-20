@@ -66,7 +66,8 @@ public:
 	void execRecv(EmuTime::param time);
 	void execTrans(EmuTime::param time);
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 	// public for serialize
 	enum CmdFaze {

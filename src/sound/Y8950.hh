@@ -69,7 +69,8 @@ public:
 	void resetStatus(byte flags);
 	[[nodiscard]] byte peekRawStatus() const;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	// SoundDevice
@@ -120,7 +121,8 @@ private:
 			FB = value ? 8 - value : 0;
 		}
 
-		void serialize(Archive auto& ar, unsigned version);
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
 
 		bool AM, PM, EG;
 		byte KR; // 0,1   transformed to 9,11
@@ -157,7 +159,8 @@ private:
 		inline void updateRKS(unsigned freq);
 		inline void updateEG();
 
-		void serialize(Archive auto& ar, unsigned version);
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
 
 		// OUTPUT
 		int feedback;
@@ -187,7 +190,8 @@ private:
 		inline void keyOn (KeyPart part);
 		inline void keyOff(KeyPart part);
 
-		void serialize(Archive auto& ar, unsigned version);
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
 
 		Slot slot[2];
 		unsigned freq; // combined F-Number and Block

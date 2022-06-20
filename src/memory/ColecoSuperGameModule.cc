@@ -168,7 +168,8 @@ byte* ColecoSuperGameModule::getWriteCacheLine(word start) const
 	return unmappedWrite;
 }
 
-void ColecoSuperGameModule::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void ColecoSuperGameModule::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("mainRam",          mainRam.getUncheckedRam(),
 	             "sgmRam",           sgmRam.getUncheckedRam(),

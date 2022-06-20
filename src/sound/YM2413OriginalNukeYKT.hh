@@ -7,7 +7,6 @@
 
 #include "YM2413Core.hh"
 #include "opll.hh"
-#include "serialize_meta.hh"
 
 namespace openmsx::YM2413OriginalNukeYKT {
 
@@ -23,7 +22,8 @@ public:
 	[[nodiscard]] float getAmplificationFactor() const override;
 	void setSpeed(double speed) override;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	opll_t opll;

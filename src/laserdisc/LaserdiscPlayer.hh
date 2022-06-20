@@ -42,7 +42,8 @@ public:
 	void extControl(bool bit, EmuTime::param time);
 	[[nodiscard]] const RawFrame* getRawFrame() const;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 	// video interface
 	[[nodiscard]] MSXMotherBoard& getMotherBoard() { return motherBoard; }

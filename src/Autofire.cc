@@ -25,16 +25,14 @@ public:
 		, id(id_), value(value_) {}
 	[[nodiscard]] auto getId() const { return id; }
 	[[nodiscard]] int getValue() const { return value; }
-
-	template<Archive Ar>
-	void serialize(Ar& ar, unsigned /*version*/)
+	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
 		// for backwards compatibility serialize 'id' as 'name'
-		std::string name = Ar::IS_LOADER ? "" : std::string(nameForId(id));
+		std::string name = Archive::IS_LOADER ? "" : std::string(nameForId(id));
 		ar.serialize("name",    name,
 		             "value",   value);
-		if constexpr (Ar::IS_LOADER) {
+		if constexpr (Archive::IS_LOADER) {
 			id = (name == nameForId(Autofire::RENSHATURBO))
 			   ? Autofire::RENSHATURBO
 			   : Autofire::UNKNOWN;
@@ -115,7 +113,8 @@ bool Autofire::getSignal(EmuTime::param time)
 		: (clock.getTicksTill(time) & 1);
 }
 
-void Autofire::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void Autofire::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("clock", clock);
 }

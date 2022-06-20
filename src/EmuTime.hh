@@ -60,7 +60,8 @@ public:
 		return EmuTime(std::numeric_limits<uint64_t>::max());
 	}
 
-	void serialize(Archive auto& ar, unsigned /*version*/)
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.serialize("time", time);
 	}

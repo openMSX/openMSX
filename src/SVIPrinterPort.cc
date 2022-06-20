@@ -91,7 +91,8 @@ PrinterPortDevice& SVIPrinterPort::getPluggedPrintDev() const
 	return *checked_cast<PrinterPortDevice*>(&getPlugged());
 }
 
-void SVIPrinterPort::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void SVIPrinterPort::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.template serializeBase<Connector>(*this);

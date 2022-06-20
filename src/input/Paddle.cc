@@ -17,7 +17,7 @@ public:
 		: StateChange(time_), delta(delta_) {}
 	[[nodiscard]] int getDelta() const { return delta; }
 
-	void serialize(Archive auto& ar, unsigned /*version*/)
+	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
 		ar.serialize("delta", delta);
@@ -119,14 +119,14 @@ void Paddle::stopReplay(EmuTime::param /*time*/) noexcept
 {
 }
 
-template<Archive Ar>
-void Paddle::serialize(Ar& ar, unsigned /*version*/)
+template<typename Archive>
+void Paddle::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("lastPulse",   lastPulse,
 	             "analogValue", analogValue,
 	             "lastInput",   lastInput);
 
-	if constexpr (Ar::IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		if (isPluggedIn()) {
 			plugHelper(*getConnector(), EmuTime::dummy());
 		}

@@ -32,7 +32,8 @@ public:
 	void recvMessage(
 			const std::vector<uint8_t>& message, EmuTime::param time) override;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	void connect();
@@ -157,10 +158,10 @@ void MidiOutALSA::recvMessage(
 	snd_seq_drain_output(&seq);
 }
 
-template<Archive Ar>
-void MidiOutALSA::serialize(Ar& /*ar*/, unsigned /*version*/)
+template<typename Archive>
+void MidiOutALSA::serialize(Archive& /*ar*/, unsigned /*version*/)
 {
-	if constexpr (Ar::IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		connect();
 	}
 }

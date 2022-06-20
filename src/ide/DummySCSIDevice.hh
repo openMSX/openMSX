@@ -2,7 +2,6 @@
 #define DUMMYSCSIDEVICE_HH
 
 #include "SCSIDevice.hh"
-#include "serialize_meta.hh"
 
 namespace openmsx {
 
@@ -23,7 +22,8 @@ public:
 	[[nodiscard]] unsigned dataIn(unsigned& blocks) override;
 	[[nodiscard]] unsigned dataOut(unsigned& blocks) override;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 };
 
 } // namespace openmsx

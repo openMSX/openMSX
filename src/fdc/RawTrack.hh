@@ -85,7 +85,8 @@ public:
 		bool addrCrcErr = false;
 		bool dataCrcErr = false;
 
-		void serialize(Archive auto& ar, unsigned version);
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
 	};
 
 	/* Construct a (cleared) track. */
@@ -138,7 +139,8 @@ public:
 
 	void applyWd2793ReadTrackQuirk();
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	[[nodiscard]] std::optional<Sector> decodeSectorImpl(int idx) const;

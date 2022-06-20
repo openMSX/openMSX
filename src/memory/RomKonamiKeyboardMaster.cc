@@ -68,7 +68,8 @@ byte RomKonamiKeyboardMaster::peekIO(word port, EmuTime::param time) const
 	}
 }
 
-void RomKonamiKeyboardMaster::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void RomKonamiKeyboardMaster::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom16kBBlocks>(*this);
 	ar.serialize("VLM5030", vlm5030);

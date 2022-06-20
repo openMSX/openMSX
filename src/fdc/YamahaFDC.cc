@@ -184,7 +184,8 @@ byte* YamahaFDC::getWriteCacheLine(word address) const
 	}
 }
 
-void YamahaFDC::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void YamahaFDC::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<WD2793BasedFDC>(*this);
 }

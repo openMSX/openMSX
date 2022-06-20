@@ -16,7 +16,8 @@ public:
 	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
 	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	byte offset;

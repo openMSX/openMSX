@@ -73,7 +73,8 @@ const byte* GoudaSCSI::getReadCacheLine(word start) const
 }
 
 
-void GoudaSCSI::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void GoudaSCSI::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("WD33C93", wd33c93);

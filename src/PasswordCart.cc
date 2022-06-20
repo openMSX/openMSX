@@ -51,7 +51,8 @@ byte PasswordCart::peekIO(word /*port*/, EmuTime::param /*time*/) const
 	}
 }
 
-void PasswordCart::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void PasswordCart::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("pointer", pointer);

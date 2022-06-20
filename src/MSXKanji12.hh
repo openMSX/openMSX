@@ -20,7 +20,8 @@ public:
 	[[nodiscard]] byte peekSwitchedIO(word port, EmuTime::param time) const override;
 	void writeSwitchedIO(word port, byte value, EmuTime::param time) override;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	Rom rom;

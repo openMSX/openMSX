@@ -23,7 +23,8 @@ public:
 	[[nodiscard]] std::string_view getClass() const final;
 	void plug(Pluggable& dev, EmuTime::param time) override;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	byte data;

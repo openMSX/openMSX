@@ -224,7 +224,8 @@ bool YM2148::pendingIRQ() const
 	return rxIRQ.getState() || txIRQ.getState();
 }
 
-void YM2148::serialize(Archive auto& ar, unsigned version)
+template<typename Archive>
+void YM2148::serialize(Archive& ar, unsigned version)
 {
 	if (ar.versionAtLeast(version, 2)) {
 		ar.template serializeBase<MidiInConnector>(*this);

@@ -329,8 +329,8 @@ void ReproCartridgeV2::setVolume(EmuTime::param time, byte value)
 	psg0x10.setSoftwareVolume(((volumeReg >> 6) & 3) / 2.0f, time);
 }
 
-template<Archive Ar>
-void ReproCartridgeV2::serialize(Ar& ar, unsigned /*version*/)
+template<typename Archive>
+void ReproCartridgeV2::serialize(Archive& ar, unsigned /*version*/)
 {
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);
@@ -348,7 +348,7 @@ void ReproCartridgeV2::serialize(Ar& ar, unsigned /*version*/)
 	             "sccMode",       sccMode,
 	             "bankRegs",      bankRegs);
 
-	if constexpr (Ar::IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		auto time = getCurrentTime();
 		setVolume(time, volumeReg);
 	}

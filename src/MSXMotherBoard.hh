@@ -200,7 +200,8 @@ public:
 	[[nodiscard]] std::string getUserName(const std::string& hwName);
 	void freeUserName(const std::string& hwName, const std::string& userName);
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	void powerDown();

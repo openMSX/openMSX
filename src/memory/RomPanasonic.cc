@@ -182,7 +182,8 @@ void RomPanasonic::changeBank(byte region, int bank)
 	}
 }
 
-void RomPanasonic::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void RomPanasonic::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom8kBBlocks>(*this);
 	ar.serialize("bankSelect", bankSelect,

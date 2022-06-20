@@ -65,7 +65,7 @@ public:
 	[[nodiscard]] unsigned getPress()    const { return press; }
 	[[nodiscard]] unsigned getRelease()  const { return release; }
 
-	void serialize(Archive auto& ar, unsigned /*version*/)
+	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
 		ar.serialize("joyNum",  joyNum,
@@ -313,14 +313,14 @@ void JoyMega::stopReplay(EmuTime::param time) noexcept
 	createEvent(time, calcInitialState());
 }
 
-template<Archive Ar>
-void JoyMega::serialize(Ar& ar, unsigned /*version*/)
+template<typename Archive>
+void JoyMega::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("lastTime",  lastTime,
 	             "status",    status,
 	             "cycle",     cycle,
 	             "cycleMask", cycleMask);
-	if constexpr (Ar::IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		if (isPluggedIn()) {
 			plugHelper2();
 		}

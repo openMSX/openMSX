@@ -42,7 +42,8 @@ public:
 	[[nodiscard]] bool peekIRQ (EmuTime::param time) const;
 	[[nodiscard]] bool peekDTRQ(EmuTime::param time) const;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 	// public for serialize
 	enum FSMState {

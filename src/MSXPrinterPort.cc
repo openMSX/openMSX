@@ -107,7 +107,8 @@ void MSXPrinterPort::Debuggable::write(unsigned address, byte value)
 }
 
 
-void MSXPrinterPort::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void MSXPrinterPort::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.template serializeBase<Connector>(*this);

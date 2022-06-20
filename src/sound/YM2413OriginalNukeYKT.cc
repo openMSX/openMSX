@@ -102,7 +102,8 @@ void YM2413::setSpeed(double speed)
 	speedUpHack = speed > 1.0;
 }
 
-void YM2413::serialize(Archive auto& /*ar*/, unsigned /*version*/)
+template<typename Archive>
+void YM2413::serialize(Archive& /*ar*/, unsigned /*version*/)
 {
 	// Not implemented
 }

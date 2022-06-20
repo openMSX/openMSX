@@ -1310,14 +1310,14 @@ namespace YM2413Burczynski {
 // version 2: - removed kcodeScaled
 //            - calculated more members from other state
 //              (TLL, freq, eg_sel_*, eg_sh_*)
-template<Archive A>
-void Slot::serialize(A& a, unsigned /*version*/)
+template<typename Archive>
+void Slot::serialize(Archive& a, unsigned /*version*/)
 {
 	// TODO some of the serialized members here could be calculated from
 	//      other members
 	int waveform = (wavetable == &sinTab[0]) ? 0 : 1;
 	a.serialize("waveform", waveform);
-	if constexpr (A::IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		setWaveform(waveform);
 	}
 
@@ -1349,13 +1349,13 @@ void Slot::serialize(A& a, unsigned /*version*/)
 // version 1: original version
 // version 2: removed kcode
 // version 3: removed instvol_r
-template<Archive A>
-void Channel::serialize(A& a, unsigned /*version*/)
+template<typename Archive>
+void Channel::serialize(Archive& a, unsigned /*version*/)
 {
 	// mod/car were originally an array, keep serializing as such for bwc
 	Slot slots[2] = { mod, car };
 	a.serialize("slots", slots);
-	if constexpr (A::IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		mod = slots[0];
 		car = slots[1];
 	}
@@ -1365,7 +1365,7 @@ void Channel::serialize(A& a, unsigned /*version*/)
 	            "ksl_base",   ksl_base,
 	            "sus",        sus);
 
-	if constexpr (A::IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		mod.updateFrequency(*this);
 		car.updateFrequency(*this);
 	}
@@ -1375,7 +1375,8 @@ void Channel::serialize(A& a, unsigned /*version*/)
 // version 2: 'registers' are moved here (no longer serialized in base class)
 // version 3: removed 'rhythm' variable
 // version 4: added 'registerLatch'
-void YM2413::serialize(Archive auto& a, unsigned version)
+template<typename Archive>
+void YM2413::serialize(Archive& a, unsigned version)
 {
 	if (a.versionBelow(version, 2)) a.beginTag("YM2413Core");
 	a.serialize("registers", reg);

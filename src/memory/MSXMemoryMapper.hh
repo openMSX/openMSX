@@ -12,7 +12,8 @@ public:
 
 	void writeIO(word port, byte value, EmuTime::param time) override;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 };
 SERIALIZE_CLASS_VERSION(MSXMemoryMapper, 2);
 

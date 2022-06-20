@@ -64,7 +64,8 @@ byte* MSXBunsetsu::getWriteCacheLine(word start) const
 	}
 }
 
-void MSXBunsetsu::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void MSXBunsetsu::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("jisyoAddress", jisyoAddress);

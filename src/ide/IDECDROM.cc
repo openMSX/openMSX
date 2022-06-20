@@ -377,14 +377,14 @@ void CDXCommand::tabCompletion(std::vector<string>& tokens) const
 }
 
 
-template<Archive Ar>
-void IDECDROM::serialize(Ar& ar, unsigned /*version*/)
+template<typename Archive>
+void IDECDROM::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<AbstractIDEDevice>(*this);
 
 	string filename = file.is_open() ? file.getURL() : string{};
 	ar.serialize("filename", filename);
-	if constexpr (Ar::IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		// re-insert CD-ROM before restoring 'mediaChanged', 'senseKey'
 		if (filename.empty()) {
 			eject();

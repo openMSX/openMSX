@@ -109,7 +109,8 @@ OSStatus MidiOutCoreMIDI::sendPacketList(MIDIPacketList *myPacketList)
 	return MIDISend(port, endpoint, myPacketList);
 }
 
-void MidiOutCoreMIDI::serialize(Archive auto& /*ar*/, unsigned /*version*/)
+template<typename Archive>
+void MidiOutCoreMIDI::serialize(Archive& /*ar*/, unsigned /*version*/)
 {
 }
 INSTANTIATE_SERIALIZE_METHODS(MidiOutCoreMIDI);
@@ -167,7 +168,8 @@ OSStatus MidiOutCoreMIDIVirtual::sendPacketList(MIDIPacketList *myPacketList)
 	return MIDIReceived(endpoint, myPacketList);
 }
 
-void MidiOutCoreMIDIVirtual::serialize(Archive auto& /*ar*/, unsigned /*version*/)
+template<typename Archive>
+void MidiOutCoreMIDIVirtual::serialize(Archive& /*ar*/, unsigned /*version*/)
 {
 }
 INSTANTIATE_SERIALIZE_METHODS(MidiOutCoreMIDIVirtual);

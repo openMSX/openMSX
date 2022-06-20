@@ -43,7 +43,8 @@ byte SG1000JoystickIO::peekIO(word port, EmuTime::param time) const
 }
 
 
-void SG1000JoystickIO::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void SG1000JoystickIO::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 }

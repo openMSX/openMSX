@@ -55,7 +55,8 @@ byte* RomSynthesizer::getWriteCacheLine(word address) const
 	}
 }
 
-void RomSynthesizer::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void RomSynthesizer::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom16kBBlocks>(*this);
 	ar.serialize("DAC", dac);

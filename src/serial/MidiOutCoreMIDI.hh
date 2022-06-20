@@ -45,7 +45,8 @@ public:
 	// MidiOutMessageBuffer
 	OSStatus sendPacketList(MIDIPacketList *myPacketList) override;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	MIDIClientRef client;
@@ -74,7 +75,8 @@ public:
 	// MidiOutMessageBuffer
 	OSStatus sendPacketList(MIDIPacketList *myPacketList) override;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	MIDIClientRef client;

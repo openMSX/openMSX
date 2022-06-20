@@ -118,7 +118,8 @@ bool FileContext::isUserContext() const
 	return contains(paths, USER_DIRS);
 }
 
-void FileContext::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void FileContext::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("paths",     paths,
 	             "savePaths", savePaths);

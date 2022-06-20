@@ -26,7 +26,8 @@ public:
 	void setParityBit(bool enable, ParityBit parity) override;
 	void recvByte(byte value, EmuTime::param time) override;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 };
 
 } // namespace openmsx

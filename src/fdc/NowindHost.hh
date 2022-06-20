@@ -4,7 +4,6 @@
 #include "DiskImageUtils.hh"
 #include "circular_buffer.hh"
 #include "openmsx.hh"
-#include "serialize_meta.hh"
 #include <fstream>
 #include <memory>
 #include <optional>
@@ -44,7 +43,8 @@ public:
 	void setEnablePhantomDrives(bool enable) { enablePhantomDrives = enable; }
 	[[nodiscard]] bool getEnablePhantomDrives() const { return enablePhantomDrives; }
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 	// public for serialization
 	enum State {

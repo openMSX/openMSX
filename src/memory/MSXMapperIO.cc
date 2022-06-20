@@ -123,13 +123,13 @@ void MSXMapperIO::Debuggable::write(unsigned address, byte value,
 }
 
 
-template<Archive Ar>
-void MSXMapperIO::serialize(Ar& ar, unsigned version)
+template<typename Archive>
+void MSXMapperIO::serialize(Archive& ar, unsigned version)
 {
 	if (ar.versionBelow(version, 2)) {
 		// In version 1 we stored the mapper state in MSXMapperIO instead of
 		// in the individual mappers, so distribute the state to them.
-		assert(Ar::IS_LOADER);
+		assert(Archive::IS_LOADER);
 		ar.serialize("registers", registers);
 		for (auto [page, reg] : enumerate(registers)) {
 			writeIO(word(page), reg, EmuTime::dummy());

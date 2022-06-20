@@ -35,7 +35,8 @@ void MagicKey::write(byte /*value*/, EmuTime::param /*time*/)
 }
 
 
-void MagicKey::serialize(Archive auto& /*ar*/, unsigned /*version*/)
+template<typename Archive>
+void MagicKey::serialize(Archive& /*ar*/, unsigned /*version*/)
 {
 }
 INSTANTIATE_SERIALIZE_METHODS(MagicKey);

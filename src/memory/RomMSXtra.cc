@@ -53,7 +53,8 @@ byte* RomMSXtra::getWriteCacheLine(word address) const
 	}
 }
 
-void RomMSXtra::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void RomMSXtra::serialize(Archive& ar, unsigned /*version*/)
 {
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);

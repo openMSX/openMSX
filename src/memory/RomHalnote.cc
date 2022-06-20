@@ -146,7 +146,8 @@ byte* RomHalnote::getWriteCacheLine(word address) const
 	return unmappedWrite;
 }
 
-void RomHalnote::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void RomHalnote::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom8kBBlocks>(*this);
 	ar.serialize("subBanks",         subBanks,

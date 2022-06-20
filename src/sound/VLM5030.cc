@@ -542,7 +542,8 @@ VLM5030::~VLM5030()
 	unregisterSound();
 }
 
-void VLM5030::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void VLM5030::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("address_mask",   address_mask,
 	             "frame_size",     frame_size,

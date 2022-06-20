@@ -17,7 +17,8 @@ void CPUClock::advanceTime(EmuTime::param time)
 	setLimit(scheduler.getNext());
 }
 
-void CPUClock::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void CPUClock::serialize(Archive& ar, unsigned /*version*/)
 {
 	sync();
 	ar.serialize("clock", clock);

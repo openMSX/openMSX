@@ -136,7 +136,8 @@ byte* ToshibaFDC::getWriteCacheLine(word address) const
 	}
 }
 
-void ToshibaFDC::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void ToshibaFDC::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<WD2793BasedFDC>(*this);
 }

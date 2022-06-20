@@ -62,7 +62,8 @@ unsigned DummySCSIDevice::dataOut(unsigned& blocks)
 	return 0;
 }
 
-void DummySCSIDevice::serialize(Archive auto& /*ar*/, unsigned /*version*/)
+template<typename Archive>
+void DummySCSIDevice::serialize(Archive& /*ar*/, unsigned /*version*/)
 {
 	// nothing
 }

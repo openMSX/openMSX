@@ -142,7 +142,8 @@ byte* SanyoFDC::getWriteCacheLine(word address) const
 }
 
 
-void SanyoFDC::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void SanyoFDC::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<WD2793BasedFDC>(*this);
 }

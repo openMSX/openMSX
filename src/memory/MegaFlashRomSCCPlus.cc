@@ -498,7 +498,8 @@ void MegaFlashRomSCCPlus::writeIO(word port, byte value, EmuTime::param time)
 }
 
 
-void MegaFlashRomSCCPlus::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void MegaFlashRomSCCPlus::serialize(Archive& ar, unsigned /*version*/)
 {
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);

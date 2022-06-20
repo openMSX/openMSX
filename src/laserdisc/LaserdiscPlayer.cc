@@ -1027,8 +1027,8 @@ SERIALIZE_ENUM(LaserdiscPlayer::RemoteProtocol, RemoteProtocolInfo);
 // version 2: added 'stillOnWaitFrame'
 // version 3: reversed bit order of 'remoteBits' and 'remoteCode'
 // version 4: removed 'userData' from Schedulable
-template<Archive Ar>
-void LaserdiscPlayer::serialize(Ar& ar, unsigned version)
+template<typename Archive>
+void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 {
 	// Serialize remote control
 	ar.serialize("RemoteState", remoteState);
@@ -1036,7 +1036,7 @@ void LaserdiscPlayer::serialize(Ar& ar, unsigned version)
 		ar.serialize("RemoteBitNr", remoteBitNr,
 		             "RemoteBits",  remoteBits);
 		if (ar.versionBelow(version, 3)) {
-			assert(Ar::IS_LOADER);
+			assert(Archive::IS_LOADER);
 			remoteBits = Math::reverseNBits(remoteBits, remoteBitNr);
 		}
 	}
@@ -1046,7 +1046,7 @@ void LaserdiscPlayer::serialize(Ar& ar, unsigned version)
 	if (remoteProtocol != IR_NONE) {
 		ar.serialize("RemoteCode", remoteCode);
 		if (ar.versionBelow(version, 3)) {
-			assert(Ar::IS_LOADER);
+			assert(Archive::IS_LOADER);
 			remoteCode = Math::reverseByte(remoteCode);
 		}
 		ar.serialize("RemoteExecuteDelayed", remoteExecuteDelayed,
@@ -1055,7 +1055,7 @@ void LaserdiscPlayer::serialize(Ar& ar, unsigned version)
 
 	// Serialize filename
 	ar.serialize("OggImage", oggImage);
-	if constexpr (Ar::IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		sampleReads = 0;
 		if (!oggImage.empty()) {
 			setImageName(oggImage.getResolved(), getCurrentTime());
@@ -1095,7 +1095,7 @@ void LaserdiscPlayer::serialize(Ar& ar, unsigned version)
 		             "FromSample",  playingFromSample,
 		             "SampleClock", sampleClock);
 
-		if constexpr (Ar::IS_LOADER) {
+		if constexpr (Archive::IS_LOADER) {
 			// If the samplerate differs, adjust accordingly
 			if (video->getSampleRate() != sampleClock.getFreq()) {
 				uint64_t pos = playingFromSample;
@@ -1124,7 +1124,7 @@ void LaserdiscPlayer::serialize(Ar& ar, unsigned version)
 		Schedulable::restoreOld(ar, {&syncEven, &syncOdd, &syncAck});
 	}
 
-	if constexpr (Ar::IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		(void)isVideoOutputAvailable(getCurrentTime());
 	}
 }

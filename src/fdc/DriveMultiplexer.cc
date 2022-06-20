@@ -157,7 +157,8 @@ static constexpr std::initializer_list<enum_string<DriveMultiplexer::DriveNum>> 
 };
 SERIALIZE_ENUM(DriveMultiplexer::DriveNum, driveNumInfo);
 
-void DriveMultiplexer::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void DriveMultiplexer::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("selected", selected,
 	             "motor",    motor,

@@ -67,7 +67,8 @@ byte* RomPlayBall::getWriteCacheLine(word address) const
 	}
 }
 
-void RomPlayBall::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void RomPlayBall::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom16kBBlocks>(*this);
 	ar.serialize("SamplePlayer", samplePlayer);

@@ -129,7 +129,8 @@ void MSXFacMidiInterface::recvByte(byte value, EmuTime::param time)
 }
 
 
-void MSXFacMidiInterface::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void MSXFacMidiInterface::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.template serializeBase<MidiInConnector>(*this);

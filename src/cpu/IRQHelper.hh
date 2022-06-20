@@ -104,12 +104,12 @@ public:
 		return request;
 	}
 
-	template<Archive Ar>
-	void serialize(Ar& ar, unsigned /*version*/)
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned /*version*/)
 	{
 		bool pending = request;
 		ar.serialize("pending", pending);
-		if constexpr (Ar::IS_LOADER) {
+		if constexpr (Archive::IS_LOADER) {
 			set(pending);
 		}
 	}

@@ -14,7 +14,6 @@
 #include "SCSI.hh"
 #include "SCSIDevice.hh"
 #include "AlignedBuffer.hh"
-#include "serialize_meta.hh"
 #include <memory>
 
 namespace openmsx {
@@ -35,7 +34,8 @@ public:
 	void writeAdr(byte value);
 	void writeCtrl(byte value);
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	void disconnect();

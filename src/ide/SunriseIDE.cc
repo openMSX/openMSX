@@ -209,8 +209,8 @@ void SunriseIDE::writeReg(nibble reg, byte value, EmuTime::param time)
 	}
 }
 
-template<Archive Ar>
-void SunriseIDE::serialize(Ar& ar, unsigned /*version*/)
+template<typename Archive>
+void SunriseIDE::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serializePolymorphic("master", *device[0]);
@@ -221,7 +221,7 @@ void SunriseIDE::serialize(Ar& ar, unsigned /*version*/)
 	             "control",        control,
 	             "softReset",      softReset);
 
-	if constexpr (Ar::IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		// restore internalBank, ideRegsEnabled
 		writeControl(control);
 	}

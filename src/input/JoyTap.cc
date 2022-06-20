@@ -62,13 +62,13 @@ void JoyTap::write(byte value, EmuTime::param time)
 	}
 }
 
-template<Archive Ar>
-void JoyTap::serialize(Ar& ar, unsigned /*version*/)
+template<typename Archive>
+void JoyTap::serialize(Archive& ar, unsigned /*version*/)
 {
 	// saving only happens when plugged in
-	if constexpr (!Ar::IS_LOADER) assert(isPluggedIn());
+	if constexpr (!Archive::IS_LOADER) assert(isPluggedIn());
 	// restore plugged state when loading
-	if constexpr (Ar::IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		plugHelper(*getConnector(), pluggingController.getCurrentTime());
 	}
 

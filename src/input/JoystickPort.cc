@@ -52,11 +52,11 @@ void JoystickPort::writeDirect(byte value, EmuTime::param time)
 	getPluggedJoyDev().write(value, time);
 }
 
-template<Archive Ar>
-void JoystickPort::serialize(Ar& ar, unsigned /*version*/)
+template<typename Archive>
+void JoystickPort::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Connector>(*this);
-	if constexpr (Ar::IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		// The value of 'lastValue', is already restored via MSXPSG,
 		// but we still need to re-write this value to the plugged
 		// devices (do this after those devices have been re-plugged).

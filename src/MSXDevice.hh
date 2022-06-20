@@ -250,7 +250,8 @@ public:
 	[[nodiscard]] PluggingController& getPluggingController() const;
 	[[nodiscard]] LedStatus& getLedStatus() const;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 protected:
 	/** Every MSXDevice has a config entry; this constructor gets

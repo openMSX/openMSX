@@ -422,8 +422,8 @@ void MSXRS232::recvByte(byte value, EmuTime::param time)
 // version 1: initial version
 // version 2: added ioAccessEnabled
 // TODO: serialize switch status?
-template<Archive Ar>
-void MSXRS232::serialize(Ar& ar, unsigned version)
+template<typename Archive>
+void MSXRS232::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.template serializeBase<RS232Connector>(*this);
@@ -437,7 +437,7 @@ void MSXRS232::serialize(Ar& ar, unsigned version)
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("ioAccessEnabled", ioAccessEnabled);
 	} else {
-		assert(Ar::IS_LOADER);
+		assert(Archive::IS_LOADER);
 		ioAccessEnabled = !hasMemoryBasedIo; // we can't know the
 					// actual value, but this is probably
 					// safest

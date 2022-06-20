@@ -62,7 +62,8 @@ public:
 		return pluggingController;
 	}
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 protected:
 	/**

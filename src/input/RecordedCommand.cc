@@ -95,19 +95,19 @@ MSXCommandEvent::MSXCommandEvent(EmuTime::param time_, std::span<const TclObject
 	}
 }
 
-template<Archive Ar>
-void MSXCommandEvent::serialize(Ar& ar, unsigned /*version*/)
+template<typename Archive>
+void MSXCommandEvent::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<StateChange>(*this);
 
 	// serialize vector<TclObject> as vector<string>
 	std::vector<std::string> str;
-	if constexpr (!Ar::IS_LOADER) {
+	if constexpr (!Archive::IS_LOADER) {
 		str = to_vector(view::transform(
 			tokens, [](auto& t) { return std::string(t.getString()); }));
 	}
 	ar.serialize("tokens", str);
-	if constexpr (Ar::IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		assert(tokens.empty());
 		size_t n = str.size();
 		tokens = dynarray<TclObject>(n);

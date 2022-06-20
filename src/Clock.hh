@@ -140,7 +140,8 @@ public:
 		lastTick.time += n * MASTER_TICKS32;
 	}
 
-	void serialize(Archive auto& ar, unsigned /*version*/)
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.serialize("lastTick", lastTick);
 	}

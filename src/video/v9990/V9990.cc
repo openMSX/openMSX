@@ -878,8 +878,8 @@ SERIALIZE_ENUM(V9990DisplayMode, displayModeInfo);
 // version 3: added vramReadPtr, vramWritePtr, vramReadBuffer
 // version 4: removed 'userData' from Schedulable
 // version 5: added syncCmdEnd
-template<Archive Ar>
-void V9990::serialize(Ar& ar, unsigned version)
+template<typename Archive>
+void V9990::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 
@@ -939,7 +939,7 @@ void V9990::serialize(Ar& ar, unsigned version)
 	// of this frame). But it will be correct at the start of the next
 	// frame. Good enough?
 
-	if constexpr (Ar::IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		// TODO This uses 'mode' to calculate 'horTiming' and
 		//      'verTiming'. Are these always in sync? Or can for
 		//      example one change at any time and the other only

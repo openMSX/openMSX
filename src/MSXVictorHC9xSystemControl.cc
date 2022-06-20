@@ -48,7 +48,8 @@ bool MSXVictorHC9xSystemControl::allowUnaligned() const
 	return true;
 }
 
-void MSXVictorHC9xSystemControl::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void MSXVictorHC9xSystemControl::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("systemControlRegister", systemControlRegister);

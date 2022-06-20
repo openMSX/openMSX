@@ -30,7 +30,8 @@ public:
 	// for nowind
 	[[nodiscard]] bool isRomdisk() const;
 
-	void serialize(Archive auto& /*ar*/, unsigned /*version*/) {}
+	template<typename Archive>
+	void serialize(Archive& /*ar*/, unsigned /*version*/) {}
 };
 
 // Subclass 'DiskChanger' needs (global) 'MSXMotherBoard' constructor parameter

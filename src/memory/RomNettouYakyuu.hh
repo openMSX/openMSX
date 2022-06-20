@@ -15,7 +15,8 @@ public:
 	void writeMem(word address, byte value, EmuTime::param time) override;
 	[[nodiscard]] byte* getWriteCacheLine(word address) const override;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	SamplePlayer samplePlayer;

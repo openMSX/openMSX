@@ -25,7 +25,8 @@ bool RenShaTurbo::getSignal(EmuTime::param time)
 	return autofire ? autofire->getSignal(time) : false;
 }
 
-void RenShaTurbo::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void RenShaTurbo::serialize(Archive& ar, unsigned /*version*/)
 {
 	if (autofire) ar.serialize("autofire", *autofire);
 }

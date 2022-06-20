@@ -139,7 +139,8 @@ void SRAM::SRAMSchedulable::executeRT()
 	sram.save();
 }
 
-void SRAM::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void SRAM::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("ram", ram);
 }

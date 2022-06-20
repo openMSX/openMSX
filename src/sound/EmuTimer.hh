@@ -43,7 +43,8 @@ public:
 	void setValue(int value);
 	void setStart(bool start, EmuTime::param time);
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	void executeUntil(EmuTime::param time) override;

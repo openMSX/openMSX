@@ -24,7 +24,8 @@ public:
 	void unplugHelper(EmuTime::param time) override;
 	[[nodiscard]] int16_t readSample(EmuTime::param time) override;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	void loadWave();

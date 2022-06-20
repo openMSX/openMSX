@@ -89,7 +89,8 @@ public:
 	inline void updateEG();
 	inline void updateAll(unsigned freq, bool actAsCarrier);
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 	// OUTPUT
 	int feedback;
@@ -125,7 +126,8 @@ public:
 
 	Slot mod, car;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 };
 
 class YM2413 final : public YM2413Core
@@ -143,7 +145,8 @@ public:
 
 	[[nodiscard]] Patch& getPatch(unsigned instrument, bool carrier);
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	void writeReg(uint8_t r, uint8_t data);

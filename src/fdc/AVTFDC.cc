@@ -104,7 +104,8 @@ void AVTFDC::writeIO(word port, byte value, EmuTime::param time)
 }
 
 
-void AVTFDC::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void AVTFDC::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<WD2793BasedFDC>(*this);
 }

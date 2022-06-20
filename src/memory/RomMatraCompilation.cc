@@ -60,7 +60,8 @@ byte* RomMatraCompilation::getWriteCacheLine(word address) const
 	}
 }
 
-void RomMatraCompilation::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void RomMatraCompilation::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom8kBBlocks>(*this);
 

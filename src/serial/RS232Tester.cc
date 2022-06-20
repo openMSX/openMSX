@@ -146,7 +146,8 @@ void RS232Tester::recvByte(byte value, EmuTime::param /*time*/)
 }
 
 
-void RS232Tester::serialize(Archive auto& /*ar*/, unsigned /*version*/)
+template<typename Archive>
+void RS232Tester::serialize(Archive& /*ar*/, unsigned /*version*/)
 {
 	// don't try to resume a previous logfile (see PrinterPortLogger)
 }

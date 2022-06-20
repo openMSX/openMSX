@@ -130,7 +130,8 @@ void IDEHD::executeCommand(byte cmd)
 }
 
 
-void IDEHD::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void IDEHD::serialize(Archive& ar, unsigned /*version*/)
 {
 	// don't serialize SectorAccessibleDisk, DiskContainer base classes
 	ar.template serializeBase<HD>(*this);

@@ -64,7 +64,8 @@ public:
 
 	void transferHostKeyMatrix(const Keyboard& source);
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	// MSXEventListener
@@ -137,7 +138,8 @@ private:
 			    StateChangeDistributor& stateChangeDistributor,
 			    Scheduler& scheduler);
 		[[nodiscard]] bool isActive() const { return pendingSyncPoint(); }
-		void serialize(Archive auto& ar, unsigned version);
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
 
 	private:
 		void type(std::string_view str);
@@ -206,7 +208,8 @@ private:
 		void process_asap(EmuTime::param time,
 		                  const Event& event);
 		void clear();
-		void serialize(Archive auto& ar, unsigned version);
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
 	private:
 		// Schedulable
 		void executeUntil(EmuTime::param time) override;

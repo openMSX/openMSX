@@ -34,7 +34,8 @@ void MSXResetStatusRegister::writeIO(word /*port*/, byte value, EmuTime::param /
 	}
 }
 
-void MSXResetStatusRegister::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void MSXResetStatusRegister::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("status", status);

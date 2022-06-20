@@ -3,7 +3,8 @@
 
 namespace openmsx {
 
-void TrackedRam::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void TrackedRam::serialize(Archive& ar, unsigned /*version*/)
 {
 	// Note: This is the exact same serialization format as the Ram class.
 	//  This allows to change from Ram to TrackedRam without having to

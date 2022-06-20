@@ -19,7 +19,8 @@ void WD2793BasedFDC::reset(EmuTime::param time)
 	controller.reset(time);
 }
 
-void WD2793BasedFDC::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void WD2793BasedFDC::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXFDC>(*this);
 	ar.serialize("multiplexer", multiplexer,

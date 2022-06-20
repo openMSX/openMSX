@@ -3,7 +3,6 @@
 
 #include "EmuTime.hh"
 #include "DivModBySame.hh"
-#include "serialize_meta.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -193,7 +192,8 @@ public:
 		return EmuTime(time.time + n * getStep());
 	}
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	/** Length of a this clock's ticks, expressed in master clock ticks.

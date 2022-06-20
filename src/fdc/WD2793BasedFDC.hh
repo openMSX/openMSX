@@ -13,7 +13,8 @@ class WD2793BasedFDC : public MSXFDC
 public:
 	void reset(EmuTime::param time) override;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 protected:
 	explicit WD2793BasedFDC(const DeviceConfig& config, const std::string& romId = {},

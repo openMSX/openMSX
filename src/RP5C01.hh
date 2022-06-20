@@ -9,7 +9,6 @@
 #include "Clock.hh"
 #include "EnumSetting.hh"
 #include "openmsx.hh"
-#include "serialize_meta.hh"
 #include <string>
 
 namespace openmsx {
@@ -30,7 +29,8 @@ public:
 	[[nodiscard]] nibble peekPort(nibble port) const;
 	void writePort(nibble port, nibble value, EmuTime::param time);
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	void initializeTime();

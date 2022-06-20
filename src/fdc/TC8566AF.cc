@@ -904,7 +904,8 @@ static constexpr std::initializer_list<enum_string<TC8566AF::SeekState>> seekInf
 };
 SERIALIZE_ENUM(TC8566AF::SeekState, seekInfo);
 
-void TC8566AF::SeekInfo::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void TC8566AF::SeekInfo::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("time",         time,
 	             "currentTrack", currentTrack,
@@ -923,13 +924,13 @@ void TC8566AF::SeekInfo::serialize(Archive auto& ar, unsigned /*version*/)
 // version 5: removed trackData
 // version 6: added seekInfo[4]
 // version 7: added 'endOfTrack'
-template<Archive Ar>
-void TC8566AF::serialize(Ar& ar, unsigned version)
+template<typename Archive>
+void TC8566AF::serialize(Archive& ar, unsigned version)
 {
 	if (ar.versionAtLeast(version, 4)) {
 		ar.serialize("delayTime", delayTime);
 	} else {
-		assert(Ar::IS_LOADER);
+		assert(Archive::IS_LOADER);
 		Clock<6250 * 5> c(EmuTime::dummy());
 		ar.serialize("delayTime", c);
 		delayTime.reset(c.getTime());
@@ -956,7 +957,7 @@ void TC8566AF::serialize(Ar& ar, unsigned version)
 		ar.serialize("specifyData",    specifyData,
 		             "headUnloadTime", headUnloadTime);
 	} else {
-		assert(Ar::IS_LOADER);
+		assert(Archive::IS_LOADER);
 		specifyData[0] = 0xDF; // values normally set by TurboR disk rom
 		specifyData[1] = 0x03;
 		headUnloadTime = EmuTime::zero();

@@ -1001,8 +1001,8 @@ void AY8910::Debuggable::write(unsigned address, byte value, EmuTime::param time
 }
 
 
-template<Archive Ar>
-void AY8910::serialize(Ar& ar, unsigned /*version*/)
+template<typename Archive>
+void AY8910::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("toneGenerators", tone,
 	             "noiseGenerator", noise,
@@ -1010,7 +1010,7 @@ void AY8910::serialize(Ar& ar, unsigned /*version*/)
 	             "registers",      regs);
 
 	// amplitude
-	if constexpr (Ar::IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		for (auto i : xrange(3)) {
 			amplitude.setChannelVolume(i, regs[i + AY_AVOL]);
 		}
@@ -1020,7 +1020,8 @@ INSTANTIATE_SERIALIZE_METHODS(AY8910);
 
 // version 1: initial version
 // version 2: removed 'output' member variable
-void AY8910::Generator::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void AY8910::Generator::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("period", period,
 	             "count", count);
@@ -1029,7 +1030,8 @@ INSTANTIATE_SERIALIZE_METHODS(AY8910::Generator);
 
 // version 1: initial version
 // version 2: moved 'output' variable from base class to here
-void AY8910::ToneGenerator::serialize(Archive auto& ar, unsigned version)
+template<typename Archive>
+void AY8910::ToneGenerator::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeInlinedBase<Generator>(*this, version);
 	ar.serialize("vibratoCount", vibratoCount,
@@ -1047,14 +1049,16 @@ INSTANTIATE_SERIALIZE_METHODS(AY8910::ToneGenerator);
 // version 1: initial version
 // version 2: removed 'output' variable from base class, not stored here but
 //            instead it's calculated from 'random' when needed
-void AY8910::NoiseGenerator::serialize(Archive auto& ar, unsigned version)
+template<typename Archive>
+void AY8910::NoiseGenerator::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeInlinedBase<Generator>(*this, version);
 	ar.serialize("random", random);
 }
 INSTANTIATE_SERIALIZE_METHODS(AY8910::NoiseGenerator);
 
-void AY8910::Envelope::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void AY8910::Envelope::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("period",    period,
 	             "count",     count,

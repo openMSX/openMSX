@@ -158,7 +158,8 @@ static constexpr std::initializer_list<enum_string<DebugDevice::DebugMode>> debu
 };
 SERIALIZE_ENUM(DebugDevice::DebugMode, debugModeInfo);
 
-void DebugDevice::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void DebugDevice::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("mode",          mode,

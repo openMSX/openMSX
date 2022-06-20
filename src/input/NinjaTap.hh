@@ -18,7 +18,8 @@ public:
 	[[nodiscard]] byte read(EmuTime::param time) override;
 	void write(byte value, EmuTime::param time) override;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	byte status;

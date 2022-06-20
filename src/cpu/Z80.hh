@@ -135,7 +135,8 @@ protected:
 	// versions (version number shared with CPUCore<> class)
 	//  1 -> initial version
 	//  2 -> moved memptr from CPUCore to here
-	void serialize(Archive auto& ar, unsigned version)
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version)
 	{
 		CPUClock::serialize(ar, version);
 		if (version >= 2) {

@@ -74,7 +74,7 @@ public:
 	[[nodiscard]] byte getPress()   const { return press; }
 	[[nodiscard]] byte getRelease() const { return release; }
 
-	void serialize(Archive auto& ar, unsigned /*version*/)
+	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
 		ar.serialize("row",     row,
@@ -1576,8 +1576,8 @@ void Keyboard::KeybDebuggable::write(unsigned /*address*/, byte /*value*/)
 }
 
 
-template<Archive Ar>
-void Keyboard::KeyInserter::serialize(Ar& ar, unsigned /*version*/)
+template<typename Archive>
+void Keyboard::KeyInserter::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Schedulable>(*this);
 	ar.serialize("text", text_utf8,
@@ -1586,7 +1586,7 @@ void Keyboard::KeyInserter::serialize(Ar& ar, unsigned /*version*/)
 	             "releaseLast", releaseLast);
 
 	bool oldCodeKanaLockOn, oldGraphLockOn, oldCapsLockOn;
-	if constexpr (!Ar::IS_LOADER) {
+	if constexpr (!Archive::IS_LOADER) {
 		oldCodeKanaLockOn = oldLocksOn & KeyInfo::CODE_MASK;
 		oldGraphLockOn = oldLocksOn & KeyInfo::GRAPH_MASK;
 		oldCapsLockOn = oldLocksOn & KeyInfo::CAPS_MASK;
@@ -1594,7 +1594,7 @@ void Keyboard::KeyInserter::serialize(Ar& ar, unsigned /*version*/)
 	ar.serialize("oldCodeKanaLockOn", oldCodeKanaLockOn,
 	             "oldGraphLockOn",    oldGraphLockOn,
 	             "oldCapsLockOn",     oldCapsLockOn);
-	if constexpr (Ar::IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		oldLocksOn = (oldCodeKanaLockOn ? KeyInfo::CODE_MASK : 0)
 		           | (oldGraphLockOn ? KeyInfo::GRAPH_MASK : 0)
 		           | (oldCapsLockOn ? KeyInfo::CAPS_MASK : 0);
@@ -1614,8 +1614,8 @@ void Keyboard::KeyInserter::serialize(Ar& ar, unsigned /*version*/)
 //      it by explicitly clearing the keyb state from the actual loadstate
 //      command. (But let's only do this when experience shows it's really
 //      better).
-template<Archive Ar>
-void Keyboard::serialize(Ar& ar, unsigned version)
+template<typename Archive>
+void Keyboard::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("keyTypeCmd", keyTypeCmd,
 	             "cmdKeyMatrix", cmdKeyMatrix);
@@ -1626,7 +1626,7 @@ void Keyboard::serialize(Ar& ar, unsigned version)
 	}
 
 	bool msxCapsLockOn, msxCodeKanaLockOn, msxGraphLockOn;
-	if constexpr (!Ar::IS_LOADER) {
+	if constexpr (!Archive::IS_LOADER) {
 		msxCapsLockOn = locksOn & KeyInfo::CAPS_MASK;
 		msxCodeKanaLockOn = locksOn & KeyInfo::CODE_MASK;
 		msxGraphLockOn = locksOn & KeyInfo::GRAPH_MASK;
@@ -1634,7 +1634,7 @@ void Keyboard::serialize(Ar& ar, unsigned version)
 	ar.serialize("msxCapsLockOn",     msxCapsLockOn,
 	             "msxCodeKanaLockOn", msxCodeKanaLockOn,
 	             "msxGraphLockOn",    msxGraphLockOn);
-	if constexpr (Ar::IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		locksOn = (msxCapsLockOn ? KeyInfo::CAPS_MASK : 0)
 		        | (msxCodeKanaLockOn ? KeyInfo::CODE_MASK : 0)
 		        | (msxGraphLockOn ? KeyInfo::GRAPH_MASK : 0);
@@ -1648,15 +1648,15 @@ void Keyboard::serialize(Ar& ar, unsigned version)
 	}
 	// don't serialize hostKeyMatrix
 
-	if constexpr (Ar::IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		// force recalculation of keyMatrix
 		keysChanged = true;
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(Keyboard);
 
-template<Archive Ar>
-void Keyboard::MsxKeyEventQueue::serialize(Ar& ar, unsigned /*version*/)
+template<typename Archive>
+void Keyboard::MsxKeyEventQueue::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Schedulable>(*this);
 
@@ -1668,12 +1668,12 @@ void Keyboard::MsxKeyEventQueue::serialize(Ar& ar, unsigned /*version*/)
 	// empty or contain very few elements).
 	//ar.serialize("eventQueue", eventQueue);
 	std::vector<std::string> eventStrs;
-	if constexpr (!Ar::IS_LOADER) {
+	if constexpr (!Archive::IS_LOADER) {
 		eventStrs = to_vector(view::transform(
 			eventQueue, [](const auto& e) { return toString(e); }));
 	}
 	ar.serialize("eventQueue", eventStrs);
-	if constexpr (Ar::IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		assert(eventQueue.empty());
 		for (auto& s : eventStrs) {
 			eventQueue.push_back(

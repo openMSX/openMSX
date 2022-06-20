@@ -19,7 +19,8 @@ public:
 	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;
 	[[nodiscard]] bool allowUnaligned() const override;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	MSXCPUInterface& interface;

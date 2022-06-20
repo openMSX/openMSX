@@ -28,7 +28,8 @@ public:
 	void writeRegister(unsigned reg, byte value, EmuTime::param time);
 	void reset(EmuTime::param time);
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	class Generator {
@@ -37,7 +38,8 @@ private:
 		[[nodiscard]] inline unsigned getNextEventTime() const;
 		inline void advanceFast(unsigned duration);
 
-		void serialize(Archive auto& ar, unsigned version);
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
 
 	protected:
 		Generator() = default;
@@ -73,7 +75,8 @@ private:
 		  */
 		[[nodiscard]] bool getOutput() const { return output; }
 
-		void serialize(Archive auto& ar, unsigned version);
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
 
 	private:
 		[[nodiscard]] int getDetune(AY8910& ay8910);
@@ -105,7 +108,8 @@ private:
 		  */
 		[[nodiscard]] bool getOutput() const { return random & 1; }
 
-		void serialize(Archive auto& ar, unsigned version);
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
 
 	private:
 		int random;
@@ -140,7 +144,8 @@ private:
 		inline void advanceFast(unsigned duration);
 		inline void doNextEvent();
 
-		void serialize(Archive auto& ar, unsigned version);
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
 
 	private:
 		inline void doSteps(int steps);

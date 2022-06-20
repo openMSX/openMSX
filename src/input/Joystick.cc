@@ -71,7 +71,7 @@ public:
 	[[nodiscard]] byte     getPress()    const { return press; }
 	[[nodiscard]] byte     getRelease()  const { return release; }
 
-	void serialize(Archive auto& ar, unsigned /*version*/)
+	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
 		ar.serialize("joyNum",  joyNum,
@@ -359,13 +359,13 @@ void Joystick::stopReplay(EmuTime::param time) noexcept
 // version 1: Initial version, the variable status was not serialized.
 // version 2: Also serialize the above variable, this is required for
 //            record/replay, see comment in Keyboard.cc for more details.
-template<Archive Ar>
-void Joystick::serialize(Ar& ar, unsigned version)
+template<typename Archive>
+void Joystick::serialize(Archive& ar, unsigned version)
 {
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("status", status);
 	}
-	if constexpr (Ar::IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		if (joystick && isPluggedIn()) {
 			plugHelper2();
 		}

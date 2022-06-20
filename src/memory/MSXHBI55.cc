@@ -201,8 +201,8 @@ byte MSXHBI55::readStuff() const
 //            introduced 'lastC'
 //                    This is a hack: it's used instead of i8255.getPortC().
 //                    This more or less maps to the old 'writeLatch' variable.
-template<Archive Ar>
-void MSXHBI55::serialize(Ar& ar, unsigned version)
+template<typename Archive>
+void MSXHBI55::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("i8255", i8255,
@@ -210,7 +210,7 @@ void MSXHBI55::serialize(Ar& ar, unsigned version)
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("lastC", lastC);
 	} else {
-		assert(Ar::IS_LOADER);
+		assert(Archive::IS_LOADER);
 		byte writeLatch = 0;
 		ar.serialize("writeLatch", writeLatch);
 		lastC = writeLatch;

@@ -51,7 +51,8 @@ void V9990VRAM::writeVRAMCPU(unsigned address, byte value, EmuTime::param time)
 	data.write(mapAddress(address), value);
 }
 
-void V9990VRAM::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void V9990VRAM::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("data", data);
 }

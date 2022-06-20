@@ -260,25 +260,26 @@ void RawTrack::applyWd2793ReadTrackQuirk()
 
 // version 1: initial version (fixed track length of 6250)
 // version 2: variable track length
-template<Archive Ar>
-void RawTrack::serialize(Ar& ar, unsigned version)
+template<typename Archive>
+void RawTrack::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("idam", idam);
 	auto len = unsigned(data.size());
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("trackLength", len);
 	} else {
-		assert(Ar::IS_LOADER);
+		assert(Archive::IS_LOADER);
 		len = 6250;
 	}
-	if constexpr (Ar::IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		data.resize(len);
 	}
 	ar.serialize_blob("data", data.data(), data.size());
 }
 INSTANTIATE_SERIALIZE_METHODS(RawTrack);
 
-void RawTrack::Sector::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void RawTrack::Sector::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("addrIdx",    addrIdx,
 	             "dataIdx",    dataIdx,

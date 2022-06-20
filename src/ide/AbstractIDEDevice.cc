@@ -440,7 +440,8 @@ void AbstractIDEDevice::createIdentifyBlock(AlignedBuffer& buf)
 }
 
 
-void AbstractIDEDevice::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void AbstractIDEDevice::serialize(Archive& ar, unsigned /*version*/)
 {
 	// no need to serialize IDEDevice base class
 	ar.serialize_blob("buffer", buffer, sizeof(buffer));

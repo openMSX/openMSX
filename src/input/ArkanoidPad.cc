@@ -35,7 +35,7 @@ public:
 	[[nodiscard]] bool getPress()   const { return press; }
 	[[nodiscard]] bool getRelease() const { return release; }
 
-	void serialize(Archive auto& ar, unsigned /*version*/)
+	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
 		ar.serialize("delta",   delta,
@@ -171,8 +171,8 @@ void ArkanoidPad::stopReplay(EmuTime::param time) noexcept
 //            serialized.
 // version 2: Also serialize the above variables, this is required for
 //            record/replay, see comment in Keyboard.cc for more details.
-template<Archive Ar>
-void ArkanoidPad::serialize(Ar& ar, unsigned version)
+template<typename Archive>
+void ArkanoidPad::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("shiftreg",  shiftreg,
 	             "lastValue", lastValue);
@@ -180,7 +180,7 @@ void ArkanoidPad::serialize(Ar& ar, unsigned version)
 		ar.serialize("dialpos",      dialpos,
 		             "buttonStatus", buttonStatus);
 	}
-	if constexpr (Ar::IS_LOADER) {
+	if constexpr (Archive::IS_LOADER) {
 		if (isPluggedIn()) {
 			plugHelper(*getConnector(), EmuTime::dummy());
 		}

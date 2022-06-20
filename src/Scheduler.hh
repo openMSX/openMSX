@@ -20,7 +20,8 @@ public:
 	void setTime(EmuTime::param time) { timeStamp = time; }
 	[[nodiscard]] Schedulable* getDevice() const { return device; }
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	EmuTime timeStamp = EmuTime::zero();
@@ -66,7 +67,8 @@ public:
 		scheduleTime = limit;
 	}
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private: // -> intended for Schedulable
 	friend class Schedulable;

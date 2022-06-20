@@ -62,7 +62,8 @@ const byte* MSXFDC::getReadCacheLine(word start) const
 }
 
 
-void MSXFDC::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void MSXFDC::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 

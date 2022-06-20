@@ -454,7 +454,8 @@ static constexpr std::initializer_list<enum_string<SCSI::Phase>> phaseInfo = {
 };
 SERIALIZE_ENUM(SCSI::Phase, phaseInfo);
 
-void WD33C93::serialize(Archive auto& ar, unsigned /*version*/)
+template<typename Archive>
+void WD33C93::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize_blob("buffer", buffer.data(), buffer.size());
 	char tag[8] = { 'd', 'e', 'v', 'i', 'c', 'e', 'X', 0 };

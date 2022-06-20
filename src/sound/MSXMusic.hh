@@ -17,7 +17,8 @@ public:
 	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
 	[[nodiscard]] const byte* getReadCacheLine(word start) const override;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 protected:
 	explicit MSXMusicBase(const DeviceConfig& config);
@@ -37,7 +38,8 @@ class MSXMusic final : public MSXMusicBase
 public:
 	explicit MSXMusic(const DeviceConfig& config);
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 };
 SERIALIZE_CLASS_VERSION(MSXMusic, 3); // must be same as MSXMusicBase
 
@@ -55,7 +57,8 @@ public:
 	void writeMem(word address, byte value, EmuTime::param time) override;
 	[[nodiscard]] byte* getWriteCacheLine(word start) const override;
 
-	void serialize(Archive auto& ar, unsigned version);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	byte control;
