@@ -91,7 +91,7 @@ jobs:
       if: ${{ matrix.os == 'Windows-VC' }}        
       id: openmsxvc
       run: |
-        $OPENMSX_VERSION = (cmd.exe /c python3 build/version.py) | Out-String
+        $OPENMSX_VERSION = (cmd.exe /c python3 build/version.py) -join "`n"
         echo "::set-output name=target_file::openmsx-$OPENMSX_VERSION-${{ matrix.os }}-${{ matrix.cpu }}-bin"
     - name: Make
       if: ${{ matrix.os == 'Windows-VC' }}     
