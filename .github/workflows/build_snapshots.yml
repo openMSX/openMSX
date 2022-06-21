@@ -98,6 +98,12 @@ jobs:
       run: |
         msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} build\3rdparty\3rdparty.sln /m
         msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} build\msvc\openmsx.sln /m
+    - name: Complete VC build install folder
+      if: ${{ matrix.os == 'windows-vc' }}     
+      run: |
+        xcopy share\ derived\Win32-VC-Release\install\ /f /e /s /i
+        xcopy doc\ derived\Win32-VC-Release\install\ /f /e /s /i
+        xcopy Contrib\codec\Win32\*.* derived\Win32-VC-Release\install\codec\ /f /e /s /i
     - name: Determine version and redistributable paths and names
       if: ${{ matrix.os != 'windows-vc' }}        
       id: openmsx
