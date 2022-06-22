@@ -101,8 +101,8 @@ jobs:
     - name: Complete VC build install folder
       if: ${{ matrix.os == 'windows-vc' }}     
       run: |
-        xcopy share\ derived\Win32-VC-Release\install\ /f /e /s /i
-        xcopy doc\ derived\Win32-VC-Release\install\ /f /e /s /i
+        xcopy share\ derived\Win32-VC-Release\install\share\ /f /e /s /i
+        xcopy doc\ derived\Win32-VC-Release\install\doc\ /f /e /s /i
         xcopy Contrib\codec\Win32\*.* derived\Win32-VC-Release\install\codec\ /f /e /s /i
     - name: Determine version and redistributable paths and names
       if: ${{ matrix.os != 'windows-vc' }}        
