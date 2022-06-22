@@ -112,6 +112,8 @@ jobs:
         copy Contrib\README.cbios derived\Win32-VC-Release\install\doc\cbios.txt
         xcopy Contrib\cbios\*.* derived\Win32-VC-Release\install\share\machines\ /f /e /s /i
         xcopy Contrib\cbios-old\*.* derived\Win32-VC-Release\install\share\systemroms\cbios-old\ /f /e /s /i
+        cd derived\Win32-VC-Release\install
+        del .gitignore /s
     - name: Determine version and redistributable paths and names
       if: ${{ matrix.os != 'windows-vc' }}        
       id: openmsx
