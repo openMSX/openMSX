@@ -105,10 +105,13 @@ jobs:
         xcopy doc\authors.txt derived\Win32-VC-Release\install\doc\ /f /e /s /i
         xcopy doc\GPL.txt derived\Win32-VC-Release\install\doc\ /f /e /s /i
         xcopy doc\release-history.txt derived\Win32-VC-Release\install\doc\ /f /e /s /i
-        xcopy doc\release-notes.txt derived\Win32-VC-Release\install\doc\ /f /e /s /i
-        copy Contrib\README.cbios derived\Win32-VC-Release\install\doc\cbios.txt      
+        xcopy doc\release-notes.txt derived\Win32-VC-Release\install\doc\ /f /e /s /i        
         xcopy doc\manual\ derived\Win32-VC-Release\install\doc\manual\ /f /e /s /i
+        xcopy src\resource\openmsx.ico derived\Win32-VC-Release\install\share\icons\  /f /e /s /i
         xcopy Contrib\codec\Win32\*.* derived\Win32-VC-Release\install\codec\ /f /e /s /i
+        copy Contrib\README.cbios derived\Win32-VC-Release\install\doc\cbios.txt
+        xcopy Contrib\cbios\*.* derived\Win32-VC-Release\install\share\machines\ /f /e /s /i
+        xcopy Contrib\cbios-old\*.* derived\Win32-VC-Release\install\share\systemroms\ /f /e /s /i
     - name: Determine version and redistributable paths and names
       if: ${{ matrix.os != 'windows-vc' }}        
       id: openmsx
