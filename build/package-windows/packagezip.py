@@ -10,8 +10,6 @@ def addFile(zipFile, path, zipPath):
 
 def addDirectory(zipFile, root, zipPath):
 	for path, dirs, files in os.walk(root):
-		if '.svn' in dirs:
-			dirs.remove('.svn') # don't visit .svn directories
 		for name in files:
 			thisZipPath = zipPath
 			if abspath(root) != abspath(path):
