@@ -106,8 +106,7 @@ jobs:
         xcopy doc\GPL.txt derived\Win32-VC-Release\install\doc\ /f /e /s /i
         xcopy doc\release-history.txt derived\Win32-VC-Release\install\doc\ /f /e /s /i
         xcopy doc\release-notes.txt derived\Win32-VC-Release\install\doc\ /f /e /s /i
-        copy Contrib\README.cbios derived\Win32-VC-Release\install\doc\cbios.txt
-        xcopy doc\authors.txt derived\Win32-VC-Release\install\doc\ /f /e /s /i
+        copy Contrib\README.cbios derived\Win32-VC-Release\install\doc\cbios.txt      
         xcopy doc\manual\ derived\Win32-VC-Release\install\doc\manual\ /f /e /s /i
         xcopy Contrib\codec\Win32\*.* derived\Win32-VC-Release\install\codec\ /f /e /s /i
     - name: Determine version and redistributable paths and names
