@@ -102,7 +102,13 @@ jobs:
       if: ${{ matrix.os == 'windows-vc' }}     
       run: |
         xcopy share\ derived\Win32-VC-Release\install\share\ /f /e /s /i
-        xcopy doc\ derived\Win32-VC-Release\install\doc\ /f /e /s /i
+        xcopy doc\authors.txt derived\Win32-VC-Release\install\doc\ /f /e /s /i
+        xcopy doc\GPL.txt derived\Win32-VC-Release\install\doc\ /f /e /s /i
+        xcopy doc\release-history.txt derived\Win32-VC-Release\install\doc\ /f /e /s /i
+        xcopy doc\release-notes.txt derived\Win32-VC-Release\install\doc\ /f /e /s /i
+        xcopy Contrib\README.cbios derived\Win32-VC-Release\install\doc\cbios.txt /f /e /s /i
+        xcopy doc\authors.txt derived\Win32-VC-Release\install\doc\ /f /e /s /i
+        xcopy doc\manual\ derived\Win32-VC-Release\install\doc\manual\ /f /e /s /i
         xcopy Contrib\codec\Win32\*.* derived\Win32-VC-Release\install\codec\ /f /e /s /i
     - name: Determine version and redistributable paths and names
       if: ${{ matrix.os != 'windows-vc' }}        
