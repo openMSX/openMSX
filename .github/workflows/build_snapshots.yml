@@ -111,7 +111,7 @@ jobs:
         xcopy Contrib\codec\Win32\*.* derived\Win32-VC-Release\install\codec\ /f /e /s /i
         copy Contrib\README.cbios derived\Win32-VC-Release\install\doc\cbios.txt
         xcopy Contrib\cbios\*.* derived\Win32-VC-Release\install\share\machines\ /f /e /s /i
-        xcopy Contrib\cbios-old\*.* derived\Win32-VC-Release\install\share\systemroms\ /f /e /s /i
+        xcopy Contrib\cbios-old\*.gz derived\Win32-VC-Release\install\share\systemroms\ /f /e /s /i
     - name: Determine version and redistributable paths and names
       if: ${{ matrix.os != 'windows-vc' }}        
       id: openmsx
