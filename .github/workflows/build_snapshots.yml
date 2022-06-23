@@ -93,26 +93,15 @@ jobs:
       run: |
         $OPENMSX_VERSION = (cmd.exe /c python3 build/version.py) -join "`n"
         echo "::set-output name=target_file::openmsx-$OPENMSX_VERSION-${{ matrix.os }}-${{ matrix.cpu }}-bin"
+        echo "::set-output name=target_file_pdb::openmsx-$OPENMSX_VERSION-${{ matrix.os }}-${{ matrix.cpu }}-pdb"
     - name: msbuild
       if: ${{ matrix.os == 'windows-vc' }}     
       run: |
         msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} build\3rdparty\3rdparty.sln /m
         msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} build\msvc\openmsx.sln /m
-    - name: Complete VC build install folder
+    - name: Create ZIP package of VC build
       if: ${{ matrix.os == 'windows-vc' }}     
-      run: |
-        xcopy share\ derived\Win32-VC-Release\install\share\ /f /e /s /i
-        xcopy doc\authors.txt derived\Win32-VC-Release\install\doc\ /f /e /s /i
-        xcopy doc\GPL.txt derived\Win32-VC-Release\install\doc\ /f /e /s /i
-        xcopy doc\release-history.txt derived\Win32-VC-Release\install\doc\ /f /e /s /i
-        xcopy doc\release-notes.txt derived\Win32-VC-Release\install\doc\ /f /e /s /i        
-        xcopy doc\manual\ derived\Win32-VC-Release\install\doc\manual\ /f /e /s /i
-        xcopy src\resource\openmsx.ico derived\Win32-VC-Release\install\share\icons\  /f /e /s /i
-        xcopy Contrib\codec\Win32\*.* derived\Win32-VC-Release\install\codec\ /f /e /s /i
-        copy Contrib\README.cbios derived\Win32-VC-Release\install\doc\cbios.txt
-        xcopy Contrib\cbios\*.* derived\Win32-VC-Release\install\share\machines\ /f /e /s /i
-        xcopy Contrib\cbios-old\*.* derived\Win32-VC-Release\install\share\systemroms\cbios-old\ /f /e /s /i
-        cd derived\Win32-VC-Release\install
+      run: call "build\\package-windows\\package.cmd" x64 release "" ZIPONLY
     - name: Determine version and redistributable paths and names
       if: ${{ matrix.os != 'windows-vc' }}        
       id: openmsx
@@ -158,4 +147,10 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: ${{ steps.openmsxvc.outputs.target_file }}.zip
-        path: derived/Win32-VC-Release/install        
+        path: derived\x64-VC-Release\package-windows        
+    - name: Upload Windows VC debug symbols
+      if: ${{ matrix.os == 'windows-vc' }}
+      uses: actions/upload-artifact@v1
+      with:
+        name: ${{ steps.openmsxvc.outputs.target_file_pdb }}.zip
+        path: derived\x64-VC-Release\package-windows        
