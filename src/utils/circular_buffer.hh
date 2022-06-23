@@ -29,13 +29,11 @@ public:
 	using difference_type = ptrdiff_t;
 	using iterator_category = std::random_access_iterator_tag;
 
-	cb_iterator() : buf(nullptr), p(nullptr) {}
-	cb_iterator(const cb_iterator& it) : buf(it.buf), p(it.p) {}
+	cb_iterator() = default;
+	cb_iterator(const cb_iterator& it) = default;
 	cb_iterator(const BUF* buf_, T* p_) : buf(buf_), p(p_) {}
 
-	cb_iterator& operator=(const cb_iterator& it) {
-		buf = it.buf; p = it.p; return *this;
-	}
+	cb_iterator& operator=(const cb_iterator& it) = default;
 
 	[[nodiscard]] T& operator*()  const { return *p; }
 	T* operator->() const { return  p; }
@@ -71,26 +69,23 @@ public:
 	}
 	cb_iterator& operator-=(difference_type n) { *this += -n; return *this; }
 
-	[[nodiscard]] cb_iterator operator+(difference_type n) { return cb_iterator(*this) += n; }
-	[[nodiscard]] cb_iterator operator-(difference_type n) { return cb_iterator(*this) -= n; }
+	[[nodiscard]] friend cb_iterator operator+(cb_iterator it, difference_type n) { it += n; return it; }
+	[[nodiscard]] friend cb_iterator operator+(difference_type n, cb_iterator it) { it += n; return it; }
+	[[nodiscard]] friend cb_iterator operator-(cb_iterator it, difference_type n) { it -= n; return it; }
 
 	[[nodiscard]] T& operator[](difference_type n) const { return *(*this + n); }
 
-	[[nodiscard]] bool operator== (const cb_iterator& it) const {
-		return p == it.p;
-	}
-	[[nodiscard]] auto operator<=>(const cb_iterator& it) const {
-		return index(p) <=> index(it.p);
-	}
+	[[nodiscard]] bool operator== (const cb_iterator& it) const { return p == it.p; }
+	[[nodiscard]] auto operator<=>(const cb_iterator& it) const { return index(p) <=> index(it.p); }
 
 private:
 	[[nodiscard]] size_t index(const T* q) const {
 		return q ? buf->index(q) : buf->size();
 	}
 
-	const BUF* buf;
-	T* p; // invariant: end-iterator    -> nullptr,
-	      //            other iterators -> pointer to element
+	const BUF* buf = nullptr;
+	T* p = nullptr; // invariant: end-iterator    -> nullptr,
+	                //            other iterators -> pointer to element
 };
 
 /** Circular buffer class, based on boost::circular_buffer/ */
@@ -106,6 +101,7 @@ public:
 	using reference  = T&;
 	using difference_type = ptrdiff_t;
 	using size_type       = size_t;
+	static_assert(std::random_access_iterator<iterator>);
 
 	circular_buffer() = default;
 

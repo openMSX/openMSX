@@ -10,6 +10,7 @@
 #include "IRQHelper.hh"
 #include "Clock.hh"
 #include "DisplayMode.hh"
+#include "EnumSetting.hh"
 #include "Observer.hh"
 #include "openmsx.hh"
 #include "outer.hh"
@@ -27,7 +28,6 @@ class SpriteChecker;
 class Display;
 class RawFrame;
 class Setting;
-template<typename> class EnumSetting;
 namespace VDPAccessSlots {
 	enum Delta : int;
 	class Calculator;

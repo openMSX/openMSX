@@ -3,6 +3,7 @@
 
 #include "Setting.hh"
 #include "view.hh"
+#include <concepts>
 #include <iterator>
 #include <utility>
 #include <vector>
@@ -43,7 +44,13 @@ private:
 	Map baseMap;
 };
 
-template<typename T> class EnumSetting final : private EnumSettingBase, public Setting
+template<typename T>
+concept EnumSettingValue = requires(T t, int i) {
+	static_cast<T>(i);
+	static_cast<int>(t);
+};
+
+template<EnumSettingValue T> class EnumSetting final : private EnumSettingBase, public Setting
 {
 public:
 	using Map = EnumSettingBase::Map;
@@ -68,7 +75,7 @@ private:
 //-------------
 
 
-template<typename T>
+template<EnumSettingValue T>
 EnumSetting<T>::EnumSetting(
 		CommandController& commandController_, std::string_view name,
 		static_string_view description_, T initialValue,
@@ -83,25 +90,25 @@ EnumSetting<T>::EnumSetting(
 	init();
 }
 
-template<typename T>
+template<EnumSettingValue T>
 std::string_view EnumSetting<T>::getTypeString() const
 {
 	return "enumeration";
 }
 
-template<typename T>
+template<EnumSettingValue T>
 void EnumSetting<T>::additionalInfo(TclObject& result) const
 {
 	additionalInfoBase(result);
 }
 
-template<typename T>
+template<EnumSettingValue T>
 void EnumSetting<T>::tabCompletion(std::vector<std::string>& tokens) const
 {
 	tabCompletionBase(tokens);
 }
 
-template<typename T>
+template<EnumSettingValue T>
 T EnumSetting<T>::getEnum() const noexcept
 {
 	return static_cast<T>(fromStringBase(getValue().getString()));
@@ -112,19 +119,19 @@ template<> inline bool EnumSetting<bool>::getEnum() const noexcept
 	return fromStringBase(getValue().getString()) != 0;
 }
 
-template<typename T>
+template<EnumSettingValue T>
 void EnumSetting<T>::setEnum(T e)
 {
 	setValue(TclObject(toString(e)));
 }
 
-template<typename T>
+template<EnumSettingValue T>
 std::string_view EnumSetting<T>::getString() const
 {
 	return getValue().getString();
 }
 
-template<typename T>
+template<EnumSettingValue T>
 std::string_view EnumSetting<T>::toString(T e) const
 {
 	return toStringBase(static_cast<int>(e));

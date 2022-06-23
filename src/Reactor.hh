@@ -2,6 +2,7 @@
 #define REACTOR_HH
 
 #include "Observer.hh"
+#include "EnumSetting.hh"
 #include "EventListener.hh"
 #include "view.hh"
 #include <cassert>
@@ -52,7 +53,6 @@ class AviRecorder;
 class ConfigInfo;
 class RealTimeInfo;
 class SoftwareInfoTopic;
-template<typename T> class EnumSetting;
 
 extern int exitCode;
 

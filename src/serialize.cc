@@ -445,26 +445,14 @@ void XmlInputArchive::load(bool& b)
 // This routine is only used to parse strings we've written ourselves (and the
 // savestate/replay XML files are not meant to be manually edited). So the
 // above limitations don't really matter. And we can use the speed gain.
-template<bool IS_SIGNED> struct ConditionalNegate;
-template<> struct ConditionalNegate<true> {
-	template<typename T> void operator()(bool negate, T& t) {
-		if (negate) t = -t; // ok to negate a signed type
-	}
-};
-template<> struct ConditionalNegate<false> {
-	template<typename T> void operator()(bool negate, T& /*t*/) {
-		assert(!negate); (void)negate; // can't negate unsigned type
-	}
-};
-template<typename T> static inline void fastAtoi(string_view str, T& t)
+template<std::integral T> static inline void fastAtoi(string_view str, T& t)
 {
 	t = 0;
 	bool neg = false;
 	size_t i = 0;
 	size_t l = str.size();
 
-	constexpr bool IS_SIGNED = std::numeric_limits<T>::is_signed;
-	if constexpr (IS_SIGNED) {
+	if constexpr (std::numeric_limits<T>::is_signed) {
 		if (l == 0) return;
 		if (str[0] == '-') {
 			neg = true;
@@ -478,12 +466,11 @@ template<typename T> static inline void fastAtoi(string_view str, T& t)
 		}
 		t = 10 * t + d;
 	}
-	// The following stuff does the equivalent of:
-	//    if (neg) t = -t;
-	// Though this expression triggers a warning on VC++ when T is an
-	// unsigned type. This complex template stuff avoids the warning.
-	ConditionalNegate<IS_SIGNED> negateFunctor;
-	negateFunctor(neg, t);
+	if constexpr (std::numeric_limits<T>::is_signed) {
+		if (neg) t = -t;
+	} else {
+		assert(!neg); (void)neg;
+	}
 }
 void XmlInputArchive::load(int& i)
 {
