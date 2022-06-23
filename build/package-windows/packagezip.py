@@ -40,24 +40,25 @@ def packageZip(info):
 		'share\\icons\\openmsx.ico'
 		)
 
-	addFile(zipFile, info.catapultExePath, 'Catapult\\bin\\Catapult.exe')
-	addDirectory(zipFile, joinpath(info.catapultPath, 'doc'), 'Catapult\\doc')
-	addDirectory(
-		zipFile, joinpath(info.catapultPath, 'resources\\bitmaps'),
-		'Catapult\\resources\\bitmaps'
-		)
-	addDirectory(
-		zipFile, joinpath(info.catapultBuildPath, 'install\\dialogs'),
-		'Catapult\\resources\\dialogs'
-		)
-	addFile(
-		zipFile, joinpath(info.catapultSourcePath, 'catapult.xpm'),
-		'Catapult\\resources\\icons\\catapult.xpm'
-		)
-	addFile(
-		zipFile, joinpath(info.catapultPath, 'README'),
-		'Catapult\\doc\\README'
-		)
+	if info.packageCatapult:
+		addFile(zipFile, info.catapultExePath, 'Catapult\\bin\\Catapult.exe')
+		addDirectory(zipFile, joinpath(info.catapultPath, 'doc'), 'Catapult\\doc')
+		addDirectory(
+			zipFile, joinpath(info.catapultPath, 'resources\\bitmaps'),
+			'Catapult\\resources\\bitmaps'
+			)
+		addDirectory(
+			zipFile, joinpath(info.catapultBuildPath, 'install\\dialogs'),
+			'Catapult\\resources\\dialogs'
+			)
+		addFile(
+			zipFile, joinpath(info.catapultSourcePath, 'catapult.xpm'),
+			'Catapult\\resources\\icons\\catapult.xpm'
+			)
+		addFile(
+			zipFile, joinpath(info.catapultPath, 'README'),
+			'Catapult\\doc\\README'
+			)
 	zipFile.close()
 
 	zipFileName = info.packageFileName + '-pdb.zip'
@@ -68,7 +69,8 @@ def packageZip(info):
 	print('Generating ' + zipFilePath)
 	zipFile = ZipFile(zipFilePath, 'w')
 	addFile(zipFile, info.openmsxPdbPath, basename(info.openmsxPdbPath))
-	addFile(zipFile, info.catapultPdbPath, basename(info.catapultPdbPath))
+	if info.packageCatapult:
+		addFile(zipFile, info.catapultPdbPath, basename(info.catapultPdbPath))
 	zipFile.close()
 
 if __name__ == '__main__':
