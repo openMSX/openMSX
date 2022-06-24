@@ -10,6 +10,7 @@ on:
 
 env:
   target_flavour: opt
+  BUILD_CONFIGURATION: Release
 
 jobs:
   build:
@@ -43,6 +44,10 @@ jobs:
             name: Android
             cpu: arm
             os: android
+          - image: windows-latest
+            name: Windows-VC
+            cpu: x64
+            os: windows-vc
     steps:
     - uses: actions/checkout@v2
       with:
@@ -63,7 +68,14 @@ jobs:
         sudo update-alternatives --set i686-w64-mingw32-g++ /usr/bin/i686-w64-mingw32-g++-posix
         sudo update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix
         sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
+    - name: Add MSBuild to PATH for Windows VC build
+      if: ${{ matrix.os == 'windows-vc' }}
+      uses: microsoft/setup-msbuild@v1.0.3
+    - name: Download 3rd party packages for Windows VC build
+      if: ${{ matrix.os == 'windows-vc' }}
+      run: python build/thirdparty_download.py windows
     - name: Make
+      if: ${{ matrix.os != 'windows-vc' }}
       run: |
         CXX_PART=""
         if [ "${{ matrix.os }}" = "linux" ]; then
@@ -75,7 +87,23 @@ jobs:
           OPENMSX_FLAVOUR=${{ env.target_flavour }} \
           $CXX_PART \
           staticbindist
+    - name: Determine version and redistributable paths and names (Windows VC build)
+      if: ${{ matrix.os == 'windows-vc' }}
+      id: openmsxvc
+      run: |
+        $OPENMSX_VERSION = (cmd.exe /c python3 build/version.py) -join "`n"
+        echo "::set-output name=target_file::openmsx-$OPENMSX_VERSION-${{ matrix.os }}-${{ matrix.cpu }}-bin"
+        echo "::set-output name=target_file_pdb::openmsx-$OPENMSX_VERSION-${{ matrix.os }}-${{ matrix.cpu }}-pdb"
+    - name: msbuild
+      if: ${{ matrix.os == 'windows-vc' }}
+      run: |
+        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=x64 build\3rdparty\3rdparty.sln /m
+        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=x64 build\msvc\openmsx.sln /m
+    - name: Create ZIP package of VC build
+      if: ${{ matrix.os == 'windows-vc' }}
+      run: cmd /c "build\\package-windows\\package.cmd" x64 release NOCATAPULT ZIPONLY
     - name: Determine version and redistributable paths and names
+      if: ${{ matrix.os != 'windows-vc' }}
       id: openmsx
       run: |
         OPENMSX_VERSION=`python3 build/version.py`
@@ -92,24 +120,37 @@ jobs:
         echo "::set-output name=target_file::openmsx-$OPENMSX_VERSION-${{ matrix.os }}-${{ matrix.cpu }}-bin"
         echo "::set-output name=single_file::$HAS_SINGLE_FILE_OUTPUT"
     - name: Rename output folder for upload
-      if: ${{ steps.openmsx.outputs.single_file == 'false' }}
+      if: ${{ matrix.os != 'windows-vc' && steps.openmsx.outputs.single_file == 'false'}}
       run: |
         cd ${{ steps.openmsx.outputs.derived_path }}/bindist
         mv install ../${{ steps.openmsx.outputs.target_file }}
     - name: Upload redistributable zip
-      if: ${{ steps.openmsx.outputs.single_file == 'false' }}
+      if: ${{ matrix.os != 'windows-vc' && steps.openmsx.outputs.single_file == 'false' }}
       uses: actions/upload-artifact@v1
       with:
         name: ${{ steps.openmsx.outputs.target_file }}.zip
         path: ${{ steps.openmsx.outputs.derived_path }}/${{ steps.openmsx.outputs.target_file }}
     - name: Upload single redistributable ${{ steps.openmsx.outputs.single_output_file}}
-      if: ${{ steps.openmsx.outputs.single_file == 'true' }}
+      if: ${{ matrix.os != 'windows-vc' && steps.openmsx.outputs.single_file == 'true' }}
       uses: actions/upload-artifact@v1
       with:
         name: ${{ steps.openmsx.outputs.single_output_file }}
         path: ${{ steps.openmsx.outputs.derived_path }}/${{ steps.openmsx.outputs.single_output_file }}
     - name: Upload probe logging zip
+      if: ${{ matrix.os != 'windows-vc' }}
       uses: actions/upload-artifact@v1
       with:
         name: ${{ steps.openmsx.outputs.target_file }}-proberesults.zip
         path: ${{ steps.openmsx.outputs.derived_path }}/config
+    - name: Upload Windows VC redistributable
+      if: ${{ matrix.os == 'windows-vc' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ steps.openmsxvc.outputs.target_file }}.zip
+        path: derived\x64-VC-Release\package-windows\*-bin.zip
+    - name: Upload Windows VC debug symbols
+      if: ${{ matrix.os == 'windows-vc' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ steps.openmsxvc.outputs.target_file_pdb }}.zip
+        path: derived\x64-VC-Release\package-windows\*-pdb.zip
