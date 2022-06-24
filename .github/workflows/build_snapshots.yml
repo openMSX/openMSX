@@ -70,9 +70,7 @@ jobs:
         sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
     - name: Add MSBuild to PATH for Windows VC build
       if: ${{ matrix.os == 'windows-vc' }}
-      uses: microsoft/setup-msbuild@v1.0.2
-      with:
-        msbuild-architecture: x64      
+      uses: microsoft/setup-msbuild@v1.0.3
     - name: Download 3rd party packages for Windows VC build
       if: ${{ matrix.os == 'windows-vc' }}
       run: python build/thirdparty_download.py windows
@@ -146,13 +144,13 @@ jobs:
         path: ${{ steps.openmsx.outputs.derived_path }}/config
     - name: Upload Windows VC redistributable
       if: ${{ matrix.os == 'windows-vc' }}
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v3
       with:
         name: ${{ steps.openmsxvc.outputs.target_file }}.zip
-        path: derived\x64-VC-Release\package-windows
+        path: derived\x64-VC-Release\package-windows\*-bin.zip
     - name: Upload Windows VC debug symbols
       if: ${{ matrix.os == 'windows-vc' }}
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v3
       with:
         name: ${{ steps.openmsxvc.outputs.target_file_pdb }}.zip
-        path: derived\x64-VC-Release\package-windows
+        path: derived\x64-VC-Release\package-windows\*-pdb.zip
