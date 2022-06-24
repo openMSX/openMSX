@@ -71,6 +71,8 @@ jobs:
     - name: Add MSBuild to PATH for Windows VC build
       if: ${{ matrix.os == 'windows-vc' }}
       uses: microsoft/setup-msbuild@v1.0.2
+      with:
+        msbuild-architecture: x64      
     - name: Download 3rd party packages for Windows VC build
       if: ${{ matrix.os == 'windows-vc' }}
       run: python build/thirdparty_download.py windows
@@ -97,8 +99,8 @@ jobs:
     - name: msbuild
       if: ${{ matrix.os == 'windows-vc' }}
       run: |
-        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} build\3rdparty\3rdparty.sln /m
-        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} build\msvc\openmsx.sln /m
+        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} -p:Platform=x64 build\3rdparty\3rdparty.sln /m
+        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} -p:Platform=x64 build\msvc\openmsx.sln /m
     - name: Create ZIP package of VC build
       if: ${{ matrix.os == 'windows-vc' }}
       run: cmd /c "build\\package-windows\\package.cmd" x64 release NOCATAPULT ZIPONLY
