@@ -7,7 +7,7 @@ rem Usage: package.cmd OPENMSX_PLATFORM OPENMSX_CONFIGURATION CATAPULT_BASEPATH 
 rem
 rem **** OPENMSX_PLATFORM is { Win32, x64 } ****
 rem **** OPENMSX_CONFIGURATION is { Release, Developer, Debug } ****
-rem **** CATAPULT_BASEPATH is an absolute or relative path; e.g. ..\wxCatapult It can also be left empty "" in case of ZIP only packaging, then Catapult is not packaged! ****
+rem **** CATAPULT_BASEPATH is an absolute or relative path; e.g. ..\wxCatapult It can also be set to NOCATAPULT in case of ZIP only packaging, then Catapult is not packaged! ****
 rem **** PACKAGE is ZIPONLY or MSIONLY or empty (default) for both ZIP and MSI packaging ****
 
 if "%5" NEQ "" goto usage

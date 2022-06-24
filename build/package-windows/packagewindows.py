@@ -57,7 +57,7 @@ class PackageInfo(object):
 		else:
 			raise ValueError('Wrong configuration: ' + configuration)
 
-		self.packageCatapult = (catapultPath != "")
+		self.packageCatapult = (catapultPath != "NOCATAPULT")
 		self.catapultPath = catapultPath
 
 		# Useful variables

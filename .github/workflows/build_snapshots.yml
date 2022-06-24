@@ -101,7 +101,7 @@ jobs:
         msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} build\msvc\openmsx.sln /m
     - name: Create ZIP package of VC build
       if: ${{ matrix.os == 'windows-vc' }}
-      run: cmd /c "build\\package-windows\\package.cmd" x64 release "" ZIPONLY
+      run: cmd /c "build\\package-windows\\package.cmd" x64 release NOCATAPULT ZIPONLY
     - name: Determine version and redistributable paths and names
       if: ${{ matrix.os != 'windows-vc' }}
       id: openmsx
