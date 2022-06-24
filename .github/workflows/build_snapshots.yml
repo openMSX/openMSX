@@ -69,13 +69,13 @@ jobs:
         sudo update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix
         sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
     - name: Add MSBuild to PATH for Windows VC build
-      if: ${{ matrix.os == 'windows-vc' }}    
+      if: ${{ matrix.os == 'windows-vc' }}
       uses: microsoft/setup-msbuild@v1.0.2
     - name: Download 3rd party packages for Windows VC build
-      if: ${{ matrix.os == 'windows-vc' }}        
+      if: ${{ matrix.os == 'windows-vc' }}
       run: python build/thirdparty_download.py windows
     - name: Make
-      if: ${{ matrix.os != 'windows-vc' }}     
+      if: ${{ matrix.os != 'windows-vc' }}
       run: |
         CXX_PART=""
         if [ "${{ matrix.os }}" = "linux" ]; then
@@ -88,22 +88,22 @@ jobs:
           $CXX_PART \
           staticbindist
     - name: Determine version and redistributable paths and names (Windows VC build)
-      if: ${{ matrix.os == 'windows-vc' }}        
+      if: ${{ matrix.os == 'windows-vc' }}
       id: openmsxvc
       run: |
         $OPENMSX_VERSION = (cmd.exe /c python3 build/version.py) -join "`n"
         echo "::set-output name=target_file::openmsx-$OPENMSX_VERSION-${{ matrix.os }}-${{ matrix.cpu }}-bin"
         echo "::set-output name=target_file_pdb::openmsx-$OPENMSX_VERSION-${{ matrix.os }}-${{ matrix.cpu }}-pdb"
     - name: msbuild
-      if: ${{ matrix.os == 'windows-vc' }}     
+      if: ${{ matrix.os == 'windows-vc' }}
       run: |
         msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} build\3rdparty\3rdparty.sln /m
         msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} build\msvc\openmsx.sln /m
     - name: Create ZIP package of VC build
-      if: ${{ matrix.os == 'windows-vc' }}     
+      if: ${{ matrix.os == 'windows-vc' }}
       run: cmd /c "build\\package-windows\\package.cmd" x64 release "" ZIPONLY
     - name: Determine version and redistributable paths and names
-      if: ${{ matrix.os != 'windows-vc' }}        
+      if: ${{ matrix.os != 'windows-vc' }}
       id: openmsx
       run: |
         OPENMSX_VERSION=`python3 build/version.py`
@@ -137,7 +137,7 @@ jobs:
         name: ${{ steps.openmsx.outputs.single_output_file }}
         path: ${{ steps.openmsx.outputs.derived_path }}/${{ steps.openmsx.outputs.single_output_file }}
     - name: Upload probe logging zip
-      if: ${{ matrix.os != 'windows-vc' }}        
+      if: ${{ matrix.os != 'windows-vc' }}
       uses: actions/upload-artifact@v1
       with:
         name: ${{ steps.openmsx.outputs.target_file }}-proberesults.zip
@@ -147,10 +147,10 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: ${{ steps.openmsxvc.outputs.target_file }}.zip
-        path: derived\x64-VC-Release\package-windows        
+        path: derived\x64-VC-Release\package-windows
     - name: Upload Windows VC debug symbols
       if: ${{ matrix.os == 'windows-vc' }}
       uses: actions/upload-artifact@v1
       with:
         name: ${{ steps.openmsxvc.outputs.target_file_pdb }}.zip
-        path: derived\x64-VC-Release\package-windows        
+        path: derived\x64-VC-Release\package-windows
