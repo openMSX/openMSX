@@ -40,10 +40,10 @@ jobs:
             name: MacOS
             cpu: aarch64
             os: darwin
-          - image: ubuntu-latest
-            name: Android
-            cpu: arm
-            os: android
+#          - image: ubuntu-latest
+#            name: Android
+#            cpu: arm
+#            os: android
           - image: windows-latest
             name: Windows-VC
             cpu: x64
