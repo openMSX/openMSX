@@ -20,15 +20,19 @@ runs:
   steps:
     - name: Install Linux prerequisites
       if: ${{ inputs.os == 'linux' }}
+      shell: bash
       run: sudo apt-get install libgl-dev libglu1-mesa-dev libasound2-dev
     - name: Install Windows prerequisites
       if: ${{ contains(inputs.os, 'mingw') }}
+      shell: bash
       run: sudo apt-get install mingw-w64 gcc make tcl
     - name: Add NDK to PATH
       if: ${{ contains(inputs.os, 'android') }}
+      shell: bash
       run: echo "$ANDROID_NDK_LATEST_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin" >> $GITHUB_PATH
     - name: Configure MinGW to use Posix threads
       if: ${{ contains(inputs.os, 'mingw') }}
+      shell: bash
       run: |
         sudo update-alternatives --set i686-w64-mingw32-gcc /usr/bin/i686-w64-mingw32-gcc-posix
         sudo update-alternatives --set i686-w64-mingw32-g++ /usr/bin/i686-w64-mingw32-g++-posix
@@ -39,9 +43,11 @@ runs:
       uses: microsoft/setup-msbuild@v1.0.3
     - name: Download 3rd party packages for Windows VC build
       if: ${{ inputs.os == 'windows-vc' }}
+      shell: pwsh
       run: python build/thirdparty_download.py windows
     - name: Make
       if: ${{ inputs.os != 'windows-vc' }}
+      shell: bash
       run: |
         CXX_PART=""
         if [ "${{ inputs.os }}" = "linux" ]; then
@@ -55,6 +61,7 @@ runs:
           staticbindist
     - name: Determine version and redistributable paths and names (Windows VC build)
       if: ${{ inputs.os == 'windows-vc' }}
+      shell: pwsh
       id: openmsxvc
       run: |
         $OPENMSX_VERSION = (cmd.exe /c python3 build/version.py) -join "`n"
@@ -62,14 +69,17 @@ runs:
         echo "::set-output name=target_file_pdb::openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-pdb"
     - name: msbuild
       if: ${{ inputs.os == 'windows-vc' }}
+      shell: pwsh
       run: |
         msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=x64 build\3rdparty\3rdparty.sln /m
         msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=x64 build\msvc\openmsx.sln /m
     - name: Create ZIP package of VC build
       if: ${{ inputs.os == 'windows-vc' }}
+      shell: pwsh
       run: cmd /c "build\\package-windows\\package.cmd" x64 release NOCATAPULT ZIPONLY
     - name: Determine version and redistributable paths and names
       if: ${{ inputs.os != 'windows-vc' }}
+      shell: bash
       id: openmsx
       run: |
         OPENMSX_VERSION=`python3 build/version.py`
@@ -87,23 +97,27 @@ runs:
         echo "::set-output name=single_file::$HAS_SINGLE_FILE_OUTPUT"
     - name: Rename output folder for upload
       if: ${{ inputs.os != 'windows-vc' && steps.openmsx.outputs.single_file == 'false'}}
+      shell: bash
       run: |
         cd ${{ steps.openmsx.outputs.derived_path }}/bindist
         mv install ../${{ steps.openmsx.outputs.target_file }}
     - name: Upload redistributable zip
       if: ${{ inputs.os != 'windows-vc' && steps.openmsx.outputs.single_file == 'false' }}
+      shell: bash
       uses: actions/upload-artifact@v1
       with:
         name: ${{ steps.openmsx.outputs.target_file }}.zip
         path: ${{ steps.openmsx.outputs.derived_path }}/${{ steps.openmsx.outputs.target_file }}
     - name: Upload single redistributable ${{ steps.openmsx.outputs.single_output_file}}
       if: ${{ inputs.os != 'windows-vc' && steps.openmsx.outputs.single_file == 'true' }}
+      shell: bash
       uses: actions/upload-artifact@v1
       with:
         name: ${{ steps.openmsx.outputs.single_output_file }}
         path: ${{ steps.openmsx.outputs.derived_path }}/${{ steps.openmsx.outputs.single_output_file }}
     - name: Upload probe logging zip
       if: ${{ inputs.os != 'windows-vc' }}
+      shell: bash
       uses: actions/upload-artifact@v1
       with:
         name: ${{ steps.openmsx.outputs.target_file }}-proberesults.zip
