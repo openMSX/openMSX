@@ -69,7 +69,9 @@ jobs:
         path: ${{ steps.get_dist_name.outputs.tarball_name }}
     - name: Remove everything except tarball from root
       shell: bash
-      run: rm -rf -v !\("${{ steps.get_dist_name.outputs.tarball_name }}"\)
+      run: |
+        shopt -s extglob
+        rm -rf -v !("${{ steps.get_dist_name.outputs.tarball_name }}")
     - name: Extract tarball
       uses: a7ul/tar-action@v1.1.0
       id: extract
