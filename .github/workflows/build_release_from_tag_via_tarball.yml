@@ -71,7 +71,7 @@ jobs:
       shell: bash
       run: |
         shopt -s extglob
-        rm -rf -v !("${{ steps.get_dist_name.outputs.tarball_name }}")
+        rm -rf -v !("${{ steps.get_dist_name.outputs.tarball_name }}"|".github")
     - name: Extract tarball
       uses: a7ul/tar-action@v1.1.0
       id: extract
