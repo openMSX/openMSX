@@ -45,10 +45,10 @@ jobs:
             cpu: x64
             os: windows-vc
     steps:
-    - name: Get tagged checkout for ${{ inputs.tag }}
+    - name: Get current master code from Git repo
       uses: actions/checkout@v2
       with:
-        ref: ${{ inputs.tag }}
+        fetch-depth: 0
     - name: Create tarball
       shell: bash
       run: python3 build/gitdist.py ${{ inputs.tag }}
@@ -71,7 +71,7 @@ jobs:
       shell: bash
       run: |
         shopt -s extglob
-        rm -rf -v !("${{ steps.get_dist_name.outputs.tarball_name }}"|".github")
+        rm -rf -v !("${{ steps.get_dist_name.outputs.tarball_name }}")
     - name: Extract tarball
       uses: a7ul/tar-action@v1.1.0
       id: extract
