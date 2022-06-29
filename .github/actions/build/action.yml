@@ -12,9 +12,6 @@ inputs:
     description: "The flavour to build"
     default: opt
 
-env:
-  BUILD_CONFIGURATION: Release
-
 runs:
   using: "composite"
   steps:
@@ -71,8 +68,8 @@ runs:
       if: ${{ inputs.os == 'windows-vc' }}
       shell: pwsh
       run: |
-        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=x64 build\3rdparty\3rdparty.sln /m
-        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=x64 build\msvc\openmsx.sln /m
+        msbuild /m /p:Configuration=Release /p:Platform=x64 build\3rdparty\3rdparty.sln /m
+        msbuild /m /p:Configuration=Release /p:Platform=x64 build\msvc\openmsx.sln /m
     - name: Create ZIP package of VC build
       if: ${{ inputs.os == 'windows-vc' }}
       shell: pwsh
