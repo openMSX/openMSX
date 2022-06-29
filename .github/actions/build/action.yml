@@ -1,0 +1,122 @@
+name: Build openMSX
+description: "Builds the openMSX code in the base folder, no matter how it got there"
+inputs:
+  os:
+    required: true
+    description: "The OS to build for"
+  cpu:
+    required: true
+    description: "The CPU to build for"
+  flavour:
+    required: false
+    description: "The flavour to build"
+    default: opt
+
+env:
+  BUILD_CONFIGURATION: Release
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install Linux prerequisites
+      if: ${{ inputs.os == 'linux' }}
+      run: sudo apt-get install libgl-dev libglu1-mesa-dev libasound2-dev
+    - name: Install Windows prerequisites
+      if: ${{ contains(inputs.os, 'mingw') }}
+      run: sudo apt-get install mingw-w64 gcc make tcl
+    - name: Add NDK to PATH
+      if: ${{ contains(inputs.os, 'android') }}
+      run: echo "$ANDROID_NDK_LATEST_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin" >> $GITHUB_PATH
+    - name: Configure MinGW to use Posix threads
+      if: ${{ contains(inputs.os, 'mingw') }}
+      run: |
+        sudo update-alternatives --set i686-w64-mingw32-gcc /usr/bin/i686-w64-mingw32-gcc-posix
+        sudo update-alternatives --set i686-w64-mingw32-g++ /usr/bin/i686-w64-mingw32-g++-posix
+        sudo update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix
+        sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
+    - name: Add MSBuild to PATH for Windows VC build
+      if: ${{ inputs.os == 'windows-vc' }}
+      uses: microsoft/setup-msbuild@v1.0.3
+    - name: Download 3rd party packages for Windows VC build
+      if: ${{ inputs.os == 'windows-vc' }}
+      run: python build/thirdparty_download.py windows
+    - name: Make
+      if: ${{ inputs.os != 'windows-vc' }}
+      run: |
+        CXX_PART=""
+        if [ "${{ inputs.os }}" = "linux" ]; then
+          CXX_PART=" CXX=g++-10"
+        fi
+        make \
+          OPENMSX_TARGET_CPU=${{ inputs.cpu }} \
+          OPENMSX_TARGET_OS=${{ inputs.os }} \
+          OPENMSX_FLAVOUR=${{ inputs.flavour }} \
+          $CXX_PART \
+          staticbindist
+    - name: Determine version and redistributable paths and names (Windows VC build)
+      if: ${{ inputs.os == 'windows-vc' }}
+      id: openmsxvc
+      run: |
+        $OPENMSX_VERSION = (cmd.exe /c python3 build/version.py) -join "`n"
+        echo "::set-output name=target_file::openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-bin"
+        echo "::set-output name=target_file_pdb::openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-pdb"
+    - name: msbuild
+      if: ${{ inputs.os == 'windows-vc' }}
+      run: |
+        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=x64 build\3rdparty\3rdparty.sln /m
+        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=x64 build\msvc\openmsx.sln /m
+    - name: Create ZIP package of VC build
+      if: ${{ inputs.os == 'windows-vc' }}
+      run: cmd /c "build\\package-windows\\package.cmd" x64 release NOCATAPULT ZIPONLY
+    - name: Determine version and redistributable paths and names
+      if: ${{ inputs.os != 'windows-vc' }}
+      id: openmsx
+      run: |
+        OPENMSX_VERSION=`python3 build/version.py`
+        DERIVED_PATH=derived/${{ inputs.cpu }}-${{ inputs.os }}-${{ inputs.flavour }}-3rd
+        if [ "${{ inputs.os }}" = "darwin" ]; then
+          HAS_SINGLE_FILE_OUTPUT=true
+          SINGLE_OUTPUT_FILE=openmsx-${OPENMSX_VERSION}-mac-${{ inputs.cpu }}-bin.dmg
+        else
+          HAS_SINGLE_FILE_OUTPUT=false
+        fi
+        echo "::set-output name=version::$OPENMSX_VERSION"
+        echo "::set-output name=derived_path::$DERIVED_PATH"
+        echo "::set-output name=single_output_file::$SINGLE_OUTPUT_FILE"
+        echo "::set-output name=target_file::openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-bin"
+        echo "::set-output name=single_file::$HAS_SINGLE_FILE_OUTPUT"
+    - name: Rename output folder for upload
+      if: ${{ inputs.os != 'windows-vc' && steps.openmsx.outputs.single_file == 'false'}}
+      run: |
+        cd ${{ steps.openmsx.outputs.derived_path }}/bindist
+        mv install ../${{ steps.openmsx.outputs.target_file }}
+    - name: Upload redistributable zip
+      if: ${{ inputs.os != 'windows-vc' && steps.openmsx.outputs.single_file == 'false' }}
+      uses: actions/upload-artifact@v1
+      with:
+        name: ${{ steps.openmsx.outputs.target_file }}.zip
+        path: ${{ steps.openmsx.outputs.derived_path }}/${{ steps.openmsx.outputs.target_file }}
+    - name: Upload single redistributable ${{ steps.openmsx.outputs.single_output_file}}
+      if: ${{ inputs.os != 'windows-vc' && steps.openmsx.outputs.single_file == 'true' }}
+      uses: actions/upload-artifact@v1
+      with:
+        name: ${{ steps.openmsx.outputs.single_output_file }}
+        path: ${{ steps.openmsx.outputs.derived_path }}/${{ steps.openmsx.outputs.single_output_file }}
+    - name: Upload probe logging zip
+      if: ${{ inputs.os != 'windows-vc' }}
+      uses: actions/upload-artifact@v1
+      with:
+        name: ${{ steps.openmsx.outputs.target_file }}-proberesults.zip
+        path: ${{ steps.openmsx.outputs.derived_path }}/config
+    - name: Upload Windows VC redistributable
+      if: ${{ inputs.os == 'windows-vc' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ steps.openmsxvc.outputs.target_file }}.zip
+        path: derived\x64-VC-Release\package-windows\*-bin.zip
+    - name: Upload Windows VC debug symbols
+      if: ${{ inputs.os == 'windows-vc' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ steps.openmsxvc.outputs.target_file_pdb }}.zip
+        path: derived\x64-VC-Release\package-windows\*-pdb.zip
