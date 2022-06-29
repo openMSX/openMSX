@@ -78,7 +78,7 @@ jobs:
         files: ${{ steps.get_dist_name.outputs.tarball_name }}
     - name: Move extracted tarball contents to root
       shell: bash
-      run: mv ${{ steps.get_dist_name.outputs.tarball_name }}/* .
+      run: mv ${{ steps.get_dist_name.outputs.dist_name }}/* .
     - name: Perform build on extracted tarball
       # Directory name only
       uses: ./.github/actions/build
