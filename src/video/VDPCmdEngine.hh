@@ -43,15 +43,12 @@ public:
 	 * Used when the CPU reads/writes VRAM.
 	 * @param time The moment in time the CPU read/write is performed.
 	 */
-	EmuTime stealAccessSlot(EmuTime::param time) {
-		auto cpuSlot = getNextAccessSlot(time, VDPAccessSlots::DELTA_16);
-		assert(cpuSlot > time);
-		if (CMD && engineTime <= cpuSlot) {
+	void stealAccessSlot(EmuTime::param time) {
+		if (CMD && engineTime <= time) {
 			// take the next available slot
-			engineTime = getNextAccessSlot(cpuSlot, VDPAccessSlots::DELTA_1);
-			assert(engineTime > cpuSlot);
+			engineTime = getNextAccessSlot(time, VDPAccessSlots::DELTA_1);
+			assert(engineTime > time);
 		}
-		return cpuSlot;
 	}
 
 	/** Gets the command engine status (part of S#2).

@@ -43,6 +43,7 @@
 #define XXHASH_HH
 
 #include <bit>
+#include <cassert>
 #include <cstdint>
 #include <cstring>
 #include <string_view>
