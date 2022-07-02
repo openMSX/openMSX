@@ -15,6 +15,7 @@
 #include <cassert>
 #include <iostream>
 #include <memory>
+#include <version> // for _LIBCPP_VERSION
 
 using std::string;
 
@@ -189,9 +190,14 @@ void HardwareConfig::testRemove() const
 	auto et = devices.end();
 	for (auto rit = devices.rbegin(), ret = devices.rend();
 	     rit != ret; ++rit) {
+#ifdef _LIBCPP_VERSION
 		// Workaround clang-13/libc++ bug
-		//std::span alreadyRemoved{rit.base(), et};
+		// Don't generally use this workaround, because '*rit.base()'
+		// triggers an error in a debug-STL build.
 		std::span alreadyRemoved(&*rit.base(), et - rit.base());
+#else
+		std::span alreadyRemoved{rit.base(), et};
+#endif
 		(*rit)->testRemove(alreadyRemoved);
 	}
 
