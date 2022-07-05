@@ -45,7 +45,7 @@ runs:
         path: |
           derived/3rdparty
           derived/*/3rdparty
-        key: ${{ inputs.os }}-${{ inputs.cpu }}-${{ inputs.flavour }}-${{ hashFiles('build/packages.py') }}
+        key: ${{ github.ref }}-${{ inputs.os }}-${{ inputs.cpu }}-${{ inputs.flavour }}-${{ hashFiles('build/packages.py') }}
     - name: Download 3rd party packages for Windows VC build
       if: ${{ inputs.os == 'windows-vc' && steps.cache-3rdparty.outputs.cache-hit != 'true' }}
       shell: pwsh
