@@ -38,8 +38,16 @@ runs:
     - name: Add MSBuild to PATH for Windows VC build
       if: ${{ inputs.os == 'windows-vc' }}
       uses: microsoft/setup-msbuild@v1.0.3
+    - name: Cache 3rdparty libs
+      id: cache-3rdparty
+      uses: actions/cache@v3
+      with:
+        path: |
+          derived/3rdparty
+          derived/*/3rdparty
+        key: ${{ github.ref }}-${{ inputs.os }}-${{ inputs.cpu }}-${{ inputs.flavour }}-${{ hashFiles('build/packages.py') }}
     - name: Download 3rd party packages for Windows VC build
-      if: ${{ inputs.os == 'windows-vc' }}
+      if: ${{ inputs.os == 'windows-vc' && steps.cache-3rdparty.outputs.cache-hit != 'true' }}
       shell: pwsh
       run: python build/thirdparty_download.py windows
     - name: Make
