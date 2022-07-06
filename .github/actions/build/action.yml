@@ -59,7 +59,7 @@ runs:
       shell: bash
       run: |
         CXX_PART=""
-        BUILD_TARGET="staticbindist" 
+        BUILD_TARGET="staticbindist"
         if [ "${{ inputs.flavour }}" = "unittest" ]; then
           BUILD_TARGET=""
         fi
@@ -109,7 +109,7 @@ runs:
         echo "::set-output name=target_file::openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-bin"
         echo "::set-output name=single_file::$HAS_SINGLE_FILE_OUTPUT"
     - name: Run unittests
-      if: ${{ inputs.flavour == 'unittest' ]]
+      if: ${{ inputs.flavour == 'unittest' }}
       shell: bash
       derived/${{ inputs.cpu }}-${{ inputs.os }}-${{ inputs.flavour }}/bin/openmsx
     - name: Rename output folder for upload
