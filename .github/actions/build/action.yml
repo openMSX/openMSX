@@ -19,6 +19,10 @@ runs:
       if: ${{ inputs.os == 'linux' }}
       shell: bash
       run: sudo apt-get install libgl-dev libglu1-mesa-dev libasound2-dev
+    - name: Install extra Linux prerequisites for dynamic build with unittesting
+      if: ${{ inputs.os == 'linux' && inputs.flavour == 'unittest'}}
+      shell: bash
+      run: sudo apt-get install libsdl2-dev libpng-dev tcl-dev libglew-dev libsdl2-ttf-dev libvorbis-dev libtheora-dev libogg-dev libao-dev libfreetype6-dev
     - name: Install Windows prerequisites
       if: ${{ contains(inputs.os, 'mingw') }}
       shell: bash
@@ -55,6 +59,10 @@ runs:
       shell: bash
       run: |
         CXX_PART=""
+        BUILD_TARGET="staticbindist" 
+        if [ "${{ inputs.flavour }}" = "unittest" ]; then
+          BUILD_TARGET=""
+        fi
         if [ "${{ inputs.os }}" = "linux" ]; then
           CXX_PART=" CXX=g++-10"
         fi
@@ -63,7 +71,7 @@ runs:
           OPENMSX_TARGET_OS=${{ inputs.os }} \
           OPENMSX_FLAVOUR=${{ inputs.flavour }} \
           $CXX_PART \
-          staticbindist
+          $BUILD_TARGET
     - name: Determine version and redistributable paths and names (Windows VC build)
       if: ${{ inputs.os == 'windows-vc' }}
       shell: pwsh
@@ -100,38 +108,42 @@ runs:
         echo "::set-output name=single_output_file::$SINGLE_OUTPUT_FILE"
         echo "::set-output name=target_file::openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-bin"
         echo "::set-output name=single_file::$HAS_SINGLE_FILE_OUTPUT"
+    - name: Run unittests
+      if: ${{ inputs.flavour == 'unittest' ]]
+      shell: bash
+      derived/${{ inputs.cpu }}-${{ inputs.os }}-${{ inputs.flavour }}/bin/openmsx
     - name: Rename output folder for upload
-      if: ${{ inputs.os != 'windows-vc' && steps.openmsx.outputs.single_file == 'false'}}
+      if: ${{ inputs.os != 'windows-vc' && steps.openmsx.outputs.single_file == 'false' && inputs.flavour != 'unittest' }}
       shell: bash
       run: |
         cd ${{ steps.openmsx.outputs.derived_path }}/bindist
         mv install ../${{ steps.openmsx.outputs.target_file }}
     - name: Upload redistributable zip
-      if: ${{ inputs.os != 'windows-vc' && steps.openmsx.outputs.single_file == 'false' }}
+      if: ${{ inputs.os != 'windows-vc' && steps.openmsx.outputs.single_file == 'false' && inputs.flavour != 'unittest' }}
       uses: actions/upload-artifact@v1
       with:
         name: ${{ steps.openmsx.outputs.target_file }}.zip
         path: ${{ steps.openmsx.outputs.derived_path }}/${{ steps.openmsx.outputs.target_file }}
     - name: Upload single redistributable ${{ steps.openmsx.outputs.single_output_file}}
-      if: ${{ inputs.os != 'windows-vc' && steps.openmsx.outputs.single_file == 'true' }}
+      if: ${{ inputs.os != 'windows-vc' && steps.openmsx.outputs.single_file == 'true' && inputs.flavour != 'unittest' }}
       uses: actions/upload-artifact@v1
       with:
         name: ${{ steps.openmsx.outputs.single_output_file }}
         path: ${{ steps.openmsx.outputs.derived_path }}/${{ steps.openmsx.outputs.single_output_file }}
     - name: Upload probe logging zip
-      if: ${{ inputs.os != 'windows-vc' }}
+      if: ${{ inputs.os != 'windows-vc' && inputs.flavour != 'unittest' }}
       uses: actions/upload-artifact@v1
       with:
         name: ${{ steps.openmsx.outputs.target_file }}-proberesults.zip
         path: ${{ steps.openmsx.outputs.derived_path }}/config
     - name: Upload Windows VC redistributable
-      if: ${{ inputs.os == 'windows-vc' }}
+      if: ${{ inputs.os == 'windows-vc' && inputs.flavour != 'unittest' }}
       uses: actions/upload-artifact@v3
       with:
         name: ${{ steps.openmsxvc.outputs.target_file }}.zip
         path: derived\x64-VC-Release\package-windows\*-bin.zip
     - name: Upload Windows VC debug symbols
-      if: ${{ inputs.os == 'windows-vc' }}
+      if: ${{ inputs.os == 'windows-vc' && inputs.flavour != 'unittest' }}
       uses: actions/upload-artifact@v3
       with:
         name: ${{ steps.openmsxvc.outputs.target_file_pdb }}.zip
