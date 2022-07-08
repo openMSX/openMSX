@@ -130,7 +130,14 @@ public:
 	constexpr vecN& operator*=(const vecN& x) { *this = *this * x; return *this; }
 	constexpr vecN& operator*=(T           x) { *this = *this * x; return *this; }
 
-	[[nodiscard]] constexpr bool operator==(const vecN&) const = default;
+	// gcc-10 mis-compiles this (fixed in gcc-11):
+	//    [[nodiscard]] constexpr bool operator==(const vecN&) const = default;
+	// For now still manually implement it.
+	[[nodiscard]] friend constexpr bool operator==(const vecN& x, const vecN& y)
+	{
+		for (auto i : xrange(N)) if (x[i] != y[i]) return false;
+		return true;
+	}
 
 private:
 	T e[N];
