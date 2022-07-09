@@ -103,7 +103,14 @@ public:
 	constexpr matMxN& operator*=(T             x) { *this = *this * x; return *this; }
 	constexpr matMxN& operator*=(const matMxN<N, N, T>& x) { *this = *this * x; return *this; }
 
-	[[nodiscard]] constexpr bool operator==(const matMxN&) const = default;
+	// gcc-10 mis-compiles this (fixed in gcc-11):
+	//    [[nodiscard]] constexpr bool operator==(const matMxN&) const = default;
+	// For now still manually implement it.
+	[[nodiscard]] friend constexpr bool operator==(const matMxN& x, const matMxN& y)
+	{
+		for (auto i : xrange(N)) if (x[i] != y[i]) return false;
+		return true;
+	}
 
 private:
 	vecN<M, T> c[N];
