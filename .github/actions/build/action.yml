@@ -54,6 +54,8 @@ runs:
       if: ${{ inputs.os == 'windows-vc' && steps.cache-3rdparty.outputs.cache-hit != 'true' }}
       shell: pwsh
       run: python build/thirdparty_download.py windows
+    - uses: kenchan0130/actions-system-info@master
+      id: system-info
     - name: Make
       if: ${{ inputs.os != 'windows-vc' }}
       shell: bash
@@ -67,6 +69,7 @@ runs:
           CXX_PART=" CXX=g++-10"
         fi
         make \
+          -j ${{ steps.system-info.outputs.cpu-core }}
           OPENMSX_TARGET_CPU=${{ inputs.cpu }} \
           OPENMSX_TARGET_OS=${{ inputs.os }} \
           OPENMSX_FLAVOUR=${{ inputs.flavour }} \
