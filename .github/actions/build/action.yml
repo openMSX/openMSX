@@ -54,7 +54,7 @@ runs:
       if: ${{ inputs.os == 'windows-vc' && steps.cache-3rdparty.outputs.cache-hit != 'true' }}
       shell: pwsh
       run: python build/thirdparty_download.py windows
-    - uses: kenchan0130/actions-system-info@master
+    - uses: kenchan0130/actions-system-info@v1.0.0
       id: system-info
     - name: Make
       if: ${{ inputs.os != 'windows-vc' }}
