@@ -69,7 +69,7 @@ runs:
           CXX_PART=" CXX=g++-10"
         fi
         make \
-          -j ${{ steps.system-info.outputs.cpu-core }}
+          -j ${{ steps.system-info.outputs.cpu-core }} \
           OPENMSX_TARGET_CPU=${{ inputs.cpu }} \
           OPENMSX_TARGET_OS=${{ inputs.os }} \
           OPENMSX_FLAVOUR=${{ inputs.flavour }} \
