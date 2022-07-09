@@ -20,7 +20,7 @@ jobs:
             name: Unit Tests (on Linux)
             cpu: x86_64
             os: linux
-            flavour: unittest        
+            flavour: unittest
           - image: ubuntu-latest
             name: Linux
             cpu: x86_64
@@ -30,22 +30,22 @@ jobs:
             name: Linux
             cpu: aarch64
             os: linux
-            flavour: opt            
+            flavour: opt
           - image: ubuntu-22.04
             name: Windows
             cpu: x86_64
             os: mingw-w64
-            flavour: opt            
+            flavour: opt
           - image: macos-12
             name: MacOS
             cpu: x86_64
             os: darwin
-            flavour: opt            
+            flavour: opt
           - image: macos-12
             name: MacOS
             cpu: aarch64
             os: darwin
-            flavour: opt            
+            flavour: opt
 #          - image: ubuntu-latest
 #            name: Android
 #            cpu: arm
@@ -55,7 +55,7 @@ jobs:
             name: Windows-VC
             cpu: x64
             os: windows-vc
-            flavour: opt            
+            flavour: opt
     steps:
     - name: Get current code from Git repo
       uses: actions/checkout@v2
@@ -67,4 +67,4 @@ jobs:
       with:
         os: ${{ matrix.os }}
         cpu: ${{ matrix.cpu }}
-        flavour: ${{ matrix.flavour }}   
+        flavour: ${{ matrix.flavour }}
