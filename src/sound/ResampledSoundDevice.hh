@@ -3,6 +3,7 @@
 
 #include "SoundDevice.hh"
 #include "DynamicClock.hh"
+#include "EnumSetting.hh"
 #include "Observer.hh"
 #include <memory>
 
@@ -11,7 +12,6 @@ namespace openmsx {
 class MSXMotherBoard;
 class ResampleAlgo;
 class Setting;
-template<typename T> class EnumSetting;
 
 class ResampledSoundDevice : public SoundDevice, protected Observer<Setting>
 {
@@ -33,7 +33,7 @@ protected:
 	~ResampledSoundDevice();
 
 	// SoundDevice
-	void setOutputRate(unsigned sampleRate) override;
+	void setOutputRate(unsigned hostSampleRate, double speed) override;
 	bool updateBuffer(unsigned length, float* buffer,
 	                  EmuTime::param time) override;
 

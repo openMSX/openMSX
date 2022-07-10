@@ -4,6 +4,7 @@
 #include "PixelFormat.hh"
 #include "xrange.hh"
 #include <cassert>
+#include <concepts>
 #include <cstdint>
 #ifdef __SSE2__
 #include <emmintrin.h>
@@ -281,7 +282,7 @@ struct Coefs {
 	return coefs;
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 [[nodiscard]] static inline Pixel calc(
 	const PixelFormat& format, int y, int ruv, int guv, int buv)
 {
@@ -295,7 +296,7 @@ template<typename Pixel>
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 static void convertHelper(const th_ycbcr_buffer& buffer, RawFrame& output,
                           const PixelFormat& format)
 {

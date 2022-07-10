@@ -44,7 +44,7 @@ std::vector<IPSPatch::Chunk> IPSPatch::parseChunks() const
 		}
 		auto e = ranges::upper_bound(result, offset + v.size(), {}, &Chunk::startAddress);
 		if (b != e) {
-			// remove operlapping regions, merge adjacent regions
+			// remove overlapping regions, merge adjacent regions
 			--e;
 			auto start = std::min(b->startAddress, offset);
 			auto stop  = std::max(offset + length, e->stopAddress());

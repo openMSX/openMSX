@@ -302,10 +302,6 @@ public:
 		}
 		return it == rhs.it;
 	}
-	[[nodiscard]] bool operator!=(const iterator& rhs) const
-	{
-		return !(operator==(rhs));
-	}
 	iterator& operator++()
 	{
 		next(it, range_end);

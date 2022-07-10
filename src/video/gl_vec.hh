@@ -130,6 +130,15 @@ public:
 	constexpr vecN& operator*=(const vecN& x) { *this = *this * x; return *this; }
 	constexpr vecN& operator*=(T           x) { *this = *this * x; return *this; }
 
+	// gcc-10 mis-compiles this (fixed in gcc-11):
+	//    [[nodiscard]] constexpr bool operator==(const vecN&) const = default;
+	// For now still manually implement it.
+	[[nodiscard]] friend constexpr bool operator==(const vecN& x, const vecN& y)
+	{
+		for (auto i : xrange(N)) if (x[i] != y[i]) return false;
+		return true;
+	}
+
 private:
 	T e[N];
 };
@@ -159,28 +168,15 @@ using ivec4 = vecN<4, int>;
 // convert radians <-> degrees
 template<typename T> [[nodiscard]] constexpr T radians(T d)
 {
-	return d * T(M_PI / 180.0);
+	return d * T(Math::pi / 180.0);
 }
 template<typename T> [[nodiscard]] constexpr T degrees(T r)
 {
-	return r * T(180.0 / M_PI);
+	return r * T(180.0 / Math::pi);
 }
 
 
 // -- Vector functions --
-
-// vector equality / inequality
-template<int N, typename T>
-[[nodiscard]] constexpr bool operator==(const vecN<N, T>& x, const vecN<N, T>& y)
-{
-	for (auto i : xrange(N)) if (x[i] != y[i]) return false;
-	return true;
-}
-template<int N, typename T>
-[[nodiscard]] constexpr bool operator!=(const vecN<N, T>& x, const vecN<N, T>& y)
-{
-	return !(x == y);
-}
 
 // vector negation
 template<int N, typename T>

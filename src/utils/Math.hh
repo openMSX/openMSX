@@ -1,63 +1,24 @@
 #ifndef MATH_HH
 #define MATH_HH
 
-#include "likely.hh"
+#include <bit>
 #include <cassert>
 #include <cmath>
+#include <concepts>
 #include <cstdint>
+#include <numbers>
 
 #ifdef _MSC_VER
 #include <intrin.h>
 #pragma intrinsic(_BitScanForward)
 #endif
 
-// These constants are very common extensions, but not guaranteed to be defined
-// by <cmath> when compiling in a strict standards compliant mode. Also e.g.
-// visual studio does not provide them.
-#ifndef M_E
-#define M_E    2.7182818284590452354
-#endif
-#ifndef M_LN2
-#define M_LN2  0.69314718055994530942 // log_e 2
-#endif
-#ifndef M_LN10
-#define M_LN10 2.30258509299404568402 // log_e 10
-#endif
-#ifndef M_PI
-#define M_PI   3.14159265358979323846
-#endif
-
 namespace Math {
 
-/** Returns the number of bits needed to store the value 'x', that is:
-  *   for x==0 : 0
-  *   for x!=0 : 1 + floor(log2(x))
-  * This will be part of c++20:
-  *   https://en.cppreference.com/w/cpp/numeric/log2p1
-  */
-template<typename T>
-[[nodiscard]] constexpr T log2p1(T x) noexcept
-{
-	T result = 0;
-	while (x) {
-		++result;
-		x >>= 1;
-	}
-	return result;
-}
-
-/** Is the given number an integral power of two?
-  * That is, does it have exactly one 1-bit in binary representation.
-  * (So zero is not a power of two).
-  *
-  * This will be part of c++20:
-  *   https://en.cppreference.com/w/cpp/numeric/ispow2
-  */
-template<typename T>
-[[nodiscard]] constexpr bool ispow2(T x) noexcept
-{
-	return x && ((x & (x - 1)) == 0);
-}
+constexpr inline double e    = std::numbers::e_v   <double>;
+constexpr inline double ln2  = std::numbers::ln2_v <double>;
+constexpr inline double ln10 = std::numbers::ln10_v<double>;
+constexpr inline double pi   = std::numbers::pi_v  <double>;
 
 /** Returns the smallest number of the form 2^n-1 that is greater or equal
   * to the given number.
@@ -65,8 +26,7 @@ template<typename T>
   * but starting from the first 1-bit in the input all bits more to the right
   * are also 1.
   */
-template<typename T>
-[[nodiscard]] constexpr T floodRight(T x) noexcept
+[[nodiscard]] constexpr auto floodRight(std::unsigned_integral auto x) noexcept
 {
 	x |= x >> 1;
 	x |= x >> 2;
@@ -77,30 +37,17 @@ template<typename T>
 	return x;                              // code.
 }
 
-/** Returns the smallest number that is both >=a and a power of two.
-  * This will be part of c++20:
-  *   https://en.cppreference.com/w/cpp/numeric/ceil2
-  */
-template<typename T>
-[[nodiscard]] constexpr T ceil2(T x) noexcept
-{
-	// classical implementation:
-	//   unsigned res = 1;
-	//   while (x > res) res <<= 1;
-	//   return res;
-
-	// optimized version
-	x += (x == 0); // can be removed if argument is never zero
-	return floodRight(x - 1) + 1;
-}
-
 /** Clip x to range [-32768,32767]. Special case of the version above.
   * Optimized for the case when no clipping is needed.
   */
 [[nodiscard]] inline int16_t clipIntToShort(int x)
 {
 	static_assert((-1 >> 1) == -1, "right-shift must preserve sign");
-	return likely(int16_t(x) == x) ? x : (0x7FFF - (x >> 31));
+	if (int16_t(x) == x) [[likely]] {
+		return x;
+	} else {
+		return 0x7FFF - (x >> 31);
+	}
 }
 
 /** Clip x to range [0,255].
@@ -109,7 +56,11 @@ template<typename T>
 [[nodiscard]] inline uint8_t clipIntToByte(int x)
 {
 	static_assert((-1 >> 1) == -1, "right-shift must preserve sign");
-	return likely(uint8_t(x) == x) ? x : ~(x >> 31);
+	if (uint8_t(x) == x) [[likely]] {
+		return x;
+	} else {
+		return ~(x >> 31);
+	}
 }
 
 /** Reverse the lower N bits of a given value.
@@ -186,68 +137,13 @@ template<typename T>
 #endif
 }
 
-/** Count the number of leading zero-bits in the given word.
-  * The result is undefined when the input is zero (all bits are zero).
-  * TODO in the future (c++20) replace with std::countl_zero()
-  */
-[[nodiscard]] constexpr unsigned countLeadingZeros(uint32_t x)
-{
-#ifdef __GNUC__
-	// actually this only exists starting from gcc-3.4.x
-	return __builtin_clz(x); // undefined when x==0
-#else
-	// gives incorrect result for x==0, but that doesn't matter here
-	unsigned lz = 0;
-	if (x <= 0x0000ffff) { lz += 16; x <<= 16; }
-	if (x <= 0x00ffffff) { lz +=  8; x <<=  8; }
-	if (x <= 0x0fffffff) { lz +=  4; x <<=  4; }
-	lz += (0x55ac >> ((x >> 27) & 0x1e)) & 0x3;
-	return lz;
-#endif
-}
-
-/** Count the number of trailing zero-bits in the given word.
-  * In other words: return the position of the least significant 1-bit.
-  * The result is undefined when no bits are set.
-  * TODO in the future (c++20) replace with std::countr_zero()
-  */
-[[nodiscard]] constexpr int countTrailingZeros(uint64_t x)
-{
-#ifdef __GNUC__
-	return __builtin_ctzll(x); // undefined when x==0
-#else
-	int r = 0;
-	if ((x & 0xffffffff) == 0) { r += 32; x >>= 32; }
-	if ((x & 0x0000ffff) == 0) { r += 16; x >>= 16; }
-	if ((x & 0x000000ff) == 0) { r +=  8; x >>=  8; }
-	if ((x & 0x0000000f) == 0) { r +=  4; x >>=  4; }
-	if ((x & 0x00000003) == 0) { r +=  2; x >>=  2; }
-	if ((x & 0x00000001) == 0) { r +=  1; }
-	return r;
-#endif
-}
-
 /** Find the least significant bit that is set.
   * @return 0 if the input is zero (no bits are set),
   *   otherwise the index of the first set bit + 1.
   */
 [[nodiscard]] inline /*constexpr*/ unsigned findFirstSet(uint32_t x)
 {
-#if defined(__GNUC__)
-	return __builtin_ffs(x);
-#elif defined(_MSC_VER)
-	unsigned long index;
-	return _BitScanForward(&index, x) ? index + 1 : 0;
-#else
-	if (x == 0) return 0;
-	int pos = 0;
-	if ((x & 0xffff) == 0) { pos += 16; x >>= 16; }
-	if ((x & 0x00ff) == 0) { pos +=  8; x >>=  8; }
-	if ((x & 0x000f) == 0) { pos +=  4; x >>=  4; }
-	if ((x & 0x0003) == 0) { pos +=  2; x >>=  2; }
-	if ((x & 0x0001) == 0) { pos +=  1; }
-	return pos + 1;
-#endif
+	return x ? std::countr_zero(x) + 1 : 0;
 }
 
 // Cubic Hermite Interpolation:

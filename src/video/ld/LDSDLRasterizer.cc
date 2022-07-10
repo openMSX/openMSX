@@ -10,7 +10,7 @@
 
 namespace openmsx {
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 LDSDLRasterizer<Pixel>::LDSDLRasterizer(
 		OutputSurface& screen,
 		std::unique_ptr<PostProcessor> postProcessor_)
@@ -19,22 +19,22 @@ LDSDLRasterizer<Pixel>::LDSDLRasterizer(
 {
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 LDSDLRasterizer<Pixel>::~LDSDLRasterizer() = default;
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 PostProcessor* LDSDLRasterizer<Pixel>::getPostProcessor() const
 {
 	return postProcessor.get();
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void LDSDLRasterizer<Pixel>::frameStart(EmuTime::param time)
 {
 	workFrame = postProcessor->rotateFrames(std::move(workFrame), time);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void LDSDLRasterizer<Pixel>::drawBlank(int r, int g, int b)
 {
 	// We should really be presenting the "LASERVISION" text
@@ -46,7 +46,7 @@ void LDSDLRasterizer<Pixel>::drawBlank(int r, int g, int b)
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 RawFrame* LDSDLRasterizer<Pixel>::getRawFrame()
 {
 	return workFrame.get();

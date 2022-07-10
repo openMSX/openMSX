@@ -6,7 +6,6 @@
 #include "MSXCPUInterface.hh"
 #include "CacheLine.hh"
 #include "TclObject.hh"
-#include "Math.hh"
 #include "MSXException.hh"
 #include "one_of.hh"
 #include "ranges.hh"
@@ -14,6 +13,7 @@
 #include "stl.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+#include <bit>
 #include <cassert>
 #include <cstring>
 
@@ -73,7 +73,7 @@ MSXMotherBoard& MSXDevice::getMotherBoard() const
 	return getHardwareConfig().getMotherBoard();
 }
 
-void MSXDevice::testRemove(span<const std::unique_ptr<MSXDevice>> removed) const
+void MSXDevice::testRemove(std::span<const std::unique_ptr<MSXDevice>> removed) const
 {
 	// Typically 'referencedBy' contains very few elements, so a simple
 	// O(n*m) algorithm is fine.
@@ -164,7 +164,7 @@ void MSXDevice::registerSlots()
 {
 	MemRegions tmpMemRegions;
 	unsigned align = getBaseSizeAlignment();
-	assert(Math::ispow2(align));
+	assert(std::has_single_bit(align));
 	for (const auto* m : getDeviceConfig().getChildren("mem")) {
 		unsigned base = m->getAttributeValueAsInt("base", 0);
 		unsigned size = m->getAttributeValueAsInt("size", 0);

@@ -6,7 +6,7 @@ namespace openmsx {
 
 // class CLIOption
 
-std::string CLIOption::getArgument(const std::string& option, span<std::string>& cmdLine)
+std::string CLIOption::getArgument(const std::string& option, std::span<std::string>& cmdLine)
 {
 	if (cmdLine.empty()) {
 		throw FatalError("Missing argument for option \"", option, '\"');
@@ -16,7 +16,7 @@ std::string CLIOption::getArgument(const std::string& option, span<std::string>&
 	return argument;
 }
 
-std::string CLIOption::peekArgument(const span<std::string>& cmdLine)
+std::string CLIOption::peekArgument(const std::span<std::string>& cmdLine)
 {
 	return cmdLine.empty() ? std::string{} : cmdLine.front();
 }

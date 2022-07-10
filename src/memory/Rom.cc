@@ -17,7 +17,6 @@
 #include "ConfigException.hh"
 #include "EmptyPatch.hh"
 #include "IPSPatch.hh"
-#include "StringOp.hh"
 #include "ranges.hh"
 #include "sha1.hh"
 #include "stl.hh"
@@ -258,7 +257,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 	// TODO fix this, this is a hack that depends heavily on
 	//      HardwareConfig::createRomConfig
-	if (StringOp::startsWith(name, "MSXRom")) {
+	if (name.starts_with("MSXRom")) {
 		auto& db = motherBoard.getReactor().getSoftwareDatabase();
 		std::string_view title;
 		if (const auto* romInfo = db.fetchRomInfo(getOriginalSHA1())) {

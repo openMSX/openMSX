@@ -1,8 +1,8 @@
 #ifndef DIVMODBYCONST_HH
 #define DIVMODBYCONST_HH
 
-#include "Math.hh"
 #include "uint128.hh"
+#include <bit>
 #include <cstdint>
 #include <type_traits>
 
@@ -88,7 +88,7 @@ template<uint32_t DIVISOR>
 			return dividend >> shift;
 		};
 	} else {
-		constexpr uint32_t L = Math::log2p1(r0.divisor);
+		constexpr uint32_t L = std::bit_width(r0.divisor);
 		constexpr uint64_t J = 0xffffffffffffffffull % r0.divisor;
 		constexpr uint128 L64 = uint128(1) << (L + 64);
 		constexpr uint128 k = L64 / (0xffffffffffffffffull - J);
@@ -107,7 +107,7 @@ template<uint32_t DIVISOR>
 			};
 		} else {
 			// algorithm 3: division possible by multiplication, addition and shift
-			constexpr uint32_t S = Math::log2p1(r0.divisor) - 1;
+			constexpr uint32_t S = std::bit_width(r0.divisor) - 1;
 			constexpr uint128 S64 = uint128(1) << (S + 64);
 			constexpr uint128 dq = S64 / r0.divisor;
 			constexpr uint128 dr = S64 % r0.divisor;

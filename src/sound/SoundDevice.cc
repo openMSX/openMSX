@@ -8,7 +8,6 @@
 #include "MemBuffer.hh"
 #include "MSXException.hh"
 #include "aligned.hh"
-#include "likely.hh"
 #include "ranges.hh"
 #include "one_of.hh"
 #include "vla.hh"
@@ -23,7 +22,7 @@ static unsigned mixBufferSize = 0;
 
 static void allocateMixBuffer(unsigned size)
 {
-	if (unlikely(mixBufferSize < size)) {
+	if (mixBufferSize < size) [[unlikely]] {
 		mixBufferSize = size;
 		mixBuffer.resize(mixBufferSize);
 	}
@@ -196,17 +195,6 @@ bool SoundDevice::mixChannels(float* dataOut, unsigned samples)
 	if (samples == 0) return true;
 	unsigned outputStereo = isStereo() ? 2 : 1;
 
-	static_assert(sizeof(float) == sizeof(uint32_t));
-	MemoryOps::MemSet<uint32_t> mSet;
-	if (numChannels != 1) {
-		// The generateChannels() method of SoundDevices with more than
-		// one channel will _add_ the generated channel data in the
-		// provided buffers. Those with only one channel will directly
-		// replace the content of the buffer. For the former we must
-		// start from a buffer containing all zeros.
-		mSet(reinterpret_cast<uint32_t*>(dataOut), outputStereo * samples, 0);
-	}
-
 	float* bufs[MAX_CHANNELS];
 	unsigned separateChannels = 0;
 	unsigned pitch = (samples * stereo + 3) & ~3; // align for SSE access
@@ -223,6 +211,18 @@ bool SoundDevice::mixChannels(float* dataOut, unsigned samples)
 			++separateChannels;
 		}
 	}
+
+	static_assert(sizeof(float) == sizeof(uint32_t));
+	MemoryOps::MemSet<uint32_t> mSet;
+	if ((numChannels != 1) || separateChannels) {
+		// The generateChannels() method of SoundDevices with more than
+		// one channel will _add_ the generated channel data in the
+		// provided buffers. Those with only one channel will directly
+		// replace the content of the buffer. For the former we must
+		// start from a buffer containing all zeros.
+		mSet(reinterpret_cast<uint32_t*>(dataOut), outputStereo * samples, 0);
+	}
+
 	if (separateChannels) {
 		allocateMixBuffer(pitch * separateChannels);
 		mSet(reinterpret_cast<uint32_t*>(mixBuffer.data()),

@@ -29,10 +29,9 @@ struct Identity {
 
 struct PoolIndex {
 	unsigned idx;
+	[[nodiscard]] constexpr bool operator==(const PoolIndex&) const = default;
 };
 static constexpr PoolIndex invalidIndex{unsigned(-1)};
-constexpr bool operator==(PoolIndex i, PoolIndex j) { return i.idx == j.idx; }
-constexpr bool operator!=(PoolIndex i, PoolIndex j) { return i.idx != j.idx; }
 
 // Holds the data that will be stored in the hash_set plus some extra
 // administrative data.
@@ -243,12 +242,8 @@ private:
 
 // Type-alias for the resulting type of applying Extractor on Value.
 template<typename Value, typename Extractor>
-using ExtractedType =
-	typename std::remove_cv<
-		typename std::remove_reference<
-			decltype(std::declval<Extractor>()(std::declval<Value>()))>
-		::type>
-	::type;
+using ExtractedType = typename std::remove_cvref_t<
+	decltype(std::declval<Extractor>()(std::declval<Value>()))>;
 
 } // namespace hash_set_impl
 
@@ -305,9 +300,6 @@ public:
 		[[nodiscard]] bool operator==(const Iter& rhs) const {
 			assert((hashSet == rhs.hashSet) || !hashSet || !rhs.hashSet);
 			return elemIdx == rhs.elemIdx;
-		}
-		[[nodiscard]] bool operator!=(const Iter& rhs) const {
-			return !(*this == rhs);
 		}
 
 		Iter& operator++() {
@@ -796,9 +788,9 @@ protected:
 	hash_set_impl::Pool<Value> pool;
 	unsigned allocMask = unsigned(-1);
 	unsigned elemCount = 0;
-	Extractor extract;
-	Hasher hasher;
-	Equal equal;
+	[[no_unique_address]] Extractor extract;
+	[[no_unique_address]] Hasher hasher;
+	[[no_unique_address]] Equal equal;
 };
 
 #endif

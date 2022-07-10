@@ -11,28 +11,32 @@
   </info>
   <devices>
     <primary slot="any">
-      <Carnivore2 id="Carnivore2">
-        <mem base="0x0000" size="0x10000"/>
-        <io base="0x3C" num="1" type="O"/>
-        <io base="0x7C" num="2" type="O"/>
-        <rom>
-          <sha1>1b315d4168ee3a6452589aaa50463193e438760a</sha1>
-        </rom>
-        <sramname>carnivore2.flash</sramname>
-        <eeprom>
-          <sramname>carnivore2.eeprom</sramname>
-        </eeprom>
-        <sound>
-          <volume>21000</volume>
-        </sound>
-        <ym2413-core>NukeYKT</ym2413-core>
-        <master>
-          <type>IDEHD</type>
-          <filename>hd.dsk</filename>
-          <size>100</size>
-        </master>
-        <!--<slave></slave>-->
-      </Carnivore2>
+      <secondary slot="any">
+        <Carnivore2 id="Carnivore2">
+          <mem base="0x0000" size="0x10000"/>
+          <io base="0x3C" num="1" type="O"/>
+          <io base="0x7C" num="2" type="O"/>
+          <rom>
+            <sha1>28b617abe15bfa07c0e33ef7382c62eca862830f</sha1> <!-- 2.52 -->
+            <sha1>3e46f003b5eeb514a40b1c02884f2b653e34b937</sha1> <!-- 2.50 -->
+            <sha1>1b315d4168ee3a6452589aaa50463193e438760a</sha1> <!-- 2.40 -->
+          </rom>
+          <sramname>carnivore2.flash</sramname>
+          <eeprom>
+            <sramname>carnivore2.eeprom</sramname>
+          </eeprom>
+          <sound>
+            <volume>21000</volume>
+          </sound>
+          <ym2413-core>NukeYKT</ym2413-core>
+          <master>
+            <type>IDEHD</type>
+            <filename>hd.dsk</filename>
+            <size>100</size>
+          </master>
+          <!--<slave></slave>-->
+        </Carnivore2>
+      </secondary>
     </primary>
   </devices>
 </msxconfig>

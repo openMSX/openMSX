@@ -72,9 +72,6 @@ public:
 	[[nodiscard]] bool operator==(const Filename& other) const {
 		return resolvedFilename == other.resolvedFilename;
 	}
-	[[nodiscard]] bool operator!=(const Filename& other) const {
-		return !(*this == other);
-	}
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

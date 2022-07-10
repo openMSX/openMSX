@@ -16,6 +16,10 @@
 
   <devices>
 
+    <S1985 id="S1985"> <!-- includes 5 bits mapper-read-back -->
+      <sramname>hb-f1_s1985.sram</sramname>
+    </S1985>
+
     <PPI id="ppi">
       <sound>
         <volume>16000</volume>
@@ -110,6 +114,7 @@
 
       <secondary slot="3">
         <RAM id="Main RAM">
+          <initialContent encoding="gz-base64">eJxjYBhY8H+AAQAioH+B</initialContent> <!-- ((chr(0) * 128) + (chr(255) * 128)), as found in the machine of Peter Hanraets with serial 216973. -->
           <mem base="0x0000" size="0x10000"/>
         </RAM>
       </secondary>

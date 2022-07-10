@@ -411,7 +411,7 @@ Display::ScreenShotCmd::ScreenShotCmd(CommandController& commandController_)
 {
 }
 
-void Display::ScreenShotCmd::execute(span<const TclObject> tokens, TclObject& result)
+void Display::ScreenShotCmd::execute(std::span<const TclObject> tokens, TclObject& result)
 {
 	std::string_view prefix = "openmsx";
 	bool rawShot = false;
@@ -486,7 +486,7 @@ void Display::ScreenShotCmd::execute(span<const TclObject> tokens, TclObject& re
 	result = filename;
 }
 
-string Display::ScreenShotCmd::help(span<const TclObject> /*tokens*/) const
+string Display::ScreenShotCmd::help(std::span<const TclObject> /*tokens*/) const
 {
 	// Note: -no-sprites option is implemented in Tcl
 	return "screenshot                   Write screenshot to file \"openmsxNNNN.png\"\n"
@@ -515,14 +515,14 @@ Display::FpsInfoTopic::FpsInfoTopic(InfoCommand& openMSXInfoCommand)
 {
 }
 
-void Display::FpsInfoTopic::execute(span<const TclObject> /*tokens*/,
+void Display::FpsInfoTopic::execute(std::span<const TclObject> /*tokens*/,
                                     TclObject& result) const
 {
 	auto& display = OUTER(Display, fpsInfo);
 	result = 1000000.0f * Display::NUM_FRAME_DURATIONS / display.frameDurationSum;
 }
 
-string Display::FpsInfoTopic::help(span<const TclObject> /*tokens*/) const
+string Display::FpsInfoTopic::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Returns the current rendering speed in frames per second.";
 }

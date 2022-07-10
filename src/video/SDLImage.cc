@@ -232,7 +232,7 @@ SDLImage::SDLImage(OutputSurface& output, ivec2 size_, unsigned rgba)
 }
 
 
-SDLImage::SDLImage(OutputSurface& output, ivec2 size_, span<const unsigned, 4> rgba,
+SDLImage::SDLImage(OutputSurface& output, ivec2 size_, std::span<const unsigned, 4> rgba,
                    unsigned borderSize, unsigned borderRGBA)
 	: flipX(size_[0] < 0), flipY(size_[1] < 0)
 {
@@ -335,7 +335,7 @@ void SDLImage::initSolid(OutputSurface& output, ivec2 size_, unsigned rgba,
 	texture = toTexture(output, *tmp32);
 }
 
-void SDLImage::initGradient(OutputSurface& output, ivec2 size_, span<const unsigned, 4> rgba_,
+void SDLImage::initGradient(OutputSurface& output, ivec2 size_, std::span<const unsigned, 4> rgba_,
                             unsigned borderSize, unsigned borderRGBA)
 {
 	checkSize(size_);

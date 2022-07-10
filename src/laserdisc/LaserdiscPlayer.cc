@@ -17,7 +17,6 @@
 #include "LDRenderer.hh"
 #include "RendererFactory.hh"
 #include "Math.hh"
-#include "likely.hh"
 #include "one_of.hh"
 #include <cstdint>
 #include <cstdlib>
@@ -40,7 +39,7 @@ LaserdiscPlayer::Command::Command(
 }
 
 void LaserdiscPlayer::Command::execute(
-	span<const TclObject> tokens, TclObject& result, EmuTime::param time)
+	std::span<const TclObject> tokens, TclObject& result, EmuTime::param time)
 {
 	auto& laserdiscPlayer = OUTER(LaserdiscPlayer, laserdiscCommand);
 	if (tokens.size() == 1) {
@@ -65,7 +64,7 @@ void LaserdiscPlayer::Command::execute(
 	}
 }
 
-string LaserdiscPlayer::Command::help(span<const TclObject> tokens) const
+string LaserdiscPlayer::Command::help(std::span<const TclObject> tokens) const
 {
 	if (tokens.size() >= 2) {
 		if (tokens[1] == "insert") {
@@ -682,7 +681,7 @@ void LaserdiscPlayer::generateChannels(float** buffers, unsigned num)
 	unsigned pos = 0;
 	size_t currentSample;
 
-	if (unlikely(!sampleClock.before(start))) {
+	if (!sampleClock.before(start)) [[unlikely]] {
 		// Before playing of sounds begins
 		EmuDuration duration = sampleClock.getTime() - start;
 		unsigned len = duration.getTicksAt(video->getSampleRate());

@@ -21,7 +21,7 @@ TODO:
 
 namespace openmsx {
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 CharacterConverter<Pixel>::CharacterConverter(
 	VDP& vdp_, const Pixel* palFg_, const Pixel* palBg_)
 	: vdp(vdp_), vram(vdp.getVRAM()), palFg(palFg_), palBg(palBg_)
@@ -29,14 +29,14 @@ CharacterConverter<Pixel>::CharacterConverter(
 {
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void CharacterConverter<Pixel>::setDisplayMode(DisplayMode mode)
 {
 	modeBase = mode.getBase();
 	assert(modeBase < 0x0C);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void CharacterConverter<Pixel>::convertLine(Pixel* linePtr, int line)
 {
 	// TODO: Support YJK on modes other than Graphic 6/7.
@@ -90,7 +90,7 @@ static inline __m128i select(__m128i a0, __m128i a1, __m128i mask)
 }
 #endif
 
-template<typename Pixel> static inline void draw6(
+template<std::unsigned_integral Pixel> static inline void draw6(
 	Pixel* __restrict & pixelPtr, Pixel fg, Pixel bg, byte pattern)
 {
 	pixelPtr[0] = (pattern & 0x80) ? fg : bg;
@@ -102,7 +102,7 @@ template<typename Pixel> static inline void draw6(
 	pixelPtr += 6;
 }
 
-template<typename Pixel> static inline void draw8(
+template<std::unsigned_integral Pixel> static inline void draw8(
 	Pixel* __restrict & pixelPtr, Pixel fg, Pixel bg, byte pattern)
 {
 #ifdef __SSE2__
@@ -139,7 +139,7 @@ template<typename Pixel> static inline void draw8(
 	pixelPtr += 8;
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void CharacterConverter<Pixel>::renderText1(
 	Pixel* __restrict pixelPtr, int line)
 {
@@ -162,7 +162,7 @@ void CharacterConverter<Pixel>::renderText1(
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void CharacterConverter<Pixel>::renderText1Q(
 	Pixel* __restrict pixelPtr, int line)
 {
@@ -186,7 +186,7 @@ void CharacterConverter<Pixel>::renderText1Q(
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void CharacterConverter<Pixel>::renderText2(
 	Pixel* __restrict pixelPtr, int line)
 {
@@ -248,7 +248,7 @@ void CharacterConverter<Pixel>::renderText2(
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 const byte* CharacterConverter<Pixel>::getNamePtr(int line, int scroll)
 {
 	// no need to test whether multi-page scrolling is enabled,
@@ -256,7 +256,7 @@ const byte* CharacterConverter<Pixel>::getNamePtr(int line, int scroll)
 	return vram.nameTable.getReadArea(
 		((line / 8) * 32) | ((scroll & 0x20) ? 0x8000 : 0), 32);
 }
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void CharacterConverter<Pixel>::renderGraphic1(
 	Pixel* __restrict pixelPtr, int line)
 {
@@ -277,7 +277,7 @@ void CharacterConverter<Pixel>::renderGraphic1(
 	});
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void CharacterConverter<Pixel>::renderGraphic2(
 	Pixel* __restrict pixelPtr, int line)
 {
@@ -321,7 +321,7 @@ void CharacterConverter<Pixel>::renderGraphic2(
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void CharacterConverter<Pixel>::renderMultiHelper(
 	Pixel* __restrict pixelPtr, int line,
 	int mask, int patternQuarter)
@@ -342,7 +342,7 @@ void CharacterConverter<Pixel>::renderMultiHelper(
 		if (!(++scroll & 0x1F)) namePtr = getNamePtr(line, scroll);
 	});
 }
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void CharacterConverter<Pixel>::renderMulti(
 	Pixel* __restrict pixelPtr, int line)
 {
@@ -350,7 +350,7 @@ void CharacterConverter<Pixel>::renderMulti(
 	renderMultiHelper(pixelPtr, line, mask, 0);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void CharacterConverter<Pixel>::renderMultiQ(
 	Pixel* __restrict pixelPtr, int line)
 {
@@ -359,7 +359,7 @@ void CharacterConverter<Pixel>::renderMultiQ(
 	renderMultiHelper(pixelPtr, line, mask, patternQuarter);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void CharacterConverter<Pixel>::renderBogus(
 	Pixel* __restrict pixelPtr)
 {
@@ -377,7 +377,7 @@ void CharacterConverter<Pixel>::renderBogus(
 	draw(8, bg);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void CharacterConverter<Pixel>::renderBlank(
 	Pixel* __restrict pixelPtr)
 {

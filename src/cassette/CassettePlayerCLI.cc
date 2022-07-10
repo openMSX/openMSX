@@ -14,7 +14,7 @@ CassettePlayerCLI::CassettePlayerCLI(CommandLineParser& parser_)
 }
 
 void CassettePlayerCLI::parseOption(const std::string& option,
-                                    span<std::string>& cmdLine)
+                                    std::span<std::string>& cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine), cmdLine);
 }
@@ -26,7 +26,7 @@ std::string_view CassettePlayerCLI::optionHelp() const
 }
 
 void CassettePlayerCLI::parseFileType(const std::string& filename,
-                                      span<std::string>& /*cmdLine*/)
+                                      std::span<std::string>& /*cmdLine*/)
 {
 	if (!parser.getInterpreter().hasCommand("cassetteplayer")) {
 		throw MSXException("No cassette player present.");

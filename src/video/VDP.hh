@@ -10,6 +10,7 @@
 #include "IRQHelper.hh"
 #include "Clock.hh"
 #include "DisplayMode.hh"
+#include "EnumSetting.hh"
 #include "Observer.hh"
 #include "openmsx.hh"
 #include "outer.hh"
@@ -27,7 +28,6 @@ class SpriteChecker;
 class Display;
 class RawFrame;
 class Setting;
-template<typename> class EnumSetting;
 namespace VDPAccessSlots {
 	enum Delta : int;
 	class Calculator;
@@ -987,9 +987,9 @@ private:
 
 	class Info : public InfoTopic {
 	public:
-		void execute(span<const TclObject> tokens,
+		void execute(std::span<const TclObject> tokens,
 		             TclObject& result) const override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 		[[nodiscard]] virtual int calc(const EmuTime& time) const = 0;
 	protected:
 		Info(VDP& vdp_, const std::string& name, std::string helpText_);

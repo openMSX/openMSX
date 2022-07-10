@@ -51,6 +51,7 @@
         <rom>
           <filename>vg8010_basic-bios1.rom</filename>
           <sha1>42252cf87deeb58181a7bfec7c874190a1351779</sha1> <!--confirmed by Manuel Bilderbeek, confirmed to be the same as VG 8000 by Bas Tilborghs; chip has label: VG8000v1.0 on Manuel's machine -->
+          <initialContent encoding="gz-base64">eJxjYBhY8H+AAQAioH+B</initialContent> <!-- ((chr(0) * 128) + (chr(255) * 128)) - checked on the machine of Peter Hanraets -->
         </rom>
         <mem base="0x0000" size="0x8000"/>
       </ROM>

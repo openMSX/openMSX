@@ -4,7 +4,6 @@
 #include "LineScalers.hh"
 #include "unreachable.hh"
 #include "aligned.hh"
-#include "likely.hh"
 #include "vla.hh"
 #include "build-info.hh"
 #include "components.hh"
@@ -17,7 +16,7 @@ FrameSource::FrameSource(const PixelFormat& format)
 {
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 const Pixel* FrameSource::getLinePtr320_240(unsigned line, Pixel* buf0) const
 {
 	if (getHeight() == 240) {
@@ -34,7 +33,7 @@ const Pixel* FrameSource::getLinePtr320_240(unsigned line, Pixel* buf0) const
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 const Pixel* FrameSource::getLinePtr640_480(unsigned line, Pixel* buf) const
 {
 	if (getHeight() == 480) {
@@ -45,7 +44,7 @@ const Pixel* FrameSource::getLinePtr640_480(unsigned line, Pixel* buf) const
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 const Pixel* FrameSource::getLinePtr960_720(unsigned line, Pixel* buf0) const
 {
 	if (getHeight() == 480) {
@@ -66,7 +65,7 @@ const Pixel* FrameSource::getLinePtr960_720(unsigned line, Pixel* buf0) const
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void FrameSource::scaleLine(
 	const Pixel* in, Pixel* out,
 	unsigned inWidth, unsigned outWidth) const
@@ -74,7 +73,7 @@ void FrameSource::scaleLine(
 	PixelOperations<Pixel> pixelOps(pixelFormat);
 
 	VLA_SSE_ALIGNED(Pixel, tmpBuf, inWidth);
-	if (unlikely(in == out)) {
+	if (in == out) [[unlikely]] {
 		// Only happens in case getLineInfo() already used buf.
 		// E.g. when a line of a SuperImposedFrame also needs to be
 		// scaled.

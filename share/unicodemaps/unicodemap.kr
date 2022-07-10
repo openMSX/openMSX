@@ -9,6 +9,9 @@
 # Example characters in comments are encoded in UTF-8
 #
 # NOTE: looks like this map isn't complete??
+
+MSX-Video-Characterset: MSXVIDKR.TXT
+
 00000, 15, CTRL        # ^@
 00001, 26, CTRL        # ^A
 00002, 27, CTRL        # ^B

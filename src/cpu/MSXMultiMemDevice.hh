@@ -30,7 +30,7 @@ public:
 private:
 	struct Range {
 		Range(unsigned base_, unsigned size_, MSXDevice& device_);
-		bool operator==(const Range& other) const;
+		[[nodiscard]] constexpr bool operator==(const Range&) const = default;
 
 		unsigned base;
 		unsigned size;

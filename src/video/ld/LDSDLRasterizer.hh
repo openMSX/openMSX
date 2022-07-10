@@ -2,6 +2,7 @@
 #define LDSDLRASTERIZER_HH
 
 #include "LDRasterizer.hh"
+#include <concepts>
 #include <memory>
 
 namespace openmsx {
@@ -13,7 +14,7 @@ class PostProcessor;
 /** Rasterizer using a frame buffer approach: it writes pixels to a single
   * rectangular pixel buffer.
   */
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 class LDSDLRasterizer final : public LDRasterizer
 {
 public:

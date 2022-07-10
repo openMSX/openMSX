@@ -491,7 +491,7 @@ InputEventGenerator::EscapeGrabCmd::EscapeGrabCmd(
 }
 
 void InputEventGenerator::EscapeGrabCmd::execute(
-	span<const TclObject> /*tokens*/, TclObject& /*result*/)
+	std::span<const TclObject> /*tokens*/, TclObject& /*result*/)
 {
 	auto& inputEventGenerator = OUTER(InputEventGenerator, escapeGrabCmd);
 	if (inputEventGenerator.grabInput.getBoolean()) {
@@ -502,7 +502,7 @@ void InputEventGenerator::EscapeGrabCmd::execute(
 }
 
 std::string InputEventGenerator::EscapeGrabCmd::help(
-	span<const TclObject> /*tokens*/) const
+	std::span<const TclObject> /*tokens*/) const
 {
 	return "Temporarily release input grab.";
 }

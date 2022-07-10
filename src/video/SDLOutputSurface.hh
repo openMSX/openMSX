@@ -3,6 +3,7 @@
 
 #include "OutputSurface.hh"
 #include <cassert>
+#include <concepts>
 #include <SDL.h>
 
 namespace openmsx {
@@ -13,7 +14,7 @@ public:
 	SDLDirectPixelAccess(SDL_Surface* surface_);
 	~SDLDirectPixelAccess();
 
-	template<typename Pixel>
+	template<std::unsigned_integral Pixel>
 	[[nodiscard]] Pixel* getLinePtr(unsigned y) {
 		return reinterpret_cast<Pixel*>(static_cast<char*>(surface->pixels) + y * surface->pitch);
 	}

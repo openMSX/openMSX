@@ -56,7 +56,6 @@ private:
 				     // invariant: step == calcStep(OCT, FN)
 		uint32_t stepptr;    // fixed-point pointer into the sample
 		uint16_t pos;
-		int16_t sample1, sample2;
 
 		int16_t env_vol;
 
@@ -92,7 +91,8 @@ private:
 
 	void writeRegDirect(byte reg, byte data, EmuTime::param time);
 	[[nodiscard]] unsigned getRamAddress(unsigned addr) const;
-	[[nodiscard]] int16_t getSample(Slot& op) const;
+	[[nodiscard]] int16_t getSample(Slot& slot, uint16_t pos) const;
+	[[nodiscard]] static uint16_t nextPos(Slot& slot, uint16_t pos, uint16_t increment);
 	void advance();
 	[[nodiscard]] bool anyActive();
 	void keyOnHelper(Slot& slot);
@@ -123,7 +123,7 @@ private:
 
 	byte regs[256];
 };
-SERIALIZE_CLASS_VERSION(YMF278::Slot, 5);
+SERIALIZE_CLASS_VERSION(YMF278::Slot, 6);
 SERIALIZE_CLASS_VERSION(YMF278, 4);
 
 } // namespace openmsx

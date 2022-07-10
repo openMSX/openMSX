@@ -64,7 +64,7 @@ void LedStatus::handleEvent(Led led) noexcept
 {
 	std::string_view str = ledValue[led] ? "on": "off";
 	ledStatus[led].setReadOnlyValue(TclObject(str));
-	msxCliComm.update(CliComm::LED, getLedName(led), str);
+	msxCliComm.updateFiltered(CliComm::LED, getLedName(led), str);
 }
 
 void LedStatus::executeRT()

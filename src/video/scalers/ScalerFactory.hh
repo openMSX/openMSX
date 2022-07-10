@@ -1,18 +1,19 @@
 #ifndef SCALERFACTORY_HH
 #define SCALERFACTORY_HH
 
+#include <concepts>
 #include <memory>
 
 namespace openmsx {
 
 class RenderSettings;
-template<typename Pixel> class Scaler;
-template<typename Pixel> class PixelOperations;
+template<std::unsigned_integral Pixel> class Scaler;
+template<std::unsigned_integral Pixel> class PixelOperations;
 
 /** Abstract base class for scalers.
   * A scaler is an algorithm that converts low-res graphics to hi-res graphics.
   */
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 class ScalerFactory
 {
 public:

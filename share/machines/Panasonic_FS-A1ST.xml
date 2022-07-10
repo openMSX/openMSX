@@ -159,6 +159,7 @@
         <PanasonicRAM id="Main RAM">
           <size>256</size>
           <mem base="0x0000" size="0x10000"/>
+          <initialContent encoding="gz-base64">eJxjYPgPBAxAMDLpweCGgaQBkHH/AQ==</initialContent> <!-- 0000FFFFFFFF0000*32 + FFFF00000000FFFF*32, as found in the machine of Peter Hanraets with serial 0LNMD14115 -->
         </PanasonicRAM>
       </secondary>
 

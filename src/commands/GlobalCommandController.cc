@@ -15,7 +15,6 @@
 #include "outer.hh"
 #include "ranges.hh"
 #include "stl.hh"
-#include "StringOp.hh"
 #include "view.hh"
 #include "xrange.hh"
 #include "build-info.hh"
@@ -151,7 +150,7 @@ void GlobalCommandController::unregisterCommand(
 void GlobalCommandController::registerCompleter(
 	CommandCompleter& completer, string_view str)
 {
-	if (StringOp::startsWith(str, "::")) str.remove_prefix(2); // drop leading ::
+	if (str.starts_with("::")) str.remove_prefix(2); // drop leading ::
 	assert(!commandCompleters.contains(str));
 	commandCompleters.emplace_noDuplicateCheck(str, &completer);
 }
@@ -159,7 +158,7 @@ void GlobalCommandController::registerCompleter(
 void GlobalCommandController::unregisterCompleter(
 	CommandCompleter& completer, string_view str)
 {
-	if (StringOp::startsWith(str, "::")) str.remove_prefix(2); // drop leading ::
+	if (str.starts_with("::")) str.remove_prefix(2); // drop leading ::
 	assert(commandCompleters.contains(str));
 	assert(commandCompleters[str] == &completer); (void)completer;
 	commandCompleters.erase(str);
@@ -250,7 +249,7 @@ static string removeEscaping(const string& str)
 	return result;
 }
 
-static vector<string> removeEscaping(span<const string> input, bool keepLastIfEmpty)
+static vector<string> removeEscaping(std::span<const string> input, bool keepLastIfEmpty)
 {
 	vector<string> result;
 	for (const auto& s : input) {
@@ -369,7 +368,7 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 		string_view cmd = tokens[0];
 		string_view leadingNs;
 		// remove leading ::
-		if (StringOp::startsWith(cmd, "::")) {
+		if (cmd.starts_with("::")) {
 			cmd.remove_prefix(2);
 			leadingNs = "::";
 		}
@@ -383,9 +382,9 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 		names2.reserve(names.size());
 		for (string_view n1 : names) {
 			// remove leading ::
-			if (StringOp::startsWith(n1, "::")) n1.remove_prefix(2);
+			if (n1.starts_with("::")) n1.remove_prefix(2);
 			// initial namespace part must match
-			if (!StringOp::startsWith(n1, ns)) continue;
+			if (!n1.starts_with(ns)) continue;
 			// the part following the initial namespace
 			string_view n2 = n1.substr(ns.size());
 			// only keep upto the next namespace portion,
@@ -397,7 +396,7 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 		Completer::completeString(tokens, names2);
 	} else {
 		string_view cmd = tokens.front();
-		if (StringOp::startsWith(cmd, "::")) cmd.remove_prefix(2); // drop leading ::
+		if (cmd.starts_with("::")) cmd.remove_prefix(2); // drop leading ::
 
 		if (auto* v = lookup(commandCompleters, cmd)) {
 			(*v)->tabCompletion(tokens);
@@ -439,7 +438,7 @@ GlobalCommandController::HelpCmd::HelpCmd(GlobalCommandController& controller_)
 }
 
 void GlobalCommandController::HelpCmd::execute(
-	span<const TclObject> tokens, TclObject& result)
+	std::span<const TclObject> tokens, TclObject& result)
 {
 	auto& controller = OUTER(GlobalCommandController, helpCmd);
 	switch (tokens.size()) {
@@ -473,7 +472,7 @@ void GlobalCommandController::HelpCmd::execute(
 	}
 }
 
-string GlobalCommandController::HelpCmd::help(span<const TclObject> /*tokens*/) const
+string GlobalCommandController::HelpCmd::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "prints help information for commands\n";
 }
@@ -497,7 +496,7 @@ GlobalCommandController::TabCompletionCmd::TabCompletionCmd(
 }
 
 void GlobalCommandController::TabCompletionCmd::execute(
-	span<const TclObject> tokens, TclObject& result)
+	std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, 2, "commandstring");
 	// TODO this prints list of possible completions in the console
@@ -505,7 +504,7 @@ void GlobalCommandController::TabCompletionCmd::execute(
 	result = controller.tabCompletion(tokens[1].getString());
 }
 
-string GlobalCommandController::TabCompletionCmd::help(span<const TclObject> /*tokens*/) const
+string GlobalCommandController::TabCompletionCmd::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "!!! This command will change in the future !!!\n"
 	       "Tries to completes the given argument as if it were typed in "
@@ -543,7 +542,7 @@ CliConnection& GlobalCommandController::UpdateCmd::getConnection()
 }
 
 void GlobalCommandController::UpdateCmd::execute(
-	span<const TclObject> tokens, TclObject& /*result*/)
+	std::span<const TclObject> tokens, TclObject& /*result*/)
 {
 	checkNumArgs(tokens, 3, Prefix{1}, "enable|disable type");
 	if (tokens[1] == "enable") {
@@ -555,7 +554,7 @@ void GlobalCommandController::UpdateCmd::execute(
 	}
 }
 
-string GlobalCommandController::UpdateCmd::help(span<const TclObject> /*tokens*/) const
+string GlobalCommandController::UpdateCmd::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Enable or disable update events for external applications. See doc/openmsx-control-xml.txt.";
 }
@@ -584,12 +583,12 @@ GlobalCommandController::PlatformInfo::PlatformInfo(InfoCommand& openMSXInfoComm
 }
 
 void GlobalCommandController::PlatformInfo::execute(
-	span<const TclObject> /*tokens*/, TclObject& result) const
+	std::span<const TclObject> /*tokens*/, TclObject& result) const
 {
 	result = TARGET_PLATFORM;
 }
 
-string GlobalCommandController::PlatformInfo::help(span<const TclObject> /*tokens*/) const
+string GlobalCommandController::PlatformInfo::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Prints openMSX platform.";
 }
@@ -602,12 +601,12 @@ GlobalCommandController::VersionInfo::VersionInfo(InfoCommand& openMSXInfoComman
 }
 
 void GlobalCommandController::VersionInfo::execute(
-	span<const TclObject> /*tokens*/, TclObject& result) const
+	std::span<const TclObject> /*tokens*/, TclObject& result) const
 {
 	result = Version::full();
 }
 
-string GlobalCommandController::VersionInfo::help(span<const TclObject> /*tokens*/) const
+string GlobalCommandController::VersionInfo::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Prints openMSX version.";
 }

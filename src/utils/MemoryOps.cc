@@ -1,11 +1,10 @@
 #include "MemoryOps.hh"
-#include "likely.hh"
 #include "build-info.hh"
 #include "systemfuncs.hh"
-#include "Math.hh"
+#include "endian.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include <vector>
+#include <bit>
 #include <cassert>
 #include <cstdlib>
 #include <cstdint>
@@ -36,10 +35,10 @@ namespace openmsx::MemoryOps {
 static inline void memset_64_SSE(
 	uint64_t* out, size_t num64, uint64_t val64)
 {
-	if (unlikely(num64 == 0)) return;
+	if (num64 == 0) [[unlikely]] return;
 
 	// Align at 16-byte boundary.
-	if (unlikely(size_t(out) & 8)) {
+	if (size_t(out) & 8) [[unlikely]] {
 		out[0] = val64;
 		++out; --num64;
 	}
@@ -50,11 +49,11 @@ static inline void memset_64_SSE(
 		_mm_store_si128(reinterpret_cast<__m128i*>(out + 0), val128);
 		_mm_store_si128(reinterpret_cast<__m128i*>(out + 2), val128);
 	}
-	if (unlikely(num64 & 2)) {
+	if (num64 & 2) [[unlikely]] {
 		_mm_store_si128(reinterpret_cast<__m128i*>(out), val128);
 		out += 2;
 	}
-	if (unlikely(num64 & 1)) {
+	if (num64 & 1) [[unlikely]] {
 		out[0] = val64;
 	}
 }
@@ -76,12 +75,12 @@ static inline void memset_64(
 		out[2] = val64;
 		out[3] = val64;
 	}
-	if (unlikely(num64 & 2)) {
+	if (num64 & 2) [[unlikely]] {
 		out[0] = val64;
 		out[1] = val64;
 		out += 2;
 	}
-	if (unlikely(num64 & 1)) {
+	if (num64 & 1) [[unlikely]] {
 		out[0] = val64;
 	}
 }
@@ -90,19 +89,19 @@ static inline void memset_32_2(
 	uint32_t* out, size_t num32, uint32_t val0, uint32_t val1)
 {
 	assert((size_t(out) % 4) == 0); // must be 4-byte aligned
-	if (unlikely(num32 == 0)) return;
+	if (num32 == 0) [[unlikely]] return;
 
 	// Align at 8-byte boundary.
-	if (unlikely(size_t(out) & 4)) {
+	if (size_t(out) & 4) [[unlikely]] {
 		out[0] = val1; // start at odd pixel
 		++out; --num32;
 	}
 
-	uint64_t val64 = OPENMSX_BIGENDIAN ? (uint64_t(val0) << 32) | val1
-	                                   : val0 | (uint64_t(val1) << 32);
+	uint64_t val64 = Endian::BIG ? (uint64_t(val0) << 32) | val1
+	                             : val0 | (uint64_t(val1) << 32);
 	memset_64(reinterpret_cast<uint64_t*>(out), num32 / 2, val64);
 
-	if (unlikely(num32 & 1)) {
+	if (num32 & 1) [[unlikely]] {
 		out[num32 - 1] = val0;
 	}
 }
@@ -132,19 +131,19 @@ static inline void memset_32(uint32_t* out, size_t num32, uint32_t val32)
 		out[6] = val32;
 		out[7] = val32;
 	}
-	if (unlikely(num32 & 4)) {
+	if (num32 & 4) [[unlikely]] {
 		out[0] = val32;
 		out[1] = val32;
 		out[2] = val32;
 		out[3] = val32;
 		out += 4;
 	}
-	if (unlikely(num32 & 2)) {
+	if (num32 & 2) [[unlikely]] {
 		out[0] = val32;
 		out[1] = val32;
 		out += 2;
 	}
-	if (unlikely(num32 & 1)) {
+	if (num32 & 1) [[unlikely]] {
 		out[0] = val32;
 	}
 #endif
@@ -153,19 +152,19 @@ static inline void memset_32(uint32_t* out, size_t num32, uint32_t val32)
 static inline void memset_16_2(
 	uint16_t* out, size_t num16, uint16_t val0, uint16_t val1)
 {
-	if (unlikely(num16 == 0)) return;
+	if (num16 == 0) [[unlikely]] return;
 
 	// Align at 4-byte boundary.
-	if (unlikely(size_t(out) & 2)) {
+	if (size_t(out) & 2) [[unlikely]] {
 		out[0] = val1; // start at odd pixel
 		++out; --num16;
 	}
 
-	uint32_t val32 = OPENMSX_BIGENDIAN ? (uint32_t(val0) << 16) | val1
-	                                   : val0 | (uint32_t(val1) << 16);
+	uint32_t val32 = Endian::BIG ? (uint32_t(val0) << 16) | val1
+	                             : val0 | (uint32_t(val1) << 16);
 	memset_32(reinterpret_cast<uint32_t*>(out), num16 / 2, val32);
 
-	if (unlikely(num16 & 1)) {
+	if (num16 & 1) [[unlikely]] {
 		out[num16 - 1] = val0;
 	}
 }
@@ -254,7 +253,7 @@ private:
 
 void* mallocAligned(size_t alignment, size_t size)
 {
-	assert("must be a power of 2" && Math::ispow2(alignment));
+	assert("must be a power of 2" && std::has_single_bit(alignment));
 	assert(alignment >= sizeof(void*));
 #if HAVE_POSIX_MEMALIGN
 	void* aligned = nullptr;

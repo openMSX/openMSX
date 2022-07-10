@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-span<const uint8_t> FileBase::mmap()
+std::span<const uint8_t> FileBase::mmap()
 {
 	auto size = getSize();
 	if (mmapBuf.empty()) {

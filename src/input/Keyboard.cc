@@ -12,6 +12,7 @@
 #include "Event.hh"
 #include "StateChange.hh"
 #include "TclArgParser.hh"
+#include "TclObject.hh"
 #include "enumerate.hh"
 #include "openmsx.hh"
 #include "one_of.hh"
@@ -312,6 +313,8 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, keyMatrixUpCmd  (commandController, stateChangeDistributor, scheduler_)
 	, keyMatrixDownCmd(commandController, stateChangeDistributor, scheduler_)
 	, keyTypeCmd      (commandController, stateChangeDistributor, scheduler_)
+	, msxcode2UnicodeCmd(commandController)
+	, unicode2MsxcodeCmd(commandController)
 	, capsLockAligner(eventDistributor, scheduler_)
 	, keyboardSettings(commandController)
 	, msxKeyEventQueue(scheduler_, commandController.getInterpreter())
@@ -851,7 +854,7 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 	}
 }
 
-void Keyboard::processCmd(Interpreter& interp, span<const TclObject> tokens, bool up)
+void Keyboard::processCmd(Interpreter& interp, std::span<const TclObject> tokens, bool up)
 {
 	unsigned row  = tokens[1].getInt(interp);
 	unsigned mask = tokens[2].getInt(interp);
@@ -1127,14 +1130,14 @@ Keyboard::KeyMatrixUpCmd::KeyMatrixUpCmd(
 }
 
 void Keyboard::KeyMatrixUpCmd::execute(
-	span<const TclObject> tokens, TclObject& /*result*/, EmuTime::param /*time*/)
+	std::span<const TclObject> tokens, TclObject& /*result*/, EmuTime::param /*time*/)
 {
 	checkNumArgs(tokens, 3, Prefix{1}, "row mask");
 	auto& keyboard = OUTER(Keyboard, keyMatrixUpCmd);
 	return keyboard.processCmd(getInterpreter(), tokens, true);
 }
 
-std::string Keyboard::KeyMatrixUpCmd::help(span<const TclObject> /*tokens*/) const
+std::string Keyboard::KeyMatrixUpCmd::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "keymatrixup <row> <bitmask>  release a key in the keyboardmatrix\n";
 }
@@ -1150,7 +1153,7 @@ Keyboard::KeyMatrixDownCmd::KeyMatrixDownCmd(CommandController& commandControlle
 {
 }
 
-void Keyboard::KeyMatrixDownCmd::execute(span<const TclObject> tokens,
+void Keyboard::KeyMatrixDownCmd::execute(std::span<const TclObject> tokens,
                                          TclObject& /*result*/, EmuTime::param /*time*/)
 {
 	checkNumArgs(tokens, 3, Prefix{1}, "row mask");
@@ -1158,7 +1161,7 @@ void Keyboard::KeyMatrixDownCmd::execute(span<const TclObject> tokens,
 	return keyboard.processCmd(getInterpreter(), tokens, false);
 }
 
-std::string Keyboard::KeyMatrixDownCmd::help(span<const TclObject> /*tokens*/) const
+std::string Keyboard::KeyMatrixDownCmd::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "keymatrixdown <row> <bitmask>  press a key in the keyboardmatrix\n";
 }
@@ -1238,7 +1241,7 @@ Keyboard::KeyInserter::KeyInserter(
 }
 
 void Keyboard::KeyInserter::execute(
-	span<const TclObject> tokens, TclObject& /*result*/, EmuTime::param /*time*/)
+	std::span<const TclObject> tokens, TclObject& /*result*/, EmuTime::param /*time*/)
 {
 	checkNumArgs(tokens, AtLeast{2}, "?-release? ?-freq hz? text");
 
@@ -1265,10 +1268,10 @@ void Keyboard::KeyInserter::execute(
 	type(arguments[0].getString());
 }
 
-std::string Keyboard::KeyInserter::help(span<const TclObject> /*tokens*/) const
+std::string Keyboard::KeyInserter::help(std::span<const TclObject> /*tokens*/) const
 {
-	return "Type a string in the emulated MSX.\n" \
-	       "Use -release to make sure the keys are always released before typing new ones (necessary for some game input routines, but in general, this means typing is twice as slow).\n" \
+	return "Type a string in the emulated MSX.\n"
+	       "Use -release to make sure the keys are always released before typing new ones (necessary for some game input routines, but in general, this means typing is twice as slow).\n"
 	       "Use -freq to tweak how fast typing goes and how long the keys will be pressed (and released in case -release was used). Keys will be typed at the given frequency and will remain pressed/released for 1/freq seconds";
 }
 
@@ -1350,6 +1353,109 @@ void Keyboard::KeyInserter::reschedule(EmuTime::param time)
 {
 	setSyncPoint(time + EmuDuration::hz(typingFrequency));
 }
+
+
+// Commands for conversion between msxcode <-> unicode.
+
+Keyboard::Msxcode2UnicodeCmd::Msxcode2UnicodeCmd(CommandController& commandController_)
+	: Command(commandController_, "msxcode2unicode")
+{
+}
+
+void Keyboard::Msxcode2UnicodeCmd::execute(std::span<const TclObject> tokens, TclObject& result)
+{
+	checkNumArgs(tokens, Between{2, 3}, "msx-string ?fallback?");
+
+	auto& interp = getInterpreter();
+	const auto& keyboard = OUTER(Keyboard, msxcode2UnicodeCmd);
+	const auto& msxChars = keyboard.unicodeKeymap.getMsxChars();
+
+	auto msx = tokens[1].getBinary();
+	auto fallback = [&]() -> std::function<uint32_t(uint8_t)> {
+		if (tokens.size() < 3) {
+			// If no fallback is given use space as replacement character
+			return [](uint8_t) { return uint32_t(' '); };
+		} else if (auto i = tokens[2].getOptionalInt()) {
+			// If an integer is given use that as a unicode character number
+			return [i = *i](uint8_t) { return uint32_t(i); };
+		} else {
+			// Otherwise use the given string as the name of a Tcl proc,
+			// That proc is (possibly later) invoked with a msx-character as input,
+			// and it should return the replacement unicode character number.
+			return [&](uint8_t m) {
+				TclObject cmd{TclObject::MakeListTag{}, tokens[2], m};
+				return uint32_t(cmd.executeCommand(interp).getInt(interp));
+			};
+		}
+	}();
+
+	result = msxChars.msxToUtf8(msx, fallback);
+}
+
+std::string Keyboard::Msxcode2UnicodeCmd::help(std::span<const TclObject> /*tokens*/) const
+{
+	return "msxcode2unicode <msx-string> [<fallback>]\n"
+	       "returns a unicode string converted from an MSX-string, i.e. a string based on\n"
+	       "MSX character codes.\n"
+	       "The optional fallback used for each character that cannot be mapped for the\n"
+	       "current MSX model can be:\n"
+	       "- omitted: then space will be used as fallback character.\n"
+	       "- an integer number: then this number will be used as unicode point to be the\n"
+	       "  the fallback character.\n"
+	       "- a Tcl proc, which expects one input character and must return one unicode\n"
+	       "  point.";
+}
+
+
+Keyboard::Unicode2MsxcodeCmd::Unicode2MsxcodeCmd(CommandController& commandController_)
+	: Command(commandController_, "unicode2msxcode")
+{
+}
+
+void Keyboard::Unicode2MsxcodeCmd::execute(std::span<const TclObject> tokens, TclObject& result)
+{
+	checkNumArgs(tokens, Between{2, 3}, "unicode-string ?fallback?");
+
+	auto& interp = getInterpreter();
+	auto& keyboard = OUTER(Keyboard, unicode2MsxcodeCmd);
+	const auto& msxChars = keyboard.unicodeKeymap.getMsxChars();
+
+	const auto& unicode = tokens[1].getString();
+	auto fallback = [&]() -> std::function<uint8_t(uint32_t)> {
+		if (tokens.size() < 3) {
+			// If no fallback is given use space as replacement character
+			return [](uint32_t) { return uint8_t(' '); };
+		} else if (auto i = tokens[2].getOptionalInt()) {
+			// If an integer is given use that as a MSX character number
+			return [i = *i](uint32_t) { return uint8_t(i); };
+		} else {
+			// Otherwise use the given string as the name of a Tcl proc,
+			// That proc is (possibly later) invoked with a unicode character as
+			// input, and it should return the replacement MSX character number.
+			return [&](uint32_t u) {
+				TclObject cmd{TclObject::MakeListTag{}, tokens[2], u};
+				return uint8_t(cmd.executeCommand(interp).getInt(interp));
+			};
+		}
+	}();
+
+	result = msxChars.utf8ToMsx(unicode, fallback);
+}
+
+std::string Keyboard::Unicode2MsxcodeCmd::help(std::span<const TclObject> /*tokens*/) const
+{
+	return "unicode2msxcode <unicode-string> [<fallback>]\n"
+	       "returns an MSX string, i.e. a string based on MSX character codes, converted\n"
+	       "from a unicode string.\n"
+	       "The optional fallback used for each character that cannot be mapped for the\n"
+	       "current MSX model can be:\n"
+	       "- omitted: then space will be used as fallback character.\n"
+	       "- an integer number: then this number will be used as MSX character number to\n"
+	       "  to be the fallback character.\n"
+	       "- a Tcl proc, which expects one input character and must return one MSX\n"
+	       "  character number.";
+}
+
 
 /*
  * class CapsLockAligner

@@ -5,7 +5,7 @@
 #include "Math.hh"
 #include "PNG.hh"
 #include "xrange.hh"
-#include "build-info.hh"
+#include "endian.hh"
 #include <cstdlib>
 #include <SDL.h>
 
@@ -20,10 +20,10 @@ static gl::Texture loadTexture(
 	// Make a copy to convert to the correct pixel format.
 	// TODO instead directly load the image in the correct format.
 	SDLSurfacePtr image2(size[0], size[1], 32,
-		OPENMSX_BIGENDIAN ? 0xFF000000 : 0x000000FF,
-		OPENMSX_BIGENDIAN ? 0x00FF0000 : 0x0000FF00,
-		OPENMSX_BIGENDIAN ? 0x0000FF00 : 0x00FF0000,
-		OPENMSX_BIGENDIAN ? 0x000000FF : 0xFF000000);
+		Endian::BIG ? 0xFF000000 : 0x000000FF,
+		Endian::BIG ? 0x00FF0000 : 0x0000FF00,
+		Endian::BIG ? 0x0000FF00 : 0x00FF0000,
+		Endian::BIG ? 0x000000FF : 0xFF000000);
 
 	SDL_Rect area;
 	area.x = 0;
@@ -88,7 +88,7 @@ GLImage::GLImage(OutputSurface& /*output*/, ivec2 size_, unsigned rgba)
 	initBuffers();
 }
 
-GLImage::GLImage(OutputSurface& /*output*/, ivec2 size_, span<const unsigned, 4> rgba,
+GLImage::GLImage(OutputSurface& /*output*/, ivec2 size_, std::span<const unsigned, 4> rgba,
                  int borderSize_, unsigned borderRGBA)
 	: texture(gl::Null())
 {

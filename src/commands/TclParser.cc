@@ -3,7 +3,6 @@
 #include "one_of.hh"
 #include "ranges.hh"
 #include "strCat.hh"
-#include "StringOp.hh"
 #include <algorithm>
 #include <iostream>
 #include <cassert>
@@ -50,10 +49,10 @@ static constexpr bool inRange(char c, char low, char high)
 
 static bool isNumber(std::string_view str)
 {
-	if (StringOp::startsWith(str, '-') || StringOp::startsWith(str, '+')) {
+	if (str.starts_with('-') || str.starts_with('+')) {
 		str.remove_prefix(1);
 	}
-	if (StringOp::startsWith(str, "0x") || StringOp::startsWith(str, "0X")) {
+	if (str.starts_with("0x") || str.starts_with("0X")) {
 		str.remove_prefix(2);
 		return ranges::all_of(str, [](char c) {
 			return inRange(c, '0', '9') ||
@@ -107,22 +106,22 @@ void TclParser::parse(const char* p, int size, ParseType type)
 		const char* resStr = Tcl_GetStringFromObj(resObj, &resLen);
 		std::string_view error(resStr, resLen);
 
-		if (allowComplete && StringOp::startsWith(error, "missing close-brace")) {
+		if (allowComplete && error.starts_with("missing close-brace")) {
 			parseStr += '}';
-		} else if (allowComplete && StringOp::startsWith(error, "missing close-bracket")) {
+		} else if (allowComplete && error.starts_with("missing close-bracket")) {
 			parseStr += ']';
-		} else if (allowComplete && StringOp::startsWith(error, "missing \"")) {
+		} else if (allowComplete && error.starts_with("missing \"")) {
 			parseStr += '"';
-		} else if (allowComplete && StringOp::startsWith(error, "unbalanced open paren")) {
+		} else if (allowComplete && error.starts_with("unbalanced open paren")) {
 			parseStr += ')';
-		} else if (allowComplete && StringOp::startsWith(error, "missing operand")) {
+		} else if (allowComplete && error.starts_with("missing operand")) {
 			// This also triggers for a (wrong) expression like
 			//    'if { / 3'
 			// and that can't be solved by adding something at the
 			// end. Without the retryCount stuff we would get in an
 			// infinite loop here.
 			parseStr += '0';
-		} else if (allowComplete && StringOp::startsWith(error, "missing )")) {
+		} else if (allowComplete && error.starts_with("missing )")) {
 			parseStr += ')';
 		} else {
 			DEBUG_PRINT("ERROR: " + parseStr + ": " + error);

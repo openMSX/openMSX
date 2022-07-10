@@ -2,7 +2,6 @@
 #include "DummyAY8910Periphery.hh"
 #include "MSXCPUInterface.hh"
 #include "CacheLine.hh"
-#include "cstd.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include "xrange.hh"
@@ -170,10 +169,10 @@ static constexpr auto sectorInfo = [] {
 	// 1 * 16kB, followed by 2 * 8kB, 1 * 32kB, 15 * 64kB
 	using Info = AmdFlash::SectorInfo;
 	std::array<Info, 1 + 2 + 1 + 15> result = {};
-	cstd::fill(result.begin() + 0, result.begin() + 1, Info{16 * 1024, false});
-	cstd::fill(result.begin() + 1, result.begin() + 3, Info{ 8 * 1024, false});
-	cstd::fill(result.begin() + 3, result.begin() + 4, Info{32 * 1024, false});
-	cstd::fill(result.begin() + 4, result.end(),       Info{64 * 1024, false});
+	std::fill(result.begin() + 0, result.begin() + 1, Info{16 * 1024, false});
+	std::fill(result.begin() + 1, result.begin() + 3, Info{ 8 * 1024, false});
+	std::fill(result.begin() + 3, result.begin() + 4, Info{32 * 1024, false});
+	std::fill(result.begin() + 4, result.end(),       Info{64 * 1024, false});
 	return result;
 }();
 

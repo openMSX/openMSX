@@ -23,7 +23,7 @@ MSXRomCLI::MSXRomCLI(CommandLineParser& cmdLineParser_)
 	cmdLineParser.registerFileType({"ri", "rom", "mx1", "mx2"}, *this);
 }
 
-void MSXRomCLI::parseOption(const string& option, span<string>& cmdLine)
+void MSXRomCLI::parseOption(const string& option, std::span<string>& cmdLine)
 {
 	string arg = getArgument(option, cmdLine);
 	string slotname;
@@ -40,7 +40,7 @@ std::string_view MSXRomCLI::optionHelp() const
 	return "Insert the ROM file (cartridge) specified in argument";
 }
 
-void MSXRomCLI::parseFileType(const string& arg, span<string>& cmdLine)
+void MSXRomCLI::parseFileType(const string& arg, std::span<string>& cmdLine)
 {
 	parse(arg, "any", cmdLine);
 }
@@ -56,7 +56,7 @@ std::string_view MSXRomCLI::fileTypeCategoryName() const
 }
 
 void MSXRomCLI::parse(const string& arg, const string& slotname,
-                      span<string>& cmdLine)
+                      std::span<string>& cmdLine)
 {
 	// parse extra options  -ips  and  -romtype
 	std::vector<TclObject> options;
@@ -77,7 +77,7 @@ void MSXRomCLI::parse(const string& arg, const string& slotname,
 }
 
 void MSXRomCLI::IpsOption::parseOption(const string& /*option*/,
-                                       span<string>& /*cmdLine*/)
+                                       std::span<string>& /*cmdLine*/)
 {
 	throw FatalError(
 		"-ips options should immediately follow a ROM or disk image.");
@@ -90,7 +90,7 @@ std::string_view MSXRomCLI::IpsOption::optionHelp() const
 }
 
 void MSXRomCLI::RomTypeOption::parseOption(const string& /*option*/,
-                                           span<string>& /*cmdLine*/)
+                                           std::span<string>& /*cmdLine*/)
 {
 	throw FatalError("-romtype options should immediately follow a ROM.");
 }

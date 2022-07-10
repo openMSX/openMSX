@@ -7,10 +7,10 @@
 #include "EmuTime.hh"
 #include "MemBuffer.hh"
 #include "DeltaBlock.hh"
-#include "span.hh"
 #include "outer.hh"
 #include <cstdint>
 #include <deque>
+#include <span>
 #include <map>
 #include <memory>
 #include <vector>
@@ -95,12 +95,12 @@ private:
 	void stop();
 	void status(TclObject& result) const;
 	void debugInfo(TclObject& result) const;
-	void goBack(span<const TclObject> tokens);
-	void goTo(span<const TclObject> tokens);
+	void goBack(std::span<const TclObject> tokens);
+	void goTo(std::span<const TclObject> tokens);
 	void saveReplay(Interpreter& interp,
-	                span<const TclObject> tokens, TclObject& result);
+	                std::span<const TclObject> tokens, TclObject& result);
 	void loadReplay(Interpreter& interp,
-	                span<const TclObject> tokens, TclObject& result);
+	                std::span<const TclObject> tokens, TclObject& result);
 
 	void signalStopReplay(EmuTime::param time);
 	[[nodiscard]] EmuTime::param getEndTime(const ReverseHistory& history) const;
@@ -146,8 +146,8 @@ private:
 
 	struct ReverseCmd final : Command {
 		explicit ReverseCmd(CommandController& controller);
-		void execute(span<const TclObject> tokens, TclObject& result) override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		void execute(std::span<const TclObject> tokens, TclObject& result) override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} reverseCmd;
 

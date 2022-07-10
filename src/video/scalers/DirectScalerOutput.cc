@@ -6,37 +6,37 @@
 
 namespace openmsx {
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 DirectScalerOutput<Pixel>::DirectScalerOutput(SDLOutputSurface& output_)
 	: output(output_), pixelAccess(output.getDirectPixelAccess())
 {
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 unsigned DirectScalerOutput<Pixel>::getWidth()  const
 {
 	return output.getLogicalWidth();
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 unsigned DirectScalerOutput<Pixel>::getHeight() const
 {
 	return output.getLogicalHeight();
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 Pixel* DirectScalerOutput<Pixel>::acquireLine(unsigned y)
 {
 	return pixelAccess.getLinePtr<Pixel>(y);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void DirectScalerOutput<Pixel>::releaseLine(unsigned /*y*/, Pixel* /*buf*/)
 {
 	// nothing
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void DirectScalerOutput<Pixel>::fillLine(unsigned y, Pixel color)
 {
 	auto* dstLine = pixelAccess.getLinePtr<Pixel>(y);

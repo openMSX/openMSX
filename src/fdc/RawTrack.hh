@@ -3,8 +3,8 @@
 
 #include "openmsx.hh"
 #include "serialize_meta.hh"
-#include "span.hh"
 #include <optional>
+#include <span>
 #include <vector>
 
 namespace openmsx {
@@ -130,8 +130,8 @@ public:
 	[[nodiscard]] std::optional<Sector> decodeSector(byte sectorNum) const;
 
 	/** Like memcpy() but copy from/to circular buffer. */
-	void readBlock (int idx, span<byte> destination) const;
-	void writeBlock(int idx, span<const byte> source);
+	void readBlock (int idx, std::span<byte> destination) const;
+	void writeBlock(int idx, std::span<const byte> source);
 
 	/** Convenience method to calculate CRC for part of this track. */
 	[[nodiscard]] word calcCrc(int idx, int size) const;

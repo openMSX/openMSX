@@ -1,7 +1,6 @@
 #ifndef RANGES_HH
 #define RANGES_HH
 
-#include "stl.hh"
 #include <algorithm>
 #include <functional>
 #include <iterator> // for std::begin(), std::end()
@@ -21,7 +20,7 @@
 
 namespace ranges {
 
-template<typename ForwardRange, typename Compare = std::less<>, typename Proj = identity>
+template<typename ForwardRange, typename Compare = std::less<>, typename Proj = std::identity>
 [[nodiscard]] bool is_sorted(ForwardRange&& range, Compare comp = {}, Proj proj = {})
 {
 	return std::is_sorted(std::begin(range), std::end(range),
@@ -31,13 +30,13 @@ template<typename ForwardRange, typename Compare = std::less<>, typename Proj = 
 }
 
 template<typename RandomAccessRange>
-void sort(RandomAccessRange&& range)
+constexpr void sort(RandomAccessRange&& range)
 {
 	std::sort(std::begin(range), std::end(range));
 }
 
 template<typename RandomAccessRange, typename Compare>
-void sort(RandomAccessRange&& range, Compare comp)
+constexpr void sort(RandomAccessRange&& range, Compare comp)
 {
 	std::sort(std::begin(range), std::end(range), comp);
 }
@@ -69,6 +68,21 @@ void stable_sort(RandomAccessRange&& range, Compare comp)
 	std::stable_sort(std::begin(range), std::end(range), comp);
 }
 
+template<typename RAIter, typename Compare = std::less<>, typename Proj>
+void stable_sort(RAIter first, RAIter last, Compare comp, Proj proj)
+{
+	std::stable_sort(first, last,
+		[&](const auto& x, const auto& y) {
+			return comp(std::invoke(proj, x), std::invoke(proj, y));
+		});
+}
+
+template<typename RandomAccessRange, typename Compare = std::less<>, typename Proj>
+void stable_sort(RandomAccessRange&& range, Compare comp, Proj proj)
+{
+	stable_sort(std::begin(range), std::end(range), comp, proj);
+}
+
 template<typename ForwardRange, typename T>
 [[nodiscard]] bool binary_search(ForwardRange&& range, const T& value)
 {
@@ -81,7 +95,7 @@ template<typename ForwardRange, typename T, typename Compare>
 	return std::binary_search(std::begin(range), std::end(range), value, comp);
 }
 
-template<typename ForwardRange, typename T, typename Compare = std::less<>, typename Proj = identity>
+template<typename ForwardRange, typename T, typename Compare = std::less<>, typename Proj = std::identity>
 [[nodiscard]] auto lower_bound(ForwardRange&& range, const T& value, Compare comp = {}, Proj proj = {})
 {
 	auto comp2 = [&](const auto& x, const auto& y) {
@@ -90,7 +104,7 @@ template<typename ForwardRange, typename T, typename Compare = std::less<>, type
 	return std::lower_bound(std::begin(range), std::end(range), value, comp2);
 }
 
-template<typename ForwardRange, typename T, typename Compare = std::less<>, typename Proj = identity>
+template<typename ForwardRange, typename T, typename Compare = std::less<>, typename Proj = std::identity>
 [[nodiscard]] auto upper_bound(ForwardRange&& range, const T& value, Compare comp = {}, Proj proj = {})
 {
 	auto comp2 = [&](const auto& x, const auto& y) {
@@ -104,7 +118,7 @@ template<typename ForwardRange, typename T, typename Compare = std::less<>>
 {
 	return std::equal_range(std::begin(range), std::end(range), value, comp);
 }
-template<typename ForwardRange, typename T, typename Compare = std::less<>, typename Proj = identity>
+template<typename ForwardRange, typename T, typename Compare = std::less<>, typename Proj = std::identity>
 [[nodiscard]] auto equal_range(ForwardRange&& range, const T& value, Compare comp, Proj proj)
 {
 	using Iter = decltype(std::begin(range));
@@ -175,6 +189,21 @@ template<typename ForwardRange, typename BinaryPredicate>
 	return std::unique(std::begin(range), std::end(range), pred);
 }
 
+template<typename RAIter, typename Compare = std::equal_to<>, typename Proj>
+[[nodiscard]] auto unique(RAIter first, RAIter last, Compare comp, Proj proj)
+{
+	return std::unique(first, last,
+		[&](const auto& x, const auto& y) {
+			return comp(std::invoke(proj, x), std::invoke(proj, y));
+		});
+}
+
+template<typename RandomAccessRange, typename Compare = std::equal_to<>, typename Proj>
+[[nodiscard]] auto unique(RandomAccessRange&& range, Compare comp, Proj proj)
+{
+	return unique(std::begin(range), std::end(range), comp, proj);
+}
+
 template<typename InputRange, typename OutputIter>
 auto copy(InputRange&& range, OutputIter out)
 {
@@ -212,7 +241,7 @@ template<typename ForwardRange, typename UnaryPredicate>
 }
 
 template<typename ForwardRange, typename T>
-void replace(ForwardRange&& range, const T& old_value, const T& new_value)
+constexpr void replace(ForwardRange&& range, const T& old_value, const T& new_value)
 {
 	std::replace(std::begin(range), std::end(range), old_value, new_value);
 }
@@ -224,7 +253,7 @@ void replace_if(ForwardRange&& range, UnaryPredicate pred, const T& new_value)
 }
 
 template<typename ForwardRange, typename T>
-void fill(ForwardRange&& range, const T& value)
+constexpr void fill(ForwardRange&& range, const T& value)
 {
 	std::fill(std::begin(range), std::end(range), value);
 }

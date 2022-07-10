@@ -3,10 +3,12 @@
 
 #include "cstd.hh"
 #include "Math.hh"
+#include "ranges.hh"
 #include "static_vector.hh"
 #include "stl.hh"
 #include "xrange.hh"
 #include <array>
+#include <bit>
 #include <cassert>
 #include <cstdint>
 
@@ -57,15 +59,14 @@ namespace PerfectMinimalHash {
 template<size_t M, typename Hash>
 struct Result
 {
-	static_assert(Math::ispow2(M));
+	static_assert(std::has_single_bit(M));
 	static constexpr auto M2 = M / 2;
 
 	std::array<uint8_t, M > tab1;
 	std::array<uint8_t, M2> tab2; // half size (space optimization)
-	Hash hash;
+	[[no_unique_address]] Hash hash;
 
-	template<typename Key>
-	[[nodiscard]] constexpr uint8_t lookupIndex(const Key& key) const {
+	[[nodiscard]] constexpr uint8_t lookupIndex(const auto& key) const {
 		const uint32_t h = hash(key);
 		const uint8_t d = tab1[h % M];
 		if ((d & 0x80) == 0) {
@@ -80,7 +81,7 @@ template<size_t N, typename Hash, typename GetKey>
 [[nodiscard]] constexpr auto create(const Hash& hash, const GetKey& getKey)
 {
 	static_assert(N < 128);
-	constexpr size_t M = Math::ceil2(N);
+	constexpr size_t M = std::bit_ceil(N);
 	constexpr auto bucket_max = size_t(2 * cstd::sqrt(M));
 
 	Result<M, Hash> r{};
@@ -93,13 +94,19 @@ template<size_t N, typename Hash, typename GetKey>
 	}
 
 	// Step 2: Sort the buckets to process the ones with the most items first.
-	cstd::sort(buckets, [](const auto& x, const auto& y) {
-		return x.size() > y.size(); // sort largest first
+	ranges::sort(buckets, [](const auto& x, const auto& y) {
+		// sort largest first
+		if (x.size() != y.size()) {
+			return x.size() > y.size();
+		}
+		// same size, sort lexicographical
+		return std::lexicographical_compare(x.begin(), x.end(),
+		                                    y.begin(), y.end());
 	});
 
 	// Step 3: Map the items in buckets into hash tables.
 	constexpr auto UNUSED = uint8_t(-1);
-	cstd::fill(r.tab2, UNUSED);
+	ranges::fill(r.tab2, UNUSED);
 	for (const auto& bucket : buckets) {
 		auto const bSize = bucket.size();
 		if (bSize == 0) break; // done
@@ -135,7 +142,7 @@ template<size_t N, typename Hash, typename GetKey>
 	}
 
 	// Change unused entries to zero because it must be valid indices (< N).
-	cstd::replace(r.tab2, UNUSED, uint8_t(0));
+	ranges::replace(r.tab2, UNUSED, uint8_t(0));
 	return r;
 }
 

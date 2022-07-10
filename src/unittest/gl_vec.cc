@@ -1,15 +1,17 @@
 #include "catch.hpp"
 #include "gl_vec.hh"
+#include "Math.hh"
+#include <concepts>
 
 using namespace gl;
 
 // Test approximations.
-template<typename T>
+template<std::floating_point T>
 bool approxEq(T x, T y)
 {
 	return std::abs(x - y) < T(1.0e-5);
 }
-template<int N, typename T>
+template<int N, std::floating_point T>
 bool approxEq(const vecN<N, T>& x, const vecN<N, T>&y)
 {
 	return length2(x - y) < T(1.0e-4);
@@ -24,12 +26,12 @@ TEST_CASE("gl_vec: rsqrt")
 
 TEST_CASE("gl_vec: radians, degrees")
 {
-	CHECK(approxEq(radians(  0.0), 0.0     ));
-	CHECK(approxEq(radians( 90.0), M_PI / 2));
-	CHECK(approxEq(radians(180.0), M_PI    ));
-	CHECK(approxEq(degrees(0.0     ),   0.0));
-	CHECK(approxEq(degrees(M_PI / 2),  90.0));
-	CHECK(approxEq(degrees(M_PI    ), 180.0));
+	CHECK(approxEq(radians(  0.0), 0.0         ));
+	CHECK(approxEq(radians( 90.0), Math::pi / 2));
+	CHECK(approxEq(radians(180.0), Math::pi    ));
+	CHECK(approxEq(degrees(0.0         ),   0.0));
+	CHECK(approxEq(degrees(Math::pi / 2),  90.0));
+	CHECK(approxEq(degrees(Math::pi    ), 180.0));
 }
 
 // It's useful to test both integer and float variants because the

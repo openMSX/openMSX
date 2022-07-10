@@ -10,6 +10,9 @@
 #
 # NOTE: for now, only the international mapping is supported and only the
 # Left-To-Right characters
+
+MSX-Video-Characterset: MSXVIDAE.TXT
+
 00000, 02, CTRL SHIFT  # ^@
 00001, 26, CTRL        # ^A
 00002, 27, CTRL        # ^B

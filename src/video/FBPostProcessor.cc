@@ -8,6 +8,7 @@
 #include "SDLOutputSurface.hh"
 #include "aligned.hh"
 #include "checked_cast.hh"
+#include "endian.hh"
 #include "random.hh"
 #include "xrange.hh"
 #include <algorithm>
@@ -26,7 +27,7 @@ constexpr unsigned NOISE_SHIFT = 8192;
 constexpr unsigned NOISE_BUF_SIZE = 2 * NOISE_SHIFT;
 ALIGNAS_SSE static signed char noiseBuf[NOISE_BUF_SIZE];
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void FBPostProcessor<Pixel>::preCalcNoise(float factor)
 {
 	// We skip noise drawing if the factor is 0, so there is no point in
@@ -44,8 +45,7 @@ void FBPostProcessor<Pixel>::preCalcNoise(float factor)
 		// alternative is to turn noiseBuf into an array of ints (it's
 		// now bytes) and in the 16bpp code extract R,G,B components
 		// from those ints
-		const auto p = Pixel(OPENMSX_BIGENDIAN ? 0x00010203
-		                                       : 0x03020100);
+		const auto p = Pixel(Endian::BIG ? 0x00010203 : 0x03020100);
 		// TODO we can also fill the array with 'factor' and only set
 		// 'alpha' to 0.0. But PixelOperations doesn't offer a simple
 		// way to get the position of the alpha byte (yet).
@@ -161,7 +161,7 @@ static constexpr uint32_t addNoise4(uint32_t p, uint32_t n)
 	return (s & (~u8)) | o8;
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void FBPostProcessor<Pixel>::drawNoiseLine(
 		Pixel* buf, signed char* noise, size_t width)
 {
@@ -204,7 +204,7 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void FBPostProcessor<Pixel>::drawNoise(OutputSurface& output_)
 {
 	if (renderSettings.getNoise() == 0.0f) return;
@@ -218,7 +218,7 @@ void FBPostProcessor<Pixel>::drawNoise(OutputSurface& output_)
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void FBPostProcessor<Pixel>::update(const Setting& setting) noexcept
 {
 	VideoLayer::update(setting);
@@ -229,7 +229,7 @@ void FBPostProcessor<Pixel>::update(const Setting& setting) noexcept
 }
 
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 FBPostProcessor<Pixel>::FBPostProcessor(MSXMotherBoard& motherBoard_,
 	Display& display_, OutputSurface& screen_, const std::string& videoSource,
 	unsigned maxWidth_, unsigned height_, bool canDoInterlace_)
@@ -248,13 +248,13 @@ FBPostProcessor<Pixel>::FBPostProcessor(MSXMotherBoard& motherBoard_,
 	assert((screen.getLogicalWidth() * sizeof(Pixel)) < NOISE_SHIFT);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 FBPostProcessor<Pixel>::~FBPostProcessor()
 {
 	renderSettings.getNoiseSetting().detach(*this);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void FBPostProcessor<Pixel>::paint(OutputSurface& output_)
 {
 	auto& output = checked_cast<SDLOutputSurface&>(output_);
@@ -330,7 +330,7 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output_)
 	output.flushFrameBuffer();
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 std::unique_ptr<RawFrame> FBPostProcessor<Pixel>::rotateFrames(
 	std::unique_ptr<RawFrame> finishedFrame, EmuTime::param time)
 {

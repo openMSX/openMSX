@@ -4,7 +4,6 @@
 #include "CPUClock.hh"
 #include "CPURegs.hh"
 #include "Clock.hh"
-#include "likely.hh"
 #include "inline.hh"
 #include "one_of.hh"
 #include "xrange.hh"
@@ -79,8 +78,8 @@ protected:
 			// there is a statically predictable page break at this
 			// point -> 'add(1)' moved to static cost table
 		} else {
-			if (unlikely(newPage != lastPage) ||
-			    unlikely(extraMemoryDelay[address >> 14])) {
+			if ((newPage != lastPage) ||
+			    (extraMemoryDelay[address >> 14])) [[unlikely]] {
 				add(1);
 			}
 		}
@@ -103,13 +102,13 @@ protected:
 		if constexpr (PRE_PB) {
 			// there is a statically predictable page break at this
 			// point -> 'add(1)' moved to static cost table
-			if (unlikely(extraMemoryDelay[address >> 14])) {
+			if (extraMemoryDelay[address >> 14]) [[unlikely]] {
 				add(1);
 			}
 		} else {
-			if (unlikely(extraMemoryDelay[address >> 14])) {
+			if (extraMemoryDelay[address >> 14]) [[unlikely]] {
 				add(2);
-			} else if (unlikely(newPage != lastPage)) {
+			} else if (newPage != lastPage) [[unlikely]] {
 				add(1);
 			}
 		}
@@ -134,7 +133,7 @@ protected:
 		// But 26/210 matches measurements much better
 		//   (loosly based on old measurements by Jon on his analogue scope)
 		EmuTime time = getTimeFast();
-		if (unlikely(lastRefreshTime.getTicksTill_fast(time) >= 210)) {
+		if (lastRefreshTime.getTicksTill_fast(time) >= 210) [[unlikely]] {
 			R800RefreshSlow(time, R); // slow-path not inline
 		}
 	}
@@ -142,7 +141,7 @@ protected:
 	{
 		do {
 			lastRefreshTime += 210;
-		} while (unlikely(lastRefreshTime.getTicksTill_fast(time) >= 210));
+		} while (lastRefreshTime.getTicksTill_fast(time) >= 210); [[unlikely]]
 		waitForEvenCycle(0);
 		add(25);
 		R800ForcePageBreak(); // TODO check this

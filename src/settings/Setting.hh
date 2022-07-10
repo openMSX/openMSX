@@ -5,7 +5,7 @@
 #include "TclObject.hh"
 #include "static_string_view.hh"
 #include "strCat.hh"
-#include "StringOp.hh"
+#include <cassert>
 #include <functional>
 #include <optional>
 #include <string_view>
@@ -40,7 +40,7 @@ public:
 	/** Set a machine specific prefix.
 	 */
 	void setPrefix(std::string_view prefix) {
-		assert(StringOp::startsWith(prefix, "::"));
+		assert(prefix.starts_with("::"));
 		fullName = tmpStrCat(prefix, getBaseName());
 	}
 

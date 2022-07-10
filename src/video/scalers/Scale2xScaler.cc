@@ -62,7 +62,7 @@ template<int BYTES, int TMP = sizeof(__m128i) - BYTES>
 }
 
 // These three functions are abstracted to work either on 16bpp or 32bpp.
-template<typename Pixel> [[nodiscard]] static inline __m128i isEqual(__m128i x, __m128i y)
+template<std::unsigned_integral Pixel> [[nodiscard]] static inline __m128i isEqual(__m128i x, __m128i y)
 {
 	if constexpr (sizeof(Pixel) == 4) {
 		return _mm_cmpeq_epi32(x, y);
@@ -72,7 +72,7 @@ template<typename Pixel> [[nodiscard]] static inline __m128i isEqual(__m128i x, 
 		UNREACHABLE;
 	}
 }
-template<typename Pixel> [[nodiscard]] static inline __m128i unpacklo(__m128i x, __m128i y)
+template<std::unsigned_integral Pixel> [[nodiscard]] static inline __m128i unpacklo(__m128i x, __m128i y)
 {
 	if constexpr (sizeof(Pixel) == 4) {
 		return _mm_unpacklo_epi32(x, y);
@@ -82,7 +82,7 @@ template<typename Pixel> [[nodiscard]] static inline __m128i unpacklo(__m128i x,
 		UNREACHABLE;
 	}
 }
-template<typename Pixel> [[nodiscard]] static inline __m128i unpackhi(__m128i x, __m128i y)
+template<std::unsigned_integral Pixel> [[nodiscard]] static inline __m128i unpackhi(__m128i x, __m128i y)
 {
 	if constexpr (sizeof(Pixel) == 4) {
 		return _mm_unpackhi_epi32(x, y);
@@ -94,7 +94,7 @@ template<typename Pixel> [[nodiscard]] static inline __m128i unpackhi(__m128i x,
 }
 
 // Scale one 'unit'. A unit is 8x16bpp or 4x32bpp pixels.
-template<typename Pixel, bool DOUBLE_X> static inline void scale1(
+template<std::unsigned_integral Pixel, bool DOUBLE_X> static inline void scale1(
 	__m128i top,	__m128i bottom,
 	__m128i prev,	__m128i mid,	__m128i next,
 	__m128i* out0,	__m128i* out1)
@@ -131,7 +131,7 @@ template<typename Pixel, bool DOUBLE_X> static inline void scale1(
 
 // Scale 1 input line (plus the line above and below) to 2 output lines,
 // optionally doubling the amount of pixels within the output lines.
-template<bool DOUBLE_X, typename Pixel,
+template<bool DOUBLE_X, std::unsigned_integral Pixel,
          int SHIFT = sizeof(__m128i) - sizeof(Pixel)>
 static inline void scaleSSE(
 	      Pixel* __restrict out0_,  // top output line
@@ -198,13 +198,13 @@ static inline void scaleSSE(
 #endif
 
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 Scale2xScaler<Pixel>::Scale2xScaler(const PixelOperations<Pixel>& pixelOps_)
 	: Scaler2<Pixel>(pixelOps_)
 {
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 inline void Scale2xScaler<Pixel>::scaleLine_1on2(
 	Pixel* __restrict dst0, Pixel* __restrict dst1,
 	const Pixel* __restrict src0, const Pixel* __restrict src1,
@@ -223,7 +223,7 @@ inline void Scale2xScaler<Pixel>::scaleLine_1on2(
 #endif
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void Scale2xScaler<Pixel>::scaleLineHalf_1on2(
 	Pixel* __restrict dst, const Pixel* __restrict src0,
 	const Pixel* __restrict src1, const Pixel* __restrict src2,
@@ -261,7 +261,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on2(
 		src1[srcWidth - 1];
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 inline void Scale2xScaler<Pixel>::scaleLine_1on1(
 	Pixel* __restrict dst0, Pixel* __restrict dst1,
 	const Pixel* __restrict src0, const Pixel* __restrict src1,
@@ -275,7 +275,7 @@ inline void Scale2xScaler<Pixel>::scaleLine_1on1(
 #endif
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void Scale2xScaler<Pixel>::scaleLineHalf_1on1(
 	Pixel* __restrict dst, const Pixel* __restrict src0,
 	const Pixel* __restrict src1, const Pixel* __restrict src2,
@@ -306,7 +306,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on1(
 		? src0[srcWidth - 1] : right;
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void Scale2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -335,7 +335,7 @@ void Scale2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void Scale2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)

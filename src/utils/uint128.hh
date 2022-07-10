@@ -25,6 +25,8 @@ class uint128
 public:
 	constexpr uint128(uint64_t a) : lo(a), hi(0) {}
 
+	[[nodiscard]] constexpr bool operator==(const uint128&) const = default;
+
 	[[nodiscard]] constexpr bool operator!() const
 	{
 		return !(hi || lo);
@@ -219,29 +221,10 @@ private:
 	return uint128(a) ^= b;
 }
 
-[[nodiscard]] constexpr bool operator<(const uint128& a, const uint128& b)
+[[nodiscard]] constexpr auto operator<=>(const uint128& a, const uint128& b)
 {
-	return std::pair(high64(a), low64(a)) < std::pair(high64(b), low64(b));
-}
-[[nodiscard]] constexpr bool operator>(const uint128& a, const uint128& b)
-{
-	return b < a;
-}
-[[nodiscard]] constexpr bool operator<=(const uint128& a, const uint128& b)
-{
-	return !(b < a);
-}
-[[nodiscard]] constexpr bool operator>=(const uint128& a, const uint128& b)
-{
-	return !(a < b);
-}
-[[nodiscard]] constexpr bool operator==(const uint128& a, const uint128& b)
-{
-	return (high64(a) == high64(b)) && (low64(a) == low64(b));
-}
-[[nodiscard]] constexpr bool operator!=(const uint128& a, const uint128& b)
-{
-	return !(a == b);
+	if (auto cmp = high64(a) <=> high64(b); cmp != 0) return cmp;
+	return low64(a) <=> low64(b);
 }
 
 [[nodiscard]] constexpr bool operator&&(const uint128& a, const uint128& b)

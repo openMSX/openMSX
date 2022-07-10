@@ -10,9 +10,9 @@
 #include "WatchPoint.hh"
 #include "ProfileCounters.hh"
 #include "openmsx.hh"
-#include "likely.hh"
 #include "ranges.hh"
 #include <bitset>
+#include <concepts>
 #include <vector>
 #include <memory>
 
@@ -123,7 +123,7 @@ public:
 	 */
 	inline byte readMem(word address, EmuTime::param time) {
 		tick(CacheLineCounters::SlowRead);
-		if (unlikely(disallowReadCache[address >> CacheLine::BITS])) {
+		if (disallowReadCache[address >> CacheLine::BITS]) [[unlikely]] {
 			return readMemSlow(address, time);
 		}
 		return visibleDevices[address >> 14]->readMem(address, time);
@@ -134,7 +134,7 @@ public:
 	 */
 	inline void writeMem(word address, byte value, EmuTime::param time) {
 		tick(CacheLineCounters::SlowWrite);
-		if (unlikely(disallowWriteCache[address >> CacheLine::BITS])) {
+		if (disallowWriteCache[address >> CacheLine::BITS]) [[unlikely]] {
 			writeMemSlow(address, value, time);
 			return;
 		}
@@ -171,7 +171,7 @@ public:
 	 */
 	[[nodiscard]] inline const byte* getReadCacheLine(word start) const {
 		tick(CacheLineCounters::GetReadCacheLine);
-		if (unlikely(disallowReadCache[start >> CacheLine::BITS])) {
+		if (disallowReadCache[start >> CacheLine::BITS]) [[unlikely]] {
 			return nullptr;
 		}
 		return visibleDevices[start >> 14]->getReadCacheLine(start);
@@ -191,7 +191,7 @@ public:
 	 */
 	[[nodiscard]] inline byte* getWriteCacheLine(word start) const {
 		tick(CacheLineCounters::GetWriteCacheLine);
-		if (unlikely(disallowWriteCache[start >> CacheLine::BITS])) {
+		if (disallowWriteCache[start >> CacheLine::BITS]) [[unlikely]] {
 			return nullptr;
 		}
 		return visibleDevices[start >> 14]->getWriteCacheLine(start);
@@ -232,14 +232,14 @@ public:
 	void setExpanded(int ps);
 	void unsetExpanded(int ps);
 	void testUnsetExpanded(int ps,
-		               span<const std::unique_ptr<MSXDevice>> allowed) const;
+		               std::span<const std::unique_ptr<MSXDevice>> allowed) const;
 	[[nodiscard]] inline bool isExpanded(int ps) const { return expanded[ps] != 0; }
 	void changeExpanded(bool newExpanded);
 
 	[[nodiscard]] DummyDevice& getDummyDevice() { return *dummyDevice; }
 
-	static void insertBreakPoint(BreakPoint bp);
-	static void removeBreakPoint(const BreakPoint& bp);
+	void insertBreakPoint(BreakPoint bp);
+	void removeBreakPoint(const BreakPoint& bp);
 	using BreakPoints = std::vector<BreakPoint>;
 	[[nodiscard]] static const BreakPoints& getBreakPoints() { return breakPoints; }
 
@@ -249,8 +249,8 @@ public:
 	using WatchPoints = std::vector<std::shared_ptr<WatchPoint>>;
 	[[nodiscard]] const WatchPoints& getWatchPoints() const { return watchPoints; }
 
-	static void setCondition(DebugCondition cond);
-	static void removeCondition(const DebugCondition& cond);
+	void setCondition(DebugCondition cond);
+	void removeCondition(const DebugCondition& cond);
 	using Conditions = std::vector<DebugCondition>;
 	[[nodiscard]] static const Conditions& getConditions() { return conditions; }
 
@@ -264,7 +264,7 @@ public:
 	{
 		return !breakPoints.empty() || !conditions.empty();
 	}
-	[[nodiscard]] static bool checkBreakPoints(unsigned pc, MSXMotherBoard& motherBoard)
+	[[nodiscard]] bool checkBreakPoints(unsigned pc)
 	{
 		auto range = ranges::equal_range(breakPoints, pc, {}, &BreakPoint::getAddress);
 		if (conditions.empty() && (range.first == range.second)) {
@@ -272,7 +272,7 @@ public:
 		}
 
 		// slow path non-inlined
-		checkBreakPoints(range, motherBoard);
+		checkBreakPoints(range);
 		return isBreaked();
 	}
 
@@ -304,11 +304,10 @@ private:
 	                    int ps, int ss, int base, int size);
 
 
-	static void checkBreakPoints(std::pair<BreakPoints::const_iterator,
-	                                       BreakPoints::const_iterator> range,
-	                             MSXMotherBoard& motherBoard);
-	static void removeBreakPoint(unsigned id);
-	static void removeCondition(unsigned id);
+	void checkBreakPoints(std::pair<BreakPoints::const_iterator,
+	                                BreakPoints::const_iterator> range);
+	void removeBreakPoint(unsigned id);
+	void removeCondition(unsigned id);
 
 	void removeAllWatchPoints();
 	void updateMemWatch(WatchPoint::Type type);
@@ -335,43 +334,43 @@ private:
 
 	struct SlotInfo final : InfoTopic {
 		explicit SlotInfo(InfoCommand& machineInfoCommand);
-		void execute(span<const TclObject> tokens,
+		void execute(std::span<const TclObject> tokens,
 			     TclObject& result) const override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	} slotInfo;
 
 	struct SubSlottedInfo final : InfoTopic {
 		explicit SubSlottedInfo(InfoCommand& machineInfoCommand);
-		void execute(span<const TclObject> tokens,
+		void execute(std::span<const TclObject> tokens,
 			     TclObject& result) const override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	} subSlottedInfo;
 
 	struct ExternalSlotInfo final : InfoTopic {
 		explicit ExternalSlotInfo(InfoCommand& machineInfoCommand);
-		void execute(span<const TclObject> tokens,
+		void execute(std::span<const TclObject> tokens,
 			     TclObject& result) const override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	} externalSlotInfo;
 
 	struct IOInfo : InfoTopic {
 		IOInfo(InfoCommand& machineInfoCommand, const char* name);
-		void helper(span<const TclObject> tokens,
+		void helper(std::span<const TclObject> tokens,
 		            TclObject& result, MSXDevice** devices) const;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	protected:
 		~IOInfo() = default;
 	};
 	struct IInfo final : IOInfo {
 		explicit IInfo(InfoCommand& machineInfoCommand)
 			: IOInfo(machineInfoCommand, "input_port") {}
-		void execute(span<const TclObject> tokens,
+		void execute(std::span<const TclObject> tokens,
 		             TclObject& result) const override;
 	} inputPortInfo;
 	struct OInfo final : IOInfo {
 		explicit OInfo(InfoCommand& machineInfoCommand)
 			: IOInfo(machineInfoCommand, "output_port") {}
-		void execute(span<const TclObject> tokens,
+		void execute(std::span<const TclObject> tokens,
 		             TclObject& result) const override;
 	} outputPortInfo;
 
@@ -400,10 +399,7 @@ private:
 	struct GlobalRwInfo {
 		MSXDevice* device;
 		word addr;
-		[[nodiscard]] bool operator==(const GlobalRwInfo& rhs) const {
-			return (device == rhs.device) &&
-			       (addr   == rhs.addr);
-		}
+		[[nodiscard]] constexpr bool operator==(const GlobalRwInfo&) const = default;
 	};
 	std::vector<GlobalRwInfo> globalReads;
 	std::vector<GlobalRwInfo> globalWrites;
@@ -438,26 +434,24 @@ struct CT_Interval
 };
 
 // Execute an 'action' for every element in the given interval(s).
-template<typename ACTION, typename CT_INTERVAL>
-inline void foreach_ct_interval(ACTION action, CT_INTERVAL interval)
+inline void foreach_ct_interval(std::invocable<unsigned> auto action, auto ct_interval)
 {
-	for (auto i = interval.begin(); i != interval.end(); ++i) {
+	for (auto i = ct_interval.begin(); i != ct_interval.end(); ++i) {
 		action(i);
 	}
 }
-template<typename ACTION, typename CT_INTERVAL, typename... CT_INTERVALS>
-inline void foreach_ct_interval(ACTION action, CT_INTERVAL front, CT_INTERVALS... tail)
+inline void foreach_ct_interval(std::invocable<unsigned> auto action,
+                                auto front_interval, auto... tail_intervals)
 {
-	foreach_ct_interval(action, front);
-	foreach_ct_interval(action, tail...);
+	foreach_ct_interval(action, front_interval);
+	foreach_ct_interval(action, tail_intervals...);
 }
 
 
 template<typename MSXDEVICE, typename... CT_INTERVALS>
 struct GlobalRWHelper
 {
-	template<typename ACTION>
-	void execute(ACTION action)
+	void execute(std::invocable<MSXCPUInterface&, MSXDevice&, unsigned> auto action)
 	{
 		auto& dev = static_cast<MSXDEVICE&>(*this);
 		auto& cpu = dev.getCPUInterface();

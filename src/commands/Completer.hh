@@ -2,7 +2,7 @@
 #define COMPLETER_HH
 
 #include "inline.hh"
-#include "span.hh"
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -24,7 +24,7 @@ public:
 
 	/** Print help for this command.
 	  */
-	[[nodiscard]] virtual std::string help(span<const TclObject> tokens) const = 0;
+	[[nodiscard]] virtual std::string help(std::span<const TclObject> tokens) const = 0;
 
 	/** Attempt tab completion for this command.
 	  * @param tokens Tokenized command line;
@@ -51,18 +51,18 @@ public:
 	                             const FileContext& context);
 
 	static std::vector<std::string> formatListInColumns(
-		span<const std::string_view> input);
+		std::span<const std::string_view> input);
 
 	// helper functions to check the number of arguments
 	struct AtLeast { unsigned min; };
 	struct Between { unsigned min; unsigned max; };
 	struct Prefix { unsigned n; }; // how many items from 'tokens' to show in error
-	void checkNumArgs(span<const TclObject> tokens, unsigned exactly, const char* errMessage) const;
-	void checkNumArgs(span<const TclObject> tokens, AtLeast atLeast,  const char* errMessage) const;
-	void checkNumArgs(span<const TclObject> tokens, Between between,  const char* errMessage) const;
-	void checkNumArgs(span<const TclObject> tokens, unsigned exactly, Prefix prefix, const char* errMessage) const;
-	void checkNumArgs(span<const TclObject> tokens, AtLeast atLeast,  Prefix prefix, const char* errMessage) const;
-	void checkNumArgs(span<const TclObject> tokens, Between between,  Prefix prefix, const char* errMessage) const;
+	void checkNumArgs(std::span<const TclObject> tokens, unsigned exactly, const char* errMessage) const;
+	void checkNumArgs(std::span<const TclObject> tokens, AtLeast atLeast,  const char* errMessage) const;
+	void checkNumArgs(std::span<const TclObject> tokens, Between between,  const char* errMessage) const;
+	void checkNumArgs(std::span<const TclObject> tokens, unsigned exactly, Prefix prefix, const char* errMessage) const;
+	void checkNumArgs(std::span<const TclObject> tokens, AtLeast atLeast,  Prefix prefix, const char* errMessage) const;
+	void checkNumArgs(std::span<const TclObject> tokens, Between between,  Prefix prefix, const char* errMessage) const;
 
 	// should only be called by CommandConsole
 	static void setOutput(InterpreterOutput* output_) { output = output_; }

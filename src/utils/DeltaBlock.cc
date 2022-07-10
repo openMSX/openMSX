@@ -1,5 +1,4 @@
 #include "DeltaBlock.hh"
-#include "likely.hh"
 #include "ranges.hh"
 #include "lz4.hh"
 #include <cassert>
@@ -100,14 +99,14 @@ static std::pair<const uint8_t*, const uint8_t*> scan_mismatch(
 
 	// Region too small or
 	// both buffers are differently aligned.
-	if (unlikely((p_end - p) < (2 * WORD_SIZE)) ||
-	    unlikely((reinterpret_cast<uintptr_t>(p) & (WORD_SIZE - 1)) !=
-	             (reinterpret_cast<uintptr_t>(q) & (WORD_SIZE - 1)))) {
+	if (((p_end - p) < (2 * WORD_SIZE)) ||
+	    ((reinterpret_cast<uintptr_t>(p) & (WORD_SIZE - 1)) !=
+	     (reinterpret_cast<uintptr_t>(q) & (WORD_SIZE - 1)))) [[unlikely]] {
 		goto end;
 	}
 
 	// Align to WORD_SIZE boundary. No need for end-of-buffer checks.
-	if (unlikely(reinterpret_cast<uintptr_t>(p) & (WORD_SIZE - 1))) {
+	if (reinterpret_cast<uintptr_t>(p) & (WORD_SIZE - 1)) [[unlikely]] {
 		do {
 			if (*p != *q) return {p, q};
 			p += 1; q += 1;

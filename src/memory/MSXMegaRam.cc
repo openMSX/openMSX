@@ -24,9 +24,9 @@
 
 #include "MSXMegaRam.hh"
 #include "Rom.hh"
-#include "Math.hh"
 #include "serialize.hh"
 #include "xrange.hh"
+#include <bit>
 #include <memory>
 
 namespace openmsx {
@@ -39,7 +39,7 @@ MSXMegaRam::MSXMegaRam(const DeviceConfig& config)
 	      ? std::make_unique<Rom>(getName() + " ROM", "Mega-RAM DiskROM", config)
 	      : nullptr)
 	, romBlockDebug(*this, bank, 0x0000, 0x10000, 13, 0, 3)
-	, maskBlocks(Math::ceil2(numBlocks) - 1)
+	, maskBlocks(std::bit_ceil(numBlocks) - 1)
 {
 	powerUp(EmuTime::dummy());
 }

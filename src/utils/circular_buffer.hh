@@ -29,13 +29,11 @@ public:
 	using difference_type = ptrdiff_t;
 	using iterator_category = std::random_access_iterator_tag;
 
-	cb_iterator() : buf(nullptr), p(nullptr) {}
-	cb_iterator(const cb_iterator& it) : buf(it.buf), p(it.p) {}
+	cb_iterator() = default;
+	cb_iterator(const cb_iterator& it) = default;
 	cb_iterator(const BUF* buf_, T* p_) : buf(buf_), p(p_) {}
 
-	cb_iterator& operator=(const cb_iterator& it) {
-		buf = it.buf; p = it.p; return *this;
-	}
+	cb_iterator& operator=(const cb_iterator& it) = default;
 
 	[[nodiscard]] T& operator*()  const { return *p; }
 	T* operator->() const { return  p; }
@@ -71,29 +69,23 @@ public:
 	}
 	cb_iterator& operator-=(difference_type n) { *this += -n; return *this; }
 
-	[[nodiscard]] cb_iterator operator+(difference_type n) { return cb_iterator(*this) += n; }
-	[[nodiscard]] cb_iterator operator-(difference_type n) { return cb_iterator(*this) -= n; }
+	[[nodiscard]] friend cb_iterator operator+(cb_iterator it, difference_type n) { it += n; return it; }
+	[[nodiscard]] friend cb_iterator operator+(difference_type n, cb_iterator it) { it += n; return it; }
+	[[nodiscard]] friend cb_iterator operator-(cb_iterator it, difference_type n) { it -= n; return it; }
 
 	[[nodiscard]] T& operator[](difference_type n) const { return *(*this + n); }
 
-	[[nodiscard]] bool operator==(const cb_iterator& it) const { return p == it.p; }
-	[[nodiscard]] bool operator!=(const cb_iterator& it) const { return p != it.p; }
-
-	[[nodiscard]] bool operator<(const cb_iterator& it) const {
-		return index(p) < index(it.p);
-	}
-	[[nodiscard]] bool operator> (const cb_iterator& it) const { return   it < *this;  }
-	[[nodiscard]] bool operator<=(const cb_iterator& it) const { return !(it < *this); }
-	[[nodiscard]] bool operator>=(const cb_iterator& it) const { return !(*this < it); }
+	[[nodiscard]] bool operator== (const cb_iterator& it) const { return p == it.p; }
+	[[nodiscard]] auto operator<=>(const cb_iterator& it) const { return index(p) <=> index(it.p); }
 
 private:
 	[[nodiscard]] size_t index(const T* q) const {
 		return q ? buf->index(q) : buf->size();
 	}
 
-	const BUF* buf;
-	T* p; // invariant: end-iterator    -> nullptr,
-	      //            other iterators -> pointer to element
+	const BUF* buf = nullptr;
+	T* p = nullptr; // invariant: end-iterator    -> nullptr,
+	                //            other iterators -> pointer to element
 };
 
 /** Circular buffer class, based on boost::circular_buffer/ */
@@ -109,6 +101,7 @@ public:
 	using reference  = T&;
 	using difference_type = ptrdiff_t;
 	using size_type       = size_t;
+	static_assert(std::random_access_iterator<iterator>);
 
 	circular_buffer() = default;
 
@@ -213,10 +206,24 @@ public:
 		}
 	}
 
-	void push_back (const T&  t) { push_back_impl <const T& >(          t ); }
-	void push_back (      T&& t) { push_back_impl <      T&&>(std::move(t)); }
-	void push_front(const T&  t) { push_front_impl<const T& >(          t ); }
-	void push_front(      T&& t) { push_front_impl<      T&&>(std::move(t)); }
+	template<typename T2>
+	void push_back(T2&& t) {
+		::new (last) T(std::forward<T2>(t));
+		increment(last);
+		++siz;
+	}
+
+	template<typename T2>
+	void push_front(T2&& t) {
+		try {
+			decrement(first);
+			::new (first) T(std::forward<T2>(t));
+			++siz;
+		} catch (...) {
+			increment(first);
+			throw;
+		}
+	}
 
 	void push_back(std::initializer_list<T> list) {
 		for (auto& e : list) push_back(e);
@@ -267,36 +274,19 @@ private:
 		return dst;
 	}
 
-	template<typename ValT> void push_back_impl(ValT t) {
-		::new (last) T(static_cast<ValT>(t));
-		increment(last);
-		++siz;
-	}
-
-	template<typename ValT> void push_front_impl(ValT t) {
-		try {
-			decrement(first);
-			::new (first) T(static_cast<ValT>(t));
-			++siz;
-		} catch (...) {
-			increment(first);
-			throw;
-		}
-	}
-
-	template<typename Pointer> void increment(Pointer& p) const {
+	void increment(auto*& p) const {
 		if (++p == stop) p = buf;
 	}
-	template<typename Pointer> void decrement(Pointer& p) const {
+	void decrement(auto*& p) const {
 		if (p == buf) p = stop;
 		--p;
 	}
-	template<typename Pointer> [[nodiscard]] Pointer add(Pointer p, difference_type n) const {
+	[[nodiscard]] auto* add(auto* p, difference_type n) const {
 		p += n;
 		if (p >= stop) p -= capacity();
 		return p;
 	}
-	template<typename Pointer> [[nodiscard]] Pointer sub(Pointer p, difference_type n) const {
+	[[nodiscard]] auto* sub(auto* p, difference_type n) const {
 		p -= n;
 		if (p < buf) p += capacity();
 		return p;

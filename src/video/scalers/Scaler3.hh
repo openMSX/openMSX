@@ -8,7 +8,7 @@ namespace openmsx {
 
 /** Base class for 3x scalers
   */
-template<typename Pixel> class Scaler3 : public Scaler<Pixel>
+template<std::unsigned_integral Pixel> class Scaler3 : public Scaler<Pixel>
 {
 public:
 	void scaleImage(FrameSource& src, const RawFrame* superImpose,

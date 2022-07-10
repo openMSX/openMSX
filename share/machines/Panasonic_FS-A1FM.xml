@@ -93,6 +93,7 @@
         <MemoryMapper id="Main RAM">
           <size>64</size>
           <mem base="0x0000" size="0x10000"/>
+          <initialContent encoding="gz-base64">eJxjYBhY8H+AAQAioH+B</initialContent> <!-- ((chr(0) * 128) + (chr(255) * 128)), on Peter Hanraets' machine with serial 8DBKA02048. -->
         </MemoryMapper>
       </secondary>
 

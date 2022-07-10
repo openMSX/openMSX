@@ -19,9 +19,10 @@
 //
 //     Note: 'free(ptr)' is called when we exit the function via 1) 2) or 3)
 
+#include <concepts>
 #include <utility>
 
-template<typename FUNC>
+template<std::invocable FUNC>
 class scope_exit
 {
 public:
@@ -36,7 +37,7 @@ public:
     }
 
 private:
-    FUNC action;
+    [[no_unique_address]] FUNC action;
 };
 
 #endif

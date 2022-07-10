@@ -2,6 +2,8 @@
 #define OSDRECTANGLE_HH
 
 #include "OSDImageBasedWidget.hh"
+#include "stl.hh"
+#include <array>
 #include <memory>
 
 namespace openmsx {
@@ -26,7 +28,7 @@ protected:
 public:
 	OSDRectangle(Display& display, const TclObject& name);
 
-	[[nodiscard]] span<const std::string_view> getProperties() const override {
+	[[nodiscard]] std::span<const std::string_view> getProperties() const override {
 		return rectangleProperties;
 	}
 	void setProperty(Interpreter& interp,

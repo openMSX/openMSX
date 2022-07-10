@@ -8,6 +8,7 @@
 #include "StringOp.hh"
 #include "one_of.hh"
 #include "outer.hh"
+#include <array>
 #include <memory>
 #include <utility>
 
@@ -35,7 +36,7 @@ OSDGUI::OSDCommand::OSDCommand(CommandController& commandController_)
 {
 }
 
-void OSDGUI::OSDCommand::execute(span<const TclObject> tokens, TclObject& result)
+void OSDGUI::OSDCommand::execute(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, AtLeast{2}, "subcommand ?arg ...?");
 	executeSubCommand(tokens[1].getString(),
@@ -46,7 +47,7 @@ void OSDGUI::OSDCommand::execute(span<const TclObject> tokens, TclObject& result
 		"configure", [&]{ configure(tokens, result); });
 }
 
-void OSDGUI::OSDCommand::create(span<const TclObject> tokens, TclObject& result)
+void OSDGUI::OSDCommand::create(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, AtLeast{4}, Prefix{2}, "type name ?property value ...?");
 	std::string_view type = tokens[2].getString();
@@ -95,7 +96,7 @@ std::unique_ptr<OSDWidget> OSDGUI::OSDCommand::create(
 	}
 }
 
-void OSDGUI::OSDCommand::destroy(span<const TclObject> tokens, TclObject& result)
+void OSDGUI::OSDCommand::destroy(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, 3, "name");
 	auto fullname = tokens[2].getString();
@@ -122,7 +123,7 @@ void OSDGUI::OSDCommand::destroy(span<const TclObject> tokens, TclObject& result
 	result = true;
 }
 
-void OSDGUI::OSDCommand::info(span<const TclObject> tokens, TclObject& result)
+void OSDGUI::OSDCommand::info(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, Between{2, 4}, Prefix{2}, "?name? ?property?");
 	auto& gui = OUTER(OSDGUI, osdCommand);
@@ -147,7 +148,7 @@ void OSDGUI::OSDCommand::info(span<const TclObject> tokens, TclObject& result)
 	}
 }
 
-void OSDGUI::OSDCommand::exists(span<const TclObject> tokens, TclObject& result)
+void OSDGUI::OSDCommand::exists(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, 3, "name");
 	auto& gui = OUTER(OSDGUI, osdCommand);
@@ -155,7 +156,7 @@ void OSDGUI::OSDCommand::exists(span<const TclObject> tokens, TclObject& result)
 	result = widget != nullptr;
 }
 
-void OSDGUI::OSDCommand::configure(span<const TclObject> tokens, TclObject& /*result*/)
+void OSDGUI::OSDCommand::configure(std::span<const TclObject> tokens, TclObject& /*result*/)
 {
 	checkNumArgs(tokens, AtLeast{3}, "name ?property value ...?");
 	auto& widget = getWidget(tokens[2].getString());
@@ -166,7 +167,7 @@ void OSDGUI::OSDCommand::configure(span<const TclObject> tokens, TclObject& /*re
 	}
 }
 
-void OSDGUI::OSDCommand::configure(OSDWidget& widget, span<const TclObject> tokens)
+void OSDGUI::OSDCommand::configure(OSDWidget& widget, std::span<const TclObject> tokens)
 {
 	if (tokens.size() & 1) {
 		// odd number of extra arguments
@@ -181,7 +182,7 @@ void OSDGUI::OSDCommand::configure(OSDWidget& widget, span<const TclObject> toke
 	}
 }
 
-std::string OSDGUI::OSDCommand::help(span<const TclObject> tokens) const
+std::string OSDGUI::OSDCommand::help(std::span<const TclObject> tokens) const
 {
 	if (tokens.size() >= 2) {
 		if (tokens[1] == "create") {
@@ -269,7 +270,7 @@ void OSDGUI::OSDCommand::tabCompletion(std::vector<std::string>& tokens) const
 					const auto& widget = getWidget(tokens[2]);
 					return widget.getProperties();
 				} else {
-					return span<const std::string_view>{};
+					return std::span<const std::string_view>{};
 				}
 			}();
 			completeString(tokens, properties);

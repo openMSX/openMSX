@@ -74,6 +74,7 @@ public:
 	[[nodiscard]] uint8_t peekReg(uint8_t reg) const override;
 	void generateChannels(float* out[9 + 5], uint32_t n) override;
 	[[nodiscard]] float getAmplificationFactor() const override;
+	void setSpeed(double speed) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -266,6 +267,7 @@ private:
 	uint8_t latch;
 
 	int allowed_offset = 0; // Hack: see comments in writePort()
+	bool speedUpHack = false;
 };
 
 } // namespace openmsx::NukeYKT

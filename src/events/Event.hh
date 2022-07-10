@@ -61,7 +61,6 @@ private:
 [[nodiscard]] TclObject toTclList(const Event& event);
 
 [[nodiscard]] bool operator==(const Event& x, const Event& y);
-[[nodiscard]] inline bool operator!=(const Event& x, const Event& y) { return !(x == y); }
 
 /** Should 'bind -repeat' be stopped by 'other' event.
 	* Normally all events should stop auto-repeat of the previous

@@ -89,7 +89,7 @@ void CommandLineParser::registerFileType(
 }
 
 bool CommandLineParser::parseOption(
-	const string& arg, span<string>& cmdLine, ParsePhase phase)
+	const string& arg, std::span<string>& cmdLine, ParsePhase phase)
 {
 	if (auto it = ranges::lower_bound(options, arg, {}, &OptionData::name);
 	    (it != end(options)) && (it->name == arg)) {
@@ -106,7 +106,7 @@ bool CommandLineParser::parseOption(
 	return false; // unknown
 }
 
-bool CommandLineParser::parseFileName(const string& arg, span<string>& cmdLine)
+bool CommandLineParser::parseFileName(const string& arg, std::span<string>& cmdLine)
 {
 	if (auto* handler = getFileTypeHandlerForFileName(arg)) {
 		try {
@@ -162,7 +162,7 @@ void CommandLineParser::parse(int argc, char** argv)
 	auto cmdLineBuf = to_vector(view::transform(xrange(1, argc), [&](auto i) {
 		return FileOperations::getConventionalPath(argv[i]);
 	}));
-	span<string> cmdLine(cmdLineBuf);
+	std::span<string> cmdLine(cmdLineBuf);
 	std::vector<string> backupCmdLine;
 
 	for (ParsePhase phase = PHASE_BEFORE_INIT;
@@ -306,7 +306,7 @@ Interpreter& CommandLineParser::getInterpreter() const
 // Control option
 
 void CommandLineParser::ControlOption::parseOption(
-	const string& option, span<string>& cmdLine)
+	const string& option, std::span<string>& cmdLine)
 {
 	const auto& fullType = getArgument(option, cmdLine);
 	auto [type, arguments] = StringOp::splitOnFirst(fullType, ':');
@@ -341,7 +341,7 @@ string_view CommandLineParser::ControlOption::optionHelp() const
 // Script option
 
 void CommandLineParser::ScriptOption::parseOption(
-	const string& option, span<string>& cmdLine)
+	const string& option, std::span<string>& cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine), cmdLine);
 }
@@ -352,7 +352,7 @@ string_view CommandLineParser::ScriptOption::optionHelp() const
 }
 
 void CommandLineParser::ScriptOption::parseFileType(
-	const string& filename, span<std::string>& /*cmdLine*/)
+	const string& filename, std::span<std::string>& /*cmdLine*/)
 {
 	scripts.push_back(filename);
 }
@@ -370,7 +370,7 @@ string_view CommandLineParser::ScriptOption::fileTypeCategoryName() const
 
 // Command option
 void CommandLineParser::CommandOption::parseOption(
-	const std::string& option, span<std::string>& cmdLine)
+	const std::string& option, std::span<std::string>& cmdLine)
 {
 	commands.push_back(getArgument(option, cmdLine));
 }
@@ -383,7 +383,7 @@ std::string_view CommandLineParser::CommandOption::optionHelp() const
 
 // Help option
 
-static string formatSet(span<const string_view> inputSet, string::size_type columns)
+static string formatSet(std::span<const string_view> inputSet, string::size_type columns)
 {
 	string outString;
 	string::size_type totalLength = 0; // ignore the starting spaces for now
@@ -448,7 +448,7 @@ static void printItemMap(const GroupedItems& itemMap)
 // class HelpOption
 
 void CommandLineParser::HelpOption::parseOption(
-	const string& /*option*/, span<string>& /*cmdLine*/)
+	const string& /*option*/, std::span<string>& /*cmdLine*/)
 {
 	auto& parser = OUTER(CommandLineParser, helpOption);
 	const auto& fullVersion = Version::full();
@@ -490,7 +490,7 @@ string_view CommandLineParser::HelpOption::optionHelp() const
 // class VersionOption
 
 void CommandLineParser::VersionOption::parseOption(
-	const string& /*option*/, span<string>& /*cmdLine*/)
+	const string& /*option*/, std::span<string>& /*cmdLine*/)
 {
 	cout << Version::full() << "\n"
 	        "flavour: " << BUILD_FLAVOUR << "\n"
@@ -508,7 +508,7 @@ string_view CommandLineParser::VersionOption::optionHelp() const
 // Machine option
 
 void CommandLineParser::MachineOption::parseOption(
-	const string& option, span<string>& cmdLine)
+	const string& option, std::span<string>& cmdLine)
 {
 	auto& parser = OUTER(CommandLineParser, machineOption);
 	if (parser.haveConfig) {
@@ -531,7 +531,7 @@ string_view CommandLineParser::MachineOption::optionHelp() const
 // class SettingOption
 
 void CommandLineParser::SettingOption::parseOption(
-	const string& option, span<string>& cmdLine)
+	const string& option, std::span<string>& cmdLine)
 {
 	auto& parser = OUTER(CommandLineParser, settingOption);
 	if (parser.haveSettings) {
@@ -558,7 +558,7 @@ string_view CommandLineParser::SettingOption::optionHelp() const
 // class TestConfigOption
 
 void CommandLineParser::TestConfigOption::parseOption(
-	const string& /*option*/, span<string>& /*cmdLine*/)
+	const string& /*option*/, std::span<string>& /*cmdLine*/)
 {
 	auto& parser = OUTER(CommandLineParser, testConfigOption);
 	parser.parseStatus = CommandLineParser::TEST;
@@ -572,7 +572,7 @@ string_view CommandLineParser::TestConfigOption::optionHelp() const
 // class BashOption
 
 void CommandLineParser::BashOption::parseOption(
-	const string& /*option*/, span<string>& cmdLine)
+	const string& /*option*/, std::span<string>& cmdLine)
 {
 	auto& parser = OUTER(CommandLineParser, bashOption);
 	string_view last = cmdLine.empty() ? string_view{} : cmdLine.front();
@@ -582,7 +582,7 @@ void CommandLineParser::BashOption::parseOption(
 		for (auto& s : Reactor::getHwConfigs("machines")) {
 			cout << s << '\n';
 		}
-	} else if (StringOp::startsWith(last, "-ext")) {
+	} else if (last.starts_with("-ext")) {
 		for (auto& s : Reactor::getHwConfigs("extensions")) {
 			cout << s << '\n';
 		}
@@ -613,7 +613,7 @@ CommandLineParser::FileTypeCategoryInfoTopic::FileTypeCategoryInfoTopic(
 }
 
 void CommandLineParser::FileTypeCategoryInfoTopic::execute(
-	span<const TclObject> tokens, TclObject& result) const
+	std::span<const TclObject> tokens, TclObject& result) const
 {
 	checkNumArgs(tokens, 3, "filename");
 	assert(tokens.size() == 3);
@@ -627,7 +627,7 @@ void CommandLineParser::FileTypeCategoryInfoTopic::execute(
 	}
 }
 
-string CommandLineParser::FileTypeCategoryInfoTopic::help(span<const TclObject> /*tokens*/) const
+string CommandLineParser::FileTypeCategoryInfoTopic::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Returns the file type category for the given file.";
 }

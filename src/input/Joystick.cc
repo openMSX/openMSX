@@ -102,13 +102,13 @@ static void checkJoystickConfig(Interpreter& interp, TclObject& newValue)
 		}
 		for (auto j : xrange(value.getListLength(interp))) {
 			std::string_view host = value.getListIndex(interp, j).getString();
-			if (!StringOp::startsWith(host, "button") &&
-			    !StringOp::startsWith(host, "+axis") &&
-			    !StringOp::startsWith(host, "-axis") &&
-			    !StringOp::startsWith(host, "L_hat") &&
-			    !StringOp::startsWith(host, "R_hat") &&
-			    !StringOp::startsWith(host, "U_hat") &&
-			    !StringOp::startsWith(host, "D_hat")) {
+			if (!host.starts_with("button") &&
+			    !host.starts_with("+axis") &&
+			    !host.starts_with("-axis") &&
+			    !host.starts_with("L_hat") &&
+			    !host.starts_with("R_hat") &&
+			    !host.starts_with("U_hat") &&
+			    !host.starts_with("D_hat")) {
 				throw CommandException(
 					"Invalid host joystick action: must be "
 					"one of 'button<N>', '+axis<N>', '-axis<N>', "
@@ -249,43 +249,43 @@ bool Joystick::getState(Interpreter& interp, const TclObject& dict,
 		const auto& list = dict.getDictValue(interp, key);
 		for (auto i : xrange(list.getListLength(interp))) {
 			const auto& elem = list.getListIndex(interp, i).getString();
-			if (StringOp::startsWith(elem, "button")) {
+			if (elem.starts_with("button")) {
 				if (auto n = StringOp::stringToBase<10, unsigned>(elem.substr(6))) {
 					if (InputEventGenerator::joystickGetButton(joystick, *n)) {
 						return true;
 					}
 				}
-			} else if (StringOp::startsWith(elem, "+axis")) {
+			} else if (elem.starts_with("+axis")) {
 				if (auto n = StringOp::stringToBase<10, unsigned>(elem.substr(5))) {
 					if (SDL_JoystickGetAxis(joystick, *n) > threshold) {
 						return true;
 					}
 				}
-			} else if (StringOp::startsWith(elem, "-axis")) {
+			} else if (elem.starts_with("-axis")) {
 				if (auto n = StringOp::stringToBase<10, unsigned>(elem.substr(5))) {
 					if (SDL_JoystickGetAxis(joystick, *n) < -threshold) {
 						return true;
 					}
 				}
-			} else if (StringOp::startsWith(elem, "L_hat")) {
+			} else if (elem.starts_with("L_hat")) {
 				if (auto n = StringOp::stringToBase<10, unsigned>(elem.substr(5))) {
 					if (SDL_JoystickGetHat(joystick, *n) & SDL_HAT_LEFT) {
 						return true;
 					}
 				}
-			} else if (StringOp::startsWith(elem, "R_hat")) {
+			} else if (elem.starts_with("R_hat")) {
 				if (auto n = StringOp::stringToBase<10, unsigned>(elem.substr(5))) {
 					if (SDL_JoystickGetHat(joystick, *n) & SDL_HAT_RIGHT) {
 						return true;
 					}
 				}
-			} else if (StringOp::startsWith(elem, "U_hat")) {
+			} else if (elem.starts_with("U_hat")) {
 				if (auto n = StringOp::stringToBase<10, unsigned>(elem.substr(5))) {
 					if (SDL_JoystickGetHat(joystick, *n) & SDL_HAT_UP) {
 						return true;
 					}
 				}
-			} else if (StringOp::startsWith(elem, "D_hat")) {
+			} else if (elem.starts_with("D_hat")) {
 				if (auto n = StringOp::stringToBase<10, unsigned>(elem.substr(5))) {
 					if (SDL_JoystickGetHat(joystick, *n) & SDL_HAT_DOWN) {
 						return true;

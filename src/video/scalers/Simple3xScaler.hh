@@ -9,9 +9,9 @@
 namespace openmsx {
 
 class RenderSettings;
-template<typename Pixel> class PolyLineScaler;
+template<std::unsigned_integral Pixel> class PolyLineScaler;
 
-template<typename Pixel> class Blur_1on3
+template<std::unsigned_integral Pixel> class Blur_1on3
 {
 public:
 	explicit Blur_1on3(const PixelOperations<Pixel>& pixelOps);
@@ -28,7 +28,7 @@ private:
 #endif
 };
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 class Simple3xScaler final : public Scaler3<Pixel>
 {
 public:

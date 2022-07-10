@@ -4,39 +4,31 @@ set_help_text get_screen \
 {Returns the content of the MSX screen as a string (only works for text-modes).
 }
 
+set ::is_svi [expr {[machine_info type] eq "SVI"}]
+set ::cursor_chr  [expr {$::is_svi ? 191    : 255}]
+set ::cursor_addr [expr {$::is_svi ? 0xFD67 : 0xFBCC}]
+proc unknown_chr {c} {
+	if {$c != $::cursor_chr} { return 32 }
+	scan [msxcode2unicode [format %c [peek $::cursor_addr]]] %c u
+	return $u
+}
 proc get_screen {} {
-	set mode [get_screen_mode_number]
+	set mode [get_screen_mode]
 	switch -- $mode {
-		0 {
-			set addr 0
-			set width [expr {([debug read "VDP regs" 0] & 0x04) ? 80 : 40}]
-		}
-		1 {
-			set addr 6144
-			set width 32
-		}
-		default {
-			error "Screen mode $mode not supported"
-		}
+		TEXT40 { set addr    0 ; set width 40 }
+		TEXT80 { set addr    0 ; set width 80 }
+		1      { set addr 6144 ; set width 32 }
+		default { error "Screen mode $mode not supported" }
 	}
 
 	# scrape screen and build string
 	set screen ""
 	for {set y 0} {$y < 24} {incr y} {
-		set line ""
-		for {set x 0} {$x < $width} {incr x} {
-			set char [vpeek $addr]
-			if {$char == 255 && [machine_info type] eq "MSX"} {
-				set char [peek 0xFBCC]
-			} elseif {$char == 191 && [machine_info type] eq "SVI"} {
-				set char [peek 0xFD67]
-			}
-			append line [format %c $char]
-			incr addr
-		}
-		append screen [string trim $line] "\n"
+		set vram [debug read_block VRAM $addr $width]
+		append screen [msxcode2unicode $vram unknown_chr] "\n"
+		incr addr $width
 	}
-	return [string trim $screen]
+	return $screen
 }
 
 #***********************************************

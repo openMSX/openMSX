@@ -120,16 +120,16 @@ TEST_CASE("FilePoolCore")
 	// write 'filecache' to disk
 	auto lines = readLines(tmp + "/cache");
 	CHECK(lines.size() == 4);
-	CHECK(StringOp::startsWith(lines[0], "637a81ed8e8217bb01c15c67c39b43b0ab4e20f1"));
-	CHECK(StringOp::endsWith(lines[0], tmp + "/e"));
-	CHECK(StringOp::startsWith(lines[1], "7e240de74fb1ed08fa08d38063f6a6a91462a815"));
-	CHECK((StringOp::endsWith(lines[1], tmp + "/a") ||
-	       StringOp::endsWith(lines[1], tmp + "/a2")));
-	CHECK(StringOp::startsWith(lines[2], "7e240de74fb1ed08fa08d38063f6a6a91462a815"));
-	CHECK((StringOp::endsWith(lines[2], tmp + "/a") ||
-	       StringOp::endsWith(lines[2], tmp + "/a2")));
-	CHECK(StringOp::startsWith(lines[3], "f36b4825e5db2cf7dd2d2593b3f5c24c0311d8b2"));
-	CHECK(StringOp::endsWith(lines[3], tmp + "/c"));
+	CHECK(lines[0].starts_with("637a81ed8e8217bb01c15c67c39b43b0ab4e20f1"));
+	CHECK(lines[0].ends_with(tmp + "/e"));
+	CHECK(lines[1].starts_with("7e240de74fb1ed08fa08d38063f6a6a91462a815"));
+	CHECK((lines[1].ends_with(tmp + "/a") ||
+	       lines[1].ends_with(tmp + "/a2")));
+	CHECK(lines[2].starts_with("7e240de74fb1ed08fa08d38063f6a6a91462a815"));
+	CHECK((lines[2].ends_with(tmp + "/a") ||
+	       lines[2].ends_with(tmp + "/a2")));
+	CHECK(lines[3].starts_with("f36b4825e5db2cf7dd2d2593b3f5c24c0311d8b2"));
+	CHECK(lines[3].ends_with(tmp + "/c"));
 
 	FileOperations::deleteRecursive(tmp);
 }

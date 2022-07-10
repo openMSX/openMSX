@@ -1,0 +1,102 @@
+name: Build Release binaries from tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to build'
+        required: true
+        type: string
+
+jobs:
+  build:
+    name: ${{ matrix.name }} ${{ matrix.cpu }}
+    runs-on: ${{ matrix.image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: ubuntu-latest
+            name: Unit Tests (on Linux)
+            cpu: x86_64
+            os: linux
+            flavour: unittest
+          - image: ubuntu-latest
+            name: Linux
+            cpu: x86_64
+            os: linux
+            flavour: opt
+          - image: ubuntu-latest
+            name: Linux
+            cpu: aarch64
+            os: linux
+            flavour: opt
+          - image: ubuntu-22.04
+            name: Windows
+            cpu: x86_64
+            os: mingw-w64
+            flavour: opt
+          - image: macos-12
+            name: MacOS
+            cpu: x86_64
+            os: darwin
+            flavour: opt
+          - image: macos-12
+            name: MacOS
+            cpu: aarch64
+            os: darwin
+            flavour: opt
+#          - image: ubuntu-latest
+#            name: Android
+#            cpu: arm
+#            os: android
+#            flavour: opt
+          - image: windows-latest
+            name: Windows-VC
+            cpu: x64
+            os: windows-vc
+            flavour: opt
+    steps:
+    - name: Get current master code from Git repo
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Create tarball
+      shell: bash
+      run: python3 build/gitdist.py ${{ inputs.tag }}
+    - name: Determine tarball name
+      id: get_dist_name
+      shell: bash
+      run: |
+        NAME=`PYTHONPATH=build python3 -c "import gitdist; rel='${{ inputs.tag }}'; print (f'openmsx-{gitdist.niceVersionFromGitDescription(gitdist.getDescription(rel))}')"`
+        echo ::set-output name=tarball_name::$NAME.tar.gz
+        echo ::set-output name=dist_name::$NAME
+    - name: Move tarball to root
+      shell: bash
+      run: mv derived/dist/${{ steps.get_dist_name.outputs.tarball_name }} .
+    - name: Upload tarball as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ steps.get_dist_name.outputs.tarball_name }}
+        path: ${{ steps.get_dist_name.outputs.tarball_name }}
+    - name: Remove everything except tarball from root
+      shell: bash
+      run: |
+        shopt -s extglob
+        rm -rf -v !("${{ steps.get_dist_name.outputs.tarball_name }}")
+    - name: Extract tarball
+      uses: a7ul/tar-action@v1.1.0
+      id: extract
+      with:
+        command: x
+        files: ${{ steps.get_dist_name.outputs.tarball_name }}
+    - name: Move extracted tarball contents to root
+      shell: bash
+      run: mv ${{ steps.get_dist_name.outputs.dist_name }}/* .
+    - name: Perform build on extracted tarball
+      # Directory name only
+      uses: ./.github/actions/build
+      with:
+        os: ${{ matrix.os }}
+        cpu: ${{ matrix.cpu }}
+        flavour: ${{ matrix.flavour }}

@@ -13,15 +13,6 @@
 #include <variant>
 #include <vector>
 
-// Reimplementation of c++20 std::identity.
-struct identity {
-	template<typename T>
-	[[nodiscard]] constexpr T&& operator()(T&& t) const noexcept {
-		return std::forward<T>(t);
-	}
-};
-
-
 /** Check if a range contains a given value, using linear search.
   * Equivalent to 'find(first, last, val) != last', though this algorithm
   * is more convenient to use.
@@ -68,13 +59,13 @@ template<typename RANGE, typename VAL, typename Proj>
   * the 'last' parameter. Sometimes you see 'find_unguarded' without a 'last'
   * parameter, we could consider providing such an overload as well.
   */
-template<typename ITER, typename VAL, typename Proj = identity>
+template<typename ITER, typename VAL, typename Proj = std::identity>
 [[nodiscard]] /*constexpr*/ ITER find_unguarded(ITER first, ITER last, const VAL& val, Proj proj = {})
 {
 	return find_if_unguarded(first, last,
 		[&](const auto& e) { return std::invoke(proj, e) == val; });
 }
-template<typename RANGE, typename VAL, typename Proj = identity>
+template<typename RANGE, typename VAL, typename Proj = std::identity>
 [[nodiscard]] /*constexpr*/ auto find_unguarded(RANGE& range, const VAL& val, Proj proj = {})
 {
 	return find_unguarded(std::begin(range), std::end(range), val, proj);
@@ -105,7 +96,7 @@ template<typename RANGE, typename PRED>
   * Note that we only need to provide range versions. Because for the iterator
   * versions it is already possible to pass reverse iterators.
   */
-template<typename RANGE, typename VAL, typename Proj = identity>
+template<typename RANGE, typename VAL, typename Proj = std::identity>
 [[nodiscard]] /*constexpr*/ auto rfind_unguarded(RANGE& range, const VAL& val, Proj proj = {})
 {
 	auto it = find_unguarded(std::rbegin(range), std::rend(range), val, proj);
@@ -201,7 +192,7 @@ auto transform_in_place(ForwardRange&& range, UnaryOperation op)
 
 // Returns (a copy of) the minimum value in [first, last).
 // Requires: first != last.
-template<typename InputIterator, typename Proj = identity>
+template<typename InputIterator, typename Proj = std::identity>
 [[nodiscard]] /*constexpr*/ auto min_value(InputIterator first, InputIterator last, Proj proj = {})
 {
 	assert(first != last);
@@ -212,7 +203,7 @@ template<typename InputIterator, typename Proj = identity>
 	return result;
 }
 
-template<typename InputRange, typename Proj = identity>
+template<typename InputRange, typename Proj = std::identity>
 [[nodiscard]] /*constexpr*/ auto min_value(InputRange&& range, Proj proj = {})
 {
 	return min_value(std::begin(range), std::end(range), proj);
@@ -220,7 +211,7 @@ template<typename InputRange, typename Proj = identity>
 
 // Returns (a copy of) the maximum value in [first, last).
 // Requires: first != last.
-template<typename InputIterator, typename Proj = identity>
+template<typename InputIterator, typename Proj = std::identity>
 [[nodiscard]] /*constexpr*/ auto max_value(InputIterator first, InputIterator last, Proj proj = {})
 {
 	assert(first != last);
@@ -231,7 +222,7 @@ template<typename InputIterator, typename Proj = identity>
 	return result;
 }
 
-template<typename InputRange, typename Proj = identity>
+template<typename InputRange, typename Proj = std::identity>
 [[nodiscard]] /*constexpr*/ auto max_value(InputRange&& range, Proj proj = {})
 {
 	return max_value(std::begin(range), std::end(range), proj);
@@ -241,7 +232,7 @@ template<typename InputRange, typename Proj = identity>
 // Returns the sum of the elements in the given range.
 // Assumes: elements can be summed via operator+, with a default constructed
 // value being the identity-element for this operator.
-template<typename InputRange, typename Proj = identity>
+template<typename InputRange, typename Proj = std::identity>
 [[nodiscard]] /*constexpr*/ auto sum(InputRange&& range, Proj proj = {})
 {
 	using Iter = decltype(std::begin(range));

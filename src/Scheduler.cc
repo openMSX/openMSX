@@ -103,7 +103,7 @@ void Scheduler::scheduleHelper(EmuTime::param limit, EmuTime next)
 		device->executeUntil(next);
 
 		next = getNext();
-		if (likely(next > limit)) break;
+		if (next > limit) [[likely]] break;
 	}
 	scheduleInProgress = false;
 

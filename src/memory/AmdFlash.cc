@@ -7,11 +7,11 @@
 #include "CliComm.hh"
 #include "HardwareConfig.hh"
 #include "MSXException.hh"
-#include "Math.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include "xrange.hh"
+#include <bit>
 #include <cstring>
 #include <cassert>
 #include <iterator>
@@ -19,7 +19,7 @@
 
 namespace openmsx {
 
-AmdFlash::AmdFlash(const Rom& rom, span<const SectorInfo> sectorInfo_,
+AmdFlash::AmdFlash(const Rom& rom, std::span<const SectorInfo> sectorInfo_,
                    word ID_, Addressing addressing_,
                    const DeviceConfig& config, Load load)
 	: motherBoard(config.getMotherBoard())
@@ -31,7 +31,7 @@ AmdFlash::AmdFlash(const Rom& rom, span<const SectorInfo> sectorInfo_,
 	init(rom.getName() + "_flash", config, load, &rom);
 }
 
-AmdFlash::AmdFlash(const std::string& name, span<const SectorInfo> sectorInfo_,
+AmdFlash::AmdFlash(const std::string& name, std::span<const SectorInfo> sectorInfo_,
                    word ID_, Addressing addressing_,
                    const DeviceConfig& config)
 	: motherBoard(config.getMotherBoard())
@@ -51,7 +51,7 @@ AmdFlash::AmdFlash(const std::string& name, span<const SectorInfo> sectorInfo_,
 
 void AmdFlash::init(const std::string& name, const DeviceConfig& config, Load load, const Rom* rom)
 {
-	assert(Math::ispow2(getSize()));
+	assert(std::has_single_bit(getSize()));
 
 	auto numSectors = sectorInfo.size();
 

@@ -4,6 +4,7 @@
 #include "FrameSource.hh"
 #include "MemBuffer.hh"
 #include <cassert>
+#include <concepts>
 
 namespace openmsx {
 
@@ -15,7 +16,7 @@ class RawFrame final : public FrameSource
 public:
 	RawFrame(const PixelFormat& format, unsigned maxWidth, unsigned height);
 
-	template<typename Pixel>
+	template<std::unsigned_integral Pixel>
 	[[nodiscard]] Pixel* getLinePtrDirect(unsigned y) {
 		return reinterpret_cast<Pixel*>(data.data() + y * pitch);
 	}
@@ -30,7 +31,7 @@ public:
 		lineWidths[line] = width;
 	}
 
-	template<typename Pixel>
+	template<std::unsigned_integral Pixel>
 	inline void setBlank(unsigned line, Pixel color) {
 		assert(line < getHeight());
 		auto* pixels = getLinePtrDirect<Pixel>(line);

@@ -46,6 +46,7 @@
 
     <primary slot="0">
       <RAM id="Main RAM">
+          <initialContent encoding="gz-base64">eJz78IEywE8hAAAZuT/B</initialContent> <!-- (64*chr(0xF0)+64*0x0F)).encode('zip').encode('base64') as found on the machine of Peter Hanraets with serial 1023398 -->
         <mem base="0xC000" size="0x4000"/>
       </RAM>
       <ROM id="MSX BIOS with BASIC ROM">

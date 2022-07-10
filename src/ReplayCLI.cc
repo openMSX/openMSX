@@ -11,7 +11,7 @@ ReplayCLI::ReplayCLI(CommandLineParser& parser_)
 	parser.registerFileType({"omr"}, *this);
 }
 
-void ReplayCLI::parseOption(const std::string& option, span<std::string>& cmdLine)
+void ReplayCLI::parseOption(const std::string& option, std::span<std::string>& cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine), cmdLine);
 }
@@ -22,7 +22,7 @@ std::string_view ReplayCLI::optionHelp() const
 }
 
 void ReplayCLI::parseFileType(const std::string& filename,
-                              span<std::string>& /*cmdLine*/)
+                              std::span<std::string>& /*cmdLine*/)
 {
 	TclObject command = makeTclList("reverse", "loadreplay", "-viewonly", filename);
 	command.executeCommand(parser.getInterpreter());

@@ -1,10 +1,10 @@
 #ifndef FILE_HH
 #define FILE_HH
 
-#include "span.hh"
 #include <cstdint>
 #include <ctime>
 #include <memory>
+#include <span>
 #include <string_view>
 
 namespace openmsx {
@@ -85,7 +85,7 @@ public:
 	 * @result Pointer/size to/of memory block.
 	 * @throws FileException
 	 */
-	[[nodiscard]] span<const uint8_t> mmap();
+	[[nodiscard]] std::span<const uint8_t> mmap();
 
 	/** Unmap file from memory.
 	 */

@@ -4,10 +4,10 @@
 #include "Filename.hh"
 #include "CliComm.hh"
 #include "MSXException.hh"
-#include "span.hh"
 #include "stl.hh"
 #include "xrange.hh"
 #include <cstring> // for memcmp
+#include <span>
 
 static constexpr std::array<uint8_t, 10> ASCII_HEADER  = { 0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA };
 static constexpr std::array<uint8_t, 10> BINARY_HEADER = { 0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0 };
@@ -40,8 +40,7 @@ static void writeSilence(std::vector<int8_t>& wave, unsigned s)
 	append(wave, s, 0);
 }
 
-template<typename Array>
-static bool compare(const uint8_t* p, const Array& array)
+static bool compare(const uint8_t* p, const auto& array)
 {
 	return memcmp(p, array.data(), array.size()) == 0;
 }
@@ -101,7 +100,7 @@ static void writeByte(std::vector<int8_t>& wave, uint8_t b)
 }
 
 // write data until a header is detected
-static bool writeData(std::vector<int8_t>& wave, span<const uint8_t> cas, size_t& pos)
+static bool writeData(std::vector<int8_t>& wave, std::span<const uint8_t> cas, size_t& pos)
 {
 	bool eof = false;
 	while ((pos + CAS_HEADER.size()) <= cas.size()) {
@@ -120,7 +119,7 @@ static bool writeData(std::vector<int8_t>& wave, span<const uint8_t> cas, size_t
 	return false;
 }
 
-static CasImage::Data convert(span<const uint8_t> cas, const std::string& filename, CliComm& cliComm,
+static CasImage::Data convert(std::span<const uint8_t> cas, const std::string& filename, CliComm& cliComm,
                               CassetteImage::FileType& firstFileType)
 {
 	CasImage::Data data;
@@ -224,7 +223,7 @@ static void writeByte(std::vector<int8_t>& wave, uint8_t byte)
 	}
 }
 
-static void processBlock(span<const uint8_t> subBuf, std::vector<int8_t>& wave)
+static void processBlock(std::span<const uint8_t> subBuf, std::vector<int8_t>& wave)
 {
 	writeSilence(wave, 1200);
 	writeBit(wave, true);
@@ -236,7 +235,7 @@ static void processBlock(span<const uint8_t> subBuf, std::vector<int8_t>& wave)
 	}
 }
 
-static CasImage::Data convert(span<const uint8_t> cas, CassetteImage::FileType& firstFileType)
+static CasImage::Data convert(std::span<const uint8_t> cas, CassetteImage::FileType& firstFileType)
 {
 	CasImage::Data data;
 	data.frequency = 4800;
@@ -255,7 +254,9 @@ static CasImage::Data convert(span<const uint8_t> cas, CassetteImage::FileType& 
 	while (true) {
 		auto nextHeader = std::search(prevHeader, cas.end(),
 		                              header.begin(), header.end());
-		processBlock(span(prevHeader, nextHeader), data.wave);
+		// Workaround clang-13/libc++ bug
+		//processBlock(std::span(prevHeader, nextHeader), data.wave);
+		processBlock(std::span(&*prevHeader, nextHeader - prevHeader), data.wave);
 		if (nextHeader == cas.end()) break;
 		prevHeader = nextHeader + header.size();
 	}

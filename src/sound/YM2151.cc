@@ -86,7 +86,7 @@ static constexpr auto sin_tab = [] {
 	std::array<unsigned, SIN_LEN> result = {};
 	for (auto i : xrange(SIN_LEN)) {
 		// non-standard sinus
-		double m = cstd::sin<2>((i * 2 + 1) * M_PI / SIN_LEN); // verified on the real chip
+		double m = cstd::sin<2>((i * 2 + 1) * Math::pi / SIN_LEN); // verified on the real chip
 
 		// we never reach zero here due to (i * 2 + 1)
 		double o = -8.0 * cstd::log2<8, 3>(cstd::abs(m)); // convert to decibels

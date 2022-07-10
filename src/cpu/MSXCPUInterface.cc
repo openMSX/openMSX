@@ -186,12 +186,12 @@ byte MSXCPUInterface::readMemSlow(word address, EmuTime::param time)
 {
 	tick(CacheLineCounters::DisallowCacheRead);
 	// something special in this region?
-	if (unlikely(disallowReadCache[address >> CacheLine::BITS])) {
+	if (disallowReadCache[address >> CacheLine::BITS]) [[unlikely]] {
 		// slot-select-ignore reads (e.g. used in 'Carnivore2')
 		for (auto& g : globalReads) {
 			// very primitive address selection mechanism,
 			// but more than enough for now
-			if (unlikely(g.addr == address)) {
+			if (g.addr == address) [[unlikely]] {
 				g.device->globalRead(address, time);
 			}
 		}
@@ -201,7 +201,7 @@ byte MSXCPUInterface::readMemSlow(word address, EmuTime::param time)
 			executeMemWatch(WatchPoint::READ_MEM, address);
 		}
 	}
-	if (unlikely((address == 0xFFFF) && isExpanded(primarySlotState[3]))) {
+	if ((address == 0xFFFF) && isExpanded(primarySlotState[3])) [[unlikely]] {
 		return 0xFF ^ subSlotRegister[primarySlotState[3]];
 	} else {
 		return visibleDevices[address >> 14]->readMem(address, time);
@@ -211,7 +211,7 @@ byte MSXCPUInterface::readMemSlow(word address, EmuTime::param time)
 void MSXCPUInterface::writeMemSlow(word address, byte value, EmuTime::param time)
 {
 	tick(CacheLineCounters::DisallowCacheWrite);
-	if (unlikely((address == 0xFFFF) && isExpanded(primarySlotState[3]))) {
+	if ((address == 0xFFFF) && isExpanded(primarySlotState[3])) [[unlikely]] {
 		setSubSlot(primarySlotState[3], value);
 		// Confirmed on turboR GT machine: write does _not_ also go to
 		// the underlying (hidden) device. But it's theoretically
@@ -220,12 +220,12 @@ void MSXCPUInterface::writeMemSlow(word address, byte value, EmuTime::param time
 		visibleDevices[address>>14]->writeMem(address, value, time);
 	}
 	// something special in this region?
-	if (unlikely(disallowWriteCache[address >> CacheLine::BITS])) {
+	if (disallowWriteCache[address >> CacheLine::BITS]) [[unlikely]] {
 		// slot-select-ignore writes (Super Lode Runner)
 		for (auto& g : globalWrites) {
 			// very primitive address selection mechanism,
 			// but more than enough for now
-			if (unlikely(g.addr == address)) {
+			if (g.addr == address) [[unlikely]] {
 				g.device->globalWrite(address, value, time);
 			}
 		}
@@ -253,7 +253,7 @@ void MSXCPUInterface::setExpanded(int ps)
 
 void MSXCPUInterface::testUnsetExpanded(
 		int ps,
-		span<const std::unique_ptr<MSXDevice>> allowed) const
+		std::span<const std::unique_ptr<MSXDevice>> allowed) const
 {
 	assert(isExpanded(ps));
 	if (expanded[ps] != 1) return; // ok, still expanded after this
@@ -300,7 +300,7 @@ void MSXCPUInterface::unsetExpanded(int ps)
 {
 #ifndef NDEBUG
 	try {
-		span<const std::unique_ptr<MSXDevice>> dummy;
+		std::span<const std::unique_ptr<MSXDevice>> dummy;
 		testUnsetExpanded(ps, dummy);
 	} catch (...) {
 		UNREACHABLE;
@@ -676,35 +676,35 @@ void MSXCPUInterface::setPrimarySlots(byte value)
 	// (EmuTime) is not unusual. So this routine ended up quite high
 	// (top-10) in some profile results.
 	int ps0 = (value >> 0) & 3;
-	if (unlikely(primarySlotState[0] != ps0)) {
+	if (primarySlotState[0] != ps0) [[unlikely]] {
 		primarySlotState[0] = ps0;
 		int ss0 = (subSlotRegister[ps0] >> 0) & 3;
 		secondarySlotState[0] = ss0;
 		updateVisible(0, ps0, ss0);
 	}
 	int ps1 = (value >> 2) & 3;
-	if (unlikely(primarySlotState[1] != ps1)) {
+	if (primarySlotState[1] != ps1) [[unlikely]] {
 		primarySlotState[1] = ps1;
 		int ss1 = (subSlotRegister[ps1] >> 2) & 3;
 		secondarySlotState[1] = ss1;
 		updateVisible(1, ps1, ss1);
 	}
 	int ps2 = (value >> 4) & 3;
-	if (unlikely(primarySlotState[2] != ps2)) {
+	if (primarySlotState[2] != ps2) [[unlikely]] {
 		primarySlotState[2] = ps2;
 		int ss2 = (subSlotRegister[ps2] >> 4) & 3;
 		secondarySlotState[2] = ss2;
 		updateVisible(2, ps2, ss2);
 	}
 	int ps3 = (value >> 6) & 3;
-	if (unlikely(primarySlotState[3] != ps3)) {
+	if (primarySlotState[3] != ps3) [[unlikely]] {
 		bool oldExpanded = isExpanded(primarySlotState[3]);
 		bool newExpanded = isExpanded(ps3);
 		primarySlotState[3] = ps3;
 		int ss3 = (subSlotRegister[ps3] >> 6) & 3;
 		secondarySlotState[3] = ss3;
 		updateVisible(3, ps3, ss3);
-		if (unlikely(oldExpanded != newExpanded)) {
+		if (oldExpanded != newExpanded) [[unlikely]] {
 			changeExpanded(newExpanded);
 		}
 	}
@@ -785,12 +785,14 @@ void MSXCPUInterface::writeSlottedMem(unsigned address, byte value,
 
 void MSXCPUInterface::insertBreakPoint(BreakPoint bp)
 {
+	cliComm.update(CliComm::DEBUG_UPDT, tmpStrCat("bp#", bp.getId()), "add");
 	auto it = ranges::upper_bound(breakPoints, bp.getAddress(), {}, &BreakPoint::getAddress);
 	breakPoints.insert(it, std::move(bp));
 }
 
 void MSXCPUInterface::removeBreakPoint(const BreakPoint& bp)
 {
+	cliComm.update(CliComm::DEBUG_UPDT, tmpStrCat("bp#", bp.getId()), "remove");
 	auto [first, last] = ranges::equal_range(breakPoints, bp.getAddress(), {}, &BreakPoint::getAddress);
 	breakPoints.erase(find_unguarded(first, last, &bp,
 	                                 [](const BreakPoint& i) { return &i; }));
@@ -800,14 +802,14 @@ void MSXCPUInterface::removeBreakPoint(unsigned id)
 	if (auto it = ranges::find(breakPoints, id, &BreakPoint::getId);
 	    // could be ==end for a breakpoint that removes itself AND has the -once flag set
 	    it != breakPoints.end()) {
+		cliComm.update(CliComm::DEBUG_UPDT, tmpStrCat("bp#", it->getId()), "remove");
 		breakPoints.erase(it);
 	}
 }
 
 void MSXCPUInterface::checkBreakPoints(
 	std::pair<BreakPoints::const_iterator,
-	          BreakPoints::const_iterator> range,
-	MSXMotherBoard& motherBoard)
+	          BreakPoints::const_iterator> range)
 {
 	// create copy for the case that breakpoint/condition removes itself
 	//  - keeps object alive by holding a shared_ptr to it
@@ -816,15 +818,15 @@ void MSXCPUInterface::checkBreakPoints(
 	auto& globalCliComm = motherBoard.getReactor().getGlobalCliComm();
 	auto& interp        = motherBoard.getReactor().getInterpreter();
 	for (auto& p : bpCopy) {
-		p.checkAndExecute(globalCliComm, interp);
-		if (p.onlyOnce()) {
+		bool remove = p.checkAndExecute(globalCliComm, interp);
+		if (remove) {
 			removeBreakPoint(p.getId());
 		}
 	}
 	auto condCopy = conditions;
 	for (auto& c : condCopy) {
-		c.checkAndExecute(globalCliComm, interp);
-		if (c.onlyOnce()) {
+		bool remove = c.checkAndExecute(globalCliComm, interp);
+		if (remove) {
 			removeCondition(c.getId());
 		}
 	}
@@ -846,6 +848,7 @@ static void registerIOWatch(WatchPoint& watchPoint, MSXDevice** devices)
 
 void MSXCPUInterface::setWatchPoint(const std::shared_ptr<WatchPoint>& watchPoint)
 {
+	cliComm.update(CliComm::DEBUG_UPDT, tmpStrCat("wp#", watchPoint->getId()), "add");
 	watchPoints.push_back(watchPoint);
 	WatchPoint::Type type = watchPoint->getType();
 	switch (type) {
@@ -891,6 +894,7 @@ void MSXCPUInterface::removeWatchPoint(std::shared_ptr<WatchPoint> watchPoint)
 	// from the watchPoints collection.
 	if (auto it = ranges::find(watchPoints, watchPoint);
 	    it != end(watchPoints)) {
+		cliComm.update(CliComm::DEBUG_UPDT, tmpStrCat("wp#", watchPoint->getId()), "remove");
 		// remove before calling updateMemWatch()
 		watchPoints.erase(it);
 		WatchPoint::Type type = watchPoint->getType();
@@ -913,11 +917,13 @@ void MSXCPUInterface::removeWatchPoint(std::shared_ptr<WatchPoint> watchPoint)
 
 void MSXCPUInterface::setCondition(DebugCondition cond)
 {
+	cliComm.update(CliComm::DEBUG_UPDT, tmpStrCat("cond#", cond.getId()), "add");
 	conditions.push_back(std::move(cond));
 }
 
 void MSXCPUInterface::removeCondition(const DebugCondition& cond)
 {
+	cliComm.update(CliComm::DEBUG_UPDT, tmpStrCat("cond#", cond.getId()), "remove");
 	conditions.erase(rfind_unguarded(conditions, &cond,
 	                                 [](auto& e) { return &e; }));
 }
@@ -927,6 +933,7 @@ void MSXCPUInterface::removeCondition(unsigned id)
 	if (auto it = ranges::find(conditions, id, &DebugCondition::getId);
 	    // could be ==end for a condition that removes itself AND has the -once flag set
 	    it != conditions.end()) {
+		cliComm.update(CliComm::DEBUG_UPDT, tmpStrCat("cond#", it->getId()), "remove");
 		conditions.erase(it);
 	}
 }
@@ -985,8 +992,8 @@ void MSXCPUInterface::executeMemWatch(WatchPoint::Type type,
 		if ((w->getBeginAddress() <= address) &&
 		    (w->getEndAddress()   >= address) &&
 		    (w->getType()         == type)) {
-			w->checkAndExecute(globalCliComm, interp);
-			if (w->onlyOnce()) {
+			bool remove = w->checkAndExecute(globalCliComm, interp);
+			if (remove) {
 				removeWatchPoint(w);
 			}
 		}
@@ -1109,7 +1116,7 @@ MSXCPUInterface::SlotInfo::SlotInfo(
 {
 }
 
-void MSXCPUInterface::SlotInfo::execute(span<const TclObject> tokens,
+void MSXCPUInterface::SlotInfo::execute(std::span<const TclObject> tokens,
                                         TclObject& result) const
 {
 	checkNumArgs(tokens, 5, Prefix{2}, "primary secondary page");
@@ -1124,7 +1131,7 @@ void MSXCPUInterface::SlotInfo::execute(span<const TclObject> tokens,
 	interface.slotLayout[ps][ss][page]->getNameList(result);
 }
 
-std::string MSXCPUInterface::SlotInfo::help(span<const TclObject> /*tokens*/) const
+std::string MSXCPUInterface::SlotInfo::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Retrieve name of the device inserted in given "
 	       "primary slot / secondary slot / page.";
@@ -1139,7 +1146,7 @@ MSXCPUInterface::SubSlottedInfo::SubSlottedInfo(
 {
 }
 
-void MSXCPUInterface::SubSlottedInfo::execute(span<const TclObject> tokens,
+void MSXCPUInterface::SubSlottedInfo::execute(std::span<const TclObject> tokens,
                                               TclObject& result) const
 {
 	checkNumArgs(tokens, 3, "primary");
@@ -1149,7 +1156,7 @@ void MSXCPUInterface::SubSlottedInfo::execute(span<const TclObject> tokens,
 }
 
 std::string MSXCPUInterface::SubSlottedInfo::help(
-	span<const TclObject> /*tokens*/) const
+	std::span<const TclObject> /*tokens*/) const
 {
 	return "Indicates whether a certain primary slot is expanded.";
 }
@@ -1164,7 +1171,7 @@ MSXCPUInterface::ExternalSlotInfo::ExternalSlotInfo(
 }
 
 void MSXCPUInterface::ExternalSlotInfo::execute(
-	span<const TclObject> tokens, TclObject& result) const
+	std::span<const TclObject> tokens, TclObject& result) const
 {
 	checkNumArgs(tokens, Between{3, 4}, "primary ?secondary?");
 	int ps = 0;
@@ -1184,7 +1191,7 @@ void MSXCPUInterface::ExternalSlotInfo::execute(
 }
 
 std::string MSXCPUInterface::ExternalSlotInfo::help(
-	span<const TclObject> /*tokens*/) const
+	std::span<const TclObject> /*tokens*/) const
 {
 	return "Indicates whether a certain slot is external or internal.";
 }
@@ -1218,7 +1225,7 @@ MSXCPUInterface::IOInfo::IOInfo(InfoCommand& machineInfoCommand, const char* nam
 }
 
 void MSXCPUInterface::IOInfo::helper(
-	span<const TclObject> tokens, TclObject& result, MSXDevice** devices) const
+	std::span<const TclObject> tokens, TclObject& result, MSXDevice** devices) const
 {
 	checkNumArgs(tokens, 3, "port");
 	unsigned port = tokens[2].getInt(getInterpreter());
@@ -1228,19 +1235,19 @@ void MSXCPUInterface::IOInfo::helper(
 	devices[port]->getNameList(result);
 }
 void MSXCPUInterface::IInfo::execute(
-	span<const TclObject> tokens, TclObject& result) const
+	std::span<const TclObject> tokens, TclObject& result) const
 {
 	auto& interface = OUTER(MSXCPUInterface, inputPortInfo);
 	helper(tokens, result, interface.IO_In);
 }
 void MSXCPUInterface::OInfo::execute(
-	span<const TclObject> tokens, TclObject& result) const
+	std::span<const TclObject> tokens, TclObject& result) const
 {
 	auto& interface = OUTER(MSXCPUInterface, outputPortInfo);
 	helper(tokens, result, interface.IO_Out);
 }
 
-std::string MSXCPUInterface::IOInfo::help(span<const TclObject> /*tokens*/) const
+std::string MSXCPUInterface::IOInfo::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Return the name of the device connected to the given IO port.";
 }

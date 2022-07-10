@@ -57,7 +57,7 @@ time_t MemoryBufferFile::getModificationDate()
 }
 
 
-File memory_buffer_file(span<const uint8_t> buffer)
+File memory_buffer_file(std::span<const uint8_t> buffer)
 {
 	return File(std::make_unique<MemoryBufferFile>(buffer));
 }

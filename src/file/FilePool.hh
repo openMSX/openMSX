@@ -50,8 +50,8 @@ private:
 	class Sha1SumCommand final : public Command {
 	public:
 		explicit Sha1SumCommand(CommandController& commandController);
-		void execute(span<const TclObject> tokens, TclObject& result) override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		void execute(std::span<const TclObject> tokens, TclObject& result) override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} sha1SumCommand;
 

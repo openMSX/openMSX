@@ -115,14 +115,14 @@
     <ClCompile>
       <AdditionalOptions>/constexpr:steps20000000 /MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <CppLanguageStandard>c++17</CppLanguageStandard>
+      <CppLanguageStandard>c++20</CppLanguageStandard>
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(DXSDK_DIR)\Include;$(ThirdPartySrcDir)\$(LibNameFreeType);$(ThirdPartySrcDir)\$(LibNameGlew)\include;$(ThirdPartySrcDir)\$(LibNameLibPng);$(ThirdPartySrcDir)\$(LibNameSDL)\include;$(ThirdPartySrcDir)\$(LibNameSDL_ttf);$(ThirdPartySrcDir)\$(LibNameTheora)\include;$(ThirdPartySrcDir)\$(LibNameVorbis)\include;$(ThirdPartySrcDir)\$(LibNameOgg)\include;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameZlib);$(OpenMSXSrcDir);$(OpenMSXSrcDir)\cassette;$(OpenMSXSrcDir)\commands;$(OpenMSXSrcDir)\config;$(OpenMSXSrcDir)\console;$(OpenMSXSrcDir)\cpu;$(OpenMSXSrcDir)\debugger;$(OpenMSXSrcDir)\events;$(OpenMSXSrcDir)\fdc;$(OpenMSXSrcDir)\file;$(OpenMSXSrcDir)\ide;$(OpenMSXSrcDir)\input;$(OpenMSXSrcDir)\laserdisc;$(OpenMSXSrcDir)\memory;$(OpenMSXSrcDir)\resource;$(OpenMSXSrcDir)\security;$(OpenMSXSrcDir)\serial;$(OpenMSXSrcDir)\settings;$(OpenMSXSrcDir)\sound;$(OpenMSXSrcDir)\thread;$(OpenMSXSrcDir)\utils;$(OpenMSXSrcDir)\video;$(OpenMSXSrcDir)\video\scalers;$(OpenMSXSrcDir)\video\ld;$(OpenMSXSrcDir)\video\v9990;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__SSE__;__SSE2__;WIN32;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;SECURITY_WIN32;DEBUG;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;GLEW_STATIC;STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4324;4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -148,14 +148,14 @@
     <ClCompile>
       <AdditionalOptions>/constexpr:steps20000000 /MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <CppLanguageStandard>c++17</CppLanguageStandard>
+      <CppLanguageStandard>c++20</CppLanguageStandard>
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(DXSDK_DIR)\Include;$(ThirdPartySrcDir)\$(LibNameFreeType);$(ThirdPartySrcDir)\$(LibNameGlew)\include;$(ThirdPartySrcDir)\$(LibNameLibPng);$(ThirdPartySrcDir)\$(LibNameSDL)\include;$(ThirdPartySrcDir)\$(LibNameSDL_ttf);$(ThirdPartySrcDir)\$(LibNameTheora)\include;$(ThirdPartySrcDir)\$(LibNameVorbis)\include;$(ThirdPartySrcDir)\$(LibNameOgg)\include;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameZlib);$(OpenMSXSrcDir);$(OpenMSXSrcDir)\cassette;$(OpenMSXSrcDir)\commands;$(OpenMSXSrcDir)\config;$(OpenMSXSrcDir)\console;$(OpenMSXSrcDir)\cpu;$(OpenMSXSrcDir)\debugger;$(OpenMSXSrcDir)\events;$(OpenMSXSrcDir)\fdc;$(OpenMSXSrcDir)\file;$(OpenMSXSrcDir)\ide;$(OpenMSXSrcDir)\input;$(OpenMSXSrcDir)\laserdisc;$(OpenMSXSrcDir)\memory;$(OpenMSXSrcDir)\resource;$(OpenMSXSrcDir)\security;$(OpenMSXSrcDir)\serial;$(OpenMSXSrcDir)\settings;$(OpenMSXSrcDir)\sound;$(OpenMSXSrcDir)\thread;$(OpenMSXSrcDir)\utils;$(OpenMSXSrcDir)\video;$(OpenMSXSrcDir)\video\scalers;$(OpenMSXSrcDir)\video\ld;$(OpenMSXSrcDir)\video\v9990;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__SSE__;__SSE2__;WIN32;_WIN64;__x86_64;UNICODE;_UNICODE;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;DEBUG;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;GLEW_STATIC;STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4324;4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -174,7 +174,7 @@
     <ClCompile>
       <AdditionalOptions>/constexpr:steps20000000 /MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Full</Optimization>
-      <CppLanguageStandard>c++17</CppLanguageStandard>
+      <CppLanguageStandard>c++20</CppLanguageStandard>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
@@ -192,7 +192,7 @@
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4324;4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -217,7 +217,7 @@
     <ClCompile>
       <AdditionalOptions>/constexpr:steps20000000 /MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Full</Optimization>
-      <CppLanguageStandard>c++17</CppLanguageStandard>
+      <CppLanguageStandard>c++20</CppLanguageStandard>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
@@ -233,7 +233,7 @@
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4324;4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -254,7 +254,7 @@
     <ClCompile>
       <AdditionalOptions>/constexpr:steps20000000 /MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <CppLanguageStandard>c++17</CppLanguageStandard>
+      <CppLanguageStandard>c++20</CppLanguageStandard>
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(DXSDK_DIR)\Include;$(ThirdPartySrcDir)\$(LibNameFreeType);$(ThirdPartySrcDir)\$(LibNameGlew)\include;$(ThirdPartySrcDir)\$(LibNameLibPng);$(ThirdPartySrcDir)\$(LibNameSDL)\include;$(ThirdPartySrcDir)\$(LibNameSDL_ttf);$(ThirdPartySrcDir)\$(LibNameTheora)\include;$(ThirdPartySrcDir)\$(LibNameVorbis)\include;$(ThirdPartySrcDir)\$(LibNameOgg)\include;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameZlib);$(OpenMSXSrcDir);$(OpenMSXSrcDir)\cassette;$(OpenMSXSrcDir)\commands;$(OpenMSXSrcDir)\config;$(OpenMSXSrcDir)\console;$(OpenMSXSrcDir)\cpu;$(OpenMSXSrcDir)\debugger;$(OpenMSXSrcDir)\events;$(OpenMSXSrcDir)\fdc;$(OpenMSXSrcDir)\file;$(OpenMSXSrcDir)\ide;$(OpenMSXSrcDir)\input;$(OpenMSXSrcDir)\laserdisc;$(OpenMSXSrcDir)\memory;$(OpenMSXSrcDir)\resource;$(OpenMSXSrcDir)\security;$(OpenMSXSrcDir)\serial;$(OpenMSXSrcDir)\settings;$(OpenMSXSrcDir)\sound;$(OpenMSXSrcDir)\thread;$(OpenMSXSrcDir)\utils;$(OpenMSXSrcDir)\video;$(OpenMSXSrcDir)\video\scalers;$(OpenMSXSrcDir)\video\ld;$(OpenMSXSrcDir)\video\v9990;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__SSE__;__SSE2__;WIN32;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;SECURITY_WIN32;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;GLEW_STATIC;STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
@@ -262,7 +262,7 @@
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4324;4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -288,7 +288,7 @@
     <ClCompile>
       <AdditionalOptions>/constexpr:steps20000000 /MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <CppLanguageStandard>c++17</CppLanguageStandard>
+      <CppLanguageStandard>c++20</CppLanguageStandard>
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(DXSDK_DIR)\Include;$(ThirdPartySrcDir)\$(LibNameFreeType);$(ThirdPartySrcDir)\$(LibNameGlew)\include;$(ThirdPartySrcDir)\$(LibNameLibPng);$(ThirdPartySrcDir)\$(LibNameSDL)\include;$(ThirdPartySrcDir)\$(LibNameSDL_ttf);$(ThirdPartySrcDir)\$(LibNameTheora)\include;$(ThirdPartySrcDir)\$(LibNameVorbis)\include;$(ThirdPartySrcDir)\$(LibNameOgg)\include;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameZlib);$(OpenMSXSrcDir);$(OpenMSXSrcDir)\cassette;$(OpenMSXSrcDir)\commands;$(OpenMSXSrcDir)\config;$(OpenMSXSrcDir)\console;$(OpenMSXSrcDir)\cpu;$(OpenMSXSrcDir)\debugger;$(OpenMSXSrcDir)\events;$(OpenMSXSrcDir)\fdc;$(OpenMSXSrcDir)\file;$(OpenMSXSrcDir)\ide;$(OpenMSXSrcDir)\input;$(OpenMSXSrcDir)\laserdisc;$(OpenMSXSrcDir)\memory;$(OpenMSXSrcDir)\resource;$(OpenMSXSrcDir)\security;$(OpenMSXSrcDir)\serial;$(OpenMSXSrcDir)\settings;$(OpenMSXSrcDir)\sound;$(OpenMSXSrcDir)\thread;$(OpenMSXSrcDir)\utils;$(OpenMSXSrcDir)\video;$(OpenMSXSrcDir)\video\scalers;$(OpenMSXSrcDir)\video\ld;$(OpenMSXSrcDir)\video\v9990;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__SSE__;__SSE2__;WIN32;_WIN64;__x86_64;UNICODE;_UNICODE;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;GLEW_STATIC;STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
@@ -296,7 +296,7 @@
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4324;4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -472,6 +472,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\input\KeyJoystick.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\MagicKey.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\Mouse.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\input\MsxChar2Unicode.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\MSXEventDistributor.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\NinjaTap.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\Paddle.cc" />
@@ -1025,6 +1026,7 @@
     <None Include="$(OpenMSXSrcDir)\input\KeyJoystick.hh" />
     <None Include="$(OpenMSXSrcDir)\input\MagicKey.hh" />
     <None Include="$(OpenMSXSrcDir)\input\Mouse.hh" />
+    <None Include="$(OpenMSXSrcDir)\input\MsxChar2Unicode.hh" />
     <None Include="$(OpenMSXSrcDir)\input\MSXEventDistributor.hh" />
     <None Include="$(OpenMSXSrcDir)\input\MSXEventListener.hh" />
     <None Include="$(OpenMSXSrcDir)\input\NinjaTap.hh" />

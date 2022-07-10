@@ -31,7 +31,7 @@ template<typename T> [[nodiscard]] static ALWAYS_INLINE T unalignedLoad(const vo
 	memcpy(&t, p, sizeof(t));
 	return t;
 }
-template<typename T> static ALWAYS_INLINE void unalignedStore(void* p, T t)
+static ALWAYS_INLINE void unalignedStore(void* p, auto t)
 {
 	memcpy(p, &t, sizeof(t));
 }

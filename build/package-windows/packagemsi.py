@@ -24,6 +24,7 @@ def _writeFragment(
 			)
 
 def packageMSI(info):
+	assert info.packageCatapult, "MSI packaging is only supported when also packaging Catapult!"
 	print('Generating install files...')
 	generateInstallFiles(info)
 

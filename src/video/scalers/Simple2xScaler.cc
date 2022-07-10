@@ -16,7 +16,7 @@ namespace openmsx {
 
 // class Simple2xScaler
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 Simple2xScaler<Pixel>::Simple2xScaler(
 		const PixelOperations<Pixel>& pixelOps_,
 		RenderSettings& renderSettings)
@@ -30,7 +30,7 @@ Simple2xScaler<Pixel>::Simple2xScaler(
 {
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void Simple2xScaler<Pixel>::scaleBlank1to2(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -143,7 +143,7 @@ static void blur1on2_SSE2(
 
 #endif
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void Simple2xScaler<Pixel>::blur1on2(
 	const Pixel* __restrict pIn, Pixel* __restrict pOut,
 	unsigned alpha, size_t srcWidth)
@@ -291,7 +291,7 @@ static void blur1on1_SSE2(
 }
 
 #endif
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void Simple2xScaler<Pixel>::blur1on1(
 	const Pixel* __restrict pIn, Pixel* __restrict pOut,
 	unsigned alpha, size_t srcWidth)
@@ -366,7 +366,7 @@ void Simple2xScaler<Pixel>::blur1on1(
 	pOut[x + 1] = mult1.conv32(f1 + mult3.mul32(p1) + t0);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void Simple2xScaler<Pixel>::drawScanline(
 		const Pixel* in1, const Pixel* in2, Pixel* out, int factor,
 		unsigned dstWidth)
@@ -379,7 +379,7 @@ void Simple2xScaler<Pixel>::drawScanline(
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void Simple2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -417,7 +417,7 @@ void Simple2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	dst.releaseLine(dstY + 1, dstLine1);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void Simple2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -455,7 +455,7 @@ void Simple2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	dst.releaseLine(dstY + 1, dstLine1);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void Simple2xScaler<Pixel>::scaleImage(
 	FrameSource& src, const RawFrame* superImpose,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,

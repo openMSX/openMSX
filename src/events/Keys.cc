@@ -1,6 +1,5 @@
 #include "Keys.hh"
 #include "StringOp.hh"
-#include "cstd.hh"
 #include "ranges.hh"
 #include <array>
 
@@ -18,7 +17,7 @@ struct P {
 };
 
 struct CmpKeys {
-	// for cstd::sort
+	// for std::sort
 	[[nodiscard]] constexpr bool operator()(const P& x, const P& y) const {
 		return x.first < y.first; // shortcut: no need to ignore case
 	}
@@ -318,7 +317,7 @@ static constexpr auto getSortedKeys()
 		P("PRESS",	KD_PRESS),
 		P("RELEASE",	KD_RELEASE)
 	};
-	cstd::sort(keys, CmpKeys());
+	ranges::sort(keys, CmpKeys());
 	return keys;
 }
 

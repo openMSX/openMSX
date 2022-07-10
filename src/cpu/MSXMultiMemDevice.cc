@@ -2,7 +2,6 @@
 #include "DummyDevice.hh"
 #include "MSXCPUInterface.hh"
 #include "TclObject.hh"
-#include "likely.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
@@ -15,13 +14,6 @@ MSXMultiMemDevice::Range::Range(
 		unsigned base_, unsigned size_, MSXDevice& device_)
 	: base(base_), size(size_), device(&device_)
 {
-}
-
-bool MSXMultiMemDevice::Range::operator==(const Range& other) const
-{
-	return (base   == other.base) &&
-	       (size   == other.size) &&
-	       (device == other.device);
 }
 
 
@@ -127,7 +119,7 @@ const byte* MSXMultiMemDevice::getReadCacheLine(word start) const
 	// address of the range. But we must make sure the end of the range
 	// doesn't only fill a partial cacheline.
 	const auto& range = searchRange(start);
-	if (unlikely(((range.base + range.size) & CacheLine::HIGH) == start)) {
+	if (((range.base + range.size) & CacheLine::HIGH) == start) [[unlikely]] {
 		// The end of this memory device only fills a partial
 		// cacheline. This can't be cached.
 		return nullptr;
@@ -139,7 +131,7 @@ byte* MSXMultiMemDevice::getWriteCacheLine(word start) const
 {
 	assert((start & CacheLine::HIGH) == start);
 	const auto& range = searchRange(start);
-	if (unlikely(((range.base + range.size) & CacheLine::HIGH) == start)) {
+	if (((range.base + range.size) & CacheLine::HIGH) == start) [[unlikely]] {
 		return nullptr;
 	}
 	return range.device->getWriteCacheLine(start);

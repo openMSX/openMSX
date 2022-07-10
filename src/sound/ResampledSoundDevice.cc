@@ -31,7 +31,7 @@ ResampledSoundDevice::~ResampledSoundDevice()
 }
 
 
-void ResampledSoundDevice::setOutputRate(unsigned /*sampleRate*/)
+void ResampledSoundDevice::setOutputRate(unsigned /*hostSampleRate*/, double /*speed*/)
 {
 	createResampler();
 }

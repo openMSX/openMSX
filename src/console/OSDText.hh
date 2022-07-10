@@ -3,6 +3,8 @@
 
 #include "OSDImageBasedWidget.hh"
 #include "TTFFont.hh"
+#include "stl.hh"
+#include <array>
 #include <memory>
 
 namespace openmsx {
@@ -24,7 +26,7 @@ protected:
 public:
 	OSDText(Display& display, const TclObject& name);
 
-	[[nodiscard]] span<const std::string_view> getProperties() const override {
+	[[nodiscard]] std::span<const std::string_view> getProperties() const override {
 		return textProperties;
 	}
 	void setProperty(Interpreter& interp,

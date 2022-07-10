@@ -1,5 +1,4 @@
 #include "SerializeBuffer.hh"
-#include "likely.hh"
 #include <cstdlib>
 #include <utility>
 
@@ -32,7 +31,7 @@ OutputBuffer::OutputBuffer()
 template<size_t LEN> void OutputBuffer::insertN(const void* __restrict data)
 {
 	uint8_t* newEnd = end + LEN;
-	if (likely(newEnd <= finish)) {
+	if (newEnd <= finish) [[likely]] {
 		memcpy(end, data, LEN);
 		end = newEnd;
 	} else {
@@ -49,7 +48,7 @@ template void OutputBuffer::insertN<8>(const void* __restrict data);
 void OutputBuffer::insertN(const void* __restrict data, size_t len)
 {
 	uint8_t* newEnd = end + len;
-	if (likely(newEnd <= finish)) {
+	if (newEnd <= finish) [[likely]] {
 		memcpy(end, data, len);
 		end = newEnd;
 	} else {

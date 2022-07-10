@@ -766,13 +766,13 @@ void VDP::scheduleCpuVramAccess(bool isRead, byte write, EmuTime::param time)
 	// E.g. OUT (#98),A followed by IN A,(#98) returns the just written value.
 	if (!isRead) cpuVramData = write;
 	cpuVramReqIsRead = isRead;
-	if (unlikely(pendingCpuAccess)) {
+	if (pendingCpuAccess) [[unlikely]] {
 		// Already scheduled. Do nothing.
 		// The old request has been overwritten by the new request!
 		assert(!allowTooFastAccess);
 		tooFastCallback.execute();
 	} else {
-		if (unlikely(allowTooFastAccess)) {
+		if (allowTooFastAccess) [[unlikely]] {
 			// Immediately execute request.
 			// In the past, in allowTooFastAccess-mode, we would
 			// still schedule the actual access, but process
@@ -833,9 +833,9 @@ void VDP::executeCpuVramAccess(EmuTime::param time)
 	}
 
 	bool doAccess = [&] {
-		if (likely(!cpuExtendedVram)) {
+		if (!cpuExtendedVram) [[likely]] {
 			return true;
-		} else if (likely(vram->getSize() == 192 * 1024)) {
+		} else if (vram->getSize() == 192 * 1024) [[likely]] {
 			addr = 0x20000 | (addr & 0xFFFF);
 			return true;
 		} else {
@@ -1401,7 +1401,7 @@ void VDP::update(const Setting& setting) noexcept
 	brokenCmdTiming    = cmdTiming    .getEnum();
 	allowTooFastAccess = tooFastAccess.getEnum();
 
-	if (unlikely(allowTooFastAccess && pendingCpuAccess)) {
+	if (allowTooFastAccess && pendingCpuAccess) [[unlikely]] {
 		// in allowTooFastAccess-mode, don't schedule CPU-VRAM access
 		syncCpuVramAccess.removeSyncPoint();
 		pendingCpuAccess = false;
@@ -1688,12 +1688,12 @@ VDP::Info::Info(VDP& vdp_, const std::string& name_, std::string helpText_)
 {
 }
 
-void VDP::Info::execute(span<const TclObject> /*tokens*/, TclObject& result) const
+void VDP::Info::execute(std::span<const TclObject> /*tokens*/, TclObject& result) const
 {
 	result = calc(vdp.getCurrentTime());
 }
 
-std::string VDP::Info::help(span<const TclObject> /*tokens*/) const
+std::string VDP::Info::help(std::span<const TclObject> /*tokens*/) const
 {
 	return helpText;
 }

@@ -145,6 +145,14 @@
       <ignorePortDirections>true</ignorePortDirections> <!-- highest compatibility -->
     </PSG>
 
+    <PSG id="PSG 2">
+      <io base="0x10" num="2" type="O"/>
+      <io base="0x12" num="1" type="I"/>
+      <sound>
+        <volume>21000</volume>
+      </sound>
+    </PSG>
+
     <RTC id="Real time clock">
       <io base="0xB4" num="2" type="O"/>
       <io base="0xB5" num="1" type="I"/>

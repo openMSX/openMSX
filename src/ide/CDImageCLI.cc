@@ -13,7 +13,7 @@ CDImageCLI::CDImageCLI(CommandLineParser& parser_)
 	// TODO: offer more options in case you want to specify 2 hard disk images?
 }
 
-void CDImageCLI::parseOption(const std::string& option, span<std::string>& cmdLine)
+void CDImageCLI::parseOption(const std::string& option, std::span<std::string>& cmdLine)
 {
 	auto cd = std::string_view(option).substr(1); // cda
 	std::string filename = getArgument(option, cmdLine);

@@ -3,8 +3,8 @@
 
 #include "Command.hh"
 #include "EmuTime.hh"
-#include "span.hh"
 #include <cstdint>
+#include <span>
 #include <vector>
 #include <memory>
 
@@ -34,19 +34,19 @@ public:
 private:
 	void start(bool recordAudio, bool recordVideo, bool recordMono,
 		   bool recordStereo, const Filename& filename);
-	void status(span<const TclObject> tokens, TclObject& result) const;
+	void status(std::span<const TclObject> tokens, TclObject& result) const;
 
-	void processStart (Interpreter& interp, span<const TclObject> tokens, TclObject& result);
-	void processStop  (span<const TclObject> tokens);
-	void processToggle(Interpreter& interp, span<const TclObject> tokens, TclObject& result);
+	void processStart (Interpreter& interp, std::span<const TclObject> tokens, TclObject& result);
+	void processStop  (std::span<const TclObject> tokens);
+	void processToggle(Interpreter& interp, std::span<const TclObject> tokens, TclObject& result);
 
 private:
 	Reactor& reactor;
 
 	struct Cmd final : Command {
 		explicit Cmd(CommandController& commandController);
-		void execute(span<const TclObject> tokens, TclObject& result) override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		void execute(std::span<const TclObject> tokens, TclObject& result) override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} recordCommand;
 

@@ -1,10 +1,8 @@
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "FileException.hh"
-#include "StringOp.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
-#include "span.hh"
 #include "stl.hh"
 #include <cassert>
 #include <utility>
@@ -23,21 +21,21 @@ const string SYSTEM_DATA  = "{{SYSTEM_DATA}}";
 
 [[nodiscard]] static string subst(string_view path, string_view before, string_view after)
 {
-	assert(StringOp::startsWith(path, before));
+	assert(path.starts_with(before));
 	return strCat(after, path.substr(before.size()));
 }
 
-[[nodiscard]] static vector<string> getPathsHelper(span<const string> input)
+[[nodiscard]] static vector<string> getPathsHelper(std::span<const string> input)
 {
 	vector<string> result;
 	for (const auto& s : input) {
-		if (StringOp::startsWith(s, USER_OPENMSX)) {
+		if (s.starts_with(USER_OPENMSX)) {
 			result.push_back(subst(s, USER_OPENMSX,
 			                       FileOperations::getUserOpenMSXDir()));
-		} else if (StringOp::startsWith(s, USER_DATA)) {
+		} else if (s.starts_with(USER_DATA)) {
 			result.push_back(subst(s, USER_DATA,
 			                       FileOperations::getUserDataDir()));
-		} else if (StringOp::startsWith(s, SYSTEM_DATA)) {
+		} else if (s.starts_with(SYSTEM_DATA)) {
 			result.push_back(subst(s, SYSTEM_DATA,
 			                       FileOperations::getSystemDataDir()));
 		} else if (s == USER_DIRS) {
@@ -52,7 +50,7 @@ const string SYSTEM_DATA  = "{{SYSTEM_DATA}}";
 	return result;
 }
 
-[[nodiscard]] static string resolveHelper(span<const string> pathList,
+[[nodiscard]] static string resolveHelper(std::span<const string> pathList,
                             string_view filename)
 {
 	string filepath = FileOperations::expandTilde(
@@ -107,7 +105,7 @@ string FileContext::resolveCreate(string_view filename) const
 	return result;
 }
 
-span<const string> FileContext::getPaths() const
+std::span<const string> FileContext::getPaths() const
 {
 	if (paths2.empty()) {
 		paths2 = getPathsHelper(paths);
@@ -132,16 +130,16 @@ INSTANTIATE_SERIALIZE_METHODS(FileContext);
 
 static string backSubstSymbols(string_view path)
 {
-	const string& systemData = FileOperations::getSystemDataDir();
-	if (StringOp::startsWith(path, systemData)) {
+	if (const string& systemData = FileOperations::getSystemDataDir();
+	    path.starts_with(systemData)) {
 		return subst(path, systemData, SYSTEM_DATA);
 	}
-	const string& userData = FileOperations::getUserDataDir();
-	if (StringOp::startsWith(path, userData)) {
+	if (const string& userData = FileOperations::getUserDataDir();
+	    path.starts_with(userData)) {
 		return subst(path, userData, USER_DATA);
 	}
-	const string& userDir = FileOperations::getUserOpenMSXDir();
-	if (StringOp::startsWith(path, userDir)) {
+	if (const string& userDir = FileOperations::getUserOpenMSXDir();
+	    path.starts_with(userDir)) {
 		return subst(path, userDir, USER_OPENMSX);
 	}
 	// TODO USER_DIRS (not needed ATM)

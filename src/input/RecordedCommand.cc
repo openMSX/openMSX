@@ -31,7 +31,7 @@ RecordedCommand::~RecordedCommand()
 	stateChangeDistributor.unregisterListener(*this);
 }
 
-void RecordedCommand::execute(span<const TclObject> tokens, TclObject& result)
+void RecordedCommand::execute(std::span<const TclObject> tokens, TclObject& result)
 {
 	auto time = scheduler.getCurrentTime();
 	if (needRecord(tokens)) {
@@ -42,7 +42,7 @@ void RecordedCommand::execute(span<const TclObject> tokens, TclObject& result)
 	}
 }
 
-bool RecordedCommand::needRecord(span<const TclObject> /*tokens*/) const
+bool RecordedCommand::needRecord(std::span<const TclObject> /*tokens*/) const
 {
 	return true;
 }
@@ -86,7 +86,7 @@ void RecordedCommand::stopReplay(EmuTime::param /*time*/) noexcept
 
 // class MSXCommandEvent
 
-MSXCommandEvent::MSXCommandEvent(EmuTime::param time_, span<const TclObject> tokens_)
+MSXCommandEvent::MSXCommandEvent(EmuTime::param time_, std::span<const TclObject> tokens_)
 	: StateChange(time_)
 	, tokens(tokens_.size())
 {

@@ -3,11 +3,8 @@
 #include "aligned.hh"
 #include "endian.hh"
 #include "inline.hh"
-#include "likely.hh"
 #include "unreachable.hh"
-
-#include "build-info.hh"
-
+#include <bit>
 #include <cstring>
 
 #ifdef _MSC_VER
@@ -138,77 +135,19 @@ static void memcpy_using_offset(uint8_t* dstPtr, const uint8_t* srcPtr, uint8_t*
 
 [[nodiscard]] static inline int NbCommonBytes(size_t val)
 {
-#if LZ4_ARCH64
-	if constexpr (openmsx::OPENMSX_BIGENDIAN) {
-#ifdef _MSC_VER
-		unsigned long r;
-		_BitScanReverse64(&r, val);
-		return r >> 3;
-#elif defined(__GNUC__)
-		return __builtin_clzll(val) >> 3;
-#else
-		int r;
-		if (!(val >> 32)) { r = 4; } else { r = 0; val >>= 32; }
-		if (!(val >> 16)) { r += 2; val >>= 8; } else { val >>= 24; }
-		r += !val;
-		return r;
-#endif
+	if (val == 0) UNREACHABLE;
+	if constexpr (Endian::BIG) {
+		return std::countl_zero(val) >> 3;
 	} else {
-#ifdef _MSC_VER
-		unsigned long r;
-		_BitScanForward64(&r, val);
-		return r >> 3;
-#elif defined(__GNUC__)
-		return __builtin_ctzll(val) >> 3;
-#else
-		static constexpr int DeBruijnBytePos[64] = {
-			0, 0, 0, 0, 0, 1, 1, 2, 0, 3, 1, 3, 1, 4, 2, 7,
-			0, 2, 3, 6, 1, 5, 3, 5, 1, 3, 4, 4, 2, 5, 6, 7,
-			7, 0, 1, 2, 3, 3, 4, 6, 2, 6, 5, 5, 3, 4, 5, 6,
-			7, 1, 2, 4, 6, 4, 4, 5, 7, 2, 6, 5, 7, 6, 7, 7,
-		};
-		return DeBruijnBytePos[(uint64_t((val & -val) * 0x0218A392CDABBD3F)) >> 58];
-#endif
+		return std::countr_zero(val) >> 3;
 	}
-
-#else // LZ4_ARCH64
-
-	if constexpr (openmsx::OPENMSX_BIGENDIAN) {
-#ifdef _MSC_VER
-		unsigned long r;
-		_BitScanReverse(&r, val);
-		return r >> 3;
-#elif defined(__GNUC__)
-		return __builtin_clz(val) >> 3;
-#else
-		int r;
-		if (!(val >> 16)) { r = 2; val >>= 8; } else { r = 0; val >>= 24; }
-		r += !val;
-		return r;
-#endif
-	} else {
-#ifdef _MSC_VER
-		unsigned long r;
-		_BitScanForward(&r, val);
-		return r >> 3;
-#elif defined(__GNUC__)
-		return __builtin_ctz(val) >> 3;
-#else
-		static constexpr int DeBruijnBytePos[32] = {
-			0, 0, 3, 0, 3, 1, 3, 0, 3, 2, 2, 1, 3, 2, 0, 1,
-			3, 3, 1, 2, 2, 2, 2, 0, 3, 1, 2, 0, 1, 0, 1, 1,
-		};
-		return DeBruijnBytePos[(uint32_t((val & -val) * 0x077CB531U)) >> 27];
-#endif
-	}
-#endif // LZ4_ARCH64
 }
 
 [[nodiscard]] ALWAYS_INLINE unsigned count(const uint8_t* pIn, const uint8_t* pMatch, const uint8_t* pInLimit)
 {
 	const uint8_t* const pStart = pIn;
 
-	if (likely(pIn < pInLimit - (STEPSIZE - 1))) {
+	if (pIn < pInLimit - (STEPSIZE - 1)) [[likely]] {
 		reg_t diff = read_ARCH(pMatch) ^ read_ARCH(pIn);
 		if (!diff) {
 			pIn    += STEPSIZE;
@@ -217,7 +156,7 @@ static void memcpy_using_offset(uint8_t* dstPtr, const uint8_t* srcPtr, uint8_t*
 			return NbCommonBytes(diff);
 		}
 	}
-	while (likely(pIn < pInLimit - (STEPSIZE - 1))) {
+	while (pIn < pInLimit - (STEPSIZE - 1)) [[likely]] {
 		reg_t diff = read_ARCH(pMatch) ^ read_ARCH(pIn);
 		if (!diff) {
 			pIn    += STEPSIZE;
@@ -279,7 +218,7 @@ template<> struct HashImpl<false, true> {
 
 	[[nodiscard]] static uint32_t hashPosition(const uint8_t* p) {
 		uint64_t sequence = read_ARCH(p);
-		const uint64_t prime = openmsx::OPENMSX_BIGENDIAN
+		const uint64_t prime = Endian::BIG
 				     ? 11400714785074694791ULL   // 8 bytes
 				     :         889523592379ULL;  // 5 bytes
 		return uint32_t(((sequence << 24) * prime) >> (64 - HASHLOG));
@@ -367,7 +306,7 @@ ALWAYS_INLINE int compress_impl(const uint8_t* src, uint8_t* const dst, const in
 				forwardIp += step;
 				step = searchMatchNb++ >> SKIP_TRIGGER;
 
-				if (unlikely(forwardIp > mflimitPlusOne)) goto _last_literals;
+				if (forwardIp > mflimitPlusOne) [[unlikely]] goto _last_literals;
 
 				match = hashTable.getPositionOnHash(h, src);
 				forwardH = hashTable.hashPosition(forwardIp);
@@ -387,7 +326,7 @@ ALWAYS_INLINE int compress_impl(const uint8_t* src, uint8_t* const dst, const in
 				forwardIp += step;
 				step = searchMatchNb++ >> SKIP_TRIGGER;
 
-				if (unlikely(forwardIp > mflimitPlusOne)) goto _last_literals;
+				if (forwardIp > mflimitPlusOne) [[unlikely]] goto _last_literals;
 
 				match = src + matchIndex;
 				forwardH = hashTable.hashPosition(forwardIp);
@@ -404,7 +343,7 @@ ALWAYS_INLINE int compress_impl(const uint8_t* src, uint8_t* const dst, const in
 		}
 
 		// Catch up
-		while (((ip > anchor) & (match > src)) && (unlikely(ip[-1] == match[-1]))) {
+		while (((ip > anchor) & (match > src)) && (/*unlikely*/(ip[-1] == match[-1]))) {
 			ip--;
 			match--;
 		}
@@ -621,7 +560,7 @@ int decompress(const uint8_t* src, uint8_t* dst, int compressedSize, int dstCapa
 			// copy match within block
 			cpy = op + length;
 
-			if (unlikely(offset < 16)) {
+			if (offset < 16) [[unlikely]] {
 				memcpy_using_offset(op, match, cpy, offset);
 			} else {
 				wildCopy32(op, match, cpy);
@@ -646,7 +585,7 @@ int decompress(const uint8_t* src, uint8_t* dst, int compressedSize, int dstCapa
 		// there is a combined check for both stages).
 		if ((length != RUN_MASK) &&
 		    // strictly "less than" on input, to re-enter the loop with at least one byte
-		    likely((ip < shortiend) & (op <= shortoend))) {
+		    /*likely*/((ip < shortiend) & (op <= shortoend))) {
 			// Copy the literals
 			memcpy(op, ip, 16);
 			op += length;
@@ -716,7 +655,7 @@ safe_match_copy:
 		// copy match within block
 		cpy = op + length;
 
-		if (unlikely(offset < 8)) {
+		if (offset < 8) [[unlikely]] {
 			unalignedStore32(op, 0); // silence msan warning when offset == 0
 			op[0] = match[0];
 			op[1] = match[1];
@@ -731,7 +670,7 @@ safe_match_copy:
 		}
 		op += 8;
 
-		if (unlikely(cpy > oend - MATCH_SAFEGUARD_DISTANCE)) {
+		if (cpy > oend - MATCH_SAFEGUARD_DISTANCE) [[unlikely]] {
 			uint8_t* const oCopyLimit = oend - (WILDCOPYLENGTH - 1);
 			if (op < oCopyLimit) {
 				wildCopy8(op, match, oCopyLimit);

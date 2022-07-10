@@ -1,0 +1,70 @@
+name: Build Snapshots
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: ${{ matrix.name }} ${{ matrix.cpu }}
+    runs-on: ${{ matrix.image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: ubuntu-latest
+            name: Unit Tests (on Linux)
+            cpu: x86_64
+            os: linux
+            flavour: unittest
+          - image: ubuntu-latest
+            name: Linux
+            cpu: x86_64
+            os: linux
+            flavour: opt
+          - image: ubuntu-latest
+            name: Linux
+            cpu: aarch64
+            os: linux
+            flavour: opt
+          - image: ubuntu-22.04
+            name: Windows
+            cpu: x86_64
+            os: mingw-w64
+            flavour: opt
+          - image: macos-12
+            name: MacOS
+            cpu: x86_64
+            os: darwin
+            flavour: opt
+          - image: macos-12
+            name: MacOS
+            cpu: aarch64
+            os: darwin
+            flavour: opt
+#          - image: ubuntu-latest
+#            name: Android
+#            cpu: arm
+#            os: android
+#            flavour: opt
+          - image: windows-latest
+            name: Windows-VC
+            cpu: x64
+            os: windows-vc
+            flavour: opt
+    steps:
+    - name: Get current code from Git repo
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Perform the actual build
+      # Directory name only
+      uses: ./.github/actions/build
+      with:
+        os: ${{ matrix.os }}
+        cpu: ${{ matrix.cpu }}
+        flavour: ${{ matrix.flavour }}

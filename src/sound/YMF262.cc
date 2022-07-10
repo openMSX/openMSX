@@ -404,7 +404,7 @@ static constexpr SinTab getSinTab()
 
 	for (auto i : xrange(SIN_LEN / 4)) {
 		// non-standard sinus
-		double m = cstd::sin<2>(((i * 2) + 1) * M_PI / SIN_LEN); // checked against the real chip
+		double m = cstd::sin<2>(((i * 2) + 1) * Math::pi / SIN_LEN); // checked against the real chip
 		// we never reach zero here due to ((i * 2) + 1)
 		double o = -8.0 * cstd::log2<11, 3>(m); // convert to 'decibels'
 		o = o / (double(ENV_STEP) / 4);

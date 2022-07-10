@@ -14,6 +14,10 @@
 
   <devices>
 
+    <T7937 id="T7937">
+      <subtype>A</subtype>
+    </T7937>
+
     <PPI id="ppi">
       <sound>
         <volume>16000</volume>

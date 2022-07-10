@@ -8,14 +8,13 @@
 #include "endian.hh"
 #include "vla.hh"
 #include "xrange.hh"
-#include "build-info.hh"
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
 
 namespace openmsx {
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 [[nodiscard]] inline uint32_t readPixel(Pixel p)
 {
 	// TODO: Use surface info instead.
@@ -28,7 +27,7 @@ template<typename Pixel>
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 inline Pixel writePixel(uint32_t p)
 {
 	// TODO: Use surface info instead.
@@ -82,7 +81,7 @@ private:
 	const unsigned shiftB;
 };
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 EdgeHQ createEdgeHQ(const PixelOperations<Pixel>& pixelOps)
 {
 	if constexpr (sizeof(Pixel) == 2) {
@@ -188,7 +187,7 @@ void calcEdgesGL(const uint32_t* __restrict curr, const uint32_t* __restrict nex
 	edges2[159] = pattern;
 }
 
-template<typename Pixel, typename EdgeOp>
+template<std::unsigned_integral Pixel, typename EdgeOp>
 void calcInitialEdges(
 	const Pixel* __restrict srcPrev, const Pixel* __restrict srcCurr,
 	unsigned srcWidth, unsigned* __restrict edgeBuf, EdgeOp edgeOp)
@@ -212,7 +211,7 @@ void calcInitialEdges(
 	edgeBuf[x] = pattern;
 }
 
-template<typename Pixel, typename HQScale, typename EdgeOp>
+template<std::unsigned_integral Pixel, typename HQScale, typename EdgeOp>
 void doHQScale2(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& postScale,
 	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
@@ -253,7 +252,7 @@ void doHQScale2(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& postScale
 	}
 }
 
-template<typename Pixel, typename HQScale, typename EdgeOp>
+template<std::unsigned_integral Pixel, typename HQScale, typename EdgeOp>
 void doHQScale3(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& postScale,
 	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)

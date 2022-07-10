@@ -104,10 +104,10 @@
       <secondary slot="2"/>
 
       <secondary slot="3">
-        <MemoryMapper id="Main RAM">
-          <size>64</size>
+        <RAM id="Main RAM">
           <mem base="0x0000" size="0x10000"/>
-        </MemoryMapper>
+          <initialContent encoding="gz-base64">eJxjYBhY8H+AAQAioH+B</initialContent> <!-- ((chr(0) * 128) + (chr(255) * 128)), on Peter Hanraets' machine -->
+        </RAM>
       </secondary>
 
     </primary>

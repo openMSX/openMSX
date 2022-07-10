@@ -10,9 +10,9 @@ class RomInfoTopic final : public InfoTopic
 public:
 	explicit RomInfoTopic(InfoCommand& openMSXInfoCommand);
 
-	void execute(span<const TclObject> tokens,
+	void execute(std::span<const TclObject> tokens,
 	             TclObject& result) const override;
-	[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+	[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	void tabCompletion(std::vector<std::string>& tokens) const override;
 };
 

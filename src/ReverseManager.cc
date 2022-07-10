@@ -253,7 +253,7 @@ void ReverseManager::debugInfo(TclObject& result) const
 	result = res;
 }
 
-static std::pair<bool, double> parseGoTo(Interpreter& interp, span<const TclObject> tokens)
+static std::pair<bool, double> parseGoTo(Interpreter& interp, std::span<const TclObject> tokens)
 {
 	bool novideo = false;
 	ArgsInfo info[] = { flagArg("-novideo", novideo) };
@@ -263,7 +263,7 @@ static std::pair<bool, double> parseGoTo(Interpreter& interp, span<const TclObje
 	return {novideo, time};
 }
 
-void ReverseManager::goBack(span<const TclObject> tokens)
+void ReverseManager::goBack(std::span<const TclObject> tokens)
 {
 	auto& interp = motherBoard.getReactor().getInterpreter();
 	auto [novideo, t] = parseGoTo(interp, tokens);
@@ -283,7 +283,7 @@ void ReverseManager::goBack(span<const TclObject> tokens)
 	goTo(target, novideo);
 }
 
-void ReverseManager::goTo(span<const TclObject> tokens)
+void ReverseManager::goTo(std::span<const TclObject> tokens)
 {
 	auto& interp = motherBoard.getReactor().getInterpreter();
 	auto [novideo, t] = parseGoTo(interp, tokens);
@@ -520,7 +520,7 @@ void ReverseManager::transferState(MSXMotherBoard& newBoard)
 }
 
 void ReverseManager::saveReplay(
-	Interpreter& interp, span<const TclObject> tokens, TclObject& result)
+	Interpreter& interp, std::span<const TclObject> tokens, TclObject& result)
 {
 	const auto& chunks = history.chunks;
 	if (chunks.empty()) {
@@ -630,7 +630,7 @@ void ReverseManager::saveReplay(
 }
 
 void ReverseManager::loadReplay(
-	Interpreter& interp, span<const TclObject> tokens, TclObject& result)
+	Interpreter& interp, std::span<const TclObject> tokens, TclObject& result)
 {
 	bool enableViewOnly = false;
 	std::optional<TclObject> where;
@@ -938,7 +938,7 @@ ReverseManager::ReverseCmd::ReverseCmd(CommandController& controller)
 {
 }
 
-void ReverseManager::ReverseCmd::execute(span<const TclObject> tokens, TclObject& result)
+void ReverseManager::ReverseCmd::execute(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, AtLeast{2}, "subcommand ?arg ...?");
 	auto& manager = OUTER(ReverseManager, reverseCmd);
@@ -970,7 +970,7 @@ void ReverseManager::ReverseCmd::execute(span<const TclObject> tokens, TclObject
 			}});
 }
 
-std::string ReverseManager::ReverseCmd::help(span<const TclObject> /*tokens*/) const
+std::string ReverseManager::ReverseCmd::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "start               start collecting reverse data\n"
 	       "stop                stop collecting\n"
@@ -997,7 +997,7 @@ void ReverseManager::ReverseCmd::tabCompletion(std::vector<std::string>& tokens)
 		if (tokens[1] == one_of("loadreplay", "savereplay")) {
 			static constexpr std::array cmds = {"-goto"sv, "-viewonly"sv};
 			completeFileName(tokens, userDataFileContext(REPLAY_DIR),
-				(tokens[1] == "loadreplay") ? cmds : span<const std::string_view>{});
+				(tokens[1] == "loadreplay") ? cmds : std::span<const std::string_view>{});
 		} else if (tokens[1] == "viewonlymode") {
 			static constexpr std::array options = {"true"sv, "false"sv};
 			completeString(tokens, options);

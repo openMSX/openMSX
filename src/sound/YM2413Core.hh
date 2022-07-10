@@ -131,6 +131,12 @@ public:
 	 */
 	[[nodiscard]] virtual float getAmplificationFactor() const = 0;
 
+	/** Sets real-time speed factor (aka the openMSX 'speed' setting).
+	 * The default implementation does nothing. But e.g. the NukeYKT core
+	 * needs this.
+	 */
+	virtual void setSpeed(double /*speed*/) {}
+
 protected:
 	YM2413Core() = default;
 };

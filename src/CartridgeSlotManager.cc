@@ -9,8 +9,8 @@
 #include "one_of.hh"
 #include "outer.hh"
 #include "ranges.hh"
-#include "StringOp.hh"
 #include "xrange.hh"
+#include <array>
 #include <cassert>
 #include <memory>
 
@@ -295,7 +295,7 @@ const HardwareConfig* CartridgeSlotManager::CartCmd::getExtensionConfig(
 }
 
 void CartridgeSlotManager::CartCmd::execute(
-	span<const TclObject> tokens, TclObject& result, EmuTime::param /*time*/)
+	std::span<const TclObject> tokens, TclObject& result, EmuTime::param /*time*/)
 {
 	std::string_view cartname = tokens[0].getString();
 
@@ -364,7 +364,7 @@ void CartridgeSlotManager::CartCmd::execute(
 	}
 }
 
-string CartridgeSlotManager::CartCmd::help(span<const TclObject> tokens) const
+string CartridgeSlotManager::CartCmd::help(std::span<const TclObject> tokens) const
 {
 	auto cart = tokens[0].getString();
 	return strCat(
@@ -382,11 +382,11 @@ void CartridgeSlotManager::CartCmd::tabCompletion(std::vector<string>& tokens) c
 	using namespace std::literals;
 	static constexpr std::array extra = {"eject"sv, "insert"sv};
 	completeFileName(tokens, userFileContext(),
-	                 (tokens.size() < 3) ? extra : span<const std::string_view>{});
+	                 (tokens.size() < 3) ? extra : std::span<const std::string_view>{});
 
 }
 
-bool CartridgeSlotManager::CartCmd::needRecord(span<const TclObject> tokens) const
+bool CartridgeSlotManager::CartCmd::needRecord(std::span<const TclObject> tokens) const
 {
 	return tokens.size() > 1;
 }
@@ -401,7 +401,7 @@ CartridgeSlotManager::CartridgeSlotInfo::CartridgeSlotInfo(
 }
 
 void CartridgeSlotManager::CartridgeSlotInfo::execute(
-	span<const TclObject> tokens, TclObject& result) const
+	std::span<const TclObject> tokens, TclObject& result) const
 {
 	checkNumArgs(tokens, Between{2, 3}, Prefix{2}, "?slot?");
 	auto& manager = OUTER(CartridgeSlotManager, extSlotInfo);
@@ -419,7 +419,7 @@ void CartridgeSlotManager::CartridgeSlotInfo::execute(
 	case 3: {
 		// return info on a particular slot
 		const auto& slotName = tokens[2].getString();
-		if ((slotName.size() != 5) || (!StringOp::startsWith(slotName, "slot"))) {
+		if ((slotName.size() != 5) || !slotName.starts_with("slot")) {
 			throw CommandException("Invalid slot name: ", slotName);
 		}
 		unsigned num = slotName[4] - 'a';
@@ -447,7 +447,7 @@ void CartridgeSlotManager::CartridgeSlotInfo::execute(
 }
 
 string CartridgeSlotManager::CartridgeSlotInfo::help(
-	span<const TclObject> /*tokens*/) const
+	std::span<const TclObject> /*tokens*/) const
 {
 	return "Without argument: show list of available external slots.\n"
 	       "With argument: show primary and secondary slot number for "

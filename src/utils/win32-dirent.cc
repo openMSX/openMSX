@@ -24,8 +24,8 @@
 #include "win32-dirent.hh"
 #include "utf8_checked.hh"
 #include "MSXException.hh"
-#include "StringOp.hh"
 #include "xrange.hh"
+#include "zstring_view.hh"
 #include <windows.h>
 #include <cstring>
 #include <cstdlib>
@@ -38,9 +38,9 @@ DIR* opendir(const char* name)
 {
 	if (!name || !*name) return nullptr;
 
-	std::wstring nameW = utf8::utf8to16(name);
-	if (!StringOp::endsWith(name, '/') &&
-	    !StringOp::endsWith(name, "\\")) {
+	zstring_view name2 = name;
+	std::wstring nameW = utf8::utf8to16(name2);
+	if (!name2.ends_with('/') && !name2.ends_with("\\")) {
 		nameW += L"\\*";
 	} else {
 		nameW += L"*";

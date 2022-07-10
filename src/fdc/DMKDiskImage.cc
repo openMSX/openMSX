@@ -3,7 +3,6 @@
 #include "DiskExceptions.hh"
 #include "File.hh"
 #include "FilePool.hh"
-#include "likely.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "xrange.hh"
@@ -127,7 +126,7 @@ void DMKDiskImage::writeTrackImpl(byte track, byte side, const RawTrack& input)
 		// TODO possible enhancement:  convert to double sided
 		return;
 	}
-	if (unlikely(numTracks <= track)) {
+	if (numTracks <= track) [[unlikely]] {
 		extendImageToTrack(track);
 	}
 	doWriteTrack(track, side, input);

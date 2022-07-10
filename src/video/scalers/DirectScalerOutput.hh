@@ -3,10 +3,11 @@
 
 #include "ScalerOutput.hh"
 #include "SDLOutputSurface.hh"
+#include <concepts>
 
 namespace openmsx {
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 class DirectScalerOutput final : public ScalerOutput<Pixel>
 {
 public:

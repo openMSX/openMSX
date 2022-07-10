@@ -1,0 +1,76 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <info>
+    <manufacturer>Daewoo</manufacturer>
+    <code>DPC-200 (BE/FR)</code>
+    <release_year>1985</release_year>
+    <description>Daewoo's DPC-200 for the Belgian (French) market</description>
+    <type>MSX</type>
+  </info>
+
+<!-- based on the AVT DPC-200 config with additional ROM dumps
+     from the machine of Peter Hanraets with serial number Q6EAB00080
+-->
+
+  <CassettePort/>
+
+  <devices>
+
+    <PPI id="ppi">
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <io base="0xA8" num="4"/>
+      <keyboard_type>fr</keyboard_type>
+      <has_keypad>false</has_keypad>
+      <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
+      <code_kana_locks>false</code_kana_locks>
+      <graph_locks>false</graph_locks>
+    </PPI>
+
+    <VDP id="VDP">
+      <version>TMS9129</version> <!-- Not 100% sure -->
+      <io base="0x98" num="2"/>
+    </VDP>
+
+    <PSG id="PSG">
+      <type>AY8910</type>
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <io base="0xA0" num="2" type="O"/>
+      <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>false</ignorePortDirections> <!-- not sure, but guess based on discrete PSG chip -->
+    </PSG>
+
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
+
+    <primary slot="0">
+      <ROM id="MSX BIOS with BASIC ROM">
+        <rom>
+          <filename>daewoo_dpc-200fr_basic-bios1.rom</filename>
+          <sha1>d3af963e2529662eae63f04a2530454685a1989f</sha1>
+        </rom>
+        <mem base="0x0000" size="0x8000"/>
+      </ROM>
+    </primary>
+
+    <primary slot="1">
+      <RAM id="Main RAM">
+        <mem base="0x0000" size="0x10000"/>
+        <initialContent encoding="gz-base64">eJxjYKAM/KcQAAAY2D/B</initialContent> <!-- 64x 00, 64x FF. There is also some randomness that's not emulated. -->
+      </RAM>
+    </primary>
+
+    <primary external="true" slot="2"/>
+
+    <!-- Note: this connector is actually a non-standard expansion connector on the back -->
+    <primary external="true" slot="3"/>
+
+  </devices>
+
+</msxconfig>

@@ -5,12 +5,13 @@
 #include "vla.hh"
 #include "build-info.hh"
 #include <algorithm>
+#include <concepts>
 #include <cstdint>
 #include <memory>
 
 namespace openmsx {
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 class SuperImposedFrameImpl final : public SuperImposedFrame
 {
 public:
@@ -60,7 +61,7 @@ void SuperImposedFrame::init(
 
 // class SuperImposedFrameImpl
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 SuperImposedFrameImpl<Pixel>::SuperImposedFrameImpl(
 		const PixelFormat& format)
 	: SuperImposedFrame(format)
@@ -68,7 +69,7 @@ SuperImposedFrameImpl<Pixel>::SuperImposedFrameImpl(
 {
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 unsigned SuperImposedFrameImpl<Pixel>::getLineWidth(unsigned line) const
 {
 	unsigned tNum = (getHeight() == top   ->getHeight()) ? line : line / 2;
@@ -78,7 +79,7 @@ unsigned SuperImposedFrameImpl<Pixel>::getLineWidth(unsigned line) const
 	return std::max(tWidth, bWidth);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 const void* SuperImposedFrameImpl<Pixel>::getLineInfo(
 	unsigned line, unsigned& width, void* buf, unsigned bufWidth) const
 {

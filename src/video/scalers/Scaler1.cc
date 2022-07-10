@@ -12,13 +12,13 @@
 
 namespace openmsx {
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 Scaler1<Pixel>::Scaler1(const PixelOperations<Pixel>& pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-/*template<typename Pixel>
+/*template<std::unsigned_integral Pixel>
 void Scaler1<Pixel>::averageHalve(const Pixel* pIn0, const Pixel* pIn1, Pixel* pOut, unsigned dstWidth)
 {
 	// TODO SSE optimizations
@@ -30,7 +30,7 @@ void Scaler1<Pixel>::averageHalve(const Pixel* pIn0, const Pixel* pIn1, Pixel* p
 	}
 }*/
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void Scaler1<Pixel>::scaleBlank1to1(
 		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -42,7 +42,7 @@ void Scaler1<Pixel>::scaleBlank1to1(
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void Scaler1<Pixel>::scaleBlank2to1(
 		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -56,7 +56,7 @@ void Scaler1<Pixel>::scaleBlank2to1(
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 static void doScale1(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY,
@@ -73,7 +73,7 @@ static void doScale1(FrameSource& src,
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 static void doScaleDV(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY,
@@ -96,7 +96,7 @@ static void doScaleDV(FrameSource& src,
 }
 
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void Scaler1<Pixel>::scale2x1to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -106,7 +106,7 @@ void Scaler1<Pixel>::scale2x1to3x1(FrameSource& src,
 	                dst, dstStartY, dstEndY, op);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void Scaler1<Pixel>::scale2x2to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -116,7 +116,7 @@ void Scaler1<Pixel>::scale2x2to3x1(FrameSource& src,
 	                 dst, dstStartY, dstEndY, pixelOps, op);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void Scaler1<Pixel>::scale1x1to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -134,7 +134,7 @@ void Scaler1<Pixel>::scale1x1to1x1(FrameSource& src,
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void Scaler1<Pixel>::scale1x2to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -152,7 +152,7 @@ void Scaler1<Pixel>::scale1x2to1x1(FrameSource& src,
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void Scaler1<Pixel>::scale4x1to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -162,7 +162,7 @@ void Scaler1<Pixel>::scale4x1to3x1(FrameSource& src,
 	                dst, dstStartY, dstEndY, op);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void Scaler1<Pixel>::scale4x2to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -172,7 +172,7 @@ void Scaler1<Pixel>::scale4x2to3x1(FrameSource& src,
 	                 dst, dstStartY, dstEndY, pixelOps, op);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void Scaler1<Pixel>::scale2x1to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -182,7 +182,7 @@ void Scaler1<Pixel>::scale2x1to1x1(FrameSource& src,
 	                dst, dstStartY, dstEndY, op);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void Scaler1<Pixel>::scale2x2to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -192,7 +192,7 @@ void Scaler1<Pixel>::scale2x2to1x1(FrameSource& src,
 	                 dst, dstStartY, dstEndY, pixelOps, op);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void Scaler1<Pixel>::scale8x1to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -202,7 +202,7 @@ void Scaler1<Pixel>::scale8x1to3x1(FrameSource& src,
 	                dst, dstStartY, dstEndY, op);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void Scaler1<Pixel>::scale8x2to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -212,7 +212,7 @@ void Scaler1<Pixel>::scale8x2to3x1(FrameSource& src,
 	                 dst, dstStartY, dstEndY, pixelOps, op);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void Scaler1<Pixel>::scale4x1to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -222,7 +222,7 @@ void Scaler1<Pixel>::scale4x1to1x1(FrameSource& src,
 	                dst, dstStartY, dstEndY, op);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void Scaler1<Pixel>::scale4x2to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -232,7 +232,7 @@ void Scaler1<Pixel>::scale4x2to1x1(FrameSource& src,
 	                 dst, dstStartY, dstEndY, pixelOps, op);
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void Scaler1<Pixel>::dispatchScale(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
@@ -307,7 +307,7 @@ void Scaler1<Pixel>::dispatchScale(FrameSource& src,
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void Scaler1<Pixel>::scaleImage(FrameSource& src, const RawFrame* superImpose,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)

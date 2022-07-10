@@ -238,7 +238,7 @@ constexpr auto sinTable = [] {
 
 	std::array<unsigned, PG_WIDTH> result = {};
 	for (int i : xrange(PG_WIDTH / 4)) {
-		result[i] = lin2db(cstd::sin<2>(2.0 * M_PI * i / PG_WIDTH));
+		result[i] = lin2db(cstd::sin<2>(2.0 * Math::pi * i / PG_WIDTH));
 	}
 	for (auto i : xrange(PG_WIDTH / 4)) {
 		result[PG_WIDTH / 2 - 1 - i] = result[i];
@@ -253,7 +253,7 @@ constexpr auto sinTable = [] {
 constexpr auto pmTable = [] {
 	std::array<std::array<int, PM_PG_WIDTH>, 2> result = {};
 	for (int i : xrange(PM_PG_WIDTH)) {
-		auto s = cstd::sin<5>(2.0 * M_PI * i / PM_PG_WIDTH) / 1200;
+		auto s = cstd::sin<5>(2.0 * Math::pi * i / PM_PG_WIDTH) / 1200;
 		result[0][i] = int(PM_AMP * cstd::exp2<2>(PM_DEPTH  * s));
 		result[1][i] = int(PM_AMP * cstd::exp2<2>(PM_DEPTH2 * s));
 	}

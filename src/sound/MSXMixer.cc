@@ -116,7 +116,7 @@ void MSXMixer::registerSound(SoundDevice& device, float volume,
 		channelSettings.mute->attach(*this);
 	}
 
-	device.setOutputRate(getSampleRate());
+	device.setOutputRate(getSampleRate(), speedManager.getSpeed());
 	auto& i = infos.emplace_back(std::move(info));
 	updateVolumeParams(i);
 
@@ -589,7 +589,7 @@ void MSXMixer::setMixerParams(unsigned newFragmentSize, unsigned newSampleRate)
 	reInit(); // must come before call to setOutputRate()
 
 	for (auto& info : infos) {
-		info.device->setOutputRate(newSampleRate);
+		info.device->setOutputRate(newSampleRate, speedManager.getSpeed());
 	}
 }
 
@@ -759,7 +759,7 @@ MSXMixer::SoundDeviceInfoTopic::SoundDeviceInfoTopic(
 }
 
 void MSXMixer::SoundDeviceInfoTopic::execute(
-	span<const TclObject> tokens, TclObject& result) const
+	std::span<const TclObject> tokens, TclObject& result) const
 {
 	auto& msxMixer = OUTER(MSXMixer, soundDeviceInfo);
 	switch (tokens.size()) {
@@ -781,7 +781,7 @@ void MSXMixer::SoundDeviceInfoTopic::execute(
 	}
 }
 
-std::string MSXMixer::SoundDeviceInfoTopic::help(span<const TclObject> /*tokens*/) const
+std::string MSXMixer::SoundDeviceInfoTopic::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Shows a list of available sound devices.\n";
 }

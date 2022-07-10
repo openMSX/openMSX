@@ -33,18 +33,8 @@ public:
 	static constexpr EmuTime makeEmuTime(uint64_t u) { return EmuTime(u); }
 
 	// comparison operators
-	[[nodiscard]] constexpr bool operator==(EmuTime::param e) const
-		{ return time == e.time; }
-	[[nodiscard]] constexpr bool operator!=(EmuTime::param e) const
-		{ return time != e.time; }
-	[[nodiscard]] constexpr bool operator< (EmuTime::param e) const
-		{ return time <  e.time; }
-	[[nodiscard]] constexpr bool operator<=(EmuTime::param e) const
-		{ return time <= e.time; }
-	[[nodiscard]] constexpr bool operator> (EmuTime::param e) const
-		{ return time >  e.time; }
-	[[nodiscard]] constexpr bool operator>=(EmuTime::param e) const
-		{ return time >= e.time; }
+	[[nodiscard]] constexpr bool operator== (const EmuTime&) const = default;
+	[[nodiscard]] constexpr auto operator<=>(const EmuTime&) const = default;
 
 	// arithmetic operators
 	[[nodiscard]] constexpr EmuTime operator+(EmuDuration::param d) const

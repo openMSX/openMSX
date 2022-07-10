@@ -12,8 +12,8 @@ class MessageCommand final : public Command
 public:
 	explicit MessageCommand(CommandController& controller);
 
-	void execute(span<const TclObject> tokens, TclObject& result) override;
-	[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+	void execute(std::span<const TclObject> tokens, TclObject& result) override;
+	[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	void tabCompletion(std::vector<std::string>& tokens) const override;
 };
 

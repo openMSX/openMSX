@@ -199,7 +199,7 @@ AfterCommand::~AfterCommand()
 		EventType::KEY_UP, *this);
 }
 
-void AfterCommand::execute(span<const TclObject> tokens, TclObject& result)
+void AfterCommand::execute(std::span<const TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() < 2) {
 		throw CommandException("Missing argument");
@@ -252,7 +252,7 @@ static double getTime(Interpreter& interp, const TclObject& obj)
 	return time;
 }
 
-void AfterCommand::afterTime(span<const TclObject> tokens, TclObject& result)
+void AfterCommand::afterTime(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, 4, Prefix{2}, "seconds command");
 	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
@@ -265,7 +265,7 @@ void AfterCommand::afterTime(span<const TclObject> tokens, TclObject& result)
 	afterCmds.push_back(idx);
 }
 
-void AfterCommand::afterRealTime(span<const TclObject> tokens, TclObject& result)
+void AfterCommand::afterRealTime(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, 4, Prefix{2}, "seconds command");
 	double time = getTime(getInterpreter(), tokens[2]);
@@ -277,7 +277,7 @@ void AfterCommand::afterRealTime(span<const TclObject> tokens, TclObject& result
 }
 
 void AfterCommand::afterTclTime(
-	int ms, span<const TclObject> tokens, TclObject& result)
+	int ms, std::span<const TclObject> tokens, TclObject& result)
 {
 	TclObject command;
 	command.addListElements(view::drop(tokens, 2));
@@ -288,7 +288,7 @@ void AfterCommand::afterTclTime(
 	afterCmds.push_back(idx);
 }
 
-void AfterCommand::afterSimpleEvent(span<const TclObject> tokens, TclObject& result, EventType type)
+void AfterCommand::afterSimpleEvent(std::span<const TclObject> tokens, TclObject& result, EventType type)
 {
 	checkNumArgs(tokens, 3, "command");
 	auto [idx, ptr] = afterCmdPool.emplace(
@@ -299,7 +299,7 @@ void AfterCommand::afterSimpleEvent(span<const TclObject> tokens, TclObject& res
 }
 
 void AfterCommand::afterInputEvent(
-	const Event& event, span<const TclObject> tokens, TclObject& result)
+	const Event& event, std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, 3, "command");
 	auto [idx, ptr] = afterCmdPool.emplace(
@@ -309,7 +309,7 @@ void AfterCommand::afterInputEvent(
 	afterCmds.push_back(idx);
 }
 
-void AfterCommand::afterIdle(span<const TclObject> tokens, TclObject& result)
+void AfterCommand::afterIdle(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, 4, Prefix{2}, "seconds command");
 	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
@@ -322,7 +322,7 @@ void AfterCommand::afterIdle(span<const TclObject> tokens, TclObject& result)
 	afterCmds.push_back(idx);
 }
 
-void AfterCommand::afterInfo(span<const TclObject> /*tokens*/, TclObject& result)
+void AfterCommand::afterInfo(std::span<const TclObject> /*tokens*/, TclObject& result)
 {
 	auto printTime = [](std::ostream& os, const AfterTimedCmd& cmd) {
 		os.precision(3);
@@ -345,11 +345,11 @@ void AfterCommand::afterInfo(span<const TclObject> /*tokens*/, TclObject& result
 	result = str.str();
 }
 
-void AfterCommand::afterCancel(span<const TclObject> tokens, TclObject& /*result*/)
+void AfterCommand::afterCancel(std::span<const TclObject> tokens, TclObject& /*result*/)
 {
 	checkNumArgs(tokens, AtLeast{3}, "id|command");
 	if (tokens.size() == 3) {
-		if (auto idStr = tokens[2].getString(); StringOp::startsWith(idStr, "after#")) {
+		if (auto idStr = tokens[2].getString(); idStr.starts_with("after#")) {
 			if (auto id = StringOp::stringTo<unsigned>(idStr.substr(6))) {
 				auto equalId = [id = *id](Index idx) {
 					return std::visit([&](AfterCmd& cmd) {
@@ -388,7 +388,7 @@ void AfterCommand::afterCancel(span<const TclObject> tokens, TclObject& /*result
 	// It's not an error if no match is found
 }
 
-std::string AfterCommand::help(span<const TclObject> /*tokens*/) const
+std::string AfterCommand::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "after time     <seconds> <command>  execute a command after some time (MSX time)\n"
 	       "after realtime <seconds> <command>  execute a command after some time (realtime)\n"
@@ -415,7 +415,7 @@ void AfterCommand::tabCompletion(std::vector<std::string>& tokens) const
 }
 
 // Execute the cmds for which the predicate returns true, and erase those from afterCmds.
-template<typename PRED> void AfterCommand::executeMatches(PRED pred)
+void AfterCommand::executeMatches(std::predicate<Index> auto pred)
 {
 	static std::vector<Index> matches; // static to keep capacity for next call
 	assert(matches.empty());

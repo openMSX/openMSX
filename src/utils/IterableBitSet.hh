@@ -1,10 +1,11 @@
 #ifndef ITERABLEBITSET_HH
 #define ITERABLEBITSET_HH
 
-#include "Math.hh"
 #include "ranges.hh"
 #include "xrange.hh"
+#include <bit>
 #include <cassert>
+#include <concepts>
 #include <cstddef>
 #include <cstdint>
 #include <type_traits>
@@ -112,13 +113,12 @@ public:
 	  * The operation is called with the index of the bit as parameter.
 	  * The bits are visited in ascending order.
 	  */
-	template<typename Operation>
-	void foreachSetBit(Operation op) const
+	void foreachSetBit(std::invocable<size_t> auto op) const
 	{
 		for (auto i : xrange(NUM_WORDS)) {
 			auto w = words[i];
 			while (w) {
-				op(i * BITS_PER_WORD + Math::countTrailingZeros(w));
+				op(i * BITS_PER_WORD + std::countr_zero(w));
 				w &= w - 1; // clear least significant set bit
 			}
 		}

@@ -12,10 +12,10 @@ class SaveStateCLI final : public CLIOption, public CLIFileType
 public:
 	explicit SaveStateCLI(CommandLineParser& parser);
 	void parseOption(const std::string& option,
-	                 span<std::string>& cmdLine) override;
+	                 std::span<std::string>& cmdLine) override;
 	[[nodiscard]] std::string_view optionHelp() const override;
 	void parseFileType(const std::string& filename,
-	                   span<std::string>& cmdLine) override;
+	                   std::span<std::string>& cmdLine) override;
 	[[nodiscard]] std::string_view fileTypeHelp() const override;
 	[[nodiscard]] std::string_view fileTypeCategoryName() const override;
 

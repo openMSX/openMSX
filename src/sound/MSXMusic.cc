@@ -1,8 +1,8 @@
 #include "MSXMusic.hh"
 #include "CacheLine.hh"
-#include "Math.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
+#include <bit>
 
 namespace openmsx {
 
@@ -14,7 +14,7 @@ MSXMusicBase::MSXMusicBase(const DeviceConfig& config)
 	, ym2413(getName(), config)
 {
 	auto sz = rom.getSize();
-	if ((sz == 0) || !Math::ispow2(sz)) {
+	if (!std::has_single_bit(sz)) {
 		throw MSXException("MSX-Music ROM-size must be a non-zero power of two");
 	}
 	MSXMusicBase::reset(getCurrentTime());

@@ -20,7 +20,7 @@ TEST_CASE("WavData, parser")
 {
 	SECTION("empty file") {
 		uint8_t buffer[] = {};
-		File file = memory_buffer_file(span<const uint8_t>(buffer, size_t(0)));
+		File file = memory_buffer_file(std::span<const uint8_t>(buffer, size_t(0)));
 		try {
 			WavData wav(std::move(file));
 			CHECK(false);

@@ -42,7 +42,8 @@
 #ifndef XXHASH_HH
 #define XXHASH_HH
 
-#include "likely.hh"
+#include <bit>
+#include <cassert>
 #include <cstdint>
 #include <cstring>
 #include <string_view>
@@ -53,12 +54,6 @@ constexpr uint32_t PRIME32_3 = 3266489917;
 constexpr uint32_t PRIME32_4 =  668265263;
 constexpr uint32_t PRIME32_5 =  374761393;
 
-
-template<int R>
-[[nodiscard]] constexpr uint32_t rotl(uint32_t x)
-{
-	return (x << R) | (x >> (32 - R));
-}
 
 template<bool ALIGNED>
 [[nodiscard]] inline uint32_t read32(const uint8_t* ptr)
@@ -84,7 +79,7 @@ template<bool ALIGNED, uint8_t MASK8 = 0xFF, uint32_t SEED = 0>
 	const uint8_t* const bEnd = p + size;
 	uint32_t h32;
 
-	if (unlikely(size >= 16)) {
+	if (size >= 16) [[unlikely]] {
 		const uint8_t* const limit = bEnd - 16;
 
 		// casts to avoid: warning C4307: '+': integral constant overflow
@@ -99,13 +94,13 @@ template<bool ALIGNED, uint8_t MASK8 = 0xFF, uint32_t SEED = 0>
 			uint32_t r3 = (read32<ALIGNED>(p +  8) & MASK32) * PRIME32_2;
 			uint32_t r4 = (read32<ALIGNED>(p + 12) & MASK32) * PRIME32_2;
 			p += 16;
-			v1 = rotl<13>(v1 + r1) * PRIME32_1;
-			v2 = rotl<13>(v2 + r2) * PRIME32_1;
-			v3 = rotl<13>(v3 + r3) * PRIME32_1;
-			v4 = rotl<13>(v4 + r4) * PRIME32_1;
+			v1 = std::rotl(v1 + r1, 13) * PRIME32_1;
+			v2 = std::rotl(v2 + r2, 13) * PRIME32_1;
+			v3 = std::rotl(v3 + r3, 13) * PRIME32_1;
+			v4 = std::rotl(v4 + r4, 13) * PRIME32_1;
 		} while (p <= limit);
 
-		h32 = rotl<1>(v1) + rotl<7>(v2) + rotl<12>(v3) + rotl<18>(v4);
+		h32 = std::rotl(v1, 1) + std::rotl(v2, 7) + std::rotl(v3, 12) + std::rotl(v4, 18);
 	} else {
 		h32  = SEED + PRIME32_5;
 	}
@@ -114,13 +109,13 @@ template<bool ALIGNED, uint8_t MASK8 = 0xFF, uint32_t SEED = 0>
 
 	while ((p + 4) <= bEnd) {
 		uint32_t r = (read32<ALIGNED>(p) & MASK32) * PRIME32_3;
-		h32  = rotl<17>(h32 + r) * PRIME32_4;
+		h32  = std::rotl(h32 + r, 17) * PRIME32_4;
 		p += 4;
 	}
 
 	while (p < bEnd) {
 		uint32_t r = (*p & MASK8) * PRIME32_5;
-		h32 = rotl<11>(h32 + r) * PRIME32_1;
+		h32 = std::rotl(h32 + r, 11) * PRIME32_1;
 		p += 1;
 	}
 

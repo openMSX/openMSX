@@ -14,12 +14,10 @@
 #include "FixedPoint.hh"
 #include "MemBuffer.hh"
 #include "aligned.hh"
-#include "likely.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "vla.hh"
 #include "xrange.hh"
-#include "build-info.hh"
 #include <vector>
 #include <cmath>
 #include <cstddef>
@@ -612,7 +610,7 @@ void ResampleHQ<CHANNELS>::prepareData(unsigned emuNum)
 
 		free = unsigned(buffer.size() / CHANNELS) - bufEnd;
 		int missing = emuNum - free;
-		if (unlikely(missing > 0)) {
+		if (missing > 0) [[unlikely]] {
 			// Still not enough room: grow the buffer.
 			// TODO an alternative is to instead of using a large
 			// buffer, chop the work in multiple smaller pieces.

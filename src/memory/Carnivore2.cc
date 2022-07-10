@@ -1,9 +1,9 @@
 #include "Carnivore2.hh"
+#include "DummyAY8910Periphery.hh"
 #include "IDEDevice.hh"
 #include "IDEDeviceFactory.hh"
 #include "CliComm.hh"
 #include "MSXCPU.hh"
-#include "cstd.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "xrange.hh"
@@ -11,8 +11,12 @@
 
 // TODO (besides what's in the code below):
 // - FM-PAC mono/stereo setting (bit 7)
-// - possibly the PPI volume setting
+// - the PPI volume setting
 // - slave slot support
+
+// Note that the somewhat complex (and illogical?) behaviour of the
+// user-defined ID and control port I/O is mimicing what the actual VHDL code
+// is doing (in the released 2.50 firmware code).
 
 namespace openmsx {
 
@@ -20,33 +24,50 @@ static constexpr auto sectorInfo = [] {
 	// 8 * 8kB, followed by 127 * 64kB
 	using Info = AmdFlash::SectorInfo;
 	std::array<Info, 8 + 127> result = {};
-	cstd::fill(result.begin(), result.begin() + 8, Info{ 8 * 1024, false});
-	cstd::fill(result.begin() + 8, result.end(),   Info{64 * 1024, false});
+	std::fill(result.begin(), result.begin() + 8, Info{ 8 * 1024, false});
+	std::fill(result.begin() + 8, result.end(),   Info{64 * 1024, false});
 	return result;
 }();
 
 Carnivore2::Carnivore2(const DeviceConfig& config)
 	: MSXDevice(config)
 	, MSXMapperIOClient(getMotherBoard())
-	, flash("Carnivore2 flash", sectorInfo, 0x207e,
+	, flash(getName() + " flash", sectorInfo, 0x207e,
 	        AmdFlash::Addressing::BITS_12, config)
 	, ram(config, getName() + " ram", "ram", 2048 * 1024)
 	, eeprom(getName() + " eeprom",
 	         DeviceConfig(config, config.getChild("eeprom")))
 	, scc(getName() + " scc", config, getCurrentTime(), SCC::SCC_Compatible)
+	, psg(getName() + " PSG", DummyAY8910Periphery::instance(), config,
+              getCurrentTime())
 	, ym2413(getName() + " ym2413", config)
 {
 	ideDevices[0] = IDEDeviceFactory::create(
 		DeviceConfig(config, config.findChild("master")));
 	ideDevices[1] = IDEDeviceFactory::create(
 		DeviceConfig(config, config.findChild("slave")));
+
+	configRegs[0x24] = 0; // to avoid UMR in powerUp -> reset -> writePSGAlt
+	configRegs[0x30] = 0; // to avoid UMR in powerUp -> writePSGCtrl
+	configRegs[0x35] = 0xf0; // to avoid UMR in powerUp -> writePFXN
+	getCPUInterface().register_IO_Out(idControlPort(), this);
+	getCPUInterface().register_IO_In (idControlPort(), this);
 }
 
-Carnivore2::~Carnivore2() = default;
+Carnivore2::~Carnivore2()
+{
+	// unregister PSG I/O ports, by disabling PSG
+	writePSGCtrl(0, getCurrentTime());
+	// unregister user-defined ID and control port
+	getCPUInterface().unregister_IO_Out(idControlPort(), this);
+	getCPUInterface().unregister_IO_In (idControlPort(), this);
+}
 
 void Carnivore2::powerUp(EmuTime::param time)
 {
 	writeSndLVL(0x1b, time);
+	writePSGCtrl(0x1b, time);
+	writePFXN(0xf0);
 	scc.powerUp(time);
 	reset(time);
 }
@@ -76,12 +97,18 @@ void Carnivore2::reset(EmuTime::param time)
 	configRegs[0x20] = 0x02;
 	configRegs[0x28] = 0b11'10'01'00; // SLM_cfg
 
+	writePSGAlt(0);
+
 	writeCfgEEPR(0, time);
 
 	// multi-mapper
 	scc.reset(time);
 	sccMode = 0;
 	ranges::iota(sccBank, 0);
+
+	// PSG
+	psgLatch = 0;
+	psg.reset(time);
 
 	// ide
 	ideControlReg = 0;
@@ -99,6 +126,9 @@ void Carnivore2::reset(EmuTime::param time)
 	fmPacBank = 0;
 	fmPac5ffe = 0;
 	fmPac5fff = 0;
+
+	// User-defined ID and control port I/O
+	PF0_RV = 0;
 }
 
 void Carnivore2::globalRead(word address, EmuTime::param /*time*/)
@@ -221,7 +251,7 @@ byte Carnivore2::peekConfigRegister(word address, EmuTime::param time) const
 			case 0x23: return configRegs[address] |
 					  int(eeprom.read_DO(time));
 			case 0x2C: return '2';
-			case 0x2D: return '3';
+			case 0x2D: return '5';
 			case 0x2E: return '0';
 			default:   return configRegs[address];
 		}
@@ -259,6 +289,50 @@ void Carnivore2::writeCfgEEPR(byte value, EmuTime::param time)
 	eeprom.write_CS (value & 8, time);
 }
 
+void Carnivore2::writePSGCtrl(byte value, EmuTime::param time)
+{
+	// TODO: PPI clicker
+	if ((value ^ configRegs[0x24]) & 0x80) {   // enable changed
+		byte ioBase = (configRegs[0x30] & 0x01) ?  0x10 : 0xa0;
+		if (value & 0x80) {
+			getCPUInterface().  register_IO_Out(ioBase + 0, this);
+			getCPUInterface().  register_IO_Out(ioBase + 1, this);
+		} else {
+			getCPUInterface().unregister_IO_Out(ioBase + 0, this);
+			getCPUInterface().unregister_IO_Out(ioBase + 1, this);
+		}
+	}
+	configRegs[0x24] = value;
+	psg.setSoftwareVolume(volumeLevel((value >> 3) & 7), time);
+}
+
+void Carnivore2::writePSGAlt(byte value)
+{
+	if ((value ^ configRegs[0x30]) & 0x01) { // ports changed
+		if (configRegs[0x24] & 0x80) {
+			byte ioBaseOld = (configRegs[0x30] & 0x01) ? 0x10 : 0xa0;
+			byte ioBaseNew = (value            & 0x01) ? 0x10 : 0xa0;
+			getCPUInterface().unregister_IO_Out(ioBaseOld + 0, this);
+			getCPUInterface().unregister_IO_Out(ioBaseOld + 1, this);
+			getCPUInterface().  register_IO_Out(ioBaseNew + 0, this);
+			getCPUInterface().  register_IO_Out(ioBaseNew + 1, this);
+		}
+	}
+	configRegs[0x30] = value;
+}
+
+void Carnivore2::writePFXN(byte value)
+{
+	byte oldPort = idControlPort();
+	configRegs[0x35] = 0xf0 | (value & 0b11);
+	if (auto newPort = idControlPort(); newPort != oldPort) {
+		getCPUInterface().unregister_IO_Out(oldPort, this);
+		getCPUInterface().unregister_IO_In (oldPort, this);
+		getCPUInterface().  register_IO_Out(newPort, this);
+		getCPUInterface().  register_IO_In (newPort, this);
+	}
+}
+
 // check whether each of the 4 bit pairs are unique in the given byte x
 [[nodiscard]] static bool bitPairsUnique(uint8_t x)
 {
@@ -288,7 +362,9 @@ void Carnivore2::writeConfigRegister(word address, byte value, EmuTime::param ti
 			case 0x20: configRegs[address] = value & 0x07; break;
 			case 0x22: writeSndLVL(value, time); break;
 			case 0x23: writeCfgEEPR(value, time); break;
-			//case 0x24: // TODO PSG key-click
+			case 0x24: writePSGCtrl(value, time); break;
+			case 0x30: writePSGAlt(value); break;
+			case 0x35: writePFXN(value); break;
 			case 0x28:
 				if (!bitPairsUnique(value)) {
 					   getCliComm().printWarning(
@@ -715,13 +791,24 @@ byte Carnivore2::peekIO(word port, EmuTime::param /*time*/) const
 	if (memMapReadEnabled() && ((port & 0xfc) == 0xfc)) {
 		// memory mapper registers
 		return getSelectedSegment(port & 3);
+	} else if ((port & 0xff) == idControlPort() && PF0_RV != 0) {
+		if (PF0_RV == 1) {
+			return '2';
+		} else if (PF0_RV == 2) {
+			return 0x30 | getPrimarySlot();
+		}
 	}
 	return 0xff;
 }
 
 void Carnivore2::writeIO(word port, byte value, EmuTime::param time)
 {
-	if (((port & 0xfe) == 0x7c) &&
+	// note: we only get writes to either PSG ports if they're enabled/configured
+	if (((port & 0xff) == 0xa0) || ((port & 0xff) == 0x10)) {
+		psgLatch = value & 0x0f;
+	} else if ((port & 0xff) == 0xa1 || (port & 0xff) == 0x11) {
+		psg.writeRegister(psgLatch, value, time);
+	} else if (((port & 0xfe) == 0x7c) &&
 	    (fmPacPortEnabled1() || fmPacPortEnabled2())) {
 		// fm-pac registers
 		ym2413.writePort(port & 1, value, time);
@@ -733,6 +820,26 @@ void Carnivore2::writeIO(word port, byte value, EmuTime::param time)
 		// memory mapper registers
 		memMapRegs[port & 0x03] = value & 0x3f;
 		invalidateDeviceRWCache(0x4000 * (port & 0x03), 0x4000);
+	} else if ((port & 0xff) == idControlPort()) {
+		if (value == 'C') {
+			PF0_RV = 1;
+		} else if (value == 'S') {
+			PF0_RV = 2;
+		} else if (value == 'H') {
+			configRegs[0x00] |=  1;
+		} else if (value == 'R') {
+			configRegs[0x00] &= ~1;
+		} else if ('0' <= value && value <= '3') {
+			configRegs[0x00] &= ~(0b11 << 5);
+			configRegs[0x00] |= (value - '0') << 5;
+		} else if (value == 'A') {
+			shadowConfigRegs[0x1e] &= ~1; // Mconf
+		} else if (value == 'M') {
+			shadowConfigRegs[0x1e] |=  1; // Mconf
+		} else {
+			// yes, this is the only case where we will reset this
+			PF0_RV = 0;
+		}
 	}
 }
 
@@ -743,8 +850,9 @@ byte Carnivore2::getSelectedSegment(byte page) const
 
 // version 1: initial version
 // version 2: removed fmPacRegSelect
+// version 3: added PSG and user-defined ID and control port I/O
 template<typename Archive>
-void Carnivore2::serialize(Archive& ar, unsigned /*version*/)
+void Carnivore2::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("flash",            flash,
@@ -758,6 +866,14 @@ void Carnivore2::serialize(Archive& ar, unsigned /*version*/)
 	             "scc",              scc,
 	             "sccMode",          sccMode,
 	             "sccBank",          sccBank);
+	if (ar.versionAtLeast(version, 3)) {
+		ar.serialize("psg",      psg,
+		             "psgLatch", psgLatch,
+		             "PF0_RV",   PF0_RV);
+	} else {
+		psgLatch = 0;
+		PF0_RV = 0;
+	}
 
 	ar.serializePolymorphic("master", *ideDevices[0]);
 	ar.serializePolymorphic("slave",  *ideDevices[1]);
@@ -779,6 +895,13 @@ void Carnivore2::serialize(Archive& ar, unsigned /*version*/)
 		auto time = getCurrentTime();
 		writeSndLVL (configRegs[0x22], time);
 		writeCfgEEPR(configRegs[0x23], time);
+		// make sure changes are seen by setting the register to 0 first
+		auto backup24 = configRegs[0x24];
+		configRegs[0x24] = 0;
+		writePSGCtrl(backup24, time);
+		auto backup35 = configRegs[0x35];
+		configRegs[0x35] = 0xf0;
+		writePFXN(backup35);
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(Carnivore2);

@@ -20,7 +20,7 @@
 
 namespace openmsx {
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 std::unique_ptr<Scaler<Pixel>> ScalerFactory<Pixel>::createScaler(
 	const PixelOperations<Pixel>& pixelOps, RenderSettings& renderSettings)
 {

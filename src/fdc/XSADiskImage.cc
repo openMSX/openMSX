@@ -35,8 +35,8 @@ private:
 
 private:
 	MemBuffer<SectorBuffer> outBuf;	// the output buffer
-	const byte* inBufPos;	// pos in input buffer
-	const byte* inBufEnd;
+	std::span<const byte>::iterator inBufPos;	// pos in input buffer
+	std::span<const byte>::iterator inBufEnd;
 	unsigned sectors;
 
 	int updHufCnt;

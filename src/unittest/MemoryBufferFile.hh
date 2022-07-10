@@ -10,7 +10,7 @@ class File;
 class MemoryBufferFile final : public FileBase
 {
 public:
-	MemoryBufferFile(span<const uint8_t> buffer_)
+	MemoryBufferFile(std::span<const uint8_t> buffer_)
 		: buffer(buffer_) {}
 
 	void read(void* dst, size_t num) override;
@@ -26,11 +26,11 @@ public:
 	time_t getModificationDate() override;
 
 private:
-	span<const uint8_t> buffer;
+	std::span<const uint8_t> buffer;
 	size_t pos = 0;
 };
 
-File memory_buffer_file(span<const uint8_t> buffer);
+File memory_buffer_file(std::span<const uint8_t> buffer);
 
 } // namespace openmsx
 

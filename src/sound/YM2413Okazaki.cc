@@ -225,7 +225,7 @@ constexpr auto fullSinTable = [] {
 
 	std::array<unsigned, PG_WIDTH> result = {};
 	for (auto i : xrange(PG_WIDTH / 4)) {
-		result[i] = lin2db(cstd::sin<2>(double(2.0 * M_PI) * i / PG_WIDTH));
+		result[i] = lin2db(cstd::sin<2>(double(2.0 * Math::pi) * i / PG_WIDTH));
 	}
 	for (auto i : xrange(PG_WIDTH / 4)) {
 		result[PG_WIDTH / 2 - 1 - i] = result[i];

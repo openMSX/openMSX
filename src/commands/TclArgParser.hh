@@ -3,9 +3,9 @@
 
 #include "CommandException.hh"
 #include "TclObject.hh"
-#include "span.hh"
 #include <functional>
 #include <optional>
+#include <span>
 #include <string_view>
 #include <vector>
 
@@ -65,7 +65,7 @@ namespace detail {
 struct ArgsInfo
 {
 	std::string_view name;
-	std::function<unsigned(Interpreter&, span<const TclObject>)> func;
+	std::function<unsigned(Interpreter&, std::span<const TclObject>)> func;
 };
 
 // Parse a flag.
@@ -73,7 +73,7 @@ struct ArgsInfo
 {
 	return {
 		name,
-		[&flag](Interpreter& /*interp*/, span<const TclObject> /*args*/) {
+		[&flag](Interpreter& /*interp*/, std::span<const TclObject> /*args*/) {
 			flag = true;
 			return 0;
 		}
@@ -86,7 +86,7 @@ template<typename T>
 {
 	return {
 		name,
-		[name, &value](Interpreter& interp, span<const TclObject> args) {
+		[name, &value](Interpreter& interp, std::span<const TclObject> args) {
 			if (args.empty()) {
 				throw CommandException("missing argument for ", name);
 			}
@@ -101,7 +101,7 @@ template<typename T>
 // The result of this parser is the collection of non-flag arguments.
 // See src/unittest/TclArgParser.cc for example usages.
 [[nodiscard]] std::vector<TclObject> parseTclArgs(
-	Interpreter& interp, span<const TclObject> inArgs, span<const ArgsInfo> table);
+	Interpreter& interp, std::span<const TclObject> inArgs, std::span<const ArgsInfo> table);
 
 } // namespace openmsx
 

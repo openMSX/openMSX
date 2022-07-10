@@ -1,6 +1,5 @@
 #include "BlipBuffer.hh"
 #include "cstd.hh"
-#include "likely.hh"
 #include "Math.hh"
 #include "ranges.hh"
 #include "xrange.hh"
@@ -27,8 +26,8 @@ constexpr auto impulses = [] {
 
 	// generate sinc, apply hamming window
 	double oversample = ((4.5 / (BLIP_IMPULSE_WIDTH - 1)) + 0.85);
-	double to_angle = M_PI / (2.0 * oversample * BLIP_RES);
-	double to_fraction = M_PI / (2 * (HALF_SIZE - 1));
+	double to_angle = Math::pi / (2.0 * oversample * BLIP_RES);
+	double to_fraction = Math::pi / (2 * (HALF_SIZE - 1));
 	for (auto i : xrange(HALF_SIZE)) {
 		double angle = ((i - HALF_SIZE) * 2 + 1) * to_angle;
 		out[i] = cstd::sin<2>(angle) / angle;
@@ -107,7 +106,7 @@ void BlipBuffer::addDelta(TimeIndex time, float delta)
 	unsigned phase = time.fractAsInt();
 	unsigned ofst = time.toInt() + offset;
 	const float* __restrict impulse = impulses[phase].data();
-	if (likely((ofst + BLIP_IMPULSE_WIDTH) <= BUFFER_SIZE)) {
+	if ((ofst + BLIP_IMPULSE_WIDTH) <= BUFFER_SIZE) [[likely]] {
 		float* __restrict result = &buffer[ofst];
 		for (auto i : xrange(BLIP_IMPULSE_WIDTH)) {
 			result[i] += impulse[i] * delta;

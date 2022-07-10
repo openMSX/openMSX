@@ -1,12 +1,14 @@
 #ifndef V9990PXCONVERTER_HH
 #define V9990PXCONVERTER_HH
 
+#include <concepts>
+
 namespace openmsx {
 
 class V9990;
 class V9990VRAM;
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 class V9990P1Converter
 {
 public:
@@ -23,7 +25,7 @@ private:
 	const Pixel* const palette64;
 };
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 class V9990P2Converter
 {
 public:

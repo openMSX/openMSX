@@ -21,6 +21,10 @@
 
   <devices>
 
+    <S1985 id="S1985"> <!-- includes 5 bits mapper-read-back -->
+      <sramname>hb-f1ii_s1985.sram</sramname>
+    </S1985>
+
     <PPI id="ppi">
       <sound>
         <volume>16000</volume>

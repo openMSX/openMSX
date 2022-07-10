@@ -1,5 +1,4 @@
 #include "HexDump.hh"
-#include "likely.hh"
 #include "strCat.hh"
 #include "xrange.hh"
 #include <algorithm>
@@ -80,7 +79,7 @@ bool decode_inplace(std::string_view input, uint8_t* output, size_t outSize)
 		if (flip) {
 			tmp = d;
 		} else {
-			if (unlikely(out == outSize)) return false;
+			if (out == outSize) [[unlikely]] return false;
 			output[out++] = (tmp << 4) | d;
 		}
 		flip = !flip;

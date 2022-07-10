@@ -10,7 +10,7 @@
 
 namespace openmsx {
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 SDLSnow<Pixel>::SDLSnow(OutputSurface& output, Display& display_)
 	: Layer(COVER_FULL, Z_BACKGROUND)
 	, display(display_)
@@ -21,7 +21,7 @@ SDLSnow<Pixel>::SDLSnow(OutputSurface& output, Display& display_)
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void SDLSnow<Pixel>::paint(OutputSurface& output_)
 {
 	auto& generator = global_urng(); // fast (non-cryptographic) random numbers

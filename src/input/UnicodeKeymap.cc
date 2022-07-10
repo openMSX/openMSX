@@ -6,7 +6,6 @@
 #include "one_of.hh"
 #include "ranges.hh"
 #include "stl.hh"
-#include "StringOp.hh"
 #include <cstring>
 #include <optional>
 
@@ -123,10 +122,19 @@ void UnicodeKeymap::parseUnicodeKeymapfile(string_view data)
 			continue;
 		}
 
+		if (token == "MSX-Video-Characterset:") {
+			auto vidFileName = nextToken(data);
+			if (vidFileName.empty()) {
+				throw MSXException("Missing filename for MSX-Video-Characterset");
+			}
+			msxChars.emplace(vidFileName);
+			continue;
+		}
+
 		// Parse first token: a unicode value or the keyword DEADKEY.
 		unsigned unicode = 0;
 		unsigned deadKeyIndex = 0;
-		bool isDeadKey = StringOp::startsWith(token, "DEADKEY");
+		bool isDeadKey = token.starts_with("DEADKEY");
 		if (isDeadKey) {
 			token.remove_prefix(strlen("DEADKEY"));
 			if (token.empty()) {
@@ -145,7 +153,7 @@ void UnicodeKeymap::parseUnicodeKeymapfile(string_view data)
 			}
 		} else {
 			auto u = parseHex(token);
-			if (!u || *u > 0x1FBAF) {
+			if (!u || *u > 0x1FBFF) {
 				throw MSXException("Wrong unicode value in keymap file");
 			}
 			unicode = *u;

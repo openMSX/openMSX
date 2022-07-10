@@ -84,17 +84,9 @@ public:
 
 	/** Equals operator.
 	  */
-	[[nodiscard]] constexpr bool operator==(const DisplayMode& otherMode) const {
-		return mode == otherMode.mode;
-	}
+	[[nodiscard]] constexpr bool operator==(const DisplayMode&) const = default;
 
-	/** Does-not-equal operator.
-	  */
-	[[nodiscard]] constexpr bool operator!=(const DisplayMode& otherMode) const {
-		return mode != otherMode.mode;
-	}
-
-	/** Get the dispay mode as a byte: YAE YJK M5..M1 combined.
+	/** Get the display mode as a byte: YAE YJK M5..M1 combined.
 	  * @return The byte representation of this display mode,
 	  *     in the range [0..0x7F].
 	  */

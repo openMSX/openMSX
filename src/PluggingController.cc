@@ -79,7 +79,7 @@ PluggingController::PlugCmd::PlugCmd(
 }
 
 void PluggingController::PlugCmd::execute(
-	span<const TclObject> tokens, TclObject& result_, EmuTime::param time)
+	std::span<const TclObject> tokens, TclObject& result_, EmuTime::param time)
 {
 	checkNumArgs(tokens, Between{1, 3}, Prefix{1}, "?connector? ?pluggable?");
 	string result;
@@ -124,7 +124,7 @@ void PluggingController::PlugCmd::execute(
 	result_ = result; // TODO return Tcl list
 }
 
-string PluggingController::PlugCmd::help(span<const TclObject> /*tokens*/) const
+string PluggingController::PlugCmd::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Plugs a plug into a connector\n"
 	       " plug [connector] [plug]";
@@ -148,7 +148,7 @@ void PluggingController::PlugCmd::tabCompletion(std::vector<string>& tokens) con
 	}
 }
 
-bool PluggingController::PlugCmd::needRecord(span<const TclObject> tokens) const
+bool PluggingController::PlugCmd::needRecord(std::span<const TclObject> tokens) const
 {
 	return tokens.size() == 3;
 }
@@ -166,7 +166,7 @@ PluggingController::UnplugCmd::UnplugCmd(
 }
 
 void PluggingController::UnplugCmd::execute(
-	span<const TclObject> tokens, TclObject& /*result*/, EmuTime::param time)
+	std::span<const TclObject> tokens, TclObject& /*result*/, EmuTime::param time)
 {
 	checkNumArgs(tokens, 2, "connector");
 	auto& pluggingController = OUTER(PluggingController, unplugCmd);
@@ -176,7 +176,7 @@ void PluggingController::UnplugCmd::execute(
 	pluggingController.getCliComm().update(CliComm::PLUG, connName, {});
 }
 
-string PluggingController::UnplugCmd::help(span<const TclObject> /*tokens*/) const
+string PluggingController::UnplugCmd::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Unplugs a plug from a connector\n"
 	       " unplug [connector]";
@@ -240,7 +240,7 @@ PluggingController::PluggableInfo::PluggableInfo(
 }
 
 void PluggingController::PluggableInfo::execute(
-	span<const TclObject> tokens, TclObject& result) const
+	std::span<const TclObject> tokens, TclObject& result) const
 {
 	auto& pluggingController = OUTER(PluggingController, pluggableInfo);
 	switch (tokens.size()) {
@@ -260,7 +260,7 @@ void PluggingController::PluggableInfo::execute(
 	}
 }
 
-string PluggingController::PluggableInfo::help(span<const TclObject> /*tokens*/) const
+string PluggingController::PluggableInfo::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Shows a list of available pluggables. "
 	       "Or show info on a specific pluggable.";
@@ -284,7 +284,7 @@ PluggingController::ConnectorInfo::ConnectorInfo(
 }
 
 void PluggingController::ConnectorInfo::execute(
-	span<const TclObject> tokens, TclObject& result) const
+	std::span<const TclObject> tokens, TclObject& result) const
 {
 	auto& pluggingController = OUTER(PluggingController, connectorInfo);
 	switch (tokens.size()) {
@@ -303,7 +303,7 @@ void PluggingController::ConnectorInfo::execute(
 	}
 }
 
-string PluggingController::ConnectorInfo::help(span<const TclObject> /*tokens*/) const
+string PluggingController::ConnectorInfo::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Shows a list of available connectors.";
 }
@@ -326,7 +326,7 @@ PluggingController::ConnectionClassInfo::ConnectionClassInfo(
 }
 
 void PluggingController::ConnectionClassInfo::execute(
-	span<const TclObject> tokens, TclObject& result) const
+	std::span<const TclObject> tokens, TclObject& result) const
 {
 	auto& pluggingController = OUTER(PluggingController, connectionClassInfo);
 	switch (tokens.size()) {
@@ -360,7 +360,7 @@ void PluggingController::ConnectionClassInfo::execute(
 	}
 }
 
-string PluggingController::ConnectionClassInfo::help(span<const TclObject> /*tokens*/) const
+string PluggingController::ConnectionClassInfo::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Shows the class a connector or pluggable belongs to.";
 }

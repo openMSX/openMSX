@@ -4,7 +4,6 @@
 #include "DeviceConfig.hh"
 #include "GlobalSettings.hh"
 #include "StringSetting.hh"
-#include "likely.hh"
 #include "xrange.hh"
 #include <cassert>
 
@@ -28,8 +27,8 @@ CheckedRam::~CheckedRam()
 byte CheckedRam::read(unsigned addr)
 {
 	unsigned line = addr >> CacheLine::BITS;
-	if (unlikely(!completely_initialized_cacheline[line])) {
-		if (unlikely(uninitialized[line][addr &  CacheLine::LOW])) {
+	if (!completely_initialized_cacheline[line]) [[unlikely]] {
+		if (uninitialized[line][addr &  CacheLine::LOW]) [[unlikely]] {
 			umrCallback.execute(addr, ram.getName());
 		}
 	}
@@ -64,9 +63,9 @@ byte* CheckedRam::getRWCacheLines(unsigned addr, unsigned size) const
 void CheckedRam::write(unsigned addr, const byte value)
 {
 	unsigned line = addr >> CacheLine::BITS;
-	if (unlikely(!completely_initialized_cacheline[line])) {
+	if (!completely_initialized_cacheline[line]) [[unlikely]] {
 		uninitialized[line][addr & CacheLine::LOW] = false;
-		if (unlikely(uninitialized[line].none())) {
+		if (uninitialized[line].none()) [[unlikely]] {
 			completely_initialized_cacheline[line] = true;
 			// This invalidates way too much stuff. But because
 			// (locally) we don't know exactly how this class ie

@@ -1,88 +1,6 @@
 #include "catch.hpp"
 #include "Math.hh"
 
-TEST_CASE("Math::log2p1")
-{
-	CHECK(Math::log2p1(0) == 0);
-	CHECK(Math::log2p1(1) == 1);
-	CHECK(Math::log2p1(2) == 2);
-	CHECK(Math::log2p1(3) == 2);
-	CHECK(Math::log2p1(4) == 3);
-	CHECK(Math::log2p1(5) == 3);
-	CHECK(Math::log2p1(6) == 3);
-	CHECK(Math::log2p1(7) == 3);
-	CHECK(Math::log2p1(8) == 4);
-	CHECK(Math::log2p1(9) == 4);
-	CHECK(Math::log2p1(127) == 7);
-	CHECK(Math::log2p1(128) == 8);
-	CHECK(Math::log2p1(129) == 8);
-	CHECK(Math::log2p1(255) == 8);
-	CHECK(Math::log2p1(256) == 9);
-
-	constexpr auto x = Math::log2p1(255); static_assert(x == 8);
-}
-
-TEST_CASE("Math::ispow2")
-{
-	CHECK(!Math::ispow2(0));
-	CHECK( Math::ispow2(1));
-	CHECK( Math::ispow2(2));
-	CHECK(!Math::ispow2(3));
-	CHECK( Math::ispow2(4));
-	CHECK(!Math::ispow2(5));
-	CHECK(!Math::ispow2(6));
-	CHECK(!Math::ispow2(7));
-	CHECK( Math::ispow2(8));
-	CHECK(!Math::ispow2(9));
-	CHECK(!Math::ispow2(15));
-	CHECK( Math::ispow2(16));
-	CHECK(!Math::ispow2(17));
-	CHECK( Math::ispow2(32));
-	CHECK( Math::ispow2(64));
-	CHECK(!Math::ispow2(255));
-	CHECK( Math::ispow2(256));
-	CHECK( Math::ispow2(512));
-	CHECK( Math::ispow2(1024));
-	CHECK( Math::ispow2(2048));
-	CHECK( Math::ispow2(4096));
-	CHECK( Math::ispow2(8192));
-	CHECK(!Math::ispow2(0xffff));
-	CHECK( Math::ispow2(0x10000));
-	CHECK( Math::ispow2(0x80000000));
-	CHECK(!Math::ispow2(0xffffffff));
-}
-
-TEST_CASE("Math::ceil2")
-{
-	CHECK(Math::ceil2(0) == 1);
-	CHECK(Math::ceil2(1) == 1);
-	CHECK(Math::ceil2(2) == 2);
-	CHECK(Math::ceil2(3) == 4);
-	CHECK(Math::ceil2(4) == 4);
-	CHECK(Math::ceil2(5) == 8);
-	CHECK(Math::ceil2(6) == 8);
-	CHECK(Math::ceil2(7) == 8);
-	CHECK(Math::ceil2(8) == 8);
-	CHECK(Math::ceil2(9) == 16);
-	CHECK(Math::ceil2(15) == 16);
-	CHECK(Math::ceil2(16) == 16);
-	CHECK(Math::ceil2(17) == 32);
-	CHECK(Math::ceil2(32) == 32);
-	CHECK(Math::ceil2(64) == 64);
-	CHECK(Math::ceil2(255) == 256);
-	CHECK(Math::ceil2(256) == 256);
-	CHECK(Math::ceil2(512) == 512);
-	CHECK(Math::ceil2(1024) == 1024);
-	CHECK(Math::ceil2(2048) == 2048);
-	CHECK(Math::ceil2(4096) == 4096);
-	CHECK(Math::ceil2(8192) == 8192);
-	CHECK(Math::ceil2(0xffff) == 0x10000);
-	CHECK(Math::ceil2(0x10000) == 0x10000);
-	CHECK(Math::ceil2(0x80000000) == 0x80000000);
-	// values > 0x80000000 don't work,
-	//   result can't be represented in 32bit
-}
-
 TEST_CASE("Math::clipIntToShort")
 {
 	CHECK(Math::clipIntToShort(-100000) == -32768);
@@ -164,77 +82,25 @@ TEST_CASE("Math::reverseByte")
 
 TEST_CASE("Math::floodRight")
 {
-	CHECK(Math::floodRight(0) == 0);
-	CHECK(Math::floodRight(1) == 1);
-	CHECK(Math::floodRight(2) == 3);
-	CHECK(Math::floodRight(3) == 3);
-	CHECK(Math::floodRight(4) == 7);
-	CHECK(Math::floodRight(5) == 7);
-	CHECK(Math::floodRight(6) == 7);
-	CHECK(Math::floodRight(7) == 7);
-	CHECK(Math::floodRight(8) == 15);
-	CHECK(Math::floodRight(9) == 15);
-	CHECK(Math::floodRight(15) == 15);
-	CHECK(Math::floodRight(16) == 31);
-	CHECK(Math::floodRight(32) == 63);
-	CHECK(Math::floodRight(64) == 127);
-	CHECK(Math::floodRight(12345) == 16383);
-	CHECK(Math::floodRight(0x7F001234) == 0x7FFFFFFF);
-	CHECK(Math::floodRight(0x80000000) == 0xFFFFFFFF);
-	CHECK(Math::floodRight(0xF0FEDCBA) == 0xFFFFFFFF);
+	CHECK(Math::floodRight(0u) == 0);
+	CHECK(Math::floodRight(1u) == 1);
+	CHECK(Math::floodRight(2u) == 3);
+	CHECK(Math::floodRight(3u) == 3);
+	CHECK(Math::floodRight(4u) == 7);
+	CHECK(Math::floodRight(5u) == 7);
+	CHECK(Math::floodRight(6u) == 7);
+	CHECK(Math::floodRight(7u) == 7);
+	CHECK(Math::floodRight(8u) == 15);
+	CHECK(Math::floodRight(9u) == 15);
+	CHECK(Math::floodRight(15u) == 15);
+	CHECK(Math::floodRight(16u) == 31);
+	CHECK(Math::floodRight(32u) == 63);
+	CHECK(Math::floodRight(64u) == 127);
+	CHECK(Math::floodRight(12345u) == 16383);
+	CHECK(Math::floodRight(0x7F001234u) == 0x7FFFFFFF);
+	CHECK(Math::floodRight(0x80000000u) == 0xFFFFFFFF);
+	CHECK(Math::floodRight(0xF0FEDCBAu) == 0xFFFFFFFF);
 	CHECK(Math::floodRight(0x1234F0FEDCBAULL) == 0x1FFFFFFFFFFFULL);
 	CHECK(Math::floodRight(uint8_t(0x12)) == uint8_t(0x1F));
 	CHECK(Math::floodRight(uint16_t(0x2512)) == uint16_t(0x3FFF));
-}
-
-TEST_CASE("Math::countLeadingZeros")
-{
-	// undefined for 0
-	CHECK(Math::countLeadingZeros(0x00000001) == 31);
-	CHECK(Math::countLeadingZeros(0x00000002) == 30);
-	CHECK(Math::countLeadingZeros(0x00000003) == 30);
-	CHECK(Math::countLeadingZeros(0x00000004) == 29);
-	CHECK(Math::countLeadingZeros(0x00000005) == 29);
-	CHECK(Math::countLeadingZeros(0x00000007) == 29);
-	CHECK(Math::countLeadingZeros(0x00000008) == 28);
-	CHECK(Math::countLeadingZeros(0x00000081) == 24);
-	CHECK(Math::countLeadingZeros(0x00000134) == 23);
-	CHECK(Math::countLeadingZeros(0x00000234) == 22);
-	CHECK(Math::countLeadingZeros(0x00008234) == 16);
-	CHECK(Math::countLeadingZeros(0x00021234) == 14);
-	CHECK(Math::countLeadingZeros(0x00421234) ==  9);
-	CHECK(Math::countLeadingZeros(0x01421234) ==  7);
-	CHECK(Math::countLeadingZeros(0x01421234) ==  7);
-	CHECK(Math::countLeadingZeros(0x11421234) ==  3);
-	CHECK(Math::countLeadingZeros(0x31421234) ==  2);
-	CHECK(Math::countLeadingZeros(0x61421234) ==  1);
-	CHECK(Math::countLeadingZeros(0x91421234) ==  0);
-	CHECK(Math::countLeadingZeros(0xF1421234) ==  0);
-}
-
-TEST_CASE("Math::countTrailingZeros")
-{
-	// undefined for 0
-	CHECK(Math::countTrailingZeros(0x00000000'00000001ull) ==  0);
-	CHECK(Math::countTrailingZeros(0x00000000'00000002ull) ==  1);
-	CHECK(Math::countTrailingZeros(0x00000000'00000003ull) ==  0);
-	CHECK(Math::countTrailingZeros(0x00000000'00000004ull) ==  2);
-	CHECK(Math::countTrailingZeros(0x00000000'00000100ull) ==  8);
-	CHECK(Math::countTrailingZeros(0x00000000'80000000ull) == 31);
-	CHECK(Math::countTrailingZeros(0x00000001'00000000ull) == 32);
-	CHECK(Math::countTrailingZeros(0x80000000'00000000ull) == 63);
-	CHECK(Math::countTrailingZeros(0x80000000'00000001ull) ==  0);
-}
-
-TEST_CASE("Math::findFirstSet")
-{
-	// undefined for 0
-	CHECK(Math::findFirstSet(0x00000000ull) ==  0);
-	CHECK(Math::findFirstSet(0x00000001ull) ==  1);
-	CHECK(Math::findFirstSet(0x00000002ull) ==  2);
-	CHECK(Math::findFirstSet(0x00000003ull) ==  1);
-	CHECK(Math::findFirstSet(0x00000004ull) ==  3);
-	CHECK(Math::findFirstSet(0x00000100ull) ==  9);
-	CHECK(Math::findFirstSet(0x80000000ull) == 32);
-	CHECK(Math::findFirstSet(0x80000001ull) ==  1);
 }

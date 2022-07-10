@@ -48,7 +48,7 @@ void RTScheduler::scheduleHelper(uint64_t limit)
 		// It's possible RTSchedulables are canceled in the mean time,
 		// so we can't rely on 'count' to replace this empty check.
 		if (queue.empty()) break;
-		if (likely(queue.front().time > limit)) break;
+		if (queue.front().time > limit) [[likely]] break;
 		if (--count == 0) break;
 	}
 }

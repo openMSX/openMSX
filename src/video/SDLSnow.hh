@@ -2,6 +2,7 @@
 #define SDLSNOW_HH
 
 #include "Layer.hh"
+#include <concepts>
 
 namespace openmsx {
 
@@ -10,7 +11,7 @@ class Display;
 
 /** Snow effect for background layer.
   */
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 class SDLSnow final : public Layer
 {
 public:

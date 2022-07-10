@@ -7,6 +7,7 @@
 #include "FileContext.hh"
 #include "CliComm.hh"
 #include "build-info.hh"
+#include "endian.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -70,10 +71,10 @@ void SDLVisibleSurfaceBase::createSurface(int width, int height, unsigned flags)
 				openMSX_icon.width, openMSX_icon.height,
 				openMSX_icon.bytes_per_pixel * 8,
 				openMSX_icon.bytes_per_pixel * openMSX_icon.width,
-				OPENMSX_BIGENDIAN ? 0xFF000000 : 0x000000FF,
-				OPENMSX_BIGENDIAN ? 0x00FF0000 : 0x0000FF00,
-				OPENMSX_BIGENDIAN ? 0x0000FF00 : 0x00FF0000,
-				OPENMSX_BIGENDIAN ? 0x000000FF : 0xFF000000));
+				Endian::BIG ? 0xFF000000 : 0x000000FF,
+				Endian::BIG ? 0x00FF0000 : 0x0000FF00,
+				Endian::BIG ? 0x0000FF00 : 0x00FF0000,
+				Endian::BIG ? 0x000000FF : 0xFF000000));
 #ifndef _WIN32
 		}
 #endif

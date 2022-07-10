@@ -6,16 +6,17 @@
 #include "PostProcessor.hh"
 #include "RenderSettings.hh"
 #include "ScalerOutput.hh"
+#include <concepts>
 
 namespace openmsx {
 
 class MSXMotherBoard;
 class Display;
-template<typename Pixel> class Scaler;
+template<std::unsigned_integral Pixel> class Scaler;
 
 /** Rasterizer using SDL.
   */
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 class FBPostProcessor final : public PostProcessor
 {
 public:

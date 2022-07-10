@@ -7,11 +7,17 @@
 //   string_view s1 = ...
 //   if (s1 == "foo") { ... }
 // with
-//   if (small_compare<'f','o','o'>(s1)) { ... }
-// This looks more ugly, but it can execute (much) faster.
+//   if (small_compare<"foo">(s1)) { ... }
+// This looks more ugly, but it can execute faster.
 //
 // The first variant internally calls memcmp() to do the actual string
 // comparison (after the string length has been checked).
+// Update: gcc-12 optimizes memcmp() on small string-literals better:
+//         e.g. it performs a 7-char comparison by using 2 4-byte loads
+//              where the middle byte overlaps (older versions did a 4-byte,
+//              2-byte and 1-byte load)
+//         In the future, when gcc-12 is more common, we could remove this
+//         small_compare utility.
 //
 // The second variant does a 4 byte unaligned load, masks the unnecessary 4th
 // byte (so and with 0x00ffffff) and then compares with 0x006f6f66 ('f'->0x66,
@@ -31,11 +37,30 @@
 //   padding at the end of the buffer.
 
 #include "aligned.hh"
-#include "build-info.hh"
+#include "endian.hh"
+#include <algorithm>
+#include <cassert>
 #include <cstdint>
 #include <cstring>
 #include <string_view>
 #include <type_traits>
+
+// A wrapper around a (zero-terminated) string literal.
+// Could be moved to a separate header (when also needed in other contexts).
+template<size_t N> struct StringLiteral {
+	constexpr StringLiteral(const char (&str)[N])
+	{
+		assert(str[N - 1] == '\0');
+		std::copy_n(str, N - 1, value);
+	}
+
+	[[nodiscard]] constexpr size_t size() const { return N - 1; }
+	[[nodiscard]] constexpr const char* data() const { return value; }
+
+	char value[N - 1];
+};
+
+namespace detail {
 
 // Loader can load an 8/16/32/64 unaligned value.
 struct Load8 {
@@ -63,52 +88,38 @@ template<size_t N> struct SelectLoader
 	  ErrorNotSupportedLoader>>>> {};
 
 
-// ScVal-little-endian
-template<typename T, T v, T m, T s, char ...Ns> struct ScValLeImpl;
-template<typename T, T v, T m, T s> struct ScValLeImpl<T, v, m, s> {
-	static constexpr T value = v;
-	static constexpr T mask  = m;
-};
-template<typename T, T v, T m, T s, char N0, char ...Ns> struct ScValLeImpl<T, v, m, s, N0, Ns...>
-	: ScValLeImpl<T, v + (T(N0 & 255) << s), m + (T(255) << s), T(s + 8), Ns...> {};
-template<typename T, char ...Ns> struct ScValLe : ScValLeImpl<T, 0, 0, 0, Ns...> {};
-
-// ScVal-big-endian
-template<typename T, T v, T m, T s, char ...Ns> struct ScValBeImpl;
-template<typename T, T v, T m, T s> struct ScValBeImpl<T, v, m, s> {
-	static constexpr T value = v;
-	static constexpr T mask  = m;
-};
-template<typename T, T v, T m, T s, char N0, char ...Ns> struct ScValBeImpl<T, v, m, s, N0, Ns...>
-	: ScValBeImpl<T, v + (T(N0 & 255) << s), m + (T(255) << s), T(s - 8), Ns...> {};
-template<typename T, char ...Ns> struct ScValBe : ScValBeImpl<T, 0, 0, 8 * (sizeof(T) - 1), Ns...> {};
-
-// ScVal: combines all given characters in one value of type T, also computes a
-// mask-value with 1-bits in the 'used' positions.
-template<typename T, char ...Ns> struct ScVal
-	: std::conditional_t<openmsx::OPENMSX_BIGENDIAN, ScValBe<T, Ns...>,
-	                                                 ScValLe<T, Ns...>> {};
-
-
-template<char ...Ns> struct SmallCompare {
-	using Loader = SelectLoader<sizeof...(Ns)>;
-	using C = ScVal<typename Loader::type, Ns...>;
-	static constexpr auto value = C::value;
-	static constexpr auto mask  = C::mask;
-};
-
-// The actual small-fixed-string-comparison.
-template<char ...Ns> [[nodiscard]] bool small_compare(const char* p)
+template<typename T> constexpr std::pair<T, T> calcValueMask(auto str)
 {
-	using SC = SmallCompare<Ns...>;
-	typename SC::Loader loader;
-	return (loader(p) & SC::mask) == SC::value;
+	T v = 0;
+	T m = 0;
+	int s = Endian::LITTLE ? 0 : (8 * (sizeof(T) - 1));
+	for (size_t i = 0; i < str.size(); ++i) {
+		v += T(str.data()[i]) << s;
+		m += T(255) << s;
+		s += Endian::LITTLE ? 8 : -8;
+	}
+	return {v, m};
 }
 
-template<char ...Ns> [[nodiscard]] bool small_compare(std::string_view str)
+} // namespace detail
+
+template<StringLiteral Literal>
+[[nodiscard]] bool small_compare(const char* p)
 {
-	if (str.size() != sizeof...(Ns)) return false;
-	return small_compare<Ns...>(str.data());
+	using Loader = detail::SelectLoader<Literal.size()>;
+	using Type = typename Loader::type;
+	static constexpr auto vm = detail::calcValueMask<Type>(Literal);
+	auto [value, mask] = vm;
+
+	Loader loader;
+	return (loader(p) & mask) == value;
+}
+
+template<StringLiteral Literal>
+[[nodiscard]] bool small_compare(std::string_view str)
+{
+	if (str.size() != Literal.size()) return false;
+	return small_compare<Literal>(str.data());
 }
 
 #endif

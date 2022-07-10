@@ -1,6 +1,5 @@
 #include "ResampleBlip.hh"
 #include "ResampledSoundDevice.hh"
-#include "likely.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "vla.hh"
@@ -55,7 +54,7 @@ bool ResampleBlip<CHANNELS>::generateOutputImpl(float* dataOut, unsigned hostNum
 				auto last = lastInput[ch]; // local var is slightly faster
 				for (unsigned i = 0; /**/; ++i) {
 					auto delta = buf[CHANNELS * i + ch] - last;
-					if (unlikely(delta != 0)) {
+					if (delta != 0) [[unlikely]] {
 						if (i == emuNum) {
 							break;
 						}

@@ -1,5 +1,5 @@
 #include "RomMatraInk.hh"
-#include "cstd.hh"
+#include "ranges.hh"
 #include "serialize.hh"
 #include <array>
 
@@ -9,7 +9,7 @@ static constexpr auto sectorInfo = [] {
 	// 2 * 64kB, fully writeable
 	using Info = AmdFlash::SectorInfo;
 	std::array<Info, 2> result = {};
-	cstd::fill(result, Info{64 * 1024, false});
+	ranges::fill(result, Info{64 * 1024, false});
 	return result;
 }();
 

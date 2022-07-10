@@ -3,12 +3,11 @@
 #include "join.hh"
 #include "ranges.hh"
 #include "stl.hh"
-#include "StringOp.hh"
 #include "view.hh"
 
 namespace openmsx {
 
-std::vector<TclObject> parseTclArgs(Interpreter& interp, span<const TclObject> inArgs, span<const ArgsInfo> table)
+std::vector<TclObject> parseTclArgs(Interpreter& interp, std::span<const TclObject> inArgs, std::span<const ArgsInfo> table)
 {
 	std::vector<TclObject> outArgs;
 	outArgs.reserve(inArgs.size());
@@ -17,7 +16,7 @@ std::vector<TclObject> parseTclArgs(Interpreter& interp, span<const TclObject> i
 		auto arg = inArgs.front();
 		auto argStr = arg.getString();
 		inArgs = inArgs.subspan<1>();
-		if (StringOp::startsWith(argStr, '-')) {
+		if (argStr.starts_with('-')) {
 			if (argStr == "--") {
 				append(outArgs, inArgs);
 				break;

@@ -1,8 +1,7 @@
 #include "BitmapConverter.hh"
-#include "likely.hh"
+#include "endian.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
-#include "build-info.hh"
 #include "components.hh"
 #include <algorithm>
 #include <cstdint>
@@ -10,7 +9,7 @@
 
 namespace openmsx {
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 BitmapConverter<Pixel>::BitmapConverter(
 	const Pixel* palette16_, const Pixel* palette256_,
 	const Pixel* palette32768_)
@@ -21,7 +20,7 @@ BitmapConverter<Pixel>::BitmapConverter(
 {
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void BitmapConverter<Pixel>::calcDPalette()
 {
 	dPaletteValid = true;
@@ -30,15 +29,14 @@ void BitmapConverter<Pixel>::calcDPalette()
 		DPixel p0 = palette16[i];
 		for (auto j : xrange(16)) {
 			DPixel p1 = palette16[j];
-			DPixel dp = OPENMSX_BIGENDIAN
-				  ? (p0 << bits) | p1
-				  : (p1 << bits) | p0;
+			DPixel dp = Endian::BIG ? (p0 << bits) | p1
+			                        : (p1 << bits) | p0;
 			dPalette[16 * i + j] = dp;
 		}
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void BitmapConverter<Pixel>::convertLine(
 	Pixel* linePtr, const byte* vramPtr)
 {
@@ -72,7 +70,7 @@ void BitmapConverter<Pixel>::convertLine(
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void BitmapConverter<Pixel>::convertLinePlanar(
 	Pixel* linePtr, const byte* vramPtr0, const byte* vramPtr1)
 {
@@ -109,7 +107,7 @@ void BitmapConverter<Pixel>::convertLinePlanar(
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void BitmapConverter<Pixel>::renderGraphic4(
 	Pixel*      __restrict pixelPtr,
 	const byte* __restrict vramPtr0)
@@ -123,7 +121,7 @@ void BitmapConverter<Pixel>::renderGraphic4(
 		pixelPtr[2 * i + 3] = palette16[data1 & 15];
 	}*/
 
-	if (unlikely(!dPaletteValid)) {
+	if (!dPaletteValid) [[unlikely]] {
 		calcDPalette();
 	}
 
@@ -134,7 +132,7 @@ void BitmapConverter<Pixel>::renderGraphic4(
 		// Finally write the last pixel unaligned
 		const auto* in  = reinterpret_cast<const unsigned*>(vramPtr0);
 		unsigned data = in[0];
-		if constexpr (OPENMSX_BIGENDIAN) {
+		if constexpr (Endian::BIG) {
 			pixelPtr[0] = palette16[(data >> 28) & 0x0F];
 			data <<=4;
 		} else {
@@ -146,7 +144,7 @@ void BitmapConverter<Pixel>::renderGraphic4(
 		auto out = reinterpret_cast<DPixel*>(pixelPtr);
 		for (auto i : xrange(256 / 8)) {
 			// 8 pixels per iteration
-			if constexpr (OPENMSX_BIGENDIAN) {
+			if constexpr (Endian::BIG) {
 				out[4 * i + 0] = dPalette[(data >> 24) & 0xFF];
 				out[4 * i + 1] = dPalette[(data >> 16) & 0xFF];
 				out[4 * i + 2] = dPalette[(data >>  8) & 0xFF];
@@ -188,7 +186,7 @@ void BitmapConverter<Pixel>::renderGraphic4(
 	for (auto i : xrange(256 / 8)) {
 		// 8 pixels per iteration
 		unsigned data = in[i];
-		if constexpr (OPENMSX_BIGENDIAN) {
+		if constexpr (Endian::BIG) {
 			out[4 * i + 0] = dPalette[(data >> 24) & 0xFF];
 			out[4 * i + 1] = dPalette[(data >> 16) & 0xFF];
 			out[4 * i + 2] = dPalette[(data >>  8) & 0xFF];
@@ -202,7 +200,7 @@ void BitmapConverter<Pixel>::renderGraphic4(
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void BitmapConverter<Pixel>::renderGraphic5(
 	Pixel*      __restrict pixelPtr,
 	const byte* __restrict vramPtr0)
@@ -216,7 +214,7 @@ void BitmapConverter<Pixel>::renderGraphic5(
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void BitmapConverter<Pixel>::renderGraphic6(
 	Pixel*      __restrict pixelPtr,
 	const byte* __restrict vramPtr0,
@@ -230,7 +228,7 @@ void BitmapConverter<Pixel>::renderGraphic6(
 		pixelPtr[4 * i + 2] = palette16[data1 >> 4];
 		pixelPtr[4 * i + 3] = palette16[data1 & 15];
 	}*/
-	if (unlikely(!dPaletteValid)) {
+	if (!dPaletteValid) [[unlikely]] {
 		calcDPalette();
 	}
 	      auto* out = reinterpret_cast<DPixel*>(pixelPtr);
@@ -240,7 +238,7 @@ void BitmapConverter<Pixel>::renderGraphic6(
 		// 16 pixels per iteration
 		unsigned data0 = in0[i];
 		unsigned data1 = in1[i];
-		if constexpr (OPENMSX_BIGENDIAN) {
+		if constexpr (Endian::BIG) {
 			out[8 * i + 0] = dPalette[(data0 >> 24) & 0xFF];
 			out[8 * i + 1] = dPalette[(data1 >> 24) & 0xFF];
 			out[8 * i + 2] = dPalette[(data0 >> 16) & 0xFF];
@@ -262,7 +260,7 @@ void BitmapConverter<Pixel>::renderGraphic6(
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void BitmapConverter<Pixel>::renderGraphic7(
 	Pixel*      __restrict pixelPtr,
 	const byte* __restrict vramPtr0,
@@ -287,7 +285,7 @@ static constexpr std::tuple<int, int, int> yjk2rgb(int y, int j, int k)
 	return {r, g, b};
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void BitmapConverter<Pixel>::renderYJK(
 	Pixel*      __restrict pixelPtr,
 	const byte* __restrict vramPtr0,
@@ -312,7 +310,7 @@ void BitmapConverter<Pixel>::renderYJK(
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void BitmapConverter<Pixel>::renderYAE(
 	Pixel*      __restrict pixelPtr,
 	const byte* __restrict vramPtr0,
@@ -344,7 +342,7 @@ void BitmapConverter<Pixel>::renderYAE(
 	}
 }
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 void BitmapConverter<Pixel>::renderBogus(Pixel* pixelPtr)
 {
 	// Verified on real V9958: all bogus modes behave like this, always

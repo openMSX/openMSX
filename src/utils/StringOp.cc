@@ -26,26 +26,6 @@ bool stringToBool(string_view str)
 //	return result;
 //}
 
-bool startsWith(string_view total, string_view part)
-{
-	return (total.size() >= part.size()) &&
-	       (memcmp(total.data(), part.data(), part.size()) == 0);
-}
-bool startsWith(string_view total, char part)
-{
-	return !total.empty() && (total.front() == part);
-}
-
-bool endsWith(string_view total, string_view part)
-{
-	return (total.size() >= part.size()) &&
-	       (memcmp(total.data() + total.size() - part.size(), part.data(), part.size()) == 0);
-}
-bool endsWith(string_view total, char part)
-{
-	return !total.empty() && (total.back() == part);
-}
-
 void trimRight(string& str, const char* chars)
 {
 	if (auto pos = str.find_last_not_of(chars); pos != string::npos) {

@@ -17,12 +17,18 @@ public:
 	[[nodiscard]] const DiskName& getName() const { return name; }
 
 	/** Replace a full track in this image with the given track. */
-	        void writeTrack(byte track, byte side, const RawTrack& input);
+	void writeTrack(byte track, byte side, const RawTrack& input);
 
 	/** Read a full track from this disk image. */
-	virtual void readTrack (byte track, byte side,       RawTrack& output) = 0;
+	virtual void readTrack (byte track, byte side, RawTrack& output) = 0;
 
-	bool isDoubleSided();
+	/** Has the content of this disk changed, by some other means than the
+	 * MSX writing to the disk. In other words: should caches on the MSX
+	 * side be dropped? (E.g. via the 'disk-changed-signal' that's present
+	 * in (some) MSX disk interfaces). */
+	[[nodiscard]] virtual bool hasChanged() const { return false; }
+
+	[[nodiscard]] bool isDoubleSided();
 
 protected:
 	explicit Disk(DiskName name);

@@ -9,8 +9,8 @@
 #include "IntegerSetting.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
-#include "span.hh"
 #include <atomic>
+#include <span>
 #include <string>
 
 namespace openmsx {
@@ -90,7 +90,7 @@ public:
 	[[nodiscard]] bool isM1Cycle(unsigned address) const;
 
 	void disasmCommand(Interpreter& interp,
-	                   span<const TclObject> tokens,
+	                   std::span<const TclObject> tokens,
 	                   TclObject& result) const;
 
 	/**
@@ -170,8 +170,8 @@ private:
 	/** In sync with traceSetting.getBoolean(). */
 	bool tracingEnabled;
 
-	/** 'normal' Z80 and Z80 in a turboR behave slightly different */
-	const bool isTurboR;
+	/** An NMOS Z80 and a CMOS Z80 behave slightly differently */
+	const bool isCMOS;
 
 private:
 	inline void cpuTracePre();

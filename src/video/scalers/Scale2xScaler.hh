@@ -2,12 +2,13 @@
 #define SCALE2XSCALER_HH
 
 #include "Scaler2.hh"
+#include <cstddef>
 
 namespace openmsx {
 
 /** Runs the Scale2x scaler algorithm.
   */
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 class Scale2xScaler final : public Scaler2<Pixel>
 {
 public:

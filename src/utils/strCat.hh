@@ -47,7 +47,7 @@ template<typename... Ts>
 template<typename... Ts>
 [[nodiscard]] TemporaryString tmpStrCat(Ts&&... ts);
 
-// Apppend a bunch of 'printable' objects to an exiting string.
+// Append a bunch of 'printable' objects to an exiting string.
 //
 // Can be used to optimize
 //     s += strCat(a, b, c);
@@ -255,56 +255,13 @@ template<> struct FastUnsignedImpl<unsigned long long> { using type = unsigned l
 template<typename T> using FastUnsigned = typename FastUnsignedImpl<T>::type;
 
 // Helper function to take the absolute value of a signed or unsigned type.
-//
-// This does the equivalent of
-//    unsigned u = (t < 0) ? -t : t;
-// But it avoids compiler warnings on 't < 0' and '-t' when t is unsigned.
-template<bool IS_SIGNED> struct AbsHelper;
+//  (without compiler warning on 't < 0' and '-t' when t is unsigned)
+template<std::unsigned_integral T>
+[[nodiscard]] FastUnsigned<T> absHelper(T t) { return t; }
 
-template<> struct AbsHelper<true>
-{
-	template<typename T>
-	[[nodiscard]] inline FastUnsigned<T> operator()(T t) const
-	{
-		return (t < 0) ? -t : t;
-	}
-};
+template<std::signed_integral T>
+[[nodiscard]] FastUnsigned<T> absHelper(T t) { return (t < 0)? -t : t; }
 
-template<> struct AbsHelper<false>
-{
-	template<typename T>
-	[[nodiscard]] inline FastUnsigned<T> operator()(T t) const
-	{
-		return t;
-	}
-};
-
-// Helper function to print a minus sign in front of negative values.
-//
-// Does the equivalent of
-//   if (t < 0) *--p = '-';
-// but
-// - Is guaranteed to be optimized away for unsigned types.
-// - Doesn't generate compiler warnings for unsigned types.
-template<bool IS_SIGNED> struct PutSignHelper;
-
-template<> struct PutSignHelper<true>
-{
-	template<typename T>
-	inline void operator()(T t, char*& p) const
-	{
-		if (t < 0) *--p = '-';
-	}
-};
-
-template<> struct PutSignHelper<false>
-{
-	template<typename T>
-	inline void operator()(T /*t*/, char*& /*p*/) const
-	{
-		// nothing
-	}
-};
 
 // Optimized integer printing.
 //
@@ -314,7 +271,7 @@ template<> struct PutSignHelper<false>
 //
 // Next to the internal buffer we also store the size (in characters) of the
 // result. This size can be used to calculate the start position in the buffer.
-template<typename T> struct ConcatIntegral
+template<std::integral T> struct ConcatIntegral
 {
 	static constexpr bool IS_SIGNED = std::numeric_limits<T>::is_signed;
 	static constexpr size_t BUF_SIZE = 1 + std::numeric_limits<T>::digits10 + IS_SIGNED;
@@ -322,14 +279,16 @@ template<typename T> struct ConcatIntegral
 	ConcatIntegral(T t)
 	{
 		char* p = this->end();
-		auto a = AbsHelper<IS_SIGNED>()(t);
+		std::unsigned_integral auto a = absHelper(t);
 
 		do {
 			*--p = static_cast<char>('0' + (a % 10));
 			a /= 10;
 		} while (a);
 
-		PutSignHelper<IS_SIGNED>()(t, p);
+		if constexpr (IS_SIGNED) {
+			if (t < 0) *--p = '-';
+		}
 		this->sz = static_cast<unsigned char>(this->end() - p);
 	}
 
@@ -369,7 +328,7 @@ private:
 // Format an integral as a hexadecimal value with a fixed number of characters.
 // This fixed width means it either adds leading zeros or truncates the result
 // (it keeps the rightmost digits).
-template<size_t N, typename T> struct ConcatFixedWidthHexIntegral
+template<size_t N, std::integral T> struct ConcatFixedWidthHexIntegral
 {
 	ConcatFixedWidthHexIntegral(T t_)
 		: t(t_)
@@ -534,7 +493,7 @@ template<typename T>
 }
 #endif
 
-template<size_t N, typename T>
+template<size_t N, std::integral T>
 [[nodiscard]] inline auto makeConcatUnit(const ConcatFixedWidthHexIntegral<N, T>& t)
 {
 	return t;
@@ -577,10 +536,9 @@ void copyUnits(char* dst, const std::tuple<Ts...>& t)
 
 // Fast integral -> string conversion. (Standalone version, result is not part
 // of a larger string).
-template<typename T>
-[[nodiscard]] inline std::string to_string(T x)
+[[nodiscard]] inline std::string to_string(std::integral auto x)
 {
-	return ConcatIntegral<T>(x);
+	return ConcatIntegral(x);
 }
 
 } // namespace strCatImpl
@@ -691,7 +649,7 @@ inline void strAppend(std::string& x, const char*        y) { x += y; }
 inline void strAppend(std::string& x, std::string_view   y) { x.append(y.data(), y.size()); }
 
 
-template<size_t N, typename T>
+template<size_t N, std::integral T>
 [[nodiscard]] inline strCatImpl::ConcatFixedWidthHexIntegral<N, T> hex_string(T t)
 {
 	return {t};

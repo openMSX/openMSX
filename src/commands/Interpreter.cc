@@ -9,10 +9,10 @@
 #include "MSXCPUInterface.hh"
 #include "FileOperations.hh"
 #include "ranges.hh"
-#include "span.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 #include <iostream>
+#include <span>
 #include <utility>
 #include <vector>
 #include <cstdint>
@@ -170,7 +170,7 @@ int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
 {
 	try {
 		auto& command = *static_cast<Command*>(clientData);
-		span<const TclObject> tokens(
+		std::span<const TclObject> tokens(
 			reinterpret_cast<TclObject*>(const_cast<Tcl_Obj**>(objv)),
 			objc);
 		int res = TCL_OK;
@@ -342,7 +342,7 @@ static BaseSetting* getTraceSetting(uintptr_t traceID)
 #ifndef NDEBUG
 static std::string_view removeColonColon(std::string_view s)
 {
-	if (StringOp::startsWith(s, "::")) s.remove_prefix(2);
+	if (s.starts_with("::")) s.remove_prefix(2);
 	return s;
 }
 #endif
@@ -458,7 +458,7 @@ TclParser Interpreter::parse(std::string_view command)
 	return {interp, command};
 }
 
-void Interpreter::wrongNumArgs(unsigned argc, span<const TclObject> tokens, const char* message)
+void Interpreter::wrongNumArgs(unsigned argc, std::span<const TclObject> tokens, const char* message)
 {
 	assert(argc <= tokens.size());
 	Tcl_WrongNumArgs(interp, argc, reinterpret_cast<Tcl_Obj* const*>(tokens.data()), message);

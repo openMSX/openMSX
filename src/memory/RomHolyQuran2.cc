@@ -10,7 +10,6 @@
 #include "MSXCPU.hh"
 #include "MSXException.hh"
 #include "enumerate.hh"
-#include "likely.hh"
 #include "outer.hh"
 #include "ranges.hh"
 #include "serialize.hh"
@@ -53,7 +52,7 @@ void RomHolyQuran2::reset(EmuTime::param /*time*/)
 byte RomHolyQuran2::readMem(word address, EmuTime::param time)
 {
 	byte result = RomHolyQuran2::peekMem(address, time);
-	if (unlikely(!decrypt)) {
+	if (!decrypt) [[unlikely]] {
 		if (getCPU().isM1Cycle(address)) {
 			// start decryption when we start executing the rom
 			decrypt = true;

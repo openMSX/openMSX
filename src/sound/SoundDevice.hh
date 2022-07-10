@@ -124,7 +124,7 @@ public: // Will be called by Mixer:
 	 * the required sampleRate through this method. All sound devices share
 	 * a common sampleRate.
 	 */
-	virtual void setOutputRate(unsigned sampleRate) = 0;
+	virtual void setOutputRate(unsigned hostSampleRate, double speed) = 0;
 
 	/** Generate sample data
 	  * @param length The number of required samples

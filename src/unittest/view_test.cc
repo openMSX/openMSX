@@ -12,7 +12,7 @@
 #include <tuple>
 #include <vector>
 
-using namespace std;
+using std::vector;
 using namespace view;
 
 static vector<int> getVector(int n)
@@ -46,12 +46,12 @@ TEST_CASE("view::drop random-access-range")
 TEST_CASE("view::drop non-random-access-range")
 {
 	SECTION("empty") {
-		list<int> l;
+		std::list<int> l;
 		CHECK(to_vector(drop(l, 0)) == vector<int>{});
 		CHECK(to_vector(drop(l, 3)) == vector<int>{});
 	}
 	SECTION("non-empty") {
-		list<int> l = {1, 2, 3, 4, 5};
+		std::list<int> l = {1, 2, 3, 4, 5};
 		CHECK(to_vector(drop(l, 0)) == vector<int>{1, 2, 3, 4, 5});
 		CHECK(to_vector(drop(l, 1)) == vector<int>{2, 3, 4, 5});
 		CHECK(to_vector(drop(l, 2)) == vector<int>{3, 4, 5});
@@ -106,12 +106,12 @@ TEST_CASE("view::drop_back random-access-range")
 TEST_CASE("view::drop_back non-random-access-range")
 {
 	SECTION("empty") {
-		list<int> l;
+		std::list<int> l;
 		CHECK(to_vector(drop_back(l, 0)) == vector<int>{});
 		CHECK(to_vector(drop_back(l, 3)) == vector<int>{});
 	}
 	SECTION("non-empty") {
-		list<int> l = {1, 2, 3, 4, 5};
+		std::list<int> l = {1, 2, 3, 4, 5};
 		CHECK(to_vector(drop_back(l, 0)) == vector<int>{1, 2, 3, 4, 5});
 		CHECK(to_vector(drop_back(l, 1)) == vector<int>{1, 2, 3, 4});
 		CHECK(to_vector(drop_back(l, 2)) == vector<int>{1, 2, 3});
@@ -208,28 +208,28 @@ static void check_unordered(const RANGE& range, const vector<T>& expected_)
 
 TEST_CASE("view::keys, view::values") {
 	SECTION("std::map") {
-		map<int, int> m = {{1, 2}, {3, 4}, {5, 6}, {7, 8}};
+		std::map<int, int> m = {{1, 2}, {3, 4}, {5, 6}, {7, 8}};
 		check(keys  (m), vector<int>{1, 3, 5, 7});
 		check(values(m), vector<int>{2, 4, 6, 8});
 	}
-	SECTION("std::vector<pair>") {
-		vector<pair<int, int>> v = {{1, 2}, {3, 4}, {5, 6}, {7, 8}};
+	SECTION("std::vector<std::pair>") {
+		vector<std::pair<int, int>> v = {{1, 2}, {3, 4}, {5, 6}, {7, 8}};
 		check(keys  (v), vector<int>{1, 3, 5, 7});
 		check(values(v), vector<int>{2, 4, 6, 8});
 	}
 	SECTION("hash_map") {
-		hash_map<string, int> m =
+		hash_map<std::string, int> m =
 		{{"foo", 1}, {"bar", 2}, {"qux", 3},
 			{"baz", 4}, {"a",   5}, {"z",   6}};
-		check_unordered(keys(m), vector<string>{
+		check_unordered(keys(m), vector<std::string>{
 				"foo", "bar", "qux", "baz", "a", "z"});
 		check_unordered(values(m), vector<int>{1, 2, 3, 4, 5, 6});
 	}
-	SECTION("std::vector<tuple>") {
-		vector<tuple<int, char, double, string>> v = {
-			tuple(1, 2, 1.2, "foo"),
-			tuple(3, 4, 3.4, "bar"),
-			tuple(5, 6, 5.6, "qux")
+	SECTION("std::vector<std::tuple>") {
+		vector<std::tuple<int, char, double, std::string>> v = {
+			std::tuple(1, 2, 1.2, "foo"),
+			std::tuple(3, 4, 3.4, "bar"),
+			std::tuple(5, 6, 5.6, "qux")
 		};
 		check(keys  (v), vector<int>{1, 3, 5});
 		check(values(v), vector<char>{2, 4, 6});

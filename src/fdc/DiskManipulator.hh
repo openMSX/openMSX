@@ -39,8 +39,8 @@ private:
 	Drives drives; // unordered
 
 	// Command interface
-	void execute(span<const TclObject> tokens, TclObject& result) override;
-	[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+	void execute(std::span<const TclObject> tokens, TclObject& result) override;
+	[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	void tabCompletion(std::vector<std::string>& tokens) const override;
 
 	[[nodiscard]] std::string getMachinePrefix() const;
@@ -52,16 +52,16 @@ private:
 	[[nodiscard]] static MSXtar getMSXtar(SectorAccessibleDisk& disk,
 	                                      DriveSettings& driveData);
 
-	static void create(span<const TclObject> tokens);
+	static void create(std::span<const TclObject> tokens);
 	void savedsk(const DriveSettings& driveData, std::string filename);
 	void format(DriveSettings& driveData, bool dos1);
 	std::string chdir(DriveSettings& driveData, std::string_view filename);
 	void mkdir(DriveSettings& driveData, std::string_view filename);
 	[[nodiscard]] std::string dir(DriveSettings& driveData);
 	std::string import(DriveSettings& driveData,
-	                   span<const TclObject> lists);
+	                   std::span<const TclObject> lists);
 	void exprt(DriveSettings& driveData, std::string_view dirname,
-	           span<const TclObject> lists);
+	           std::span<const TclObject> lists);
 
 	Reactor& reactor;
 };

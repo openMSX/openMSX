@@ -21,7 +21,7 @@ public:
 
 	void read(void* buffer, size_t num) final;
 	void write(const void* buffer, size_t num) final;
-	[[nodiscard]] span<const uint8_t> mmap() final;
+	[[nodiscard]] std::span<const uint8_t> mmap() final;
 	void munmap() final;
 	[[nodiscard]] size_t getSize() final;
 	void seek(size_t pos) final;

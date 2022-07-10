@@ -13,29 +13,29 @@ public:
 	explicit MSXRomCLI(CommandLineParser& cmdLineParser);
 
 	void parseOption(const std::string& option,
-	                 span<std::string>& cmdLine) override;
+	                 std::span<std::string>& cmdLine) override;
 	[[nodiscard]] std::string_view optionHelp() const override;
 
 	void parseFileType(const std::string& arg,
-	                   span<std::string>& cmdLine) override;
+	                   std::span<std::string>& cmdLine) override;
 	[[nodiscard]] std::string_view fileTypeHelp() const override;
 	[[nodiscard]] std::string_view fileTypeCategoryName() const override;
 
 private:
 	void parse(const std::string& arg, const std::string& slotname,
-	           span<std::string>& cmdLine);
+	           std::span<std::string>& cmdLine);
 
 private:
 	CommandLineParser& cmdLineParser;
 
 	struct IpsOption final : CLIOption {
 		void parseOption(const std::string& option,
-		                 span<std::string>& cmdLine) override;
+		                 std::span<std::string>& cmdLine) override;
 		[[nodiscard]] std::string_view optionHelp() const override;
 	} ipsOption;
 	struct RomTypeOption final : CLIOption {
 		void parseOption(const std::string& option,
-		                 span<std::string>& cmdLine) override;
+		                 std::span<std::string>& cmdLine) override;
 		[[nodiscard]] std::string_view optionHelp() const override;
 	} romTypeOption;
 };

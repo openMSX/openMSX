@@ -32,6 +32,8 @@ public:
 	void log(LogLevel level, std::string_view message) override;
 	void update(UpdateType type, std::string_view name,
 	            std::string_view value) override;
+	void updateFiltered(UpdateType type, std::string_view name,
+	            std::string_view value) override;
 
 private:
 	void updateHelper(UpdateType type, std::string_view machine,

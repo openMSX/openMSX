@@ -3,6 +3,8 @@
 
 #include "TclObject.hh"
 #include "gl_vec.hh"
+#include <array>
+#include <span>
 #include <string_view>
 #include <vector>
 #include <memory>
@@ -40,7 +42,7 @@ public:
 	void addWidget(std::unique_ptr<OSDWidget> widget);
 	void deleteWidget(OSDWidget& widget);
 
-	[[nodiscard]] virtual span<const std::string_view> getProperties() const {
+	[[nodiscard]] virtual std::span<const std::string_view> getProperties() const {
 		return widgetProperties;
 	}
 	virtual void setProperty(Interpreter& interp,

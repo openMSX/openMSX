@@ -8,7 +8,6 @@
 #include "Ram.hh"
 #include "Math.hh"
 #include "openmsx.hh"
-#include "likely.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -419,7 +418,7 @@ public:
 
 		// handle mirroring and non-present ram chips
 		address &= sizeMask;
-		if (unlikely(address >= actualSize)) {
+		if (address >= actualSize) [[unlikely]] {
 			// 192kb vram is mirroring is handled elsewhere
 			assert(address < 0x30000);
 			// only happens in case of 16kb vram while you write
@@ -444,7 +443,7 @@ public:
 
 		// handle mirroring and non-present ram chips
 		address &= sizeMask;
-		if (unlikely(address >= actualSize)) {
+		if (address >= actualSize) [[unlikely]] {
 			// 192kb vram is mirroring is handled elsewhere
 			assert(address < 0x30000);
 			// only happens in case of 16kb vram while you write

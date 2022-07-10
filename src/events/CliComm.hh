@@ -1,8 +1,8 @@
 #ifndef CLICOMM_HH
 #define CLICOMM_HH
 
-#include "span.hh"
 #include "strCat.hh"
+#include <span>
 #include <string_view>
 
 namespace openmsx {
@@ -28,12 +28,17 @@ public:
 		EXTENSION,
 		SOUNDDEVICE,
 		CONNECTOR,
+		DEBUG_UPDT,
 		NUM_UPDATES // must be last
 	};
 
 	virtual void log(LogLevel level, std::string_view message) = 0;
 	virtual void update(UpdateType type, std::string_view name,
 	                    std::string_view value) = 0;
+	/** Same as update(), but checks that the value for type-name is the
+	    same as in the previous call. If so do nothing. */
+	virtual void updateFiltered(UpdateType type, std::string_view name,
+	                            std::string_view value) = 0;
 
 	// convenience methods (shortcuts for log())
 	void printInfo    (std::string_view message);
@@ -79,16 +84,17 @@ public:
 	}
 
 	// string representations of the LogLevel and UpdateType enums
-	[[nodiscard]] static span<const char* const> getLevelStrings()  {
+	[[nodiscard]] static std::span<const char* const> getLevelStrings()  {
 		static constexpr const char* const levelStr [NUM_LEVELS] = {
 			"info", "warning", "error", "progress"
 		};
 		return levelStr;
 	}
-	[[nodiscard]] static span<const char* const> getUpdateStrings() {
+	[[nodiscard]] static std::span<const char* const> getUpdateStrings() {
 		static constexpr const char* const updateStr[NUM_UPDATES] = {
 			"led", "setting", "setting-info", "hardware", "plug",
-			"media", "status", "extension", "sounddevice", "connector"
+			"media", "status", "extension", "sounddevice", "connector",
+			"debug"
 		};
 		return updateStr;
 	}

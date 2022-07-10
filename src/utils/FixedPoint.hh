@@ -182,25 +182,8 @@ public:
 	}
 
 	// Comparison operators:
-
-	[[nodiscard]] constexpr friend bool operator==(FixedPoint x, FixedPoint y) {
-		return x.value == y.value;
-	}
-	[[nodiscard]] constexpr friend bool operator!=(FixedPoint x, FixedPoint y) {
-		return x.value != y.value;
-	}
-	[[nodiscard]] constexpr friend bool operator<(FixedPoint x, FixedPoint y) {
-		return x.value < y.value;
-	}
-	[[nodiscard]] constexpr friend bool operator<=(FixedPoint x, FixedPoint y) {
-		return x.value <= y.value;
-	}
-	[[nodiscard]] constexpr friend bool operator>(FixedPoint x, FixedPoint y) {
-		return x.value > y.value;
-	}
-	[[nodiscard]] constexpr friend bool operator>=(FixedPoint x, FixedPoint y) {
-		return x.value >= y.value;
-	}
+	[[nodiscard]] constexpr bool operator== (const FixedPoint&) const = default;
+	[[nodiscard]] constexpr auto operator<=>(const FixedPoint&) const = default;
 
 	// Arithmetic operators that modify this object:
 

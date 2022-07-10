@@ -5,6 +5,7 @@
 #include "gl_vec.hh"
 #include <string>
 #include <cassert>
+#include <concepts>
 #include <cstdint>
 
 namespace openmsx {
@@ -55,7 +56,7 @@ public:
 
 	/** Returns the color key for this output surface.
 	  */
-	template<typename Pixel> [[nodiscard]] inline Pixel getKeyColor() const
+	template<std::unsigned_integral Pixel> [[nodiscard]] inline Pixel getKeyColor() const
 	{
 		return sizeof(Pixel) == 2
 			? 0x0001      // lowest bit of 'some' color component is set
@@ -66,7 +67,7 @@ public:
 	  * The returned color can be used as an alternative for pixels that would
 	  * otherwise have the key color.
 	  */
-	template<typename Pixel> [[nodiscard]] inline Pixel getKeyColorClash() const
+	template<std::unsigned_integral Pixel> [[nodiscard]] inline Pixel getKeyColorClash() const
 	{
 		assert(sizeof(Pixel) != 4); // shouldn't get clashes in 32bpp
 		return 0; // is visually very close, practically
@@ -77,7 +78,7 @@ public:
 	  * It is guaranteed that the returned pixel value is different from the
 	  * color key for this output surface.
 	  */
-	template<typename Pixel> [[nodiscard]] Pixel mapKeyedRGB255(gl::ivec3 rgb)
+	template<std::unsigned_integral Pixel> [[nodiscard]] Pixel mapKeyedRGB255(gl::ivec3 rgb)
 	{
 		Pixel p = mapRGB255(rgb);
 		if constexpr (sizeof(Pixel) == 2) {
@@ -94,7 +95,7 @@ public:
 	  * It is guaranteed that the returned pixel value is different from the
 	  * color key for this output surface.
 	  */
-	template<typename Pixel> [[nodiscard]] Pixel mapKeyedRGB(gl::vec3 rgb)
+	template<std::unsigned_integral Pixel> [[nodiscard]] Pixel mapKeyedRGB(gl::vec3 rgb)
 	{
 		return mapKeyedRGB255<Pixel>(gl::ivec3(rgb * 255.0f));
 	}

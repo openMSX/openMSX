@@ -328,6 +328,16 @@ bool DirAsDSK::isWriteProtectedImpl() const
 	return syncMode == SYNC_READONLY;
 }
 
+bool DirAsDSK::hasChanged() const
+{
+	// For simplicity, for now, always report content has (possibly) changed
+	// (in the future we could try to detect that no host files have
+	// actually changed).
+	// The effect is that the MSX always see a 'disk-changed-signal'.
+	// This fixes: https://github.com/openMSX/openMSX/issues/1410
+	return true;
+}
+
 void DirAsDSK::checkCaches()
 {
 	bool needSync = [&] {
@@ -373,7 +383,7 @@ void DirAsDSK::readSectorImpl(size_t sector, SectorBuffer& buf)
 			// Let the diskdrive report the disk has been ejected.
 			// E.g. a turbor machine uses this to flush its
 			// internal disk caches.
-			diskChanger.forceDiskChange();
+			diskChanger.forceDiskChange(); // maybe redundant now? (see hasChanged()).
 		}
 	}
 
@@ -687,8 +697,8 @@ static size_t weight(const string& hostName)
 
 void DirAsDSK::addNewHostFiles(const string& hostSubDir, unsigned msxDirSector)
 {
-	assert(!StringOp::startsWith(hostSubDir, '/'));
-	assert(hostSubDir.empty() || StringOp::endsWith(hostSubDir, '/'));
+	assert(!hostSubDir.starts_with('/'));
+	assert(hostSubDir.empty() || hostSubDir.ends_with('/'));
 
 	vector<string> hostNames;
 	{
@@ -701,7 +711,7 @@ void DirAsDSK::addNewHostFiles(const string& hostSubDir, unsigned msxDirSector)
 
 	for (auto& hostName : hostNames) {
 		try {
-			if (StringOp::startsWith(hostName, '.')) {
+			if (hostName.starts_with('.')) {
 				// skip '.' and '..'
 				// also skip hidden files on unix
 				continue;
@@ -823,7 +833,7 @@ DirAsDSK::DirIndex DirAsDSK::fillMSXDirEntry(
 		}
 
 		// Fill in hostName / msx filename.
-		assert(!StringOp::endsWith(hostPath, '/'));
+		assert(!hostPath.ends_with('/'));
 		mapDirs[dirIndex].hostName = hostPath;
 		memset(&msxDir(dirIndex), 0, sizeof(MSXDirEntry)); // clear entry
 		memcpy(msxDir(dirIndex).filename, msxFilename.data(), 8 + 3);
@@ -1169,7 +1179,7 @@ void DirAsDSK::exportToHost(DirIndex dirIndex, DirIndex dirDirIndex)
 			auto* v2 = lookup(mapDirs, dirDirIndex);
 			assert(v2);
 			hostSubDir = v2->hostName;
-			assert(!StringOp::endsWith(hostSubDir, '/'));
+			assert(!hostSubDir.ends_with('/'));
 			hostSubDir += '/';
 		}
 		hostName = hostSubDir + msxToHostName(msxName);

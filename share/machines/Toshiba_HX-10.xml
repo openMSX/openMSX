@@ -67,6 +67,7 @@ Toshiba TCX-1007
 
     <primary slot="2">
       <RAM id="Main RAM">
+          <initialContent encoding="gz-base64">eJztzjENADAMwLDxJ92C8FFFWgg4M9bDkGe//q9+/V/9+r/69X/16//q1//Vr/+rX/9Xv/6vfv1f/fq/+vV/9ev/6tf/1a//q1//V7/+r379X/36v/r1f/Xr/+rX/9Wv/6tf/1e//q9+/V/9+r/69X/16//q1//Vr/+rX/9Xv/6vfv1f/fq/+vV/9ev/6tf/1a//q1//V7/+r379X/36v/r1f/Xr/+rX/9Wv/6tf/1e//q9+/V/9+r/69X/16//q1//Vr/+rX/9Xv/6vfv1f/fq/+vV/9ev/6tf/1a//f/+263/16//q1//Vr/+rX/9Xv/6vfv1f/fq/+vV/9ev/6tf/1a//q1//V7/+r379X/36v/r1f/Xr/+rX/9Wv/6tf/1e//q9+/V/9+r/69X/16//q1//Vr/+rX/9Xv/6vfv1f/fq/+vV/9ev/6tf/1a//q1//V7/+r379X/36v/r1f/Xr/+rX/9Wv/6tf/1e//q9+/V/9+r/69X/16//q1//Vr/+rX/9Xv/6vfv1f/fq/+vV/9ev/6tf/1a//q1//V7/+r379X/0Ff+HDsg==</initialContent> <!--ababbaba*32 + babaabab*32 where a = (chr(255) * 64) and b = (chr(0) * 64)), according to the machine of Peter Hanraets with serial 232290. -->
         <mem base="0x0000" size="0x10000"/>
       </RAM>
     </primary>

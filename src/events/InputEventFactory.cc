@@ -35,7 +35,7 @@ namespace openmsx::InputEventFactory {
 	} else if (len == 3) {
 		auto comp1 = str.getListIndex(interp, 1).getString();
 		auto comp2 = str.getListIndex(interp, 2).getString();
-		if (StringOp::startsWith(comp2, "unicode")) {
+		if (comp2.starts_with("unicode")) {
 			if (auto u = StringOp::stringToBase<10, unsigned>(comp2.substr(7))) {
 				return parseKeyEvent(comp1, *u);
 			}
@@ -78,7 +78,7 @@ namespace openmsx::InputEventFactory {
 					str.getListIndex(interp, 3).getInt(interp),
 					absX, absY);
 			}
-		} else if (StringOp::startsWith(comp1, "button")) {
+		} else if (comp1.starts_with("button")) {
 			if (len == 2) {
 				return Event::create<GroupEvent>(
 					std::initializer_list<EventType>{EventType::MOUSE_BUTTON_UP, EventType::MOUSE_BUTTON_DOWN},
@@ -148,15 +148,15 @@ namespace openmsx::InputEventFactory {
 		auto comp1 = str.getListIndex(interp, 1).getString();
 
 		if (len == 2) {
-			if (StringOp::startsWith(comp1, "button")) {
+			if (comp1.starts_with("button")) {
 				return Event::create<GroupEvent>(
 					std::initializer_list<EventType>{EventType::JOY_BUTTON_UP, EventType::JOY_BUTTON_DOWN},
 					makeTclList("joy", "button"));
-			} else if (StringOp::startsWith(comp1, "axis")) {
+			} else if (comp1.starts_with("axis")) {
 				return Event::create<GroupEvent>(
 					std::initializer_list<EventType>{EventType::JOY_AXIS_MOTION},
 					makeTclList("joy", "axis"));
-			} else if (StringOp::startsWith(comp1, "hat")) {
+			} else if (comp1.starts_with("hat")) {
 				return Event::create<GroupEvent>(
 					std::initializer_list<EventType>{EventType::JOY_HAT},
 					makeTclList("joy", "hat"));
@@ -165,7 +165,7 @@ namespace openmsx::InputEventFactory {
 			auto comp2 = str.getListIndex(interp, 2);
 			if (auto j = StringOp::stringToBase<10, unsigned>(comp0.substr(3))) {
 				unsigned joystick = *j - 1;
-				if (StringOp::startsWith(comp1, "button")) {
+				if (comp1.starts_with("button")) {
 					if (auto button = StringOp::stringToBase<10, unsigned>(comp1.substr(6))) {
 						if (upDown(comp2.getString())) {
 							return Event::create<JoystickButtonUpEvent>  (joystick, *button);
@@ -173,12 +173,12 @@ namespace openmsx::InputEventFactory {
 							return Event::create<JoystickButtonDownEvent>(joystick, *button);
 						}
 					}
-				} else if (StringOp::startsWith(comp1, "axis")) {
+				} else if (comp1.starts_with("axis")) {
 					if (auto axis = StringOp::stringToBase<10, unsigned>(comp1.substr(4))) {
 						int value = str.getListIndex(interp, 2).getInt(interp);
 						return Event::create<JoystickAxisMotionEvent>(joystick, *axis, value);
 					}
-				} else if (StringOp::startsWith(comp1, "hat")) {
+				} else if (comp1.starts_with("hat")) {
 					if (auto hat = StringOp::stringToBase<10, unsigned>(comp1.substr(3))) {
 						auto valueStr = str.getListIndex(interp, 2).getString();
 						int value = [&] {
@@ -250,7 +250,7 @@ Event createInputEvent(const TclObject& str, Interpreter& interp)
 		return parseKeyEvent(str, interp);
 	} else if (type == "mouse") {
 		return parseMouseEvent(str, interp);
-	} else if (StringOp::startsWith(type, "joy")) {
+	} else if (type.starts_with("joy")) {
 		return parseJoystickEvent(str, interp);
 	} else if (type == "focus") {
 		return parseFocusEvent(str, interp);

@@ -103,16 +103,16 @@ private:
 
 	struct ScreenShotCmd final : Command {
 		explicit ScreenShotCmd(CommandController& commandController);
-		void execute(span<const TclObject> tokens, TclObject& result) override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		void execute(std::span<const TclObject> tokens, TclObject& result) override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} screenShotCmd;
 
 	struct FpsInfoTopic final : InfoTopic {
 		explicit FpsInfoTopic(InfoCommand& openMSXInfoCommand);
-		void execute(span<const TclObject> tokens,
+		void execute(std::span<const TclObject> tokens,
 			     TclObject& result) const override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	} fpsInfo;
 
 	OSDGUI osdGui;

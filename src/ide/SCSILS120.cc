@@ -104,6 +104,8 @@ SCSILS120::SCSILS120(const DeviceConfig& targetconfig,
 	lun = 0; // TODO move to reset() ?
 	message = 0;
 	reset();
+
+	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "add");
 }
 
 SCSILS120::~SCSILS120()
@@ -746,7 +748,7 @@ LSXCommand::LSXCommand(CommandController& commandController_,
 {
 }
 
-void LSXCommand::execute(span<const TclObject> tokens, TclObject& result,
+void LSXCommand::execute(std::span<const TclObject> tokens, TclObject& result,
                          EmuTime::param /*time*/)
 {
 	if (tokens.size() == 1) {
@@ -783,7 +785,7 @@ void LSXCommand::execute(span<const TclObject> tokens, TclObject& result,
 	}
 }
 
-std::string LSXCommand::help(span<const TclObject> /*tokens*/) const
+std::string LSXCommand::help(std::span<const TclObject> /*tokens*/) const
 {
 	return strCat(
 		ls.name, "                   : display the disk image for this LS-120 drive\n",

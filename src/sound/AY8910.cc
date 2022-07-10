@@ -17,11 +17,11 @@
 #include "StringOp.hh"
 #include "serialize.hh"
 #include "cstd.hh"
-#include "likely.hh"
 #include "one_of.hh"
 #include "outer.hh"
 #include "random.hh"
 #include "xrange.hh"
+#include <array>
 #include <cassert>
 #include <cstring>
 #include <iostream>
@@ -163,7 +163,7 @@ int AY8910::ToneGenerator::getDetune(AY8910& ay8910)
 		vibratoCount += period;
 		vibratoCount %= vibratoPeriod;
 		result += int(
-			sinf((float(2 * M_PI) * vibratoCount) / vibratoPeriod)
+			sinf((float(2 * Math::pi) * vibratoCount) / vibratoPeriod)
 			* vibPerc * 0.01f * period);
 	}
 	float detunePerc = ay8910.detunePercent.getDouble();
@@ -193,7 +193,7 @@ inline void AY8910::ToneGenerator::advance(int duration)
 
 inline void AY8910::ToneGenerator::doNextEvent(AY8910& ay8910)
 {
-	if (unlikely(ay8910.doDetune)) {
+	if (ay8910.doDetune) [[unlikely]] {
 		count = getDetune(ay8910);
 	} else {
 		count = 0;

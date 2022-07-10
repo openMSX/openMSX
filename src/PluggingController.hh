@@ -64,44 +64,44 @@ private:
 		PlugCmd(CommandController& commandController,
 			StateChangeDistributor& stateChangeDistributor,
 			Scheduler& scheduler);
-		void execute(span<const TclObject> tokens, TclObject& result,
+		void execute(std::span<const TclObject> tokens, TclObject& result,
 			     EmuTime::param time) override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
-		[[nodiscard]] bool needRecord(span<const TclObject> tokens) const override;
+		[[nodiscard]] bool needRecord(std::span<const TclObject> tokens) const override;
 	} plugCmd;
 
 	struct UnplugCmd final : RecordedCommand {
 		UnplugCmd(CommandController& commandController,
 			  StateChangeDistributor& stateChangeDistributor,
 			  Scheduler& scheduler);
-		void execute(span<const TclObject> tokens, TclObject& result,
+		void execute(std::span<const TclObject> tokens, TclObject& result,
 			     EmuTime::param time) override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} unplugCmd;
 
 	struct PluggableInfo final : InfoTopic {
 		explicit PluggableInfo(InfoCommand& machineInfoCommand);
-		void execute(span<const TclObject> tokens,
+		void execute(std::span<const TclObject> tokens,
 			     TclObject& result) const override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} pluggableInfo;
 
 	struct ConnectorInfo final : InfoTopic {
 		explicit ConnectorInfo(InfoCommand& machineInfoCommand);
-		void execute(span<const TclObject> tokens,
+		void execute(std::span<const TclObject> tokens,
 			     TclObject& result) const override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} connectorInfo;
 
 	struct ConnectionClassInfo final : InfoTopic {
 		explicit ConnectionClassInfo(InfoCommand& machineInfoCommand);
-		void execute(span<const TclObject> tokens,
+		void execute(std::span<const TclObject> tokens,
 			     TclObject& result) const override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} connectionClassInfo;
 };

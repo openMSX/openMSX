@@ -97,7 +97,7 @@ void Setting::notify() const
 	Subject<Setting>::notify();
 	auto base = getBaseName();
 	TclObject val = getValue();
-	commandController.getCliComm().update(
+	commandController.getCliComm().updateFiltered(
 		CliComm::SETTING, base, val.getString());
 
 	// Always keep SettingsConfig in sync.
@@ -116,7 +116,7 @@ void Setting::notifyPropertyChange() const
 {
 	TclObject result;
 	info(result);
-	commandController.getCliComm().update(
+	commandController.getCliComm().updateFiltered(
 		CliComm::SETTINGINFO, getBaseName(), result.getString());
 }
 

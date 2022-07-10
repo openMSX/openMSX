@@ -1,7 +1,6 @@
 #include "OggReader.hh"
 #include "MSXException.hh"
 #include "yuv2rgb.hh"
-#include "likely.hh"
 #include "CliComm.hh"
 #include "MemoryOps.hh"
 #include "one_of.hh"
@@ -324,7 +323,7 @@ void OggReader::theoraHeaderPage(ogg_page* page, th_info& ti, th_comment& tc,
 void OggReader::readVorbis(ogg_packet* packet)
 {
 	// deal with header packets
-	if (unlikely(packet->packetno <= 2)) {
+	if (packet->packetno <= 2) [[unlikely]] {
 		return;
 	}
 

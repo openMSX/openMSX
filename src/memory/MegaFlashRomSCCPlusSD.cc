@@ -4,7 +4,6 @@
 #include "CacheLine.hh"
 #include "CheckedRam.hh"
 #include "SdCard.hh"
-#include "cstd.hh"
 #include "enumerate.hh"
 #include "ranges.hh"
 #include "serialize.hh"
@@ -266,8 +265,8 @@ static constexpr auto sectorInfo = [] {
 	// 8 * 8kB, followed by 127 * 64kB
 	using Info = AmdFlash::SectorInfo;
 	std::array<Info, 8 + 127> result = {};
-	cstd::fill(result.begin(), result.begin() + 8, Info{ 8 * 1024, false});
-	cstd::fill(result.begin() + 8, result.end(),   Info{64 * 1024, false});
+	std::fill(result.begin(), result.begin() + 8, Info{ 8 * 1024, false});
+	std::fill(result.begin() + 8, result.end(),   Info{64 * 1024, false});
 	return result;
 }();
 

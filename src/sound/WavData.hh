@@ -8,6 +8,7 @@
 #include "one_of.hh"
 #include "xrange.hh"
 #include <cstdint>
+#include <span>
 #include <string>
 
 namespace openmsx {
@@ -39,7 +40,7 @@ public:
 
 private:
 	template<typename T>
-	[[nodiscard]] static const T* read(span<const uint8_t> raw, size_t offset, size_t count = 1);
+	[[nodiscard]] static const T* read(std::span<const uint8_t> raw, size_t offset, size_t count = 1);
 
 private:
 	MemBuffer<int16_t> buffer;
@@ -50,7 +51,7 @@ private:
 ////
 
 template<typename T>
-inline const T* WavData::read(span<const uint8_t> raw, size_t offset, size_t count)
+inline const T* WavData::read(std::span<const uint8_t> raw, size_t offset, size_t count)
 {
 	if ((offset + count * sizeof(T)) > raw.size()) {
 		throw MSXException("Read beyond end of wav file.");

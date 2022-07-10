@@ -31,21 +31,21 @@ private:
 	class Cmd final : public Command {
 	public:
 		explicit Cmd(CommandController& commandController);
-		void execute(span<const TclObject> tokens,
+		void execute(std::span<const TclObject> tokens,
 			     TclObject& result) override;
-		[[nodiscard]] std::string help(span<const TclObject> tokens) const override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 
 	private:
-		void create (span<const TclObject> tokens, TclObject& result);
-		void destroy(span<const TclObject> tokens, TclObject& result);
-		void info   (span<const TclObject> tokens, TclObject& result);
+		void create (std::span<const TclObject> tokens, TclObject& result);
+		void destroy(std::span<const TclObject> tokens, TclObject& result);
+		void info   (std::span<const TclObject> tokens, TclObject& result);
 
-		[[nodiscard]] Info createString (span<const TclObject> tokens);
-		[[nodiscard]] Info createBoolean(span<const TclObject> tokens);
-		[[nodiscard]] Info createInteger(span<const TclObject> tokens);
-		[[nodiscard]] Info createFloat  (span<const TclObject> tokens);
-		[[nodiscard]] Info createEnum   (span<const TclObject> tokens);
+		[[nodiscard]] Info createString (std::span<const TclObject> tokens);
+		[[nodiscard]] Info createBoolean(std::span<const TclObject> tokens);
+		[[nodiscard]] Info createInteger(std::span<const TclObject> tokens);
+		[[nodiscard]] Info createFloat  (std::span<const TclObject> tokens);
+		[[nodiscard]] Info createEnum   (std::span<const TclObject> tokens);
 
 		[[nodiscard]] auto getSettingNames() const {
 			return view::transform(

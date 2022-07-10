@@ -6,7 +6,6 @@
 #include "one_of.hh"
 #include "random.hh"
 #include "statp.hh"
-#include "StringOp.hh"
 #include "xrange.hh"
 #include <memory>
 #include <string>
@@ -60,7 +59,7 @@ namespace openmsx {
 [[nodiscard]] static bool checkSocket(zstring_view socket)
 {
 	std::string_view name = FileOperations::getFilename(socket);
-	if (!StringOp::startsWith(name, "socket.")) {
+	if (!name.starts_with("socket.")) {
 		return false; // wrong name
 	}
 

@@ -1,12 +1,12 @@
 #ifndef SHA1_HH
 #define SHA1_HH
 
-#include "span.hh"
 #include "xrange.hh"
+#include <cstdint>
 #include <ostream>
+#include <span>
 #include <string>
 #include <string_view>
-#include <cstdint>
 
 namespace openmsx {
 
@@ -40,23 +40,21 @@ public:
 	[[nodiscard]] bool empty() const;
 	void clear();
 
+	// gcc-10.2 miscompiles this (fixed in gcc-11),
+	//  so still manually implement operator==.
+	//[[nodiscard]] constexpr bool operator==(const Sha1Sum&) const = default;
 	[[nodiscard]] bool operator==(const Sha1Sum& other) const {
 		for (int i : xrange(5)) {
 			if (a[i] != other.a[i]) return false;
 		}
 		return true;
 	}
-	[[nodiscard]] bool operator!=(const Sha1Sum& other) const { return !(*this == other); }
-	[[nodiscard]] bool operator< (const Sha1Sum& other) const {
+	[[nodiscard]] constexpr auto operator<=>(const Sha1Sum& other) const {
 		for (int i : xrange(5 - 1)) {
-			if (a[i] != other.a[i]) return a[i] < other.a[i];
+			if (auto cmp = a[i] <=> other.a[i]; cmp != 0) return cmp;
 		}
-		return a[5 - 1] < other.a[5 - 1];
+		return a[5 - 1] <=> other.a[5 - 1];
 	}
-
-	[[nodiscard]] bool operator<=(const Sha1Sum& other) const { return !(other <  *this); }
-	[[nodiscard]] bool operator> (const Sha1Sum& other) const { return  (other <  *this); }
-	[[nodiscard]] bool operator>=(const Sha1Sum& other) const { return !(*this <  other); }
 
 	friend std::ostream& operator<<(std::ostream& os, const Sha1Sum& sum) {
 		os << sum.toString();
@@ -83,14 +81,14 @@ public:
 	SHA1();
 
 	/** Incrementally calculate the hash value. */
-	void update(span<const uint8_t> data);
+	void update(std::span<const uint8_t> data);
 
 	/** Get the final hash. After this method is called, calls to update()
 	  * are invalid. */
 	[[nodiscard]] Sha1Sum digest();
 
 	/** Easier to use interface, if you can pass all data in one go. */
-	[[nodiscard]] static Sha1Sum calc(span<const uint8_t> data);
+	[[nodiscard]] static Sha1Sum calc(std::span<const uint8_t> data);
 
 private:
 	void transform(const uint8_t buffer[64]);

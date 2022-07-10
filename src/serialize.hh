@@ -9,7 +9,6 @@
 #include "MemBuffer.hh"
 #include "hash_map.hh"
 #include "inline.hh"
-#include "span.hh"
 #include "strCat.hh"
 #include "unreachable.hh"
 #include "zstring_view.hh"
@@ -17,6 +16,7 @@
 #include <cassert>
 #include <memory>
 #include <optional>
+#include <span>
 #include <sstream>
 #include <string>
 #include <typeindex>
@@ -685,8 +685,8 @@ public:
 		serialize_group(std::tuple<>(), tag, t, std::forward<Args>(args)...);
 	}
 	template<typename T, size_t N>
-	ALWAYS_INLINE void serialize(const char* /*tag*/, const T(&t)[N],
-		std::enable_if_t<SerializeAsMemcpy<T>::value>* = nullptr)
+	ALWAYS_INLINE void serialize(const char* /*tag*/, const T(&t)[N])
+		requires(SerializeAsMemcpy<T>::value)
 	{
 		buffer.insert(&t[0], N * sizeof(T));
 	}
@@ -755,7 +755,7 @@ class MemInputArchive final : public InputArchiveBase<MemInputArchive>
 {
 public:
 	MemInputArchive(const uint8_t* data, size_t size,
-	                span<const std::shared_ptr<DeltaBlock>> deltaBlocks_)
+	                std::span<const std::shared_ptr<DeltaBlock>> deltaBlocks_)
 		: buffer(data, size)
 		, deltaBlocks(deltaBlocks_)
 	{
@@ -793,8 +793,8 @@ public:
 	}
 
 	template<typename T, size_t N>
-	ALWAYS_INLINE void serialize(const char* /*tag*/, T(&t)[N],
-		std::enable_if_t<SerializeAsMemcpy<T>::value>* = nullptr)
+	ALWAYS_INLINE void serialize(const char* /*tag*/, T(&t)[N])
+		requires(SerializeAsMemcpy<T>::value)
 	{
 		buffer.read(&t[0], N * sizeof(T));
 	}
@@ -837,7 +837,7 @@ private:
 
 private:
 	InputBuffer buffer;
-	span<const std::shared_ptr<DeltaBlock>> deltaBlocks;
+	std::span<const std::shared_ptr<DeltaBlock>> deltaBlocks;
 };
 
 ////

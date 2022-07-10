@@ -3,16 +3,16 @@
 
 #include "serialize_meta.hh"
 #include "openmsx.hh"
-#include "build-info.hh"
+#include <bit>
 #include <cassert>
 
 namespace openmsx {
 
-template<bool BigEndian> struct z80regpair_8bit;
-template<> struct z80regpair_8bit<false> { byte l, h; };
-template<> struct z80regpair_8bit<true>  { byte h, l; };
+template<std::endian> struct z80regpair_8bit;
+template<> struct z80regpair_8bit<std::endian::little> { byte l, h; };
+template<> struct z80regpair_8bit<std::endian::big   > { byte h, l; };
 union z80regpair {
-	z80regpair_8bit<OPENMSX_BIGENDIAN> b;
+	z80regpair_8bit<std::endian::native> b;
 	word w;
 };
 

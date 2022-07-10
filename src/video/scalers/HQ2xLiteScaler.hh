@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-template<typename Pixel>
+template<std::unsigned_integral Pixel>
 class HQ2xLiteScaler final : public Scaler2<Pixel>
 {
 public:

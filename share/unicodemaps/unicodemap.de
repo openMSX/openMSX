@@ -8,6 +8,9 @@
 #
 # Example characters in comments are encoded in UTF-8
 #
+
+MSX-Video-Characterset: MSXVID.TXT
+
 DEADKEY1, 13,
 00000, 02, CTRL CODE   # ^@
 00001, 26, CTRL        # ^A

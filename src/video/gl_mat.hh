@@ -103,6 +103,15 @@ public:
 	constexpr matMxN& operator*=(T             x) { *this = *this * x; return *this; }
 	constexpr matMxN& operator*=(const matMxN<N, N, T>& x) { *this = *this * x; return *this; }
 
+	// gcc-10 mis-compiles this (fixed in gcc-11):
+	//    [[nodiscard]] constexpr bool operator==(const matMxN&) const = default;
+	// For now still manually implement it.
+	[[nodiscard]] friend constexpr bool operator==(const matMxN& x, const matMxN& y)
+	{
+		for (auto i : xrange(N)) if (x[i] != y[i]) return false;
+		return true;
+	}
+
 private:
 	vecN<M, T> c[N];
 };
@@ -115,19 +124,6 @@ using mat4 = matMxN<4, 4, float>;
 
 
 // -- Matrix functions --
-
-// matrix equality / inequality
-template<int M, int N, typename T>
-[[nodiscard]] constexpr bool operator==(const matMxN<M, N, T>& A, const matMxN<M, N, T>& B)
-{
-	for (auto i : xrange(N)) if (A[i] != B[i]) return false;
-	return true;
-}
-template<int M, int N, typename T>
-[[nodiscard]] constexpr bool operator!=(const matMxN<M, N, T>& A, const matMxN<M, N, T>& B)
-{
-	return !(A == B);
-}
 
 // matrix + matrix
 template<int M, int N, typename T>

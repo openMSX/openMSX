@@ -5,7 +5,6 @@
 #include "TclObject.hh"
 #include "CommandException.hh"
 #include "outer.hh"
-#include "StringOp.hh"
 #include "view.hh"
 #include "vla.hh"
 #include <cassert>
@@ -48,7 +47,7 @@ BaseSetting* SettingsManager::findSetting(std::string_view name) const
 	if (auto it = settings.find(name); it != end(settings)) {
 		return *it;
 	}
-	if (StringOp::startsWith(name, "::")) {
+	if (name.starts_with("::")) {
 		// try without leading ::
 		if (auto it = settings.find(name.substr(2)); it != end(settings)) {
 			return *it;
@@ -88,7 +87,7 @@ std::vector<string> SettingsManager::getTabSettingNames() const
 	for (auto* s : settings) {
 		std::string_view name = s->getFullName();
 		result.emplace_back(name);
-		if (StringOp::startsWith(name, "::")) {
+		if (name.starts_with("::")) {
 			result.emplace_back(name.substr(2));
 		} else {
 			result.push_back(strCat("::", name));
@@ -124,7 +123,7 @@ SettingsManager::SettingInfo::SettingInfo(InfoCommand& openMSXInfoCommand)
 }
 
 void SettingsManager::SettingInfo::execute(
-	span<const TclObject> tokens, TclObject& result) const
+	std::span<const TclObject> tokens, TclObject& result) const
 {
 	auto& manager = OUTER(SettingsManager, settingInfo);
 	switch (tokens.size()) {
@@ -152,7 +151,7 @@ void SettingsManager::SettingInfo::execute(
 	}
 }
 
-string SettingsManager::SettingInfo::help(span<const TclObject> /*tokens*/) const
+string SettingsManager::SettingInfo::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "openmsx_info setting        : "
 	             "returns list of all settings\n"
@@ -178,7 +177,7 @@ SettingsManager::SetCompleter::SetCompleter(
 {
 }
 
-string SettingsManager::SetCompleter::help(span<const TclObject> tokens) const
+string SettingsManager::SetCompleter::help(std::span<const TclObject> tokens) const
 {
 	if (tokens.size() == 2) {
 		auto& manager = OUTER(SettingsManager, setCompleter);
@@ -220,7 +219,7 @@ SettingsManager::SettingCompleter::SettingCompleter(
 {
 }
 
-string SettingsManager::SettingCompleter::help(span<const TclObject> /*tokens*/) const
+string SettingsManager::SettingCompleter::help(std::span<const TclObject> /*tokens*/) const
 {
 	return {}; // TODO
 }

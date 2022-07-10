@@ -12,7 +12,7 @@ class HDImageCLI final : public CLIOption
 public:
 	explicit HDImageCLI(CommandLineParser& parser);
 	void parseOption(const std::string& option,
-	                 span<std::string>& cmdLine) override;
+	                 std::span<std::string>& cmdLine) override;
 	void parseDone() override;
 	[[nodiscard]] std::string_view optionHelp() const override;
 

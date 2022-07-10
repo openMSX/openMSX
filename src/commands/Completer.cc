@@ -18,7 +18,7 @@ using std::string_view;
 
 namespace openmsx {
 
-static bool formatHelper(span<const string_view> input, size_t columnLimit,
+static bool formatHelper(std::span<const string_view> input, size_t columnLimit,
                          vector<string>& result)
 {
 	size_t column = 0;
@@ -38,7 +38,7 @@ static bool formatHelper(span<const string_view> input, size_t columnLimit,
 	return true;
 }
 
-static vector<string> format(span<const string_view> input, size_t columnLimit)
+static vector<string> format(std::span<const string_view> input, size_t columnLimit)
 {
 	vector<string> result;
 	for (auto lines : xrange(1u, input.size())) {
@@ -51,7 +51,7 @@ static vector<string> format(span<const string_view> input, size_t columnLimit)
 	return result;
 }
 
-vector<string> Completer::formatListInColumns(span<const string_view> input)
+vector<string> Completer::formatListInColumns(std::span<const string_view> input)
 {
 	return format(input, output->getOutputColumns() - 1);
 }
@@ -137,7 +137,7 @@ void Completer::completeFileNameImpl(vector<string>& tokens,
 	filename = FileOperations::expandCurrentDirFromDrive(std::move(filename));
 	string_view dirname1 = FileOperations::getDirName(filename);
 
-	span<const string> paths;
+	std::span<const string> paths;
 	if (FileOperations::isAbsolutePath(filename)) {
 		static const string EMPTY[1] = {""};
 		paths = EMPTY;
@@ -173,34 +173,34 @@ void Completer::completeFileNameImpl(vector<string>& tokens,
 	}
 }
 
-void Completer::checkNumArgs(span<const TclObject> tokens, unsigned exactly, const char* errMessage) const
+void Completer::checkNumArgs(std::span<const TclObject> tokens, unsigned exactly, const char* errMessage) const
 {
 	checkNumArgs(tokens, exactly, Prefix{exactly - 1}, errMessage);
 }
 
-void Completer::checkNumArgs(span<const TclObject> tokens, AtLeast atLeast, const char* errMessage) const
+void Completer::checkNumArgs(std::span<const TclObject> tokens, AtLeast atLeast, const char* errMessage) const
 {
 	checkNumArgs(tokens, atLeast, Prefix{atLeast.min - 1}, errMessage);
 }
 
-void Completer::checkNumArgs(span<const TclObject> tokens, Between between, const char* errMessage) const
+void Completer::checkNumArgs(std::span<const TclObject> tokens, Between between, const char* errMessage) const
 {
 	checkNumArgs(tokens, between, Prefix{between.min - 1}, errMessage);
 }
 
-void Completer::checkNumArgs(span<const TclObject> tokens, unsigned exactly, Prefix prefix, const char* errMessage) const
+void Completer::checkNumArgs(std::span<const TclObject> tokens, unsigned exactly, Prefix prefix, const char* errMessage) const
 {
 	if (tokens.size() == exactly) return;
 	getInterpreter().wrongNumArgs(prefix.n, tokens, errMessage);
 }
 
-void Completer::checkNumArgs(span<const TclObject> tokens, AtLeast atLeast, Prefix prefix, const char* errMessage) const
+void Completer::checkNumArgs(std::span<const TclObject> tokens, AtLeast atLeast, Prefix prefix, const char* errMessage) const
 {
 	if (tokens.size() >= atLeast.min) return;
 	getInterpreter().wrongNumArgs(prefix.n, tokens, errMessage);
 }
 
-void Completer::checkNumArgs(span<const TclObject> tokens, Between between, Prefix prefix, const char* errMessage) const
+void Completer::checkNumArgs(std::span<const TclObject> tokens, Between between, Prefix prefix, const char* errMessage) const
 {
 	if (tokens.size() >= between.min && tokens.size() <= between.max) return;
 	getInterpreter().wrongNumArgs(prefix.n, tokens, errMessage);

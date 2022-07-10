@@ -3,6 +3,7 @@
 
 #include "serialize.hh"
 #include <cassert>
+#include <concepts>
 #include <cstdint>
 #include <limits>
 #include <type_traits>
@@ -50,18 +51,8 @@ public:
 	[[nodiscard]] constexpr uint64_t length() const { return time; }
 
 	// comparison operators
-	[[nodiscard]] constexpr bool operator==(EmuDuration::param d) const
-		{ return time == d.time; }
-	[[nodiscard]] constexpr bool operator!=(EmuDuration::param d) const
-		{ return time != d.time; }
-	[[nodiscard]] constexpr bool operator< (EmuDuration::param d) const
-		{ return time <  d.time; }
-	[[nodiscard]] constexpr bool operator<=(EmuDuration::param d) const
-		{ return time <= d.time; }
-	[[nodiscard]] constexpr bool operator> (EmuDuration::param d) const
-		{ return time >  d.time; }
-	[[nodiscard]] constexpr bool operator>=(EmuDuration::param d) const
-		{ return time >= d.time; }
+	[[nodiscard]] constexpr bool operator== (const EmuDuration&) const = default;
+	[[nodiscard]] constexpr auto operator<=>(const EmuDuration&) const = default;
 
 	// arithmetic operators
 	[[nodiscard]] constexpr EmuDuration operator%(EmuDuration::param d) const
@@ -135,7 +126,7 @@ private:
 template<> struct SerializeAsMemcpy<EmuDuration> : std::true_type {};
 
 
-template<typename T> class EmuDurationCompactStorage
+template<std::unsigned_integral T> class EmuDurationCompactStorage
 {
 public:
 	constexpr EmuDurationCompactStorage(EmuDuration e)

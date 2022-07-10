@@ -6,14 +6,15 @@
 #include "PixelFormat.hh"
 #include "MemBuffer.hh"
 #include "aligned.hh"
-#include "span.hh"
+#include <concepts>
 #include <cstdint>
+#include <span>
 #include <zlib.h>
 
 namespace openmsx {
 
 class FrameSource;
-template<typename P> class PixelOperations;
+template<std::unsigned_integral P> class PixelOperations;
 
 class ZMBVEncoder
 {
@@ -22,7 +23,7 @@ public:
 
 	ZMBVEncoder(unsigned width, unsigned height, unsigned bpp);
 
-	[[nodiscard]] span<const uint8_t> compressFrame(bool keyFrame, FrameSource* frame);
+	[[nodiscard]] std::span<const uint8_t> compressFrame(bool keyFrame, FrameSource* frame);
 
 private:
 	enum Format {
@@ -32,11 +33,11 @@ private:
 
 	void setupBuffers(unsigned bpp);
 	[[nodiscard]] unsigned neededSize() const;
-	template<typename P> void addFullFrame(const PixelFormat& pixelFormat, unsigned& workUsed);
-	template<typename P> void addXorFrame (const PixelFormat& pixelFormat, unsigned& workUsed);
-	template<typename P> [[nodiscard]] unsigned possibleBlock(int vx, int vy, unsigned offset);
-	template<typename P> [[nodiscard]] unsigned compareBlock(int vx, int vy, unsigned offset);
-	template<typename P> void addXorBlock(
+	template<std::unsigned_integral P> void addFullFrame(const PixelFormat& pixelFormat, unsigned& workUsed);
+	template<std::unsigned_integral P> void addXorFrame (const PixelFormat& pixelFormat, unsigned& workUsed);
+	template<std::unsigned_integral P> [[nodiscard]] unsigned possibleBlock(int vx, int vy, unsigned offset);
+	template<std::unsigned_integral P> [[nodiscard]] unsigned compareBlock(int vx, int vy, unsigned offset);
+	template<std::unsigned_integral P> void addXorBlock(
 		const PixelOperations<P>& pixelOps, int vx, int vy,
 		unsigned offset, unsigned& workUsed);
 	[[nodiscard]] const void* getScaledLine(FrameSource* frame, unsigned y, void* workBuf) const;

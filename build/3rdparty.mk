@@ -105,6 +105,15 @@ else
 USE_VIDEO_X11:=enable
 endif
 
+ifeq ($(OPENMSX_TARGET_OS),android)
+# SDL2's top-level Makefile does not build the platform glue, so linking will fail.
+# As a workaround, we disable HIDAPI, but in the long term we should either fix the
+# issue in SDL2 or build SDL2 using its top-level Android.mk.
+USE_HIDAPI:=disable
+else
+USE_HIDAPI:=enable
+endif
+
 PACKAGES_BUILD:=$(shell $(PYTHON) build/3rdparty_libraries.py $(OPENMSX_TARGET_OS) $(LINK_MODE)) PKG_CONFIG
 PACKAGES_NOBUILD:=
 PACKAGES_3RD:=$(PACKAGES_BUILD) $(PACKAGES_NOBUILD)
@@ -167,6 +176,7 @@ $(BUILD_DIR)/$(PACKAGE_SDL2)/Makefile: \
 	mkdir -p $(@D)
 	cd $(@D) && \
 		$(PWD)/$(<D)/configure \
+		--$(USE_HIDAPI)-hidapi \
 		--$(USE_VIDEO_X11)-video-x11 \
 		--disable-video-directfb \
 		--disable-video-opengles1 \

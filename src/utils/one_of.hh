@@ -8,14 +8,9 @@ class one_of {
 public:
 	constexpr one_of(Ts... ts) : tup(ts...) {}
 
-	template<typename T>
+	template<typename T> // abbreviated syntax triggered ICE in msvs?
 	[[nodiscard]] friend constexpr bool operator==(const T& t, const one_of& o) {
 		return std::apply([&](const Ts& ... ts) { return (... || (t == ts)); }, o.tup);
-	}
-
-	template<typename T>
-	[[nodiscard]] friend constexpr bool operator!=(const T& t, const one_of& o) {
-		return !(t == o);
 	}
 
 private:

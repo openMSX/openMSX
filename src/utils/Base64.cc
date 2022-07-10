@@ -1,5 +1,4 @@
 #include "Base64.hh"
-#include "likely.hh"
 #include "xrange.hh"
 #include <algorithm>
 #include <cassert>
@@ -133,7 +132,7 @@ bool decode_inplace(std::string_view input, uint8_t* output, size_t outSize)
 		buf4[i++] = d;
 		if (i == 4) {
 			i = 0;
-			if (unlikely((out + 3) > outSize)) return false;
+			if ((out + 3) > outSize) [[unlikely]] return false;
 			output[out++] = char(((buf4[0] & 0xff) << 2) + ((buf4[1] & 0x30) >> 4));
 			output[out++] = char(((buf4[1] & 0x0f) << 4) + ((buf4[2] & 0x3c) >> 2));
 			output[out++] = char(((buf4[2] & 0x03) << 6) + ((buf4[3] & 0xff) >> 0));
@@ -148,7 +147,7 @@ bool decode_inplace(std::string_view input, uint8_t* output, size_t outSize)
 		buf3[1] = ((buf4[1] & 0x0f) << 4) + ((buf4[2] & 0x3c) >> 2);
 		buf3[2] = ((buf4[2] & 0x03) << 6) + ((buf4[3] & 0xff) >> 0);
 		for (auto j : xrange(i - 1)) {
-			if (unlikely(out == outSize)) return false;
+			if (out == outSize) [[unlikely]] return false;
 			output[out++] = buf3[j];
 		}
 	}
