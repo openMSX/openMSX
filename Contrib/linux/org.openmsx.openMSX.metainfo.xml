@@ -10,25 +10,26 @@
 		<category>Emulation</category>
 	</categories>
 	<releases>
+		<release version="18.0" date="2022-06-13"/>
 		<release version="17.0" date="2021-05-18"/>
 		<release version="16.0" date="2020-08-26"/>
 	</releases>
 	<description>
 		<p>
-			openMSX is an emulator for the MSX home computer system. MSX is an old
-			Z80-based family of home computers as an attempt to establish
-			a single standard in home computing similar to VHS in video.
+			openMSX is an emulator for the MSX home computer system. MSX was a standard
+			for Z80-based home computers, and was a (largely) Japanese attempt to
+			establish a single standard in home computing similar to VHS in video.
 		</p>
 		<p>
-			The MSX standard has been designed by a company called ASCII in cooperation
-			with Microsoft which has provided a firmware version of its extended BASIC
-			(called "MicroSoft eXtended BASIC") for the machine, which explains the
-			MSX name.
+			The MSX standard was designed by ASCII Corporation in Japan, in cooperation
+			with Microsoft Japan. The later of which provided the extended BASIC for
+			the machine.
 		</p>
 		<p>
 			In addition to emulating MSX, MSX2, MSX2+, MSX Turbo R and many of it's
-			peripherals, openMSX also supports emulating the ColecoVision and Sega SG-1000
-			game consoles and the SpectraVideo SVI-318 and SVI-328 home computer systems.
+			peripherals, openMSX also supports emulating the ColecoVision and
+			Sega SG-1000 game consoles and the SpectraVideo SVI-318 and SVI-328
+			home computer systems.
 		</p>
 		<p>
 			Note: by default the openMSX emulator only ships with the C-BIOS open-source
@@ -53,10 +54,4 @@
 		<control>pointing</control>
 		<control>gamepad</control>
 	</recommends>
-	<mimetypes>
-		<mimetype>application/x-msx-rom</mimetype>
-		<mimetype>application/x-raw-disk-image</mimetype>
-		<mimetype>application/zip</mimetype>
-		<mimetype>application/gzip</mimetype>
-	</mimetypes>
 </component>
