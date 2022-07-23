@@ -86,7 +86,7 @@ CassettePlayer::CassettePlayer(const HardwareConfig& hwConf)
 	, autoRunSetting(
 		motherBoard.getCommandController(),
 		"autoruncassettes", "automatically try to run cassettes", true)
-	, sampcnt(0)
+	, sampCnt(0)
 	, state(STOP)
 	, lastOutput(false)
 	, motor(false), motorControl(true)
@@ -209,7 +209,7 @@ bool CassettePlayer::isRolling() const
 	// Is the tape 'rolling'?
 	// is true when:
 	//  not in stop mode (there is a tape inserted and not at end-of-tape)
-	//  AND [ user forced playing (motorcontrol=off) OR motor enabled by
+	//  AND [ user forced playing (motorControl=off) OR motor enabled by
 	//        software (motor=on) ]
 	return (getState() != STOP) && (motor || !motorControl);
 }
@@ -217,7 +217,12 @@ bool CassettePlayer::isRolling() const
 double CassettePlayer::getTapePos(EmuTime::param time)
 {
 	sync(time);
-	return (tapePos - EmuTime::zero()).toDouble();
+	if (getState() == RECORD) {
+		// we record 8-bit mono, so bytes == samples
+		return (double(recordImage->getBytes()) + partialInterval) / RECORD_FREQ;
+	} else {
+		return (tapePos - EmuTime::zero()).toDouble();
+	}
 }
 
 double CassettePlayer::getTapeLength(EmuTime::param time)
@@ -496,14 +501,17 @@ void CassettePlayer::generateRecordOutput(EmuDuration::param duration)
 			fillBuf(count, int(out));
 		}
 		samples -= count;
+		assert(samples < 1.0);
 
 		// partial last interval
 		partialOut = samples * out;
-		partialInterval = 0.0;
+		partialInterval = samples;
 	} else {
+		assert(samples < 1.0);
 		partialOut += samples * out;
 		partialInterval += samples;
 	}
+	assert(partialInterval < 1.0);
 }
 
 void CassettePlayer::fillBuf(size_t length, double x)
@@ -514,14 +522,14 @@ void CassettePlayer::fillBuf(size_t length, double x)
 	double y = lastY + (x - lastX);
 
 	while (length) {
-		size_t len = std::min(length, BUF_SIZE - sampcnt);
+		size_t len = std::min(length, BUF_SIZE - sampCnt);
 		repeat(len, [&] {
-			buf[sampcnt++] = int(y) + 128;
+			buf[sampCnt++] = int(y) + 128;
 			y *= A;
 		});
 		length -= len;
-		assert(sampcnt <= BUF_SIZE);
-		if (BUF_SIZE == sampcnt) {
+		assert(sampCnt <= BUF_SIZE);
+		if (BUF_SIZE == sampCnt) {
 			flushOutput();
 		}
 	}
@@ -532,8 +540,8 @@ void CassettePlayer::fillBuf(size_t length, double x)
 void CassettePlayer::flushOutput()
 {
 	try {
-		recordImage->write(buf, 1, unsigned(sampcnt));
-		sampcnt = 0;
+		recordImage->write(buf, 1, unsigned(sampCnt));
+		sampCnt = 0;
 		recordImage->flush(); // update wav header
 	} catch (MSXException& e) {
 		motherBoard.getMSXCliComm().printWarning(
