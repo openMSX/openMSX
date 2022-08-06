@@ -34,18 +34,38 @@ public:
 	[[nodiscard]] int  getDeltaY()  const { return deltaY; }
 	[[nodiscard]] byte getPress()   const { return press; }
 	[[nodiscard]] byte getRelease() const { return release; }
-	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
+	template<typename Archive> void serialize(Archive& ar, unsigned version)
 	{
 		ar.template serializeBase<StateChange>(*this);
 		ar.serialize("deltaX",  deltaX,
 		             "deltaY",  deltaY,
 		             "press",   press,
 		             "release", release);
+		if (ar.versionBelow(version, 2)) {
+			assert(Archive::IS_LOADER);
+			// Old versions stored host (=unscaled) mouse movement
+			// in the replay-event-log. Apply the (old) algorithm
+			// to scale host to msx mouse movement.
+			// In principle the code snippet below does:
+			//    delta{X,Y} /= SCALE
+			// except that it doesn't accumulate rounding errors
+			int oldMsxX = absHostX / SCALE;
+			int oldMsxY = absHostY / SCALE;
+			absHostX += deltaX;
+			absHostY += deltaY;
+			int newMsxX = absHostX / SCALE;
+			int newMsxY = absHostY / SCALE;
+			deltaX = newMsxX - oldMsxX;
+			deltaY = newMsxY - oldMsxY;
+		}
 	}
 private:
-	int deltaX, deltaY;
+	int deltaX, deltaY; // msx mouse movement
 	byte press, release;
+public:
+	inline static int absHostX = 0, absHostY = 0; // (only) for old savestates
 };
+SERIALIZE_CLASS_VERSION(MouseState, 2);
 
 REGISTER_POLYMORPHIC_CLASS(StateChange, MouseState, "MouseState");
 
@@ -247,11 +267,20 @@ void Mouse::signalMSXEvent(const Event& event, EmuTime::param time) noexcept
 	visit(overloaded{
 		[&](const MouseMotionEvent& e) {
 			if (e.getX() || e.getY()) {
-				// note: X/Y are negated, do this already in this
-				//  routine to keep replays bw-compat. In a new
-				//  savestate version it may (or may not) be cleaner
-				//  to perform this operation closer to the MSX code.
-				createMouseStateChange(time, -e.getX(), -e.getY(), 0, 0);
+				// Note: hostXY is negated when converting to MsxXY
+				// This is almost the same as
+				//    relMsxXY = e.getXY() / SCALE
+				// except that it doesn't accumulate rounding errors
+				int oldMsxX = absHostX / SCALE;
+				int oldMsxY = absHostY / SCALE;
+				absHostX -= e.getX();
+				absHostY -= e.getY();
+				int newMsxX = absHostX / SCALE;
+				int newMsxY = absHostY / SCALE;
+				int relMsxX = newMsxX - oldMsxX;
+				int relMsxY = newMsxY - oldMsxY;
+
+				createMouseStateChange(time, relMsxX, relMsxY, 0, 0);
 			}
 		},
 		[&](const MouseButtonDownEvent& e) {
@@ -296,22 +325,10 @@ void Mouse::signalStateChange(const StateChange& event)
 	const auto* ms = dynamic_cast<const MouseState*>(&event);
 	if (!ms) return;
 
-	// This is almost the same as
-	//    relMsxXY = ms->getDeltaXY() / SCALE
-	// except that it doesn't accumulate rounding errors
-	int oldMsxX = absHostX / SCALE;
-	int oldMsxY = absHostY / SCALE;
-	absHostX += ms->getDeltaX();
-	absHostY += ms->getDeltaY();
-	int newMsxX = absHostX / SCALE;
-	int newMsxY = absHostY / SCALE;
-	int relMsxX = newMsxX - oldMsxX;
-	int relMsxY = newMsxY - oldMsxY;
-
 	// Verified with a real MSX-mouse (Philips SBC3810):
 	//   this value is not clipped to -128 .. 127.
-	curxrel += relMsxX;
-	curyrel += relMsxY;
+	curxrel += ms->getDeltaX();
+	curyrel += ms->getDeltaY();
 	status = (status & ~ms->getPress()) | ms->getRelease();
 }
 
@@ -335,6 +352,9 @@ void Mouse::stopReplay(EmuTime::param time) noexcept
 template<typename Archive>
 void Mouse::serialize(Archive& ar, unsigned version)
 {
+	// (Only) for loading old savestates
+	MouseState::absHostX = MouseState::absHostY = 0;
+
 	if constexpr (Archive::IS_LOADER) {
 		if (isPluggedIn()) {
 			// Do this early, because if something goes wrong while loading
