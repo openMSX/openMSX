@@ -7,6 +7,7 @@
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include "unreachable.hh"
+#include "Math.hh"
 #include <SDL.h>
 #include <algorithm>
 
@@ -79,8 +80,8 @@ Mouse::Mouse(MSXEventDistributor& eventDistributor_,
 	, yrel(0)
 	, curxrel(0)
 	, curyrel(0)
-	, absHostX(0)
-	, absHostY(0)
+	, fractionalX(0)
+	, fractionalY(0)
 	, status(JOY_BUTTONA | JOY_BUTTONB)
 	, mouseMode(true)
 {
@@ -267,20 +268,17 @@ void Mouse::signalMSXEvent(const Event& event, EmuTime::param time) noexcept
 	visit(overloaded{
 		[&](const MouseMotionEvent& e) {
 			if (e.getX() || e.getY()) {
-				// Note: hostXY is negated when converting to MsxXY
-				// This is almost the same as
-				//    relMsxXY = e.getXY() / SCALE
-				// except that it doesn't accumulate rounding errors
-				int oldMsxX = absHostX / SCALE;
-				int oldMsxY = absHostY / SCALE;
-				absHostX -= e.getX();
-				absHostY -= e.getY();
-				int newMsxX = absHostX / SCALE;
-				int newMsxY = absHostY / SCALE;
-				int relMsxX = newMsxX - oldMsxX;
-				int relMsxY = newMsxY - oldMsxY;
+				// Note: regular C/C++ division rounds towards
+				// zero, so different direction for positive and
+				// negative values. But we get smoother output
+				// with a uniform rounding direction.
+				auto qrX = Math::div_mod_floor(e.getX() + fractionalX, SCALE);
+				auto qrY = Math::div_mod_floor(e.getY() + fractionalY, SCALE);
+				fractionalX = qrX.remainder;
+				fractionalY = qrY.remainder;
 
-				createMouseStateChange(time, relMsxX, relMsxY, 0, 0);
+				// Note: hostXY is negated when converting to MsxXY
+				createMouseStateChange(time, -qrX.quotient, -qrY.quotient, 0, 0);
 			}
 		},
 		[&](const MouseButtonDownEvent& e) {

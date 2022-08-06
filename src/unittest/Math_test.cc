@@ -104,3 +104,22 @@ TEST_CASE("Math::floodRight")
 	CHECK(Math::floodRight(uint8_t(0x12)) == uint8_t(0x1F));
 	CHECK(Math::floodRight(uint16_t(0x2512)) == uint16_t(0x3FFF));
 }
+
+TEST_CASE("Math::div_mod_floor")
+{
+	auto test = [](int D, int d, int q, int r) {
+		REQUIRE(d * q + r == D);
+		auto qr = Math::div_mod_floor(D, d);
+		CHECK(qr.quotient  == q);
+		CHECK(qr.remainder == r);
+	};
+	test( 10,  3,  3,  1);
+	test(-10,  3, -4,  2);
+	test( 10, -3, -4, -2);
+	test(-10, -3,  3, -1);
+
+	test( 10,  2,  5,  0);
+	test(-10,  2, -5,  0);
+	test( 10, -2, -5,  0);
+	test(-10, -2,  5,  0);
+}

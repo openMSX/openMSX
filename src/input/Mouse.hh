@@ -52,7 +52,7 @@ private:
 	int phase;
 	int xrel, yrel;         // latched X/Y values, these are returned to the MSX
 	int curxrel, curyrel;   // running X/Y values, already scaled down
-	int absHostX, absHostY; // running X/Y values, not yet scaled down
+	int fractionalX, fractionalY; // running X/Y values, not yet scaled down
 	byte status;
 	bool mouseMode;
 };
