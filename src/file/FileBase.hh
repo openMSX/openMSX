@@ -3,6 +3,7 @@
 
 #include "MemBuffer.hh"
 #include <cstdint>
+#include <ctime>
 #include <span>
 #include <string>
 
