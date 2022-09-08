@@ -1481,7 +1481,7 @@ proc menu_create_load_machine_list {{mode "replace"}} {
 	foreach i $items {
 		set default_info ""
 		if {$i eq $::default_machine} {
-			set default_info " (default)"
+			set default_info " \[default\]"
 		}
 		set type "???"
 		set region ""
@@ -1495,7 +1495,7 @@ proc menu_create_load_machine_list {{mode "replace"}} {
 		if {$region eq ""} {
 			set extra_info $type
 		} else {
-			set extra_info "$type, $region"
+			set extra_info "$type ([string toupper $region])"
 		}
 		lappend presentation "[utils::get_machine_display_name_by_config_name $i], $extra_info$default_info"
 	}
