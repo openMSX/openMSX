@@ -8,6 +8,7 @@
     <release_year>1985</release_year>
     <description>MSX1 with RAM disk feature and embedded English Word Processor.</description>
     <type>MSX</type>
+    <region>eu</region>
   </info>
 
   <!-- All info based on the machine of Isaac Santaolalla with serial 200075

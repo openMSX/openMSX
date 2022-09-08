@@ -8,6 +8,7 @@
     <release_year></release_year>
     <description>Arabic MSX with built in software and Yamaha SFG-05 module</description>
     <type>MSX</type>
+    <region>me</region>
   </info>
 
   <!-- Thanks to Ricardo Jurczyk Pinheiro for the information.

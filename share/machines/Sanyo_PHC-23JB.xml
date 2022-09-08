@@ -8,6 +8,7 @@
     <release_year>1987</release_year>
     <description>A blue MSX2...</description>
     <type>MSX2</type>
+    <region>jp</region>
   </info>
 
  <!-- Confirmed (except RAM pattern) by Peter Hanraets on serial number

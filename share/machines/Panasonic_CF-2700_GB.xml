@@ -8,6 +8,7 @@
     <release_year></release_year>
     <description>One of the few European MSX machines by Panasonic. Brittish version.</description>
     <type>MSX</type>
+    <region>uk</region>
   </info>
 
   <!-- Based on the machine of Peter Hanraets with serial number 4kBMA 02953 -->

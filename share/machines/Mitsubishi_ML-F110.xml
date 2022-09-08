@@ -8,6 +8,7 @@
     <release_year></release_year>
     <description>A Japanese MSX1 with built in software.</description>
     <type>MSX</type>
+    <region>jp</region>
   </info>
 
   <!-- Based on Werner Kai's machine with serial 1006177

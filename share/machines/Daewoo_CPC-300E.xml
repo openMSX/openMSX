@@ -8,6 +8,7 @@
     <release_year>1986</release_year>
     <description>The educational version of the CPC-300</description>
     <type>MSX2</type>
+    <region>kr</region>
   </info>
 
   <CassettePort/>

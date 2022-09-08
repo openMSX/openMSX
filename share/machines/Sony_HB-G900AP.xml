@@ -8,6 +8,7 @@
     <release_year>1986</release_year>
     <description>A professional MSX2 with a large amount of RAM.</description>
     <type>MSX2</type>
+    <region>eu</region>
     <!-- Note that superimpose is still missing! -->
   </info>
 

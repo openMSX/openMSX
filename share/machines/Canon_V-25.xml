@@ -8,6 +8,7 @@
     <release_year>1984?</release_year>
     <description>One of the few MSX2's with only 64kB VRAM.</description>
     <type>MSX2</type>
+    <region>jp</region>
   </info>
 
   <!-- S-3527 based machine, Zilog Z8400APS, 32k ROM: YAMAHA YM2301, 16k ROM: NEC D23C128EC - thanks to Rudi Westerhof for borrowing me his Canon V-25! -->

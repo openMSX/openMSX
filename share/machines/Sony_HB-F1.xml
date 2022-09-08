@@ -8,6 +8,7 @@
     <release_year>1986</release_year>
     <description/>
     <type>MSX2</type>
+    <region>jp</region>
   </info>
 
   <MapperReadBackBits>largest</MapperReadBackBits>

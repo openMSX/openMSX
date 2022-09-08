@@ -8,6 +8,7 @@
     <release_year>1988</release_year>
     <description>A top notch MSX2, but note: superimpose and turbo mode are not yet implemented!</description>
     <type>MSX2</type>
+    <region>jp</region>
   </info>
 
   <MapperReadBackBits>largest</MapperReadBackBits>

@@ -8,6 +8,7 @@
     <release_year>?</release_year>
     <description>A simple 64kB Japanese MSX1 machine</description>
     <type>MSX</type>
+    <region>jp</region>
   </info>
 
   <!-- This config is based on Werner Kai's machine with serial number 10722198

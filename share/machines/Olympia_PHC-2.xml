@@ -8,6 +8,7 @@
     <release_year>1985</release_year>
     <description>French MSX machine (built by Daewoo).</description>
     <type>MSX</type>
+    <region>fr</region>
   </info>
 
  <!-- 

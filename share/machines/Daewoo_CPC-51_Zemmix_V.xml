@@ -8,6 +8,7 @@
     <release_year>1986</release_year>
     <description>MSX game console</description>
     <type>MSX</type>
+    <region>kr</region>
   </info>
 
   <!-- Note: not emulated is:

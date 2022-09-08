@@ -22,6 +22,7 @@
     <release_year>1987</release_year>
     <description>Mitsubishi Telecom Station (with built in telephone). This hardware description file is a Work-In-Progress! It's certainly not correct.</description>
     <type>MSX2</type>
+    <region>jp</region>
   </info>
 
   <CassettePort/>

@@ -8,6 +8,7 @@
     <release_year>1986</release_year>
     <description/>
     <type>MSX2</type>
+    <region>eu</region>
   </info>
 
   <!-- There are two ROM chips: the "1M MASK ROM" which says M531000-52 KYOCERA INT

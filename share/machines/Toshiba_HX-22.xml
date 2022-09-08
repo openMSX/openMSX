@@ -8,6 +8,7 @@
     <release_year>1984</release_year>
     <description>A Toshiba HX-21 with RS-232C</description>
     <type>MSX</type>
+    <region>jp</region>
   </info>
 
   <!-- Thanks to Werner Kai for the details! -->

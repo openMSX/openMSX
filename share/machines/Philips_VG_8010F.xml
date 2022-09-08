@@ -8,6 +8,7 @@
     <release_year>1984</release_year>
     <description>French version of the VG 8010</description>
     <type>MSX</type>
+    <region>fr</region>
   </info>
 
   <CassettePort/>

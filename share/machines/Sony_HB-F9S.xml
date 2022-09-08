@@ -8,6 +8,7 @@
     <release_year>1985</release_year>
     <description>Spanish MSX2</description>
     <type>MSX2</type>
+    <region>es</region>
   </info>
 
   <CassettePort/>

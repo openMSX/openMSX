@@ -8,6 +8,7 @@
     <release_year>1986</release_year>
     <description>A very complete MSX1 machine, for the Swedish/Finnish market.</description>
     <type>MSX</type>
+    <region>se/fi</region>
   </info>
 
   <CassettePort/>

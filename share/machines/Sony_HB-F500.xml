@@ -8,6 +8,7 @@
     <release_year>1985</release_year>
     <description>Japanese MSX2 (first version)</description>
     <type>MSX2</type>
+    <region>jp</region>
   </info>
 
   <!-- Info provided by Peter Hanraets (without opening the machine), serial number 205158.

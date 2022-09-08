@@ -8,6 +8,7 @@
     <release_year>?</release_year>
     <description>French version of the VG 8020(/20)</description>
     <type>MSX</type>
+    <region>fr</region>
   </info>
 
   <CassettePort/>

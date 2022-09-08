@@ -22,6 +22,7 @@
     <release_year>1986/1987</release_year>
     <description>A Daewoo CPC-200 based Arabic MSX.</description>
     <type>MSX</type>
+    <region>me</region>
   </info>
 
   <CassettePort/>

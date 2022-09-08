@@ -8,6 +8,7 @@
     <release_year>1985</release_year>
     <description>Original white/gray model of the Hotbit.</description>
     <type>MSX</type>
+    <region>br</region>
   </info>
 
   <CassettePort/>

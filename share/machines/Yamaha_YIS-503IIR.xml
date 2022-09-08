@@ -8,6 +8,7 @@
     <release_year>1985</release_year>
     <description>Russian MSX</description>
     <type>MSX</type>
+    <region>ru</region>
   </info>
 
 <!-- Note that the network module is not emulated. It's a module similar to the

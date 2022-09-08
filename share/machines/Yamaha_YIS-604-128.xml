@@ -8,6 +8,7 @@
     <release_year>1985</release_year>
     <description>Home Personal Computer</description>
     <type>MSX2</type>
+    <region>jp</region>
   </info>
 
   <!-- Config based on slot layout and ROM check of Marcel Schipper's

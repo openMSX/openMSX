@@ -8,6 +8,7 @@
     <release_year></release_year>
     <description>Samsung MSX1 for the European/Western market.</description>
     <type>MSX</type>
+    <region>eu</region>
   </info>
 
 <!-- Ricardo Jurczyk Pinheiro / Werner Kai:

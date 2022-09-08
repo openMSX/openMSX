@@ -22,6 +22,7 @@
     <release_year>1985</release_year>
     <description/>
     <type>MSX</type>
+    <region>jp</region>
   </info>
 
   <CassettePort/>

@@ -8,6 +8,7 @@
     <release_year>1987</release_year>
     <description>The follow up of the Brazillian Gradiente XP-800 (1.0), also known as Expert 1.1</description>
     <type>MSX</type>
+    <region>br</region>
   </info>
 
   <CassettePort/>

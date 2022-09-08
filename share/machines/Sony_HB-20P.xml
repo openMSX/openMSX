@@ -8,6 +8,7 @@
     <release_year/>
     <description>Spanish MSX</description>
     <type>MSX</type>
+    <region>es</region>
   </info>
 
   <CassettePort/>

@@ -8,6 +8,7 @@
     <release_year>1983</release_year>
     <description>Non-MSX machine, which was heavy inspiration for the MSX standard.</description>
     <type>SVI</type>
+    <region>eu</region>
   </info>
 
   <CassettePort/>

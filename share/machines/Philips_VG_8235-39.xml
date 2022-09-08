@@ -8,6 +8,7 @@
     <release_year>1986</release_year>
     <description>French version of the 2nd edition of this machine.</description>
     <type>MSX2</type>
+    <region>fr</region>
   </info>
 
 <!-- Info from the 8235/39 with serial FF00 635041626 kindly given by Peter

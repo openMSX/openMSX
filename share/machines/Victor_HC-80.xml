@@ -23,6 +23,7 @@
     <release_year></release_year>
     <description>An MSX2 with firmware.</description>
     <type>MSX2</type>
+    <region>jp</region>
   </info>
 
   <CassettePort/>

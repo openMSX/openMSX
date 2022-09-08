@@ -8,6 +8,7 @@
     <release_year>1985</release_year>
     <description>German version of the Sony HB-F700</description>
     <type>MSX2</type>
+    <region>de</region>
   </info>
 
 <!-- ROM dumps and initial content verified on George van Halderen's machine -->

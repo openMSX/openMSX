@@ -8,6 +8,7 @@
     <release_year>1988</release_year>
     <description>A newer version of the Sony HB-F1XD, but in emulation it's identical to its predecessor.</description>
     <type>MSX2</type>
+    <region>jp</region>
   </info>
 
   <!-- ROM dumps from machine of Peter Hanraets with serial 213775 -->

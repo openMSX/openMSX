@@ -8,6 +8,7 @@
     <release_year>1985</release_year>
     <description>A funky game oriented MSX.</description>
     <type>MSX</type>
+    <region>jp</region>
   </info>
 
 <!-- Thanks to Peter Hanraets for the information from his machine with serial

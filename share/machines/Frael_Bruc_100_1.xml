@@ -9,6 +9,7 @@
     <release_year>1987</release_year>
     <description>First version of this Italian machine, which is mostly MSX compatible</description>
     <type>MSX</type>
+    <region>it</region>
   </info>
 
   <!--

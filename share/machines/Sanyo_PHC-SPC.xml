@@ -8,6 +8,7 @@
     <release_year>1985</release_year>
     <description>Super Sanno Primary Computer</description>
     <type>MSX</type>
+    <region>jp</region>
   </info>
 
   <!-- Info based on machine with serial number 73813653, kindly provided by

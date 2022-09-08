@@ -8,6 +8,7 @@
     <release_year>1986</release_year>
     <description>Arabic MSX1 machine.</description>
     <type>MSX</type>
+    <region>me</region>
   </info>
 
   <!-- Thanks to Werner Kai for his information
