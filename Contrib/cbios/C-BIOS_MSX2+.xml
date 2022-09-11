@@ -8,6 +8,7 @@
     <release_year>2005</release_year>
     <description>An MSX2+ machine using C-BIOS, with MSX-MUSIC, an international keyboard layout and 60Hz interrupt frequency.</description>
     <type>MSX2+</type>
+    <region>int</region>
   </info>
 
   <MapperReadBackBits>largest</MapperReadBackBits>
