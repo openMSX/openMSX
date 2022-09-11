@@ -89,6 +89,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(const DeviceConfig& config)
 void MSXSCCPlusCart::powerUp(EmuTime::param time)
 {
 	scc.powerUp(time);
+	ram.clear();
 	reset(time);
 }
 
