@@ -142,12 +142,8 @@ void Display::detach(VideoSystemChangeListener& listener)
 
 Layer* Display::findActiveLayer() const
 {
-	for (auto* l : layers) {
-		if (l->getZ() == Layer::Z_MSX_ACTIVE) {
-			return l;
-		}
-	}
-	return nullptr;
+	auto it = ranges::find_if(layers, &Layer::isActive);
+	return (it != layers.end()) ? *it : nullptr;
 }
 
 Display::Layers::iterator Display::baseLayer()

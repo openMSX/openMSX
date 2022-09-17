@@ -30,7 +30,7 @@ OSDImageBasedWidget::OSDImageBasedWidget(Display& display_, const TclObject& nam
 
 OSDImageBasedWidget::~OSDImageBasedWidget() = default;
 
-static void get4(Interpreter& interp, const TclObject& value, uint32_t* result)
+static void get4(Interpreter& interp, const TclObject& value, std::span<uint32_t, 4> result)
 {
 	auto len = value.getListLength(interp);
 	if (len == 4) {
@@ -38,10 +38,7 @@ static void get4(Interpreter& interp, const TclObject& value, uint32_t* result)
 			result[i] = value.getListIndex(interp, i).getInt(interp);
 		}
 	} else if (len == 1) {
-		uint32_t val = value.getInt(interp);
-		for (auto i : xrange(4)) {
-			result[i] = val;
-		}
+		ranges::fill(result, value.getInt(interp));
 	} else {
 		throw CommandException("Expected either 1 or 4 values.");
 	}
@@ -50,22 +47,22 @@ void OSDImageBasedWidget::setProperty(
 	Interpreter& interp, std::string_view propName, const TclObject& value)
 {
 	if (propName == "-rgba") {
-		uint32_t newRGBA[4];
+		std::array<uint32_t, 4> newRGBA;
 		get4(interp, value, newRGBA);
 		setRGBA(newRGBA);
 	} else if (propName == "-rgb") {
-		uint32_t newRGB[4];
+		std::array<uint32_t, 4> newRGB;
 		get4(interp, value, newRGB);
-		uint32_t newRGBA[4];
+		std::array<uint32_t, 4> newRGBA;
 		for (auto i : xrange(4)) {
 			newRGBA[i] = (rgba[i]          & 0x000000ff) |
 			             ((newRGB[i] << 8) & 0xffffff00);
 		}
 		setRGBA(newRGBA);
 	} else if (propName == "-alpha") {
-		uint32_t newAlpha[4];
+		std::array<uint32_t, 4> newAlpha;
 		get4(interp, value, newAlpha);
-		uint32_t newRGBA[4];
+		std::array<uint32_t, 4> newRGBA;
 		for (auto i : xrange(4)) {
 			newRGBA[i] = (rgba[i]     & 0xffffff00) |
 			             (newAlpha[i] & 0x000000ff);
@@ -85,24 +82,18 @@ void OSDImageBasedWidget::setProperty(
 	}
 }
 
-void OSDImageBasedWidget::setRGBA(const uint32_t newRGBA[4])
+void OSDImageBasedWidget::setRGBA(std::span<const uint32_t, 4> newRGBA)
 {
-	if ((rgba[0] == newRGBA[0]) &&
-	    (rgba[1] == newRGBA[1]) &&
-	    (rgba[2] == newRGBA[2]) &&
-	    (rgba[3] == newRGBA[3])) {
-		// not changed
-		return;
+	if (ranges::equal(rgba, newRGBA)) {
+		return; // not changed
 	}
 	invalidateLocal();
-	for (auto i : xrange(4)) {
-		rgba[i] = newRGBA[i];
-	}
+	ranges::copy(newRGBA, rgba);
 }
 
-static void set4(const uint32_t rgba[4], uint32_t mask, unsigned shift, TclObject& result)
+static void set4(std::span<const uint32_t, 4> rgba, uint32_t mask, unsigned shift, TclObject& result)
 {
-	if ((rgba[0] == rgba[1]) && (rgba[0] == rgba[2]) && (rgba[0] == rgba[3])) {
+	if (ranges::all_equal(rgba)) {
 		result = (rgba[0] & mask) >> shift;
 	} else {
 		result.addListElements(view::transform(xrange(4), [&](auto i) {
@@ -129,15 +120,9 @@ void OSDImageBasedWidget::getProperty(std::string_view propName, TclObject& resu
 	}
 }
 
-static constexpr bool constantAlpha(const uint32_t rgba[4])
-{
-	return ((rgba[0] & 0xff) == (rgba[1] & 0xff)) &&
-	       ((rgba[0] & 0xff) == (rgba[2] & 0xff)) &&
-	       ((rgba[0] & 0xff) == (rgba[3] & 0xff));
-}
 bool OSDImageBasedWidget::hasConstantAlpha() const
 {
-	return constantAlpha(rgba);
+	return ranges::all_equal(rgba, [](auto c) { return c & 0xff; });
 }
 
 float OSDImageBasedWidget::getRecursiveFadeValue() const

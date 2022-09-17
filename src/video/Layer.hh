@@ -48,6 +48,7 @@ public:
 	/** Query the Z-index of this layer.
 	  */
 	[[nodiscard]] ZIndex getZ() const { return z; }
+	[[nodiscard]] bool isActive() const { return getZ() == Z_MSX_ACTIVE; }
 
 	/** Query the coverage of this layer.
 	 */

@@ -59,7 +59,7 @@ protected:
 	std::unique_ptr<BaseImage> image;
 
 private:
-	void setRGBA(const uint32_t newRGBA[4]);
+	void setRGBA(std::span<const uint32_t, 4> newRGBA);
 	[[nodiscard]] bool isFading() const;
 	[[nodiscard]] float getCurrentFadeValue() const;
 	[[nodiscard]] float getCurrentFadeValue(uint64_t now) const;
@@ -73,7 +73,7 @@ private:
 	float fadePeriod;
 	float fadeTarget;
 	mutable float startFadeValue;
-	uint32_t rgba[4];
+	std::array<uint32_t, 4> rgba;
 	bool error;
 };
 

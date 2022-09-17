@@ -4,6 +4,7 @@
 #include "Scheduler.hh"
 #include "StateChange.hh"
 #include "ScopedAssign.hh"
+#include "dynarray.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "stl.hh"
@@ -88,11 +89,8 @@ void RecordedCommand::stopReplay(EmuTime::param /*time*/) noexcept
 
 MSXCommandEvent::MSXCommandEvent(EmuTime::param time_, std::span<const TclObject> tokens_)
 	: StateChange(time_)
-	, tokens(tokens_.size())
+	, tokens(dynarray<TclObject>::construct_from_range_tag{}, tokens_)
 {
-	for (auto i : xrange(tokens.size())) {
-		tokens[i] = tokens_[i];
-	}
 }
 
 template<typename Archive>
@@ -109,11 +107,8 @@ void MSXCommandEvent::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("tokens", str);
 	if constexpr (Archive::IS_LOADER) {
 		assert(tokens.empty());
-		size_t n = str.size();
-		tokens = dynarray<TclObject>(n);
-		for (auto i : xrange(n)) {
-			tokens[i] = TclObject(str[i]);
-		}
+		tokens = dynarray<TclObject>(dynarray<TclObject>::construct_from_range_tag{},
+		                             view::transform(str, [](const auto& s) { return TclObject(s); }));
 	}
 }
 REGISTER_POLYMORPHIC_CLASS(StateChange, MSXCommandEvent, "MSXCommandEvent");

@@ -384,10 +384,9 @@ string_view Reactor::getMachineID() const
 
 Reactor::Board Reactor::getMachine(string_view machineID) const
 {
-	for (auto& b : boards) {
-		if (b->getMachineID() == machineID) {
-			return b;
-		}
+	if (auto it = ranges::find(boards, machineID, &MSXMotherBoard::getMachineID);
+	    it != boards.end()) {
+		return *it;
 	}
 	throw CommandException("No machine with ID: ", machineID);
 }

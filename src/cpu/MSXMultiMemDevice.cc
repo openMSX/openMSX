@@ -4,7 +4,6 @@
 #include "TclObject.hh"
 #include "ranges.hh"
 #include "stl.hh"
-#include "unreachable.hh"
 #include "view.hh"
 #include <cassert>
 
@@ -84,12 +83,9 @@ void MSXMultiMemDevice::getNameList(TclObject& result) const
 
 const MSXMultiMemDevice::Range& MSXMultiMemDevice::searchRange(unsigned address) const
 {
-	for (const auto& r : ranges) {
-		if (isInside(address, r.base, r.size)) {
-			return r;
-		}
-	}
-	UNREACHABLE; return ranges.back();
+	auto it = ranges::find_if(ranges, [&](const auto& r) { return isInside(address, r.base, r.size); });
+	assert(it != ranges.end());
+	return *it;
 }
 
 MSXDevice* MSXMultiMemDevice::searchDevice(unsigned address) const

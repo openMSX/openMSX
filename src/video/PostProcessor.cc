@@ -84,11 +84,7 @@ CliComm& PostProcessor::getCliComm()
 unsigned PostProcessor::getLineWidth(
 	FrameSource* frame, unsigned y, unsigned step)
 {
-	unsigned result = frame->getLineWidth(y);
-	for (auto i : xrange(1u, step)) {
-		result = std::max(result, frame->getLineWidth(y + i));
-	}
-	return result;
+	return max_value(xrange(step), [&](auto i) { return frame->getLineWidth(y + i); });
 }
 
 std::unique_ptr<RawFrame> PostProcessor::rotateFrames(

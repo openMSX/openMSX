@@ -49,6 +49,17 @@ public:
 	dynarray(size_t n, const T& value)
 	        : m_size(n), m_data(std::make_unique<T[]>(n, value)) {}
 
+	struct construct_from_range_tag {};
+	template<typename SizedRange>
+	dynarray(construct_from_range_tag, SizedRange&& range)
+	        : m_size(std::size(range)), m_data(std::make_unique<T[]>(m_size)) {
+		size_t i = 0;
+		for (const auto& e : range) {
+			m_data[i] = e;
+			++i;
+		}
+	}
+
 	dynarray(dynarray&& other)
 		: m_size(other.m_size), m_data(std::move(other.m_data)) {
 		other.m_size = 0;
