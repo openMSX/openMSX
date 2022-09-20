@@ -1,7 +1,7 @@
 #include "FileBase.hh"
 #include "FileOperations.hh"
+#include "ranges.hh"
 #include <algorithm>
-#include <cstring>
 
 namespace openmsx {
 
@@ -38,7 +38,7 @@ void FileBase::truncate(size_t newSize)
 
 	constexpr size_t BUF_SIZE = 4096;
 	uint8_t buf[BUF_SIZE];
-	memset(buf, 0, sizeof(buf));
+	ranges::fill(buf, 0);
 	while (remaining) {
 		auto chunkSize = std::min(BUF_SIZE, remaining);
 		write(buf, chunkSize);

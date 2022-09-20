@@ -137,8 +137,8 @@ void ImagePrinter::write(byte data)
 	} else if (escSequence) {
 		escSequence = false;
 
-		memset(&(abEscSeq), 0, sizeof(abEscSeq));
-		*(abEscSeq) = data;
+		ranges::fill(abEscSeq, 0);
+		abEscSeq[0] = data;
 		sizeEscPos = 1;
 
 		remainingCommandBytes = calcEscSequenceLength(data);
@@ -1610,7 +1610,7 @@ Paper::Paper(unsigned x, unsigned y, double dotSizeX, double dotSizeY)
 	: buf(x * y)
 	, sizeX(x), sizeY(y)
 {
-	memset(buf.data(), 255, x * y);
+	ranges::fill(std::span{buf.data(), x * y}, 255);
 	setDotSize(dotSizeX, dotSizeY);
 }
 

@@ -86,7 +86,6 @@ chirp 12-..: volume   0   : silent
 #include "xrange.hh"
 #include <algorithm>
 #include <cmath>
-#include <cstring>
 
 namespace openmsx {
 
@@ -402,12 +401,12 @@ void VLM5030::reset()
 	new_energy = new_pitch = 0;
 	current_energy = current_pitch = 0;
 	target_energy = target_pitch = 0;
-	memset(old_k, 0, sizeof(old_k));
-	memset(new_k, 0, sizeof(new_k));
-	memset(current_k, 0, sizeof(current_k));
-	memset(target_k, 0, sizeof(target_k));
+	ranges::fill(old_k, 0);
+	ranges::fill(new_k, 0);
+	ranges::fill(current_k, 0);
+	ranges::fill(target_k, 0);
 	interp_count = sample_count = pitch_count = 0;
-	memset(x, 0, sizeof(x));
+	ranges::fill(x, 0);
 	// reset parameters
 	setupParameter(0x00);
 }

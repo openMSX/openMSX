@@ -9,7 +9,7 @@
 */
 /*
  * Notes:
- *  Not suppport padding transfer and interrupt signal. (Not used MEGA-SCSI)
+ *  Not support padding transfer and interrupt signal. (Not used MEGA-SCSI)
  *  Message system might be imperfect. (Not used in MEGA-SCSI usually)
  */
 #include "MB89352.hh"
@@ -24,7 +24,6 @@
 #include "serialize.hh"
 #include "xrange.hh"
 #include <cassert>
-#include <cstring>
 #include <memory>
 
 namespace openmsx {
@@ -122,7 +121,7 @@ MB89352::MB89352(const DeviceConfig& config)
 	reset(false);
 
 	// avoid UMR on savestate
-	memset(buffer.data(), 0, SCSIDevice::BUFFER_SIZE);
+	ranges::fill(buffer, 0);
 	msgin = 0;
 	blockCounter = 0;
 	nextPhase = SCSI::UNDEFINED;
@@ -155,7 +154,7 @@ void MB89352::softReset()
 		regs[i] = 0;
 	}
 	regs[15] = 0xFF;               // un mapped
-	memset(cdb, 0, sizeof(cdb));
+	ranges::fill(cdb, 0);
 
 	cdbIdx = 0;
 	bufIdx = 0;

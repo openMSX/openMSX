@@ -59,6 +59,10 @@ public:
 	[[nodiscard]] size_t size() const { return N; }
 	[[nodiscard]] auto* data()       { return dat; }
 	[[nodiscard]] auto* data() const { return dat; }
+	[[nodiscard]] const auto* begin() const { return dat; }
+	[[nodiscard]] const auto* end()   const { return dat + N; }
+	[[nodiscard]]       auto* begin()       { return dat; }
+	[[nodiscard]]       auto* end()         { return dat + N; }
 
 private:
 	uint8_t dat[N];

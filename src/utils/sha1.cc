@@ -342,11 +342,11 @@ void SHA1::finalize()
 	uint32_t j = m_count & 63;
 	m_buffer[j++] = 0x80;
 	if (j > 56) {
-		memset(&m_buffer[j], 0, 64 - j);
+		ranges::fill(subspan(m_buffer, j, 64 - j), 0);
 		transform(m_buffer);
 		j = 0;
 	}
-	memset(&m_buffer[j], 0, 56 - j);
+	ranges::fill(subspan(m_buffer, j, 56 - j), 0);
 	Endian::B64 finalCount = 8 * m_count; // convert number of bytes to bits
 	memcpy(&m_buffer[56], &finalCount, 8);
 	transform(m_buffer);

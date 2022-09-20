@@ -1,11 +1,11 @@
 #include "Scanline.hh"
 #include "PixelOperations.hh"
 #include "enumerate.hh"
+#include "ranges.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
 #include <cassert>
 #include <cstddef>
-#include <cstring>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
@@ -18,7 +18,7 @@ Multiply<uint16_t>::Multiply(const PixelOperations<uint16_t>& pixelOps_)
 	: pixelOps(pixelOps_)
 	, factor(0)
 {
-	memset(tab, 0, sizeof(tab));
+	ranges::fill(tab, 0);
 }
 
 void Multiply<uint16_t>::setFactor(unsigned f)

@@ -1,7 +1,7 @@
 #include "Multiply32.hh"
 #include "PixelOperations.hh"
 #include "enumerate.hh"
-#include <cstring>
+#include "ranges.hh"
 
 namespace openmsx {
 
@@ -41,7 +41,7 @@ Multiply32<uint16_t>::Multiply32(const PixelOperations<uint16_t>& pixelOps)
 	Bshift3 = (Bshift1 + 20) & 31;
 
 	factor = 0;
-	memset(tab, 0, sizeof(tab));
+	ranges::fill(tab, 0);
 }
 
 void Multiply32<uint16_t>::setFactor32(unsigned f)

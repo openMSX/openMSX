@@ -126,7 +126,7 @@ void SDLSoundDriver::audioCallback(float* stream, unsigned len)
 	int missing = len - available;
 	if (missing > 0) {
 		// buffer underrun
-		memset(&stream[available], 0, missing * sizeof(float));
+		ranges::fill(std::span{&stream[available], size_t(missing)}, 0);
 	}
 }
 

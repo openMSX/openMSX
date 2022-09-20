@@ -285,7 +285,7 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 
 	// Initially the whole disk is filled with 0xE5 (at least on Philips
 	// NMS8250).
-	memset(sectors.data(), 0xE5, sizeof(SectorBuffer) * nofSectors);
+	ranges::fill(std::span{sectors[0].raw, sizeof(SectorBuffer) * nofSectors}, 0xE5);
 
 	// Use selected bootsector, fill-in values.
 	uint8_t mediaDescriptor = (numSides == 2) ? 0xF9 : 0xF8;
@@ -305,7 +305,7 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 	bootSector.nrSides      = numSides;
 
 	// Clear FAT1 + FAT2.
-	memset(fat(), 0, SECTOR_SIZE * nofSectorsPerFat * NUM_FATS);
+	ranges::fill(std::span{fat()->raw, SECTOR_SIZE * nofSectorsPerFat * NUM_FATS}, 0);
 	// First 3 bytes are initialized specially:
 	//  'cluster 0' contains the media descriptor
 	//  'cluster 1' is marked as EOF_FAT
@@ -314,7 +314,7 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 	fat2()->raw[0] = mediaDescriptor; fat2()->raw[1] = 0xFF; fat2()->raw[2] = 0xFF;
 
 	// Assign empty directory entries.
-	memset(&sectors[firstDirSector], 0, SECTOR_SIZE * SECTORS_PER_DIR);
+	ranges::fill(std::span{sectors[firstDirSector].raw, SECTOR_SIZE * SECTORS_PER_DIR}, 0);
 
 	// No host files are mapped to this disk yet.
 	assert(mapDirs.empty());
@@ -759,9 +759,9 @@ void DirAsDSK::addNewDirectory(const string& hostSubDir, const string& hostName,
 
 		// Initialize the new directory.
 		newMsxDirSector = clusterToSector(cluster);
-		for (auto i : xrange(SECTORS_PER_CLUSTER)) {
-			memset(&sectors[newMsxDirSector + i], 0, SECTOR_SIZE);
-		}
+		ranges::fill(std::span{sectors[newMsxDirSector].raw,
+		                       SECTORS_PER_CLUSTER * SECTOR_SIZE},
+			     0);
 		DirIndex idx0(newMsxDirSector, 0); // entry for "."
 		DirIndex idx1(newMsxDirSector, 1); //           ".."
 		memset(msxDir(idx0).filename, ' ', 11);
@@ -880,7 +880,7 @@ DirAsDSK::DirIndex DirAsDSK::getFreeDirEntry(unsigned msxDirSector)
 	unsigned cluster = sectorToCluster(msxDirSector);
 	unsigned newCluster = getFreeCluster(); // throws if disk full
 	unsigned sector = clusterToSector(newCluster);
-	memset(&sectors[sector], 0, SECTORS_PER_CLUSTER * SECTOR_SIZE);
+	ranges::fill(std::span{sectors[sector].raw, SECTORS_PER_CLUSTER * SECTOR_SIZE}, 0);
 	writeFAT12(cluster, newCluster);
 	writeFAT12(newCluster, EOF_FAT);
 

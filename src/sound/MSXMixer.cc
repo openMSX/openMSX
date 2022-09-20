@@ -26,7 +26,6 @@
 #include "xrange.hh"
 #include <cassert>
 #include <cmath>
-#include <cstring>
 #include <memory>
 #include <tuple>
 
@@ -505,7 +504,7 @@ void MSXMixer::generate(float* output, EmuTime::param time, unsigned samples)
 			if (approxEqual(tl0, 0.0f)) {
 				// Output was zero, new input is zero,
 				// after DC-filter output will still be zero.
-				memset(output, 0, 2 * samples * sizeof(float));
+				ranges::fill(std::span{output, 2 * samples}, 0);
 				tl0 = tr0 = 0.0f;
 			} else {
 				// Output was not zero, but it was the same left and right.

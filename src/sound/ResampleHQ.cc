@@ -335,7 +335,7 @@ ResampleCoeffs::Table ResampleCoeffs::calcTable(
 	filterLen = (idx_cnt + 3) & ~3; // round up to multiple of 4
 	min_idx -= (filterLen - idx_cnt) / 2;
 	Table table(HALF_TAB_LEN * filterLen);
-	memset(table.data(), 0, HALF_TAB_LEN * filterLen * sizeof(float));
+	ranges::fill(std::span{table.data(), HALF_TAB_LEN * filterLen}, 0);
 
 	for (auto t : xrange(HALF_TAB_LEN)) {
 		float* tab = &table[permute[t] * filterLen];
@@ -628,8 +628,7 @@ void ResampleHQ<CHANNELS>::prepareData(unsigned emuNum)
 		bufEnd += emuNum;
 		nonzeroSamples = bufEnd - bufStart;
 	} else {
-		memset(&buffer[bufEnd * CHANNELS], 0,
-		       emuNum * CHANNELS * sizeof(float));
+		ranges::fill(subspan(buffer, bufEnd * CHANNELS, emuNum * CHANNELS), 0);
 		bufEnd += emuNum;
 	}
 

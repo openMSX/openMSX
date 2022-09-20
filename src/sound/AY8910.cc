@@ -23,7 +23,6 @@
 #include "xrange.hh"
 #include <array>
 #include <cassert>
-#include <cstring>
 #include <iostream>
 
 namespace openmsx {
@@ -503,7 +502,7 @@ AY8910::AY8910(const std::string& name_, AY8910Periphery& periphery_,
 	update(vibratoPercent);
 
 	// make valgrind happy
-	memset(regs, 0, sizeof(regs));
+	ranges::fill(regs, 0);
 
 	reset(time);
 	registerSound(config);

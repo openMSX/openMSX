@@ -47,7 +47,6 @@
 #include "xrange.hh"
 #include <array>
 #include <cmath>
-#include <cstring>
 #include <iostream>
 
 namespace openmsx {
@@ -1470,8 +1469,8 @@ YMF262::YMF262(const std::string& name_,
 	status = status2 = statusMask = 0;
 
 	// avoid (harmless) UMR in serialize()
-	memset(chanout, 0, sizeof(chanout));
-	memset(reg, 0, sizeof(reg));
+	ranges::fill(chanout, 0);
+	ranges::fill(reg, 0);
 
 	// For debugging: print out tables to be able to compare before/after
 	// when the calculation changes.
@@ -1565,7 +1564,7 @@ void YMF262::generateChannels(float** bufs, unsigned num)
 		unsigned lfo_am = lfo_am_depth ? tmp : tmp / 4;
 
 		// clear channel outputs
-		memset(chanout, 0, sizeof(chanout));
+		ranges::fill(chanout, 0);
 
 		// channels 0,3 1,4 2,5  9,12 10,13 11,14
 		// in either 2op or 4op mode

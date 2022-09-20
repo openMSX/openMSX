@@ -196,7 +196,7 @@ void format(SectorAccessibleDisk& disk, bool dos1)
 	disk.writeSector(0, buf);
 
 	// write empty FAT and directory sectors
-	memset(&buf, 0, sizeof(buf));
+	ranges::fill(buf.raw, 0);
 	for (auto i : xrange(2u, firstDataSector)) {
 		disk.writeSector(i, buf);
 	}
@@ -209,7 +209,7 @@ void format(SectorAccessibleDisk& disk, bool dos1)
 	disk.writeSector(1, buf);
 
 	// write 'empty' data sectors
-	memset(&buf, 0xE5, sizeof(buf));
+	ranges::fill(buf.raw, 0xE5);
 	for (auto i : xrange(firstDataSector, nbSectors)) {
 		disk.writeSector(i, buf);
 	}
@@ -237,8 +237,8 @@ void partition(SectorAccessibleDisk& disk, std::span<const unsigned> sizes)
 {
 	assert(sizes.size() <= 31);
 
-	SectorBuffer buf{};
-	memset(&buf, 0, sizeof(buf));
+	SectorBuffer buf;
+	ranges::fill(buf.raw, 0);
 	memcpy(buf.pt.header, PARTAB_HEADER, sizeof(PARTAB_HEADER));
 	buf.pt.end = 0xAA55;
 
@@ -250,7 +250,7 @@ void partition(SectorAccessibleDisk& disk, std::span<const unsigned> sizes)
 			logicalToCHS(partitionOffset);
 		auto [endCylinder, endHead, endSector] =
 			logicalToCHS(partitionOffset + partitionNbSectors - 1);
-		p.boot_ind = (i == 0) ? 0x80 : 0x00; // bootflag
+		p.boot_ind = (i == 0) ? 0x80 : 0x00; // boot flag
 		p.head = startHead;
 		p.sector = startSector;
 		p.cyl = startCylinder;

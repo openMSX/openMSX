@@ -3,7 +3,6 @@
 #include "ranges.hh"
 #include "xrange.hh"
 #include <cassert>
-#include <cstring>
 #include <memory>
 #include <vector>
 
@@ -82,7 +81,7 @@ bool ResampleLQ<CHANNELS>::fetchData(EmuTime::param time, unsigned& valid)
 			// output will be all zero as well.
 			return false;
 		}
-		memset(&buffer[CHANNELS], 0, emuNum * CHANNELS * sizeof(float));
+		ranges::fill(std::span{&buffer[CHANNELS], emuNum * CHANNELS}, 0);
 	}
 	for (auto j : xrange(2 * CHANNELS)) {
 		buffer[j] = lastInput[j];

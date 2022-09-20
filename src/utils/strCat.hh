@@ -2,11 +2,13 @@
 #define STRCAT_HH
 
 #include "TemporaryString.hh"
+#include "ranges.hh"
 #include "xrange.hh"
 #include "zstring_view.hh"
 #include <climits>
 #include <cstring>
 #include <limits>
+#include <span>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -375,7 +377,7 @@ struct ConcatSpaces
 
 	[[nodiscard]] char* copy(char* dst) const
 	{
-		memset(dst, ' ', n);
+		ranges::fill(std::span{dst, n}, ' ');
 		return dst + n;
 	}
 

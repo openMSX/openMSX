@@ -15,7 +15,6 @@
 #include "unreachable.hh"
 #include "xrange.hh"
 #include <array>
-#include <cstring>
 #include <cassert>
 #include <iostream>
 
@@ -689,7 +688,7 @@ YM2413::YM2413()
 		std::cout << '\n';
 	}
 
-	memset(reg, 0, sizeof(reg)); // avoid UMR
+	ranges::fill(reg, 0); // avoid UMR
 
 	for (auto i : xrange(16 + 3)) {
 		patches[i][0].initModulator(inst_data[i]);

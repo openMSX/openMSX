@@ -4,6 +4,7 @@
 #include "FrameSource.hh"
 #include "FileContext.hh"
 #include "File.hh"
+#include "ranges.hh"
 #include "vla.hh"
 #include <cstring>
 #include <utility>
@@ -115,7 +116,7 @@ void GLHQScaler::uploadBlock(
 	Endian::L32 tmpBuf2[320 / 2]; // 2 x uint16_t
 	#ifndef NDEBUG
 	// Avoid UMR. In optimized mode we don't care.
-	memset(tmpBuf2, 0, sizeof(tmpBuf2));
+	ranges::fill(tmpBuf2, 0);
 	#endif
 
 	VLA_SSE_ALIGNED(Pixel, buf1_, lineWidth); auto* buf1 = buf1_;

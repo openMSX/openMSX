@@ -7,7 +7,6 @@
 #include "unreachable.hh"
 #include "xrange.hh"
 #include <cassert>
-#include <cstring>
 #include <memory>
 
 namespace openmsx {
@@ -70,7 +69,7 @@ V9990::V9990(const DeviceConfig& config)
 	, externalVideoSource(false)
 {
 	// clear regs TODO find realistic init values
-	memset(regs, 0, sizeof(regs));
+	ranges::fill(regs, 0);
 	setDisplayMode(calcDisplayMode());
 
 	// initialize palette
@@ -129,7 +128,7 @@ void V9990::reset(EmuTime::param time)
 	syncCmdEnd      .removeSyncPoint();
 
 	// Clear registers / ports
-	memset(regs, 0, sizeof(regs));
+	ranges::fill(regs, 0);
 	status = 0;
 	regSelect = 0xFF; // TODO check value for power-on and reset
 	vramWritePtr = 0;

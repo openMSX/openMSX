@@ -27,7 +27,6 @@
 #include "xrange.hh"
 #include <SDL.h>
 #include <cstdio>
-#include <cstring>
 #include <cassert>
 #include <cstdarg>
 
@@ -486,7 +485,7 @@ void Keyboard::stopReplay(EmuTime::param time) noexcept
 	}
 	msxModifiers = 0xff;
 	msxKeyEventQueue.clear();
-	memset(dynKeymap, 0, sizeof(dynKeymap));
+	ranges::fill(dynKeymap, 0);
 }
 
 byte Keyboard::needsLockToggle(const UnicodeKeymap::KeyInfo& keyInfo) const

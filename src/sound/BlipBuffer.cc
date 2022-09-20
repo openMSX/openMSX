@@ -5,7 +5,6 @@
 #include "xrange.hh"
 #include <algorithm>
 #include <array>
-#include <cstring>
 #include <cassert>
 #include <iostream>
 
@@ -94,7 +93,7 @@ BlipBuffer::BlipBuffer()
 	offset = 0;
 	accum = 0;
 	availSamp = 0;
-	memset(buffer, 0, sizeof(buffer));
+	ranges::fill(buffer, 0);
 }
 
 void BlipBuffer::addDelta(TimeIndex time, float delta)

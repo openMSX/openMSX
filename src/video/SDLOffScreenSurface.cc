@@ -23,7 +23,7 @@ SDLOffScreenSurface::SDLOffScreenSurface(const SDL_Surface& proto)
 	assert((pitch2 % 16) == 0);
 	unsigned bufSize = pitch2 * proto.h;
 	buffer.resize(bufSize);
-	memset(buffer.data(), 0, bufSize);
+	ranges::fill(std::span{buffer.data(), bufSize}, 0);
 	surface.reset(SDL_CreateRGBSurfaceFrom(
 		buffer.data(), proto.w, proto.h, frmt.getBpp(), pitch2,
 		frmt.getRmask(), frmt.getGmask(), frmt.getBmask(), frmt.getAmask()));

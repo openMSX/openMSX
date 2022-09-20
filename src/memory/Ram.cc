@@ -71,7 +71,7 @@ void Ram::clear(byte c)
 		}
 	} else {
 		// no init pattern specified
-		memset(ram.data(), c, sz);
+		ranges::fill(*this, c);
 	}
 }
 

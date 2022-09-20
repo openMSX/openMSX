@@ -2,9 +2,10 @@
 #include "tiger.hh"
 #include "Math.hh"
 #include "MemBuffer.hh"
-#include <map>
-#include <cstring>
+#include "ranges.hh"
 #include <cassert>
+#include <map>
+#include <span>
 
 namespace openmsx {
 
@@ -36,7 +37,7 @@ static std::map<std::pair<size_t, std::string>, TTCacheEntry> ttCache;
 		result.hash .resize(numNodes);
 		result.valid.resize(numNodes);
 		result.numNodes = numNodes;
-		memset(result.valid.data(), 0, numNodes); // all invalid
+		ranges::fill(std::span{result.valid.data(), numNodes}, false); // all invalid
 		result.numNodesValid = 0;
 	}
 	return result;

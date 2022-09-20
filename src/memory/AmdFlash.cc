@@ -149,7 +149,7 @@ void AmdFlash::init(const std::string& name, const DeviceConfig& config, Load lo
 					&(*ram)[writeAddress[i]]);
 				if (offset >= romSize) {
 					// completely past end of rom
-					memset(ramPtr, 0xFF, sectorSize);
+					ranges::fill(std::span{ramPtr, sectorSize}, 0xFF);
 				} else if (offset + sectorSize >= romSize) {
 					// partial overlap
 					auto last = romSize - offset;

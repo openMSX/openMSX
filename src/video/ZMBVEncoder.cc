@@ -173,8 +173,8 @@ void ZMBVEncoder::setupBuffers(unsigned bpp)
 
 	oldframe.resize(bufsize);
 	newframe.resize(bufsize);
-	memset(oldframe.data(), 0, bufsize);
-	memset(newframe.data(), 0, bufsize);
+	ranges::fill(std::span{oldframe.data(), bufsize}, 0);
+	ranges::fill(std::span{newframe.data(), bufsize}, 0);
 	work.resize(bufsize);
 	outputSize = neededSize();
 	output.resize(outputSize);

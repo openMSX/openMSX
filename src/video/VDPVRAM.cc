@@ -142,7 +142,7 @@ void VDPVRAM::clear()
 		// Read from unconnected VRAM returns random data.
 		// TODO reading same location multiple times does not always
 		// give the same value.
-		memset(&data[actualSize], 0xFF, data.size() - actualSize);
+		ranges::fill(subspan(data, actualSize), 0xFF);
 	}
 }
 

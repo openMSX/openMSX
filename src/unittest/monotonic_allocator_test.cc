@@ -1,13 +1,14 @@
 #include "catch.hpp"
 #include "monotonic_allocator.hh"
-#include <cstring>
+#include "ranges.hh"
+#include <span>
 
 [[nodiscard]] static char* alloc(monotonic_allocator& a, size_t size, size_t alignment)
 {
 	char* result = static_cast<char*>(a.allocate(size, alignment));
 	CHECK(result != nullptr);
 	CHECK((reinterpret_cast<uintptr_t>(result) & (alignment - 1)) == 0);
-	memset(result, 0xab, size); // this shouldn't crash
+	ranges::fill(std::span{result, size}, 0xab); // this shouldn't crash
 	return result;
 }
 

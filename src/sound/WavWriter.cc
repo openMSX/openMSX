@@ -3,6 +3,7 @@
 #include "Math.hh"
 #include "endian.hh"
 #include "one_of.hh"
+#include "ranges.hh"
 #include "vla.hh"
 #include "xrange.hh"
 #include <cstring>
@@ -129,11 +130,11 @@ void Wav16Writer::write(const float* buffer, unsigned stereo, unsigned samples,
 
 void Wav16Writer::writeSilence(unsigned samples)
 {
-	VLA(int16_t, buf, samples);
-	unsigned size = sizeof(int16_t) * samples;
-	memset(buf, 0, size);
-	file.write(buf, size);
-	bytes += size;
+	VLA(int16_t, buf_, samples);
+	std::span buf{buf_, samples};
+	ranges::fill(buf, 0);
+	file.write(buf.data(), buf.size_bytes());
+	bytes += buf.size_bytes();
 }
 
 } // namespace openmsx

@@ -26,7 +26,6 @@
 #include "serialize.hh"
 #include "xrange.hh"
 #include <array>
-#include <cstring>
 #include <iostream>
 
 namespace openmsx {
@@ -935,7 +934,7 @@ YM2413::YM2413()
 		for (const auto& e : sinTab) std::cout << e << '\n';
 	}
 
-	memset(reg, 0, sizeof(reg)); // avoid UMR
+	ranges::fill(reg, 0); // avoid UMR
 	eg_cnt = 0;
 	noise_rng = 0;
 

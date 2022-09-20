@@ -6,7 +6,6 @@
 #include "unreachable.hh"
 #include "xrange.hh"
 #include <cassert>
-#include <cstring>
 #include <cstdio>
 
 namespace openmsx {
@@ -19,7 +18,7 @@ AbstractIDEDevice::AbstractIDEDevice(MSXMotherBoard& motherBoard_)
 	, transferRead(false)
 	, transferWrite(false)
 {
-	memset(buffer, 0, sizeof(buffer));
+	ranges::fill(buffer, 0);
 }
 
 byte AbstractIDEDevice::diagnostic()
@@ -346,7 +345,7 @@ AlignedBuffer& AbstractIDEDevice::startShortReadTransfer(unsigned count)
 	transferCount = 0;
 	bufferLeft = count;
 	transferIdx = 0;
-	memset(buffer, 0x00, count);
+	ranges::fill(std::span{buffer.data(), count}, 0);
 	return buffer;
 }
 

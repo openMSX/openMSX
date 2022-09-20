@@ -15,7 +15,6 @@
 #include "xrange.hh"
 #include <bit>
 #include <cassert>
-#include <cstring>
 
 namespace openmsx {
 
@@ -65,7 +64,7 @@ void MSXDevice::staticInit()
 	if (alreadyInit) return;
 	alreadyInit = true;
 
-	memset(unmappedRead, 0xFF, sizeof(unmappedRead));
+	ranges::fill(unmappedRead, 0xFF);
 }
 
 MSXMotherBoard& MSXDevice::getMotherBoard() const

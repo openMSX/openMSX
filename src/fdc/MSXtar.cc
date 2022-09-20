@@ -266,7 +266,7 @@ unsigned MSXtar::appendClusterToSubdir(unsigned sector)
 
 	// clear this cluster
 	SectorBuffer buf;
-	memset(&buf, 0, sizeof(buf));
+	ranges::fill(buf.raw, 0);
 	for (auto i : xrange(sectorsPerCluster)) {
 		writeLogicalSector(i + nextSector, buf);
 	}
@@ -405,23 +405,24 @@ unsigned MSXtar::addSubdir(
 
 	// clear this cluster
 	unsigned logicalSector = clusterToSector(curCl);
-	memset(&buf, 0, sizeof(buf));
+	ranges::fill(buf.raw, 0);
 	for (auto i : xrange(sectorsPerCluster)) {
 		writeLogicalSector(i + logicalSector, buf);
 	}
 
 	// now add the '.' and '..' entries!!
 	memset(&buf.dirEntry[0], 0, sizeof(MSXDirEntry));
-	memset(&buf.dirEntry[0], ' ', 11);
-	memset(&buf.dirEntry[0], '.', 1);
+	ranges::fill(buf.dirEntry[0].filename, ' ');
+	buf.dirEntry[0].filename[0] = '.';
 	buf.dirEntry[0].attrib = T_MSX_DIR;
 	buf.dirEntry[0].time = t;
 	buf.dirEntry[0].date = d;
 	buf.dirEntry[0].startCluster = curCl;
 
 	memset(&buf.dirEntry[1], 0, sizeof(MSXDirEntry));
-	memset(&buf.dirEntry[1], ' ', 11);
-	memset(&buf.dirEntry[1], '.', 2);
+	ranges::fill(buf.dirEntry[1].filename, ' ');
+	buf.dirEntry[1].filename[0] = '.';
+	buf.dirEntry[1].filename[1] = '.';
 	buf.dirEntry[1].attrib = T_MSX_DIR;
 	buf.dirEntry[1].time = t;
 	buf.dirEntry[1].date = d;

@@ -6,7 +6,6 @@
 #include "one_of.hh"
 #include "ranges.hh"
 #include "stl.hh"
-#include <cstring>
 #include <optional>
 
 using std::string_view;
@@ -107,7 +106,7 @@ UnicodeKeymap::KeyInfo UnicodeKeymap::getDeadkey(unsigned n) const
 
 void UnicodeKeymap::parseUnicodeKeymapfile(string_view data)
 {
-	memset(relevantMods, 0, sizeof(relevantMods));
+	ranges::fill(relevantMods, 0);
 
 	while (!data.empty()) {
 		if (data.front() == '\n') {

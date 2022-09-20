@@ -214,7 +214,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		// content)
 		sz = config.getChildDataAsInt("size", 0) * 1024; // in kb
 		extendedRom.resize(sz);
-		memset(extendedRom.data(), 0xff, sz);
+		ranges::fill(std::span{extendedRom.data(), sz}, 0xff);
 		rom = extendedRom.data();
 
 		// Content does not depend on external files. No need to check

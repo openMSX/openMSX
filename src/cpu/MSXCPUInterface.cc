@@ -26,7 +26,6 @@
 #include "stl.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
-#include <cstring>
 #include <iomanip>
 #include <iostream>
 #include <iterator>
@@ -100,8 +99,8 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 	}
 
 	// initially allow all regions to be cached
-	memset(disallowReadCache,  0, sizeof(disallowReadCache));
-	memset(disallowWriteCache, 0, sizeof(disallowWriteCache));
+	ranges::fill(disallowReadCache,  0);
+	ranges::fill(disallowWriteCache, 0);
 
 	initialPrimarySlots = motherBoard.getMachineConfig()->parseSlotMap();
 	// Note: SlotState is initialised at reset

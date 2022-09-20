@@ -22,7 +22,6 @@
 #include "enumerate.hh"
 #include "serialize.hh"
 #include <cassert>
-#include <cstring>
 #include <memory>
 
 namespace openmsx {
@@ -140,7 +139,7 @@ WD33C93::WD33C93(const DeviceConfig& config)
 	reset(false);
 
 	// avoid UMR on savestate
-	memset(buffer.data(), 0, SCSIDevice::BUFFER_SIZE);
+	ranges::fill(buffer, 0);
 }
 
 void WD33C93::disconnect()
@@ -169,9 +168,9 @@ void WD33C93::execCmd(byte value)
 	bool atn = false;
 	switch (value) {
 	case 0x00: // Reset controller (software reset)
-		memset(regs + 1, 0, 0x1a);
+		ranges::fill(subspan<0x1a>(regs, 1), 0);
 		disconnect();
-		latch = 0; // TODO: is this correct? Some doc says: reset to zero by masterreset-signal but not by reset command.
+		latch = 0; // TODO: is this correct? Some doc says: reset to zero by master-reset-signal but not by reset command.
 		regs[REG_SCSI_STATUS] =
 			(regs[REG_OWN_ID] & OWN_EAF) ? SS_RESET_ADV : SS_RESET;
 		break;
@@ -422,8 +421,8 @@ byte WD33C93::peekCtrl() const
 void WD33C93::reset(bool scsireset)
 {
 	// initialized register
-	memset(regs, 0, 0x1b);
-	memset(regs + 0x1b, 0xff, 4);
+	ranges::fill(subspan<0x1b>(regs, 0x00), 0x00);
+	ranges::fill(subspan<0x04>(regs, 0x1b), 0xff);
 	regs[REG_AUX_STATUS] = AS_INT;
 	myId  = 0;
 	latch = 0;
