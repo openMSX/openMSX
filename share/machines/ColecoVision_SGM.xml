@@ -8,6 +8,7 @@
     <release_year>1982</release_year>
     <description>Game console with hardware similar to MSX, with built in Super Game Module</description>
     <type>Coleco</type>
+    <region>us</region>
   </info>
 
   <slotmap>

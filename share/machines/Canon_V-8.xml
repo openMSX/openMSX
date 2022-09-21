@@ -8,6 +8,7 @@
     <release_year></release_year>
     <description>Very compact and rather minimal MSX1 machine</description>
     <type>MSX</type>
+    <region>jp</region>
   </info>
 
   <!-- Based on serial 131844, thanks to Ricardo Jurczyk Pinheiro

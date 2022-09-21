@@ -8,6 +8,7 @@
     <release_year>1986</release_year>
     <description>Russian MSX2 for use in classroom network (as teacher).</description>
     <type>MSX2</type>
+    <region>ru</region>
   </info>
 
   <CassettePort/>

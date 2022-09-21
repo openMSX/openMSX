@@ -171,6 +171,31 @@ constexpr inline double pi   = std::numbers::pi_v  <double>;
 	return a*x3 + b*x2 + c*x + d;
 }
 
+/** Divide one integer by another, rounding towards minus infinity.
+  * The normal C/C++ division rounds towards zero.
+  * Based on this article:
+  *   http://www.microhowto.info/howto/round_towards_minus_infinity_when_dividing_integers_in_c_or_c++.html
+  */
+struct QuotientRemainder {
+    int quotient;
+    int remainder;
+};
+constexpr QuotientRemainder div_mod_floor(int dividend, int divisor) {
+    int q = dividend / divisor;
+    int r = dividend % divisor;
+    if ((r != 0) && ((r < 0) != (divisor < 0))) {
+        --q;
+        r += divisor;
+    }
+    return {q, r};
+}
+constexpr int div_floor(int dividend, int divisor) {
+    return div_mod_floor(dividend, divisor).quotient;
+}
+constexpr int mod_floor(int dividend, int divisor) {
+    return div_mod_floor(dividend, divisor).remainder;
+}
+
 } // namespace Math
 
 #endif // MATH_HH

@@ -8,6 +8,7 @@
     <release_year>1985</release_year>
     <description>Rare Japanese MSX2 with stereo PSG and 64kB of VRAM</description>
     <type>MSX2</type>
+    <region>jp</region>
   </info>
 
   <!-- by FRS -->

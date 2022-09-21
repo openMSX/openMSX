@@ -19,6 +19,10 @@ public:
 	 */
 	[[nodiscard]] bool isEmpty() const { return bytes == 0; }
 
+	/** Returns the number of bytes (not samples) written so far.
+	 */
+	[[nodiscard]] unsigned getBytes() const { return bytes; }
+
 	/** Flush data to file and update header. Try to make (possibly)
 	  * incomplete file already usable for external programs.
 	  */
@@ -31,7 +35,7 @@ protected:
 
 protected:
 	File file;
-	unsigned bytes;
+	unsigned bytes = 0;
 };
 
 /** Writes 8-bit WAV files.

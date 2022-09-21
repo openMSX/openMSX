@@ -16,6 +16,7 @@
     <release_year>1986</release_year>
     <description/>
     <type>MSX2</type>
+    <region>es</region>
   </info>
 
   <MapperReadBackBits>largest</MapperReadBackBits>

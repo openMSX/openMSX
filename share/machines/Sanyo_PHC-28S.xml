@@ -8,6 +8,7 @@
     <release_year>1984?</release_year>
     <description>French MSX with only 16kB of RAM: Ordinateur Personnel</description>
     <type>MSX</type>
+    <region>fr</region>
   </info>
 
   <CassettePort/>

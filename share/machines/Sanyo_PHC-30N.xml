@@ -8,6 +8,7 @@
     <release_year>1984</release_year>
     <description>A 64kB Japanese MSX1 machine with built-in tapedrive</description>
     <type>MSX</type>
+    <region>jp</region>
   </info>
 
   <!-- Info based on machine with serial number 63302808, kindly provided by

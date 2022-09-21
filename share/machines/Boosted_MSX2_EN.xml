@@ -8,6 +8,7 @@
     <release_year>2004</release_year>
     <description>A super-charged Philips NMS 8250</description>
     <type>MSX2</type>
+    <region>eu</region>
   </info>
 
   <MapperReadBackBits>largest</MapperReadBackBits>

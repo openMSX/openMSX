@@ -8,6 +8,7 @@
     <release_year>1983</release_year>
     <description>Game console with hardware similar to MSX</description>
     <type>SG-1000</type>
+    <region>int</region>
   </info>
 
   <slotmap>

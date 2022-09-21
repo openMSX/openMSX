@@ -8,6 +8,7 @@
     <release_year>1985</release_year>
     <description>Brazillian MSX1 based on the National CF-3000, also known as the Expert 1.0</description>
     <type>MSX</type>
+    <region>br</region>
   </info>
 
   <CassettePort/>

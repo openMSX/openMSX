@@ -8,6 +8,7 @@
     <release_year></release_year>
     <description>One of the few MSX2's with only 64kB VRAM.</description>
     <type>MSX2</type>
+    <region>jp</region>
   </info>
 
   <!-- 

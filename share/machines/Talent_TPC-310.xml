@@ -8,6 +8,7 @@
     <release_year>1988</release_year>
     <description>The most advanced Argentinian MSX, includes turbo BASIC and several built in programs.</description>
     <type>MSX2</type>
+    <region>ar</region>
   </info>
 
   <CassettePort/>

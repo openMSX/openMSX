@@ -22,6 +22,7 @@
     <release_year>1986</release_year>
     <description>Italian MSX2 based on the Panasonic FS-A1(F)</description>
     <type>MSX2</type>
+    <region>it</region>
   </info>
 
   <CassettePort/>

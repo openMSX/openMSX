@@ -8,6 +8,7 @@
     <release_year>1990</release_year>
     <description>MSX2 game console</description>
     <type>MSX2</type>
+    <region>kr</region>
   </info>
 
   <!-- the motherboard has a DW61MX1 chip, the system controller? -->

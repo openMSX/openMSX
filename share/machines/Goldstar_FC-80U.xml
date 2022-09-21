@@ -8,6 +8,7 @@
     <release_year></release_year>
     <description>Basically a Daewoo IQ-1000 (DPC-200) with Hangul BIOS ROM 2.0</description>
     <type>MSX</type>
+    <region>kr</region>
   </info>
 
   <CassettePort/>

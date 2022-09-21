@@ -8,6 +8,7 @@
     <release_year>?</release_year>
     <description>One of the few European MSX machines by Panasonic. German version; one of the most common MSX machines in Germany.</description>
     <type>MSX</type>
+    <region>de</region>
   </info>
 
 <!-- hap:

@@ -8,6 +8,7 @@
     <release_year>?</release_year>
     <description>French MSX machine (upgrade of the PHC-28S).</description>
     <type>MSX</type>
+    <region>fr</region>
   </info>
 
   <CassettePort/>

@@ -8,6 +8,7 @@
     <release_year>1989</release_year>
     <description>The last Sony MSX. Same as HB-F1XDJ, but with upgraded BIOS, kanji driver and disk basic.</description>
     <type>MSX2+</type>
+    <region>jp</region>
   </info>
 
   <RenShaTurbo>

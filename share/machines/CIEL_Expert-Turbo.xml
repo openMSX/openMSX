@@ -8,6 +8,7 @@
     <release_year>2000</release_year>
     <description/>
     <type>MSX2+</type>
+    <region>br</region>
   </info>
 
   <MapperReadBackBits>largest</MapperReadBackBits>

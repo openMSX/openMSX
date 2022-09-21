@@ -13,7 +13,6 @@ namespace openmsx {
 WavWriter::WavWriter(const Filename& filename,
                      unsigned channels, unsigned bits, unsigned frequency)
 	: file(filename, "wb")
-	, bytes(0)
 {
 	// write wav header
 	struct WavHeader {

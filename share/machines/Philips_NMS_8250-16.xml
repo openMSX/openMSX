@@ -8,6 +8,7 @@
     <release_year>1986</release_year>
     <description>Spanish version of this popular machine</description>
     <type>MSX2</type>
+    <region>es</region>
   </info>
 
   <!-- based on the international NMS 8250 config with additional ROM dumps

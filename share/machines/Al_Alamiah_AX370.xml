@@ -8,6 +8,7 @@
     <release_year>1988</release_year>
     <description>Arabic MSX2 version of Sanyo PHC-70FD MSX2+.</description>
     <type>MSX2</type>
+    <region>me</region>
   </info>
 
  <!-- Information provided by Hashem Khalifa

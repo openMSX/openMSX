@@ -11,6 +11,7 @@
     <release_year></release_year>
     <description>An MSX2 with diskdrive and only one cartridge port.</description>
     <type>MSX2</type>
+    <region>jp</region>
   </info>
 
   <CassettePort/>

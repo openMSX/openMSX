@@ -8,6 +8,7 @@
     <release_year>1986</release_year>
     <description>European version of the MX-10. A cheap gaming MSX, with joystick buttons and bad keyboard and no printer port.</description>
     <type>MSX</type>
+    <region>jp</region>
   </info>
 
   <CassettePort/>

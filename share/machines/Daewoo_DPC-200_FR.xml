@@ -8,6 +8,7 @@
     <release_year>1985</release_year>
     <description>Daewoo's DPC-200 for the Belgian (French) market</description>
     <type>MSX</type>
+    <region>be/fr</region>
   </info>
 
 <!-- based on the AVT DPC-200 config with additional ROM dumps

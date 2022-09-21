@@ -8,6 +8,7 @@
     <release_year>?</release_year>
     <description>A simple Japanese MSX1 machine</description>
     <type>MSX</type>
+    <region>jp</region>
   </info>
 
   <!-- Thanks to Werner Kai for the details!

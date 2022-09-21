@@ -8,6 +8,7 @@
     <release_year>1987</release_year>
     <description>Foldable MSX2 with built-in printer.</description>
     <type>MSX2</type>
+    <region>jp</region>
   </info>
 
  <!-- 

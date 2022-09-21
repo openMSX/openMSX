@@ -8,6 +8,7 @@
     <release_year>1986</release_year>
     <description>A compact and futuristic looking MSX with an external keyboard.</description>
     <type>MSX</type>
+    <region>jp</region>
   </info>
 
 <!-- Thanks to MSXOuterHeaven for the information.

@@ -8,6 +8,7 @@
     <release_year>1983</release_year>
     <description>The first MSX machine on the market.</description>
     <type>MSX</type>
+    <region>jp</region>
   </info>
 
   <!-- Based on machine owned by Peter Hanraets, which serial 0003052

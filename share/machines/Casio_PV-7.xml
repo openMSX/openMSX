@@ -8,6 +8,7 @@
     <release_year>1984</release_year>
     <description>Very cheap gaming MSX, with only 8kB RAM, with joystick buttons and bad keyboard and no printer port.</description>
     <type>MSX</type>
+    <region>jp</region>
   </info>
 
   <CassettePort/> <!-- actually not a standard DIN-5 cassette interface (CMT), need FA-32 CMT I/F package as adapter -->

@@ -8,6 +8,7 @@
     <release_year>1983</release_year>
     <description>Fujitsu's one and only MSX computer. Can be connected to Fujitsu's FM-7 computer, which gives several special features, but all of that is not emulated.</description>
     <type>MSX</type>
+    <region>jp</region>
   </info>
 
   <CassettePort/>

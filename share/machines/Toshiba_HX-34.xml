@@ -8,6 +8,7 @@
     <release_year>1985?</release_year>
     <description>MSX2 with built in word processor</description>
     <type>MSX2</type>
+    <region>jp</region>
   </info>
 
   <!-- based on information provided by Werner Kai's HX-33 machine with serial 100158

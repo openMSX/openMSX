@@ -8,6 +8,7 @@
     <release_year>1984</release_year>
     <description>Music Computer: Japanese version of the CX5M, with built in SFG-01.</description>
     <type>MSX</type>
+    <region>jp</region>
   </info>
 
   <!-- Note: Peter's Yamaha CX5 (or CX-5 as per the type plate) with serial

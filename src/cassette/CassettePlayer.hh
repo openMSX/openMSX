@@ -50,8 +50,8 @@ public:
 	enum State { PLAY, RECORD, STOP }; // public for serialization
 
 private:
-	State getState() const { return state; }
-	std::string getStateString() const;
+	[[nodiscard]] State getState() const { return state; }
+	[[nodiscard]] std::string getStateString() const;
 	void setState(State newState, const Filename& newImage,
 	              EmuTime::param time);
 	void setImageName(const Filename& newImage);
@@ -82,13 +82,13 @@ private:
 	 */
 	void setMotorControl(bool status, EmuTime::param time);
 
-	/** True when the tape is rolling: not in STOP mode, AND [ motorcontrol
+	/** True when the tape is rolling: not in STOP mode, AND [ motorControl
 	  * is disabled OR motor is on ].
 	  */
 	bool isRolling() const;
 
 	/** If motor, motorControl or state is changed, this method should
-	  * be called to update the end-of-tape syncpoint and the loading
+	  * be called to update the end-of-tape syncPoint and the loading
 	  * indicator.
 	  */
 	void updateLoadingState(EmuTime::param time);
@@ -173,7 +173,7 @@ private:
 	std::unique_ptr<Wav8Writer> recordImage;
 	std::unique_ptr<CassetteImage> playImage;
 
-	size_t sampcnt;
+	size_t sampCnt;
 	State state;
 	bool lastOutput;
 	bool motor, motorControl;

@@ -8,6 +8,7 @@
     <release_year>1985</release_year>
     <description>An MSX2 with 1DD diskdrive and only one cartridge port.</description>
     <type>MSX2</type>
+    <region>jp</region>
   </info>
 
   <!-- Based on the machine from Peter Hanraets with serial number 10231284. -->

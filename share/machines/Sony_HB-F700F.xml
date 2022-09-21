@@ -8,6 +8,7 @@
     <release_year>1985</release_year>
     <description>French version of the Sony HB-F700</description>
     <type>MSX2</type>
+    <region>fr</region>
   </info>
 
   <!-- ROM dumps and initial content provided by yang, based on machine with serial number 401749 -->

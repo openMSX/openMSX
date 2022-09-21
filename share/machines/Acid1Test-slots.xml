@@ -15,6 +15,7 @@ must also correctly handle extended slots to run properly.
 For more info, see http://frs.badcoffee.info/MSXAcidTests.html
 </description>
     <type>MSX2+</type>
+    <region>jp</region>
   </info>
 
 <!--

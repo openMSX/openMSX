@@ -8,6 +8,7 @@
     <release_year>1986</release_year>
     <description>Arabic MSX2 sold by Al Alamiah.</description>
     <type>MSX2</type>
+    <region>me</region>
   </info>
 
   <!-- Based on the machine of Hashem Khalifa with serial 1001170.

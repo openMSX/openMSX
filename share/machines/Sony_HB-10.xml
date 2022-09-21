@@ -10,6 +10,7 @@
     <release_year></release_year>
     <description/>
     <type>MSX</type>
+    <region>jp</region>
   </info>
 
   <CassettePort/>
