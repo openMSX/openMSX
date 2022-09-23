@@ -47,11 +47,6 @@ inline uint16_t Multiply<uint16_t>::multiply(uint16_t p) const
 	return tab[p];
 }
 
-inline const uint16_t* Multiply<uint16_t>::getTable() const
-{
-	return tab;
-}
-
 
 // class Multiply<uint32_t>
 
@@ -72,11 +67,6 @@ inline uint32_t Multiply<uint32_t>::multiply(uint32_t p, unsigned f) const
 inline uint32_t Multiply<uint32_t>::multiply(uint32_t p) const
 {
 	return multiply(p, factor);
-}
-
-const uint32_t* Multiply<uint32_t>::getTable() const
-{
-	UNREACHABLE; return nullptr;
 }
 
 
@@ -144,7 +134,7 @@ static inline void drawSSE2(
 	      auto* out = reinterpret_cast<      char*>(out_) + width;
 
 	darkener.setFactor(factor);
-	const uint16_t* table = darkener.getTable();
+	auto table = darkener.getTable();
 	__m128i mask = _mm_set1_epi16(pixelOps.getBlendMask());
 
 	ptrdiff_t x = -ptrdiff_t(width);

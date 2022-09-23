@@ -2,8 +2,10 @@
 #define SCANLINE_HH
 
 #include "PixelOperations.hh"
+#include <array>
 #include <cstdint>
 #include <cstddef>
+#include <span>
 
 namespace openmsx {
 
@@ -19,11 +21,11 @@ public:
 	void setFactor(unsigned f);
 	[[nodiscard]] inline uint16_t multiply(uint16_t p, unsigned factor) const;
 	[[nodiscard]] inline uint16_t multiply(uint16_t p) const;
-	[[nodiscard]] inline const uint16_t* getTable() const;
+	[[nodiscard]] inline std::span<const uint16_t, 0x10000> getTable() const { return tab; }
 private:
 	const PixelOperations<uint16_t>& pixelOps;
 	unsigned factor;
-	uint16_t tab[0x10000];
+	std::array<uint16_t, 0x10000> tab;
 };
 
 template<> class Multiply<uint32_t>
@@ -33,7 +35,6 @@ public:
 	void setFactor(unsigned f);
 	[[nodiscard]] inline uint32_t multiply(uint32_t p, unsigned factor) const;
 	[[nodiscard]] inline uint32_t multiply(uint32_t p) const;
-	[[nodiscard]] const uint32_t* getTable() const;
 private:
 	unsigned factor;
 };
