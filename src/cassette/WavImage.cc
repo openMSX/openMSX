@@ -6,6 +6,7 @@
 #include "ranges.hh"
 #include "xrange.hh"
 #include <cassert>
+#include <array>
 #include <map>
 
 namespace openmsx {
@@ -128,13 +129,13 @@ int16_t WavImage::getSampleAt(EmuTime::param time) const
 	// the tape "Ingrid's back" sha1:9493e8851e9f173b67670a9a3de4645918ef436f
 	// work in openMSX (with sample-and-hold it didn't work).
 	auto [sample, x] = clock.getTicksTillAsIntFloat(time);
-	float p[4] = {
+	std::array<float, 4> p = {
 		float(wav->getSample(unsigned(sample) - 1)), // intentional: underflow wraps to UINT_MAX
 		float(wav->getSample(sample + 0)),
 		float(wav->getSample(sample + 1)),
 		float(wav->getSample(sample + 2))
 	};
-	return Math::clipIntToShort(int(Math::cubicHermite(p + 1, x)));
+	return Math::clipIntToShort(int(Math::cubicHermite(p, x)));
 }
 
 EmuTime WavImage::getEndTime() const

@@ -7,6 +7,7 @@
 #include <concepts>
 #include <cstdint>
 #include <numbers>
+#include <span>
 
 #ifdef _MSC_VER
 #include <intrin.h>
@@ -147,7 +148,7 @@ constexpr inline double pi   = std::numbers::pi_v  <double>;
 }
 
 // Cubic Hermite Interpolation:
-//   Given 4 points: (-1, y[-1]), (0, y[0]), (1, y[1]), (2, y[2])
+//   Given 4 points: (-1, y[0]), (0, y[1]), (1, y[2]), (2, y[3])
 //   Fit a polynomial:  f(x) = a*x^3 + b*x^2 + c*x + d
 //     which passes through the given points at x=0 and x=1
 //       f(0) = y[0]
@@ -159,13 +160,13 @@ constexpr inline double pi   = std::numbers::pi_v  <double>;
 // For more details see:
 //   https://en.wikipedia.org/wiki/Cubic_Hermite_spline
 //   https://www.paulinternet.nl/?page=bicubic
-[[nodiscard]] constexpr float cubicHermite(const float* y, float x)
+[[nodiscard]] constexpr float cubicHermite(std::span<const float, 4> y, float x)
 {
 	assert(0.0f <= x); assert(x <= 1.0f);
-	float a = -0.5f*y[-1] + 1.5f*y[0] - 1.5f*y[1] + 0.5f*y[2];
-	float b =       y[-1] - 2.5f*y[0] + 2.0f*y[1] - 0.5f*y[2];
-	float c = -0.5f*y[-1]             + 0.5f*y[1];
-	float d =                    y[0];
+	float a = -0.5f*y[0] + 1.5f*y[1] - 1.5f*y[2] + 0.5f*y[3];
+	float b =       y[0] - 2.5f*y[1] + 2.0f*y[2] - 0.5f*y[3];
+	float c = -0.5f*y[0]             + 0.5f*y[2];
+	float d =                   y[1];
 	float x2 = x * x;
 	float x3 = x * x2;
 	return a*x3 + b*x2 + c*x + d;

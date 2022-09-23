@@ -80,7 +80,7 @@ constexpr auto volumeTab = [] {
 
 // Perlin noise
 
-static float noiseTab[256 + 3];
+static std::array<float, 256 + 3> noiseTab;
 
 static void initDetune()
 {
@@ -101,7 +101,7 @@ static float noiseValue(float x)
 	int xi = int(x);
 	float xf = x - xi;
 	xi &= 255;
-	return Math::cubicHermite(&noiseTab[xi + 1], xf);
+	return Math::cubicHermite(subspan<4>(noiseTab, xi), xf);
 }
 
 
