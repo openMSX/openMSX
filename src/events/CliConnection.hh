@@ -7,6 +7,7 @@
 #include "CliComm.hh"
 #include "AdhocCliCommParser.hh"
 #include "Poller.hh"
+#include <array>
 #include <mutex>
 #include <string>
 #include <thread>
@@ -79,7 +80,7 @@ private:
 
 	std::thread thread;
 
-	bool updateEnabled[CliComm::NUM_UPDATES];
+	std::array<bool, CliComm::NUM_UPDATES> updateEnabled;
 };
 
 class StdioConnection final : public CliConnection

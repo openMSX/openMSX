@@ -16,6 +16,7 @@
 #include "cstdiop.hh"
 #include "ranges.hh"
 #include "unistdp.hh"
+#include <array>
 #include <cassert>
 #include <iostream>
 
@@ -123,7 +124,7 @@ int CliConnection::signalEvent(const Event& event) noexcept
 
 // class StdioConnection
 
-constexpr int BUF_SIZE = 4096;
+static constexpr int BUF_SIZE = 4096;
 StdioConnection::StdioConnection(CommandController& commandController_,
                                  EventDistributor& eventDistributor_)
 	: CliConnection(commandController_, eventDistributor_)
@@ -145,10 +146,10 @@ void StdioConnection::run()
 #else
 		if (poller.poll(STDIN_FILENO)) break;
 #endif
-		char buf[BUF_SIZE];
-		int n = read(STDIN_FILENO, buf, sizeof(buf));
+		std::array<char, BUF_SIZE> buf;
+		auto n = read(STDIN_FILENO, buf.data(), sizeof(buf));
 		if (n > 0) {
-			parser.parse(buf, n);
+			parser.parse(subspan(buf, 0, n));
 		} else if (n < 0) {
 			break;
 		}
@@ -314,10 +315,10 @@ void SocketConnection::run()
 			break;
 		}
 #endif
-		char buf[BUF_SIZE];
-		int n = sock_recv(sd, buf, BUF_SIZE);
+		std::array<char, BUF_SIZE> buf;
+		auto n = sock_recv(sd, buf.data(), sizeof(buf));
 		if (n > 0) {
-			parser.parse(buf, n);
+			parser.parse(subspan(buf, 0, n));
 		} else if (n < 0) {
 			break;
 		}
@@ -325,26 +326,23 @@ void SocketConnection::run()
 	closeSocket();
 }
 
-void SocketConnection::output(std::string_view message)
+void SocketConnection::output(std::string_view message_)
 {
 	if (!established) { // TODO needs locking?
 		// Connection isn't authorized yet (and opening tag is not
 		// yet send). Ignore log and update messages for now.
 		return;
 	}
-	const char* data = message.data();
-	unsigned pos = 0;
-	size_t bytesLeft = message.size();
-	while (bytesLeft) {
+	std::span message = message_;
+	while (!message.empty()) {
 		int bytesSend;
 		{
 			std::lock_guard<std::mutex> lock(sdMutex);
 			if (sd == OPENMSX_INVALID_SOCKET) return;
-			bytesSend = sock_send(sd, &data[pos], bytesLeft);
+			bytesSend = sock_send(sd, message.data(), message.size());
 		}
 		if (bytesSend > 0) {
-			bytesLeft -= bytesSend;
-			pos += bytesSend;
+			message = message.subspan(bytesSend);
 		} else {
 			// Note: On Windows we rely on closing the socket to
 			//       wake up the worker thread, on other platforms

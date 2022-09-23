@@ -9,7 +9,7 @@ static vector<string> parse(const string& stream)
 {
 	vector<string> result;
 	AdhocCliCommParser parser([&](const string& cmd) { result.push_back(cmd); });
-	parser.parse(stream.data(), stream.size());
+	parser.parse(stream);
 	return result;
 }
 

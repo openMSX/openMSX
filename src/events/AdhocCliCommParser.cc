@@ -9,10 +9,10 @@ AdhocCliCommParser::AdhocCliCommParser(std::function<void(const std::string&)> c
 {
 }
 
-void AdhocCliCommParser::parse(const char* buf, size_t n)
+void AdhocCliCommParser::parse(std::span<const char> buf)
 {
-	for (auto i : xrange(n)) {
-		parse(buf[i]);
+	for (auto c : buf) {
+		parse(c);
 	}
 }
 

@@ -3,13 +3,14 @@
 
 #include <cstdint>
 #include <functional>
+#include <span>
 #include <string>
 
 class AdhocCliCommParser
 {
 public:
 	explicit AdhocCliCommParser(std::function<void(const std::string&)> callback);
-	void parse(const char* buf, size_t n);
+	void parse(std::span<const char> buf);
 
 private:
 	void parse(char c);
