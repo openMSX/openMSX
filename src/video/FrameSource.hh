@@ -106,40 +106,6 @@ public:
 		}
 	}
 
-	/** Similar to the above getLinePtr() method, but now tries to get
-	  * multiple lines at once. This is not always possible, so the actual
-	  * number of lines is returned in 'actualLines', it will always be at
-	  * least 1.
-	  */
-	template<std::unsigned_integral Pixel>
-	[[nodiscard]] inline const Pixel* getMultiLinePtr(
-		int line, unsigned numLines, unsigned& actualLines,
-		unsigned width, Pixel* buf) const
-	{
-		actualLines = 1;
-		if ((line < 0) || (int(height) <= line)) {
-			return getLinePtr(line, width, buf);
-		}
-		unsigned internalWidth;
-		auto* internalData = reinterpret_cast<const Pixel*>(
-			getLineInfo(line, internalWidth, buf, width));
-		if (internalWidth != width) {
-			scaleLine(internalData, buf, internalWidth, width);
-			return buf;
-		}
-		if (!hasContiguousStorage()) {
-			return internalData;
-		}
-		while (--numLines) {
-			++line;
-			if ((line == int(height)) || (getLineWidth(line) != width)) {
-				break;
-			}
-			++actualLines;
-		}
-		return internalData;
-	}
-
 	/** Abstract implementation of getLinePtr().
 	  * Pixel type is unspecified (implementations that care about the
 	  * exact type should get it via some other mechanism).
@@ -178,16 +144,6 @@ public:
 	  */
 	template<std::unsigned_integral Pixel>
 	[[nodiscard]] const Pixel* getLinePtr960_720(unsigned line, Pixel* buf) const;
-
-	/** Returns the distance (in pixels) between two consecutive lines.
-	  * Is meant to be used in combination with getMultiLinePtr(). The
-	  * result is only meaningful when hasContiguousStorage() returns
-	  * true (also only in that case does getMultiLinePtr() return more
-	  * than 1 line).
-	  */
-	[[nodiscard]] virtual unsigned getRowLength() const {
-		return 0;
-	}
 
 	[[nodiscard]] const PixelFormat& getPixelFormat() const {
 		return pixelFormat;

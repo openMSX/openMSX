@@ -39,8 +39,6 @@ public:
 		lineWidths[line] = 1;
 	}
 
-	[[nodiscard]] unsigned getRowLength() const override;
-
 protected:
 	[[nodiscard]] unsigned getLineWidth(unsigned line) const override;
 	[[nodiscard]] const void* getLineInfo(

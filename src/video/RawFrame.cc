@@ -47,11 +47,6 @@ const void* RawFrame::getLineInfo(
 	return data.data() + line * pitch;
 }
 
-unsigned RawFrame::getRowLength() const
-{
-	return maxWidth; // in pixels (not in bytes)
-}
-
 bool RawFrame::hasContiguousStorage() const
 {
 	return true;
