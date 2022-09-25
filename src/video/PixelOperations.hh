@@ -6,6 +6,7 @@
 #include "build-info.hh"
 #include <bit>
 #include <concepts>
+#include <span>
 
 namespace openmsx {
 
@@ -207,14 +208,14 @@ public:
 	                                 Pixel p4, Pixel p5, Pixel p6) const;
 
 	template<unsigned w1, unsigned w2>
-	[[nodiscard]] inline Pixel blend2(const Pixel* p) const;
+	[[nodiscard]] inline Pixel blend(std::span<const Pixel, 2> p) const;
 	template<unsigned w1, unsigned w2, unsigned w3>
-	[[nodiscard]] inline Pixel blend3(const Pixel* p) const;
+	[[nodiscard]] inline Pixel blend(std::span<const Pixel, 3> p) const;
 	template<unsigned w1, unsigned w2, unsigned w3, unsigned w4>
-	[[nodiscard]] inline Pixel blend4(const Pixel* p) const;
+	[[nodiscard]] inline Pixel blend(std::span<const Pixel, 4> p) const;
 	template<unsigned w1, unsigned w2, unsigned w3,
 	          unsigned w4, unsigned w5, unsigned w6>
-	[[nodiscard]] inline Pixel blend6(const Pixel* p) const;
+	[[nodiscard]] inline Pixel blend(std::span<const Pixel, 6> p) const;
 
 	/** Perform a component wise multiplication of a pixel with an 8-bit
 	  * fractional value:
@@ -572,21 +573,21 @@ inline Pixel PixelOperations<Pixel>::blend(
 
 template<std::unsigned_integral Pixel>
 template<unsigned w1, unsigned w2>
-inline Pixel PixelOperations<Pixel>::blend2(const Pixel* p) const
+inline Pixel PixelOperations<Pixel>::blend(std::span<const Pixel, 2> p) const
 {
 	return blend<w1, w2>(p[0], p[1]);
 }
 
 template<std::unsigned_integral Pixel>
 template<unsigned w1, unsigned w2, unsigned w3>
-inline Pixel PixelOperations<Pixel>::blend3(const Pixel* p) const
+inline Pixel PixelOperations<Pixel>::blend(std::span<const Pixel, 3> p) const
 {
 	return blend<w1, w2, w3>(p[0], p[1], p[2]);
 }
 
 template<std::unsigned_integral Pixel>
 template<unsigned w1, unsigned w2, unsigned w3, unsigned w4>
-inline Pixel PixelOperations<Pixel>::blend4(const Pixel* p) const
+inline Pixel PixelOperations<Pixel>::blend(std::span<const Pixel, 4> p) const
 {
 	return blend<w1, w2, w3, w4>(p[0], p[1], p[2], p[3]);
 }
@@ -594,7 +595,7 @@ inline Pixel PixelOperations<Pixel>::blend4(const Pixel* p) const
 template<std::unsigned_integral Pixel>
 template<unsigned w1, unsigned w2, unsigned w3,
           unsigned w4, unsigned w5, unsigned w6>
-inline Pixel PixelOperations<Pixel>::blend6(const Pixel* p) const
+inline Pixel PixelOperations<Pixel>::blend(std::span<const Pixel, 6> p) const
 {
 	return blend<w1, w2, w3, w4, w5, w6>(p[0], p[1], p[2], p[3], p[4], p[5]);
 }

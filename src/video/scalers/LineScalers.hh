@@ -678,7 +678,7 @@ void Scale_6on1<Pixel>::operator()(
 {
 	assert(in.size() == 6 * out.size());
 	for (auto i : xrange(out.size())) {
-		out[i] = pixelOps.template blend6<1, 1, 1, 1, 1, 1>(&in[6 * i]);
+		out[i] = pixelOps.template blend<1, 1, 1, 1, 1, 1>(subspan<6>(in, 6 * i));
 	}
 }
 
@@ -695,7 +695,7 @@ void Scale_4on1<Pixel>::operator()(
 {
 	assert(in.size() == 4 * out.size());
 	for (auto i : xrange(out.size())) {
-		out[i] = pixelOps.template blend4<1, 1, 1, 1>(&in[4 * i]);
+		out[i] = pixelOps.template blend<1, 1, 1, 1>(subspan<4>(in, 4 * i));
 	}
 }
 
@@ -712,7 +712,7 @@ void Scale_3on1<Pixel>::operator()(
 {
 	assert(in.size() == 3 * out.size());
 	for (auto i : xrange(out.size())) {
-		out[i] = pixelOps.template blend3<1, 1, 1>(&in[3 * i]);
+		out[i] = pixelOps.template blend<1, 1, 1>(subspan<3>(in, 3 * i));
 	}
 }
 
@@ -731,8 +731,8 @@ void Scale_3on2<Pixel>::operator()(
 	size_t n = out.size();
 	size_t i = 0, j = 0;
 	for (/* */; i < (n - 1); i += 2, j += 3) {
-		out[i + 0] = pixelOps.template blend2<2, 1>(&in[j + 0]);
-		out[i + 1] = pixelOps.template blend2<1, 2>(&in[j + 1]);
+		out[i + 0] = pixelOps.template blend<2, 1>(subspan<2>(in, j + 0));
+		out[i + 1] = pixelOps.template blend<1, 2>(subspan<2>(in, j + 1));
 	}
 	if (i < n) out[i] = 0;
 }
@@ -752,10 +752,10 @@ void Scale_3on4<Pixel>::operator()(
 	size_t n = out.size();
 	size_t i = 0, j = 0;
 	for (/* */; i < (n - 3); i += 4, j += 3) {
-		out[i + 0] =                                 in[j + 0];
-		out[i + 1] = pixelOps.template blend2<1, 2>(&in[j + 0]);
-		out[i + 2] = pixelOps.template blend2<2, 1>(&in[j + 1]);
-		out[i + 3] =                                 in[j + 2];
+		out[i + 0] = in[j + 0];
+		out[i + 1] = pixelOps.template blend<1, 2>(subspan<2>(in, j + 0));
+		out[i + 2] = pixelOps.template blend<2, 1>(subspan<2>(in, j + 1));
+		out[i + 3] = in[j + 2];
 	}
 	for (auto k : xrange(4 - 1)) {
 		if ((i + k) < n) out[i + k] = 0;
@@ -777,14 +777,14 @@ void Scale_3on8<Pixel>::operator()(
 	size_t n = out.size();
 	size_t i = 0, j = 0;
 	for (/* */; i < (n - 7); i += 8, j += 3) {
-		out[i + 0] =                                 in[j + 0];
-		out[i + 1] =                                 in[j + 0];
-		out[i + 2] = pixelOps.template blend2<2, 1>(&in[j + 0]);
-		out[i + 3] =                                 in[j + 1];
-		out[i + 4] =                                 in[j + 1];
-		out[i + 5] = pixelOps.template blend2<1, 2>(&in[j + 1]);
-		out[i + 6] =                                 in[j + 2];
-		out[i + 7] =                                 in[j + 2];
+		out[i + 0] = in[j + 0];
+		out[i + 1] = in[j + 0];
+		out[i + 2] = pixelOps.template blend<2, 1>(subspan<2>(in, j + 0));
+		out[i + 3] = in[j + 1];
+		out[i + 4] = in[j + 1];
+		out[i + 5] = pixelOps.template blend<1, 2>(subspan<2>(in, j + 1));
+		out[i + 6] = in[j + 2];
+		out[i + 7] = in[j + 2];
 	}
 	for (auto k : xrange(8 - 1)) {
 		if ((i + k) < n) out[i + k] = 0;
@@ -806,9 +806,9 @@ void Scale_2on3<Pixel>::operator()(
 	size_t n = out.size();
 	size_t i = 0, j = 0;
 	for (/* */; i < (n - 2); i += 3, j += 2) {
-		out[i + 0] =                                 in[j + 0];
-		out[i + 1] = pixelOps.template blend2<1, 1>(&in[j + 0]);
-		out[i + 2] =                                 in[j + 1];
+		out[i + 0] = in[j + 0];
+		out[i + 1] = pixelOps.template blend<1, 1>(subspan<2>(in, j));
+		out[i + 2] = in[j + 1];
 	}
 	if ((i + 0) < n) out[i + 0] = 0;
 	if ((i + 1) < n) out[i + 1] = 0;
@@ -829,9 +829,9 @@ void Scale_4on3<Pixel>::operator()(
 	size_t n = out.size();
 	size_t i = 0, j = 0;
 	for (/* */; i < (n - 2); i += 3, j += 4) {
-		out[i + 0] = pixelOps.template blend2<3, 1>(&in[j + 0]);
-		out[i + 1] = pixelOps.template blend2<1, 1>(&in[j + 1]);
-		out[i + 2] = pixelOps.template blend2<1, 3>(&in[j + 2]);
+		out[i + 0] = pixelOps.template blend<3, 1>(subspan<2>(in, j + 0));
+		out[i + 1] = pixelOps.template blend<1, 1>(subspan<2>(in, j + 1));
+		out[i + 2] = pixelOps.template blend<1, 3>(subspan<2>(in, j + 2));
 	}
 	if ((i + 0) < n) out[i + 0] = 0;
 	if ((i + 1) < n) out[i + 1] = 0;
@@ -852,9 +852,9 @@ void Scale_8on3<Pixel>::operator()(
 	size_t n = out.size();
 	size_t i = 0, j = 0;
 	for (/* */; i < (n - 2); i += 3, j += 8) {
-		out[i + 0] = pixelOps.template blend3<3, 3, 2>   (&in[j + 0]);
-		out[i + 1] = pixelOps.template blend4<1, 3, 3, 1>(&in[j + 2]);
-		out[i + 2] = pixelOps.template blend3<2, 3, 3>   (&in[j + 5]);
+		out[i + 0] = pixelOps.template blend<3, 3, 2>   (subspan<3>(in, j + 0));
+		out[i + 1] = pixelOps.template blend<1, 3, 3, 1>(subspan<4>(in, j + 2));
+		out[i + 2] = pixelOps.template blend<2, 3, 3>   (subspan<3>(in, j + 5));
 	}
 	if ((i + 0) < n) out[i + 0] = 0;
 	if ((i + 1) < n) out[i + 1] = 0;
@@ -875,15 +875,15 @@ void Scale_2on9<Pixel>::operator()(
 	size_t n = out.size();
 	size_t i = 0, j = 0;
 	for (/* */; i < (n - 8); i += 9, j += 2) {
-		out[i + 0] =                                 in[j + 0];
-		out[i + 1] =                                 in[j + 0];
-		out[i + 2] =                                 in[j + 0];
-		out[i + 3] =                                 in[j + 0];
-		out[i + 4] = pixelOps.template blend2<1, 1>(&in[j + 0]);
-		out[i + 5] =                                 in[j + 1];
-		out[i + 6] =                                 in[j + 1];
-		out[i + 7] =                                 in[j + 1];
-		out[i + 8] =                                 in[j + 1];
+		out[i + 0] = in[j + 0];
+		out[i + 1] = in[j + 0];
+		out[i + 2] = in[j + 0];
+		out[i + 3] = in[j + 0];
+		out[i + 4] = pixelOps.template blend<1, 1>(subspan<2>(in, j));
+		out[i + 5] = in[j + 1];
+		out[i + 6] = in[j + 1];
+		out[i + 7] = in[j + 1];
+		out[i + 8] = in[j + 1];
 	}
 	if ((i + 0) < n) out[i + 0] = 0;
 	if ((i + 1) < n) out[i + 1] = 0;
@@ -910,15 +910,15 @@ void Scale_4on9<Pixel>::operator()(
 	size_t n = out.size();
 	size_t i = 0, j = 0;
 	for (/* */; i < (n - 8); i += 9, j += 4) {
-		out[i + 0] =                                 in[j + 0];
-		out[i + 1] =                                 in[j + 0];
-		out[i + 2] = pixelOps.template blend2<1, 3>(&in[j + 0]);
-		out[i + 3] =                                 in[j + 1];
-		out[i + 4] = pixelOps.template blend2<1, 1>(&in[j + 1]);
-		out[i + 5] =                                 in[j + 2];
-		out[i + 6] = pixelOps.template blend2<3, 1>(&in[j + 2]);
-		out[i + 7] =                                 in[j + 3];
-		out[i + 8] =                                 in[j + 3];
+		out[i + 0] = in[j + 0];
+		out[i + 1] = in[j + 0];
+		out[i + 2] = pixelOps.template blend<1, 3>(subspan<2>(in, j + 0));
+		out[i + 3] = in[j + 1];
+		out[i + 4] = pixelOps.template blend<1, 1>(subspan<2>(in, j + 1));
+		out[i + 5] = in[j + 2];
+		out[i + 6] = pixelOps.template blend<3, 1>(subspan<2>(in, j + 2));
+		out[i + 7] = in[j + 3];
+		out[i + 8] = in[j + 3];
 	}
 	if ((i + 0) < n) out[i + 0] = 0;
 	if ((i + 1) < n) out[i + 1] = 0;
@@ -945,15 +945,15 @@ void Scale_8on9<Pixel>::operator()(
 	size_t n = out.size();
 	size_t i = 0, j = 0;
 	for (/* */; i < (n - 8); i += 9, j += 8) {
-		out[i + 0] =                                 in[j + 0];
-		out[i + 1] = pixelOps.template blend2<1, 7>(&in[j + 0]);
-		out[i + 2] = pixelOps.template blend2<1, 3>(&in[j + 1]);
-		out[i + 3] = pixelOps.template blend2<3, 5>(&in[j + 2]);
-		out[i + 4] = pixelOps.template blend2<1, 1>(&in[j + 3]);
-		out[i + 5] = pixelOps.template blend2<5, 3>(&in[j + 4]);
-		out[i + 6] = pixelOps.template blend2<3, 1>(&in[j + 5]);
-		out[i + 7] = pixelOps.template blend2<7, 1>(&in[j + 6]);
-		out[i + 8] =                                 in[j + 7];
+		out[i + 0] = in[j + 0];
+		out[i + 1] = pixelOps.template blend<1, 7>(subspan<2>(in, j + 0));
+		out[i + 2] = pixelOps.template blend<1, 3>(subspan<2>(in, j + 1));
+		out[i + 3] = pixelOps.template blend<3, 5>(subspan<2>(in, j + 2));
+		out[i + 4] = pixelOps.template blend<1, 1>(subspan<2>(in, j + 3));
+		out[i + 5] = pixelOps.template blend<5, 3>(subspan<2>(in, j + 4));
+		out[i + 6] = pixelOps.template blend<3, 1>(subspan<2>(in, j + 5));
+		out[i + 7] = pixelOps.template blend<7, 1>(subspan<2>(in, j + 6));
+		out[i + 8] = in[j + 7];
 	}
 	if ((i + 0) < n) out[i + 0] = 0;
 	if ((i + 1) < n) out[i + 1] = 0;
@@ -980,11 +980,11 @@ void Scale_4on5<Pixel>::operator()(
 	size_t n = out.size();
 	assert((n % 5) == 0);
 	for (size_t i = 0, j = 0; i < n; i += 5, j += 4) {
-		out[i + 0] =                                 in[j + 0];
-		out[i + 1] = pixelOps.template blend2<1, 3>(&in[j + 0]);
-		out[i + 2] = pixelOps.template blend2<1, 1>(&in[j + 1]);
-		out[i + 3] = pixelOps.template blend2<3, 1>(&in[j + 2]);
-		out[i + 4] =                                 in[j + 3];
+		out[i + 0] = in[j + 0];
+		out[i + 1] = pixelOps.template blend<1, 3>(subspan<2>(in, j + 0));
+		out[i + 2] = pixelOps.template blend<1, 1>(subspan<2>(in, j + 1));
+		out[i + 3] = pixelOps.template blend<3, 1>(subspan<2>(in, j + 2));
+		out[i + 4] = in[j + 3];
 	}
 }
 
@@ -1003,14 +1003,14 @@ void Scale_7on8<Pixel>::operator()(
 	size_t n = out.size();
 	assert((n % 8) == 0);
 	for (size_t i = 0, j = 0; i < n; i += 8, j += 7) {
-		out[i + 0] =                                 in[j + 0];
-		out[i + 1] = pixelOps.template blend2<1, 6>(&in[j + 0]);
-		out[i + 2] = pixelOps.template blend2<2, 5>(&in[j + 1]);
-		out[i + 3] = pixelOps.template blend2<3, 4>(&in[j + 2]);
-		out[i + 4] = pixelOps.template blend2<4, 3>(&in[j + 3]);
-		out[i + 5] = pixelOps.template blend2<5, 2>(&in[j + 4]);
-		out[i + 6] = pixelOps.template blend2<6, 1>(&in[j + 5]);
-		out[i + 7] =                                 in[j + 6];
+		out[i + 0] = in[j + 0];
+		out[i + 1] = pixelOps.template blend<1, 6>(subspan<2>(in, j + 0));
+		out[i + 2] = pixelOps.template blend<2, 5>(subspan<2>(in, j + 1));
+		out[i + 3] = pixelOps.template blend<3, 4>(subspan<2>(in, j + 2));
+		out[i + 4] = pixelOps.template blend<4, 3>(subspan<2>(in, j + 3));
+		out[i + 5] = pixelOps.template blend<5, 2>(subspan<2>(in, j + 4));
+		out[i + 6] = pixelOps.template blend<6, 1>(subspan<2>(in, j + 5));
+		out[i + 7] = in[j + 6];
 	}
 }
 
@@ -1029,26 +1029,26 @@ void Scale_17on20<Pixel>::operator()(
 	size_t n = out.size();
 	assert((n % 20) == 0);
 	for (size_t i = 0, j = 0; i < n; i += 20, j += 17) {
-		out[i +  0] =                                   in[j +  0];
-		out[i +  1] = pixelOps.template blend2< 3, 14>(&in[j +  0]);
-		out[i +  2] = pixelOps.template blend2< 6, 11>(&in[j +  1]);
-		out[i +  3] = pixelOps.template blend2< 9,  8>(&in[j +  2]);
-		out[i +  4] = pixelOps.template blend2<12,  5>(&in[j +  3]);
-		out[i +  5] = pixelOps.template blend2<15,  2>(&in[j +  4]);
-		out[i +  6] =                                   in[j +  5];
-		out[i +  7] = pixelOps.template blend2< 1, 16>(&in[j +  5]);
-		out[i +  8] = pixelOps.template blend2< 4, 13>(&in[j +  6]);
-		out[i +  9] = pixelOps.template blend2< 7, 10>(&in[j +  7]);
-		out[i + 10] = pixelOps.template blend2<10,  7>(&in[j +  8]);
-		out[i + 11] = pixelOps.template blend2<13,  4>(&in[j +  9]);
-		out[i + 12] = pixelOps.template blend2<16,  1>(&in[j + 10]);
-		out[i + 13] =                                   in[j + 11];
-		out[i + 14] = pixelOps.template blend2< 2, 15>(&in[j + 11]);
-		out[i + 15] = pixelOps.template blend2< 5, 12>(&in[j + 12]);
-		out[i + 16] = pixelOps.template blend2< 8,  9>(&in[j + 13]);
-		out[i + 17] = pixelOps.template blend2<11,  6>(&in[j + 14]);
-		out[i + 18] = pixelOps.template blend2<14,  3>(&in[j + 15]);
-		out[i + 19] =                                   in[j + 16];
+		out[i +  0] = in[j +  0];
+		out[i +  1] = pixelOps.template blend< 3, 14>(subspan<2>(in, j +  0));
+		out[i +  2] = pixelOps.template blend< 6, 11>(subspan<2>(in, j +  1));
+		out[i +  3] = pixelOps.template blend< 9,  8>(subspan<2>(in, j +  2));
+		out[i +  4] = pixelOps.template blend<12,  5>(subspan<2>(in, j +  3));
+		out[i +  5] = pixelOps.template blend<15,  2>(subspan<2>(in, j +  4));
+		out[i +  6] = in[j +  5];
+		out[i +  7] = pixelOps.template blend< 1, 16>(subspan<2>(in, j +  5));
+		out[i +  8] = pixelOps.template blend< 4, 13>(subspan<2>(in, j +  6));
+		out[i +  9] = pixelOps.template blend< 7, 10>(subspan<2>(in, j +  7));
+		out[i + 10] = pixelOps.template blend<10,  7>(subspan<2>(in, j +  8));
+		out[i + 11] = pixelOps.template blend<13,  4>(subspan<2>(in, j +  9));
+		out[i + 12] = pixelOps.template blend<16,  1>(subspan<2>(in, j + 10));
+		out[i + 13] = in[j + 11];
+		out[i + 14] = pixelOps.template blend< 2, 15>(subspan<2>(in, j + 11));
+		out[i + 15] = pixelOps.template blend< 5, 12>(subspan<2>(in, j + 12));
+		out[i + 16] = pixelOps.template blend< 8,  9>(subspan<2>(in, j + 13));
+		out[i + 17] = pixelOps.template blend<11,  6>(subspan<2>(in, j + 14));
+		out[i + 18] = pixelOps.template blend<14,  3>(subspan<2>(in, j + 15));
+		out[i + 19] = in[j + 16];
 	}
 }
 
@@ -1067,16 +1067,16 @@ void Scale_9on10<Pixel>::operator()(
 	size_t n = out.size();
 	assert((n % 10) == 0);
 	for (size_t i = 0, j = 0; i < n; i += 10, j += 9) {
-		out[i + 0] =                                 in[j + 0];
-		out[i + 1] = pixelOps.template blend2<1, 8>(&in[j + 0]);
-		out[i + 2] = pixelOps.template blend2<2, 7>(&in[j + 1]);
-		out[i + 3] = pixelOps.template blend2<3, 6>(&in[j + 2]);
-		out[i + 4] = pixelOps.template blend2<4, 5>(&in[j + 3]);
-		out[i + 5] = pixelOps.template blend2<5, 4>(&in[j + 4]);
-		out[i + 6] = pixelOps.template blend2<6, 3>(&in[j + 5]);
-		out[i + 7] = pixelOps.template blend2<7, 2>(&in[j + 6]);
-		out[i + 8] = pixelOps.template blend2<8, 1>(&in[j + 7]);
-		out[i + 9] =                                 in[j + 8];
+		out[i + 0] = in[j + 0];
+		out[i + 1] = pixelOps.template blend<1, 8>(subspan<2>(in, j + 0));
+		out[i + 2] = pixelOps.template blend<2, 7>(subspan<2>(in, j + 1));
+		out[i + 3] = pixelOps.template blend<3, 6>(subspan<2>(in, j + 2));
+		out[i + 4] = pixelOps.template blend<4, 5>(subspan<2>(in, j + 3));
+		out[i + 5] = pixelOps.template blend<5, 4>(subspan<2>(in, j + 4));
+		out[i + 6] = pixelOps.template blend<6, 3>(subspan<2>(in, j + 5));
+		out[i + 7] = pixelOps.template blend<7, 2>(subspan<2>(in, j + 6));
+		out[i + 8] = pixelOps.template blend<8, 1>(subspan<2>(in, j + 7));
+		out[i + 9] = in[j + 8];
 	}
 }
 
