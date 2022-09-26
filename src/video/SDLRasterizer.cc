@@ -14,6 +14,7 @@
 #include "build-info.hh"
 #include "components.hh"
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <cstdint>
 #include <memory>
@@ -24,13 +25,13 @@ namespace openmsx {
 
 /** VDP ticks between start of line and start of left border.
   */
-constexpr int TICKS_LEFT_BORDER = 100 + 102;
+static constexpr int TICKS_LEFT_BORDER = 100 + 102;
 
 /** The middle of the visible (display + borders) part of a line,
   * expressed in VDP ticks since the start of the line.
   * TODO: Move this to a central location?
   */
-constexpr int TICKS_VISIBLE_MIDDLE =
+static constexpr int TICKS_VISIBLE_MIDDLE =
 	TICKS_LEFT_BORDER + (VDP::TICKS_PER_LINE - TICKS_LEFT_BORDER - 27) / 2;
 
 /** Translate from absolute VDP coordinates to screen coordinates:
@@ -77,7 +78,7 @@ SDLRasterizer<Pixel>::SDLRasterizer(
 	, postProcessor(std::move(postProcessor_))
 	, workFrame(std::make_unique<RawFrame>(screen.getPixelFormat(), 640, 240))
 	, renderSettings(display.getRenderSettings())
-	, characterConverter(vdp, palFg, palBg)
+	, characterConverter(vdp, subspan<16>(palFg), palBg)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLORS)
 	, spriteConverter(vdp.getSpriteChecker())
 {
@@ -253,7 +254,7 @@ void SDLRasterizer<Pixel>::precalcPalette()
 			if (renderSettings.isColorMatrixIdentity()) {
 				// Most users use the "normal" monitor type; making this a
 				// special case speeds up palette precalculation a lot.
-				int intensity[32];
+				std::array<int, 32> intensity;
 				for (auto [i, r] : enumerate(intensity)) {
 					r = int(255 * renderSettings.transformComponent(i / 31.0));
 				}
@@ -292,7 +293,7 @@ void SDLRasterizer<Pixel>::precalcPalette()
 		} else {
 			// Precalculate palette for V9938 colors.
 			if (renderSettings.isColorMatrixIdentity()) {
-				int intensity[8];
+				std::array<int, 8> intensity;
 				for (auto [i, r] : enumerate(intensity)) {
 					r = int(255 * renderSettings.transformComponent(i / 7.0f));
 				}
@@ -504,7 +505,7 @@ void SDLRasterizer<Pixel>::drawDisplay(
 			int pageMaskEven = vdp.isMultiPageScrolling()
 				? (pageMaskOdd & ~0x100)
 				: pageMaskOdd;
-			const int vramLine[2] = {
+			const std::array<int, 2> vramLine = {
 				(vram.nameTable.getMask() >> 7) & (pageMaskEven | displayY),
 				(vram.nameTable.getMask() >> 7) & (pageMaskOdd  | displayY)
 			};

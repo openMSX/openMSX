@@ -11,12 +11,12 @@ namespace openmsx {
 
 template<std::unsigned_integral Pixel>
 BitmapConverter<Pixel>::BitmapConverter(
-	const Pixel* palette16_, const Pixel* palette256_,
-	const Pixel* palette32768_)
+		std::span<const Pixel, 16 * 2> palette16_,
+		std::span<const Pixel, 256>    palette256_,
+		std::span<const Pixel, 32768>  palette32768_)
 	: palette16(palette16_)
 	, palette256(palette256_)
 	, palette32768(palette32768_)
-	, dPaletteValid(false)
 {
 }
 

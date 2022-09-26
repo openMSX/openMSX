@@ -3,6 +3,7 @@
 
 #include "openmsx.hh"
 #include <concepts>
+#include <span>
 
 namespace openmsx {
 
@@ -28,7 +29,7 @@ public:
 	  *   This is kept as a pointer, so any changes to the palette
 	  *   are immediately picked up by convertLine.
 	  */
-	CharacterConverter(VDP& vdp, const Pixel* palFg, const Pixel* palBg);
+	CharacterConverter(VDP& vdp, std::span<const Pixel, 16> palFg, std::span<const Pixel, 16> palBg);
 
 	/** Convert a line of V9938 VRAM to 512 host pixels.
 	  * Call this method in non-planar display modes (Graphic4 and Graphic5).
@@ -61,8 +62,8 @@ private:
 	VDP& vdp;
 	VDPVRAM& vram;
 
-	const Pixel* const palFg;
-	const Pixel* const palBg;
+	std::span<const Pixel, 16> palFg;
+	std::span<const Pixel, 16> palBg;
 
 	unsigned modeBase;
 };

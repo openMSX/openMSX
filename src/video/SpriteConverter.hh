@@ -11,6 +11,7 @@ TODO:
 #include "view.hh"
 #include "openmsx.hh"
 #include <concepts>
+#include <span>
 
 namespace openmsx {
 
@@ -53,7 +54,7 @@ public:
 	  * will be used while drawing.
 	  * @param newPalette 16-entry array containing the sprite palette.
 	  */
-	void setPalette(const Pixel* newPalette)
+	void setPalette(std::span<const Pixel, 16> newPalette)
 	{
 		palette = newPalette;
 	}
@@ -203,7 +204,7 @@ private:
 
 	/** The current sprite palette.
 	  */
-	const Pixel* palette;
+	std::span<const Pixel, 16> palette{static_cast<const Pixel*>(nullptr), 16};
 
 	/** VDP transparency setting (R#8, bit5).
 	  */

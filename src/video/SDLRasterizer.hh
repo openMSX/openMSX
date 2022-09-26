@@ -7,6 +7,7 @@
 #include "SpriteConverter.hh"
 #include "Observer.hh"
 #include "openmsx.hh"
+#include <array>
 #include <concepts>
 #include <memory>
 
@@ -138,25 +139,26 @@ private:
 	  *       up-to-date) in Graphics5 mode.
 	  * palBg has entry 0 set to black.
 	  */
-	Pixel palFg[16 * 2], palBg[16];
+	std::array<Pixel, 16 * 2> palFg;
+	std::array<Pixel, 16> palBg;
 
 	/** Host colors corresponding to each Graphic 7 sprite color.
 	  */
-	Pixel palGraphic7Sprites[16];
+	std::array<Pixel, 16> palGraphic7Sprites;
 
 	/** Precalculated host colors corresponding to each possible V9938 color.
 	  * Used by updatePalette to adjust palFg and palBg.
 	  */
-	Pixel V9938_COLORS[8][8][8];
+	std::array<std::array<std::array<Pixel, 8>, 8>, 8> V9938_COLORS;
 
 	/** Host colors corresponding to the 256 color palette of Graphic7.
 	  * Used by BitmapConverter.
 	  */
-	Pixel PALETTE256[256];
+	std::array<Pixel, 256> PALETTE256;
 
 	/** Host colors corresponding to each possible V9958 color.
 	  */
-	Pixel V9958_COLORS[32768];
+	std::array<Pixel, 32768> V9958_COLORS;
 };
 
 } // namespace openmsx

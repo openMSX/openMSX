@@ -23,7 +23,7 @@ namespace openmsx {
 
 template<std::unsigned_integral Pixel>
 CharacterConverter<Pixel>::CharacterConverter(
-	VDP& vdp_, const Pixel* palFg_, const Pixel* palBg_)
+	VDP& vdp_, std::span<const Pixel, 16> palFg_, std::span<const Pixel, 16> palBg_)
 	: vdp(vdp_), vram(vdp.getVRAM()), palFg(palFg_), palBg(palBg_)
 	, modeBase(0) // not strictly needed, but avoids Coverity warning
 {

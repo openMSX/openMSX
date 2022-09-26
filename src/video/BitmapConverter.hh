@@ -3,8 +3,10 @@
 
 #include "DisplayMode.hh"
 #include "openmsx.hh"
+#include <array>
 #include <concepts>
 #include <cstdint>
+#include <span>
 
 namespace openmsx {
 
@@ -39,9 +41,9 @@ public:
 	  *   are immediately picked up by convertLine.
 	  *   Used when YJK filter is active.
 	  */
-	BitmapConverter(const Pixel* palette16,
-	                const Pixel* palette256,
-	                const Pixel* palette32768);
+	BitmapConverter(std::span<const Pixel, 16 * 2> palette16,
+	                std::span<const Pixel, 256>    palette256,
+	                std::span<const Pixel, 32768>  palette32768);
 
 	/** Convert a line of V9938 VRAM to 512 host pixels.
 	  * Call this method in non-planar display modes (Graphic4 and Graphic5).
@@ -90,14 +92,14 @@ private:
 	inline void renderBogus(Pixel* pixelPtr);
 
 private:
-	const Pixel* const __restrict palette16;
-	const Pixel* const __restrict palette256;
-	const Pixel* const __restrict palette32768;
+	std::span<const Pixel, 16 * 2> palette16;
+	std::span<const Pixel, 256>    palette256;
+	std::span<const Pixel, 32768>  palette32768;
 
 	using DPixel = typename DoublePixel<sizeof(Pixel)>::type;
-	DPixel dPalette[16 * 16];
+	std::array<DPixel, 16 * 16> dPalette;
 	DisplayMode mode;
-	bool dPaletteValid;
+	bool dPaletteValid = false;
 };
 
 } // namespace openmsx
