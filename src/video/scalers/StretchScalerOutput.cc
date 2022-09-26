@@ -158,9 +158,9 @@ void StretchScalerOutputBase<Pixel>::releasePost(unsigned y, std::span<Pixel> ds
 template<std::unsigned_integral Pixel>
 void StretchScalerOutputBase<Pixel>::fillLine(unsigned y, Pixel color)
 {
-	auto dstLine = output.acquireLine(y);
 	MemoryOps::MemSet<Pixel> memset;
-	memset(dstLine.data(), dstLine.size(), color); // TODO span
+	auto dstLine = output.acquireLine(y);
+	memset(dstLine, color);
 	output.releaseLine(y, dstLine);
 }
 

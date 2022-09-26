@@ -175,24 +175,24 @@ static inline void memset_16(uint16_t* out, size_t num16, uint16_t val16)
 }
 
 template<typename Pixel> void MemSet<Pixel>::operator()(
-	Pixel* out, size_t num, Pixel val) const
+	std::span<Pixel> out, Pixel val) const
 {
 	if constexpr (sizeof(Pixel) == 2) {
-		memset_16(reinterpret_cast<uint16_t*>(out), num, val);
+		memset_16(reinterpret_cast<uint16_t*>(out.data()), out.size(), val);
 	} else if constexpr (sizeof(Pixel) == 4) {
-		memset_32(reinterpret_cast<uint32_t*>(out), num, val);
+		memset_32(reinterpret_cast<uint32_t*>(out.data()), out.size(), val);
 	} else {
 		UNREACHABLE;
 	}
 }
 
 template<typename Pixel> void MemSet2<Pixel>::operator()(
-	Pixel* out, size_t num, Pixel val0, Pixel val1) const
+	std::span<Pixel> out, Pixel val0, Pixel val1) const
 {
 	if constexpr (sizeof(Pixel) == 2) {
-		memset_16_2(reinterpret_cast<uint16_t*>(out), num, val0, val1);
+		memset_16_2(reinterpret_cast<uint16_t*>(out.data()), out.size(), val0, val1);
 	} else if constexpr (sizeof(Pixel) == 4) {
-		memset_32_2(reinterpret_cast<uint32_t*>(out), num, val0, val1);
+		memset_32_2(reinterpret_cast<uint32_t*>(out.data()), out.size(), val0, val1);
 	} else {
 		UNREACHABLE;
 	}

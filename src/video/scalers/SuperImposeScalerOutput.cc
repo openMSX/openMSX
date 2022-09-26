@@ -57,7 +57,7 @@ void SuperImposeScalerOutput<Pixel>::fillLine(unsigned y, Pixel color)
 	auto dstLine = output.acquireLine(y);
 	if (pixelOps.isFullyOpaque(color)) {
 		MemoryOps::MemSet<Pixel> memset;
-		memset(dstLine.data(), dstLine.size(), color); // TODO span
+		memset(dstLine, color);
 	} else {
 		auto srcLine = getSrcLine(y, dstLine);
 		if (pixelOps.isFullyTransparent(color)) {

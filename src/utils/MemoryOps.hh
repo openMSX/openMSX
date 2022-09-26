@@ -2,16 +2,15 @@
 #define MEMORYOPS_HH
 
 #include <cstddef>
+#include <span>
 
 namespace openmsx::MemoryOps {
 
 	template<typename Pixel> struct MemSet {
-		void operator()(Pixel* out, size_t num,
-		                Pixel val) const;
+		void operator()(std::span<Pixel> out, Pixel val) const;
 	};
 	template<typename Pixel> struct MemSet2 {
-		void operator()(Pixel* out, size_t num,
-		                Pixel val0, Pixel val1) const;
+		void operator()(std::span<Pixel> out, Pixel val0, Pixel val1) const;
 	};
 
 	[[nodiscard]] void* mallocAligned(size_t alignment, size_t size);

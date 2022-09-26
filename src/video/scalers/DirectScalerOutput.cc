@@ -30,9 +30,9 @@ void DirectScalerOutput<Pixel>::releaseLine(unsigned y, std::span<Pixel> buf)
 template<std::unsigned_integral Pixel>
 void DirectScalerOutput<Pixel>::fillLine(unsigned y, Pixel color)
 {
-	auto* dstLine = pixelAccess.getLinePtr<Pixel>(y);
 	MemoryOps::MemSet<Pixel> memset;
-	memset(dstLine, getWidth(), color);
+	auto* dstLine = pixelAccess.getLinePtr<Pixel>(y);
+	memset(std::span{dstLine, getWidth()}, color);
 }
 
 

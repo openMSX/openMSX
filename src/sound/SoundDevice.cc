@@ -5,7 +5,6 @@
 #include "XMLElement.hh"
 #include "Filename.hh"
 #include "StringOp.hh"
-#include "MemoryOps.hh"
 #include "MemBuffer.hh"
 #include "MSXException.hh"
 #include "aligned.hh"
@@ -214,20 +213,18 @@ bool SoundDevice::mixChannels(float* dataOut, unsigned samples)
 	}
 
 	static_assert(sizeof(float) == sizeof(uint32_t));
-	MemoryOps::MemSet<uint32_t> mSet;
 	if ((numChannels != 1) || separateChannels) {
 		// The generateChannels() method of SoundDevices with more than
 		// one channel will _add_ the generated channel data in the
 		// provided buffers. Those with only one channel will directly
 		// replace the content of the buffer. For the former we must
 		// start from a buffer containing all zeros.
-		mSet(reinterpret_cast<uint32_t*>(dataOut), outputStereo * samples, 0);
+		ranges::fill(std::span{dataOut, outputStereo * samples}, 0.0f);
 	}
 
 	if (separateChannels) {
 		allocateMixBuffer(pitch * separateChannels);
-		mSet(reinterpret_cast<uint32_t*>(mixBuffer.data()),
-		     pitch * separateChannels, 0);
+		ranges::fill(std::span{mixBuffer.data(), pitch * separateChannels}, 0.0f);
 		// still need to fill in (some) bufs[i] pointers
 		unsigned count = 0;
 		for (auto i : xrange(numChannels)) {

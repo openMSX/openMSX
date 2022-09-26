@@ -38,7 +38,7 @@ const void* SuperImposedVideoFrame<Pixel>::getLineInfo(
 	if (width == 1) {
 		width = 320;
 		MemoryOps::MemSet<Pixel> memset;
-		memset(buf1, 320, srcLine[0]);
+		memset(std::span{buf1, 320}, srcLine[0]);
 		srcLine = buf1;
 	}
 	// (possibly) srcLine == buf1

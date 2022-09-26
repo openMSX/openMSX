@@ -32,7 +32,7 @@ std::span<const Pixel, 320> FrameSource::getLinePtr320_240(unsigned line, std::s
 		auto line1 = getLine(2 * line + 1, std::span<Pixel>(buf1));
 		PixelOperations<Pixel> pixelOps(pixelFormat);
 		BlendLines<Pixel> blend(pixelOps);
-		blend(line0, line1, buf0); // possibly line0 == buf0 // TODO span
+		blend(line0, line1, buf0); // possibly line0 == buf0
 		return buf0;
 	}
 }
@@ -97,7 +97,7 @@ void FrameSource::scaleLine(
 	switch (in.size()) {
 	case 1:  // blank
 		MemoryOps::MemSet<Pixel> memset;
-		memset(out.data(), out.size(), in[0]); // TODO span
+		memset(out, in[0]);
 		break;
 	case 213:
 		switch (out.size()) {
