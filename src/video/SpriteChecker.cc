@@ -441,7 +441,7 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 	bool can0collide = vdp.canSpriteColor0Collide();
 	for (auto line : xrange(minLine, maxLine)) {
 		int minXCollision = 999; // no collision
-		SpriteInfo* visibleSprites = spriteBuffer[line];
+		std::span<SpriteInfo, 32 + 1> visibleSprites = spriteBuffer[line];
 		for (int i = std::min<int>(8, spriteCount[line]); --i >= 1; /**/) {
 			auto colorAttrib1 = visibleSprites[i].colorAttrib;
 			if (!can0collide && ((colorAttrib1 & 0xf) == 0)) continue;

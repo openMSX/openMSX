@@ -8,7 +8,9 @@
 #include "serialize_meta.hh"
 #include "ranges.hh"
 #include "unreachable.hh"
+#include <array>
 #include <cstdint>
+#include <span>
 
 namespace openmsx {
 
@@ -232,17 +234,16 @@ public:
 	  *   is scheduled.
 	  * @return The number of sprites stored in the visibleSprites array.
 	  */
-	[[nodiscard]] inline int getSprites(int line, const SpriteInfo*& visibleSprites) const {
+	[[nodiscard]] inline std::span<const SpriteInfo> getSprites(int line) const {
 		// Compensate for the fact sprites are checked one line earlier
 		// than they are displayed.
 		line--;
 
 		// TODO: Is there ever a sprite on absolute line 0?
 		//       Maybe there is, but it is never displayed.
-		if (line < 0) return 0;
+		if (line < 0) return {};
 
-		visibleSprites = spriteBuffer[line];
-		return spriteCount[line];
+		return subspan(spriteBuffer[line], 0, spriteCount[line]);
 	}
 
 	// VRAMObserver implementation:
@@ -366,17 +367,17 @@ private:
 	/** Buffer containing the sprites that are visible on each
 	  * display line.
 	  */
-	SpriteInfo spriteBuffer[313][32 + 1]; // +1 for sentinel
+	std::array<std::array<SpriteInfo, 32 + 1>, 313> spriteBuffer; // +1 for sentinel
 
 	/** Buffer containing the number of sprites that are visible
 	  * on each display line.
 	  * In other words, spriteCount[i] is the number of sprites
 	  * in spriteBuffer[i].
 	  */
-	uint8_t spriteCount[313];
+	std::array<uint8_t, 313> spriteCount;
 
 	/** Is current display mode planar or not?
-	  * TODO: Introduce separate update methods for planar/nonplanar modes.
+	  * TODO: Introduce separate update methods for planar/non-planar modes.
 	  */
 	bool planar;
 };

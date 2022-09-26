@@ -8,6 +8,7 @@ TODO:
 
 #include "SpriteChecker.hh"
 #include "DisplayMode.hh"
+#include "view.hh"
 #include "openmsx.hh"
 #include <concepts>
 
@@ -90,29 +91,25 @@ public:
 	  * @param pixelPtr Pointer to memory to draw to.
 	  */
 	void drawMode1(int absLine, int minX, int maxX,
-	               Pixel* __restrict pixelPtr) __restrict
+	               Pixel* __restrict pixelPtr)
 	{
 		// Determine sprites visible on this line.
-		const SpriteChecker::SpriteInfo* visibleSprites;
-		int visibleIndex =
-			spriteChecker.getSprites(absLine, visibleSprites);
+		auto visibleSprites = spriteChecker.getSprites(absLine);
 		// Optimisation: return at once if no sprites on this line.
 		// Lines without any sprites are very common in most programs.
-		if (visibleIndex == 0) return;
+		if (visibleSprites.empty()) return;
 
 		// Render using overdraw.
-		while (visibleIndex--) {
+		for (const auto& si : view::reverse(visibleSprites)) {
 			// Get sprite info.
-			const SpriteChecker::SpriteInfo* sip =
-				&visibleSprites[visibleIndex];
-			Pixel colIndex = sip->colorAttrib & 0x0F;
+			Pixel colIndex = si.colorAttrib & 0x0F;
 			// Don't draw transparent sprites in sprite mode 1.
 			// Verified on real V9958: TP bit also has effect in
 			// sprite mode 1.
 			if (colIndex == 0 && transparency) continue;
 			Pixel color = palette[colIndex];
-			SpriteChecker::SpritePattern pattern = sip->pattern;
-			int x = sip->x;
+			SpriteChecker::SpritePattern pattern = si.pattern;
+			int x = si.x;
 			// Clip sprite pattern to render range.
 			if (!clipPattern(x, pattern, minX, maxX)) continue;
 			// Convert pattern to pixels.
@@ -141,26 +138,24 @@ public:
 	  */
 	template<unsigned MODE>
 	void drawMode2(int absLine, int minX, int maxX,
-	               Pixel* __restrict pixelPtr) __restrict
+	               Pixel* __restrict pixelPtr)
 	{
 		// Determine sprites visible on this line.
-		const SpriteChecker::SpriteInfo* visibleSprites;
-		int visibleIndex =
-			spriteChecker.getSprites(absLine, visibleSprites);
+		auto visibleSprites = spriteChecker.getSprites(absLine);
 		// Optimisation: return at once if no sprites on this line.
 		// Lines without any sprites are very common in most programs.
-		if (visibleIndex == 0) return;
+		if (visibleSprites.empty()) return;
 
 		// Sprites with CC=1 are only visible if preceded by a sprite
 		// with CC=0. Therefor search for first sprite with CC=0.
-		int first = 0;
+		size_t first = 0;
 		do {
 			if ((visibleSprites[first].colorAttrib & 0x40) == 0) [[likely]] {
 				break;
 			}
 			++first;
-		} while (first < visibleIndex);
-		for (int i = visibleIndex - 1; i >= first; --i) {
+		} while (first < visibleSprites.size());
+		for (auto i = visibleSprites.size() - 1; i >= first; --i) {
 			const SpriteChecker::SpriteInfo& info = visibleSprites[i];
 			int x = info.x;
 			SpriteChecker::SpritePattern pattern = info.pattern;
