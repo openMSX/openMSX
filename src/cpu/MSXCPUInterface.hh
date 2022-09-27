@@ -358,7 +358,7 @@ private:
 	struct IOInfo : InfoTopic {
 		IOInfo(InfoCommand& machineInfoCommand, const char* name);
 		void helper(std::span<const TclObject> tokens,
-		            TclObject& result, MSXDevice** devices) const;
+		            TclObject& result, std::span<MSXDevice*, 256> devices) const;
 		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	protected:
 		~IOInfo() = default;

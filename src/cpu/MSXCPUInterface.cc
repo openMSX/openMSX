@@ -831,7 +831,7 @@ void MSXCPUInterface::checkBreakPoints(
 	}
 }
 
-static void registerIOWatch(WatchPoint& watchPoint, MSXDevice** devices)
+static void registerIOWatch(WatchPoint& watchPoint, std::span<MSXDevice*, 256> devices)
 {
 	assert(dynamic_cast<WatchIO*>(&watchPoint));
 	auto& ioWatch = static_cast<WatchIO&>(watchPoint);
@@ -866,7 +866,7 @@ void MSXCPUInterface::setWatchPoint(const std::shared_ptr<WatchPoint>& watchPoin
 	}
 }
 
-static void unregisterIOWatch(WatchPoint& watchPoint, MSXDevice** devices)
+static void unregisterIOWatch(WatchPoint& watchPoint, std::span<MSXDevice*, 256> devices)
 {
 	assert(dynamic_cast<WatchIO*>(&watchPoint));
 	auto& ioWatch = static_cast<WatchIO&>(watchPoint);
@@ -939,7 +939,7 @@ void MSXCPUInterface::removeCondition(unsigned id)
 
 void MSXCPUInterface::updateMemWatch(WatchPoint::Type type)
 {
-	std::bitset<CacheLine::SIZE>* watchSet =
+	std::span<std::bitset<CacheLine::SIZE>, CacheLine::NUM> watchSet =
 		(type == WatchPoint::READ_MEM) ? readWatchSet : writeWatchSet;
 	for (auto i : xrange(CacheLine::NUM)) {
 		watchSet[i].reset();
@@ -1231,7 +1231,7 @@ MSXCPUInterface::IOInfo::IOInfo(InfoCommand& machineInfoCommand, const char* nam
 }
 
 void MSXCPUInterface::IOInfo::helper(
-	std::span<const TclObject> tokens, TclObject& result, MSXDevice** devices) const
+	std::span<const TclObject> tokens, TclObject& result, std::span<MSXDevice*, 256> devices) const
 {
 	checkNumArgs(tokens, 3, "port");
 	unsigned port = tokens[2].getInt(getInterpreter());
