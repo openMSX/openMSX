@@ -4,10 +4,11 @@
 #include "VDP.hh"
 #include <cassert>
 #include <cstdint>
+#include <span>
 
 namespace openmsx::VDPAccessSlots {
 
-constexpr int TICKS = VDP::TICKS_PER_LINE;
+inline constexpr int TICKS = VDP::TICKS_PER_LINE;
 
 enum Delta : int {
 	DELTA_0    =  0 * TICKS,
@@ -38,7 +39,7 @@ class Calculator
 public:
 	/** This shouldn't be called directly, instead use getCalculator(). */
 	Calculator(EmuTime::param frame, EmuTime::param time,
-	           EmuTime::param limit_, const uint8_t* tab_)
+	           EmuTime::param limit_, std::span<const uint8_t, NUM_DELTAS * TICKS> tab_)
 		: ref(frame), tab(tab_)
 	{
 		assert(frame <= time);
@@ -81,7 +82,7 @@ private:
 	int ticks;
 	int limit;
 	VDP::VDPClock ref;
-	const uint8_t* const tab;
+	std::span<const uint8_t, NUM_DELTAS * TICKS> tab;
 };
 
 /** Return the time of the next available access slot that is at least 'delta'

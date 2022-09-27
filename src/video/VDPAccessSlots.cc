@@ -1,4 +1,5 @@
 #include "VDPAccessSlots.hh"
+#include <array>
 
 namespace openmsx::VDPAccessSlots {
 
@@ -8,7 +9,7 @@ namespace openmsx::VDPAccessSlots {
 // Screen rendering disabled (or vertical border).
 // This is correct (measured on real V9938) for bitmap and character mode.
 // TODO also correct for text mode? See 'vdp-timing-2.html for more details.
-constexpr int16_t slotsScreenOff[154 + 17] = {
+static constexpr std::array<int16_t, 154 + 17> slotsScreenOff = {
 	   0,    8,   16,   24,   32,   40,   48,   56,   64,   72,
 	  80,   88,   96,  104,  112,  120,  164,  172,  180,  188,
 	 196,  204,  212,  220,  228,  236,  244,  252,  260,  268,
@@ -32,7 +33,7 @@ constexpr int16_t slotsScreenOff[154 + 17] = {
 };
 
 // Bitmap mode, sprites disabled.
-constexpr int16_t slotsSpritesOff[88 + 16] = {
+static constexpr std::array<int16_t, 88 + 16> slotsSpritesOff = {
 	   6,   14,   22,   30,   38,   46,   54,   62,   70,   78,
 	  86,   94,  102,  110,  118,  162,  170,  182,  188,  214,
 	 220,  246,  252,  278,  310,  316,  342,  348,  374,  380,
@@ -53,7 +54,7 @@ constexpr int16_t slotsSpritesOff[88 + 16] = {
 //  [166,1212] is likely correct
 //  [1270,122] is an educated guess, the amount of slots is likely correct,
 //             but they might be shifted a few cycles forwards or backwards.
-constexpr int16_t slotsCharSpritesOff[88 + 17] = {
+static constexpr std::array<int16_t, 88 + 17> slotsCharSpritesOff = {
 	   2,   10,   18,   26,   34,   42,   50,   58,   66,   74,
 	  82,   90,   98,  106,  114,  122,  166,  174,  188,  194,
 	 220,  226,  252,  258,  290,  316,  322,  348,  354,  380,
@@ -70,7 +71,7 @@ constexpr int16_t slotsCharSpritesOff[88 + 17] = {
 };
 
 // Bitmap mode, sprites enabled.
-constexpr int16_t slotsSpritesOn[31 + 3] = {
+static constexpr std::array<int16_t, 31 + 3> slotsSpritesOn = {
 	  28,   92,  162,  170,  188,  220,  252,  316,  348,  380,
 	 444,  476,  508,  572,  604,  636,  700,  732,  764,  828,
 	 860,  892,  956,  988, 1020, 1084, 1116, 1148, 1212, 1264,
@@ -79,7 +80,7 @@ constexpr int16_t slotsSpritesOn[31 + 3] = {
 };
 
 // Character mode, sprites enabled.
-constexpr int16_t slotsCharSpritesOn[31 + 3] = {
+static constexpr std::array<int16_t, 31 + 3> slotsCharSpritesOn = {
 	  32,   96,  166,  174,  188,  220,  252,  316,  348,  380,
 	 444,  476,  508,  572,  604,  636,  700,  732,  764,  828,
 	 860,  892,  956,  988, 1020, 1084, 1116, 1148, 1212, 1268,
@@ -88,7 +89,7 @@ constexpr int16_t slotsCharSpritesOn[31 + 3] = {
 };
 
 // Text mode.
-constexpr int16_t slotsText[47 + 10] = {
+static constexpr std::array<int16_t, 47 + 10> slotsText = {
 	   2,   10,   18,   26,   34,   42,   50,   58,   66,  166,
 	 174,  182,  190,  198,  206,  214,  222,  312,  408,  504,
 	 600,  696,  792,  888,  984, 1080, 1176, 1206, 1214, 1222,
@@ -101,7 +102,7 @@ constexpr int16_t slotsText[47 + 10] = {
 
 // TMS9918 (MSX1) cycle numbers translated to V99x8 cycles (multiplied by 4).
 // MSX1 screen off.
-constexpr int16_t slotsMsx1ScreenOff[107 + 18] = {
+static constexpr std::array<int16_t, 107 + 18> slotsMsx1ScreenOff = {
 	   4,   12,   20,   28,   36,   44,   52,   60,   68,   76,
 	  84,   92,  100,  108,  116,  124,  132,  140,  148,  156,
 	 164,  172,  180,  188,  196,  204,  220,  236,  252,  268,
@@ -120,7 +121,7 @@ constexpr int16_t slotsMsx1ScreenOff[107 + 18] = {
 };
 
 // MSX1 graphic mode 1 and 2 (aka screen 1 and 2).
-constexpr int16_t slotsMsx1Gfx12[19 + 8] = {
+static constexpr std::array<int16_t, 19 + 8> slotsMsx1Gfx12 = {
 	   4,   12,   20,   28,  116,  124,  132,  140,  220,  348,
 	 476,  604,  732,  860,  988, 1116, 1236, 1244, 1364,
 	1368+  4, 1368+ 12, 1368+ 20, 1368+ 28, 1368+116,
@@ -128,7 +129,7 @@ constexpr int16_t slotsMsx1Gfx12[19 + 8] = {
 };
 
 // MSX1 graphic mode 3 (aka screen 3).
-constexpr int16_t slotsMsx1Gfx3[51 + 8] = {
+static constexpr std::array<int16_t, 51 + 8> slotsMsx1Gfx3 = {
 	   4,   12,   20,   28,  116,  124,  132,  140,  220,  228,
 	 260,  292,  324,  348,  356,  388,  420,  452,  476,  484,
 	 516,  548,  580,  604,  612,  644,  676,  708,  732,  740,
@@ -141,7 +142,7 @@ constexpr int16_t slotsMsx1Gfx3[51 + 8] = {
 
 
 // MSX1 text mode 1 (aka screen 0 width 40).
-constexpr int16_t slotsMsx1Text[91 + 18] = {
+static constexpr std::array<int16_t, 91 + 18> slotsMsx1Text = {
 	   4,   12,   20,   28,   36,   44,   52,   60,   68,   76,
 	  84,   92,  100,  108,  116,  124,  132,  140,  148,  156,
 	 164,  172,  180,  188,  196,  204,  212,  220,  228,  244,
@@ -163,18 +164,18 @@ constexpr int16_t slotsMsx1Text[91 + 18] = {
 
 struct AccessTable
 {
-	operator const uint8_t*() const { return values; }
+	operator std::span<const uint8_t, NUM_DELTAS * TICKS>() const { return values; }
 
 protected:
-	uint8_t values[NUM_DELTAS * TICKS] = {};
+	std::array<uint8_t, NUM_DELTAS * TICKS> values = {};
 };
 
 struct CycleTable : AccessTable
 {
-	constexpr CycleTable(bool msx1, const int16_t* slots)
+	constexpr CycleTable(bool msx1, std::span<const int16_t> slots)
 	{
 		// !!! Keep this in sync with the 'Delta' enum !!!
-		constexpr int delta[NUM_DELTAS] = {
+		constexpr std::array<int, NUM_DELTAS> delta = {
 			0, 1, 16, 24, 28, 32, 40, 48, 64, 72, 88, 104, 120, 128, 136
 		};
 
@@ -201,20 +202,20 @@ struct ZeroTable : AccessTable
 {
 };
 
-constexpr CycleTable tabSpritesOn     (false, slotsSpritesOn);
-constexpr CycleTable tabSpritesOff    (false, slotsSpritesOff);
-constexpr CycleTable tabCharSpritesOn (false, slotsCharSpritesOn);
-constexpr CycleTable tabCharSpritesOff(false, slotsCharSpritesOff);
-constexpr CycleTable tabText          (false, slotsText);
-constexpr CycleTable tabScreenOff     (false, slotsScreenOff);
-constexpr CycleTable tabMsx1Gfx12     (true,  slotsMsx1Gfx12);
-constexpr CycleTable tabMsx1Gfx3      (true,  slotsMsx1Gfx3);
-constexpr CycleTable tabMsx1Text      (true,  slotsMsx1Text);
-constexpr CycleTable tabMsx1ScreenOff (true,  slotsMsx1ScreenOff);
-constexpr ZeroTable  tabBroken;
+static constexpr CycleTable tabSpritesOn     (false, slotsSpritesOn);
+static constexpr CycleTable tabSpritesOff    (false, slotsSpritesOff);
+static constexpr CycleTable tabCharSpritesOn (false, slotsCharSpritesOn);
+static constexpr CycleTable tabCharSpritesOff(false, slotsCharSpritesOff);
+static constexpr CycleTable tabText          (false, slotsText);
+static constexpr CycleTable tabScreenOff     (false, slotsScreenOff);
+static constexpr CycleTable tabMsx1Gfx12     (true,  slotsMsx1Gfx12);
+static constexpr CycleTable tabMsx1Gfx3      (true,  slotsMsx1Gfx3);
+static constexpr CycleTable tabMsx1Text      (true,  slotsMsx1Text);
+static constexpr CycleTable tabMsx1ScreenOff (true,  slotsMsx1ScreenOff);
+static constexpr ZeroTable  tabBroken;
 
 
-[[nodiscard]] static inline const uint8_t* getTab(const VDP& vdp)
+[[nodiscard]] static inline std::span<const uint8_t, NUM_DELTAS * TICKS> getTab(const VDP& vdp)
 {
 	if (vdp.getBrokenCmdTiming()) return tabBroken;
 	bool enabled = vdp.isDisplayEnabled();
@@ -246,7 +247,7 @@ EmuTime getAccessSlot(
 {
 	VDP::VDPClock frame(frame_);
 	unsigned ticks = frame.getTicksTill_fast(time) % TICKS;
-	const auto* tab = getTab(vdp);
+	auto tab = getTab(vdp);
 	return time + VDP::VDPClock::duration(tab[delta + ticks]);
 }
 
@@ -254,7 +255,7 @@ Calculator getCalculator(
 	EmuTime::param frame, EmuTime::param time, EmuTime::param limit,
 	const VDP& vdp)
 {
-	const auto* tab = getTab(vdp);
+	auto tab = getTab(vdp);
 	return {frame, time, limit, tab};
 }
 
