@@ -623,12 +623,12 @@ void MSXCPUInterface::invalidateRWCache(word start, unsigned size, int ps, int s
 void MSXCPUInterface::invalidateRCache (word start, unsigned size, int ps, int ss)
 {
 	tick(CacheLineCounters::InvalidateRead);
-	msxcpu.invalidateRCache(start, size, ps, ss, disallowReadCache);
+	msxcpu.invalidateRCache(start, size, ps, ss, disallowReadCache, disallowWriteCache);
 }
 void MSXCPUInterface::invalidateWCache (word start, unsigned size, int ps, int ss)
 {
 	tick(CacheLineCounters::InvalidateWrite);
-	msxcpu.invalidateWCache(start, size, ps, ss, disallowWriteCache);
+	msxcpu.invalidateWCache(start, size, ps, ss, disallowReadCache, disallowWriteCache);
 }
 
 void MSXCPUInterface::fillRWCache(unsigned start, unsigned size, const byte* rData, byte* wData, int ps, int ss)
@@ -639,12 +639,12 @@ void MSXCPUInterface::fillRWCache(unsigned start, unsigned size, const byte* rDa
 void MSXCPUInterface::fillRCache(unsigned start, unsigned size, const byte* rData, int ps, int ss)
 {
 	tick(CacheLineCounters::FillRead);
-	msxcpu.fillRCache(start, size, rData, ps, ss, disallowReadCache);
+	msxcpu.fillRCache(start, size, rData, ps, ss, disallowReadCache, disallowWriteCache);
 }
 void MSXCPUInterface::fillWCache(unsigned start, unsigned size, byte* wData, int ps, int ss)
 {
 	tick(CacheLineCounters::FillWrite);
-	msxcpu.fillWCache(start, size, wData, ps, ss, disallowWriteCache);
+	msxcpu.fillWCache(start, size, wData, ps, ss, disallowReadCache, disallowWriteCache);
 }
 
 void MSXCPUInterface::reset()

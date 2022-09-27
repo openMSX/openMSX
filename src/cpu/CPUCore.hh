@@ -9,6 +9,7 @@
 #include "IntegerSetting.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
+#include <array>
 #include <atomic>
 #include <span>
 #include <string>
@@ -46,8 +47,8 @@ enum class ExecIRQ {
 };
 
 struct CacheLines {
-	const byte** read;
-	      byte** write;
+	std::span<const byte*, CacheLine::NUM> read;
+	std::span<      byte*, CacheLine::NUM> write;
 };
 
 template<typename CPU_POLICY>
@@ -136,8 +137,8 @@ private:
 
 private:
 	// memory cache
-	const byte* readCacheLine[CacheLine::NUM];
-	byte* writeCacheLine[CacheLine::NUM];
+	std::array<const byte*, CacheLine::NUM> readCacheLine;
+	std::array<      byte*, CacheLine::NUM> writeCacheLine;
 
 	MSXMotherBoard& motherboard;
 	Scheduler& scheduler;

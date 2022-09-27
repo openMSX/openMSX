@@ -10,6 +10,7 @@
 #include "TclCallback.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
+#include <array>
 #include <memory>
 #include <span>
 
@@ -60,11 +61,14 @@ public:
 	  * 'unknown'.
 	  */
 	void invalidateRWCache(unsigned start, unsigned size, int ps, int ss,
-                               const byte* disallowRead, const byte* disallowWrite);
+	                       std::span<const byte, 256> disallowRead,
+	                       std::span<const byte, 256> disallowWrite);
 	void invalidateRCache (unsigned start, unsigned size, int ps, int ss,
-                               const byte* disallowRead);
+	                       std::span<const byte, 256> disallowRead,
+	                       std::span<const byte, 256> disallowWrite);
 	void invalidateWCache (unsigned start, unsigned size, int ps, int ss,
-                               const byte* disallowWrite);
+	                       std::span<const byte, 256> disallowRead,
+	                       std::span<const byte, 256> disallowWrite);
 
 	/** Fill the read and write cache lines for a specific slot with the
 	 * specified value. Except for the lines where the corresponding
@@ -76,11 +80,14 @@ public:
 	 * - Directly setting the correct value saves work later on.
 	 */
 	void fillRWCache(unsigned start, unsigned size, const byte* rData, byte* wData, int ps, int ss,
-                         const byte* disallowRead, const byte* disallowWrite);
+	                 std::span<const byte, 256> disallowRead,
+	                 std::span<const byte, 256> disallowWrite);
 	void fillRCache (unsigned start, unsigned size, const byte* rData, int ps, int ss,
-                         const byte* disallowRead);
+	                 std::span<const byte, 256> disallowRead,
+	                 std::span<const byte, 256> disallowWrite);
 	void fillWCache (unsigned start, unsigned size, byte* wData, int ps, int ss,
-                         const byte* disallowWrite);
+	                 std::span<const byte, 256> disallowRead,
+	                 std::span<const byte, 256> disallowWrite);
 
 	/** This method raises a maskable interrupt. A device may call this
 	  * method more than once. If the device wants to lower the
@@ -166,7 +173,7 @@ private:
 
 	template<bool READ, bool WRITE, bool SUB_START>
 	void setRWCache(unsigned start, unsigned size, const byte* rData, byte* wData, int ps, int ss,
-	                const byte* disallowRead, const byte* disallowWrite);
+	                std::span<const byte, 256> disallowRead, std::span<const byte, 256> disallowWrite);
 
 private:
 	MSXMotherBoard& motherboard;
@@ -175,9 +182,9 @@ private:
 	const std::unique_ptr<CPUCore<Z80TYPE>> z80;
 	const std::unique_ptr<CPUCore<R800TYPE>> r800; // can be nullptr
 
-	const byte* slotReadLines [16][CacheLine::NUM];
-	      byte* slotWriteLines[16][CacheLine::NUM];
-	byte slots[4]; // active slot for page (= 4 * primSlot + secSlot)
+	std::array<std::array<const byte*, CacheLine::NUM>, 16> slotReadLines;
+	std::array<std::array<      byte*, CacheLine::NUM>, 16> slotWriteLines;
+	std::array<byte, 4> slots; // active slot for page (= 4 * primSlot + secSlot)
 
 	struct TimeInfoTopic final : InfoTopic {
 		explicit TimeInfoTopic(InfoCommand& machineInfoCommand);
