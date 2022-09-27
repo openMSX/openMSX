@@ -18,67 +18,71 @@
 namespace openmsx {
 
 constexpr unsigned maxLength = 171; // The maximum value from the xxx_TIMING tables below
-static constexpr EmuDuration d(unsigned x)
+static constexpr EmuDuration d_(unsigned x)
 {
 	assert(x <= maxLength);
 	return Clock<V9990DisplayTiming::UC_TICKS_PER_SECOND>::duration(x);
 }
-using EDStorage = EmuDurationStorageFor<d(maxLength).length()>;
+using EDStorage = EmuDurationStorageFor<d_(maxLength).length()>;
+static constexpr EDStorage d(unsigned x) { return d_(x); }
+using A  = std::array<const EDStorage, 4>;
+using A2 = std::array<const A, 3>;
+using TimingTable = std::span<const A2, 4>;
 
 // 1st index  B0/2/4, B1/3/7, P1, P2
 // 2nd index  sprites-ON, sprites-OFF, display-OFF
 // 3th index  2bpp, 4bpp, 8bpp, 16bpp
 //            (for P1/P2 fill in the same value 4 times)
-constexpr EDStorage LMMV_TIMING[4][3][4] = {
-	{{ d( 8), d(11), d(15), d(30)}, {d( 7), d(10), d(13), d(26)}, {d( 7), d(10), d(13), d(25)}},
-	{{ d( 5), d( 7), d( 9), d(18)}, {d( 5), d( 6), d( 8), d(17)}, {d( 5), d( 6), d( 8), d(17)}},
-	{{ d(56), d(56), d(56), d(56)}, {d(25), d(25), d(25), d(25)}, {d( 9), d( 9), d( 9), d( 9)}},
-	{{ d(28), d(28), d(28), d(28)}, {d(15), d(15), d(15), d(15)}, {d( 6), d( 6), d( 6), d( 6)}}
+constexpr std::array LMMV_TIMING = {
+	A2{A{ d( 8), d(11), d(15), d(30)}, A{d( 7), d(10), d(13), d(26)}, A{d( 7), d(10), d(13), d(25)}},
+	A2{A{ d( 5), d( 7), d( 9), d(18)}, A{d( 5), d( 6), d( 8), d(17)}, A{d( 5), d( 6), d( 8), d(17)}},
+	A2{A{ d(56), d(56), d(56), d(56)}, A{d(25), d(25), d(25), d(25)}, A{d( 9), d( 9), d( 9), d( 9)}},
+	A2{A{ d(28), d(28), d(28), d(28)}, A{d(15), d(15), d(15), d(15)}, A{d( 6), d( 6), d( 6), d( 6)}}
 };
-constexpr EDStorage LMMM_TIMING[4][3][4] = {
-	{{d (10),d (16),d( 32),d( 66)}, {d( 8), d(14), d(28), d(57)}, {d( 8), d(13), d(27), d(54)}},
-	{{d ( 6),d( 10),d( 20),d( 39)}, {d( 5), d( 9), d(18), d(35)}, {d( 5), d( 9), d(17), d(35)}},
-	{{d(115),d(115),d(115),d(115)}, {d(52), d(52), d(52), d(52)}, {d(18), d(18), d(18), d(18)}},
-	{{d( 57),d( 57),d( 57),d( 57)}, {d(25), d(25), d(25), d(25)}, {d( 9), d( 9), d( 9), d( 9)}}
+constexpr std::array LMMM_TIMING = {
+	A2{A{d (10),d (16),d( 32),d( 66)}, A{d( 8), d(14), d(28), d(57)}, A{d( 8), d(13), d(27), d(54)}},
+	A2{A{d ( 6),d( 10),d( 20),d( 39)}, A{d( 5), d( 9), d(18), d(35)}, A{d( 5), d( 9), d(17), d(35)}},
+	A2{A{d(115),d(115),d(115),d(115)}, A{d(52), d(52), d(52), d(52)}, A{d(18), d(18), d(18), d(18)}},
+	A2{A{d( 57),d( 57),d( 57),d( 57)}, A{d(25), d(25), d(25), d(25)}, A{d( 9), d( 9), d( 9), d( 9)}}
 };
-constexpr EDStorage BMXL_TIMING[4][3][4] = { // NOTE: values are BYTE based here!
-	{{d( 38),d( 33),d( 32),d( 33)}, {d(33), d(28), d(28), d(28)}, {d(33), d(27), d(27), d(27)}}, // identical to LMMM (b)
-	{{d( 24),d( 20),d( 20),d (19)}, {d(22), d(18), d(18), d(18)}, {d(21), d(17), d(17), d(17)}}, // identical to LMMM (b)
-	{{d(171),d(171),d(171),d(171)}, {d(82), d(82), d(82), d(82)}, {d(29), d(29), d(29), d(29)}},
-	{{d(114),d(114),d(114),d(114)}, {d(50), d(50), d(50), d(50)}, {d(18), d(18), d(18), d(18)}}
+constexpr std::array BMXL_TIMING = { // NOTE: values are BYTE based here!
+	A2{A{d( 38),d( 33),d( 32),d( 33)}, A{d(33), d(28), d(28), d(28)}, A{d(33), d(27), d(27), d(27)}}, // identical to LMMM (b)
+	A2{A{d( 24),d( 20),d( 20),d (19)}, A{d(22), d(18), d(18), d(18)}, A{d(21), d(17), d(17), d(17)}}, // identical to LMMM (b)
+	A2{A{d(171),d(171),d(171),d(171)}, A{d(82), d(82), d(82), d(82)}, A{d(29), d(29), d(29), d(29)}},
+	A2{A{d(114),d(114),d(114),d(114)}, A{d(50), d(50), d(50), d(50)}, A{d(18), d(18), d(18), d(18)}}
 };
-constexpr EDStorage BMLX_TIMING[4][3][4] = {
-	{{ d(10), d(16), d(32), d(66)}, {d( 8), d(14), d(28), d(57)}, {d( 8), d(13), d(27), d(54)}}, // identical to LMMM
-	{{ d( 6), d(10), d(20), d(39)}, {d( 5), d( 9), d(18), d(35)}, {d( 5), d( 9), d(17), d(35)}}, // identical to LMMM
-	{{ d(84), d(84), d(84), d(84)}, {d(44), d(44), d(44), d(44)}, {d(17), d(17), d(17), d(17)}},
-	{{ d(57), d(57), d(57), d(57)}, {d(25), d(25), d(25), d(25)}, {d( 9), d( 9), d( 9), d( 9)}}
+constexpr std::array BMLX_TIMING = {
+	A2{A{ d(10), d(16), d(32), d(66)}, A{d( 8), d(14), d(28), d(57)}, A{d( 8), d(13), d(27), d(54)}}, // identical to LMMM
+	A2{A{ d( 6), d(10), d(20), d(39)}, A{d( 5), d( 9), d(18), d(35)}, A{d( 5), d( 9), d(17), d(35)}}, // identical to LMMM
+	A2{A{ d(84), d(84), d(84), d(84)}, A{d(44), d(44), d(44), d(44)}, A{d(17), d(17), d(17), d(17)}},
+	A2{A{ d(57), d(57), d(57), d(57)}, A{d(25), d(25), d(25), d(25)}, A{d( 9), d( 9), d( 9), d( 9)}}
 };
-constexpr EDStorage BMLL_TIMING[4][3][4] = {
-	{{d( 33),d( 33),d( 33),d( 33)}, {d(28), d(28), d(28), d(28)}, {d(27), d(27), d(27), d(27)}},
-	{{d( 20),d( 20),d( 20),d( 20)}, {d(18), d(18), d(18), d(18)}, {d(18), d(18), d(18), d(18)}},
-	{{d(118),d(118),d(118),d(118)}, {d(52), d(52), d(52), d(52)}, {d(18), d(18), d(18), d(18)}},
-	{{d(118),d(118),d(118),d(118)}, {d(52), d(52), d(52), d(52)}, {d(18), d(18), d(18), d(18)}}
+constexpr std::array BMLL_TIMING = {
+	A2{A{d( 33),d( 33),d( 33),d( 33)}, A{d(28), d(28), d(28), d(28)}, A{d(27), d(27), d(27), d(27)}},
+	A2{A{d( 20),d( 20),d( 20),d( 20)}, A{d(18), d(18), d(18), d(18)}, A{d(18), d(18), d(18), d(18)}},
+	A2{A{d(118),d(118),d(118),d(118)}, A{d(52), d(52), d(52), d(52)}, A{d(18), d(18), d(18), d(18)}},
+	A2{A{d(118),d(118),d(118),d(118)}, A{d(52), d(52), d(52), d(52)}, A{d(18), d(18), d(18), d(18)}}
 };
-constexpr EDStorage CMMM_TIMING[4][3][4] = {
-	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}, // TODO
-	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}, // TODO
-	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}, // TODO
-	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}  // TODO
+constexpr std::array CMMM_TIMING = {
+	A2{A{ d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}}, // TODO
+	A2{A{ d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}}, // TODO
+	A2{A{ d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}}, // TODO
+	A2{A{ d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}}  // TODO
 };
-constexpr EDStorage LINE_TIMING[4][3][4] = {
-	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}, // TODO
-	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}, // TODO
-	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}, // TODO
-	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}  // TODO
+constexpr std::array LINE_TIMING = {
+	A2{A{ d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}}, // TODO
+	A2{A{ d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}}, // TODO
+	A2{A{ d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}}, // TODO
+	A2{A{ d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}}  // TODO
 };
-constexpr EDStorage SRCH_TIMING[4][3][4] = {
-	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}, // TODO
-	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}, // TODO
-	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}, // TODO
-	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}  // TODO
+constexpr std::array SRCH_TIMING = {
+	A2{A{ d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}}, // TODO
+	A2{A{ d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}}, // TODO
+	A2{A{ d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}}, // TODO
+	A2{A{ d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}}  // TODO
 };
 
-[[nodiscard]] static EmuDuration getTiming(const V9990CmdEngine& cmdEngine, const EDStorage table[4][3][4])
+[[nodiscard]] static EmuDuration getTiming(const V9990CmdEngine& cmdEngine, TimingTable table)
 {
 	if (cmdEngine.getBrokenTiming()) [[unlikely]] return {};
 
