@@ -5,6 +5,7 @@
 #include "serialize.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -107,7 +108,7 @@ RomPlain::RomPlain(const DeviceConfig& config, Rom&& rom_, RomType type)
 	invalidateDeviceRCache();
 }
 
-void RomPlain::guessHelper(unsigned offset, int* pages)
+void RomPlain::guessHelper(unsigned offset, std::span<int, 3> pages)
 {
 	if ((rom[offset++] == 'A') && (rom[offset++] =='B')) {
 		for (auto i : xrange(4)) {
@@ -124,7 +125,7 @@ void RomPlain::guessHelper(unsigned offset, int* pages)
 
 unsigned RomPlain::guessLocation(unsigned windowBase, unsigned windowSize)
 {
-	int pages[3] = { 0, 0, 0 };
+	std::array<int, 3> pages = {0, 0, 0};
 
 	// count number of possible routine pointers
 	if (rom.size() >= 0x0010) {
