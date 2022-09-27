@@ -12,9 +12,9 @@ namespace openmsx {
 template<std::unsigned_integral Pixel>
 V9990BitmapConverter<Pixel>::V9990BitmapConverter(
 		V9990& vdp_,
-		const Pixel* palette64_,  const int16_t* palette64_32768_,
-		const Pixel* palette256_, const int16_t* palette256_32768_,
-		const Pixel* palette32768_)
+		std::span<const Pixel,    64> palette64_,  std::span<const int16_t,  64> palette64_32768_,
+		std::span<const Pixel,   256> palette256_, std::span<const int16_t, 256> palette256_32768_,
+		std::span<const Pixel, 32768> palette32768_)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, palette64 (palette64_ ), palette64_32768 (palette64_32768_ )
 	, palette256(palette256_), palette256_32768(palette256_32768_)
@@ -278,23 +278,26 @@ template<std::unsigned_integral Pixel>
 class PaletteLookup
 {
 public:
-	PaletteLookup(const Pixel* palette64_, const Pixel* palette256_,
-	              const Pixel* palette32768_)
-	        : palette64(palette64_)
+	PaletteLookup(std::span<const Pixel,    64> palette64_,
+	              std::span<const Pixel,   256> palette256_,
+	              std::span<const Pixel, 32768> palette32768_)
+	        : palette64Base(palette64_)
+	        , palette64(palette64_)
 	        , palette256(palette256_)
 	        , palette32768(palette32768_)
 	{
 	}
 
-	void set64Offset(size_t offset) { palette64 += offset; }
+	void set64Offset(size_t offset) { palette64 = palette64Base.subspan(offset); }
 	[[nodiscard]] Pixel lookup64   (size_t idx) const { return palette64   [idx]; }
 	[[nodiscard]] Pixel lookup256  (size_t idx) const { return palette256  [idx]; }
 	[[nodiscard]] Pixel lookup32768(size_t idx) const { return palette32768[idx]; }
 
 private:
-	const Pixel* palette64;
-	const Pixel* palette256;
-	const Pixel* palette32768;
+	std::span<const Pixel,    64> palette64Base;
+	std::span<const Pixel>        palette64;
+	std::span<const Pixel,   256> palette256;
+	std::span<const Pixel, 32768> palette32768;
 };
 
 // Helper class to translate V9990 palette indices (64-entry, 256-entry and
@@ -302,20 +305,22 @@ private:
 class IndexLookup
 {
 public:
-	IndexLookup(const int16_t* palette64_, const int16_t* palette256_)
-	        : palette64_32768(palette64_)
+	IndexLookup(std::span<const int16_t, 64> palette64_, std::span<const int16_t, 256> palette256_)
+	        : palette64_32768Base(palette64_)
+	        , palette64_32768(palette64_)
 	        , palette256_32768(palette256_)
 	{
 	}
 
-	void set64Offset(size_t offset) { palette64_32768 += offset; }
+	void set64Offset(size_t offset) { palette64_32768 = palette64_32768Base.subspan(offset); }
 	[[nodiscard]] int16_t lookup64   (size_t idx) const { return palette64_32768 [idx]; }
 	[[nodiscard]] int16_t lookup256  (size_t idx) const { return palette256_32768[idx]; }
 	[[nodiscard]] int16_t lookup32768(size_t idx) const { return int16_t(idx); }
 
 private:
-	const int16_t* palette64_32768;
-	const int16_t* palette256_32768;
+	std::span<const int16_t,  64> palette64_32768Base;
+	std::span<const int16_t>      palette64_32768;
+	std::span<const int16_t, 256> palette256_32768;
 };
 
 template<std::unsigned_integral Pixel, typename ColorLookup>
@@ -371,7 +376,7 @@ static void raster(V9990ColorMode colorMode, bool highRes,
 class CursorInfo
 {
 public:
-	CursorInfo(V9990& vdp, V9990VRAM& vram, const int16_t* palette64_32768,
+	CursorInfo(V9990& vdp, V9990VRAM& vram, std::span<const int16_t, 64> palette64_32768,
 	           unsigned attrAddr, unsigned patAddr,
 		   int displayY, bool drawCursor)
 	{

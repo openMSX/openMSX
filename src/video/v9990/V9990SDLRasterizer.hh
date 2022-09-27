@@ -5,6 +5,7 @@
 #include "V9990BitmapConverter.hh"
 #include "V9990PxConverter.hh"
 #include "Observer.hh"
+#include <array>
 #include <concepts>
 #include <memory>
 
@@ -72,7 +73,7 @@ private:
 	  */
 	static constexpr int SCREEN_WIDTH  = 320;
 
-	/** screenheight for SDLLo
+	/** screen height for SDLLo
 	  */
 	static constexpr int SCREEN_HEIGHT = 240;
 
@@ -114,19 +115,19 @@ private:
 
 	/** Palette containing the complete V9990 Color space
 	  */
-	Pixel palette32768[32768];
+	std::array<Pixel, 32768> palette32768;
 
 	/** The 256 color palette. A fixed subset of the palette32768.
 	  */
-	Pixel palette256[256];         // from index to host Pixel color
-	int16_t palette256_32768[256]; // from index to 15bpp V9990 color
+	std::array<Pixel, 256> palette256;         // from index to host Pixel color
+	std::array<int16_t, 256> palette256_32768; // from index to 15bpp V9990 color
 	// invariant: palette256[i] == palette32768[palette256_32768[i]]
 
 	/** The 64 palette entries of the VDP - a subset of the palette32768.
 	  * These are colors influenced by the palette IO ports and registers
 	  */
-	Pixel palette64[64];         // from index to host Pixel color
-	int16_t palette64_32768[64]; // from index to 15bpp V9990 color
+	std::array<Pixel, 64> palette64;         // from index to host Pixel color
+	std::array<int16_t, 64> palette64_32768; // from index to 15bpp V9990 color
 	// invariant: palette64[i] == palette32768[palette64_32768[i]]
 
 	/** The video post processor which displays the frames produced by this

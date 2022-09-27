@@ -4,6 +4,7 @@
 #include "ScopedAssign.hh"
 #include "build-info.hh"
 #include "components.hh"
+#include "ranges.hh"
 #include <cassert>
 #include <algorithm>
 #include <cstdint>
@@ -12,14 +13,14 @@
 namespace openmsx {
 
 template<std::unsigned_integral Pixel>
-V9990P1Converter<Pixel>::V9990P1Converter(V9990& vdp_, const Pixel* palette64_)
+V9990P1Converter<Pixel>::V9990P1Converter(V9990& vdp_, std::span<const Pixel, 64> palette64_)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, palette64(palette64_)
 {
 }
 
 template<std::unsigned_integral Pixel>
-V9990P2Converter<Pixel>::V9990P2Converter(V9990& vdp_, const Pixel* palette64_)
+V9990P2Converter<Pixel>::V9990P2Converter(V9990& vdp_, std::span<const Pixel, 64> palette64_)
 	: vdp(vdp_), vram(vdp.getVRAM()), palette64(palette64_)
 {
 }
@@ -45,7 +46,7 @@ struct P1Policy {
 };
 struct P1BackgroundPolicy : P1Policy {
 	template<std::unsigned_integral Pixel> static void draw1(
-		const Pixel* palette, Pixel* __restrict buffer,
+		std::span<const Pixel, 16> palette, Pixel* __restrict buffer,
 		byte* __restrict /*info*/, size_t p)
 	{
 		*buffer = palette[p];
@@ -54,7 +55,7 @@ struct P1BackgroundPolicy : P1Policy {
 };
 struct P1ForegroundPolicy : P1Policy {
 	template<std::unsigned_integral Pixel> static void draw1(
-		const Pixel* palette, Pixel* __restrict buffer,
+		std::span<const Pixel, 16> palette, Pixel* __restrict buffer,
 		byte* __restrict info, size_t p)
 	{
 		*info = bool(p);
@@ -77,7 +78,7 @@ struct P2Policy {
 		     + (  8 *  (spriteNo & 0x1F));
 	}
 	template<std::unsigned_integral Pixel> static void draw1(
-		const Pixel* palette, Pixel* __restrict buffer,
+		std::span<const Pixel, 16> palette, Pixel* __restrict buffer,
 		byte* __restrict info, size_t p)
 	{
 		*info = bool(p);
@@ -112,7 +113,7 @@ static constexpr unsigned nextNameAddr(unsigned addr)
 
 template<typename Policy, bool CHECK_WIDTH, std::unsigned_integral Pixel>
 static void draw2(
-	V9990VRAM& vram, const Pixel* palette, Pixel* __restrict& buffer, byte* __restrict& info,
+	V9990VRAM& vram, std::span<const Pixel, 16> palette, Pixel* __restrict& buffer, byte* __restrict& info,
 	unsigned& address, int& width)
 {
 	byte data = Policy::readPatternTable(vram, address++);
@@ -129,7 +130,8 @@ template<typename Policy, std::unsigned_integral Pixel>
 static void renderPattern(
 	V9990VRAM& vram, Pixel* __restrict buffer, byte* __restrict info,
 	Pixel bgCol, int width, unsigned x, unsigned y,
-	unsigned nameTable, unsigned patternBase, const Pixel* palette0, const Pixel* palette1)
+	unsigned nameTable, unsigned patternBase,
+	std::span<const Pixel, 16> palette0, std::span<const Pixel, 16> palette1)
 {
 	assert(x < Policy::IMAGE_WIDTH);
 	if (width == 0) return;
@@ -140,8 +142,8 @@ static void renderPattern(
 		// OK because palette0 and palette1 never partially overlap, IOW either:
 		// - palette0 == palette1           (fully overlap)
 		// - abs(palette0 - palette1) >= 16 (no overlap at all)
-		col0.emplace(const_cast<Pixel*>(palette0)[0], bgCol);
-		col1.emplace(const_cast<Pixel*>(palette1)[0], bgCol);
+		col0.emplace(*const_cast<Pixel*>(palette0.data()), bgCol);
+		col1.emplace(*const_cast<Pixel*>(palette1.data()), bgCol);
 	}
 
 	unsigned nameAddr = nameTable + (((y / 8) * Policy::NAME_CHARS + (x / 8)) * 2);
@@ -185,8 +187,8 @@ static void renderPattern(
 template<typename Policy, std::unsigned_integral Pixel> // only used for P1
 static void renderPattern2(
 	V9990VRAM& vram, Pixel* buffer, byte* info, Pixel bgCol, unsigned width1, unsigned width2,
-	unsigned displayAX, unsigned displayAY, unsigned nameA, unsigned patternA, const Pixel* palA,
-	unsigned displayBX, unsigned displayBY, unsigned nameB, unsigned patternB, const Pixel* palB)
+	unsigned displayAX, unsigned displayAY, unsigned nameA, unsigned patternA, std::span<const Pixel, 16> palA,
+	unsigned displayBX, unsigned displayBY, unsigned nameB, unsigned patternB, std::span<const Pixel, 16> palB)
 {
 	renderPattern<Policy>(
 		vram, buffer, info, bgCol, width1,
@@ -204,7 +206,7 @@ static void renderPattern2(
 
 template<typename Policy, std::unsigned_integral Pixel>
 static void renderSprites(
-	V9990VRAM& vram, unsigned spritePatternTable, const Pixel* palette64,
+	V9990VRAM& vram, unsigned spritePatternTable, std::span<const Pixel, 64> palette64,
 	Pixel* __restrict buffer, byte* __restrict info,
 	int displayX, int displayEnd, unsigned displayY)
 {
@@ -245,14 +247,14 @@ static void renderSprites(
 		byte spriteNo = Policy::readSpriteAttr(vram, addr + 1);
 		spriteY = displayY - (spriteY + 1);
 		unsigned patAddr = spritePatternTable + Policy::spritePatOfst(spriteNo, spriteY);
-		const Pixel* palette = palette64 + ((spriteAttr >> 2) & 0x30);
+		auto palette16 = subspan<16>(palette64, (spriteAttr >> 2) & 0x30);
 		for (int x = 0; x < 16; x +=2) {
 			auto draw = [&](int xPos, size_t p) {
 				if ((displayX <= xPos) && (xPos < displayEnd)) {
 					size_t xx = xPos - displayX;
 					if (p) {
 						if (info[xx] < level) {
-							buffer[xx] = palette[p];
+							buffer[xx] = palette16[p];
 						}
 						info[xx] = 2; // also if back-sprite is behind foreground
 					}
@@ -293,8 +295,8 @@ void V9990P1Converter<Pixel>::convertLine(
 	// background + backdrop color
 	Pixel bgCol = palette64[vdp.getBackDropColor()];
 	byte offset = vdp.getPaletteOffset();
-	const Pixel* palA = palette64 + ((offset & 0x03) << 4);
-	const Pixel* palB = palette64 + ((offset & 0x0C) << 2);
+	auto palA = subspan<16>(palette64, (offset & 0x03) << 4);
+	auto palB = subspan<16>(palette64, (offset & 0x0C) << 2);
 	renderPattern2<P1BackgroundPolicy>(
 		vram, linePtr, nullptr, bgCol, end1, displayWidth,
 		displayBX, displayBY, 0x7E000, 0x40000, palB,
@@ -338,8 +340,8 @@ void V9990P2Converter<Pixel>::convertLine(
 	                // 0->background, 1->foreground, 2->sprite (front or back)
 	Pixel bgCol = palette64[vdp.getBackDropColor()];
 	byte offset = vdp.getPaletteOffset();
-	const Pixel* palette0 = palette64 + ((offset & 0x03) << 4);
-	const Pixel* palette1 = palette64 + ((offset & 0x0C) << 2);
+	auto palette0 = subspan<16>(palette64, (offset & 0x03) << 4);
+	auto palette1 = subspan<16>(palette64, (offset & 0x0C) << 2);
 	renderPattern<P2Policy>(
 		vram, linePtr, info, bgCol, displayWidth,
 		displayAX, displayAY, 0x7C000, 0x00000, palette0, palette1);

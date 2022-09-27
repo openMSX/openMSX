@@ -5,6 +5,7 @@
 #include "one_of.hh"
 #include <concepts>
 #include <cstdint>
+#include <span>
 
 namespace openmsx {
 
@@ -19,9 +20,9 @@ class V9990BitmapConverter
 public:
 	V9990BitmapConverter(
 		V9990& vdp,
-		const Pixel* palette64,  const int16_t* palette64_32768,
-		const Pixel* palette256, const int16_t* palette256_32768,
-		const Pixel* palette32768);
+		std::span<const Pixel,    64> palette64,  std::span<const int16_t,  64> palette64_32768,
+		std::span<const Pixel,   256> palette256, std::span<const int16_t, 256> palette256_32768,
+		std::span<const Pixel, 32768> palette32768);
 
 	/** Convert a line of VRAM into host pixels.
 	  */
@@ -52,19 +53,19 @@ private:
 	/** The 64 color palette for P1, P2 and BP* modes
 	  * This is the palette manipulated through the palette port and register
 	  */
-	const Pixel* const palette64;
-	const int16_t* const palette64_32768;
+	std::span<const Pixel, 64> const palette64;
+	std::span<const int16_t, 64> const palette64_32768;
 
 	/** The 256 color palette for BD8 mode
 	  * A fixed palette; sub-color space within the 32768 color palette
 	  */
-	const Pixel* const palette256;
-	const int16_t* const palette256_32768;
+	std::span<const Pixel, 256> const palette256;
+	std::span<const int16_t, 256> const palette256_32768;
 
 	/** The 15-bits color palette for BD16, BYJK* and BYUV modes
 	  * This is the complete color space for the V9990
 	  */
-	const Pixel* const palette32768;
+	std::span<const Pixel, 32768> const palette32768;
 
 	/** Remember last color and display mode. This is always the same as
 	  * vdp.getColorMode() and vdp.getDisplayMode() because these two only
