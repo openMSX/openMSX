@@ -4,14 +4,21 @@
 #include "YM2413Core.hh"
 #include "FixedPoint.hh"
 #include "serialize_meta.hh"
+#include <array>
+#include <span>
 
 namespace openmsx {
 namespace YM2413Okazaki {
 
 class YM2413;
 
-constexpr int EP_FP_BITS = 15;
+inline constexpr int EP_FP_BITS = 15;
 using EnvPhaseIndex = FixedPoint<EP_FP_BITS>;
+
+// Size of sin table
+inline constexpr int PG_BITS = 9;
+inline constexpr int PG_WIDTH = 1 << PG_BITS;
+inline constexpr int PG_MASK = PG_WIDTH - 1;
 
 enum EnvelopeState {
 	ATTACK, DECAY, SUSHOLD, SUSTAIN, RELEASE, SETTLE, FINISH
@@ -24,8 +31,8 @@ public:
 	  */
 	Patch();
 
-	void initModulator(const uint8_t* data);
-	void initCarrier  (const uint8_t* data);
+	void initModulator(std::span<const uint8_t, 8> data);
+	void initCarrier  (std::span<const uint8_t, 8> data);
 
 	/** Sets the Key Scale of Rate (0 or 1). */
 	inline void setKR(uint8_t value);
@@ -42,8 +49,8 @@ public:
 	/** Sets sustain level [0..15]. */
 	inline void setSL(uint8_t value);
 
-	const unsigned* WF; // 0-1    transformed to waveform[0-1]
-	const uint8_t* KL;  // 0-3    transformed to tllTable[0-3]
+	std::span<const unsigned, PG_WIDTH> WF; // 0-1    transformed to waveform[0-1]
+	std::span<const uint8_t, 16 * 8> KL;    // 0-3    transformed to tllTab[0-3]
 	unsigned SL;        // 0-15   transformed to slTable[0-15]
 	uint8_t AMPM;       // 0-3    2 packed booleans
 	bool EG;            // 0-1
@@ -58,6 +65,7 @@ public:
 
 class Slot {
 public:
+	Slot();
 	void reset();
 
 	inline void setEnvelopeState(EnvelopeState state);
@@ -97,13 +105,13 @@ public:
 	int output;		// Output value of slot
 
 	// for Phase Generator (PG)
-	unsigned cPhase;	// Phase counter
-	unsigned dPhase[8];	// Phase increment
+	unsigned cPhase;		// Phase counter
+	std::array<unsigned, 8> dPhase;	// Phase increment
 
 	// for Envelope Generator (EG)
 	unsigned volume;             // Current volume
 	unsigned tll;                // Total Level + Key scale level
-	const int* dPhaseDRTableRks; // (converted to EnvPhaseIndex)
+	std::span<const int, 16> dPhaseDRTableRks; // (converted to EnvPhaseIndex)
 	EnvelopeState state;         // Current state
 	EnvPhaseIndex eg_phase;      // Phase
 	EnvPhaseIndex eg_dPhase;     // Phase increment amount
@@ -167,11 +175,11 @@ private:
 	[[nodiscard]] inline unsigned getFreq(unsigned channel) const;
 
 	template<unsigned FLAGS>
-	inline void calcChannel(Channel& ch, float* buf, unsigned num);
+	inline void calcChannel(Channel& ch, std::span<float> buf);
 
 private:
 	/** Channel & Slot */
-	Channel channels[9];
+	std::array<Channel, 9> channels;
 
 	/** Pitch Modulator */
 	unsigned pm_phase;
@@ -183,10 +191,10 @@ private:
 	unsigned noise_seed;
 
 	/** Voice Data */
-	Patch patches[19][2];
+	std::array<std::array<Patch, 2>, 19> patches;
 
 	/** Registers */
-	uint8_t reg[0x40];
+	std::array<uint8_t, 0x40> reg;
 	uint8_t registerLatch;
 };
 

@@ -22,39 +22,34 @@ namespace openmsx {
 namespace YM2413Okazaki {
 
 // Number of bits in 'PhaseModulation' fixed point type.
-constexpr int PM_FP_BITS =  8;
+static constexpr int PM_FP_BITS =  8;
 
 // Dynamic range (Accuracy of sin table)
-constexpr int DB_BITS = 8;
-constexpr int DB_MUTE = 1 << DB_BITS;
-constexpr int DBTABLEN = 4 * DB_MUTE; // enough to not have to check for overflow
+static constexpr int DB_BITS = 8;
+static constexpr int DB_MUTE = 1 << DB_BITS;
+static constexpr int DBTABLEN = 4 * DB_MUTE; // enough to not have to check for overflow
 
-constexpr double DB_STEP = 48.0 / DB_MUTE;
-constexpr double EG_STEP = 0.375;
-constexpr double TL_STEP = 0.75;
-
-// Size of Sintable ( 8 -- 18 can be used, but 9 recommended.)
-constexpr int PG_BITS = 9;
-constexpr int PG_WIDTH = 1 << PG_BITS;
-constexpr int PG_MASK = PG_WIDTH - 1;
+static constexpr double DB_STEP = 48.0 / DB_MUTE;
+static constexpr double EG_STEP = 0.375;
+static constexpr double TL_STEP = 0.75;
 
 // Phase increment counter
-constexpr int DP_BITS = 18;
-constexpr int DP_BASE_BITS = DP_BITS - PG_BITS;
+static constexpr int DP_BITS = 18;
+static constexpr int DP_BASE_BITS = DP_BITS - PG_BITS;
 
 // Dynamic range of envelope
-constexpr int EG_BITS = 7;
+static constexpr int EG_BITS = 7;
 
 // Bits for linear value
-constexpr int DB2LIN_AMP_BITS = 8;
-constexpr int SLOT_AMP_BITS = DB2LIN_AMP_BITS;
+static constexpr int DB2LIN_AMP_BITS = 8;
+static constexpr int SLOT_AMP_BITS = DB2LIN_AMP_BITS;
 
 // Bits for Amp modulator
-constexpr int AM_PG_BITS = 8;
-constexpr int AM_PG_WIDTH = 1 << AM_PG_BITS;
-constexpr int AM_DP_BITS = 16;
-constexpr int AM_DP_WIDTH = 1 << AM_DP_BITS;
-constexpr int AM_DP_MASK = AM_DP_WIDTH - 1;
+static constexpr int AM_PG_BITS = 8;
+static constexpr int AM_PG_WIDTH = 1 << AM_PG_BITS;
+static constexpr int AM_DP_BITS = 16;
+static constexpr int AM_DP_WIDTH = 1 << AM_DP_BITS;
+static constexpr int AM_DP_MASK = AM_DP_WIDTH - 1;
 
 // LFO Amplitude Modulation table (verified on real YM3812)
 // 27 output levels (triangle waveform);
@@ -71,27 +66,26 @@ constexpr int AM_DP_MASK = AM_DP_WIDTH - 1;
 //    depth = 4.875dB
 // Also this approach can be easily implemented in HW, the previous one (see SVN
 // history) could not.
-constexpr unsigned LFO_AM_TAB_ELEMENTS = 210;
+static constexpr unsigned LFO_AM_TAB_ELEMENTS = 210;
 
 // Extra (derived) constants
-constexpr EnvPhaseIndex EG_DP_MAX = EnvPhaseIndex(1 << 7);
-constexpr EnvPhaseIndex EG_DP_INF = EnvPhaseIndex(1 << 8); // as long as it's bigger
+static constexpr EnvPhaseIndex EG_DP_MAX = EnvPhaseIndex(1 << 7);
+static constexpr EnvPhaseIndex EG_DP_INF = EnvPhaseIndex(1 << 8); // as long as it's bigger
 
 // LFO Phase Modulation table (copied from Burczynski core)
-constexpr signed char pmTable[8][8] =
-{
-	{ 0, 0, 0, 0, 0, 0, 0, 0, }, // FNUM = 000xxxxxx
-	{ 0, 0, 1, 0, 0, 0,-1, 0, }, // FNUM = 001xxxxxx
-	{ 0, 1, 2, 1, 0,-1,-2,-1, }, // FNUM = 010xxxxxx
-	{ 0, 1, 3, 1, 0,-1,-3,-1, }, // FNUM = 011xxxxxx
-	{ 0, 2, 4, 2, 0,-2,-4,-2, }, // FNUM = 100xxxxxx
-	{ 0, 2, 5, 2, 0,-2,-5,-2, }, // FNUM = 101xxxxxx
-	{ 0, 3, 6, 3, 0,-3,-6,-3, }, // FNUM = 110xxxxxx
-	{ 0, 3, 7, 3, 0,-3,-7,-3, }, // FNUM = 111xxxxxx
+static constexpr std::array pmTable = {
+	std::array<int8_t, 8>{0, 0, 0, 0, 0, 0, 0, 0}, // FNUM = 000xxxxxx
+	std::array<int8_t, 8>{0, 0, 1, 0, 0, 0,-1, 0}, // FNUM = 001xxxxxx
+	std::array<int8_t, 8>{0, 1, 2, 1, 0,-1,-2,-1}, // FNUM = 010xxxxxx
+	std::array<int8_t, 8>{0, 1, 3, 1, 0,-1,-3,-1}, // FNUM = 011xxxxxx
+	std::array<int8_t, 8>{0, 2, 4, 2, 0,-2,-4,-2}, // FNUM = 100xxxxxx
+	std::array<int8_t, 8>{0, 2, 5, 2, 0,-2,-5,-2}, // FNUM = 101xxxxxx
+	std::array<int8_t, 8>{0, 3, 6, 3, 0,-3,-6,-3}, // FNUM = 110xxxxxx
+	std::array<int8_t, 8>{0, 3, 7, 3, 0,-3,-7,-3}, // FNUM = 111xxxxxx
 };
 
 // LFO Amplitude Modulation table (verified on real YM3812)
-constexpr unsigned char lfo_am_table[LFO_AM_TAB_ELEMENTS] = {
+static constexpr std::array<uint8_t, LFO_AM_TAB_ELEMENTS> lfo_am_table = {
 	0,0,0,0,0,0,0,
 	1,1,1,1,
 	2,2,2,2,
@@ -147,7 +141,7 @@ constexpr unsigned char lfo_am_table[LFO_AM_TAB_ELEMENTS] = {
 };
 
 // ML-table
-constexpr uint8_t mlTable[16] = {
+static constexpr std::array<uint8_t, 16> mlTable = {
 	1,   1*2,  2*2,  3*2,  4*2,  5*2,  6*2,  7*2,
 	8*2, 9*2, 10*2, 10*2, 12*2, 12*2, 15*2, 15*2
 };
@@ -158,7 +152,7 @@ constexpr uint8_t mlTable[16] = {
 //   [0,        DB_MUTE )    actual values, from max to min
 //   [DB_MUTE,  DBTABLEN)    filled with min val (to allow some overflow in index)
 //   [DBTABLEN, 2*DBTABLEN)  as above but for negative output values
-constexpr auto dB2LinTab = [] {
+static constexpr auto dB2LinTab = [] {
 	std::array<int, 2 * DBTABLEN> result = {};
 	for (int i : xrange(DB_MUTE - 1)) {
 		result[i] = int(double((1 << DB2LIN_AMP_BITS) - 1) *
@@ -175,7 +169,7 @@ constexpr auto dB2LinTab = [] {
 }();
 
 // Linear to Log curve conversion table (for Attack rate)
-constexpr auto arAdjustTab = [] {
+static constexpr auto arAdjustTab = [] {
 	std::array<unsigned, 1 << EG_BITS> result = {};
 	result[0] = (1 << EG_BITS) - 1;
 	constexpr double l127 = cstd::log<5, 4>(127.0);
@@ -187,11 +181,11 @@ constexpr auto arAdjustTab = [] {
 }();
 
 // KSL + TL Table   values are in range [0, 112]
-constexpr auto tllTab = [] {
+static constexpr auto tllTab = [] {
 	std::array<std::array<uint8_t, 16 * 8>, 4> result = {};
 
 	// Processed version of Table III-5 from the Application Manual.
-	constexpr unsigned klTable[16] = {
+	constexpr std::array<unsigned, 16> klTable = {
 		0, 24, 32, 37, 40, 43, 45, 47, 48, 50, 51, 52, 53, 54, 55, 56
 	};
 	// Note: KL [0..3] results in {0.0, 1.5, 3.0, 6.0} dB/oct.
@@ -214,7 +208,7 @@ constexpr auto tllTab = [] {
 // WaveTable for each envelope amp
 //  values are in range [0, DB_MUTE)             (for positive values)
 //                  or  [0, DB_MUTE) + DBTABLEN  (for negative values)
-constexpr auto fullSinTable = [] {
+static constexpr auto fullSinTable = [] {
 	auto lin2db = [](double d) {
 		// lin(+0.0 .. +1.0) to dB(DB_MUTE-1 .. 0)
 		return (d == 0)
@@ -234,7 +228,7 @@ constexpr auto fullSinTable = [] {
 	}
 	return result;
 }();
-constexpr auto halfSinTable = [] {
+static constexpr auto halfSinTable = [] {
 	std::array<unsigned, PG_WIDTH> result = {};
 	for (auto i : xrange(PG_WIDTH / 2)) {
 		result[i] = fullSinTable[i];
@@ -244,13 +238,15 @@ constexpr auto halfSinTable = [] {
 	}
 	return result;
 }();
-constexpr unsigned const * const waveform[2] = {fullSinTable.data(), halfSinTable.data()};
+static constexpr std::array<std::span<const unsigned, PG_WIDTH>, 2> waveform = {
+	fullSinTable, halfSinTable
+};
 
 // Phase incr table for attack, decay and release
 //  note: original code had indices swapped. It also had
 //        a separate table for attack
 //  17.15 fixed point
-constexpr auto dPhaseDrTab = [] {
+static constexpr auto dPhaseDrTab = [] {
 	std::array<std::array<int, 16>, 16> result = {};
 	for (auto Rks : xrange(16)) {
 		result[Rks][0] = 0;
@@ -265,7 +261,7 @@ constexpr auto dPhaseDrTab = [] {
 }();
 
 // Sustain level (17.15 fixed point)
-constexpr auto slTab = [] {
+static constexpr auto slTab = [] {
 	std::array<unsigned, 16> result = {};
 	//for (auto [i, r] : enumerate(result)) { msvc bug
 	for (int i = 0; i < 16; ++i) {
@@ -312,18 +308,17 @@ static constexpr /*bool*/ int BIT(unsigned s, unsigned b)
 // Patch
 //
 Patch::Patch()
-	: AMPM(0), EG(false), AR(0), DR(0), RR(0)
+	: WF(waveform[0]), KL(tllTab[0])
+	, AMPM(0), EG(false), AR(0), DR(0), RR(0)
 {
 	setKR(0);
 	setML(0);
-	setKL(0);
 	setTL(0);
-	setWF(0);
 	setFB(0);
 	setSL(0);
 }
 
-void Patch::initModulator(const uint8_t* data)
+void Patch::initModulator(std::span<const uint8_t, 8> data)
 {
 	AMPM = (data[0] >> 6) &  3;
 	EG   = (data[0] >> 5) &  1;
@@ -339,7 +334,7 @@ void Patch::initModulator(const uint8_t* data)
 	RR   = (data[6] >> 0) & 15;
 }
 
-void Patch::initCarrier(const uint8_t* data)
+void Patch::initCarrier(std::span<const uint8_t, 8> data)
 {
 	AMPM = (data[1] >> 6) &  3;
 	EG   = (data[1] >> 5) &  1;
@@ -365,7 +360,7 @@ void Patch::setML(uint8_t value)
 }
 void Patch::setKL(uint8_t value)
 {
-	KL = tllTab[value].data();
+	KL = tllTab[value];
 }
 void Patch::setTL(uint8_t value)
 {
@@ -390,6 +385,12 @@ void Patch::setSL(uint8_t value)
 //
 // Slot
 //
+
+Slot::Slot()
+	: dPhaseDRTableRks(dPhaseDrTab[0])
+{
+}
+
 void Slot::reset()
 {
 	cPhase = 0;
@@ -397,7 +398,7 @@ void Slot::reset()
 	output = 0;
 	feedback = 0;
 	setEnvelopeState(FINISH);
-	dPhaseDRTableRks = dPhaseDrTab[0].data();
+	dPhaseDRTableRks = dPhaseDrTab[0];
 	tll = 0;
 	sustain = false;
 	volume = TL2EG(0);
@@ -429,7 +430,7 @@ void Slot::updateRKS(unsigned freq)
 {
 	unsigned rks = freq >> patch.KR;
 	assert(rks < 16);
-	dPhaseDRTableRks = dPhaseDrTab[rks].data();
+	dPhaseDRTableRks = dPhaseDrTab[rks];
 }
 
 void Slot::updateEG()
@@ -632,26 +633,26 @@ void Channel::keyOff()
 // YM2413
 //
 
-static constexpr uint8_t inst_data[16 + 3][8] = {
-	{ 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 }, // user instrument
-	{ 0x61,0x61,0x1e,0x17,0xf0,0x7f,0x00,0x17 }, // violin
-	{ 0x13,0x41,0x16,0x0e,0xfd,0xf4,0x23,0x23 }, // guitar
-	{ 0x03,0x01,0x9a,0x04,0xf3,0xf3,0x13,0xf3 }, // piano
-	{ 0x11,0x61,0x0e,0x07,0xfa,0x64,0x70,0x17 }, // flute
-	{ 0x22,0x21,0x1e,0x06,0xf0,0x76,0x00,0x28 }, // clarinet
-	{ 0x21,0x22,0x16,0x05,0xf0,0x71,0x00,0x18 }, // oboe
-	{ 0x21,0x61,0x1d,0x07,0x82,0x80,0x17,0x17 }, // trumpet
-	{ 0x23,0x21,0x2d,0x16,0x90,0x90,0x00,0x07 }, // organ
-	{ 0x21,0x21,0x1b,0x06,0x64,0x65,0x10,0x17 }, // horn
-	{ 0x21,0x21,0x0b,0x1a,0x85,0xa0,0x70,0x07 }, // synthesizer
-	{ 0x23,0x01,0x83,0x10,0xff,0xb4,0x10,0xf4 }, // harpsichord
-	{ 0x97,0xc1,0x20,0x07,0xff,0xf4,0x22,0x22 }, // vibraphone
-	{ 0x61,0x00,0x0c,0x05,0xc2,0xf6,0x40,0x44 }, // synthesizer bass
-	{ 0x01,0x01,0x56,0x03,0x94,0xc2,0x03,0x12 }, // acoustic bass
-	{ 0x21,0x01,0x89,0x03,0xf1,0xe4,0xf0,0x23 }, // electric guitar
-	{ 0x07,0x21,0x14,0x00,0xee,0xf8,0xff,0xf8 },
-	{ 0x01,0x31,0x00,0x00,0xf8,0xf7,0xf8,0xf7 },
-	{ 0x25,0x11,0x00,0x00,0xf8,0xfa,0xf8,0x55 }
+static constexpr std::array inst_data = {
+	std::array<uint8_t, 8>{ 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 }, // user instrument
+	std::array<uint8_t, 8>{ 0x61,0x61,0x1e,0x17,0xf0,0x7f,0x00,0x17 }, // violin
+	std::array<uint8_t, 8>{ 0x13,0x41,0x16,0x0e,0xfd,0xf4,0x23,0x23 }, // guitar
+	std::array<uint8_t, 8>{ 0x03,0x01,0x9a,0x04,0xf3,0xf3,0x13,0xf3 }, // piano
+	std::array<uint8_t, 8>{ 0x11,0x61,0x0e,0x07,0xfa,0x64,0x70,0x17 }, // flute
+	std::array<uint8_t, 8>{ 0x22,0x21,0x1e,0x06,0xf0,0x76,0x00,0x28 }, // clarinet
+	std::array<uint8_t, 8>{ 0x21,0x22,0x16,0x05,0xf0,0x71,0x00,0x18 }, // oboe
+	std::array<uint8_t, 8>{ 0x21,0x61,0x1d,0x07,0x82,0x80,0x17,0x17 }, // trumpet
+	std::array<uint8_t, 8>{ 0x23,0x21,0x2d,0x16,0x90,0x90,0x00,0x07 }, // organ
+	std::array<uint8_t, 8>{ 0x21,0x21,0x1b,0x06,0x64,0x65,0x10,0x17 }, // horn
+	std::array<uint8_t, 8>{ 0x21,0x21,0x0b,0x1a,0x85,0xa0,0x70,0x07 }, // synthesizer
+	std::array<uint8_t, 8>{ 0x23,0x01,0x83,0x10,0xff,0xb4,0x10,0xf4 }, // harpsichord
+	std::array<uint8_t, 8>{ 0x97,0xc1,0x20,0x07,0xff,0xf4,0x22,0x22 }, // vibraphone
+	std::array<uint8_t, 8>{ 0x61,0x00,0x0c,0x05,0xc2,0xf6,0x40,0x44 }, // synthesizer bass
+	std::array<uint8_t, 8>{ 0x01,0x01,0x56,0x03,0x94,0xc2,0x03,0x12 }, // acoustic bass
+	std::array<uint8_t, 8>{ 0x21,0x01,0x89,0x03,0xf1,0xe4,0xf0,0x23 }, // electric guitar
+	std::array<uint8_t, 8>{ 0x07,0x21,0x14,0x00,0xee,0xf8,0xff,0xf8 },
+	std::array<uint8_t, 8>{ 0x01,0x31,0x00,0x00,0xf8,0xf7,0xf8,0xf7 },
+	std::array<uint8_t, 8>{ 0x25,0x11,0x00,0x00,0xf8,0xfa,0xf8,0x55 }
 };
 
 YM2413::YM2413()
@@ -1066,7 +1067,7 @@ Patch& YM2413::getPatch(unsigned instrument, bool carrier)
 }
 
 template<unsigned FLAGS>
-ALWAYS_INLINE void YM2413::calcChannel(Channel& ch, float* buf, unsigned num)
+ALWAYS_INLINE void YM2413::calcChannel(Channel& ch, std::span<float> buf)
 {
 	// VC++ requires explicit conversion to bool. Compiler bug??
 	const bool HAS_CAR_PM = (FLAGS &  1) != 0;
@@ -1093,8 +1094,7 @@ ALWAYS_INLINE void YM2413::calcChannel(Channel& ch, float* buf, unsigned num)
 		mod_fixed_env = ch.mod.calc_fixed_env<HAS_MOD_AM>();
 	}
 
-	unsigned sample = 0;
-	do {
+	for (auto& b : buf) {
 		unsigned lfo_pm = 0;
 		if constexpr (HAS_CAR_PM || HAS_MOD_PM) {
 			// Copied from Burczynski:
@@ -1114,10 +1114,9 @@ ALWAYS_INLINE void YM2413::calcChannel(Channel& ch, float* buf, unsigned num)
 		}
 		int fm = ch.mod.calc_slot_mod<HAS_MOD_AM, HAS_MOD_FB, HAS_MOD_FIXED_ENV>(
 		                      HAS_MOD_PM ? lfo_pm : 0, lfo_am, mod_fixed_env);
-		buf[sample] += ch.car.calc_slot_car<HAS_CAR_AM, HAS_CAR_FIXED_ENV>(
+		b += ch.car.calc_slot_car<HAS_CAR_AM, HAS_CAR_FIXED_ENV>(
 		                      HAS_CAR_PM ? lfo_pm : 0, lfo_am, fm, car_fixed_env);
-		++sample;
-	} while (sample < num);
+	}
 }
 
 void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
@@ -1141,134 +1140,134 @@ void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 			                 ( carFixedEnv           << 5) |
 			                 ( modFixedEnv           << 6);
 			switch (flags) {
-			case   0: calcChannel<  0>(ch, bufs[i], num); break;
-			case   1: calcChannel<  1>(ch, bufs[i], num); break;
-			case   2: calcChannel<  2>(ch, bufs[i], num); break;
-			case   3: calcChannel<  3>(ch, bufs[i], num); break;
-			case   4: calcChannel<  4>(ch, bufs[i], num); break;
-			case   5: calcChannel<  5>(ch, bufs[i], num); break;
-			case   6: calcChannel<  6>(ch, bufs[i], num); break;
-			case   7: calcChannel<  7>(ch, bufs[i], num); break;
-			case   8: calcChannel<  8>(ch, bufs[i], num); break;
-			case   9: calcChannel<  9>(ch, bufs[i], num); break;
-			case  10: calcChannel< 10>(ch, bufs[i], num); break;
-			case  11: calcChannel< 11>(ch, bufs[i], num); break;
-			case  12: calcChannel< 12>(ch, bufs[i], num); break;
-			case  13: calcChannel< 13>(ch, bufs[i], num); break;
-			case  14: calcChannel< 14>(ch, bufs[i], num); break;
-			case  15: calcChannel< 15>(ch, bufs[i], num); break;
-			case  16: calcChannel< 16>(ch, bufs[i], num); break;
-			case  17: calcChannel< 17>(ch, bufs[i], num); break;
-			case  18: calcChannel< 18>(ch, bufs[i], num); break;
-			case  19: calcChannel< 19>(ch, bufs[i], num); break;
-			case  20: calcChannel< 20>(ch, bufs[i], num); break;
-			case  21: calcChannel< 21>(ch, bufs[i], num); break;
-			case  22: calcChannel< 22>(ch, bufs[i], num); break;
-			case  23: calcChannel< 23>(ch, bufs[i], num); break;
-			case  24: calcChannel< 24>(ch, bufs[i], num); break;
-			case  25: calcChannel< 25>(ch, bufs[i], num); break;
-			case  26: calcChannel< 26>(ch, bufs[i], num); break;
-			case  27: calcChannel< 27>(ch, bufs[i], num); break;
-			case  28: calcChannel< 28>(ch, bufs[i], num); break;
-			case  29: calcChannel< 29>(ch, bufs[i], num); break;
-			case  30: calcChannel< 30>(ch, bufs[i], num); break;
-			case  31: calcChannel< 31>(ch, bufs[i], num); break;
-			case  32: calcChannel< 32>(ch, bufs[i], num); break;
-			case  33: calcChannel< 33>(ch, bufs[i], num); break;
-			case  34: calcChannel< 34>(ch, bufs[i], num); break;
-			case  35: calcChannel< 35>(ch, bufs[i], num); break;
-			case  36: calcChannel< 36>(ch, bufs[i], num); break;
-			case  37: calcChannel< 37>(ch, bufs[i], num); break;
-			case  38: calcChannel< 38>(ch, bufs[i], num); break;
-			case  39: calcChannel< 39>(ch, bufs[i], num); break;
-			case  40: calcChannel< 40>(ch, bufs[i], num); break;
-			case  41: calcChannel< 41>(ch, bufs[i], num); break;
-			case  42: calcChannel< 42>(ch, bufs[i], num); break;
-			case  43: calcChannel< 43>(ch, bufs[i], num); break;
-			case  44: calcChannel< 44>(ch, bufs[i], num); break;
-			case  45: calcChannel< 45>(ch, bufs[i], num); break;
-			case  46: calcChannel< 46>(ch, bufs[i], num); break;
-			case  47: calcChannel< 47>(ch, bufs[i], num); break;
-			case  48: calcChannel< 48>(ch, bufs[i], num); break;
-			case  49: calcChannel< 49>(ch, bufs[i], num); break;
-			case  50: calcChannel< 50>(ch, bufs[i], num); break;
-			case  51: calcChannel< 51>(ch, bufs[i], num); break;
-			case  52: calcChannel< 52>(ch, bufs[i], num); break;
-			case  53: calcChannel< 53>(ch, bufs[i], num); break;
-			case  54: calcChannel< 54>(ch, bufs[i], num); break;
-			case  55: calcChannel< 55>(ch, bufs[i], num); break;
-			case  56: calcChannel< 56>(ch, bufs[i], num); break;
-			case  57: calcChannel< 57>(ch, bufs[i], num); break;
-			case  58: calcChannel< 58>(ch, bufs[i], num); break;
-			case  59: calcChannel< 59>(ch, bufs[i], num); break;
-			case  60: calcChannel< 60>(ch, bufs[i], num); break;
-			case  61: calcChannel< 61>(ch, bufs[i], num); break;
-			case  62: calcChannel< 62>(ch, bufs[i], num); break;
-			case  63: calcChannel< 63>(ch, bufs[i], num); break;
-			case  64: calcChannel< 64>(ch, bufs[i], num); break;
-			case  65: calcChannel< 65>(ch, bufs[i], num); break;
-			case  66: calcChannel< 66>(ch, bufs[i], num); break;
-			case  67: calcChannel< 67>(ch, bufs[i], num); break;
-			case  68: calcChannel< 68>(ch, bufs[i], num); break;
-			case  69: calcChannel< 69>(ch, bufs[i], num); break;
-			case  70: calcChannel< 70>(ch, bufs[i], num); break;
-			case  71: calcChannel< 71>(ch, bufs[i], num); break;
-			case  72: calcChannel< 72>(ch, bufs[i], num); break;
-			case  73: calcChannel< 73>(ch, bufs[i], num); break;
-			case  74: calcChannel< 74>(ch, bufs[i], num); break;
-			case  75: calcChannel< 75>(ch, bufs[i], num); break;
-			case  76: calcChannel< 76>(ch, bufs[i], num); break;
-			case  77: calcChannel< 77>(ch, bufs[i], num); break;
-			case  78: calcChannel< 78>(ch, bufs[i], num); break;
-			case  79: calcChannel< 79>(ch, bufs[i], num); break;
-			case  80: calcChannel< 80>(ch, bufs[i], num); break;
-			case  81: calcChannel< 81>(ch, bufs[i], num); break;
-			case  82: calcChannel< 82>(ch, bufs[i], num); break;
-			case  83: calcChannel< 83>(ch, bufs[i], num); break;
-			case  84: calcChannel< 84>(ch, bufs[i], num); break;
-			case  85: calcChannel< 85>(ch, bufs[i], num); break;
-			case  86: calcChannel< 86>(ch, bufs[i], num); break;
-			case  87: calcChannel< 87>(ch, bufs[i], num); break;
-			case  88: calcChannel< 88>(ch, bufs[i], num); break;
-			case  89: calcChannel< 89>(ch, bufs[i], num); break;
-			case  90: calcChannel< 90>(ch, bufs[i], num); break;
-			case  91: calcChannel< 91>(ch, bufs[i], num); break;
-			case  92: calcChannel< 92>(ch, bufs[i], num); break;
-			case  93: calcChannel< 93>(ch, bufs[i], num); break;
-			case  94: calcChannel< 94>(ch, bufs[i], num); break;
-			case  95: calcChannel< 95>(ch, bufs[i], num); break;
-			case  96: calcChannel< 96>(ch, bufs[i], num); break;
-			case  97: calcChannel< 97>(ch, bufs[i], num); break;
-			case  98: calcChannel< 98>(ch, bufs[i], num); break;
-			case  99: calcChannel< 99>(ch, bufs[i], num); break;
-			case 100: calcChannel<100>(ch, bufs[i], num); break;
-			case 101: calcChannel<101>(ch, bufs[i], num); break;
-			case 102: calcChannel<102>(ch, bufs[i], num); break;
-			case 103: calcChannel<103>(ch, bufs[i], num); break;
-			case 104: calcChannel<104>(ch, bufs[i], num); break;
-			case 105: calcChannel<105>(ch, bufs[i], num); break;
-			case 106: calcChannel<106>(ch, bufs[i], num); break;
-			case 107: calcChannel<107>(ch, bufs[i], num); break;
-			case 108: calcChannel<108>(ch, bufs[i], num); break;
-			case 109: calcChannel<109>(ch, bufs[i], num); break;
-			case 110: calcChannel<110>(ch, bufs[i], num); break;
-			case 111: calcChannel<111>(ch, bufs[i], num); break;
-			case 112: calcChannel<112>(ch, bufs[i], num); break;
-			case 113: calcChannel<113>(ch, bufs[i], num); break;
-			case 114: calcChannel<114>(ch, bufs[i], num); break;
-			case 115: calcChannel<115>(ch, bufs[i], num); break;
-			case 116: calcChannel<116>(ch, bufs[i], num); break;
-			case 117: calcChannel<117>(ch, bufs[i], num); break;
-			case 118: calcChannel<118>(ch, bufs[i], num); break;
-			case 119: calcChannel<119>(ch, bufs[i], num); break;
-			case 120: calcChannel<120>(ch, bufs[i], num); break;
-			case 121: calcChannel<121>(ch, bufs[i], num); break;
-			case 122: calcChannel<122>(ch, bufs[i], num); break;
-			case 123: calcChannel<123>(ch, bufs[i], num); break;
-			case 124: calcChannel<124>(ch, bufs[i], num); break;
-			case 125: calcChannel<125>(ch, bufs[i], num); break;
-			case 126: calcChannel<126>(ch, bufs[i], num); break;
-			case 127: calcChannel<127>(ch, bufs[i], num); break;
+			case   0: calcChannel<  0>(ch, {bufs[i], num}); break;
+			case   1: calcChannel<  1>(ch, {bufs[i], num}); break;
+			case   2: calcChannel<  2>(ch, {bufs[i], num}); break;
+			case   3: calcChannel<  3>(ch, {bufs[i], num}); break;
+			case   4: calcChannel<  4>(ch, {bufs[i], num}); break;
+			case   5: calcChannel<  5>(ch, {bufs[i], num}); break;
+			case   6: calcChannel<  6>(ch, {bufs[i], num}); break;
+			case   7: calcChannel<  7>(ch, {bufs[i], num}); break;
+			case   8: calcChannel<  8>(ch, {bufs[i], num}); break;
+			case   9: calcChannel<  9>(ch, {bufs[i], num}); break;
+			case  10: calcChannel< 10>(ch, {bufs[i], num}); break;
+			case  11: calcChannel< 11>(ch, {bufs[i], num}); break;
+			case  12: calcChannel< 12>(ch, {bufs[i], num}); break;
+			case  13: calcChannel< 13>(ch, {bufs[i], num}); break;
+			case  14: calcChannel< 14>(ch, {bufs[i], num}); break;
+			case  15: calcChannel< 15>(ch, {bufs[i], num}); break;
+			case  16: calcChannel< 16>(ch, {bufs[i], num}); break;
+			case  17: calcChannel< 17>(ch, {bufs[i], num}); break;
+			case  18: calcChannel< 18>(ch, {bufs[i], num}); break;
+			case  19: calcChannel< 19>(ch, {bufs[i], num}); break;
+			case  20: calcChannel< 20>(ch, {bufs[i], num}); break;
+			case  21: calcChannel< 21>(ch, {bufs[i], num}); break;
+			case  22: calcChannel< 22>(ch, {bufs[i], num}); break;
+			case  23: calcChannel< 23>(ch, {bufs[i], num}); break;
+			case  24: calcChannel< 24>(ch, {bufs[i], num}); break;
+			case  25: calcChannel< 25>(ch, {bufs[i], num}); break;
+			case  26: calcChannel< 26>(ch, {bufs[i], num}); break;
+			case  27: calcChannel< 27>(ch, {bufs[i], num}); break;
+			case  28: calcChannel< 28>(ch, {bufs[i], num}); break;
+			case  29: calcChannel< 29>(ch, {bufs[i], num}); break;
+			case  30: calcChannel< 30>(ch, {bufs[i], num}); break;
+			case  31: calcChannel< 31>(ch, {bufs[i], num}); break;
+			case  32: calcChannel< 32>(ch, {bufs[i], num}); break;
+			case  33: calcChannel< 33>(ch, {bufs[i], num}); break;
+			case  34: calcChannel< 34>(ch, {bufs[i], num}); break;
+			case  35: calcChannel< 35>(ch, {bufs[i], num}); break;
+			case  36: calcChannel< 36>(ch, {bufs[i], num}); break;
+			case  37: calcChannel< 37>(ch, {bufs[i], num}); break;
+			case  38: calcChannel< 38>(ch, {bufs[i], num}); break;
+			case  39: calcChannel< 39>(ch, {bufs[i], num}); break;
+			case  40: calcChannel< 40>(ch, {bufs[i], num}); break;
+			case  41: calcChannel< 41>(ch, {bufs[i], num}); break;
+			case  42: calcChannel< 42>(ch, {bufs[i], num}); break;
+			case  43: calcChannel< 43>(ch, {bufs[i], num}); break;
+			case  44: calcChannel< 44>(ch, {bufs[i], num}); break;
+			case  45: calcChannel< 45>(ch, {bufs[i], num}); break;
+			case  46: calcChannel< 46>(ch, {bufs[i], num}); break;
+			case  47: calcChannel< 47>(ch, {bufs[i], num}); break;
+			case  48: calcChannel< 48>(ch, {bufs[i], num}); break;
+			case  49: calcChannel< 49>(ch, {bufs[i], num}); break;
+			case  50: calcChannel< 50>(ch, {bufs[i], num}); break;
+			case  51: calcChannel< 51>(ch, {bufs[i], num}); break;
+			case  52: calcChannel< 52>(ch, {bufs[i], num}); break;
+			case  53: calcChannel< 53>(ch, {bufs[i], num}); break;
+			case  54: calcChannel< 54>(ch, {bufs[i], num}); break;
+			case  55: calcChannel< 55>(ch, {bufs[i], num}); break;
+			case  56: calcChannel< 56>(ch, {bufs[i], num}); break;
+			case  57: calcChannel< 57>(ch, {bufs[i], num}); break;
+			case  58: calcChannel< 58>(ch, {bufs[i], num}); break;
+			case  59: calcChannel< 59>(ch, {bufs[i], num}); break;
+			case  60: calcChannel< 60>(ch, {bufs[i], num}); break;
+			case  61: calcChannel< 61>(ch, {bufs[i], num}); break;
+			case  62: calcChannel< 62>(ch, {bufs[i], num}); break;
+			case  63: calcChannel< 63>(ch, {bufs[i], num}); break;
+			case  64: calcChannel< 64>(ch, {bufs[i], num}); break;
+			case  65: calcChannel< 65>(ch, {bufs[i], num}); break;
+			case  66: calcChannel< 66>(ch, {bufs[i], num}); break;
+			case  67: calcChannel< 67>(ch, {bufs[i], num}); break;
+			case  68: calcChannel< 68>(ch, {bufs[i], num}); break;
+			case  69: calcChannel< 69>(ch, {bufs[i], num}); break;
+			case  70: calcChannel< 70>(ch, {bufs[i], num}); break;
+			case  71: calcChannel< 71>(ch, {bufs[i], num}); break;
+			case  72: calcChannel< 72>(ch, {bufs[i], num}); break;
+			case  73: calcChannel< 73>(ch, {bufs[i], num}); break;
+			case  74: calcChannel< 74>(ch, {bufs[i], num}); break;
+			case  75: calcChannel< 75>(ch, {bufs[i], num}); break;
+			case  76: calcChannel< 76>(ch, {bufs[i], num}); break;
+			case  77: calcChannel< 77>(ch, {bufs[i], num}); break;
+			case  78: calcChannel< 78>(ch, {bufs[i], num}); break;
+			case  79: calcChannel< 79>(ch, {bufs[i], num}); break;
+			case  80: calcChannel< 80>(ch, {bufs[i], num}); break;
+			case  81: calcChannel< 81>(ch, {bufs[i], num}); break;
+			case  82: calcChannel< 82>(ch, {bufs[i], num}); break;
+			case  83: calcChannel< 83>(ch, {bufs[i], num}); break;
+			case  84: calcChannel< 84>(ch, {bufs[i], num}); break;
+			case  85: calcChannel< 85>(ch, {bufs[i], num}); break;
+			case  86: calcChannel< 86>(ch, {bufs[i], num}); break;
+			case  87: calcChannel< 87>(ch, {bufs[i], num}); break;
+			case  88: calcChannel< 88>(ch, {bufs[i], num}); break;
+			case  89: calcChannel< 89>(ch, {bufs[i], num}); break;
+			case  90: calcChannel< 90>(ch, {bufs[i], num}); break;
+			case  91: calcChannel< 91>(ch, {bufs[i], num}); break;
+			case  92: calcChannel< 92>(ch, {bufs[i], num}); break;
+			case  93: calcChannel< 93>(ch, {bufs[i], num}); break;
+			case  94: calcChannel< 94>(ch, {bufs[i], num}); break;
+			case  95: calcChannel< 95>(ch, {bufs[i], num}); break;
+			case  96: calcChannel< 96>(ch, {bufs[i], num}); break;
+			case  97: calcChannel< 97>(ch, {bufs[i], num}); break;
+			case  98: calcChannel< 98>(ch, {bufs[i], num}); break;
+			case  99: calcChannel< 99>(ch, {bufs[i], num}); break;
+			case 100: calcChannel<100>(ch, {bufs[i], num}); break;
+			case 101: calcChannel<101>(ch, {bufs[i], num}); break;
+			case 102: calcChannel<102>(ch, {bufs[i], num}); break;
+			case 103: calcChannel<103>(ch, {bufs[i], num}); break;
+			case 104: calcChannel<104>(ch, {bufs[i], num}); break;
+			case 105: calcChannel<105>(ch, {bufs[i], num}); break;
+			case 106: calcChannel<106>(ch, {bufs[i], num}); break;
+			case 107: calcChannel<107>(ch, {bufs[i], num}); break;
+			case 108: calcChannel<108>(ch, {bufs[i], num}); break;
+			case 109: calcChannel<109>(ch, {bufs[i], num}); break;
+			case 110: calcChannel<110>(ch, {bufs[i], num}); break;
+			case 111: calcChannel<111>(ch, {bufs[i], num}); break;
+			case 112: calcChannel<112>(ch, {bufs[i], num}); break;
+			case 113: calcChannel<113>(ch, {bufs[i], num}); break;
+			case 114: calcChannel<114>(ch, {bufs[i], num}); break;
+			case 115: calcChannel<115>(ch, {bufs[i], num}); break;
+			case 116: calcChannel<116>(ch, {bufs[i], num}); break;
+			case 117: calcChannel<117>(ch, {bufs[i], num}); break;
+			case 118: calcChannel<118>(ch, {bufs[i], num}); break;
+			case 119: calcChannel<119>(ch, {bufs[i], num}); break;
+			case 120: calcChannel<120>(ch, {bufs[i], num}); break;
+			case 121: calcChannel<121>(ch, {bufs[i], num}); break;
+			case 122: calcChannel<122>(ch, {bufs[i], num}); break;
+			case 123: calcChannel<123>(ch, {bufs[i], num}); break;
+			case 124: calcChannel<124>(ch, {bufs[i], num}); break;
+			case 125: calcChannel<125>(ch, {bufs[i], num}); break;
+			case 126: calcChannel<126>(ch, {bufs[i], num}); break;
+			case 127: calcChannel<127>(ch, {bufs[i], num}); break;
 			default: UNREACHABLE;
 			}
 		} else {
@@ -1651,8 +1650,8 @@ void YM2413::serialize(Archive& ar, unsigned version)
 	             "noise_seed", noise_seed);
 
 	if constexpr (Archive::IS_LOADER) {
-		patches[0][0].initModulator(&reg[0]);
-		patches[0][1].initCarrier  (&reg[0]);
+		patches[0][0].initModulator(subspan<8>(reg));
+		patches[0][1].initCarrier  (subspan<8>(reg));
 		for (auto [i, ch] : enumerate(channels)) {
 			// restore patch
 			unsigned p = ((i >= 6) && isRhythm())
