@@ -1,10 +1,15 @@
 #include "PreCacheFile.hh"
 #include "FileOperations.hh"
 #include "statp.hh"
+#include <array>
 #include <cstdio>
 #include <sys/types.h>
 
 namespace openmsx {
+
+// TODO when available use:
+//     posix_fadvise(int fd, off_t offset, off_t len, int advise)
+//       with advise = POSIX_FADV_WILLNEED
 
 PreCacheFile::PreCacheFile(std::string name_)
 	: name(std::move(name_)), exitLoop(false)
@@ -41,9 +46,9 @@ void PreCacheFile::run()
 		while (true) {
 			if (exitLoop) break;
 
-			char buf[BLOCK_SIZE];
+			std::array<char, BLOCK_SIZE> buf;
 			if (fseek(file.get(), block * BLOCK_SIZE, SEEK_SET)) break;
-			size_t read = fread(buf, 1, BLOCK_SIZE, file.get());
+			size_t read = fread(buf.data(), 1, BLOCK_SIZE, file.get());
 			if (read != BLOCK_SIZE) {
 				// error or end-of-file reached,
 				// in both cases stop pre-caching
