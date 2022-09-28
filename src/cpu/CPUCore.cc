@@ -172,9 +172,10 @@
 #include "inline.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+#include <array>
+#include <cassert>
 #include <iostream>
 #include <type_traits>
-#include <cassert>
 
 
 //
@@ -185,7 +186,7 @@
 //   standard. So this will only work if you use gcc as your compiler (it
 //   won't work with visual c++ for example)
 // - This is only beneficial on CPUs with branch prediction for indirect jumps
-//   and a reasonable amount of cache. For example it is very benefical for a
+//   and a reasonable amount of cache. For example it is very beneficial for a
 //   intel core2 cpu (10% faster), but not for a ARM920 (a few percent slower)
 // - Compiling src/cpu/CPUCore.cc with computed goto's enabled is very demanding
 //   on the compiler. On older gcc versions it requires up to 1.5GB of memory.
@@ -201,31 +202,31 @@ enum Reg8  : int { A, F, B, C, D, E, H, L, IXH, IXL, IYH, IYL, REG_I, REG_R, DUM
 enum Reg16 : int { AF, BC, DE, HL, IX, IY, SP };
 
 // flag positions
-constexpr byte S_FLAG = 0x80;
-constexpr byte Z_FLAG = 0x40;
-constexpr byte Y_FLAG = 0x20;
-constexpr byte H_FLAG = 0x10;
-constexpr byte X_FLAG = 0x08;
-constexpr byte V_FLAG = 0x04;
-constexpr byte P_FLAG = V_FLAG;
-constexpr byte N_FLAG = 0x02;
-constexpr byte C_FLAG = 0x01;
+static constexpr byte S_FLAG = 0x80;
+static constexpr byte Z_FLAG = 0x40;
+static constexpr byte Y_FLAG = 0x20;
+static constexpr byte H_FLAG = 0x10;
+static constexpr byte X_FLAG = 0x08;
+static constexpr byte V_FLAG = 0x04;
+static constexpr byte P_FLAG = V_FLAG;
+static constexpr byte N_FLAG = 0x02;
+static constexpr byte C_FLAG = 0x01;
 
 // flag-register lookup tables
 struct Table {
-	byte ZS   [256];
-	byte ZSXY [256];
-	byte ZSP  [256];
-	byte ZSPXY[256];
-	byte ZSPH [256];
+	std::array<byte, 256> ZS;
+	std::array<byte, 256> ZSXY;
+	std::array<byte, 256> ZSP;
+	std::array<byte, 256> ZSPXY;
+	std::array<byte, 256> ZSPH;
 };
 
-constexpr byte ZS0     = Z_FLAG;
-constexpr byte ZSXY0   = Z_FLAG;
-constexpr byte ZSP0    = Z_FLAG | V_FLAG;
-constexpr byte ZSPXY0  = Z_FLAG | V_FLAG;
-constexpr byte ZS255   = S_FLAG;
-constexpr byte ZSXY255 = S_FLAG | X_FLAG | Y_FLAG;
+static constexpr byte ZS0     = Z_FLAG;
+static constexpr byte ZSXY0   = Z_FLAG;
+static constexpr byte ZSP0    = Z_FLAG | V_FLAG;
+static constexpr byte ZSPXY0  = Z_FLAG | V_FLAG;
+static constexpr byte ZS255   = S_FLAG;
+static constexpr byte ZSXY255 = S_FLAG | X_FLAG | Y_FLAG;
 
 static constexpr Table initTables()
 {
@@ -256,7 +257,7 @@ static constexpr Table initTables()
 	return table;
 }
 
-constexpr Table table = initTables();
+static constexpr Table table = initTables();
 
 // Global variable, because it should be shared between Z80 and R800.
 // It must not be shared between the CPUs of different MSX machines, but
@@ -498,7 +499,7 @@ static constexpr char toHex(byte x)
 {
 	return (x < 10) ? (x + '0') : (x - 10 + 'A');
 }
-static constexpr void toHex(byte x, char* buf)
+static constexpr void toHex(byte x, std::span<char, 3> buf)
 {
 	buf[0] = toHex(x / 16);
 	buf[1] = toHex(x & 15);
@@ -508,15 +509,15 @@ template<typename T> void CPUCore<T>::disasmCommand(
 	Interpreter& interp, std::span<const TclObject> tokens, TclObject& result) const
 {
 	word address = (tokens.size() < 3) ? getPC() : tokens[2].getInt(interp);
-	byte outBuf[4];
+	std::array<byte, 4> outBuf;
 	std::string dasmOutput;
 	unsigned len = dasm(*interface, address, outBuf, dasmOutput,
 	               T::getTimeFast());
 	result.addListElement(dasmOutput);
-	char tmp[3]; tmp[2] = 0;
+	std::array<char, 3> tmp; tmp[2] = 0;
 	for (auto i : xrange(len)) {
 		toHex(outBuf[i], tmp);
-		result.addListElement(tmp);
+		result.addListElement(tmp.data());
 	}
 }
 
@@ -2441,7 +2442,7 @@ template<typename T> inline void CPUCore<T>::cpuTracePost()
 }
 template<typename T> void CPUCore<T>::cpuTracePost_slow()
 {
-	byte opBuf[4];
+	std::array<byte, 4> opBuf;
 	std::string dasmOutput;
 	dasm(*interface, start_pc, opBuf, dasmOutput, T::getTimeFast());
 	std::cout << strCat(hex_string<4>(start_pc),

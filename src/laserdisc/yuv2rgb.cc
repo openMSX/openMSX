@@ -3,6 +3,7 @@
 #include "Math.hh"
 #include "PixelFormat.hh"
 #include "xrange.hh"
+#include <array>
 #include <cassert>
 #include <concepts>
 #include <cstdint>
@@ -254,19 +255,19 @@ static inline void convertHelperSSE2(
 
 #endif // __SSE2__
 
-constexpr int PREC = 15;
-constexpr int COEF_Y  = int(1.164 * (1 << PREC) + 0.5); // prefer to use lrint() to round
-constexpr int COEF_RV = int(1.596 * (1 << PREC) + 0.5); // but that's not (yet) constexpr
-constexpr int COEF_GU = int(0.391 * (1 << PREC) + 0.5); // in current versions of c++
-constexpr int COEF_GV = int(0.813 * (1 << PREC) + 0.5);
-constexpr int COEF_BU = int(2.018 * (1 << PREC) + 0.5);
+static constexpr int PREC = 15;
+static constexpr int COEF_Y  = int(1.164 * (1 << PREC) + 0.5); // prefer to use lrint() to round
+static constexpr int COEF_RV = int(1.596 * (1 << PREC) + 0.5); // but that's not (yet) constexpr
+static constexpr int COEF_GU = int(0.391 * (1 << PREC) + 0.5); // in current versions of c++
+static constexpr int COEF_GV = int(0.813 * (1 << PREC) + 0.5);
+static constexpr int COEF_BU = int(2.018 * (1 << PREC) + 0.5);
 
 struct Coefs {
-	int gu[256];
-	int gv[256];
-	int bu[256];
-	int rv[256];
-	int y [256];
+	std::array<int, 256> gu;
+	std::array<int, 256> gv;
+	std::array<int, 256> bu;
+	std::array<int, 256> rv;
+	std::array<int, 256> y;
 };
 
 [[nodiscard]] static constexpr Coefs getCoefs()

@@ -15,7 +15,7 @@ static constexpr int abs(unsigned char a)
 	return (a & 128) ? (256 - a) : a;
 }
 
-unsigned dasm(const MSXCPUInterface& interf, word pc, byte buf[4],
+unsigned dasm(const MSXCPUInterface& interf, word pc, std::span<byte, 4> buf,
               std::string& dest, EmuTime::param time)
 {
 	const char* r = nullptr;
