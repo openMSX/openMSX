@@ -2,8 +2,9 @@
 #define AMDFLASH_HH
 
 #include "MemBuffer.hh"
-#include "openmsx.hh"
 #include "serialize_meta.hh"
+#include <array>
+#include <cstdint>
 #include <memory>
 #include <span>
 
@@ -46,10 +47,10 @@ public:
 	 * @param load Load initial content (hack for 'Matra INK')
 	 */
 	AmdFlash(const Rom& rom, std::span<const SectorInfo> sectorInfo,
-	         word ID, Addressing addressing,
+	         uint16_t ID, Addressing addressing,
 	         const DeviceConfig& config, Load load = Load::NORMAL);
 	AmdFlash(const std::string& name, std::span<const SectorInfo> sectorInfo,
-	         word ID, Addressing addressing,
+	         uint16_t ID, Addressing addressing,
 		 const DeviceConfig& config);
 	~AmdFlash();
 
@@ -63,10 +64,10 @@ public:
 	void setVppWpPinLow(bool value) { vppWpPinLow = value; }
 
 	[[nodiscard]] size_t size() const { return sz; }
-	[[nodiscard]] byte read(size_t address) const;
-	[[nodiscard]] byte peek(size_t address) const;
-	void write(size_t address, byte value);
-	[[nodiscard]] const byte* getReadCacheLine(size_t address) const;
+	[[nodiscard]] uint8_t read(size_t address) const;
+	[[nodiscard]] uint8_t peek(size_t address) const;
+	void write(size_t address, uint8_t value);
+	[[nodiscard]] const uint8_t* getReadCacheLine(size_t address) const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -74,7 +75,7 @@ public:
 //private:
 	struct AmdCmd {
 		size_t addr;
-		byte value;
+		uint8_t value;
 
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);
@@ -91,12 +92,12 @@ private:
 	[[nodiscard]] bool checkCommandReset();
 	[[nodiscard]] bool checkCommandEraseSector();
 	[[nodiscard]] bool checkCommandEraseChip();
-	[[nodiscard]] bool checkCommandProgramHelper(size_t numBytes, const byte* cmdSeq, size_t cmdLen);
+	[[nodiscard]] bool checkCommandProgramHelper(size_t numBytes, std::span<const uint8_t> cmdSeq);
 	[[nodiscard]] bool checkCommandProgram();
 	[[nodiscard]] bool checkCommandDoubleByteProgram();
 	[[nodiscard]] bool checkCommandQuadrupleByteProgram();
 	[[nodiscard]] bool checkCommandManufacturer();
-	[[nodiscard]] bool partialMatch(size_t len, const byte* dataSeq) const;
+	[[nodiscard]] bool partialMatch(std::span<const uint8_t> dataSeq) const;
 
 	[[nodiscard]] bool isSectorWritable(size_t sector) const;
 
@@ -104,14 +105,14 @@ private:
 	MSXMotherBoard& motherBoard;
 	std::unique_ptr<SRAM> ram;
 	MemBuffer<int> writeAddress;
-	MemBuffer<const byte*> readAddress;
+	MemBuffer<const uint8_t*> readAddress;
 	const std::span<const SectorInfo> sectorInfo;
 	const size_t sz;
-	const word ID;
+	const uint16_t ID;
 	const Addressing addressing;
 
 	static constexpr unsigned MAX_CMD_SIZE = 8;
-	AmdCmd cmd[MAX_CMD_SIZE];
+	std::array<AmdCmd, MAX_CMD_SIZE> cmd;
 	unsigned cmdIdx;
 	State state = ST_IDLE;
 	bool vppWpPinLow = false; // true = protection on

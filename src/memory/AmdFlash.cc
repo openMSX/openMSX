@@ -19,7 +19,7 @@
 namespace openmsx {
 
 AmdFlash::AmdFlash(const Rom& rom, std::span<const SectorInfo> sectorInfo_,
-                   word ID_, Addressing addressing_,
+                   uint16_t ID_, Addressing addressing_,
                    const DeviceConfig& config, Load load)
 	: motherBoard(config.getMotherBoard())
 	, sectorInfo(std::move(sectorInfo_))
@@ -31,7 +31,7 @@ AmdFlash::AmdFlash(const Rom& rom, std::span<const SectorInfo> sectorInfo_,
 }
 
 AmdFlash::AmdFlash(const std::string& name, std::span<const SectorInfo> sectorInfo_,
-                   word ID_, Addressing addressing_,
+                   uint16_t ID_, Addressing addressing_,
                    const DeviceConfig& config)
 	: motherBoard(config.getMotherBoard())
 	, sectorInfo(std::move(sectorInfo_))
@@ -144,7 +144,7 @@ void AmdFlash::init(const std::string& name, const DeviceConfig& config, Load lo
 		if (isSectorWritable(i)) {
 			readAddress[i] = &(*ram)[writeAddress[i]];
 			if (!loaded) {
-				auto* ramPtr = const_cast<byte*>(
+				auto* ramPtr = const_cast<uint8_t*>(
 					&(*ram)[writeAddress[i]]);
 				if (offset >= romSize) {
 					// completely past end of rom
@@ -153,12 +153,12 @@ void AmdFlash::init(const std::string& name, const DeviceConfig& config, Load lo
 					// partial overlap
 					auto last = romSize - offset;
 					auto missing = sectorSize - last;
-					const byte* romPtr = &(*rom)[offset];
+					const uint8_t* romPtr = &(*rom)[offset];
 					ranges::copy(std::span{romPtr, last}, ramPtr);
 					ranges::fill(std::span{&ramPtr[last], missing}, 0xFF);
 				} else {
 					// completely before end of rom
-					const byte* romPtr = &(*rom)[offset];
+					const uint8_t* romPtr = &(*rom)[offset];
 					ranges::copy(std::span{romPtr, sectorSize}, ramPtr);
 				}
 			}
@@ -208,11 +208,11 @@ void AmdFlash::setState(State newState)
 	motherBoard.getCPU().invalidateAllSlotsRWCache(0x0000, 0x10000);
 }
 
-byte AmdFlash::peek(size_t address) const
+uint8_t AmdFlash::peek(size_t address) const
 {
 	auto [sector, sectorSize, offset] = getSectorInfo(address);
 	if (state == ST_IDLE) {
-		if (const byte* addr = readAddress[sector]) {
+		if (const uint8_t* addr = readAddress[sector]) {
 			return addr[offset];
 		} else {
 			return 0xFF;
@@ -244,24 +244,24 @@ bool AmdFlash::isSectorWritable(size_t sector) const
 	return vppWpPinLow && (sector == one_of(0u, 1u)) ? false : (writeAddress[sector] != -1) ;
 }
 
-byte AmdFlash::read(size_t address) const
+uint8_t AmdFlash::read(size_t address) const
 {
 	// note: after a read we stay in the same mode
 	return peek(address);
 }
 
-const byte* AmdFlash::getReadCacheLine(size_t address) const
+const uint8_t* AmdFlash::getReadCacheLine(size_t address) const
 {
 	if (state == ST_IDLE) {
 		auto [sector, sectorSize, offset] = getSectorInfo(address);
-		const byte* addr = readAddress[sector];
+		const uint8_t* addr = readAddress[sector];
 		return addr ? &addr[offset] : MSXDevice::unmappedRead;
 	} else {
 		return nullptr;
 	}
 }
 
-void AmdFlash::write(size_t address, byte value)
+void AmdFlash::write(size_t address, uint8_t value)
 {
 	assert(cmdIdx < MAX_CMD_SIZE);
 	cmd[cmdIdx].addr = address;
@@ -295,8 +295,8 @@ bool AmdFlash::checkCommandReset()
 
 bool AmdFlash::checkCommandEraseSector()
 {
-	static constexpr byte cmdSeq[] = { 0xaa, 0x55, 0x80, 0xaa, 0x55 };
-	if (partialMatch(5, cmdSeq)) {
+	static constexpr std::array<uint8_t, 5> cmdSeq = {0xaa, 0x55, 0x80, 0xaa, 0x55};
+	if (partialMatch(cmdSeq)) {
 		if (cmdIdx < 6) return true;
 		if (cmd[5].value == 0x30) {
 			auto addr = cmd[5].addr;
@@ -312,8 +312,8 @@ bool AmdFlash::checkCommandEraseSector()
 
 bool AmdFlash::checkCommandEraseChip()
 {
-	static constexpr byte cmdSeq[] = { 0xaa, 0x55, 0x80, 0xaa, 0x55 };
-	if (partialMatch(5, cmdSeq)) {
+	static constexpr std::array<uint8_t, 5> cmdSeq = {0xaa, 0x55, 0x80, 0xaa, 0x55};
+	if (partialMatch(cmdSeq)) {
 		if (cmdIdx < 6) return true;
 		if (cmd[5].value == 0x10) {
 			if (ram) ram->memset(0, 0xff, ram->size());
@@ -322,11 +322,11 @@ bool AmdFlash::checkCommandEraseChip()
 	return false;
 }
 
-bool AmdFlash::checkCommandProgramHelper(size_t numBytes, const byte* cmdSeq, size_t cmdLen)
+bool AmdFlash::checkCommandProgramHelper(size_t numBytes, std::span<const uint8_t> cmdSeq)
 {
-	if (partialMatch(cmdLen, cmdSeq)) {
-		if (cmdIdx < (cmdLen + numBytes)) return true;
-		for (auto i : xrange(cmdLen, cmdLen + numBytes)) {
+	if (partialMatch(cmdSeq)) {
+		if (cmdIdx < (cmdSeq.size() + numBytes)) return true;
+		for (auto i : xrange(cmdSeq.size(), cmdSeq.size() + numBytes)) {
 			auto addr = cmd[i].addr;
 			auto [sector, sectorSize, offset] = getSectorInfo(addr);
 			if (isSectorWritable(sector)) {
@@ -340,26 +340,26 @@ bool AmdFlash::checkCommandProgramHelper(size_t numBytes, const byte* cmdSeq, si
 
 bool AmdFlash::checkCommandProgram()
 {
-	static constexpr byte cmdSeq[] = { 0xaa, 0x55, 0xa0 };
-	return checkCommandProgramHelper(1, cmdSeq, std::size(cmdSeq));
+	static constexpr std::array<uint8_t, 3> cmdSeq = {0xaa, 0x55, 0xa0};
+	return checkCommandProgramHelper(1, cmdSeq);
 }
 
 bool AmdFlash::checkCommandDoubleByteProgram()
 {
-	static constexpr byte cmdSeq[] = { 0x50 };
-	return checkCommandProgramHelper(2, cmdSeq, std::size(cmdSeq));
+	static constexpr std::array<uint8_t, 1> cmdSeq = {0x50};
+	return checkCommandProgramHelper(2, cmdSeq);
 }
 
 bool AmdFlash::checkCommandQuadrupleByteProgram()
 {
-	static constexpr byte cmdSeq[] = { 0x56 };
-	return checkCommandProgramHelper(4, cmdSeq, std::size(cmdSeq));
+	static constexpr std::array<uint8_t, 1> cmdSeq = {0x56};
+	return checkCommandProgramHelper(4, cmdSeq);
 }
 
 bool AmdFlash::checkCommandManufacturer()
 {
-	static constexpr byte cmdSeq[] = { 0xaa, 0x55, 0x90 };
-	if (partialMatch(3, cmdSeq)) {
+	static constexpr std::array<uint8_t, 3> cmdSeq = {0xaa, 0x55, 0x90};
+	if (partialMatch(cmdSeq)) {
 		if (cmdIdx == 3) {
 			setState(ST_IDENT);
 		}
@@ -368,13 +368,13 @@ bool AmdFlash::checkCommandManufacturer()
 	return false;
 }
 
-bool AmdFlash::partialMatch(size_t len, const byte* dataSeq) const
+bool AmdFlash::partialMatch(std::span<const uint8_t> dataSeq) const
 {
-	static constexpr unsigned addrSeq[] = { 0, 1, 0, 0, 1 };
-	unsigned cmdAddr[2] = { 0x555, 0x2aa };
+	static constexpr std::array<unsigned, 5> addrSeq = {0, 1, 0, 0, 1};
+	static constexpr std::array<unsigned, 2> cmdAddr = {0x555, 0x2aa};
 
-	assert(len <= 5);
-	for (auto i : xrange(std::min(unsigned(len), cmdIdx))) {
+	assert(dataSeq.size() <= 5);
+	for (auto i : xrange(std::min(unsigned(dataSeq.size()), cmdIdx))) {
 		// convert the address to the '11 bit case'
 		auto addr = (addressing == Addressing::BITS_12) ? cmd[i].addr >> 1 : cmd[i].addr;
 		if (((addr & 0x7FF) != cmdAddr[addrSeq[i]]) ||
