@@ -7,6 +7,7 @@
 
 #include "YM2413Core.hh"
 #include "opll.hh"
+#include <array>
 
 namespace openmsx::YM2413OriginalNukeYKT {
 
@@ -30,10 +31,11 @@ private:
 	struct Write {
 		uint8_t port = uint8_t(-1);
 		uint8_t value;
-	} writes[18];
+	};
+	std::array<Write, 18> writes;
 
 	// only used for peekReg();
-	uint8_t regs[64];
+	std::array<uint8_t, 64> regs;
 	uint8_t latch;
 
 	int allowed_offset = 0;

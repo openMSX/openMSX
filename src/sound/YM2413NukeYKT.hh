@@ -61,6 +61,7 @@
 #include "YM2413Core.hh"
 #include "inline.hh"
 #include <array>
+#include <span>
 
 namespace openmsx::YM2413NukeYKT {
 
@@ -119,7 +120,7 @@ private:
 		constexpr void setAM(int i, bool am) { am_t[i] = am ? -1 : 0; }
 		constexpr void setKSR(int i, bool ksr) { ksr_t[i] = ksr ? 0 : 2; }
 		constexpr void setMulti(int i, uint8_t multi) {
-			constexpr uint8_t PG_MULTI[16] = {
+			constexpr std::array<uint8_t, 16> PG_MULTI = {
 				1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 20, 24, 24, 30, 30
 			};
 			multi_t[i] = PG_MULTI[multi];
@@ -144,7 +145,9 @@ private:
 		uint8_t_2 rr4 = {0, 0}; // multiplied by 4
 	};
 	struct Locals {
-		float** out;
+		Locals(std::span<float*, 9 + 5> out_) : out(out_) {}
+
+		std::span<float*, 9 + 5> out;
 		uint8_t rm_hh_bits;
 		bool use_rm_patches;
 		bool lfo_am_car;
@@ -159,17 +162,17 @@ private:
 	};
 
 private:
-	template<bool TEST_MODE> NEVER_INLINE void step18(float* out[9 + 5]);
+	template<bool TEST_MODE> NEVER_INLINE void step18(std::span<float*, 9 + 5> out);
 	template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void step(Locals& l);
 
 	template<uint32_t CYCLES>                 ALWAYS_INLINE uint32_t phaseCalcIncrement(const Patch& patch1) const;
-	template<uint32_t CYCLES>                 ALWAYS_INLINE void channelOutput(float* out[9 + 5], int32_t ch_out);
+	template<uint32_t CYCLES>                 ALWAYS_INLINE void channelOutput(std::span<float*, 9 + 5> out, int32_t ch_out);
 	template<uint32_t CYCLES>                 ALWAYS_INLINE const Patch& preparePatch1(bool use_rm_patches) const;
 	template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE uint32_t getPhase(uint8_t& rm_hh_bits);
 	template<uint32_t CYCLES>                 ALWAYS_INLINE bool keyOnEvent() const;
 	template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void incrementPhase(uint32_t phase_incr, bool prev_rhythm);
 	template<uint32_t CYCLES>                 ALWAYS_INLINE uint32_t getPhaseMod(uint8_t fb_t);
-	template<uint32_t CYCLES>                 ALWAYS_INLINE void doOperator(float* out[9 + 5], bool eg_silent);
+	template<uint32_t CYCLES>                 ALWAYS_INLINE void doOperator(std::span<float*, 9 + 5> out, bool eg_silent);
 	template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE uint8_t envelopeOutput(uint32_t ksltl, int8_t am_t) const;
 	template<uint32_t CYCLES>                 ALWAYS_INLINE uint32_t envelopeKSLTL(const Patch& patch1, bool use_rm_patches) const;
 	template<uint32_t CYCLES>                 ALWAYS_INLINE void envelopeTimer1();
@@ -189,11 +192,11 @@ private:
 	void changeFnumBlock(uint32_t ch);
 
 private:
-	static const Patch m_patches[15];
-	static const Patch r_patches[ 6];
+	static const std::array<Patch, 15> m_patches;
+	static const std::array<Patch,  6> r_patches;
 
 	// IO
-	Write writes[18];
+	std::array<Write, 18> writes;
 	uint8_t write_data;
 	uint8_t fm_data;
 	uint8_t write_address;
@@ -202,31 +205,31 @@ private:
 	bool test_mode_active;
 
 	// Envelope generator
-	const uint8_t* attackPtr;  // redundant: calculate from eg_timer_shift_lock, eg_timer_lock
-	const uint8_t* releasePtr; // redundant: calculate from eg_timer_shift_lock, eg_timer_lock, eg_counter_state
+	std::span<const uint8_t, 64> attackPtr;  // redundant: calculate from eg_timer_shift_lock, eg_timer_lock
+	std::span<const uint8_t, 64> releasePtr; // redundant: calculate from eg_timer_shift_lock, eg_timer_lock, eg_counter_state
 	uint32_t eg_timer;
-	uint8_t eg_sl[2];
-	uint8_t eg_out[2];
+	std::array<uint8_t, 2> eg_sl;
+	std::array<uint8_t, 2> eg_out;
 	uint8_t eg_counter_state; // 0..3
 	uint8_t eg_timer_shift;
 	uint8_t eg_timer_shift_lock;
 	uint8_t eg_timer_lock;
-	EgState eg_state[18];
-	uint8_t eg_level[18];
-	uint8_t eg_rate[2];
-	bool eg_dokon[18];
-	bool eg_kon[2];
-	bool eg_off[2];
+	std::array<EgState, 18> eg_state;
+	std::array<uint8_t, 18> eg_level;
+	std::array<uint8_t, 2> eg_rate;
+	std::array<bool, 18> eg_dokon;
+	std::array<bool, 2> eg_kon;
+	std::array<bool, 2> eg_off;
 	bool eg_timer_shift_stop;
 
 	// Phase generator
-	uint32_t pg_phase[18];
+	std::array<uint32_t, 18> pg_phase;
 
 	// Operator
-	int16_t op_fb1[9];
-	int16_t op_fb2[9];
+	std::array<int16_t, 9> op_fb1;
+	std::array<int16_t, 9> op_fb2;
 	int16_t op_mod;
-	uint16_t op_phase[2];
+	std::array<uint16_t, 2> op_phase;
 
 	// LFO
 	uint16_t lfo_counter;
@@ -238,19 +241,19 @@ private:
 	bool lfo_am_dir;
 
 	// Register set
-	uint16_t fnum[9];
-	uint8_t block[9];
-	uint8_t p_ksl[9];      // redundant: calculate from fnum[] and block[]
-	uint16_t p_incr[9];    // redundant: calculate from fnum[] and block[]
-	uint8_t p_ksr_freq[9]; // redundant: calculate from fnum[] and block[]
-	uint8_t sk_on[9];
-	uint8_t vol8[9]; // multiplied by 8
-	uint8_t inst[9];
-	const Patch* p_inst[9]; // redundant: &patches[inst[]]
+	std::array<uint16_t, 9> fnum;
+	std::array<uint8_t, 9> block;
+	std::array<uint8_t, 9> p_ksl;      // redundant: calculate from fnum[] and block[]
+	std::array<uint16_t, 9> p_incr;    // redundant: calculate from fnum[] and block[]
+	std::array<uint8_t, 9> p_ksr_freq; // redundant: calculate from fnum[] and block[]
+	std::array<uint8_t, 9> sk_on;
+	std::array<uint8_t, 9> vol8; // multiplied by 8
+	std::array<uint8_t, 9> inst;
+	std::array<const Patch*, 9> p_inst; // redundant: &patches[inst[]]
 	uint8_t rhythm;
 	uint8_t testmode;
-	Patch patches[1 + 15]; // user patch (modifyable) + 15 ROM patches
-	uint8_t c_dcm[3];
+	std::array<Patch, 1 + 15> patches; // user patch (modifiable) + 15 ROM patches
+	std::array<uint8_t, 3> c_dcm;
 
 	// Rhythm mode
 	uint32_t rm_noise;
@@ -263,7 +266,7 @@ private:
 	int delay12;
 
 	// only used for peekReg();
-	uint8_t regs[64];
+	std::array<uint8_t, 64> regs;
 	uint8_t latch;
 
 	int allowed_offset = 0; // Hack: see comments in writePort()
