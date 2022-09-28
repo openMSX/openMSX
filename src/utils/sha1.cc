@@ -38,7 +38,7 @@ namespace openmsx {
 
 class WorkspaceBlock {
 private:
-	uint32_t data[16];
+	std::array<uint32_t, 16> data;
 
 	[[nodiscard]] uint32_t next0(int i)
 	{
@@ -54,7 +54,7 @@ private:
 	}
 
 public:
-	explicit WorkspaceBlock(const uint8_t buffer[64]);
+	explicit WorkspaceBlock(std::span<const uint8_t, 64> buffer);
 
 	// SHA-1 rounds
 	void r0(uint32_t v, uint32_t& w, uint32_t x, uint32_t y, uint32_t& z, int i)
@@ -84,9 +84,9 @@ public:
 	}
 };
 
-WorkspaceBlock::WorkspaceBlock(const uint8_t buffer[64])
+WorkspaceBlock::WorkspaceBlock(std::span<const uint8_t, 64> buffer)
 {
-	memcpy(data, buffer, sizeof(data));
+	memcpy(data.data(), buffer.data(), sizeof(data));
 }
 
 
@@ -206,7 +206,7 @@ void Sha1Sum::parse40(const char* str)
 	__m128i f2 = _mm_packus_epi16(e2, e2);
 
 	// store result
-	_mm_storeu_si128(reinterpret_cast<__m128i*>(a), _mm_unpacklo_epi64(f0, f1));
+	_mm_storeu_si128(reinterpret_cast<__m128i*>(a.data()), _mm_unpacklo_epi64(f0, f1));
 	a[4] = _mm_cvtsi128_si32(f2);
 #else
 	// equivalent c++ version
@@ -228,14 +228,14 @@ void Sha1Sum::parse40(const char* str)
 }
 std::string Sha1Sum::toString() const
 {
-	char buf[40];
-	char* p = buf;
+	std::array<char, 40> buf;
+	size_t i = 0;
 	for (const auto& ai : a) {
 		for (int j = 28; j >= 0; j -= 4) {
-			*p++ = digit((ai >> j) & 0xf);
+			buf[i++] = digit((ai >> j) & 0xf);
 		}
 	}
-	return {buf, 40};
+	return {buf.data(), buf.size()};
 }
 
 bool Sha1Sum::empty() const
@@ -262,7 +262,7 @@ SHA1::SHA1()
 	m_state.a[4] = 0xC3D2E1F0;
 }
 
-void SHA1::transform(const uint8_t buffer[64])
+void SHA1::transform(std::span<const uint8_t, 64> buffer)
 {
 	WorkspaceBlock block(buffer);
 
@@ -311,29 +311,27 @@ void SHA1::transform(const uint8_t buffer[64])
 }
 
 // Use this function to hash in binary data and strings
-void SHA1::update(std::span<const uint8_t> data_)
+void SHA1::update(std::span<const uint8_t> data)
 {
-	const uint8_t* data = data_.data();
-	size_t len = data_.size();
-
 	assert(!m_finalized);
 	uint32_t j = m_count & 63;
 
+	size_t len = data.size();
 	m_count += len;
 
 	size_t i;
 	if ((j + len) > 63) {
 		i = 64 - j;
-		ranges::copy(std::span{data, i}, &m_buffer[j]);
+		ranges::copy(data.subspan(0, i), subspan(m_buffer, j));
 		transform(m_buffer);
 		for (/**/; i + 63 < len; i += 64) {
-			transform(&data[i]);
+			transform(subspan<64>(data, i));
 		}
 		j = 0;
 	} else {
 		i = 0;
 	}
-	ranges::copy(std::span{&data[i], len - i}, &m_buffer[j]);
+	ranges::copy(data.subspan(i, len - i), subspan(m_buffer, j));
 }
 
 void SHA1::finalize()

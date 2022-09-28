@@ -2,6 +2,7 @@
 #define SHA1_HH
 
 #include "xrange.hh"
+#include <array>
 #include <cstdint>
 #include <ostream>
 #include <span>
@@ -62,7 +63,7 @@ public:
 	}
 
 private:
-	uint32_t a[5];
+	std::array<uint32_t, 5> a;
 	friend class SHA1;
 };
 
@@ -91,13 +92,13 @@ public:
 	[[nodiscard]] static Sha1Sum calc(std::span<const uint8_t> data);
 
 private:
-	void transform(const uint8_t buffer[64]);
+	void transform(std::span<const uint8_t, 64> buffer);
 	void finalize();
 
 private:
 	uint64_t m_count; // in bytes (sha1 reference implementation counts in bits)
 	Sha1Sum m_state;
-	uint8_t m_buffer[64];
+	std::array<uint8_t, 64> m_buffer;
 	bool m_finalized;
 };
 
