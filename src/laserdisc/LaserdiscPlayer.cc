@@ -27,6 +27,11 @@ using std::string;
 
 namespace openmsx {
 
+static std::string_view getLaserDiscPlayerName()
+{
+	return "laserdiscplayer";
+}
+
 // Command
 
 LaserdiscPlayer::Command::Command(
@@ -34,7 +39,7 @@ LaserdiscPlayer::Command::Command(
 		StateChangeDistributor& stateChangeDistributor_,
 		Scheduler& scheduler_)
 	: RecordedCommand(commandController_, stateChangeDistributor_,
-			  scheduler_, "laserdiscplayer")
+			  scheduler_, getLaserDiscPlayerName())
 {
 }
 
@@ -97,7 +102,7 @@ constexpr unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on .ogg file
 
 LaserdiscPlayer::LaserdiscPlayer(
 		const HardwareConfig& hwConf, PioneerLDControl& ldControl_)
-	: ResampledSoundDevice(hwConf.getMotherBoard(), "laserdiscplayer",
+	: ResampledSoundDevice(hwConf.getMotherBoard(), getLaserDiscPlayerName(),
 	                       "Laserdisc Player", 1, DUMMY_INPUT_RATE, true)
 	, syncAck (hwConf.getMotherBoard().getScheduler())
 	, syncOdd (hwConf.getMotherBoard().getScheduler())
@@ -136,12 +141,15 @@ LaserdiscPlayer::LaserdiscPlayer(
 
 	static XMLElement* xml = [] {
 		auto& doc = XMLDocument::getStaticDocument();
-		auto* result = doc.allocateElement("laserdiscplayer");
+		auto* result = doc.allocateElement(string(getLaserDiscPlayerName()).c_str());
 		result->setFirstChild(doc.allocateElement("sound"))
 		      ->setFirstChild(doc.allocateElement("volume", "30000"));
 		return result;
 	}();
 	registerSound(DeviceConfig(hwConf, *xml));
+
+	motherBoard.registerMediaInfoProvider(string(getLaserDiscPlayerName()), *this);
+	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, getLaserDiscPlayerName(), "add");
 }
 
 LaserdiscPlayer::~LaserdiscPlayer()
@@ -150,6 +158,26 @@ LaserdiscPlayer::~LaserdiscPlayer()
 	Reactor& reactor = motherBoard.getReactor();
 	reactor.getDisplay().detach(*this);
 	reactor.getEventDistributor().unregisterEventListener(EventType::BOOT, *this);
+	motherBoard.unregisterMediaInfoProvider(string(getLaserDiscPlayerName()));
+	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, getLaserDiscPlayerName(), "remove");
+}
+
+string LaserdiscPlayer::getStateString() const
+{
+	switch (playerState) {
+		case PLAYER_STOPPED:    return "stopped";
+		case PLAYER_PLAYING:    return "playing";
+		case PLAYER_MULTISPEED: return "multispeed";
+		case PLAYER_PAUSED:     return "paused";
+		case PLAYER_STILL:      return "still";
+	}
+	UNREACHABLE; return {};
+}
+
+void LaserdiscPlayer::getMediaInfo(TclObject& result)
+{
+	result.addDictKeyValues("target", getImageName().getResolved(),
+	                        "state", getStateString());
 }
 
 void LaserdiscPlayer::scheduleDisplayStart(EmuTime::param time)

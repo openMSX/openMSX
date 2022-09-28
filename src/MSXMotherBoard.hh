@@ -34,6 +34,7 @@ class LedStatus;
 class ListExtCmd;
 class LoadMachineCmd;
 class MachineExtensionInfo;
+class MachineMediaInfo;
 class MachineNameInfo;
 class MachineTypeInfo;
 class MSXCliComm;
@@ -56,6 +57,24 @@ class ReverseManager;
 class SettingObserver;
 class Scheduler;
 class StateChangeDistributor;
+
+class MediaInfoProvider
+{
+public:
+	MediaInfoProvider(const MediaInfoProvider&) = delete;
+	MediaInfoProvider& operator=(const MediaInfoProvider&) = delete;
+
+	/** This method gets called when information is required on the
+	 * media inserted in the media slot of the provider. The provider
+	 * must attach the info as a dictionary to the given TclObject.
+	 */
+	virtual void getMediaInfo(TclObject& result) = 0;
+
+protected:
+	MediaInfoProvider() = default;
+	~MediaInfoProvider() = default;
+};
+
 
 class MSXMotherBoard final
 {
@@ -200,6 +219,12 @@ public:
 	[[nodiscard]] std::string getUserName(const std::string& hwName);
 	void freeUserName(const std::string& hwName, const std::string& userName);
 
+	/** Register and unregister providers of media info, for the media info
+	 * topic.
+	 */
+	void registerMediaInfoProvider(const std::string& slot, MediaInfoProvider& infoProvider);
+	void unregisterMediaInfoProvider(const std::string& slot);
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
@@ -241,6 +266,8 @@ private:
 	std::unique_ptr<RealTime> realTime;
 	std::unique_ptr<Debugger> debugger;
 	std::unique_ptr<MSXMixer> msxMixer;
+	// machineMediaInfo must be BEFORE PluggingController!
+	std::unique_ptr<MachineMediaInfo> machineMediaInfo;
 	std::unique_ptr<PluggingController> pluggingController;
 	std::unique_ptr<MSXCPU> msxCpu;
 	std::unique_ptr<MSXCPUInterface> msxCpuInterface;

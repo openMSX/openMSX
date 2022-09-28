@@ -50,6 +50,7 @@
 #include <functional>
 #include <iostream>
 #include <memory>
+#include <map>
 
 using std::make_unique;
 using std::string;
@@ -145,6 +146,24 @@ private:
 	MSXMotherBoard& motherBoard;
 };
 
+class MachineMediaInfo final : public InfoTopic
+{
+public:
+	explicit MachineMediaInfo(MSXMotherBoard& motherBoard);
+	~MachineMediaInfo() {
+		assert(providers.empty());
+	}
+	void execute(std::span<const TclObject> tokens,
+	             TclObject& result) const override;
+	[[nodiscard]] string help(std::span<const TclObject> tokens) const override;
+	void tabCompletion(std::vector<string>& tokens) const override;
+	void registerProvider(const string& slot, MediaInfoProvider& provider);
+	void unregisterProvider(const string& slot);
+private:
+	MSXMotherBoard& motherBoard;
+	std::map<string, MediaInfoProvider*> providers;
+};
+
 class DeviceInfo final : public InfoTopic
 {
 public:
@@ -220,6 +239,7 @@ MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
 	machineNameInfo = make_unique<MachineNameInfo>(*this);
 	machineTypeInfo = make_unique<MachineTypeInfo>(*this);
 	machineExtensionInfo = make_unique<MachineExtensionInfo>(*this);
+	machineMediaInfo = make_unique<MachineMediaInfo>(*this);
 	deviceInfo = make_unique<DeviceInfo>(*this);
 	debugger = make_unique<Debugger>(*this);
 
@@ -733,6 +753,17 @@ void MSXMotherBoard::freeUserName(const string& hwName, const string& userName)
 	move_pop_back(s, rfind_unguarded(s, userName));
 }
 
+void MSXMotherBoard::registerMediaInfoProvider(const string& slot, MediaInfoProvider& infoProvider)
+{
+	machineMediaInfo->registerProvider(slot, infoProvider);
+}
+
+void MSXMotherBoard::unregisterMediaInfoProvider(const string& slot)
+{
+	machineMediaInfo->unregisterProvider(slot);
+}
+
+
 // AddRemoveUpdate
 
 AddRemoveUpdate::AddRemoveUpdate(MSXMotherBoard& motherBoard_)
@@ -1016,6 +1047,57 @@ void MachineExtensionInfo::tabCompletion(std::vector<string>& tokens) const
 	}
 }
 
+
+// MachineMediaInfo
+
+MachineMediaInfo::MachineMediaInfo(MSXMotherBoard& motherBoard_)
+	: InfoTopic(motherBoard_.getMachineInfoCommand(), "media")
+	, motherBoard(motherBoard_)
+{
+}
+
+void MachineMediaInfo::execute(std::span<const TclObject> tokens,
+                              TclObject& result) const
+{
+	checkNumArgs(tokens, Between{2, 3}, Prefix{2}, "?media-slot-name?");
+	if (tokens.size() == 2) {
+		result.addListElements(
+			view::transform(providers,
+				[](auto& e) -> std::string_view { return e.first; }));
+	} else if (tokens.size() == 3) {
+		string slotname = string(tokens[2].getString());
+		auto pIt = providers.find(slotname);
+		if (pIt == providers.end()) {
+			throw CommandException("No info about media slot ", slotname);
+		} else {
+			pIt->second->getMediaInfo(result);
+		}
+	}
+}
+
+string MachineMediaInfo::help(std::span<const TclObject> /*tokens*/) const
+{
+	return "Returns information about the given media slot.";
+}
+
+void MachineMediaInfo::tabCompletion(std::vector<string>& tokens) const
+{
+	if (tokens.size() == 3) {
+		completeString(tokens, view::transform(
+			providers,
+			[](auto& e) -> std::string_view { return e.first; }));
+	}
+}
+
+void MachineMediaInfo::registerProvider(const string& slot, MediaInfoProvider& provider)
+{
+	providers[slot] = &provider;
+}
+
+void MachineMediaInfo::unregisterProvider(const string& slot)
+{
+	providers.erase(slot);
+}
 
 // DeviceInfo
 

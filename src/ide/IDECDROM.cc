@@ -1,6 +1,5 @@
 #include "IDECDROM.hh"
 #include "DeviceConfig.hh"
-#include "MSXMotherBoard.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "CommandException.hh"
@@ -49,16 +48,23 @@ IDECDROM::IDECDROM(const DeviceConfig& config)
 	transferOffset = 0;
 	readSectorData = false;
 
+	getMotherBoard().registerMediaInfoProvider(name, *this);
 	getMotherBoard().getMSXCliComm().update(CliComm::HARDWARE, name, "add");
 }
 
 IDECDROM::~IDECDROM()
 {
+	getMotherBoard().unregisterMediaInfoProvider(name);
 	getMotherBoard().getMSXCliComm().update(CliComm::HARDWARE, name, "remove");
 
 	unsigned id = name[2] - 'a';
 	assert((*cdInUse)[id]);
 	(*cdInUse)[id] = false;
+}
+
+void IDECDROM::getMediaInfo(TclObject& result)
+{
+	result.addDictKeyValue("target", file.is_open() ? file.getURL() : string{});
 }
 
 bool IDECDROM::isPacketDevice()
@@ -328,6 +334,8 @@ void CDXCommand::execute(std::span<const TclObject> tokens, TclObject& result,
 		result.addListElement(tmpStrCat(cd.name, ':'),
 		                      file.is_open() ? file.getURL() : string{});
 		if (!file.is_open()) result.addListElement("empty");
+	} else if (tokens[1] == "info") {
+		result.addDictKeyValue("target", cd.file.is_open() ? cd.file.getURL() : string{});
 	} else if ((tokens.size() == 2) && (tokens[1] == one_of("eject", "-eject"))) {
 		cd.eject();
 		// TODO check for locked tray

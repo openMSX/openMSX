@@ -36,6 +36,18 @@ bool CartridgeSlotManager::Slot::used(const HardwareConfig* allowed) const
 	return config && (config != allowed);
 }
 
+void CartridgeSlotManager::Slot::getMediaInfo(TclObject& result)
+{
+	result.addDictKeyValue("target", config ? config->getName() : string{});
+	if (config) {
+		auto type = config->getType();
+		// we don't care about other types than ROM or EXTENSION for now
+		string typeStr = type == HardwareConfig::Type::ROM ? "rom" :
+		                 (type == HardwareConfig::Type::EXTENSION ? "extension" : "");
+		result.addDictKeyValue("type", typeStr);
+	}
+}
+
 
 // CartridgeSlotManager
 CartridgeSlotManager::CartridgeSlotManager(MSXMotherBoard& motherBoard_)
@@ -92,6 +104,7 @@ void CartridgeSlotManager::createExternalSlot(int ps, int ss)
 			slotName[4] += slot;
 			char extName[] = "exta";
 			extName[3] += slot;
+			motherBoard.registerMediaInfoProvider(slotName, slots[slot]);
 			motherBoard.getMSXCliComm().update(
 				CliComm::HARDWARE, slotName, "add");
 			slots[slot].cartCommand.emplace(
@@ -142,6 +155,7 @@ void CartridgeSlotManager::removeExternalSlot(int ps, int ss)
 	int slot = getSlot(ps, ss);
 	assert(!slots[slot].used());
 	const auto& slotName = slots[slot].cartCommand->getName();
+	motherBoard.unregisterMediaInfoProvider(slotName);
 	motherBoard.getMSXCliComm().update(
 		CliComm::HARDWARE, slotName, "remove");
 	slots[slot].cartCommand.reset();

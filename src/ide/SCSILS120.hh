@@ -14,6 +14,7 @@
 #include "SCSIDevice.hh"
 #include "SectorAccessibleDisk.hh"
 #include "DiskContainer.hh"
+#include "MSXMotherBoard.hh"
 #include "File.hh"
 #include <bitset>
 #include <optional>
@@ -21,7 +22,6 @@
 namespace openmsx {
 
 class DeviceConfig;
-class MSXMotherBoard;
 class SCSILS120;
 
 class LSXCommand final : public RecordedCommand
@@ -39,7 +39,7 @@ private:
 };
 
 class SCSILS120 final : public SCSIDevice, public SectorAccessibleDisk
-                      , public DiskContainer
+                      , public DiskContainer, public MediaInfoProvider
 {
 public:
 	SCSILS120(const SCSILS120&) = delete;
@@ -48,6 +48,9 @@ public:
 	SCSILS120(const DeviceConfig& targetconfig,
 	          AlignedBuffer& buf, unsigned mode);
 	~SCSILS120() override;
+
+	// MediaInfoProvider
+	void getMediaInfo(TclObject& result);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

@@ -4,6 +4,7 @@
 #include "EventListener.hh"
 #include "CassetteDevice.hh"
 #include "ResampledSoundDevice.hh"
+#include "MSXMotherBoard.hh"
 #include "RecordedCommand.hh"
 #include "Schedulable.hh"
 #include "ThrottleManager.hh"
@@ -19,10 +20,10 @@ namespace openmsx {
 
 class CassetteImage;
 class HardwareConfig;
-class MSXMotherBoard;
 class Wav8Writer;
 
 class CassettePlayer final : public CassetteDevice, public ResampledSoundDevice
+                           , public MediaInfoProvider
                            , private EventListener
 {
 public:
@@ -43,6 +44,9 @@ public:
 	// SoundDevice
 	void generateChannels(float** buffers, unsigned num) override;
 	float getAmplificationFactorImpl() const override;
+
+	// MediaInfoProvider
+	void getMediaInfo(TclObject& result);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

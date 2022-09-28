@@ -2,6 +2,7 @@
 #define LASERDISCPLAYER_HH
 
 #include "ResampledSoundDevice.hh"
+#include "MSXMotherBoard.hh"
 #include "BooleanSetting.hh"
 #include "RecordedCommand.hh"
 #include "EmuTime.hh"
@@ -20,13 +21,13 @@ namespace openmsx {
 
 class PioneerLDControl;
 class HardwareConfig;
-class MSXMotherBoard;
 class LDRenderer;
 class RawFrame;
 
 class LaserdiscPlayer final : public ResampledSoundDevice
                             , private EventListener
                             , private VideoSystemChangeListener
+                            , public MediaInfoProvider
 {
 public:
 	LaserdiscPlayer(const HardwareConfig& hwConf,
@@ -47,6 +48,9 @@ public:
 
 	// video interface
 	[[nodiscard]] MSXMotherBoard& getMotherBoard() { return motherBoard; }
+
+	// MediaInfoProvider
+	void getMediaInfo(TclObject& result);
 
 	enum RemoteState {
 		REMOTE_IDLE,
@@ -82,6 +86,7 @@ public:
 		IR_NEC,
 	};
 private:
+	std::string getStateString() const;
 	void setImageName(std::string newImage, EmuTime::param time);
 	[[nodiscard]] const Filename& getImageName() const { return oggImage; }
 	void autoRun();

@@ -6,6 +6,7 @@
 #include "Clock.hh"
 #include "Schedulable.hh"
 #include "ThrottleManager.hh"
+#include "MSXMotherBoard.hh"
 #include "outer.hh"
 #include "serialize_meta.hh"
 #include <bitset>
@@ -13,11 +14,9 @@
 
 namespace openmsx {
 
-class MSXMotherBoard;
-
 /** This class implements a real drive, single or double sided.
  */
-class RealDrive final : public DiskDrive
+class RealDrive final : public DiskDrive, public MediaInfoProvider
 {
 public:
 	RealDrive(MSXMotherBoard& motherBoard, EmuDuration::param motorTimeout,
@@ -49,6 +48,9 @@ public:
 
 	void applyWd2793ReadTrackQuirk() override;
 	void invalidateWd2793ReadTrackQuirk() override;
+
+	// MediaInfoProvider
+	void getMediaInfo(TclObject& result);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

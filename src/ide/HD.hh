@@ -6,6 +6,7 @@
 #include "Filename.hh"
 #include "HDCommand.hh"
 #include "SectorAccessibleDisk.hh"
+#include "MSXMotherBoard.hh"
 #include "TigerTree.hh"
 #include "serialize_meta.hh"
 #include <bitset>
@@ -14,11 +15,10 @@
 
 namespace openmsx {
 
-class MSXMotherBoard;
 class DeviceConfig;
 
 class HD : public SectorAccessibleDisk, public DiskContainer
-         , public TTData
+         , public TTData, public MediaInfoProvider
 {
 public:
 	explicit HD(const DeviceConfig& config);
@@ -29,6 +29,9 @@ public:
 	void switchImage(const Filename& filename);
 
 	[[nodiscard]] std::string getTigerTreeHash();
+
+	// MediaInfoProvider
+	void getMediaInfo(TclObject& result);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

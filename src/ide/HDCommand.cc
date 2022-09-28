@@ -33,6 +33,9 @@ void HDCommand::execute(std::span<const TclObject> tokens, TclObject& result,
 			TclObject options = makeTclList("readonly");
 			result.addListElement(options);
 		}
+	} else if (tokens[1] == "info") {
+		result.addDictKeyValues("target", hd.getImageName().getResolved());
+		result.addDictKeyValues("readonly", hd.isWriteProtected());
 	} else if ((tokens.size() == 2) ||
 	           ((tokens.size() == 3) && tokens[1] == "insert")) {
 		if (powerSetting.getBoolean()) {

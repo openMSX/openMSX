@@ -1,5 +1,8 @@
 #include "RealDrive.hh"
 #include "Disk.hh"
+#include "DummyDisk.hh"
+#include "DirAsDSK.hh"
+#include "RamDSKDiskImage.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "LedStatus.hh"
@@ -44,6 +47,7 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeo
 	if (motherBoard.getMSXCommandController().hasCommand(driveName)) {
 		throw MSXException("Duplicated drive name: ", driveName);
 	}
+	motherBoard.registerMediaInfoProvider(driveName, *this);
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, driveName, "add");
 	changer.emplace(motherBoard, driveName, true, doubleSizedDrive,
 	                [this]() { invalidateTrack(); });
@@ -59,11 +63,27 @@ RealDrive::~RealDrive()
 	doSetMotor(false, getCurrentTime()); // to send LED event
 
 	const auto& driveName = changer->getDriveName();
+	motherBoard.unregisterMediaInfoProvider(driveName);
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, driveName, "remove");
 
 	unsigned driveNum = driveName[4] - 'a';
 	assert((*drivesInUse)[driveNum]);
 	(*drivesInUse)[driveNum] = false;
+}
+
+void RealDrive::getMediaInfo(TclObject& result)
+{
+	std::string typeStr = "file";
+	if (dynamic_cast<DummyDisk*>(&(changer->getDisk()))) {
+		typeStr = "empty";
+	} else if (dynamic_cast<DirAsDSK*>(&(changer->getDisk()))) {
+		typeStr = "dirasdisk";
+	} else if (dynamic_cast<RamDSKDiskImage*>(&(changer->getDisk()))) {
+		typeStr = "ramdsk";
+	}
+	result.addDictKeyValues("target", changer->getDiskName().getResolved(),
+	                        "type", typeStr,
+	                        "readonly", changer->getDisk().isWriteProtected());
 }
 
 bool RealDrive::isDiskInserted() const

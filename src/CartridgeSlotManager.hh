@@ -68,8 +68,12 @@ private:
 		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	} extSlotInfo;
 
-	struct Slot {
+	struct Slot : public MediaInfoProvider {
 		~Slot();
+
+		// MediaInfoProvider
+		void getMediaInfo(TclObject& result);
+
 		[[nodiscard]] bool exists() const;
 		[[nodiscard]] bool used(const HardwareConfig* allowed = nullptr) const;
 

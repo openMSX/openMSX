@@ -66,16 +66,24 @@ HD::HD(const DeviceConfig& config)
 		*this,
 		motherBoard.getReactor().getGlobalSettings().getPowerSetting());
 
+	motherBoard.registerMediaInfoProvider(name, *this);
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "add");
 }
 
 HD::~HD()
 {
+	motherBoard.unregisterMediaInfoProvider(name);
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "remove");
 
 	unsigned id = name[2] - 'a';
 	assert((*hdInUse)[id]);
 	(*hdInUse)[id] = false;
+}
+
+void HD::getMediaInfo(TclObject& result)
+{
+	result.addDictKeyValues("target", getImageName().getResolved(),
+	                        "readonly", isWriteProtected());
 }
 
 void HD::switchImage(const Filename& newFilename)

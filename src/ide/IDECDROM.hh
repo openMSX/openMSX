@@ -2,6 +2,7 @@
 #define IDECDROM_HH
 
 #include "AbstractIDEDevice.hh"
+#include "MSXMotherBoard.hh"
 #include "File.hh"
 #include "RecordedCommand.hh"
 #include <bitset>
@@ -27,7 +28,7 @@ private:
 	IDECDROM& cd;
 };
 
-class IDECDROM final : public AbstractIDEDevice
+class IDECDROM final : public AbstractIDEDevice, public MediaInfoProvider
 {
 public:
 	IDECDROM(const IDECDROM&) = delete;
@@ -38,6 +39,9 @@ public:
 
 	void eject();
 	void insert(const std::string& filename);
+
+	// MediaInfoProvider
+	void getMediaInfo(TclObject& result);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
