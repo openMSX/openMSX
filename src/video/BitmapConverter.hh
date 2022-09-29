@@ -53,7 +53,7 @@ public:
 	  *            pixels aren't touched).
 	  * @param vramPtr Pointer to VRAM contents.
 	  */
-	void convertLine(std::span<Pixel> buf, const byte* vramPtr);
+	void convertLine(std::span<Pixel> buf, std::span<const byte, 128> vramPtr);
 
 	/** Convert a line of V9938 VRAM to 256 or 512 host pixels.
 	  * Call this method in planar display modes (Graphic6 and Graphic7).
@@ -65,7 +65,8 @@ public:
 	  * @param vramPtr1 Pointer to VRAM contents, second plane.
 	  */
 	void convertLinePlanar(std::span<Pixel> buf,
-	                       const byte* vramPtr0, const byte* vramPtr1);
+	                       std::span<const byte, 128> vramPtr0,
+	                       std::span<const byte, 128> vramPtr1);
 
 	/** Select the display mode to use for scanline conversion.
 	  * @param mode_ The new display mode.
@@ -86,17 +87,21 @@ private:
 	void calcDPalette();
 
 	inline void renderGraphic4(std::span<Pixel, 256> buf,
-	                           const byte* vramPtr0);
+	                           std::span<const byte, 128> vramPtr0);
 	inline void renderGraphic5(std::span<Pixel, 512> buf,
-	                           const byte* vramPtr0);
+	                           std::span<const byte, 128> vramPtr0);
 	inline void renderGraphic6(std::span<Pixel, 512> buf,
-	                           const byte* vramPtr0, const byte* vramPtr1);
+	                           std::span<const byte, 128> vramPtr0,
+				   std::span<const byte, 128> vramPtr1);
 	inline void renderGraphic7(std::span<Pixel, 256> buf,
-	                           const byte* vramPtr0, const byte* vramPtr1);
+	                           std::span<const byte, 128> vramPtr0,
+				   std::span<const byte, 128> vramPtr1);
 	inline void renderYJK(     std::span<Pixel, 256> buf,
-	                           const byte* vramPtr0, const byte* vramPtr1);
+	                           std::span<const byte, 128> vramPtr0,
+				   std::span<const byte, 128> vramPtr1);
 	inline void renderYAE(     std::span<Pixel, 256> buf,
-	                           const byte* vramPtr0, const byte* vramPtr1);
+	                           std::span<const byte, 128> vramPtr0,
+				   std::span<const byte, 128> vramPtr1);
 	inline void renderBogus(   std::span<Pixel, 256> buf);
 
 private:

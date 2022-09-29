@@ -147,8 +147,8 @@ void CharacterConverter<Pixel>::renderText1(std::span<Pixel, 256> buf, int line)
 	Pixel bg = palFg[vdp.getBackgroundColor()];
 
 	// 8 * 256 is small enough to always be contiguous
-	const byte* patternArea = vram.patternTable.getReadArea(0, 256 * 8);
-	patternArea += (line + vdp.getVerticalScroll()) & 7;
+	auto patternArea = vram.patternTable.getReadArea<256 * 8>(0);
+	auto l = (line + vdp.getVerticalScroll()) & 7;
 
 	// Note: Because line width is not a power of two, reading an entire line
 	//       from a VRAM pointer returned by readArea will not wrap the index
@@ -157,8 +157,8 @@ void CharacterConverter<Pixel>::renderText1(std::span<Pixel, 256> buf, int line)
 	unsigned nameEnd = nameStart + 40;
 	Pixel* __restrict pixelPtr = buf.data();
 	for (auto name : xrange(nameStart, nameEnd)) {
-		unsigned charcode = vram.nameTable.readNP((name + 0xC00) | (~0u << 12));
-		unsigned pattern = patternArea[charcode * 8];
+		unsigned charCode = vram.nameTable.readNP((name + 0xC00) | (~0u << 12));
+		unsigned pattern = patternArea[l + charCode * 8];
 		draw6(pixelPtr, fg, bg, pattern);
 	}
 }
@@ -203,8 +203,8 @@ void CharacterConverter<Pixel>::renderText2(std::span<Pixel, 512> buf, int line)
 	}
 
 	// 8 * 256 is small enough to always be contiguous
-	const byte* patternArea = vram.patternTable.getReadArea(0, 256 * 8);
-	patternArea += (line + vdp.getVerticalScroll()) & 7;
+	auto patternArea = vram.patternTable.getReadArea<256 * 8>(0);
+	auto l = (line + vdp.getVerticalScroll()) & 7;
 
 	unsigned colorStart = (line / 8) * (80 / 8);
 	unsigned nameStart  = (line / 8) * 80;
@@ -212,64 +212,64 @@ void CharacterConverter<Pixel>::renderText2(std::span<Pixel, 512> buf, int line)
 	for (auto i : xrange(80 / 8)) {
 		unsigned colorPattern = vram.colorTable.readNP(
 			(colorStart + i) | (~0u << 9));
-		const byte* nameArea = vram.nameTable.getReadArea(
-			(nameStart + 8 * i) | (~0u << 12), 8);
+		auto nameArea = vram.nameTable.getReadArea<8>(
+			(nameStart + 8 * i) | (~0u << 12));
 		draw6(pixelPtr,
 		      (colorPattern & 0x80) ? blinkFg : plainFg,
 		      (colorPattern & 0x80) ? blinkBg : plainBg,
-		      patternArea[nameArea[0] * 8]);
+		      patternArea[l + nameArea[0] * 8]);
 		draw6(pixelPtr,
 		      (colorPattern & 0x40) ? blinkFg : plainFg,
 		      (colorPattern & 0x40) ? blinkBg : plainBg,
-		      patternArea[nameArea[1] * 8]);
+		      patternArea[l + nameArea[1] * 8]);
 		draw6(pixelPtr,
 		      (colorPattern & 0x20) ? blinkFg : plainFg,
 		      (colorPattern & 0x20) ? blinkBg : plainBg,
-		      patternArea[nameArea[2] * 8]);
+		      patternArea[l + nameArea[2] * 8]);
 		draw6(pixelPtr,
 		      (colorPattern & 0x10) ? blinkFg : plainFg,
 		      (colorPattern & 0x10) ? blinkBg : plainBg,
-		      patternArea[nameArea[3] * 8]);
+		      patternArea[l + nameArea[3] * 8]);
 		draw6(pixelPtr,
 		      (colorPattern & 0x08) ? blinkFg : plainFg,
 		      (colorPattern & 0x08) ? blinkBg : plainBg,
-		      patternArea[nameArea[4] * 8]);
+		      patternArea[l + nameArea[4] * 8]);
 		draw6(pixelPtr,
 		      (colorPattern & 0x04) ? blinkFg : plainFg,
 		      (colorPattern & 0x04) ? blinkBg : plainBg,
-		      patternArea[nameArea[5] * 8]);
+		      patternArea[l + nameArea[5] * 8]);
 		draw6(pixelPtr,
 		      (colorPattern & 0x02) ? blinkFg : plainFg,
 		      (colorPattern & 0x02) ? blinkBg : plainBg,
-		      patternArea[nameArea[6] * 8]);
+		      patternArea[l + nameArea[6] * 8]);
 		draw6(pixelPtr,
 		      (colorPattern & 0x01) ? blinkFg : plainFg,
 		      (colorPattern & 0x01) ? blinkBg : plainBg,
-		      patternArea[nameArea[7] * 8]);
+		      patternArea[l + nameArea[7] * 8]);
 	}
 }
 
 template<std::unsigned_integral Pixel>
-const byte* CharacterConverter<Pixel>::getNamePtr(int line, int scroll)
+std::span<const byte, 32> CharacterConverter<Pixel>::getNamePtr(int line, int scroll)
 {
 	// no need to test whether multi-page scrolling is enabled,
 	// indexMask in the nameTable already takes care of it
-	return vram.nameTable.getReadArea(
-		((line / 8) * 32) | ((scroll & 0x20) ? 0x8000 : 0), 32);
+	return vram.nameTable.getReadArea<32>(
+		((line / 8) * 32) | ((scroll & 0x20) ? 0x8000 : 0));
 }
 template<std::unsigned_integral Pixel>
 void CharacterConverter<Pixel>::renderGraphic1(std::span<Pixel, 256> buf, int line)
 {
-	const byte* patternArea = vram.patternTable.getReadArea(0, 256 * 8);
-	patternArea += line & 7;
-	const byte* colorArea = vram.colorTable.getReadArea(0, 256 / 8);
+	auto patternArea = vram.patternTable.getReadArea<256 * 8>(0);
+	auto l = line & 7;
+	auto colorArea = vram.colorTable.getReadArea<256 / 8>(0);
 
 	int scroll = vdp.getHorizontalScrollHigh();
-	const byte* namePtr = getNamePtr(line, scroll);
+	auto namePtr = getNamePtr(line, scroll);
 	Pixel* __restrict pixelPtr = buf.data();
 	repeat(32, [&] {
 		unsigned charCode = namePtr[scroll & 0x1F];
-		unsigned pattern = patternArea[charCode * 8];
+		unsigned pattern = patternArea[l + charCode * 8];
 		unsigned color = colorArea[charCode / 8];
 		Pixel fg = palFg[color >> 4];
 		Pixel bg = palFg[color & 0x0F];
@@ -284,7 +284,7 @@ void CharacterConverter<Pixel>::renderGraphic2(std::span<Pixel, 256> buf, int li
 	int quarter8 = (((line / 8) * 32) & ~0xFF) * 8;
 	int line7 = line & 7;
 	int scroll = vdp.getHorizontalScrollHigh();
-	const byte* namePtr = getNamePtr(line, scroll);
+	auto namePtr = getNamePtr(line, scroll);
 
 	Pixel* __restrict pixelPtr = buf.data();
 	if (vram.colorTable  .isContinuous((8 * 256) - 1) &&
@@ -293,12 +293,12 @@ void CharacterConverter<Pixel>::renderGraphic2(std::span<Pixel, 256> buf, int li
 		// Both color and pattern table can be accessed contiguously
 		// (no mirroring) and there's no v9958 horizontal scrolling.
 		// This is very common, so make an optimized version for this.
-		const byte* patternArea = vram.patternTable.getReadArea(quarter8, 8 * 256) + line7;
-		const byte* colorArea   = vram.colorTable  .getReadArea(quarter8, 8 * 256) + line7;
+		auto patternArea = vram.patternTable.getReadArea<256 * 8>(quarter8);
+		auto colorArea   = vram.colorTable  .getReadArea<256 * 8>(quarter8);
 		for (auto n : xrange(32)) {
 			unsigned charCode8 = namePtr[n] * 8;
-			unsigned pattern = patternArea[charCode8];
-			unsigned color   = colorArea  [charCode8];
+			unsigned pattern = patternArea[line7 + charCode8];
+			unsigned color   = colorArea  [line7 + charCode8];
 			Pixel fg = palFg[color >> 4];
 			Pixel bg = palFg[color & 0x0F];
 			draw8(pixelPtr, fg, bg, pattern);
@@ -329,7 +329,7 @@ void CharacterConverter<Pixel>::renderMultiHelper(
 {
 	unsigned baseLine = mask | ((line / 4) & 7);
 	unsigned scroll = vdp.getHorizontalScrollHigh();
-	const byte* namePtr = getNamePtr(line, scroll);
+	auto namePtr = getNamePtr(line, scroll);
 	repeat(32, [&] {
 		unsigned patternNr = patternQuarter | namePtr[scroll & 0x1F];
 		unsigned color = vram.patternTable.readNP((patternNr * 8) | baseLine);

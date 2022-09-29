@@ -59,7 +59,7 @@ private:
 	inline void renderMultiHelper(Pixel* pixelPtr, int line,
 	                       int mask, int patternQuarter);
 
-	[[nodiscard]] const byte* getNamePtr(int line, int scroll);
+	[[nodiscard]] std::span<const byte, 32> getNamePtr(int line, int scroll);
 
 private:
 	VDP& vdp;

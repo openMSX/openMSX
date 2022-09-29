@@ -55,7 +55,7 @@ static constexpr SpriteChecker::SpritePattern doublePattern(SpriteChecker::Sprit
 inline SpriteChecker::SpritePattern SpriteChecker::calculatePatternNP(
 	unsigned patternNr, unsigned y)
 {
-	const byte* patternPtr = vram.spritePatternTable.getReadArea(0, 256 * 8);
+	auto patternPtr = vram.spritePatternTable.getReadArea<256 * 8>(0);
 	unsigned index = patternNr * 8 + y;
 	SpritePattern pattern = patternPtr[index] << 24;
 	if (vdp.getSpriteSize() == 16) {
@@ -66,9 +66,9 @@ inline SpriteChecker::SpritePattern SpriteChecker::calculatePatternNP(
 inline SpriteChecker::SpritePattern SpriteChecker::calculatePatternPlanar(
 	unsigned patternNr, unsigned y)
 {
-	auto [ptr0, ptr1] = vram.spritePatternTable.getReadAreaPlanar(0, 256 * 8);
+	auto [ptr0, ptr1] = vram.spritePatternTable.getReadAreaPlanar<256 * 8>(0);
 	unsigned index = patternNr * 8 + y;
-	const byte* patternPtr = (index & 1) ? ptr1 : ptr0;
+	auto patternPtr = (index & 1) ? ptr1 : ptr0;
 	index /= 2;
 	SpritePattern pattern = patternPtr[index] << 24;
 	if (vdp.getSpriteSize() == 16) {
@@ -122,7 +122,7 @@ inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 	int size = vdp.getSpriteSize();
 	bool mag = vdp.isSpriteMag();
 	int magSize = (mag + 1) * size;
-	const byte* attributePtr = vram.spriteAttribTable.getReadArea(0, 32 * 4);
+	auto attributePtr = vram.spriteAttribTable.getReadArea<32 * 4>(0);
 	byte patternIndexMask = size == 16 ? 0xFC : 0xFF;
 	int fifthSpriteNum  = -1;  // no 5th sprite detected yet
 	int fifthSpriteLine = 999; // larger than any possible valid line
@@ -293,7 +293,7 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 	int sprite = 0;
 	if (planar) {
 		auto [attributePtr0, attributePtr1] =
-			vram.spriteAttribTable.getReadAreaPlanar(512, 32 * 4);
+			vram.spriteAttribTable.getReadAreaPlanar<32 * 4>(512);
 		// TODO: Verify CC implementation.
 		for (/**/; sprite < 32; ++sprite) {
 			int y = attributePtr0[2 * sprite + 0];
@@ -337,8 +337,8 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 			}
 		}
 	} else {
-		const byte* attributePtr0 =
-			vram.spriteAttribTable.getReadArea(512, 32 * 4);
+		auto attributePtr0 =
+			vram.spriteAttribTable.getReadArea<32 * 4>(512);
 		// TODO: Verify CC implementation.
 		for (/**/; sprite < 32; ++sprite) {
 			int y = attributePtr0[4 * sprite + 0];

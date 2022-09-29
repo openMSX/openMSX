@@ -38,7 +38,7 @@ void BitmapConverter<Pixel>::calcDPalette()
 }
 
 template<std::unsigned_integral Pixel>
-void BitmapConverter<Pixel>::convertLine(std::span<Pixel> buf, const byte* vramPtr)
+void BitmapConverter<Pixel>::convertLine(std::span<Pixel> buf, std::span<const byte, 128> vramPtr)
 {
 	switch (mode.getByte()) {
 	case DisplayMode::GRAPHIC4: // screen 5
@@ -72,7 +72,7 @@ void BitmapConverter<Pixel>::convertLine(std::span<Pixel> buf, const byte* vramP
 
 template<std::unsigned_integral Pixel>
 void BitmapConverter<Pixel>::convertLinePlanar(
-	std::span<Pixel> buf, const byte* vramPtr0, const byte* vramPtr1)
+	std::span<Pixel> buf, std::span<const byte, 128> vramPtr0, std::span<const byte, 128> vramPtr1)
 {
 	switch (mode.getByte()) {
 	case DisplayMode::GRAPHIC6: // screen 7
@@ -110,7 +110,7 @@ void BitmapConverter<Pixel>::convertLinePlanar(
 template<std::unsigned_integral Pixel>
 void BitmapConverter<Pixel>::renderGraphic4(
 	std::span<Pixel, 256> buf,
-	const byte* __restrict vramPtr0)
+	std::span<const byte, 128> vramPtr0)
 {
 	/*for (unsigned i = 0; i < 128; i += 2) {
 		unsigned data0 = vramPtr0[i + 0];
@@ -131,7 +131,7 @@ void BitmapConverter<Pixel>::renderGraphic4(
 		// First write one pixel to get aligned
 		// Then write double pixels in a loop with 4 double pixels (is 8 single pixels) per iteration
 		// Finally write the last pixel unaligned
-		const auto* in  = reinterpret_cast<const unsigned*>(vramPtr0);
+		const auto* in  = reinterpret_cast<const unsigned*>(vramPtr0.data());
 		unsigned data = in[0];
 		if constexpr (Endian::BIG) {
 			pixelPtr[0] = palette16[(data >> 28) & 0x0F];
@@ -183,7 +183,7 @@ void BitmapConverter<Pixel>::renderGraphic4(
 	}
 
 	      auto* out = reinterpret_cast<DPixel*>(pixelPtr);
-	const auto* in  = reinterpret_cast<const unsigned*>(vramPtr0);
+	const auto* in  = reinterpret_cast<const unsigned*>(vramPtr0.data());
 	for (auto i : xrange(256 / 8)) {
 		// 8 pixels per iteration
 		unsigned data = in[i];
@@ -204,7 +204,7 @@ void BitmapConverter<Pixel>::renderGraphic4(
 template<std::unsigned_integral Pixel>
 void BitmapConverter<Pixel>::renderGraphic5(
 	std::span<Pixel, 512> buf,
-	const byte* __restrict vramPtr0)
+	std::span<const byte, 128> vramPtr0)
 {
 	Pixel* __restrict pixelPtr = buf.data();
 	for (auto i : xrange(128)) {
@@ -219,8 +219,8 @@ void BitmapConverter<Pixel>::renderGraphic5(
 template<std::unsigned_integral Pixel>
 void BitmapConverter<Pixel>::renderGraphic6(
 	std::span<Pixel, 512> buf,
-	const byte* __restrict vramPtr0,
-	const byte* __restrict vramPtr1)
+	std::span<const byte, 128> vramPtr0,
+	std::span<const byte, 128> vramPtr1)
 {
 	Pixel* __restrict pixelPtr = buf.data();
 	/*for (auto i : xrange(128)) {
@@ -235,8 +235,8 @@ void BitmapConverter<Pixel>::renderGraphic6(
 		calcDPalette();
 	}
 	      auto* out = reinterpret_cast<DPixel*>(pixelPtr);
-	const auto* in0 = reinterpret_cast<const unsigned*>(vramPtr0);
-	const auto* in1 = reinterpret_cast<const unsigned*>(vramPtr1);
+	const auto* in0 = reinterpret_cast<const unsigned*>(vramPtr0.data());
+	const auto* in1 = reinterpret_cast<const unsigned*>(vramPtr1.data());
 	for (auto i : xrange(512 / 16)) {
 		// 16 pixels per iteration
 		unsigned data0 = in0[i];
@@ -266,8 +266,8 @@ void BitmapConverter<Pixel>::renderGraphic6(
 template<std::unsigned_integral Pixel>
 void BitmapConverter<Pixel>::renderGraphic7(
 	std::span<Pixel, 256> buf,
-	const byte* __restrict vramPtr0,
-	const byte* __restrict vramPtr1)
+	std::span<const byte, 128> vramPtr0,
+	std::span<const byte, 128> vramPtr1)
 {
 	Pixel* __restrict pixelPtr = buf.data();
 	for (auto i : xrange(128)) {
@@ -292,8 +292,8 @@ static constexpr std::tuple<int, int, int> yjk2rgb(int y, int j, int k)
 template<std::unsigned_integral Pixel>
 void BitmapConverter<Pixel>::renderYJK(
 	std::span<Pixel, 256> buf,
-	const byte* __restrict vramPtr0,
-	const byte* __restrict vramPtr1)
+	std::span<const byte, 128> vramPtr0,
+	std::span<const byte, 128> vramPtr1)
 {
 	Pixel* __restrict pixelPtr = buf.data();
 	for (auto i : xrange(64)) {
@@ -318,8 +318,8 @@ void BitmapConverter<Pixel>::renderYJK(
 template<std::unsigned_integral Pixel>
 void BitmapConverter<Pixel>::renderYAE(
 	std::span<Pixel, 256> buf,
-	const byte* __restrict vramPtr0,
-	const byte* __restrict vramPtr1)
+	std::span<const byte, 128> vramPtr0,
+	std::span<const byte, 128> vramPtr1)
 {
 	Pixel* __restrict pixelPtr = buf.data();
 	for (auto i : xrange(64)) {

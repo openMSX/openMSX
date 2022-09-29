@@ -60,11 +60,11 @@ inline void SDLRasterizer<Pixel>::renderBitmapLine(std::span<Pixel> buf, unsigne
 {
 	if (vdp.getDisplayMode().isPlanar()) {
 		auto [vramPtr0, vramPtr1] =
-			vram.bitmapCacheWindow.getReadAreaPlanar(vramLine * 256, 256);
+			vram.bitmapCacheWindow.getReadAreaPlanar<256>(vramLine * 256);
 		bitmapConverter.convertLinePlanar(buf, vramPtr0, vramPtr1);
 	} else {
-		const byte* vramPtr =
-			vram.bitmapCacheWindow.getReadArea(vramLine * 128, 128);
+		auto vramPtr =
+			vram.bitmapCacheWindow.getReadArea<128>(vramLine * 128);
 		bitmapConverter.convertLine(buf, vramPtr);
 	}
 }
