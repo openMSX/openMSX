@@ -334,8 +334,6 @@ void CDXCommand::execute(std::span<const TclObject> tokens, TclObject& result,
 		result.addListElement(tmpStrCat(cd.name, ':'),
 		                      file.is_open() ? file.getURL() : string{});
 		if (!file.is_open()) result.addListElement("empty");
-	} else if (tokens[1] == "info") {
-		result.addDictKeyValue("target", cd.file.is_open() ? cd.file.getURL() : string{});
 	} else if ((tokens.size() == 2) && (tokens[1] == one_of("eject", "-eject"))) {
 		cd.eject();
 		// TODO check for locked tray

@@ -771,8 +771,6 @@ void LSXCommand::execute(std::span<const TclObject> tokens, TclObject& result,
 			result = "Warning: use of '-eject' is deprecated, "
 			         "instead use the 'eject' subcommand";
 		}
-	} else if (tokens[1] == "info") {
-			result.addDictKeyValue("target", ls.file.is_open() ? ls.file.getURL() : std::string{});
 	} else if ((tokens.size() == 2) ||
 	           ((tokens.size() == 3) && (tokens[1] == "insert"))) {
 		int fileToken = 1;
