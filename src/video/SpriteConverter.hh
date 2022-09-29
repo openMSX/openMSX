@@ -91,8 +91,7 @@ public:
 	  * @param maxX Maximum X coordinate to draw (exclusive).
 	  * @param pixelPtr Pointer to memory to draw to.
 	  */
-	void drawMode1(int absLine, int minX, int maxX,
-	               Pixel* __restrict pixelPtr)
+	void drawMode1(int absLine, int minX, int maxX, std::span<Pixel> pixelPtr)
 	{
 		// Determine sprites visible on this line.
 		auto visibleSprites = spriteChecker.getSprites(absLine);
@@ -138,8 +137,7 @@ public:
 	  * @param pixelPtr Pointer to memory to draw to.
 	  */
 	template<unsigned MODE>
-	void drawMode2(int absLine, int minX, int maxX,
-	               Pixel* __restrict pixelPtr)
+	void drawMode2(int absLine, int minX, int maxX, std::span<Pixel> pixelPtr)
 	{
 		// Determine sprites visible on this line.
 		auto visibleSprites = spriteChecker.getSprites(absLine);

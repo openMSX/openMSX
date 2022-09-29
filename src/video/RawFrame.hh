@@ -17,11 +17,13 @@ public:
 	RawFrame(const PixelFormat& format, unsigned maxWidth, unsigned height);
 
 	template<std::unsigned_integral Pixel>
-	[[nodiscard]] Pixel* getLinePtrDirect(unsigned y) {
-		return reinterpret_cast<Pixel*>(data.data() + y * pitch);
+	[[nodiscard]] std::span<Pixel> getLineDirect(unsigned y) {
+		assert(y < getHeight());
+		return {reinterpret_cast<Pixel*>(data.data() + y * pitch), maxWidth};
 	}
 
 	[[nodiscard]] unsigned getLineWidthDirect(unsigned y) const {
+		assert(y < getHeight());
 		return lineWidths[y];
 	}
 
@@ -34,8 +36,7 @@ public:
 	template<std::unsigned_integral Pixel>
 	inline void setBlank(unsigned line, Pixel color) {
 		assert(line < getHeight());
-		auto* pixels = getLinePtrDirect<Pixel>(line);
-		pixels[0] = color;
+		getLineDirect<Pixel>(line)[0] = color;
 		lineWidths[line] = 1;
 	}
 

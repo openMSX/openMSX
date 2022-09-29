@@ -55,8 +55,10 @@ static inline void draw_YJK_YUV_PAL(
 template<std::unsigned_integral Pixel, typename ColorLookup>
 static void rasterBYUV(
 	ColorLookup color, V9990& vdp, V9990VRAM& vram,
-	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
+	std::span<Pixel> buf, unsigned x, unsigned y)
 {
+	Pixel* __restrict out = buf.data();
+	int nrPixels = buf.size();
 	unsigned address = (x & ~3) + y * vdp.getImageWidth();
 	if (x & 3) {
 		draw_YJK_YUV_PAL<false, false, true>(
@@ -73,10 +75,12 @@ static void rasterBYUV(
 template<std::unsigned_integral Pixel, typename ColorLookup>
 static void rasterBYUVP(
 	ColorLookup color, V9990& vdp, V9990VRAM& vram,
-	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
+	std::span<Pixel> buf, unsigned x, unsigned y)
 {
 	// TODO this mode cannot be shown in B4 and higher resolution modes
 	//      (So the dual palette for B4 modes is not an issue here.)
+	Pixel* __restrict out = buf.data();
+	int nrPixels = buf.size();
 	unsigned address = (x & ~3) + y * vdp.getImageWidth();
 	if (x & 3) {
 		draw_YJK_YUV_PAL<false, true, true>(
@@ -93,8 +97,10 @@ static void rasterBYUVP(
 template<std::unsigned_integral Pixel, typename ColorLookup>
 static void rasterBYJK(
 	ColorLookup color, V9990& vdp, V9990VRAM& vram,
-	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
+	std::span<Pixel> buf, unsigned x, unsigned y)
 {
+	Pixel* __restrict out = buf.data();
+	int nrPixels = buf.size();
 	unsigned address = (x & ~3) + y * vdp.getImageWidth();
 	if (x & 3) {
 		draw_YJK_YUV_PAL<true, false, true>(
@@ -111,10 +117,12 @@ static void rasterBYJK(
 template<std::unsigned_integral Pixel, typename ColorLookup>
 static void rasterBYJKP(
 	ColorLookup color, V9990& vdp, V9990VRAM& vram,
-	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
+	std::span<Pixel> buf, unsigned x, unsigned y)
 {
 	// TODO this mode cannot be shown in B4 and higher resolution modes
 	//      (So the dual palette for B4 modes is not an issue here.)
+	Pixel* __restrict out = buf.data();
+	int nrPixels = buf.size();
 	unsigned address = (x & ~3) + y * vdp.getImageWidth();
 	if (x & 3) {
 		draw_YJK_YUV_PAL<true, true, true>(
@@ -131,8 +139,10 @@ static void rasterBYJKP(
 template<std::unsigned_integral Pixel, typename ColorLookup>
 static void rasterBD16(
 	ColorLookup color, V9990& vdp, V9990VRAM& vram,
-	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
+	std::span<Pixel> buf, unsigned x, unsigned y)
 {
+	Pixel* __restrict out = buf.data();
+	int nrPixels = buf.size();
 	unsigned address = 2 * (x + y * vdp.getImageWidth());
 	if (vdp.isSuperimposing()) {
 		auto transparant = color.lookup256(0);
@@ -159,8 +169,10 @@ static void rasterBD16(
 template<std::unsigned_integral Pixel, typename ColorLookup>
 static void rasterBD8(
 	ColorLookup color, V9990& vdp, V9990VRAM& vram,
-	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
+	std::span<Pixel> buf, unsigned x, unsigned y)
 {
+	Pixel* __restrict out = buf.data();
+	int nrPixels = buf.size();
 	unsigned address = x + y * vdp.getImageWidth();
 	for (/**/; nrPixels > 0; --nrPixels) {
 		*out++ = color.lookup256(vram.readVRAMBx(address++));
@@ -170,8 +182,10 @@ static void rasterBD8(
 template<std::unsigned_integral Pixel, typename ColorLookup>
 static void rasterBP6(
 	ColorLookup color, V9990& vdp, V9990VRAM& vram,
-	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
+	std::span<Pixel> buf, unsigned x, unsigned y)
 {
+	Pixel* __restrict out = buf.data();
+	int nrPixels = buf.size();
 	unsigned address = x + y * vdp.getImageWidth();
 	for (/**/; nrPixels > 0; --nrPixels) {
 		*out++ = color.lookup64(vram.readVRAMBx(address++) & 0x3F);
@@ -181,8 +195,10 @@ static void rasterBP6(
 template<std::unsigned_integral Pixel, typename ColorLookup>
 static void rasterBP4(
 	ColorLookup color, V9990& vdp, V9990VRAM& vram,
-	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
+	std::span<Pixel> buf, unsigned x, unsigned y)
 {
+	Pixel* __restrict out = buf.data();
+	int nrPixels = buf.size();
 	assert(nrPixels > 0);
 	unsigned address = (x + y * vdp.getImageWidth()) / 2;
 	color.set64Offset((vdp.getPaletteOffset() & 0xC) << 2);
@@ -201,11 +217,13 @@ static void rasterBP4(
 template<std::unsigned_integral Pixel, typename ColorLookup>
 static void rasterBP4HiRes(
 	ColorLookup color, V9990& vdp, V9990VRAM& vram,
-	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
+	std::span<Pixel> buf, unsigned x, unsigned y)
 {
 	// Verified on real HW:
 	//   Bit PLT05 in palette offset is ignored, instead for even pixels
 	//   bit 'PLT05' is '0', for odd pixels it's '1'.
+	Pixel* __restrict out = buf.data();
+	int nrPixels = buf.size();
 	unsigned address = (x + y * vdp.getImageWidth()) / 2;
 	color.set64Offset((vdp.getPaletteOffset() & 0x4) << 2);
 	if (x & 1) {
@@ -224,8 +242,10 @@ static void rasterBP4HiRes(
 template<std::unsigned_integral Pixel, typename ColorLookup>
 static void rasterBP2(
 	ColorLookup color, V9990& vdp, V9990VRAM& vram,
-	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
+	std::span<Pixel> buf, unsigned x, unsigned y)
 {
+	Pixel* __restrict out = buf.data();
+	int nrPixels = buf.size();
 	assert(nrPixels > 0);
 	unsigned address = (x + y * vdp.getImageWidth()) / 4;
 	color.set64Offset(vdp.getPaletteOffset() << 2);
@@ -248,11 +268,13 @@ static void rasterBP2(
 template<std::unsigned_integral Pixel, typename ColorLookup>
 static void rasterBP2HiRes(
 	ColorLookup color, V9990& vdp, V9990VRAM& vram,
-	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
+	std::span<Pixel> buf, unsigned x, unsigned y)
 {
 	// Verified on real HW:
 	//   Bit PLT05 in palette offset is ignored, instead for even pixels
 	//   bit 'PLT05' is '0', for odd pixels it's '1'.
+	Pixel* __restrict out = buf.data();
+	int nrPixels = buf.size();
 	assert(nrPixels > 0);
 	unsigned address = (x + y * vdp.getImageWidth()) / 4;
 	color.set64Offset((vdp.getPaletteOffset() & 0x7) << 2);
@@ -326,20 +348,20 @@ private:
 template<std::unsigned_integral Pixel, typename ColorLookup>
 static void raster(V9990ColorMode colorMode, bool highRes,
                    ColorLookup color, V9990& vdp, V9990VRAM& vram,
-                   Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
+                   std::span<Pixel> out, unsigned x, unsigned y)
 {
 	switch (colorMode) {
-	case BYUV:  return rasterBYUV <Pixel>(color, vdp, vram, out, x, y, nrPixels);
-	case BYUVP: return rasterBYUVP<Pixel>(color, vdp, vram, out, x, y, nrPixels);
-	case BYJK:  return rasterBYJK <Pixel>(color, vdp, vram, out, x, y, nrPixels);
-	case BYJKP: return rasterBYJKP<Pixel>(color, vdp, vram, out, x, y, nrPixels);
-	case BD16:  return rasterBD16 <Pixel>(color, vdp, vram, out, x, y, nrPixels);
-	case BD8:   return rasterBD8  <Pixel>(color, vdp, vram, out, x, y, nrPixels);
-	case BP6:   return rasterBP6  <Pixel>(color, vdp, vram, out, x, y, nrPixels);
-	case BP4:   return highRes ? rasterBP4HiRes<Pixel>(color, vdp, vram, out, x, y, nrPixels)
-	                           : rasterBP4     <Pixel>(color, vdp, vram, out, x, y, nrPixels);
-	case BP2:   return highRes ? rasterBP2HiRes<Pixel>(color, vdp, vram, out, x, y, nrPixels)
-	                           : rasterBP2     <Pixel>(color, vdp, vram, out, x, y, nrPixels);
+	case BYUV:  return rasterBYUV <Pixel>(color, vdp, vram, out, x, y);
+	case BYUVP: return rasterBYUVP<Pixel>(color, vdp, vram, out, x, y);
+	case BYJK:  return rasterBYJK <Pixel>(color, vdp, vram, out, x, y);
+	case BYJKP: return rasterBYJKP<Pixel>(color, vdp, vram, out, x, y);
+	case BD16:  return rasterBD16 <Pixel>(color, vdp, vram, out, x, y);
+	case BD8:   return rasterBD8  <Pixel>(color, vdp, vram, out, x, y);
+	case BP6:   return rasterBP6  <Pixel>(color, vdp, vram, out, x, y);
+	case BP4:   return highRes ? rasterBP4HiRes<Pixel>(color, vdp, vram, out, x, y)
+	                           : rasterBP4     <Pixel>(color, vdp, vram, out, x, y);
+	case BP2:   return highRes ? rasterBP2HiRes<Pixel>(color, vdp, vram, out, x, y)
+	                           : rasterBP2     <Pixel>(color, vdp, vram, out, x, y);
 	default:    UNREACHABLE;
 	}
 }
@@ -442,10 +464,10 @@ public:
 
 template<std::unsigned_integral Pixel>
 void V9990BitmapConverter<Pixel>::convertLine(
-	Pixel* linePtr, unsigned x, unsigned y, int nrPixels,
+	std::span<Pixel> dst, unsigned x, unsigned y,
 	int cursorY, bool drawCursors)
 {
-	assert(nrPixels <= 1024);
+	assert(dst.size() <= 1024);
 
 	CursorInfo cursor0(vdp, vram, palette64_32768, 0x7fe00, 0x7ff00, cursorY, drawCursors);
 	CursorInfo cursor1(vdp, vram, palette64_32768, 0x7fe08, 0x7ff80, cursorY, drawCursors);
@@ -456,14 +478,14 @@ void V9990BitmapConverter<Pixel>::convertLine(
 		raster(colorMode, highRes,
 		       IndexLookup(palette64_32768, palette256_32768),
 		       vdp, vram,
-		       buf, x, y, nrPixels);
+		       subspan(buf, dst.size()), x, y);
 
 		// draw sprites in this buffer
 		// TODO can be optimized
 		// TODO probably goes wrong when startX != 0
 		// TODO investigate dual palette in B4 and higher modes
 		// TODO check X-roll behavior
-		for (auto i : xrange(nrPixels)) {
+		for (auto i : xrange(dst.size())) {
 			if (cursor0.dot()) {
 				if (cursor0.doXor) {
 					buf[i] ^= 0x7fff;
@@ -483,15 +505,14 @@ void V9990BitmapConverter<Pixel>::convertLine(
 		}
 
 		// copy buffer to destination, translate from V9990 to host colors
-		for (auto i : xrange(nrPixels)) {
-			linePtr[i] = palette32768[buf[i]];
+		for (auto i : xrange(dst.size())) {
+			dst[i] = palette32768[buf[i]];
 		}
 	} else {
 		// Optimization: no cursor(s) visible on this line, directly draw to destination
 		raster(colorMode, highRes,
 		       PaletteLookup<Pixel>(palette64, palette256, palette32768),
-		       vdp, vram,
-		       linePtr, x, y, nrPixels);
+		       vdp, vram, dst, x, y);
 	}
 }
 

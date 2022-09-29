@@ -271,10 +271,12 @@ static void renderSprites(
 
 template<std::unsigned_integral Pixel>
 void V9990P1Converter<Pixel>::convertLine(
-	Pixel* linePtr, unsigned displayX, unsigned displayWidth,
-	unsigned displayY, unsigned displayYA, unsigned displayYB,
-	bool drawSprites)
+	std::span<Pixel> buf, unsigned displayX, unsigned displayY,
+	unsigned displayYA, unsigned displayYB, bool drawSprites)
 {
+	Pixel* __restrict linePtr = buf.data();
+	unsigned displayWidth = buf.size();
+
 	unsigned prioX = vdp.getPriorityControlX();
 	unsigned prioY = vdp.getPriorityControlY();
 	if (displayY >= prioY) prioX = 0;
@@ -324,9 +326,12 @@ void V9990P1Converter<Pixel>::convertLine(
 
 template<std::unsigned_integral Pixel>
 void V9990P2Converter<Pixel>::convertLine(
-	Pixel* linePtr, unsigned displayX, unsigned displayWidth,
-	unsigned displayY, unsigned displayYA, bool drawSprites)
+	std::span<Pixel> buf, unsigned displayX, unsigned displayY,
+	unsigned displayYA, bool drawSprites)
 {
+	Pixel* __restrict linePtr = buf.data();
+	unsigned displayWidth = buf.size();
+
 	unsigned displayAX = (displayX + vdp.getScrollAX()) & 1023;
 
 	unsigned scrollY = vdp.getScrollAY();

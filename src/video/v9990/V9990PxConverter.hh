@@ -16,9 +16,8 @@ public:
 	V9990P1Converter(V9990& vdp, std::span<const Pixel, 64> palette64);
 
 	void convertLine(
-		Pixel* linePtr, unsigned displayX, unsigned displayWidth,
-		unsigned displayY, unsigned displayYA, unsigned displayYB,
-		bool drawSprites);
+		std::span<Pixel> buf, unsigned displayX, unsigned displayY,
+		unsigned displayYA, unsigned displayYB, bool drawSprites);
 
 private:
 	V9990& vdp;
@@ -33,8 +32,8 @@ public:
 	V9990P2Converter(V9990& vdp, std::span<const Pixel, 64> palette64);
 
 	void convertLine(
-		Pixel* linePtr, unsigned displayX, unsigned displayWidth,
-		unsigned displayY, unsigned displayYA, bool drawSprites);
+		std::span<Pixel> buf, unsigned displayX, unsigned displayY,
+		unsigned displayYA, bool drawSprites);
 
 private:
 	V9990& vdp;

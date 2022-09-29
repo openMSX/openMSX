@@ -64,7 +64,7 @@ public:
 	[[nodiscard]] bool isRecording() const override;
 
 private:
-	inline void renderBitmapLine(Pixel* buf, unsigned vramLine);
+	inline void renderBitmapLine(std::span<Pixel> buf, unsigned vramLine);
 
 	/** Reload entire palette from VDP.
 	  */

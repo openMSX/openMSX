@@ -234,18 +234,16 @@ static inline void convertHelperSSE2(
 		const uint8_t* pY2 = buffer[0].data + (y + 1) * y_stride;
 		const uint8_t* pCb = buffer[1].data + y * uv_stride2;
 		const uint8_t* pCr = buffer[2].data + y * uv_stride2;
-		auto* out0 = output.getLinePtrDirect<uint32_t>(y + 0);
-		auto* out1 = output.getLinePtrDirect<uint32_t>(y + 1);
+		auto out0 = output.getLineDirect<uint32_t>(y + 0);
+		auto out1 = output.getLineDirect<uint32_t>(y + 1);
 
 		for (int x = 0; x < width; x += 32) {
 			// convert a block of (32 x 2) pixels
-			yuv2rgb_sse2(pCb, pCr, pY1, pY2, out0, out1);
+			yuv2rgb_sse2(pCb, pCr, pY1, pY2, &out0[x], &out1[x]);
 			pCb += 16;
 			pCr += 16;
 			pY1 += 32;
 			pY2 += 32;
-			out0 += 32;
-			out1 += 32;
 		}
 
 		output.setLineWidth(y + 0, width);
@@ -314,26 +312,25 @@ static void convertHelper(const th_ycbcr_buffer& buffer, RawFrame& output,
 		const uint8_t* pY  = buffer[0].data + y * y_stride;
 		const uint8_t* pCb = buffer[1].data + y * uv_stride2;
 		const uint8_t* pCr = buffer[2].data + y * uv_stride2;
-		auto* out0 = output.getLinePtrDirect<Pixel>(y + 0);
-		auto* out1 = output.getLinePtrDirect<Pixel>(y + 1);
+		auto out0 = output.getLineDirect<Pixel>(y + 0);
+		auto out1 = output.getLineDirect<Pixel>(y + 1);
 
-		for (int x = 0; x < width;
-		     x += 2, pY += 2, ++pCr, ++pCb, out0 += 2, out1 += 2) {
+		for (int x = 0; x < width; x += 2, pY += 2, ++pCr, ++pCb) {
 			int ruv = coefs.rv[*pCr];
 			int guv = coefs.gu[*pCb] + coefs.gv[*pCr];
 			int buv = coefs.bu[*pCb];
 
 			int Y00 = coefs.y[pY[0]];
-			out0[0] = calc<Pixel>(format, Y00, ruv, guv, buv);
+			out0[x + 0] = calc<Pixel>(format, Y00, ruv, guv, buv);
 
 			int Y01 = coefs.y[pY[1]];
-			out0[1] = calc<Pixel>(format, Y01, ruv, guv, buv);
+			out0[x + 1] = calc<Pixel>(format, Y01, ruv, guv, buv);
 
 			int Y10 = coefs.y[pY[y_stride + 0]];
-			out1[0] = calc<Pixel>(format, Y10, ruv, guv, buv);
+			out1[x + 0] = calc<Pixel>(format, Y10, ruv, guv, buv);
 
 			int Y11 = coefs.y[pY[y_stride + 1]];
-			out1[1] = calc<Pixel>(format, Y11, ruv, guv, buv);
+			out1[x + 1] = calc<Pixel>(format, Y11, ruv, guv, buv);
 		}
 
 		output.setLineWidth(y + 0, width);

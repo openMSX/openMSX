@@ -31,12 +31,15 @@ public:
 	  */
 	CharacterConverter(VDP& vdp, std::span<const Pixel, 16> palFg, std::span<const Pixel, 16> palBg);
 
-	/** Convert a line of V9938 VRAM to 512 host pixels.
+	/** Convert a line of V9938 VRAM to 256 or 512 host pixels.
 	  * Call this method in non-planar display modes (Graphic4 and Graphic5).
-	  * @param linePtr Pointer to array where host pixels will be written to.
+	  * @param buf Buffer where host pixels will be written to.
+	  *            Depending on the screen mode, the buffer must contain at
+	  *            least 256 or 512 pixels, but more is allowed (the extra
+	  *            pixels aren't touched).
 	  * @param line Display line number [0..255].
 	  */
-	void convertLine(Pixel* linePtr, int line);
+	void convertLine(std::span<Pixel> buf, int line);
 
 	/** Select the display mode to use for scanline conversion.
 	  * @param mode The new display mode.
@@ -44,15 +47,15 @@ public:
 	void setDisplayMode(DisplayMode mode);
 
 private:
-	inline void renderText1   (Pixel* pixelPtr, int line);
-	inline void renderText1Q  (Pixel* pixelPtr, int line);
-	inline void renderText2   (Pixel* pixelPtr, int line);
-	inline void renderGraphic1(Pixel* pixelPtr, int line);
-	inline void renderGraphic2(Pixel* pixelPtr, int line);
-	inline void renderMulti   (Pixel* pixelPtr, int line);
-	inline void renderMultiQ  (Pixel* pixelPtr, int line);
-	inline void renderBogus   (Pixel* pixelPtr);
-	inline void renderBlank   (Pixel* pixelPtr);
+	inline void renderText1   (std::span<Pixel, 256> buf, int line);
+	inline void renderText1Q  (std::span<Pixel, 256> buf, int line);
+	inline void renderText2   (std::span<Pixel, 512> buf, int line);
+	inline void renderGraphic1(std::span<Pixel, 256> buf, int line);
+	inline void renderGraphic2(std::span<Pixel, 256> buf, int line);
+	inline void renderMulti   (std::span<Pixel, 256> buf, int line);
+	inline void renderMultiQ  (std::span<Pixel, 256> buf, int line);
+	inline void renderBogus   (std::span<Pixel, 256> buf);
+	inline void renderBlank   (std::span<Pixel, 256> buf);
 	inline void renderMultiHelper(Pixel* pixelPtr, int line,
 	                       int mask, int patternQuarter);
 

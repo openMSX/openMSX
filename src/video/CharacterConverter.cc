@@ -10,6 +10,7 @@ TODO:
 #include "CharacterConverter.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
+#include "ranges.hh"
 #include "xrange.hh"
 #include "build-info.hh"
 #include "components.hh"
@@ -37,47 +38,47 @@ void CharacterConverter<Pixel>::setDisplayMode(DisplayMode mode)
 }
 
 template<std::unsigned_integral Pixel>
-void CharacterConverter<Pixel>::convertLine(Pixel* linePtr, int line)
+void CharacterConverter<Pixel>::convertLine(std::span<Pixel> buf, int line)
 {
 	// TODO: Support YJK on modes other than Graphic 6/7.
 	switch (modeBase) {
 	case DisplayMode::GRAPHIC1:   // screen 1
-		renderGraphic1(linePtr, line);
+		renderGraphic1(subspan<256>(buf), line);
 		break;
 	case DisplayMode::TEXT1:      // screen 0, width 40
-		renderText1(linePtr, line);
+		renderText1(subspan<256>(buf), line);
 		break;
 	case DisplayMode::MULTICOLOR: // screen 3
-		renderMulti(linePtr, line);
+		renderMulti(subspan<256>(buf), line);
 		break;
 	case DisplayMode::GRAPHIC2:   // screen 2
-		renderGraphic2(linePtr, line);
+		renderGraphic2(subspan<256>(buf), line);
 		break;
 	case DisplayMode::GRAPHIC3:   // screen 4
-		renderGraphic2(linePtr, line); // graphic3, actually
+		renderGraphic2(subspan<256>(buf), line); // graphic3, actually
 		break;
 	case  DisplayMode::TEXT2:     // screen 0, width 80
-		renderText2(linePtr, line);
+		renderText2(subspan<512>(buf), line);
 		break;
 	case DisplayMode::TEXT1Q:     // TMSxxxx only
 		if (vdp.isMSX1VDP()) {
-			renderText1Q(linePtr, line);
+			renderText1Q(subspan<256>(buf), line);
 		} else {
-			renderBlank (linePtr);
+			renderBlank (subspan<256>(buf));
 		}
 		break;
 	case DisplayMode::MULTIQ:     // TMSxxxx only
 		if (vdp.isMSX1VDP()) {
-			renderMultiQ(linePtr, line);
+			renderMultiQ(subspan<256>(buf), line);
 		} else {
-			renderBlank (linePtr);
+			renderBlank (subspan<256>(buf));
 		}
 		break;
 	default: // remaining (non-bitmap) modes
 		if (vdp.isMSX1VDP()) {
-			renderBogus(linePtr);
+			renderBogus(subspan<256>(buf));
 		} else {
-			renderBlank(linePtr);
+			renderBlank(subspan<256>(buf));
 		}
 	}
 }
@@ -140,8 +141,7 @@ template<std::unsigned_integral Pixel> static inline void draw8(
 }
 
 template<std::unsigned_integral Pixel>
-void CharacterConverter<Pixel>::renderText1(
-	Pixel* __restrict pixelPtr, int line)
+void CharacterConverter<Pixel>::renderText1(std::span<Pixel, 256> buf, int line)
 {
 	Pixel fg = palFg[vdp.getForegroundColor()];
 	Pixel bg = palFg[vdp.getBackgroundColor()];
@@ -155,6 +155,7 @@ void CharacterConverter<Pixel>::renderText1(
 	//       correctly. Therefore we read one character at a time.
 	unsigned nameStart = (line / 8) * 40;
 	unsigned nameEnd = nameStart + 40;
+	Pixel* __restrict pixelPtr = buf.data();
 	for (auto name : xrange(nameStart, nameEnd)) {
 		unsigned charcode = vram.nameTable.readNP((name + 0xC00) | (~0u << 12));
 		unsigned pattern = patternArea[charcode * 8];
@@ -163,8 +164,7 @@ void CharacterConverter<Pixel>::renderText1(
 }
 
 template<std::unsigned_integral Pixel>
-void CharacterConverter<Pixel>::renderText1Q(
-	Pixel* __restrict pixelPtr, int line)
+void CharacterConverter<Pixel>::renderText1Q(std::span<Pixel, 256> buf, int line)
 {
 	Pixel fg = palFg[vdp.getForegroundColor()];
 	Pixel bg = palFg[vdp.getBackgroundColor()];
@@ -177,6 +177,7 @@ void CharacterConverter<Pixel>::renderText1Q(
 	unsigned nameStart = (line / 8) * 40;
 	unsigned nameEnd = nameStart + 40;
 	unsigned patternQuarter = (line & 0xC0) << 2;
+	Pixel* __restrict pixelPtr = buf.data();
 	for (auto name : xrange(nameStart, nameEnd)) {
 		unsigned charcode = vram.nameTable.readNP((name + 0xC00) | (~0u << 12));
 		unsigned patternNr = patternQuarter | charcode;
@@ -187,8 +188,7 @@ void CharacterConverter<Pixel>::renderText1Q(
 }
 
 template<std::unsigned_integral Pixel>
-void CharacterConverter<Pixel>::renderText2(
-	Pixel* __restrict pixelPtr, int line)
+void CharacterConverter<Pixel>::renderText2(std::span<Pixel, 512> buf, int line)
 {
 	Pixel plainFg = palFg[vdp.getForegroundColor()];
 	Pixel plainBg = palFg[vdp.getBackgroundColor()];
@@ -208,6 +208,7 @@ void CharacterConverter<Pixel>::renderText2(
 
 	unsigned colorStart = (line / 8) * (80 / 8);
 	unsigned nameStart  = (line / 8) * 80;
+	Pixel* __restrict pixelPtr = buf.data();
 	for (auto i : xrange(80 / 8)) {
 		unsigned colorPattern = vram.colorTable.readNP(
 			(colorStart + i) | (~0u << 9));
@@ -257,8 +258,7 @@ const byte* CharacterConverter<Pixel>::getNamePtr(int line, int scroll)
 		((line / 8) * 32) | ((scroll & 0x20) ? 0x8000 : 0), 32);
 }
 template<std::unsigned_integral Pixel>
-void CharacterConverter<Pixel>::renderGraphic1(
-	Pixel* __restrict pixelPtr, int line)
+void CharacterConverter<Pixel>::renderGraphic1(std::span<Pixel, 256> buf, int line)
 {
 	const byte* patternArea = vram.patternTable.getReadArea(0, 256 * 8);
 	patternArea += line & 7;
@@ -266,10 +266,11 @@ void CharacterConverter<Pixel>::renderGraphic1(
 
 	int scroll = vdp.getHorizontalScrollHigh();
 	const byte* namePtr = getNamePtr(line, scroll);
+	Pixel* __restrict pixelPtr = buf.data();
 	repeat(32, [&] {
-		unsigned charcode = namePtr[scroll & 0x1F];
-		unsigned pattern = patternArea[charcode * 8];
-		unsigned color = colorArea[charcode / 8];
+		unsigned charCode = namePtr[scroll & 0x1F];
+		unsigned pattern = patternArea[charCode * 8];
+		unsigned color = colorArea[charCode / 8];
 		Pixel fg = palFg[color >> 4];
 		Pixel bg = palFg[color & 0x0F];
 		draw8(pixelPtr, fg, bg, pattern);
@@ -278,14 +279,14 @@ void CharacterConverter<Pixel>::renderGraphic1(
 }
 
 template<std::unsigned_integral Pixel>
-void CharacterConverter<Pixel>::renderGraphic2(
-	Pixel* __restrict pixelPtr, int line)
+void CharacterConverter<Pixel>::renderGraphic2(std::span<Pixel, 256> buf, int line)
 {
 	int quarter8 = (((line / 8) * 32) & ~0xFF) * 8;
 	int line7 = line & 7;
 	int scroll = vdp.getHorizontalScrollHigh();
 	const byte* namePtr = getNamePtr(line, scroll);
 
+	Pixel* __restrict pixelPtr = buf.data();
 	if (vram.colorTable  .isContinuous((8 * 256) - 1) &&
 	    vram.patternTable.isContinuous((8 * 256) - 1) &&
 	    ((scroll & 0x1f) == 0)) {
@@ -343,31 +344,29 @@ void CharacterConverter<Pixel>::renderMultiHelper(
 	});
 }
 template<std::unsigned_integral Pixel>
-void CharacterConverter<Pixel>::renderMulti(
-	Pixel* __restrict pixelPtr, int line)
+void CharacterConverter<Pixel>::renderMulti(std::span<Pixel, 256> buf, int line)
 {
 	int mask = (~0u << 11);
-	renderMultiHelper(pixelPtr, line, mask, 0);
+	renderMultiHelper(buf.data(), line, mask, 0);
 }
 
 template<std::unsigned_integral Pixel>
 void CharacterConverter<Pixel>::renderMultiQ(
-	Pixel* __restrict pixelPtr, int line)
+	std::span<Pixel, 256> pixelPtr, int line)
 {
 	int mask = (~0u << 13);
 	int patternQuarter = (line * 4) & ~0xFF;  // (line / 8) * 32
-	renderMultiHelper(pixelPtr, line, mask, patternQuarter);
+	renderMultiHelper(pixelPtr.data(), line, mask, patternQuarter);
 }
 
 template<std::unsigned_integral Pixel>
-void CharacterConverter<Pixel>::renderBogus(
-	Pixel* __restrict pixelPtr)
+void CharacterConverter<Pixel>::renderBogus(std::span<Pixel, 256> buf)
 {
+	Pixel* __restrict pixelPtr = buf.data();
 	Pixel fg = palFg[vdp.getForegroundColor()];
 	Pixel bg = palFg[vdp.getBackgroundColor()];
 	auto draw = [&](int n, Pixel col) {
 		pixelPtr = std::fill_n(pixelPtr, n, col);
-
 	};
 	draw(8, bg);
 	repeat(40, [&] {
@@ -378,12 +377,11 @@ void CharacterConverter<Pixel>::renderBogus(
 }
 
 template<std::unsigned_integral Pixel>
-void CharacterConverter<Pixel>::renderBlank(
-	Pixel* __restrict pixelPtr)
+void CharacterConverter<Pixel>::renderBlank(std::span<Pixel, 256> buf)
 {
 	// when this is in effect, the VRAM is not refreshed anymore, but that
 	// is not emulated
-	std::fill_n(pixelPtr, 256, palFg[15]);
+	ranges::fill(buf, palFg[15]);
 }
 
 // Force template instantiation.

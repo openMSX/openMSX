@@ -56,7 +56,7 @@ static constexpr int translateX(int absoluteX, bool narrow)
 }
 
 template<std::unsigned_integral Pixel>
-inline void SDLRasterizer<Pixel>::renderBitmapLine(Pixel* buf, unsigned vramLine)
+inline void SDLRasterizer<Pixel>::renderBitmapLine(std::span<Pixel> buf, unsigned vramLine)
 {
 	if (vdp.getDisplayMode().isPlanar()) {
 		auto [vramPtr0, vramPtr1] =
@@ -416,7 +416,7 @@ void SDLRasterizer<Pixel>::drawBorder(
 		unsigned width = (lineWidth == 512) ? 640 : 320;
 		MemoryOps::MemSet2<Pixel> memset;
 		for (auto y : xrange(startY, endY)) {
-			memset(std::span{workFrame->getLinePtrDirect<Pixel>(y) + x, num},
+			memset(workFrame->getLineDirect<Pixel>(y).subspan(x, num),
 			       border0, border1);
 			if (limitX == VDP::TICKS_PER_LINE) {
 				// Only set line width at the end (right
@@ -510,10 +510,9 @@ void SDLRasterizer<Pixel>::drawDisplay(
 				(vram.nameTable.getMask() >> 7) & (pageMaskOdd  | displayY)
 			};
 
-			Pixel buf[512];
+			std::array<Pixel, 512> buf;
 			int lineInBuf = -1; // buffer data not valid
-			Pixel* dst = workFrame->getLinePtrDirect<Pixel>(y)
-			           + leftBackground + displayX;
+			auto dst = workFrame->getLineDirect<Pixel>(y).subspan(leftBackground + displayX);
 			int firstPageWidth = pageBorder - displayX;
 			if (firstPageWidth > 0) {
 				if (((displayX + hScroll) == 0) &&
@@ -523,8 +522,8 @@ void SDLRasterizer<Pixel>::drawDisplay(
 				} else {
 					lineInBuf = vramLine[scrollPage1];
 					renderBitmapLine(buf, vramLine[scrollPage1]);
-					const Pixel* src = buf + displayX + hScroll;
-					ranges::copy(std::span{src, size_t(firstPageWidth)}, dst);
+					auto src = subspan(buf, displayX + hScroll, firstPageWidth);
+					ranges::copy(src, dst);
 				}
 			} else {
 				firstPageWidth = 0;
@@ -535,8 +534,8 @@ void SDLRasterizer<Pixel>::drawDisplay(
 				}
 				unsigned x = displayX < pageBorder
 					   ? 0 : displayX + hScroll - lineWidth;
-				ranges::copy(std::span{&buf[x], size_t(displayWidth - firstPageWidth)},
-				             &dst[firstPageWidth]);
+				ranges::copy(subspan(buf, x, displayWidth - firstPageWidth),
+				             subspan(dst, firstPageWidth));
 			}
 
 			displayY = (displayY + 1) & 255;
@@ -546,15 +545,14 @@ void SDLRasterizer<Pixel>::drawDisplay(
 		for (auto y : xrange(screenY, screenLimitY)) {
 			assert(!vdp.isMSX1VDP() || displayY < 192);
 
-			Pixel* dst = workFrame->getLinePtrDirect<Pixel>(y)
-			           + leftBackground + displayX;
+			auto dst = workFrame->getLineDirect<Pixel>(y).subspan(leftBackground + displayX);
 			if ((displayX == 0) && (displayWidth == lineWidth)){
 				characterConverter.convertLine(dst, displayY);
 			} else {
-				Pixel buf[512];
+				std::array<Pixel, 512> buf;
 				characterConverter.convertLine(buf, displayY);
-				const Pixel* src = buf + displayX;
-				ranges::copy(std::span{src, size_t(displayWidth)}, dst);
+				auto src = subspan(buf, displayX, displayWidth);
+				ranges::copy(src, dst);
 			}
 
 			displayY = (displayY + 1) & 255;
@@ -592,28 +590,28 @@ void SDLRasterizer<Pixel>::drawSprites(
 		vdp.getDisplayMode().getLineWidth() == 512);
 	if (spriteMode == 1) {
 		for (int y = fromY; y < limitY; y++, screenY++) {
-			Pixel* pixelPtr = workFrame->getLinePtrDirect<Pixel>(screenY) + screenX;
-			spriteConverter.drawMode1(y, displayX, displayLimitX, pixelPtr);
+			auto dst = workFrame->getLineDirect<Pixel>(screenY).subspan(screenX);
+			spriteConverter.drawMode1(y, displayX, displayLimitX, dst);
 		}
 	} else {
 		byte mode = vdp.getDisplayMode().getByte();
 		if (mode == DisplayMode::GRAPHIC5) {
 			for (int y = fromY; y < limitY; y++, screenY++) {
-				Pixel* pixelPtr = workFrame->getLinePtrDirect<Pixel>(screenY) + screenX;
+				auto dst = workFrame->getLineDirect<Pixel>(screenY).subspan(screenX);
 				spriteConverter.template drawMode2<DisplayMode::GRAPHIC5>(
-					y, displayX, displayLimitX, pixelPtr);
+					y, displayX, displayLimitX, dst);
 			}
 		} else if (mode == DisplayMode::GRAPHIC6) {
 			for (int y = fromY; y < limitY; y++, screenY++) {
-				Pixel* pixelPtr = workFrame->getLinePtrDirect<Pixel>(screenY) + screenX;
+				auto dst = workFrame->getLineDirect<Pixel>(screenY).subspan(screenX);
 				spriteConverter.template drawMode2<DisplayMode::GRAPHIC6>(
-					y, displayX, displayLimitX, pixelPtr);
+					y, displayX, displayLimitX, dst);
 			}
 		} else {
 			for (int y = fromY; y < limitY; y++, screenY++) {
-				Pixel* pixelPtr = workFrame->getLinePtrDirect<Pixel>(screenY) + screenX;
+				auto dst = workFrame->getLineDirect<Pixel>(screenY).subspan(screenX);
 				spriteConverter.template drawMode2<DisplayMode::GRAPHIC4>(
-					y, displayX, displayLimitX, pixelPtr);
+					y, displayX, displayLimitX, dst);
 			}
 		}
 	}

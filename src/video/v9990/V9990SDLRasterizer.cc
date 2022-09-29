@@ -146,8 +146,7 @@ void V9990SDLRasterizer<Pixel>::drawBorder(
 	unsigned lineWidth = vdp.getLineWidth();
 	MemoryOps::MemSet<Pixel> memset;
 	for (auto y : xrange(startY, endY)) {
-		memset(std::span{workFrame->getLinePtrDirect<Pixel>(y) + startX,
-		                 size_t(endX - startX)},
+		memset(workFrame->getLineDirect<Pixel>(y).subspan(startX, size_t(endX - startX)),
 		       bgColor);
 		workFrame->setLineWidth(y, lineWidth);
 	}
@@ -221,10 +220,9 @@ void V9990SDLRasterizer<Pixel>::drawP1Mode(
 	int displayWidth, int displayHeight, bool drawSprites)
 {
 	while (displayHeight--) {
-		Pixel* pixelPtr = workFrame->getLinePtrDirect<Pixel>(fromY) + fromX;
-		p1Converter.convertLine(pixelPtr, displayX, displayWidth,
-		                        displayY, displayYA, displayYB,
-		                        drawSprites);
+		auto dst = workFrame->getLineDirect<Pixel>(fromY).subspan(fromX, displayWidth);
+		p1Converter.convertLine(dst, displayX, displayY,
+		                        displayYA, displayYB, drawSprites);
 		workFrame->setLineWidth(fromY, 320);
 		++fromY;
 		++displayY;
@@ -239,9 +237,8 @@ void V9990SDLRasterizer<Pixel>::drawP2Mode(
 	int displayWidth, int displayHeight, bool drawSprites)
 {
 	while (displayHeight--) {
-		Pixel* pixelPtr = workFrame->getLinePtrDirect<Pixel>(fromY) + fromX;
-		p2Converter.convertLine(pixelPtr, displayX, displayWidth,
-		                        displayY, displayYA, drawSprites);
+		auto dst = workFrame->getLineDirect<Pixel>(fromY).subspan(fromX, displayWidth);
+		p2Converter.convertLine(dst, displayX, displayY, displayYA, drawSprites);
 		workFrame->setLineWidth(fromY, 640);
 		++fromY;
 		++displayY;
@@ -277,8 +274,8 @@ void V9990SDLRasterizer<Pixel>::drawBxMode(
 		// position of the borders into account, the display area
 		// plus 3 pixels cannot go beyond the end of the buffer.
 		unsigned y = scrollYBase + ((displayYA + scrollY) & rollMask);
-		Pixel* pixelPtr = workFrame->getLinePtrDirect<Pixel>(fromY) + fromX;
-		bitmapConverter.convertLine(pixelPtr, x, y, displayWidth,
+		auto dst = workFrame->getLineDirect<Pixel>(fromY).subspan(fromX);
+		bitmapConverter.convertLine(dst.subspan(displayWidth), x, y,
 		                            cursorY, drawSprites);
 		workFrame->setLineWidth(fromY, vdp.getLineWidth());
 		++fromY;
