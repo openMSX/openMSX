@@ -3,6 +3,7 @@
 #include "EmptyDiskPatch.hh"
 #include "IPSPatch.hh"
 #include "DiskExceptions.hh"
+#include "enumerate.hh"
 #include "sha1.hh"
 #include "xrange.hh"
 #include <memory>
@@ -18,13 +19,13 @@ SectorAccessibleDisk::~SectorAccessibleDisk() = default;
 
 void SectorAccessibleDisk::readSector(size_t sector, SectorBuffer& buf)
 {
-	readSectors(&buf, sector, 1);
+	readSectors(std::span{&buf, 1}, sector);
 }
 
 void SectorAccessibleDisk::readSectors(
-	SectorBuffer* buffers, size_t startSector, size_t nbSectors)
+	std::span<SectorBuffer> buffers, size_t startSector)
 {
-	auto last = startSector + nbSectors - 1;
+	auto last = startSector + buffers.size() - 1;
 	if (!isDummyDisk() && // in that case we want DriveEmptyException
 	    (last > 1) && // allow reading sector 0 and 1 without calling
 	                  // getNbSectors() because this potentially calls
@@ -37,19 +38,19 @@ void SectorAccessibleDisk::readSectors(
 		// in the end this calls readSectorsImpl()
 		patch->copyBlock(startSector * sizeof(SectorBuffer),
 		                 std::span{buffers[0].raw.data(),
-				           nbSectors * sizeof(SectorBuffer)});
+		                           buffers.size_bytes()});
 	} catch (MSXException& e) {
 		throw DiskIOErrorException("Disk I/O error: ", e.getMessage());
 	}
 }
 
 void SectorAccessibleDisk::readSectorsImpl(
-	SectorBuffer* buffers, size_t startSector, size_t nbSectors)
+	std::span<SectorBuffer> buffers, size_t startSector)
 {
 	// Default implementation reads one sector at a time. But subclasses can
 	// override this method if they can do it more efficiently.
-	for (auto i : xrange(nbSectors)) {
-		readSectorImpl(startSector + i, buffers[i]);
+	for (auto [i, buf] : enumerate(buffers)) {
+		readSectorImpl(startSector + i, buf);
 	}
 }
 
@@ -77,12 +78,12 @@ void SectorAccessibleDisk::writeSector(size_t sector, const SectorBuffer& buf)
 }
 
 void SectorAccessibleDisk::writeSectors(
-	const SectorBuffer* buffers, size_t startSector, size_t nbSectors)
+	std::span<const SectorBuffer> buffers, size_t startSector)
 {
 	// Simply write one-at-a-time. There's no possibility (nor any need) yet
 	// to allow to optimize this
-	for (auto i : xrange(nbSectors)) {
-		writeSector(startSector + i, buffers[i]);
+	for (auto [i, buf] : enumerate(buffers)) {
+		writeSector(startSector + i, buf);
 	}
 }
 
@@ -128,8 +129,9 @@ Sha1Sum SectorAccessibleDisk::getSha1SumImpl(FilePool& /*filePool*/)
 		size_t sector = 0;
 		while (sector < total) {
 			auto chunk = std::min(MAX_CHUNK, total - sector);
-			readSectors(buf, sector, chunk);
-			sha1.update({buf[0].raw.data(), chunk * sizeof(SectorBuffer)});
+			auto sub = subspan(buf, 0, chunk);
+			readSectors(sub, sector);
+			sha1.update({sub[0].raw.data(), sub.size_bytes()});
 			sector += chunk;
 		}
 

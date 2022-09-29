@@ -20,10 +20,10 @@ DSKDiskImage::DSKDiskImage(const Filename& fileName,
 }
 
 void DSKDiskImage::readSectorsImpl(
-	SectorBuffer* buffers, size_t startSector, size_t num)
+	std::span<SectorBuffer> buffers, size_t startSector)
 {
 	file->seek(startSector * sizeof(SectorBuffer));
-	file->read(std::span{buffers, num});
+	file->read(buffers);
 }
 
 void DSKDiskImage::writeSectorImpl(size_t sector, const SectorBuffer& buf)

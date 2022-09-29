@@ -4,8 +4,9 @@
 #include "DiskImageUtils.hh"
 #include "Filename.hh"
 #include "sha1.hh"
-#include <vector>
 #include <memory>
+#include <span>
+#include <vector>
 
 namespace openmsx {
 
@@ -20,10 +21,8 @@ public:
 	// sector stuff
 	void readSector (size_t sector,       SectorBuffer& buf);
 	void writeSector(size_t sector, const SectorBuffer& buf);
-	void readSectors (      SectorBuffer* buffers, size_t startSector,
-	                  size_t nbSectors);
-	void writeSectors(const SectorBuffer* buffers, size_t startSector,
-	                  size_t nbSectors);
+	void readSectors (std::span<      SectorBuffer> buffers, size_t startSector);
+	void writeSectors(std::span<const SectorBuffer> buffers, size_t startSector);
 	[[nodiscard]] size_t getNbSectors() const;
 
 	// write protected stuff
@@ -44,7 +43,7 @@ public:
 
 	// should only be called by EmptyDiskPatch
 	virtual void readSectorsImpl(
-		SectorBuffer* buffers, size_t startSector, size_t nbSectors);
+		std::span<SectorBuffer> buffers, size_t startSector);
 	// Default readSectorsImpl() implementation delegates to readSectorImpl.
 	// Subclasses should override exactly one of these two.
 	virtual void readSectorImpl(size_t sector, SectorBuffer& buf);

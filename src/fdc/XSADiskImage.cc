@@ -65,9 +65,9 @@ XSADiskImage::XSADiskImage(Filename& filename, File& file)
 }
 
 void XSADiskImage::readSectorsImpl(
-	SectorBuffer* buffers, size_t startSector, size_t num)
+	std::span<SectorBuffer> buffers, size_t startSector)
 {
-	ranges::copy(std::span{&data[startSector], num}, buffers);
+	ranges::copy(std::span{&data[startSector], buffers.size()}, buffers);
 }
 
 void XSADiskImage::writeSectorImpl(size_t /*sector*/, const SectorBuffer& /*buf*/)

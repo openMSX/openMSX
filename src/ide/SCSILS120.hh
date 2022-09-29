@@ -58,7 +58,7 @@ public:
 private:
 	// SectorAccessibleDisk:
 	void readSectorsImpl(
-		SectorBuffer* buffers, size_t startSector, size_t num) override;
+		std::span<SectorBuffer> buffers, size_t startSector) override;
 	void writeSectorImpl(size_t sector, const SectorBuffer& buf) override;
 	[[nodiscard]] size_t getNbSectorsImpl() const override;
 	[[nodiscard]] bool isWriteProtectedImpl() const override;

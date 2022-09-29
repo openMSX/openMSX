@@ -13,10 +13,9 @@ void EmptyDiskPatch::copyBlock(size_t src, std::span<uint8_t> dst) const
 {
 	assert((dst.size() % SectorAccessibleDisk::SECTOR_SIZE) == 0);
 	assert((src % SectorAccessibleDisk::SECTOR_SIZE) == 0);
-	auto* buf = aligned_cast<SectorBuffer*>(dst.data());
-	disk.readSectorsImpl(buf,
-	                     src / SectorAccessibleDisk::SECTOR_SIZE,
-	                     dst.size() / SectorAccessibleDisk::SECTOR_SIZE);
+	disk.readSectorsImpl(std::span{aligned_cast<SectorBuffer*>(dst.data()),
+	                               dst.size() / SectorAccessibleDisk::SECTOR_SIZE},
+	                     src / SectorAccessibleDisk::SECTOR_SIZE);
 }
 
 size_t EmptyDiskPatch::getSize() const

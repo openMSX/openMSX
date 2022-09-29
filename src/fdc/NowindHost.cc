@@ -269,7 +269,7 @@ void NowindHost::DSKCHG()
 		// read first FAT sector (contains media descriptor)
 		SectorBuffer sectorBuffer;
 		try {
-			disk->readSectors(&sectorBuffer, 1, 1);
+			disk->readSectors(std::span{&sectorBuffer, 1}, 1);
 		} catch (MSXException&) {
 			// TODO read error
 			sectorBuffer.raw[0] = 0;
@@ -356,7 +356,7 @@ void NowindHost::diskReadInit(SectorAccessibleDisk& disk)
 	buffer.resize(sectorAmount);
 	unsigned startSector = getStartSector();
 	try {
-		disk.readSectors(buffer.data(), startSector, sectorAmount);
+		disk.readSectors(std::span{buffer.data(), sectorAmount}, startSector);
 	} catch (MSXException&) {
 		// read error
 		state = STATE_SYNC1;
@@ -499,7 +499,7 @@ void NowindHost::doDiskWrite1()
 		unsigned startSector = getStartSector();
 		if (auto* disk = getDisk()) {
 			try {
-				disk->writeSectors(&buffer[0], startSector, sectorAmount);
+				disk->writeSectors(std::span{&buffer[0], sectorAmount}, startSector);
 			} catch (MSXException&) {
 				// TODO write error
 			}

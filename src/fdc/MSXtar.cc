@@ -149,7 +149,7 @@ MSXtar::MSXtar(SectorAccessibleDisk& sectordisk)
 	// cache complete FAT
 	fatCacheDirty = false;
 	fatBuffer.resize(sectorsPerFat);
-	disk.readSectors(&fatBuffer[0], 1, sectorsPerFat);
+	disk.readSectors(std::span{&fatBuffer[0], sectorsPerFat}, 1);
 }
 
 // Not used when NRVO is used (but NRVO optimization is not (yet) mandated)

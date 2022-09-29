@@ -12,6 +12,7 @@
 #include "Timer.hh"
 #include "serialize.hh"
 #include "tiger.hh"
+#include <array>
 #include <cassert>
 #include <memory>
 
@@ -102,10 +103,10 @@ size_t HD::getNbSectorsImpl() const
 }
 
 void HD::readSectorsImpl(
-	SectorBuffer* buffers, size_t startSector, size_t num)
+	std::span<SectorBuffer> buffers, size_t startSector)
 {
 	file.seek(startSector * sizeof(SectorBuffer));
-	file.read(std::span{buffers, num});
+	file.read(buffers);
 }
 
 void HD::writeSectorImpl(size_t sector, const SectorBuffer& buf)
@@ -165,13 +166,13 @@ uint8_t* HD::getData(size_t offset, size_t size)
 	struct Work {
 		char extra; // at least one byte before 'bufs'
 		// likely there are padding bytes in between
-		SectorBuffer bufs[TigerTree::BLOCK_SIZE / sizeof(SectorBuffer)];
+		std::array<SectorBuffer, TigerTree::BLOCK_SIZE / sizeof(SectorBuffer)> bufs;
 	};
 	static Work work; // not reentrant
 
 	size_t sector = offset / sizeof(SectorBuffer);
 	size_t num    = size   / sizeof(SectorBuffer);
-	readSectors(work.bufs, sector, num); // This possibly applies IPS patches.
+	readSectors(std::span{work.bufs.data(), num}, sector); // This possibly applies IPS patches.
 	return work.bufs[0].raw.data();
 }
 
