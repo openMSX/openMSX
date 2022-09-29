@@ -9,8 +9,10 @@
 #include "IRQHelper.hh"
 #include "openmsx.hh"
 #include "serialize_meta.hh"
-#include <string>
+#include <array>
 #include <memory>
+#include <span>
+#include <string>
 
 namespace openmsx {
 
@@ -18,6 +20,12 @@ class DeviceConfig;
 
 class YMF262 final : private ResampledSoundDevice, private EmuTimerCallback
 {
+public:
+	// sin-wave entries
+	static constexpr int SIN_BITS = 10;
+	static constexpr int SIN_LEN  = 1 << SIN_BITS;
+	static constexpr int SIN_MASK = SIN_LEN - 1;
+
 public:
 	YMF262(const std::string& name, const DeviceConfig& config,
 	       bool isYMF278);
@@ -72,7 +80,7 @@ private:
 		FreqIndex Cnt;	// frequency counter
 		FreqIndex Incr;	// frequency counter step
 		int* connect;	// slot output pointer
-		int op1_out[2];	// slot1 output for feedback
+		std::array<int, 2> op1_out; // slot1 output for feedback
 
 		// Envelope Generator
 		unsigned TL;	// total level: TL << 2
@@ -80,7 +88,7 @@ private:
 		int volume;	// envelope counter
 		int sl;		// sustain level: sl_tab[SL]
 
-		const unsigned* wavetable; // waveform select
+		std::span<const unsigned, SIN_LEN> waveTable; // waveform select
 
 		EnvelopeState state; // EG: phase type
 		unsigned eg_m_ar;// (attack state)
@@ -121,7 +129,7 @@ private:
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);
 
-		Slot slot[2];
+		std::array<Slot, 2> slot;
 
 		int block_fnum;	// block+fnum
 		FreqIndex fc;	// Freq. Increment base
@@ -191,15 +199,15 @@ private:
 
 	IRQHelper irq;
 
-	int chanout[18]; // 18 channels
+	std::array<int, 18> chanOut;      // 18 channels
 
-	byte reg[512];
-	Channel channel[18];	// OPL3 chips have 18 channels
+	std::array<byte, 512> reg;
+	std::array<Channel, 18> channel;  // OPL3 chips have 18 channels
 
-	unsigned pan[18 * 4];		// channels output masks 4 per channel
-	                                //    0xffffffff = enable
-	unsigned eg_cnt;		// global envelope generator counter
-	unsigned noise_rng;		// 23 bit noise shift register
+	std::array<unsigned, 18 * 4> pan; // channels output masks 4 per channel
+	                                  //    0xffffffff = enable
+	unsigned eg_cnt;                  // global envelope generator counter
+	unsigned noise_rng;               // 23 bit noise shift register
 
 	// LFO
 	using LFOAMIndex = FixedPoint< 6>;

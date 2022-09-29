@@ -60,27 +60,22 @@ namespace openmsx {
 }
 
 // envelope output entries
-constexpr int ENV_BITS    = 10;
-constexpr int ENV_LEN     = 1 << ENV_BITS;
-constexpr double ENV_STEP = 128.0 / ENV_LEN;
+static constexpr int ENV_BITS    = 10;
+static constexpr int ENV_LEN     = 1 << ENV_BITS;
+static constexpr double ENV_STEP = 128.0 / ENV_LEN;
 
-constexpr int MAX_ATT_INDEX = (1 << (ENV_BITS - 1)) - 1; // 511
-constexpr int MIN_ATT_INDEX = 0;
+static constexpr int MAX_ATT_INDEX = (1 << (ENV_BITS - 1)) - 1; // 511
+static constexpr int MIN_ATT_INDEX = 0;
 
-// sinwave entries
-constexpr int SIN_BITS = 10;
-constexpr int SIN_LEN  = 1 << SIN_BITS;
-constexpr int SIN_MASK = SIN_LEN - 1;
-
-constexpr int TL_RES_LEN = 256; // 8 bits addressing (real chip)
+static constexpr int TL_RES_LEN = 256; // 8 bits addressing (real chip)
 
 // register number to channel number , slot offset
-constexpr byte MOD = 0;
-constexpr byte CAR = 1;
+static constexpr byte MOD = 0;
+static constexpr byte CAR = 1;
 
 
 // mapping of register number (offset) to slot number used by the emulator
-constexpr int slot_array[32] = {
+static constexpr std::array<int, 32> slot_array = {
 	 0,  2,  4,  1,  3,  5, -1, -1,
 	 6,  8, 10,  7,  9, 11, -1, -1,
 	12, 14, 16, 13, 15, 17, -1, -1,
@@ -93,7 +88,7 @@ constexpr int slot_array[32] = {
 // 0.1875 is bit 0 weight of the envelope counter (volume) expressed
 // in the 'decibel' scale
 [[nodiscard]] static constexpr int DV(double x) { return int(x / (0.1875 / 2.0)); }
-constexpr unsigned ksl_tab[8 * 16] = {
+static constexpr std::array<unsigned, 8 * 16> ksl_tab = {
 	// OCT 0
 	DV( 0.000), DV( 0.000), DV( 0.000), DV( 0.000),
 	DV( 0.000), DV( 0.000), DV( 0.000), DV( 0.000),
@@ -139,14 +134,14 @@ constexpr unsigned ksl_tab[8 * 16] = {
 // sustain level table (3dB per step)
 // 0 - 15: 0, 3, 6, 9,12,15,18,21,24,27,30,33,36,39,42,93 (dB)
 [[nodiscard]] static constexpr unsigned SC(int db) { return unsigned(db * (2.0 / ENV_STEP)); }
-constexpr unsigned sl_tab[16] = {
+static constexpr std::array<unsigned, 16> sl_tab = {
 	SC( 0), SC( 1), SC( 2), SC(3 ), SC(4 ), SC(5 ), SC(6 ), SC( 7),
 	SC( 8), SC( 9), SC(10), SC(11), SC(12), SC(13), SC(14), SC(31)
 };
 
 
-constexpr byte RATE_STEPS = 8;
-constexpr byte eg_inc[15 * RATE_STEPS] = {
+static constexpr byte RATE_STEPS = 8;
+static constexpr std::array<byte, 15 * RATE_STEPS> eg_inc = {
 //cycle:0 1  2 3  4 5  6 7
 	0,1, 0,1, 0,1, 0,1, //  0  rates 00..12 0 (increment by 0 or 1)
 	0,1, 0,1, 1,1, 0,1, //  1  rates 00..12 1
@@ -171,7 +166,7 @@ constexpr byte eg_inc[15 * RATE_STEPS] = {
 
 // note that there is no O(13) in this table - it's directly in the code
 [[nodiscard]] static constexpr byte O(int a) { return a * RATE_STEPS; }
-constexpr byte eg_rate_select[16 + 64 + 16] = {
+static constexpr std::array<byte, 16 + 64 + 16> eg_rate_select = {
 	// Envelope Generator rates (16 + 64 rates + 16 RKS)
 	// 16 infinite time rates
 	O(14), O(14), O(14), O(14), O(14), O(14), O(14), O(14),
@@ -209,7 +204,7 @@ constexpr byte eg_rate_select[16 + 64 + 16] = {
 // rate  0,    1,    2,    3,   4,   5,   6,  7,  8,  9,  10, 11, 12, 13, 14, 15
 // shift 12,   11,   10,   9,   8,   7,   6,  5,  4,  3,  2,  1,  0,  0,  0,  0
 // mask  4095, 2047, 1023, 511, 255, 127, 63, 31, 15, 7,  3,  1,  0,  0,  0,  0
-constexpr byte eg_rate_shift[16 + 64 + 16] =
+static constexpr std::array<byte, 16 + 64 + 16> eg_rate_shift =
 {
 	// Envelope Generator counter shifts (16 + 64 rates + 16 RKS)
 	// 16 infinite time rates
@@ -242,7 +237,7 @@ constexpr byte eg_rate_shift[16 + 64 + 16] =
 
 // multiple table
 [[nodiscard]] static constexpr byte ML(double x) { return byte(2 * x); }
-constexpr byte mul_tab[16] = {
+static constexpr std::array<byte, 16> mul_tab = {
 	// 1/2, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,10,12,12,15,15
 	ML( 0.5), ML( 1.0), ML( 2.0), ML( 3.0),
 	ML( 4.0), ML( 5.0), ML( 6.0), ML( 7.0),
@@ -262,8 +257,8 @@ constexpr byte mul_tab[16] = {
 // When AM = 1 data is used directly
 // When AM = 0 data is divided by 4 before being used (loosing precision is important)
 
-constexpr unsigned LFO_AM_TAB_ELEMENTS = 210;
-constexpr byte lfo_am_table[LFO_AM_TAB_ELEMENTS] = {
+static constexpr unsigned LFO_AM_TAB_ELEMENTS = 210;
+static constexpr std::array<byte, LFO_AM_TAB_ELEMENTS> lfo_am_table = {
 	 0,  0,  0, /**/
 	 0,  0,  0,  0,
 	 1,  1,  1,  1,
@@ -320,7 +315,7 @@ constexpr byte lfo_am_table[LFO_AM_TAB_ELEMENTS] = {
 };
 
 // LFO Phase Modulation table (verified on real YM3812)
-constexpr signed char lfo_pm_table[8 * 8 * 2] = {
+static constexpr std::array<signed char, 8 * 8 * 2> lfo_pm_table = {
 	// FNUM2/FNUM = 00 0xxxxxxx (0x0000)
 	0, 0, 0, 0, 0, 0, 0, 0, // LFO PM depth = 0
 	0, 0, 0, 0, 0, 0, 0, 0, // LFO PM depth = 1
@@ -361,10 +356,10 @@ constexpr signed char lfo_pm_table[8 * 8 * 2] = {
 //  and we really need -1 for waveform #7)
 //  2  - sinus sign bit           (Y axis)
 //  TL_RES_LEN - sinus resolution (X axis)
-constexpr int TL_TAB_LEN = 13 * 2 * TL_RES_LEN;
-constexpr int ENV_QUIET = TL_TAB_LEN >> 4;
+static constexpr int TL_TAB_LEN = 13 * 2 * TL_RES_LEN;
+static constexpr int ENV_QUIET = TL_TAB_LEN >> 4;
 
-constexpr auto tlTab = [] {
+static constexpr auto tlTab = [] {
 	std::array<int, TL_TAB_LEN> result = {};
 	// this _is_ different from OPL2 (verified on real YMF262)
 	for (auto x : xrange(TL_RES_LEN)) {
@@ -394,13 +389,16 @@ constexpr auto tlTab = [] {
 // sin waveform table in 'decibel' scale
 // there are eight waveforms on OPL3 chips
 struct SinTab {
-	unsigned tab[SIN_LEN * 8];
+	std::array<std::array<unsigned, YMF262::SIN_LEN>, 8> tab;
 };
 
 static constexpr SinTab getSinTab()
 {
 	SinTab sin = {};
 
+	constexpr auto SIN_BITS = YMF262::SIN_BITS;
+	constexpr auto SIN_LEN  = YMF262::SIN_LEN;
+	constexpr auto SIN_MASK = YMF262::SIN_MASK;
 	for (auto i : xrange(SIN_LEN / 4)) {
 		// non-standard sinus
 		double m = cstd::sin<2>(((i * 2) + 1) * Math::pi / SIN_LEN); // checked against the real chip
@@ -410,13 +408,13 @@ static constexpr SinTab getSinTab()
 
 		int n = int(2 * o);
 		n = (n >> 1) + (n & 1); // round to nearest
-		sin.tab[i] = 2 * n;
+		sin.tab[0][i] = 2 * n;
 	}
 	for (auto i : xrange(SIN_LEN / 4)) {
-		sin.tab[SIN_LEN / 2 - 1 - i] = sin.tab[i];
+		sin.tab[0][SIN_LEN / 2 - 1 - i] = sin.tab[0][i];
 	}
 	for (auto i : xrange(SIN_LEN / 2)) {
-		sin.tab[SIN_LEN / 2 + i] = sin.tab[i] + 1;
+		sin.tab[0][SIN_LEN / 2 + i] = sin.tab[0][i] + 1;
 	}
 
 	for (auto i : xrange(SIN_LEN)) {
@@ -424,45 +422,45 @@ static constexpr SinTab getSinTab()
 		// waveform 1:  __      __
 		//             /  \____/  \____
 		// output only first half of the sinus waveform (positive one)
-		sin.tab[1 * SIN_LEN + i] = (i & (1 << (SIN_BITS - 1)))
-		                         ? TL_TAB_LEN
-		                         : sin.tab[i];
+		sin.tab[1][i] = (i & (1 << (SIN_BITS - 1)))
+		              ? TL_TAB_LEN
+		              : sin.tab[0][i];
 
 		// waveform 2:  __  __  __  __
 		//             /  \/  \/  \/  \.
 		// abs(sin)
-		sin.tab[2 * SIN_LEN + i] = sin.tab[i & (SIN_MASK >> 1)];
+		sin.tab[2][i] = sin.tab[0][i & (SIN_MASK >> 1)];
 
 		// waveform 3:  _   _   _   _
 		//             / |_/ |_/ |_/ |_
 		// abs(output only first quarter of the sinus waveform)
-		sin.tab[3 * SIN_LEN + i] = (i & (1 << (SIN_BITS - 2)))
-		                         ? TL_TAB_LEN
-		                         : sin.tab[i & (SIN_MASK>>2)];
+		sin.tab[3][i] = (i & (1 << (SIN_BITS - 2)))
+		              ? TL_TAB_LEN
+		              : sin.tab[0][i & (SIN_MASK>>2)];
 
 		// waveform 4: /\  ____/\  ____
 		//               \/      \/
 		// output whole sinus waveform in half the cycle(step=2)
 		// and output 0 on the other half of cycle
-		sin.tab[4 * SIN_LEN + i] = (i & (1 << (SIN_BITS - 1)))
-		                         ? TL_TAB_LEN
-		                         : sin.tab[i * 2];
+		sin.tab[4][i] = (i & (1 << (SIN_BITS - 1)))
+		              ? TL_TAB_LEN
+		              : sin.tab[0][i * 2];
 
 		// waveform 5: /\/\____/\/\____
 		//
 		// output abs(whole sinus) waveform in half the cycle(step=2)
 		// and output 0 on the other half of cycle
-		sin.tab[5 * SIN_LEN + i] = (i & (1 << (SIN_BITS - 1)))
-		                         ? TL_TAB_LEN
-		                         : sin.tab[(i * 2) & (SIN_MASK >> 1)];
+		sin.tab[5][i] = (i & (1 << (SIN_BITS - 1)))
+		              ? TL_TAB_LEN
+		              : sin.tab[0][(i * 2) & (SIN_MASK >> 1)];
 
 		// waveform 6: ____    ____
 		//                 ____    ____
 		// output maximum in half the cycle and output minimum
 		// on the other half of cycle
-		sin.tab[6 * SIN_LEN + i] = (i & (1 << (SIN_BITS - 1)))
-		                         ? 1  // negative
-		                         : 0; // positive
+		sin.tab[6][i] = (i & (1 << (SIN_BITS - 1)))
+		              ? 1  // negative
+		              : 0; // positive
 
 		// waveform 7:|\____  |\____
 		//                   \|      \|
@@ -471,13 +469,13 @@ static constexpr SinTab getSinTab()
 		      ? ((SIN_LEN - 1) - i) * 16 + 1  // negative: from 8177 to 1
 		      : i * 16;                       // positive: from 0 to 8176
 		x = std::min(x, TL_TAB_LEN); // clip to the allowed range
-		sin.tab[7 * SIN_LEN + i] = x;
+		sin.tab[7][i] = x;
 	}
 
 	return sin;
 }
 
-constexpr SinTab sin = getSinTab();
+static constexpr SinTab sin = getSinTab();
 
 
 // TODO clean this up
@@ -487,7 +485,7 @@ static int phase_modulation2; // phase modulation input (SLOT 3
 
 
 YMF262::Slot::Slot()
-	: Cnt(0), Incr(0)
+	: Cnt(0), Incr(0), waveTable(sin.tab[0])
 {
 	ar = dr = rr = KSR = ksl = ksr = mul = 0;
 	fb_shift = op1_out[0] = op1_out[1] = 0;
@@ -498,7 +496,6 @@ YMF262::Slot::Slot()
 	eg_m_ar = eg_sh_ar = eg_sel_ar = eg_m_dr = eg_sh_dr = 0;
 	eg_sel_dr = eg_m_rr = eg_sh_rr = eg_sel_rr = 0;
 	key = AMmask = 0;
-	wavetable = &sin.tab[0 * SIN_LEN];
 }
 
 YMF262::Channel::Channel()
@@ -668,7 +665,7 @@ void YMF262::advance()
 inline int YMF262::Slot::op_calc(unsigned phase, unsigned lfo_am) const
 {
 	unsigned env = (TLL + volume + (lfo_am & AMmask)) << 4;
-	int p = env + wavetable[phase & SIN_MASK];
+	int p = env + waveTable[phase & SIN_MASK];
 	return (p < TL_TAB_LEN) ? tlTab[p] : 0;
 }
 
@@ -856,7 +853,7 @@ void YMF262::chan_calc_rhythm(unsigned lfo_am)
 	int pm = mod6.CON ? 0 : mod6.op1_out[0];
 	mod6.op1_out[1] = mod6.op_calc(mod6.Cnt.toInt() + (out >> mod6.fb_shift), lfo_am);
 	auto& car6 = channel[6].slot[CAR];
-	chanout[6] += 2 * car6.op_calc(car6.Cnt.toInt() + pm, lfo_am);
+	chanOut[6] += 2 * car6.op_calc(car6.Cnt.toInt() + pm, lfo_am);
 
 	// Phase generation is based on:
 	// HH  (13) channel 7->slot 1 combined with channel 8->slot 2
@@ -872,13 +869,13 @@ void YMF262::chan_calc_rhythm(unsigned lfo_am)
 	// TOM channel 8->slot1
 	// TOP channel 8->slot2
 	auto& mod7 = channel[7].slot[MOD];
-	chanout[7] += 2 * mod7.op_calc(genPhaseHighHat(), lfo_am);
+	chanOut[7] += 2 * mod7.op_calc(genPhaseHighHat(), lfo_am);
 	auto& car7 = channel[7].slot[CAR];
-	chanout[7] += 2 * car7.op_calc(genPhaseSnare(),   lfo_am);
+	chanOut[7] += 2 * car7.op_calc(genPhaseSnare(),   lfo_am);
 	auto& mod8 = channel[8].slot[MOD];
-	chanout[8] += 2 * mod8.op_calc(mod8.Cnt.toInt(),  lfo_am);
+	chanOut[8] += 2 * mod8.op_calc(mod8.Cnt.toInt(),  lfo_am);
 	auto& car8 = channel[8].slot[CAR];
-	chanout[8] += 2 * car8.op_calc(genPhaseCymbal(),  lfo_am);
+	chanOut[8] += 2 * car8.op_calc(genPhaseCymbal(),  lfo_am);
 }
 
 void YMF262::Slot::FM_KEYON(byte key_set)
@@ -942,7 +939,7 @@ void YMF262::Slot::calc_fc(const Channel& ch)
 	update_rr();
 }
 
-static constexpr unsigned channelPairTab[18] = {
+static constexpr std::array<unsigned, 18> channelPairTab = {
 	0,  1,  2,  0,  1,  2, unsigned(~0), unsigned(~0), unsigned(~0),
 	9, 10, 11,  9, 10, 11, unsigned(~0), unsigned(~0), unsigned(~0),
 };
@@ -999,7 +996,7 @@ void YMF262::set_ksl_tl(unsigned sl, byte v)
 
 	// This is indeed {0.0, 3.0, 1.5, 6.0} dB/oct, verified on real YMF262.
 	// Note the illogical order of 2nd and 3rd element.
-	static constexpr unsigned ksl_shift[4] = { 31, 1, 2, 0 };
+	static constexpr std::array<unsigned, 4> ksl_shift = {31, 1, 2, 0};
 	slot.ksl = ksl_shift[v >> 6];
 
 	slot.TL  = (v & 0x3F) << (ENV_BITS - 1 - 7); // 7 bits TL (bit 6 = always 0)
@@ -1348,40 +1345,40 @@ void YMF262::writeRegDirect(unsigned r, byte v, EmuTime::param time)
 				ch0.slot[MOD].connect = &phase_modulation;
 				ch0.slot[CAR].connect = &phase_modulation2;
 				ch3.slot[MOD].connect = &phase_modulation;
-				ch3.slot[CAR].connect = &chanout[chan_no3];
+				ch3.slot[CAR].connect = &chanOut[chan_no3];
 				break;
 			case 1:
 				// 1 -> 2 -\.
 				// 3 -> 4 --+-> out
 				ch0.slot[MOD].connect = &phase_modulation;
-				ch0.slot[CAR].connect = &chanout[chan_no0];
+				ch0.slot[CAR].connect = &chanOut[chan_no0];
 				ch3.slot[MOD].connect = &phase_modulation;
-				ch3.slot[CAR].connect = &chanout[chan_no3];
+				ch3.slot[CAR].connect = &chanOut[chan_no3];
 				break;
 			case 2:
 				// 1 ----------\.
 				// 2 -> 3 -> 4 -+-> out
-				ch0.slot[MOD].connect = &chanout[chan_no0];
+				ch0.slot[MOD].connect = &chanOut[chan_no0];
 				ch0.slot[CAR].connect = &phase_modulation2;
 				ch3.slot[MOD].connect = &phase_modulation;
-				ch3.slot[CAR].connect = &chanout[chan_no3];
+				ch3.slot[CAR].connect = &chanOut[chan_no3];
 				break;
 			case 3:
 				// 1 -----\.
 				// 2 -> 3 -+-> out
 				// 4 -----/
-				ch0.slot[MOD].connect = &chanout[chan_no0];
+				ch0.slot[MOD].connect = &chanOut[chan_no0];
 				ch0.slot[CAR].connect = &phase_modulation2;
-				ch3.slot[MOD].connect = &chanout[chan_no3];
-				ch3.slot[CAR].connect = &chanout[chan_no3];
+				ch3.slot[MOD].connect = &chanOut[chan_no3];
+				ch3.slot[CAR].connect = &chanOut[chan_no3];
 				break;
 			}
 		} else {
 			// 2 operators mode
 			ch.slot[MOD].connect = ch.slot[MOD].CON
-			                     ? &chanout[chan_no]
+			                     ? &chanOut[chan_no]
 			                     : &phase_modulation;
-			ch.slot[CAR].connect = &chanout[chan_no];
+			ch.slot[CAR].connect = &chanOut[chan_no];
 		}
 		break;
 	}
@@ -1399,7 +1396,7 @@ void YMF262::writeRegDirect(unsigned r, byte v, EmuTime::param time)
 		if (!OPL3_mode) {
 			v &= 3;
 		}
-		ch.slot[slot & 1].wavetable = &sin.tab[v * SIN_LEN];
+		ch.slot[slot & 1].waveTable = sin.tab[v];
 		break;
 	}
 	}
@@ -1469,7 +1466,7 @@ YMF262::YMF262(const std::string& name_,
 	status = status2 = statusMask = 0;
 
 	// avoid (harmless) UMR in serialize()
-	ranges::fill(chanout, 0);
+	ranges::fill(chanOut, 0);
 	ranges::fill(reg, 0);
 
 	// For debugging: print out tables to be able to compare before/after
@@ -1477,7 +1474,11 @@ YMF262::YMF262(const std::string& name_,
 	if (false) {
 		for (const auto& e : tlTab) std::cout << e << '\n';
 		std::cout << '\n';
-		for (const auto& e : sin.tab) std::cout << e << '\n';
+		for (const auto& t : sin.tab) {
+			for (const auto& e : t) {
+				std::cout << e << '\n';
+			}
+		}
 	}
 
 	registerSound(config);
@@ -1521,7 +1522,7 @@ void YMF262::setMixLevel(uint8_t x, EmuTime::param time)
 {
 	// Only present on YMF278
 	// see mix_level[] and vol_factor() in YMF278.cc
-	static constexpr float level[8] = {
+	static constexpr std::array<float, 8> level = {
 		(1.00f / 1), //   0dB
 		(0.75f / 1), //  -3dB (approx)
 		(1.00f / 2), //  -6dB
@@ -1564,7 +1565,7 @@ void YMF262::generateChannels(std::span<float*> bufs, unsigned num)
 		unsigned lfo_am = lfo_am_depth ? tmp : tmp / 4;
 
 		// clear channel outputs
-		ranges::fill(chanout, 0);
+		ranges::fill(chanOut, 0);
 
 		// channels 0,3 1,4 2,5  9,12 10,13 11,14
 		// in either 2op or 4op mode
@@ -1600,8 +1601,8 @@ void YMF262::generateChannels(std::span<float*> bufs, unsigned num)
 		channel[17].chan_calc(lfo_am);
 
 		for (auto i : xrange(18)) {
-			bufs[i][2 * j + 0] += int(chanout[i] & pan[4 * i + 0]);
-			bufs[i][2 * j + 1] += int(chanout[i] & pan[4 * i + 1]);
+			bufs[i][2 * j + 0] += int(chanOut[i] & pan[4 * i + 0]);
+			bufs[i][2 * j + 1] += int(chanOut[i] & pan[4 * i + 1]);
 			// unused c        += int(chanout[i] & pan[4 * i + 2]);
 			// unused d        += int(chanout[i] & pan[4 * i + 3]);
 		}
@@ -1623,11 +1624,11 @@ SERIALIZE_ENUM(YMF262::EnvelopeState, envelopeStateInfo);
 template<typename Archive>
 void YMF262::Slot::serialize(Archive& a, unsigned /*version*/)
 {
-	// wavetable
-	auto waveform = unsigned((wavetable - sin.tab) / SIN_LEN);
+	// waveTable
+	auto waveform = unsigned((waveTable.data() - sin.tab[0].data()) / SIN_LEN);
 	a.serialize("waveform", waveform);
 	if constexpr (Archive::IS_LOADER) {
-		wavetable = &sin.tab[waveform * SIN_LEN];
+		waveTable = sin.tab[waveform];
 	}
 
 	// done by rewriting registers:
@@ -1683,7 +1684,7 @@ void YMF262::serialize(Archive& a, unsigned version)
 	a.serialize("timer1",  *timer1,
 	            "timer2",  *timer2,
 	            "irq",     irq,
-	            "chanout", chanout);
+	            "chanout", chanOut);
 	a.serialize_blob("registers", reg);
 	a.serialize("channels",           channel,
 	            "eg_cnt",             eg_cnt,
