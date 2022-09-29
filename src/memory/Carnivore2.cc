@@ -270,7 +270,7 @@ byte Carnivore2::readConfigRegister(word address, EmuTime::param time)
 
 static constexpr float volumeLevel(byte volume)
 {
-	constexpr byte tab[8] = {5, 6, 7, 8, 10, 12, 14, 16};
+	constexpr std::array<byte, 8> tab = {5, 6, 7, 8, 10, 12, 14, 16};
 	return tab[volume & 7] / 16.0f;
 }
 
@@ -388,7 +388,7 @@ std::pair<unsigned, byte> Carnivore2::decodeMultiMapper(word address) const
 {
 	// check up to 4 possible banks
 	for (auto i : xrange(4)) {
-		const byte* base = configRegs + (i * 6) + 6; // points to R<i>Mask
+		auto base = subspan<6>(configRegs, (i * 6) + 6); // points to R<i>Mask
 		byte mult = base[3];
 		if (mult & 8) continue; // bank disabled
 
@@ -397,9 +397,9 @@ std::pair<unsigned, byte> Carnivore2::decodeMultiMapper(word address) const
 
 		// check address
 		bool mirroringDisabled = mult & 0x40;
-		static constexpr byte checkMasks[2][8] = {
-			{ 0x00, 0x00, 0x00, 0x30, 0x60, 0xc0, 0x80, 0x00 }, // mirroring enabled
-			{ 0x00, 0x00, 0x00, 0xf0, 0xe0, 0xc0, 0x80, 0x00 }, // mirroring disabled
+		static constexpr std::array checkMasks = {
+			std::array<byte, 8>{0x00, 0x00, 0x00, 0x30, 0x60, 0xc0, 0x80, 0x00}, // mirroring enabled
+			std::array<byte, 8>{0x00, 0x00, 0x00, 0xf0, 0xe0, 0xc0, 0x80, 0x00}, // mirroring disabled
 		};
 		byte checkMask = checkMasks[mirroringDisabled][sizeCode];
 		if (((address >> 8) & checkMask) != (base[5] & checkMask)) continue;
@@ -473,7 +473,7 @@ void Carnivore2::writeMultiMapperSlot(word address, byte value, EmuTime::param t
 
 	// check (all) 4 bank switch regions
 	for (auto i : xrange(4)) {
-		byte* base = configRegs + (i * 6) + 6; // points to R<i>Mask
+		auto base = subspan<6>(configRegs, (i * 6) + 6); // points to R<i>Mask
 		byte mask = base[0];
 		byte addr = base[1];
 		byte mult = base[3];

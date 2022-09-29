@@ -12,6 +12,7 @@
 #include "AY8910.hh"
 #include "YM2413.hh"
 #include "serialize_meta.hh"
+#include <array>
 #include <utility>
 
 namespace openmsx {
@@ -119,22 +120,22 @@ private:
 	AmdFlash flash; // 8MB
 	Ram ram; // 2MB
 	EEPROM_93C46 eeprom;
-	byte configRegs[64]; // in reality there are less than 64
-	byte shadowConfigRegs[64]; // only regs[0x05..0x1e] have a shadow counterpart
+	std::array<byte, 64> configRegs; // in reality there are less than 64
+	std::array<byte, 64> shadowConfigRegs; // only regs[0x05..0x1e] have a shadow counterpart
 	byte subSlotReg;
 	byte port3C;
 
 	// multi-mapper
 	SCC scc;
 	byte sccMode;
-	byte sccBank[4]; // mostly write-only, except to test for scc-bank
+	std::array<byte, 4> sccBank; // mostly write-only, except to test for scc-bank
 
 	// PSG
 	AY8910 psg;
 	byte psgLatch;
 
 	// ide
-	std::unique_ptr<IDEDevice> ideDevices[2];
+	std::array<std::unique_ptr<IDEDevice>, 2> ideDevices;
 	byte ideSoftReset;
 	byte ideSelectedDevice;
 	byte ideControlReg;
@@ -142,7 +143,7 @@ private:
 	byte ideWrite;
 
 	// memory-mapper
-	byte memMapRegs[4]; // only stores 6 lower bits
+	std::array<byte, 4> memMapRegs; // only stores 6 lower bits
 
 	// fm-pac
 	YM2413 ym2413;
