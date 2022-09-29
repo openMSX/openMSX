@@ -8,8 +8,10 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "unreachable.hh"
+#include "view.hh"
 #include "xrange.hh"
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <cctype>
 #include <cstdio>
@@ -122,7 +124,7 @@ void NowindHost::write(byte data, unsigned time)
 		extraData[recvCount] = data;
 		if (data == one_of(0, ':') ||
 		    (++recvCount == 40)) {
-			char* eData = reinterpret_cast<char*>(extraData);
+			char* eData = reinterpret_cast<char*>(extraData.data());
 			callImage(string(eData, recvCount));
 			state = STATE_SYNC1;
 		}
@@ -132,7 +134,7 @@ void NowindHost::write(byte data, unsigned time)
 		extraData[recvCount] = data;
 		if ((data == 0) || (++recvCount == (240 - 1))) {
 			extraData[recvCount] = 0;
-			DBERR("%s\n", reinterpret_cast<char*>(extraData));
+			DBERR("%s\n", reinterpret_cast<char*>(extraData.data()));
 			state = STATE_SYNC1;
 		}
 		break;
@@ -449,9 +451,10 @@ void NowindHost::transferSectors(unsigned transferAddress, unsigned amount)
 	send16(transferAddress);
 	send16(amount);
 
-	auto* bufferPointer = &buffer[0].raw[transferred];
-	for (auto i : xrange(amount)) {
-		send(bufferPointer[i]);
+	std::span fullBuf{buffer[0].raw.data(), buffer.size() * SECTOR_SIZE};
+	auto buf = fullBuf.subspan(transferred, amount);
+	for (auto b : buf) {
+		send(b);
 	}
 	send(0xAF);
 	send(0x07); // used for validation
@@ -465,9 +468,10 @@ void NowindHost::transferSectorsBackwards(unsigned transferAddress, unsigned amo
 	send16(transferAddress + amount);
 	send(amount / 64);
 
-	auto* bufferPointer = &buffer[0].raw[transferred];
-	for (int i = amount - 1; i >= 0; --i) {
-		send(bufferPointer[i]);
+	std::span fullBuf{buffer[0].raw.data(), buffer.size() * SECTOR_SIZE};
+	auto buf = fullBuf.subspan(transferred, amount);
+	for (auto b : view::reverse(buf)) {
+		send(b);
 	}
 	send(0xAF);
 	send(0x07); // used for validation
@@ -534,10 +538,11 @@ void NowindHost::doDiskWrite1()
 void NowindHost::doDiskWrite2()
 {
 	assert(recvCount == (transferSize + 2));
-	auto* buf = &buffer[0].raw[transferred];
-	for (auto i : xrange(transferSize)) {
-		buf[i] = extraData[i + 1];
-	}
+	//auto* buf = &buffer[0].raw[transferred];
+	std::span fullBuf{buffer[0].raw.data(), buffer.size() * SECTOR_SIZE};
+	auto dst = fullBuf.subspan(transferred, transferSize);
+	auto src = subspan(extraData, 1, transferSize);
+	ranges::copy(src, dst);
 
 	byte seq1 = extraData[0];
 	byte seq2 = extraData[transferSize + 1];
@@ -658,7 +663,7 @@ void NowindHost::deviceOpen()
 
 	unsigned readLen = 0;
 	bool eof = false;
-	char buf[256];
+	std::array<char, 256> buf;
 	if (openMode == 1) {
 		// read-only mode, already buffer first 256 bytes
 		readLen = readHelper1(dev, buf);
@@ -681,7 +686,7 @@ void NowindHost::deviceOpen()
 	send(0);
 
 	if (openMode == 1) {
-		readHelper2(readLen, buf);
+		readHelper2(subspan(buf, 0, readLen));
 	}
 }
 
@@ -705,7 +710,7 @@ void NowindHost::deviceRead()
 	int dev = getDeviceNum();
 	if (dev == -1) return;
 
-	char buf[256];
+	std::array<char, 256> buf;
 	unsigned readLen = readHelper1(dev, buf);
 	bool eof = readLen < 256;
 	send(0xAF);
@@ -713,10 +718,10 @@ void NowindHost::deviceRead()
 	send(0x00); // dummy
 	send16(getFCB() + 9);
 	send16(readLen + (eof ? 1 : 0));
-	readHelper2(readLen, buf);
+	readHelper2(subspan(buf, 0, readLen));
 }
 
-unsigned NowindHost::readHelper1(unsigned dev, char* buf)
+unsigned NowindHost::readHelper1(unsigned dev, std::span<char, 256> buf)
 {
 	assert(dev < MAX_DEVICES);
 	unsigned len = 0;
@@ -727,12 +732,12 @@ unsigned NowindHost::readHelper1(unsigned dev, char* buf)
 	return len;
 }
 
-void NowindHost::readHelper2(unsigned len, const char* buf)
+void NowindHost::readHelper2(std::span<const char> buf)
 {
-	for (auto i : xrange(len)) {
-		send(buf[i]);
+	for (auto c : buf) {
+		send(c);
 	}
-	if (len < 256) {
+	if (buf.size() < 256) {
 		send(0x1A); // end-of-file
 	}
 }
@@ -794,10 +799,10 @@ void NowindHost::serialize(Archive& ar, unsigned /*version*/)
 
 	// for backwards compatibility, serialize buffer as a vector<byte>
 	size_t bufSize = buffer.size() * sizeof(SectorBuffer);
-	byte* bufRaw = buffer.data()->raw.data();
-	std::vector<byte> tmp(bufRaw, bufRaw + bufSize);
+	std::span<uint8_t> buf{buffer.data()->raw.data(), bufSize};
+	auto tmp = to_vector(buf);
 	ar.serialize("buffer", tmp);
-	ranges::copy(tmp, bufRaw);
+	ranges::copy(tmp, buf);
 
 	ar.serialize("transfered",          transferred, // for bw compat, keep typo in serialize name
 	             "retryCount",          retryCount,

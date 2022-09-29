@@ -4,9 +4,11 @@
 #include "DiskImageUtils.hh"
 #include "circular_buffer.hh"
 #include "openmsx.hh"
+#include <array>
 #include <fstream>
 #include <memory>
 #include <optional>
+#include <span>
 #include <string>
 #include <vector>
 
@@ -91,8 +93,8 @@ private:
 
 	[[nodiscard]] unsigned getFCB() const;
 	[[nodiscard]] std::string extractName(int begin, int end) const;
-	unsigned readHelper1(unsigned dev, char* buffer);
-	void readHelper2(unsigned len, const char* buffer);
+	unsigned readHelper1(unsigned dev, std::span<char, 256> buffer);
+	void readHelper2(std::span<const char> buffer);
 	[[nodiscard]] int getDeviceNum() const;
 	int getFreeDeviceNum();
 	void deviceOpen();
@@ -109,10 +111,11 @@ private:
 
 	cb_queue<byte> hostToMsxFifo;
 
-	struct {
+	struct Device {
 		std::optional<std::fstream> fs; // not in use when fs == nullopt
 		unsigned fcb;
-	} devices[MAX_DEVICES];
+	};
+	std::array<Device, MAX_DEVICES> devices;
 
 	// state-machine
 	std::vector<SectorBuffer> buffer;// work buffer for diskread/write
@@ -122,8 +125,8 @@ private:
 	unsigned transferred;    // progress within diskread/write
 	unsigned retryCount;     // only used for diskread
 	unsigned transferSize;   // size of current chunk
-	byte cmdData[9];         // reg_[cbedlhfa] + cmd
-	byte extraData[240 + 2]; // extra data for diskread/write
+	std::array<byte, 9> cmdData; // reg_[cbedlhfa] + cmd
+	std::array<byte, 240 + 2> extraData; // extra data for diskread/write
 
 	byte romdisk;            // index of romdisk (255 = no romdisk)
 	bool allowOtherDiskroms;
