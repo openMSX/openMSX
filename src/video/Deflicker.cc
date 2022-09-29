@@ -18,7 +18,7 @@ template<std::unsigned_integral Pixel> class DeflickerImpl final : public Deflic
 {
 public:
 	DeflickerImpl(const PixelFormat& format,
-	              std::unique_ptr<RawFrame>* lastFrames);
+	              std::span<std::unique_ptr<RawFrame>, 4> lastFrames);
 
 private:
 	[[nodiscard]] const void* getLineInfo(
@@ -32,7 +32,7 @@ private:
 
 std::unique_ptr<Deflicker> Deflicker::create(
 	const PixelFormat& format,
-	std::unique_ptr<RawFrame>* lastFrames)
+	std::span<std::unique_ptr<RawFrame>, 4> lastFrames)
 {
 #if HAVE_16BPP
 	if (format.getBytesPerPixel() == 2) {
@@ -49,7 +49,7 @@ std::unique_ptr<Deflicker> Deflicker::create(
 
 
 Deflicker::Deflicker(const PixelFormat& format,
-                     std::unique_ptr<RawFrame>* lastFrames_)
+                     std::span<std::unique_ptr<RawFrame>, 4> lastFrames_)
 	: FrameSource(format)
 	, lastFrames(lastFrames_)
 {
@@ -69,7 +69,7 @@ unsigned Deflicker::getLineWidth(unsigned line) const
 
 template<std::unsigned_integral Pixel>
 DeflickerImpl<Pixel>::DeflickerImpl(const PixelFormat& format,
-                                    std::unique_ptr<RawFrame>* lastFrames_)
+                                    std::span<std::unique_ptr<RawFrame>, 4> lastFrames_)
 	: Deflicker(format, lastFrames_)
 	, pixelOps(format)
 {

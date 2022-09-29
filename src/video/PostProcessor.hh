@@ -4,6 +4,7 @@
 #include "VideoLayer.hh"
 #include "Schedulable.hh"
 #include "EmuTime.hh"
+#include <array>
 #include <memory>
 
 namespace openmsx {
@@ -109,7 +110,7 @@ protected:
 	OutputSurface& screen;
 
 	/** The last 4 fully rendered (unscaled) MSX frames. */
-	std::unique_ptr<RawFrame> lastFrames[4];
+	std::array<std::unique_ptr<RawFrame>, 4> lastFrames;
 
 	/** Combined the last two frames in a deinterlaced frame. */
 	std::unique_ptr<DeinterlacedFrame> deinterlacedFrame;

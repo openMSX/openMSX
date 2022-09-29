@@ -3,6 +3,7 @@
 
 #include "FrameSource.hh"
 #include <memory>
+#include <span>
 
 namespace openmsx {
 
@@ -14,18 +15,18 @@ public:
 	// Factory method, actually returns a Deflicker subclass.
 	[[nodiscard]] static std::unique_ptr<Deflicker> create(
 		const PixelFormat& format,
-		std::unique_ptr<RawFrame>* lastFrames);
+		std::span<std::unique_ptr<RawFrame>, 4> lastFrames);
 	void init();
 	virtual ~Deflicker() = default;
 
 protected:
 	Deflicker(const PixelFormat& format,
-	          std::unique_ptr<RawFrame>* lastFrames);
+	          std::span<std::unique_ptr<RawFrame>, 4> lastFrames);
 
 	[[nodiscard]] unsigned getLineWidth(unsigned line) const override;
 
 protected:
-	std::unique_ptr<RawFrame>* lastFrames;
+	std::span<std::unique_ptr<RawFrame>, 4> lastFrames;
 };
 
 } // namespace openmsx
