@@ -1049,7 +1049,7 @@ float YM2413::getAmplificationFactor() const
 	return 1.0f / 2048.0f;
 }
 
-void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
+void YM2413::generateChannels(std::span<float*, 9 + 5> bufs, unsigned num)
 {
 	// TODO make channelActiveBits a member and
 	//      keep it up-to-date all the time
@@ -1066,7 +1066,7 @@ void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 		}
 	}
 	if (isRhythm()) {
-		std::fill_n(bufs + 6, 3, nullptr);
+		ranges::fill(subspan<3>(bufs, 6), nullptr);
 		for (auto ch : xrange(6, 9)) {
 			if (channels[ch].car.isActive()) {
 				channelActiveBits |= 1 << ch;
@@ -1085,7 +1085,7 @@ void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 			bufs[13] = nullptr;
 		}
 	} else {
-		std::fill_n(bufs + 9, 5, nullptr);
+		ranges::fill(subspan<5>(bufs, 9), nullptr);
 	}
 
 	if (channelActiveBits) {

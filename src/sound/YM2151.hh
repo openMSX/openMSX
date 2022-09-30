@@ -125,7 +125,7 @@ private:
 	void setConnect(YM2151Operator* om1, int cha, int v);
 
 	// SoundDevice
-	void generateChannels(float** bufs, unsigned num) override;
+	void generateChannels(std::span<float*> bufs, unsigned num) override;
 
 	void callback(byte flag) override;
 	void setStatus(byte flags);

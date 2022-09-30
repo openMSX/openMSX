@@ -28,7 +28,7 @@ public:
 	~SN76489();
 
 	// ResampledSoundDevice
-	void generateChannels(float** buffers, unsigned num) override;
+	void generateChannels(std::span<float*> buffers, unsigned num) override;
 
 	void reset(EmuTime::param time);
 	void write(byte value, EmuTime::param time);

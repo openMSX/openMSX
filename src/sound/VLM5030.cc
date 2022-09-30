@@ -232,7 +232,7 @@ int VLM5030::parseFrame()
 }
 
 // decode and buffering data
-void VLM5030::generateChannels(float** bufs, unsigned num)
+void VLM5030::generateChannels(std::span<float*> bufs, unsigned num)
 {
 	// Single channel device: replace content of bufs[0] (not add to it).
 	if (phase == PH_IDLE) {

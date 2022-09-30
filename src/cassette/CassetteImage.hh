@@ -4,6 +4,7 @@
 #include "EmuTime.hh"
 #include "sha1.hh"
 #include <cstdint>
+#include <span>
 #include <string>
 
 namespace openmsx {
@@ -17,7 +18,7 @@ public:
 	virtual int16_t getSampleAt(EmuTime::param time) const = 0;
 	[[nodiscard]] virtual EmuTime getEndTime() const = 0;
 	[[nodiscard]] virtual unsigned getFrequency() const = 0;
-	virtual void fillBuffer(unsigned pos, float** bufs, unsigned num) const = 0;
+	virtual void fillBuffer(unsigned pos, std::span<float*, 1> bufs, unsigned num) const = 0;
 	[[nodiscard]] virtual float getAmplificationFactorImpl() const = 0;
 
 	[[nodiscard]] FileType getFirstFileType() const { return firstFileType; }

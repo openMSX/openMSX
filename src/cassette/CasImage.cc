@@ -28,7 +28,7 @@ namespace openmsx {
 // lost after the hq resampler. After oversampling, the signal looks like this:
 //   -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, ...
 // So every sample repeated 4 times.
-constexpr unsigned AUDIO_OVERSAMPLE = 4;
+static constexpr unsigned AUDIO_OVERSAMPLE = 4;
 
 static void append(std::vector<int8_t>& wave, size_t count, int8_t value)
 {
@@ -54,19 +54,19 @@ namespace MSX_CAS {
 // the max. Let's take 3760 then as a safe value.
 // UPDATE: that seems to break RUN"CAS:" type of programs. 3744 seems to work
 // for those as well (we don't understand why yet)
-constexpr unsigned BAUDRATE = 3744;
-constexpr unsigned OUTPUT_FREQUENCY = 4 * BAUDRATE; // 4 samples per bit
+static constexpr unsigned BAUDRATE = 3744;
+static constexpr unsigned OUTPUT_FREQUENCY = 4 * BAUDRATE; // 4 samples per bit
 
 // number of output bytes for silent parts
-constexpr unsigned SHORT_SILENCE = OUTPUT_FREQUENCY * 1; // 1 second
-constexpr unsigned LONG_SILENCE  = OUTPUT_FREQUENCY * 2; // 2 seconds
+static constexpr unsigned SHORT_SILENCE = OUTPUT_FREQUENCY * 1; // 1 second
+static constexpr unsigned LONG_SILENCE  = OUTPUT_FREQUENCY * 2; // 2 seconds
 
 // number of 1-bits for headers
-constexpr unsigned LONG_HEADER  = 16000 / 2;
-constexpr unsigned SHORT_HEADER =  4000 / 2;
+static constexpr unsigned LONG_HEADER  = 16000 / 2;
+static constexpr unsigned SHORT_HEADER =  4000 / 2;
 
 // headers definitions
-constexpr std::array<uint8_t, 8> CAS_HEADER = { 0x1F,0xA6,0xDE,0xBA,0xCC,0x13,0x7D,0x74 };
+static constexpr std::array<uint8_t, 8> CAS_HEADER = { 0x1F,0xA6,0xDE,0xBA,0xCC,0x13,0x7D,0x74 };
 
 static void write0(std::vector<int8_t>& wave)
 {
@@ -310,7 +310,7 @@ unsigned CasImage::getFrequency() const
 	return data.frequency * AUDIO_OVERSAMPLE;
 }
 
-void CasImage::fillBuffer(unsigned pos, float** bufs, unsigned num) const
+void CasImage::fillBuffer(unsigned pos, std::span<float*, 1> bufs, unsigned num) const
 {
 	size_t nbSamples = data.wave.size();
 	if ((pos / AUDIO_OVERSAMPLE) < nbSamples) {

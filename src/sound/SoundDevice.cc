@@ -12,6 +12,7 @@
 #include "one_of.hh"
 #include "vla.hh"
 #include "xrange.hh"
+#include <array>
 #include <cassert>
 #include <memory>
 
@@ -195,7 +196,9 @@ bool SoundDevice::mixChannels(float* dataOut, unsigned samples)
 	if (samples == 0) return true;
 	unsigned outputStereo = isStereo() ? 2 : 1;
 
-	float* bufs[MAX_CHANNELS];
+	std::array<float*,  MAX_CHANNELS> bufs_;
+	auto bufs = subspan(bufs_, 0, numChannels);
+
 	unsigned separateChannels = 0;
 	unsigned pitch = (samples * stereo + 3) & ~3; // align for SSE access
 	// TODO optimization: All channels with the same balance (according to

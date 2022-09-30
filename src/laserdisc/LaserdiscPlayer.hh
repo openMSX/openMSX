@@ -114,7 +114,7 @@ private:
 	void createRenderer();
 
 	// SoundDevice
-	void generateChannels(float** buffers, unsigned num) override;
+	void generateChannels(std::span<float*> buffers, unsigned num) override;
 	bool updateBuffer(unsigned length, float* buffer,
 	                  EmuTime::param time) override;
 	[[nodiscard]] float getAmplificationFactorImpl() const override;

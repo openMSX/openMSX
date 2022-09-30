@@ -58,11 +58,11 @@ namespace openmsx {
 // TODO: this description is not entirely accurate, but it is used
 // as an identifier for this audio device in e.g. Catapult. We should
 // use another way to identify audio devices A.S.A.P.!
-constexpr static_string_view DESCRIPTION = "Cassetteplayer, use to read .cas or .wav files.";
+static constexpr static_string_view DESCRIPTION = "Cassetteplayer, use to read .cas or .wav files.";
 
-constexpr unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on .cas/.wav file
-constexpr unsigned RECORD_FREQ = 44100;
-constexpr double OUTPUT_AMP = 60.0;
+static constexpr unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on .cas/.wav file
+static constexpr unsigned RECORD_FREQ = 44100;
+static constexpr double OUTPUT_AMP = 60.0;
 
 static std::string_view getCassettePlayerName()
 {
@@ -584,14 +584,16 @@ void CassettePlayer::unplugHelper(EmuTime::param time)
 }
 
 
-void CassettePlayer::generateChannels(float** buffers, unsigned num)
+void CassettePlayer::generateChannels(std::span<float*> buffers, unsigned num)
 {
 	// Single channel device: replace content of buffers[0] (not add to it).
+	assert(buffers.size() == 1);
 	if ((getState() != PLAY) || !isRolling()) {
 		buffers[0] = nullptr;
 		return;
 	}
-	playImage->fillBuffer(audioPos, buffers, num);
+	assert(buffers.size() == 1);
+	playImage->fillBuffer(audioPos, buffers.first<1>(), num);
 	audioPos += num;
 }
 

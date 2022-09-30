@@ -98,7 +98,7 @@ void LaserdiscPlayer::Command::tabCompletion(std::vector<string>& tokens) const
 
 // LaserdiscPlayer
 
-constexpr unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on .ogg file
+static constexpr unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on .ogg file
 
 LaserdiscPlayer::LaserdiscPlayer(
 		const HardwareConfig& hwConf, PioneerLDControl& ldControl_)
@@ -698,9 +698,10 @@ void LaserdiscPlayer::autoRun()
 	}
 }
 
-void LaserdiscPlayer::generateChannels(float** buffers, unsigned num)
+void LaserdiscPlayer::generateChannels(std::span<float*> buffers, unsigned num)
 {
 	// Single channel device: replace content of buffers[0] (not add to it).
+	assert(buffers.size() == 1);
 	if (playerState != PLAYER_PLAYING || seeking || (muteLeft && muteRight)) {
 		buffers[0] = nullptr;
 		return;

@@ -143,7 +143,7 @@ private:
 
 	// SoundDevice
 	[[nodiscard]] float getAmplificationFactorImpl() const override;
-	void generateChannels(float** bufs, unsigned num) override;
+	void generateChannels(std::span<float*> bufs, unsigned num) override;
 
 	void callback(byte flag) override;
 

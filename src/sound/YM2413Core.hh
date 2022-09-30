@@ -2,6 +2,7 @@
 #define YM2413CORE_HH
 
 #include <cstdint>
+#include <span>
 
 namespace openmsx {
 
@@ -117,7 +118,7 @@ public:
 	 * so an idle YM2413 core generally requires very little emulation
 	 * time.
 	 */
-	virtual void generateChannels(float* bufs[11], unsigned num) = 0;
+	virtual void generateChannels(std::span<float*, 9 + 5> bufs, unsigned num) = 0;
 
 	/** Returns normalization factor.
 	 * The output of the generateChannels() method should still be

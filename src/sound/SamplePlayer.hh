@@ -49,7 +49,7 @@ private:
 	void doRepeat();
 
 	// SoundDevice
-	void generateChannels(float** bufs, unsigned num) override;
+	void generateChannels(std::span<float*> bufs, unsigned num) override;
 
 private:
 	const dynarray<WavData> samples;

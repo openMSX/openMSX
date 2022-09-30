@@ -1119,7 +1119,7 @@ ALWAYS_INLINE void YM2413::calcChannel(Channel& ch, std::span<float> buf)
 	}
 }
 
-void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
+void YM2413::generateChannels(std::span<float*, 9 + 5> bufs, unsigned num)
 {
 	assert(num != 0);
 

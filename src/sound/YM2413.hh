@@ -28,7 +28,7 @@ public:
 private:
 	// SoundDevice
 	void setOutputRate(unsigned hostSampleRate, double speed) override;
-	void generateChannels(float** bufs, unsigned num) override;
+	void generateChannels(std::span<float*> bufs, unsigned num) override;
 	[[nodiscard]] float getAmplificationFactorImpl() const override;
 
 private:

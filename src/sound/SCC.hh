@@ -31,7 +31,7 @@ public:
 private:
 	// SoundDevice
 	[[nodiscard]] float getAmplificationFactorImpl() const override;
-	void generateChannels(float** bufs, unsigned num) override;
+	void generateChannels(std::span<float*> bufs, unsigned num) override;
 
 	[[nodiscard]] byte readWave(unsigned channel, unsigned address, EmuTime::param time) const;
 	void writeWave(unsigned channel, unsigned address, byte value);

@@ -37,7 +37,7 @@ private:
 	void setST (bool pin);
 
 	// SoundDevice
-	void generateChannels(float** bufs, unsigned num) override;
+	void generateChannels(std::span<float*> bufs, unsigned num) override;
 	[[nodiscard]] float getAmplificationFactorImpl() const override;
 
 	void setupParameter(byte param);

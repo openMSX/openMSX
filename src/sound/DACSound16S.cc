@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-constexpr unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on frequency setting
+static constexpr unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on frequency setting
 
 DACSound16S::DACSound16S(std::string_view name_, static_string_view desc,
                          const DeviceConfig& config)
@@ -42,11 +42,12 @@ void DACSound16S::writeDAC(int16_t value, EmuTime::param time)
 	blip.addDelta(t, delta);
 }
 
-void DACSound16S::generateChannels(float** bufs, unsigned num)
+void DACSound16S::generateChannels(std::span<float*> bufs, unsigned num)
 {
 	// Note: readSamples() replaces the values in the buffer (it doesn't
 	// add the new values to the existing values in the buffer). That's OK
 	// because this is a single-channel SoundDevice.
+	assert(bufs.size() == 1);
 	if (!blip.readSamples<1>(bufs[0], num)) {
 		bufs[0] = nullptr;
 	}

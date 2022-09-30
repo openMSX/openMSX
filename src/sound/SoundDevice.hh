@@ -171,7 +171,7 @@ protected:
 	  * pointer to nullptr. This has exactly the same effect as filling the
 	  * buffer completely with zeros, but it can be more efficient.
 	  */
-	virtual void generateChannels(float** buffers, unsigned num) = 0;
+	virtual void generateChannels(std::span<float*> buffers, unsigned num) = 0;
 
 	/** Calls generateChannels() and combines the output to a single
 	  * channel.

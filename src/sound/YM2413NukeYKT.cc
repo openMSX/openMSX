@@ -814,10 +814,10 @@ ALWAYS_INLINE void YM2413::step(Locals& l)
 	eg_out[CYCLES & 1] = envelopeOutput<CYCLES, TEST_MODE>(ksltl, patch2_am_t);
 }
 
-void YM2413::generateChannels(float* out_[9 + 5], uint32_t n)
+void YM2413::generateChannels(std::span<float*, 9 + 5> out_, uint32_t n)
 {
 	std::array<float*, 9 + 5> out;
-	std::copy_n(out_, 9 + 5, out.data());
+	ranges::copy(out_, out);
 
 	// Loop here (instead of in step18) seems faster. (why?)
 	if (test_mode_active) [[unlikely]] {

@@ -800,14 +800,14 @@ bool Y8950::checkMuteHelper()
 	return adpcm.isMuted();
 }
 
-void Y8950::generateChannels(float** bufs, unsigned num)
+void Y8950::generateChannels(std::span<float*> bufs, unsigned num)
 {
 	// TODO implement per-channel mute (instead of all-or-nothing)
 	if (checkMuteHelper()) {
 		// TODO update internal state even when muted
 		// during mute pm_phase, am_phase, noiseA_phase, noiseB_phase
 		// and noise_seed aren't updated, probably ok
-		std::fill_n(bufs, 9 + 5 + 1, nullptr);
+		ranges::fill(bufs, nullptr);
 		return;
 	}
 

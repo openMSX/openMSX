@@ -22,7 +22,7 @@ public:
 	int16_t getSampleAt(EmuTime::param time) const override;
 	[[nodiscard]] EmuTime getEndTime() const override;
 	[[nodiscard]] unsigned getFrequency() const override;
-	void fillBuffer(unsigned pos, float** bufs, unsigned num) const override;
+	void fillBuffer(unsigned pos, std::span<float*, 1> bufs, unsigned num) const override;
 	[[nodiscard]] float getAmplificationFactorImpl() const override;
 
 private:

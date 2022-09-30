@@ -493,12 +493,12 @@ void YMF278::setMixLevel(uint8_t x, EmuTime::param time)
 	setSoftwareVolume(level[x & 7], level[(x >> 3) & 7], time);
 }
 
-void YMF278::generateChannels(float** bufs, unsigned num)
+void YMF278::generateChannels(std::span<float*> bufs, unsigned num)
 {
 	if (!anyActive()) {
 		// TODO update internal state, even if muted
 		// TODO also mute individual channels
-		std::fill_n(bufs, 24, nullptr);
+		ranges::fill(bufs, nullptr);
 		return;
 	}
 

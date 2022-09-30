@@ -674,7 +674,7 @@ void AY8910::wrtReg(unsigned reg, byte value, EmuTime::param time)
 	}
 }
 
-void AY8910::generateChannels(float** bufs, unsigned num)
+void AY8910::generateChannels(std::span<float*> bufs, unsigned num)
 {
 	// Disable channels with volume 0: since the sample value doesn't matter,
 	// we can use the fastest path.

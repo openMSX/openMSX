@@ -458,7 +458,7 @@ void SCC::setDeformRegHelper(byte value)
 	}
 }
 
-void SCC::generateChannels(float** bufs, unsigned num)
+void SCC::generateChannels(std::span<float*> bufs, unsigned num)
 {
 	unsigned enable = ch_enable;
 	for (unsigned i = 0; i < 5; ++i, enable >>= 1) {

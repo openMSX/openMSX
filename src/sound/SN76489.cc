@@ -283,7 +283,7 @@ template<bool NOISE> void SN76489::synthesizeChannel(
 	}
 }
 
-void SN76489::generateChannels(float** buffers, unsigned num)
+void SN76489::generateChannels(std::span<float*> buffers, unsigned num)
 {
 	// Channel 3: noise.
 	if ((regs[6] & 3) == 3) {

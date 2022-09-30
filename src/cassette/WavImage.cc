@@ -150,7 +150,7 @@ unsigned WavImage::getFrequency() const
 	return clock.getFreq();
 }
 
-void WavImage::fillBuffer(unsigned pos, float** bufs, unsigned num) const
+void WavImage::fillBuffer(unsigned pos, std::span<float*, 1> bufs, unsigned num) const
 {
 	if (pos < wav->getSize()) {
 		for (auto i : xrange(num)) {

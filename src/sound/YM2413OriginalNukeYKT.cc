@@ -2,6 +2,7 @@
 #include "ranges.hh"
 #include "serialize.hh"
 #include "xrange.hh"
+#include <array>
 #include <cassert>
 
 namespace openmsx {
@@ -18,14 +19,14 @@ void YM2413::reset()
 	ranges::fill(regs, 0);
 }
 
-void YM2413::generateChannels(float* out_[9 + 5], uint32_t n)
+void YM2413::generateChannels(std::span<float*, 9 + 5> out_, uint32_t n)
 {
-	float* out[9 + 5];
-	std::copy_n(out_, 9 + 5, out);
+	std::array<float*, 9 + 5> out;
+	ranges::copy(out_, out);
 
 	auto f = [&] {
-		int32_t buf[2];
-		OPLL_Clock(&opll, buf);
+		std::array<int32_t, 2> buf;
+		OPLL_Clock(&opll, buf.data());
 		switch (opll.cycles) {
 			case  0: *out[ 9]++ += buf[1] * 2; break;
 			case  1: *out[10]++ += buf[1] * 2; break;
@@ -63,10 +64,8 @@ void YM2413::writePort(bool port, uint8_t value, int cycle_offset)
 	if (speedUpHack) [[unlikely]] {
 		while (cycle_offset < allowed_offset) [[unlikely]] {
 			float d = 0.0f;
-			float* dummy[9 + 5] = {
-				&d, &d, &d, &d, &d, &d, &d, &d, &d,
-				&d, &d, &d, &d, &d,
-			};
+			std::array<float*, 9 + 5> dummy;
+			ranges::fill(dummy, &d);
 			generateChannels(dummy, 1);
 		}
 		allowed_offset = ((port ? 84 : 12) / 4) + cycle_offset;

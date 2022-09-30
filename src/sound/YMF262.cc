@@ -1539,13 +1539,13 @@ float YMF262::getAmplificationFactorImpl() const
 	return 1.0f / 4096.0f;
 }
 
-void YMF262::generateChannels(float** bufs, unsigned num)
+void YMF262::generateChannels(std::span<float*> bufs, unsigned num)
 {
 	// TODO implement per-channel mute (instead of all-or-nothing)
 	// TODO output rhythm on separate channels?
 	if (checkMuteHelper()) {
 		// TODO update internal state, even if muted
-		std::fill_n(bufs, 18, nullptr);
+		ranges::fill(bufs, nullptr);
 		return;
 	}
 

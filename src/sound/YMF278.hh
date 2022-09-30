@@ -87,7 +87,7 @@ private:
 	};
 
 	// SoundDevice
-	void generateChannels(float** bufs, unsigned num) override;
+	void generateChannels(std::span<float*> bufs, unsigned num) override;
 
 	void writeRegDirect(byte reg, byte data, EmuTime::param time);
 	[[nodiscard]] unsigned getRamAddress(unsigned addr) const;

@@ -75,7 +75,7 @@ public:
 private:
 	// SoundDevice
 	[[nodiscard]] float getAmplificationFactorImpl() const override;
-	void generateChannels(float** bufs, unsigned num) override;
+	void generateChannels(std::span<float*> bufs, unsigned num) override;
 
 	inline void keyOn_BD();
 	inline void keyOn_SD();

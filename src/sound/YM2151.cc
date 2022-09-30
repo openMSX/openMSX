@@ -1509,11 +1509,11 @@ void YM2151::advance()
 	}
 }
 
-void YM2151::generateChannels(float** bufs, unsigned num)
+void YM2151::generateChannels(std::span<float*> bufs, unsigned num)
 {
 	if (checkMuteHelper()) {
 		// TODO update internal state, even if muted
-		std::fill_n(bufs, 8, nullptr);
+		ranges::fill(bufs, nullptr);
 		return;
 	}
 

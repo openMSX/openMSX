@@ -43,7 +43,7 @@ public:
 	void unplugHelper(EmuTime::param time) override;
 
 	// SoundDevice
-	void generateChannels(float** buffers, unsigned num) override;
+	void generateChannels(std::span<float*> buffers, unsigned num) override;
 	float getAmplificationFactorImpl() const override;
 
 	// MediaInfoProvider

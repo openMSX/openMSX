@@ -10,7 +10,7 @@
 
 namespace openmsx {
 
-constexpr unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on .wav files
+static constexpr unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on .wav files
 
 [[nodiscard]] static auto loadSamples(
 	std::string_view name, const DeviceConfig& config,
@@ -106,9 +106,10 @@ void SamplePlayer::repeat(unsigned sampleNum)
 	}
 }
 
-void SamplePlayer::generateChannels(float** bufs, unsigned num)
+void SamplePlayer::generateChannels(std::span<float*> bufs, unsigned num)
 {
 	// Single channel device: replace content of bufs[0] (not add to it).
+	assert(bufs.size() == 1);
 	if (!isPlaying()) {
 		bufs[0] = nullptr;
 		return;
