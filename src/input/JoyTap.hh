@@ -37,7 +37,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 protected:
-	void createPorts(static_string_view description);
+	void createPorts(static_string_view description, EmuTime::param time);
 
 protected:
 	std::optional<JoystickPort> slaves[4];

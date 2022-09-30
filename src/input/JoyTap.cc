@@ -13,13 +13,14 @@ JoyTap::JoyTap(PluggingController& pluggingController_, std::string name_)
 {
 }
 
-void JoyTap::createPorts(static_string_view description)
+void JoyTap::createPorts(static_string_view description, EmuTime::param time)
 {
 	for (auto [i, slave] : enumerate(slaves)) {
 		slave.emplace(
 			pluggingController,
 			strCat(name, "_port_", char('1' + i)),
 			description);
+		slave->write(0, time);
 	}
 }
 
@@ -33,9 +34,9 @@ std::string_view JoyTap::getName() const
 	return name;
 }
 
-void JoyTap::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
+void JoyTap::plugHelper(Connector& /*connector*/, EmuTime::param time)
 {
-	createPorts("Joy Tap port");
+	createPorts("Joy Tap port", time);
 }
 
 void JoyTap::unplugHelper(EmuTime::param time)
