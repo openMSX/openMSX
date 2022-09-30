@@ -9,12 +9,12 @@
 
 namespace openmsx {
 
-constexpr byte READ_BACK = 0xC0;
-constexpr byte RB_CNTR0  = 0x02;
-constexpr byte RB_CNTR1  = 0x04;
-constexpr byte RB_CNTR2  = 0x08;
-constexpr byte RB_STATUS = 0x10;
-constexpr byte RB_COUNT  = 0x20;
+static constexpr byte READ_BACK = 0xC0;
+static constexpr byte RB_CNTR0  = 0x02;
+static constexpr byte RB_CNTR1  = 0x04;
+static constexpr byte RB_CNTR2  = 0x08;
+static constexpr byte RB_STATUS = 0x10;
+static constexpr byte RB_COUNT  = 0x20;
 
 
 // class I8254
@@ -484,10 +484,10 @@ void Counter::serialize(Archive& ar, unsigned /*version*/)
 template<typename Archive>
 void I8254::serialize(Archive& ar, unsigned /*version*/)
 {
-	char tag[9] = { 'c', 'o', 'u', 'n', 't', 'e', 'r', 'X', 0 };
+	std::array<char, 9> tag = {'c', 'o', 'u', 'n', 't', 'e', 'r', 'X', 0};
 	for (auto [i, cntr] : enumerate(counter)) {
 		tag[7] = char('0' + i);
-		ar.serialize(tag, cntr);
+		ar.serialize(tag.data(), cntr);
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(I8254);

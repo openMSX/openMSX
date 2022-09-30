@@ -21,6 +21,7 @@
 #include "MSXException.hh"
 #include "enumerate.hh"
 #include "serialize.hh"
+#include <array>
 #include <cassert>
 #include <memory>
 
@@ -457,10 +458,10 @@ template<typename Archive>
 void WD33C93::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize_blob("buffer", buffer);
-	char tag[8] = { 'd', 'e', 'v', 'i', 'c', 'e', 'X', 0 };
+	std::array<char, 8> tag = {'d', 'e', 'v', 'i', 'c', 'e', 'X', 0};
 	for (auto [i, d] : enumerate(dev)) {
 		tag[6] = char('0' + i);
-		ar.serializePolymorphic(tag, *d);
+		ar.serializePolymorphic(tag.data(), *d);
 	}
 	ar.serialize("bufIdx",       bufIdx,
 	             "counter",      counter,

@@ -105,6 +105,7 @@
 #include "serialize.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+#include <array>
 #include <cmath>
 
 namespace openmsx {
@@ -557,10 +558,10 @@ void SCC::serialize(Archive& ar, unsigned /*version*/)
 	// multi-dimensional arrays are not directly support by the
 	// serialization framework, maybe in the future. So for now
 	// manually loop over the channels.
-	char tag[6] = { 'w', 'a', 'v', 'e', 'X', 0 };
+	std::array<char, 6> tag = {'w', 'a', 'v', 'e', 'X', 0};
 	for (auto [channel, wv] : enumerate(wave)) {
 		tag[4] = char('1' + channel);
-		ar.serialize(tag, wv); // signed char
+		ar.serialize(tag.data(), wv); // signed char
 	}
 
 	if constexpr (Archive::IS_LOADER) {

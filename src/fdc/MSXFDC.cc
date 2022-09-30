@@ -4,6 +4,7 @@
 #include "MSXException.hh"
 #include "enumerate.hh"
 #include "serialize.hh"
+#include <array>
 #include <memory>
 
 namespace openmsx {
@@ -78,11 +79,11 @@ void MSXFDC::serialize(Archive& ar, unsigned /*version*/)
 	// polymorphic object construction of the serialization framework.
 	// Destroying and reconstructing the drives is not an option because
 	// DriveMultiplexer already has pointers to the drives.
-	char tag[7] = { 'd', 'r', 'i', 'v', 'e', 'X', 0 };
+	std::array<char, 7> tag = {'d', 'r', 'i', 'v', 'e', 'X', 0};
 	for (auto [i, drv] : enumerate(drives)) {
 		if (auto* drive = dynamic_cast<RealDrive*>(drv.get())) {
 			tag[5] = char('a' + i);
-			ar.serialize(tag, *drive);
+			ar.serialize(tag.data(), *drive);
 		}
 	}
 }

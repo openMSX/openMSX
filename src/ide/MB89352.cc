@@ -748,10 +748,10 @@ template<typename Archive>
 void MB89352::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize_blob("buffer", buffer);
-	char tag[8] = { 'd', 'e', 'v', 'i', 'c', 'e', 'X', 0 };
+	std::array<char, 8> tag = {'d', 'e', 'v', 'i', 'c', 'e', 'X', 0};
 	for (auto [i, d] : enumerate(dev)) {
 		tag[6] = char('0' + i);
-		ar.serializePolymorphic(tag, *d);
+		ar.serializePolymorphic(tag.data(), *d);
 	}
 	ar.serialize("bufIdx",       bufIdx,
 	             "msgin",        msgin,

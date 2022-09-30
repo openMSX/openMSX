@@ -3,6 +3,7 @@
 #include "enumerate.hh"
 #include "serialize.hh"
 #include "strCat.hh"
+#include <array>
 #include <memory>
 
 namespace openmsx {
@@ -73,10 +74,10 @@ void JoyTap::serialize(Archive& ar, unsigned /*version*/)
 		plugHelper(*getConnector(), pluggingController.getCurrentTime());
 	}
 
-	char tag[6] = { 'p', 'o', 'r', 't', 'X', 0 };
+	std::array<char, 6> tag = {'p', 'o', 'r', 't', 'X', 0};
 	for (auto [i, slave] : enumerate(slaves)) {
 		tag[4] = char('0' + i);
-		ar.serialize(tag, *slave);
+		ar.serialize(tag.data(), *slave);
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(JoyTap);
