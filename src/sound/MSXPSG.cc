@@ -88,9 +88,15 @@ byte MSXPSG::readA(EmuTime::param time)
 	byte joystick = ports[selectedPort]->read(time) |
 	                ((renShaTurbo.getSignal(time)) ? 0x10 : 0x00);
 
+#if 0
+	This breaks NinjaTap test programs.
+	Perhaps this behavior is different between MSX machines with a discrete
+	AY8910 chip versus machines with the PSG integrated in the MSX-engine?
+
 	// pin 6,7 input is ANDed with pin 6,7 output
 	byte pin67 = prev << (4 - 2 * selectedPort);
 	joystick &= (pin67| 0xCF);
+#endif
 
 	byte cassetteInput = cassette.cassetteIn(time) ? 0x80 : 0x00;
 	return joystick | keyLayout | cassetteInput;
