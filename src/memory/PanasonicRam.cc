@@ -26,7 +26,7 @@ byte* PanasonicRam::getWriteCacheLine(word start) const
 	if (panasonicMemory.isWritable(addr)) {
 		return checkedRam.getWriteCacheLine(addr);
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 
@@ -37,7 +37,7 @@ void PanasonicRam::writeIO(word port, byte value, EmuTime::param time)
 	unsigned addr = segmentOffset(page);
 	if (byte* data = checkedRam.getRWCacheLines(addr, 0x4000)) {
 		const byte* rData = data;
-		byte* wData = panasonicMemory.isWritable(addr) ? data : unmappedWrite;
+		byte* wData = panasonicMemory.isWritable(addr) ? data : unmappedWrite.data();
 		fillDeviceRWCache(page * 0x4000, 0x4000, rData, wData);
 	} else {
 		invalidateDeviceRWCache(page * 0x4000, 0x4000);

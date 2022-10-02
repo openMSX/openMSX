@@ -126,7 +126,7 @@ const byte* MegaSCSI::getReadCacheLine(word address) const
 			return &sram[0x2000 * mapped[page] + address];
 		}
 	} else {
-		return unmappedRead;
+		return unmappedRead.data();
 	}
 }
 
@@ -162,7 +162,7 @@ byte* MegaSCSI::getWriteCacheLine(word address) const
 			return nullptr;
 		}
 	}
-	return unmappedWrite;
+	return unmappedWrite.data();
 }
 
 void MegaSCSI::setSRAM(unsigned region, byte block)

@@ -342,7 +342,7 @@ const byte* MegaFlashRomSCCPlus::getReadCacheLine(word addr) const
 		return flash.getReadCacheLine(flashAddr);
 	} else {
 		// unmapped read
-		return unmappedRead;
+		return unmappedRead.data();
 	}
 }
 

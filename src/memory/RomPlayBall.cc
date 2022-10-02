@@ -63,7 +63,7 @@ byte* RomPlayBall::getWriteCacheLine(word address) const
 	if ((address & CacheLine::HIGH) == (0xBFFF & CacheLine::HIGH)) {
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

@@ -68,7 +68,7 @@ const byte* MSXFmPac::getReadCacheLine(word address) const
 		} else if (address == (0x1FFE & CacheLine::HIGH)) {
 			return nullptr;
 		} else {
-			return unmappedRead;
+			return unmappedRead.data();
 		}
 	} else {
 		return &rom[bank * 0x4000 + address];
@@ -131,7 +131,7 @@ byte* MSXFmPac::getWriteCacheLine(word address) const
 	if (sramEnabled && (address < 0x1FFE)) {
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

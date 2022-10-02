@@ -81,7 +81,7 @@ byte* RomMitsubishiMLTS2::getWriteCacheLine(word address) const
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		return const_cast<byte*>(&ram[address & 0x1FFF]);
 	}
-	return unmappedWrite;
+	return unmappedWrite.data();
 }
 
 template<typename Archive>

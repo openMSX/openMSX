@@ -60,7 +60,7 @@ byte* RomMSXDOS2::getWriteCacheLine(word address) const
 	default:
 		UNREACHABLE;
 	}
-	return unmappedWrite;
+	return unmappedWrite.data();
 }
 
 REGISTER_MSXDEVICE(RomMSXDOS2, "RomMSXDOS2");

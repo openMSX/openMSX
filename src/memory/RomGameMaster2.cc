@@ -100,13 +100,13 @@ byte* RomGameMaster2::getWriteCacheLine(word address) const
 		if (!(address & 0x1000)) {
 			return nullptr;
 		} else {
-			return unmappedWrite;
+			return unmappedWrite.data();
 		}
 	} else if ((0xB000 <= address) && (address < 0xC000) && sramEnabled) {
 		// write SRAM
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

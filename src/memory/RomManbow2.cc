@@ -166,7 +166,7 @@ const byte* RomManbow2::getReadCacheLine(word address) const
 		unsigned addr = (address & 0x1FFF) + 0x2000 * bank[page];
 		return flash.getReadCacheLine(addr);
 	} else {
-		return unmappedRead;
+		return unmappedRead.data();
 	}
 }
 
@@ -200,7 +200,7 @@ byte* RomManbow2::getWriteCacheLine(word address) const
 	if ((0x4000 <= address) && (address < 0xC000)) {
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

@@ -38,7 +38,7 @@ byte* RomMSXWrite::getWriteCacheLine(word address) const
 	    (address == one_of(0x6FFF & CacheLine::HIGH, 0x7FFF & CacheLine::HIGH))) {
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

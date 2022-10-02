@@ -68,7 +68,7 @@ void RomZemina90in1::writeIO(word /*port*/, byte value, EmuTime::param /*time*/)
 
 byte* RomZemina90in1::getWriteCacheLine(word /*address*/) const
 {
-	return unmappedWrite;
+	return unmappedWrite.data();
 }
 
 REGISTER_MSXDEVICE(RomZemina90in1, "RomZemina90in1");

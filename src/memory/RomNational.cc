@@ -110,7 +110,7 @@ byte* RomNational::getWriteCacheLine(word address) const
 	} else if ((address & 0x3FFF) == (0x3FFA & CacheLine::HIGH)) {
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

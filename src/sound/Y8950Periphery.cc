@@ -120,11 +120,11 @@ void Y8950Periphery::writeMem(word /*address*/, byte /*value*/, EmuTime::param /
 }
 const byte* Y8950Periphery::getReadCacheLine(word /*address*/) const
 {
-	return MSXDevice::unmappedRead;
+	return MSXDevice::unmappedRead.data();
 }
 byte* Y8950Periphery::getWriteCacheLine(word /*address*/) const
 {
-	return MSXDevice::unmappedWrite;
+	return MSXDevice::unmappedWrite.data();
 }
 
 
@@ -240,7 +240,7 @@ byte* PanasonicAudioPeriphery::getWriteCacheLine(word address) const
 	if ((bankSelect == 0) && (address >= 0x3000)) {
 		return const_cast<byte*>(&ram[address - 0x3000]);
 	} else {
-		return MSXDevice::unmappedWrite;
+		return MSXDevice::unmappedWrite.data();
 	}
 }
 

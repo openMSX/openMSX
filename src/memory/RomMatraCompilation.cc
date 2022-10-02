@@ -56,7 +56,7 @@ byte* RomMatraCompilation::getWriteCacheLine(word address) const
 	if ((0x5000 <= address) && (address < 0xC000)) {
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

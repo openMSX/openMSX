@@ -128,7 +128,7 @@ const byte* YamahaFDC::getReadCacheLine(word start) const
 	} else if (unsigned(start - 0x4000) < rom->size()) {
 		return &(*rom)[start - 0x4000];
 	} else {
-		return unmappedRead;
+		return unmappedRead.data();
 	}
 }
 
@@ -180,7 +180,7 @@ byte* YamahaFDC::getWriteCacheLine(word address) const
 		// FDC at 0x7FC0-0x7FFF  or  0xBFC0-0xBFFF
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

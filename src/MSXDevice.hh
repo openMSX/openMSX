@@ -6,6 +6,7 @@
 #include "IterableBitSet.hh"
 #include "openmsx.hh"
 #include "serialize_meta.hh"
+#include <array>
 #include <span>
 #include <string>
 #include <vector>
@@ -298,8 +299,8 @@ protected:
 
 public:
 	// public to allow non-MSXDevices to use these same arrays
-	static inline byte unmappedRead [0x10000]; // Read only
-	static inline byte unmappedWrite[0x10000]; // Write only
+	static inline std::array<byte, 0x10000> unmappedRead;  // Read only
+	static inline std::array<byte, 0x10000> unmappedWrite; // Write only
 
 private:
 	template<typename Action, typename... Args>

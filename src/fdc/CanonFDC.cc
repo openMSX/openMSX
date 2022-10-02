@@ -128,7 +128,7 @@ byte* CanonFDC::getWriteCacheLine(word address) const
 	if ((address & 0x3FFF & CacheLine::HIGH) == (0x3FF0 & CacheLine::HIGH)) {
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

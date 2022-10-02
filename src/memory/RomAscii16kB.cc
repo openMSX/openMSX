@@ -40,7 +40,7 @@ byte* RomAscii16kB::getWriteCacheLine(word address) const
 	if ((0x6000 <= address) && (address < 0x7800) && !(address & 0x0800)) {
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

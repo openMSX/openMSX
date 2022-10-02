@@ -116,7 +116,7 @@ const byte* PhilipsFDC::getReadCacheLine(word start) const
 		// ROM visible in 0x4000-0x7FFF
 		return MSXFDC::getReadCacheLine(start);
 	} else {
-		return unmappedRead;
+		return unmappedRead.data();
 	}
 }
 
@@ -171,7 +171,7 @@ byte* PhilipsFDC::getWriteCacheLine(word address) const
 	if ((address & 0x3FF8) == (0x3FF8 & CacheLine::HIGH)) {
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

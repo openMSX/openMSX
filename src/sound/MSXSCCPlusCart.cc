@@ -143,7 +143,7 @@ const byte* MSXSCCPlusCart::getReadCacheLine(word start) const
 		return &internalMemoryBank[(start >> 13) - 2][start & 0x1FFF];
 	} else {
 		// outside memory range
-		return unmappedRead;
+		return unmappedRead.data();
 	}
 }
 
@@ -218,7 +218,7 @@ byte* MSXSCCPlusCart::getWriteCacheLine(word start) const
 		}
 		return nullptr;
 	}
-	return unmappedWrite;
+	return unmappedWrite.data();
 }
 
 
@@ -234,7 +234,7 @@ void MSXSCCPlusCart::setMapper(int region, byte value)
 			return &ram[0x2000 * value];
 		} else {
 			isMapped[region] = false;
-			return unmappedRead;
+			return unmappedRead.data();
 		}
 	}();
 

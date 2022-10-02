@@ -28,7 +28,7 @@ void RomSuperSwangi::writeMem(word address, byte value, EmuTime::param /*time*/)
 byte* RomSuperSwangi::getWriteCacheLine(word address) const
 {
 	if (address == (0x8000 & CacheLine::HIGH)) return nullptr;
-	return unmappedWrite;
+	return unmappedWrite.data();
 }
 
 REGISTER_MSXDEVICE(RomSuperSwangi, "RomSuperSwangi");

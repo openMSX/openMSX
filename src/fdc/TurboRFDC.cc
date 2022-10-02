@@ -148,7 +148,7 @@ const byte* TurboRFDC::getReadCacheLine(word start) const
 	} else if ((0x4000 <= start) && (start < 0x8000)) {
 		return &memory[start & 0x3FFF];
 	} else {
-		return unmappedRead;
+		return unmappedRead.data();
 	}
 }
 
@@ -204,7 +204,7 @@ byte* TurboRFDC::getWriteCacheLine(word address) const
 	    ((address & 0x3FF0) == (0x3FF0 & CacheLine::HIGH))) {
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

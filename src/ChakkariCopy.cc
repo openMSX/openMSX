@@ -178,7 +178,7 @@ const byte* ChakkariCopy::getReadCacheLine(word address) const
 			return &biosRam[address & 0x3FFF];
 		}
 	}
-	return unmappedRead;
+	return unmappedRead.data();
 }
 
 void ChakkariCopy::writeMem(word address, byte value, EmuTime::param /*time*/)
@@ -204,7 +204,7 @@ byte* ChakkariCopy::getWriteCacheLine(word address) const
 			return const_cast<byte*>(&biosRam[address & 0x3FFF]);
 		}
 	}
-	return unmappedWrite;
+	return unmappedWrite.data();
 }
 
 void ChakkariCopy::update(const Setting& /*setting*/) noexcept

@@ -40,7 +40,7 @@ byte* RomRType::getWriteCacheLine(word address) const
 	if ((0x4000 <= address) && (address < 0x8000)) {
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

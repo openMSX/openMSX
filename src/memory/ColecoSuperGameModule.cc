@@ -149,7 +149,7 @@ const byte* ColecoSuperGameModule::getReadCacheLine(word start) const
 			return mainRam.getReadCacheLine(translateMainRamAddress(start));
 		}
 	}
-	return unmappedRead;
+	return unmappedRead.data();
 }
 
 byte* ColecoSuperGameModule::getWriteCacheLine(word start) const
@@ -165,7 +165,7 @@ byte* ColecoSuperGameModule::getWriteCacheLine(word start) const
 			return mainRam.getWriteCacheLine(translateMainRamAddress(start));
 		}
 	}
-	return unmappedWrite;
+	return unmappedWrite.data();
 }
 
 template<typename Archive>

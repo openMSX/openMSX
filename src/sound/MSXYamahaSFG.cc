@@ -65,7 +65,7 @@ byte* MSXYamahaSFG::getWriteCacheLine(word start) const
 	if ((start & 0x3FFF & CacheLine::HIGH) == (0x3FF0 & CacheLine::HIGH)) {
 		return nullptr;
 	}
-	return unmappedWrite;
+	return unmappedWrite.data();
 }
 
 byte MSXYamahaSFG::readIRQVector()

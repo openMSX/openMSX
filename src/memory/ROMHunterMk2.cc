@@ -11,17 +11,17 @@ At 0x3FFF is a configuration register.
 bit 1: page 1 control:
        0: ROM hunter ROM in page 1 for READs, writes ignored (default)
        1: writes go to RAM in page 1, mapper switching disabled
-bits 2 and 0 is a mapper selector: 
+bits 2 and 0 is a mapper selector:
   00 = ASCII16 (default),
   01 = ASCII8,
   11 = Konami,
   10 = unknown (seems to be some Konami 16K variant)
-bit 3: RAM write protect: 
+bit 3: RAM write protect:
        0: write enable (default)
        1: write protect; also sets reads in page 1 to RAM (and not ROM)
 
 When the ROM loads a MegaROM, bit 1 is left on 0. But for plain ROMs, it is set
-to 1. 
+to 1.
 */
 
 namespace openmsx {
@@ -52,7 +52,7 @@ const byte* ROMHunterMk2::getReadCacheLine(word addr) const
 {
 	// reads outside [0x4000, 0xC000) return 0xFF
 	if ((addr < 0x4000) || (0xC000 <= addr)) {
-		return unmappedRead;
+		return unmappedRead.data();
 	}
 
 	// if bit 3 is 0, reads from page 1 come from the ROM, else from the RAM

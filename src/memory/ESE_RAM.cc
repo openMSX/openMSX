@@ -74,7 +74,7 @@ const byte* ESE_RAM::getReadCacheLine(word address) const
 		address &= 0x1FFF;
 		return &sram[8192 * mapped[page] + address];
 	} else {
-		return unmappedRead;
+		return unmappedRead.data();
 	}
 }
 
@@ -102,7 +102,7 @@ byte* ESE_RAM::getWriteCacheLine(word address) const
 			return nullptr;
 		}
 	}
-	return unmappedWrite;
+	return unmappedWrite.data();
 }
 
 void ESE_RAM::setSRAM(unsigned region, byte block)

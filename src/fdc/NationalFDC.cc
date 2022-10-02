@@ -82,7 +82,7 @@ const byte* NationalFDC::getReadCacheLine(word start) const
 		// ROM at 0x0000-0x7FFF
 		return MSXFDC::getReadCacheLine(start);
 	} else {
-		return unmappedRead;
+		return unmappedRead.data();
 	}
 }
 
@@ -129,7 +129,7 @@ byte* NationalFDC::getWriteCacheLine(word address) const
 		// FDC at 0x7FB8-0x7FBC (also mirrored)
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

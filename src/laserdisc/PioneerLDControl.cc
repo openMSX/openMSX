@@ -113,7 +113,7 @@ const byte* PioneerLDControl::getReadCacheLine(word address) const
 	} else if (0x4000 <= address && address < 0x6000) {
 		return &rom[address & 0x1fff];
 	} else {
-		return unmappedRead;
+		return unmappedRead.data();
 	}
 }
 
@@ -143,7 +143,7 @@ byte* PioneerLDControl::getWriteCacheLine(word address) const
 	if ((address & CacheLine::HIGH) == (0x7FFE & CacheLine::HIGH)) {
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

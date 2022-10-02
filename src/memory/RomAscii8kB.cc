@@ -45,7 +45,7 @@ byte* RomAscii8kB::getWriteCacheLine(word address) const
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

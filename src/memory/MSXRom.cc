@@ -17,7 +17,7 @@ void MSXRom::writeMem(word /*address*/, byte /*value*/, EmuTime::param /*time*/)
 
 byte* MSXRom::getWriteCacheLine(word /*address*/) const
 {
-	return unmappedWrite;
+	return unmappedWrite.data();
 }
 
 void MSXRom::getInfo(TclObject& result) const

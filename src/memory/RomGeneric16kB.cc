@@ -27,7 +27,7 @@ byte* RomGeneric16kB::getWriteCacheLine(word address) const
 	if ((0x4000 <= address) && (address < 0xC000)) {
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

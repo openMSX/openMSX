@@ -100,7 +100,7 @@ const byte* MSXRS232::getReadCacheLine(word start) const
 	} else if (rom && (0x4000 <= start) && (start < 0x8000)) {
 		return &(*rom)[addr & (rom->size() - 1)];
 	} else {
-		return unmappedRead;
+		return unmappedRead.data();
 	}
 }
 
@@ -133,7 +133,7 @@ byte* MSXRS232::getWriteCacheLine(word start) const
 	if (ram && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
 		return &(*ram)[addr - RAM_OFFSET];
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

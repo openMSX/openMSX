@@ -111,7 +111,7 @@ const byte* SpectravideoFDC::getReadCacheLine(word start) const
 		// CP/M ROM at 0x4000-0x4FFF
 		return &cpmRom[start & 0x0FFF];
 	} else {
-		return unmappedRead;
+		return unmappedRead.data();
 	}
 }
 
@@ -155,7 +155,7 @@ byte* SpectravideoFDC::getWriteCacheLine(word address) const
 		// FDC at 0x7FB8-0x7FBF - mirrored
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

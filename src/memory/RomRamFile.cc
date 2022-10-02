@@ -79,7 +79,7 @@ const byte* RomRamFile::getReadCacheLine(word address) const
 	} else if ((0x8000 <= address) && (address < 0xC000)) {
 		return &(*sram)[address & 0x3fff];
 	} else {
-		return unmappedRead;
+		return unmappedRead.data();
 	}
 }
 
@@ -97,7 +97,7 @@ byte* RomRamFile::getWriteCacheLine(word address) const
 		// writes to SRAM are not cacheable because of sync-to-disk
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

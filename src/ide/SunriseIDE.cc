@@ -71,7 +71,7 @@ const byte* SunriseIDE::getReadCacheLine(word start) const
 	if ((0x4000 <= start) && (start < 0x8000)) {
 		return &internalBank[start & 0x3FFF];
 	}
-	return unmappedRead;
+	return unmappedRead.data();
 }
 
 void SunriseIDE::writeMem(word address, byte value, EmuTime::param time)

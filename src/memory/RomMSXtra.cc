@@ -31,7 +31,7 @@ const byte* RomMSXtra::getReadCacheLine(word address) const
 	} else if ((0x6000 <= address) && (address < 0x8000)) {
 		return &ram[address & 0x07ff];
 	} else {
-		return unmappedRead;
+		return unmappedRead.data();
 	}
 }
 
@@ -49,7 +49,7 @@ byte* RomMSXtra::getWriteCacheLine(word address) const
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		return const_cast<byte*>(&ram[address & 0x07ff]);
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

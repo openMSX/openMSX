@@ -40,7 +40,7 @@ const byte* BeerIDE::getReadCacheLine(word start) const
 	if (0x4000 <= start && start < 0x8000) {
 		return &rom[start & 0x3FFF];
 	}
-	return unmappedRead;
+	return unmappedRead.data();
 }
 
 byte BeerIDE::readIO(word port, EmuTime::param time)

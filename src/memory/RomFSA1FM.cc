@@ -116,7 +116,7 @@ const byte* RomFSA1FM1::getReadCacheLine(word address) const
 		// read sram
 		return &(*fsSram)[address & 0x1FFF];
 	} else {
-		return unmappedRead;
+		return unmappedRead.data();
 	}
 }
 
@@ -142,7 +142,7 @@ byte* RomFSA1FM1::getWriteCacheLine(word address) const
 		// don't cache SRAM writes
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 
@@ -202,13 +202,13 @@ byte RomFSA1FM2::readMem(word address, EmuTime::param time)
 const byte* RomFSA1FM2::getReadCacheLine(word address) const
 {
 	if (0xC000 <= address) {
-		return unmappedRead;
+		return unmappedRead.data();
 	} else if ((0x7FF0 & CacheLine::HIGH) == address) {
 		return nullptr;
 	} else if (isRam[address >> 13]) {
 		return &(*fsSram)[address & 0x1FFF];
 	} else if (isEmpty[address >> 13]) {
-		return unmappedRead;
+		return unmappedRead.data();
 	} else {
 		return Rom8kBBlocks::getReadCacheLine(address);
 	}
@@ -260,7 +260,7 @@ byte* RomFSA1FM2::getWriteCacheLine(word address) const
 	} else if (isRam[address >> 13]) {
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

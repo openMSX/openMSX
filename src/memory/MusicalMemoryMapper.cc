@@ -5,11 +5,11 @@
 
 namespace openmsx {
 
-constexpr byte MEM_ACCESS_ENABLED = 1 << 7;
-constexpr byte SOUND_PORT_ENABLED = 1 << 6;
-constexpr byte PORT_ACCESS_DISABLED = 1 << 5;
-constexpr byte UNUSED = 1 << 4;
-constexpr byte WRITE_PROTECT = 0x0F;
+static constexpr byte MEM_ACCESS_ENABLED = 1 << 7;
+static constexpr byte SOUND_PORT_ENABLED = 1 << 6;
+static constexpr byte PORT_ACCESS_DISABLED = 1 << 5;
+static constexpr byte UNUSED = 1 << 4;
+static constexpr byte WRITE_PROTECT = 0x0F;
 
 MusicalMemoryMapper::MusicalMemoryMapper(const DeviceConfig& config)
 	: MSXMemoryMapperBase(config)
@@ -200,7 +200,7 @@ byte* MusicalMemoryMapper::getWriteCacheLine(word start) const
 		}
 	}
 	if (writeProtected(start)) {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	} else {
 		return MSXMemoryMapperBase::getWriteCacheLine(start);
 	}

@@ -90,7 +90,7 @@ const byte* SanyoFDC::getReadCacheLine(word start) const
 		// ROM at 0x0000-0x7FFF (this is a guess, not checked!)
 		return MSXFDC::getReadCacheLine(start);
 	} else {
-		return unmappedRead;
+		return unmappedRead.data();
 	}
 }
 
@@ -137,7 +137,7 @@ byte* SanyoFDC::getWriteCacheLine(word address) const
 		// FDC at 0x7FF8-0x7FFC - mirroring behaviour unknown
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

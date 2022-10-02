@@ -78,7 +78,7 @@ template<unsigned BANK_SIZE>
 void RomBlocks<BANK_SIZE>::setBank(byte region, const byte* adr, int block)
 {
 	assert("address passed to setBank() is not serializable" &&
-	       ((adr == unmappedRead) ||
+	       ((adr == unmappedRead.data()) ||
 	        ((&rom[0] <= adr) && (adr <= &rom[rom.size() - 1])) ||
 	        (sram && (&(*sram)[0] <= adr) &&
 	                       (adr <= &(*sram)[sram->size() - 1])) ||
@@ -91,7 +91,7 @@ void RomBlocks<BANK_SIZE>::setBank(byte region, const byte* adr, int block)
 template<unsigned BANK_SIZE>
 void RomBlocks<BANK_SIZE>::setUnmapped(byte region)
 {
-	setBank(region, unmappedRead, 255);
+	setBank(region, unmappedRead.data(), 255);
 }
 
 template<unsigned BANK_SIZE>
@@ -110,7 +110,7 @@ void RomBlocks<BANK_SIZE>::setRom(byte region, unsigned block)
 	if (block < nrBlocks) {
 		setBank(region, &rom[block * BANK_SIZE], block);
 	} else {
-		setBank(region, unmappedRead, 255);
+		setBank(region, unmappedRead.data(), 255);
 	}
 }
 
@@ -132,7 +132,7 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 		ar.serialize("banks", offsets);
 		for (auto i : xrange(NUM_BANKS)) {
 			if (offsets[i] == size_t(-1)) {
-				bankPtr[i] = unmappedRead;
+				bankPtr[i] = unmappedRead.data();
 			} else if (offsets[i] < romSize) {
 				bankPtr[i] = &rom[offsets[i]];
 			} else if (offsets[i] < (romSize + sramSize)) {
@@ -147,7 +147,7 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 		}
 	} else {
 		for (auto i : xrange(NUM_BANKS)) {
-			if (bankPtr[i] == unmappedRead) {
+			if (bankPtr[i] == unmappedRead.data()) {
 				offsets[i] = size_t(-1);
 			} else if ((&rom[0] <= bankPtr[i]) &&
 			           (bankPtr[i] <= &rom[romSize - 1])) {

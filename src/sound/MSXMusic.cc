@@ -136,7 +136,7 @@ const byte* MSXMusicWX::getReadCacheLine(word start) const
 	} else if ((control & 1) == 0) {
 		return MSXMusicBase::getReadCacheLine(start);
 	} else {
-		return unmappedRead;
+		return unmappedRead.data();
 	}
 }
 
@@ -153,7 +153,7 @@ byte* MSXMusicWX::getWriteCacheLine(word start) const
 	if ((0x7FF0 & CacheLine::HIGH) == start) {
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

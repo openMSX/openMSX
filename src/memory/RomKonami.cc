@@ -56,7 +56,7 @@ void RomKonami::writeMem(word address, byte value, EmuTime::param /*time*/)
 
 byte* RomKonami::getWriteCacheLine(word address) const
 {
-	return (0x6000 <= address && address < 0xC000) ? nullptr : unmappedWrite;
+	return (0x6000 <= address && address < 0xC000) ? nullptr : unmappedWrite.data();
 }
 
 template<typename Archive>

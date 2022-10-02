@@ -401,7 +401,7 @@ const byte* MegaFlashRomSCCPlusSD::getReadCacheLine(word addr) const
 		case 0: return getReadCacheLineSubSlot0(addr);
 		case 1: return getReadCacheLineSubSlot1(addr);
 		case 2: return isMemoryMapperEnabled() ?
-				getReadCacheLineSubSlot2(addr) : unmappedRead;
+				getReadCacheLineSubSlot2(addr) : unmappedRead.data();
 		case 3: return getReadCacheLineSubSlot3(addr);
 		default: UNREACHABLE; return nullptr;
 	}
@@ -444,7 +444,7 @@ byte* MegaFlashRomSCCPlusSD::getWriteCacheLine(word addr) const
 		case 0: return getWriteCacheLineSubSlot0(addr);
 		case 1: return getWriteCacheLineSubSlot1(addr);
 		case 2: return isMemoryMapperEnabled() ?
-				getWriteCacheLineSubSlot2(addr) : unmappedWrite;
+				getWriteCacheLineSubSlot2(addr) : unmappedWrite.data();
 		case 3: return getWriteCacheLineSubSlot3(addr);
 		default: UNREACHABLE; return nullptr;
 	}
@@ -578,7 +578,7 @@ const byte* MegaFlashRomSCCPlusSD::getReadCacheLineSubSlot1(word addr) const
 	unsigned flashAddr = getFlashAddrSubSlot1(addr);
 	return (flashAddr != unsigned(-1))
 		? flash.getReadCacheLine(flashAddr)
-		: unmappedRead;
+		: unmappedRead.data();
 }
 
 void MegaFlashRomSCCPlusSD::writeMemSubSlot1(word addr, byte value, EmuTime::param time)
@@ -825,7 +825,7 @@ const byte* MegaFlashRomSCCPlusSD::getReadCacheLineSubSlot3(word addr) const
 		unsigned flashAddr = getFlashAddrSubSlot3(addr);
 		return flash.getReadCacheLine(flashAddr);
 	} else {
-		return unmappedRead;
+		return unmappedRead.data();
 	}
 }
 

@@ -23,13 +23,13 @@
 
 namespace openmsx {
 
-constexpr int DRIVE_A_MOTOR = 0x01;
-constexpr int DRIVE_B_MOTOR = 0x02;
-constexpr int DRIVE_SELECT  = 0x04;
-constexpr int SIDE_SELECT   = 0x08;
-constexpr int DRIVE_DISABLE = 0x10; // renamed due to inverse logic
-constexpr int DATA_REQUEST  = 0x40;
-constexpr int INTR_REQUEST  = 0x80;
+static constexpr int DRIVE_A_MOTOR = 0x01;
+static constexpr int DRIVE_B_MOTOR = 0x02;
+static constexpr int DRIVE_SELECT  = 0x04;
+static constexpr int SIDE_SELECT   = 0x08;
+static constexpr int DRIVE_DISABLE = 0x10; // renamed due to inverse logic
+static constexpr int DATA_REQUEST  = 0x40;
+static constexpr int INTR_REQUEST  = 0x80;
 
 
 VictorFDC::VictorFDC(const DeviceConfig& config)
@@ -107,7 +107,7 @@ const byte* VictorFDC::getReadCacheLine(word start) const
 		// ROM at 0x4000-0x7FFF
 		return MSXFDC::getReadCacheLine(start);
 	} else {
-		return unmappedRead;
+		return unmappedRead.data();
 	}
 }
 
@@ -147,7 +147,7 @@ byte* VictorFDC::getWriteCacheLine(word address) const
 		// FDC at 0x7FF8-0x7FFC
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

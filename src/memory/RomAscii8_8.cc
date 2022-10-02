@@ -112,7 +112,7 @@ byte* RomAscii8_8::getWriteCacheLine(word address) const
 		// write to SRAM
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

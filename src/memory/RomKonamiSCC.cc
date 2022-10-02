@@ -118,7 +118,7 @@ void RomKonamiSCC::writeMem(word address, byte value, EmuTime::param time)
 byte* RomKonamiSCC::getWriteCacheLine(word address) const
 {
 	if ((address < 0x5000) || (address >= 0xC000)) {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	} else if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
 		// write to SCC
 		return nullptr;
@@ -129,7 +129,7 @@ byte* RomKonamiSCC::getWriteCacheLine(word address) const
 		// page selection
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

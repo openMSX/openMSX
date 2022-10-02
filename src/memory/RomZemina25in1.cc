@@ -51,7 +51,7 @@ byte* RomZemina25in1::getWriteCacheLine(word address) const
 	if (address == (0x0000 & CacheLine::HIGH)) {
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

@@ -92,7 +92,7 @@ const byte* MSXToshibaTcx200x::getReadCacheLine(word start) const
 			return &wordProcessorRom[(start - 0x8000) + getSelectedSegment() * 0x4000];
 		}
 	}
-	return unmappedRead;
+	return unmappedRead.data();
 }
 
 byte* MSXToshibaTcx200x::getWriteCacheLine(word start) const
@@ -102,7 +102,7 @@ byte* MSXToshibaTcx200x::getWriteCacheLine(word start) const
 	} else if ((0x8000 <= start) && (start < 0xC000) && sramEnabled()) {
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

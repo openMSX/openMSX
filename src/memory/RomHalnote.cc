@@ -143,7 +143,7 @@ byte* RomHalnote::getWriteCacheLine(word address) const
 			return nullptr;
 		}
 	}
-	return unmappedWrite;
+	return unmappedWrite.data();
 }
 
 template<typename Archive>

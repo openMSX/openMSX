@@ -94,7 +94,7 @@ const byte* NowindInterface::getReadCacheLine(word address) const
 		// note: range 0x8000-0xA000 is already handled above
 		return flash.getReadCacheLine(bank * 0x4000 + (address & 0x3FFF));
 	} else {
-		return unmappedRead;
+		return unmappedRead.data();
 	}
 }
 
@@ -121,7 +121,7 @@ byte* NowindInterface::getWriteCacheLine(word address) const
 		// not cacheable
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

@@ -87,7 +87,7 @@ const byte* ToshibaFDC::getReadCacheLine(word start) const
 		// ROM at 0x4000-0x7FFF
 		return MSXFDC::getReadCacheLine(start);
 	} else {
-		return unmappedRead;
+		return unmappedRead.data();
 	}
 }
 
@@ -132,7 +132,7 @@ byte* ToshibaFDC::getWriteCacheLine(word address) const
 	if ((address & CacheLine::HIGH) == (0x7FF0 & CacheLine::HIGH)) {
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

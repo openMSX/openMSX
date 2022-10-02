@@ -146,7 +146,7 @@ byte* RomPanasonic::getWriteCacheLine(word address) const
 			// RAM
 			return const_cast<byte*>(&bankPtr[region][address & 0x1FFF]);
 		} else {
-			return unmappedWrite;
+			return unmappedWrite.data();
 		}
 	}
 }

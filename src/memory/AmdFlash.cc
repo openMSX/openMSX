@@ -255,7 +255,7 @@ const uint8_t* AmdFlash::getReadCacheLine(size_t address) const
 	if (state == ST_IDLE) {
 		auto [sector, sectorSize, offset] = getSectorInfo(address);
 		const uint8_t* addr = readAddress[sector];
-		return addr ? &addr[offset] : MSXDevice::unmappedRead;
+		return addr ? &addr[offset] : MSXDevice::unmappedRead.data();
 	} else {
 		return nullptr;
 	}

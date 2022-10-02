@@ -60,7 +60,7 @@ byte* MSXBunsetsu::getWriteCacheLine(word start) const
 	if ((start & CacheLine::HIGH) == (0xBFFF & CacheLine::HIGH)) {
 		return nullptr;
 	} else {
-		return unmappedWrite;
+		return unmappedWrite.data();
 	}
 }
 

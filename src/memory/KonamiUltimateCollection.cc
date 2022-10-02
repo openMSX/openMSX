@@ -134,7 +134,7 @@ const byte* KonamiUltimateCollection::getReadCacheLine(word addr) const
 	unsigned flashAddr = getFlashAddr(addr);
 	return (flashAddr != unsigned(-1))
 		? flash.getReadCacheLine(flashAddr)
-		: unmappedRead;
+		: unmappedRead.data();
 }
 
 void KonamiUltimateCollection::writeMem(word addr, byte value, EmuTime::param time)
@@ -218,7 +218,7 @@ byte* KonamiUltimateCollection::getWriteCacheLine(word addr) const
 {
 	return ((0x4000 <= addr) && (addr < 0xC000))
 	       ? nullptr        // [0x4000,0xBFFF] isn't cacheable
-	       : unmappedWrite;
+	       : unmappedWrite.data();
 }
 
 template<typename Archive>

@@ -61,7 +61,7 @@ const byte* TalentTDC600::getReadCacheLine(word start) const
 	if (start < 0x1000) {
 		return nullptr;
 	}
-	return unmappedRead;
+	return unmappedRead.data();
 }
 
 void TalentTDC600::writeMem(word address, byte value, EmuTime::param time)
@@ -82,7 +82,7 @@ byte* TalentTDC600::getWriteCacheLine(word address) const
 	if (address < 0x2000) {
 		return nullptr;
 	}
-	return unmappedWrite;
+	return unmappedWrite.data();
 }
 
 

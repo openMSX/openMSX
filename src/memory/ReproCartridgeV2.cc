@@ -179,7 +179,7 @@ const byte* ReproCartridgeV2::getReadCacheLine(word addr) const
 	unsigned flashAddr = getFlashAddr(addr);
 	return (flashAddr != unsigned(-1))
 		? flash.getReadCacheLine(flashAddr)
-		: unmappedRead;
+		: unmappedRead.data();
 }
 
 void ReproCartridgeV2::writeMem(word addr, byte value, EmuTime::param time)
@@ -287,7 +287,7 @@ byte* ReproCartridgeV2::getWriteCacheLine(word addr) const
 {
 	return ((0x4000 <= addr) && (addr < 0xC000))
 	       ? nullptr        // [0x4000,0xBFFF] isn't cacheable
-	       : unmappedWrite;
+	       : unmappedWrite.data();
 }
 
 void ReproCartridgeV2::writeIO(word port, byte value, EmuTime::param time)
