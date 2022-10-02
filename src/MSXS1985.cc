@@ -4,11 +4,12 @@
 #include "SRAM.hh"
 #include "enumerate.hh"
 #include "serialize.hh"
+#include <array>
 #include <memory>
 
 namespace openmsx {
 
-constexpr byte ID = 0xFE;
+static constexpr byte ID = 0xFE;
 
 MSXS1985::MSXS1985(const DeviceConfig& config)
 	: MSXDevice(config)
@@ -106,7 +107,7 @@ void MSXS1985::serialize(Archive& ar, unsigned version)
 		//      <ram encoding="..">...</ram>
 		//    </ram>
 		// deserialize that structure and transfer it to SRAM
-		byte tmp[0x10];
+		std::array<byte, 0x10> tmp;
 		ar.beginTag("ram");
 		ar.serialize_blob("ram", tmp);
 		ar.endTag("ram");
