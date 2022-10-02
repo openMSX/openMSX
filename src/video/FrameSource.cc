@@ -8,6 +8,7 @@
 #include "vla.hh"
 #include "build-info.hh"
 #include "components.hh"
+#include <array>
 #include <cstdint>
 #include <span>
 
@@ -27,7 +28,7 @@ std::span<const Pixel, 320> FrameSource::getLinePtr320_240(unsigned line, std::s
 		return std::span<const Pixel, 320>(r);
 	} else {
 		assert(getHeight() == 480);
-		ALIGNAS_SSE Pixel buf1[320];
+		ALIGNAS_SSE std::array<Pixel, 320> buf1;
 		auto line0 = getLine(2 * line + 0, std::span<Pixel>(buf0));
 		auto line1 = getLine(2 * line + 1, std::span<Pixel>(buf1));
 		PixelOperations<Pixel> pixelOps(pixelFormat);
@@ -62,7 +63,7 @@ std::span<const Pixel, 960> FrameSource::getLinePtr960_720(unsigned line, std::s
 			assert(line0.size() == 960);
 			return std::span<const Pixel, 960>(line0);
 		}
-		ALIGNAS_SSE Pixel buf1[960];
+		ALIGNAS_SSE std::array<Pixel, 960> buf1;
 		auto line1 = getLine(l2 + 1, std::span<Pixel>(buf1));
 		PixelOperations<Pixel> pixelOps(pixelFormat);
 		BlendLines<Pixel> blend(pixelOps);

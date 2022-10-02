@@ -4,6 +4,7 @@
 #include "aligned.hh"
 #include "xrange.hh"
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <concepts>
 #include <span>
@@ -75,10 +76,10 @@ public:
 	  */
 	template<std::unsigned_integral Pixel>
 	[[nodiscard]] inline Pixel getLineColor(unsigned line) const {
-		ALIGNAS_SSE Pixel buf[1280]; // large enough for widest line
+		ALIGNAS_SSE std::array<Pixel, 1280> buf; // large enough for widest line
 		unsigned width; // not used
 		return reinterpret_cast<const Pixel*>(
-			getLineInfo(line, width, buf, 1280))[0];
+			getLineInfo(line, width, buf.data(), 1280))[0];
 	}
 
 	/** Gets a pointer to the pixels of the given line number.
