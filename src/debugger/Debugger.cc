@@ -344,7 +344,7 @@ void Debugger::Cmd::setBreakPoint(std::span<const TclObject> tokens, TclObject& 
 	TclObject condition;
 	bool once = false;
 
-	ArgsInfo info[] = { flagArg("-once", once) };
+	std::array info = {flagArg("-once", once)};
 	auto arguments = parseTclArgs(getInterpreter(), tokens.subspan(2), info);
 	if ((arguments.size() < 1) || (arguments.size() > 3)) {
 		throw SyntaxError();
@@ -426,7 +426,7 @@ void Debugger::Cmd::setWatchPoint(std::span<const TclObject> tokens, TclObject& 
 	WatchPoint::Type type;
 	bool once = false;
 
-	ArgsInfo info[] = { flagArg("-once", once) };
+	std::array info = {flagArg("-once", once)};
 	auto arguments = parseTclArgs(getInterpreter(), tokens.subspan(2), info);
 	if ((arguments.size() < 2) || (arguments.size() > 4)) {
 		throw SyntaxError();
@@ -552,7 +552,7 @@ void Debugger::Cmd::setCondition(std::span<const TclObject> tokens, TclObject& r
 	TclObject condition;
 	bool once = false;
 
-	ArgsInfo info[] = { flagArg("-once", once) };
+	std::array info = {flagArg("-once", once)};
 	auto arguments = parseTclArgs(getInterpreter(), tokens.subspan(2), info);
 	if ((arguments.size() < 1) || (arguments.size() > 2)) {
 		throw SyntaxError();
@@ -643,7 +643,7 @@ void Debugger::Cmd::probeSetBreakPoint(
 	ProbeBase* p;
 	bool once = false;
 
-	ArgsInfo info[] = { flagArg("-once", once) };
+	std::array info = {flagArg("-once", once)};
 	auto arguments = parseTclArgs(getInterpreter(), tokens.subspan(3), info);
 	if ((arguments.size() < 1) || (arguments.size() > 3)) {
 		throw SyntaxError();
