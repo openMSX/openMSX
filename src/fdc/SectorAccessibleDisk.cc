@@ -6,6 +6,7 @@
 #include "enumerate.hh"
 #include "sha1.hh"
 #include "xrange.hh"
+#include <array>
 #include <memory>
 
 namespace openmsx {
@@ -123,12 +124,11 @@ Sha1Sum SectorAccessibleDisk::getSha1SumImpl(FilePool& /*filePool*/)
 		setPeekMode(true);
 		SHA1 sha1;
 
-		constexpr size_t MAX_CHUNK = 32;
-		SectorBuffer buf[MAX_CHUNK];
+		std::array<SectorBuffer, 32> buf;
 		size_t total = getNbSectors();
 		size_t sector = 0;
 		while (sector < total) {
-			auto chunk = std::min(MAX_CHUNK, total - sector);
+			auto chunk = std::min(buf.size(), total - sector);
 			auto sub = subspan(buf, 0, chunk);
 			readSectors(sub, sector);
 			sha1.update({sub[0].raw.data(), sub.size_bytes()});
