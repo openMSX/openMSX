@@ -12,6 +12,7 @@
 #include "build-info.hh"
 #include "components.hh"
 #include <algorithm>
+#include <array>
 #include <cstdint>
 #include <memory>
 
@@ -292,7 +293,7 @@ void V9990SDLRasterizer<Pixel>::preCalcPalettes()
 	if (renderSettings.isColorMatrixIdentity()) {
 		// Most users use the "normal" monitor type; making this a
 		// special case speeds up palette precalculation a lot.
-		int intensity[32];
+		std::array<int, 32> intensity;
 		for (auto [i, r] : enumerate(intensity)) {
 			r = int(255 * renderSettings.transformComponent(i / 31.0f));
 		}
@@ -315,8 +316,8 @@ void V9990SDLRasterizer<Pixel>::preCalcPalettes()
 	}
 
 	// the 256 color palette
-	int mapRG[8] = { 0, 4, 9, 13, 18, 22, 27, 31 };
-	int mapB [4] = { 0, 11, 21, 31 };
+	std::array<int, 8> mapRG = {0, 4, 9, 13, 18, 22, 27, 31};
+	std::array<int, 4> mapB = {0, 11, 21, 31};
 	for (auto g : xrange(8)) {
 		for (auto r : xrange(8)) {
 			for (auto b : xrange(4)) {
