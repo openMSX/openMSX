@@ -1,6 +1,7 @@
 #include "KeyboardSettings.hh"
 #include "stl.hh"
 #include "strCat.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -26,12 +27,12 @@ namespace openmsx {
 
 KeyboardSettings::KeyboardSettings(CommandController& commandController)
 	: deadkeyHostKey(generate_array<3>([&](auto i) {
-		static constexpr static_string_view description[3] = {
+		static constexpr std::array<static_string_view, 3> description = {
 			"Host key that maps to deadkey 1. Not applicable to Japanese and Korean MSX models",
 			"Host key that maps to deadkey 2. Only applicable to Brazilian MSX models (Sharp Hotbit and Gradiente)",
 			"Host key that maps to deadkey 3. Only applicable to Brazilian Sharp Hotbit MSX models",
 		};
-		static constexpr Keys::KeyCode defaultKey[3] = {
+		static constexpr std::array<Keys::KeyCode, 3> defaultKey = {
 			Keys::K_RCTRL, Keys::K_PAGEUP, Keys::K_PAGEDOWN,
 		};
 		return EnumSetting<Keys::KeyCode>(
