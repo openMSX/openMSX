@@ -6,6 +6,7 @@
 #include "SimpleDebuggable.hh"
 #include "TclCallback.hh"
 #include "openmsx.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -118,21 +119,21 @@ private:
 	class Amplitude {
 	public:
 		explicit Amplitude(const DeviceConfig& config);
-		[[nodiscard]] const float* getEnvVolTable() const;
+		[[nodiscard]] auto getEnvVolTable() const { return envVolTable; }
 		[[nodiscard]] inline float getVolume(unsigned chan) const;
 		inline void setChannelVolume(unsigned chan, unsigned value);
 		[[nodiscard]] inline bool followsEnvelope(unsigned chan) const;
 
 	private:
-		const float* envVolTable;
-		float vol[3];
-		bool envChan[3];
-		const bool isAY8910;
+		const bool isAY8910; // must come before envVolTable
+		std::span<const float, 32> envVolTable;
+		std::array<float, 3> vol;
+		std::array<bool, 3> envChan;
 	};
 
 	class Envelope {
 	public:
-		explicit inline Envelope(const float* envVolTable);
+		explicit inline Envelope(std::span<const float, 32> envVolTable);
 		inline void reset();
 		inline void setPeriod(int value);
 		inline void setShape(unsigned shape);
@@ -151,7 +152,7 @@ private:
 		inline void doSteps(int steps);
 
 	private:
-		const float* envVolTable;
+		std::span<const float, 32> envVolTable;
 		int period;
 		int count;
 		int step;
@@ -182,11 +183,11 @@ private:
 	FloatSetting detunePercent;
 	FloatSetting detuneFrequency;
 	TclCallback directionsCallback;
-	ToneGenerator tone[3];
+	std::array<ToneGenerator, 3> tone;
 	NoiseGenerator noise;
 	Amplitude amplitude;
 	Envelope envelope;
-	byte regs[16];
+	std::array<byte, 16> regs;
 	const bool isAY8910;
 	const bool ignorePortDirections;
 	bool doDetune;

@@ -30,11 +30,11 @@ namespace openmsx {
 // The step clock for the tone and noise generators is the chip clock
 // divided by 8; for the envelope generator of the AY-3-8910, it is half
 // that much (clock/16).
-constexpr float NATIVE_FREQ_FLOAT = (3579545.0f / 2) / 8;
-constexpr int NATIVE_FREQ_INT = int(cstd::round(NATIVE_FREQ_FLOAT));
+static constexpr float NATIVE_FREQ_FLOAT = (3579545.0f / 2) / 8;
+static constexpr int NATIVE_FREQ_INT = int(cstd::round(NATIVE_FREQ_FLOAT));
 
-constexpr int PORT_A_DIRECTION = 0x40;
-constexpr int PORT_B_DIRECTION = 0x80;
+static constexpr int PORT_A_DIRECTION = 0x40;
+static constexpr int PORT_B_DIRECTION = 0x80;
 
 enum Register {
 	AY_AFINE = 0, AY_ACOARSE = 1, AY_BFINE = 2, AY_BCOARSE = 3,
@@ -46,7 +46,7 @@ enum Register {
 // Calculate the volume->voltage conversion table. The AY-3-8910 has 16 levels,
 // in a logarithmic scale (3dB per step). YM2149 has 32 levels, the 16 extra
 // levels are only used for envelope volumes
-constexpr auto YM2149EnvelopeTab = [] {
+static constexpr auto YM2149EnvelopeTab = [] {
 	std::array<float, 32> result = {};
 	double out = 1.0;
 	double factor = cstd::pow<5, 3>(0.5, 0.25); // 1/sqrt(sqrt(2)) ~= 1/(1.5dB)
@@ -57,7 +57,7 @@ constexpr auto YM2149EnvelopeTab = [] {
 	result[0] = 0.0f;
 	return result;
 }();
-constexpr auto AY8910EnvelopeTab = [] {
+static constexpr auto AY8910EnvelopeTab = [] {
 	// only 16 envelope steps, duplicate every step
 	std::array<float, 32> result = {};
 	result[0] = 0.0f;
@@ -68,7 +68,7 @@ constexpr auto AY8910EnvelopeTab = [] {
 	}
 	return result;
 }();
-constexpr auto volumeTab = [] {
+static constexpr auto volumeTab = [] {
 	std::array<float, 16> result = {};
 	result[0] = 0.0f;
 	for (auto i : xrange(1, 16)) {
@@ -292,12 +292,12 @@ static bool checkAY8910(const DeviceConfig& config)
 
 AY8910::Amplitude::Amplitude(const DeviceConfig& config)
 	: isAY8910(checkAY8910(config))
+	, envVolTable(isAY8910 ? AY8910EnvelopeTab : YM2149EnvelopeTab)
 {
 	vol[0] = vol[1] = vol[2] = 0.0f;
 	envChan[0] = false;
 	envChan[1] = false;
 	envChan[2] = false;
-	envVolTable = isAY8910 ? AY8910EnvelopeTab.data() : YM2149EnvelopeTab.data();
 
 	if (false) {
 		std::cout << "YM2149Envelope:";
@@ -314,11 +314,6 @@ AY8910::Amplitude::Amplitude(const DeviceConfig& config)
 		}
 		std::cout << '\n';
 	}
-}
-
-const float* AY8910::Amplitude::getEnvVolTable() const
-{
-	return envVolTable;
 }
 
 inline float AY8910::Amplitude::getVolume(unsigned chan) const
@@ -346,7 +341,7 @@ inline bool AY8910::Amplitude::followsEnvelope(unsigned chan) const
 //  we implement the YM2149 behaviour, but to get the AY8910 behaviour we
 //  repeat every level twice in the envVolTable
 
-inline AY8910::Envelope::Envelope(const float* envVolTable_)
+inline AY8910::Envelope::Envelope(std::span<const float, 32> envVolTable_)
 	: envVolTable(envVolTable_)
 	, period(1)
 	, count(0)
@@ -550,7 +545,7 @@ byte AY8910::readRegister(unsigned reg, EmuTime::param time)
 	}
 
 	// TODO some AY8910 models have 1F as mask for registers 1, 3, 5
-	static constexpr byte regMask[16] = {
+	static constexpr std::array<byte, 16> regMask = {
 		0xff, 0x0f, 0xff, 0x0f, 0xff, 0x0f, 0x1f, 0xff,
 		0x1f, 0x1f ,0x1f, 0xff, 0xff, 0x0f, 0xff, 0xff
 	};
