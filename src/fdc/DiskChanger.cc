@@ -23,6 +23,7 @@
 #include "serialize_constr.hh"
 #include "strCat.hh"
 #include "view.hh"
+#include <array>
 #include <functional>
 #include <memory>
 #include <utility>
@@ -146,7 +147,7 @@ void DiskChanger::stopReplay(EmuTime::param /*time*/) noexcept
 
 int DiskChanger::insertDisk(const std::string& filename)
 {
-	TclObject args[] = { TclObject("dummy"), TclObject(filename) };
+	std::array args = {TclObject("dummy"), TclObject(filename)};
 	try {
 		insertDisk(args);
 		return 0;
@@ -215,20 +216,18 @@ void DiskCommand::execute(std::span<const TclObject> tokens, TclObject& result)
 		}
 
 	} else if (tokens[1] == "ramdsk") {
-		TclObject args[] = {
-			TclObject(diskChanger.getDriveName()), tokens[1]
-		};
+		std::array args = {TclObject(diskChanger.getDriveName()), tokens[1]};
 		diskChanger.sendChangeDiskEvent(args);
 	} else if (tokens[1] == "-ramdsk") {
-		TclObject args[] = {TclObject(diskChanger.getDriveName()), TclObject("ramdsk")};
+		std::array args = {TclObject(diskChanger.getDriveName()), TclObject("ramdsk")};
 		diskChanger.sendChangeDiskEvent(args);
 		result = "Warning: use of '-ramdsk' is deprecated, instead use the 'ramdsk' subcommand";
 	} else if (tokens[1] == "-eject") {
-		TclObject args[] = {TclObject(diskChanger.getDriveName()), TclObject("eject")};
+		std::array args = {TclObject(diskChanger.getDriveName()), TclObject("eject")};
 		diskChanger.sendChangeDiskEvent(args);
 		result = "Warning: use of '-eject' is deprecated, instead use the 'eject' subcommand";
 	} else if (tokens[1] == "eject") {
-		TclObject args[] = {TclObject(diskChanger.getDriveName()), TclObject("eject")};
+		std::array args = {TclObject(diskChanger.getDriveName()), TclObject("eject")};
 		diskChanger.sendChangeDiskEvent(args);
 	} else {
 		int firstFileToken = 1;
