@@ -5,6 +5,7 @@
 #include "Scheduler.hh"
 #include "FileOperations.hh"
 #include "serialize.hh"
+#include <array>
 #include <cstdio>
 #include <cerrno>
 #include <cstring>
@@ -75,8 +76,8 @@ void MidiInReader::run()
 			break;
 		}
 #endif
-		byte buf[1];
-		size_t num = fread(buf, 1, 1, file.get());
+		std::array<uint8_t, 1> buf;
+		size_t num = fread(buf.data(), sizeof(uint8_t), buf.size(), file.get());
 		if (poller.aborted()) {
 			break;
 		}
@@ -107,7 +108,7 @@ void MidiInReader::signal(EmuTime::param time)
 		return;
 	}
 
-	byte data;
+	uint8_t data;
 	{
 		std::lock_guard<std::mutex> lock(mutex);
 		if (queue.empty()) return;

@@ -5,9 +5,9 @@
 #include "EventListener.hh"
 #include "FilenameSetting.hh"
 #include "FileOperations.hh"
-#include "openmsx.hh"
 #include "circular_buffer.hh"
 #include "Poller.hh"
+#include <cstdint>
 #include <mutex>
 #include <thread>
 
@@ -47,7 +47,7 @@ private:
 	Scheduler& scheduler;
 	std::thread thread;
 	FileOperations::FILE_t file;
-	cb_queue<byte> queue;
+	cb_queue<uint8_t> queue;
 	std::mutex mutex; // to protect queue
 	Poller poller;
 

@@ -5,12 +5,12 @@
 #include "EventListener.hh"
 #include "FilenameSetting.hh"
 #include "FileOperations.hh"
-#include "openmsx.hh"
 #include "circular_buffer.hh"
 #include "Poller.hh"
 #include <fstream>
 #include <mutex>
 #include <thread>
+#include <cstdint>
 #include <cstdio>
 
 namespace openmsx {
@@ -36,7 +36,7 @@ public:
 	void signal(EmuTime::param time) override;
 
 	// output
-	void recvByte(byte value, EmuTime::param time) override;
+	void recvByte(uint8_t value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -52,7 +52,7 @@ private:
 	Scheduler& scheduler;
 	std::thread thread;
 	FileOperations::FILE_t inFile;
-	cb_queue<byte> queue;
+	cb_queue<uint8_t> queue;
 	std::mutex mutex; // to protect queue
 	Poller poller;
 

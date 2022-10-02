@@ -5,6 +5,7 @@
 #include "Scheduler.hh"
 #include "FileOperations.hh"
 #include "serialize.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -91,8 +92,8 @@ void RS232Tester::run()
 			break;
 		}
 #endif
-		byte buf[1];
-		size_t num = fread(buf, 1, 1, inFile.get());
+		std::array<uint8_t, 1> buf;
+		size_t num = fread(buf.data(), sizeof(uint8_t), buf.size(), inFile.get());
 		if (poller.aborted()) {
 			break;
 		}
@@ -137,7 +138,7 @@ int RS232Tester::signalEvent(const Event& /*event*/) noexcept
 
 
 // output
-void RS232Tester::recvByte(byte value, EmuTime::param /*time*/)
+void RS232Tester::recvByte(uint8_t value, EmuTime::param /*time*/)
 {
 	if (outFile.is_open()) {
 		outFile.put(value);
