@@ -13,7 +13,7 @@ Poller::Poller()
 	: abortFlag(false)
 {
 #ifndef _WIN32
-	if (pipe(wakeupPipe)) {
+	if (pipe(wakeupPipe.data())) {
 		wakeupPipe[0] = wakeupPipe[1] = -1;
 		perror("Failed to open wakeup pipe");
 	}
@@ -43,11 +43,11 @@ void Poller::abort()
 bool Poller::poll(int fd)
 {
 	while (true) {
-		struct pollfd fds[2] = {
-			{ .fd = fd, .events = POLLIN, .revents = 0 },
-			{ .fd = wakeupPipe[0], .events = POLLIN, .revents = 0 },
+		std::array fds = {
+			pollfd{.fd = fd,            .events = POLLIN, .revents = 0},
+			pollfd{.fd = wakeupPipe[0], .events = POLLIN, .revents = 0},
 		};
-		int pollResult = ::poll(fds, 2, 1000);
+		int pollResult = ::poll(fds.data(), fds.size(), 1000);
 		if (abortFlag) {
 			return true;
 		}

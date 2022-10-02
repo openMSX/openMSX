@@ -1,6 +1,7 @@
 #ifndef POLLER_HH
 #define POLLER_HH
 
+#include <array>
 #include <atomic>
 
 namespace openmsx {
@@ -35,7 +36,7 @@ public:
 
 private:
 #ifndef _WIN32
-	int wakeupPipe[2];
+	std::array<int, 2> wakeupPipe;
 #endif
 	std::atomic_bool abortFlag;
 };
