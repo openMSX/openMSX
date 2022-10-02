@@ -105,14 +105,14 @@ private:
 		                         unsigned x, unsigned y, unsigned pitch);
 		static inline byte shift(byte value, unsigned fromX, unsigned toX);
 		static inline byte shiftMask(unsigned x);
-		static inline const byte* getLogOpLUT(byte op);
-		static inline byte logOp(const byte* lut, byte src, byte dst);
+		static inline std::span<const byte, 256 * 256> getLogOpLUT(byte op);
+		static inline byte logOp(std::span<const byte, 256 * 256> lut, byte src, byte dst);
 		static inline void pset(
 			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-			byte srcColor, word mask, const byte* lut, byte op);
+			byte srcColor, word mask, std::span<const byte, 256 * 256> lut, byte op);
 		static inline void psetColor(
 			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-			word color, word mask, const byte* lut, byte op);
+			word color, word mask, std::span<const byte, 256 * 256> lut, byte op);
 	};
 
 	class V9990P2 {
@@ -126,14 +126,14 @@ private:
 		                         unsigned x, unsigned y, unsigned pitch);
 		static inline byte shift(byte value, unsigned fromX, unsigned toX);
 		static inline byte shiftMask(unsigned x);
-		static inline const byte* getLogOpLUT(byte op);
-		static inline byte logOp(const byte* lut, byte src, byte dst);
+		static inline std::span<const byte, 256 * 256> getLogOpLUT(byte op);
+		static inline byte logOp(std::span<const byte, 256 * 256> lut, byte src, byte dst);
 		static inline void pset(
 			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-			byte srcColor, word mask, const byte* lut, byte op);
+			byte srcColor, word mask, std::span<const byte, 256 * 256> lut, byte op);
 		static inline void psetColor(
 			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-			word color, word mask, const byte* lut, byte op);
+			word color, word mask, std::span<const byte, 256 * 256> lut, byte op);
 	};
 
 	class V9990Bpp2 {
@@ -147,14 +147,14 @@ private:
 		                         unsigned x, unsigned y, unsigned pitch);
 		static inline byte shift(byte value, unsigned fromX, unsigned toX);
 		static inline byte shiftMask(unsigned x);
-		static inline const byte* getLogOpLUT(byte op);
-		static inline byte logOp(const byte* lut, byte src, byte dst);
+		static inline std::span<const byte, 256 * 256> getLogOpLUT(byte op);
+		static inline byte logOp(std::span<const byte, 256 * 256> lut, byte src, byte dst);
 		static inline void pset(
 			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-			byte srcColor, word mask, const byte* lut, byte op);
+			byte srcColor, word mask, std::span<const byte, 256 * 256> lut, byte op);
 		static inline void psetColor(
 			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-			word color, word mask, const byte* lut, byte op);
+			word color, word mask, std::span<const byte, 256 * 256> lut, byte op);
 	};
 
 	class V9990Bpp4 {
@@ -168,14 +168,14 @@ private:
 		                         unsigned x, unsigned y, unsigned pitch);
 		static inline byte shift(byte value, unsigned fromX, unsigned toX);
 		static inline byte shiftMask(unsigned x);
-		static inline const byte* getLogOpLUT(byte op);
-		static inline byte logOp(const byte* lut, byte src, byte dst);
+		static inline std::span<const byte, 256 * 256> getLogOpLUT(byte op);
+		static inline byte logOp(std::span<const byte, 256 * 256> lut, byte src, byte dst);
 		static inline void pset(
 			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-			byte srcColor, word mask, const byte* lut, byte op);
+			byte srcColor, word mask, std::span<const byte, 256 * 256> lut, byte op);
 		static inline void psetColor(
 			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-			word color, word mask, const byte* lut, byte op);
+			word color, word mask, std::span<const byte, 256 * 256> lut, byte op);
 	};
 
 	class V9990Bpp8 {
@@ -189,14 +189,14 @@ private:
 		                         unsigned x, unsigned y, unsigned pitch);
 		static inline byte shift(byte value, unsigned fromX, unsigned toX);
 		static inline byte shiftMask(unsigned x);
-		static inline const byte* getLogOpLUT(byte op);
-		static inline byte logOp(const byte* lut, byte src, byte dst);
+		static inline std::span<const byte, 256 * 256> getLogOpLUT(byte op);
+		static inline byte logOp(std::span<const byte, 256 * 256> lut, byte src, byte dst);
 		static inline void pset(
 			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-			byte srcColor, word mask, const byte* lut, byte op);
+			byte srcColor, word mask, std::span<const byte, 256 * 256> lut, byte op);
 		static inline void psetColor(
 			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-			word color, word mask, const byte* lut, byte op);
+			word color, word mask, std::span<const byte, 256 * 256> lut, byte op);
 	};
 
 	class V9990Bpp16 {
@@ -210,14 +210,14 @@ private:
 		                         unsigned x, unsigned y, unsigned pitch);
 		static inline word shift(word value, unsigned fromX, unsigned toX);
 		static inline word shiftMask(unsigned x);
-		static inline const byte* getLogOpLUT(byte op);
-		static inline word logOp(const byte* lut, word src, word dst, bool transp);
+		static inline std::span<const byte, 256 * 256> getLogOpLUT(byte op);
+		static inline word logOp(std::span<const byte, 256 * 256> lut, word src, word dst, bool transp);
 		static inline void pset(
 			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-			word srcColor, word mask, const byte* lut, byte op);
+			word srcColor, word mask, std::span<const byte, 256 * 256> lut, byte op);
 		static inline void psetColor(
 			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-			word color, word mask, const byte* lut, byte op);
+			word color, word mask, std::span<const byte, 256 * 256> lut, byte op);
 	};
 
 	void startSTOP  (EmuTime::param time);
