@@ -4,6 +4,7 @@
 #include "endian.hh"
 #include "inline.hh"
 #include "unreachable.hh"
+#include <array>
 #include <bit>
 #include <cstring>
 
@@ -75,8 +76,8 @@ static void wildCopy32(uint8_t* dst, const uint8_t* src, uint8_t* dstEnd)
 	} while (dst < dstEnd);
 }
 
-static constexpr unsigned inc32table[8] = {0, 1, 2,  1,  0,  4, 4, 4};
-static constexpr int      dec64table[8] = {0, 0, 0, -1, -4,  1, 2, 3};
+static constexpr std::array<unsigned, 8> inc32table = {0, 1, 2,  1,  0,  4, 4, 4};
+static constexpr std::array<int     , 8> dec64table = {0, 0, 0, -1, -4,  1, 2, 3};
 
 static void memcpy_using_offset_base(uint8_t* dstPtr, const uint8_t* srcPtr, uint8_t* dstEnd, const size_t offset)
 {
@@ -103,21 +104,21 @@ static void memcpy_using_offset_base(uint8_t* dstPtr, const uint8_t* srcPtr, uin
 // - there is at least 8 bytes available to write after dstEnd
 static void memcpy_using_offset(uint8_t* dstPtr, const uint8_t* srcPtr, uint8_t* dstEnd, size_t offset)
 {
-	uint8_t v[8];
+	std::array<uint8_t, 8> v;
 
 	unalignedStore32(dstPtr, 0);   // silence an msan warning when offset==0
 
 	switch (offset) {
 		case 1:
-			memset(v, *srcPtr, 8);
+			memset(v.data(), *srcPtr, 8);
 			break;
 		case 2:
-			memcpy(v, srcPtr, 2);
+			memcpy(v.data(), srcPtr, 2);
 			memcpy(&v[2], srcPtr, 2);
 			memcpy(&v[4], &v[0], 4);
 			break;
 		case 4:
-			memcpy(v, srcPtr, 4);
+			memcpy(v.data(), srcPtr, 4);
 			memcpy(&v[4], srcPtr, 4);
 			break;
 		default:
@@ -125,10 +126,10 @@ static void memcpy_using_offset(uint8_t* dstPtr, const uint8_t* srcPtr, uint8_t*
 			return;
 	}
 
-	memcpy(dstPtr, v, 8);
+	memcpy(dstPtr, v.data(), 8);
 	dstPtr += 8;
 	while (dstPtr < dstEnd) {
-		memcpy(dstPtr, v, 8);
+		memcpy(dstPtr, v.data(), 8);
 		dstPtr += 8;
 	}
 }
@@ -186,7 +187,7 @@ template<bool L64K, bool ARCH64> struct HashImpl;
 
 // byU16
 template<bool ARCH64> struct HashImpl<true, ARCH64> {
-	alignas(uint64_t) uint16_t tab[1 << (HASHLOG + 1)] = {};
+	alignas(uint64_t) std::array<uint16_t, 1 << (HASHLOG + 1)> tab = {};
 
 	[[nodiscard]] static uint32_t hashPosition(const uint8_t* p) {
 		uint32_t sequence = unalignedLoad32(p);
@@ -214,7 +215,7 @@ template<bool ARCH64> struct HashImpl<true, ARCH64> {
 
 // byU32
 template<> struct HashImpl<false, true> {
-	alignas(uint64_t) uint32_t tab[1 << HASHLOG] = {};
+	alignas(uint64_t) std::array<uint32_t, 1 << HASHLOG> tab = {};
 
 	[[nodiscard]] static uint32_t hashPosition(const uint8_t* p) {
 		uint64_t sequence = read_ARCH(p);
@@ -245,7 +246,7 @@ template<> struct HashImpl<false, true> {
 
 // byPtr
 template<> struct HashImpl<false, false> {
-	alignas(uint64_t) const uint8_t* tab[1 << HASHLOG] = {};
+	alignas(uint64_t) std::array<const uint8_t*, 1 << HASHLOG> tab = {};
 
 	[[nodiscard]] static uint32_t hashPosition(const uint8_t* p) {
 		uint32_t sequence = unalignedLoad32(p);
