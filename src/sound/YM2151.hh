@@ -39,6 +39,7 @@
 #include "EmuTime.hh"
 #include "IRQHelper.hh"
 #include "openmsx.hh"
+#include <array>
 #include <string>
 #include <memory>
 
@@ -122,7 +123,7 @@ private:
 		byte eg_sel_rr;    //  (release state)
 	};
 
-	void setConnect(YM2151Operator* om1, int cha, int v);
+	void setConnect(std::span<YM2151Operator, 4> o, int cha, int v);
 
 	// SoundDevice
 	void generateChannels(std::span<float*> bufs, unsigned num) override;
@@ -132,13 +133,13 @@ private:
 	void resetStatus(byte flags);
 
 	// operator methods
-	void envelopeKONKOFF(YM2151Operator* op, int v);
-	static void refreshEG(YM2151Operator* op);
-	[[nodiscard]] int opCalc(YM2151Operator* op, unsigned env, int pm);
-	[[nodiscard]] int opCalc1(YM2151Operator* op, unsigned env, int pm);
-	[[nodiscard]] inline unsigned volumeCalc(YM2151Operator* op, unsigned AM);
-	inline void keyOn(YM2151Operator* op, unsigned keySet);
-	inline void keyOff(YM2151Operator* op, unsigned keyClear);
+	void envelopeKONKOFF(std::span<YM2151Operator, 4> op, int v);
+	static void refreshEG(std::span<YM2151Operator, 4> op);
+	[[nodiscard]] int opCalc(YM2151Operator& op, unsigned env, int pm);
+	[[nodiscard]] int opCalc1(YM2151Operator& op, unsigned env, int pm);
+	[[nodiscard]] inline unsigned volumeCalc(YM2151Operator& op, unsigned AM);
+	inline void keyOn(YM2151Operator& op, unsigned keySet);
+	inline void keyOff(YM2151Operator& op, unsigned keyClear);
 
 	// general chip mehods
 	void chanCalc(unsigned chan);
@@ -155,9 +156,9 @@ private:
 	const std::unique_ptr<EmuTimer> timer1;
 	const std::unique_ptr<EmuTimer> timer2;
 
-	YM2151Operator oper[32]; // the 32 operators
+	std::array<YM2151Operator, 32> oper; // the 32 operators
 
-	unsigned pan[16];        // channels output masks (0xffffffff = enable)
+	std::array<unsigned, 16> pan; // channels output masks (0xffffffff = enable)
 
 	unsigned eg_cnt;         // global envelope generator counter
 	unsigned eg_timer;       // global envelope generator counter
@@ -184,7 +185,7 @@ private:
 	                         // slots, everytime timer A overflows)
 	unsigned status;         // chip status (BUSY, IRQ Flags)
 
-	int chanout[8];
+	std::array<int, 8> chanOut;
 	int m2, c1, c2;          // Phase Modulation input for operators 2,3,4
 	int mem;                 // one sample delay memory
 
@@ -198,7 +199,7 @@ private:
 	byte test;               // TEST register
 	byte ct;                 // output control pins (bit1-CT2, bit0-CT1)
 
-	byte regs[256];          // only used for serialization ATM
+	std::array<byte, 256> regs; // only used for serialization ATM
 	const Variant variant;   // Whether we're emulating YM2151 or YM2164
 };
 

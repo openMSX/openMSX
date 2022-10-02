@@ -23,34 +23,34 @@ namespace openmsx {
 
 // TODO void ym2151WritePortCallback(void* ref, unsigned port, byte value);
 
-constexpr int FREQ_SH  = 16; // 16.16 fixed point (frequency calculations)
+static constexpr int FREQ_SH  = 16; // 16.16 fixed point (frequency calculations)
 
-constexpr int FREQ_MASK = (1 << FREQ_SH) - 1;
+static constexpr int FREQ_MASK = (1 << FREQ_SH) - 1;
 
-constexpr int ENV_BITS = 10;
-constexpr int ENV_LEN  = 1 << ENV_BITS;
-constexpr double ENV_STEP = 128.0 / ENV_LEN;
+static constexpr int ENV_BITS = 10;
+static constexpr int ENV_LEN  = 1 << ENV_BITS;
+static constexpr double ENV_STEP = 128.0 / ENV_LEN;
 
-constexpr int MAX_ATT_INDEX = ENV_LEN - 1; // 1023
-constexpr int MIN_ATT_INDEX = 0;
+static constexpr int MAX_ATT_INDEX = ENV_LEN - 1; // 1023
+static constexpr int MIN_ATT_INDEX = 0;
 
-constexpr unsigned EG_ATT = 4;
-constexpr unsigned EG_DEC = 3;
-constexpr unsigned EG_SUS = 2;
-constexpr unsigned EG_REL = 1;
-constexpr unsigned EG_OFF = 0;
+static constexpr unsigned EG_ATT = 4;
+static constexpr unsigned EG_DEC = 3;
+static constexpr unsigned EG_SUS = 2;
+static constexpr unsigned EG_REL = 1;
+static constexpr unsigned EG_OFF = 0;
 
-constexpr int SIN_BITS = 10;
-constexpr int SIN_LEN  = 1 << SIN_BITS;
-constexpr int SIN_MASK = SIN_LEN - 1;
+static constexpr int SIN_BITS = 10;
+static constexpr int SIN_LEN  = 1 << SIN_BITS;
+static constexpr int SIN_MASK = SIN_LEN - 1;
 
-constexpr int TL_RES_LEN = 256; // 8 bits addressing (real chip)
+static constexpr int TL_RES_LEN = 256; // 8 bits addressing (real chip)
 
 // TL_TAB_LEN is calculated as:
 //  13 - sinus amplitude bits     (Y axis)
 //  2  - sinus sign bit           (Y axis)
 // TL_RES_LEN - sinus resolution (X axis)
-constexpr unsigned TL_TAB_LEN = 13 * 2 * TL_RES_LEN;
+static constexpr unsigned TL_TAB_LEN = 13 * 2 * TL_RES_LEN;
 static constexpr auto tl_tab = [] {
 	std::array<int, TL_TAB_LEN> result = {};
 	for (auto x : xrange(TL_RES_LEN)) {
@@ -79,7 +79,7 @@ static constexpr auto tl_tab = [] {
 	return result;
 }();
 
-constexpr unsigned ENV_QUIET = TL_TAB_LEN >> 3;
+static constexpr unsigned ENV_QUIET = TL_TAB_LEN >> 3;
 
 // sin waveform table in 'decibel' scale
 static constexpr auto sin_tab = [] {
@@ -116,8 +116,8 @@ static constexpr auto d1l_tab = [] {
 }();
 
 
-constexpr unsigned RATE_STEPS = 8;
-constexpr byte eg_inc[19 * RATE_STEPS] = {
+static constexpr unsigned RATE_STEPS = 8;
+static constexpr std::array<byte, 19 * RATE_STEPS> eg_inc = {
 
 //cycle:0 1  2 3  4 5  6 7
 
@@ -149,7 +149,7 @@ constexpr byte eg_inc[19 * RATE_STEPS] = {
 
 static constexpr byte O(int a) { return a * RATE_STEPS; }
 // note that there is no O(17) in this table - it's directly in the code
-constexpr byte eg_rate_select[32 + 64 + 32] = {
+static constexpr std::array<byte, 32 + 64 + 32> eg_rate_select {
 // Envelope Generator rates (32 + 64 rates + 32 RKS)
 // 32 dummy (infinite time) rates
 O(18),O(18),O(18),O(18),O(18),O(18),O(18),O(18),
@@ -193,7 +193,7 @@ O(16),O(16),O(16),O(16),O(16),O(16),O(16),O(16)
 // rate  0,    1,    2,   3,   4,   5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15
 // shift 11,   10,   9,   8,   7,   6,  5,  4,  3,  2, 1,  0,  0,  0,  0,  0
 // mask  2047, 1023, 511, 255, 127, 63, 31, 15, 7,  3, 1,  0,  0,  0,  0,  0
-constexpr byte eg_rate_shift[32 + 64 + 32] = {
+static constexpr std::array<byte, 32 + 64 + 32> eg_rate_shift = {
 // Envelope Generator counter shifts (32 + 64 rates + 32 RKS)
 // 32 infinite time rates
    0,  0,  0,  0,  0,  0,  0,  0,
@@ -243,12 +243,12 @@ constexpr byte eg_rate_shift[32 + 64 + 32] = {
 //
 // DT2=0 DT2=1 DT2=2 DT2=3
 // 0     600   781   950
-constexpr unsigned dt2_tab[4] = { 0, 384, 500, 608 };
+static constexpr std::array<unsigned, 4> dt2_tab = {0, 384, 500, 608};
 
 // DT1 defines offset in Hertz from base note
 // This table is converted while initialization...
 // Detune table shown in YM2151 User's Manual is wrong (verified on the real chip)
-constexpr byte dt1_tab[4 * 32] = {
+static constexpr std::array<byte, 4 * 32> dt1_tab = {
 // DT1 = 0
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -266,7 +266,7 @@ constexpr byte dt1_tab[4 * 32] = {
   8, 8, 9,10,11,12,13,14,16,17,19,20,22,22,22,22
 };
 
-constexpr word phaseinc_rom[768] = {
+static constexpr std::array<word, 768> phaseinc_rom = {
 1299,1300,1301,1302,1303,1304,1305,1306,1308,1309,1310,1311,1313,1314,1315,1316,
 1318,1319,1320,1321,1322,1323,1324,1325,1327,1328,1329,1330,1332,1333,1334,1335,
 1337,1338,1339,1340,1341,1342,1343,1344,1346,1347,1348,1349,1351,1352,1353,1354,
@@ -417,7 +417,7 @@ static constexpr auto noise_tab = [] {
 // possible that two values: 0x80 and 0x00 might be wrong in this table.
 // To be exact:
 // some 0x80 could be 0x81 as well as some 0x00 could be 0x01.
-constexpr byte lfo_noise_waveform[256] = {
+static constexpr std::array<byte, 256> lfo_noise_waveform = {
 0xFF,0xEE,0xD3,0x80,0x58,0xDA,0x7F,0x94,0x9E,0xE3,0xFA,0x00,0x4D,0xFA,0xFF,0x6A,
 0x7A,0xDE,0x49,0xF6,0x00,0x33,0xBB,0x63,0x91,0x60,0x51,0xFF,0x00,0xD8,0x7F,0xDE,
 0xDC,0x73,0x21,0x85,0xB2,0x9C,0x5D,0x24,0xCD,0x91,0x9E,0x76,0x7F,0x20,0xFB,0xF3,
@@ -439,117 +439,118 @@ constexpr byte lfo_noise_waveform[256] = {
 0xE2,0x4D,0x8A,0xA6,0x46,0x95,0x0F,0x8F,0xF5,0x15,0x97,0x32,0xD4,0x28,0x1E,0x55
 };
 
-void YM2151::keyOn(YM2151Operator* op, unsigned keySet) {
-	if (!op->key) {
-		op->phase = 0; /* clear phase */
-		op->state = EG_ATT; /* KEY ON = attack */
-		op->volume += (~op->volume *
-		          (eg_inc[op->eg_sel_ar + ((eg_cnt >> op->eg_sh_ar)&7)])
+void YM2151::keyOn(YM2151Operator& op, unsigned keySet) {
+	if (!op.key) {
+		op.phase = 0; /* clear phase */
+		op.state = EG_ATT; /* KEY ON = attack */
+		op.volume += (~op.volume *
+		          (eg_inc[op.eg_sel_ar + ((eg_cnt >> op.eg_sh_ar)&7)])
 		         ) >>4;
-		if (op->volume <= MIN_ATT_INDEX) {
-			op->volume = MIN_ATT_INDEX;
-			op->state = EG_DEC;
+		if (op.volume <= MIN_ATT_INDEX) {
+			op.volume = MIN_ATT_INDEX;
+			op.state = EG_DEC;
 		}
 	}
-	op->key |= keySet;
+	op.key |= keySet;
 }
 
-void YM2151::keyOff(YM2151Operator* op, unsigned keyClear) {
-	if (op->key) {
-		op->key &= keyClear;
-		if (!op->key) {
-			if (op->state > EG_REL) {
-				op->state = EG_REL; /* KEY OFF = release */
+void YM2151::keyOff(YM2151Operator& op, unsigned keyClear) {
+	if (op.key) {
+		op.key &= keyClear;
+		if (!op.key) {
+			if (op.state > EG_REL) {
+				op.state = EG_REL; /* KEY OFF = release */
 			}
 		}
 	}
 }
 
-void YM2151::envelopeKONKOFF(YM2151Operator* op, int v)
+void YM2151::envelopeKONKOFF(std::span<YM2151Operator, 4> op, int v)
 {
 	if (v & 0x08) { // M1
-		keyOn (op + 0, 1);
+		keyOn (op[0], 1);
 	} else {
-		keyOff(op + 0,unsigned(~1));
+		keyOff(op[0], unsigned(~1));
 	}
 	if (v & 0x20) { // M2
-		keyOn (op + 1, 1);
+		keyOn (op[1], 1);
 	} else {
-		keyOff(op + 1,unsigned(~1));
+		keyOff(op[1], unsigned(~1));
 	}
 	if (v & 0x10) { // C1
-		keyOn (op + 2, 1);
+		keyOn (op[2], 1);
 	} else {
-		keyOff(op + 2,unsigned(~1));
+		keyOff(op[2], unsigned(~1));
 	}
 	if (v & 0x40) { // C2
-		keyOn (op + 3, 1);
+		keyOn (op[3], 1);
 	} else {
-		keyOff(op + 3,unsigned(~1));
+		keyOff(op[3], unsigned(~1));
 	}
 }
 
-void YM2151::setConnect(YM2151Operator* om1, int cha, int v)
+void YM2151::setConnect(std::span<YM2151Operator, 4> o, int cha, int v)
 {
-	YM2151Operator* om2 = om1 + 1;
-	YM2151Operator* oc1 = om1 + 2;
+	YM2151Operator& om1 = o[0];
+	YM2151Operator& om2 = o[1];
+	YM2151Operator& oc1 = o[2];
 
 	// set connect algorithm
 	// MEM is simply one sample delay
 	switch (v & 7) {
 	case 0:
 		// M1---C1---MEM---M2---C2---OUT
-		om1->connect = &c1;
-		oc1->connect = &mem;
-		om2->connect = &c2;
-		om1->mem_connect = &m2;
+		om1.connect = &c1;
+		oc1.connect = &mem;
+		om2.connect = &c2;
+		om1.mem_connect = &m2;
 		break;
 
 	case 1:
 		// M1------+-MEM---M2---C2---OUT
 		//      C1-+
-		om1->connect = &mem;
-		oc1->connect = &mem;
-		om2->connect = &c2;
-		om1->mem_connect = &m2;
+		om1.connect = &mem;
+		oc1.connect = &mem;
+		om2.connect = &c2;
+		om1.mem_connect = &m2;
 		break;
 
 	case 2:
 		// M1-----------------+-C2---OUT
 		//      C1---MEM---M2-+
-		om1->connect = &c2;
-		oc1->connect = &mem;
-		om2->connect = &c2;
-		om1->mem_connect = &m2;
+		om1.connect = &c2;
+		oc1.connect = &mem;
+		om2.connect = &c2;
+		om1.mem_connect = &m2;
 		break;
 
 	case 3:
 		// M1---C1---MEM------+-C2---OUT
 		//                 M2-+
-		om1->connect = &c1;
-		oc1->connect = &mem;
-		om2->connect = &c2;
-		om1->mem_connect = &c2;
+		om1.connect = &c1;
+		oc1.connect = &mem;
+		om2.connect = &c2;
+		om1.mem_connect = &c2;
 		break;
 
 	case 4:
 		// M1---C1-+-OUT
 		// M2---C2-+
 		// MEM: not used
-		om1->connect = &c1;
-		oc1->connect = &chanout[cha];
-		om2->connect = &c2;
-		om1->mem_connect = &mem; // store it anywhere where it will not be used
+		om1.connect = &c1;
+		oc1.connect = &chanOut[cha];
+		om2.connect = &c2;
+		om1.mem_connect = &mem; // store it anywhere where it will not be used
 		break;
 
 	case 5:
 		//    +----C1----+
 		// M1-+-MEM---M2-+-OUT
 		//    +----C2----+
-		om1->connect = nullptr; // special mark
-		oc1->connect = &chanout[cha];
-		om2->connect = &chanout[cha];
-		om1->mem_connect = &m2;
+		om1.connect = nullptr; // special mark
+		oc1.connect = &chanOut[cha];
+		om2.connect = &chanOut[cha];
+		om1.mem_connect = &m2;
 		break;
 
 	case 6:
@@ -557,10 +558,10 @@ void YM2151::setConnect(YM2151Operator* om1, int cha, int v)
 		//      M2-+-OUT
 		//      C2-+
 		// MEM: not used
-		om1->connect = &c1;
-		oc1->connect = &chanout[cha];
-		om2->connect = &chanout[cha];
-		om1->mem_connect = &mem; // store it anywhere where it will not be used
+		om1.connect = &c1;
+		oc1.connect = &chanOut[cha];
+		om2.connect = &chanOut[cha];
+		om1.mem_connect = &mem; // store it anywhere where it will not be used
 		break;
 
 	case 7:
@@ -569,88 +570,85 @@ void YM2151::setConnect(YM2151Operator* om1, int cha, int v)
 		// M2-+
 		// C2-+
 		// MEM: not used
-		om1->connect = &chanout[cha];
-		oc1->connect = &chanout[cha];
-		om2->connect = &chanout[cha];
-		om1->mem_connect = &mem; // store it anywhere where it will not be used
+		om1.connect = &chanOut[cha];
+		oc1.connect = &chanOut[cha];
+		om2.connect = &chanOut[cha];
+		om1.mem_connect = &mem; // store it anywhere where it will not be used
 		break;
 	}
 }
 
-void YM2151::refreshEG(YM2151Operator* op)
+void YM2151::refreshEG(std::span<YM2151Operator, 4> op)
 {
-	unsigned kc = op->kc;
+	unsigned kc = op[0].kc;
 
 	// v = 32 + 2*RATE + RKS = max 126
-	unsigned v = kc >> op->ks;
-	if ((op->ar + v) < 32 + 62) {
-		op->eg_sh_ar  = eg_rate_shift [op->ar + v];
-		op->eg_sel_ar = eg_rate_select[op->ar + v];
+	unsigned v = kc >> op[0].ks;
+	if ((op[0].ar + v) < 32 + 62) {
+		op[0].eg_sh_ar  = eg_rate_shift [op[0].ar + v];
+		op[0].eg_sel_ar = eg_rate_select[op[0].ar + v];
 	} else {
-		op->eg_sh_ar  = 0;
-		op->eg_sel_ar = 17 * RATE_STEPS;
+		op[0].eg_sh_ar  = 0;
+		op[0].eg_sel_ar = 17 * RATE_STEPS;
 	}
-	op->eg_sh_d1r  = eg_rate_shift [op->d1r + v];
-	op->eg_sel_d1r = eg_rate_select[op->d1r + v];
-	op->eg_sh_d2r  = eg_rate_shift [op->d2r + v];
-	op->eg_sel_d2r = eg_rate_select[op->d2r + v];
-	op->eg_sh_rr   = eg_rate_shift [op->rr  + v];
-	op->eg_sel_rr  = eg_rate_select[op->rr  + v];
+	op[0].eg_sh_d1r  = eg_rate_shift [op[0].d1r + v];
+	op[0].eg_sel_d1r = eg_rate_select[op[0].d1r + v];
+	op[0].eg_sh_d2r  = eg_rate_shift [op[0].d2r + v];
+	op[0].eg_sel_d2r = eg_rate_select[op[0].d2r + v];
+	op[0].eg_sh_rr   = eg_rate_shift [op[0].rr  + v];
+	op[0].eg_sel_rr  = eg_rate_select[op[0].rr  + v];
 
-	op += 1;
-	v = kc >> op->ks;
-	if ((op->ar + v) < 32 + 62) {
-		op->eg_sh_ar  = eg_rate_shift [op->ar + v];
-		op->eg_sel_ar = eg_rate_select[op->ar + v];
+	v = kc >> op[1].ks;
+	if ((op[1].ar + v) < 32 + 62) {
+		op[1].eg_sh_ar  = eg_rate_shift [op[1].ar + v];
+		op[1].eg_sel_ar = eg_rate_select[op[1].ar + v];
 	} else {
-		op->eg_sh_ar  = 0;
-		op->eg_sel_ar = 17 * RATE_STEPS;
+		op[1].eg_sh_ar  = 0;
+		op[1].eg_sel_ar = 17 * RATE_STEPS;
 	}
-	op->eg_sh_d1r  = eg_rate_shift [op->d1r + v];
-	op->eg_sel_d1r = eg_rate_select[op->d1r + v];
-	op->eg_sh_d2r  = eg_rate_shift [op->d2r + v];
-	op->eg_sel_d2r = eg_rate_select[op->d2r + v];
-	op->eg_sh_rr   = eg_rate_shift [op->rr  + v];
-	op->eg_sel_rr  = eg_rate_select[op->rr  + v];
+	op[1].eg_sh_d1r  = eg_rate_shift [op[1].d1r + v];
+	op[1].eg_sel_d1r = eg_rate_select[op[1].d1r + v];
+	op[1].eg_sh_d2r  = eg_rate_shift [op[1].d2r + v];
+	op[1].eg_sel_d2r = eg_rate_select[op[1].d2r + v];
+	op[1].eg_sh_rr   = eg_rate_shift [op[1].rr  + v];
+	op[1].eg_sel_rr  = eg_rate_select[op[1].rr  + v];
 
-	op += 1;
-	v = kc >> op->ks;
-	if ((op->ar + v) < 32 + 62) {
-		op->eg_sh_ar  = eg_rate_shift [op->ar + v];
-		op->eg_sel_ar = eg_rate_select[op->ar + v];
+	v = kc >> op[2].ks;
+	if ((op[2].ar + v) < 32 + 62) {
+		op[2].eg_sh_ar  = eg_rate_shift [op[2].ar + v];
+		op[2].eg_sel_ar = eg_rate_select[op[2].ar + v];
 	} else {
-		op->eg_sh_ar  = 0;
-		op->eg_sel_ar = 17 * RATE_STEPS;
+		op[2].eg_sh_ar  = 0;
+		op[2].eg_sel_ar = 17 * RATE_STEPS;
 	}
-	op->eg_sh_d1r  = eg_rate_shift [op->d1r + v];
-	op->eg_sel_d1r = eg_rate_select[op->d1r + v];
-	op->eg_sh_d2r  = eg_rate_shift [op->d2r + v];
-	op->eg_sel_d2r = eg_rate_select[op->d2r + v];
-	op->eg_sh_rr   = eg_rate_shift [op->rr  + v];
-	op->eg_sel_rr  = eg_rate_select[op->rr  + v];
+	op[2].eg_sh_d1r  = eg_rate_shift [op[2].d1r + v];
+	op[2].eg_sel_d1r = eg_rate_select[op[2].d1r + v];
+	op[2].eg_sh_d2r  = eg_rate_shift [op[2].d2r + v];
+	op[2].eg_sel_d2r = eg_rate_select[op[2].d2r + v];
+	op[2].eg_sh_rr   = eg_rate_shift [op[2].rr  + v];
+	op[2].eg_sel_rr  = eg_rate_select[op[2].rr  + v];
 
-	op += 1;
-	v = kc >> op->ks;
-	if ((op->ar + v) < 32 + 62) {
-		op->eg_sh_ar  = eg_rate_shift [op->ar + v];
-		op->eg_sel_ar = eg_rate_select[op->ar + v];
+	v = kc >> op[3].ks;
+	if ((op[3].ar + v) < 32 + 62) {
+		op[3].eg_sh_ar  = eg_rate_shift [op[3].ar + v];
+		op[3].eg_sel_ar = eg_rate_select[op[3].ar + v];
 	} else {
-		op->eg_sh_ar  = 0;
-		op->eg_sel_ar = 17 * RATE_STEPS;
+		op[3].eg_sh_ar  = 0;
+		op[3].eg_sel_ar = 17 * RATE_STEPS;
 	}
-	op->eg_sh_d1r  = eg_rate_shift [op->d1r + v];
-	op->eg_sel_d1r = eg_rate_select[op->d1r + v];
-	op->eg_sh_d2r  = eg_rate_shift [op->d2r + v];
-	op->eg_sel_d2r = eg_rate_select[op->d2r + v];
-	op->eg_sh_rr   = eg_rate_shift [op->rr  + v];
-	op->eg_sel_rr  = eg_rate_select[op->rr  + v];
+	op[3].eg_sh_d1r  = eg_rate_shift [op[3].d1r + v];
+	op[3].eg_sel_d1r = eg_rate_select[op[3].d1r + v];
+	op[3].eg_sh_d2r  = eg_rate_shift [op[3].d2r + v];
+	op[3].eg_sel_d2r = eg_rate_select[op[3].d2r + v];
+	op[3].eg_sh_rr   = eg_rate_shift [op[3].rr  + v];
+	op[3].eg_sel_rr  = eg_rate_select[op[3].rr  + v];
 }
 
 void YM2151::writeReg(byte r, byte v, EmuTime::param time)
 {
 	updateStream(time);
 
-	YM2151Operator* op = &oper[(r & 0x07) * 4 + ((r & 0x18) >> 3)];
+	YM2151Operator& op = oper[(r & 0x07) * 4 + ((r & 0x18) >> 3)];
 
 	regs[r] = v;
 	switch (r & 0xe0) {
@@ -667,7 +665,7 @@ void YM2151::writeReg(byte r, byte v, EmuTime::param time)
 			break;
 
 		case 0x08:
-			envelopeKONKOFF(&oper[(v & 7) * 4], v);
+			envelopeKONKOFF(subspan<4>(oper, 4 * (v & 7)), v);
 			break;
 
 		case 0x0f: // noise mode enable, noise period
@@ -728,146 +726,146 @@ void YM2151::writeReg(byte r, byte v, EmuTime::param time)
 		}
 		break;
 
-	case 0x20:
-		op = &oper[(r & 7) * 4];
+	case 0x20: {
+		auto o = subspan<4>(oper, 4 * (r & 7));
 		switch (r & 0x18) {
 		case 0x00: // RL enable, Feedback, Connection
-			op->fb_shift = ((v >> 3) & 7) ? ((v >> 3) & 7) + 6 : 0;
+			o[0].fb_shift = ((v >> 3) & 7) ? ((v >> 3) & 7) + 6 : 0;
 			pan[(r & 7) * 2 + 0] = (v & 0x40) ? ~0 : 0;
 			pan[(r & 7) * 2 + 1] = (v & 0x80) ? ~0 : 0;
-			setConnect(op, r & 7, v & 7);
+			setConnect(o, r & 7, v & 7);
 			break;
 
 		case 0x08: // Key Code
 			v &= 0x7f;
-			if (v != op->kc) {
+			if (v != o[0].kc) {
 				unsigned kc_channel = (v - (v>>2))*64;
 				kc_channel += 768;
-				kc_channel |= (op->kc_i & 63);
+				kc_channel |= (o[0].kc_i & 63);
 
-				(op + 0)->kc   = v;
-				(op + 0)->kc_i = kc_channel;
-				(op + 1)->kc   = v;
-				(op + 1)->kc_i = kc_channel;
-				(op + 2)->kc   = v;
-				(op + 2)->kc_i = kc_channel;
-				(op + 3)->kc   = v;
-				(op + 3)->kc_i = kc_channel;
+				o[0].kc   = v;
+				o[0].kc_i = kc_channel;
+				o[1].kc   = v;
+				o[1].kc_i = kc_channel;
+				o[2].kc   = v;
+				o[2].kc_i = kc_channel;
+				o[3].kc   = v;
+				o[3].kc_i = kc_channel;
 
 				unsigned kc = v>>2;
-				(op + 0)->dt1 = dt1_freq[(op + 0)->dt1_i + kc];
-				(op + 0)->freq = ((freq[kc_channel + (op + 0)->dt2] + (op + 0)->dt1) * (op + 0)->mul) >> 1;
+				o[0].dt1 = dt1_freq[o[0].dt1_i + kc];
+				o[0].freq = ((freq[kc_channel + o[0].dt2] + o[0].dt1) * o[0].mul) >> 1;
 
-				(op + 1)->dt1 = dt1_freq[(op + 1)->dt1_i + kc];
-				(op + 1)->freq = ((freq[kc_channel + (op + 1)->dt2] + (op + 1)->dt1) * (op + 1)->mul) >> 1;
+				o[1].dt1 = dt1_freq[o[1].dt1_i + kc];
+				o[1].freq = ((freq[kc_channel + o[1].dt2] + o[1].dt1) * o[1].mul) >> 1;
 
-				(op + 2)->dt1 = dt1_freq[(op + 2)->dt1_i + kc];
-				(op + 2)->freq = ((freq[kc_channel + (op + 2)->dt2] + (op + 2)->dt1) * (op + 2)->mul) >> 1;
+				o[2].dt1 = dt1_freq[o[2].dt1_i + kc];
+				o[2].freq = ((freq[kc_channel + o[2].dt2] + o[2].dt1) * o[2].mul) >> 1;
 
-				(op + 3)->dt1 = dt1_freq[(op + 3)->dt1_i + kc];
-				(op + 3)->freq = ((freq[kc_channel + (op + 3)->dt2] + (op + 3)->dt1) * (op + 3)->mul) >> 1;
+				o[3].dt1 = dt1_freq[o[3].dt1_i + kc];
+				o[3].freq = ((freq[kc_channel + o[3].dt2] + o[3].dt1) * o[3].mul) >> 1;
 
-				refreshEG(op);
+				refreshEG(o);
 			}
 			break;
 
 		case 0x10: // Key Fraction
 			v >>= 2;
-			if (v != (op->kc_i & 63)) {
+			if (v != (o[0].kc_i & 63)) {
 				unsigned kc_channel = v;
-				kc_channel |= (op->kc_i & ~63);
+				kc_channel |= (o[0].kc_i & ~63);
 
-				(op + 0)->kc_i = kc_channel;
-				(op + 1)->kc_i = kc_channel;
-				(op + 2)->kc_i = kc_channel;
-				(op + 3)->kc_i = kc_channel;
+				o[0].kc_i = kc_channel;
+				o[1].kc_i = kc_channel;
+				o[2].kc_i = kc_channel;
+				o[3].kc_i = kc_channel;
 
-				(op + 0)->freq = ((freq[kc_channel + (op + 0)->dt2] + (op + 0)->dt1) * (op + 0)->mul) >> 1;
-				(op + 1)->freq = ((freq[kc_channel + (op + 1)->dt2] + (op + 1)->dt1) * (op + 1)->mul) >> 1;
-				(op + 2)->freq = ((freq[kc_channel + (op + 2)->dt2] + (op + 2)->dt1) * (op + 2)->mul) >> 1;
-				(op + 3)->freq = ((freq[kc_channel + (op + 3)->dt2] + (op + 3)->dt1) * (op + 3)->mul) >> 1;
+				o[0].freq = ((freq[kc_channel + o[0].dt2] + o[0].dt1) * o[0].mul) >> 1;
+				o[1].freq = ((freq[kc_channel + o[1].dt2] + o[1].dt1) * o[1].mul) >> 1;
+				o[2].freq = ((freq[kc_channel + o[2].dt2] + o[2].dt1) * o[2].mul) >> 1;
+				o[3].freq = ((freq[kc_channel + o[3].dt2] + o[3].dt1) * o[3].mul) >> 1;
 			}
 			break;
 
 		case 0x18: // PMS, AMS
-			op->pms = (v >> 4) & 7;
-			op->ams = (v & 3);
+			o[0].pms = (v >> 4) & 7;
+			o[0].ams = (v & 3);
 			break;
 		}
 		break;
-
+	}
 	case 0x40: { // DT1, MUL
-		unsigned olddt1_i = op->dt1_i;
-		unsigned oldmul = op->mul;
+		unsigned olddt1_i = op.dt1_i;
+		unsigned oldmul = op.mul;
 
-		op->dt1_i = (v & 0x70) << 1;
-		op->mul   = (v & 0x0f) ? (v & 0x0f) << 1 : 1;
+		op.dt1_i = (v & 0x70) << 1;
+		op.mul   = (v & 0x0f) ? (v & 0x0f) << 1 : 1;
 
-		if (olddt1_i != op->dt1_i) {
-			op->dt1 = dt1_freq[op->dt1_i + (op->kc>>2)];
+		if (olddt1_i != op.dt1_i) {
+			op.dt1 = dt1_freq[op.dt1_i + (op.kc>>2)];
 		}
-		if ((olddt1_i != op->dt1_i) || (oldmul != op->mul)) {
-			op->freq = ((freq[op->kc_i + op->dt2] + op->dt1) * op->mul) >> 1;
+		if ((olddt1_i != op.dt1_i) || (oldmul != op.mul)) {
+			op.freq = ((freq[op.kc_i + op.dt2] + op.dt1) * op.mul) >> 1;
 		}
 		break;
 	}
 	case 0x60: // TL
-		op->tl = (v & 0x7f) << (ENV_BITS - 7); // 7bit TL
+		op.tl = (v & 0x7f) << (ENV_BITS - 7); // 7bit TL
 		break;
 
 	case 0x80: { // KS, AR
-		unsigned oldKs = op->ks;
-		unsigned oldAr = op->ar;
-		op->ks = 5 - (v >> 6);
-		op->ar = (v & 0x1f) ? 32 + ((v & 0x1f) << 1) : 0;
+		unsigned oldKs = op.ks;
+		unsigned oldAr = op.ar;
+		op.ks = 5 - (v >> 6);
+		op.ar = (v & 0x1f) ? 32 + ((v & 0x1f) << 1) : 0;
 
-		if ((op->ar != oldAr) || (op->ks != oldKs)) {
-			if ((op->ar + (op->kc >> op->ks)) < 32 + 62) {
-				op->eg_sh_ar  = eg_rate_shift [op->ar + (op->kc>>op->ks)];
-				op->eg_sel_ar = eg_rate_select[op->ar + (op->kc>>op->ks)];
+		if ((op.ar != oldAr) || (op.ks != oldKs)) {
+			if ((op.ar + (op.kc >> op.ks)) < 32 + 62) {
+				op.eg_sh_ar  = eg_rate_shift [op.ar + (op.kc>>op.ks)];
+				op.eg_sel_ar = eg_rate_select[op.ar + (op.kc>>op.ks)];
 			} else {
-				op->eg_sh_ar  = 0;
-				op->eg_sel_ar = 17 * RATE_STEPS;
+				op.eg_sh_ar  = 0;
+				op.eg_sel_ar = 17 * RATE_STEPS;
 			}
 		}
-		if (op->ks != oldKs) {
-			op->eg_sh_d1r  = eg_rate_shift [op->d1r + (op->kc >> op->ks)];
-			op->eg_sel_d1r = eg_rate_select[op->d1r + (op->kc >> op->ks)];
-			op->eg_sh_d2r  = eg_rate_shift [op->d2r + (op->kc >> op->ks)];
-			op->eg_sel_d2r = eg_rate_select[op->d2r + (op->kc >> op->ks)];
-			op->eg_sh_rr   = eg_rate_shift [op->rr  + (op->kc >> op->ks)];
-			op->eg_sel_rr  = eg_rate_select[op->rr  + (op->kc >> op->ks)];
+		if (op.ks != oldKs) {
+			op.eg_sh_d1r  = eg_rate_shift [op.d1r + (op.kc >> op.ks)];
+			op.eg_sel_d1r = eg_rate_select[op.d1r + (op.kc >> op.ks)];
+			op.eg_sh_d2r  = eg_rate_shift [op.d2r + (op.kc >> op.ks)];
+			op.eg_sel_d2r = eg_rate_select[op.d2r + (op.kc >> op.ks)];
+			op.eg_sh_rr   = eg_rate_shift [op.rr  + (op.kc >> op.ks)];
+			op.eg_sel_rr  = eg_rate_select[op.rr  + (op.kc >> op.ks)];
 		}
 		break;
 	}
 	case 0xa0: // LFO AM enable, D1R
-		op->AMmask = (v & 0x80) ? ~0 : 0;
-		op->d1r    = (v & 0x1f) ? 32 + ((v & 0x1f) << 1) : 0;
-		op->eg_sh_d1r  = eg_rate_shift [op->d1r + (op->kc >> op->ks)];
-		op->eg_sel_d1r = eg_rate_select[op->d1r + (op->kc >> op->ks)];
+		op.AMmask = (v & 0x80) ? ~0 : 0;
+		op.d1r    = (v & 0x1f) ? 32 + ((v & 0x1f) << 1) : 0;
+		op.eg_sh_d1r  = eg_rate_shift [op.d1r + (op.kc >> op.ks)];
+		op.eg_sel_d1r = eg_rate_select[op.d1r + (op.kc >> op.ks)];
 		break;
 
 	case 0xc0: { // DT2, D2R
-		unsigned olddt2 = op->dt2;
-		op->dt2 = dt2_tab[v >> 6];
-		if (op->dt2 != olddt2) {
-			op->freq = ((freq[op->kc_i + op->dt2] + op->dt1) * op->mul) >> 1;
+		unsigned olddt2 = op.dt2;
+		op.dt2 = dt2_tab[v >> 6];
+		if (op.dt2 != olddt2) {
+			op.freq = ((freq[op.kc_i + op.dt2] + op.dt1) * op.mul) >> 1;
 		}
-		op->d2r = (v & 0x1f) ? 32 + ((v & 0x1f) << 1) : 0;
-		op->eg_sh_d2r  = eg_rate_shift [op->d2r + (op->kc >> op->ks)];
-		op->eg_sel_d2r = eg_rate_select[op->d2r + (op->kc >> op->ks)];
+		op.d2r = (v & 0x1f) ? 32 + ((v & 0x1f) << 1) : 0;
+		op.eg_sh_d2r  = eg_rate_shift [op.d2r + (op.kc >> op.ks)];
+		op.eg_sel_d2r = eg_rate_select[op.d2r + (op.kc >> op.ks)];
 		break;
 	}
 	case 0xe0: // D1L, RR
-		op->d1l = d1l_tab[v >> 4];
-		op->rr  = 34 + ((v & 0x0f) << 2);
-		op->eg_sh_rr  = eg_rate_shift [op->rr + (op->kc >> op->ks)];
-		op->eg_sel_rr = eg_rate_select[op->rr + (op->kc >> op->ks)];
+		op.d1l = d1l_tab[v >> 4];
+		op.rr  = 34 + ((v & 0x0f) << 2);
+		op.eg_sh_rr  = eg_rate_shift [op.rr + (op.kc >> op.ks)];
+		op.eg_sel_rr = eg_rate_select[op.rr + (op.kc >> op.ks)];
 		break;
 	}
 }
 
-constexpr auto INPUT_RATE = unsigned(cstd::round(3579545 / 64.0));
+static constexpr auto INPUT_RATE = unsigned(cstd::round(3579545 / 64.0));
 
 YM2151::YM2151(const std::string& name_, static_string_view desc,
                const DeviceConfig& config, EmuTime::param time, Variant variant_)
@@ -970,18 +968,18 @@ void YM2151::reset(EmuTime::param time)
 	irq.reset();
 }
 
-int YM2151::opCalc(YM2151Operator* OP, unsigned env, int pm)
+int YM2151::opCalc(YM2151Operator& op, unsigned env, int pm)
 {
-	unsigned p = (env << 3) + sin_tab[(int((OP->phase & ~FREQ_MASK) + (pm << 15)) >> FREQ_SH) & SIN_MASK];
+	unsigned p = (env << 3) + sin_tab[(int((op.phase & ~FREQ_MASK) + (pm << 15)) >> FREQ_SH) & SIN_MASK];
 	if (p >= TL_TAB_LEN) {
 		return 0;
 	}
 	return tl_tab[p];
 }
 
-int YM2151::opCalc1(YM2151Operator* OP, unsigned env, int pm)
+int YM2151::opCalc1(YM2151Operator& op, unsigned env, int pm)
 {
-	int i = (OP->phase & ~FREQ_MASK) + pm;
+	int i = (op.phase & ~FREQ_MASK) + pm;
 	unsigned p = (env << 3) + sin_tab[(i >> FREQ_SH) & SIN_MASK];
 	if (p >= TL_TAB_LEN) {
 		return 0;
@@ -989,111 +987,111 @@ int YM2151::opCalc1(YM2151Operator* OP, unsigned env, int pm)
 	return tl_tab[p];
 }
 
-unsigned YM2151::volumeCalc(YM2151Operator* OP, unsigned AM)
+unsigned YM2151::volumeCalc(YM2151Operator& op, unsigned AM)
 {
-	return OP->tl + unsigned(OP->volume) + (AM & OP->AMmask);
+	return op.tl + unsigned(op.volume) + (AM & op.AMmask);
 }
 
 void YM2151::chanCalc(unsigned chan)
 {
 	m2 = c1 = c2 = mem = 0;
-	YM2151Operator* op = &oper[chan*4]; // M1
-	*op->mem_connect = op->mem_value; // restore delayed sample (MEM) value to m2 or c2
+	auto op = subspan<4>(oper, 4 * chan); // M1
+	*op[0].mem_connect = op[0].mem_value; // restore delayed sample (MEM) value to m2 or c2
 
 	unsigned AM = 0;
-	if (op->ams) {
-		AM = lfa << (op->ams-1);
+	if (op[0].ams) {
+		AM = lfa << (op[0].ams-1);
 	}
-	unsigned env = volumeCalc(op, AM);
+	unsigned env = volumeCalc(op[0], AM);
 	{
-		int out = op->fb_out_prev + op->fb_out_curr;
-		op->fb_out_prev = op->fb_out_curr;
+		int out = op[0].fb_out_prev + op[0].fb_out_curr;
+		op[0].fb_out_prev = op[0].fb_out_curr;
 
-		if (!op->connect) {
+		if (!op[0].connect) {
 			// algorithm 5
-			mem = c1 = c2 = op->fb_out_prev;
+			mem = c1 = c2 = op[0].fb_out_prev;
 		} else {
-			*op->connect = op->fb_out_prev;
+			*op[0].connect = op[0].fb_out_prev;
 		}
-		op->fb_out_curr = 0;
+		op[0].fb_out_curr = 0;
 		if (env < ENV_QUIET) {
-			if (!op->fb_shift) {
+			if (!op[0].fb_shift) {
 				out = 0;
 			}
-			op->fb_out_curr = opCalc1(op, env, (out << op->fb_shift));
+			op[0].fb_out_curr = opCalc1(op[0], env, (out << op[0].fb_shift));
 		}
 	}
 
-	env = volumeCalc(op + 1, AM); // M2
+	env = volumeCalc(op[1], AM); // M2
 	if (env < ENV_QUIET) {
-		*(op + 1)->connect += opCalc(op + 1, env, m2);
+		*op[1].connect += opCalc(op[1], env, m2);
 	}
-	env = volumeCalc(op + 2, AM); // C1
+	env = volumeCalc(op[2], AM); // C1
 	if (env < ENV_QUIET) {
-		*(op + 2)->connect += opCalc(op + 2, env, c1);
+		*op[2].connect += opCalc(op[2], env, c1);
 	}
-	env = volumeCalc(op + 3, AM); // C2
+	env = volumeCalc(op[3], AM); // C2
 	if (env < ENV_QUIET) {
-		chanout[chan] += opCalc(op + 3, env, c2);
+		chanOut[chan] += opCalc(op[3], env, c2);
 	}
 	// M1
-	op->mem_value = mem;
+	op[0].mem_value = mem;
 }
 
 void YM2151::chan7Calc()
 {
 	m2 = c1 = c2 = mem = 0;
-	YM2151Operator* op = &oper[7 * 4]; // M1
+	auto op = subspan<4>(oper, 4 * 7);
 
-	*op->mem_connect = op->mem_value; // restore delayed sample (MEM) value to m2 or c2
+	*op[0].mem_connect = op[0].mem_value; // restore delayed sample (MEM) value to m2 or c2
 
 	unsigned AM = 0;
-	if (op->ams) {
-		AM = lfa << (op->ams - 1);
+	if (op[0].ams) {
+		AM = lfa << (op[0].ams - 1);
 	}
-	unsigned env = volumeCalc(op, AM);
+	unsigned env = volumeCalc(op[0], AM);
 	{
-		int out = op->fb_out_prev + op->fb_out_curr;
-		op->fb_out_prev = op->fb_out_curr;
+		int out = op[0].fb_out_prev + op[0].fb_out_curr;
+		op[0].fb_out_prev = op[0].fb_out_curr;
 
-		if (!op->connect) {
+		if (!op[0].connect) {
 			// algorithm 5
-			mem = c1 = c2 = op->fb_out_prev;
+			mem = c1 = c2 = op[0].fb_out_prev;
 		} else {
 			// other algorithms
-			*op->connect = op->fb_out_prev;
+			*op[0].connect = op[0].fb_out_prev;
 		}
-		op->fb_out_curr = 0;
+		op[0].fb_out_curr = 0;
 		if (env < ENV_QUIET) {
-			if (!op->fb_shift) {
+			if (!op[0].fb_shift) {
 				out = 0;
 			}
-			op->fb_out_curr = opCalc1(op, env, (out << op->fb_shift));
+			op[0].fb_out_curr = opCalc1(op[0], env, (out << op[0].fb_shift));
 		}
 	}
 
-	env = volumeCalc(op + 1, AM); // M2
+	env = volumeCalc(op[1], AM); // M2
 	if (env < ENV_QUIET) {
-		*(op + 1)->connect += opCalc(op + 1, env, m2);
+		*op[1].connect += opCalc(op[1], env, m2);
 	}
-	env = volumeCalc(op + 2, AM); // C1
+	env = volumeCalc(op[2], AM); // C1
 	if (env < ENV_QUIET) {
-		*(op + 2)->connect += opCalc(op + 2, env, c1);
+		*op[2].connect += opCalc(op[2], env, c1);
 	}
-	env = volumeCalc(op + 3, AM); // C2
+	env = volumeCalc(op[3], AM); // C2
 	if (noise & 0x80) {
-		unsigned noiseout = 0;
+		unsigned noiseOut = 0;
 		if (env < 0x3ff) {
-			noiseout = (env ^ 0x3ff) * 2; // range of the YM2151 noise output is -2044 to 2040
+			noiseOut = (env ^ 0x3ff) * 2; // range of the YM2151 noise output is -2044 to 2040
 		}
-		chanout[7] += (noise_rng & 0x10000) ? noiseout : unsigned(-int(noiseout)); // bit 16 -> output
+		chanOut[7] += (noise_rng & 0x10000) ? noiseOut : unsigned(-int(noiseOut)); // bit 16 -> output
 	} else {
 		if (env < ENV_QUIET) {
-			chanout[7] += opCalc(op + 3, env, c2);
+			chanOut[7] += opCalc(op[3], env, c2);
 		}
 	}
 	// M1
-	op->mem_value = mem;
+	op[0].mem_value = mem;
 }
 
 /*
@@ -1445,38 +1443,35 @@ void YM2151::advance()
 	}
 
 	// phase generator
-	YM2151Operator* op = &oper[0]; // CH 0 M1
-	i = 8;
-	do {
+	for (auto c : xrange(8)) {
+		auto op = subspan<4>(oper, 4 * c);
 		// only when phase modulation from LFO is enabled for this channel
-		if (op->pms) {
+		if (op[0].pms) {
 			int mod_ind = lfp; // -128..+127 (8bits signed)
-			if (op->pms < 6) {
-				mod_ind >>= (6 - op->pms);
+			if (op[0].pms < 6) {
+				mod_ind >>= (6 - op[0].pms);
 			} else {
-				mod_ind <<= (op->pms - 5);
+				mod_ind <<= (op[0].pms - 5);
 			}
 			if (mod_ind) {
-				unsigned kc_channel = op->kc_i + mod_ind;
-				(op + 0)->phase += ((freq[kc_channel + (op + 0)->dt2] + (op + 0)->dt1) * (op + 0)->mul) >> 1;
-				(op + 1)->phase += ((freq[kc_channel + (op + 1)->dt2] + (op + 1)->dt1) * (op + 1)->mul) >> 1;
-				(op + 2)->phase += ((freq[kc_channel + (op + 2)->dt2] + (op + 2)->dt1) * (op + 2)->mul) >> 1;
-				(op + 3)->phase += ((freq[kc_channel + (op + 3)->dt2] + (op + 3)->dt1) * (op + 3)->mul) >> 1;
+				unsigned kc_channel = op[0].kc_i + mod_ind;
+				op[0].phase += ((freq[kc_channel + op[0].dt2] + op[0].dt1) * op[0].mul) >> 1;
+				op[1].phase += ((freq[kc_channel + op[1].dt2] + op[1].dt1) * op[1].mul) >> 1;
+				op[2].phase += ((freq[kc_channel + op[2].dt2] + op[2].dt1) * op[2].mul) >> 1;
+				op[3].phase += ((freq[kc_channel + op[3].dt2] + op[3].dt1) * op[3].mul) >> 1;
 			} else { // phase modulation from LFO is equal to zero
-				(op + 0)->phase += (op + 0)->freq;
-				(op + 1)->phase += (op + 1)->freq;
-				(op + 2)->phase += (op + 2)->freq;
-				(op + 3)->phase += (op + 3)->freq;
+				op[0].phase += op[0].freq;
+				op[1].phase += op[1].freq;
+				op[2].phase += op[2].freq;
+				op[3].phase += op[3].freq;
 			}
 		} else { // phase modulation from LFO is disabled
-			(op + 0)->phase += (op + 0)->freq;
-			(op + 1)->phase += (op + 1)->freq;
-			(op + 2)->phase += (op + 2)->freq;
-			(op + 3)->phase += (op + 3)->freq;
+			op[0].phase += op[0].freq;
+			op[1].phase += op[1].freq;
+			op[2].phase += op[2].freq;
+			op[3].phase += op[3].freq;
 		}
-		op += 4;
-		i--;
-	} while (i);
+	}
 
 	// CSM is calculated *after* the phase generator calculations (verified
 	// on real chip)
@@ -1488,22 +1483,14 @@ void YM2151::advance()
 	// the sound played is the same as after normal KEY ON.
 	if (csm_req) { // CSM KEYON/KEYOFF sequence request
 		if (csm_req == 2) { // KEY ON
-			op = &oper[0]; // CH 0 M1
-			i = 32;
-			do {
+			for (auto& op : oper) {
 				keyOn(op, 2);
-				op++;
-				i--;
-			} while (i);
+			}
 			csm_req = 1;
 		} else { // KEY OFF
-			op = &oper[0]; // CH 0 M1
-			i = 32;
-			do {
-				keyOff(op,unsigned(~2));
-				op++;
-				i--;
-			} while (i);
+			for (auto& op : oper) {
+				keyOff(op, unsigned(~2));
+			}
 			csm_req = 0;
 		}
 	}
@@ -1521,15 +1508,15 @@ void YM2151::generateChannels(std::span<float*> bufs, unsigned num)
 		advanceEG();
 
 		for (auto j : xrange(8 - 1)) {
-			chanout[j] = 0;
+			chanOut[j] = 0;
 			chanCalc(j);
 		}
-		chanout[7] = 0;
+		chanOut[7] = 0;
 		chan7Calc(); // special case for channel 7
 
 		for (auto j : xrange(8)) {
-			bufs[j][2 * i + 0] += int(chanout[j] & pan[2 * j + 0]);
-			bufs[j][2 * i + 1] += int(chanout[j] & pan[2 * j + 1]);
+			bufs[j][2 * i + 0] += int(chanOut[j] & pan[2 * j + 0]);
+			bufs[j][2 * i + 1] += int(chanOut[j] & pan[2 * j + 1]);
 		}
 		advance();
 	}
@@ -1633,7 +1620,7 @@ void YM2151::serialize(Archive& a, unsigned /*version*/)
 	            "csm_req",         csm_req,
 	            "irq_enable",      irq_enable,
 	            "status",          status,
-	            "chanout",         chanout,
+	            "chanout",         chanOut,
 	            "m2",              m2,
 	            "c1",              c1,
 	            "c2",              c2,
