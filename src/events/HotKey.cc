@@ -13,6 +13,7 @@
 #include "ranges.hh"
 #include "view.hh"
 #include "build-info.hh"
+#include <array>
 #include <cassert>
 #include <memory>
 
@@ -27,7 +28,7 @@ using std::string;
 
 namespace openmsx {
 
-constexpr bool META_HOT_KEYS =
+static constexpr bool META_HOT_KEYS =
 #ifdef __APPLE__
 	true;
 #else
@@ -455,7 +456,7 @@ void HotKey::BindCmd::execute(std::span<const TclObject> tokens, TclObject& resu
 	bool layers = false;
 	bool repeat = false;
 	bool passEvent = false;
-	ArgsInfo parserInfo[] = {
+	std::array parserInfo = {
 		valueArg("-layer", layer),
 		flagArg("-layers", layers),
 		flagArg("-repeat", repeat),
@@ -555,7 +556,7 @@ HotKey::UnbindCmd::UnbindCmd(CommandController& commandController_,
 void HotKey::UnbindCmd::execute(std::span<const TclObject> tokens, TclObject& /*result*/)
 {
 	string layer;
-	ArgsInfo info[] = { valueArg("-layer", layer) };
+	std::array info = {valueArg("-layer", layer)};
 	auto arguments = parseTclArgs(getInterpreter(), tokens.subspan<1>(), info);
 	if (defaultCmd && !layer.empty()) {
 		throw CommandException("Layers are not supported for default bindings");
@@ -604,7 +605,7 @@ HotKey::ActivateCmd::ActivateCmd(CommandController& commandController_)
 void HotKey::ActivateCmd::execute(std::span<const TclObject> tokens, TclObject& result)
 {
 	bool blocking = false;
-	ArgsInfo info[] = { flagArg("-blocking", blocking) };
+	std::array info = {flagArg("-blocking", blocking)};
 	auto args = parseTclArgs(getInterpreter(), tokens.subspan(1), info);
 
 	auto& hotKey = OUTER(HotKey, activateCmd);
