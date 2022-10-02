@@ -2,8 +2,10 @@
 #include "SpriteChecker.hh"
 #include "Renderer.hh"
 #include "outer.hh"
+#include "ranges.hh"
 #include "serialize.hh"
 #include <algorithm>
+#include <array>
 #include <bit>
 
 namespace openmsx {
@@ -277,16 +279,15 @@ void VDPVRAM::change4k8kMapping(bool mapping8k)
 	 * even in 4K mode, all 16K of VRAM can be accessed. The only
 	 * difference is in what addresses are used to store data.
 	 */
-	byte tmp[0x4000];
+	std::array<byte, 0x4000> tmp;
 	if (mapping8k) {
 		// from 8k/16k to 4k mapping
 		for (unsigned addr8 = 0; addr8 < 0x4000; addr8 += 64) {
 			unsigned addr4 =  (addr8 & 0x203F) |
 			                 ((addr8 & 0x1000) >> 6) |
 			                 ((addr8 & 0x0FC0) << 1);
-			const byte* src = &data[addr8];
-			byte* dst = &tmp[addr4];
-			ranges::copy(std::span{src, 64}, dst);
+			ranges::copy(subspan<64>(data, addr8),
+			             subspan<64>(tmp, addr4));
 		}
 	} else {
 		// from 4k to 8k/16k mapping
@@ -294,12 +295,12 @@ void VDPVRAM::change4k8kMapping(bool mapping8k)
 			unsigned addr8 =  (addr4 & 0x203F) |
 			                 ((addr4 & 0x0040) << 6) |
 			                 ((addr4 & 0x1F80) >> 1);
-			const byte* src = &data[addr4];
-			byte* dst = &tmp[addr8];
-			ranges::copy(std::span{src, 64}, dst);
+			ranges::copy(subspan<64>(data, addr4),
+			             subspan<64>(tmp, addr8));
 		}
 	}
-	ranges::copy(tmp, &data[0]);
+	//ranges::copy(tmp, std::span{data}); // TODO error with clang-15/libc++
+	ranges::copy(tmp, std::span{data.begin(), data.end()});
 }
 
 

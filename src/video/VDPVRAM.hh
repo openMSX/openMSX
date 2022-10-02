@@ -612,7 +612,7 @@ private:
 	  */
 	Ram data;
 
-	/** Debuggable with mode dependend view on the vram
+	/** Debuggable with mode dependent view on the vram
 	  *   Screen7/8 are not interleaved in this mode.
 	  *   This debuggable is also at least 128kB in size (it possibly
 	  *   contains unmapped regions).
