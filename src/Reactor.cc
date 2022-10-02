@@ -45,6 +45,7 @@
 #include "StringOp.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
+#include <array>
 #include <cassert>
 #include <memory>
 
@@ -1063,8 +1064,8 @@ void ConfigInfo::execute(std::span<const TclObject> tokens, TclObject& result) c
 	}
 	case 3: {
 		try {
-			char allocBuffer[8192]; // tweak
-			XMLDocument doc{allocBuffer, sizeof(allocBuffer)};
+			std::array<char, 8192> allocBuffer; // tweak
+			XMLDocument doc{allocBuffer.data(), sizeof(allocBuffer)};
 			HardwareConfig::loadConfig(
 				doc, configName, tokens[2].getString());
 			if (const auto* info = doc.getRoot()->findChild("info")) {
