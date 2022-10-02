@@ -5,6 +5,7 @@
 #include "MSXException.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include <array>
 #include <iostream>
 
 namespace openmsx {
@@ -482,7 +483,7 @@ void WD2793::seek(EmuTime::param time)
 
 void WD2793::step(EmuTime::param time)
 {
-	static constexpr EmuDuration timePerStep[4] = {
+	static constexpr std::array<EmuDuration, 4> timePerStep = {
 		// in case a 1MHz clock is used (as in MSX)
 		EmuDuration::msec( 6),
 		EmuDuration::msec(12),
