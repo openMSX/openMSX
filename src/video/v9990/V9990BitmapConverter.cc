@@ -4,6 +4,7 @@
 #include "unreachable.hh"
 #include "build-info.hh"
 #include "components.hh"
+#include <array>
 #include <cassert>
 #include <cstdint>
 
@@ -28,7 +29,7 @@ static inline void draw_YJK_YUV_PAL(
 	ColorLookup color, V9990VRAM& vram,
 	Pixel* __restrict& out, unsigned& address, int firstX = 0)
 {
-	byte data[4];
+	std::array<byte, 4> data;
 	for (auto& d : data) {
 		d = vram.readVRAMBx(address++);
 	}
@@ -474,7 +475,7 @@ void V9990BitmapConverter<Pixel>::convertLine(
 
 	if (cursor0.isVisible() || cursor1.isVisible()) {
 		// raster background into a temporary buffer
-		uint16_t buf[1024];
+		std::array<uint16_t, 1024> buf;
 		raster(colorMode, highRes,
 		       IndexLookup(palette64_32768, palette256_32768),
 		       vdp, vram,
