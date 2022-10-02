@@ -3,6 +3,7 @@
 
 #include "ResampledSoundDevice.hh"
 #include "SimpleDebuggable.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -91,7 +92,7 @@ private:
 	/** Register bank. The tone period registers (0, 2, 4) are 12 bits wide,
 	  * all other registers are 4 bits wide.
 	  */
-	word regs[8];
+	std::array<word, 8> regs;
 
 	/** The last register written to (0-7).
 	  */
@@ -101,11 +102,11 @@ private:
 	  * These count down and when they reach zero, the output flips and the
 	  * counter is re-loaded with the value of the period register.
 	  */
-	word counters[4];
+	std::array<word, 4> counters;
 
 	/** Output flip-flop state (0 or 1) for each channel.
 	  */
-	byte outputs[4];
+	std::array<byte, 4> outputs;
 
 	struct Debuggable final : SimpleDebuggable {
 		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);

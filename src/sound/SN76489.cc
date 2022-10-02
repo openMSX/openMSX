@@ -18,7 +18,7 @@ namespace openmsx {
 
 // The SN76489 divides the clock input by 8, but all users of the clock apply
 // another divider of 2.
-constexpr auto NATIVE_FREQ_INT = unsigned(cstd::round((3579545.0 / 8) / 2));
+static constexpr auto NATIVE_FREQ_INT = unsigned(cstd::round((3579545.0 / 8) / 2));
 
 static constexpr auto volTable = [] {
 	std::array<unsigned, 16> result = {};
@@ -328,11 +328,18 @@ INSTANTIATE_SERIALIZE_METHODS(SN76489);
 
 // The frequency registers are 10 bits wide, so we have to split them over
 // two debuggable entries.
-constexpr byte SN76489_DEBUG_MAP[][2] = {
-	{0, 0}, {0, 1}, {1, 0},
-	{2, 0}, {2, 1}, {3, 0},
-	{4, 0}, {4, 1}, {5, 0},
-	{6, 0}, {7, 0}
+static constexpr std::array SN76489_DEBUG_MAP = {
+	std::array<byte, 2>{0, 0},
+	std::array<byte, 2>{0, 1},
+	std::array<byte, 2>{1, 0},
+	std::array<byte, 2>{2, 0},
+	std::array<byte, 2>{2, 1},
+	std::array<byte, 2>{3, 0},
+	std::array<byte, 2>{4, 0},
+	std::array<byte, 2>{4, 1},
+	std::array<byte, 2>{5, 0},
+	std::array<byte, 2>{6, 0},
+	std::array<byte, 2>{7, 0},
 };
 
 SN76489::Debuggable::Debuggable(MSXMotherBoard& motherBoard_, const std::string& name_)
@@ -344,8 +351,7 @@ SN76489::Debuggable::Debuggable(MSXMotherBoard& motherBoard_, const std::string&
 
 byte SN76489::Debuggable::read(unsigned address, EmuTime::param time)
 {
-	byte reg = SN76489_DEBUG_MAP[address][0];
-	byte hi = SN76489_DEBUG_MAP[address][1];
+	auto [reg, hi] = SN76489_DEBUG_MAP[address];
 
 	auto& sn76489 = OUTER(SN76489, debuggable);
 	word data = sn76489.peekRegister(reg, time);
@@ -354,8 +360,8 @@ byte SN76489::Debuggable::read(unsigned address, EmuTime::param time)
 
 void SN76489::Debuggable::write(unsigned address, byte value, EmuTime::param time)
 {
-	byte reg = SN76489_DEBUG_MAP[address][0];
-	byte hi = SN76489_DEBUG_MAP[address][1];
+	auto reg = SN76489_DEBUG_MAP[address][0];
+	auto hi  = SN76489_DEBUG_MAP[address][1];
 
 	auto& sn76489 = OUTER(SN76489, debuggable);
 	word data = [&] {
