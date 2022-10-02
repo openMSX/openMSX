@@ -37,19 +37,19 @@ using std::string;
 namespace openmsx {
 
 // Medium type (value like LS-120)
-constexpr uint8_t MT_UNKNOWN   = 0x00;
-constexpr uint8_t MT_2DD_UN    = 0x10;
-constexpr uint8_t MT_2DD       = 0x11;
-constexpr uint8_t MT_2HD_UN    = 0x20;
-constexpr uint8_t MT_2HD_12_98 = 0x22;
-constexpr uint8_t MT_2HD_12    = 0x23;
-constexpr uint8_t MT_2HD_144   = 0x24;
-constexpr uint8_t MT_LS120     = 0x31;
-constexpr uint8_t MT_NO_DISK   = 0x70;
-constexpr uint8_t MT_DOOR_OPEN = 0x71;
-constexpr uint8_t MT_FMT_ERROR = 0x72;
+static constexpr uint8_t MT_UNKNOWN   = 0x00;
+static constexpr uint8_t MT_2DD_UN    = 0x10;
+static constexpr uint8_t MT_2DD       = 0x11;
+static constexpr uint8_t MT_2HD_UN    = 0x20;
+static constexpr uint8_t MT_2HD_12_98 = 0x22;
+static constexpr uint8_t MT_2HD_12    = 0x23;
+static constexpr uint8_t MT_2HD_144   = 0x24;
+static constexpr uint8_t MT_LS120     = 0x31;
+static constexpr uint8_t MT_NO_DISK   = 0x70;
+static constexpr uint8_t MT_DOOR_OPEN = 0x71;
+static constexpr uint8_t MT_FMT_ERROR = 0x72;
 
-constexpr uint8_t inqData[36] = {
+static constexpr std::array<uint8_t, 36> inqData = {
 	  0,   // bit5-0 device type code.
 	  0,   // bit7 = 1 removable device
 	  2,   // bit7,6 ISO version. bit5,4,3 ECMA version.
@@ -66,8 +66,8 @@ constexpr uint8_t inqData[36] = {
 	'0', '1', '0', 'a'                         // product version (ASCII 4bytes)
 };
 
-constexpr unsigned BUFFER_BLOCK_SIZE = SCSIHD::BUFFER_SIZE /
-                                       SectorAccessibleDisk::SECTOR_SIZE;
+static constexpr unsigned BUFFER_BLOCK_SIZE = SCSIHD::BUFFER_SIZE /
+                                              SectorAccessibleDisk::SECTOR_SIZE;
 
 SCSIHD::SCSIHD(const DeviceConfig& targetconfig,
                AlignedBuffer& buf, unsigned mode_)
