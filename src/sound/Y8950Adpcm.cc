@@ -16,32 +16,33 @@
 #include "Math.hh"
 #include "serialize.hh"
 #include <algorithm>
+#include <array>
 
 namespace openmsx {
 
 // Bitmask for register 0x07
-constexpr int R07_RESET       = 0x01;
-constexpr int R07_SP_OFF      = 0x08;
-constexpr int R07_REPEAT      = 0x10;
-constexpr int R07_MEMORY_DATA = 0x20;
-constexpr int R07_REC         = 0x40;
-constexpr int R07_START       = 0x80;
-constexpr int R07_MODE        = 0xE0;
+static constexpr int R07_RESET       = 0x01;
+static constexpr int R07_SP_OFF      = 0x08;
+static constexpr int R07_REPEAT      = 0x10;
+static constexpr int R07_MEMORY_DATA = 0x20;
+static constexpr int R07_REC         = 0x40;
+static constexpr int R07_START       = 0x80;
+static constexpr int R07_MODE        = 0xE0;
 
 // Bitmask for register 0x08
-constexpr int R08_ROM         = 0x01;
-constexpr int R08_64K         = 0x02;
-constexpr int R08_DA_AD       = 0x04;
-constexpr int R08_SAMPL       = 0x08;
-constexpr int R08_NOTE_SET    = 0x40;
-constexpr int R08_CSM         = 0x80;
+static constexpr int R08_ROM         = 0x01;
+static constexpr int R08_64K         = 0x02;
+static constexpr int R08_DA_AD       = 0x04;
+static constexpr int R08_SAMPL       = 0x08;
+static constexpr int R08_NOTE_SET    = 0x40;
+static constexpr int R08_CSM         = 0x80;
 
-constexpr int DMAX = 0x6000;
-constexpr int DMIN = 0x7F;
-constexpr int DDEF = 0x7F;
+static constexpr int DMAX = 0x6000;
+static constexpr int DMIN = 0x7F;
+static constexpr int DDEF = 0x7F;
 
-constexpr int STEP_BITS = 16;
-constexpr int STEP_MASK = (1 << STEP_BITS) -1;
+static constexpr int STEP_BITS = 16;
+static constexpr int STEP_MASK = (1 << STEP_BITS) -1;
 
 
 Y8950Adpcm::Y8950Adpcm(Y8950& y8950_, const DeviceConfig& config,
@@ -439,10 +440,14 @@ int Y8950Adpcm::calcSample()
 int Y8950Adpcm::calcSample(bool doEmu)
 {
 	// values taken from ymdelta.c by Tatsuyuki Satoh.
-	static constexpr int F1[16] = {  1,   3,   5,   7,   9,  11,  13,  15,
-	                                -1,  -3,  -5,  -7,  -9, -11, -13, -15 };
-	static constexpr int F2[16] = { 57,  57,  57,  57,  77, 102, 128, 153,
-	                                57,  57,  57,  57,  77, 102, 128, 153 };
+	static constexpr std::array<int, 16> F1 = {
+		 1,   3,   5,   7,   9,  11,  13,  15,
+		-1,  -3,  -5,  -7,  -9, -11, -13, -15
+	};
+	static constexpr std::array<int, 16> F2 = {
+		57,  57,  57,  57,  77, 102, 128, 153,
+		57,  57,  57,  57,  77, 102, 128, 153
+	};
 
 	assert(isPlaying());
 
