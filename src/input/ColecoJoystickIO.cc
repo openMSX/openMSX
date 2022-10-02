@@ -5,6 +5,7 @@
 #include "Math.hh"
 #include "enumerate.hh"
 #include "serialize.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -48,9 +49,9 @@ byte ColecoJoystickIO::peekIO(word port, EmuTime::param time) const
 		unsigned keypadStatus = ~(
 			keys[joyPort * 2 + 2] | (keys[joyPort * 2 + 3] << 8)
 			) & 0xFFF;
-		constexpr byte keyEnc[] = {
+		static constexpr std::array<byte, 13> keyEnc = {
 			0xF, 0xA, 0xD, 0x7, 0xC, 0x2, 0x3, 0xE, 0x5, 0x1, 0xB, 0x9, 0x6
-			};
+		};
 		return keyEnc[Math::findFirstSet(keypadStatus)]
 		     | 0x30 // not connected
 		     | ((joyStatus << 1) & (keys[joyPort] >> 1) & 0x40); // trigger B

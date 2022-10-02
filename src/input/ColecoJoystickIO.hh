@@ -3,7 +3,7 @@
 
 #include "MSXDevice.hh"
 #include "Keyboard.hh"
-
+#include <array>
 
 namespace openmsx {
 
@@ -25,7 +25,7 @@ public:
 
 private:
 	byte joyMode;
-	JoystickPortIf* ports[2];
+	std::array<JoystickPortIf*, 2> ports;
 	Keyboard keyboard;
 };
 SERIALIZE_CLASS_VERSION(ColecoJoystickIO, 2);
