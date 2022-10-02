@@ -105,7 +105,7 @@ void RomHolyQuran2::serialize(Archive& ar, unsigned /*version*/)
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);
 
-	unsigned bb[4];
+	std::array<unsigned, 4> bb;
 	if constexpr (Archive::IS_LOADER) {
 		ar.serialize("banks", bb);
 		for (auto [i, b] : enumerate(bb)) {

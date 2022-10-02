@@ -3,6 +3,7 @@
 
 #include "MSXRom.hh"
 #include "RomBlockDebuggable.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -27,7 +28,7 @@ private:
 		[[nodiscard]] byte read(unsigned address) override;
 	} romBlocks;
 
-	const byte* bank[4];
+	std::array<const byte*, 4> bank;
 	bool decrypt;
 };
 
