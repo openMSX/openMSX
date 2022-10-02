@@ -5,6 +5,7 @@
 #include "MSXMotherBoard.hh"
 #include "InfoTopic.hh"
 #include "TclObject.hh"
+#include <array>
 #include <optional>
 #include <string_view>
 
@@ -86,7 +87,7 @@ private:
 		MSXCPUInterface* cpuInterface;
 	};
 	static constexpr unsigned MAX_SLOTS = 16 + 4;
-	Slot slots[MAX_SLOTS];
+	std::array<Slot, MAX_SLOTS> slots;
 };
 
 } // namespace openmsx

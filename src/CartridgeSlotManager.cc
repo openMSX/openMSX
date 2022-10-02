@@ -123,17 +123,19 @@ void CartridgeSlotManager::createExternalSlot(int ps, int ss)
 		if (!slots[slot].exists()) {
 			slots[slot].ps = ps;
 			slots[slot].ss = ss;
-			char slotName[] = "carta";
-			slotName[4] += slot;
-			char extName[] = "exta";
-			extName[3] += slot;
-			motherBoard.registerMediaInfoProvider(slotName, slots[slot]);
+
+			std::array slotName = {'c','a','r','t','X','\0'};
+			slotName[4] = 'a' + slot;
+			motherBoard.registerMediaInfoProvider(slotName.data(), slots[slot]);
 			motherBoard.getMSXCliComm().update(
-				CliComm::HARDWARE, slotName, "add");
+				CliComm::HARDWARE, slotName.data(), "add");
 			slots[slot].cartCommand.emplace(
-				*this, motherBoard, slotName);
+				*this, motherBoard, slotName.data());
+
+			std::array extName = {'e','x','t','X','\0'};
+			extName[3] = 'a' + slot;
 			slots[slot].extCommand.emplace(
-				motherBoard, extName);
+				motherBoard, extName.data());
 			slots[slot].cpuInterface = &motherBoard.getCPUInterface();
 			return;
 		}
