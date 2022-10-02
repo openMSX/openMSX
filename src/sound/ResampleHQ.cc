@@ -18,11 +18,12 @@
 #include "stl.hh"
 #include "vla.hh"
 #include "xrange.hh"
-#include <vector>
+#include <array>
 #include <cmath>
 #include <cstddef>
 #include <cassert>
 #include <iterator>
+#include <vector>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
@@ -32,17 +33,17 @@ namespace openmsx {
 // Note: without appending 'f' to the values in ResampleCoeffs.ii,
 // this will generate thousands of C4305 warnings in VC++
 // E.g. warning C4305: 'initializing' : truncation from 'double' to 'const float'
-constexpr float coeffs[] = {
+static constexpr std::array coeffs = {
 	#include "ResampleCoeffs.ii"
 };
 
 using FilterIndex = FixedPoint<16>;
 
-constexpr int INDEX_INC = 128;
-constexpr int COEFF_LEN = int(std::size(coeffs));
-constexpr int COEFF_HALF_LEN = COEFF_LEN - 1;
-constexpr unsigned TAB_LEN = 4096;
-constexpr unsigned HALF_TAB_LEN = TAB_LEN / 2;
+static constexpr int INDEX_INC = 128;
+static constexpr int COEFF_LEN = int(std::size(coeffs));
+static constexpr int COEFF_HALF_LEN = COEFF_LEN - 1;
+static constexpr size_t TAB_LEN      = ResampleHQ<1>::TAB_LEN;
+static constexpr size_t HALF_TAB_LEN = ResampleHQ<1>::HALF_TAB_LEN;
 
 class ResampleCoeffs
 {
@@ -51,21 +52,20 @@ public:
 	ResampleCoeffs& operator=(const ResampleCoeffs&) = delete;
 
 	static ResampleCoeffs& instance();
-	void getCoeffs(double ratio, int16_t*& permute, float*& table, unsigned& filterLen);
+	void getCoeffs(double ratio, std::span<const int16_t, HALF_TAB_LEN>& permute, float*& table, unsigned& filterLen);
 	void releaseCoeffs(double ratio);
 
 private:
 	using Table = MemBuffer<float, SSE_ALIGNMENT>;
-	using PermuteTable = MemBuffer<int16_t>;
 
 	ResampleCoeffs() = default;
 	~ResampleCoeffs();
 
-	static Table calcTable(double ratio, int16_t* permute, unsigned& filterLen);
+	static Table calcTable(double ratio, std::span<int16_t, HALF_TAB_LEN> permute, unsigned& filterLen);
 
 	struct Element {
 		double ratio;
-		PermuteTable permute;
+		std::array<int16_t, HALF_TAB_LEN> permute;
 		Table table;
 		unsigned filterLen;
 		unsigned count;
@@ -85,11 +85,11 @@ ResampleCoeffs& ResampleCoeffs::instance()
 }
 
 void ResampleCoeffs::getCoeffs(
-	double ratio, int16_t*& permute, float*& table, unsigned& filterLen)
+	double ratio, std::span<const int16_t, HALF_TAB_LEN>& permute, float*& table, unsigned& filterLen)
 {
 	if (auto it = ranges::find(cache, ratio, &Element::ratio);
 	    it != end(cache)) {
-		permute   = it->permute.data();
+		permute   = it->permute;
 		table     = it->table.data();
 		filterLen = it->filterLen;
 		it->count++;
@@ -98,9 +98,8 @@ void ResampleCoeffs::getCoeffs(
 	Element elem;
 	elem.ratio = ratio;
 	elem.count = 1;
-	elem.permute = PermuteTable(HALF_TAB_LEN);
-	elem.table = calcTable(ratio, elem.permute.data(), elem.filterLen);
-	permute   = elem.permute.data();
+	elem.table = calcTable(ratio, elem.permute, elem.filterLen);
+	permute   = elem.permute;
 	table     = elem.table.data();
 	filterLen = elem.filterLen;
 	cache.push_back(std::move(elem));
@@ -222,9 +221,9 @@ void ResampleCoeffs::releaseCoeffs(double ratio)
 // table tells where in memory the i-th logical row of the original (half)
 // resample coefficient table is physically stored.
 
-constexpr unsigned N = TAB_LEN;
-constexpr unsigned N1 = N - 1;
-constexpr unsigned N2 = N / 2;
+static constexpr unsigned N = TAB_LEN;
+static constexpr unsigned N1 = N - 1;
+static constexpr unsigned N2 = N / 2;
 
 static constexpr unsigned mapIdx(unsigned x)
 {
@@ -237,7 +236,7 @@ static constexpr std::pair<unsigned, unsigned> next(unsigned x, unsigned step)
 	return {mapIdx(x + step), mapIdx(N1 - x + step)};
 }
 
-static void calcPermute(double ratio, int16_t* permute)
+static void calcPermute(double ratio, std::span<int16_t, HALF_TAB_LEN> permute)
 {
 	double r2 = ratio * N;
 	double fract = r2 - floor(r2);
@@ -254,7 +253,7 @@ static void calcPermute(double ratio, int16_t* permute)
 	}();
 
 	// initially set all as unassigned
-	std::fill_n(permute, N2, -1);
+	ranges::fill(permute, -1);
 
 	unsigned restart = incr ? 0 : N2 - 1;
 	unsigned curr = restart;
@@ -304,9 +303,9 @@ static void calcPermute(double ratio, int16_t* permute)
 	}
 
 #ifdef DEBUG
-	int16_t testPerm[N2];
+	std::array<int16_t, N2> testPerm;
 	ranges::iota(testPerm, 0);
-	assert(std::is_permutation(permute, permute + N2, testPerm));
+	assert(std::is_permutation(permute.begin(), permute.end(), testPerm.begin()));
 #endif
 }
 
@@ -319,7 +318,7 @@ static constexpr double getCoeff(FilterIndex index)
 }
 
 ResampleCoeffs::Table ResampleCoeffs::calcTable(
-	double ratio, int16_t* permute, unsigned& filterLen)
+	double ratio, std::span<int16_t, HALF_TAB_LEN> permute, unsigned& filterLen)
 {
 	calcPermute(ratio, permute);
 
@@ -373,6 +372,7 @@ ResampleHQ<CHANNELS>::ResampleHQ(
 	: ResampleAlgo(input_)
 	, hostClock(hostClock_)
 	, ratio(float(hostClock.getPeriod().toDouble() / getEmuClock().getPeriod().toDouble()))
+	, permute(/*dummy*/static_cast<int16_t*>(nullptr), HALF_TAB_LEN)
 {
 	ResampleCoeffs::instance().getCoeffs(double(ratio), permute, table, filterLen);
 

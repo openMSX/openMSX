@@ -2471,4 +2471,4 @@
 -3.59691078491283933177e-07f,
 -2.38952398011216803052e-07f,
 -1.22889677382464548894e-07f,
- 0 // Need a final zero coefficient
+ 0.0f // Need a final zero coefficient

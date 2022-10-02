@@ -3,6 +3,7 @@
 
 #include "ResampleAlgo.hh"
 #include <cstdint>
+#include <span>
 #include <vector>
 
 namespace openmsx {
@@ -13,6 +14,10 @@ class ResampledSoundDevice;
 template<unsigned CHANNELS>
 class ResampleHQ final : public ResampleAlgo
 {
+public:
+	static constexpr size_t TAB_LEN = 4096;
+	static constexpr size_t HALF_TAB_LEN = TAB_LEN / 2;
+
 public:
 	ResampleHQ(ResampledSoundDevice& input, const DynamicClock& hostClock);
 	~ResampleHQ() override;
@@ -35,7 +40,7 @@ private:
 	unsigned filterLen;
 	std::vector<float> buffer;
 	float* table;
-	int16_t* permute;
+	std::span<const int16_t, HALF_TAB_LEN> permute;
 };
 
 } // namespace openmsx
