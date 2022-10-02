@@ -6,18 +6,19 @@
 #include "serialize.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+#include <array>
 #include <cassert>
 #include <memory>
 
 namespace openmsx {
 
-constexpr byte ALLOW_READ  = 1;
-constexpr byte ALLOW_WRITE = 2;
-constexpr byte NO_ACCESS = 0;
-constexpr byte RD_ONLY   = ALLOW_READ;
-constexpr byte WR_ONLY   = ALLOW_WRITE;
-constexpr byte RD_WR     = ALLOW_READ | ALLOW_WRITE;
-constexpr byte regAccess[64] = {
+static constexpr byte ALLOW_READ  = 1;
+static constexpr byte ALLOW_WRITE = 2;
+static constexpr byte NO_ACCESS = 0;
+static constexpr byte RD_ONLY   = ALLOW_READ;
+static constexpr byte WR_ONLY   = ALLOW_WRITE;
+static constexpr byte RD_WR     = ALLOW_READ | ALLOW_WRITE;
+static constexpr std::array<byte, 64> regAccess = {
 	WR_ONLY, WR_ONLY, WR_ONLY,          // VRAM Write Address
 	WR_ONLY, WR_ONLY, WR_ONLY,          // VRAM Read Address
 	RD_WR, RD_WR,                       // Screen Mode
@@ -564,7 +565,7 @@ void V9990::writeRegister(byte reg, byte val, EmuTime::param time)
 {
 	// Found this table by writing 0xFF to a register and reading
 	// back the value (only works for read/write registers)
-	static constexpr byte regWriteMask[32] = {
+	static constexpr std::array<byte, 32> regWriteMask = {
 		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
 		0xFF, 0x87, 0xFF, 0x83, 0x0F, 0xFF, 0xFF, 0xFF,
 		0xFF, 0xFF, 0xDF, 0x07, 0xFF, 0xFF, 0xC1, 0x07,

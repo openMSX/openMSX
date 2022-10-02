@@ -16,6 +16,7 @@
 #include "one_of.hh"
 #include "outer.hh"
 #include "unreachable.hh"
+#include <array>
 #include <memory>
 #include <optional>
 
@@ -242,7 +243,7 @@ public:
 	/** Returns the vertical roll mask
 	  */
 	[[nodiscard]] inline unsigned getRollMask(unsigned maxMask) const {
-		static unsigned rollMasks[4] = {
+		static std::array<unsigned, 4> rollMasks = {
 			0xFFFF, // no rolling (use maxMask)
 			0x00FF,
 			0x01FF,
@@ -560,7 +561,7 @@ private:
 
 	/** Palette
 	  */
-	byte palette[0x100];
+	std::array<byte, 0x100> palette;
 
 	/** Status port (P#5)
 	  */
@@ -572,7 +573,7 @@ private:
 
 	/** Registers
 	  */
-	byte regs[0x40];
+	std::array<byte, 0x40> regs;
 	byte regSelect;
 
 	/** Is PAL timing active?  False means NTSC timing
