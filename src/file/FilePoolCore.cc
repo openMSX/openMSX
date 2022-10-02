@@ -118,7 +118,7 @@ bool FilePoolCore::adjustSha1(Index idx, Entry& entry, const Sha1Sum& newSum)
 time_t FilePoolCore::Entry::getTime()
 {
 	if (time == Date::INVALID_TIME_T) {
-		time = Date::fromString(timeStr);
+		time = Date::fromString(std::span<const char, 24>{timeStr, 24});
 	}
 	return time;
 }

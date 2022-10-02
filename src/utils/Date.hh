@@ -2,6 +2,7 @@
 #define DATE_HH
 
 #include <limits>
+#include <span>
 #include <string>
 #include <ctime>
 
@@ -15,8 +16,7 @@ namespace openmsx::Date {
 		                                      : time;
 	}
 
-	// 'p' must point to a buffer that is at least 24 characters long
-	[[nodiscard]] time_t fromString(const char* p);
+	[[nodiscard]] time_t fromString(std::span<const char, 24> s);
 
 	[[nodiscard]] std::string toString(time_t time);
 
