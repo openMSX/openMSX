@@ -70,11 +70,12 @@ namespace openmsx::RomFactory {
 
 [[nodiscard]] static RomType guessRomType(const Rom& rom)
 {
-	auto size = rom.size();
+	//std::span data = rom; // TODO error with clang-15/libc++
+	std::span data{rom.begin(), rom.end()};
+	auto size = data.size();
 	if (size == 0) {
 		return ROM_NORMAL;
 	}
-	const byte* data = &rom[0];
 
 	if (size < 0x10000) {
 		if ((size <= 0x4000) &&
@@ -105,7 +106,7 @@ namespace openmsx::RomFactory {
 		//  with this instruction to the mapper-registers-addresses
 		//  occur.
 
-		unsigned typeGuess[ROM_LAST] = {}; // 0-initialized
+		std::array<unsigned, ROM_LAST> typeGuess = {}; // 0-initialized
 		for (auto i : xrange(size - 3)) {
 			if (data[i] == 0x32) {
 				word value = data[i + 1] + (data[i + 2] << 8);
