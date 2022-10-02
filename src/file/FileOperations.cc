@@ -52,6 +52,7 @@
 #include "strCat.hh"
 #include "build-info.hh"
 #include <algorithm>
+#include <array>
 #include <sstream>
 #include <cerrno>
 #include <cstdlib>
@@ -347,18 +348,18 @@ string getCurrentWorkingDirectory()
 #ifdef _WIN32
 	wchar_t bufW[MAXPATHLEN];
 	wchar_t* result = _wgetcwd(bufW, MAXPATHLEN);
-	string buf;
-	if (result) {
-		buf = utf16to8(result);
-	}
-#else
-	char buf[MAXPATHLEN];
-	char* result = getcwd(buf, MAXPATHLEN);
-#endif
 	if (!result) {
 		throw FileException("Couldn't get current working directory.");
 	}
-	return buf;
+	return utf16to8(result);
+#else
+	std::array<char, MAXPATHLEN> buf;
+	char* result = getcwd(buf.data(), buf.size());
+	if (!result) {
+		throw FileException("Couldn't get current working directory.");
+	}
+	return buf.data();
+#endif
 }
 
 string getAbsolutePath(string_view path)
