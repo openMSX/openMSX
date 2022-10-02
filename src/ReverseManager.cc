@@ -25,6 +25,7 @@
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include "view.hh"
+#include <array>
 #include <cassert>
 #include <cmath>
 #include <iomanip>
@@ -32,18 +33,18 @@
 namespace openmsx {
 
 // Time between two snapshots (in seconds)
-constexpr double SNAPSHOT_PERIOD = 1.0;
+static constexpr double SNAPSHOT_PERIOD = 1.0;
 
 // Max number of snapshots in a replay file
-constexpr unsigned MAX_NOF_SNAPSHOTS = 10;
+static constexpr unsigned MAX_NOF_SNAPSHOTS = 10;
 
 // Min distance between snapshots in replay file (in seconds)
-constexpr auto MIN_PARTITION_LENGTH = EmuDuration(60.0);
+static constexpr auto MIN_PARTITION_LENGTH = EmuDuration(60.0);
 
 // Max distance of one before last snapshot before the end time in replay file (in seconds)
-constexpr auto MAX_DIST_1_BEFORE_LAST_SNAPSHOT = EmuDuration(30.0);
+static constexpr auto MAX_DIST_1_BEFORE_LAST_SNAPSHOT = EmuDuration(30.0);
 
-constexpr const char* const REPLAY_DIR = "replays";
+static constexpr const char* const REPLAY_DIR = "replays";
 
 // A replay is a struct that contains a vector of motherboards and an MSX event
 // log. Those combined are a replay, because you can replay the events from an
@@ -256,7 +257,7 @@ void ReverseManager::debugInfo(TclObject& result) const
 static std::pair<bool, double> parseGoTo(Interpreter& interp, std::span<const TclObject> tokens)
 {
 	bool novideo = false;
-	ArgsInfo info[] = { flagArg("-novideo", novideo) };
+	std::array info = {flagArg("-novideo", novideo)};
 	auto args = parseTclArgs(interp, tokens.subspan(2), info);
 	if (args.size() != 1) throw SyntaxError();
 	double time = args[0].getDouble(interp);
@@ -529,7 +530,7 @@ void ReverseManager::saveReplay(
 
 	std::string_view filenameArg;
 	int maxNofExtraSnapshots = MAX_NOF_SNAPSHOTS;
-	ArgsInfo info[] = { valueArg("-maxnofextrasnapshots", maxNofExtraSnapshots) };
+	std::array info = {valueArg("-maxnofextrasnapshots", maxNofExtraSnapshots)};
 	auto args = parseTclArgs(interp, tokens.subspan(2), info);
 	switch (args.size()) {
 		case 0: break; // nothing
@@ -634,7 +635,7 @@ void ReverseManager::loadReplay(
 {
 	bool enableViewOnly = false;
 	std::optional<TclObject> where;
-	ArgsInfo info[] = {
+	std::array info = {
 		flagArg("-viewonly", enableViewOnly),
 		valueArg("-goto", where),
 	};
