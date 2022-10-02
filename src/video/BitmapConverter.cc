@@ -297,12 +297,12 @@ void BitmapConverter<Pixel>::renderYJK(
 {
 	Pixel* __restrict pixelPtr = buf.data();
 	for (auto i : xrange(64)) {
-		unsigned p[4];
-		p[0] = vramPtr0[2 * i + 0];
-		p[1] = vramPtr1[2 * i + 0];
-		p[2] = vramPtr0[2 * i + 1];
-		p[3] = vramPtr1[2 * i + 1];
-
+		std::array<unsigned, 4> p = {
+			vramPtr0[2 * i + 0],
+			vramPtr1[2 * i + 0],
+			vramPtr0[2 * i + 1],
+			vramPtr1[2 * i + 1],
+		};
 		int j = (p[2] & 7) + ((p[3] & 3) << 3) - ((p[3] & 4) << 3);
 		int k = (p[0] & 7) + ((p[1] & 3) << 3) - ((p[1] & 4) << 3);
 
@@ -323,12 +323,12 @@ void BitmapConverter<Pixel>::renderYAE(
 {
 	Pixel* __restrict pixelPtr = buf.data();
 	for (auto i : xrange(64)) {
-		unsigned p[4];
-		p[0] = vramPtr0[2 * i + 0];
-		p[1] = vramPtr1[2 * i + 0];
-		p[2] = vramPtr0[2 * i + 1];
-		p[3] = vramPtr1[2 * i + 1];
-
+		std::array<unsigned, 4> p = {
+			vramPtr0[2 * i + 0],
+			vramPtr1[2 * i + 0],
+			vramPtr0[2 * i + 1],
+			vramPtr1[2 * i + 1],
+		};
 		int j = (p[2] & 7) + ((p[3] & 3) << 3) - ((p[3] & 4) << 3);
 		int k = (p[0] & 7) + ((p[1] & 3) << 3) - ((p[1] & 4) << 3);
 
