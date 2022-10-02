@@ -3,6 +3,7 @@
 
 #include "ResampleAlgo.hh"
 #include "BlipBuffer.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -19,12 +20,12 @@ public:
 	                        EmuTime::param time) override;
 
 private:
-	BlipBuffer blip[CHANNELS];
+	std::array<BlipBuffer, CHANNELS> blip;
 	const DynamicClock& hostClock; // time of the last host-sample,
 	                               //    ticks once per host sample
 	using FP = FixedPoint<16>;
 	const FP step;
-	float lastInput[CHANNELS];
+	std::array<float, CHANNELS> lastInput;
 };
 
 } // namespace openmsx

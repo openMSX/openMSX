@@ -4,6 +4,7 @@
 #include "ranges.hh"
 #include "vla.hh"
 #include "xrange.hh"
+#include <array>
 #include <cassert>
 
 namespace openmsx {
@@ -82,7 +83,7 @@ bool ResampleBlip<CHANNELS>::generateOutputImpl(float* dataOut, unsigned hostNum
 		emuClk += emuNum;
 	}
 
-	bool results[CHANNELS];
+	std::array<bool, CHANNELS> results;
 	for (auto ch : xrange(CHANNELS)) {
 		results[ch] = blip[ch].template readSamples<CHANNELS>(dataOut + ch, hostNum);
 	}
