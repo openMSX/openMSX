@@ -35,6 +35,7 @@
 #include "one_of.hh"
 #include "serialize.hh"
 #include <algorithm>
+#include <array>
 #include <cstring>
 #include <memory>
 #include <vector>
@@ -42,19 +43,19 @@
 namespace openmsx {
 
 // Medium type (value like LS-120)
-constexpr uint8_t MT_UNKNOWN   = 0x00;
-constexpr uint8_t MT_2DD_UN    = 0x10;
-constexpr uint8_t MT_2DD       = 0x11;
-constexpr uint8_t MT_2HD_UN    = 0x20;
-constexpr uint8_t MT_2HD_12_98 = 0x22;
-constexpr uint8_t MT_2HD_12    = 0x23;
-constexpr uint8_t MT_2HD_144   = 0x24;
-constexpr uint8_t MT_LS120     = 0x31;
-constexpr uint8_t MT_NO_DISK   = 0x70;
-constexpr uint8_t MT_DOOR_OPEN = 0x71;
-constexpr uint8_t MT_FMT_ERROR = 0x72;
+static constexpr uint8_t MT_UNKNOWN   = 0x00;
+static constexpr uint8_t MT_2DD_UN    = 0x10;
+static constexpr uint8_t MT_2DD       = 0x11;
+static constexpr uint8_t MT_2HD_UN    = 0x20;
+static constexpr uint8_t MT_2HD_12_98 = 0x22;
+static constexpr uint8_t MT_2HD_12    = 0x23;
+static constexpr uint8_t MT_2HD_144   = 0x24;
+static constexpr uint8_t MT_LS120     = 0x31;
+static constexpr uint8_t MT_NO_DISK   = 0x70;
+static constexpr uint8_t MT_DOOR_OPEN = 0x71;
+static constexpr uint8_t MT_FMT_ERROR = 0x72;
 
-constexpr uint8_t inqData[36] = {
+static constexpr std::array<uint8_t, 36> inqData = {
 	  0,   // bit5-0 device type code.
 	  0,   // bit7 = 1 removable device
 	  2,   // bit7,6 ISO version. bit5,4,3 ECMA version.
@@ -72,10 +73,10 @@ constexpr uint8_t inqData[36] = {
 };
 
 // for FDSFORM.COM
-constexpr std::string_view fds120 = "IODATA  LS-120 COSM     0001";
+static constexpr std::string_view fds120 = "IODATA  LS-120 COSM     0001";
 
-constexpr unsigned BUFFER_BLOCK_SIZE = SCSIDevice::BUFFER_SIZE /
-                                       SectorAccessibleDisk::SECTOR_SIZE;
+static constexpr unsigned BUFFER_BLOCK_SIZE = SCSIDevice::BUFFER_SIZE /
+                                              SectorAccessibleDisk::SECTOR_SIZE;
 
 SCSILS120::SCSILS120(const DeviceConfig& targetConfig,
                      AlignedBuffer& buf, unsigned mode_)
@@ -190,13 +191,13 @@ unsigned SCSILS120::inquiry()
 	auto total      = getNbSectors();
 	unsigned length = currentLength;
 
-	bool fdsmode = (total > 0) && (total <= 2880);
+	bool fdsMode = (total > 0) && (total <= 2880);
 
 	if (length == 0) return 0;
 
 	buffer[0] = SCSI::DT_DirectAccess;
 	buffer[1] = 0x80; // removable
-	if (fdsmode) {
+	if (fdsMode) {
 		ranges::copy(subspan<6>(inqData, 2), &buffer[2]);
 		ranges::copy(fds120, &buffer[8]);
 	} else {
@@ -206,11 +207,11 @@ unsigned SCSILS120::inquiry()
 	if (!(mode & BIT_SCSI2)) {
 		buffer[2] = 1;
 		buffer[3] = 1;
-		if (!fdsmode) buffer[20] = '1';
+		if (!fdsMode) buffer[20] = '1';
 	} else {
 		if (mode & BIT_SCSI3) {
 			buffer[2] = 5;
-			if (!fdsmode) buffer[20] = '3';
+			if (!fdsMode) buffer[20] = '3';
 		}
 	}
 
