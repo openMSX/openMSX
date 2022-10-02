@@ -6,13 +6,14 @@
 #include "stl.hh"
 #include "strCat.hh"
 #include "xrange.hh"
+#include <array>
 #include <string_view>
 
 namespace openmsx {
 
 [[nodiscard]] static std::string_view getLedName(LedStatus::Led led)
 {
-	static constexpr const char* const names[LedStatus::NUM_LEDS] = {
+	static constexpr std::array<std::string_view, LedStatus::NUM_LEDS> names = {
 		"power", "caps", "kana", "pause", "turbo", "FDD"
 	};
 	return names[led];

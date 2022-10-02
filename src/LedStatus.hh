@@ -43,7 +43,7 @@ private:
 	Interpreter& interp;
 	std::array<ReadOnlySetting, NUM_LEDS> ledStatus;
 	uint64_t lastTime;
-	bool ledValue[NUM_LEDS];
+	std::array<bool, NUM_LEDS> ledValue;
 };
 
 } // namespace openmsx
