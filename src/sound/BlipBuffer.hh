@@ -8,6 +8,7 @@
 #define BLIPBUFFER_HH
 
 #include "FixedPoint.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -32,12 +33,12 @@ public:
 
 private:
 	template<unsigned PITCH>
-	void readSamplesHelper(float* out, unsigned samples) __restrict;
+	void readSamplesHelper(float* out, unsigned samples);
 
 private:
 	static constexpr unsigned BUFFER_SIZE = 1 << 14;
 	static constexpr unsigned BUFFER_MASK = BUFFER_SIZE - 1;
-	float buffer[BUFFER_SIZE];
+	std::array<float, BUFFER_SIZE> buffer;
 	unsigned offset;
 	float accum;
 	int availSamp;

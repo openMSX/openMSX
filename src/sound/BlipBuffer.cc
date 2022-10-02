@@ -11,21 +11,22 @@
 namespace openmsx {
 
 // Number of samples in a (pre-calculated) impulse-response wave-form.
-constexpr int BLIP_IMPULSE_WIDTH = 16;
+static constexpr int BLIP_IMPULSE_WIDTH = 16;
 
 // Derived constants
-constexpr int BLIP_RES = 1 << BlipBuffer::BLIP_PHASE_BITS;
+static constexpr int BLIP_RES = 1 << BlipBuffer::BLIP_PHASE_BITS;
 
 
 // Precalculated impulse table.
-constexpr auto impulses = [] {
+static constexpr auto impulses = [] {
 	constexpr int HALF_SIZE = BLIP_RES / 2 * (BLIP_IMPULSE_WIDTH - 1);
-	double fImpulse[HALF_SIZE + 2 * BLIP_RES] = {};
-	double* out = &fImpulse[BLIP_RES];
+	std::array<double, BLIP_RES + HALF_SIZE + BLIP_RES> fImpulse = {};
+	std::span<double, HALF_SIZE> out = subspan<HALF_SIZE>(fImpulse, BLIP_RES);
+	std::span<double, BLIP_RES>  end = subspan<BLIP_RES >(fImpulse, BLIP_RES + HALF_SIZE);
 
 	// generate sinc, apply hamming window
-	double oversample = ((4.5 / (BLIP_IMPULSE_WIDTH - 1)) + 0.85);
-	double to_angle = Math::pi / (2.0 * oversample * BLIP_RES);
+	double overSample = ((4.5 / (BLIP_IMPULSE_WIDTH - 1)) + 0.85);
+	double to_angle = Math::pi / (2.0 * overSample * BLIP_RES);
 	double to_fraction = Math::pi / (2 * (HALF_SIZE - 1));
 	for (auto i : xrange(HALF_SIZE)) {
 		double angle = ((i - HALF_SIZE) * 2 + 1) * to_angle;
@@ -35,7 +36,7 @@ constexpr auto impulses = [] {
 
 	// need mirror slightly past center for calculation
 	for (auto i : xrange(BLIP_RES)) {
-		out[HALF_SIZE + i] = out[HALF_SIZE - 1 - i];
+		end[i] = out[HALF_SIZE - 1 - i];
 	}
 
 	// find rescale factor
@@ -47,7 +48,7 @@ constexpr auto impulses = [] {
 
 	// integrate, first difference, rescale, convert to float
 	constexpr int IMPULSES_SIZE = BLIP_RES * (BLIP_IMPULSE_WIDTH / 2) + 1;
-	float imp[IMPULSES_SIZE] = {};
+	std::array<float, IMPULSES_SIZE> imp = {};
 	double sum = 0.0;
 	double next = 0.0;
 	for (auto i : xrange(IMPULSES_SIZE)) {
@@ -117,10 +118,10 @@ void BlipBuffer::addDelta(TimeIndex time, float delta)
 	}
 }
 
-constexpr float BASS_FACTOR = 511.0f / 512.0f;
+static constexpr float BASS_FACTOR = 511.0f / 512.0f;
 
 template<unsigned PITCH>
-void BlipBuffer::readSamplesHelper(float* __restrict out, unsigned samples) __restrict
+void BlipBuffer::readSamplesHelper(float* __restrict out, unsigned samples)
 {
 	assert((offset + samples) <= BUFFER_SIZE);
 	auto acc = accum;
