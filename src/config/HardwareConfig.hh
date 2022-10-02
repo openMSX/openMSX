@@ -6,11 +6,12 @@
 #include "openmsx.hh"
 #include "serialize_meta.hh"
 #include "serialize_constr.hh"
+#include <array>
+#include <memory>
 #include <span>
 #include <string>
 #include <string_view>
 #include <vector>
-#include <memory>
 
 namespace openmsx {
 
@@ -98,10 +99,10 @@ private:
 	XMLDocument config;
 	FileContext context;
 
-	bool externalSlots[4][4];
-	bool externalPrimSlots[4];
-	bool expandedSlots[4];
-	bool allocatedPrimarySlots[4];
+	std::array<std::array<bool, 4>, 4> externalSlots;
+	std::array<bool, 4> externalPrimSlots;
+	std::array<bool, 4> expandedSlots;
+	std::array<bool, 4> allocatedPrimarySlots;
 
 	std::vector<std::unique_ptr<MSXDevice>> devices;
 

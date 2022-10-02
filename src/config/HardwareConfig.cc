@@ -12,6 +12,7 @@
 #include "serialize_stl.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+#include <array>
 #include <cassert>
 #include <iostream>
 #include <memory>
@@ -53,7 +54,7 @@ std::unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 
 	std::vector<std::string_view> ipsfiles;
 	string mapper;
-	ArgsInfo info[] = {
+	std::array info = {
 		valueArg("-ips", ipsfiles),
 		valueArg("-romtype", mapper),
 	};
