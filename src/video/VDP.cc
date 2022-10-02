@@ -1435,7 +1435,7 @@ void VDP::update(const Setting& setting) noexcept
  *
  * Thanks to Tiago Valença and Carlos Mansur for measuring on a T7937A.
  */
-constexpr std::array<std::array<uint8_t, 3>, 16> TOSHIBA_PALETTE = {{
+static constexpr std::array<std::array<uint8_t, 3>, 16> TOSHIBA_PALETTE = {{
 	{   0,   0,   0 },
 	{   0,   0,   0 },
 	{ 102, 204, 102 },
@@ -1461,7 +1461,7 @@ constexpr std::array<std::array<uint8_t, 3>, 16> TOSHIBA_PALETTE = {{
  *
  * https://www.msx.org/forum/msx-talk/hardware/unknown-vdp-yamaha-ym2220?page=3
  */
-constexpr std::array<std::array<uint8_t, 3>, 16> YM2220_PALETTE = {{
+static constexpr std::array<std::array<uint8_t, 3>, 16> YM2220_PALETTE = {{
 	{   0,   0,   0 },
 	{   0,   0,   0 },
 	{  36, 218,  36 },
@@ -1488,7 +1488,7 @@ used in the Fujitsu FM-7. It's encoded in 3-bit RGB.
 This seems to be the 24-bit RGB equivalent to the palette output by the FM-X on
 its RGB connector:
 */
-constexpr std::array<std::array<uint8_t, 3>, 16> THREE_BIT_RGB_PALETTE = {{
+static constexpr std::array<std::array<uint8_t, 3>, 16> THREE_BIT_RGB_PALETTE = {{
 	{   0,   0,   0 },
 	{   0,   0,   0 },
 	{   0, 255,   0 },
@@ -1509,24 +1509,24 @@ constexpr std::array<std::array<uint8_t, 3>, 16> THREE_BIT_RGB_PALETTE = {{
 
 // Source: TMS9918/28/29 Data Book, page 2-17.
 
-constexpr float TMS9XXXA_ANALOG_OUTPUT[16][3] = {
-	//  Y     R-Y    B-Y    voltages
-	{ 0.00f, 0.47f, 0.47f },
-	{ 0.00f, 0.47f, 0.47f },
-	{ 0.53f, 0.07f, 0.20f },
-	{ 0.67f, 0.17f, 0.27f },
-	{ 0.40f, 0.40f, 1.00f },
-	{ 0.53f, 0.43f, 0.93f },
-	{ 0.47f, 0.83f, 0.30f },
-	{ 0.73f, 0.00f, 0.70f },
-	{ 0.53f, 0.93f, 0.27f },
-	{ 0.67f, 0.93f, 0.27f },
-	{ 0.73f, 0.57f, 0.07f },
-	{ 0.80f, 0.57f, 0.17f },
-	{ 0.47f, 0.13f, 0.23f },
-	{ 0.53f, 0.73f, 0.67f },
-	{ 0.80f, 0.47f, 0.47f },
-	{ 1.00f, 0.47f, 0.47f },
+static constexpr std::array<std::array<float, 3>, 16> TMS9XXXA_ANALOG_OUTPUT = {
+	//           Y     R-Y    B-Y    voltages
+	std::array{0.00f, 0.47f, 0.47f},
+	std::array{0.00f, 0.47f, 0.47f},
+	std::array{0.53f, 0.07f, 0.20f},
+	std::array{0.67f, 0.17f, 0.27f},
+	std::array{0.40f, 0.40f, 1.00f},
+	std::array{0.53f, 0.43f, 0.93f},
+	std::array{0.47f, 0.83f, 0.30f},
+	std::array{0.73f, 0.00f, 0.70f},
+	std::array{0.53f, 0.93f, 0.27f},
+	std::array{0.67f, 0.93f, 0.27f},
+	std::array{0.73f, 0.57f, 0.07f},
+	std::array{0.80f, 0.57f, 0.17f},
+	std::array{0.47f, 0.13f, 0.23f},
+	std::array{0.53f, 0.73f, 0.67f},
+	std::array{0.80f, 0.47f, 0.47f},
+	std::array{1.00f, 0.47f, 0.47f},
 };
 
 std::array<std::array<uint8_t, 3>, 16> VDP::getMSX1Palette() const

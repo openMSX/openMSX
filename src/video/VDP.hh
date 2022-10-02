@@ -1128,7 +1128,7 @@ private:
 
 	/** Control registers.
 	  */
-	byte controlRegs[32];
+	std::array<byte, 32> controlRegs;
 
 	/** Mask on the control register index:
 	  * makes MSX2 registers inaccessible on MSX1,
