@@ -2,6 +2,9 @@
 #define DRIVEMULTIPLEXER_HH
 
 #include "DiskDrive.hh"
+#include <array>
+#include <memory>
+#include <span>
 
 namespace openmsx {
 
@@ -21,7 +24,7 @@ public:
 	};
 
 	// Multiplexer interface
-	explicit DriveMultiplexer(DiskDrive* drv[4]);
+	explicit DriveMultiplexer(std::span<std::unique_ptr<DiskDrive>, 4> drv);
 
 	void selectDrive(DriveNum num, EmuTime::param time);
 	[[nodiscard]] DriveNum getSelectedDrive() const { return selected; }
@@ -58,10 +61,10 @@ public:
 
 private:
 	DummyDrive dummyDrive;
-	DiskDrive* drive[5];
-	DriveNum selected;
-	bool motor;
-	bool side;
+	std::array<DiskDrive*, 5> drive;
+	DriveNum selected = NO_DRIVE;
+	bool motor = false;
+	bool side = false;
 };
 
 } // namespace openmsx

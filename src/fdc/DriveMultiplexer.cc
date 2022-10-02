@@ -3,15 +3,12 @@
 
 namespace openmsx {
 
-DriveMultiplexer::DriveMultiplexer(DiskDrive* drv[4])
-	: selected(NO_DRIVE)
-	, motor(false)
-	, side(false)
+DriveMultiplexer::DriveMultiplexer(std::span<std::unique_ptr<DiskDrive>, 4> drv)
 {
-	drive[DRIVE_A]  = drv[0];
-	drive[DRIVE_B]  = drv[1];
-	drive[DRIVE_C]  = drv[2];
-	drive[DRIVE_D]  = drv[3];
+	drive[DRIVE_A]  = drv[0].get();
+	drive[DRIVE_B]  = drv[1].get();
+	drive[DRIVE_C]  = drv[2].get();
+	drive[DRIVE_D]  = drv[3].get();
 	drive[NO_DRIVE] = &dummyDrive;
 }
 
