@@ -7,6 +7,7 @@
 #include "RenderSettings.hh"
 #include "ScalerOutput.hh"
 #include <concepts>
+#include <span>
 
 namespace openmsx {
 
@@ -37,8 +38,7 @@ public:
 private:
 	void preCalcNoise(float factor);
 	void drawNoise(OutputSurface& output);
-	void drawNoiseLine(Pixel* buf, signed char* noise,
-	                   size_t width);
+	void drawNoiseLine(std::span<Pixel> buf, signed char* noise);
 
 	// Observer<Setting>
 	void update(const Setting& setting) noexcept override;

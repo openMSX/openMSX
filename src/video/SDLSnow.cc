@@ -31,12 +31,12 @@ void SDLSnow<Pixel>::paint(OutputSurface& output_)
 		auto pixelAccess = output.getDirectPixelAccess();
 		auto [width, height] = output.getLogicalSize();
 		for (int y = 0; y < height; y += 2) {
-			auto* p0 = pixelAccess.getLinePtr<Pixel>(y + 0);
-			auto* p1 = pixelAccess.getLinePtr<Pixel>(y + 1);
+			auto p0 = pixelAccess.getLine<Pixel>(y + 0).subspan(0, width);
 			for (int x = 0; x < width; x += 2) {
 				p0[x + 0] = p0[x + 1] = gray[distribution(generator)];
 			}
-			ranges::copy(std::span{p0, size_t(width)}, p1);
+			auto p1 = pixelAccess.getLine<Pixel>(y + 1).subspan(0, width);
+			ranges::copy(p0, p1);
 		}
 	}
 	output.flushFrameBuffer();

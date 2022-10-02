@@ -4,6 +4,7 @@
 #include "OutputSurface.hh"
 #include <cassert>
 #include <concepts>
+#include <span>
 #include <SDL.h>
 
 namespace openmsx {
@@ -15,8 +16,9 @@ public:
 	~SDLDirectPixelAccess();
 
 	template<std::unsigned_integral Pixel>
-	[[nodiscard]] Pixel* getLinePtr(unsigned y) {
-		return reinterpret_cast<Pixel*>(static_cast<char*>(surface->pixels) + y * surface->pitch);
+	[[nodiscard]] std::span<Pixel> getLine(unsigned y) {
+		return {reinterpret_cast<Pixel*>(static_cast<char*>(surface->pixels) + y * surface->pitch),
+		        size_t(surface->w)};
 	}
 
 private:

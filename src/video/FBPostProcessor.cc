@@ -12,6 +12,7 @@
 #include "random.hh"
 #include "xrange.hh"
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <cmath>
 #include <cstdint>
@@ -23,9 +24,8 @@
 
 namespace openmsx {
 
-constexpr unsigned NOISE_SHIFT = 8192;
-constexpr unsigned NOISE_BUF_SIZE = 2 * NOISE_SHIFT;
-ALIGNAS_SSE static signed char noiseBuf[NOISE_BUF_SIZE];
+static constexpr unsigned NOISE_SHIFT = 8192;
+ALIGNAS_SSE static std::array<signed char, 2 * NOISE_SHIFT> noiseBuf;
 
 template<std::unsigned_integral Pixel>
 void FBPostProcessor<Pixel>::preCalcNoise(float factor)
@@ -38,7 +38,7 @@ void FBPostProcessor<Pixel>::preCalcNoise(float factor)
 	// 4 element boundaries) must have the same value. Later optimizations
 	// depend on it.
 
-	float scale[4];
+	std::array<float, 4> scale;
 	if constexpr (sizeof(Pixel) == 4) {
 		// 32bpp
 		// TODO ATM we compensate for big endian here. A better
@@ -49,7 +49,7 @@ void FBPostProcessor<Pixel>::preCalcNoise(float factor)
 		// TODO we can also fill the array with 'factor' and only set
 		// 'alpha' to 0.0. But PixelOperations doesn't offer a simple
 		// way to get the position of the alpha byte (yet).
-		scale[0] = scale[1] = scale[2] = scale[3] = 0.0f;
+		ranges::fill(scale, 0.0f);
 		scale[pixelOps.red  (p)] = factor;
 		scale[pixelOps.green(p)] = factor;
 		scale[pixelOps.blue (p)] = factor;
@@ -63,7 +63,7 @@ void FBPostProcessor<Pixel>::preCalcNoise(float factor)
 
 	auto& generator = global_urng(); // fast (non-cryptographic) random numbers
 	std::normal_distribution<float> distribution(0.0f, 1.0f);
-	for (unsigned i = 0; i < NOISE_BUF_SIZE; i += 4) {
+	for (unsigned i = 0; i < noiseBuf.size(); i += 4) {
 		float r = distribution(generator);
 		noiseBuf[i + 0] = std::clamp(int(roundf(r * scale[0])), -128, 127);
 		noiseBuf[i + 1] = std::clamp(int(roundf(r * scale[1])), -128, 127);
@@ -163,13 +163,14 @@ static constexpr uint32_t addNoise4(uint32_t p, uint32_t n)
 
 template<std::unsigned_integral Pixel>
 void FBPostProcessor<Pixel>::drawNoiseLine(
-		Pixel* buf, signed char* noise, size_t width)
+		std::span<Pixel> buf, signed char* noise)
 {
+	auto width = buf.size();
 #ifdef __SSE2__
 	if constexpr (sizeof(Pixel) == 4) {
 		// cast to avoid compilation error in case of 16bpp (even
 		// though this code is dead in that case).
-		auto* buf32 = reinterpret_cast<uint32_t*>(buf);
+		auto* buf32 = reinterpret_cast<uint32_t*>(buf.data());
 		drawNoiseLineSse2(buf32, noise, width);
 		return;
 	}
@@ -213,8 +214,8 @@ void FBPostProcessor<Pixel>::drawNoise(OutputSurface& output_)
 	auto [w, h] = output.getLogicalSize();
 	auto pixelAccess = output.getDirectPixelAccess();
 	for (auto y : xrange(h)) {
-		auto* buf = pixelAccess.getLinePtr<Pixel>(y);
-		drawNoiseLine(buf, &noiseBuf[noiseShift[y]], w);
+		auto buf = pixelAccess.getLine<Pixel>(y).subspan(0, w);
+		drawNoiseLine(buf, &noiseBuf[noiseShift[y]]);
 	}
 }
 
