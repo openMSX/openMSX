@@ -3,24 +3,25 @@
 #include "MSXMotherBoard.hh"
 #include "EmuTime.hh"
 #include "serialize.hh"
+#include <array>
 
 namespace openmsx {
 
 // control register bits
-constexpr unsigned CR_CDS1 = 0x01; // Counter Divide Select 1
-constexpr unsigned CR_CDS2 = 0x02; // Counter Divide Select 2
-constexpr unsigned CR_CDS  = CR_CDS1 | CR_CDS2;
-constexpr unsigned CR_MR   = CR_CDS1 | CR_CDS2; // Master Reset
+static constexpr unsigned CR_CDS1 = 0x01; // Counter Divide Select 1
+static constexpr unsigned CR_CDS2 = 0x02; // Counter Divide Select 2
+static constexpr unsigned CR_CDS  = CR_CDS1 | CR_CDS2;
+static constexpr unsigned CR_MR   = CR_CDS1 | CR_CDS2; // Master Reset
 // CDS2 CDS1
 // 0    0     divide by 1
 // 0    1     divide by 16
 // 1    0     divide by 64
 // 1    1     master reset (!)
 
-constexpr unsigned CR_WS1  = 0x04; // Word Select 1 (mostly parity)
-constexpr unsigned CR_WS2  = 0x08; // Word Select 2 (mostly nof stop bits)
-constexpr unsigned CR_WS3  = 0x10; // Word Select 3: 7/8 bits
-constexpr unsigned CR_WS   = CR_WS1 | CR_WS2 | CR_WS3; // Word Select
+static constexpr unsigned CR_WS1  = 0x04; // Word Select 1 (mostly parity)
+static constexpr unsigned CR_WS2  = 0x08; // Word Select 2 (mostly nof stop bits)
+static constexpr unsigned CR_WS3  = 0x10; // Word Select 3: 7/8 bits
+static constexpr unsigned CR_WS   = CR_WS1 | CR_WS2 | CR_WS3; // Word Select
 // WS3 WS2 WS1
 // 0   0   0   7 bits - 2 stop bits - Even parity
 // 0   0   1   7 bits - 2 stop bits - Odd  parity
@@ -31,9 +32,9 @@ constexpr unsigned CR_WS   = CR_WS1 | CR_WS2 | CR_WS3; // Word Select
 // 1   1   0   8 bits - 1 stop bit  - Even parity
 // 1   1   1   8 bits - 1 stop bit  - Odd  parity
 
-constexpr unsigned CR_TC1  = 0x20; // Transmit Control 1
-constexpr unsigned CR_TC2  = 0x40; // Transmit Control 2
-constexpr unsigned CR_TC   = CR_TC1 | CR_TC2; // Transmit Control
+static constexpr unsigned CR_TC1  = 0x20; // Transmit Control 1
+static constexpr unsigned CR_TC2  = 0x40; // Transmit Control 2
+static constexpr unsigned CR_TC   = CR_TC1 | CR_TC2; // Transmit Control
 // TC2 TC1
 // 0   0   /RTS low,  Transmitting Interrupt disabled
 // 0   1   /RTS low,  Transmitting Interrupt enabled
@@ -41,19 +42,19 @@ constexpr unsigned CR_TC   = CR_TC1 | CR_TC2; // Transmit Control
 // 1   1   /RTS low,  Transmits a Break level on the Transmit Data Output.
 //                                 Interrupt disabled
 
-constexpr unsigned CR_RIE  = 0x80; // Receive Interrupt Enable: interrupt
+static constexpr unsigned CR_RIE  = 0x80; // Receive Interrupt Enable: interrupt
 // at Receive Data Register Full, Overrun, low-to-high transition on the Data
 // Carrier Detect (/DCD) signal line
 
 // status register bits
-constexpr unsigned STAT_RDRF = 0x01; // Receive Data Register Full
-constexpr unsigned STAT_TDRE = 0x02; // Transmit Data Register Empty
-constexpr unsigned STAT_DCD  = 0x04; // Data Carrier Detect (/DCD)
-constexpr unsigned STAT_CTS  = 0x08; // Clear-to-Send (/CTS)
-constexpr unsigned STAT_FE   = 0x10; // Framing Error
-constexpr unsigned STAT_OVRN = 0x20; // Receiver Overrun
-constexpr unsigned STAT_PE   = 0x40; // Parity Error
-constexpr unsigned STAT_IRQ  = 0x80; // Interrupt Request (/IRQ)
+static constexpr unsigned STAT_RDRF = 0x01; // Receive Data Register Full
+static constexpr unsigned STAT_TDRE = 0x02; // Transmit Data Register Empty
+static constexpr unsigned STAT_DCD  = 0x04; // Data Carrier Detect (/DCD)
+static constexpr unsigned STAT_CTS  = 0x08; // Clear-to-Send (/CTS)
+static constexpr unsigned STAT_FE   = 0x10; // Framing Error
+static constexpr unsigned STAT_OVRN = 0x20; // Receiver Overrun
+static constexpr unsigned STAT_PE   = 0x40; // Parity Error
+static constexpr unsigned STAT_IRQ  = 0x80; // Interrupt Request (/IRQ)
 
 MC6850::MC6850(const std::string& name_, MSXMotherBoard& motherBoard, unsigned clockFreq_)
 	: MidiInConnector(motherBoard.getPluggingController(), name_ + "-in")
@@ -150,7 +151,7 @@ void MC6850::setDataFormat()
 {
 	outConnector.setDataBits(controlReg & CR_WS3 ? DATA_8 : DATA_7);
 
-	StopBits stopBits[8] = {
+	static constexpr std::array<StopBits, 8> stopBits = {
 		STOP_2, STOP_2, STOP_1, STOP_1,
 		STOP_2, STOP_1, STOP_1, STOP_1,
 	};
@@ -161,7 +162,7 @@ void MC6850::setDataFormat()
 		(controlReg & CR_WS1) ? ODD : EVEN);
 
 	// start-bits, data-bits, parity-bits, stop-bits
-	byte len[8] = {
+	static constexpr std::array<byte, 8> len = {
 		1 + 7 + 1 + 2,
 		1 + 7 + 1 + 2,
 		1 + 7 + 1 + 1,
