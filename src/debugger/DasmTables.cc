@@ -2,7 +2,7 @@
 
 namespace openmsx {
 
-const char* mnemonic_xx_cb[256] =
+std::array<const char*, 256> mnemonic_xx_cb =
 {
 	"#","#","#","#","#","#","rlc Y"  ,"#",
 	"#","#","#","#","#","#","rrc Y"  ,"#",
@@ -38,7 +38,7 @@ const char* mnemonic_xx_cb[256] =
 	"#","#","#","#","#","#","set 7,Y","#"
 };
 
-const char* mnemonic_cb[256] =
+std::array<const char*, 256> mnemonic_cb =
 {
 	"rlc b"  ,"rlc c"  ,"rlc d"  ,"rlc e"  ,"rlc h"  ,"rlc l"  ,"rlc (hl)"  ,"rlc a"  ,
 	"rrc b"  ,"rrc c"  ,"rrc d"  ,"rrc e"  ,"rrc h"  ,"rrc l"  ,"rrc (hl)"  ,"rrc a"  ,
@@ -74,7 +74,7 @@ const char* mnemonic_cb[256] =
 	"set 7,b","set 7,c","set 7,d","set 7,e","set 7,h","set 7,l","set 7,(hl)","set 7,a"
 };
 
-const char* mnemonic_ed[256] =
+std::array<const char*, 256> mnemonic_ed =
 {
 	"!"       ,"!"        ,"!"        ,"!"        ,"!"  ,"!"   ,"!"   ,"!"     ,
 	"!"       ,"!"        ,"!"        ,"!"        ,"!"  ,"!"   ,"!"   ,"!"     ,
@@ -110,7 +110,7 @@ const char* mnemonic_ed[256] =
 	"!"       ,"mulub a,a","!"        ,"!"        ,"!",  "!"   ,"!"   ,"!"
 };
 
-const char* mnemonic_xx[256] =
+std::array<const char*, 256> mnemonic_xx =
 {
 	"@"      ,"@"       ,"@"       ,"@"        ,"@"       ,"@"       ,"@"      ,"@"      ,
 	"@"      ,"add I,bc","@"       ,"@"        ,"@"       ,"@"       ,"@"      ,"@"      ,
@@ -146,7 +146,7 @@ const char* mnemonic_xx[256] =
 	"@"      ,"ld sp,I" ,"@"       ,"@"        ,"@"       ,"@"       ,"@"      ,"@"
 };
 
-const char* mnemonic_main[256] =
+std::array<const char*, 256> mnemonic_main =
 {
 	"nop"      ,"ld bc,W"  ,"ld (bc),a","inc bc"    ,"inc b"    ,"dec b"    ,"ld b,B"    ,"rlca"     ,
 	"ex af,af'","add hl,bc","ld a,(bc)","dec bc"    ,"inc c"    ,"dec c"    ,"ld c,B"    ,"rrca"     ,

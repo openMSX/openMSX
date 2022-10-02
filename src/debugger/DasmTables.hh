@@ -1,13 +1,15 @@
 #ifndef DASMTABLES_HH
 #define DASMTABLES_HH
 
+#include <array>
+
 namespace openmsx {
 
-extern const char* mnemonic_xx_cb[256];
-extern const char* mnemonic_cb[256];
-extern const char* mnemonic_ed[256];
-extern const char* mnemonic_xx[256];
-extern const char* mnemonic_main[256];
+extern std::array<const char*, 256> mnemonic_xx_cb;
+extern std::array<const char*, 256> mnemonic_cb;
+extern std::array<const char*, 256> mnemonic_ed;
+extern std::array<const char*, 256> mnemonic_xx;
+extern std::array<const char*, 256> mnemonic_main;
 
 } // namespace openmsx
 
