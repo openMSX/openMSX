@@ -8,6 +8,7 @@
 #include "EmuTime.hh"
 #include "openmsx.hh"
 #include "serialize_meta.hh"
+#include <array>
 #include <string>
 
 namespace openmsx {
@@ -111,7 +112,7 @@ private:
 		void write(unsigned address, byte value) override;
 	} debugMemory;
 
-	Slot slots[24];
+	std::array<Slot, 24> slots;
 
 	/** Global envelope generator counter. */
 	unsigned eg_cnt;
@@ -121,7 +122,7 @@ private:
 	Rom rom;
 	TrackedRam ram;
 
-	byte regs[256];
+	std::array<byte, 256> regs;
 };
 SERIALIZE_CLASS_VERSION(YMF278::Slot, 6);
 SERIALIZE_CLASS_VERSION(YMF278, 4);
