@@ -11,7 +11,7 @@ SunriseIDE::SunriseIDE(const DeviceConfig& config)
 	: MSXDevice(config)
 	, romBlockDebug(*this)
 	, rom(getName() + " ROM", "rom", config)
-	, internalBank(nullptr) // make valgrind happy
+	, internalBank(subspan<0x4000>(rom)) // make valgrind happy
 	, ideRegsEnabled(false)
 {
 	device[0] = IDEDeviceFactory::create(
@@ -118,9 +118,9 @@ void SunriseIDE::writeControl(byte value)
 		invalidateDeviceRCache(0xFC00, 0x0300);
 	}
 
-	byte bank = getBank();
-	if (internalBank != &rom[0x4000 * bank]) {
-		internalBank = &rom[0x4000 * bank];
+	size_t bank = getBank();
+	if (internalBank.data() != &rom[0x4000 * bank]) {
+		internalBank = subspan<0x4000>(rom, 0x4000 * bank);
 		invalidateDeviceRCache(0x4000, 0x4000);
 	}
 }

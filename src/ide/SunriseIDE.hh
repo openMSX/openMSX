@@ -5,6 +5,7 @@
 #include "Rom.hh"
 #include "RomBlockDebuggable.hh"
 #include <memory>
+#include <span>
 
 namespace openmsx {
 
@@ -46,8 +47,8 @@ private:
 	} romBlockDebug;
 
 	Rom rom;
-	std::unique_ptr<IDEDevice> device[2];
-	const byte* internalBank;
+	std::array<std::unique_ptr<IDEDevice>, 2> device;
+	std::span<const byte, 0x4000> internalBank;
 	byte readLatch;
 	byte writeLatch;
 	byte selectedDevice;
