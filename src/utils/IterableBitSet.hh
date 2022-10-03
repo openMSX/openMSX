@@ -3,6 +3,7 @@
 
 #include "ranges.hh"
 #include "xrange.hh"
+#include <array>
 #include <bit>
 #include <cassert>
 #include <concepts>
@@ -125,7 +126,7 @@ public:
 	}
 
 private:
-	WordType words[NUM_WORDS] = {};
+	std::array<WordType, NUM_WORDS> words = {};
 };
 
 #endif
