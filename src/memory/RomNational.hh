@@ -2,6 +2,7 @@
 #define ROMNATIONAL_HH
 
 #include "RomBlocks.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -23,7 +24,7 @@ public:
 private:
 	int sramAddr;
 	byte control;
-	byte bankSelect[4];
+	std::array<byte, 4> bankSelect;
 };
 
 } // namespace openmsx
