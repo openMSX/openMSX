@@ -1,6 +1,7 @@
 #ifndef CIRCULARBUFFER_HH
 #define CIRCULARBUFFER_HH
 
+#include <array>
 #include <cassert>
 #include <cstddef>
 #include <utility>
@@ -80,7 +81,7 @@ private:
 	size_t first = 0;
 	size_t last = 0;
 	// one extra to be able to distinguish full and empty
-	T buffer[MAXSIZE + 1];
+	std::array<T, MAXSIZE + 1> buffer;
 };
 
 } // namespace openmsx
