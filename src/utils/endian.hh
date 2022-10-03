@@ -2,6 +2,7 @@
 #define ENDIAN_HH
 
 #include "inline.hh"
+#include <array>
 #include <bit>
 #include <cassert>
 #include <concepts>
@@ -255,42 +256,42 @@ template<bool SWAP, std::integral T> [[nodiscard]] static ALWAYS_INLINE T read_U
 
 class UA_B16 {
 public:
-	[[nodiscard]] inline operator uint16_t() const { return read_UA_B16(x); }
-	inline UA_B16& operator=(uint16_t a) { write_UA_B16(x, a); return *this; }
+	[[nodiscard]] inline operator uint16_t() const { return read_UA_B16(x.data()); }
+	inline UA_B16& operator=(uint16_t a) { write_UA_B16(x.data(), a); return *this; }
 private:
-	uint8_t x[2];
+	std::array<uint8_t, 2> x;
 };
 
 class UA_L16 {
 public:
-	[[nodiscard]] inline operator uint16_t() const { return read_UA_L16(x); }
-	inline UA_L16& operator=(uint16_t a) { write_UA_L16(x, a); return *this; }
+	[[nodiscard]] inline operator uint16_t() const { return read_UA_L16(x.data()); }
+	inline UA_L16& operator=(uint16_t a) { write_UA_L16(x.data(), a); return *this; }
 private:
-	uint8_t x[2];
+	std::array<uint8_t, 2> x;
 };
 
 class UA_L24 {
 public:
-	inline operator uint32_t() const     { return read_UA_L24(x); }
-	inline UA_L24& operator=(uint32_t a) { write_UA_L24(x, a); return *this; }
+	inline operator uint32_t() const     { return read_UA_L24(x.data()); }
+	inline UA_L24& operator=(uint32_t a) { write_UA_L24(x.data(), a); return *this; }
 private:
-	uint8_t x[3];
+	std::array<uint8_t, 3> x;
 };
 
 class UA_B32 {
 public:
-	[[nodiscard]] inline operator uint32_t() const { return read_UA_B32(x); }
-	inline UA_B32& operator=(uint32_t a) { write_UA_B32(x, a); return *this; }
+	[[nodiscard]] inline operator uint32_t() const { return read_UA_B32(x.data()); }
+	inline UA_B32& operator=(uint32_t a) { write_UA_B32(x.data(), a); return *this; }
 private:
-	uint8_t x[4];
+	std::array<uint8_t, 4> x;
 };
 
 class UA_L32 {
 public:
-	[[nodiscard]] inline operator uint32_t() const { return read_UA_L32(x); }
-	inline UA_L32& operator=(uint32_t a) { write_UA_L32(x, a); return *this; }
+	[[nodiscard]] inline operator uint32_t() const { return read_UA_L32(x.data()); }
+	inline UA_L32& operator=(uint32_t a) { write_UA_L32(x.data(), a); return *this; }
 private:
-	uint8_t x[4];
+	std::array<uint8_t, 4> x;
 };
 
 static_assert(sizeof(UA_B16)  == 2, "must have size 2");
