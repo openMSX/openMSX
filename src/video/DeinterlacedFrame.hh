@@ -2,6 +2,7 @@
 #define DEINTERLACEDFRAME_HH
 
 #include "FrameSource.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -25,7 +26,7 @@ private:
 	/** The original frames whose data will be deinterlaced.
 	  * The even frame is at index 0, the odd frame at index 1.
 	  */
-	FrameSource* fields[2];
+	std::array<FrameSource*, 2> fields;
 };
 
 } // namespace openmsx
