@@ -212,7 +212,7 @@ string_view MemInputArchive::loadStr()
 // compression has a relatively large setup time). I choose this value
 // semi-arbitrary. I only made it >= 52 so that the (incompressible) RP5C01
 // registers won't be compressed.
-constexpr size_t SMALL_SIZE = 64;
+static constexpr size_t SMALL_SIZE = 64;
 void MemOutputArchive::serialize_blob(const char* /*tag*/, std::span<const uint8_t> data,
                                       bool diff)
 {

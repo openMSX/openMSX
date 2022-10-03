@@ -13,6 +13,7 @@
 #include "unreachable.hh"
 #include "zstring_view.hh"
 #include <zlib.h>
+#include <array>
 #include <cassert>
 #include <memory>
 #include <optional>
@@ -649,6 +650,7 @@ template<> struct SerializeAsMemcpy<         float    > : std::true_type {};
 template<> struct SerializeAsMemcpy<         double   > : std::true_type {};
 template<> struct SerializeAsMemcpy<    long double   > : std::true_type {};
 template<typename T, size_t N> struct SerializeAsMemcpy<T[N]> : SerializeAsMemcpy<T> {};
+template<typename T, size_t N> struct SerializeAsMemcpy<std::array<T, N>> : SerializeAsMemcpy<T> {};
 
 class MemOutputArchive final : public OutputArchiveBase<MemOutputArchive>
 {
@@ -700,6 +702,12 @@ public:
 		requires(SerializeAsMemcpy<T>::value)
 	{
 		buffer.insert(&t[0], N * sizeof(T));
+	}
+	template<typename T, size_t N>
+	ALWAYS_INLINE void serialize(const char* /*tag*/, const std::array<T, N>& t)
+		requires(SerializeAsMemcpy<T>::value)
+	{
+		buffer.insert(t.data(), N * sizeof(T));
 	}
 
 	void beginSection()
@@ -808,6 +816,13 @@ public:
 		requires(SerializeAsMemcpy<T>::value)
 	{
 		buffer.read(&t[0], N * sizeof(T));
+	}
+
+	template<typename T, size_t N>
+	ALWAYS_INLINE void serialize(const char* /*tag*/, std::array<T, N>& t)
+		requires(SerializeAsMemcpy<T>::value)
+	{
+		buffer.read(t.data(), N * sizeof(T));
 	}
 
 	void skipSection(bool skip)
