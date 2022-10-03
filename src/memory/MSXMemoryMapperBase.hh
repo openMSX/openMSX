@@ -5,6 +5,7 @@
 #include "MSXMapperIO.hh"
 #include "CheckedRam.hh"
 #include "SimpleDebuggable.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -51,7 +52,7 @@ protected:
 	void writeIOImpl(word port, byte value, EmuTime::param time);
 
 	CheckedRam checkedRam;
-	byte registers[4];
+	std::array<byte, 4> registers;
 
 private:
 	struct Debuggable final : SimpleDebuggable {
