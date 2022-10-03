@@ -3,6 +3,7 @@
 
 #include "GLScaler.hh"
 #include "GLUtil.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -21,8 +22,8 @@ public:
 
 private:
 	RenderSettings& renderSettings;
-	GLint unifMinScanline [2];
-	GLint unifSizeVariance[2];
+	std::array<GLint, 2> unifMinScanline;
+	std::array<GLint, 2> unifSizeVariance;
 };
 
 } // namespace openmsx
