@@ -4,6 +4,7 @@
 #include "MSXDevice.hh"
 #include "SRAM.hh"
 #include "RomBlockDebuggable.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -30,8 +31,8 @@ private:
 	SRAM sram;
 	RomBlockDebuggable romBlockDebug;
 
-	bool isWriteable[4]; // which region is readonly?
-	byte mapped[4]; // which block is mapped in this region?
+	std::array<bool, 4> isWriteable; // which region is readonly?
+	std::array<byte, 4> mapped; // which block is mapped in this region?
 	const byte blockMask;
 };
 
