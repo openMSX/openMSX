@@ -6,8 +6,9 @@
 #include <ogg/ogg.h>
 #include <vorbis/codec.h>
 #include <theora/theoradec.h>
-#include <memory>
+#include <array>
 #include <list>
+#include <memory>
 #include <vector>
 
 namespace openmsx {
@@ -22,7 +23,7 @@ struct AudioFragment
 	static constexpr unsigned MAX_SAMPLES = 2048;
 	size_t position;
 	unsigned length;
-	float pcm[2][MAX_SAMPLES];
+	std::array<std::array<float, MAX_SAMPLES>, 2> pcm;
 };
 
 struct Frame
