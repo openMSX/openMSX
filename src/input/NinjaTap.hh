@@ -2,6 +2,7 @@
 #define NINJATAP_HH
 
 #include "JoyTap.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -24,7 +25,7 @@ public:
 private:
 	byte status;
 	byte previous;
-	byte buf[4];
+	std::array<byte, 4> buf;
 };
 
 } // namespace openmsx

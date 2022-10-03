@@ -5,6 +5,7 @@
 #include "JoystickPort.hh"
 #include "serialize_meta.hh"
 #include "static_string_view.hh"
+#include <array>
 #include <optional>
 
 namespace openmsx {
@@ -40,7 +41,7 @@ protected:
 	void createPorts(static_string_view description, EmuTime::param time);
 
 protected:
-	std::optional<JoystickPort> slaves[4];
+	std::array<std::optional<JoystickPort>, 4> slaves;
 	PluggingController& pluggingController;
 
 private:
