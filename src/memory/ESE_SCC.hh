@@ -5,6 +5,7 @@
 #include "SRAM.hh"
 #include "SCC.hh"
 #include "RomBlockDebuggable.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -39,7 +40,7 @@ private:
 	RomBlockDebuggable romBlockDebug;
 
 	const byte mapperMask;
-	byte mapper[4];
+	std::array<byte, 4> mapper;
 	bool spcEnable;
 	bool sccEnable;
 	bool writeEnable;
