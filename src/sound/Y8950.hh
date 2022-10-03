@@ -11,6 +11,8 @@
 #include "EmuTime.hh"
 #include "FixedPoint.hh"
 #include "openmsx.hh"
+#include <array>
+#include <span>
 #include <string>
 #include <memory>
 
@@ -138,6 +140,7 @@ private:
 
 	class Slot {
 	public:
+		Slot();
 		void reset();
 
 		[[nodiscard]] inline bool isActive() const;
@@ -171,8 +174,8 @@ private:
 		unsigned dPhase;	// Phase increment amount
 
 		// for Envelope Generator (EG)
-		const EnvPhaseIndex* dPhaseARTableRks;
-		const EnvPhaseIndex* dPhaseDRTableRks;
+		std::span<const EnvPhaseIndex, 16> dPhaseARTableRks;
+		std::span<const EnvPhaseIndex, 16> dPhaseDRTableRks;
 		int tll;		// Total Level + Key scale level
 		EnvelopeState eg_mode;  // Current state
 		EnvPhaseIndex eg_phase;	// Phase
@@ -193,7 +196,7 @@ private:
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);
 
-		Slot slot[2];
+		std::array<Slot, 2> slot;
 		unsigned freq; // combined F-Number and Block
 		bool alg;
 	};
@@ -214,9 +217,9 @@ private:
 	const std::unique_ptr<EmuTimer> timer2; // 320us timer
 	IRQHelper irq;
 
-	byte reg[0x100];
+	std::array<byte, 0x100> reg;
 
-	Channel ch[9];
+	std::array<Channel, 9> ch;
 
 	unsigned pm_phase; // Pitch Modulator
 	unsigned am_phase; // Amp Modulator
