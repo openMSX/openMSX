@@ -2,6 +2,7 @@
 #define SDLSNOW_HH
 
 #include "Layer.hh"
+#include <array>
 #include <concepts>
 
 namespace openmsx {
@@ -25,7 +26,7 @@ private:
 
 	/** Gray values for noise.
 	  */
-	Pixel gray[256];
+	std::array<Pixel, 256> gray;
 };
 
 } // namespace openmsx
