@@ -11,6 +11,7 @@
 #include "TclObject.hh"
 #include "utf8_unchecked.hh"
 #include "xrange.hh"
+#include <array>
 
 using std::vector;
 using std::string;
@@ -139,7 +140,7 @@ void Completer::completeFileNameImpl(vector<string>& tokens,
 
 	std::span<const string> paths;
 	if (FileOperations::isAbsolutePath(filename)) {
-		static const string EMPTY[1] = {""};
+		static const std::array<std::string, 1> EMPTY = {""};
 		paths = EMPTY;
 	} else {
 		paths = context.getPaths();
