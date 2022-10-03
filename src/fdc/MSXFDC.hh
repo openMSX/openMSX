@@ -4,6 +4,7 @@
 #include "MSXDevice.hh"
 #include "DiskDrive.hh"
 #include "Rom.hh"
+#include <array>
 #include <memory>
 #include <optional>
 #include <string>
@@ -30,7 +31,7 @@ protected:
 
 protected:
 	std::optional<Rom> rom;
-	std::unique_ptr<DiskDrive> drives[4];
+	std::array<std::unique_ptr<DiskDrive>, 4> drives;
 };
 
 REGISTER_BASE_NAME_HELPER(MSXFDC, "FDC");
