@@ -4,6 +4,7 @@
 #include "MSXRom.hh"
 #include "RomBlockDebuggable.hh"
 #include "serialize_meta.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -77,17 +78,16 @@ protected:
 	 * Should only be called from subclass constructor.
 	 * (e.g. used by RomPanasonic)
 	 */
-	void setExtraMemory(const byte* mem, unsigned size);
+	void setExtraMemory(std::span<const byte> mem);
 
 protected:
-	const byte* bankPtr[NUM_BANKS];
+	std::array<const byte*, NUM_BANKS> bankPtr;
 	std::unique_ptr<SRAM> sram; // can be nullptr
-	byte blockNr[NUM_BANKS];
+	std::array<byte, NUM_BANKS> blockNr;
 
 private:
 	RomBlockDebuggable romBlockDebug;
-	const byte* extraMem;
-	unsigned extraSize;
+	std::span<const byte> extraMem;
 	/*const*/ unsigned nrBlocks;
 	int blockMask;
 };

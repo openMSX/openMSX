@@ -37,8 +37,7 @@ RomBlocks<BANK_SIZE>::RomBlocks(
 	assert((nrBlocks * BANK_SIZE) == rom.size());
 
 	// by default no extra mappable memory block
-	extraMem = nullptr;
-	extraSize = 0;
+	extraMem = {};
 
 	// Default mask: wraps at end of ROM image.
 	blockMask = nrBlocks - 1;
@@ -82,7 +81,7 @@ void RomBlocks<BANK_SIZE>::setBank(byte region, const byte* adr, int block)
 	        ((&rom[0] <= adr) && (adr <= &rom[rom.size() - 1])) ||
 	        (sram && (&(*sram)[0] <= adr) &&
 	                       (adr <= &(*sram)[sram->size() - 1])) ||
-	        ((extraMem <= adr) && (adr <= &extraMem[extraSize - 1]))));
+	        (!extraMem.empty() && (&extraMem.front() <= adr) && (adr <= &extraMem.back()))));
 	bankPtr[region] = adr;
 	blockNr[region] = block; // only for debuggable
 	fillDeviceRCache(region * BANK_SIZE, BANK_SIZE, adr);
@@ -95,10 +94,9 @@ void RomBlocks<BANK_SIZE>::setUnmapped(byte region)
 }
 
 template<unsigned BANK_SIZE>
-void RomBlocks<BANK_SIZE>::setExtraMemory(const byte* mem, unsigned size)
+void RomBlocks<BANK_SIZE>::setExtraMemory(std::span<const byte> mem)
 {
 	extraMem = mem;
-	extraSize = size;
 }
 
 template<unsigned BANK_SIZE>
@@ -125,7 +123,7 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 
 	if (sram) ar.serialize("sram", *sram);
 
-	size_t offsets[NUM_BANKS];
+	std::array<size_t, NUM_BANKS> offsets;
 	auto romSize = rom.size();
 	auto sramSize = sram ? sram->size() : 0;
 	if constexpr (Archive::IS_LOADER) {
@@ -138,7 +136,7 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 			} else if (offsets[i] < (romSize + sramSize)) {
 				assert(sram);
 				bankPtr[i] = &(*sram)[offsets[i] - romSize];
-			} else if (offsets[i] < (romSize + sramSize + extraSize)) {
+			} else if (offsets[i] < (romSize + sramSize + extraMem.size())) {
 				bankPtr[i] = &extraMem[offsets[i] - romSize - sramSize];
 			} else {
 				// TODO throw
@@ -155,9 +153,10 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 			} else if (sram && (&(*sram)[0] <= bankPtr[i]) &&
 			           (bankPtr[i] <= &(*sram)[sramSize - 1])) {
 				offsets[i] = size_t(bankPtr[i] - &(*sram)[0] + romSize);
-			} else if ((extraMem <= bankPtr[i]) &&
-			           (bankPtr[i] <= &extraMem[extraSize - 1])) {
-				offsets[i] = size_t(bankPtr[i] - extraMem + romSize + sramSize);
+			} else if (!extraMem.empty() &&
+				   (&extraMem.front() <= bankPtr[i]) &&
+			           (bankPtr[i] <= &extraMem.back())) {
+				offsets[i] = size_t(bankPtr[i] - extraMem.data() + romSize + sramSize);
 			} else {
 				UNREACHABLE;
 			}

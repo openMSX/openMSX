@@ -37,7 +37,7 @@ RomPanasonic::RomPanasonic(const DeviceConfig& config, Rom&& rom_)
 	// we added a device-reference from this device to the PanasonicRam
 	// device, this should protected against wrong future edits in the
 	// config file).
-	setExtraMemory(panasonicMem.getRamBlock(0), panasonicMem.getRamSize());
+	setExtraMemory({panasonicMem.getRamBlock(0), panasonicMem.getRamSize()});
 
 	reset(EmuTime::dummy());
 }
