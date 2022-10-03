@@ -16,23 +16,23 @@
 namespace openmsx {
 
 // data response tokens
-constexpr byte DRT_ACCEPTED    = 0x05;
-constexpr byte DRT_WRITE_ERROR = 0x0D;
+static constexpr byte DRT_ACCEPTED    = 0x05;
+static constexpr byte DRT_WRITE_ERROR = 0x0D;
 
 // start block tokens and stop tran token
-constexpr byte START_BLOCK_TOKEN     = 0xFE;
-constexpr byte START_BLOCK_TOKEN_MBW = 0xFC;
-constexpr byte STOP_TRAN_TOKEN       = 0xFD;
+static constexpr byte START_BLOCK_TOKEN     = 0xFE;
+static constexpr byte START_BLOCK_TOKEN_MBW = 0xFC;
+static constexpr byte STOP_TRAN_TOKEN       = 0xFD;
 
 // data error token
-constexpr byte DATA_ERROR_TOKEN_ERROR        = 0x01;
-constexpr byte DATA_ERROR_TOKEN_OUT_OF_RANGE = 0x08;
+static constexpr byte DATA_ERROR_TOKEN_ERROR        = 0x01;
+static constexpr byte DATA_ERROR_TOKEN_OUT_OF_RANGE = 0x08;
 
 // responses
-constexpr byte R1_BUSY            = 0x00;
-constexpr byte R1_IDLE            = 0x01; // TODO: why is lots of code checking for this instead of R1_BUSY?
-constexpr byte R1_ILLEGAL_COMMAND = 0x04;
-constexpr byte R1_PARAMETER_ERROR = 0x80;
+static constexpr byte R1_BUSY            = 0x00;
+static constexpr byte R1_IDLE            = 0x01; // TODO: why is lots of code checking for this instead of R1_BUSY?
+static constexpr byte R1_ILLEGAL_COMMAND = 0x04;
+static constexpr byte R1_PARAMETER_ERROR = 0x80;
 
 SdCard::SdCard(const DeviceConfig& config)
 	: hd(config.getXML() ? std::make_unique<HD>(config) : nullptr)

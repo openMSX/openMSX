@@ -4,6 +4,7 @@
 #include "openmsx.hh"
 #include "circular_buffer.hh"
 #include "DiskImageUtils.hh"
+#include <array>
 #include <memory>
 
 namespace openmsx {
@@ -38,7 +39,7 @@ private:
 private:
 	const std::unique_ptr<HD> hd; // can be nullptr
 
-	byte cmdBuf[6];
+	std::array<byte, 6> cmdBuf;
 	SectorBuffer sectorBuf;
 	unsigned cmdIdx;
 
