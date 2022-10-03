@@ -5,6 +5,7 @@
 #include "SimpleDebuggable.hh"
 #include "Clock.hh"
 #include "openmsx.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -52,20 +53,20 @@ private:
 	Clock<CLOCK_FREQ> deformTimer;
 	ChipMode currentChipMode;
 
-	signed char wave[5][32];
-	float volAdjustedWave[5][32]; // ints stored as floats, see comment in adjust()
-	unsigned incr[5];
-	unsigned count[5];
-	unsigned pos[5];
-	unsigned period[5];
-	unsigned orgPeriod[5];
-	float out[5]; // ints stored as floats
-	byte volume[5];
+	std::array<std::array<signed char, 32>, 5> wave;
+	std::array<std::array<float, 32>, 5> volAdjustedWave; // ints stored as floats, see comment in adjust()
+	std::array<unsigned, 5> incr;
+	std::array<unsigned, 5> count;
+	std::array<unsigned, 5> pos;
+	std::array<unsigned, 5> period;
+	std::array<unsigned, 5> orgPeriod;
+	std::array<float, 5> out; // ints stored as floats
+	std::array<byte, 5> volume;
 	byte ch_enable;
 
 	byte deformValue;
-	bool rotate[5];
-	bool readOnly[5];
+	std::array<bool, 5> rotate;
+	std::array<bool, 5> readOnly;
 };
 
 } // namespace openmsx
