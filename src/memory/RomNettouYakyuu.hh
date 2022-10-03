@@ -3,6 +3,7 @@
 
 #include "RomBlocks.hh"
 #include "SamplePlayer.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -23,7 +24,7 @@ private:
 
 	// remember per region if writes are for the sample player or not
 	// there are 4 x 8kB regions in [0x4000-0xBFFF]
-	bool redirectToSamplePlayer[4];
+	std::array<bool, 4> redirectToSamplePlayer;
 };
 
 } // namespace openmsx
