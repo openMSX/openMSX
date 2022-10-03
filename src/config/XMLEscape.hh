@@ -1,6 +1,7 @@
 #ifndef XMLESCAPE_HH
 #define XMLESCAPE_HH
 
+#include <array>
 #include <string>
 #include <string_view>
 
@@ -32,11 +33,11 @@ inline void XMLEscape(std::string_view s, Output output)
 		char c = *it;
 		if (auto uc = static_cast<unsigned char>(c); uc < 32) {
 			output(normal(chunk, it));
-			char buf[6] = {'&', '#', 'x', '0', '0', ';'};
+			std::array<char, 6> buf = {'&', '#', 'x', '0', '0', ';'};
 			auto hex = [](unsigned x) { return (x < 10) ? char(x + '0') : char(x - 10 + 'a'); };
 			buf[3] = hex(uc / 16);
 			buf[4] = hex(uc % 16);
-			output(std::string_view(buf, sizeof(buf)));
+			output(std::string_view(buf.data(), sizeof(buf)));
 			chunk = ++it;
 		} else if (c == '<') {
 			output(normal(chunk, it));
