@@ -1,10 +1,11 @@
 #ifndef ALIGNEDBUFFER_HH
 #define ALIGNEDBUFFER_HH
 
-#include <type_traits>
+#include <array>
 #include <cassert>
 #include <cstdint>
 #include <cstddef>
+#include <type_traits>
 
 namespace openmsx {
 
@@ -58,16 +59,16 @@ static_assert(alignof(AlignedBuffer) == AlignedBuffer::ALIGNMENT, "must be align
 template<size_t N> class AlignedByteArray : public AlignedBuffer
 {
 public:
-	[[nodiscard]] size_t size() const { return N; }
-	[[nodiscard]] auto* data()       { return dat; }
-	[[nodiscard]] auto* data() const { return dat; }
-	[[nodiscard]] const auto* begin() const { return dat; }
-	[[nodiscard]] const auto* end()   const { return dat + N; }
-	[[nodiscard]]       auto* begin()       { return dat; }
-	[[nodiscard]]       auto* end()         { return dat + N; }
+	[[nodiscard]] auto  size()  const { return dat.size(); }
+	[[nodiscard]] auto* data()        { return dat.data(); }
+	[[nodiscard]] auto* data()  const { return dat.data(); }
+	[[nodiscard]] auto  begin()       { return dat.begin(); }
+	[[nodiscard]] auto  begin() const { return dat.begin(); }
+	[[nodiscard]] auto  end()         { return dat.end(); }
+	[[nodiscard]] auto  end()   const { return dat.end(); }
 
 private:
-	uint8_t dat[N];
+	std::array<uint8_t, N> dat;
 
 };
 static_assert(alignof(AlignedByteArray<13>) == AlignedBuffer::ALIGNMENT,
