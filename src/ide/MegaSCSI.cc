@@ -49,7 +49,7 @@
 
 namespace openmsx {
 
-constexpr byte SPC = 0x7F;
+static constexpr byte SPC = 0x7F;
 
 unsigned MegaSCSI::getSramSize() const
 {
