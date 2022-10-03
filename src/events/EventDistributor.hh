@@ -2,6 +2,7 @@
 #define EVENTDISTRIBUTOR_HH
 
 #include "Event.hh"
+#include <array>
 #include <condition_variable>
 #include <mutex>
 #include <vector>
@@ -75,7 +76,7 @@ private:
 		EventListener* listener;
 	};
 	using PriorityMap = std::vector<Entry>; // sorted on priority
-	PriorityMap listeners[size_t(EventType::NUM_EVENT_TYPES)];
+	std::array<PriorityMap, size_t(EventType::NUM_EVENT_TYPES)> listeners;
 	using EventQueue = std::vector<Event>;
 	EventQueue scheduledEvents;
 	std::mutex mutex; // lock datastructures
