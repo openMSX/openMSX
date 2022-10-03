@@ -3,6 +3,7 @@
 
 #include "MSXDevice.hh"
 #include "Clock.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -30,8 +31,8 @@ private:
 
 private:
 	MSXCPU& cpu;
-	MSXDevice* inDevices[4];
-	MSXDevice* outDevices[4];
+	std::array<MSXDevice*, 4> inDevices;
+	std::array<MSXDevice*, 4> outDevices;
 	/** Remembers the time at which last VDP I/O action took place. */
 	Clock<7159090> lastTime;
 };
