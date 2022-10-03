@@ -4,8 +4,9 @@
 #include "PostProcessor.hh"
 #include "RenderSettings.hh"
 #include "GLUtil.hh"
-#include <vector>
+#include <array>
 #include <memory>
+#include <vector>
 
 namespace openmsx {
 
@@ -53,8 +54,8 @@ private:
 	  */
 	std::unique_ptr<GLScaler> currScaler;
 
-	gl::Texture colorTex[2];
-	gl::FrameBufferObject fbo[2];
+	std::array<gl::Texture, 2> colorTex;
+	std::array<gl::FrameBufferObject, 2> fbo;
 
 	// Noise effect:
 	gl::Texture noiseTextureA;
@@ -96,7 +97,7 @@ private:
 
 	gl::ShaderProgram monitor3DProg;
 	gl::BufferObject arrayBuffer;
-	gl::BufferObject elementbuffer;
+	gl::BufferObject elementBuffer;
 	gl::BufferObject vbo;
 	gl::BufferObject stretchVBO;
 

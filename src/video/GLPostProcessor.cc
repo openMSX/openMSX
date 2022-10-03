@@ -75,12 +75,12 @@ GLPostProcessor::~GLPostProcessor()
 void GLPostProcessor::initBuffers()
 {
 	// combined positions and texture coordinates
-	static constexpr vec2 pos_tex[4 + 4] = {
+	static constexpr std::array pos_tex = {
 		vec2(-1, 1), vec2(-1,-1), vec2( 1,-1), vec2( 1, 1), // pos
 		vec2( 0, 1), vec2( 0, 0), vec2( 1, 0), vec2( 1, 1), // tex
 	};
 	glBindBuffer(GL_ARRAY_BUFFER, vbo.get());
-	glBufferData(GL_ARRAY_BUFFER, sizeof(pos_tex), pos_tex, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(pos_tex), pos_tex.data(), GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
@@ -205,7 +205,7 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 		} else {
 			float x1 = (320.0f - float(horStretch)) / (2.0f * 320.0f);
 			float x2 = 1.0f - x1;
-			vec2 tex[4] = {
+			std::array tex = {
 				vec2(x1, 1), vec2(x1, 0), vec2(x2, 0), vec2(x2, 1)
 			};
 
@@ -221,7 +221,7 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 			glEnableVertexAttribArray(0);
 
 			glBindBuffer(GL_ARRAY_BUFFER, stretchVBO.get());
-			glBufferData(GL_ARRAY_BUFFER, sizeof(tex), tex, GL_STREAM_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(tex), tex.data(), GL_STREAM_DRAW);
 			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 			glEnableVertexAttribArray(1);
 
@@ -388,8 +388,8 @@ void GLPostProcessor::drawGlow(int glow)
 
 void GLPostProcessor::preCalcNoise(float factor)
 {
-	GLbyte buf1[256 * 256];
-	GLbyte buf2[256 * 256];
+	std::array<GLbyte, 256 * 256> buf1;
+	std::array<GLbyte, 256 * 256> buf2;
 	auto& generator = global_urng(); // fast (non-cryptographic) random numbers
 	std::normal_distribution<float> distribution(0.0f, 1.0f);
 	for (auto i : xrange(256 * 256)) {
@@ -411,7 +411,7 @@ void GLPostProcessor::preCalcNoise(float factor)
 		0,                // border
 		format,           // format
 		GL_UNSIGNED_BYTE, // type
-		buf1);            // data
+		buf1.data());     // data
 #if OPENGL_VERSION >= OPENGL_3_3
 	GLint swizzleMask1[] = {GL_RED, GL_RED, GL_RED, GL_ONE};
 	glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask1);
@@ -427,7 +427,7 @@ void GLPostProcessor::preCalcNoise(float factor)
 		0,                // border
 		format,           // format
 		GL_UNSIGNED_BYTE, // type
-		buf2);            // data
+		buf2.data());     // data
 #if OPENGL_VERSION >= OPENGL_3_3
 	GLint swizzleMask2[] = {GL_RED, GL_RED, GL_RED, GL_ONE};
 	glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask2);
@@ -440,22 +440,22 @@ void GLPostProcessor::drawNoise()
 
 	// Rotate and mirror noise texture in consecutive frames to avoid
 	// seeing 'patterns' in the noise.
-	static constexpr vec2 pos[8][4] = {
-		{ { -1, -1 }, {  1, -1 }, {  1,  1 }, { -1,  1 } },
-		{ { -1,  1 }, {  1,  1 }, {  1, -1 }, { -1, -1 } },
-		{ { -1,  1 }, { -1, -1 }, {  1, -1 }, {  1,  1 } },
-		{ {  1,  1 }, {  1, -1 }, { -1, -1 }, { -1,  1 } },
-		{ {  1,  1 }, { -1,  1 }, { -1, -1 }, {  1, -1 } },
-		{ {  1, -1 }, { -1, -1 }, { -1,  1 }, {  1,  1 } },
-		{ {  1, -1 }, {  1,  1 }, { -1,  1 }, { -1, -1 } },
-		{ { -1, -1 }, { -1,  1 }, {  1,  1 }, {  1, -1 } }
+	static constexpr std::array pos = {
+		std::array{vec2{-1, -1}, vec2{ 1, -1}, vec2{ 1,  1}, vec2{-1,  1}},
+		std::array{vec2{-1,  1}, vec2{ 1,  1}, vec2{ 1, -1}, vec2{-1, -1}},
+		std::array{vec2{-1,  1}, vec2{-1, -1}, vec2{ 1, -1}, vec2{ 1,  1}},
+		std::array{vec2{ 1,  1}, vec2{ 1, -1}, vec2{-1, -1}, vec2{-1,  1}},
+		std::array{vec2{ 1,  1}, vec2{-1,  1}, vec2{-1, -1}, vec2{ 1, -1}},
+		std::array{vec2{ 1, -1}, vec2{-1, -1}, vec2{-1,  1}, vec2{ 1,  1}},
+		std::array{vec2{ 1, -1}, vec2{ 1,  1}, vec2{-1,  1}, vec2{-1, -1}},
+		std::array{vec2{-1, -1}, vec2{-1,  1}, vec2{ 1,  1}, vec2{ 1, -1}},
 	};
 	vec2 noise(noiseX, noiseY);
-	const vec2 tex[4] = {
+	const std::array tex = {
 		noise + vec2(0.0f, 1.875f),
 		noise + vec2(2.0f, 1.875f),
 		noise + vec2(2.0f, 0.0f  ),
-		noise + vec2(0.0f, 0.0f  )
+		noise + vec2(0.0f, 0.0f  ),
 	};
 
 	gl::context->progTex.activate();
@@ -467,8 +467,8 @@ void GLPostProcessor::drawNoise()
 	glUniformMatrix4fv(gl::context->unifTexMvp, 1, GL_FALSE, &I[0][0]);
 
 	unsigned seq = frameCounter & 7;
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos[seq]);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, tex);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos[seq].data());
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, tex.data());
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 
@@ -484,9 +484,9 @@ void GLPostProcessor::drawNoise()
 	glDisable(GL_BLEND);
 }
 
-constexpr int GRID_SIZE = 16;
-constexpr int GRID_SIZE1 = GRID_SIZE + 1;
-constexpr int NUM_INDICES = (GRID_SIZE1 * 2 + 2) * GRID_SIZE - 2;
+static constexpr int GRID_SIZE = 16;
+static constexpr int GRID_SIZE1 = GRID_SIZE + 1;
+static constexpr int NUM_INDICES = (GRID_SIZE1 * 2 + 2) * GRID_SIZE - 2;
 struct Vertex {
 	vec3 position;
 	vec3 normal;
@@ -496,7 +496,7 @@ struct Vertex {
 void GLPostProcessor::preCalcMonitor3D(float width)
 {
 	// precalculate vertex-positions, -normals and -texture-coordinates
-	Vertex vertices[GRID_SIZE1][GRID_SIZE1];
+	std::array<std::array<Vertex, GRID_SIZE1>, GRID_SIZE1> vertices;
 
 	constexpr float GRID_SIZE2 = float(GRID_SIZE) / 2.0f;
 	float s = width / 320.0f;
@@ -516,9 +516,9 @@ void GLPostProcessor::preCalcMonitor3D(float width)
 	}
 
 	// calculate indices
-	uint16_t indices[NUM_INDICES];
+	std::array<uint16_t, NUM_INDICES> indices;
 
-	uint16_t* ind = indices;
+	uint16_t* ind = indices.data();
 	for (auto y : xrange(GRID_SIZE)) {
 		for (auto x : xrange(GRID_SIZE1)) {
 			*ind++ = (y + 0) * GRID_SIZE1 + x;
@@ -527,8 +527,8 @@ void GLPostProcessor::preCalcMonitor3D(float width)
 		// skip 2, filled in later
 		ind += 2;
 	}
-	assert((ind - indices) == NUM_INDICES + 2);
-	ind = indices;
+	assert((ind - indices.data()) == NUM_INDICES + 2);
+	ind = indices.data();
 	repeat(GRID_SIZE - 1, [&] {
 		ind += 2 * GRID_SIZE1;
 		// repeat prev and next index to restart strip
@@ -539,10 +539,10 @@ void GLPostProcessor::preCalcMonitor3D(float width)
 
 	// upload calculated values to buffers
 	glBindBuffer(GL_ARRAY_BUFFER, arrayBuffer.get());
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices.data(),
 	             GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer.get());
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer.get());
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices.data(),
 	             GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -571,7 +571,7 @@ void GLPostProcessor::drawMonitor3D()
 
 	char* base = nullptr;
 	glBindBuffer(GL_ARRAY_BUFFER, arrayBuffer.get());
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer.get());
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer.get());
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
 	                      base);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
