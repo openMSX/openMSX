@@ -3,6 +3,7 @@
 
 #include "ResampleAlgo.hh"
 #include "FixedPoint.hh"
+#include <array>
 #include <memory>
 
 namespace openmsx {
@@ -25,7 +26,7 @@ protected:
 	const DynamicClock& hostClock;
 	using FP = FixedPoint<14>;
 	const FP step;
-	float lastInput[2 * CHANNELS];
+	std::array<float, 2 * CHANNELS> lastInput;
 };
 
 template<unsigned CHANNELS>
