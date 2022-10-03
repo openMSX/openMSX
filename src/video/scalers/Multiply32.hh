@@ -1,6 +1,7 @@
 #ifndef MULTIPLY32_HH
 #define MULTIPLY32_HH
 
+#include <array>
 #include <bit>
 #include <concepts>
 #include <cstdint>
@@ -60,7 +61,7 @@ public:
 	}
 
 private:
-	uint32_t tab[0x10000];
+	std::array<uint32_t, 0x10000> tab;
 	unsigned factor;
 	unsigned Rshift1, Gshift1, Bshift1;
 	unsigned Rshift2, Gshift2, Bshift2;
