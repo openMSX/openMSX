@@ -6,6 +6,7 @@
 #include "PNG.hh"
 #include "xrange.hh"
 #include "endian.hh"
+#include <cstdint>
 #include <cstdlib>
 #include <SDL.h>
 
@@ -120,9 +121,9 @@ GLImage::GLImage(OutputSurface& /*output*/, SDLSurfacePtr image)
 void GLImage::initBuffers()
 {
 	// border
-	uint8_t indices[10] = {4, 0, 5, 1, 6, 2, 7, 3, 4, 0};
+	std::array<uint8_t, 10> indices = {4, 0, 5, 1, 6, 2, 7, 3, 4, 0};
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementsBuffer.get());
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices.data(), GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
@@ -138,7 +139,7 @@ void GLImage::draw(OutputSurface& /*output*/, ivec2 pos, uint8_t r, uint8_t g, u
 	// 5-----------------6
 	int bx = (size[0] > 0) ? borderSize : -borderSize;
 	int by = (size[1] > 0) ? borderSize : -borderSize;
-	ivec2 positions[8] = {
+	std::array<ivec2, 8> positions = {
 		pos + ivec2(        + bx,         + by), // 0
 		pos + ivec2(        + bx, size[1] - by), // 1
 		pos + ivec2(size[0] - bx, size[1] - by), // 2
@@ -153,10 +154,10 @@ void GLImage::draw(OutputSurface& /*output*/, ivec2 pos, uint8_t r, uint8_t g, u
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[0].get());
-	glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STREAM_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions.data(), GL_STREAM_DRAW);
 
 	if (texture.get()) {
-		vec2 tex[4] = {
+		std::array<vec2, 4> tex = {
 			vec2(0.0f, 0.0f),
 			vec2(0.0f, 1.0f),
 			vec2(1.0f, 1.0f),
@@ -172,7 +173,7 @@ void GLImage::draw(OutputSurface& /*output*/, ivec2 pos, uint8_t r, uint8_t g, u
 		glVertexAttribPointer(0, 2, GL_INT, GL_FALSE, 0, offset + 4);
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo[1].get());
-		glBufferData(GL_ARRAY_BUFFER, sizeof(tex), tex, GL_STREAM_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(tex), tex.data(), GL_STREAM_DRAW);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 		glEnableVertexAttribArray(1);
 		texture.bind();
@@ -204,14 +205,14 @@ void GLImage::draw(OutputSurface& /*output*/, ivec2 pos, uint8_t r, uint8_t g, u
 			}
 
 			// interior
-			uint8_t col[4][4] = {
-				{ bgR[0], bgG[0], bgB[0], uint8_t((bgA[0] * alpha) / 256) },
-				{ bgR[2], bgG[2], bgB[2], uint8_t((bgA[2] * alpha) / 256) },
-				{ bgR[3], bgG[3], bgB[3], uint8_t((bgA[3] * alpha) / 256) },
-				{ bgR[1], bgG[1], bgB[1], uint8_t((bgA[1] * alpha) / 256) },
+			std::array col = {
+				std::array<uint8_t, 4>{bgR[0], bgG[0], bgB[0], uint8_t((bgA[0] * alpha) / 256)},
+				std::array<uint8_t, 4>{bgR[2], bgG[2], bgB[2], uint8_t((bgA[2] * alpha) / 256)},
+				std::array<uint8_t, 4>{bgR[3], bgG[3], bgB[3], uint8_t((bgA[3] * alpha) / 256)},
+				std::array<uint8_t, 4>{bgR[1], bgG[1], bgB[1], uint8_t((bgA[1] * alpha) / 256)},
 			};
 			glBindBuffer(GL_ARRAY_BUFFER, vbo[2].get());
-			glBufferData(GL_ARRAY_BUFFER, sizeof(col), col, GL_STREAM_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(col), col.data(), GL_STREAM_DRAW);
 			glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, nullptr);
 			glEnableVertexAttribArray(1);
 			glDrawArrays(GL_TRIANGLE_FAN, 0, 4);

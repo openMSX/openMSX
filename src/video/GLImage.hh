@@ -3,6 +3,7 @@
 
 #include "BaseImage.hh"
 #include "GLUtil.hh"
+#include <array>
 #include <cstdint>
 #include <span>
 #include <string>
@@ -29,12 +30,13 @@ private:
 	void initBuffers();
 
 private:
-	gl::BufferObject vbo[3];
+	std::array<gl::BufferObject, 3> vbo;
 	gl::BufferObject elementsBuffer;
 	gl::Texture texture; // must come after size
 	int borderSize;
-	int bgA[4], borderA;
-	uint8_t bgR[4], bgG[4], bgB[4];
+	std::array<int, 4> bgA;
+	int borderA;
+	std::array<uint8_t, 4> bgR, bgG, bgB;
 	uint8_t borderR, borderG, borderB;
 };
 
