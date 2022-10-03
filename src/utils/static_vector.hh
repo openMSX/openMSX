@@ -2,6 +2,7 @@
 #define STATIC_VECTOR_HH
 
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
@@ -36,12 +37,12 @@ public:
 
 	constexpr static_vector(std::initializer_list<T> list) {
 		assert(list.size() <= N);
-		std::copy(list.begin(), list.end(), data);
+		std::copy(list.begin(), list.end(), data.data());
 		sz = SizeType(list.size());
 	}
 
-	[[nodiscard]] constexpr const T* begin() const noexcept { return data; }
-	[[nodiscard]] constexpr const T* end()   const noexcept { return data + sz; }
+	[[nodiscard]] constexpr auto begin() const noexcept { return data.begin(); }
+	[[nodiscard]] constexpr auto end()   const noexcept { return data.begin() + sz; }
 
 	[[nodiscard]] constexpr size_t size() const { return sz; }
 	[[nodiscard]] constexpr bool empty() const { return sz == 0; }
@@ -53,11 +54,11 @@ public:
 
 	constexpr void clear() { sz = 0; }
 
-	operator std::span<      T>()       { return {data, sz}; }
-	operator std::span<const T>() const { return {data, sz}; }
+	operator std::span<      T>()       { return {data.data(), sz}; }
+	operator std::span<const T>() const { return {data.data(), sz}; }
 
 private:
-	T data[N] = {};
+	std::array<T, N> data = {};
 	SizeType sz = 0;
 };
 
