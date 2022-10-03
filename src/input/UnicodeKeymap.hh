@@ -4,6 +4,7 @@
 #include "CommandException.hh"
 #include "MsxChar2Unicode.hh"
 #include "openmsx.hh"
+#include <array>
 #include <cassert>
 #include <optional>
 #include <string_view>
@@ -153,8 +154,8 @@ private:
 	/** Contains a mask for each key matrix position, which for each modifier
 	  * has the corresponding bit set if that modifier that affects the key.
 	  */
-	byte relevantMods[KeyMatrixPosition::NUM_ROWCOL];
-	KeyInfo deadKeys[NUM_DEAD_KEYS];
+	std::array<byte, KeyMatrixPosition::NUM_ROWCOL> relevantMods;
+	std::array<KeyInfo, NUM_DEAD_KEYS> deadKeys;
 
 	std::optional<MsxChar2Unicode> msxChars; // TODO should this be required for MSX/SVI machines?
 };
