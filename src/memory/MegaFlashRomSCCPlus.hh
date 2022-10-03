@@ -5,6 +5,7 @@
 #include "SCC.hh"
 #include "AY8910.hh"
 #include "AmdFlash.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -44,10 +45,10 @@ private:
 	byte configReg;
 	byte offsetReg;
 	byte subslotReg;
-	byte bankRegs[4][4];
+	std::array<std::array<byte, 4>, 4> bankRegs;
 	byte psgLatch;
 	byte sccMode;
-	byte sccBanks[4];
+	std::array<byte, 4> sccBanks;
 };
 
 } // namespace openmsx
