@@ -20,7 +20,7 @@ byte* MSXRom::getWriteCacheLine(word /*address*/) const
 	return unmappedWrite;
 }
 
-void MSXRom::getExtraDeviceInfo(TclObject& result) const
+void MSXRom::getInfo(TclObject& result) const
 {
 	// Add detected rom type. This value is guaranteed to be stored in
 	// the device config (and 'auto' is already changed to actual type).
@@ -33,11 +33,16 @@ void MSXRom::getExtraDeviceInfo(TclObject& result) const
 	                        "actualSHA1", rom.getSHA1().toString(),
 
 	// add original sha1sum
-	                        "originalSHA1", rom.getOriginalSHA1().toString(),
+	                        "originalSHA1", rom.getOriginalSHA1().toString());
+}
+
+void MSXRom::getExtraDeviceInfo(TclObject& result) const
+{
+	getInfo(result);
 
 	// add original filename, e.g. to be able to see whether it comes
 	// from a system_rom pool
-	                        "filename", rom.getFilename());
+	result.addDictKeyValue("filename", rom.getFilename());
 }
 
 } // namespace openmsx

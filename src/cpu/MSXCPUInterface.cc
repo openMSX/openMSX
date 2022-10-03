@@ -1052,6 +1052,13 @@ void MSXCPUInterface::cleanup()
 	conditions.clear();
 }
 
+MSXDevice* MSXCPUInterface::getMSXDevice(int ps, int ss, int page)
+{
+	assert(0 <= ps && ps < 4);
+	assert(0 <= ss && ss < 4);
+	assert(0 <= page && page < 4);
+	return slotLayout[ps][ss][page];
+}
 
 // class MemoryDebug
 

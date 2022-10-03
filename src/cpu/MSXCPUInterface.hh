@@ -284,6 +284,8 @@ public:
 	void setFastForward(bool fastForward_) { fastForward = fastForward_; }
 	[[nodiscard]] bool isFastForward() const { return fastForward; }
 
+	[[nodiscard]] MSXDevice* getMSXDevice(int ps, int ss, int page);
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 

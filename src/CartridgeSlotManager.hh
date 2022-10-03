@@ -83,6 +83,7 @@ private:
 		unsigned useCount = 0;
 		int ps = 0;
 		int ss = 0;
+		MSXCPUInterface* cpuInterface;
 	};
 	static constexpr unsigned MAX_SLOTS = 16 + 4;
 	Slot slots[MAX_SLOTS];

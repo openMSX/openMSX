@@ -4,6 +4,8 @@
 #include "FileContext.hh"
 #include "TclObject.hh"
 #include "MSXException.hh"
+#include "MSXCPUInterface.hh"
+#include "MSXRom.hh"
 #include "CliComm.hh"
 #include "unreachable.hh"
 #include "one_of.hh"
@@ -45,6 +47,16 @@ void CartridgeSlotManager::Slot::getMediaInfo(TclObject& result)
 		string typeStr = type == HardwareConfig::Type::ROM ? "rom" :
 		                 (type == HardwareConfig::Type::EXTENSION ? "extension" : "");
 		result.addDictKeyValue("type", typeStr);
+		if (auto* rom = dynamic_cast<MSXRom*>(cpuInterface->getMSXDevice(ps, ss < 0 ? 0: ss, 1))) {
+			rom->getInfo(result);
+			TclObject patches;
+
+			const auto patchesElem = rom->getDeviceConfig().getChild("rom").getChild("patches");
+			for (const auto* p : patchesElem.getChildren("ips")) {
+				patches.addListElement(string(p->getData()));
+			}
+			result.addDictKeyValue("patches", patches);
+		}
 	}
 }
 
@@ -111,6 +123,7 @@ void CartridgeSlotManager::createExternalSlot(int ps, int ss)
 				*this, motherBoard, slotName);
 			slots[slot].extCommand.emplace(
 				motherBoard, extName);
+			slots[slot].cpuInterface = &motherBoard.getCPUInterface();
 			return;
 		}
 	}

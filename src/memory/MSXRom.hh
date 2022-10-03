@@ -14,6 +14,11 @@ public:
 
 	void getExtraDeviceInfo(TclObject& result) const override;
 
+	/**
+	 * Add dict values with info to result
+	 */
+	void getInfo(TclObject& result) const;
+
 protected:
 	MSXRom(const DeviceConfig& config, Rom&& rom);
 
