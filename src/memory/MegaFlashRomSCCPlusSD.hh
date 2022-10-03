@@ -6,6 +6,7 @@
 #include "AmdFlash.hh"
 #include "SCC.hh"
 #include "AY8910.hh"
+#include <array>
 #include <memory>
 
 namespace openmsx {
@@ -83,10 +84,10 @@ private:
 	[[nodiscard]] bool isFlashRomBlockProtectEnabled() const { return  (configReg & 0x02) != 0; }
 	[[nodiscard]] bool isFlashRomWriteEnabled()        const { return  (configReg & 0x01) != 0; }
 
-	byte bankRegsSubSlot1[4];
+	std::array<byte, 4> bankRegsSubSlot1;
 	byte psgLatch;
 	byte sccMode;
-	byte sccBanks[4];
+	std::array<byte, 4> sccBanks;
 
 	// subslot 2
 	// 512k memory mapper
@@ -117,7 +118,7 @@ private:
 	};
 	const std::unique_ptr<CheckedRam> checkedRam; // can be nullptr
 	const std::unique_ptr<MapperIO> mapperIO; // nullptr iff checkedRam == nullptr
-	byte memMapperRegs[4];
+	std::array<byte, 4> memMapperRegs;
 
 	// subslot 3
 	[[nodiscard]] byte readMemSubSlot3(word address, EmuTime::param time);
@@ -127,10 +128,10 @@ private:
 	void writeMemSubSlot3(word address, byte value, EmuTime::param time);
 	[[nodiscard]] unsigned getFlashAddrSubSlot3(unsigned addr) const;
 
-	byte bankRegsSubSlot3[4];
+	std::array<byte, 4> bankRegsSubSlot3;
 
 	byte selectedCard;
-	std::unique_ptr<SdCard> sdCard[2];
+	std::array<std::unique_ptr<SdCard>, 2> sdCard;
 };
 
 } // namespace openmsx

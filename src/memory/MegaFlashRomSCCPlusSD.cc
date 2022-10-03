@@ -256,8 +256,8 @@ UPDATE:
 
 ******************************************************************************/
 
-constexpr unsigned MEMORY_MAPPER_SIZE = 512;
-constexpr unsigned MEMORY_MAPPER_MASK = (MEMORY_MAPPER_SIZE / 16) - 1;
+static constexpr unsigned MEMORY_MAPPER_SIZE = 512;
+static constexpr unsigned MEMORY_MAPPER_MASK = (MEMORY_MAPPER_SIZE / 16) - 1;
 
 namespace openmsx {
 
