@@ -2,6 +2,7 @@
 #define ROMPANASONIC_HH
 
 #include "RomBlocks.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -28,7 +29,7 @@ private:
 private:
 	PanasonicMemory& panasonicMem;
 	int maxSRAMBank;
-	int bankSelect[8];
+	std::array<int, 8> bankSelect;
 	byte control;
 };
 
