@@ -2,6 +2,7 @@
 #define PROFILECOUNTERS_HH
 
 #include "enumerate.hh"
+#include <array>
 #include <iostream>
 
 //
@@ -101,7 +102,7 @@ public:
 
 private:
 	static constexpr auto NUM = size_t(ENUM::NUM); // value 'ENUM::NUM' must exist
-	mutable unsigned counters[NUM] = {};
+	mutable std::array<unsigned, NUM> counters = {};
 };
 
 
