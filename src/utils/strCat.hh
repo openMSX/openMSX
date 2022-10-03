@@ -5,6 +5,7 @@
 #include "ranges.hh"
 #include "xrange.hh"
 #include "zstring_view.hh"
+#include <array>
 #include <climits>
 #include <limits>
 #include <span>
@@ -308,18 +309,11 @@ template<std::integral T> struct ConcatIntegral
 	}
 
 private:
-	[[nodiscard]] const char* begin() const
-	{
-		return &buf[BUF_SIZE] - sz;
-	}
-
-	[[nodiscard]] char* end()
-	{
-		return &buf[BUF_SIZE];
-	}
+	[[nodiscard]] auto begin() const { return buf.end() - sz; }
+	[[nodiscard]] auto end() { return buf.end(); }
 
 private:
-	char buf[BUF_SIZE];
+	std::array<char, BUF_SIZE> buf;
 	unsigned char sz;
 };
 
