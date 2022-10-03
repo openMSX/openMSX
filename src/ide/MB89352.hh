@@ -47,7 +47,7 @@ private:
 private:
 	static constexpr unsigned MAX_DEV = 8;
 
-	std::unique_ptr<SCSIDevice> dev[MAX_DEV];
+	std::array<std::unique_ptr<SCSIDevice>, MAX_DEV> dev;
 	AlignedByteArray<SCSIDevice::BUFFER_SIZE> buffer; // buffer for transfer
 	unsigned cdbIdx;                // cdb index
 	unsigned bufIdx;                // buffer index

@@ -28,63 +28,63 @@
 
 namespace openmsx {
 
-constexpr uint8_t REG_BDID =  0;   // Bus Device ID        (r/w)
-constexpr uint8_t REG_SCTL =  1;   // Spc Control          (r/w)
-constexpr uint8_t REG_SCMD =  2;   // Command              (r/w)
-constexpr uint8_t REG_OPEN =  3;   //                      (open)
-constexpr uint8_t REG_INTS =  4;   // Interrupt Sense      (r/w)
-constexpr uint8_t REG_PSNS =  5;   // Phase Sense          (r)
-constexpr uint8_t REG_SDGC =  5;   // SPC Diag. Control    (w)
-constexpr uint8_t REG_SSTS =  6;   // SPC SCSI::STATUS           (r)
-constexpr uint8_t REG_SERR =  7;   // SPC Error SCSI::STATUS     (r/w?)
-constexpr uint8_t REG_PCTL =  8;   // Phase Control        (r/w)
-constexpr uint8_t REG_MBC  =  9;   // Modified Byte Counter(r)
-constexpr uint8_t REG_DREG = 10;   // Data Register        (r/w)
-constexpr uint8_t REG_TEMP = 11;   // Temporary Register   (r/w)
-                                   // Another value is maintained respec-
-                                   // tively for writing and for reading
-constexpr uint8_t REG_TCH  = 12;   // Transfer Counter High(r/w)
-constexpr uint8_t REG_TCM  = 13;   // Transfer Counter Mid (r/w)
-constexpr uint8_t REG_TCL  = 14;   // Transfer Counter Low (r/w)
+static constexpr uint8_t REG_BDID =  0;   // Bus Device ID        (r/w)
+static constexpr uint8_t REG_SCTL =  1;   // Spc Control          (r/w)
+static constexpr uint8_t REG_SCMD =  2;   // Command              (r/w)
+static constexpr uint8_t REG_OPEN =  3;   //                      (open)
+static constexpr uint8_t REG_INTS =  4;   // Interrupt Sense      (r/w)
+static constexpr uint8_t REG_PSNS =  5;   // Phase Sense          (r)
+static constexpr uint8_t REG_SDGC =  5;   // SPC Diag. Control    (w)
+static constexpr uint8_t REG_SSTS =  6;   // SPC SCSI::STATUS           (r)
+static constexpr uint8_t REG_SERR =  7;   // SPC Error SCSI::STATUS     (r/w?)
+static constexpr uint8_t REG_PCTL =  8;   // Phase Control        (r/w)
+static constexpr uint8_t REG_MBC  =  9;   // Modified Byte Counter(r)
+static constexpr uint8_t REG_DREG = 10;   // Data Register        (r/w)
+static constexpr uint8_t REG_TEMP = 11;   // Temporary Register   (r/w)
+                                          // Another value is maintained respectively
+                                          // for writing and for reading
+static constexpr uint8_t REG_TCH  = 12;   // Transfer Counter High(r/w)
+static constexpr uint8_t REG_TCM  = 13;   // Transfer Counter Mid (r/w)
+static constexpr uint8_t REG_TCL  = 14;   // Transfer Counter Low (r/w)
 
-constexpr uint8_t REG_TEMPWR = 13; // (TEMP register preservation place for writing)
-constexpr uint8_t FIX_PCTL   = 14; // (REG_PCTL & 7)
+static constexpr uint8_t REG_TEMPWR = 13; // (TEMP register preservation place for writing)
+static constexpr uint8_t FIX_PCTL   = 14; // (REG_PCTL & 7)
 
-constexpr uint8_t PSNS_IO  = 0x01;
-constexpr uint8_t PSNS_CD  = 0x02;
-constexpr uint8_t PSNS_MSG = 0x04;
-constexpr uint8_t PSNS_BSY = 0x08;
-constexpr uint8_t PSNS_SEL = 0x10;
-constexpr uint8_t PSNS_ATN = 0x20;
-constexpr uint8_t PSNS_ACK = 0x40;
-constexpr uint8_t PSNS_REQ = 0x80;
+static constexpr uint8_t PSNS_IO  = 0x01;
+static constexpr uint8_t PSNS_CD  = 0x02;
+static constexpr uint8_t PSNS_MSG = 0x04;
+static constexpr uint8_t PSNS_BSY = 0x08;
+static constexpr uint8_t PSNS_SEL = 0x10;
+static constexpr uint8_t PSNS_ATN = 0x20;
+static constexpr uint8_t PSNS_ACK = 0x40;
+static constexpr uint8_t PSNS_REQ = 0x80;
 
-constexpr uint8_t PSNS_SELECTION = PSNS_SEL;
-constexpr uint8_t PSNS_COMMAND   = PSNS_CD;
-constexpr uint8_t PSNS_DATAIN    = PSNS_IO;
-constexpr uint8_t PSNS_DATAOUT   = 0;
-constexpr uint8_t PSNS_STATUS    = PSNS_CD  | PSNS_IO;
-constexpr uint8_t PSNS_MSGIN     = PSNS_MSG | PSNS_CD | PSNS_IO;
-constexpr uint8_t PSNS_MSGOUT    = PSNS_MSG | PSNS_CD;
+static constexpr uint8_t PSNS_SELECTION = PSNS_SEL;
+static constexpr uint8_t PSNS_COMMAND   = PSNS_CD;
+static constexpr uint8_t PSNS_DATAIN    = PSNS_IO;
+static constexpr uint8_t PSNS_DATAOUT   = 0;
+static constexpr uint8_t PSNS_STATUS    = PSNS_CD  | PSNS_IO;
+static constexpr uint8_t PSNS_MSGIN     = PSNS_MSG | PSNS_CD | PSNS_IO;
+static constexpr uint8_t PSNS_MSGOUT    = PSNS_MSG | PSNS_CD;
 
-constexpr uint8_t INTS_ResetCondition  = 0x01;
-constexpr uint8_t INTS_SPC_HardError   = 0x02;
-constexpr uint8_t INTS_TimeOut         = 0x04;
-constexpr uint8_t INTS_ServiceRequited = 0x08;
-constexpr uint8_t INTS_CommandComplete = 0x10;
-constexpr uint8_t INTS_Disconnected    = 0x20;
-constexpr uint8_t INTS_ReSelected      = 0x40;
-constexpr uint8_t INTS_Selected        = 0x80;
+static constexpr uint8_t INTS_ResetCondition  = 0x01;
+static constexpr uint8_t INTS_SPC_HardError   = 0x02;
+static constexpr uint8_t INTS_TimeOut         = 0x04;
+static constexpr uint8_t INTS_ServiceRequited = 0x08;
+static constexpr uint8_t INTS_CommandComplete = 0x10;
+static constexpr uint8_t INTS_Disconnected    = 0x20;
+static constexpr uint8_t INTS_ReSelected      = 0x40;
+static constexpr uint8_t INTS_Selected        = 0x80;
 
-constexpr uint8_t CMD_BusRelease    = 0x00;
-constexpr uint8_t CMD_Select        = 0x20;
-constexpr uint8_t CMD_ResetATN      = 0x40;
-constexpr uint8_t CMD_SetATN        = 0x60;
-constexpr uint8_t CMD_Transfer      = 0x80;
-constexpr uint8_t CMD_TransferPause = 0xA0;
-constexpr uint8_t CMD_Reset_ACK_REQ = 0xC0;
-constexpr uint8_t CMD_Set_ACK_REQ   = 0xE0;
-constexpr uint8_t CMD_MASK          = 0xE0;
+static constexpr uint8_t CMD_BusRelease    = 0x00;
+static constexpr uint8_t CMD_Select        = 0x20;
+static constexpr uint8_t CMD_ResetATN      = 0x40;
+static constexpr uint8_t CMD_SetATN        = 0x60;
+static constexpr uint8_t CMD_Transfer      = 0x80;
+static constexpr uint8_t CMD_TransferPause = 0xA0;
+static constexpr uint8_t CMD_Reset_ACK_REQ = 0xC0;
+static constexpr uint8_t CMD_Set_ACK_REQ   = 0xE0;
+static constexpr uint8_t CMD_MASK          = 0xE0;
 
 MB89352::MB89352(const DeviceConfig& config)
 {
