@@ -8,6 +8,7 @@
 #include "SCC.hh"
 #include "Ram.hh"
 #include "RomBlockDebuggable.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -44,12 +45,12 @@ private:
 	Ram ram;
 	SCC scc;
 	RomBlockDebuggable romBlockDebug;
-	byte* internalMemoryBank[4]; // 4 blocks of 8kB starting at #4000
+	std::array<byte*, 4> internalMemoryBank; // 4 blocks of 8kB starting at #4000
 	enum SCCEnable {EN_NONE, EN_SCC, EN_SCCPLUS} enable;
 	byte modeRegister;
-	bool isRamSegment[4];
-	bool isMapped[4];
-	byte mapper[4];
+	std::array<bool, 4> isRamSegment;
+	std::array<bool, 4> isMapped;
+	std::array<byte, 4> mapper;
 };
 
 } // namespace openmsx
