@@ -324,20 +324,6 @@ template<typename T> struct serialize_as_pointer<std::shared_ptr<T>>
 
 template<typename T> struct serialize_as_collection : std::false_type {};
 
-template<typename T, int N> struct serialize_as_collection<T[N]> : std::true_type
-{
-	static constexpr int size = N; // fixed size
-	using value_type = T;
-	// save
-	using const_iterator = const T*;
-	static const T* begin(const T (&array)[N]) { return &array[0]; }
-	static const T* end  (const T (&array)[N]) { return &array[N]; }
-	// load
-	static constexpr bool loadInPlace = true;
-	static void prepare(T (&/*array*/)[N], int /*n*/) { }
-	static T* output(T (&array)[N]) { return &array[0]; }
-};
-
 template<typename T, size_t N> struct serialize_as_collection<std::array<T, N>> : std::true_type
 {
 	static constexpr int size = N; // fixed size
