@@ -1,6 +1,7 @@
 #ifndef MSXCHAR2UNICODE_HH
 #define MSXCHAR2UNICODE_HH
 
+#include <array>
 #include <cstdint>
 #include <functional>
 #include <span>
@@ -31,7 +32,7 @@ private:
 	// LUT: msx graphical character code (as stored in VRAM) -> unicode character
 	// Some entries are not filled in (are invalid), they contain the value -1.
 	// There may be different (valid) entries that contain the same value.
-	uint32_t msx2unicode[256];
+	std::array<uint32_t, 256> msx2unicode;
 
 	// Reverse LUT: unicode character -> msx graphical character
 	struct Entry {
