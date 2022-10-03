@@ -6,6 +6,7 @@
 #include "AmdFlash.hh"
 #include "RomBlockDebuggable.hh"
 #include "serialize_meta.hh"
+#include <array>
 #include <memory>
 
 namespace openmsx {
@@ -43,7 +44,7 @@ private:
 	AmdFlash flash;
 	RomBlockDebuggable romBlockDebug;
 	byte psgLatch;
-	byte bank[4];
+	std::array<byte, 4> bank;
 	bool sccEnabled;
 };
 SERIALIZE_CLASS_VERSION(RomManbow2, 3);
