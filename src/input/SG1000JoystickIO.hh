@@ -2,6 +2,7 @@
 #define SG1000JOYSTICKIO_HH
 
 #include "MSXDevice.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -22,7 +23,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	JoystickPortIf* ports[2];
+	std::array<JoystickPortIf*, 2> ports;
 };
 
 } // namespace openmsx
