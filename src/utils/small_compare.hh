@@ -39,6 +39,7 @@
 #include "aligned.hh"
 #include "endian.hh"
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <cstdint>
 #include <cstring>
@@ -51,13 +52,13 @@ template<size_t N> struct StringLiteral {
 	constexpr StringLiteral(const char (&str)[N])
 	{
 		assert(str[N - 1] == '\0');
-		std::copy_n(str, N - 1, value);
+		std::copy_n(str, N - 1, value.data());
 	}
 
-	[[nodiscard]] constexpr size_t size() const { return N - 1; }
-	[[nodiscard]] constexpr const char* data() const { return value; }
+	[[nodiscard]] constexpr size_t size() const { return value.size(); }
+	[[nodiscard]] constexpr const char* data() const { return value.data(); }
 
-	char value[N - 1];
+	std::array<char, N - 1> value;
 };
 
 namespace detail {
