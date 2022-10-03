@@ -2,6 +2,7 @@
 #define MSXDEVICESWITCH_HH
 
 #include "MSXDevice.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -72,7 +73,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	MSXSwitchedDevice* devices[256];
+	std::array<MSXSwitchedDevice*, 256> devices;
 	unsigned count;
 	byte selected;
 };
