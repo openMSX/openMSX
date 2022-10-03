@@ -2,6 +2,7 @@
 #define GLRGBSCALER_HH
 
 #include "GLScaler.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -21,7 +22,7 @@ public:
 private:
 	RenderSettings& renderSettings;
 	GLScaler& fallback;
-	int unifCnsts[2];
+	std::array<int, 2> unifCnsts;
 };
 
 } // namespace openmsx
