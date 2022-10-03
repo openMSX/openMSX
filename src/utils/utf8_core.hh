@@ -32,6 +32,7 @@ DEALINGS IN THE SOFTWARE.
 #define UTF8_CORE_HH
 
 #include "one_of.hh"
+#include <array>
 #include <iterator>
 #include <cstdint>
 
@@ -44,15 +45,15 @@ namespace internal {
 // Unicode constants
 // Leading (high) surrogates: 0xd800 - 0xdbff
 // Trailing (low) surrogates: 0xdc00 - 0xdfff
-constexpr uint16_t LEAD_SURROGATE_MIN  = 0xd800u;
-constexpr uint16_t LEAD_SURROGATE_MAX  = 0xdbffu;
-constexpr uint16_t TRAIL_SURROGATE_MIN = 0xdc00u;
-constexpr uint16_t TRAIL_SURROGATE_MAX = 0xdfffu;
-constexpr uint16_t LEAD_OFFSET         = LEAD_SURROGATE_MIN - (0x10000 >> 10);
-constexpr uint32_t SURROGATE_OFFSET    = 0x10000u - (LEAD_SURROGATE_MIN << 10) - TRAIL_SURROGATE_MIN;
+inline constexpr uint16_t LEAD_SURROGATE_MIN  = 0xd800u;
+inline constexpr uint16_t LEAD_SURROGATE_MAX  = 0xdbffu;
+inline constexpr uint16_t TRAIL_SURROGATE_MIN = 0xdc00u;
+inline constexpr uint16_t TRAIL_SURROGATE_MAX = 0xdfffu;
+inline constexpr uint16_t LEAD_OFFSET         = LEAD_SURROGATE_MIN - (0x10000 >> 10);
+inline constexpr uint32_t SURROGATE_OFFSET    = 0x10000u - (LEAD_SURROGATE_MIN << 10) - TRAIL_SURROGATE_MIN;
 
 // Maximum valid value for a Unicode code point
-constexpr uint32_t CODE_POINT_MAX      = 0x0010ffffu;
+inline constexpr uint32_t CODE_POINT_MAX      = 0x0010ffffu;
 
 [[nodiscard]] constexpr bool is_trail(uint8_t oc)
 {
@@ -228,7 +229,7 @@ template<typename octet_iterator>
 [[nodiscard]] constexpr bool is_bom(octet_iterator it)
 {
 	// Byte order mark
-	constexpr uint8_t bom[] = {0xef, 0xbb, 0xbf};
+	constexpr std::array<uint8_t, 3> bom = {0xef, 0xbb, 0xbf};
 
 	return ((*it++ == bom[0]) &&
 	        (*it++ == bom[1]) &&
