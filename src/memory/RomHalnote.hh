@@ -2,6 +2,7 @@
 #define ROMHALNOTE_HH
 
 #include "RomBlocks.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -20,7 +21,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	byte subBanks[2];
+	std::array<byte, 2> subBanks;
 	bool sramEnabled;
 	bool subMapperEnabled;
 };
