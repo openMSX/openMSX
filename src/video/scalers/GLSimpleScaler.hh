@@ -2,6 +2,7 @@
 #define GLSIMPLESCALER_HH
 
 #include "GLScaler.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -21,8 +22,8 @@ public:
 private:
 	RenderSettings& renderSettings;
 	GLScaler& fallback;
-	int unifTexStepX[2];
-	int unifCnst[2];
+	std::array<int, 2> unifTexStepX;
+	std::array<int, 2> unifCnst;
 };
 
 } // namespace openmsx
