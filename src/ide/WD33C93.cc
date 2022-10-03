@@ -27,66 +27,66 @@
 
 namespace openmsx {
 
-constexpr unsigned MAX_DEV = 8;
+static constexpr unsigned MAX_DEV = 8;
 
-constexpr uint8_t REG_OWN_ID      = 0x00;
-constexpr uint8_t REG_CONTROL     = 0x01;
-constexpr uint8_t REG_TIMEO       = 0x02;
-constexpr uint8_t REG_TSECS       = 0x03;
-constexpr uint8_t REG_THEADS      = 0x04;
-constexpr uint8_t REG_TCYL_HI     = 0x05;
-constexpr uint8_t REG_TCYL_LO     = 0x06;
-constexpr uint8_t REG_ADDR_HI     = 0x07;
-constexpr uint8_t REG_ADDR_2      = 0x08;
-constexpr uint8_t REG_ADDR_3      = 0x09;
-constexpr uint8_t REG_ADDR_LO     = 0x0a;
-constexpr uint8_t REG_SECNO       = 0x0b;
-constexpr uint8_t REG_HEADNO      = 0x0c;
-constexpr uint8_t REG_CYLNO_HI    = 0x0d;
-constexpr uint8_t REG_CYLNO_LO    = 0x0e;
-constexpr uint8_t REG_TLUN        = 0x0f;
-constexpr uint8_t REG_CMD_PHASE   = 0x10;
-constexpr uint8_t REG_SYN         = 0x11;
-constexpr uint8_t REG_TCH         = 0x12;
-constexpr uint8_t REG_TCM         = 0x13;
-constexpr uint8_t REG_TCL         = 0x14;
-constexpr uint8_t REG_DST_ID      = 0x15;
-constexpr uint8_t REG_SRC_ID      = 0x16;
-constexpr uint8_t REG_SCSI_STATUS = 0x17; // (r)
-constexpr uint8_t REG_CMD         = 0x18;
-constexpr uint8_t REG_DATA        = 0x19;
-constexpr uint8_t REG_QUEUE_TAG   = 0x1a;
-constexpr uint8_t REG_AUX_STATUS  = 0x1f; // (r)
+static constexpr uint8_t REG_OWN_ID      = 0x00;
+static constexpr uint8_t REG_CONTROL     = 0x01;
+static constexpr uint8_t REG_TIMEO       = 0x02;
+static constexpr uint8_t REG_TSECS       = 0x03;
+static constexpr uint8_t REG_THEADS      = 0x04;
+static constexpr uint8_t REG_TCYL_HI     = 0x05;
+static constexpr uint8_t REG_TCYL_LO     = 0x06;
+static constexpr uint8_t REG_ADDR_HI     = 0x07;
+static constexpr uint8_t REG_ADDR_2      = 0x08;
+static constexpr uint8_t REG_ADDR_3      = 0x09;
+static constexpr uint8_t REG_ADDR_LO     = 0x0a;
+static constexpr uint8_t REG_SECNO       = 0x0b;
+static constexpr uint8_t REG_HEADNO      = 0x0c;
+static constexpr uint8_t REG_CYLNO_HI    = 0x0d;
+static constexpr uint8_t REG_CYLNO_LO    = 0x0e;
+static constexpr uint8_t REG_TLUN        = 0x0f;
+static constexpr uint8_t REG_CMD_PHASE   = 0x10;
+static constexpr uint8_t REG_SYN         = 0x11;
+static constexpr uint8_t REG_TCH         = 0x12;
+static constexpr uint8_t REG_TCM         = 0x13;
+static constexpr uint8_t REG_TCL         = 0x14;
+static constexpr uint8_t REG_DST_ID      = 0x15;
+static constexpr uint8_t REG_SRC_ID      = 0x16;
+static constexpr uint8_t REG_SCSI_STATUS = 0x17; // (r)
+static constexpr uint8_t REG_CMD         = 0x18;
+static constexpr uint8_t REG_DATA        = 0x19;
+static constexpr uint8_t REG_QUEUE_TAG   = 0x1a;
+static constexpr uint8_t REG_AUX_STATUS  = 0x1f; // (r)
 
-constexpr uint8_t REG_CDBSIZE     = 0x00;
-constexpr uint8_t REG_CDB1        = 0x03;
-constexpr uint8_t REG_CDB2        = 0x04;
-constexpr uint8_t REG_CDB3        = 0x05;
-constexpr uint8_t REG_CDB4        = 0x06;
-constexpr uint8_t REG_CDB5        = 0x07;
-constexpr uint8_t REG_CDB6        = 0x08;
-constexpr uint8_t REG_CDB7        = 0x09;
-constexpr uint8_t REG_CDB8        = 0x0a;
-constexpr uint8_t REG_CDB9        = 0x0b;
-constexpr uint8_t REG_CDB10       = 0x0c;
-constexpr uint8_t REG_CDB11       = 0x0d;
-constexpr uint8_t REG_CDB12       = 0x0e;
+static constexpr uint8_t REG_CDBSIZE     = 0x00;
+static constexpr uint8_t REG_CDB1        = 0x03;
+static constexpr uint8_t REG_CDB2        = 0x04;
+static constexpr uint8_t REG_CDB3        = 0x05;
+static constexpr uint8_t REG_CDB4        = 0x06;
+static constexpr uint8_t REG_CDB5        = 0x07;
+static constexpr uint8_t REG_CDB6        = 0x08;
+static constexpr uint8_t REG_CDB7        = 0x09;
+static constexpr uint8_t REG_CDB8        = 0x0a;
+static constexpr uint8_t REG_CDB9        = 0x0b;
+static constexpr uint8_t REG_CDB10       = 0x0c;
+static constexpr uint8_t REG_CDB11       = 0x0d;
+static constexpr uint8_t REG_CDB12       = 0x0e;
 
-constexpr uint8_t OWN_EAF         = 0x08; // ENABLE ADVANCED FEATURES
+static constexpr uint8_t OWN_EAF         = 0x08; // ENABLE ADVANCED FEATURES
 
 // SCSI STATUS
-constexpr uint8_t SS_RESET        = 0x00; // reset
-constexpr uint8_t SS_RESET_ADV    = 0x01; // reset w/adv. features
-constexpr uint8_t SS_XFER_END     = 0x16; // select and transfer complete
-constexpr uint8_t SS_SEL_TIMEOUT  = 0x42; // selection timeout
-constexpr uint8_t SS_DISCONNECT   = 0x85;
+static constexpr uint8_t SS_RESET        = 0x00; // reset
+static constexpr uint8_t SS_RESET_ADV    = 0x01; // reset w/adv. features
+static constexpr uint8_t SS_XFER_END     = 0x16; // select and transfer complete
+static constexpr uint8_t SS_SEL_TIMEOUT  = 0x42; // selection timeout
+static constexpr uint8_t SS_DISCONNECT   = 0x85;
 
 // AUX STATUS
-constexpr uint8_t AS_DBR          = 0x01; // data buffer ready
-constexpr uint8_t AS_CIP          = 0x10; // command in progress, chip is busy
-constexpr uint8_t AS_BSY          = 0x20; // Level 2 command in progress
-constexpr uint8_t AS_LCI          = 0x40; // last command ignored
-constexpr uint8_t AS_INT          = 0x80;
+static constexpr uint8_t AS_DBR          = 0x01; // data buffer ready
+static constexpr uint8_t AS_CIP          = 0x10; // command in progress, chip is busy
+static constexpr uint8_t AS_BSY          = 0x20; // Level 2 command in progress
+static constexpr uint8_t AS_LCI          = 0x40; // last command ignored
+static constexpr uint8_t AS_INT          = 0x80;
 
 /* command phase
 0x00    NO_SELECT

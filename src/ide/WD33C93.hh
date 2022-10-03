@@ -14,6 +14,7 @@
 #include "SCSI.hh"
 #include "SCSIDevice.hh"
 #include "AlignedBuffer.hh"
+#include <array>
 #include <memory>
 
 namespace openmsx {
@@ -43,7 +44,7 @@ private:
 
 private:
 	AlignedByteArray<SCSIDevice::BUFFER_SIZE> buffer;
-	std::unique_ptr<SCSIDevice> dev[8];
+	std::array<std::unique_ptr<SCSIDevice>, 8> dev;
 	unsigned bufIdx;
 	int counter;
 	unsigned blockCounter;
@@ -51,7 +52,7 @@ private:
 	SCSI::Phase phase;
 	uint8_t myId;
 	uint8_t targetId;
-	uint8_t regs[32];
+	std::array<uint8_t, 32> regs;
 	uint8_t latch;
 	bool devBusy;
 };
