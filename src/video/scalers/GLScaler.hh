@@ -2,6 +2,7 @@
 #define GLSCALER_HH
 
 #include "GLUtil.hh"
+#include <array>
 #include <string>
 
 namespace openmsx {
@@ -75,9 +76,9 @@ protected:
 	             bool textureFromZero = false);
 
 protected:
-	gl::BufferObject vbo[2];
-	gl::ShaderProgram program[2];
-	GLint unifTexSize[2];
+	std::array<gl::BufferObject, 2> vbo;
+	std::array<gl::ShaderProgram, 2> program;
+	std::array<GLint, 2> unifTexSize;
 };
 
 } // namespace openmsx

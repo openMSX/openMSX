@@ -68,7 +68,7 @@ void GLScaler::execute(
 	float vShift = samplePos * yRatio;
 
 	// vertex positions
-	vec2 pos[4] = {
+	std::array pos = {
 		vec2(       0, dstStartY),
 		vec2(dstWidth, dstStartY),
 		vec2(dstWidth, dstEndY  ),
@@ -79,7 +79,7 @@ void GLScaler::execute(
 	float tex0EndY   = float(srcEndY   + vShift) / src.getHeight();
 	float tex1StartY = float(srcStartY + vShift) / logSrcHeight;
 	float tex1EndY   = float(srcEndY   + vShift) / logSrcHeight;
-	vec3 tex[4] = {
+	std::array tex = {
 		vec3(0.0f + hShift, tex0StartY, tex1StartY),
 		vec3(1.0f + hShift, tex0StartY, tex1StartY),
 		vec3(1.0f + hShift, tex0EndY  , tex1EndY  ),
@@ -87,11 +87,11 @@ void GLScaler::execute(
 	};
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[0].get());
-	glBufferData(GL_ARRAY_BUFFER, sizeof(pos), pos, GL_STREAM_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(pos), pos.data(), GL_STREAM_DRAW);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[1].get());
-	glBufferData(GL_ARRAY_BUFFER, sizeof(tex), tex, GL_STREAM_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(tex), tex.data(), GL_STREAM_DRAW);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
 	glEnableVertexAttribArray(0);

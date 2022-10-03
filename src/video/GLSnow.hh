@@ -3,6 +3,7 @@
 
 #include "Layer.hh"
 #include "GLUtil.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -20,7 +21,7 @@ public:
 
 private:
 	Display& display;
-	gl::BufferObject vbo[2];
+	std::array<gl::BufferObject, 2> vbo;
 	gl::Texture noiseTexture;
 };
 

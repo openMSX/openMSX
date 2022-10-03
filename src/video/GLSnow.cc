@@ -18,11 +18,11 @@ GLSnow::GLSnow(Display& display_)
 	// Create noise texture.
 	auto& generator = global_urng(); // fast (non-cryptographic) random numbers
 	std::uniform_int_distribution<int> distribution(0, 255);
-	byte buf[128 * 128];
+	std::array<uint8_t, 128 * 128> buf;
 	ranges::generate(buf, [&] { return distribution(generator); });
 #if OPENGL_VERSION < OPENGL_3_3
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, 128, 128, 0,
-	             GL_LUMINANCE, GL_UNSIGNED_BYTE, buf);
+	             GL_LUMINANCE, GL_UNSIGNED_BYTE, buf.data());
 #else
 	// GL_LUMINANCE no longer supported in newer versions
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 128, 128, 0,
@@ -31,18 +31,18 @@ GLSnow::GLSnow(Display& display_)
 	glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
 #endif
 
-	static constexpr vec2 pos[8][4] = {
-		{{-1, -1}, { 1, -1}, { 1,  1}, {-1,  1}},
-		{{-1,  1}, { 1,  1}, { 1, -1}, {-1, -1}},
-		{{-1,  1}, {-1, -1}, { 1, -1}, { 1,  1}},
-		{{ 1,  1}, { 1, -1}, {-1, -1}, {-1,  1}},
-		{{ 1,  1}, {-1,  1}, {-1, -1}, { 1, -1}},
-		{{ 1, -1}, {-1, -1}, {-1,  1}, { 1,  1}},
-		{{ 1, -1}, { 1,  1}, {-1,  1}, {-1, -1}},
-		{{-1, -1}, {-1,  1}, { 1,  1}, { 1, -1}},
+	static constexpr std::array pos = {
+		std::array{vec2{-1, -1}, vec2{ 1, -1}, vec2{ 1,  1}, vec2{-1,  1}},
+		std::array{vec2{-1,  1}, vec2{ 1,  1}, vec2{ 1, -1}, vec2{-1, -1}},
+		std::array{vec2{-1,  1}, vec2{-1, -1}, vec2{ 1, -1}, vec2{ 1,  1}},
+		std::array{vec2{ 1,  1}, vec2{ 1, -1}, vec2{-1, -1}, vec2{-1,  1}},
+		std::array{vec2{ 1,  1}, vec2{-1,  1}, vec2{-1, -1}, vec2{ 1, -1}},
+		std::array{vec2{ 1, -1}, vec2{-1, -1}, vec2{-1,  1}, vec2{ 1,  1}},
+		std::array{vec2{ 1, -1}, vec2{ 1,  1}, vec2{-1,  1}, vec2{-1, -1}},
+		std::array{vec2{-1, -1}, vec2{-1,  1}, vec2{ 1,  1}, vec2{ 1, -1}},
 	};
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[0].get());
-	glBufferData(GL_ARRAY_BUFFER, sizeof(pos), pos, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(pos), pos.data(), GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
@@ -54,11 +54,11 @@ void GLSnow::paint(OutputSurface& /*output*/)
 	cnt = (cnt + 1) % 8;
 
 	vec2 offset(random_float(0.0f, 1.0f) ,random_float(0.0f, 1.0f));
-	const vec2 tex[4] = {
+	const std::array tex = {
 		offset + vec2(0.0f, 2.0f),
 		offset + vec2(2.0f, 2.0f),
 		offset + vec2(2.0f, 0.0f),
-		offset + vec2(0.0f, 0.0f)
+		offset + vec2(0.0f, 0.0f),
 	};
 
 	gl::context->progTex.activate();
@@ -72,7 +72,7 @@ void GLSnow::paint(OutputSurface& /*output*/)
 	glEnableVertexAttribArray(0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[1].get());
-	glBufferData(GL_ARRAY_BUFFER, sizeof(tex), tex, GL_STREAM_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(tex), tex.data(), GL_STREAM_DRAW);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 	glEnableVertexAttribArray(1);
 
