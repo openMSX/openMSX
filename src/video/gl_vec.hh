@@ -19,6 +19,7 @@
 #include "Math.hh"
 #include "xrange.hh"
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <cmath>
 #include <iostream>
@@ -140,7 +141,7 @@ public:
 	}
 
 private:
-	T e[N];
+	std::array<T, N> e;
 };
 
 

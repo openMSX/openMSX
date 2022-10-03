@@ -113,7 +113,7 @@ public:
 	}
 
 private:
-	vecN<M, T> c[N];
+	std::array<vecN<M, T>, N> c;
 };
 
 
