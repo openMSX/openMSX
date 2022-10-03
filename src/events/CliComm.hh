@@ -2,6 +2,7 @@
 #define CLICOMM_HH
 
 #include "strCat.hh"
+#include <array>
 #include <span>
 #include <string_view>
 
@@ -84,14 +85,14 @@ public:
 	}
 
 	// string representations of the LogLevel and UpdateType enums
-	[[nodiscard]] static std::span<const char* const> getLevelStrings()  {
-		static constexpr const char* const levelStr [NUM_LEVELS] = {
+	[[nodiscard]] static std::span<const std::string_view, NUM_LEVELS> getLevelStrings() {
+		static constexpr std::array<std::string_view, NUM_LEVELS> levelStr = {
 			"info", "warning", "error", "progress"
 		};
 		return levelStr;
 	}
-	[[nodiscard]] static std::span<const char* const> getUpdateStrings() {
-		static constexpr const char* const updateStr[NUM_UPDATES] = {
+	[[nodiscard]] static std::span<const std::string_view, NUM_UPDATES> getUpdateStrings() {
+		static constexpr std::array<std::string_view, NUM_UPDATES> updateStr = {
 			"led", "setting", "setting-info", "hardware", "plug",
 			"media", "status", "extension", "sounddevice", "connector",
 			"debug"

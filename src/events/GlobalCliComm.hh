@@ -4,6 +4,7 @@
 #include "CliComm.hh"
 #include "hash_map.hh"
 #include "xxhash.hh"
+#include <array>
 #include <memory>
 #include <mutex>
 #include <vector>
@@ -40,7 +41,7 @@ private:
 	                  std::string_view name, std::string_view value);
 
 private:
-	hash_map<std::string, std::string, XXHasher> prevValues[NUM_UPDATES];
+	std::array<hash_map<std::string, std::string, XXHasher>, NUM_UPDATES> prevValues;
 
 	std::vector<std::unique_ptr<CliListener>> listeners; // unordered
 	std::mutex mutex; // lock access to listeners member
