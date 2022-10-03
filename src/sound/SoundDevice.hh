@@ -4,6 +4,7 @@
 #include "EmuTime.hh"
 #include "WavWriter.hh"
 #include "static_string_view.hh"
+#include <array>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -196,7 +197,7 @@ private:
 	const std::string name;
 	const static_string_view description;
 
-	std::optional<Wav16Writer> writer[MAX_CHANNELS];
+	std::array<std::optional<Wav16Writer>, MAX_CHANNELS> writer;
 
 	float softwareVolumeLeft = 1.0f;
 	float softwareVolumeRight = 1.0f;
@@ -204,8 +205,8 @@ private:
 	const unsigned numChannels;
 	const unsigned stereo;
 	unsigned numRecordChannels;
-	int channelBalance[MAX_CHANNELS];
-	bool channelMuted[MAX_CHANNELS];
+	std::array<int,  MAX_CHANNELS> channelBalance;
+	std::array<bool, MAX_CHANNELS> channelMuted;
 	bool balanceCenter;
 };
 
