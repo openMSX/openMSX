@@ -4,6 +4,7 @@
 #include "MSXRom.hh"
 #include "RomBlocks.hh"
 #include "FirmwareSwitch.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -49,9 +50,9 @@ private:
 
 private:
 	std::shared_ptr<SRAM> fsSram;
-	byte bankSelect[8];
-	bool isRam[8];
-	bool isEmpty[8];
+	std::array<byte, 8> bankSelect;
+	std::array<bool, 8> isRam;
+	std::array<bool, 8> isEmpty;
 	byte control;
 };
 
