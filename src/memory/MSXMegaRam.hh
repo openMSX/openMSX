@@ -4,6 +4,7 @@
 #include "MSXDevice.hh"
 #include "Ram.hh"
 #include "RomBlockDebuggable.hh"
+#include <array>
 #include <memory>
 
 namespace openmsx {
@@ -40,7 +41,7 @@ private:
 	const std::unique_ptr<Rom> rom; // can be nullptr
 	RomBlockDebuggable romBlockDebug;
 	const byte maskBlocks;
-	byte bank[4];
+	std::array<byte, 4> bank;
 	bool writeMode;
 	bool romMode;
 };
