@@ -84,6 +84,13 @@ void RealDrive::getMediaInfo(TclObject& result)
 	result.addDictKeyValues("target", changer->getDiskName().getResolved(),
 	                        "type", typeStr,
 	                        "readonly", changer->getDisk().isWriteProtected());
+	if (auto* disk = changer->getSectorAccessibleDisk()) {
+		TclObject patches;
+		patches.addListElements(view::transform(disk->getPatches(), [](auto& p) {
+			return p.getResolved();
+		}));
+		result.addDictKeyValue("patches", patches);
+	}
 }
 
 bool RealDrive::isDiskInserted() const
