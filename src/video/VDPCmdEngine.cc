@@ -39,8 +39,10 @@ TODO:
 #include "serialize.hh"
 #include "unreachable.hh"
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <iostream>
+#include <string_view>
 
 namespace openmsx {
 
@@ -2584,11 +2586,11 @@ void VDPCmdEngine::sync2(EmuTime::param time)
 
 void VDPCmdEngine::reportVdpCommand() const
 {
-	const char* const COMMANDS[16] = {
+	static constexpr std::array<std::string_view, 16> COMMANDS = {
 		" ABRT"," ????"," ????"," ????","POINT"," PSET"," SRCH"," LINE",
 		" LMMV"," LMMM"," LMCM"," LMMC"," HMMV"," HMMM"," YMMM"," HMMC"
 	};
-	const char* const OPS[16] = {
+	static constexpr std::array<std::string_view, 16> OPS = {
 		"IMP ","AND ","OR  ","XOR ","NOT ","NOP ","NOP ","NOP ",
 		"TIMP","TAND","TOR ","TXOR","TNOT","NOP ","NOP ","NOP "
 	};
