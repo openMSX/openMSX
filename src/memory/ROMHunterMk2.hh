@@ -3,6 +3,7 @@
 
 #include "MSXRom.hh"
 #include "Ram.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -27,7 +28,7 @@ private:
 private:
 	Ram ram;
 	byte configReg;
-	byte bankRegs[4];
+	std::array<byte, 4> bankRegs;
 };
 
 } // namespace openmsx
