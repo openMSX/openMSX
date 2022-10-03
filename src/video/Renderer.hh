@@ -3,6 +3,7 @@
 
 #include "VRAMObserver.hh"
 #include "openmsx.hh"
+#include <array>
 #include <cstdint>
 
 namespace openmsx {
@@ -182,7 +183,7 @@ public:
 	  * Each palette entry is a word in GRB format:
 	  * bit 10..8 is green, bit 6..4 is red and bit 2..0 is blue.
 	  */
-	static constexpr uint16_t GRAPHIC7_SPRITE_PALETTE[16] = {
+	static constexpr std::array<uint16_t, 16> GRAPHIC7_SPRITE_PALETTE = {
 		0x000, 0x002, 0x030, 0x032, 0x300, 0x302, 0x330, 0x332,
 		0x472, 0x007, 0x070, 0x077, 0x700, 0x707, 0x770, 0x777,
 	};
