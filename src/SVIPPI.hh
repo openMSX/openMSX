@@ -8,6 +8,7 @@
 #include "I8255.hh"
 #include "Keyboard.hh"
 #include "KeyClick.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -47,7 +48,7 @@ private:
 	I8255 i8255;
 	KeyClick click;
 	Keyboard keyboard;
-	JoystickPortIf* ports[2];
+	std::array<JoystickPortIf*, 2> ports;
 	nibble prevBits;
 	nibble selectedRow;
 };
