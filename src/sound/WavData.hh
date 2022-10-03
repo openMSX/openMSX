@@ -7,6 +7,7 @@
 #include "MSXException.hh"
 #include "one_of.hh"
 #include "xrange.hh"
+#include <array>
 #include <cstdint>
 #include <span>
 #include <string>
@@ -65,10 +66,10 @@ inline WavData::WavData(File file, Filter filter)
 	// Read and check header
 	auto raw = file.mmap();
 	struct WavHeader {
-		char riffID[4];
+		std::array<char, 4> riffID;
 		Endian::L32 riffSize;
-		char riffType[4];
-		char fmtID[4];
+		std::array<char, 4> riffType;
+		std::array<char, 4> fmtID;
 		Endian::L32 fmtSize;
 		Endian::L16 wFormatTag;
 		Endian::L16 wChannels;
@@ -78,9 +79,9 @@ inline WavData::WavData(File file, Filter filter)
 		Endian::L16 wBitsPerSample;
 	};
 	const auto* header = read<WavHeader>(raw, 0);
-	if ((std::string_view{header->riffID,   4} != "RIFF") ||
-	    (std::string_view{header->riffType, 4} != "WAVE") ||
-	    (std::string_view{header->fmtID,    4} != "fmt ")) {
+	if ((std::string_view{header->riffID.data(),   4} != "RIFF") ||
+	    (std::string_view{header->riffType.data(), 4} != "WAVE") ||
+	    (std::string_view{header->fmtID.data(),    4} != "fmt ")) {
 		throw MSXException("Invalid WAV file.");
 	}
 	unsigned bits = header->wBitsPerSample;
@@ -95,7 +96,7 @@ inline WavData::WavData(File file, Filter filter)
 
 	// Find 'data' chunk
 	struct DataHeader {
-		char dataID[4];
+		std::array<char, 4> dataID;
 		Endian::L32 chunkSize;
 	};
 	const DataHeader* dataHeader;
@@ -103,7 +104,7 @@ inline WavData::WavData(File file, Filter filter)
 		// Read chunk header
 		dataHeader = read<DataHeader>(raw, pos);
 		pos += sizeof(DataHeader);
-		if (std::string_view{dataHeader->dataID, 4} == "data") break;
+		if (std::string_view{dataHeader->dataID.data(), 4} == "data") break;
 		// Skip non-data chunk
 		pos += dataHeader->chunkSize;
 	}
