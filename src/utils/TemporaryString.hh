@@ -3,6 +3,7 @@
 
 #include "StringStorage.hh"
 #include "zstring_view.hh"
+#include <array>
 #include <concepts>
 #include <iostream>
 #include <string_view>
@@ -30,7 +31,7 @@ public:
 		: n(n_)
 	{
 		if (n <= BUFSIZE) {
-			ptr = buffer;
+			ptr = buffer.data();
 		} else {
 			owner = allocate_string_storage(n + 1);
 			ptr = owner.get();
@@ -53,7 +54,7 @@ private:
 	size_t n;
 	char* ptr;
 	StringStorage owner;
-	char buffer[BUFSIZE + 1];
+	std::array<char, BUFSIZE + 1> buffer;
 };
 
 inline std::ostream& operator<<(std::ostream& os, const TemporaryString& str)
