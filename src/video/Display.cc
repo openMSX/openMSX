@@ -26,6 +26,7 @@
 #include "stl.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+#include <array>
 #include <cassert>
 
 using std::string;
@@ -414,7 +415,7 @@ void Display::ScreenShotCmd::execute(std::span<const TclObject> tokens, TclObjec
 	bool msxOnly = false;
 	bool doubleSize = false;
 	bool withOsd = false;
-	ArgsInfo info[] = {
+	std::array info = {
 		valueArg("-prefix", prefix),
 		flagArg("-raw", rawShot),
 		flagArg("-msxonly", msxOnly),
