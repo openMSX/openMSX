@@ -7,6 +7,7 @@
 #include "inline.hh"
 #include "one_of.hh"
 #include "xrange.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -280,8 +281,8 @@ private:
 	Clock<CLOCK_FREQ> lastRefreshTime;
 	int lastPage;
 
-	unsigned extraMemoryDelays[4][4][4];
-	unsigned extraMemoryDelay[4];
+	std::array<std::array<std::array<unsigned, 4>, 4>, 4> extraMemoryDelays;
+	std::array<unsigned, 4> extraMemoryDelay;
 };
 
 } // namespace openmsx
