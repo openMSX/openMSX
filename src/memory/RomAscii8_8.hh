@@ -2,6 +2,7 @@
 #define ROMASCII8_8_HH
 
 #include "RomBlocks.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -25,7 +26,7 @@ private:
 	const byte sramEnableBit;
 	const byte sramPages;
 	byte sramEnabled;
-	byte sramBlock[NUM_BANKS];
+	std::array<byte, NUM_BANKS> sramBlock;
 };
 
 } // namespace openmsx
