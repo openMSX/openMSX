@@ -8,6 +8,7 @@
 #include "xxhash.hh"
 #include "openmsx.hh"
 #include "RecordedCommand.hh"
+#include <array>
 #include <cassert>
 #include <memory>
 #include <string_view>
@@ -274,7 +275,7 @@ private:
 	std::unique_ptr<PanasonicMemory> panasonicMemory;
 	std::unique_ptr<MSXDeviceSwitch> deviceSwitch;
 	std::unique_ptr<CassettePortInterface> cassettePort;
-	std::unique_ptr<JoystickPortIf> joystickPort[2];
+	std::array<std::unique_ptr<JoystickPortIf>, 2> joystickPort;
 	std::unique_ptr<JoyPortDebuggable> joyPortDebuggable;
 	std::unique_ptr<RenShaTurbo> renShaTurbo;
 	std::unique_ptr<LedStatus> ledStatus;
