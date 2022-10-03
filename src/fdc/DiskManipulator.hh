@@ -2,9 +2,10 @@
 #define FILEMANIPULATOR_HH
 
 #include "Command.hh"
+#include <array>
+#include <memory>
 #include <string_view>
 #include <vector>
-#include <memory>
 
 namespace openmsx {
 
@@ -31,7 +32,7 @@ private:
 	{
 		DiskContainer* drive;
 		std::string driveName; // includes machine prefix
-		std::string workingDir[MAX_PARTITIONS + 1];
+		std::array<std::string, MAX_PARTITIONS + 1> workingDir;
 		/** 0 = whole disk, 1..MAX_PARTITIONS = partition number */
 		unsigned partition;
 	};
