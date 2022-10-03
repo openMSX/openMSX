@@ -5,6 +5,7 @@
 #include "I8255Interface.hh"
 #include "I8255.hh"
 #include "Keyboard.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -44,7 +45,7 @@ private:
 	CassettePortInterface& cassettePort;
 	I8255 i8255;
 	Keyboard keyboard;
-	JoystickPortIf* ports[2];
+	std::array<JoystickPortIf*, 2> ports;
 	nibble prevBits;
 	nibble selectedRow;
 };
