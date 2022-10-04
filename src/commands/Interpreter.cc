@@ -166,7 +166,7 @@ void Interpreter::unregisterCommand(Command& command)
 }
 
 int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
-                           int objc, Tcl_Obj* const objv[])
+                             int objc, Tcl_Obj* const* objv)
 {
 	try {
 		auto& command = *static_cast<Command*>(clientData);

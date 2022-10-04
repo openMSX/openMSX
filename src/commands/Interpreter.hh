@@ -58,9 +58,9 @@ public:
 
 private:
 	static int outputProc(ClientData clientData, const char* buf,
-	        int toWrite, int* errorCodePtr);
+	                      int toWrite, int* errorCodePtr);
 	static int commandProc(ClientData clientData, Tcl_Interp* interp,
-	                       int objc, Tcl_Obj* const objv[]);
+	                       int objc, Tcl_Obj* const* objv);
 	static char* traceProc(ClientData clientData, Tcl_Interp* interp,
 	                       const char* part1, const char* part2, int flags);
 
