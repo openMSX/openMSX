@@ -383,6 +383,14 @@ void Rom::addPadding(unsigned newSize, byte filler)
 	size = newSize;
 }
 
+void Rom::getInfo(TclObject& result) const
+{
+	result.addDictKeyValues("actualSHA1", getSHA1().toString(),
+	                        "originalSHA1", getOriginalSHA1().toString(),
+	                        "filename", getFilename());
+}
+
+
 RomDebuggable::RomDebuggable(Debugger& debugger_, Rom& rom_)
 	: debugger(debugger_), rom(&rom_)
 {

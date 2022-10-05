@@ -1,5 +1,6 @@
 #include "MSXKanji.hh"
 #include "MSXException.hh"
+#include "TclObject.hh"
 #include "one_of.hh"
 #include "serialize.hh"
 
@@ -84,6 +85,11 @@ byte MSXKanji::peekIO(word port, EmuTime::param /*time*/) const
 		break;
 	}
 	return result;
+}
+
+void MSXKanji::getExtraDeviceInfo(TclObject& result) const
+{
+	rom.getInfo(result);
 }
 
 template<typename Archive>

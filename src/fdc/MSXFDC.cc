@@ -61,6 +61,13 @@ const byte* MSXFDC::getReadCacheLine(word start) const
 	return &(*rom)[start & 0x3FFF];
 }
 
+void MSXFDC::getExtraDeviceInfo(TclObject& result) const
+{
+	if (rom) {
+		rom->getInfo(result);
+	}
+}
+
 
 template<typename Archive>
 void MSXFDC::serialize(Archive& ar, unsigned /*version*/)

@@ -18,6 +18,7 @@ class XMLElement;
 class DeviceConfig;
 class FileContext;
 class RomDebuggable;
+class TclObject;
 
 class Rom final
 {
@@ -40,6 +41,11 @@ public:
 	[[nodiscard]] const Sha1Sum& getSHA1() const;
 
 	void addPadding(unsigned newSize, byte filler = 0xff);
+
+	/**
+	 * Add dict values with info to result
+	 */
+	void getInfo(TclObject& result) const;
 
 private:
 	void init(MSXMotherBoard& motherBoard, const XMLElement& config,

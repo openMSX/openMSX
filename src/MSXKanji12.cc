@@ -1,5 +1,6 @@
 #include "MSXKanji12.hh"
 #include "MSXException.hh"
+#include "TclObject.hh"
 #include "one_of.hh"
 #include "serialize.hh"
 
@@ -72,6 +73,11 @@ void MSXKanji12::writeSwitchedIO(word port, byte value, EmuTime::param /*time*/)
 			break;
 		}
 	}
+}
+
+void MSXKanji12::getExtraDeviceInfo(TclObject& result) const
+{
+	rom.getInfo(result);
 }
 
 template<typename Archive>

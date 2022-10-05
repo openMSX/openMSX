@@ -20,6 +20,8 @@ public:
 	[[nodiscard]] byte peekSwitchedIO(word port, EmuTime::param time) const override;
 	void writeSwitchedIO(word port, byte value, EmuTime::param time) override;
 
+	virtual void getExtraDeviceInfo(TclObject& result) const;
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 

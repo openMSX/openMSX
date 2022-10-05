@@ -34,6 +34,9 @@ void MSXRom::getInfo(TclObject& result) const
 
 	// add original sha1sum
 	                        "originalSHA1", rom.getOriginalSHA1().toString());
+
+	// note that we're not using rom.getInfo(result); because we don't want
+	// the filename included for this method...
 }
 
 void MSXRom::getExtraDeviceInfo(TclObject& result) const
