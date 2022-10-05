@@ -150,12 +150,12 @@ CLIFileType* CommandLineParser::getFileTypeHandlerForFileName(string_view filena
 	return result;
 }
 
-void CommandLineParser::parse(int argc, char** argv)
+void CommandLineParser::parse(std::span<char*> argv)
 {
 	parseStatus = RUN;
 
-	auto cmdLineBuf = to_vector(view::transform(xrange(1, argc), [&](auto i) {
-		return FileOperations::getConventionalPath(argv[i]);
+	auto cmdLineBuf = to_vector(view::transform(view::drop(argv, 1), [](const char* a) {
+		return FileOperations::getConventionalPath(a);
 	}));
 	std::span<string> cmdLine(cmdLineBuf);
 	std::vector<string> backupCmdLine;

@@ -121,7 +121,7 @@ static int main(int argc, char **argv)
 		argv = arggen.GetArguments(argc);
 #endif
 		CommandLineParser parser(reactor);
-		parser.parse(argc, argv);
+		parser.parse({argv, size_t(argc)});
 		CommandLineParser::ParseStatus parseStatus = parser.getParseStatus();
 
 		if (parseStatus != CommandLineParser::EXIT) {

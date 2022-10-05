@@ -51,7 +51,7 @@ public:
 		ParsePhase phase = PHASE_LAST, unsigned length = 2);
 	void registerFileType(std::initializer_list<std::string_view> extensions,
 	                      CLIFileType& cliFileType);
-	void parse(int argc, char** argv);
+	void parse(std::span<char*> argv);
 	[[nodiscard]] ParseStatus getParseStatus() const;
 
 	[[nodiscard]] const auto& getStartupScripts() const {
