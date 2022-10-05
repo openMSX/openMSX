@@ -27,12 +27,14 @@ static void storeUleb(std::vector<uint8_t>& result, size_t value)
 	} while (value);
 }
 
-[[nodiscard]] static constexpr size_t loadUleb(const uint8_t*& data)
+[[nodiscard]] static constexpr size_t loadUleb(std::span<const uint8_t>& data)
 {
 	size_t result = 0;
 	int shift = 0;
 	while (true) {
-		uint8_t b = *data++;
+		assert(!data.empty());
+		uint8_t b = data.front();
+		data = data.subspan(1);
 		result |= size_t(b & 0x7F) << shift;
 		if ((b & 0x80) == 0) return result;
 		shift += 7;
@@ -219,19 +221,17 @@ end:	return std::mismatch(p, p_end, q);
 }
 
 // Apply a previously calculated 'delta' to 'oldBuf' to get 'newbuf'.
-static void applyDeltaInPlace(std::span<uint8_t> buf, const uint8_t* delta)
+static void applyDeltaInPlace(std::span<uint8_t> buf, std::span<const uint8_t> delta)
 {
-	auto it = buf.begin();
-	auto et = buf.end();
-	while (it != et) {
+	while (!buf.empty()) {
 		auto n1 = loadUleb(delta);
-		it += n1;
-		if (it == et) break;
+		buf = buf.subspan(n1);
+		if (buf.empty()) break;
 
 		auto n2 = loadUleb(delta);
-		ranges::copy(std::span{delta, n2}, it);
-		it    += n2;
-		delta += n2;
+		ranges::copy(delta.subspan(0, n2), buf);
+		buf   = buf  .subspan(n2);
+		delta = delta.subspan(n2);
 	}
 }
 
@@ -342,7 +342,7 @@ DeltaBlockDiff::DeltaBlockDiff(
 void DeltaBlockDiff::apply(std::span<uint8_t> dst) const
 {
 	prev->apply(dst);
-	applyDeltaInPlace(dst, delta.data());
+	applyDeltaInPlace(dst, delta);
 #ifdef DEBUG
 	assert(SHA1::calc(dst) == sha1);
 #endif
