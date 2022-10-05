@@ -59,8 +59,8 @@ private:
 		                 // truncated.
 	};
 
-	[[nodiscard]] SectorBuffer* fat();
-	[[nodiscard]] SectorBuffer* fat2();
+	[[nodiscard]] std::span<SectorBuffer> fat();
+	[[nodiscard]] std::span<SectorBuffer> fat2();
 	[[nodiscard]] MSXDirEntry& msxDir(DirIndex dirIndex);
 	void writeFATSector (unsigned sector, const SectorBuffer& buf);
 	void writeDIRSector (unsigned sector, DirIndex dirDirIndex,
@@ -98,7 +98,7 @@ private:
 	[[nodiscard]] unsigned getFreeCluster();
 	[[nodiscard]] unsigned readFAT(unsigned cluster);
 	void writeFAT12(unsigned cluster, unsigned val);
-	void exportFileFromFATChange(unsigned cluster, SectorBuffer* oldFAT);
+	void exportFileFromFATChange(unsigned cluster, std::span<SectorBuffer> oldFAT);
 	std::pair<unsigned, unsigned> getChainStart(unsigned cluster);
 	[[nodiscard]] bool isDirSector(unsigned sector, DirIndex& dirDirIndex);
 	bool getDirEntryForCluster(unsigned cluster,
@@ -114,8 +114,8 @@ private:
 	friend struct UnmapHostFiles;
 
 	// internal helper functions
-	[[nodiscard]] unsigned readFATHelper(const SectorBuffer* fat, unsigned cluster) const;
-	void writeFATHelper(SectorBuffer* fat, unsigned cluster, unsigned val) const;
+	[[nodiscard]] unsigned readFATHelper(std::span<const SectorBuffer> fat, unsigned cluster) const;
+	void writeFATHelper(std::span<SectorBuffer> fat, unsigned cluster, unsigned val) const;
 	[[nodiscard]] unsigned clusterToSector(unsigned cluster) const;
 	[[nodiscard]] std::pair<unsigned, unsigned> sectorToClusterOffset(unsigned sector) const;
 	[[nodiscard]] unsigned sectorToCluster(unsigned sector) const;

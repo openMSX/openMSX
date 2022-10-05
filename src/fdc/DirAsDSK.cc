@@ -45,24 +45,24 @@ static constexpr unsigned EOF_FAT  = 0xFFF; // actually 0xFF8-0xFFF
 	return (cluster < BAD_FAT) ? cluster : EOF_FAT;
 }
 
-unsigned DirAsDSK::readFATHelper(const SectorBuffer* fatBuf, unsigned cluster) const
+unsigned DirAsDSK::readFATHelper(std::span<const SectorBuffer> fatBuf, unsigned cluster) const
 {
 	assert(FIRST_CLUSTER <= cluster);
 	assert(cluster < maxCluster);
-	const auto* buf = fatBuf[0].raw.data();
-	const auto* p = &buf[(cluster * 3) / 2];
+	std::span buf{fatBuf[0].raw.data(), fatBuf.size() * SECTOR_SIZE};
+	auto p = subspan<2>(buf, (cluster * 3) / 2);
 	unsigned result = (cluster & 1)
 	                ? (p[0] >> 4) + (p[1] << 4)
 	                : p[0] + ((p[1] & 0x0F) << 8);
 	return normalizeFAT(result);
 }
 
-void DirAsDSK::writeFATHelper(SectorBuffer* fatBuf, unsigned cluster, unsigned val) const
+void DirAsDSK::writeFATHelper(std::span<SectorBuffer> fatBuf, unsigned cluster, unsigned val) const
 {
 	assert(FIRST_CLUSTER <= cluster);
 	assert(cluster < maxCluster);
-	auto* buf = fatBuf[0].raw.data();
-	auto* p = &buf[(cluster * 3) / 2];
+	std::span buf{fatBuf[0].raw.data(), fatBuf.size() * SECTOR_SIZE};
+	auto p = subspan<2>(buf, (cluster * 3) / 2);
 	if (cluster & 1) {
 		p[0] = (p[0] & 0x0F) + (val << 4);
 		p[1] = val >> 4;
@@ -72,13 +72,13 @@ void DirAsDSK::writeFATHelper(SectorBuffer* fatBuf, unsigned cluster, unsigned v
 	}
 }
 
-SectorBuffer* DirAsDSK::fat()
+std::span<SectorBuffer> DirAsDSK::fat()
 {
-	return &sectors[FIRST_FAT_SECTOR];
+	return {&sectors[FIRST_FAT_SECTOR], nofSectorsPerFat};
 }
-SectorBuffer* DirAsDSK::fat2()
+std::span<SectorBuffer> DirAsDSK::fat2()
 {
-	return &sectors[firstSector2ndFAT];
+	return {&sectors[firstSector2ndFAT], nofSectorsPerFat};
 }
 
 // Read entry from FAT.
@@ -234,8 +234,8 @@ static std::array<char, 11> hostToMsxName(string hostName)
 
 	std::array<char, 8 + 3> result;
 	ranges::fill(result, ' ');
-	ranges::copy(subspan(file, 0, std::min<size_t>(8, file.size())), result.data() + 0);
-	ranges::copy(subspan(ext,  0, std::min<size_t>(3, ext .size())), result.data() + 8);
+	ranges::copy(subspan(file, 0, std::min<size_t>(8, file.size())), subspan<8>(result, 0));
+	ranges::copy(subspan(ext,  0, std::min<size_t>(3, ext .size())), subspan<3>(result, 8));
 	ranges::replace(result, '.', '_');
 	return result;
 }
@@ -305,13 +305,18 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 	bootSector.nrSides      = numSides;
 
 	// Clear FAT1 + FAT2.
-	ranges::fill(std::span{fat()->raw.data(), SECTOR_SIZE * nofSectorsPerFat * NUM_FATS}, 0);
+	ranges::fill(std::span{fat()[0].raw.data(), SECTOR_SIZE * nofSectorsPerFat * NUM_FATS}, 0);
 	// First 3 bytes are initialized specially:
 	//  'cluster 0' contains the media descriptor
 	//  'cluster 1' is marked as EOF_FAT
 	//  So cluster 2 is the first usable cluster number
-	fat ()->raw[0] = mediaDescriptor; fat ()->raw[1] = 0xFF; fat ()->raw[2] = 0xFF;
-	fat2()->raw[0] = mediaDescriptor; fat2()->raw[1] = 0xFF; fat2()->raw[2] = 0xFF;
+	auto init = [&](auto f) {
+		f[0].raw[0] = mediaDescriptor;
+		f[0].raw[1] = 0xFF;
+		f[0].raw[2] = 0xFF;
+	};
+	init(fat());
+	init(fat2());
 
 	// Assign empty directory entries.
 	ranges::fill(std::span{sectors[firstDirSector].raw.data(), SECTOR_SIZE * SECTORS_PER_DIR}, 0);
@@ -924,16 +929,15 @@ void DirAsDSK::writeSectorImpl(size_t sector_, const SectorBuffer& buf)
 void DirAsDSK::writeFATSector(unsigned sector, const SectorBuffer& buf)
 {
 	// Create copy of old FAT (to be able to detect changes).
-	vector<SectorBuffer> oldFAT(nofSectorsPerFat);
-	ranges::copy(std::span{fat(), nofSectorsPerFat}, oldFAT);
+	auto oldFAT = to_vector(fat());
 
 	// Update current FAT with new data.
 	sectors[sector] = buf;
 
 	// Look for changes.
 	for (auto i : xrange(FIRST_CLUSTER, maxCluster)) {
-		if (readFAT(i) != readFATHelper(oldFAT.data(), i)) {
-			exportFileFromFATChange(i, oldFAT.data());
+		if (readFAT(i) != readFATHelper(oldFAT, i)) {
+			exportFileFromFATChange(i, oldFAT);
 		}
 	}
 	// At this point there should be no more differences.
@@ -944,11 +948,11 @@ void DirAsDSK::writeFATSector(unsigned sector, const SectorBuffer& buf)
 	// beginning nor the unused part at the end. And for example the 'CALL
 	// FORMAT' routine also writes these parts of the FAT.
 	for (auto i : xrange(FIRST_CLUSTER, maxCluster)) {
-		assert(readFAT(i) == readFATHelper(oldFAT.data(), i)); (void)i;
+		assert(readFAT(i) == readFATHelper(oldFAT, i)); (void)i;
 	}
 }
 
-void DirAsDSK::exportFileFromFATChange(unsigned cluster, SectorBuffer* oldFAT)
+void DirAsDSK::exportFileFromFATChange(unsigned cluster, std::span<SectorBuffer> oldFAT)
 {
 	// Get first cluster in the FAT chain that contains 'cluster'.
 	auto [startCluster, chainLength] = getChainStart(cluster);
