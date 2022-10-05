@@ -1,6 +1,7 @@
 #ifndef TCLPARSER_HH
 #define TCLPARSER_HH
 
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -39,8 +40,8 @@ private:
 	enum ParseType { COMMAND, EXPRESSION, OTHER };
 
 	void parse(const char* p, int size, ParseType type);
-	void printTokens(Tcl_Token* tokens, int numTokens);
-	[[nodiscard]] static ParseType guessSubType(Tcl_Token* tokens, int i);
+	void printTokens(std::span<const Tcl_Token> tokens);
+	[[nodiscard]] static ParseType guessSubType(std::span<const Tcl_Token> tokens, size_t i);
 	void setColors(const char* p, int size, char c);
 
 private:

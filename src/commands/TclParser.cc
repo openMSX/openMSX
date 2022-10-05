@@ -140,7 +140,7 @@ void TclParser::parse(const char* p, int size, ParseType type)
 		}
 		DEBUG_PRINT("COMMAND: " + std::string_view(parseInfo.commandStart, parseInfo.commandSize));
 	}
-	printTokens(parseInfo.tokenPtr, parseInfo.numTokens);
+	printTokens({parseInfo.tokenPtr, size_t(parseInfo.numTokens)});
 
 	// If the current sub-command stops before the end of the original
 	// full command, then it's not the last sub-command. Note that
@@ -159,13 +159,13 @@ void TclParser::parse(const char* p, int size, ParseType type)
 	}
 }
 
-void TclParser::printTokens(Tcl_Token* tokens, int numTokens)
+void TclParser::printTokens(std::span<const Tcl_Token> tokens)
 {
 #if DEBUG_TCLPARSER
 	ScopedAssign sa(level, level + 1);
 #endif
-	for (int i = 0; i < numTokens; /**/) {
-		Tcl_Token& token = tokens[i];
+	for (size_t i = 0; i < tokens.size(); /**/) {
+		const Tcl_Token& token = tokens[i];
 		std::string_view tokenStr(token.start, token.size);
 		DEBUG_PRINT(type2string(token.type) + " -> " + tokenStr);
 		switch (token.type) {
@@ -204,12 +204,12 @@ void TclParser::printTokens(Tcl_Token* tokens, int numTokens)
 				parse(tokens[i + 1].start, tokens[i + 1].size, subType);
 			}
 		}
-		printTokens(&tokens[++i], token.numComponents);
+		printTokens(tokens.subspan(++i, token.numComponents));
 		i += token.numComponents;
 	}
 }
 
-TclParser::ParseType TclParser::guessSubType(Tcl_Token* tokens, int i)
+TclParser::ParseType TclParser::guessSubType(std::span<const Tcl_Token> tokens, size_t i)
 {
 	// heuristic: if previous token is 'if' then assume this is an expression
 	if ((i >= 1) && (tokens[i - 1].type == TCL_TOKEN_TEXT)) {
