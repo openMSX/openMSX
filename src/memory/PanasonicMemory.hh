@@ -21,8 +21,8 @@ public:
 	 * access via the ROM mapper. Note that this is always unchecked Ram!
 	 */
 	void registerRam(Ram& ram);
-	[[nodiscard]] const byte* getRomBlock(unsigned block);
-	[[nodiscard]] const byte* getRomRange(unsigned first, unsigned last);
+	[[nodiscard]] std::span<const byte, 0x2000> getRomBlock(unsigned block) const;
+	[[nodiscard]] std::span<const byte> getRomRange(unsigned first, unsigned last) const;
 	/**
 	 * Note that this is always unchecked RAM! There is no UMR detection
 	 * when accessing Ram in DRAM mode or via the ROM mapper!

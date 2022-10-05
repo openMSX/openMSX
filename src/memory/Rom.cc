@@ -106,8 +106,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		//  firstblock-lastblock portion of the containing file.
 		unsigned first = config.getChildDataAsInt("firstblock", 0);
 		unsigned last  = config.getChildDataAsInt("lastblock", 0);
-		rom = std::span{motherBoard.getPanasonicMemory().getRomRange(first, last),
-				(last - first + 1) * 0x2000};
+		rom = motherBoard.getPanasonicMemory().getRomRange(first, last);
 		assert(rom.data());
 
 		// Part of a bigger (already checked) rom, no need to check.

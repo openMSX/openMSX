@@ -33,7 +33,7 @@ void PanasonicMemory::registerRam(Ram& ram_)
 	ramSize = ram_.size();
 }
 
-const byte* PanasonicMemory::getRomBlock(unsigned block)
+std::span<const byte, 0x2000> PanasonicMemory::getRomBlock(unsigned block) const
 {
 	if (!rom) {
 		throw MSXException("Missing PanasonicRom.");
@@ -45,17 +45,17 @@ const byte* PanasonicMemory::getRomBlock(unsigned block)
 		unsigned offset = (block & 0x03) * 0x2000;
 		unsigned ramOffset = (block < 0x30) ? ramSize - 0x10000 :
 		                                      ramSize - 0x08000;
-		return ram + ramOffset + offset;
+		return std::span<const byte, 0x2000>{ram + ramOffset + offset, 0x2000};
 	} else {
 		unsigned offset = block * 0x2000;
 		if (offset >= rom->size()) {
 			offset &= rom->size() - 1;
 		}
-		return &(*rom)[offset];
+		return subspan<0x2000>(*rom, offset);
 	}
 }
 
-const byte* PanasonicMemory::getRomRange(unsigned first, unsigned last)
+std::span<const byte> PanasonicMemory::getRomRange(unsigned first, unsigned last) const
 {
 	if (!rom) {
 		throw MSXException("Missing PanasonicRom.");
@@ -74,7 +74,7 @@ const byte* PanasonicMemory::getRomRange(unsigned first, unsigned last)
 		throw MSXException("Error in config file: lastblock lies "
 		                   "outside of rom image.");
 	}
-	return &(*rom)[start];
+	return subspan(*rom, start, stop - start);
 }
 
 byte* PanasonicMemory::getRamBlock(unsigned block)
