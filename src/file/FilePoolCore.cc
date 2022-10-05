@@ -131,9 +131,9 @@ void FilePoolCore::Entry::setTime(time_t t)
 
 // returns: <sha1, time-string, filename>
 static std::optional<std::tuple<Sha1Sum, const char*, std::string_view>> parse(
-	char* line, char* line_end)
+	std::span<char> line)
 {
-	if ((line_end - line) <= 68) return {}; // minumum length (only filename is variable)
+	if (line.size() <= 68) return {}; // minumum length (only filename is variable)
 
 	// only perform quick sanity check on date/time format
 	if (line[40] != ' ') return {}; // two space between sha1sum and date
@@ -149,15 +149,15 @@ static std::optional<std::tuple<Sha1Sum, const char*, std::string_view>> parse(
 
 	Sha1Sum sha1(Sha1Sum::UninitializedTag{});
 	try {
-		sha1.parse40(line);
+		sha1.parse40(subspan<40>(line));
 	} catch (MSXException&) {
 		return {};
 	}
 
-	const char* timeStr = line + 42; // not guaranteed to be a correct date/time
+	const char* timeStr = &line[42]; // not guaranteed to be a correct date/time
 	line[66] = '\0'; // zero-terminate timeStr, so that it can be printed
 
-	std::string_view filename(line + 68, line_end - (line + 68)); // TODO c++20 [begin, end)
+	std::string_view filename(&line[68], line.size() - 68); // TODO c++20 [begin, end)
 
 	return std::tuple{sha1, timeStr, filename};
 }
@@ -183,7 +183,7 @@ void FilePoolCore::readSha1sums()
 		if (it == nullptr) it = data_end;
 		if ((it != data) && (it[-1] == '\r')) --it;
 
-		if (auto r = parse(data, it)) {
+		if (auto r = parse({data, it})) {
 			auto [sum, timeStr, filename] = *r;
 			sha1Index.push_back(pool.emplace(sum, timeStr, filename).idx);
 			// sha1Index not yet guaranteed sorted

@@ -102,7 +102,7 @@ Sha1Sum::Sha1Sum(std::string_view hex)
 	if (hex.size() != 40) {
 		throw MSXException("Invalid sha1, should be exactly 40 digits long: ", hex);
 	}
-	parse40(hex.data());
+	parse40(subspan<40>(hex));
 }
 
 #ifdef __SSE2__
@@ -135,15 +135,15 @@ Sha1Sum::Sha1Sum(std::string_view hex)
 }
 #endif
 
-void Sha1Sum::parse40(const char* str)
+void Sha1Sum::parse40(std::span<const char, 40> str)
 {
 #ifdef __SSE2__
 	// SSE2 version
 
 	// load characters
-	__m128i s0 = _mm_set_epi64x(loadSwap64(str +  8),     loadSwap64(str +  0));
-	__m128i s1 = _mm_set_epi64x(loadSwap64(str + 24),     loadSwap64(str + 16));
-	__m128i s2 = _mm_set_epi64x('0' * 0x0101010101010101, loadSwap64(str + 32));
+	__m128i s0 = _mm_set_epi64x(loadSwap64(&str[ 8]),     loadSwap64(&str[ 0]));
+	__m128i s1 = _mm_set_epi64x(loadSwap64(&str[24]),     loadSwap64(&str[16]));
+	__m128i s2 = _mm_set_epi64x('0' * 0x0101010101010101, loadSwap64(&str[32]));
 
 	// chars - '0'
 	__m128i cc0 = _mm_set1_epi8(char(-'0'));
@@ -177,7 +177,7 @@ void Sha1Sum::parse40(const char* str)
 	__m128i ok = _mm_and_si128(_mm_and_si128(ok0, ok1), ok2);
 	if (_mm_movemask_epi8(ok) != 0xffff) [[unlikely]] {
 		throw MSXException("Invalid sha1, digits should be 0-9, a-f: ",
-		                   std::string_view(str, 40));
+		                   std::string_view(str.data(), 40));
 	}
 
 	// '0'-'9' to numeric value (or zero)

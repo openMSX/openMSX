@@ -34,7 +34,7 @@ public:
 	 * @pre 'str' points to a buffer of at least 40 characters
 	 * @throws MSXException if chars are not 0-9, a-f, A-F
 	 */
-	void parse40(const char* str);
+	void parse40(std::span<const char, 40> str);
 	[[nodiscard]] std::string toString() const;
 
 	// Test or set 'null' value.

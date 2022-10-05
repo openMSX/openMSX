@@ -1,5 +1,6 @@
 #include "catch.hpp"
 #include "sha1.hh"
+#include "ranges.hh"
 #include "xrange.hh"
 #include <cstring>
 #include <sstream>
@@ -36,11 +37,11 @@ TEST_CASE("Sha1Sum: parse")
 
 	// precondition: string must be 40 chars long
 	SECTION("ok") {
-		sum.parse40("abcdabcdabcdabcdabcdabcdabcdabcdabcdabcd");
+		sum.parse40(subspan<40>("abcdabcdabcdabcdabcdabcdabcdabcdabcdabcd"));
 		CHECK(sum.toString() == "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcd");
 	}
 	SECTION("invalid char") {
-		CHECK_THROWS(sum.parse40("abcdabcdabcdabcdabcdabcdabcdabcd-bcdabcd"));
+		CHECK_THROWS(sum.parse40(subspan<40>("abcdabcdabcdabcdabcdabcdabcdabcd-bcdabcd")));
 	}
 }
 
