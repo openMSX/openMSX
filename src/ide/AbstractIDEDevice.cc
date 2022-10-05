@@ -407,19 +407,19 @@ void AbstractIDEDevice::setTransferWrite(bool status)
 
 /** Writes a string to a location in the identify block.
   * Helper method for createIdentifyBlock.
-  * @param p Pointer to write the characters to.
-  * @param len Number of words to write.
+  * @param dst Buffer to write the characters to.
   * @param s ASCII string to write.
-  *   If the string is longer  than len*2 characters, it is truncated.
-  *   If the string is shorter than len*2 characters, it is padded with spaces.
+  *   If the string is longer  than the buffer, it is truncated.
+  *   If the string is shorter than the buffer, it is padded with spaces.
   */
-static void writeIdentifyString(byte* p, unsigned len, std::string s)
+static void writeIdentifyString(std::span<byte> dst, std::string s)
 {
-	s.resize(2 * len, ' ');
-	for (auto i : xrange(len)) {
+	assert((dst.size() % 2) == 0);
+	s.resize(dst.size(), ' ');
+	for (size_t i = 0; i < dst.size(); i += 2) {
 		// copy and swap
-		p[2 * i + 0] = s[2 * i + 1];
-		p[2 * i + 1] = s[2 * i + 0];
+		dst[i + 0] = s[i + 1];
+		dst[i + 1] = s[i + 0];
 	}
 }
 
@@ -427,13 +427,13 @@ void AbstractIDEDevice::createIdentifyBlock(AlignedBuffer& buf)
 {
 	// According to the spec, the combination of model and serial should be
 	// unique. But I don't know any MSX software that cares about this.
-	writeIdentifyString(&buf[10 * 2], 10, "s00000001"); // serial
-	writeIdentifyString(&buf[23 * 2], 4,
+	writeIdentifyString(std::span{&buf[10 * 2], 2 * 10}, "s00000001"); // serial
+	writeIdentifyString(std::span{&buf[23 * 2], 2 * 4},
 		// Use openMSX version as firmware revision, because most of our
 		// IDE emulation code is in fact emulating the firmware.
 		Version::RELEASE ? strCat('v', Version::VERSION)
 		                 : strCat('d', Version::REVISION));
-	writeIdentifyString(&buf[27 * 2], 20, std::string(getDeviceName())); // model
+	writeIdentifyString(std::span{&buf[27 * 2], 2 * 20}, std::string(getDeviceName())); // model
 
 	fillIdentifyBlock(buf);
 }
