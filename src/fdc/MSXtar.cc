@@ -187,12 +187,12 @@ static constexpr unsigned normalizeFAT(unsigned cluster)
 	return (cluster < BAD_FAT) ? cluster : EOF_FAT;
 }
 
-// Get the next clusternumber from the FAT chain
+// Get the next cluster number from the FAT chain
 unsigned MSXtar::readFAT(unsigned clNr) const
 {
 	assert(!fatBuffer.empty()); // FAT must already be cached
-	const auto* data = fatBuffer[0].raw.data();
-	const auto* p = &data[(clNr * 3) / 2];
+	std::span<const uint8_t> data{fatBuffer[0].raw.data(), sectorsPerFat * size_t(SECTOR_SIZE)};
+	auto p = subspan<2>(data, (clNr * 3) / 2);
 	unsigned result = (clNr & 1)
 	                ? (p[0] >> 4) + (p[1] << 4)
 	                : p[0] + ((p[1] & 0x0F) << 8);
@@ -204,8 +204,8 @@ void MSXtar::writeFAT(unsigned clNr, unsigned val)
 {
 	assert(!fatBuffer.empty()); // FAT must already be cached
 	assert(val < 4096); // FAT12
-	auto* data = fatBuffer[0].raw.data();
-	auto* p = &data[(clNr * 3) / 2];
+	std::span data{fatBuffer[0].raw.data(), sectorsPerFat * size_t(SECTOR_SIZE)};
+	auto p = subspan<2>(data, (clNr * 3) / 2);
 	if (clNr & 1) {
 		p[0] = (p[0] & 0x0F) + (val << 4);
 		p[1] = val >> 4;
@@ -216,7 +216,7 @@ void MSXtar::writeFAT(unsigned clNr, unsigned val)
 	fatCacheDirty = true;
 }
 
-// Find the next clusternumber marked as free in the FAT
+// Find the next cluster number marked as free in the FAT
 // @throws When no more free clusters
 unsigned MSXtar::findFirstFreeCluster()
 {
@@ -369,8 +369,8 @@ static string makeSimpleMSXFileName(string_view fullFilename)
 	transform_in_place(extS,  toMSXChr);
 
 	// add correct number of spaces
-	ranges::copy(fileS, result.data() + 0);
-	ranges::copy(extS,  result.data() + 8);
+	ranges::copy(fileS, subspan<8>(result, 0));
+	ranges::copy(extS,  subspan<3>(result, 8));
 	return result;
 }
 
