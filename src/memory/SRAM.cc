@@ -16,7 +16,7 @@ namespace openmsx {
 // class SRAM
 
 // Like the constructor below, but doesn't create a debuggable.
-// For use in unittests.
+// For use in unit-tests.
 SRAM::SRAM(int size, const XMLElement& xml, DontLoadTag)
 	: ram(xml, size)
 	, header(nullptr) // not used
@@ -61,22 +61,22 @@ SRAM::~SRAM()
 	}
 }
 
-void SRAM::write(unsigned addr, byte value)
+void SRAM::write(size_t addr, byte value)
 {
 	if (schedulable && !schedulable->isPendingRT()) {
 		schedulable->scheduleRT(5000000); // sync to disk after 5s
 	}
-	assert(addr < getSize());
+	assert(addr < size());
 	ram.write(addr, value);
 }
 
-void SRAM::memset(unsigned addr, byte c, unsigned size)
+void SRAM::memset(size_t addr, byte c, size_t aSize)
 {
 	if (schedulable && !schedulable->isPendingRT()) {
 		schedulable->scheduleRT(5000000); // sync to disk after 5s
 	}
-	assert((addr + size) <= getSize());
-	::memset(ram.getWriteBackdoor() + addr, c, size);
+	assert((addr + aSize) <= size());
+	::memset(ram.getWriteBackdoor() + addr, c, aSize);
 }
 
 void SRAM::load(bool* loaded)
@@ -97,7 +97,7 @@ void SRAM::load(bool* loaded)
 			}
 		}
 		if (headerOk) {
-			file.read(ram.getWriteBackdoor(), getSize());
+			file.read(ram.getWriteBackdoor(), size());
 			loadedFilename = file.getURL();
 			if (loaded) *loaded = true;
 		} else {
@@ -126,7 +126,7 @@ void SRAM::save()
 			int length = int(strlen(header));
 			file.write(header, length);
 		}
-		file.write(&ram[0], getSize());
+		file.write(&ram[0], size());
 	} catch (FileException& e) {
 		config.getCliComm().printWarning(
 			"Couldn't save SRAM ", filename,

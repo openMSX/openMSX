@@ -69,7 +69,7 @@ byte GoudaSCSI::readMem(word address, EmuTime::param /*time*/)
 
 const byte* GoudaSCSI::getReadCacheLine(word start) const
 {
-	return &rom[start & (rom.getSize() - 1)];
+	return &rom[start & (rom.size() - 1)];
 }
 
 

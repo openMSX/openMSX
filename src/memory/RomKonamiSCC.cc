@@ -29,7 +29,7 @@ RomKonamiSCC::RomKonamiSCC(const DeviceConfig& config, Rom&& rom_)
 	, scc("SCC", config, getCurrentTime())
 {
 	// warn if a ROM is used that would not work on a real KonamiSCC mapper
-	if ((rom.getSize() > 512 * 1024) && alreadyWarnedForSha1Sum != rom.getOriginalSHA1()) {
+	if ((rom.size() > 512 * 1024) && alreadyWarnedForSha1Sum != rom.getOriginalSHA1()) {
 		getMotherBoard().getMSXCliComm().printWarning(
 			"The size of this ROM image is larger than 512kB, "
 			"which is not supported on real Konami SCC mapper "

@@ -23,15 +23,15 @@ public:
 	     bool* loaded = nullptr);
 	~SRAM();
 
-	[[nodiscard]] const byte& operator[](unsigned addr) const {
-		assert(addr < getSize());
+	[[nodiscard]] const byte& operator[](size_t addr) const {
+		assert(addr < size());
 		return ram[addr];
 	}
 	// write() is non-inline because of the auto-sync to disk feature
-	void write(unsigned addr, byte value);
-	void memset(unsigned addr, byte c, unsigned size);
-	[[nodiscard]] unsigned getSize() const {
-		return ram.getSize();
+	void write(size_t addr, byte value);
+	void memset(size_t addr, byte c, size_t size);
+	[[nodiscard]] size_t size() const {
+		return ram.size();
 	}
 	[[nodiscard]] const std::string& getLoadedFilename() const {
 		return loadedFilename;

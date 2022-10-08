@@ -42,7 +42,7 @@ TurboRFDC::TurboRFDC(const DeviceConfig& config)
 	, controller(getScheduler(), reinterpret_cast<DiskDrive**>(drives),
 	             getCliComm(), getCurrentTime())
 	, romBlockDebug(*this, &bank, 0x4000, 0x4000, 14)
-	, blockMask((rom->getSize() / 0x4000) - 1)
+	, blockMask((rom->size() / 0x4000) - 1)
 	, type(parseType(config))
 {
 	reset(getCurrentTime());

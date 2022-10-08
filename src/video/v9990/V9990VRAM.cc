@@ -15,7 +15,7 @@ V9990VRAM::V9990VRAM(V9990& vdp_, EmuTime::param /*time*/)
 void V9990VRAM::clear()
 {
 	// Initialize memory. Alternate 0x00/0xff every 512 bytes.
-	auto size = data.getSize();
+	auto size = data.size();
 	assert((size % 1024) == 0);
 	auto* d = data.getWriteBackdoor();
 	auto* e = d + size;

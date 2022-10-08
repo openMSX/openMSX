@@ -39,7 +39,7 @@ void RomAscii16_2::reset(EmuTime::param time)
 byte RomAscii16_2::readMem(word address, EmuTime::param time)
 {
 	if ((1 << (address >> 14)) & sramEnabled) {
-		return (*sram)[address & (sram->getSize() - 1)];
+		return (*sram)[address & (sram->size() - 1)];
 	} else {
 		return RomAscii16kB::readMem(address, time);
 	}
@@ -48,7 +48,7 @@ byte RomAscii16_2::readMem(word address, EmuTime::param time)
 const byte* RomAscii16_2::getReadCacheLine(word address) const
 {
 	if ((1 << (address >> 14)) & sramEnabled) {
-		return &(*sram)[address & (sram->getSize() - 1)];
+		return &(*sram)[address & (sram->size() - 1)];
 	} else {
 		return RomAscii16kB::getReadCacheLine(address);
 	}
@@ -71,7 +71,7 @@ void RomAscii16_2::writeMem(word address, byte value, EmuTime::param /*time*/)
 	} else {
 		// write sram
 		if ((1 << (address >> 14)) & sramEnabled & 0x04) {
-			sram->write(address & (sram->getSize() - 1), value);
+			sram->write(address & (sram->size() - 1), value);
 		}
 	}
 }

@@ -107,7 +107,7 @@ byte MSXYamahaSFG::peekMem(word address, EmuTime::param time) const
 	word maskedAddress = address & 0x3FFF;
 	if (maskedAddress < 0x3FF0 || maskedAddress >= 0x3FF8) {
 		// size can also be 16kB for SFG-01 or 32kB for SFG-05
-		return rom[address & (rom.getSize() - 1)];
+		return rom[address & (rom.size() - 1)];
 	}
 	switch (maskedAddress) {
 	case 0x3FF0: // (not used, it seems)
@@ -130,7 +130,7 @@ const byte* MSXYamahaSFG::getReadCacheLine(word start) const
 	if ((start & 0x3FFF & CacheLine::HIGH) == (0x3FF0 & CacheLine::HIGH)) {
 		return nullptr;
 	}
-	return &rom[start & (rom.getSize() - 1)];
+	return &rom[start & (rom.size() - 1)];
 }
 
 // version 1: initial version

@@ -24,7 +24,7 @@ SpectravideoFDC::SpectravideoFDC(const DeviceConfig& config)
 	: WD2793BasedFDC(config, "msxdos")
 	, cpmRom(getName() + " CP/M ROM", "rom", config, "cpm")
 {
-	if (cpmRom.getSize() != 0x1000) {
+	if (cpmRom.size() != 0x1000) {
 		throw MSXException("CP/M ROM must be exactly 4kB in size.");
 	}
 	reset(getCurrentTime());

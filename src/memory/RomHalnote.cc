@@ -37,7 +37,7 @@ namespace openmsx {
 RomHalnote::RomHalnote(const DeviceConfig& config, Rom&& rom_)
 	: Rom8kBBlocks(config, std::move(rom_))
 {
-	if (rom.getSize() != 0x100000) {
+	if (rom.size() != 0x100000) {
 		throw MSXException(
 			"Rom for HALNOTE mapper must be exactly 1MB in size.");
 	}

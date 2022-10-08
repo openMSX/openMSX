@@ -15,7 +15,7 @@ MSXFDC::MSXFDC(const DeviceConfig& config, const std::string& romId, bool needRO
 		? std::optional<Rom>(std::in_place, getName() + " ROM", "rom", config, romId)
 		: std::nullopt) // e.g. Spectravideo_SVI-328 doesn't have a diskrom
 {
-	if (needROM && (rom->getSize() == 0)) {
+	if (needROM && (rom->size() == 0)) {
 		throw MSXException(
 			"Empty ROM not allowed for \"", getName(), "\".");
 	}

@@ -26,7 +26,7 @@ RomAscii8_8::RomAscii8_8(const DeviceConfig& config,
                          Rom&& rom_, SubType subType)
 	: Rom8kBBlocks(config, std::move(rom_))
 	, sramEnableBit((subType == WIZARDRY) ? 0x80
-	                                      : rom.getSize() / BANK_SIZE)
+	                                      : rom.size() / BANK_SIZE)
 	, sramPages((subType == one_of(KOEI_8, KOEI_32)) ? 0x34 : 0x30)
 {
 	unsigned size = (subType == one_of(KOEI_32, ASCII8_32)) ? 0x8000  // 32kB
@@ -55,7 +55,7 @@ byte RomAscii8_8::readMem(word address, EmuTime::param time)
 	if ((1 << bank) & sramEnabled) {
 		// read from SRAM (possibly mirror)
 		word addr = (sramBlock[bank] * BANK_SIZE)
-		          + (address & (sram->getSize() - 1) & BANK_MASK);
+		          + (address & (sram->size() - 1) & BANK_MASK);
 		return (*sram)[addr];
 	} else {
 		return Rom8kBBlocks::readMem(address, time);
@@ -68,7 +68,7 @@ const byte* RomAscii8_8::getReadCacheLine(word address) const
 	if ((1 << bank) & sramEnabled) {
 		// read from SRAM (possibly mirror)
 		word addr = (sramBlock[bank] * BANK_SIZE)
-		          + (address & (sram->getSize() - 1) & BANK_MASK);
+		          + (address & (sram->size() - 1) & BANK_MASK);
 		return &(*sram)[addr];
 	} else {
 		return Rom8kBBlocks::getReadCacheLine(address);
@@ -81,7 +81,7 @@ void RomAscii8_8::writeMem(word address, byte value, EmuTime::param /*time*/)
 		// bank switching
 		byte region = ((address >> 11) & 3) + 2;
 		if (value & sramEnableBit) {
-			unsigned numBlocks = (sram->getSize() + BANK_MASK) / BANK_SIZE; // round up;
+			unsigned numBlocks = (sram->size() + BANK_MASK) / BANK_SIZE; // round up;
 			sramEnabled |= (1 << region) & sramPages;
 			sramBlock[region] = value & (numBlocks - 1);
 			setBank(region, &(*sram)[sramBlock[region] * BANK_SIZE], value);
@@ -97,7 +97,7 @@ void RomAscii8_8::writeMem(word address, byte value, EmuTime::param /*time*/)
 		if ((1 << bank) & sramEnabled) {
 			// write to SRAM (possibly mirror)
 			word addr = (sramBlock[bank] * BANK_SIZE)
-			          + (address & (sram->getSize() - 1) & BANK_MASK);
+			          + (address & (sram->size() - 1) & BANK_MASK);
 			sram->write(addr, value);
 		}
 	}

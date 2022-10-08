@@ -6,14 +6,14 @@
 
 namespace openmsx {
 
-constexpr byte ID = 0xF7;
+static constexpr byte ID = 0xF7;
 
 MSXKanji12::MSXKanji12(const DeviceConfig& config)
 	: MSXDevice(config)
 	, MSXSwitchedDevice(getMotherBoard(), ID)
 	, rom(getName(), "Kanji-12 ROM", config)
 {
-	if (rom.getSize() != one_of(0x20000u, 0x40000u)) {
+	if (rom.size() != one_of(0x20000u, 0x40000u)) {
 		throw MSXException("MSXKanji12: wrong kanji ROM, it should be either 128kB or 256kB.");
 	}
 
@@ -44,7 +44,7 @@ byte MSXKanji12::peekSwitchedIO(word port, EmuTime::param /*time*/) const
 		case 1:
 			return 0x08; // TODO what is this
 		case 9:
-			if (address < rom.getSize()) {
+			if (address < rom.size()) {
 				return rom[address];
 			} else {
 				return 0xFF;

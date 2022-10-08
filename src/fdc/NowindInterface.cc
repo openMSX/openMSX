@@ -14,7 +14,7 @@ namespace openmsx {
 NowindInterface::NowindInterface(const DeviceConfig& config)
 	: MSXDevice(config)
 	, rom(getName() + " ROM", "rom", config)
-	, flashConfig(rom.getSize() / 0x10000, {0x10000, false})
+	, flashConfig(rom.size() / 0x10000, {0x10000, false})
 	, flash(rom, flashConfig, 0x01A4,
 	        AmdFlash::Addressing::BITS_11, config)
 	, host(drives)
@@ -108,7 +108,7 @@ void NowindInterface::writeMem(word address, byte value, EmuTime::param time)
 		host.write(value, clock.getTicksTill(time));
 	} else if (((0x6000 <= address) && (address < 0x8000)) ||
 	           ((0xA000 <= address) && (address < 0xC000))) {
-		byte max = rom.getSize() / (16 * 1024);
+		byte max = rom.size() / (16 * 1024);
 		bank = (value < max) ? value : value & (max - 1);
 		invalidateDeviceRCache(0x4000, 0x4000);
 		invalidateDeviceRCache(0xA000, 0x2000);

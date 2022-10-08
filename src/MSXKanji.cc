@@ -12,8 +12,8 @@ MSXKanji::MSXKanji(const DeviceConfig& config)
 	, isLascom(config.getChildData("type", {}) == "lascom")
 	, highAddressMask(config.getChildData("type", {}) == "hangul" ? 0x7F : 0x3F)
 {
-	int size = rom.getSize();
-	if (size != one_of(0x20000, 0x40000)) {
+	auto size = rom.size();
+	if (size != one_of(0x20000u, 0x40000u)) {
 		throw MSXException("MSXKanji: wrong kanji ROM, it should be either 128kB or 256kB.");
 	}
 	if ((highAddressMask == 0x7F) && (size != 0x40000)) {
@@ -76,10 +76,10 @@ byte MSXKanji::peekIO(word port, EmuTime::param /*time*/) const
 		}
 		[[fallthrough]];
 	case 1:
-		result = rom[adr1 & (rom.getSize() - 1)]; // mask to be safe
+		result = rom[adr1 & (rom.size() - 1)]; // mask to be safe
 		break;
 	case 3:
-		if (rom.getSize() == 0x40000) { // temp workaround
+		if (rom.size() == 0x40000) { // temp workaround
 			result = rom[adr2];
 		}
 		break;

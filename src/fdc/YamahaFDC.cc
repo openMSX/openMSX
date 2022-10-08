@@ -45,7 +45,7 @@ static constexpr int INTR_REQUEST  = 0x80;
 YamahaFDC::YamahaFDC(const DeviceConfig& config)
 	: WD2793BasedFDC(config, "", true, DiskDrive::TrackMode::YAMAHA_FD_03)
 {
-	if (rom->getSize() != one_of(0x4000u, 0x8000u)) {
+	if (rom->size() != one_of(0x4000u, 0x8000u)) {
 		throw MSXException("YamahaFDC ROM size must be 16kB or 32kB.");
 	}
 	reset(getCurrentTime());
@@ -112,7 +112,7 @@ byte YamahaFDC::peekMem(word address, EmuTime::param time) const
 		// don't clear on peek
 		[[fallthrough]];
 	default:
-		if (unsigned(address - 0x4000) < rom->getSize()) {
+		if (unsigned(address - 0x4000) < rom->size()) {
 			return (*rom)[address - 0x4000];
 		} else {
 			return 255;
@@ -125,7 +125,7 @@ const byte* YamahaFDC::getReadCacheLine(word start) const
 	if ((start & 0x3FFF & CacheLine::HIGH) == (0x3FC0 & CacheLine::HIGH)) {
 		// FDC at 0x7FC0-0x7FFF  or  0xBFC0-0xBFFF
 		return nullptr;
-	} else if (unsigned(start - 0x4000) < rom->getSize()) {
+	} else if (unsigned(start - 0x4000) < rom->size()) {
 		return &(*rom)[start - 0x4000];
 	} else {
 		return unmappedRead;

@@ -7,11 +7,11 @@
  * Curiously, the machine works without the bootlogo+firmware ROM, because the
  * MainBIOS checks for its presence. If it's not there, it just skips the logo and
  * the menu. Maybe they were planning a cheaper version without that ROM.
- * 
+ *
  * The bootlogo+firmware ROM is selected by the bit7 of the I/O port 90h. This is
  * the same port that has the strobe bit (bit-1) in normal MSX computers. Besides
  * the extra bit, the rest of the printer port seems to be pretty ordinary.
- * 
+ *
  * Bit7=0: Select Frael MainBIOS ROM on slot-0
  * Bit7=1: Select the bootlogo+firmware ROM on slot-0
  */
@@ -48,8 +48,8 @@ byte FraelSwitchableROM::readMem(word address, EmuTime::param /*time*/)
 
 const byte* FraelSwitchableROM::getReadCacheLine(word start) const
 {
-	return firmwareSelected ? &firmwareRom[start & (firmwareRom.getSize() - 1)] :
-		&basicbiosRom[start & (basicbiosRom.getSize() - 1)];
+	return firmwareSelected ? &firmwareRom[start & (firmwareRom.size() - 1)] :
+		&basicbiosRom[start & (basicbiosRom.size() - 1)];
 }
 
 template<typename Archive>

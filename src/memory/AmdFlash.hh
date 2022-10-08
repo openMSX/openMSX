@@ -18,7 +18,7 @@ class AmdFlash
 {
 public:
 	struct SectorInfo {
-		unsigned size;
+		size_t size;
 		bool writeProtected;
 	};
 	enum class Addressing {
@@ -62,18 +62,18 @@ public:
 	 */
 	void setVppWpPinLow(bool value) { vppWpPinLow = value; }
 
-	[[nodiscard]] unsigned getSize() const { return size; }
-	[[nodiscard]] byte read(unsigned address) const;
-	[[nodiscard]] byte peek(unsigned address) const;
-	void write(unsigned address, byte value);
-	[[nodiscard]] const byte* getReadCacheLine(unsigned address) const;
+	[[nodiscard]] size_t size() const { return sz; }
+	[[nodiscard]] byte read(size_t address) const;
+	[[nodiscard]] byte peek(size_t address) const;
+	void write(size_t address, byte value);
+	[[nodiscard]] const byte* getReadCacheLine(size_t address) const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 //private:
 	struct AmdCmd {
-		unsigned addr;
+		size_t addr;
 		byte value;
 
 		template<typename Archive>
@@ -84,21 +84,21 @@ public:
 
 private:
 	void init(const std::string& name, const DeviceConfig& config, Load load, const Rom* rom);
-	struct GetSectorInfoResult { unsigned sector, sectorSize, offset; };
-	[[nodiscard]] GetSectorInfoResult getSectorInfo(unsigned address) const;
+	struct GetSectorInfoResult { size_t sector, sectorSize, offset; };
+	[[nodiscard]] GetSectorInfoResult getSectorInfo(size_t address) const;
 
 	void setState(State newState);
 	[[nodiscard]] bool checkCommandReset();
 	[[nodiscard]] bool checkCommandEraseSector();
 	[[nodiscard]] bool checkCommandEraseChip();
-	[[nodiscard]] bool checkCommandProgramHelper(unsigned numBytes, const byte* cmdSeq, size_t cmdLen);
+	[[nodiscard]] bool checkCommandProgramHelper(size_t numBytes, const byte* cmdSeq, size_t cmdLen);
 	[[nodiscard]] bool checkCommandProgram();
 	[[nodiscard]] bool checkCommandDoubleByteProgram();
 	[[nodiscard]] bool checkCommandQuadrupleByteProgram();
 	[[nodiscard]] bool checkCommandManufacturer();
 	[[nodiscard]] bool partialMatch(size_t len, const byte* dataSeq) const;
 
-	[[nodiscard]] bool isSectorWritable(unsigned sector) const;
+	[[nodiscard]] bool isSectorWritable(size_t sector) const;
 
 private:
 	MSXMotherBoard& motherBoard;
@@ -106,7 +106,7 @@ private:
 	MemBuffer<int> writeAddress;
 	MemBuffer<const byte*> readAddress;
 	const std::span<const SectorInfo> sectorInfo;
-	const unsigned size;
+	const size_t sz;
 	const word ID;
 	const Addressing addressing;
 

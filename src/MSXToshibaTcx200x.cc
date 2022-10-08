@@ -55,7 +55,7 @@ byte MSXToshibaTcx200x::peekMem(word address, EmuTime::param /*time*/) const
 	} else if ((0x8000 <= address) && (address < 0xC000)) {
 		if (sramEnabled()) {
 			// TODO: assuming SRAM mirrors all over page 2. Not verified!
-			return sram[address & (sram.getSize() - 1)];
+			return sram[address & (sram.size() - 1)];
 		} else {
 			return wordProcessorRom[(address - 0x8000) + getSelectedSegment() * 0x4000];
 		}
@@ -75,7 +75,7 @@ void MSXToshibaTcx200x::writeMem(word address, byte value, EmuTime::param /*time
 		controlReg = value & 0b0110'0011; // TODO which bits can be read back?
 		invalidateDeviceRWCache(0x8000, 0x4000);
 	} else if ((0x8000 <= address) && (address < 0xC000) && sramEnabled()) {
-		sram.write(address & (sram.getSize() - 1), value);
+		sram.write(address & (sram.size() - 1), value);
 	}
 }
 
@@ -87,7 +87,7 @@ const byte* MSXToshibaTcx200x::getReadCacheLine(word start) const
 		return &rs232Rom[start - 0x4000];
 	} else if ((0x8000 <= start) && (start < 0xC000)) {
 		if (sramEnabled()) {
-			return &sram[start & (sram.getSize() - 1)];
+			return &sram[start & (sram.size() - 1)];
 		} else {
 			return &wordProcessorRom[(start - 0x8000) + getSelectedSegment() * 0x4000];
 		}

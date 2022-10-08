@@ -101,8 +101,8 @@ void SunriseIDE::writeMem(word address, byte value, EmuTime::param time)
 byte SunriseIDE::getBank() const
 {
 	byte bank = Math::reverseByte(control & 0xF8);
-	if (bank >= (rom.getSize() / 0x4000)) {
-		bank &= ((rom.getSize() / 0x4000) - 1);
+	if (bank >= (rom.size() / 0x4000)) {
+		bank &= ((rom.size() / 0x4000) - 1);
 	}
 	return bank;
 }

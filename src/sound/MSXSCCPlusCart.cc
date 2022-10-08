@@ -73,7 +73,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(const DeviceConfig& config)
 		const auto& filename = fileElem->getData();
 		try {
 			File file(config.getFileContext().resolve(filename));
-			auto size = std::min<size_t>(file.getSize(), ram.getSize());
+			auto size = std::min(file.getSize(), ram.size());
 			file.read(&ram[0], size);
 		} catch (FileException&) {
 			throw MSXException("Error reading file: ", filename);
@@ -283,7 +283,7 @@ void MSXSCCPlusCart::checkEnable()
 template<typename Archive>
 void MSXSCCPlusCart::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize_blob("ram", &ram[0], ram.getSize());
+	ar.serialize_blob("ram", &ram[0], ram.size());
 	ar.serialize("scc",    scc,
 	             "mapper", mapper,
 	             "mode",   modeRegister);

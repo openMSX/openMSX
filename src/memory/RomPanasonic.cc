@@ -160,16 +160,16 @@ void RomPanasonic::changeBank(byte region, int bank)
 
 	if (sram && (SRAM_BASE <= bank) && (bank < maxSRAMBank)) {
 		// SRAM
-		int offset = (bank - SRAM_BASE) * 0x2000;
-		int sramSize = sram->getSize();
+		auto offset = (bank - SRAM_BASE) * 0x2000u;
+		auto sramSize = sram->size();
 		if (offset >= sramSize) {
 			offset &= (sramSize - 1);
 		}
-		// TODO romblock debuggable is only 8 bits, here bank is 9 bits
+		// TODO RomBlock debuggable is only 8 bits, here bank is 9 bits
 		setBank(region, &sram->operator[](offset), bank);
 	} else if (panasonicMem.getRamSize() && (RAM_BASE <= bank)) {
 		// RAM
-		// TODO romblock debuggable is only 8 bits, here bank is 9 bits
+		// TODO RomBlock debuggable is only 8 bits, here bank is 9 bits
 		setBank(region, panasonicMem.getRamBlock(bank - RAM_BASE), bank);
 	} else {
 		// ROM

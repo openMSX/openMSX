@@ -414,14 +414,14 @@ byte Y8950Adpcm::peekData() const
 void Y8950Adpcm::writeMemory(unsigned memPtr, byte value)
 {
 	unsigned addr = (memPtr / 2) & addrMask;
-	if ((addr < ram.getSize()) && !romBank) {
+	if ((addr < ram.size()) && !romBank) {
 		ram.write(addr, value);
 	}
 }
 byte Y8950Adpcm::readMemory(unsigned memPtr) const
 {
 	unsigned addr = (memPtr / 2) & addrMask;
-	if (romBank || (addr >= ram.getSize())) {
+	if (romBank || (addr >= ram.size())) {
 		return 0; // checked on a real machine
 	} else {
 		return ram[addr];

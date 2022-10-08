@@ -28,18 +28,18 @@ class CheckedRam final : private Observer<Setting>
 {
 public:
 	CheckedRam(const DeviceConfig& config, const std::string& name,
-	           static_string_view description, unsigned size);
+	           static_string_view description, size_t size);
 	~CheckedRam();
 
-	[[nodiscard]] byte read(unsigned addr);
-	[[nodiscard]] byte peek(unsigned addr) const { return ram[addr]; }
-	void write(unsigned addr, byte value);
+	[[nodiscard]] byte read(size_t addr);
+	[[nodiscard]] byte peek(size_t addr) const { return ram[addr]; }
+	void write(size_t addr, byte value);
 
-	[[nodiscard]] const byte* getReadCacheLine(unsigned addr) const;
-	[[nodiscard]] byte* getWriteCacheLine(unsigned addr) const;
-	[[nodiscard]] byte* getRWCacheLines(unsigned addr, unsigned size) const;
+	[[nodiscard]] const byte* getReadCacheLine(size_t addr) const;
+	[[nodiscard]] byte* getWriteCacheLine(size_t addr) const;
+	[[nodiscard]] byte* getRWCacheLines(size_t addr, size_t size) const;
 
-	[[nodiscard]] unsigned getSize() const { return ram.getSize(); }
+	[[nodiscard]] size_t size() const { return ram.size(); }
 	void clear();
 
 	/**

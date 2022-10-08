@@ -52,13 +52,13 @@ byte MSXMemoryMapperBase::readIO(word port, EmuTime::param time)
 
 byte MSXMemoryMapperBase::peekIO(word port, EmuTime::param /*time*/) const
 {
-	unsigned numSegments = checkedRam.getSize() / 0x4000;
+	unsigned numSegments = checkedRam.size() / 0x4000;
 	return registers[port & 0x03] | ~(std::bit_ceil(numSegments) - 1);
 }
 
 void MSXMemoryMapperBase::writeIOImpl(word port, byte value, EmuTime::param /*time*/)
 {
-	unsigned numSegments = checkedRam.getSize() / 0x4000;
+	unsigned numSegments = checkedRam.size() / 0x4000;
 	registers[port & 3] = value & (std::bit_ceil(numSegments) - 1);
 	// Note: subclasses are responsible for handling CPU cacheline stuff
 }
@@ -66,7 +66,7 @@ void MSXMemoryMapperBase::writeIOImpl(word port, byte value, EmuTime::param /*ti
 unsigned MSXMemoryMapperBase::segmentOffset(byte page) const
 {
 	unsigned segment = registers[page];
-	unsigned numSegments = checkedRam.getSize() / 0x4000;
+	unsigned numSegments = checkedRam.size() / 0x4000;
 	segment = (segment < numSegments) ? segment : segment & (numSegments - 1);
 	return segment * 0x4000;
 }

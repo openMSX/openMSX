@@ -12,7 +12,7 @@ namespace openmsx {
 RomColecoMegaCart::RomColecoMegaCart(const DeviceConfig& config, Rom&& rom_)
 	: Rom16kBBlocks(config, std::move(rom_))
 {
-	auto size = rom.getSize() / 1024;
+	auto size = rom.size() / 1024;
 	if (size != one_of(128u, 256u, 512u, 1024u)) {
 		throw MSXException(
 			"MegaCart only supports ROMs of 128kB, 256kB, 512kB and 1024kB "

@@ -21,8 +21,8 @@ RomBlocks<BANK_SIZE>::RomBlocks(
 		std::bit_width(BANK_SIZE) - 1, debugBankSizeShift)
 {
 	static_assert(std::has_single_bit(BANK_SIZE), "BANK_SIZE must be a power of two");
-	auto extendedSize = (rom.getSize() + BANK_SIZE - 1) & ~(BANK_SIZE - 1);
-	if (extendedSize != rom.getSize() && alreadyWarnedForSha1Sum != rom.getOriginalSHA1()) {
+	auto extendedSize = (rom.size() + BANK_SIZE - 1) & ~(BANK_SIZE - 1);
+	if (extendedSize != rom.size() && alreadyWarnedForSha1Sum != rom.getOriginalSHA1()) {
 		config.getCliComm().printWarning(
 			"(uncompressed) ROM image filesize was not a multiple "
 			"of ", BANK_SIZE / 1024, "kB (which is required for mapper type ",
@@ -33,8 +33,8 @@ RomBlocks<BANK_SIZE>::RomBlocks(
 		alreadyWarnedForSha1Sum = rom.getOriginalSHA1();
 	}
 	rom.addPadding(extendedSize);
-	nrBlocks = rom.getSize() / BANK_SIZE;
-	assert((nrBlocks * BANK_SIZE) == rom.getSize());
+	nrBlocks = rom.size() / BANK_SIZE;
+	assert((nrBlocks * BANK_SIZE) == rom.size());
 
 	// by default no extra mappable memory block
 	extraMem = nullptr;
@@ -79,9 +79,9 @@ void RomBlocks<BANK_SIZE>::setBank(byte region, const byte* adr, int block)
 {
 	assert("address passed to setBank() is not serializable" &&
 	       ((adr == unmappedRead) ||
-	        ((&rom[0] <= adr) && (adr <= &rom[rom.getSize() - 1])) ||
+	        ((&rom[0] <= adr) && (adr <= &rom[rom.size() - 1])) ||
 	        (sram && (&(*sram)[0] <= adr) &&
-	                       (adr <= &(*sram)[sram->getSize() - 1])) ||
+	                       (adr <= &(*sram)[sram->size() - 1])) ||
 	        ((extraMem <= adr) && (adr <= &extraMem[extraSize - 1]))));
 	bankPtr[region] = adr;
 	blockNr[region] = block; // only for debuggable
@@ -125,13 +125,13 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 
 	if (sram) ar.serialize("sram", *sram);
 
-	unsigned offsets[NUM_BANKS];
-	unsigned romSize = rom.getSize();
-	unsigned sramSize = sram ? sram->getSize() : 0;
+	size_t offsets[NUM_BANKS];
+	auto romSize = rom.size();
+	auto sramSize = sram ? sram->size() : 0;
 	if constexpr (Archive::IS_LOADER) {
 		ar.serialize("banks", offsets);
 		for (auto i : xrange(NUM_BANKS)) {
-			if (offsets[i] == unsigned(-1)) {
+			if (offsets[i] == size_t(-1)) {
 				bankPtr[i] = unmappedRead;
 			} else if (offsets[i] < romSize) {
 				bankPtr[i] = &rom[offsets[i]];
@@ -148,16 +148,16 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 	} else {
 		for (auto i : xrange(NUM_BANKS)) {
 			if (bankPtr[i] == unmappedRead) {
-				offsets[i] = unsigned(-1);
+				offsets[i] = size_t(-1);
 			} else if ((&rom[0] <= bankPtr[i]) &&
 			           (bankPtr[i] <= &rom[romSize - 1])) {
-				offsets[i] = unsigned(bankPtr[i] - &rom[0]);
+				offsets[i] = size_t(bankPtr[i] - &rom[0]);
 			} else if (sram && (&(*sram)[0] <= bankPtr[i]) &&
 			           (bankPtr[i] <= &(*sram)[sramSize - 1])) {
-				offsets[i] = unsigned(bankPtr[i] - &(*sram)[0] + romSize);
+				offsets[i] = size_t(bankPtr[i] - &(*sram)[0] + romSize);
 			} else if ((extraMem <= bankPtr[i]) &&
 			           (bankPtr[i] <= &extraMem[extraSize - 1])) {
-				offsets[i] = unsigned(bankPtr[i] - extraMem + romSize + sramSize);
+				offsets[i] = size_t(bankPtr[i] - extraMem + romSize + sramSize);
 			} else {
 				UNREACHABLE;
 			}

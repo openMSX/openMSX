@@ -37,7 +37,7 @@ RomHolyQuran2::RomHolyQuran2(const DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
 	, romBlocks(*this)
 {
-	if (rom.getSize() != 0x100000) { // 1MB
+	if (rom.size() != 0x100000) { // 1MB
 		throw MSXException("Holy Quaran ROM should be exactly 1MB in size");
 	}
 	reset(EmuTime::dummy());

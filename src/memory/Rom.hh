@@ -6,10 +6,10 @@
 #include "sha1.hh"
 #include "static_string_view.hh"
 #include "openmsx.hh"
+#include <cassert>
+#include <memory>
 #include <string>
 #include <string_view>
-#include <memory>
-#include <cassert>
 
 namespace openmsx {
 
@@ -28,11 +28,13 @@ public:
 	Rom(Rom&& other) noexcept;
 	~Rom();
 
-	[[nodiscard]] const byte& operator[](unsigned address) const {
-		assert(address < size);
+	[[nodiscard]] const byte& operator[](size_t address) const {
+		assert(address < sz);
 		return rom[address];
 	}
-	[[nodiscard]] unsigned getSize() const { return size; }
+	[[nodiscard]] auto size()  const { return sz; }
+	[[nodiscard]] auto begin() const { return rom; }
+	[[nodiscard]] auto end()   const { return rom + sz; }
 
 	[[nodiscard]] std::string_view getFilename() const;
 	[[nodiscard]] const std::string& getName() const { return name; }
@@ -40,7 +42,7 @@ public:
 	[[nodiscard]] const Sha1Sum& getOriginalSHA1() const;
 	[[nodiscard]] const Sha1Sum& getSHA1() const;
 
-	void addPadding(unsigned newSize, byte filler = 0xff);
+	void addPadding(size_t newSize, byte filler = 0xff);
 
 	/**
 	 * Add dict values with info to result
@@ -63,7 +65,7 @@ private:
 	mutable Sha1Sum actualSha1;
 	std::string name;
 	/*const*/ static_string_view description; // not const to allow move
-	unsigned size;
+	size_t sz;
 
 	// This must come after 'name':
 	//   the destructor of RomDebuggable calls Rom::getName(), which still

@@ -30,20 +30,24 @@ class Ram
 public:
 	/** Create Ram object with an associated debuggable. */
 	Ram(const DeviceConfig& config, const std::string& name,
-	    static_string_view description, unsigned size);
+	    static_string_view description, size_t size);
 
 	/** Create Ram object without debuggable. */
-	Ram(const XMLElement& xml, unsigned size);
+	Ram(const XMLElement& xml, size_t size);
 
-	[[nodiscard]] const byte& operator[](unsigned addr) const {
+	[[nodiscard]] const byte& operator[](size_t addr) const {
 		return ram[addr];
 	}
-	[[nodiscard]] byte& operator[](unsigned addr) {
+	[[nodiscard]] byte& operator[](size_t addr) {
 		return ram[addr];
 	}
-	[[nodiscard]] unsigned getSize() const {
-		return size;
-	}
+	[[nodiscard]] auto size()  const { return sz; }
+	[[nodiscard]] auto data()        { return ram.data(); }
+	[[nodiscard]] auto data()  const { return ram.data(); }
+	[[nodiscard]] auto begin()       { return ram.data(); }
+	[[nodiscard]] auto begin() const { return ram.data(); }
+	[[nodiscard]] auto end()         { return ram.data() + sz; }
+	[[nodiscard]] auto end()   const { return ram.data() + sz; }
 
 	[[nodiscard]] const std::string& getName() const;
 	void clear(byte c = 0xff);
@@ -54,7 +58,7 @@ public:
 private:
 	const XMLElement& xml;
 	MemBuffer<byte> ram;
-	unsigned size; // must come before debuggable
+	size_t sz; // must come before debuggable
 	const std::optional<RamDebuggable> debuggable; // can be nullopt
 };
 

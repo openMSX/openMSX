@@ -30,7 +30,7 @@ PanasonicMemory::PanasonicMemory(MSXMotherBoard& motherBoard)
 void PanasonicMemory::registerRam(Ram& ram_)
 {
 	ram = &ram_[0];
-	ramSize = ram_.getSize();
+	ramSize = ram_.size();
 }
 
 const byte* PanasonicMemory::getRomBlock(unsigned block)
@@ -48,8 +48,8 @@ const byte* PanasonicMemory::getRomBlock(unsigned block)
 		return ram + ramOffset + offset;
 	} else {
 		unsigned offset = block * 0x2000;
-		if (offset >= rom->getSize()) {
-			offset &= rom->getSize() - 1;
+		if (offset >= rom->size()) {
+			offset &= rom->size() - 1;
 		}
 		return &(*rom)[offset];
 	}
@@ -65,12 +65,12 @@ const byte* PanasonicMemory::getRomRange(unsigned first, unsigned last)
 		                   "be smaller than lastblock");
 	}
 	unsigned start =  first     * 0x2000;
-	if (start >= rom->getSize()) {
+	if (start >= rom->size()) {
 		throw MSXException("Error in config file: firstblock lies "
 		                   "outside of rom image.");
 	}
 	unsigned stop  = (last + 1) * 0x2000;
-	if (stop > rom->getSize()) {
+	if (stop > rom->size()) {
 		throw MSXException("Error in config file: lastblock lies "
 		                   "outside of rom image.");
 	}

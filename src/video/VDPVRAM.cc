@@ -137,12 +137,12 @@ void VDPVRAM::clear()
 {
 	// Initialise VRAM data array.
 	data.clear(0); // fill with zeros (unless initialContent is specified)
-	if (data.getSize() != actualSize) {
-		assert(data.getSize() > actualSize);
+	if (data.size() != actualSize) {
+		assert(data.size() > actualSize);
 		// Read from unconnected VRAM returns random data.
 		// TODO reading same location multiple times does not always
 		// give the same value.
-		memset(&data[actualSize], 0xFF, data.getSize() - actualSize);
+		memset(&data[actualSize], 0xFF, data.size() - actualSize);
 	}
 }
 

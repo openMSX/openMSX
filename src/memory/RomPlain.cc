@@ -31,7 +31,7 @@ RomPlain::RomPlain(const DeviceConfig& config, Rom&& rom_, RomType type)
 		windowSize = mem->getAttributeValueAsInt("size", 0);
 	}
 
-	unsigned romSize = rom.getSize();
+	auto romSize = rom.size();
 	if ((romSize > 0x10000) || (romSize & 0x1FFF)) {
 		throw MSXException(rom.getName(),
 			": invalid rom size: must be smaller than or equal to 64kB "
@@ -127,10 +127,10 @@ unsigned RomPlain::guessLocation(unsigned windowBase, unsigned windowSize)
 	int pages[3] = { 0, 0, 0 };
 
 	// count number of possible routine pointers
-	if (rom.getSize() >= 0x0010) {
+	if (rom.size() >= 0x0010) {
 		guessHelper(0x0000, pages);
 	}
-	if (rom.getSize() >= 0x4010) {
+	if (rom.size() >= 0x4010) {
 		guessHelper(0x4000, pages);
 	}
 

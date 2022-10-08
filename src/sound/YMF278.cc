@@ -788,7 +788,7 @@ YMF278::YMF278(const std::string& name_, int ramSize_,
 	, ram(config, getName() + " RAM", "YMF278 sample RAM",
 	      ramSize_ * 1024) // size in kB
 {
-	if (rom.getSize() != 0x200000) { // 2MB
+	if (rom.size() != 0x200000) { // 2MB
 		throw MSXException(
 			"Wrong ROM for MoonSound (YMF278). The ROM (usually "
 			"called yrw801.rom) should have a size of exactly 2MB.");
@@ -899,7 +899,7 @@ unsigned YMF278::getRamAddress(unsigned addr) const
 				// 1st 128kB of SRAM1
 				break;
 			case 0x020000: // [0x3A0000-0x3BFFFF]
-				if (ram.getSize() == 256 * 1024) {
+				if (ram.size() == 256 * 1024) {
 					// 2nd 128kB SRAM chip
 				} else {
 					// 2nd block of 128kB in SRAM2
@@ -920,7 +920,7 @@ unsigned YMF278::getRamAddress(unsigned addr) const
 			addr = unsigned(-1); // unmapped
 		}
 	}
-	if (ram.getSize() == 640 * 1024) {
+	if (ram.size() == 640 * 1024) {
 		// Verified on real MoonSound cartridge (v2.0): In case of
 		// 640kB (1x512kB + 1x128kB), the 128kB SRAM chip is 4 times
 		// visible. None of the other SRAM configurations show similar
@@ -941,7 +941,7 @@ byte YMF278::readMem(unsigned address) const
 		return rom[address];
 	} else {
 		unsigned ramAddr = getRamAddress(address);
-		if (ramAddr < ram.getSize()) {
+		if (ramAddr < ram.size()) {
 			return ram[ramAddr];
 		} else {
 			// unmapped region
@@ -957,7 +957,7 @@ void YMF278::writeMem(unsigned address, byte value)
 		// can't write to ROM
 	} else {
 		unsigned ramAddr = getRamAddress(address);
-		if (ramAddr < ram.getSize()) {
+		if (ramAddr < ram.size()) {
 			ram.write(ramAddr, value);
 		} else {
 			// can't write to unmapped memory
@@ -1075,7 +1075,7 @@ void YMF278::serialize(Archive& ar, unsigned version)
 	if (ar.versionAtLeast(version, 4)) {
 		ar.serialize("ram", ram);
 	} else {
-		ar.serialize_blob("ram", ram.getWriteBackdoor(), ram.getSize());
+		ar.serialize_blob("ram", ram.getWriteBackdoor(), ram.size());
 	}
 	ar.serialize_blob("registers", regs, sizeof(regs));
 	if (ar.versionAtLeast(version, 3)) { // must come after 'regs'

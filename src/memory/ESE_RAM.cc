@@ -44,7 +44,7 @@ ESE_RAM::ESE_RAM(const DeviceConfig& config)
 	: MSXDevice(config)
 	, sram(getName() + " SRAM", getSramSize(), config)
 	, romBlockDebug(*this, mapped, 0x4000, 0x8000, 13)
-	, blockMask((sram.getSize() / 8192) - 1)
+	, blockMask((sram.size() / 0x2000) - 1)
 {
 	reset(EmuTime::dummy());
 }

@@ -19,7 +19,7 @@ public:
 	 */
 	[[nodiscard]] byte getSelectedSegment(byte page) const override { return registers[page]; }
 
-	[[nodiscard]] unsigned getSizeInBlocks() { return checkedRam.getSize() / 0x4000; }
+	[[nodiscard]] unsigned getSizeInBlocks() { return checkedRam.size() / 0x4000; }
 
 	void reset(EmuTime::param time) override;
 	void powerUp(EmuTime::param time) override;

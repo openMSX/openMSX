@@ -30,10 +30,10 @@ CanonWordProcessor::CanonWordProcessor(const DeviceConfig& config)
 	, programRom   (strCat(config.getAttributeValue("id"), "_program"),    "rom", config, "program")
 	, dictionaryRom(strCat(config.getAttributeValue("id"), "_dictionary"), "rom", config, "dictionary")
 {
-	if (programRom.getSize() != 32*1024) {
+	if (programRom.size() != 32*1024) {
 		throw MSXException("Program ROM must be 32kB.");
 	}
-	if (dictionaryRom.getSize() != 3*128*1024) {
+	if (dictionaryRom.size() != 3*128*1024) {
 		throw MSXException("Dictionary ROM must be 3x 128kB.");
 	}
 	reset(EmuTime::dummy());

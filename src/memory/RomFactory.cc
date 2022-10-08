@@ -70,7 +70,7 @@ namespace openmsx::RomFactory {
 
 [[nodiscard]] static RomType guessRomType(const Rom& rom)
 {
-	int size = rom.getSize();
+	auto size = rom.size();
 	if (size == 0) {
 		return ROM_NORMAL;
 	}
@@ -98,9 +98,9 @@ namespace openmsx::RomFactory {
 		// (thanks for the hint, hap)
 		return ROM_MIRRORED;
 	} else {
-		//  GameCartridges do their bankswitching by using the Z80
+		//  GameCartridges do their bank switching by using the Z80
 		//  instruction ld(nn),a in the middle of program code. The
-		//  address nn depends upon the GameCartridge mappertype used.
+		//  address nn depends upon the GameCartridge mapper type used.
 		//  To guess which mapper it is, we will look how much writes
 		//  with this instruction to the mapper-registers-addresses
 		//  occur.
@@ -172,7 +172,7 @@ std::unique_ptr<MSXDevice> create(const DeviceConfig& config)
 			if (!romInfo) {
 				auto machineType = config.getMotherBoard().getMachineType();
 				if (machineType == "Coleco") {
-					if (rom.getSize() == one_of(128*1024u, 256*1024u, 512*1024u, 1024*1024u)) {
+					if (rom.size() == one_of(128*1024u, 256*1024u, 512*1024u, 1024*1024u)) {
 						return ROM_COLECOMEGACART;
 					} else {
 						return ROM_PAGE23;
