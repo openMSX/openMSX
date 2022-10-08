@@ -4,6 +4,10 @@
 #include "ranges.hh"
 #include "serialize.hh"
 
+// See this (long) MRC thread for a detailed discussion on NinjaTap, including
+// an electric schema.
+//   https://www.msx.org/forum/msx-talk/hardware/ninja-tap
+
 namespace openmsx {
 
 NinjaTap::NinjaTap(PluggingController& pluggingController_, std::string name_)
@@ -57,15 +61,17 @@ void NinjaTap::write(byte value, EmuTime::param time)
 			}
 			status = (status & ~0x0F) | t;
 		}
-	} else {
-		// pin 7 = 0 :  detect mode, b5 is inverse of pin8
-		// TODO what happens with other bits?
-		if (value & 4) {
-			status &= ~0x20;
-		} else {
-			status |= 0x20;
-		}
 	}
+
+	// pin7 (b5) is always the inverse of pin8
+	// See Danjovic's post from 08-10-2022, 06:58
+	//    https://www.msx.org/forum/msx-talk/hardware/ninja-tap?page=7
+	if (value & 4) {
+		status &= ~0x20;
+	} else {
+		status |= 0x20;
+	}
+
 	previous = value;
 }
 
