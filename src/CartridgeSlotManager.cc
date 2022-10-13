@@ -40,25 +40,34 @@ bool CartridgeSlotManager::Slot::used(const HardwareConfig* allowed) const
 
 void CartridgeSlotManager::Slot::getMediaInfo(TclObject& result)
 {
-	result.addDictKeyValue("target", config ? config->getName() : string{});
 	if (config) {
-		auto type = config->getType();
-		// we don't care about other types than ROM or EXTENSION for now
-		string typeStr = type == HardwareConfig::Type::ROM ? "rom" :
-		                 (type == HardwareConfig::Type::EXTENSION ? "extension" : "");
-		result.addDictKeyValue("type", typeStr);
-		if (auto* rom = dynamic_cast<MSXRom*>(cpuInterface->getMSXDevice(ps, ss < 0 ? 0: ss, 1))) {
-			rom->getInfo(result);
+		if (config->getType() == HardwareConfig::Type::EXTENSION) {
+			// A 'true' extension, as specified in an XML file
+			result.addDictKeyValue("target", config->getConfigName());
+			result.addDictKeyValue("devicename", config->getName());
+			result.addDictKeyValue("type", "extension");
+		} else {
+			assert(config->getType() == HardwareConfig::Type::ROM);
+			result.addDictKeyValue("type", "rom");
+			// A ROM cartridge, peek into the internal config for the original filename
+			const auto& romConfig = config->getConfig()
+				.getChild("devices").getChild("primary").getChild("secondary")
+				.getChild("ROM").getChild("rom");
+			result.addDictKeyValue("target", romConfig.getChildData("filename"));
 			TclObject patches;
-
 			try {
-				const auto patchesElem = rom->getDeviceConfig().getChild("rom").getChild("patches");
+				const auto& patchesElem = romConfig.getChild("patches");
 				for (const auto* p : patchesElem.getChildren("ips")) {
 					patches.addListElement(string(p->getData()));
 				}
 			} catch (MSXException&) {} // no patches found, no prob
 			result.addDictKeyValue("patches", patches);
+			if (auto* rom = dynamic_cast<MSXRom*>(cpuInterface->getMSXDevice(ps, ss < 0 ? 0: ss, 1))) {
+				rom->getInfo(result);
+			}
 		}
+	} else {
+		result.addDictKeyValue("target", string{});
 	}
 }
 
