@@ -11,6 +11,7 @@
 #include "vla.hh"
 #include "xrange.hh"
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <cmath>
 #include <memory>
@@ -266,8 +267,8 @@ void ImagePrinter::printVisibleCharacter(byte data)
 	ensurePrintPage();
 
 	double iYPos = 0;
-	byte* charBitmap = (fontInfo.useRam ? fontInfo.ram : fontInfo.rom)
-	                 + fontInfo.charWidth * data;
+	std::span mem = fontInfo.useRam ? fontInfo.ram : fontInfo.rom;
+	std::span charBitmap = subspan(mem, fontInfo.charWidth * data, fontInfo.charWidth);
 	byte attribute = charBitmap[0];
 	unsigned start = (attribute >> 4) & 0x07;
 	unsigned end = attribute & 0x0f;
@@ -322,7 +323,7 @@ void ImagePrinter::printVisibleCharacter(byte data)
 // class ImagePrinterMSX
 
 // MSX-Font taken from NMS8250 BIOS ROM
-constexpr byte MSXFontRaw[256 * 8] = {
+static constexpr std::array<byte, 256 * 8> MSXFontRaw = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // 0
 	0x3C, 0x42, 0xA5, 0x81, 0xA5, 0x99, 0x42, 0x3C,  // 1
 	0x3C, 0x7E, 0xDB, 0xFF, 0xFF, 0xDB, 0x66, 0x3C,  // 2
@@ -581,7 +582,7 @@ constexpr byte MSXFontRaw[256 * 8] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // 255
 };
 
-static byte MSXFont[256 * 9];
+static std::array<byte, 256 * 9> MSXFont;
 
 ImagePrinterMSX::ImagePrinterMSX(MSXMotherBoard& motherBoard_)
 	: ImagePrinter(motherBoard_, true)
@@ -601,7 +602,7 @@ std::string_view ImagePrinterMSX::getDescription() const
 	return "Emulate MSX printer, prints to image.";
 }
 
-void ImagePrinterMSX::msxPrnSetFont(const byte* msxBits)
+void ImagePrinterMSX::msxPrnSetFont(std::span<const byte, 256 * 8> msxBits)
 {
 	// Convert MSX printer font to Epson printer font
 	for (auto i : xrange(256)) {
@@ -648,7 +649,7 @@ void ImagePrinterMSX::resetSettings()
 	eightBit     = -1;
 
 	// note: this only overwrites 9/12 of the fontInfo.rom array.
-	ranges::copy(MSXFont, std::begin(fontInfo.rom)); // TODO simplify
+	ranges::copy(MSXFont, fontInfo.rom);
 	fontInfo.charWidth = 9;
 	fontInfo.pixelDelta = 1.0;
 	fontInfo.useRam = false;
@@ -898,7 +899,7 @@ REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, ImagePrinterMSX, "ImagePrinterMSX");
 
 // class ImagePrinterEpson
 
-constexpr byte EpsonFontRom[] = {
+static constexpr std::array<byte, 12 * 256> EpsonFontRom = {
 	0x8b, 0x04, 0x0a, 0x20, 0x8a, 0x60, 0x0a, 0x20, 0x1c, 0x02, 0x00, 0x00, //   0
 	0x8b, 0x1c, 0x22, 0x08, 0xa2, 0x48, 0x22, 0x08, 0x22, 0x18, 0x00, 0x00, //   1
 	0x9b, 0x00, 0x3c, 0x00, 0x82, 0x40, 0x02, 0x00, 0x3c, 0x02, 0x00, 0x00, //   2
@@ -1190,7 +1191,7 @@ void ImagePrinterEpson::resetSettings()
 	fontWidth    = 6;
 	eightBit     = -1;
 
-	ranges::copy(EpsonFontRom, std::begin(fontInfo.rom)); // TODO simplify
+	ranges::copy(EpsonFontRom, fontInfo.rom);
 	fontInfo.charWidth = 12;
 	fontInfo.pixelDelta = 0.5;
 	fontInfo.useRam = false;
@@ -1323,7 +1324,7 @@ void ImagePrinterEpson::processEscSequence()
 			detectPaperOut = false;
 			break;
 		case ':': // Copies Rom Character set to RAM
-			ranges::copy(fontInfo.rom, std::begin(fontInfo.ram)); // TODO simplify
+			ranges::copy(fontInfo.rom, fontInfo.ram);
 			break;
 		case '<': // Turn Uni-directional printing ON (left to right)
 			leftToRight = true;
@@ -1476,19 +1477,19 @@ void ImagePrinterEpson::processEscSequence()
 }
 
 // International character code translation for the Epson FX-80 printer
-//                              US   FR   DE   GB   DK   SE   IT   SP   JP
-static constexpr byte intlChar35 [9] = {  35,  35,  35,   6,  35,  35,  35,  12,  35 };
-static constexpr byte intlChar36 [9] = {  36,  36,  36,  36,  36,  11,  36,  36,  36 };
-static constexpr byte intlChar64 [9] = {  64,   0,  16,  64,  64,  29,  64,  64,  64 };
-static constexpr byte intlChar91 [9] = {  91,   5,  23,  91,  18,  23,   5,   7,  91 };
-static constexpr byte intlChar92 [9] = {  92,  15,  24,  92,  20,  24,  92,   9,  31 };
-static constexpr byte intlChar93 [9] = {  93,  16,  25,  93,  13,  13,  30,   8,  93 };
-static constexpr byte intlChar94 [9] = {  94,  94,  94,  94,  94,  25,  94,  94,  94 };
-static constexpr byte intlChar96 [9] = {  96,  96,  96,  96,  96,  30,   2,  96,  96 };
-static constexpr byte intlChar123[9] = { 123,  30,  26, 123,  19,  26,   0,  22, 123 };
-static constexpr byte intlChar124[9] = { 124,   2,  27, 124,  21,  27,   3,  10, 124 };
-static constexpr byte intlChar125[9] = { 125,   1,  28, 125,  14,  14,   1, 125, 125 };
-static constexpr byte intlChar126[9] = { 126,  22,  17, 126, 126,  28,   4, 126, 126 };
+//                                                   US   FR   DE   GB   DK   SE   IT   SP   JP
+static constexpr std::array<byte, 9> intlChar35  = { 35,  35,  35,   6,  35,  35,  35,  12,  35};
+static constexpr std::array<byte, 9> intlChar36  = { 36,  36,  36,  36,  36,  11,  36,  36,  36};
+static constexpr std::array<byte, 9> intlChar64  = { 64,   0,  16,  64,  64,  29,  64,  64,  64};
+static constexpr std::array<byte, 9> intlChar91  = { 91,   5,  23,  91,  18,  23,   5,   7,  91};
+static constexpr std::array<byte, 9> intlChar92  = { 92,  15,  24,  92,  20,  24,  92,   9,  31};
+static constexpr std::array<byte, 9> intlChar93  = { 93,  16,  25,  93,  13,  13,  30,   8,  93};
+static constexpr std::array<byte, 9> intlChar94  = { 94,  94,  94,  94,  94,  25,  94,  94,  94};
+static constexpr std::array<byte, 9> intlChar96  = { 96,  96,  96,  96,  96,  30,   2,  96,  96};
+static constexpr std::array<byte, 9> intlChar123 = {123,  30,  26, 123,  19,  26,   0,  22, 123};
+static constexpr std::array<byte, 9> intlChar124 = {124,   2,  27, 124,  21,  27,   3,  10, 124};
+static constexpr std::array<byte, 9> intlChar125 = {125,   1,  28, 125,  14,  14,   1, 125, 125};
+static constexpr std::array<byte, 9> intlChar126 = {126,  22,  17, 126, 126,  28,   4, 126, 126};
 
 void ImagePrinterEpson::processCharacter(byte data)
 {

@@ -12,6 +12,7 @@
 
 #include "PrinterPortDevice.hh"
 #include "openmsx.hh"
+#include <array>
 #include <memory>
 #include <utility>
 
@@ -129,12 +130,12 @@ protected:
 	CountryCode countryCode = CC_USA;
 
 	static constexpr int MAX_ESC_CMDSIZE = 8;
-	byte abEscSeq[MAX_ESC_CMDSIZE];
+	std::array<byte, MAX_ESC_CMDSIZE> abEscSeq;
 
 	static constexpr int MAX_FONT_WIDTH = 12;
 	struct FontInfo {
-		byte rom[256 * MAX_FONT_WIDTH];
-		byte ram[256 * MAX_FONT_WIDTH];
+		std::array<byte, 256 * MAX_FONT_WIDTH> rom;
+		std::array<byte, 256 * MAX_FONT_WIDTH> ram;
 		double pixelDelta;
 		unsigned charWidth;
 		bool useRam;
@@ -183,7 +184,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void msxPrnSetFont(const byte* msxBits);
+	void msxPrnSetFont(std::span<const byte, 256 * 8> msxBits);
 	[[nodiscard]] unsigned parseNumber(unsigned sizeStart, unsigned sizeChars);
 
 	[[nodiscard]] std::pair<unsigned, unsigned> getNumberOfDots() override;
