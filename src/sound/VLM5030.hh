@@ -4,7 +4,8 @@
 #include "ResampledSoundDevice.hh"
 #include "Rom.hh"
 #include "EmuTime.hh"
-#include "openmsx.hh"
+#include <array>
+#include <cstdint>
 #include <string>
 
 namespace openmsx {
@@ -20,10 +21,10 @@ public:
 	void reset();
 
 	/** latch control data */
-	void writeData(byte data);
+	void writeData(uint8_t data);
 
 	/** set RST / VCU / ST pins */
-	void writeControl(byte data, EmuTime::param time);
+	void writeControl(uint8_t data, EmuTime::param time);
 
 	/** get BSY pin level */
 	[[nodiscard]] bool getBSY(EmuTime::param time) const;
@@ -40,7 +41,7 @@ private:
 	void generateChannels(std::span<float*> bufs, unsigned num) override;
 	[[nodiscard]] float getAmplificationFactorImpl() const override;
 
-	void setupParameter(byte param);
+	void setupParameter(uint8_t param);
 	[[nodiscard]] int getBits(unsigned sBit, unsigned bits);
 	[[nodiscard]] int parseFrame();
 
@@ -48,7 +49,7 @@ private:
 	Rom rom;
 	int address_mask;
 
-	// state of option paramter
+	// state of option parameter
 	int frame_size;
 	int pitch_offset;
 
@@ -56,30 +57,30 @@ private:
 	// these are all used to contain the current state of the sound generation
 	unsigned current_energy;
 	unsigned current_pitch;
-	int current_k[10];
-	int x[10];
+	std::array<int, 10> current_k;
+	std::array<int, 10> x;
 
-	word address;
-	word vcu_addr_h;
+	uint16_t address;
+	uint16_t vcu_addr_h;
 
-	int16_t old_k[10];
-	int16_t new_k[10];
-	int16_t target_k[10];
-	word old_energy;
-	word new_energy;
-	word target_energy;
-	byte old_pitch;
-	byte new_pitch;
-	byte target_pitch;
+	std::array<int16_t, 10> old_k;
+	std::array<int16_t, 10> new_k;
+	std::array<int16_t, 10> target_k;
+	uint16_t old_energy;
+	uint16_t new_energy;
+	uint16_t target_energy;
+	uint8_t old_pitch;
+	uint8_t new_pitch;
+	uint8_t target_pitch;
 
-	byte interp_step;
-	byte interp_count; // number of interp periods
-	byte sample_count; // sample number within interp
-	byte pitch_count;
+	uint8_t interp_step;
+	uint8_t interp_count; // number of interp periods
+	uint8_t sample_count; // sample number within interp
+	uint8_t pitch_count;
 
-	byte latch_data;
-	byte parameter;
-	byte phase;
+	uint8_t latch_data;
+	uint8_t parameter;
+	uint8_t phase;
 	bool pin_BSY;
 	bool pin_ST;
 	bool pin_VCU;

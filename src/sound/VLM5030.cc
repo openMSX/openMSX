@@ -85,19 +85,20 @@ chirp 12-..: volume   0   : silent
 #include "serialize.hh"
 #include "xrange.hh"
 #include <algorithm>
+#include <array>
 #include <cmath>
 
 namespace openmsx {
 
 
 // interpolator per frame
-constexpr int FR_SIZE = 4;
+static constexpr int FR_SIZE = 4;
 // samples per interpolator
-constexpr int IP_SIZE_SLOWER = 240 / FR_SIZE;
-constexpr int IP_SIZE_SLOW   = 200 / FR_SIZE;
-constexpr int IP_SIZE_NORMAL = 160 / FR_SIZE;
-constexpr int IP_SIZE_FAST   = 120 / FR_SIZE;
-constexpr int IP_SIZE_FASTER =  80 / FR_SIZE;
+static constexpr int IP_SIZE_SLOWER = 240 / FR_SIZE;
+static constexpr int IP_SIZE_SLOW   = 200 / FR_SIZE;
+static constexpr int IP_SIZE_NORMAL = 160 / FR_SIZE;
+static constexpr int IP_SIZE_FAST   = 120 / FR_SIZE;
+static constexpr int IP_SIZE_FASTER =  80 / FR_SIZE;
 
 // phase value
 enum {
@@ -117,7 +118,7 @@ enum {
 //  x   0   0  normal    (00h,04h) : 25.6ms (100%) : 40sample
 //  0   0   1  fast      (01h)     : 20.2ms  (75%) : 30sample
 //  0   1   x  more fast (02h,03h) : 12.2ms  (50%) : 20sample
-constexpr int VLM5030_speed_table[8] =
+static constexpr std::array<int, 8> VLM5030_speed_table =
 {
 	IP_SIZE_NORMAL,
 	IP_SIZE_FAST,
@@ -134,7 +135,7 @@ constexpr int VLM5030_speed_table[8] =
 // This is the energy lookup table
 
 // sampled from real chip
-static constexpr word energytable[0x20] =
+static constexpr std::array<uint16_t, 0x20> energyTable =
 {
 	  0,  2,  4,  6, 10, 12, 14, 18, //  0-7
 	 22, 26, 30, 34, 38, 44, 48, 54, //  8-15
@@ -143,7 +144,7 @@ static constexpr word energytable[0x20] =
 };
 
 // This is the pitch lookup table
-constexpr byte pitchtable [0x20] =
+static constexpr std::array<uint8_t, 0x20> pitchTable =
 {
 	1,                               // 0     : random mode
 	22,                              // 1     : start=22
@@ -153,7 +154,7 @@ constexpr byte pitchtable [0x20] =
 	86, 94, 102,110,118,126          // 26-31 : 8step
 };
 
-constexpr int16_t K1_table[] = {
+static constexpr std::array<int16_t, 64> K1_table = {
 	-24898,  -25672,  -26446,  -27091,  -27736,  -28252,  -28768,  -29155,
 	-29542,  -29929,  -30316,  -30574,  -30832,  -30961,  -31219,  -31348,
 	-31606,  -31735,  -31864,  -31864,  -31993,  -32122,  -32122,  -32251,
@@ -163,17 +164,17 @@ constexpr int16_t K1_table[] = {
 	     0,   -1935,   -3999,   -6063,   -7998,   -9804,  -11610,  -13416,
 	-15093,  -16642,  -18061,  -19480,  -20770,  -21931,  -22963,  -23995
 };
-constexpr int16_t K2_table[] = {
+static constexpr std::array<int16_t, 32> K2_table = {
 	     0,   -3096,   -6321,   -9417,  -12513,  -15351,  -18061,  -20770,
 	-23092,  -25285,  -27220,  -28897,  -30187,  -31348,  -32122,  -32638,
 	     0,   32638,   32122,   31348,   30187,   28897,   27220,   25285,
 	 23092,   20770,   18061,   15351,   12513,    9417,    6321,    3096
 };
-constexpr int16_t K3_table[] = {
+static constexpr std::array<int16_t, 16> K3_table = {
 	    0,   -3999,   -8127,  -12255,  -16384,  -20383,  -24511,  -28639,
 	32638,   28639,   24511,   20383,   16254,   12255,    8127,    3999
 };
-constexpr int16_t K5_table[] = {
+static constexpr std::array<int16_t, 8> K5_table = {
 	0,   -8127,  -16384,  -24511,   32638,   24511,   16254,    8127
 };
 
@@ -193,9 +194,9 @@ int VLM5030::parseFrame()
 	// remember previous frame
 	old_energy = new_energy;
 	old_pitch = new_pitch;
-	ranges::copy(new_k, std::begin(old_k)); // TODO simplify
+	old_k = new_k;
 	// command byte check
-	byte cmd = rom[address & address_mask];
+	uint8_t cmd = rom[address & address_mask];
 	if (cmd & 0x01) {
 		// extend frame
 		new_energy = new_pitch = 0;
@@ -211,9 +212,9 @@ int VLM5030::parseFrame()
 		}
 	}
 	// pitch
-	new_pitch  = (pitchtable[getBits(1, 5)] + pitch_offset) & 0xff;
+	new_pitch  = (pitchTable[getBits(1, 5)] + pitch_offset) & 0xff;
 	// energy
-	new_energy = energytable[getBits(6, 5)];
+	new_energy = energyTable[getBits(6, 5)];
 
 	// 10 K's
 	new_k[9] = K5_table[getBits(11, 3)];
@@ -267,17 +268,17 @@ void VLM5030::generateChannels(std::span<float*> bufs, unsigned num)
 					// Set old target as new start of frame
 					current_energy = old_energy;
 					current_pitch = old_pitch;
-					ranges::copy(old_k, std::begin(current_k)); // TODO simplify
+					ranges::copy(old_k, current_k); // no assignment because arrays have different type (intentional?)
 					// is this a zero energy frame?
 					if (current_energy == 0) {
 						target_energy = 0;
 						target_pitch = current_pitch;
-						ranges::copy(current_k, std::begin(target_k)); // TODO
+						ranges::copy(current_k, target_k); // no assignment because arrays have different type (intentional?)
 					} else {
 						// normal frame
 						target_energy = new_energy;
 						target_pitch = new_pitch;
-						ranges::copy(new_k, std::begin(target_k)); // TODO
+						target_k = new_k;
 					}
 				}
 				// next interpolator
@@ -292,7 +293,7 @@ void VLM5030::generateChannels(std::span<float*> bufs, unsigned num)
 				for (auto i : xrange(10))
 					current_k[i] = old_k[i] + (target_k[i] - old_k[i]) * interp_effect / FR_SIZE;
 			}
-			// calcrate digital filter
+			// calculate digital filter
 			int current_val = [&] {
 				if (old_energy == 0) {
 					// generate silent samples here
@@ -308,7 +309,7 @@ void VLM5030::generateChannels(std::span<float*> bufs, unsigned num)
 			}();
 
 			// Lattice filter here
-			int u[11];
+			std::array<int, 11> u;
 			u[10] = current_val;
 			for (int i = 9; i >= 0; --i) {
 				u[i] = u[i + 1] - ((current_k[i] * x[i]) / 32768);
@@ -363,7 +364,7 @@ float VLM5030::getAmplificationFactorImpl() const
 }
 
 // setup parameteroption when RST=H
-void VLM5030::setupParameter(byte param)
+void VLM5030::setupParameter(uint8_t param)
 {
 	// latch parameter value
 	parameter = param;
@@ -419,12 +420,12 @@ bool VLM5030::getBSY(EmuTime::param time) const
 }
 
 // latch control data
-void VLM5030::writeData(byte data)
+void VLM5030::writeData(uint8_t data)
 {
 	latch_data = data;
 }
 
-void VLM5030::writeControl(byte data, EmuTime::param time)
+void VLM5030::writeControl(uint8_t data, EmuTime::param time)
 {
 	updateStream(time);
 	setRST((data & 0x01) != 0);
@@ -517,7 +518,7 @@ static XMLElement* getRomConfig(
 	return voiceROMconfig;
 }
 
-constexpr auto INPUT_RATE = unsigned(cstd::round(3579545 / 440.0));
+static constexpr auto INPUT_RATE = unsigned(cstd::round(3579545 / 440.0));
 
 VLM5030::VLM5030(const std::string& name_, static_string_view desc,
                  std::string_view romFilename, const DeviceConfig& config)
