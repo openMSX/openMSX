@@ -112,7 +112,7 @@ void MSXtar::writeLogicalSector(unsigned sector, const SectorBuffer& buf)
 	if (fatSector < sectorsPerFat) {
 		// we have a cache and this is a sector of the 1st FAT
 		//   --> update cache
-		memcpy(&fatBuffer[fatSector], &buf, sizeof(buf));
+		fatBuffer[fatSector] = buf;
 		fatCacheDirty = true;
 	} else {
 		disk.writeSector(sector, buf);
@@ -126,7 +126,7 @@ void MSXtar::readLogicalSector(unsigned sector, SectorBuffer& buf)
 	if (fatSector < sectorsPerFat) {
 		// we have a cache and this is a sector of the 1st FAT
 		//   --> read from cache
-		memcpy(&buf, &fatBuffer[fatSector], sizeof(buf));
+		buf = fatBuffer[fatSector];
 	} else {
 		disk.readSector(sector, buf);
 	}
@@ -352,7 +352,7 @@ static string makeSimpleMSXFileName(string_view fullFilename)
 	// handle special case '.' and '..' first
 	string result(8 + 3, ' ');
 	if (fullFile == one_of(".", "..")) {
-		memcpy(result.data(), fullFile.data(), fullFile.size());
+		ranges::copy(fullFile, result);
 		return result;
 	}
 
@@ -369,8 +369,8 @@ static string makeSimpleMSXFileName(string_view fullFilename)
 	transform_in_place(extS,  toMSXChr);
 
 	// add correct number of spaces
-	memcpy(result.data() + 0, fileS.data(), fileS.size());
-	memcpy(result.data() + 8, extS .data(), extS .size());
+	ranges::copy(fileS, result.data() + 0);
+	ranges::copy(extS,  result.data() + 8);
 	return result;
 }
 
@@ -390,10 +390,10 @@ unsigned MSXtar::addSubdir(
 	readLogicalSector(result.sector, buf);
 
 	auto& dirEntry = buf.dirEntry[result.index];
+	ranges::copy(makeSimpleMSXFileName(msxName), std::begin(dirEntry.filename)); // TODO simplify
 	dirEntry.attrib = T_MSX_DIR;
 	dirEntry.time = t;
 	dirEntry.date = d;
-	memcpy(&dirEntry, makeSimpleMSXFileName(msxName).data(), 11);
 
 	// dirEntry.filesize = fsize;
 	unsigned curCl = findFirstFreeCluster();
@@ -594,7 +594,7 @@ string MSXtar::addFileToDSK(const string& fullHostName, unsigned rootSector)
 	readLogicalSector(entry.sector, buf);
 	auto& dirEntry = buf.dirEntry[entry.index];
 	memset(&dirEntry, 0, sizeof(dirEntry));
-	memcpy(&dirEntry, msxName.data(), 11);
+	ranges::copy(msxName, std::begin(dirEntry.filename)); // TODO simplify
 	dirEntry.attrib = T_MSX_REG;
 
 	// compute time/date stamps

@@ -2,7 +2,6 @@
 #include "DiskExceptions.hh"
 #include "File.hh"
 #include "xrange.hh"
-#include <cstring>
 #include <utility>
 
 namespace openmsx {
@@ -68,7 +67,7 @@ XSADiskImage::XSADiskImage(Filename& filename, File& file)
 void XSADiskImage::readSectorsImpl(
 	SectorBuffer* buffers, size_t startSector, size_t num)
 {
-	memcpy(buffers, &data[startSector], num * sizeof(SectorBuffer));
+	ranges::copy(std::span{&data[startSector], num}, buffers);
 }
 
 void XSADiskImage::writeSectorImpl(size_t /*sector*/, const SectorBuffer& /*buf*/)

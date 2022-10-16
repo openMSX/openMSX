@@ -35,8 +35,8 @@ TODO:
 #include "CliComm.hh"
 #include "one_of.hh"
 #include "ranges.hh"
+#include "serialize_core.hh"
 #include "unreachable.hh"
-#include <cstring>
 #include <cassert>
 #include <memory>
 
@@ -158,19 +158,17 @@ VDP::VDP(const DeviceConfig& config)
 	}
 
 	// Set up control register availability.
-	static constexpr byte VALUE_MASKS_MSX1[32] = {
+	static constexpr std::array<byte, 32> VALUE_MASKS_MSX1 = {
 		0x03, 0xFB, 0x0F, 0xFF, 0x07, 0x7F, 0x07, 0xFF  // 00..07
 	};
-	static constexpr byte VALUE_MASKS_MSX2[32] = {
+	static constexpr std::array<byte, 32> VALUE_MASKS_MSX2 = {
 		0x7E, 0x7F, 0x7F, 0xFF, 0x3F, 0xFF, 0x3F, 0xFF, // 00..07
 		0xFB, 0xBF, 0x07, 0x03, 0xFF, 0xFF, 0x07, 0x0F, // 08..15
 		0x0F, 0xBF, 0xFF, 0xFF, 0x3F, 0x3F, 0x3F, 0xFF, // 16..23
 		0,    0,    0,    0,    0,    0,    0,    0,    // 24..31
 	};
-	controlRegMask = (isMSX1VDP() ? 0x07 : 0x3F);
-	memcpy(controlValueMasks,
-	       isMSX1VDP() ? VALUE_MASKS_MSX1 : VALUE_MASKS_MSX2,
-	       sizeof(controlValueMasks));
+	controlRegMask = isMSX1VDP() ? 0x07 : 0x3F;
+	controlValueMasks = isMSX1VDP() ? VALUE_MASKS_MSX1 : VALUE_MASKS_MSX2;
 	if (version == V9958) {
 		// Enable V9958-specific control registers.
 		controlValueMasks[25] = 0x7F;
@@ -288,12 +286,12 @@ void VDP::resetInit()
 	irqHorizontal.reset();
 
 	// From appendix 8 of the V9938 data book (page 148).
-	const word V9938_PALETTE[16] = {
+	const std::array<uint16_t, 16> V9938_PALETTE = {
 		0x000, 0x000, 0x611, 0x733, 0x117, 0x327, 0x151, 0x627,
 		0x171, 0x373, 0x661, 0x664, 0x411, 0x265, 0x555, 0x777
 	};
 	// Init the palette.
-	memcpy(palette, V9938_PALETTE, sizeof(V9938_PALETTE));
+	palette = V9938_PALETTE;
 }
 
 void VDP::resetMasks(EmuTime::param time)

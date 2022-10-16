@@ -52,10 +52,9 @@ std::vector<IPSPatch::Chunk> IPSPatch::parseChunks() const
 			++e;
 			std::vector<byte> tmp(length2);
 			for (auto it : xrange(b, e)) {
-				memcpy(&tmp[it->startAddress - start],
-				       it->data(), it->size());
+				ranges::copy(*it, &tmp[it->startAddress - start]);
 			}
-			memcpy(&tmp[offset - start], v.data(), v.size());
+			ranges::copy(v, &tmp[offset - start]);
 			*b = Chunk{start, std::move(tmp)};
 			result.erase(b + 1, e);
 		} else {
@@ -120,8 +119,8 @@ void IPSPatch::copyBlock(size_t src, byte* dst, size_t num) const
 		assert((chunkOffset + chunkSize) <= int(it->size()));
 		assert(src <= chunkStart);
 		assert((chunkStart + chunkSize) <= (src + num));
-		memcpy(dst + chunkStart - src, it->data() + chunkOffset,
-		       chunkSize);
+		ranges::copy(std::span{it->data() + chunkOffset, size_t(chunkSize)},
+		             dst + chunkStart - src);
 	}
 }
 

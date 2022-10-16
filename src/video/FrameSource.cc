@@ -1,13 +1,15 @@
 #include "FrameSource.hh"
-#include "PixelOperations.hh"
-#include "MemoryOps.hh"
 #include "LineScalers.hh"
-#include "unreachable.hh"
+#include "MemoryOps.hh"
+#include "PixelOperations.hh"
 #include "aligned.hh"
+#include "ranges.hh"
+#include "unreachable.hh"
 #include "vla.hh"
 #include "build-info.hh"
 #include "components.hh"
 #include <cstdint>
+#include <span>
 
 namespace openmsx {
 
@@ -79,7 +81,7 @@ void FrameSource::scaleLine(
 		// scaled.
 		// TODO If the LineScaler routines can work in-place then this
 		//      copy can be avoided.
-		memcpy(tmpBuf, in, inWidth * sizeof(Pixel));
+		ranges::copy(std::span{in, inWidth}, tmpBuf);
 		in = tmpBuf;
 	}
 

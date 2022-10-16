@@ -1142,7 +1142,7 @@ private:
 	  * It also disables access to VDP features on a VDP model
 	  * which does not support those features.
 	  */
-	byte controlValueMasks[32];
+	std::array<byte, 32> controlValueMasks;
 
 	/** Blinking count: number of frames until next state.
 	  * If the ON or OFF period is 0, blinkCount is fixed to 0.
@@ -1156,7 +1156,7 @@ private:
 
 	/** V9938 palette.
 	  */
-	word palette[16];
+	std::array<uint16_t, 16> palette;
 
 	/** Is the current scan position inside the display area?
 	  */

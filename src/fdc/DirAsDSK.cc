@@ -234,8 +234,8 @@ static string hostToMsxName(string hostName)
 	if (file.empty()) std::swap(file, ext);
 
 	string result(8 + 3, ' ');
-	memcpy(result.data() + 0, file.data(), std::min<size_t>(8, file.size()));
-	memcpy(result.data() + 8, ext .data(), std::min<size_t>(3, ext .size()));
+	ranges::copy(subspan(file, 0, std::min<size_t>(8, file.size())), result.data() + 0);
+	ranges::copy(subspan(ext,  0, std::min<size_t>(3, ext .size())), result.data() + 8);
 	ranges::replace(result, '.', '_');
 	return result;
 }
@@ -292,7 +292,7 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 	const auto& protoBootSector = bootSectorType == BOOTSECTOR_DOS1
 		? BootBlocks::dos1BootBlock
 		: BootBlocks::dos2BootBlock;
-	memcpy(&sectors[0], &protoBootSector, sizeof(protoBootSector));
+	sectors[0] = protoBootSector;
 	auto& bootSector = sectors[0].bootSector;
 	bootSector.bpSector     = SECTOR_SIZE;
 	bootSector.spCluster    = SECTORS_PER_CLUSTER;
@@ -388,7 +388,7 @@ void DirAsDSK::readSectorImpl(size_t sector, SectorBuffer& buf)
 	}
 
 	// Simply return the sector from our virtual disk image.
-	memcpy(&buf, &sectors[sector], sizeof(buf));
+	buf = sectors[sector];
 }
 
 void DirAsDSK::syncWithHost()
@@ -836,7 +836,7 @@ DirAsDSK::DirIndex DirAsDSK::fillMSXDirEntry(
 		assert(!hostPath.ends_with('/'));
 		mapDirs[dirIndex].hostName = hostPath;
 		memset(&msxDir(dirIndex), 0, sizeof(MSXDirEntry)); // clear entry
-		memcpy(msxDir(dirIndex).filename, msxFilename.data(), 8 + 3);
+		ranges::copy(msxFilename, std::begin(msxDir(dirIndex).filename)); // TODO simplify
 		return dirIndex;
 	} catch (MSXException& e) {
 		throw MSXException("Couldn't add ", hostPath, ": ",
@@ -910,7 +910,7 @@ void DirAsDSK::writeSectorImpl(size_t sector_, const SectorBuffer& buf)
 	} else if (sector < firstDirSector) {
 		// Write to 2nd FAT, only buffer it. Don't interpret the data
 		// in FAT2 in any way (nor trigger any action on this write).
-		memcpy(&sectors[sector], &buf, sizeof(buf));
+		sectors[sector] = buf;
 	} else if (DirIndex dirDirIndex; isDirSector(sector, dirDirIndex)) {
 		// Either root- or sub-directory.
 		writeDIRSector(sector, dirDirIndex, buf);
@@ -923,10 +923,10 @@ void DirAsDSK::writeFATSector(unsigned sector, const SectorBuffer& buf)
 {
 	// Create copy of old FAT (to be able to detect changes).
 	vector<SectorBuffer> oldFAT(nofSectorsPerFat);
-	memcpy(&oldFAT[0], fat(), SECTOR_SIZE * nofSectorsPerFat);
+	ranges::copy(std::span{fat(), nofSectorsPerFat}, oldFAT);
 
 	// Update current FAT with new data.
-	memcpy(&sectors[sector], &buf, sizeof(buf));
+	sectors[sector] = buf;
 
 	// Look for changes.
 	for (auto i : xrange(FIRST_CLUSTER, maxCluster)) {
@@ -1318,7 +1318,7 @@ void DirAsDSK::writeDIREntry(DirIndex dirIndex, DirIndex dirDirIndex,
 	}
 
 	// Copy the new msx directory entry.
-	memcpy(&msxDir(dirIndex), &newEntry, sizeof(newEntry));
+	msxDir(dirIndex) = newEntry;
 
 	// (Re-)export the full file/directory.
 	exportToHost(dirIndex, dirDirIndex);
@@ -1330,7 +1330,7 @@ void DirAsDSK::writeDataSector(unsigned sector, const SectorBuffer& buf)
 	assert(sector < nofSectors);
 
 	// Buffer the write, whether the sector is mapped to a file or not.
-	memcpy(&sectors[sector], &buf, sizeof(buf));
+	sectors[sector] = buf;
 
 	// Get first cluster in the FAT chain that contains this sector.
 	auto [cluster, offset] = sectorToClusterOffset(sector);

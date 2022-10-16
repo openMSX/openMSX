@@ -13,6 +13,7 @@
 #include "view.hh"
 #include "xxhash.hh"
 #include <cassert>
+#include <string_view>
 
 using std::string_view;
 
@@ -499,18 +500,18 @@ void DBParser::stop()
 		break;
 	case ROM: {
 		string_view t = type;
-		char buf[12];
+		std::array<char, 8 + 4> buf;
 		if (small_compare<"Mirrored">(t)) {
 			if (const char* s = parseStart(startVal)) {
-				memcpy(buf, t.data(), 8);
-				memcpy(buf + 8, s, 4);
-				t = string_view(buf, 12);
+				auto p = ranges::copy(t, buf);
+				ranges::copy(std::string_view(s, 4), p);
+				t = string_view(buf.data(), 8 + 4);
 			}
 		} else if (small_compare<"Normal">(t)) {
 			if (const char* s = parseStart(startVal)) {
-				memcpy(buf, t.data(), 6);
-				memcpy(buf + 6, s, 4);
-				t = string_view(buf, 10);
+				auto p = ranges::copy(t, buf);
+				ranges::copy(std::string_view(s, 4), p);
+				t = string_view(buf.data(), 6 + 4);
 			}
 		}
 		RomType romType = RomInfo::nameToRomType(t);

@@ -323,7 +323,8 @@ void SHA1::update(std::span<const uint8_t> data_)
 
 	size_t i;
 	if ((j + len) > 63) {
-		memcpy(&m_buffer[j], data, (i = 64 - j));
+		i = 64 - j;
+		ranges::copy(std::span{data, i}, &m_buffer[j]);
 		transform(m_buffer);
 		for (/**/; i + 63 < len; i += 64) {
 			transform(&data[i]);
@@ -332,7 +333,7 @@ void SHA1::update(std::span<const uint8_t> data_)
 	} else {
 		i = 0;
 	}
-	memcpy(&m_buffer[j], &data[i], len - i);
+	ranges::copy(std::span{&data[i], len - i}, &m_buffer[j]);
 }
 
 void SHA1::finalize()

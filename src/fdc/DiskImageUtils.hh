@@ -4,6 +4,7 @@
 #include "AlignedBuffer.hh"
 #include "endian.hh"
 #include "openmsx.hh"
+#include <array>
 #include <span>
 
 namespace openmsx {
@@ -73,10 +74,10 @@ static_assert(sizeof(Partition) == 16);
 static_assert(alignof(Partition) == 1, "must not have alignment requirements");
 
 struct PartitionTable {
-	char        header[11]; // +  0
-	char        pad[3];     // +  3
-	Partition   part[31];   // + 14,+30,..,+494    Not 4-byte aligned!!
-	Endian::L16 end;        // +510
+	std::array<char, 11> header;    // +  0
+	std::array<char,  3> pad;       // +  3
+	std::array<Partition, 31> part; // + 14,+30,..,+494    Not 4-byte aligned!!
+	Endian::L16 end;                // +510
 };
 static_assert(sizeof(PartitionTable) == 512);
 

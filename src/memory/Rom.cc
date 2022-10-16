@@ -1,6 +1,7 @@
 #include "Rom.hh"
 #include "DeviceConfig.hh"
 #include "HardwareConfig.hh"
+#include "MemBuffer.hh"
 #include "XMLElement.hh"
 #include "RomInfo.hh"
 #include "RomDatabase.hh"
@@ -20,7 +21,6 @@
 #include "ranges.hh"
 #include "sha1.hh"
 #include "stl.hh"
-#include <cstring>
 #include <limits>
 #include <memory>
 
@@ -104,11 +104,11 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		//  first check firstblock, otherwise it will only load when
 		//  there is a file that matches the sha1sums of the
 		//  firstblock-lastblock portion of the containing file.
-		int first = config.getChildDataAsInt("firstblock", 0);
-		int last  = config.getChildDataAsInt("lastblock", 0);
-		sz = (last - first + 1) * 0x2000;
-		rom = motherBoard.getPanasonicMemory().getRomRange(first, last);
-		assert(rom);
+		unsigned first = config.getChildDataAsInt("firstblock", 0);
+		unsigned last  = config.getChildDataAsInt("lastblock", 0);
+		rom = std::span{motherBoard.getPanasonicMemory().getRomRange(first, last),
+				(last - first + 1) * 0x2000};
+		assert(rom.data());
 
 		// Part of a bigger (already checked) rom, no need to check.
 		checkResolvedSha1 = false;
@@ -184,8 +184,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		}
 		try {
 			auto mmap = file.mmap();
-			rom = mmap.data();
-			sz = mmap.size();
+			rom = mmap;
 		} catch (FileException&) {
 			throw MSXException("Error reading ROM image: ", file.getURL());
 		}
@@ -212,22 +211,23 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		// for MegaFlashRomSCC the <size> tag is used to specify
 		// the size of the mapper (and you don't care about initial
 		// content)
-		sz = config.getChildDataAsInt("size", 0) * 1024; // in kb
-		extendedRom.resize(sz);
-		ranges::fill(std::span{extendedRom.data(), sz}, 0xff);
-		rom = extendedRom.data();
+		unsigned size = config.getChildDataAsInt("size", 0) * 1024; // in kb
+		extendedRom.resize(size);
+		std::span newRom{extendedRom.data(), size};
+		ranges::fill(newRom, 0xff);
+		rom = newRom;
 
 		// Content does not depend on external files. No need to check
 		checkResolvedSha1 = false;
 	}
 
-	if (sz != 0) {
+	if (!rom.empty()) {
 		if (const auto* patchesElem = config.findChild("patches")) {
 			// calculate before content is altered
 			(void)getOriginalSHA1(); // fills cache
 
 			std::unique_ptr<PatchInterface> patch =
-				std::make_unique<EmptyPatch>(rom, sz);
+				std::make_unique<EmptyPatch>(rom);
 
 			for (const auto* p : patchesElem->getChildren("ips")) {
 				patch = std::make_unique<IPSPatch>(
@@ -235,17 +235,17 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 					std::move(patch));
 			}
 			auto patchSize = patch->getSize();
-			if (patchSize <= size()) {
-				patch->copyBlock(0, const_cast<byte*>(rom), sz);
+			if (patchSize <= rom.size()) {
+				patch->copyBlock(0, const_cast<byte*>(rom.data()), rom.size());
 			} else {
-				sz = patchSize;
-				extendedRom.resize(sz);
-				patch->copyBlock(0, extendedRom.data(), sz);
-				rom = extendedRom.data();
+				MemBuffer<byte> extendedRom2(patchSize);
+				patch->copyBlock(0, extendedRom2.data(), patchSize);
+				extendedRom = std::move(extendedRom2);
+				rom = std::span{extendedRom.data(), patchSize};
 			}
 
 			// calculated because it's different from original
-			actualSha1 = SHA1::calc({rom, sz});
+			actualSha1 = SHA1::calc(rom);
 
 			// Content altered by external patch file -> check.
 			checkResolvedSha1 = true;
@@ -270,7 +270,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 	// Make name unique wrt all registered debuggables.
 	auto& debugger = motherBoard.getDebugger();
-	if (sz) {
+	if (!rom.empty()) {
 		if (debugger.findDebuggable(name)) {
 			unsigned n = 0;
 			string tmp;
@@ -302,19 +302,18 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	// loadstate we use that tag to search the complete rom in a filepool.
 	if (const auto* windowElem = config.findChild("window")) {
 		unsigned windowBase = windowElem->getAttributeValueAsInt("base", 0);
-		unsigned windowSize = windowElem->getAttributeValueAsInt("size", sz);
-		if ((windowBase + windowSize) > sz) {
+		unsigned windowSize = windowElem->getAttributeValueAsInt("size", rom.size());
+		if ((windowBase + windowSize) > rom.size()) {
 			throw MSXException(
 				"The specified window [", windowBase, ',',
 				windowBase + windowSize, ") falls outside "
-				"the rom (with size ", sz, ").");
+				"the rom (with size ", rom.size(), ").");
 		}
-		rom = &rom[windowBase];
-		sz = windowSize;
+		rom = rom.subspan(windowBase, windowSize);
 	}
 
 	// Only create the debuggable once all checks succeeded.
-	if (sz) {
+	if (!rom.empty()) {
 		romDebuggable = std::make_unique<RomDebuggable>(debugger, *this);
 	}
 }
@@ -335,7 +334,6 @@ Rom::Rom(Rom&& r) noexcept
 	, actualSha1   (std::move(r.actualSha1))
 	, name         (std::move(r.name))
 	, description  (std::move(r.description))
-	, sz           (std::move(r.sz))
 	, romDebuggable(std::move(r.romDebuggable))
 {
 	if (romDebuggable) romDebuggable->moved(*this);
@@ -351,7 +349,7 @@ std::string_view Rom::getFilename() const
 const Sha1Sum& Rom::getOriginalSHA1() const
 {
 	if (originalSha1.empty()) {
-		originalSha1 = SHA1::calc({rom, sz});
+		originalSha1 = SHA1::calc(rom);
 	}
 	return originalSha1;
 }
@@ -367,17 +365,16 @@ const Sha1Sum& Rom::getSHA1() const
 
 void Rom::addPadding(size_t newSize, byte filler)
 {
-	assert(newSize >= sz);
-	if (newSize == sz) return;
+	assert(newSize >= rom.size());
+	if (newSize == rom.size()) return;
 
 	MemBuffer<byte> tmp(newSize);
-	auto* newData = tmp.data();
-	memcpy(newData, rom, sz);
-	memset(newData + sz, filler, newSize - sz);
+	std::span newRom{tmp.data(), newSize};
+	ranges::copy(rom, newRom);
+	ranges::fill(newRom.subspan(rom.size()), filler);
 
 	extendedRom = std::move(tmp);
-	rom = newData;
-	sz = newSize;
+	rom = newRom;
 }
 
 void Rom::getInfo(TclObject& result) const

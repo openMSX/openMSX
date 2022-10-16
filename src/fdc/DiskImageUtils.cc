@@ -6,18 +6,17 @@
 #include "enumerate.hh"
 #include "random.hh"
 #include "xrange.hh"
-#include <cstring>
 #include <cassert>
 #include <ctime>
 
 namespace openmsx::DiskImageUtils {
 
-static constexpr char PARTAB_HEADER[11] = {
+static constexpr std::array<char, 11> PARTAB_HEADER = {
 	'\353', '\376', '\220', 'M', 'S', 'X', '_', 'I', 'D', 'E', ' '
 };
 [[nodiscard]] static bool isPartitionTableSector(const PartitionTable& pt)
 {
-	return memcmp(pt.header, PARTAB_HEADER, sizeof(PARTAB_HEADER)) == 0;
+	return pt.header == PARTAB_HEADER;
 }
 
 bool hasPartitionTable(SectorAccessibleDisk& disk)
@@ -78,7 +77,7 @@ static SetBootSectorResult setBootSector(
 {
 	// start from the default boot block ..
 	const auto& defaultBootBlock = dos1 ? BootBlocks::dos1BootBlock : BootBlocks::dos2BootBlock;
-	memcpy(&boot, &defaultBootBlock, sizeof(boot));
+	boot = defaultBootBlock.bootSector;
 
 	// .. and fill-in image-size dependent parameters ..
 	// these are the same for most formats
@@ -239,7 +238,7 @@ void partition(SectorAccessibleDisk& disk, std::span<const unsigned> sizes)
 
 	SectorBuffer buf;
 	ranges::fill(buf.raw, 0);
-	memcpy(buf.pt.header, PARTAB_HEADER, sizeof(PARTAB_HEADER));
+	buf.pt.header = PARTAB_HEADER;
 	buf.pt.end = 0xAA55;
 
 	unsigned partitionOffset = 1;

@@ -21,7 +21,6 @@
 #include <vector>
 #include <cmath>
 #include <cstddef>
-#include <cstring>
 #include <cassert>
 #include <iterator>
 #ifdef __SSE2__
@@ -623,8 +622,8 @@ void ResampleHQ<CHANNELS>::prepareData(unsigned emuNum)
 	}
 	VLA_SSE_ALIGNED(float, tmpBuf, emuNum * CHANNELS + 3);
 	if (input.generateInput(tmpBuf, emuNum)) {
-		memcpy(&buffer[bufEnd * CHANNELS], tmpBuf,
-		       emuNum * CHANNELS * sizeof(float));
+		ranges::copy(std::span{tmpBuf, emuNum * CHANNELS},
+		             &buffer[bufEnd * CHANNELS]);
 		bufEnd += emuNum;
 		nonzeroSamples = bufEnd - bufStart;
 	} else {

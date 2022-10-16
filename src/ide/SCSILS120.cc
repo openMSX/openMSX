@@ -72,7 +72,7 @@ constexpr byte inqData[36] = {
 };
 
 // for FDSFORM.COM
-constexpr char fds120[28 + 1]  = "IODATA  LS-120 COSM     0001";
+constexpr std::string_view fds120 = "IODATA  LS-120 COSM     0001";
 
 constexpr unsigned BUFFER_BLOCK_SIZE = SCSIDevice::BUFFER_SIZE /
                                        SectorAccessibleDisk::SECTOR_SIZE;
@@ -194,15 +194,14 @@ unsigned SCSILS120::inquiry()
 
 	if (length == 0) return 0;
 
-	if (fdsmode) {
-		memcpy(buffer + 2, inqData + 2, 6);
-		memcpy(buffer + 8, fds120, 28);
-	} else {
-		memcpy(buffer + 2, inqData + 2, 34);
-	}
-
 	buffer[0] = SCSI::DT_DirectAccess;
 	buffer[1] = 0x80; // removable
+	if (fdsmode) {
+		ranges::copy(subspan<6>(inqData, 2), &buffer[2]);
+		ranges::copy(fds120, &buffer[8]);
+	} else {
+		ranges::copy(subspan(inqData, 2), &buffer[2]);
+	}
 
 	if (!(mode & BIT_SCSI2)) {
 		buffer[2] = 1;
@@ -231,7 +230,7 @@ unsigned SCSILS120::inquiry()
 	if (length > 36) {
 		std::string filename(FileOperations::getFilename(file.getURL()));
 		filename.resize(20, ' ');
-		memcpy(buffer + 36, filename.data(), 20);
+		ranges::copy(filename, &buffer[36]);
 	}
 	return length;
 }
@@ -483,7 +482,7 @@ void SCSILS120::insert(const std::string& filename)
 
 unsigned SCSILS120::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& blocks)
 {
-	memcpy(cdb, cdb_, sizeof(cdb));
+	ranges::copy(std::span{cdb_, sizeof(cdb)}, std::begin(cdb)); // TODO simplify
 	message = 0;
 	phase = SCSI::STATUS;
 	blocks = 0;

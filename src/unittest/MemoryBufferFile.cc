@@ -1,7 +1,7 @@
 #include "MemoryBufferFile.hh"
 #include "File.hh"
 #include "FileException.hh"
-#include <cstring>
+#include "ranges.hh"
 #include <memory>
 
 namespace openmsx {
@@ -11,7 +11,7 @@ void MemoryBufferFile::read(void* dst, size_t num)
 	if (getSize() < (getPos() + num)) {
 		throw FileException("Read beyond end of file");
 	}
-	memcpy(dst, buffer.data() + pos, num);
+	ranges::copy(buffer.subspan(pos, num), static_cast<uint8_t*>(dst));
 	pos += num;
 }
 

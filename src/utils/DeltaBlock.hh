@@ -6,6 +6,7 @@
 #include "MemBuffer.hh"
 #include <cstdint>
 #include <memory>
+#include <span>
 #include <vector>
 #ifdef DEBUG
 #include "sha1.hh"
@@ -21,7 +22,7 @@ public:
 #else
 	virtual ~DeltaBlock() = default;
 #endif
-	virtual void apply(uint8_t* dst, size_t size) const = 0;
+	virtual void apply(std::span<uint8_t> dst) const = 0;
 
 protected:
 	DeltaBlock() = default;
@@ -42,8 +43,8 @@ protected:
 class DeltaBlockCopy final : public DeltaBlock
 {
 public:
-	DeltaBlockCopy(const uint8_t* data, size_t size);
-	void apply(uint8_t* dst, size_t size) const override;
+	DeltaBlockCopy(std::span<const uint8_t> data);
+	void apply(std::span<uint8_t> dst) const override;
 	void compress(size_t size);
 	[[nodiscard]] const uint8_t* getData();
 
@@ -59,8 +60,8 @@ class DeltaBlockDiff final : public DeltaBlock
 {
 public:
 	DeltaBlockDiff(std::shared_ptr<DeltaBlockCopy> prev_,
-	               const uint8_t* data, size_t size);
-	void apply(uint8_t* dst, size_t size) const override;
+	               std::span<const uint8_t> data);
+	void apply(std::span<uint8_t> dst) const override;
 	[[nodiscard]] size_t getDeltaSize() const;
 
 private:
@@ -73,9 +74,9 @@ class LastDeltaBlocks
 {
 public:
 	[[nodiscard]] std::shared_ptr<DeltaBlock> createNew(
-		const void* id, const uint8_t* data, size_t size);
+		const void* id, std::span<const uint8_t> data);
 	[[nodiscard]] std::shared_ptr<DeltaBlock> createNullDiff(
-		const void* id, const uint8_t* data, size_t size);
+		const void* id, std::span<const uint8_t> data);
 	void clear();
 
 private:

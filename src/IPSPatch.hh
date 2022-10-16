@@ -26,6 +26,8 @@ private:
 		[[nodiscard]] size_t size() const { return content.size(); }
 		[[nodiscard]] const byte* data() const { return content.data(); }
 		[[nodiscard]] size_t stopAddress() const { return startAddress + size(); }
+		[[nodiscard]] auto begin() const { return content.begin(); }
+		[[nodiscard]] auto end  () const { return content.end(); }
 	};
 
 	const Filename filename;

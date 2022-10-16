@@ -1,8 +1,8 @@
 #ifndef STRINGSTORAGE_HH
 #define STRINGSTORAGE_HH
 
+#include "ranges.hh"
 #include <cstdlib>
-#include <cstring>
 #include <memory>
 #include <string_view>
 
@@ -31,11 +31,10 @@ inline StringStorage allocate_string_storage(size_t size)
   */
 inline StringStorage allocate_c_string(std::string_view s)
 {
-	auto size = s.size();
-	auto result = allocate_string_storage(size + 1);
+	auto result = allocate_string_storage(s.size() + 1);
 	char* p = result.get();
-	memcpy(p, s.data(), size);
-	p[size] = '\0';
+	char* z = ranges::copy(s, p);
+	*z = '\0';
 	return result;
 }
 

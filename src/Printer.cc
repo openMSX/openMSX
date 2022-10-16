@@ -13,7 +13,6 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
-#include <cstring>
 #include <memory>
 #include <vector>
 
@@ -649,7 +648,7 @@ void ImagePrinterMSX::resetSettings()
 	eightBit     = -1;
 
 	// note: this only overwrites 9/12 of the fontInfo.rom array.
-	memcpy(fontInfo.rom, MSXFont, sizeof(MSXFont));
+	ranges::copy(MSXFont, std::begin(fontInfo.rom)); // TODO simplify
 	fontInfo.charWidth = 9;
 	fontInfo.pixelDelta = 1.0;
 	fontInfo.useRam = false;
@@ -1191,7 +1190,7 @@ void ImagePrinterEpson::resetSettings()
 	fontWidth    = 6;
 	eightBit     = -1;
 
-	memcpy(fontInfo.rom, EpsonFontRom, sizeof(EpsonFontRom));
+	ranges::copy(EpsonFontRom, std::begin(fontInfo.rom)); // TODO simplify
 	fontInfo.charWidth = 12;
 	fontInfo.pixelDelta = 0.5;
 	fontInfo.useRam = false;
@@ -1324,7 +1323,7 @@ void ImagePrinterEpson::processEscSequence()
 			detectPaperOut = false;
 			break;
 		case ':': // Copies Rom Character set to RAM
-			memcpy(fontInfo.ram, fontInfo.rom, sizeof(fontInfo.ram));
+			ranges::copy(fontInfo.rom, std::begin(fontInfo.ram)); // TODO simplify
 			break;
 		case '<': // Turn Uni-directional printing ON (left to right)
 			leftToRight = true;

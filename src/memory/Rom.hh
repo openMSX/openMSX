@@ -8,6 +8,7 @@
 #include "openmsx.hh"
 #include <cassert>
 #include <memory>
+#include <span>
 #include <string>
 #include <string_view>
 
@@ -29,12 +30,12 @@ public:
 	~Rom();
 
 	[[nodiscard]] const byte& operator[](size_t address) const {
-		assert(address < sz);
+		assert(address < rom.size());
 		return rom[address];
 	}
-	[[nodiscard]] auto size()  const { return sz; }
-	[[nodiscard]] auto begin() const { return rom; }
-	[[nodiscard]] auto end()   const { return rom + sz; }
+	[[nodiscard]] auto size()  const { return rom.size(); }
+	[[nodiscard]] auto begin() const { return rom.begin(); }
+	[[nodiscard]] auto end()   const { return rom.end(); }
 
 	[[nodiscard]] std::string_view getFilename() const;
 	[[nodiscard]] const std::string& getName() const { return name; }
@@ -56,7 +57,7 @@ private:
 
 private:
 	// !! update the move constructor when changing these members !!
-	const byte* rom;
+	std::span<const byte> rom;
 	MemBuffer<byte> extendedRom;
 
 	File file; // can be a closed file
@@ -65,7 +66,6 @@ private:
 	mutable Sha1Sum actualSha1;
 	std::string name;
 	/*const*/ static_string_view description; // not const to allow move
-	size_t sz;
 
 	// This must come after 'name':
 	//   the destructor of RomDebuggable calls Rom::getName(), which still

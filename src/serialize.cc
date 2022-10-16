@@ -14,6 +14,7 @@
 #include "stl.hh"
 #include "build-info.hh"
 #include "cstdiop.hh" // for dup()
+#include <cstdint>
 #include <cstring>
 #include <iostream>
 #include <limits>
@@ -174,11 +175,9 @@ template class InputArchiveBase<XmlInputArchive>;
 void MemOutputArchive::save(std::string_view s)
 {
 	auto size = s.size();
-	uint8_t* buf = buffer.allocate(sizeof(size) + size);
-	memcpy(buf, &size, sizeof(size));
-	if (size) {
-		memcpy(buf + sizeof(size), s.data(), size);
-	}
+	auto buf = buffer.allocate(sizeof(size) + size);
+	memcpy(buf.data(), &size, sizeof(size));
+	ranges::copy(s, subspan(buf, sizeof(size)));
 }
 
 MemBuffer<uint8_t> MemOutputArchive::releaseBuffer(size_t& size)
@@ -222,16 +221,14 @@ void MemOutputArchive::serialize_blob(const char* /*tag*/, const void* data,
 	if (len > SMALL_SIZE) {
 		auto deltaBlockIdx = unsigned(deltaBlocks.size());
 		save(deltaBlockIdx); // see comment below in MemInputArchive
+		std::span buf{static_cast<const uint8_t*>(data), len};
 		deltaBlocks.push_back(diff
-			? lastDeltaBlocks.createNew(
-				data, static_cast<const uint8_t*>(data), len)
-			: lastDeltaBlocks.createNullDiff(
-				data, static_cast<const uint8_t*>(data), len));
+			? lastDeltaBlocks.createNew(data, buf)
+			: lastDeltaBlocks.createNullDiff(data, buf));
 	} else {
-		uint8_t* buf = buffer.allocate(len);
-		memcpy(buf, data, len);
+		auto buf = buffer.allocate(len);
+		memcpy(buf.data(), data, len);
 	}
-
 }
 
 void MemInputArchive::serialize_blob(const char* /*tag*/, void* data,
@@ -247,7 +244,7 @@ void MemInputArchive::serialize_blob(const char* /*tag*/, void* data,
 		// is possible that certain blobs are stored in the savestate,
 		// but skipped while loading. That's why we do need the index.
 		unsigned deltaBlockIdx; load(deltaBlockIdx);
-		deltaBlocks[deltaBlockIdx]->apply(static_cast<uint8_t*>(data), len);
+		deltaBlocks[deltaBlockIdx]->apply(std::span{static_cast<uint8_t*>(data), len});
 	} else {
 		memcpy(data, buffer.getCurrentPos(), len);
 		buffer.skip(len);

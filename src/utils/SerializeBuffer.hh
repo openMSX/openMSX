@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <cstring>
 #include <cassert>
+#include <span>
 #include <tuple>
 
 namespace openmsx {
@@ -107,7 +108,7 @@ public:
 	  * when the buffer will be used for gzip output data), you can request
 	  * the maximum size and deallocate the unused space later.
 	  */
-	[[nodiscard]] uint8_t* allocate(size_t len)
+	[[nodiscard]] std::span<uint8_t> allocate(size_t len)
 	{
 		auto* newEnd = end + len;
 		// Make sure the next OutputBuffer will start with an initial size
@@ -117,9 +118,9 @@ public:
 		if (newEnd <= finish) {
 			uint8_t* result = end;
 			end = newEnd;
-			return result;
+			return {result, len};
 		} else {
-			return allocateGrow(len);
+			return {allocateGrow(len), len};
 		}
 	}
 
@@ -134,12 +135,12 @@ public:
 	  * allocate() call, there cannot be any other (non-const) call to this
 	  * object in between.
 	  */
-	void deallocate(uint8_t* pos)
+	/*void deallocate(uint8_t* pos)
 	{
 		assert(buf.data() <= pos);
 		assert(pos <= end);
 		end = pos;
-	}
+	}*/
 
 	/** Get the current size of the buffer.
 	 */

@@ -797,7 +797,7 @@ void NowindHost::serialize(Archive& ar, unsigned /*version*/)
 	byte* bufRaw = buffer.data()->raw;
 	std::vector<byte> tmp(bufRaw, bufRaw + bufSize);
 	ar.serialize("buffer", tmp);
-	memcpy(bufRaw, tmp.data(), bufSize);
+	ranges::copy(tmp, bufRaw);
 
 	ar.serialize("transfered",          transferred, // for bw compat, keep typo in serialize name
 	             "retryCount",          retryCount,

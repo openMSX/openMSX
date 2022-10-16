@@ -8,7 +8,7 @@
 #include "stringsp.hh" // for strncasecmp
 #include "view.hh"
 #include "xrange.hh"
-#include <cstring> // for memcpy, memcmp
+#include <cstring> // for memcmp
 #include <cstdlib> // for atoi
 #include <cctype> // for isspace
 #include <memory>
@@ -377,11 +377,8 @@ void OggReader::readVorbis(ogg_packet* packet)
 		unsigned len = std::min<long>(decoded - pos,
 		                              AudioFragment::MAX_SAMPLES - audio->length);
 
-		memcpy(audio->pcm[0] + audio->length, pcm[0] + pos,
-		       len * sizeof(float));
-		memcpy(audio->pcm[1] + audio->length, pcm[1] + pos,
-		       len * sizeof(float));
-
+		ranges::copy(std::span{&pcm[0][pos], len}, &audio->pcm[0][audio->length]);
+		ranges::copy(std::span{&pcm[1][pos], len}, &audio->pcm[1][audio->length]);
 		audio->length += len;
 		pos += len;
 
@@ -575,11 +572,11 @@ void OggReader::readTheora(ogg_packet* packet)
 		recycleFrameList.pop_back();
 	}
 
-	int y_size  = yuv[0].height * yuv[0].stride;
-	int uv_size = yuv[1].height * yuv[1].stride;
-	memcpy(frame->buffer[0].data, yuv[0].data, y_size);
-	memcpy(frame->buffer[1].data, yuv[1].data, uv_size);
-	memcpy(frame->buffer[2].data, yuv[2].data, uv_size);
+	size_t y_size  = yuv[0].height * yuv[0].stride;
+	size_t uv_size = yuv[1].height * yuv[1].stride;
+	ranges::copy(std::span{yuv[0].data,  y_size}, frame->buffer[0].data);
+	ranges::copy(std::span{yuv[1].data, uv_size}, frame->buffer[1].data);
+	ranges::copy(std::span{yuv[2].data, uv_size}, frame->buffer[2].data);
 
 	// At lot of frames have framenumber -1, only some have the correct
 	// frame number. We continue counting from the previous known

@@ -5,7 +5,6 @@
 #include "serialize.hh"
 #include <algorithm>
 #include <bit>
-#include <cstring>
 
 namespace openmsx {
 
@@ -287,7 +286,7 @@ void VDPVRAM::change4k8kMapping(bool mapping8k)
 			                 ((addr8 & 0x0FC0) << 1);
 			const byte* src = &data[addr8];
 			byte* dst = &tmp[addr4];
-			memcpy(dst, src, 64);
+			ranges::copy(std::span{src, 64}, dst);
 		}
 	} else {
 		// from 4k to 8k/16k mapping
@@ -297,10 +296,10 @@ void VDPVRAM::change4k8kMapping(bool mapping8k)
 			                 ((addr4 & 0x1F80) >> 1);
 			const byte* src = &data[addr4];
 			byte* dst = &tmp[addr8];
-			memcpy(dst, src, 64);
+			ranges::copy(std::span{src, 64}, dst);
 		}
 	}
-	memcpy(&data[0], tmp, sizeof(tmp));
+	ranges::copy(tmp, &data[0]);
 }
 
 

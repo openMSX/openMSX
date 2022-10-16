@@ -6,6 +6,7 @@
 #include "one_of.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+#include <array>
 #include <cassert>
 #include <initializer_list>
 #include <memory>
@@ -322,6 +323,7 @@ template<typename T> struct serialize_as_pointer<std::shared_ptr<T>>
 //      output_iterator to the beginning of the collection.
 
 template<typename T> struct serialize_as_collection : std::false_type {};
+
 template<typename T, int N> struct serialize_as_collection<T[N]> : std::true_type
 {
 	static constexpr int size = N; // fixed size
@@ -334,6 +336,20 @@ template<typename T, int N> struct serialize_as_collection<T[N]> : std::true_typ
 	static constexpr bool loadInPlace = true;
 	static void prepare(T (&/*array*/)[N], int /*n*/) { }
 	static T* output(T (&array)[N]) { return &array[0]; }
+};
+
+template<typename T, size_t N> struct serialize_as_collection<std::array<T, N>> : std::true_type
+{
+	static constexpr int size = N; // fixed size
+	using value_type = T;
+	// save
+	using const_iterator = typename std::array<T, N>::const_iterator;
+	static auto begin(const std::array<T, N>& a) { return a.begin(); }
+	static auto end  (const std::array<T, N>& a) { return a.end(); }
+	// load
+	static constexpr bool loadInPlace = true;
+	static void prepare(std::array<T, N>& /*a*/, int /*n*/) { }
+	static T* output(std::array<T, N>& a) { return &a[0]; }
 };
 
 ///////////

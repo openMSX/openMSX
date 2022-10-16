@@ -8,7 +8,6 @@
 #include "view.hh"
 #include "vla.hh"
 #include <cassert>
-#include <cstring>
 
 using std::string;
 
@@ -65,8 +64,8 @@ BaseSetting* SettingsManager::findSetting(std::string_view prefix, std::string_v
 {
 	auto size = prefix.size() + baseName.size();
 	VLA(char, fullname, size);
-	memcpy(&fullname[0],             prefix  .data(), prefix  .size());
-	memcpy(&fullname[prefix.size()], baseName.data(), baseName.size());
+	ranges::copy(prefix,   &fullname[0]);
+	ranges::copy(baseName, &fullname[prefix.size()]);
 	return findSetting(std::string_view(fullname, size));
 }
 

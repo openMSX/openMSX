@@ -6,7 +6,6 @@
 #include "xrange.hh"
 #include "zstring_view.hh"
 #include <climits>
-#include <cstring>
 #include <limits>
 #include <span>
 #include <sstream>
@@ -125,9 +124,8 @@ struct ConcatViaString
 
 	[[nodiscard]] char* copy(char* dst) const
 	{
-		auto sz = s.size();
-		memcpy(dst, s.data(), sz);
-		return dst + sz;
+		ranges::copy(s, dst);
+		return dst + s.size();
 	}
 
 private:
@@ -180,9 +178,8 @@ template<> struct ConcatUnit<std::string_view>
 
 	[[nodiscard]] char* copy(char* dst) const
 	{
-		auto sz = v.size();
-		if (sz) memcpy(dst, v.data(), sz);
-		return dst + sz;
+		ranges::copy(v, dst);
+		return dst + v.size();
 	}
 
 private:
@@ -301,7 +298,7 @@ template<std::integral T> struct ConcatIntegral
 
 	[[nodiscard]] char* copy(char* dst) const
 	{
-		memcpy(dst, begin(), sz);
+		ranges::copy(std::span{begin(), sz}, dst);
 		return dst + sz;
 	}
 

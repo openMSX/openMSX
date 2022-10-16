@@ -8,7 +8,6 @@
 #include "serialize.hh"
 #include <zlib.h>
 #include <algorithm>
-#include <cstring>
 #include <memory>
 
 namespace openmsx {
@@ -55,7 +54,7 @@ void Ram::clear(byte c)
 				throw MSXException("Zero-length initial pattern");
 			}
 			done = std::min(size(), bufSize);
-			memcpy(ram.data(), buf.data(), done);
+			ranges::copy(std::span{buf.data(), done}, ram.data());
 		} else {
 			throw MSXException("Unsupported encoding \"", encoding,
 			                   "\" for initialContent");
@@ -65,7 +64,7 @@ void Ram::clear(byte c)
 		auto left = size() - done;
 		while (left) {
 			auto tmp = std::min(done, left);
-			memcpy(&ram[done], &ram[0], tmp);
+			ranges::copy(std::span{ram.data(), tmp}, &ram[done]);
 			done += tmp;
 			left -= tmp;
 		}

@@ -6,7 +6,6 @@
 #include "ranges.hh"
 #include "vla.hh"
 #include "xrange.hh"
-#include <cstring>
 #include <vector>
 
 namespace openmsx {
@@ -32,10 +31,10 @@ WavWriter::WavWriter(const Filename& filename,
 		Endian::L32 subChunk2Size;  // +40
 	} header;
 
-	memcpy(header.chunkID,     "RIFF", sizeof(header.chunkID));
+	ranges::copy(std::string_view("RIFF"), std::begin(header.chunkID)); // TODO simplify
 	header.chunkSize     = 0; // actual value filled in later
-	memcpy(header.format,      "WAVE", sizeof(header.format));
-	memcpy(header.subChunk1ID, "fmt ", sizeof(header.subChunk1ID));
+	ranges::copy(std::string_view("WAVE"), std::begin(header.format)); // TODO
+	ranges::copy(std::string_view("fmt "), std::begin(header.subChunk1ID)); // TODO
 	header.subChunk1Size = 16;
 	header.audioFormat   = 1;
 	header.numChannels   = channels;
@@ -43,7 +42,7 @@ WavWriter::WavWriter(const Filename& filename,
 	header.byteRate      = (channels * frequency * bits) / 8;
 	header.blockAlign    = (channels * bits) / 8;
 	header.bitsPerSample = bits;
-	memcpy(header.subChunk2ID, "data", sizeof(header.subChunk2ID));
+	ranges::copy(std::string_view("data"), std::begin(header.subChunk2ID)); // TODO
 	header.subChunk2Size = 0; // actual value filled in later
 
 	file.write(&header, sizeof(header));

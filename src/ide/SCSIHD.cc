@@ -112,10 +112,9 @@ unsigned SCSIHD::inquiry()
 
 	if (length == 0) return 0;
 
-	memcpy(buffer + 2, inqData + 2, 34);
-
 	buffer[0] = SCSI::DT_DirectAccess;
 	buffer[1] = 0; // removable
+	ranges::copy(subspan(inqData, 2), &buffer[2]);
 
 	if (!(mode & BIT_SCSI2)) {
 		buffer[2] = 1;
@@ -145,7 +144,7 @@ unsigned SCSIHD::inquiry()
 		std::string imageName(FileOperations::getFilename(
 		                       getImageName().getOriginal()));
 		imageName.resize(20, ' ');
-		memcpy(buffer + 36, imageName.data(), 20);
+		ranges::copy(imageName, &buffer[36]);
 	}
 	return length;
 }
@@ -362,7 +361,7 @@ byte SCSIHD::getStatusCode()
 
 unsigned SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& blocks)
 {
-	memcpy(cdb, cdb_, sizeof(cdb));
+	ranges::copy(std::span{cdb_, sizeof(cdb)}, std::begin(cdb)); // TODO simplify
 	message = 0;
 	phase = SCSI::STATUS;
 	blocks = 0;

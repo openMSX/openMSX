@@ -2,12 +2,13 @@
 #define LINESCALERS_HH
 
 #include "PixelOperations.hh"
+#include "ranges.hh"
 #include "xrange.hh"
-#include <type_traits>
 #include <concepts>
 #include <cstddef>
-#include <cstring>
 #include <cassert>
+#include <span>
+#include <type_traits>
 #ifdef __SSE2__
 #include "emmintrin.h"
 #endif
@@ -519,12 +520,11 @@ template<std::unsigned_integral Pixel>
 void Scale_1on1<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
-	size_t nBytes = width * sizeof(Pixel);
-
 #ifdef __SSE2__
 	// When using a very recent gcc/clang, this routine is only about
 	// 10% faster than a simple memcpy(). When using gcc-4.6 (still the
 	// default on many systems), it's still about 66% faster.
+	size_t nBytes = width * sizeof(Pixel);
 	size_t n128 = nBytes & ~127;
 	memcpy_SSE_128(in, out, n128); // copy 128 byte chunks
 	nBytes &= 127; // remaning bytes (if any)
@@ -533,7 +533,7 @@ void Scale_1on1<Pixel>::operator()(
 	out += n128 / sizeof(Pixel);
 #endif
 
-	memcpy(out, in, nBytes);
+	ranges::copy(std::span{in, width}, out);
 }
 
 

@@ -180,12 +180,13 @@ end:	return std::mismatch(p, p_end, q);
 //   n3 number of bytes are equal
 //   ...
 [[nodiscard]] static std::vector<uint8_t> calcDelta(
-	const uint8_t* oldBuf, const uint8_t* newBuf, size_t size)
+	const uint8_t* oldBuf, std::span<const uint8_t> newBuf)
 {
 	std::vector<uint8_t> result;
 
 	const auto* p = oldBuf;
-	const auto* q = newBuf;
+	const auto* q = newBuf.data();
+	auto size = newBuf.size();
 	const auto* p_end = p + size;
 	const auto* q_end = q + size;
 
@@ -219,18 +220,18 @@ end:	return std::mismatch(p, p_end, q);
 }
 
 // Apply a previously calculated 'delta' to 'oldBuf' to get 'newbuf'.
-static void applyDeltaInPlace(uint8_t* buf, size_t size, const uint8_t* delta)
+static void applyDeltaInPlace(std::span<uint8_t> buf, const uint8_t* delta)
 {
-	auto* end = buf + size;
-
-	while (buf != end) {
+	auto it = buf.begin();
+	auto et = buf.end();
+	while (it != et) {
 		auto n1 = loadUleb(delta);
-		buf += n1;
-		if (buf == end) break;
+		it += n1;
+		if (it == et) break;
 
 		auto n2 = loadUleb(delta);
-		memcpy(buf, delta, n2);
-		buf   += n2;
+		ranges::copy(std::span{delta, n2}, it);
+		it    += n2;
 		delta += n2;
 	}
 }
@@ -250,14 +251,14 @@ DeltaBlock::~DeltaBlock()
 
 // class DeltaBlockCopy
 
-DeltaBlockCopy::DeltaBlockCopy(const uint8_t* data, size_t size)
-	: block(size)
+DeltaBlockCopy::DeltaBlockCopy(std::span<const uint8_t> data)
+	: block(data.size())
 	, compressedSize(0)
 {
 #ifdef DEBUG
-	sha1 = SHA1::calc({data, size});
+	sha1 = SHA1::calc(data);
 #endif
-	memcpy(block.data(), data, size);
+	ranges::copy(data, block.data());
 	assert(!compressed());
 #if STATISTICS
 	allocSize = size;
@@ -267,15 +268,15 @@ DeltaBlockCopy::DeltaBlockCopy(const uint8_t* data, size_t size)
 #endif
 }
 
-void DeltaBlockCopy::apply(uint8_t* dst, size_t size) const
+void DeltaBlockCopy::apply(std::span<uint8_t> dst) const
 {
 	if (compressed()) {
-		LZ4::decompress(block.data(), dst, int(compressedSize), int(size));
+		LZ4::decompress(block.data(), dst.data(), int(compressedSize), int(dst.size()));
 	} else {
-		memcpy(dst, block.data(), size);
+		ranges::copy(std::span{block.data(), dst.size()}, dst);
 	}
 #ifdef DEBUG
-	assert(SHA1::calc({dst, size}) == sha1);
+	assert(SHA1::calc(dst) == sha1);
 #endif
 }
 
@@ -297,7 +298,7 @@ void DeltaBlockCopy::compress(size_t size)
 	assert(compressed());
 #ifdef DEBUG
 	MemBuffer<uint8_t> buf3(size);
-	apply(buf3.data(), size);
+	apply({buf3.data(), size});
 	assert(memcmp(buf3.data(), buf2.data(), size) == 0);
 #endif
 #if STATISTICS
@@ -320,16 +321,16 @@ const uint8_t* DeltaBlockCopy::getData()
 
 DeltaBlockDiff::DeltaBlockDiff(
 		std::shared_ptr<DeltaBlockCopy> prev_,
-		const uint8_t* data, size_t size)
+		std::span<const uint8_t> data)
 	: prev(std::move(prev_))
-	, delta(calcDelta(prev->getData(), data, size))
+	, delta(calcDelta(prev->getData(), data))
 {
 #ifdef DEBUG
-	sha1 = SHA1::calc({data, size});
+	sha1 = SHA1::calc(data);
 
-	MemBuffer<uint8_t> buf(size);
-	apply(buf.data(), size);
-	assert(memcmp(buf.data(), data, size) == 0);
+	MemBuffer<uint8_t> buf(data.size());
+	apply({buf.data(), data.size()});
+	assert(memcmp(buf.data(), data.data(), data.size()) == 0);
 #endif
 #if STATISTICS
 	allocSize = delta.size();
@@ -339,12 +340,12 @@ DeltaBlockDiff::DeltaBlockDiff(
 #endif
 }
 
-void DeltaBlockDiff::apply(uint8_t* dst, size_t size) const
+void DeltaBlockDiff::apply(std::span<uint8_t> dst) const
 {
-	prev->apply(dst, size);
-	applyDeltaInPlace(dst, size, delta.data());
+	prev->apply(dst);
+	applyDeltaInPlace(dst, delta.data());
 #ifdef DEBUG
-	assert(SHA1::calc({dst, size}) == sha1);
+	assert(SHA1::calc(dst) == sha1);
 #endif
 }
 
@@ -357,8 +358,9 @@ size_t DeltaBlockDiff::getDeltaSize() const
 // class LastDeltaBlocks
 
 std::shared_ptr<DeltaBlock> LastDeltaBlocks::createNew(
-		const void* id, const uint8_t* data, size_t size)
+		const void* id, std::span<const uint8_t> data)
 {
+	auto size = data.size();
 	auto it = ranges::lower_bound(infos, std::tuple(id, size), {},
 		[](const Info& info) { return std::tuple(info.id, info.size); });
 	if ((it == end(infos)) || (it->id != id) || (it->size != size)) {
@@ -377,7 +379,7 @@ std::shared_ptr<DeltaBlock> LastDeltaBlocks::createNew(
 		}
 		// Heuristic: create a new block when too many small
 		// differences have accumulated.
-		auto b = std::make_shared<DeltaBlockCopy>(data, size);
+		auto b = std::make_shared<DeltaBlockCopy>(data);
 		it->ref = b;
 		it->last = b;
 		it->accSize = 0;
@@ -385,7 +387,7 @@ std::shared_ptr<DeltaBlock> LastDeltaBlocks::createNew(
 	} else {
 		// Create diff based on earlier reference block.
 		// Reference remains unchanged.
-		auto b = std::make_shared<DeltaBlockDiff>(ref, data, size);
+		auto b = std::make_shared<DeltaBlockDiff>(ref, data);
 		it->last = b;
 		it->accSize += b->getDeltaSize();
 		return b;
@@ -393,8 +395,9 @@ std::shared_ptr<DeltaBlock> LastDeltaBlocks::createNew(
 }
 
 std::shared_ptr<DeltaBlock> LastDeltaBlocks::createNullDiff(
-		const void* id, const uint8_t* data, size_t size)
+		const void* id, std::span<const uint8_t> data)
 {
+	auto size = data.size();
 	auto it = ranges::lower_bound(infos, id, {}, &Info::id);
 	if ((it == end(infos)) || (it->id != id)) {
 		// no previous block yet
@@ -404,14 +407,14 @@ std::shared_ptr<DeltaBlock> LastDeltaBlocks::createNullDiff(
 
 	auto last = it->last.lock();
 	if (!last) {
-		auto b = std::make_shared<DeltaBlockCopy>(data, size);
+		auto b = std::make_shared<DeltaBlockCopy>(data);
 		it->ref = b;
 		it->last = b;
 		it->accSize = 0;
 		return b;
 	} else {
 #ifdef DEBUG
-		assert(SHA1::calc({data, size}) == last->sha1);
+		assert(SHA1::calc(data) == last->sha1);
 #endif
 		return last;
 	}

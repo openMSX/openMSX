@@ -310,10 +310,9 @@ XMLAttribute* XMLDocument::allocateAttribute(const char* name, const char* value
 
 const char* XMLDocument::allocateString(std::string_view str)
 {
-	auto len = str.size();
-	auto* p = static_cast<char*>(allocator.allocate(len + 1, alignof(char)));
-	memcpy(p, str.data(), len);
-	p[len] = '\0';
+	auto* p = static_cast<char*>(allocator.allocate(str.size() + 1, alignof(char)));
+	auto e = ranges::copy(str, p);
+	*e = '\0';
 	return p;
 }
 

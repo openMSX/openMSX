@@ -325,7 +325,7 @@ void GLPostProcessor::uploadBlock(
 		auto* dest = mapped + y * lineWidth;
 		const auto* data = paintFrame->getLinePtr(y, lineWidth, dest);
 		if (data != dest) {
-			memcpy(dest, data, lineWidth * sizeof(uint32_t));
+			ranges::copy(std::span{data, lineWidth}, dest);
 		}
 	}
 	pbo.unmap();

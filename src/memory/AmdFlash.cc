@@ -12,7 +12,6 @@
 #include "serialize.hh"
 #include "xrange.hh"
 #include <bit>
-#include <cstring>
 #include <cassert>
 #include <iterator>
 #include <memory>
@@ -155,12 +154,12 @@ void AmdFlash::init(const std::string& name, const DeviceConfig& config, Load lo
 					auto last = romSize - offset;
 					auto missing = sectorSize - last;
 					const byte* romPtr = &(*rom)[offset];
-					memcpy(ramPtr, romPtr, last);
-					memset(ramPtr + last, 0xFF, missing);
+					ranges::copy(std::span{romPtr, last}, ramPtr);
+					ranges::fill(std::span{&ramPtr[last], missing}, 0xFF);
 				} else {
 					// completely before end of rom
 					const byte* romPtr = &(*rom)[offset];
-					memcpy(ramPtr, romPtr, sectorSize);
+					ranges::copy(std::span{romPtr, sectorSize}, ramPtr);
 				}
 			}
 		} else {

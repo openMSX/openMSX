@@ -5,7 +5,6 @@
 #include "checked_cast.hh"
 #include "enumerate.hh"
 #include "random.hh"
-#include <cstring>
 #include <cstdint>
 
 namespace openmsx {
@@ -37,7 +36,7 @@ void SDLSnow<Pixel>::paint(OutputSurface& output_)
 			for (int x = 0; x < width; x += 2) {
 				p0[x + 0] = p0[x + 1] = gray[distribution(generator)];
 			}
-			memcpy(p1, p0, width * sizeof(Pixel));
+			ranges::copy(std::span{p0, size_t(width)}, p1);
 		}
 	}
 	output.flushFrameBuffer();

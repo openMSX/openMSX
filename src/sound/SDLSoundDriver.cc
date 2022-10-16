@@ -10,7 +10,6 @@
 #include <algorithm>
 #include <bit>
 #include <cassert>
-#include <cstring>
 
 namespace openmsx {
 
@@ -114,13 +113,13 @@ void SDLSoundDriver::audioCallback(float* stream, unsigned len)
 	unsigned available = getBufferFilled();
 	unsigned num = std::min(len, available);
 	if ((readIdx + num) < mixBufferSize) {
-		memcpy(stream, &mixBuffer[readIdx], num * sizeof(float));
+		ranges::copy(std::span{&mixBuffer[readIdx], num}, stream);
 		readIdx += num;
 	} else {
 		unsigned len1 = mixBufferSize - readIdx;
-		memcpy(stream, &mixBuffer[readIdx], len1 * sizeof(float));
+		ranges::copy(std::span{&mixBuffer[readIdx], len1}, stream);
 		unsigned len2 = num - len1;
-		memcpy(&stream[len1], &mixBuffer[0], len2 * sizeof(float));
+		ranges::copy(std::span{&mixBuffer[0], len2}, &stream[len1]);
 		readIdx = len2;
 	}
 	int missing = len - available;
@@ -153,13 +152,13 @@ void SDLSoundDriver::uploadBuffer(float* buffer, unsigned len)
 	}
 	assert(len <= free);
 	if ((writeIdx + len) < mixBufferSize) {
-		memcpy(&mixBuffer[writeIdx], buffer, len * sizeof(float));
+		ranges::copy(std::span{buffer, len}, &mixBuffer[writeIdx]);
 		writeIdx += len;
 	} else {
 		unsigned len1 = mixBufferSize - writeIdx;
-		memcpy(&mixBuffer[writeIdx], buffer, len1 * sizeof(float));
+		ranges::copy(std::span{buffer, len1}, &mixBuffer[writeIdx]);
 		unsigned len2 = len - len1;
-		memcpy(&mixBuffer[0], &buffer[len1], len2 * sizeof(float));
+		ranges::copy(std::span{&buffer[len1], len2}, &mixBuffer[0]);
 		writeIdx = len2;
 	}
 

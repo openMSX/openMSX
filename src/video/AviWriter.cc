@@ -6,6 +6,7 @@
 #include "Version.hh"
 #include "endian.hh"
 #include "cstdiop.hh" // for snprintf
+#include "ranges.hh"
 #include <cassert>
 #include <cstring>
 #include <ctime>
@@ -53,7 +54,7 @@ AviWriter::~AviWriter()
 
 	auto AVIOUT4 = [&](const char (&s)[5]) { // expect a string-literal of 4 chars (+ zero terminator)
 		assert(s[4] == '\0');
-		memcpy(&avi_header[header_pos], s, 4);
+		ranges::copy(std::span{s, 4}, &avi_header[header_pos]);
 		header_pos += 4;
 	};
 	auto AVIOUTw = [&](uint16_t w) {
@@ -66,7 +67,7 @@ AviWriter::~AviWriter()
 	};
 	auto AVIOUTs = [&](const char* s) {
 		auto len1 = strlen(s) + 1; // +1 for zero-terminator
-		memcpy(&avi_header[header_pos], s, len1);
+		ranges::copy(std::span{s, len1}, &avi_header[header_pos]);
 		header_pos += (len1 + 1) & ~1; // round-up to even
 	};
 
@@ -238,17 +239,17 @@ AviWriter::~AviWriter()
 	}
 }
 
-void AviWriter::addAviChunk(const char* tag, size_t size_, const void* data, unsigned flags)
+void AviWriter::addAviChunk(std::span<const char, 4> tag, size_t size_, const void* data, unsigned flags)
 {
 	struct {
-		char t[4];
+		std::array<char, 4> t;
 		Endian::L32 s;
 	} chunk;
 
 	assert(size_ <= std::numeric_limits<uint32_t>::max());
 	auto size = uint32_t(size_);
 
-	memcpy(chunk.t, tag, sizeof(chunk.t));
+	ranges::copy(tag, chunk.t);
 	chunk.s = size;
 	file.write(&chunk, sizeof(chunk));
 
@@ -259,7 +260,7 @@ void AviWriter::addAviChunk(const char* tag, size_t size_, const void* data, uns
 
 	size_t idxSize = index.size();
 	index.resize(idxSize + 4);
-	memcpy(&index[idxSize], tag, sizeof(Endian::L32));
+	memcpy(&index[idxSize], tag.data(), tag.size());
 	index[idxSize + 1] = flags;
 	index[idxSize + 2] = pos;
 	index[idxSize + 3] = size;
@@ -269,7 +270,7 @@ void AviWriter::addFrame(FrameSource* frame, unsigned samples, int16_t* sampleDa
 {
 	bool keyFrame = (frames++ % 300 == 0);
 	auto buffer = codec.compressFrame(keyFrame, frame);
-	addAviChunk("00dc", buffer.size(), buffer.data(), keyFrame ? 0x10 : 0x0);
+	addAviChunk(subspan<4>("00dc"), buffer.size(), buffer.data(), keyFrame ? 0x10 : 0x0);
 
 	if (samples) {
 		assert((samples % channels) == 0);
@@ -278,9 +279,9 @@ void AviWriter::addFrame(FrameSource* frame, unsigned samples, int16_t* sampleDa
 			// See comment in WavWriter::write()
 			//VLA(Endian::L16, buf, samples); // doesn't work in clang
 			std::vector<Endian::L16> buf(sampleData, sampleData + samples);
-			addAviChunk("01wb", samples * sizeof(int16_t), buf.data(), 0);
+			addAviChunk(subspan<4>("01wb"), samples * sizeof(int16_t), buf.data(), 0);
 		} else {
-			addAviChunk("01wb", samples * sizeof(int16_t), sampleData, 0);
+			addAviChunk(subspan<4>("01wb"), samples * sizeof(int16_t), sampleData, 0);
 		}
 		audiowritten += samples;
 	}
