@@ -11,8 +11,8 @@
 #include "Event.hh"
 #include "EventListener.hh"
 #include "serialize_meta.hh"
-#include "openmsx.hh"
 #include <array>
+#include <cstdint>
 #include <deque>
 #include <memory>
 #include <span>
@@ -60,7 +60,7 @@ public:
 
 	/** Returns a pointer to the current KeyBoard matrix
 	 */
-	[[nodiscard]] const byte* getKeys() const;
+	[[nodiscard]] std::span<const uint8_t, KeyMatrixPosition::NUM_ROWS> getKeys() const;
 
 	void transferHostKeyMatrix(const Keyboard& source);
 
@@ -80,7 +80,7 @@ private:
 
 	void pressKeyMatrixEvent(EmuTime::param time, KeyMatrixPosition pos);
 	void releaseKeyMatrixEvent(EmuTime::param time, KeyMatrixPosition pos);
-	void changeKeyMatrixEvent (EmuTime::param time, byte row, byte newValue);
+	void changeKeyMatrixEvent (EmuTime::param time, uint8_t row, uint8_t newValue);
 
 	void processCapslockEvent(EmuTime::param time, bool down);
 	void processCodeKanaChange(EmuTime::param time, bool down);
@@ -95,7 +95,7 @@ private:
 			EmuTime::param time, UnicodeKeymap::KeyInfo keyInfo, unsigned unicode,
 			bool down);
 	int pressAscii(unsigned unicode, bool down);
-	void pressLockKeys(byte lockKeysMask, bool down);
+	void pressLockKeys(uint8_t lockKeysMask, bool down);
 	bool commonKeys(unsigned unicode1, unsigned unicode2);
 	void debug(const char* format, ...);
 
@@ -103,14 +103,14 @@ private:
 	  * modifier is a lock key and must be toggled before the given key input
 	  * can be produced.
 	  */
-	byte needsLockToggle(const UnicodeKeymap::KeyInfo& keyInfo) const;
+	uint8_t needsLockToggle(const UnicodeKeymap::KeyInfo& keyInfo) const;
 
 private:
 	CommandController& commandController;
 	MSXEventDistributor& msxEventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
 
-	const KeyMatrixPosition* keyTab;
+	std::span<const KeyMatrixPosition, MAX_KEYSYM> keyTab;
 
 	const std::array<KeyMatrixPosition, UnicodeKeymap::KeyInfo::NUM_MODIFIERS>& modifierPos;
 
@@ -157,9 +157,9 @@ private:
 	private:
 		std::string text_utf8;
 		unsigned last;
-		byte lockKeysMask;
+		uint8_t lockKeysMask;
 		bool releaseLast;
-		byte oldLocksOn;
+		uint8_t oldLocksOn;
 
 		bool releaseBeforePress;
 		int typingFrequency;
@@ -220,25 +220,25 @@ private:
 
 	struct KeybDebuggable final : SimpleDebuggable {
 		explicit KeybDebuggable(MSXMotherBoard& motherBoard);
-		[[nodiscard]] byte read(unsigned address) override;
-		void write(unsigned address, byte value) override;
+		[[nodiscard]] uint8_t read(unsigned address) override;
+		void write(unsigned address, uint8_t value) override;
 	} keybDebuggable;
 
 	UnicodeKeymap unicodeKeymap;
-	unsigned dynKeymap[MAX_KEYSYM];
+	std::array<unsigned, MAX_KEYSYM> dynKeymap;
 
 	/** Keyboard matrix state for 'keymatrix' command. */
-	byte cmdKeyMatrix [KeyMatrixPosition::NUM_ROWS];
+	std::array<uint8_t, KeyMatrixPosition::NUM_ROWS> cmdKeyMatrix;
 	/** Keyboard matrix state for 'type' command. */
-	byte typeKeyMatrix [KeyMatrixPosition::NUM_ROWS];
+	std::array<uint8_t, KeyMatrixPosition::NUM_ROWS> typeKeyMatrix;
 	/** Keyboard matrix state for pressed user keys (live or replay). */
-	byte userKeyMatrix[KeyMatrixPosition::NUM_ROWS];
+	std::array<uint8_t, KeyMatrixPosition::NUM_ROWS> userKeyMatrix;
 	/** Keyboard matrix state that is always in sync with host keyb, also during replay. */
-	byte hostKeyMatrix[KeyMatrixPosition::NUM_ROWS];
+	std::array<uint8_t, KeyMatrixPosition::NUM_ROWS> hostKeyMatrix;
 	/** Combination of 'cmdKeyMatrix', 'typeKeyMatrix' and 'userKeyMatrix'. */
-	mutable byte keyMatrix[KeyMatrixPosition::NUM_ROWS];
+	mutable std::array<uint8_t, KeyMatrixPosition::NUM_ROWS> keyMatrix;
 
-	byte msxModifiers;
+	uint8_t msxModifiers;
 
 	/** True iff keyboard includes a numeric keypad. */
 	const bool hasKeypad;
@@ -253,13 +253,13 @@ private:
 	/** Bit vector where each modifier's bit (using KeyInfo::Modifier's
 	  * numbering) is set iff it is a lock key.
 	  */
-	const byte modifierIsLock;
+	const uint8_t modifierIsLock;
 	mutable bool keysChanged;
 	/** Bit vector where each modifier's bit (using KeyInfo::Modifier's
 	  * numbering) is set iff it is a lock key that is currently on in
 	  * the emulated machine.
 	  */
-	byte locksOn;
+	uint8_t locksOn;
 };
 SERIALIZE_CLASS_VERSION(Keyboard, 3);
 

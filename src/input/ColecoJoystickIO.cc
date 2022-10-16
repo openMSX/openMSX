@@ -39,7 +39,7 @@ byte ColecoJoystickIO::peekIO(word port, EmuTime::param time) const
 {
 	const int joyPort = (port >> 1) & 1;
 	const byte joyStatus = ports[joyPort]->read(time);
-	const byte* keys = keyboard.getKeys();
+	auto keys = keyboard.getKeys();
 
 	if (joyMode == 0) {
 		// Combine keypad rows, convert to high-active and drop unused bits.

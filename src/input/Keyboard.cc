@@ -13,6 +13,7 @@
 #include "StateChange.hh"
 #include "TclArgParser.hh"
 #include "TclObject.hh"
+#include "UnicodeKeymap.hh"
 #include "enumerate.hh"
 #include "openmsx.hh"
 #include "one_of.hh"
@@ -26,6 +27,7 @@
 #include "view.hh"
 #include "xrange.hh"
 #include <SDL.h>
+#include <array>
 #include <cstdio>
 #include <cassert>
 #include <cstdarg>
@@ -58,7 +60,7 @@ class KeyMatrixState final : public StateChange
 {
 public:
 	KeyMatrixState() = default; // for serialize
-	KeyMatrixState(EmuTime::param time_, byte row_, byte press_, byte release_)
+	KeyMatrixState(EmuTime::param time_, uint8_t row_, uint8_t press_, uint8_t release_)
 		: StateChange(time_)
 		, row(row_), press(press_), release(release_)
 	{
@@ -69,9 +71,9 @@ public:
 		// and or-operations)
 		assert((press & release) == 0);
 	}
-	[[nodiscard]] byte getRow()     const { return row; }
-	[[nodiscard]] byte getPress()   const { return press; }
-	[[nodiscard]] byte getRelease() const { return release; }
+	[[nodiscard]] uint8_t getRow()     const { return row; }
+	[[nodiscard]] uint8_t getPress()   const { return press; }
+	[[nodiscard]] uint8_t getRelease() const { return release; }
 
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
@@ -81,37 +83,36 @@ public:
 		             "release", release);
 	}
 private:
-	byte row, press, release;
+	uint8_t row, press, release;
 };
 REGISTER_POLYMORPHIC_CLASS(StateChange, KeyMatrixState, "KeyMatrixState");
 
 
-constexpr const char* const defaultKeymapForMatrix[] = {
+static constexpr std::array<std::string_view, 4> defaultKeymapForMatrix = {
 	"int", // MATRIX_MSX
 	"svi", // MATRIX_SVI
 	"cvjoy", // MATRIX_CVJOY
 	"sega_int", // MATRIX_SEGA
 };
 
-constexpr std::array<KeyMatrixPosition, UnicodeKeymap::KeyInfo::NUM_MODIFIERS>
-		modifierPosForMatrix[] = {
-	{ // MATRIX_MSX
+static constexpr std::array modifierPosForMatrix = {
+	std::array{ // MATRIX_MSX
 		KeyMatrixPosition(6, 0), // SHIFT
 		KeyMatrixPosition(6, 1), // CTRL
 		KeyMatrixPosition(6, 2), // GRAPH
 		KeyMatrixPosition(6, 3), // CAPS
 		KeyMatrixPosition(6, 4), // CODE
 	},
-	{ // MATRIX_SVI
+	std::array{ // MATRIX_SVI
 		KeyMatrixPosition(6, 0), // SHIFT
 		KeyMatrixPosition(6, 1), // CTRL
 		KeyMatrixPosition(6, 2), // LGRAPH
 		KeyMatrixPosition(8, 3), // CAPS
 		KeyMatrixPosition(6, 3), // RGRAPH
 	},
-	{ // MATRIX_CVJOY
+	std::array<KeyMatrixPosition, UnicodeKeymap::KeyInfo::NUM_MODIFIERS>{ // MATRIX_CVJOY
 	},
-	{ // MATRIX_SEGA
+	std::array{ // MATRIX_SEGA
 		KeyMatrixPosition(13, 3), // SHIFT
 		KeyMatrixPosition(13, 2), // CTRL
 		KeyMatrixPosition(13, 1), // GRAPH
@@ -123,9 +124,9 @@ constexpr std::array<KeyMatrixPosition, UnicodeKeymap::KeyInfo::NUM_MODIFIERS>
 /** Keyboard bindings ****************************************/
 
 // Mapping from SDL keys to emulated keys, ordered by MatrixType
-constexpr KeyMatrixPosition x = KeyMatrixPosition();
-static constexpr KeyMatrixPosition keyTabs[][Keyboard::MAX_KEYSYM] = {
-  {
+static constexpr KeyMatrixPosition x = KeyMatrixPosition();
+static constexpr std::array keyTabs = {
+  std::array<KeyMatrixPosition, Keyboard::MAX_KEYSYM>{
 // MSX Key-Matrix table
 //
 // row/bit  7     6     5     4     3     2     1     0
@@ -166,7 +167,7 @@ static constexpr KeyMatrixPosition keyTabs[][Keyboard::MAX_KEYSYM] = {
   0x60,0x25,0x61, x  , x  ,0xB3,0xB1,0xB3,0xB1,0xB1,0xB3, x  , x  , x  , x  , x  , //130
    x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //140
   },
-  {
+  std::array<KeyMatrixPosition, Keyboard::MAX_KEYSYM>{
 // SVI Keyboard Matrix
 //
 // row/bit  7     6     5     4     3     2     1     0
@@ -206,7 +207,7 @@ static constexpr KeyMatrixPosition keyTabs[][Keyboard::MAX_KEYSYM] = {
   0x60, x  ,0x61, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //130
    x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //140
   },
-  {
+  std::array<KeyMatrixPosition, Keyboard::MAX_KEYSYM>{
 // ColecoVision Joystick "Matrix"
 //
 // The hardware consists of 2 controllers that each have 2 triggers
@@ -245,7 +246,7 @@ static constexpr KeyMatrixPosition keyTabs[][Keyboard::MAX_KEYSYM] = {
   0x17,0x06,0x16,0x07,0x07, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //130
    x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //140
   },
-  {
+  std::array<KeyMatrixPosition, Keyboard::MAX_KEYSYM>{
 // Sega SC-3000 / SK-1100 Keyboard Matrix
 //
 // row/bit  7     6     5     4     3     2     1     0
@@ -354,12 +355,12 @@ Keyboard::~Keyboard()
 	msxEventDistributor.unregisterEventListener(*this);
 }
 
-template<unsigned NUM_ROWS>
-static constexpr void doKeyGhosting(byte (&matrix)[NUM_ROWS], bool protectRow6)
+static constexpr void doKeyGhosting(std::span<uint8_t, KeyMatrixPosition::NUM_ROWS> matrix,
+                                    bool protectRow6)
 {
-	// This routine enables keyghosting as seen on a real MSX
+	// This routine enables key-ghosting as seen on a real MSX
 	//
-	// If on a real MSX in the keyboardmatrix the
+	// If on a real MSX in the keyboard matrix the
 	// real buttons are pressed as in the left matrix
 	//           then the matrix to the
 	// 10111111  right will be read by   10110101
@@ -379,9 +380,9 @@ static constexpr void doKeyGhosting(byte (&matrix)[NUM_ROWS], bool protectRow6)
 		// TODO: On Sega keyboards, ghosting should probably be done separately
 		//       for rows 0..6 and 7..14, since they're connected to different
 		//       PPI ports.
-		for (auto i : xrange(NUM_ROWS - 1)) {
+		for (auto i : xrange(KeyMatrixPosition::NUM_ROWS - 1)) {
 			auto row1 = matrix[i];
-			for (auto j : xrange(i + 1, NUM_ROWS)) {
+			for (auto j : xrange(i + 1, KeyMatrixPosition::NUM_ROWS)) {
 				auto row2 = matrix[j];
 				if ((row1 != row2) && ((row1 | row2) != 0xff)) {
 					auto rowIold = matrix[i];
@@ -414,11 +415,11 @@ static constexpr void doKeyGhosting(byte (&matrix)[NUM_ROWS], bool protectRow6)
 	} while (changedSomething);
 }
 
-const byte* Keyboard::getKeys() const
+std::span<const uint8_t, KeyMatrixPosition::NUM_ROWS> Keyboard::getKeys() const
 {
 	if (keysChanged) {
 		keysChanged = false;
-		const auto* matrix = keyTypeCmd.isActive() ? typeKeyMatrix : userKeyMatrix;
+		std::span matrix = keyTypeCmd.isActive() ? typeKeyMatrix : userKeyMatrix;
 		for (auto row : xrange(KeyMatrixPosition::NUM_ROWS)) {
 			keyMatrix[row] = cmdKeyMatrix[row] & matrix[row];
 		}
@@ -481,14 +482,14 @@ void Keyboard::signalStateChange(const StateChange& event)
 void Keyboard::stopReplay(EmuTime::param time) noexcept
 {
 	for (auto [row, hkm] : enumerate(hostKeyMatrix)) {
-		changeKeyMatrixEvent(time, byte(row), hkm);
+		changeKeyMatrixEvent(time, uint8_t(row), hkm);
 	}
 	msxModifiers = 0xff;
 	msxKeyEventQueue.clear();
 	ranges::fill(dynKeymap, 0);
 }
 
-byte Keyboard::needsLockToggle(const UnicodeKeymap::KeyInfo& keyInfo) const
+uint8_t Keyboard::needsLockToggle(const UnicodeKeymap::KeyInfo& keyInfo) const
 {
 	return modifierIsLock
 	     & (locksOn ^ keyInfo.modmask)
@@ -530,16 +531,16 @@ void Keyboard::releaseKeyMatrixEvent(EmuTime::param time, KeyMatrixPosition pos)
 	changeKeyMatrixEvent(time, row, hostKeyMatrix[row] | release);
 }
 
-void Keyboard::changeKeyMatrixEvent(EmuTime::param time, byte row, byte newValue)
+void Keyboard::changeKeyMatrixEvent(EmuTime::param time, uint8_t row, uint8_t newValue)
 {
 	// This method already updates hostKeyMatrix[],
 	// userKeyMatrix[] will soon be updated via KeyMatrixState events.
 	hostKeyMatrix[row] = newValue;
 
-	byte diff = userKeyMatrix[row] ^ newValue;
+	uint8_t diff = userKeyMatrix[row] ^ newValue;
 	if (diff == 0) return;
-	byte press   = userKeyMatrix[row] & diff;
-	byte release = newValue           & diff;
+	uint8_t press   = userKeyMatrix[row] & diff;
+	uint8_t release = newValue           & diff;
 	stateChangeDistributor.distributeNew<KeyMatrixState>(
 		time, row, press, release);
 }
@@ -933,7 +934,7 @@ bool Keyboard::pressUnicodeByUser(
 			// katakana on japanese model)
 			pressKeyMatrixEvent(time, keyInfo.pos);
 
-			byte modmask = keyInfo.modmask & ~modifierIsLock;
+			uint8_t modmask = keyInfo.modmask & ~modifierIsLock;
 			if (('A' <= unicode && unicode <= 'Z') || ('a' <= unicode && unicode <= 'z')) {
 				// For a-z and A-Z, leave SHIFT unchanged, this to cater
 				// for difference in behaviour between host and emulated
@@ -993,10 +994,10 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
 	if (!keyInfo.isValid()) {
 		return releaseMask;
 	}
-	byte modmask = keyInfo.modmask & ~modifierIsLock;
+	uint8_t modmask = keyInfo.modmask & ~modifierIsLock;
 	if (down) {
 		// check for modifier toggles
-		byte toggleLocks = needsLockToggle(keyInfo);
+		uint8_t toggleLocks = needsLockToggle(keyInfo);
 		for (auto [i, mp] : enumerate(modifierPos)) {
 			if ((toggleLocks >> i) & 1) {
 				debug("Toggling lock %d\n", i);
@@ -1074,7 +1075,7 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
  * The characters are inserted in a separate keyboard matrix, to prevent
  * interference with the keypresses of the user on the MSX itself
  */
-void Keyboard::pressLockKeys(byte lockKeysMask, bool down)
+void Keyboard::pressLockKeys(uint8_t lockKeysMask, bool down)
 {
 	for (auto [i, mp] : enumerate(modifierPos)) {
 		if ((lockKeysMask >> i) & 1) {
@@ -1253,7 +1254,7 @@ void Keyboard::KeyInserter::execute(
 		return;
 	}
 
-	ArgsInfo info[] = {
+	std::array info = {
 		flagArg("-release", releaseBeforePress),
 		valueArg("-freq", typingFrequency),
 	};
@@ -1563,13 +1564,13 @@ Keyboard::KeybDebuggable::KeybDebuggable(MSXMotherBoard& motherBoard_)
 {
 }
 
-byte Keyboard::KeybDebuggable::read(unsigned address)
+uint8_t Keyboard::KeybDebuggable::read(unsigned address)
 {
 	auto& keyboard = OUTER(Keyboard, keybDebuggable);
 	return keyboard.getKeys()[address];
 }
 
-void Keyboard::KeybDebuggable::write(unsigned /*address*/, byte /*value*/)
+void Keyboard::KeybDebuggable::write(unsigned /*address*/, uint8_t /*value*/)
 {
 	// ignore
 }
@@ -1621,7 +1622,7 @@ void Keyboard::serialize(Archive& ar, unsigned version)
 	if (ar.versionAtLeast(version, 3)) {
 		ar.serialize("typeKeyMatrix", typeKeyMatrix);
 	} else {
-		ranges::copy(cmdKeyMatrix, std::begin(typeKeyMatrix)); // TODO simplify
+		typeKeyMatrix = cmdKeyMatrix;
 	}
 
 	bool msxCapsLockOn, msxCodeKanaLockOn, msxGraphLockOn;
