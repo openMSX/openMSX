@@ -1,9 +1,57 @@
 #include "catch.hpp"
 #include "ranges.hh"
+#include "stl.hh"
 #include <array>
 #include <span>
 #include <string>
 #include <vector>
+
+TEST_CASE("ranges::copy")
+{
+	std::array a = {1, 2, 3, 4, 5};
+	std::vector v = {9, 9, 9, 9, 9, 9, 9, 9};
+
+	// this is the c++20 std::ranges::copy() version
+	SECTION("range to output-iterator") {
+		ranges::copy(a, subspan(v, 1).data());
+		CHECK(v == std::vector{9, 1, 2, 3, 4, 5, 9, 9});
+
+		ranges::copy(a, v.data());
+		CHECK(v == std::vector{1, 2, 3, 4, 5, 5, 9, 9});
+	}
+
+	// this is our own extension
+	SECTION("sized_range to sized_range") {
+		ranges::copy(a, subspan(v, 1));
+		CHECK(v == std::vector{9, 1, 2, 3, 4, 5, 9, 9});
+
+		ranges::copy(a, v);
+		CHECK(v == std::vector{1, 2, 3, 4, 5, 5, 9, 9});
+	}
+
+	// Unfortunately our extension is not 100% backwards compatible.
+	// This example breaks:
+	SECTION("bw-compat") {
+		int buffer[10] = {};
+
+		// This now triggers a compilation error: ambiguous overload
+		// It compiled fine before our extension.
+		//ranges::copy(a, buffer);
+
+		// It worked because c-arrays can (implicitly) decay to pointers
+		// when passed to functions. We can do that explicitly to
+		// resolve the ambiguity.
+		ranges::copy(a, std::begin(buffer));
+		CHECK(to_vector(buffer) == std::vector{1, 2, 3, 4, 5, 0, 0, 0, 0, 0});
+
+		// But a better solution is to replace teh c-array with a
+		// std::array. (This has other benefits as well, though not
+		// relevant for this example).
+		std::array<int, 10> buffer2 = {};
+		ranges::copy(a, buffer2);
+		CHECK(to_vector(buffer2) == std::vector{1, 2, 3, 4, 5, 0, 0, 0, 0, 0});
+	}
+}
 
 TEST_CASE("binary_find")
 {

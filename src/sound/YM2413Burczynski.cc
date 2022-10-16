@@ -1014,7 +1014,7 @@ void YM2413::reset()
 
 	// setup instruments table
 	for (auto instrument : xrange(19)) {
-		ranges::copy(table[instrument], inst_tab[instrument]);
+		ranges::copy(table[instrument], std::begin(inst_tab[instrument])); // TODO simplify
 	}
 
 	// reset with register write

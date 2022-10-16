@@ -149,7 +149,7 @@ static constexpr unsigned packRGBA(unsigned rb, unsigned ga)
 //    0 -- 1
 //    |    |
 //    2 -- 3
-static constexpr void gradient(const unsigned* rgba, SDL_Surface& surface, unsigned borderSize)
+static constexpr void gradient(std::span<const unsigned, 4> rgba, SDL_Surface& surface, unsigned borderSize)
 {
 	int width  = surface.w - 2 * borderSize;
 	int height = surface.h - 2 * borderSize;
@@ -343,7 +343,7 @@ void SDLImage::initGradient(OutputSurface& output, ivec2 size_, std::span<const 
 		return;
 	}
 
-	unsigned rgba[4];
+	std::array<unsigned, 4> rgba;
 	ranges::copy(rgba_, rgba);
 
 	if (flipX) {

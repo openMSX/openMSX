@@ -1622,7 +1622,7 @@ void Keyboard::serialize(Archive& ar, unsigned version)
 	if (ar.versionAtLeast(version, 3)) {
 		ar.serialize("typeKeyMatrix", typeKeyMatrix);
 	} else {
-		ranges::copy(cmdKeyMatrix, typeKeyMatrix);
+		ranges::copy(cmdKeyMatrix, std::begin(typeKeyMatrix)); // TODO simplify
 	}
 
 	bool msxCapsLockOn, msxCodeKanaLockOn, msxGraphLockOn;

@@ -2,6 +2,7 @@
 #define RANGES_HH
 
 #include <algorithm>
+#include <cassert>
 #include <functional>
 #include <iterator> // for std::begin(), std::end()
 #include <numeric>
@@ -20,6 +21,19 @@
 // need more.
 
 namespace ranges {
+
+// (Simplified) implementation of c++20 "range" and "sized_range" concepts.
+// * A "range" is something that has a begin() and end().
+// * A "sized_range" in addition has a size().
+template<typename T>
+concept range = requires(T& t) {
+	std::begin(t);
+	std::end  (t);
+};
+
+template<typename T>
+concept sized_range = range<T> && requires(T& t) { std::size(t); };
+
 
 template<typename ForwardRange, typename Compare = std::less<>, typename Proj = std::identity>
 [[nodiscard]] bool is_sorted(ForwardRange&& range, Compare comp = {}, Proj proj = {})
@@ -206,9 +220,17 @@ template<typename RandomAccessRange, typename Compare = std::equal_to<>, typenam
 }
 
 template<typename InputRange, typename OutputIter>
+	requires(!range<OutputIter>)
 auto copy(InputRange&& range, OutputIter out)
 {
 	return std::copy(std::begin(range), std::end(range), out);
+}
+
+template<sized_range Input, sized_range Output>
+auto copy(Input&& in, Output&& out)
+{
+	assert(std::size(in) <= std::size(out));
+	return std::copy(std::begin(in), std::end(in), std::begin(out));
 }
 
 template<typename InputRange, typename OutputIter, typename UnaryPredicate>

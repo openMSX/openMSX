@@ -194,7 +194,7 @@ int VLM5030::parseFrame()
 	// remember previous frame
 	old_energy = new_energy;
 	old_pitch = new_pitch;
-	ranges::copy(new_k, old_k);
+	ranges::copy(new_k, std::begin(old_k)); // TODO simplify
 	// command byte check
 	byte cmd = rom[address & address_mask];
 	if (cmd & 0x01) {
@@ -268,17 +268,17 @@ void VLM5030::generateChannels(float** bufs, unsigned num)
 					// Set old target as new start of frame
 					current_energy = old_energy;
 					current_pitch = old_pitch;
-					ranges::copy(old_k, current_k);
+					ranges::copy(old_k, std::begin(current_k)); // TODO simplify
 					// is this a zero energy frame?
 					if (current_energy == 0) {
 						target_energy = 0;
 						target_pitch = current_pitch;
-						ranges::copy(current_k, target_k);
+						ranges::copy(current_k, std::begin(target_k)); // TODO
 					} else {
 						// normal frame
 						target_energy = new_energy;
 						target_pitch = new_pitch;
-						ranges::copy(new_k, target_k);
+						ranges::copy(new_k, std::begin(target_k)); // TODO
 					}
 				}
 				// next interpolator
