@@ -14,7 +14,7 @@ bool DummySCSIDevice::isSelected()
 }
 
 unsigned DummySCSIDevice::executeCmd(
-	const byte* /*cdb*/, SCSI::Phase& /*phase*/, unsigned& /*blocks*/)
+	std::span<const uint8_t, 12> /*cdb*/, SCSI::Phase& /*phase*/, unsigned& /*blocks*/)
 {
 	// do nothing
 	return 0;
@@ -25,17 +25,17 @@ unsigned DummySCSIDevice::executingCmd(SCSI::Phase& /*phase*/, unsigned& /*block
 	return 0;
 }
 
-byte DummySCSIDevice::getStatusCode()
+uint8_t DummySCSIDevice::getStatusCode()
 {
 	return SCSI::ST_CHECK_CONDITION;
 }
 
-int DummySCSIDevice::msgOut(byte /*value*/)
+int DummySCSIDevice::msgOut(uint8_t /*value*/)
 {
 	return 0; // TODO: check if this is sane, but it doesn't seem to be used anyway
 }
 
-byte DummySCSIDevice::msgIn()
+uint8_t DummySCSIDevice::msgIn()
 {
 	return 0; // TODO: check if this is sane, but it doesn't seem to be used anyway
 }

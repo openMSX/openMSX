@@ -28,64 +28,64 @@ namespace openmsx {
 
 constexpr unsigned MAX_DEV = 8;
 
-constexpr byte REG_OWN_ID      = 0x00;
-constexpr byte REG_CONTROL     = 0x01;
-constexpr byte REG_TIMEO       = 0x02;
-constexpr byte REG_TSECS       = 0x03;
-constexpr byte REG_THEADS      = 0x04;
-constexpr byte REG_TCYL_HI     = 0x05;
-constexpr byte REG_TCYL_LO     = 0x06;
-constexpr byte REG_ADDR_HI     = 0x07;
-constexpr byte REG_ADDR_2      = 0x08;
-constexpr byte REG_ADDR_3      = 0x09;
-constexpr byte REG_ADDR_LO     = 0x0a;
-constexpr byte REG_SECNO       = 0x0b;
-constexpr byte REG_HEADNO      = 0x0c;
-constexpr byte REG_CYLNO_HI    = 0x0d;
-constexpr byte REG_CYLNO_LO    = 0x0e;
-constexpr byte REG_TLUN        = 0x0f;
-constexpr byte REG_CMD_PHASE   = 0x10;
-constexpr byte REG_SYN         = 0x11;
-constexpr byte REG_TCH         = 0x12;
-constexpr byte REG_TCM         = 0x13;
-constexpr byte REG_TCL         = 0x14;
-constexpr byte REG_DST_ID      = 0x15;
-constexpr byte REG_SRC_ID      = 0x16;
-constexpr byte REG_SCSI_STATUS = 0x17; // (r)
-constexpr byte REG_CMD         = 0x18;
-constexpr byte REG_DATA        = 0x19;
-constexpr byte REG_QUEUE_TAG   = 0x1a;
-constexpr byte REG_AUX_STATUS  = 0x1f; // (r)
+constexpr uint8_t REG_OWN_ID      = 0x00;
+constexpr uint8_t REG_CONTROL     = 0x01;
+constexpr uint8_t REG_TIMEO       = 0x02;
+constexpr uint8_t REG_TSECS       = 0x03;
+constexpr uint8_t REG_THEADS      = 0x04;
+constexpr uint8_t REG_TCYL_HI     = 0x05;
+constexpr uint8_t REG_TCYL_LO     = 0x06;
+constexpr uint8_t REG_ADDR_HI     = 0x07;
+constexpr uint8_t REG_ADDR_2      = 0x08;
+constexpr uint8_t REG_ADDR_3      = 0x09;
+constexpr uint8_t REG_ADDR_LO     = 0x0a;
+constexpr uint8_t REG_SECNO       = 0x0b;
+constexpr uint8_t REG_HEADNO      = 0x0c;
+constexpr uint8_t REG_CYLNO_HI    = 0x0d;
+constexpr uint8_t REG_CYLNO_LO    = 0x0e;
+constexpr uint8_t REG_TLUN        = 0x0f;
+constexpr uint8_t REG_CMD_PHASE   = 0x10;
+constexpr uint8_t REG_SYN         = 0x11;
+constexpr uint8_t REG_TCH         = 0x12;
+constexpr uint8_t REG_TCM         = 0x13;
+constexpr uint8_t REG_TCL         = 0x14;
+constexpr uint8_t REG_DST_ID      = 0x15;
+constexpr uint8_t REG_SRC_ID      = 0x16;
+constexpr uint8_t REG_SCSI_STATUS = 0x17; // (r)
+constexpr uint8_t REG_CMD         = 0x18;
+constexpr uint8_t REG_DATA        = 0x19;
+constexpr uint8_t REG_QUEUE_TAG   = 0x1a;
+constexpr uint8_t REG_AUX_STATUS  = 0x1f; // (r)
 
-constexpr byte REG_CDBSIZE     = 0x00;
-constexpr byte REG_CDB1        = 0x03;
-constexpr byte REG_CDB2        = 0x04;
-constexpr byte REG_CDB3        = 0x05;
-constexpr byte REG_CDB4        = 0x06;
-constexpr byte REG_CDB5        = 0x07;
-constexpr byte REG_CDB6        = 0x08;
-constexpr byte REG_CDB7        = 0x09;
-constexpr byte REG_CDB8        = 0x0a;
-constexpr byte REG_CDB9        = 0x0b;
-constexpr byte REG_CDB10       = 0x0c;
-constexpr byte REG_CDB11       = 0x0d;
-constexpr byte REG_CDB12       = 0x0e;
+constexpr uint8_t REG_CDBSIZE     = 0x00;
+constexpr uint8_t REG_CDB1        = 0x03;
+constexpr uint8_t REG_CDB2        = 0x04;
+constexpr uint8_t REG_CDB3        = 0x05;
+constexpr uint8_t REG_CDB4        = 0x06;
+constexpr uint8_t REG_CDB5        = 0x07;
+constexpr uint8_t REG_CDB6        = 0x08;
+constexpr uint8_t REG_CDB7        = 0x09;
+constexpr uint8_t REG_CDB8        = 0x0a;
+constexpr uint8_t REG_CDB9        = 0x0b;
+constexpr uint8_t REG_CDB10       = 0x0c;
+constexpr uint8_t REG_CDB11       = 0x0d;
+constexpr uint8_t REG_CDB12       = 0x0e;
 
-constexpr byte OWN_EAF         = 0x08; // ENABLE ADVANCED FEATURES
+constexpr uint8_t OWN_EAF         = 0x08; // ENABLE ADVANCED FEATURES
 
 // SCSI STATUS
-constexpr byte SS_RESET        = 0x00; // reset
-constexpr byte SS_RESET_ADV    = 0x01; // reset w/adv. features
-constexpr byte SS_XFER_END     = 0x16; // select and transfer complete
-constexpr byte SS_SEL_TIMEOUT  = 0x42; // selection timeout
-constexpr byte SS_DISCONNECT   = 0x85;
+constexpr uint8_t SS_RESET        = 0x00; // reset
+constexpr uint8_t SS_RESET_ADV    = 0x01; // reset w/adv. features
+constexpr uint8_t SS_XFER_END     = 0x16; // select and transfer complete
+constexpr uint8_t SS_SEL_TIMEOUT  = 0x42; // selection timeout
+constexpr uint8_t SS_DISCONNECT   = 0x85;
 
 // AUX STATUS
-constexpr byte AS_DBR          = 0x01; // data buffer ready
-constexpr byte AS_CIP          = 0x10; // command in progress, chip is busy
-constexpr byte AS_BSY          = 0x20; // Level 2 command in progress
-constexpr byte AS_LCI          = 0x40; // last command ignored
-constexpr byte AS_INT          = 0x80;
+constexpr uint8_t AS_DBR          = 0x01; // data buffer ready
+constexpr uint8_t AS_CIP          = 0x10; // command in progress, chip is busy
+constexpr uint8_t AS_BSY          = 0x20; // Level 2 command in progress
+constexpr uint8_t AS_LCI          = 0x40; // last command ignored
+constexpr uint8_t AS_INT          = 0x80;
 
 /* command phase
 0x00    NO_SELECT
@@ -156,7 +156,7 @@ void WD33C93::disconnect()
 	tc = 0;
 }
 
-void WD33C93::execCmd(byte value)
+void WD33C93::execCmd(uint8_t value)
 {
 	if (regs[REG_AUX_STATUS] & AS_CIP) {
 		// CIP error
@@ -205,7 +205,7 @@ void WD33C93::execCmd(byte value)
 			}
 			devBusy = true;
 			counter = dev[targetId]->executeCmd(
-				&regs[REG_CDB1], phase, blockCounter);
+				subspan<12>(regs, REG_CDB1), phase, blockCounter);
 
 			switch (phase) {
 			case SCSI::STATUS:
@@ -242,14 +242,14 @@ void WD33C93::execCmd(byte value)
 	}
 }
 
-void WD33C93::writeAdr(byte value)
+void WD33C93::writeAdr(uint8_t value)
 {
 	latch = value & 0x1f;
 }
 
 // Latch incremented by one each time a register is accessed,
 // except for the address-, aux.status-, data- and command registers.
-void WD33C93::writeCtrl(byte value)
+void WD33C93::writeCtrl(uint8_t value)
 {
 	switch (latch) {
 	case REG_OWN_ID:
@@ -308,9 +308,9 @@ void WD33C93::writeCtrl(byte value)
 	latch = (latch + 1) & 0x1f;
 }
 
-byte WD33C93::readAuxStatus()
+uint8_t WD33C93::readAuxStatus()
 {
-	byte rv = regs[REG_AUX_STATUS];
+	uint8_t rv = regs[REG_AUX_STATUS];
 
 	if (phase == SCSI::EXECUTE) {
 		counter = dev[targetId]->executingCmd(phase, blockCounter);
@@ -335,9 +335,9 @@ byte WD33C93::readAuxStatus()
 
 // Latch incremented by one each time a register is accessed,
 // except for the address-, aux.status-, data- and command registers.
-byte WD33C93::readCtrl()
+uint8_t WD33C93::readCtrl()
 {
-	byte rv;
+	uint8_t rv;
 	switch (latch) {
 	case REG_SCSI_STATUS:
 		rv = regs[REG_SCSI_STATUS];
@@ -399,12 +399,12 @@ byte WD33C93::readCtrl()
 	return rv;
 }
 
-byte WD33C93::peekAuxStatus() const
+uint8_t WD33C93::peekAuxStatus() const
 {
 	return regs[REG_AUX_STATUS];
 }
 
-byte WD33C93::peekCtrl() const
+uint8_t WD33C93::peekCtrl() const
 {
 	switch (latch) {
 	case REG_TCH:

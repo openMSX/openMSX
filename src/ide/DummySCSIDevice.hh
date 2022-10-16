@@ -10,12 +10,12 @@ class DummySCSIDevice final : public SCSIDevice
 public:
 	void reset() override;
 	[[nodiscard]] bool isSelected() override;
-	[[nodiscard]] unsigned executeCmd(const byte* cdb, SCSI::Phase& phase,
+	[[nodiscard]] unsigned executeCmd(std::span<const uint8_t, 12> cdb, SCSI::Phase& phase,
 	                                  unsigned& blocks) override;
 	[[nodiscard]] unsigned executingCmd(SCSI::Phase& phase, unsigned& blocks) override;
-	[[nodiscard]] byte getStatusCode() override;
-	int msgOut(byte value) override;
-	byte msgIn() override;
+	[[nodiscard]] uint8_t getStatusCode() override;
+	int msgOut(uint8_t value) override;
+	uint8_t msgIn() override;
 	void disconnect() override;
 	void busReset() override; // only used in MB89352 controller
 

@@ -12,6 +12,7 @@
 
 #include "HD.hh"
 #include "SCSIDevice.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -33,12 +34,12 @@ private:
 	// SCSI Device
 	void reset() override;
 	bool isSelected() override;
-	[[nodiscard]] unsigned executeCmd(const byte* cdb, SCSI::Phase& phase,
-	                    unsigned& blocks) override;
+	[[nodiscard]] unsigned executeCmd(std::span<const uint8_t, 12> cdb, SCSI::Phase& phase,
+	                                  unsigned& blocks) override;
 	[[nodiscard]] unsigned executingCmd(SCSI::Phase& phase, unsigned& blocks) override;
-	[[nodiscard]] byte getStatusCode() override;
-	int msgOut(byte value) override;
-	byte msgIn() override;
+	[[nodiscard]] uint8_t getStatusCode() override;
+	int msgOut(uint8_t value) override;
+	uint8_t msgIn() override;
 	void disconnect() override;
 	void busReset() override;
 
@@ -64,11 +65,11 @@ private:
 	unsigned currentSector;
 	unsigned currentLength;
 
-	const byte scsiId;     // SCSI ID 0..7
+	const uint8_t scsiId;  // SCSI ID 0..7
 	bool unitAttention;    // Unit Attention (was: reset)
-	byte message;
-	byte lun;
-	byte cdb[12];          // Command Descriptor Block
+	uint8_t message;
+	uint8_t lun;
+	std::array<uint8_t, 12> cdb; // Command Descriptor Block
 };
 
 } // namespace openmsx

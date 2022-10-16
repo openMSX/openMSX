@@ -16,6 +16,7 @@
 #include "DiskContainer.hh"
 #include "MSXMotherBoard.hh"
 #include "File.hh"
+#include <array>
 #include <bitset>
 #include <optional>
 
@@ -73,11 +74,11 @@ private:
 	// SCSI Device
 	void reset() override;
 	[[nodiscard]] bool isSelected() override;
-	[[nodiscard]] unsigned executeCmd(const byte* cdb, SCSI::Phase& phase, unsigned& blocks) override;
+	[[nodiscard]] unsigned executeCmd(std::span<const uint8_t, 12> cdb, SCSI::Phase& phase, unsigned& blocks) override;
 	[[nodiscard]] unsigned executingCmd(SCSI::Phase& phase, unsigned& blocks) override;
-	[[nodiscard]] byte getStatusCode() override;
-	int msgOut(byte value) override;
-	byte msgIn() override;
+	[[nodiscard]] uint8_t getStatusCode() override;
+	int msgOut(uint8_t value) override;
+	uint8_t msgIn() override;
 	void disconnect() override;
 	void busReset() override;
 	[[nodiscard]] unsigned dataIn(unsigned& blocks) override;
@@ -109,12 +110,12 @@ private:
 	unsigned keycode;      // Sense key, ASC, ASCQ
 	unsigned currentSector;
 	unsigned currentLength;
-	const byte scsiId;     // SCSI ID 0..7
+	const uint8_t scsiId;  // SCSI ID 0..7
 	bool unitAttention;    // Unit Attention (was: reset)
 	bool mediaChanged;     // Enhanced change flag for MEGA-SCSI driver
-	byte message;
-	byte lun;
-	byte cdb[12];          // Command Descriptor Block
+	uint8_t message;
+	uint8_t lun;
+	std::array<uint8_t, 12> cdb; // Command Descriptor Block
 
 	static constexpr unsigned MAX_LS = 26;
 	using LSInUse = std::bitset<MAX_LS>;

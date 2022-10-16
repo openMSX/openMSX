@@ -37,19 +37,19 @@ using std::string;
 namespace openmsx {
 
 // Medium type (value like LS-120)
-constexpr byte MT_UNKNOWN   = 0x00;
-constexpr byte MT_2DD_UN    = 0x10;
-constexpr byte MT_2DD       = 0x11;
-constexpr byte MT_2HD_UN    = 0x20;
-constexpr byte MT_2HD_12_98 = 0x22;
-constexpr byte MT_2HD_12    = 0x23;
-constexpr byte MT_2HD_144   = 0x24;
-constexpr byte MT_LS120     = 0x31;
-constexpr byte MT_NO_DISK   = 0x70;
-constexpr byte MT_DOOR_OPEN = 0x71;
-constexpr byte MT_FMT_ERROR = 0x72;
+constexpr uint8_t MT_UNKNOWN   = 0x00;
+constexpr uint8_t MT_2DD_UN    = 0x10;
+constexpr uint8_t MT_2DD       = 0x11;
+constexpr uint8_t MT_2HD_UN    = 0x20;
+constexpr uint8_t MT_2HD_12_98 = 0x22;
+constexpr uint8_t MT_2HD_12    = 0x23;
+constexpr uint8_t MT_2HD_144   = 0x24;
+constexpr uint8_t MT_LS120     = 0x31;
+constexpr uint8_t MT_NO_DISK   = 0x70;
+constexpr uint8_t MT_DOOR_OPEN = 0x71;
+constexpr uint8_t MT_FMT_ERROR = 0x72;
 
-constexpr byte inqData[36] = {
+constexpr uint8_t inqData[36] = {
 	  0,   // bit5-0 device type code.
 	  0,   // bit7 = 1 removable device
 	  2,   // bit7,6 ISO version. bit5,4,3 ECMA version.
@@ -151,16 +151,16 @@ unsigned SCSIHD::inquiry()
 
 unsigned SCSIHD::modeSense()
 {
-	byte* pBuffer = buffer;
+	uint8_t* pBuffer = buffer;
 	if ((currentLength > 0) && (cdb[2] == 3)) {
 		// TODO check for too many sectors
 		auto total       = unsigned(getNbSectors());
-		byte media       = MT_UNKNOWN;
-		byte sectors     = 64;
-		byte blockLength = SECTOR_SIZE >> 8;
-		byte tracks      = 8;
-		byte size        = 4 + 24;
-		byte removable   = 0x80; // == not removable
+		uint8_t media       = MT_UNKNOWN;
+		uint8_t sectors     = 64;
+		uint8_t blockLength = SECTOR_SIZE >> 8;
+		uint8_t tracks      = 8;
+		uint8_t size        = 4 + 24;
+		uint8_t removable   = 0x80; // == not removable
 
 		memset(pBuffer + 2, 0, 34);
 
@@ -354,14 +354,14 @@ void SCSIHD::formatUnit()
 	}
 }
 
-byte SCSIHD::getStatusCode()
+uint8_t SCSIHD::getStatusCode()
 {
 	return keycode ? SCSI::ST_CHECK_CONDITION : SCSI::ST_GOOD;
 }
 
-unsigned SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& blocks)
+unsigned SCSIHD::executeCmd(std::span<const uint8_t, 12> cdb_, SCSI::Phase& phase, unsigned& blocks)
 {
-	ranges::copy(std::span{cdb_, sizeof(cdb)}, std::begin(cdb)); // TODO simplify
+	ranges::copy(cdb_, cdb);
 	message = 0;
 	phase = SCSI::STATUS;
 	blocks = 0;
@@ -522,9 +522,9 @@ unsigned SCSIHD::executingCmd(SCSI::Phase& phase, unsigned& blocks)
 	return 0; // Always for non-CD-ROM it seems
 }
 
-byte SCSIHD::msgIn()
+uint8_t SCSIHD::msgIn()
 {
-	byte result = message;
+	uint8_t result = message;
 	message = 0;
 	return result;
 }
@@ -538,7 +538,7 @@ Notes:
 	bit1: Make it to a busfree if ATN has not been released.
 	bit0: There is a message(MsgIn).
 */
-int SCSIHD::msgOut(byte value)
+int SCSIHD::msgOut(uint8_t value)
 {
 	if (value & 0x80) {
 		lun = value & 7;

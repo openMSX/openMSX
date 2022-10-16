@@ -14,6 +14,7 @@
 #include "SCSI.hh"
 #include "SCSIDevice.hh"
 #include "AlignedBuffer.hh"
+#include <array>
 #include <memory>
 
 namespace openmsx {
@@ -25,13 +26,13 @@ class MB89352
 public:
 	explicit MB89352(const DeviceConfig& config);
 
-	void reset(bool scsireset);
-	[[nodiscard]] byte readRegister(byte reg);
-	[[nodiscard]] byte peekRegister(byte reg) const;
-	[[nodiscard]] byte readDREG();
-	[[nodiscard]] byte peekDREG() const;
-	void writeRegister(byte reg, byte value);
-	void writeDREG(byte value);
+	void reset(bool scsiReset);
+	[[nodiscard]] uint8_t readRegister(uint8_t reg);
+	[[nodiscard]] uint8_t peekRegister(uint8_t reg) const;
+	[[nodiscard]] uint8_t readDREG();
+	[[nodiscard]] uint8_t peekDREG() const;
+	void writeRegister(uint8_t reg, uint8_t value);
+	void writeDREG(uint8_t value);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -39,9 +40,9 @@ public:
 private:
 	void disconnect();
 	void softReset();
-	void setACKREQ(byte& value);
+	void setACKREQ(uint8_t& value);
 	void resetACKREQ();
-	[[nodiscard]] byte getSSTS() const;
+	[[nodiscard]] uint8_t getSSTS() const;
 
 private:
 	static constexpr unsigned MAX_DEV = 8;
@@ -58,16 +59,16 @@ private:
 	int tc;                         // counter for hardware transfer
 	SCSI::Phase phase;              //
 	SCSI::Phase nextPhase;          // for message system
-	byte myId;                      // SPC SCSI ID 0..7
-	byte targetId;                  // SCSI Device target ID 0..7
-	byte regs[16];                  // SPC register
+	uint8_t myId;                   // SPC SCSI ID 0..7
+	uint8_t targetId;               // SCSI Device target ID 0..7
+	std::array<uint8_t, 16> regs;   // SPC register
 	bool rst;                       // SCSI bus reset signal
-	byte atn;                       // SCSI bus attention signal
+	uint8_t atn;                    // SCSI bus attention signal
 	bool isEnabled;                 // spc enable flag
 	bool isBusy;                    // spc now working
 	bool isTransfer;                // hardware transfer mode
 	//TODO: bool devBusy;           // CD-ROM busy (buffer conflict prevention)
-	byte cdb[12];                   // Command Descripter Block
+	std::array<uint8_t, 12> cdb;    // Command Descriptor Block
 };
 
 } // namespace openmsx

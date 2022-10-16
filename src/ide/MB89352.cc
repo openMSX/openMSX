@@ -28,63 +28,63 @@
 
 namespace openmsx {
 
-constexpr byte REG_BDID =  0;   // Bus Device ID        (r/w)
-constexpr byte REG_SCTL =  1;   // Spc Control          (r/w)
-constexpr byte REG_SCMD =  2;   // Command              (r/w)
-constexpr byte REG_OPEN =  3;   //                      (open)
-constexpr byte REG_INTS =  4;   // Interrupt Sense      (r/w)
-constexpr byte REG_PSNS =  5;   // Phase Sense          (r)
-constexpr byte REG_SDGC =  5;   // SPC Diag. Control    (w)
-constexpr byte REG_SSTS =  6;   // SPC SCSI::STATUS           (r)
-constexpr byte REG_SERR =  7;   // SPC Error SCSI::STATUS     (r/w?)
-constexpr byte REG_PCTL =  8;   // Phase Control        (r/w)
-constexpr byte REG_MBC  =  9;   // Modified Byte Counter(r)
-constexpr byte REG_DREG = 10;   // Data Register        (r/w)
-constexpr byte REG_TEMP = 11;   // Temporary Register   (r/w)
-                                // Another value is maintained respec-
-                                // tively for writing and for reading
-constexpr byte REG_TCH  = 12;   // Transfer Counter High(r/w)
-constexpr byte REG_TCM  = 13;   // Transfer Counter Mid (r/w)
-constexpr byte REG_TCL  = 14;   // Transfer Counter Low (r/w)
+constexpr uint8_t REG_BDID =  0;   // Bus Device ID        (r/w)
+constexpr uint8_t REG_SCTL =  1;   // Spc Control          (r/w)
+constexpr uint8_t REG_SCMD =  2;   // Command              (r/w)
+constexpr uint8_t REG_OPEN =  3;   //                      (open)
+constexpr uint8_t REG_INTS =  4;   // Interrupt Sense      (r/w)
+constexpr uint8_t REG_PSNS =  5;   // Phase Sense          (r)
+constexpr uint8_t REG_SDGC =  5;   // SPC Diag. Control    (w)
+constexpr uint8_t REG_SSTS =  6;   // SPC SCSI::STATUS           (r)
+constexpr uint8_t REG_SERR =  7;   // SPC Error SCSI::STATUS     (r/w?)
+constexpr uint8_t REG_PCTL =  8;   // Phase Control        (r/w)
+constexpr uint8_t REG_MBC  =  9;   // Modified Byte Counter(r)
+constexpr uint8_t REG_DREG = 10;   // Data Register        (r/w)
+constexpr uint8_t REG_TEMP = 11;   // Temporary Register   (r/w)
+                                   // Another value is maintained respec-
+                                   // tively for writing and for reading
+constexpr uint8_t REG_TCH  = 12;   // Transfer Counter High(r/w)
+constexpr uint8_t REG_TCM  = 13;   // Transfer Counter Mid (r/w)
+constexpr uint8_t REG_TCL  = 14;   // Transfer Counter Low (r/w)
 
-constexpr byte REG_TEMPWR = 13; // (TEMP register preservation place for writing)
-constexpr byte FIX_PCTL   = 14; // (REG_PCTL & 7)
+constexpr uint8_t REG_TEMPWR = 13; // (TEMP register preservation place for writing)
+constexpr uint8_t FIX_PCTL   = 14; // (REG_PCTL & 7)
 
-constexpr byte PSNS_IO  = 0x01;
-constexpr byte PSNS_CD  = 0x02;
-constexpr byte PSNS_MSG = 0x04;
-constexpr byte PSNS_BSY = 0x08;
-constexpr byte PSNS_SEL = 0x10;
-constexpr byte PSNS_ATN = 0x20;
-constexpr byte PSNS_ACK = 0x40;
-constexpr byte PSNS_REQ = 0x80;
+constexpr uint8_t PSNS_IO  = 0x01;
+constexpr uint8_t PSNS_CD  = 0x02;
+constexpr uint8_t PSNS_MSG = 0x04;
+constexpr uint8_t PSNS_BSY = 0x08;
+constexpr uint8_t PSNS_SEL = 0x10;
+constexpr uint8_t PSNS_ATN = 0x20;
+constexpr uint8_t PSNS_ACK = 0x40;
+constexpr uint8_t PSNS_REQ = 0x80;
 
-constexpr byte PSNS_SELECTION = PSNS_SEL;
-constexpr byte PSNS_COMMAND   = PSNS_CD;
-constexpr byte PSNS_DATAIN    = PSNS_IO;
-constexpr byte PSNS_DATAOUT   = 0;
-constexpr byte PSNS_STATUS    = PSNS_CD  | PSNS_IO;
-constexpr byte PSNS_MSGIN     = PSNS_MSG | PSNS_CD | PSNS_IO;
-constexpr byte PSNS_MSGOUT    = PSNS_MSG | PSNS_CD;
+constexpr uint8_t PSNS_SELECTION = PSNS_SEL;
+constexpr uint8_t PSNS_COMMAND   = PSNS_CD;
+constexpr uint8_t PSNS_DATAIN    = PSNS_IO;
+constexpr uint8_t PSNS_DATAOUT   = 0;
+constexpr uint8_t PSNS_STATUS    = PSNS_CD  | PSNS_IO;
+constexpr uint8_t PSNS_MSGIN     = PSNS_MSG | PSNS_CD | PSNS_IO;
+constexpr uint8_t PSNS_MSGOUT    = PSNS_MSG | PSNS_CD;
 
-constexpr byte INTS_ResetCondition  = 0x01;
-constexpr byte INTS_SPC_HardError   = 0x02;
-constexpr byte INTS_TimeOut         = 0x04;
-constexpr byte INTS_ServiceRequited = 0x08;
-constexpr byte INTS_CommandComplete = 0x10;
-constexpr byte INTS_Disconnected    = 0x20;
-constexpr byte INTS_ReSelected      = 0x40;
-constexpr byte INTS_Selected        = 0x80;
+constexpr uint8_t INTS_ResetCondition  = 0x01;
+constexpr uint8_t INTS_SPC_HardError   = 0x02;
+constexpr uint8_t INTS_TimeOut         = 0x04;
+constexpr uint8_t INTS_ServiceRequited = 0x08;
+constexpr uint8_t INTS_CommandComplete = 0x10;
+constexpr uint8_t INTS_Disconnected    = 0x20;
+constexpr uint8_t INTS_ReSelected      = 0x40;
+constexpr uint8_t INTS_Selected        = 0x80;
 
-constexpr byte CMD_BusRelease    = 0x00;
-constexpr byte CMD_Select        = 0x20;
-constexpr byte CMD_ResetATN      = 0x40;
-constexpr byte CMD_SetATN        = 0x60;
-constexpr byte CMD_Transfer      = 0x80;
-constexpr byte CMD_TransferPause = 0xA0;
-constexpr byte CMD_Reset_ACK_REQ = 0xC0;
-constexpr byte CMD_Set_ACK_REQ   = 0xE0;
-constexpr byte CMD_MASK          = 0xE0;
+constexpr uint8_t CMD_BusRelease    = 0x00;
+constexpr uint8_t CMD_Select        = 0x20;
+constexpr uint8_t CMD_ResetATN      = 0x40;
+constexpr uint8_t CMD_SetATN        = 0x60;
+constexpr uint8_t CMD_Transfer      = 0x80;
+constexpr uint8_t CMD_TransferPause = 0xA0;
+constexpr uint8_t CMD_Reset_ACK_REQ = 0xC0;
+constexpr uint8_t CMD_Set_ACK_REQ   = 0xE0;
+constexpr uint8_t CMD_MASK          = 0xE0;
 
 MB89352::MB89352(const DeviceConfig& config)
 {
@@ -179,7 +179,7 @@ void MB89352::reset(bool scsireset)
 	}
 }
 
-void MB89352::setACKREQ(byte& value)
+void MB89352::setACKREQ(uint8_t& value)
 {
 	// REQ check
 	if ((regs[REG_PSNS] & (PSNS_REQ | PSNS_BSY)) != (PSNS_REQ | PSNS_BSY)) {
@@ -401,7 +401,7 @@ void MB89352::resetACKREQ()
 	}
 }
 
-byte MB89352::readDREG()
+uint8_t MB89352::readDREG()
 {
 	if (isTransfer && (tc > 0)) {
 		setACKREQ(regs[REG_DREG]);
@@ -419,7 +419,7 @@ byte MB89352::readDREG()
 	}
 }
 
-void MB89352::writeDREG(byte value)
+void MB89352::writeDREG(uint8_t value)
 {
 	if (isTransfer && (tc > 0)) {
 		setACKREQ(value);
@@ -434,7 +434,7 @@ void MB89352::writeDREG(byte value)
 	}
 }
 
-void MB89352::writeRegister(byte reg, byte value)
+void MB89352::writeRegister(uint8_t reg, uint8_t value)
 {
 	switch (reg) {
 	case REG_DREG: // write data Register
@@ -625,9 +625,9 @@ void MB89352::writeRegister(byte reg, byte value)
 	}
 }
 
-byte MB89352::getSSTS() const
+uint8_t MB89352::getSSTS() const
 {
-	byte result = 1; // set fifo empty
+	uint8_t result = 1; // set fifo empty
 	if (isTransfer) {
 		if (regs[REG_PSNS] & PSNS_IO) { // SCSI -> SPC transfer
 			if (tc >= 8) {
@@ -657,7 +657,7 @@ byte MB89352::getSSTS() const
 	return result;
 }
 
-byte MB89352::readRegister(byte reg)
+uint8_t MB89352::readRegister(uint8_t reg)
 {
 	switch (reg) {
 	case REG_DREG:
@@ -697,7 +697,7 @@ byte MB89352::readRegister(byte reg)
 	}
 }
 
-byte MB89352::peekDREG() const
+uint8_t MB89352::peekDREG() const
 {
 	if (isTransfer && (tc > 0)) {
 		return regs[REG_DREG];
@@ -706,7 +706,7 @@ byte MB89352::peekDREG() const
 	}
 }
 
-byte MB89352::peekRegister(byte reg) const
+uint8_t MB89352::peekRegister(uint8_t reg) const
 {
 	switch (reg) {
 	case REG_DREG:

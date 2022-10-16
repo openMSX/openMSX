@@ -27,19 +27,19 @@ public:
 
 	void reset(bool scsireset);
 
-	[[nodiscard]] byte readAuxStatus();
-	[[nodiscard]] byte readCtrl();
-	[[nodiscard]] byte peekAuxStatus() const;
-	[[nodiscard]] byte peekCtrl() const;
-	void writeAdr(byte value);
-	void writeCtrl(byte value);
+	[[nodiscard]] uint8_t readAuxStatus();
+	[[nodiscard]] uint8_t readCtrl();
+	[[nodiscard]] uint8_t peekAuxStatus() const;
+	[[nodiscard]] uint8_t peekCtrl() const;
+	void writeAdr(uint8_t value);
+	void writeCtrl(uint8_t value);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
 	void disconnect();
-	void execCmd(byte value);
+	void execCmd(uint8_t value);
 
 private:
 	AlignedByteArray<SCSIDevice::BUFFER_SIZE> buffer;
@@ -49,10 +49,10 @@ private:
 	unsigned blockCounter;
 	int tc;
 	SCSI::Phase phase;
-	byte myId;
-	byte targetId;
-	byte regs[32];
-	byte latch;
+	uint8_t myId;
+	uint8_t targetId;
+	uint8_t regs[32];
+	uint8_t latch;
 	bool devBusy;
 };
 

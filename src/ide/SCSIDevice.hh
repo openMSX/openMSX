@@ -2,6 +2,7 @@
 #define SCSIDEVICE_HH
 
 #include "SCSI.hh"
+#include <span>
 
 namespace openmsx {
 
@@ -26,12 +27,12 @@ public:
 
 	virtual void reset() = 0;
 	virtual bool isSelected() = 0;
-	[[nodiscard]] virtual unsigned executeCmd(const byte* cdb, SCSI::Phase& phase,
-	                            unsigned& blocks) = 0;
+	[[nodiscard]] virtual unsigned executeCmd(std::span<const uint8_t, 12> cdb, SCSI::Phase& phase,
+	                                          unsigned& blocks) = 0;
 	[[nodiscard]] virtual unsigned executingCmd(SCSI::Phase& phase, unsigned& blocks) = 0;
-	[[nodiscard]] virtual byte getStatusCode() = 0;
-	virtual int msgOut(byte value) = 0;
-	virtual byte msgIn() = 0;
+	[[nodiscard]] virtual uint8_t getStatusCode() = 0;
+	virtual int msgOut(uint8_t value) = 0;
+	virtual uint8_t msgIn() = 0;
 	virtual void disconnect() = 0;
 	virtual void busReset() = 0; // only used in MB89352 controller
 
