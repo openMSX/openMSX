@@ -12,6 +12,7 @@
 #include "stl.hh"
 #include "view.hh"
 #include "xxhash.hh"
+#include <array>
 #include <cassert>
 #include <string_view>
 
@@ -503,14 +504,14 @@ void DBParser::stop()
 		std::array<char, 8 + 4> buf;
 		if (small_compare<"Mirrored">(t)) {
 			if (const char* s = parseStart(startVal)) {
-				auto p = ranges::copy(t, buf);
-				ranges::copy(std::string_view(s, 4), p);
+				ranges::copy(t,                      subspan<8>(buf, 0));
+				ranges::copy(std::string_view(s, 4), subspan<4>(buf, 8));
 				t = string_view(buf.data(), 8 + 4);
 			}
 		} else if (small_compare<"Normal">(t)) {
 			if (const char* s = parseStart(startVal)) {
-				auto p = ranges::copy(t, buf);
-				ranges::copy(std::string_view(s, 4), p);
+				ranges::copy(t,                      subspan<6>(buf, 0));
+				ranges::copy(std::string_view(s, 4), subspan<4>(buf, 6));
 				t = string_view(buf.data(), 6 + 4);
 			}
 		}
