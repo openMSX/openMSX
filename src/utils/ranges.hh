@@ -171,7 +171,14 @@ template<typename InputRange, typename T, typename Proj>
 template<typename InputRange, typename UnaryPredicate>
 [[nodiscard]] auto find_if(InputRange&& range, UnaryPredicate pred)
 {
-	return std::find_if(std::begin(range), std::end(range), pred);
+	auto it = std::begin(range);
+	auto et = std::end(range);
+	for (/**/; it != et; ++it) {
+		if (std::invoke(pred, *it)) {
+			return it;
+		}
+	}
+	return it;
 }
 
 template<typename InputRange, typename UnaryPredicate>
@@ -327,6 +334,61 @@ auto set_difference(InputRange1&& range1, InputRange2&& range2, OutputIter out)
 	return std::set_difference(std::begin(range1), std::end(range1),
 	                           std::begin(range2), std::end(range2),
 	                           out);
+}
+
+template<range InputRange1, range InputRange2,
+         typename Pred = std::equal_to<void>,
+         typename Proj1 = std::identity, typename Proj2 = std::identity>
+bool equal(InputRange1&& range1, InputRange2&& range2, Pred pred = {},
+           Proj1 proj1 = {}, Proj2 proj2 = {})
+{
+	auto it1 = std::begin(range1);
+	auto it2 = std::begin(range2);
+	auto et1 = std::end(range1);
+	auto et2 = std::end(range2);
+	for (/**/; (it1 != et1) && (it2 != et2); ++it1, ++it2) {
+		if (!std::invoke(pred, std::invoke(proj1, *it1), std::invoke(proj2, *it2))) {
+			return false;
+		}
+	}
+	return (it1 == et1) && (it2 == et2);
+}
+
+template<sized_range SizedRange1, sized_range SizedRange2,
+         typename Pred = std::equal_to<void>,
+         typename Proj1 = std::identity, typename Proj2 = std::identity>
+bool equal(SizedRange1&& range1, SizedRange2&& range2, Pred pred = {},
+           Proj1 proj1 = {}, Proj2 proj2 = {})
+{
+	if (std::size(range1) != std::size(range2)) return false;
+
+	auto it1 = std::begin(range1);
+	auto it2 = std::begin(range2);
+	auto et1 = std::end(range1);
+	for (/**/; it1 != et1; ++it1, ++it2) {
+		if (!std::invoke(pred, std::invoke(proj1, *it1), std::invoke(proj2, *it2))) {
+			return false;
+		}
+	}
+	return true;
+}
+
+// Test whether all elements in the given range are equal to each other (after
+// applying a projection).
+template<typename InputRange, typename Proj = std::identity>
+bool all_equal(InputRange&& range, Proj proj = {})
+{
+	auto it = std::begin(range);
+	auto et = std::end(range);
+	if (it == et) return true;
+
+	auto val = std::invoke(proj, *it);
+	for (++it; it != et; ++it) {
+		if (std::invoke(proj, *it) != val) {
+			return false;
+		}
+	}
+	return true;
 }
 
 } // namespace ranges

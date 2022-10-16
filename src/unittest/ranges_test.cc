@@ -1,6 +1,7 @@
 #include "catch.hpp"
 #include "ranges.hh"
 #include "stl.hh"
+#include "view.hh"
 #include <array>
 #include <span>
 #include <string>
@@ -51,6 +52,113 @@ TEST_CASE("ranges::copy")
 		ranges::copy(a, buffer2);
 		CHECK(to_vector(buffer2) == std::vector{1, 2, 3, 4, 5, 0, 0, 0, 0, 0});
 	}
+}
+
+TEST_CASE("ranges::equal")
+{
+	auto always_equal = [](const auto&, const auto&) { return true; };
+
+	SECTION("sized ranges") {
+		std::array  a3 = {1, 2, 3};
+		std::vector v3 = {1, 2, 3};
+		std::array  a4 = {2, 4, 6, 8};
+		std::vector v4 = {1, 2, 3, 4};
+
+		CHECK( ranges::equal(a3, a3));
+		CHECK( ranges::equal(a3, v3));
+		CHECK(!ranges::equal(a3, a4));
+		CHECK(!ranges::equal(a3, v4));
+
+		CHECK( ranges::equal(v3, v3));
+		CHECK( ranges::equal(v3, v3));
+		CHECK(!ranges::equal(v3, a4));
+		CHECK(!ranges::equal(v3, v4));
+
+		CHECK(!ranges::equal(a4, v3));
+		CHECK(!ranges::equal(a4, v3));
+		CHECK( ranges::equal(a4, a4));
+		CHECK(!ranges::equal(a4, v4));
+
+		CHECK(!ranges::equal(v4, v3));
+		CHECK(!ranges::equal(v4, v3));
+		CHECK(!ranges::equal(v4, a4));
+		CHECK( ranges::equal(v4, v4));
+
+		CHECK( ranges::equal(a4, v4, always_equal));
+		CHECK(!ranges::equal(a3, a4, always_equal)); // size is different
+
+		auto mul2 = [](const auto& e) { return e * 2; };
+		auto div2 = [](const auto& e) { return e / 2; };
+		CHECK( ranges::equal(a4, v4, {}, div2));
+		CHECK( ranges::equal(a4, v4, {}, {}, mul2));
+		CHECK(!ranges::equal(a4, v4, {}, div2, mul2));
+		CHECK( ranges::equal(a4, v4, always_equal, div2, mul2));
+		CHECK(!ranges::equal(a4, v3, always_equal, div2, mul2)); // size is different
+	}
+	SECTION("non-sized ranges") {
+		std::array a2 = {2, 4};
+		std::array a3 = {1, 3, 5};
+		std::array a4 = {1, 3, 5, 7};
+		std::array a5 = {1, 2, 3, 4, 5};
+		auto is_even = [](const auto& e) { return (e & 1) == 0; };
+		auto is_odd  = [](const auto& e) { return (e & 1) == 1; };
+		auto ve = view::filter(a5, is_even);
+		auto vo = view::filter(a5, is_odd);
+		// The size of a "view::filter" is only known after the filter
+		// has been applied. This makes "view::filter" a non-size range.
+
+		CHECK( ranges::equal(ve, a2));
+		CHECK(!ranges::equal(ve, a3));
+		CHECK(!ranges::equal(ve, a4));
+		CHECK(!ranges::equal(ve, vo));
+		CHECK( ranges::equal(ve, ve));
+
+		CHECK(!ranges::equal(vo, a2));
+		CHECK( ranges::equal(vo, a3));
+		CHECK(!ranges::equal(vo, a4)); // front matches, but a4 is longer
+		CHECK( ranges::equal(vo, vo));
+		CHECK(!ranges::equal(vo, ve));
+
+		std::array b3 = {9, 9, 9};
+		CHECK(!ranges::equal(ve, b3, always_equal)); // different size
+		CHECK( ranges::equal(vo, b3, always_equal));
+		CHECK(!ranges::equal(b3, ve, always_equal)); // different size
+		CHECK( ranges::equal(b3, vo, always_equal));
+
+		struct S {
+			int x, y;
+		};
+		std::array ss = {S{9, 1}, S{9, 3}, S{9, 5}};
+		CHECK(!ranges::equal(vo, ss, {}, {}, &S::x));
+		CHECK( ranges::equal(vo, ss, {}, {}, &S::y));
+		CHECK(!ranges::equal(ss, vo, {}, &S::x));
+		CHECK( ranges::equal(ss, vo, {}, &S::y));
+	}
+}
+
+TEST_CASE("ranges::all_equal")
+{
+	std::array<int, 0> a = {};
+	std::array b = {3};
+	std::array c = {3, 3};
+	std::array d = {3, 3, 3};
+	std::array e = {1, 3, 3};
+	std::array f = {3, 1, 3};
+	std::array g = {3, 3, 1};
+	CHECK( ranges::all_equal(a));
+	CHECK( ranges::all_equal(b));
+	CHECK( ranges::all_equal(c));
+	CHECK( ranges::all_equal(d));
+	CHECK(!ranges::all_equal(e));
+	CHECK(!ranges::all_equal(f));
+	CHECK(!ranges::all_equal(g));
+
+	struct S {
+		int x, y;
+	};
+	std::array s = {S{9, 1}, S{9, 3}, S{9, 5}, S{9, 7}};
+	CHECK( ranges::all_equal(s, &S::x));
+	CHECK(!ranges::all_equal(s, &S::y));
 }
 
 TEST_CASE("binary_find")
