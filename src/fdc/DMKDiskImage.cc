@@ -6,6 +6,7 @@
 #include "one_of.hh"
 #include "ranges.hh"
 #include "xrange.hh"
+#include <array>
 #include <cassert>
 
 namespace openmsx {
@@ -14,10 +15,10 @@ struct DmkHeader
 {
 	uint8_t writeProtected;
 	uint8_t numTracks;
-	uint8_t trackLen[2];
+	std::array<uint8_t, 2> trackLen;
 	uint8_t flags;
-	uint8_t reserved[7];
-	uint8_t format[4];
+	std::array<uint8_t, 7> reserved;
+	std::array<uint8_t, 4> format;
 };
 static_assert(sizeof(DmkHeader) == 16);
 
