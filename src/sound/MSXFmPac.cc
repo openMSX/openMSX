@@ -4,12 +4,12 @@
 
 namespace openmsx {
 
-constexpr const char* const PAC_Header = "PAC2 BACKUP DATA";
+static constexpr const char* const PAC_Header = "PAC2 BACKUP DATA";
 
 MSXFmPac::MSXFmPac(const DeviceConfig& config)
 	: MSXMusicBase(config)
 	, sram(getName() + " SRAM", 0x1FFE, config, PAC_Header)
-	, romBlockDebug(*this, &bank, 0x4000, 0x4000, 14)
+	, romBlockDebug(*this, std::span{&bank, 1}, 0x4000, 0x4000, 14)
 {
 	reset(getCurrentTime());
 }

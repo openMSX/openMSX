@@ -10,7 +10,7 @@ namespace openmsx {
 
 RomDooly::RomDooly(const DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
-	, romBlockDebug(*this, &conversion, 0x4000, 0x8000, 15)
+	, romBlockDebug(*this, std::span{&conversion, 1}, 0x4000, 0x8000, 15)
 	, conversion(0)
 {
 }
