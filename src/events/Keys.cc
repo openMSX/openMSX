@@ -27,6 +27,10 @@ struct CmpKeys {
 		StringOp::caseless cmp;
 		return cmp(x.first, y);
 	}
+	[[nodiscard]] bool operator()(string_view x, const P& y) const {
+		StringOp::caseless cmp;
+		return cmp(x, y.first);
+	}
 };
 
 #ifdef _MSC_VER
@@ -332,12 +336,11 @@ KeyCode getCode(string_view name)
 		auto part = (pos != string_view::npos)
 		          ? name.substr(lastPos, pos)
 		          : name.substr(lastPos);
-		auto it = ranges::lower_bound(keys, part, CmpKeys());
-		StringOp::casecmp cmp;
-		if ((it == std::end(keys)) || !cmp(it->first, part)) {
+		auto k = binary_find(keys, part, CmpKeys{});
+		if (!k) {
 			return K_NONE;
 		}
-		KeyCode partCode = it->second;
+		KeyCode partCode = k->second;
 		if ((partCode & K_MASK) && (result & K_MASK)) {
 			// more than one non-modifier component
 			// is not allowed

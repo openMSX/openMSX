@@ -334,9 +334,8 @@ void Interpreter::unregisterSetting(BaseSetting& variable)
 
 static BaseSetting* getTraceSetting(uintptr_t traceID)
 {
-	auto it = ranges::lower_bound(traces, traceID, {}, &Trace::id);
-	return ((it != end(traces)) && (it->id == traceID))
-		? it->setting : nullptr;
+	auto t = binary_find(traces, traceID, {}, &Trace::id);
+	return t ? t->setting : nullptr;
 }
 
 #ifndef NDEBUG

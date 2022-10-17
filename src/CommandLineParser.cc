@@ -91,12 +91,11 @@ void CommandLineParser::registerFileType(
 bool CommandLineParser::parseOption(
 	const string& arg, std::span<string>& cmdLine, ParsePhase phase)
 {
-	if (auto it = ranges::lower_bound(options, arg, {}, &OptionData::name);
-	    (it != end(options)) && (it->name == arg)) {
+	if (auto o = binary_find(options, arg, {}, &OptionData::name)) {
 		// parse option
-		if (it->phase <= phase) {
+		if (o->phase <= phase) {
 			try {
-				it->option->parseOption(arg, cmdLine);
+				o->option->parseOption(arg, cmdLine);
 				return true;
 			} catch (MSXException& e) {
 				throw FatalError(std::move(e).getMessage());
@@ -129,13 +128,9 @@ CLIFileType* CommandLineParser::getFileTypeHandlerForFileName(string_view filena
 		}
 		extension.remove_prefix(1);
 
-		auto it = ranges::lower_bound(fileTypes, extension, StringOp::caseless{},
-		                              &FileTypeData::extension);
-		StringOp::casecmp cmp;
-		if ((it == end(fileTypes)) || !cmp(it->extension, extension)) {
-			return nullptr; // unknown extension
-		}
-		return it->fileType;
+		auto f = binary_find(fileTypes, extension, StringOp::caseless{},
+		                     &FileTypeData::extension);
+		return f ? f->fileType : nullptr;
 	};
 
 	// First try the fileName as we get it from the commandline. This may
@@ -249,9 +244,8 @@ void CommandLineParser::parse(int argc, char** argv)
 					    !parseFileName(arg, cmdLine)) {
 						// no option or known file
 						backupCmdLine.push_back(arg);
-						if (auto it = ranges::lower_bound(options, arg, {}, &OptionData::name);
-						    (it != end(options)) && (it->name == arg)) {
-							for (unsigned i = 0; i < it->length - 1; ++i) {
+						if (auto o = binary_find(options, arg, {}, &OptionData::name)) {
+							for (unsigned i = 0; i < o->length - 1; ++i) {
 								if (cmdLine.empty()) break;
 								backupCmdLine.push_back(std::move(cmdLine.front()));
 								cmdLine = cmdLine.subspan(1);

@@ -308,4 +308,28 @@ auto set_difference(InputRange1&& range1, InputRange2&& range2, OutputIter out)
 
 } // namespace ranges
 
+// Perform a binary-search in a sorted range.
+// The given 'range' must be sorted according to 'comp'.
+// We search for 'value' after applying 'proj' to the elements in the range.
+// Returns a pointer to the element in 'range', or nullptr if not found.
+//
+// This helper function is typically used to simplify code like:
+//     auto it = ranges::lower_bound(myMap, name, {}, &Element::name);
+//     if ((it != myMap.end()) && (it->name == name)) {
+//         ... use *it
+//     }
+// Note that this code needs to check both for the end-iterator and that the
+// element was actually found. By using binary_find() this complexity is hidden:
+//     if (auto m = binary_find(myMap, name, {}, &Element::name)) {
+//         ... use *m
+//     }
+template<typename ForwardRange, typename T, typename Compare = std::less<>, typename Proj = std::identity>
+[[nodiscard]] auto* binary_find(ForwardRange&& range, const T& value, Compare comp = {}, Proj proj = {})
+{
+	auto it = ranges::lower_bound(range, value, comp, proj);
+	return ((it != std::end(range)) && (!std::invoke(comp, value, std::invoke(proj, *it))))
+	       ? &*it
+	       : nullptr;
+}
+
 #endif

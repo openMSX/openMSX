@@ -970,9 +970,8 @@ bool OggReader::stopFrame(size_t frame) const
 
 size_t OggReader::getChapter(int chapterNo) const
 {
-	auto it = ranges::lower_bound(chapters, chapterNo, {}, &ChapterFrame::chapter);
-	return ((it != end(chapters)) && (it->chapter == chapterNo))
-		? it->frame : 0;
+	auto c = binary_find(chapters, chapterNo, {}, &ChapterFrame::chapter);
+	return c ? c->frame : 0;
 }
 
 } // namespace openmsx

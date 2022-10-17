@@ -33,13 +33,13 @@ void PolymorphicSaverRegistry<Archive>::save(
 		reg.initialized = true;
 		ranges::sort(reg.saverMap, {}, &Entry::index);
 	}
-	auto it = ranges::lower_bound(reg.saverMap, typeInfo, {}, &Entry::index);
-	if ((it == end(reg.saverMap)) || (it->index != typeInfo)) {
+	auto s = binary_find(reg.saverMap, typeInfo, {}, &Entry::index);
+	if (!s) {
 		std::cerr << "Trying to save an unregistered polymorphic type: "
 			  << typeInfo.name() << '\n';
 		assert(false); return;
 	}
-	it->saver(ar, t);
+	s->saver(ar, t);
 }
 template<typename Archive>
 void PolymorphicSaverRegistry<Archive>::save(

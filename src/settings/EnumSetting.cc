@@ -7,7 +7,6 @@
 #include "stl.hh"
 #include "stringsp.hh"
 #include "view.hh"
-#include "unreachable.hh"
 
 namespace openmsx {
 
@@ -19,22 +18,17 @@ EnumSettingBase::EnumSettingBase(Map&& map)
 
 int EnumSettingBase::fromStringBase(std::string_view str) const
 {
-	auto it = ranges::lower_bound(baseMap, str, StringOp::caseless{}, &MapEntry::name);
-	StringOp::casecmp cmp;
-	if ((it == end(baseMap)) || !cmp(it->name, str)) {
-		throw CommandException("not a valid value: ", str);
+	if (auto s = binary_find(baseMap, str, StringOp::caseless{}, &MapEntry::name)) {
+		return s->value;
 	}
-	return it->value;
+	throw CommandException("not a valid value: ", str);
 }
 
 std::string_view EnumSettingBase::toStringBase(int value) const
 {
-	for (const auto& entry : baseMap) {
-		if (entry.value == value) {
-			return entry.name;
-		}
-	}
-	UNREACHABLE; return {};
+	auto it = ranges::find(baseMap, value, &MapEntry::value);
+	assert(it != baseMap.end());
+	return it->name;
 }
 
 void EnumSettingBase::additionalInfoBase(TclObject& result) const

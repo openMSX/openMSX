@@ -616,9 +616,8 @@ RomDatabase::RomDatabase(CliComm& cliComm)
 
 const RomInfo* RomDatabase::fetchRomInfo(const Sha1Sum& sha1sum) const
 {
-	auto it = ranges::lower_bound(db, sha1sum, {}, &Entry::sha1);
-	return ((it != end(db)) && (it->sha1 == sha1sum))
-		? &it->romInfo : nullptr;
+	auto d = binary_find(db, sha1sum, {}, &Entry::sha1);
+	return d ? &d->romInfo : nullptr;
 }
 
 } // namespace openmsx

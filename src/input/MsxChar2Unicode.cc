@@ -175,11 +175,8 @@ std::vector<uint8_t> MsxChar2Unicode::utf8ToMsx(
 	auto it = utf8.begin(), et = utf8.end();
 	while (it != et) {
 		auto u = utf8::unchecked::next(it);
-		auto i = ranges::lower_bound(unicode2msx, u, {}, &Entry::unicode);
-		auto m = ((i != end(unicode2msx)) && (i->unicode == u))
-		       ? i->msx
-		       : fallback(u);
-		msx.push_back(m);
+		auto m = binary_find(unicode2msx, u, {}, &Entry::unicode);
+		msx.push_back(m ? m->msx : fallback(u));
 	}
 	return msx;
 }

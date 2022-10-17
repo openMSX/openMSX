@@ -95,9 +95,8 @@ UnicodeKeymap::UnicodeKeymap(string_view keyboardType)
 
 UnicodeKeymap::KeyInfo UnicodeKeymap::get(unsigned unicode) const
 {
-	auto it = ranges::lower_bound(mapdata, unicode, {}, &Entry::unicode);
-	return ((it != end(mapdata)) && (it->unicode == unicode))
-		? it->keyInfo : KeyInfo();
+	auto m = binary_find(mapdata, unicode, {}, &Entry::unicode);
+	return m ? m->keyInfo : KeyInfo();
 }
 
 UnicodeKeymap::KeyInfo UnicodeKeymap::getDeadkey(unsigned n) const
