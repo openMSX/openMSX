@@ -5,6 +5,7 @@
 #include <functional>
 #include <iterator> // for std::begin(), std::end()
 #include <numeric>
+#include <span>
 
 // Range based versions of the standard algorithms, these will likely become
 // part of c++20. For example see this post:
@@ -330,6 +331,25 @@ template<typename ForwardRange, typename T, typename Compare = std::less<>, type
 	return ((it != std::end(range)) && (!std::invoke(comp, value, std::invoke(proj, *it))))
 	       ? &*it
 	       : nullptr;
+}
+
+// Convenience function to convert part of an array (or vector, ...) into a
+// span. These are not part of the c++ ranges namespace, but often these results
+// are then further used in range algorithms, that's why I placed them in this
+// header.
+
+template<typename Range>
+constexpr auto subspan(Range&& range, size_t offset, size_t count = std::dynamic_extent)
+{
+	//return std::span(range).subspan(offset, count); // TODO error with clang-15/libc++
+	return std::span(std::begin(range), std::end(range)).subspan(offset, count);
+}
+
+template<size_t Count, typename Range>
+constexpr auto subspan(Range&& range, size_t offset = 0)
+{
+	//return std::span(range).subspan(offset).template first<Count>(); // TODO error with clang-15/libc++
+	return std::span(std::begin(range), std::end(range)).subspan(offset).template first<Count>();
 }
 
 #endif
