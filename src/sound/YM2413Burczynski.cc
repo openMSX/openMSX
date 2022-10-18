@@ -26,31 +26,27 @@
 #include "serialize.hh"
 #include "xrange.hh"
 #include <array>
+#include <cstdint>
 #include <iostream>
 
 namespace openmsx {
 namespace YM2413Burczynski {
 
 // envelope output entries
-constexpr int ENV_BITS = 10;
-constexpr double ENV_STEP = 128.0 / (1 << ENV_BITS);
+static constexpr int ENV_BITS = 10;
+static constexpr double ENV_STEP = 128.0 / (1 << ENV_BITS);
 
-constexpr int MAX_ATT_INDEX = (1 << (ENV_BITS - 2)) - 1; // 255
-constexpr int MIN_ATT_INDEX = 0;
+static constexpr int MAX_ATT_INDEX = (1 << (ENV_BITS - 2)) - 1; // 255
+static constexpr int MIN_ATT_INDEX = 0;
 
-// sinwave entries
-constexpr int SIN_BITS = 10;
-constexpr int SIN_LEN  = 1 << SIN_BITS;
-constexpr int SIN_MASK = SIN_LEN - 1;
-
-constexpr int TL_RES_LEN = 256; // 8 bits addressing (real chip)
+static constexpr int TL_RES_LEN = 256; // 8 bits addressing (real chip)
 
 // key scale level
 // table is 3dB/octave, DV converts this into 6dB/octave
 // 0.1875 is bit 0 weight of the envelope counter (volume) expressed
 // in the 'decibel' scale
 static constexpr int DV(double x) { return int(x / 0.1875); }
-constexpr int ksl_tab[8 * 16] =
+static constexpr std::array<int, 8 * 16> ksl_tab =
 {
 	// OCT 0
 	DV( 0.000),DV( 0.000),DV( 0.000),DV( 0.000),
@@ -97,37 +93,36 @@ constexpr int ksl_tab[8 * 16] =
 // sustain level table (3dB per step)
 // 0 - 15: 0, 3, 6, 9,12,15,18,21,24,27,30,33,36,39,42,45 (dB)
 static constexpr int SC(int db) { return int(double(db) / ENV_STEP); }
-constexpr int sl_tab[16] = {
+static constexpr std::array<int, 16> sl_tab = {
 	SC( 0),SC( 1),SC( 2),SC(3 ),SC(4 ),SC(5 ),SC(6 ),SC( 7),
 	SC( 8),SC( 9),SC(10),SC(11),SC(12),SC(13),SC(14),SC(15)
 };
 
-constexpr uint8_t eg_inc[15][8] =
+static constexpr std::array eg_inc =
 {
-	// cycle: 0 1  2 3  4 5  6 7
+	//                       cycle: 0 1  2 3  4 5  6 7
+	/* 0 */ std::array<uint8_t, 8>{ 0,1, 0,1, 0,1, 0,1, }, // rates 00..12 0 (increment by 0 or 1)
+	/* 1 */ std::array<uint8_t, 8>{ 0,1, 0,1, 1,1, 0,1, }, // rates 00..12 1
+	/* 2 */ std::array<uint8_t, 8>{ 0,1, 1,1, 0,1, 1,1, }, // rates 00..12 2
+	/* 3 */ std::array<uint8_t, 8>{ 0,1, 1,1, 1,1, 1,1, }, // rates 00..12 3
 
-	/* 0 */ { 0,1, 0,1, 0,1, 0,1, }, // rates 00..12 0 (increment by 0 or 1)
-	/* 1 */ { 0,1, 0,1, 1,1, 0,1, }, // rates 00..12 1
-	/* 2 */ { 0,1, 1,1, 0,1, 1,1, }, // rates 00..12 2
-	/* 3 */ { 0,1, 1,1, 1,1, 1,1, }, // rates 00..12 3
+	/* 4 */ std::array<uint8_t, 8>{ 1,1, 1,1, 1,1, 1,1, }, // rate 13 0 (increment by 1)
+	/* 5 */ std::array<uint8_t, 8>{ 1,1, 1,2, 1,1, 1,2, }, // rate 13 1
+	/* 6 */ std::array<uint8_t, 8>{ 1,2, 1,2, 1,2, 1,2, }, // rate 13 2
+	/* 7 */ std::array<uint8_t, 8>{ 1,2, 2,2, 1,2, 2,2, }, // rate 13 3
 
-	/* 4 */ { 1,1, 1,1, 1,1, 1,1, }, // rate 13 0 (increment by 1)
-	/* 5 */ { 1,1, 1,2, 1,1, 1,2, }, // rate 13 1
-	/* 6 */ { 1,2, 1,2, 1,2, 1,2, }, // rate 13 2
-	/* 7 */ { 1,2, 2,2, 1,2, 2,2, }, // rate 13 3
+	/* 8 */ std::array<uint8_t, 8>{ 2,2, 2,2, 2,2, 2,2, }, // rate 14 0 (increment by 2)
+	/* 9 */ std::array<uint8_t, 8>{ 2,2, 2,4, 2,2, 2,4, }, // rate 14 1
+	/*10 */ std::array<uint8_t, 8>{ 2,4, 2,4, 2,4, 2,4, }, // rate 14 2
+	/*11 */ std::array<uint8_t, 8>{ 2,4, 4,4, 2,4, 4,4, }, // rate 14 3
 
-	/* 8 */ { 2,2, 2,2, 2,2, 2,2, }, // rate 14 0 (increment by 2)
-	/* 9 */ { 2,2, 2,4, 2,2, 2,4, }, // rate 14 1
-	/*10 */ { 2,4, 2,4, 2,4, 2,4, }, // rate 14 2
-	/*11 */ { 2,4, 4,4, 2,4, 4,4, }, // rate 14 3
-
-	/*12 */ { 4,4, 4,4, 4,4, 4,4, }, // rates 15 0, 15 1, 15 2, 15 3 (incr by 4)
-	/*13 */ { 8,8, 8,8, 8,8, 8,8, }, // rates 15 2, 15 3 for attack
-	/*14 */ { 0,0, 0,0, 0,0, 0,0, }, // infinity rates for attack and decay(s)
+	/*12 */ std::array<uint8_t, 8>{ 4,4, 4,4, 4,4, 4,4, }, // rates 15 0, 15 1, 15 2, 15 3 (incr by 4)
+	/*13 */ std::array<uint8_t, 8>{ 8,8, 8,8, 8,8, 8,8, }, // rates 15 2, 15 3 for attack
+	/*14 */ std::array<uint8_t, 8>{ 0,0, 0,0, 0,0, 0,0, }, // infinity rates for attack and decay(s)
 };
 
 // note that there is no value 13 in this table - it's directly in the code
-constexpr uint8_t eg_rate_select[16 + 64 + 16] =
+static constexpr std::array<uint8_t, 16 + 64 + 16> eg_rate_select =
 {
 	// Envelope Generator rates (16 + 64 rates + 16 RKS)
 	// 16 infinite time rates
@@ -165,7 +160,7 @@ constexpr uint8_t eg_rate_select[16 + 64 + 16] =
 // shift 13,   12,   11,   10,   9,   8,   7,   6,  5,  4,  3,  2,  1,  0,  0,  0
 // mask  8191, 4095, 2047, 1023, 511, 255, 127, 63, 31, 15, 7,  3,  1,  0,  0,  0
 
-constexpr uint8_t eg_rate_shift[16 + 64 + 16] =
+static constexpr std::array<uint8_t, 16 + 64 + 16> eg_rate_shift =
 {
 	// Envelope Generator counter shifts (16 + 64 rates + 16 RKS)
 	// 16 infinite time rates
@@ -201,7 +196,7 @@ constexpr uint8_t eg_rate_shift[16 + 64 + 16] =
 
 // multiple table
 static constexpr uint8_t ML(double x) { return uint8_t(2 * x); }
-constexpr uint8_t mul_tab[16] =
+static constexpr std::array<uint8_t, 16> mul_tab =
 {
 	ML( 0.50), ML( 1.00), ML( 2.00), ML( 3.00),
 	ML( 4.00), ML( 5.00), ML( 6.00), ML( 7.00),
@@ -213,8 +208,8 @@ constexpr uint8_t mul_tab[16] =
 //  11 - sinus amplitude bits     (Y axis)
 //  2  - sinus sign bit           (Y axis)
 //  TL_RES_LEN - sinus resolution (X axis)
-constexpr int TL_TAB_LEN = 11 * 2 * TL_RES_LEN;
-constexpr auto tlTab = [] {
+static constexpr int TL_TAB_LEN = 11 * 2 * TL_RES_LEN;
+static constexpr auto tlTab = [] {
 	std::array<int, TL_TAB_LEN> result = {};
 	for (auto x : xrange(TL_RES_LEN)) {
 		double m = (1 << 16) / cstd::exp2<6>((x + 1) * (ENV_STEP / 4.0) / 8.0);
@@ -235,26 +230,26 @@ constexpr auto tlTab = [] {
 
 // sin waveform table in 'decibel' scale
 // two waveforms on OPLL type chips
-constexpr auto sinTab = [] {
-	std::array<unsigned, SIN_LEN * 2> result = {};
+static constexpr auto sinTab = [] {
+	std::array<std::array<unsigned, SIN_LEN>, 2> result = {};
 	for (auto i : xrange(SIN_LEN / 4)) {
 		// checked on real hardware, see also
 		//   http://docs.google.com/Doc?id=dd8kqn9f_13cqjkf4gp
 		double m = cstd::sin<2>(((i * 2) + 1) * Math::pi / SIN_LEN);
 		int n = int(cstd::round(cstd::log2<8, 3>(m) * -256.0));
-		result[i] = 2 * n;
+		result[0][i] = 2 * n;
 	}
 	for (auto i : xrange(SIN_LEN / 4)) {
-		result[SIN_LEN / 4 + i] = result[SIN_LEN / 4 - 1 - i];
+		result[0][SIN_LEN / 4 + i] = result[0][SIN_LEN / 4 - 1 - i];
 	}
 	for (auto i : xrange(SIN_LEN / 2)) {
-		result[SIN_LEN / 2 + i] = result[i] | 1;
+		result[0][SIN_LEN / 2 + i] = result[0][i] | 1;
 	}
 	for (auto i : xrange(SIN_LEN / 2)) {
-		result[i + SIN_LEN] = result[i];
+		result[1][i] = result[0][i];
 	}
 	for (auto i : xrange(SIN_LEN / 2)) {
-		result[i + SIN_LEN + SIN_LEN / 2] = TL_TAB_LEN;
+		result[1][i + SIN_LEN / 2] = TL_TAB_LEN;
 	}
 	return result;
 }();
@@ -271,8 +266,8 @@ constexpr auto sinTab = [] {
 //
 // We use data>>1, until we find what it really is on real chip...
 
-constexpr int LFO_AM_TAB_ELEMENTS = 210;
-constexpr uint8_t lfo_am_table[LFO_AM_TAB_ELEMENTS] =
+static constexpr int LFO_AM_TAB_ELEMENTS = 210;
+static constexpr std::array<uint8_t, LFO_AM_TAB_ELEMENTS> lfo_am_table =
 {
 	0,0,0,0,0,0,0,
 	1,1,1,1,
@@ -329,31 +324,31 @@ constexpr uint8_t lfo_am_table[LFO_AM_TAB_ELEMENTS] =
 };
 
 // LFO Phase Modulation table (verified on real YM2413)
-constexpr signed char lfo_pm_table[8][8] =
+static constexpr std::array lfo_pm_table =
 {
 	// FNUM2/FNUM = 0 00xxxxxx (0x0000)
-	{ 0, 0, 0, 0, 0, 0, 0, 0, },
+	std::array<int8_t, 8>{ 0, 0, 0, 0, 0, 0, 0, 0, },
 
 	// FNUM2/FNUM = 0 01xxxxxx (0x0040)
-	{ 1, 0, 0, 0,-1, 0, 0, 0, },
+	std::array<int8_t, 8>{ 1, 0, 0, 0,-1, 0, 0, 0, },
 
 	// FNUM2/FNUM = 0 10xxxxxx (0x0080)
-	{ 2, 1, 0,-1,-2,-1, 0, 1, },
+	std::array<int8_t, 8>{ 2, 1, 0,-1,-2,-1, 0, 1, },
 
 	// FNUM2/FNUM = 0 11xxxxxx (0x00C0)
-	{ 3, 1, 0,-1,-3,-1, 0, 1, },
+	std::array<int8_t, 8>{ 3, 1, 0,-1,-3,-1, 0, 1, },
 
 	// FNUM2/FNUM = 1 00xxxxxx (0x0100)
-	{ 4, 2, 0,-2,-4,-2, 0, 2, },
+	std::array<int8_t, 8>{ 4, 2, 0,-2,-4,-2, 0, 2, },
 
 	// FNUM2/FNUM = 1 01xxxxxx (0x0140)
-	{ 5, 2, 0,-2,-5,-2, 0, 2, },
+	std::array<int8_t, 8>{ 5, 2, 0,-2,-5,-2, 0, 2, },
 
 	// FNUM2/FNUM = 1 10xxxxxx (0x0180)
-	{ 6, 3, 0,-3,-6,-3, 0, 3, },
+	std::array<int8_t, 8>{ 6, 3, 0,-3,-6,-3, 0, 3, },
 
 	// FNUM2/FNUM = 1 11xxxxxx (0x01C0)
-	{ 7, 3, 0,-3,-7,-3, 0, 3, },
+	std::array<int8_t, 8>{ 7, 3, 0,-3,-7,-3, 0, 3, },
 };
 
 // This is not 100% perfect yet but very close
@@ -361,7 +356,7 @@ constexpr signed char lfo_pm_table[8][8] =
 // - multi parameters are 100% correct (instruments and drums)
 // - LFO PM and AM enable are 100% correct
 // - waveform DC and DM select are 100% correct
-constexpr std::array table = {
+static constexpr std::array table = {
 	//                     MULT  MULT modTL DcDmFb AR/DR AR/DR SL/RR SL/RR
 	//                       0     1     2     3     4     5     6     7
 	std::array<uint8_t, 8>{ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, // user instrument
@@ -534,7 +529,7 @@ inline int Slot::calcOutput(Channel& channel, unsigned eg_cnt, bool carrier,
 {
 	int egOut2 = calc_envelope(channel, eg_cnt, carrier);
 	int env = (TLL + egOut2 + (lfo_am & AMmask)) << 5;
-	int p = env + wavetable[phase2 & SIN_MASK];
+	int p = env + waveTable[phase2 & SIN_MASK];
 	return p < TL_TAB_LEN ? tlTab[p] : 0;
 }
 
@@ -646,7 +641,8 @@ static constexpr int genPhaseCymbal(int phaseM7, int phaseC8)
 
 
 Slot::Slot()
-	: phase(0), freq(0)
+	: waveTable(sinTab[0])
+	, phase(0), freq(0)
 	, eg_sel_dp(eg_inc[0]), eg_sel_ar(eg_inc[0]), eg_sel_dr(eg_inc[0])
 	, eg_sel_rr(eg_inc[0]), eg_sel_rs(eg_inc[0])
 {
@@ -658,7 +654,6 @@ Slot::Slot()
 	eg_sustain = false;
 	setEnvelopeState(EG_OFF);
 	key = AMmask = vib = 0;
-	wavetable = &sinTab[0 * SIN_LEN];
 }
 
 void Slot::setKeyOn(KeyPart part)
@@ -740,7 +735,7 @@ void Slot::setKeyScaleLevel(Channel& channel, uint8_t value)
 
 void Slot::setWaveform(uint8_t value)
 {
-	wavetable = &sinTab[value * SIN_LEN];
+	waveTable = sinTab[value];
 }
 
 void Slot::setFeedbackShift(uint8_t value)
@@ -782,7 +777,7 @@ void Slot::updateFrequency(Channel& channel)
 
 void Slot::resetOperators()
 {
-	wavetable = &sinTab[0 * SIN_LEN];
+	waveTable = sinTab[0];
 	setEnvelopeState(EG_OFF);
 	egOut = MAX_ATT_INDEX;
 }
@@ -932,7 +927,9 @@ YM2413::YM2413()
 	if (false) {
 		for (const auto& e : tlTab) std::cout << e << '\n';
 		std::cout << '\n';
-		for (const auto& e : sinTab) std::cout << e << '\n';
+		for (const auto& s : sinTab) {
+			for (const auto& e : s) std::cout << e << '\n';
+		}
 	}
 
 	ranges::fill(reg, 0); // avoid UMR
@@ -1313,7 +1310,7 @@ void Slot::serialize(Archive& a, unsigned /*version*/)
 {
 	// TODO some of the serialized members here could be calculated from
 	//      other members
-	int waveform = (wavetable == &sinTab[0]) ? 0 : 1;
+	int waveform = (waveTable.data() == sinTab[0].data()) ? 0 : 1;
 	a.serialize("waveform", waveform);
 	if constexpr (Archive::IS_LOADER) {
 		setWaveform(waveform);
@@ -1351,7 +1348,7 @@ template<typename Archive>
 void Channel::serialize(Archive& a, unsigned /*version*/)
 {
 	// mod/car were originally an array, keep serializing as such for bwc
-	Slot slots[2] = { mod, car };
+	std::array<Slot, 2> slots = {mod, car};
 	a.serialize("slots", slots);
 	if constexpr (Archive::IS_LOADER) {
 		mod = slots[0];

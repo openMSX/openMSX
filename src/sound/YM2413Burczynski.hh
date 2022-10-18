@@ -10,6 +10,11 @@
 namespace openmsx {
 namespace YM2413Burczynski {
 
+// sin wave entries
+static constexpr int SIN_BITS = 10;
+static constexpr size_t SIN_LEN  = 1 << SIN_BITS;
+static constexpr size_t SIN_MASK = SIN_LEN - 1;
+
 class Channel;
 
 /** 16.16 fixed point type for frequency calculations.
@@ -122,7 +127,7 @@ private:
 	inline void updateDecayRate(int kcodeScaled);
 	inline void updateReleaseRate(int kcodeScaled);
 
-	const unsigned* wavetable;	// waveform select
+	std::span<const unsigned, SIN_LEN> waveTable;	// waveform select
 
 	// Phase Generator
 	FreqIndex phase; // frequency counter
@@ -135,8 +140,8 @@ private:
 	int sl;		// sustain level: sl_tab[SL]
 	EnvelopeState state;
 
-	int op1_out[2];   // MOD output for feedback
-	bool eg_sustain;  // percussive/nonpercussive mode
+	std::array<int, 2> op1_out; // MOD output for feedback
+	bool eg_sustain;  // percussive/non-percussive mode
 	uint8_t fb_shift; // feedback shift value
 
 	uint8_t key;	// 0 = KEY OFF, >0 = KEY ON
@@ -161,7 +166,7 @@ private:
 	uint8_t dr;	// decay rate:  DR<<2
 	uint8_t rr;	// release rate:RR<<2
 	uint8_t KSR;	// key scale rate
-	uint8_t ksl;	// keyscale level
+	uint8_t ksl;	// key scale level
 	uint8_t mul;	// multiple: mul_tab[ML]
 
 	// LFO
