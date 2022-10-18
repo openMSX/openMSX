@@ -5,6 +5,7 @@
 #include "build-info.hh"
 #include "components.hh"
 #include "ranges.hh"
+#include <array>
 #include <cassert>
 #include <algorithm>
 #include <cstdint>
@@ -128,13 +129,15 @@ static void draw2(
 
 template<typename Policy, std::unsigned_integral Pixel>
 static void renderPattern(
-	V9990VRAM& vram, Pixel* __restrict buffer, byte* __restrict info,
-	Pixel bgCol, int width, unsigned x, unsigned y,
+	V9990VRAM& vram, Pixel* __restrict buffer, std::span<byte> info_,
+	Pixel bgCol, unsigned x, unsigned y,
 	unsigned nameTable, unsigned patternBase,
 	std::span<const Pixel, 16> palette0, std::span<const Pixel, 16> palette1)
 {
 	assert(x < Policy::IMAGE_WIDTH);
+	int width = info_.size();
 	if (width == 0) return;
+	byte* info = info_.data();
 
 	std::optional<ScopedAssign<Pixel>> col0, col1; // optimized away when not used
 	if constexpr (Policy::DRAW_BACKDROP) {
@@ -186,34 +189,33 @@ static void renderPattern(
 
 template<typename Policy, std::unsigned_integral Pixel> // only used for P1
 static void renderPattern2(
-	V9990VRAM& vram, Pixel* buffer, byte* info, Pixel bgCol, unsigned width1, unsigned width2,
+	V9990VRAM& vram, Pixel* buffer, std::span<byte, 256> info, Pixel bgCol, unsigned width1, unsigned width2,
 	unsigned displayAX, unsigned displayAY, unsigned nameA, unsigned patternA, std::span<const Pixel, 16> palA,
 	unsigned displayBX, unsigned displayBY, unsigned nameB, unsigned patternB, std::span<const Pixel, 16> palB)
 {
 	renderPattern<Policy>(
-		vram, buffer, info, bgCol, width1,
+		vram, buffer, subspan(info, 0, width1), bgCol,
 		displayAX, displayAY, nameA, patternA, palA, palA);
 
 	buffer += width1;
-	info   += width1;
 	width2 -= width1;
 	displayBX = (displayBX + width1) & 511;
 
 	renderPattern<Policy>(
-		vram, buffer, info, bgCol, width2,
+		vram, buffer, subspan(info, width1, width2), bgCol,
 		displayBX, displayBY, nameB, patternB, palB, palB);
 }
 
 template<typename Policy, std::unsigned_integral Pixel>
 static void renderSprites(
 	V9990VRAM& vram, unsigned spritePatternTable, std::span<const Pixel, 64> palette64,
-	Pixel* __restrict buffer, byte* __restrict info,
+	Pixel* __restrict buffer, std::span<byte> info,
 	int displayX, int displayEnd, unsigned displayY)
 {
 	constexpr unsigned spriteTable = 0x3FE00;
 
 	// determine visible sprites
-	int visibleSprites[16 + 1];
+	std::array<int, 16 + 1> visibleSprites;
 	int index = 0;
 	int index_max = 16;
 	for (auto sprite : xrange(125)) {
@@ -292,21 +294,21 @@ void V9990P1Converter<Pixel>::convertLine(
 	unsigned displayEnd = displayX + displayWidth;
 	unsigned end1 = std::max<int>(0, std::min<int>(prioX, displayEnd) - displayX);
 
+	std::array<byte, 256> info; // filled in later: 0->background, 1->foreground, 2->sprite (front or back)
+
 	// background + backdrop color
 	Pixel bgCol = palette64[vdp.getBackDropColor()];
 	byte offset = vdp.getPaletteOffset();
 	auto palA = subspan<16>(palette64, (offset & 0x03) << 4);
 	auto palB = subspan<16>(palette64, (offset & 0x0C) << 2);
-	renderPattern2<P1BackgroundPolicy>(
-		vram, linePtr, nullptr, bgCol, end1, displayWidth,
+	renderPattern2<P1BackgroundPolicy>( // does not yet fill-in 'info'
+		vram, linePtr, /*dummy*/info, bgCol, end1, displayWidth,
 		displayBX, displayBY, 0x7E000, 0x40000, palB,
 		displayAX, displayAY, 0x7C000, 0x00000, palA);
 
 	// foreground + fill-in 'info'
 	assert(displayWidth <= 256);
-	byte info[256]; // left uninitialized
-	                // 0->background, 1->foreground, 2->sprite (front or back)
-	renderPattern2<P1ForegroundPolicy>(
+	renderPattern2<P1ForegroundPolicy>( // fills 'info' with '0' or '1'
 		vram, linePtr, info, bgCol, end1, displayWidth,
 		displayAX, displayAY, 0x7C000, 0x00000, palA,
 		displayBX, displayBY, 0x7E000, 0x40000, palB);
@@ -314,7 +316,7 @@ void V9990P1Converter<Pixel>::convertLine(
 	// combined back+front sprite plane
 	if (drawSprites) {
 		unsigned spritePatternTable = vdp.getSpritePatternAddress(P1);
-		renderSprites<P1Policy>(
+		renderSprites<P1Policy>( // uses and updates 'info'
 			vram, spritePatternTable, palette64,
 			linePtr, info, displayX, displayEnd, displayY);
 	}
@@ -336,14 +338,13 @@ void V9990P2Converter<Pixel>::convertLine(
 
 	// image plane + backdrop color + fill-in 'info'
 	assert(displayWidth <= 512);
-	byte info[512]; // left uninitialized
-	                // 0->background, 1->foreground, 2->sprite (front or back)
+	std::array<byte, 512> info; // filled in later: 0->background, 1->foreground, 2->sprite (front or back)
 	Pixel bgCol = palette64[vdp.getBackDropColor()];
 	byte offset = vdp.getPaletteOffset();
 	auto palette0 = subspan<16>(palette64, (offset & 0x03) << 4);
 	auto palette1 = subspan<16>(palette64, (offset & 0x0C) << 2);
 	renderPattern<P2Policy>(
-		vram, linePtr, info, bgCol, displayWidth,
+		vram, linePtr, subspan(info, 0, displayWidth), bgCol,
 		displayAX, displayAY, 0x7C000, 0x00000, palette0, palette1);
 
 	// combined back+front sprite plane
