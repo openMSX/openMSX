@@ -86,7 +86,8 @@ void SDLSoundDriver::audioCallbackHelper(void* userdata, uint8_t* strm, int len)
 {
 	assert((len & 7) == 0); // stereo, 32 bit float
 	static_cast<SDLSoundDriver*>(userdata)->
-		audioCallback(reinterpret_cast<float*>(strm), len / sizeof(float));
+		audioCallback(std::span{reinterpret_cast<StereoFloat*>(strm),
+		                        len / (2 * sizeof(float))});
 }
 
 unsigned SDLSoundDriver::getBufferFilled() const
@@ -108,13 +109,11 @@ unsigned SDLSoundDriver::getBufferFree() const
 	return result;
 }
 
-void SDLSoundDriver::audioCallback(float* stream_, unsigned len)
+void SDLSoundDriver::audioCallback(std::span<StereoFloat> stream)
 {
-	assert((len & 1) == 0); // stereo
-	len /= 2;
-	auto* stream = reinterpret_cast<StereoFloat*>(stream_);
+	auto len = stream.size();
 
-	unsigned available = getBufferFilled();
+	size_t available = getBufferFilled();
 	unsigned num = std::min(len, available);
 	if ((readIdx + num) < mixBufferSize) {
 		ranges::copy(std::span{&mixBuffer[readIdx], num}, stream);
@@ -123,13 +122,13 @@ void SDLSoundDriver::audioCallback(float* stream_, unsigned len)
 		unsigned len1 = mixBufferSize - readIdx;
 		ranges::copy(std::span{&mixBuffer[readIdx], len1}, stream);
 		unsigned len2 = num - len1;
-		ranges::copy(std::span{&mixBuffer[0], len2}, &stream[len1]);
+		ranges::copy(std::span{&mixBuffer[0], len2}, stream.subspan(len1));
 		readIdx = len2;
 	}
 	int missing = len - available;
 	if (missing > 0) {
 		// buffer underrun
-		ranges::fill(std::span{&stream[available], size_t(missing)}, StereoFloat{});
+		ranges::fill(subspan(stream, available, missing), StereoFloat{});
 	}
 }
 

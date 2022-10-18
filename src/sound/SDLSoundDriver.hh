@@ -32,7 +32,7 @@ private:
 	[[nodiscard]] unsigned getBufferFilled() const;
 	[[nodiscard]] unsigned getBufferFree() const;
 	static void audioCallbackHelper(void* userdata, uint8_t* strm, int len);
-	void audioCallback(float* stream, unsigned len);
+	void audioCallback(std::span<StereoFloat> stream);
 
 private:
 	Reactor& reactor;
