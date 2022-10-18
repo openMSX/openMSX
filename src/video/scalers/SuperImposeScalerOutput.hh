@@ -3,6 +3,7 @@
 
 #include "ScalerOutput.hh"
 #include "PixelOperations.hh"
+#include <span>
 
 namespace openmsx {
 
@@ -23,7 +24,7 @@ public:
 	void fillLine   (unsigned y, Pixel color) override;
 
 private:
-	[[nodiscard]] const Pixel* getSrcLine(unsigned y, Pixel* buf);
+	[[nodiscard]] std::span<const Pixel> getSrcLine(unsigned y, std::span<Pixel> buf);
 
 private:
 	ScalerOutput<Pixel>& output;

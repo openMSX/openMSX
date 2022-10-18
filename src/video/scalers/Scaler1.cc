@@ -66,9 +66,9 @@ static void doScale1(FrameSource& src,
 	unsigned dstWidth = dst.getWidth();
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; ++srcY, ++dstY) {
-		auto* srcLine = src.getLinePtr(srcY, srcWidth, buf.data());
+		auto srcLine = src.getLine(srcY, buf);
 		auto* dstLine = dst.acquireLine(dstY);
-		scale(srcLine, dstLine, dstWidth);
+		scale(srcLine.data(), dstLine, dstWidth);
 		dst.releaseLine(dstY, dstLine);
 	}
 }
@@ -81,16 +81,18 @@ static void doScaleDV(FrameSource& src,
 {
 	BlendLines<Pixel> blend(ops);
 	unsigned dstWidth = dst.getWidth();
-	VLA_SSE_ALIGNED(Pixel, buf0, std::max(srcWidth, dstWidth));
+	VLA_SSE_ALIGNED(Pixel, buf02, std::max(srcWidth, dstWidth));
 	VLA_SSE_ALIGNED(Pixel, buf1, srcWidth);
+	auto buf0 = buf02.subspan(0, srcWidth);
+	auto buf2 = buf02.subspan(0, dstWidth);
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 2, dstY += 1) {
-		auto* srcLine0 = src.getLinePtr(srcY + 0, srcWidth, buf0.data());
-		auto* srcLine1 = src.getLinePtr(srcY + 1, srcWidth, buf1.data());
+		auto srcLine0 = src.getLine(srcY + 0, buf0);
+		auto srcLine1 = src.getLine(srcY + 1, buf1);
 		auto* dstLine = dst.acquireLine(dstY);
-		scale(srcLine0, dstLine,     dstWidth); // dstLine  iso buf0
-		scale(srcLine1, buf0.data(), dstWidth); // buf0 iso buf1
-		blend(dstLine, buf0.data(), dstLine, dstWidth); // use input as output
+		scale(srcLine0.data(), dstLine,     dstWidth); // buf02 -> dstLine
+		scale(srcLine1.data(), buf2.data(), dstWidth); // buf1  -> buf02
+		blend(dstLine, buf0.data(), dstLine, dstWidth); // dstLine + buf02 -> dstLine
 		dst.releaseLine(dstY, dstLine);
 	}
 }
@@ -121,15 +123,16 @@ void Scaler1<Pixel>::scale1x1to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	// Optimized variant: pass dstLine to getLinePtr(), so we can
-	// potentionally avoid the copy operation.
+	// Optimized variant: pass dstLine to getLine(), so we can
+	// potentially avoid the copy operation.
 	assert(dst.getWidth() == srcWidth);
 	Scale_1on1<Pixel> copy;
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; ++srcY, ++dstY) {
 		auto* dstLine = dst.acquireLine(dstY);
-		auto* srcLine = src.getLinePtr(srcY, srcWidth, dstLine);
-		if (srcLine != dstLine) copy(srcLine, dstLine, srcWidth);
+
+		auto srcLine = src.getLine(srcY, std::span{dstLine, srcWidth});
+		if (srcLine.data() != dstLine) copy(srcLine.data(), dstLine, srcWidth);
 		dst.releaseLine(dstY, dstLine);
 	}
 }
@@ -145,9 +148,10 @@ void Scaler1<Pixel>::scale1x2to1x1(FrameSource& src,
 	BlendLines<Pixel> blend(pixelOps);
 	for (auto dstY : xrange(dstStartY, dstEndY)) {
 		auto* dstLine = dst.acquireLine(dstY);
-		auto* srcLine0 = src.getLinePtr(srcStartY++, srcWidth, dstLine);
-		auto* srcLine1 = src.getLinePtr(srcStartY++, srcWidth, buf.data());
-		blend(srcLine0, srcLine1, dstLine, dstWidth); // possibly srcLine0 == dstLine
+		std::span bufDst{dstLine, srcWidth};
+		auto srcLine0 = src.getLine(srcStartY++, bufDst); // dstLine
+		auto srcLine1 = src.getLine(srcStartY++, buf);    // buf
+		blend(srcLine0.data(), srcLine1.data(), dstLine, dstWidth); // dstLine + buf -> dstLine
 		dst.releaseLine(dstY, dstLine);
 	}
 }

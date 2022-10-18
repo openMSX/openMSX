@@ -19,51 +19,60 @@ FrameSource::FrameSource(const PixelFormat& format)
 }
 
 template<std::unsigned_integral Pixel>
-const Pixel* FrameSource::getLinePtr320_240(unsigned line, Pixel* buf0) const
+std::span<const Pixel, 320> FrameSource::getLinePtr320_240(unsigned line, std::span<Pixel, 320> buf0) const
 {
 	if (getHeight() == 240) {
-		return getLinePtr(line, 320, buf0);
+		auto r = getLine(line, std::span<Pixel>{buf0});
+		assert(r.size() == 320);
+		return std::span<const Pixel, 320>(r);
 	} else {
 		assert(getHeight() == 480);
 		ALIGNAS_SSE Pixel buf1[320];
-		auto* line0 = getLinePtr(2 * line + 0, 320, buf0);
-		auto* line1 = getLinePtr(2 * line + 1, 320, buf1);
+		auto line0 = getLine(2 * line + 0, std::span<Pixel>(buf0));
+		auto line1 = getLine(2 * line + 1, std::span<Pixel>(buf1));
 		PixelOperations<Pixel> pixelOps(pixelFormat);
 		BlendLines<Pixel> blend(pixelOps);
-		blend(line0, line1, buf0, 320); // possibly line0 == buf0
+		blend(line0.data(), line1.data(), buf0.data(), 320); // possibly line0 == buf0 // TODO span
 		return buf0;
 	}
 }
 
 template<std::unsigned_integral Pixel>
-const Pixel* FrameSource::getLinePtr640_480(unsigned line, Pixel* buf) const
+std::span<const Pixel, 640> FrameSource::getLinePtr640_480(unsigned line, std::span<Pixel, 640> buf) const
 {
 	if (getHeight() == 480) {
-		return getLinePtr(line, 640, buf);
+		auto r = getLine(line, std::span<Pixel>(buf));
+		assert(r.size() == 640);
+		return std::span<const Pixel, 640>(r);
 	} else {
 		assert(getHeight() == 240);
-		return getLinePtr(line / 2, 640, buf);
+		auto r = getLine(line / 2, std::span<Pixel>(buf));
+		assert(r.size() == 640);
+		return std::span<const Pixel, 640>(r);
 	}
 }
 
 template<std::unsigned_integral Pixel>
-const Pixel* FrameSource::getLinePtr960_720(unsigned line, Pixel* buf0) const
+std::span<const Pixel, 960> FrameSource::getLinePtr960_720(unsigned line, std::span<Pixel, 960> buf0) const
 {
 	if (getHeight() == 480) {
 		unsigned l2 = (2 * line) / 3;
-		auto* line0 = getLinePtr(l2 + 0, 960, buf0);
+		auto line0 = getLine(l2 + 0, std::span<Pixel>(buf0));
 		if ((line % 3) != 1) {
-			return line0;
+			assert(line0.size() == 960);
+			return std::span<const Pixel, 960>(line0);
 		}
 		ALIGNAS_SSE Pixel buf1[960];
-		auto* line1 = getLinePtr(l2 + 1, 960, buf1);
+		auto line1 = getLine(l2 + 1, std::span<Pixel>(buf1));
 		PixelOperations<Pixel> pixelOps(pixelFormat);
 		BlendLines<Pixel> blend(pixelOps);
-		blend(line0, line1, buf0, 960); // possibly line0 == buf0
+		blend(line0.data(), line1.data(), buf0.data(), 960); // possibly line0 == buf0
 		return buf0;
 	} else {
 		assert(getHeight() == 240);
-		return getLinePtr(line / 3, 960, buf0);
+		auto r = getLine(line / 3, std::span<Pixel>(buf0));
+		assert(r.size() == 960);
+		return std::span<const Pixel, 960>(r);
 	}
 }
 
@@ -345,15 +354,15 @@ void FrameSource::scaleLine(
 
 // Force template method instantiation
 #if HAVE_16BPP
-template const uint16_t* FrameSource::getLinePtr320_240<uint16_t>(unsigned, uint16_t*) const;
-template const uint16_t* FrameSource::getLinePtr640_480<uint16_t>(unsigned, uint16_t*) const;
-template const uint16_t* FrameSource::getLinePtr960_720<uint16_t>(unsigned, uint16_t*) const;
+template std::span<const uint16_t, 320> FrameSource::getLinePtr320_240<uint16_t>(unsigned, std::span<uint16_t, 320>) const;
+template std::span<const uint16_t, 640> FrameSource::getLinePtr640_480<uint16_t>(unsigned, std::span<uint16_t, 640>) const;
+template std::span<const uint16_t, 960> FrameSource::getLinePtr960_720<uint16_t>(unsigned, std::span<uint16_t, 960>) const;
 template void FrameSource::scaleLine<uint16_t>(const uint16_t*, uint16_t*, unsigned, unsigned) const;
 #endif
 #if HAVE_32BPP || COMPONENT_GL
-template const uint32_t* FrameSource::getLinePtr320_240<uint32_t>(unsigned, uint32_t*) const;
-template const uint32_t* FrameSource::getLinePtr640_480<uint32_t>(unsigned, uint32_t*) const;
-template const uint32_t* FrameSource::getLinePtr960_720<uint32_t>(unsigned, uint32_t*) const;
+template std::span<const uint32_t, 320> FrameSource::getLinePtr320_240<uint32_t>(unsigned, std::span<uint32_t, 320>) const;
+template std::span<const uint32_t, 640> FrameSource::getLinePtr640_480<uint32_t>(unsigned, std::span<uint32_t, 640>) const;
+template std::span<const uint32_t, 960> FrameSource::getLinePtr960_720<uint32_t>(unsigned, std::span<uint32_t, 960>) const;
 template void FrameSource::scaleLine<uint32_t>(const uint32_t*, uint32_t*, unsigned, unsigned) const;
 #endif
 

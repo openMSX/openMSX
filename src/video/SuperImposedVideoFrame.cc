@@ -46,24 +46,24 @@ const void* SuperImposedVideoFrame<Pixel>::getLineInfo(
 	// Adjust the two inputs to the same height.
 	VLA_SSE_ALIGNED(Pixel, buf2, width);
 	assert(super.getHeight() == 480); // TODO possibly extend in the future
-	const Pixel* supLine = [&]() -> const Pixel* {
+	auto supLine = [&] {
 		if (src.getHeight() == 240) {
 			VLA_SSE_ALIGNED(Pixel, buf3, width);
-			auto* sup0 = super.getLinePtr(2 * line + 0, width, buf2.data());
-			auto* sup1 = super.getLinePtr(2 * line + 1, width, buf3.data());
+			auto sup0 = super.getLine(2 * line + 0, buf2);
+			auto sup1 = super.getLine(2 * line + 1, buf3);
 			BlendLines<Pixel> blend(pixelOps);
-			blend(sup0, sup1, buf2.data(), width); // possibly sup0 == buf2
-			return buf2.data();
+			blend(sup0.data(), sup1.data(), buf2.data(), width); // possibly sup0 == buf2
+			return std::span<const Pixel>(buf2);
 		} else {
 			assert(src.getHeight() == super.getHeight());
-			return super.getLinePtr(line, width, buf2.data()); // scale line
+			return super.getLine(line, buf2); // scale line
 		}
 	}();
 	// (possibly) supLine == buf2
 
 	// Actually blend the lines of both frames.
 	AlphaBlendLines<Pixel> blend(pixelOps);
-	blend(srcLine, supLine, buf1, width); // possibly srcLine == buf1
+	blend(srcLine, supLine.data(), buf1, width); // possibly srcLine == buf1
 	return buf1;
 }
 

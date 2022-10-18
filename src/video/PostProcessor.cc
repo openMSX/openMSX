@@ -216,10 +216,10 @@ static void getScaledFrame(FrameSource& paintFrame, unsigned bpp,
 	auto height = lines.size();
 	unsigned width = (height == 240) ? 320 : 640;
 	unsigned pitch = width * ((bpp == 32) ? 4 : 2);
-	const void* line = nullptr;
+	const void* linePtr = nullptr;
 	void* work = nullptr;
 	for (auto i : xrange(height)) {
-		if (line == work) {
+		if (linePtr == work) {
 			// If work buffer was used in previous iteration,
 			// then allocate a new one.
 			work = workBuffer.emplace_back(pitch).data();
@@ -229,10 +229,12 @@ static void getScaledFrame(FrameSource& paintFrame, unsigned bpp,
 			// 32bpp
 			auto* work2 = static_cast<uint32_t*>(work);
 			if (height == 240) {
-				line = paintFrame.getLinePtr320_240(i, work2);
+				auto line = paintFrame.getLinePtr320_240(i, std::span<uint32_t, 320>{work2, 320});
+				linePtr = line.data();
 			} else {
 				assert (height == 480);
-				line = paintFrame.getLinePtr640_480(i, work2);
+				auto line = paintFrame.getLinePtr640_480(i, std::span<uint32_t, 640>{work2, 640});
+				linePtr = line.data();
 			}
 		} else
 #endif
@@ -241,14 +243,16 @@ static void getScaledFrame(FrameSource& paintFrame, unsigned bpp,
 			// 15bpp or 16bpp
 			auto* work2 = static_cast<uint16_t*>(work);
 			if (height == 240) {
-				line = paintFrame.getLinePtr320_240(i, work2);
+				auto line = paintFrame.getLinePtr320_240(i, std::span<uint16_t, 320>{work2, 320});
+				linePtr = line.data();
 			} else {
 				assert (height == 480);
-				line = paintFrame.getLinePtr640_480(i, work2);
+				auto line = paintFrame.getLinePtr640_480(i, std::span<uint16_t, 640>{work2, 640});
+				linePtr = line.data();
 			}
 #endif
 		}
-		lines[i] = line;
+		lines[i] = linePtr;
 	}
 }
 

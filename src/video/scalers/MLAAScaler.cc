@@ -43,16 +43,17 @@ void MLAAScaler<Pixel>::scaleImage(
 	VLA(const Pixel*, srcLinePtrsArray, srcNumLines + 2);
 	auto** srcLinePtrs = &srcLinePtrsArray[1];
 	std::vector<MemBuffer<Pixel, SSE_ALIGNMENT>> workBuffer;
-	const Pixel* line = nullptr;
+	const Pixel* linePtr = nullptr;
 	Pixel* work = nullptr;
 	for (auto y : xrange(-1, srcNumLines + 1)) {
-		if (line == work) {
+		if (linePtr == work) {
 			// Allocate new workBuffer when needed
 			// e.g. when used in previous iteration
 			work = workBuffer.emplace_back(srcWidth).data();
 		}
-		line = src.getLinePtr(srcStartY + y, srcWidth, work);
-		srcLinePtrs[y] = line;
+		auto line = src.getLine(srcStartY + y, std::span{work, srcWidth});
+		linePtr = line.data();
+		srcLinePtrs[y] = linePtr;
 	}
 
 	enum { UP = 1 << 0, RIGHT = 1 << 1, DOWN = 1 << 2, LEFT = 1 << 3 };

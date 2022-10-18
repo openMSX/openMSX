@@ -396,14 +396,14 @@ void SaI3xScaler<Pixel>::scaleFixed(FrameSource& src,
 	VLA_SSE_ALIGNED(Pixel, buf3, srcWidth);
 
 	int srcY = srcStartY;
-	auto* src0 = src.getLinePtr(srcY - 1, srcWidth, buf0.data());
-	auto* src1 = src.getLinePtr(srcY + 0, srcWidth, buf1.data());
-	auto* src2 = src.getLinePtr(srcY + 1, srcWidth, buf2.data());
+	auto src0 = src.getLine(srcY - 1, buf0);
+	auto src1 = src.getLine(srcY + 0, buf1);
+	auto src2 = src.getLine(srcY + 1, buf2);
 
 	for (auto dstY : xrange(dstStartY, dstEndY)) {
-		auto* src3 = src.getLinePtr(srcY + 2, srcWidth, buf3.data());
+		auto src3 = src.getLine(srcY + 2, buf3);
 		LineRepeater<NY>::template scaleFixedLine<NX, NY, Pixel>(
-			src0, src1, src2, src3, srcWidth, dst, dstY);
+			src0.data(), src1.data(), src2.data(), src3.data(), srcWidth, dst, dstY);
 		src0 = src1;
 		src1 = src2;
 		src2 = src3;
@@ -434,10 +434,10 @@ void SaI3xScaler<Pixel>::scaleAny(FrameSource& src,
 		// Get source line pointers.
 		int line = srcStartY + (h >> 16);
 		// TODO possible optimization: reuse srcN from previous step
-		auto* src0 = src.getLinePtr(line - 1, srcWidth, buf0.data());
-		auto* src1 = src.getLinePtr(line + 0, srcWidth, buf1.data());
-		auto* src2 = src.getLinePtr(line + 1, srcWidth, buf2.data());
-		auto* src3 = src.getLinePtr(line + 2, srcWidth, buf3.data());
+		auto src0 = src.getLine(line - 1, buf0);
+		auto src1 = src.getLine(line + 0, buf1);
+		auto src2 = src.getLine(line + 1, buf2);
+		auto src3 = src.getLine(line + 2, buf3);
 
 		// Get destination line pointer.
 		auto* dstLine = dst.acquireLine(dstY);

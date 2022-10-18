@@ -253,15 +253,15 @@ void SaI2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	VLA_SSE_ALIGNED(Pixel, buf3, srcWidth);
 
 	int srcY = srcStartY;
-	auto* srcLine0 = src.getLinePtr(srcY - 1, srcWidth, buf0.data());
-	auto* srcLine1 = src.getLinePtr(srcY + 0, srcWidth, buf1.data());
-	auto* srcLine2 = src.getLinePtr(srcY + 1, srcWidth, buf2.data());
+	auto srcLine0 = src.getLine(srcY - 1, buf0);
+	auto srcLine1 = src.getLine(srcY + 0, buf1);
+	auto srcLine2 = src.getLine(srcY + 1, buf2);
 
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
-		auto* srcLine3 = src.getLinePtr(srcY + 2, srcWidth, buf3.data());
+		auto srcLine3 = src.getLine(srcY + 2, buf3);
 		auto* dstUpper = dst.acquireLine(dstY + 0);
 		auto* dstLower = dst.acquireLine(dstY + 1);
-		scaleLine1on2(srcLine0, srcLine1, srcLine2, srcLine3,
+		scaleLine1on2(srcLine0.data(), srcLine1.data(), srcLine2.data(), srcLine3.data(),
 		              dstUpper, dstLower, srcWidth);
 		dst.releaseLine(dstY + 0, dstUpper);
 		dst.releaseLine(dstY + 1, dstLower);
@@ -287,15 +287,15 @@ void SaI2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	VLA_SSE_ALIGNED(Pixel, buf3, srcWidth);
 
 	int srcY = srcStartY;
-	auto* srcLine0 = src.getLinePtr(srcY - 1, srcWidth, buf0.data());
-	auto* srcLine1 = src.getLinePtr(srcY + 0, srcWidth, buf1.data());
-	auto* srcLine2 = src.getLinePtr(srcY + 1, srcWidth, buf2.data());
+	auto srcLine0 = src.getLine(srcY - 1, buf0);
+	auto srcLine1 = src.getLine(srcY + 0, buf1);
+	auto srcLine2 = src.getLine(srcY + 1, buf2);
 
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
-		auto* srcLine3 = src.getLinePtr(srcY + 2, srcWidth, buf3.data());
+		auto srcLine3 = src.getLine(srcY + 2, buf3);
 		auto* dstUpper = dst.acquireLine(dstY + 0);
 		auto* dstLower = dst.acquireLine(dstY + 1);
-		scaleLine1on1(srcLine0, srcLine1, srcLine2, srcLine3,
+		scaleLine1on1(srcLine0.data(), srcLine1.data(), srcLine2.data(), srcLine3.data(),
 		              dstUpper, dstLower, srcWidth);
 		dst.releaseLine(dstY + 0, dstUpper);
 		dst.releaseLine(dstY + 1, dstLower);

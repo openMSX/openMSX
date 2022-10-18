@@ -122,18 +122,18 @@ void GLHQScaler::uploadBlock(
 
 	VLA_SSE_ALIGNED(Pixel, buf1, lineWidth);
 	VLA_SSE_ALIGNED(Pixel, buf2, lineWidth);
-	const auto* curr = paintFrame.getLinePtr(srcStartY - 1, lineWidth, buf1.data());
-	const auto* next = paintFrame.getLinePtr(srcStartY + 0, lineWidth, buf2.data());
+	auto curr = paintFrame.getLine(srcStartY - 1, buf1);
+	auto next = paintFrame.getLine(srcStartY + 0, buf2);
 	EdgeHQ edgeOp(0, 8, 16);
-	calcEdgesGL(curr, next, tmpBuf2.data(), edgeOp);
+	calcEdgesGL(curr, next, tmpBuf2, edgeOp);
 
 	edgeBuffer.bind();
 	if (auto* mapped = edgeBuffer.mapWrite()) {
 		for (auto y : xrange(srcStartY, srcEndY)) {
 			curr = next;
 			std::swap(buf1, buf2);
-			next = paintFrame.getLinePtr(y + 1, lineWidth, buf2.data());
-			calcEdgesGL(curr, next, tmpBuf2.data(), edgeOp);
+			next = paintFrame.getLine(y + 1, buf2);
+			calcEdgesGL(curr, next, tmpBuf2, edgeOp);
 			memcpy(mapped + 320 * y, tmpBuf2.data(), 320 * sizeof(uint16_t));
 		}
 		edgeBuffer.unmap();

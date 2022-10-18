@@ -102,9 +102,12 @@ struct EdgeHQLite
 };
 
 template<typename EdgeOp>
-void calcEdgesGL(const uint32_t* __restrict curr, const uint32_t* __restrict next,
-                 Endian::L32* __restrict edges2, EdgeOp edgeOp)
+void calcEdgesGL(std::span<const uint32_t> curr, std::span<const uint32_t> next,
+                 std::span<Endian::L32> edges2, EdgeOp edgeOp)
 {
+	assert(curr.size() == 320);
+	assert(next.size() == 320);
+	assert(edges2.size() == 320 / 2);
 	// Consider a grid of 3x3 pixels, numbered like this:
 	//    1 | 2 | 3
 	//   ---A---B---
@@ -189,10 +192,13 @@ void calcEdgesGL(const uint32_t* __restrict curr, const uint32_t* __restrict nex
 
 template<std::unsigned_integral Pixel, typename EdgeOp>
 void calcInitialEdges(
-	const Pixel* __restrict srcPrev, const Pixel* __restrict srcCurr,
+	std::span<const Pixel> srcPrev, std::span<const Pixel> srcCurr,
 	std::span<uint16_t> edgeBuf, EdgeOp edgeOp)
 {
 	unsigned srcWidth = edgeBuf.size();
+	assert(srcPrev.size() == srcWidth);
+	assert(srcCurr.size() == srcWidth);
+
 	unsigned x = 0;
 	uint32_t c1 = readPixel(srcPrev[x]);
 	uint32_t c2 = readPixel(srcCurr[x]);
@@ -225,14 +231,14 @@ void doHQScale2(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& postScale
 	VLA_SSE_ALIGNED(Pixel, bufB, 2 * srcWidth);
 
 	int srcY = srcStartY;
-	auto* srcPrev = src.getLinePtr(srcY - 1, srcWidth, buf1.data());
-	auto* srcCurr = src.getLinePtr(srcY + 0, srcWidth, buf2.data());
+	auto srcPrev = src.getLine(srcY - 1, buf1);
+	auto srcCurr = src.getLine(srcY + 0, buf2);
 
 	calcInitialEdges(srcPrev, srcCurr, edgeBuf, edgeOp);
 
 	bool isCopy = postScale.isCopy();
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
-		auto* srcNext = src.getLinePtr(srcY + 1, srcWidth, buf3.data());
+		auto srcNext = src.getLine(srcY + 1, buf3);
 		auto* dst0 = dst.acquireLine(dstY + 0);
 		auto* dst1 = dst.acquireLine(dstY + 1);
 		if (isCopy) {
@@ -267,14 +273,14 @@ void doHQScale3(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& postScale
 	VLA_SSE_ALIGNED(Pixel, bufC, 3 * srcWidth);
 
 	int srcY = srcStartY;
-	auto* srcPrev = src.getLinePtr(srcY - 1, srcWidth, buf1.data());
-	auto* srcCurr = src.getLinePtr(srcY + 0, srcWidth, buf2.data());
+	auto srcPrev = src.getLine(srcY - 1, buf1);
+	auto srcCurr = src.getLine(srcY + 0, buf2);
 
 	calcInitialEdges(srcPrev, srcCurr, edgeBuf, edgeOp);
 
 	bool isCopy = postScale.isCopy();
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 3) {
-		auto* srcNext = src.getLinePtr(srcY + 1, srcWidth, buf3.data());
+		auto srcNext = src.getLine(srcY + 1, buf3);
 		auto* dst0 = dst.acquireLine(dstY + 0);
 		auto* dst1 = dst.acquireLine(dstY + 1);
 		auto* dst2 = dst.acquireLine(dstY + 2);

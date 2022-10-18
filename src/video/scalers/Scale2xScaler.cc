@@ -316,15 +316,15 @@ void Scale2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	VLA_SSE_ALIGNED(Pixel, buf2, srcWidth);
 
 	int srcY = srcStartY;
-	auto* srcPrev = src.getLinePtr(srcY - 1, srcWidth, buf0.data());
-	auto* srcCurr = src.getLinePtr(srcY + 0, srcWidth, buf1.data());
+	auto srcPrev = src.getLine(srcY - 1, buf0);
+	auto srcCurr = src.getLine(srcY + 0, buf1);
 
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
-		auto* srcNext = src.getLinePtr(srcY + 1, srcWidth, buf2.data());
+		auto srcNext = src.getLine(srcY + 1, buf2);
 		auto* dstUpper = dst.acquireLine(dstY + 0);
 		auto* dstLower = dst.acquireLine(dstY + 1);
 		scaleLine_1on2(dstUpper, dstLower,
-		               srcPrev, srcCurr, srcNext,
+		               srcPrev.data(), srcCurr.data(), srcNext.data(),
 		               srcWidth);
 		dst.releaseLine(dstY + 0, dstUpper);
 		dst.releaseLine(dstY + 1, dstLower);
@@ -345,15 +345,15 @@ void Scale2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	VLA_SSE_ALIGNED(Pixel, buf2, srcWidth);
 
 	int srcY = srcStartY;
-	auto* srcPrev = src.getLinePtr(srcY - 1, srcWidth, buf0.data());
-	auto* srcCurr = src.getLinePtr(srcY + 0, srcWidth, buf1.data());
+	auto srcPrev = src.getLine(srcY - 1, buf0);
+	auto srcCurr = src.getLine(srcY + 0, buf1);
 
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
-		auto* srcNext = src.getLinePtr(srcY + 1, srcWidth, buf2.data());
+		auto srcNext = src.getLine(srcY + 1, buf2);
 		auto* dstUpper = dst.acquireLine(dstY + 0);
 		auto* dstLower = dst.acquireLine(dstY + 1);
 		scaleLine_1on1(dstUpper, dstLower,
-		               srcPrev, srcCurr, srcNext,
+		               srcPrev.data(), srcCurr.data(), srcNext.data(),
 		               srcWidth);
 		dst.releaseLine(dstY + 0, dstUpper);
 		dst.releaseLine(dstY + 1, dstLower);

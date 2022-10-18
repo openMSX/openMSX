@@ -103,18 +103,18 @@ void RGBTriplet3xScaler<Pixel>::doScale1(FrameSource& src,
 	unsigned tmpWidth = dstWidth / 3;
 	int scanlineFactor = settings.getScanlineFactor();
 	unsigned y = dstStartY;
-	auto* srcLine = src.getLinePtr(srcStartY++, srcWidth, buf.data());
+	auto srcLine = src.getLine(srcStartY++, buf);
 	auto* dstLine0 = dst.acquireLine(y + 0);
-	scaleLine(srcLine, dstLine0, scale, tmpWidth, c1, c2);
+	scaleLine(srcLine.data(), dstLine0, scale, tmpWidth, c1, c2);
 
 	Scale_1on1<Pixel> copy;
 	auto* dstLine1 = dst.acquireLine(y + 1);
 	copy(dstLine0, dstLine1, dstWidth);
 
 	for (/* */; (y + 4) < dstEndY; y += 3, srcStartY += 1) {
-		srcLine = src.getLinePtr(srcStartY, srcWidth, buf.data());
+		srcLine = src.getLine(srcStartY, buf);
 		auto* dstLine3 = dst.acquireLine(y + 3);
-		scaleLine(srcLine, dstLine3, scale, tmpWidth, c1, c2);
+		scaleLine(srcLine.data(), dstLine3, scale, tmpWidth, c1, c2);
 
 		auto* dstLine4 = dst.acquireLine(y + 4);
 		copy(dstLine3, dstLine4, dstWidth);
@@ -130,9 +130,9 @@ void RGBTriplet3xScaler<Pixel>::doScale1(FrameSource& src,
 		dstLine1 = dstLine4;
 	}
 
-	srcLine = src.getLinePtr(srcStartY, srcWidth, buf.data());
+	srcLine = src.getLine(srcStartY, buf);
 	VLA_SSE_ALIGNED(Pixel, buf2, dstWidth);
-	scaleLine(srcLine, buf2.data(), scale, tmpWidth, c1, c2);
+	scaleLine(srcLine.data(), buf2.data(), scale, tmpWidth, c1, c2);
 	auto* dstLine2 = dst.acquireLine(y + 2);
 	scanline.draw(dstLine0, buf2.data(), dstLine2, scanlineFactor, dstWidth);
 	dst.releaseLine(y + 0, dstLine0);
@@ -154,13 +154,13 @@ void RGBTriplet3xScaler<Pixel>::doScale2(FrameSource& src,
 	int scanlineFactor = settings.getScanlineFactor();
 	for (unsigned srcY = srcStartY, dstY = dstStartY; dstY < dstEndY;
 	     srcY += 2, dstY += 3) {
-		auto* srcLine0 = src.getLinePtr(srcY + 0, srcWidth, buf.data());
+		auto srcLine0 = src.getLine(srcY + 0, buf);
 		auto* dstLine0 = dst.acquireLine(dstY + 0);
-		scaleLine(srcLine0, dstLine0, scale, tmpWidth, c1, c2);
+		scaleLine(srcLine0.data(), dstLine0, scale, tmpWidth, c1, c2);
 
-		auto* srcLine1 = src.getLinePtr(srcY + 1, srcWidth, buf.data());
+		auto srcLine1 = src.getLine(srcY + 1, buf);
 		auto* dstLine2 = dst.acquireLine(dstY + 2);
-		scaleLine(srcLine1, dstLine2, scale, tmpWidth, c1, c2);
+		scaleLine(srcLine1.data(), dstLine2, scale, tmpWidth, c1, c2);
 
 		auto* dstLine1 = dst.acquireLine(dstY + 1);
 		scanline.draw(dstLine0, dstLine2, dstLine1,

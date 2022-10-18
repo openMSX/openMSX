@@ -321,11 +321,11 @@ const void* ZMBVEncoder::getScaledLine(FrameSource* frame, unsigned y, void* wor
 		auto* workBuf = static_cast<uint32_t*>(workBuf_);
 		switch (height) {
 		case 240:
-			return frame->getLinePtr320_240(y, workBuf);
+			return frame->getLinePtr320_240(y, std::span<uint32_t, 320>(workBuf, 320)).data();
 		case 480:
-			return frame->getLinePtr640_480(y, workBuf);
+			return frame->getLinePtr640_480(y, std::span<uint32_t, 640>(workBuf, 640)).data();
 		case 720:
-			return frame->getLinePtr960_720(y, workBuf);
+			return frame->getLinePtr960_720(y, std::span<uint32_t, 960>(workBuf, 960)).data();
 		default:
 			UNREACHABLE;
 		}
@@ -336,11 +336,11 @@ const void* ZMBVEncoder::getScaledLine(FrameSource* frame, unsigned y, void* wor
 		auto* workBuf = static_cast<uint16_t*>(workBuf_);
 		switch (height) {
 		case 240:
-			return frame->getLinePtr320_240(y, workBuf);
+			return frame->getLinePtr320_240(y, std::span<uint16_t, 320>(workBuf, 320)).data();
 		case 480:
-			return frame->getLinePtr640_480(y, workBuf);
+			return frame->getLinePtr640_480(y, std::span<uint16_t, 640>(workBuf, 640)).data();
 		case 720:
-			return frame->getLinePtr960_720(y, workBuf);
+			return frame->getLinePtr960_720(y, std::span<uint16_t, 960>(workBuf, 960)).data();
 		default:
 			UNREACHABLE;
 		}

@@ -43,9 +43,9 @@ void SuperImposeScalerOutput<Pixel>::releaseLine(unsigned y, Pixel* buf)
 {
 	unsigned width = output.getWidth();
 	VLA_SSE_ALIGNED(Pixel, buf2, width);
-	auto* srcLine = getSrcLine(y, buf2.data());
+	auto srcLine = getSrcLine(y, buf2);
 	AlphaBlendLines<Pixel> alphaBlend(pixelOps);
-	alphaBlend(buf, srcLine, buf, width);
+	alphaBlend(buf, srcLine.data(), buf, width);
 	output.releaseLine(y, buf);
 }
 
@@ -58,35 +58,35 @@ void SuperImposeScalerOutput<Pixel>::fillLine(unsigned y, Pixel color)
 		MemoryOps::MemSet<Pixel> memset;
 		memset(dstLine, width, color);
 	} else {
-		auto* srcLine = getSrcLine(y, dstLine);
+		auto srcLine = getSrcLine(y, std::span{dstLine, width});
 		if (pixelOps.isFullyTransparent(color)) {
 			// optimization: use destination as work buffer, in case
 			// that buffer got used, we don't need to make a copy
 			// anymore
-			if (srcLine != dstLine) {
+			if (srcLine.data() != dstLine) {
 				Scale_1on1<Pixel> copy;
-				copy(srcLine, dstLine, width);
+				copy(srcLine.data(), dstLine, width);
 			}
 		} else {
 			AlphaBlendLines<Pixel> alphaBlend(pixelOps);
-			alphaBlend(color, srcLine, dstLine, width); // possibly srcLine == dstLine
+			alphaBlend(color, srcLine.data(), dstLine, width); // possibly srcLine == dstLine
 		}
 	}
 	output.releaseLine(y, dstLine);
 }
 
 template<std::unsigned_integral Pixel>
-const Pixel* SuperImposeScalerOutput<Pixel>::getSrcLine(unsigned y, Pixel* buf)
+std::span<const Pixel> SuperImposeScalerOutput<Pixel>::getSrcLine(unsigned y, std::span<Pixel> buf)
 {
-	unsigned width = output.getWidth();
+	unsigned width = buf.size();
 	if (width == 320) {
-		return superImpose.getLinePtr320_240(y, buf);
+		return superImpose.getLinePtr320_240(y, std::span<Pixel, 320>(buf));
 	} else if (width == 640) {
-		return superImpose.getLinePtr640_480(y, buf);
+		return superImpose.getLinePtr640_480(y, std::span<Pixel, 640>(buf));
 	} else if (width == 960) {
-		return superImpose.getLinePtr960_720(y, buf);
+		return superImpose.getLinePtr960_720(y, std::span<Pixel, 960>(buf));
 	} else {
-		UNREACHABLE; return nullptr;
+		UNREACHABLE; return {};
 	}
 }
 

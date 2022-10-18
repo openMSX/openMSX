@@ -20,7 +20,7 @@ namespace openmsx {
 
 template<std::unsigned_integral Pixel> struct HQ_1x1on3x3
 {
-	void operator()(const Pixel* in0, const Pixel* in1, const Pixel* in2,
+	void operator()(std::span<const Pixel> in0, std::span<const Pixel> in1, std::span<const Pixel> in2,
 	                Pixel* out0, Pixel* out1, Pixel* out2,
 	                std::span<uint16_t> edgeBuf, EdgeHQ edgeOp)
 	               __restrict;
@@ -28,13 +28,17 @@ template<std::unsigned_integral Pixel> struct HQ_1x1on3x3
 
 template<std::unsigned_integral Pixel>
 void HQ_1x1on3x3<Pixel>::operator()(
-	const Pixel* __restrict in0, const Pixel* __restrict in1,
-	const Pixel* __restrict in2,
+	std::span<const Pixel> in0, std::span<const Pixel> in1, std::span<const Pixel> in2,
 	Pixel* __restrict out0, Pixel* __restrict out1,
 	Pixel* __restrict out2,
 	std::span<uint16_t> edgeBuf,
 	EdgeHQ edgeOp) __restrict
 {
+	auto srcWidth = edgeBuf.size();
+	assert(in0.size() == srcWidth);
+	assert(in1.size() == srcWidth);
+	assert(in2.size() == srcWidth);
+
 	unsigned c2 = readPixel(in0[0]); unsigned c3 = c2;
 	unsigned c5 = readPixel(in1[0]); unsigned c6 = c5;
 	unsigned c8 = readPixel(in2[0]); unsigned c9 = c8;
@@ -43,7 +47,6 @@ void HQ_1x1on3x3<Pixel>::operator()(
 	if (edgeOp(c5, c8)) pattern |= 3 <<  6;
 	if (edgeOp(c5, c2)) pattern |= 3 <<  9;
 
-	auto srcWidth = edgeBuf.size();
 	for (auto x : xrange(srcWidth)) {
 		unsigned c1 = c2;
 		unsigned c4 = c5;

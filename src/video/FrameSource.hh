@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cassert>
 #include <concepts>
+#include <span>
 
 namespace openmsx {
 
@@ -90,18 +91,18 @@ public:
 	  * buffer or the work buffer).
 	  */
 	template<std::unsigned_integral Pixel>
-	[[nodiscard]] inline const Pixel* getLinePtr(int line, unsigned width, Pixel* buf) const
+	[[nodiscard]] inline std::span<const Pixel> getLine(int line, std::span<Pixel> buf) const
 	{
 		line = std::min<unsigned>(std::max(0, line), getHeight() - 1);
 		unsigned internalWidth;
 		auto* internalData = reinterpret_cast<const Pixel*>(
-			getLineInfo(line, internalWidth, buf, width));
-		if (internalWidth == width) {
-			return internalData;
+			getLineInfo(line, internalWidth, buf.data(), buf.size()));
+		if (internalWidth == buf.size()) {
+			return std::span{internalData, buf.size()};
 		} else {
 			// slow path, non-inlined
 			// internalData might be equal to buf
-			scaleLine(internalData, buf, internalWidth, width);
+			scaleLine(internalData, buf.data(), internalWidth, buf.size()); // TODO pass 2x span
 			return buf;
 		}
 	}
@@ -129,21 +130,21 @@ public:
 	  * This is used for video recording.
 	  */
 	template<std::unsigned_integral Pixel>
-	[[nodiscard]] const Pixel* getLinePtr320_240(unsigned line, Pixel* buf) const;
+	[[nodiscard]] std::span<const Pixel, 320> getLinePtr320_240(unsigned line, std::span<Pixel, 320> buf) const;
 
 	/** Get a pointer to a given line in this frame, the frame is scaled
 	  * to 640x480 pixels. Same as getLinePtr320_240, but then for a
 	  * higher resolution output.
 	  */
 	template<std::unsigned_integral Pixel>
-	[[nodiscard]] const Pixel* getLinePtr640_480(unsigned line, Pixel* buf) const;
+	[[nodiscard]] std::span<const Pixel, 640> getLinePtr640_480(unsigned line, std::span<Pixel, 640> buf) const;
 
 	/** Get a pointer to a given line in this frame, the frame is scaled
 	  * to 960x720 pixels. Same as getLinePtr320_240, but then for a
 	  * higher resolution output.
 	  */
 	template<std::unsigned_integral Pixel>
-	[[nodiscard]] const Pixel* getLinePtr960_720(unsigned line, Pixel* buf) const;
+	[[nodiscard]] std::span<const Pixel, 960> getLinePtr960_720(unsigned line, std::span<Pixel, 960> buf) const;
 
 	[[nodiscard]] const PixelFormat& getPixelFormat() const {
 		return pixelFormat;
