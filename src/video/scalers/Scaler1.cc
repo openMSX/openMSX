@@ -92,7 +92,7 @@ static void doScaleDV(FrameSource& src,
 		auto* dstLine = dst.acquireLine(dstY);
 		scale(srcLine0, std::span{dstLine, dstWidth}); // buf02 -> dstLine
 		scale(srcLine1, buf2);                         // buf1  -> buf02
-		blend(dstLine, buf0.data(), dstLine, dstWidth); // dstLine + buf02 -> dstLine
+		blend(std::span{dstLine, dstWidth}, buf0, std::span{dstLine, dstWidth}); // dstLine + buf02 -> dstLine
 		dst.releaseLine(dstY, dstLine);
 	}
 }
@@ -151,7 +151,7 @@ void Scaler1<Pixel>::scale1x2to1x1(FrameSource& src,
 		std::span bufDst{dstLine, srcWidth};
 		auto srcLine0 = src.getLine(srcStartY++, bufDst); // dstLine
 		auto srcLine1 = src.getLine(srcStartY++, buf);    // buf
-		blend(srcLine0.data(), srcLine1.data(), dstLine, dstWidth); // dstLine + buf -> dstLine
+		blend(srcLine0, srcLine1, std::span{dstLine, dstWidth}); // dstLine + buf -> dstLine
 		dst.releaseLine(dstY, dstLine);
 	}
 }

@@ -92,7 +92,7 @@ static void doScaleDV(FrameSource& src,
 		scale(srcLine1, std::span{dstLine2, dstWidth});
 
 		auto* dstLine1 = dst.acquireLine(dstY + 1);
-		blend(dstLine0, dstLine2, dstLine1, dstWidth);
+		blend(std::span{dstLine0, dstWidth}, std::span{dstLine2, dstWidth}, std::span{dstLine1, dstWidth});
 
 		dst.releaseLine(dstY + 0, dstLine0);
 		dst.releaseLine(dstY + 1, dstLine1);

@@ -52,7 +52,7 @@ const void* SuperImposedVideoFrame<Pixel>::getLineInfo(
 			auto sup0 = super.getLine(2 * line + 0, buf2);
 			auto sup1 = super.getLine(2 * line + 1, buf3);
 			BlendLines<Pixel> blend(pixelOps);
-			blend(sup0.data(), sup1.data(), buf2.data(), width); // possibly sup0 == buf2
+			blend(sup0, sup1, buf2); // possibly sup0 == buf2
 			return std::span<const Pixel>(buf2);
 		} else {
 			assert(src.getHeight() == super.getHeight());
@@ -63,7 +63,7 @@ const void* SuperImposedVideoFrame<Pixel>::getLineInfo(
 
 	// Actually blend the lines of both frames.
 	AlphaBlendLines<Pixel> blend(pixelOps);
-	blend(srcLine, supLine.data(), buf1, width); // possibly srcLine == buf1
+	blend(std::span{srcLine, width}, supLine, std::span{buf1, width}); // possibly srcLine == buf1
 	return buf1;
 }
 

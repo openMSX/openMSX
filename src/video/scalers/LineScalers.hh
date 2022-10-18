@@ -228,8 +228,8 @@ template<std::unsigned_integral Pixel, unsigned w1 = 1, unsigned w2 = 1> class B
 {
 public:
 	explicit BlendLines(PixelOperations<Pixel> pixelOps);
-	void operator()(const Pixel* in1, const Pixel* in2,
-	                Pixel* out, size_t width);
+	void operator()(std::span<const Pixel> in1, std::span<const Pixel> in2,
+	                std::span<Pixel> out);
 private:
 	PixelOperations<Pixel> pixelOps;
 };
@@ -254,16 +254,15 @@ private:
  * @param in1 First input line
  * @param in2 Second input line
  * @param out Output line
- * @param width Width of the lines in pixels
  */
 template<std::unsigned_integral Pixel> class AlphaBlendLines
 {
 public:
 	explicit AlphaBlendLines(PixelOperations<Pixel> pixelOps);
-	void operator()(const Pixel* in1, const Pixel* in2,
-	                Pixel* out, size_t width);
-	void operator()(Pixel in1, const Pixel* in2,
-	                Pixel* out, size_t width);
+	void operator()(std::span<const Pixel> in1, std::span<const Pixel> in2,
+	                std::span<Pixel> out);
+	void operator()(Pixel in1, std::span<const Pixel> in2,
+	                std::span<Pixel> out);
 private:
 	PixelOperations<Pixel> pixelOps;
 };
@@ -1090,12 +1089,14 @@ BlendLines<Pixel, w1, w2>::BlendLines(PixelOperations<Pixel> pixelOps_)
 
 template<std::unsigned_integral Pixel, unsigned w1, unsigned w2>
 void BlendLines<Pixel, w1, w2>::operator()(
-	const Pixel* in1, const Pixel* in2, Pixel* out, size_t width)
+	std::span<const Pixel> in1, std::span<const Pixel> in2, std::span<Pixel> out)
 {
 	// It _IS_ allowed that the output is the same as one of the inputs.
 	// TODO SSE optimizations
 	// pure C++ version
-	for (auto i : xrange(width)) {
+	assert(in1.size() == in2.size());
+	assert(in1.size() == out.size());
+	for (auto i : xrange(in1.size())) { // TODO zip_equal()
 		out[i] = pixelOps.template blend<w1, w2>(in1[i], in2[i]);
 	}
 }
@@ -1133,23 +1134,26 @@ AlphaBlendLines<Pixel>::AlphaBlendLines(PixelOperations<Pixel> pixelOps_)
 
 template<std::unsigned_integral Pixel>
 void AlphaBlendLines<Pixel>::operator()(
-	const Pixel* in1, const Pixel* in2, Pixel* out, size_t width)
+	std::span<const Pixel> in1, std::span<const Pixel> in2, std::span<Pixel> out)
 {
 	// It _IS_ allowed that the output is the same as one of the inputs.
-	for (auto i : xrange(width)) {
+	assert(in1.size() == in2.size());
+	assert(in1.size() == out.size());
+	for (auto i : xrange(in1.size())) { // TODO zip_equal()
 		out[i] = pixelOps.alphaBlend(in1[i], in2[i]);
 	}
 }
 
 template<std::unsigned_integral Pixel>
 void AlphaBlendLines<Pixel>::operator()(
-	Pixel in1, const Pixel* in2, Pixel* out, size_t width)
+	Pixel in1, std::span<const Pixel> in2, std::span<Pixel> out)
 {
 	// It _IS_ allowed that the output is the same as the input.
 
 	// ATM this routine is only called when 'in1' is not fully opaque nor
 	// fully transparent. This cannot happen in 16bpp modes.
 	assert(sizeof(Pixel) == 4);
+	assert(in2.size() == out.size());
 
 	unsigned alpha = pixelOps.alpha(in1);
 
@@ -1161,7 +1165,7 @@ void AlphaBlendLines<Pixel>::operator()(
 	//    }
 	Pixel in1M = pixelOps.multiply(in1, alpha);
 	unsigned alpha2 = 256 - alpha;
-	for (auto i : xrange(width)) {
+	for (auto i : xrange(in2.size())) { // TODO zip_equal()
 		out[i] = in1M + pixelOps.multiply(in2[i], alpha2);
 	}
 }

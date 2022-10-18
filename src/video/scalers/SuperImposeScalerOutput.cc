@@ -45,7 +45,7 @@ void SuperImposeScalerOutput<Pixel>::releaseLine(unsigned y, Pixel* buf)
 	VLA_SSE_ALIGNED(Pixel, buf2, width);
 	auto srcLine = getSrcLine(y, buf2);
 	AlphaBlendLines<Pixel> alphaBlend(pixelOps);
-	alphaBlend(buf, srcLine.data(), buf, width);
+	alphaBlend(std::span{buf, width}, srcLine, std::span{buf, width});
 	output.releaseLine(y, buf);
 }
 
@@ -69,7 +69,7 @@ void SuperImposeScalerOutput<Pixel>::fillLine(unsigned y, Pixel color)
 			}
 		} else {
 			AlphaBlendLines<Pixel> alphaBlend(pixelOps);
-			alphaBlend(color, srcLine.data(), dstLine, width); // possibly srcLine == dstLine
+			alphaBlend(color, srcLine, std::span{dstLine, width}); // possibly srcLine == dstLine
 		}
 	}
 	output.releaseLine(y, dstLine);

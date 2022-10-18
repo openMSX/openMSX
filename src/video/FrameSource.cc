@@ -32,7 +32,7 @@ std::span<const Pixel, 320> FrameSource::getLinePtr320_240(unsigned line, std::s
 		auto line1 = getLine(2 * line + 1, std::span<Pixel>(buf1));
 		PixelOperations<Pixel> pixelOps(pixelFormat);
 		BlendLines<Pixel> blend(pixelOps);
-		blend(line0.data(), line1.data(), buf0.data(), 320); // possibly line0 == buf0 // TODO span
+		blend(line0, line1, buf0); // possibly line0 == buf0 // TODO span
 		return buf0;
 	}
 }
@@ -66,7 +66,7 @@ std::span<const Pixel, 960> FrameSource::getLinePtr960_720(unsigned line, std::s
 		auto line1 = getLine(l2 + 1, std::span<Pixel>(buf1));
 		PixelOperations<Pixel> pixelOps(pixelFormat);
 		BlendLines<Pixel> blend(pixelOps);
-		blend(line0.data(), line1.data(), buf0.data(), 960); // possibly line0 == buf0
+		blend(line0, line1, buf0); // possibly line0 == buf0
 		return buf0;
 	} else {
 		assert(getHeight() == 240);
