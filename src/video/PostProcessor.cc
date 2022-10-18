@@ -210,9 +210,10 @@ void PostProcessor::executeUntil(EmuTime::param /*time*/)
 
 using WorkBuffer = std::vector<MemBuffer<char, SSE_ALIGNMENT>>;
 static void getScaledFrame(FrameSource& paintFrame, unsigned bpp,
-                           unsigned height, const void** lines,
+                           std::span<const void*> lines,
                            WorkBuffer& workBuffer)
 {
+	auto height = lines.size();
 	unsigned width = (height == 240) ? 320 : 640;
 	unsigned pitch = width * ((bpp == 32) ? 4 : 2);
 	const void* line = nullptr;
@@ -259,9 +260,9 @@ void PostProcessor::takeRawScreenShot(unsigned height2, const std::string& filen
 
 	VLA(const void*, lines, height2);
 	WorkBuffer workBuffer;
-	getScaledFrame(*paintFrame, getBpp(), height2, lines, workBuffer);
+	getScaledFrame(*paintFrame, getBpp(), lines, workBuffer);
 	unsigned width = (height2 == 240) ? 320 : 640;
-	PNG::save(width, height2, lines, paintFrame->getPixelFormat(), filename);
+	PNG::save(width, lines, paintFrame->getPixelFormat(), filename);
 }
 
 unsigned PostProcessor::getBpp() const

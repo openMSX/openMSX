@@ -143,7 +143,7 @@ void AviRecorder::addWave(std::span<const StereoFloat> data)
 				buf[2 * i + 1] = float2int16(s.right);
 			}
 			assert(aviWriter);
-			audioBuf.insert(end(audioBuf), buf, buf + 2 * num);
+			append(audioBuf, buf);
 		}
 	} else {
 		VLA(int16_t, buf, num);
@@ -165,10 +165,10 @@ void AviRecorder::addWave(std::span<const StereoFloat> data)
 		}
 
 		if (wavWriter) {
-			wavWriter->write(buf, 1, num);
+			wavWriter->write(buf.data(), 1, buf.size());
 		} else {
 			assert(aviWriter);
-			audioBuf.insert(end(audioBuf), buf, buf + num);
+			append(audioBuf, buf);
 		}
 	}
 }

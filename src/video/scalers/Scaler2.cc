@@ -51,7 +51,7 @@ static void doScale1(FrameSource& src,
 	Scale_1on1<Pixel> copy;
 	unsigned dstWidth = dst.getWidth();
 	for (unsigned y = dstStartY; y < dstEndY; y += 2, ++srcStartY) {
-		auto* srcLine = src.getLinePtr(srcStartY, srcWidth, buf);
+		auto* srcLine = src.getLinePtr(srcStartY, srcWidth, buf.data());
 		auto* dstLine0 = dst.acquireLine(y + 0);
 		scale(srcLine, dstLine0, dstWidth);
 		auto* dstLine1 = dst.acquireLine(y + 1);
@@ -71,7 +71,7 @@ static void doScale2(FrameSource& src,
 	unsigned dstWidth = dst.getWidth();
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; ++dstY, ++srcY) {
-		auto* srcLine = src.getLinePtr(srcY, srcWidth, buf);
+		auto* srcLine = src.getLinePtr(srcY, srcWidth, buf.data());
 		auto* dstLine = dst.acquireLine(dstY);
 		scale(srcLine, dstLine, dstWidth);
 		dst.releaseLine(dstY, dstLine);

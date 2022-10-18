@@ -37,7 +37,7 @@ void Simple3xScaler<Pixel>::doScale1(FrameSource& src,
 	int scanlineFactor = settings.getScanlineFactor();
 	unsigned dstWidth = dst.getWidth();
 	unsigned y = dstStartY;
-	auto* srcLine = src.getLinePtr(srcStartY++, srcWidth, buf);
+	auto* srcLine = src.getLinePtr(srcStartY++, srcWidth, buf.data());
 	auto* dstLine0 = dst.acquireLine(y + 0);
 	scale(srcLine, dstLine0, dstWidth);
 
@@ -46,7 +46,7 @@ void Simple3xScaler<Pixel>::doScale1(FrameSource& src,
 	copy(dstLine0, dstLine1, dstWidth);
 
 	for (/* */; (y + 4) < dstEndY; y += 3, srcStartY += 1) {
-		srcLine = src.getLinePtr(srcStartY, srcWidth, buf);
+		srcLine = src.getLinePtr(srcStartY, srcWidth, buf.data());
 		auto* dstLine3 = dst.acquireLine(y + 3);
 		scale(srcLine, dstLine3, dstWidth);
 
@@ -63,12 +63,12 @@ void Simple3xScaler<Pixel>::doScale1(FrameSource& src,
 		dstLine0 = dstLine3;
 		dstLine1 = dstLine4;
 	}
-	srcLine = src.getLinePtr(srcStartY, srcWidth, buf);
+	srcLine = src.getLinePtr(srcStartY, srcWidth, buf.data());
 	VLA_SSE_ALIGNED(Pixel, buf2, dstWidth);
-	scale(srcLine, buf2, dstWidth);
+	scale(srcLine, buf2.data(), dstWidth);
 
 	auto* dstLine2 = dst.acquireLine(y + 2);
-	scanline.draw(dstLine0, buf2, dstLine2, scanlineFactor, dstWidth);
+	scanline.draw(dstLine0, buf2.data(), dstLine2, scanlineFactor, dstWidth);
 	dst.releaseLine(y + 0, dstLine0);
 	dst.releaseLine(y + 1, dstLine1);
 	dst.releaseLine(y + 2, dstLine2);
@@ -85,11 +85,11 @@ void Simple3xScaler<Pixel>::doScale2(FrameSource& src,
 	unsigned dstWidth = dst.getWidth();
 	for (unsigned srcY = srcStartY, dstY = dstStartY; dstY < dstEndY;
 	     srcY += 2, dstY += 3) {
-		auto* srcLine0 = src.getLinePtr(srcY + 0, srcWidth, buf);
+		auto* srcLine0 = src.getLinePtr(srcY + 0, srcWidth, buf.data());
 		auto* dstLine0 = dst.acquireLine(dstY + 0);
 		scale(srcLine0, dstLine0, dstWidth);
 
-		auto* srcLine1 = src.getLinePtr(srcY + 1, srcWidth, buf);
+		auto* srcLine1 = src.getLinePtr(srcY + 1, srcWidth, buf.data());
 		auto* dstLine2 = dst.acquireLine(dstY + 2);
 		scale(srcLine1, dstLine2, dstWidth);
 

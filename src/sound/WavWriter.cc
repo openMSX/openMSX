@@ -130,8 +130,7 @@ void Wav16Writer::write(std::span<const StereoFloat> buffer, float ampLeft, floa
 
 void Wav16Writer::writeSilence(unsigned samples)
 {
-	VLA(int16_t, buf_, samples);
-	std::span buf{buf_, samples};
+	VLA(int16_t, buf, samples);
 	ranges::fill(buf, 0);
 	file.write(buf.data(), buf.size_bytes());
 	bytes += buf.size_bytes();

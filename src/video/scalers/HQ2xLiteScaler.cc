@@ -22,15 +22,15 @@ namespace openmsx {
 template<std::unsigned_integral Pixel> struct HQLite_1x1on2x2
 {
 	void operator()(const Pixel* in0, const Pixel* in1, const Pixel* in2,
-	                Pixel* out0, Pixel* out1, unsigned srcWidth,
-	                unsigned* edgeBuf, EdgeHQLite edgeOp) __restrict;
+	                Pixel* out0, Pixel* out1,
+	                std::span<uint16_t> edgeBuf, EdgeHQLite edgeOp) __restrict;
 };
 
 template<std::unsigned_integral Pixel> struct HQLite_1x1on1x2
 {
 	void operator()(const Pixel* in0, const Pixel* in1, const Pixel* in2,
-	                Pixel* out0, Pixel* out1, unsigned srcWidth,
-	                unsigned* edgeBuf, EdgeHQLite edgeOp) __restrict;
+	                Pixel* out0, Pixel* out1,
+	                std::span<uint16_t> edgeBuf, EdgeHQLite edgeOp) __restrict;
 };
 
 template<std::unsigned_integral Pixel>
@@ -38,7 +38,7 @@ void HQLite_1x1on2x2<Pixel>::operator()(
 	const Pixel* __restrict in0, const Pixel* __restrict in1,
 	const Pixel* __restrict in2,
 	Pixel* __restrict out0, Pixel* __restrict out1,
-	unsigned srcWidth, unsigned* __restrict edgeBuf,
+	std::span<uint16_t> edgeBuf,
 	EdgeHQLite /*edgeOp*/) __restrict
 {
 	unsigned c2 = readPixel(in0[0]);
@@ -49,6 +49,7 @@ void HQLite_1x1on2x2<Pixel>::operator()(
 	if (c5 != c8) pattern |= 3 <<  6;
 	if (c5 != c2) pattern |= 3 <<  9;
 
+	auto srcWidth = edgeBuf.size();
 	for (auto x : xrange(srcWidth)) {
 		unsigned c4 = c5;
 		c5 = c6;
@@ -95,7 +96,7 @@ void HQLite_1x1on1x2<Pixel>::operator()(
 	const Pixel* __restrict in0, const Pixel* __restrict in1,
 	const Pixel* __restrict in2,
 	Pixel* __restrict out0, Pixel* __restrict out1,
-	unsigned srcWidth, unsigned* __restrict edgeBuf,
+	std::span<uint16_t> edgeBuf,
 	EdgeHQLite /*edgeOp*/) __restrict
 {
 	//  +---+---+---+
@@ -113,6 +114,7 @@ void HQLite_1x1on1x2<Pixel>::operator()(
 	if (c5 != c8) pattern |= 3 <<  6;
 	if (c5 != c2) pattern |= 3 <<  9;
 
+	auto srcWidth = edgeBuf.size();
 	for (auto x : xrange(srcWidth)) {
 		unsigned c4 = c5;
 		c5 = c6;

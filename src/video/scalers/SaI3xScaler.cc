@@ -390,18 +390,18 @@ void SaI3xScaler<Pixel>::scaleFixed(FrameSource& src,
 	assert(dst.getWidth() == srcWidth * NX);
 	assert(dst.getHeight() == src.getHeight() * NY);
 
-	VLA_SSE_ALIGNED(Pixel, buf0_, srcWidth); auto* buf0 = buf0_;
-	VLA_SSE_ALIGNED(Pixel, buf1_, srcWidth); auto* buf1 = buf1_;
-	VLA_SSE_ALIGNED(Pixel, buf2_, srcWidth); auto* buf2 = buf2_;
-	VLA_SSE_ALIGNED(Pixel, buf3_, srcWidth); auto* buf3 = buf3_;
+	VLA_SSE_ALIGNED(Pixel, buf0, srcWidth);
+	VLA_SSE_ALIGNED(Pixel, buf1, srcWidth);
+	VLA_SSE_ALIGNED(Pixel, buf2, srcWidth);
+	VLA_SSE_ALIGNED(Pixel, buf3, srcWidth);
 
 	int srcY = srcStartY;
-	auto* src0 = src.getLinePtr(srcY - 1, srcWidth, buf0);
-	auto* src1 = src.getLinePtr(srcY + 0, srcWidth, buf1);
-	auto* src2 = src.getLinePtr(srcY + 1, srcWidth, buf2);
+	auto* src0 = src.getLinePtr(srcY - 1, srcWidth, buf0.data());
+	auto* src1 = src.getLinePtr(srcY + 0, srcWidth, buf1.data());
+	auto* src2 = src.getLinePtr(srcY + 1, srcWidth, buf2.data());
 
 	for (auto dstY : xrange(dstStartY, dstEndY)) {
-		auto* src3 = src.getLinePtr(srcY + 2, srcWidth, buf3);
+		auto* src3 = src.getLinePtr(srcY + 2, srcWidth, buf3.data());
 		LineRepeater<NY>::template scaleFixedLine<NX, NY, Pixel>(
 			src0, src1, src2, src3, srcWidth, dst, dstY);
 		src0 = src1;
@@ -434,10 +434,10 @@ void SaI3xScaler<Pixel>::scaleAny(FrameSource& src,
 		// Get source line pointers.
 		int line = srcStartY + (h >> 16);
 		// TODO possible optimization: reuse srcN from previous step
-		auto* src0 = src.getLinePtr(line - 1, srcWidth, buf0);
-		auto* src1 = src.getLinePtr(line + 0, srcWidth, buf1);
-		auto* src2 = src.getLinePtr(line + 1, srcWidth, buf2);
-		auto* src3 = src.getLinePtr(line + 2, srcWidth, buf3);
+		auto* src0 = src.getLinePtr(line - 1, srcWidth, buf0.data());
+		auto* src1 = src.getLinePtr(line + 0, srcWidth, buf1.data());
+		auto* src2 = src.getLinePtr(line + 1, srcWidth, buf2.data());
+		auto* src3 = src.getLinePtr(line + 2, srcWidth, buf3.data());
 
 		// Get destination line pointer.
 		auto* dstLine = dst.acquireLine(dstY);

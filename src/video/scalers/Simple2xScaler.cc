@@ -389,12 +389,12 @@ void Simple2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	int scanlineFactor = settings.getScanlineFactor();
 
 	unsigned dstY = dstStartY;
-	auto* srcLine = src.getLinePtr(srcStartY++, srcWidth, buf);
+	auto* srcLine = src.getLinePtr(srcStartY++, srcWidth, buf.data());
 	auto* dstLine0 = dst.acquireLine(dstY + 0);
 	blur1on2(srcLine, dstLine0, blur, srcWidth);
 
 	for (/**/; dstY < dstEndY - 2; dstY += 2) {
-		srcLine = src.getLinePtr(srcStartY++, srcWidth, buf);
+		srcLine = src.getLinePtr(srcStartY++, srcWidth, buf.data());
 		auto* dstLine2 = dst.acquireLine(dstY + 2);
 		blur1on2(srcLine, dstLine2, blur, srcWidth);
 
@@ -407,12 +407,12 @@ void Simple2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 		dstLine0 = dstLine2;
 	}
 
-	srcLine = src.getLinePtr(srcStartY++, srcWidth, buf);
+	srcLine = src.getLinePtr(srcStartY++, srcWidth, buf.data());
 	VLA_SSE_ALIGNED(Pixel, buf2, 2 * srcWidth);
-	blur1on2(srcLine, buf2, blur, srcWidth);
+	blur1on2(srcLine, buf2.data(), blur, srcWidth);
 
 	auto* dstLine1 = dst.acquireLine(dstY + 1);
-	drawScanline(dstLine0, buf2, dstLine1, scanlineFactor, 2 * srcWidth);
+	drawScanline(dstLine0, buf2.data(), dstLine1, scanlineFactor, 2 * srcWidth);
 	dst.releaseLine(dstY + 0, dstLine0);
 	dst.releaseLine(dstY + 1, dstLine1);
 }
@@ -427,12 +427,12 @@ void Simple2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	int scanlineFactor = settings.getScanlineFactor();
 
 	unsigned dstY = dstStartY;
-	auto* srcLine = src.getLinePtr(srcStartY++, srcWidth, buf);
+	auto* srcLine = src.getLinePtr(srcStartY++, srcWidth, buf.data());
 	auto* dstLine0 = dst.acquireLine(dstY);
 	blur1on1(srcLine, dstLine0, blur, srcWidth);
 
 	for (/**/; dstY < dstEndY - 2; dstY += 2) {
-		srcLine = src.getLinePtr(srcStartY++, srcWidth, buf);
+		srcLine = src.getLinePtr(srcStartY++, srcWidth, buf.data());
 		auto* dstLine2 = dst.acquireLine(dstY + 2);
 		blur1on1(srcLine, dstLine2, blur, srcWidth);
 
@@ -445,12 +445,12 @@ void Simple2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 		dstLine0 = dstLine2;
 	}
 
-	srcLine = src.getLinePtr(srcStartY++, srcWidth, buf);
+	srcLine = src.getLinePtr(srcStartY++, srcWidth, buf.data());
 	VLA_SSE_ALIGNED(Pixel, buf2, srcWidth);
-	blur1on1(srcLine, buf2, blur, srcWidth);
+	blur1on1(srcLine, buf2.data(), blur, srcWidth);
 
 	auto* dstLine1 = dst.acquireLine(dstY + 1);
-	drawScanline(dstLine0, buf2, dstLine1, scanlineFactor, srcWidth);
+	drawScanline(dstLine0, buf2.data(), dstLine1, scanlineFactor, srcWidth);
 	dst.releaseLine(dstY + 0, dstLine0);
 	dst.releaseLine(dstY + 1, dstLine1);
 }

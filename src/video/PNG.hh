@@ -3,6 +3,7 @@
 
 #include "PixelFormat.hh"
 #include "SDLSurfacePtr.hh"
+#include <span>
 #include <string>
 
 /** Utility functions to hide the complexity of saving to a PNG file.
@@ -16,12 +17,12 @@ namespace openmsx::PNG {
 	 */
 	[[nodiscard]] SDLSurfacePtr load(const std::string& filename, bool want32bpp);
 
-	void save(unsigned width, unsigned height, const void** rowPointers,
+	void save(size_t width, std::span<const void*> rowPointers,
 	          const PixelFormat& format, const std::string& filename);
-	void save(unsigned width, unsigned height, const void** rowPointers,
+	void save(size_t width, std::span<const void*> rowPointers,
 	          const std::string& filename);
-	void saveGrayscale(unsigned width, unsigned height,
-	                   const void** rowPointers, const std::string& filename);
+	void saveGrayscale(size_t width, std::span<const void*> rowPointers,
+	                   const std::string& filename);
 
 } // namespace openmsx::PNG
 

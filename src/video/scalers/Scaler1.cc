@@ -66,7 +66,7 @@ static void doScale1(FrameSource& src,
 	unsigned dstWidth = dst.getWidth();
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; ++srcY, ++dstY) {
-		auto* srcLine = src.getLinePtr(srcY, srcWidth, buf);
+		auto* srcLine = src.getLinePtr(srcY, srcWidth, buf.data());
 		auto* dstLine = dst.acquireLine(dstY);
 		scale(srcLine, dstLine, dstWidth);
 		dst.releaseLine(dstY, dstLine);
@@ -85,12 +85,12 @@ static void doScaleDV(FrameSource& src,
 	VLA_SSE_ALIGNED(Pixel, buf1, srcWidth);
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 2, dstY += 1) {
-		auto* srcLine0 = src.getLinePtr(srcY + 0, srcWidth, buf0);
-		auto* srcLine1 = src.getLinePtr(srcY + 1, srcWidth, buf1);
+		auto* srcLine0 = src.getLinePtr(srcY + 0, srcWidth, buf0.data());
+		auto* srcLine1 = src.getLinePtr(srcY + 1, srcWidth, buf1.data());
 		auto* dstLine = dst.acquireLine(dstY);
-		scale(srcLine0, dstLine,  dstWidth); // dstLine  iso buf0
-		scale(srcLine1, buf0,     dstWidth); // buf0 iso buf1
-		blend(dstLine, buf0, dstLine, dstWidth); // use input as output
+		scale(srcLine0, dstLine,     dstWidth); // dstLine  iso buf0
+		scale(srcLine1, buf0.data(), dstWidth); // buf0 iso buf1
+		blend(dstLine, buf0.data(), dstLine, dstWidth); // use input as output
 		dst.releaseLine(dstY, dstLine);
 	}
 }
@@ -146,7 +146,7 @@ void Scaler1<Pixel>::scale1x2to1x1(FrameSource& src,
 	for (auto dstY : xrange(dstStartY, dstEndY)) {
 		auto* dstLine = dst.acquireLine(dstY);
 		auto* srcLine0 = src.getLinePtr(srcStartY++, srcWidth, dstLine);
-		auto* srcLine1 = src.getLinePtr(srcStartY++, srcWidth, buf);
+		auto* srcLine1 = src.getLinePtr(srcStartY++, srcWidth, buf.data());
 		blend(srcLine0, srcLine1, dstLine, dstWidth); // possibly srcLine0 == dstLine
 		dst.releaseLine(dstY, dstLine);
 	}

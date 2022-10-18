@@ -89,9 +89,8 @@ void SRAM::load(bool* loaded)
 			  File::LOAD_PERSISTENT);
 		if (header) {
 			size_t length = strlen(header);
-			VLA(char, temp, length);
-			std::span buf{temp, length};
-			file.read(temp, length);
+			VLA(char, buf, length);
+			file.read(buf.data(), buf.size_bytes());
 			headerOk = ranges::equal(buf, std::span{header, length});
 		}
 		if (headerOk) {

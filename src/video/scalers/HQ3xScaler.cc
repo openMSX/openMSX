@@ -22,7 +22,7 @@ template<std::unsigned_integral Pixel> struct HQ_1x1on3x3
 {
 	void operator()(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 	                Pixel* out0, Pixel* out1, Pixel* out2,
-	                unsigned srcWidth, unsigned* edgeBuf, EdgeHQ edgeOp)
+	                std::span<uint16_t> edgeBuf, EdgeHQ edgeOp)
 	               __restrict;
 };
 
@@ -32,7 +32,7 @@ void HQ_1x1on3x3<Pixel>::operator()(
 	const Pixel* __restrict in2,
 	Pixel* __restrict out0, Pixel* __restrict out1,
 	Pixel* __restrict out2,
-	unsigned srcWidth, unsigned* __restrict edgeBuf,
+	std::span<uint16_t> edgeBuf,
 	EdgeHQ edgeOp) __restrict
 {
 	unsigned c2 = readPixel(in0[0]); unsigned c3 = c2;
@@ -43,6 +43,7 @@ void HQ_1x1on3x3<Pixel>::operator()(
 	if (edgeOp(c5, c8)) pattern |= 3 <<  6;
 	if (edgeOp(c5, c2)) pattern |= 3 <<  9;
 
+	auto srcWidth = edgeBuf.size();
 	for (auto x : xrange(srcWidth)) {
 		unsigned c1 = c2;
 		unsigned c4 = c5;

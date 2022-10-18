@@ -136,7 +136,7 @@ void SDLGLVisibleSurface::saveScreenshotGL(
 		}
 	}
 
-	PNG::save(w, h, rowPointers, filename);
+	PNG::save(w, rowPointers, filename);
 }
 
 void SDLGLVisibleSurface::finish()

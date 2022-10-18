@@ -126,7 +126,7 @@ void SDLVisibleSurface::saveScreenshotSDL(
 			SDL_PIXELFORMAT_RGB24, buffer.data(), width * 3)) {
 		throw MSXException("Couldn't acquire screenshot pixels: ", SDL_GetError());
 	}
-	PNG::save(width, height, rowPointers, filename);
+	PNG::save(width, rowPointers, filename);
 }
 
 void SDLVisibleSurface::clearScreen()

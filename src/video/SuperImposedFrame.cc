@@ -93,7 +93,7 @@ const void* SuperImposedFrameImpl<Pixel>::getLineInfo(
 	auto* tBuf = static_cast<Pixel*>(buf);
 	VLA_SSE_ALIGNED(Pixel, bBuf, width);
 	auto* tLine = top   ->getLinePtr(tNum, width, tBuf);
-	auto* bLine = bottom->getLinePtr(bNum, width, bBuf);
+	auto* bLine = bottom->getLinePtr(bNum, width, bBuf.data());
 
 	AlphaBlendLines<Pixel> blend(pixelOps);
 	blend(tLine, bLine, tBuf, width); // possibly tLine == tBuf

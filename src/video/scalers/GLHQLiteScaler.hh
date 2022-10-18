@@ -3,6 +3,7 @@
 
 #include "GLScaler.hh"
 #include "GLUtil.hh"
+#include <array>
 #include <cstdint>
 
 namespace openmsx {
@@ -24,7 +25,7 @@ public:
 private:
 	GLScaler& fallback;
 	gl::Texture edgeTexture;
-	gl::Texture offsetTexture[3];
+	std::array<gl::Texture, 3> offsetTexture;
 	gl::PixelBuffer<uint16_t> edgeBuffer;
 };
 

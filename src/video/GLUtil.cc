@@ -172,10 +172,10 @@ void Shader::init(GLenum type, std::string_view header, std::string_view filenam
 	// note: the null terminator is included, so empty string has length 1
 	if (!ok || (!Version::RELEASE && infoLogLength > 1)) {
 		VLA(GLchar, infoLog, infoLogLength);
-		glGetShaderInfoLog(handle, infoLogLength, nullptr, infoLog);
+		glGetShaderInfoLog(handle, infoLogLength, nullptr, infoLog.data());
 		std::cerr << (ok ? "Warning" : "Error") << "(s) compiling shader \""
 		          << filename << "\":\n"
-			  << (infoLogLength > 1 ? infoLog : "(no details available)\n");
+			  << (infoLogLength > 1 ? infoLog.data() : "(no details available)\n");
 	}
 }
 
@@ -242,10 +242,10 @@ void ShaderProgram::link()
 	// note: the null terminator is included, so empty string has length 1
 	if (!ok || (!Version::RELEASE && infoLogLength > 1)) {
 		VLA(GLchar, infoLog, infoLogLength);
-		glGetProgramInfoLog(handle, infoLogLength, nullptr, infoLog);
+		glGetProgramInfoLog(handle, infoLogLength, nullptr, infoLog.data());
 		fprintf(stderr, "%s(s) linking shader program:\n%s\n",
 			ok ? "Warning" : "Error",
-			infoLogLength > 1 ? infoLog : "(no details available)\n");
+			infoLogLength > 1 ? infoLog.data() : "(no details available)\n");
 	}
 }
 
@@ -277,10 +277,10 @@ void ShaderProgram::validate() const
 	glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &infoLogLength);
 	// note: the null terminator is included, so empty string has length 1
 	VLA(GLchar, infoLog, infoLogLength);
-	glGetProgramInfoLog(handle, infoLogLength, nullptr, infoLog);
+	glGetProgramInfoLog(handle, infoLogLength, nullptr, infoLog.data());
 	std::cout << "Validate "
 	          << ((validateStatus == GL_TRUE) ? "OK" : "FAIL")
-	          << ": " << infoLog << '\n';
+	          << ": " << infoLog.data() << '\n';
 }
 
 

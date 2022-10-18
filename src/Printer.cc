@@ -1621,7 +1621,7 @@ std::string Paper::save() const
 	for (auto y : xrange(sizeY)) {
 		rowPointers[y] = &buf[sizeX * y];
 	}
-	PNG::saveGrayscale(sizeX, sizeY, rowPointers, filename);
+	PNG::saveGrayscale(sizeX, rowPointers, filename);
 	return filename;
 }
 

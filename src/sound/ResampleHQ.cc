@@ -620,10 +620,11 @@ void ResampleHQ<CHANNELS>::prepareData(unsigned emuNum)
 			buffer.resize(buffer.size() + missing * CHANNELS);
 		}
 	}
-	VLA_SSE_ALIGNED(float, tmpBuf, emuNum * CHANNELS + 3);
-	if (input.generateInput(tmpBuf, emuNum)) {
-		ranges::copy(std::span{tmpBuf, emuNum * CHANNELS},
-		             &buffer[bufEnd * CHANNELS]);
+	VLA_SSE_ALIGNED(float, tmpBufExtra, emuNum * CHANNELS + 3);
+	auto tmpBuf = tmpBufExtra.subspan(0, emuNum * CHANNELS);
+	if (input.generateInput(tmpBufExtra.data(), emuNum)) {
+		ranges::copy(tmpBuf,
+		             subspan(buffer, bufEnd * CHANNELS));
 		bufEnd += emuNum;
 		nonzeroSamples = bufEnd - bufStart;
 	} else {

@@ -2,6 +2,7 @@
 #define GLHQSCALER_HH
 
 #include "GLScaler.hh"
+#include <array>
 #include <cstdint>
 
 namespace openmsx {
@@ -23,8 +24,8 @@ public:
 private:
 	GLScaler& fallback;
 	gl::Texture edgeTexture;
-	gl::Texture offsetTexture[3];
-	gl::Texture weightTexture[3];
+	std::array<gl::Texture, 3> offsetTexture;
+	std::array<gl::Texture, 3> weightTexture;
 	gl::PixelBuffer<uint16_t> edgeBuffer;
 };
 

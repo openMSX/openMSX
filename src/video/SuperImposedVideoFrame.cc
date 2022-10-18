@@ -49,14 +49,14 @@ const void* SuperImposedVideoFrame<Pixel>::getLineInfo(
 	const Pixel* supLine = [&]() -> const Pixel* {
 		if (src.getHeight() == 240) {
 			VLA_SSE_ALIGNED(Pixel, buf3, width);
-			auto* sup0 = super.getLinePtr(2 * line + 0, width, buf2);
-			auto* sup1 = super.getLinePtr(2 * line + 1, width, buf3);
+			auto* sup0 = super.getLinePtr(2 * line + 0, width, buf2.data());
+			auto* sup1 = super.getLinePtr(2 * line + 1, width, buf3.data());
 			BlendLines<Pixel> blend(pixelOps);
-			blend(sup0, sup1, buf2, width); // possibly sup0 == buf2
-			return buf2;
+			blend(sup0, sup1, buf2.data(), width); // possibly sup0 == buf2
+			return buf2.data();
 		} else {
 			assert(src.getHeight() == super.getHeight());
-			return super.getLinePtr(line, width, buf2); // scale line
+			return super.getLinePtr(line, width, buf2.data()); // scale line
 		}
 	}();
 	// (possibly) supLine == buf2

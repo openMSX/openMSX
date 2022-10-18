@@ -38,7 +38,7 @@ bool ResampleBlip<CHANNELS>::generateOutputImpl(float* dataOut, unsigned hostNum
 		VLA_SSE_ALIGNED(float, buf, len);
 		EmuTime emu1 = emuClk.getFastAdd(1); // time of 1st emu-sample
 		assert(emu1 > hostClock.getTime());
-		if (input.generateInput(buf, emuNum)) {
+		if (input.generateInput(buf.data(), emuNum)) {
 			FP pos1;
 			hostClock.getTicksTill(emu1, pos1);
 			for (auto ch : xrange(CHANNELS)) {

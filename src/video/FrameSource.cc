@@ -82,7 +82,7 @@ void FrameSource::scaleLine(
 		// TODO If the LineScaler routines can work in-place then this
 		//      copy can be avoided.
 		ranges::copy(std::span{in, inWidth}, tmpBuf);
-		in = tmpBuf;
+		in = tmpBuf.data();
 	}
 
 	// TODO is there a better way to implement this?

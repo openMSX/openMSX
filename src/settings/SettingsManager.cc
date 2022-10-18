@@ -64,9 +64,9 @@ BaseSetting* SettingsManager::findSetting(std::string_view prefix, std::string_v
 {
 	auto size = prefix.size() + baseName.size();
 	VLA(char, fullname, size);
-	ranges::copy(prefix,   &fullname[0]);
-	ranges::copy(baseName, &fullname[prefix.size()]);
-	return findSetting(std::string_view(fullname, size));
+	ranges::copy(prefix,   fullname);
+	ranges::copy(baseName, fullname.subspan(prefix.size()));
+	return findSetting(std::string_view(fullname.data(), size)); // TODO simplify in c++23
 }
 
 // Helper functions for setting commands

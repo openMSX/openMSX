@@ -190,8 +190,9 @@ void calcEdgesGL(const uint32_t* __restrict curr, const uint32_t* __restrict nex
 template<std::unsigned_integral Pixel, typename EdgeOp>
 void calcInitialEdges(
 	const Pixel* __restrict srcPrev, const Pixel* __restrict srcCurr,
-	unsigned srcWidth, unsigned* __restrict edgeBuf, EdgeOp edgeOp)
+	std::span<uint16_t> edgeBuf, EdgeOp edgeOp)
 {
+	unsigned srcWidth = edgeBuf.size();
 	unsigned x = 0;
 	uint32_t c1 = readPixel(srcPrev[x]);
 	uint32_t c2 = readPixel(srcCurr[x]);
@@ -216,32 +217,32 @@ void doHQScale2(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& postScale
 	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
 {
-	VLA(unsigned, edgeBuf, srcWidth);
-	VLA_SSE_ALIGNED(Pixel, buf1_, srcWidth); auto* buf1 = buf1_;
-	VLA_SSE_ALIGNED(Pixel, buf2_, srcWidth); auto* buf2 = buf2_;
-	VLA_SSE_ALIGNED(Pixel, buf3_, srcWidth); auto* buf3 = buf3_;
+	VLA(uint16_t, edgeBuf, srcWidth);
+	VLA_SSE_ALIGNED(Pixel, buf1, srcWidth);
+	VLA_SSE_ALIGNED(Pixel, buf2, srcWidth);
+	VLA_SSE_ALIGNED(Pixel, buf3, srcWidth);
 	VLA_SSE_ALIGNED(Pixel, bufA, 2 * srcWidth);
 	VLA_SSE_ALIGNED(Pixel, bufB, 2 * srcWidth);
 
 	int srcY = srcStartY;
-	auto* srcPrev = src.getLinePtr(srcY - 1, srcWidth, buf1);
-	auto* srcCurr = src.getLinePtr(srcY + 0, srcWidth, buf2);
+	auto* srcPrev = src.getLinePtr(srcY - 1, srcWidth, buf1.data());
+	auto* srcCurr = src.getLinePtr(srcY + 0, srcWidth, buf2.data());
 
-	calcInitialEdges(srcPrev, srcCurr, srcWidth, edgeBuf, edgeOp);
+	calcInitialEdges(srcPrev, srcCurr, edgeBuf, edgeOp);
 
 	bool isCopy = postScale.isCopy();
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
-		auto* srcNext = src.getLinePtr(srcY + 1, srcWidth, buf3);
+		auto* srcNext = src.getLinePtr(srcY + 1, srcWidth, buf3.data());
 		auto* dst0 = dst.acquireLine(dstY + 0);
 		auto* dst1 = dst.acquireLine(dstY + 1);
 		if (isCopy) {
 			hqScale(srcPrev, srcCurr, srcNext, dst0, dst1,
-			      srcWidth, edgeBuf, edgeOp);
+			        edgeBuf, edgeOp);
 		} else {
-			hqScale(srcPrev, srcCurr, srcNext, bufA, bufB,
-			        srcWidth, edgeBuf, edgeOp);
-			postScale(bufA, dst0, dstWidth);
-			postScale(bufB, dst1, dstWidth);
+			hqScale(srcPrev, srcCurr, srcNext, bufA.data(), bufB.data(),
+			        edgeBuf, edgeOp);
+			postScale(bufA.data(), dst0, dstWidth);
+			postScale(bufB.data(), dst1, dstWidth);
 		}
 		dst.releaseLine(dstY + 0, dst0);
 		dst.releaseLine(dstY + 1, dst1);
@@ -257,35 +258,35 @@ void doHQScale3(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& postScale
 	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
 {
-	VLA(unsigned, edgeBuf, srcWidth);
-	VLA_SSE_ALIGNED(Pixel, buf1_, srcWidth); auto* buf1 = buf1_;
-	VLA_SSE_ALIGNED(Pixel, buf2_, srcWidth); auto* buf2 = buf2_;
-	VLA_SSE_ALIGNED(Pixel, buf3_, srcWidth); auto* buf3 = buf3_;
+	VLA(uint16_t, edgeBuf, srcWidth);
+	VLA_SSE_ALIGNED(Pixel, buf1, srcWidth);
+	VLA_SSE_ALIGNED(Pixel, buf2, srcWidth);
+	VLA_SSE_ALIGNED(Pixel, buf3, srcWidth);
 	VLA_SSE_ALIGNED(Pixel, bufA, 3 * srcWidth);
 	VLA_SSE_ALIGNED(Pixel, bufB, 3 * srcWidth);
 	VLA_SSE_ALIGNED(Pixel, bufC, 3 * srcWidth);
 
 	int srcY = srcStartY;
-	auto* srcPrev = src.getLinePtr(srcY - 1, srcWidth, buf1);
-	auto* srcCurr = src.getLinePtr(srcY + 0, srcWidth, buf2);
+	auto* srcPrev = src.getLinePtr(srcY - 1, srcWidth, buf1.data());
+	auto* srcCurr = src.getLinePtr(srcY + 0, srcWidth, buf2.data());
 
-	calcInitialEdges(srcPrev, srcCurr, srcWidth, edgeBuf, edgeOp);
+	calcInitialEdges(srcPrev, srcCurr, edgeBuf, edgeOp);
 
 	bool isCopy = postScale.isCopy();
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 3) {
-		auto* srcNext = src.getLinePtr(srcY + 1, srcWidth, buf3);
+		auto* srcNext = src.getLinePtr(srcY + 1, srcWidth, buf3.data());
 		auto* dst0 = dst.acquireLine(dstY + 0);
 		auto* dst1 = dst.acquireLine(dstY + 1);
 		auto* dst2 = dst.acquireLine(dstY + 2);
 		if (isCopy) {
 			hqScale(srcPrev, srcCurr, srcNext, dst0, dst1, dst2,
-			        srcWidth, edgeBuf, edgeOp);
+			        edgeBuf, edgeOp);
 		} else {
-			hqScale(srcPrev, srcCurr, srcNext, bufA, bufB, bufC,
-			        srcWidth, edgeBuf, edgeOp);
-			postScale(bufA, dst0, dstWidth);
-			postScale(bufB, dst1, dstWidth);
-			postScale(bufC, dst2, dstWidth);
+			hqScale(srcPrev, srcCurr, srcNext, bufA.data(), bufB.data(), bufC.data(),
+			        edgeBuf, edgeOp);
+			postScale(bufA.data(), dst0, dstWidth);
+			postScale(bufB.data(), dst1, dstWidth);
+			postScale(bufC.data(), dst2, dstWidth);
 		}
 		dst.releaseLine(dstY + 0, dst0);
 		dst.releaseLine(dstY + 1, dst1);

@@ -43,7 +43,7 @@ void SuperImposeScalerOutput<Pixel>::releaseLine(unsigned y, Pixel* buf)
 {
 	unsigned width = output.getWidth();
 	VLA_SSE_ALIGNED(Pixel, buf2, width);
-	auto* srcLine = getSrcLine(y, buf2);
+	auto* srcLine = getSrcLine(y, buf2.data());
 	AlphaBlendLines<Pixel> alphaBlend(pixelOps);
 	alphaBlend(buf, srcLine, buf, width);
 	output.releaseLine(y, buf);
