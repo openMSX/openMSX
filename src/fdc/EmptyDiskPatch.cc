@@ -9,14 +9,14 @@ EmptyDiskPatch::EmptyDiskPatch(SectorAccessibleDisk& disk_)
 {
 }
 
-void EmptyDiskPatch::copyBlock(size_t src, uint8_t* dst, size_t num) const
+void EmptyDiskPatch::copyBlock(size_t src, std::span<uint8_t> dst) const
 {
-	assert((num % SectorAccessibleDisk::SECTOR_SIZE) == 0);
+	assert((dst.size() % SectorAccessibleDisk::SECTOR_SIZE) == 0);
 	assert((src % SectorAccessibleDisk::SECTOR_SIZE) == 0);
-	auto* buf = aligned_cast<SectorBuffer*>(dst);
+	auto* buf = aligned_cast<SectorBuffer*>(dst.data());
 	disk.readSectorsImpl(buf,
 	                     src / SectorAccessibleDisk::SECTOR_SIZE,
-	                     num / SectorAccessibleDisk::SECTOR_SIZE);
+	                     dst.size() / SectorAccessibleDisk::SECTOR_SIZE);
 }
 
 size_t EmptyDiskPatch::getSize() const

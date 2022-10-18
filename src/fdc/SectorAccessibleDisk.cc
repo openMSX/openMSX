@@ -36,8 +36,8 @@ void SectorAccessibleDisk::readSectors(
 	try {
 		// in the end this calls readSectorsImpl()
 		patch->copyBlock(startSector * sizeof(SectorBuffer),
-		                 buffers[0].raw.data(),
-				 nbSectors * sizeof(SectorBuffer));
+		                 std::span{buffers[0].raw.data(),
+				           nbSectors * sizeof(SectorBuffer)});
 	} catch (MSXException& e) {
 		throw DiskIOErrorException("Disk I/O error: ", e.getMessage());
 	}

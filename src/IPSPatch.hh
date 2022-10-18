@@ -14,17 +14,16 @@ public:
 	IPSPatch(Filename filename,
 	         std::unique_ptr<const PatchInterface> parent);
 
-	void copyBlock(size_t src, byte* dst, size_t num) const override;
+	void copyBlock(size_t src, std::span<uint8_t> dst) const override;
 	[[nodiscard]] size_t getSize() const override { return size; }
 	[[nodiscard]] std::vector<Filename> getFilenames() const override;
 
 private:
 	struct Chunk {
 		size_t startAddress;
-		std::vector<byte> content;
+		std::vector<uint8_t> content;
 
 		[[nodiscard]] size_t size() const { return content.size(); }
-		[[nodiscard]] const byte* data() const { return content.data(); }
 		[[nodiscard]] size_t stopAddress() const { return startAddress + size(); }
 		[[nodiscard]] auto begin() const { return content.begin(); }
 		[[nodiscard]] auto end  () const { return content.end(); }

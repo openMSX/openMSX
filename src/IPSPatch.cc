@@ -27,7 +27,7 @@ std::vector<IPSPatch::Chunk> IPSPatch::parseChunks() const
 		std::array<uint8_t, 2> lenBuf;
 		ipsFile.read(lenBuf);
 		size_t length = 0x100 * lenBuf[0] + lenBuf[1];
-		std::vector<byte> v;
+		std::vector<uint8_t> v;
 		if (length == 0) {
 			// RLE encoded
 			std::array<uint8_t, 3> rleBuf;
@@ -53,11 +53,11 @@ std::vector<IPSPatch::Chunk> IPSPatch::parseChunks() const
 			auto stop  = std::max(offset + length, e->stopAddress());
 			auto length2 = stop - start;
 			++e;
-			std::vector<byte> tmp(length2);
+			std::vector<uint8_t> tmp(length2);
 			for (auto it : xrange(b, e)) {
-				ranges::copy(*it, &tmp[it->startAddress - start]);
+				ranges::copy(*it, subspan(tmp, it->startAddress - start));
 			}
-			ranges::copy(v, &tmp[offset - start]);
+			ranges::copy(v, subspan(tmp, offset - start));
 			*b = Chunk{start, std::move(tmp)};
 			result.erase(b + 1, e);
 		} else {
@@ -86,13 +86,14 @@ IPSPatch::IPSPatch(Filename filename_,
 {
 }
 
-void IPSPatch::copyBlock(size_t src, byte* dst, size_t num) const
+void IPSPatch::copyBlock(size_t src, std::span<uint8_t> dst) const
 {
-	parent->copyBlock(src, dst, num);
+	parent->copyBlock(src, dst);
 
 	auto b = ranges::lower_bound(chunks, src, {}, &Chunk::startAddress);
 	if (b != begin(chunks)) --b;
-	auto e = ranges::upper_bound(chunks, src + num - 1, {}, &Chunk::startAddress);
+	auto srcEnd = src + dst.size();
+	auto e = ranges::upper_bound(chunks, srcEnd - 1, {}, &Chunk::startAddress);
 	for (auto it : xrange(b, e)) {
 		auto chunkStart = it->startAddress;
 		int chunkSize = int(it->size());
@@ -100,7 +101,7 @@ void IPSPatch::copyBlock(size_t src, byte* dst, size_t num) const
 		int chunkOffset = int(src - chunkStart);
 		if (chunkOffset < 0) {
 			// start after src
-			assert(-chunkOffset < int(num)); // dont start past end
+			assert(-chunkOffset < int(dst.size())); // dont start past end
 			chunkOffset = 0;
 		} else if (chunkOffset >= chunkSize) {
 			// chunk completely before src, skip
@@ -112,7 +113,7 @@ void IPSPatch::copyBlock(size_t src, byte* dst, size_t num) const
 		}
 		// calc chunkSize
 		assert(src <= chunkStart);
-		int overflow = int(chunkStart - src + chunkSize - num);
+		int overflow = int(chunkStart - src + chunkSize - dst.size());
 		if (overflow > 0) {
 			assert(chunkSize > overflow);
 			chunkSize -= overflow;
@@ -121,9 +122,9 @@ void IPSPatch::copyBlock(size_t src, byte* dst, size_t num) const
 		assert(chunkOffset < int(it->size()));
 		assert((chunkOffset + chunkSize) <= int(it->size()));
 		assert(src <= chunkStart);
-		assert((chunkStart + chunkSize) <= (src + num));
-		ranges::copy(std::span{it->data() + chunkOffset, size_t(chunkSize)},
-		             dst + chunkStart - src);
+		assert((chunkStart + chunkSize) <= srcEnd);
+		ranges::copy(subspan(*it, chunkOffset, size_t(chunkSize)),
+		             subspan(dst, chunkStart - src));
 	}
 }
 

@@ -236,10 +236,10 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 			}
 			auto patchSize = patch->getSize();
 			if (patchSize <= rom.size()) {
-				patch->copyBlock(0, const_cast<byte*>(rom.data()), rom.size());
+				patch->copyBlock(0, std::span{const_cast<uint8_t*>(rom.data()), rom.size()});
 			} else {
 				MemBuffer<byte> extendedRom2(patchSize);
-				patch->copyBlock(0, extendedRom2.data(), patchSize);
+				patch->copyBlock(0, std::span{extendedRom2.data(), patchSize});
 				extendedRom = std::move(extendedRom2);
 				rom = std::span{extendedRom.data(), patchSize};
 			}
