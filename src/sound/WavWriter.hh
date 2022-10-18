@@ -2,6 +2,7 @@
 #define WAVWRITER_HH
 
 #include "File.hh"
+#include "Mixer.hh"
 #include "one_of.hh"
 #include <cassert>
 #include <cstdint>
@@ -46,9 +47,9 @@ public:
 	Wav8Writer(const Filename& filename, unsigned channels, unsigned frequency)
 		: WavWriter(filename, channels, 8, frequency) {}
 
-	void write(const uint8_t* buffer, unsigned stereo, unsigned samples) {
-		assert(stereo == one_of(1u, 2u));
-		write(buffer, stereo * samples);
+	void write(const uint8_t* buffer, unsigned channels, unsigned samples) {
+		assert(channels == one_of(1u, 2u));
+		write(buffer, channels * samples);
 	}
 
 private:
@@ -63,15 +64,16 @@ public:
 	Wav16Writer(const Filename& filename, unsigned channels, unsigned frequency)
 		: WavWriter(filename, channels, 16, frequency) {}
 
-	void write(const int16_t* buffer, unsigned stereo, unsigned samples) {
-		assert(stereo == one_of(1u, 2u));
-		write(buffer, stereo * samples);
+	void write(const int16_t* buffer, unsigned channels, unsigned samples) {
+		assert(channels == one_of(1u, 2u));
+		write(buffer, channels * samples);
 	}
-	void write(const float* buffer, unsigned stereo, unsigned samples,
-	           float ampLeft, float ampRight);
-	void writeSilence(unsigned stereo, unsigned samples) {
-		assert(stereo == one_of(1u, 2u));
-		writeSilence(stereo * samples);
+	void write(std::span<const float> buffer, float amp = 1.0f);
+	void write(std::span<const StereoFloat> buffer, float ampLeft = 1.0f, float ampRight = 1.0f);
+
+	void writeSilence(unsigned channels, unsigned samples) {
+		assert(channels == one_of(1u, 2u));
+		writeSilence(channels * samples);
 	}
 
 private:

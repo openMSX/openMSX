@@ -159,25 +159,23 @@ double MSXMixer::getEffectiveSpeed() const
 
 void MSXMixer::updateStream(EmuTime::param time)
 {
-	union {
-		float mixBuffer[8192 * 2]; // make sure buffer is 32-bit aligned
 #ifdef __SSE2__
-		__m128i dummy2; // and optionally also 128-bit
+	alignas(__m128) // (optionally) align for SSE instructions
 #endif
-	};
-
 	unsigned count = prevTime.getTicksTill(time);
 	assert(count <= 8192);
+	std::array<StereoFloat, 8192> mixBuffer_;
+	auto mixBuffer = subspan(mixBuffer_, 0, count);
 
 	// call generate() even if count==0 and even if muted
-	generate(mixBuffer, time, count);
+	generate(mixBuffer, time);
 
 	if (!muteCount && fragmentSize) {
-		mixer.uploadBuffer(*this, mixBuffer, count);
+		mixer.uploadBuffer(*this, mixBuffer);
 	}
 
 	if (recorder) {
-		recorder->addWave(count, mixBuffer);
+		recorder->addWave(mixBuffer);
 	}
 
 	prevTime += count;
@@ -191,13 +189,13 @@ void MSXMixer::updateStream(EmuTime::param time)
 // we skip the accumulation step.
 
 // buf[0:n] *= f
-static inline void mul(float* buf, int n, float f)
+static inline void mul(float* buf, size_t n, float f)
 {
 	// C++ version, unrolled 4x,
 	//   this allows gcc/clang to do much better auto-vectorization
 	// Note that this can process upto 3 samples too many, but that's OK.
 	assume_SSE_aligned(buf);
-	int i = 0;
+	size_t i = 0;
 	do {
 		buf[i + 0] *= f;
 		buf[i + 1] *= f;
@@ -206,15 +204,25 @@ static inline void mul(float* buf, int n, float f)
 		i += 4;
 	} while (i < n);
 }
+static inline void mul(std::span<float> buf, float f)
+{
+	assert(!buf.empty());
+	mul(buf.data(), buf.size(), f);
+}
+static inline void mul(std::span<StereoFloat> buf, float f)
+{
+	assert(!buf.empty());
+	mul(&buf.data()->left, 2 * buf.size(), f);
+}
 
 // acc[0:n] += mul[0:n] * f
 static inline void mulAcc(
-	float* __restrict acc, const float* __restrict mul, int n, float f)
+	float* __restrict acc, const float* __restrict mul, size_t n, float f)
 {
 	// C++ version, unrolled 4x, see comments above.
 	assume_SSE_aligned(acc);
 	assume_SSE_aligned(mul);
-	int i = 0;
+	size_t i = 0;
 	do {
 		acc[i + 0] += mul[i + 0] * f;
 		acc[i + 1] += mul[i + 1] * f;
@@ -223,12 +231,24 @@ static inline void mulAcc(
 		i += 4;
 	} while (i < n);
 }
+static inline void mulAcc(std::span<float> acc, std::span<const float> mul, float f)
+{
+	assert(!acc.empty());
+	assert(acc.size() == mul.size());
+	mulAcc(acc.data(), mul.data(), acc.size(), f);
+}
+static inline void mulAcc(std::span<StereoFloat> acc, std::span<const StereoFloat> mul, float f)
+{
+	assert(!acc.empty());
+	assert(acc.size() == mul.size());
+	mulAcc(&acc.data()->left, &mul.data()->left, 2 * acc.size(), f);
+}
 
 // buf[0:2n+0:2] = buf[0:n] * l
 // buf[1:2n+1:2] = buf[0:n] * r
-static inline void mulExpand(float* buf, int n, float l, float r)
+static inline void mulExpand(float* buf, size_t n, float l, float r)
 {
-	int i = n;
+	size_t i = n;
 	do {
 		--i; // back-to-front
 		auto t = buf[i];
@@ -236,46 +256,60 @@ static inline void mulExpand(float* buf, int n, float l, float r)
 		buf[2 * i + 1] = r * t;
 	} while (i != 0);
 }
+static inline void mulExpand(std::span<StereoFloat> buf, float l, float r)
+{
+	mulExpand(&buf.data()->left, buf.size(), l, r);
+}
 
 // acc[0:2n+0:2] += mul[0:n] * l
 // acc[1:2n+1:2] += mul[0:n] * r
 static inline void mulExpandAcc(
-	float* __restrict acc, const float* __restrict mul, int n,
+	float* __restrict acc, const float* __restrict mul, size_t n,
 	float l, float r)
 {
-	int i = 0;
+	size_t i = 0;
 	do {
 		auto t = mul[i];
 		acc[2 * i + 0] += l * t;
 		acc[2 * i + 1] += r * t;
 	} while (++i < n);
 }
+static inline void mulExpandAcc(
+	std::span<StereoFloat> acc, std::span<const float> mul, float l, float r)
+{
+	assert(!acc.empty());
+	assert(acc.size() == mul.size());
+	mulExpandAcc(&acc.data()->left, mul.data(), acc.size(), l, r);
+}
 
 // buf[0:2n+0:2] = buf[0:2n+0:2] * l1 + buf[1:2n+1:2] * l2
 // buf[1:2n+1:2] = buf[0:2n+0:2] * r1 + buf[1:2n+1:2] * r2
-static inline void mulMix2(float* buf, int n, float l1, float l2, float r1, float r2)
+static inline void mulMix2(std::span<StereoFloat> buf, float l1, float l2, float r1, float r2)
 {
-	int i = 0;
-	do {
-		auto t1 = buf[2 * i + 0];
-		auto t2 = buf[2 * i + 1];
-		buf[2 * i + 0] = l1 * t1 + l2 * t2;
-		buf[2 * i + 1] = r1 * t1 + r2 * t2;
-	} while (++i < n);
+	assert(!buf.empty());
+	for (auto& s : buf) {
+		auto t1 = s.left;
+		auto t2 = s.right;
+		s.left  = l1 * t1 + l2 * t2;
+		s.right = r1 * t1 + r2 * t2;
+	}
 }
 
 // acc[0:2n+0:2] += mul[0:2n+0:2] * l1 + mul[1:2n+1:2] * l2
 // acc[1:2n+1:2] += mul[0:2n+0:2] * r1 + mul[1:2n+1:2] * r2
 static inline void mulMix2Acc(
-	float* __restrict acc, const float* __restrict mul, int n,
+	std::span<StereoFloat> acc, std::span<const StereoFloat> mul,
 	float l1, float l2, float r1, float r2)
 {
-	int i = 0;
+	assert(!acc.empty());
+	assert(acc.size() == mul.size());
+	auto n = acc.size();
+	size_t i = 0;
 	do {
-		auto t1 = mul[2 * i + 0];
-		auto t2 = mul[2 * i + 1];
-		acc[2 * i + 0] += l1 * t1 + l2 * t2;
-		acc[2 * i + 1] += r1 * t1 + r2 * t2;
+		auto t1 = mul[i].left;
+		auto t2 = mul[i].right;
+		acc[i].left  += l1 * t1 + l2 * t2;
+		acc[i].right += r1 * t1 + r2 * t2;
 	} while (++i < n);
 }
 
@@ -294,109 +328,112 @@ static inline void mulMix2Acc(
 //  we take R = 511/512
 //   44100Hz --> cutoff freq = 14Hz
 //   22050Hz                     7Hz
-constexpr auto R = 511.0f / 512.0f;
+static constexpr auto R = 511.0f / 512.0f;
 
 // No new input, previous output was (non-zero) mono.
-static inline float filterMonoNull(float t0, float* __restrict out, int n)
+static inline float filterMonoNull(float t0, std::span<StereoFloat> out)
 {
-	assert(n > 0);
-	int i = 0;
-	do {
+	assert(!out.empty());
+	for (auto& o : out) {
 		auto t1 = R * t0;
 		auto s = t1 - t0;
-		out[2 * i + 0] = s;
-		out[2 * i + 1] = s;
+		o.left = s;
+		o.right = s;
 		t0 = t1;
-	} while (++i < n);
+	}
 	return t0;
 }
 
 // No new input, previous output was (non-zero) stereo.
 static inline std::tuple<float, float> filterStereoNull(
-	float tl0, float tr0, float* __restrict out, int n)
+	float tl0, float tr0, std::span<StereoFloat> out)
 {
-	assert(n > 0);
-	int i = 0;
-	do {
+	assert(!out.empty());
+	for (auto& o : out) {
 		float tl1 = R * tl0;
 		float tr1 = R * tr0;
-		out[2 * i + 0] = tl1 - tl0;
-		out[2 * i + 1] = tr1 - tr0;
+		o.left  = tl1 - tl0;
+		o.right = tr1 - tr0;
 		tl0 = tl1;
 		tr0 = tr1;
-	} while (++i < n);
+	}
 	return {tl0, tr0};
 }
 
 // New input is mono, previous output was also mono.
-static inline float filterMonoMono(float t0, const float* __restrict in,
-                                   float* __restrict out, int n)
+static inline float filterMonoMono(
+	float t0, std::span<const float> in, std::span<StereoFloat> out)
 {
-	assert(n > 0);
-	int i = 0;
-	do {
+	assert(in.size() == out.size());
+	assert(!out.empty());
+	for (auto [i, o] : enumerate(out)) { // TODO zip
 		auto t1 = R * t0 + in[i];
 		auto s = t1 - t0;
-		out[2 * i + 0] = s;
-		out[2 * i + 1] = s;
+		o.left  = s;
+		o.right = s;
 		t0 = t1;
-	} while (++i < n);
+	}
 	return t0;
 }
 
 // New input is mono, previous output was stereo
 static inline std::tuple<float, float>
-filterStereoMono(float tl0, float tr0, const float* __restrict in,
-                 float* __restrict out, int n)
+filterStereoMono(float tl0, float tr0,
+                 std::span<const float> in,
+                 std::span<StereoFloat> out)
 {
-	assert(n > 0);
-	int i = 0;
-	do {
+	assert(in.size() == out.size());
+	assert(!out.empty());
+	for (auto [i, o] : enumerate(out)) { // TODO zip
 		auto x = in[i];
 		auto tl1 = R * tl0 + x;
 		auto tr1 = R * tr0 + x;
-		out[2 * i + 0] = tl1 - tl0;
-		out[2 * i + 1] = tr1 - tr0;
+		o.left  = tl1 - tl0;
+		o.right = tr1 - tr0;
 		tl0 = tl1;
 		tr0 = tr1;
-	} while (++i < n);
+	}
 	return {tl0, tr0};
 }
 
 // New input is stereo, (previous output either mono/stereo)
 static inline std::tuple<float, float>
-filterStereoStereo(float tl0, float tr0, const float* __restrict in,
-                   float* __restrict out, int n)
+filterStereoStereo(float tl0, float tr0,
+                   std::span<const StereoFloat> in,
+                   std::span<StereoFloat> out)
 {
-	assert(n > 0);
-	int i = 0;
-	do {
-		auto tl1 = R * tl0 + in[2 * i + 0];
-		auto tr1 = R * tr0 + in[2 * i + 1];
-		out[2 * i + 0] = tl1 - tl0;
-		out[2 * i + 1] = tr1 - tr0;
+	assert(in.size() == out.size());
+	assert(!out.empty());
+	for (auto [i, o] : enumerate(out)) { // TODO zip
+		auto tl1 = R * tl0 + in[i].left;
+		auto tr1 = R * tr0 + in[i].right;
+		o.left  = tl1 - tl0;
+		o.right = tr1 - tr0;
 		tl0 = tl1;
 		tr0 = tr1;
-	} while (++i < n);
+	}
 	return {tl0, tr0};
 }
 
 // We have both mono and stereo input (and produce stereo output)
 static inline std::tuple<float, float>
-filterBothStereo(float tl0, float tr0, const float* __restrict inM,
-                 const float* __restrict inS, float* __restrict out, int n)
+filterBothStereo(float tl0, float tr0,
+                 std::span<const float> inM,
+                 std::span<const StereoFloat> inS,
+                 std::span<StereoFloat> out)
 {
-	assert(n > 0);
-	int i = 0;
-	do {
+	assert(inM.size() == out.size());
+	assert(inS.size() == out.size());
+	assert(!out.empty());
+	for (auto [i, o] : enumerate(out)) { // TODO zip
 		auto m = inM[i];
-		auto tl1 = R * tl0 + inS[2 * i + 0] + m;
-		auto tr1 = R * tr0 + inS[2 * i + 1] + m;
-		out[2 * i + 0] = tl1 - tl0;
-		out[2 * i + 1] = tr1 - tr0;
+		auto tl1 = R * tl0 + inS[i].left  + m;
+		auto tr1 = R * tr0 + inS[i].right + m;
+		o.left  = tl1 - tl0;
+		o.right = tr1 - tr0;
 		tl0 = tl1;
 		tr0 = tr1;
-	} while (++i < n);
+	}
 	return {tl0, tr0};
 }
 
@@ -406,7 +443,7 @@ static bool approxEqual(float x, float y)
 	return std::abs(x - y) < threshold;
 }
 
-void MSXMixer::generate(float* output, EmuTime::param time, unsigned samples)
+void MSXMixer::generate(std::span<StereoFloat> output, EmuTime::param time)
 {
 	// The code below is specialized for a lot of cases (before this
 	// routine was _much_ shorter). This is done because this routine
@@ -417,10 +454,11 @@ void MSXMixer::generate(float* output, EmuTime::param time, unsigned samples)
 
 	// When samples==0, call updateBuffer() but skip all further processing
 	// (handling this as a special case allows to simplify the code below).
+	auto samples = output.size(); // per channel
 	if (samples == 0) {
-		ALIGNAS_SSE float dummyBuf[4];
+		ALIGNAS_SSE std::array<float, 4> dummyBuf;
 		for (auto& info : infos) {
-			bool ignore = info.device->updateBuffer(0, dummyBuf, time);
+			bool ignore = info.device->updateBuffer(0, dummyBuf.data(), time);
 			(void)ignore;
 		}
 		return;
@@ -428,9 +466,16 @@ void MSXMixer::generate(float* output, EmuTime::param time, unsigned samples)
 
 	// +3 to allow processing samples in groups of 4 (and upto 3 samples
 	// more than requested).
-	VLA_SSE_ALIGNED(float, monoBuf,       samples + 3);
-	VLA_SSE_ALIGNED(float, stereoBuf, 2 * samples + 3);
-	VLA_SSE_ALIGNED(float, tmpBuf,    2 * samples + 3);
+	VLA_SSE_ALIGNED(float,       monoBuf_,   samples + 3);
+	VLA_SSE_ALIGNED(StereoFloat, stereoBuf_, samples + 3);
+	VLA_SSE_ALIGNED(StereoFloat, tmpBuf_,    samples + 3);
+	float* monoBufPtr   = &monoBuf_[0];
+	float* stereoBufPtr = &stereoBuf_[0].left;
+	float* tmpBufPtr    = &tmpBuf_[0].left; // can be used either for mono or stereo data
+	std::span monoBuf     {monoBuf_,   samples};
+	std::span stereoBuf   {stereoBuf_, samples};
+	std::span tmpBufMono  {tmpBufPtr,  samples}; // float
+	std::span tmpBufStereo{tmpBuf_,    samples}; // StereoFloat
 
 	constexpr unsigned HAS_MONO_FLAG = 1;
 	constexpr unsigned HAS_STEREO_FLAG = 2;
@@ -443,54 +488,77 @@ void MSXMixer::generate(float* output, EmuTime::param time, unsigned samples)
 		auto l1 = info.left1;
 		auto r1 = info.right1;
 		if (!device.isStereo()) {
+			// device generates mono output
 			if (l1 == r1) {
+				// no re-panning (means mono remains mono)
 				if (!(usedBuffers & HAS_MONO_FLAG)) {
-					if (device.updateBuffer(samples, monoBuf, time)) {
+					// generate in 'monoBuf' (because it was still empty)
+					// then multiply in-place
+					if (device.updateBuffer(samples, monoBufPtr, time)) {
 						usedBuffers |= HAS_MONO_FLAG;
-						mul(monoBuf, samples, l1);
+						mul(monoBuf, l1);
 					}
 				} else {
-					if (device.updateBuffer(samples, tmpBuf, time)) {
-						mulAcc(monoBuf, tmpBuf, samples, l1);
+					// generate in 'tmpBuf' (as mono data)
+					// then multiply-accumulate into 'monoBuf'
+					if (device.updateBuffer(samples, tmpBufPtr, time)) {
+						mulAcc(monoBuf, tmpBufMono, l1);
 					}
 				}
 			} else {
+				// re-panning -> mono expands to different left and right result
 				if (!(usedBuffers & HAS_STEREO_FLAG)) {
-					if (device.updateBuffer(samples, stereoBuf, time)) {
+					// 'stereoBuf' (which is still empty) is first filled with mono-data,
+					// then in-place expanded to stereo-data
+					if (device.updateBuffer(samples, stereoBufPtr, time)) {
 						usedBuffers |= HAS_STEREO_FLAG;
-						mulExpand(stereoBuf, samples, l1, r1);
+						mulExpand(stereoBuf, l1, r1);
 					}
 				} else {
-					if (device.updateBuffer(samples, tmpBuf, time)) {
-						mulExpandAcc(stereoBuf, tmpBuf, samples, l1, r1);
+					// 'tmpBuf' is first filled with mono-data,
+					// then expanded to stereo and mul-acc into 'stereoBuf'
+					if (device.updateBuffer(samples, tmpBufPtr, time)) {
+						mulExpandAcc(stereoBuf, tmpBufMono, l1, r1);
 					}
 				}
 			}
 		} else {
+			// device generates stereo output
 			auto l2 = info.left2;
 			auto r2 = info.right2;
 			if (l1 == r2) {
+				// no re-panning
 				assert(l2 == 0.0f);
 				assert(r1 == 0.0f);
 				if (!(usedBuffers & HAS_STEREO_FLAG)) {
-					if (device.updateBuffer(samples, stereoBuf, time)) {
+					// generate in 'stereoBuf' (because it was still empty)
+					// then multiply in-place
+					if (device.updateBuffer(samples, stereoBufPtr, time)) {
 						usedBuffers |= HAS_STEREO_FLAG;
-						mul(stereoBuf, 2 * samples, l1);
+						mul(stereoBuf, l1);
 					}
 				} else {
-					if (device.updateBuffer(samples, tmpBuf, time)) {
-						mulAcc(stereoBuf, tmpBuf, 2 * samples, l1);
+					// generate in 'tmpBuf' (as stereo data)
+					// then multiply-accumulate into 'stereoBuf'
+					if (device.updateBuffer(samples, tmpBufPtr, time)) {
+						mulAcc(stereoBuf, tmpBufStereo, l1);
 					}
 				}
 			} else {
+				// re-panning, this means each of the individual left or right generated
+				// channels gets distributed over both the left and right output channels
 				if (!(usedBuffers & HAS_STEREO_FLAG)) {
-					if (device.updateBuffer(samples, stereoBuf, time)) {
+					// generate in 'stereoBuf' (because it was still empty)
+					// then mix in-place
+					if (device.updateBuffer(samples, stereoBufPtr, time)) {
 						usedBuffers |= HAS_STEREO_FLAG;
-						mulMix2(stereoBuf, samples, l1, l2, r1, r2);
+						mulMix2(stereoBuf, l1, l2, r1, r2);
 					}
 				} else {
-					if (device.updateBuffer(samples, tmpBuf, time)) {
-						mulMix2Acc(stereoBuf, tmpBuf, samples, l1, l2, r1, r2);
+					// 'tmpBuf' is first filled with stereo-data,
+					// then mixed into stereoBuf
+					if (device.updateBuffer(samples, tmpBufPtr, time)) {
+						mulMix2Acc(stereoBuf, tmpBufStereo, l1, l2, r1, r2);
 					}
 				}
 			}
@@ -504,35 +572,35 @@ void MSXMixer::generate(float* output, EmuTime::param time, unsigned samples)
 			if (approxEqual(tl0, 0.0f)) {
 				// Output was zero, new input is zero,
 				// after DC-filter output will still be zero.
-				ranges::fill(std::span{output, 2 * samples}, 0);
+				ranges::fill(output, StereoFloat{});
 				tl0 = tr0 = 0.0f;
 			} else {
 				// Output was not zero, but it was the same left and right.
-				tl0 = filterMonoNull(tl0, output, samples);
+				tl0 = filterMonoNull(tl0, output);
 				tr0 = tl0;
 			}
 		} else {
-			std::tie(tl0, tr0) = filterStereoNull(tl0, tr0, output, samples);
+			std::tie(tl0, tr0) = filterStereoNull(tl0, tr0, output);
 		}
 		break;
 
 	case HAS_MONO_FLAG: // only mono
 		if (approxEqual(tl0, tr0)) {
 			// previous output was also mono
-			tl0 = filterMonoMono(tl0, monoBuf, output, samples);
+			tl0 = filterMonoMono(tl0, monoBuf, output);
 			tr0 = tl0;
 		} else {
 			// previous output was stereo, rarely triggers but needed for correctness
-			std::tie(tl0, tr0) = filterStereoMono(tl0, tr0, monoBuf, output, samples);
+			std::tie(tl0, tr0) = filterStereoMono(tl0, tr0, monoBuf, output);
 		}
 		break;
 
 	case HAS_STEREO_FLAG: // only stereo
-		std::tie(tl0, tr0) = filterStereoStereo(tl0, tr0, stereoBuf, output, samples);
+		std::tie(tl0, tr0) = filterStereoStereo(tl0, tr0, stereoBuf, output);
 		break;
 
 	default: // mono + stereo
-		std::tie(tl0, tr0) = filterBothStereo(tl0, tr0, monoBuf, stereoBuf, output, samples);
+		std::tie(tl0, tr0) = filterBothStereo(tl0, tr0, monoBuf, stereoBuf, output);
 	}
 }
 

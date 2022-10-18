@@ -1,6 +1,9 @@
 #ifndef SOUNDDRIVER_HH
 #define SOUNDDRIVER_HH
 
+#include "Mixer.hh"
+#include <span>
+
 namespace openmsx {
 
 class SoundDriver
@@ -26,7 +29,7 @@ public:
 	  */
 	[[nodiscard]] virtual unsigned getSamples() const = 0;
 
-	virtual void uploadBuffer(float* buffer, unsigned len) = 0;
+	virtual void uploadBuffer(std::span<const StereoFloat> buffer) = 0;
 
 protected:
 	SoundDriver() = default;

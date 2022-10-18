@@ -1,7 +1,9 @@
 #include "WavWriter.hh"
 #include "MSXException.hh"
 #include "Math.hh"
+#include "Mixer.hh"
 #include "endian.hh"
+#include "enumerate.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "vla.hh"
@@ -106,25 +108,24 @@ static int16_t float2int16(float f)
 	return Math::clipIntToShort(lrintf(32768.0f * f));
 }
 
-void Wav16Writer::write(const float* buffer, unsigned stereo, unsigned samples,
-                        float ampLeft, float ampRight)
+void Wav16Writer::write(std::span<const float> buffer, float amp)
 {
-	assert(stereo == one_of(1u, 2u));
-	std::vector<Endian::L16> buf(samples * stereo);
-	if (stereo == 1) {
-		assert(ampLeft == ampRight);
-		for (auto i : xrange(samples)) {
-			buf[i] = float2int16(buffer[i] * ampLeft);
-		}
-	} else {
-		for (auto i : xrange(samples)) {
-			buf[2 * i + 0] = float2int16(buffer[2 * i + 0] * ampLeft);
-			buf[2 * i + 1] = float2int16(buffer[2 * i + 1] * ampRight);
-		}
+	std::vector<Endian::L16> buf_(buffer.size());
+	std::span buf{buf_};
+	ranges::transform(buffer, buf.data(), [=](float f) { return float2int16(f * amp); });
+	file.write(buf.data(), buf.size_bytes());
+	bytes += buf.size_bytes();
+}
+
+void Wav16Writer::write(std::span<const StereoFloat> buffer, float ampLeft, float ampRight)
+{
+	std::vector<Endian::L16> buf(buffer.size() * 2);
+	for (auto [i, s] : enumerate(buffer)) { // TODO use zip() in the future
+		buf[2 * i + 0] = float2int16(s.left  * ampLeft);
+		buf[2 * i + 1] = float2int16(s.right * ampRight);
 	}
-	unsigned size = sizeof(int16_t) * samples * stereo;
-	file.write(buf.data(), size);
-	bytes += size;
+	file.write(buf.data(), buffer.size_bytes());
+	bytes += buffer.size_bytes();
 }
 
 void Wav16Writer::writeSilence(unsigned samples)

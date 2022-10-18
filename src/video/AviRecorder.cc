@@ -1,5 +1,6 @@
 #include "AviRecorder.hh"
 #include "AviWriter.hh"
+#include "Mixer.hh"
 #include "WavWriter.hh"
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
@@ -14,6 +15,7 @@
 #include "FileOperations.hh"
 #include "TclArgParser.hh"
 #include "TclObject.hh"
+#include "enumerate.hh"
 #include "outer.hh"
 #include "vla.hh"
 #include "xrange.hh"
@@ -121,7 +123,7 @@ static int16_t float2int16(float f)
 	return Math::clipIntToShort(lrintf(32768.0f * f));
 }
 
-void AviRecorder::addWave(unsigned num, float* fData)
+void AviRecorder::addWave(std::span<const StereoFloat> data)
 {
 	if (!warnedSampleRate && (mixer->getSampleRate() != sampleRate)) {
 		warnedSampleRate = true;
@@ -130,22 +132,24 @@ void AviRecorder::addWave(unsigned num, float* fData)
 			"avi recording. Audio/video might get out of sync "
 			"because of this.");
 	}
+	auto num = data.size();
 	if (stereo) {
-		VLA(int16_t, buf, 2 * num);
-		for (auto i : xrange(2 * num)) {
-			buf[i] = float2int16(fData[i]);
-		}
 		if (wavWriter) {
-			wavWriter->write(buf, 2, num);
+			wavWriter->write(data);
 		} else {
+			VLA(int16_t, buf, 2 * num);
+			for (auto [i, s] : enumerate(data)) {
+				buf[2 * i + 0] = float2int16(s.left);
+				buf[2 * i + 1] = float2int16(s.right);
+			}
 			assert(aviWriter);
 			audioBuf.insert(end(audioBuf), buf, buf + 2 * num);
 		}
 	} else {
 		VLA(int16_t, buf, num);
-		unsigned i = 0;
+		size_t i = 0;
 		for (/**/; !warnedStereo && i < num; ++i) {
-			if (fData[2 * i + 0] != fData[2 * i + 1]) {
+			if (data[i].left != data[i].right) {
 				reactor.getCliComm().printWarning(
 				    "Detected stereo sound during mono recording. "
 				    "Channels will be mixed down to mono. To "
@@ -154,10 +158,10 @@ void AviRecorder::addWave(unsigned num, float* fData)
 				warnedStereo = true;
 				break;
 			}
-			buf[i] = float2int16(fData[2 * i]);
+			buf[i] = float2int16(data[i].left);
 		}
 		for (/**/; i < num; ++i) {
-			buf[i] = float2int16((fData[2 * i + 0] + fData[2 * i + 1]) * 0.5f);
+			buf[i] = float2int16((data[i].left + data[i].right) * 0.5f);
 		}
 
 		if (wavWriter) {

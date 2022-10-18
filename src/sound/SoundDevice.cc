@@ -1,6 +1,7 @@
 #include "SoundDevice.hh"
 #include "MSXMixer.hh"
 #include "DeviceConfig.hh"
+#include "Mixer.hh"
 #include "XMLElement.hh"
 #include "Filename.hh"
 #include "StringOp.hh"
@@ -250,9 +251,15 @@ bool SoundDevice::mixChannels(float* dataOut, unsigned samples)
 			assert(bufs[i] != dataOut);
 			if (bufs[i]) {
 				auto amp = getAmplificationFactor();
-				writer[i]->write(
-					bufs[i], stereo, samples,
-					amp.left, amp.right);
+				if (stereo == 1) {
+					writer[i]->write(
+						std::span{bufs[i], samples},
+						amp.left);
+				} else {
+					writer[i]->write(
+						std::span{reinterpret_cast<const StereoFloat*>(bufs[i]), samples},
+						amp.left, amp.right);
+				}
 			} else {
 				writer[i]->writeSilence(stereo, samples);
 			}

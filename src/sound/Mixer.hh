@@ -15,6 +15,11 @@ class Reactor;
 class CommandController;
 class MSXMixer;
 
+struct StereoFloat {
+	float left  = 0.0f;
+	float right = 0.0f;
+};
+
 class Mixer final : private Observer<Setting>
 {
 public:
@@ -43,7 +48,7 @@ public:
 
 	/** Upload new sample data
 	 */
-	void uploadBuffer(MSXMixer& msxMixer, float* buffer, unsigned len);
+	void uploadBuffer(MSXMixer& msxMixer, std::span<const StereoFloat> buffer);
 
 	[[nodiscard]] IntegerSetting& getMasterVolume() { return masterVolume; }
 

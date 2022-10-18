@@ -3,10 +3,11 @@
 
 #include "Command.hh"
 #include "EmuTime.hh"
+#include "Mixer.hh"
 #include <cstdint>
+#include <memory>
 #include <span>
 #include <vector>
-#include <memory>
 
 namespace openmsx {
 
@@ -26,7 +27,7 @@ public:
 	explicit AviRecorder(Reactor& reactor);
 	~AviRecorder();
 
-	void addWave(unsigned num, float* data);
+	void addWave(std::span<const StereoFloat> data);
 	void addImage(FrameSource* frame, EmuTime::param time);
 	void stop();
 	[[nodiscard]] unsigned getFrameHeight() const;

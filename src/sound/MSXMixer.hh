@@ -1,14 +1,16 @@
 #ifndef MSXMIXER_HH
 #define MSXMIXER_HH
 
-#include "Schedulable.hh"
-#include "Observer.hh"
-#include "InfoTopic.hh"
-#include "EmuTime.hh"
 #include "DynamicClock.hh"
+#include "EmuTime.hh"
+#include "InfoTopic.hh"
+#include "Mixer.hh"
+#include "Observer.hh"
+#include "Schedulable.hh"
 #include "dynarray.hh"
-#include <vector>
 #include <memory>
+#include <span>
+#include <vector>
 
 namespace openmsx {
 
@@ -140,7 +142,7 @@ private:
 	void updateMasterVolume();
 	void reschedule();
 	void reschedule2();
-	void generate(float* output, EmuTime::param time, unsigned samples);
+	void generate(std::span<StereoFloat> output, EmuTime::param time);
 
 	// Schedulable
 	void executeUntil(EmuTime::param time) override;

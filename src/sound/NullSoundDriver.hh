@@ -14,7 +14,7 @@ public:
 	[[nodiscard]] unsigned getFrequency() const override;
 	[[nodiscard]] unsigned getSamples() const override;
 
-	void uploadBuffer(float* buffer, unsigned len) override;
+	void uploadBuffer(std::span<const StereoFloat> buffer) override;
 };
 
 } // namespace openmsx

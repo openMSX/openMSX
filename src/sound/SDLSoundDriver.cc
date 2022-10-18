@@ -1,4 +1,5 @@
 #include "SDLSoundDriver.hh"
+#include "Mixer.hh"
 #include "Reactor.hh"
 #include "MSXMixer.hh"
 #include "MSXMotherBoard.hh"
@@ -107,9 +108,12 @@ unsigned SDLSoundDriver::getBufferFree() const
 	return result;
 }
 
-void SDLSoundDriver::audioCallback(float* stream, unsigned len)
+void SDLSoundDriver::audioCallback(float* stream_, unsigned len)
 {
 	assert((len & 1) == 0); // stereo
+	len /= 2;
+	auto* stream = reinterpret_cast<StereoFloat*>(stream_);
+
 	unsigned available = getBufferFilled();
 	unsigned num = std::min(len, available);
 	if ((readIdx + num) < mixBufferSize) {
@@ -125,14 +129,14 @@ void SDLSoundDriver::audioCallback(float* stream, unsigned len)
 	int missing = len - available;
 	if (missing > 0) {
 		// buffer underrun
-		ranges::fill(std::span{&stream[available], size_t(missing)}, 0);
+		ranges::fill(std::span{&stream[available], size_t(missing)}, StereoFloat{});
 	}
 }
 
-void SDLSoundDriver::uploadBuffer(float* buffer, unsigned len)
+void SDLSoundDriver::uploadBuffer(std::span<const StereoFloat> buffer)
 {
 	SDL_LockAudioDevice(deviceID);
-	len *= 2; // stereo
+	unsigned len = buffer.size();
 	unsigned free = getBufferFree();
 	if (len > free) {
 		auto* board = reactor.getMotherBoard();
@@ -152,13 +156,13 @@ void SDLSoundDriver::uploadBuffer(float* buffer, unsigned len)
 	}
 	assert(len <= free);
 	if ((writeIdx + len) < mixBufferSize) {
-		ranges::copy(std::span{buffer, len}, &mixBuffer[writeIdx]);
+		ranges::copy(buffer, &mixBuffer[writeIdx]);
 		writeIdx += len;
 	} else {
 		unsigned len1 = mixBufferSize - writeIdx;
-		ranges::copy(std::span{buffer, len1}, &mixBuffer[writeIdx]);
+		ranges::copy(buffer.subspan(0, len1), &mixBuffer[writeIdx]);
 		unsigned len2 = len - len1;
-		ranges::copy(std::span{&buffer[len1], len2}, &mixBuffer[0]);
+		ranges::copy(buffer.subspan(len1, len2), &mixBuffer[0]);
 		writeIdx = len2;
 	}
 

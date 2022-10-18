@@ -15,9 +15,9 @@
 namespace openmsx {
 
 #if defined(_WIN32)
-constexpr int defaultsamples = 2048;
+static constexpr int defaultSamples = 2048;
 #else
-constexpr int defaultsamples = 1024;
+static constexpr int defaultSamples = 1024;
 #endif
 
 static EnumSetting<Mixer::SoundDriverType>::Map getSoundDriverMap()
@@ -46,7 +46,7 @@ Mixer::Mixer(Reactor& reactor_, CommandController& commandController_)
 		"mixer frequency", 44100, 11025, 48000)
 	, samplesSetting(
 		commandController, "samples",
-		"mixer samples", defaultsamples, 64, 8192)
+		"mixer samples", defaultSamples, 64, 8192)
 	, muteCount(0)
 {
 	muteSetting       .attach(*this);
@@ -145,12 +145,12 @@ void Mixer::muteHelper()
 	}
 }
 
-void Mixer::uploadBuffer(MSXMixer& /*msxMixer*/, float* buffer, unsigned len)
+void Mixer::uploadBuffer(MSXMixer& /*msxMixer*/, std::span<const StereoFloat> buffer)
 {
 	// can only handle one MSXMixer ATM
 	assert(!msxMixers.empty());
 
-	driver->uploadBuffer(buffer, len);
+	driver->uploadBuffer(buffer);
 }
 
 void Mixer::update(const Setting& setting) noexcept
