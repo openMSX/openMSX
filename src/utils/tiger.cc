@@ -1,6 +1,9 @@
 #include "tiger.hh"
 #include "endian.hh"
+#include "ranges.hh"
+#include "ScopedAssign.hh"
 #include "xrange.hh"
+#include <array>
 #include <cassert>
 #include <cstring>
 
@@ -8,29 +11,32 @@ namespace openmsx {
 
 std::string TigerHash::toString() const
 {
-	constexpr const char* const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+	static constexpr std::array<char, 32> chars = {
+		'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P',
+		'Q','R','S','T','U','V','W','X','Y','Z','2','3','4','5','6','7',
+	};
 
 	std::string result;
 
-	const uint8_t* src = h8;
-	const uint8_t* end = src + 24;
+	auto it = h8.begin();
+	auto et = h8.end();
 
 	unsigned bit = 0;
-	while (src != end) {
+	while (it != et) {
 		uint8_t tmp = [&] {
 			if (bit > 3) {
-				uint8_t t = *src & (0xFF >> bit);
+				uint8_t t = *it & (0xFF >> bit);
 				bit = (bit + 5) % 8;
 				t <<= bit;
-				++src;
-				if (src != end) {
-					t |= *src >> (8 - bit);
+				++it;
+				if (it != et) {
+					t |= *it >> (8 - bit);
 				}
 				return t;
 			} else {
-				uint8_t t = (*src >> (3 - bit)) & 0x1F;
+				uint8_t t = (*it >> (3 - bit)) & 0x1F;
 				bit = (bit + 5) % 8;
-				if (bit == 0) ++src;
+				if (bit == 0) ++it;
 				return t;
 			}
 		}();
@@ -42,7 +48,7 @@ std::string TigerHash::toString() const
 
 
 // Tiger S boxes
-constexpr uint64_t table[4 * 256] = {
+static constexpr std::array<uint64_t, 4 * 256> table = {
 	0x02AAB17CF7E90C5EULL, 0xAC424B03E243A8ECULL,  //    0
 	0x72CD5BE30DD5FCD3ULL, 0x6D019B93F6F97F3AULL,  //    2
 	0xCD9978FFD21F9193ULL, 0x7573A1C9708029E2ULL,  //    4
@@ -571,20 +577,20 @@ static constexpr void round(uint64_t& a, uint64_t& b, uint64_t& c, uint64_t x, i
 	b *= mul;
 }
 
-static void tiger_compress(const uint8_t* str, uint64_t state[3])
+static void tiger_compress(std::span<const uint8_t, 64> input, std::span<uint64_t, 3> state)
 {
 	uint64_t a = state[0];
 	uint64_t b = state[1];
 	uint64_t c = state[2];
 
-	uint64_t x0 = Endian::read_UA_L64(str +  0);
-	uint64_t x1 = Endian::read_UA_L64(str +  8);
-	uint64_t x2 = Endian::read_UA_L64(str + 16);
-	uint64_t x3 = Endian::read_UA_L64(str + 24);
-	uint64_t x4 = Endian::read_UA_L64(str + 32);
-	uint64_t x5 = Endian::read_UA_L64(str + 40);
-	uint64_t x6 = Endian::read_UA_L64(str + 48);
-	uint64_t x7 = Endian::read_UA_L64(str + 56);
+	uint64_t x0 = Endian::read_UA_L64(&input[ 0]);
+	uint64_t x1 = Endian::read_UA_L64(&input[ 8]);
+	uint64_t x2 = Endian::read_UA_L64(&input[16]);
+	uint64_t x3 = Endian::read_UA_L64(&input[24]);
+	uint64_t x4 = Endian::read_UA_L64(&input[32]);
+	uint64_t x5 = Endian::read_UA_L64(&input[40]);
+	uint64_t x6 = Endian::read_UA_L64(&input[48]);
+	uint64_t x7 = Endian::read_UA_L64(&input[56]);
 
 	uint64_t aa = a;
 	uint64_t bb = b;
@@ -656,13 +662,13 @@ static void tiger_compress(const uint8_t* str, uint64_t state[3])
 	state[2] = c + cc;
 }
 
-static constexpr void initState(uint64_t state[3])
+static constexpr void initState(std::span<uint64_t, 3> state)
 {
 	state[0] = 0x0123456789ABCDEFULL;
 	state[1] = 0xFEDCBA9876543210ULL;
 	state[2] = 0xF096A5B4C3B2E187ULL;
 }
-static inline void returnState(uint64_t state[3])
+static inline void returnState(std::span<uint64_t, 3> state)
 {
 	if constexpr (Endian::BIG) {
 		state[0] = Endian::byteswap64(state[0]);
@@ -671,39 +677,32 @@ static inline void returnState(uint64_t state[3])
 	}
 }
 
-void tiger(const uint8_t* str, size_t length, TigerHash& result)
+void tiger(std::span<const uint8_t> input, TigerHash& result)
 {
-	uint8_t temp[64];
-
+	auto fullSize = input.size();
 	initState(result.h64);
 
-	size_t i = length;
-	for (/**/; i >= 64; i -= 64) {
-		tiger_compress(str, result.h64);
-		str += 64;
+	while (input.size() >= 64) {
+		tiger_compress(input.subspan<0, 64>(), result.h64);
+		input = input.subspan<64>();
 	}
 
-	size_t j = 0;
-	for (/**/; j < i; ++j) {
-		temp[j] = str[j];
-	}
-
+	std::array<uint8_t, 64> temp;
+	assert(input.size() < 64);
+	ranges::copy(input, temp);
+	size_t j = input.size();
 	temp[j++] = 0x01;
-	for (/**/; j & 7; ++j) {
-		temp[j] = 0;
+	while (j & 7) { // pad to 8-byte boundary
+		temp[j++] = 0;
 	}
-	if (j > 56) {
-		for (/**/; j < 64; ++j) {
-			temp[j] = 0;
-		}
+	if (j == 64) {
 		tiger_compress(temp, result.h64);
 		j = 0;
 	}
-
-	for (/**/; j < 56; ++j) {
-		temp[j] = 0;
+	while (j < 56) {
+		temp[j++] = 0;
 	}
-	Endian::write_UA_L64(temp + 56, uint64_t(length) << 3);
+	Endian::write_UA_L64(&temp[56], uint64_t(fullSize) << 3);
 	tiger_compress(temp, result.h64);
 
 	returnState(result.h64);
@@ -711,7 +710,7 @@ void tiger(const uint8_t* str, size_t length, TigerHash& result)
 
 void tiger_int(const TigerHash& h0, const TigerHash& h1, TigerHash& result)
 {
-	static uint8_t buf[64] = {
+	static std::array<uint8_t, 64> buf = {
 		0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -721,17 +720,17 @@ void tiger_int(const TigerHash& h0, const TigerHash& h1, TigerHash& result)
 		0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x88, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	};
-	memcpy(buf + 1,      h0.h64, 24);
-	memcpy(buf + 1 + 24, h1.h64, 24);
+	memcpy(&buf[1],      h0.h64.data(), 24);
+	memcpy(&buf[1 + 24], h1.h64.data(), 24);
 
 	initState(result.h64);
 	tiger_compress(buf, result.h64);
 	returnState(result.h64);
 }
 
-void tiger_leaf(/*const*/ uint8_t data[1024], TigerHash& result)
+void tiger_leaf(std::span<uint8_t> data, TigerHash& result)
 {
-	static uint8_t last[64] = {
+	static std::array<uint8_t, 64> last = {
 		0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -744,14 +743,17 @@ void tiger_leaf(/*const*/ uint8_t data[1024], TigerHash& result)
 
 	initState(result.h64);
 
-	auto backup = data[-1];
-	data[-1] = 0;
-	for (auto i : xrange(16)) {
-		tiger_compress(data - 1 + i * 64, result.h64);
-	}
-	data[-1] = backup;
+	auto* p = data.data();
+	auto sa = ScopedAssign(p[-1], uint8_t(0));
 
-	last[0] = data[1023];
+	std::span<uint8_t> chunks{p - 1, data.size()};
+	assert((chunks.size() % 64) == 0);
+	while (!chunks.empty()) {
+		tiger_compress(chunks.subspan<0, 64>(), result.h64);
+		chunks = chunks.subspan<64>();
+	}
+
+	last[0] = data.back();
 	tiger_compress(last, result.h64);
 
 	returnState(result.h64);

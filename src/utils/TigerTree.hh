@@ -72,7 +72,7 @@ struct TTCacheEntry;
 class TigerTree
 {
 public:
-	static constexpr size_t BLOCK_SIZE = 64 * 1024;
+	static constexpr size_t BLOCK_SIZE = 1024;
 
 	/** Create TigerTree calculator for the given (abstract) data block
 	 * of given size.

@@ -36,6 +36,8 @@ TEST_CASE("TigerTree")
 	time_t dummyTime = 0;
 	auto dummyCallback = [](size_t, size_t) {};
 
+	// Note: hash-values (manually) verified via the tool:
+	//     rhash --tth <filename>
 	SECTION("zero sized buffer") {
 		TigerTree tt(data, 0, dummyName);
 
@@ -66,7 +68,7 @@ TEST_CASE("TigerTree")
 		ranges::fill(subspan<100>(buffer, 2 * BLOCK_SIZE - 50), 1);
 		tt.notifyChange(2 * BLOCK_SIZE - 50, 100, dummyTime); // change 2 blocks
 		CHECK(tt.calcHash(dummyCallback).toString() ==
-		      "Y55VG6WSVEPWGPRZGCB4L2OYLI7CLVGQ6X6J4MY");
+		      "YV4NHQASK3QCYJH7FCOO4K3ABNC3WFVDDZ6FYAY");
 
 	}
 	SECTION("7 full blocks (unbalanced internal binary tree)") {

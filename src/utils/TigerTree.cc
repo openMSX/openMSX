@@ -3,6 +3,7 @@
 #include "Math.hh"
 #include "MemBuffer.hh"
 #include "ranges.hh"
+#include "ScopedAssign.hh"
 #include <cassert>
 #include <map>
 #include <span>
@@ -97,14 +98,12 @@ const TigerHash& TigerTree::calcHash(Node node, const std::function<void(size_t,
 
 			if (l >= BLOCK_SIZE) {
 				auto* d = data.getData(b, BLOCK_SIZE);
-				tiger_leaf(d, entry.hash[n]);
+				tiger_leaf(std::span{d, BLOCK_SIZE}, entry.hash[n]);
 			} else {
 				// partial last block
 				auto* d = data.getData(b, l);
-				auto backup = d[-1];
-				d[-1] = 0;
-				tiger(d - 1, l + 1, entry.hash[n]);
-				d[-1] = backup;
+				auto sa = ScopedAssign(d[-1], uint8_t(0));
+				tiger(std::span{d - 1, l + 1}, entry.hash[n]);
 			}
 		}
 		entry.valid[n] = true;

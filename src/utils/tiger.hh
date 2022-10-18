@@ -15,8 +15,10 @@
 #ifndef TIGER_HH
 #define TIGER_HH
 
+#include <array>
 #include <string>
 #include <cstdint>
+#include <span>
 
 namespace openmsx {
 
@@ -28,8 +30,8 @@ struct TigerHash
 {
 	[[nodiscard]] std::string toString() const;
 	union {
-		uint64_t h64[3];
-		uint8_t  h8[24];
+		std::array<uint64_t, 3> h64;
+		std::array<uint8_t, 24> h8;
 	};
 };
 
@@ -40,7 +42,7 @@ struct TigerHash
  * converted so that, when interpreted as a byte-array, it is identical to
  * the result obtained on a little-endian system).
  */
-void tiger(const uint8_t* str, size_t length, TigerHash& result);
+void tiger(std::span<const uint8_t> input, TigerHash& result);
 
 /** Use for tiger-tree internal node hash calculations.
  * Combine two earlier calculated tiger hash values in a specific way (add
@@ -50,14 +52,14 @@ void tiger(const uint8_t* str, size_t length, TigerHash& result);
 void tiger_int(const TigerHash& h0, const TigerHash& h1, TigerHash& result);
 
 /** Use for tiger-tree leaf node hash calculations.
- * Take a 1024-byte input block, add some marker/padding/length bytes
+ * Take a 1+1024-byte input block, add some marker/padding/length bytes
  * before/after and calculate a tiger-hash.
  * This function is not reentrant.
- * This function requires that data[-1] can be (temporarily) overridden (so
+ * This function requires that data[0] can be (temporarily) overridden (so
  * after the function returns the data buffer is unchanged, but temporarily
  * it is changed, hence the parameter cannot be const).
  */
-void tiger_leaf(/*const*/ uint8_t data[1024], TigerHash& result);
+void tiger_leaf(std::span</*const*/uint8_t> data, TigerHash& result);
 
 } // namespace openmsx
 
