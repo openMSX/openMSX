@@ -1,8 +1,8 @@
 #ifndef RAWTRACK_HH
 #define RAWTRACK_HH
 
-#include "openmsx.hh"
 #include "serialize_meta.hh"
+#include <cstdint>
 #include <optional>
 #include <span>
 #include <vector>
@@ -77,10 +77,10 @@ public:
 		// note: initialize to avoid UMR on savestate
 		int addrIdx = 0;
 		int dataIdx = 0;
-		byte track = 0;
-		byte head = 0;
-		byte sector = 0;
-		byte sizeCode = 0;
+		uint8_t track = 0;
+		uint8_t head = 0;
+		uint8_t sector = 0;
+		uint8_t sizeCode = 0;
 		bool deleted = false;
 		bool addrCrcErr = false;
 		bool dataCrcErr = false;
@@ -103,8 +103,8 @@ public:
 	// In the methods below, 'index' is allowed to be 'out-of-bounds',
 	// it will wrap like in a circular buffer.
 
-	[[nodiscard]] byte read(int idx) const { return data[wrapIndex(idx)]; }
-	void write(int idx, byte val, bool setIdam = false);
+	[[nodiscard]] uint8_t read(int idx) const { return data[wrapIndex(idx)]; }
+	void write(int idx, uint8_t val, bool setIdam = false);
 	[[nodiscard]] int wrapIndex(int idx) const {
 		// operator% is not a modulo but a remainder operation (makes a
 		// difference for negative inputs). Hence the extra test.
@@ -112,8 +112,8 @@ public:
 		return (tmp >= 0) ? tmp : int(tmp + data.size());
 	}
 
-	[[nodiscard]]       byte* getRawBuffer()       { return data.data(); }
-	[[nodiscard]] const byte* getRawBuffer() const { return data.data(); }
+	[[nodiscard]]       uint8_t* getRawBuffer()       { return data.data(); }
+	[[nodiscard]] const uint8_t* getRawBuffer() const { return data.data(); }
 	[[nodiscard]] const auto& getIdamBuffer() const { return idam; }
 
 	/** Get info on all sectors in this track. */
@@ -127,14 +127,14 @@ public:
 	  * this method will always return the same (the first) sector. So
 	  * don't use it in the implementation of FDC / DiskDrive code.
 	  */
-	[[nodiscard]] std::optional<Sector> decodeSector(byte sectorNum) const;
+	[[nodiscard]] std::optional<Sector> decodeSector(uint8_t sectorNum) const;
 
 	/** Like memcpy() but copy from/to circular buffer. */
-	void readBlock (int idx, std::span<byte> destination) const;
-	void writeBlock(int idx, std::span<const byte> source);
+	void readBlock (int idx, std::span<uint8_t> destination) const;
+	void writeBlock(int idx, std::span<const uint8_t> source);
 
 	/** Convenience method to calculate CRC for part of this track. */
-	[[nodiscard]] word calcCrc(int idx, int size) const;
+	[[nodiscard]] uint16_t calcCrc(int idx, int size) const;
 	void updateCrc(CRC16& crc, int idx, int size) const;
 
 	void applyWd2793ReadTrackQuirk();
@@ -154,7 +154,7 @@ private:
 	// MFM-decoded raw data, this does NOT include the missing clock
 	// transitions that can occur in the encodings of the 'A1' and
 	// 'C2' bytes.
-	std::vector<byte> data;
+	std::vector<uint8_t> data;
 };
 SERIALIZE_CLASS_VERSION(RawTrack, 2);
 

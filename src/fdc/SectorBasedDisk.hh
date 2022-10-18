@@ -25,8 +25,8 @@ protected:
 private:
 	// Disk
 	[[nodiscard]] size_t getNbSectorsImpl() const override;
-	void readTrack(byte track, byte side, RawTrack& output) override;
-	void writeTrackImpl(byte track, byte side, const RawTrack& input) override;
+	void readTrack(uint8_t track, uint8_t side, RawTrack& output) override;
+	void writeTrackImpl(uint8_t track, uint8_t side, const RawTrack& input) override;
 
 private:
 	size_t nbSectors;

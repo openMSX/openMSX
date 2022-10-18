@@ -68,30 +68,30 @@ void checkFAT12Partition(SectorAccessibleDisk& disk, unsigned partition)
 }
 
 
-// Create a correct bootsector depending on the required size of the filesystem
+// Create a correct boot sector depending on the required size of the filesystem
 struct SetBootSectorResult {
 	unsigned firstDataSector;
-	byte descriptor;
+	uint8_t descriptor;
 };
 static SetBootSectorResult setBootSector(
 	MSXBootSector& boot, size_t nbSectors, bool dos1)
 {
-	// start from the default bootblock ..
+	// start from the default boot block ..
 	const auto& defaultBootBlock = dos1 ? BootBlocks::dos1BootBlock : BootBlocks::dos2BootBlock;
 	memcpy(&boot, &defaultBootBlock, sizeof(boot));
 
 	// .. and fill-in image-size dependent parameters ..
 	// these are the same for most formats
-	byte nbReservedSectors = 1;
-	byte nbHiddenSectors = 1;
+	uint8_t nbReservedSectors = 1;
+	uint8_t nbHiddenSectors = 1;
 
 	// all these are initialized below (in this order)
-	word nbSides;
-	byte nbFats;
-	byte nbSectorsPerFat;
-	byte nbSectorsPerCluster;
-	word nbDirEntry;
-	byte descriptor;
+	uint16_t nbSides;
+	uint8_t nbFats;
+	uint8_t nbSectorsPerFat;
+	uint8_t nbSectorsPerCluster;
+	uint16_t nbDirEntry;
+	uint8_t descriptor;
 
 	// now set correct info according to size of image (in sectors!)
 	// and using the same layout as used by Jon in IDEFDISK v 3.1
@@ -189,7 +189,7 @@ static SetBootSectorResult setBootSector(
 
 void format(SectorAccessibleDisk& disk, bool dos1)
 {
-	// first create a bootsector for given partition size
+	// first create a boot sector for given partition size
 	size_t nbSectors = disk.getNbSectors();
 	SectorBuffer buf;
 	auto [firstDataSector, descriptor] = setBootSector(buf.bootSector, nbSectors, dos1);

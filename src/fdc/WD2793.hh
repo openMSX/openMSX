@@ -21,20 +21,20 @@ public:
 
 	void reset(EmuTime::param time);
 
-	byte getStatusReg(EmuTime::param time);
-	byte getTrackReg (EmuTime::param time) const;
-	byte getSectorReg(EmuTime::param time) const;
-	byte getDataReg  (EmuTime::param time);
+	uint8_t getStatusReg(EmuTime::param time);
+	uint8_t getTrackReg (EmuTime::param time) const;
+	uint8_t getSectorReg(EmuTime::param time) const;
+	uint8_t getDataReg  (EmuTime::param time);
 
-	[[nodiscard]] byte peekStatusReg(EmuTime::param time) const;
-	[[nodiscard]] byte peekTrackReg (EmuTime::param time) const;
-	[[nodiscard]] byte peekSectorReg(EmuTime::param time) const;
-	[[nodiscard]] byte peekDataReg  (EmuTime::param time) const;
+	[[nodiscard]] uint8_t peekStatusReg(EmuTime::param time) const;
+	[[nodiscard]] uint8_t peekTrackReg (EmuTime::param time) const;
+	[[nodiscard]] uint8_t peekSectorReg(EmuTime::param time) const;
+	[[nodiscard]] uint8_t peekDataReg  (EmuTime::param time) const;
 
-	void setCommandReg(byte value, EmuTime::param time);
-	void setTrackReg  (byte value, EmuTime::param time);
-	void setSectorReg (byte value, EmuTime::param time);
-	void setDataReg   (byte value, EmuTime::param time);
+	void setCommandReg(uint8_t value, EmuTime::param time);
+	void setTrackReg  (uint8_t value, EmuTime::param time);
+	void setSectorReg (uint8_t value, EmuTime::param time);
+	void setDataReg   (uint8_t value, EmuTime::param time);
 
 	bool getIRQ (EmuTime::param time) const;
 	bool getDTRQ(EmuTime::param time) const;
@@ -141,12 +141,12 @@ private:
 	CRC16 crc;
 
 	FSMState fsmState;
-	byte statusReg;
-	byte commandReg;
-	byte sectorReg;
-	byte trackReg;
-	byte dataReg;
-	byte dataOutReg;
+	uint8_t statusReg;
+	uint8_t commandReg;
+	uint8_t sectorReg;
+	uint8_t trackReg;
+	uint8_t dataReg;
+	uint8_t dataOutReg;
 
 	bool directionIn;
 	bool immediateIRQ;

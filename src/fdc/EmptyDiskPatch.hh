@@ -12,7 +12,7 @@ class EmptyDiskPatch final : public PatchInterface
 public:
 	explicit EmptyDiskPatch(SectorAccessibleDisk& disk);
 
-	void copyBlock(size_t src, byte* dst, size_t num) const override;
+	void copyBlock(size_t src, uint8_t* dst, size_t num) const override;
 	[[nodiscard]] size_t getSize() const override;
 	[[nodiscard]] std::vector<Filename> getFilenames() const override;
 	[[nodiscard]] bool isEmptyPatch() const override { return true; }

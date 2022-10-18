@@ -10,34 +10,34 @@
 namespace openmsx {
 
 // Status register
-constexpr int BUSY             = 0x01;
-constexpr int INDEX            = 0x02;
-constexpr int S_DRQ            = 0x02;
-constexpr int TRACK00          = 0x04;
-constexpr int LOST_DATA        = 0x04;
-constexpr int CRC_ERROR        = 0x08;
-constexpr int SEEK_ERROR       = 0x10;
-constexpr int RECORD_NOT_FOUND = 0x10;
-constexpr int HEAD_LOADED      = 0x20;
-constexpr int RECORD_TYPE      = 0x20;
-constexpr int WRITE_PROTECTED  = 0x40;
-constexpr int NOT_READY        = 0x80;
+static constexpr int BUSY             = 0x01;
+static constexpr int INDEX            = 0x02;
+static constexpr int S_DRQ            = 0x02;
+static constexpr int TRACK00          = 0x04;
+static constexpr int LOST_DATA        = 0x04;
+static constexpr int CRC_ERROR        = 0x08;
+static constexpr int SEEK_ERROR       = 0x10;
+static constexpr int RECORD_NOT_FOUND = 0x10;
+static constexpr int HEAD_LOADED      = 0x20;
+static constexpr int RECORD_TYPE      = 0x20;
+static constexpr int WRITE_PROTECTED  = 0x40;
+static constexpr int NOT_READY        = 0x80;
 
 // Command register
-constexpr int STEP_SPEED = 0x03;
-constexpr int V_FLAG     = 0x04;
-constexpr int E_FLAG     = 0x04;
-constexpr int H_FLAG     = 0x08;
-constexpr int T_FLAG     = 0x10;
-constexpr int M_FLAG     = 0x10;
-constexpr int A0_FLAG    = 0x01;
-constexpr int N2R_IRQ    = 0x01;
-constexpr int R2N_IRQ    = 0x02;
-constexpr int IDX_IRQ    = 0x04;
-constexpr int IMM_IRQ    = 0x08;
+static constexpr int STEP_SPEED = 0x03;
+static constexpr int V_FLAG     = 0x04;
+static constexpr int E_FLAG     = 0x04;
+static constexpr int H_FLAG     = 0x08;
+static constexpr int T_FLAG     = 0x10;
+static constexpr int M_FLAG     = 0x10;
+static constexpr int A0_FLAG    = 0x01;
+static constexpr int N2R_IRQ    = 0x01;
+static constexpr int R2N_IRQ    = 0x02;
+static constexpr int IDX_IRQ    = 0x04;
+static constexpr int IMM_IRQ    = 0x08;
 
 // HLD/HLT timing constants
-constexpr auto IDLE = EmuDuration::sec(3);
+static constexpr auto IDLE = EmuDuration::sec(3);
 
 /** This class has emulation for WD1770, WD1793, WD2793. Though at the moment
  * the only emulated difference between WD1770 and WD{12}793 is that WD1770
@@ -117,7 +117,7 @@ bool WD2793::isReady() const
 	return drive.isDiskInserted() || isWD1770;
 }
 
-void WD2793::setCommandReg(byte value, EmuTime::param time)
+void WD2793::setCommandReg(uint8_t value, EmuTime::param time)
 {
 	if (((commandReg & 0xE0) == 0xA0) || // write sector
 	    ((commandReg & 0xF0) == 0xF0)) { // write track
@@ -165,7 +165,7 @@ void WD2793::setCommandReg(byte value, EmuTime::param time)
 	}
 }
 
-byte WD2793::getStatusReg(EmuTime::param time)
+uint8_t WD2793::getStatusReg(EmuTime::param time)
 {
 	if (((commandReg & 0x80) == 0) || ((commandReg & 0xF0) == 0xD0)) {
 		// Type I or type IV command
@@ -205,43 +205,43 @@ byte WD2793::getStatusReg(EmuTime::param time)
 	return statusReg;
 }
 
-byte WD2793::peekStatusReg(EmuTime::param time) const
+uint8_t WD2793::peekStatusReg(EmuTime::param time) const
 {
 	// TODO implement proper peek?
 	return const_cast<WD2793*>(this)->getStatusReg(time);
 }
 
-void WD2793::setTrackReg(byte value, EmuTime::param /*time*/)
+void WD2793::setTrackReg(uint8_t value, EmuTime::param /*time*/)
 {
 	trackReg = value;
 }
 
-byte WD2793::getTrackReg(EmuTime::param time) const
+uint8_t WD2793::getTrackReg(EmuTime::param time) const
 {
 	return peekTrackReg(time);
 }
 
-byte WD2793::peekTrackReg(EmuTime::param /*time*/) const
+uint8_t WD2793::peekTrackReg(EmuTime::param /*time*/) const
 {
 	return trackReg;
 }
 
-void WD2793::setSectorReg(byte value, EmuTime::param /*time*/)
+void WD2793::setSectorReg(uint8_t value, EmuTime::param /*time*/)
 {
 	sectorReg = value;
 }
 
-byte WD2793::getSectorReg(EmuTime::param time) const
+uint8_t WD2793::getSectorReg(EmuTime::param time) const
 {
 	return peekSectorReg(time);
 }
 
-byte WD2793::peekSectorReg(EmuTime::param /*time*/) const
+uint8_t WD2793::peekSectorReg(EmuTime::param /*time*/) const
 {
 	return sectorReg;
 }
 
-void WD2793::setDataReg(byte value, EmuTime::param time)
+void WD2793::setDataReg(uint8_t value, EmuTime::param time)
 {
 	dataReg = value;
 
@@ -255,7 +255,7 @@ void WD2793::setDataReg(byte value, EmuTime::param time)
 	}
 }
 
-byte WD2793::getDataReg(EmuTime::param time)
+uint8_t WD2793::getDataReg(EmuTime::param time)
 {
 	if ((((commandReg & 0xE0) == 0x80) ||   // read sector
 	     ((commandReg & 0xF0) == 0xC0) ||   // read address
@@ -279,8 +279,8 @@ byte WD2793::getDataReg(EmuTime::param time)
 			if ((commandReg & 0xE0) == 0x80) {
 				// read sector
 				// update crc status flag
-				word diskCrc  = 256 * drive.readTrackByte(dataCurrent++);
-				     diskCrc +=       drive.readTrackByte(dataCurrent++);
+				uint16_t diskCrc  = 256 * drive.readTrackByte(dataCurrent++);
+				         diskCrc +=       drive.readTrackByte(dataCurrent++);
 				if (diskCrc == crc.getValue()) {
 					statusReg &= ~CRC_ERROR;
 				} else {
@@ -320,7 +320,7 @@ byte WD2793::getDataReg(EmuTime::param time)
 	return dataReg;
 }
 
-byte WD2793::peekDataReg(EmuTime::param time) const
+uint8_t WD2793::peekDataReg(EmuTime::param time) const
 {
 	if ((((commandReg & 0xE0) == 0x80) ||   // read sector
 	     ((commandReg & 0xF0) == 0xC0) ||   // read address
@@ -726,7 +726,7 @@ void WD2793::preWriteSector(EmuTime::param time)
 		} else {
 			// and finally a single F8/FB byte
 			crc.init({0xA1, 0xA1, 0xA1});
-			byte mark = (commandReg & A0_FLAG) ? 0xF8 : 0xFB;
+			uint8_t mark = (commandReg & A0_FLAG) ? 0xF8 : 0xFB;
 			drive.writeTrackByte(dataCurrent++, mark);
 			crc.update(mark);
 
@@ -787,8 +787,8 @@ void WD2793::postWriteSector(EmuTime::param time)
 		--dataAvailable;
 		if (dataAvailable > 0) {
 			// write 2 CRC bytes (big endian)
-			byte val = (dataAvailable == 2) ? (crc.getValue() >> 8)
-							: (crc.getValue() & 0xFF);
+			uint8_t val = (dataAvailable == 2) ? (crc.getValue() >> 8)
+			                                   : (crc.getValue() & 0xFF);
 			drive.writeTrackByte(dataCurrent++, val);
 			drqTime.reset(time);
 			schedule(FSM_POST_WRITE_SECTOR, drqTime + 1);
@@ -1035,7 +1035,7 @@ void WD2793::writeTrackData(EmuTime::param time)
 void WD2793::startType4Cmd(EmuTime::param time)
 {
 	// Force interrupt
-	byte flags = commandReg & 0x0F;
+	uint8_t flags = commandReg & 0x0F;
 	if (flags & (N2R_IRQ | R2N_IRQ)) {
 		// all flags not yet supported
 		#ifdef DEBUG
@@ -1171,7 +1171,7 @@ void WD2793::serialize(Archive& ar, unsigned version)
 
 	if (ar.versionAtLeast(version, 3)) {
 		ar.serialize("lastWasA1", lastWasA1);
-		word crcVal = crc.getValue();
+		uint16_t crcVal = crc.getValue();
 		ar.serialize("crc", crcVal);
 		crc.init(crcVal);
 	}

@@ -79,8 +79,8 @@ public:
 	[[nodiscard]] virtual EmuTime getTimeTillIndexPulse(EmuTime::param time, int count = 1) = 0;
 
 	[[nodiscard]] virtual unsigned getTrackLength() = 0;
-	virtual void writeTrackByte(int idx, byte val, bool addIdam = false) = 0;
-	[[nodiscard]] virtual byte  readTrackByte(int idx) = 0;
+	virtual void writeTrackByte(int idx, uint8_t val, bool addIdam = false) = 0;
+	[[nodiscard]] virtual uint8_t readTrackByte(int idx) = 0;
 	virtual EmuTime getNextSector(EmuTime::param time, RawTrack::Sector& sector) = 0;
 	virtual void flushTrack() = 0;
 
@@ -117,8 +117,8 @@ public:
 	[[nodiscard]] bool indexPulse(EmuTime::param time) override;
 	[[nodiscard]] EmuTime getTimeTillIndexPulse(EmuTime::param time, int count) override;
 	[[nodiscard]] unsigned getTrackLength() override;
-	void writeTrackByte(int idx, byte val, bool addIdam) override;
-	[[nodiscard]] byte  readTrackByte(int idx) override;
+	void writeTrackByte(int idx, uint8_t val, bool addIdam) override;
+	[[nodiscard]] uint8_t readTrackByte(int idx) override;
 	EmuTime getNextSector(EmuTime::param time, RawTrack::Sector& sector) override;
 	void flushTrack() override;
 	bool diskChanged() override;

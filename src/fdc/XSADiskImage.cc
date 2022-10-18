@@ -18,7 +18,7 @@ private:
 	static constexpr int TBLSIZE = 16;
 	static constexpr int MAXHUFCNT = 127;
 
-	[[nodiscard]] inline byte charIn();
+	[[nodiscard]] inline uint8_t charIn();
 	void chkHeader();
 	void unLz77();
 	[[nodiscard]] unsigned rdStrLen();
@@ -35,8 +35,8 @@ private:
 
 private:
 	MemBuffer<SectorBuffer> outBuf;	// the output buffer
-	std::span<const byte>::iterator inBufPos;	// pos in input buffer
-	std::span<const byte>::iterator inBufEnd;
+	std::span<const uint8_t>::iterator inBufPos;	// pos in input buffer
+	std::span<const uint8_t>::iterator inBufEnd;
 	unsigned sectors;
 
 	int updHufCnt;
@@ -45,8 +45,8 @@ private:
 	int tblSizes[TBLSIZE];
 	HufNode hufTbl[2 * TBLSIZE - 1];
 
-	byte bitFlg;		// flag with the bits
-	byte bitCnt;		// nb bits left
+	uint8_t bitFlg;		// flag with the bits
+	uint8_t bitCnt;		// nb bits left
 
 	static constexpr int cpdExt[TBLSIZE] = { // Extra bits for distance codes
 		  0,  0,  0,  0,  1,  2,  3,  4, 5,  6,  7,  8,  9, 10, 11, 12
@@ -107,7 +107,7 @@ std::pair<MemBuffer<SectorBuffer>, unsigned> XSAExtractor::extractData()
 }
 
 // Get the next character from the input buffer
-byte XSAExtractor::charIn()
+uint8_t XSAExtractor::charIn()
 {
 	if (inBufPos >= inBufEnd) {
 		throw MSXException("Corrupt XSA image: unexpected end of file");
@@ -139,7 +139,7 @@ void XSAExtractor::unLz77()
 	bitCnt = 0; // no bits read yet
 
 	size_t remaining = sectors * sizeof(SectorBuffer);
-	byte* out = outBuf.data()->raw;
+	uint8_t* out = outBuf.data()->raw;
 	size_t outIdx = 0;
 	while (true) {
 		if (bitIn()) {
@@ -181,7 +181,7 @@ unsigned XSAExtractor::rdStrLen()
 	if (!bitIn()) return 3;
 	if (!bitIn()) return 4;
 
-	byte nrBits = 2;
+	uint8_t nrBits = 2;
 	while ((nrBits != 7) && bitIn()) {
 		++nrBits;
 	}
@@ -205,21 +205,21 @@ int XSAExtractor::rdStrPos()
 			hufPos = hufPos->child1;
 		}
 	}
-	byte cpdIndex = byte(hufPos - hufTbl);
+	uint8_t cpdIndex = uint8_t(hufPos - hufTbl);
 	++tblSizes[cpdIndex];
 
 	int strPos = [&] {
 		if (cpdBmask[cpdIndex] >= 256) {
-			byte strPosLsb = charIn();
-			byte strPosMsb = 0;
-			for (byte nrBits = cpdExt[cpdIndex] - 8; nrBits--;
+			uint8_t strPosLsb = charIn();
+			uint8_t strPosMsb = 0;
+			for (uint8_t nrBits = cpdExt[cpdIndex] - 8; nrBits--;
 			     strPosMsb |= (bitIn() ? 1 : 0)) {
 				strPosMsb <<= 1;
 			}
 			return strPosLsb + 256 * strPosMsb;
 		} else {
 			int pos = 0;
-			for (byte nrBits = cpdExt[cpdIndex]; nrBits--;
+			for (uint8_t nrBits = cpdExt[cpdIndex]; nrBits--;
 			     pos |= (bitIn() ? 1 : 0)) {
 				pos <<= 1;
 			}

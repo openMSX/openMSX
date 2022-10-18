@@ -27,21 +27,21 @@ using std::string_view;
 
 namespace openmsx {
 
-constexpr unsigned BAD_FAT = 0xFF7;
-constexpr unsigned EOF_FAT = 0xFFF; // actually 0xFF8-0xFFF, signals EOF in FAT12
-constexpr unsigned SECTOR_SIZE = SectorAccessibleDisk::SECTOR_SIZE;
+static constexpr unsigned BAD_FAT = 0xFF7;
+static constexpr unsigned EOF_FAT = 0xFFF; // actually 0xFF8-0xFFF, signals EOF in FAT12
+static constexpr unsigned SECTOR_SIZE = SectorAccessibleDisk::SECTOR_SIZE;
 
-constexpr byte T_MSX_REG  = 0x00; // Normal file
-constexpr byte T_MSX_READ = 0x01; // Read-Only file
-constexpr byte T_MSX_HID  = 0x02; // Hidden file
-constexpr byte T_MSX_SYS  = 0x04; // System file
-constexpr byte T_MSX_VOL  = 0x08; // filename is Volume Label
-constexpr byte T_MSX_DIR  = 0x10; // entry is a subdir
-constexpr byte T_MSX_ARC  = 0x20; // Archive bit
+static constexpr uint8_t T_MSX_REG  = 0x00; // Normal file
+static constexpr uint8_t T_MSX_READ = 0x01; // Read-Only file
+static constexpr uint8_t T_MSX_HID  = 0x02; // Hidden file
+static constexpr uint8_t T_MSX_SYS  = 0x04; // System file
+static constexpr uint8_t T_MSX_VOL  = 0x08; // filename is Volume Label
+static constexpr uint8_t T_MSX_DIR  = 0x10; // entry is a subdir
+static constexpr uint8_t T_MSX_ARC  = 0x20; // Archive bit
 // This particular combination of flags indicates that this dir entry is used
 // to store a long Unicode file name.
 // For details, read http://home.teleport.com/~brainy/lfn.htm
-constexpr byte T_MSX_LFN  = 0x0F; // LFN entry (long files names)
+static constexpr uint8_t T_MSX_LFN  = 0x0F; // LFN entry (long files names)
 
 /** Transforms a clusternumber towards the first sector of this cluster
   * The calculation uses info read fom the bootsector

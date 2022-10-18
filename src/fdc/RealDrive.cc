@@ -394,7 +394,7 @@ unsigned RealDrive::getTrackLength()
 	return track.getLength();
 }
 
-void RealDrive::writeTrackByte(int idx, byte val, bool addIdam)
+void RealDrive::writeTrackByte(int idx, uint8_t val, bool addIdam)
 {
 	getTrack();
 	// It's possible 'trackValid==false', but that's fine because in that
@@ -403,7 +403,7 @@ void RealDrive::writeTrackByte(int idx, byte val, bool addIdam)
 	trackDirty = true;
 }
 
-byte RealDrive::readTrackByte(int idx)
+uint8_t RealDrive::readTrackByte(int idx)
 {
 	getTrack();
 	return trackValid ? track.read(idx) : 0;

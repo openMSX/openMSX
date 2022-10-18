@@ -28,7 +28,7 @@ void RawTrack::addIdam(unsigned idx)
 	idam.push_back(idx);
 }
 
-void RawTrack::write(int idx, byte val, bool setIdam)
+void RawTrack::write(int idx, uint8_t val, bool setIdam)
 {
 	unsigned i2 = wrapIndex(idx);
 	auto it = ranges::lower_bound(idam, i2);
@@ -63,8 +63,8 @@ std::optional<RawTrack::Sector> RawTrack::decodeSectorImpl(int idx) const
 	sector.head     = read(idx++);
 	sector.sector   = read(idx++);
 	sector.sizeCode = read(idx++);
-	byte addrCrc1 = read(idx++);
-	byte addrCrc2 = read(idx++);
+	uint8_t addrCrc1 = read(idx++);
+	uint8_t addrCrc2 = read(idx++);
 	sector.addrCrcErr = (256 * addrCrc1 + addrCrc2) != addrCrc.getValue();
 
 	sector.dataIdx = -1; // (for now) no data block found
@@ -82,7 +82,7 @@ std::optional<RawTrack::Sector> RawTrack::decodeSectorImpl(int idx) const
 			}
 			if (j != 3) continue; // didn't find 3 x 0xA1
 
-			byte type = read(idx2 + 3);
+			uint8_t type = read(idx2 + 3);
 			if (type != one_of(0xfb, 0xf8)) continue;
 
 			CRC16 dataCrc;
@@ -93,8 +93,8 @@ std::optional<RawTrack::Sector> RawTrack::decodeSectorImpl(int idx) const
 			int dataIdx = idx2 + 4;
 			unsigned sectorSize = 128 << (sector.sizeCode & 7);
 			updateCrc(dataCrc, dataIdx, sectorSize);
-			byte dataCrc1 = read(dataIdx + sectorSize + 0);
-			byte dataCrc2 = read(dataIdx + sectorSize + 1);
+			uint8_t dataCrc1 = read(dataIdx + sectorSize + 0);
+			uint8_t dataCrc2 = read(dataIdx + sectorSize + 1);
 			bool dataCrcErr = (256 * dataCrc1 + dataCrc2) != dataCrc.getValue();
 
 			// store result
@@ -140,7 +140,7 @@ std::optional<RawTrack::Sector> RawTrack::decodeNextSector(unsigned startIdx) co
 	return {};
 }
 
-std::optional<RawTrack::Sector> RawTrack::decodeSector(byte sectorNum) const
+std::optional<RawTrack::Sector> RawTrack::decodeSector(uint8_t sectorNum) const
 {
 	// only complete sectors (header + data block)
 	for (const auto& i : idam) {
@@ -154,13 +154,13 @@ std::optional<RawTrack::Sector> RawTrack::decodeSector(byte sectorNum) const
 	return {};
 }
 
-void RawTrack::readBlock(int idx, std::span<byte> destination) const
+void RawTrack::readBlock(int idx, std::span<uint8_t> destination) const
 {
 	for (auto [i, d] : enumerate(destination)) {
 		d = read(idx + int(i));
 	}
 }
-void RawTrack::writeBlock(int idx, std::span<const byte> source)
+void RawTrack::writeBlock(int idx, std::span<const uint8_t> source)
 {
 	for (auto [i, s] : enumerate(source)) {
 		write(idx + int(i), s);
@@ -180,7 +180,7 @@ void RawTrack::updateCrc(CRC16& crc, int idx, int size) const
 	}
 }
 
-word RawTrack::calcCrc(int idx, int size) const
+uint16_t RawTrack::calcCrc(int idx, int size) const
 {
 	CRC16 crc;
 	updateCrc(crc, idx, size);

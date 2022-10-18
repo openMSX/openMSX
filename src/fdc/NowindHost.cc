@@ -22,7 +22,7 @@ using std::string;
 
 namespace openmsx {
 
-constexpr unsigned SECTOR_SIZE = sizeof(SectorBuffer);
+static constexpr unsigned SECTOR_SIZE = sizeof(SectorBuffer);
 
 static void DBERR(const char* message, ...)
 {

@@ -12,7 +12,7 @@ SectorBasedDisk::SectorBasedDisk(DiskName name_)
 {
 }
 
-void SectorBasedDisk::writeTrackImpl(byte track, byte side, const RawTrack& input)
+void SectorBasedDisk::writeTrackImpl(uint8_t track, uint8_t side, const RawTrack& input)
 {
 	for (auto& s : input.decodeAll()) {
 		// Ignore 'track' and 'head' information
@@ -30,7 +30,7 @@ void SectorBasedDisk::writeTrackImpl(byte track, byte side, const RawTrack& inpu
 	}
 }
 
-void SectorBasedDisk::readTrack(byte track, byte side, RawTrack& output)
+void SectorBasedDisk::readTrack(uint8_t track, uint8_t side, RawTrack& output)
 {
 	// Try to cache the last result of this method (the cache will be
 	// flushed on any write to the disk). This very simple cache mechanism
@@ -83,7 +83,7 @@ void SectorBasedDisk::readTrack(byte track, byte side, RawTrack& output)
 		output.clear(RawTrack::STANDARD_SIZE); // clear idam positions
 
 		unsigned idx = 0;
-		auto write = [&](unsigned n, byte value) {
+		auto write = [&](unsigned n, uint8_t value) {
 			repeat(n, [&] { output.write(idx++, value); });
 		};
 
@@ -102,7 +102,7 @@ void SectorBasedDisk::readTrack(byte track, byte side, RawTrack& output)
 			output.write(idx++, side);  // H: Head Address
 			output.write(idx++, j + 1); // R: Record
 			output.write(idx++, 0x02);  // N: Number (length of sector: 512 = 128 << 2)
-			word addrCrc = output.calcCrc(idx - 8, 8);
+			uint16_t addrCrc = output.calcCrc(idx - 8, 8);
 			output.write(idx++, addrCrc >> 8);   // CRC (high byte)
 			output.write(idx++, addrCrc & 0xff); //     (low  byte)
 
@@ -117,7 +117,7 @@ void SectorBasedDisk::readTrack(byte track, byte side, RawTrack& output)
 			readSector(logicalSector, buf);
 			for (auto& r : buf.raw) output.write(idx++, r);
 
-			word dataCrc = output.calcCrc(idx - (512 + 4), 512 + 4);
+			uint16_t dataCrc = output.calcCrc(idx - (512 + 4), 512 + 4);
 			output.write(idx++, dataCrc >> 8);   // CRC (high byte)
 			output.write(idx++, dataCrc & 0xff); //     (low  byte)
 

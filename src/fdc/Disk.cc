@@ -9,7 +9,7 @@ Disk::Disk(DiskName name_)
 {
 }
 
-void Disk::writeTrack(byte track, byte side, const RawTrack& input)
+void Disk::writeTrack(uint8_t track, uint8_t side, const RawTrack& input)
 {
 	if (isWriteProtected()) {
 		throw WriteProtectedException();
@@ -32,7 +32,7 @@ bool Disk::isDoubleSided()
 //       conversion without relying on the detected geometry parameters.
 //       Otherwise the detectGeometry() method (which itself reads these
 //       two sectors) would get in an infinite loop.
-size_t Disk::physToLog(byte track, byte side, byte sector)
+size_t Disk::physToLog(uint8_t track, uint8_t side, uint8_t sector)
 {
 	if ((track == 0) && (side == 0)) {
 		return sector - 1;
@@ -45,17 +45,17 @@ size_t Disk::physToLog(byte track, byte side, byte sector)
 Disk::TSS Disk::logToPhys(size_t log)
 {
 	if (log <= 1) {
-		byte track = 0;
-		byte side = 0;
-		byte sector = byte(log + 1);
+		uint8_t track = 0;
+		uint8_t side = 0;
+		uint8_t sector = uint8_t(log + 1);
 		return {track, side, sector};
 	}
 	if (!nbSides) {
 		detectGeometry();
 	}
-	byte track  = byte(log / (nbSides * sectorsPerTrack)); // TODO check for overflow
-	byte side   = byte((log / sectorsPerTrack) % nbSides);
-	byte sector = byte((log % sectorsPerTrack) + 1);
+	auto track  = uint8_t(log / (nbSides * sectorsPerTrack)); // TODO check for overflow
+	auto side   = uint8_t((log / sectorsPerTrack) % nbSides);
+	auto sector = uint8_t((log % sectorsPerTrack) + 1);
 	return {track, side, sector};
 }
 
@@ -124,7 +124,7 @@ void Disk::detectGeometry()
 			}
 		} else {
 			readSector(1, buf); // 1st fat sector
-			byte mediaDescriptor = buf.raw[0];
+			auto mediaDescriptor = buf.raw[0];
 			if (mediaDescriptor >= 0xF8) {
 				sectorsPerTrack = (mediaDescriptor & 2) ? 8 : 9;
 				nbSides         = (mediaDescriptor & 1) ? 2 : 1;

@@ -12,18 +12,18 @@ namespace openmsx {
 
 struct DmkHeader
 {
-	byte writeProtected;
-	byte numTracks;
-	byte trackLen[2];
-	byte flags;
-	byte reserved[7];
-	byte format[4];
+	uint8_t writeProtected;
+	uint8_t numTracks;
+	uint8_t trackLen[2];
+	uint8_t flags;
+	uint8_t reserved[7];
+	uint8_t format[4];
 };
 static_assert(sizeof(DmkHeader) == 16);
 
-constexpr byte FLAG_SINGLE_SIDED = 0x10;
-constexpr unsigned IDAM_FLAGS_MASK = 0xC000;
-constexpr unsigned FLAG_MFM_SECTOR = 0x8000;
+static constexpr uint8_t FLAG_SINGLE_SIDED = 0x10;
+static constexpr unsigned IDAM_FLAGS_MASK = 0xC000;
+static constexpr unsigned FLAG_MFM_SECTOR = 0x8000;
 
 
 [[nodiscard]] static /*constexpr*/ bool isValidDmkHeader(const DmkHeader& header)
@@ -61,13 +61,13 @@ DMKDiskImage::DMKDiskImage(Filename filename, std::shared_ptr<File> file_)
 	//      read or write.
 }
 
-void DMKDiskImage::seekTrack(byte track, byte side)
+void DMKDiskImage::seekTrack(uint8_t track, uint8_t side)
 {
 	unsigned t = singleSided ? track : (2 * track + side);
 	file->seek(sizeof(DmkHeader) + t * (dmkTrackLen + 128));
 }
 
-void DMKDiskImage::readTrack(byte track, byte side, RawTrack& output)
+void DMKDiskImage::readTrack(uint8_t track, uint8_t side, RawTrack& output)
 {
 	assert(side < 2);
 	output.clear(dmkTrackLen);
@@ -79,7 +79,7 @@ void DMKDiskImage::readTrack(byte track, byte side, RawTrack& output)
 	seekTrack(track, side);
 
 	// Read idam data (still needs to be converted).
-	byte idamBuf[2 * 64];
+	uint8_t idamBuf[2 * 64];
 	file->read(idamBuf, sizeof(idamBuf));
 
 	// Read raw track data.
@@ -118,7 +118,7 @@ void DMKDiskImage::readTrack(byte track, byte side, RawTrack& output)
 	}
 }
 
-void DMKDiskImage::writeTrackImpl(byte track, byte side, const RawTrack& input)
+void DMKDiskImage::writeTrackImpl(uint8_t track, uint8_t side, const RawTrack& input)
 {
 	assert(side < 2);
 	if (singleSided && (side != 0)) {
@@ -132,12 +132,12 @@ void DMKDiskImage::writeTrackImpl(byte track, byte side, const RawTrack& input)
 	doWriteTrack(track, side, input);
 }
 
-void DMKDiskImage::doWriteTrack(byte track, byte side, const RawTrack& input)
+void DMKDiskImage::doWriteTrack(uint8_t track, uint8_t side, const RawTrack& input)
 {
 	seekTrack(track, side);
 
 	// Write idam table.
-	byte idamOut[2 * 64] = {}; // zero-initialize
+	uint8_t idamOut[2 * 64] = {}; // zero-initialize
 	const auto& idamIn = input.getIdamBuffer();
 	for (auto i : xrange(std::min(64, int(idamIn.size())))) {
 		int t = (idamIn[i] + 128) | FLAG_MFM_SECTOR;
@@ -151,11 +151,11 @@ void DMKDiskImage::doWriteTrack(byte track, byte side, const RawTrack& input)
 	file->write(input.getRawBuffer(), dmkTrackLen);
 }
 
-void DMKDiskImage::extendImageToTrack(byte track)
+void DMKDiskImage::extendImageToTrack(uint8_t track)
 {
 	// extend image with empty tracks
 	RawTrack emptyTrack(dmkTrackLen);
-	byte numSides = singleSided ? 1 : 2;
+	uint8_t numSides = singleSided ? 1 : 2;
 	while (numTracks <= track) {
 		for (auto side : xrange(numSides)) {
 			doWriteTrack(numTracks, side, emptyTrack);
@@ -165,7 +165,7 @@ void DMKDiskImage::extendImageToTrack(byte track)
 
 	// update header
 	file->seek(1); // position in header where numTracks is stored
-	byte numTracksByte = numTracks;
+	uint8_t numTracksByte = numTracks;
 	file->write(&numTracksByte, sizeof(numTracksByte));
 }
 

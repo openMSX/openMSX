@@ -18,8 +18,8 @@ class DMKDiskImage final : public Disk
 public:
 	DMKDiskImage(Filename filename, std::shared_ptr<File> file);
 
-	void readTrack(byte track, byte side, RawTrack& output) override;
-	void writeTrackImpl(byte track, byte side, const RawTrack& input) override;
+	void readTrack(uint8_t track, uint8_t side, RawTrack& output) override;
+	void writeTrackImpl(uint8_t track, uint8_t side, const RawTrack& input) override;
 
 	// logical sector emulation for SectorAccessibleDisk
 	void readSectorImpl (size_t sector,       SectorBuffer& buf) override;
@@ -31,9 +31,9 @@ public:
 private:
 	void detectGeometryFallback() override;
 
-	void seekTrack(byte track, byte side);
-	void doWriteTrack(byte track, byte side, const RawTrack& input);
-	void extendImageToTrack(byte track);
+	void seekTrack(uint8_t track, uint8_t side);
+	void doWriteTrack(uint8_t track, uint8_t side, const RawTrack& input);
+	void extendImageToTrack(uint8_t track);
 
 private:
 	std::shared_ptr<File> file;

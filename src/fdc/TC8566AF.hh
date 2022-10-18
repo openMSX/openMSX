@@ -5,7 +5,7 @@
 #include "CRC16.hh"
 #include "Schedulable.hh"
 #include "serialize_meta.hh"
-#include "openmsx.hh"
+#include <cstdint>
 
 namespace openmsx {
 
@@ -20,13 +20,13 @@ public:
 	         EmuTime::param time);
 
 	void reset(EmuTime::param time);
-	[[nodiscard]] byte peekDataPort(EmuTime::param time) const;
-	byte readDataPort(EmuTime::param time);
-	[[nodiscard]] byte peekStatus() const;
-	byte readStatus(EmuTime::param time);
-	void writeControlReg0(byte value, EmuTime::param time);
-	void writeControlReg1(byte value, EmuTime::param time);
-	void writeDataPort(byte value, EmuTime::param time);
+	[[nodiscard]] uint8_t peekDataPort(EmuTime::param time) const;
+	uint8_t readDataPort(EmuTime::param time);
+	[[nodiscard]] uint8_t peekStatus() const;
+	uint8_t readStatus(EmuTime::param time);
+	void writeControlReg0(uint8_t value, EmuTime::param time);
+	void writeControlReg1(uint8_t value, EmuTime::param time);
+	void writeDataPort(uint8_t value, EmuTime::param time);
 	bool diskChanged(unsigned driveNum);
 	[[nodiscard]] bool peekDiskChanged(unsigned driveNum) const;
 
@@ -68,15 +68,15 @@ private:
 	// Schedulable
 	void executeUntil(EmuTime::param time) override;
 
-	[[nodiscard]] byte executionPhasePeek(EmuTime::param time) const;
-	byte executionPhaseRead(EmuTime::param time);
-	[[nodiscard]] byte resultsPhasePeek() const;
-	byte resultsPhaseRead(EmuTime::param time);
-	void idlePhaseWrite(byte value, EmuTime::param time);
-	void commandPhase1(byte value);
-	void commandPhaseWrite(byte value, EmuTime::param time);
+	[[nodiscard]] uint8_t executionPhasePeek(EmuTime::param time) const;
+	uint8_t executionPhaseRead(EmuTime::param time);
+	[[nodiscard]] uint8_t resultsPhasePeek() const;
+	uint8_t resultsPhaseRead(EmuTime::param time);
+	void idlePhaseWrite(uint8_t value, EmuTime::param time);
+	void commandPhase1(uint8_t value);
+	void commandPhaseWrite(uint8_t value, EmuTime::param time);
 	void doSeek(int n);
-	void executionPhaseWrite(byte value, EmuTime::param time);
+	void executionPhaseWrite(uint8_t value, EmuTime::param time);
 	void resultPhase();
 	void endCommand(EmuTime::param time);
 
@@ -110,28 +110,28 @@ private:
 	int dataCurrent;
 	CRC16 crc;
 
-	byte driveSelect;
-	byte mainStatus;
-	byte status0;
-	byte status1;
-	byte status2;
-	byte status3;
-	byte commandCode;
+	uint8_t driveSelect;
+	uint8_t mainStatus;
+	uint8_t status0;
+	uint8_t status1;
+	uint8_t status2;
+	uint8_t status3;
+	uint8_t commandCode;
 
-	byte cylinderNumber;
-	byte headNumber;
-	byte sectorNumber;
-	byte number;
-	byte endOfTrack;
-	byte sectorsPerCylinder;
-	byte fillerByte;
-	byte gapLength;
-	byte specifyData[2]; // filled in by SPECIFY command
+	uint8_t cylinderNumber;
+	uint8_t headNumber;
+	uint8_t sectorNumber;
+	uint8_t number;
+	uint8_t endOfTrack;
+	uint8_t sectorsPerCylinder;
+	uint8_t fillerByte;
+	uint8_t gapLength;
+	uint8_t specifyData[2]; // filled in by SPECIFY command
 
 	struct SeekInfo {
 		EmuTime time = EmuTime::zero();
-		byte currentTrack = 0;
-		byte seekValue = 0;
+		uint8_t currentTrack = 0;
+		uint8_t seekValue = 0;
 		SeekState state = SEEK_IDLE;
 
 		template<typename Archive>

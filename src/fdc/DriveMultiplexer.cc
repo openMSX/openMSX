@@ -92,12 +92,12 @@ unsigned DriveMultiplexer::getTrackLength()
 	return drive[selected]->getTrackLength();
 }
 
-void DriveMultiplexer::writeTrackByte(int idx, byte val, bool addIdam)
+void DriveMultiplexer::writeTrackByte(int idx, uint8_t val, bool addIdam)
 {
 	drive[selected]->writeTrackByte(idx, val, addIdam);
 }
 
-byte DriveMultiplexer::readTrackByte(int idx)
+uint8_t DriveMultiplexer::readTrackByte(int idx)
 {
 	return drive[selected]->readTrackByte(idx);
 }

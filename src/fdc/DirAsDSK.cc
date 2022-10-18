@@ -20,22 +20,22 @@ using std::vector;
 
 namespace openmsx {
 
-constexpr unsigned SECTOR_SIZE = sizeof(SectorBuffer);
-constexpr unsigned SECTORS_PER_DIR = 7;
-constexpr unsigned NUM_FATS = 2;
-constexpr unsigned NUM_TRACKS = 80;
-constexpr unsigned SECTORS_PER_CLUSTER = 2;
-constexpr unsigned SECTORS_PER_TRACK = 9;
-constexpr unsigned FIRST_FAT_SECTOR = 1;
-constexpr unsigned DIR_ENTRIES_PER_SECTOR =
+static constexpr unsigned SECTOR_SIZE = sizeof(SectorBuffer);
+static constexpr unsigned SECTORS_PER_DIR = 7;
+static constexpr unsigned NUM_FATS = 2;
+static constexpr unsigned NUM_TRACKS = 80;
+static constexpr unsigned SECTORS_PER_CLUSTER = 2;
+static constexpr unsigned SECTORS_PER_TRACK = 9;
+static constexpr unsigned FIRST_FAT_SECTOR = 1;
+static constexpr unsigned DIR_ENTRIES_PER_SECTOR =
 	SECTOR_SIZE / sizeof(MSXDirEntry);
 
 // First valid regular cluster number.
-constexpr unsigned FIRST_CLUSTER = 2;
+static constexpr unsigned FIRST_CLUSTER = 2;
 
-constexpr unsigned FREE_FAT = 0x000;
-constexpr unsigned BAD_FAT  = 0xFF7;
-constexpr unsigned EOF_FAT  = 0xFFF; // actually 0xFF8-0xFFF
+static constexpr unsigned FREE_FAT = 0x000;
+static constexpr unsigned BAD_FAT  = 0xFF7;
+static constexpr unsigned EOF_FAT  = 0xFFF; // actually 0xFF8-0xFFF
 
 
 // Transform BAD_FAT (0xFF7) and EOF_FAT-range (0xFF8-0xFFF)
@@ -278,7 +278,7 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 	}
 
 	// First create structure for the virtual disk.
-	byte numSides = diskChanger_.isDoubleSidedDrive() ? 2 : 1;
+	uint8_t numSides = diskChanger_.isDoubleSidedDrive() ? 2 : 1;
 	setNbSectors(nofSectors);
 	setSectorsPerTrack(SECTORS_PER_TRACK);
 	setNbSides(numSides);
@@ -288,7 +288,7 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 	memset(sectors.data(), 0xE5, sizeof(SectorBuffer) * nofSectors);
 
 	// Use selected bootsector, fill-in values.
-	byte mediaDescriptor = (numSides == 2) ? 0xF9 : 0xF8;
+	uint8_t mediaDescriptor = (numSides == 2) ? 0xF9 : 0xF8;
 	const auto& protoBootSector = bootSectorType == BOOTSECTOR_DOS1
 		? BootBlocks::dos1BootBlock
 		: BootBlocks::dos2BootBlock;

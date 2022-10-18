@@ -9,7 +9,7 @@ EmptyDiskPatch::EmptyDiskPatch(SectorAccessibleDisk& disk_)
 {
 }
 
-void EmptyDiskPatch::copyBlock(size_t src, byte* dst, size_t num) const
+void EmptyDiskPatch::copyBlock(size_t src, uint8_t* dst, size_t num) const
 {
 	assert((num % SectorAccessibleDisk::SECTOR_SIZE) == 0);
 	assert((src % SectorAccessibleDisk::SECTOR_SIZE) == 0);

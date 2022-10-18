@@ -65,12 +65,12 @@ unsigned DummyDrive::getTrackLength()
 	return RawTrack::STANDARD_SIZE;
 }
 
-void DummyDrive::writeTrackByte(int /*idx*/, byte /*val*/, bool /*addIdam*/)
+void DummyDrive::writeTrackByte(int /*idx*/, uint8_t /*val*/, bool /*addIdam*/)
 {
 	throw DriveEmptyException("No drive selected");
 }
 
-byte DummyDrive::readTrackByte(int /*idx*/)
+uint8_t DummyDrive::readTrackByte(int /*idx*/)
 {
 	throw DriveEmptyException("No drive selected");
 }

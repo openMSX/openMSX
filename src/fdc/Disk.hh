@@ -3,7 +3,7 @@
 
 #include "SectorAccessibleDisk.hh"
 #include "DiskName.hh"
-#include "openmsx.hh"
+#include <cstdint>
 
 namespace openmsx {
 
@@ -17,10 +17,10 @@ public:
 	[[nodiscard]] const DiskName& getName() const { return name; }
 
 	/** Replace a full track in this image with the given track. */
-	void writeTrack(byte track, byte side, const RawTrack& input);
+	void writeTrack(uint8_t track, uint8_t side, const RawTrack& input);
 
 	/** Read a full track from this disk image. */
-	virtual void readTrack (byte track, byte side, RawTrack& output) = 0;
+	virtual void readTrack (uint8_t track, uint8_t side, RawTrack& output) = 0;
 
 	/** Has the content of this disk changed, by some other means than the
 	 * MSX writing to the disk. In other words: should caches on the MSX
@@ -32,8 +32,8 @@ public:
 
 protected:
 	explicit Disk(DiskName name);
-	[[nodiscard]] size_t physToLog(byte track, byte side, byte sector);
-	struct TSS { byte track, side, sector; };
+	[[nodiscard]] size_t physToLog(uint8_t track, uint8_t side, uint8_t sector);
+	struct TSS { uint8_t track, side, sector; };
 	[[nodiscard]] TSS logToPhys(size_t log);
 
 	virtual void detectGeometry();
@@ -43,7 +43,7 @@ protected:
 	[[nodiscard]] unsigned getSectorsPerTrack();
 	void setNbSides(unsigned num) {	nbSides = num; }
 
-	virtual void writeTrackImpl(byte track, byte side, const RawTrack& input) = 0;
+	virtual void writeTrackImpl(uint8_t track, uint8_t side, const RawTrack& input) = 0;
 
 private:
 	const DiskName name;
