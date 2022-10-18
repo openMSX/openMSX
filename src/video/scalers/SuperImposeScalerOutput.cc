@@ -65,7 +65,7 @@ void SuperImposeScalerOutput<Pixel>::fillLine(unsigned y, Pixel color)
 			// anymore
 			if (srcLine.data() != dstLine) {
 				Scale_1on1<Pixel> copy;
-				copy(srcLine.data(), dstLine, width);
+				copy(srcLine, std::span{dstLine, width});
 			}
 		} else {
 			AlphaBlendLines<Pixel> alphaBlend(pixelOps);

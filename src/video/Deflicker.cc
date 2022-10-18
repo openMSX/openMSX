@@ -195,7 +195,7 @@ const void* DeflickerImpl<Pixel>::getLineInfo(
 	} else {
 		// Otherwise scale so that it does fit.
 		width = bufWidth;
-		scaleLine(out, buf, width0, bufWidth);
+		scaleLine(std::span<const Pixel>{out, width0}, std::span{buf, bufWidth});
 	}
 	return buf;
 }

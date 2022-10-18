@@ -247,8 +247,8 @@ void doHQScale2(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& postScale
 		} else {
 			hqScale(srcPrev, srcCurr, srcNext, bufA.data(), bufB.data(),
 			        edgeBuf, edgeOp);
-			postScale(bufA.data(), dst0, dstWidth);
-			postScale(bufB.data(), dst1, dstWidth);
+			postScale(bufA, std::span{dst0, dstWidth});
+			postScale(bufB, std::span{dst1, dstWidth});
 		}
 		dst.releaseLine(dstY + 0, dst0);
 		dst.releaseLine(dstY + 1, dst1);
@@ -290,9 +290,9 @@ void doHQScale3(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& postScale
 		} else {
 			hqScale(srcPrev, srcCurr, srcNext, bufA.data(), bufB.data(), bufC.data(),
 			        edgeBuf, edgeOp);
-			postScale(bufA.data(), dst0, dstWidth);
-			postScale(bufB.data(), dst1, dstWidth);
-			postScale(bufC.data(), dst2, dstWidth);
+			postScale(bufA, std::span{dst0, dstWidth});
+			postScale(bufB, std::span{dst1, dstWidth});
+			postScale(bufC, std::span{dst2, dstWidth});
 		}
 		dst.releaseLine(dstY + 0, dst0);
 		dst.releaseLine(dstY + 1, dst1);

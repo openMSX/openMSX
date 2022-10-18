@@ -102,7 +102,7 @@ public:
 		} else {
 			// slow path, non-inlined
 			// internalData might be equal to buf
-			scaleLine(internalData, buf.data(), internalWidth, buf.size()); // TODO pass 2x span
+			scaleLine(std::span{internalData, internalWidth}, buf);
 			return buf;
 		}
 	}
@@ -164,8 +164,7 @@ protected:
 	}
 
 	template<std::unsigned_integral Pixel> void scaleLine(
-		const Pixel* in, Pixel* out,
-		unsigned inWidth, unsigned outWidth) const;
+		std::span<const Pixel> in, std::span<Pixel> out) const;
 
 private:
 	/** Pixel format. Needed for getLinePtr scaling

@@ -53,9 +53,9 @@ static void doScale1(FrameSource& src,
 	for (unsigned y = dstStartY; y < dstEndY; y += 2, ++srcStartY) {
 		auto srcLine = src.getLine(srcStartY, buf);
 		auto* dstLine0 = dst.acquireLine(y + 0);
-		scale(srcLine.data(), dstLine0, dstWidth);
+		scale(srcLine, std::span{dstLine0, dstWidth});
 		auto* dstLine1 = dst.acquireLine(y + 1);
-		copy(dstLine0, dstLine1, dstWidth);
+		copy(std::span{dstLine0, dstWidth}, std::span{dstLine1, dstWidth});
 		dst.releaseLine(y + 0, dstLine0);
 		dst.releaseLine(y + 1, dstLine1);
 	}
@@ -73,7 +73,7 @@ static void doScale2(FrameSource& src,
 	     dstY < dstEndY; ++dstY, ++srcY) {
 		auto srcLine = src.getLine(srcY, buf);
 		auto* dstLine = dst.acquireLine(dstY);
-		scale(srcLine.data(), dstLine, dstWidth);
+		scale(srcLine, std::span{dstLine, dstWidth});
 		dst.releaseLine(dstY, dstLine);
 	}
 }
@@ -156,9 +156,9 @@ void Scaler2<Pixel>::scale1x1to1x2(FrameSource& src,
 	for (unsigned y = dstStartY; y < dstEndY; y += 2, ++srcStartY) {
 		auto* dstLine0 = dst.acquireLine(y + 0);
 		auto srcLine = src.getLine(srcStartY, std::span{dstLine0, srcWidth});
-		if (srcLine.data() != dstLine0) copy(srcLine.data(), dstLine0, srcWidth);
+		if (srcLine.data() != dstLine0) copy(srcLine, std::span{dstLine0, srcWidth});
 		auto* dstLine1 = dst.acquireLine(y + 1);
-		copy(dstLine0, dstLine1, srcWidth);
+		copy(std::span{dstLine0, srcWidth}, std::span{dstLine1, srcWidth});
 		dst.releaseLine(y + 0, dstLine0);
 		dst.releaseLine(y + 1, dstLine1);
 	}
@@ -176,7 +176,7 @@ void Scaler2<Pixel>::scale1x1to1x1(FrameSource& src,
 	     dstY < dstEndY; ++dstY, ++srcY) {
 		auto* dstLine = dst.acquireLine(dstY);
 		auto srcLine = src.getLine(srcY, std::span{dstLine, srcWidth});
-		if (srcLine.data() != dstLine) copy(srcLine.data(), dstLine, srcWidth);
+		if (srcLine.data() != dstLine) copy(srcLine, std::span{dstLine, srcWidth});
 		dst.releaseLine(dstY, dstLine);
 	}
 }

@@ -145,37 +145,37 @@ static void blur1on2_SSE2(
 
 template<std::unsigned_integral Pixel>
 void Simple2xScaler<Pixel>::blur1on2(
-	const Pixel* __restrict pIn, Pixel* __restrict pOut,
-	unsigned alpha, size_t srcWidth)
+	std::span<const Pixel> in, std::span<Pixel> out, unsigned alpha)
 {
+	assert((2 * in.size()) == out.size());
 	/* This routine is functionally equivalent to the following:
 	 *
-	 * void blur1on2(const Pixel* pIn, Pixel* pOut, unsigned alpha)
+	 * void blur1on2(const Pixel* in, Pixel* out, unsigned alpha)
 	 * {
 	 *         unsigned c1 = alpha / 4;
 	 *         unsigned c2 = 256 - c1;
 	 *
 	 *         Pixel prev, curr, next;
-	 *         prev = curr = pIn[0];
+	 *         prev = curr = in[0];
 	 *
 	 *         unsigned x = 0;
 	 *         for (; x < (srcWidth - 1); ++x) {
-	 *                 pOut[2 * x + 0] = (c1 * prev + c2 * curr) >> 8;
-	 *                 Pixel next = pIn[x + 1];
-	 *                 pOut[2 * x + 1] = (c1 * next + c2 * curr) >> 8;
+	 *                 out[2 * x + 0] = (c1 * prev + c2 * curr) >> 8;
+	 *                 Pixel next = in[x + 1];
+	 *                 out[2 * x + 1] = (c1 * next + c2 * curr) >> 8;
 	 *                 prev = curr;
 	 *                 curr = next;
 	 *         }
 	 *
-	 *         pOut[2 * x + 0] = (c1 * prev + c2 * curr) >> 8;
+	 *         out[2 * x + 0] = (c1 * prev + c2 * curr) >> 8;
 	 *         next = curr;
-	 *         pOut[2 * x + 1] = (c1 * next + c2 * curr) >> 8;
+	 *         out[2 * x + 1] = (c1 * next + c2 * curr) >> 8;
 	 * }
 	 */
 
 	if (alpha == 0) {
 		Scale_1on2<Pixel> scale;
-		scale(pIn, pOut, 2 * srcWidth);
+		scale(in, out);
 		return;
 	}
 
@@ -186,7 +186,7 @@ void Simple2xScaler<Pixel>::blur1on2(
 #ifdef __SSE2__
 	if constexpr (sizeof(Pixel) == 4) {
 		// SSE2, only 32bpp
-		blur1on2_SSE2(pIn, pOut, c1, c2, srcWidth);
+		blur1on2_SSE2(in.data(), out.data(), c1, c2, in.size());
 		return;
 	}
 #endif
@@ -196,40 +196,41 @@ void Simple2xScaler<Pixel>::blur1on2(
 	mult1.setFactor32(c1);
 	mult2.setFactor32(c2);
 
-	Pixel p0 = pIn[0];
+	Pixel p0 = in[0];
 	Pixel p1;
 	unsigned f0 = mult1.mul32(p0);
 	unsigned f1 = f0;
 	unsigned tmp;
 
+	size_t srcWidth = in.size();
 	size_t x = 0;
 	for (/**/; x < (srcWidth - 2); x += 2) {
 		tmp = mult2.mul32(p0);
-		pOut[2 * x + 0] = mult1.conv32(f1 + tmp);
+		out[2 * x + 0] = mult1.conv32(f1 + tmp);
 
-		p1 = pIn[x + 1];
+		p1 = in[x + 1];
 		f1 = mult1.mul32(p1);
-		pOut[2 * x + 1] = mult1.conv32(f1 + tmp);
+		out[2 * x + 1] = mult1.conv32(f1 + tmp);
 
 		tmp = mult2.mul32(p1);
-		pOut[2 * x + 2] = mult1.conv32(f0 + tmp);
+		out[2 * x + 2] = mult1.conv32(f0 + tmp);
 
-		p0 = pIn[x + 2];
+		p0 = in[x + 2];
 		f0 = mult1.mul32(p0);
-		pOut[2 * x + 3] = mult1.conv32(f0 + tmp);
+		out[2 * x + 3] = mult1.conv32(f0 + tmp);
 	}
 
 	tmp = mult2.mul32(p0);
-	pOut[2 * x + 0] = mult1.conv32(f1 + tmp);
+	out[2 * x + 0] = mult1.conv32(f1 + tmp);
 
-	p1 = pIn[x + 1];
+	p1 = in[x + 1];
 	f1 = mult1.mul32(p1);
-	pOut[2 * x + 1] = mult1.conv32(f1 + tmp);
+	out[2 * x + 1] = mult1.conv32(f1 + tmp);
 
 	tmp = mult2.mul32(p1);
-	pOut[2 * x + 2] = mult1.conv32(f0 + tmp);
+	out[2 * x + 2] = mult1.conv32(f0 + tmp);
 
-	pOut[2 * x + 3] = p1;
+	out[2 * x + 3] = p1;
 }
 
 #ifdef __SSE2__
@@ -293,35 +294,34 @@ static void blur1on1_SSE2(
 #endif
 template<std::unsigned_integral Pixel>
 void Simple2xScaler<Pixel>::blur1on1(
-	const Pixel* __restrict pIn, Pixel* __restrict pOut,
-	unsigned alpha, size_t srcWidth)
+	std::span<const Pixel> in, std::span<Pixel> out, unsigned alpha)
 {
 	/* This routine is functionally equivalent to the following:
 	 *
-	 * void blur1on1(const Pixel* pIn, Pixel* pOut, unsigned alpha)
+	 * void blur1on1(const Pixel* in, Pixel* out, unsigned alpha)
 	 * {
 	 *         unsigned c1 = alpha / 4;
 	 *         unsigned c2 = 256 - alpha / 2;
 	 *
 	 *         Pixel prev, curr, next;
-	 *         prev = curr = pIn[0];
+	 *         prev = curr = in[0];
 	 *
 	 *         unsigned x = 0;
 	 *         for (; x < (srcWidth - 1); ++x) {
-	 *                 next = pIn[x + 1];
-	 *                 pOut[x] = (c1 * prev + c2 * curr + c1 * next) >> 8;
+	 *                 next = in[x + 1];
+	 *                 out[x] = (c1 * prev + c2 * curr + c1 * next) >> 8;
 	 *                 prev = curr;
 	 *                 curr = next;
 	 *         }
 	 *
 	 *         next = curr;
-	 *         pOut[x] = c1 * prev + c2 * curr + c1 * next;
+	 *         out[x] = c1 * prev + c2 * curr + c1 * next;
 	 * }
 	 */
 
 	if (alpha == 0) {
 		Scale_1on1<Pixel> copy;
-		copy(pIn, pOut, srcWidth);
+		copy(in, out);
 		return;
 	}
 
@@ -331,7 +331,7 @@ void Simple2xScaler<Pixel>::blur1on1(
 #ifdef __SSE2__
 	if constexpr (sizeof(Pixel) == 4) {
 		// SSE2, only 32bpp
-		blur1on1_SSE2(pIn, pOut, c1, c2, srcWidth);
+		blur1on1_SSE2(in.data(), out.data(), c1, c2, in.size());
 		return;
 	}
 #endif
@@ -341,41 +341,41 @@ void Simple2xScaler<Pixel>::blur1on1(
 	mult1.setFactor32(c1);
 	mult3.setFactor32(c2);
 
-	Pixel p0 = pIn[0];
+	Pixel p0 = in[0];
 	Pixel p1;
 	unsigned f0 = mult1.mul32(p0);
 	unsigned f1 = f0;
 
+	size_t srcWidth = in.size();
 	size_t x = 0;
 	for (/**/; x < (srcWidth - 2); x += 2) {
-		p1 = pIn[x + 1];
+		p1 = in[x + 1];
 		unsigned t0 = mult1.mul32(p1);
-		pOut[x] = mult1.conv32(f0 + mult3.mul32(p0) + t0);
+		out[x] = mult1.conv32(f0 + mult3.mul32(p0) + t0);
 		f0 = t0;
 
-		p0 = pIn[x + 2];
+		p0 = in[x + 2];
 		unsigned t1 = mult1.mul32(p0);
-		pOut[x + 1] = mult1.conv32(f1 + mult3.mul32(p1) + t1);
+		out[x + 1] = mult1.conv32(f1 + mult3.mul32(p1) + t1);
 		f1 = t1;
 	}
 
-	p1 = pIn[x + 1];
+	p1 = in[x + 1];
 	unsigned t0 = mult1.mul32(p1);
-	pOut[x] = mult1.conv32(f0 + mult3.mul32(p0) + t0);
+	out[x] = mult1.conv32(f0 + mult3.mul32(p0) + t0);
 
-	pOut[x + 1] = mult1.conv32(f1 + mult3.mul32(p1) + t0);
+	out[x + 1] = mult1.conv32(f1 + mult3.mul32(p1) + t0);
 }
 
 template<std::unsigned_integral Pixel>
 void Simple2xScaler<Pixel>::drawScanline(
-		const Pixel* in1, const Pixel* in2, Pixel* out, int factor,
-		unsigned dstWidth)
+		std::span<const Pixel> in1, std::span<const Pixel> in2, std::span<Pixel> out, int factor)
 {
 	if (factor != 255) {
-		scanline.draw(in1, in2, out, factor, dstWidth);
+		scanline.draw(in1.data(), in2.data(), out.data(), factor, out.size()); // TODO span
 	} else {
 		Scale_1on1<Pixel> scale;
-		scale(in1, out, dstWidth);
+		scale(in1, out);
 	}
 }
 
@@ -387,20 +387,20 @@ void Simple2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	VLA_SSE_ALIGNED(Pixel, buf, srcWidth);
 	int blur = settings.getBlurFactor();
 	int scanlineFactor = settings.getScanlineFactor();
+	size_t dstWidth = 2 * srcWidth;
 
 	unsigned dstY = dstStartY;
 	auto srcLine = src.getLine(srcStartY++, buf);
 	auto* dstLine0 = dst.acquireLine(dstY + 0);
-	blur1on2(srcLine.data(), dstLine0, blur, srcWidth);
+	blur1on2(srcLine, std::span{dstLine0, dstWidth}, blur);
 
 	for (/**/; dstY < dstEndY - 2; dstY += 2) {
 		srcLine = src.getLine(srcStartY++, buf);
 		auto* dstLine2 = dst.acquireLine(dstY + 2);
-		blur1on2(srcLine.data(), dstLine2, blur, srcWidth);
+		blur1on2(srcLine, std::span{dstLine2, dstWidth}, blur);
 
 		auto* dstLine1 = dst.acquireLine(dstY + 1);
-		drawScanline(dstLine0, dstLine2, dstLine1, scanlineFactor,
-		             2 * srcWidth);
+		drawScanline(std::span{dstLine0, dstWidth}, std::span{dstLine2, dstWidth}, std::span{dstLine1, dstWidth}, scanlineFactor);
 
 		dst.releaseLine(dstY + 0, dstLine0);
 		dst.releaseLine(dstY + 1, dstLine1);
@@ -408,11 +408,11 @@ void Simple2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	}
 
 	srcLine = src.getLine(srcStartY++, buf);
-	VLA_SSE_ALIGNED(Pixel, buf2, 2 * srcWidth);
-	blur1on2(srcLine.data(), buf2.data(), blur, srcWidth);
+	VLA_SSE_ALIGNED(Pixel, buf2, dstWidth);
+	blur1on2(srcLine, buf2, blur);
 
 	auto* dstLine1 = dst.acquireLine(dstY + 1);
-	drawScanline(dstLine0, buf2.data(), dstLine1, scanlineFactor, 2 * srcWidth);
+	drawScanline(std::span{dstLine0, dstWidth}, buf2, std::span{dstLine1, dstWidth}, scanlineFactor);
 	dst.releaseLine(dstY + 0, dstLine0);
 	dst.releaseLine(dstY + 1, dstLine1);
 }
@@ -429,16 +429,15 @@ void Simple2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	unsigned dstY = dstStartY;
 	auto srcLine = src.getLine(srcStartY++, buf);
 	auto* dstLine0 = dst.acquireLine(dstY);
-	blur1on1(srcLine.data(), dstLine0, blur, srcWidth);
+	blur1on1(srcLine, std::span{dstLine0, srcWidth}, blur);
 
 	for (/**/; dstY < dstEndY - 2; dstY += 2) {
 		srcLine = src.getLine(srcStartY++, buf);
 		auto* dstLine2 = dst.acquireLine(dstY + 2);
-		blur1on1(srcLine.data(), dstLine2, blur, srcWidth);
+		blur1on1(srcLine, std::span{dstLine2, srcWidth}, blur);
 
 		auto* dstLine1 = dst.acquireLine(dstY + 1);
-		drawScanline(dstLine0, dstLine2, dstLine1, scanlineFactor,
-		             srcWidth);
+		drawScanline(std::span{dstLine0, srcWidth}, std::span{dstLine2, srcWidth}, std::span{dstLine1, srcWidth}, scanlineFactor);
 
 		dst.releaseLine(dstY + 0, dstLine0);
 		dst.releaseLine(dstY + 1, dstLine1);
@@ -447,10 +446,10 @@ void Simple2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 
 	srcLine = src.getLine(srcStartY++, buf);
 	VLA_SSE_ALIGNED(Pixel, buf2, srcWidth);
-	blur1on1(srcLine.data(), buf2.data(), blur, srcWidth);
+	blur1on1(srcLine, buf2, blur);
 
 	auto* dstLine1 = dst.acquireLine(dstY + 1);
-	drawScanline(dstLine0, buf2.data(), dstLine1, scanlineFactor, srcWidth);
+	drawScanline(std::span{dstLine0, srcWidth}, buf2, std::span{dstLine1, srcWidth}, scanlineFactor);
 	dst.releaseLine(dstY + 0, dstLine0);
 	dst.releaseLine(dstY + 1, dstLine1);
 }

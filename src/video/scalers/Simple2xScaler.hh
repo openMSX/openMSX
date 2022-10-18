@@ -10,7 +10,7 @@ namespace openmsx {
 class RenderSettings;
 
 /** Scaler which assigns the color of the original pixel to all pixels in
-  * the 2x2 square. Optionally it can draw darkended scanlines (scanline has
+  * the 2x2 square. Optionally it can draw darkened scanlines (scanline has
   * the average color from the pixel above and below). It can also optionally
   * perform a horizontal blur.
   */
@@ -36,12 +36,10 @@ private:
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
 
-	void drawScanline(const Pixel* in1, const Pixel* in2, Pixel* out,
-	                  int factor, unsigned dstWidth);
-	void blur1on2(const Pixel* pIn, Pixel* pOut, unsigned alpha,
-	              size_t srcWidth);
-	void blur1on1(const Pixel* pIn, Pixel* pOut, unsigned alpha,
-	              size_t srcWidth);
+	void drawScanline(std::span<const Pixel> in1, std::span<const Pixel> in2,
+	                  std::span<Pixel> out, int factor);
+	void blur1on2(std::span<const Pixel> in, std::span<Pixel> out, unsigned alpha);
+	void blur1on1(std::span<const Pixel> in, std::span<Pixel> out, unsigned alpha);
 
 private:
 	RenderSettings& settings;

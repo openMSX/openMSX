@@ -39,19 +39,19 @@ void Simple3xScaler<Pixel>::doScale1(FrameSource& src,
 	unsigned y = dstStartY;
 	auto srcLine = src.getLine(srcStartY++, buf);
 	auto* dstLine0 = dst.acquireLine(y + 0);
-	scale(srcLine.data(), dstLine0, dstWidth);
+	scale(srcLine, std::span{dstLine0, dstWidth});
 
 	Scale_1on1<Pixel> copy;
 	auto* dstLine1 = dst.acquireLine(y + 1);
-	copy(dstLine0, dstLine1, dstWidth);
+	copy(std::span{dstLine0, dstWidth}, std::span{dstLine1, dstWidth});
 
 	for (/* */; (y + 4) < dstEndY; y += 3, srcStartY += 1) {
 		srcLine = src.getLine(srcStartY, buf);
 		auto* dstLine3 = dst.acquireLine(y + 3);
-		scale(srcLine.data(), dstLine3, dstWidth);
+		scale(srcLine, std::span{dstLine3, dstWidth});
 
 		auto* dstLine4 = dst.acquireLine(y + 4);
-		copy(dstLine3, dstLine4, dstWidth);
+		copy(std::span{dstLine3, dstWidth}, std::span{dstLine4, dstWidth});
 
 		auto* dstLine2 = dst.acquireLine(y + 2);
 		scanline.draw(dstLine0, dstLine3, dstLine2,
@@ -65,7 +65,7 @@ void Simple3xScaler<Pixel>::doScale1(FrameSource& src,
 	}
 	srcLine = src.getLine(srcStartY, buf);
 	VLA_SSE_ALIGNED(Pixel, buf2, dstWidth);
-	scale(srcLine.data(), buf2.data(), dstWidth);
+	scale(srcLine, buf2);
 
 	auto* dstLine2 = dst.acquireLine(y + 2);
 	scanline.draw(dstLine0, buf2.data(), dstLine2, scanlineFactor, dstWidth);
@@ -87,11 +87,11 @@ void Simple3xScaler<Pixel>::doScale2(FrameSource& src,
 	     srcY += 2, dstY += 3) {
 		auto srcLine0 = src.getLine(srcY + 0, buf);
 		auto* dstLine0 = dst.acquireLine(dstY + 0);
-		scale(srcLine0.data(), dstLine0, dstWidth);
+		scale(srcLine0, std::span{dstLine0, dstWidth});
 
 		auto srcLine1 = src.getLine(srcY + 1, buf);
 		auto* dstLine2 = dst.acquireLine(dstY + 2);
-		scale(srcLine1.data(), dstLine2, dstWidth);
+		scale(srcLine1, std::span{dstLine2, dstWidth});
 
 		auto* dstLine1 = dst.acquireLine(dstY + 1);
 		scanline.draw(dstLine0, dstLine2, dstLine1,
@@ -421,9 +421,7 @@ void Blur_1on3<Pixel>::blur_SSE(const Pixel* in_, Pixel* out_, size_t srcWidth)
 #endif
 
 template<std::unsigned_integral Pixel>
-void Blur_1on3<Pixel>::operator()(
-	const Pixel* __restrict in, Pixel* __restrict out,
-	size_t dstWidth)
+void Blur_1on3<Pixel>::operator()(std::span<const Pixel> in, std::span<Pixel> out)
 {
 	/* The following code is equivalent to this loop. It is 2x unrolled
 	 * and common subexpressions have been eliminated. The last iteration
@@ -445,10 +443,9 @@ void Blur_1on3<Pixel>::operator()(
 	 *      curr = next;
 	 *  }
 	 */
-	size_t srcWidth = dstWidth / 3;
 #ifdef __SSE2__
 	if constexpr (sizeof(Pixel) == 4) {
-		blur_SSE(in, out, srcWidth);
+		blur_SSE(in.data(), out.data(), in.size());
 		return;
 	}
 #endif
@@ -470,6 +467,7 @@ void Blur_1on3<Pixel>::operator()(
 	uint32_t g0 = f0;
 	uint32_t g1 = f1;
 
+	size_t srcWidth = in.size();
 	size_t x = 0;
 	for (/**/; x < (srcWidth - 2); x += 2) {
 		uint32_t g2 = mult2.mul32(p0);

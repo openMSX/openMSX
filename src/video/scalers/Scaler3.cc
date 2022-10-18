@@ -58,13 +58,13 @@ static void doScale1(FrameSource& src,
 	for (unsigned dstY = dstStartY; dstY < dstEndY; dstY += 3, ++srcStartY) {
 		auto srcLine = src.getLine(srcStartY, buf);
 		auto* dstLine0 = dst.acquireLine(dstY + 0);
-		scale(srcLine.data(), dstLine0, dstWidth);
+		scale(srcLine, std::span{dstLine0, dstWidth});
 
 		auto* dstLine1 = dst.acquireLine(dstY + 1);
-		copy(dstLine0, dstLine1, dstWidth);
+		copy(std::span{dstLine0, dstWidth}, std::span{dstLine1, dstWidth});
 
 		auto* dstLine2 = dst.acquireLine(dstY + 2);
-		copy(dstLine0, dstLine2, dstWidth);
+		copy(std::span{dstLine0, dstWidth}, std::span{dstLine2, dstWidth});
 
 		dst.releaseLine(dstY + 0, dstLine0);
 		dst.releaseLine(dstY + 1, dstLine1);
@@ -85,11 +85,11 @@ static void doScaleDV(FrameSource& src,
 	     srcY += 2, dstY += 3) {
 		auto srcLine0 = src.getLine(srcY + 0, buf);
 		auto* dstLine0 = dst.acquireLine(dstY + 0);
-		scale(srcLine0.data(), dstLine0, dstWidth);
+		scale(srcLine0, std::span{dstLine0, dstWidth});
 
 		auto srcLine1 = src.getLine(srcY + 1, buf);
 		auto* dstLine2 = dst.acquireLine(dstY + 2);
-		scale(srcLine1.data(), dstLine2, dstWidth);
+		scale(srcLine1, std::span{dstLine2, dstWidth});
 
 		auto* dstLine1 = dst.acquireLine(dstY + 1);
 		blend(dstLine0, dstLine2, dstLine1, dstWidth);

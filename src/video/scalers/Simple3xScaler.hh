@@ -16,7 +16,7 @@ template<std::unsigned_integral Pixel> class Blur_1on3
 public:
 	explicit Blur_1on3(const PixelOperations<Pixel>& pixelOps);
 	inline void setBlur(unsigned blur_) { blur = blur_; }
-	void operator()(const Pixel* in, Pixel* out, size_t dstWidth);
+	void operator()(std::span<const Pixel> in, std::span<Pixel> out);
 private:
 	Multiply32<Pixel> mult0;
 	Multiply32<Pixel> mult1;

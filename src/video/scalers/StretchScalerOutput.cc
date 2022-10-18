@@ -208,7 +208,7 @@ void StretchScalerOutputN<Pixel, IN_WIDTH, SCALE>::releaseLine(unsigned y, Pixel
 	unsigned srcWidth = (dstWidth / 320) * IN_WIDTH;
 	unsigned srcOffset = (dstWidth - srcWidth) / 2;
 	SCALE scale(this->pixelOps);
-	scale(buf + srcOffset, dstLine, dstWidth);
+	scale(std::span{&buf[srcOffset], srcWidth}, std::span{dstLine, dstWidth});
 
 	this->releasePost(y, dstLine);
 }
