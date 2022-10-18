@@ -26,6 +26,7 @@
 #include "stl.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+#include <array>
 #include <iomanip>
 #include <iostream>
 #include <iterator>
@@ -39,9 +40,9 @@ static unsigned breakedSettingCount = 0;
 
 
 // Bitfields used in the disallowReadCache and disallowWriteCache arrays
-constexpr byte SECONDARY_SLOT_BIT = 0x01;
-constexpr byte MEMORY_WATCH_BIT   = 0x02;
-constexpr byte GLOBAL_RW_BIT      = 0x04;
+static constexpr byte SECONDARY_SLOT_BIT = 0x01;
+static constexpr byte MEMORY_WATCH_BIT   = 0x02;
+static constexpr byte GLOBAL_RW_BIT      = 0x04;
 
 std::ostream& operator<<(std::ostream& os, EnumTypeName<CacheLineCounters>)
 {
@@ -49,7 +50,7 @@ std::ostream& operator<<(std::ostream& os, EnumTypeName<CacheLineCounters>)
 }
 std::ostream& operator<<(std::ostream& os, EnumValueName<CacheLineCounters> evn)
 {
-	std::string_view names[size_t(CacheLineCounters::NUM)] = {
+	std::array<std::string_view, size_t(CacheLineCounters::NUM)> names = {
 		"NonCachedRead",
 		"NonCachedWrite",
 		"GetReadCacheLine",

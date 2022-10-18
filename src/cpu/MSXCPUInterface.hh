@@ -11,6 +11,7 @@
 #include "ProfileCounters.hh"
 #include "openmsx.hh"
 #include "ranges.hh"
+#include <array>
 #include <bitset>
 #include <concepts>
 #include <vector>
@@ -25,7 +26,7 @@ class MSXCPU;
 class CliComm;
 class BreakPoint;
 
-constexpr bool PROFILE_CACHELINES = false;
+inline constexpr bool PROFILE_CACHELINES = false;
 enum CacheLineCounters {
 	NonCachedRead,
 	NonCachedWrite,
@@ -393,10 +394,10 @@ private:
 
 	std::unique_ptr<VDPIODelay> delayDevice; // can be nullptr
 
-	byte disallowReadCache [CacheLine::NUM];
-	byte disallowWriteCache[CacheLine::NUM];
-	std::bitset<CacheLine::SIZE> readWatchSet [CacheLine::NUM];
-	std::bitset<CacheLine::SIZE> writeWatchSet[CacheLine::NUM];
+	std::array<byte, CacheLine::NUM> disallowReadCache;
+	std::array<byte, CacheLine::NUM> disallowWriteCache;
+	std::array<std::bitset<CacheLine::SIZE>, CacheLine::NUM> readWatchSet;
+	std::array<std::bitset<CacheLine::SIZE>, CacheLine::NUM> writeWatchSet;
 
 	struct GlobalRwInfo {
 		MSXDevice* device;
@@ -406,15 +407,15 @@ private:
 	std::vector<GlobalRwInfo> globalReads;
 	std::vector<GlobalRwInfo> globalWrites;
 
-	MSXDevice* IO_In [256];
-	MSXDevice* IO_Out[256];
-	MSXDevice* slotLayout[4][4][4];
-	MSXDevice* visibleDevices[4];
-	byte subSlotRegister[4];
-	byte primarySlotState[4];
-	byte secondarySlotState[4];
+	std::array<MSXDevice*, 256> IO_In;
+	std::array<MSXDevice*, 256> IO_Out;
+	std::array<std::array<std::array<MSXDevice*, 4>, 4>, 4> slotLayout;
+	std::array<MSXDevice*, 4> visibleDevices;
+	std::array<byte, 4> subSlotRegister;
+	std::array<byte, 4> primarySlotState;
+	std::array<byte, 4> secondarySlotState;
 	byte initialPrimarySlots;
-	unsigned expanded[4];
+	std::array<unsigned, 4> expanded;
 
 	bool fastForward; // no need to serialize
 
