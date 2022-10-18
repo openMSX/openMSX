@@ -2,6 +2,7 @@
 #include "DiskExceptions.hh"
 #include "File.hh"
 #include "xrange.hh"
+#include <array>
 #include <utility>
 
 namespace openmsx {
@@ -39,15 +40,15 @@ private:
 	unsigned sectors;
 
 	int updHufCnt;
-	int cpDist[TBLSIZE + 1];
-	int cpdBmask[TBLSIZE];
-	int tblSizes[TBLSIZE];
-	HufNode hufTbl[2 * TBLSIZE - 1];
+	std::array<int, TBLSIZE + 1> cpDist;
+	std::array<int, TBLSIZE> cpdBmask;
+	std::array<int, TBLSIZE> tblSizes;
+	std::array<HufNode, 2 * TBLSIZE - 1> hufTbl;
 
 	uint8_t bitFlg;		// flag with the bits
 	uint8_t bitCnt;		// nb bits left
 
-	static constexpr int cpdExt[TBLSIZE] = { // Extra bits for distance codes
+	static constexpr std::array<int, TBLSIZE> cpdExt = { // Extra bits for distance codes
 		  0,  0,  0,  0,  1,  2,  3,  4, 5,  6,  7,  8,  9, 10, 11, 12
 	};
 };
@@ -138,7 +139,7 @@ void XSAExtractor::unLz77()
 	bitCnt = 0; // no bits read yet
 
 	size_t remaining = sectors * sizeof(SectorBuffer);
-	uint8_t* out = outBuf.data()->raw.data();
+	std::span out = outBuf.data()->raw;
 	size_t outIdx = 0;
 	while (true) {
 		if (bitIn()) {
@@ -204,7 +205,7 @@ int XSAExtractor::rdStrPos()
 			hufPos = hufPos->child1;
 		}
 	}
-	uint8_t cpdIndex = uint8_t(hufPos - hufTbl);
+	uint8_t cpdIndex = uint8_t(hufPos - &hufTbl[0]);
 	++tblSizes[cpdIndex];
 
 	int strPos = [&] {
@@ -267,7 +268,7 @@ void XSAExtractor::initHufInfo()
 void XSAExtractor::mkHufTbl()
 {
 	// Initialize the huffman tree
-	HufNode* hufPos = hufTbl;
+	HufNode* hufPos = &hufTbl[0];
 	for (auto i : xrange(TBLSIZE)) {
 		(hufPos++)->weight = 1 + (tblSizes[i] >>= 1);
 	}
@@ -276,7 +277,7 @@ void XSAExtractor::mkHufTbl()
 	}
 	// Place the nodes in the correct manner in the tree
 	while (hufTbl[2 * TBLSIZE - 2].weight == -1) {
-		for (hufPos = hufTbl; !(hufPos->weight); ++hufPos) {
+		for (hufPos = &hufTbl[0]; !(hufPos->weight); ++hufPos) {
 			// nothing
 		}
 		HufNode* l1Pos = hufPos++;
