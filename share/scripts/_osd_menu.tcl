@@ -57,6 +57,11 @@ proc set_scrollidx {value} {
 	dict set menuinfo scrollidx $value
 }
 
+proc get_current_menu_name {} {
+	peek_menu_info
+	return [dict get $menuinfo name]
+}
+
 proc menu_create {menudef} {
 	variable menulevels
 	variable default_bg_color
@@ -200,6 +205,13 @@ proc menu_close_top {} {
 proc menu_close_all {} {
 	variable menulevels
 	while {$menulevels} {
+		menu_close_top
+	}
+}
+
+proc menu_close_until {name} {
+	variable menulevels
+	while {$menulevels && [get_current_menu_name] != $name} {
 		menu_close_top
 	}
 }
@@ -349,15 +361,23 @@ proc menu_mouse_motion {} {
 	}
 }
 
-user_setting create string osd_rom_path "OSD Rom Load Menu Last Known Path" $env(HOME)
+user_setting create string osd_rom_path "OSD ROM Load Menu Last Known Path" $env(HOME)
+user_setting create string osd_rom_patch_path "OSD ROM Patches Load Menu Last Known Path" $env(HOME)
 user_setting create string osd_disk_path "OSD Disk Load Menu Last Known Path" $env(HOME)
 user_setting create string osd_tape_path "OSD Tape Load Menu Last Known Path" $env(HOME)
 user_setting create string osd_hdd_path "OSD HDD Load Menu Last Known Path" $env(HOME)
 user_setting create string osd_ld_path "OSD LD Load Menu Last Known Path" $env(HOME)
 
+# TODO: do this in a loop
+
 if {![file exists $::osd_rom_path] || ![file readable $::osd_rom_path]} {
 	# revert to default (should always exist)
 	unset ::osd_rom_path
+}
+
+if {![file exists $::osd_rom_patch_path] || ![file readable $::osd_rom_patch_path]} {
+	# revert to default (should always exist)
+	unset ::osd_rom_patch_path
 }
 
 if {![file exists $::osd_disk_path] || ![file readable $::osd_disk_path]} {
@@ -688,7 +708,7 @@ proc get_extension_display_name {ext_name} {
 # this proc gives a presentation for humans of the slot contents
 proc get_slot_content {slot} {
 	set slotcontent "(empty)"
-	set contentname [lindex [$slot] 1]
+	set contentname [dict get [machine_info media $slot] target]
 	if {$contentname ne ""} {
 		# first assume it's just a path, true for non-cartridges
 		set slotcontent [file tail $contentname]
@@ -1846,6 +1866,12 @@ proc menu_create_rom_list {path slot} {
 	if {[lindex [$slot] 2] ne "empty"} {
 		lappend items "--eject--"
 		lappend presentation "\[Eject [get_slot_content $slot]\]"
+		set media_info [machine_info media $slot]
+		if {[dict get $media_info type] eq "rom"} {
+			lappend items "--patches--"
+			set patches [dict get $media_info patches]
+			lappend presentation "\[Patches... (now [llength $patches] applied)\]"
+		}
 	}
 	lappend items "--extension--"
 	lappend presentation "\[Insert Extension\]"
@@ -1867,6 +1893,13 @@ proc menu_select_rom {slot item {open_main false}} {
 		reset
 	} elseif {$item eq "--extension--"} {
 		osd_menu::menu_create [osd_menu::menu_create_extensions_list $slot]
+	} elseif {$item eq "--patches--"} {
+		set return_to_menu [get_current_menu_name]
+		if {[llength [dict get [machine_info media $slot] patches]] > 0} {
+			osd_menu::menu_create [osd_menu::menu_create_patches_menu $slot $return_to_menu]
+		} else {
+			osd_menu::menu_create [osd_menu::menu_create_add_patches_list $::osd_rom_patch_path $slot $return_to_menu]
+		}
 	} else {
 		set fullname [file join $::osd_rom_path $item]
 		if {[file isdirectory $fullname]} {
@@ -1988,6 +2021,105 @@ proc menu_create_mappertype_list {slot fullname} {
 
 	lappend menu_def presentation $presentation_sorted
 	return [prepare_menu_list $items_sorted 10 $menu_def]
+}
+
+proc menu_create_patches_menu {slot return_to_menu} {
+	set menu_def [list \
+		font-size 8 \
+		border-size 2 \
+		width 175 \
+		xpos 100 \
+		ypos 120 \
+		items [list [list text "Patches for slot [get_slot_str $slot]"\
+			 font-size 10 \
+			 post-spacing 6 \
+			 selectable false] \
+		       [list text "Add..." \
+			 actions [list A [list osd_menu::menu_create [osd_menu::menu_create_add_patches_list $::osd_rom_patch_path $slot $return_to_menu] ]]] \
+		       [list text "Remove..." \
+			 actions [list A [list osd_menu::menu_create [osd_menu::menu_create_existing_patches_list $slot $return_to_menu] ]]]]]
+	return $menu_def
+}
+
+proc menu_create_existing_patches_list {slot return_to_menu} {
+	set menu_def [list \
+	         execute "menu_remove_patch_exec $slot $return_to_menu"\
+	         font-size 8 \
+	         border-size 2 \
+	         width 200 \
+	         xpos 110 \
+	         ypos 130 \
+	         header [list text "Select Patch to remove" \
+	                  font-size 10 \
+	                  post-spacing 6] ]
+
+	set items [dict get [machine_info media $slot] patches]
+	set presentation [list]
+	foreach item $items {
+		lappend presentation [file tail $item]
+	}
+	lappend menu_def presentation $presentation
+	return [prepare_menu_list $items 5 $menu_def]
+}
+
+proc menu_remove_patch_exec {slot return_to_menu patch} {
+	# for now, just reinsert with the new list of patches
+	set media_info [machine_info media $slot]
+	set patches [dict get $media_info patches]
+	set idx [lsearch $patches $patch]
+	set patches [lreplace $patches $idx $idx]
+	insert_media_with_patches $slot $patches
+	menu_close_until $return_to_menu
+	# recreate menu to refresh
+	menu_close_top
+	menu_create [menu_create_rom_list $::osd_rom_path $slot]
+}
+
+proc menu_create_add_patches_list {path slot return_to_menu} {
+	set menu_def [list execute [list menu_select_rom_patch $slot $return_to_menu] \
+		font-size 8 \
+		border-size 2 \
+		width 200 \
+		xpos 100 \
+		ypos 120 \
+		header [list text "Select patch to apply to slot [get_slot_str $slot]" \
+			font-size 10 \
+			post-spacing 6 ]]
+	set extensions "ips"
+	set items [ls $path $extensions]
+
+	return [prepare_menu_list $items 5 $menu_def]
+}
+
+proc insert_media_with_patches {slot patches} {
+	set media_info [machine_info media $slot]
+	set filename [dict get $media_info target]
+	set command "$slot \"$filename\""
+	foreach patch $patches {
+		set command "$command -ips \"$patch\""
+	}
+	$slot eject
+	eval $command
+	menu_close_top
+}
+
+proc menu_select_rom_patch {slot return_to_menu item} {
+	set fullname [file join $::osd_rom_patch_path $item]
+	if {[file isdirectory $fullname]} {
+		menu_close_top
+		set ::osd_rom_patch_path [file normalize $fullname]
+		menu_create [menu_create_add_patches_list $::osd_rom_patch_path $slot $return_to_menu]
+	} else {
+		# for now, just reinsert with the new list of patches
+		set media_info [machine_info media $slot]
+		set patches [dict get $media_info patches]
+		lappend patches $fullname
+		insert_media_with_patches $slot $patches
+		menu_close_until $return_to_menu
+		# recreate menu to refresh
+		menu_close_top
+		menu_create [menu_create_rom_list $::osd_rom_path $slot]
+	}
 }
 
 proc menu_create_disk_list {path drive} {
