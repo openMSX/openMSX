@@ -372,7 +372,7 @@ void Simple2xScaler<Pixel>::drawScanline(
 		std::span<const Pixel> in1, std::span<const Pixel> in2, std::span<Pixel> out, int factor)
 {
 	if (factor != 255) {
-		scanline.draw(in1.data(), in2.data(), out.data(), factor, out.size()); // TODO span
+		scanline.draw(in1, in2, out, factor);
 	} else {
 		Scale_1on1<Pixel> scale;
 		scale(in1, out);
@@ -391,16 +391,16 @@ void Simple2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 
 	unsigned dstY = dstStartY;
 	auto srcLine = src.getLine(srcStartY++, buf);
-	auto* dstLine0 = dst.acquireLine(dstY + 0);
-	blur1on2(srcLine, std::span{dstLine0, dstWidth}, blur);
+	auto dstLine0 = dst.acquireLine(dstY + 0);
+	blur1on2(srcLine, dstLine0, blur);
 
 	for (/**/; dstY < dstEndY - 2; dstY += 2) {
 		srcLine = src.getLine(srcStartY++, buf);
-		auto* dstLine2 = dst.acquireLine(dstY + 2);
-		blur1on2(srcLine, std::span{dstLine2, dstWidth}, blur);
+		auto dstLine2 = dst.acquireLine(dstY + 2);
+		blur1on2(srcLine, dstLine2, blur);
 
-		auto* dstLine1 = dst.acquireLine(dstY + 1);
-		drawScanline(std::span{dstLine0, dstWidth}, std::span{dstLine2, dstWidth}, std::span{dstLine1, dstWidth}, scanlineFactor);
+		auto dstLine1 = dst.acquireLine(dstY + 1);
+		drawScanline(dstLine0, dstLine2, dstLine1, scanlineFactor);
 
 		dst.releaseLine(dstY + 0, dstLine0);
 		dst.releaseLine(dstY + 1, dstLine1);
@@ -411,8 +411,8 @@ void Simple2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	VLA_SSE_ALIGNED(Pixel, buf2, dstWidth);
 	blur1on2(srcLine, buf2, blur);
 
-	auto* dstLine1 = dst.acquireLine(dstY + 1);
-	drawScanline(std::span{dstLine0, dstWidth}, buf2, std::span{dstLine1, dstWidth}, scanlineFactor);
+	auto dstLine1 = dst.acquireLine(dstY + 1);
+	drawScanline(dstLine0, buf2, dstLine1, scanlineFactor);
 	dst.releaseLine(dstY + 0, dstLine0);
 	dst.releaseLine(dstY + 1, dstLine1);
 }
@@ -428,16 +428,16 @@ void Simple2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 
 	unsigned dstY = dstStartY;
 	auto srcLine = src.getLine(srcStartY++, buf);
-	auto* dstLine0 = dst.acquireLine(dstY);
-	blur1on1(srcLine, std::span{dstLine0, srcWidth}, blur);
+	auto dstLine0 = dst.acquireLine(dstY);
+	blur1on1(srcLine, dstLine0, blur);
 
 	for (/**/; dstY < dstEndY - 2; dstY += 2) {
 		srcLine = src.getLine(srcStartY++, buf);
-		auto* dstLine2 = dst.acquireLine(dstY + 2);
-		blur1on1(srcLine, std::span{dstLine2, srcWidth}, blur);
+		auto dstLine2 = dst.acquireLine(dstY + 2);
+		blur1on1(srcLine, dstLine2, blur);
 
-		auto* dstLine1 = dst.acquireLine(dstY + 1);
-		drawScanline(std::span{dstLine0, srcWidth}, std::span{dstLine2, srcWidth}, std::span{dstLine1, srcWidth}, scanlineFactor);
+		auto dstLine1 = dst.acquireLine(dstY + 1);
+		drawScanline(dstLine0, dstLine2, dstLine1, scanlineFactor);
 
 		dst.releaseLine(dstY + 0, dstLine0);
 		dst.releaseLine(dstY + 1, dstLine1);
@@ -448,8 +448,8 @@ void Simple2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	VLA_SSE_ALIGNED(Pixel, buf2, srcWidth);
 	blur1on1(srcLine, buf2, blur);
 
-	auto* dstLine1 = dst.acquireLine(dstY + 1);
-	drawScanline(std::span{dstLine0, srcWidth}, buf2, std::span{dstLine1, srcWidth}, scanlineFactor);
+	auto dstLine1 = dst.acquireLine(dstY + 1);
+	drawScanline(dstLine0, buf2, dstLine1, scanlineFactor);
 	dst.releaseLine(dstY + 0, dstLine0);
 	dst.releaseLine(dstY + 1, dstLine1);
 }

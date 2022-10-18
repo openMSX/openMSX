@@ -189,11 +189,15 @@ Scanline<Pixel>::Scanline(const PixelOperations<Pixel>& pixelOps_)
 
 template<std::unsigned_integral Pixel>
 void Scanline<Pixel>::draw(
-	const Pixel* __restrict src1, const Pixel* __restrict src2,
-	Pixel* __restrict dst, unsigned factor, size_t width)
+	std::span<const Pixel> src1, std::span<const Pixel> src2,
+	std::span<Pixel> dst, unsigned factor)
 {
+	auto width = src1.size();
+	assert(src1.size() == width);
+	assert(src2.size() == width);
+	assert(dst .size() == width);
 #ifdef __SSE2__
-	drawSSE2(src1, src2, dst, factor, width, pixelOps, darkener);
+	drawSSE2(src1.data(), src2.data(), dst.data(), factor, width, pixelOps, darkener);
 #else
 	// non-SSE2 routine, both 16bpp and 32bpp
 	darkener.setFactor(factor);

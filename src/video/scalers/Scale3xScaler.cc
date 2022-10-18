@@ -28,10 +28,14 @@ Scale3xScaler<Pixel>::Scale3xScaler(const PixelOperations<Pixel>& pixelOps_)
 
 template<std::unsigned_integral Pixel>
 void Scale3xScaler<Pixel>::scaleLine1on3Half(
-	Pixel* __restrict dst, const Pixel* __restrict src0,
-	const Pixel* __restrict src1, const Pixel* __restrict src2,
-	unsigned srcWidth) __restrict
+	std::span<Pixel> dst,
+	std::span<const Pixel> src0, std::span<const Pixel> src1, std::span<const Pixel> src2)
 {
+	auto srcWidth = src0.size();
+	assert(src0.size() == srcWidth);
+	assert(src1.size() == srcWidth);
+	assert(src2.size() == srcWidth);
+	assert(dst.size() == 3 * srcWidth);
 	/* A B C
 	 * D E F
 	 * G H I
@@ -91,10 +95,14 @@ void Scale3xScaler<Pixel>::scaleLine1on3Half(
 
 template<std::unsigned_integral Pixel>
 void Scale3xScaler<Pixel>::scaleLine1on3Mid(
-	Pixel* __restrict dst, const Pixel* __restrict src0,
-	const Pixel* __restrict src1, const Pixel* __restrict src2,
-	unsigned srcWidth) __restrict
+	std::span<Pixel> dst,
+	std::span<const Pixel> src0, std::span<const Pixel> src1, std::span<const Pixel> src2)
 {
+	auto srcWidth = src0.size();
+	assert(src0.size() == srcWidth);
+	assert(src1.size() == srcWidth);
+	assert(src2.size() == srcWidth);
+	assert(dst.size() == 3 * srcWidth);
 	/*
 	 * A B C
 	 * D E F
@@ -166,16 +174,16 @@ void Scale3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 3) {
 		auto srcNext = src.getLine(srcY + 1, buf2);
 
-		auto* dstUpper  = dst.acquireLine(dstY + 0);
-		scaleLine1on3Half(dstUpper, srcPrev.data(), srcCurr.data(), srcNext.data(), srcWidth);
+		auto dstUpper  = dst.acquireLine(dstY + 0);
+		scaleLine1on3Half(dstUpper, srcPrev, srcCurr, srcNext);
 		dst.releaseLine(dstY + 0, dstUpper);
 
-		auto* dstMiddle = dst.acquireLine(dstY + 1);
-		scaleLine1on3Mid(dstMiddle, srcPrev.data(), srcCurr.data(), srcNext.data(), srcWidth);
+		auto dstMiddle = dst.acquireLine(dstY + 1);
+		scaleLine1on3Mid(dstMiddle, srcPrev, srcCurr, srcNext);
 		dst.releaseLine(dstY + 1, dstMiddle);
 
-		auto* dstLower  = dst.acquireLine(dstY + 2);
-		scaleLine1on3Half(dstLower, srcNext.data(), srcCurr.data(), srcPrev.data(), srcWidth);
+		auto dstLower  = dst.acquireLine(dstY + 2);
+		scaleLine1on3Half(dstLower, srcNext, srcCurr, srcPrev);
 		dst.releaseLine(dstY + 2, dstLower);
 
 		srcPrev = srcCurr;

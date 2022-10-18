@@ -3,6 +3,7 @@
 
 #include "Scaler2.hh"
 #include "PixelOperations.hh"
+#include <span>
 
 namespace openmsx {
 
@@ -26,13 +27,13 @@ public:
 
 private:
 	void scaleLine1on2(
-		const Pixel* srcLine0, const Pixel* srcLine1,
-		const Pixel* srcLine2, const Pixel* srcLine3,
-		Pixel* dstUpper, Pixel* dstLower, unsigned srcWidth);
+		std::span<const Pixel> srcLine0, std::span<const Pixel> srcLine1,
+		std::span<const Pixel> srcLine2, std::span<const Pixel> srcLine3,
+		std::span<Pixel> dstUpper, std::span<Pixel> dstLower);
 	void scaleLine1on1(
-		const Pixel* srcLine0, const Pixel* srcLine1,
-		const Pixel* srcLine2, const Pixel* srcLine3,
-		Pixel* dstUpper, Pixel* dstLower, unsigned srcWidth);
+		std::span<const Pixel> srcLine0, std::span<const Pixel> srcLine1,
+		std::span<const Pixel> srcLine2, std::span<const Pixel> srcLine3,
+		std::span<Pixel> dstUpper, std::span<Pixel> dstLower);
 
 	[[nodiscard]] inline Pixel blend(Pixel p1, Pixel p2) const;
 

@@ -63,12 +63,11 @@ static void doScale1(FrameSource& src,
 	PolyLineScaler<Pixel>& scale)
 {
 	VLA_SSE_ALIGNED(Pixel, buf, srcWidth);
-	unsigned dstWidth = dst.getWidth();
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; ++srcY, ++dstY) {
 		auto srcLine = src.getLine(srcY, buf);
-		auto* dstLine = dst.acquireLine(dstY);
-		scale(srcLine, std::span{dstLine, dstWidth});
+		auto dstLine = dst.acquireLine(dstY);
+		scale(srcLine, dstLine);
 		dst.releaseLine(dstY, dstLine);
 	}
 }
@@ -89,10 +88,10 @@ static void doScaleDV(FrameSource& src,
 	     dstY < dstEndY; srcY += 2, dstY += 1) {
 		auto srcLine0 = src.getLine(srcY + 0, buf0);
 		auto srcLine1 = src.getLine(srcY + 1, buf1);
-		auto* dstLine = dst.acquireLine(dstY);
-		scale(srcLine0, std::span{dstLine, dstWidth}); // buf02 -> dstLine
-		scale(srcLine1, buf2);                         // buf1  -> buf02
-		blend(std::span{dstLine, dstWidth}, buf0, std::span{dstLine, dstWidth}); // dstLine + buf02 -> dstLine
+		auto dstLine = dst.acquireLine(dstY);
+		scale(srcLine0, dstLine);      // buf02 -> dstLine
+		scale(srcLine1, buf2);         // buf1  -> buf02
+		blend(dstLine, buf0, dstLine); // dstLine + buf02 -> dstLine
 		dst.releaseLine(dstY, dstLine);
 	}
 }
@@ -129,10 +128,9 @@ void Scaler1<Pixel>::scale1x1to1x1(FrameSource& src,
 	Scale_1on1<Pixel> copy;
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; ++srcY, ++dstY) {
-		auto* dstLine = dst.acquireLine(dstY);
-
-		auto srcLine = src.getLine(srcY, std::span{dstLine, srcWidth});
-		if (srcLine.data() != dstLine) copy(srcLine, std::span{dstLine, srcWidth});
+		auto dstLine = dst.acquireLine(dstY);
+		auto srcLine = src.getLine(srcY, dstLine);
+		if (srcLine.data() != dstLine.data()) copy(srcLine, dstLine);
 		dst.releaseLine(dstY, dstLine);
 	}
 }
@@ -144,14 +142,12 @@ void Scaler1<Pixel>::scale1x2to1x1(FrameSource& src,
 {
 	// No need to scale to local buffer first, like doScaleDV does.
 	VLA_SSE_ALIGNED(Pixel, buf, srcWidth);
-	unsigned dstWidth = dst.getWidth();
 	BlendLines<Pixel> blend(pixelOps);
 	for (auto dstY : xrange(dstStartY, dstEndY)) {
-		auto* dstLine = dst.acquireLine(dstY);
-		std::span bufDst{dstLine, srcWidth};
-		auto srcLine0 = src.getLine(srcStartY++, bufDst); // dstLine
-		auto srcLine1 = src.getLine(srcStartY++, buf);    // buf
-		blend(srcLine0, srcLine1, std::span{dstLine, dstWidth}); // dstLine + buf -> dstLine
+		auto dstLine = dst.acquireLine(dstY);
+		auto srcLine0 = src.getLine(srcStartY++, dstLine); // dstLine
+		auto srcLine1 = src.getLine(srcStartY++, buf);     // buf
+		blend(srcLine0, srcLine1, dstLine); // dstLine + buf -> dstLine
 		dst.releaseLine(dstY, dstLine);
 	}
 }

@@ -13,27 +13,18 @@ DirectScalerOutput<Pixel>::DirectScalerOutput(SDLOutputSurface& output_)
 }
 
 template<std::unsigned_integral Pixel>
-unsigned DirectScalerOutput<Pixel>::getWidth()  const
+std::span<Pixel> DirectScalerOutput<Pixel>::acquireLine(unsigned y)
 {
-	return output.getLogicalWidth();
+	return {pixelAccess.getLinePtr<Pixel>(y), getWidth()};
 }
 
 template<std::unsigned_integral Pixel>
-unsigned DirectScalerOutput<Pixel>::getHeight() const
+void DirectScalerOutput<Pixel>::releaseLine(unsigned y, std::span<Pixel> buf)
 {
-	return output.getLogicalHeight();
-}
-
-template<std::unsigned_integral Pixel>
-Pixel* DirectScalerOutput<Pixel>::acquireLine(unsigned y)
-{
-	return pixelAccess.getLinePtr<Pixel>(y);
-}
-
-template<std::unsigned_integral Pixel>
-void DirectScalerOutput<Pixel>::releaseLine(unsigned /*y*/, Pixel* /*buf*/)
-{
-	// nothing
+	assert(buf.data() == pixelAccess.getLinePtr<Pixel>(y));
+	assert(buf.size() == getWidth());
+	(void)y;
+	(void)buf;
 }
 
 template<std::unsigned_integral Pixel>
@@ -41,7 +32,7 @@ void DirectScalerOutput<Pixel>::fillLine(unsigned y, Pixel color)
 {
 	auto* dstLine = pixelAccess.getLinePtr<Pixel>(y);
 	MemoryOps::MemSet<Pixel> memset;
-	memset(dstLine, output.getLogicalWidth(), color);
+	memset(dstLine, getWidth(), color);
 }
 
 

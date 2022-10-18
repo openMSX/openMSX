@@ -319,22 +319,28 @@ class LineRepeater
 public:
 	template<unsigned NX, unsigned NY, std::unsigned_integral Pixel>
 	inline static void scaleFixedLine(
-		const Pixel* __restrict src0, const Pixel* __restrict src1,
-		const Pixel* __restrict src2, const Pixel* __restrict src3,
-		unsigned srcWidth, ScalerOutput<Pixel>& dst, unsigned& dstY)
+		std::span<const Pixel> src0, std::span<const Pixel> src1,
+		std::span<const Pixel> src2, std::span<const Pixel> src3,
+		ScalerOutput<Pixel>& dst, unsigned& dstY)
 	{
-		auto* dstLine = dst.acquireLine(dstY);
-		auto* dp = dstLine;
+		auto srcWidth = src0.size();
+		assert(src0.size() == srcWidth);
+		assert(src1.size() == srcWidth);
+		assert(src2.size() == srcWidth);
+		assert(src3.size() == srcWidth);
+
+		auto dstLine = dst.acquireLine(dstY);
+		auto* dp = dstLine.data();
 		// Calculate fixed point coordinate.
 		static constexpr unsigned y1 = ((NY - i) << 16) / NY;
 
-		unsigned pos1 = 0;
-		unsigned pos2 = 0;
-		unsigned pos3 = 1;
+		size_t pos1 = 0;
+		size_t pos2 = 0;
+		size_t pos3 = 1;
 		Pixel sb = src1[0];
 		Pixel sd = src2[0];
 		repeat(srcWidth, [&] {
-			const unsigned pos0 = pos1;
+			const auto pos0 = pos1;
 			pos1 = pos2;
 			pos2 = pos3;
 			pos3 = std::min(pos1 + 3, srcWidth) - 1;
@@ -357,7 +363,7 @@ public:
 				PixelStripRepeater<NX>::template blendSlash<NX, y1, Pixel>(
 					dp, sa, sb, sc, sd, src0[pos2], src2[pos0], src1[pos3], src3[pos1]);
 			} else {
-				// No pattern; use bilinear interpolatation.
+				// No pattern; use bilinear interpolation.
 				PixelStripRepeater<NX>::template blend4<NX, y1, Pixel>(
 					dp, sa, sb, sc, sd);
 			}
@@ -366,7 +372,7 @@ public:
 		++dstY;
 
 		LineRepeater<i - 1>::template scaleFixedLine<NX, NY, Pixel>(
-			src0, src1, src2, src3, srcWidth, dst, dstY);
+			src0, src1, src2, src3, dst, dstY);
 	}
 };
 template<>
@@ -375,8 +381,8 @@ class LineRepeater<0>
 public:
 	template<unsigned NX, unsigned NY, std::unsigned_integral Pixel>
 	inline static void scaleFixedLine(
-		const Pixel* /*src0*/, const Pixel* /*src1*/, const Pixel* /*src2*/,
-		const Pixel* /*src3*/, unsigned /*srcWidth*/,
+		std::span<const Pixel> /*src0*/, std::span<const Pixel> /*src1*/,
+		std::span<const Pixel> /*src2*/, std::span<const Pixel> /*src3*/,
 		ScalerOutput<Pixel>& /*dst*/, unsigned& /*dstY*/)
 	{ }
 };
@@ -403,7 +409,7 @@ void SaI3xScaler<Pixel>::scaleFixed(FrameSource& src,
 	for (auto dstY : xrange(dstStartY, dstEndY)) {
 		auto src3 = src.getLine(srcY + 2, buf3);
 		LineRepeater<NY>::template scaleFixedLine<NX, NY, Pixel>(
-			src0.data(), src1.data(), src2.data(), src3.data(), srcWidth, dst, dstY);
+			src0, src1, src2, src3, dst, dstY);
 		src0 = src1;
 		src1 = src2;
 		src2 = src3;
@@ -416,7 +422,7 @@ void SaI3xScaler<Pixel>::scaleFixed(FrameSource& src,
 template<std::unsigned_integral Pixel>
 void SaI3xScaler<Pixel>::scaleAny(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
-	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) __restrict
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	// Calculate fixed point end coordinates and deltas.
 	const unsigned wFinish = (srcWidth - 1) << 16;
@@ -440,8 +446,8 @@ void SaI3xScaler<Pixel>::scaleAny(FrameSource& src,
 		auto src3 = src.getLine(line + 2, buf3);
 
 		// Get destination line pointer.
-		auto* dstLine = dst.acquireLine(dstY);
-		auto* dp = dstLine;
+		auto dstLine = dst.acquireLine(dstY);
+		auto* dp = dstLine.data();
 
 		// Fractional parts of the fixed point Y coordinates.
 		const unsigned y1 = h & 0xffff;

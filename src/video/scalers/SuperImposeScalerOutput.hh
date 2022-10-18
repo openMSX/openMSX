@@ -19,8 +19,8 @@ public:
 
 	[[nodiscard]] unsigned getWidth()  const override;
 	[[nodiscard]] unsigned getHeight() const override;
-	[[nodiscard]] Pixel* acquireLine(unsigned y) override;
-	void releaseLine(unsigned y, Pixel* buf)  override;
+	[[nodiscard]] std::span<Pixel> acquireLine(unsigned y) override;
+	void releaseLine(unsigned y, std::span<Pixel> buf)  override;
 	void fillLine   (unsigned y, Pixel color) override;
 
 private:

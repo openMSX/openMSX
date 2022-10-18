@@ -33,43 +33,44 @@ unsigned SuperImposeScalerOutput<Pixel>::getHeight() const
 }
 
 template<std::unsigned_integral Pixel>
-Pixel* SuperImposeScalerOutput<Pixel>::acquireLine(unsigned y)
+std::span<Pixel> SuperImposeScalerOutput<Pixel>::acquireLine(unsigned y)
 {
 	return output.acquireLine(y);
 }
 
 template<std::unsigned_integral Pixel>
-void SuperImposeScalerOutput<Pixel>::releaseLine(unsigned y, Pixel* buf)
+void SuperImposeScalerOutput<Pixel>::releaseLine(unsigned y, std::span<Pixel> buf)
 {
 	unsigned width = output.getWidth();
+	assert(buf.size() == width);
+
 	VLA_SSE_ALIGNED(Pixel, buf2, width);
 	auto srcLine = getSrcLine(y, buf2);
 	AlphaBlendLines<Pixel> alphaBlend(pixelOps);
-	alphaBlend(std::span{buf, width}, srcLine, std::span{buf, width});
+	alphaBlend(buf, srcLine, buf);
 	output.releaseLine(y, buf);
 }
 
 template<std::unsigned_integral Pixel>
 void SuperImposeScalerOutput<Pixel>::fillLine(unsigned y, Pixel color)
 {
-	auto* dstLine = output.acquireLine(y);
-	unsigned width = output.getWidth();
+	auto dstLine = output.acquireLine(y);
 	if (pixelOps.isFullyOpaque(color)) {
 		MemoryOps::MemSet<Pixel> memset;
-		memset(dstLine, width, color);
+		memset(dstLine.data(), dstLine.size(), color); // TODO span
 	} else {
-		auto srcLine = getSrcLine(y, std::span{dstLine, width});
+		auto srcLine = getSrcLine(y, dstLine);
 		if (pixelOps.isFullyTransparent(color)) {
 			// optimization: use destination as work buffer, in case
 			// that buffer got used, we don't need to make a copy
 			// anymore
-			if (srcLine.data() != dstLine) {
+			if (srcLine.data() != dstLine.data()) {
 				Scale_1on1<Pixel> copy;
-				copy(srcLine, std::span{dstLine, width});
+				copy(srcLine, dstLine);
 			}
 		} else {
 			AlphaBlendLines<Pixel> alphaBlend(pixelOps);
-			alphaBlend(color, srcLine, std::span{dstLine, width}); // possibly srcLine == dstLine
+			alphaBlend(color, srcLine, dstLine); // possibly srcLine == dstLine
 		}
 	}
 	output.releaseLine(y, dstLine);

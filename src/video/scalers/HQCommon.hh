@@ -221,7 +221,7 @@ void calcInitialEdges(
 template<std::unsigned_integral Pixel, typename HQScale, typename EdgeOp>
 void doHQScale2(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& postScale,
 	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
-	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	VLA(uint16_t, edgeBuf, srcWidth);
 	VLA_SSE_ALIGNED(Pixel, buf1, srcWidth);
@@ -239,16 +239,16 @@ void doHQScale2(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& postScale
 	bool isCopy = postScale.isCopy();
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
 		auto srcNext = src.getLine(srcY + 1, buf3);
-		auto* dst0 = dst.acquireLine(dstY + 0);
-		auto* dst1 = dst.acquireLine(dstY + 1);
+		auto dst0 = dst.acquireLine(dstY + 0);
+		auto dst1 = dst.acquireLine(dstY + 1);
 		if (isCopy) {
 			hqScale(srcPrev, srcCurr, srcNext, dst0, dst1,
 			        edgeBuf, edgeOp);
 		} else {
-			hqScale(srcPrev, srcCurr, srcNext, bufA.data(), bufB.data(),
+			hqScale(srcPrev, srcCurr, srcNext, bufA, bufB,
 			        edgeBuf, edgeOp);
-			postScale(bufA, std::span{dst0, dstWidth});
-			postScale(bufB, std::span{dst1, dstWidth});
+			postScale(bufA, dst0);
+			postScale(bufB, dst1);
 		}
 		dst.releaseLine(dstY + 0, dst0);
 		dst.releaseLine(dstY + 1, dst1);
@@ -262,7 +262,7 @@ void doHQScale2(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& postScale
 template<std::unsigned_integral Pixel, typename HQScale, typename EdgeOp>
 void doHQScale3(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& postScale,
 	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
-	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	VLA(uint16_t, edgeBuf, srcWidth);
 	VLA_SSE_ALIGNED(Pixel, buf1, srcWidth);
@@ -281,18 +281,18 @@ void doHQScale3(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& postScale
 	bool isCopy = postScale.isCopy();
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 3) {
 		auto srcNext = src.getLine(srcY + 1, buf3);
-		auto* dst0 = dst.acquireLine(dstY + 0);
-		auto* dst1 = dst.acquireLine(dstY + 1);
-		auto* dst2 = dst.acquireLine(dstY + 2);
+		auto dst0 = dst.acquireLine(dstY + 0);
+		auto dst1 = dst.acquireLine(dstY + 1);
+		auto dst2 = dst.acquireLine(dstY + 2);
 		if (isCopy) {
 			hqScale(srcPrev, srcCurr, srcNext, dst0, dst1, dst2,
 			        edgeBuf, edgeOp);
 		} else {
-			hqScale(srcPrev, srcCurr, srcNext, bufA.data(), bufB.data(), bufC.data(),
+			hqScale(srcPrev, srcCurr, srcNext, bufA, bufB, bufC,
 			        edgeBuf, edgeOp);
-			postScale(bufA, std::span{dst0, dstWidth});
-			postScale(bufB, std::span{dst1, dstWidth});
-			postScale(bufC, std::span{dst2, dstWidth});
+			postScale(bufA, dst0);
+			postScale(bufB, dst1);
+			postScale(bufC, dst2);
 		}
 		dst.releaseLine(dstY + 0, dst0);
 		dst.releaseLine(dstY + 1, dst1);

@@ -278,7 +278,7 @@ void MLAAScaler<Pixel>::scaleImage(
 	}
 	assert(unsigned(edgePtr - edges.data()) == srcWidth);
 
-	VLA(Pixel*, dstLines, dst.getHeight());
+	VLA(std::span<Pixel>, dstLines, dst.getHeight());
 	for (auto i : xrange(dstStartY, dstEndY)) {
 		dstLines[i] = dst.acquireLine(i);
 	}
@@ -359,7 +359,7 @@ void MLAAScaler<Pixel>::scaleImage(
 				  ? (startX + botEndX) * zoomFactorX
 				  : x3);
 			for (auto iy : xrange(zoomFactorY)) {
-				auto* dstLinePtr = dstLines[dstY + iy];
+				auto dstLinePtr = dstLines[dstY + iy];
 
 				// Figure out which parts of the line should be blended.
 				bool blendTopLeft = false;
@@ -542,7 +542,7 @@ void MLAAScaler<Pixel>::scaleImage(
 						? ((zoomFactorX - 1 - ix) / float(zoomFactorX))
 						: (ix / float(zoomFactorX));
 					for (unsigned fy = y0 | 1; fy < y1; fy += 2) {
-						auto* dstLinePtr = dstLines[dstStartY + fy / 2];
+						auto dstLinePtr = dstLines[dstStartY + fy / 2];
 						float ry = (fy - y0) / float(y1 - y0);
 						float rx = 0.5f + ry * 0.5f;
 						float weight = (rx - lineX) * zoomFactorX;
@@ -561,7 +561,7 @@ void MLAAScaler<Pixel>::scaleImage(
 						? ((zoomFactorX - 1 - ix) / float(zoomFactorX))
 						: (ix / float(zoomFactorX));
 					for (unsigned fy = y2 | 1; fy < y3; fy += 2) {
-						auto* dstLinePtr = dstLines[dstStartY + fy / 2];
+						auto dstLinePtr = dstLines[dstStartY + fy / 2];
 						float ry = (fy - y2) / float(y3 - y2);
 						float rx = 1.0f - ry * 0.5f;
 						float weight = (rx - lineX) * zoomFactorX;
@@ -577,7 +577,7 @@ void MLAAScaler<Pixel>::scaleImage(
 					if (ix == 0) {
 						if (slopeTopLeft) {
 							for (unsigned fy = y0 | 1; fy < y1; fy += 2) {
-								auto* dstLinePtr = dstLines[
+								auto dstLinePtr = dstLines[
 									dstStartY + fy / 2];
 								dstLinePtr[fx] =
 									pixelOps.combine256(255, 0, 0);
@@ -585,7 +585,7 @@ void MLAAScaler<Pixel>::scaleImage(
 						}
 						if (slopeBotLeft) {
 							for (unsigned fy = y2 | 1; fy < y3; fy += 2) {
-								auto* dstLinePtr = dstLines[
+								auto dstLinePtr = dstLines[
 									dstStartY + fy / 2];
 								dstLinePtr[fx] =
 									pixelOps.combine256(255, 255, 0);
@@ -594,7 +594,7 @@ void MLAAScaler<Pixel>::scaleImage(
 					} else if (ix == zoomFactorX - 1) {
 						if (slopeTopRight) {
 							for (unsigned fy = y0 | 1; fy < y1; fy += 2) {
-								auto* dstLinePtr = dstLines[
+								auto dstLinePtr = dstLines[
 									dstStartY + fy / 2];
 								dstLinePtr[fx] =
 									pixelOps.combine256(0, 0, 255);
@@ -602,7 +602,7 @@ void MLAAScaler<Pixel>::scaleImage(
 						}
 						if (slopeBotRight) {
 							for (unsigned fy = y2 | 1; fy < y3; fy += 2) {
-								auto* dstLinePtr = dstLines[
+								auto dstLinePtr = dstLines[
 									dstStartY + fy / 2];
 								dstLinePtr[fx] =
 									pixelOps.combine256(0, 255, 0);

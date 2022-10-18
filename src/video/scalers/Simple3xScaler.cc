@@ -38,24 +38,24 @@ void Simple3xScaler<Pixel>::doScale1(FrameSource& src,
 	unsigned dstWidth = dst.getWidth();
 	unsigned y = dstStartY;
 	auto srcLine = src.getLine(srcStartY++, buf);
-	auto* dstLine0 = dst.acquireLine(y + 0);
-	scale(srcLine, std::span{dstLine0, dstWidth});
+	auto dstLine0 = dst.acquireLine(y + 0);
+	scale(srcLine, dstLine0);
 
 	Scale_1on1<Pixel> copy;
-	auto* dstLine1 = dst.acquireLine(y + 1);
-	copy(std::span{dstLine0, dstWidth}, std::span{dstLine1, dstWidth});
+	auto dstLine1 = dst.acquireLine(y + 1);
+	copy(dstLine0, dstLine1);
 
 	for (/* */; (y + 4) < dstEndY; y += 3, srcStartY += 1) {
 		srcLine = src.getLine(srcStartY, buf);
-		auto* dstLine3 = dst.acquireLine(y + 3);
-		scale(srcLine, std::span{dstLine3, dstWidth});
+		auto dstLine3 = dst.acquireLine(y + 3);
+		scale(srcLine, dstLine3);
 
-		auto* dstLine4 = dst.acquireLine(y + 4);
-		copy(std::span{dstLine3, dstWidth}, std::span{dstLine4, dstWidth});
+		auto dstLine4 = dst.acquireLine(y + 4);
+		copy(dstLine3, dstLine4);
 
-		auto* dstLine2 = dst.acquireLine(y + 2);
-		scanline.draw(dstLine0, dstLine3, dstLine2,
-		              scanlineFactor, dstWidth);
+		auto dstLine2 = dst.acquireLine(y + 2);
+		scanline.draw(dstLine0, dstLine3,
+		              dstLine2, scanlineFactor);
 
 		dst.releaseLine(y + 0, dstLine0);
 		dst.releaseLine(y + 1, dstLine1);
@@ -67,8 +67,8 @@ void Simple3xScaler<Pixel>::doScale1(FrameSource& src,
 	VLA_SSE_ALIGNED(Pixel, buf2, dstWidth);
 	scale(srcLine, buf2);
 
-	auto* dstLine2 = dst.acquireLine(y + 2);
-	scanline.draw(dstLine0, buf2.data(), dstLine2, scanlineFactor, dstWidth);
+	auto dstLine2 = dst.acquireLine(y + 2);
+	scanline.draw(dstLine0, buf2, dstLine2, scanlineFactor);
 	dst.releaseLine(y + 0, dstLine0);
 	dst.releaseLine(y + 1, dstLine1);
 	dst.releaseLine(y + 2, dstLine2);
@@ -82,20 +82,19 @@ void Simple3xScaler<Pixel>::doScale2(FrameSource& src,
 {
 	VLA_SSE_ALIGNED(Pixel, buf, srcWidth);
 	int scanlineFactor = settings.getScanlineFactor();
-	unsigned dstWidth = dst.getWidth();
 	for (unsigned srcY = srcStartY, dstY = dstStartY; dstY < dstEndY;
 	     srcY += 2, dstY += 3) {
 		auto srcLine0 = src.getLine(srcY + 0, buf);
-		auto* dstLine0 = dst.acquireLine(dstY + 0);
-		scale(srcLine0, std::span{dstLine0, dstWidth});
+		auto dstLine0 = dst.acquireLine(dstY + 0);
+		scale(srcLine0, dstLine0);
 
 		auto srcLine1 = src.getLine(srcY + 1, buf);
-		auto* dstLine2 = dst.acquireLine(dstY + 2);
-		scale(srcLine1, std::span{dstLine2, dstWidth});
+		auto dstLine2 = dst.acquireLine(dstY + 2);
+		scale(srcLine1, dstLine2);
 
-		auto* dstLine1 = dst.acquireLine(dstY + 1);
+		auto dstLine1 = dst.acquireLine(dstY + 1);
 		scanline.draw(dstLine0, dstLine2, dstLine1,
-		              scanlineFactor, dstWidth);
+		              scanlineFactor);
 
 		dst.releaseLine(dstY + 0, dstLine0);
 		dst.releaseLine(dstY + 1, dstLine1);

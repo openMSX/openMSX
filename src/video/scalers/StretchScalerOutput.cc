@@ -20,14 +20,14 @@ public:
 	StretchScalerOutputBase(const StretchScalerOutputBase&) = delete;
 	StretchScalerOutputBase& operator=(const StretchScalerOutputBase&) = delete;
 
-	[[nodiscard]] unsigned getWidth()  const override;
-	[[nodiscard]] unsigned getHeight() const override;
-	[[nodiscard]] Pixel* acquireLine(unsigned y) override;
+	[[nodiscard]] unsigned getWidth()  const final override;
+	[[nodiscard]] unsigned getHeight() const final override;
+	[[nodiscard]] std::span<Pixel> acquireLine(unsigned y) final override;
 	void fillLine(unsigned y, Pixel color) override;
 
 protected:
-	[[nodiscard]] Pixel* releasePre(unsigned y, Pixel* buf);
-	void releasePost(unsigned y, Pixel* dstLine);
+	[[nodiscard]] std::span<Pixel> releasePre(unsigned y, std::span<Pixel> buf);
+	void releasePost(unsigned y, std::span<Pixel> dstLine);
 
 	const PixelOperations<Pixel> pixelOps;
 
@@ -37,13 +37,13 @@ private:
 };
 
 template<std::unsigned_integral Pixel>
-class StretchScalerOutput : public StretchScalerOutputBase<Pixel>
+class StretchScalerOutput final : public StretchScalerOutputBase<Pixel>
 {
 public:
 	StretchScalerOutput(SDLOutputSurface& out,
 	                    PixelOperations<Pixel> pixelOps,
 	                    unsigned inWidth);
-	void releaseLine(unsigned y, Pixel* buf) override;
+	void releaseLine(unsigned y, std::span<Pixel> buf) override;
 
 private:
 	unsigned inWidth;
@@ -55,11 +55,11 @@ class StretchScalerOutputN : public StretchScalerOutputBase<Pixel>
 public:
 	StretchScalerOutputN(SDLOutputSurface& out,
 	                     PixelOperations<Pixel> pixelOps);
-	void releaseLine(unsigned y, Pixel* buf) override;
+	void releaseLine(unsigned y, std::span<Pixel> buf) override;
 };
 
 template<std::unsigned_integral Pixel>
-class StretchScalerOutput256
+class StretchScalerOutput256 final
 	: public StretchScalerOutputN<Pixel, 256, Scale_4on5<Pixel>>
 {
 public:
@@ -68,7 +68,7 @@ public:
 };
 
 template<std::unsigned_integral Pixel>
-class StretchScalerOutput272
+class StretchScalerOutput272 final
 	: public StretchScalerOutputN<Pixel, 272, Scale_17on20<Pixel>>
 {
 public:
@@ -77,7 +77,7 @@ public:
 };
 
 template<std::unsigned_integral Pixel>
-class StretchScalerOutput280
+class StretchScalerOutput280 final
 	: public StretchScalerOutputN<Pixel, 280, Scale_7on8<Pixel>>
 {
 public:
@@ -86,7 +86,7 @@ public:
 };
 
 template<std::unsigned_integral Pixel>
-class StretchScalerOutput288
+class StretchScalerOutput288 final
 	: public StretchScalerOutputN<Pixel, 288, Scale_9on10<Pixel>>
 {
 public:
@@ -127,27 +127,30 @@ unsigned StretchScalerOutputBase<Pixel>::getHeight() const
 }
 
 template<std::unsigned_integral Pixel>
-Pixel* StretchScalerOutputBase<Pixel>::acquireLine(unsigned /*y*/)
+std::span<Pixel> StretchScalerOutputBase<Pixel>::acquireLine(unsigned /*y*/)
 {
+	auto width = getWidth();
 	if (!pool.empty()) {
 		Pixel* buf = pool.back();
 		pool.pop_back();
-		return buf;
+		return {buf, width};
 	} else {
-		unsigned size = sizeof(Pixel) * output.getWidth();
-		return static_cast<Pixel*>(MemoryOps::mallocAligned(64, size));
+		unsigned size = sizeof(Pixel) * width;
+		return {static_cast<Pixel*>(MemoryOps::mallocAligned(64, size)),
+		        width};
 	}
 }
 
 template<std::unsigned_integral Pixel>
-Pixel* StretchScalerOutputBase<Pixel>::releasePre(unsigned y, Pixel* buf)
+std::span<Pixel> StretchScalerOutputBase<Pixel>::releasePre(unsigned y, std::span<Pixel> buf)
 {
-	pool.push_back(buf);
+	assert(buf.size() == getWidth());
+	pool.push_back(buf.data());
 	return output.acquireLine(y);
 }
 
 template<std::unsigned_integral Pixel>
-void StretchScalerOutputBase<Pixel>::releasePost(unsigned y, Pixel* dstLine)
+void StretchScalerOutputBase<Pixel>::releasePost(unsigned y, std::span<Pixel> dstLine)
 {
 	output.releaseLine(y, dstLine);
 }
@@ -155,9 +158,9 @@ void StretchScalerOutputBase<Pixel>::releasePost(unsigned y, Pixel* dstLine)
 template<std::unsigned_integral Pixel>
 void StretchScalerOutputBase<Pixel>::fillLine(unsigned y, Pixel color)
 {
-	Pixel* dstLine = output.acquireLine(y);
+	auto dstLine = output.acquireLine(y);
 	MemoryOps::MemSet<Pixel> memset;
-	memset(dstLine, output.getWidth(), color);
+	memset(dstLine.data(), dstLine.size(), color); // TODO span
 	output.releaseLine(y, dstLine);
 }
 
@@ -175,15 +178,15 @@ StretchScalerOutput<Pixel>::StretchScalerOutput(
 }
 
 template<std::unsigned_integral Pixel>
-void StretchScalerOutput<Pixel>::releaseLine(unsigned y, Pixel* buf)
+void StretchScalerOutput<Pixel>::releaseLine(unsigned y, std::span<Pixel> buf)
 {
-	Pixel* dstLine = this->releasePre(y, buf);
+	auto dstLine = this->releasePre(y, buf);
+	auto dstWidth = dstLine.size();
 
-	unsigned dstWidth = StretchScalerOutputBase<Pixel>::getWidth();
-	unsigned srcWidth = (dstWidth / 320) * inWidth;
-	unsigned srcOffset = (dstWidth - srcWidth) / 2;
+	auto srcWidth = (dstWidth / 320) * inWidth;
+	auto srcOffset = (dstWidth - srcWidth) / 2;
 	ZoomLine<Pixel> zoom(this->pixelOps);
-	zoom(buf + srcOffset, srcWidth, dstLine, dstWidth);
+	zoom(buf.subspan(srcOffset, srcWidth), dstLine);
 
 	this->releasePost(y, dstLine);
 }
@@ -200,15 +203,15 @@ StretchScalerOutputN<Pixel, IN_WIDTH, SCALE>::StretchScalerOutputN(
 }
 
 template<std::unsigned_integral Pixel, unsigned IN_WIDTH, typename SCALE>
-void StretchScalerOutputN<Pixel, IN_WIDTH, SCALE>::releaseLine(unsigned y, Pixel* buf)
+void StretchScalerOutputN<Pixel, IN_WIDTH, SCALE>::releaseLine(unsigned y, std::span<Pixel> buf)
 {
-	Pixel* dstLine = this->releasePre(y, buf);
+	auto dstLine = this->releasePre(y, buf);
+	auto dstWidth = dstLine.size();
 
-	unsigned dstWidth = StretchScalerOutputBase<Pixel>::getWidth();
 	unsigned srcWidth = (dstWidth / 320) * IN_WIDTH;
 	unsigned srcOffset = (dstWidth - srcWidth) / 2;
 	SCALE scale(this->pixelOps);
-	scale(std::span{&buf[srcOffset], srcWidth}, std::span{dstLine, dstWidth});
+	scale(buf.subspan(srcOffset, srcWidth), dstLine);
 
 	this->releasePost(y, dstLine);
 }

@@ -3,6 +3,7 @@
 
 #include "Scaler2.hh"
 #include <cstddef>
+#include <span>
 
 namespace openmsx {
 
@@ -22,19 +23,15 @@ public:
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
 
 private:
-	void scaleLine_1on2(Pixel* dst0, Pixel* dst1,
-		const Pixel* src0, const Pixel* src1, const Pixel* src2,
-		size_t srcWidth) __restrict;
-	void scaleLineHalf_1on2(Pixel* dst,
-		const Pixel* src0, const Pixel* src1, const Pixel* src2,
-		size_t srcWidth) __restrict;
+	void scaleLine_1on2(std::span<Pixel> dst0, std::span<Pixel> dst1,
+		std::span<const Pixel> src0, std::span<const Pixel> src1, std::span<const Pixel> src2);
+	void scaleLineHalf_1on2(std::span<Pixel> dst,
+		std::span<const Pixel> src0, std::span<const Pixel> src1, std::span<const Pixel> src2);
 
-	void scaleLine_1on1(Pixel* dst0, Pixel* dst1,
-		const Pixel* src0, const Pixel* src1, const Pixel* src2,
-		size_t srcWidth) __restrict;
-	void scaleLineHalf_1on1(Pixel* dst,
-		const Pixel* src0, const Pixel* src1, const Pixel* src2,
-		size_t srcWidth) __restrict;
+	void scaleLine_1on1(std::span<Pixel> dst0, std::span<Pixel> dst1,
+		std::span<const Pixel> src0, std::span<const Pixel> src1, std::span<const Pixel> src2);
+	void scaleLineHalf_1on1(std::span<Pixel> dst,
+		std::span<const Pixel> src0, std::span<const Pixel> src1, std::span<const Pixel> src2);
 };
 
 } // namespace openmsx

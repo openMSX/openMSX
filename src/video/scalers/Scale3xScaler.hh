@@ -2,6 +2,7 @@
 #define SCALE3XSCALER_HH
 
 #include "Scaler3.hh"
+#include <span>
 
 namespace openmsx {
 
@@ -18,12 +19,10 @@ public:
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
 
 private:
-	void scaleLine1on3Half(Pixel* dst,
-		const Pixel* src0, const Pixel* src1, const Pixel* src2,
-		unsigned srcWidth) __restrict;
-	void scaleLine1on3Mid (Pixel* dst,
-		const Pixel* src0, const Pixel* src1, const Pixel* src2,
-		unsigned srcWidth) __restrict;
+	void scaleLine1on3Half(std::span<Pixel> dst,
+		std::span<const Pixel> src0, std::span<const Pixel> src1, std::span<const Pixel> src2);
+	void scaleLine1on3Mid (std::span<Pixel> dst,
+		std::span<const Pixel> src0, std::span<const Pixel> src1, std::span<const Pixel> src2);
 };
 
 } // namespace openmsx

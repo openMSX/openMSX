@@ -206,29 +206,35 @@ Scale2xScaler<Pixel>::Scale2xScaler(const PixelOperations<Pixel>& pixelOps_)
 
 template<std::unsigned_integral Pixel>
 inline void Scale2xScaler<Pixel>::scaleLine_1on2(
-	Pixel* __restrict dst0, Pixel* __restrict dst1,
-	const Pixel* __restrict src0, const Pixel* __restrict src1,
-	const Pixel* __restrict src2, size_t srcWidth) __restrict
+	std::span<Pixel> dst0, std::span<Pixel> dst1,
+	std::span<const Pixel> src0, std::span<const Pixel> src1, std::span<const Pixel> src2)
 {
+	auto srcWidth = src0.size();
+	assert(src0.size() == srcWidth);
+	assert(src1.size() == srcWidth);
+	assert(src2.size() == srcWidth);
+	assert(dst0.size() == 2 * srcWidth);
+	assert(dst1.size() == 2 * srcWidth);
+
 	// For some reason, for the c++ version, processing the two output
 	// lines separately is faster than merging them in a single loop (even
 	// though a single loop only has to fetch the inputs once and can
 	// eliminate some common sub-expressions). For the asm version the
 	// situation is reversed.
 #ifdef __SSE2__
-	scaleSSE<true>(dst0, dst1, src0, src1, src2, srcWidth);
+	scaleSSE<true>(dst0.data(), dst1.data(), src0.data(), src1.data(), src2.data(), srcWidth);
 #else
-	scaleLineHalf_1on2(dst0, src0, src1, src2, srcWidth);
-	scaleLineHalf_1on2(dst1, src2, src1, src0, srcWidth);
+	scaleLineHalf_1on2(dst0, src0, src1, src2);
+	scaleLineHalf_1on2(dst1, src2, src1, src0);
 #endif
 }
 
 template<std::unsigned_integral Pixel>
 void Scale2xScaler<Pixel>::scaleLineHalf_1on2(
-	Pixel* __restrict dst, const Pixel* __restrict src0,
-	const Pixel* __restrict src1, const Pixel* __restrict src2,
-	size_t srcWidth) __restrict
+	std::span<Pixel> dst,
+	std::span<const Pixel> src0, std::span<const Pixel> src1, std::span<const Pixel> src2)
 {
+	auto srcWidth = src0.size();
 	//   n      m is expanded to a b
 	// w m e                     c d
 	//   s         a = (w == n) && (s != n) && (e != n) ? n : m
@@ -263,24 +269,30 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on2(
 
 template<std::unsigned_integral Pixel>
 inline void Scale2xScaler<Pixel>::scaleLine_1on1(
-	Pixel* __restrict dst0, Pixel* __restrict dst1,
-	const Pixel* __restrict src0, const Pixel* __restrict src1,
-	const Pixel* __restrict src2, size_t srcWidth) __restrict
+	std::span<Pixel> dst0, std::span<Pixel> dst1,
+	std::span<const Pixel> src0, std::span<const Pixel> src1, std::span<const Pixel> src2)
 {
+	auto srcWidth = src0.size();
+	assert(src0.size() == srcWidth);
+	assert(src1.size() == srcWidth);
+	assert(src2.size() == srcWidth);
+	assert(dst0.size() == srcWidth);
+	assert(dst1.size() == srcWidth);
+
 #ifdef __SSE2__
-	scaleSSE<false>(dst0, dst1, src0, src1, src2, srcWidth);
+	scaleSSE<false>(dst0.data(), dst1.data(), src0.data(), src1.data(), src2.data(), srcWidth);
 #else
-	scaleLineHalf_1on1(dst0, src0, src1, src2, srcWidth);
-	scaleLineHalf_1on1(dst1, src2, src1, src0, srcWidth);
+	scaleLineHalf_1on1(dst0, src0, src1, src2);
+	scaleLineHalf_1on1(dst1, src2, src1, src0);
 #endif
 }
 
 template<std::unsigned_integral Pixel>
 void Scale2xScaler<Pixel>::scaleLineHalf_1on1(
-	Pixel* __restrict dst, const Pixel* __restrict src0,
-	const Pixel* __restrict src1, const Pixel* __restrict src2,
-	size_t srcWidth) __restrict
+	std::span<Pixel> dst,
+	std::span<const Pixel> src0, std::span<const Pixel> src1, std::span<const Pixel> src2)
 {
+	auto srcWidth = src0.size();
 	//    ab ef
 	// x0 12 34 5x
 	//    cd gh
@@ -321,11 +333,10 @@ void Scale2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
 		auto srcNext = src.getLine(srcY + 1, buf2);
-		auto* dstUpper = dst.acquireLine(dstY + 0);
-		auto* dstLower = dst.acquireLine(dstY + 1);
+		auto dstUpper = dst.acquireLine(dstY + 0);
+		auto dstLower = dst.acquireLine(dstY + 1);
 		scaleLine_1on2(dstUpper, dstLower,
-		               srcPrev.data(), srcCurr.data(), srcNext.data(),
-		               srcWidth);
+		               srcPrev, srcCurr, srcNext);
 		dst.releaseLine(dstY + 0, dstUpper);
 		dst.releaseLine(dstY + 1, dstLower);
 		srcPrev = srcCurr;
@@ -350,11 +361,10 @@ void Scale2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
 		auto srcNext = src.getLine(srcY + 1, buf2);
-		auto* dstUpper = dst.acquireLine(dstY + 0);
-		auto* dstLower = dst.acquireLine(dstY + 1);
+		auto dstUpper = dst.acquireLine(dstY + 0);
+		auto dstLower = dst.acquireLine(dstY + 1);
 		scaleLine_1on1(dstUpper, dstLower,
-		               srcPrev.data(), srcCurr.data(), srcNext.data(),
-		               srcWidth);
+		               srcPrev, srcCurr, srcNext);
 		dst.releaseLine(dstY + 0, dstUpper);
 		dst.releaseLine(dstY + 1, dstLower);
 		srcPrev = srcCurr;

@@ -54,10 +54,9 @@ public:
 	  * @param dst Output line.
 	  * @param factor Darkness factor, 0 means completely black,
 	  *               255 means no darkening.
-	  * @param width Line width in pixels.
 	  */
-	void draw(const Pixel* src1, const Pixel* src2, Pixel* dst,
-	          unsigned factor, size_t width);
+	void draw(std::span<const Pixel> src1, std::span<const Pixel> src2,
+	          std::span<Pixel> dst, unsigned factor);
 
 	/** Darken one pixel. Typically used to implement drawBlank().
 	 */

@@ -13,10 +13,14 @@ class DirectScalerOutput final : public ScalerOutput<Pixel>
 public:
 	explicit DirectScalerOutput(SDLOutputSurface& output);
 
-	[[nodiscard]] unsigned getWidth()  const override;
-	[[nodiscard]] unsigned getHeight() const override;
-	[[nodiscard]] Pixel* acquireLine(unsigned y) override;
-	void releaseLine(unsigned y, Pixel* buf) override;
+	[[nodiscard]] unsigned getWidth()  const override {
+		return output.getLogicalWidth();
+	}
+	[[nodiscard]] unsigned getHeight() const override {
+		return output.getLogicalHeight();
+	}
+	[[nodiscard]] std::span<Pixel> acquireLine(unsigned y) override;
+	void releaseLine(unsigned y, std::span<Pixel> buf) override;
 	void fillLine   (unsigned y, Pixel color) override;
 
 private:

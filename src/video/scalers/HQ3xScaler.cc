@@ -21,23 +21,24 @@ namespace openmsx {
 template<std::unsigned_integral Pixel> struct HQ_1x1on3x3
 {
 	void operator()(std::span<const Pixel> in0, std::span<const Pixel> in1, std::span<const Pixel> in2,
-	                Pixel* out0, Pixel* out1, Pixel* out2,
-	                std::span<uint16_t> edgeBuf, EdgeHQ edgeOp)
-	               __restrict;
+	                std::span<Pixel> out0, std::span<Pixel> out1, std::span<Pixel> out2,
+	                std::span<uint16_t> edgeBuf, EdgeHQ edgeOp);
 };
 
 template<std::unsigned_integral Pixel>
 void HQ_1x1on3x3<Pixel>::operator()(
 	std::span<const Pixel> in0, std::span<const Pixel> in1, std::span<const Pixel> in2,
-	Pixel* __restrict out0, Pixel* __restrict out1,
-	Pixel* __restrict out2,
+	std::span<Pixel> out0, std::span<Pixel> out1, std::span<Pixel> out2,
 	std::span<uint16_t> edgeBuf,
-	EdgeHQ edgeOp) __restrict
+	EdgeHQ edgeOp)
 {
 	auto srcWidth = edgeBuf.size();
 	assert(in0.size() == srcWidth);
 	assert(in1.size() == srcWidth);
 	assert(in2.size() == srcWidth);
+	assert(out0.size() == 3 * srcWidth);
+	assert(out1.size() == 3 * srcWidth);
+	assert(out2.size() == 3 * srcWidth);
 
 	unsigned c2 = readPixel(in0[0]); unsigned c3 = c2;
 	unsigned c5 = readPixel(in1[0]); unsigned c6 = c5;
@@ -116,7 +117,7 @@ void HQ3xScaler<Pixel>::scale2x1to9x3(FrameSource& src,
 	EdgeHQ edgeOp = createEdgeHQ(pixelOps);
 	doHQScale3<Pixel>(HQ_1x1on3x3<Pixel>(), edgeOp, postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
-	                  dst, dstStartY, dstEndY, (srcWidth * 9) / 2);
+	                  dst, dstStartY, dstEndY);
 }
 
 template<std::unsigned_integral Pixel>
@@ -128,7 +129,7 @@ void HQ3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 	EdgeHQ edgeOp = createEdgeHQ(pixelOps);
 	doHQScale3<Pixel>(HQ_1x1on3x3<Pixel>(), edgeOp, postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
-	                  dst, dstStartY, dstEndY, srcWidth * 3);
+	                  dst, dstStartY, dstEndY);
 }
 
 template<std::unsigned_integral Pixel>
@@ -140,7 +141,7 @@ void HQ3xScaler<Pixel>::scale4x1to9x3(FrameSource& src,
 	EdgeHQ edgeOp = createEdgeHQ(pixelOps);
 	doHQScale3<Pixel>(HQ_1x1on3x3<Pixel>(), edgeOp, postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
-	                  dst, dstStartY, dstEndY, (srcWidth * 9) / 4);
+	                  dst, dstStartY, dstEndY);
 }
 
 template<std::unsigned_integral Pixel>
@@ -152,7 +153,7 @@ void HQ3xScaler<Pixel>::scale2x1to3x3(FrameSource& src,
 	EdgeHQ edgeOp = createEdgeHQ(pixelOps);
 	doHQScale3<Pixel>(HQ_1x1on3x3<Pixel>(), edgeOp, postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
-	                  dst, dstStartY, dstEndY, (srcWidth * 3) / 2);
+	                  dst, dstStartY, dstEndY);
 }
 
 template<std::unsigned_integral Pixel>
@@ -164,7 +165,7 @@ void HQ3xScaler<Pixel>::scale8x1to9x3(FrameSource& src,
 	EdgeHQ edgeOp = createEdgeHQ(pixelOps);
 	doHQScale3<Pixel>(HQ_1x1on3x3<Pixel>(), edgeOp, postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
-	                  dst, dstStartY, dstEndY, (srcWidth * 9) / 8);
+	                  dst, dstStartY, dstEndY);
 }
 
 template<std::unsigned_integral Pixel>
@@ -176,7 +177,7 @@ void HQ3xScaler<Pixel>::scale4x1to3x3(FrameSource& src,
 	EdgeHQ edgeOp = createEdgeHQ(pixelOps);
 	doHQScale3<Pixel>(HQ_1x1on3x3<Pixel>(), edgeOp, postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
-	                  dst, dstStartY, dstEndY, (srcWidth * 3) / 4);
+	                  dst, dstStartY, dstEndY);
 }
 
 // Force template instantiation.

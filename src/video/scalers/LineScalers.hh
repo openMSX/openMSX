@@ -241,8 +241,7 @@ class ZoomLine
 {
 public:
 	explicit ZoomLine(PixelOperations<Pixel> pixelOps);
-	void operator()(const Pixel* in,  unsigned inWidth,
-	                      Pixel* out, unsigned outWidth) const;
+	void operator()(std::span<const Pixel> in, std::span<Pixel> out) const;
 private:
 	PixelOperations<Pixel> pixelOps;
 };
@@ -1110,14 +1109,13 @@ ZoomLine<Pixel>::ZoomLine(PixelOperations<Pixel> pixelOps_)
 
 template<std::unsigned_integral Pixel>
 void ZoomLine<Pixel>::operator()(
-	const Pixel* in,  unsigned inWidth,
-	      Pixel* out, unsigned outWidth) const
+	std::span<const Pixel> in, std::span<Pixel> out) const
 {
 	constexpr unsigned FACTOR = 256;
 
-	unsigned step = FACTOR * inWidth / outWidth;
+	unsigned step = FACTOR * in.size() / out.size();
 	unsigned i = 0 * FACTOR;
-	for (auto o : xrange(outWidth)) {
+	for (auto o : xrange(out.size())) {
 		Pixel p0 = in[(i / FACTOR) + 0];
 		Pixel p1 = in[(i / FACTOR) + 1];
 		out[o] = pixelOps.lerp(p0, p1, i % FACTOR);

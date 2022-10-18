@@ -54,17 +54,16 @@ static void doScale1(FrameSource& src,
 {
 	VLA_SSE_ALIGNED(Pixel, buf, srcWidth);
 	Scale_1on1<Pixel> copy;
-	unsigned dstWidth = dst.getWidth();
 	for (unsigned dstY = dstStartY; dstY < dstEndY; dstY += 3, ++srcStartY) {
 		auto srcLine = src.getLine(srcStartY, buf);
-		auto* dstLine0 = dst.acquireLine(dstY + 0);
-		scale(srcLine, std::span{dstLine0, dstWidth});
+		auto dstLine0 = dst.acquireLine(dstY + 0);
+		scale(srcLine, dstLine0);
 
-		auto* dstLine1 = dst.acquireLine(dstY + 1);
-		copy(std::span{dstLine0, dstWidth}, std::span{dstLine1, dstWidth});
+		auto dstLine1 = dst.acquireLine(dstY + 1);
+		copy(dstLine0, dstLine1);
 
-		auto* dstLine2 = dst.acquireLine(dstY + 2);
-		copy(std::span{dstLine0, dstWidth}, std::span{dstLine2, dstWidth});
+		auto dstLine2 = dst.acquireLine(dstY + 2);
+		copy(dstLine0, dstLine2);
 
 		dst.releaseLine(dstY + 0, dstLine0);
 		dst.releaseLine(dstY + 1, dstLine1);
@@ -80,19 +79,18 @@ static void doScaleDV(FrameSource& src,
 {
 	VLA_SSE_ALIGNED(Pixel, buf, srcWidth);
 	BlendLines<Pixel> blend(ops);
-	unsigned dstWidth = dst.getWidth();
 	for (unsigned srcY = srcStartY, dstY = dstStartY; dstY < dstEndY;
 	     srcY += 2, dstY += 3) {
 		auto srcLine0 = src.getLine(srcY + 0, buf);
-		auto* dstLine0 = dst.acquireLine(dstY + 0);
-		scale(srcLine0, std::span{dstLine0, dstWidth});
+		auto dstLine0 = dst.acquireLine(dstY + 0);
+		scale(srcLine0, dstLine0);
 
 		auto srcLine1 = src.getLine(srcY + 1, buf);
-		auto* dstLine2 = dst.acquireLine(dstY + 2);
-		scale(srcLine1, std::span{dstLine2, dstWidth});
+		auto dstLine2 = dst.acquireLine(dstY + 2);
+		scale(srcLine1, dstLine2);
 
-		auto* dstLine1 = dst.acquireLine(dstY + 1);
-		blend(std::span{dstLine0, dstWidth}, std::span{dstLine2, dstWidth}, std::span{dstLine1, dstWidth});
+		auto dstLine1 = dst.acquireLine(dstY + 1);
+		blend(dstLine0, dstLine2, dstLine1);
 
 		dst.releaseLine(dstY + 0, dstLine0);
 		dst.releaseLine(dstY + 1, dstLine1);

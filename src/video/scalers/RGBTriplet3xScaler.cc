@@ -7,6 +7,7 @@
 #include "enumerate.hh"
 #include "vla.hh"
 #include "build-info.hh"
+#include <array>
 #include <cstdint>
 
 namespace openmsx {
@@ -104,24 +105,24 @@ void RGBTriplet3xScaler<Pixel>::doScale1(FrameSource& src,
 	int scanlineFactor = settings.getScanlineFactor();
 	unsigned y = dstStartY;
 	auto srcLine = src.getLine(srcStartY++, buf);
-	auto* dstLine0 = dst.acquireLine(y + 0);
-	scaleLine(srcLine, std::span{dstLine0, dstWidth}, scale, c1, c2);
+	auto dstLine0 = dst.acquireLine(y + 0);
+	scaleLine(srcLine, dstLine0, scale, c1, c2);
 
 	Scale_1on1<Pixel> copy;
-	auto* dstLine1 = dst.acquireLine(y + 1);
-	copy(std::span{dstLine0, dstWidth}, std::span{dstLine1, dstWidth});
+	auto dstLine1 = dst.acquireLine(y + 1);
+	copy(dstLine0, dstLine1);
 
 	for (/* */; (y + 4) < dstEndY; y += 3, srcStartY += 1) {
 		srcLine = src.getLine(srcStartY, buf);
-		auto* dstLine3 = dst.acquireLine(y + 3);
-		scaleLine(srcLine, std::span{dstLine3, dstWidth}, scale, c1, c2);
+		auto dstLine3 = dst.acquireLine(y + 3);
+		scaleLine(srcLine, dstLine3, scale, c1, c2);
 
-		auto* dstLine4 = dst.acquireLine(y + 4);
-		copy(std::span{dstLine3, dstWidth}, std::span{dstLine4, dstWidth});
+		auto dstLine4 = dst.acquireLine(y + 4);
+		copy(dstLine3, dstLine4);
 
-		auto* dstLine2 = dst.acquireLine(y + 2);
-		scanline.draw(dstLine0, dstLine3, dstLine2,
-		              scanlineFactor, dstWidth);
+		auto dstLine2 = dst.acquireLine(y + 2);
+		scanline.draw(dstLine0, dstLine3,
+		              dstLine2, scanlineFactor);
 
 		dst.releaseLine(y + 0, dstLine0);
 		dst.releaseLine(y + 1, dstLine1);
@@ -133,8 +134,8 @@ void RGBTriplet3xScaler<Pixel>::doScale1(FrameSource& src,
 	srcLine = src.getLine(srcStartY, buf);
 	VLA_SSE_ALIGNED(Pixel, buf2, dstWidth);
 	scaleLine(srcLine, buf2, scale, c1, c2);
-	auto* dstLine2 = dst.acquireLine(y + 2);
-	scanline.draw(dstLine0, buf2.data(), dstLine2, scanlineFactor, dstWidth);
+	auto dstLine2 = dst.acquireLine(y + 2);
+	scanline.draw(dstLine0, buf2, dstLine2, scanlineFactor);
 	dst.releaseLine(y + 0, dstLine0);
 	dst.releaseLine(y + 1, dstLine1);
 	dst.releaseLine(y + 2, dstLine2);
@@ -149,21 +150,20 @@ void RGBTriplet3xScaler<Pixel>::doScale2(FrameSource& src,
 	VLA_SSE_ALIGNED(Pixel, buf, srcWidth);
 	auto [c1, c2] = calcBlur();
 
-	unsigned dstWidth = dst.getWidth();
 	int scanlineFactor = settings.getScanlineFactor();
 	for (unsigned srcY = srcStartY, dstY = dstStartY; dstY < dstEndY;
 	     srcY += 2, dstY += 3) {
 		auto srcLine0 = src.getLine(srcY + 0, buf);
-		auto* dstLine0 = dst.acquireLine(dstY + 0);
-		scaleLine(srcLine0, std::span{dstLine0, dstWidth}, scale, c1, c2);
+		auto dstLine0 = dst.acquireLine(dstY + 0);
+		scaleLine(srcLine0, dstLine0, scale, c1, c2);
 
 		auto srcLine1 = src.getLine(srcY + 1, buf);
-		auto* dstLine2 = dst.acquireLine(dstY + 2);
-		scaleLine(srcLine1, std::span{dstLine2, dstWidth}, scale, c1, c2);
+		auto dstLine2 = dst.acquireLine(dstY + 2);
+		scaleLine(srcLine1, dstLine2, scale, c1, c2);
 
-		auto* dstLine1 = dst.acquireLine(dstY + 1);
-		scanline.draw(dstLine0, dstLine2, dstLine1,
-		              scanlineFactor, dstWidth);
+		auto dstLine1 = dst.acquireLine(dstY + 1);
+		scanline.draw(dstLine0, dstLine2,
+		              dstLine1, scanlineFactor);
 
 		dst.releaseLine(dstY + 0, dstLine0);
 		dst.releaseLine(dstY + 1, dstLine1);
@@ -292,20 +292,26 @@ void RGBTriplet3xScaler<Pixel>::scale4x2to3x3(FrameSource& src,
 }
 
 template<std::unsigned_integral Pixel>
-static constexpr void fillLoop(const Pixel* __restrict in, Pixel* __restrict out,
-                               unsigned dstWidth)
+static constexpr void fillLoop(std::span<Pixel, 9> in, std::span<Pixel> out)
 {
+	size_t outSize = out.size();
+	assert(outSize >= 6);
+	assert((outSize % 3) == 0);
+
 	out[0] = in[0];
 	out[1] = in[1];
 	out[2] = in[2];
-	for (unsigned x = 3; x < (dstWidth - 3); x += 3) {
-		out[x + 0] = in[3];
-		out[x + 1] = in[4];
-		out[x + 2] = in[5];
+	auto in3 = in[3];
+	auto in4 = in[4];
+	auto in5 = in[5];
+	for (unsigned x = 3; x < (outSize - 3); x += 3) {
+		out[x + 0] = in3;
+		out[x + 1] = in4;
+		out[x + 2] = in5;
 	}
-	out[dstWidth - 3] = in[6];
-	out[dstWidth - 2] = in[7];
-	out[dstWidth - 1] = in[8];
+	out[outSize - 3] = in[6];
+	out[outSize - 2] = in[7];
+	out[outSize - 1] = in[8];
 }
 
 template<std::unsigned_integral Pixel>
@@ -316,7 +322,6 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank1to3(
 	auto [c1, c2] = calcBlur();
 	int scanlineFactor = settings.getScanlineFactor();
 
-	unsigned dstWidth  = dst.getWidth();
 	unsigned dstHeight = dst.getHeight();
 	unsigned stopDstY = (dstEndY == dstHeight)
 	                  ? dstEndY : dstEndY - 3;
@@ -324,25 +329,25 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank1to3(
 	for (/* */; dstY < stopDstY; srcY += 1, dstY += 3) {
 		auto color = src.getLineColor<Pixel>(srcY);
 
-		Pixel inNormal [3];
-		Pixel outNormal[3 * 3];
+		std::array<Pixel, 3>     inNormal;
+		std::array<Pixel, 3 * 3> outNormal;
+		std::array<Pixel, 3 * 3> outScanline;
 		inNormal[0] = inNormal[1] = inNormal[2] = color;
 		rgbify(inNormal, outNormal, c1, c2);
-		Pixel outScanline[3 * 3];
 		for (auto [i, out] : enumerate(outScanline)) {
 			out = scanline.darken(outNormal[i], scanlineFactor);
 		}
 
-		auto* dstLine0 = dst.acquireLine(dstY + 0);
-		fillLoop(outNormal, dstLine0, dstWidth);
+		auto dstLine0 = dst.acquireLine(dstY + 0);
+		fillLoop(std::span{outNormal}, dstLine0);
 		dst.releaseLine(dstY + 0, dstLine0);
 
-		auto* dstLine1 = dst.acquireLine(dstY + 1);
-		fillLoop(outNormal, dstLine1, dstWidth);
+		auto dstLine1 = dst.acquireLine(dstY + 1);
+		fillLoop(std::span{outNormal}, dstLine1);
 		dst.releaseLine(dstY + 1, dstLine1);
 
-		auto* dstLine2 = dst.acquireLine(dstY + 2);
-		fillLoop(outScanline, dstLine2, dstWidth);
+		auto dstLine2 = dst.acquireLine(dstY + 2);
+		fillLoop(std::span{outScanline}, dstLine2);
 		dst.releaseLine(dstY + 2, dstLine2);
 	}
 	if (dstY != dstHeight) {
@@ -361,16 +366,15 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank2to3(
 {
 	auto [c1, c2] = calcBlur();
 	int scanlineFactor = settings.getScanlineFactor();
-	unsigned dstWidth = dst.getWidth();
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 2, dstY += 3) {
 		auto color0 = src.getLineColor<Pixel>(srcY + 0);
 		auto color1 = src.getLineColor<Pixel>(srcY + 1);
 
-		Pixel inNormal [3];
-		Pixel out0Normal[3 * 3];
-		Pixel out1Normal[3 * 3];
-		Pixel outScanline[3 * 3];
+		std::array<Pixel, 3> inNormal;
+		std::array<Pixel, 3 * 3> out0Normal;
+		std::array<Pixel, 3 * 3> out1Normal;
+		std::array<Pixel, 3 * 3> outScanline;
 
 		inNormal[0] = inNormal[1] = inNormal[2] = color0;
 		rgbify(inNormal, out0Normal, c1, c2);
@@ -383,16 +387,16 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank2to3(
 				scanlineFactor);
 		}
 
-		auto* dstLine0 = dst.acquireLine(dstY + 0);
-		fillLoop(out0Normal,  dstLine0, dstWidth);
+		auto dstLine0 = dst.acquireLine(dstY + 0);
+		fillLoop(std::span{out0Normal}, dstLine0);
 		dst.releaseLine(dstY + 0, dstLine0);
 
-		auto* dstLine1 = dst.acquireLine(dstY + 1);
-		fillLoop(outScanline, dstLine1, dstWidth);
+		auto dstLine1 = dst.acquireLine(dstY + 1);
+		fillLoop(std::span{outScanline}, dstLine1);
 		dst.releaseLine(dstY + 1, dstLine1);
 
-		auto* dstLine2 = dst.acquireLine(dstY + 2);
-		fillLoop(out1Normal,  dstLine2, dstWidth);
+		auto dstLine2 = dst.acquireLine(dstY + 2);
+		fillLoop(std::span{out1Normal}, dstLine2);
 		dst.releaseLine(dstY + 2, dstLine2);
 	}
 }

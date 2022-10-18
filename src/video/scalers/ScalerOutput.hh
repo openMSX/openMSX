@@ -2,6 +2,7 @@
 #define SCALEROUTPUT_HH
 
 #include <concepts>
+#include <span>
 
 namespace openmsx {
 
@@ -13,9 +14,9 @@ public:
 	[[nodiscard]] virtual unsigned getWidth()  const = 0;
 	[[nodiscard]] virtual unsigned getHeight() const = 0;
 
-	[[nodiscard]] virtual Pixel* acquireLine(unsigned y) = 0;
-	virtual void   releaseLine(unsigned y, Pixel* buf) = 0;
-	virtual void   fillLine   (unsigned y, Pixel color) = 0;
+	[[nodiscard]] virtual std::span<Pixel> acquireLine(unsigned y) = 0;
+	virtual void releaseLine(unsigned y, std::span<Pixel> buf) = 0;
+	virtual void fillLine   (unsigned y, Pixel color) = 0;
 	// TODO add copyLine() optimization
 
 protected:
