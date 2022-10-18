@@ -4,6 +4,7 @@
 #include "MSXFDC.hh"
 #include "RomBlockDebuggable.hh"
 #include "TC8566AF.hh"
+#include <span>
 
 namespace openmsx {
 
@@ -30,7 +31,7 @@ private:
 private:
 	TC8566AF controller;
 	RomBlockDebuggable romBlockDebug;
-	const byte* memory;
+	std::span<const byte, 0x4000> memory;
 	const byte blockMask;
 	byte bank;
 	const Type type;

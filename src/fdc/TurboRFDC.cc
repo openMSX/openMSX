@@ -42,6 +42,7 @@ TurboRFDC::TurboRFDC(const DeviceConfig& config)
 	, controller(getScheduler(), reinterpret_cast<DiskDrive**>(drives),
 	             getCliComm(), getCurrentTime())
 	, romBlockDebug(*this, std::span{&bank, 1}, 0x4000, 0x4000, 14)
+	, memory(subspan<0x4000>(*rom))
 	, blockMask((rom->size() / 0x4000) - 1)
 	, type(parseType(config))
 {
@@ -194,7 +195,7 @@ void TurboRFDC::setBank(byte value)
 {
 	invalidateDeviceRCache(0x4000, 0x4000);
 	bank = value & blockMask;
-	memory = &(*rom)[0x4000 * bank];
+	memory = subspan<0x4000>(*rom, 0x4000 * bank);
 }
 
 byte* TurboRFDC::getWriteCacheLine(word address) const
