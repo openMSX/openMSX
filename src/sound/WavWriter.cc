@@ -19,25 +19,25 @@ WavWriter::WavWriter(const Filename& filename,
 {
 	// write wav header
 	struct WavHeader {
-		char        chunkID[4];     // + 0 'RIFF'
-		Endian::L32 chunkSize;      // + 4 total size
-		char        format[4];      // + 8 'WAVE'
-		char        subChunk1ID[4]; // +12 'fmt '
-		Endian::L32 subChunk1Size;  // +16 = 16 (fixed)
-		Endian::L16 audioFormat;    // +20 =  1 (fixed)
-		Endian::L16 numChannels;    // +22
-		Endian::L32 sampleRate;     // +24
-		Endian::L32 byteRate;       // +28
-		Endian::L16 blockAlign;     // +32
-		Endian::L16 bitsPerSample;  // +34
-		char        subChunk2ID[4]; // +36 'data'
-		Endian::L32 subChunk2Size;  // +40
+		std::array<char, 4> chunkID;       // + 0 'RIFF'
+		Endian::L32         chunkSize;     // + 4 total size
+		std::array<char, 4> format;        // + 8 'WAVE'
+		std::array<char, 4> subChunk1ID;   // +12 'fmt '
+		Endian::L32         subChunk1Size; // +16 = 16 (fixed)
+		Endian::L16         audioFormat;   // +20 =  1 (fixed)
+		Endian::L16         numChannels;   // +22
+		Endian::L32         sampleRate;    // +24
+		Endian::L32         byteRate;      // +28
+		Endian::L16         blockAlign;    // +32
+		Endian::L16         bitsPerSample; // +34
+		std::array<char, 4> subChunk2ID;   // +36 'data'
+		Endian::L32         subChunk2Size; // +40
 	} header;
 
-	ranges::copy(std::string_view("RIFF"), std::begin(header.chunkID)); // TODO simplify
+	ranges::copy(std::string_view("RIFF"), header.chunkID);
 	header.chunkSize     = 0; // actual value filled in later
-	ranges::copy(std::string_view("WAVE"), std::begin(header.format)); // TODO
-	ranges::copy(std::string_view("fmt "), std::begin(header.subChunk1ID)); // TODO
+	ranges::copy(std::string_view("WAVE"), header.format);
+	ranges::copy(std::string_view("fmt "), header.subChunk1ID);
 	header.subChunk1Size = 16;
 	header.audioFormat   = 1;
 	header.numChannels   = channels;
@@ -45,7 +45,7 @@ WavWriter::WavWriter(const Filename& filename,
 	header.byteRate      = (channels * frequency * bits) / 8;
 	header.blockAlign    = (channels * bits) / 8;
 	header.bitsPerSample = bits;
-	ranges::copy(std::string_view("data"), std::begin(header.subChunk2ID)); // TODO
+	ranges::copy(std::string_view("data"), header.subChunk2ID);
 	header.subChunk2Size = 0; // actual value filled in later
 
 	file.write(std::span{&header, 1});

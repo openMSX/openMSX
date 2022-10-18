@@ -48,12 +48,6 @@ public:
 	Wav8Writer(const Filename& filename, unsigned channels, unsigned frequency)
 		: WavWriter(filename, channels, 8, frequency) {}
 
-	void write(const uint8_t* buffer, unsigned channels, unsigned samples) {
-		assert(channels == one_of(1u, 2u));
-		write(std::span{buffer, channels * samples});
-	}
-
-private:
 	void write(std::span<const uint8_t> buffer);
 };
 
@@ -65,20 +59,10 @@ public:
 	Wav16Writer(const Filename& filename, unsigned channels, unsigned frequency)
 		: WavWriter(filename, channels, 16, frequency) {}
 
-	void write(const int16_t* buffer, unsigned channels, unsigned samples) {
-		assert(channels == one_of(1u, 2u));
-		write(std::span{buffer, channels * samples});
-	}
+	void write(std::span<const int16_t> buffer);
 	void write(std::span<const float> buffer, float amp = 1.0f);
 	void write(std::span<const StereoFloat> buffer, float ampLeft = 1.0f, float ampRight = 1.0f);
 
-	void writeSilence(unsigned channels, unsigned samples) {
-		assert(channels == one_of(1u, 2u));
-		writeSilence(channels * samples);
-	}
-
-private:
-	void write(std::span<const int16_t> buffer);
 	void writeSilence(unsigned samples);
 };
 

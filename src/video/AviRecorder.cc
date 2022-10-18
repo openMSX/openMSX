@@ -165,7 +165,7 @@ void AviRecorder::addWave(std::span<const StereoFloat> data)
 		}
 
 		if (wavWriter) {
-			wavWriter->write(buf.data(), 1, buf.size());
+			wavWriter->write(buf);
 		} else {
 			assert(aviWriter);
 			append(audioBuf, buf);

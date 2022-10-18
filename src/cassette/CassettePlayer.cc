@@ -533,14 +533,14 @@ void CassettePlayer::fillBuf(size_t length, double x)
 	double y = lastY + (x - lastX);
 
 	while (length) {
-		size_t len = std::min(length, BUF_SIZE - sampCnt);
+		size_t len = std::min(length, buf.size() - sampCnt);
 		repeat(len, [&] {
 			buf[sampCnt++] = int(y) + 128;
 			y *= A;
 		});
 		length -= len;
-		assert(sampCnt <= BUF_SIZE);
-		if (BUF_SIZE == sampCnt) {
+		assert(sampCnt <= buf.size());
+		if (sampCnt == buf.size()) {
 			flushOutput();
 		}
 	}
@@ -551,7 +551,7 @@ void CassettePlayer::fillBuf(size_t length, double x)
 void CassettePlayer::flushOutput()
 {
 	try {
-		recordImage->write(buf, 1, unsigned(sampCnt));
+		recordImage->write(subspan(buf, 0, sampCnt));
 		sampCnt = 0;
 		recordImage->flush(); // update wav header
 	} catch (MSXException& e) {

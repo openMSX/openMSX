@@ -258,7 +258,7 @@ bool SoundDevice::mixChannels(float* dataOut, unsigned samples)
 						amp.left, amp.right);
 				}
 			} else {
-				writer[i]->writeSilence(stereo, samples);
+				writer[i]->writeSilence(stereo * samples);
 			}
 		}
 	}

@@ -13,8 +13,9 @@
 #include "BooleanSetting.hh"
 #include "outer.hh"
 #include "serialize_meta.hh"
-#include <string>
+#include <array>
 #include <memory>
+#include <string>
 
 namespace openmsx {
 
@@ -140,8 +141,7 @@ private:
 	void execSyncAudioEmu(EmuTime::param time);
 	EmuTime::param getCurrentTime() const { return syncEndOfTape.getCurrentTime(); }
 
-	static constexpr size_t BUF_SIZE = 1024;
-	unsigned char buf[BUF_SIZE];
+	std::array<unsigned char, 1024> buf;
 
 	double lastX; // last unfiltered output
 	double lastY; // last filtered output
