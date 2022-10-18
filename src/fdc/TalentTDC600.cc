@@ -9,8 +9,7 @@ namespace openmsx {
 
 TalentTDC600::TalentTDC600(const DeviceConfig& config)
 	: MSXFDC(config)
-	, controller(getScheduler(), reinterpret_cast<DiskDrive**>(drives),
-	             getCliComm(), getCurrentTime())
+	, controller(getScheduler(), drives, getCliComm(), getCurrentTime())
 {
 	reset(getCurrentTime());
 }

@@ -11,57 +11,58 @@
 #include "MSXException.hh"
 #include "one_of.hh"
 #include "serialize.hh"
+#include "view.hh"
 #include "xrange.hh"
 
 namespace openmsx {
 
-constexpr uint8_t STM_DB0 = 0x01; // FDD 0 Busy
-constexpr uint8_t STM_DB1 = 0x02; // FDD 1 Busy
-constexpr uint8_t STM_DB2 = 0x04; // FDD 2 Busy
-constexpr uint8_t STM_DB3 = 0x08; // FDD 3 Busy
-constexpr uint8_t STM_CB  = 0x10; // FDC Busy
-constexpr uint8_t STM_NDM = 0x20; // Non-DMA mode
-constexpr uint8_t STM_DIO = 0x40; // Data Input/Output
-constexpr uint8_t STM_RQM = 0x80; // Request for Master
+static constexpr uint8_t STM_DB0 = 0x01; // FDD 0 Busy
+static constexpr uint8_t STM_DB1 = 0x02; // FDD 1 Busy
+static constexpr uint8_t STM_DB2 = 0x04; // FDD 2 Busy
+static constexpr uint8_t STM_DB3 = 0x08; // FDD 3 Busy
+static constexpr uint8_t STM_CB  = 0x10; // FDC Busy
+static constexpr uint8_t STM_NDM = 0x20; // Non-DMA mode
+static constexpr uint8_t STM_DIO = 0x40; // Data Input/Output
+static constexpr uint8_t STM_RQM = 0x80; // Request for Master
 
-constexpr uint8_t ST0_DS0 = 0x01; // Drive Select 0,1
-constexpr uint8_t ST0_DS1 = 0x02; //
-constexpr uint8_t ST0_HD  = 0x04; // Head Address
-constexpr uint8_t ST0_NR  = 0x08; // Not Ready
-constexpr uint8_t ST0_EC  = 0x10; // Equipment Check
-constexpr uint8_t ST0_SE  = 0x20; // Seek End
-constexpr uint8_t ST0_IC0 = 0x40; // Interrupt Code
-constexpr uint8_t ST0_IC1 = 0x80; //
+static constexpr uint8_t ST0_DS0 = 0x01; // Drive Select 0,1
+static constexpr uint8_t ST0_DS1 = 0x02; //
+static constexpr uint8_t ST0_HD  = 0x04; // Head Address
+static constexpr uint8_t ST0_NR  = 0x08; // Not Ready
+static constexpr uint8_t ST0_EC  = 0x10; // Equipment Check
+static constexpr uint8_t ST0_SE  = 0x20; // Seek End
+static constexpr uint8_t ST0_IC0 = 0x40; // Interrupt Code
+static constexpr uint8_t ST0_IC1 = 0x80; //
 
-constexpr uint8_t ST1_MA  = 0x01; // Missing Address Mark
-constexpr uint8_t ST1_NW  = 0x02; // Not Writable
-constexpr uint8_t ST1_ND  = 0x04; // No Data
-//                        = 0x08; // -
-constexpr uint8_t ST1_OR  = 0x10; // Over Run
-constexpr uint8_t ST1_DE  = 0x20; // Data Error
-//                        = 0x40; // -
-constexpr uint8_t ST1_EN  = 0x80; // End of Cylinder
+static constexpr uint8_t ST1_MA  = 0x01; // Missing Address Mark
+static constexpr uint8_t ST1_NW  = 0x02; // Not Writable
+static constexpr uint8_t ST1_ND  = 0x04; // No Data
+//                               = 0x08; // -
+static constexpr uint8_t ST1_OR  = 0x10; // Over Run
+static constexpr uint8_t ST1_DE  = 0x20; // Data Error
+//                               = 0x40; // -
+static constexpr uint8_t ST1_EN  = 0x80; // End of Cylinder
 
-constexpr uint8_t ST2_MD  = 0x01; // Missing Address Mark in Data Field
-constexpr uint8_t ST2_BC  = 0x02; // Bad Cylinder
-constexpr uint8_t ST2_SN  = 0x04; // Scan Not Satisfied
-constexpr uint8_t ST2_SH  = 0x08; // Scan Equal Satisfied
-constexpr uint8_t ST2_NC  = 0x10; // No cylinder
-constexpr uint8_t ST2_DD  = 0x20; // Data Error in Data Field
-constexpr uint8_t ST2_CM  = 0x40; // Control Mark
-//                        = 0x80; // -
+static constexpr uint8_t ST2_MD  = 0x01; // Missing Address Mark in Data Field
+static constexpr uint8_t ST2_BC  = 0x02; // Bad Cylinder
+static constexpr uint8_t ST2_SN  = 0x04; // Scan Not Satisfied
+static constexpr uint8_t ST2_SH  = 0x08; // Scan Equal Satisfied
+static constexpr uint8_t ST2_NC  = 0x10; // No cylinder
+static constexpr uint8_t ST2_DD  = 0x20; // Data Error in Data Field
+static constexpr uint8_t ST2_CM  = 0x40; // Control Mark
+//                               = 0x80; // -
 
-constexpr uint8_t ST3_DS0 = 0x01; // Drive Select 0
-constexpr uint8_t ST3_DS1 = 0x02; // Drive Select 1
-constexpr uint8_t ST3_HD  = 0x04; // Head Address
-constexpr uint8_t ST3_2S  = 0x08; // Two Side
-constexpr uint8_t ST3_TK0 = 0x10; // Track 0
-constexpr uint8_t ST3_RDY = 0x20; // Ready
-constexpr uint8_t ST3_WP  = 0x40; // Write Protect
-constexpr uint8_t ST3_FLT = 0x80; // Fault
+static constexpr uint8_t ST3_DS0 = 0x01; // Drive Select 0
+static constexpr uint8_t ST3_DS1 = 0x02; // Drive Select 1
+static constexpr uint8_t ST3_HD  = 0x04; // Head Address
+static constexpr uint8_t ST3_2S  = 0x08; // Two Side
+static constexpr uint8_t ST3_TK0 = 0x10; // Track 0
+static constexpr uint8_t ST3_RDY = 0x20; // Ready
+static constexpr uint8_t ST3_WP  = 0x40; // Write Protect
+static constexpr uint8_t ST3_FLT = 0x80; // Fault
 
 
-TC8566AF::TC8566AF(Scheduler& scheduler_, DiskDrive* drv[4], CliComm& cliComm_,
+TC8566AF::TC8566AF(Scheduler& scheduler_, std::span<std::unique_ptr<DiskDrive>, 4> drv, CliComm& cliComm_,
                    EmuTime::param time)
 	: Schedulable(scheduler_)
 	, cliComm(cliComm_)
@@ -72,19 +73,16 @@ TC8566AF::TC8566AF(Scheduler& scheduler_, DiskDrive* drv[4], CliComm& cliComm_,
 {
 	setDrqRate(RawTrack::STANDARD_SIZE);
 
-	drive[0] = drv[0];
-	drive[1] = drv[1];
-	drive[2] = drv[2];
-	drive[3] = drv[3];
+	ranges::copy(view::transform(drv, [](auto& p) { return p.get(); }),
+	             drive);
 	reset(time);
 }
 
 void TC8566AF::reset(EmuTime::param time)
 {
-	drive[0]->setMotor(false, time);
-	drive[1]->setMotor(false, time);
-	drive[2]->setMotor(false, time);
-	drive[3]->setMotor(false, time);
+	for (auto* d : drive) {
+		d->setMotor(false, time);
+	}
 	//enableIntDma = 0;
 	//notReset = 1;
 	driveSelect = 0;

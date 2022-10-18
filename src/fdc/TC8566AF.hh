@@ -5,7 +5,9 @@
 #include "CRC16.hh"
 #include "Schedulable.hh"
 #include "serialize_meta.hh"
+#include <array>
 #include <cstdint>
+#include <span>
 
 namespace openmsx {
 
@@ -16,7 +18,7 @@ class CliComm;
 class TC8566AF final : public Schedulable
 {
 public:
-	TC8566AF(Scheduler& scheduler, DiskDrive* drv[4], CliComm& cliComm,
+	TC8566AF(Scheduler& scheduler, std::span<std::unique_ptr<DiskDrive>, 4>, CliComm& cliComm,
 	         EmuTime::param time);
 
 	void reset(EmuTime::param time);
@@ -94,7 +96,7 @@ private:
 
 private:
 	CliComm& cliComm;
-	DiskDrive* drive[4];
+	std::array<DiskDrive*, 4> drive;
 	DynamicClock delayTime;
 	EmuTime headUnloadTime; // Before this time head is loaded, after
 	                        // this time it's unloaded. Set to zero/infinity
@@ -126,7 +128,7 @@ private:
 	uint8_t sectorsPerCylinder;
 	uint8_t fillerByte;
 	uint8_t gapLength;
-	uint8_t specifyData[2]; // filled in by SPECIFY command
+	std::array<uint8_t, 2> specifyData; // filled in by SPECIFY command
 
 	struct SeekInfo {
 		EmuTime time = EmuTime::zero();
@@ -136,7 +138,8 @@ private:
 
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);
-	} seekInfo[4];
+	};
+	std::array<SeekInfo, 4> seekInfo;
 };
 SERIALIZE_CLASS_VERSION(TC8566AF, 7);
 

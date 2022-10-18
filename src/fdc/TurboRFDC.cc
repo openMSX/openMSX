@@ -39,8 +39,7 @@ namespace openmsx {
 
 TurboRFDC::TurboRFDC(const DeviceConfig& config)
 	: MSXFDC(config)
-	, controller(getScheduler(), reinterpret_cast<DiskDrive**>(drives),
-	             getCliComm(), getCurrentTime())
+	, controller(getScheduler(), drives, getCliComm(), getCurrentTime())
 	, romBlockDebug(*this, std::span{&bank, 1}, 0x4000, 0x4000, 14)
 	, memory(subspan<0x4000>(*rom))
 	, blockMask((rom->size() / 0x4000) - 1)
