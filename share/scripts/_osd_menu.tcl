@@ -1552,7 +1552,14 @@ proc menu_create_extensions_list {{slot "none"}} {
 	set presentation [list]
 
 	foreach i $items {
-		lappend presentation [utils::get_extension_display_name_by_config_name $i]
+		set extra ""
+		catch {
+			set type [dict get [openmsx_info extensions $i] type]
+			if {[string length $type] > 0} {
+				set extra " ($type)"
+			}
+		}
+		lappend presentation "[utils::get_extension_display_name_by_config_name $i]$extra"
 	}
 
 	set items_sorted [list]
