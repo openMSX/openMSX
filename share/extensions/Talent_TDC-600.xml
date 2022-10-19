@@ -2,7 +2,7 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
-    <name>Talent TDC-600 disk drive</name>
+    <name>disk drive</name>
     <manufacturer>Talent</manufacturer>
     <code>TDC-600</code>
     <release_year>????</release_year>

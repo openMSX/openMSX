@@ -7,7 +7,7 @@
     <code></code>
     <release_year>1986</release_year>
     <description>JVC UK's MSX MIDI interface</description>
-    <type>sound expansion</type>
+    <type>MIDI cartridge</type>
   </info>
   <devices>
     <JVCMSXMIDI id="JVC MSX MIDI">
