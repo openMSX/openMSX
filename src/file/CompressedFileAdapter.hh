@@ -19,8 +19,8 @@ public:
 		unsigned useCount = 0;
 	};
 
-	void read(void* buffer, size_t num) final;
-	void write(const void* buffer, size_t num) final;
+	void read(std::span<uint8_t> buffer) final;
+	void write(std::span<const uint8_t> buffer) final;
 	[[nodiscard]] std::span<const uint8_t> mmap() final;
 	void munmap() final;
 	[[nodiscard]] size_t getSize() final;

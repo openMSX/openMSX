@@ -103,7 +103,7 @@ unsigned IDECDROM::readBlockStart(AlignedBuffer& buf, unsigned count)
 	if (file.is_open()) {
 		//fprintf(stderr, "read sector data at %08X\n", transferOffset);
 		file.seek(transferOffset);
-		file.read(buf, count);
+		file.read(std::span{buf.data(), count});
 		transferOffset += count;
 		return count;
 	} else {

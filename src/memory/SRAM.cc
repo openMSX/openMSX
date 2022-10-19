@@ -75,7 +75,7 @@ void SRAM::memset(size_t addr, byte c, size_t aSize)
 		schedulable->scheduleRT(5000000); // sync to disk after 5s
 	}
 	assert((addr + aSize) <= size());
-	ranges::fill(std::span{ram.getWriteBackdoor() + addr, aSize}, c);
+	ranges::fill(ram.getWriteBackdoor().subspan(addr, aSize), c);
 }
 
 void SRAM::load(bool* loaded)
@@ -90,11 +90,11 @@ void SRAM::load(bool* loaded)
 		if (header) {
 			size_t length = strlen(header);
 			VLA(char, buf, length);
-			file.read(buf.data(), buf.size_bytes());
+			file.read(buf);
 			headerOk = ranges::equal(buf, std::span{header, length});
 		}
 		if (headerOk) {
-			file.read(ram.getWriteBackdoor(), size());
+			file.read(ram.getWriteBackdoor());
 			loadedFilename = file.getURL();
 			if (loaded) *loaded = true;
 		} else {
@@ -120,10 +120,11 @@ void SRAM::save()
 		File file(config.getFileContext().resolveCreate(filename),
 			  File::SAVE_PERSISTENT);
 		if (header) {
-			int length = int(strlen(header));
-			file.write(header, length);
+			auto length = strlen(header);
+			file.write(std::span{header, length});
 		}
-		file.write(&ram[0], size());
+		//file.write(std::span{ram}); // TODO error with clang-15/libc++
+		file.write(std::span{ram.begin(), ram.end()});
 	} catch (FileException& e) {
 		config.getCliComm().printWarning(
 			"Couldn't save SRAM ", filename,

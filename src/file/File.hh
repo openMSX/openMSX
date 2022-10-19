@@ -72,14 +72,24 @@ public:
 	 * @param num Number of bytes to read
 	 * @throws FileException
 	 */
-	void read(void* buffer, size_t num);
+	void read(std::span<uint8_t> buffer);
+
+	template<typename T>
+	void read(std::span<T> buffer) {
+		read(std::span<uint8_t>{reinterpret_cast<uint8_t*>(buffer.data()), buffer.size_bytes()});
+	}
 
 	/** Write to file.
 	 * @param buffer Source address
 	 * @param num Number of bytes to write
 	 * @throws FileException
 	 */
-	void write(const void* buffer, size_t num);
+	void write(std::span<const uint8_t> buffer);
+
+	template<typename T>
+	void write(std::span<T> buffer) {
+		write(std::span<const uint8_t>{reinterpret_cast<const uint8_t*>(buffer.data()), buffer.size_bytes()});
+	}
 
 	/** Map file in memory.
 	 * @result Pointer/size to/of memory block.

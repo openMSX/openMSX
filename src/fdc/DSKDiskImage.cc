@@ -23,13 +23,13 @@ void DSKDiskImage::readSectorsImpl(
 	SectorBuffer* buffers, size_t startSector, size_t num)
 {
 	file->seek(startSector * sizeof(SectorBuffer));
-	file->read(buffers, num * sizeof(SectorBuffer));
+	file->read(std::span{buffers, num});
 }
 
 void DSKDiskImage::writeSectorImpl(size_t sector, const SectorBuffer& buf)
 {
 	file->seek(sector * sizeof(buf));
-	file->write(&buf, sizeof(buf));
+	file->write(buf.raw);
 }
 
 bool DSKDiskImage::isWriteProtectedImpl() const

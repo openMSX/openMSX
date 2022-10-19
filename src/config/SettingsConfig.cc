@@ -94,7 +94,7 @@ void SettingsConfig::loadSetting(const FileContext& context, std::string_view fi
 		File file(resolved);
 		auto size = file.getSize();
 		buf.resize(size + rapidsax::EXTRA_BUFFER_SPACE);
-		file.read(buf.data(), size);
+		file.read(std::span{buf.data(), size});
 		buf[size] = 0;
 	} catch (FileException& e) {
 		throw MSXException("Failed to read settings file '", filename,
@@ -161,14 +161,14 @@ void SettingsConfig::saveSetting(std::string filename)
 		{
 			std::string_view header =
 				"<!DOCTYPE settings SYSTEM 'settings.dtd'>\n";
-			write(header.data(), header.size());
+			write(header);
 		}
 
-		void write(const char* buf, size_t len) {
-			file.write(buf, len);
+		void write(std::span<const char> buf) {
+			file.write(buf);
 		}
 		void write1(char c) {
-			file.write(&c, 1);
+			file.write(std::span{&c, 1});
 		}
 		void check(bool condition) const {
 			assert(condition); (void)condition;

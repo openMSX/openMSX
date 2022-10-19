@@ -23,7 +23,7 @@ TEST_CASE("MemoryBufferFile")
 	// seek and read small part
 	file.seek(2);
 	CHECK(file.getPos() == 2);
-	file.read(tmp.data(), 3);
+	file.read(subspan(tmp, 0, 3));
 	CHECK(file.getPos() == 5);
 	CHECK(tmp[0] == 3);
 	CHECK(tmp[1] == 4);
@@ -32,22 +32,22 @@ TEST_CASE("MemoryBufferFile")
 	// seek beyond end of file is ok, but reading there is not
 	file.seek(100);
 	CHECK(file.getPos() == 100);
-	CHECK_THROWS(file.read(tmp.data(), 2));
+	CHECK_THROWS(file.read(subspan(tmp, 0, 2)));
 
 	// try to read more than file size
 	file.seek(0);
 	CHECK(file.getPos() == 0);
-	CHECK_THROWS(file.read(tmp.data(), 100));
+	CHECK_THROWS(file.read(subspan(tmp, 0, 100)));
 	CHECK(file.getPos() == 0);
 
 	// read full file
 	file.seek(0);
-	file.read(tmp.data(), file.getSize());
+	file.read(std::span{tmp.data(), file.getSize()});
 	for (auto i : xrange(10)) {
 		CHECK(tmp[i] == (i + 1));
 	}
 	CHECK(file.getPos() == file.getSize());
 
 	// writing is not supported
-	CHECK_THROWS(file.write(tmp.data(), file.getSize()));
+	CHECK_THROWS(file.write(std::span{tmp.data(), file.getSize()}));
 }

@@ -16,28 +16,28 @@ std::vector<IPSPatch::Chunk> IPSPatch::parseChunks() const
 	File ipsFile(filename);
 
 	std::array<uint8_t, 5> header;
-	ipsFile.read(header.data(), 5);
+	ipsFile.read(header);
 	if (!ranges::equal(header, std::string_view("PATCH"))) {
 		throw MSXException("Invalid IPS file: ", filename.getOriginal());
 	}
 	std::array<uint8_t, 3> offsetBuf;
-	ipsFile.read(offsetBuf.data(), 3);
+	ipsFile.read(offsetBuf);
 	while (!ranges::equal(offsetBuf, std::string_view("EOF"))) {
 		size_t offset = 0x10000 * offsetBuf[0] + 0x100 * offsetBuf[1] + offsetBuf[2];
 		std::array<uint8_t, 2> lenBuf;
-		ipsFile.read(lenBuf.data(), 2);
+		ipsFile.read(lenBuf);
 		size_t length = 0x100 * lenBuf[0] + lenBuf[1];
 		std::vector<byte> v;
 		if (length == 0) {
 			// RLE encoded
 			std::array<uint8_t, 3> rleBuf;
-			ipsFile.read(rleBuf.data(), 3);
+			ipsFile.read(rleBuf);
 			length = 0x100 * rleBuf[0] + rleBuf[1];
 			v.resize(length, rleBuf[2]);
 		} else {
 			// patch bytes
 			v.resize(length);
-			ipsFile.read(&v.front(), length);
+			ipsFile.read(v);
 		}
 		// find overlapping or adjacent patch regions
 		auto b = ranges::lower_bound(result, offset, {}, &Chunk::startAddress);
@@ -65,7 +65,7 @@ std::vector<IPSPatch::Chunk> IPSPatch::parseChunks() const
 			result.emplace(b, Chunk{offset, std::move(v)});
 		}
 
-		ipsFile.read(offsetBuf.data(), 3);
+		ipsFile.read(offsetBuf);
 	}
 	return result;
 }

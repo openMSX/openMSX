@@ -30,7 +30,7 @@ void PrinterPortLogger::setStrobe(bool strobe, EmuTime::param /*time*/)
 {
 	if (file.is_open() && !strobe && prevStrobe) {
 		// falling edge
-		file.write(&toPrint, 1);
+		file.write(std::span{&toPrint, 1});
 		file.flush(); // optimize when it turns out flushing
 		               // every time is too slow
 	}

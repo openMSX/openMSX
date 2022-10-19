@@ -589,7 +589,7 @@ RomDatabase::RomDatabase(CliComm& cliComm)
 			auto size = file.getSize();
 			auto* buf = &buffer[bufferOffset];
 			bufferOffset += size + rapidsax::EXTRA_BUFFER_SPACE;
-			file.read(buf, size);
+			file.read(std::span{buf, size});
 			buf[size] = 0;
 
 			parseDB(cliComm, buf, buffer.data(), db, unknownTypes);

@@ -379,7 +379,7 @@ unsigned SCSILS120::readSector(unsigned& blocks)
 	try {
 		// TODO: somehow map this to SectorAccessibleDisk::readSector?
 		file.seek(SECTOR_SIZE * currentSector);
-		file.read(buffer, SECTOR_SIZE * numSectors);
+		file.read(std::span{buffer.data(), SECTOR_SIZE * numSectors});
 		currentSector += numSectors;
 		currentLength -= numSectors;
 		blocks = currentLength;
@@ -414,7 +414,7 @@ unsigned SCSILS120::writeSector(unsigned& blocks)
 	// TODO: somehow map this to SectorAccessibleDisk::writeSector?
 	try {
 		file.seek(SECTOR_SIZE * currentSector);
-		file.write(buffer, SECTOR_SIZE * numSectors);
+		file.write(std::span{buffer.data(), SECTOR_SIZE * numSectors});
 		currentSector += numSectors;
 		currentLength -= numSectors;
 
@@ -446,7 +446,7 @@ void SCSILS120::formatUnit()
 		memset(buffer, 0, SECTOR_SIZE);
 		try {
 			file.seek(0);
-			file.write(buffer, SECTOR_SIZE);
+			file.write(std::span{buffer.data(), SECTOR_SIZE});
 			unitAttention = true;
 			mediaChanged = true;
 		} catch (FileException&) {
@@ -709,13 +709,13 @@ void SCSILS120::readSectorsImpl(
 	SectorBuffer* buffers, size_t startSector, size_t num)
 {
 	file.seek(startSector * sizeof(SectorBuffer));
-	file.read(buffers, num * sizeof(SectorBuffer));
+	file.read(std::span{buffers, num});
 }
 
 void SCSILS120::writeSectorImpl(size_t sector, const SectorBuffer& buf)
 {
 	file.seek(sizeof(buf) * sector);
-	file.write(&buf, sizeof(buf));
+	file.write(buf.raw);
 }
 
 SectorAccessibleDisk* SCSILS120::getSectorAccessibleDisk()

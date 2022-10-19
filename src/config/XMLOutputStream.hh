@@ -2,7 +2,9 @@
 #define XMLOUTPUTSTREAM_HH
 
 #include "XMLEscape.hh"
+#include "ranges.hh"
 #include <algorithm>
+#include <array>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -168,12 +170,15 @@ void XMLOutputStream<Writer>::end(std::string_view tag)
 template<typename Writer>
 void XMLOutputStream<Writer>::writeSpaces(unsigned n)
 {
-	static const char* buffer =
-		"                                "
-		"                                ";
+	static constexpr std::array<char, 64> spaces = {
+		' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+		' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+		' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+		' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+	};
 	while (n) {
 		auto t = std::min(64u, n);
-		ops.write(buffer, t);
+		ops.write(subspan(spaces, 0, t));
 		n -= t;
 	}
 }
@@ -187,7 +192,7 @@ void XMLOutputStream<Writer>::writeChar(char c)
 template<typename Writer>
 void XMLOutputStream<Writer>::writeString(std::string_view s)
 {
-	ops.write(s.data(), s.size());
+	ops.write(s);
 }
 
 template<typename Writer>

@@ -31,8 +31,8 @@ AviWriter::AviWriter(const Filename& filename, unsigned width_,
 	, audiowritten(0)
 	, written(0)
 {
-	uint8_t dummy[AVI_HEADER_SIZE] = {};
-	file.write(dummy, sizeof(dummy));
+	std::array<uint8_t, AVI_HEADER_SIZE> dummy = {};
+	file.write(dummy);
 
 	index.resize(2);
 }
@@ -232,9 +232,9 @@ AviWriter::~AviWriter()
 		unsigned idxSize = unsigned(index.size()) * sizeof(Endian::L32);
 		index[0] = ('i' << 0) | ('d' << 8) | ('x' << 16) | ('1' << 24);
 		index[1] = idxSize - 8;
-		file.write(&index[0], idxSize);
+		file.write(std::span{index});
 		file.seek(0);
-		file.write(avi_header, AVI_HEADER_SIZE);
+		file.write(avi_header);
 	} catch (MSXException&) {
 		// can't throw from destructor
 	}
@@ -252,12 +252,12 @@ void AviWriter::addAviChunk(std::span<const char, 4> tag, size_t size_, const vo
 
 	ranges::copy(tag, chunk.t);
 	chunk.s = size;
-	file.write(&chunk, sizeof(chunk));
+	file.write(std::span{&chunk, 1});
 
-	unsigned writesize = (size + 1) & ~1;
-	file.write(data, writesize);
+	unsigned writeSize = (size + 1) & ~1;
+	file.write(std::span{static_cast<const uint8_t*>(data), writeSize});
 	unsigned pos = written + 4;
-	written += writesize + 8;
+	written += writeSize + 8;
 
 	size_t idxSize = index.size();
 	index.resize(idxSize + 4);

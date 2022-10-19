@@ -781,7 +781,7 @@ bool OggReader::nextPage(ogg_page* page)
 		}
 
 		char* buffer = ogg_sync_buffer(&sync, long(chunk));
-		file.read(buffer, chunk);
+		file.read(std::span{buffer, chunk});
 		fileOffset += chunk;
 
 		if (ogg_sync_wrote(&sync, long(chunk)) == -1) {

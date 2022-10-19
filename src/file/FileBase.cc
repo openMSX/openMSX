@@ -13,7 +13,7 @@ std::span<const uint8_t> FileBase::mmap()
 		seek(0);
 
 		MemBuffer<uint8_t> tmpBuf(size);
-		read(tmpBuf.data(), size);
+		read(std::span{tmpBuf.data(), size});
 		std::swap(mmapBuf, tmpBuf);
 
 		seek(pos);
@@ -36,12 +36,10 @@ void FileBase::truncate(size_t newSize)
 	auto remaining = newSize - oldSize;
 	seek(oldSize);
 
-	constexpr size_t BUF_SIZE = 4096;
-	uint8_t buf[BUF_SIZE];
-	ranges::fill(buf, 0);
+	std::array<uint8_t, 4096> buf = {}; // zero-initialized
 	while (remaining) {
-		auto chunkSize = std::min(BUF_SIZE, remaining);
-		write(buf, chunkSize);
+		auto chunkSize = std::min(buf.size(), remaining);
+		write(subspan(buf, 0, chunkSize));
 		remaining -= chunkSize;
 	}
 }

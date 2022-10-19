@@ -52,9 +52,9 @@ public:
 	// method can be used. It will mark the ram as dirty on each
 	// invocation, so the resulting pointer (although the same each time)
 	// should not be reused for multiple (distinct) bulk write operations.
-	[[nodiscard]] byte* getWriteBackdoor() {
+	[[nodiscard]] std::span<byte> getWriteBackdoor() {
 		writeSinceLastReverseSnapshot = true;
-		return &ram[0];
+		return {&ram[0], size()};
 	}
 
 	template<typename Archive>

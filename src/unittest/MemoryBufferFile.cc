@@ -6,16 +6,16 @@
 
 namespace openmsx {
 
-void MemoryBufferFile::read(void* dst, size_t num)
+void MemoryBufferFile::read(std::span<uint8_t> dst)
 {
-	if (getSize() < (getPos() + num)) {
+	if (getSize() < (getPos() + dst.size())) {
 		throw FileException("Read beyond end of file");
 	}
-	ranges::copy(buffer.subspan(pos, num), static_cast<uint8_t*>(dst));
-	pos += num;
+	ranges::copy(buffer.subspan(pos, dst.size()), dst);
+	pos += dst.size();
 }
 
-void MemoryBufferFile::write(const void* /*src*/, size_t /*num*/)
+void MemoryBufferFile::write(std::span<const uint8_t> /*src*/)
 {
 	throw FileException("Writing to MemoryBufferFile not supported");
 }

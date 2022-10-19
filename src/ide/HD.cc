@@ -105,13 +105,13 @@ void HD::readSectorsImpl(
 	SectorBuffer* buffers, size_t startSector, size_t num)
 {
 	file.seek(startSector * sizeof(SectorBuffer));
-	file.read(buffers, num * sizeof(SectorBuffer));
+	file.read(std::span{buffers, num});
 }
 
 void HD::writeSectorImpl(size_t sector, const SectorBuffer& buf)
 {
 	file.seek(sector * sizeof(buf));
-	file.write(&buf, sizeof(buf));
+	file.write(buf.raw);
 	tigerTree->notifyChange(sector * sizeof(buf), sizeof(buf),
 	                        file.getModificationDate());
 }

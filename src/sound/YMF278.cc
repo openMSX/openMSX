@@ -1075,7 +1075,7 @@ void YMF278::serialize(Archive& ar, unsigned version)
 	if (ar.versionAtLeast(version, 4)) {
 		ar.serialize("ram", ram);
 	} else {
-		ar.serialize_blob("ram", std::span{ram.getWriteBackdoor(), ram.size()});
+		ar.serialize_blob("ram", ram.getWriteBackdoor());
 	}
 	ar.serialize_blob("registers", regs);
 	if (ar.versionAtLeast(version, 3)) { // must come after 'regs'

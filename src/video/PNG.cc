@@ -91,7 +91,7 @@ struct PNGReadHandle {
 static void readData(png_structp ctx, png_bytep area, png_size_t size)
 {
 	auto* file = reinterpret_cast<File*>(png_get_io_ptr(ctx));
-	file->read(area, size);
+	file->read(std::span{area, size});
 }
 
 SDLSurfacePtr load(const std::string& filename, bool want32bpp)
@@ -276,7 +276,7 @@ struct PNGWriteHandle {
 static void writeData(png_structp ctx, png_bytep area, png_size_t size)
 {
 	auto* file = reinterpret_cast<File*>(png_get_io_ptr(ctx));
-	file->write(area, size);
+	file->write(std::span{area, size});
 }
 
 static void flushData(png_structp ctx)

@@ -35,6 +35,8 @@ public:
 
 	[[nodiscard]] operator       uint8_t*()       { return p(); }
 	[[nodiscard]] operator const uint8_t*() const { return p(); }
+	[[nodiscard]] const auto* data() const { return p(); }
+	[[nodiscard]]       auto* data()       { return p(); }
 
 	[[nodiscard]] auto* operator+(ptrdiff_t i)       { return p() + i; }
 	[[nodiscard]] auto* operator+(ptrdiff_t i) const { return p() + i; }

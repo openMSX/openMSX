@@ -20,7 +20,7 @@ File::File() = default;
 	std::unique_ptr<FileBase> file = std::make_unique<LocalFile>(std::move(filename), mode);
 	if (file->getSize() >= 4) {
 		std::array<uint8_t, 4> buf;
-		file->read(buf.data(), 4);
+		file->read(buf);
 		file->seek(0);
 		if (ranges::equal(subspan<3>(buf), GZ_HEADER)) {
 			file = std::make_unique<GZFileAdapter>(std::move(file));
@@ -89,14 +89,14 @@ void File::close()
 	file.reset();
 }
 
-void File::read(void* buffer, size_t num)
+void File::read(std::span<uint8_t> buffer)
 {
-	file->read(buffer, num);
+	file->read(buffer);
 }
 
-void File::write(const void* buffer, size_t num)
+void File::write(std::span<const uint8_t> buffer)
 {
-	file->write(buffer, num);
+	file->write(buffer);
 }
 
 std::span<const uint8_t> File::mmap()

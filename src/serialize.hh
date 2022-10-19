@@ -917,7 +917,7 @@ public:
 	void attribute(const char* name, unsigned u);
 
 //internal: // called from XMLOutputStream
-	void write(const char* buf, size_t len);
+	void write(std::span<const char> buf);
 	void write1(char c);
 	void check(bool condition) const;
 	void error();

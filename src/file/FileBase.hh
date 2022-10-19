@@ -14,8 +14,8 @@ class FileBase
 public:
 	virtual ~FileBase() = default;
 
-	virtual void read(void* buffer, size_t num) = 0;
-	virtual void write(const void* buffer, size_t num) = 0;
+	virtual void read(std::span<uint8_t> buffer) = 0;
+	virtual void write(std::span<const uint8_t> buffer) = 0;
 
 	// If you override mmap(), make sure to call munmap() in
 	// your destructor.

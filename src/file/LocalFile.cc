@@ -99,9 +99,9 @@ void LocalFile::preCacheFile()
 	cache.emplace(FileOperations::getNativePath(filename));
 }
 
-void LocalFile::read(void* buffer, size_t num)
+void LocalFile::read(std::span<uint8_t> buffer)
 {
-	if (fread(buffer, 1, num, file.get()) != num) {
+	if (fread(buffer.data(), 1, buffer.size(), file.get()) != buffer.size()) {
 		if (ferror(file.get())) {
 			throw FileException("Error reading file");
 		}
@@ -111,9 +111,9 @@ void LocalFile::read(void* buffer, size_t num)
 	}
 }
 
-void LocalFile::write(const void* buffer, size_t num)
+void LocalFile::write(std::span<const uint8_t> buffer)
 {
-	if (fwrite(buffer, 1, num, file.get()) != num) {
+	if (fwrite(buffer.data(), 1, buffer.size(), file.get()) != buffer.size()) {
 		if (ferror(file.get())) {
 			throw FileException("Error writing file");
 		}

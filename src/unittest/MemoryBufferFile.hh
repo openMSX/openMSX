@@ -13,8 +13,8 @@ public:
 	MemoryBufferFile(std::span<const uint8_t> buffer_)
 		: buffer(buffer_) {}
 
-	void read(void* dst, size_t num) override;
-	void write(const void* src, size_t num) override;
+	void read(std::span<uint8_t> dst) override;
+	void write(std::span<const uint8_t> src) override;
 
 	size_t getSize() override;
 	void seek(size_t newPos) override;

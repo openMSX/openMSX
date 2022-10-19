@@ -337,7 +337,7 @@ void DiskManipulator::savedsk(const DriveSettings& driveData,
 	File file(std::move(filename), File::CREATE);
 	for (auto i : xrange(partition.getNbSectors())) {
 		partition.readSector(i, buf);
-		file.write(&buf, sizeof(buf));
+		file.write(buf.raw);
 	}
 }
 

@@ -170,7 +170,7 @@ void FilePoolCore::readSha1sums()
 	File file(filecache);
 	auto size = file.getSize();
 	fileMem.resize(size + 1);
-	file.read(fileMem.data(), size);
+	file.read(std::span{fileMem.data(), size});
 	fileMem[size] = '\n'; // ensure there's always a '\n' at the end
 
 	// Process each line.

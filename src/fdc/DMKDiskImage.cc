@@ -45,7 +45,7 @@ DMKDiskImage::DMKDiskImage(Filename filename, std::shared_ptr<File> file_)
 {
 	DmkHeader header;
 	file->seek(0);
-	file->read(&header, sizeof(header));
+	file->read(std::span{&header, 1});
 	if (!isValidDmkHeader(header)) {
 		throw MSXException("Not a DMK image");
 	}
@@ -79,11 +79,11 @@ void DMKDiskImage::readTrack(uint8_t track, uint8_t side, RawTrack& output)
 	seekTrack(track, side);
 
 	// Read idam data (still needs to be converted).
-	uint8_t idamBuf[2 * 64];
-	file->read(idamBuf, sizeof(idamBuf));
+	std::array<uint8_t, 2 * 64> idamBuf;
+	file->read(idamBuf);
 
 	// Read raw track data.
-	file->read(output.getRawBuffer(), dmkTrackLen);
+	file->read(output.getRawBuffer());
 
 	// Convert idam data into an easier to work with internal format.
 	int lastIdam = -1;
@@ -137,18 +137,18 @@ void DMKDiskImage::doWriteTrack(uint8_t track, uint8_t side, const RawTrack& inp
 	seekTrack(track, side);
 
 	// Write idam table.
-	uint8_t idamOut[2 * 64] = {}; // zero-initialize
+	std::array<uint8_t, 2 * 64> idamOut = {}; // zero-initialize
 	const auto& idamIn = input.getIdamBuffer();
 	for (auto i : xrange(std::min(64, int(idamIn.size())))) {
 		int t = (idamIn[i] + 128) | FLAG_MFM_SECTOR;
 		idamOut[2 * i + 0] = t & 0xff;
 		idamOut[2 * i + 1] = t >> 8;
 	}
-	file->write(idamOut, sizeof(idamOut));
+	file->write(idamOut);
 
 	// Write raw track data.
 	assert(input.getLength() == dmkTrackLen);
-	file->write(input.getRawBuffer(), dmkTrackLen);
+	file->write(input.getRawBuffer());
 }
 
 void DMKDiskImage::extendImageToTrack(uint8_t track)
@@ -165,8 +165,8 @@ void DMKDiskImage::extendImageToTrack(uint8_t track)
 
 	// update header
 	file->seek(1); // position in header where numTracks is stored
-	uint8_t numTracksByte = numTracks;
-	file->write(&numTracksByte, sizeof(numTracksByte));
+	std::array numTracksBuf = {uint8_t(numTracks)};
+	file->write(numTracksBuf);
 }
 
 

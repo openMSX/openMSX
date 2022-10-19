@@ -47,7 +47,7 @@ WavWriter::WavWriter(const Filename& filename,
 	ranges::copy(std::string_view("data"), std::begin(header.subChunk2ID)); // TODO
 	header.subChunk2Size = 0; // actual value filled in later
 
-	file.write(&header, sizeof(header));
+	file.write(std::span{&header, 1});
 }
 
 WavWriter::~WavWriter()
@@ -55,8 +55,8 @@ WavWriter::~WavWriter()
 	try {
 		// data chunk must have an even number of bytes
 		if (bytes & 1) {
-			uint8_t pad = 0;
-			file.write(&pad, 1);
+			std::array<uint8_t, 1> pad = {0};
+			file.write(pad);
 		}
 
 		flush(); // write header
@@ -71,22 +71,21 @@ void WavWriter::flush()
 	Endian::L32 wavSize   = bytes;
 
 	file.seek(4);
-	file.write(&totalSize, 4);
+	file.write(std::span{&totalSize, 1});
 	file.seek(40);
-	file.write(&wavSize, 4);
+	file.write(std::span{&wavSize, 1});
 	file.seek(file.getSize()); // SEEK_END
 	file.flush();
 }
 
-void Wav8Writer::write(const uint8_t* buffer, unsigned samples)
+void Wav8Writer::write(std::span<const uint8_t> buffer)
 {
-	file.write(buffer, samples);
-	bytes += samples;
+	file.write(buffer);
+	bytes += buffer.size_bytes();
 }
 
-void Wav16Writer::write(const int16_t* buffer, unsigned samples)
+void Wav16Writer::write(std::span<const int16_t> buffer)
 {
-	unsigned size = sizeof(int16_t) * samples;
 	if constexpr (Endian::BIG) {
 		// Variable length arrays (VLA) are part of c99 but not of c++
 		// (not even c++11). Some compilers (like gcc) do support VLA
@@ -95,12 +94,12 @@ void Wav16Writer::write(const int16_t* buffer, unsigned samples)
 		// To side-step this issue we simply use a std::vector, this
 		// code is anyway not performance critical.
 		//VLA(Endian::L16, buf, samples); // doesn't work in clang
-		std::vector<Endian::L16> buf(buffer, buffer + samples);
-		file.write(buf.data(), size);
+		std::vector<Endian::L16> buf(buffer.begin(), buffer.end());
+		file.write(std::span{buf});
 	} else {
-		file.write(buffer, size);
+		file.write(buffer);
 	}
-	bytes += size;
+	bytes += buffer.size_bytes();
 }
 
 static int16_t float2int16(float f)
@@ -113,7 +112,7 @@ void Wav16Writer::write(std::span<const float> buffer, float amp)
 	std::vector<Endian::L16> buf_(buffer.size());
 	std::span buf{buf_};
 	ranges::transform(buffer, buf.data(), [=](float f) { return float2int16(f * amp); });
-	file.write(buf.data(), buf.size_bytes());
+	file.write(buf);
 	bytes += buf.size_bytes();
 }
 
@@ -124,15 +123,16 @@ void Wav16Writer::write(std::span<const StereoFloat> buffer, float ampLeft, floa
 		buf[2 * i + 0] = float2int16(s.left  * ampLeft);
 		buf[2 * i + 1] = float2int16(s.right * ampRight);
 	}
-	file.write(buf.data(), buffer.size_bytes());
-	bytes += buffer.size_bytes();
+	std::span s{buf};
+	file.write(s);
+	bytes += s.size_bytes();
 }
 
 void Wav16Writer::writeSilence(unsigned samples)
 {
 	VLA(int16_t, buf, samples);
 	ranges::fill(buf, 0);
-	file.write(buf.data(), buf.size_bytes());
+	file.write(buf);
 	bytes += buf.size_bytes();
 }
 

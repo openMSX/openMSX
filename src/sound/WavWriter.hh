@@ -6,6 +6,7 @@
 #include "one_of.hh"
 #include <cassert>
 #include <cstdint>
+#include <span>
 
 namespace openmsx {
 
@@ -49,11 +50,11 @@ public:
 
 	void write(const uint8_t* buffer, unsigned channels, unsigned samples) {
 		assert(channels == one_of(1u, 2u));
-		write(buffer, channels * samples);
+		write(std::span{buffer, channels * samples});
 	}
 
 private:
-	void write(const uint8_t* buffer, unsigned samples);
+	void write(std::span<const uint8_t> buffer);
 };
 
 /** Writes 16-bit WAV files.
@@ -66,7 +67,7 @@ public:
 
 	void write(const int16_t* buffer, unsigned channels, unsigned samples) {
 		assert(channels == one_of(1u, 2u));
-		write(buffer, channels * samples);
+		write(std::span{buffer, channels * samples});
 	}
 	void write(std::span<const float> buffer, float amp = 1.0f);
 	void write(std::span<const StereoFloat> buffer, float ampLeft = 1.0f, float ampRight = 1.0f);
@@ -77,7 +78,7 @@ public:
 	}
 
 private:
-	void write(const int16_t* buffer, unsigned samples);
+	void write(std::span<const int16_t> buffer);
 	void writeSilence(unsigned samples);
 };
 

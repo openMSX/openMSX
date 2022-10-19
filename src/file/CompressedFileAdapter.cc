@@ -1,6 +1,7 @@
 #include "CompressedFileAdapter.hh"
 #include "FileException.hh"
 #include "hash_set.hh"
+#include "ranges.hh"
 #include "xxhash.hh"
 #include <cstring>
 
@@ -54,18 +55,18 @@ void CompressedFileAdapter::decompress()
 	file.reset();
 }
 
-void CompressedFileAdapter::read(void* buffer, size_t num)
+void CompressedFileAdapter::read(std::span<uint8_t> buffer)
 {
 	decompress();
-	if (decompressed->size < (pos + num)) {
+	if (decompressed->size < (pos + buffer.size())) {
 		throw FileException("Read beyond end of file");
 	}
 	const auto& buf = decompressed->buf;
-	memcpy(buffer, buf.data() + pos, num);
-	pos += num;
+	ranges::copy(std::span{&buf[pos], buffer.size()}, buffer);
+	pos += buffer.size();
 }
 
-void CompressedFileAdapter::write(const void* /*buffer*/, size_t /*num*/)
+void CompressedFileAdapter::write(std::span<const uint8_t> /*buffer*/)
 {
 	throw FileException("Writing to compressed files not yet supported");
 }

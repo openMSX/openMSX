@@ -516,9 +516,9 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxDirEntry, const string& hostName)
 		unsigned logicalSector = clusterToSector(curCl);
 		for (unsigned j = 0; (j < sectorsPerCluster) && remaining; ++j) {
 			SectorBuffer buf;
-			memset(&buf, 0, sizeof(buf));
 			unsigned chunkSize = std::min(SECTOR_SIZE, remaining);
-			file.read(&buf, chunkSize);
+			file.read(subspan(buf.raw, 0, chunkSize));
+			ranges::fill(subspan(buf.raw, chunkSize), 0);
 			writeLogicalSector(logicalSector + j, buf);
 			remaining -= chunkSize;
 		}
@@ -775,9 +775,9 @@ void MSXtar::fileExtract(const string& resultFile, const MSXDirEntry& dirEntry)
 	while (size && sector) {
 		SectorBuffer buf;
 		readLogicalSector(sector, buf);
-		unsigned savesize = std::min(size, SECTOR_SIZE);
-		file.write(&buf, savesize);
-		size -= savesize;
+		unsigned saveSize = std::min(size, SECTOR_SIZE);
+		file.write(subspan(buf.raw, 0, saveSize));
+		size -= saveSize;
 		sector = getNextSector(sector);
 	}
 	// now change the access time

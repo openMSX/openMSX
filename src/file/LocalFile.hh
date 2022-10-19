@@ -20,8 +20,8 @@ public:
 	LocalFile(std::string filename, File::OpenMode mode);
 	LocalFile(std::string filename, const char* mode);
 	~LocalFile() override;
-	void read (void* buffer, size_t num) override;
-	void write(const void* buffer, size_t num) override;
+	void read(std::span<uint8_t> buffer) override;
+	void write(std::span<const uint8_t> buffer) override;
 #if HAVE_MMAP || defined _WIN32
 	[[nodiscard]] std::span<const uint8_t> mmap() override;
 	void munmap() override;

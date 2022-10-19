@@ -9,8 +9,8 @@ class TestWriter
 public:
 	TestWriter(std::stringstream& ss_)
 		: ss(ss_) {}
-	void write(const char* buf, size_t len) {
-		ss.write(buf, len);
+	void write(std::span<const char> buf) {
+		ss.write(buf.data(), buf.size());
 	}
 	void write1(char c) {
 		ss.put(c);

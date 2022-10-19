@@ -14,7 +14,7 @@ V9990VRAM::V9990VRAM(V9990& vdp_, EmuTime::param /*time*/)
 void V9990VRAM::clear()
 {
 	// Initialize memory. Alternate 0x00/0xff every 512 bytes.
-	std::span s{data.getWriteBackdoor(), data.size()};
+	std::span s = data.getWriteBackdoor();
 	assert((s.size() % 1024) == 0);
 	while (!s.empty()) {
 		ranges::fill(s.subspan(  0, 512), 0x00);

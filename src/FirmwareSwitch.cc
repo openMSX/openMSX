@@ -3,11 +3,12 @@
 #include "FileContext.hh"
 #include "File.hh"
 #include "FileException.hh"
-#include "openmsx.hh"
+#include <array>
+#include <cstdint>
 
 namespace openmsx {
 
-constexpr const char* const filename = "firmwareswitch";
+static constexpr const char* const filename = "firmwareswitch";
 
 FirmwareSwitch::FirmwareSwitch(const DeviceConfig& config_)
 	: config(config_)
@@ -20,9 +21,9 @@ FirmwareSwitch::FirmwareSwitch(const DeviceConfig& config_)
 	try {
 		File file(config.getFileContext().resolveCreate(filename),
 		          File::LOAD_PERSISTENT);
-		byte bytebuf[1];
-		file.read(bytebuf, 1);
-		setting.setBoolean(bytebuf[0] != 0);
+		std::array<uint8_t, 1> byteBuf;
+		file.read(byteBuf);
+		setting.setBoolean(byteBuf[0] != 0);
 	} catch (FileException& e) {
 		config.getCliComm().printWarning(
 			"Couldn't load firmwareswitch status: ", e.getMessage());
@@ -35,8 +36,8 @@ FirmwareSwitch::~FirmwareSwitch()
 	try {
 		File file(config.getFileContext().resolveCreate(filename),
 		          File::SAVE_PERSISTENT);
-		byte bytebuf = setting.getBoolean() ? 0xFF : 0x00;
-		file.write(&bytebuf, 1);
+		std::array byteBuf = {uint8_t(setting.getBoolean() ? 0xFF : 0x00)};
+		file.write(byteBuf);
 	} catch (FileException& e) {
 		config.getCliComm().printWarning(
 			"Couldn't save firmwareswitch status: ", e.getMessage());

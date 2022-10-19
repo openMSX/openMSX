@@ -112,8 +112,8 @@ public:
 		return (tmp >= 0) ? tmp : int(tmp + data.size());
 	}
 
-	[[nodiscard]]       uint8_t* getRawBuffer()       { return data.data(); }
-	[[nodiscard]] const uint8_t* getRawBuffer() const { return data.data(); }
+	[[nodiscard]] std::span<      uint8_t> getRawBuffer()       { return data; }
+	[[nodiscard]] std::span<const uint8_t> getRawBuffer() const { return data; }
 	[[nodiscard]] const auto& getIdamBuffer() const { return idam; }
 
 	/** Get info on all sectors in this track. */

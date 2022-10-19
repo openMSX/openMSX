@@ -272,7 +272,7 @@ XmlOutputArchive::XmlOutputArchive(zstring_view filename_)
 	static constexpr std::string_view header =
 		"<?xml version=\"1.0\" ?>\n"
 		"<!DOCTYPE openmsx-serialize SYSTEM 'openmsx-serialize.dtd'>\n";
-	write(header.data(), header.size());
+	write(header);
 
 	writer.begin("serial");
 	writer.attribute("openmsx_version", Version::full());
@@ -301,9 +301,9 @@ XmlOutputArchive::~XmlOutputArchive()
 	}
 }
 
-void XmlOutputArchive::write(const char* buf, size_t len)
+void XmlOutputArchive::write(std::span<const char> buf)
 {
-	if ((gzwrite(file, buf, unsigned(len)) == 0) && (len != 0)) {
+	if ((gzwrite(file, buf.data(), unsigned(buf.size())) == 0) && !buf.empty()) {
 		error();
 	}
 }

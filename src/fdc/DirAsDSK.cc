@@ -588,9 +588,9 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, FileOperations::Stat& fst)
 				unsigned sector = logicalSector + i;
 				assert(sector < nofSectors);
 				auto* buf = &sectors[sector];
-				memset(buf, 0, SECTOR_SIZE); // in case (end of) file only fills partial sector
 				auto sz = std::min(remainingSize, SECTOR_SIZE);
-				file.read(buf, sz);
+				file.read(subspan(buf->raw, 0, sz));
+				ranges::fill(subspan(buf->raw, sz), 0); // in case (end of) file only fills partial sector
 				remainingSize -= sz;
 				if (remainingSize == 0) {
 					// Don't fill next sectors in this cluster
@@ -1265,7 +1265,7 @@ void DirAsDSK::exportToHostFile(DirIndex dirIndex, const string& hostName)
 				unsigned sector = logicalSector + i;
 				assert(sector < nofSectors);
 				auto writeSize = std::min<size_t>(msxSize - offset, SECTOR_SIZE);
-				file.write(&sectors[sector], writeSize);
+				file.write(subspan(sectors[sector].raw, 0, writeSize));
 				offset += SECTOR_SIZE;
 			}
 			if (offset >= msxSize) break;
@@ -1356,7 +1356,7 @@ void DirAsDSK::writeDataSector(unsigned sector, const SectorBuffer& buf)
 		unsigned msxSize = msxDir(dirIndex).size;
 		if (msxSize > offset) {
 			auto writeSize = std::min<size_t>(msxSize - offset, sizeof(buf));
-			file.write(&buf, writeSize);
+			file.write(subspan(buf.raw, 0, writeSize));
 		}
 	} catch (FileException& e) {
 		cliComm.printWarning("Couldn't write to file ", fullHostName,
