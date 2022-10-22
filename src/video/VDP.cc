@@ -735,6 +735,17 @@ void VDP::writeIO(word port, byte value, EmuTime::param time_)
 	}
 }
 
+void VDP::getExtraDeviceInfo(TclObject& result) const
+{
+	// Add VDP type from the config. An alternative is to convert the
+	// 'version' enum member into some kind of string, but we already
+	// parsed that string to become this version enum value. So whatever is
+	// in there, it makes sense. So we can just as well return that then.
+	const auto* vdpVersionString = getDeviceConfig().findChild("version");
+	assert(vdpVersionString);
+	result.addDictKeyValues("version", vdpVersionString->getData());
+}
+
 void VDP::setPalette(int index, word grb, EmuTime::param time)
 {
 	if (palette[index] != grb) {

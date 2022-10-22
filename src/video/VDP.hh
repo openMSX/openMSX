@@ -80,6 +80,8 @@ public:
 	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
 	void writeIO(word port, byte value, EmuTime::param time) override;
 
+	void getExtraDeviceInfo(TclObject& result) const override;
+
 	/** Used by Video9000 to be able to couple the VDP and V9990 output.
 	 * Can return nullptr in case of renderer=none. This value can change
 	 * over the lifetime of the VDP object (on renderer switch).
