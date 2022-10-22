@@ -50,9 +50,9 @@ struct dirent
 	char d_name[256];
 };
 
-constexpr unsigned char DT_UNKNOWN = 0;
-constexpr unsigned char DT_REG = 1;
-constexpr unsigned char DT_DIR = 2;
+inline constexpr unsigned char DT_UNKNOWN = 0;
+inline constexpr unsigned char DT_REG = 1;
+inline constexpr unsigned char DT_DIR = 2;
 
 #define d_fileno d_ino // Backwards compatibility.
 

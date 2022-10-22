@@ -48,11 +48,11 @@
 #include <cstring>
 #include <string_view>
 
-constexpr uint32_t PRIME32_1 = 2654435761;
-constexpr uint32_t PRIME32_2 = 2246822519;
-constexpr uint32_t PRIME32_3 = 3266489917;
-constexpr uint32_t PRIME32_4 =  668265263;
-constexpr uint32_t PRIME32_5 =  374761393;
+inline constexpr uint32_t PRIME32_1 = 2654435761;
+inline constexpr uint32_t PRIME32_2 = 2246822519;
+inline constexpr uint32_t PRIME32_3 = 3266489917;
+inline constexpr uint32_t PRIME32_4 =  668265263;
+inline constexpr uint32_t PRIME32_5 =  374761393;
 
 
 template<bool ALIGNED>

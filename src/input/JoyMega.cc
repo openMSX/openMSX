@@ -15,9 +15,9 @@
 namespace openmsx {
 
 #if PLATFORM_ANDROID
-constexpr int THRESHOLD = 32768 / 4;
+static constexpr int THRESHOLD = 32768 / 4;
 #else
-constexpr int THRESHOLD = 32768 / 10;
+static constexpr int THRESHOLD = 32768 / 10;
 #endif
 
 void JoyMega::registerAll(MSXEventDistributor& eventDistributor,

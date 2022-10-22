@@ -8,9 +8,9 @@
 
 // Only need to (more strictly) align when SSE is actually enabled.
 #ifdef __SSE2__
-constexpr size_t SSE_ALIGNMENT = 16;
+inline constexpr size_t SSE_ALIGNMENT = 16;
 #else
-constexpr size_t SSE_ALIGNMENT = 0; // alignas(0) has no effect
+inline constexpr size_t SSE_ALIGNMENT = 0; // alignas(0) has no effect
 #endif
 
 // 'alignas(0)' has no effect according to the C++ standard, however gcc

@@ -5,43 +5,43 @@
 
 namespace openmsx {
 
-constexpr byte STAT_TXRDY   = 0x01;
-constexpr byte STAT_RXRDY   = 0x02;
-constexpr byte STAT_TXEMPTY = 0x04;
-constexpr byte STAT_PE      = 0x08;
-constexpr byte STAT_OE      = 0x10;
-constexpr byte STAT_FE      = 0x20;
-constexpr byte STAT_SYNBRK  = 0x40;
-constexpr byte STAT_DSR     = 0x80;
+static constexpr byte STAT_TXRDY   = 0x01;
+static constexpr byte STAT_RXRDY   = 0x02;
+static constexpr byte STAT_TXEMPTY = 0x04;
+static constexpr byte STAT_PE      = 0x08;
+static constexpr byte STAT_OE      = 0x10;
+static constexpr byte STAT_FE      = 0x20;
+static constexpr byte STAT_SYNBRK  = 0x40;
+static constexpr byte STAT_DSR     = 0x80;
 
-constexpr byte MODE_BAUDRATE    = 0x03;
-constexpr byte MODE_SYNCHRONOUS = 0x00;
-constexpr byte MODE_RATE1       = 0x01;
-constexpr byte MODE_RATE16      = 0x02;
-constexpr byte MODE_RATE64      = 0x03;
-constexpr byte MODE_WORDLENGTH  = 0x0C;
-constexpr byte MODE_5BIT        = 0x00;
-constexpr byte MODE_6BIT        = 0x04;
-constexpr byte MODE_7BIT        = 0x08;
-constexpr byte MODE_8BIT        = 0x0C;
-constexpr byte MODE_PARITYEN    = 0x10;
-constexpr byte MODE_PARITODD    = 0x00;
-constexpr byte MODE_PARITEVEN   = 0x20;
-constexpr byte MODE_STOP_BITS   = 0xC0;
-constexpr byte MODE_STOP_INV    = 0x00;
-constexpr byte MODE_STOP_1      = 0x40;
-constexpr byte MODE_STOP_15     = 0x80;
-constexpr byte MODE_STOP_2      = 0xC0;
-constexpr byte MODE_SINGLESYNC  = 0x80;
+static constexpr byte MODE_BAUDRATE    = 0x03;
+static constexpr byte MODE_SYNCHRONOUS = 0x00;
+static constexpr byte MODE_RATE1       = 0x01;
+static constexpr byte MODE_RATE16      = 0x02;
+static constexpr byte MODE_RATE64      = 0x03;
+static constexpr byte MODE_WORDLENGTH  = 0x0C;
+static constexpr byte MODE_5BIT        = 0x00;
+static constexpr byte MODE_6BIT        = 0x04;
+static constexpr byte MODE_7BIT        = 0x08;
+static constexpr byte MODE_8BIT        = 0x0C;
+static constexpr byte MODE_PARITYEN    = 0x10;
+static constexpr byte MODE_PARITODD    = 0x00;
+static constexpr byte MODE_PARITEVEN   = 0x20;
+static constexpr byte MODE_STOP_BITS   = 0xC0;
+static constexpr byte MODE_STOP_INV    = 0x00;
+static constexpr byte MODE_STOP_1      = 0x40;
+static constexpr byte MODE_STOP_15     = 0x80;
+static constexpr byte MODE_STOP_2      = 0xC0;
+static constexpr byte MODE_SINGLESYNC  = 0x80;
 
-constexpr byte CMD_TXEN   = 0x01;
-constexpr byte CMD_DTR    = 0x02;
-constexpr byte CMD_RXE    = 0x04;
-constexpr byte CMD_SBRK   = 0x08;
-constexpr byte CMD_RSTERR = 0x10;
-constexpr byte CMD_RTS    = 0x20;
-constexpr byte CMD_RESET  = 0x40;
-constexpr byte CMD_HUNT   = 0x80;
+static constexpr byte CMD_TXEN   = 0x01;
+static constexpr byte CMD_DTR    = 0x02;
+static constexpr byte CMD_RXE    = 0x04;
+static constexpr byte CMD_SBRK   = 0x08;
+static constexpr byte CMD_RSTERR = 0x10;
+static constexpr byte CMD_RTS    = 0x20;
+static constexpr byte CMD_RESET  = 0x40;
+static constexpr byte CMD_HUNT   = 0x80;
 
 
 I8251::I8251(Scheduler& scheduler, I8251Interface& interf_, EmuTime::param time)

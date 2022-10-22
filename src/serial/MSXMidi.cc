@@ -11,8 +11,8 @@
 namespace openmsx {
 
 // Documented in MSX-Datapack Vol. 3, section 4 (MSX-MIDI), from page 634
-constexpr byte LIMITED_RANGE_VALUE = 0x01; // b0 = "E8" => determines port range
-constexpr byte DISABLED_VALUE      = 0x80; // b7 = EN
+static constexpr byte LIMITED_RANGE_VALUE = 0x01; // b0 = "E8" => determines port range
+static constexpr byte DISABLED_VALUE      = 0x80; // b7 = EN
 
 MSXMidi::MSXMidi(const DeviceConfig& config)
 	: MSXDevice(config)

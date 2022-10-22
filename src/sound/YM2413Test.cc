@@ -17,7 +17,7 @@ string coreName;
 string testName;
 
 
-constexpr unsigned CHANNELS = 11;
+static constexpr unsigned CHANNELS = 11;
 
 
 struct RegWrite

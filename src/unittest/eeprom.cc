@@ -6,7 +6,7 @@
 
 using namespace openmsx;
 
-constexpr auto step = EmuDuration::usec(10);
+static constexpr auto step = EmuDuration::usec(10);
 
 static void input_pattern(EEPROM_93C46& eeprom, EmuTime& time, uint32_t pattern, unsigned len)
 {

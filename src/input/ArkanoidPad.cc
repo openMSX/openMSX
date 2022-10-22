@@ -18,10 +18,10 @@
 
 namespace openmsx {
 
-constexpr int POS_MIN = 55; // measured by hap
-constexpr int POS_MAX = 325; // measured by hap
-constexpr int POS_CENTER = 236; // approx. middle used by games
-constexpr int SCALE = 2;
+static constexpr int POS_MIN = 55; // measured by hap
+static constexpr int POS_MAX = 325; // measured by hap
+static constexpr int POS_CENTER = 236; // approx. middle used by games
+static constexpr int SCALE = 2;
 
 
 class ArkanoidState final : public StateChange

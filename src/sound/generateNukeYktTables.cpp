@@ -12,7 +12,7 @@ static constexpr bool EG_STEP_HI[4][4] = {
 	{ 0, 0, 0, 0 }
 };
 
-constexpr struct EnvTables {
+static constexpr struct EnvTables {
 	uint8_t attack [14][4][64];
 	uint8_t release[14][4][4][64];
 } envTabs = []() {

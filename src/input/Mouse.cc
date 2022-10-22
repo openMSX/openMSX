@@ -13,13 +13,13 @@
 
 namespace openmsx {
 
-constexpr int TRESHOLD = 2;
-constexpr int SCALE = 2;
-constexpr int PHASE_XHIGH = 0;
-constexpr int PHASE_XLOW  = 1;
-constexpr int PHASE_YHIGH = 2;
-constexpr int PHASE_YLOW  = 3;
-constexpr int STROBE = 0x04;
+static constexpr int TRESHOLD = 2;
+static constexpr int SCALE = 2;
+static constexpr int PHASE_XHIGH = 0;
+static constexpr int PHASE_XLOW  = 1;
+static constexpr int PHASE_YHIGH = 2;
+static constexpr int PHASE_YLOW  = 3;
+static constexpr int STROBE = 0x04;
 
 
 class MouseState final : public StateChange

@@ -10,7 +10,7 @@
 
 namespace openmsx {
 
-constexpr byte ID = 0x08;
+static constexpr byte ID = 0x08;
 
 MSXMatsushita::MSXMatsushita(const DeviceConfig& config)
 	: MSXDevice(config)

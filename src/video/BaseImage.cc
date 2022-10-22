@@ -3,7 +3,7 @@
 
 namespace openmsx {
 
-constexpr int MAX_SIZE = 2048;
+static constexpr int MAX_SIZE = 2048;
 
 void BaseImage::checkSize(gl::ivec2 size)
 {

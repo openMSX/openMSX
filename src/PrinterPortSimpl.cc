@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-constexpr static_string_view DESCRIPTION =
+static constexpr static_string_view DESCRIPTION =
 	"Play samples via your printer port.";
 
 PrinterPortSimpl::PrinterPortSimpl(const HardwareConfig& hwConf_)

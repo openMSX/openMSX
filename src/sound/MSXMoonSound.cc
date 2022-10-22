@@ -18,32 +18,32 @@ namespace openmsx {
 using MasterClock = Clock<33868800>;
 
 // Required delay between register select and register read/write.
-constexpr auto FM_REG_SELECT_DELAY = MasterClock::duration(56);
+static constexpr auto FM_REG_SELECT_DELAY = MasterClock::duration(56);
 // Required delay after register write.
-constexpr auto FM_REG_WRITE_DELAY  = MasterClock::duration(56);
+static constexpr auto FM_REG_WRITE_DELAY  = MasterClock::duration(56);
 // Datasheet doesn't mention any delay for reads from the FM registers. In fact
 // it says reads from FM registers are not possible while tests on a real
 // YMF278 show they do work (value of the NEW2 bit doesn't matter).
 
 // Required delay between register select and register read/write.
-constexpr auto WAVE_REG_SELECT_DELAY = MasterClock::duration(88);
+static constexpr auto WAVE_REG_SELECT_DELAY = MasterClock::duration(88);
 // Required delay after register write.
-constexpr auto WAVE_REG_WRITE_DELAY  = MasterClock::duration(88);
+static constexpr auto WAVE_REG_WRITE_DELAY  = MasterClock::duration(88);
 // Datasheet doesn't mention any delay for register reads (except for reads
 // from register 6, see below). I also couldn't measure any delay on a real
 // YMF278.
 
 // Required delay after memory read.
-constexpr auto MEM_READ_DELAY  = MasterClock::duration(38);
+static constexpr auto MEM_READ_DELAY  = MasterClock::duration(38);
 // Required delay after memory write (instead of register write delay).
-constexpr auto MEM_WRITE_DELAY = MasterClock::duration(28);
+static constexpr auto MEM_WRITE_DELAY = MasterClock::duration(28);
 
 // Required delay after instrument load.
 // We pick 10000 cycles, this is approximately 300us (the number given in the
 // datasheet). The exact number of cycles is unknown. But I did some (very
 // rough) tests on real HW, and this number is not too bad (slightly too high
 // but within 2%-4% of real value, needs more detailed tests).
-constexpr auto LOAD_DELAY = MasterClock::duration(10000);
+static constexpr auto LOAD_DELAY = MasterClock::duration(10000);
 
 
 MSXMoonSound::MSXMoonSound(const DeviceConfig& config)

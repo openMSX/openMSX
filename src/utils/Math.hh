@@ -16,10 +16,10 @@
 
 namespace Math {
 
-constexpr inline double e    = std::numbers::e_v   <double>;
-constexpr inline double ln2  = std::numbers::ln2_v <double>;
-constexpr inline double ln10 = std::numbers::ln10_v<double>;
-constexpr inline double pi   = std::numbers::pi_v  <double>;
+inline constexpr double e    = std::numbers::e_v   <double>;
+inline constexpr double ln2  = std::numbers::ln2_v <double>;
+inline constexpr double ln10 = std::numbers::ln10_v<double>;
+inline constexpr double pi   = std::numbers::pi_v  <double>;
 
 /** Returns the smallest number of the form 2^n-1 that is greater or equal
   * to the given number.

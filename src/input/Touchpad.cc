@@ -136,13 +136,13 @@ void Touchpad::unplugHelper(EmuTime::param /*time*/)
 }
 
 // JoystickDevice
-constexpr byte SENSE  = JoystickDevice::RD_PIN1;
-constexpr byte EOC    = JoystickDevice::RD_PIN2;
-constexpr byte SO     = JoystickDevice::RD_PIN3;
-constexpr byte BUTTON = JoystickDevice::RD_PIN4;
-constexpr byte SCK    = JoystickDevice::WR_PIN6;
-constexpr byte SI     = JoystickDevice::WR_PIN7;
-constexpr byte CS     = JoystickDevice::WR_PIN8;
+static constexpr byte SENSE  = JoystickDevice::RD_PIN1;
+static constexpr byte EOC    = JoystickDevice::RD_PIN2;
+static constexpr byte SO     = JoystickDevice::RD_PIN3;
+static constexpr byte BUTTON = JoystickDevice::RD_PIN4;
+static constexpr byte SCK    = JoystickDevice::WR_PIN6;
+static constexpr byte SI     = JoystickDevice::WR_PIN7;
+static constexpr byte CS     = JoystickDevice::WR_PIN8;
 
 byte Touchpad::read(EmuTime::param time)
 {

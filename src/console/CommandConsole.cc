@@ -65,9 +65,9 @@ string_view ConsoleLine::chunkText(size_t i) const
 
 // class CommandConsole
 
-constexpr const char* const PROMPT_NEW  = "> ";
-constexpr const char* const PROMPT_CONT = "| ";
-constexpr const char* const PROMPT_BUSY = "*busy*";
+static constexpr const char* const PROMPT_NEW  = "> ";
+static constexpr const char* const PROMPT_CONT = "| ";
+static constexpr const char* const PROMPT_BUSY = "*busy*";
 
 CommandConsole::CommandConsole(
 		GlobalCommandController& commandController_,
