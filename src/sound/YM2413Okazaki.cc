@@ -301,7 +301,10 @@ static constexpr unsigned DB_NEG(double x)
 	return DBTABLEN + DB_POS(x);
 }
 
-static constexpr bool BIT(unsigned s, unsigned b)
+// Note: 'int' instead of 'bool' return value to silence clang-warning:
+//    warning: use of bitwise '&' with boolean operands [-Wbitwise-instead-of-logical]
+//    note: cast one or both operands to int to silence this warning
+static constexpr /*bool*/ int BIT(unsigned s, unsigned b)
 {
 	return (s >> b) & 1;
 }

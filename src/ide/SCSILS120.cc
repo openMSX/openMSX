@@ -77,13 +77,13 @@ constexpr char fds120[28 + 1]  = "IODATA  LS-120 COSM     0001";
 constexpr unsigned BUFFER_BLOCK_SIZE = SCSIDevice::BUFFER_SIZE /
                                        SectorAccessibleDisk::SECTOR_SIZE;
 
-SCSILS120::SCSILS120(const DeviceConfig& targetconfig,
+SCSILS120::SCSILS120(const DeviceConfig& targetConfig,
                      AlignedBuffer& buf, unsigned mode_)
-	: motherBoard(targetconfig.getMotherBoard())
+	: motherBoard(targetConfig.getMotherBoard())
 	, buffer(buf)
 	, name("lsX")
 	, mode(mode_)
-	, scsiId(targetconfig.getAttributeValueAsInt("id", 0))
+	, scsiId(targetConfig.getAttributeValueAsInt("id", 0))
 {
 	lsInUse = motherBoard.getSharedStuff<LSInUse>("lsInUse");
 

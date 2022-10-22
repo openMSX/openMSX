@@ -45,12 +45,12 @@ public:
 	SCSILS120(const SCSILS120&) = delete;
 	SCSILS120 operator=(const SCSILS120&) = delete;
 
-	SCSILS120(const DeviceConfig& targetconfig,
+	SCSILS120(const DeviceConfig& targetConfig,
 	          AlignedBuffer& buf, unsigned mode);
 	~SCSILS120() override;
 
 	// MediaInfoProvider
-	void getMediaInfo(TclObject& result);
+	void getMediaInfo(TclObject& result) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

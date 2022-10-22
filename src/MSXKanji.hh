@@ -16,7 +16,7 @@ public:
 	void writeIO(word port, byte value, EmuTime::param time) override;
 	void reset(EmuTime::param time) override;
 
-	virtual void getExtraDeviceInfo(TclObject& result) const;
+	void getExtraDeviceInfo(TclObject& result) const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

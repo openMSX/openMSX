@@ -50,7 +50,7 @@ public:
 	void invalidateWd2793ReadTrackQuirk() override;
 
 	// MediaInfoProvider
-	void getMediaInfo(TclObject& result);
+	void getMediaInfo(TclObject& result) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

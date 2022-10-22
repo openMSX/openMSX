@@ -18,7 +18,7 @@ public:
 	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;
 	[[nodiscard]] const byte* getReadCacheLine(word start) const override;
 
-	virtual void getExtraDeviceInfo(TclObject& result) const;
+	void getExtraDeviceInfo(TclObject& result) const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

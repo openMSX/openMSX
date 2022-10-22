@@ -50,7 +50,7 @@ public:
 	[[nodiscard]] MSXMotherBoard& getMotherBoard() { return motherBoard; }
 
 	// MediaInfoProvider
-	void getMediaInfo(TclObject& result);
+	void getMediaInfo(TclObject& result) override;
 
 	enum RemoteState {
 		REMOTE_IDLE,

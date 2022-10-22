@@ -31,7 +31,7 @@ public:
 	[[nodiscard]] std::string getTigerTreeHash();
 
 	// MediaInfoProvider
-	void getMediaInfo(TclObject& result);
+	void getMediaInfo(TclObject& result) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

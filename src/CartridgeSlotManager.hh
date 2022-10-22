@@ -72,7 +72,7 @@ private:
 		~Slot();
 
 		// MediaInfoProvider
-		void getMediaInfo(TclObject& result);
+		void getMediaInfo(TclObject& result) override;
 
 		[[nodiscard]] bool exists() const;
 		[[nodiscard]] bool used(const HardwareConfig* allowed = nullptr) const;

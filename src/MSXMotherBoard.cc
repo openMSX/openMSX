@@ -160,7 +160,6 @@ public:
 	void registerProvider(const string& slot, MediaInfoProvider& provider);
 	void unregisterProvider(const string& slot);
 private:
-	MSXMotherBoard& motherBoard;
 	std::map<string, MediaInfoProvider*> providers;
 };
 
@@ -1052,7 +1051,6 @@ void MachineExtensionInfo::tabCompletion(std::vector<string>& tokens) const
 
 MachineMediaInfo::MachineMediaInfo(MSXMotherBoard& motherBoard_)
 	: InfoTopic(motherBoard_.getMachineInfoCommand(), "media")
-	, motherBoard(motherBoard_)
 {
 }
 

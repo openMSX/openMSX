@@ -41,7 +41,7 @@ public:
 	void insert(const std::string& filename);
 
 	// MediaInfoProvider
-	void getMediaInfo(TclObject& result);
+	void getMediaInfo(TclObject& result) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
