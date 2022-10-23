@@ -773,7 +773,7 @@ void CreateMachineCommand::execute(std::span<const TclObject> tokens, TclObject&
 	checkNumArgs(tokens, 1, Prefix{1}, nullptr);
 	auto newBoard = reactor.createEmptyMotherBoard();
 	result = newBoard->getMachineID();
-	reactor.boards.push_back(move(newBoard));
+	reactor.boards.push_back(std::move(newBoard));
 }
 
 string CreateMachineCommand::help(std::span<const TclObject> /*tokens*/) const
@@ -983,7 +983,7 @@ void RestoreMachineCommand::execute(std::span<const TclObject> tokens,
 	newBoard->getStateChangeDistributor().stopReplay(newBoard->getCurrentTime());
 
 	result = newBoard->getMachineID();
-	reactor.boards.push_back(move(newBoard));
+	reactor.boards.push_back(std::move(newBoard));
 }
 
 string RestoreMachineCommand::help(std::span<const TclObject> /*tokens*/) const

@@ -473,7 +473,7 @@ void ReverseManager::goTo(
 		bool unmute = true;
 		if (newBoard_) {
 			unmute = false;
-			reactor.replaceBoard(motherBoard, move(newBoard_));
+			reactor.replaceBoard(motherBoard, std::move(newBoard_));
 		}
 
 		// Fast forward to actual target time with board activated.
