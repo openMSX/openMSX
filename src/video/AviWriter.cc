@@ -7,6 +7,7 @@
 #include "endian.hh"
 #include "cstdiop.hh" // for snprintf
 #include "ranges.hh"
+#include <array>
 #include <cassert>
 #include <cstring>
 #include <ctime>

@@ -4,6 +4,7 @@
 #include "checked_cast.hh"
 #include "ranges.hh"
 #include "xrange.hh"
+#include <array>
 #include <cassert>
 #include <cstdlib>
 #include <cmath>
