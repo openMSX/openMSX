@@ -456,7 +456,7 @@ SERIALIZE_ENUM(SCSI::Phase, phaseInfo);
 template<typename Archive>
 void WD33C93::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize_blob("buffer", buffer.data(), buffer.size());
+	ar.serialize_blob("buffer", buffer);
 	char tag[8] = { 'd', 'e', 'v', 'i', 'c', 'e', 'X', 0 };
 	for (auto [i, d] : enumerate(dev)) {
 		tag[6] = char('0' + i);
@@ -469,7 +469,7 @@ void WD33C93::serialize(Archive& ar, unsigned /*version*/)
 	             "phase",        phase,
 	             "myId",         myId,
 	             "targetId",     targetId);
-	ar.serialize_blob("registers", regs, sizeof(regs));
+	ar.serialize_blob("registers", regs);
 	ar.serialize("latch",   latch,
 	             "devBusy", devBusy);
 }

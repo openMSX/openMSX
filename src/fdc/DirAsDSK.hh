@@ -85,7 +85,7 @@ private:
 	[[nodiscard]] DirIndex findHostFileInDSK(std::string_view hostName);
 	[[nodiscard]] bool checkFileUsedInDSK(std::string_view hostName);
 	[[nodiscard]] unsigned nextMsxDirSector(unsigned sector);
-	[[nodiscard]] bool checkMSXFileExists(const std::string& msxfilename,
+	[[nodiscard]] bool checkMSXFileExists(std::span<const char, 11> msxfilename,
 	                                      unsigned msxDirSector);
 	void checkModifiedHostFiles();
 	void setMSXTimeStamp(DirIndex dirIndex, FileOperations::Stat& fst);

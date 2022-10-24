@@ -4,6 +4,8 @@
 #include "YM2413Core.hh"
 #include "FixedPoint.hh"
 #include "serialize_meta.hh"
+#include <array>
+#include <span>
 
 namespace openmsx {
 namespace YM2413Burczynski {
@@ -139,11 +141,11 @@ private:
 
 	uint8_t key;	// 0 = KEY OFF, >0 = KEY ON
 
-	const uint8_t* eg_sel_dp;
-	const uint8_t* eg_sel_ar;
-	const uint8_t* eg_sel_dr;
-	const uint8_t* eg_sel_rr;
-	const uint8_t* eg_sel_rs;
+	std::span<const uint8_t, 8> eg_sel_dp;
+	std::span<const uint8_t, 8> eg_sel_ar;
+	std::span<const uint8_t, 8> eg_sel_dr;
+	std::span<const uint8_t, 8> eg_sel_rr;
+	std::span<const uint8_t, 8> eg_sel_rs;
 	unsigned eg_mask_dp; // == (1 << eg_sh_dp) - 1
 	unsigned eg_mask_ar; // == (1 << eg_sh_ar) - 1
 	unsigned eg_mask_dr; // == (1 << eg_sh_dr) - 1
@@ -197,7 +199,7 @@ public:
 	/** Sets all synthesis parameters as specified by the instrument.
 	 * @param inst Instrument data.
 	 */
-	void updateInstrument(const uint8_t* inst);
+	void updateInstrument(std::span<const uint8_t, 8> inst);
 
 	[[nodiscard]] int getBlockFNum() const;
 	[[nodiscard]] FreqIndex getFrequencyIncrement() const;
@@ -257,7 +259,7 @@ private:
 
 private:
 	/** OPLL chips have 9 channels. */
-	Channel channels[9];
+	std::array<Channel, 9> channels;
 
 	/** Global envelope generator counter. */
 	unsigned eg_cnt;
@@ -279,10 +281,10 @@ private:
 	 *  16    - bass drum settings
 	 *  17-18 - other percussion instruments
 	 */
-	uint8_t inst_tab[19][8];
+	std::array<std::array<uint8_t, 8>, 19> inst_tab;
 
 	/** Registers */
-	uint8_t reg[0x40];
+	std::array<uint8_t, 0x40> reg;
 	uint8_t registerLatch;
 };
 

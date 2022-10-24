@@ -338,7 +338,7 @@ void SdCard::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("mode",   mode,
 	             "cmdBuf", cmdBuf);
-	ar.serialize_blob("sectorBuf", sectorBuf.raw, sizeof(sectorBuf));
+	ar.serialize_blob("sectorBuf", sectorBuf.raw);
 	if (hd) ar.serialize("hd", *hd);
 	ar.serialize("cmdIdx",               cmdIdx,
 	             "transferDelayCounter", transferDelayCounter,

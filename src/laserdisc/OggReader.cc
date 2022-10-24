@@ -8,7 +8,6 @@
 #include "stringsp.hh" // for strncasecmp
 #include "view.hh"
 #include "xrange.hh"
-#include <cstring> // for memcmp
 #include <cstdlib> // for atoi
 #include <cctype> // for isspace
 #include <memory>
@@ -117,7 +116,7 @@ OggReader::OggReader(const Filename& filename, CliComm& cli_)
 				throw MSXException("Header to small");
 			}
 
-			if (memcmp(packet.packet, "\x01vorbis", 7) == 0) {
+			if (ranges::equal(std::span{packet.packet, 7}, std::string_view("\x01vorbis"))) {
 				if (audioSerial != -1) {
 					ogg_stream_clear(&stream);
 					throw MSXException("Duplicate audio stream");
@@ -128,7 +127,7 @@ OggReader::OggReader(const Filename& filename, CliComm& cli_)
 
 				vorbisHeaderPage(&page);
 
-			} else if (memcmp(packet.packet, "\x80theora", 7) == 0) {
+			} else if (ranges::equal(std::span{packet.packet, 7}, std::string_view("\x80theora"))) {
 				if (videoSerial != -1) {
 					ogg_stream_clear(&stream);
 					throw MSXException("Duplicate video stream");
@@ -139,14 +138,14 @@ OggReader::OggReader(const Filename& filename, CliComm& cli_)
 
 				theoraHeaderPage(&page, ti, tc, tsi);
 
-			} else if (memcmp(packet.packet, "fishead", 8) == 0) {
+			} else if (ranges::equal(std::span{packet.packet, 8}, std::string_view("fishead"))) {
 				skeletonSerial = serial;
 
-			} else if (memcmp(packet.packet, "BBCD", 4) == 0) {
+			} else if (ranges::equal(std::span{packet.packet, 4}, std::string_view("BBCD"))) {
 				ogg_stream_clear(&stream);
 				throw MSXException("DIRAC not supported");
 
-			} else if (memcmp(packet.packet, "\177FLAC", 5) == 0) {
+			} else if (ranges::equal(std::span{packet.packet, 5}, std::string_view("\177FLAC"))) {
 				ogg_stream_clear(&stream);
 				throw MSXException("FLAC not supported");
 

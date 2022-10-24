@@ -274,7 +274,7 @@ void RawTrack::serialize(Archive& ar, unsigned version)
 	if constexpr (Archive::IS_LOADER) {
 		data.resize(len);
 	}
-	ar.serialize_blob("data", data.data(), data.size());
+	ar.serialize_blob("data", data);
 }
 INSTANTIATE_SERIALIZE_METHODS(RawTrack);
 

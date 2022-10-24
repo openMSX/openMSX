@@ -1,18 +1,18 @@
 #include "catch.hpp"
 #include "HexDump.hh"
-#include <cstring>
+#include "ranges.hh"
 
 static void test_decode(const std::string& encoded, const std::string& decoded)
 {
 	auto [buf, bufSize] = HexDump::decode(encoded);
 	REQUIRE(bufSize == decoded.size());
-	CHECK(memcmp(buf.data(), decoded.data(), decoded.size()) == 0);
+	CHECK(ranges::equal(std::span{buf.data(), bufSize}, decoded));
 }
 
 static void test(const std::string& decoded, const std::string& encoded)
 {
-	CHECK(HexDump::encode(reinterpret_cast<const uint8_t*>(decoded.data()),
-	                      decoded.size())
+	CHECK(HexDump::encode(std::span{reinterpret_cast<const uint8_t*>(decoded.data()),
+	                                decoded.size()})
 	      == encoded);
 	test_decode(encoded, decoded);
 }

@@ -101,7 +101,8 @@ void RamDebuggable::write(unsigned address, byte value)
 template<typename Archive>
 void Ram::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize_blob("ram", ram.data(), size());
+	// ar.serialize_blob("ram", std::span{*this}); // TODO error with clang-15/libc++
+	ar.serialize_blob("ram", std::span{begin(), end()});
 }
 INSTANTIATE_SERIALIZE_METHODS(Ram);
 

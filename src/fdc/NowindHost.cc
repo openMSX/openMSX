@@ -449,7 +449,7 @@ void NowindHost::transferSectors(unsigned transferAddress, unsigned amount)
 	send16(transferAddress);
 	send16(amount);
 
-	auto* bufferPointer = buffer[0].raw + transferred;
+	auto* bufferPointer = &buffer[0].raw[transferred];
 	for (auto i : xrange(amount)) {
 		send(bufferPointer[i]);
 	}
@@ -465,7 +465,7 @@ void NowindHost::transferSectorsBackwards(unsigned transferAddress, unsigned amo
 	send16(transferAddress + amount);
 	send(amount / 64);
 
-	auto* bufferPointer = buffer[0].raw + transferred;
+	auto* bufferPointer = &buffer[0].raw[transferred];
 	for (int i = amount - 1; i >= 0; --i) {
 		send(bufferPointer[i]);
 	}
@@ -534,7 +534,7 @@ void NowindHost::doDiskWrite1()
 void NowindHost::doDiskWrite2()
 {
 	assert(recvCount == (transferSize + 2));
-	auto* buf = buffer[0].raw + transferred;
+	auto* buf = &buffer[0].raw[transferred];
 	for (auto i : xrange(transferSize)) {
 		buf[i] = extraData[i + 1];
 	}
@@ -794,7 +794,7 @@ void NowindHost::serialize(Archive& ar, unsigned /*version*/)
 
 	// for backwards compatibility, serialize buffer as a vector<byte>
 	size_t bufSize = buffer.size() * sizeof(SectorBuffer);
-	byte* bufRaw = buffer.data()->raw;
+	byte* bufRaw = buffer.data()->raw.data();
 	std::vector<byte> tmp(bufRaw, bufRaw + bufSize);
 	ar.serialize("buffer", tmp);
 	ranges::copy(tmp, bufRaw);

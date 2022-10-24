@@ -49,7 +49,7 @@ unsigned DirAsDSK::readFATHelper(const SectorBuffer* fatBuf, unsigned cluster) c
 {
 	assert(FIRST_CLUSTER <= cluster);
 	assert(cluster < maxCluster);
-	const auto* buf = fatBuf[0].raw;
+	const auto* buf = fatBuf[0].raw.data();
 	const auto* p = &buf[(cluster * 3) / 2];
 	unsigned result = (cluster & 1)
 	                ? (p[0] >> 4) + (p[1] << 4)
@@ -61,7 +61,7 @@ void DirAsDSK::writeFATHelper(SectorBuffer* fatBuf, unsigned cluster, unsigned v
 {
 	assert(FIRST_CLUSTER <= cluster);
 	assert(cluster < maxCluster);
-	auto* buf = fatBuf[0].raw;
+	auto* buf = fatBuf[0].raw.data();
 	auto* p = &buf[(cluster * 3) / 2];
 	if (cluster & 1) {
 		p[0] = (p[0] & 0x0F) + (val << 4);
@@ -181,7 +181,7 @@ unsigned DirAsDSK::nextMsxDirSector(unsigned sector)
 
 // Check if a msx filename is used in a specific msx (sub)directory.
 bool DirAsDSK::checkMSXFileExists(
-	const string& msxFilename, unsigned msxDirSector)
+	std::span<const char, 11> msxFilename, unsigned msxDirSector)
 {
 	vector<bool> visited(nofSectors, false);
 	do {
@@ -193,8 +193,7 @@ bool DirAsDSK::checkMSXFileExists(
 
 		for (auto idx : xrange(DIR_ENTRIES_PER_SECTOR)) {
 			DirIndex dirIndex(msxDirSector, idx);
-			if (memcmp(msxDir(dirIndex).filename,
-			           msxFilename.data(), 8 + 3) == 0) {
+			if (ranges::equal(msxDir(dirIndex).filename, msxFilename)) {
 				return true;
 			}
 		}
@@ -224,7 +223,7 @@ bool DirAsDSK::checkFileUsedInDSK(std::string_view hostName)
 	return dirIndex.sector != unsigned(-1);
 }
 
-static string hostToMsxName(string hostName)
+static std::array<char, 11> hostToMsxName(string hostName)
 {
 	// Create an MSX filename 8.3 format. TODO use vfat-like abbreviation
 	transform_in_place(hostName, [](char a) {
@@ -233,14 +232,15 @@ static string hostToMsxName(string hostName)
 	auto [file, ext] = StringOp::splitOnLast(hostName, '.');
 	if (file.empty()) std::swap(file, ext);
 
-	string result(8 + 3, ' ');
+	std::array<char, 8 + 3> result;
+	ranges::fill(result, ' ');
 	ranges::copy(subspan(file, 0, std::min<size_t>(8, file.size())), result.data() + 0);
 	ranges::copy(subspan(ext,  0, std::min<size_t>(3, ext .size())), result.data() + 8);
 	ranges::replace(result, '.', '_');
 	return result;
 }
 
-static string msxToHostName(const char* msxName)
+static string msxToHostName(std::span<const char, 11> msxName)
 {
 	string result;
 	for (unsigned i = 0; (i < 8) && (msxName[i] != ' '); ++i) {
@@ -285,7 +285,7 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 
 	// Initially the whole disk is filled with 0xE5 (at least on Philips
 	// NMS8250).
-	ranges::fill(std::span{sectors[0].raw, sizeof(SectorBuffer) * nofSectors}, 0xE5);
+	ranges::fill(std::span{sectors[0].raw.data(), sizeof(SectorBuffer) * nofSectors}, 0xE5);
 
 	// Use selected bootsector, fill-in values.
 	uint8_t mediaDescriptor = (numSides == 2) ? 0xF9 : 0xF8;
@@ -305,7 +305,7 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 	bootSector.nrSides      = numSides;
 
 	// Clear FAT1 + FAT2.
-	ranges::fill(std::span{fat()->raw, SECTOR_SIZE * nofSectorsPerFat * NUM_FATS}, 0);
+	ranges::fill(std::span{fat()->raw.data(), SECTOR_SIZE * nofSectorsPerFat * NUM_FATS}, 0);
 	// First 3 bytes are initialized specially:
 	//  'cluster 0' contains the media descriptor
 	//  'cluster 1' is marked as EOF_FAT
@@ -314,7 +314,7 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 	fat2()->raw[0] = mediaDescriptor; fat2()->raw[1] = 0xFF; fat2()->raw[2] = 0xFF;
 
 	// Assign empty directory entries.
-	ranges::fill(std::span{sectors[firstDirSector].raw, SECTOR_SIZE * SECTORS_PER_DIR}, 0);
+	ranges::fill(std::span{sectors[firstDirSector].raw.data(), SECTOR_SIZE * SECTORS_PER_DIR}, 0);
 
 	// No host files are mapped to this disk yet.
 	assert(mapDirs.empty());
@@ -455,9 +455,9 @@ void DirAsDSK::deleteMSXFile(DirIndex dirIndex)
 	if (msxDir(dirIndex).attrib & MSXDirEntry::ATT_DIRECTORY) {
 		// If we're deleting a directory then also (recursively)
 		// delete the files/directories in this directory.
-		const char* msxName = msxDir(dirIndex).filename;
-		if ((memcmp(msxName, ".          ", 11) == 0) ||
-		    (memcmp(msxName, "..         ", 11) == 0)) {
+		const auto& msxName = msxDir(dirIndex).filename;
+		if (ranges::equal(msxName, std::string_view(".          ")) ||
+		    ranges::equal(msxName, std::string_view("..         "))) {
 			// But skip the "." and ".." entries.
 			return;
 		}
@@ -759,22 +759,24 @@ void DirAsDSK::addNewDirectory(const string& hostSubDir, const string& hostName,
 
 		// Initialize the new directory.
 		newMsxDirSector = clusterToSector(cluster);
-		ranges::fill(std::span{sectors[newMsxDirSector].raw,
+		ranges::fill(std::span{sectors[newMsxDirSector].raw.data(),
 		                       SECTORS_PER_CLUSTER * SECTOR_SIZE},
 			     0);
 		DirIndex idx0(newMsxDirSector, 0); // entry for "."
 		DirIndex idx1(newMsxDirSector, 1); //           ".."
-		memset(msxDir(idx0).filename, ' ', 11);
-		memset(msxDir(idx1).filename, ' ', 11);
-		memset(msxDir(idx0).filename, '.', 1);
-		memset(msxDir(idx1).filename, '.', 2);
-		msxDir(idx0).attrib = MSXDirEntry::ATT_DIRECTORY;
-		msxDir(idx1).attrib = MSXDirEntry::ATT_DIRECTORY;
+		auto& e0 = msxDir(idx0);
+		auto& e1 = msxDir(idx1);
+		auto& f0 = e0.filename;
+		auto& f1 = e1.filename;
+		f0[0] = '.';              ranges::fill(subspan(f0, 1), ' ');
+		f1[0] = '.'; f1[1] = '.'; ranges::fill(subspan(f1, 2), ' ');
+		e0.attrib = MSXDirEntry::ATT_DIRECTORY;
+		e1.attrib = MSXDirEntry::ATT_DIRECTORY;
 		setMSXTimeStamp(idx0, fst);
 		setMSXTimeStamp(idx1, fst);
-		msxDir(idx0).startCluster = cluster;
-		msxDir(idx1).startCluster = msxDirSector == firstDirSector
-		                          ? 0 : sectorToCluster(msxDirSector);
+		e0.startCluster = cluster;
+		e1.startCluster = msxDirSector == firstDirSector
+		                ? 0 : sectorToCluster(msxDirSector);
 	} else {
 		if (!(msxDir(dirIndex).attrib & MSXDirEntry::ATT_DIRECTORY)) {
 			// Should rarely happen because checkDeletedHostFiles()
@@ -824,11 +826,11 @@ DirAsDSK::DirIndex DirAsDSK::fillMSXDirEntry(
 		DirIndex dirIndex = getFreeDirEntry(msxDirSector);
 
 		// Create correct MSX filename.
-		string msxFilename = hostToMsxName(hostName);
+		auto msxFilename = hostToMsxName(hostName);
 		if (checkMSXFileExists(msxFilename, msxDirSector)) {
 			// TODO: actually should increase vfat abbreviation if possible!!
 			throw MSXException(
-				"MSX name ", msxToHostName(msxFilename.c_str()),
+				"MSX name ", msxToHostName(msxFilename),
 				" already exists");
 		}
 
@@ -836,7 +838,7 @@ DirAsDSK::DirIndex DirAsDSK::fillMSXDirEntry(
 		assert(!hostPath.ends_with('/'));
 		mapDirs[dirIndex].hostName = hostPath;
 		memset(&msxDir(dirIndex), 0, sizeof(MSXDirEntry)); // clear entry
-		ranges::copy(msxFilename, std::begin(msxDir(dirIndex).filename)); // TODO simplify
+		ranges::copy(msxFilename, msxDir(dirIndex).filename);
 		return dirIndex;
 	} catch (MSXException& e) {
 		throw MSXException("Couldn't add ", hostPath, ": ",
@@ -856,7 +858,7 @@ DirAsDSK::DirIndex DirAsDSK::getFreeDirEntry(unsigned msxDirSector)
 
 		for (auto idx : xrange(DIR_ENTRIES_PER_SECTOR)) {
 			DirIndex dirIndex(msxDirSector, idx);
-			const char* msxName = msxDir(dirIndex).filename;
+			const auto& msxName = msxDir(dirIndex).filename;
 			if (msxName[0] == one_of(char(0x00), char(0xE5))) {
 				// Found an unused msx entry. There shouldn't
 				// be any hostfile mapped to this entry.
@@ -880,7 +882,7 @@ DirAsDSK::DirIndex DirAsDSK::getFreeDirEntry(unsigned msxDirSector)
 	unsigned cluster = sectorToCluster(msxDirSector);
 	unsigned newCluster = getFreeCluster(); // throws if disk full
 	unsigned sector = clusterToSector(newCluster);
-	ranges::fill(std::span{sectors[sector].raw, SECTORS_PER_CLUSTER * SECTOR_SIZE}, 0);
+	ranges::fill(std::span{sectors[sector].raw.data(), SECTORS_PER_CLUSTER * SECTOR_SIZE}, 0);
 	writeFAT12(cluster, newCluster);
 	writeFAT12(newCluster, EOF_FAT);
 
@@ -936,7 +938,7 @@ void DirAsDSK::writeFATSector(unsigned sector, const SectorBuffer& buf)
 	}
 	// At this point there should be no more differences.
 	// Note: we can't use
-	//   assert(memcmp(fat(), oldFAT, sizeof(oldFAT)) == 0);
+	//   assert(ranges::equal(fat(), oldFAT));
 	// because exportFileFromFATChange() only updates the part of the FAT
 	// that actually contains FAT info. E.g. not the media ID at the
 	// beginning nor the unused part at the end. And for example the 'CALL
@@ -1161,7 +1163,7 @@ void DirAsDSK::exportToHost(DirIndex dirIndex, DirIndex dirDirIndex)
 		// But ignore volume ID.
 		return;
 	}
-	const char* msxName = msxDir(dirIndex).filename;
+	const auto& msxName = msxDir(dirIndex).filename;
 	string hostName;
 	if (auto* v = lookup(mapDirs, dirIndex)) {
 		// Hostname is already known.
@@ -1186,8 +1188,8 @@ void DirAsDSK::exportToHost(DirIndex dirIndex, DirIndex dirDirIndex)
 		mapDirs[dirIndex].hostName = hostName;
 	}
 	if (msxDir(dirIndex).attrib & MSXDirEntry::ATT_DIRECTORY) {
-		if ((memcmp(msxName, ".          ", 11) == 0) ||
-		    (memcmp(msxName, "..         ", 11) == 0)) {
+		if (ranges::equal(msxName, std::string_view(".          ")) ||
+		    ranges::equal(msxName, std::string_view("..         "))) {
 			// Don't export "." or "..".
 			return;
 		}
@@ -1282,18 +1284,18 @@ void DirAsDSK::writeDIRSector(unsigned sector, DirIndex dirDirIndex,
 	for (auto idx : xrange(DIR_ENTRIES_PER_SECTOR)) {
 		const auto& newEntry = buf.dirEntry[idx];
 		DirIndex dirIndex(sector, idx);
-		if (memcmp(&msxDir(dirIndex), &newEntry, sizeof(newEntry)) != 0) {
+		if (msxDir(dirIndex) != newEntry) {
 			writeDIREntry(dirIndex, dirDirIndex, newEntry);
 		}
 	}
 	// At this point sector should be updated.
-	assert(memcmp(&sectors[sector], &buf, sizeof(buf)) == 0);
+	assert(ranges::equal(sectors[sector].raw, buf.raw));
 }
 
 void DirAsDSK::writeDIREntry(DirIndex dirIndex, DirIndex dirDirIndex,
                              const MSXDirEntry& newEntry)
 {
-	if (memcmp(msxDir(dirIndex).filename, newEntry.filename, 8 + 3) != 0 ||
+	if ((msxDir(dirIndex).filename != newEntry.filename) ||
 	    ((msxDir(dirIndex).attrib & MSXDirEntry::ATT_DIRECTORY) !=
 	     (        newEntry.attrib & MSXDirEntry::ATT_DIRECTORY))) {
 		// Name or file-type in the direntry was changed.

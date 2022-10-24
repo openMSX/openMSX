@@ -324,7 +324,7 @@ void VDPVRAM::serialize(Archive& ar, unsigned /*version*/)
 		setSizeMask(static_cast<MSXDevice&>(vdp).getCurrentTime());
 	}
 
-	ar.serialize_blob("data", &data[0], actualSize);
+	ar.serialize_blob("data", std::span{&data[0], actualSize});
 	ar.serialize("cmdReadWindow",       cmdReadWindow,
 	             "cmdWriteWindow",      cmdWriteWindow,
 	             "nameTable",           nameTable,

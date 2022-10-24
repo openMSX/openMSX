@@ -75,31 +75,30 @@ unsigned OutputArchiveBase2::getID2(
 
 template<typename Derived>
 void OutputArchiveBase<Derived>::serialize_blob(
-	const char* tag, const void* data_, size_t len, bool /*diff*/)
+	const char* tag, std::span<const uint8_t> data, bool /*diff*/)
 {
-	const auto* data = static_cast<const uint8_t*>(data_);
-
 	string encoding;
 	string tmp;
 	if (false) {
 		// useful for debugging
 		encoding = "hex";
-		tmp = HexDump::encode(data, len);
+		tmp = HexDump::encode(data);
 	} else if (false) {
 		encoding = "base64";
-		tmp = Base64::encode(data, len);
+		tmp = Base64::encode(data);
 	} else {
 		encoding = "gz-base64";
 		// TODO check for overflow?
+		auto len = data.size();
 		auto dstLen = uLongf(len + len / 1000 + 12 + 1); // worst-case
 		MemBuffer<uint8_t> buf(dstLen);
 		if (compress2(buf.data(), &dstLen,
-		              reinterpret_cast<const Bytef*>(data),
+		              reinterpret_cast<const Bytef*>(data.data()),
 		              uLong(len), 9)
 		    != Z_OK) {
 			throw MSXException("Error while compressing blob.");
 		}
-		tmp = Base64::encode(buf.data(), dstLen);
+		tmp = Base64::encode(std::span{buf.data(), dstLen});
 	}
 	this->self().beginTag(tag);
 	this->self().attribute("encoding", encoding);
@@ -135,7 +134,7 @@ unsigned InputArchiveBase2::getId(const void* ptr) const
 
 template<typename Derived>
 void InputArchiveBase<Derived>::serialize_blob(
-	const char* tag, void* data, size_t len, bool /*diff*/)
+	const char* tag, std::span<uint8_t> data, bool /*diff*/)
 {
 	this->self().beginTag(tag);
 	string encoding;
@@ -146,21 +145,21 @@ void InputArchiveBase<Derived>::serialize_blob(
 
 	if (encoding == "gz-base64") {
 		auto [buf, bufSize] = Base64::decode(tmp);
-		auto dstLen = uLongf(len); // TODO check for overflow?
-		if ((uncompress(reinterpret_cast<Bytef*>(data), &dstLen,
+		auto dstLen = uLongf(data.size()); // TODO check for overflow?
+		if ((uncompress(reinterpret_cast<Bytef*>(data.data()), &dstLen,
 		                reinterpret_cast<const Bytef*>(buf.data()), uLong(bufSize))
 		     != Z_OK) ||
-		    (dstLen != len)) {
+		    (dstLen != data.size())) {
 			throw MSXException("Error while decompressing blob.");
 		}
 	} else if (encoding == one_of("hex", "base64")) {
 		bool ok = (encoding == "hex")
-		        ? HexDump::decode_inplace(tmp, static_cast<uint8_t*>(data), len)
-		        : Base64 ::decode_inplace(tmp, static_cast<uint8_t*>(data), len);
+		        ? HexDump::decode_inplace(tmp, data)
+		        : Base64 ::decode_inplace(tmp, data);
 		if (!ok) {
 			throw XMLException(
 				"Length of decoded blob different from "
-				"expected value (", len, ')');
+				"expected value (", data.size(), ')');
 		}
 	} else {
 		throw XMLException("Unsupported encoding \"", encoding, "\" for blob");
@@ -214,27 +213,26 @@ string_view MemInputArchive::loadStr()
 // semi-arbitrary. I only made it >= 52 so that the (incompressible) RP5C01
 // registers won't be compressed.
 constexpr size_t SMALL_SIZE = 64;
-void MemOutputArchive::serialize_blob(const char* /*tag*/, const void* data,
-                                      size_t len, bool diff)
+void MemOutputArchive::serialize_blob(const char* /*tag*/, std::span<const uint8_t> data,
+                                      bool diff)
 {
 	// Delta-compress in-memory blobs, see DeltaBlock.hh for more details.
-	if (len > SMALL_SIZE) {
+	if (data.size() > SMALL_SIZE) {
 		auto deltaBlockIdx = unsigned(deltaBlocks.size());
 		save(deltaBlockIdx); // see comment below in MemInputArchive
-		std::span buf{static_cast<const uint8_t*>(data), len};
 		deltaBlocks.push_back(diff
-			? lastDeltaBlocks.createNew(data, buf)
-			: lastDeltaBlocks.createNullDiff(data, buf));
+			? lastDeltaBlocks.createNew(data.data(), data)
+			: lastDeltaBlocks.createNullDiff(data.data(), data));
 	} else {
-		auto buf = buffer.allocate(len);
-		memcpy(buf.data(), data, len);
+		auto buf = buffer.allocate(data.size());
+		ranges::copy(data, buf);
 	}
 }
 
-void MemInputArchive::serialize_blob(const char* /*tag*/, void* data,
-                                     size_t len, bool /*diff*/)
+void MemInputArchive::serialize_blob(const char* /*tag*/, std::span<uint8_t> data,
+                                     bool /*diff*/)
 {
-	if (len > SMALL_SIZE) {
+	if (data.size() > SMALL_SIZE) {
 		// Usually blobs are saved in the same order as they are loaded
 		// (via the serialize_blob() methods in respectively
 		// MemOutputArchive and MemInputArchive). In that case keeping
@@ -244,10 +242,10 @@ void MemInputArchive::serialize_blob(const char* /*tag*/, void* data,
 		// is possible that certain blobs are stored in the savestate,
 		// but skipped while loading. That's why we do need the index.
 		unsigned deltaBlockIdx; load(deltaBlockIdx);
-		deltaBlocks[deltaBlockIdx]->apply(std::span{static_cast<uint8_t*>(data), len});
+		deltaBlocks[deltaBlockIdx]->apply(data);
 	} else {
-		memcpy(data, buffer.getCurrentPos(), len);
-		buffer.skip(len);
+		ranges::copy(std::span{buffer.getCurrentPos(), data.size()}, data);
+		buffer.skip(data.size());
 	}
 }
 

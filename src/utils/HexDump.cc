@@ -16,14 +16,16 @@ using openmsx::MemBuffer;
 {
 	return tmpStrCat(encode2(x >> 4), encode2(x & 15));
 }
-std::string encode(const uint8_t* input, size_t len, bool newlines)
+std::string encode(std::span<const uint8_t> input, bool newlines)
 {
 	std::string ret;
+	size_t in = 0;
+	auto len = input.size();
 	while (len) {
 		if (newlines && !ret.empty()) ret += '\n';
 		int t = int(std::min<size_t>(16, len));
 		for (auto i : xrange(t)) {
-			ret += encode(*input++);
+			ret += encode(input[in++]);
 			if (i != (t - 1)) ret += ' ';
 		}
 		len -= t;
@@ -68,9 +70,10 @@ std::pair<MemBuffer<uint8_t>, size_t> decode(std::string_view input)
 	return {std::move(ret), out};
 }
 
-bool decode_inplace(std::string_view input, uint8_t* output, size_t outSize)
+bool decode_inplace(std::string_view input, std::span<uint8_t> output)
 {
 	size_t out = 0;
+	auto outSize = output.size();
 	bool flip = true;
 	uint8_t tmp = 0;
 	for (char c : input) {

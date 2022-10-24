@@ -4,7 +4,6 @@
 #include "MSXException.hh"
 #include "ranges.hh"
 #include "xrange.hh"
-#include <cstring>
 #include <cassert>
 
 namespace openmsx {
@@ -15,22 +14,25 @@ std::vector<IPSPatch::Chunk> IPSPatch::parseChunks() const
 
 	File ipsFile(filename);
 
-	byte buf[5];
-	ipsFile.read(buf, 5);
-	if (memcmp(buf, "PATCH", 5) != 0) {
+	std::array<uint8_t, 5> header;
+	ipsFile.read(header.data(), 5);
+	if (!ranges::equal(header, std::string_view("PATCH"))) {
 		throw MSXException("Invalid IPS file: ", filename.getOriginal());
 	}
-	ipsFile.read(buf, 3);
-	while (memcmp(buf, "EOF", 3) != 0) {
-		size_t offset = 0x10000 * buf[0] + 0x100 * buf[1] + buf[2];
-		ipsFile.read(buf, 2);
-		size_t length = 0x100 * buf[0] + buf[1];
+	std::array<uint8_t, 3> offsetBuf;
+	ipsFile.read(offsetBuf.data(), 3);
+	while (!ranges::equal(offsetBuf, std::string_view("EOF"))) {
+		size_t offset = 0x10000 * offsetBuf[0] + 0x100 * offsetBuf[1] + offsetBuf[2];
+		std::array<uint8_t, 2> lenBuf;
+		ipsFile.read(lenBuf.data(), 2);
+		size_t length = 0x100 * lenBuf[0] + lenBuf[1];
 		std::vector<byte> v;
 		if (length == 0) {
 			// RLE encoded
-			ipsFile.read(buf, 3);
-			length = 0x100 * buf[0] + buf[1];
-			v.resize(length, buf[2]);
+			std::array<uint8_t, 3> rleBuf;
+			ipsFile.read(rleBuf.data(), 3);
+			length = 0x100 * rleBuf[0] + rleBuf[1];
+			v.resize(length, rleBuf[2]);
 		} else {
 			// patch bytes
 			v.resize(length);
@@ -62,7 +64,7 @@ std::vector<IPSPatch::Chunk> IPSPatch::parseChunks() const
 			result.emplace(b, Chunk{offset, std::move(v)});
 		}
 
-		ipsFile.read(buf, 3);
+		ipsFile.read(offsetBuf.data(), 3);
 	}
 	return result;
 }

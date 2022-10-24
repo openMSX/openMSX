@@ -1,9 +1,9 @@
 #include "catch.hpp"
 #include "Interpreter.hh"
 #include "TclObject.hh"
+#include "ranges.hh"
 #include "view.hh"
 #include <cstdint>
-#include <cstring>
 #include <iterator>
 #include <string>
 
@@ -145,11 +145,10 @@ TEST_CASE("TclObject, operator=")
 		CHECK(t.getString() == "-3.14");
 	}
 	SECTION("binary") {
-		uint8_t buf[] = {1, 2, 3};
-		t = std::span<uint8_t>{buf, sizeof(buf)};
+		std::array<uint8_t, 3> buf = {1, 2, 3};
+		t = std::span{buf};
 		auto result = t.getBinary();
-		CHECK(result.size() == sizeof(buf));
-		CHECK(memcmp(buf, result.data(), result.size()) == 0);
+		CHECK(ranges::equal(buf, result));
 		// 'buf' was copied into 't'
 		CHECK(result.data() != &buf[0]);
 		CHECK(result[0] == 1);
@@ -180,7 +179,7 @@ TEST_CASE("TclObject, operator=")
 TEST_CASE("TclObject, addListElement")
 {
 	Interpreter interp;
-	
+
 	SECTION("no error") {
 		TclObject t;
 		CHECK(t.getListLength(interp) == 0);

@@ -1310,7 +1310,7 @@ void Y8950::serialize(Archive& ar, unsigned /*version*/)
 	             "timer1",            *timer1,
 	             "timer2",            *timer2,
 	             "irq",               irq);
-	ar.serialize_blob("registers", reg, sizeof(reg));
+	ar.serialize_blob("registers", reg);
 	ar.serialize("pm_phase",      pm_phase,
 	             "am_phase",      am_phase,
 	             "noise_seed",    noise_seed,

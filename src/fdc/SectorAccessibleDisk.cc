@@ -36,7 +36,7 @@ void SectorAccessibleDisk::readSectors(
 	try {
 		// in the end this calls readSectorsImpl()
 		patch->copyBlock(startSector * sizeof(SectorBuffer),
-		                 buffers[0].raw,
+		                 buffers[0].raw.data(),
 				 nbSectors * sizeof(SectorBuffer));
 	} catch (MSXException& e) {
 		throw DiskIOErrorException("Disk I/O error: ", e.getMessage());
@@ -129,7 +129,7 @@ Sha1Sum SectorAccessibleDisk::getSha1SumImpl(FilePool& /*filePool*/)
 		while (sector < total) {
 			auto chunk = std::min(MAX_CHUNK, total - sector);
 			readSectors(buf, sector, chunk);
-			sha1.update({buf[0].raw, chunk * sizeof(SectorBuffer)});
+			sha1.update({buf[0].raw.data(), chunk * sizeof(SectorBuffer)});
 			sector += chunk;
 		}
 

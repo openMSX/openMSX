@@ -60,7 +60,7 @@ bool Completer::equalHead(string_view s1, string_view s2, bool caseSensitive)
 {
 	if (s2.size() < s1.size()) return false;
 	if (caseSensitive) {
-		return memcmp(s1.data(), s2.data(), s1.size()) == 0;
+		return ranges::equal(s1, subspan(s2, 0, s1.size()));
 	} else {
 		return strncasecmp(s1.data(), s2.data(), s1.size()) == 0;
 	}

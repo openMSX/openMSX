@@ -4,9 +4,9 @@
 #include "Filename.hh"
 #include "CliComm.hh"
 #include "MSXException.hh"
+#include "ranges.hh"
 #include "stl.hh"
 #include "xrange.hh"
-#include <cstring> // for memcmp
 #include <span>
 
 static constexpr std::array<uint8_t, 10> ASCII_HEADER  = { 0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA };
@@ -40,9 +40,9 @@ static void writeSilence(std::vector<int8_t>& wave, unsigned s)
 	append(wave, s, 0);
 }
 
-static bool compare(const uint8_t* p, const auto& array)
+static bool compare(const uint8_t* p, std::span<const uint8_t> rhs)
 {
-	return memcmp(p, array.data(), array.size()) == 0;
+	return ranges::equal(std::span{p, rhs.size()}, rhs);
 }
 
 namespace MSX_CAS {

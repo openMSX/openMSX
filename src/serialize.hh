@@ -140,14 +140,25 @@ public:
 	//        (polymorphic) constructors are also described.
 	//
 	//
-	// void serialize_blob(const char* tag, const void* data, size_t len,
-	//                     bool diff = true)
+	// void serialize_blob(const char* tag, std::span<uint8_t> data, bool diff = true)
 	//
 	//   Serialize the given data as a binary blob.
 	//   This cannot be part of the serialize() method above because we
 	//   cannot know whether a byte-array should be serialized as a blob
 	//   or as a collection of bytes (IOW we cannot decide it based on the
 	//   type).
+
+	template<typename T>
+	void serialize_blob(const char* tag, std::span<T> data, bool diff = true)
+	{
+		self().serialize_blob(tag, std::span<uint8_t>{static_cast<uint8_t*>(data.data()), data.size_bytes()}, diff);
+	}
+	template<typename T>
+	void serialize_blob(const char* tag, std::span<const T> data, bool diff = true)
+	{
+		self().serialize_blob(tag, std::span<uint8_t>{static_cast<const uint8_t*>(data.data()), data.size_bytes()}, diff);
+	}
+
 	//
 	//
 	// template<typename T> void serialize(const char* tag, const T& t)
@@ -463,7 +474,7 @@ public:
 
 	// Default implementation is to base64-encode the blob and serialize
 	// the resulting string. But memory archives will memcpy the blob.
-	void serialize_blob(const char* tag, const void* data, size_t len,
+	void serialize_blob(const char* tag, std::span<const uint8_t> data,
 	                    bool diff = true);
 
 	template<typename T> void serialize(const char* tag, const T& t)
@@ -558,7 +569,7 @@ public:
 	{
 		doSerialize(tag, t, std::tuple<Args...>(args...));
 	}
-	void serialize_blob(const char* tag, void* data, size_t len,
+	void serialize_blob(const char* tag, std::span<uint8_t> data,
 	                    bool diff = true);
 
 	template<typename T>
@@ -669,7 +680,7 @@ public:
 	}
 	void save(const std::string& s) { save(std::string_view(s)); }
 	void save(std::string_view s);
-	void serialize_blob(const char* tag, const void* data, size_t len,
+	void serialize_blob(const char* tag, std::span<const uint8_t> data,
 	                    bool diff = true);
 
 	using OutputArchiveBase<MemOutputArchive>::serialize;
@@ -781,7 +792,7 @@ public:
 	}
 	void load(std::string& s);
 	[[nodiscard]] std::string_view loadStr();
-	void serialize_blob(const char* tag, void* data, size_t len,
+	void serialize_blob(const char* tag, std::span<uint8_t> data,
 	                    bool diff = true);
 
 	using InputArchiveBase<MemInputArchive>::serialize;

@@ -578,7 +578,7 @@ void SCSIHD::serialize(Archive& ar, unsigned /*version*/)
 	             "unitAttention", unitAttention,
 	             "message",       message,
 	             "lun",           lun);
-	ar.serialize_blob("cdb", cdb, sizeof(cdb));
+	ar.serialize_blob("cdb", cdb);
 }
 INSTANTIATE_SERIALIZE_METHODS(SCSIHD);
 REGISTER_POLYMORPHIC_INITIALIZER(SCSIDevice, SCSIHD, "SCSIHD");

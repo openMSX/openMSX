@@ -4,7 +4,8 @@
 #include "GZFileAdapter.hh"
 #include "ZipFileAdapter.hh"
 #include "checked_cast.hh"
-#include <cstring>
+#include "ranges.hh"
+#include <array>
 #include <memory>
 
 namespace openmsx {
@@ -13,17 +14,17 @@ File::File() = default;
 
 [[nodiscard]] static std::unique_ptr<FileBase> init(std::string filename, File::OpenMode mode)
 {
-	static constexpr uint8_t GZ_HEADER[3]  = { 0x1F, 0x8B, 0x08 };
-	static constexpr uint8_t ZIP_HEADER[4] = { 0x50, 0x4B, 0x03, 0x04 };
+	static constexpr std::array<uint8_t, 3> GZ_HEADER  = {0x1F, 0x8B, 0x08};
+	static constexpr std::array<uint8_t, 4> ZIP_HEADER = {0x50, 0x4B, 0x03, 0x04};
 
 	std::unique_ptr<FileBase> file = std::make_unique<LocalFile>(std::move(filename), mode);
 	if (file->getSize() >= 4) {
-		uint8_t buf[4];
-		file->read(buf, 4);
+		std::array<uint8_t, 4> buf;
+		file->read(buf.data(), 4);
 		file->seek(0);
-		if (memcmp(buf, GZ_HEADER, 3) == 0) {
+		if (ranges::equal(subspan<3>(buf), GZ_HEADER)) {
 			file = std::make_unique<GZFileAdapter>(std::move(file));
-		} else if (memcmp(buf, ZIP_HEADER, 4) == 0) {
+		} else if (ranges::equal(subspan<4>(buf), ZIP_HEADER)) {
 			file = std::make_unique<ZipFileAdapter>(std::move(file));
 		} else {
 			// only pre-cache non-compressed files

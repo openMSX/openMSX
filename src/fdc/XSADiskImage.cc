@@ -138,7 +138,7 @@ void XSAExtractor::unLz77()
 	bitCnt = 0; // no bits read yet
 
 	size_t remaining = sectors * sizeof(SectorBuffer);
-	uint8_t* out = outBuf.data()->raw;
+	uint8_t* out = outBuf.data()->raw.data();
 	size_t outIdx = 0;
 	while (true) {
 		if (bitIn()) {

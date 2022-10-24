@@ -747,7 +747,7 @@ SERIALIZE_ENUM(SCSI::Phase, phaseInfo);
 template<typename Archive>
 void MB89352::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize_blob("buffer", buffer.data(), buffer.size());
+	ar.serialize_blob("buffer", buffer);
 	char tag[8] = { 'd', 'e', 'v', 'i', 'c', 'e', 'X', 0 };
 	for (auto [i, d] : enumerate(dev)) {
 		tag[6] = char('0' + i);
@@ -762,14 +762,14 @@ void MB89352::serialize(Archive& ar, unsigned /*version*/)
 	             "nextPhase",    nextPhase,
 	             "myId",         myId,
 	             "targetId",     targetId);
-	ar.serialize_blob("registers", regs, sizeof(regs));
+	ar.serialize_blob("registers", regs);
 	ar.serialize("rst",        rst,
 	             "atn",        atn,
 	             "isEnabled",  isEnabled,
 	             "isBusy",     isBusy,
 	             "isTransfer", isTransfer,
 	             "cdbIdx",     cdbIdx);
-	ar.serialize_blob("cdb", cdb, sizeof(cdb));
+	ar.serialize_blob("cdb", cdb);
 }
 INSTANTIATE_SERIALIZE_METHODS(MB89352);
 

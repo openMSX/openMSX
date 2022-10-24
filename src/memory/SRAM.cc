@@ -9,7 +9,6 @@
 #include "serialize.hh"
 #include "openmsx.hh"
 #include "vla.hh"
-#include <cstring>
 
 namespace openmsx {
 
@@ -91,10 +90,9 @@ void SRAM::load(bool* loaded)
 		if (header) {
 			size_t length = strlen(header);
 			VLA(char, temp, length);
+			std::span buf{temp, length};
 			file.read(temp, length);
-			if (memcmp(temp, header, length) != 0) {
-				headerOk = false;
-			}
+			headerOk = ranges::equal(buf, std::span{header, length});
 		}
 		if (headerOk) {
 			file.read(ram.getWriteBackdoor(), size());

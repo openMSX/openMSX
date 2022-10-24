@@ -443,7 +443,7 @@ template<typename Archive>
 void AbstractIDEDevice::serialize(Archive& ar, unsigned /*version*/)
 {
 	// no need to serialize IDEDevice base class
-	ar.serialize_blob("buffer", buffer, sizeof(buffer));
+	ar.serialize_blob("buffer", buffer);
 	ar.serialize("transferIdx",     transferIdx,
 	             "bufferLeft",      bufferLeft,
 	             "transferCount",   transferCount,

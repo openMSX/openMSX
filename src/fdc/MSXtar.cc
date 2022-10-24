@@ -191,7 +191,7 @@ static constexpr unsigned normalizeFAT(unsigned cluster)
 unsigned MSXtar::readFAT(unsigned clNr) const
 {
 	assert(!fatBuffer.empty()); // FAT must already be cached
-	const auto* data = fatBuffer[0].raw;
+	const auto* data = fatBuffer[0].raw.data();
 	const auto* p = &data[(clNr * 3) / 2];
 	unsigned result = (clNr & 1)
 	                ? (p[0] >> 4) + (p[1] << 4)
@@ -204,7 +204,7 @@ void MSXtar::writeFAT(unsigned clNr, unsigned val)
 {
 	assert(!fatBuffer.empty()); // FAT must already be cached
 	assert(val < 4096); // FAT12
-	auto* data = fatBuffer[0].raw;
+	auto* data = fatBuffer[0].raw.data();
 	auto* p = &data[(clNr * 3) / 2];
 	if (clNr & 1) {
 		p[0] = (p[0] & 0x0F) + (val << 4);
@@ -390,7 +390,7 @@ unsigned MSXtar::addSubdir(
 	readLogicalSector(result.sector, buf);
 
 	auto& dirEntry = buf.dirEntry[result.index];
-	ranges::copy(makeSimpleMSXFileName(msxName), std::begin(dirEntry.filename)); // TODO simplify
+	ranges::copy(makeSimpleMSXFileName(msxName), dirEntry.filename);
 	dirEntry.attrib = T_MSX_DIR;
 	dirEntry.time = t;
 	dirEntry.date = d;
@@ -564,7 +564,7 @@ MSXtar::DirEntry MSXtar::findEntryInDir(
 		// read sector and scan 16 entries
 		readLogicalSector(result.sector, buf);
 		for (result.index = 0; result.index < 16; ++result.index) {
-			if (string_view(buf.dirEntry[result.index].filename, 11) == name) {
+			if (ranges::equal(buf.dirEntry[result.index].filename, name)) {
 				return result;
 			}
 		}
@@ -594,7 +594,7 @@ string MSXtar::addFileToDSK(const string& fullHostName, unsigned rootSector)
 	readLogicalSector(entry.sector, buf);
 	auto& dirEntry = buf.dirEntry[entry.index];
 	memset(&dirEntry, 0, sizeof(dirEntry));
-	ranges::copy(msxName, std::begin(dirEntry.filename)); // TODO simplify
+	ranges::copy(msxName, dirEntry.filename);
 	dirEntry.attrib = T_MSX_REG;
 
 	// compute time/date stamps
@@ -656,13 +656,13 @@ string MSXtar::recurseDirFill(string_view dirName, unsigned sector)
 static string condensName(const MSXDirEntry& dirEntry)
 {
 	string result;
-	for (unsigned i = 0; (i < 8) && (dirEntry.name.base[i] != ' '); ++i) {
-		result += char(tolower(dirEntry.name.base[i]));
+	for (unsigned i = 0; (i < 8) && (dirEntry.base()[i] != ' '); ++i) {
+		result += char(tolower(dirEntry.base()[i]));
 	}
-	if (dirEntry.name.ext[0] != ' ') {
+	if (dirEntry.ext()[0] != ' ') {
 		result += '.';
-		for (unsigned i = 0; (i < 3) && (dirEntry.name.ext[i] != ' '); ++i) {
-			result += char(tolower(dirEntry.name.ext[i]));
+		for (unsigned i = 0; (i < 3) && (dirEntry.ext()[i] != ' '); ++i) {
+			result += char(tolower(dirEntry.ext()[i]));
 		}
 	}
 	return result;

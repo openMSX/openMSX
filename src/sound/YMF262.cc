@@ -1684,7 +1684,7 @@ void YMF262::serialize(Archive& a, unsigned version)
 	            "timer2",  *timer2,
 	            "irq",     irq,
 	            "chanout", chanout);
-	a.serialize_blob("registers", reg, sizeof(reg));
+	a.serialize_blob("registers", reg);
 	a.serialize("channels",           channel,
 	            "eg_cnt",             eg_cnt,
 	            "noise_rng",          noise_rng,

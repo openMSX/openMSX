@@ -108,7 +108,7 @@ void MSXS1985::serialize(Archive& ar, unsigned version)
 		// deserialize that structure and transfer it to SRAM
 		byte tmp[0x10];
 		ar.beginTag("ram");
-		ar.serialize_blob("ram", tmp, sizeof(tmp));
+		ar.serialize_blob("ram", tmp);
 		ar.endTag("ram");
 		for (auto [i, t] : enumerate(tmp)) {
 			sram->write(unsigned(i), t);

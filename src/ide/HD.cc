@@ -164,7 +164,7 @@ uint8_t* HD::getData(size_t offset, size_t size)
 
 	struct Work {
 		char extra; // at least one byte before 'bufs'
-		// likely here are padding bytes in between
+		// likely there are padding bytes in between
 		SectorBuffer bufs[TigerTree::BLOCK_SIZE / sizeof(SectorBuffer)];
 	};
 	static Work work; // not reentrant
@@ -172,7 +172,7 @@ uint8_t* HD::getData(size_t offset, size_t size)
 	size_t sector = offset / sizeof(SectorBuffer);
 	size_t num    = size   / sizeof(SectorBuffer);
 	readSectors(work.bufs, sector, num); // This possibly applies IPS patches.
-	return work.bufs[0].raw;
+	return work.bufs[0].raw.data();
 }
 
 bool HD::isCacheStillValid(time_t& cacheTime)

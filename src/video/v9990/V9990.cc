@@ -903,10 +903,10 @@ void V9990::serialize(Archive& ar, unsigned version)
 	             "irq",            irq,
 	             "frameStartTime", frameStartTime,
 	             "hScanSyncTime",  hScanSyncTime);
-	ar.serialize_blob("palette", palette, sizeof(palette));
+	ar.serialize_blob("palette", palette);
 	ar.serialize("status",      status,
 	             "pendingIRQs", pendingIRQs);
-	ar.serialize_blob("registers", regs, sizeof(regs));
+	ar.serialize_blob("registers", regs);
 	ar.serialize("regSelect",      regSelect,
 	             "palTiming",      palTiming,
 	             "interlaced",     interlaced,

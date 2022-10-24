@@ -830,7 +830,7 @@ void SCSILS120::serialize(Archive& ar, unsigned /*version*/)
 	             "mediaChanged",  mediaChanged,
 	             "message",       message,
 	             "lun",           lun);
-	ar.serialize_blob("cdb", cdb, sizeof(cdb));
+	ar.serialize_blob("cdb", cdb);
 }
 INSTANTIATE_SERIALIZE_METHODS(SCSILS120);
 REGISTER_POLYMORPHIC_INITIALIZER(SCSIDevice, SCSILS120, "SCSILS120");

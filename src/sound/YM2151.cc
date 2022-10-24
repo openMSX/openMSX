@@ -1644,7 +1644,7 @@ void YM2151::serialize(Archive& a, unsigned /*version*/)
 	            "pmd",             pmd,
 	            "test",            test,
 	            "ct",              ct);
-	a.serialize_blob("registers", regs, sizeof(regs));
+	a.serialize_blob("registers", regs);
 
 	if constexpr (Archive::IS_LOADER) {
 		// TODO restore more state from registers

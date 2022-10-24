@@ -2,7 +2,6 @@
 #include "ranges.hh"
 #include "lz4.hh"
 #include <cassert>
-#include <cstring>
 #include <tuple>
 #include <utility>
 #if STATISTICS
@@ -299,7 +298,7 @@ void DeltaBlockCopy::compress(size_t size)
 #ifdef DEBUG
 	MemBuffer<uint8_t> buf3(size);
 	apply({buf3.data(), size});
-	assert(memcmp(buf3.data(), buf2.data(), size) == 0);
+	assert(ranges::equal(std::span{buf3.data(), size}, std::span{buf2.data(), size}));
 #endif
 #if STATISTICS
 	int delta = compressedSize - allocSize;
@@ -330,7 +329,7 @@ DeltaBlockDiff::DeltaBlockDiff(
 
 	MemBuffer<uint8_t> buf(data.size());
 	apply({buf.data(), data.size()});
-	assert(memcmp(buf.data(), data.data(), data.size()) == 0);
+	assert(ranges::equal(std::span{buf.data(), data.size()}, data));
 #endif
 #if STATISTICS
 	allocSize = delta.size();

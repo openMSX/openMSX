@@ -78,9 +78,9 @@ inline WavData::WavData(File file, Filter filter)
 		Endian::L16 wBitsPerSample;
 	};
 	const auto* header = read<WavHeader>(raw, 0);
-	if (memcmp(header->riffID, "RIFF", 4) ||
-	    memcmp(header->riffType, "WAVE", 4) ||
-	    memcmp(header->fmtID, "fmt ", 4)) {
+	if ((std::string_view{header->riffID,   4} != "RIFF") ||
+	    (std::string_view{header->riffType, 4} != "WAVE") ||
+	    (std::string_view{header->fmtID,    4} != "fmt ")) {
 		throw MSXException("Invalid WAV file.");
 	}
 	unsigned bits = header->wBitsPerSample;
@@ -103,7 +103,7 @@ inline WavData::WavData(File file, Filter filter)
 		// Read chunk header
 		dataHeader = read<DataHeader>(raw, pos);
 		pos += sizeof(DataHeader);
-		if (!memcmp(dataHeader->dataID, "data", 4)) break;
+		if (std::string_view{dataHeader->dataID, 4} == "data") break;
 		// Skip non-data chunk
 		pos += dataHeader->chunkSize;
 	}
