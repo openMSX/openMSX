@@ -111,7 +111,11 @@ proc menu_create {menudef} {
 					-rgba $textcolor -x $bordersize -y $y
 		if {$selectable} {
 			set allactions [concat $defactions $actions]
-			lappend selectinfo [list $y $fontsize $allactions $on_select $on_deselect]
+			# NOTE: the 1.5 below is necessary to place the select
+			# bar properly vertically... It's unclear why this is
+			# necessary and why this emperically determined value
+			# is working.
+			lappend selectinfo [list [expr $y+1.5] $fontsize $allactions $on_select $on_deselect]
 		}
 		incr y $fontsize
 		incr y [get_optional itemdef "post-spacing" 0]
