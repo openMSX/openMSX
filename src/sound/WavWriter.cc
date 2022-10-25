@@ -8,6 +8,7 @@
 #include "ranges.hh"
 #include "vla.hh"
 #include "xrange.hh"
+#include <array>
 #include <vector>
 
 namespace openmsx {
