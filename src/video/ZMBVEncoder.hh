@@ -9,6 +9,7 @@
 #include <concepts>
 #include <cstdint>
 #include <span>
+#include <string_view>
 #include <zlib.h>
 
 namespace openmsx {
@@ -19,7 +20,7 @@ template<std::unsigned_integral P> class PixelOperations;
 class ZMBVEncoder
 {
 public:
-	static constexpr const char CODEC_4CC[5] = "ZMBV"; // 4 + zero-terminator
+	static constexpr std::string_view CODEC_4CC = "ZMBV";
 
 	ZMBVEncoder(unsigned width, unsigned height, unsigned bpp);
 

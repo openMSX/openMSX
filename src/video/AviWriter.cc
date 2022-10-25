@@ -7,6 +7,8 @@
 #include "endian.hh"
 #include "cstdiop.hh" // for snprintf
 #include "ranges.hh"
+#include "stl.hh"
+#include "zstring_view.hh"
 #include <array>
 #include <cassert>
 #include <cstring>
@@ -15,7 +17,7 @@
 
 namespace openmsx {
 
-constexpr unsigned AVI_HEADER_SIZE = 500;
+static constexpr unsigned AVI_HEADER_SIZE = 500;
 
 AviWriter::AviWriter(const Filename& filename, unsigned width_,
                      unsigned height_, unsigned bpp, unsigned channels_,
@@ -50,12 +52,12 @@ AviWriter::~AviWriter()
 
 	// Possible cleanup: use structs for the different headers, that
 	// also allows to use the aligned versions of the Endian routines.
-	uint8_t avi_header[AVI_HEADER_SIZE] = {};
+	std::array<uint8_t, AVI_HEADER_SIZE> avi_header = {};
 	unsigned header_pos = 0;
 
-	auto AVIOUT4 = [&](const char (&s)[5]) { // expect a string-literal of 4 chars (+ zero terminator)
-		assert(s[4] == '\0');
-		ranges::copy(std::span{s, 4}, &avi_header[header_pos]);
+	auto AVIOUT4 = [&](std::string_view s) {
+		assert(s.size() == 4);
+		ranges::copy(s, subspan(avi_header, header_pos));
 		header_pos += 4;
 	};
 	auto AVIOUTw = [&](uint16_t w) {
@@ -66,9 +68,9 @@ AviWriter::~AviWriter()
 		Endian::write_UA_L32(&avi_header[header_pos], d);
 		header_pos += sizeof(d);
 	};
-	auto AVIOUTs = [&](const char* s) {
-		auto len1 = strlen(s) + 1; // +1 for zero-terminator
-		ranges::copy(std::span{s, len1}, &avi_header[header_pos]);
+	auto AVIOUTs = [&](zstring_view s) {
+		auto len1 = s.size() + 1; // +1 for zero-terminator
+		ranges::copy(std::span{s.data(), len1}, subspan(avi_header, header_pos));
 		header_pos += (len1 + 1) & ~1; // round-up to even
 	};
 
@@ -190,24 +192,25 @@ AviWriter::~AviWriter()
 	// -2147483647). To silence this warning (and also to work around the
 	// windows _snprintf stuff) we add some extra buffer space.
 	constexpr size_t size = (4 + 1 + 2 + 1 + 2 + 1) + 22;
-	char dateStr[size];
+	std::array<char, size> dateStr;
 	time_t t = time(nullptr);
 	struct tm *tm = localtime(&t);
-	snprintf(dateStr, sizeof(dateStr), "%04d-%02d-%02d", 1900 + tm->tm_year,
-		 tm->tm_mon + 1, tm->tm_mday);
+	size_t dateLen = snprintf(dateStr.data(), sizeof(dateStr), "%04d-%02d-%02d", 1900 + tm->tm_year,
+		                  tm->tm_mon + 1, tm->tm_mday);
+	assert(dateLen < size);
 
 	AVIOUT4("LIST");
 	AVIOUTd(4 // list type
 		+ (4 + 4 + ((versionStr.size() + 1 + 1) & ~1)) // 1st chunk
-		+ (4 + 4 + ((strlen(dateStr  ) + 1 + 1) & ~1)) // 2nd chunk
+		+ (4 + 4 + ((dateLen + 1 + 1) & ~1)) // 2nd chunk
 		); // size of the list
 	AVIOUT4("INFO");
 	AVIOUT4("ISFT");
 	AVIOUTd(unsigned(versionStr.size()) + 1); // # of bytes to follow
-	AVIOUTs(versionStr.c_str());
+	AVIOUTs(versionStr);
 	AVIOUT4("ICRD");
-	AVIOUTd(unsigned(strlen(dateStr)) + 1); // # of bytes to follow
-	AVIOUTs(dateStr);
+	AVIOUTd(unsigned(dateLen) + 1); // # of bytes to follow
+	AVIOUTs(zstring_view{dateStr.data(), dateLen});
 	// TODO: add artist (IART), comments (ICMT), name (INAM), etc.
 	// use a loop over chunks (type + string) to create the above bytes in
 	// a much nicer way
@@ -267,24 +270,24 @@ void AviWriter::addAviChunk(std::span<const char, 4> tag, size_t size_, const vo
 	index[idxSize + 3] = size;
 }
 
-void AviWriter::addFrame(FrameSource* frame, unsigned samples, int16_t* sampleData)
+void AviWriter::addFrame(FrameSource* video, std::span<const int16_t> audio)
 {
 	bool keyFrame = (frames++ % 300 == 0);
-	auto buffer = codec.compressFrame(keyFrame, frame);
+	auto buffer = codec.compressFrame(keyFrame, video);
 	addAviChunk(subspan<4>("00dc"), buffer.size(), buffer.data(), keyFrame ? 0x10 : 0x0);
 
-	if (samples) {
-		assert((samples % channels) == 0);
+	if (!audio.empty()) {
+		assert((audio.size() % channels) == 0);
 		assert(audiorate != 0);
 		if constexpr (Endian::BIG) {
 			// See comment in WavWriter::write()
 			//VLA(Endian::L16, buf, samples); // doesn't work in clang
-			std::vector<Endian::L16> buf(sampleData, sampleData + samples);
-			addAviChunk(subspan<4>("01wb"), samples * sizeof(int16_t), buf.data(), 0);
+			auto buf = to_vector<Endian::L16>(audio);
+			addAviChunk(subspan<4>("01wb"), audio.size_bytes(), buf.data(), 0);
 		} else {
-			addAviChunk(subspan<4>("01wb"), samples * sizeof(int16_t), sampleData, 0);
+			addAviChunk(subspan<4>("01wb"), audio.size_bytes(), audio.data(), 0);
 		}
-		audiowritten += samples;
+		audiowritten += audio.size();
 	}
 }
 

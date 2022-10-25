@@ -17,25 +17,25 @@
 
 namespace openmsx {
 
-constexpr uint8_t DBZV_VERSION_HIGH = 0;
-constexpr uint8_t DBZV_VERSION_LOW = 1;
-constexpr uint8_t COMPRESSION_ZLIB = 1;
-constexpr unsigned MAX_VECTOR = 16;
-constexpr unsigned BLOCK_WIDTH  = MAX_VECTOR;
-constexpr unsigned BLOCK_HEIGHT = MAX_VECTOR;
-constexpr unsigned FLAG_KEYFRAME = 0x01;
+static constexpr uint8_t DBZV_VERSION_HIGH = 0;
+static constexpr uint8_t DBZV_VERSION_LOW = 1;
+static constexpr uint8_t COMPRESSION_ZLIB = 1;
+static constexpr unsigned MAX_VECTOR = 16;
+static constexpr unsigned BLOCK_WIDTH  = MAX_VECTOR;
+static constexpr unsigned BLOCK_HEIGHT = MAX_VECTOR;
+static constexpr unsigned FLAG_KEYFRAME = 0x01;
 
 struct CodecVector {
 	int8_t x;
 	int8_t y;
 };
 
-constexpr unsigned VECTOR_TAB_SIZE =
+static constexpr unsigned VECTOR_TAB_SIZE =
 	1 +                                       // center
 	8 * MAX_VECTOR +                          // horizontal, vertical, diagonal
 	MAX_VECTOR * MAX_VECTOR - 2 * MAX_VECTOR; // rest (only MAX_VECTOR/2)
 
-constexpr auto vectorTable = [] {
+static constexpr auto vectorTable = [] {
 	std::array<CodecVector, VECTOR_TAB_SIZE> result = {};
 
 	unsigned p = 0;

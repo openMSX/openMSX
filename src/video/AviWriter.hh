@@ -7,6 +7,7 @@
 #include "File.hh"
 #include "endian.hh"
 #include <cstdint>
+#include <span>
 #include <vector>
 
 namespace openmsx {
@@ -20,7 +21,7 @@ public:
 	AviWriter(const Filename& filename, unsigned width, unsigned height,
 	          unsigned bpp, unsigned channels, unsigned freq);
 	~AviWriter();
-	void addFrame(FrameSource* frame, unsigned samples, int16_t* sampleData);
+	void addFrame(FrameSource* frame, std::span<const int16_t> sampleData);
 	void setFps(float fps_) { fps = fps_; }
 
 private:

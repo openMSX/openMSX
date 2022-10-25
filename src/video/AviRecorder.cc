@@ -193,7 +193,7 @@ void AviRecorder::addImage(FrameSource* frame, EmuTime::param time)
 	if (mixer) {
 		mixer->updateStream(time);
 	}
-	aviWriter->addFrame(frame, unsigned(audioBuf.size()), audioBuf.data());
+	aviWriter->addFrame(frame, audioBuf);
 	audioBuf.clear();
 }
 
@@ -212,7 +212,7 @@ void AviRecorder::processStart(Interpreter& interp, std::span<const TclObject> t
 	bool recordStereo = false;
 	bool doubleSize   = false;
 	bool tripleSize   = false;
-	ArgsInfo info[] = {
+	std::array info = {
 		valueArg("-prefix", prefix),
 		flagArg("-audioonly", audioOnly),
 		flagArg("-videoonly", videoOnly),
