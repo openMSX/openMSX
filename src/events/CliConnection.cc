@@ -239,7 +239,7 @@ void PipeConnection::run()
 			if (!GetOverlappedResult(pipeHandle, &overlapped, &bytesRead, TRUE)) {
 				break; // Pipe broke
 			}
-			parser.parse(buf, bytesRead);
+			parser.parse(std::span{buf, bytesRead});
 		} else if (wait == WAIT_OBJECT_0) {
 			break; // Shutdown
 		} else {
