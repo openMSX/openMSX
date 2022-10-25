@@ -638,12 +638,12 @@ string getTempDir()
 #ifdef _WIN32
 	DWORD len = GetTempPathW(0, nullptr);
 	if (len) {
-		VLA(wchar_t, bufW, (len+1));
-		len = GetTempPathW(len, bufW);
+		VLA(wchar_t, bufW, (len + 1));
+		len = GetTempPathW(len, bufW.data());
 		if (len) {
 			// Strip last backslash
-			if (bufW[len-1] == L'\\') {
-				bufW[len-1] = L'\0';
+			if (bufW[len - 1] == L'\\') {
+				bufW[len - 1] = L'\0';
 			}
 			return utf16to8(bufW);
 		}
