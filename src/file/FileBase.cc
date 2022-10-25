@@ -2,6 +2,7 @@
 #include "FileOperations.hh"
 #include "ranges.hh"
 #include <algorithm>
+#include <array>
 
 namespace openmsx {
 
