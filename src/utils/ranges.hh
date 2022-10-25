@@ -7,6 +7,7 @@
 #include <iterator> // for std::begin(), std::end()
 #include <numeric>
 #include <span>
+#include <version> // for _LIBCPP_VERSION
 
 // Range based versions of the standard algorithms, these will likely become
 // part of c++20. For example see this post:
@@ -423,17 +424,34 @@ template<typename ForwardRange, typename T, typename Compare = std::less<>, type
 // header.
 
 template<typename Range>
+constexpr auto make_span(Range&& range)
+{
+#ifndef _LIBCPP_VERSION
+	// C++20 version, works with gcc/visual studio
+	// Simple enough that we don't actually need this helper function.
+	return std::span(range);
+#else
+	// Unfortunately we do need a workaround for clang/libc++, version 14 and 15
+	// return std::span(std::begin(range), std::end(range));
+
+	// Further workaround for Xcode-14, clang-13
+	// Don't always use this workaround, because '&*begin()' is actually
+	// undefined behavior when the range is empty. It works fine in
+	// practice, except when using a DEBUG-STL version.
+	return std::span(&*std::begin(range), std::size(range));
+#endif
+}
+
+template<typename Range>
 constexpr auto subspan(Range&& range, size_t offset, size_t count = std::dynamic_extent)
 {
-	//return std::span(range).subspan(offset, count); // TODO error with clang-15/libc++
-	return std::span(std::begin(range), std::end(range)).subspan(offset, count);
+	return make_span(std::forward<Range>(range)).subspan(offset, count);
 }
 
 template<size_t Count, typename Range>
 constexpr auto subspan(Range&& range, size_t offset = 0)
 {
-	//return std::span(range).subspan(offset).template first<Count>(); // TODO error with clang-15/libc++
-	return std::span(std::begin(range), std::end(range)).subspan(offset).template first<Count>();
+	return make_span(std::forward<Range>(range)).subspan(offset).template first<Count>();
 }
 
 #endif
