@@ -645,7 +645,7 @@ string getTempDir()
 			if (bufW[len - 1] == L'\\') {
 				bufW[len - 1] = L'\0';
 			}
-			return utf16to8(bufW);
+			return utf16to8(bufW.data());
 		}
 	}
 	throw FatalError("GetTempPathW failed: ", GetLastError());
