@@ -210,7 +210,7 @@ void Sha1Sum::parse40(std::span<const char, 40> str)
 	a[4] = _mm_cvtsi128_si32(f2);
 #else
 	// equivalent c++ version
-	const char* p = str;
+	const char* p = str.data();
 	for (auto& ai : a) {
 		unsigned t = 0;
 		repeat(8, [&] {
