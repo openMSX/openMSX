@@ -299,17 +299,17 @@ template<std::integral T> struct ConcatIntegral
 
 	[[nodiscard]] char* copy(char* dst) const
 	{
-		ranges::copy(std::span{begin(), sz}, dst);
+		ranges::copy(std::span{data(), sz}, dst);
 		return dst + sz;
 	}
 
 	[[nodiscard]] operator std::string() const
 	{
-		return std::string(begin(), this->size());
+		return std::string(data(), this->size());
 	}
 
 private:
-	[[nodiscard]] auto begin() const { return buf.end() - sz; }
+	[[nodiscard]] const char* data() const { return buf.data() + BUF_SIZE - sz; }
 	[[nodiscard]] auto end() { return buf.end(); }
 
 private:
