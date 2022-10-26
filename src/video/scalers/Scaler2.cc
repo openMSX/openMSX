@@ -149,7 +149,7 @@ void Scaler2<Pixel>::scale1x1to1x2(FrameSource& src,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	// Optimized variant: possibly avoid copy.
-	assert(dst.getWidth() == srcWidth);
+	assert(dst.getWidth() == srcWidth); (void)srcWidth;
 	Scale_1on1<Pixel> copy;
 	for (unsigned y = dstStartY; y < dstEndY; y += 2, ++srcStartY) {
 		auto dstLine0 = dst.acquireLine(y + 0);
@@ -168,7 +168,7 @@ void Scaler2<Pixel>::scale1x1to1x1(FrameSource& src,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	// Optimized variant: possibly avoid copy.
-	assert(dst.getWidth() == srcWidth);
+	assert(dst.getWidth() == srcWidth); (void)srcWidth;
 	Scale_1on1<Pixel> copy;
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; ++dstY, ++srcY) {

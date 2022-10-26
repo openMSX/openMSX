@@ -124,7 +124,7 @@ void Scaler1<Pixel>::scale1x1to1x1(FrameSource& src,
 {
 	// Optimized variant: pass dstLine to getLine(), so we can
 	// potentially avoid the copy operation.
-	assert(dst.getWidth() == srcWidth);
+	assert(dst.getWidth() == srcWidth); (void)srcWidth;
 	Scale_1on1<Pixel> copy;
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; ++srcY, ++dstY) {
