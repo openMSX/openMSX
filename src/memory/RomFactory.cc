@@ -70,12 +70,12 @@ namespace openmsx::RomFactory {
 
 [[nodiscard]] static RomType guessRomType(const Rom& rom)
 {
-	//std::span data = rom; // TODO error with clang-15/libc++
-	std::span data{rom.begin(), rom.end()};
-	auto size = data.size();
+	auto size = rom.size();
 	if (size == 0) {
 		return ROM_NORMAL;
 	}
+	//std::span data = rom; // TODO error with clang-13/libc++
+	std::span data{&*rom.begin(), size};
 
 	if (size < 0x10000) {
 		if ((size <= 0x4000) &&
