@@ -278,7 +278,7 @@ template<std::integral T> struct ConcatIntegral
 
 	ConcatIntegral(T t)
 	{
-		char* p = this->end();
+		auto p = this->end();
 		std::unsigned_integral auto a = absHelper(t);
 
 		do {
