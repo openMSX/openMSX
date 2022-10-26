@@ -215,7 +215,7 @@ void Sha1Sum::parse40(std::span<const char, 40> str)
 		unsigned t = 0;
 		repeat(8, [&] {
 			t <<= 4;
-			t |= hex(*p++, str);
+			t |= hex(*p++, str.data());
 		});
 		ai = t;
 	}
