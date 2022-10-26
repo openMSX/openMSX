@@ -80,7 +80,7 @@ SDLRasterizer<Pixel>::SDLRasterizer(
 	, renderSettings(display.getRenderSettings())
 	, characterConverter(vdp, subspan<16>(palFg), palBg)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLORS)
-	, spriteConverter(vdp.getSpriteChecker())
+	, spriteConverter(vdp.getSpriteChecker(), palBg)
 {
 	// Init the palette.
 	precalcPalette();

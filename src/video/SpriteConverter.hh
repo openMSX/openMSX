@@ -28,8 +28,10 @@ public:
 	  * initialisation.
 	  * @param spriteChecker_ Delivers the sprite data to be rendered.
 	  */
-	explicit SpriteConverter(SpriteChecker& spriteChecker_)
+	explicit SpriteConverter(SpriteChecker& spriteChecker_,
+	                         std::span<const Pixel, 16> pal)
 		: spriteChecker(spriteChecker_)
+		, palette(pal)
 	{
 	}
 
@@ -202,7 +204,7 @@ private:
 
 	/** The current sprite palette.
 	  */
-	std::span<const Pixel, 16> palette{static_cast<const Pixel*>(nullptr), 16};
+	std::span<const Pixel, 16> palette;
 
 	/** VDP transparency setting (R#8, bit5).
 	  */
