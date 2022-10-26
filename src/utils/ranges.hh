@@ -302,7 +302,7 @@ constexpr void iota(ForwardIt first, ForwardIt last, T value)
 template<typename ForwardRange, typename T>
 constexpr void iota(ForwardRange&& range, T&& value)
 {
-	iota(std::begin(range), std::end(range), std::forward<T>(value));
+	::ranges::iota(std::begin(range), std::end(range), std::forward<T>(value));
 }
 
 template<typename InputRange, typename T>
