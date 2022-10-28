@@ -3,6 +3,7 @@
 
 #include "PixelOperations.hh"
 #include "ranges.hh"
+#include "view.hh"
 #include "xrange.hh"
 #include <cassert>
 #include <concepts>
@@ -1095,8 +1096,8 @@ void BlendLines<Pixel, w1, w2>::operator()(
 	// pure C++ version
 	assert(in1.size() == in2.size());
 	assert(in1.size() == out.size());
-	for (auto i : xrange(in1.size())) { // TODO zip_equal()
-		out[i] = pixelOps.template blend<w1, w2>(in1[i], in2[i]);
+	for (auto [i1, i2, o] : view::zip_equal(in1, in2, out)) {
+		o = pixelOps.template blend<w1, w2>(i1, i2);
 	}
 }
 
@@ -1137,8 +1138,8 @@ void AlphaBlendLines<Pixel>::operator()(
 	// It _IS_ allowed that the output is the same as one of the inputs.
 	assert(in1.size() == in2.size());
 	assert(in1.size() == out.size());
-	for (auto i : xrange(in1.size())) { // TODO zip_equal()
-		out[i] = pixelOps.alphaBlend(in1[i], in2[i]);
+	for (auto [i1, i2, o] : view::zip_equal(in1, in2, out)) {
+		o = pixelOps.alphaBlend(i1, i2);
 	}
 }
 
@@ -1163,8 +1164,8 @@ void AlphaBlendLines<Pixel>::operator()(
 	//    }
 	Pixel in1M = pixelOps.multiply(in1, alpha);
 	unsigned alpha2 = 256 - alpha;
-	for (auto i : xrange(in2.size())) { // TODO zip_equal()
-		out[i] = in1M + pixelOps.multiply(in2[i], alpha2);
+	for (auto [i2, o] : view::zip_equal(in2, out)) {
+		o = in1M + pixelOps.multiply(i2, alpha2);
 	}
 }
 

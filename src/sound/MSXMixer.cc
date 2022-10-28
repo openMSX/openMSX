@@ -366,8 +366,8 @@ static inline float filterMonoMono(
 {
 	assert(in.size() == out.size());
 	assert(!out.empty());
-	for (auto [i, o] : enumerate(out)) { // TODO zip
-		auto t1 = R * t0 + in[i];
+	for (auto [i, o] : view::zip_equal(in, out)) {
+		auto t1 = R * t0 + i;
 		auto s = t1 - t0;
 		o.left  = s;
 		o.right = s;
@@ -384,10 +384,9 @@ filterStereoMono(float tl0, float tr0,
 {
 	assert(in.size() == out.size());
 	assert(!out.empty());
-	for (auto [i, o] : enumerate(out)) { // TODO zip
-		auto x = in[i];
-		auto tl1 = R * tl0 + x;
-		auto tr1 = R * tr0 + x;
+	for (auto [i, o] : view::zip_equal(in, out)) {
+		auto tl1 = R * tl0 + i;
+		auto tr1 = R * tr0 + i;
 		o.left  = tl1 - tl0;
 		o.right = tr1 - tr0;
 		tl0 = tl1;
@@ -404,9 +403,9 @@ filterStereoStereo(float tl0, float tr0,
 {
 	assert(in.size() == out.size());
 	assert(!out.empty());
-	for (auto [i, o] : enumerate(out)) { // TODO zip
-		auto tl1 = R * tl0 + in[i].left;
-		auto tr1 = R * tr0 + in[i].right;
+	for (auto [i, o] : view::zip_equal(in, out)) {
+		auto tl1 = R * tl0 + i.left;
+		auto tr1 = R * tr0 + i.right;
 		o.left  = tl1 - tl0;
 		o.right = tr1 - tr0;
 		tl0 = tl1;
@@ -425,10 +424,9 @@ filterBothStereo(float tl0, float tr0,
 	assert(inM.size() == out.size());
 	assert(inS.size() == out.size());
 	assert(!out.empty());
-	for (auto [i, o] : enumerate(out)) { // TODO zip
-		auto m = inM[i];
-		auto tl1 = R * tl0 + inS[i].left  + m;
-		auto tr1 = R * tr0 + inS[i].right + m;
+	for (auto [im, is, o] : view::zip_equal(inM, inS, out)) {
+		auto tl1 = R * tl0 + is.left  + im;
+		auto tr1 = R * tr0 + is.right + im;
 		o.left  = tl1 - tl0;
 		o.right = tr1 - tr0;
 		tl0 = tl1;
