@@ -34,7 +34,7 @@ public:
 		, mappedSize(mappedSize_), bankSizeShift(bankSizeShift_)
 		, debugShift(debugShift_), debugMask(~((1 << debugShift) - 1))
 	{
-		assert((mappedSize >> bankSizeShift) == blockNr_.size());
+		assert((mappedSize >> bankSizeShift) == blockNr_.size()); // no need to include 'debugMask' here
 	}
 	RomBlockDebuggable(const MSXDevice& device, std::span<const byte> blockNr_,
 	                   unsigned startAddress_, unsigned mappedSize_,
@@ -45,7 +45,7 @@ public:
 		, mappedSize(mappedSize_), bankSizeShift(bankSizeShift_)
 		, debugShift(debugShift_), debugMask(debugMask_)
 	{
-		assert((mappedSize >> bankSizeShift) == blockNr_.size());
+		assert(((mappedSize >> bankSizeShift) & debugMask) < blockNr_.size()); // here we do need 'debugMask'
 	}
 
 	[[nodiscard]] byte read(unsigned address) override
