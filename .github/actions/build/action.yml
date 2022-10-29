@@ -78,12 +78,12 @@ runs:
           $BUILD_TARGET
     - name: Determine version and redistributable paths and names (Windows VC build)
       if: ${{ inputs.os == 'windows-vc' }}
-      shell: pwsh
+      shell: bash
       id: openmsxvc
       run: |
-        $OPENMSX_VERSION = (cmd.exe /c python3 build/version.py) -join "`n"
-        "target_file=openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-bin" >> $env::GITHUB_OUTPUT
-        "target_file_pdb=openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-pdb" >> $env::GITHUB_OUTPUT
+        OPENMSX_VERSION=`python3 build/version.py`
+        echo "target_file=openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-bin" >> $GITHUB_OUTPUT
+        echo "target_file_pdb=openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-pdb" >> $GITHUB_OUTPUT
     - name: msbuild
       if: ${{ inputs.os == 'windows-vc' }}
       shell: pwsh
