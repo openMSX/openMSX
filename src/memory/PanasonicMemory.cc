@@ -29,7 +29,7 @@ PanasonicMemory::PanasonicMemory(MSXMotherBoard& motherBoard)
 
 void PanasonicMemory::registerRam(Ram& ram_)
 {
-	ram = &ram_[0];
+	ram = ram_.data();
 	ramSize = ram_.size();
 }
 

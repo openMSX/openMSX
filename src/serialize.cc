@@ -192,7 +192,7 @@ void MemInputArchive::load(std::string& s)
 	load(length);
 	s.resize(length);
 	if (length) {
-		get(&s[0], length);
+		get(s.data(), length);
 	}
 }
 
@@ -542,7 +542,7 @@ void XmlInputArchive::attribute(const char* name, unsigned& u)
 {
 	attributeImpl(name, u);
 }
-bool XmlInputArchive::hasAttribute(const char* name)
+bool XmlInputArchive::hasAttribute(const char* name) const
 {
 	return currentElement()->findAttribute(name);
 }

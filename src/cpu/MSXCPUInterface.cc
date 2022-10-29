@@ -377,7 +377,7 @@ void MSXCPUInterface::register_IO(int port, bool isIn,
 			devicePtr = multi;
 		}
 		if (isIn) {
-			auto& devices = motherBoard.getMachineConfig()->getDevicesElem();
+			const auto& devices = motherBoard.getMachineConfig()->getDevicesElem();
 			if (devices.getAttributeValueAsBool("overlap_warning", true)) {
 				cliComm.printWarning(
 					"Conflicting input port 0x",

@@ -13,7 +13,7 @@ namespace openmsx {
 // class VRAMWindow
 
 VRAMWindow::VRAMWindow(Ram& vram)
-	: data(&vram[0])
+	: data(vram.data())
 	, observer(&dummyObserver)
 	, origBaseMask(0)
 	, effectiveBaseMask(0)
@@ -325,7 +325,7 @@ void VDPVRAM::serialize(Archive& ar, unsigned /*version*/)
 		setSizeMask(static_cast<MSXDevice&>(vdp).getCurrentTime());
 	}
 
-	ar.serialize_blob("data", std::span{&data[0], actualSize});
+	ar.serialize_blob("data", std::span{data.data(), actualSize});
 	ar.serialize("cmdReadWindow",       cmdReadWindow,
 	             "cmdWriteWindow",      cmdWriteWindow,
 	             "nameTable",           nameTable,

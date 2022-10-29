@@ -21,7 +21,7 @@ public:
 	AviWriter(const Filename& filename, unsigned width, unsigned height,
 	          unsigned bpp, unsigned channels, unsigned freq);
 	~AviWriter();
-	void addFrame(FrameSource* frame, std::span<const int16_t> sampleData);
+	void addFrame(FrameSource* video, std::span<const int16_t> audio);
 	void setFps(float fps_) { fps = fps_; }
 
 private:

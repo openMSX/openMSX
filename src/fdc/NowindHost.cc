@@ -503,7 +503,7 @@ void NowindHost::doDiskWrite1()
 		unsigned startSector = getStartSector();
 		if (auto* disk = getDisk()) {
 			try {
-				disk->writeSectors(std::span{&buffer[0], sectorAmount}, startSector);
+				disk->writeSectors(std::span{buffer.data(), sectorAmount}, startSector);
 			} catch (MSXException&) {
 				// TODO write error
 			}

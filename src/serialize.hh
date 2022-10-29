@@ -1001,7 +1001,7 @@ public:
 	void attribute(const char* name, int& i);
 	void attribute(const char* name, unsigned& u);
 
-	[[nodiscard]] bool hasAttribute(const char* name);
+	[[nodiscard]] bool hasAttribute(const char* name) const;
 	[[nodiscard]] int countChildren() const;
 
 	template<typename T>

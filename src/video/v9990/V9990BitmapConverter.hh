@@ -26,7 +26,7 @@ public:
 
 	/** Convert a line of VRAM into host pixels.
 	  */
-	void convertLine(std::span<Pixel> buf, unsigned x, unsigned y,
+	void convertLine(std::span<Pixel> dst, unsigned x, unsigned y,
 		         int cursorY, bool drawCursors);
 
 	/** Set a different rendering mode.

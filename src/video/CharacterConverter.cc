@@ -352,11 +352,11 @@ void CharacterConverter<Pixel>::renderMulti(std::span<Pixel, 256> buf, int line)
 
 template<std::unsigned_integral Pixel>
 void CharacterConverter<Pixel>::renderMultiQ(
-	std::span<Pixel, 256> pixelPtr, int line)
+	std::span<Pixel, 256> buf, int line)
 {
 	int mask = (~0u << 13);
 	int patternQuarter = (line * 4) & ~0xFF;  // (line / 8) * 32
-	renderMultiHelper(pixelPtr.data(), line, mask, patternQuarter);
+	renderMultiHelper(buf.data(), line, mask, patternQuarter);
 }
 
 template<std::unsigned_integral Pixel>

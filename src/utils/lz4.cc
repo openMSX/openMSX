@@ -113,12 +113,12 @@ static void memcpy_using_offset(uint8_t* dstPtr, const uint8_t* srcPtr, uint8_t*
 			memset(v.data(), *srcPtr, 8);
 			break;
 		case 2:
-			memcpy(v.data(), srcPtr, 2);
+			memcpy(&v[0], srcPtr, 2);
 			memcpy(&v[2], srcPtr, 2);
 			memcpy(&v[4], &v[0], 4);
 			break;
 		case 4:
-			memcpy(v.data(), srcPtr, 4);
+			memcpy(&v[0], srcPtr, 4);
 			memcpy(&v[4], srcPtr, 4);
 			break;
 		default:
