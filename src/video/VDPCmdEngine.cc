@@ -860,7 +860,8 @@ void VDPCmdEngine::executeSrch(EmuTime::param limit)
 			commandDone(calculator.getTime());
 			break;
 		}
-		if ((ASX += TX) & Mode::PIXELS_PER_LINE) {
+		ASX += TX;
+		if (ASX & Mode::PIXELS_PER_LINE) {
 			status &= 0xEF; // border not detected
 			commandDone(calculator.getTime());
 			break;

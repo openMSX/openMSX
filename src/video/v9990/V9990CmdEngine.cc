@@ -1566,7 +1566,8 @@ void V9990CmdEngine::executeSRCH(EmuTime::param limit)
 			borderX = ASX;
 			break;
 		}
-		if ((ASX += TX) & width) {
+		ASX += TX;
+		if (ASX & width) {
 			status &= ~BD; // border not detected
 			cmdReady(engineTime);
 			borderX = ASX;
