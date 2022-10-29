@@ -125,6 +125,9 @@ static int16_t float2int16(float f)
 
 void AviRecorder::addWave(std::span<const StereoFloat> data)
 {
+	if (data.empty()) return;
+
+	assert(mixer);
 	if (!warnedSampleRate && (mixer->getSampleRate() != sampleRate)) {
 		warnedSampleRate = true;
 		reactor.getCliComm().printWarning(
