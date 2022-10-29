@@ -82,8 +82,8 @@ runs:
       id: openmsxvc
       run: |
         $OPENMSX_VERSION = (cmd.exe /c python3 build/version.py) -join "`n"
-        echo "::set-output name=target_file::openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-bin"
-        echo "::set-output name=target_file_pdb::openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-pdb"
+        echo "target_file=openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-bin" >> $GITHUB_OUTPUT
+        echo "target_file_pdb=openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-pdb" >> $GITHUB_OUTPUT
     - name: msbuild
       if: ${{ inputs.os == 'windows-vc' }}
       shell: pwsh
@@ -107,11 +107,11 @@ runs:
         else
           HAS_SINGLE_FILE_OUTPUT=false
         fi
-        echo "::set-output name=version::$OPENMSX_VERSION"
-        echo "::set-output name=derived_path::$DERIVED_PATH"
-        echo "::set-output name=single_output_file::$SINGLE_OUTPUT_FILE"
-        echo "::set-output name=target_file::openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-bin"
-        echo "::set-output name=single_file::$HAS_SINGLE_FILE_OUTPUT"
+        echo "version=$OPENMSX_VERSION" >> $GITHUB_OUTPUT
+        echo "derived_path=$DERIVED_PATH" >> $GITHUB_OUTPUT
+        echo "single_output_file=$SINGLE_OUTPUT_FILE" >> $GITHUB_OUTPUT
+        echo "target_file=openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-bin" >> $GITHUB_OUTPUT
+        echo "single_file=$HAS_SINGLE_FILE_OUTPUT" >> $GITHUB_OUTPUT
     - name: Run unittests
       if: ${{ inputs.flavour == 'unittest' }}
       shell: bash
