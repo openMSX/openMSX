@@ -196,6 +196,17 @@
 // flag to the compiler. This is for example done in the super-opt flavour.
 // See build/flavour-super-opt.mk
 
+#ifndef _MSC_VER
+  // [[maybe_unused]] on a label is not (yet?) officially part of c++
+  // Gcc/clang do support it (as an extension), but visual studio complains
+  // about it. Hence the different implementation for both.
+  #define MAYBE_UNUSED_LABEL [[maybe_unused]]
+#else
+  #pragma warning(disable : 4102) // unreferenced label
+  #define MAYBE_UNUSED_LABEL
+#endif
+
+
 namespace openmsx {
 
 enum Reg8  : int { A, F, B, C, D, E, H, L, IXH, IXL, IYH, IYL, REG_I, REG_R, DUMMY };
@@ -960,7 +971,7 @@ fetchSlow: {
 #endif
 
 #ifndef USE_COMPUTED_GOTO
-switchopcode:
+MAYBE_UNUSED_LABEL switchopcode:
 	switch (opcodeMain) {
 CASE(40) // ld b,b
 CASE(49) // ld c,c
@@ -1625,7 +1636,7 @@ CASE(ED) {
 		default: UNREACHABLE; return;
 	}
 }
-opDD_2:
+MAYBE_UNUSED_LABEL opDD_2:
 CASE(DD) {
 	setPC(getPC() + 1); // M1 cycle at this point
 	byte opcodeDD = RDMEM_OPCODE<0>(T::CC_DD + T::CC_MAIN);
@@ -1804,10 +1815,8 @@ CASE(DD) {
 		case 0xfc: // call_m();
 		case 0xfe: // cp_byte();
 		case 0xff: // rst_38();
-			if /*constexpr*/ (T::IS_R800) {
-				II ii = nop();
-				ii.cycles += T::CC_DD;
-				NEXT;
+			if constexpr (T::IS_R800) {
+				II ii = nop<T::CC_DD>(); NEXT;
 			} else {
 				T::add(T::CC_DD);
 				#ifdef USE_COMPUTED_GOTO
@@ -1905,12 +1914,22 @@ CASE(DD) {
 		case 0xe9: { II ii = jp_SS<IX,T::CC_DD>(); NEXT; }
 		case 0xf9: { II ii = ld_sp_SS<IX,T::CC_DD>(); NEXT; }
 		case 0xcb: ixy = getIX(); goto xx_cb;
-		case 0xdd: T::add(T::CC_DD); goto opDD_2;
-		case 0xfd: T::add(T::CC_DD); goto opFD_2;
+		case 0xdd:
+			if constexpr (T::IS_R800) {
+				II ii = nop<T::CC_DD>(); NEXT;
+			} else {
+				T::add(T::CC_DD); goto opDD_2;
+			}
+		case 0xfd:
+			if constexpr (T::IS_R800) {
+				II ii = nop<T::CC_DD>(); NEXT;
+			} else {
+				T::add(T::CC_DD); goto opFD_2;
+			}
 		default: UNREACHABLE; return;
 	}
 }
-opFD_2:
+MAYBE_UNUSED_LABEL opFD_2:
 CASE(FD) {
 	setPC(getPC() + 1); // M1 cycle at this point
 	byte opcodeFD = RDMEM_OPCODE<0>(T::CC_DD + T::CC_MAIN);
@@ -2090,9 +2109,7 @@ CASE(FD) {
 		case 0xfe: // cp_byte();
 		case 0xff: // rst_38();
 			if constexpr (T::IS_R800) {
-				II ii = nop();
-				ii.cycles += T::CC_DD;
-				NEXT;
+				II ii = nop<T::CC_DD>(); NEXT;
 			} else {
 				T::add(T::CC_DD);
 				#ifdef USE_COMPUTED_GOTO
@@ -2190,8 +2207,18 @@ CASE(FD) {
 		case 0xe9: { II ii = jp_SS<IY,T::CC_DD>(); NEXT; }
 		case 0xf9: { II ii = ld_sp_SS<IY,T::CC_DD>(); NEXT; }
 		case 0xcb: ixy = getIY(); goto xx_cb;
-		case 0xdd: T::add(T::CC_DD); goto opDD_2;
-		case 0xfd: T::add(T::CC_DD); goto opFD_2;
+		case 0xdd:
+			if constexpr (T::IS_R800) {
+				II ii = nop<T::CC_DD>(); NEXT;
+			} else {
+				T::add(T::CC_DD); goto opDD_2;
+			}
+		case 0xfd:
+			if constexpr (T::IS_R800) {
+				II ii = nop<T::CC_DD>(); NEXT;
+			} else {
+				T::add(T::CC_DD); goto opFD_2;
+			}
 		default: UNREACHABLE; return;
 	}
 }
@@ -4181,7 +4208,7 @@ template<typename T> II CPUCore<T>::otir() { return BLOCK_OUT( 1, true ); }
 
 
 // various
-template<typename T> II CPUCore<T>::nop() { return {1, T::CC_NOP}; }
+template<typename T> template<int EE> II CPUCore<T>::nop() { return {1, T::CC_NOP + EE}; }
 template<typename T> II CPUCore<T>::ccf() {
 	byte f = 0;
 	if constexpr (T::IS_R800) {

@@ -459,7 +459,7 @@ private:
 	inline II otdr();
 	inline II otir();
 
-	inline II nop();
+	template<int EE = 0> inline II nop();
 	inline II ccf();
 	inline II cpl();
 	inline II daa();
