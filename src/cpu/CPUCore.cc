@@ -1905,8 +1905,22 @@ CASE(DD) {
 		case 0xe9: { II ii = jp_SS<IX,T::CC_DD>(); NEXT; }
 		case 0xf9: { II ii = ld_sp_SS<IX,T::CC_DD>(); NEXT; }
 		case 0xcb: ixy = getIX(); goto xx_cb;
-		case 0xdd: T::add(T::CC_DD); goto opDD_2;
-		case 0xfd: T::add(T::CC_DD); goto opFD_2;
+		case 0xdd:
+			if /*constexpr*/ (T::IS_R800) {
+				II ii = nop();
+				ii.cycles += T::CC_DD;
+				NEXT;
+			} else {
+				T::add(T::CC_DD); goto opDD_2;
+			}
+		case 0xfd:
+			if /*constexpr*/ (T::IS_R800) {
+				II ii = nop();
+				ii.cycles += T::CC_DD;
+				NEXT;
+			} else {
+				T::add(T::CC_DD); goto opFD_2;
+			}
 		default: UNREACHABLE; return;
 	}
 }
@@ -2190,8 +2204,22 @@ CASE(FD) {
 		case 0xe9: { II ii = jp_SS<IY,T::CC_DD>(); NEXT; }
 		case 0xf9: { II ii = ld_sp_SS<IY,T::CC_DD>(); NEXT; }
 		case 0xcb: ixy = getIY(); goto xx_cb;
-		case 0xdd: T::add(T::CC_DD); goto opDD_2;
-		case 0xfd: T::add(T::CC_DD); goto opFD_2;
+		case 0xdd:
+			if /*constexpr*/ (T::IS_R800) {
+				II ii = nop();
+				ii.cycles += T::CC_DD;
+				NEXT;
+			} else {
+				T::add(T::CC_DD); goto opDD_2;
+			}
+		case 0xfd:
+			if /*constexpr*/ (T::IS_R800) {
+				II ii = nop();
+				ii.cycles += T::CC_DD;
+				NEXT;
+			} else {
+				T::add(T::CC_DD); goto opFD_2;
+			}
 		default: UNREACHABLE; return;
 	}
 }
