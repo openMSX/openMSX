@@ -76,14 +76,6 @@ runs:
           OPENMSX_FLAVOUR=${{ inputs.flavour }} \
           $CXX_PART \
           $BUILD_TARGET
-    - name: Determine version and redistributable paths and names (Windows VC build)
-      if: ${{ inputs.os == 'windows-vc' }}
-      shell: bash
-      id: openmsxvc
-      run: |
-        OPENMSX_VERSION=`python3 build/version.py`
-        echo "target_file=openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-bin" >> $GITHUB_OUTPUT
-        echo "target_file_pdb=openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-pdb" >> $GITHUB_OUTPUT
     - name: msbuild
       if: ${{ inputs.os == 'windows-vc' }}
       shell: pwsh
@@ -95,7 +87,6 @@ runs:
       shell: pwsh
       run: cmd /c "build\\package-windows\\package.cmd" x64 release NOCATAPULT ZIPONLY
     - name: Determine version and redistributable paths and names
-      if: ${{ inputs.os != 'windows-vc' }}
       shell: bash
       id: openmsx
       run: |
@@ -111,6 +102,7 @@ runs:
         echo "derived_path=$DERIVED_PATH" >> $GITHUB_OUTPUT
         echo "single_output_file=$SINGLE_OUTPUT_FILE" >> $GITHUB_OUTPUT
         echo "target_file=openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-bin" >> $GITHUB_OUTPUT
+        echo "target_file_pdb=openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-pdb" >> $GITHUB_OUTPUT
         echo "single_file=$HAS_SINGLE_FILE_OUTPUT" >> $GITHUB_OUTPUT
     - name: Run unittests
       if: ${{ inputs.flavour == 'unittest' }}
@@ -144,11 +136,11 @@ runs:
       if: ${{ inputs.os == 'windows-vc' && inputs.flavour != 'unittest' }}
       uses: actions/upload-artifact@v3
       with:
-        name: ${{ steps.openmsxvc.outputs.target_file }}.zip
+        name: ${{ steps.openmsx.outputs.target_file }}.zip
         path: derived\x64-VC-Release\package-windows\*-bin.zip
     - name: Upload Windows VC debug symbols
       if: ${{ inputs.os == 'windows-vc' && inputs.flavour != 'unittest' }}
       uses: actions/upload-artifact@v3
       with:
-        name: ${{ steps.openmsxvc.outputs.target_file_pdb }}.zip
+        name: ${{ steps.openmsx.outputs.target_file_pdb }}.zip
         path: derived\x64-VC-Release\package-windows\*-pdb.zip
