@@ -320,14 +320,14 @@ void DBParser::text(string_view txt)
 		country = cIndex(txt);
 		break;
 	case GENMSXID: {
-		auto g = StringOp::stringToBase<10, unsigned>(txt);
-		if (!g) {
+		if (auto g = StringOp::stringToBase<10, unsigned>(txt)) {
+			genMSXid = *g;
+		} else {
 			cliComm.printWarning(
 				"Ignoring bad Generation MSX id (genmsxid) "
 				"in entry with title '", fromString32(bufStart, title),
 				": ", txt);
 		}
-		genMSXid = *g;
 		break;
 	}
 	case ORIGINAL:
