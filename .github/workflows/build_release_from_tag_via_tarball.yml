@@ -69,8 +69,8 @@ jobs:
       shell: bash
       run: |
         NAME=`PYTHONPATH=build python3 -c "import gitdist; rel='${{ inputs.tag }}'; print (f'openmsx-{gitdist.niceVersionFromGitDescription(gitdist.getDescription(rel))}')"`
-        echo ::set-output name=tarball_name::$NAME.tar.gz
-        echo ::set-output name=dist_name::$NAME
+        echo "tarball_name=$NAME.tar.gz" >> $GITHUB_OUTPUT
+        echo "dist_name=$NAME" >> $GITHUB_OUTPUT
     - name: Move tarball to root
       shell: bash
       run: mv derived/dist/${{ steps.get_dist_name.outputs.tarball_name }} .
