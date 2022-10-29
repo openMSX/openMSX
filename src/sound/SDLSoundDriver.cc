@@ -37,7 +37,7 @@ SDLSoundDriver::SDLSoundDriver(Reactor& reactor_,
 	frequency = obtained.freq;
 	fragmentSize = obtained.samples;
 
-	mixBufferSize = 3 * (obtained.size / sizeof(float)) + 2;
+	mixBufferSize = 3 * (obtained.size / sizeof(StereoFloat)) + 1;
 	mixBuffer.resize(mixBufferSize);
 	reInit();
 }
@@ -102,9 +102,8 @@ unsigned SDLSoundDriver::getBufferFree() const
 {
 	// we can't distinguish completely filled from completely empty
 	// (in both cases readIx would be equal to writeIdx), so instead
-	// we define full as '(writeIdx + 2) == readIdx' (note that index
-	// increases in steps of 2 (stereo)).
-	int result = mixBufferSize - 2 - getBufferFilled();
+	// we define full as '(writeIdx + 1) == readIdx'.
+	int result = mixBufferSize - 1 - getBufferFilled();
 	assert((0 <= result) && (unsigned(result) < mixBufferSize));
 	return result;
 }
@@ -135,9 +134,8 @@ void SDLSoundDriver::audioCallback(std::span<StereoFloat> stream)
 void SDLSoundDriver::uploadBuffer(std::span<const StereoFloat> buffer)
 {
 	SDL_LockAudioDevice(deviceID);
-	unsigned len = buffer.size();
 	unsigned free = getBufferFree();
-	if (len > free) {
+	if (buffer.size() > free) {
 		auto* board = reactor.getMotherBoard();
 		if (board && !board->getMSXMixer().isSynchronousMode() && // when not recording
 		    reactor.getGlobalSettings().getThrottleManager().isThrottled()) {
@@ -147,20 +145,20 @@ void SDLSoundDriver::uploadBuffer(std::span<const StereoFloat> buffer)
 				SDL_LockAudioDevice(deviceID);
 				board->getRealTime().resync();
 				free = getBufferFree();
-			} while (len > free);
+			} while (buffer.size() > free);
 		} else {
 			// drop excess samples
-			len = free;
+			buffer = buffer.subspan(0, free);
 		}
 	}
-	assert(len <= free);
-	if ((writeIdx + len) < mixBufferSize) {
+	assert(buffer.size() <= free);
+	if ((writeIdx + buffer.size()) < mixBufferSize) {
 		ranges::copy(buffer, &mixBuffer[writeIdx]);
-		writeIdx += len;
+		writeIdx += buffer.size();
 	} else {
 		unsigned len1 = mixBufferSize - writeIdx;
 		ranges::copy(buffer.subspan(0, len1), &mixBuffer[writeIdx]);
-		unsigned len2 = len - len1;
+		unsigned len2 = buffer.size() - len1;
 		ranges::copy(buffer.subspan(len1, len2), &mixBuffer[0]);
 		writeIdx = len2;
 	}

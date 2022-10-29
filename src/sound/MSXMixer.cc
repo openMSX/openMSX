@@ -159,12 +159,9 @@ double MSXMixer::getEffectiveSpeed() const
 
 void MSXMixer::updateStream(EmuTime::param time)
 {
-#ifdef __SSE2__
-	alignas(__m128) // (optionally) align for SSE instructions
-#endif
 	unsigned count = prevTime.getTicksTill(time);
 	assert(count <= 8192);
-	std::array<StereoFloat, 8192> mixBuffer_;
+	ALIGNAS_SSE std::array<StereoFloat, 8192> mixBuffer_;
 	auto mixBuffer = subspan(mixBuffer_, 0, count);
 
 	// call generate() even if count==0 and even if muted
