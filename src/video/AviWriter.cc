@@ -257,10 +257,14 @@ void AviWriter::addAviChunk(std::span<const char, 4> tag, size_t size_, const vo
 	chunk.s = size;
 	file.write(std::span{&chunk, 1});
 
-	unsigned writeSize = (size + 1) & ~1;
-	file.write(std::span{static_cast<const uint8_t*>(data), writeSize});
+	file.write(std::span{static_cast<const uint8_t*>(data), size});
 	unsigned pos = written + 4;
-	written += writeSize + 8;
+	written += size + 8;
+	if (size & 1) {
+		std::array<uint8_t, 1> padding = {0};
+		file.write(padding);
+		++written;
+	}
 
 	size_t idxSize = index.size();
 	index.resize(idxSize + 4);
