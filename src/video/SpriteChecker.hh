@@ -227,12 +227,12 @@ public:
 	  * after the sprites are checked, or you'll get last frame's sprites.
 	  * @param line The absolute line number for which sprites should
 	  *   be returned. Range is [0..313) for PAL and [0..262) for NTSC.
-	  * @param visibleSprites Output parameter in which the pointer to
-	  *   a SpriteInfo array containing the sprites to be displayed is
-	  *   returned.
-	  *   The array's contents are valid until the next time the VDP
+	  * @return The to-be-displayed sprites.
+	  *   The buffers content remains valid until the next time the VDP
 	  *   is scheduled.
-	  * @return The number of sprites stored in the visibleSprites array.
+	  *   This buffer is followed by a sentinel, this sentinel is NOT
+	  *   included in the returned span (IOW the span can be extended with
+	  *   one extra element which is the sentinel).
 	  */
 	[[nodiscard]] inline std::span<const SpriteInfo> getSprites(int line) const {
 		// Compensate for the fact sprites are checked one line earlier

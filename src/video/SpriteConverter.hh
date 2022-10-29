@@ -146,17 +146,19 @@ public:
 		// Optimisation: return at once if no sprites on this line.
 		// Lines without any sprites are very common in most programs.
 		if (visibleSprites.empty()) return;
+		std::span visibleSpritesWithSentinel{visibleSprites.data(),
+		                                     visibleSprites.size() +1};
 
 		// Sprites with CC=1 are only visible if preceded by a sprite
 		// with CC=0. Therefor search for first sprite with CC=0.
-		size_t first = 0;
+		int first = 0;
 		do {
 			if ((visibleSprites[first].colorAttrib & 0x40) == 0) [[likely]] {
 				break;
 			}
 			++first;
-		} while (first < visibleSprites.size());
-		for (auto i = visibleSprites.size() - 1; i >= first; --i) {
+		} while (first < int(visibleSprites.size()));
+		for (int i = visibleSprites.size() - 1; i >= first; --i) {
 			const SpriteChecker::SpriteInfo& info = visibleSprites[i];
 			int x = info.x;
 			SpriteChecker::SpritePattern pattern = info.pattern;
@@ -170,7 +172,7 @@ public:
 					// Merge in any following CC=1 sprites.
 					for (int j = i + 1; /*sentinel*/; ++j) {
 						const SpriteChecker::SpriteInfo& info2 =
-							visibleSprites[j];
+							visibleSpritesWithSentinel[j];
 						if (!(info2.colorAttrib & 0x40)) break;
 						unsigned shift2 = x - info2.x;
 						if ((shift2 < 32) &&
