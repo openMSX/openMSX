@@ -14,7 +14,6 @@ class SG1000JoystickIO final : public MSXDevice
 {
 public:
 	explicit SG1000JoystickIO(const DeviceConfig& config);
-	~SG1000JoystickIO();
 
 	byte readIO(word port, EmuTime::param time) override;
 	byte peekIO(word port, EmuTime::param time) const override;

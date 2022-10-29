@@ -31,8 +31,6 @@ public:
 		, unknownTypes(unknownTypes_)
 		, cliComm(cliComm_)
 		, bufStart(bufStart_)
-		, state(BEGIN)
-		, unknownLevel(0)
 		, initialSize(db.size())
 	{
 	}
@@ -97,8 +95,8 @@ private:
 	String32 country;
 	int genMSXid;
 
-	State state;
-	unsigned unknownLevel;
+	State state = BEGIN;
+	unsigned unknownLevel = 0;
 	size_t initialSize;
 };
 

@@ -42,24 +42,22 @@ private:
 private:
 	snd_seq_t& seq;
 	snd_midi_event_t* event_parser;
-	int sourcePort;
+	int sourcePort = -1;
 	int destClient;
 	int destPort;
 	std::string name;
 	std::string desc;
-	bool connected;
+	bool connected = false;
 };
 
 MidiOutALSA::MidiOutALSA(
 		snd_seq_t& seq_,
 		snd_seq_client_info_t& cinfo, snd_seq_port_info_t& pinfo)
 	: seq(seq_)
-	, sourcePort(-1)
 	, destClient(snd_seq_port_info_get_client(&pinfo))
 	, destPort(snd_seq_port_info_get_port(&pinfo))
 	, name(snd_seq_client_info_get_name(&cinfo))
 	, desc(snd_seq_port_info_get_name(&pinfo))
-	, connected(false)
 {
 }
 

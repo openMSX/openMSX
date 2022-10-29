@@ -70,7 +70,7 @@ private:
 	Ram ram;
 	Rom rom;
 	byte bankSelect;
-	byte ioPorts;
+	byte ioPorts = 0;
 };
 REGISTER_POLYMORPHIC_INITIALIZER(Y8950Periphery, PanasonicAudioPeriphery, "Panasonic");
 
@@ -168,7 +168,6 @@ PanasonicAudioPeriphery::PanasonicAudioPeriphery(
 	, ram(config, audio.getName() + " mapped RAM",
 	      "MSX-AUDIO mapped RAM", 0x1000)
 	, rom(audio.getName() + " ROM", "MSX-AUDIO ROM", config)
-	, ioPorts(0)
 {
 	reset();
 }

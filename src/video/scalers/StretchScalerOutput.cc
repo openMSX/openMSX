@@ -20,9 +20,9 @@ public:
 	StretchScalerOutputBase(const StretchScalerOutputBase&) = delete;
 	StretchScalerOutputBase& operator=(const StretchScalerOutputBase&) = delete;
 
-	[[nodiscard]] unsigned getWidth()  const final override;
-	[[nodiscard]] unsigned getHeight() const final override;
-	[[nodiscard]] std::span<Pixel> acquireLine(unsigned y) final override;
+	[[nodiscard]] unsigned getWidth()  const final;
+	[[nodiscard]] unsigned getHeight() const final;
+	[[nodiscard]] std::span<Pixel> acquireLine(unsigned y) final;
 	void fillLine(unsigned y, Pixel color) override;
 
 protected:

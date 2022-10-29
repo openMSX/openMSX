@@ -25,8 +25,8 @@ FilePoolCore::FilePoolCore(std::string filecache_,
                            std::function<Directories()> getDirectories_,
                            std::function<void(std::string_view)> reportProgress_)
 	: filecache(std::move(filecache_))
-	, getDirectories(getDirectories_)
-	, reportProgress(reportProgress_)
+	, getDirectories(std::move(getDirectories_))
+	, reportProgress(std::move(reportProgress_))
 {
 	try {
 		readSha1sums();

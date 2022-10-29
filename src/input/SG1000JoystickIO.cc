@@ -19,10 +19,6 @@ SG1000JoystickIO::SG1000JoystickIO(const DeviceConfig& config)
 	}
 }
 
-SG1000JoystickIO::~SG1000JoystickIO()
-{
-}
-
 byte SG1000JoystickIO::readIO(word port, EmuTime::param time)
 {
 	return peekIO(port, time);
