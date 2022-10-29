@@ -1,5 +1,6 @@
 #include "Disk.hh"
 #include "DiskExceptions.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 
 namespace openmsx {
@@ -47,7 +48,7 @@ Disk::TSS Disk::logToPhys(size_t log)
 	if (log <= 1) {
 		uint8_t track = 0;
 		uint8_t side = 0;
-		uint8_t sector = uint8_t(log + 1);
+		auto sector = narrow<uint8_t>(log + 1);
 		return {track, side, sector};
 	}
 	if (!nbSides) {
@@ -112,9 +113,9 @@ void Disk::detectGeometry()
 
 	try {
 		SectorBuffer buf;
-		readSector(0, buf); // bootsector
+		readSector(0, buf); // boot sector
 		if (buf.raw[0] == one_of(0xE9, 0xEB)) {
-			// use values from bootsector
+			// use values from boot sector
 			sectorsPerTrack = buf.bootSector.sectorsTrack;
 			nbSides         = buf.bootSector.nrSides;
 			if ((sectorsPerTrack == 0) || (sectorsPerTrack > 255) ||

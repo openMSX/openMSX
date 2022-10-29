@@ -1,6 +1,7 @@
 #include "XSADiskImage.hh"
 #include "DiskExceptions.hh"
 #include "File.hh"
+#include "narrow.hh"
 #include "xrange.hh"
 #include <array>
 #include <utility>
@@ -205,7 +206,7 @@ int XSAExtractor::rdStrPos()
 			hufPos = hufPos->child1;
 		}
 	}
-	uint8_t cpdIndex = uint8_t(hufPos - &hufTbl[0]);
+	auto cpdIndex = narrow<uint8_t>(hufPos - &hufTbl[0]);
 	++tblSizes[cpdIndex];
 
 	int strPos = [&] {
