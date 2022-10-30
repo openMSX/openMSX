@@ -28,20 +28,20 @@ public:
 	void addDelta(TimeIndex time, float delta);
 
 	// Read the given amount of samples into destination buffer.
-	template<unsigned PITCH>
-	bool readSamples(float* out, unsigned samples);
+	template<size_t PITCH>
+	bool readSamples(float* out, size_t samples);
 
 private:
-	template<unsigned PITCH>
-	void readSamplesHelper(float* out, unsigned samples);
+	template<size_t PITCH>
+	void readSamplesHelper(float* out, size_t samples);
 
 private:
-	static constexpr unsigned BUFFER_SIZE = 1 << 14;
-	static constexpr unsigned BUFFER_MASK = BUFFER_SIZE - 1;
+	static constexpr size_t BUFFER_SIZE = 1 << 14;
+	static constexpr size_t BUFFER_MASK = BUFFER_SIZE - 1;
 	std::array<float, BUFFER_SIZE> buffer;
-	unsigned offset;
-	float accum;
-	int availSamp;
+	size_t offset = 0;
+	ptrdiff_t availSamp = 0;
+	float accum = 0.0f;
 };
 
 } // namespace openmsx

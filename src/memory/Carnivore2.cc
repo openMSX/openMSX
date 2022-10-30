@@ -15,7 +15,7 @@
 // - slave slot support
 
 // Note that the somewhat complex (and illogical?) behaviour of the
-// user-defined ID and control port I/O is mimicing what the actual VHDL code
+// user-defined ID and control port I/O is mimicking what the actual VHDL code
 // is doing (in the released 2.50 firmware code).
 
 namespace openmsx {

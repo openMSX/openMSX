@@ -4,6 +4,7 @@
 #include "MSXException.hh"
 #include "unreachable.hh"
 #include "endian.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include <memory>
@@ -241,7 +242,7 @@ void SdCard::executeCommand()
 			byte(0x00),        // CCC / (READ_BL_LEN)
 			byte(0x00)});      // (RBP)/(WBM)/(RBM)/ DSR_IMP
 		// SD_CARD_SIZE = (C_SIZE + 1) * 512kByte
-		auto c_size = unsigned((hd->getNbSectors() * sizeof(sectorBuf)) / (512 * 1024) - 1);
+		auto c_size = narrow<uint32_t>((hd->getNbSectors() * sizeof(sectorBuf)) / size_t(512 * 1024) - 1);
 		responseQueue.push_back({
 			byte((c_size >> 16) & 0x3F), // C_SIZE 1
 			byte((c_size >>  8) & 0xFF), // C_SIZE 2

@@ -1,6 +1,7 @@
 #include "BlipBuffer.hh"
 #include "cstd.hh"
 #include "Math.hh"
+#include "narrow.hh"
 #include "ranges.hh"
 #include "xrange.hh"
 #include <algorithm>
@@ -68,10 +69,10 @@ static constexpr auto impulses = [] {
 		const auto* imp_fwd = &imp[BLIP_RES - phase];
 		const auto* imp_rev = &imp[phase];
 		auto* p = result[phase].data();
-		for (auto i : xrange(BLIP_IMPULSE_WIDTH / 2)) {
+		for (size_t i : xrange(BLIP_IMPULSE_WIDTH / 2)) {
 			*p++ = imp_fwd[BLIP_RES * i];
 		}
-		for (int i = BLIP_IMPULSE_WIDTH / 2 - 1; i >= 0; --i) {
+		for (ptrdiff_t i = BLIP_IMPULSE_WIDTH / 2 - 1; i >= 0; --i) {
 			*p++ = imp_rev[BLIP_RES * i];
 		}
 	}
@@ -91,9 +92,6 @@ BlipBuffer::BlipBuffer()
 		}
 	}
 
-	offset = 0;
-	accum = 0;
-	availSamp = 0;
 	ranges::fill(buffer, 0);
 }
 
@@ -101,10 +99,10 @@ void BlipBuffer::addDelta(TimeIndex time, float delta)
 {
 	unsigned tmp = time.toInt() + BLIP_IMPULSE_WIDTH;
 	assert(tmp < BUFFER_SIZE);
-	availSamp = std::max<int>(availSamp, tmp);
+	availSamp = std::max(availSamp, narrow<ptrdiff_t>(tmp));
 
-	unsigned phase = time.fractAsInt();
-	unsigned ofst = time.toInt() + offset;
+	auto phase = time.fractAsInt();
+	auto ofst = time.toInt() + offset;
 	const float* __restrict impulse = impulses[phase].data();
 	if ((ofst + BLIP_IMPULSE_WIDTH) <= BUFFER_SIZE) [[likely]] {
 		float* __restrict result = &buffer[ofst];
@@ -120,12 +118,12 @@ void BlipBuffer::addDelta(TimeIndex time, float delta)
 
 static constexpr float BASS_FACTOR = 511.0f / 512.0f;
 
-template<unsigned PITCH>
-void BlipBuffer::readSamplesHelper(float* __restrict out, unsigned samples)
+template<size_t PITCH>
+void BlipBuffer::readSamplesHelper(float* __restrict out, size_t samples)
 {
 	assert((offset + samples) <= BUFFER_SIZE);
 	auto acc = accum;
-	unsigned ofst = offset;
+	auto ofst = offset;
 	for (auto i : xrange(samples)) {
 		out[i * PITCH] = acc;
 		acc *= BASS_FACTOR;
@@ -149,8 +147,9 @@ static bool isSilent(float x)
 	return std::abs(x) < threshold;
 }
 
-template<unsigned PITCH>
-bool BlipBuffer::readSamples(float* __restrict out, unsigned samples)
+// TODO replace 'out + samples + PITCH' with 'stride_view' ???
+template<size_t PITCH>
+bool BlipBuffer::readSamples(float* __restrict out, size_t samples)
 {
 	if (availSamp <= 0) {
 		#ifdef DEBUG
@@ -168,11 +167,11 @@ bool BlipBuffer::readSamples(float* __restrict out, unsigned samples)
 		accum = acc;
 	} else {
 		availSamp -= samples;
-		unsigned t1 = std::min(samples, BUFFER_SIZE - offset);
+		auto t1 = std::min(samples, BUFFER_SIZE - offset);
 		readSamplesHelper<PITCH>(out, t1);
 		if (t1 < samples) {
 			assert(offset == 0);
-			unsigned t2 = samples - t1;
+			auto t2 = samples - t1;
 			assert(t2 < BUFFER_SIZE);
 			readSamplesHelper<PITCH>(&out[t1 * PITCH], t2);
 		}
@@ -181,7 +180,7 @@ bool BlipBuffer::readSamples(float* __restrict out, unsigned samples)
 	return true;
 }
 
-template bool BlipBuffer::readSamples<1>(float*, unsigned);
-template bool BlipBuffer::readSamples<2>(float*, unsigned);
+template bool BlipBuffer::readSamples<1>(float*, size_t);
+template bool BlipBuffer::readSamples<2>(float*, size_t);
 
 } // namespace openmsx
