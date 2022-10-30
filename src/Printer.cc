@@ -6,7 +6,6 @@
 #include "CliComm.hh"
 #include "MSXException.hh"
 #include "Math.hh"
-#include "MemBuffer.hh"
 #include "serialize.hh"
 #include "vla.hh"
 #include "xrange.hh"
@@ -32,7 +31,7 @@ private:
 	byte& dot(unsigned x, unsigned y);
 
 private:
-	MemBuffer<byte> buf;
+	std::vector<byte> buf;
 	std::vector<int> table;
 
 	double radiusX;
@@ -1607,10 +1606,10 @@ REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, ImagePrinterEpson, "ImagePrinterEpso
 // class Paper
 
 Paper::Paper(unsigned x, unsigned y, double dotSizeX, double dotSizeY)
-	: buf(x * y)
+	: buf(size_t(x) * size_t(y))
 	, sizeX(x), sizeY(y)
 {
-	ranges::fill(std::span{buf.data(), x * y}, 255);
+	ranges::fill(buf, 255);
 	setDotSize(dotSizeX, dotSizeY);
 }
 
@@ -1619,7 +1618,7 @@ std::string Paper::save() const
 	auto filename = FileOperations::getNextNumberedFileName(
 		"prints", "page", ".png");
 	VLA(const void*, rowPointers, sizeY);
-	for (auto y : xrange(sizeY)) {
+	for (size_t y : xrange(sizeY)) {
 		rowPointers[y] = &buf[sizeX * y];
 	}
 	PNG::saveGrayscale(sizeX, rowPointers, filename);

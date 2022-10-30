@@ -47,7 +47,7 @@ private:
 	[[nodiscard]] std::string getMachinePrefix() const;
 	[[nodiscard]] Drives::iterator findDriveSettings(DiskContainer& drive);
 	[[nodiscard]] Drives::iterator findDriveSettings(std::string_view driveName);
-	[[nodiscard]] DriveSettings& getDriveSettings(std::string_view diskname);
+	[[nodiscard]] DriveSettings& getDriveSettings(std::string_view diskName);
 	[[nodiscard]] static DiskPartition getPartition(
 		const DriveSettings& driveData);
 	[[nodiscard]] static MSXtar getMSXtar(SectorAccessibleDisk& disk,

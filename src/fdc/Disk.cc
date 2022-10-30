@@ -54,9 +54,9 @@ Disk::TSS Disk::logToPhys(size_t log)
 	if (!nbSides) {
 		detectGeometry();
 	}
-	auto track  = uint8_t(log / (nbSides * sectorsPerTrack)); // TODO check for overflow
-	auto side   = uint8_t((log / sectorsPerTrack) % nbSides);
-	auto sector = uint8_t((log % sectorsPerTrack) + 1);
+	auto track  = narrow<uint8_t>(log / (size_t(nbSides) * sectorsPerTrack));
+	auto side   = narrow<uint8_t>((log / sectorsPerTrack) % nbSides);
+	auto sector = narrow<uint8_t>((log % sectorsPerTrack) + 1);
 	return {track, side, sector};
 }
 

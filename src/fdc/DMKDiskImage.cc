@@ -64,7 +64,7 @@ DMKDiskImage::DMKDiskImage(Filename filename, std::shared_ptr<File> file_)
 
 void DMKDiskImage::seekTrack(uint8_t track, uint8_t side)
 {
-	unsigned t = singleSided ? track : (2 * track + side);
+	size_t t = singleSided ? track : (2 * track + side);
 	file->seek(sizeof(DmkHeader) + t * (dmkTrackLen + 128));
 }
 
@@ -204,7 +204,7 @@ void DMKDiskImage::writeSectorImpl(size_t logicalSector, const SectorBuffer& buf
 
 size_t DMKDiskImage::getNbSectorsImpl() const
 {
-	unsigned t = singleSided ? numTracks : (2 * numTracks);
+	size_t t = singleSided ? numTracks : (2 * numTracks);
 	return t * const_cast<DMKDiskImage*>(this)->getSectorsPerTrack();
 }
 

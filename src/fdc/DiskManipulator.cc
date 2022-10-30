@@ -83,15 +83,15 @@ DiskManipulator::Drives::iterator DiskManipulator::findDriveSettings(
 }
 
 DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
-	string_view diskname)
+	string_view diskName)
 {
 	// first split-off the end numbers (if present)
 	// these will be used as partition indication
-	auto pos1 = diskname.find("::");
-	auto tmp1 = (pos1 == string_view::npos) ? diskname : diskname.substr(pos1);
+	auto pos1 = diskName.find("::");
+	auto tmp1 = (pos1 == string_view::npos) ? diskName : diskName.substr(pos1);
 	auto pos2 = tmp1.find_first_of("0123456789");
 	auto pos1b = (pos1 == string_view::npos) ? 0 : pos1;
-	auto tmp2 = diskname.substr(0, pos2 + pos1b);
+	auto tmp2 = diskName.substr(0, pos2 + pos1b);
 
 	auto it = findDriveSettings(tmp2);
 	if (it == end(drives)) {
@@ -111,7 +111,7 @@ DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
 		// whole disk
 		it->partition = 0;
 	} else {
-		auto partitionName = diskname.substr(pos2);
+		auto partitionName = diskName.substr(pos2);
 		auto partition = StringOp::stringToBase<10, unsigned>(partitionName);
 		if (!partition) {
 			throw CommandException("Invalid partition name: ", partitionName);
@@ -137,15 +137,15 @@ void DiskManipulator::execute(std::span<const TclObject> tokens, TclObject& resu
 		throw CommandException("Missing argument");
 	}
 
-	string_view subcmd = tokens[1].getString();
-	if (((tokens.size() != 4)                     && (subcmd == one_of("savedsk", "mkdir"))) ||
-	    ((tokens.size() != 3)                     && (subcmd ==        "dir"             ))  ||
-	    ((tokens.size() < 3 || tokens.size() > 4) && (subcmd == one_of("format", "chdir")))  ||
-	    ((tokens.size() < 4)                      && (subcmd == one_of("export", "import", "create")))) {
+	string_view subCmd = tokens[1].getString();
+	if (((tokens.size() != 4)                     && (subCmd == one_of("savedsk", "mkdir"))) ||
+	    ((tokens.size() != 3)                     && (subCmd ==        "dir"             ))  ||
+	    ((tokens.size() < 3 || tokens.size() > 4) && (subCmd == one_of("format", "chdir")))  ||
+	    ((tokens.size() < 4)                      && (subCmd == one_of("export", "import", "create")))) {
 		throw CommandException("Incorrect number of parameters");
 	}
 
-	if (subcmd == "export") {
+	if (subCmd == "export") {
 		string_view dir = tokens[3].getString();
 		auto directory = FileOperations::expandTilde(string(dir));
 		if (!FileOperations::isDirectory(directory)) {
@@ -157,18 +157,18 @@ void DiskManipulator::execute(std::span<const TclObject> tokens, TclObject& resu
 		std::span<const TclObject> lists(&*(std::begin(tokens) + 4), std::end(tokens) - std::begin(tokens) + 4);
 		exprt(settings, directory, lists);
 
-	} else if (subcmd == "import") {
+	} else if (subCmd == "import") {
 		auto& settings = getDriveSettings(tokens[2].getString());
 		// Workaround clang-13/libc++ bug
 		//std::span<const TclObject> lists(std::begin(tokens) + 3, std::end(tokens));
 		std::span<const TclObject> lists(&*(std::begin(tokens) + 3), std::end(tokens) - std::begin(tokens) + 3);
 		result = import(settings, lists);
 
-	} else if (subcmd == "savedsk") {
+	} else if (subCmd == "savedsk") {
 		auto& settings = getDriveSettings(tokens[2].getString());
 		savedsk(settings, FileOperations::expandTilde(string(tokens[3].getString())));
 
-	} else if (subcmd == "chdir") {
+	} else if (subCmd == "chdir") {
 		auto& settings = getDriveSettings(tokens[2].getString());
 		if (tokens.size() == 3) {
 			result = tmpStrCat("Current directory: ",
@@ -177,14 +177,14 @@ void DiskManipulator::execute(std::span<const TclObject> tokens, TclObject& resu
 			result = chdir(settings, tokens[3].getString());
 		}
 
-	} else if (subcmd == "mkdir") {
+	} else if (subCmd == "mkdir") {
 		auto& settings = getDriveSettings(tokens[2].getString());
 		mkdir(settings, tokens[3].getString());
 
-	} else if (subcmd == "create") {
+	} else if (subCmd == "create") {
 		create(tokens);
 
-	} else if (subcmd == "format") {
+	} else if (subCmd == "format") {
 		bool dos1 = false;
 		string_view drive = tokens[2].getString();
 		if (tokens.size() == 4) {
@@ -198,48 +198,48 @@ void DiskManipulator::execute(std::span<const TclObject> tokens, TclObject& resu
 		auto& settings = getDriveSettings(drive);
 		format(settings, dos1);
 
-	} else if (subcmd == "dir") {
+	} else if (subCmd == "dir") {
 		auto& settings = getDriveSettings(tokens[2].getString());
 		result = dir(settings);
 
 	} else {
-		throw CommandException("Unknown subcommand: ", subcmd);
+		throw CommandException("Unknown subcommand: ", subCmd);
 	}
 }
 
 string DiskManipulator::help(std::span<const TclObject> tokens) const
 {
-	string helptext;
+	string helpText;
 	if (tokens.size() >= 2) {
 	  if (tokens[1] == "import") {
-	  helptext =
+	  helpText =
 	    "diskmanipulator import <disk name> <host directory|host file>\n"
 	    "Import all files and subdirs from the host OS as specified into the <disk name> in the\n"
 	    "current MSX subdirectory as was specified with the last chdir command.\n";
 	  } else if (tokens[1] == "export") {
-	  helptext =
+	  helpText =
 	    "diskmanipulator export <disk name> <host directory>\n"
 	    "Extract all files and subdirs from the MSX subdirectory specified with the chdir command\n"
 	    "from <disk name> to the host OS in <host directory>.\n";
 	  } else if (tokens[1] == "savedsk") {
-	  helptext =
+	  helpText =
 	    "diskmanipulator savedsk <disk name> <dskfilename>\n"
 	    "Save the complete drive content to <dskfilename>, it is not possible to save just one\n"
 	    "partition. The main purpose of this command is to make it possible to save a 'ramdsk' into\n"
 	    "a file and to take 'live backups' of dsk-files in use.\n";
 	  } else if (tokens[1] == "chdir") {
-	  helptext =
+	  helpText =
 	    "diskmanipulator chdir <disk name> <MSX directory>\n"
 	    "Change the working directory on <disk name>. This will be the directory were the 'import',\n"
 	    "'export' and 'dir' commands will work on.\n"
 	    "In case of a partitioned drive, each partition has its own working directory.\n";
 	  } else if (tokens[1] == "mkdir") {
-	  helptext =
+	  helpText =
 	    "diskmanipulator mkdir <disk name> <MSX directory>\n"
 	    "Create the specified directory on <disk name>. If needed, all missing parent directories\n"
 	    "are created at the same time. Accepts both absolute and relative path names.\n";
 	  } else if (tokens[1] == "create") {
-	  helptext =
+	  helpText =
 	    "diskmanipulator create <dskfilename> <size/option> [<size/option>...]\n"
 	    "Create a formatted dsk file with the given size.\n"
 	    "If multiple sizes are given, a partitioned disk image will be created with each partition\n"
@@ -248,19 +248,19 @@ string DiskManipulator::help(std::span<const TclObject> tokens) const
 	    "When using the -dos1 option, the boot sector of the created image will be MSX-DOS1\n"
 	    "compatible.\n";
 	  } else if (tokens[1] == "format") {
-	  helptext =
+	  helpText =
 	    "diskmanipulator format <disk name>\n"
 	    "formats the current (partition on) <disk name> with a regular FAT12 MSX filesystem with an\n"
 	    "MSX-DOS2 boot sector, or, when the -dos1 option is specified, with an MSX-DOS1 boot sector.\n";
 	  } else if (tokens[1] == "dir") {
-	  helptext =
+	  helpText =
 	    "diskmanipulator dir <disk name>\n"
 	    "Shows the content of the current directory on <disk name>\n";
 	  } else {
-	  helptext = strCat("Unknown diskmanipulator subcommand: ", tokens[1].getString());
+	  helpText = strCat("Unknown diskmanipulator subcommand: ", tokens[1].getString());
 	  }
 	} else {
-	  helptext =
+	  helpText =
 	    "diskmanipulator create <fn> <sz> [<sz> ...]  : create a formatted dsk file with name <fn>\n"
 	    "                                               having the given (partition) size(s)\n"
 	    "diskmanipulator savedsk <disk name> <fn>     : save <disk name> as dsk file named as <fn>\n"
@@ -273,7 +273,7 @@ string DiskManipulator::help(std::span<const TclObject> tokens) const
 	    "diskmanipulator export <disk> <host dir>     : export all files on <disk> to <host dir>\n"
 	    "For more info use 'help diskmanipulator <subcommand>'.\n";
 	}
-	return helptext;
+	return helpText;
 }
 
 void DiskManipulator::tabCompletion(std::vector<string>& tokens) const
@@ -295,7 +295,7 @@ void DiskManipulator::tabCompletion(std::vector<string>& tokens) const
 			names.emplace_back("-dos1");
 		}
 		for (const auto& d : drives) {
-			const auto& name1 = d.driveName; // with prexix
+			const auto& name1 = d.driveName; // with prefix
 			const auto& name2 = d.drive->getContainerName(); // without prefix
 			append(names, {name1, std::string(name2)});
 			// if it has partitions then we also add the partition
@@ -359,7 +359,7 @@ void DiskManipulator::create(std::span<const TclObject> tokens)
 		}
 		auto tok = token.getString();
 		char* q;
-		int sectors = strtol(tok.c_str(), &q, 0);
+		size_t sectors = strtoull(tok.c_str(), &q, 0);
 		int scale = 1024; // default is kilobytes
 		if (*q) {
 			if ((q == tok.c_str()) || *(q + 1)) {
@@ -388,10 +388,10 @@ void DiskManipulator::create(std::span<const TclObject> tokens)
 		// the truncated word will be 0 -> formatted as 320 Kb disk!
 		if (sectors > 65535) sectors = 65535; // this is the max size for fat12 :-)
 
-		// TEMP FIX: the smallest bootsector we create in MSXtar is for
+		// TEMP FIX: the smallest boot sector we create in MSXtar is for
 		// a normal single sided disk.
 		// TODO: MSXtar must be altered and this temp fix must be set to
-		// the real smallest dsk possible (= bootsector + minimal fat +
+		// the real smallest dsk possible (= boot sector + minimal fat +
 		// minimal dir + minimal data clusters)
 		if (sectors < 720) sectors = 720;
 

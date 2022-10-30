@@ -3,6 +3,7 @@
 #include "Clock.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include <cassert>
@@ -20,6 +21,16 @@ NowindInterface::NowindInterface(const DeviceConfig& config)
 	, host(drives)
 	, basename("nowindX")
 {
+	if ((rom.size() % 0x4000) != 0) {
+		throw MSXException("NowindInterface ROM size must be a multiple of 16kB");
+	}
+	if (rom.size() == 0) {
+		throw MSXException("NowindInterface ROM size cannot be zero");
+	}
+	if (rom.size() > size_t(256 * 0x4000)) {
+		throw MSXException("NowindInterface ROM size cannot be larger than 4MB");
+	}
+
 	nowindsInUse = getMotherBoard().getSharedStuff<NowindsInUse>("nowindsInUse");
 
 	unsigned i = 0;
@@ -108,8 +119,8 @@ void NowindInterface::writeMem(word address, byte value, EmuTime::param time)
 		host.write(value, clock.getTicksTill(time));
 	} else if (((0x6000 <= address) && (address < 0x8000)) ||
 	           ((0xA000 <= address) && (address < 0xC000))) {
-		byte max = rom.size() / (16 * 1024);
-		bank = (value < max) ? value : value & (max - 1);
+		auto max = narrow<uint8_t>((rom.size() / 0x4000) - 1);
+		bank = (value <= max) ? value : (value & max);
 		invalidateDeviceRCache(0x4000, 0x4000);
 		invalidateDeviceRCache(0xA000, 0x2000);
 	}
