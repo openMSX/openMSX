@@ -571,8 +571,8 @@ void OggReader::readTheora(ogg_packet* packet)
 		recycleFrameList.pop_back();
 	}
 
-	size_t y_size  = yuv[0].height * yuv[0].stride;
-	size_t uv_size = yuv[1].height * yuv[1].stride;
+	size_t y_size  = yuv[0].height * size_t(yuv[0].stride);
+	size_t uv_size = yuv[1].height * size_t(yuv[1].stride);
 	ranges::copy(std::span{yuv[0].data,  y_size}, frame->buffer[0].data);
 	ranges::copy(std::span{yuv[1].data, uv_size}, frame->buffer[1].data);
 	ranges::copy(std::span{yuv[2].data, uv_size}, frame->buffer[2].data);

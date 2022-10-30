@@ -222,18 +222,18 @@ static inline void yuv2rgb_sse2(
 static inline void convertHelperSSE2(
 	const th_ycbcr_buffer& buffer, RawFrame& output)
 {
-	const int width      = buffer[0].width;
-	const int y_stride   = buffer[0].stride;
-	const int uv_stride2 = buffer[1].stride / 2;
+	const int    width      = buffer[0].width;
+	const size_t y_stride   = buffer[0].stride;
+	const size_t uv_stride2 = buffer[1].stride / 2;
 
 	assert((width % 32) == 0);
 	assert((buffer[0].height % 2) == 0);
 
 	for (int y = 0; y < buffer[0].height; y += 2) {
-		const uint8_t* pY1 = buffer[0].data + y * y_stride;
+		const uint8_t* pY1 = buffer[0].data + (y + 0) * y_stride;
 		const uint8_t* pY2 = buffer[0].data + (y + 1) * y_stride;
-		const uint8_t* pCb = buffer[1].data + y * uv_stride2;
-		const uint8_t* pCr = buffer[2].data + y * uv_stride2;
+		const uint8_t* pCb = buffer[1].data + (y + 0) * uv_stride2;
+		const uint8_t* pCr = buffer[2].data + (y + 0) * uv_stride2;
 		auto out0 = output.getLineDirect<uint32_t>(y + 0);
 		auto out1 = output.getLineDirect<uint32_t>(y + 1);
 
@@ -304,9 +304,9 @@ static void convertHelper(const th_ycbcr_buffer& buffer, RawFrame& output,
 
 	static constexpr Coefs coefs = getCoefs();
 
-	const int width      = buffer[0].width;
-	const int y_stride   = buffer[0].stride;
-	const int uv_stride2 = buffer[1].stride / 2;
+	const int    width      = buffer[0].width;
+	const size_t y_stride   = buffer[0].stride;
+	const size_t uv_stride2 = buffer[1].stride / 2;
 
 	for (int y = 0; y < buffer[0].height; y += 2) {
 		const uint8_t* pY  = buffer[0].data + y * y_stride;

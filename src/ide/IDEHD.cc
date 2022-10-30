@@ -5,6 +5,7 @@
 #include "Reactor.hh"
 #include "DiskManipulator.hh"
 #include "endian.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 #include "strCat.hh"
 #include "xrange.hh"
@@ -40,9 +41,9 @@ std::string_view IDEHD::getDeviceName()
 void IDEHD::fillIdentifyBlock(AlignedBuffer& buf)
 {
 	auto totalSectors = getNbSectors();
-	uint16_t heads = 16;
-	uint16_t sectors = 32;
-	auto cylinders = uint16_t(totalSectors / (heads * sectors)); // TODO overflow?
+	const uint16_t heads = 16;
+	const uint16_t sectors = 32;
+	auto cylinders = narrow<uint16_t>(totalSectors / size_t(heads * sectors));
 	Endian::writeL16(&buf[1 * 2], cylinders);
 	Endian::writeL16(&buf[3 * 2], heads);
 	Endian::writeL16(&buf[6 * 2], sectors);
@@ -77,7 +78,7 @@ void IDEHD::writeBlockComplete(AlignedBuffer& buf, unsigned count)
 {
 	try {
 		assert((count % 512) == 0);
-		unsigned num = count / 512;
+		size_t num = count / 512;
 		for (auto i : xrange(num)) {
 			writeSector(transferSectorNumber++,
 			            *aligned_cast<SectorBuffer*>(buf + 512 * i));
