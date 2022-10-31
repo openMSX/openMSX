@@ -36,26 +36,26 @@ private:
 	[[nodiscard]] unsigned neededSize() const;
 	template<std::unsigned_integral P> void addFullFrame(const PixelFormat& pixelFormat, unsigned& workUsed);
 	template<std::unsigned_integral P> void addXorFrame (const PixelFormat& pixelFormat, unsigned& workUsed);
-	template<std::unsigned_integral P> [[nodiscard]] unsigned possibleBlock(int vx, int vy, unsigned offset);
-	template<std::unsigned_integral P> [[nodiscard]] unsigned compareBlock(int vx, int vy, unsigned offset);
+	template<std::unsigned_integral P> [[nodiscard]] unsigned possibleBlock(int vx, int vy, size_t offset);
+	template<std::unsigned_integral P> [[nodiscard]] unsigned compareBlock(int vx, int vy, size_t offset);
 	template<std::unsigned_integral P> void addXorBlock(
 		const PixelOperations<P>& pixelOps, int vx, int vy,
-		unsigned offset, unsigned& workUsed);
+		size_t offset, unsigned& workUsed);
 	[[nodiscard]] const void* getScaledLine(FrameSource* frame, unsigned y, void* workBuf) const;
 
 private:
-	MemBuffer<uint8_t, SSE_ALIGNMENT> oldframe;
-	MemBuffer<uint8_t, SSE_ALIGNMENT> newframe;
+	MemBuffer<uint8_t, SSE_ALIGNMENT> oldFrame;
+	MemBuffer<uint8_t, SSE_ALIGNMENT> newFrame;
 	MemBuffer<uint8_t, SSE_ALIGNMENT> work;
 	MemBuffer<uint8_t> output;
-	MemBuffer<unsigned> blockOffsets;
+	MemBuffer<size_t> blockOffsets;
 	unsigned outputSize;
 
 	z_stream zstream;
 
 	const unsigned width;
 	const unsigned height;
-	unsigned pitch;
+	size_t pitch;
 	unsigned pixelSize;
 	Format format;
 };

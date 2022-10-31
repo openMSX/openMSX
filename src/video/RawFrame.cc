@@ -17,7 +17,7 @@ RawFrame::RawFrame(
 	// - SSE instructions need 16 byte aligned data
 	// - cache line size on many CPUs is 64 bytes
 	pitch = ((bytesPerPixel * maxWidth) + 63) & ~63;
-	data.resize(pitch * height_);
+	data.resize(size_t(pitch) * height_);
 
 	maxWidth = pitch / bytesPerPixel; // adjust maxWidth
 
@@ -44,7 +44,7 @@ const void* RawFrame::getLineInfo(
 {
 	assert(line < getHeight());
 	width = lineWidths[line];
-	return data.data() + line * pitch;
+	return data.data() + line * size_t(pitch);
 }
 
 bool RawFrame::hasContiguousStorage() const

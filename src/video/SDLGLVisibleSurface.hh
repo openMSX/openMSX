@@ -32,10 +32,10 @@ public:
 		Reactor& reactor, CommandConsole& console) override;
 	[[nodiscard]] std::unique_ptr<Layer> createOSDGUILayer(OSDGUI& gui) override;
 	[[nodiscard]] std::unique_ptr<OutputSurface> createOffScreenSurface() override;
-	void fullScreenUpdated(bool fullscreen) override;
+	void fullScreenUpdated(bool fullScreen) override;
 
 private:
-	void setViewPort(gl::ivec2 logicalSize, bool fullscreen);
+	void setViewPort(gl::ivec2 logicalSize, bool fullScreen);
 
 private:
 	struct VSyncObserver : openmsx::Observer<Setting> {

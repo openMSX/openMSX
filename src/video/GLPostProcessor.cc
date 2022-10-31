@@ -6,6 +6,7 @@
 #include "OutputSurface.hh"
 #include "RawFrame.hh"
 #include "gl_transform.hh"
+#include "narrow.hh"
 #include "random.hh"
 #include "ranges.hh"
 #include "stl.hh"
@@ -159,9 +160,9 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 		currScaler = GLScalerFactory::createScaler(renderSettings);
 
 		// Re-upload frame data, this is both
-		//  - Chunks of RawFrame with a specific linewidth, possibly
+		//  - Chunks of RawFrame with a specific line width, possibly
 		//    with some extra lines above and below each chunk that are
-		//    also converted to this linewidth.
+		//    also converted to this line width.
 		//  - Extra data that is specific for the scaler (ATM only the
 		//    hq and hqlite scalers require this).
 		// Re-uploading the first is not strictly needed. But switching
@@ -322,8 +323,8 @@ void GLPostProcessor::uploadBlock(
 	pbo.bind();
 	uint32_t* mapped = pbo.mapWrite();
 	for (auto y : xrange(srcStartY, srcEndY)) {
-		auto* dest = mapped + y * lineWidth;
-		auto line = paintFrame->getLine(y, std::span{dest, lineWidth});
+		auto* dest = mapped + y * size_t(lineWidth);
+		auto line = paintFrame->getLine(narrow<int>(y), std::span{dest, lineWidth});
 		if (line.data() != dest) {
 			ranges::copy(line, dest);
 		}

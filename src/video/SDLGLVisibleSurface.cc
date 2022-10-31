@@ -80,8 +80,8 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 				glewGetErrorString(glew_error)));
 	}
 
-	bool fullscreen = getDisplay().getRenderSettings().getFullScreen();
-	setViewPort(gl::ivec2(width, height), fullscreen); // set initial values
+	bool fullScreen = getDisplay().getRenderSettings().getFullScreen();
+	setViewPort(gl::ivec2(width, height), fullScreen); // set initial values
 
 	setOpenGlPixelFormat();
 	gl::context.emplace(width, height);
@@ -119,17 +119,17 @@ void SDLGLVisibleSurface::saveScreenshotGL(
 	auto [w, h] = output.getViewSize();
 
 	// OpenGL ES only supports reading RGBA (not RGB)
-	MemBuffer<uint8_t> buffer(w * h * 4);
+	MemBuffer<uint8_t> buffer(4 * size_t(w) * size_t(h));
 	glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, buffer.data());
 
 	// perform in-place conversion of RGBA -> RGB
 	VLA(const void*, rowPointers, h);
-	for (auto i : xrange(h)) {
-		uint8_t* out = &buffer[w * 4 * i];
+	for (auto i : xrange(size_t(h))) {
+		uint8_t* out = &buffer[4 * size_t(w) * i];
 		const uint8_t* in = out;
 		rowPointers[h - 1 - i] = out;
 
-		for (auto j : xrange(w)) {
+		for (auto j : xrange(size_t(w))) {
 			out[3 * j + 0] = in[4 * j + 0];
 			out[3 * j + 1] = in[4 * j + 1];
 			out[3 * j + 2] = in[4 * j + 2];
@@ -186,23 +186,23 @@ void SDLGLVisibleSurface::VSyncObserver::update(const Setting& setting) noexcept
 	}
 }
 
-void SDLGLVisibleSurface::setViewPort(gl::ivec2 logicalSize, bool fullscreen)
+void SDLGLVisibleSurface::setViewPort(gl::ivec2 logicalSize, bool fullScreen)
 {
 	gl::ivec2 physicalSize = [&] {
 #ifndef __APPLE__
 		// On macos we set 'SDL_WINDOW_ALLOW_HIGHDPI', and in that case
 		// it's required to use SDL_GL_GetDrawableSize(), but then this
-		// 'fullscreen'-workaround/hack is counter-productive.
-		if (!fullscreen) {
-			// ??? When switching  back from fullscreen to windowed mode,
+		// 'full screen'-workaround/hack is counter-productive.
+		if (!fullScreen) {
+			// ??? When switching  back from full screen to windowed mode,
 			// SDL_GL_GetDrawableSize() still returns the dimensions of the
-			// fullscreen window ??? Is this a bug ???
+			// full screen window ??? Is this a bug ???
 			// But we know that in windowed mode, physical and logical size
 			// must be the same, so enforce that.
 			return logicalSize;
 		}
 #endif
-		(void)fullscreen;
+		(void)fullScreen;
 		int w, h;
 		SDL_GL_GetDrawableSize(window.get(), &w, &h);
 		return gl::ivec2(w, h);
@@ -216,9 +216,9 @@ void SDLGLVisibleSurface::setViewPort(gl::ivec2 logicalSize, bool fullscreen)
 	glViewport(vx, vy, vw, vh);
 }
 
-void SDLGLVisibleSurface::fullScreenUpdated(bool fullscreen)
+void SDLGLVisibleSurface::fullScreenUpdated(bool fullScreen)
 {
-	setViewPort(getLogicalSize(), fullscreen);
+	setViewPort(getLogicalSize(), fullScreen);
 }
 
 } // namespace openmsx

@@ -117,9 +117,9 @@ void SDLVisibleSurface::saveScreenshotSDL(
 {
 	auto [width, height] = output.getLogicalSize();
 	VLA(const void*, rowPointers, height);
-	MemBuffer<uint8_t> buffer(width * height * 3);
-	for (auto i : xrange(height)) {
-		rowPointers[i] = &buffer[width * 3 * i];
+	MemBuffer<uint8_t> buffer(3 * size_t(width) * size_t(height));
+	for (auto i : xrange(size_t(height))) {
+		rowPointers[i] = &buffer[3 * size_t(width) * i];
 	}
 	if (SDL_RenderReadPixels(
 			output.getSDLRenderer(), nullptr,
@@ -134,7 +134,7 @@ void SDLVisibleSurface::clearScreen()
 	SDL_FillRect(surface.get(), nullptr, 0);
 }
 
-void SDLVisibleSurface::fullScreenUpdated(bool /*fullscreen*/)
+void SDLVisibleSurface::fullScreenUpdated(bool /*fullScreen*/)
 {
 	// nothing
 }

@@ -31,7 +31,7 @@ public:
 		Reactor& reactor, CommandConsole& console) override;
 	[[nodiscard]] std::unique_ptr<Layer> createOSDGUILayer(OSDGUI& gui) override;
 	[[nodiscard]] std::unique_ptr<OutputSurface> createOffScreenSurface() override;
-	void fullScreenUpdated(bool fullscreen) override;
+	void fullScreenUpdated(bool fullScreen) override;
 
 private:
 	SDLRendererPtr renderer;
