@@ -64,7 +64,7 @@ static auto getMapperConfig(const DeviceConfig& config)
 MSXSCCPlusCart::MSXSCCPlusCart(const DeviceConfig& config)
 	: MSXDevice(config)
 	, mapperConfig(getMapperConfig(config))
-	, ram(config, getName() + " RAM", "SCC+ RAM", mapperConfig.numBlocks * 0x2000)
+	, ram(config, getName() + " RAM", "SCC+ RAM", size_t(mapperConfig.numBlocks) * 0x2000)
 	, scc(getName(), config, getCurrentTime(), SCC::SCC_Compatible)
 	, romBlockDebug(*this, mapper, 0x4000, 0x8000, 13)
 {

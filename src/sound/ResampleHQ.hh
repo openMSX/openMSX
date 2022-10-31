@@ -36,7 +36,7 @@ private:
 	const float ratio;
 	unsigned bufStart;
 	unsigned bufEnd;
-	unsigned nonzeroSamples;
+	unsigned nonzeroSamples = 0;
 	unsigned filterLen;
 	std::vector<float> buffer;
 	float* table;

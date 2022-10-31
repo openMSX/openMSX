@@ -14,6 +14,7 @@
 #include "FixedPoint.hh"
 #include "MemBuffer.hh"
 #include "aligned.hh"
+#include "narrow.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "vla.hh"
@@ -377,11 +378,10 @@ ResampleHQ<CHANNELS>::ResampleHQ(
 	ResampleCoeffs::instance().getCoeffs(double(ratio), permute, table, filterLen);
 
 	// fill buffer with 'enough' zero's
-	unsigned extra = int(filterLen + 1 + ratio + 1);
+	unsigned extra = narrow_cast<int>(filterLen + 1 + ratio + 1);
 	bufStart = 0;
 	bufEnd   = extra;
-	nonzeroSamples = 0;
-	unsigned initialSize = 4000; // buffer grows dynamically if this is too small
+	size_t initialSize = 4000; // buffer grows dynamically if this is too small
 	buffer.resize((initialSize + extra) * CHANNELS); // zero-initialized
 }
 
@@ -531,7 +531,7 @@ void ResampleHQ<CHANNELS>::calcOutput(
 	bufIdx *= CHANNELS;
 	const float* buf = &buffer[bufIdx];
 
-	int t = unsigned(lrintf(pos * TAB_LEN)) % TAB_LEN;
+	auto t = size_t(lrintf(pos * TAB_LEN)) % TAB_LEN;
 	if (!(t & HALF_TAB_LEN)) {
 		// first half, begin of row 't'
 		t = permute[t];
@@ -602,13 +602,13 @@ void ResampleHQ<CHANNELS>::prepareData(unsigned emuNum)
 		// No, then move everything to the start
 		// (data needs to be in a contiguous memory block)
 		unsigned available = bufEnd - bufStart;
-		memmove(&buffer[0], &buffer[bufStart * CHANNELS],
-			available * CHANNELS * sizeof(float));
+		memmove(&buffer[0], &buffer[bufStart * size_t(CHANNELS)],
+			available * size_t(CHANNELS) * sizeof(float));
 		bufStart = 0;
 		bufEnd = available;
 
 		free = unsigned(buffer.size() / CHANNELS) - bufEnd;
-		int missing = emuNum - free;
+		auto missing = narrow_cast<int>(emuNum - free);
 		if (missing > 0) [[unlikely]] {
 			// Still not enough room: grow the buffer.
 			// TODO an alternative is to instead of using a large
@@ -617,7 +617,7 @@ void ResampleHQ<CHANNELS>::prepareData(unsigned emuNum)
 			// the CPU's data cache. OTOH too small chunks have
 			// more overhead. (Not yet implemented because it's
 			// more complex).
-			buffer.resize(buffer.size() + missing * CHANNELS);
+			buffer.resize(buffer.size() + missing * size_t(CHANNELS));
 		}
 	}
 	VLA_SSE_ALIGNED(float, tmpBufExtra, emuNum * CHANNELS + 3);
