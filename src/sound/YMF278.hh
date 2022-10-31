@@ -18,7 +18,7 @@ class DeviceConfig;
 class YMF278 final : public ResampledSoundDevice
 {
 public:
-	YMF278(const std::string& name, int ramSize,
+	YMF278(const std::string& name, int ramSizeInKb,
 	       const DeviceConfig& config);
 	~YMF278();
 	void clearRam();

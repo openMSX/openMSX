@@ -777,7 +777,24 @@ byte YMF278::peekReg(byte reg) const
 
 static constexpr unsigned INPUT_RATE = 44100;
 
-YMF278::YMF278(const std::string& name_, int ramSize_,
+static size_t getRamSize(int ramSizeInKb)
+{
+	if ((ramSizeInKb !=    0) &&  //   -     -
+	    (ramSizeInKb !=  128) &&  // 128kB   -
+	    (ramSizeInKb !=  256) &&  // 128kB  128kB
+	    (ramSizeInKb !=  512) &&  // 512kB   -
+	    (ramSizeInKb !=  640) &&  // 512kB  128kB
+	    (ramSizeInKb != 1024) &&  // 512kB  512kB
+	    (ramSizeInKb != 2048)) {  // 512kB  512kB  512kB  512kB
+		throw MSXException(
+			"Wrong sampleram size for MoonSound (YMF278). "
+			"Got ", ramSizeInKb, ", but must be one of "
+			"0, 128, 256, 512, 640, 1024 or 2048.");
+	}
+	return size_t(ramSizeInKb) * 1024; // kilo-bytes -> bytes
+}
+
+YMF278::YMF278(const std::string& name_, int ramSizeInKb,
                const DeviceConfig& config)
 	: ResampledSoundDevice(config.getMotherBoard(), name_, "MoonSound wave-part",
 	                       24, INPUT_RATE, true)
@@ -786,24 +803,12 @@ YMF278::YMF278(const std::string& name_, int ramSize_,
 	, debugMemory   (motherBoard, getName())
 	, rom(getName() + " ROM", "rom", config)
 	, ram(config, getName() + " RAM", "YMF278 sample RAM",
-	      ramSize_ * 1024) // size in kB
+	      getRamSize(ramSizeInKb)) // check size before allocating
 {
 	if (rom.size() != 0x200000) { // 2MB
 		throw MSXException(
 			"Wrong ROM for MoonSound (YMF278). The ROM (usually "
 			"called yrw801.rom) should have a size of exactly 2MB.");
-	}
-	if ((ramSize_ !=    0) &&  //   -     -
-	    (ramSize_ !=  128) &&  // 128kB   -
-	    (ramSize_ !=  256) &&  // 128kB  128kB
-	    (ramSize_ !=  512) &&  // 512kB   -
-	    (ramSize_ !=  640) &&  // 512kB  128kB
-	    (ramSize_ != 1024) &&  // 512kB  512kB
-	    (ramSize_ != 2048)) {  // 512kB  512kB  512kB  512kB
-		throw MSXException(
-			"Wrong sampleram size for MoonSound (YMF278). "
-			"Got ", ramSize_, ", but must be one of "
-			"0, 128, 256, 512, 640, 1024 or 2048.");
 	}
 
 	memAdr = 0; // avoid UMR

@@ -19,9 +19,9 @@
 namespace openmsx {
 
 static MemBuffer<float, SSE_ALIGNMENT> mixBuffer;
-static unsigned mixBufferSize = 0;
+static size_t mixBufferSize = 0;
 
-static void allocateMixBuffer(unsigned size)
+static void allocateMixBuffer(size_t size)
 {
 	if (mixBufferSize < size) [[unlikely]] {
 		mixBufferSize = size;
@@ -194,13 +194,13 @@ bool SoundDevice::mixChannels(float* dataOut, unsigned samples)
 	assert((uintptr_t(dataOut) & 15) == 0); // must be 16-byte aligned
 #endif
 	if (samples == 0) return true;
-	unsigned outputStereo = isStereo() ? 2 : 1;
+	size_t outputStereo = isStereo() ? 2 : 1;
 
 	std::array<float*,  MAX_CHANNELS> bufs_;
 	auto bufs = subspan(bufs_, 0, numChannels);
 
 	unsigned separateChannels = 0;
-	unsigned pitch = (samples * stereo + 3) & ~3; // align for SSE access
+	size_t pitch = (samples * stereo + 3) & ~3; // align for SSE access
 	// TODO optimization: All channels with the same balance (according to
 	// channelBalance[]) could use the same buffer when balanceCenter is
 	// false
@@ -231,7 +231,7 @@ bool SoundDevice::mixChannels(float* dataOut, unsigned samples)
 		// still need to fill in (some) bufs[i] pointers
 		unsigned count = 0;
 		for (auto i : xrange(numChannels)) {
-			if (!(!channelMuted[i] && !writer[i] && balanceCenter)) {
+			if (channelMuted[i] || writer[i] || !balanceCenter) {
 				bufs[i] = &mixBuffer[pitch * count++];
 			}
 		}
