@@ -105,10 +105,6 @@ static constexpr uint8_t AS_INT          = 0x80;
 */
 
 WD33C93::WD33C93(const DeviceConfig& config)
-	: counter(0)
-	, blockCounter(0)
-	, targetId(0)
-	, devBusy(false)
 {
 	for (const auto* t : config.getXML()->getChildren("target")) {
 		unsigned id = t->getAttributeValueAsInt("id", 0);

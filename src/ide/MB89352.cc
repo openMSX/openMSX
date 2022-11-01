@@ -21,6 +21,7 @@
 #include "XMLElement.hh"
 #include "MSXException.hh"
 #include "enumerate.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 #include "xrange.hh"
 #include <cassert>
@@ -122,10 +123,6 @@ MB89352::MB89352(const DeviceConfig& config)
 
 	// avoid UMR on savestate
 	ranges::fill(buffer, 0);
-	msgin = 0;
-	blockCounter = 0;
-	nextPhase = SCSI::UNDEFINED;
-	targetId = 0;
 }
 
 void MB89352::disconnect()
@@ -162,7 +159,7 @@ void MB89352::softReset()
 	disconnect();
 }
 
-void MB89352::reset(bool scsireset)
+void MB89352::reset(bool scsiReset)
 {
 	regs[REG_BDID] = 0x80;     // Initial value
 	regs[REG_SCTL] = 0x80;
@@ -172,7 +169,7 @@ void MB89352::reset(bool scsireset)
 
 	softReset();
 
-	if (scsireset) {
+	if (scsiReset) {
 		for (auto& d : dev) {
 			d->reset();
 		}
@@ -270,7 +267,7 @@ void MB89352::resetACKREQ()
 			regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_DATAIN;
 		} else {
 			if (blockCounter > 0) {
-				counter = dev[targetId]->dataIn(blockCounter);
+				counter = narrow<int>(dev[targetId]->dataIn(blockCounter));
 				if (counter) {
 					regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_DATAIN;
 					bufIdx = 0;
@@ -286,7 +283,7 @@ void MB89352::resetACKREQ()
 		if (--counter > 0) {
 			regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_DATAOUT;
 		} else {
-			counter = dev[targetId]->dataOut(blockCounter);
+			counter = narrow<int>(dev[targetId]->dataOut(blockCounter));
 			if (counter) {
 				regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_DATAOUT;
 				bufIdx = 0;
@@ -303,7 +300,7 @@ void MB89352::resetACKREQ()
 		} else {
 			bufIdx = 0; // reset buffer index
 			// TODO: devBusy = true;
-			counter = dev[targetId]->executeCmd(cdb, phase, blockCounter);
+			counter = narrow<int>(dev[targetId]->executeCmd(cdb, phase, blockCounter));
 			switch (phase) {
 			case SCSI::DATA_IN:
 				regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_DATAIN;
@@ -448,7 +445,7 @@ void MB89352::writeRegister(uint8_t reg, uint8_t value)
 
 		// bus reset
 		if (value & 0x10) {
-			if (((regs[REG_SCMD] & 0x10) == 0) & (regs[REG_SCTL] == 0)) {
+			if (((regs[REG_SCMD] & 0x10) == 0) && (regs[REG_SCTL] == 0)) {
 				rst = true;
 				regs[REG_INTS] |= INTS_ResetCondition;
 				for (auto& d : dev) {
@@ -640,7 +637,7 @@ uint8_t MB89352::getSSTS() const
 		}
 	}
 	if (phase != SCSI::BUS_FREE) {
-		result |= 0x80; // set indiciator
+		result |= 0x80; // set indicator
 	}
 	if (isBusy) {
 		result |= 0x20; // set SPC_BSY
@@ -665,7 +662,7 @@ uint8_t MB89352::readRegister(uint8_t reg)
 
 	case REG_PSNS:
 		if (phase == SCSI::EXECUTE) {
-			counter = dev[targetId]->executingCmd(phase, blockCounter);
+			counter = narrow<int>(dev[targetId]->executingCmd(phase, blockCounter));
 			if (atn && phase != SCSI::EXECUTE) {
 				nextPhase = phase;
 				phase = SCSI::MSG_OUT;

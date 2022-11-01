@@ -26,7 +26,7 @@ class WD33C93
 public:
 	explicit WD33C93(const DeviceConfig& config);
 
-	void reset(bool scsireset);
+	void reset(bool scsiReset);
 
 	[[nodiscard]] uint8_t readAuxStatus();
 	[[nodiscard]] uint8_t readCtrl();
@@ -46,15 +46,15 @@ private:
 	AlignedByteArray<SCSIDevice::BUFFER_SIZE> buffer;
 	std::array<std::unique_ptr<SCSIDevice>, 8> dev;
 	unsigned bufIdx;
-	int counter;
-	unsigned blockCounter;
+	unsigned counter = 0;
+	unsigned blockCounter = 0;
 	int tc;
 	SCSI::Phase phase;
 	uint8_t myId;
-	uint8_t targetId;
+	uint8_t targetId = 0;
 	std::array<uint8_t, 32> regs;
 	uint8_t latch;
-	bool devBusy;
+	bool devBusy = false;
 };
 
 } // namespace openmsx

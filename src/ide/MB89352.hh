@@ -51,16 +51,16 @@ private:
 	AlignedByteArray<SCSIDevice::BUFFER_SIZE> buffer; // buffer for transfer
 	unsigned cdbIdx;                // cdb index
 	unsigned bufIdx;                // buffer index
-	int msgin;                      // Message In flag
+	int msgin = 0;                  // Message In flag
 	int counter;                    // read and written number of bytes
 	                                // within the range in the buffer
-	unsigned blockCounter;          // Number of blocks outside buffer
+	unsigned blockCounter = 0;      // Number of blocks outside buffer
 	                                // (512bytes / block)
 	int tc;                         // counter for hardware transfer
 	SCSI::Phase phase;              //
-	SCSI::Phase nextPhase;          // for message system
+	SCSI::Phase nextPhase = SCSI::UNDEFINED; // for message system
 	uint8_t myId;                   // SPC SCSI ID 0..7
-	uint8_t targetId;               // SCSI Device target ID 0..7
+	uint8_t targetId = 0;           // SCSI Device target ID 0..7
 	std::array<uint8_t, 16> regs;   // SPC register
 	bool rst;                       // SCSI bus reset signal
 	uint8_t atn;                    // SCSI bus attention signal
