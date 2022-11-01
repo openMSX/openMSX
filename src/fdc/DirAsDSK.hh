@@ -17,7 +17,7 @@ class DirAsDSK final : public SectorBasedDisk
 {
 public:
 	enum SyncMode { SYNC_READONLY, SYNC_FULL };
-	enum BootSectorType { BOOTSECTOR_DOS1, BOOTSECTOR_DOS2 };
+	enum BootSectorType { BOOT_SECTOR_DOS1, BOOT_SECTOR_DOS2 };
 
 public:
 	DirAsDSK(DiskChanger& diskChanger, CliComm& cliComm,

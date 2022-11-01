@@ -3,6 +3,7 @@
 #include "DiskExceptions.hh"
 #include "File.hh"
 #include "FilePool.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "xrange.hh"
@@ -115,7 +116,7 @@ void DMKDiskImage::readTrack(uint8_t track, uint8_t side, RawTrack& output)
 		}
 
 		output.addIdam(idx);
-		lastIdam = idx;
+		lastIdam = narrow<int>(idx);
 	}
 }
 
@@ -141,9 +142,9 @@ void DMKDiskImage::doWriteTrack(uint8_t track, uint8_t side, const RawTrack& inp
 	std::array<uint8_t, 2 * 64> idamOut = {}; // zero-initialize
 	const auto& idamIn = input.getIdamBuffer();
 	for (auto i : xrange(std::min(64, int(idamIn.size())))) {
-		int t = (idamIn[i] + 128) | FLAG_MFM_SECTOR;
-		idamOut[2 * i + 0] = t & 0xff;
-		idamOut[2 * i + 1] = t >> 8;
+		auto t = (idamIn[i] + 128) | FLAG_MFM_SECTOR;
+		idamOut[2 * i + 0] = narrow<uint8_t>(t & 0xff);
+		idamOut[2 * i + 1] = narrow<uint8_t>(t >> 8);
 	}
 	file->write(idamOut);
 

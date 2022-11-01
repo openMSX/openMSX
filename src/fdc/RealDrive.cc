@@ -164,7 +164,7 @@ std::optional<unsigned> RealDrive::getDiskReadTrack() const
 	case DiskDrive::TrackMode::YAMAHA_FD_03:
 		// Tracks are at a multiple of 4 steps.
 		// But also make sure the track at 1 step lower and 1 step up correctly reads.
-		// This makes the driver (calibration routine) use a trackoffset of 0 (so at a multiple of 4 steps).
+		// This makes the driver (calibration routine) use a track offset of 0 (so at a multiple of 4 steps).
 		if ((headPos >= 2) && ((headPos % 4) != 2)) {
 			return (headPos - 2) / 4;
 		} else {
@@ -416,7 +416,7 @@ static constexpr unsigned divUp(unsigned a, unsigned b)
 EmuTime RealDrive::getNextSector(EmuTime::param time, RawTrack::Sector& sector)
 {
 	getTrack();
-	int currentAngle = getCurrentAngle(time);
+	unsigned currentAngle = getCurrentAngle(time);
 	unsigned trackLen = track.getLength();
 	unsigned idx = divUp(currentAngle * trackLen, TICKS_PER_ROTATION);
 
@@ -432,11 +432,11 @@ EmuTime RealDrive::getNextSector(EmuTime::param time, RawTrack::Sector& sector)
 	} else {
 		return EmuTime::infinity();
 	}
-	int sectorAngle = divUp(sector.addrIdx * TICKS_PER_ROTATION, trackLen);
+	unsigned sectorAngle = divUp(sector.addrIdx * TICKS_PER_ROTATION, trackLen);
 
 	// note that if there is only one sector in this track, we have
 	// to do a full rotation.
-	int delta = sectorAngle - currentAngle;
+	auto delta = narrow<int>(sectorAngle) - narrow<int>(currentAngle);
 	if (delta < 4) delta += TICKS_PER_ROTATION;
 	assert(4 <= delta); assert(unsigned(delta) < (TICKS_PER_ROTATION + 4));
 

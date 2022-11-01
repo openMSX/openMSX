@@ -289,7 +289,7 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 
 	// Use selected boot sector, fill-in values.
 	uint8_t mediaDescriptor = (numSides == 2) ? 0xF9 : 0xF8;
-	const auto& protoBootSector = bootSectorType == BOOTSECTOR_DOS1
+	const auto& protoBootSector = bootSectorType == BOOT_SECTOR_DOS1
 		? BootBlocks::dos1BootBlock
 		: BootBlocks::dos2BootBlock;
 	sectors[0] = protoBootSector;
@@ -368,7 +368,7 @@ void DirAsDSK::readSectorImpl(size_t sector, SectorBuffer& buf)
 
 	// 'Peek-mode' is used to periodically calculate a sha1sum for the
 	// whole disk (used by reverse). We don't want this calculation to
-	// interfer with the access time we use for normal read/writes. So in
+	// interfere with the access time we use for normal read/writes. So in
 	// peek-mode we skip the whole sync-step.
 	if (!isPeekMode()) {
 		bool needSync = [&] {
@@ -552,7 +552,7 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, FileOperations::Stat& fst)
 	setMSXTimeStamp(dirIndex, fst);
 
 	// Set _host_ modification time (and filesize)
-	// Note: this is the _only_ place where we update the mapdir.mtime
+	// Note: this is the _only_ place where we update the mapDir.mtime
 	// field. We do _not_ update it when the msx writes to the file. So in
 	// case the msx does write a data sector, it writes to the correct
 	// offset in the host file, but mtime is not updated. On the next
@@ -809,8 +809,8 @@ void DirAsDSK::addNewHostFile(const string& hostSubDir, const string& hostName,
 		return;
 	}
 	// TODO check for available free space on disk instead of max free space
-	int diskSpace = (nofSectors - firstDataSector) * SECTOR_SIZE;
-	if (fst.st_size > diskSpace) {
+	auto diskSpace = (nofSectors - firstDataSector) * SECTOR_SIZE;
+	if (narrow<size_t>(fst.st_size) > diskSpace) {
 		cliComm.printWarning("File too large: ",
 		                     hostDir, hostSubDir, hostName);
 		return;
@@ -864,7 +864,7 @@ DirAsDSK::DirIndex DirAsDSK::getFreeDirEntry(unsigned msxDirSector)
 			const auto& msxName = msxDir(dirIndex).filename;
 			if (msxName[0] == one_of(char(0x00), char(0xE5))) {
 				// Found an unused msx entry. There shouldn't
-				// be any hostfile mapped to this entry.
+				// be any host file mapped to this entry.
 				assert(!mapDirs.contains(dirIndex));
 				return dirIndex;
 			}
@@ -1302,7 +1302,7 @@ void DirAsDSK::writeDIREntry(DirIndex dirIndex, DirIndex dirDirIndex,
 	     (        newEntry.attrib & MSXDirEntry::ATT_DIRECTORY))) {
 		// Name or file-type in the direntry was changed.
 		if (auto it = mapDirs.find(dirIndex); it != end(mapDirs)) {
-			// If there is an associated hostfile, then delete it
+			// If there is an associated host file, then delete it
 			// (in case of a rename, the file will be recreated
 			// below).
 			auto fullHostName = tmpStrCat(hostDir, it->second.hostName);

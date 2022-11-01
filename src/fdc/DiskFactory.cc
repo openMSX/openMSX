@@ -25,9 +25,9 @@ DiskFactory::DiskFactory(Reactor& reactor_)
 	, bootSectorSetting(
 		reactor.getCommandController(), "bootsector",
 		"boot sector type for dir-as-dsk",
-		DirAsDSK::BOOTSECTOR_DOS2, EnumSetting<DirAsDSK::BootSectorType>::Map{
-			{"DOS1", DirAsDSK::BOOTSECTOR_DOS1},
-			{"DOS2", DirAsDSK::BOOTSECTOR_DOS2}})
+		DirAsDSK::BOOT_SECTOR_DOS2, EnumSetting<DirAsDSK::BootSectorType>::Map{
+			{"DOS1", DirAsDSK::BOOT_SECTOR_DOS1},
+			{"DOS2", DirAsDSK::BOOT_SECTOR_DOS2}})
 {
 }
 

@@ -82,7 +82,7 @@ void SectorBasedDisk::readTrack(uint8_t track, uint8_t side, RawTrack& output)
 	try {
 		output.clear(RawTrack::STANDARD_SIZE); // clear idam positions
 
-		unsigned idx = 0;
+		int idx = 0;
 		auto write = [&](unsigned n, uint8_t value) {
 			repeat(n, [&] { output.write(idx++, value); });
 		};
