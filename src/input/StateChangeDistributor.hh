@@ -40,7 +40,9 @@ public:
 	 * new StateChangeDistributor object (object always starts in replay
 	 * state), but this is automatically taken care of because replay
 	 * always starts from a freshly restored snapshot.
-	 * @param event The event
+	 * Instead of a 'StateChange' parameter this method takes a
+	 * template-parameter 'T' and run-time parameters 'time' and '...arg'
+	 * that together can construct a 'StateChange' subclass 'T'.
 	 */
 	template<typename T, typename... Args>
 	void distributeNew(EmuTime::param time, Args&& ...args) {

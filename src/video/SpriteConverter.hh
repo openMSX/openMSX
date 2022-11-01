@@ -27,6 +27,7 @@ public:
 	  * After construction, also call the various set methods to complete
 	  * initialisation.
 	  * @param spriteChecker_ Delivers the sprite data to be rendered.
+	  * @param pal The initial palette. Can later be changed via setPallette().
 	  */
 	explicit SpriteConverter(SpriteChecker& spriteChecker_,
 	                         std::span<const Pixel, 16> pal)

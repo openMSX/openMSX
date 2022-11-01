@@ -285,12 +285,11 @@ class PolyLineScaler
 {
 public:
 	/** Actually scale a line.
-	 * @param in Pointer to buffer containing input line.
-	 * @param out Pointer to buffer that should be filled with output.
-	 * @param outWidth The number of pixels that should be output.
-	 * Note: The number of input pixels is not explicitly specified. This
-	 *       depends on the actual scaler, for example Scale_2on1 requires
-	 *       twice as many pixels in the input than the output.
+	 * @param in Buffer containing input line.
+	 * @param out Buffer that should be filled with output.
+	 * Note: The relative size of the input and output depends
+	 *       on the actual scaler. For example Scale_2on1 requires
+	 *       twice as many pixels in the input than in the output.
 	 */
 	virtual void operator()(std::span<const Pixel> in, std::span<Pixel> out) = 0;
 

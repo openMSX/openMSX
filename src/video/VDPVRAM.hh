@@ -209,11 +209,9 @@ public:
 		return (mask & effectiveBaseMask) == mask;
 	}
 
-	/** Gets a pointer to a contiguous part of the VRAM. The region is
+	/** Gets a span of a contiguous part of the VRAM. The region is
 	  * [index, index + size) inside the current window.
-	  * @param index Index in table
-	  * @param size Size of the block. This is only used to assert that
-	  *             requested block is not too large.
+	  * @param index Index in window
 	  */
 	template<size_t size>
 	[[nodiscard]] inline std::span<const byte, size> getReadArea(unsigned index) const {
@@ -225,13 +223,11 @@ public:
 
 	/** Similar to getReadArea(), but now with planar addressing mode.
 	  * This means the region is split in two: one region for the even bytes
-	  * (ptr0) and another for the odd bytes (ptr1).
-	  * @param index Index in table
-	  * @param size Size of the block. This is only used to assert that
-	  *             requested block is not too large.
-	  * @return pair{ptr0, ptr1}
-	  *    ptr0: Pointer to the block of even numbered bytes.
-	  *    ptr1: Pointer to the block of odd  numbered bytes.
+	  * (span0) and another for the odd bytes (span1).
+	  * @param index Index in window
+	  * @return pair{span0, span1}
+	  *    span0: The block of even numbered bytes.
+	  *    span1: The block of odd  numbered bytes.
 	  */
 	template<size_t size>
 	[[nodiscard]] inline std::pair<std::span<const byte, size / 2>, std::span<const byte, size / 2>>

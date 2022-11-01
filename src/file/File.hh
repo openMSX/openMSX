@@ -68,8 +68,7 @@ public:
 	void close();
 
 	/** Read from file.
-	 * @param buffer Destination address
-	 * @param num Number of bytes to read
+	 * @param buffer Destination buffer
 	 * @throws FileException
 	 */
 	void read(std::span<uint8_t> buffer);
@@ -80,8 +79,7 @@ public:
 	}
 
 	/** Write to file.
-	 * @param buffer Source address
-	 * @param num Number of bytes to write
+	 * @param buffer Source buffer
 	 * @throws FileException
 	 */
 	void write(std::span<const uint8_t> buffer);
