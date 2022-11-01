@@ -162,15 +162,15 @@ void SectorBasedDisk::detectGeometry()
 	if (getNbSectors() == 1440) {
 		// explicitly check for 720kb filesize
 
-		// "trojka.dsk" is 720kb, but has bootsector and FAT media ID
+		// "trojka.dsk" is 720kb, but has boot sector and FAT media ID
 		// for a single sided disk. From an emulator point of view it
 		// must be accessed as a double sided disk.
 
 		// "SDSNAT2.DSK" has invalid media ID in both FAT and
-		// bootsector, other data in the bootsector is invalid as well.
-		// Altough the first byte of the bootsector is 0xE9 to indicate
-		// valid bootsector data. The only way to detect the format is
-		// to look at the diskimage filesize.
+		// boot sector, other data in the boot sector is invalid as well.
+		// Although the first byte of the boot sector is 0xE9 to indicate
+		// valid boot sector data. The only way to detect the format is
+		// to look at the disk image filesize.
 
 		setSectorsPerTrack(9);
 		setNbSides(2);

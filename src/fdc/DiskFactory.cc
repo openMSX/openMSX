@@ -18,7 +18,7 @@ DiskFactory::DiskFactory(Reactor& reactor_)
 	: reactor(reactor_)
 	, syncDirAsDSKSetting(
 		reactor.getCommandController(), "DirAsDSKmode",
-		"type of synchronisation between host directory and dir-as-dsk diskimage",
+		"type of synchronisation between host directory and dir-as-dsk disk image",
 		DirAsDSK::SYNC_FULL, EnumSetting<DirAsDSK::SyncMode>::Map{
 			{"read_only", DirAsDSK::SYNC_READONLY},
 			{"full",      DirAsDSK::SYNC_FULL}})

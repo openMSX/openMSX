@@ -14,6 +14,7 @@
 #include "StringOp.hh"
 #include "strCat.hh"
 #include "File.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "stl.hh"
 #include "xrange.hh"
@@ -43,16 +44,16 @@ static constexpr uint8_t T_MSX_ARC  = 0x20; // Archive bit
 // For details, read http://home.teleport.com/~brainy/lfn.htm
 static constexpr uint8_t T_MSX_LFN  = 0x0F; // LFN entry (long files names)
 
-/** Transforms a clusternumber towards the first sector of this cluster
-  * The calculation uses info read fom the bootsector
+/** Transforms a cluster number towards the first sector of this cluster
+  * The calculation uses info read fom the boot sector
   */
 unsigned MSXtar::clusterToSector(unsigned cluster) const
 {
 	return 1 + rootDirLast + sectorsPerCluster * (cluster - 2);
 }
 
-/** Transforms a sectornumber towards it containing cluster
-  * The calculation uses info read fom the bootsector
+/** Transforms a sector number towards it containing cluster
+  * The calculation uses info read fom the boot sector
   */
 unsigned MSXtar::sectorToCluster(unsigned sector) const
 {
@@ -60,7 +61,7 @@ unsigned MSXtar::sectorToCluster(unsigned sector) const
 }
 
 
-/** Initialize object variables by reading info from the bootsector
+/** Initialize object variables by reading info from the boot sector
   */
 void MSXtar::parseBootSector(const MSXBootSector& boot)
 {
@@ -98,7 +99,7 @@ void MSXtar::parseBootSector(const MSXBootSector& boot)
 	rootDirLast = rootDirStart + nbRootDirSectors - 1;
 	maxCluster = sectorToCluster(boot.nrSectors);
 
-	// Some (invalid) diskimages have a too small FAT to be able to address
+	// Some (invalid) disk images have a too small FAT to be able to address
 	// all clusters of the image. OpenMSX SVN revisions pre-11326 even
 	// created such invalid images for some disk sizes!!
 	unsigned maxFatCluster = (2 * SECTOR_SIZE * sectorsPerFat) / 3;
@@ -132,8 +133,8 @@ void MSXtar::readLogicalSector(unsigned sector, SectorBuffer& buf)
 	}
 }
 
-MSXtar::MSXtar(SectorAccessibleDisk& sectordisk)
-	: disk(sectordisk)
+MSXtar::MSXtar(SectorAccessibleDisk& sectorDisk)
+	: disk(sectorDisk)
 {
 	if (disk.getNbSectors() == 0) {
 		throw MSXException("No disk inserted.");
@@ -296,8 +297,8 @@ unsigned MSXtar::findUsableIndexInSector(unsigned sector)
 	return unsigned(-1);
 }
 
-// This function returns the sector and dirindex for a new directory entry
-// if needed the involved subdirectroy is expanded by an extra cluster
+// This function returns the sector and dirIndex for a new directory entry
+// if needed the involved subdirectory is expanded by an extra cluster
 // returns: a DirEntry containing sector and index
 // @throws When either root dir is full or disk is full
 MSXtar::DirEntry MSXtar::addEntryToDir(unsigned sector)
@@ -336,7 +337,7 @@ MSXtar::DirEntry MSXtar::addEntryToDir(unsigned sector)
 // create an MSX filename 8.3 format, if needed in vfat like abbreviation
 static char toMSXChr(char a)
 {
-	a = toupper(a);
+	a = narrow<char>(toupper(a));
 	if (a == one_of(' ', '.')) {
 		a = '_';
 	}
@@ -344,7 +345,7 @@ static char toMSXChr(char a)
 }
 
 // Transform a long hostname in a 8.3 uppercase filename as used in the
-// direntries on an MSX
+// dirEntries on an MSX
 static string makeSimpleMSXFileName(string_view fullFilename)
 {
 	auto [dir, fullFile] = StringOp::splitOnLast(fullFilename, '/');
@@ -613,7 +614,7 @@ string MSXtar::addFileToDSK(const string& fullHostName, unsigned rootSector)
 	return {};
 }
 
-// Transfer directory and all its subdirectories to the MSX diskimage
+// Transfer directory and all its subdirectories to the MSX disk image
 // @throws when an error occurs
 string MSXtar::recurseDirFill(string_view dirName, unsigned sector)
 {
@@ -653,7 +654,7 @@ string MSXtar::recurseDirFill(string_view dirName, unsigned sector)
 }
 
 
-static string condensName(const MSXDirEntry& dirEntry)
+static string condenseName(const MSXDirEntry& dirEntry)
 {
 	string result;
 	for (unsigned i = 0; (i < 8) && (dirEntry.base()[i] != ' '); ++i) {
@@ -676,12 +677,12 @@ static void changeTime(zstring_view resultFile, const MSXDirEntry& dirEntry)
 	unsigned d = dirEntry.date;
 	struct tm mTim;
 	struct utimbuf uTim;
-	mTim.tm_sec   =  (t & 0x001f) << 1;
-	mTim.tm_min   =  (t & 0x07e0) >> 5;
-	mTim.tm_hour  =  (t & 0xf800) >> 11;
-	mTim.tm_mday  =  (d & 0x001f);
-	mTim.tm_mon   = ((d & 0x01e0) >> 5) - 1;
-	mTim.tm_year  = ((d & 0xfe00) >> 9) + 80;
+	mTim.tm_sec   = narrow<int>((t & 0x001f) << 1);
+	mTim.tm_min   = narrow<int>((t & 0x07e0) >> 5);
+	mTim.tm_hour  = narrow<int>((t & 0xf800) >> 11);
+	mTim.tm_mday  = narrow<int>( (d & 0x001f));
+	mTim.tm_mon   = narrow<int>(((d & 0x01e0) >> 5) - 1);
+	mTim.tm_year  = narrow<int>(((d & 0xfe00) >> 9) + 80);
 	mTim.tm_isdst = -1;
 	uTim.actime  = mktime(&mTim);
 	uTim.modtime = mktime(&mTim);
@@ -699,7 +700,7 @@ string MSXtar::dir()
 			    (dirEntry.attrib == T_MSX_LFN)) continue;
 
 			// filename first (in condensed form for human readability)
-			string tmp = condensName(dirEntry);
+			string tmp = condenseName(dirEntry);
 			tmp.resize(13, ' ');
 			strAppend(result, tmp,
 			          // attributes
@@ -798,7 +799,7 @@ string MSXtar::singleItemExtract(string_view dirName, string_view itemName,
 
 	auto& msxDirEntry = buf.dirEntry[entry.index];
 	// create full name for local filesystem
-	string fullName = strCat(dirName, '/', condensName(msxDirEntry));
+	string fullName = strCat(dirName, '/', condenseName(msxDirEntry));
 
 	// ...and extract
 	if  (msxDirEntry.attrib & T_MSX_DIR) {
@@ -825,7 +826,7 @@ void MSXtar::recurseDirExtract(string_view dirName, unsigned sector)
 			if (dirEntry.filename[0] == one_of(char(0xe5), char(0x00), '.')) {
 				continue;
 			}
-			string filename = condensName(dirEntry);
+			string filename = condenseName(dirEntry);
 			string fullName = filename;
 			if (!dirName.empty()) {
 				fullName = strCat(dirName, '/', filename);

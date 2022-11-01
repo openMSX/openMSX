@@ -358,18 +358,18 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 					"Couldn't reinsert disk in drive ",
 					getDriveName(), ": ", e.getMessage());
 				// Alternative: Print warning and continue
-				//   without diskimage. Is this better?
+				//   without disk image. Is this better?
 			}
 		}
 
 		string newChecksum = calcSha1(getSectorAccessibleDisk(), filePool);
 		if (oldChecksum != newChecksum) {
 			controller.getCliComm().printWarning(
-				"The content of the diskimage ",
+				"The content of the disk image ",
 				diskname.getResolved(),
 				" has changed since the time this savestate was "
 				"created. This might result in emulation problems "
-				"or even diskcorruption. To prevent the latter, "
+				"or even disk corruption. To prevent the latter, "
 				"the disk is now write-protected (eject and "
 				"reinsert the disk if you want to override this).");
 			disk->forceWriteProtect();

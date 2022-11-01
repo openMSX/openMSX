@@ -287,7 +287,7 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 	// NMS8250).
 	ranges::fill(std::span{sectors[0].raw.data(), sizeof(SectorBuffer) * nofSectors}, 0xE5);
 
-	// Use selected bootsector, fill-in values.
+	// Use selected boot sector, fill-in values.
 	uint8_t mediaDescriptor = (numSides == 2) ? 0xF9 : 0xF8;
 	const auto& protoBootSector = bootSectorType == BOOTSECTOR_DOS1
 		? BootBlocks::dos1BootBlock
@@ -385,7 +385,7 @@ void DirAsDSK::readSectorImpl(size_t sector, SectorBuffer& buf)
 		if (needSync) {
 			syncWithHost();
 			flushCaches(); // e.g. sha1sum
-			// Let the diskdrive report the disk has been ejected.
+			// Let the disk drive report the disk has been ejected.
 			// E.g. a turbor machine uses this to flush its
 			// internal disk caches.
 			diskChanger.forceDiskChange(); // maybe redundant now? (see hasChanged()).
@@ -628,7 +628,7 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, FileOperations::Stat& fst)
 			}
 		}
 		if (remainingSize != 0) {
-			cliComm.printWarning("Virtual diskimage full: ",
+			cliComm.printWarning("Virtual disk image full: ",
 			                     mapDir.hostName, " truncated.");
 		}
 	} catch (FileException& e) {
@@ -907,10 +907,10 @@ void DirAsDSK::writeSectorImpl(size_t sector_, const SectorBuffer& buf)
 	}
 
 	if (sector == 0) {
-		// Ignore. We don't allow writing to the bootsector. It would
+		// Ignore. We don't allow writing to the boot sector. It would
 		// be very bad if the MSX tried to format this disk using other
 		// disk parameters than this code assumes. It's also not useful
-		// to write a different bootprogram to this disk because it
+		// to write a different boot program to this disk because it
 		// will be lost when this virtual disk is ejected.
 	} else if (sector < firstSector2ndFAT) {
 		writeFATSector(sector, buf);
