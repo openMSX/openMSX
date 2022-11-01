@@ -45,7 +45,6 @@
 #include "FileOperations.hh"
 #include "FileException.hh"
 #include "StringOp.hh"
-#include "statp.hh"
 #include "unistdp.hh"
 #include "one_of.hh"
 #include "ranges.hh"
@@ -515,8 +514,11 @@ string expandCurrentDirFromDrive(string path)
 }
 #endif
 
-bool getStat(zstring_view filename, Stat& st)
+std::optional<Stat> getStat(zstring_view filename)
 {
+	std::optional<Stat> st;
+	st.emplace(); // allocate relatively large 'struct stat' in the return slot
+
 #ifdef _WIN32
 	std::string filename2(filename);
 	// workaround for VC++: strip trailing slashes (but keep it if it's the
@@ -527,10 +529,16 @@ bool getStat(zstring_view filename, Stat& st)
 		// string was either empty or a (sequence of) '/' character(s)
 		if (!filename2.empty()) filename2.resize(1);
 	}
-	return _wstat(utf8to16(filename2).c_str(), &st) == 0;
+	if (_wstat(utf8to16(filename2).c_str(), &*st)) {
+		st.reset();
+	}
 #else
-	return stat(filename.c_str(), &st) == 0;
+	if (stat(filename.c_str(), &*st)) {
+		st.reset();
+	}
 #endif
+
+	return st; // we count on NRVO to eliminate memcpy of 'struct stat'
 }
 
 bool isRegularFile(const Stat& st)
@@ -539,8 +547,8 @@ bool isRegularFile(const Stat& st)
 }
 bool isRegularFile(zstring_view filename)
 {
-	Stat st;
-	return getStat(filename, st) && isRegularFile(st);
+	auto st = getStat(filename);
+	return st && isRegularFile(*st);
 }
 
 bool isDirectory(const Stat& st)
@@ -550,14 +558,13 @@ bool isDirectory(const Stat& st)
 
 bool isDirectory(zstring_view directory)
 {
-	Stat st;
-	return getStat(directory, st) && isDirectory(st);
+	auto st = getStat(directory);
+	return st && isDirectory(*st);
 }
 
 bool exists(zstring_view filename)
 {
-	Stat st; // dummy
-	return getStat(filename, st);
+	return static_cast<bool>(getStat(filename));
 }
 
 static unsigned getNextNum(dirent* d, string_view prefix, string_view extension,

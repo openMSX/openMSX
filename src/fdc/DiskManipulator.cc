@@ -502,14 +502,13 @@ string DiskManipulator::import(DriveSettings& driveData,
 		for (auto i : xrange(l.getListLength(interp))) {
 			auto s = FileOperations::expandTilde(string(l.getListIndex(interp, i).getString()));
 			try {
-				FileOperations::Stat st;
-				if (!FileOperations::getStat(s, st)) {
-					throw CommandException(
-						"Non-existing file ", s);
+				auto st = FileOperations::getStat(s);
+				if (!st) {
+					throw CommandException("Non-existing file ", s);
 				}
-				if (FileOperations::isDirectory(st)) {
+				if (FileOperations::isDirectory(*st)) {
 					messages += workhorse.addDir(s);
-				} else if (FileOperations::isRegularFile(st)) {
+				} else if (FileOperations::isRegularFile(*st)) {
 					messages += workhorse.addFile(s);
 				} else {
 					// ignore other stuff (sockets, device nodes, ..)

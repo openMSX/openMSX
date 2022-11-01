@@ -1,6 +1,5 @@
 #include "PreCacheFile.hh"
 #include "FileOperations.hh"
-#include "statp.hh"
 #include <array>
 #include <cstdio>
 #include <sys/types.h>
@@ -25,9 +24,7 @@ PreCacheFile::~PreCacheFile()
 
 void PreCacheFile::run()
 {
-	struct stat st;
-	if (stat(name.c_str(), &st)) return;
-	if (!S_ISREG(st.st_mode)) {
+	if (!FileOperations::isRegularFile(name)) {
 		// don't pre-cache non regular files (e.g. /dev/fd0)
 		return;
 	}

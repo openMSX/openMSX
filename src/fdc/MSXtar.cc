@@ -21,7 +21,6 @@
 #include <cstring>
 #include <cassert>
 #include <cctype>
-#include <sys/stat.h>
 
 using std::string;
 using std::string_view;
@@ -453,16 +452,15 @@ static TimeDate getTimeDate(time_t totalSeconds)
 // Get the time/date from a host file in MSX format
 static TimeDate getTimeDate(zstring_view filename)
 {
-	struct stat st;
-	if (stat(filename.c_str(), &st)) {
-		// stat failed
-		return {0, 0};
-	} else {
+	if (auto st = FileOperations::getStat(filename)) {
 		// Some info indicates that st.st_mtime could be useless on win32 with vfat.
 		// On Android 'st_mtime' is 'unsigned long' instead of 'time_t'
 		// (like on linux), so we require a reinterpret_cast. That cast
 		// is fine (but redundant) on linux.
-		return getTimeDate(reinterpret_cast<time_t&>(st.st_mtime));
+		return getTimeDate(reinterpret_cast<time_t&>(st->st_mtime));
+	} else {
+		// stat failed
+		return {0, 0};
 	}
 }
 
@@ -482,11 +480,11 @@ unsigned MSXtar::addSubdirToDSK(zstring_view hostName, std::string_view msxName,
 void MSXtar::alterFileInDSK(MSXDirEntry& msxDirEntry, const string& hostName)
 {
 	// get host file size
-	struct stat st;
-	if (stat(hostName.c_str(), &st)) {
+	auto st = FileOperations::getStat(hostName);
+	if (!st) {
 		throw MSXException("Error reading host file: ", hostName);
 	}
-	unsigned hostSize = st.st_size;
+	unsigned hostSize = st->st_size;
 	unsigned remaining = hostSize;
 
 	// open host file for reading

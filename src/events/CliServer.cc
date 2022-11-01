@@ -5,7 +5,6 @@
 #include "MSXException.hh"
 #include "one_of.hh"
 #include "random.hh"
-#include "statp.hh"
 #include "xrange.hh"
 #include <memory>
 #include <string>
@@ -33,22 +32,22 @@ namespace openmsx {
 
 [[nodiscard]] static bool checkSocketDir(zstring_view dir)
 {
-	struct stat st;
-	if (stat(dir.c_str(), &st)) {
-		// cannot stat
+	auto st = FileOperations::getStat(dir);
+	if (!st) {
+		// error during stat()
 		return false;
 	}
-	if (!S_ISDIR(st.st_mode)) {
+	if (!FileOperations::isDirectory(*st)) {
 		// not a directory
 		return false;
 	}
 #ifndef _WIN32
 	// only do permission and owner checks on *nix
-	if ((st.st_mode & 0777) != 0700) {
+	if ((st->st_mode & 0777) != 0700) {
 		// wrong permissions
 		return false;
 	}
-	if (st.st_uid != getuid()) {
+	if (st->st_uid != getuid()) {
 		// wrong uid
 		return false;
 	}
@@ -63,30 +62,30 @@ namespace openmsx {
 		return false; // wrong name
 	}
 
-	struct stat st;
-	if (stat(socket.c_str(), &st)) {
-		// cannot stat
+	auto st = FileOperations::getStat(socket);
+	if (!st) {
+		// error during stat()
 		return false;
 	}
 #ifdef _WIN32
-	if (!S_ISREG(st.st_mode)) {
+	if (!FileOperations::isRegularFile(*st)) {
 		// not a regular file
 		return false;
 	}
 #else
-	if (!S_ISSOCK(st.st_mode)) {
+	if (!S_ISSOCK(st->st_mode)) {
 		// not a socket
 		return false;
 	}
 #endif
 #ifndef _WIN32
 	// only do permission and owner checks on *nix
-	if ((st.st_mode & 0777) != 0600) {
+	if ((st->st_mode & 0777) != 0600) {
 		// check will be different on win32 (!= 777) thus actually useless
 		// wrong permissions
 		return false;
 	}
-	if (st.st_uid != getuid()) {
+	if (st->st_uid != getuid()) {
 		// does this work on win32? is this check meaningful?
 		// wrong uid
 		return false;

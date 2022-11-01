@@ -116,23 +116,24 @@ namespace openmsx {
 				// When the action is not interested in 'Stat' and on operation systems
 				// that support it: avoid doing an extra 'stat()' system call.
 				auto type = needStat ? static_cast<unsigned char>(DT_UNKNOWN) : d->d_type;
-				Stat st;
 				if (type == DT_REG) {
-					if (!invokeFileAction(path, file, st)) {
+					Stat dummy;
+					if (!invokeFileAction(path, file, dummy)) {
 						return false; // aborted
 					}
 				} else if (type == DT_DIR) {
-					if (!invokeDirAction(path, file, st)) {
+					Stat dummy;
+					if (!invokeDirAction(path, file, dummy)) {
 						return false;
 					}
 				} else {
-					if (getStat(path, st)) {
-						if (isRegularFile(st)) {
-							if (!invokeFileAction(path, file, st)) {
+					if (auto st = getStat(path)) {
+						if (isRegularFile(*st)) {
+							if (!invokeFileAction(path, file, *st)) {
 								return false;
 							}
-						} else if (isDirectory(st)) {
-							if (!invokeDirAction(path, file, st)) {
+						} else if (isDirectory(*st)) {
+							if (!invokeDirAction(path, file, *st)) {
 								return false;
 							}
 						}

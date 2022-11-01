@@ -432,9 +432,8 @@ void DirAsDSK::checkDeletedHostFiles()
 		auto fullHostName = tmpStrCat(hostDir, mapDir.hostName);
 		bool isMSXDirectory = (msxDir(dirIdx).attrib &
 		                       MSXDirEntry::ATT_DIRECTORY) != 0;
-		FileOperations::Stat fst;
-		if ((!FileOperations::getStat(fullHostName, fst)) ||
-		    (FileOperations::isDirectory(fst) != isMSXDirectory)) {
+		auto fst = FileOperations::getStat(fullHostName);
+		if (!fst || (FileOperations::isDirectory(*fst) != isMSXDirectory)) {
 			// TODO also check access permission
 			// Error stat-ing file, or directory/file type is not
 			// the same on the msx and host side (e.g. a host file
@@ -520,9 +519,8 @@ void DirAsDSK::checkModifiedHostFiles()
 		auto fullHostName = tmpStrCat(hostDir, mapDir.hostName);
 		bool isMSXDirectory = (msxDir(dirIdx).attrib &
 		                       MSXDirEntry::ATT_DIRECTORY) != 0;
-		FileOperations::Stat fst;
-		if (FileOperations::getStat(fullHostName, fst) &&
-		    (FileOperations::isDirectory(fst) == isMSXDirectory)) {
+		auto fst = FileOperations::getStat(fullHostName);
+		if (fst && (FileOperations::isDirectory(*fst) == isMSXDirectory)) {
 			// Detect changes in host file.
 			// Heuristic: we use filesize and modification time to detect
 			// changes in file content.
@@ -533,9 +531,9 @@ void DirAsDSK::checkModifiedHostFiles()
 			// in that directory is changed/added/removed. But such
 			// changes are handled elsewhere.
 			if (!isMSXDirectory &&
-			    ((mapDir.mtime    != fst.st_mtime) ||
-			     (mapDir.filesize != size_t(fst.st_size)))) {
-				importHostFile(dirIdx, fst);
+			    ((mapDir.mtime    != fst->st_mtime) ||
+			     (mapDir.filesize != size_t(fst->st_size)))) {
+				importHostFile(dirIdx, *fst);
 			}
 		} else {
 			// Only very rarely happens (because checkDeletedHostFiles()
@@ -722,14 +720,14 @@ void DirAsDSK::addNewHostFiles(const string& hostSubDir, unsigned msxDirSector)
 				continue;
 			}
 			auto fullHostName = tmpStrCat(hostDir, hostSubDir, hostName);
-			FileOperations::Stat fst;
-			if (!FileOperations::getStat(fullHostName, fst)) {
+			auto fst = FileOperations::getStat(fullHostName);
+			if (!fst) {
 				throw MSXException("Error accessing ", fullHostName);
 			}
-			if (FileOperations::isDirectory(fst)) {
-				addNewDirectory(hostSubDir, hostName, msxDirSector, fst);
-			} else if (FileOperations::isRegularFile(fst)) {
-				addNewHostFile(hostSubDir, hostName, msxDirSector, fst);
+			if (FileOperations::isDirectory(*fst)) {
+				addNewDirectory(hostSubDir, hostName, msxDirSector, *fst);
+			} else if (FileOperations::isRegularFile(*fst)) {
+				addNewHostFile(hostSubDir, hostName, msxDirSector, *fst);
 			} else {
 				throw MSXException("Not a regular file: ", fullHostName);
 			}

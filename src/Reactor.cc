@@ -40,7 +40,6 @@
 #include "Timer.hh"
 #include "serialize.hh"
 #include "ranges.hh"
-#include "statp.hh"
 #include "stl.hh"
 #include "StringOp.hh"
 #include "unreachable.hh"

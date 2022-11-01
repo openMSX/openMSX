@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <fstream>
 #include <memory>
+#include <optional>
 #include <string_view>
 
 namespace openmsx::FileOperations {
@@ -39,9 +40,9 @@ namespace openmsx::FileOperations {
 
 	/**
 	 * Create the specified directory. Does some sanity checks so that
-	 * it bahaves the same on all platforms. The mode parameter is ignored
+	 * it behaves the same on all platforms. The mode parameter is ignored
 	 * on windows. For compatibility with *nix creating the root dir (or a
-	 * drivename) is not an error instead the operation is silently
+	 * drive name) is not an error instead the operation is silently
 	 * ignored. This function can only create one directory at-a-time. You
 	 * probably want to use the mkdirp function (see below).
 	 * @param path The path of the directory to create
@@ -236,11 +237,9 @@ namespace openmsx::FileOperations {
 #endif
 	/**
 	 * Call stat() and return the stat structure
-	 * @param filename the file path (will be tilde expanded)
-	 * @param st The stat structure that will be filled in
-	 * @result true iff success
+	 * @param filename the file path
 	 */
-	[[nodiscard]] bool getStat(zstring_view filename, Stat& st);
+	[[nodiscard]] std::optional<Stat> getStat(zstring_view filename);
 
 	/**
 	 * Is this a regular file (no directory, device, ..)?
