@@ -3,6 +3,7 @@
 #include "ScalerOutput.hh"
 #include "MemBuffer.hh"
 #include "aligned.hh"
+#include "narrow.hh"
 #include "vla.hh"
 #include "build-info.hh"
 #include <algorithm>
@@ -39,7 +40,7 @@ void MLAAScaler<Pixel>::scaleImage(
 	// This is not just a trick to avoid range checks: to properly handle
 	// pixels at the top/bottom of the display area we must compare them to
 	// the border color.
-	const int srcNumLines = srcEndY - srcStartY;
+	const int srcNumLines = narrow<int>(srcEndY - srcStartY);
 	VLA(const Pixel*, srcLinePtrsArray, srcNumLines + 2);
 	auto** srcLinePtrs = &srcLinePtrsArray[1];
 	std::vector<MemBuffer<Pixel, SSE_ALIGNMENT>> workBuffer;
@@ -57,7 +58,7 @@ void MLAAScaler<Pixel>::scaleImage(
 	}
 
 	enum { UP = 1 << 0, RIGHT = 1 << 1, DOWN = 1 << 2, LEFT = 1 << 3 };
-	MemBuffer<uint8_t> edges(srcNumLines * srcWidth);
+	MemBuffer<uint8_t> edges(srcNumLines * size_t(srcWidth));
 	uint8_t* edgeGenPtr = edges.data();
 	for (auto y : xrange(srcNumLines)) {
 		auto* srcLinePtr = srcLinePtrs[y];
@@ -105,7 +106,7 @@ void MLAAScaler<Pixel>::scaleImage(
 	assert(srcWidth <= SPAN_MASK);
 
 	// Find horizontal edges.
-	MemBuffer<unsigned> horizontals(srcNumLines * srcWidth);
+	MemBuffer<unsigned> horizontals(srcNumLines * size_t(srcWidth));
 	unsigned* horizontalGenPtr = horizontals.data();
 	const uint8_t* edgePtr = edges.data();
 	for (auto y : xrange(srcNumLines)) {
@@ -189,7 +190,7 @@ void MLAAScaler<Pixel>::scaleImage(
 	assert(unsigned(horizontalGenPtr - horizontals.data()) == srcNumLines * srcWidth);
 
 	// Find vertical edges.
-	MemBuffer<unsigned> verticals(srcNumLines * srcWidth);
+	MemBuffer<unsigned> verticals(srcNumLines * size_t(srcWidth));
 	edgePtr = edges.data();
 	for (auto x : xrange(srcWidth)) {
 		unsigned* verticalGenPtr = &verticals[x];
@@ -203,30 +204,30 @@ void MLAAScaler<Pixel>::scaleImage(
 
 			// Search for slopes on the left edge.
 			int leftEndY = y + 1;
-			if (edgePtr[y * srcWidth] & LEFT) {
+			if (edgePtr[y * size_t(srcWidth)] & LEFT) {
 				while (leftEndY < srcNumLines
-					&& (edgePtr[leftEndY * srcWidth] & (LEFT | UP)) == LEFT) leftEndY++;
+					&& (edgePtr[leftEndY * size_t(srcWidth)] & (LEFT | UP)) == LEFT) leftEndY++;
 				assert(x > 0); // implied by having a left edge
 				const unsigned nextX = std::min(x + 1, srcWidth - 1);
-				slopeTopLeft = (edgePtr[y * srcWidth] & UP)
+				slopeTopLeft = (edgePtr[y * size_t(srcWidth)] & UP)
 					&& srcLinePtrs[y - 1][nextX] == srcLinePtrs[y][x]
 					&& srcLinePtrs[y - 1][x] == srcLinePtrs[y][x - 1];
-				slopeBotLeft = (edgePtr[(leftEndY - 1) * srcWidth] & DOWN)
+				slopeBotLeft = (edgePtr[(leftEndY - 1) * size_t(srcWidth)] & DOWN)
 					&& srcLinePtrs[leftEndY][nextX] == srcLinePtrs[leftEndY - 1][x]
 					&& srcLinePtrs[leftEndY][x] == srcLinePtrs[leftEndY - 1][x - 1];
 			}
 
 			// Search for slopes on the right edge.
 			int rightEndY = y + 1;
-			if (edgePtr[y * srcWidth] & RIGHT) {
+			if (edgePtr[y * size_t(srcWidth)] & RIGHT) {
 				while (rightEndY < srcNumLines
-					&& (edgePtr[rightEndY * srcWidth] & (RIGHT | UP)) == RIGHT) rightEndY++;
+					&& (edgePtr[rightEndY * size_t(srcWidth)] & (RIGHT | UP)) == RIGHT) rightEndY++;
 				assert(x < srcWidth); // implied by having a right edge
 				const unsigned prevX = x == 0 ? 0 : x - 1;
-				slopeTopRight = (edgePtr[y * srcWidth] & UP)
+				slopeTopRight = (edgePtr[y * size_t(srcWidth)] & UP)
 					&& srcLinePtrs[y - 1][prevX] == srcLinePtrs[y][x]
 					&& srcLinePtrs[y - 1][x] == srcLinePtrs[y][x + 1];
-				slopeBotRight = (edgePtr[(rightEndY - 1) * srcWidth] & DOWN)
+				slopeBotRight = (edgePtr[(rightEndY - 1) * size_t(srcWidth)] & DOWN)
 					&& srcLinePtrs[rightEndY][prevX] == srcLinePtrs[rightEndY - 1][x]
 					&& srcLinePtrs[rightEndY][x] == srcLinePtrs[rightEndY - 1][x + 1];
 			}
@@ -269,7 +270,7 @@ void MLAAScaler<Pixel>::scaleImage(
 					*verticalGenPtr = EDGE_END | slopes | lengths;
 					verticalGenPtr += srcWidth;
 				}
-				y = endY;
+				y = narrow<int>(endY);
 			}
 		}
 		assert(y == srcNumLines);
@@ -489,7 +490,7 @@ void MLAAScaler<Pixel>::scaleImage(
 				slopeBotRight ? rightEndY : std::max(leftEndY, rightEndY)
 				);
 			y = endY;
-			verticalPtr += srcWidth * (endY - startY);
+			verticalPtr += size_t(srcWidth) * (endY - startY);
 
 			// Antialias either the left or the right, but not both.
 			if (slopeTopLeft && slopeTopRight) {

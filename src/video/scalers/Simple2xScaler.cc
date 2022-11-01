@@ -387,7 +387,6 @@ void Simple2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	VLA_SSE_ALIGNED(Pixel, buf, srcWidth);
 	int blur = settings.getBlurFactor();
 	int scanlineFactor = settings.getScanlineFactor();
-	size_t dstWidth = 2 * srcWidth;
 
 	unsigned dstY = dstStartY;
 	auto srcLine = src.getLine(srcStartY++, buf);
@@ -408,7 +407,7 @@ void Simple2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	}
 
 	srcLine = src.getLine(srcStartY++, buf);
-	VLA_SSE_ALIGNED(Pixel, buf2, dstWidth);
+	VLA_SSE_ALIGNED(Pixel, buf2, 2 * size_t(srcWidth));
 	blur1on2(srcLine, buf2, blur);
 
 	auto dstLine1 = dst.acquireLine(dstY + 1);
