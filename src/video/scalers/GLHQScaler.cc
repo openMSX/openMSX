@@ -4,6 +4,7 @@
 #include "FrameSource.hh"
 #include "FileContext.hh"
 #include "File.hh"
+#include "narrow.hh"
 #include "ranges.hh"
 #include "vla.hh"
 #include <array>
@@ -47,7 +48,7 @@ GLHQScaler::GLHQScaler(GLScaler& fallback_)
 	std::string weightsName = "shaders/HQ_xWeights.dat";
 	for (auto i : xrange(3)) {
 		int n = i + 2;
-		offsetsName[10] = char('0') + n;
+		offsetsName[10] = narrow<char>('0' + n);
 		File offsetsFile(context.resolve(offsetsName));
 		offsetTexture[i].bind();
 		glTexImage2D(GL_TEXTURE_2D,       // target
@@ -60,7 +61,7 @@ GLHQScaler::GLHQScaler(GLScaler& fallback_)
 		             GL_UNSIGNED_BYTE,    // type
 		             offsetsFile.mmap().data());// data
 
-		weightsName[10] = char('0') + n;
+		weightsName[10] = narrow<char>('0' + n);
 		File weightsFile(context.resolve(weightsName));
 		weightTexture[i].bind();
 		glTexImage2D(GL_TEXTURE_2D,       // target
@@ -122,8 +123,8 @@ void GLHQScaler::uploadBlock(
 
 	VLA_SSE_ALIGNED(Pixel, buf1, lineWidth);
 	VLA_SSE_ALIGNED(Pixel, buf2, lineWidth);
-	auto curr = paintFrame.getLine(srcStartY - 1, buf1);
-	auto next = paintFrame.getLine(srcStartY + 0, buf2);
+	auto curr = paintFrame.getLine(narrow<int>(srcStartY) - 1, buf1);
+	auto next = paintFrame.getLine(narrow<int>(srcStartY) + 0, buf2);
 	EdgeHQ edgeOp(0, 8, 16);
 	calcEdgesGL(curr, next, tmpBuf2, edgeOp);
 
@@ -132,23 +133,23 @@ void GLHQScaler::uploadBlock(
 		for (auto y : xrange(srcStartY, srcEndY)) {
 			curr = next;
 			std::swap(buf1, buf2);
-			next = paintFrame.getLine(y + 1, buf2);
+			next = paintFrame.getLine(narrow<int>(y + 1), buf2);
 			calcEdgesGL(curr, next, tmpBuf2, edgeOp);
-			memcpy(mapped + 320 * y, tmpBuf2.data(), 320 * sizeof(uint16_t));
+			memcpy(mapped + 320 * size_t(y), tmpBuf2.data(), 320 * sizeof(uint16_t));
 		}
 		edgeBuffer.unmap();
 
 		auto format = (OPENGL_VERSION >= OPENGL_3_3) ? GL_RG : GL_LUMINANCE_ALPHA;
 		edgeTexture.bind();
-		glTexSubImage2D(GL_TEXTURE_2D,       // target
-		                0,                   // level
-		                0,                   // offset x
-		                srcStartY,           // offset y
-		                lineWidth,           // width
-		                srcEndY - srcStartY, // height
-		                format,              // format
-		                GL_UNSIGNED_BYTE,    // type
-		                edgeBuffer.getOffset(0, srcStartY)); // data
+		glTexSubImage2D(GL_TEXTURE_2D,                      // target
+		                0,                                  // level
+		                0,                                  // offset x
+		                narrow<GLint>(srcStartY),           // offset y
+		                narrow<GLint>(lineWidth),           // width
+		                narrow<GLint>(srcEndY - srcStartY), // height
+		                format,                             // format
+		                GL_UNSIGNED_BYTE,                   // type
+		                edgeBuffer.getOffset(0, srcStartY));// data
 	}
 	edgeBuffer.unbind();
 }
