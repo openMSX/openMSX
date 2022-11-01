@@ -213,9 +213,9 @@ bool DMKDiskImage::isWriteProtectedImpl() const
 	return writeProtected || file->isReadOnly();
 }
 
-Sha1Sum DMKDiskImage::getSha1SumImpl(FilePool& filepool)
+Sha1Sum DMKDiskImage::getSha1SumImpl(FilePool& filePool)
 {
-	return filepool.getSha1Sum(*file);
+	return filePool.getSha1Sum(*file);
 }
 
 void DMKDiskImage::detectGeometryFallback()
@@ -224,7 +224,7 @@ void DMKDiskImage::detectGeometryFallback()
 	// getNbSectors(), but for DMK images that doesn't work before we know
 	// the geometry.
 
-	// detectGeometryFallback() is for example used when the bootsector
+	// detectGeometryFallback() is for example used when the boot sector
 	// could not be read. For a DMK image this can happen when that sector
 	// has CRC errors or is missing or deleted.
 

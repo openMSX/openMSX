@@ -261,8 +261,8 @@ void IDECDROM::executePacketCommand(AlignedBuffer& packet)
 		break;
 	}
 	case 0xA8: { // READ Command
-		int sectorNumber = Endian::read_UA_B32(&packet[2]);
-		int sectorCount  = Endian::read_UA_B32(&packet[6]);
+		uint32_t sectorNumber = Endian::read_UA_B32(&packet[2]);
+		uint32_t sectorCount  = Endian::read_UA_B32(&packet[6]);
 		//fprintf(stderr, "  read(12): sector %d, count %d\n",
 		//	sectorNumber, sectorCount);
 		// There are three block sizes:

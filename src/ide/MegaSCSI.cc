@@ -51,9 +51,9 @@ namespace openmsx {
 
 static constexpr byte SPC = 0x7F;
 
-unsigned MegaSCSI::getSramSize() const
+size_t MegaSCSI::getSramSize() const
 {
-	unsigned sramSize = getDeviceConfig().getChildDataAsInt("sramsize", 1024); // size in kb
+	size_t sramSize = getDeviceConfig().getChildDataAsInt("sramsize", 1024); // size in kb
 	if (sramSize != one_of(1024u, 512u, 256u, 128u)) {
 		throw MSXException(
 			"SRAM size for ", getName(),

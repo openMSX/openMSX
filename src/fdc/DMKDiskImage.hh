@@ -26,7 +26,7 @@ public:
 	void writeSectorImpl(size_t sector, const SectorBuffer& buf) override;
 	[[nodiscard]] size_t getNbSectorsImpl() const override;
 	[[nodiscard]] bool isWriteProtectedImpl() const override;
-	[[nodiscard]] Sha1Sum getSha1SumImpl(FilePool& filepool) override;
+	[[nodiscard]] Sha1Sum getSha1SumImpl(FilePool& filePool) override;
 
 private:
 	void detectGeometryFallback() override;

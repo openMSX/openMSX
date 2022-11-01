@@ -16,7 +16,7 @@ namespace openmsx {
 
 // Like the constructor below, but doesn't create a debuggable.
 // For use in unit-tests.
-SRAM::SRAM(int size, const XMLElement& xml, DontLoadTag)
+SRAM::SRAM(size_t size, const XMLElement& xml, DontLoadTag)
 	: ram(xml, size)
 	, header(nullptr) // not used
 {
@@ -27,13 +27,13 @@ SRAM::SRAM(int size, const XMLElement& xml, DontLoadTag)
  * dynamically need to decide whether load/save is needed.
  */
 SRAM::SRAM(const std::string& name, static_string_view description,
-           int size, const DeviceConfig& config_, DontLoadTag)
+           size_t size, const DeviceConfig& config_, DontLoadTag)
 	: ram(config_, name, description, size)
 	, header(nullptr) // not used
 {
 }
 
-SRAM::SRAM(const std::string& name, int size,
+SRAM::SRAM(const std::string& name, size_t size,
            const DeviceConfig& config_, const char* header_, bool* loaded)
 	: schedulable(std::in_place, config_.getReactor().getRTScheduler(), *this)
 	, config(config_)
@@ -43,7 +43,7 @@ SRAM::SRAM(const std::string& name, int size,
 	load(loaded);
 }
 
-SRAM::SRAM(const std::string& name, static_string_view description, int size,
+SRAM::SRAM(const std::string& name, static_string_view description, size_t size,
 	   const DeviceConfig& config_, const char* header_, bool* loaded)
 	: schedulable(std::in_place, config_.getReactor().getRTScheduler(), *this)
 	, config(config_)

@@ -16,7 +16,7 @@
  *
  *  NOTE: this version supports a removable LS-120 disk, as the class
  *  name suggests. Refer to revision 6526 of SCSIHD.cc to see what was removed
- *  from the generic/parameterised code.
+ *  from the generic/parameterized code.
  */
 
 #include "SCSILS120.hh"
@@ -271,7 +271,7 @@ unsigned SCSILS120::modeSense()
 
 		// Mode Parameter Header 4bytes
 		pBuffer[1] = media; // Medium Type
-		pBuffer[3] = 8;     // block descripter length
+		pBuffer[3] = 8;     // block descriptor length
 		pBuffer += 4;
 
 		// Disable Block Descriptor check
@@ -657,7 +657,7 @@ scsiDeviceMsgOut()
 Notes:
     [out]
 	  -1: Busfree demand. (Please process it in the call origin.)
-	bit2: Status phase demand. Error happend.
+	bit2: Status phase demand. Error happened.
 	bit1: Make it to a busfree if ATN has not been released.
 	bit0: There is a message(MsgIn).
 */

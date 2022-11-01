@@ -10,6 +10,7 @@
 #include "GlobalSettings.hh"
 #include "MSXException.hh"
 #include "Timer.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 #include "tiger.hh"
 #include <array>
@@ -26,7 +27,7 @@ HD::HD(const DeviceConfig& config)
 {
 	hdInUse = motherBoard.getSharedStuff<HDInUse>("hdInUse");
 
-	unsigned id = 0;
+	int id = 0;
 	while ((*hdInUse)[id]) {
 		++id;
 		if (id == MAX_HD) {
@@ -34,10 +35,10 @@ HD::HD(const DeviceConfig& config)
 		}
 	}
 	// for exception safety, set hdInUse only at the end
-	name[2] = char('a' + id);
+	name[2] = narrow<char>('a' + id);
 
 	// For the initial hd image, savestate should only try exactly this
-	// (resolved) filename. For user-specified hd images (commandline or
+	// (resolved) filename. For user-specified hd images (command line or
 	// via hda command) savestate will try to re-resolve the filename.
 	auto mode = File::NORMAL;
 	string cliImage = HDImageCLI::getImageForId(id);
@@ -259,10 +260,10 @@ void HD::serialize(Archive& ar, unsigned version)
 			}
 		} else {
 			// use sha1
-			auto& filepool = motherBoard.getReactor().getFilePool();
+			auto& filePool = motherBoard.getReactor().getFilePool();
 			Sha1Sum oldChecksum;
 			if constexpr (!Archive::IS_LOADER) {
-				oldChecksum = getSha1Sum(filepool);
+				oldChecksum = getSha1Sum(filePool);
 			}
 			string oldChecksumStr = oldChecksum.empty()
 					      ? string{}
@@ -273,7 +274,7 @@ void HD::serialize(Archive& ar, unsigned version)
 				    : Sha1Sum(oldChecksumStr);
 
 			if constexpr (Archive::IS_LOADER) {
-				Sha1Sum newChecksum = getSha1Sum(filepool);
+				Sha1Sum newChecksum = getSha1Sum(filePool);
 				mismatch = oldChecksum != newChecksum;
 			}
 		}
@@ -281,12 +282,12 @@ void HD::serialize(Archive& ar, unsigned version)
 		if constexpr (Archive::IS_LOADER) {
 			if (mismatch) {
 				motherBoard.getMSXCliComm().printWarning(
-					"The content of the harddisk ",
+					"The content of the hard disk ",
 					tmp.getResolved(),
 					" has changed since the time this savestate was "
 					"created. This might result in emulation problems "
-					"or even diskcorruption. To prevent the latter, "
-					"the harddisk is now write-protected.");
+					"or even disk corruption. To prevent the latter, "
+					"the hard disk is now write-protected.");
 				forceWriteProtect();
 			}
 		}

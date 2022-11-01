@@ -185,7 +185,7 @@ int CommandConsole::signalEvent(const Event& event) noexcept
 				}
 			} else {
 				// For commands that take a long time to execute (e.g.
-				// a loadstate that needs to create a filepool index),
+				// a loadstate that needs to create a filePool index),
 				// we also send events during the execution (so that
 				// we can show progress on the OSD). In that case
 				// ignore extra input events.

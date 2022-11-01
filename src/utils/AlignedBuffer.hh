@@ -41,6 +41,12 @@ public:
 
 	[[nodiscard]] auto* operator+(ptrdiff_t i)       { return p() + i; }
 	[[nodiscard]] auto* operator+(ptrdiff_t i) const { return p() + i; }
+	[[nodiscard]] auto* operator+(size_t i)          { return p() + i; }
+	[[nodiscard]] auto* operator+(size_t i)    const { return p() + i; }
+	[[nodiscard]] auto* operator+(int i)             { return p() + i; }
+	[[nodiscard]] auto* operator+(int i)       const { return p() + i; }
+	[[nodiscard]] auto* operator+(unsigned i)        { return p() + i; }
+	[[nodiscard]] auto* operator+(unsigned i)  const { return p() + i; }
 
 	[[nodiscard]] auto& operator[](int           i)       { return *(p() + i); }
 	[[nodiscard]] auto& operator[](int           i) const { return *(p() + i); }

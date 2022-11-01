@@ -39,7 +39,7 @@ public:
 	/** Calculate SHA1 of the content of this disk.
 	 * This value is cached (and flushed on writes).
 	 */
-	[[nodiscard]] Sha1Sum getSha1Sum(FilePool& filepool);
+	[[nodiscard]] Sha1Sum getSha1Sum(FilePool& filePool);
 
 	// should only be called by EmptyDiskPatch
 	virtual void readSectorsImpl(
@@ -60,7 +60,7 @@ protected:
 
 	virtual void checkCaches();
 	virtual void flushCaches();
-	virtual Sha1Sum getSha1SumImpl(FilePool& filepool);
+	virtual Sha1Sum getSha1SumImpl(FilePool& filePool);
 
 private:
 	virtual void writeSectorImpl(size_t sector, const SectorBuffer& buf) = 0;

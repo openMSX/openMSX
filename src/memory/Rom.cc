@@ -114,7 +114,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 	} else if (resolvedFilenameElem || resolvedSha1Elem ||
 	           !sums.empty() || !filenames.empty()) {
-		auto& filepool = motherBoard.getReactor().getFilePool();
+		auto& filePool = motherBoard.getReactor().getFilePool();
 		// first try already resolved filename ..
 		if (resolvedFilenameElem) {
 			try {
@@ -128,7 +128,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 			? FileType::ROM : FileType::SYSTEM_ROM;
 		if (!file.is_open() && resolvedSha1Elem) {
 			Sha1Sum sha1(resolvedSha1Elem->getData());
-			file = filepool.getFile(fileType, sha1);
+			file = filePool.getFile(fileType, sha1);
 			if (file.is_open()) {
 				// avoid recalculating same sha1 later
 				originalSha1 = sha1;
@@ -150,7 +150,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		if (!file.is_open()) {
 			for (auto& s : sums) {
 				Sha1Sum sha1(s->getData());
-				file = filepool.getFile(fileType, sha1);
+				file = filePool.getFile(fileType, sha1);
 				if (file.is_open()) {
 					// avoid recalculating same sha1 later
 					originalSha1 = sha1;
@@ -191,7 +191,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		// For file-based roms, calc sha1 via File::getSha1Sum(). It can
 		// possibly use the FilePool cache to avoid the calculation.
 		if (originalSha1.empty()) {
-			originalSha1 = filepool.getSha1Sum(file);
+			originalSha1 = filePool.getSha1Sum(file);
 		}
 
 		// verify SHA1
@@ -298,7 +298,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	}
 
 	// This must come after we store the 'resolvedSha1', because on
-	// loadstate we use that tag to search the complete rom in a filepool.
+	// loadstate we use that tag to search the complete rom in a filePool.
 	if (const auto* windowElem = config.findChild("window")) {
 		unsigned windowBase = windowElem->getAttributeValueAsInt("base", 0);
 		unsigned windowSize = windowElem->getAttributeValueAsInt("size", rom.size());

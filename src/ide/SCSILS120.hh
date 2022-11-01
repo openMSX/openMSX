@@ -65,7 +65,7 @@ private:
 	[[nodiscard]] bool isWriteProtectedImpl() const override;
 	[[nodiscard]] Sha1Sum getSha1SumImpl(FilePool& filePool) override;
 
-	// Diskcontainer:
+	// DiskContainer:
 	[[nodiscard]] SectorAccessibleDisk* getSectorAccessibleDisk() override;
 	[[nodiscard]] std::string_view getContainerName() const override;
 	[[nodiscard]] bool diskChanged() override;
@@ -106,7 +106,7 @@ private:
 	File file;
 	std::optional<LSXCommand> lsxCommand; // delayed init
 	std::string name;
-	const int mode;
+	const unsigned mode;
 	unsigned keycode;      // Sense key, ASC, ASCQ
 	unsigned currentSector;
 	unsigned currentLength;

@@ -12,14 +12,14 @@ class SRAM final
 {
 public:
 	struct DontLoadTag {};
-	SRAM(int size, const XMLElement& xml, DontLoadTag);
+	SRAM(size_t size, const XMLElement& xml, DontLoadTag);
 	SRAM(const std::string& name, static_string_view description,
-	     int size, const DeviceConfig& config, DontLoadTag);
+	     size_t size, const DeviceConfig& config, DontLoadTag);
 	SRAM(const std::string& name,
-	     int size, const DeviceConfig& config, const char* header = nullptr,
+	     size_t size, const DeviceConfig& config, const char* header = nullptr,
 	     bool* loaded = nullptr);
 	SRAM(const std::string& name, static_string_view description,
-	     int size, const DeviceConfig& config, const char* header = nullptr,
+	     size_t size, const DeviceConfig& config, const char* header = nullptr,
 	     bool* loaded = nullptr);
 	~SRAM();
 

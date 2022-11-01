@@ -155,7 +155,7 @@ namespace StringOp
 	template<int BASE, std::integral T>
 	[[nodiscard]] std::optional<T> stringToBase(std::string_view s)
 	{
-		T result;
+		T result = {}; // dummy init to avoid warning
 		auto b = s.data();
 		auto e = s.data() + s.size();
 		if (auto [p, ec] = std::from_chars(b, e, result, BASE);
