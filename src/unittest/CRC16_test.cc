@@ -1,6 +1,7 @@
 #include "catch.hpp"
 #include "CRC16.hh"
 #include "xrange.hh"
+#include <array>
 
 using namespace openmsx;
 
@@ -15,8 +16,8 @@ TEST_CASE("CRC16")
 		CHECK(crc.getValue() == 0xCDB4);
 	}
 	SECTION("'3 x A1' in one chunk") {
-		static constexpr uint8_t buf[3] = { 0xA1, 0xA1, 0xA1 };
-		crc.update(buf, 3);
+		static constexpr std::array<uint8_t, 3> buf = { 0xA1, 0xA1, 0xA1 };
+		crc.update(buf);
 		CHECK(crc.getValue() == 0xCDB4);
 	}
 	SECTION("'3 x A1' via init") {
@@ -33,19 +34,19 @@ TEST_CASE("CRC16")
 	}
 	SECTION("'123456789' in one chunk") {
 		static constexpr const char* const digits = "123456789";
-		crc.update(reinterpret_cast<const uint8_t*>(digits), 9);
+		crc.update(std::span{reinterpret_cast<const uint8_t*>(digits), 9});
 		CHECK(crc.getValue() == 0x29B1);
 	}
 	// same as disk sector size
 	SECTION("512 bytes") {
-		uint8_t buf[512];
+		std::array<uint8_t, 512> buf;
 		for (auto i : xrange(512)) buf[i] = i & 255;
 		SECTION("in a loop") {
 			for (char c : buf) crc.update(c);
 			CHECK(crc.getValue() == 0x56EE);
 		}
 		SECTION("in one chunk") {
-			crc.update(buf, sizeof(buf));
+			crc.update(buf);
 			CHECK(crc.getValue() == 0x56EE);
 		}
 	}
@@ -58,8 +59,8 @@ TEST_CASE("CRC16")
 		CHECK(crc.getValue() == 0xE3E0);
 	}
 	SECTION("'11' in one chunk") {
-		static constexpr uint8_t buf[] = {0x11};
-		crc.update(buf, sizeof(buf));
+		static constexpr std::array<uint8_t, 1> buf = {0x11};
+		crc.update(buf);
 		CHECK(crc.getValue() == 0xE3E0);
 	}
 	SECTION("'11' via init") {
@@ -72,8 +73,8 @@ TEST_CASE("CRC16")
 		CHECK(crc.getValue() == 0x296D);
 	}
 	SECTION("'11 22' in one chunk") {
-		static constexpr uint8_t buf[] = {0x11, 0x22};
-		crc.update(buf, sizeof(buf));
+		static constexpr std::array<uint8_t, 2> buf = {0x11, 0x22};
+		crc.update(buf);
 		CHECK(crc.getValue() == 0x296D);
 	}
 	SECTION("'11 22' via init") {
@@ -86,8 +87,8 @@ TEST_CASE("CRC16")
 		CHECK(crc.getValue() == 0xDE7B);
 	}
 	SECTION("'11 22 33' in one chunk") {
-		static constexpr uint8_t buf[] = {0x11, 0x22, 0x33};
-		crc.update(buf, sizeof(buf));
+		static constexpr std::array<uint8_t, 3> buf = {0x11, 0x22, 0x33};
+		crc.update(buf);
 		CHECK(crc.getValue() == 0xDE7B);
 	}
 	SECTION("'11 22 33' via init") {
@@ -100,8 +101,8 @@ TEST_CASE("CRC16")
 		CHECK(crc.getValue() == 0x59F3);
 	}
 	SECTION("'11 22 33 44' in one chunk") {
-		static constexpr uint8_t buf[] = {0x11, 0x22, 0x33, 0x44};
-		crc.update(buf, sizeof(buf));
+		static constexpr std::array<uint8_t, 4> buf = {0x11, 0x22, 0x33, 0x44};
+		crc.update(buf);
 		CHECK(crc.getValue() == 0x59F3);
 	}
 	SECTION("'11 22 33 44' via init") {

@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <initializer_list>
+#include <span>
 
 namespace openmsx {
 
@@ -33,7 +34,7 @@ public:
 	constexpr void init(std::initializer_list<uint8_t> list)
 	{
 		crc = 0xffff;
-		for (auto& val : list) {
+		for (const auto& val : list) {
 			update(val);
 		}
 	}
@@ -49,7 +50,7 @@ public:
 	/** For large blocks (e.g. 512 bytes) this routine is approx 5x faster
 	  * than calling the method above in a loop.
 	  */
-	constexpr void update(const uint8_t* data, size_t size)
+	constexpr void update(std::span<const uint8_t> data)
 	{
 		// Based on:
 		//   Slicing-by-4 and slicing-by-8 algorithms by Michael E.
@@ -64,7 +65,7 @@ public:
 		unsigned c = crc; // 32-bit are faster than 16-bit calculations
 		                  // on x86 and many other modern architectures
 		// calculate the bulk of the data 8 bytes at a time
-		for (auto n = size / 8; n; --n) {
+		while (data.size() >= 8) {
 			c = tab[7][data[0] ^ (c >>  8)] ^
 			    tab[6][data[1] ^ (c & 255)] ^
 			    tab[5][data[2]] ^
@@ -73,11 +74,11 @@ public:
 			    tab[2][data[5]] ^
 			    tab[1][data[6]] ^
 			    tab[0][data[7]];
-			data += 8;
+			data = data.subspan(8);
 		}
 		// calculate the remaining bytes in the usual way
-		for (size &= 7; size; --size) {
-			c = uint16_t(c << 8) ^ tab[0][(c >> 8) ^ *data++];
+		for (auto d : data) {
+			c = uint16_t(c << 8) ^ tab[0][(c >> 8) ^ d];
 		}
 		crc = c; // store back in a 16-bit result
 	}
