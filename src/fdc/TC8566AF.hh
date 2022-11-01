@@ -57,7 +57,7 @@ public:
 	enum Phase {
 		PHASE_IDLE,
 		PHASE_COMMAND,
-		PHASE_DATATRANSFER,
+		PHASE_DATA_TRANSFER,
 		PHASE_RESULT,
 	};
 	enum SeekState {
@@ -108,7 +108,7 @@ private:
 
 	//bool interrupt;
 
-	int dataAvailable;
+	unsigned dataAvailable;
 	int dataCurrent;
 	CRC16 crc;
 

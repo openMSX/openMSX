@@ -4,6 +4,7 @@
 #include "MSXException.hh"
 #include "SectorAccessibleDisk.hh"
 #include "enumerate.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
@@ -43,8 +44,8 @@ NowindHost::NowindHost(const Drives& drives_)
 	: drives(drives_)
 	, lastTime(0)
 	, state(STATE_SYNC1)
-	, romdisk(255)
-	, allowOtherDiskroms(false)
+	, romDisk(255)
+	, allowOtherDiskRoms(false)
 	, enablePhantomDrives(true)
 {
 }
@@ -276,11 +277,11 @@ void NowindHost::DSKCHG()
 			// TODO read error
 			sectorBuffer.raw[0] = 0;
 		}
-		send(sectorBuffer.raw[0]); // new mediadescriptor
+		send(sectorBuffer.raw[0]); // new media descriptor
 	} else {
 		send(0); // not changed
 		// TODO shouldn't we send some (dummy) byte here?
-		//      nowind-diskrom seems to read it (but doesn't use it)
+		//      nowind-disk-rom seems to read it (but doesn't use it)
 	}
 }
 
@@ -292,13 +293,13 @@ void NowindHost::DRIVES()
 	byte reg_a = cmdData[7];
 	sendHeader();
 	send(getEnablePhantomDrives() ? 0x02 : 0);
-	send(reg_a | (getAllowOtherDiskroms() ? 0 : 0x80));
+	send(reg_a | (getAllowOtherDiskRoms() ? 0 : 0x80));
 	send(numberOfDrives);
 
-	romdisk = 255; // no romdisk
+	romDisk = 255; // no rom disk
 	for (auto [i, drv] : enumerate(drives)) {
-		if (drv->isRomdisk()) {
-			romdisk = byte(i);
+		if (drv->isRomDisk()) {
+			romDisk = byte(i);
 			break;
 		}
 	}
@@ -307,7 +308,7 @@ void NowindHost::DRIVES()
 void NowindHost::INIENV()
 {
 	sendHeader();
-	send(romdisk); // calculated in DRIVES()
+	send(romDisk); // calculated in DRIVES()
 }
 
 void NowindHost::setDateMSX()
@@ -381,8 +382,8 @@ void NowindHost::doDiskRead1()
 		return;
 	}
 
-	constexpr unsigned NUMBEROFBLOCKS = 32; // 32 * 64 bytes = 2048 bytes
-	transferSize = std::min(bytesLeft, NUMBEROFBLOCKS * 64); // hardcoded in firmware
+	constexpr unsigned NUMBER_OF_BLOCKS = 32; // 32 * 64 bytes = 2048 bytes
+	transferSize = std::min(bytesLeft, NUMBER_OF_BLOCKS * 64); // hardcoded in firmware
 
 	unsigned address = getCurrentAddress();
 	if (address >= 0x8000) {
@@ -410,7 +411,7 @@ void NowindHost::doDiskRead1()
 
 void NowindHost::doDiskRead2()
 {
-	// diskrom sends back the last two bytes read
+	// disk rom sends back the last two bytes read
 	assert(recvCount == 2);
 	byte tail1 = extraData[0];
 	byte tail2 = extraData[1];
@@ -483,7 +484,7 @@ void NowindHost::diskWriteInit(SectorAccessibleDisk& disk)
 	if (disk.isWriteProtected()) {
 		sendHeader();
 		send(1);
-		send(0); // WRITEPROTECTED
+		send(0); // WRITE PROTECTED
 		state = STATE_SYNC1;
 		return;
 	}
@@ -579,7 +580,7 @@ string NowindHost::extractName(int begin, int end) const
 {
 	string result;
 	for (auto i : xrange(begin, end)) {
-		char c = extraData[i];
+		auto c = narrow_cast<char>(extraData[i]);
 		if (c == ' ') break;
 		result += char(toupper(c));
 	}
@@ -701,7 +702,7 @@ void NowindHost::deviceWrite()
 {
 	int dev = getDeviceNum();
 	if (dev == -1) return;
-	char data = cmdData[0]; // reg_c
+	auto data = narrow_cast<char>(cmdData[0]); // reg_c
 	devices[dev].fs->write(&data, 1);
 }
 
@@ -745,7 +746,7 @@ void NowindHost::readHelper2(std::span<const char> buf)
 
 // strips a string from outer double-quotes and anything outside them
 // ie: 'pre("foo")bar' will result in 'foo'
-static constexpr std::string_view stripquotes(std::string_view str)
+static constexpr std::string_view stripQuotes(std::string_view str)
 {
 	auto first = str.find_first_of('\"');
 	if (first == string::npos) {
@@ -768,7 +769,7 @@ void NowindHost::callImage(const string& filename)
 		// invalid drive number
 		return;
 	}
-	if (drives[num]->insertDisk(FileOperations::expandTilde(string(stripquotes(filename))))) {
+	if (drives[num]->insertDisk(FileOperations::expandTilde(string(stripQuotes(filename))))) {
 		// TODO error handling
 	}
 }
@@ -807,8 +808,8 @@ void NowindHost::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("transfered",          transferred, // for bw compat, keep typo in serialize name
 	             "retryCount",          retryCount,
 	             "transferSize",        transferSize,
-	             "romdisk",             romdisk,
-	             "allowOtherDiskroms",  allowOtherDiskroms,
+	             "romdisk",             romDisk,
+	             "allowOtherDiskroms",  allowOtherDiskRoms,
 	             "enablePhantomDrives", enablePhantomDrives);
 
 	// Note: We don't serialize 'devices'. So after a loadstate it will be
@@ -818,4 +819,4 @@ void NowindHost::serialize(Archive& ar, unsigned /*version*/)
 }
 INSTANTIATE_SERIALIZE_METHODS(NowindHost);
 
-} // namspace openmsx
+} // namespace openmsx

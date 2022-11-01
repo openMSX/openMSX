@@ -1,6 +1,7 @@
 #ifndef RAWTRACK_HH
 #define RAWTRACK_HH
 
+#include "narrow.hh"
 #include "serialize_meta.hh"
 #include <cstdint>
 #include <optional>
@@ -108,8 +109,9 @@ public:
 	[[nodiscard]] int wrapIndex(int idx) const {
 		// operator% is not a modulo but a remainder operation (makes a
 		// difference for negative inputs). Hence the extra test.
-		int tmp = idx % int(data.size());
-		return (tmp >= 0) ? tmp : int(tmp + data.size());
+		int size = narrow<int>(data.size());
+		int tmp = idx % size;
+		return (tmp >= 0) ? tmp : (tmp + size);
 	}
 
 	[[nodiscard]] std::span<      uint8_t> getRawBuffer()       { return data; }

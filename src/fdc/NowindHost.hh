@@ -36,11 +36,11 @@ public:
 
 	// Write one byte of command-data to the host   (msx -> pc)
 	// Time parameter is in milliseconds. Emulators can pass emulation
-	// time, usbhost can pass real time.
+	// time, USB-host can pass real time.
 	void write(byte data, unsigned time);
 
-	void setAllowOtherDiskroms(bool allow) { allowOtherDiskroms = allow; }
-	[[nodiscard]] bool getAllowOtherDiskroms() const { return allowOtherDiskroms; }
+	void setAllowOtherDiskRoms(bool allow) { allowOtherDiskRoms = allow; }
+	[[nodiscard]] bool getAllowOtherDiskRoms() const { return allowOtherDiskRoms; }
 
 	void setEnablePhantomDrives(bool enable) { enablePhantomDrives = enable; }
 	[[nodiscard]] bool getEnablePhantomDrives() const { return enablePhantomDrives; }
@@ -118,18 +118,18 @@ private:
 	std::array<Device, MAX_DEVICES> devices;
 
 	// state-machine
-	std::vector<SectorBuffer> buffer;// work buffer for diskread/write
+	std::vector<SectorBuffer> buffer;// work buffer for disk read/write
 	unsigned lastTime;       // last time a byte was received from MSX
 	State state;
 	unsigned recvCount;      // how many bytes recv in this state
-	unsigned transferred;    // progress within diskread/write
-	unsigned retryCount;     // only used for diskread
+	unsigned transferred;    // progress within disk read/write
+	unsigned retryCount;     // only used for disk read
 	unsigned transferSize;   // size of current chunk
 	std::array<byte, 9> cmdData; // reg_[cbedlhfa] + cmd
-	std::array<byte, 240 + 2> extraData; // extra data for diskread/write
+	std::array<byte, 240 + 2> extraData; // extra data for disk read/write
 
-	byte romdisk;            // index of romdisk (255 = no romdisk)
-	bool allowOtherDiskroms;
+	byte romDisk;            // index of rom disk (255 = no rom disk)
+	bool allowOtherDiskRoms;
 	bool enablePhantomDrives;
 };
 

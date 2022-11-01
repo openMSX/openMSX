@@ -28,7 +28,7 @@ public:
 	//  - error handling with return values instead of exceptions
 	virtual int insertDisk(const std::string& filename) = 0;
 	// for nowind
-	[[nodiscard]] bool isRomdisk() const;
+	[[nodiscard]] bool isRomDisk() const;
 
 	template<typename Archive>
 	void serialize(Archive& /*ar*/, unsigned /*version*/) {}

@@ -91,7 +91,7 @@ std::optional<RawTrack::Sector> RawTrack::decodeSectorImpl(int idx) const
 
 			// OK, found start of data, calculate CRC.
 			int dataIdx = idx2 + 4;
-			unsigned sectorSize = 128 << (sector.sizeCode & 7);
+			int sectorSize = 128 << (sector.sizeCode & 7);
 			updateCrc(dataCrc, dataIdx, sectorSize);
 			uint8_t dataCrc1 = read(dataIdx + sectorSize + 0);
 			uint8_t dataCrc2 = read(dataIdx + sectorSize + 1);
@@ -112,7 +112,7 @@ std::vector<RawTrack::Sector> RawTrack::decodeAll() const
 	// only complete sectors (header + data block)
 	std::vector<Sector> result;
 	for (const auto& i : idam) {
-		if (auto sector = decodeSectorImpl(i);
+		if (auto sector = decodeSectorImpl(narrow<int>(i));
 		    sector && (sector->dataIdx != -1)) {
 			result.push_back(*sector);
 		}
@@ -133,7 +133,7 @@ std::optional<RawTrack::Sector> RawTrack::decodeNextSector(unsigned startIdx) co
 {
 	// get first valid sector-header
 	for (auto& i : rotateIdam(idam, startIdx)) {
-		if (auto sector = decodeSectorImpl(i)) {
+		if (auto sector = decodeSectorImpl(narrow<int>(i))) {
 			return sector;
 		}
 	}
@@ -144,7 +144,7 @@ std::optional<RawTrack::Sector> RawTrack::decodeSector(uint8_t sectorNum) const
 {
 	// only complete sectors (header + data block)
 	for (const auto& i : idam) {
-		if (auto sector = decodeSectorImpl(i);
+		if (auto sector = decodeSectorImpl(narrow<int>(i));
 		    sector &&
 		    (sector->sector == sectorNum) &&
 		    (sector->dataIdx != -1)) {
@@ -240,7 +240,8 @@ void RawTrack::applyWd2793ReadTrackQuirk()
 	// (anything) else, so the sum starts one byte later, it does work
 	// fine.
 
-	for (int i : idam) {
+	for (unsigned ii : idam) {
+		auto i = narrow<int>(ii);
 		if ((read(i - 3) != 0xA1) ||
 		    (read(i - 2) != 0xA1) ||
 		    (read(i - 1) != 0xA1) ||

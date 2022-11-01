@@ -42,7 +42,7 @@ std::unique_ptr<DiskChanger> NowindCommand::createDiskChanger(
 [[nodiscard]] static unsigned searchRomdisk(const NowindHost::Drives& drives)
 {
 	for (auto [i, drv] : enumerate(drives)) {
-		if (drv->isRomdisk()) {
+		if (drv->isRomDisk()) {
 			return unsigned(i);
 		}
 	}
@@ -120,7 +120,7 @@ void NowindCommand::execute(std::span<const TclObject> tokens, TclObject& result
 		          (host.getEnablePhantomDrives() ? "enabled" : "disabled"),
 		          "\n"
 		          "allow other diskroms: ",
-		          (host.getAllowOtherDiskroms() ? "yes" : "no"),
+		          (host.getAllowOtherDiskRoms() ? "yes" : "no"),
 		          '\n');
 		result = r;
 		return;
@@ -224,12 +224,12 @@ void NowindCommand::execute(std::span<const TclObject> tokens, TclObject& result
 			host.setEnablePhantomDrives(false);
 			optionsChanged = true;
 		}
-		if (allowOther && !host.getAllowOtherDiskroms()) {
-			host.setAllowOtherDiskroms(true);
+		if (allowOther && !host.getAllowOtherDiskRoms()) {
+			host.setAllowOtherDiskRoms(true);
 			optionsChanged = true;
 		}
-		if (disallowOther && host.getAllowOtherDiskroms()) {
-			host.setAllowOtherDiskroms(false);
+		if (disallowOther && host.getAllowOtherDiskRoms()) {
+			host.setAllowOtherDiskRoms(false);
 			optionsChanged = true;
 		}
 		if (changeDrives) {

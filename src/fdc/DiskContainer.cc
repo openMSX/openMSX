@@ -3,7 +3,7 @@
 
 namespace openmsx {
 
-bool DiskContainer::isRomdisk() const
+bool DiskContainer::isRomDisk() const
 {
 	return dynamic_cast<const NowindRomDisk*>(this) != nullptr;
 }

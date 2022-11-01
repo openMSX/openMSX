@@ -3,6 +3,7 @@
 #include "CliComm.hh"
 #include "Clock.hh"
 #include "MSXException.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 #include <array>
@@ -645,9 +646,9 @@ void WD2793::startReadSector(EmuTime::param time)
 	drqTime += gapLength + 1 + 1; // (first) byte can be read in a moment
 	dataCurrent = sectorInfo.dataIdx;
 
-	// Get sectorsize from disk: 128, 256, 512 or 1024 bytes
+	// Get sector size from disk: 128, 256, 512 or 1024 bytes
 	// Verified on real WD2793:
-	//   sizecode=255 results in a sector size of 1024 bytes,
+	//   size-code = 255 results in a sector size of 1024 bytes,
 	// This suggests the WD2793 only looks at the lower 2 bits.
 	dataAvailable = 128 << (sectorInfo.sizeCode & 3);
 }
@@ -917,7 +918,7 @@ void WD2793::readTrackCmd(EmuTime::param time)
 		drive.applyWd2793ReadTrackQuirk();
 		setDrqRate(trackLength);
 		dataCurrent = 0;
-		dataAvailable = trackLength;
+		dataAvailable = narrow<int>(trackLength);
 		drqTime.reset(time);
 
 		// Stop command at next index pulse
@@ -944,7 +945,7 @@ void WD2793::startWriteTrack(EmuTime::param time)
 		unsigned trackLength = drive.getTrackLength();
 		setDrqRate(trackLength);
 		dataCurrent = 0;
-		dataAvailable = trackLength;
+		dataAvailable = narrow<int>(trackLength);
 		lastWasA1 = false;
 		lastWasCRC = false;
 		dataOutReg = dataReg;

@@ -120,7 +120,7 @@ void TC8566AF::reset(EmuTime::param time)
 uint8_t TC8566AF::peekStatus() const
 {
 	bool nonDMAMode = specifyData[1] & 1;
-	bool dma = nonDMAMode && (phase == PHASE_DATATRANSFER);
+	bool dma = nonDMAMode && (phase == PHASE_DATA_TRANSFER);
 	return mainStatus | (dma ? STM_NDM : 0);
 }
 
@@ -140,7 +140,7 @@ void TC8566AF::setDrqRate(unsigned trackLength)
 uint8_t TC8566AF::peekDataPort(EmuTime::param time) const
 {
 	switch (phase) {
-	case PHASE_DATATRANSFER:
+	case PHASE_DATA_TRANSFER:
 		return executionPhasePeek(time);
 	case PHASE_RESULT:
 		return resultsPhasePeek();
@@ -153,7 +153,7 @@ uint8_t TC8566AF::readDataPort(EmuTime::param time)
 {
 	//interrupt = false;
 	switch (phase) {
-	case PHASE_DATATRANSFER:
+	case PHASE_DATA_TRANSFER:
 		if (delayTime.before(time)) {
 			return executionPhaseRead(time);
 		} else {
@@ -323,7 +323,7 @@ void TC8566AF::writeControlReg0(uint8_t value, EmuTime::param time)
 void TC8566AF::writeControlReg1(uint8_t value, EmuTime::param /*time*/)
 {
 	if (value & 1) { // TC, terminate multi-sector read/write command
-		if (phase == PHASE_DATATRANSFER) {
+		if (phase == PHASE_DATA_TRANSFER) {
 			resultPhase();
 		}
 	}
@@ -340,7 +340,7 @@ void TC8566AF::writeDataPort(uint8_t value, EmuTime::param time)
 		commandPhaseWrite(value, time);
 		break;
 
-	case PHASE_DATATRANSFER:
+	case PHASE_DATA_TRANSFER:
 		executionPhaseWrite(value, time);
 		break;
 	default:
@@ -501,7 +501,7 @@ void TC8566AF::commandPhaseWrite(uint8_t value, EmuTime::param time)
 		case 4:
 			fillerByte   = value;
 			mainStatus  &= ~STM_DIO;
-			phase        = PHASE_DATATRANSFER;
+			phase        = PHASE_DATA_TRANSFER;
 			phaseStep    = 0;
 			//interrupt    = true;
 			initTrackHeader(time);
@@ -568,7 +568,7 @@ void TC8566AF::commandPhaseWrite(uint8_t value, EmuTime::param time)
 
 void TC8566AF::startReadWriteSector(EmuTime::param time)
 {
-	phase = PHASE_DATATRANSFER;
+	phase = PHASE_DATA_TRANSFER;
 	phaseStep = 0;
 	//interrupt = true;
 
@@ -890,7 +890,7 @@ SERIALIZE_ENUM(TC8566AF::Command, commandInfo);
 static constexpr std::initializer_list<enum_string<TC8566AF::Phase>> phaseInfo = {
 	{ "IDLE",         TC8566AF::PHASE_IDLE         },
 	{ "COMMAND",      TC8566AF::PHASE_COMMAND      },
-	{ "DATATRANSFER", TC8566AF::PHASE_DATATRANSFER },
+	{ "DATATRANSFER", TC8566AF::PHASE_DATA_TRANSFER },
 	{ "RESULT",       TC8566AF::PHASE_RESULT       }
 };
 SERIALIZE_ENUM(TC8566AF::Phase, phaseInfo);
@@ -916,7 +916,7 @@ void TC8566AF::SeekInfo::serialize(Archive& ar, unsigned /*version*/)
 //            inherit from Schedulable
 // version 3: Replaced 'sectorSize', 'sectorOffset', 'sectorBuf'
 //            with 'dataAvailable', 'dataCurrent', .trackData'.
-//            Not 100% backwardscompatible, see also comments in WD2793.
+//            Not 100% backwards compatible, see also comments in WD2793.
 //            Added 'crc' and 'gapLength'.
 // version 4: changed type of delayTime from Clock to DynamicClock
 // version 5: removed trackData
