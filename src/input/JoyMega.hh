@@ -64,7 +64,7 @@ private:
 	StateChangeDistributor& stateChangeDistributor;
 
 	SDL_Joystick* const joystick;
-	const unsigned joyNum;
+	const int joyNum;
 	const std::string name;
 	const std::string desc;
 

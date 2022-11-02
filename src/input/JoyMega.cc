@@ -53,7 +53,7 @@ class JoyMegaState final : public StateChange
 {
 public:
 	JoyMegaState() = default; // for serialize
-	JoyMegaState(EmuTime::param time_, unsigned joyNum_,
+	JoyMegaState(EmuTime::param time_, int joyNum_,
 	             unsigned press_, unsigned release_)
 		: StateChange(time_)
 		, joyNum(joyNum_), press(press_), release(release_)
@@ -61,7 +61,7 @@ public:
 		assert((press != 0) || (release != 0));
 		assert((press & release) == 0);
 	}
-	[[nodiscard]] unsigned getJoystick() const { return joyNum; }
+	[[nodiscard]] int      getJoystick() const { return joyNum; }
 	[[nodiscard]] unsigned getPress()    const { return press; }
 	[[nodiscard]] unsigned getRelease()  const { return release; }
 

@@ -5,6 +5,7 @@
 #include "MSXEventListener.hh"
 #include "StateChangeListener.hh"
 #include "serialize_meta.hh"
+#include <cstdint>
 
 namespace openmsx {
 
@@ -50,8 +51,8 @@ private:
 	StateChangeDistributor& stateChangeDistributor;
 
 	EmuTime lastSync; // last time we synced current with target
-	signed char targetDeltaX, targetDeltaY; // immediately follows host events
-	signed char currentDeltaX, currentDeltaY; // follows targetXY with some delay
+	int8_t targetDeltaX, targetDeltaY; // immediately follows host events
+	int8_t currentDeltaX, currentDeltaY; // follows targetXY with some delay
 	byte lastValue;
 	byte status;
 	bool smooth; // always true, except for bw-compat savestates

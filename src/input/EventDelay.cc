@@ -5,6 +5,7 @@
 #include "Event.hh"
 #include "Timer.hh"
 #include "MSXException.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "stl.hh"
@@ -91,7 +92,7 @@ void EventDelay::sync(EmuTime::param curEmu)
 	auto emuDuration = curEmu - prevEmu;
 	prevEmu = curEmu;
 
-	double factor = emuDuration.toDouble() / realDuration;
+	double factor = emuDuration.toDouble() / narrow_cast<double>(realDuration);
 	EmuDuration extraDelay(delaySetting.getDouble());
 
 #if PLATFORM_ANDROID
@@ -141,7 +142,7 @@ void EventDelay::sync(EmuTime::param curEmu)
 						// The key release came less then 2 MSX interrupts from the key press.
 						// Reschedule it for the next sync, with the realTime updated to now, so that it seems like the
 						// key was released now and not when android released it.
-						// Otherwise, the offset calculation for the emutime further down below will go wrong on the next sync
+						// Otherwise, the offset calculation for the emuTime further down below will go wrong on the next sync
 						Event newKeyupEvent = Event::create<KeyUpEvent>(keyEvent.getKeyCode());
 						toBeRescheduledEvents.push_back(newKeyupEvent);
 						continue; // continue with next to be scheduled event
@@ -156,7 +157,7 @@ void EventDelay::sync(EmuTime::param curEmu)
 		auto eventRealTime = timedEvent.getRealTime();
 		assert(eventRealTime <= curRealTime);
 		auto offset = curRealTime - eventRealTime;
-		EmuDuration emuOffset(factor * offset);
+		EmuDuration emuOffset(factor * narrow_cast<double>(offset));
 		auto schedTime = (emuOffset < extraDelay)
 		               ? time - emuOffset
 		               : curEmu;

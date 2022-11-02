@@ -11,6 +11,7 @@
 #include "IntegerSetting.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include "StringOp.hh"
@@ -60,16 +61,16 @@ class JoyState final : public StateChange
 {
 public:
 	JoyState() = default; // for serialize
-	JoyState(EmuTime::param time_, unsigned joyNum_, byte press_, byte release_)
+	JoyState(EmuTime::param time_, int joyNum_, byte press_, byte release_)
 		: StateChange(time_)
 		, joyNum(joyNum_), press(press_), release(release_)
 	{
 		assert((press != 0) || (release != 0));
 		assert((press & release) == 0);
 	}
-	[[nodiscard]] unsigned getJoystick() const { return joyNum; }
-	[[nodiscard]] byte     getPress()    const { return press; }
-	[[nodiscard]] byte     getRelease()  const { return release; }
+	[[nodiscard]] int getJoystick() const { return joyNum; }
+	[[nodiscard]] byte getPress()   const { return press; }
+	[[nodiscard]] byte getRelease() const { return release; }
 
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
@@ -79,7 +80,7 @@ public:
 		             "release", release);
 	}
 private:
-	unsigned joyNum;
+	int joyNum;
 	byte press, release;
 };
 REGISTER_POLYMORPHIC_CLASS(StateChange, JoyState, "JoyState");
@@ -118,9 +119,9 @@ static void checkJoystickConfig(Interpreter& interp, TclObject& newValue)
 	}
 }
 
-[[nodiscard]] static std::string getJoystickName(unsigned joyNum)
+[[nodiscard]] static std::string getJoystickName(int joyNum)
 {
-	return strCat("joystick", char('1' + joyNum));
+	return strCat("joystick", narrow<char>('1' + joyNum));
 }
 
 [[nodiscard]] static TclObject getConfigValue(SDL_Joystick* joystick)
@@ -250,43 +251,43 @@ bool Joystick::getState(Interpreter& interp, const TclObject& dict,
 		for (auto i : xrange(list.getListLength(interp))) {
 			const auto& elem = list.getListIndex(interp, i).getString();
 			if (elem.starts_with("button")) {
-				if (auto n = StringOp::stringToBase<10, unsigned>(elem.substr(6))) {
+				if (auto n = StringOp::stringToBase<10, int>(elem.substr(6))) {
 					if (InputEventGenerator::joystickGetButton(joystick, *n)) {
 						return true;
 					}
 				}
 			} else if (elem.starts_with("+axis")) {
-				if (auto n = StringOp::stringToBase<10, unsigned>(elem.substr(5))) {
+				if (auto n = StringOp::stringToBase<10, int>(elem.substr(5))) {
 					if (SDL_JoystickGetAxis(joystick, *n) > threshold) {
 						return true;
 					}
 				}
 			} else if (elem.starts_with("-axis")) {
-				if (auto n = StringOp::stringToBase<10, unsigned>(elem.substr(5))) {
+				if (auto n = StringOp::stringToBase<10, int>(elem.substr(5))) {
 					if (SDL_JoystickGetAxis(joystick, *n) < -threshold) {
 						return true;
 					}
 				}
 			} else if (elem.starts_with("L_hat")) {
-				if (auto n = StringOp::stringToBase<10, unsigned>(elem.substr(5))) {
+				if (auto n = StringOp::stringToBase<10, int>(elem.substr(5))) {
 					if (SDL_JoystickGetHat(joystick, *n) & SDL_HAT_LEFT) {
 						return true;
 					}
 				}
 			} else if (elem.starts_with("R_hat")) {
-				if (auto n = StringOp::stringToBase<10, unsigned>(elem.substr(5))) {
+				if (auto n = StringOp::stringToBase<10, int>(elem.substr(5))) {
 					if (SDL_JoystickGetHat(joystick, *n) & SDL_HAT_RIGHT) {
 						return true;
 					}
 				}
 			} else if (elem.starts_with("U_hat")) {
-				if (auto n = StringOp::stringToBase<10, unsigned>(elem.substr(5))) {
+				if (auto n = StringOp::stringToBase<10, int>(elem.substr(5))) {
 					if (SDL_JoystickGetHat(joystick, *n) & SDL_HAT_UP) {
 						return true;
 					}
 				}
 			} else if (elem.starts_with("D_hat")) {
-				if (auto n = StringOp::stringToBase<10, unsigned>(elem.substr(5))) {
+				if (auto n = StringOp::stringToBase<10, int>(elem.substr(5))) {
 					if (SDL_JoystickGetHat(joystick, *n) & SDL_HAT_DOWN) {
 						return true;
 					}

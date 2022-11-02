@@ -3,6 +3,7 @@
 #include "StateChangeDistributor.hh"
 #include "Event.hh"
 #include "StateChange.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include <algorithm>
@@ -131,10 +132,10 @@ void Trackball::write(byte value, EmuTime::param time)
 	if (diff & 0x4) {
 		// pin 8 flipped
 		if (value & 4) {
-			targetDeltaX = std::clamp(targetDeltaX - currentDeltaX, -8, 7);
+			targetDeltaX = narrow<int8_t>(std::clamp(targetDeltaX - currentDeltaX, -8, 7));
 			currentDeltaX = 0;
 		} else {
-			targetDeltaY = std::clamp(targetDeltaY - currentDeltaY, -8, 7);
+			targetDeltaY = narrow<int8_t>(std::clamp(targetDeltaY - currentDeltaY, -8, 7));
 			currentDeltaY = 0;
 		}
 	}
@@ -184,18 +185,18 @@ void Trackball::syncCurrentWithTarget(EmuTime::param time)
 
 	static constexpr auto INTERVAL = EmuDuration::msec(1);
 
-	auto maxSteps = (time - lastSync) / INTERVAL;
+	auto maxSteps = narrow<int>((time - lastSync) / INTERVAL);
 	lastSync += INTERVAL * maxSteps;
 
 	if (targetDeltaX >= currentDeltaX) {
-		currentDeltaX = std::min<int>(currentDeltaX + maxSteps, targetDeltaX);
+		currentDeltaX = narrow<int8_t>(std::min<int>(currentDeltaX + maxSteps, targetDeltaX));
 	} else {
-		currentDeltaX = std::max<int>(currentDeltaX - maxSteps, targetDeltaX);
+		currentDeltaX = narrow<int8_t>(std::max<int>(currentDeltaX - maxSteps, targetDeltaX));
 	}
 	if (targetDeltaY >= currentDeltaY) {
-		currentDeltaY = std::min<int>(currentDeltaY + maxSteps, targetDeltaY);
+		currentDeltaY = narrow<int8_t>(std::min<int>(currentDeltaY + maxSteps, targetDeltaY));
 	} else {
-		currentDeltaY = std::max<int>(currentDeltaY - maxSteps, targetDeltaY);
+		currentDeltaY = narrow<int8_t>(std::max<int>(currentDeltaY - maxSteps, targetDeltaY));
 	}
 }
 
@@ -255,8 +256,8 @@ void Trackball::signalStateChange(const StateChange& event)
 	const auto* ts = dynamic_cast<const TrackballState*>(&event);
 	if (!ts) return;
 
-	targetDeltaX = std::clamp(targetDeltaX + ts->getDeltaX(), -8, 7);
-	targetDeltaY = std::clamp(targetDeltaY + ts->getDeltaY(), -8, 7);
+	targetDeltaX = narrow<int8_t>(std::clamp(targetDeltaX + ts->getDeltaX(), -8, 7));
+	targetDeltaY = narrow<int8_t>(std::clamp(targetDeltaY + ts->getDeltaY(), -8, 7));
 	status = (status & ~ts->getPress()) | ts->getRelease();
 }
 

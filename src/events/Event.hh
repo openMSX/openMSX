@@ -199,14 +199,14 @@ private:
 class JoystickEvent : public TimedEvent
 {
 public:
-	[[nodiscard]] unsigned getJoystick() const { return joystick; }
+	[[nodiscard]] int getJoystick() const { return joystick; }
 
 protected:
-	explicit JoystickEvent(unsigned joystick_)
+	explicit JoystickEvent(int joystick_)
 		: joystick(joystick_) {}
 
 private:
-	const unsigned joystick;
+	const int joystick;
 };
 
 class JoystickButtonEvent : public JoystickEvent
@@ -215,7 +215,7 @@ public:
 	[[nodiscard]] unsigned getButton() const { return button; }
 
 protected:
-	JoystickButtonEvent(unsigned joystick_, unsigned button_)
+	JoystickButtonEvent(int joystick_, unsigned button_)
 		: JoystickEvent(joystick_), button(button_) {}
 
 private:
@@ -225,14 +225,14 @@ private:
 class JoystickButtonUpEvent final : public JoystickButtonEvent
 {
 public:
-	JoystickButtonUpEvent(unsigned joystick_, unsigned button_)
+	JoystickButtonUpEvent(int joystick_, unsigned button_)
 		: JoystickButtonEvent(joystick_, button_) {}
 };
 
 class JoystickButtonDownEvent final : public JoystickButtonEvent
 {
 public:
-	JoystickButtonDownEvent(unsigned joystick_, unsigned button_)
+	JoystickButtonDownEvent(int joystick_, unsigned button_)
 		: JoystickButtonEvent(joystick_, button_) {}
 };
 
@@ -242,7 +242,7 @@ public:
 	static constexpr unsigned X_AXIS = 0;
 	static constexpr unsigned Y_AXIS = 1;
 
-	JoystickAxisMotionEvent(unsigned joystick_, unsigned axis_, int value_)
+	JoystickAxisMotionEvent(int joystick_, unsigned axis_, int value_)
 		: JoystickEvent(joystick_), axis(axis_), value(value_) {}
 
 	[[nodiscard]] unsigned getAxis() const { return axis; }
@@ -256,7 +256,7 @@ private:
 class JoystickHatEvent final : public JoystickEvent
 {
 public:
-	JoystickHatEvent(unsigned joystick_, unsigned hat_, unsigned value_)
+	JoystickHatEvent(int joystick_, unsigned hat_, unsigned value_)
 		: JoystickEvent(joystick_), hat(hat_), value(value_) {}
 
 	[[nodiscard]] unsigned getHat()   const { return hat; }
