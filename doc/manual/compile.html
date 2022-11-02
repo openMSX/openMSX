@@ -730,6 +730,27 @@ The final output files will be produced in <code>derived/&lt;cpu&gt;-&lt;os&gt;-
 <p>
 The final output is a DMG file (Mac disk image) containing the openMSX application folder and documentation. This file is internet-enabled, which means it will be automatically mounted after it is downloaded.
 </p>
+<p>
+If you have a Apple Developers ID, you can automatically sign the app bundle by providing the following environment variable in your shell, before building the app bundle:
+</p>
+<div class="commandline">
+    <pre>
+export CODE_SIGN_IDENTITY=&lt;your Apple Application Developer ID here&gt;
+make staticbindist
+    </pre>
+</div>
+<p>
+To find the exact string, needed for the CODE_SIGN_IDENTITY, you can use the command:
+</p>
+<div class="commandline">
+security find-identity
+</div>
+<p>
+Check if the code signing was successful with:
+</p>
+<div class="commandline">
+codesign -dv --verbose=4 derived/&lt;cpu&gt;-&lt;os&gt;-&lt;flavour&gt;-3rd/bindist/openMSX.app
+</div>
 
 <h5>Microsoft Windows (MinGW)</h5>
 

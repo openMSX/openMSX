@@ -10,7 +10,7 @@ APP_ICON:=$(APP_RES)/openmsx-logo.icns
 # Override install locations.
 DESTDIR:=$(BINDIST_DIR)
 INSTALL_BINARY_DIR:=$(APP_EXE_DIR)
-INSTALL_SHARE_DIR:=$(APP_DIR)/share
+INSTALL_SHARE_DIR:=$(APP_RES)/share
 INSTALL_DOC_DIR:=Documentation
 
 PACKAGE_FULL:=$(shell PYTHONPATH=build $(PYTHON) -c \
@@ -23,7 +23,7 @@ BINDIST_LICENSE:=$(INSTALL_DOC_DIR)/GPL.txt
 # TODO: What is needed for an app folder?
 app: install $(DESTDIR)/$(APP_PLIST) $(DESTDIR)/$(APP_ICON)
 
-bindist: app $(DESTDIR)/$(BINDIST_README) $(DESTDIR)/$(BINDIST_LICENSE)
+bindist: app codesign $(DESTDIR)/$(BINDIST_README) $(DESTDIR)/$(BINDIST_LICENSE)
 	@echo "Creating disk image:"
 	@hdiutil create -srcfolder $(BINDIST_DIR) \
 		-fs HFS+J \
@@ -42,6 +42,14 @@ $(DESTDIR)/$(APP_ICON): $(DESTDIR)/$(APP_RES)/%: $(APP_SUPPORT_DIR)/% bindistcle
 	@echo "  Copying resources..."
 	@mkdir -p $(@D)
 	@cp $< $@
+
+codesign:
+	@if [ -z "$(CODE_SIGN_IDENTITY)" ]; then \
+		echo "  Skipping code sign, CODE_SIGN_IDENTITY not set."; \
+	else \
+		echo "  Signing the application bundle..."; \
+		codesign --deep --force --verify --verbose --options runtime --sign "$(CODE_SIGN_IDENTITY)" $(DESTDIR)/$(APP_DIR); \
+	fi
 
 $(DESTDIR)/$(BINDIST_README): $(APP_SUPPORT_DIR)/README.html
 	@echo "  Copying README..."
