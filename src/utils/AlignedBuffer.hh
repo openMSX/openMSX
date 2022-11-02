@@ -3,6 +3,7 @@
 
 #include <array>
 #include <cassert>
+#include <concepts>
 #include <cstdint>
 #include <cstddef>
 #include <type_traits>
@@ -36,26 +37,18 @@ public:
 
 	[[nodiscard]] operator       uint8_t*()       { return p(); }
 	[[nodiscard]] operator const uint8_t*() const { return p(); }
-	[[nodiscard]] const auto* data() const { return p(); }
 	[[nodiscard]]       auto* data()       { return p(); }
+	[[nodiscard]] const auto* data() const { return p(); }
 
-	[[nodiscard]] auto* operator+(ptrdiff_t i)       { return p() + i; }
-	[[nodiscard]] auto* operator+(ptrdiff_t i) const { return p() + i; }
-	[[nodiscard]] auto* operator+(size_t i)          { return p() + i; }
-	[[nodiscard]] auto* operator+(size_t i)    const { return p() + i; }
-	[[nodiscard]] auto* operator+(int i)             { return p() + i; }
-	[[nodiscard]] auto* operator+(int i)       const { return p() + i; }
-	[[nodiscard]] auto* operator+(unsigned i)        { return p() + i; }
-	[[nodiscard]] auto* operator+(unsigned i)  const { return p() + i; }
+	template<std::integral I>
+	[[nodiscard]]       auto* operator+(I i)       { return p() + i; }
+	template<std::integral I>
+	[[nodiscard]] const auto* operator+(I i) const { return p() + i; }
 
-	[[nodiscard]] auto& operator[](int           i)       { return *(p() + i); }
-	[[nodiscard]] auto& operator[](int           i) const { return *(p() + i); }
-	[[nodiscard]] auto& operator[](unsigned int  i)       { return *(p() + i); }
-	[[nodiscard]] auto& operator[](unsigned int  i) const { return *(p() + i); }
-	[[nodiscard]] auto& operator[](long          i)       { return *(p() + i); }
-	[[nodiscard]] auto& operator[](long          i) const { return *(p() + i); }
-	[[nodiscard]] auto& operator[](unsigned long i)       { return *(p() + i); }
-	[[nodiscard]] auto& operator[](unsigned long i) const { return *(p() + i); }
+	template<std::integral I>
+	[[nodiscard]]       auto& operator[](I i)       { return *(p() + i); }
+	template<std::integral I>
+	[[nodiscard]] const auto& operator[](I i) const { return *(p() + i); }
 };
 static_assert(alignof(AlignedBuffer) == AlignedBuffer::ALIGNMENT, "must be aligned");
 
