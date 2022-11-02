@@ -13,6 +13,7 @@ Visit the Scale2x site for info:
 #include "Scale3xScaler.hh"
 #include "FrameSource.hh"
 #include "ScalerOutput.hh"
+#include "narrow.hh"
 #include "vla.hh"
 #include "xrange.hh"
 #include "build-info.hh"
@@ -167,7 +168,7 @@ void Scale3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 	VLA_SSE_ALIGNED(Pixel, buf1, srcWidth);
 	VLA_SSE_ALIGNED(Pixel, buf2, srcWidth);
 
-	int srcY = srcStartY;
+	auto srcY = narrow<int>(srcStartY);
 	auto srcPrev = src.getLine(srcY - 1, buf0);
 	auto srcCurr = src.getLine(srcY + 0, buf1);
 

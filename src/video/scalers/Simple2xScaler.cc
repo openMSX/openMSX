@@ -4,6 +4,7 @@
 #include "RawFrame.hh"
 #include "ScalerOutput.hh"
 #include "RenderSettings.hh"
+#include "narrow.hh"
 #include "vla.hh"
 #include <cassert>
 #include <cstddef>
@@ -88,8 +89,8 @@ static void blur1on2_SSE2(
 	      auto* out = reinterpret_cast<      char*>(out_) - 2 * x;
 
 	// Setup first iteration
-	__m128i c1 = _mm_set1_epi16(c1_);
-	__m128i c2 = _mm_set1_epi16(c2_);
+	__m128i c1 = _mm_set1_epi16(narrow<int16_t>(c1_));
+	__m128i c2 = _mm_set1_epi16(narrow<int16_t>(c2_));
 	__m128i zero = _mm_setzero_si128();
 
 	__m128i abcd = *reinterpret_cast<const __m128i*>(in);
@@ -200,35 +201,34 @@ void Simple2xScaler<Pixel>::blur1on2(
 	Pixel p1;
 	unsigned f0 = mult1.mul32(p0);
 	unsigned f1 = f0;
-	unsigned tmp;
 
 	size_t srcWidth = in.size();
 	size_t x = 0;
 	for (/**/; x < (srcWidth - 2); x += 2) {
-		tmp = mult2.mul32(p0);
-		out[2 * x + 0] = mult1.conv32(f1 + tmp);
+		unsigned tmp1 = mult2.mul32(p0);
+		out[2 * x + 0] = mult1.conv32(f1 + tmp1);
 
 		p1 = in[x + 1];
 		f1 = mult1.mul32(p1);
-		out[2 * x + 1] = mult1.conv32(f1 + tmp);
+		out[2 * x + 1] = mult1.conv32(f1 + tmp1);
 
-		tmp = mult2.mul32(p1);
-		out[2 * x + 2] = mult1.conv32(f0 + tmp);
+		unsigned tmp2 = mult2.mul32(p1);
+		out[2 * x + 2] = mult1.conv32(f0 + tmp2);
 
 		p0 = in[x + 2];
 		f0 = mult1.mul32(p0);
-		out[2 * x + 3] = mult1.conv32(f0 + tmp);
+		out[2 * x + 3] = mult1.conv32(f0 + tmp2);
 	}
 
-	tmp = mult2.mul32(p0);
-	out[2 * x + 0] = mult1.conv32(f1 + tmp);
+	unsigned tmp1 = mult2.mul32(p0);
+	out[2 * x + 0] = mult1.conv32(f1 + tmp1);
 
 	p1 = in[x + 1];
 	f1 = mult1.mul32(p1);
-	out[2 * x + 1] = mult1.conv32(f1 + tmp);
+	out[2 * x + 1] = mult1.conv32(f1 + tmp1);
 
-	tmp = mult2.mul32(p1);
-	out[2 * x + 2] = mult1.conv32(f0 + tmp);
+	unsigned tmp2 = mult2.mul32(p1);
+	out[2 * x + 2] = mult1.conv32(f0 + tmp2);
 
 	out[2 * x + 3] = p1;
 }
@@ -250,8 +250,8 @@ static void blur1on1_SSE2(
 	      auto* out = reinterpret_cast<      char*>(out_) - x;
 
 	// Setup first iteration
-	__m128i c1 = _mm_set1_epi16(c1_);
-	__m128i c2 = _mm_set1_epi16(c2_);
+	__m128i c1 = _mm_set1_epi16(narrow<int16_t>(c1_));
+	__m128i c2 = _mm_set1_epi16(narrow<int16_t>(c2_));
 	__m128i zero = _mm_setzero_si128();
 
 	__m128i abcd = *reinterpret_cast<const __m128i*>(in);

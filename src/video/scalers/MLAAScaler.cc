@@ -34,6 +34,8 @@ void MLAAScaler<Pixel>::scaleImage(
 	// TODO: Support non-integer zoom factors.
 	const unsigned zoomFactorX = dstWidth / srcWidth;
 	const unsigned zoomFactorY = (dstEndY - dstStartY) / (srcEndY - srcStartY);
+	const auto zoomFactorXF = narrow<float>(zoomFactorX);
+	const auto zoomFactorYF = narrow<float>(zoomFactorY);
 
 	// Retrieve line pointers.
 	// We allow lookups one line before and after the scaled area.
@@ -360,6 +362,7 @@ void MLAAScaler<Pixel>::scaleImage(
 				  ? (startX + botEndX) * zoomFactorX
 				  : x3);
 			for (auto iy : xrange(zoomFactorY)) {
+				auto iyF = narrow<float>(iy);
 				auto dstLinePtr = dstLines[dstY + iy];
 
 				// Figure out which parts of the line should be blended.
@@ -385,12 +388,12 @@ void MLAAScaler<Pixel>::scaleImage(
 						? srcTopLinePtr
 						: srcBotLinePtr;
 					float lineY = blendTopLeft
-						? ((zoomFactorY - 1 - iy) / float(zoomFactorY))
-						: (iy / float(zoomFactorY));
+						? ((zoomFactorYF - 1.0f - iyF) / zoomFactorYF)
+						: (iyF / zoomFactorYF);
 					for (unsigned fx = x0 | 1; fx < x1; fx += 2) {
-						float rx = (fx - x0) / float(x1 - x0);
+						float rx = narrow<float>(fx - x0) / narrow<float>(x1 - x0);
 						float ry = 0.5f + rx * 0.5f;
-						float weight = (ry - lineY) * zoomFactorY;
+						float weight = (ry - lineY) * zoomFactorYF;
 						dstLinePtr[fx / 2] = pixelOps.lerp(
 							srcMixLinePtr[fx / (zoomFactorX * 2)],
 							srcCurLinePtr[fx / (zoomFactorX * 2)],
@@ -407,15 +410,15 @@ void MLAAScaler<Pixel>::scaleImage(
 						? srcTopLinePtr
 						: srcBotLinePtr;
 					float lineY = blendTopRight
-						? ((zoomFactorY - 1 - iy) / float(zoomFactorY))
-						: (iy / float(zoomFactorY));
+						? ((zoomFactorYF - 1.0f - iyF) / zoomFactorYF)
+						: (iyF / zoomFactorYF);
 					// TODO: The weight is slightly too high for the middle
 					//       pixel when zoomFactorX is odd and we are rendering
 					//       a U-shape.
 					for (unsigned fx = x2 | 1; fx < x3; fx += 2) {
-						float rx = (fx - x2) / float(x3 - x2);
+						float rx = narrow<float>(fx - x2) / narrow<float>(x3 - x2);
 						float ry = 1.0f - rx * 0.5f;
-						float weight = (ry - lineY) * zoomFactorY;
+						float weight = (ry - lineY) * zoomFactorYF;
 						dstLinePtr[fx / 2] = pixelOps.lerp(
 							srcMixLinePtr[fx / (zoomFactorX * 2)],
 							srcCurLinePtr[fx / (zoomFactorX * 2)],
@@ -519,6 +522,7 @@ void MLAAScaler<Pixel>::scaleImage(
 				  ? (startY + rightEndY) * zoomFactorY
 				  : y3);
 			for (auto ix : xrange(zoomFactorX)) {
+				auto ixF = narrow<float>(ix);
 				const unsigned fx = x * zoomFactorX + ix;
 
 				// Figure out which parts of the line should be blended.
@@ -540,13 +544,13 @@ void MLAAScaler<Pixel>::scaleImage(
 					assert(!(blendTopLeft && blendTopRight));
 					unsigned mixX = blendTopLeft ? leftX : rightX;
 					float lineX = blendTopLeft
-						? ((zoomFactorX - 1 - ix) / float(zoomFactorX))
-						: (ix / float(zoomFactorX));
+						? ((zoomFactorXF - 1.0f - ixF) / zoomFactorXF)
+						: (ixF / zoomFactorXF);
 					for (unsigned fy = y0 | 1; fy < y1; fy += 2) {
 						auto dstLinePtr = dstLines[dstStartY + fy / 2];
-						float ry = (fy - y0) / float(y1 - y0);
+						float ry = narrow<float>(fy - y0) / narrow<float>(y1 - y0);
 						float rx = 0.5f + ry * 0.5f;
-						float weight = (rx - lineX) * zoomFactorX;
+						float weight = (rx - lineX) * zoomFactorXF;
 						dstLinePtr[fx] = pixelOps.lerp(
 							srcLinePtrs[fy / (zoomFactorY * 2)][mixX],
 							srcLinePtrs[fy / (zoomFactorY * 2)][curX],
@@ -559,13 +563,13 @@ void MLAAScaler<Pixel>::scaleImage(
 					assert(!(blendBotLeft && blendBotRight));
 					unsigned mixX = blendBotLeft ? leftX : rightX;
 					float lineX = blendBotLeft
-						? ((zoomFactorX - 1 - ix) / float(zoomFactorX))
-						: (ix / float(zoomFactorX));
+						? ((zoomFactorXF - 1.0f - ixF) / zoomFactorXF)
+						: (ixF / zoomFactorXF);
 					for (unsigned fy = y2 | 1; fy < y3; fy += 2) {
 						auto dstLinePtr = dstLines[dstStartY + fy / 2];
-						float ry = (fy - y2) / float(y3 - y2);
+						float ry = narrow<float>(fy - y2) / narrow<float>(y3 - y2);
 						float rx = 1.0f - ry * 0.5f;
-						float weight = (rx - lineX) * zoomFactorX;
+						float weight = (rx - lineX) * zoomFactorXF;
 						dstLinePtr[fx] = pixelOps.lerp(
 							srcLinePtrs[fy / (zoomFactorY * 2)][mixX],
 							srcLinePtrs[fy / (zoomFactorY * 2)][curX],

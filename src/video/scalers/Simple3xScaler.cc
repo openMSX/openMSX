@@ -4,6 +4,7 @@
 #include "RawFrame.hh"
 #include "ScalerOutput.hh"
 #include "RenderSettings.hh"
+#include "narrow.hh"
 #include "vla.hh"
 #include <cstdint>
 #ifdef __SSE2__
@@ -291,10 +292,10 @@ void Blur_1on3<Pixel>::blur_SSE(const Pixel* in_, Pixel* out_, size_t srcWidth)
 	assert((size_t(out_) % 16) == 0);
 
 	unsigned alpha = blur * 256;
-	unsigned c0 = alpha / 2;
-	unsigned c1 = alpha + c0;
-	unsigned c2 = 0x10000 - c1;
-	unsigned c3 = 0x10000 - alpha;
+	auto c0 = narrow_cast<int16_t>(alpha / 2);
+	auto c1 = narrow_cast<int16_t>(alpha + c0);
+	auto c2 = narrow_cast<int16_t>(0x10000 - c1);
+	auto c3 = narrow_cast<int16_t>(0x10000 - alpha);
 	__m128i C0C1 = _mm_set_epi16(c1, c1, c1, c1, c0, c0, c0, c0);
 	__m128i C1C0 = _mm_shuffle_epi32(C0C1, 0x4E);
 	__m128i C2C3 = _mm_set_epi16(c3, c3, c3, c3, c2, c2, c2, c2);

@@ -7,6 +7,7 @@
 #include "SaI3xScaler.hh"
 #include "FrameSource.hh"
 #include "ScalerOutput.hh"
+#include "narrow.hh"
 #include "vla.hh"
 #include "build-info.hh"
 #include <cassert>
@@ -401,7 +402,7 @@ void SaI3xScaler<Pixel>::scaleFixed(FrameSource& src,
 	VLA_SSE_ALIGNED(Pixel, buf2, srcWidth);
 	VLA_SSE_ALIGNED(Pixel, buf3, srcWidth);
 
-	int srcY = srcStartY;
+	auto srcY = narrow<int>(srcStartY);
 	auto src0 = src.getLine(srcY - 1, buf0);
 	auto src1 = src.getLine(srcY + 0, buf1);
 	auto src2 = src.getLine(srcY + 1, buf2);
@@ -440,7 +441,7 @@ void SaI3xScaler<Pixel>::scaleAny(FrameSource& src,
 	unsigned h = 0;
 	for (auto dstY : xrange(dstStartY, dstEndY)) {
 		// Get source line pointers.
-		int line = srcStartY + (h >> 16);
+		auto line = narrow<int>(srcStartY + (h >> 16));
 		// TODO possible optimization: reuse srcN from previous step
 		auto src0 = src.getLine(line - 1, buf0);
 		auto src1 = src.getLine(line + 0, buf1);

@@ -1,6 +1,7 @@
 #include "Scanline.hh"
 #include "PixelOperations.hh"
 #include "enumerate.hh"
+#include "narrow.hh"
 #include "ranges.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
@@ -106,7 +107,7 @@ static inline void drawSSE2(
 	const auto* in2 = reinterpret_cast<const char*>(in2_) + width;
 	      auto* out = reinterpret_cast<      char*>(out_) + width;
 
-	__m128i f = _mm_set1_epi16(factor << 8);
+	__m128i f = _mm_set1_epi16(narrow_cast<int16_t>(factor << 8));
 	ptrdiff_t x = -ptrdiff_t(width);
 	do {
 		drawSSE2_1(in1 + x +   0, in2 + x +  0, out + x +  0, f);
@@ -135,7 +136,7 @@ static inline void drawSSE2(
 
 	darkener.setFactor(factor);
 	auto table = darkener.getTable();
-	__m128i mask = _mm_set1_epi16(pixelOps.getBlendMask());
+	__m128i mask = _mm_set1_epi16(narrow_cast<int16_t>(pixelOps.getBlendMask()));
 
 	ptrdiff_t x = -ptrdiff_t(width);
 	do {
@@ -147,14 +148,14 @@ static inline void drawSSE2(
 				_mm_and_si128(mask, _mm_xor_si128(a, b)),
 				1));
 		*reinterpret_cast<__m128i*>(out + x) = _mm_set_epi16(
-			table[_mm_extract_epi16(c, 7)],
-			table[_mm_extract_epi16(c, 6)],
-			table[_mm_extract_epi16(c, 5)],
-			table[_mm_extract_epi16(c, 4)],
-			table[_mm_extract_epi16(c, 3)],
-			table[_mm_extract_epi16(c, 2)],
-			table[_mm_extract_epi16(c, 1)],
-			table[_mm_extract_epi16(c, 0)]);
+			narrow_cast<int16_t>(table[_mm_extract_epi16(c, 7)]),
+			narrow_cast<int16_t>(table[_mm_extract_epi16(c, 6)]),
+			narrow_cast<int16_t>(table[_mm_extract_epi16(c, 5)]),
+			narrow_cast<int16_t>(table[_mm_extract_epi16(c, 4)]),
+			narrow_cast<int16_t>(table[_mm_extract_epi16(c, 3)]),
+			narrow_cast<int16_t>(table[_mm_extract_epi16(c, 2)]),
+			narrow_cast<int16_t>(table[_mm_extract_epi16(c, 1)]),
+			narrow_cast<int16_t>(table[_mm_extract_epi16(c, 0)]));
 		// An alternative for the above statement is this block (this
 		// is close to what we has in our old MMX routine). On gcc this
 		// generates significantly shorter (25%) but also significantly

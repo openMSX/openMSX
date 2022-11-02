@@ -7,6 +7,7 @@
 #include "SaI2xScaler.hh"
 #include "FrameSource.hh"
 #include "ScalerOutput.hh"
+#include "narrow.hh"
 #include "vla.hh"
 #include "xrange.hh"
 #include "build-info.hh"
@@ -266,7 +267,7 @@ void SaI2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	VLA_SSE_ALIGNED(Pixel, buf2, srcWidth);
 	VLA_SSE_ALIGNED(Pixel, buf3, srcWidth);
 
-	int srcY = srcStartY;
+	auto srcY = narrow<int>(srcStartY);
 	auto srcLine0 = src.getLine(srcY - 1, buf0);
 	auto srcLine1 = src.getLine(srcY + 0, buf1);
 	auto srcLine2 = src.getLine(srcY + 1, buf2);
@@ -300,7 +301,7 @@ void SaI2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	VLA_SSE_ALIGNED(Pixel, buf2, srcWidth);
 	VLA_SSE_ALIGNED(Pixel, buf3, srcWidth);
 
-	int srcY = srcStartY;
+	auto srcY = narrow<int>(srcStartY);
 	auto srcLine0 = src.getLine(srcY - 1, buf0);
 	auto srcLine1 = src.getLine(srcY + 0, buf1);
 	auto srcLine2 = src.getLine(srcY + 1, buf2);
