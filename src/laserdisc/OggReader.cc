@@ -3,6 +3,7 @@
 #include "yuv2rgb.hh"
 #include "CliComm.hh"
 #include "MemoryOps.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "stringsp.hh" // for strncasecmp
@@ -355,8 +356,8 @@ void OggReader::readVorbis(ogg_packet* packet)
 	vorbis_synthesis_blockin(&vd, &vb);
 
 	float** pcm;
-	long decoded = vorbis_synthesis_pcmout(&vd, &pcm);
-	long pos = 0;
+	int decoded = vorbis_synthesis_pcmout(&vd, &pcm);
+	int pos = 0;
 
 	while (pos < decoded)  {
 		// Find memory to copy PCM into
@@ -373,11 +374,11 @@ void OggReader::readVorbis(ogg_packet* packet)
 		}
 
 		// Copy PCM
-		unsigned len = std::min<long>(decoded - pos,
-		                              AudioFragment::MAX_SAMPLES - audio->length);
+		auto len = std::min(decoded - pos,
+		                    narrow<int>(AudioFragment::MAX_SAMPLES - audio->length));
 
-		ranges::copy(std::span{&pcm[0][pos], len}, &audio->pcm[0][audio->length]);
-		ranges::copy(std::span{&pcm[1][pos], len}, &audio->pcm[1][audio->length]);
+		ranges::copy(std::span{&pcm[0][pos], size_t(len)}, &audio->pcm[0][audio->length]);
+		ranges::copy(std::span{&pcm[1][pos], size_t(len)}, &audio->pcm[1][audio->length]);
 		audio->length += len;
 		pos += len;
 
@@ -396,7 +397,7 @@ void OggReader::readVorbis(ogg_packet* packet)
 		}
 	}
 
-	// The granulepos is the no. of samples since the begining of the
+	// The granulepos is the no. of samples since the beginning of the
 	// stream. Only once per ogg page is this populated.
 	if (packet->granulepos != -1) {
 		if (vorbisPos == AudioFragment::UNKNOWN_POS) {
@@ -457,9 +458,9 @@ void OggReader::readMetadata(th_comment& tc)
 				chapters.emplace_back(ChapterFrame{chapter, frame});
 			}
 		} else if (strncasecmp(p, "stop: ", 6) == 0) {
-			size_t stopframe = atol(p + 6);
-			if (stopframe) {
-				stopFrames.push_back(stopframe);
+			size_t stopFrame = atol(p + 6);
+			if (stopFrame) {
+				stopFrames.push_back(stopFrame);
 			}
 		}
 		p = strchr(p, '\n');
@@ -577,7 +578,7 @@ void OggReader::readTheora(ogg_packet* packet)
 	ranges::copy(std::span{yuv[1].data, uv_size}, frame->buffer[1].data);
 	ranges::copy(std::span{yuv[2].data, uv_size}, frame->buffer[2].data);
 
-	// At lot of frames have framenumber -1, only some have the correct
+	// At lot of frames have frame number -1, only some have the correct
 	// frame number. We continue counting from the previous known
 	// postion
 	Frame* last = frameList.empty() ? nullptr : frameList.back().get();
@@ -763,9 +764,9 @@ bool OggReader::nextPacket()
 
 bool OggReader::nextPage(ogg_page* page)
 {
-	constexpr size_t CHUNK = 4096;
+	static constexpr size_t CHUNK = 4096;
 
-	int ret;
+	long ret;
 	while ((ret = ogg_sync_pageseek(&sync, page)) <= 0) {
 		if (ret < 0) {
 			//throw MSXException("Invalid Ogg file");
@@ -850,7 +851,7 @@ size_t OggReader::bisection(
 
 size_t OggReader::findOffset(size_t frame, size_t sample)
 {
-	constexpr size_t STEP = 32 * 1024;
+	static constexpr size_t STEP = 32 * 1024;
 
 	// first calculate total length in bytes, samples and frames
 
