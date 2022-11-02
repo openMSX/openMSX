@@ -4,6 +4,7 @@
 #include "EventDistributor.hh"
 #include "Scheduler.hh"
 #include "FileOperations.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 #include <array>
 
@@ -141,7 +142,7 @@ int RS232Tester::signalEvent(const Event& /*event*/) noexcept
 void RS232Tester::recvByte(uint8_t value, EmuTime::param /*time*/)
 {
 	if (outFile.is_open()) {
-		outFile.put(value);
+		outFile.put(narrow_cast<char>(value));
 		outFile.flush();
 	}
 }

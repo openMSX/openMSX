@@ -1,4 +1,5 @@
 #include "ClockPin.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 #include <cassert>
 
@@ -81,11 +82,11 @@ int ClockPin::getTicksBetween(EmuTime::param begin, EmuTime::param end) const
 		return 0;
 	}
 	if (totalDur > EmuDuration::zero()) {
-		int a = (begin < referenceTime) ?
-		        0 :
-		        (begin - referenceTime) / totalDur;
-		int b = (end   - referenceTime) / totalDur;
-		return b - a;
+		auto a = (begin < referenceTime)
+		       ? 0
+		       : (begin - referenceTime) / totalDur;
+		auto b = (end   - referenceTime) / totalDur;
+		return narrow<int>(b - a);
 	} else {
 		return 0;
 	}

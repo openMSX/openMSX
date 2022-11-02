@@ -3,8 +3,8 @@
 #include "MidiOutDevice.hh"
 #include "PlugException.hh"
 #include "PluggingController.hh"
+#include "narrow.hh"
 #include "serialize.hh"
-
 #include <iostream>
 #include <memory>
 
@@ -133,11 +133,11 @@ void MidiOutALSA::recvMessage(
 
 	// Set message.
 	long encodeLen = snd_midi_event_encode(
-			event_parser, message.data(), message.size(), &ev);
+			event_parser, message.data(), narrow<long>(message.size()), &ev);
 	if (encodeLen < 0) {
 		std::cerr << "Error encoding MIDI message of type "
 		          << std::hex << int(message[0]) << std::dec
-		          << ": " << snd_strerror(encodeLen) << '\n';
+		          << ": " << snd_strerror(narrow<int>(encodeLen)) << '\n';
 		return;
 	}
 	if (ev.type == SND_SEQ_EVENT_NONE) {

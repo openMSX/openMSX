@@ -1,6 +1,7 @@
 #include "MidiOutLogger.hh"
 #include "PlugException.hh"
 #include "FileOperations.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -43,7 +44,7 @@ std::string_view MidiOutLogger::getDescription() const
 void MidiOutLogger::recvByte(byte value, EmuTime::param /*time*/)
 {
 	if (file.is_open()) {
-		file.put(value);
+		file.put(narrow_cast<char>(value));
 		file.flush();
 	}
 }
