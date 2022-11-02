@@ -1,6 +1,7 @@
 #include "GLScaler.hh"
 #include "GLContext.hh"
 #include "gl_vec.hh"
+#include "narrow.hh"
 #include "strCat.hh"
 #include "xrange.hh"
 
@@ -48,37 +49,46 @@ void GLScaler::execute(
 	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
 	unsigned logSrcHeight, bool textureFromZero)
 {
+	auto srcStartYF = narrow<float>(srcStartY);
+	auto srcEndYF = narrow<float>(srcEndY);
+	auto dstStartYF = narrow<float>(dstStartY);
+	auto dstEndYF = narrow<float>(dstEndY);
+	auto dstWidthF = narrow<float>(dstWidth);
+	auto srcWidthF = narrow<float>(srcWidth);
+	auto srcHeightF = narrow<float>(src.getHeight());
+	auto logSrcHeightF = narrow<float>(logSrcHeight);
+
 	if (superImpose) {
 		glActiveTexture(GL_TEXTURE1);
 		superImpose->bind();
 		glActiveTexture(GL_TEXTURE0);
 	}
 	int i = superImpose ? 1 : 0;
-	glUniform3f(unifTexSize[i], srcWidth, src.getHeight(), logSrcHeight);
+	glUniform3f(unifTexSize[i], srcWidthF, srcHeightF, logSrcHeightF);
 
 	src.bind();
 	// Note: hShift is pre-divided by srcWidth, while vShift will be divided
 	//       by srcHeight later on.
 	// Note: The coordinate is put just past zero, to avoid fract() in the
 	//       fragment shader to wrap around on rounding errors.
-	constexpr float BIAS = 0.001f;
+	static constexpr float BIAS = 0.001f;
 	float samplePos = (textureFromZero ? 0.5f : 0.0f) + BIAS;
-	float hShift = samplePos / dstWidth;
-	float yRatio = float(srcEndY - srcStartY) / float(dstEndY - dstStartY);
+	float hShift = samplePos / dstWidthF;
+	float yRatio = (srcEndYF - srcStartYF) / (dstEndYF - dstStartYF);
 	float vShift = samplePos * yRatio;
 
 	// vertex positions
 	std::array pos = {
-		vec2(       0, dstStartY),
-		vec2(dstWidth, dstStartY),
-		vec2(dstWidth, dstEndY  ),
-		vec2(       0, dstEndY  ),
+		vec2(     0.0f, dstStartYF),
+		vec2(dstWidthF, dstStartYF),
+		vec2(dstWidthF, dstEndYF  ),
+		vec2(     0.0f, dstEndYF  ),
 	};
 	// texture coordinates, X-coord shared, Y-coord separate for tex0 and tex1
-	float tex0StartY = float(srcStartY + vShift) / src.getHeight();
-	float tex0EndY   = float(srcEndY   + vShift) / src.getHeight();
-	float tex1StartY = float(srcStartY + vShift) / logSrcHeight;
-	float tex1EndY   = float(srcEndY   + vShift) / logSrcHeight;
+	float tex0StartY = (srcStartYF + vShift) / srcHeightF;
+	float tex0EndY   = (srcEndYF   + vShift) / srcHeightF;
+	float tex1StartY = (srcStartYF + vShift) / logSrcHeightF;
+	float tex1EndY   = (srcEndYF   + vShift) / logSrcHeightF;
 	std::array tex = {
 		vec3(0.0f + hShift, tex0StartY, tex1StartY),
 		vec3(1.0f + hShift, tex0StartY, tex1StartY),

@@ -1,5 +1,6 @@
 #include "GLSimpleScaler.hh"
 #include "RenderSettings.hh"
+#include "narrow.hh"
 #include "xrange.hh"
 
 namespace openmsx {
@@ -25,8 +26,8 @@ void GLSimpleScaler::scaleImage(
 {
 	int i = superImpose ? 1 : 0;
 
-	GLfloat blur = renderSettings.getBlurFactor() / 256.0f;
-	GLfloat scanline = renderSettings.getScanlineFactor() / 255.0f;
+	GLfloat blur = narrow<float>(renderSettings.getBlurFactor()) / 256.0f;
+	GLfloat scanline = narrow<float>(renderSettings.getScanlineFactor()) / 255.0f;
 	unsigned yScale = (dstEndY - dstStartY) / (srcEndY - srcStartY);
 	if (yScale == 0) {
 		// less lines in destination than in source
@@ -40,7 +41,8 @@ void GLSimpleScaler::scaleImage(
 		if ((blur != 0.0f) && (srcWidth != 1)) { // srcWidth check: workaround for ATI cards
 			src.setInterpolation(true);
 		}
-		GLfloat scan_a = (yScale & 1) ? 0.5f : ((yScale + 1) / (2.0f * yScale));
+		auto yScaleF = narrow<GLfloat>(yScale);
+		GLfloat scan_a = (yScale & 1) ? 0.5f : ((yScaleF + 1.0f) / (2.0f * yScaleF));
 		GLfloat scan_b = 2.0f - 2.0f * scanline;
 		GLfloat scan_c = scanline;
 		if (!superImpose) {
@@ -49,7 +51,8 @@ void GLSimpleScaler::scaleImage(
 			scan_b *= 0.5f;
 			scan_c *= 0.5f;
 		}
-		glUniform3f(unifTexStepX[i], 1.0f / srcWidth, 1.0f / srcWidth, 0.0f);
+		auto recipSrcWidth = 1.0f / narrow<float>(srcWidth);
+		glUniform3f(unifTexStepX[i], recipSrcWidth, recipSrcWidth, 0.0f);
 		glUniform4f(unifCnst[i], scan_a, scan_b, scan_c, blur);
 
 		execute(src, superImpose,

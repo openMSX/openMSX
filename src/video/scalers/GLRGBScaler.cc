@@ -1,5 +1,6 @@
 #include "GLRGBScaler.hh"
 #include "RenderSettings.hh"
+#include "narrow.hh"
 
 namespace openmsx {
 
@@ -23,8 +24,8 @@ void GLRGBScaler::scaleImage(
 {
 	int i = superImpose ? 1 : 0;
 
-	GLfloat blur = renderSettings.getBlurFactor() / 256.0f;
-	GLfloat scanline = renderSettings.getScanlineFactor() / 255.0f;
+	GLfloat blur = narrow<float>(renderSettings.getBlurFactor()) / 256.0f;
+	GLfloat scanline = narrow<float>(renderSettings.getScanlineFactor()) / 255.0f;
 	unsigned yScale = (dstEndY - dstStartY) / (srcEndY - srcStartY);
 	if (yScale == 0) {
 		// less lines in destination than in source
@@ -41,7 +42,8 @@ void GLRGBScaler::scaleImage(
 			// treat border as 256-pixel wide display area
 			srcWidth = 320;
 		}
-		GLfloat a = (yScale & 1) ? 0.5f : ((yScale + 1) / (2.0f * yScale));
+		auto yScaleF = narrow<float>(yScale);
+		GLfloat a = (yScale & 1) ? 0.5f : ((yScaleF + 1.0f) / (2.0f * yScaleF));
 		GLfloat c1 = blur;
 		GLfloat c2 = 3.0f - 2.0f * c1;
 		glUniform4f(unifCnsts[i],
