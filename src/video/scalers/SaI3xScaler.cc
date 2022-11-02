@@ -406,7 +406,8 @@ void SaI3xScaler<Pixel>::scaleFixed(FrameSource& src,
 	auto src1 = src.getLine(srcY + 0, buf1);
 	auto src2 = src.getLine(srcY + 1, buf2);
 
-	for (auto dstY : xrange(dstStartY, dstEndY)) {
+	auto dstY = dstStartY;
+	while (dstY < dstEndY) {
 		auto src3 = src.getLine(srcY + 2, buf3);
 		LineRepeater<NY>::template scaleFixedLine<NX, NY, Pixel>(
 			src0, src1, src2, src3, dst, dstY);
@@ -416,6 +417,7 @@ void SaI3xScaler<Pixel>::scaleFixed(FrameSource& src,
 		std::swap(buf0, buf1);
 		std::swap(buf1, buf2);
 		std::swap(buf2, buf3);
+		++srcY;
 	}
 }
 
