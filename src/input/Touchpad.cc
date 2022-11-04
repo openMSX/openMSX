@@ -15,7 +15,6 @@
 #include "CommandController.hh"
 #include "CommandException.hh"
 #include "Clock.hh"
-#include "narrow.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include "xrange.hh"
@@ -108,7 +107,7 @@ void Touchpad::parseTransformMatrix(Interpreter& interp, const TclObject& value)
 			throw CommandException("each row must have 3 elements");
 		}
 		for (auto j : xrange(3)) {
-			m[j][i] = narrow_cast<float>(row.getListIndex(interp, j).getDouble(interp));
+			m[j][i] = row.getListIndex(interp, j).getFloat(interp);
 		}
 	}
 }

@@ -70,12 +70,12 @@ void OSDImageBasedWidget::setProperty(
 		setRGBA(newRGBA);
 	} else if (propName == "-fadePeriod") {
 		updateCurrentFadeValue();
-		fadePeriod = value.getDouble(interp);
+		fadePeriod = value.getFloat(interp);
 	} else if (propName == "-fadeTarget") {
 		updateCurrentFadeValue();
-		fadeTarget = std::clamp(value.getDouble(interp), 0.0, 1.0);
+		fadeTarget = std::clamp(value.getFloat(interp), 0.0f, 1.0f);
 	} else if (propName == "-fadeCurrent") {
-		startFadeValue = std::clamp(value.getDouble(interp), 0.0, 1.0);
+		startFadeValue = std::clamp(value.getFloat(interp), 0.0f, 1.0f);
 		startFadeTime = Timer::getTime();
 	} else {
 		OSDWidget::setProperty(interp, propName, value);

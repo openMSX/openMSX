@@ -80,13 +80,13 @@ void OSDText::setProperty(
 			invalidateRecursive();
 		}
 	} else if (propName == "-wrapw") {
-		float wrapw2 = value.getDouble(interp);
+		float wrapw2 = value.getFloat(interp);
 		if (wrapw != wrapw2) {
 			wrapw = wrapw2;
 			invalidateRecursive();
 		}
 	} else if (propName == "-wraprelw") {
-		float wraprelw2 = value.getDouble(interp);
+		float wraprelw2 = value.getFloat(interp);
 		if (wraprelw != wraprelw2) {
 			wraprelw = wraprelw2;
 			invalidateRecursive();

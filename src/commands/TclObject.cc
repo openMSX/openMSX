@@ -98,6 +98,14 @@ bool TclObject::getBoolean(Interpreter& interp_) const
 	return result != 0;
 }
 
+float TclObject::getFloat(Interpreter& interp_) const
+{
+	// Tcl doesn't directly support 'float', only 'double', so use that.
+	// But we hide this from the rest from the code, and we do the
+	// narrowing conversion in only this single location.
+	return narrow_cast<float>(getDouble(interp_));
+}
+
 double TclObject::getDouble(Interpreter& interp_) const
 {
 	auto* interp = interp_.interp;

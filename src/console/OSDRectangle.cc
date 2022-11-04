@@ -28,31 +28,31 @@ void OSDRectangle::setProperty(
 	Interpreter& interp, std::string_view propName, const TclObject& value)
 {
 	if (propName == "-w") {
-		float w = value.getDouble(interp);
+		float w = value.getFloat(interp);
 		if (size[0] != w) {
 			size[0] = w;
 			invalidateRecursive();
 		}
 	} else if (propName == "-h") {
-		float h = value.getDouble(interp);
+		float h = value.getFloat(interp);
 		if (size[1] != h) {
 			size[1] = h;
 			invalidateRecursive();
 		}
 	} else if (propName == "-relw") {
-		float relw = value.getDouble(interp);
+		float relw = value.getFloat(interp);
 		if (relSize[0] != relw) {
 			relSize[0] = relw;
 			invalidateRecursive();
 		}
 	} else if (propName == "-relh") {
-		float relh = value.getDouble(interp);
+		float relh = value.getFloat(interp);
 		if (relSize[1] != relh) {
 			relSize[1] = relh;
 			invalidateRecursive();
 		}
 	} else if (propName == "-scale") {
-		float scale2 = value.getDouble(interp);
+		float scale2 = value.getFloat(interp);
 		if (scale != scale2) {
 			scale = scale2;
 			invalidateRecursive();
@@ -70,13 +70,13 @@ void OSDRectangle::setProperty(
 			invalidateRecursive();
 		}
 	} else if (propName == "-bordersize") {
-		float newSize = value.getDouble(interp);
+		float newSize = value.getFloat(interp);
 		if (borderSize != newSize) {
 			borderSize = newSize;
 			invalidateLocal();
 		}
 	} else if (propName == "-relbordersize") {
-		float newSize = value.getDouble(interp);
+		float newSize = value.getFloat(interp);
 		if (relBorderSize != newSize) {
 			relBorderSize = newSize;
 			invalidateLocal();

@@ -1,6 +1,7 @@
 #ifndef TCLOBJECT_HH
 #define TCLOBJECT_HH
 
+#include "narrow.hh"
 #include "vla.hh"
 #include "xxhash.hh"
 #include "zstring_view.hh"
@@ -149,6 +150,7 @@ public:
 	[[nodiscard]] zstring_view getString() const;
 	[[nodiscard]] int getInt      (Interpreter& interp) const;
 	[[nodiscard]] bool getBoolean (Interpreter& interp) const;
+	[[nodiscard]] float  getFloat (Interpreter& interp) const;
 	[[nodiscard]] double getDouble(Interpreter& interp) const;
 	[[nodiscard]] std::span<const uint8_t> getBinary() const;
 	[[nodiscard]] unsigned getListLength(Interpreter& interp) const;
@@ -205,7 +207,7 @@ private:
 		return Tcl_NewIntObj(i);
 	}
 	[[nodiscard]] static Tcl_Obj* newObj(unsigned u) {
-		return Tcl_NewIntObj(u);
+		return Tcl_NewIntObj(narrow_cast<int>(u));
 	}
 	[[nodiscard]] static Tcl_Obj* newObj(float f) {
 		return Tcl_NewDoubleObj(double(f));
@@ -236,7 +238,7 @@ private:
 		Tcl_SetIntObj(obj, i);
 	}
 	void assign(unsigned u) {
-		Tcl_SetIntObj(obj, u);
+		Tcl_SetIntObj(obj, narrow_cast<int>(u));
 	}
 	void assign(float f) {
 		Tcl_SetDoubleObj(obj, double(f));

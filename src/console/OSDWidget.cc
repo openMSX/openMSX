@@ -220,11 +220,11 @@ void OSDWidget::setProperty(
 	} else if (propName == "-mousecoord") {
 		throw CommandException("-mousecoord property is readonly");
 	} else if (propName == "-x") {
-		pos[0] = value.getDouble(interp);
+		pos[0] = value.getFloat(interp);
 	} else if (propName == "-y") {
-		pos[1] = value.getDouble(interp);
+		pos[1] = value.getFloat(interp);
 	} else if (propName == "-z") {
-		float z2 = value.getDouble(interp);
+		float z2 = value.getFloat(interp);
 		if (z != z2) {
 			bool up = z2 > z; // was z increased?
 			z = z2;
@@ -238,9 +238,9 @@ void OSDWidget::setProperty(
 			}
 		}
 	} else if (propName == "-relx") {
-		relPos[0] = value.getDouble(interp);
+		relPos[0] = value.getFloat(interp);
 	} else if (propName == "-rely") {
-		relPos[1] = value.getDouble(interp);
+		relPos[1] = value.getFloat(interp);
 	} else if (propName == "-scaled") {
 		bool scaled2 = value.getBoolean(interp);
 		if (scaled != scaled2) {
