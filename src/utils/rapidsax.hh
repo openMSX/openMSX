@@ -564,7 +564,7 @@ private:
 		auto len = end - value;
 		if (len) {
 			if (FLAGS & zeroTerminateStrings) {
-				*text = '\0';
+				*end = '\0';
 			}
 			handler.text(std::string_view(value, len));
 		}
