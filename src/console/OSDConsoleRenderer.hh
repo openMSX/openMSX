@@ -26,7 +26,7 @@ class OSDConsoleRenderer final : public Layer, private Observer<Setting>
 {
 public:
 	OSDConsoleRenderer(Reactor& reactor, CommandConsole& console,
-	                   unsigned screenW, unsigned screenH, bool openGL);
+	                   int screenW, int screenH, bool openGL);
 	~OSDConsoleRenderer() override;
 
 private:
@@ -59,9 +59,9 @@ private:
 
 private:
 	enum Placement {
-		CP_TOPLEFT,    CP_TOP,    CP_TOPRIGHT,
-		CP_LEFT,       CP_CENTER, CP_RIGHT,
-		CP_BOTTOMLEFT, CP_BOTTOM, CP_BOTTOMRIGHT
+		CP_TOP_LEFT,    CP_TOP,    CP_TOP_RIGHT,
+		CP_LEFT,        CP_CENTER, CP_RIGHT,
+		CP_BOTTOM_LEFT, CP_BOTTOM, CP_BOTTOM_RIGHT
 	};
 
 	struct TextCacheElement {
@@ -81,8 +81,8 @@ private:
 	Display& display;
 	CommandConsole& console;
 	BooleanSetting& consoleSetting;
-	const unsigned screenW;
-	const unsigned screenH;
+	const int screenW;
+	const int screenH;
 	const bool openGL;
 
 	TTFFont font;

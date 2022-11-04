@@ -157,15 +157,15 @@ template<typename IMAGE> std::unique_ptr<BaseImage> OSDRectangle::create(
 			//   creating it till alpha changes.
 			return nullptr;
 		}
-		ivec2 iSize = round(getSize(output));
-		float factor = getScaleFactor(output) * scale;
-		int bs = lrintf(factor * borderSize + iSize[0] * relBorderSize);
+		vec2 sz = getSize(output);
+		auto factor = narrow<float>(getScaleFactor(output)) * scale;
+		auto bs = narrow_cast<int>(lrintf(factor * borderSize + sz[0] * relBorderSize));
 		assert(bs >= 0);
-		return std::make_unique<IMAGE>(output, iSize, getRGBA4(), bs, borderRGBA);
+		return std::make_unique<IMAGE>(output, round(sz), getRGBA4(), bs, borderRGBA);
 	} else {
 		auto file = systemFileContext().resolve(imageName);
 		if (takeImageDimensions()) {
-			float factor = getScaleFactor(output) * scale;
+			auto factor = narrow<float>(getScaleFactor(output)) * scale;
 			return std::make_unique<IMAGE>(output, file, factor);
 		} else {
 			ivec2 iSize = round(getSize(output));

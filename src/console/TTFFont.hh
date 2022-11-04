@@ -59,7 +59,7 @@ public:
 	/** Return the height of the font.
 	  * This is the recommended number of pixels between two text lines.
 	  */
-	[[nodiscard]] unsigned getHeight() const;
+	[[nodiscard]] int getHeight() const;
 
 	/** Returns true iff this is a fixed-with (=mono-spaced) font. */
 	[[nodiscard]] bool isFixedWidth() const;
@@ -68,7 +68,7 @@ public:
 	  * This is the recommended number of pixels between two characters.
 	  * This number only makes sense for fixed-width fonts.
 	  */
-	[[nodiscard]] unsigned getWidth() const;
+	[[nodiscard]] int getWidth() const;
 
 	/** Return the size in pixels of the text if it would be rendered.
 	 */

@@ -8,6 +8,7 @@
 #include "CliComm.hh"
 #include "Reactor.hh"
 #include "MSXException.hh"
+#include "narrow.hh"
 #include "openmsx.hh"
 #include "one_of.hh"
 #include "unreachable.hh"
@@ -41,8 +42,7 @@ static constexpr std::string_view defaultFont = "skins/VeraMono.ttf.gz";
 
 OSDConsoleRenderer::OSDConsoleRenderer(
 		Reactor& reactor_, CommandConsole& console_,
-		unsigned screenW_, unsigned screenH_,
-		bool openGL_)
+		int screenW_, int screenH_, bool openGL_)
 	: Layer(COVER_NONE, Z_CONSOLE)
 	, reactor(reactor_)
 	, display(reactor.getDisplay()) // need to store because still needed during destructor
@@ -59,15 +59,15 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 		// keyboard, which is always placed at the bottom of the screen
 		PLATFORM_ANDROID ? CP_TOP : CP_BOTTOM,
 		EnumSetting<Placement>::Map{
-			{"topleft",     CP_TOPLEFT},
+			{"topleft",     CP_TOP_LEFT},
 			{"top",         CP_TOP},
-			{"topright",    CP_TOPRIGHT},
+			{"topright",    CP_TOP_RIGHT},
 			{"left",        CP_LEFT},
 			{"center",      CP_CENTER},
 			{"right",       CP_RIGHT},
-			{"bottomleft",  CP_BOTTOMLEFT},
+			{"bottomleft",  CP_BOTTOM_LEFT},
 			{"bottom",      CP_BOTTOM},
-			{"bottomright", CP_BOTTOMRIGHT}})
+			{"bottomright", CP_BOTTOM_RIGHT}})
 	, fontSizeSetting(reactor.getCommandController(),
 		"consolefontsize", "Size of the console font", 12, 8, 32)
 	, fontSetting(reactor.getCommandController(),
@@ -206,20 +206,20 @@ bool OSDConsoleRenderer::updateConsoleRect()
 {
 	adjustColRow();
 
-	ivec2 size((font.getWidth()  * console.getColumns()) + CHAR_BORDER,
-	            font.getHeight() * console.getRows());
+	ivec2 size((font.getWidth()  * narrow<int>(console.getColumns())) + CHAR_BORDER,
+	            font.getHeight() * narrow<int>(console.getRows()));
 
 	// TODO use setting listener in the future
 	ivec2 pos;
 	switch (consolePlacementSetting.getEnum()) {
-		case CP_TOPLEFT:
+		case CP_TOP_LEFT:
 		case CP_LEFT:
-		case CP_BOTTOMLEFT:
+		case CP_BOTTOM_LEFT:
 			pos[0] = 0;
 			break;
-		case CP_TOPRIGHT:
+		case CP_TOP_RIGHT:
 		case CP_RIGHT:
-		case CP_BOTTOMRIGHT:
+		case CP_BOTTOM_RIGHT:
 			pos[0] = (screenW - size[0]);
 			break;
 		case CP_TOP:
@@ -230,9 +230,9 @@ bool OSDConsoleRenderer::updateConsoleRect()
 			break;
 	}
 	switch (consolePlacementSetting.getEnum()) {
-		case CP_TOPLEFT:
+		case CP_TOP_LEFT:
 		case CP_TOP:
-		case CP_TOPRIGHT:
+		case CP_TOP_RIGHT:
 			pos[1] = 0;
 			break;
 		case CP_LEFT:
@@ -240,9 +240,9 @@ bool OSDConsoleRenderer::updateConsoleRect()
 		case CP_RIGHT:
 			pos[1] = (screenH - size[1]) / 2;
 			break;
-		case CP_BOTTOMLEFT:
+		case CP_BOTTOM_LEFT:
 		case CP_BOTTOM:
-		case CP_BOTTOMRIGHT:
+		case CP_BOTTOM_RIGHT:
 		default:
 			pos[1] = (screenH - size[1]);
 			break;
@@ -509,7 +509,7 @@ void OSDConsoleRenderer::drawConsoleText(OutputSurface& output, byte visibility)
 				//std::string_view subText(it, e); // c++20
 				std::string_view subText(&*it, e - it);
 				auto rgb = chunks[chunkIdx - 1].rgb;
-				auto cursorX = columns - startColumn;
+				auto cursorX = narrow<int>(columns - startColumn);
 				drawText(output, subText, cursorX, cursorY, visibility, rgb);
 
 				// next chunk

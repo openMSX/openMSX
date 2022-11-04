@@ -176,12 +176,12 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 	}
 
 	// Determine maximum width and lineHeight
-	unsigned width = 0;
-	unsigned lineHeight = 0; // initialize to avoid warning
-	unsigned numLines = 1;
+	int width = 0;
+	int lineHeight = 0; // initialize to avoid warning
+	int numLines = 1;
 	while (true) {
 		auto [w, h] = getSize(std::string(current_line));
-		width = std::max<unsigned>(width, w);
+		width = std::max(width, w);
 		lineHeight = h;
 		if (lines_it == lines_end) break;
 		current_line = *lines_it;
@@ -190,10 +190,10 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 	}
 	// There might be extra space between two successive lines
 	// (so lineSkip might be bigger than lineHeight).
-	unsigned lineSkip = getHeight();
+	int lineSkip = getHeight();
 	// We assume that height is the same for all lines.
 	// For the last line we don't include spacing between two lines.
-	auto height = unsigned((numLines - 1) * lineSkip + lineHeight);
+	auto height = (numLines - 1) * lineSkip + lineHeight;
 
 	// Create destination surface (initial surface is fully transparent)
 	SDLSurfacePtr destination(SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
@@ -230,7 +230,7 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 	return destination;
 }
 
-unsigned TTFFont::getHeight() const
+int TTFFont::getHeight() const
 {
 	return TTF_FontLineSkip(static_cast<TTF_Font*>(font));
 }
@@ -240,7 +240,7 @@ bool TTFFont::isFixedWidth() const
 	return TTF_FontFaceIsFixedWidth(static_cast<TTF_Font*>(font)) != 0;
 }
 
-unsigned TTFFont::getWidth() const
+int TTFFont::getWidth() const
 {
 	int advance;
 	if (TTF_GlyphMetrics(static_cast<TTF_Font*>(font), Uint16('M'),

@@ -58,7 +58,7 @@ private:
 	enum WrapMode { NONE, WORD, CHAR };
 
 	std::string text;
-	std::string fontfile;
+	std::string fontFile;
 	TTFFont font;
 	int size;
 	WrapMode wrapMode;

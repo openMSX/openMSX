@@ -6,6 +6,7 @@
 #include "TclObject.hh"
 #include "GLUtil.hh"
 #include "checked_cast.hh"
+#include "narrow.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include <SDL.h>
@@ -102,7 +103,7 @@ GLScopedClip::GLScopedClip(OutputSurface& output, vec2 xy, vec2 wh)
 	auto& [x, y] = xy;
 	auto& [w, h] = wh;
 	normalize(x, w); normalize(y, h);
-	y = output.getLogicalHeight() - y - h; // openGL sets (0,0) in LOWER-left corner
+	y = narrow_cast<float>(output.getLogicalHeight()) - y - h; // openGL sets (0,0) in LOWER-left corner
 
 	// transform view-space coordinates to clip-space coordinates
 	vec2 scale = output.getViewScale();
@@ -389,7 +390,7 @@ vec2 OSDWidget::getMouseCoord() const
 		// the OSD cursor position.
 		// The reason for doing this is that otherwise (e.g. when using
 		// the mouse in an MSX program) it's possible to accidentally
-		// click on the reversebar. This will also block the OSD mouse
+		// click on the reverse bar. This will also block the OSD mouse
 		// in other Tcl scripts (e.g. vampier's nemesis script), but
 		// almost always those scripts will also not be useful when the
 		// host mouse cursor is not visible.

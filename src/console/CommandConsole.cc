@@ -8,15 +8,16 @@
 #include "FileException.hh"
 #include "FileOperations.hh"
 #include "CliComm.hh"
-#include "Event.hh"
 #include "Display.hh"
-#include "VideoSystem.hh"
+#include "Event.hh"
 #include "EventDistributor.hh"
 #include "Version.hh"
-#include "unreachable.hh"
-#include "utf8_unchecked.hh"
+#include "VideoSystem.hh"
 #include "StringOp.hh"
 #include "ScopedAssign.hh"
+#include "narrow.hh"
+#include "unreachable.hh"
+#include "utf8_unchecked.hh"
 #include "view.hh"
 #include "xrange.hh"
 #include <algorithm>
@@ -127,15 +128,15 @@ CommandConsole::~CommandConsole()
 void CommandConsole::saveHistory()
 {
 	try {
-		std::ofstream outputfile;
-		FileOperations::openofstream(outputfile,
+		std::ofstream outputFile;
+		FileOperations::openofstream(outputFile,
 		        userFileContext("console").resolveCreate("history.txt"));
-		if (!outputfile) {
+		if (!outputFile) {
 			throw FileException(
 				"Error while saving the console history.");
 		}
 		for (auto& s : history) {
-			outputfile << s << '\n';
+			outputFile << s << '\n';
 		}
 	} catch (FileException& e) {
 		commandController.getCliComm().printWarning(e.getMessage());
@@ -145,12 +146,12 @@ void CommandConsole::saveHistory()
 void CommandConsole::loadHistory()
 {
 	try {
-		std::ifstream inputfile(
+		std::ifstream inputFile(
 		        userFileContext("console").
 				resolveCreate("history.txt").c_str());
 		string line;
-		while (inputfile) {
-			getline(inputfile, line);
+		while (inputFile) {
+			getline(inputFile, line);
 			putCommandHistory(line);
 		}
 	} catch (FileException&) {
@@ -160,9 +161,9 @@ void CommandConsole::loadHistory()
 
 gl::ivec2 CommandConsole::getCursorPosition() const
 {
-	int xPosition = cursorPosition % getColumns();
+	auto xPosition = narrow<int>(cursorPosition % getColumns());
 	auto num = lines[0].numChars() / getColumns();
-	int yPosition = unsigned(num - (cursorPosition / getColumns()));
+	auto yPosition = narrow<int>(num - (cursorPosition / getColumns()));
 	return {xPosition, yPosition};
 }
 
@@ -171,7 +172,7 @@ int CommandConsole::signalEvent(const Event& event) noexcept
 	if (!consoleSetting.getBoolean()) return 0;
 
 	// If the console is open then don't pass the event to the MSX
-	// (whetever the (keyboard) event is). If the event has a meaning for
+	// (whatever the (keyboard) event is). If the event has a meaning for
 	// the console, then also don't pass the event to the hotkey system.
 	// For example PgUp, PgDown are keys that have both a meaning in the
 	// console and are used by standard key bindings.
@@ -231,10 +232,10 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 	case Keys::KM_SHIFT:
 		switch (key) {
 		case Keys::K_PAGEUP:
-			scroll(std::max<int>(getRows() - 1, 1));
+			scroll(std::max(narrow<int>(getRows()) - 1, 1));
 			return true;
 		case Keys::K_PAGEDOWN:
-			scroll(-std::max<int>(getRows() - 1, 1));
+			scroll(-std::max(narrow<int>(getRows()) - 1, 1));
 			return true;
 		}
 		break;
@@ -336,7 +337,7 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 
 	auto unicode = keyEvent.getUnicode();
 	if (!unicode || (mod & Keys::KM_META)) {
-		// Disallow META modifer for 'normal' key presses because on
+		// Disallow META modifier for 'normal' key presses because on
 		// MacOSX Cmd+L is used as a hotkey to toggle the console.
 		// Hopefully there are no systems that require META to type
 		// normal keys. However there _are_ systems that require the
@@ -528,7 +529,7 @@ static std::tuple<std::string::const_iterator, std::string::const_iterator, unsi
 	getStartOfWord(const std::string& line, unsigned cursorPos, size_t promptSize)
 {
 	auto begin  = std::begin(line);
-	auto prompt = begin + promptSize; // assumes prompt only contains single-byte utf8 chars
+	auto prompt = begin + narrow<ptrdiff_t>(promptSize); // assumes prompt only contains single-byte utf8 chars
 	auto cursor = begin; utf8::unchecked::advance(cursor, cursorPos);
 	auto pos    = cursor;
 

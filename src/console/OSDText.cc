@@ -8,6 +8,7 @@
 #include "TclObject.hh"
 #include "StringOp.hh"
 #include "join.hh"
+#include "narrow.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 #include "utf8_core.hh"
@@ -27,7 +28,7 @@ namespace openmsx {
 
 OSDText::OSDText(Display& display_, const TclObject& name_)
 	: OSDImageBasedWidget(display_, name_)
-	, fontfile("skins/Vera.ttf.gz")
+	, fontFile("skins/Vera.ttf.gz")
 	, size(12)
 	, wrapMode(NONE), wrapw(0.0), wraprelw(1.0)
 {
@@ -46,12 +47,12 @@ void OSDText::setProperty(
 		}
 	} else if (propName == "-font") {
 		string val(value.getString());
-		if (fontfile != val) {
+		if (fontFile != val) {
 			if (string file = systemFileContext().resolve(val);
 			    !FileOperations::isRegularFile(file)) {
 				throw CommandException("Not a valid font file: ", val);
 			}
-			fontfile = val;
+			fontFile = val;
 			invalidateRecursive();
 		}
 	} else if (propName == "-size") {
@@ -103,7 +104,7 @@ void OSDText::getProperty(string_view propName, TclObject& result) const
 	if (propName == "-text") {
 		result = text;
 	} else if (propName == "-font") {
-		result = fontfile;
+		result = fontFile;
 	} else if (propName == "-size") {
 		result = size;
 	} else if (propName == "-wrap") {
@@ -152,7 +153,7 @@ vec2 OSDText::getSize(const OutputSurface& /*output*/) const
 
 uint8_t OSDText::getFadedAlpha() const
 {
-	return byte((getRGBA(0) & 0xff) * getRecursiveFadeValue());
+	return narrow_cast<uint8_t>((getRGBA(0) & 0xff) * getRecursiveFadeValue());
 }
 
 template<typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
@@ -164,7 +165,7 @@ template<typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 	int scale = getScaleFactor(output);
 	if (font.empty()) {
 		try {
-			font = TTFFont(systemFileContext().resolve(fontfile),
+			font = TTFFont(systemFileContext().resolve(fontFile),
 			               size * scale);
 		} catch (MSXException& e) {
 			throw MSXException("Couldn't open font: ", e.getMessage());
@@ -172,7 +173,7 @@ template<typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 	}
 	try {
 		vec2 pSize = getParent()->getSize(output);
-		int maxWidth = lrintf(wrapw * scale + wraprelw * pSize[0]);
+		int maxWidth = narrow_cast<int>(lrintf(wrapw * narrow<float>(scale) + wraprelw * pSize[0]));
 		// Width can't be negative, if it is make it zero instead.
 		// This will put each character on a different line.
 		maxWidth = std::max(0, maxWidth);

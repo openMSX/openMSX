@@ -6,12 +6,14 @@
 #include "TclObject.hh"
 #include "CommandException.hh"
 #include "Timer.hh"
+#include "narrow.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "view.hh"
 #include "xrange.hh"
 #include <algorithm>
 #include <cassert>
+#include <cstdint>
 
 using namespace gl;
 
@@ -25,13 +27,14 @@ OSDImageBasedWidget::OSDImageBasedWidget(Display& display_, const TclObject& nam
 	, startFadeValue(1.0)
 	, error(false)
 {
-	ranges::fill(rgba, 0x000000ff);
+	ranges::fill(rgba, 0x000000ff); // black, opaque
 }
 
 OSDImageBasedWidget::~OSDImageBasedWidget() = default;
 
-static void get4(Interpreter& interp, const TclObject& value, std::span<uint32_t, 4> result)
+[[nodiscard]] static std::array<uint32_t, 4> get4(Interpreter& interp, const TclObject& value)
 {
+	std::array<uint32_t, 4> result;
 	auto len = value.getListLength(interp);
 	if (len == 4) {
 		for (auto i : xrange(4)) {
@@ -42,17 +45,16 @@ static void get4(Interpreter& interp, const TclObject& value, std::span<uint32_t
 	} else {
 		throw CommandException("Expected either 1 or 4 values.");
 	}
+	return result;
 }
 void OSDImageBasedWidget::setProperty(
 	Interpreter& interp, std::string_view propName, const TclObject& value)
 {
 	if (propName == "-rgba") {
-		std::array<uint32_t, 4> newRGBA;
-		get4(interp, value, newRGBA);
+		std::array<uint32_t, 4> newRGBA = get4(interp, value);
 		setRGBA(newRGBA);
 	} else if (propName == "-rgb") {
-		std::array<uint32_t, 4> newRGB;
-		get4(interp, value, newRGB);
+		std::array<uint32_t, 4> newRGB = get4(interp, value);
 		std::array<uint32_t, 4> newRGBA;
 		for (auto i : xrange(4)) {
 			newRGBA[i] = (rgba[i]          & 0x000000ff) |
@@ -60,8 +62,7 @@ void OSDImageBasedWidget::setProperty(
 		}
 		setRGBA(newRGBA);
 	} else if (propName == "-alpha") {
-		std::array<uint32_t, 4> newAlpha;
-		get4(interp, value, newAlpha);
+		std::array<uint32_t, 4> newAlpha = get4(interp, value);
 		std::array<uint32_t, 4> newRGBA;
 		for (auto i : xrange(4)) {
 			newRGBA[i] = (rgba[i]     & 0xffffff00) |
@@ -158,9 +159,9 @@ float OSDImageBasedWidget::getCurrentFadeValue(uint64_t now) const
 {
 	assert(now >= startFadeTime);
 
-	int diff = int(now - startFadeTime); // int should be big enough
+	auto diff = narrow<int>(now - startFadeTime); // int should be big enough
 	assert(fadePeriod != 0.0f);
-	float delta = diff / (1000000.0f * fadePeriod);
+	float delta = narrow_cast<float>(diff) / (1000000.0f * fadePeriod);
 	if (startFadeValue < fadeTarget) {
 		float tmp = startFadeValue + delta;
 		if (tmp >= fadeTarget) {
