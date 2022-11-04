@@ -3,6 +3,7 @@
 #include "Filename.hh"
 #include "FilePool.hh"
 #include "Math.hh"
+#include "narrow.hh"
 #include "ranges.hh"
 #include "xrange.hh"
 #include <cassert>
@@ -17,12 +18,12 @@ namespace openmsx {
 class DCFilter {
 public:
 	void setFreq(unsigned sampleFreq) {
-		const float cuttOffFreq = 800.0f; // trial-and-error
-		R = 1.0f - ((float(2 * Math::pi) * cuttOffFreq) / sampleFreq);
+		const float cutOffFreq = 800.0f; // trial-and-error
+		R = 1.0f - ((float(2 * Math::pi) * cutOffFreq) / narrow_cast<float>(sampleFreq));
 	}
-	int16_t operator()(int16_t x) {
-		float t1 = R * t0 + x;
-		int16_t y = Math::clipIntToShort(t1 - t0);
+	[[nodiscard]] int16_t operator()(int16_t x) {
+		float t1 = R * t0 + narrow_cast<float>(x);
+		auto y = narrow<int16_t>(Math::clipIntToShort(narrow_cast<int>(t1 - t0)));
 		t0 = t1;
 		return y;
 	}

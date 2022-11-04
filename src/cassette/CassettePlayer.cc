@@ -455,7 +455,7 @@ int16_t CassettePlayer::readSample(EmuTime::param time)
 	if (getState() == PLAY) {
 		// playing
 		sync(time);
-		return isRolling() ? playImage->getSampleAt(tapePos) : 0;
+		return isRolling() ? playImage->getSampleAt(tapePos) : int16_t(0);
 	} else {
 		// record or stop
 		return 0;
@@ -760,24 +760,24 @@ void CassettePlayer::TapeCommand::execute(
 		}
 	}
 	//if (!cassettePlayer.getConnector()) {
-	//	cassettePlayer.cliComm.printWarning("Cassetteplayer not plugged in.");
+	//	cassettePlayer.cliComm.printWarning("Cassette player not plugged in.");
 	//}
 }
 
 string CassettePlayer::TapeCommand::help(std::span<const TclObject> tokens) const
 {
-	string helptext;
+	string helpText;
 	if (tokens.size() >= 2) {
 		if (tokens[1] == "eject") {
-			helptext =
+			helpText =
 			    "Well, just eject the cassette from the cassette "
 			    "player/recorder!";
 		} else if (tokens[1] == "rewind") {
-			helptext =
+			helpText =
 			    "Indeed, rewind the tape that is currently in the "
 			    "cassette player/recorder...";
 		} else if (tokens[1] == "motorcontrol") {
-			helptext =
+			helpText =
 			    "Setting this to 'off' is equivalent to "
 			    "disconnecting the black remote plug from the "
 			    "cassette player: it makes the cassette player "
@@ -786,38 +786,38 @@ string CassettePlayer::TapeCommand::help(std::span<const TclObject> tokens) cons
 			    "'on': the cassetteplayer obeys the motor control "
 			    "signal from the MSX.";
 		} else if (tokens[1] == "play") {
-			helptext =
+			helpText =
 			    "Go to play mode. Only useful if you were in "
 			    "record mode (which is currently the only other "
 			    "mode available).";
 		} else if (tokens[1] == "new") {
-			helptext =
+			helpText =
 			    "Create a new cassette image. If the file name is "
 			    "omitted, one will be generated in the default "
 			    "directory for tape recordings. Implies going to "
 			    "record mode (why else do you want a new cassette "
 			    "image?).";
 		} else if (tokens[1] == "insert") {
-			helptext =
+			helpText =
 			    "Inserts the specified cassette image into the "
 			    "cassette player, rewinds it and switches to play "
 			    "mode.";
 		} else if (tokens[1] == "record") {
-			helptext =
+			helpText =
 			    "Go to record mode. NOT IMPLEMENTED YET. Will be "
 			    "used to be able to resume recording to an "
 			    "existing cassette image, previously inserted with "
 			    "the insert command.";
 		} else if (tokens[1] == "getpos") {
-			helptext =
+			helpText =
 			    "Return the position of the tape, in seconds from "
 			    "the beginning of the tape.";
 		} else if (tokens[1] == "getlength") {
-			helptext =
+			helpText =
 			    "Return the length of the tape in seconds.";
 		}
 	} else {
-		helptext =
+		helpText =
 		    "cassetteplayer eject             "
 		    ": remove tape from virtual player\n"
 		    "cassetteplayer rewind            "
@@ -839,7 +839,7 @@ string CassettePlayer::TapeCommand::help(std::span<const TclObject> tokens) cons
 		    "cassetteplayer <filename>        "
 		    ": insert (a different) tape file\n";
 	}
-	return helptext;
+	return helpText;
 }
 
 void CassettePlayer::TapeCommand::tabCompletion(std::vector<string>& tokens) const

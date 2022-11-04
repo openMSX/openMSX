@@ -4,6 +4,7 @@
 #include "Filename.hh"
 #include "CliComm.hh"
 #include "MSXException.hh"
+#include "narrow.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "xrange.hh"
@@ -296,7 +297,7 @@ int16_t CasImage::getSampleAt(EmuTime::param time) const
 {
 	EmuDuration d = time - EmuTime::zero();
 	unsigned pos = d.getTicksAt(data.frequency);
-	return pos < data.wave.size() ? data.wave[pos] * 256 : 0;
+	return narrow<int16_t>((pos < data.wave.size()) ? (data.wave[pos] * 256) : 0);
 }
 
 EmuTime CasImage::getEndTime() const
@@ -316,7 +317,7 @@ void CasImage::fillBuffer(unsigned pos, std::span<float*, 1> bufs, unsigned num)
 	if ((pos / AUDIO_OVERSAMPLE) < nbSamples) {
 		for (auto i : xrange(num)) {
 			bufs[0][i] = ((pos / AUDIO_OVERSAMPLE) < nbSamples)
-			           ? data.wave[pos / AUDIO_OVERSAMPLE]
+			           ? narrow_cast<float>(data.wave[pos / AUDIO_OVERSAMPLE])
 			           : 0.0f;
 			++pos;
 		}
@@ -327,7 +328,7 @@ void CasImage::fillBuffer(unsigned pos, std::span<float*, 1> bufs, unsigned num)
 
 float CasImage::getAmplificationFactorImpl() const
 {
-	return 1.0f / 128;
+	return 1.0f / 128.0f;
 }
 
 } // namespace openmsx
