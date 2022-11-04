@@ -1,6 +1,7 @@
 #include "ZlibInflate.hh"
 #include "FileException.hh"
 #include "MemBuffer.hh"
+#include "narrow.hh"
 #include "xrange.hh"
 #include <limits>
 
@@ -64,14 +65,14 @@ std::string ZlibInflate::getString(size_t len)
 {
 	std::string result;
 	result.reserve(len);
-	repeat(len, [&] { result.push_back(getByte()); });
+	repeat(len, [&] { result.push_back(narrow_cast<char>(getByte())); });
 	return result;
 }
 
 std::string ZlibInflate::getCString()
 {
 	std::string result;
-	while (char c = getByte()) {
+	while (auto c = narrow_cast<char>(getByte())) {
 		result.push_back(c);
 	}
 	return result;

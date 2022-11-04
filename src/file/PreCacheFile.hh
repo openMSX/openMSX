@@ -9,7 +9,7 @@ namespace openmsx {
 
 /**
  * Read the complete file once and discard result. Hopefully the file
- * sticks in the OS cache. Mainly useful to avoid CD-ROM spinups or to
+ * sticks in the OS cache. Mainly useful to avoid CD-ROM spin-ups or to
  * speed up real floppy disk (/dev/fd0) reads.
  */
 class PreCacheFile final

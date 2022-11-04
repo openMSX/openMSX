@@ -1,5 +1,6 @@
 #include "PreCacheFile.hh"
 #include "FileOperations.hh"
+#include "narrow.hh"
 #include <array>
 #include <cstdio>
 #include <sys/types.h>
@@ -34,7 +35,7 @@ void PreCacheFile::run()
 
 	fseek(file.get(), 0, SEEK_END);
 	auto size = ftell(file.get());
-	if (size < 1024 * 1024) {
+	if (size < 1024l * 1024l) {
 		// only pre-cache small files
 
 		const size_t BLOCK_SIZE = 4096;
@@ -44,7 +45,7 @@ void PreCacheFile::run()
 			if (exitLoop) break;
 
 			std::array<char, BLOCK_SIZE> buf;
-			if (fseek(file.get(), block * BLOCK_SIZE, SEEK_SET)) break;
+			if (fseek(file.get(), narrow_cast<long>(block * BLOCK_SIZE), SEEK_SET)) break;
 			size_t read = fread(buf.data(), 1, BLOCK_SIZE, file.get());
 			if (read != BLOCK_SIZE) {
 				// error or end-of-file reached,

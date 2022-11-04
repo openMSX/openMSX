@@ -35,8 +35,7 @@ GZFileAdapter::GZFileAdapter(std::unique_ptr<FileBase> file_)
 
 	if ((flags & EXTRA_FIELD) != 0) {
 		// skip the extra field
-		int len  = zlib.get16LE();
-		zlib.skip(len);
+		zlib.skip(zlib.get16LE());
 	}
 	if ((flags & ORIG_NAME) != 0) {
 		// get the original file name

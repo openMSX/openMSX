@@ -12,6 +12,7 @@
 #include "LocalFile.hh"
 #include "FileException.hh"
 #include "FileNotFoundException.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include <cstring> // for strchr, strerror
 #include <cerrno>
@@ -237,7 +238,7 @@ void LocalFile::seek(size_t pos)
 #if defined _WIN32
 	int ret = _fseeki64(file.get(), pos, SEEK_SET);
 #else
-	int ret = fseek(file.get(), pos, SEEK_SET);
+	int ret = fseek(file.get(), narrow_cast<long>(pos), SEEK_SET);
 #endif
 	if (ret != 0) {
 		throw FileException("Error seeking file");
@@ -253,7 +254,7 @@ size_t LocalFile::getPos()
 void LocalFile::truncate(size_t size)
 {
 	int fd = fileno(file.get());
-	if (ftruncate(fd, size)) {
+	if (ftruncate(fd, narrow_cast<off_t>(size))) {
 		throw FileException("Error truncating file");
 	}
 }
