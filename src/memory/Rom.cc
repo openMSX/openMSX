@@ -18,6 +18,7 @@
 #include "ConfigException.hh"
 #include "EmptyPatch.hh"
 #include "IPSPatch.hh"
+#include "narrow.hh"
 #include "ranges.hh"
 #include "sha1.hh"
 #include "stl.hh"
@@ -301,7 +302,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	// loadstate we use that tag to search the complete rom in a filePool.
 	if (const auto* windowElem = config.findChild("window")) {
 		unsigned windowBase = windowElem->getAttributeValueAsInt("base", 0);
-		unsigned windowSize = windowElem->getAttributeValueAsInt("size", rom.size());
+		unsigned windowSize = windowElem->getAttributeValueAsInt("size", narrow_cast<int>(rom.size()));
 		if ((windowBase + windowSize) > rom.size()) {
 			throw MSXException(
 				"The specified window [", windowBase, ',',

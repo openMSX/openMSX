@@ -24,12 +24,12 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void changeBank(byte region, int bank);
+	void changeBank(byte region, unsigned bank);
 
 private:
 	PanasonicMemory& panasonicMem;
-	int maxSRAMBank;
-	std::array<int, 8> bankSelect;
+	unsigned maxSRAMBank;
+	std::array<unsigned, 8> bankSelect;
 	byte control;
 };
 

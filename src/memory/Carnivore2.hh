@@ -98,7 +98,7 @@ private:
 	[[nodiscard]] byte ideBank() const { return Math::reverseByte(ideControlReg & 0xe0); }
 
 	// memory mapper
-	[[nodiscard]] bool isMemmapControl(word address) const;
+	[[nodiscard]] bool isMemMapControl(word address) const;
 	[[nodiscard]] unsigned getMemoryMapperAddress(word address) const;
 	[[nodiscard]] bool isMemoryMapperWriteProtected(word address) const;
 	[[nodiscard]] byte peekMemoryMapperSlot(word address) const;

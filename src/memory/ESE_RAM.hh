@@ -24,7 +24,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	[[nodiscard]] unsigned getSramSize() const;
+	[[nodiscard]] size_t getSramSize() const;
 	void setSRAM(unsigned region, byte block);
 
 private:

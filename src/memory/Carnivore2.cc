@@ -4,6 +4,7 @@
 #include "IDEDeviceFactory.hh"
 #include "CliComm.hh"
 #include "MSXCPU.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "xrange.hh"
@@ -271,7 +272,7 @@ byte Carnivore2::readConfigRegister(word address, EmuTime::param time)
 static constexpr float volumeLevel(byte volume)
 {
 	constexpr std::array<byte, 8> tab = {5, 6, 7, 8, 10, 12, 14, 16};
-	return tab[volume & 7] / 16.0f;
+	return narrow<float>(tab[volume & 7]) / 16.0f;
 }
 
 void Carnivore2::writeSndLVL(byte value, EmuTime::param time)
@@ -647,7 +648,7 @@ void Carnivore2::ideWriteReg(byte reg, byte value, EmuTime::param time)
 	}
 }
 
-bool Carnivore2::isMemmapControl(word address) const
+bool Carnivore2::isMemMapControl(word address) const
 {
 	return (port3C & 0x80) &&
 	       (( (port3C & 0x08) && ((address & 0xc000) == 0x4000)) ||
@@ -669,7 +670,7 @@ bool Carnivore2::isMemoryMapperWriteProtected(word address) const
 
 byte Carnivore2::peekMemoryMapperSlot(word address) const
 {
-	if (isMemmapControl(address)) {
+	if (isMemMapControl(address)) {
 		switch (address & 0xff) {
 		case 0x3c:
 			return port3C;
@@ -687,7 +688,7 @@ byte Carnivore2::readMemoryMapperSlot(word address)
 
 void Carnivore2::writeMemoryMapperSlot(word address, byte value)
 {
-	if (isMemmapControl(address)) {
+	if (isMemMapControl(address)) {
 		switch (address & 0xff) {
 		case 0x3c:
 			value |= (value & 0x02) << 6; // TODO should be '(.. 0x20) << 2' ???

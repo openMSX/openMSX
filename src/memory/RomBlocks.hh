@@ -52,9 +52,9 @@ protected:
 	  * @param region number of 8kB region in Z80 address space
 	  *   (region i starts at Z80 address i * 0x2000)
 	  * @param adr pointer to memory, area must be at least 0x2000 bytes long
-	  * @param block Block number, only used for the 'romblock' debuggable.
+	  * @param block Block number, only used for the 'romblock' debuggable, limited to 8-bit.
 	  */
-	void setBank(byte region, const byte* adr, int block);
+	void setBank(byte region, const byte* adr, byte block);
 
 	/** Selects a block of the ROM image for reading in a certain region.
 	  * @param region number of 8kB region in Z80 address space
@@ -73,7 +73,7 @@ protected:
 	  */
 	void setBlockMask(int mask) { blockMask = mask; }
 
-	/** Inform this base class of extra mapable memory block.
+	/** Inform this base class of extra mappable memory block.
 	 * This is needed for serialization of mappings in this block.
 	 * Should only be called from subclass constructor.
 	 * (e.g. used by RomPanasonic)

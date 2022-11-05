@@ -28,9 +28,9 @@
 
 namespace openmsx {
 
-unsigned ESE_RAM::getSramSize() const
+size_t ESE_RAM::getSramSize() const
 {
-	unsigned sramSize = getDeviceConfig().getChildDataAsInt("sramsize", 256); // size in kb
+	size_t sramSize = getDeviceConfig().getChildDataAsInt("sramsize", 256); // size in kb
 	if (sramSize != one_of(1024u, 512u, 256u, 128u)) {
 		throw MSXException(
 			"SRAM size for ", getName(),

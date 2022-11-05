@@ -29,7 +29,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	[[nodiscard]] unsigned getSramSize(bool withSCSI) const;
+	[[nodiscard]] size_t getSramSize(bool withSCSI) const;
 	void setMapperLow(unsigned page, byte value);
 	void setMapperHigh(byte value);
 

@@ -1,5 +1,5 @@
 /*
- * 'Ese-SCC' cartride and 'MEGA-SCSI with SCC'(alias WAVE-SCSI) cartridge.
+ * 'Ese-SCC' cartridge and 'MEGA-SCSI with SCC'(alias WAVE-SCSI) cartridge.
  *
  * Specification:
  *  SRAM(MegaROM) controller: KONAMI_SCC type
@@ -56,9 +56,9 @@
 
 namespace openmsx {
 
-unsigned ESE_SCC::getSramSize(bool withSCSI) const
+size_t ESE_SCC::getSramSize(bool withSCSI) const
 {
-	unsigned sramSize = getDeviceConfig().getChildDataAsInt("sramsize", 256); // size in kb
+	size_t sramSize = getDeviceConfig().getChildDataAsInt("sramsize", 256); // size in kb
 	if (sramSize != one_of(1024u, 512u, 256u, 128u)) {
 		throw MSXException(
 			"SRAM size for ", getName(),

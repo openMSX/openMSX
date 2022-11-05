@@ -4,6 +4,7 @@
 #include "DeviceConfig.hh"
 #include "GlobalSettings.hh"
 #include "StringSetting.hh"
+#include "narrow.hh"
 #include "xrange.hh"
 #include <cassert>
 
@@ -29,7 +30,7 @@ byte CheckedRam::read(size_t addr)
 	size_t line = addr >> CacheLine::BITS;
 	if (!completely_initialized_cacheline[line]) [[unlikely]] {
 		if (uninitialized[line][addr &  CacheLine::LOW]) [[unlikely]] {
-			umrCallback.execute(addr, ram.getName());
+			umrCallback.execute(narrow<int>(addr), ram.getName());
 		}
 	}
 	return ram[addr];

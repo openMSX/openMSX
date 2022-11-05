@@ -6,6 +6,7 @@
 #include "StringOp.hh"
 #include "String32.hh"
 #include "hash_map.hh"
+#include "narrow.hh"
 #include "ranges.hh"
 #include "rapidsax.hh"
 #include "unreachable.hh"
@@ -93,7 +94,7 @@ private:
 	String32 company;
 	String32 year;
 	String32 country;
-	int genMSXid;
+	unsigned genMSXid;
 
 	State state = BEGIN;
 	unsigned unknownLevel = 0;
@@ -394,7 +395,7 @@ void DBParser::addAllEntries()
 	//    there may also be duplicates between old and new
 	const auto first = begin(db);
 	const auto last  = end  (db);
-	const auto mid = first + initialSize;
+	const auto mid = first + narrow<ptrdiff_t>(initialSize);
 	if (mid == last) return; // no new entries
 
 	// Sort new entries, old entries are already sorted.

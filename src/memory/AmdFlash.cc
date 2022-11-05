@@ -7,6 +7,7 @@
 #include "CliComm.hh"
 #include "HardwareConfig.hh"
 #include "MSXException.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "serialize.hh"
@@ -62,7 +63,7 @@ void AmdFlash::init(const std::string& name, const DeviceConfig& config, Load lo
 			writeAddress[i] = -1;
 			readOnlySize += sectorInfo[i].size;
 		} else {
-			writeAddress[i] = writableSize;
+			writeAddress[i] = narrow<ptrdiff_t>(writableSize);
 			writableSize += sectorInfo[i].size;
 		}
 	}

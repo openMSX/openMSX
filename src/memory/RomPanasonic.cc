@@ -12,8 +12,8 @@
 
 namespace openmsx {
 
-const int SRAM_BASE = 0x80;
-const int RAM_BASE  = 0x180;
+const unsigned SRAM_BASE = 0x80;
+const unsigned RAM_BASE  = 0x180;
 
 RomPanasonic::RomPanasonic(const DeviceConfig& config, Rom&& rom_)
 	: Rom8kBBlocks(config, std::move(rom_))
@@ -31,7 +31,7 @@ RomPanasonic::RomPanasonic(const DeviceConfig& config, Rom&& rom_)
 		maxSRAMBank = SRAM_BASE + (sramSize / 8);
 	}
 
-	// Inform baseclass about PanasonicMemory (needed for serialization).
+	// Inform base class about PanasonicMemory (needed for serialization).
 	// This relies on the order of MSXDevice instantiation, the PanasonicRam
 	// device must be create before this one. (In the hardwareconfig.xml
 	// we added a device-reference from this device to the PanasonicRam
@@ -94,10 +94,10 @@ void RomPanasonic::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	if ((0x6000 <= address) && (address < 0x7FF0)) {
 		// set mapper state (lower 8 bits)
-		int region = (address & 0x1C00) >> 10;
+		auto region = (address & 0x1C00) >> 10;
 		if (region == one_of(5, 6)) region ^= 3;
-		int selectedBank = bankSelect[region];
-		int newBank = (selectedBank & ~0xFF) | value;
+		auto selectedBank = bankSelect[region];
+		auto newBank = (selectedBank & ~0xFF) | value;
 		changeBank(region, newBank);
 	} else if (address == 0x7FF8) {
 		// set mapper state (9th bit)
@@ -116,12 +116,12 @@ void RomPanasonic::writeMem(word address, byte value, EmuTime::param /*time*/)
 		// Tested on real FS-A1GT:
 		//  SRAM/RAM can be written to from all regions, including e.g.
 		//  address 0x7ff0. (I didn't actually test 0xc000-0xffff).
-		int region = address >> 13;
-		int selectedBank = bankSelect[region];
+		auto region = address >> 13;
+		auto selectedBank = bankSelect[region];
 		if (sram && (SRAM_BASE <= selectedBank) &&
 		    (selectedBank < maxSRAMBank)) {
 			// SRAM
-			int block = selectedBank - SRAM_BASE;
+			auto block = selectedBank - SRAM_BASE;
 			sram->write((block * 0x2000) | (address & 0x1FFF), value);
 		} else if (RAM_BASE <= selectedBank) {
 			// RAM
@@ -136,8 +136,8 @@ byte* RomPanasonic::getWriteCacheLine(word address) const
 		// mapper select (low/high), control
 		return nullptr;
 	} else {
-		int region = address >> 13;
-		int selectedBank = bankSelect[region];
+		auto region = address >> 13;
+		auto selectedBank = bankSelect[region];
 		if (sram && (SRAM_BASE <= selectedBank) &&
 		    (selectedBank < maxSRAMBank)) {
 			// SRAM
@@ -151,7 +151,7 @@ byte* RomPanasonic::getWriteCacheLine(word address) const
 	}
 }
 
-void RomPanasonic::changeBank(byte region, int bank)
+void RomPanasonic::changeBank(byte region, unsigned bank)
 {
 	if (bank == bankSelect[region]) {
 		return;

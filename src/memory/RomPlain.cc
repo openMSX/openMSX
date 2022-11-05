@@ -114,8 +114,8 @@ void RomPlain::guessHelper(unsigned offset, std::span<int, 3> pages)
 		for (auto i : xrange(4)) {
 			if (word addr = rom[offset + 2 * i + 0] +
 			                rom[offset + 2 * i + 1] * 256) {
-				int page = (addr >> 14) - (offset >> 14);
-				if ((0 <= page) && (page <= 2)) {
+				unsigned page = (addr >> 14) - (offset >> 14);
+				if (page <= 2) {
 					pages[page]++;
 				}
 			}

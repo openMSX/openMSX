@@ -1,5 +1,6 @@
 #include "MSXRam.hh"
 #include "XMLElement.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 #include <cassert>
 
@@ -19,8 +20,8 @@ void MSXRam::init()
 	// by default get base/size from the (union of) the <mem> tag(s)
 	getVisibleMemRegion(base, size);
 	// but allow to override these two parameters
-	base = getDeviceConfig().getChildDataAsInt("base", base);
-	size = getDeviceConfig().getChildDataAsInt("size", size);
+	base = getDeviceConfig().getChildDataAsInt("base", narrow_cast<int>(base));
+	size = getDeviceConfig().getChildDataAsInt("size", narrow_cast<int>(size));
 	assert( base         <  0x10000);
 	assert((base + size) <= 0x10000);
 

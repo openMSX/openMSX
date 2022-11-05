@@ -15,7 +15,7 @@ class RomInfo
 {
 public:
 	// This contains extra information for each RomType. This structure only
-	// contains the primary (non-alias) romtypes.
+	// contains the primary (non-alias) rom types.
 	struct RomTypeInfo {
 		unsigned blockSize;
 		std::string_view name;
@@ -27,7 +27,7 @@ public:
 	        String32 company_, String32 country_,
 	        bool original_,    String32 origType_,
 	        String32 remark_,  RomType romType_,
-	        int genMSXid_)
+	        unsigned genMSXid_)
 		: title   (title_)
 		, year    (year_)
 		, company (company_)
@@ -60,7 +60,7 @@ public:
 	}
 	[[nodiscard]] RomType          getRomType()   const { return romType; }
 	[[nodiscard]] bool             getOriginal()  const { return original; }
-	[[nodiscard]] int              getGenMSXid()  const { return genMSXid; }
+	[[nodiscard]] unsigned         getGenMSXid()  const { return genMSXid; }
 
 	[[nodiscard]] static RomType nameToRomType(std::string_view name);
 	[[nodiscard]] static std::string_view romTypeToName (RomType type);
@@ -81,7 +81,7 @@ private:
 	String32 origType;
 	String32 remark;
 	RomType romType;
-	int genMSXid;
+	unsigned genMSXid;
 	bool original;
 };
 

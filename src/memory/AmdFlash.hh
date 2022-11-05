@@ -4,6 +4,7 @@
 #include "MemBuffer.hh"
 #include "serialize_meta.hh"
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <span>
@@ -104,7 +105,7 @@ private:
 private:
 	MSXMotherBoard& motherBoard;
 	std::unique_ptr<SRAM> ram;
-	MemBuffer<int> writeAddress;
+	MemBuffer<ptrdiff_t> writeAddress;
 	MemBuffer<const uint8_t*> readAddress;
 	const std::span<const SectorInfo> sectorInfo;
 	const size_t sz;

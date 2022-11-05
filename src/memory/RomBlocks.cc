@@ -74,7 +74,7 @@ const byte* RomBlocks<BANK_SIZE>::getReadCacheLine(word address) const
 }
 
 template<unsigned BANK_SIZE>
-void RomBlocks<BANK_SIZE>::setBank(byte region, const byte* adr, int block)
+void RomBlocks<BANK_SIZE>::setBank(byte region, const byte* adr, byte block)
 {
 	assert("address passed to setBank() is not serializable" &&
 	       ((adr == unmappedRead.data()) ||
