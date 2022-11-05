@@ -54,7 +54,7 @@ DMKDiskImage::DMKDiskImage(Filename filename, std::shared_ptr<File> file_)
 
 	numTracks = header.numTracks;
 	dmkTrackLen = header.trackLen[0] + 256 * header.trackLen[1] - 128;
-	singleSided = (header.flags & FLAG_SINGLE_SIDED) != 0;;
+	singleSided = (header.flags & FLAG_SINGLE_SIDED) != 0;
 	writeProtected = header.writeProtected == 0xff;
 
 	// TODO should we print a warning when dmkTrackLen is too far from the

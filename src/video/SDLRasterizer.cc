@@ -315,7 +315,7 @@ void SDLRasterizer<Pixel>::precalcPalette()
 							V9938_COLORS[r][g][b] =
 								screen.mapKeyedRGB<Pixel>(
 									renderSettings.transformRGB(
-										vec3(r, g, b) / 7.0f));;
+										vec3(r, g, b) / 7.0f));
 						}
 					}
 				}

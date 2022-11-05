@@ -158,7 +158,7 @@ void LocalFile::munmap()
 	if (mmem) {
 		// TODO: make this a valid failure path
 		// When pages are dirty, UnmapViewOfFile is a save operation,
-		// and that can fail. However, mummap is called from
+		// and that can fail. However, munmap is called from
 		// the destructor, for which there is no expectation
 		// that it will fail. So this area needs some work.
 		// It is NOT an option to throw an exception (not even

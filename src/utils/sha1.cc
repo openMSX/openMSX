@@ -21,6 +21,7 @@ A million repetitions of "a"
 #include "sha1.hh"
 #include "MSXException.hh"
 #include "endian.hh"
+#include "narrow.hh"
 #include "ranges.hh"
 #include <cassert>
 #include <cstring>
@@ -118,9 +119,9 @@ Sha1Sum::Sha1Sum(std::string_view hex)
 }
 
 // load 64-bit (possibly unaligned) and swap bytes
-[[nodiscard]] static inline uint64_t loadSwap64(const char* s)
+[[nodiscard]] static inline int64_t loadSwap64(const char* s)
 {
-	return Endian::read_UA_B64(s);
+	return narrow_cast<int64_t>(Endian::read_UA_B64(s));
 }
 
 #else
@@ -224,7 +225,7 @@ void Sha1Sum::parse40(std::span<const char, 40> str)
 
 [[nodiscard]] static constexpr char digit(unsigned x)
 {
-	return (x < 10) ? (x + '0') : (x - 10 + 'a');
+	return narrow<char>((x < 10) ? (x + '0') : (x - 10 + 'a'));
 }
 std::string Sha1Sum::toString() const
 {

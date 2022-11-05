@@ -1,6 +1,7 @@
 #ifndef SOCKET_HH
 #define SOCKET_HH
 
+#include <cstddef>
 #include <string>
 
 #ifndef _WIN32
@@ -30,8 +31,8 @@ static const SOCKET OPENMSX_INVALID_SOCKET = static_cast<SOCKET>(~0);
 void sock_startup();
 void sock_cleanup();
 void sock_close(SOCKET sd);
-[[nodiscard]] int sock_recv(SOCKET sd, char* buf, size_t count);
-[[nodiscard]] int sock_send(SOCKET sd, const char* buf, size_t count);
+[[nodiscard]] ptrdiff_t sock_recv(SOCKET sd, char* buf, size_t count);
+[[nodiscard]] ptrdiff_t sock_send(SOCKET sd, const char* buf, size_t count);
 
 } // namespace openmsx
 

@@ -350,7 +350,7 @@ void OSDWidget::paintGLRecursive (OutputSurface& output)
 int OSDWidget::getScaleFactor(const OutputSurface& output) const
 {
 	if (scaled) {
-		return output.getLogicalWidth() / 320;;
+		return output.getLogicalWidth() / 320;
 	} else if (getParent()) {
 		return getParent()->getScaleFactor(output);
 	} else {

@@ -2,6 +2,7 @@
 #include "build-info.hh"
 #include "systemfuncs.hh"
 #include "endian.hh"
+#include "narrow.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 #include <bit>
@@ -43,7 +44,7 @@ static inline void memset_64_SSE(
 		++out; --num64;
 	}
 
-	__m128i val128 = _mm_set1_epi64x(val64);
+	__m128i val128 = _mm_set1_epi64x(narrow_cast<int64_t>(val64));
 	uint64_t* e = out + num64 - 3;
 	for (/**/; out < e; out += 4) {
 		_mm_store_si128(reinterpret_cast<__m128i*>(out + 0), val128);
