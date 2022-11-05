@@ -1,5 +1,6 @@
 #include "TclParser.hh"
 #include "ScopedAssign.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "strCat.hh"
@@ -75,12 +76,12 @@ TclParser::TclParser(Tcl_Interp* interp_, std::string_view input)
 	, level(0)
 #endif
 {
-	parse(parseStr.data(), int(parseStr.size()), COMMAND);
+	parse(parseStr.data(), narrow<int>(parseStr.size()), COMMAND);
 }
 
 void TclParser::parse(const char* p, int size, ParseType type)
 {
-	ScopedAssign<int> sa1(offset, offset + (p - parseStr.data()));
+	ScopedAssign sa1(offset, offset + narrow<int>(p - parseStr.data()));
 	ScopedAssign sa2(parseStr, std::string(p, size));
 	last.push_back(offset);
 
@@ -240,7 +241,7 @@ bool TclParser::isProc(Tcl_Interp* interp, std::string_view str)
 
 void TclParser::setColors(const char* p, int size, char c)
 {
-	int start = (p - parseStr.data()) + offset;
+	int start = narrow<int>(p - parseStr.data()) + offset;
 	int stop = std::min(start + size, int(colors.size()));
 	for (auto i : xrange(start, stop)) {
 		colors[i] = c;

@@ -1,6 +1,7 @@
 #include "TclObject.hh"
 #include "Interpreter.hh"
 #include "CommandException.hh"
+#include "narrow.hh"
 
 namespace openmsx {
 
@@ -152,7 +153,7 @@ TclObject TclObject::getListIndex(Interpreter& interp_, unsigned index) const
 {
 	auto* interp = interp_.interp;
 	Tcl_Obj* element;
-	if (Tcl_ListObjIndex(interp, obj, index, &element) != TCL_OK) {
+	if (Tcl_ListObjIndex(interp, obj, narrow<int>(index), &element) != TCL_OK) {
 		throwException(interp);
 	}
 	return element ? TclObject(element) : TclObject();
@@ -160,7 +161,7 @@ TclObject TclObject::getListIndex(Interpreter& interp_, unsigned index) const
 TclObject TclObject::getListIndexUnchecked(unsigned index) const
 {
 	Tcl_Obj* element;
-	if (Tcl_ListObjIndex(nullptr, obj, index, &element) != TCL_OK) {
+	if (Tcl_ListObjIndex(nullptr, obj, narrow<int>(index), &element) != TCL_OK) {
 		return {};
 	}
 	return element ? TclObject(element) : TclObject();

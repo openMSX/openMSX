@@ -8,6 +8,7 @@
 #include "InterpreterOutput.hh"
 #include "MSXCPUInterface.hh"
 #include "FileOperations.hh"
+#include "narrow.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
@@ -362,7 +363,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 		//
 		// The problem is that when a SCC cartridge is removed, we
 		// delete several settings (e.g. SCC_ch1_mute). While deleting
-		// a setting we unset the corresponsing Tcl variable (see
+		// a setting we unset the corresponding Tcl variable (see
 		// unregisterSetting() above), this in turn triggers a
 		// TCL_TRACE_UNSET callback (this function). To prevent this
 		// callback from triggering we first remove the trace before
@@ -460,7 +461,7 @@ TclParser Interpreter::parse(std::string_view command)
 void Interpreter::wrongNumArgs(unsigned argc, std::span<const TclObject> tokens, const char* message)
 {
 	assert(argc <= tokens.size());
-	Tcl_WrongNumArgs(interp, argc, reinterpret_cast<Tcl_Obj* const*>(tokens.data()), message);
+	Tcl_WrongNumArgs(interp, narrow<int>(argc), reinterpret_cast<Tcl_Obj* const*>(tokens.data()), message);
 	// not efficient, but anyway on an error path
 	throw CommandException(Tcl_GetStringResult(interp));
 }
