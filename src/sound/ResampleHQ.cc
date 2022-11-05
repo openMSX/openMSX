@@ -189,11 +189,11 @@ void ResampleCoeffs::releaseCoeffs(double ratio)
 // mathematically proven this, but at least I've verified it for N=16 and
 // N=4096 for all possible step-sizes.
 //
-// To linearise a chain in memory there are only 2 (good) possibilities: start
+// To linearize a chain in memory there are only 2 (good) possibilities: start
 // at either end-point. But to store a cycle any point is as good as any other.
 // Also the order in which to store the cycles themselves can still be chosen.
 //
-// Let's come back to the example with step-size 4.3. If we linearise this as
+// Let's come back to the example with step-size 4.3. If we linearize this as
 //   | 0, 4, 7, 3 | 1, 5, 6, 2 |
 // then most of the more likely transitions are sequential. The exceptions are
 //     0 <-> 3   and   1 <-> 2
@@ -211,7 +211,7 @@ void ResampleCoeffs::releaseCoeffs(double ratio)
 //   | 7, 4, 0, 3 | 6, 5, 1, 2 |
 //
 // I've again not (fully) mathematically proven it, but it seems we can
-// optimally(?) linearise cycles by:
+// optimally(?) linearize cycles by:
 // * if likely step < unlikely step:
 //    pick unassigned rows from 0 to N/2-1, and complete each cycle
 // * if likely step > unlikely step:
@@ -366,6 +366,7 @@ ResampleCoeffs::Table ResampleCoeffs::calcTable(
 	return table;
 }
 
+static std::array<int16_t, HALF_TAB_LEN> dummyPermute;
 
 template<unsigned CHANNELS>
 ResampleHQ<CHANNELS>::ResampleHQ(
@@ -373,7 +374,7 @@ ResampleHQ<CHANNELS>::ResampleHQ(
 	: ResampleAlgo(input_)
 	, hostClock(hostClock_)
 	, ratio(float(hostClock.getPeriod().toDouble() / getEmuClock().getPeriod().toDouble()))
-	, permute(/*dummy*/static_cast<int16_t*>(nullptr), HALF_TAB_LEN)
+	, permute(dummyPermute) // Any better way to do this? (that also works with debug-STL)
 {
 	ResampleCoeffs::instance().getCoeffs(double(ratio), permute, table, filterLen);
 
