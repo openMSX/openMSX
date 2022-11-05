@@ -21,7 +21,7 @@
 // then we have to use the slow way (=virtual method call). If it is not nullptr,
 // the pointer points to a block of memory that can be directly accessed. In
 // some contexts accesses via the pointer are known as backdoor accesses while
-// the accesses directly to the device are known as frontdoor accesses.
+// the accesses directly to the device are known as front-door accesses.
 //
 // We keep different pointers for read and write accesses. This allows to also
 // implement ROMs efficiently: read is handled as regular RAM, but writes end
@@ -30,10 +30,10 @@
 // with 0xFF and can be used to model (parts of) a device that don't react to
 // reads (so reads return 0xFF).
 //
-// Because of bankswitching (the MSX slot select mechanism, but also e.g.
-// MegaROM backswitching) the memory map as seen by the Z80 is not static. This
+// Because of bank switching (the MSX slot select mechanism, but also e.g.
+// MegaROM back switching) the memory map as seen by the Z80 is not static. This
 // means that the cacheLine pointers also need to change during runtime. To
-// solve this we made the bankswitch code also responsible for invalidating the
+// solve this we made the bank switch code also responsible for invalidating the
 // cacheLines of the switched region. These pointers are filled-in again in a
 // lazy way: the first read or write to a cache line will first get this
 // pointer (see getReadCacheLine() and getWriteCacheLine() in the code below),
@@ -100,7 +100,7 @@
 //     rendering). In openMSX this is handled by the Scheduler class and
 //     actually we don't exit the CPU loop (anymore) for this. Instead we
 //     simply execute the device code as a subroutine. Each time right before
-//     we access an IO port or do a frontdoor memory access, there is a check
+//     we access an IO port or do a front-door memory access, there is a check
 //     whether we should emulate device code (search for schedule() in the code
 //     below).
 //  2) To keep the inner CPU loop as fast as possible we don't check for IRQ,
@@ -170,6 +170,7 @@
 #include "Thread.hh"
 #include "endian.hh"
 #include "inline.hh"
+#include "narrow.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
 #include <array>
@@ -375,7 +376,7 @@ template<typename T> void CPUCore<T>::doReset(EmuTime::param time)
 	//   the CPU is (slightly) ahead in time of the about to be executed
 	//   reset command.
 	//   Normally this situation should never occur: console commands,
-	//   hotkeys, commands over clicomm, ... are all handled via the global
+	//   hotkeys, commands over cliComm, ... are all handled via the global
 	//   event mechanism. Such global events are scheduled between CPU
 	//   instructions, so also in a replay they should fall between CPU
 	//   instructions.
@@ -508,7 +509,7 @@ template<typename T> void CPUCore<T>::setNextSyncPoint(EmuTime::param time)
 
 static constexpr char toHex(byte x)
 {
-	return (x < 10) ? (x + '0') : (x - 10 + 'A');
+	return narrow<char>((x < 10) ? (x + '0') : (x - 10 + 'A'));
 }
 static constexpr void toHex(byte x, std::span<char, 3> buf)
 {
@@ -971,7 +972,7 @@ fetchSlow: {
 #endif
 
 #ifndef USE_COMPUTED_GOTO
-MAYBE_UNUSED_LABEL switchopcode:
+MAYBE_UNUSED_LABEL switchOpcode:
 	switch (opcodeMain) {
 CASE(40) // ld b,b
 CASE(49) // ld c,c
@@ -1823,7 +1824,7 @@ CASE(DD) {
 				goto *(opcodeTable[opcodeDD]);
 				#else
 				opcodeMain = opcodeDD;
-				goto switchopcode;
+				goto switchOpcode;
 				#endif
 			}
 
@@ -2116,7 +2117,7 @@ CASE(FD) {
 				goto *(opcodeTable[opcodeFD]);
 				#else
 				opcodeMain = opcodeFD;
-				goto switchopcode;
+				goto switchOpcode;
 				#endif
 			}
 
@@ -2229,7 +2230,7 @@ CASE(FD) {
 
 xx_cb: {
 		unsigned tmp = RD_WORD_PC<1>(T::CC_DD + T::CC_DD_CB);
-		int8_t ofst = tmp & 0xFF;
+		auto ofst = narrow_cast<int8_t>(tmp & 0xFF);
 		unsigned addr = (ixy + ofst) & 0xFFFF;
 		byte xxcb_opcode = tmp >> 8;
 		switch (xxcb_opcode) {
@@ -2561,7 +2562,7 @@ template<typename T> void CPUCore<T>::executeSlow(ExecIRQ execIRQ)
 
 template<typename T> void CPUCore<T>::execute(bool fastForward)
 {
-	// In fast-forward mode, breakpoints, watchpoints or debug condtions
+	// In fast-forward mode, breakpoints, watchpoints or debug conditions
 	// won't trigger. It is possible we already are in break mode, but
 	// break is ignored in fast-forward mode.
 	assert(fastForward || !interface->isBreaked());
@@ -2764,7 +2765,7 @@ template<typename T> II CPUCore<T>::ld_xhl_byte() {
 // LD (IXY+e),n
 template<typename T> template<Reg16 IXY> II CPUCore<T>::ld_xix_byte() {
 	unsigned tmp = RD_WORD_PC<1>(T::CC_DD + T::CC_LD_XIX_N_1);
-	int8_t ofst = tmp & 0xFF;
+	auto ofst = narrow_cast<int8_t>(tmp & 0xFF);
 	byte val = tmp >> 8;
 	unsigned addr = (get16<IXY>() + ofst) & 0xFFFF;
 	T::setMemPtr(addr);
@@ -3983,7 +3984,7 @@ template<typename T> template<typename COND> II CPUCore<T>::jr(COND cond) {
 			// this behaviour in the djnz and the jr (conditional
 			// or not) instructions: all other instructions that
 			// cause the PC to change in a non-incremental way do
-			// already force a pagebreak for another reason, so
+			// already force a page-break for another reason, so
 			// this effect is masked. Examples of such instructions
 			// are: JP, RET, CALL, RST, all repeated block
 			// instructions, accepting an IRQ, (are there more

@@ -21,6 +21,7 @@
 #include "ReadOnlySetting.hh"
 #include "serialize.hh"
 #include "checked_cast.hh"
+#include "narrow.hh"
 #include "outer.hh"
 #include "ranges.hh"
 #include "stl.hh"
@@ -215,7 +216,7 @@ void MSXCPUInterface::writeMemSlow(word address, byte value, EmuTime::param time
 		setSubSlot(primarySlotState[3], value);
 		// Confirmed on turboR GT machine: write does _not_ also go to
 		// the underlying (hidden) device. But it's theoretically
-		// possible other slotexpanders behave different.
+		// possible other slot-expanders behave different.
 	} else {
 		visibleDevices[address>>14]->writeMem(address, value, time);
 	}
@@ -1132,7 +1133,7 @@ void MSXCPUInterface::SlotInfo::execute(std::span<const TclObject> tokens,
 	unsigned ss   = getSlot(interp, tokens[3], "Secondary slot");
 	unsigned page = getSlot(interp, tokens[4], "Page");
 	auto& interface = OUTER(MSXCPUInterface, slotInfo);
-	if (!interface.isExpanded(ps)) {
+	if (!interface.isExpanded(narrow<int>(ps))) {
 		ss = 0;
 	}
 	interface.slotLayout[ps][ss][page]->getNameList(result);
@@ -1158,8 +1159,8 @@ void MSXCPUInterface::SubSlottedInfo::execute(std::span<const TclObject> tokens,
 {
 	checkNumArgs(tokens, 3, "primary");
 	auto& interface = OUTER(MSXCPUInterface, subSlottedInfo);
-	result = interface.isExpanded(
-		getSlot(getInterpreter(), tokens[2], "Slot"));
+	result = interface.isExpanded(narrow<int>(
+		getSlot(getInterpreter(), tokens[2], "Slot")));
 }
 
 std::string MSXCPUInterface::SubSlottedInfo::help(
@@ -1186,10 +1187,10 @@ void MSXCPUInterface::ExternalSlotInfo::execute(
 	auto& interp = getInterpreter();
 	switch (tokens.size()) {
 	case 4:
-		ss = getSlot(interp, tokens[3], "Secondary slot");
+		ss = narrow<int>(getSlot(interp, tokens[3], "Secondary slot"));
 		// Fall-through
 	case 3:
-		ps = getSlot(interp, tokens[2], "Primary slot");
+		ps = narrow<int>(getSlot(interp, tokens[2], "Primary slot"));
 		break;
 	}
 	auto& interface = OUTER(MSXCPUInterface, externalSlotInfo);

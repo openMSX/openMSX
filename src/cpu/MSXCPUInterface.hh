@@ -92,7 +92,7 @@ public:
 	bool replace_IO_Out(byte port, MSXDevice* oldDevice, MSXDevice* newDevice);
 
 	/**
-	 * Devices can register themself in the MSX slotstructure.
+	 * Devices can register themself in the MSX slot structure.
 	 * This is normally done in their constructor. Once devices
 	 * are registered their readMem() / writeMem() methods can
 	 * get called.
@@ -199,7 +199,7 @@ public:
 	}
 
 	/**
-	 * CPU uses this method to read 'extra' data from the databus
+	 * CPU uses this method to read 'extra' data from the data bus
 	 * used in interrupt routines. In MSX this returns always 255.
 	 */
 	[[nodiscard]] byte readIRQVector();
