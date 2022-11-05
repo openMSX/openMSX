@@ -3,6 +3,7 @@
 #include "RendererFactory.hh"
 #include "V9990Renderer.hh"
 #include "Reactor.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
@@ -844,7 +845,7 @@ void V9990::scheduleHscan(EmuTime::param time)
 		return;
 	}
 
-	int ticks = frameStartTime.getTicksTill_fast(time);
+	int ticks = narrow<int>(frameStartTime.getTicksTill_fast(time));
 	int offset = [&] {
 		if (regs[INTERRUPT_2] & 0x80) {
 			// every line

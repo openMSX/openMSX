@@ -4,6 +4,7 @@
 #include "unreachable.hh"
 #include "build-info.hh"
 #include "components.hh"
+#include "narrow.hh"
 #include <array>
 #include <cassert>
 #include <cstdint>
@@ -59,12 +60,12 @@ static void rasterBYUV(
 	std::span<Pixel> buf, unsigned x, unsigned y)
 {
 	Pixel* __restrict out = buf.data();
-	int nrPixels = buf.size();
+	int nrPixels = narrow<int>(buf.size());
 	unsigned address = (x & ~3) + y * vdp.getImageWidth();
 	if (x & 3) {
 		draw_YJK_YUV_PAL<false, false, true>(
 			color, vram, out, address, x & 3);
-		nrPixels -= 4 - (x & 3);
+		nrPixels -= narrow<int>(4 - (x & 3));
 	}
 	for (/**/; nrPixels > 0; nrPixels -= 4) {
 		draw_YJK_YUV_PAL<false, false, false>(
@@ -81,12 +82,12 @@ static void rasterBYUVP(
 	// TODO this mode cannot be shown in B4 and higher resolution modes
 	//      (So the dual palette for B4 modes is not an issue here.)
 	Pixel* __restrict out = buf.data();
-	int nrPixels = buf.size();
+	int nrPixels = narrow<int>(buf.size());
 	unsigned address = (x & ~3) + y * vdp.getImageWidth();
 	if (x & 3) {
 		draw_YJK_YUV_PAL<false, true, true>(
 			color, vram, out, address, x & 3);
-		nrPixels -= 4 - (x & 3);
+		nrPixels -= narrow<int>(4 - (x & 3));
 	}
 	for (/**/; nrPixels > 0; nrPixels -= 4) {
 		draw_YJK_YUV_PAL<false, true, false>(
@@ -101,12 +102,12 @@ static void rasterBYJK(
 	std::span<Pixel> buf, unsigned x, unsigned y)
 {
 	Pixel* __restrict out = buf.data();
-	int nrPixels = buf.size();
+	int nrPixels = narrow<int>(buf.size());
 	unsigned address = (x & ~3) + y * vdp.getImageWidth();
 	if (x & 3) {
 		draw_YJK_YUV_PAL<true, false, true>(
 			color, vram, out, address, x & 3);
-		nrPixels -= 4 - (x & 3);
+		nrPixels -= narrow<int>(4 - (x & 3));
 	}
 	for (/**/; nrPixels > 0; nrPixels -= 4) {
 		draw_YJK_YUV_PAL<true, false, false>(
@@ -123,12 +124,12 @@ static void rasterBYJKP(
 	// TODO this mode cannot be shown in B4 and higher resolution modes
 	//      (So the dual palette for B4 modes is not an issue here.)
 	Pixel* __restrict out = buf.data();
-	int nrPixels = buf.size();
+	int nrPixels = narrow<int>(buf.size());
 	unsigned address = (x & ~3) + y * vdp.getImageWidth();
 	if (x & 3) {
 		draw_YJK_YUV_PAL<true, true, true>(
 			color, vram, out, address, x & 3);
-		nrPixels -= 4 - (x & 3);
+		nrPixels -= narrow<int>(4 - (x & 3));
 	}
 	for (/**/; nrPixels > 0; nrPixels -= 4) {
 		draw_YJK_YUV_PAL<true, true, false>(
@@ -143,14 +144,14 @@ static void rasterBD16(
 	std::span<Pixel> buf, unsigned x, unsigned y)
 {
 	Pixel* __restrict out = buf.data();
-	int nrPixels = buf.size();
+	int nrPixels = narrow<int>(buf.size());
 	unsigned address = 2 * (x + y * vdp.getImageWidth());
 	if (vdp.isSuperimposing()) {
-		auto transparant = color.lookup256(0);
+		auto transparent = color.lookup256(0);
 		for (/**/; nrPixels > 0; --nrPixels) {
 			byte high = vram.readVRAMBx(address + 1);
 			if (high & 0x80) {
-				*out = transparant;
+				*out = transparent;
 			} else {
 				byte low  = vram.readVRAMBx(address + 0);
 				*out = color.lookup32768(low + 256 * high);
@@ -173,7 +174,7 @@ static void rasterBD8(
 	std::span<Pixel> buf, unsigned x, unsigned y)
 {
 	Pixel* __restrict out = buf.data();
-	int nrPixels = buf.size();
+	int nrPixels = narrow<int>(buf.size());
 	unsigned address = x + y * vdp.getImageWidth();
 	for (/**/; nrPixels > 0; --nrPixels) {
 		*out++ = color.lookup256(vram.readVRAMBx(address++));
@@ -186,7 +187,7 @@ static void rasterBP6(
 	std::span<Pixel> buf, unsigned x, unsigned y)
 {
 	Pixel* __restrict out = buf.data();
-	int nrPixels = buf.size();
+	int nrPixels = narrow<int>(buf.size());
 	unsigned address = x + y * vdp.getImageWidth();
 	for (/**/; nrPixels > 0; --nrPixels) {
 		*out++ = color.lookup64(vram.readVRAMBx(address++) & 0x3F);
@@ -199,7 +200,7 @@ static void rasterBP4(
 	std::span<Pixel> buf, unsigned x, unsigned y)
 {
 	Pixel* __restrict out = buf.data();
-	int nrPixels = buf.size();
+	int nrPixels = narrow<int>(buf.size());
 	assert(nrPixels > 0);
 	unsigned address = (x + y * vdp.getImageWidth()) / 2;
 	color.set64Offset((vdp.getPaletteOffset() & 0xC) << 2);
@@ -224,7 +225,7 @@ static void rasterBP4HiRes(
 	//   Bit PLT05 in palette offset is ignored, instead for even pixels
 	//   bit 'PLT05' is '0', for odd pixels it's '1'.
 	Pixel* __restrict out = buf.data();
-	int nrPixels = buf.size();
+	int nrPixels = narrow<int>(buf.size());
 	unsigned address = (x + y * vdp.getImageWidth()) / 2;
 	color.set64Offset((vdp.getPaletteOffset() & 0x4) << 2);
 	if (x & 1) {
@@ -246,7 +247,7 @@ static void rasterBP2(
 	std::span<Pixel> buf, unsigned x, unsigned y)
 {
 	Pixel* __restrict out = buf.data();
-	int nrPixels = buf.size();
+	int nrPixels = narrow<int>(buf.size());
 	assert(nrPixels > 0);
 	unsigned address = (x + y * vdp.getImageWidth()) / 4;
 	color.set64Offset(vdp.getPaletteOffset() << 2);
@@ -255,7 +256,7 @@ static void rasterBP2(
 		if ((x & 3) <= 1) *out++ = color.lookup64((data & 0x30) >> 4);
 		if ((x & 3) <= 2) *out++ = color.lookup64((data & 0x0C) >> 2);
 		if (true)         *out++ = color.lookup64((data & 0x03) >> 0);
-		nrPixels -= 4 - (x & 3);
+		nrPixels -= narrow<int>(4 - (x & 3));
 	}
 	for (/**/; nrPixels > 0; nrPixels -= 4) {
 		byte data = vram.readVRAMBx(address++);
@@ -275,7 +276,7 @@ static void rasterBP2HiRes(
 	//   Bit PLT05 in palette offset is ignored, instead for even pixels
 	//   bit 'PLT05' is '0', for odd pixels it's '1'.
 	Pixel* __restrict out = buf.data();
-	int nrPixels = buf.size();
+	int nrPixels = narrow<int>(buf.size());
 	assert(nrPixels > 0);
 	unsigned address = (x + y * vdp.getImageWidth()) / 4;
 	color.set64Offset((vdp.getPaletteOffset() & 0x7) << 2);
@@ -284,7 +285,7 @@ static void rasterBP2HiRes(
 		if ((x & 3) <= 1) *out++ = color.lookup64(32 | ((data & 0x30) >> 4));
 		if ((x & 3) <= 2) *out++ = color.lookup64( 0 | ((data & 0x0C) >> 2));
 		if (true)         *out++ = color.lookup64(32 | ((data & 0x03) >> 0));
-		nrPixels -= 4 - (x & 3);
+		nrPixels -= narrow<int>(4 - (x & 3));
 	}
 	for (/**/; nrPixels > 0; nrPixels -= 4) {
 		byte data = vram.readVRAMBx(address++);
@@ -387,7 +388,7 @@ static void raster(V9990ColorMode colorMode, bool highRes,
 //        corresponding background pixel.
 //      (CC1,CC0,EOR)==(0,0,1):
 //        This is the only combination where the cursor is drawn using multiple
-//        colors, each pixel is the complement of the corresponsing background
+//        colors, each pixel is the complement of the corresponding background
 //        pixel.
 //      (CC1,CC0,EOR)==(x,y,0):
 //        This is the 'usual' configuration, cursor is drawn with a specific
@@ -428,7 +429,7 @@ public:
 		        + (vram.readVRAMBx(patAddr + 4 * cursorLine + 2) <<  8)
 		        + (vram.readVRAMBx(patAddr + 4 * cursorLine + 3) <<  0);
 		if (pattern == 0) {
-			// optimization, completely transparant line
+			// optimization, completely transparent line
 			return;
 		}
 

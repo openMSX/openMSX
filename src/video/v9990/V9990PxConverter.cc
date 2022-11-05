@@ -4,6 +4,7 @@
 #include "ScopedAssign.hh"
 #include "build-info.hh"
 #include "components.hh"
+#include "narrow.hh"
 #include "ranges.hh"
 #include <array>
 #include <cassert>
@@ -135,7 +136,7 @@ static void renderPattern(
 	std::span<const Pixel, 16> palette0, std::span<const Pixel, 16> palette1)
 {
 	assert(x < Policy::IMAGE_WIDTH);
-	int width = info_.size();
+	auto width = narrow<int>(info_.size());
 	if (width == 0) return;
 	byte* info = info_.data();
 
@@ -294,7 +295,7 @@ void V9990P1Converter<Pixel>::convertLine(
 	unsigned displayBY =                 (displayYB + scrollBY) & 0x1FF;
 
 	unsigned displayEnd = displayX + displayWidth;
-	unsigned end1 = std::max<int>(0, std::min<int>(prioX, displayEnd) - displayX);
+	unsigned end1 = std::max(0, narrow<int>(std::min(prioX, displayEnd)) - narrow<int>(displayX));
 
 	std::array<byte, 256> info; // filled in later: 0->background, 1->foreground, 2->sprite (front or back)
 

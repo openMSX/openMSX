@@ -11,10 +11,11 @@
 #include "V9990VRAM.hh"
 #include "SimpleDebuggable.hh"
 #include "Clock.hh"
-#include "serialize_meta.hh"
+#include "narrow.hh"
 #include "openmsx.hh"
 #include "one_of.hh"
 #include "outer.hh"
+#include "serialize_meta.hh"
 #include "unreachable.hh"
 #include <array>
 #include <memory>
@@ -118,7 +119,7 @@ public:
 	  * @return      Number of UC ticks.
 	  */
 	[[nodiscard]] inline int getUCTicksThisFrame(EmuTime::param time) const {
-		return frameStartTime.getTicksTill_fast(time);
+		return narrow<int>(frameStartTime.getTicksTill_fast(time));
 	}
 
 	/** Is PAL timing active?
@@ -313,14 +314,14 @@ public:
 		return *horTiming;
 	}
 
-	/** Get the number of VDP clockticks between the start of the line and
+	/** Get the number of VDP clock-ticks between the start of the line and
 	  * the end of the left border.
 	  */
 	[[nodiscard]] inline int getLeftBorder() const {
 		return horTiming->blank + horTiming->border1 +
 		       (((regs[DISPLAY_ADJUST] & 0x0F) ^ 7) - 8) * 8;
 	}
-	/** Get the number of VDP clockticks between the start of the line and
+	/** Get the number of VDP clock-ticks between the start of the line and
 	  * the end of the right border.
 	  */
 	[[nodiscard]] inline int getRightBorder() const {
@@ -613,7 +614,7 @@ private:
 	  */
 	bool systemReset;
 
-	/** Is there an external video source availble to superimpose on?
+	/** Is there an external video source available to superimpose on?
 	  * In 32bpp we could just always output an alpha channel. But in
 	  * 16bpp we only want to output the special color-key when later
 	  * it will be replaced by a pixel from the external video source. */

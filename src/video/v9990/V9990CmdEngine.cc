@@ -8,6 +8,7 @@
 #include "EnumSetting.hh"
 #include "MemBuffer.hh"
 #include "Clock.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
@@ -303,7 +304,7 @@ inline byte V9990CmdEngine::V9990P1::point(
 inline byte V9990CmdEngine::V9990P1::shift(
 	byte value, unsigned fromX, unsigned toX)
 {
-	int shift = 4 * ((toX & 1) - (fromX & 1));
+	int shift = 4 * (narrow<int>(toX & 1) - narrow<int>(fromX & 1));
 	return (shift > 0) ? (value >> shift) : (value << -shift);
 }
 
@@ -371,7 +372,7 @@ inline byte V9990CmdEngine::V9990P2::point(
 inline byte V9990CmdEngine::V9990P2::shift(
 	byte value, unsigned fromX, unsigned toX)
 {
-	int shift = 4 * ((toX & 1) - (fromX & 1));
+	int shift = 4 * (narrow<int>(toX & 1) - narrow<int>(fromX & 1));
 	return (shift > 0) ? (value >> shift) : (value << -shift);
 }
 
@@ -439,7 +440,7 @@ inline byte V9990CmdEngine::V9990Bpp2::point(
 inline byte V9990CmdEngine::V9990Bpp2::shift(
 	byte value, unsigned fromX, unsigned toX)
 {
-	int shift = 2 * ((toX & 3) - (fromX & 3));
+	int shift = 2 * (narrow<int>(toX & 3) - narrow<int>(fromX & 3));
 	return (shift > 0) ? (value >> shift) : (value << -shift);
 }
 
@@ -507,7 +508,7 @@ inline byte V9990CmdEngine::V9990Bpp4::point(
 inline byte V9990CmdEngine::V9990Bpp4::shift(
 	byte value, unsigned fromX, unsigned toX)
 {
-	int shift = 4 * ((toX & 1) - (fromX & 1));
+	int shift = 4 * (narrow<int>(toX & 1) - narrow<int>(fromX & 1));
 	return (shift > 0) ? (value >> shift) : (value << -shift);
 }
 
