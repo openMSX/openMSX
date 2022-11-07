@@ -2616,7 +2616,7 @@ void VDPCmdEngine::commandDone(EmuTime::param time)
 
 
 // version 1: initial version
-// version 2: replaced member 'Clock<> clock' with 'Emutime time'
+// version 2: replaced member 'Clock<> clock' with 'EmuTime time'
 // version 3: added 'phase', 'tmpSrc', 'tmpDst'
 template<typename Archive>
 void VDPCmdEngine::serialize(Archive& ar, unsigned version)

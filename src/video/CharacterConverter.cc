@@ -179,8 +179,8 @@ void CharacterConverter<Pixel>::renderText1Q(std::span<Pixel, 256> buf, int line
 	unsigned patternQuarter = (line & 0xC0) << 2;
 	Pixel* __restrict pixelPtr = buf.data();
 	for (auto name : xrange(nameStart, nameEnd)) {
-		unsigned charcode = vram.nameTable.readNP((name + 0xC00) | (~0u << 12));
-		unsigned patternNr = patternQuarter | charcode;
+		unsigned charCode = vram.nameTable.readNP((name + 0xC00) | (~0u << 12));
+		unsigned patternNr = patternQuarter | charCode;
 		unsigned pattern = vram.patternTable.readNP(
 			patternBaseLine | (patternNr * 8));
 		draw6(pixelPtr, fg, bg, pattern);
@@ -308,7 +308,7 @@ void CharacterConverter<Pixel>::renderGraphic2(std::span<Pixel, 256> buf, int li
 		// - there is mirroring in the color table
 		// - there is mirroring in the pattern table (TMS9929)
 		// - V9958 horizontal scroll feature is used
-		int baseLine = (~0u << 13) | quarter8 | line7;
+		unsigned baseLine = (~0u << 13) | quarter8 | line7;
 		repeat(32, [&] {
 			unsigned charCode8 = namePtr[scroll & 0x1F] * 8;
 			unsigned index = charCode8 | baseLine;
@@ -325,7 +325,7 @@ void CharacterConverter<Pixel>::renderGraphic2(std::span<Pixel, 256> buf, int li
 template<std::unsigned_integral Pixel>
 void CharacterConverter<Pixel>::renderMultiHelper(
 	Pixel* __restrict pixelPtr, int line,
-	int mask, int patternQuarter)
+	unsigned mask, unsigned patternQuarter)
 {
 	unsigned baseLine = mask | ((line / 4) & 7);
 	unsigned scroll = vdp.getHorizontalScrollHigh();
@@ -346,7 +346,7 @@ void CharacterConverter<Pixel>::renderMultiHelper(
 template<std::unsigned_integral Pixel>
 void CharacterConverter<Pixel>::renderMulti(std::span<Pixel, 256> buf, int line)
 {
-	int mask = (~0u << 11);
+	unsigned mask = (~0u << 11);
 	renderMultiHelper(buf.data(), line, mask, 0);
 }
 
@@ -354,8 +354,8 @@ template<std::unsigned_integral Pixel>
 void CharacterConverter<Pixel>::renderMultiQ(
 	std::span<Pixel, 256> buf, int line)
 {
-	int mask = (~0u << 13);
-	int patternQuarter = (line * 4) & ~0xFF;  // (line / 8) * 32
+	unsigned mask = (~0u << 13);
+	unsigned patternQuarter = (line * 4) & ~0xFF;  // (line / 8) * 32
 	renderMultiHelper(buf.data(), line, mask, patternQuarter);
 }
 

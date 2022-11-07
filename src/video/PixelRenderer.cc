@@ -23,6 +23,7 @@ TODO:
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "Timer.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "unreachable.hh"
 #include <algorithm>
@@ -228,7 +229,7 @@ void PixelRenderer::frameEnd(EmuTime::param time)
 		auto time1 = Timer::getTime();
 		rasterizer->frameEnd();
 		auto time2 = Timer::getTime();
-		auto current = time2 - time1;
+		auto current = narrow_cast<float>(time2 - time1);
 		const float ALPHA = 0.2f;
 		finishFrameDuration = finishFrameDuration * (1 - ALPHA) +
 		                      current * ALPHA;
@@ -472,7 +473,7 @@ inline bool PixelRenderer::checkSync(unsigned offset, EmuTime::param time)
 			}
 		}
 		if (vram.nameTable.isInside(offset)) {
-			int vramLine = ((offset & 0x3FF) / 32) * 8;
+			int vramLine = narrow<int>(((offset & 0x3FF) / 32) * 8);
 			if (overlap(displayY0, displayY1, vramLine, vramLine + 8)) {
 				/*fprintf(stderr,
 					"name table: %05X %03X - line %d\n",

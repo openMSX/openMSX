@@ -320,7 +320,7 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 				}
 
 				if (mag) spriteLine /= 2;
-				int colorIndex = (~0u << 10) | (sprite * 16 + spriteLine);
+				unsigned colorIndex = (~0u << 10) | (sprite * 16 + spriteLine);
 				byte colorAttrib =
 					vram.spriteAttribTable.readPlanar(colorIndex);
 
@@ -365,7 +365,7 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 				}
 
 				if (mag) spriteLine /= 2;
-				int colorIndex = (~0u << 10) | (sprite * 16 + spriteLine);
+				unsigned colorIndex = (~0u << 10) | (sprite * 16 + spriteLine);
 				byte colorAttrib =
 					vram.spriteAttribTable.readNP(colorIndex);
 				// Sprites with CC=1 are only visible if preceded by

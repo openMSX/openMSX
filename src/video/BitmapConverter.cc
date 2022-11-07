@@ -1,5 +1,6 @@
 #include "BitmapConverter.hh"
 #include "endian.hh"
+#include "narrow.hh"
 #include "ranges.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
@@ -303,11 +304,11 @@ void BitmapConverter<Pixel>::renderYJK(
 			vramPtr0[2 * i + 1],
 			vramPtr1[2 * i + 1],
 		};
-		int j = (p[2] & 7) + ((p[3] & 3) << 3) - ((p[3] & 4) << 3);
-		int k = (p[0] & 7) + ((p[1] & 3) << 3) - ((p[1] & 4) << 3);
+		int j = narrow<int>((p[2] & 7) + ((p[3] & 3) << 3)) - narrow<int>((p[3] & 4) << 3);
+		int k = narrow<int>((p[0] & 7) + ((p[1] & 3) << 3)) - narrow<int>((p[1] & 4) << 3);
 
 		for (auto n : xrange(4)) {
-			int y = p[n] >> 3;
+			int y = narrow<int>(p[n] >> 3);
 			auto [r, g, b] = yjk2rgb(y, j, k);
 			int col = (r << 10) + (g << 5) + b;
 			pixelPtr[4 * i + n] = palette32768[col];
@@ -329,8 +330,8 @@ void BitmapConverter<Pixel>::renderYAE(
 			vramPtr0[2 * i + 1],
 			vramPtr1[2 * i + 1],
 		};
-		int j = (p[2] & 7) + ((p[3] & 3) << 3) - ((p[3] & 4) << 3);
-		int k = (p[0] & 7) + ((p[1] & 3) << 3) - ((p[1] & 4) << 3);
+		int j = narrow<int>((p[2] & 7) + ((p[3] & 3) << 3)) - narrow<int>((p[3] & 4) << 3);
+		int k = narrow<int>((p[0] & 7) + ((p[1] & 3) << 3)) - narrow<int>((p[1] & 4) << 3);
 
 		for (auto n : xrange(4)) {
 			Pixel pix;
@@ -339,7 +340,7 @@ void BitmapConverter<Pixel>::renderYAE(
 				pix = palette16[p[n] >> 4];
 			} else {
 				// YJK
-				int y = p[n] >> 3;
+				int y = narrow<int>(p[n] >> 3);
 				auto [r, g, b] = yjk2rgb(y, j, k);
 				pix = palette32768[(r << 10) + (g << 5) + b];
 			}
