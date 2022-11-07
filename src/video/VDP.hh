@@ -238,7 +238,7 @@ public:
 	  * @return Color value in the format of the palette registers:
 	  *   bit 10..8 is green, bit 6..4 is red and bit 2..0 is blue.
 	  */
-	[[nodiscard]] inline word getPalette(int index) const {
+	[[nodiscard]] inline word getPalette(unsigned index) const {
 		return palette[index];
 	}
 
@@ -395,7 +395,7 @@ public:
 	  * @pre !isFastBlinkEnabled()
 	  * @return Line number mask that expressed even/odd state.
 	  */
-	[[nodiscard]] inline int getEvenOddMask() const {
+	[[nodiscard]] inline unsigned getEvenOddMask() const {
 		// TODO: Verify which page is displayed on even fields.
 		assert(!isFastBlinkEnabled());
 		return (((~controlRegs[9] & 4) << 6) | ((statusReg2 & 2) << 7)) &
@@ -408,7 +408,7 @@ public:
 	  * result is no longer fixed per frame, and thus this method takes
 	  * an additional line parameter.
 	  */
-	[[nodiscard]] inline int getEvenOddMask(int line) const {
+	[[nodiscard]] inline unsigned getEvenOddMask(int line) const {
 		if (isFastBlinkEnabled()) {
 			// EO and IL not considered in this mode
 			auto p = calculateLineBlinkState(line);

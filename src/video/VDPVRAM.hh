@@ -102,7 +102,7 @@ precalculate overlaps.
 Not necessarily though, because even if two windows overlap, a single write
 may not be inside the other window. So precalculated overlaps only speeds up
 in the case there is no overlap.
-Maybe it's not necessary to know exactly which windows overlap with cmdwrite,
+Maybe it's not necessary to know exactly which windows overlap with cmdWrite,
 only to know whether there are any. If not, sync can be skipped.
 
 Is it possible to read multiple bytes at the same time?
@@ -114,7 +114,7 @@ can decide for itself how many bytes to read.
 
 */
 
-class DummyVRAMOBserver final : public VRAMObserver
+class DummyVRAMObserver final : public VRAMObserver
 {
 public:
 	void updateVRAM(unsigned /*offset*/, EmuTime::param /*time*/) override {}
@@ -142,7 +142,7 @@ public:
 	  * TODO: Only used by dirty checking. Maybe a new dirty checking
 	  *       approach can obsolete this method?
 	  */
-	[[nodiscard]] inline int getMask() const {
+	[[nodiscard]] inline unsigned getMask() const {
 		assert(isEnabled());
 		return effectiveBaseMask;
 	}
@@ -159,7 +159,7 @@ public:
 	  *       For many tables the number of index bits depends on the
 	  *       display mode anyway.
 	  */
-	inline void setMask(int newBaseMask, int newIndexMask,
+	inline void setMask(unsigned newBaseMask, unsigned newIndexMask,
 	                    EmuTime::param time) {
 		origBaseMask = newBaseMask;
 		newBaseMask &= sizeMask;
@@ -180,7 +180,7 @@ public:
 	  */
 	inline void disable(EmuTime::param time) {
 		observer->updateWindow(false, time);
-		baseAddr = -1;
+		baseAddr = unsigned(-1);
 	}
 
 	/** Is the given index range continuous in VRAM (iow there's no mirroring)
@@ -295,7 +295,7 @@ public:
 	  * @return true iff the address is inside this window.
 	  */
 	[[nodiscard]] inline bool isInside(unsigned address) const {
-		return (address & combiMask) == unsigned(baseAddr);
+		return (address & combiMask) == baseAddr;
 	}
 
 	/** Notifies the observer of this window of a VRAM change,
@@ -325,7 +325,7 @@ public:
 
 private:
 	[[nodiscard]] inline bool isEnabled() const {
-		return baseAddr != -1;
+		return baseAddr != unsigned(-1);
 	}
 
 private:
@@ -350,33 +350,33 @@ private:
 
 	/** Base mask as passed to the setMask() method.
 	 */
-	int origBaseMask;
+	unsigned origBaseMask;
 
 	/** Effective mask of this window.
 	  * This is always equal to 'origBaseMask & sizeMask'.
 	  */
-	int effectiveBaseMask;
+	unsigned effectiveBaseMask;
 
 	/** Index mask of this window.
 	  */
-	int indexMask;
+	unsigned indexMask;
 
 	/** Lowest address in this window.
 	  * Or -1 when this window is disabled.
 	  */
-	int baseAddr;
+	unsigned baseAddr;
 
 	/** Combination of effectiveBaseMask and index mask used for "inside" checks.
 	  */
-	int combiMask;
+	unsigned combiMask;
 
 	/** Mask to handle vram mirroring
 	  * Note: this only handles mirroring for power-of-2 sizes
 	  *       mirroring of extended VRAM is handled in a different way
 	  */
-	int sizeMask;
+	unsigned sizeMask;
 
-	static inline DummyVRAMOBserver dummyObserver;
+	static inline DummyVRAMObserver dummyObserver;
 };
 
 /** Manages VRAM contents and synchronizes the various users of the VRAM.

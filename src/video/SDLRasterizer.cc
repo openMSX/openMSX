@@ -256,7 +256,7 @@ void SDLRasterizer<Pixel>::precalcPalette()
 				// special case speeds up palette precalculation a lot.
 				std::array<int, 32> intensity;
 				for (auto [i, r] : enumerate(intensity)) {
-					r = int(255 * renderSettings.transformComponent(i / 31.0));
+					r = narrow_cast<int>(255.0f * renderSettings.transformComponent(narrow<float>(i) / 31.0f));
 				}
 				for (auto [rgb, col] : enumerate(V9958_COLORS)) {
 					col = screen.mapKeyedRGB255<Pixel>(ivec3(
@@ -268,10 +268,12 @@ void SDLRasterizer<Pixel>::precalcPalette()
 				for (auto r : xrange(32)) {
 					for (auto g : xrange(32)) {
 						for (auto b : xrange(32)) {
+							vec3 rgb{narrow<float>(r),
+							         narrow<float>(g),
+							         narrow<float>(b)};
 							V9958_COLORS[(r << 10) + (g << 5) + b] =
 								screen.mapKeyedRGB<Pixel>(
-									renderSettings.transformRGB(
-										vec3(r, g, b) / 31.0f));
+									renderSettings.transformRGB(rgb / 31.0f));
 						}
 					}
 				}
@@ -295,7 +297,7 @@ void SDLRasterizer<Pixel>::precalcPalette()
 			if (renderSettings.isColorMatrixIdentity()) {
 				std::array<int, 8> intensity;
 				for (auto [i, r] : enumerate(intensity)) {
-					r = int(255 * renderSettings.transformComponent(i / 7.0f));
+					r = narrow_cast<int>(255.0f * renderSettings.transformComponent(narrow<float>(i) / 7.0f));
 				}
 				for (auto r : xrange(8)) {
 					for (auto g : xrange(8)) {
@@ -312,10 +314,12 @@ void SDLRasterizer<Pixel>::precalcPalette()
 				for (auto r : xrange(8)) {
 					for (auto g : xrange(8)) {
 						for (auto b : xrange(8)) {
+							vec3 rgb{narrow<float>(r),
+							         narrow<float>(g),
+							         narrow<float>(b)};
 							V9938_COLORS[r][g][b] =
 								screen.mapKeyedRGB<Pixel>(
-									renderSettings.transformRGB(
-										vec3(r, g, b) / 7.0f));
+									renderSettings.transformRGB(rgb / 7.0f));
 						}
 					}
 				}
@@ -440,7 +444,7 @@ void SDLRasterizer<Pixel>::drawDisplay(
 	// drawBorder() (for the right border). And the value we set there is
 	// anyway the same as the one we would set here.
 	DisplayMode mode = vdp.getDisplayMode();
-	int lineWidth = mode.getLineWidth();
+	unsigned lineWidth = mode.getLineWidth();
 	if (lineWidth == 256) {
 		int endX = displayX + displayWidth;
 		displayX /= 2;
@@ -464,7 +468,7 @@ void SDLRasterizer<Pixel>::drawDisplay(
 		translateX(vdp.getLeftBackground(), lineWidth == 512);
 	// TODO: Find out why this causes 1-pixel jitter:
 	//dest.x = translateX(fromX);
-	int hScroll =
+	unsigned hScroll =
 		  mode.isTextMode()
 		? 0
 		: 8 * (lineWidth / 256) * (vdp.getHorizontalScrollHigh() & 0x1F);
@@ -486,7 +490,7 @@ void SDLRasterizer<Pixel>::drawDisplay(
 	}();
 	// Because SDL blits do not wrap, unlike GL textures, the pageBorder is
 	// also used if multi page is disabled.
-	int pageSplit = lineWidth - hScroll;
+	int pageSplit = narrow<int>(lineWidth - hScroll);
 	if (pageSplit < pageBorder) {
 		pageBorder = pageSplit;
 	}
@@ -500,23 +504,23 @@ void SDLRasterizer<Pixel>::drawDisplay(
 			//   but now do it per line. Per-line is actually only
 			//   needed when vdp.isFastBlinkEnabled() is true.
 			//   Idea: can be cheaply calculated incrementally.
-			int pageMaskOdd = (mode.isPlanar() ? 0x000 : 0x200) |
+			unsigned pageMaskOdd = (mode.isPlanar() ? 0x000 : 0x200) |
 				vdp.getEvenOddMask(y);
-			int pageMaskEven = vdp.isMultiPageScrolling()
+			unsigned pageMaskEven = vdp.isMultiPageScrolling()
 				? (pageMaskOdd & ~0x100)
 				: pageMaskOdd;
-			const std::array<int, 2> vramLine = {
+			const std::array<unsigned, 2> vramLine = {
 				(vram.nameTable.getMask() >> 7) & (pageMaskEven | displayY),
 				(vram.nameTable.getMask() >> 7) & (pageMaskOdd  | displayY)
 			};
 
 			std::array<Pixel, 512> buf;
-			int lineInBuf = -1; // buffer data not valid
+			auto lineInBuf = unsigned(-1); // buffer data not valid
 			auto dst = workFrame->getLineDirect<Pixel>(y).subspan(leftBackground + displayX);
 			int firstPageWidth = pageBorder - displayX;
 			if (firstPageWidth > 0) {
 				if (((displayX + hScroll) == 0) &&
-				    (firstPageWidth == lineWidth)) {
+				    (firstPageWidth == narrow<int>(lineWidth))) {
 					// fast-path, directly render to destination
 					renderBitmapLine(dst, vramLine[scrollPage1]);
 				} else {
@@ -546,7 +550,7 @@ void SDLRasterizer<Pixel>::drawDisplay(
 			assert(!vdp.isMSX1VDP() || displayY < 192);
 
 			auto dst = workFrame->getLineDirect<Pixel>(y).subspan(leftBackground + displayX);
-			if ((displayX == 0) && (displayWidth == lineWidth)){
+			if ((displayX == 0) && (displayWidth == narrow<int>(lineWidth))){
 				characterConverter.convertLine(dst, displayY);
 			} else {
 				std::array<Pixel, 512> buf;

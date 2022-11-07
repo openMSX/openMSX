@@ -65,13 +65,13 @@ void DummyRenderer::updateDisplayEnabled(bool /*enabled*/, EmuTime::param /*time
 void DummyRenderer::updateDisplayMode(DisplayMode /*mode*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateNameBase(int /*addr*/, EmuTime::param /*time*/) {
+void DummyRenderer::updateNameBase(unsigned /*addr*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updatePatternBase(int /*addr*/, EmuTime::param /*time*/) {
+void DummyRenderer::updatePatternBase(unsigned /*addr*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateColorBase(int /*addr*/, EmuTime::param /*time*/) {
+void DummyRenderer::updateColorBase(unsigned /*addr*/, EmuTime::param /*time*/) {
 }
 
 void DummyRenderer::updateSpritesEnabled(bool /*enabled*/, EmuTime::param /*time*/) {

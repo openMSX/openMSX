@@ -33,6 +33,7 @@ TODO:
 #include "Reactor.hh"
 #include "MSXException.hh"
 #include "CliComm.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "serialize_core.hh"
@@ -142,7 +143,7 @@ VDP::VDP(const DeviceConfig& config)
 	int saturation = config.getChildDataAsInt("saturation", defaultSaturation);
 	if (!((0 <= saturation) && (saturation <= 100))) {
 		throw MSXException(
-			"Saturation percentage is not in range 0..100: ", saturationPr);
+			"Saturation percentage is not in range 0..100: ", saturation);
 	}
 	saturationPr = config.getChildDataAsInt("saturationPr", saturation);
 	if (!((0 <= saturationPr) && (saturationPr <= 100))) {
@@ -154,7 +155,7 @@ VDP::VDP(const DeviceConfig& config)
 	if (!((0 <= saturationPb) && (saturationPb <= 100))) {
 		throw MSXException(
 			"Saturation percentage for Pb component is not in range 0..100: ",
-			saturationPr);
+			saturationPb);
 	}
 
 	// Set up control register availability.
@@ -791,7 +792,7 @@ void VDP::scheduleCpuVramAccess(bool isRead, byte write, EmuTime::param time)
 			// 'vramPointer'. We could _only_ _partly_ work around
 			// that by calculating the actual vram address early
 			// (likely not what the real VDP does). But because
-			// allowTooFastAccess is anyway an artifical situation
+			// allowTooFastAccess is anyway an artificial situation
 			// we now solve this in a simpler way: simply not
 			// schedule CPU-VRAM accesses.
 			assert(!pendingCpuAccess);
@@ -1058,7 +1059,7 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 		}
 		break;
 	case 2: {
-		int base = (val << 10) | ~(~0u << 10);
+		unsigned base = (val << 10) | ~(~0u << 10);
 		// TODO:
 		// I reverted this fix.
 		// Although the code is correct, there is also a counterpart in the
@@ -1249,7 +1250,7 @@ void VDP::syncAtNextLine(SyncBase& type, EmuTime::param time)
 
 void VDP::updateNameBase(EmuTime::param time)
 {
-	int base = (controlRegs[2] << 10) | ~(~0u << 10);
+	unsigned base = (controlRegs[2] << 10) | ~(~0u << 10);
 	// TODO:
 	// I reverted this fix.
 	// Although the code is correct, there is also a counterpart in the
@@ -1262,7 +1263,7 @@ void VDP::updateNameBase(EmuTime::param time)
 		base = ((base << 16) | (base >> 1)) & 0x1FFFF;
 	}
 	*/
-	int indexMask =
+	unsigned indexMask =
 		  displayMode.isBitmapMode()
 		? ~0u << 17 // TODO: Calculate actual value; how to handle planar?
 		: ~0u << (displayMode.isTextMode() ? 12 : 10);
@@ -1277,7 +1278,7 @@ void VDP::updateNameBase(EmuTime::param time)
 
 void VDP::updateColorBase(EmuTime::param time)
 {
-	int base = (controlRegs[10] << 14) | (controlRegs[3] << 6) | ~(~0u << 6);
+	unsigned base = (controlRegs[10] << 14) | (controlRegs[3] << 6) | ~(~0u << 6);
 	renderer->updateColorBase(base, time);
 	switch (displayMode.getBase()) {
 	case 0x09: // Text 2.
@@ -1301,7 +1302,7 @@ void VDP::updateColorBase(EmuTime::param time)
 
 void VDP::updatePatternBase(EmuTime::param time)
 {
-	int base = (controlRegs[4] << 11) | ~(~0u << 11);
+	unsigned base = (controlRegs[4] << 11) | ~(~0u << 11);
 	renderer->updatePatternBase(base, time);
 	switch (displayMode.getBase()) {
 	case 0x01: // Text 1.
@@ -1340,11 +1341,11 @@ void VDP::updateSpriteAttributeBase(EmuTime::param time)
 		vram->spriteAttribTable.disable(time);
 		return;
 	}
-	int baseMask = (controlRegs[11] << 15) | (controlRegs[5] << 7) | ~(~0u << 7);
-	int indexMask = mode == 1 ? ~0u << 7 : ~0u << 10;
+	unsigned baseMask = (controlRegs[11] << 15) | (controlRegs[5] << 7) | ~(~0u << 7);
+	unsigned indexMask = mode == 1 ? ~0u << 7 : ~0u << 10;
 	if (displayMode.isPlanar()) {
 		baseMask = ((baseMask << 16) | (baseMask >> 1)) & 0x1FFFF;
-		indexMask = ((unsigned(indexMask) << 16) | ~(1 << 16)) & (indexMask >> 1);
+		indexMask = ((indexMask << 16) | ~(1 << 16)) & (indexMask >> 1);
 	}
 	vram->spriteAttribTable.setMask(baseMask, indexMask, time);
 }
@@ -1355,11 +1356,11 @@ void VDP::updateSpritePatternBase(EmuTime::param time)
 		vram->spritePatternTable.disable(time);
 		return;
 	}
-	int baseMask = (controlRegs[6] << 11) | ~(~0u << 11);
-	int indexMask = ~0u << 11;
+	unsigned baseMask = (controlRegs[6] << 11) | ~(~0u << 11);
+	unsigned indexMask = ~0u << 11;
 	if (displayMode.isPlanar()) {
 		baseMask = ((baseMask << 16) | (baseMask >> 1)) & 0x1FFFF;
-		indexMask = ((unsigned(indexMask) << 16) | ~(1 << 16)) & (indexMask >> 1);
+		indexMask = ((indexMask << 16) | ~(1 << 16)) & (indexMask >> 1);
 	}
 	vram->spritePatternTable.setMask(baseMask, indexMask, time);
 }
@@ -1372,7 +1373,7 @@ void VDP::updateDisplayMode(DisplayMode newMode, bool cmdBit, EmuTime::param tim
 	// TODO: Is this a useful optimisation, or doesn't it help
 	//       in practice?
 	// What aspects have changed:
-	// Switched from planar to nonplanar or vice versa.
+	// Switched from planar to non-planar or vice versa.
 	bool planarChange =
 		newMode.isPlanar() != displayMode.isPlanar();
 	// Sprite mode changed.
@@ -1548,8 +1549,8 @@ std::array<std::array<uint8_t, 3>, 16> VDP::getMSX1Palette() const
 		float Pr = TMS9XXXA_ANALOG_OUTPUT[color][1] - 0.5f;
 		float Pb = TMS9XXXA_ANALOG_OUTPUT[color][2] - 0.5f;
 		// apply the saturation
-		Pr *= (saturationPr / 100.0f);
-		Pb *= (saturationPb / 100.0f);
+		Pr *= (narrow<float>(saturationPr) / 100.0f);
+		Pb *= (narrow<float>(saturationPb) / 100.0f);
 		// convert to RGB as follows:
 		/*
 		  |R|   | 1  0      1.402 |   |Y |
@@ -1569,9 +1570,9 @@ std::array<std::array<uint8_t, 3>, 16> VDP::getMSX1Palette() const
 		//       built on top of uClibc lacks std::round; uClibc does provide
 		//       roundf, but lacks other C99 math functions and that makes
 		//       libstdc++ disable all wrappers for C99 math functions.
-		tmsPalette[color][0] = Math::clipIntToByte(roundf(R));
-		tmsPalette[color][1] = Math::clipIntToByte(roundf(G));
-		tmsPalette[color][2] = Math::clipIntToByte(roundf(B));
+		tmsPalette[color][0] = Math::clipIntToByte(narrow_cast<int>(roundf(R)));
+		tmsPalette[color][1] = Math::clipIntToByte(narrow_cast<int>(roundf(G)));
+		tmsPalette[color][2] = Math::clipIntToByte(narrow_cast<int>(roundf(B)));
 		// std::cerr << color << " " << int(tmsPalette[color][0]) << " " << int(tmsPalette[color][1]) <<" " << int(tmsPalette[color][2]) << '\n';
 	}
 	return tmsPalette;
@@ -1647,7 +1648,7 @@ void VDP::PaletteDebug::write(unsigned address, byte value, EmuTime::param time)
 	// some scripts.
 	if (vdp.isMSX1VDP()) return;
 
-	int index = address / 2;
+	unsigned index = address / 2;
 	word grb = vdp.getPalette(index);
 	grb = (address & 1)
 	    ? (grb & 0x0077) | ((value & 0x07) << 8)

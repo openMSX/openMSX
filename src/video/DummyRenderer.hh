@@ -32,9 +32,9 @@ public:
 	void updateHorizontalAdjust(int adjust, EmuTime::param time) override;
 	void updateDisplayEnabled(bool enabled, EmuTime::param time) override;
 	void updateDisplayMode(DisplayMode mode, EmuTime::param time) override;
-	void updateNameBase(int addr, EmuTime::param time) override;
-	void updatePatternBase(int addr, EmuTime::param time) override;
-	void updateColorBase(int addr, EmuTime::param time) override;
+	void updateNameBase(unsigned addr, EmuTime::param time) override;
+	void updatePatternBase(unsigned addr, EmuTime::param time) override;
+	void updateColorBase(unsigned addr, EmuTime::param time) override;
 	void updateSpritesEnabled(bool enabled, EmuTime::param time) override;
 	void updateVRAM(unsigned offset, EmuTime::param time) override;
 	void updateWindow(bool enabled, EmuTime::param time) override;

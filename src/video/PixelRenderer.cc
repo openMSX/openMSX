@@ -379,19 +379,19 @@ void PixelRenderer::updateDisplayMode(
 }
 
 void PixelRenderer::updateNameBase(
-	int /*addr*/, EmuTime::param time)
+	unsigned /*addr*/, EmuTime::param time)
 {
 	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updatePatternBase(
-	int /*addr*/, EmuTime::param time)
+	unsigned /*addr*/, EmuTime::param time)
 {
 	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updateColorBase(
-	int /*addr*/, EmuTime::param time)
+	unsigned /*addr*/, EmuTime::param time)
 {
 	if (displayEnabled) sync(time);
 }
@@ -421,7 +421,7 @@ static constexpr bool overlap(
 	return false;
 }
 
-inline bool PixelRenderer::checkSync(int offset, EmuTime::param time)
+inline bool PixelRenderer::checkSync(unsigned offset, EmuTime::param time)
 {
 	// TODO: Because range is entire VRAM, offset == address.
 
@@ -444,8 +444,8 @@ inline bool PixelRenderer::checkSync(int offset, EmuTime::param time)
 	case DisplayMode::GRAPHIC2:
 	case DisplayMode::GRAPHIC3:
 		if (vram.colorTable.isInside(offset)) {
-			int vramQuarter = (offset & 0x1800) >> 11;
-			int mask = (vram.colorTable.getMask() & 0x1800) >> 11;
+			unsigned vramQuarter = (offset & 0x1800) >> 11;
+			unsigned mask = (vram.colorTable.getMask() & 0x1800) >> 11;
 			for (auto i : xrange(4)) {
 				if ((i & mask) == vramQuarter
 				&& overlap(displayY0, displayY1, i * 64, (i + 1) * 64)) {
@@ -458,8 +458,8 @@ inline bool PixelRenderer::checkSync(int offset, EmuTime::param time)
 			}
 		}
 		if (vram.patternTable.isInside(offset)) {
-			int vramQuarter = (offset & 0x1800) >> 11;
-			int mask = (vram.patternTable.getMask() & 0x1800) >> 11;
+			unsigned vramQuarter = (offset & 0x1800) >> 11;
+			unsigned mask = (vram.patternTable.getMask() & 0x1800) >> 11;
 			for (auto i : xrange(4)) {
 				if ((i & mask) == vramQuarter
 				&& overlap(displayY0, displayY1, i * 64, (i + 1) * 64)) {
@@ -490,7 +490,7 @@ inline bool PixelRenderer::checkSync(int offset, EmuTime::param time)
 		}
 		// Is the address inside the visual page(s)?
 		// TODO: Also look at which lines are touched inside pages.
-		int visiblePage = vram.nameTable.getMask()
+		unsigned visiblePage = vram.nameTable.getMask()
 			& (0x10000 | (vdp.getEvenOddMask() << 7));
 		if (vdp.isMultiPageScrolling()) {
 			return (offset & 0x18000) == visiblePage
