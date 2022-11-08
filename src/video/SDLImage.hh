@@ -3,6 +3,7 @@
 
 #include "BaseImage.hh"
 #include "SDLSurfacePtr.hh"
+#include <cstdint>
 #include <span>
 #include <string>
 
@@ -15,9 +16,9 @@ public:
 	SDLImage(OutputSurface& output, SDLSurfacePtr image);
 	SDLImage(OutputSurface& output, const std::string& filename, float scaleFactor);
 	SDLImage(OutputSurface& output, const std::string& filename, gl::ivec2 size);
-	SDLImage(OutputSurface& output, gl::ivec2 size, unsigned rgba);
-	SDLImage(OutputSurface& output, gl::ivec2 size, std::span<const unsigned, 4> rgba,
-	         unsigned borderSize, unsigned borderRGBA);
+	SDLImage(OutputSurface& output, gl::ivec2 size, uint32_t rgba);
+	SDLImage(OutputSurface& output, gl::ivec2 size, std::span<const uint32_t, 4> rgba,
+	         int borderSize, uint32_t borderRGBA);
 
 	void draw(OutputSurface& output, gl::ivec2 pos,
 	          uint8_t r, uint8_t g, uint8_t b, uint8_t alpha) override;
@@ -25,10 +26,10 @@ public:
 private:
 	[[nodiscard]] SDLTexturePtr toTexture(OutputSurface& output, SDL_Surface& surface);
 	[[nodiscard]] SDLTexturePtr loadImage(OutputSurface& output, const std::string& filename);
-	void initSolid(OutputSurface& output, gl::ivec2 size, unsigned rgba,
-	               unsigned borderSize, unsigned borderRGBA);
-	void initGradient(OutputSurface& output, gl::ivec2 size, std::span<const unsigned, 4> rgba,
-	                  unsigned borderSize, unsigned borderRGBA);
+	void initSolid(OutputSurface& output, gl::ivec2 size, uint32_t rgba,
+	               int borderSize, uint32_t borderRGBA);
+	void initGradient(OutputSurface& output, gl::ivec2 size, std::span<const uint32_t, 4> rgba,
+	                  int borderSize, uint32_t borderRGBA);
 
 private:
 	SDLTexturePtr texture; // can be nullptr

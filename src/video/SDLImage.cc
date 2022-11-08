@@ -47,24 +47,24 @@ static SDLSurfacePtr getTempSurface(ivec2 size_)
 //  Note the order R,G,B,A is arbitrary, the actual pixel value may have the
 //  components in a different order.
 struct UnpackedRGBA {
-	unsigned r, g, b, a;
+	uint32_t r, g, b, a;
 };
-static constexpr UnpackedRGBA unpackRGBA(unsigned rgba)
+static constexpr UnpackedRGBA unpackRGBA(uint32_t rgba)
 {
-	unsigned r = (((rgba >> 24) & 0xFF) << 16) + 0x8000;
-	unsigned g = (((rgba >> 16) & 0xFF) << 16) + 0x8000;
-	unsigned b = (((rgba >>  8) & 0xFF) << 16) + 0x8000;
-	unsigned a = (((rgba >>  0) & 0xFF) << 16) + 0x8000;
+	uint32_t r = (((rgba >> 24) & 0xFF) << 16) + 0x8000;
+	uint32_t g = (((rgba >> 16) & 0xFF) << 16) + 0x8000;
+	uint32_t b = (((rgba >>  8) & 0xFF) << 16) + 0x8000;
+	uint32_t a = (((rgba >>  0) & 0xFF) << 16) + 0x8000;
 	return {r, g, b, a};
 }
 // Setup outer loop (vertical) interpolation parameters.
 //  For each component there is a pair of (initial,delta) values. These values
 //  are 8.16 bit fixed point, delta is signed.
 struct Interp1Result {
-	unsigned r0, g0, b0, a0;
-	int dr, dg, db, da;
+	uint32_t r0, g0, b0, a0;
+	int32_t dr, dg, db, da;
 };
-static constexpr Interp1Result setupInterp1(unsigned rgba0, unsigned rgba1, unsigned length)
+static constexpr Interp1Result setupInterp1(uint32_t rgba0, uint32_t rgba1, unsigned length)
 {
 	auto [r0, g0, b0, a0] = unpackRGBA(rgba0);
 	if (length == 1) {
@@ -72,10 +72,10 @@ static constexpr Interp1Result setupInterp1(unsigned rgba0, unsigned rgba1, unsi
 		        0,  0,  0,  0};
 	} else {
 		auto [r1, g1, b1, a1] = unpackRGBA(rgba1);
-		int dr = int(r1 - r0) / int(length - 1);
-		int dg = int(g1 - g0) / int(length - 1);
-		int db = int(b1 - b0) / int(length - 1);
-		int da = int(a1 - a0) / int(length - 1);
+		int32_t dr = int32_t(r1 - r0) / int32_t(length - 1);
+		int32_t dg = int32_t(g1 - g0) / int32_t(length - 1);
+		int32_t db = int32_t(b1 - b0) / int32_t(length - 1);
+		int32_t da = int32_t(a1 - a0) / int32_t(length - 1);
 		return {r0, g0, b0, a0,
 		        dr, dg, db, da};
 	}
@@ -96,20 +96,20 @@ static constexpr Interp1Result setupInterp1(unsigned rgba0, unsigned rgba1, unsi
 //   that are calculated by setupInterp1(). (It would also make the code even
 //   more complex).
 struct Interp2Result {
-	unsigned rb, ga;
-	unsigned drb, dga;
+	uint32_t rb, ga;
+	uint32_t drb, dga;
 	bool subRB, subGA;
 };
 static constexpr Interp2Result setupInterp2(
-	unsigned r0, unsigned g0, unsigned b0, unsigned a0,
-	unsigned r1, unsigned g1, unsigned b1, unsigned a1,
+	uint32_t r0, uint32_t g0, uint32_t b0, uint32_t a0,
+	uint32_t r1, uint32_t g1, uint32_t b1, uint32_t a1,
 	unsigned length)
 {
 	// Pack the initial values for the components R,B and G,A into
 	// a vector-type: two 8.16 scalars -> one [8.8 ; 8.8] vector
-	unsigned rb = ((r0 << 8) & 0xffff0000) |
+	uint32_t rb = ((r0 << 8) & 0xffff0000) |
 	              ((b0 >> 8) & 0x0000ffff);
-	unsigned ga = ((g0 << 8) & 0xffff0000) |
+	uint32_t ga = ((g0 << 8) & 0xffff0000) |
 	              ((a0 >> 8) & 0x0000ffff);
 	if (length == 1) {
 		return {rb, ga, 0, 0, false, false};
@@ -117,10 +117,10 @@ static constexpr Interp2Result setupInterp2(
 		// calculate delta values
 		bool subRB = false;
 		bool subGA = false;
-		int dr = int(r1 - r0) / int(length - 1);
-		int dg = int(g1 - g0) / int(length - 1);
-		int db = int(b1 - b0) / int(length - 1);
-		int da = int(a1 - a0) / int(length - 1);
+		int32_t dr = int32_t(r1 - r0) / int32_t(length - 1);
+		int32_t dg = int32_t(g1 - g0) / int32_t(length - 1);
+		int32_t db = int32_t(b1 - b0) / int32_t(length - 1);
+		int32_t da = int32_t(a1 - a0) / int32_t(length - 1);
 		if (db < 0) { // make sure db is positive
 			dr = -dr;
 			db = -db;
@@ -132,15 +132,15 @@ static constexpr Interp2Result setupInterp2(
 			subGA = true;
 		}
 		// also pack two 8.16 delta values in one [8.8 ; 8.8] vector
-		unsigned drb = ((unsigned(dr) << 8) & 0xffff0000) |
-		               ((unsigned(db) >> 8) & 0x0000ffff);
-		unsigned dga = ((unsigned(dg) << 8) & 0xffff0000) |
-		               ((unsigned(da) >> 8) & 0x0000ffff);
+		uint32_t drb = ((uint32_t(dr) << 8) & 0xffff0000) |
+		               ((uint32_t(db) >> 8) & 0x0000ffff);
+		uint32_t dga = ((uint32_t(dg) << 8) & 0xffff0000) |
+		               ((uint32_t(da) >> 8) & 0x0000ffff);
 		return {rb, ga, drb, dga, subRB, subGA};
 	}
 }
 // Pack two [8.8 ; 8.8] vectors into one pixel.
-static constexpr unsigned packRGBA(unsigned rb, unsigned ga)
+static constexpr uint32_t packRGBA(uint32_t rb, uint32_t ga)
 {
 	return (rb & 0xff00ff00) | ((ga & 0xff00ff00) >> 8);
 }
@@ -150,7 +150,7 @@ static constexpr unsigned packRGBA(unsigned rb, unsigned ga)
 //    0 -- 1
 //    |    |
 //    2 -- 3
-static constexpr void gradient(std::span<const unsigned, 4> rgba, SDL_Surface& surface, unsigned borderSize)
+static constexpr void gradient(std::span<const uint32_t, 4> rgba, SDL_Surface& surface, int borderSize)
 {
 	int width  = surface.w - 2 * borderSize;
 	int height = surface.h - 2 * borderSize;
@@ -159,9 +159,9 @@ static constexpr void gradient(std::span<const unsigned, 4> rgba, SDL_Surface& s
 	auto [r0, g0, b0, a0, dr02, dg02, db02, da02] = setupInterp1(rgba[0], rgba[2], height);
 	auto [r1, g1, b1, a1, dr13, dg13, db13, da13] = setupInterp1(rgba[1], rgba[3], height);
 
-	auto* buffer = static_cast<unsigned*>(surface.pixels);
+	auto* buffer = static_cast<uint32_t*>(surface.pixels);
 	buffer += borderSize;
-	buffer += borderSize * (surface.pitch / sizeof(unsigned));
+	buffer += borderSize * (surface.pitch / sizeof(uint32_t));
 	repeat(height, [&, r0=r0, g0=g0, b0=b0, a0=a0, dr02=dr02, dg02=dg02, db02=db02, da02=da02,
 	                   r1=r1, g1=g1, b1=b1, a1=a1, dr13=dr13, dg13=dg13, db13=db13, da13=da13] () mutable {
 		auto [rb,  ga, drb, dga, subRB, subGA] = setupInterp2(r0, g0, b0, a0, r1, g1, b1, a1, width);
@@ -197,7 +197,7 @@ static constexpr void gradient(std::span<const unsigned, 4> rgba, SDL_Surface& s
 
 		r0 += dr02; g0 += dg02; b0 += db02; a0 += da02;
 		r1 += dr13; g1 += dg13; b1 += db13; a1 += da13;
-		buffer += (surface.pitch / sizeof(unsigned));
+		buffer += (surface.pitch / sizeof(uint32_t));
 	});
 }
 
@@ -226,15 +226,15 @@ SDLImage::SDLImage(OutputSurface& output, const std::string& filename, ivec2 siz
 	size = size_; // replace image size
 }
 
-SDLImage::SDLImage(OutputSurface& output, ivec2 size_, unsigned rgba)
+SDLImage::SDLImage(OutputSurface& output, ivec2 size_, uint32_t rgba)
 	: flipX(size_[0] < 0), flipY(size_[1] < 0)
 {
 	initSolid(output, size_, rgba, 0, 0); // no border
 }
 
 
-SDLImage::SDLImage(OutputSurface& output, ivec2 size_, std::span<const unsigned, 4> rgba,
-                   unsigned borderSize, unsigned borderRGBA)
+SDLImage::SDLImage(OutputSurface& output, ivec2 size_, std::span<const uint32_t, 4> rgba,
+                   int borderSize, uint32_t borderRGBA)
 	: flipX(size_[0] < 0), flipY(size_[1] < 0)
 {
 	if ((rgba[0] == rgba[1]) &&
@@ -268,7 +268,7 @@ SDLTexturePtr SDLImage::loadImage(OutputSurface& output, const std::string& file
 }
 
 
-static unsigned convertColor(const SDL_PixelFormat& format, unsigned rgba)
+static uint32_t convertColor(const SDL_PixelFormat& format, uint32_t rgba)
 {
 	return SDL_MapRGBA(
 		&format,
@@ -278,11 +278,11 @@ static unsigned convertColor(const SDL_PixelFormat& format, unsigned rgba)
 		(rgba >>  0) & 0xff);
 }
 
-static void drawBorder(SDL_Surface& image, int size, unsigned rgba)
+static void drawBorder(SDL_Surface& image, int size, uint32_t rgba)
 {
 	if (size <= 0) return;
 
-	unsigned color = convertColor(*image.format, rgba);
+	uint32_t color = convertColor(*image.format, rgba);
 	bool onlyBorder = ((2 * size) >= image.w) ||
 	                  ((2 * size) >= image.h);
 	if (onlyBorder) {
@@ -317,8 +317,8 @@ static void drawBorder(SDL_Surface& image, int size, unsigned rgba)
 	}
 }
 
-void SDLImage::initSolid(OutputSurface& output, ivec2 size_, unsigned rgba,
-                         unsigned borderSize, unsigned borderRGBA)
+void SDLImage::initSolid(OutputSurface& output, ivec2 size_, uint32_t rgba,
+                         int borderSize, uint32_t borderRGBA)
 {
 	checkSize(size_);
 	if ((size_[0] == 0) || (size_[1] == 0)) {
@@ -336,15 +336,15 @@ void SDLImage::initSolid(OutputSurface& output, ivec2 size_, unsigned rgba,
 	texture = toTexture(output, *tmp32);
 }
 
-void SDLImage::initGradient(OutputSurface& output, ivec2 size_, std::span<const unsigned, 4> rgba_,
-                            unsigned borderSize, unsigned borderRGBA)
+void SDLImage::initGradient(OutputSurface& output, ivec2 size_, std::span<const uint32_t, 4> rgba_,
+                            int borderSize, uint32_t borderRGBA)
 {
 	checkSize(size_);
 	if ((size_[0] == 0) || (size_[1] == 0)) {
 		return;
 	}
 
-	std::array<unsigned, 4> rgba;
+	std::array<uint32_t, 4> rgba;
 	ranges::copy(rgba_, rgba);
 
 	if (flipX) {

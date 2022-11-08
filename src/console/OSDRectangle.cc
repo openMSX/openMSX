@@ -8,6 +8,7 @@
 #include "components.hh"
 #include <cassert>
 #include <cmath>
+#include <cstdint>
 #include <memory>
 #if COMPONENT_GL
 #include "GLImage.hh"
@@ -82,7 +83,7 @@ void OSDRectangle::setProperty(
 			invalidateLocal();
 		}
 	} else if (propName == "-borderrgba") {
-		unsigned newRGBA = value.getInt(interp);
+		uint32_t newRGBA = value.getInt(interp);
 		if (borderRGBA != newRGBA) {
 			borderRGBA = newRGBA;
 			invalidateLocal();

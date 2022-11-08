@@ -27,8 +27,8 @@ struct Context
 	//  textures:
 	//    the to be applied texture must be bound to the 1st texture unit
 	ShaderProgram progTex;
-	GLuint unifTexColor;
-	GLuint unifTexMvp;
+	GLint unifTexColor;
+	GLint unifTexMvp;
 
 	// Simple color-fill program. It expects
 	//  uniforms:
@@ -37,7 +37,7 @@ struct Context
 	//    0: 4D vertex positions, get multiplied by Model-View-Projection-matrix
 	//    1: 4D vertex color
 	ShaderProgram progFill;
-	GLuint unifFillMvp;
+	GLint unifFillMvp;
 
 	// Model-View-Projection-matrix that maps integer vertex positions to host
 	// display pixel positions. (0,0) is the top-left pixel, (width-1,height-1) is

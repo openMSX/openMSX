@@ -4,6 +4,7 @@
 #include "MSXException.hh"
 #include "Math.hh"
 #include "PNG.hh"
+#include "narrow.hh"
 #include "xrange.hh"
 #include "endian.hh"
 #include <cstdint>
@@ -58,10 +59,10 @@ GLImage::GLImage(OutputSurface& /*output*/, const std::string& filename)
 {
 }
 
-GLImage::GLImage(OutputSurface& /*output*/, const std::string& filename, float scalefactor)
+GLImage::GLImage(OutputSurface& /*output*/, const std::string& filename, float scaleFactor)
 	: texture(loadTexture(filename, size))
 {
-	size = trunc(vec2(size) * scalefactor);
+	size = trunc(vec2(size) * scaleFactor);
 	checkSize(size);
 }
 
@@ -72,7 +73,7 @@ GLImage::GLImage(OutputSurface& /*output*/, const std::string& filename, ivec2 s
 	size = size_;
 }
 
-GLImage::GLImage(OutputSurface& /*output*/, ivec2 size_, unsigned rgba)
+GLImage::GLImage(OutputSurface& /*output*/, ivec2 size_, uint32_t rgba)
 	: texture(gl::Null())
 {
 	checkSize(size_);
@@ -83,14 +84,14 @@ GLImage::GLImage(OutputSurface& /*output*/, ivec2 size_, unsigned rgba)
 		bgR[i] = (rgba >> 24) & 0xff;
 		bgG[i] = (rgba >> 16) & 0xff;
 		bgB[i] = (rgba >>  8) & 0xff;
-		unsigned alpha = (rgba >> 0) & 0xff;
+		auto alpha = (rgba >> 0) & 0xff;
 		bgA[i] = (alpha == 255) ? 256 : alpha;
 	}
 	initBuffers();
 }
 
-GLImage::GLImage(OutputSurface& /*output*/, ivec2 size_, std::span<const unsigned, 4> rgba,
-                 int borderSize_, unsigned borderRGBA)
+GLImage::GLImage(OutputSurface& /*output*/, ivec2 size_, std::span<const uint32_t, 4> rgba,
+                 int borderSize_, uint32_t borderRGBA)
 	: texture(gl::Null())
 {
 	checkSize(size_);
@@ -100,14 +101,14 @@ GLImage::GLImage(OutputSurface& /*output*/, ivec2 size_, std::span<const unsigne
 		bgR[i] = (rgba[i] >> 24) & 0xff;
 		bgG[i] = (rgba[i] >> 16) & 0xff;
 		bgB[i] = (rgba[i] >>  8) & 0xff;
-		unsigned alpha = (rgba[i] >> 0) & 0xff;
+		auto alpha = (rgba[i] >> 0) & 0xff;
 		bgA[i] = (alpha == 255) ? 256 : alpha;
 	}
 
 	borderR = (borderRGBA >> 24) & 0xff;
 	borderG = (borderRGBA >> 16) & 0xff;
 	borderB = (borderRGBA >>  8) & 0xff;
-	unsigned alpha = (borderRGBA >> 0) & 0xff;
+	auto alpha = (borderRGBA >> 0) & 0xff;
 	borderA = (alpha == 255) ? 256 : alpha;
 
 	initBuffers();
@@ -156,6 +157,7 @@ void GLImage::draw(OutputSurface& /*output*/, ivec2 pos, uint8_t r, uint8_t g, u
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[0].get());
 	glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions.data(), GL_STREAM_DRAW);
 
+	auto& glContext = *gl::context;
 	if (texture.get()) {
 		std::array<vec2, 4> tex = {
 			vec2(0.0f, 0.0f),
@@ -164,11 +166,14 @@ void GLImage::draw(OutputSurface& /*output*/, ivec2 pos, uint8_t r, uint8_t g, u
 			vec2(1.0f, 0.0f),
 		};
 
-		gl::context->progTex.activate();
-		glUniform4f(gl::context->unifTexColor,
-		            r / 255.0f, g / 255.0f, b / 255.0f, alpha / 255.0f);
-		glUniformMatrix4fv(gl::context->unifTexMvp, 1, GL_FALSE,
-		                   &gl::context->pixelMvp[0][0]);
+		glContext.progTex.activate();
+		glUniform4f(glContext.unifTexColor,
+		            narrow<float>(r) / 255.0f,
+			    narrow<float>(g) / 255.0f,
+			    narrow<float>(b) / 255.0f,
+			    narrow<float>(alpha) / 255.0f);
+		glUniformMatrix4fv(glContext.unifTexMvp, 1, GL_FALSE,
+		                   &glContext.pixelMvp[0][0]);
 		const ivec2* offset = nullptr;
 		glVertexAttribPointer(0, 2, GL_INT, GL_FALSE, 0, offset + 4);
 		glEnableVertexAttribArray(0);
@@ -184,13 +189,16 @@ void GLImage::draw(OutputSurface& /*output*/, ivec2 pos, uint8_t r, uint8_t g, u
 		assert(r == 255);
 		assert(g == 255);
 		assert(b == 255);
-		gl::context->progFill.activate();
-		glUniformMatrix4fv(gl::context->unifFillMvp, 1, GL_FALSE,
-		                   &gl::context->pixelMvp[0][0]);
+		glContext.progFill.activate();
+		glUniformMatrix4fv(glContext.unifFillMvp, 1, GL_FALSE,
+		                   &glContext.pixelMvp[0][0]);
 		glVertexAttribPointer(0, 2, GL_INT, GL_FALSE, 0, nullptr);
 		glEnableVertexAttribArray(0);
-		glVertexAttrib4f(1, borderR / 255.0f, borderG / 255.0f, borderB / 255.0f,
-		                (borderA * alpha) / (255.0f * 255.0f));
+		glVertexAttrib4f(1,
+		                 narrow<float>(borderR) / 255.0f,
+		                 narrow<float>(borderG) / 255.0f,
+		                 narrow<float>(borderB) / 255.0f,
+		                 narrow<float>(borderA * alpha) / (255.0f * 255.0f));
 
 		if ((2 * borderSize >= abs(size[0])) ||
 		    (2 * borderSize >= abs(size[1]))) {
