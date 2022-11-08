@@ -8,6 +8,7 @@
 #include "StringSetting.hh"
 #include "Observer.hh"
 #include "gl_mat.hh"
+#include "narrow.hh"
 
 namespace openmsx {
 
@@ -69,15 +70,15 @@ public:
 
 	/** The amount of gamma correction. */
 	[[nodiscard]] FloatSetting& getGammaSetting() { return gammaSetting; }
-	[[nodiscard]] float getGamma() const { return gammaSetting.getDouble(); }
+	[[nodiscard]] float getGamma() const { return gammaSetting.getFloat(); }
 
 	/** Brightness video setting. */
 	[[nodiscard]] FloatSetting& getBrightnessSetting() { return brightnessSetting; }
-	[[nodiscard]] float getBrightness() const { return brightnessSetting.getDouble(); }
+	[[nodiscard]] float getBrightness() const { return brightnessSetting.getFloat(); }
 
 	/** Contrast video setting. */
 	[[nodiscard]] FloatSetting& getContrastSetting() { return contrastSetting; }
-	[[nodiscard]] float getContrast() const { return contrastSetting.getDouble(); }
+	[[nodiscard]] float getContrast() const { return contrastSetting.getFloat(); }
 
 	/** Color matrix setting. */
 	[[nodiscard]] StringSetting& getColorMatrixSetting() { return colorMatrixSetting; }
@@ -89,7 +90,7 @@ public:
 
 	/** The amount of noise to add to the frame. */
 	[[nodiscard]] FloatSetting& getNoiseSetting() { return noiseSetting; }
-	[[nodiscard]] float getNoise() const { return noiseSetting.getDouble(); }
+	[[nodiscard]] float getNoise() const { return noiseSetting.getFloat(); }
 
 	/** The amount of horizontal blur [0..256]. */
 	[[nodiscard]] int getBlurFactor() const {
@@ -103,7 +104,7 @@ public:
 
 	/** The amount of space [0..1] between scanlines. */
 	[[nodiscard]] float getScanlineGap() const {
-		return scanlineAlphaSetting.getInt() * 0.01f;
+		return narrow<float>(scanlineAlphaSetting.getInt()) * 0.01f;
 	}
 
 	/** The current renderer. */
@@ -155,7 +156,7 @@ public:
 		return horizontalStretchSetting;
 	}
 	[[nodiscard]] float getHorizontalStretch() const {
-		return horizontalStretchSetting.getDouble();
+		return horizontalStretchSetting.getFloat();
 	}
 
 	/** The amount of time until the pointer is hidden in the openMSX
@@ -164,7 +165,7 @@ public:
 		return pointerHideDelaySetting;
 	}
 	[[nodiscard]] float getPointerHideDelay() const {
-		return pointerHideDelaySetting.getDouble();
+		return pointerHideDelaySetting.getFloat();
 	}
 
 	/** Is black frame interleaving enabled? */

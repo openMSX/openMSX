@@ -69,7 +69,7 @@ PostProcessor::~PostProcessor()
 {
 	if (recorder) {
 		getCliComm().printWarning(
-			"Videorecording stopped, because you "
+			"Video recording stopped, because you "
 			"changed machine or changed a video setting "
 			"during recording.");
 		recorder->stop();

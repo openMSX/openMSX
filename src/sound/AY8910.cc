@@ -154,21 +154,21 @@ inline void AY8910::ToneGenerator::reset()
 int AY8910::ToneGenerator::getDetune(AY8910& ay8910)
 {
 	int result = 0;
-	float vibPerc = ay8910.vibratoPercent.getDouble();
+	float vibPerc = ay8910.vibratoPercent.getFloat();
 	if (vibPerc != 0.0f) {
 		int vibratoPeriod = int(
 			NATIVE_FREQ_FLOAT /
-			float(ay8910.vibratoFrequency.getDouble()));
+			ay8910.vibratoFrequency.getFloat());
 		vibratoCount += period;
 		vibratoCount %= vibratoPeriod;
 		result += int(
 			sinf((float(2 * Math::pi) * vibratoCount) / vibratoPeriod)
 			* vibPerc * 0.01f * period);
 	}
-	float detunePerc = ay8910.detunePercent.getDouble();
+	float detunePerc = ay8910.detunePercent.getFloat();
 	if (detunePerc != 0.0f) {
 		float detunePeriod = NATIVE_FREQ_FLOAT /
-			float(ay8910.detuneFrequency.getDouble());
+			ay8910.detuneFrequency.getFloat();
 		detuneCount += period;
 		float noiseIdx = detuneCount / detunePeriod;
 		float detuneNoise = noiseValue(       noiseIdx)
@@ -963,8 +963,8 @@ float AY8910::getAmplificationFactorImpl() const
 void AY8910::update(const Setting& setting) noexcept
 {
 	if (&setting == one_of(&vibratoPercent, &detunePercent)) {
-		doDetune = (vibratoPercent.getDouble() != 0) ||
-			   (detunePercent .getDouble() != 0);
+		doDetune = (vibratoPercent.getFloat() != 0.0f) ||
+			   (detunePercent .getFloat() != 0.0f);
 		if (doDetune && !detuneInitialized) {
 			detuneInitialized = true;
 			initDetune();

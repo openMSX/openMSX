@@ -210,11 +210,12 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 				vec2(x1, 1), vec2(x1, 0), vec2(x2, 0), vec2(x2, 1)
 			};
 
-			gl::context->progTex.activate();
-			glUniform4f(gl::context->unifTexColor,
+			auto& glContext = *gl::context;
+			glContext.progTex.activate();
+			glUniform4f(glContext.unifTexColor,
 			            1.0f, 1.0f, 1.0f, 1.0f);
 			mat4 I;
-			glUniformMatrix4fv(gl::context->unifTexMvp,
+			glUniformMatrix4fv(glContext.unifTexMvp,
 			                   1, GL_FALSE, &I[0][0]);
 
 			glBindBuffer(GL_ARRAY_BUFFER, vbo.get());
@@ -257,9 +258,9 @@ void GLPostProcessor::update(const Setting& setting) noexcept
 	auto& noiseSetting = renderSettings.getNoiseSetting();
 	auto& horizontalStretch = renderSettings.getHorizontalStretchSetting();
 	if (&setting == &noiseSetting) {
-		preCalcNoise(noiseSetting.getDouble());
+		preCalcNoise(noiseSetting.getFloat());
 	} else if (&setting == &horizontalStretch) {
-		preCalcMonitor3D(horizontalStretch.getDouble());
+		preCalcMonitor3D(horizontalStretch.getFloat());
 	}
 }
 
@@ -271,16 +272,16 @@ void GLPostProcessor::uploadFrame()
 	for (auto& r : regions) {
 		// upload data
 		// TODO get before/after data from scaler
-		unsigned before = 1;
+		int before = 1;
 		unsigned after  = 1;
-		uploadBlock(std::max<int>(0,         r.srcStartY - before),
-		            std::min<int>(srcHeight, r.srcEndY   + after),
+		uploadBlock(narrow<unsigned>(std::max(0, narrow<int>(r.srcStartY) - before)),
+		            std::min(srcHeight, r.srcEndY + after),
 		            r.lineWidth);
 	}
 
 	if (superImposeVideoFrame) {
-		int w = superImposeVideoFrame->getWidth();
-		int h = superImposeVideoFrame->getHeight();
+		int w = narrow<GLsizei>(superImposeVideoFrame->getWidth());
+		int h = narrow<GLsizei>(superImposeVideoFrame->getHeight());
 		if (superImposeTex.getWidth()  != w ||
 		    superImposeTex.getHeight() != h) {
 			superImposeTex.resize(w, h);
@@ -308,7 +309,8 @@ void GLPostProcessor::uploadBlock(
 	if (it == end(textures)) {
 		TextureData textureData;
 
-		textureData.tex.resize(lineWidth, height * 2); // *2 for interlace
+		textureData.tex.resize(narrow<GLsizei>(lineWidth),
+		                       narrow<GLsizei>(height * 2)); // *2 for interlace
 		textureData.pbo.setImage(lineWidth, height * 2);
 		textures.push_back(std::move(textureData));
 		it = end(textures) - 1;
@@ -339,15 +341,15 @@ void GLPostProcessor::uploadBlock(
 	}
 #endif
 	glTexSubImage2D(
-		GL_TEXTURE_2D,       // target
-		0,                   // level
-		0,                   // offset x
-		srcStartY,           // offset y
-		lineWidth,           // width
-		srcEndY - srcStartY, // height
-		GL_RGBA,             // format
-		GL_UNSIGNED_BYTE,    // type
-		pbo.getOffset(0, srcStartY)); // data
+		GL_TEXTURE_2D,                      // target
+		0,                                  // level
+		0,                                  // offset x
+		narrow<GLint>(srcStartY),           // offset y
+		narrow<GLint>(lineWidth),           // width
+		narrow<GLint>(srcEndY - srcStartY), // height
+		GL_RGBA,                            // format
+		GL_UNSIGNED_BYTE,                   // type
+		pbo.getOffset(0, srcStartY));       // data
 	pbo.unbind();
 
 	// possibly upload scaler specific data
@@ -360,14 +362,15 @@ void GLPostProcessor::drawGlow(int glow)
 {
 	if ((glow == 0) || !storedFrame) return;
 
-	gl::context->progTex.activate();
+	auto& glContext = *gl::context;
+	glContext.progTex.activate();
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	colorTex[(frameCounter & 1) ^ 1].bind();
-	glUniform4f(gl::context->unifTexColor,
-	            1.0f, 1.0f, 1.0f, glow * 31 / 3200.0f);
+	glUniform4f(glContext.unifTexColor,
+	            1.0f, 1.0f, 1.0f, narrow<float>(glow) * 31.0f / 3200.0f);
 	mat4 I;
-	glUniformMatrix4fv(gl::context->unifTexMvp, 1, GL_FALSE, &I[0][0]);
+	glUniformMatrix4fv(glContext.unifTexMvp, 1, GL_FALSE, &I[0][0]);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo.get());
 
@@ -389,15 +392,15 @@ void GLPostProcessor::drawGlow(int glow)
 
 void GLPostProcessor::preCalcNoise(float factor)
 {
-	std::array<GLbyte, 256 * 256> buf1;
-	std::array<GLbyte, 256 * 256> buf2;
+	std::array<uint8_t, 256 * 256> buf1;
+	std::array<uint8_t, 256 * 256> buf2;
 	auto& generator = global_urng(); // fast (non-cryptographic) random numbers
 	std::normal_distribution<float> distribution(0.0f, 1.0f);
 	for (auto i : xrange(256 * 256)) {
 		float r = distribution(generator);
 		int s = std::clamp(int(roundf(r * factor)), -255, 255);
-		buf1[i] = (s > 0) ?  s : 0;
-		buf2[i] = (s < 0) ? -s : 0;
+		buf1[i] = narrow<uint8_t>((s > 0) ?  s : 0);
+		buf2[i] = narrow<uint8_t>((s < 0) ? -s : 0);
 	}
 
 	// GL_LUMINANCE is no longer supported in newer openGL versions
@@ -459,13 +462,14 @@ void GLPostProcessor::drawNoise()
 		noise + vec2(0.0f, 0.0f  ),
 	};
 
-	gl::context->progTex.activate();
+	auto& glContext = *gl::context;
+	glContext.progTex.activate();
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE);
-	glUniform4f(gl::context->unifTexColor, 1.0f, 1.0f, 1.0f, 1.0f);
+	glUniform4f(glContext.unifTexColor, 1.0f, 1.0f, 1.0f, 1.0f);
 	mat4 I;
-	glUniformMatrix4fv(gl::context->unifTexMvp, 1, GL_FALSE, &I[0][0]);
+	glUniformMatrix4fv(glContext.unifTexMvp, 1, GL_FALSE, &I[0][0]);
 
 	unsigned seq = frameCounter & 7;
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos[seq].data());
@@ -506,8 +510,8 @@ void GLPostProcessor::preCalcMonitor3D(float width)
 	for (auto sx : xrange(GRID_SIZE1)) {
 		for (auto sy : xrange(GRID_SIZE1)) {
 			Vertex& v = vertices[sx][sy];
-			float x = (sx - GRID_SIZE2) / GRID_SIZE2;
-			float y = (sy - GRID_SIZE2) / GRID_SIZE2;
+			float x = (narrow<float>(sx) - GRID_SIZE2) / GRID_SIZE2;
+			float y = (narrow<float>(sy) - GRID_SIZE2) / GRID_SIZE2;
 
 			v.position = vec3(x, y, (x * x + y * y) / -12.0f);
 			v.normal = normalize(vec3(x / 6.0f, y / 6.0f, 1.0f)) * 1.2f;

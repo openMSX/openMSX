@@ -9,6 +9,7 @@
 #include "aligned.hh"
 #include "checked_cast.hh"
 #include "endian.hh"
+#include "narrow.hh"
 #include "random.hh"
 #include "xrange.hh"
 #include <algorithm>
@@ -25,7 +26,7 @@
 namespace openmsx {
 
 static constexpr unsigned NOISE_SHIFT = 8192;
-ALIGNAS_SSE static std::array<signed char, 2 * NOISE_SHIFT> noiseBuf;
+ALIGNAS_SSE static std::array<int8_t, 2 * NOISE_SHIFT> noiseBuf;
 
 template<std::unsigned_integral Pixel>
 void FBPostProcessor<Pixel>::preCalcNoise(float factor)
@@ -65,10 +66,10 @@ void FBPostProcessor<Pixel>::preCalcNoise(float factor)
 	std::normal_distribution<float> distribution(0.0f, 1.0f);
 	for (unsigned i = 0; i < noiseBuf.size(); i += 4) {
 		float r = distribution(generator);
-		noiseBuf[i + 0] = std::clamp(int(roundf(r * scale[0])), -128, 127);
-		noiseBuf[i + 1] = std::clamp(int(roundf(r * scale[1])), -128, 127);
-		noiseBuf[i + 2] = std::clamp(int(roundf(r * scale[2])), -128, 127);
-		noiseBuf[i + 3] = std::clamp(int(roundf(r * scale[3])), -128, 127);
+		noiseBuf[i + 0] = narrow<int8_t>(std::clamp(int(roundf(r * scale[0])), -128, 127));
+		noiseBuf[i + 1] = narrow<int8_t>(std::clamp(int(roundf(r * scale[1])), -128, 127));
+		noiseBuf[i + 2] = narrow<int8_t>(std::clamp(int(roundf(r * scale[2])), -128, 127));
+		noiseBuf[i + 3] = narrow<int8_t>(std::clamp(int(roundf(r * scale[3])), -128, 127));
 	}
 }
 
@@ -88,7 +89,7 @@ static inline void drawNoiseLineSse2(uint32_t* buf_, signed char* noise, size_t 
 	//   signed_add_sat(value ^ 128, noise) ^ 128
 	// The following loop does just that, though it processes 64 bytes per
 	// iteration.
-	ptrdiff_t x = width * sizeof(uint32_t);
+	auto x = narrow<ptrdiff_t>(width * sizeof(uint32_t));
 	assert((x & 63) == 0);
 	assert((uintptr_t(buf_) & 15) == 0);
 

@@ -18,6 +18,7 @@ public:
 	void additionalInfo(TclObject& result) const override;
 
 	[[nodiscard]] double getDouble() const noexcept { return getValue().getDouble(getInterpreter()); }
+	[[nodiscard]] float  getFloat()  const noexcept { return getValue().getFloat (getInterpreter()); }
 	void setDouble (double d);
 
 private:
