@@ -18,7 +18,7 @@
 namespace openmsx {
 
 SDLGLVisibleSurface::SDLGLVisibleSurface(
-		unsigned width, unsigned height,
+		int width, int height,
 		Display& display_,
 		RTScheduler& rtScheduler_,
 		EventDistributor& eventDistributor_,

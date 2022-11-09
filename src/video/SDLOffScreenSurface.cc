@@ -1,5 +1,6 @@
 #include "SDLOffScreenSurface.hh"
 #include "SDLVisibleSurface.hh"
+#include "narrow.hh"
 #include <cstring>
 
 namespace openmsx {
@@ -25,7 +26,7 @@ SDLOffScreenSurface::SDLOffScreenSurface(const SDL_Surface& proto)
 	buffer.resize(bufSize);
 	ranges::fill(std::span{buffer.data(), bufSize}, 0);
 	surface.reset(SDL_CreateRGBSurfaceFrom(
-		buffer.data(), proto.w, proto.h, frmt.getBpp(), pitch2,
+		buffer.data(), proto.w, proto.h, narrow<int>(frmt.getBpp()), narrow<int>(pitch2),
 		frmt.getRmask(), frmt.getGmask(), frmt.getBmask(), frmt.getAmask()));
 
 	setSDLSurface(surface.get());

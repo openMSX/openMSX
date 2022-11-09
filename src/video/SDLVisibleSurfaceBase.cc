@@ -8,6 +8,7 @@
 #include "CliComm.hh"
 #include "build-info.hh"
 #include "endian.hh"
+#include "narrow.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -19,7 +20,7 @@ SDLVisibleSurfaceBase::~SDLVisibleSurfaceBase()
 {
 	// store last known position for when we recreate it
 	// the window gets recreated when changing renderers, for instance.
-	// Do not store if we're fullscreen, the location is the top-left
+	// Do not store if we're full screen, the location is the top-left
 	if ((SDL_GetWindowFlags(window.get()) & SDL_WINDOW_FULLSCREEN) == 0) {
 		SDL_GetWindowPosition(window.get(), &windowPosX, &windowPosY);
 	}
@@ -68,9 +69,10 @@ void SDLVisibleSurfaceBase::createSurface(int width, int height, unsigned flags)
 #endif
 			iconSurf.reset(SDL_CreateRGBSurfaceFrom(
 				const_cast<char*>(openMSX_icon.pixel_data),
-				openMSX_icon.width, openMSX_icon.height,
-				openMSX_icon.bytes_per_pixel * 8,
-				openMSX_icon.bytes_per_pixel * openMSX_icon.width,
+				narrow<int>(openMSX_icon.width),
+				narrow<int>(openMSX_icon.height),
+				narrow<int>(openMSX_icon.bytes_per_pixel * 8),
+				narrow<int>(openMSX_icon.bytes_per_pixel * openMSX_icon.width),
 				Endian::BIG ? 0xFF000000 : 0x000000FF,
 				Endian::BIG ? 0x00FF0000 : 0x0000FF00,
 				Endian::BIG ? 0x0000FF00 : 0x00FF0000,
