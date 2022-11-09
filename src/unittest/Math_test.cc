@@ -1,23 +1,27 @@
 #include "catch.hpp"
 #include "Math.hh"
 
-TEST_CASE("Math::clipIntToShort")
+TEST_CASE("Math::clipToInt16")
 {
-	CHECK(Math::clipIntToShort(-100000) == -32768);
-	CHECK(Math::clipIntToShort( -32769) == -32768);
-	CHECK(Math::clipIntToShort( -32768) == -32768);
-	CHECK(Math::clipIntToShort( -32767) == -32767);
-	CHECK(Math::clipIntToShort( -10000) == -10000);
-	CHECK(Math::clipIntToShort(    -10) ==    -10);
-	CHECK(Math::clipIntToShort(     -1) ==     -1);
-	CHECK(Math::clipIntToShort(      0) ==      0);
-	CHECK(Math::clipIntToShort(      1) ==      1);
-	CHECK(Math::clipIntToShort(     10) ==     10);
-	CHECK(Math::clipIntToShort(   9876) ==   9876);
-	CHECK(Math::clipIntToShort(  32766) ==  32766);
-	CHECK(Math::clipIntToShort(  32767) ==  32767);
-	CHECK(Math::clipIntToShort(  32768) ==  32767);
-	CHECK(Math::clipIntToShort( 100000) ==  32767);
+	CHECK(Math::clipToInt16(-100000) == -32768);
+	CHECK(Math::clipToInt16( -32769) == -32768);
+	CHECK(Math::clipToInt16( -32768) == -32768);
+	CHECK(Math::clipToInt16( -32767) == -32767);
+	CHECK(Math::clipToInt16( -10000) == -10000);
+	CHECK(Math::clipToInt16(    -10) ==    -10);
+	CHECK(Math::clipToInt16(     -1) ==     -1);
+	CHECK(Math::clipToInt16(      0) ==      0);
+	CHECK(Math::clipToInt16(      1) ==      1);
+	CHECK(Math::clipToInt16(     10) ==     10);
+	CHECK(Math::clipToInt16(   9876) ==   9876);
+	CHECK(Math::clipToInt16(  32766) ==  32766);
+	CHECK(Math::clipToInt16(  32767) ==  32767);
+	CHECK(Math::clipToInt16(  32768) ==  32767);
+	CHECK(Math::clipToInt16( 100000) ==  32767);
+
+	CHECK(Math::clipToInt16(-10'000'000'000ll) == -32768);
+	CHECK(Math::clipToInt16(             17ll) ==     17);
+	CHECK(Math::clipToInt16( 10'000'000'000ll) ==  32767);
 }
 
 TEST_CASE("Math::clipIntToByte")

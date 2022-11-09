@@ -3,6 +3,7 @@
 
 #include <bit>
 #include <cassert>
+#include <climits>
 #include <cmath>
 #include <concepts>
 #include <cstdint>
@@ -38,17 +39,18 @@ inline constexpr double pi   = std::numbers::pi_v  <double>;
 	return x;                              // code.
 }
 
-/** Clip x to range [-32768,32767]. Special case of the version above.
+/** Clip x to range [-32768,32767].
   * Optimized for the case when no clipping is needed.
   */
 template<std::signed_integral T>
 [[nodiscard]] inline int16_t clipToInt16(T x)
 {
-	static_assert((-1 >> 1) == -1, "right-shift must preserve sign");
+	static_assert((T(-1) >> 1) == T(-1), "right-shift must preserve sign");
 	if (int16_t(x) == x) [[likely]] {
 		return x;
 	} else {
-		return 0x7FFF - (x >> 31);
+		constexpr int SHIFT = (sizeof(T) * CHAR_BIT) - 1;
+		return 0x7FFF - (x >> SHIFT);
 	}
 }
 
