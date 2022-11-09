@@ -105,7 +105,7 @@ void Wav16Writer::write(std::span<const int16_t> buffer)
 
 static int16_t float2int16(float f)
 {
-	return Math::clipIntToShort(lrintf(32768.0f * f));
+	return Math::clipToInt16(lrintf(32768.0f * f));
 }
 
 void Wav16Writer::write(std::span<const float> buffer, float amp)

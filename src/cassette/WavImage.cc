@@ -23,7 +23,7 @@ public:
 	}
 	[[nodiscard]] int16_t operator()(int16_t x) {
 		float t1 = R * t0 + narrow_cast<float>(x);
-		auto y = narrow<int16_t>(Math::clipIntToShort(narrow_cast<int>(t1 - t0)));
+		auto y = Math::clipToInt16(narrow_cast<int>(t1 - t0));
 		t0 = t1;
 		return y;
 	}
@@ -136,7 +136,7 @@ int16_t WavImage::getSampleAt(EmuTime::param time) const
 		float(wav->getSample(sample + 1)),
 		float(wav->getSample(sample + 2))
 	};
-	return Math::clipIntToShort(int(Math::cubicHermite(p, x)));
+	return Math::clipToInt16(int(Math::cubicHermite(p, x)));
 }
 
 EmuTime WavImage::getEndTime() const

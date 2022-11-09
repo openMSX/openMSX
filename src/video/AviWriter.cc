@@ -28,9 +28,9 @@ AviWriter::AviWriter(const Filename& filename, unsigned width_,
 	, width(width_)
 	, height(height_)
 	, channels(channels_)
-	, audiorate(freq_)
+	, audioRate(freq_)
 	, frames(0)
-	, audiowritten(0)
+	, audioWritten(0)
 	, written(0)
 {
 	std::array<uint8_t, AVI_HEADER_SIZE> dummy = {};
@@ -74,14 +74,14 @@ AviWriter::~AviWriter()
 		header_pos += (len1 + 1) & ~1; // round-up to even
 	};
 
-	bool hasAudio = audiorate != 0;
+	bool hasAudio = audioRate != 0;
 
 	// write avi header
 	AVIOUT4("RIFF");                    // Riff header
 	AVIOUTd(AVI_HEADER_SIZE + written - 8 + unsigned(index.size() * sizeof(Endian::L32)));
 	AVIOUT4("AVI ");
 	AVIOUT4("LIST");                    // List header
-	unsigned main_list = header_pos;
+	auto main_list = header_pos;
 	AVIOUTd(0);                         // size of list, filled in later
 	AVIOUT4("hdrl");
 
@@ -142,8 +142,8 @@ AviWriter::~AviWriter()
 		unsigned bitsPerSample = 16;
 		unsigned bytesPerSample = bitsPerSample / 8;
 		unsigned bytesPerFragment = bytesPerSample * channels;
-		unsigned bytesPerSecond = audiorate * bytesPerFragment;
-		unsigned fragments = audiowritten / channels;
+		unsigned bytesPerSecond = audioRate * bytesPerFragment;
+		unsigned fragments = audioWritten / channels;
 
 		// Audio stream list
 		AVIOUT4("LIST");
@@ -172,9 +172,9 @@ AviWriter::~AviWriter()
 		AVIOUTd(16);                // # of bytes to follow
 		AVIOUTw(1);                 // Format, WAVE_ZMBV_FORMAT_PCM
 		AVIOUTw(channels);          // Number of channels
-		AVIOUTd(audiorate);         // SamplesPerSec
+		AVIOUTd(audioRate);         // SamplesPerSec
 		AVIOUTd(bytesPerSecond);    // AvgBytesPerSec
-		AVIOUTw(bytesPerFragment);  // BlockAlign: for PCM: nChannels * BitsPerSaple / 8
+		AVIOUTw(bytesPerFragment);  // BlockAlign: for PCM: nChannels * BitsPerSample / 8
 		AVIOUTw(bitsPerSample);     // BitsPerSample
 	}
 
@@ -216,8 +216,8 @@ AviWriter::~AviWriter()
 	// a much nicer way
 
 	// Finish stream list, i.e. put number of bytes in the list to proper pos
-	int nMain = header_pos - main_list - 4;
-	int nJunk = AVI_HEADER_SIZE - 8 - 12 - header_pos;
+	auto nMain = header_pos - main_list - 4;
+	auto nJunk = AVI_HEADER_SIZE - 8 - 12 - header_pos;
 	assert(nJunk > 0); // increase AVI_HEADER_SIZE if this occurs
 	AVIOUT4("JUNK");
 	AVIOUTd(nJunk);
@@ -282,7 +282,7 @@ void AviWriter::addFrame(FrameSource* video, std::span<const int16_t> audio)
 
 	if (!audio.empty()) {
 		assert((audio.size() % channels) == 0);
-		assert(audiorate != 0);
+		assert(audioRate != 0);
 		if constexpr (Endian::BIG) {
 			// See comment in WavWriter::write()
 			//VLA(Endian::L16, buf, samples); // doesn't work in clang
@@ -291,7 +291,7 @@ void AviWriter::addFrame(FrameSource* video, std::span<const int16_t> audio)
 		} else {
 			addAviChunk(subspan<4>("01wb"), audio.size_bytes(), audio.data(), 0);
 		}
-		audiowritten += audio.size();
+		audioWritten += audio.size();
 	}
 }
 

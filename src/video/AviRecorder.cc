@@ -16,6 +16,7 @@
 #include "TclArgParser.hh"
 #include "TclObject.hh"
 #include "enumerate.hh"
+#include "narrow.hh"
 #include "outer.hh"
 #include "vla.hh"
 #include "xrange.hh"
@@ -120,7 +121,7 @@ void AviRecorder::stop()
 
 static int16_t float2int16(float f)
 {
-	return Math::clipIntToShort(lrintf(32768.0f * f));
+	return Math::clipToInt16(lrintf(32768.0f * f));
 }
 
 void AviRecorder::addWave(std::span<const StereoFloat> data)
@@ -189,7 +190,7 @@ void AviRecorder::addImage(FrameSource* frame, EmuTime::param time)
 		}
 	} else if (prevTime != EmuTime::infinity()) {
 		duration = time - prevTime;
-		aviWriter->setFps(1.0 / duration.toDouble());
+		aviWriter->setFps(narrow_cast<float>(1.0 / duration.toDouble()));
 	}
 	prevTime = time;
 

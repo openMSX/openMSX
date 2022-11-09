@@ -46,7 +46,7 @@ static constexpr double PM_DEPTH2 = 13.75;
 // Dynamic range of sustain level
 static constexpr int SL_BITS = 4;
 static constexpr int SL_MUTE = 1 << SL_BITS;
-// Size of Sintable ( 1 -- 18 can be used, but 7 -- 14 recommended.)
+// Size of sin table ( 1 -- 18 can be used, but 7 -- 14 recommended.)
 static constexpr int PG_BITS = 10;
 static constexpr int PG_WIDTH = 1 << PG_BITS;
 static constexpr int PG_MASK = PG_WIDTH - 1;
@@ -57,7 +57,7 @@ static constexpr int DP_BASE_BITS = DP_BITS - PG_BITS;
 // Dynamic range
 static constexpr int DB_BITS = 9;
 static constexpr int DB_MUTE = 1 << DB_BITS;
-// PM table is calcurated by PM_AMP * exp2(PM_DEPTH * sin(x) / 1200)
+// PM table is calculated by PM_AMP * exp2(PM_DEPTH * sin(x) / 1200)
 static constexpr int PM_AMP_BITS = 8;
 static constexpr int PM_AMP = 1 << PM_AMP_BITS;
 
@@ -749,12 +749,12 @@ int Y8950::Slot::calc_slot_tom(int lfo_pm, int lfo_am)
 	return dB2LinTab[sinTable[pgout & PG_MASK] + egOut];
 }
 
-int Y8950::Slot::calc_slot_snare(int lfo_pm, int lfo_am, int whitenoise)
+int Y8950::Slot::calc_slot_snare(int lfo_pm, int lfo_am, int whiteNoise)
 {
 	unsigned egOut = calc_envelope(lfo_am);
 	unsigned pgout = calc_phase(lfo_pm);
 	unsigned tmp = (pgout & (1 << (PG_BITS - 1))) ? 0 : 2 * DB_MUTE;
-	return (dB2LinTab[tmp + egOut] + dB2LinTab[egOut + whitenoise]) >> 1;
+	return (dB2LinTab[tmp + egOut] + dB2LinTab[egOut + whiteNoise]) >> 1;
 }
 
 int Y8950::Slot::calc_slot_cym(int lfo_am, int a, int b)
@@ -764,10 +764,10 @@ int Y8950::Slot::calc_slot_cym(int lfo_am, int a, int b)
 }
 
 // HI-HAT
-int Y8950::Slot::calc_slot_hat(int lfo_am, int a, int b, int whitenoise)
+int Y8950::Slot::calc_slot_hat(int lfo_am, int a, int b, int whiteNoise)
 {
 	unsigned egOut = calc_envelope(lfo_am);
-	return (dB2LinTab[egOut + whitenoise] +
+	return (dB2LinTab[egOut + whiteNoise] +
 	        dB2LinTab[egOut + a] +
 	        dB2LinTab[egOut + b]) >> 2;
 }
@@ -834,7 +834,7 @@ void Y8950::generateChannels(std::span<float*> bufs, unsigned num)
 			noise_seed ^= 0x24000;
 		}
 		noise_seed >>= 1;
-		int whitenoise = noise_seed & 1 ? DB_POS(6) : DB_NEG(6);
+		int whiteNoise = noise_seed & 1 ? DB_POS(6) : DB_NEG(6);
 
 		noiseA_phase += noiseA_dPhase;
 		noiseA_phase &= (0x40 << 11) - 1;
@@ -872,13 +872,13 @@ void Y8950::generateChannels(std::span<float*> bufs, unsigned num)
 						    ch[6].slot[MOD].calc_slot_mod(lfo_pm, lfo_am))
 				: 0;
 			bufs[10][sample] += (ch[7].slot[CAR].isActive())
-				? 2 * ch[7].slot[CAR].calc_slot_snare(lfo_pm, lfo_am, whitenoise)
+				? 2 * ch[7].slot[CAR].calc_slot_snare(lfo_pm, lfo_am, whiteNoise)
 				: 0;
 			bufs[11][sample] += (ch[8].slot[CAR].isActive())
 				? 2 * ch[8].slot[CAR].calc_slot_cym(lfo_am, noiseA, noiseB)
 				: 0;
 			bufs[12][sample] += (ch[7].slot[MOD].isActive())
-				? 2 * ch[7].slot[MOD].calc_slot_hat(lfo_am, noiseA, noiseB, whitenoise)
+				? 2 * ch[7].slot[MOD].calc_slot_hat(lfo_am, noiseA, noiseB, whiteNoise)
 				: 0;
 			bufs[13][sample] += (ch[8].slot[MOD].isActive())
 				? 2 * ch[8].slot[MOD].calc_slot_tom(lfo_pm, lfo_am)
@@ -1002,7 +1002,7 @@ void Y8950::writeReg(byte rg, byte data, EmuTime::param time)
 				int tmp = static_cast<signed char>(reg[0x15]) * 256
 				        + reg[0x16];
 				tmp = (tmp * 4) >> (7 - reg[0x17]);
-				tmp = Math::clipIntToShort(tmp);
+				tmp = Math::clipToInt16(tmp);
 				dac13.writeDAC(tmp, time);
 			}
 			break;

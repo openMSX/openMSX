@@ -152,9 +152,9 @@ private:
 		[[nodiscard]] inline int calc_slot_car(int lfo_pm, int lfo_am, int fm);
 		[[nodiscard]] inline int calc_slot_mod(int lfo_pm, int lfo_am);
 		[[nodiscard]] inline int calc_slot_tom(int lfo_pm, int lfo_am);
-		[[nodiscard]] inline int calc_slot_snare(int lfo_pm, int lfo_am, int whitenoise);
+		[[nodiscard]] inline int calc_slot_snare(int lfo_pm, int lfo_am, int whiteNoise);
 		[[nodiscard]] inline int calc_slot_cym(int lfo_am, int a, int b);
-		[[nodiscard]] inline int calc_slot_hat(int lfo_am, int a, int b, int whitenoise);
+		[[nodiscard]] inline int calc_slot_hat(int lfo_am, int a, int b, int whiteNoise);
 
 		inline void updateAll(unsigned freq);
 		inline void updatePG(unsigned freq);

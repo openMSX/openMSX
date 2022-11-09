@@ -41,7 +41,8 @@ inline constexpr double pi   = std::numbers::pi_v  <double>;
 /** Clip x to range [-32768,32767]. Special case of the version above.
   * Optimized for the case when no clipping is needed.
   */
-[[nodiscard]] inline int16_t clipIntToShort(int x)
+template<std::signed_integral T>
+[[nodiscard]] inline int16_t clipToInt16(T x)
 {
 	static_assert((-1 >> 1) == -1, "right-shift must preserve sign");
 	if (int16_t(x) == x) [[likely]] {

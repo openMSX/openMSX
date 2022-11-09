@@ -36,10 +36,10 @@ private:
 	const unsigned width;
 	const unsigned height;
 	const unsigned channels;
-	const unsigned audiorate;
+	const unsigned audioRate;
 
 	unsigned frames;
-	unsigned audiowritten;
+	unsigned audioWritten;
 	unsigned written;
 };
 

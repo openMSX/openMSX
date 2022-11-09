@@ -5,6 +5,7 @@
 #include "PixelOperations.hh"
 #include "cstd.hh"
 #include "endian.hh"
+#include "narrow.hh"
 #include "ranges.hh"
 #include "unreachable.hh"
 #include <array>
@@ -277,8 +278,8 @@ void ZMBVEncoder::addXorFrame(const PixelFormat& pixelFormat, unsigned& workUsed
 					unsigned testChange = compareBlock<P>(v.x, v.y, offset);
 					if (testChange < bestChange) {
 						bestChange = testChange;
-						bestVx = v.x;
-						bestVy = v.y;
+						bestVx = narrow<int>(v.x);
+						bestVy = narrow<int>(v.y);
 						if (bestChange < 4) break;
 					}
 					--possibles;
@@ -286,8 +287,8 @@ void ZMBVEncoder::addXorFrame(const PixelFormat& pixelFormat, unsigned& workUsed
 				}
 			}
 		}
-		vectors[b * 2 + 0] = (bestVx << 1);
-		vectors[b * 2 + 1] = (bestVy << 1);
+		vectors[b * 2 + 0] = narrow<int8_t>(bestVx << 1);
+		vectors[b * 2 + 1] = narrow<int8_t>(bestVy << 1);
 		if (bestChange) {
 			vectors[b * 2 + 0] |= 1;
 			addXorBlock<P>(pixelOps, bestVx, bestVy, offset, workUsed);

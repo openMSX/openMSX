@@ -1,6 +1,6 @@
 // The actual sample playing part is duplicated for the 'emu' domain and the
 // 'audio' domain. The emu part is responsible for cycle accurate sample
-// readback (see peekReg() register 0x13 and 0x14) and for cycle accurate
+// read back (see peekReg() register 0x13 and 0x14) and for cycle accurate
 // status register updates (the status bits related to playback, e.g.
 // end-of-sample). The audio part is responsible for the actual sound
 // generation. This split up allows for the two parts to be out-of-sync. So for
@@ -120,7 +120,7 @@ void Y8950Adpcm::schedule()
 	assert(isPlaying());
 	if ((stopAddr > startAddr) && (delta != 0)) {
 		// TODO possible optimization, no need to set sync points if
-		//      the corresponding bit is masked in the interupt enable
+		//      the corresponding bit is masked in the interrupt enable
 		//      register
 		if (reg7 & R07_MEMORY_DATA) {
 			// we already did a sync(time), so clock is up-to-date
@@ -132,7 +132,7 @@ void Y8950Adpcm::schedule()
 			stop += unsigned(length / delta);
 			setSyncPoint(stop.getTime());
 		} else {
-			// TODO we should also set a syncpoint in this case
+			// TODO we should also set a sync-point in this case
 			//      because this mode sets the STATUS_BUF_RDY bit
 			//      which also triggers an IRQ
 		}
@@ -474,7 +474,7 @@ int Y8950Adpcm::calcSample(bool doEmu)
 			}
 		}();
 		int prevOut = pd.out;
-		pd.out = Math::clipIntToShort(pd.out + (pd.diff * F1[val]) / 8);
+		pd.out = Math::clipToInt16(pd.out + (pd.diff * F1[val]) / 8);
 		pd.diff = std::clamp((pd.diff * F2[val]) / 64, DMIN, DMAX);
 
 		int prevLeveling = pd.nextLeveling;
