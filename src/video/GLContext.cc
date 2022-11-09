@@ -1,6 +1,7 @@
 #include "GLContext.hh"
 #include "GLDefaultScaler.hh"
 #include "gl_transform.hh"
+#include "narrow.hh"
 #include <memory>
 
 namespace gl {
@@ -34,7 +35,9 @@ Context::Context(int width, int height)
 	progFill.activate();
 	unifFillMvp = progFill.getUniformLocation("u_mvpMatrix");
 
-	pixelMvp = ortho(0, width, height, 0, -1, 1);
+	pixelMvp = ortho(0.0f, narrow_cast<float>(width),
+	                 narrow_cast<float>(height), 0.0f,
+	                 -1.0f, 1.0f);
 }
 
 Context::~Context() = default;

@@ -21,6 +21,7 @@
 #include "CommandException.hh"
 #include "Version.hh"
 #include "build-info.hh"
+#include "narrow.hh"
 #include "outer.hh"
 #include "ranges.hh"
 #include "stl.hh"
@@ -292,15 +293,15 @@ void Display::doRendererSwitch()
 				currentRenderer = RenderSettings::SDL;
 			} else {
 				auto& scaleFactorSetting = renderSettings.getScaleFactorSetting();
-				unsigned curval = scaleFactorSetting.getInt();
-				if (curval == 1) {
+				auto curVal = scaleFactorSetting.getInt();
+				if (curVal == 1) {
 					throw MSXException(
 						e.getMessage(),
 						" (and I have no other ideas to try...)"); // give up and die... :(
 				}
 				strAppend(errorMsg, "\nTrying to decrease scale_factor setting from ",
-				          curval, " to ", curval - 1, "...");
-				scaleFactorSetting.setInt(curval - 1);
+				          curVal, " to ", curVal - 1, "...");
+				scaleFactorSetting.setInt(curVal - 1);
 			}
 			getCliComm().printWarning(errorMsg);
 		}
@@ -516,7 +517,7 @@ void Display::FpsInfoTopic::execute(std::span<const TclObject> /*tokens*/,
                                     TclObject& result) const
 {
 	auto& display = OUTER(Display, fpsInfo);
-	result = 1000000.0f * Display::NUM_FRAME_DURATIONS / display.frameDurationSum;
+	result = 1000000.0f * Display::NUM_FRAME_DURATIONS / narrow_cast<float>(display.frameDurationSum);
 }
 
 string Display::FpsInfoTopic::help(std::span<const TclObject> /*tokens*/) const

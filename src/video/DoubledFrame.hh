@@ -13,7 +13,7 @@ class DoubledFrame final : public FrameSource
 {
 public:
 	explicit DoubledFrame(const PixelFormat& format);
-	void init(FrameSource* field, unsigned skip);
+	void init(FrameSource* field, int skip);
 
 private:
 	[[nodiscard]] unsigned getLineWidth(unsigned line) const override;
@@ -25,7 +25,7 @@ private:
 	/** The original frame whose data will be doubled.
 	  */
 	FrameSource* field;
-	unsigned skip;
+	int skip;
 };
 
 } // namespace openmsx

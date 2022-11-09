@@ -61,10 +61,11 @@ void GLSnow::paint(OutputSurface& /*output*/)
 		offset + vec2(0.0f, 0.0f),
 	};
 
-	gl::context->progTex.activate();
-	glUniform4f(gl::context->unifTexColor, 1.0f, 1.0f, 1.0f, 1.0f);
+	auto& glContext = *gl::context;
+	glContext.progTex.activate();
+	glUniform4f(glContext.unifTexColor, 1.0f, 1.0f, 1.0f, 1.0f);
 	mat4 I;
-	glUniformMatrix4fv(gl::context->unifTexMvp, 1, GL_FALSE, &I[0][0]);
+	glUniformMatrix4fv(glContext.unifTexMvp, 1, GL_FALSE, &I[0][0]);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[0].get());
 	const vec2* base = nullptr;
