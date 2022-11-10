@@ -6,9 +6,9 @@
 #include "Rom.hh"
 #include "TrackedRam.hh"
 #include "EmuTime.hh"
-#include "openmsx.hh"
 #include "serialize_meta.hh"
 #include <array>
+#include <cstdint>
 #include <string>
 
 namespace openmsx {
@@ -23,12 +23,12 @@ public:
 	~YMF278();
 	void clearRam();
 	void reset(EmuTime::param time);
-	void writeReg(byte reg, byte data, EmuTime::param time);
-	[[nodiscard]] byte readReg(byte reg);
-	[[nodiscard]] byte peekReg(byte reg) const;
+	void writeReg(uint8_t reg, uint8_t data, EmuTime::param time);
+	[[nodiscard]] uint8_t readReg(uint8_t reg);
+	[[nodiscard]] uint8_t peekReg(uint8_t reg) const;
 
-	[[nodiscard]] byte readMem(unsigned address) const;
-	void writeMem(unsigned address, byte value);
+	[[nodiscard]] uint8_t readMem(unsigned address) const;
+	void writeMem(unsigned address, uint8_t value);
 
 	void setMixLevel(uint8_t x, EmuTime::param time);
 
@@ -50,12 +50,12 @@ private:
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);
 
-		uint32_t startaddr;
-		uint16_t loopaddr;
-		uint16_t endaddr; // Note: stored in 2s complement (0x0000 = 0, 0x0001 = -65536, 0xffff = -1)
+		uint32_t startAddr;
+		uint16_t loopAddr;
+		uint16_t endAddr; // Note: stored in 2s complement (0x0000 = 0, 0x0001 = -65536, 0xffff = -1)
 		uint32_t step;       // fixed-point frequency step
 				     // invariant: step == calcStep(OCT, FN)
-		uint32_t stepptr;    // fixed-point pointer into the sample
+		uint32_t stepPtr;    // fixed-point pointer into the sample
 		uint16_t pos;
 
 		int16_t env_vol;
@@ -63,13 +63,13 @@ private:
 		uint32_t lfo_cnt;
 
 		int16_t DL;
-		uint16_t wave;		// wavetable number
+		uint16_t wave;		// wave table number
 		uint16_t FN;		// f-number         TODO store 'FN | 1024'?
 		int8_t OCT;		// octave [-8..+7]
 		bool PRVB;		// pseudo-reverb
 		uint8_t TLdest;		// destination total level
 		uint8_t TL;		// total level  (goes towards TLdest)
-		uint8_t pan;		// panpot 0..15
+		uint8_t pan;		// pan-pot 0..15
 		bool keyon;		// slot keyed on
 		bool DAMP;
 		uint8_t lfo;            // LFO speed 0..7
@@ -90,7 +90,7 @@ private:
 	// SoundDevice
 	void generateChannels(std::span<float*> bufs, unsigned num) override;
 
-	void writeRegDirect(byte reg, byte data, EmuTime::param time);
+	void writeRegDirect(uint8_t reg, uint8_t data, EmuTime::param time);
 	[[nodiscard]] unsigned getRamAddress(unsigned addr) const;
 	[[nodiscard]] int16_t getSample(Slot& slot, uint16_t pos) const;
 	[[nodiscard]] static uint16_t nextPos(Slot& slot, uint16_t pos, uint16_t increment);
@@ -102,14 +102,14 @@ private:
 
 	struct DebugRegisters final : SimpleDebuggable {
 		DebugRegisters(MSXMotherBoard& motherBoard, const std::string& name);
-		[[nodiscard]] byte read(unsigned address) override;
-		void write(unsigned address, byte value, EmuTime::param time) override;
+		[[nodiscard]] uint8_t read(unsigned address) override;
+		void write(unsigned address, uint8_t value, EmuTime::param time) override;
 	} debugRegisters;
 
 	struct DebugMemory final : SimpleDebuggable {
 		DebugMemory(MSXMotherBoard& motherBoard, const std::string& name);
-		[[nodiscard]] byte read(unsigned address) override;
-		void write(unsigned address, byte value) override;
+		[[nodiscard]] uint8_t read(unsigned address) override;
+		void write(unsigned address, uint8_t value) override;
 	} debugMemory;
 
 	std::array<Slot, 24> slots;
@@ -122,7 +122,7 @@ private:
 	Rom rom;
 	TrackedRam ram;
 
-	std::array<byte, 256> regs;
+	std::array<uint8_t, 256> regs;
 };
 SERIALIZE_CLASS_VERSION(YMF278::Slot, 6);
 SERIALIZE_CLASS_VERSION(YMF278, 4);
