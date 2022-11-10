@@ -17,6 +17,7 @@
 #include "StringOp.hh"
 #include "serialize.hh"
 #include "cstd.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "outer.hh"
 #include "random.hh"
@@ -79,7 +80,6 @@ static constexpr auto volumeTab = [] {
 
 
 // Perlin noise
-
 static std::array<float, 256 + 3> noiseTab;
 
 static void initDetune()
@@ -99,7 +99,7 @@ static float noiseValue(float x)
 	// cubic hermite spline interpolation
 	assert(0.0f <= x);
 	int xi = int(x);
-	float xf = x - xi;
+	float xf = x - narrow_cast<float>(xi);
 	xi &= 255;
 	return Math::cubicHermite(subspan<4>(noiseTab, xi), xf);
 }
@@ -133,7 +133,7 @@ inline unsigned AY8910::Generator::getNextEventTime() const
 
 inline void AY8910::Generator::advanceFast(unsigned duration)
 {
-	count += duration;
+	count += narrow<int>(duration);
 	assert(count < period);
 }
 
@@ -161,27 +161,27 @@ int AY8910::ToneGenerator::getDetune(AY8910& ay8910)
 			ay8910.vibratoFrequency.getFloat());
 		vibratoCount += period;
 		vibratoCount %= vibratoPeriod;
-		result += int(
-			sinf((float(2 * Math::pi) * vibratoCount) / vibratoPeriod)
-			* vibPerc * 0.01f * period);
+		result += narrow_cast<int>(
+			sinf((float(2 * Math::pi) * narrow_cast<float>(vibratoCount)) / narrow_cast<float>(vibratoPeriod))
+			* vibPerc * 0.01f * narrow_cast<float>(period));
 	}
 	float detunePerc = ay8910.detunePercent.getFloat();
 	if (detunePerc != 0.0f) {
 		float detunePeriod = NATIVE_FREQ_FLOAT /
 			ay8910.detuneFrequency.getFloat();
 		detuneCount += period;
-		float noiseIdx = detuneCount / detunePeriod;
+		float noiseIdx = narrow_cast<float>(detuneCount) / detunePeriod;
 		float detuneNoise = noiseValue(       noiseIdx)
 		                  + noiseValue(2.0f * noiseIdx) / 2.0f;
-		result += int(detuneNoise * detunePerc * 0.01f * period);
+		result += narrow_cast<int>(detuneNoise * detunePerc * 0.01f * narrow_cast<float>(period));
 	}
 	return std::min(result, period - 1);
 }
 
-inline void AY8910::ToneGenerator::advance(int duration)
+inline void AY8910::ToneGenerator::advance(unsigned duration)
 {
 	assert(count < period);
-	count += duration;
+	count += narrow<int>(duration);
 	if (count >= period) {
 		// Calculate number of output transitions.
 		int cycles = count / period;
@@ -232,10 +232,10 @@ inline void AY8910::NoiseGenerator::doNextEvent()
 	random = (random >> 1) ^ ((random & 1) << 13) ^ ((random & 1) << 16);
 }
 
-inline void AY8910::NoiseGenerator::advance(int duration)
+inline void AY8910::NoiseGenerator::advance(unsigned duration)
 {
 	assert(count < period);
-	count += duration;
+	count += narrow<int>(duration);
 	int cycles = count / period;
 	count -= cycles * period; // equivalent to count %= period
 
@@ -436,10 +436,10 @@ inline void AY8910::Envelope::doSteps(int steps)
 	}
 }
 
-inline void AY8910::Envelope::advance(int duration)
+inline void AY8910::Envelope::advance(unsigned duration)
 {
 	assert(count < period);
-	count += duration * 2;
+	count += narrow<int>(duration * 2);
 	if (count >= period) {
 		int steps = count / period;
 		count -= steps * period; // equivalent to count %= period;
@@ -461,7 +461,7 @@ inline unsigned AY8910::Envelope::getNextEventTime() const
 
 inline void AY8910::Envelope::advanceFast(unsigned duration)
 {
-	count += 2 * duration;
+	count += narrow<int>(2 * duration);
 	assert(count < period);
 }
 
@@ -528,7 +528,7 @@ void AY8910::reset(EmuTime::param time)
 }
 
 
-byte AY8910::readRegister(unsigned reg, EmuTime::param time)
+uint8_t AY8910::readRegister(unsigned reg, EmuTime::param time)
 {
 	if (reg >= 16) return 255;
 	switch (reg) {
@@ -545,7 +545,7 @@ byte AY8910::readRegister(unsigned reg, EmuTime::param time)
 	}
 
 	// TODO some AY8910 models have 1F as mask for registers 1, 3, 5
-	static constexpr std::array<byte, 16> regMask = {
+	static constexpr std::array<uint8_t, 16> regMask = {
 		0xff, 0x0f, 0xff, 0x0f, 0xff, 0x0f, 0x1f, 0xff,
 		0x1f, 0x1f ,0x1f, 0xff, 0xff, 0x0f, 0xff, 0xff
 	};
@@ -553,7 +553,7 @@ byte AY8910::readRegister(unsigned reg, EmuTime::param time)
 	                : regs[reg];
 }
 
-byte AY8910::peekRegister(unsigned reg, EmuTime::param time) const
+uint8_t AY8910::peekRegister(unsigned reg, EmuTime::param time) const
 {
 	if (reg >= 16) return 255;
 	switch (reg) {
@@ -572,7 +572,7 @@ byte AY8910::peekRegister(unsigned reg, EmuTime::param time) const
 }
 
 
-void AY8910::writeRegister(unsigned reg, byte value, EmuTime::param time)
+void AY8910::writeRegister(unsigned reg, uint8_t value, EmuTime::param time)
 {
 	if (reg >= 16) return;
 	if ((reg < AY_PORTA) && (reg == AY_ESHAPE || regs[reg] != value)) {
@@ -581,7 +581,7 @@ void AY8910::writeRegister(unsigned reg, byte value, EmuTime::param time)
 	}
 	wrtReg(reg, value, time);
 }
-void AY8910::wrtReg(unsigned reg, byte value, EmuTime::param time)
+void AY8910::wrtReg(unsigned reg, uint8_t value, EmuTime::param time)
 {
 	// Warn/force port directions
 	if (reg == AY_ENABLE) {
@@ -597,7 +597,7 @@ void AY8910::wrtReg(unsigned reg, byte value, EmuTime::param time)
 	}
 
 	// Note: unused bits are stored as well; they can be read back.
-	byte diff = regs[reg] ^ value;
+	uint8_t diff = regs[reg] ^ value;
 	regs[reg] = value;
 
 	switch (reg) {
@@ -669,6 +669,18 @@ void AY8910::wrtReg(unsigned reg, byte value, EmuTime::param time)
 	}
 }
 
+[[nodiscard]] static inline float calc(bool b, float f)
+{
+	// Calculates:
+	//   return b ? f : 0.0f;
+	// Though this generates branchless code, might be faster
+	return narrow<float>(b) * f;
+}
+[[nodiscard]] static inline float calc(bool b1, bool b2, float f)
+{
+	return narrow<float>(b1 * b2) * f;
+}
+
 void AY8910::generateChannels(std::span<float*> bufs, unsigned num)
 {
 	// Disable channels with volume 0: since the sample value doesn't matter,
@@ -712,7 +724,7 @@ void AY8910::generateChannels(std::span<float*> bufs, unsigned num)
 			envelope = initialEnvelope;
 			if ((chanEnable & 0x09) == 0x08) {
 				// no noise, square wave: alternating between 0 and 1.
-				auto val = t.getOutput() * envelope.getVolume();
+				auto val = calc(t.getOutput(), envelope.getVolume());
 				unsigned remaining = num;
 				unsigned nextE = envelope.getNextEventTime();
 				unsigned nextT = t.getNextEventTime();
@@ -740,7 +752,7 @@ void AY8910::generateChannels(std::span<float*> bufs, unsigned num)
 						envelope.doNextEvent();
 						nextE = envelope.getNextEventTime();
 					}
-					val = t.getOutput() * envelope.getVolume();
+					val = calc(t.getOutput(), envelope.getVolume());
 				}
 				if (remaining) {
 					// last interval (without events)
@@ -771,7 +783,7 @@ void AY8910::generateChannels(std::span<float*> bufs, unsigned num)
 			} else if ((chanEnable & 0x09) == 0x00) {
 				// noise enabled, tone enabled
 				noise = initialNoise;
-				auto val = noise.getOutput() * t.getOutput() * envelope.getVolume();
+				auto val = calc(noise.getOutput(), t.getOutput(), envelope.getVolume());
 				unsigned remaining = num;
 				unsigned nextT = t.getNextEventTime();
 				unsigned nextN = noise.getNextEventTime();
@@ -802,7 +814,7 @@ void AY8910::generateChannels(std::span<float*> bufs, unsigned num)
 						nextE = envelope.getNextEventTime();
 					}
 					next = std::min(std::min(nextT, nextN), nextE);
-					val = noise.getOutput() * t.getOutput() * envelope.getVolume();
+					val = calc(noise.getOutput(), t.getOutput(), envelope.getVolume());
 				}
 				if (remaining) {
 					// last interval (without events)
@@ -815,7 +827,7 @@ void AY8910::generateChannels(std::span<float*> bufs, unsigned num)
 			} else {
 				// noise enabled, tone disabled
 				noise = initialNoise;
-				auto val = noise.getOutput() * envelope.getVolume();
+				auto val = calc(noise.getOutput(), envelope.getVolume());
 				unsigned remaining = num;
 				unsigned nextE = envelope.getNextEventTime();
 				unsigned nextN = noise.getNextEventTime();
@@ -843,7 +855,7 @@ void AY8910::generateChannels(std::span<float*> bufs, unsigned num)
 						envelope.doNextEvent();
 						nextE = envelope.getNextEventTime();
 					}
-					val = noise.getOutput() * envelope.getVolume();
+					val = calc(noise.getOutput(), envelope.getVolume());
 				}
 				if (remaining) {
 					// last interval (without events)
@@ -860,7 +872,7 @@ void AY8910::generateChannels(std::span<float*> bufs, unsigned num)
 			            : amplitude.getVolume(chan);
 			if ((chanEnable & 0x09) == 0x08) {
 				// no noise, square wave: alternating between 0 and 1.
-				auto val = t.getOutput() * volume;
+				auto val = calc(t.getOutput(), volume);
 				unsigned remaining = num;
 				unsigned next = t.getNextEventTime();
 				while (next <= remaining) {
@@ -884,8 +896,8 @@ void AY8910::generateChannels(std::span<float*> bufs, unsigned num)
 			} else if ((chanEnable & 0x09) == 0x00) {
 				// noise enabled, tone enabled
 				noise = initialNoise;
-				auto val1 = t.getOutput() * volume;
-				auto val2 = val1 * noise.getOutput();
+				auto val1 = calc(t.getOutput(), volume);
+				auto val2 = calc(noise.getOutput(), val1);
 				unsigned remaining = num;
 				unsigned nextN = noise.getNextEventTime();
 				unsigned nextT = t.getNextEventTime();
@@ -898,7 +910,7 @@ void AY8910::generateChannels(std::span<float*> bufs, unsigned num)
 						t.doNextEvent(*this);
 						nextT = t.getNextEventTime();
 						val1 = volume - val1;
-						val2 = val1 * noise.getOutput();
+						val2 = calc(noise.getOutput(), val1);
 					} else if (nextN < nextT) {
 						addFill(buf, val2, nextN);
 						remaining -= nextN;
@@ -906,7 +918,7 @@ void AY8910::generateChannels(std::span<float*> bufs, unsigned num)
 						t.advanceFast(nextN);
 						noise.doNextEvent();
 						nextN = noise.getNextEventTime();
-						val2 = val1 * noise.getOutput();
+						val2 = calc(noise.getOutput(), val1);
 					} else {
 						assert(nextT == nextN);
 						addFill(buf, val2, nextT);
@@ -916,7 +928,7 @@ void AY8910::generateChannels(std::span<float*> bufs, unsigned num)
 						noise.doNextEvent();
 						nextN = noise.getNextEventTime();
 						val1 = volume - val1;
-						val2 = val1 * noise.getOutput();
+						val2 = calc(noise.getOutput(), val1);
 					}
 				}
 				if (remaining) {
@@ -930,13 +942,13 @@ void AY8910::generateChannels(std::span<float*> bufs, unsigned num)
 				// noise enabled, tone disabled
 				noise = initialNoise;
 				unsigned remaining = num;
-				auto val = noise.getOutput() * volume;
+				auto val = calc(noise.getOutput(), volume);
 				unsigned next = noise.getNextEventTime();
 				while (next <= remaining) {
 					addFill(buf, val, next);
 					remaining -= next;
 					noise.doNextEvent();
-					val = noise.getOutput() * volume;
+					val = calc(noise.getOutput(), volume);
 					next = noise.getNextEventTime();
 				}
 				if (remaining) {
@@ -982,13 +994,13 @@ AY8910::Debuggable::Debuggable(MSXMotherBoard& motherBoard_, const std::string& 
 {
 }
 
-byte AY8910::Debuggable::read(unsigned address, EmuTime::param time)
+uint8_t AY8910::Debuggable::read(unsigned address, EmuTime::param time)
 {
 	auto& ay8910 = OUTER(AY8910, debuggable);
 	return ay8910.readRegister(address, time);
 }
 
-void AY8910::Debuggable::write(unsigned address, byte value, EmuTime::param time)
+void AY8910::Debuggable::write(unsigned address, uint8_t value, EmuTime::param time)
 {
 	auto& ay8910 = OUTER(AY8910, debuggable);
 	return ay8910.writeRegister(address, value, time);
