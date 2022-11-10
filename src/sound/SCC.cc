@@ -17,7 +17,7 @@
 // AmpD="((SampleValue*VolD) AND #7FF0) div 16"
 // AmpE="((SampleValue*VolE) AND #7FF0) div 16"
 //
-// Setting the enablebit to zero, corresponds with VolX=0.
+// Setting the enable bit to zero, corresponds with VolX=0.
 //
 // SampleValue range [-128...+127]
 // VolX range [0..15]
@@ -42,7 +42,7 @@
 //    bit2:
 //    bit3:
 //    bit4:
-//    bit5: wave data is played from begining when frequency is changed
+//    bit5: wave data is played from beginning when frequency is changed
 //    bit6: rotate all waves data. You can't write to them. Rotation speed
 //          =3.58Mhz / (channel i frequency + 1)
 //    bit7: rotate channel 4 wave data. You can't write to that channel
@@ -61,7 +61,7 @@
 // Additions:
 //   - Setting both bit0 and bit1 is equivalent to setting only bit1
 //   - A rotation goes like this:
-//       wavedata[0:31] = wavedata[1:31].wavedata[0]
+//       waveData[0:31] = waveData[1:31].waveData[0]
 //   - Channel 4-5 rotation speed is set by channel 5 freq (channel 4 freq
 //     is ignored for rotation)
 //
@@ -143,7 +143,7 @@ void SCC::powerUp(EmuTime::param time)
 	// Power on values, tested by enen (log from IRC #openmsx):
 	//
 	//  <enen>    wouter_: i did an scc poweron values test, deform=0,
-	//            amplitude=full, channelenable=0, period=under 8
+	//            amplitude=full, channelEnable=0, period=under 8
 	//    ...
 	//  <wouter_> did you test the value of the waveforms as well?
 	//    ...
@@ -190,7 +190,7 @@ void SCC::setChipMode(ChipMode newMode)
 	currentChipMode = newMode;
 }
 
-byte SCC::readMem(byte addr, EmuTime::param time)
+uint8_t SCC::readMem(uint8_t addr, EmuTime::param time)
 {
 	// Deform-register locations:
 	//   SCC_Real:       0xE0..0xFF
@@ -203,7 +203,7 @@ byte SCC::readMem(byte addr, EmuTime::param time)
 	return peekMem(addr, time);
 }
 
-byte SCC::peekMem(byte address, EmuTime::param time) const
+uint8_t SCC::peekMem(uint8_t address, EmuTime::param time) const
 {
 	switch (currentChipMode) {
 	case SCC_Real:
@@ -246,7 +246,7 @@ byte SCC::peekMem(byte address, EmuTime::param time) const
 	}
 }
 
-byte SCC::readWave(unsigned channel, unsigned address, EmuTime::param time) const
+uint8_t SCC::readWave(unsigned channel, unsigned address, EmuTime::param time) const
 {
 	if (!rotate[channel]) {
 		return wave[channel][address & 0x1F];
@@ -262,7 +262,7 @@ byte SCC::readWave(unsigned channel, unsigned address, EmuTime::param time) cons
 }
 
 
-byte SCC::getFreqVol(unsigned address) const
+uint8_t SCC::getFreqVol(unsigned address) const
 {
 	address &= 0x0F;
 	if (address < 0x0A) {
@@ -282,7 +282,7 @@ byte SCC::getFreqVol(unsigned address) const
 	}
 }
 
-void SCC::writeMem(byte address, byte value, EmuTime::param time)
+void SCC::writeMem(uint8_t address, uint8_t value, EmuTime::param time)
 {
 	updateStream(time);
 
@@ -341,7 +341,7 @@ float SCC::getAmplificationFactorImpl() const
 	return 1.0f / 128.0f;
 }
 
-static constexpr float adjust(signed char wav, byte vol)
+static constexpr float adjust(int8_t wav, uint8_t vol)
 {
 	// The result is an integer value, but we store it as a float because
 	// then we need fewer int->float conversion (compared to converting in
@@ -349,7 +349,7 @@ static constexpr float adjust(signed char wav, byte vol)
 	return float((int(wav) * vol) >> 4);
 }
 
-void SCC::writeWave(unsigned channel, unsigned address, byte value)
+void SCC::writeWave(unsigned channel, unsigned address, uint8_t value)
 {
 	// write to channel 5 only possible in SCC+ mode
 	assert(channel < 5);
@@ -357,17 +357,18 @@ void SCC::writeWave(unsigned channel, unsigned address, byte value)
 
 	if (!readOnly[channel]) {
 		unsigned p = address & 0x1F;
-		wave[channel][p] = value;
-		volAdjustedWave[channel][p] = adjust(value, volume[channel]);
+		auto sValue = narrow_cast<int8_t>(value);
+		wave[channel][p] = sValue;
+		volAdjustedWave[channel][p] = adjust(sValue, volume[channel]);
 		if ((currentChipMode != SCC_plusmode) && (channel == 3)) {
 			// copy waveform 4 -> waveform 5
 			wave[4][p] = wave[3][p];
-			volAdjustedWave[4][p] = adjust(value, volume[4]);
+			volAdjustedWave[4][p] = adjust(sValue, volume[4]);
 		}
 	}
 }
 
-void SCC::setFreqVol(unsigned address, byte value, EmuTime::param time)
+void SCC::setFreqVol(unsigned address, uint8_t value, EmuTime::param time)
 {
 	address &= 0x0F; // region is visible twice
 	if (address < 0x0A) {
@@ -410,7 +411,7 @@ void SCC::setFreqVol(unsigned address, byte value, EmuTime::param time)
 	}
 }
 
-void SCC::setDeformReg(byte value, EmuTime::param time)
+void SCC::setDeformReg(uint8_t value, EmuTime::param time)
 {
 	if (value == deformValue) {
 		return;
@@ -419,7 +420,7 @@ void SCC::setDeformReg(byte value, EmuTime::param time)
 	setDeformRegHelper(value);
 }
 
-void SCC::setDeformRegHelper(byte value)
+void SCC::setDeformRegHelper(uint8_t value)
 {
 	deformValue = value;
 	if (currentChipMode != SCC_Real) {
@@ -463,7 +464,7 @@ void SCC::generateChannels(std::span<float*> bufs, unsigned num)
 {
 	unsigned enable = ch_enable;
 	for (unsigned i = 0; i < 5; ++i, enable >>= 1) {
-		if ((enable & 1) && (volume[i] || out[i])) {
+		if ((enable & 1) && (volume[i] || (out[i] != 0.0f))) {
 			auto out2 = out[i];
 			unsigned count2 = count[i];
 			unsigned pos2 = pos[i];
@@ -504,7 +505,7 @@ SCC::Debuggable::Debuggable(MSXMotherBoard& motherBoard_, const std::string& nam
 {
 }
 
-byte SCC::Debuggable::read(unsigned address, EmuTime::param time)
+uint8_t SCC::Debuggable::read(unsigned address, EmuTime::param time)
 {
 	auto& scc = OUTER(SCC, debuggable);
 	if (address < 0xA0) {
@@ -521,7 +522,7 @@ byte SCC::Debuggable::read(unsigned address, EmuTime::param time)
 	}
 }
 
-void SCC::Debuggable::write(unsigned address, byte value, EmuTime::param time)
+void SCC::Debuggable::write(unsigned address, uint8_t value, EmuTime::param time)
 {
 	auto& scc = OUTER(SCC, debuggable);
 	if (address < 0xA0) {

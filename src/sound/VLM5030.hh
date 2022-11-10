@@ -42,12 +42,12 @@ private:
 	[[nodiscard]] float getAmplificationFactorImpl() const override;
 
 	void setupParameter(uint8_t param);
-	[[nodiscard]] int getBits(unsigned sBit, unsigned bits);
+	[[nodiscard]] unsigned getBits(unsigned sBit, unsigned bits);
 	[[nodiscard]] int parseFrame();
 
 private:
 	Rom rom;
-	int address_mask;
+	unsigned address_mask;
 
 	// state of option parameter
 	int frame_size;

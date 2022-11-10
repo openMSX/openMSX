@@ -52,7 +52,7 @@ AAA    : K10    :
  ---------- chirp table information ----------
 
 DAC PWM cycle == 88system clock , (11clock x 8 pattern) = 40.6KHz
-one chirp     == 5 x PWM cycle == 440systemclock(8,136Hz)
+one chirp     == 5 x PWM cycle == 440system clock(8,136Hz)
 
 chirp  0   : volume 10- 8 : with filter
 chirp  1   : volume  8- 6 : with filter
@@ -79,6 +79,7 @@ chirp 12-..: volume   0   : silent
 #include "XMLElement.hh"
 #include "FileOperations.hh"
 #include "cstd.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "random.hh"
 #include "ranges.hh"
@@ -178,7 +179,7 @@ static constexpr std::array<int16_t, 8> K5_table = {
 	0,   -8127,  -16384,  -24511,   32638,   24511,   16254,    8127
 };
 
-int VLM5030::getBits(unsigned sBit, unsigned bits)
+unsigned VLM5030::getBits(unsigned sBit, unsigned bits)
 {
 	unsigned offset = address + (sBit / 8);
 	unsigned data = rom[(offset + 0) & address_mask] +
@@ -320,7 +321,7 @@ void VLM5030::generateChannels(std::span<float*> bufs, unsigned num)
 			x[0] = u[0];
 
 			// clipping, buffering
-			bufs[0][buf_count] = std::clamp(u[0], -511, 511);
+			bufs[0][buf_count] = narrow<float>(std::clamp(u[0], -511, 511));
 			++buf_count;
 			--sample_count;
 			++pitch_count;
@@ -363,7 +364,7 @@ float VLM5030::getAmplificationFactorImpl() const
 	return 1.0f / (1 << 9);
 }
 
-// setup parameteroption when RST=H
+// setup parameter option when RST=H
 void VLM5030::setupParameter(uint8_t param)
 {
 	// latch parameter value
@@ -532,6 +533,7 @@ VLM5030::VLM5030(const std::string& name_, static_string_view desc,
 	reset();
 	phase = PH_IDLE;
 
+	assert(rom.size() != 0);
 	address_mask = rom.size() - 1;
 
 	registerSound(config);
