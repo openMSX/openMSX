@@ -10,8 +10,8 @@
 #include "EmuTimer.hh"
 #include "EmuTime.hh"
 #include "FixedPoint.hh"
-#include "openmsx.hh"
 #include <array>
+#include <cstdint>
 #include <span>
 #include <string>
 #include <memory>
@@ -60,16 +60,16 @@ public:
 	void setEnabled(bool enabled, EmuTime::param time);
 	void clearRam();
 	void reset(EmuTime::param time);
-	void writeReg(byte rg, byte data, EmuTime::param time);
-	[[nodiscard]] byte readReg(byte rg, EmuTime::param time);
-	[[nodiscard]] byte peekReg(byte rg, EmuTime::param time) const;
-	[[nodiscard]] byte readStatus(EmuTime::param time) const;
-	[[nodiscard]] byte peekStatus(EmuTime::param time) const;
+	void writeReg(uint8_t rg, uint8_t data, EmuTime::param time);
+	[[nodiscard]] uint8_t readReg(uint8_t rg, EmuTime::param time);
+	[[nodiscard]] uint8_t peekReg(uint8_t rg, EmuTime::param time) const;
+	[[nodiscard]] uint8_t readStatus(EmuTime::param time) const;
+	[[nodiscard]] uint8_t peekStatus(EmuTime::param time) const;
 
 	// for ADPCM
-	void setStatus(byte flags);
-	void resetStatus(byte flags);
-	[[nodiscard]] byte peekRawStatus() const;
+	void setStatus(uint8_t flags);
+	void resetStatus(uint8_t flags);
+	[[nodiscard]] uint8_t peekRawStatus() const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -94,9 +94,9 @@ private:
 
 	[[nodiscard]] bool checkMuteHelper();
 
-	void changeStatusMask(byte newMask);
+	void changeStatusMask(uint8_t newMask);
 
-	void callback(byte flag) override;
+	void callback(uint8_t flag) override;
 
 public:
 	// Dynamic range of envelope
@@ -119,7 +119,7 @@ private:
 		void setKeyScaleRate(bool value) {
 			KR = value ? 9 : 11;
 		}
-		void setFeedbackShift(byte value) {
+		void setFeedbackShift(uint8_t value) {
 			FB = value ? 8 - value : 0;
 		}
 
@@ -127,15 +127,15 @@ private:
 		void serialize(Archive& ar, unsigned version);
 
 		bool AM, PM, EG;
-		byte KR; // 0,1   transformed to 9,11
-		byte ML; // 0-15
-		byte KL; // 0-3
-		byte TL; // 0-63
-		byte FB; // 0,1-7  transformed to 0,7-1
-		byte AR; // 0-15
-		byte DR; // 0-15
-		byte SL; // 0-15
-		byte RR; // 0-15
+		uint8_t KR; // 0,1   transformed to 9,11
+		uint8_t ML; // 0-15
+		uint8_t KL; // 0-3
+		uint8_t TL; // 0-63
+		uint8_t FB; // 0,1-7  transformed to 0,7-1
+		uint8_t AR; // 0-15
+		uint8_t DR; // 0-15
+		uint8_t SL; // 0-15
+		uint8_t RR; // 0-15
 	};
 
 	class Slot {
@@ -182,7 +182,7 @@ private:
 		EnvPhaseIndex eg_dPhase;// Phase increment amount
 
 		Patch patch;
-		byte key;
+		uint8_t key;
 	};
 
 	class Channel {
@@ -209,15 +209,15 @@ private:
 
 	struct Debuggable final : SimpleDebuggable {
 		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
-		[[nodiscard]] byte read(unsigned address, EmuTime::param time) override;
-		void write(unsigned address, byte value, EmuTime::param time) override;
+		[[nodiscard]] uint8_t read(unsigned address, EmuTime::param time) override;
+		void write(unsigned address, uint8_t value, EmuTime::param time) override;
 	} debuggable;
 
 	const std::unique_ptr<EmuTimer> timer1; //  80us timer
 	const std::unique_ptr<EmuTimer> timer2; // 320us timer
 	IRQHelper irq;
 
-	std::array<byte, 0x100> reg;
+	std::array<uint8_t, 0x100> reg;
 
 	std::array<Channel, 9> ch;
 
@@ -231,8 +231,8 @@ private:
 	unsigned noiseA_dPhase;
 	unsigned noiseB_dPhase;
 
-	byte status;     // STATUS Register
-	byte statusMask; // bit=0 -> masked
+	uint8_t status;     // STATUS Register
+	uint8_t statusMask; // bit=0 -> masked
 	bool rythm_mode;
 	bool am_mode;
 	bool pm_mode;

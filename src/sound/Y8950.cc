@@ -12,6 +12,7 @@
 #include "Math.hh"
 #include "cstd.hh"
 #include "enumerate.hh"
+#include "narrow.hh"
 #include "outer.hh"
 #include "ranges.hh"
 #include "serialize.hh"
@@ -95,7 +96,7 @@ static constexpr unsigned PM_DPHASE = unsigned(PM_SPEED * PM_DP_WIDTH / (Y8950::
 // Also this approach can be easily implemented in HW, the previous one (see SVN
 // history) could not.
 static constexpr unsigned LFO_AM_TAB_ELEMENTS = 210;
-static constexpr std::array<byte, LFO_AM_TAB_ELEMENTS> lfo_am_table =
+static constexpr std::array<int8_t, LFO_AM_TAB_ELEMENTS> lfo_am_table =
 {
 	0,0,0,0,0,0,0,
 	1,1,1,1,
@@ -185,7 +186,7 @@ static constexpr auto adjustAR = [] {
 	result[0] = EG_MUTE;
 	auto log_eg_mute = cstd::log<6, 5>(EG_MUTE);
 	for (int i : xrange(1, int(EG_MUTE))) {
-		result[i] = (EG_MUTE - 1 - EG_MUTE * cstd::log<6, 5>(i) / log_eg_mute) / 2;
+		result[i] = narrow_cast<unsigned>((EG_MUTE - 1 - EG_MUTE * cstd::log<6, 5>(i) / log_eg_mute) / 2);
 		assert(0 <= int(result[i]));
 		assert(result[i] <= EG_MUTE);
 	}
@@ -195,7 +196,7 @@ static constexpr auto adjustRA = [] {
 	std::array<unsigned, EG_MUTE + 1> result = {};
 	result[0] = EG_MUTE;
 	for (int i : xrange(1, int(EG_MUTE))) {
-		result[i] = cstd::pow<6, 5>(EG_MUTE, (double(EG_MUTE) - 1 - 2 * i) / EG_MUTE);
+		result[i] = narrow_cast<unsigned>(cstd::pow<6, 5>(EG_MUTE, (double(EG_MUTE) - 1 - 2 * i) / EG_MUTE));
 		assert(0 <= int(result[i]));
 		assert(result[i] <= EG_MUTE);
 	}
@@ -263,17 +264,17 @@ static constexpr auto pmTable = [] {
 // TL Table.
 static constexpr auto tllTable = [] {
 	// Processed version of Table 3.5 from the Application Manual
-	constexpr std::array<unsigned, 16> klTable = {
+	constexpr std::array<int, 16> klTable = {
 		0, 24, 32, 37, 40, 43, 45, 47, 48, 50, 51, 52, 53, 54, 55, 56
 	};
 	// This is indeed {0.0, 3.0, 1.5, 6.0} dB/oct, verified on real Y8950.
 	// Note the illogical order of 2nd and 3rd element.
-	constexpr std::array<unsigned, 4> shift = { 31, 1, 2, 0 };
+	constexpr std::array<int, 4> shift = { 31, 1, 2, 0 };
 
 	std::array<std::array<int, 4>, 16 * 8> result = {};
-	for (auto freq : xrange(16 * 8u)) {
-		unsigned fnum  = freq % 16;
-		unsigned block = freq / 16;
+	for (auto freq : xrange(16 * 8)) {
+		int fnum  = freq % 16;
+		int block = freq / 16;
 		int tmp = 4 * klTable[fnum] - 32 * (7 - block);
 		for (auto KL : xrange(4)) {
 			result[freq][KL] = (tmp <= 0) ? 0 : (tmp >> shift[KL]);
@@ -288,8 +289,8 @@ static constexpr auto dPhaseArTable = [] {
 	for (auto Rks : xrange(16)) {
 		result[Rks][0] = Y8950::EnvPhaseIndex(0);
 		for (auto AR : xrange(1, 15)) {
-			unsigned RM = std::min(AR + (Rks >> 2), 15);
-			unsigned RL = Rks & 3;
+			int RM = std::min(AR + (Rks >> 2), 15);
+			int RL = Rks & 3;
 			result[Rks][AR] =
 				Y8950::EnvPhaseIndex(12 * (RL + 4)) >> (15 - RM);
 		}
@@ -304,8 +305,8 @@ static constexpr auto dPhaseDrTable = [] {
 	for (auto Rks : xrange(16)) {
 		result[Rks][0] = Y8950::EnvPhaseIndex(0);
 		for (auto DR : xrange(1, 16)) {
-			unsigned RM = std::min(DR + (Rks >> 2), 15);
-			unsigned RL = Rks & 3;
+			int RM = std::min(DR + (Rks >> 2), 15);
+			int RL = Rks & 3;
 			result[Rks][DR] =
 				Y8950::EnvPhaseIndex(RL + 4) >> (15 - RM);
 		}
@@ -375,7 +376,7 @@ void Y8950::Slot::updatePG(unsigned freq)
 
 void Y8950::Slot::updateTLL(unsigned freq)
 {
-	tll = tllTable[freq >> 6][patch.KL] + patch.TL * TL_PER_EG;
+	tll = tllTable[freq >> 6][patch.KL] + narrow<int>(patch.TL * TL_PER_EG);
 }
 
 void Y8950::Slot::updateRKS(unsigned freq)
@@ -724,7 +725,7 @@ unsigned Y8950::Slot::calc_envelope(int lfo_am)
 int Y8950::Slot::calc_slot_car(int lfo_pm, int lfo_am, int fm)
 {
 	unsigned egOut = calc_envelope(lfo_am);
-	int pgout = calc_phase(lfo_pm) + wave2_8pi(fm);
+	int pgout = narrow<int>(calc_phase(lfo_pm)) + wave2_8pi(fm);
 	return dB2LinTab[sinTable[pgout & PG_MASK] + egOut];
 }
 
@@ -824,7 +825,7 @@ void Y8950::generateChannels(std::span<float*> bufs, unsigned num)
 		// lfo_am_table is 210 elements long
 		++am_phase;
 		if (am_phase == (LFO_AM_TAB_ELEMENTS * 64)) am_phase = 0;
-		unsigned tmp = lfo_am_table[am_phase / 64];
+		int tmp = narrow_cast<int>(lfo_am_table[am_phase / 64]);
 		int lfo_am = am_mode ? tmp : tmp / 4;
 
 		pm_phase = (pm_phase + PM_DPHASE) & (PM_DP_WIDTH - 1);
@@ -849,11 +850,11 @@ void Y8950::generateChannels(std::span<float*> bufs, unsigned num)
 
 		for (auto i : xrange(rythm_mode ? 6 : 9)) {
 			if (ch[i].slot[CAR].isActive()) {
-				bufs[i][sample] += ch[i].alg
+				bufs[i][sample] += narrow_cast<float>(ch[i].alg
 					? ch[i].slot[CAR].calc_slot_car(lfo_pm, lfo_am, 0) +
 					       ch[i].slot[MOD].calc_slot_mod(lfo_pm, lfo_am)
 					: ch[i].slot[CAR].calc_slot_car(lfo_pm, lfo_am,
-					       ch[i].slot[MOD].calc_slot_mod(lfo_pm, lfo_am));
+					       ch[i].slot[MOD].calc_slot_mod(lfo_pm, lfo_am)));
 			} else {
 				//bufs[i][sample] += 0;
 			}
@@ -868,21 +869,22 @@ void Y8950::generateChannels(std::span<float*> bufs, unsigned num)
 			(void)ch[8].slot[CAR].calc_phase(lfo_pm);
 
 			bufs[ 9][sample] += (ch[6].slot[CAR].isActive())
-				? 2 * ch[6].slot[CAR].calc_slot_car(lfo_pm, lfo_am,
-						    ch[6].slot[MOD].calc_slot_mod(lfo_pm, lfo_am))
-				: 0;
+				? narrow_cast<float>(
+					2 * ch[6].slot[CAR].calc_slot_car(lfo_pm, lfo_am,
+						    ch[6].slot[MOD].calc_slot_mod(lfo_pm, lfo_am)))
+				: 0.0f;
 			bufs[10][sample] += (ch[7].slot[CAR].isActive())
-				? 2 * ch[7].slot[CAR].calc_slot_snare(lfo_pm, lfo_am, whiteNoise)
-				: 0;
+				? narrow_cast<float>(2 * ch[7].slot[CAR].calc_slot_snare(lfo_pm, lfo_am, whiteNoise))
+				: 0.0f;
 			bufs[11][sample] += (ch[8].slot[CAR].isActive())
-				? 2 * ch[8].slot[CAR].calc_slot_cym(lfo_am, noiseA, noiseB)
-				: 0;
+				? narrow_cast<float>(2 * ch[8].slot[CAR].calc_slot_cym(lfo_am, noiseA, noiseB))
+				: 0.0f;
 			bufs[12][sample] += (ch[7].slot[MOD].isActive())
-				? 2 * ch[7].slot[MOD].calc_slot_hat(lfo_am, noiseA, noiseB, whiteNoise)
-				: 0;
+				? narrow_cast<float>(2 * ch[7].slot[MOD].calc_slot_hat(lfo_am, noiseA, noiseB, whiteNoise))
+				: 0.0f;
 			bufs[13][sample] += (ch[8].slot[MOD].isActive())
-				? 2 * ch[8].slot[MOD].calc_slot_tom(lfo_pm, lfo_am)
-				: 0;
+				? narrow_cast<float>(2 * ch[8].slot[MOD].calc_slot_tom(lfo_pm, lfo_am))
+				: 0.0f;
 		} else {
 			//bufs[ 9] += 0;
 			//bufs[10] += 0;
@@ -891,7 +893,7 @@ void Y8950::generateChannels(std::span<float*> bufs, unsigned num)
 			//bufs[13] += 0;
 		}
 
-		bufs[14][sample] += adpcm.calcSample();
+		bufs[14][sample] += narrow_cast<float>(adpcm.calcSample());
 	}
 }
 
@@ -899,7 +901,7 @@ void Y8950::generateChannels(std::span<float*> bufs, unsigned num)
 // I/O Ctrl
 //
 
-void Y8950::writeReg(byte rg, byte data, EmuTime::param time)
+void Y8950::writeReg(uint8_t rg, uint8_t data, EmuTime::param time)
 {
 	static constexpr std::array<int, 32> sTbl = {
 		 0,  2,  4,  1,  3,  5, -1, -1,
@@ -1002,8 +1004,7 @@ void Y8950::writeReg(byte rg, byte data, EmuTime::param time)
 				int tmp = static_cast<signed char>(reg[0x15]) * 256
 				        + reg[0x16];
 				tmp = (tmp * 4) >> (7 - reg[0x17]);
-				tmp = Math::clipToInt16(tmp);
-				dac13.writeDAC(tmp, time);
+				dac13.writeDAC(Math::clipToInt16(tmp), time);
 			}
 			break;
 		case 0x16: //           (bit1-0)
@@ -1143,7 +1144,7 @@ void Y8950::writeReg(byte rg, byte data, EmuTime::param time)
 	}
 }
 
-byte Y8950::readReg(byte rg, EmuTime::param time)
+uint8_t Y8950::readReg(uint8_t rg, EmuTime::param time)
 {
 	updateStream(time); // TODO only when necessary
 
@@ -1158,7 +1159,7 @@ byte Y8950::readReg(byte rg, EmuTime::param time)
 	}
 }
 
-byte Y8950::peekReg(byte rg, EmuTime::param time) const
+uint8_t Y8950::peekReg(uint8_t rg, EmuTime::param time) const
 {
 	switch (rg) {
 		case 0x05: // (KEYBOARD IN)
@@ -1171,9 +1172,9 @@ byte Y8950::peekReg(byte rg, EmuTime::param time) const
 			return adpcm.peekReg(rg, time);
 
 		case 0x19: { // I/O DATA
-			byte input = periphery.read(time);
-			byte output = reg[0x19];
-			byte enable = reg[0x18];
+			uint8_t input = periphery.read(time);
+			uint8_t output = reg[0x19];
+			uint8_t enable = reg[0x18];
 			return (output & enable) | (input & ~enable) | 0xF0;
 		}
 		default:
@@ -1181,25 +1182,25 @@ byte Y8950::peekReg(byte rg, EmuTime::param time) const
 	}
 }
 
-byte Y8950::readStatus(EmuTime::param time) const
+uint8_t Y8950::readStatus(EmuTime::param time) const
 {
-	byte result = peekStatus(time);
+	uint8_t result = peekStatus(time);
 	//std::cout << "status: " << (int)result << '\n';
 	return result;
 }
 
-byte Y8950::peekStatus(EmuTime::param time) const
+uint8_t Y8950::peekStatus(EmuTime::param time) const
 {
 	const_cast<Y8950Adpcm&>(adpcm).sync(time);
 	return (status & (0x87 | statusMask)) | 0x06; // bit 1 and 2 are always 1
 }
 
-void Y8950::callback(byte flag)
+void Y8950::callback(uint8_t flag)
 {
 	setStatus(flag);
 }
 
-void Y8950::setStatus(byte flags)
+void Y8950::setStatus(uint8_t flags)
 {
 	status |= flags;
 	if (status & statusMask) {
@@ -1207,7 +1208,7 @@ void Y8950::setStatus(byte flags)
 		irq.set();
 	}
 }
-void Y8950::resetStatus(byte flags)
+void Y8950::resetStatus(uint8_t flags)
 {
 	status &= ~flags;
 	if (!(status & statusMask)) {
@@ -1215,11 +1216,11 @@ void Y8950::resetStatus(byte flags)
 		irq.reset();
 	}
 }
-byte Y8950::peekRawStatus() const
+uint8_t Y8950::peekRawStatus() const
 {
 	return status;
 }
-void Y8950::changeStatusMask(byte newMask)
+void Y8950::changeStatusMask(uint8_t newMask)
 {
 	statusMask = newMask;
 	status &= 0x87 | statusMask;
@@ -1334,7 +1335,7 @@ void Y8950::serialize(Archive& ar, unsigned /*version*/)
 
 	if constexpr (Archive::IS_LOADER) {
 		// TODO restore more state from registers
-		static constexpr std::array<byte, 2> rewriteRegs = {
+		static constexpr std::array<uint8_t, 2> rewriteRegs = {
 			6,       // connector
 			15,      // dac13
 		};
@@ -1356,13 +1357,13 @@ Y8950::Debuggable::Debuggable(MSXMotherBoard& motherBoard_,
 {
 }
 
-byte Y8950::Debuggable::read(unsigned address, EmuTime::param time)
+uint8_t Y8950::Debuggable::read(unsigned address, EmuTime::param time)
 {
 	auto& y8950 = OUTER(Y8950, debuggable);
 	return y8950.peekReg(address, time);
 }
 
-void Y8950::Debuggable::write(unsigned address, byte value, EmuTime::param time)
+void Y8950::Debuggable::write(unsigned address, uint8_t value, EmuTime::param time)
 {
 	auto& y8950 = OUTER(Y8950, debuggable);
 	y8950.writeReg(address, value, time);
