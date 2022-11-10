@@ -30,6 +30,7 @@
 #include "cstd.hh"
 #include "enumerate.hh"
 #include "Math.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "unreachable.hh"
@@ -58,11 +59,11 @@ enum RmNum : uint8_t {
 	return RmNum(cycle - 11);
 }
 
-static constexpr auto logsinTab = [] {
+static constexpr auto logSinTab = [] {
 	std::array<uint16_t, 256> result = {};
 	//for (auto [i, r] : enumerate(result)) { msvc bug
 	for (int i = 0; i < 256; ++i) {
-		result[i] = cstd::round(-cstd::log2<8, 3>(cstd::sin<2>((double(i) + 0.5) * Math::pi / 256.0 / 2.0)) * 256.0);
+		result[i] = narrow_cast<uint16_t>(cstd::round(-cstd::log2<8, 3>(cstd::sin<2>((double(i) + 0.5) * Math::pi / 256.0 / 2.0)) * 256.0));
 	}
 	return result;
 }();
@@ -70,7 +71,7 @@ static constexpr auto expTab = [] {
 	std::array<uint16_t, 256> result = {};
 	//for (auto [i, r] : enumerate(result)) { msvc bug
 	for (int i = 0; i < 256; ++i) {
-		result[i] = cstd::round((cstd::exp2<6>(double(255 - i) / 256.0)) * 1024.0);
+		result[i] = narrow_cast<uint16_t>(cstd::round((cstd::exp2<6>(double(255 - i) / 256.0)) * 1024.0));
 	}
 	return result;
 }();
@@ -168,7 +169,7 @@ void YM2413::reset()
 		p_inst[i] = &patches[inst[i]];
 		changeFnumBlock(i);
 	}
-	rhythm = testmode = 0;
+	rhythm = testMode = 0;
 	patches[0] = Patch(); // reset user patch, leave ROM patches alone
 	c_dcm[0] = c_dcm[1] = c_dcm[2] = 0;
 
@@ -234,7 +235,7 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::envelopeTim
 			auto timer_bit = (eg_timer & 1) + timer_inc;
 			eg_timer_carry = timer_bit & 2;
 			eg_timer = ((timer_bit & 1) << 17) | (eg_timer >> 1);
-			if (testmode & 8) {
+			if (testMode & 8) {
 				const auto& write = writes[CYCLES];
 				auto data = (write.port != uint8_t(-1)) ? write.value : write_data;
 				eg_timer &= 0x2ffff;
@@ -391,7 +392,7 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::doLFO(bool&
 		// Update counter
 		if constexpr (CYCLES == 17) {
 			lfo_counter++;
-			if (((lfo_counter & 0x3ff) == 0) || (testmode & 8)) {
+			if (((lfo_counter & 0x3ff) == 0) || (testMode & 8)) {
 				lfo_vib_counter = (lfo_vib_counter + 1) & 7;
 				lfo_vib = VIB_TAB[lfo_vib_counter];
 			}
@@ -399,7 +400,7 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::doLFO(bool&
 		}
 
 		// LFO AM
-		auto am_inc = ((lfo_am_step || (testmode & 8)) && CYCLES < 9)
+		auto am_inc = ((lfo_am_step || (testMode & 8)) && CYCLES < 9)
 		            ? (lfo_am_dir | (CYCLES == 0))
 		            : 0;
 
@@ -418,7 +419,7 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::doLFO(bool&
 		lfo_am_counter = ((am_bit & 1) << 8) | (lfo_am_counter >> 1);
 
 		// Reset LFO
-		if (testmode & 2) {
+		if (testMode & 2) {
 			lfo_vib_counter = 0;
 			lfo_vib = VIB_TAB[lfo_vib_counter];
 			lfo_counter = 0;
@@ -456,7 +457,7 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::doRhythm()
 {
 	if constexpr (TEST_MODE) {
 		bool nbit = (rm_noise ^ (rm_noise >> 14)) & 1;
-		nbit |= bool(testmode & 2);
+		nbit |= bool(testMode & 2);
 		rm_noise = (nbit << 22) | (rm_noise >> 1);
 	} else {
 		// When test-mode does not interfere, the formula for a single step is:
@@ -617,7 +618,7 @@ void YM2413::doModeWrite(uint8_t address, uint8_t value)
 		break;
 
 	case 0x0f:
-		testmode = value & 0x0f;
+		testMode = value & 0x0f;
 		break;
 	}
 }
@@ -633,16 +634,16 @@ template<uint32_t CYCLES> ALWAYS_INLINE void YM2413::doOperator(std::span<float*
 		if (eg_silent) return 0;
 		auto prev2_phase = op_phase[(CYCLES - 2) & 1];
 		uint8_t quarter = (prev2_phase & 0x100) ? ~prev2_phase : prev2_phase;
-		auto logsin = logsinTab[quarter];
-		auto op_level = std::min(4095, logsin + (eg_out[(CYCLES - 2) & 1] << 4));
+		auto logSin = logSinTab[quarter];
+		auto op_level = std::min(4095, logSin + (eg_out[(CYCLES - 2) & 1] << 4));
 		uint32_t op_exp_m = expTab[op_level & 0xff];
-		auto  op_exp_s = op_level >> 8;
+		auto op_exp_s = op_level >> 8;
 		if (prev2_phase & 0x200) {
 			return /*unlikely*/(c_dcm[(CYCLES + 16) % 3] & (ismod1 ? 1 : 2))
 			       ? ~0
 			       : ~(op_exp_m >> op_exp_s);
 		} else {
-			return op_exp_m >> op_exp_s;
+			return narrow<int32_t>(op_exp_m >> op_exp_s);
 		}
 	}();
 
@@ -733,7 +734,7 @@ template<uint32_t CYCLES> ALWAYS_INLINE bool YM2413::keyOnEvent() const
 
 template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::incrementPhase(uint32_t phase_incr, bool key_on_event)
 {
-	uint32_t pg_phase_next = ((TEST_MODE && (testmode & 4)) || key_on_event)
+	uint32_t pg_phase_next = ((TEST_MODE && (testMode & 4)) || key_on_event)
 	              ? 0
 	              : pg_phase[CYCLES];
 	pg_phase[CYCLES] = pg_phase_next + phase_incr;
@@ -741,26 +742,27 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::incrementPh
 
 template<uint32_t CYCLES> ALWAYS_INLINE void YM2413::channelOutput(std::span<float*, 9 + 5> out, int32_t ch_out)
 {
+	auto outF = narrow_cast<float>(ch_out);
 	switch (CYCLES) {
-		case  4: *out[ 0]++ += ch_out; break;
-		case  5: *out[ 1]++ += ch_out; break;
-		case  6: *out[ 2]++ += ch_out; break;
-		case 10: *out[ 3]++ += ch_out; break;
-		case 11: *out[ 4]++ += ch_out; break;
-		case 12: *out[ 5]++ += ch_out; break;
-		case 14: *out[ 9]++ += (rhythm & 0x20) ? 2 * ch_out : 0; break;
-		case 15: *out[10]++ += delay10;
+		case  4: *out[ 0]++ += outF; break;
+		case  5: *out[ 1]++ += outF; break;
+		case  6: *out[ 2]++ += outF; break;
+		case 10: *out[ 3]++ += outF; break;
+		case 11: *out[ 4]++ += outF; break;
+		case 12: *out[ 5]++ += outF; break;
+		case 14: *out[ 9]++ += (rhythm & 0x20) ? 2.0f * outF : 0.0f; break;
+		case 15: *out[10]++ += narrow_cast<float>(delay10);
 		         delay10     = (rhythm & 0x20) ? 2 * ch_out : 0; break;
-		case 16: *out[ 6]++ += delay6;
-			 *out[11]++ += delay11;
+		case 16: *out[ 6]++ += narrow_cast<float>(delay6);
+			 *out[11]++ += narrow_cast<float>(delay11);
 		         delay6      = (rhythm & 0x20) ? 0 : ch_out;
 			 delay11     = (rhythm & 0x20) ? 2 * ch_out : 0; break;
-		case 17: *out[ 7]++ += delay7;
-			 *out[12]++ += delay12;
+		case 17: *out[ 7]++ += narrow_cast<float>(delay7);
+			 *out[12]++ += narrow_cast<float>(delay12);
 		         delay7      = (rhythm & 0x20) ? 0 : ch_out;
 			 delay12     = (rhythm & 0x20) ? 2 * ch_out : 0; break;
-		case  0: *out[ 8]++ += (rhythm & 0x20) ? 0 : ch_out;
-			 *out[13]++ += (rhythm & 0x20) ? 2 * ch_out : 0; break;
+		case  0: *out[ 8]++ += (rhythm & 0x20) ? 0.0f : outF;
+			 *out[13]++ += (rhythm & 0x20) ? 2.0f * outF : 0.0f; break;
 		default:
 			break; // suppress warning
 	}
@@ -768,7 +770,7 @@ template<uint32_t CYCLES> ALWAYS_INLINE void YM2413::channelOutput(std::span<flo
 
 template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE uint8_t YM2413::envelopeOutput(uint32_t ksltl, int8_t am_t) const
 {
-	if (TEST_MODE && (testmode & 1)) {
+	if (TEST_MODE && (testMode & 1)) {
 		return 0;
 	}
 	int32_t level = eg_level[CYCLES] + ksltl + (am_t & lfo_am_out);
@@ -825,7 +827,7 @@ void YM2413::generateChannels(std::span<float*, 9 + 5> out_, uint32_t n)
 	} else {
 		repeat(n, [&] { step18<false>(out); });
 	}
-	test_mode_active = testmode;
+	test_mode_active = testMode;
 }
 
 template<bool TEST_MODE>
@@ -999,7 +1001,7 @@ void YM2413::serialize(Archive& ar, unsigned /*version*/)
 
 		// Restore these from register values:
 		//   fnum, block, p_ksl, p_incr, p_ksr_freq, sk_on, vol8,
-		//   inst, p_inst, rhythm, testmode, patches[0]
+		//   inst, p_inst, rhythm, testMode, patches[0]
 		for (auto i : xrange(64)) {
 			pokeReg(i, regs[i]);
 		}

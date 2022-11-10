@@ -42,7 +42,7 @@
 *   of vgm files.
 *  - TODO document better what kind of transformations were done.
 *      * Emulate 18-steps at-a-time.
-*      * Specialize for the common case that testmode==0 (but still have slower
+*      * Specialize for the common case that testMode==0 (but still have slower
 *        fallback code).
 *      * Move sub-operations in the pipeline (e.g. to eliminate temporary state)
 *        when this doesn't have an observable effect.
@@ -251,7 +251,7 @@ private:
 	std::array<uint8_t, 9> inst;
 	std::array<const Patch*, 9> p_inst; // redundant: &patches[inst[]]
 	uint8_t rhythm;
-	uint8_t testmode;
+	uint8_t testMode;
 	std::array<Patch, 1 + 15> patches; // user patch (modifiable) + 15 ROM patches
 	std::array<uint8_t, 3> c_dcm;
 

@@ -1,4 +1,5 @@
 #include "YM2413OriginalNukeYKT.hh"
+#include "narrow.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include "xrange.hh"
@@ -28,20 +29,20 @@ void YM2413::generateChannels(std::span<float*, 9 + 5> out_, uint32_t n)
 		std::array<int32_t, 2> buf;
 		OPLL_Clock(&opll, buf.data());
 		switch (opll.cycles) {
-			case  0: *out[ 9]++ += buf[1] * 2; break;
-			case  1: *out[10]++ += buf[1] * 2; break;
-			case  2: *out[ 6]++ += buf[0];
-				 *out[11]++ += buf[1] * 2; break;
-			case  3: *out[ 7]++ += buf[0];
-				 *out[12]++ += buf[1] * 2; break;
-			case  4: *out[ 8]++ += buf[0];
-				 *out[13]++ += buf[1] * 2; break;
-			case  8: *out[ 0]++ += buf[0];     break;
-			case  9: *out[ 1]++ += buf[0];     break;
-			case 10: *out[ 2]++ += buf[0];     break;
-			case 14: *out[ 3]++ += buf[0];     break;
-			case 15: *out[ 4]++ += buf[0];     break;
-			case 16: *out[ 5]++ += buf[0];     break;
+			case  0: *out[ 9]++ += narrow_cast<float>(buf[1] * 2); break;
+			case  1: *out[10]++ += narrow_cast<float>(buf[1] * 2); break;
+			case  2: *out[ 6]++ += narrow_cast<float>(buf[0]);
+				 *out[11]++ += narrow_cast<float>(buf[1] * 2); break;
+			case  3: *out[ 7]++ += narrow_cast<float>(buf[0]);
+				 *out[12]++ += narrow_cast<float>(buf[1] * 2); break;
+			case  4: *out[ 8]++ += narrow_cast<float>(buf[0]);
+				 *out[13]++ += narrow_cast<float>(buf[1] * 2); break;
+			case  8: *out[ 0]++ += narrow_cast<float>(buf[0]);     break;
+			case  9: *out[ 1]++ += narrow_cast<float>(buf[0]);     break;
+			case 10: *out[ 2]++ += narrow_cast<float>(buf[0]);     break;
+			case 14: *out[ 3]++ += narrow_cast<float>(buf[0]);     break;
+			case 15: *out[ 4]++ += narrow_cast<float>(buf[0]);     break;
+			case 16: *out[ 5]++ += narrow_cast<float>(buf[0]);     break;
 		}
 	};
 
