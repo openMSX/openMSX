@@ -21,13 +21,13 @@ public:
 	enum UpdateType {
 		LED,
 		SETTING,
-		SETTINGINFO,
+		SETTING_INFO,
 		HARDWARE,
 		PLUG,
 		MEDIA,
 		STATUS,
 		EXTENSION,
-		SOUNDDEVICE,
+		SOUND_DEVICE,
 		CONNECTOR,
 		DEBUG_UPDT,
 		NUM_UPDATES // must be last

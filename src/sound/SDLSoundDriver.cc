@@ -8,6 +8,7 @@
 #include "ThrottleManager.hh"
 #include "MSXException.hh"
 #include "Timer.hh"
+#include "narrow.hh"
 #include <algorithm>
 #include <bit>
 #include <cassert>
@@ -20,7 +21,7 @@ SDLSoundDriver::SDLSoundDriver(Reactor& reactor_,
 	, muted(true)
 {
 	SDL_AudioSpec desired;
-	desired.freq     = wantedFreq;
+	desired.freq     = narrow<int>(wantedFreq);
 	desired.samples  = std::bit_ceil(wantedSamples);
 	desired.channels = 2; // stereo
 	desired.format   = AUDIO_F32SYS;
@@ -92,9 +93,9 @@ void SDLSoundDriver::audioCallbackHelper(void* userdata, uint8_t* strm, int len)
 
 unsigned SDLSoundDriver::getBufferFilled() const
 {
-	int result = writeIdx - readIdx;
-	if (result < 0) result += mixBufferSize;
-	assert((0 <= result) && (unsigned(result) < mixBufferSize));
+	int result = narrow_cast<int>(writeIdx - readIdx);
+	if (result < 0) result += narrow<int>(mixBufferSize);
+	assert((0 <= result) && (narrow<unsigned>(result) < mixBufferSize));
 	return result;
 }
 
@@ -103,8 +104,9 @@ unsigned SDLSoundDriver::getBufferFree() const
 	// we can't distinguish completely filled from completely empty
 	// (in both cases readIx would be equal to writeIdx), so instead
 	// we define full as '(writeIdx + 1) == readIdx'.
-	int result = mixBufferSize - 1 - getBufferFilled();
-	assert((0 <= result) && (unsigned(result) < mixBufferSize));
+	unsigned result = mixBufferSize - 1 - getBufferFilled();
+	assert(narrow_cast<int>(result) >= 0);
+	assert(result < mixBufferSize);
 	return result;
 }
 
@@ -124,7 +126,7 @@ void SDLSoundDriver::audioCallback(std::span<StereoFloat> stream)
 		ranges::copy(std::span{&mixBuffer[0], len2}, stream.subspan(len1));
 		readIdx = len2;
 	}
-	int missing = len - available;
+	auto missing = narrow_cast<ptrdiff_t>(len - available);
 	if (missing > 0) {
 		// buffer underrun
 		ranges::fill(subspan(stream, available, missing), StereoFloat{});

@@ -37,7 +37,7 @@ void SectorBasedDisk::readTrack(uint8_t track, uint8_t side, RawTrack& output)
 	// will typically already have a very high hit-rate. For example during
 	// emulation of a WD2793 read sector, we also emulate the search for
 	// the correct sector. So the disk rotates from sector to sector, and
-	// each time we re-read the track data (because emutime has passed).
+	// each time we re-read the track data (because EmuTime has passed).
 	// Typically the software will also read several sectors from the same
 	// track before moving to the next.
 	checkCaches();

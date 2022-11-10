@@ -117,7 +117,7 @@ void Setting::notifyPropertyChange() const
 	TclObject result;
 	info(result);
 	commandController.getCliComm().updateFiltered(
-		CliComm::SETTINGINFO, getBaseName(), result.getString());
+		CliComm::SETTING_INFO, getBaseName(), result.getString());
 }
 
 bool Setting::needLoadSave() const

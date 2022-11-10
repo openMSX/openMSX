@@ -45,7 +45,7 @@ public:
 	~MSXMixer();
 
 	/**
-	 * Use this method to register a given sounddevice.
+	 * Use this method to register a given SoundDevice.
 	 *
 	 * While registering, the device its setSampleRate() method is
 	 * called (see SoundDevice for more info).
@@ -56,7 +56,7 @@ public:
 	                   int balance, unsigned numChannels);
 
 	/**
-	 * Every sounddevice must unregister before it is destructed
+	 * Every SoundDevice must unregister before it is destructed
 	 */
 	void unregisterSound(SoundDevice& device);
 
@@ -71,15 +71,15 @@ public:
 	 */
 	void updateSoftwareVolume(SoundDevice& device);
 
-	/** Returns the ratio of emutime-speed per realtime-speed.
-	 * In other words how many times faster emutime goes compared to
+	/** Returns the ratio of EmuTime-speed per realtime-speed.
+	 * In other words how many times faster EmuTime goes compared to
 	 * realtime. This depends on the 'speed' setting but also on whether
 	 * we're recording or not (in case of recording we want to generate
-	 * sound as if realtime and emutime go at the same speed.
+	 * sound as if realtime and EmuTime go at the same speed.
 	 */
 	[[nodiscard]] double getEffectiveSpeed() const;
 
-	/** If we're recording, we want to emulate sound at 100% emutime speed.
+	/** If we're recording, we want to emulate sound at 100% EmuTime speed.
 	 * See also getEffectiveSpeed().
 	 */
 	void setSynchronousMode(bool synchronous);

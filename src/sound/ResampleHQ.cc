@@ -332,7 +332,7 @@ ResampleCoeffs::Table ResampleCoeffs::calcTable(
 	int max_idx = 1 + (maxFilterIndex - (increment - FilterIndex(floatIncr))).divAsInt(increment);
 	int idx_cnt = max_idx - min_idx + 1;
 	filterLen = (idx_cnt + 3) & ~3; // round up to multiple of 4
-	min_idx -= (filterLen - idx_cnt) / 2;
+	min_idx -= (narrow<int>(filterLen) - idx_cnt) / 2;
 	Table table(HALF_TAB_LEN * filterLen);
 	ranges::fill(std::span{table.data(), HALF_TAB_LEN * filterLen}, 0);
 
@@ -399,7 +399,7 @@ static inline void calcSseMono(const float* buf_, const float* tab_, size_t len,
 	assert((len % 4) == 0);
 	assert((uintptr_t(tab_) % 16) == 0);
 
-	ptrdiff_t x = (len & ~7) * sizeof(float);
+	auto x = narrow<ptrdiff_t>((len & ~7) * sizeof(float));
 	assert((x % 32) == 0);
 	const char* buf = reinterpret_cast<const char*>(buf_) + x;
 	const char* tab = reinterpret_cast<const char*>(tab_) + (REVERSE ? -x : x);
@@ -455,7 +455,7 @@ static inline void calcSseStereo(const float* buf_, const float* tab_, size_t le
 	assert((len % 4) == 0);
 	assert((uintptr_t(tab_) % 16) == 0);
 
-	ptrdiff_t x = 2 * (len & ~7) * sizeof(float);
+	auto x = narrow<ptrdiff_t>(2 * (len & ~7) * sizeof(float));
 	const char* buf = reinterpret_cast<const char*>(buf_) + x;
 	const char* tab = reinterpret_cast<const char*>(tab_);
 	x = -x;

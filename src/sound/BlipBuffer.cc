@@ -166,7 +166,7 @@ bool BlipBuffer::readSamples(float* __restrict out, size_t samples)
 		}
 		accum = acc;
 	} else {
-		availSamp -= samples;
+		availSamp -= narrow<ptrdiff_t>(samples);
 		auto t1 = std::min(samples, BUFFER_SIZE - offset);
 		readSamplesHelper<PITCH>(out, t1);
 		if (t1 < samples) {

@@ -10,7 +10,7 @@ namespace openmsx {
 class CommandController;
 
 /**
- * Manages the desired ratio between emutime and real time.
+ * Manages the desired ratio between EmuTime and real time.
  * Currently this just republishes the value of the "speed" setting.
  */
 class SpeedManager final : public Subject<SpeedManager>
@@ -21,7 +21,7 @@ public:
 	~SpeedManager();
 
 	/**
-	 * Return the desired ratio between emutime and real time.
+	 * Return the desired ratio between EmuTime and real time.
 	 */
 	[[nodiscard]] double getSpeed() const { return speed; }
 

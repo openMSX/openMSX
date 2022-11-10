@@ -435,7 +435,7 @@ class SwitchRendererEvent        final : public SimpleEvent {};
 /** Used to schedule 'taking reverse snapshots' between Z80 instructions. */
 class TakeReverseSnapshotEvent   final : public SimpleEvent {};
 
-/** Send when an after-emutime command should be executed. */
+/** Send when an after-EmuTime command should be executed. */
 class AfterTimedEvent            final : public SimpleEvent {};
 
 /** Send when a (new) machine configuration is loaded. */

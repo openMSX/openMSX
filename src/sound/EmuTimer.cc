@@ -10,42 +10,42 @@ unique_ptr<EmuTimer> EmuTimer::createOPM_1(
 	Scheduler& scheduler, EmuTimerCallback& cb)
 {
 	return std::make_unique<EmuTimer>(
-		scheduler, cb, 1,  3579545, 64 * 2     , 1024);
+		scheduler, cb, 1, 3579545, 64 * 2, 1024);
 }
 
 unique_ptr<EmuTimer> EmuTimer::createOPM_2(
 	Scheduler& scheduler, EmuTimerCallback& cb)
 {
 	return std::make_unique<EmuTimer>(
-		scheduler, cb, 2,  3579545, 64 * 2 * 16, 256);
+		scheduler, cb, 2, 3579545, 64 * 2 * 16, 256);
 }
 
 unique_ptr<EmuTimer> EmuTimer::createOPP_2(
 	Scheduler& scheduler, EmuTimerCallback& cb)
 {
 	return std::make_unique<EmuTimer>(
-		scheduler, cb, 2,  3579545, 64 * 2 * 32, 256);
+		scheduler, cb, 2, 3579545, 64 * 2 * 32, 256);
 }
 
 unique_ptr<EmuTimer> EmuTimer::createOPL3_1(
 	Scheduler& scheduler, EmuTimerCallback& cb)
 {
 	return std::make_unique<EmuTimer>(
-		scheduler, cb, 0x40,  3579545, 72 *  4    , 256);
+		scheduler, cb, 0x40, 3579545, 72 * 4, 256);
 }
 
 unique_ptr<EmuTimer> EmuTimer::createOPL3_2(
 	Scheduler& scheduler, EmuTimerCallback& cb)
 {
 	return std::make_unique<EmuTimer>(
-		scheduler, cb, 0x20,  3579545, 72 *  4 * 4, 256);
+		scheduler, cb, 0x20, 3579545, 72 * 4 * 4, 256);
 }
 
 unique_ptr<EmuTimer> EmuTimer::createOPL4_1(
 	Scheduler& scheduler, EmuTimerCallback& cb)
 {
 	return std::make_unique<EmuTimer>(
-		scheduler, cb, 0x40, 33868800, 72 * 38    , 256);
+		scheduler, cb, 0x40, 33868800, 72 * 38, 256);
 }
 
 unique_ptr<EmuTimer> EmuTimer::createOPL4_2(
@@ -58,10 +58,10 @@ unique_ptr<EmuTimer> EmuTimer::createOPL4_2(
 
 EmuTimer::EmuTimer(Scheduler& scheduler_, EmuTimerCallback& cb_,
                    byte flag_, unsigned freq_num, unsigned freq_denom,
-                   unsigned maxval_)
+                   int maxVal_)
 	: Schedulable(scheduler_), cb(cb_)
 	, clock(EmuTime::dummy())
-	, maxval(maxval_), count(maxval_)
+	, maxVal(maxVal_), count(maxVal_)
 	, flag(flag_), counting(false)
 {
 	clock.setFreq(freq_num, freq_denom);
@@ -69,7 +69,7 @@ EmuTimer::EmuTimer(Scheduler& scheduler_, EmuTimerCallback& cb_,
 
 void EmuTimer::setValue(int value)
 {
-	count = maxval - value;
+	count = maxVal - value;
 }
 
 void EmuTimer::setStart(bool start, EmuTime::param time)
