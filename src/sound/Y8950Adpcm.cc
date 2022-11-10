@@ -14,6 +14,7 @@
 #include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
 #include "Math.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 #include <algorithm>
 #include <array>
@@ -37,9 +38,9 @@ static constexpr int R08_SAMPL       = 0x08;
 static constexpr int R08_NOTE_SET    = 0x40;
 static constexpr int R08_CSM         = 0x80;
 
-static constexpr int DMAX = 0x6000;
-static constexpr int DMIN = 0x7F;
-static constexpr int DDEF = 0x7F;
+static constexpr int DIFF_MAX     = 0x6000;
+static constexpr int DIFF_MIN     = 0x7F;
+static constexpr int DIFF_DEFAULT = 0x7F;
 
 static constexpr int STEP_BITS = 16;
 static constexpr int STEP_MASK = (1 << STEP_BITS) -1;
@@ -98,7 +99,7 @@ void Y8950Adpcm::restart(PlayData& pd)
 	pd.nowStep = (1 << STEP_BITS) - delta;
 	pd.out = 0;
 	pd.output = 0;
-	pd.diff = DDEF;
+	pd.diff = DIFF_DEFAULT;
 	pd.nextLeveling = 0;
 	pd.sampleStep = 0;
 	pd.adpcm_data = 0; // dummy, avoid UMR in serialize
@@ -475,13 +476,13 @@ int Y8950Adpcm::calcSample(bool doEmu)
 		}();
 		int prevOut = pd.out;
 		pd.out = Math::clipToInt16(pd.out + (pd.diff * F1[val]) / 8);
-		pd.diff = std::clamp((pd.diff * F2[val]) / 64, DMIN, DMAX);
+		pd.diff = std::clamp((pd.diff * F2[val]) / 64, DIFF_MIN, DIFF_MAX);
 
 		int prevLeveling = pd.nextLeveling;
 		pd.nextLeveling = (prevOut + pd.out) / 2;
 		int deltaLeveling = pd.nextLeveling - prevLeveling;
 		pd.sampleStep = deltaLeveling * volumeWStep;
-		int tmp = deltaLeveling * ((volume * pd.nowStep) >> STEP_BITS);
+		int tmp = deltaLeveling * ((volume * narrow<int>(pd.nowStep)) >> STEP_BITS);
 		pd.output = prevLeveling * volume + tmp;
 
 		++pd.memPtr;

@@ -9,6 +9,7 @@
 #include "Math.hh"
 #include "cstd.hh"
 #include "enumerate.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "serialize.hh"
@@ -21,7 +22,7 @@
 
 namespace openmsx {
 
-// TODO void ym2151WritePortCallback(void* ref, unsigned port, byte value);
+// TODO void ym2151WritePortCallback(void* ref, unsigned port, uint8_t value);
 
 static constexpr int FREQ_SH  = 16; // 16.16 fixed point (frequency calculations)
 
@@ -117,7 +118,7 @@ static constexpr auto d1l_tab = [] {
 
 
 static constexpr unsigned RATE_STEPS = 8;
-static constexpr std::array<byte, 19 * RATE_STEPS> eg_inc = {
+static constexpr std::array<uint8_t, 19 * RATE_STEPS> eg_inc = {
 
 //cycle:0 1  2 3  4 5  6 7
 
@@ -147,9 +148,9 @@ static constexpr std::array<byte, 19 * RATE_STEPS> eg_inc = {
 };
 
 
-static constexpr byte O(int a) { return a * RATE_STEPS; }
+static constexpr uint8_t O(int a) { return a * RATE_STEPS; }
 // note that there is no O(17) in this table - it's directly in the code
-static constexpr std::array<byte, 32 + 64 + 32> eg_rate_select {
+static constexpr std::array<uint8_t, 32 + 64 + 32> eg_rate_select {
 // Envelope Generator rates (32 + 64 rates + 32 RKS)
 // 32 dummy (infinite time) rates
 O(18),O(18),O(18),O(18),O(18),O(18),O(18),O(18),
@@ -193,7 +194,7 @@ O(16),O(16),O(16),O(16),O(16),O(16),O(16),O(16)
 // rate  0,    1,    2,   3,   4,   5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15
 // shift 11,   10,   9,   8,   7,   6,  5,  4,  3,  2, 1,  0,  0,  0,  0,  0
 // mask  2047, 1023, 511, 255, 127, 63, 31, 15, 7,  3, 1,  0,  0,  0,  0,  0
-static constexpr std::array<byte, 32 + 64 + 32> eg_rate_shift = {
+static constexpr std::array<uint8_t, 32 + 64 + 32> eg_rate_shift = {
 // Envelope Generator counter shifts (32 + 64 rates + 32 RKS)
 // 32 infinite time rates
    0,  0,  0,  0,  0,  0,  0,  0,
@@ -248,7 +249,7 @@ static constexpr std::array<unsigned, 4> dt2_tab = {0, 384, 500, 608};
 // DT1 defines offset in Hertz from base note
 // This table is converted while initialization...
 // Detune table shown in YM2151 User's Manual is wrong (verified on the real chip)
-static constexpr std::array<byte, 4 * 32> dt1_tab = {
+static constexpr std::array<uint8_t, 4 * 32> dt1_tab = {
 // DT1 = 0
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -266,7 +267,7 @@ static constexpr std::array<byte, 4 * 32> dt1_tab = {
   8, 8, 9,10,11,12,13,14,16,17,19,20,22,22,22,22
 };
 
-static constexpr std::array<word, 768> phaseinc_rom = {
+static constexpr std::array<uint16_t, 768> phaseInc_rom = {
 1299,1300,1301,1302,1303,1304,1305,1306,1308,1309,1310,1311,1313,1314,1315,1316,
 1318,1319,1320,1321,1322,1323,1324,1325,1327,1328,1329,1330,1332,1333,1334,1335,
 1337,1338,1339,1340,1341,1342,1343,1344,1346,1347,1348,1349,1351,1352,1353,1354,
@@ -340,15 +341,15 @@ static constexpr auto freq = [] {
 	// i*100/64/1200 is equal to i/768
 
 	// real chip works with 10 bits fixed point values (10.10)
-	//   -10 because phaseinc_rom table values are already in 10.10 format
+	//   -10 because phaseInc_rom table values are already in 10.10 format
 	double mult = 1 << (FREQ_SH - 10);
 
 	for (auto i : xrange(768)) {
-		double phaseinc = phaseinc_rom[i]; // real chip phase increment
+		double phaseInc = phaseInc_rom[i]; // real chip phase increment
 
 		// octave 2 - reference octave
 		//   adjust to X.10 fixed point
-		result[768 + 2 * 768 + i] = int(phaseinc * mult) & 0xffffffc0;
+		result[768 + 2 * 768 + i] = int(phaseInc * mult) & 0xffffffc0;
 		// octave 0 and octave 1
 		for (auto j : xrange(2)) {
 			// adjust to X.10 fixed point
@@ -382,10 +383,10 @@ static constexpr auto dt1_freq = [] {
 	for (auto j : xrange(4)) {
 		for (auto i : xrange(32)) {
 			// calculate phase increment
-			double phaseinc = double(dt1_tab[j * 32 + i]) / (1 << 20) * SIN_LEN;
+			double phaseInc = double(dt1_tab[j * 32 + i]) / (1 << 20) * SIN_LEN;
 
 			// positive and negative values
-			result[(j + 0) * 32 + i] = int(phaseinc * mult);
+			result[(j + 0) * 32 + i] = int(phaseInc * mult);
 			result[(j + 4) * 32 + i] = -result[(j + 0) * 32 + i];
 		}
 	}
@@ -395,7 +396,7 @@ static constexpr auto dt1_freq = [] {
 // This table tells how many cycles/samples it takes before noise is recalculated.
 // 2/2 means every cycle/sample, 2/5 means 2 out of 5 cycles/samples, etc.
 static constexpr auto noise_tab = [] {
-	std::array<unsigned, 32> result = {};  // 17bit Noise Generator periods
+	std::array<int, 32> result = {};  // 17bit Noise Generator periods
 	//for (auto [i, r] : enumerate(result)) { msvc bug
 	for (int i = 0; i < 32; ++i) {
 		result[i] = 32 - (i != 31 ? i : 30); // rate 30 and 31 are the same
@@ -417,7 +418,7 @@ static constexpr auto noise_tab = [] {
 // possible that two values: 0x80 and 0x00 might be wrong in this table.
 // To be exact:
 // some 0x80 could be 0x81 as well as some 0x00 could be 0x01.
-static constexpr std::array<byte, 256> lfo_noise_waveform = {
+static constexpr std::array<uint8_t, 256> lfo_noise_waveform = {
 0xFF,0xEE,0xD3,0x80,0x58,0xDA,0x7F,0x94,0x9E,0xE3,0xFA,0x00,0x4D,0xFA,0xFF,0x6A,
 0x7A,0xDE,0x49,0xF6,0x00,0x33,0xBB,0x63,0x91,0x60,0x51,0xFF,0x00,0xD8,0x7F,0xDE,
 0xDC,0x73,0x21,0x85,0xB2,0x9C,0x5D,0x24,0xCD,0x91,0x9E,0x76,0x7F,0x20,0xFB,0xF3,
@@ -644,7 +645,7 @@ void YM2151::refreshEG(std::span<YM2151Operator, 4> op)
 	op[3].eg_sel_rr  = eg_rate_select[op[3].rr  + v];
 }
 
-void YM2151::writeReg(byte r, byte v, EmuTime::param time)
+void YM2151::writeReg(uint8_t r, uint8_t v, EmuTime::param time)
 {
 	updateStream(time);
 
@@ -709,7 +710,7 @@ void YM2151::writeReg(byte r, byte v, EmuTime::param time)
 
 		case 0x19: // PMD (bit 7==1) or AMD (bit 7==0)
 			if (v & 0x80) {
-				pmd = v & 0x7f;
+				pmd = narrow<int8_t>(v & 0x7f);
 			} else {
 				amd = v & 0x7f;
 			}
@@ -788,7 +789,7 @@ void YM2151::writeReg(byte r, byte v, EmuTime::param time)
 			break;
 
 		case 0x18: // PMS, AMS
-			o[0].pms = (v >> 4) & 7;
+			o[0].pms = narrow<int8_t>((v >> 4) & 7);
 			o[0].ams = (v & 3);
 			break;
 		}
@@ -796,7 +797,7 @@ void YM2151::writeReg(byte r, byte v, EmuTime::param time)
 	}
 	case 0x40: { // DT1, MUL
 		unsigned olddt1_i = op.dt1_i;
-		unsigned oldmul = op.mul;
+		unsigned oldMul = op.mul;
 
 		op.dt1_i = (v & 0x70) << 1;
 		op.mul   = (v & 0x0f) ? (v & 0x0f) << 1 : 1;
@@ -804,7 +805,7 @@ void YM2151::writeReg(byte r, byte v, EmuTime::param time)
 		if (olddt1_i != op.dt1_i) {
 			op.dt1 = dt1_freq[op.dt1_i + (op.kc>>2)];
 		}
-		if ((olddt1_i != op.dt1_i) || (oldmul != op.mul)) {
+		if ((olddt1_i != op.dt1_i) || (oldMul != op.mul)) {
 			op.freq = ((freq[op.kc_i + op.dt2] + op.dt1) * op.mul) >> 1;
 		}
 		break;
@@ -979,7 +980,7 @@ int YM2151::opCalc(YM2151Operator& op, unsigned env, int pm)
 
 int YM2151::opCalc1(YM2151Operator& op, unsigned env, int pm)
 {
-	int i = (op.phase & ~FREQ_MASK) + pm;
+	int i = (narrow_cast<int>(op.phase) & ~FREQ_MASK) + pm;
 	unsigned p = (env << 3) + sin_tab[(i >> FREQ_SH) & SIN_MASK];
 	if (p >= TL_TAB_LEN) {
 		return 0;
@@ -1080,11 +1081,11 @@ void YM2151::chan7Calc()
 	}
 	env = volumeCalc(op[3], AM); // C2
 	if (noise & 0x80) {
-		unsigned noiseOut = 0;
+		int noiseOut = 0;
 		if (env < 0x3ff) {
-			noiseOut = (env ^ 0x3ff) * 2; // range of the YM2151 noise output is -2044 to 2040
+			noiseOut = (narrow<int>(env) ^ 0x3ff) * 2; // range of the YM2151 noise output is -2044 to 2040
 		}
-		chanOut[7] += (noise_rng & 0x10000) ? noiseOut : unsigned(-int(noiseOut)); // bit 16 -> output
+		chanOut[7] += (noise_rng & 0x10000) ? noiseOut : -noiseOut; // bit 16 -> output
 	} else {
 		if (env < ENV_QUIET) {
 			chanOut[7] += opCalc(op[3], env, c2);
@@ -1096,7 +1097,7 @@ void YM2151::chan7Calc()
 
 /*
 The 'rate' is calculated from following formula (example on decay rate):
-  rks = notecode after key scaling (a value from 0 to 31)
+  rks = note-code after key scaling (a value from 0 to 31)
   DR = value written to the chip register
   rate = 2*DR + rks; (max rate = 2*31+31 = 93)
 Four MSBs of the 'rate' above are the 'main' rate (from 00 to 15)
@@ -1371,7 +1372,7 @@ void YM2151::advance()
 
 	unsigned i = lfo_phase;
 	// calculate LFO AM and PM waveform value (all verified on real chip,
-	// except for noise algorithm which is impossible to analyse)
+	// except for noise algorithm which is impossible to analyze)
 	auto [a, p] = [&]() -> std::pair<int, int> {
 		switch (lfo_wsel) {
 		case 0:
@@ -1515,14 +1516,14 @@ void YM2151::generateChannels(std::span<float*> bufs, unsigned num)
 		chan7Calc(); // special case for channel 7
 
 		for (auto j : xrange(8)) {
-			bufs[j][2 * i + 0] += int(chanOut[j] & pan[2 * j + 0]);
-			bufs[j][2 * i + 1] += int(chanOut[j] & pan[2 * j + 1]);
+			bufs[j][2 * i + 0] += narrow_cast<float>(narrow_cast<int>(chanOut[j] & pan[2 * j + 0]));
+			bufs[j][2 * i + 1] += narrow_cast<float>(narrow_cast<int>(chanOut[j] & pan[2 * j + 1]));
 		}
 		advance();
 	}
 }
 
-void YM2151::callback(byte flag)
+void YM2151::callback(uint8_t flag)
 {
 	assert(flag == one_of(1, 2));
 	setStatus(flag);
@@ -1532,12 +1533,12 @@ void YM2151::callback(byte flag)
 	}
 }
 
-byte YM2151::readStatus() const
+uint8_t YM2151::readStatus() const
 {
 	return status;
 }
 
-void YM2151::setStatus(byte flags)
+void YM2151::setStatus(uint8_t flags)
 {
 	status |= flags;
 	auto enable = (irq_enable >> 2) & 3;
@@ -1546,7 +1547,7 @@ void YM2151::setStatus(byte flags)
 	}
 }
 
-void YM2151::resetStatus(byte flags)
+void YM2151::resetStatus(uint8_t flags)
 {
 	status &= ~flags;
 	auto enable = (irq_enable >> 2) & 3;

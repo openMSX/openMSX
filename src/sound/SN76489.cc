@@ -2,6 +2,7 @@
 #include "DeviceConfig.hh"
 #include "Math.hh"
 #include "cstd.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "outer.hh"
 #include "ranges.hh"
@@ -21,15 +22,15 @@ namespace openmsx {
 static constexpr auto NATIVE_FREQ_INT = unsigned(cstd::round((3579545.0 / 8) / 2));
 
 static constexpr auto volTable = [] {
-	std::array<unsigned, 16> result = {};
+	std::array<float, 16> result = {};
 	// 2dB per step -> 0.2, sqrt for amplitude -> 0.5
 	double factor = cstd::pow<5, 3>(0.1, 0.2 * 0.5);
 	double out = 32768.0;
 	for (auto i : xrange(15)) {
-		result[i] = cstd::round(out);
+		result[i] = narrow_cast<float>(cstd::round(out));
 		out *= factor;
 	}
-	result[15] = 0;
+	result[15] = 0.0f;
 	return result;
 }();
 
@@ -231,8 +232,8 @@ template<bool NOISE> void SN76489::synthesizeChannel(
 	unsigned counter = counters[generator];
 
 	unsigned channel = NOISE ? 3 : generator;
-	int volume = volTable[regs[2 * channel + 1]];
-	if (volume == 0) {
+	auto volume = volTable[regs[2 * channel + 1]];
+	if (volume == 0.0f) {
 		// Channel is silent, don't synthesize it.
 		buffer = nullptr;
 	}

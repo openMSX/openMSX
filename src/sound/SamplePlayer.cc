@@ -3,6 +3,7 @@
 #include "CliComm.hh"
 #include "FileContext.hh"
 #include "MSXException.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 #include "xrange.hh"
 #include <cassert>
@@ -129,7 +130,7 @@ void SamplePlayer::generateChannels(std::span<float*> bufs, unsigned num)
 				break;
 			}
 		}
-		bufs[0][i] = 3 * wav.getSample(index++);
+		bufs[0][i] = narrow<float>(3 * wav.getSample(index++));
 	}
 }
 

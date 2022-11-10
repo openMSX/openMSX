@@ -21,7 +21,7 @@
  ** Nao - for giving me some info about YM2151 and pointing me to Shigeharu.
  ** Also for creating fmemu (which I still use to test the emulator).
  **
- ** Aaron Giles and Chris Hardy - they made some samples of one of my favourite
+ ** Aaron Giles and Chris Hardy - they made some samples of one of my favorite
  ** arcade games so I could compare it to my emulator.
  **
  ** Bryan McPhail and Tim (powerjaw) - for making some samples.
@@ -38,8 +38,8 @@
 #include "EmuTimer.hh"
 #include "EmuTime.hh"
 #include "IRQHelper.hh"
-#include "openmsx.hh"
 #include <array>
+#include <cstdint>
 #include <string>
 #include <memory>
 
@@ -60,8 +60,8 @@ public:
 	~YM2151();
 
 	void reset(EmuTime::param time);
-	void writeReg(byte r, byte v, EmuTime::param time);
-	[[nodiscard]] byte readStatus() const;
+	void writeReg(uint8_t r, uint8_t v, EmuTime::param time);
+	[[nodiscard]] uint8_t readStatus() const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -91,7 +91,7 @@ private:
 		int fb_out_prev;   // previous feedback value (used only by operators 0)
 		unsigned kc;       // channel KC (copied to all operators)
 		unsigned kc_i;     // just for speedup
-		unsigned pms;      // channel PMS
+		int8_t pms;        // channel PMS  0..7
 		unsigned ams;      // channel AMS
 
 		unsigned AMmask;   // LFO Amplitude Modulation enable mask
@@ -112,15 +112,15 @@ private:
 		unsigned d2r;      // sustain rate
 		unsigned rr;       // release rate
 
-		byte eg_sh_ar;     //  (attack state)
-		byte eg_sel_ar;    //  (attack state)
-		byte eg_sh_d1r;    //  (decay state)
-		byte eg_sel_d1r;   //  (decay state)
+		uint8_t eg_sh_ar;     //  (attack state)
+		uint8_t eg_sel_ar;    //  (attack state)
+		uint8_t eg_sh_d1r;    //  (decay state)
+		uint8_t eg_sel_d1r;   //  (decay state)
 		                   // reaching this level
-		byte eg_sh_d2r;    //  (sustain state)
-		byte eg_sel_d2r;   //  (sustain state)
-		byte eg_sh_rr;     //  (release state)
-		byte eg_sel_rr;    //  (release state)
+		uint8_t eg_sh_d2r;    //  (sustain state)
+		uint8_t eg_sel_d2r;   //  (sustain state)
+		uint8_t eg_sh_rr;     //  (release state)
+		uint8_t eg_sel_rr;    //  (release state)
 	};
 
 	void setConnect(std::span<YM2151Operator, 4> o, int cha, int v);
@@ -128,9 +128,9 @@ private:
 	// SoundDevice
 	void generateChannels(std::span<float*> bufs, unsigned num) override;
 
-	void callback(byte flag) override;
-	void setStatus(byte flags);
-	void resetStatus(byte flags);
+	void callback(uint8_t flag) override;
+	void setStatus(uint8_t flags);
+	void resetStatus(uint8_t flags);
 
 	// operator methods
 	void envelopeKONKOFF(std::span<YM2151Operator, 4> op, int v);
@@ -141,7 +141,7 @@ private:
 	inline void keyOn(YM2151Operator& op, unsigned keySet);
 	inline void keyOff(YM2151Operator& op, unsigned keyClear);
 
-	// general chip mehods
+	// general chip methods
 	void chanCalc(unsigned chan);
 	void chan7Calc();
 
@@ -162,7 +162,7 @@ private:
 
 	unsigned eg_cnt;         // global envelope generator counter
 	unsigned eg_timer;       // global envelope generator counter
-	                         //   works at frequency = chipclock/64/3
+	                         //   works at frequency = chip-clock / (64 * 3)
 	unsigned lfo_phase;      // accumulated LFO phase (0 to 255)
 	unsigned lfo_timer;      // LFO timer
 	unsigned lfo_overflow;   // LFO generates new output when lfo_timer
@@ -176,30 +176,30 @@ private:
 	                         // bit 7 - noise enable, bits 4-0 - noise period
 	unsigned noise_rng;      // 17 bit noise shift register
 	int noise_p;             // current noise 'phase'
-	unsigned noise_f;        // current noise period
+	int noise_f;             // current noise period
 
 	unsigned csm_req;        // CSM  KEY ON / KEY OFF sequence request
 
 	unsigned irq_enable;     // IRQ enable for timer B (bit 3) and timer A
 	                         // (bit 2); bit 7 - CSM mode (keyon to all
-	                         // slots, everytime timer A overflows)
+	                         // slots, every time timer A overflows)
 	unsigned status;         // chip status (BUSY, IRQ Flags)
 
 	std::array<int, 8> chanOut;
 	int m2, c1, c2;          // Phase Modulation input for operators 2,3,4
 	int mem;                 // one sample delay memory
 
-	word timer_A_val;
+	uint16_t timer_A_val;
 
-	byte lfo_wsel;           // LFO waveform (0-saw, 1-square, 2-triangle,
+	uint8_t lfo_wsel;        // LFO waveform (0-saw, 1-square, 2-triangle,
 	                         //               3-random noise)
-	byte amd;                // LFO Amplitude Modulation Depth
-	signed char pmd;         // LFO Phase Modulation Depth
+	uint8_t amd;             // LFO Amplitude Modulation Depth
+	int8_t pmd;              // LFO Phase Modulation Depth
 
-	byte test;               // TEST register
-	byte ct;                 // output control pins (bit1-CT2, bit0-CT1)
+	uint8_t test;            // TEST register
+	uint8_t ct;              // output control pins (bit1-CT2, bit0-CT1)
 
-	std::array<byte, 256> regs; // only used for serialization ATM
+	std::array<uint8_t, 256> regs; // only used for serialization ATM
 	const Variant variant;   // Whether we're emulating YM2151 or YM2164
 };
 

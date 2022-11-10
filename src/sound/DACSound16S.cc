@@ -2,6 +2,7 @@
 #include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
 #include "DynamicClock.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -39,7 +40,7 @@ void DACSound16S::writeDAC(int16_t value, EmuTime::param time)
 
 	BlipBuffer::TimeIndex t;
 	getHostSampleClock().getTicksTill(time, t);
-	blip.addDelta(t, delta);
+	blip.addDelta(t, narrow<float>(delta));
 }
 
 void DACSound16S::generateChannels(std::span<float*> bufs, unsigned num)
