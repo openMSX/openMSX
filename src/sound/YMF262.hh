@@ -7,9 +7,9 @@
 #include "EmuTime.hh"
 #include "FixedPoint.hh"
 #include "IRQHelper.hh"
-#include "openmsx.hh"
 #include "serialize_meta.hh"
 #include <array>
+#include <cstdint>
 #include <memory>
 #include <span>
 #include <string>
@@ -32,12 +32,12 @@ public:
 	~YMF262();
 
 	void reset(EmuTime::param time);
-	void writeReg   (unsigned r, byte v, EmuTime::param time);
-	void writeReg512(unsigned r, byte v, EmuTime::param time);
-	[[nodiscard]] byte readReg(unsigned reg);
-	[[nodiscard]] byte peekReg(unsigned reg) const;
-	[[nodiscard]] byte readStatus();
-	[[nodiscard]] byte peekStatus() const;
+	void writeReg   (unsigned r, uint8_t v, EmuTime::param time);
+	void writeReg512(unsigned r, uint8_t v, EmuTime::param time);
+	[[nodiscard]] uint8_t readReg(unsigned reg);
+	[[nodiscard]] uint8_t peekReg(unsigned reg) const;
+	[[nodiscard]] uint8_t readStatus();
+	[[nodiscard]] uint8_t peekStatus() const;
 
 	void setMixLevel(uint8_t x, EmuTime::param time);
 
@@ -59,8 +59,8 @@ private:
 	public:
 		Slot();
 		[[nodiscard]] inline int op_calc(unsigned phase, unsigned lfo_am) const;
-		inline void FM_KEYON(byte key_set);
-		inline void FM_KEYOFF(byte key_clr);
+		inline void FM_KEYON(uint8_t key_set);
+		inline void FM_KEYOFF(uint8_t key_clr);
 		inline void advanceEnvelopeGenerator(unsigned egCnt);
 		inline void advancePhaseGenerator(Channel& ch, unsigned lfo_pm);
 		void update_ar_dr();
@@ -69,7 +69,7 @@ private:
 
 		/** Sets the amount of feedback [0..7]
 		 */
-		void setFeedbackShift(byte value) {
+		void setFeedbackShift(uint8_t value) {
 			fb_shift = value ? 9 - value : 0;
 		}
 
@@ -83,41 +83,41 @@ private:
 		std::array<int, 2> op1_out; // slot1 output for feedback
 
 		// Envelope Generator
-		unsigned TL;	// total level: TL << 2
-		int TLL;	// adjusted now TL
-		int volume;	// envelope counter
-		int sl;		// sustain level: sl_tab[SL]
+		unsigned TL;  // total level: TL << 2
+		unsigned TLL; // adjusted now TL
+		int volume;   // envelope counter
+		int sl;       // sustain level: sl_tab[SL]
 
 		std::span<const unsigned, SIN_LEN> waveTable; // waveform select
 
 		EnvelopeState state; // EG: phase type
-		unsigned eg_m_ar;// (attack state)
-		unsigned eg_m_dr;// (decay state)
-		unsigned eg_m_rr;// (release state)
-		byte eg_sh_ar;	// (attack state)
-		byte eg_sel_ar;	// (attack state)
-		byte eg_sh_dr;	// (decay state)
-		byte eg_sel_dr;	// (decay state)
-		byte eg_sh_rr;	// (release state)
-		byte eg_sel_rr;	// (release state)
+		unsigned eg_m_ar;  // (attack state)
+		unsigned eg_m_dr;  // (decay state)
+		unsigned eg_m_rr;  // (release state)
+		uint8_t eg_sh_ar;  // (attack state)
+		uint8_t eg_sel_ar; // (attack state)
+		uint8_t eg_sh_dr;  // (decay state)
+		uint8_t eg_sel_dr; // (decay state)
+		uint8_t eg_sh_rr;  // (release state)
+		uint8_t eg_sel_rr; // (release state)
 
-		byte key;	// 0 = KEY OFF, >0 = KEY ON
+		uint8_t key;	// 0 = KEY OFF, >0 = KEY ON
 
-		byte fb_shift;	// PG: feedback shift value
+		uint8_t fb_shift;	// PG: feedback shift value
 		bool CON;	// PG: connection (algorithm) type
 		bool eg_type;	// EG: percussive/non-percussive mode
 
 		// LFO
-		byte AMmask;	// LFO Amplitude Modulation enable mask
+		uint8_t AMmask;	// LFO Amplitude Modulation enable mask
 		bool vib;	// LFO Phase Modulation enable flag (active high)
 
-		byte ar;	// attack rate: AR<<2
-		byte dr;	// decay rate:  DR<<2
-		byte rr;	// release rate:RR<<2
-		byte KSR;	// key scale rate
-		byte ksl;	// keyscale level
-		byte ksr;	// key scale rate: kcode>>KSR
-		byte mul;	// multiple: mul_tab[ML]
+		uint8_t ar;	// attack rate: AR<<2
+		uint8_t dr;	// decay rate:  DR<<2
+		uint8_t rr;	// release rate:RR<<2
+		uint8_t KSR;	// key scale rate
+		uint8_t ksl;	// key scale level
+		uint8_t ksr;	// key scale rate: kcode>>KSR
+		uint8_t mul;	// multiple: mul_tab[ML]
 	};
 
 	class Channel {
@@ -131,10 +131,10 @@ private:
 
 		std::array<Slot, 2> slot;
 
-		int block_fnum;	// block+fnum
-		FreqIndex fc;	// Freq. Increment base
-		int ksl_base;	// KeyScaleLevel Base step
-		byte kcode;	// key code (for key scaling)
+		int block_fnum;    // block+fnum
+		FreqIndex fc;      // Freq. Increment base
+		unsigned ksl_base; // KeyScaleLevel Base step
+		uint8_t kcode;     // key code (for key scaling)
 
 		// there are 12 2-operator channels which can be combined in pairs
 		// to form six 4-operator channel, they are:
@@ -153,24 +153,24 @@ private:
 	[[nodiscard]] float getAmplificationFactorImpl() const override;
 	void generateChannels(std::span<float*> bufs, unsigned num) override;
 
-	void callback(byte flag) override;
+	void callback(uint8_t flag) override;
 
-	void writeRegDirect(unsigned r, byte v, EmuTime::param time);
+	void writeRegDirect(unsigned r, uint8_t v, EmuTime::param time);
 	void init_tables();
-	void setStatus(byte flag);
-	void resetStatus(byte flag);
-	void changeStatusMask(byte flag);
+	void setStatus(uint8_t flag);
+	void resetStatus(uint8_t flag);
+	void changeStatusMask(uint8_t flag);
 	void advance();
 
-	[[nodiscard]] inline int genPhaseHighHat();
-	[[nodiscard]] inline int genPhaseSnare();
-	[[nodiscard]] inline int genPhaseCymbal();
+	[[nodiscard]] inline unsigned genPhaseHighHat();
+	[[nodiscard]] inline unsigned genPhaseSnare();
+	[[nodiscard]] inline unsigned genPhaseCymbal();
 
 	void chan_calc_rhythm(unsigned lfo_am);
-	void set_mul(unsigned sl, byte v);
-	void set_ksl_tl(unsigned sl, byte v);
-	void set_ar_dr(unsigned sl, byte v);
-	void set_sl_rr(unsigned sl, byte v);
+	void set_mul(unsigned sl, uint8_t v);
+	void set_ksl_tl(unsigned sl, uint8_t v);
+	void set_ar_dr(unsigned sl, uint8_t v);
+	void set_sl_rr(unsigned sl, uint8_t v);
 	bool checkMuteHelper();
 
 	[[nodiscard]] inline bool isExtended(unsigned ch) const;
@@ -179,8 +179,8 @@ private:
 
 	struct Debuggable final : SimpleDebuggable {
 		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
-		[[nodiscard]] byte read(unsigned address) override;
-		void write(unsigned address, byte value, EmuTime::param time) override;
+		[[nodiscard]] uint8_t read(unsigned address) override;
+		void write(unsigned address, uint8_t value, EmuTime::param time) override;
 	} debuggable;
 
 	// Bitmask for register 0x04
@@ -201,13 +201,13 @@ private:
 
 	std::array<int, 18> chanOut;      // 18 channels
 
-	std::array<byte, 512> reg;
+	std::array<uint8_t, 512> reg;
 	std::array<Channel, 18> channel;  // OPL3 chips have 18 channels
 
-	std::array<unsigned, 18 * 4> pan; // channels output masks 4 per channel
-	                                  //    0xffffffff = enable
-	unsigned eg_cnt;                  // global envelope generator counter
-	unsigned noise_rng;               // 23 bit noise shift register
+	std::array<int, 18 * 4> pan; // channels output masks 4 per channel
+	                             //    0xffffffff = enable
+	unsigned eg_cnt;             // global envelope generator counter
+	unsigned noise_rng;          // 23 bit noise shift register
 
 	// LFO
 	using LFOAMIndex = FixedPoint< 6>;
@@ -215,15 +215,15 @@ private:
 	LFOAMIndex lfo_am_cnt;
 	LFOPMIndex lfo_pm_cnt;
 	bool lfo_am_depth;
-	byte lfo_pm_depth_range;
+	uint8_t lfo_pm_depth_range;
 
-	byte rhythm;			// Rhythm mode
+	uint8_t rhythm;			// Rhythm mode
 	bool nts;			// NTS (note select)
 	bool OPL3_mode;			// OPL3 extension enable flag
 
-	byte status;			// status flag
-	byte status2;
-	byte statusMask;		// status mask
+	uint8_t status;			// status flag
+	uint8_t status2;
+	uint8_t statusMask;		// status mask
 
 	bool alreadySignaledNEW2;
 	const bool isYMF278;		// true iff this is actually a YMF278
