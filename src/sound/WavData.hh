@@ -36,7 +36,7 @@ public:
 	[[nodiscard]] unsigned getFreq() const { return freq; }
 	[[nodiscard]] unsigned getSize() const { return length; }
 	[[nodiscard]] int16_t getSample(unsigned pos) const {
-		return (pos < length) ? buffer[pos] : 0;
+		return (pos < length) ? buffer[pos] : int16_t(0);
 	}
 
 private:
@@ -120,10 +120,10 @@ inline WavData::WavData(File file, Filter filter)
 		}
 	};
 	if (bits == 8) {
-		convertLoop(read<uint8_t>(raw, pos, length * channels),
+		convertLoop(read<uint8_t>(raw, pos, size_t(length) * channels),
 		            [](uint8_t u8) { return (int16_t(u8) - 0x80) << 8; });
 	} else {
-		convertLoop(read<Endian::L16>(raw, pos, length * channels),
+		convertLoop(read<Endian::L16>(raw, pos, size_t(length) * channels),
 		            [](Endian::L16 s16) { return int16_t(s16); });
 	}
 }

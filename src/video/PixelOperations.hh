@@ -2,6 +2,7 @@
 #define PIXELOPERATIONS_HH
 
 #include "PixelFormat.hh"
+#include "narrow.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
 #include <bit>
@@ -21,18 +22,18 @@ public:
 
 	[[nodiscard]] const PixelFormat& getPixelFormat() const { return format; }
 
-	[[nodiscard]] inline int getRmask()  const { return format.getRmask();  }
-	[[nodiscard]] inline int getGmask()  const { return format.getGmask();  }
-	[[nodiscard]] inline int getBmask()  const { return format.getBmask();  }
-	[[nodiscard]] inline int getAmask()  const { return format.getAmask();  }
-	[[nodiscard]] inline int getRshift() const { return format.getRshift(); }
-	[[nodiscard]] inline int getGshift() const { return format.getGshift(); }
-	[[nodiscard]] inline int getBshift() const { return format.getBshift(); }
-	[[nodiscard]] inline int getAshift() const { return format.getAshift(); }
-	[[nodiscard]] inline int getRloss()  const { return format.getRloss();  }
-	[[nodiscard]] inline int getGloss()  const { return format.getGloss();  }
-	[[nodiscard]] inline int getBloss()  const { return format.getBloss();  }
-	[[nodiscard]] inline int getAloss()  const { return format.getAloss();  }
+	[[nodiscard]] inline unsigned getRmask()  const { return format.getRmask();  }
+	[[nodiscard]] inline unsigned getGmask()  const { return format.getGmask();  }
+	[[nodiscard]] inline unsigned getBmask()  const { return format.getBmask();  }
+	[[nodiscard]] inline unsigned getAmask()  const { return format.getAmask();  }
+	[[nodiscard]] inline unsigned getRshift() const { return format.getRshift(); }
+	[[nodiscard]] inline unsigned getGshift() const { return format.getGshift(); }
+	[[nodiscard]] inline unsigned getBshift() const { return format.getBshift(); }
+	[[nodiscard]] inline unsigned getAshift() const { return format.getAshift(); }
+	[[nodiscard]] inline unsigned getRloss()  const { return format.getRloss();  }
+	[[nodiscard]] inline unsigned getGloss()  const { return format.getGloss();  }
+	[[nodiscard]] inline unsigned getBloss()  const { return format.getBloss();  }
+	[[nodiscard]] inline unsigned getAloss()  const { return format.getAloss();  }
 
 	/** Returns a constant that is useful to calculate the average of
 	  * two pixel values. See the implementation of blend(p1, p2) for
@@ -52,9 +53,9 @@ public:
 private:
 	[[nodiscard]] inline Pixel calcBlendMask() const
 	{
-		int rBit = ~(getRmask() << 1) & getRmask();
-		int gBit = ~(getGmask() << 1) & getGmask();
-		int bBit = ~(getBmask() << 1) & getBmask();
+		auto rBit = ~(getRmask() << 1) & getRmask();
+		auto gBit = ~(getGmask() << 1) & getGmask();
+		auto bBit = ~(getBmask() << 1) & getBmask();
 		return ~(rBit | gBit | bBit);
 	}
 
@@ -80,18 +81,18 @@ public:
 
 	[[nodiscard]] const PixelFormat& getPixelFormat() const { return format; }
 
-	[[nodiscard]] inline int getRmask()  const { return format.getRmask();  }
-	[[nodiscard]] inline int getGmask()  const { return format.getGmask();  }
-	[[nodiscard]] inline int getBmask()  const { return format.getBmask();  }
-	[[nodiscard]] inline int getAmask()  const { return format.getAmask();  }
-	[[nodiscard]] inline int getRshift() const { return format.getRshift(); }
-	[[nodiscard]] inline int getGshift() const { return format.getGshift(); }
-	[[nodiscard]] inline int getBshift() const { return format.getBshift(); }
-	[[nodiscard]] inline int getAshift() const { return format.getAshift(); }
-	[[nodiscard]] inline int getRloss()  const { return 0;             }
-	[[nodiscard]] inline int getGloss()  const { return 0;             }
-	[[nodiscard]] inline int getBloss()  const { return 0;             }
-	[[nodiscard]] inline int getAloss()  const { return 0;             }
+	[[nodiscard]] inline unsigned getRmask()  const { return format.getRmask();  }
+	[[nodiscard]] inline unsigned getGmask()  const { return format.getGmask();  }
+	[[nodiscard]] inline unsigned getBmask()  const { return format.getBmask();  }
+	[[nodiscard]] inline unsigned getAmask()  const { return format.getAmask();  }
+	[[nodiscard]] inline unsigned getRshift() const { return format.getRshift(); }
+	[[nodiscard]] inline unsigned getGshift() const { return format.getGshift(); }
+	[[nodiscard]] inline unsigned getBshift() const { return format.getBshift(); }
+	[[nodiscard]] inline unsigned getAshift() const { return format.getAshift(); }
+	[[nodiscard]] inline unsigned getRloss()  const { return 0;             }
+	[[nodiscard]] inline unsigned getGloss()  const { return 0;             }
+	[[nodiscard]] inline unsigned getBloss()  const { return 0;             }
+	[[nodiscard]] inline unsigned getAloss()  const { return 0;             }
 
 	[[nodiscard]] inline unsigned getBlendMask() const { return 0xFEFEFEFE; }
 
@@ -121,18 +122,18 @@ public:
 		return format;
 	}
 
-	[[nodiscard]] inline int getRmask()  const { return 0x001F; }
-	[[nodiscard]] inline int getGmask()  const { return 0x07E0; }
-	[[nodiscard]] inline int getBmask()  const { return 0xF800; }
-	[[nodiscard]] inline int getAmask()  const { return 0x0000; }
-	[[nodiscard]] inline int getRshift() const { return  0; }
-	[[nodiscard]] inline int getGshift() const { return  5; }
-	[[nodiscard]] inline int getBshift() const { return 11; }
-	[[nodiscard]] inline int getAshift() const { return  0; }
-	[[nodiscard]] inline int getRloss()  const { return 3; }
-	[[nodiscard]] inline int getGloss()  const { return 2; }
-	[[nodiscard]] inline int getBloss()  const { return 3; }
-	[[nodiscard]] inline int getAloss()  const { return 8; }
+	[[nodiscard]] inline unsigned getRmask()  const { return 0x001F; }
+	[[nodiscard]] inline unsigned getGmask()  const { return 0x07E0; }
+	[[nodiscard]] inline unsigned getBmask()  const { return 0xF800; }
+	[[nodiscard]] inline unsigned getAmask()  const { return 0x0000; }
+	[[nodiscard]] inline unsigned getRshift() const { return  0; }
+	[[nodiscard]] inline unsigned getGshift() const { return  5; }
+	[[nodiscard]] inline unsigned getBshift() const { return 11; }
+	[[nodiscard]] inline unsigned getAshift() const { return  0; }
+	[[nodiscard]] inline unsigned getRloss()  const { return 3; }
+	[[nodiscard]] inline unsigned getGloss()  const { return 2; }
+	[[nodiscard]] inline unsigned getBloss()  const { return 3; }
+	[[nodiscard]] inline unsigned getAloss()  const { return 8; }
 
 	[[nodiscard]] inline uint16_t getBlendMask() const { return 0xF7DE; }
 
@@ -652,9 +653,9 @@ inline Pixel PixelOperations<Pixel>::lerp(Pixel p1, Pixel p2, unsigned x) const
 		int b1 = blue(p1),  b2 = blue(p2);
 
 		// note: '/ 256' is not the same as '>> 8' for signed numbers
-		int r = ((r2 - r1) * x) / 256 + r1;
-		int g = ((g2 - g1) * x) / 256 + g1;
-		int b = ((b2 - b1) * x) / 256 + b1;
+		auto r = narrow<unsigned>(((r2 - r1) * narrow<int>(x)) / 256 + r1);
+		auto g = narrow<unsigned>(((g2 - g1) * narrow<int>(x)) / 256 + g1);
+		auto b = narrow<unsigned>(((b2 - b1) * narrow<int>(x)) / 256 + b1);
 
 		return combine(r, g, b);
 	}

@@ -6,6 +6,7 @@
 #include "LineScalers.hh"
 #include "PixelOperations.hh"
 #include "endian.hh"
+#include "narrow.hh"
 #include "vla.hh"
 #include "xrange.hh"
 #include <algorithm>
@@ -60,9 +61,9 @@ public:
 		unsigned g2 = (c2 >> shiftG) & 0xFF;
 		unsigned b2 = (c2 >> shiftB) & 0xFF;
 
-		int dr = r1 - r2;
-		int dg = g1 - g2;
-		int db = b1 - b2;
+		auto dr = narrow_cast<int>(r1 - r2);
+		auto dg = narrow_cast<int>(g1 - g2);
+		auto db = narrow_cast<int>(b1 - b2);
 
 		int dy = dr + dg + db;
 		if (dy < -0xC0 || dy > 0xC0) return true;
@@ -85,11 +86,11 @@ template<std::unsigned_integral Pixel>
 EdgeHQ createEdgeHQ(const PixelOperations<Pixel>& pixelOps)
 {
 	if constexpr (sizeof(Pixel) == 2) {
-		return EdgeHQ(0, 8, 16);
+		return {0, 8, 16};
 	} else {
-		return EdgeHQ(pixelOps.getRshift(),
-		              pixelOps.getGshift(),
-		              pixelOps.getBshift());
+		return {pixelOps.getRshift(),
+		        pixelOps.getGshift(),
+		        pixelOps.getBshift()};
 	}
 }
 
@@ -115,7 +116,7 @@ void calcEdgesGL(std::span<const uint32_t> curr, std::span<const uint32_t> next,
 	//   ---C---D---
 	//    7 | 8 | 9
 	// Then we calculate 12 'edges':
-	// * 8 star-edges, from the central pixel '5' to the 8 neighbouring pixels.
+	// * 8 star-edges, from the central pixel '5' to the 8 neighboring pixels.
 	//   Let's call these edges 1, 2, 3, 4, 6, 7, 8, 9 (note: 5 is skipped).
 	// * 4 cross-edges, between pixels (2,4), (2,6), (4,8), (6,8).
 	//   Let's call these respectively A, B, C, D.
@@ -230,7 +231,7 @@ void doHQScale2(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& postScale
 	VLA_SSE_ALIGNED(Pixel, bufA, 2 * srcWidth);
 	VLA_SSE_ALIGNED(Pixel, bufB, 2 * srcWidth);
 
-	int srcY = srcStartY;
+	int srcY = narrow<int>(srcStartY);
 	auto srcPrev = src.getLine(srcY - 1, buf1);
 	auto srcCurr = src.getLine(srcY + 0, buf2);
 
@@ -272,7 +273,7 @@ void doHQScale3(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& postScale
 	VLA_SSE_ALIGNED(Pixel, bufB, 3 * srcWidth);
 	VLA_SSE_ALIGNED(Pixel, bufC, 3 * srcWidth);
 
-	int srcY = srcStartY;
+	int srcY = narrow<int>(srcStartY);
 	auto srcPrev = src.getLine(srcY - 1, buf1);
 	auto srcCurr = src.getLine(srcY + 0, buf2);
 

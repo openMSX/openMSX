@@ -2,6 +2,7 @@
 #define FRAMESOURCE_HH
 
 #include "aligned.hh"
+#include "narrow.hh"
 #include "xrange.hh"
 #include <algorithm>
 #include <array>
@@ -94,7 +95,7 @@ public:
 	template<std::unsigned_integral Pixel>
 	[[nodiscard]] inline std::span<const Pixel> getLine(int line, std::span<Pixel> buf) const
 	{
-		line = std::min<unsigned>(std::max(0, line), getHeight() - 1);
+		line = std::clamp(line, 0, narrow<int>(getHeight() - 1));
 		unsigned internalWidth;
 		auto* internalData = reinterpret_cast<const Pixel*>(
 			getLineInfo(line, internalWidth, buf.data(), buf.size()));

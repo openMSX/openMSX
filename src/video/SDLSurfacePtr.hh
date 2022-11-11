@@ -3,6 +3,7 @@
 
 #include "MemBuffer.hh"
 #include "InitException.hh"
+#include "narrow.hh"
 #include <SDL.h>
 #include <algorithm>
 #include <memory>
@@ -46,7 +47,9 @@ public:
 		unsigned size = height * pitch;
 		buffer.resize(size);
 		surface = SDL_CreateRGBSurfaceFrom(
-			buffer.data(), width, height, depth, pitch,
+			buffer.data(),
+			narrow<int>(width), narrow<int>(height),
+			narrow<int>(depth), narrow<int>(pitch),
 			rMask, gMask, bMask, aMask);
 		if (!surface) throw std::bad_alloc();
 	}

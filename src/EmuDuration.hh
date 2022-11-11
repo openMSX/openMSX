@@ -1,6 +1,7 @@
 #ifndef EMUDURATION_HH
 #define EMUDURATION_HH
 
+#include "narrow.hh"
 #include "serialize.hh"
 #include <cassert>
 #include <concepts>
@@ -82,14 +83,14 @@ public:
 		return unsigned(result);
 	}
 	[[nodiscard]] constexpr double div(EmuDuration::param d) const
-		{ return double(time) / d.time; }
+		{ return narrow_cast<double>(time) / narrow_cast<double>(d.time); }
 
 	constexpr EmuDuration& operator*=(unsigned fact)
 		{ time *= fact; return *this; }
 	constexpr EmuDuration& operator*=(double fact)
-		{ time = uint64_t(time * fact); return *this; }
+		{ time = narrow_cast<uint64_t>(narrow_cast<double>(time) * fact); return *this; }
 	constexpr EmuDuration& operator/=(double fact)
-		{ time = uint64_t(time / fact); return *this; }
+		{ time = narrow_cast<uint64_t>(narrow_cast<double>(time) / fact); return *this; }
 
 	// ticks
 	// TODO: Used in WavAudioInput. Keep or use DynamicClock instead?

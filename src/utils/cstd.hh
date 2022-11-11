@@ -2,6 +2,7 @@
 #define CSTD_HH
 
 #include "Math.hh"
+#include "narrow.hh"
 #include "xrange.hh"
 #include <cassert>
 #include <cmath>
@@ -245,14 +246,16 @@ template<int ITERATIONS>
 
 [[nodiscard]] constexpr double round(double x)
 {
-	return (x >= 0) ?  int( x + 0.5)
-	                : -int(-x + 0.5);
+	return narrow_cast<double>(
+		(x >= 0) ?  narrow_cast<int>( x + 0.5)
+		         : -narrow_cast<int>(-x + 0.5));
 }
 
 [[nodiscard]] constexpr float round(float x)
 {
-	return (x >= 0) ?  int( x + 0.5f)
-	                : -int(-x + 0.5f);
+	return narrow_cast<float>(
+		(x >= 0) ?  narrow_cast<int>( x + 0.5f)
+		         : -narrow_cast<int>(-x + 0.5f));
 }
 
 [[nodiscard]] constexpr double sqrt(double x)
