@@ -12,9 +12,9 @@ public:
 	explicit MSXMultiMemDevice(const HardwareConfig& hwConf);
 	~MSXMultiMemDevice() override;
 
-	[[nodiscard]] bool canAdd(int base, int size);
-	void add(MSXDevice& device, int base, int size);
-	void remove(MSXDevice& device, int base, int size);
+	[[nodiscard]] bool canAdd(unsigned base, unsigned size);
+	void add(MSXDevice& device, unsigned base, unsigned size);
+	void remove(MSXDevice& device, unsigned base, unsigned size);
 	[[nodiscard]] bool empty() const { return ranges.size() == 1; }
 	[[nodiscard]] std::vector<MSXDevice*> getDevices() const;
 

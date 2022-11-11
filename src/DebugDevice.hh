@@ -31,7 +31,7 @@ private:
 
 private:
 	FilenameSetting fileNameSetting;
-	std::ostream* outputstrm;
+	std::ostream* outputStrm;
 	std::ofstream debugOut;
 	std::string fileNameString;
 	DebugMode mode;

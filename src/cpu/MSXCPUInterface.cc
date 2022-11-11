@@ -439,9 +439,9 @@ static void reportMemOverlap(int ps, int ss, MSXDevice& dev1, MSXDevice& dev2)
 }
 
 void MSXCPUInterface::testRegisterSlot(
-	MSXDevice& device, int ps, int ss, int base, int size)
+	MSXDevice& device, int ps, int ss, unsigned base, unsigned size)
 {
-	int page = base >> 14;
+	auto page = base >> 14;
 	MSXDevice*& slot = slotLayout[ps][ss][page];
 	if (size == 0x4000) {
 		// full 16kb, directly register device (no multiplexer)
@@ -465,9 +465,9 @@ void MSXCPUInterface::testRegisterSlot(
 }
 
 void MSXCPUInterface::registerSlot(
-	MSXDevice& device, int ps, int ss, int base, int size)
+	MSXDevice& device, int ps, int ss, unsigned base, unsigned size)
 {
-	int page = base >> 14;
+	auto page = base >> 14;
 	MSXDevice*& slot = slotLayout[ps][ss][page];
 	if (size == 0x4000) {
 		// full 16kb, directly register device (no multiplexer)
@@ -494,9 +494,9 @@ void MSXCPUInterface::registerSlot(
 }
 
 void MSXCPUInterface::unregisterSlot(
-	MSXDevice& device, int ps, int ss, int base, int size)
+	MSXDevice& device, int ps, int ss, unsigned base, unsigned size)
 {
-	int page = base >> 14;
+	auto page = base >> 14;
 	MSXDevice*& slot = slotLayout[ps][ss][page];
 	if (auto* multi = dynamic_cast<MSXMultiMemDevice*>(slot)) {
 		// partial range
@@ -515,7 +515,7 @@ void MSXCPUInterface::unregisterSlot(
 }
 
 void MSXCPUInterface::registerMemDevice(
-	MSXDevice& device, int ps, int ss, int base_, int size_)
+	MSXDevice& device, int ps, int ss, unsigned base_, unsigned size_)
 {
 	if (!isExpanded(ps) && (ss != 0)) {
 		throw MSXException(
@@ -525,10 +525,10 @@ void MSXCPUInterface::registerMemDevice(
 
 	// split range on 16kb borders
 	// first check if registration is possible
-	int base = base_;
-	int size = size_;
-	while (size > 0) {
-		int partialSize = std::min(size, ((base + 0x4000) & ~0x3FFF) - base);
+	auto base = base_;
+	auto size = size_;
+	while (size != 0) {
+		auto partialSize = std::min(size, ((base + 0x4000) & ~0x3FFF) - base);
 		testRegisterSlot(device, ps, ss, base, partialSize);
 		base += partialSize;
 		size -= partialSize;
@@ -536,8 +536,8 @@ void MSXCPUInterface::registerMemDevice(
 	// if all checks are successful, only then actually register
 	base = base_;
 	size = size_;
-	while (size > 0) {
-		int partialSize = std::min(size, ((base + 0x4000) & ~0x3FFF) - base);
+	while (size != 0) {
+		auto partialSize = std::min(size, ((base + 0x4000) & ~0x3FFF) - base);
 		registerSlot(device, ps, ss, base, partialSize);
 		base += partialSize;
 		size -= partialSize;
@@ -545,11 +545,11 @@ void MSXCPUInterface::registerMemDevice(
 }
 
 void MSXCPUInterface::unregisterMemDevice(
-	MSXDevice& device, int ps, int ss, int base, int size)
+	MSXDevice& device, int ps, int ss, unsigned base, unsigned size)
 {
 	// split range on 16kb borders
-	while (size > 0) {
-		int partialSize = std::min(size, ((base + 0x4000) & ~0x3FFF) - base);
+	while (size != 0) {
+		auto partialSize = std::min(size, ((base + 0x4000) & ~0x3FFF) - base);
 		unregisterSlot(device, ps, ss, base, partialSize);
 		base += partialSize;
 		size -= partialSize;

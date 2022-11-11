@@ -1,6 +1,7 @@
 #include "DebugDevice.hh"
 #include "Clock.hh"
 #include "FileOperations.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 #include <iostream>
 #include <iomanip>
@@ -49,7 +50,7 @@ void DebugDevice::writeIO(word port, byte value, EmuTime::param time)
 			break;
 		}
 		if (!(value & 0x40)){
-			(*outputstrm) << '\n' << std::flush;
+			(*outputStrm) << '\n' << std::flush;
 		}
 		break;
 	case 1:
@@ -81,17 +82,17 @@ void DebugDevice::outputSingleByte(byte value, EmuTime::param time)
 		displayByte(value, DEC);
 	}
 	if (modeParameter & 0x08) {
-		(*outputstrm) << '\'';
+		(*outputStrm) << '\'';
 		byte tmp = ((value >= ' ') && (value != 127)) ? value : '.';
 		displayByte(tmp, ASC);
-		(*outputstrm) << "' ";
+		(*outputStrm) << "' ";
 	}
 	Clock<3579545> zero(EmuTime::zero());
-	(*outputstrm) << "emutime: " << std::dec << zero.getTicksTill(time);
+	(*outputStrm) << "emutime: " << std::dec << zero.getTicksTill(time);
 	if ((modeParameter & 0x08) && ((value < ' ') || (value == 127))) {
 		displayByte(value, ASC); // do special effects
 	}
-	(*outputstrm) << '\n' << std::flush;
+	(*outputStrm) << '\n' << std::flush;
 }
 
 void DebugDevice::outputMultiByte(byte value)
@@ -112,25 +113,25 @@ void DebugDevice::displayByte(byte value, DisplayType type)
 {
 	switch (type) {
 	case HEX:
-		(*outputstrm) << std::hex << std::setw(2)
+		(*outputStrm) << std::hex << std::setw(2)
 		              << std::setfill('0')
 		              << int(value) << "h " << std::flush;
 		break;
 	case BIN: {
 		for (byte mask = 0x80; mask; mask >>= 1) {
-			(*outputstrm) << ((value & mask) ? '1' : '0');
+			(*outputStrm) << ((value & mask) ? '1' : '0');
 		}
-		(*outputstrm) << "b " << std::flush;
+		(*outputStrm) << "b " << std::flush;
 		break;
 	}
 	case DEC:
-		(*outputstrm) << std::dec << std::setw(3)
+		(*outputStrm) << std::dec << std::setw(3)
 		              << std::setfill('0')
 		              << int(value) << ' ' << std::flush;
 		break;
 	case ASC:
-		(*outputstrm).put(value);
-		(*outputstrm) << std::flush;
+		(*outputStrm).put(narrow_cast<char>(value));
+		(*outputStrm) << std::flush;
 		break;
 	}
 }
@@ -140,13 +141,13 @@ void DebugDevice::openOutput(std::string_view name)
 	fileNameString = name;
 	debugOut.close();
 	if (name == "stdout") {
-		outputstrm = &std::cout;
+		outputStrm = &std::cout;
 	} else if (name == "stderr") {
-		outputstrm = &std::cerr;
+		outputStrm = &std::cerr;
 	} else {
 		auto realName = FileOperations::expandTilde(fileNameString);
 		FileOperations::openofstream(debugOut, realName, std::ios::app);
-		outputstrm = &debugOut;
+		outputStrm = &debugOut;
 	}
 }
 

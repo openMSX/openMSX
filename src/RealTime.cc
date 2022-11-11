@@ -8,6 +8,7 @@
 #include "Reactor.hh"
 #include "BooleanSetting.hh"
 #include "ThrottleManager.hh"
+#include "narrow.hh"
 #include "unreachable.hh"
 
 namespace openmsx {
@@ -89,18 +90,18 @@ void RealTime::internalSync(EmuTime::param time, bool allowSleep)
 		        getRealDuration(emuTime, time) * 1000000ULL);
 		idealRealTime += realDuration;
 		auto currentRealTime = Timer::getTime();
-		int64_t sleep = idealRealTime - currentRealTime;
+		auto sleep = narrow_cast<int64_t>(idealRealTime - currentRealTime);
 		if (allowSleep) {
 			// want to sleep for 'sleep' us
-			sleep += static_cast<int64_t>(sleepAdjust);
+			sleep += narrow_cast<int64_t>(sleepAdjust);
 			int64_t delta = 0;
 			if (sleep > 0) {
 				Timer::sleep(sleep); // request to sleep for 'sleep+sleepAdjust'
-				int64_t slept = Timer::getTime() - currentRealTime;
+				auto slept = narrow<int64_t>(Timer::getTime() - currentRealTime);
 				delta = sleep - slept; // actually slept for 'slept' us
 			}
 			const double ALPHA = 0.2;
-			sleepAdjust = sleepAdjust * (1 - ALPHA) + delta * ALPHA;
+			sleepAdjust = sleepAdjust * (1 - ALPHA) + narrow_cast<double>(delta) * ALPHA;
 		}
 		if (-sleep > MAX_LAG) {
 			idealRealTime = currentRealTime - MAX_LAG / 2;

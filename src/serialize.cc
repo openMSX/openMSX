@@ -10,6 +10,7 @@
 #include "StringOp.hh"
 #include "Version.hh"
 #include "Date.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "stl.hh"
 #include "build-info.hh"
@@ -484,21 +485,21 @@ void XmlInputArchive::load(unsigned long long& ull)
 }
 void XmlInputArchive::load(unsigned char& b)
 {
-	unsigned i;
-	load(i);
-	b = i;
+	unsigned u;
+	load(u);
+	b = narrow_cast<unsigned char>(u);
 }
 void XmlInputArchive::load(signed char& c)
 {
 	int i;
 	load(i);
-	c = i;
+	c = narrow_cast<signed char>(i);
 }
 void XmlInputArchive::load(char& c)
 {
 	int i;
 	load(i);
-	c = i;
+	c = narrow_cast<char>(i);
 }
 
 void XmlInputArchive::beginTag(const char* tag)

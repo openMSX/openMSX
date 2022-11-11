@@ -70,10 +70,10 @@ template<typename T> struct SerializeClassVersion;
 //      format is only written as a proof-of-concept to test the design. It's
 //      not meant to be used in practice.
 //
-// Archive code is heavily templatized. It uses the CRTP (curiously recuring
+// Archive code is heavily templatized. It uses the CRTP (curiously recurring
 // template pattern ; a base class templatized on it's derived class). To
 // implement static polymorphism. This means there is practically no run-time
-// overhead of using this mechanism compared to 6 separately handcoded functions
+// overhead of using this mechanism compared to 6 separately hand coded functions
 // (Mem/XML/Text x input/output).
 // TODO At least in theory, still need to verify this in practice.
 //      Though my experience is that gcc is generally very good in this.
@@ -101,7 +101,7 @@ public:
 	 * implementation of a serialize() method of a class type.
 	 * See also serializeBase() above.
 	 *
-	 * The differece between serializeBase() and serializeInlinedBase()
+	 * The difference between serializeBase() and serializeInlinedBase()
 	 * is only relevant for versioned archives (see NEED_VERSION, e.g.
 	 * XML archives). In XML archives serializeBase() will put the base
 	 * class in a new subtag, serializeInlinedBase() puts the members

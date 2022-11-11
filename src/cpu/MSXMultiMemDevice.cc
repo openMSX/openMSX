@@ -40,20 +40,20 @@ static constexpr bool overlap(unsigned start1, unsigned size1,
 	       (isInside(start1 + size1 - 1, start2, size2));
 }
 
-bool MSXMultiMemDevice::canAdd(int base, int size)
+bool MSXMultiMemDevice::canAdd(unsigned base, unsigned size)
 {
 	return ranges::none_of(view::drop_back(ranges, 1), [&](auto& rn) {
 		return overlap(base, size, rn.base, rn.size);
 	});
 }
 
-void MSXMultiMemDevice::add(MSXDevice& device, int base, int size)
+void MSXMultiMemDevice::add(MSXDevice& device, unsigned base, unsigned size)
 {
 	assert(canAdd(base, size));
 	ranges.insert(begin(ranges), Range(base, size, device));
 }
 
-void MSXMultiMemDevice::remove(MSXDevice& device, int base, int size)
+void MSXMultiMemDevice::remove(MSXDevice& device, unsigned base, unsigned size)
 {
 	ranges.erase(rfind_unguarded(ranges, Range(base, size, device)));
 }

@@ -98,9 +98,9 @@ public:
 	 * get called.
 	 */
 	void registerMemDevice(MSXDevice& device,
-	                       int ps, int ss, int base, int size);
+	                       int ps, int ss, unsigned base, unsigned size);
 	void unregisterMemDevice(MSXDevice& device,
-	                         int ps, int ss, int base, int size);
+	                         int ps, int ss, unsigned base, unsigned size);
 
 	/** (Un)register global writes.
 	  * @see MSXDevice::globalWrite()
@@ -300,11 +300,11 @@ private:
 	                   MSXDevice*& devicePtr, MSXDevice* device);
 	void unregister_IO(MSXDevice*& devicePtr, MSXDevice* device);
 	void testRegisterSlot(MSXDevice& device,
-	                      int ps, int ss, int base, int size);
+	                      int ps, int ss, unsigned base, unsigned size);
 	void registerSlot(MSXDevice& device,
-	                  int ps, int ss, int base, int size);
+	                  int ps, int ss, unsigned base, unsigned size);
 	void unregisterSlot(MSXDevice& device,
-	                    int ps, int ss, int base, int size);
+	                    int ps, int ss, unsigned base, unsigned size);
 
 
 	void checkBreakPoints(std::pair<BreakPoints::const_iterator,
