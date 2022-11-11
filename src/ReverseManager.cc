@@ -256,18 +256,18 @@ void ReverseManager::debugInfo(TclObject& result) const
 
 static std::pair<bool, double> parseGoTo(Interpreter& interp, std::span<const TclObject> tokens)
 {
-	bool novideo = false;
-	std::array info = {flagArg("-novideo", novideo)};
+	bool noVideo = false;
+	std::array info = {flagArg("-novideo", noVideo)};
 	auto args = parseTclArgs(interp, tokens.subspan(2), info);
 	if (args.size() != 1) throw SyntaxError();
 	double time = args[0].getDouble(interp);
-	return {novideo, time};
+	return {noVideo, time};
 }
 
 void ReverseManager::goBack(std::span<const TclObject> tokens)
 {
 	auto& interp = motherBoard.getReactor().getInterpreter();
-	auto [novideo, t] = parseGoTo(interp, tokens);
+	auto [noVideo, t] = parseGoTo(interp, tokens);
 
 	EmuTime now = getCurrentTime();
 	EmuTime target(EmuTime::dummy());
@@ -281,30 +281,30 @@ void ReverseManager::goBack(std::span<const TclObject> tokens)
 	} else {
 		target = now + EmuDuration(-t);
 	}
-	goTo(target, novideo);
+	goTo(target, noVideo);
 }
 
 void ReverseManager::goTo(std::span<const TclObject> tokens)
 {
 	auto& interp = motherBoard.getReactor().getInterpreter();
-	auto [novideo, t] = parseGoTo(interp, tokens);
+	auto [noVideo, t] = parseGoTo(interp, tokens);
 
 	EmuTime target = EmuTime::zero() + EmuDuration(t);
-	goTo(target, novideo);
+	goTo(target, noVideo);
 }
 
-void ReverseManager::goTo(EmuTime::param target, bool novideo)
+void ReverseManager::goTo(EmuTime::param target, bool noVideo)
 {
 	if (!isCollecting()) {
 		throw CommandException(
 			"Reverse was not enabled. First execute the 'reverse "
 			"start' command to start collecting data.");
 	}
-	goTo(target, novideo, history, true); // move in current time-line
+	goTo(target, noVideo, history, true); // move in current time-line
 }
 
 // this function is used below, but factored out, because it's already way too long
-static void reportProgress(Reactor& reactor, const EmuTime& targetTime, int percentage)
+static void reportProgress(Reactor& reactor, const EmuTime& targetTime, unsigned percentage)
 {
 	double targetTimeDisp = (targetTime - EmuTime::zero()).toDouble();
 	std::ostringstream sstr;
@@ -318,7 +318,7 @@ static void reportProgress(Reactor& reactor, const EmuTime& targetTime, int perc
 }
 
 void ReverseManager::goTo(
-	EmuTime::param target, bool novideo, ReverseHistory& hist,
+	EmuTime::param target, bool noVideo, ReverseHistory& hist,
 	bool sameTimeLine)
 {
 	auto& mixer = motherBoard.getMSXMixer();
@@ -347,7 +347,7 @@ void ReverseManager::goTo(
 		// time. This is quite complex to get and the difference between
 		// 2 PAL and 2 NTSC frames isn't that big.
 		double dur2frames = 2.0 * (313.0 * 1368.0) / (3579545.0 * 6.0);
-		EmuDuration preDelta(novideo ? 0.0 : dur2frames);
+		EmuDuration preDelta(noVideo ? 0.0 : dur2frames);
 		EmuTime preTarget = ((targetTime - firstTime) > preDelta)
 		                  ? targetTime - preDelta
 		                  : firstTime;
@@ -448,7 +448,7 @@ void ReverseManager::goTo(
 			if (((now - lastProgress) > 1000000) || ((currentTimeNewBoard >= preTarget) && everShowedProgress)) {
 				everShowedProgress = true;
 				lastProgress = now;
-				int percentage = ((currentTimeNewBoard - startMSXTime) * 100u) / (preTarget - startMSXTime);
+				auto percentage = ((currentTimeNewBoard - startMSXTime) * 100u) / (preTarget - startMSXTime);
 				reportProgress(newBoard->getReactor(), targetTime, percentage);
 			}
 			// note: fastForward does not always stop at
@@ -498,7 +498,7 @@ void ReverseManager::goTo(
 
 void ReverseManager::transferState(MSXMotherBoard& newBoard)
 {
-	// Transfer viewonly mode
+	// Transfer view only mode
 	const auto& oldDistributor = motherBoard.getStateChangeDistributor();
 	      auto& newDistributor = newBoard   .getStateChangeDistributor();
 	newDistributor.setViewOnlyMode(oldDistributor.isViewOnlyMode());
@@ -735,8 +735,8 @@ void ReverseManager::loadReplay(
 	// Note: until this point we didn't make any changes to the current
 	// ReverseManager/MSXMotherBoard yet
 	reRecordCount = newReverseManager.reRecordCount;
-	bool novideo = false;
-	goTo(destination, novideo, newHistory, false); // move to different time-line
+	bool noVideo = false;
+	goTo(destination, noVideo, newHistory, false); // move to different time-line
 
 	result = tmpStrCat("Loaded replay from ", filename);
 }

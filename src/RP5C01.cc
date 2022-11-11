@@ -1,5 +1,6 @@
 #include "RP5C01.hh"
 #include "SRAM.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "serialize.hh"
 #include <array>
@@ -18,9 +19,9 @@ static constexpr nibble RESET_REG = 15;
 static constexpr nibble TIME_BLOCK  = 0;
 static constexpr nibble ALARM_BLOCK = 1;
 
-static constexpr nibble MODE_BLOKSELECT  = 0x3;
-static constexpr nibble MODE_ALARMENABLE = 0x4;
-static constexpr nibble MODE_TIMERENABLE = 0x8;
+static constexpr nibble MODE_BLOK_SELECT  = 0x3;
+static constexpr nibble MODE_ALARM_ENABLE = 0x4;
+static constexpr nibble MODE_TIMER_ENABLE = 0x8;
 
 static constexpr nibble TEST_SECONDS = 0x1;
 static constexpr nibble TEST_MINUTES = 0x2;
@@ -58,7 +59,7 @@ RP5C01::RP5C01(CommandController& commandController, SRAM& regs_,
 
 void RP5C01::reset(EmuTime::param time)
 {
-	modeReg = MODE_TIMERENABLE;
+	modeReg = MODE_TIMER_ENABLE;
 	testReg = 0;
 	resetReg = 0;
 	updateTimeRegs(time);
@@ -73,7 +74,7 @@ nibble RP5C01::readPort(nibble port, EmuTime::param time)
 		// nothing
 		break;
 	default:
-		unsigned block = modeReg & MODE_BLOKSELECT;
+		unsigned block = modeReg & MODE_BLOK_SELECT;
 		if (block == one_of(TIME_BLOCK, ALARM_BLOCK)) {
 			updateTimeRegs(time);
 		}
@@ -92,7 +93,7 @@ nibble RP5C01::peekPort(nibble port) const
 		// write only
 		return 0x0f; // TODO check this
 	default:
-		unsigned block = modeReg & MODE_BLOKSELECT;
+		unsigned block = modeReg & MODE_BLOK_SELECT;
 		nibble tmp = regs[block * 13 + port];
 		return tmp & mask[block][port];
 	}
@@ -120,7 +121,7 @@ void RP5C01::writePort(nibble port, nibble value, EmuTime::param time)
 		}
 		break;
 	default:
-		unsigned block = modeReg & MODE_BLOKSELECT;
+		unsigned block = modeReg & MODE_BLOK_SELECT;
 		if (block == one_of(TIME_BLOCK, ALARM_BLOCK)) {
 			updateTimeRegs(time);
 		}
@@ -202,11 +203,11 @@ void RP5C01::updateTimeRegs(EmuTime::param time)
 {
 	if (modeSetting.getEnum() == EMUTIME) {
 		// sync with EmuTime, perfect emulation
-		auto elapsed = unsigned(reference.getTicksTill(time));
+		auto elapsed = reference.getTicksTill(time);
 		reference.advance(time);
 
 		// in test mode increase sec/min/.. at a rate of 16384Hz
-		fraction += (modeReg & MODE_TIMERENABLE) ? elapsed : 0;
+		fraction += (modeReg & MODE_TIMER_ENABLE) ? elapsed : 0;
 		unsigned carrySeconds = (testReg & TEST_SECONDS)
 		                      ? elapsed : fraction / FREQ;
 		seconds  += carrySeconds;
@@ -227,7 +228,7 @@ void RP5C01::updateTimeRegs(EmuTime::param time)
 			// - So temporary we go via the (invalid) date 'xx/02/31'
 			//   (february does not have 32 days)
 			// - We must NOT roll over the days and advance to march.
-			days     += carryDays;
+			days     += narrow_cast<int>(carryDays);
 			dayWeek  += carryDays;
 			while (days >= daysInMonth(months, leapYear)) {
 				// TODO not correct because leapYear is not updated

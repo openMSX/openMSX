@@ -38,8 +38,9 @@
 #include "foreach_file.hh"
 #include "Thread.hh"
 #include "Timer.hh"
-#include "serialize.hh"
+#include "narrow.hh"
 #include "ranges.hh"
+#include "serialize.hh"
 #include "stl.hh"
 #include "StringOp.hh"
 #include "unreachable.hh"
@@ -1107,7 +1108,7 @@ void RealTimeInfo::execute(std::span<const TclObject> /*tokens*/,
                            TclObject& result) const
 {
 	auto delta = Timer::getTime() - reference;
-	result = delta / 1000000.0;
+	result = narrow_cast<double>(delta) / 1000000.0;
 }
 
 string RealTimeInfo::help(std::span<const TclObject> /*tokens*/) const

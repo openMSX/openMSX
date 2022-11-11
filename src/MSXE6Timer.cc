@@ -41,7 +41,7 @@ byte MSXE6Timer::readIO(word port, EmuTime::param time)
 
 byte MSXE6Timer::peekIO(word port, EmuTime::param time) const
 {
-	int counter = reference.getTicksTill(time);
+	auto counter = reference.getTicksTill(time);
 	return (port & 1) ? ((counter >> 8) & 0xFF) : (counter & 0xFF);
 }
 

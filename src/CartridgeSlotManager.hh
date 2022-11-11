@@ -42,7 +42,7 @@ public:
 	[[nodiscard]] bool isExternalSlot(int ps, int ss, bool convert) const;
 
 private:
-	[[nodiscard]] int getSlot(int ps, int ss) const;
+	[[nodiscard]] unsigned getSlot(int ps, int ss) const;
 
 private:
 	MSXMotherBoard& motherBoard;
@@ -57,7 +57,7 @@ private:
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 		[[nodiscard]] bool needRecord(std::span<const TclObject> tokens) const override;
 	private:
-		const HardwareConfig* getExtensionConfig(std::string_view cartname);
+		const HardwareConfig* getExtensionConfig(std::string_view cartName);
 		CartridgeSlotManager& manager;
 		CliComm& cliComm;
 	} cartCmd;

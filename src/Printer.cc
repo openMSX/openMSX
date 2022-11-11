@@ -832,7 +832,7 @@ void ImagePrinterMSX::processCharacter(byte data)
 		alternateChar = false;
 	} else {
 		switch (data) {
-			case 1: // SOH: A symbolcode preceding code
+			case 1: // SOH: A symbol code preceding code
 				alternateChar = true;
 				break;
 			case 7: // BEL: Audible beep (buzzer, 0.3s)
@@ -1413,7 +1413,7 @@ void ImagePrinterEpson::processEscSequence()
 			fontDensity = compressed ? 1.72 : 1.00;
 			break;
 		case 'Q': { // Set Right Margin
-			int width = parseNumber(1, 2);
+			auto width = parseNumber(1, 2);
 			if (width > 78) width = 78; // FIXME Font dependent !!
 			rightBorder = 6 * width;
 			break;
@@ -1425,7 +1425,7 @@ void ImagePrinterEpson::processEscSequence()
 			}
 			break;
 		case 'S': { // Turn Script Mode ON
-			int script = parseNumber(1, 1) & 1;
+			auto script = parseNumber(1, 1) & 1;
 			superscript = script == 0;
 			subscript   = script == 1;
 			break;
@@ -1688,10 +1688,10 @@ void Paper::setDotSize(double dotSizeX, double dotSizeY)
 
 void Paper::plot(double xPos, double yPos)
 {
-	unsigned xx1 = std::max<int>(int(floor(xPos - radiusX)), 0);
-	unsigned xx2 = std::min<int>(int(ceil (xPos + radiusX)), sizeX);
-	unsigned yy1 = std::max<int>(int(floor(yPos - radiusY)), 0);
-	unsigned yy2 = std::min<int>(int(ceil (yPos + radiusY)), sizeY);
+	int xx1 = std::max(int(floor(xPos - radiusX)), 0);
+	int xx2 = std::min(int(ceil (xPos + radiusX)), int(sizeX));
+	int yy1 = std::max(int(floor(yPos - radiusY)), 0);
+	int yy2 = std::min(int(ceil (yPos + radiusY)), int(sizeY));
 
 	int y = 16 * yy1 - int(16 * yPos) + 16 + radius16;
 	for (auto yy : xrange(yy1, yy2)) {

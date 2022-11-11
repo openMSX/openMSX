@@ -104,8 +104,8 @@ private:
 
 	void signalStopReplay(EmuTime::param time);
 	[[nodiscard]] EmuTime::param getEndTime(const ReverseHistory& history) const;
-	void goTo(EmuTime::param targetTime, bool novideo);
-	void goTo(EmuTime::param targetTime, bool novideo,
+	void goTo(EmuTime::param targetTime, bool noVideo);
+	void goTo(EmuTime::param targetTime, bool noVideo,
 	          ReverseHistory& history, bool sameTimeLine);
 	void transferHistory(ReverseHistory& oldHistory,
 	                     unsigned oldEventCount);
