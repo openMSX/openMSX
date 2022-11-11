@@ -9,8 +9,9 @@ TODO:
 #include "SpriteChecker.hh"
 #include "DisplayMode.hh"
 #include "view.hh"
-#include "openmsx.hh"
+#include "narrow.hh"
 #include <concepts>
+#include <cstdint>
 #include <span>
 
 namespace openmsx {
@@ -81,7 +82,7 @@ public:
 				// past maxX -> not visible
 				return false;
 			}
-			int mask = 0x80000000;
+			auto mask = narrow_cast<int>(0x80000000);
 			pattern &= (mask >> (after - 1));
 		}
 		return true; // visible
@@ -159,17 +160,17 @@ public:
 			}
 			++first;
 		} while (first < int(visibleSprites.size()));
-		for (int i = visibleSprites.size() - 1; i >= first; --i) {
+		for (int i = narrow<int>(visibleSprites.size() - 1); i >= first; --i) {
 			const SpriteChecker::SpriteInfo& info = visibleSprites[i];
 			int x = info.x;
 			SpriteChecker::SpritePattern pattern = info.pattern;
 			// Clip sprite pattern to render range.
 			if (!clipPattern(x, pattern, minX, maxX)) continue;
-			byte c = info.colorAttrib & 0x0F;
+			uint8_t c = info.colorAttrib & 0x0F;
 			if (c == 0 && transparency) continue;
 			while (pattern) {
 				if (pattern & 0x80000000) {
-					byte color = c;
+					uint8_t color = c;
 					// Merge in any following CC=1 sprites.
 					for (int j = i + 1; /*sentinel*/; ++j) {
 						const SpriteChecker::SpriteInfo& info2 =

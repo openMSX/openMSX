@@ -63,7 +63,7 @@ public:
 	virtual void setSuperimposeVideoFrame(const RawFrame* videoSource) = 0;
 
 	/** Render a rectangle of border pixels on the host screen.
-	  * The units are absolute lines (Y) and VDP clockticks (X).
+	  * The units are absolute lines (Y) and VDP clock ticks (X).
 	  * @param fromX X coordinate of render start (inclusive).
 	  * @param fromY Y coordinate of render start (inclusive).
 	  * @param limitX X coordinate of render end (exclusive).

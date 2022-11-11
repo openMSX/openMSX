@@ -25,12 +25,12 @@ public:
 	  * or 25 MHz crystal. The Gfx9000 provides an 21 MHz crystal.
 	  *
 	  * The emulation combines these two clocks into one unified
-	  * clock (UC) running at 42MHz - the smallest common multple
+	  * clock (UC) running at 42MHz - the smallest common multiple
 	  * of 14 and 21 MHz.
 	  */
 	static constexpr int UC_TICKS_PER_SECOND = 3579545 * 12; // 42.9MHz
 
-	/** The number of clockticks per line is independent of the crystal
+	/** The number of clock ticks per line is independent of the crystal
 	  * used or the display mode (NTSC/PAL)
 	  */
 	static constexpr int UC_TICKS_PER_LINE = 2736;

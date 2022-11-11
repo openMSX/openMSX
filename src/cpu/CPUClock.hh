@@ -3,6 +3,7 @@
 
 #include "DynamicClock.hh"
 #include "Scheduler.hh"
+#include "narrow.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -24,7 +25,7 @@ protected:
 #else
 	// 64-bit addition is expensive
 	// (if executed several million times per second)
-	inline void add(unsigned ticks) { remaining -= ticks; }
+	inline void add(unsigned ticks) { remaining -= narrow_cast<int>(ticks); }
 	inline void sync() const {
 		clock.fastAdd(limit - remaining);
 		limit = remaining;
@@ -93,7 +94,7 @@ protected:
 		if (limitEnabled) {
 			sync();
 			assert(remaining == limit);
-			limit = clock.getTicksTillUp(time) - 1;
+			limit = narrow_cast<int>(clock.getTicksTillUp(time) - 1);
 			remaining = limit;
 		} else {
 			assert(limit < 0);

@@ -2,6 +2,7 @@
 #define VDPACCESSSLOTS_HH
 
 #include "VDP.hh"
+#include "narrow.hh"
 #include <cassert>
 #include <cstdint>
 #include <span>
@@ -46,8 +47,8 @@ public:
 		assert(frame <= limit_);
 		// not required that time <= limit
 
-		ticks = ref.getTicksTill_fast(time);
-		limit = ref.getTicksTill_fast(limit_);
+		ticks = narrow<int>(ref.getTicksTill_fast(time));
+		limit = narrow<int>(ref.getTicksTill_fast(limit_));
 		int lines = ticks / TICKS;
 		ticks -= lines * TICKS;
 		limit -= lines * TICKS; // might be negative

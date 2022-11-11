@@ -5,6 +5,7 @@
 #include "CPURegs.hh"
 #include "Clock.hh"
 #include "inline.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "xrange.hh"
 #include <array>
@@ -74,7 +75,7 @@ protected:
 	template<bool PRE_PB, bool POST_PB>
 	ALWAYS_INLINE void PRE_MEM(unsigned address)
 	{
-		int newPage = address >> 8;
+		int newPage = narrow<int>(address >> 8);
 		if constexpr (PRE_PB) {
 			// there is a statically predictable page break at this
 			// point -> 'add(1)' moved to static cost table
@@ -99,7 +100,7 @@ protected:
 	template<bool PRE_PB, bool POST_PB>
 	ALWAYS_INLINE void PRE_WORD(unsigned address)
 	{
-		int newPage = address >> 8;
+		int newPage = narrow<int>(address >> 8);
 		if constexpr (PRE_PB) {
 			// there is a statically predictable page break at this
 			// point -> 'add(1)' moved to static cost table
@@ -132,7 +133,7 @@ protected:
 		//  duration:  256/1024KB  13.5 clocks
 		//             512KB       21.5 clocks
 		// But 26/210 matches measurements much better
-		//   (loosly based on old measurements by Jon on his analogue scope)
+		//   (loosely based on old measurements by Jon on his analogue scope)
 		EmuTime time = getTimeFast();
 		if (lastRefreshTime.getTicksTill_fast(time) >= 210) [[unlikely]] {
 			R800RefreshSlow(time, R); // slow-path not inline
