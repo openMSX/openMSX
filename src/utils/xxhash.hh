@@ -83,10 +83,10 @@ template<bool ALIGNED, uint8_t MASK8 = 0xFF, uint32_t SEED = 0>
 		const uint8_t* const limit = bEnd - 16;
 
 		// casts to avoid: warning C4307: '+': integral constant overflow
-		uint32_t v1 = uint32_t(SEED + PRIME32_1 + uint64_t(PRIME32_2));
-		uint32_t v2 = SEED + PRIME32_2;
-		uint32_t v3 = SEED + 0;
-		uint32_t v4 = SEED - PRIME32_1;
+		auto v1 = uint32_t(SEED + PRIME32_1 + uint64_t(PRIME32_2));
+		auto v2 = SEED + PRIME32_2;
+		auto v3 = SEED + 0;
+		auto v4 = SEED - PRIME32_1;
 
 		do {
 			uint32_t r1 = (read32<ALIGNED>(p +  0) & MASK32) * PRIME32_2;
