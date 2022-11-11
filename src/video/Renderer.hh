@@ -95,7 +95,7 @@ public:
 	  *   all other bits are zero.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updatePalette(int index, int grb, EmuTime::param time) = 0;
+	virtual void updatePalette(unsigned index, int grb, EmuTime::param time) = 0;
 
 	/** Informs the renderer of a vertical scroll change.
 	  * @param scroll The new scroll value.

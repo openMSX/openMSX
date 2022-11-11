@@ -73,7 +73,7 @@ public:
 		             "release", release);
 	}
 private:
-	unsigned joyNum;
+	int joyNum;
 	unsigned press, release;
 };
 REGISTER_POLYMORPHIC_CLASS(StateChange, JoyMegaState, "JoyMegaState");

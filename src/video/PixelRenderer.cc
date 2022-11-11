@@ -330,7 +330,7 @@ void PixelRenderer::updateBlinkState(
 }
 
 void PixelRenderer::updatePalette(
-	int index, int grb, EmuTime::param time)
+	unsigned index, int grb, EmuTime::param time)
 {
 	if (displayEnabled) {
 		sync(time);
@@ -338,7 +338,7 @@ void PixelRenderer::updatePalette(
 		// Only sync if border color changed.
 		DisplayMode mode = vdp.getDisplayMode();
 		if (mode.getBase() == DisplayMode::GRAPHIC5) {
-			int bgColor = vdp.getBackgroundColor();
+			auto bgColor = vdp.getBackgroundColor();
 			if (index == one_of(bgColor & 3, bgColor >> 2)) {
 				sync(time);
 			}

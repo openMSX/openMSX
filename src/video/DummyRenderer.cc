@@ -38,7 +38,7 @@ void DummyRenderer::updateBlinkBackgroundColor(int /*color*/, EmuTime::param /*t
 void DummyRenderer::updateBlinkState(bool /*enabled*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updatePalette(int /*index*/, int /*grb*/, EmuTime::param /*time*/) {
+void DummyRenderer::updatePalette(unsigned /*index*/, int /*grb*/, EmuTime::param /*time*/) {
 }
 
 void DummyRenderer::updateVerticalScroll(int /*scroll*/, EmuTime::param /*time*/) {

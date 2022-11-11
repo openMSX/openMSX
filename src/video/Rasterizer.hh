@@ -49,7 +49,7 @@ public:
 	  *   bit 10..8 is green, bit 6..4 is red and bit 2..0 is blue;
 	  *   all other bits are zero.
 	  */
-	virtual void setPalette(int index, int grb) = 0;
+	virtual void setPalette(unsigned index, int grb) = 0;
 
 	/** Changes the background color.
 	  * @param index Palette index of the new background color.

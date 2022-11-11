@@ -45,7 +45,7 @@ public:
 	void frameStart(EmuTime::param time) override;
 	void frameEnd() override;
 	void setDisplayMode(DisplayMode mode) override;
-	void setPalette(int index, int grb) override;
+	void setPalette(unsigned index, int grb) override;
 	void setBackgroundColor(int index) override;
 	void setHorizontalAdjust(int adjust) override;
 	void setHorizontalScrollLow(byte scroll) override;

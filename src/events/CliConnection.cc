@@ -336,7 +336,7 @@ void SocketConnection::output(std::string_view message_)
 	// std::span message = message_; // error with clang-15/libc++
 	std::span message{message_.begin(), message_.end()};
 	while (!message.empty()) {
-		int bytesSend;
+		ptrdiff_t bytesSend;
 		{
 			std::lock_guard<std::mutex> lock(sdMutex);
 			if (sd == OPENMSX_INVALID_SOCKET) return;

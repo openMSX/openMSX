@@ -203,7 +203,7 @@ public:
 	  *   In Graphic7 mode with YJK off, the range is [0..255].
 	  *   In other modes, the range is [0..15].
 	  */
-	[[nodiscard]] inline int getBackgroundColor() const {
+	[[nodiscard]] inline unsigned getBackgroundColor() const {
 		byte reg7 = controlRegs[7];
 		if (displayMode.getByte() == DisplayMode::GRAPHIC7) {
 			return reg7;
@@ -954,7 +954,7 @@ private:
 	  *   bit 10..8 is green, bit 6..4 is red and bit 2..0 is blue.
 	  * @param time Moment in time palette change occurs.
 	  */
-	void setPalette(int index, word grb, EmuTime::param time);
+	void setPalette(unsigned index, word grb, EmuTime::param time);
 
 	// Observer<Setting>
 	void update(const Setting& setting) noexcept override;

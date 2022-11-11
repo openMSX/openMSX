@@ -604,7 +604,7 @@ void MSXCPUInterface::unregisterGlobalRead(MSXDevice& device, word address)
 	msxcpu.invalidateAllSlotsRWCache(address & CacheLine::HIGH, 0x100);
 }
 
-ALWAYS_INLINE void MSXCPUInterface::updateVisible(int page, int ps, int ss)
+ALWAYS_INLINE void MSXCPUInterface::updateVisible(unsigned page, int ps, int ss)
 {
 	MSXDevice* newDevice = slotLayout[ps][ss][page];
 	if (visibleDevices[page] != newDevice) {
@@ -612,7 +612,7 @@ ALWAYS_INLINE void MSXCPUInterface::updateVisible(int page, int ps, int ss)
 		msxcpu.updateVisiblePage(page, ps, ss);
 	}
 }
-void MSXCPUInterface::updateVisible(int page)
+void MSXCPUInterface::updateVisible(unsigned page)
 {
 	updateVisible(page, primarySlotState[page], secondarySlotState[page]);
 }
@@ -714,7 +714,7 @@ void MSXCPUInterface::setPrimarySlots(byte value)
 void MSXCPUInterface::setSubSlot(byte primSlot, byte value)
 {
 	subSlotRegister[primSlot] = value;
-	for (int page = 0; page < 4; ++page, value >>= 2) {
+	for (unsigned page = 0; page < 4; ++page, value >>= 2) {
 		if (primSlot == primarySlotState[page]) {
 			secondarySlotState[page] = value & 3;
 			// Change the visible devices

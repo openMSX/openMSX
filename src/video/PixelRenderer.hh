@@ -48,7 +48,7 @@ public:
 	void updateBlinkForegroundColor(int color, EmuTime::param time) override;
 	void updateBlinkBackgroundColor(int color, EmuTime::param time) override;
 	void updateBlinkState(bool enabled, EmuTime::param time) override;
-	void updatePalette(int index, int grb, EmuTime::param time) override;
+	void updatePalette(unsigned index, int grb, EmuTime::param time) override;
 	void updateVerticalScroll(int scroll, EmuTime::param time) override;
 	void updateHorizontalAdjust(int adjust, EmuTime::param time) override;
 	void updateDisplayEnabled(bool enabled, EmuTime::param time) override;

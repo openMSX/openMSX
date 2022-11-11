@@ -709,7 +709,7 @@ void VDP::writeIO(word port, byte value, EmuTime::param time_)
 		break;
 	case 2: // Palette data write
 		if (paletteDataStored) {
-			int index = controlRegs[16];
+			unsigned index = controlRegs[16];
 			int grb = ((value << 8) | dataLatch) & 0x777;
 			setPalette(index, grb, time);
 			controlRegs[16] = (index + 1) & 0x0F;
@@ -745,7 +745,7 @@ void VDP::getExtraDeviceInfo(TclObject& result) const
 	result.addDictKeyValues("version", vdpVersionString->getData());
 }
 
-void VDP::setPalette(int index, word grb, EmuTime::param time)
+void VDP::setPalette(unsigned index, word grb, EmuTime::param time)
 {
 	if (palette[index] != grb) {
 		renderer->updatePalette(index, grb, time);

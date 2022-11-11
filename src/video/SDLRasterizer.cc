@@ -190,7 +190,7 @@ void SDLRasterizer<Pixel>::setDisplayMode(DisplayMode mode)
 }
 
 template<std::unsigned_integral Pixel>
-void SDLRasterizer<Pixel>::setPalette(int index, int grb)
+void SDLRasterizer<Pixel>::setPalette(unsigned index, int grb)
 {
 	// Update SDL colors in palette.
 	Pixel newColor = V9938_COLORS[(grb >> 4) & 7][grb >> 8][grb & 7];

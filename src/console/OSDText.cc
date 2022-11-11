@@ -153,7 +153,7 @@ vec2 OSDText::getSize(const OutputSurface& /*output*/) const
 
 uint8_t OSDText::getFadedAlpha() const
 {
-	return narrow_cast<uint8_t>((getRGBA(0) & 0xff) * getRecursiveFadeValue());
+	return narrow_cast<uint8_t>(narrow_cast<float>(getRGBA(0) & 0xff) * getRecursiveFadeValue());
 }
 
 template<typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
