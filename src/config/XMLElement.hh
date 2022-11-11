@@ -106,8 +106,8 @@ class XMLElement
 	};
 	struct ChildRange {
 		const XMLElement* elem;
-		ChildIterator begin() const { return {elem->firstChild}; }
-		ChildIterator end()   const { return {nullptr}; }
+		[[nodiscard]] ChildIterator begin() const { return {elem->firstChild}; }
+		[[nodiscard]] ChildIterator end()   const { return {nullptr}; }
 	};
 
 	struct NamedChildIterator {
@@ -140,8 +140,8 @@ class XMLElement
 	struct NamedChildRange {
 		const XMLElement* elem;
 		std::string_view name;
-		NamedChildIterator begin() const { return {elem->firstChild, name}; }
-		NamedChildIterator end()   const { return {nullptr, std::string_view{}}; }
+		[[nodiscard]] NamedChildIterator begin() const { return {elem->firstChild, name}; }
+		[[nodiscard]] NamedChildIterator end()   const { return {nullptr, std::string_view{}}; }
 	};
 
 	struct AttributeIterator {
@@ -159,8 +159,8 @@ class XMLElement
 	};
 	struct AttributeRange {
 		const XMLElement* elem;
-		AttributeIterator begin() const { return {elem->firstAttribute}; }
-		AttributeIterator end()   const { return {nullptr}; }
+		[[nodiscard]] AttributeIterator begin() const { return {elem->firstAttribute}; }
+		[[nodiscard]] AttributeIterator end()   const { return {nullptr}; }
 	};
 
 public:
@@ -191,8 +191,8 @@ public:
 	[[nodiscard]] int getChildDataAsInt(std::string_view childName, int defaultValue) const;
 
 	[[nodiscard]] size_t numChildren() const;
-	ChildRange getChildren() const { return {this}; }
-	NamedChildRange getChildren(std::string_view childName) const { return {this, childName}; }
+	[[nodiscard]] ChildRange getChildren() const { return {this}; }
+	[[nodiscard]] NamedChildRange getChildren(std::string_view childName) const { return {this, childName}; }
 
 	[[nodiscard]] const XMLAttribute* findAttribute(std::string_view attrName) const;
 	[[nodiscard]] const XMLAttribute& getAttribute(std::string_view attrName) const;
@@ -206,7 +206,7 @@ public:
 	[[nodiscard]] XMLAttribute** findAttributePointer(std::string_view attrName);
 	static void removeAttribute(XMLAttribute** attrPtr);
 	[[nodiscard]] size_t numAttributes() const;
-	AttributeRange getAttributes() const { return {this}; }
+	[[nodiscard]] AttributeRange getAttributes() const { return {this}; }
 
 	XMLElement* setFirstChild(XMLElement* child) {
 		assert(!firstChild);

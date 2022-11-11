@@ -27,7 +27,7 @@ public:
 	void setOutput(InterpreterOutput* output_) { output = output_; }
 
 	void init(const char* programName);
-	bool hasCommand(zstring_view name) const;
+	[[nodiscard]] bool hasCommand(zstring_view name) const;
 	void registerCommand(zstring_view name, Command& command);
 	void unregisterCommand(Command& command);
 	[[nodiscard]] TclObject getCommandNames();

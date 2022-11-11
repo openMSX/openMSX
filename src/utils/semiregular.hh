@@ -94,10 +94,10 @@ template<typename T> struct semiregular : semiregular_copy_layer<T> {
 	{
 	}
 
-	constexpr T& get() & { return **this; }
-	constexpr T const& get() const& { return **this; }
-	constexpr T&& get() && { return *std::move(*this); }
-	constexpr T const&& get() const&& { return *std::move(*this); }
+	[[nodiscard]] constexpr T& get() & { return **this; }
+	[[nodiscard]] constexpr T const& get() const& { return **this; }
+	[[nodiscard]] constexpr T&& get() && { return *std::move(*this); }
+	[[nodiscard]] constexpr T const&& get() const&& { return *std::move(*this); }
 
 	constexpr operator T&() & { return **this; }
 	constexpr operator const T&() const& { return **this; }

@@ -21,10 +21,10 @@ public:
 
 	void reset(EmuTime::param time);
 
-	uint8_t getStatusReg(EmuTime::param time);
-	uint8_t getTrackReg (EmuTime::param time) const;
-	uint8_t getSectorReg(EmuTime::param time) const;
-	uint8_t getDataReg  (EmuTime::param time);
+	[[nodiscard]] uint8_t getStatusReg(EmuTime::param time);
+	[[nodiscard]] uint8_t getTrackReg (EmuTime::param time) const;
+	[[nodiscard]] uint8_t getSectorReg(EmuTime::param time) const;
+	[[nodiscard]] uint8_t getDataReg  (EmuTime::param time);
 
 	[[nodiscard]] uint8_t peekStatusReg(EmuTime::param time) const;
 	[[nodiscard]] uint8_t peekTrackReg (EmuTime::param time) const;
@@ -36,8 +36,8 @@ public:
 	void setSectorReg (uint8_t value, EmuTime::param time);
 	void setDataReg   (uint8_t value, EmuTime::param time);
 
-	bool getIRQ (EmuTime::param time) const;
-	bool getDTRQ(EmuTime::param time) const;
+	[[nodiscard]] bool getIRQ (EmuTime::param time) const;
+	[[nodiscard]] bool getDTRQ(EmuTime::param time) const;
 
 	[[nodiscard]] bool peekIRQ (EmuTime::param time) const;
 	[[nodiscard]] bool peekDTRQ(EmuTime::param time) const;
