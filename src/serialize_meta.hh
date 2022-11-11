@@ -58,7 +58,7 @@ template<typename T> struct ClassLoader;
  */
 template<typename T> struct PolymorphicConstructorArgs;
 
-/** Store association between (polymorphic) sub- and baseclass.
+/** Store association between (polymorphic) sub- and base class.
  * Specialization of this class should provide a 'using type = <base>'.
  */
 template<typename T> struct PolymorphicBaseClass;
@@ -68,7 +68,7 @@ template<typename Base> struct MapConstrArgsEmpty
 	using TUPLEIn = typename PolymorphicConstructorArgs<Base>::type;
 	std::tuple<> operator()(const TUPLEIn& /*t*/)
 	{
-		return std::tuple<>();
+		return {};
 	}
 };
 template<typename Base, typename Derived> struct MapConstrArgsCopy

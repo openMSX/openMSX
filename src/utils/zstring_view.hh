@@ -54,7 +54,7 @@ public:
 
 	[[nodiscard]] constexpr zstring_view substr(size_type pos) const {
 		assert(pos <= siz);
-		return zstring_view(dat + pos, siz - pos);
+		return {dat + pos, siz - pos};
 	}
 
 	[[nodiscard]] constexpr bool starts_with(std::string_view sv) const {

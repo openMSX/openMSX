@@ -92,7 +92,7 @@ namespace StringOp
 			}
 
 			[[nodiscard]] std::string_view operator*() const {
-				return std::string_view(str.data(), p);
+				return {str.data(), p};
 			}
 
 			Iterator& operator++() {

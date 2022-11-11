@@ -99,7 +99,7 @@ void strAppend(std::string& result, Ts&& ...ts);
 namespace strCatImpl {
 
 // ConcatUnit
-// These implement various mechanisms to concatentate an object to a string.
+// These implement various mechanisms to concatenate an object to a string.
 // All these classes implement:
 //
 // - size_t size() const;
@@ -570,7 +570,7 @@ template<typename... Ts>
 // Degenerate case
 [[nodiscard]] inline std::string strCat()
 {
-	return std::string();
+	return {};
 }
 
 // Extra overloads. These don't change and/or extend the above functionality,
@@ -579,9 +579,9 @@ template<typename... Ts>
 // should never be less efficient than a sequence of + or += string-operations.
 [[nodiscard]] inline std::string strCat(const std::string& x) { return x; }
 [[nodiscard]] inline std::string strCat(std::string&&      x) { return std::move(x); }
-[[nodiscard]] inline std::string strCat(const char*        x) { return std::string(x); }
-[[nodiscard]] inline std::string strCat(char               x) { return std::string(1, x); }
-[[nodiscard]] inline std::string strCat(std::string_view   x) { return std::string(x.data(), x.size()); }
+[[nodiscard]] inline std::string strCat(const char*        x) { return {x}; }
+[[nodiscard]] inline std::string strCat(char               x) { return {1, x}; }
+[[nodiscard]] inline std::string strCat(std::string_view   x) { return {x.data(), x.size()}; }
 
 [[nodiscard]] inline std::string strCat(signed char        x) { return strCatImpl::to_string(x); }
 [[nodiscard]] inline std::string strCat(unsigned char      x) { return strCatImpl::to_string(x); }

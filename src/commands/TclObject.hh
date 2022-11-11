@@ -166,8 +166,8 @@ public:
 	// strings. Invalid Tcl lists are silently interpreted as empty lists.
 	[[nodiscard]] unsigned size() const { return getListLengthUnchecked(); }
 	[[nodiscard]] bool empty() const { return size() == 0; }
-	[[nodiscard]] iterator begin() const { return iterator(*this, 0); }
-	[[nodiscard]] iterator end()   const { return iterator(*this, size()); }
+	[[nodiscard]] iterator begin() const { return {*this, 0}; }
+	[[nodiscard]] iterator end()   const { return {*this, size()}; }
 
 	// expressions
 	[[nodiscard]] bool evalBool(Interpreter& interp) const;

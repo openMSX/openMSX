@@ -51,7 +51,7 @@ public:
 	 */
 	[[nodiscard]] SDLDirectPixelAccess getDirectPixelAccess()
 	{
-		return SDLDirectPixelAccess(getSDLSurface());
+		return {getSDLSurface()};
 	}
 
 	/** Copy frame buffer to display buffer.
