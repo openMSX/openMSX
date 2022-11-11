@@ -223,8 +223,8 @@ public:
 	/** Register and unregister providers of media info, for the media info
 	 * topic.
 	 */
-	void registerMediaInfoProvider(const std::string& slot, MediaInfoProvider& infoProvider);
-	void unregisterMediaInfoProvider(const std::string& slot);
+	void registerMediaInfo(std::string_view name, MediaInfoProvider& provider);
+	void unregisterMediaInfo(MediaInfoProvider& provider);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

@@ -106,13 +106,13 @@ SCSILS120::SCSILS120(const DeviceConfig& targetConfig,
 	message = 0;
 	reset();
 
-	motherBoard.registerMediaInfoProvider(name, *this);
+	motherBoard.registerMediaInfo(name, *this);
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "add");
 }
 
 SCSILS120::~SCSILS120()
 {
-	motherBoard.unregisterMediaInfoProvider(name);
+	motherBoard.unregisterMediaInfo(*this);
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "remove");
 
 	unsigned id = name[2] - 'a';
@@ -123,7 +123,7 @@ SCSILS120::~SCSILS120()
 
 void SCSILS120::getMediaInfo(TclObject& result)
 {
-	result.addDictKeyValue("target", file.is_open() ? file.getURL() : std::string{});
+	result.addDictKeyValue("target", file.is_open() ? file.getURL() : std::string_view{});
 }
 
 void SCSILS120::reset()

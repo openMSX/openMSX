@@ -149,7 +149,7 @@ LaserdiscPlayer::LaserdiscPlayer(
 	}();
 	registerSound(DeviceConfig(hwConf, *xml));
 
-	motherBoard.registerMediaInfoProvider(string(getLaserDiscPlayerName()), *this);
+	motherBoard.registerMediaInfo(getLaserDiscPlayerName(), *this);
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, getLaserDiscPlayerName(), "add");
 }
 
@@ -159,7 +159,7 @@ LaserdiscPlayer::~LaserdiscPlayer()
 	Reactor& reactor = motherBoard.getReactor();
 	reactor.getDisplay().detach(*this);
 	reactor.getEventDistributor().unregisterEventListener(EventType::BOOT, *this);
-	motherBoard.unregisterMediaInfoProvider(string(getLaserDiscPlayerName()));
+	motherBoard.unregisterMediaInfo(*this);
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, getLaserDiscPlayerName(), "remove");
 }
 
@@ -1127,7 +1127,7 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 		             "SampleClock", sampleClock);
 
 		if constexpr (Archive::IS_LOADER) {
-			// If the samplerate differs, adjust accordingly
+			// If the sample rate differs, adjust accordingly
 			if (video->getSampleRate() != sampleClock.getFreq()) {
 				uint64_t pos = playingFromSample;
 

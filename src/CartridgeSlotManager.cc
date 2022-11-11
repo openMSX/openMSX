@@ -44,9 +44,9 @@ void CartridgeSlotManager::Slot::getMediaInfo(TclObject& result)
 	if (config) {
 		if (config->getType() == HardwareConfig::Type::EXTENSION) {
 			// A 'true' extension, as specified in an XML file
-			result.addDictKeyValue("target", config->getConfigName());
-			result.addDictKeyValue("devicename", config->getName());
-			result.addDictKeyValue("type", "extension");
+			result.addDictKeyValues("target", config->getConfigName(),
+			                        "devicename", config->getName(),
+			                        "type", "extension");
 		} else {
 			assert(config->getType() == HardwareConfig::Type::ROM);
 			result.addDictKeyValue("type", "rom");
@@ -59,7 +59,7 @@ void CartridgeSlotManager::Slot::getMediaInfo(TclObject& result)
 			try {
 				const auto& patchesElem = romConfig.getChild("patches");
 				for (const auto* p : patchesElem.getChildren("ips")) {
-					patches.addListElement(string(p->getData()));
+					patches.addListElement(p->getData());
 				}
 			} catch (MSXException&) {} // no patches found, no prob
 			result.addDictKeyValue("patches", patches);
@@ -68,7 +68,7 @@ void CartridgeSlotManager::Slot::getMediaInfo(TclObject& result)
 			}
 		}
 	} else {
-		result.addDictKeyValue("target", string{});
+		result.addDictKeyValue("target", std::string_view{});
 	}
 }
 
@@ -120,24 +120,26 @@ void CartridgeSlotManager::createExternalSlot(int ps, int ss)
 	if (isExternalSlot(ps, ss, false)) {
 		throw MSXException("Slot is already an external slot.");
 	}
-	for (auto slot : xrange(MAX_SLOTS)) {
-		if (!slots[slot].exists()) {
-			slots[slot].ps = ps;
-			slots[slot].ss = ss;
+	for (auto slotNum : xrange(MAX_SLOTS)) {
+		auto& slot = slots[slotNum];
+		if (!slot.exists()) {
+			slot.ps = ps;
+			slot.ss = ss;
 
 			std::array slotName = {'c','a','r','t','X','\0'};
-			slotName[4] = narrow<char>('a' + slot);
-			motherBoard.registerMediaInfoProvider(slotName.data(), slots[slot]);
+			slotName[4] = narrow<char>('a' + slotNum);
 			motherBoard.getMSXCliComm().update(
 				CliComm::HARDWARE, slotName.data(), "add");
-			slots[slot].cartCommand.emplace(
+			slot.cartCommand.emplace(
 				*this, motherBoard, slotName.data());
+			motherBoard.registerMediaInfo(
+				slot.cartCommand->getName(), slot);
 
 			std::array extName = {'e','x','t','X','\0'};
-			extName[3] = narrow<char>('a' + slot);
-			slots[slot].extCommand.emplace(
+			extName[3] = narrow<char>('a' + slotNum);
+			slot.extCommand.emplace(
 				motherBoard, extName.data());
-			slots[slot].cpuInterface = &motherBoard.getCPUInterface();
+			slot.cpuInterface = &motherBoard.getCPUInterface();
 			return;
 		}
 	}
@@ -179,14 +181,14 @@ void CartridgeSlotManager::removeExternalSlot(int ps)
 
 void CartridgeSlotManager::removeExternalSlot(int ps, int ss)
 {
-	auto slot = getSlot(ps, ss);
-	assert(!slots[slot].used());
-	const auto& slotName = slots[slot].cartCommand->getName();
-	motherBoard.unregisterMediaInfoProvider(slotName);
+	auto slotNum = getSlot(ps, ss);
+	auto& slot = slots[slotNum];
+	assert(!slot.used());
+	motherBoard.unregisterMediaInfo(slot);
 	motherBoard.getMSXCliComm().update(
-		CliComm::HARDWARE, slotName, "remove");
-	slots[slot].cartCommand.reset();
-	slots[slot].extCommand.reset();
+		CliComm::HARDWARE, slot.cartCommand->getName(), "remove");
+	slot.cartCommand.reset();
+	slot.extCommand.reset();
 }
 
 void CartridgeSlotManager::getSpecificSlot(unsigned slot, int& ps, int& ss) const

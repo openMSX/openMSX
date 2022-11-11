@@ -48,13 +48,13 @@ IDECDROM::IDECDROM(const DeviceConfig& config)
 	transferOffset = 0;
 	readSectorData = false;
 
-	getMotherBoard().registerMediaInfoProvider(name, *this);
+	getMotherBoard().registerMediaInfo(name, *this);
 	getMotherBoard().getMSXCliComm().update(CliComm::HARDWARE, name, "add");
 }
 
 IDECDROM::~IDECDROM()
 {
-	getMotherBoard().unregisterMediaInfoProvider(name);
+	getMotherBoard().unregisterMediaInfo(*this);
 	getMotherBoard().getMSXCliComm().update(CliComm::HARDWARE, name, "remove");
 
 	unsigned id = name[2] - 'a';
@@ -64,7 +64,7 @@ IDECDROM::~IDECDROM()
 
 void IDECDROM::getMediaInfo(TclObject& result)
 {
-	result.addDictKeyValue("target", file.is_open() ? file.getURL() : string{});
+	result.addDictKeyValue("target", file.is_open() ? file.getURL() : std::string_view{});
 }
 
 bool IDECDROM::isPacketDevice()

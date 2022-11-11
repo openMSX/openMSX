@@ -103,7 +103,7 @@ CassettePlayer::CassettePlayer(const HardwareConfig& hwConf)
 
 	motherBoard.getReactor().getEventDistributor().registerEventListener(
 		EventType::BOOT, *this);
-	motherBoard.registerMediaInfoProvider(string(getCassettePlayerName()), *this);
+	motherBoard.registerMediaInfo(getCassettePlayerName(), *this);
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, getCassettePlayerName(), "add");
 
 	removeTape(EmuTime::zero());
@@ -117,7 +117,7 @@ CassettePlayer::~CassettePlayer()
 	}
 	motherBoard.getReactor().getEventDistributor().unregisterEventListener(
 		EventType::BOOT, *this);
-	motherBoard.unregisterMediaInfoProvider(string(getCassettePlayerName()));
+	motherBoard.unregisterMediaInfo(*this);
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, getCassettePlayerName(), "remove");
 }
 

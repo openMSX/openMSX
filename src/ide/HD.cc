@@ -68,13 +68,13 @@ HD::HD(const DeviceConfig& config)
 		*this,
 		motherBoard.getReactor().getGlobalSettings().getPowerSetting());
 
-	motherBoard.registerMediaInfoProvider(name, *this);
+	motherBoard.registerMediaInfo(name, *this);
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "add");
 }
 
 HD::~HD()
 {
-	motherBoard.unregisterMediaInfoProvider(name);
+	motherBoard.unregisterMediaInfo(*this);
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "remove");
 
 	unsigned id = name[2] - 'a';

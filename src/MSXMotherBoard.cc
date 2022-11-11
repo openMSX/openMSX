@@ -50,7 +50,6 @@
 #include <functional>
 #include <iostream>
 #include <memory>
-#include <map>
 
 using std::make_unique;
 using std::string;
@@ -157,10 +156,15 @@ public:
 	             TclObject& result) const override;
 	[[nodiscard]] string help(std::span<const TclObject> tokens) const override;
 	void tabCompletion(std::vector<string>& tokens) const override;
-	void registerProvider(const string& slot, MediaInfoProvider& provider);
-	void unregisterProvider(const string& slot);
+	void registerProvider(std::string_view name, MediaInfoProvider& provider);
+	void unregisterProvider(MediaInfoProvider& provider);
 private:
-	std::map<string, MediaInfoProvider*> providers;
+	struct ProviderInfo {
+		std::string_view name;
+		MediaInfoProvider* provider;
+	};
+	// There will only be a handful of providers, use an unsorted vector.
+	std::vector<ProviderInfo> providers;
 };
 
 class DeviceInfo final : public InfoTopic
@@ -752,14 +756,14 @@ void MSXMotherBoard::freeUserName(const string& hwName, const string& userName)
 	move_pop_back(s, rfind_unguarded(s, userName));
 }
 
-void MSXMotherBoard::registerMediaInfoProvider(const string& slot, MediaInfoProvider& infoProvider)
+void MSXMotherBoard::registerMediaInfo(std::string_view name, MediaInfoProvider& provider)
 {
-	machineMediaInfo->registerProvider(slot, infoProvider);
+	machineMediaInfo->registerProvider(name, provider);
 }
 
-void MSXMotherBoard::unregisterMediaInfoProvider(const string& slot)
+void MSXMotherBoard::unregisterMediaInfo(MediaInfoProvider& provider)
 {
-	machineMediaInfo->unregisterProvider(slot);
+	machineMediaInfo->unregisterProvider(provider);
 }
 
 
@@ -1060,15 +1064,14 @@ void MachineMediaInfo::execute(std::span<const TclObject> tokens,
 	checkNumArgs(tokens, Between{2, 3}, Prefix{2}, "?media-slot-name?");
 	if (tokens.size() == 2) {
 		result.addListElements(
-			view::transform(providers,
-				[](auto& e) -> std::string_view { return e.first; }));
+			view::transform(providers, &ProviderInfo::name));
 	} else if (tokens.size() == 3) {
-		string slotname = string(tokens[2].getString());
-		auto pIt = providers.find(slotname);
-		if (pIt == providers.end()) {
-			throw CommandException("No info about media slot ", slotname);
+		auto name = tokens[2].getString();
+		if (auto it = ranges::find(providers, name, &ProviderInfo::name);
+		    it != providers.end()) {
+			it->provider->getMediaInfo(result);
 		} else {
-			pIt->second->getMediaInfo(result);
+			throw CommandException("No info about media slot ", name);
 		}
 	}
 }
@@ -1082,19 +1085,21 @@ void MachineMediaInfo::tabCompletion(std::vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		completeString(tokens, view::transform(
-			providers,
-			[](auto& e) -> std::string_view { return e.first; }));
+			providers, &ProviderInfo::name));
 	}
 }
 
-void MachineMediaInfo::registerProvider(const string& slot, MediaInfoProvider& provider)
+void MachineMediaInfo::registerProvider(std::string_view name, MediaInfoProvider& provider)
 {
-	providers[slot] = &provider;
+	assert(!contains(providers, name, &ProviderInfo::name));
+	assert(!contains(providers, &provider, &ProviderInfo::provider));
+	providers.push_back(ProviderInfo{name, &provider});
 }
 
-void MachineMediaInfo::unregisterProvider(const string& slot)
+void MachineMediaInfo::unregisterProvider(MediaInfoProvider& provider)
 {
-	providers.erase(slot);
+	move_pop_back(providers,
+	              rfind_unguarded(providers, &provider, &ProviderInfo::provider));
 }
 
 // DeviceInfo
