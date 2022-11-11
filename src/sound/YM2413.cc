@@ -7,6 +7,7 @@
 #include "MSXException.hh"
 #include "serialize.hh"
 #include "cstd.hh"
+#include "narrow.hh"
 #include "outer.hh"
 #include <cmath>
 #include <memory>
@@ -87,8 +88,9 @@ void YM2413::writePort(bool port, byte value, EmuTime::param time)
 	updateStream(time);
 
 	auto [integral, fractional] = getEmuClock().getTicksTillAsIntFloat(time);
-	auto offset = unsigned(18 * fractional);
+	auto offset = narrow_cast<int>(18 * fractional);
 	assert(integral == 0);
+	assert(offset >= 0);
 	assert(offset < 18);
 
 	core->writePort(port, value, offset);

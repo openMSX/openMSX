@@ -49,7 +49,7 @@ public:
 	/** Write to the YM2413 register/data port.
 	 * Writing to a register is a 2-step process: First write the register
 	 * number to the register port (0), then write the value for that
-	 * register to the data port (1). There are various timing constraits
+	 * register to the data port (1). There are various timing constraints
 	 * that must be taken into account (not described here).
 	 *
 	 * We emulate the YM2413 as-if it generates a stream at 49.7kHz and at

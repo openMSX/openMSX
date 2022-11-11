@@ -22,6 +22,7 @@
 #include "YM2413Burczynski.hh"
 #include "Math.hh"
 #include "cstd.hh"
+#include "narrow.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include "xrange.hh"
@@ -45,7 +46,7 @@ static constexpr int TL_RES_LEN = 256; // 8 bits addressing (real chip)
 // table is 3dB/octave, DV converts this into 6dB/octave
 // 0.1875 is bit 0 weight of the envelope counter (volume) expressed
 // in the 'decibel' scale
-static constexpr int DV(double x) { return int(x / 0.1875); }
+static constexpr int DV(double x) { return narrow_cast<int>(x / 0.1875); }
 static constexpr std::array<int, 8 * 16> ksl_tab =
 {
 	// OCT 0
@@ -235,7 +236,7 @@ static constexpr auto sinTab = [] {
 	for (auto i : xrange(SIN_LEN / 4)) {
 		// checked on real hardware, see also
 		//   http://docs.google.com/Doc?id=dd8kqn9f_13cqjkf4gp
-		double m = cstd::sin<2>(((i * 2) + 1) * Math::pi / SIN_LEN);
+		double m = cstd::sin<2>(narrow_cast<double>((i * 2) + 1) * Math::pi / SIN_LEN);
 		int n = int(cstd::round(cstd::log2<8, 3>(m) * -256.0));
 		result[0][i] = 2 * n;
 	}
@@ -481,8 +482,8 @@ inline int Slot::calc_envelope(Channel& channel, unsigned eg_cnt, bool carrier)
 inline int Slot::calc_phase(Channel& channel, unsigned lfo_pm)
 {
 	if (vib) {
-		const int lfo_fn_table_index_offset = lfo_pm_table
-			[(channel.getBlockFNum() & 0x01FF) >> 6][lfo_pm];
+		auto lfo_fn_table_index_offset = narrow<int>(lfo_pm_table
+			[(channel.getBlockFNum() & 0x01FF) >> 6][lfo_pm]);
 		phase += fnumToIncrement(
 			channel.getBlockFNum() * 2 + lfo_fn_table_index_offset
 			) * mul;
@@ -528,8 +529,8 @@ inline int Slot::calcOutput(Channel& channel, unsigned eg_cnt, bool carrier,
                             unsigned lfo_am, int phase2)
 {
 	int egOut2 = calc_envelope(channel, eg_cnt, carrier);
-	int env = (TLL + egOut2 + (lfo_am & AMmask)) << 5;
-	int p = env + waveTable[phase2 & SIN_MASK];
+	auto env = narrow<unsigned>((TLL + egOut2 + (lfo_am & AMmask)) << 5);
+	unsigned p = env + waveTable[phase2 & SIN_MASK];
 	return p < TL_TAB_LEN ? tlTab[p] : 0;
 }
 
@@ -1116,7 +1117,7 @@ void YM2413::generateChannels(std::span<float*, 9 + 5> bufs, unsigned num)
 			Channel& channel = channels[ch];
 			int fm = channel.mod.calc_slot_mod(channel, eg_cnt, false, lfo_pm, lfo_am);
 			if ((channelActiveBits >> ch) & 1) {
-				bufs[ch][i] += channel.calcOutput(eg_cnt, lfo_pm, lfo_am, fm);
+				bufs[ch][i] += narrow_cast<float>(channel.calcOutput(eg_cnt, lfo_pm, lfo_am, fm));
 			}
 		}
 		if (isRhythm()) {
@@ -1130,7 +1131,7 @@ void YM2413::generateChannels(std::span<float*, 9 + 5> bufs, unsigned num)
 			Channel& channel6 = channels[6];
 			int fm = channel6.mod.calc_slot_mod(channels[6], eg_cnt, true, lfo_pm, lfo_am);
 			if (channelActiveBits & (1 << 6)) {
-				bufs[ 9][i] += 2 * channel6.calcOutput(eg_cnt, lfo_pm, lfo_am, fm);
+				bufs[ 9][i] += narrow_cast<float>(2 * channel6.calcOutput(eg_cnt, lfo_pm, lfo_am, fm));
 			}
 
 			// TODO: Skip phase generation if output will 0 anyway.
@@ -1145,25 +1146,25 @@ void YM2413::generateChannels(std::span<float*, 9 + 5> bufs, unsigned num)
 			// Snare Drum (verified on real YM3812)
 			if (channelActiveBits & (1 << 7)) {
 				Slot& SLOT7_2 = channels[7].car;
-				bufs[10][i] += 2 * SLOT7_2.calcOutput(channels[7], eg_cnt, true, lfo_am, genPhaseSnare(phaseM7, noise_rng));
+				bufs[10][i] += narrow_cast<float>(2 * SLOT7_2.calcOutput(channels[7], eg_cnt, true, lfo_am, genPhaseSnare(phaseM7, noise_rng)));
 			}
 
 			// Top Cymbal (verified on real YM2413)
 			if (channelActiveBits & (1 << 8)) {
 				Slot& SLOT8_2 = channels[8].car;
-				bufs[11][i] += 2 * SLOT8_2.calcOutput(channels[8], eg_cnt, true, lfo_am, genPhaseCymbal(phaseM7, phaseC8));
+				bufs[11][i] += narrow_cast<float>(2 * SLOT8_2.calcOutput(channels[8], eg_cnt, true, lfo_am, genPhaseCymbal(phaseM7, phaseC8)));
 			}
 
 			// High Hat (verified on real YM3812)
 			if (channelActiveBits & (1 << (7 + 9))) {
 				Slot& SLOT7_1 = channels[7].mod;
-				bufs[12][i] += 2 * SLOT7_1.calcOutput(channels[7], eg_cnt, true, lfo_am, genPhaseHighHat(phaseM7, phaseC8, noise_rng));
+				bufs[12][i] += narrow_cast<float>(2 * SLOT7_1.calcOutput(channels[7], eg_cnt, true, lfo_am, genPhaseHighHat(phaseM7, phaseC8, noise_rng)));
 			}
 
 			// Tom Tom (verified on real YM3812)
 			if (channelActiveBits & (1 << (8 + 9))) {
 				Slot& SLOT8_1 = channels[8].mod;
-				bufs[13][i] += 2 * SLOT8_1.calcOutput(channels[8], eg_cnt, true, lfo_am, phaseM8);
+				bufs[13][i] += narrow_cast<float>(2 * SLOT8_1.calcOutput(channels[8], eg_cnt, true, lfo_am, phaseM8));
 			}
 		}
 

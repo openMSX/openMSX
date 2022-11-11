@@ -9,6 +9,7 @@
 #include "cstd.hh"
 #include "enumerate.hh"
 #include "inline.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "serialize.hh"
@@ -185,16 +186,16 @@ static constexpr auto tllTab = [] {
 	std::array<std::array<uint8_t, 16 * 8>, 4> result = {};
 
 	// Processed version of Table III-5 from the Application Manual.
-	constexpr std::array<unsigned, 16> klTable = {
+	constexpr std::array<int, 16> klTable = {
 		0, 24, 32, 37, 40, 43, 45, 47, 48, 50, 51, 52, 53, 54, 55, 56
 	};
 	// Note: KL [0..3] results in {0.0, 1.5, 3.0, 6.0} dB/oct.
 	// This is different from Y8950 and YMF262 which have {0, 3, 1.5, 6}.
 	// (2nd and 3rd elements are swapped). Verified on real YM2413.
 
-	for (auto freq : xrange(16 * 8u)) {
-		unsigned fnum  = freq % 16;
-		unsigned block = freq / 16;
+	for (auto freq : xrange(16 * 8)) {
+		int fnum  = freq % 16;
+		int block = freq / 16;
 		int tmp = 2 * klTable[fnum] - 16 * (7 - block);
 		for (auto KL : xrange(4)) {
 			unsigned t = (tmp <= 0 || KL == 0) ? 0 : (tmp >> (3 - KL));
@@ -251,8 +252,8 @@ static constexpr auto dPhaseDrTab = [] {
 	for (auto Rks : xrange(16)) {
 		result[Rks][0] = 0;
 		for (auto DR : xrange(1, 16)) {
-			unsigned RM = std::min(DR + (Rks >> 2), 15);
-			unsigned RL = Rks & 3;
+			int RM = std::min(DR + (Rks >> 2), 15);
+			int RL = Rks & 3;
 			result[Rks][DR] =
 				((RL + 4) << EP_FP_BITS) >> (16 - RM);
 		}
@@ -274,14 +275,14 @@ static constexpr auto slTab = [] {
 //
 // Helper functions
 //
-static constexpr int EG2DB(int d)
+static constexpr unsigned EG2DB(unsigned d)
 {
-	return d * int(EG_STEP / DB_STEP);
+	return d * narrow_cast<unsigned>(EG_STEP / DB_STEP);
 }
 static constexpr unsigned TL2EG(unsigned d)
 {
 	assert(d < 64); // input is in range [0..63]
-	return d * int(TL_STEP / EG_STEP);
+	return d * narrow_cast<unsigned>(TL_STEP / EG_STEP);
 }
 
 static constexpr unsigned DB_POS(double x)
@@ -301,7 +302,7 @@ static constexpr unsigned DB_NEG(double x)
 //    note: cast one or both operands to int to silence this warning
 static constexpr /*bool*/ int BIT(unsigned s, unsigned b)
 {
-	return (s >> b) & 1;
+	return narrow<int>((s >> b) & 1);
 }
 
 //
@@ -501,7 +502,7 @@ void Slot::setEnvelopeState(EnvelopeState state_)
 		eg_phase_max = (patch.AR == 15) ? EnvPhaseIndex(0) : EG_DP_MAX;
 		break;
 	case DECAY:
-		eg_phase_max = EnvPhaseIndex::create(patch.SL);
+		eg_phase_max = EnvPhaseIndex::create(narrow<int>(patch.SL));
 		break;
 	case SUSHOLD:
 		eg_phase_max = EG_DP_INF;
@@ -557,7 +558,7 @@ void Slot::setPatch(const Patch& newPatch)
 	if ((state == SUSHOLD) && (patch.EG == 0)) {
 		setEnvelopeState(SUSTAIN);
 	}
-	setEnvelopeState(state); // recalc eg_phase_max
+	setEnvelopeState(state); // recalculate eg_phase_max
 }
 
 // Set new volume based on 4-bit register value (0-15).
@@ -975,7 +976,7 @@ template<bool HAS_AM> unsigned Slot::calc_fixed_env() const
 template<bool HAS_AM, bool FIXED_ENV>
 ALWAYS_INLINE int Slot::calc_slot_car(unsigned lfo_pm, int lfo_am, int fm, unsigned fixed_env)
 {
-	int phase = calc_phase(lfo_pm) + wave2_8pi(fm);
+	int phase = narrow<int>(calc_phase(lfo_pm)) + wave2_8pi(fm);
 	unsigned egOut = calc_envelope<HAS_AM, FIXED_ENV>(lfo_am, fixed_env);
 	int newOutput = dB2LinTab[patch.WF[phase & PG_MASK] + egOut];
 	output = (output + newOutput) >> 1;
@@ -1114,8 +1115,8 @@ ALWAYS_INLINE void YM2413::calcChannel(Channel& ch, std::span<float> buf)
 		}
 		int fm = ch.mod.calc_slot_mod<HAS_MOD_AM, HAS_MOD_FB, HAS_MOD_FIXED_ENV>(
 		                      HAS_MOD_PM ? lfo_pm : 0, lfo_am, mod_fixed_env);
-		b += ch.car.calc_slot_car<HAS_CAR_AM, HAS_CAR_FIXED_ENV>(
-		                      HAS_CAR_PM ? lfo_pm : 0, lfo_am, fm, car_fixed_env);
+		b += narrow_cast<float>(ch.car.calc_slot_car<HAS_CAR_AM, HAS_CAR_FIXED_ENV>(
+		                      HAS_CAR_PM ? lfo_pm : 0, lfo_am, fm, car_fixed_env));
 	}
 }
 
@@ -1293,10 +1294,10 @@ void YM2413::generateChannels(std::span<float*, 9 + 5> bufs, unsigned num)
 
 		if (ch6.car.isActive()) {
 			for (auto sample : xrange(num)) {
-				bufs[ 9][sample] += 2 *
-				    ch6.car.calc_slot_car<false, false>(
+				bufs[ 9][sample] += narrow_cast<float>(
+				    2 * ch6.car.calc_slot_car<false, false>(
 				        0, 0, ch6.mod.calc_slot_mod<
-				                false, false, false>(0, 0, 0), 0);
+				                false, false, false>(0, 0, 0), 0));
 			}
 		} else {
 			bufs[9] = nullptr;
@@ -1307,8 +1308,8 @@ void YM2413::generateChannels(std::span<float*, 9 + 5> bufs, unsigned num)
 				noise_seed >>= 1;
 				bool noise_bit = noise_seed & 1;
 				if (noise_bit) noise_seed ^= 0x8003020;
-				bufs[10][sample] +=
-					-2 * ch7.car.calc_slot_snare(noise_bit);
+				bufs[10][sample] += narrow_cast<float>(
+					-2 * ch7.car.calc_slot_snare(noise_bit));
 			}
 		} else {
 			bufs[10] = nullptr;
@@ -1318,8 +1319,8 @@ void YM2413::generateChannels(std::span<float*, 9 + 5> bufs, unsigned num)
 			for (auto sample : xrange(num)) {
 				unsigned phase7 = ch7.mod.calc_phase(0);
 				unsigned phase8 = ch8.car.calc_phase(0);
-				bufs[11][sample] +=
-					-2 * ch8.car.calc_slot_cym(phase7, phase8);
+				bufs[11][sample] += narrow_cast<float>(
+					-2 * ch8.car.calc_slot_cym(phase7, phase8));
 			}
 		} else {
 			bufs[11] = nullptr;
@@ -1336,8 +1337,8 @@ void YM2413::generateChannels(std::span<float*, 9 + 5> bufs, unsigned num)
 				if (noise_bit) noise_seed ^= 0x8003020;
 				unsigned phase7 = ch7.mod.calc_phase(0);
 				unsigned phase8 = ch8.car.calc_phase(0);
-				bufs[12][sample] +=
-					2 * ch7.mod.calc_slot_hat(phase7, phase8, noise_bit);
+				bufs[12][sample] += narrow_cast<float>(
+					2 * ch7.mod.calc_slot_hat(phase7, phase8, noise_bit));
 			}
 		} else {
 			bufs[12] = nullptr;
@@ -1345,7 +1346,8 @@ void YM2413::generateChannels(std::span<float*, 9 + 5> bufs, unsigned num)
 
 		if (ch8.mod.isActive()) {
 			for (auto sample : xrange(num)) {
-				bufs[13][sample] += 2 * ch8.mod.calc_slot_tom();
+				bufs[13][sample] += narrow_cast<float>(
+					2 * ch8.mod.calc_slot_tom());
 			}
 		} else {
 			bufs[13] = nullptr;
