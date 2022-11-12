@@ -38,9 +38,9 @@ private:
 	RenShaTurbo& renShaTurbo;
 
 	std::array<JoystickPortIf*, 2> ports;
-	int selectedPort;
+	int selectedPort = 0;
 	int registerLatch;
-	byte prev;
+	byte prev = 255;
 	const byte keyLayout; // 0x40 or 0x00
 	const byte addressMask; // controls address mirroring
 	AY8910 ay8910; // must come after initialisation of most stuff above

@@ -39,8 +39,8 @@ public:
 	void unplugHelper(EmuTime::param time) override;
 
 	// JoystickDevice
-	[[nodiscard]] byte read(EmuTime::param time) override;
-	void write(byte value, EmuTime::param time) override;
+	[[nodiscard]] uint8_t read(EmuTime::param time) override;
+	void write(uint8_t value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -70,8 +70,8 @@ private:
 
 	EmuTime lastTime;
 	unsigned status;
-	byte cycle; // 0-7
-	byte cycleMask; // 1 or 7
+	uint8_t cycle; // 0-7
+	uint8_t cycleMask; // 1 or 7
 #endif // SDL_JOYSTICK_DISABLED
 };
 

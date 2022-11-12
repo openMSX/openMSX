@@ -24,8 +24,8 @@ public:
 	[[nodiscard]] inline std::span<const uint16_t, 0x10000> getTable() const { return tab; }
 private:
 	const PixelOperations<uint16_t>& pixelOps;
-	unsigned factor;
-	std::array<uint16_t, 0x10000> tab;
+	unsigned factor = 0;
+	std::array<uint16_t, 0x10000> tab = {};
 };
 
 template<> class Multiply<uint32_t>

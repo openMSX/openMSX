@@ -25,12 +25,12 @@ void MagicKey::unplugHelper(EmuTime::param /*time*/)
 
 
 // JoystickDevice
-byte MagicKey::read(EmuTime::param /*time*/)
+uint8_t MagicKey::read(EmuTime::param /*time*/)
 {
 	return JOY_BUTTONB | JOY_BUTTONA | JOY_RIGHT | JOY_LEFT;
 }
 
-void MagicKey::write(byte /*value*/, EmuTime::param /*time*/)
+void MagicKey::write(uint8_t /*value*/, EmuTime::param /*time*/)
 {
 }
 

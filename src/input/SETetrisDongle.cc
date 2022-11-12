@@ -4,12 +4,6 @@
 
 namespace openmsx {
 
-SETetrisDongle::SETetrisDongle()
-	: status(JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
-	         JOY_BUTTONA | JOY_BUTTONB)
-{
-}
-
 // Pluggable
 std::string_view SETetrisDongle::getName() const
 {
@@ -32,12 +26,12 @@ void SETetrisDongle::unplugHelper(EmuTime::param /*time*/)
 
 
 // JoystickDevice
-byte SETetrisDongle::read(EmuTime::param /*time*/)
+uint8_t SETetrisDongle::read(EmuTime::param /*time*/)
 {
 	return status;
 }
 
-void SETetrisDongle::write(byte value, EmuTime::param /*time*/)
+void SETetrisDongle::write(uint8_t value, EmuTime::param /*time*/)
 {
 	// Original device used 4 NOR ports
 	// pin4 will be value of pin7

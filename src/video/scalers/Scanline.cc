@@ -2,7 +2,6 @@
 #include "PixelOperations.hh"
 #include "enumerate.hh"
 #include "narrow.hh"
-#include "ranges.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
 #include <cassert>
@@ -17,9 +16,7 @@ namespace openmsx {
 
 Multiply<uint16_t>::Multiply(const PixelOperations<uint16_t>& pixelOps_)
 	: pixelOps(pixelOps_)
-	, factor(0)
 {
-	ranges::fill(tab, 0);
 }
 
 void Multiply<uint16_t>::setFactor(unsigned f)

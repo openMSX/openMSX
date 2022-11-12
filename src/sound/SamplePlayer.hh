@@ -54,7 +54,7 @@ private:
 private:
 	const dynarray<WavData> samples;
 
-	unsigned index;
+	unsigned index = 0; // avoid UMR on serialize
 	unsigned bufferSize;
 	unsigned currentSampleNum;
 	unsigned nextSampleNum;

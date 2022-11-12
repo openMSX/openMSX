@@ -46,7 +46,7 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 	, speedManager(commandController)
 	, throttleManager(commandController)
 {
-	deadzoneSettings = to_vector(
+	deadZoneSettings = to_vector(
 		view::transform(xrange(SDL_NumJoysticks()), [&](auto i) {
 			return std::make_unique<IntegerSetting>(
 				commandController,

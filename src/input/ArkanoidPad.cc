@@ -52,10 +52,7 @@ ArkanoidPad::ArkanoidPad(MSXEventDistributor& eventDistributor_,
                          StateChangeDistributor& stateChangeDistributor_)
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
-	, shiftreg(0) // the 9 bit shift degrades to 0
-	, dialpos(POS_CENTER)
-	, buttonStatus(0x3E)
-	, lastValue(0)
+	, dialPos(POS_CENTER)
 {
 }
 
@@ -91,23 +88,23 @@ void ArkanoidPad::unplugHelper(EmuTime::param /*time*/)
 }
 
 // JoystickDevice
-byte ArkanoidPad::read(EmuTime::param /*time*/)
+uint8_t ArkanoidPad::read(EmuTime::param /*time*/)
 {
-	return buttonStatus | ((shiftreg & 0x100) >> 8);
+	return buttonStatus | ((shiftReg & 0x100) >> 8);
 }
 
-void ArkanoidPad::write(byte value, EmuTime::param /*time*/)
+void ArkanoidPad::write(uint8_t value, EmuTime::param /*time*/)
 {
-	byte diff = lastValue ^ value;
+	uint8_t diff = lastValue ^ value;
 	lastValue = value;
 
 	if (diff & value & 0x4) {
 		// pin 8 from low to high: copy dial position into shift reg
-		shiftreg = dialpos;
+		shiftReg = dialPos;
 	}
 	if (diff & value & 0x1) {
 		// pin 6 from low to high: shift the shift reg
-		shiftreg = (shiftreg << 1) | (shiftreg & 1); // bit 0's value is 'shifted in'
+		shiftReg = (shiftReg << 1) | (shiftReg & 1); // bit 0's value is 'shifted in'
 	}
 }
 
@@ -119,8 +116,8 @@ void ArkanoidPad::signalMSXEvent(const Event& event,
 		[&](const MouseMotionEvent& e) {
 			int newPos = std::min(POS_MAX,
 					std::max(POS_MIN,
-						dialpos + e.getX() / SCALE));
-			int delta = newPos - dialpos;
+						dialPos + e.getX() / SCALE));
+			int delta = newPos - dialPos;
 			if (delta != 0) {
 				stateChangeDistributor.distributeNew<ArkanoidState>(
 					time, delta, false, false);
@@ -150,7 +147,7 @@ void ArkanoidPad::signalStateChange(const StateChange& event)
 	const auto* as = dynamic_cast<const ArkanoidState*>(&event);
 	if (!as) return;
 
-	dialpos += as->getDelta();
+	dialPos += as->getDelta();
 	if (as->getPress())   buttonStatus &= ~2;
 	if (as->getRelease()) buttonStatus |=  2;
 }
@@ -158,7 +155,7 @@ void ArkanoidPad::signalStateChange(const StateChange& event)
 void ArkanoidPad::stopReplay(EmuTime::param time) noexcept
 {
 	// TODO Get actual mouse button(s) state. Is it worth the trouble?
-	int delta = POS_CENTER - dialpos;
+	int delta = POS_CENTER - dialPos;
 	bool release = (buttonStatus & 2) == 0;
 	if ((delta != 0) || release) {
 		stateChangeDistributor.distributeNew<ArkanoidState>(
@@ -174,10 +171,10 @@ void ArkanoidPad::stopReplay(EmuTime::param time) noexcept
 template<typename Archive>
 void ArkanoidPad::serialize(Archive& ar, unsigned version)
 {
-	ar.serialize("shiftreg",  shiftreg,
+	ar.serialize("shiftreg",  shiftReg,
 	             "lastValue", lastValue);
 	if (ar.versionAtLeast(version, 2)) {
-		ar.serialize("dialpos",      dialpos,
+		ar.serialize("dialpos",      dialPos,
 		             "buttonStatus", buttonStatus);
 	}
 	if constexpr (Archive::IS_LOADER) {

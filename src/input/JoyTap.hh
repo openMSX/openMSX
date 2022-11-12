@@ -12,8 +12,8 @@ namespace openmsx {
 
 class PluggingController;
 
-/** This device is plugged in into the joyports and consolidates several other
- * joysticks plugged into it. This joytap simply ANDs all the joystick
+/** This device is plugged in into the joy-ports and consolidates several other
+ * joysticks plugged into it. This JoyTap simply ANDs all the joystick
  * outputs, acting as a simple wiring of all digital joysticks into one
  * connector.
  * This is the base class for the NinjaTap device and the FNano2 multiplayer
@@ -31,8 +31,8 @@ public:
 	void unplugHelper(EmuTime::param time) override;
 
 	// JoystickDevice
-	[[nodiscard]] byte read(EmuTime::param time) override;
-	void write(byte value, EmuTime::param time) override;
+	[[nodiscard]] uint8_t read(EmuTime::param time) override;
+	void write(uint8_t value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

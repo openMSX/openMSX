@@ -344,7 +344,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 			evt.jbutton.button, false, event);
 		break;
 	case SDL_JOYAXISMOTION: {
-		auto& setting = globalSettings.getJoyDeadzoneSetting(evt.jaxis.which);
+		auto& setting = globalSettings.getJoyDeadZoneSetting(evt.jaxis.which);
 		int threshold = (setting.getInt() * 32768) / 100;
 		auto value = (evt.jaxis.value < -threshold) ? evt.jaxis.value
 		           : (evt.jaxis.value >  threshold) ? evt.jaxis.value

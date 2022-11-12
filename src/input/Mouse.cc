@@ -13,7 +13,7 @@
 
 namespace openmsx {
 
-static constexpr int TRESHOLD = 2;
+static constexpr int THRESHOLD = 2;
 static constexpr int SCALE = 2;
 static constexpr int PHASE_XHIGH = 0;
 static constexpr int PHASE_XLOW  = 1;
@@ -27,14 +27,14 @@ class MouseState final : public StateChange
 public:
 	MouseState() = default; // for serialize
 	MouseState(EmuTime::param time_, int deltaX_, int deltaY_,
-	           byte press_, byte release_)
+	           uint8_t press_, uint8_t release_)
 		: StateChange(time_)
 		, deltaX(deltaX_), deltaY(deltaY_)
 		, press(press_), release(release_) {}
-	[[nodiscard]] int  getDeltaX()  const { return deltaX; }
-	[[nodiscard]] int  getDeltaY()  const { return deltaY; }
-	[[nodiscard]] byte getPress()   const { return press; }
-	[[nodiscard]] byte getRelease() const { return release; }
+	[[nodiscard]] int     getDeltaX()  const { return deltaX; }
+	[[nodiscard]] int     getDeltaY()  const { return deltaY; }
+	[[nodiscard]] uint8_t getPress()   const { return press; }
+	[[nodiscard]] uint8_t getRelease() const { return release; }
 	template<typename Archive> void serialize(Archive& ar, unsigned version)
 	{
 		ar.template serializeBase<StateChange>(*this);
@@ -62,7 +62,7 @@ public:
 	}
 private:
 	int deltaX, deltaY; // msx mouse movement
-	byte press, release;
+	uint8_t press, release;
 public:
 	inline static int absHostX = 0, absHostY = 0; // (only) for old savestates
 };
@@ -74,16 +74,7 @@ Mouse::Mouse(MSXEventDistributor& eventDistributor_,
              StateChangeDistributor& stateChangeDistributor_)
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
-	, lastTime(EmuTime::zero())
 	, phase(PHASE_YLOW)
-	, xrel(0)
-	, yrel(0)
-	, curxrel(0)
-	, curyrel(0)
-	, fractionalX(0)
-	, fractionalY(0)
-	, status(JOY_BUTTONA | JOY_BUTTONB)
-	, mouseMode(true)
 {
 }
 
@@ -133,18 +124,18 @@ void Mouse::unplugHelper(EmuTime::param /*time*/)
 
 
 // JoystickDevice
-byte Mouse::read(EmuTime::param /*time*/)
+uint8_t Mouse::read(EmuTime::param /*time*/)
 {
 	if (mouseMode) {
 		switch (phase) {
 		case PHASE_XHIGH:
-			return ((xrel >> 4) & 0x0F) | status;
+			return ((xRel >> 4) & 0x0F) | status;
 		case PHASE_XLOW:
-			return  (xrel       & 0x0F) | status;
+			return  (xRel       & 0x0F) | status;
 		case PHASE_YHIGH:
-			return ((yrel >> 4) & 0x0F) | status;
+			return ((yRel >> 4) & 0x0F) | status;
 		case PHASE_YLOW:
-			return  (yrel       & 0x0F) | status;
+			return  (yRel       & 0x0F) | status;
 		default:
 			UNREACHABLE; return 0;
 		}
@@ -158,12 +149,12 @@ void Mouse::emulateJoystick()
 {
 	status &= ~(JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT);
 
-	int deltaX = curxrel; curxrel = 0;
-	int deltaY = curyrel; curyrel = 0;
+	int deltaX = curXRel; curXRel = 0;
+	int deltaY = curYRel; curYRel = 0;
 	int absX = (deltaX > 0) ? deltaX : -deltaX;
 	int absY = (deltaY > 0) ? deltaY : -deltaY;
 
-	if ((absX < TRESHOLD) && (absY < TRESHOLD)) {
+	if ((absX < THRESHOLD) && (absY < THRESHOLD)) {
 		return;
 	}
 
@@ -203,7 +194,7 @@ void Mouse::emulateJoystick()
 	}
 }
 
-void Mouse::write(byte value, EmuTime::param time)
+void Mouse::write(uint8_t value, EmuTime::param time)
 {
 	if (mouseMode) {
 		// TODO figure out the exact timeout value. Is there even such
@@ -248,10 +239,10 @@ void Mouse::write(byte value, EmuTime::param time)
 				// sdsnatcher's post of 30 aug 2018 for a
 				// motivation for this difference:
 				//   https://github.com/openMSX/openMSX/issues/892
-				xrel = std::clamp(curxrel, -127, 127);
-				yrel = std::clamp(curyrel, -127, 127);
-				curxrel -= xrel;
-				curyrel -= yrel;
+				xRel = std::clamp(curXRel, -127, 127);
+				yRel = std::clamp(curYRel, -127, 127);
+				curXRel -= xRel;
+				curYRel -= yRel;
 #endif
 			}
 			break;
@@ -312,7 +303,7 @@ void Mouse::signalMSXEvent(const Event& event, EmuTime::param time) noexcept
 }
 
 void Mouse::createMouseStateChange(
-	EmuTime::param time, int deltaX, int deltaY, byte press, byte release)
+	EmuTime::param time, int deltaX, int deltaY, uint8_t press, uint8_t release)
 {
 	stateChangeDistributor.distributeNew<MouseState>(
 		time, deltaX, deltaY, press, release);
@@ -325,17 +316,17 @@ void Mouse::signalStateChange(const StateChange& event)
 
 	// Verified with a real MSX-mouse (Philips SBC3810):
 	//   this value is not clipped to -128 .. 127.
-	curxrel += ms->getDeltaX();
-	curyrel += ms->getDeltaY();
+	curXRel += ms->getDeltaX();
+	curYRel += ms->getDeltaY();
 	status = (status & ~ms->getPress()) | ms->getRelease();
 }
 
 void Mouse::stopReplay(EmuTime::param time) noexcept
 {
 	// TODO read actual host mouse button state
-	int dx = 0 - curxrel;
-	int dy = 0 - curyrel;
-	byte release = (JOY_BUTTONA | JOY_BUTTONB) & ~status;
+	int dx = 0 - curXRel;
+	int dy = 0 - curYRel;
+	uint8_t release = (JOY_BUTTONA | JOY_BUTTONB) & ~status;
 	if ((dx != 0) || (dy != 0) || (release != 0)) {
 		createMouseStateChange(time, dx, dy, 0, release);
 	}
@@ -372,19 +363,19 @@ void Mouse::serialize(Archive& ar, unsigned version)
 	}
 	ar.serialize("faze",      phase, // TODO fix spelling if there's ever a need
 	                                 // to bump the serialization verion
-	             "xrel",      xrel,
-	             "yrel",      yrel,
+	             "xrel",      xRel,
+	             "yrel",      yRel,
 	             "mouseMode", mouseMode);
 	if (ar.versionAtLeast(version, 2)) {
-		ar.serialize("curxrel", curxrel,
-		             "curyrel", curyrel,
+		ar.serialize("curxrel", curXRel,
+		             "curyrel", curYRel,
 		             "status",  status);
 	}
 	if (ar.versionBelow(version, 3)) {
-		xrel    /= SCALE;
-		yrel    /= SCALE;
-		curxrel /= SCALE;
-		curyrel /= SCALE;
+		xRel    /= SCALE;
+		yRel    /= SCALE;
+		curXRel /= SCALE;
+		curYRel /= SCALE;
 
 	}
 	// no need to serialize absHostX,Y

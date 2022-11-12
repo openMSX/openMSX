@@ -8,18 +8,18 @@
 
 namespace openmsx {
 
-template<std::endian> struct z80regpair_8bit;
-template<> struct z80regpair_8bit<std::endian::little> { byte l, h; };
-template<> struct z80regpair_8bit<std::endian::big   > { byte h, l; };
-union z80regpair {
-	z80regpair_8bit<std::endian::native> b;
+template<std::endian> struct z80regPair_8bit;
+template<> struct z80regPair_8bit<std::endian::little> { byte l, h; };
+template<> struct z80regPair_8bit<std::endian::big   > { byte h, l; };
+union z80regPair {
+	z80regPair_8bit<std::endian::native> b;
 	word w;
 };
 
 class CPURegs
 {
 public:
-	explicit CPURegs(bool r800) : HALT_(0), Rmask(r800 ? 0xff : 0x7f) {}
+	explicit CPURegs(bool r800) : Rmask(r800 ? 0xff : 0x7f) {}
 	[[nodiscard]] inline byte getA()   const { return AF_.b.h; }
 	[[nodiscard]] inline byte getF()   const { return AF_.b.l; }
 	[[nodiscard]] inline byte getB()   const { return BC_.b.h; }
@@ -148,7 +148,7 @@ public:
 	inline void setCurrentCall() {
 		prev_ |= 4;
 	}
-	// Set POPRET-flag on current instruction.
+	// Set POP-RET-flag on current instruction.
 	inline void setCurrentPopRet() {
 		prev_ |= 8;
 	}
@@ -194,12 +194,12 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	z80regpair PC_;
-	z80regpair AF_, BC_, DE_, HL_;
-	z80regpair AF2_, BC2_, DE2_, HL2_;
-	z80regpair IX_, IY_, SP_;
+	z80regPair PC_;
+	z80regPair AF_, BC_, DE_, HL_;
+	z80regPair AF2_, BC2_, DE2_, HL2_;
+	z80regPair IX_, IY_, SP_;
 	bool IFF1_, IFF2_;
-	byte HALT_;
+	byte HALT_ = 0;
 	byte IM_, I_;
 	byte R_, R2_; // refresh = R & Rmask | R2 & ~Rmask
 	const byte Rmask; // 0x7F for Z80, 0xFF for R800

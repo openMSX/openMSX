@@ -36,16 +36,16 @@ void JoystickPort::plug(Pluggable& device, EmuTime::param time)
 	getPluggedJoyDev().write(lastValue, time);
 }
 
-byte JoystickPort::read(EmuTime::param time)
+uint8_t JoystickPort::read(EmuTime::param time)
 {
 	return getPluggedJoyDev().read(time);
 }
 
-void JoystickPort::write(byte value, EmuTime::param time)
+void JoystickPort::write(uint8_t value, EmuTime::param time)
 {
 	if (lastValue != value) writeDirect(value, time);
 }
-void JoystickPort::writeDirect(byte value, EmuTime::param time)
+void JoystickPort::writeDirect(uint8_t value, EmuTime::param time)
 {
 	lastValue = value;
 	getPluggedJoyDev().write(value, time);
@@ -67,12 +67,12 @@ INSTANTIATE_SERIALIZE_METHODS(JoystickPort);
 
 // class DummyJoystickPort
 
-byte DummyJoystickPort::read(EmuTime::param /*time*/)
+uint8_t DummyJoystickPort::read(EmuTime::param /*time*/)
 {
 	return 0x3F; // do as-if nothing is connected
 }
 
-void DummyJoystickPort::write(byte /*value*/, EmuTime::param /*time*/)
+void DummyJoystickPort::write(uint8_t /*value*/, EmuTime::param /*time*/)
 {
 	// ignore writes
 }

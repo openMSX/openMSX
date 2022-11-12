@@ -61,7 +61,7 @@ class JoyState final : public StateChange
 {
 public:
 	JoyState() = default; // for serialize
-	JoyState(EmuTime::param time_, int joyNum_, byte press_, byte release_)
+	JoyState(EmuTime::param time_, int joyNum_, uint8_t press_, uint8_t release_)
 		: StateChange(time_)
 		, joyNum(joyNum_), press(press_), release(release_)
 	{
@@ -69,8 +69,8 @@ public:
 		assert((press & release) == 0);
 	}
 	[[nodiscard]] int getJoystick() const { return joyNum; }
-	[[nodiscard]] byte getPress()   const { return press; }
-	[[nodiscard]] byte getRelease() const { return release; }
+	[[nodiscard]] uint8_t getPress()   const { return press; }
+	[[nodiscard]] uint8_t getRelease() const { return release; }
 
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
@@ -81,7 +81,7 @@ public:
 	}
 private:
 	int joyNum;
-	byte press, release;
+	uint8_t press, release;
 };
 REGISTER_POLYMORPHIC_CLASS(StateChange, JoyState, "JoyState");
 
@@ -159,7 +159,7 @@ Joystick::Joystick(MSXEventDistributor& eventDistributor_,
 	, stateChangeDistributor(stateChangeDistributor_)
 	, joystick(joystick_)
 	, joyNum(SDL_JoystickInstanceID(joystick_))
-	, deadSetting(globalSettings.getJoyDeadzoneSetting(joyNum))
+	, deadSetting(globalSettings.getJoyDeadZoneSetting(joyNum))
 	, name(getJoystickName(joyNum))
 	, desc(SDL_JoystickName(joystick_))
 	, configSetting(commandController, tmpStrCat(name, "_config"),
@@ -215,20 +215,20 @@ void Joystick::unplugHelper(EmuTime::param /*time*/)
 
 
 // JoystickDevice
-byte Joystick::read(EmuTime::param /*time*/)
+uint8_t Joystick::read(EmuTime::param /*time*/)
 {
 	return pin8 ? 0x3F : status;
 }
 
-void Joystick::write(byte value, EmuTime::param /*time*/)
+void Joystick::write(uint8_t value, EmuTime::param /*time*/)
 {
 	pin8 = (value & 0x04) != 0;
 }
 
-byte Joystick::calcState()
+uint8_t Joystick::calcState()
 {
-	byte result = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
-	              JOY_BUTTONA | JOY_BUTTONB;
+	uint8_t result = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
+	                 JOY_BUTTONA | JOY_BUTTONB;
 	if (joystick) {
 		int threshold = (deadSetting.getInt() * 32768) / 100;
 		auto& interp = configSetting.getInterpreter();
@@ -322,16 +322,16 @@ void Joystick::signalMSXEvent(const Event& event,
 	createEvent(time, calcState());
 }
 
-void Joystick::createEvent(EmuTime::param time, byte newStatus)
+void Joystick::createEvent(EmuTime::param time, uint8_t newStatus)
 {
-	byte diff = status ^ newStatus;
+	uint8_t diff = status ^ newStatus;
 	if (!diff) {
 		// event won't actually change the status, so ignore it
 		return;
 	}
 	// make sure we create an event with minimal changes
-	byte press   =    status & diff;
-	byte release = newStatus & diff;
+	uint8_t press   =    status & diff;
+	uint8_t release = newStatus & diff;
 	stateChangeDistributor.distributeNew<JoyState>(
 		time, joyNum, press, release);
 }

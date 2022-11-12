@@ -179,20 +179,20 @@ private:
 	int frameStep;
 
 	// Audio state
-	DynamicClock sampleClock;
-	EmuTime start;
+	DynamicClock sampleClock{EmuTime::zero()};
+	EmuTime start = EmuTime::zero();
 	size_t playingFromSample;
 	size_t lastPlayedSample;
-	bool muteLeft, muteRight;
+	bool muteLeft = false, muteRight = false;
 	StereoMode stereoMode;
 
 	// Ext Control
-	RemoteState remoteState;
-	EmuTime remoteLastEdge;
+	RemoteState remoteState = REMOTE_IDLE;
+	EmuTime remoteLastEdge = EmuTime::zero();
 	unsigned remoteBitNr;
 	unsigned remoteBits;
-	bool remoteLastBit;
-	RemoteProtocol remoteProtocol;
+	bool remoteLastBit = false;
+	RemoteProtocol remoteProtocol = IR_NONE;
 	unsigned remoteCode;
 	bool remoteExecuteDelayed;
 	// Number of v-blank since code was sent
@@ -211,12 +211,12 @@ private:
 	int seekNum;
 
 	// For ack
-	bool ack;
+	bool ack = false;
 
 	// State of the video itself
-	bool seeking;
+	bool seeking = false;
 
-	PlayerState playerState;
+	PlayerState playerState = PLAYER_STOPPED;
 
 	enum PlayingSpeed {
 		SPEED_STEP3 = -5,	// Each frame is repeated 90 times
@@ -234,7 +234,7 @@ private:
 	// Loading indicator
 	BooleanSetting autoRunSetting;
 	LoadingIndicator loadingIndicator;
-	int sampleReads;
+	int sampleReads = 0;
 };
 
 SERIALIZE_CLASS_VERSION(LaserdiscPlayer, 4);

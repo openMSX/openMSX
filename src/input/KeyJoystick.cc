@@ -22,12 +22,12 @@ class KeyJoyState final : public StateChange
 public:
 	KeyJoyState() = default; // for serialize
 	KeyJoyState(EmuTime::param time_, KeyJoystick::ID id_,
-	            byte press_, byte release_)
+	            uint8_t press_, uint8_t release_)
 		: StateChange(time_)
 		, id(id_), press(press_), release(release_) {}
 	[[nodiscard]] auto getId() const { return id; }
-	[[nodiscard]] byte getPress()   const { return press; }
-	[[nodiscard]] byte getRelease() const { return release; }
+	[[nodiscard]] uint8_t getPress()   const { return press; }
+	[[nodiscard]] uint8_t getRelease() const { return release; }
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
@@ -45,7 +45,7 @@ public:
 
 private:
 	KeyJoystick::ID id;
-	byte press, release;
+	uint8_t press, release;
 };
 REGISTER_POLYMORPHIC_CLASS(StateChange, KeyJoyState, "KeyJoyState");
 
@@ -107,12 +107,12 @@ void KeyJoystick::unplugHelper(EmuTime::param /*time*/)
 
 
 // KeyJoystickDevice
-byte KeyJoystick::read(EmuTime::param /*time*/)
+uint8_t KeyJoystick::read(EmuTime::param /*time*/)
 {
 	return pin8 ? 0x3F : status;
 }
 
-void KeyJoystick::write(byte value, EmuTime::param /*time*/)
+void KeyJoystick::write(uint8_t value, EmuTime::param /*time*/)
 {
 	pin8 = (value & 0x04) != 0;
 }
@@ -122,8 +122,8 @@ void KeyJoystick::write(byte value, EmuTime::param /*time*/)
 void KeyJoystick::signalMSXEvent(const Event& event,
                                  EmuTime::param time) noexcept
 {
-	byte press = 0;
-	byte release = 0;
+	uint8_t press = 0;
+	uint8_t release = 0;
 	auto getKey = [&](const KeyEvent& e) {
 		auto key = static_cast<Keys::KeyCode>(
 			int(e.getKeyCode()) & int(Keys::K_MASK));
@@ -160,10 +160,10 @@ void KeyJoystick::signalStateChange(const StateChange& event)
 void KeyJoystick::stopReplay(EmuTime::param time) noexcept
 {
 	// TODO read actual host key state
-	byte newStatus = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
-	                 JOY_BUTTONA | JOY_BUTTONB;
+	uint8_t newStatus = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
+	                    JOY_BUTTONA | JOY_BUTTONB;
 	if (newStatus != status) {
-		byte release = newStatus & ~status;
+		uint8_t release = newStatus & ~status;
 		stateChangeDistributor.distributeNew<KeyJoyState>(
 			time, id, 0, release);
 	}

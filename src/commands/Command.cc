@@ -49,8 +49,6 @@ CliComm& CommandCompleter::getCliComm() const
 
 Command::Command(CommandController& controller_, std::string_view name_)
 	: CommandCompleter(controller_, name_)
-	, allowInEmptyMachine(true)
-	, token(nullptr)
 {
 	getCommandController().registerCommand(*this, getName());
 }

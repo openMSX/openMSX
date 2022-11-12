@@ -1,6 +1,7 @@
 #ifndef MOUSE_HH
 #define MOUSE_HH
 
+#include "EmuTime.hh"
 #include "JoystickDevice.hh"
 #include "MSXEventListener.hh"
 #include "StateChangeListener.hh"
@@ -30,8 +31,8 @@ private:
 	void unplugHelper(EmuTime::param time) override;
 
 	// JoystickDevice
-	[[nodiscard]] byte read(EmuTime::param time) override;
-	void write(byte value, EmuTime::param time) override;
+	[[nodiscard]] uint8_t read(EmuTime::param time) override;
+	void write(uint8_t value, EmuTime::param time) override;
 
 	// MSXEventListener
 	void signalMSXEvent(const Event& event,
@@ -41,20 +42,20 @@ private:
 	void stopReplay(EmuTime::param time) noexcept override;
 
 	void createMouseStateChange(EmuTime::param time,
-		int deltaX, int deltaY, byte press, byte release);
+		int deltaX, int deltaY, uint8_t press, uint8_t release);
 	void emulateJoystick();
 	void plugHelper2();
 
 private:
 	MSXEventDistributor& eventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
-	EmuTime lastTime;
+	EmuTime lastTime = EmuTime::zero();
 	int phase;
-	int xrel, yrel;         // latched X/Y values, these are returned to the MSX
-	int curxrel, curyrel;   // running X/Y values, already scaled down
-	int fractionalX, fractionalY; // running X/Y values, not yet scaled down
-	byte status;
-	bool mouseMode;
+	int xRel = 0, yRel = 0;               // latched X/Y values, these are returned to the MSX
+	int curXRel = 0, curYRel = 0;         // running X/Y values, already scaled down
+	int fractionalX = 0, fractionalY = 0; // running X/Y values, not yet scaled down
+	uint8_t status = JOY_BUTTONA | JOY_BUTTONB;
+	bool mouseMode = true;
 };
 SERIALIZE_CLASS_VERSION(Mouse, 4);
 

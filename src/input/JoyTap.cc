@@ -48,16 +48,16 @@ void JoyTap::unplugHelper(EmuTime::param time)
 	}
 }
 
-byte JoyTap::read(EmuTime::param time)
+uint8_t JoyTap::read(EmuTime::param time)
 {
-	byte value = 255;
+	uint8_t value = 255;
 	for (auto& s : slaves) {
 		value &= s->read(time);
 	}
 	return value;
 }
 
-void JoyTap::write(byte value, EmuTime::param time)
+void JoyTap::write(uint8_t value, EmuTime::param time)
 {
 	for (auto& s : slaves) {
 		s->write(value, time);

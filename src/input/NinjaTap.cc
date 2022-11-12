@@ -29,12 +29,12 @@ void NinjaTap::plugHelper(Connector& /*connector*/, EmuTime::param time)
 	createPorts("Ninja Tap port", time);
 }
 
-byte NinjaTap::read(EmuTime::param /*time*/)
+uint8_t NinjaTap::read(EmuTime::param /*time*/)
 {
 	return status;
 }
 
-void NinjaTap::write(byte value, EmuTime::param time)
+void NinjaTap::write(uint8_t value, EmuTime::param time)
 {
 	// bit 0 -> pin 6
 	// bit 1 -> pin 7
@@ -45,7 +45,7 @@ void NinjaTap::write(byte value, EmuTime::param time)
 			// pin 6 1->0 :  query joysticks
 			// TODO does output change?
 			for (auto [i, slave] : enumerate(slaves)) {
-				byte t = slave->read(time);
+				uint8_t t = slave->read(time);
 				buf[i] = ((t & 0x0F) << 4) |
 				         ((t & 0x30) >> 4) |
 				         0x0C;
@@ -54,7 +54,7 @@ void NinjaTap::write(byte value, EmuTime::param time)
 		if (!(value & 4) && (previous & 4)) {
 			// pin 8 1->0 :  shift values
 			// TODO what about b4 and b5?
-			byte t = 0;
+			uint8_t t = 0;
 			for (auto [i, b] : enumerate(buf)) {
 				if (b & 1) t |= (1 << i);
 				b >>= 1;

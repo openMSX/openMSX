@@ -204,10 +204,10 @@ private:
 	unsigned inputSampleRate;
 	const unsigned numChannels;
 	const unsigned stereo;
-	unsigned numRecordChannels;
+	unsigned numRecordChannels = 0;
 	std::array<int,  MAX_CHANNELS> channelBalance;
 	std::array<bool, MAX_CHANNELS> channelMuted;
-	bool balanceCenter;
+	bool balanceCenter = true;
 };
 
 } // namespace openmsx

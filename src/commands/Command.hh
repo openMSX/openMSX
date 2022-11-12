@@ -114,8 +114,8 @@ private:
 	}
 
 private:
-	bool allowInEmptyMachine;
-	void* token;
+	bool allowInEmptyMachine = true;
+	void* token = nullptr;
 };
 
 } // namespace openmsx

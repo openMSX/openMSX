@@ -346,29 +346,29 @@ private:
 	  * It will be called when changes occur within the window.
 	  * If there is no observer, this variable is &dummyObserver.
 	  */
-	VRAMObserver* observer;
+	VRAMObserver* observer = &dummyObserver;
 
 	/** Base mask as passed to the setMask() method.
 	 */
-	unsigned origBaseMask;
+	unsigned origBaseMask = 0;
 
 	/** Effective mask of this window.
 	  * This is always equal to 'origBaseMask & sizeMask'.
 	  */
-	unsigned effectiveBaseMask;
+	unsigned effectiveBaseMask = 0;
 
 	/** Index mask of this window.
 	  */
-	unsigned indexMask;
+	unsigned indexMask = 0;
 
 	/** Lowest address in this window.
 	  * Or -1 when this window is disabled.
 	  */
-	unsigned baseAddr;
+	unsigned baseAddr = unsigned(-1); // disable window
 
 	/** Combination of effectiveBaseMask and index mask used for "inside" checks.
 	  */
-	unsigned combiMask;
+	unsigned combiMask = 0;
 
 	/** Mask to handle vram mirroring
 	  * Note: this only handles mirroring for power-of-2 sizes

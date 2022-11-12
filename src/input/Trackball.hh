@@ -1,6 +1,7 @@
 #ifndef TRACKBALL_HH
 #define TRACKBALL_HH
 
+#include "EmuTime.hh"
 #include "JoystickDevice.hh"
 #include "MSXEventListener.hh"
 #include "StateChangeListener.hh"
@@ -25,7 +26,7 @@ public:
 
 private:
 	void createTrackballStateChange(EmuTime::param time,
-		int deltaX, int deltaY, byte press, byte release);
+		int deltaX, int deltaY, uint8_t press, uint8_t release);
 
 	void syncCurrentWithTarget(EmuTime::param time);
 
@@ -36,8 +37,8 @@ private:
 	void unplugHelper(EmuTime::param time) override;
 
 	// JoystickDevice
-	[[nodiscard]] byte read(EmuTime::param time) override;
-	void write(byte value, EmuTime::param time) override;
+	[[nodiscard]] uint8_t read(EmuTime::param time) override;
+	void write(uint8_t value, EmuTime::param time) override;
 
 	// MSXEventListener
 	void signalMSXEvent(const Event& event,
@@ -50,12 +51,12 @@ private:
 	MSXEventDistributor& eventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
 
-	EmuTime lastSync; // last time we synced current with target
-	int8_t targetDeltaX, targetDeltaY; // immediately follows host events
-	int8_t currentDeltaX, currentDeltaY; // follows targetXY with some delay
-	byte lastValue;
-	byte status;
-	bool smooth; // always true, except for bw-compat savestates
+	EmuTime lastSync = EmuTime::zero(); // last time we synced current with target
+	int8_t targetDeltaX = 0, targetDeltaY = 0; // immediately follows host events
+	int8_t currentDeltaX = 0, currentDeltaY = 0; // follows targetXY with some delay
+	uint8_t lastValue = 0;
+	uint8_t status = JOY_BUTTONA | JOY_BUTTONB;
+	bool smooth = true; // always true, except for bw-compat savestates
 };
 SERIALIZE_CLASS_VERSION(Trackball, 2);
 

@@ -32,9 +32,6 @@ Paddle::Paddle(MSXEventDistributor& eventDistributor_,
                StateChangeDistributor& stateChangeDistributor_)
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
-	, lastPulse(EmuTime::zero())
-	, analogValue(128)
-	, lastInput(0)
 {
 }
 
@@ -70,7 +67,7 @@ void Paddle::unplugHelper(EmuTime::param /*time*/)
 }
 
 // JoystickDevice
-byte Paddle::read(EmuTime::param time)
+uint8_t Paddle::read(EmuTime::param time)
 {
 	// The loop in the BIOS routine that reads the paddle status takes
 	// 41 Z80 cycles per iteration.
@@ -82,9 +79,9 @@ byte Paddle::read(EmuTime::param time)
 	return output ? 0x3F : 0x3E; // pin1 (up)
 }
 
-void Paddle::write(byte value, EmuTime::param time)
+void Paddle::write(uint8_t value, EmuTime::param time)
 {
-	byte diff = lastInput ^ value;
+	uint8_t diff = lastInput ^ value;
 	lastInput = value;
 	if ((diff & 4) && !(lastInput & 4)) { // high->low edge
 		lastPulse = time;

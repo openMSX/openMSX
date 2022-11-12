@@ -32,7 +32,7 @@ public:
 
 private:
 	void createTouchpadStateChange(EmuTime::param time,
-		byte x, byte y, bool touch, bool button);
+		uint8_t x, uint8_t y, bool touch, bool button);
 	void parseTransformMatrix(Interpreter& interp, const TclObject& value);
 	[[nodiscard]] gl::ivec2 transformCoords(gl::ivec2 xy);
 
@@ -43,8 +43,8 @@ private:
 	void unplugHelper(EmuTime::param time) override;
 
 	// JoystickDevice
-	[[nodiscard]] byte read(EmuTime::param time) override;
-	void write(byte value, EmuTime::param time) override;
+	[[nodiscard]] uint8_t read(EmuTime::param time) override;
+	void write(uint8_t value, EmuTime::param time) override;
 
 	// MSXEventListener
 	void signalMSXEvent(const Event& event,
@@ -63,12 +63,12 @@ private:
 
 	EmuTime start = EmuTime::zero(); // last time when CS switched 0->1
 	gl::ivec2 hostPos;    // host state
-	byte hostButtons = 0; //
-	byte x = 0, y = 0;                  // msx state (different from host state
+	uint8_t hostButtons = 0; //
+	uint8_t x = 0, y = 0;               // msx state (different from host state
 	bool touch = false, button = false; //            during replay)
-	byte shift = 0; // shift register to both transmit and receive data
-	byte channel = 0; // [0..3]   0->x, 3->y, 1,2->not used
-	byte last = 0; // last written data, to detect transitions
+	uint8_t shift = 0; // shift register to both transmit and receive data
+	uint8_t channel = 0; // [0..3]   0->x, 3->y, 1,2->not used
+	uint8_t last = 0; // last written data, to detect transitions
 };
 
 } // namespace openmsx

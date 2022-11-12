@@ -22,9 +22,9 @@ public:
 
 private:
 	RomBlockDebuggable romBlockDebug;
-	byte conversion;
+	byte conversion = 0;
 };
 
-} // namspace openmsx
+} // namespace openmsx
 
 #endif

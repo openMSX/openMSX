@@ -48,8 +48,8 @@ public:
 	[[nodiscard]] EnumSetting<ResampledSoundDevice::ResampleType>& getResampleSetting() {
 		return resampleSetting;
 	}
-	[[nodiscard]] IntegerSetting& getJoyDeadzoneSetting(int i) {
-		return *deadzoneSettings[i];
+	[[nodiscard]] IntegerSetting& getJoyDeadZoneSetting(int i) {
+		return *deadZoneSettings[i];
 	}
 	[[nodiscard]] SpeedManager& getSpeedManager() {
 		return speedManager;
@@ -72,7 +72,7 @@ private:
 	StringSetting  invalidPsgDirectionsSetting;
 	StringSetting  invalidPpiModeSetting;
 	EnumSetting<ResampledSoundDevice::ResampleType> resampleSetting;
-	std::vector<std::unique_ptr<IntegerSetting>> deadzoneSettings;
+	std::vector<std::unique_ptr<IntegerSetting>> deadZoneSettings;
 	SpeedManager speedManager;
 	ThrottleManager throttleManager;
 };

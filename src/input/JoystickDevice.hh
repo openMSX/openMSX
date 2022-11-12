@@ -2,7 +2,7 @@
 #define JOYSTICKDEVICE_HH
 
 #include "Pluggable.hh"
-#include "openmsx.hh"
+#include <cstdint>
 
 namespace openmsx {
 
@@ -16,7 +16,7 @@ public:
 	 * | xx | xx | BUTTON_B | BUTTON_A | RIGHT | LEFT | DOWN | UP  |
 	 * | xx | xx | pin7     | pin6     | pin4  | pin3 | pin2 | pin1|
 	 */
-	[[nodiscard]] virtual byte read(EmuTime::param time) = 0;
+	[[nodiscard]] virtual uint8_t read(EmuTime::param time) = 0;
 
 	/**
 	 * Write a value to the joystick device. The bits in the written
@@ -26,7 +26,7 @@ public:
 	 * As an optimization, this method might not be called when the
 	 * new value is the same as the previous one.
 	 */
-	virtual void write(byte value, EmuTime::param time) = 0;
+	virtual void write(uint8_t value, EmuTime::param time) = 0;
 
 	[[nodiscard]] std::string_view getClass() const final;
 

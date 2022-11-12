@@ -23,6 +23,6 @@ private:
 	byte offset;
 };
 
-} // namspace openmsx
+} // namespace openmsx
 
 #endif

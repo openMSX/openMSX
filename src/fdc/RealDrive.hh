@@ -99,10 +99,10 @@ private:
 	using MotorClock = Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND>;
 	MotorClock motorTimer;
 	std::optional<DiskChanger> changer; // delayed initialization
-	unsigned headPos;
-	unsigned side;
-	unsigned startAngle;
-	bool motorStatus;
+	unsigned headPos = 0;
+	unsigned side = 0;
+	unsigned startAngle = 0;
+	bool motorStatus = false;
 	const bool doubleSizedDrive;
 	const bool signalsNeedMotorOn;
 	const DiskDrive::TrackMode trackMode;
@@ -112,8 +112,8 @@ private:
 	std::shared_ptr<DrivesInUse> drivesInUse;
 
 	RawTrack track;
-	bool trackValid;
-	bool trackDirty;
+	bool trackValid = false;
+	bool trackDirty = false;
 };
 SERIALIZE_CLASS_VERSION(RealDrive, 6);
 

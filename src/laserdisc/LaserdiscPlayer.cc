@@ -113,23 +113,11 @@ LaserdiscPlayer::LaserdiscPlayer(
 	, laserdiscCommand(motherBoard.getCommandController(),
 		           motherBoard.getStateChangeDistributor(),
 		           motherBoard.getScheduler())
-	, sampleClock(EmuTime::zero())
-	, start(EmuTime::zero())
-	, muteLeft(false)
-	, muteRight(false)
-	, remoteState(REMOTE_IDLE)
-	, remoteLastEdge(EmuTime::zero())
-	, remoteLastBit(false)
-	, remoteProtocol(IR_NONE)
-	, ack(false)
-	, seeking(false)
-	, playerState(PLAYER_STOPPED)
 	, autoRunSetting(
 		motherBoard.getCommandController(), "autorunlaserdisc",
 		"automatically try to run Laserdisc", true)
 	, loadingIndicator(
 		motherBoard.getReactor().getGlobalSettings().getThrottleManager())
-	, sampleReads(0)
 {
 	motherBoard.getCassettePort().setLaserdiscPlayer(this);
 

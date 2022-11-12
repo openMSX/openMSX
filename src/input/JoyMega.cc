@@ -140,7 +140,7 @@ void JoyMega::unplugHelper(EmuTime::param /*time*/)
 
 
 // JoystickDevice
-byte JoyMega::read(EmuTime::param time)
+uint8_t JoyMega::read(EmuTime::param time)
 {
 	// See http://segaretro.org/Control_Pad_(Mega_Drive)
 	// and http://frs.badcoffee.info/hardware/joymega-en.html
@@ -170,7 +170,7 @@ byte JoyMega::read(EmuTime::param time)
 	}
 }
 
-void JoyMega::write(byte value, EmuTime::param time)
+void JoyMega::write(uint8_t value, EmuTime::param time)
 {
 	checkTime(time);
 	lastTime = time;
@@ -188,7 +188,7 @@ void JoyMega::checkTime(EmuTime::param time)
 	}
 }
 
-static constexpr unsigned encodeButton(unsigned button, byte cycleMask)
+static constexpr unsigned encodeButton(unsigned button, uint8_t cycleMask)
 {
 	unsigned n = (cycleMask == 7) ? 7 : 3; // 6- or 3-button mode
 	return 1 << (4 + (button & n));

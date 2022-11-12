@@ -16,16 +16,16 @@ public:
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 
 	// JoystickDevice
-	[[nodiscard]] byte read(EmuTime::param time) override;
-	void write(byte value, EmuTime::param time) override;
+	[[nodiscard]] uint8_t read(EmuTime::param time) override;
+	void write(uint8_t value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	byte status;
-	byte previous;
-	std::array<byte, 4> buf;
+	uint8_t status;
+	uint8_t previous;
+	std::array<uint8_t, 4> buf;
 };
 
 } // namespace openmsx

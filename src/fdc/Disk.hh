@@ -48,7 +48,7 @@ protected:
 private:
 	const DiskName name;
 	unsigned sectorsPerTrack;
-	unsigned nbSides;
+	unsigned nbSides = 0;
 };
 
 } // namespace openmsx

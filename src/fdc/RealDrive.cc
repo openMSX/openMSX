@@ -26,12 +26,9 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeo
 		motherBoard.getReactor().getGlobalSettings().getThrottleManager())
 	, motorTimeout(motorTimeout_)
 	, motorTimer(getCurrentTime())
-	, headPos(0), side(0), startAngle(0)
-	, motorStatus(false)
 	, doubleSizedDrive(doubleSided)
 	, signalsNeedMotorOn(signalsNeedMotorOn_)
 	, trackMode(trackMode_)
-	, trackValid(false), trackDirty(false)
 {
 	drivesInUse = motherBoard.getSharedStuff<DrivesInUse>("drivesInUse");
 

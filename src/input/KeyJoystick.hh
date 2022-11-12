@@ -37,8 +37,8 @@ private:
 	void unplugHelper(EmuTime::param time) override;
 
 	// KeyJoystickDevice
-	[[nodiscard]] byte read(EmuTime::param time) override;
-	void write(byte value, EmuTime::param time) override;
+	[[nodiscard]] uint8_t read(EmuTime::param time) override;
+	void write(uint8_t value, EmuTime::param time) override;
 
 	// MSXEventListener
 	void signalMSXEvent(const Event& event,
@@ -58,7 +58,7 @@ private:
 	KeyCodeSetting trigB;
 	const ID id;
 
-	byte status;
+	uint8_t status;
 	bool pin8;
 };
 SERIALIZE_CLASS_VERSION(KeyJoystick, 2);

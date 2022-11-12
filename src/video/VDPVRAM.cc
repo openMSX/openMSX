@@ -14,12 +14,6 @@ namespace openmsx {
 
 VRAMWindow::VRAMWindow(Ram& vram)
 	: data(vram.data())
-	, observer(&dummyObserver)
-	, origBaseMask(0)
-	, effectiveBaseMask(0)
-	, indexMask(0) // these 4 don't matter but it makes valgrind happy
-	, baseAddr(unsigned(-1)) // disable window
-	, combiMask(0)
 	// sizeMask will be initialized shortly by the VDPVRAM class
 {
 }

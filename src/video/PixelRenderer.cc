@@ -122,9 +122,6 @@ PixelRenderer::PixelRenderer(VDP& vdp_, Display& display)
 	, videoSourceSetting(vdp.getMotherBoard().getVideoSource())
 	, spriteChecker(vdp.getSpriteChecker())
 	, rasterizer(display.getVideoSystem().createRasterizer(vdp))
-	, finishFrameDuration(0)
-	, frameSkipCounter(999) // force drawing of frame
-	, prevRenderFrame(false)
 {
 	// In case of loadstate we can't yet query any state from the VDP
 	// (because that object is not yet fully deserialized). But
@@ -168,7 +165,7 @@ void PixelRenderer::updateDisplayEnabled(bool enabled, EmuTime::param time)
 void PixelRenderer::frameStart(EmuTime::param time)
 {
 	if (!rasterizer->isActive()) {
-		frameSkipCounter = 999;
+		frameSkipCounter = 999.0f;
 		renderFrame = false;
 		prevRenderFrame = false;
 		paintFrame = false;
@@ -184,7 +181,7 @@ void PixelRenderer::frameStart(EmuTime::param time)
 		// Note: min/maxFrameSkip control the number of skipped frames, but
 		//       for every series of skipped frames there is also one painted
 		//       frame, so our boundary checks are offset by one.
-		int counter = int(frameSkipCounter);
+		auto counter = narrow_cast<int>(frameSkipCounter);
 		if (counter < renderSettings.getMinFrameSkip()) {
 			paintFrame = false;
 		} else if (counter > renderSettings.getMaxFrameSkip()) {

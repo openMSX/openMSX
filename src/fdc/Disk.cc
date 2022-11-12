@@ -6,7 +6,7 @@
 namespace openmsx {
 
 Disk::Disk(DiskName name_)
-	: name(std::move(name_)), nbSides(0)
+	: name(std::move(name_))
 {
 }
 

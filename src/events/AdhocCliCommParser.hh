@@ -55,7 +55,7 @@ private:
 		L3, //         &lt
 		H2, // matched &#
 		H3, //         &#x
-	} state;
+	} state = O0;
 };
 
 #endif

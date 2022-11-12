@@ -24,14 +24,14 @@ class TrackballState final : public StateChange
 public:
 	TrackballState() = default; // for serialize
 	TrackballState(EmuTime::param time_, int deltaX_, int deltaY_,
-	                                     byte press_, byte release_)
+	                                     uint8_t press_, uint8_t release_)
 		: StateChange(time_)
 		, deltaX(deltaX_), deltaY(deltaY_)
 		, press(press_), release(release_) {}
-	[[nodiscard]] int  getDeltaX()  const { return deltaX; }
-	[[nodiscard]] int  getDeltaY()  const { return deltaY; }
-	[[nodiscard]] byte getPress()   const { return press; }
-	[[nodiscard]] byte getRelease() const { return release; }
+	[[nodiscard]] int     getDeltaX()  const { return deltaX; }
+	[[nodiscard]] int     getDeltaY()  const { return deltaY; }
+	[[nodiscard]] uint8_t getPress()   const { return press; }
+	[[nodiscard]] uint8_t getRelease() const { return release; }
 
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
@@ -43,7 +43,7 @@ public:
 	}
 private:
 	int deltaX, deltaY;
-	byte press, release;
+	uint8_t press, release;
 };
 REGISTER_POLYMORPHIC_CLASS(StateChange, TrackballState, "TrackballState");
 
@@ -52,12 +52,6 @@ Trackball::Trackball(MSXEventDistributor& eventDistributor_,
                      StateChangeDistributor& stateChangeDistributor_)
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
-	, lastSync(EmuTime::zero())
-	, targetDeltaX(0), targetDeltaY(0)
-	, currentDeltaX(0), currentDeltaY(0)
-	, lastValue(0)
-	, status(JOY_BUTTONA | JOY_BUTTONB)
-	, smooth(true)
 {
 }
 
@@ -98,7 +92,7 @@ void Trackball::unplugHelper(EmuTime::param /*time*/)
 }
 
 // JoystickDevice
-byte Trackball::read(EmuTime::param time)
+uint8_t Trackball::read(EmuTime::param time)
 {
 	// From the Sony GB-7 Service manual:
 	//  http://cdn.preterhuman.net/texts/computing/msx/sonygb7sm.pdf
@@ -124,10 +118,10 @@ byte Trackball::read(EmuTime::param time)
 	return (status & ~0x0F) | ((delta + 8) & 0x0F);
 }
 
-void Trackball::write(byte value, EmuTime::param time)
+void Trackball::write(uint8_t value, EmuTime::param time)
 {
 	syncCurrentWithTarget(time);
-	byte diff = lastValue ^ value;
+	uint8_t diff = lastValue ^ value;
 	lastValue = value;
 	if (diff & 0x4) {
 		// pin 8 flipped
@@ -244,7 +238,7 @@ void Trackball::signalMSXEvent(const Event& event,
 }
 
 void Trackball::createTrackballStateChange(
-	EmuTime::param time, int deltaX, int deltaY, byte press, byte release)
+	EmuTime::param time, int deltaX, int deltaY, uint8_t press, uint8_t release)
 {
 	stateChangeDistributor.distributeNew<TrackballState>(
 		time, deltaX, deltaY, press, release);
@@ -265,7 +259,7 @@ void Trackball::stopReplay(EmuTime::param time) noexcept
 {
 	syncCurrentWithTarget(time);
 	// TODO Get actual mouse button(s) state. Is it worth the trouble?
-	byte release = (JOY_BUTTONA | JOY_BUTTONB) & ~status;
+	uint8_t release = (JOY_BUTTONA | JOY_BUTTONB) & ~status;
 	if ((currentDeltaX != 0) || (currentDeltaY != 0) || (release != 0)) {
 		stateChangeDistributor.distributeNew<TrackballState>(
 			time, -currentDeltaX, -currentDeltaY, 0, release);

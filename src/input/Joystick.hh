@@ -54,18 +54,18 @@ public:
 	void unplugHelper(EmuTime::param time) override;
 
 	// JoystickDevice
-	[[nodiscard]] byte read(EmuTime::param time) override;
-	void write(byte value, EmuTime::param time) override;
+	[[nodiscard]] uint8_t read(EmuTime::param time) override;
+	void write(uint8_t value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
 	void plugHelper2();
-	[[nodiscard]] byte calcState();
+	[[nodiscard]] uint8_t calcState();
 	[[nodiscard]] bool getState(Interpreter& interp, const TclObject& dict, std::string_view key,
 	                            int threshold);
-	void createEvent(EmuTime::param time, byte newStatus);
+	void createEvent(EmuTime::param time, uint8_t newStatus);
 
 	// MSXEventListener
 	void signalMSXEvent(const Event& event,
@@ -85,7 +85,7 @@ private:
 	const std::string desc;
 	StringSetting configSetting;
 
-	byte status;
+	uint8_t status;
 	bool pin8;
 #endif // SDL_JOYSTICK_DISABLED
 };

@@ -1,9 +1,11 @@
 #ifndef PADDLE_HH
 #define PADDLE_HH
 
+#include "EmuTime.hh"
 #include "JoystickDevice.hh"
 #include "MSXEventListener.hh"
 #include "StateChangeListener.hh"
+#include <cstdint>
 
 namespace openmsx {
 
@@ -29,8 +31,8 @@ private:
 	void unplugHelper(EmuTime::param time) override;
 
 	// JoystickDevice
-	[[nodiscard]] byte read(EmuTime::param time) override;
-	void write(byte value, EmuTime::param time) override;
+	[[nodiscard]] uint8_t read(EmuTime::param time) override;
+	void write(uint8_t value, EmuTime::param time) override;
 
 	// MSXEventListener
 	void signalMSXEvent(const Event& event,
@@ -43,9 +45,9 @@ private:
 	MSXEventDistributor& eventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
 
-	EmuTime lastPulse;
-	byte analogValue;
-	byte lastInput;
+	EmuTime lastPulse = EmuTime::zero();
+	uint8_t analogValue = 128;
+	uint8_t lastInput = 0;
 };
 
 } // namespace openmsx

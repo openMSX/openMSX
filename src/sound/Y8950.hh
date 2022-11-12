@@ -236,7 +236,7 @@ private:
 	bool rythm_mode;
 	bool am_mode;
 	bool pm_mode;
-	bool enabled;
+	bool enabled = true;
 };
 
 } // namespace openmsx

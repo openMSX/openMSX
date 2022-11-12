@@ -492,7 +492,6 @@ Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
 	, timer1(EmuTimer::createOPL3_1(motherBoard.getScheduler(), *this))
 	, timer2(EmuTimer::createOPL3_2(motherBoard.getScheduler(), *this))
 	, irq(motherBoard, getName() + ".IRQ")
-	, enabled(true)
 {
 	// For debugging: print out tables to be able to compare before/after
 	// when the calculation changes.

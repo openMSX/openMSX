@@ -124,8 +124,8 @@ private:
 
 	const std::unique_ptr<Rasterizer> rasterizer;
 
-	float finishFrameDuration;
-	float frameSkipCounter;
+	float finishFrameDuration = 0.0f;
+	float frameSkipCounter = 999.0f; // force drawing of frame
 
 	/** Number of the next position within a line to render.
 	  * Expressed in VDP clock ticks since start of line.
@@ -153,7 +153,7 @@ private:
 	/** Should current frame be draw or can it be skipped.
 	  */
 	bool renderFrame;
-	bool prevRenderFrame;
+	bool prevRenderFrame = false;
 
 	/** Should a rendered frame be painted to the window?
 	  * When renderFrame is false, paintFrame must be false as well.

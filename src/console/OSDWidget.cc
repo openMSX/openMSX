@@ -138,12 +138,7 @@ GLScopedClip::~GLScopedClip()
 
 OSDWidget::OSDWidget(Display& display_, TclObject name_)
 	: display(display_)
-	, parent(nullptr)
 	, name(std::move(name_))
-	, z(0.0)
-	, scaled(false)
-	, clip(false)
-	, suppressErrors(false)
 {
 }
 

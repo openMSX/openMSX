@@ -30,8 +30,8 @@ private:
 	void unplugHelper(EmuTime::param time) override;
 
 	// JoystickDevice
-	[[nodiscard]] byte read(EmuTime::param time) override;
-	void write(byte value, EmuTime::param time) override;
+	[[nodiscard]] uint8_t read(EmuTime::param time) override;
+	void write(uint8_t value, EmuTime::param time) override;
 
 	// MSXEventListener
 	void signalMSXEvent(const Event& event,
@@ -43,10 +43,10 @@ private:
 private:
 	MSXEventDistributor& eventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
-	int shiftreg;
-	int dialpos;
-	byte buttonStatus;
-	byte lastValue;
+	int shiftReg = 0; // the 9 bit shift degrades to 0
+	int dialPos;
+	uint8_t buttonStatus = 0x3E;
+	uint8_t lastValue = 0;
 };
 SERIALIZE_CLASS_VERSION(ArkanoidPad, 2);
 

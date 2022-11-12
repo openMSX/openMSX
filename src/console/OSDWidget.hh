@@ -91,15 +91,15 @@ private:
 	SubWidgets subWidgets;
 
 	Display& display;
-	OSDWidget* parent;
+	OSDWidget* parent = nullptr;
 
 	TclObject name;
 	gl::vec2 pos;
 	gl::vec2 relPos;
-	float z;
-	bool scaled;
-	bool clip;
-	bool suppressErrors;
+	float z = 0.0f;
+	bool scaled = false;
+	bool clip = false;
+	bool suppressErrors = false;
 };
 
 } // namespace openmsx
