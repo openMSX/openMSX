@@ -48,8 +48,8 @@ private:
 private:
 	BooleanSetting throttleSetting;
 	BooleanSetting fullSpeedLoadingSetting;
-	int loading;
-	bool throttle;
+	int loading = 0;
+	bool throttle = true;
 };
 
 /**
@@ -68,7 +68,7 @@ public:
 
 private:
 	ThrottleManager& throttleManager;
-	bool isLoading;
+	bool isLoading = false;
 };
 
 } // namespace openmsx

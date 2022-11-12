@@ -6,7 +6,6 @@ namespace openmsx {
 CPUClock::CPUClock(EmuTime::param time, Scheduler& scheduler_)
 	: clock(time)
 	, scheduler(scheduler_)
-	, remaining(-1), limit(-1), limitEnabled(false)
 {
 }
 

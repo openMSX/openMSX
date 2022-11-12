@@ -87,12 +87,12 @@ private:
 	MSXMotherBoard& motherBoard;
 
 #if COMPONENT_LASERDISC
-	LaserdiscPlayer* laserdiscPlayer;
+	LaserdiscPlayer* laserdiscPlayer = nullptr;
 #endif
 	CassettePlayer* cassettePlayer;
 
-	bool lastOutput;
-	bool motorControl;
+	bool lastOutput = false;
+	bool motorControl = false;
 };
 SERIALIZE_CLASS_VERSION(CassettePort, 2);
 

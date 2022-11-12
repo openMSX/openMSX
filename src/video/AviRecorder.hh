@@ -2,6 +2,7 @@
 #define AVIRECORDER_HH
 
 #include "Command.hh"
+#include "EmuDuration.hh"
 #include "EmuTime.hh"
 #include "Mixer.hh"
 #include <cstdint>
@@ -55,12 +56,12 @@ private:
 	std::unique_ptr<AviWriter>   aviWriter; // can be nullptr
 	std::unique_ptr<Wav16Writer> wavWriter; // can be nullptr
 	std::vector<PostProcessor*> postProcessors;
-	MSXMixer* mixer;
-	EmuDuration duration;
-	EmuTime prevTime;
+	MSXMixer* mixer = nullptr;
+	EmuDuration duration = EmuDuration::infinity();
+	EmuTime prevTime = EmuTime::infinity();
 	unsigned sampleRate;
 	unsigned frameWidth;
-	unsigned frameHeight;
+	unsigned frameHeight = 0;
 	bool warnedFps;
 	bool warnedSampleRate;
 	bool warnedStereo;

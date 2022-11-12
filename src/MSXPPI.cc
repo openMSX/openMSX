@@ -24,8 +24,6 @@ MSXPPI::MSXPPI(const DeviceConfig& config)
 		config.getMotherBoard().getMSXEventDistributor(),
 		config.getMotherBoard().getStateChangeDistributor(),
 		Keyboard::MATRIX_MSX, config)
-	, prevBits(15)
-	, selectedRow(0)
 {
 	reset(getCurrentTime());
 }

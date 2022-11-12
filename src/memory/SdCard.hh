@@ -41,14 +41,14 @@ private:
 
 	std::array<byte, 6> cmdBuf;
 	SectorBuffer sectorBuf;
-	unsigned cmdIdx;
+	unsigned cmdIdx = 0;
 
 	cb_queue<byte> responseQueue;
 
-	byte transferDelayCounter;
-	Mode mode;
-	unsigned currentSector;
-	int currentByteInSector;
+	byte transferDelayCounter = 0;
+	Mode mode = COMMAND;
+	unsigned currentSector = 0;
+	int currentByteInSector = 0;
 };
 
 } // namespace openmsx

@@ -11,7 +11,6 @@ Y8950KeyboardConnector::Y8950KeyboardConnector(
 	PluggingController& pluggingController_)
 	: Connector(pluggingController_, "audiokeyboardport",
 	            std::make_unique<DummyY8950KeyboardDevice>())
-	, data(255)
 {
 }
 

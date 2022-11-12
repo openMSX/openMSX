@@ -50,7 +50,6 @@ SVIPSG::SVIPSG(const DeviceConfig& config)
 	: MSXDevice(config)
 	, ports(generate_array<2>([&](auto i) { return &getMotherBoard().getJoystickPort(unsigned(i)); }))
 	, ay8910("PSG", *this, config, getCurrentTime())
-	, prev(255)
 {
 	reset(getCurrentTime());
 }

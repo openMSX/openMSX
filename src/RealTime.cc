@@ -28,8 +28,6 @@ RealTime::RealTime(
 	, throttleManager(globalSettings.getThrottleManager())
 	, pauseSetting   (globalSettings.getPauseSetting())
 	, powerSetting   (globalSettings.getPowerSetting())
-	, emuTime(EmuTime::zero())
-	, enabled(true)
 {
 	speedManager.attach(*this);
 	throttleManager.attach(*this);

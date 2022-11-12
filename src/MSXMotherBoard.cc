@@ -212,8 +212,6 @@ static unsigned machineIDCounter = 0;
 MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
 	: reactor(reactor_)
 	, machineID(strCat("machine", ++machineIDCounter))
-	, mapperIOCounter(0)
-	, machineConfig(nullptr)
 	, msxCliComm(make_unique<MSXCliComm>(*this, reactor.getGlobalCliComm()))
 	, msxEventDistributor(make_unique<MSXEventDistributor>())
 	, stateChangeDistributor(make_unique<StateChangeDistributor>())
@@ -228,9 +226,6 @@ MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
 	, fastForwardHelper(make_unique<FastForwardHelper>(*this))
 	, settingObserver(make_unique<SettingObserver>(*this))
 	, powerSetting(reactor.getGlobalSettings().getPowerSetting())
-	, powered(false)
-	, active(false)
-	, fastForwarding(false)
 {
 	slotManager = make_unique<CartridgeSlotManager>(*this);
 	reverseManager = make_unique<ReverseManager>(*this);

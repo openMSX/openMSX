@@ -64,7 +64,6 @@ MC6850::MC6850(const std::string& name_, MSXMotherBoard& motherBoard, unsigned c
 	, clockFreq(clockFreq_)
 	, rxIRQ(motherBoard, name_ + "-rx-IRQ")
 	, txIRQ(motherBoard, name_ + "-tx-IRQ")
-	, txDataReg(0), txShiftReg(0) // avoid UMR
 	, outConnector(motherBoard.getPluggingController(), name_ + "-out")
 {
 	reset(EmuTime::zero());

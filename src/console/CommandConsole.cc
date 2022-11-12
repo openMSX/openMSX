@@ -89,7 +89,6 @@ CommandConsole::CommandConsole(
 		true)
 	, prompt(PROMPT_NEW)
 	, history(std::max(1, historySizeSetting.getInt()))
-	, executingCommand(false)
 {
 	resetScrollBack();
 	newLineConsole(prompt);

@@ -252,7 +252,6 @@ DeltaBlock::~DeltaBlock()
 
 DeltaBlockCopy::DeltaBlockCopy(std::span<const uint8_t> data)
 	: block(data.size())
-	, compressedSize(0)
 {
 #ifdef DEBUG
 	sha1 = SHA1::calc(data);

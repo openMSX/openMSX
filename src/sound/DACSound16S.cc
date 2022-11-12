@@ -12,7 +12,6 @@ static constexpr unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on fr
 DACSound16S::DACSound16S(std::string_view name_, static_string_view desc,
                          const DeviceConfig& config)
 	: SoundDevice(config.getMotherBoard().getMSXMixer(), name_, desc, 1, DUMMY_INPUT_RATE, false)
-	, lastWrittenValue(0)
 {
 	registerSound(config);
 }

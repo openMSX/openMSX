@@ -120,9 +120,9 @@ protected:
 private:
 	mutable DynamicClock clock;
 	Scheduler& scheduler;
-	int remaining;
-	mutable int limit;
-	bool limitEnabled;
+	int remaining = -1;
+	mutable int limit = -1;
+	bool limitEnabled = false;
 };
 
 } // namespace openmsx

@@ -20,8 +20,6 @@ namespace openmsx {
 
 OSDRectangle::OSDRectangle(Display& display_, const TclObject& name_)
 	: OSDImageBasedWidget(display_, name_)
-	, scale(1.0), borderSize(0.0), relBorderSize(0.0)
-	, borderRGBA(0x000000ff)
 {
 }
 

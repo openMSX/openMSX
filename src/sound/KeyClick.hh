@@ -18,7 +18,7 @@ public:
 
 private:
 	DACSound8U dac;
-	bool status;
+	bool status = false;
 };
 
 } // namespace openmsx

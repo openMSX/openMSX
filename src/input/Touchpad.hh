@@ -1,6 +1,7 @@
 #ifndef TOUCHPAD_HH
 #define TOUCHPAD_HH
 
+#include "EmuTime.hh"
 #include "JoystickDevice.hh"
 #include "MSXEventListener.hh"
 #include "StateChangeListener.hh"
@@ -60,14 +61,14 @@ private:
 	StringSetting transformSetting;
 	gl::matMxN<2, 3, float> m; // transformation matrix
 
-	EmuTime start; // last time when CS switched 0->1
-	gl::ivec2 hostPos; // host state
-	byte hostButtons; //
-	byte x, y;          // msx state (different from host state
-	bool touch, button; //    during replay)
-	byte shift; // shift register to both transmit and receive data
-	byte channel; // [0..3]   0->x, 3->y, 1,2->not used
-	byte last; // last written data, to detect transitions
+	EmuTime start = EmuTime::zero(); // last time when CS switched 0->1
+	gl::ivec2 hostPos;    // host state
+	byte hostButtons = 0; //
+	byte x = 0, y = 0;                  // msx state (different from host state
+	bool touch = false, button = false; //            during replay)
+	byte shift = 0; // shift register to both transmit and receive data
+	byte channel = 0; // [0..3]   0->x, 3->y, 1,2->not used
+	byte last = 0; // last written data, to detect transitions
 };
 
 } // namespace openmsx

@@ -71,10 +71,6 @@ TclParser::TclParser(Tcl_Interp* interp_, std::string_view input)
 	: interp(interp_)
 	, colors(input.size(), '.')
 	, parseStr(input)
-	, offset(0)
-#if DEBUG_TCLPARSER
-	, level(0)
-#endif
 {
 	parse(parseStr.data(), narrow<int>(parseStr.size()), COMMAND);
 }

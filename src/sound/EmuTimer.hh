@@ -57,7 +57,7 @@ private:
 	const int maxVal;
 	int count;
 	const byte flag;
-	bool counting;
+	bool counting = false;
 };
 
 } // namespace openmsx

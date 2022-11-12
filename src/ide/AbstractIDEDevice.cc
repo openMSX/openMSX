@@ -12,11 +12,6 @@ namespace openmsx {
 
 AbstractIDEDevice::AbstractIDEDevice(MSXMotherBoard& motherBoard_)
 	: motherBoard(motherBoard_)
-	, transferIdx(0) // avoid UMR on serialize
-	, bufferLeft(0)
-	, transferCount(0)
-	, transferRead(false)
-	, transferWrite(false)
 {
 	ranges::fill(buffer, 0);
 }

@@ -47,8 +47,6 @@ MSXMixer::MSXMixer(Mixer& mixer_, MSXMotherBoard& motherBoard_,
 	, throttleManager(globalSettings.getThrottleManager())
 	, prevTime(getCurrentTime(), 44100)
 	, soundDeviceInfo(commandController.getMachineInfoCommand())
-	, recorder(nullptr)
-	, synchronousCounter(0)
 {
 	hostSampleRate = 44100;
 	fragmentSize = 0;

@@ -68,7 +68,7 @@ private:
 	std::span<const Pixel, 16> palFg;
 	std::span<const Pixel, 16> palBg;
 
-	unsigned modeBase;
+	unsigned modeBase = 0; // not strictly needed, but avoids Coverity warning
 };
 
 } // namespace openmsx

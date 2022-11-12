@@ -21,11 +21,6 @@ namespace openmsx {
 
 OSDImageBasedWidget::OSDImageBasedWidget(Display& display_, const TclObject& name_)
 	: OSDWidget(display_, name_)
-	, startFadeTime(0)
-	, fadePeriod(0.0)
-	, fadeTarget(1.0)
-	, startFadeValue(1.0)
-	, error(false)
 {
 	ranges::fill(rgba, 0x000000ff); // black, opaque
 }

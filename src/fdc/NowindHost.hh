@@ -119,8 +119,8 @@ private:
 
 	// state-machine
 	std::vector<SectorBuffer> buffer;// work buffer for disk read/write
-	unsigned lastTime;       // last time a byte was received from MSX
-	State state;
+	unsigned lastTime = 0;   // last time a byte was received from MSX
+	State state = STATE_SYNC1;
 	unsigned recvCount;      // how many bytes recv in this state
 	unsigned transferred;    // progress within disk read/write
 	unsigned retryCount;     // only used for disk read
@@ -128,9 +128,9 @@ private:
 	std::array<byte, 9> cmdData; // reg_[cbedlhfa] + cmd
 	std::array<byte, 240 + 2> extraData; // extra data for disk read/write
 
-	byte romDisk;            // index of rom disk (255 = no rom disk)
-	bool allowOtherDiskRoms;
-	bool enablePhantomDrives;
+	byte romDisk = 255;      // index of rom disk (255 = no rom disk)
+	bool allowOtherDiskRoms = false;
+	bool enablePhantomDrives = true;
 };
 
 } // namespace openmsx

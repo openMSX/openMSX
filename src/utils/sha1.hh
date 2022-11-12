@@ -96,10 +96,10 @@ private:
 	void finalize();
 
 private:
-	uint64_t m_count; // in bytes (sha1 reference implementation counts in bits)
+	uint64_t m_count = 0; // in bytes (sha1 reference implementation counts in bits)
 	Sha1Sum m_state;
 	std::array<uint8_t, 64> m_buffer;
-	bool m_finalized;
+	bool m_finalized = false;
 };
 
 } // namespace openmsx

@@ -570,7 +570,7 @@ private:
 
 	/** Interrupt flag (P#6)
 	  */
-	byte pendingIRQs;
+	byte pendingIRQs = 0;
 
 	/** Registers
 	  */
@@ -618,7 +618,7 @@ private:
 	  * In 32bpp we could just always output an alpha channel. But in
 	  * 16bpp we only want to output the special color-key when later
 	  * it will be replaced by a pixel from the external video source. */
-	bool externalVideoSource;
+	bool externalVideoSource = false;
 
 	/** Combination of 'externalVideoSource' and R#8 bit 5 (YSE). This
 	  * variable only changes once per frame, so we can't directly

@@ -138,12 +138,6 @@ ReverseManager::ReverseManager(MSXMotherBoard& motherBoard_)
 	, motherBoard(motherBoard_)
 	, eventDistributor(motherBoard.getReactor().getEventDistributor())
 	, reverseCmd(motherBoard.getCommandController())
-	, keyboard(nullptr)
-	, eventDelay(nullptr)
-	, replayIndex(0)
-	, collecting(false)
-	, pendingTakeSnapshot(false)
-	, reRecordCount(0)
 {
 	eventDistributor.registerEventListener(EventType::TAKE_REVERSE_SNAPSHOT, *this);
 

@@ -167,9 +167,9 @@ private:
 	DiskImageCLI diskImageCLI;
 	HDImageCLI hdImageCLI;
 	CDImageCLI cdImageCLI;
-	ParseStatus parseStatus;
-	bool haveConfig;
-	bool haveSettings;
+	ParseStatus parseStatus = UNPARSED;
+	bool haveConfig = false;
+	bool haveSettings = false;
 };
 
 } // namespace openmsx

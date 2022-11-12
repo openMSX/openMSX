@@ -18,7 +18,6 @@ namespace openmsx {
 SDLSoundDriver::SDLSoundDriver(Reactor& reactor_,
                                unsigned wantedFreq, unsigned wantedSamples)
 	: reactor(reactor_)
-	, muted(true)
 {
 	SDL_AudioSpec desired;
 	desired.freq     = narrow<int>(wantedFreq);

@@ -11,13 +11,6 @@ PrinterPortLogger::PrinterPortLogger(CommandController& commandController)
 		commandController, "printerlogfilename",
 		"filename of the file where the printer output is logged to",
 		"printer.log")
-	, toPrint(0) // Initialize to avoid a static analysis (cppcheck) warning.
-		     // For correctness it's not strictly needed to initialize
-		     // this variable. But understanding why exactly it's not
-		     // needed depends on the implementation details of a few
-		     // other classes, so let's simplify stuff and just
-		     // initialize.
-	, prevStrobe(true)
 {
 }
 

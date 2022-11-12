@@ -37,7 +37,7 @@ private:
 	byte DValue;
 	byte status;
 	byte hold;
-	bool hwMute;
+	bool hwMute = false;
 };
 
 } // namespace openmsx

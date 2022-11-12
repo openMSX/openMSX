@@ -69,12 +69,12 @@ private:
 	[[nodiscard]] gl::vec2 getTransformedPos(const OutputSurface& output) const;
 
 private:
-	uint64_t startFadeTime;
-	float fadePeriod;
-	float fadeTarget;
-	mutable float startFadeValue;
+	uint64_t startFadeTime = 0;
+	float fadePeriod = 0.0f;
+	float fadeTarget = 1.0f;
+	mutable float startFadeValue = 1.0f;
 	std::array<uint32_t, 4> rgba;
-	bool error;
+	bool error = false;
 };
 
 } // namespace openmsx

@@ -37,11 +37,6 @@ static constexpr byte R1_PARAMETER_ERROR = 0x80;
 
 SdCard::SdCard(const DeviceConfig& config)
 	: hd(config.getXML() ? std::make_unique<HD>(config) : nullptr)
-	, cmdIdx(0)
-	, transferDelayCounter(0)
-	, mode(COMMAND)
-	, currentSector(0)
-	, currentByteInSector(0)
 {
 }
 

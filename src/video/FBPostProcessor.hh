@@ -54,15 +54,15 @@ private:
 
 	/** Currently active scale algorithm, used to detect scaler changes.
 	  */
-	RenderSettings::ScaleAlgorithm scaleAlgorithm;
+	RenderSettings::ScaleAlgorithm scaleAlgorithm = RenderSettings::NO_SCALER;
 
 	/** Currently active scale factor, used to detect scaler changes.
 	  */
-	unsigned scaleFactor;
+	unsigned scaleFactor = unsigned(-1);
 
 	/** Currently active stretch factor, used to detect setting changes.
 	  */
-	unsigned stretchWidth;
+	unsigned stretchWidth = unsigned(-1);
 
 	/** Last used output, need to recreate 'stretchScaler' when this changes.
 	  */

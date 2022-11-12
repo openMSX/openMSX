@@ -71,8 +71,8 @@ private:
 	bool txShiftRegValid; //<! True iff txShiftReg contains a valid value
 	bool pendingOVRN;     //<! Overrun detected but not yet reported.
 	byte rxDataReg;       //<! Byte received from MIDI in connector.
-	byte txDataReg;       //<! Next to-be-sent byte.
-	byte txShiftReg;      //<! Byte currently being sent.
+	byte txDataReg = 0;   //<! Next to-be-sent byte.
+	byte txShiftReg = 0;  //<! Byte currently being sent.
 	byte controlReg;
 	byte statusReg;
 	byte charLen;         //<! #start- + #data- + #parity- + #stop-bits

@@ -130,7 +130,7 @@ public:
 	using Extensions = std::vector<std::unique_ptr<HardwareConfig>>;
 	[[nodiscard]] const Extensions& getExtensions() const { return extensions; }
 	[[nodiscard]] HardwareConfig* findExtension(std::string_view extensionName);
-	std::string loadExtension(std::string_view extensionName, std::string_view slotname);
+	std::string loadExtension(std::string_view extensionName, std::string_view slotName);
 	std::string insertExtension(std::string_view name,
 	                            std::unique_ptr<HardwareConfig> extension);
 	void removeExtension(const HardwareConfig& extension);
@@ -244,7 +244,7 @@ private:
 	hash_map<std::string, std::vector<std::string>, XXHasher> userNames;
 
 	std::unique_ptr<MSXMapperIO> mapperIO;
-	unsigned mapperIOCounter;
+	unsigned mapperIOCounter = 0;
 
 	// These two should normally be the same, only during savestate loading
 	// machineConfig will already be filled in, but machineConfig2 not yet.
@@ -252,7 +252,7 @@ private:
 	// machineConfig2 (otherwise machineConfig2 gets deleted twice).
 	// See also HardwareConfig::serialize() and setMachineConfig()
 	std::unique_ptr<HardwareConfig> machineConfig2;
-	HardwareConfig* machineConfig;
+	HardwareConfig* machineConfig = nullptr;
 
 	Extensions extensions; // order matters: later extension might depend on earlier ones
 
@@ -300,9 +300,9 @@ private:
 	friend class SettingObserver;
 	BooleanSetting& powerSetting;
 
-	bool powered;
-	bool active;
-	bool fastForwarding;
+	bool powered = false;
+	bool active = false;
+	bool fastForwarding = false;
 };
 SERIALIZE_CLASS_VERSION(MSXMotherBoard, 5);
 

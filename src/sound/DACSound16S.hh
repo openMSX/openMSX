@@ -31,7 +31,7 @@ private:
 
 private:
 	BlipBuffer blip;
-	int16_t lastWrittenValue;
+	int16_t lastWrittenValue = 0;
 };
 
 } // namespace openmsx

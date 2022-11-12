@@ -85,7 +85,6 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 	, msxcpu(motherBoard_.getCPU())
 	, cliComm(motherBoard_.getMSXCliComm())
 	, motherBoard(motherBoard_)
-	, fastForward(false)
 {
 	ranges::fill(primarySlotState, 0);
 	ranges::fill(secondarySlotState, 0);

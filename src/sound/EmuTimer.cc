@@ -62,7 +62,7 @@ EmuTimer::EmuTimer(Scheduler& scheduler_, EmuTimerCallback& cb_,
 	: Schedulable(scheduler_), cb(cb_)
 	, clock(EmuTime::dummy())
 	, maxVal(maxVal_), count(maxVal_)
-	, flag(flag_), counting(false)
+	, flag(flag_)
 {
 	clock.setFreq(freq_num, freq_denom);
 }

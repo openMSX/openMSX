@@ -67,8 +67,6 @@ V9990::V9990(const DeviceConfig& config)
 	, cmdEngine(*this, getCurrentTime(), display.getRenderSettings())
 	, frameStartTime(getCurrentTime())
 	, hScanSyncTime(getCurrentTime())
-	, pendingIRQs(0)
-	, externalVideoSource(false)
 {
 	// clear regs TODO find realistic init values
 	ranges::fill(regs, 0);

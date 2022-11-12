@@ -11,7 +11,6 @@ ThrottleManager::ThrottleManager(CommandController& commandController)
 	, fullSpeedLoadingSetting(
 		commandController, "fullspeedwhenloading",
 		"sets openMSX to full speed when the MSX is loading", false)
-	, loading(0), throttle(true)
 {
 	throttleSetting        .attach(*this);
 	fullSpeedLoadingSetting.attach(*this);
@@ -54,7 +53,6 @@ void ThrottleManager::update(const Setting& /*setting*/) noexcept
 
 LoadingIndicator::LoadingIndicator(ThrottleManager& throttleManager_)
 	: throttleManager(throttleManager_)
-	, isLoading(false)
 {
 }
 

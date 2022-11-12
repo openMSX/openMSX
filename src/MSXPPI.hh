@@ -72,8 +72,8 @@ private:
 	I8255 i8255;
 	KeyClick click;
 	Keyboard keyboard;
-	nibble prevBits;
-	nibble selectedRow;
+	nibble prevBits = 15;
+	nibble selectedRow = 0;
 };
 
 } // namespace openmsx

@@ -43,7 +43,7 @@ private:
 	void writeDirect(byte value, EmuTime::param time);
 
 private:
-	byte lastValue;
+	byte lastValue = 255; // != 0
 	const static_string_view description;
 };
 

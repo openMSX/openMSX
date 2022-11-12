@@ -211,16 +211,16 @@ private:
 
 	/** Index of current read/write position in the buffer.
 	  */
-	unsigned transferIdx;
+	unsigned transferIdx = 0; // avoid UMR on serialize
 
 	/** Number of bytes remaining in the buffer.
 	  */
-	unsigned bufferLeft;
+	unsigned bufferLeft = 0;
 
 	/** Number of bytes remaining in the transfer after this buffer.
 	  * (total bytes remaining == transferCount + bufferLeft)
 	  */
-	unsigned transferCount;
+	unsigned transferCount = 0;
 
 	// ATA registers:
 	byte errorReg;
@@ -232,8 +232,8 @@ private:
 	byte statusReg;
 	byte featureReg;
 
-	bool transferRead;
-	bool transferWrite;
+	bool transferRead = false;
+	bool transferWrite = false;
 };
 
 REGISTER_BASE_NAME_HELPER(AbstractIDEDevice, "IDEDevice");

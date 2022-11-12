@@ -252,8 +252,6 @@ void Sha1Sum::clear()
 // class SHA1
 
 SHA1::SHA1()
-	: m_count(0)
-	, m_finalized(false)
 {
 	// SHA1 initialization constants
 	m_state.a[0] = 0x67452301;

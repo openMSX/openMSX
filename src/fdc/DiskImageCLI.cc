@@ -8,7 +8,6 @@ namespace openmsx {
 
 DiskImageCLI::DiskImageCLI(CommandLineParser& parser_)
 	: parser(parser_)
-	, driveLetter('a')
 {
 	parser.registerOption("-diska", *this);
 	parser.registerOption("-diskb", *this);

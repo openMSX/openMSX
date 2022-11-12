@@ -151,14 +151,14 @@ private:
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} reverseCmd;
 
-	Keyboard* keyboard;
-	EventDelay* eventDelay;
+	Keyboard* keyboard = nullptr;
+	EventDelay* eventDelay = nullptr;
 	ReverseHistory history;
-	unsigned replayIndex;
-	bool collecting;
-	bool pendingTakeSnapshot;
+	unsigned replayIndex = 0;
+	bool collecting = false;
+	bool pendingTakeSnapshot = false;
 
-	unsigned reRecordCount;
+	unsigned reRecordCount = 0;
 
 	friend struct Replay;
 };

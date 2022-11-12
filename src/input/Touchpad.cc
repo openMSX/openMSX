@@ -64,10 +64,6 @@ Touchpad::Touchpad(MSXEventDistributor& eventDistributor_,
 		"2x3 matrix to transform host mouse coordinates to "
 		"MSX touchpad coordinates, see manual for details",
 		"{ 256 0 0 } { 0 256 0 }")
-	, start(EmuTime::zero())
-	, hostButtons(0)
-	, x(0), y(0), touch(false), button(false)
-	, shift(0), channel(0), last(0)
 {
 	auto& interp = commandController.getInterpreter();
 	transformSetting.setChecker([this, &interp](TclObject& newValue) {

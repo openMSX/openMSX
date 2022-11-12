@@ -47,11 +47,6 @@ CassettePort::CassettePort(const HardwareConfig& hwConf)
 	: Connector(hwConf.getMotherBoard().getPluggingController(), "cassetteport",
 	            std::make_unique<DummyCassetteDevice>())
 	, motherBoard(hwConf.getMotherBoard())
-#if COMPONENT_LASERDISC
-	, laserdiscPlayer(nullptr)
-#endif
-	, lastOutput(false)
-	, motorControl(false)
 {
 	auto player = std::make_unique<CassettePlayer>(hwConf);
 	cassettePlayer = player.get();

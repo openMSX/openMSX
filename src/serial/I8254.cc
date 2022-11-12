@@ -9,12 +9,12 @@
 
 namespace openmsx {
 
-static constexpr byte READ_BACK = 0xC0;
-static constexpr byte RB_CNTR0  = 0x02;
-static constexpr byte RB_CNTR1  = 0x04;
-static constexpr byte RB_CNTR2  = 0x08;
-static constexpr byte RB_STATUS = 0x10;
-static constexpr byte RB_COUNT  = 0x20;
+static constexpr uint8_t READ_BACK = 0xC0;
+static constexpr uint8_t RB_CNTR0  = 0x02;
+static constexpr uint8_t RB_CNTR1  = 0x04;
+static constexpr uint8_t RB_CNTR2  = 0x08;
+static constexpr uint8_t RB_STATUS = 0x10;
+static constexpr uint8_t RB_COUNT  = 0x20;
 
 
 // class I8254
@@ -38,7 +38,7 @@ void I8254::reset(EmuTime::param time)
 	}
 }
 
-byte I8254::readIO(word port, EmuTime::param time)
+uint8_t I8254::readIO(uint16_t port, EmuTime::param time)
 {
 	port &= 3;
 	switch (port) {
@@ -51,7 +51,7 @@ byte I8254::readIO(word port, EmuTime::param time)
 	}
 }
 
-byte I8254::peekIO(word port, EmuTime::param time) const
+uint8_t I8254::peekIO(uint16_t port, EmuTime::param time) const
 {
 	port &= 3;
 	switch (port) {
@@ -64,7 +64,7 @@ byte I8254::peekIO(word port, EmuTime::param time) const
 	}
 }
 
-void I8254::writeIO(word port, byte value, EmuTime::param time)
+void I8254::writeIO(uint16_t port, uint8_t value, EmuTime::param time)
 {
 	port &= 3;
 	switch (port) {
@@ -95,7 +95,7 @@ void I8254::writeIO(word port, byte value, EmuTime::param time)
 	}
 }
 
-void I8254::readBackHelper(byte value, unsigned cntr, EmuTime::param time)
+void I8254::readBackHelper(uint8_t value, unsigned cntr, EmuTime::param time)
 {
 	assert(cntr < 3);
 	if (!(value & RB_STATUS)) {
@@ -131,9 +131,6 @@ Counter::Counter(Scheduler& scheduler, ClockPinListener* listener,
                  EmuTime::param time)
 	: clock(scheduler), output(scheduler, listener)
 	, currentTime(time)
-	, counter(0)
-	, counterLoad(0)
-	, gate(true)
 {
 	reset(time);
 }
@@ -156,14 +153,14 @@ void Counter::reset(EmuTime::param time)
 	writeLatch = 0;
 }
 
-byte Counter::readIO(EmuTime::param time)
+uint8_t Counter::readIO(EmuTime::param time)
 {
 	if (ltchCtrl) {
 		ltchCtrl = false;
 		return latchedControl;
 	}
 	advance(time);
-	word readData = ltchCntr ? latchedCounter : counter;
+	uint16_t readData = ltchCntr ? latchedCounter : counter;
 	switch (control & WRT_FRMT) {
 	case WF_LATCH:
 		UNREACHABLE;
@@ -187,7 +184,7 @@ byte Counter::readIO(EmuTime::param time)
 	}
 }
 
-byte Counter::peekIO(EmuTime::param time) const
+uint8_t Counter::peekIO(EmuTime::param time) const
 {
 	if (ltchCtrl) {
 		return latchedControl;
@@ -195,7 +192,7 @@ byte Counter::peekIO(EmuTime::param time) const
 
 	const_cast<Counter*>(this)->advance(time);
 
-	word readData = ltchCntr ? latchedCounter : counter;
+	uint16_t readData = ltchCntr ? latchedCounter : counter;
 	switch (control & WRT_FRMT) {
 	case WF_LATCH:
 		UNREACHABLE;
@@ -214,7 +211,7 @@ byte Counter::peekIO(EmuTime::param time) const
 	}
 }
 
-void Counter::writeIO(byte value, EmuTime::param time)
+void Counter::writeIO(uint8_t value, EmuTime::param time)
 {
 	advance(time);
 	switch (control & WRT_FRMT) {
@@ -243,10 +240,10 @@ void Counter::writeIO(byte value, EmuTime::param time)
 		UNREACHABLE;
 	}
 }
-void Counter::writeLoad(word value, EmuTime::param time)
+void Counter::writeLoad(uint16_t value, EmuTime::param time)
 {
 	counterLoad = value;
-	byte mode = control & CNTR_MODE;
+	uint8_t mode = control & CNTR_MODE;
 	if (mode == one_of(CNTR_M0, CNTR_M4)) {
 		counter = counterLoad;
 	}
@@ -266,7 +263,7 @@ void Counter::writeLoad(word value, EmuTime::param time)
 	active = true; // counter is (re)armed after counter is initialized
 }
 
-void Counter::writeControlWord(byte value, EmuTime::param time)
+void Counter::writeControlWord(uint8_t value, EmuTime::param time)
 {
 	advance(time);
 	if ((value & WRT_FRMT) == 0) {
@@ -302,7 +299,7 @@ void Counter::latchStatus(EmuTime::param time)
 	advance(time);
 	if (!ltchCtrl) {
 		ltchCtrl = true;
-		byte out = output.getState(time) ? 0x80 : 0;
+		uint8_t out = output.getState(time) ? 0x80 : 0;
 		latchedControl = out | control; // TODO bit 6 null-count
 	}
 }

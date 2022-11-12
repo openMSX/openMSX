@@ -20,7 +20,6 @@ namespace openmsx {
 
 MSXVictorHC9xSystemControl::MSXVictorHC9xSystemControl(const DeviceConfig& config)
 	: MSXDevice(config)
-	, systemControlRegister(0x80)
 {
 }
 

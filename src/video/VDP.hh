@@ -1173,7 +1173,7 @@ private:
 	/** Is interlace active?
 	  * @see isInterlaced.
 	  */
-	bool interlaced;
+	bool interlaced = false;
 
 	/** Status register 0.
 	  * Both the F flag (bit 7) and the sprite related bits (bits 6-0)
@@ -1253,7 +1253,7 @@ private:
 	/** Has a warning been printed.
 	  * This is set when a warning about setting the dot clock direction
 	  * is printed.  */
-	bool warningPrinted;
+	bool warningPrinted = false;
 
 	/** Cached version of cmdTiming/tooFastAccess setting. */
 	bool brokenCmdTiming;

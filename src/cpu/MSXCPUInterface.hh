@@ -417,7 +417,7 @@ private:
 	byte initialPrimarySlots;
 	std::array<unsigned, 4> expanded;
 
-	bool fastForward; // no need to serialize
+	bool fastForward = false; // no need to serialize
 
 	//  All CPUs (Z80 and R800) of all MSX machines share this state.
 	static inline BreakPoints breakPoints; // sorted on address

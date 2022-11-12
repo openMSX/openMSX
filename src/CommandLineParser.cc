@@ -50,9 +50,6 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	, diskImageCLI(*this)
 	, hdImageCLI(*this)
 	, cdImageCLI(*this)
-	, parseStatus(UNPARSED)
-	, haveConfig(false)
-	, haveSettings(false)
 {
 	registerOption("-h",          helpOption,    PHASE_BEFORE_INIT, 1);
 	registerOption("--help",      helpOption,    PHASE_BEFORE_INIT, 1);

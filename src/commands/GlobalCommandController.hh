@@ -99,7 +99,7 @@ private:
 	ProxySettings::iterator findProxySetting(std::string_view name);
 
 	GlobalCliComm& cliComm;
-	CliConnection* connection;
+	CliConnection* connection = nullptr;
 
 	Reactor& reactor;
 

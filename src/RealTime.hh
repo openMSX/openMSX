@@ -81,9 +81,9 @@ private:
 	BooleanSetting& powerSetting;
 
 	uint64_t idealRealTime;
-	EmuTime emuTime;
+	EmuTime emuTime = EmuTime::zero();
 	double sleepAdjust;
-	bool enabled;
+	bool enabled = true;
 };
 
 } // namespace openmsx

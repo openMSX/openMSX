@@ -48,7 +48,7 @@ private:
 
 private:
 	WatchIO& watchIO;
-	MSXDevice* device;
+	MSXDevice* device = nullptr;
 };
 
 } // namespace openmsx

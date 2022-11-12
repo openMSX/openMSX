@@ -97,7 +97,6 @@ ChakkariCopy::ChakkariCopy(const DeviceConfig& config)
 		"in RAM mode you just have a 16kB RAM expansion", ChakkariCopy::COPY,
 		EnumSetting<ChakkariCopy::Mode>::Map{
 			{"COPY", ChakkariCopy::COPY}, {"RAM", ChakkariCopy::RAM}})
-	, reg(0xFF) // avoid UMR in initial writeIO()
 {
 	reset(getCurrentTime());
 	modeSetting.attach(*this);

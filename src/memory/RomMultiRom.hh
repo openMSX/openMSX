@@ -18,7 +18,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	byte counter;
+	byte counter = 7;
 };
 
 } // namespace openmsx

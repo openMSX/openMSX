@@ -41,9 +41,9 @@ private:
 
 	const byte mapperMask;
 	std::array<byte, 4> mapper;
-	bool spcEnable;
-	bool sccEnable;
-	bool writeEnable;
+	bool spcEnable = false;
+	bool sccEnable = false;
+	bool writeEnable = false;
 };
 
 } // namespace openmsx

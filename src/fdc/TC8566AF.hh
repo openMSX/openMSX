@@ -3,6 +3,7 @@
 
 #include "DynamicClock.hh"
 #include "CRC16.hh"
+#include "EmuTime.hh"
 #include "Schedulable.hh"
 #include "serialize_meta.hh"
 #include <array>
@@ -97,10 +98,11 @@ private:
 private:
 	CliComm& cliComm;
 	std::array<DiskDrive*, 4> drive;
-	DynamicClock delayTime;
-	EmuTime headUnloadTime; // Before this time head is loaded, after
-	                        // this time it's unloaded. Set to zero/infinity
-	                        // to force a (un)loaded head.
+	DynamicClock delayTime{EmuTime::zero()};
+
+	// Before this time head is loaded, after this time it's unloaded. Set
+	// to zero/infinity to force a (un)loaded head.
+	EmuTime headUnloadTime = EmuTime::zero(); // head not loaded
 
 	Command command;
 	Phase phase;
@@ -108,8 +110,8 @@ private:
 
 	//bool interrupt;
 
-	unsigned dataAvailable;
-	int dataCurrent;
+	unsigned dataAvailable = 0; // avoid UMR (on savestate)
+	int dataCurrent = 0;
 	CRC16 crc;
 
 	uint8_t driveSelect;

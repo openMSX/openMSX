@@ -78,9 +78,6 @@ ESE_SCC::ESE_SCC(const DeviceConfig& config, bool withSCSI)
 	, spc(withSCSI ? std::make_unique<MB89352>(config) : nullptr)
 	, romBlockDebug(*this, mapper, 0x4000, 0x8000, 13)
 	, mapperMask((sram.size() / 0x2000) - 1)
-	, spcEnable(false)
-	, sccEnable(false)
-	, writeEnable(false)
 {
 	// initialized mapper
 	ranges::iota(mapper, 0);

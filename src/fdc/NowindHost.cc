@@ -42,11 +42,6 @@ static void DBERR(const char* message, ...)
 
 NowindHost::NowindHost(const Drives& drives_)
 	: drives(drives_)
-	, lastTime(0)
-	, state(STATE_SYNC1)
-	, romDisk(255)
-	, allowOtherDiskRoms(false)
-	, enablePhantomDrives(true)
 {
 }
 

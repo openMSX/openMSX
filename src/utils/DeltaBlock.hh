@@ -52,7 +52,7 @@ private:
 	[[nodiscard]] bool compressed() const { return compressedSize != 0; }
 
 	MemBuffer<uint8_t> block;
-	size_t compressedSize;
+	size_t compressedSize = 0;
 };
 
 
@@ -82,13 +82,13 @@ public:
 private:
 	struct Info {
 		Info(const void* id_, size_t size_)
-			: id(id_), size(size_), accSize(0) {}
+			: id(id_), size(size_) {}
 
 		const void* id;
 		size_t size;
 		std::weak_ptr<DeltaBlockCopy> ref;
 		std::weak_ptr<DeltaBlock> last;
-		size_t accSize;
+		size_t accSize = 0;
 	};
 
 	std::vector<Info> infos;

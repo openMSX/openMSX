@@ -4,7 +4,6 @@ namespace openmsx {
 
 KeyClick::KeyClick(const DeviceConfig& config)
 	: dac("keyclick", "1-bit click generator", config)
-	, status(false)
 {
 }
 

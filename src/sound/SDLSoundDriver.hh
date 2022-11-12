@@ -42,7 +42,7 @@ private:
 	unsigned frequency;
 	unsigned fragmentSize;
 	unsigned readIdx, writeIdx;
-	bool muted;
+	bool muted = true;
 	SDLSubSystemInitializer<SDL_INIT_AUDIO> audioInitializer;
 };
 

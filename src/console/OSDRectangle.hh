@@ -50,8 +50,10 @@ private:
 private:
 	std::string imageName;
 	gl::vec2 size, relSize;
-	float scale, borderSize, relBorderSize;
-	uint32_t borderRGBA;
+	float scale = 1.0f;
+	float borderSize = 0.0f;
+	float  relBorderSize = 0.0f;
+	uint32_t borderRGBA = 0x000000ff;
 };
 
 } // namespace openmsx

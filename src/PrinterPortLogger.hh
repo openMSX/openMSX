@@ -31,8 +31,13 @@ public:
 private:
 	FilenameSetting logFilenameSetting;
 	File file;
-	byte toPrint;
-	bool prevStrobe;
+	byte toPrint = 0; // Initialize to avoid a static analysis (cppcheck) warning.
+	                  // For correctness it's not strictly needed to initialize
+	                  // this variable. But understanding why exactly it's not
+	                  // needed depends on the implementation details of a few
+	                  // other classes, so let's simplify stuff and just
+	                  // initialize.
+	bool prevStrobe = true;
 };
 
 } // namespace openmsx

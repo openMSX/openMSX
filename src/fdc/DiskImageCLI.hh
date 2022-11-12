@@ -26,7 +26,7 @@ private:
 
 private:
 	CommandLineParser& parser;
-	char driveLetter;
+	char driveLetter = 'a';
 };
 
 } // namespace openmsx

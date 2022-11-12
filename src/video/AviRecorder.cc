@@ -29,10 +29,6 @@ namespace openmsx {
 AviRecorder::AviRecorder(Reactor& reactor_)
 	: reactor(reactor_)
 	, recordCommand(reactor.getCommandController())
-	, mixer(nullptr)
-	, duration(EmuDuration::infinity())
-	, prevTime(EmuTime::infinity())
-	, frameHeight(0)
 {
 }
 

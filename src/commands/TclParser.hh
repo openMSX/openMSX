@@ -49,11 +49,11 @@ private:
 	std::string colors;
 	std::string parseStr;
 	std::vector<int> last;
-	int offset;
+	int offset = 0;
 
 #if DEBUG_TCLPARSER
 	void DEBUG_PRINT(const std::string& s);
-	int level;
+	int level = 0;
 #else
 	#define DEBUG_PRINT(x)
 #endif

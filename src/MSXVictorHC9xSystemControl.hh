@@ -19,7 +19,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	byte systemControlRegister;
+	byte systemControlRegister = 0x80;
 };
 
 } // namespace openmsx

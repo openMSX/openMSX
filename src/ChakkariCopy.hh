@@ -43,7 +43,7 @@ private:
 	BooleanSetting copyButtonPressedSetting;
 	EnumSetting<Mode> modeSetting;
 
-	byte reg;
+	byte reg = 0xFF; // avoid UMR in initial writeIO()
 };
 
 } // namespace openmsx

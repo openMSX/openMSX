@@ -27,7 +27,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	byte data;
+	byte data = 255;
 };
 
 } // namespace openmsx

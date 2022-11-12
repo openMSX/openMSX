@@ -182,8 +182,8 @@ private:
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} soundDeviceInfo;
 
-	AviRecorder* recorder;
-	unsigned synchronousCounter;
+	AviRecorder* recorder = nullptr;
+	unsigned synchronousCounter = 0;
 
 	unsigned muteCount;
 	float tl0, tr0; // internal DC-filter state

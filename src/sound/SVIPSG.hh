@@ -34,7 +34,7 @@ private:
 	std::array<JoystickPortIf*, 2> ports;
 	AY8910 ay8910; // must come after ports
 	int registerLatch;
-	byte prev;
+	byte prev = 255;
 };
 
 } // namespace openmsx

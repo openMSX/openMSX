@@ -12,7 +12,6 @@ MSXTurboRPCM::MSXTurboRPCM(const DeviceConfig& config)
 	, connector(getPluggingController(), "pcminput")
 	, dac("PCM", "Turbo-R PCM", config)
 	, reference(getCurrentTime())
-	, hwMute(false)
 {
 	reset(getCurrentTime());
 }

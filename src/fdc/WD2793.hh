@@ -1,6 +1,7 @@
 #ifndef WD2793_HH
 #define WD2793_HH
 
+#include "EmuTime.hh"
 #include "RawTrack.hh"
 #include "DynamicClock.hh"
 #include "Schedulable.hh"
@@ -109,12 +110,12 @@ private:
 	// DRQ is high iff current time is past this time.
 	//  This clock ticks at the 'byte-rate' of the current track,
 	//  typically '6250 bytes/rotation * 5 rotations/second'.
-	DynamicClock drqTime;
+	DynamicClock drqTime{EmuTime::infinity()};
 
 	// INTRQ is high iff current time is past this time.
-	EmuTime irqTime;
+	EmuTime irqTime = EmuTime::infinity();
 
-	EmuTime pulse5; // time at which the 5th index pulse will be received
+	EmuTime pulse5 = EmuTime::infinity(); // time at which the 5th index pulse will be received
 
 	// HLD/HLT timing
 	// 1) now < hldTime   (typically: hldTime == EmuTime::infinity)
@@ -132,27 +133,27 @@ private:
 	// requests to load the disk head, the drive responds with "ok, done".
 	// So 'LOAD' is zero, and phase 2) doesn't exist. Therefor the current
 	// implementation mostly ignores 'LOAD'.
-	EmuTime hldTime;
+	EmuTime hldTime = EmuTime::infinity(); // HLD=false
 
 	RawTrack::Sector sectorInfo;
-	int dataCurrent;   // which byte in track is next to be read/write
-	int dataAvailable; // how many bytes left to read/write
+	int dataCurrent   = 0; // which byte in track is next to be read/write
+	int dataAvailable = 0; // how many bytes left to read/write
 
 	CRC16 crc;
 
 	FSMState fsmState;
 	uint8_t statusReg;
-	uint8_t commandReg;
+	uint8_t commandReg = 0;
 	uint8_t sectorReg;
 	uint8_t trackReg;
 	uint8_t dataReg;
-	uint8_t dataOutReg;
+	uint8_t dataOutReg = 0;
 
 	bool directionIn;
 	bool immediateIRQ;
-	bool lastWasA1;
-	bool dataRegWritten;
-	bool lastWasCRC;
+	bool lastWasA1 = false;
+	bool dataRegWritten = false;
+	bool lastWasCRC = false;
 
 	const bool isWD1770;
 };

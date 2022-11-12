@@ -51,17 +51,6 @@ WD2793::WD2793(Scheduler& scheduler_, DiskDrive& drive_, CliComm& cliComm_,
 	: Schedulable(scheduler_)
 	, drive(drive_)
 	, cliComm(cliComm_)
-	, drqTime(EmuTime::infinity())
-	, irqTime(EmuTime::infinity())
-	, pulse5(EmuTime::infinity())
-	, hldTime(EmuTime::infinity()) // HLD=false
-	, dataCurrent(0) // avoid (harmless) UMR in serialize()
-	, dataAvailable(0)
-	, commandReg(0)
-	, dataOutReg(0)
-	, lastWasA1(false)
-	, dataRegWritten(false)
-	, lastWasCRC(false)
 	, isWD1770(isWD1770_)
 {
 	setDrqRate(RawTrack::STANDARD_SIZE);
