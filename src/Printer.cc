@@ -28,10 +28,10 @@ public:
 	void plot(double x, double y);
 
 private:
-	byte& dot(unsigned x, unsigned y);
+	uint8_t& dot(unsigned x, unsigned y);
 
 private:
-	std::vector<byte> buf;
+	std::vector<uint8_t> buf;
 	std::vector<int> table;
 
 	double radiusX;
@@ -57,7 +57,7 @@ void PrinterCore::setStrobe(bool strobe, EmuTime::param /*time*/)
 	prevStrobe = strobe;
 }
 
-void PrinterCore::writeData(byte data, EmuTime::param /*time*/)
+void PrinterCore::writeData(uint8_t data, EmuTime::param /*time*/)
 {
 	toPrint = data;
 }
@@ -91,7 +91,7 @@ void RawPrinter::~RawPrinter()
 	CloseHandle(hFile);
 }
 
-void RawPrinter::write(byte value)
+void RawPrinter::write(uint8_t value)
 {
 	unsigned dwWritten;
 	WriteFile(hFile, &value, 1, &dwWritten, nullptr);
@@ -121,7 +121,7 @@ ImagePrinter::~ImagePrinter()
 	flushEmulatedPrinter();
 }
 
-void ImagePrinter::write(byte data)
+void ImagePrinter::write(uint8_t data)
 {
 	if (ramLoadOffset < ramLoadEnd) {
 		fontInfo.ram[ramLoadOffset++] = data;
@@ -179,7 +179,7 @@ void ImagePrinter::plot9Dots(double x, double y, unsigned pattern)
 	}
 }
 
-void ImagePrinter::printGraphicByte(byte data)
+void ImagePrinter::printGraphicByte(uint8_t data)
 {
 	ensurePrintPage();
 
@@ -261,14 +261,14 @@ static constexpr unsigned compress9(unsigned a)
 	}
 	return result;
 }
-void ImagePrinter::printVisibleCharacter(byte data)
+void ImagePrinter::printVisibleCharacter(uint8_t data)
 {
 	ensurePrintPage();
 
 	double iYPos = 0;
 	std::span mem = fontInfo.useRam ? fontInfo.ram : fontInfo.rom;
 	std::span charBitmap = subspan(mem, fontInfo.charWidth * data, fontInfo.charWidth);
-	byte attribute = charBitmap[0];
+	uint8_t attribute = charBitmap[0];
 	unsigned start = (attribute >> 4) & 0x07;
 	unsigned end = attribute & 0x0f;
 	unsigned topBits = attribute >> 7;
@@ -322,7 +322,7 @@ void ImagePrinter::printVisibleCharacter(byte data)
 // class ImagePrinterMSX
 
 // MSX-Font taken from NMS8250 BIOS ROM
-static constexpr std::array<byte, 256 * 8> MSXFontRaw = {
+static constexpr std::array<uint8_t, 256 * 8> MSXFontRaw = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // 0
 	0x3C, 0x42, 0xA5, 0x81, 0xA5, 0x99, 0x42, 0x3C,  // 1
 	0x3C, 0x7E, 0xDB, 0xFF, 0xFF, 0xDB, 0x66, 0x3C,  // 2
@@ -581,7 +581,7 @@ static constexpr std::array<byte, 256 * 8> MSXFontRaw = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // 255
 };
 
-static std::array<byte, 256 * 9> MSXFont;
+static std::array<uint8_t, 256 * 9> MSXFont;
 
 ImagePrinterMSX::ImagePrinterMSX(MSXMotherBoard& motherBoard_)
 	: ImagePrinter(motherBoard_, true)
@@ -601,17 +601,17 @@ std::string_view ImagePrinterMSX::getDescription() const
 	return "Emulate MSX printer, prints to image.";
 }
 
-void ImagePrinterMSX::msxPrnSetFont(std::span<const byte, 256 * 8> msxBits)
+void ImagePrinterMSX::msxPrnSetFont(std::span<const uint8_t, 256 * 8> msxBits)
 {
 	// Convert MSX printer font to Epson printer font
 	for (auto i : xrange(256)) {
-		byte oneBits = 0;
+		uint8_t oneBits = 0;
 		int start = -1;
 		int end = 0;
 
 		// Rotate MSX character
 		for (auto j : xrange(8)) {
-			byte charBits = 0;
+			uint8_t charBits = 0;
 			for (auto k : xrange(8)) {
 				charBits |= ((msxBits[8 * i + 7 - k] >> (7 - j)) & 1) << k;
 			}
@@ -655,7 +655,7 @@ void ImagePrinterMSX::resetSettings()
 }
 
 
-unsigned ImagePrinterMSX::calcEscSequenceLength(byte character)
+unsigned ImagePrinterMSX::calcEscSequenceLength(uint8_t character)
 {
 	switch (character) {
 		case 'C':
@@ -678,7 +678,7 @@ unsigned ImagePrinterMSX::parseNumber(unsigned sizeStart, unsigned sizeChars)
 	unsigned Value = 0;
 	while (sizeChars--) {
 		Value = Value * 10;
-		byte data = abEscSeq[sizeStart++];
+		uint8_t data = abEscSeq[sizeStart++];
 		if (data >= '0' && data <= '9') {
 			Value += unsigned(data - '0');
 		}
@@ -824,7 +824,7 @@ void ImagePrinterMSX::processEscSequence()
 	}
 }
 
-void ImagePrinterMSX::processCharacter(byte data)
+void ImagePrinterMSX::processCharacter(uint8_t data)
 {
 	if (alternateChar) {
 		// Print SOH-preceded character
@@ -898,7 +898,7 @@ REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, ImagePrinterMSX, "ImagePrinterMSX");
 
 // class ImagePrinterEpson
 
-static constexpr std::array<byte, 12 * 256> EpsonFontRom = {
+static constexpr std::array<uint8_t, 12 * 256> EpsonFontRom = {
 	0x8b, 0x04, 0x0a, 0x20, 0x8a, 0x60, 0x0a, 0x20, 0x1c, 0x02, 0x00, 0x00, //   0
 	0x8b, 0x1c, 0x22, 0x08, 0xa2, 0x48, 0x22, 0x08, 0x22, 0x18, 0x00, 0x00, //   1
 	0x9b, 0x00, 0x3c, 0x00, 0x82, 0x40, 0x02, 0x00, 0x3c, 0x02, 0x00, 0x00, //   2
@@ -1196,7 +1196,7 @@ void ImagePrinterEpson::resetSettings()
 	fontInfo.useRam = false;
 }
 
-unsigned ImagePrinterEpson::calcEscSequenceLength(byte character)
+unsigned ImagePrinterEpson::calcEscSequenceLength(uint8_t character)
 {
 	switch (character & 127) {
 		case '!': case '-': case '/': case '3': case 'A': case 'J':
@@ -1230,7 +1230,7 @@ unsigned ImagePrinterEpson::parseNumber(unsigned sizeStart, unsigned sizeChars)
 
 void ImagePrinterEpson::processEscSequence()
 {
-	byte character = abEscSeq[0] & 127;
+	uint8_t character = abEscSeq[0] & 127;
 
 	switch (character) {
 		case '!': { // Master Print Mode Select
@@ -1477,20 +1477,20 @@ void ImagePrinterEpson::processEscSequence()
 
 // International character code translation for the Epson FX-80 printer
 //                                                   US   FR   DE   GB   DK   SE   IT   SP   JP
-static constexpr std::array<byte, 9> intlChar35  = { 35,  35,  35,   6,  35,  35,  35,  12,  35};
-static constexpr std::array<byte, 9> intlChar36  = { 36,  36,  36,  36,  36,  11,  36,  36,  36};
-static constexpr std::array<byte, 9> intlChar64  = { 64,   0,  16,  64,  64,  29,  64,  64,  64};
-static constexpr std::array<byte, 9> intlChar91  = { 91,   5,  23,  91,  18,  23,   5,   7,  91};
-static constexpr std::array<byte, 9> intlChar92  = { 92,  15,  24,  92,  20,  24,  92,   9,  31};
-static constexpr std::array<byte, 9> intlChar93  = { 93,  16,  25,  93,  13,  13,  30,   8,  93};
-static constexpr std::array<byte, 9> intlChar94  = { 94,  94,  94,  94,  94,  25,  94,  94,  94};
-static constexpr std::array<byte, 9> intlChar96  = { 96,  96,  96,  96,  96,  30,   2,  96,  96};
-static constexpr std::array<byte, 9> intlChar123 = {123,  30,  26, 123,  19,  26,   0,  22, 123};
-static constexpr std::array<byte, 9> intlChar124 = {124,   2,  27, 124,  21,  27,   3,  10, 124};
-static constexpr std::array<byte, 9> intlChar125 = {125,   1,  28, 125,  14,  14,   1, 125, 125};
-static constexpr std::array<byte, 9> intlChar126 = {126,  22,  17, 126, 126,  28,   4, 126, 126};
+static constexpr std::array<uint8_t, 9> intlChar35  = { 35,  35,  35,   6,  35,  35,  35,  12,  35};
+static constexpr std::array<uint8_t, 9> intlChar36  = { 36,  36,  36,  36,  36,  11,  36,  36,  36};
+static constexpr std::array<uint8_t, 9> intlChar64  = { 64,   0,  16,  64,  64,  29,  64,  64,  64};
+static constexpr std::array<uint8_t, 9> intlChar91  = { 91,   5,  23,  91,  18,  23,   5,   7,  91};
+static constexpr std::array<uint8_t, 9> intlChar92  = { 92,  15,  24,  92,  20,  24,  92,   9,  31};
+static constexpr std::array<uint8_t, 9> intlChar93  = { 93,  16,  25,  93,  13,  13,  30,   8,  93};
+static constexpr std::array<uint8_t, 9> intlChar94  = { 94,  94,  94,  94,  94,  25,  94,  94,  94};
+static constexpr std::array<uint8_t, 9> intlChar96  = { 96,  96,  96,  96,  96,  30,   2,  96,  96};
+static constexpr std::array<uint8_t, 9> intlChar123 = {123,  30,  26, 123,  19,  26,   0,  22, 123};
+static constexpr std::array<uint8_t, 9> intlChar124 = {124,   2,  27, 124,  21,  27,   3,  10, 124};
+static constexpr std::array<uint8_t, 9> intlChar125 = {125,   1,  28, 125,  14,  14,   1, 125, 125};
+static constexpr std::array<uint8_t, 9> intlChar126 = {126,  22,  17, 126, 126,  28,   4, 126, 126};
 
-void ImagePrinterEpson::processCharacter(byte data)
+void ImagePrinterEpson::processCharacter(uint8_t data)
 {
 	if (data >= 32) {
 		if (italic) {
@@ -1719,7 +1719,7 @@ void Paper::plot(double xPos, double yPos)
 	}
 }
 
-byte& Paper::dot(unsigned x, unsigned y)
+uint8_t& Paper::dot(unsigned x, unsigned y)
 {
 	assert(x < sizeX);
 	assert(y < sizeY);

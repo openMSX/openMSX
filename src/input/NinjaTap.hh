@@ -23,8 +23,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	uint8_t status;
-	uint8_t previous;
+	uint8_t status = 0x3F; // TODO check initial value
+	uint8_t previous = 0;
 	std::array<uint8_t, 4> buf;
 };
 

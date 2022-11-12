@@ -52,7 +52,7 @@ private:
 
 private:
 	SN76489 sn76489;
-	byte controlReg;
+	byte controlReg = 0;
 };
 
 } // namespace openmsx

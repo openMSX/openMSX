@@ -29,9 +29,6 @@ AviWriter::AviWriter(const Filename& filename, unsigned width_,
 	, height(height_)
 	, channels(channels_)
 	, audioRate(freq_)
-	, frames(0)
-	, audioWritten(0)
-	, written(0)
 {
 	std::array<uint8_t, AVI_HEADER_SIZE> dummy = {};
 	file.write(dummy);

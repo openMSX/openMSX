@@ -74,8 +74,8 @@ public:
 
 private:
 	std::array<MSXSwitchedDevice*, 256> devices;
-	unsigned count;
-	byte selected;
+	unsigned count = 0;
+	byte selected = 0;
 };
 
 } // namespace openmsx

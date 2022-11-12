@@ -12,7 +12,6 @@ SunriseIDE::SunriseIDE(const DeviceConfig& config)
 	, romBlockDebug(*this)
 	, rom(getName() + " ROM", "rom", config)
 	, internalBank(subspan<0x4000>(rom)) // make valgrind happy
-	, ideRegsEnabled(false)
 {
 	device[0] = IDEDeviceFactory::create(
 		DeviceConfig(config, config.findChild("master")));

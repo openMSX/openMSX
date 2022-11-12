@@ -12,8 +12,6 @@ namespace openmsx {
 
 NinjaTap::NinjaTap(PluggingController& pluggingController_, std::string name_)
 	: JoyTap(pluggingController_, std::move(name_))
-	, status(0x3F) // TODO check initial value
-	, previous(0)
 {
 	ranges::fill(buf, 0xFF);
 }

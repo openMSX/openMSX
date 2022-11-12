@@ -53,7 +53,7 @@ private:
 	byte writeLatch;
 	byte selectedDevice;
 	byte control;
-	bool ideRegsEnabled;
+	bool ideRegsEnabled = false;
 	bool softReset;
 };
 

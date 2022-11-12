@@ -32,8 +32,6 @@ MSXRS232::MSXRS232(const DeviceConfig& config)
 	                "RS232 RAM", RAM_SIZE)
 		: nullptr)
 	, rxrdyIRQ(getMotherBoard(), MSXDevice::getName() + ".IRQrxrdy")
-	, rxrdyIRQlatch(false)
-	, rxrdyIRQenabled(false)
 	, hasMemoryBasedIo(config.getChildDataAsBool("memorybasedio", false))
 	, ioAccessEnabled(!hasMemoryBasedIo)
 	, switchSetting(config.getChildDataAsBool("toshiba_rs232c_switch",

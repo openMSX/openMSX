@@ -11,8 +11,6 @@ namespace openmsx {
 
 MSXDeviceSwitch::MSXDeviceSwitch(const DeviceConfig& config)
 	: MSXDevice(config)
-	, count(0)
-	, selected(0)
 {
 	ranges::fill(devices, nullptr);
 }

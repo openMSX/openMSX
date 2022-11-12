@@ -153,11 +153,11 @@ private:
 
 	private:
 		std::span<const float, 32> envVolTable;
-		int period;
-		int count;
-		int step;
-		int attack;
-		bool hold, alternate, holding;
+		int period = 1;
+		int count = 0;
+		int step = 0;
+		int attack = 0;
+		bool hold = false, alternate = false, holding = false;
 	};
 
 	// SoundDevice
@@ -191,7 +191,7 @@ private:
 	const bool isAY8910;
 	const bool ignorePortDirections;
 	bool doDetune;
-	bool detuneInitialized;
+	bool detuneInitialized = false; // (lazily) initialize detune stuff
 };
 
 SERIALIZE_CLASS_VERSION(AY8910::Generator, 2);

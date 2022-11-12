@@ -94,7 +94,7 @@ private:
 	  */
 	V9990& vdp;
 
-	V9990CmdEngine* cmdEngine;
+	V9990CmdEngine* cmdEngine = nullptr;
 
 	/** V9990 VRAM data.
 	  */

@@ -11,7 +11,6 @@
 #define PRINTER_HH
 
 #include "PrinterPortDevice.hh"
-#include "openmsx.hh"
 #include <array>
 #include <memory>
 #include <utility>
@@ -30,7 +29,7 @@ public:
 	// PrinterPortDevice
 	[[nodiscard]] bool getStatus(EmuTime::param time) override;
 	void setStrobe(bool strobe, EmuTime::param time) override;
-	void writeData(byte data, EmuTime::param time) override;
+	void writeData(uint8_t data, EmuTime::param time) override;
 
 	// Pluggable
 	void plugHelper(Connector& connector, EmuTime::param time) override;
@@ -39,11 +38,11 @@ public:
 protected:
 	PrinterCore() = default;
 	~PrinterCore() override = default;
-	virtual void write(byte data) = 0;
+	virtual void write(uint8_t data) = 0;
 	virtual void forceFormFeed() = 0;
 
 private:
-	byte toPrint = 0;
+	uint8_t toPrint = 0;
 	bool prevStrobe = true;
 };
 
@@ -55,7 +54,7 @@ public:
 	RawPrinter();
 	~RawPrinter();
 
-	void write(byte data);
+	void write(uint8_t data);
 	void forceFormFeed();
 	// Pluggable
 	[[nodiscard]] std::string_view getName() const override;
@@ -70,7 +69,7 @@ private:
 class ImagePrinter : public PrinterCore
 {
 public:
-	void write(byte data) override;
+	void write(uint8_t data) override;
 	void forceFormFeed() override;
 
 protected:
@@ -78,18 +77,18 @@ protected:
 	~ImagePrinter() override;
 
 	void resetEmulatedPrinter();
-	void printGraphicByte(byte data);
+	void printGraphicByte(uint8_t data);
 	void seekPrinterHeadRelative(double offset);
 	void ensurePrintPage();
 	void flushEmulatedPrinter();
-	void printVisibleCharacter(byte data);
+	void printVisibleCharacter(uint8_t data);
 	void plot9Dots(double x, double y, unsigned pattern);
 
 	[[nodiscard]] virtual std::pair<unsigned, unsigned> getNumberOfDots() = 0;
 	virtual void resetSettings() = 0;
-	[[nodiscard]] virtual unsigned calcEscSequenceLength(byte character) = 0;
+	[[nodiscard]] virtual unsigned calcEscSequenceLength(uint8_t character) = 0;
 	virtual void processEscSequence() = 0;
-	virtual void processCharacter(byte data) = 0;
+	virtual void processCharacter(uint8_t data) = 0;
 
 protected:
 	static constexpr unsigned PIXEL_WIDTH = 8;
@@ -130,12 +129,12 @@ protected:
 	CountryCode countryCode = CC_USA;
 
 	static constexpr int MAX_ESC_CMDSIZE = 8;
-	std::array<byte, MAX_ESC_CMDSIZE> abEscSeq;
+	std::array<uint8_t, MAX_ESC_CMDSIZE> abEscSeq;
 
 	static constexpr int MAX_FONT_WIDTH = 12;
 	struct FontInfo {
-		std::array<byte, 256 * MAX_FONT_WIDTH> rom;
-		std::array<byte, 256 * MAX_FONT_WIDTH> ram;
+		std::array<uint8_t, 256 * MAX_FONT_WIDTH> rom;
+		std::array<uint8_t, 256 * MAX_FONT_WIDTH> ram;
 		double pixelDelta;
 		unsigned charWidth;
 		bool useRam;
@@ -184,14 +183,14 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void msxPrnSetFont(std::span<const byte, 256 * 8> msxBits);
+	void msxPrnSetFont(std::span<const uint8_t, 256 * 8> msxBits);
 	[[nodiscard]] unsigned parseNumber(unsigned sizeStart, unsigned sizeChars);
 
 	[[nodiscard]] std::pair<unsigned, unsigned> getNumberOfDots() override;
 	void resetSettings() override;
-	[[nodiscard]] unsigned calcEscSequenceLength(byte character) override;
+	[[nodiscard]] unsigned calcEscSequenceLength(uint8_t character) override;
 	void processEscSequence() override;
-	void processCharacter(byte data) override;
+	void processCharacter(uint8_t data) override;
 };
 
 // emulated Epson printer
@@ -212,9 +211,9 @@ private:
 
 	[[nodiscard]] std::pair<unsigned, unsigned> getNumberOfDots() override;
 	void resetSettings() override;
-	[[nodiscard]] unsigned calcEscSequenceLength(byte character) override;
+	[[nodiscard]] unsigned calcEscSequenceLength(uint8_t character) override;
 	void processEscSequence() override;
-	void processCharacter(byte data) override;
+	void processCharacter(uint8_t data) override;
 };
 
 } // namespace openmsx

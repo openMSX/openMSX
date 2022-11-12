@@ -86,7 +86,7 @@ private:
 	StringSetting configSetting;
 
 	uint8_t status;
-	bool pin8;
+	bool pin8 = false; // avoid UMR
 #endif // SDL_JOYSTICK_DISABLED
 };
 SERIALIZE_CLASS_VERSION(Joystick, 2);

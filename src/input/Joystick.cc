@@ -164,7 +164,6 @@ Joystick::Joystick(MSXEventDistributor& eventDistributor_,
 	, desc(SDL_JoystickName(joystick_))
 	, configSetting(commandController, tmpStrCat(name, "_config"),
 		"joystick configuration", getConfigValue(joystick).getString())
-	, pin8(false) // avoid UMR
 {
 	auto& interp = commandController.getInterpreter();
 	configSetting.setChecker([&interp](TclObject& newValue) {

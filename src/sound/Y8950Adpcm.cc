@@ -52,7 +52,6 @@ Y8950Adpcm::Y8950Adpcm(Y8950& y8950_, const DeviceConfig& config,
 	, y8950(y8950_)
 	, ram(config, name + " RAM", "Y8950 sample RAM", sampleRam)
 	, clock(config.getMotherBoard().getCurrentTime())
-	, volume(0)
 {
 	clearRam();
 }

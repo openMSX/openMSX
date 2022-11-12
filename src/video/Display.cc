@@ -43,8 +43,6 @@ Display::Display(Reactor& reactor_)
 	, renderSettings(reactor.getCommandController())
 	, commandConsole(reactor.getGlobalCommandController(),
 	                 reactor.getEventDistributor(), *this)
-	, currentRenderer(RenderSettings::UNINITIALIZED)
-	, switchInProgress(false)
 {
 	frameDurationSum = 0;
 	repeat(NUM_FRAME_DURATIONS, [&] {

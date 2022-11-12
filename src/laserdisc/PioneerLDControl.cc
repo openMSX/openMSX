@@ -34,7 +34,6 @@ PioneerLDControl::PioneerLDControl(const DeviceConfig& config)
 	, rom(getName() + " ROM", "rom", config)
 	, clock(EmuTime::zero())
 	, irq(getMotherBoard(), "PioneerLDControl.IRQdisplayoff")
-	, videoEnabled(false)
 {
 	if (config.getChildDataAsBool("laserdisc", true)) {
 		laserdisc.emplace(getHardwareConfig(), *this);
@@ -66,7 +65,7 @@ void PioneerLDControl::reset(EmuTime::param time)
 {
 	muteL = muteR = true;
 	superimposing = false;
-	extint = false;
+	extInt = false;
 
 	irq.reset();
 	if (laserdisc) laserdisc->setMuting(muteL, muteR, time);
@@ -76,7 +75,7 @@ byte PioneerLDControl::readMem(word address, EmuTime::param time)
 {
 	byte val = PioneerLDControl::peekMem(address, time);
 	if (address == 0x7fff) {
-		extint = false;
+		extInt = false;
 		irq.reset();
 	}
 	return val;
@@ -90,7 +89,7 @@ byte PioneerLDControl::peekMem(word address, EmuTime::param time) const
 		if (videoEnabled) {
 			val &= 0x7f;
 		}
-		if (!extint) {
+		if (!extInt) {
 			val &= 0xfe;
 		}
 	} else if (address == 0x7ffe) {
@@ -122,7 +121,7 @@ void PioneerLDControl::writeMem(word address, byte value, EmuTime::param time)
 	if (address == 0x7fff) {
 		// superimpose
 		superimposing = !(value & 1);
-		irq.set(superimposing && extint);
+		irq.set(superimposing && extInt);
 
 		updateVideoSource();
 
@@ -151,7 +150,7 @@ void PioneerLDControl::videoIn(bool enabled)
 {
 	if (videoEnabled && !enabled) {
 		// raise an interrupt when external video goes off
-		extint = true;
+		extInt = true;
 		if (superimposing) irq.set();
 	}
 	videoEnabled = enabled;
@@ -178,7 +177,7 @@ void PioneerLDControl::serialize(Archive& ar, unsigned /*version*/)
 		videoEnabled = false;
 	}
 	ar.serialize("superimposing", superimposing,
-	             "extint",        extint,
+	             "extint",        extInt,
 	             "irq",           irq);
 	if (laserdisc) ar.serialize("laserdisc", *laserdisc);
 

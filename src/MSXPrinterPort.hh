@@ -4,6 +4,7 @@
 #include "MSXDevice.hh"
 #include "Connector.hh"
 #include "SimpleDebuggable.hh"
+#include <cstdint>
 
 namespace openmsx {
 
@@ -18,9 +19,9 @@ public:
 
 	// MSXDevice
 	void reset(EmuTime::param time) override;
-	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
-	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
-	void writeIO(word port, byte value, EmuTime::param time) override;
+	[[nodiscard]] uint8_t readIO(uint16_t port, EmuTime::param time) override;
+	[[nodiscard]] uint8_t peekIO(uint16_t port, EmuTime::param time) const override;
+	void writeIO(uint16_t port, uint8_t value, EmuTime::param time) override;
 
 	// Connector
 	[[nodiscard]] std::string_view getDescription() const override;
@@ -32,17 +33,17 @@ public:
 
 private:
 	void setStrobe(bool newStrobe, EmuTime::param time);
-	void writeData(byte newData, EmuTime::param time);
+	void writeData(uint8_t newData, EmuTime::param time);
 
 private:
 	struct Debuggable final : SimpleDebuggable {
 		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
-		[[nodiscard]] byte read(unsigned address) override;
-		void write(unsigned address, byte value) override;
+		[[nodiscard]] uint8_t read(unsigned address) override;
+		void write(unsigned address, uint8_t value) override;
 	} debuggable;
 
-	bool strobe;
-	byte data;
+	bool strobe = false; // != true
+	uint8_t data = 255;  // != 0
 };
 
 } // namespace openmsx

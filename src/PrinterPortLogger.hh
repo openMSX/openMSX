@@ -17,7 +17,7 @@ public:
 	// PrinterPortDevice
 	[[nodiscard]] bool getStatus(EmuTime::param time) override;
 	void setStrobe(bool strobe, EmuTime::param time) override;
-	void writeData(byte data, EmuTime::param time) override;
+	void writeData(uint8_t data, EmuTime::param time) override;
 
 	// Pluggable
 	[[nodiscard]] std::string_view getName() const override;
@@ -31,12 +31,12 @@ public:
 private:
 	FilenameSetting logFilenameSetting;
 	File file;
-	byte toPrint = 0; // Initialize to avoid a static analysis (cppcheck) warning.
-	                  // For correctness it's not strictly needed to initialize
-	                  // this variable. But understanding why exactly it's not
-	                  // needed depends on the implementation details of a few
-	                  // other classes, so let's simplify stuff and just
-	                  // initialize.
+	uint8_t toPrint = 0; // Initialize to avoid a static analysis (cppcheck) warning.
+	                     // For correctness it's not strictly needed to initialize
+	                     // this variable. But understanding why exactly it's not
+	                     // needed depends on the implementation details of a few
+	                     // other classes, so let's simplify stuff and just
+	                     // initialize.
 	bool prevStrobe = true;
 };
 

@@ -46,8 +46,8 @@ private:
 	I8255 i8255;
 	Keyboard keyboard;
 	std::array<JoystickPortIf*, 2> ports;
-	nibble prevBits;
-	nibble selectedRow;
+	nibble prevBits = 15;
+	nibble selectedRow = 0;
 };
 
 } // namespace openmsx

@@ -38,9 +38,9 @@ private:
 	const unsigned channels;
 	const unsigned audioRate;
 
-	unsigned frames;
-	unsigned audioWritten;
-	unsigned written;
+	unsigned frames = 0;
+	unsigned audioWritten = 0;
+	unsigned written = 0;
 };
 
 } // namespace openmsx

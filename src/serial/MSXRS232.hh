@@ -82,8 +82,8 @@ private:
 	const std::unique_ptr<Ram> ram; // can be nullptr
 
 	IRQHelper rxrdyIRQ;
-	bool rxrdyIRQlatch;
-	bool rxrdyIRQenabled;
+	bool rxrdyIRQlatch = false;
+	bool rxrdyIRQenabled = false;
 
 	const bool hasMemoryBasedIo;
 	bool ioAccessEnabled;

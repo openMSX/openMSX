@@ -2,7 +2,7 @@
 #define PRINTERPORTDEVICE_HH
 
 #include "Pluggable.hh"
-#include "openmsx.hh"
+#include <cstdint>
 
 namespace openmsx {
 
@@ -30,7 +30,7 @@ public:
 	 * As an optimization, this method might not be called when the
 	 * new data is the same as the previous data.
 	 */
-	virtual void writeData(byte data, EmuTime::param time) = 0;
+	virtual void writeData(uint8_t data, EmuTime::param time) = 0;
 
 	// Pluggable
 	[[nodiscard]] std::string_view getClass() const final;

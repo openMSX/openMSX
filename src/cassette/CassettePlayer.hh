@@ -149,14 +149,14 @@ private:
 	double partialInterval;
 
 	/** The time in the world of the tape. Zero at the start of the tape. */
-	EmuTime tapePos;
+	EmuTime tapePos = EmuTime::zero();
 
 	/** Last time the sync() method was called.
 	  * Used to calculate EmuDuration since last sync. */
-	EmuTime prevSyncTime;
+	EmuTime prevSyncTime = EmuTime::zero();
 
 	// SoundDevice
-	unsigned audioPos;
+	unsigned audioPos = 0;
 	Filename casImage;
 
 	MSXMotherBoard& motherBoard;
@@ -177,11 +177,11 @@ private:
 	std::unique_ptr<Wav8Writer> recordImage;
 	std::unique_ptr<CassetteImage> playImage;
 
-	size_t sampCnt;
-	State state;
-	bool lastOutput;
-	bool motor, motorControl;
-	bool syncScheduled;
+	size_t sampCnt = 0;
+	State state = STOP;
+	bool lastOutput = false;
+	bool motor = false, motorControl = true;
+	bool syncScheduled = false;
 };
 SERIALIZE_CLASS_VERSION(CassettePlayer, 2);
 

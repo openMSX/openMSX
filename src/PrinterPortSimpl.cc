@@ -24,7 +24,7 @@ void PrinterPortSimpl::setStrobe(bool /*strobe*/, EmuTime::param /*time*/)
 	// ignore strobe // TODO check
 }
 
-void PrinterPortSimpl::writeData(byte data, EmuTime::param time)
+void PrinterPortSimpl::writeData(uint8_t data, EmuTime::param time)
 {
 	dac->writeDAC(data, time);
 }

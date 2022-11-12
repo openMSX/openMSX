@@ -74,7 +74,7 @@ private:
 	unsigned startAddr;
 	unsigned stopAddr;
 	unsigned addrMask;
-	int volume;
+	int volume = 0;
 	int volumeWStep;
 	int readDelay;
 	int delta;

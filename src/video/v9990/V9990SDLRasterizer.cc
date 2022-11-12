@@ -27,8 +27,6 @@ V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
 	, screen(screen_)
 	, workFrame(std::make_unique<RawFrame>(screen.getPixelFormat(), 1280, 240))
 	, renderSettings(display.getRenderSettings())
-	, displayMode(P1) // dummy value
-	, colorMode(PP)   //   avoid UMR
 	, postProcessor(std::move(postProcessor_))
 	, bitmapConverter(vdp, palette64, palette64_32768, palette256, palette256_32768, palette32768)
 	, p1Converter(vdp, palette64)

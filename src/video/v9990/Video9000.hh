@@ -51,10 +51,10 @@ private:
 	VideoSourceSetting& videoSourceSetting;
 	VDP* vdp;
 	V9990* v9990;
-	Layer* activeLayer;
-	PostProcessor* v99x8Layer;
-	PostProcessor* v9990Layer;
-	byte value;
+	Layer* activeLayer = nullptr;
+	PostProcessor* v99x8Layer = nullptr;
+	PostProcessor* v9990Layer = nullptr;
+	byte value = 0x10;
 };
 
 } // namespace openmsx

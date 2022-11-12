@@ -82,7 +82,7 @@ private:
 	void doRendererSwitch();
 	void doRendererSwitch2();
 
-	/** Find frontmost opaque layer.
+	/** Find front most opaque layer.
 	  */
 	[[nodiscard]] Layers::iterator baseLayer();
 
@@ -122,10 +122,10 @@ private:
 	CommandConsole commandConsole;
 
 	// the current renderer
-	RenderSettings::RendererID currentRenderer;
+	RenderSettings::RendererID currentRenderer = RenderSettings::UNINITIALIZED;
 
 	bool renderFrozen;
-	bool switchInProgress;
+	bool switchInProgress = false;
 };
 
 } // namespace openmsx

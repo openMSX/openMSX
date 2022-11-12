@@ -30,7 +30,7 @@ void PrinterPortLogger::setStrobe(bool strobe, EmuTime::param /*time*/)
 	prevStrobe = strobe;
 }
 
-void PrinterPortLogger::writeData(byte data, EmuTime::param /*time*/)
+void PrinterPortLogger::writeData(uint8_t data, EmuTime::param /*time*/)
 {
 	toPrint = data;
 }
