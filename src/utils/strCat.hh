@@ -580,7 +580,7 @@ template<typename... Ts>
 [[nodiscard]] inline std::string strCat(const std::string& x) { return x; }
 [[nodiscard]] inline std::string strCat(std::string&&      x) { return std::move(x); }
 [[nodiscard]] inline std::string strCat(const char*        x) { return {x}; }
-[[nodiscard]] inline std::string strCat(char               x) { return {1, x}; }
+[[nodiscard]] inline std::string strCat(char               x) { return std::string(1, x); } // Not: return {1, x};
 [[nodiscard]] inline std::string strCat(std::string_view   x) { return {x.data(), x.size()}; }
 
 [[nodiscard]] inline std::string strCat(signed char        x) { return strCatImpl::to_string(x); }
