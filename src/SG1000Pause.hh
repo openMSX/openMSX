@@ -16,7 +16,7 @@ class SG1000Pause final : public MSXDevice,
 {
 public:
 	explicit SG1000Pause(const DeviceConfig& config);
-	~SG1000Pause();
+	~SG1000Pause() override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

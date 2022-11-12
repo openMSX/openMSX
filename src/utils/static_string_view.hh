@@ -48,7 +48,7 @@ public:
 	constexpr operator std::string_view() const { return s; }
 
 private:
-	const std::string_view s;
+	std::string_view s;
 };
 
 /** Take a string_view, make a copy of it, and return a pair of

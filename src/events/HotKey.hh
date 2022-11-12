@@ -21,9 +21,9 @@ class HotKey final : public RTSchedulable, public EventListener
 {
 public:
 	struct HotKeyInfo {
-		HotKeyInfo(const Event& event_, std::string command_,
+		HotKeyInfo(Event event_, std::string command_,
 		           bool repeat_ = false, bool passEvent_ = false)
-			: event(event_), command(std::move(command_))
+			: event(std::move(event_)), command(std::move(command_))
 			, repeat(repeat_)
 			, passEvent(passEvent_) {}
 		Event event;
