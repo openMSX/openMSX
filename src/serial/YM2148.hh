@@ -65,9 +65,9 @@ private:
 	IRQHelper rxIRQ;
 	IRQHelper txIRQ;
 	bool rxReady;
-	byte rxBuffer;  //<! Byte received from MIDI in connector.
-	byte txBuffer1; //<! The byte currently being send.
-	byte txBuffer2; //<! The next to-be-send byte.
+	byte rxBuffer;      //<! Byte received from MIDI in connector.
+	byte txBuffer1 = 0; //<! The byte currently being send.
+	byte txBuffer2 = 0; //<! The next to-be-send byte.
 	byte status;
 	byte commandReg;
 

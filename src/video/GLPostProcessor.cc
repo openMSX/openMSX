@@ -25,14 +25,7 @@ GLPostProcessor::GLPostProcessor(
 	unsigned maxWidth_, unsigned height_, bool canDoInterlace_)
 	: PostProcessor(motherBoard_, display_, screen_,
 	                videoSource, maxWidth_, height_, canDoInterlace_)
-	, noiseTextureA(true, true) // interpolate + wrap
-	, noiseTextureB(true, true)
-	, noiseX(0.0f)
-	, noiseY(0.0f)
 	, height(height_)
-	, frameCounter(0)
-	, scaleAlgorithm(RenderSettings::NO_SCALER)
-	, storedFrame(false)
 {
 	preCalcNoise(renderSettings.getNoise());
 	initBuffers();

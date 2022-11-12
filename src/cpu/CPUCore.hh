@@ -142,7 +142,7 @@ private:
 
 	MSXMotherBoard& motherboard;
 	Scheduler& scheduler;
-	MSXCPUInterface* interface;
+	MSXCPUInterface* interface = nullptr;
 
 	const BooleanSetting& traceSetting;
 	TclCallback& diHaltCallback;
@@ -157,16 +157,16 @@ private:
 
 	// state machine variables
 	int slowInstructions;
-	int NMIStatus;
+	int NMIStatus = 0;
 
 	/**
 	 * Set to true when there was a rising edge on the NMI line
 	 * (rising = non-active -> active).
 	 * Set to false when the CPU jumps to the NMI handler address.
 	 */
-	bool nmiEdge;
+	bool nmiEdge = false;
 
-	std::atomic<bool> exitLoop;
+	std::atomic<bool> exitLoop = false;
 
 	/** In sync with traceSetting.getBoolean(). */
 	bool tracingEnabled;

@@ -58,9 +58,9 @@ private:
 	std::array<gl::FrameBufferObject, 2> fbo;
 
 	// Noise effect:
-	gl::Texture noiseTextureA;
-	gl::Texture noiseTextureB;
-	float noiseX, noiseY;
+	gl::Texture noiseTextureA{true, true}; // interpolate + wrap
+	gl::Texture noiseTextureB{true, true};
+	float noiseX = 0.0f, noiseY = 0.0f;
 
 	struct TextureData {
 		gl::ColorTexture tex;
@@ -89,11 +89,11 @@ private:
 	std::vector<Region> regions;
 
 	unsigned height;
-	unsigned frameCounter;
+	unsigned frameCounter = 0;
 
 	/** Currently active scale algorithm, used to detect scaler changes.
 	  */
-	RenderSettings::ScaleAlgorithm scaleAlgorithm;
+	RenderSettings::ScaleAlgorithm scaleAlgorithm = RenderSettings::NO_SCALER;
 
 	gl::ShaderProgram monitor3DProg;
 	gl::BufferObject arrayBuffer;
@@ -101,7 +101,7 @@ private:
 	gl::BufferObject vbo;
 	gl::BufferObject stretchVBO;
 
-	bool storedFrame;
+	bool storedFrame = false;
 };
 
 } // namespace openmsx

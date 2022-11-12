@@ -14,7 +14,6 @@ MSXAudio::MSXAudio(const DeviceConfig& config)
 	, y8950(getName(), config,
 	        config.getChildDataAsInt("sampleram", 256) * 1024,
 	        getCurrentTime(), *this)
-	, dacValue(0x80), dacEnabled(false)
 {
 	auto type = config.getChildData("type", "philips");
 	StringOp::casecmp cmp;

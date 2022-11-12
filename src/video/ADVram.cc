@@ -9,8 +9,6 @@ namespace openmsx {
 
 ADVram::ADVram(const DeviceConfig& config)
 	: MSXDevice(config)
-	, vdp(nullptr)
-	, vram(nullptr)
 	, hasEnable(config.getChildDataAsBool("hasEnable", true))
 {
 	reset(EmuTime::dummy());

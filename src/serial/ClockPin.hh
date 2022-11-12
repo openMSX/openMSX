@@ -53,11 +53,11 @@ private:
 
 	EmuDuration totalDur;
 	EmuDuration hiDur;
-	EmuTime referenceTime;
+	EmuTime referenceTime = EmuTime::zero();
 
-	bool periodic;
-	bool status;
-	bool signalEdge;
+	bool periodic = false;
+	bool status = false;
+	bool signalEdge = false;
 };
 
 } // namespace openmsx

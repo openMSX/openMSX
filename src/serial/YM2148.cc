@@ -34,7 +34,6 @@ YM2148::YM2148(const std::string& name_, MSXMotherBoard& motherBoard)
 	, syncTrans(motherBoard.getScheduler())
 	, rxIRQ(motherBoard, name_ + "-rx-IRQ")
 	, txIRQ(motherBoard, name_ + "-tx-IRQ")
-	, txBuffer1(0), txBuffer2(0) // avoid UMR
 	, outConnector(motherBoard.getPluggingController(), name_ + "-MIDI-out")
 {
 	reset();

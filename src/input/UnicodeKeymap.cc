@@ -85,7 +85,7 @@ UnicodeKeymap::UnicodeKeymap(string_view keyboardType)
 	try {
 		File file(filename);
 		auto buf = file.mmap();
-		parseUnicodeKeymapfile(
+		parseUnicodeKeyMapFile(
 			string_view(reinterpret_cast<const char*>(buf.data()), buf.size()));
 	} catch (FileException&) {
 		throw MSXException("Couldn't load unicode keymap file: ", filename);
@@ -94,17 +94,17 @@ UnicodeKeymap::UnicodeKeymap(string_view keyboardType)
 
 UnicodeKeymap::KeyInfo UnicodeKeymap::get(unsigned unicode) const
 {
-	auto m = binary_find(mapdata, unicode, {}, &Entry::unicode);
+	auto m = binary_find(mapData, unicode, {}, &Entry::unicode);
 	return m ? m->keyInfo : KeyInfo();
 }
 
-UnicodeKeymap::KeyInfo UnicodeKeymap::getDeadkey(unsigned n) const
+UnicodeKeymap::KeyInfo UnicodeKeymap::getDeadKey(unsigned n) const
 {
 	assert(n < NUM_DEAD_KEYS);
 	return deadKeys[n];
 }
 
-void UnicodeKeymap::parseUnicodeKeymapfile(string_view data)
+void UnicodeKeymap::parseUnicodeKeyMapFile(string_view data)
 {
 	ranges::fill(relevantMods, 0);
 
@@ -178,21 +178,21 @@ void UnicodeKeymap::parseUnicodeKeymapfile(string_view data)
 		auto pos = KeyMatrixPosition(*rowcol);
 
 		// Parse remaining tokens. It is an optional list of modifier keywords.
-		byte modmask = 0;
+		byte modMask = 0;
 		while (true) {
 			token = nextToken(data);
 			if (token.empty()) {
 				break;
 			} else if (token == "SHIFT") {
-				modmask |= KeyInfo::SHIFT_MASK;
+				modMask |= KeyInfo::SHIFT_MASK;
 			} else if (token == "CTRL") {
-				modmask |= KeyInfo::CTRL_MASK;
+				modMask |= KeyInfo::CTRL_MASK;
 			} else if (token == "GRAPH") {
-				modmask |= KeyInfo::GRAPH_MASK;
+				modMask |= KeyInfo::GRAPH_MASK;
 			} else if (token == "CAPSLOCK") {
-				modmask |= KeyInfo::CAPS_MASK;
+				modMask |= KeyInfo::CAPS_MASK;
 			} else if (token == "CODE") {
-				modmask |= KeyInfo::CODE_MASK;
+				modMask |= KeyInfo::CODE_MASK;
 			} else {
 				throw MSXException(
 					"Invalid modifier \"", token, "\" in keymap file");
@@ -200,19 +200,19 @@ void UnicodeKeymap::parseUnicodeKeymapfile(string_view data)
 		}
 
 		if (isDeadKey) {
-			if (modmask != 0) {
+			if (modMask != 0) {
 				throw MSXException(
 					"DEADKEY entry in keymap file cannot have modifiers");
 			}
 			deadKeys[deadKeyIndex] = KeyInfo(pos, 0);
 		} else {
-			mapdata.emplace_back(Entry{unicode, KeyInfo(pos, modmask)});
+			mapData.emplace_back(Entry{unicode, KeyInfo(pos, modMask)});
 			// Note: getRowCol() uses 3 bits for column, rowcol uses 4.
-			relevantMods[pos.getRowCol()] |= modmask;
+			relevantMods[pos.getRowCol()] |= modMask;
 		}
 	}
 
-	ranges::sort(mapdata, {}, &Entry::unicode);
+	ranges::sort(mapData, {}, &Entry::unicode);
 }
 
 } // namespace openmsx

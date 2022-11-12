@@ -10,10 +10,6 @@ MSXTurboRPause::MSXTurboRPause(const DeviceConfig& config)
 	, pauseSetting(
 		getCommandController(), "turborpause",
 		"status of the TurboR pause", false)
-	, status(255)
-	, pauseLed(false)
-	, turboLed(false)
-	, hwPause(false)
 {
 	pauseSetting.attach(*this);
 	reset(EmuTime::dummy());

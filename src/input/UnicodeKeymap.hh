@@ -107,8 +107,8 @@ public:
 		static constexpr byte CODE_MASK  = 1 << CODE;
 
 		constexpr KeyInfo() = default;
-		constexpr KeyInfo(KeyMatrixPosition pos_, byte modmask_)
-			: pos(pos_), modmask(modmask_)
+		constexpr KeyInfo(KeyMatrixPosition pos_, byte modMask_)
+			: pos(pos_), modMask(modMask_)
 		{
 			assert(pos.isValid());
 		}
@@ -116,13 +116,13 @@ public:
 			return pos.isValid();
 		}
 		KeyMatrixPosition pos;
-		byte modmask = 0;
+		byte modMask = 0;
 	};
 
 	explicit UnicodeKeymap(std::string_view keyboardType);
 
 	[[nodiscard]] KeyInfo get(unsigned unicode) const;
-	[[nodiscard]] KeyInfo getDeadkey(unsigned n) const;
+	[[nodiscard]] KeyInfo getDeadKey(unsigned n) const;
 
 	/** Returns a mask in which a bit is set iff the corresponding modifier
 	  * is relevant for the given key. A modifier is considered relevant if
@@ -142,14 +142,14 @@ public:
 private:
 	static constexpr unsigned NUM_DEAD_KEYS = 3;
 
-	void parseUnicodeKeymapfile(std::string_view data);
+	void parseUnicodeKeyMapFile(std::string_view data);
 
 private:
 	struct Entry {
 		unsigned unicode;
 		KeyInfo keyInfo;
 	};
-	std::vector<Entry> mapdata; // sorted on unicode
+	std::vector<Entry> mapData; // sorted on unicode
 
 	/** Contains a mask for each key matrix position, which for each modifier
 	  * has the corresponding bit set if that modifier that affects the key.

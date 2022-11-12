@@ -296,7 +296,6 @@ template<typename T> CPUCore<T>::CPUCore(
 	, T(time, motherboard_.getScheduler())
 	, motherboard(motherboard_)
 	, scheduler(motherboard.getScheduler())
-	, interface(nullptr)
 	, traceSetting(traceSetting_)
 	, diHaltCallback(diHaltCallback_)
 	, IRQStatus(motherboard.getDebugger(), name + ".pendingIRQ",
@@ -316,9 +315,6 @@ template<typename T> CPUCore<T>::CPUCore(
 		"custom CPU frequency (only valid when unlocked)",
 		T::CLOCK_FREQ, 1000000, 1000000000)
 	, freq(T::CLOCK_FREQ)
-	, NMIStatus(0)
-	, nmiEdge(false)
-	, exitLoop(false)
 	, tracingEnabled(traceSetting.getBoolean())
 	, isCMOS(motherboard.hasToshibaEngine())  // Toshiba MSX-ENGINEs embed a CMOS Z80
 {

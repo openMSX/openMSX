@@ -44,8 +44,8 @@ private:
 	Y8950 y8950;
 	std::unique_ptr<DACSound8U> dac; // can be nullptr
 	int registerLatch;
-	byte dacValue;
-	bool dacEnabled;
+	byte dacValue = 0x80;
+	bool dacEnabled = false;
 
 	friend class MusicModulePeriphery;
 	friend class PanasonicAudioPeriphery;

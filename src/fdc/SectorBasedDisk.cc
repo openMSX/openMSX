@@ -7,8 +7,6 @@ namespace openmsx {
 
 SectorBasedDisk::SectorBasedDisk(DiskName name_)
 	: Disk(std::move(name_))
-	, nbSectors(size_t(-1)) // to detect misuse
-	, cachedTrackNum(-1)
 {
 }
 
@@ -16,7 +14,7 @@ void SectorBasedDisk::writeTrackImpl(uint8_t track, uint8_t side, const RawTrack
 {
 	for (auto& s : input.decodeAll()) {
 		// Ignore 'track' and 'head' information
-		// Always assume sectorsize = 512 (so also ignore sizeCode).
+		// Always assume sector-size = 512 (so also ignore sizeCode).
 		// Ignore CRC value/errors of both address and data.
 		// Ignore sector type (deleted or not)
 		// Ignore sectors that are outside the range 1..sectorsPerTrack

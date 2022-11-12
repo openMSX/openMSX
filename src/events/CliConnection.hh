@@ -134,7 +134,7 @@ private:
 
 	std::mutex sdMutex;
 	SOCKET sd;
-	bool established;
+	bool established = false;
 };
 
 } // namespace openmsx

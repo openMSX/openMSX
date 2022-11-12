@@ -7,8 +7,6 @@ namespace openmsx {
 
 ClockPin::ClockPin(Scheduler& scheduler_, ClockPinListener* listener_)
 	: Schedulable(scheduler_), listener(listener_)
-	, referenceTime(EmuTime::zero())
-	, periodic(false) , status(false), signalEdge(false)
 {
 }
 

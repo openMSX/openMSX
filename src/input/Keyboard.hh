@@ -156,13 +156,13 @@ private:
 
 	private:
 		std::string text_utf8;
-		unsigned last;
-		uint8_t lockKeysMask;
-		bool releaseLast;
-		uint8_t oldLocksOn;
+		unsigned last = 0;
+		uint8_t lockKeysMask = 0;
+		bool releaseLast = false;
+		uint8_t oldLocksOn = 0;
 
-		bool releaseBeforePress;
-		int typingFrequency;
+		bool releaseBeforePress = false;
+		int typingFrequency = 15;
 	} keyTypeCmd;
 
 	struct Msxcode2UnicodeCmd final : public Command {
@@ -197,7 +197,7 @@ private:
 
 		enum CapsLockAlignerStateType {
 			MUST_ALIGN_CAPSLOCK, MUST_DISTRIBUTE_KEY_RELEASE, IDLE
-		} state;
+		} state = IDLE;
 	} capsLockAligner;
 
 	KeyboardSettings keyboardSettings;
@@ -238,7 +238,7 @@ private:
 	/** Combination of 'cmdKeyMatrix', 'typeKeyMatrix' and 'userKeyMatrix'. */
 	mutable std::array<uint8_t, KeyMatrixPosition::NUM_ROWS> keyMatrix;
 
-	uint8_t msxModifiers;
+	uint8_t msxModifiers = 0xff;
 
 	/** True iff keyboard includes a numeric keypad. */
 	const bool hasKeypad;
@@ -254,12 +254,12 @@ private:
 	  * numbering) is set iff it is a lock key.
 	  */
 	const uint8_t modifierIsLock;
-	mutable bool keysChanged;
+	mutable bool keysChanged = false;
 	/** Bit vector where each modifier's bit (using KeyInfo::Modifier's
 	  * numbering) is set iff it is a lock key that is currently on in
 	  * the emulated machine.
 	  */
-	uint8_t locksOn;
+	uint8_t locksOn = 0;
 };
 SERIALIZE_CLASS_VERSION(Keyboard, 3);
 

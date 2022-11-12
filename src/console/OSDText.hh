@@ -60,9 +60,9 @@ private:
 	std::string text;
 	std::string fontFile;
 	TTFFont font;
-	int size;
-	WrapMode wrapMode;
-	float wrapw, wraprelw;
+	int size = 12;
+	WrapMode wrapMode = NONE;
+	float wrapw = 0.0f, wraprelw = 1.0f;
 
 	friend struct SplitAtChar;
 };

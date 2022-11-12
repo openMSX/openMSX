@@ -29,9 +29,9 @@ private:
 	void writeTrackImpl(uint8_t track, uint8_t side, const RawTrack& input) override;
 
 private:
-	size_t nbSectors;
+	size_t nbSectors = size_t(-1); // to detect misuse
 	RawTrack cachedTrackData;
-	int cachedTrackNum;
+	int cachedTrackNum = -1;
 };
 
 } // namespace openmsx

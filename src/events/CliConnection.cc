@@ -275,7 +275,7 @@ SocketConnection::SocketConnection(CommandController& commandController_,
                                    EventDistributor& eventDistributor_,
                                    SOCKET sd_)
 	: CliConnection(commandController_, eventDistributor_)
-	, sd(sd_), established(false)
+	, sd(sd_)
 {
 }
 

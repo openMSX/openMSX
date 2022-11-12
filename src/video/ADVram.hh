@@ -53,8 +53,8 @@ private:
 	[[nodiscard]] inline unsigned calcAddress(word address) const;
 
 private:
-	VDP* vdp;
-	VDPVRAM* vram;
+	VDP* vdp = nullptr;
+	VDPVRAM* vram = nullptr;
 	/** Bit mask applied to logical addresses, reflects vram size.  */
 	/*const*/ unsigned mask;
 	/** Base address of selected page in vram.  */

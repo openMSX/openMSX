@@ -16,12 +16,9 @@ MSXMatsushita::MSXMatsushita(const DeviceConfig& config)
 	: MSXDevice(config)
 	, MSXSwitchedDevice(getMotherBoard(), ID)
 	, cpu(getCPU()) // used frequently, so cache it
-	, vdp(nullptr)
-	, lastTime(EmuTime::zero())
 	, firmwareSwitch(config)
 	, sram(config.findChild("sramname") ? std::make_unique<SRAM>(getName() + " SRAM", 0x800, config) : nullptr)
 	, turboAvailable(config.getChildDataAsBool("hasturbo", false))
-	, turboEnabled(false)
 {
 	// TODO find out what ports 0x41 0x45 0x46 are used for
 

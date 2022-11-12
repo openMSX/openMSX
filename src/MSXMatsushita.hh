@@ -1,6 +1,7 @@
 #ifndef MSXMATSUSHITA_HH
 #define MSXMATSUSHITA_HH
 
+#include "EmuTime.hh"
 #include "MSXDevice.hh"
 #include "MSXSwitchedDevice.hh"
 #include "FirmwareSwitch.hh"
@@ -40,9 +41,9 @@ private:
 
 private:
 	MSXCPU& cpu;
-	VDP* vdp;
+	VDP* vdp = nullptr;
 	/** Remembers the time at which last VDP I/O action took place. */
-	Clock<5369318> lastTime; // 5.3MHz = 3.5MHz * 3/2
+	Clock<5369318> lastTime{EmuTime::zero()}; // 5.3MHz = 3.5MHz * 3/2
 
 	FirmwareSwitch firmwareSwitch;
 	const std::unique_ptr<SRAM> sram; // can be nullptr
@@ -50,7 +51,7 @@ private:
 	nibble color1, color2;
 	byte pattern;
 	const bool turboAvailable;
-	bool turboEnabled;
+	bool turboEnabled = false;
 };
 SERIALIZE_CLASS_VERSION(MSXMatsushita, 2);
 

@@ -46,10 +46,10 @@ private:
 
 private:
 	BooleanSetting pauseSetting;
-	byte status;
-	bool pauseLed;
-	bool turboLed;
-	bool hwPause;
+	byte status = 255;
+	bool pauseLed = false;
+	bool turboLed = false;
+	bool hwPause = false;
 };
 
 } // namespace openmsx

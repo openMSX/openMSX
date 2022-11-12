@@ -69,14 +69,14 @@ private:
 
 	IRQHelper timerIRQ;
 	IRQHelper rxrdyIRQ;
-	bool timerIRQlatch;
-	bool timerIRQenabled;
-	bool rxrdyIRQlatch;
-	bool rxrdyIRQenabled;
+	bool timerIRQlatch = false;
+	bool timerIRQenabled = false;
+	bool rxrdyIRQlatch = false;
+	bool rxrdyIRQenabled = false;
 
 	const bool isExternalMSXMIDI;
 	bool isEnabled; /* EN bit */
-	bool isLimitedTo8251; /* inverse of E8 bit */
+	bool isLimitedTo8251 = true; /* inverse of E8 bit */
 
 	// must come last
 	MidiOutConnector outConnector;

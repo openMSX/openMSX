@@ -29,8 +29,6 @@ namespace openmsx {
 OSDText::OSDText(Display& display_, const TclObject& name_)
 	: OSDImageBasedWidget(display_, name_)
 	, fontFile("skins/Vera.ttf.gz")
-	, size(12)
-	, wrapMode(NONE), wrapw(0.0), wraprelw(1.0)
 {
 }
 
