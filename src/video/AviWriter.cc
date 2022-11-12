@@ -24,7 +24,6 @@ AviWriter::AviWriter(const Filename& filename, unsigned width_,
                      unsigned freq_)
 	: file(filename, "wb")
 	, codec(width_, height_, bpp)
-	, fps(0.0f) // will be filled in later
 	, width(width_)
 	, height(height_)
 	, channels(channels_)

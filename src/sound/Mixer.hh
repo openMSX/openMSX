@@ -72,7 +72,7 @@ private:
 	IntegerSetting frequencySetting;
 	IntegerSetting samplesSetting;
 
-	int muteCount;
+	int muteCount = 0;
 };
 
 } // namespace openmsx

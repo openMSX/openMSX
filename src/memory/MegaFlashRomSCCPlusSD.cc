@@ -278,7 +278,6 @@ MegaFlashRomSCCPlusSD::MegaFlashRomSCCPlusSD(const DeviceConfig& config)
 	, scc("MFR SCC+ SD SCC-I", config, getCurrentTime(), SCC::SCC_Compatible)
 	, psg("MFR SCC+ SD PSG", DummyAY8910Periphery::instance(), config,
 	      getCurrentTime())
-	, configReg(3) // avoid UMR
 	, checkedRam(config.getChildDataAsBool("hasmemorymapper", true) ?
 		std::make_unique<CheckedRam>(config, getName() + " memory mapper", "memory mapper", MEMORY_MAPPER_SIZE * 1024)
 		: nullptr)

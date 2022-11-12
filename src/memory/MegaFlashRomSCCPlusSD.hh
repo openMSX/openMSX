@@ -75,7 +75,7 @@ private:
 	[[nodiscard]] bool areKonamiMapperLimitsEnabled()        const { return (mapperReg & 0x01) != 0; }
 	unsigned offsetReg;
 
-	byte configReg;
+	byte configReg = 3; // avoid UMR
 	[[nodiscard]] bool isConfigRegDisabled()           const { return  (configReg & 0x80) != 0; }
 	[[nodiscard]] bool isMemoryMapperEnabled()         const { return ((configReg & 0x20) == 0) && checkedRam; }
 	[[nodiscard]] bool isDSKmodeEnabled()              const { return  (configReg & 0x10) != 0; }

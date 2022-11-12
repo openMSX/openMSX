@@ -47,7 +47,6 @@ Mixer::Mixer(Reactor& reactor_, CommandController& commandController_)
 	, samplesSetting(
 		commandController, "samples",
 		"mixer samples", defaultSamples, 64, 8192)
-	, muteCount(0)
 {
 	muteSetting       .attach(*this);
 	frequencySetting  .attach(*this);

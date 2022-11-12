@@ -49,8 +49,8 @@ private:
 	KeyClick click;
 	Keyboard keyboard;
 	std::array<JoystickPortIf*, 2> ports;
-	nibble prevBits;
-	nibble selectedRow;
+	nibble prevBits = 15;
+	nibble selectedRow = 0;
 };
 
 } // namespace openmsx

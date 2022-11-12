@@ -55,7 +55,7 @@ private:
 	hash_map<std::string, std::string, XXHasher> settingValues;
 	HotKey& hotKey;
 	std::string saveName;
-	bool mustSaveSettings;
+	bool mustSaveSettings = false;
 };
 
 } // namespace openmsx

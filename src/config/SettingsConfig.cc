@@ -69,7 +69,6 @@ SettingsConfig::SettingsConfig(
 	, loadSettingsCommand(commandController)
 	, settingsManager(globalCommandController)
 	, hotKey(hotKey_)
-	, mustSaveSettings(false)
 {
 }
 

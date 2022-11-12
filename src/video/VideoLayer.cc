@@ -17,8 +17,6 @@ VideoLayer::VideoLayer(MSXMotherBoard& motherBoard_,
 	, videoSourceSetting(motherBoard.getVideoSource())
 	, videoSourceActivator(videoSourceSetting, videoSource_)
 	, powerSetting(motherBoard.getReactor().getGlobalSettings().getPowerSetting())
-	, video9000Source(0)
-	, activeVideo9000(INACTIVE)
 {
 	calcCoverage();
 	calcZ();

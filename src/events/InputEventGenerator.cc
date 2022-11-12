@@ -24,8 +24,6 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 		"This setting controls if openMSX takes over mouse and keyboard input",
 		false, Setting::DONT_SAVE)
 	, escapeGrabCmd(commandController)
-	, escapeGrabState(ESCAPE_GRAB_WAIT_CMD)
-	, osdControlButtonsState(unsigned(~0)) // 0 is pressed, 1 is released
 {
 	setGrabInput(grabInput.getBoolean());
 	eventDistributor.registerEventListener(EventType::FOCUS, *this);
@@ -458,7 +456,7 @@ void InputEventGenerator::setGrabInput(bool grab)
 
 // Wrap SDL joystick button functions to handle the 'fake' android joystick
 // buttons. The method InputEventGenerator::handle() already takes care of fake
-// events for the andoid joystick buttons, these two wrappers handle the direct
+// events for the android joystick buttons, these two wrappers handle the direct
 // joystick button state queries.
 int InputEventGenerator::joystickNumButtons(SDL_Joystick* joystick)
 {

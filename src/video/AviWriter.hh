@@ -32,7 +32,7 @@ private:
 	ZMBVEncoder codec;
 	std::vector<Endian::L32> index;
 
-	float fps;
+	float fps = 0.0f; // will be filled in later
 	const unsigned width;
 	const unsigned height;
 	const unsigned channels;

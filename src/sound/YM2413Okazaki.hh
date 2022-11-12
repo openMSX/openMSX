@@ -52,15 +52,15 @@ public:
 	std::span<const unsigned, PG_WIDTH> WF; // 0-1    transformed to waveform[0-1]
 	std::span<const uint8_t, 16 * 8> KL;    // 0-3    transformed to tllTab[0-3]
 	unsigned SL;        // 0-15   transformed to slTable[0-15]
-	uint8_t AMPM;       // 0-3    2 packed booleans
-	bool EG;            // 0-1
+	uint8_t AMPM = 0;   // 0-3    2 packed booleans
+	bool EG = false;    // 0-1
 	uint8_t KR;         // 0-1    transformed to 10,8
 	uint8_t ML;         // 0-15   transformed to mlTable[0-15]
 	uint8_t TL;         // 0-63   transformed to TL2EG(0..63) == [0..252]
 	uint8_t FB;         // 0,1-7  transformed to 0,7-1
-	uint8_t AR;         // 0-15
-	uint8_t DR;         // 0-15
-	uint8_t RR;         // 0-15
+	uint8_t AR = 0;     // 0-15
+	uint8_t DR = 0;     // 0-15
+	uint8_t RR = 0;     // 0-15
 };
 
 class Slot {

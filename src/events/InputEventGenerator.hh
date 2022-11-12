@@ -66,7 +66,7 @@ private:
 		ESCAPE_GRAB_WAIT_CMD,
 		ESCAPE_GRAB_WAIT_LOST,
 		ESCAPE_GRAB_WAIT_GAIN
-	} escapeGrabState;
+	} escapeGrabState = ESCAPE_GRAB_WAIT_CMD;
 
 	// OsdControl
 	void setNewOsdControlButtonState(
@@ -83,7 +83,7 @@ private:
 		Keys::KeyCode keyCode, bool up, bool repeat, const Event& origEvent);
 
 
-	unsigned osdControlButtonsState; // 0 is pressed, 1 is released
+	unsigned osdControlButtonsState = unsigned(~0); // 0 is pressed, 1 is released
 
 	// only for Android
 	static inline bool androidButtonA = false;

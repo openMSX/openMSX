@@ -79,8 +79,6 @@ SVIPPI::SVIPPI(const DeviceConfig& config)
 		config.getMotherBoard().getMSXEventDistributor(),
 		config.getMotherBoard().getStateChangeDistributor(),
 		Keyboard::MATRIX_SVI, config)
-	, prevBits(15)
-	, selectedRow(0)
 {
 	ports[0] = &getMotherBoard().getJoystickPort(0);
 	ports[1] = &getMotherBoard().getJoystickPort(1);

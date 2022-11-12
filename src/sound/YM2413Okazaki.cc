@@ -310,7 +310,6 @@ static constexpr /*bool*/ int BIT(unsigned s, unsigned b)
 //
 Patch::Patch()
 	: WF(waveform[0]), KL(tllTab[0])
-	, AMPM(0), EG(false), AR(0), DR(0), RR(0)
 {
 	setKR(0);
 	setML(0);

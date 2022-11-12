@@ -21,14 +21,14 @@ public:
 	VideoLayer(const VideoLayer&) = delete;
 	VideoLayer& operator=(const VideoLayer&) = delete;
 
-	/** Returns the ID for this videolayer.
+	/** Returns the ID for this VideoLayer.
 	  * These IDs are globally unique. The 'videosource' setting uses
 	  * these IDs as possible values.
 	  */
 	[[nodiscard]] int getVideoSource() const;
 	[[nodiscard]] int getVideoSourceSetting() const;
 
-	/** Create a raw (=non-postprocessed) screenshot. The 'height'
+	/** Create a raw (=non-post-processed) screenshot. The 'height'
 	 * parameter should be either '240' or '480'. The current image will be
 	 * scaled to '320x240' or '640x480' and written to a png file. */
 	virtual void takeRawScreenShot(
@@ -77,9 +77,9 @@ private:
 	BooleanSetting& powerSetting;
 
 	/** Video source ID of the Video9000 layer. */
-	int video9000Source;
+	int video9000Source = 0;
 	/** Active when Video9000 is shown. */
-	Video9000Active activeVideo9000;
+	Video9000Active activeVideo9000 = INACTIVE;
 };
 
 } // namespace openmsx
