@@ -31,6 +31,7 @@ DEALINGS IN THE SOFTWARE.
 #ifndef UTF8_CORE_HH
 #define UTF8_CORE_HH
 
+#include "narrow.hh"
 #include "one_of.hh"
 #include <array>
 #include <iterator>
@@ -99,7 +100,7 @@ template<typename octet_iterator>
 [[nodiscard]] constexpr utf_error validate_next(octet_iterator& it, octet_iterator end,
                                       uint32_t* code_point)
 {
-	uint32_t cp = *it;
+	uint32_t cp = narrow_cast<unsigned char>(*it);
 	// Check the lead octet
 	int length = sequence_length(*it);
 

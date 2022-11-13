@@ -65,7 +65,7 @@ octet_iterator append(uint32_t cp, octet_iterator result)
 template<typename octet_iterator>
 uint32_t next(octet_iterator& it)
 {
-	uint32_t cp = *it;
+	uint32_t cp = narrow_cast<unsigned char>(*it);
 	switch (utf8::internal::sequence_length(cp)) {
 	case 1:
 		break;

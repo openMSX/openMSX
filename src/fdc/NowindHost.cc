@@ -118,7 +118,7 @@ void NowindHost::write(byte data, unsigned time)
 	case STATE_IMAGE:
 		assert(recvCount < 40);
 		extraData[recvCount] = data;
-		if (data == one_of(0, ':') ||
+		if (data == one_of(byte(0), byte(':')) ||
 		    (++recvCount == 40)) {
 			char* eData = reinterpret_cast<char*>(extraData.data());
 			callImage(string(eData, recvCount));

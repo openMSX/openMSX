@@ -18,7 +18,7 @@ TclCallbackMessages::TclCallbackMessages(GlobalCliComm& cliComm_,
 TclCallbackMessages::~TclCallbackMessages()
 {
 	std::unique_ptr<CliListener> ptr = cliComm.removeListener(*this);
-	ptr.release();
+	(void)ptr.release();
 }
 
 void TclCallbackMessages::log(CliComm::LogLevel level, std::string_view message) noexcept
