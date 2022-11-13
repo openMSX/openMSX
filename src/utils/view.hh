@@ -410,7 +410,7 @@ class Zip
 	};
 
 public:
-	Zip(Zip&&) = default;
+	Zip(Zip&&) noexcept = default;
 	Zip(RangesTuple&& ranges_) : ranges(std::move(ranges_)) {}
 
 	[[nodiscard]] Iterator begin() const {

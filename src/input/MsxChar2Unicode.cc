@@ -155,7 +155,7 @@ void MsxChar2Unicode::parseVid(std::string_view file)
 }
 
 std::string MsxChar2Unicode::msxToUtf8(
-	std::span<const uint8_t> msx, std::function<uint32_t(uint8_t)> fallback) const
+	std::span<const uint8_t> msx, const std::function<uint32_t(uint8_t)>& fallback) const
 {
 	std::string utf8;
 	utf8.reserve(msx.size()); // possibly underestimation, but that's fine
@@ -169,7 +169,7 @@ std::string MsxChar2Unicode::msxToUtf8(
 }
 
 std::vector<uint8_t> MsxChar2Unicode::utf8ToMsx(
-	std::string_view utf8, std::function<uint8_t(uint32_t)> fallback) const
+	std::string_view utf8, const std::function<uint8_t(uint32_t)>& fallback) const
 {
 	std::vector<uint8_t> msx;
 	auto it = utf8.begin(), et = utf8.end();

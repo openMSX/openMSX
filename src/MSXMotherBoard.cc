@@ -362,12 +362,12 @@ string MSXMotherBoard::loadMachine(const string& machine)
 	return machineName;
 }
 
-string MSXMotherBoard::loadExtension(std::string_view name, std::string_view slotname)
+string MSXMotherBoard::loadExtension(std::string_view name, std::string_view slotName)
 {
 	std::unique_ptr<HardwareConfig> extension;
 	try {
 		extension = HardwareConfig::createExtensionConfig(
-			*this, string(name), slotname);
+			*this, string(name), slotName);
 	} catch (FileException& e) {
 		throw MSXException(
 			"Extension \"", name, "\" not found: ", e.getMessage());
@@ -888,11 +888,11 @@ void ExtCmd::execute(std::span<const TclObject> tokens, TclObject& result,
 {
 	checkNumArgs(tokens, 2, "extension");
 	try {
-		auto slotname = (commandName.size() == 4)
+		auto slotName = (commandName.size() == 4)
 			? std::string_view(&commandName[3], 1)
 			: "any";
 		result = motherBoard.loadExtension(
-			tokens[1].getString(), slotname);
+			tokens[1].getString(), slotName);
 	} catch (MSXException& e) {
 		throw CommandException(std::move(e).getMessage());
 	}

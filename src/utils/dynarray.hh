@@ -60,13 +60,13 @@ public:
 		}
 	}
 
-	dynarray(dynarray&& other)
+	dynarray(dynarray&& other) noexcept
 		: m_size(other.m_size), m_data(std::move(other.m_data)) {
 		other.m_size = 0;
 		assert(!other.m_data);
 	}
 
-	dynarray& operator=(dynarray&& other) {
+	dynarray& operator=(dynarray&& other) noexcept {
 		if (this == &other) return *this;
 		m_size = other.m_size;
 		m_data = std::move(other.m_data);

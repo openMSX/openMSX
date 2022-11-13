@@ -22,7 +22,7 @@ public:
 	[[nodiscard]] std::string_view fileTypeCategoryName() const override;
 
 private:
-	void parse(const std::string& arg, const std::string& slotname,
+	void parse(const std::string& arg, const std::string& slotName,
 	           std::span<std::string>& cmdLine);
 
 private:

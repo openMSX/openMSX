@@ -33,29 +33,29 @@ std::unique_ptr<HardwareConfig> HardwareConfig::createMachineConfig(
 }
 
 std::unique_ptr<HardwareConfig> HardwareConfig::createExtensionConfig(
-	MSXMotherBoard& motherBoard, string extensionName, std::string_view slotname)
+	MSXMotherBoard& motherBoard, string extensionName, std::string_view slotName)
 {
 	auto result = std::make_unique<HardwareConfig>(
 		motherBoard, std::move(extensionName));
 	result->load("extensions");
 	result->setName(result->hwName);
 	result->type = HardwareConfig::Type::EXTENSION;
-	result->setSlot(slotname);
+	result->setSlot(slotName);
 	return result;
 }
 
 std::unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
-	MSXMotherBoard& motherBoard, string romfile,
-	string slotname, std::span<const TclObject> options)
+	MSXMotherBoard& motherBoard, std::string_view romFile,
+	std::string_view slotName, std::span<const TclObject> options)
 {
 	auto result = std::make_unique<HardwareConfig>(motherBoard, "rom");
-	result->setName(romfile);
+	result->setName(romFile);
 	result->type = HardwareConfig::Type::ROM;
 
-	std::vector<std::string_view> ipsfiles;
+	std::vector<std::string_view> ipsFiles;
 	string mapper;
 	std::array info = {
-		valueArg("-ips", ipsfiles),
+		valueArg("-ips", ipsFiles),
 		valueArg("-romtype", mapper),
 	};
 	auto& interp = motherBoard.getCommandController().getInterpreter();
@@ -64,16 +64,16 @@ std::unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 		throw MSXException("Invalid option \"", args.front().getString(), '\"');
 	}
 
-	const auto& sramfile = FileOperations::getFilename(romfile);
+	const auto& sramfile = FileOperations::getFilename(romFile);
 	auto context = userFileContext(tmpStrCat("roms/", sramfile));
-	for (const auto& ips : ipsfiles) {
+	for (const auto& ips : ipsFiles) {
 		if (!FileOperations::isRegularFile(context.resolve(ips))) {
 			throw MSXException("Invalid IPS file: ", ips);
 		}
 	}
 
 	string resolvedFilename = FileOperations::getAbsolutePath(
-		context.resolve(romfile));
+		context.resolve(romFile));
 	if (!FileOperations::isRegularFile(resolvedFilename)) {
 		throw MSXException("Invalid ROM file: ", resolvedFilename);
 	}
@@ -106,7 +106,7 @@ std::unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	auto* extension = doc.allocateElement("extension");
 	auto* devices = extension->setFirstChild(doc.allocateElement("devices"));
 	auto* primary = devices->setFirstChild(doc.allocateElement("primary"));
-	const char* slotName2 = doc.allocateString(slotname);
+	const char* slotName2 = doc.allocateString(slotName);
 	primary->setFirstAttribute(doc.allocateAttribute("slot", slotName2));
 	auto* secondary = primary->setFirstChild(doc.allocateElement("secondary"));
 	secondary->setFirstAttribute(doc.allocateAttribute("slot", slotName2));
@@ -117,18 +117,18 @@ std::unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	   ->setNextAttribute (doc.allocateAttribute("size", "0x10000"));
 	auto* sound = mem->setNextSibling(doc.allocateElement("sound"));
 	sound->setFirstChild(doc.allocateElement("volume", "9000"));
-	auto* mappertype = sound->setNextSibling(doc.allocateElement("mappertype"));
-	mappertype->setData(mapper.empty() ? "auto" : doc.allocateString(mapper));
-	auto* sramname = mappertype->setNextSibling(doc.allocateElement("sramname"));
-	sramname->setData(doc.allocateString(tmpStrCat(sramfile, ".SRAM")));
-	auto* rom = sramname->setNextSibling(doc.allocateElement("rom"));
+	auto* mapperType = sound->setNextSibling(doc.allocateElement("mappertype"));
+	mapperType->setData(mapper.empty() ? "auto" : doc.allocateString(mapper));
+	auto* sramName = mapperType->setNextSibling(doc.allocateElement("sramname"));
+	sramName->setData(doc.allocateString(tmpStrCat(sramfile, ".SRAM")));
+	auto* rom = sramName->setNextSibling(doc.allocateElement("rom"));
 	auto* rfName = rom->setFirstChild(doc.allocateElement("resolvedFilename"));
 	rfName->setData(doc.allocateString(resolvedFilename));
 	auto* fName = rfName->setNextSibling(doc.allocateElement("filename"));
-	fName->setData(doc.allocateString(romfile));
-	if (!ipsfiles.empty()) {
+	fName->setData(doc.allocateString(romFile));
+	if (!ipsFiles.empty()) {
 		auto* patches = fName->setNextSibling(doc.allocateElement("patches"));
-		doc.generateList(*patches, "ips", ipsfiles, [&](XMLElement* n, auto& s) {
+		doc.generateList(*patches, "ips", ipsFiles, [&](XMLElement* n, auto& s) {
 			n->setData(doc.allocateString(s));
 		});
 	}
@@ -224,7 +224,7 @@ const XMLElement& HardwareConfig::getDevicesElem() const
 	return getConfig().getChild("devices");
 }
 
-static void loadHelper(XMLDocument& doc, std::string filename)
+static void loadHelper(XMLDocument& doc, const std::string& filename)
 {
 	try {
 		doc.load(filename, "msxconfig2.dtd");
@@ -337,8 +337,8 @@ void HardwareConfig::parseSlots()
 byte HardwareConfig::parseSlotMap() const
 {
 	byte initialPrimarySlots = 0;
-	if (const auto* slotmap = getConfig().findChild("slotmap")) {
-		for (const auto* child : slotmap->getChildren("map")) {
+	if (const auto* slotMap = getConfig().findChild("slotmap")) {
+		for (const auto* child : slotMap->getChildren("map")) {
 			int page = child->getAttributeValueAsInt("page", -1);
 			if (page < 0 || page > 3) {
 				throw MSXException("Invalid or missing page in slotmap entry");
@@ -437,13 +437,13 @@ void HardwareConfig::setName(std::string_view proposedName)
 	}
 }
 
-void HardwareConfig::setSlot(std::string_view slotname)
+void HardwareConfig::setSlot(std::string_view slotName)
 {
 	for (const auto* psElem : getDevicesElem().getChildren("primary")) {
 		const auto& primSlot = psElem->getAttribute("slot");
 		if (primSlot.getValue() == "any") {
 			auto& mutablePrimSlot = const_cast<XMLAttribute&>(primSlot);
-			mutablePrimSlot.setValue(config.allocateString(slotname));
+			mutablePrimSlot.setValue(config.allocateString(slotName));
 		}
 	}
 }

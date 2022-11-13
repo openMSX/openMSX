@@ -26,13 +26,13 @@ MSXRomCLI::MSXRomCLI(CommandLineParser& cmdLineParser_)
 void MSXRomCLI::parseOption(const string& option, std::span<string>& cmdLine)
 {
 	string arg = getArgument(option, cmdLine);
-	string slotname;
+	string slotName;
 	if (option.size() == 6) {
-		slotname = option[5];
+		slotName = option[5];
 	} else {
-		slotname = "any";
+		slotName = "any";
 	}
-	parse(arg, slotname, cmdLine);
+	parse(arg, slotName, cmdLine);
 }
 
 std::string_view MSXRomCLI::optionHelp() const
@@ -55,7 +55,7 @@ std::string_view MSXRomCLI::fileTypeCategoryName() const
 	return "rom";
 }
 
-void MSXRomCLI::parse(const string& arg, const string& slotname,
+void MSXRomCLI::parse(const string& arg, const string& slotName,
                       std::span<string>& cmdLine)
 {
 	// parse extra options  -ips  and  -romtype
@@ -73,7 +73,7 @@ void MSXRomCLI::parse(const string& arg, const string& slotname,
 	MSXMotherBoard* motherboard = cmdLineParser.getMotherBoard();
 	assert(motherboard);
 	motherboard->insertExtension("ROM",
-		HardwareConfig::createRomConfig(*motherboard, arg, slotname, options));
+		HardwareConfig::createRomConfig(*motherboard, arg, slotName, options));
 }
 
 void MSXRomCLI::IpsOption::parseOption(const string& /*option*/,

@@ -19,11 +19,11 @@ public:
 	/** TODO */
 	[[nodiscard]] std::string msxToUtf8(
 		std::span<const uint8_t> msx,
-		std::function<uint32_t(uint8_t)> fallback) const;
+		const std::function<uint32_t(uint8_t)>& fallback) const;
 	/** TODO */
 	[[nodiscard]] std::vector<uint8_t> utf8ToMsx(
 		std::string_view utf8,
-		std::function<uint8_t(uint32_t)> fallback) const;
+		const std::function<uint8_t(uint32_t)>& fallback) const;
 
 private:
 	void parseVid(std::string_view file);

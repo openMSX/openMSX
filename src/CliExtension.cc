@@ -22,13 +22,13 @@ void CliExtension::parseOption(const std::string& option, std::span<std::string>
 		std::string extensionName = getArgument(option, cmdLine);
 		MSXMotherBoard* motherboard = cmdLineParser.getMotherBoard();
 		assert(motherboard);
-		std::string slotname;
+		std::string slotName;
 		if (option.size() == 5) {
-			slotname = option[4];
+			slotName = option[4];
 		} else {
-			slotname = "any";
+			slotName = "any";
 		}
-		motherboard->loadExtension(extensionName, slotname);
+		motherboard->loadExtension(extensionName, slotName);
 	} catch (MSXException& e) {
 		throw FatalError(std::move(e).getMessage());
 	}
