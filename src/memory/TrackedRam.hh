@@ -54,7 +54,7 @@ public:
 	// should not be reused for multiple (distinct) bulk write operations.
 	[[nodiscard]] std::span<byte> getWriteBackdoor() {
 		writeSinceLastReverseSnapshot = true;
-		return {&ram[0], size()};
+		return {ram.data(), size()};
 	}
 
 	template<typename Archive>

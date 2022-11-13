@@ -83,7 +83,7 @@ public:
 	/** Color matrix setting. */
 	[[nodiscard]] StringSetting& getColorMatrixSetting() { return colorMatrixSetting; }
 	/** Returns true iff the current color matrix is the identity matrix. */
-	[[nodiscard]] bool isColorMatrixIdentity() { return cmIdentity; }
+	[[nodiscard]] bool isColorMatrixIdentity() const { return cmIdentity; }
 
 	/** The amount of glow [0..100]. */
 	[[nodiscard]] int getGlow() const { return glowSetting.getInt(); }

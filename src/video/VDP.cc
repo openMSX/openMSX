@@ -138,23 +138,17 @@ VDP::VDP(const DeviceConfig& config)
 		throw MSXException("Specifying saturation parameters only makes sense for TMS VDPs");
 	}
 
-	int saturation = config.getChildDataAsInt("saturation", defaultSaturation);
-	if (!((0 <= saturation) && (saturation <= 100))) {
-		throw MSXException(
-			"Saturation percentage is not in range 0..100: ", saturation);
-	}
-	saturationPr = config.getChildDataAsInt("saturationPr", saturation);
-	if (!((0 <= saturationPr) && (saturationPr <= 100))) {
-		throw MSXException(
-			"Saturation percentage for Pr component is not in range 0..100: ",
-			saturationPr);
-	}
-	saturationPb = config.getChildDataAsInt("saturationPb", saturation);
-	if (!((0 <= saturationPb) && (saturationPb <= 100))) {
-		throw MSXException(
-			"Saturation percentage for Pb component is not in range 0..100: ",
-			saturationPb);
-	}
+	auto getPercentage = [&](std::string_view name, std::string_view extra, int defaultValue) {
+		int result = config.getChildDataAsInt(name, defaultValue);
+		if ((result < 0) || (result > 100)) {
+			throw MSXException(
+				"Saturation percentage ", extra, "is not in range 0..100: ", result);
+		}
+		return result;
+	};
+	int saturation = getPercentage("saturation", "", defaultSaturation);
+	saturationPr   = getPercentage("saturationPr", "for Pr component ", saturation);
+	saturationPb   = getPercentage("saturationPb", "for Pb component ", saturation);
 
 	// Set up control register availability.
 	static constexpr std::array<byte, 32> VALUE_MASKS_MSX1 = {

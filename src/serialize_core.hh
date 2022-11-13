@@ -110,7 +110,7 @@ template<typename T> struct enum_string {
 	const char* str;
 	T e;
 };
-void enumError(const std::string_view str);
+void enumError(std::string_view str);
 
 template<typename T>
 inline std::string toString(std::initializer_list<enum_string<T>> list, T t_)
@@ -335,7 +335,7 @@ template<typename T, size_t N> struct serialize_as_collection<std::array<T, N>> 
 	// load
 	static constexpr bool loadInPlace = true;
 	static void prepare(std::array<T, N>& /*a*/, int /*n*/) { }
-	static T* output(std::array<T, N>& a) { return &a[0]; }
+	static T* output(std::array<T, N>& a) { return a.data(); }
 };
 
 ///////////
