@@ -1554,6 +1554,8 @@ proc menu_create_load_machine_list {{mode "replace"}} {
 	         width 210 \
 	         xpos 110 \
 	         ypos 130 \
+	         on-select   menu_hardware_select \
+	         on-deselect menu_hardware_deselect \
 	         header { text "Select Machine to Run"
 	                  font-size 10
 	                  post-spacing 6 }]
@@ -1626,6 +1628,8 @@ proc menu_create_extensions_list {{slot "none"}} {
 	         width 200 \
 	         xpos 110 \
 	         ypos 130 \
+	         on-select   menu_hardware_select \
+	         on-deselect menu_hardware_deselect \
 	         header [list text "Select Extension to $target_text" \
 	                  font-size 10 \
 	                  post-spacing 6] ]
@@ -1655,6 +1659,37 @@ proc menu_create_extensions_list {{slot "none"}} {
 	lappend menu_def presentation $presentation_sorted
 
 	return [prepare_menu_list $items_sorted 10 $menu_def]
+}
+
+proc get_hardware_description_text {hwitem} {
+	set info_data ""
+	catch {set info_data [openmsx_info machines $hwitem]}
+	if {$info_data eq ""} {
+		catch {set info_data [openmsx_info extensions $hwitem]}
+	}
+	set text ""
+	foreach item {{name Name} {manufacturer Manufacturer} {code "Product code"} {release_year "Release year"} {type Type} {region Region} {description Description}} {
+		set valtext ""
+		catch {set valtext [dict get $info_data [lindex $item 0]]}
+		if {$valtext ne ""} {
+			if {$text ne ""} {
+				set text "$text\n"
+			}
+			set text "${text}[lindex $item 1]: $valtext"
+		}
+	}
+	return $text
+}
+
+proc menu_hardware_select {item} {
+	variable default_bg_color
+	variable default_text_color
+	set text [get_hardware_description_text $item]
+	osd_widgets::text_box "hardware_infobox" -text $text -x 60 -y 5 -w 200 -rgba $default_bg_color -textrgba [expr {$default_text_color & 0xffffff00}] -scaled true
+}
+
+proc menu_hardware_deselect {item} {
+	osd destroy "hardware_infobox"
 }
 
 proc menu_add_extension_exec {slot item} {
