@@ -1759,6 +1759,8 @@ proc menu_create_connectors_list {} {
 		set plugged_presentation ""
 		if {$plugged ne ""} {
 			set plugged_presentation "  ([machine_info pluggable $plugged])"
+		} else {
+			set plugged_presentation "(empty)"
 		}
 		lappend presentation "[machine_info connector $item]: $plugged$plugged_presentation"
 	}
