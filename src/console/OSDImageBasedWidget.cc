@@ -73,6 +73,11 @@ void OSDImageBasedWidget::setProperty(
 	} else if (propName == "-fadeCurrent") {
 		startFadeValue = std::clamp(value.getFloat(interp), 0.0f, 1.0f);
 		startFadeTime = Timer::getTime();
+	} else if (propName == "-scrollSpeed") {
+		scrollSpeed = std::max(0.0f, value.getFloat(interp));
+		startScrollTime = Timer::getTime();
+	} else if (propName == "-query-size") {
+		throw CommandException("-query-size property is readonly");
 	} else {
 		OSDWidget::setProperty(interp, propName, value);
 	}
@@ -111,9 +116,66 @@ void OSDImageBasedWidget::getProperty(std::string_view propName, TclObject& resu
 		result = fadeTarget;
 	} else if (propName == "-fadeCurrent") {
 		result = getCurrentFadeValue();
+	} else if (propName == "-scrollSpeed") {
+		result = scrollSpeed;
+	} else if (propName == "-query-size") {
+		auto [w, h] = getRenderedSize();
+		result.addListElement(w, h);
 	} else {
 		OSDWidget::getProperty(propName, result);
 	}
+}
+
+std::optional<float> OSDImageBasedWidget::getScrollWidth() const
+{
+        if (scrollSpeed == 0.0f) return {};
+
+        const auto* parentImage = dynamic_cast<const OSDImageBasedWidget*>(getParent());
+        if (!parentImage) return {};
+
+        auto* output = getDisplay().getOutputSurface();
+        if (!output) return {};
+
+        vec2 parentPos, parentSize;
+        parentImage->getBoundingBox(*output, parentPos, parentSize);
+        auto parentWidth = parentSize[0] / getScaleFactor(*output);
+
+        auto thisWidth = getRenderedSize()[0];
+        auto scrollWidth = thisWidth - parentWidth;
+        if (scrollWidth <= 0.0f) return {};
+
+        return scrollWidth;
+}
+
+bool OSDImageBasedWidget::isAnimating() const
+{
+	return static_cast<bool>(getScrollWidth());
+}
+
+[[nodiscard]] static float smoothStep(float x)
+{
+	// https://en.wikipedia.org/wiki/Smoothstep
+	return (3 * x * x) - (2 * x * x * x);
+}
+
+gl::vec2 OSDImageBasedWidget::getPos() const
+{
+	// get the original position, possibly this gets modified because of scrolling
+	auto result = OSDWidget::getPos();
+
+	auto width = getScrollWidth();
+	if (!width) return result;
+
+	// transform moment in time to animation-timestamp 't'
+	//  [0..1) scrolling to the left
+	//  [1..2) scrolling to the right
+	auto now = (Timer::getTime() - startScrollTime) / 1'000'000.0f;
+	auto t = fmodf(scrollSpeed * now / *width, 2.0f);
+
+	// transform animation timestamp to position
+	auto offsetX = smoothStep(t <= 1.0f ? t : 2.0f - t);
+	result[0] -= *width * offsetX;
+	return result;
 }
 
 bool OSDImageBasedWidget::hasConstantAlpha() const
@@ -236,6 +298,30 @@ void OSDImageBasedWidget::createImage(OutputSurface& output)
 	}
 }
 
+vec2 OSDImageBasedWidget::getRenderedSize() const
+{
+	auto* output = getDisplay().getOutputSurface();
+	if (!output) {
+		throw CommandException(
+			"Can't query size: no window visible");
+	}
+	// force creating image (does not yet draw it on screen)
+	const_cast<OSDImageBasedWidget*>(this)->createImage(*output);
+
+	vec2 imageSize = [&] {
+		if (image) {
+			return vec2(image->getSize());
+		} else {
+			// Couldn't be rendered, maybe an (intentionally)
+			// invisible rectangle
+			vec2 dummyPos, size;
+			getBoundingBox(*output, dummyPos, size);
+			return size;
+		}
+	}();
+	return imageSize / float(getScaleFactor(*output));
+}
+
 void OSDImageBasedWidget::paint(OutputSurface& output, bool openGL)
 {
 	// Note: Even when alpha == 0 we still create the image:
@@ -249,7 +335,7 @@ void OSDImageBasedWidget::paint(OutputSurface& output, bool openGL)
 		ivec2 drawPos = round(getTransformedPos(output));
 		image->draw(output, drawPos, fadedAlpha);
 	}
-	if (isRecursiveFading()) {
+	if (isRecursiveFading() || isAnimating()) {
 		getDisplay().getOSDGUI().refresh();
 	}
 }

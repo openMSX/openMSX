@@ -90,8 +90,6 @@ void OSDText::setProperty(
 			wraprelw = wraprelw2;
 			invalidateRecursive();
 		}
-	} else if (propName == "-query-size") {
-		throw CommandException("-query-size property is readonly");
 	} else {
 		OSDImageBasedWidget::setProperty(interp, propName, value);
 	}
@@ -118,9 +116,6 @@ void OSDText::getProperty(string_view propName, TclObject& result) const
 		result = wrapw;
 	} else if (propName == "-wraprelw") {
 		result = wraprelw;
-	} else if (propName == "-query-size") {
-		auto [w, h] = getRenderedSize();
-		result.addListElement(w, h);
 	} else {
 		OSDImageBasedWidget::getProperty(propName, result);
 	}
@@ -379,20 +374,6 @@ string OSDText::getWordWrappedText(const string& txt, unsigned maxWidth) const
 		} while (!line.empty());
 	}
 	return join(wrappedLines, '\n');
-}
-
-vec2 OSDText::getRenderedSize() const
-{
-	auto* output = getDisplay().getOutputSurface();
-	if (!output) {
-		throw CommandException(
-			"Can't query size: no window visible");
-	}
-	// force creating image (does not yet draw it on screen)
-	const_cast<OSDText*>(this)->createImage(*output);
-
-	vec2 imageSize = image ? vec2(image->getSize()) : vec2();
-	return imageSize / float(getScaleFactor(*output));
 }
 
 std::unique_ptr<BaseImage> OSDText::createSDL(OutputSurface& output)

@@ -32,7 +32,7 @@ public:
 	virtual ~OSDWidget() = default;
 
 	[[nodiscard]] std::string_view getName() const { return name.getString(); }
-	[[nodiscard]] gl::vec2 getPos()    const { return pos; }
+	[[nodiscard]] virtual gl::vec2 getPos() const { return pos; }
 	[[nodiscard]] gl::vec2 getRelPos() const { return relPos; }
 	[[nodiscard]] float    getZ()      const { return z; }
 
