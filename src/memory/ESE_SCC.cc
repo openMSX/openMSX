@@ -48,6 +48,7 @@
 #include "ESE_SCC.hh"
 #include "MB89352.hh"
 #include "MSXException.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "serialize.hh"
@@ -77,7 +78,7 @@ ESE_SCC::ESE_SCC(const DeviceConfig& config, bool withSCSI)
 	, scc(getName(), config, getCurrentTime())
 	, spc(withSCSI ? std::make_unique<MB89352>(config) : nullptr)
 	, romBlockDebug(*this, mapper, 0x4000, 0x8000, 13)
-	, mapperMask((sram.size() / 0x2000) - 1)
+	, mapperMask(narrow<byte>((sram.size() / 0x2000) - 1))
 {
 	// initialized mapper
 	ranges::iota(mapper, 0);

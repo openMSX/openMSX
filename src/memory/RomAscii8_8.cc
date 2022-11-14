@@ -15,6 +15,7 @@
 
 #include "RomAscii8_8.hh"
 #include "SRAM.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "serialize.hh"
 #include "xrange.hh"
@@ -26,7 +27,7 @@ RomAscii8_8::RomAscii8_8(const DeviceConfig& config,
                          Rom&& rom_, SubType subType)
 	: Rom8kBBlocks(config, std::move(rom_))
 	, sramEnableBit((subType == WIZARDRY) ? 0x80
-	                                      : rom.size() / BANK_SIZE)
+	                                      : narrow_cast<byte>(rom.size() / BANK_SIZE))
 	, sramPages((subType == one_of(KOEI_8, KOEI_32)) ? 0x34 : 0x30)
 {
 	unsigned size = (subType == one_of(KOEI_32, ASCII8_32)) ? 0x8000  // 32kB
@@ -81,9 +82,9 @@ void RomAscii8_8::writeMem(word address, byte value, EmuTime::param /*time*/)
 		// bank switching
 		byte region = ((address >> 11) & 3) + 2;
 		if (value & sramEnableBit) {
-			unsigned numBlocks = (sram->size() + BANK_MASK) / BANK_SIZE; // round up;
+			auto mask = narrow_cast<byte>((sram->size() + BANK_MASK) / BANK_SIZE - 1); // round up;
 			sramEnabled |= (1 << region) & sramPages;
-			sramBlock[region] = value & (numBlocks - 1);
+			sramBlock[region] = value & mask;
 			setBank(region, &(*sram)[sramBlock[region] * BANK_SIZE], value);
 			invalidateDeviceRCache(0x2000 * region, 0x2000); // do not cache
 		} else {

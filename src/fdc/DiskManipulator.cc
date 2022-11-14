@@ -14,6 +14,7 @@
 #include "SectorBasedDisk.hh"
 #include "StringOp.hh"
 #include "TclObject.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "static_vector.hh"
@@ -344,7 +345,7 @@ void DiskManipulator::savedsk(const DriveSettings& driveData,
 void DiskManipulator::create(std::span<const TclObject> tokens)
 {
 	static_vector<unsigned, MAX_PARTITIONS> sizes;
-	unsigned totalSectors = 0;
+	size_t totalSectors = 0;
 	bool dos1 = false;
 
 	for (const auto& token : view::drop(tokens, 3)) {
@@ -395,7 +396,7 @@ void DiskManipulator::create(std::span<const TclObject> tokens)
 		// minimal dir + minimal data clusters)
 		if (sectors < 720) sectors = 720;
 
-		sizes.push_back(sectors);
+		sizes.push_back(narrow<unsigned>(sectors));
 		totalSectors += sectors;
 	}
 	if (sizes.empty()) {

@@ -16,24 +16,25 @@
 #include "CacheLine.hh"
 #include "Rom.hh"
 #include "MSXException.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
 [[nodiscard]] static TurboRFDC::Type parseType(const DeviceConfig& config)
 {
-	auto ioregs = config.getChildData("io_regs", {});
-	if (ioregs == "7FF2") {
+	auto ioRegs = config.getChildData("io_regs", {});
+	if (ioRegs == "7FF2") {
 		return TurboRFDC::R7FF2;
-	} else if (ioregs == "7FF8") {
+	} else if (ioRegs == "7FF8") {
 		return TurboRFDC::R7FF8;
-	} else if (ioregs.empty()) {
+	} else if (ioRegs.empty()) {
 		// for backwards compatibility
 		return TurboRFDC::BOTH;
 	} else {
 		throw MSXException(
 			"Invalid 'io_regs' specification: expected one of "
-			"'7FF2' or '7FF8', but got: ", ioregs);
+			"'7FF2' or '7FF8', but got: ", ioRegs);
 	}
 }
 
@@ -42,9 +43,19 @@ TurboRFDC::TurboRFDC(const DeviceConfig& config)
 	, controller(getScheduler(), drives, getCliComm(), getCurrentTime())
 	, romBlockDebug(*this, std::span{&bank, 1}, 0x4000, 0x4000, 14)
 	, memory(subspan<0x4000>(*rom))
-	, blockMask((rom->size() / 0x4000) - 1)
+	, blockMask(narrow_cast<byte>((rom->size() / 0x4000) - 1))
 	, type(parseType(config))
 {
+	auto size = rom->size();
+	if ((size % 0x4000) != 0) {
+		throw MSXException("TurboRFDC rom size must be a multiple of 16kB");
+	}
+	if (size == 0) {
+		throw MSXException("TurboRFDC rom size too small");
+	}
+	if ((size / 0x4000) > 256) {
+		throw MSXException("TurboRFDC rom size too large");
+	}
 	reset(getCurrentTime());
 }
 

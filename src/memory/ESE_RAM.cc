@@ -21,6 +21,7 @@
 
 #include "ESE_RAM.hh"
 #include "MSXException.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "serialize.hh"
 #include "xrange.hh"
@@ -44,7 +45,7 @@ ESE_RAM::ESE_RAM(const DeviceConfig& config)
 	: MSXDevice(config)
 	, sram(getName() + " SRAM", getSramSize(), config)
 	, romBlockDebug(*this, mapped, 0x4000, 0x8000, 13)
-	, blockMask((sram.size() / 0x2000) - 1)
+	, blockMask(narrow<byte>((sram.size() / 0x2000) - 1))
 {
 	reset(EmuTime::dummy());
 }

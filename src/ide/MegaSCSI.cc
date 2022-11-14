@@ -42,6 +42,7 @@
 
 #include "MegaSCSI.hh"
 #include "MSXException.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "serialize.hh"
 #include "xrange.hh"
@@ -68,7 +69,7 @@ MegaSCSI::MegaSCSI(const DeviceConfig& config)
 	, mb89352(config)
 	, sram(getName() + " SRAM", getSramSize(), config)
 	, romBlockDebug(*this, mapped, 0x4000, 0x8000, 13)
-	, blockMask((sram.size() / 0x2000) - 1)
+	, blockMask(narrow<byte>((sram.size() / 0x2000) - 1))
 {
 }
 
