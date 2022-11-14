@@ -22,7 +22,7 @@ public:
 	  * allowed to generate up to 3 extra sample.
 	  * @see SoundDevice::updateBuffer()
 	  */
-	bool generateInput(float* buffer, unsigned num);
+	bool generateInput(float* buffer, size_t num);
 
 	[[nodiscard]] DynamicClock& getEmuClock() { return emuClock; }
 
@@ -34,7 +34,7 @@ protected:
 
 	// SoundDevice
 	void setOutputRate(unsigned hostSampleRate, double speed) override;
-	bool updateBuffer(unsigned length, float* buffer,
+	bool updateBuffer(size_t length, float* buffer,
 	                  EmuTime::param time) override;
 
 	// Observer<Setting>

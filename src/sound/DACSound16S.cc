@@ -53,7 +53,7 @@ void DACSound16S::generateChannels(std::span<float*> bufs, unsigned num)
 	}
 }
 
-bool DACSound16S::updateBuffer(unsigned length, float* buffer,
+bool DACSound16S::updateBuffer(size_t length, float* buffer,
                                EmuTime::param /*time*/)
 {
 	return mixChannels(buffer, length);

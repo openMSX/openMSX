@@ -24,7 +24,7 @@ public:
 	ResampleHQ(const ResampleHQ&) = delete;
 	ResampleHQ& operator=(const ResampleHQ&) = delete;
 
-	bool generateOutputImpl(float* dataOut, unsigned num,
+	bool generateOutputImpl(float* dataOut, size_t num,
 	                        EmuTime::param time) override;
 
 private:

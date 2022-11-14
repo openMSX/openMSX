@@ -35,7 +35,7 @@ class ResampleLQDown final : public ResampleLQ<CHANNELS>
 public:
 	ResampleLQDown(ResampledSoundDevice& input, const DynamicClock& hostClock);
 private:
-	bool generateOutputImpl(float* dataOut, unsigned num,
+	bool generateOutputImpl(float* dataOut, size_t num,
 	                        EmuTime::param time) override;
 	using FP = typename ResampleLQ<CHANNELS>::FP;
 };
@@ -46,7 +46,7 @@ class ResampleLQUp final : public ResampleLQ<CHANNELS>
 public:
 	ResampleLQUp(ResampledSoundDevice& input, const DynamicClock& hostClock);
 private:
-	bool generateOutputImpl(float* dataOut, unsigned num,
+	bool generateOutputImpl(float* dataOut, size_t num,
 	                        EmuTime::param time) override;
 	using FP = typename ResampleLQ<CHANNELS>::FP;
 };

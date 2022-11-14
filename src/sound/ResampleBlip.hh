@@ -16,7 +16,7 @@ class ResampleBlip final : public ResampleAlgo
 public:
 	ResampleBlip(ResampledSoundDevice& input, const DynamicClock& hostClock);
 
-	bool generateOutputImpl(float* dataOut, unsigned num,
+	bool generateOutputImpl(float* dataOut, size_t num,
 	                        EmuTime::param time) override;
 
 private:

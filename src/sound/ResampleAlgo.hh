@@ -13,7 +13,7 @@ class ResampleAlgo
 public:
 	virtual ~ResampleAlgo() = default;
 
-	bool generateOutput(float* dataOut, unsigned num, EmuTime::param time)
+	bool generateOutput(float* dataOut, size_t num, EmuTime::param time)
 	{
 		bool result = generateOutputImpl(dataOut, num, time);
 		auto& emuClk = getEmuClock(); (void)emuClk;
@@ -25,7 +25,7 @@ public:
 protected:
 	ResampleAlgo(ResampledSoundDevice& input_) : input(input_) {}
 	[[nodiscard]] DynamicClock& getEmuClock() const { return input.getEmuClock(); }
-	virtual bool generateOutputImpl(float* dataOut, unsigned num,
+	virtual bool generateOutputImpl(float* dataOut, size_t num,
 	                                EmuTime::param time) = 0;
 
 protected:

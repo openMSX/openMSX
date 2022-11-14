@@ -26,7 +26,7 @@ ResampleBlip<CHANNELS>::ResampleBlip(
 }
 
 template<unsigned CHANNELS>
-bool ResampleBlip<CHANNELS>::generateOutputImpl(float* dataOut, unsigned hostNum,
+bool ResampleBlip<CHANNELS>::generateOutputImpl(float* dataOut, size_t hostNum,
                                                 EmuTime::param time)
 {
 	auto& emuClk = getEmuClock();

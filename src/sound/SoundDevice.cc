@@ -187,7 +187,7 @@ void SoundDevice::muteChannel(unsigned channel, bool muted)
 	channelMuted[channel] = muted;
 }
 
-bool SoundDevice::mixChannels(float* dataOut, unsigned samples)
+bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 {
 #ifdef __SSE2__
 	assert((uintptr_t(dataOut) & 15) == 0); // must be 16-byte aligned
@@ -237,7 +237,7 @@ bool SoundDevice::mixChannels(float* dataOut, unsigned samples)
 		assert(count == separateChannels);
 	}
 
-	generateChannels(bufs, samples);
+	generateChannels(bufs, narrow<unsigned>(samples));
 
 	if (separateChannels == 0) {
 		return ranges::any_of(xrange(numChannels),
@@ -260,7 +260,7 @@ bool SoundDevice::mixChannels(float* dataOut, unsigned samples)
 						amp.left, amp.right);
 				}
 			} else {
-				writer[i]->writeSilence(stereo * samples);
+				writer[i]->writeSilence(narrow<unsigned>(stereo * samples));
 			}
 		}
 	}
@@ -287,7 +287,7 @@ bool SoundDevice::mixChannels(float* dataOut, unsigned samples)
 
 	// actually mix channels
 	if (!balanceCenter) {
-		unsigned i = 0;
+		size_t i = 0;
 		do {
 			float left0  = 0.0f;
 			float right0 = 0.0f;
@@ -319,8 +319,8 @@ bool SoundDevice::mixChannels(float* dataOut, unsigned samples)
 	// the stuff below. Currently this code is only rarely used anymore
 	// (only when recording or muting individual sound chip channels), so
 	// it's not worth the extra complexity anymore.
-	unsigned num = samples * stereo;
-	unsigned i = 0;
+	size_t num = samples * stereo;
+	size_t i = 0;
 	do {
 		auto out0 = dataOut[i + 0];
 		auto out1 = dataOut[i + 1];

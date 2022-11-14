@@ -9,7 +9,7 @@ ResampleTrivial::ResampleTrivial(ResampledSoundDevice& input_)
 {
 }
 
-bool ResampleTrivial::generateOutputImpl(float* dataOut, unsigned num,
+bool ResampleTrivial::generateOutputImpl(float* dataOut, size_t num,
                                          EmuTime::param /*time*/)
 {
 #ifdef __SSE2__

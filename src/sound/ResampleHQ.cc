@@ -639,7 +639,7 @@ void ResampleHQ<CHANNELS>::prepareData(unsigned emuNum)
 
 template<unsigned CHANNELS>
 bool ResampleHQ<CHANNELS>::generateOutputImpl(
-	float* __restrict dataOut, unsigned hostNum, EmuTime::param time)
+	float* __restrict dataOut, size_t hostNum, EmuTime::param time)
 {
 	auto& emuClk = getEmuClock();
 	unsigned emuNum = emuClk.getTicksTill(time);

@@ -26,7 +26,7 @@ private:
 	// SoundDevice
 	void setOutputRate(unsigned hostSampleRate, double speed) override;
 	void generateChannels(std::span<float*> bufs, unsigned num) override;
-	bool updateBuffer(unsigned length, float* buffer,
+	bool updateBuffer(size_t length, float* buffer,
 	                  EmuTime::param time) override;
 
 private:

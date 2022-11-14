@@ -36,13 +36,13 @@ void ResampledSoundDevice::setOutputRate(unsigned /*hostSampleRate*/, double /*s
 	createResampler();
 }
 
-bool ResampledSoundDevice::updateBuffer(unsigned length, float* buffer,
+bool ResampledSoundDevice::updateBuffer(size_t length, float* buffer,
                                         EmuTime::param time)
 {
 	return algo->generateOutput(buffer, length, time);
 }
 
-bool ResampledSoundDevice::generateInput(float* buffer, unsigned num)
+bool ResampledSoundDevice::generateInput(float* buffer, size_t num)
 {
 	return mixChannels(buffer, num);
 }

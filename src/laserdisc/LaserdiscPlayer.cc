@@ -764,7 +764,7 @@ float LaserdiscPlayer::getAmplificationFactorImpl() const
 	return 2.0f;
 }
 
-bool LaserdiscPlayer::updateBuffer(unsigned length, float* buffer,
+bool LaserdiscPlayer::updateBuffer(size_t length, float* buffer,
                                    EmuTime::param time)
 {
 	bool result = ResampledSoundDevice::updateBuffer(length, buffer, time);

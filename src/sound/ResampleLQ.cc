@@ -102,7 +102,7 @@ ResampleLQUp<CHANNELS>::ResampleLQUp(
 
 template<unsigned CHANNELS>
 bool ResampleLQUp<CHANNELS>::generateOutputImpl(
-	float* __restrict dataOut, unsigned hostNum, EmuTime::param time)
+	float* __restrict dataOut, size_t hostNum, EmuTime::param time)
 {
 	auto& emuClk = this->getEmuClock();
 	EmuTime host1 = this->hostClock.getFastAdd(1);
@@ -142,7 +142,7 @@ ResampleLQDown<CHANNELS>::ResampleLQDown(
 
 template<unsigned CHANNELS>
 bool ResampleLQDown<CHANNELS>::generateOutputImpl(
-	float* __restrict dataOut, unsigned hostNum, EmuTime::param time)
+	float* __restrict dataOut, size_t hostNum, EmuTime::param time)
 {
 	auto& emuClk = this->getEmuClock();
 	EmuTime host1 = this->hostClock.getFastAdd(1);
