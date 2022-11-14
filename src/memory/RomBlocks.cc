@@ -33,7 +33,7 @@ RomBlocks<BANK_SIZE>::RomBlocks(
 		alreadyWarnedForSha1Sum = rom.getOriginalSHA1();
 	}
 	rom.addPadding(extendedSize);
-	nrBlocks = rom.size() / BANK_SIZE;
+	nrBlocks = narrow<decltype(nrBlocks)>(rom.size() / BANK_SIZE);
 	assert((nrBlocks * BANK_SIZE) == rom.size());
 
 	// by default no extra mappable memory block

@@ -32,12 +32,13 @@ RomPlain::RomPlain(const DeviceConfig& config, Rom&& rom_, RomType type)
 		windowSize = mem->getAttributeValueAsInt("size", 0);
 	}
 
-	auto romSize = rom.size();
-	if ((romSize > 0x10000) || (romSize & 0x1FFF)) {
+	auto romSize_ = rom.size();
+	if ((romSize_ > 0x10000) || (romSize_ & 0x1FFF)) {
 		throw MSXException(rom.getName(),
 			": invalid rom size: must be smaller than or equal to 64kB "
 			"and must be a multiple of 8kB.");
 	}
+	auto romSize = narrow<unsigned>(romSize_);
 
 	const int start = [&] {
 		switch (type) {

@@ -7,6 +7,7 @@
 #include "HardwareConfig.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
+#include "narrow.hh"
 #include <memory>
 
 namespace openmsx {
@@ -30,7 +31,7 @@ PanasonicMemory::PanasonicMemory(MSXMotherBoard& motherBoard)
 void PanasonicMemory::registerRam(Ram& ram_)
 {
 	ram = ram_.data();
-	ramSize = ram_.size();
+	ramSize = narrow<unsigned>(ram_.size());
 }
 
 std::span<const byte, 0x2000> PanasonicMemory::getRomBlock(unsigned block) const

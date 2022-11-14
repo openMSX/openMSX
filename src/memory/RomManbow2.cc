@@ -3,6 +3,7 @@
 #include "DummyAY8910Periphery.hh"
 #include "SCC.hh"
 #include "MSXCPUInterface.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "serialize.hh"
@@ -126,7 +127,7 @@ void RomManbow2::reset(EmuTime::param time)
 void RomManbow2::setRom(unsigned region, unsigned block)
 {
 	assert(region < 4);
-	unsigned nrBlocks = flash.size() / 0x2000;
+	auto nrBlocks = narrow<unsigned>(flash.size() / 0x2000);
 	bank[region] = block & (nrBlocks - 1);
 	invalidateDeviceRCache(0x4000 + region * 0x2000, 0x2000);
 }

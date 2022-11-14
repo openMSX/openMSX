@@ -398,7 +398,7 @@ RomDebuggable::~RomDebuggable()
 
 unsigned RomDebuggable::getSize() const
 {
-	return rom->size();
+	return narrow<unsigned>(rom->size());
 }
 
 std::string_view RomDebuggable::getDescription() const

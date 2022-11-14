@@ -4,6 +4,7 @@
 #include "Base64.hh"
 #include "HexDump.hh"
 #include "MSXException.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "serialize.hh"
 #include <zlib.h>
@@ -39,7 +40,7 @@ void Ram::clear(byte c)
 		size_t done = 0;
 		if (encoding == "gz-base64") {
 			auto [buf, bufSize] = Base64::decode(init->getData());
-			uLongf dstLen = size();
+			auto dstLen = narrow<uLongf>(size());
 			if (uncompress(reinterpret_cast<Bytef*>(ram.data()), &dstLen,
 			               reinterpret_cast<const Bytef*>(buf.data()), uLong(bufSize))
 			     != Z_OK) {
@@ -82,7 +83,7 @@ const std::string& Ram::getName() const
 RamDebuggable::RamDebuggable(MSXMotherBoard& motherBoard_,
                              const std::string& name_,
                              static_string_view description_, Ram& ram_)
-	: SimpleDebuggable(motherBoard_, name_, description_, ram_.size())
+	: SimpleDebuggable(motherBoard_, name_, description_, narrow<unsigned>(ram_.size()))
 	, ram(ram_)
 {
 }
