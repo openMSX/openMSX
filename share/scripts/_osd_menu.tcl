@@ -1370,7 +1370,7 @@ proc create_hardware_menu {} {
 		lappend items { text "Set Current Machine as Default"
 				 actions { A { set ::default_machine [machine_info config_name]; osd_menu::menu_close_top }}}
 		lappend items { text "Extensions..."
-				 actions { A { osd_menu::menu_create $osd_menu::extensions_menu }}}
+				 actions { A { if {[llength [list_extensions]] > 0} { osd_menu::menu_create $osd_menu::extensions_menu } else {osd_menu::menu_create [osd_menu::menu_create_extensions_list]}}}}
 		lappend items { text "Connectors..."
 				 actions { A { osd_menu::menu_create [osd_menu::menu_create_connectors_list] }}}
 	}
@@ -1390,7 +1390,7 @@ set extensions_menu {
 	width 175
 	xpos 100
 	ypos 120
-	items {{ text "Extensions"
+	items {{ textexpr "Extensions ([llength [list_extensions]] inserted)"
 	         font-size 10
 	         post-spacing 6
 	         selectable false }
