@@ -50,7 +50,7 @@ private:
 	void setGrabInput(bool grab);
 
 	// EventListener
-	int signalEvent(const Event& event) noexcept override;
+	int signalEvent(const Event& event) override;
 
 	EventDistributor& eventDistributor;
 	GlobalSettings& globalSettings;

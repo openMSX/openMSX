@@ -126,7 +126,7 @@ private:
 	void update(const Setting& setting) noexcept override;
 
 	// EventListener
-	int signalEvent(const Event& event) noexcept override;
+	int signalEvent(const Event& event) override;
 
 	// Run 1 iteration of the openMSX event loop. Typically this will
 	// emulate about 1 frame (but could be more or less depending on

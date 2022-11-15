@@ -467,7 +467,7 @@ struct AfterInputEventPred {
 	Event event;
 };
 
-int AfterCommand::signalEvent(const Event& event) noexcept
+int AfterCommand::signalEvent(const Event& event)
 {
 	visit(overloaded{
 		[&](const SimpleEvent&) {

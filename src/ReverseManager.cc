@@ -811,7 +811,7 @@ void ReverseManager::execInputEvent()
 	}
 }
 
-int ReverseManager::signalEvent(const Event& event) noexcept
+int ReverseManager::signalEvent(const Event& event)
 {
 	(void)event;
 	assert(getType(event) == EventType::TAKE_REVERSE_SNAPSHOT);

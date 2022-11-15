@@ -75,7 +75,7 @@ EventDelay::~EventDelay()
 		EventType::JOY_BUTTON_UP,   *this);
 }
 
-int EventDelay::signalEvent(const Event& event) noexcept
+int EventDelay::signalEvent(const Event& event)
 {
 	toBeScheduledEvents.push_back(event);
 	if (delaySetting.getDouble() == 0.0) {

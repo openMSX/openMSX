@@ -1476,7 +1476,7 @@ Keyboard::CapsLockAligner::~CapsLockAligner()
 	eventDistributor.unregisterEventListener(EventType::BOOT,  *this);
 }
 
-int Keyboard::CapsLockAligner::signalEvent(const Event& event) noexcept
+int Keyboard::CapsLockAligner::signalEvent(const Event& event)
 {
 	if constexpr (!SANE_CAPSLOCK_BEHAVIOR) {
 		// don't even try

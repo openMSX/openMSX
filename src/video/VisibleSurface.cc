@@ -67,7 +67,7 @@ void VisibleSurface::executeRT()
 	inputEventGenerator.updateGrab(grab);
 }
 
-int VisibleSurface::signalEvent(const Event& event) noexcept
+int VisibleSurface::signalEvent(const Event& event)
 {
 	assert(getType(event) == one_of(EventType::MOUSE_MOTION,
 	                                EventType::MOUSE_BUTTON_UP,

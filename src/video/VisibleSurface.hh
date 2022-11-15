@@ -65,7 +65,7 @@ private:
 	// Observer
 	void update(const Setting& setting) noexcept override;
 	// EventListener
-	int signalEvent(const Event& event) noexcept override;
+	int signalEvent(const Event& event) override;
 	// RTSchedulable
 	void executeRT() override;
 

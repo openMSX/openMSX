@@ -594,7 +594,7 @@ float CassettePlayer::getAmplificationFactorImpl() const
 	return playImage ? playImage->getAmplificationFactorImpl() : 1.0f;
 }
 
-int CassettePlayer::signalEvent(const Event& event) noexcept
+int CassettePlayer::signalEvent(const Event& event)
 {
 	if (getType(event) == EventType::BOOT) {
 		if (!getImageName().empty()) {

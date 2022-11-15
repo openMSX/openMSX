@@ -40,7 +40,7 @@ private:
 	void update(const Setting& setting) noexcept override;
 
 	// EventListener
-	int signalEvent(const Event& event) noexcept override;
+	int signalEvent(const Event& event) override;
 
 private:
 	FilePoolCore core;

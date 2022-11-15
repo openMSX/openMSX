@@ -139,7 +139,7 @@ void FilePool::reportProgress(std::string_view message)
 	reactor.getDisplay().repaint();
 }
 
-int FilePool::signalEvent(const Event& event) noexcept
+int FilePool::signalEvent(const Event& event)
 {
 	(void)event; // avoid warning for non-assert compiles
 	assert(getType(event) == EventType::QUIT);

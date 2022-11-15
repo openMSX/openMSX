@@ -47,7 +47,7 @@ public:
 
 private:
 	// EventListener
-	int signalEvent(const Event& event) noexcept override;
+	int signalEvent(const Event& event) override;
 
 	static void sendPacketList(const MIDIPacketList *pktlist,
 	                           void *readProcRefCon, void *srcConnRefCon);
@@ -92,7 +92,7 @@ public:
 
 private:
 	// EventListener
-	int signalEvent(const Event& event) noexcept override;
+	int signalEvent(const Event& event) override;
 
 	static void sendPacketList(const MIDIPacketList *pktlist,
 	                           void *readProcRefCon, void *srcConnRefCon);

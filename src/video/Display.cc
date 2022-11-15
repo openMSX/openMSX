@@ -170,7 +170,7 @@ void Display::executeRT()
 	repaint();
 }
 
-int Display::signalEvent(const Event& event) noexcept
+int Display::signalEvent(const Event& event)
 {
 	visit(overloaded{
 		[&](const FinishFrameEvent& e) {
@@ -181,7 +181,7 @@ int Display::signalEvent(const Event& event) noexcept
 			}
 		},
 		[&](const SwitchRendererEvent& /*e*/) {
-			doRendererSwitch();
+			doRendererSwitch(); // might throw
 		},
 		[&](const MachineLoadedEvent& /*e*/) {
 			videoSystem->updateWindowTitle();
@@ -293,7 +293,7 @@ void Display::doRendererSwitch()
 				auto& scaleFactorSetting = renderSettings.getScaleFactorSetting();
 				auto curVal = scaleFactorSetting.getInt();
 				if (curVal == 1) {
-					throw MSXException(
+					throw FatalError(
 						e.getMessage(),
 						" (and I have no other ideas to try...)"); // give up and die... :(
 				}

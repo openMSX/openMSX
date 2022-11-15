@@ -327,7 +327,7 @@ void SDLVideoSystem::update(const Setting& subject) noexcept
 	}
 }
 
-int SDLVideoSystem::signalEvent(const Event& /*event*/) noexcept
+int SDLVideoSystem::signalEvent(const Event& /*event*/)
 {
 	// TODO: Currently window size depends only on scale factor.
 	//       Maybe in the future it will be handled differently.

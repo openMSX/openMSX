@@ -144,7 +144,7 @@ void MidiInCoreMIDI::signal(EmuTime::param time)
 }
 
 // EventListener
-int MidiInCoreMIDI::signalEvent(const Event& /*event*/) noexcept
+int MidiInCoreMIDI::signalEvent(const Event& /*event*/)
 {
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());
@@ -269,8 +269,7 @@ void MidiInCoreMIDIVirtual::signal(EmuTime::param time)
 }
 
 // EventListener
-int MidiInCoreMIDIVirtual::signalEvent(
-		const Event& /*event*/) noexcept
+int MidiInCoreMIDIVirtual::signalEvent(const Event& /*event*/)
 {
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());

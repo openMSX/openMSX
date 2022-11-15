@@ -117,8 +117,8 @@ static int main(int argc, char **argv)
 		Thread::setMainThread();
 		Reactor reactor;
 #ifdef _WIN32
-		ArgumentGenerator arggen;
-		argv = arggen.GetArguments(argc);
+		ArgumentGenerator argGen;
+		argv = argGen.GetArguments(argc);
 #endif
 		CommandLineParser parser(reactor);
 		parser.parse({argv, size_t(argc)});

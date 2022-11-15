@@ -93,7 +93,7 @@ private:
 	void stopRepeat();
 
 	// EventListener
-	int signalEvent(const Event& event) noexcept override;
+	int signalEvent(const Event& event) override;
 	// RTSchedulable
 	void executeRT() override;
 

@@ -127,7 +127,7 @@ void Video9000::takeRawScreenShot(unsigned height, const std::string& filename)
 	layer->takeRawScreenShot(height, filename);
 }
 
-int Video9000::signalEvent(const Event& event) noexcept
+int Video9000::signalEvent(const Event& event)
 {
 	int video9000id = getVideoSource();
 

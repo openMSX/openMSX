@@ -656,7 +656,7 @@ void LaserdiscPlayer::setImageName(string newImage, EmuTime::param time)
 	}
 }
 
-int LaserdiscPlayer::signalEvent(const Event& event) noexcept
+int LaserdiscPlayer::signalEvent(const Event& event)
 {
 	if (getType(event) == EventType::BOOT && video) {
 		autoRun();

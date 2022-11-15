@@ -415,7 +415,7 @@ void InputEventGenerator::updateGrab(bool grab)
 	setGrabInput(grab);
 }
 
-int InputEventGenerator::signalEvent(const Event& event) noexcept
+int InputEventGenerator::signalEvent(const Event& event)
 {
 	visit(overloaded{
 		[&](const FocusEvent& fe) {

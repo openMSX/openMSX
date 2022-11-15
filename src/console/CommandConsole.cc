@@ -166,7 +166,7 @@ gl::ivec2 CommandConsole::getCursorPosition() const
 	return {xPosition, yPosition};
 }
 
-int CommandConsole::signalEvent(const Event& event) noexcept
+int CommandConsole::signalEvent(const Event& event)
 {
 	if (!consoleSetting.getBoolean()) return 0;
 

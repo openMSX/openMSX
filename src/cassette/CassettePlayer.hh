@@ -117,7 +117,7 @@ private:
 	void autoRun();
 
 	// EventListener
-	int signalEvent(const Event& event) noexcept override;
+	int signalEvent(const Event& event) override;
 
 	// Schedulable
 	struct SyncEndOfTape final : Schedulable {

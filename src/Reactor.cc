@@ -621,7 +621,7 @@ void Reactor::update(const Setting& setting) noexcept
 }
 
 // EventListener
-int Reactor::signalEvent(const Event& event) noexcept
+int Reactor::signalEvent(const Event& event)
 {
 	visit(overloaded{
 		[&](const QuitEvent& /*e*/) {

@@ -86,7 +86,7 @@ private:
 	[[nodiscard]] unsigned getOutputColumns() const override;
 
 	// EventListener
-	int signalEvent(const Event& event) noexcept override;
+	int signalEvent(const Event& event) override;
 
 	bool handleEvent(const KeyEvent& keyEvent);
 	void tabCompletion();
