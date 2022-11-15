@@ -23,7 +23,7 @@ public:
 
 	/** Returns the number of bytes (not samples) written so far.
 	 */
-	[[nodiscard]] unsigned getBytes() const { return bytes; }
+	[[nodiscard]] uint32_t getBytes() const { return bytes; }
 
 	/** Flush data to file and update header. Try to make (possibly)
 	  * incomplete file already usable for external programs.
@@ -37,7 +37,7 @@ protected:
 
 protected:
 	File file;
-	unsigned bytes = 0;
+	uint32_t bytes = 0;
 };
 
 /** Writes 8-bit WAV files.
@@ -63,7 +63,7 @@ public:
 	void write(std::span<const float> buffer, float amp = 1.0f);
 	void write(std::span<const StereoFloat> buffer, float ampLeft = 1.0f, float ampRight = 1.0f);
 
-	void writeSilence(unsigned samples);
+	void writeSilence(uint32_t samples);
 };
 
 } // namespace openmsx

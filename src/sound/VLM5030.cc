@@ -534,7 +534,7 @@ VLM5030::VLM5030(const std::string& name_, static_string_view desc,
 	phase = PH_IDLE;
 
 	assert(rom.size() != 0);
-	address_mask = rom.size() - 1;
+	address_mask = narrow<unsigned>(rom.size() - 1);
 
 	registerSound(config);
 }

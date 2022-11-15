@@ -33,14 +33,14 @@ private:
 	std::vector<Endian::L32> index;
 
 	float fps = 0.0f; // will be filled in later
-	const unsigned width;
-	const unsigned height;
-	const unsigned channels;
-	const unsigned audioRate;
+	const uint32_t width;
+	const uint32_t height;
+	const uint32_t channels;
+	const uint32_t audioRate;
 
-	unsigned frames = 0;
-	unsigned audioWritten = 0;
-	unsigned written = 0;
+	uint32_t frames = 0;
+	uint32_t audioWritten = 0;
+	uint32_t written = 0;
 };
 
 } // namespace openmsx

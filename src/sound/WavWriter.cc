@@ -82,7 +82,7 @@ void WavWriter::flush()
 void Wav8Writer::write(std::span<const uint8_t> buffer)
 {
 	file.write(buffer);
-	bytes += buffer.size_bytes();
+	bytes += narrow<uint32_t>(buffer.size_bytes());
 }
 
 void Wav16Writer::write(std::span<const int16_t> buffer)
@@ -100,7 +100,7 @@ void Wav16Writer::write(std::span<const int16_t> buffer)
 	} else {
 		file.write(buffer);
 	}
-	bytes += buffer.size_bytes();
+	bytes += narrow<uint32_t>(buffer.size_bytes());
 }
 
 static int16_t float2int16(float f)
@@ -114,7 +114,7 @@ void Wav16Writer::write(std::span<const float> buffer, float amp)
 	std::span buf{buf_};
 	ranges::transform(buffer, buf.data(), [=](float f) { return float2int16(f * amp); });
 	file.write(buf);
-	bytes += buf.size_bytes();
+	bytes += narrow<uint32_t>(buf.size_bytes());
 }
 
 void Wav16Writer::write(std::span<const StereoFloat> buffer, float ampLeft, float ampRight)
@@ -126,15 +126,15 @@ void Wav16Writer::write(std::span<const StereoFloat> buffer, float ampLeft, floa
 	}
 	std::span s{buf};
 	file.write(s);
-	bytes += s.size_bytes();
+	bytes += narrow<uint32_t>(s.size_bytes());
 }
 
-void Wav16Writer::writeSilence(unsigned samples)
+void Wav16Writer::writeSilence(uint32_t samples)
 {
 	VLA(int16_t, buf, samples);
 	ranges::fill(buf, 0);
 	file.write(buf);
-	bytes += buf.size_bytes();
+	bytes += narrow<uint32_t>(buf.size_bytes());
 }
 
 } // namespace openmsx

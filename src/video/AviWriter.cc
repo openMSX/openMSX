@@ -4,8 +4,9 @@
 #include "FileOperations.hh"
 #include "MSXException.hh"
 #include "Version.hh"
-#include "endian.hh"
 #include "cstdiop.hh" // for snprintf
+#include "endian.hh"
+#include "narrow.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "zstring_view.hh"
@@ -83,7 +84,7 @@ AviWriter::~AviWriter()
 
 	AVIOUT4("avih");
 	AVIOUTd(56);                        // # of bytes to follow
-	AVIOUTd(unsigned(1000000 / fps));   // Microseconds per frame
+	AVIOUTd(uint32_t(1000000 / fps));   // Microseconds per frame
 	AVIOUTd(0);
 	AVIOUTd(0);                         // PaddingGranularity (whatever that might be)
 	AVIOUTd(0x110);                     // Flags,0x10 has index, 0x100 interleaved
@@ -111,11 +112,11 @@ AviWriter::~AviWriter()
 	AVIOUTd(0);                         // Reserved, MS says: wPriority, wLanguage
 	AVIOUTd(0);                         // InitialFrames
 	AVIOUTd(1000000);                   // Scale
-	AVIOUTd(unsigned(1000000 * fps));   // Rate: Rate/Scale == samples/second
+	AVIOUTd(uint32_t(1000000 * fps));   // Rate: Rate/Scale == samples/second
 	AVIOUTd(0);                         // Start
 	AVIOUTd(frames);                    // Length
 	AVIOUTd(0);                         // SuggestedBufferSize
-	AVIOUTd(unsigned(~0));              // Quality
+	AVIOUTd(uint32_t(~0));              // Quality
 	AVIOUTd(0);                         // SampleSize
 	AVIOUTd(0);                         // Frame
 	AVIOUTd(0);                         // Frame
@@ -287,7 +288,7 @@ void AviWriter::addFrame(FrameSource* video, std::span<const int16_t> audio)
 		} else {
 			addAviChunk(subspan<4>("01wb"), audio.size_bytes(), audio.data(), 0);
 		}
-		audioWritten += audio.size();
+		audioWritten += narrow<uint32_t>(audio.size());
 	}
 }
 

@@ -114,7 +114,7 @@ void SDLSoundDriver::audioCallback(std::span<StereoFloat> stream)
 	auto len = stream.size();
 
 	size_t available = getBufferFilled();
-	unsigned num = std::min(len, available);
+	auto num = narrow<unsigned>(std::min(len, available));
 	if ((readIdx + num) < mixBufferSize) {
 		ranges::copy(std::span{&mixBuffer[readIdx], num}, stream);
 		readIdx += num;
@@ -155,11 +155,11 @@ void SDLSoundDriver::uploadBuffer(std::span<const StereoFloat> buffer)
 	assert(buffer.size() <= free);
 	if ((writeIdx + buffer.size()) < mixBufferSize) {
 		ranges::copy(buffer, &mixBuffer[writeIdx]);
-		writeIdx += buffer.size();
+		writeIdx += narrow<unsigned>(buffer.size());
 	} else {
 		unsigned len1 = mixBufferSize - writeIdx;
 		ranges::copy(buffer.subspan(0, len1), &mixBuffer[writeIdx]);
-		unsigned len2 = buffer.size() - len1;
+		unsigned len2 = narrow<unsigned>(buffer.size()) - len1;
 		ranges::copy(buffer.subspan(len1, len2), &mixBuffer[0]);
 		writeIdx = len2;
 	}
