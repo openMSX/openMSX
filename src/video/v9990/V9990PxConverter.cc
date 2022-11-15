@@ -276,7 +276,7 @@ void V9990P1Converter<Pixel>::convertLine(
 	unsigned displayYA, unsigned displayYB, bool drawSprites)
 {
 	Pixel* __restrict linePtr = buf.data();
-	unsigned displayWidth = buf.size();
+	auto displayWidth = narrow<unsigned>(buf.size());
 
 	unsigned prioX = vdp.getPriorityControlX();
 	unsigned prioY = vdp.getPriorityControlY();
@@ -331,7 +331,7 @@ void V9990P2Converter<Pixel>::convertLine(
 	unsigned displayYA, bool drawSprites)
 {
 	Pixel* __restrict linePtr = buf.data();
-	unsigned displayWidth = buf.size();
+	auto displayWidth = narrow<unsigned>(buf.size());
 
 	unsigned displayAX = (displayX + vdp.getScrollAX()) & 1023;
 

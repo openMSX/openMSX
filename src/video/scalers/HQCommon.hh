@@ -196,11 +196,11 @@ void calcInitialEdges(
 	std::span<const Pixel> srcPrev, std::span<const Pixel> srcCurr,
 	std::span<uint16_t> edgeBuf, EdgeOp edgeOp)
 {
-	unsigned srcWidth = edgeBuf.size();
+	auto srcWidth = edgeBuf.size();
 	assert(srcPrev.size() == srcWidth);
 	assert(srcCurr.size() == srcWidth);
 
-	unsigned x = 0;
+	size_t x = 0;
 	uint32_t c1 = readPixel(srcPrev[x]);
 	uint32_t c2 = readPixel(srcCurr[x]);
 	unsigned pattern = edgeOp(c1, c2) ? ((1 << 6) | (1 << 7)) : 0;

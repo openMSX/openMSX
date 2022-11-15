@@ -376,8 +376,8 @@ std::span<const uint8_t> ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* 
 	}
 
 	// copy lines (to add black border)
-	unsigned linePitch = pitch * pixelSize;
-	unsigned lineWidth = width * pixelSize;
+	auto linePitch = pitch * pixelSize;
+	auto lineWidth = size_t(width) * pixelSize;
 	uint8_t* dest =
 		&newFrame[pixelSize * (MAX_VECTOR + MAX_VECTOR * pitch)];
 	for (auto i : xrange(height)) {

@@ -3,6 +3,7 @@
 #include "File.hh"
 #include "Version.hh"
 #include "endian.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "vla.hh"
 #include "cstdiop.hh"
@@ -336,12 +337,14 @@ static void IMG_SavePNG_RW(size_t width, std::span<const void*> rowPointers,
 		         tm->tm_hour, tm->tm_min, tm->tm_sec);
 		text[1].text = timeStr.data();
 
-		png_set_text(png.ptr, png.info, text.data(), text.size());
+		png_set_text(png.ptr, png.info, text.data(), narrow<int>(text.size()));
 
-		png_set_IHDR(png.ptr, png.info, width, height, 8,
-					color ? PNG_COLOR_TYPE_RGB : PNG_COLOR_TYPE_GRAY,
-					PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE,
-					PNG_FILTER_TYPE_BASE);
+		png_set_IHDR(png.ptr, png.info,
+		             narrow<png_uint_32>(width), narrow<png_uint_32>(height),
+		             8,
+		             color ? PNG_COLOR_TYPE_RGB : PNG_COLOR_TYPE_GRAY,
+		             PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE,
+		             PNG_FILTER_TYPE_BASE);
 
 		// Write the file header information.  REQUIRED
 		png_write_info(png.ptr, png.info);
@@ -377,9 +380,9 @@ void save(size_t width, std::span<const void*> rowPointers,
           const PixelFormat& format, const std::string& filename)
 {
 	// this implementation creates 1 extra copy, can be optimized if required
-	auto height = rowPointers.size();
+	auto height = narrow<unsigned>(rowPointers.size());
 	SDLSurfacePtr surface(
-		width, height, format.getBpp(),
+		narrow<unsigned>(width), height, format.getBpp(),
 		format.getRmask(), format.getGmask(), format.getBmask(), format.getAmask());
 	for (auto y : xrange(height)) {
 		memcpy(surface.getLinePtr(y),
