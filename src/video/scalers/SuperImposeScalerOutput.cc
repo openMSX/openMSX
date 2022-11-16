@@ -79,7 +79,7 @@ void SuperImposeScalerOutput<Pixel>::fillLine(unsigned y, Pixel color)
 template<std::unsigned_integral Pixel>
 std::span<const Pixel> SuperImposeScalerOutput<Pixel>::getSrcLine(unsigned y, std::span<Pixel> buf)
 {
-	unsigned width = buf.size();
+	auto width = buf.size();
 	if (width == 320) {
 		return superImpose.getLinePtr320_240(y, std::span<Pixel, 320>(buf));
 	} else if (width == 640) {

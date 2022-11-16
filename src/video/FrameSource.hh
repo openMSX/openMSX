@@ -99,7 +99,7 @@ public:
 		unsigned internalWidth;
 		auto* internalData = reinterpret_cast<const Pixel*>(
 			getLineInfo(line, internalWidth, buf.data(), buf.size()));
-		if (internalWidth == buf.size()) {
+		if (internalWidth == narrow<unsigned>(buf.size())) {
 			return std::span{internalData, buf.size()};
 		} else {
 			// slow path, non-inlined

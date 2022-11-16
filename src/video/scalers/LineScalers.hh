@@ -2,6 +2,7 @@
 #define LINESCALERS_HH
 
 #include "PixelOperations.hh"
+#include "narrow.hh"
 #include "ranges.hh"
 #include "view.hh"
 #include "xrange.hh"
@@ -1113,7 +1114,7 @@ void ZoomLine<Pixel>::operator()(
 {
 	constexpr unsigned FACTOR = 256;
 
-	unsigned step = FACTOR * in.size() / out.size();
+	unsigned step = narrow<unsigned>(FACTOR * in.size() / out.size());
 	unsigned i = 0 * FACTOR;
 	for (auto o : xrange(out.size())) {
 		Pixel p0 = in[(i / FACTOR) + 0];

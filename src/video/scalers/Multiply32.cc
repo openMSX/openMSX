@@ -51,12 +51,12 @@ void Multiply32<uint16_t>::setFactor32(unsigned f)
 	factor = f;
 
 	for (auto [p, t] : enumerate(tab)) {
-		uint32_t r = std::rotl((p & Rmask1), Rshift1) |
-			     std::rotl((p & Rmask2), Rshift2);
-		uint32_t g = std::rotl((p & Gmask1), Gshift1) |
-			     std::rotl((p & Gmask2), Gshift2);
-		uint32_t b = std::rotl((p & Bmask1), Bshift1) |
-			     std::rotl((p & Bmask2), Bshift2);
+		uint32_t r = std::rotl(uint16_t(p & Rmask1), Rshift1) |
+			     std::rotl(uint16_t(p & Rmask2), Rshift2);
+		uint32_t g = std::rotl(uint16_t(p & Gmask1), Gshift1) |
+			     std::rotl(uint16_t(p & Gmask2), Gshift2);
+		uint32_t b = std::rotl(uint16_t(p & Bmask1), Bshift1) |
+			     std::rotl(uint16_t(p & Bmask2), Bshift2);
 		t = (((r * factor) >> 8) <<  0) |
 		    (((g * factor) >> 8) << 10) |
 		    (((b * factor) >> 8) << 20);

@@ -74,9 +74,9 @@ void SaI2xScaler<Pixel>::scaleLine1on2(
 		//   H|C D|L
 		//   M|N O|P
 
-		unsigned xl  = x ? x - 1 : 0;
-		unsigned xr  = std::min(x + 1, srcWidth - 1);
-		unsigned xrr = std::min(x + 2, srcWidth - 1);
+		auto xl  = x ? x - 1 : 0;
+		auto xr  = std::min(x + 1, srcWidth - 1);
+		auto xrr = std::min(x + 2, srcWidth - 1);
 
 		// TODO: Possible performance improvements:
 		// - Play with order of fetching (effect on data cache).

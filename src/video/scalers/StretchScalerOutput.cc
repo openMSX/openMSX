@@ -208,8 +208,8 @@ void StretchScalerOutputN<Pixel, IN_WIDTH, SCALE>::releaseLine(unsigned y, std::
 	auto dstLine = this->releasePre(y, buf);
 	auto dstWidth = dstLine.size();
 
-	unsigned srcWidth = (dstWidth / 320) * IN_WIDTH;
-	unsigned srcOffset = (dstWidth - srcWidth) / 2;
+	auto srcWidth = (dstWidth / 320) * IN_WIDTH;
+	auto srcOffset = (dstWidth - srcWidth) / 2;
 	SCALE scale(this->pixelOps);
 	scale(buf.subspan(srcOffset, srcWidth), dstLine);
 

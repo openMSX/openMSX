@@ -39,7 +39,7 @@ void HQ_1x1on2x2<Pixel>::operator()(
 	std::span<uint16_t> edgeBuf,
 	EdgeHQ edgeOp)
 {
-	unsigned srcWidth = edgeBuf.size();
+	auto srcWidth = edgeBuf.size();
 	assert(in0.size() == srcWidth);
 	assert(in1.size() == srcWidth);
 	assert(in2.size() == srcWidth);
@@ -113,7 +113,7 @@ void HQ_1x1on1x2<Pixel>::operator()(
 	//  +---+---+---+
 	//  | 7 | 8 | 9 |
 	//  +---+---+---+
-	unsigned srcWidth = edgeBuf.size();
+	auto srcWidth = edgeBuf.size();
 	assert(in0.size() == srcWidth);
 	assert(in1.size() == srcWidth);
 	assert(in2.size() == srcWidth);
