@@ -476,7 +476,17 @@ void XmlInputArchive::load(int& i)
 void XmlInputArchive::load(unsigned& u)
 {
 	string_view str = loadStr();
-	fastAtoi(str, u);
+	try {
+		fastAtoi(str, u);
+	} catch (XMLException&) {
+		// One reason could be that the type of a member was corrected
+		// from 'int' to 'unsigned'. In that case loading an old
+		// savestate (that contains a negative value) might fail. So try
+		// again parsing as an 'int'.
+		int i;
+		fastAtoi(str, i);
+		u = narrow_cast<unsigned>(i);
+	}
 }
 void XmlInputArchive::load(unsigned long long& ull)
 {
