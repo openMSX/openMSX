@@ -98,7 +98,7 @@ public:
 		line = std::clamp(line, 0, narrow<int>(getHeight() - 1));
 		unsigned internalWidth;
 		auto* internalData = reinterpret_cast<const Pixel*>(
-			getLineInfo(line, internalWidth, buf.data(), buf.size()));
+			getLineInfo(line, internalWidth, buf.data(), narrow<unsigned>(buf.size())));
 		if (internalWidth == narrow<unsigned>(buf.size())) {
 			return std::span{internalData, buf.size()};
 		} else {
