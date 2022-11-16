@@ -6,7 +6,7 @@
     <manufacturer>Sanyo</manufacturer>
     <code>MPC-3/Wavy3</code>
     <release_year>1985</release_year>
-    <description>A 16kB Japanese MSX1 machine with 3 cartridge slots</description>
+    <description>A 16kB Japanese MSX1 machine with 3 cartridge slots.</description>
     <type>MSX</type>
     <region>jp</region>
   </info>

@@ -6,7 +6,7 @@
     <manufacturer>Yamaha</manufacturer>
     <code>CX11</code>
     <release_year>1985</release_year>
-    <description>"Music Computer"</description>
+    <description>"Music Computer": Japanese MSX1 with 32kb RAM and built in SFG-01 module.</description>
     <type>MSX</type>
     <region>jp</region>
   </info>

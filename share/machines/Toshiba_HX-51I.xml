@@ -11,7 +11,7 @@
     <manufacturer>Toshiba</manufacturer>
     <code>HX-51I</code>
     <release_year>1985</release_year>
-    <description/>
+    <description>Basic European 64kB MSX1, sold in Italy and Spain. The memory layout can cause poorly written software to crash.</description>
     <type>MSX</type>
     <region>eu</region>
   </info>

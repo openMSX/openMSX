@@ -6,7 +6,7 @@
     <manufacturer>JVC</manufacturer>
     <code>HC-7GB</code>
     <release_year>1985</release_year>
-    <description/>
+    <description>JVC's 64kB MSX1 for the UK market, supporting RGB output.</description>
     <type>MSX</type>
     <region>uk</region>
   </info>

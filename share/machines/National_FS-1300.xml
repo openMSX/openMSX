@@ -6,7 +6,7 @@
     <manufacturer>National</manufacturer>
     <code>FS-1300</code>
     <release_year>1985</release_year>
-    <description/>
+    <description>Basic Japanese MSX1 with 64kB RAM.</description>
     <type>MSX</type>
     <region>jp</region>
   </info>

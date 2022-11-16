@@ -6,7 +6,7 @@
     <manufacturer>Sanyo</manufacturer>
     <code>PHC-77</code>
     <release_year>1987</release_year>
-    <description>Foldable MSX2 with built-in printer.</description>
+    <description>Foldable MSX2 with built-in printer (which is not emulated as such).</description>
     <type>MSX2</type>
     <region>jp</region>
   </info>

@@ -6,7 +6,7 @@
     <manufacturer>Sony</manufacturer>
     <code>HB-F500P</code>
     <release_year>1985</release_year>
-    <description/>
+    <description>First European (desktop) MSX2 by Sony, with 64kB RAM, built in double sided disk drive and 3 cartridge slots. Memory layout is special, not all software handles it correctly.</description>
     <type>MSX2</type>
     <region>eu</region>
   </info>

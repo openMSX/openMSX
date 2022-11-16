@@ -5,8 +5,8 @@
   <info>
     <manufacturer>Pioneer</manufacturer>
     <code>PX-7</code>
-    <release_year>1984?</release_year>
-    <description/>
+    <release_year>1984</release_year>
+    <description>Japanese MSX1 with LaserDisc controller support, 32kB RAM, stereo PSG, superimpose (not emulated outside LaserDisc support).</description>
     <type>MSX</type>
     <region>jp</region>
   </info>

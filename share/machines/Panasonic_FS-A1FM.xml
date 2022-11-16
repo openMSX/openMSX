@@ -6,7 +6,7 @@
     <manufacturer>Panasonic</manufacturer>
     <code>FS-A1FM</code>
     <release_year>1987</release_year>
-    <description/>
+    <description>This is the FS-A1F but with a built in modem (which is not emulated). Also with disk drive, 12x12 dot kanji ROM and large built in software.</description>
     <type>MSX2</type>
     <region>jp</region>
   </info>

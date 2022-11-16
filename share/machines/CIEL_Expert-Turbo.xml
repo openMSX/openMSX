@@ -3,10 +3,10 @@
 <msxconfig>
 
   <info>
-    <manufacturer>CIEL</manufacturer>
+    <manufacturer>CIEL (Ademir Carchano)</manufacturer>
     <code>Expert Turbo</code>
-    <release_year>2000</release_year>
-    <description/>
+    <release_year>1996</release_year>
+    <description>A Brazillian homebrew MSX2+ motherboard for a Gradiente Expert case.</description>
     <type>MSX2+</type>
     <region>br</region>
   </info>

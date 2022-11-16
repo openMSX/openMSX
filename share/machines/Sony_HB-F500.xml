@@ -6,7 +6,7 @@
     <manufacturer>Sony</manufacturer>
     <code>HB-F500</code>
     <release_year>1985</release_year>
-    <description>Japanese MSX2 (first version)</description>
+    <description>First desktop MSX2 by Sony, with 64kB RAM and built in double sided disk drive. Memory layout is special, not all software handles it correctly.</description>
     <type>MSX2</type>
     <region>jp</region>
   </info>

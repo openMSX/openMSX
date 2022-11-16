@@ -6,7 +6,7 @@
     <manufacturer>Pioneer</manufacturer>
     <code>PX-V60</code>
     <release_year>1985?</release_year>
-    <description/>
+    <description>Japanese MSX1 with LaserDisc controller support, 32kB RAM, superimpose (not emulated outside LaserDisc support). Simpler version of PX-7, targeted for schools.</description>
     <type>MSX</type>
     <region>jp</region>
   </info>
@@ -80,8 +80,8 @@
           <sha1>4f0102cdc27216fd9bcdb9663db728d2ccd8ca6d</sha1>
         </rom>
         <mem base="0x4000" size="0x4000"/>
-	<device idref="ppi"/>
-	<device idref="VDP"/>
+        <device idref="ppi"/>
+        <device idref="VDP"/>
       </PioneerLDControl>
     </primary>
 

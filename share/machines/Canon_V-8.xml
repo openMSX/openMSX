@@ -6,7 +6,7 @@
     <manufacturer>Canon</manufacturer>
     <code>V-8</code>
     <release_year></release_year>
-    <description>Very compact and rather minimal MSX1 machine</description>
+    <description>Very compact and rather minimal MSX1 machine, with only 8kB RAM.</description>
     <type>MSX</type>
     <region>jp</region>
   </info>

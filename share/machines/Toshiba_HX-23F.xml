@@ -6,7 +6,7 @@
     <manufacturer>Toshiba</manufacturer>
     <code>HX-23F</code>
     <release_year>1985</release_year>
-    <description>A Toshiba HX-23 with RS-232C and 128kB of VRAM</description>
+    <description>A Toshiba HX-23 with RS-232C and 128kB of VRAM.</description>
     <type>MSX2</type>
     <region>jp</region>
   </info>

@@ -63,7 +63,7 @@
     <manufacturer>Hitachi</manufacturer>
     <code>MB-H2</code>
     <release_year>1985</release_year>
-    <description/>
+    <description>Compact portable 64kB Japanese MSX1 with built in data recorder and speed control (which are both not emulated).</description>
     <type>MSX</type>
     <region>jp</region>
   </info>

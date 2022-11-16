@@ -6,7 +6,7 @@
     <manufacturer>Sanyo</manufacturer>
     <code>PHC-35J</code>
     <release_year>1989</release_year>
-    <description/>
+    <description>Basic MSX2+ with Ren-sha slider (but no MSX-MUSIC).</description>
     <type>MSX2+</type>
     <region>jp</region>
   </info>

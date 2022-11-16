@@ -25,7 +25,7 @@
     <manufacturer>Sony</manufacturer>
     <code>HB-201</code>
     <release_year>1985</release_year>
-    <description/>
+    <description>Like the HB-101, but with 64kB RAM.</description>
     <type>MSX</type>
     <region>jp</region>
   </info>

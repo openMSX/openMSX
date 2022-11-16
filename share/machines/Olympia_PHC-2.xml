@@ -6,7 +6,7 @@
     <manufacturer>Olympia</manufacturer>
     <code>PHC-2</code>
     <release_year>1985</release_year>
-    <description>French MSX machine (built by Daewoo).</description>
+    <description>French basic MSX machine (built by Daewoo), based on DPC-200, with 64kB RAM.</description>
     <type>MSX</type>
     <region>fr</region>
   </info>

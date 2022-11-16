@@ -5,8 +5,8 @@
   <info>
     <manufacturer>Yamaha</manufacturer>
     <code>YIS-503F</code>
-    <release_year>1984?</release_year>
-    <description/>
+    <release_year>1984</release_year>
+    <description>European MSX2 with 32kB RAM, like CX5M, but without the SFG module built in.</description>
     <type>MSX</type>
     <region>eu</region>
   </info>

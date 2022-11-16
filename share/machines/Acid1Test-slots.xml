@@ -8,9 +8,7 @@
     <release_year>2014</release_year>
     <description>Acid1Test v0.7, aka "Usual hardware in unusual slot layout".
 
-  This machine was carefully dedigned to stress-test slot accesses routines.
-Incorrect assumptions about memory/resources layout will fail to run. Software
-must also correctly handle extended slots to run properly.
+This machine was carefully dedigned to stress-test slot accesses routines. Incorrect assumptions about memory/resources layout will fail to run. Software must also correctly handle extended slots to run properly.
 
 For more info, see http://frs.badcoffee.info/MSXAcidTests.html
 </description>

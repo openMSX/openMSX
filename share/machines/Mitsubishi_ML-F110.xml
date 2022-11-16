@@ -5,8 +5,8 @@
   <info>
     <manufacturer>Mitsubishi</manufacturer>
     <code>ML-F110</code>
-    <release_year></release_year>
-    <description>A Japanese MSX1 with built in software.</description>
+    <release_year>1984</release_year>
+    <description>A basic Japanese MSX1 with 16kB RAM.</description>
     <type>MSX</type>
     <region>jp</region>
   </info>

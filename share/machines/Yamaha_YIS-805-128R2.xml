@@ -6,7 +6,7 @@
     <manufacturer>Yamaha</manufacturer>
     <code>YIS-805/128R2</code> <!-- this is on the back plate -->
     <release_year>1986</release_year>
-    <description>Russian MSX2 for use in classroom network (as teacher).</description>
+    <description>USSR MSX2 for use in classroom network (as teacher), with 128kB RAM, network module (not emulated) and built in software The Painter.</description>
     <type>MSX2</type>
     <region>ru</region>
   </info>

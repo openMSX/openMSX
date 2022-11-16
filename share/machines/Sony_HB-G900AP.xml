@@ -6,7 +6,7 @@
     <manufacturer>Sony</manufacturer>
     <code>HB-G900AP</code>
     <release_year>1986</release_year>
-    <description>A professional MSX2 with a large amount of RAM.</description>
+    <description>A professional European MSX2 with 512kB RAM, built in disk drive, super impose capability (not emulated), RS-232C interface and MSX-BASIC extension ROM to control laser players through RS-232C.</description>
     <type>MSX2</type>
     <region>eu</region>
     <!-- Note that superimpose is still missing! -->

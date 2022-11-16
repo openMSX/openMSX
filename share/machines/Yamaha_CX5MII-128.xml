@@ -6,9 +6,9 @@
     <manufacturer>Yamaha</manufacturer>
     <code>CX5MII/128</code>
     <release_year>1985</release_year>
-    <description/>
-    <type>MSX</type>
-    <region>eu</region>
+    <description>Japanese MSX2 with 128kB RAM and SFG-05 module built in.</description>
+    <type>MSX2</type>
+    <region>jp</region>
   </info>
 
   <MapperReadBackBits>largest</MapperReadBackBits>
@@ -22,7 +22,7 @@
         <volume>16000</volume>
       </sound>
       <io base="0xA8" num="4"/>
-      <keyboard_type>gb</keyboard_type>
+      <keyboard_type>jp_ansi</keyboard_type>
       <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
       <code_kana_locks>false</code_kana_locks>
@@ -33,7 +33,7 @@
       <io base="0x98" num="8" type="O"/> <!-- S-3527 mirrors -->
       <io base="0x98" num="8" type="I"/> <!-- S-3527 mirrors -->
       <version>V9938</version>
-      <vram>16</vram>
+      <vram>128</vram>
     </VDP>
 
     <PSG id="PSG">
@@ -53,8 +53,8 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-	  <sha1>ea4a723cf098be7d7b40f23a7ab831cf5e2190d7</sha1> <!-- From Gerrit's machine -->
-	  <sha1>521928db7bc81a8db4cac1e666851e2bf01c8d53</sha1>
+          <sha1>ea4a723cf098be7d7b40f23a7ab831cf5e2190d7</sha1> <!-- From Gerrit's machine -->
+          <sha1>521928db7bc81a8db4cac1e666851e2bf01c8d53</sha1>
           <filename>cx5mii-128_basic-bios1.rom</filename>
         </rom>
         <mem base="0x0000" size="0x8000"/>
@@ -70,8 +70,8 @@
       <secondary slot="0">
         <ROM id="CX5MII MSX sub ROM">
           <rom>
-	    <sha1>c2340313bfda751181e8a5287d60f77bc6a2f3e6</sha1> <!-- From Gerrit's machine -->
-	    <sha1>df503d6f5d72a2a355db53c35950348fb7c767bf</sha1>
+            <sha1>c2340313bfda751181e8a5287d60f77bc6a2f3e6</sha1> <!-- From Gerrit's machine -->
+            <sha1>df503d6f5d72a2a355db53c35950348fb7c767bf</sha1>
             <filename>cx5mii-128_sub.rom</filename>
           </rom>
           <mem base="0x4000" size="0x4000"/>

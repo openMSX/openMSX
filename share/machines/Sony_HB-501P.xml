@@ -6,7 +6,7 @@
     <manufacturer>Sony</manufacturer>
     <code>HB-501P</code>
     <release_year>1984</release_year>
-    <description/>
+    <description>European MSX1 with 64kB RAM and built in tape deck (not emulated).</description>
     <type>MSX</type>
     <region>eu</region>
   </info>

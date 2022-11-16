@@ -6,7 +6,7 @@
     <manufacturer>Canon</manufacturer>
     <code>V-10</code>
     <release_year></release_year>
-    <description/>
+    <description>A basic Canon MSX1 with 16kB RAM</descripton>
     <type>MSX</type>
     <region>jp</region>
   </info>

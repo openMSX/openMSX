@@ -5,8 +5,8 @@
   <info>
     <manufacturer>Hitachi</manufacturer>
     <code>MB-H3</code>
-    <release_year></release_year>
-    <description>One of the few MSX2's with only 64kB VRAM.</description>
+    <release_year>1985</release_year>
+    <description>One of the few MSX2's with only 64kB VRAM, the first to be released by Hitachi The built-in touch-pad is not explicitly emulated.</description>
     <type>MSX2</type>
     <region>jp</region>
   </info>

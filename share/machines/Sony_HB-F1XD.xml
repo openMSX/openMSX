@@ -6,7 +6,7 @@
     <manufacturer>Sony</manufacturer>
     <code>HB-F1XD</code>
     <release_year>1987</release_year>
-    <description/>
+    <description>Japanese MSX2 with built in disk drive, Ren-sha turbo slider and speed controller (not emulated).</description>
     <type>MSX2</type>
     <region>jp</region>
   </info>

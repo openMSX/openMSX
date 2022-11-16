@@ -6,7 +6,7 @@
     <manufacturer>Spectravideo</manufacturer>
     <code>SVI-738 X'PRESS</code>
     <release_year>1986</release_year>
-    <description>A very complete MSX1 machine.</description>
+    <description>A very complete MSX1 machine, with 64kB RAM, RS-232 interface and single sided disk drive built in.</description>
     <type>MSX</type>
     <region>eu</region>
   </info>

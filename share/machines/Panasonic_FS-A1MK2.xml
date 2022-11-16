@@ -6,7 +6,7 @@
     <manufacturer>Panasonic</manufacturer>
     <code>FS-A1MK2</code>
     <release_year>1987</release_year>
-    <description/>
+    <description>Same as FS-A1, but with numeric keypad. Basic Japanese MSX2.</description>
     <type>MSX2</type>
     <region>jp</region>
   </info>

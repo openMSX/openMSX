@@ -6,7 +6,7 @@
     <manufacturer>Yamaha</manufacturer>
     <code>CX5MII</code> <!-- specifically, a CX-5MIIB (Italian model) -->
     <release_year>1985</release_year>
-    <description/>
+    <description>European MSX with MSX2 video chip, 64kb RAM and built in SFG-05 module, successor to the CX5M.</description>
     <type>MSX</type>
     <region>eu</region>
   </info>

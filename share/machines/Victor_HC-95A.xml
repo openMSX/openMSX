@@ -6,7 +6,7 @@
     <manufacturer>Victor</manufacturer>
     <code>HC-95A</code>
     <release_year>1988</release_year>
-    <description>A top notch MSX2, but note: superimpose and turbo mode are not yet implemented!</description>
+    <description>A top notch MSX2, but note: superimpose and turbo mode are not yet implemented! With 2 disk drives, RS-232C interface, kanji ROM and system control software built in.</description>
     <type>MSX2</type>
     <region>jp</region>
   </info>

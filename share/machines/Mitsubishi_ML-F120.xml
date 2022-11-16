@@ -5,8 +5,8 @@
   <info>
     <manufacturer>Mitsubishi</manufacturer>
     <code>ML-F120</code>
-    <release_year></release_year>
-    <description>A Japanese MSX1 with built in software.</description>
+    <release_year>1984</release_year>
+    <description>A Japanese MSX1 with built in software and 32kB RAM.</description>
     <type>MSX</type>
     <region>jp</region>
   </info>

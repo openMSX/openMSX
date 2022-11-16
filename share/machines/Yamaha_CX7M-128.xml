@@ -11,7 +11,7 @@ Not derived from real machine, but just copied from CX7/128 file.
     <manufacturer>Yamaha</manufacturer>
     <code>CX7M/128</code>
     <release_year>1985</release_year>
-    <description>Music Computer</description>
+    <description>Music Computer: Japanese MSX2 with built in SFG-05 module.</description>
     <type>MSX2</type>
     <region>jp</region>
   </info>

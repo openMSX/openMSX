@@ -6,7 +6,7 @@
     <manufacturer>Sony</manufacturer>
     <code>HB-G900D</code>
     <release_year>1986</release_year>
-    <description/>
+    <description>German version of the HB-G900P.</description>
     <type>MSX2</type>
     <region>de</region>
     <!-- Note that superimpose is still missing! -->

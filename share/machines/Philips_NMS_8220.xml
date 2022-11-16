@@ -6,7 +6,7 @@
     <manufacturer>Philips</manufacturer>
     <code>NMS 8220</code>
     <release_year>1986</release_year>
-    <description/>
+    <description>Basic European MSX2 with 64kB RAM and built in drawing program "Designer".</description>
     <type>MSX2</type>
     <region>eu</region>
   </info>

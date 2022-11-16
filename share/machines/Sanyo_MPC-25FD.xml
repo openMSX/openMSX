@@ -9,7 +9,7 @@
     <manufacturer>Sanyo</manufacturer>
     <code>MPC-25FD</code>
     <release_year></release_year>
-    <description>An MSX2 with diskdrive and only one cartridge port.</description>
+    <description>Desktop MSX2 with diskdrive and only one cartridge slot.</description>
     <type>MSX2</type>
     <region>jp</region>
   </info>

@@ -8,25 +8,13 @@
     <release_year>2013</release_year>
     <description>Acid2Test v0.5, "unusual hardware in usual slot layout"
 
-  This is certainly the hardest of all tests. It's aimed to detect illegal
+This is certainly the hardest of all tests. It's aimed to detect illegal
 direct hardware access.
 
-  The MSX Technical Handbook, pg-336 clearly states that programs should not
-handle the hardware directly and the only direct I/O allowed is to the VDP, by
-using the ports indicated on addresses 0006h and 0007h of the BIOS. Pg-42 of
-this same book, on "Notes on I/O Address Assignments", mentions the reason:
-"Although I/O addresses are defined above, the software must not access those
-devices directly using the above ports. All I/O accesses must be done using
-BIOS calls, in order to make the software independent of hardware differences.
-MSX manufacturers may change some of the hardware from the standard MSX system
-and maintain software compatibility by rewriting BIOS. The hardware differences
-would thus be transparent to the software."
+The MSX Technical Handbook, pg-336 clearly states that programs should not handle the hardware directly and the only direct I/O allowed is to the VDP, by using the ports indicated on addresses 0006h and 0007h of the BIOS. Pg-42 of this same book, on "Notes on I/O Address Assignments", mentions the reason: "Although I/O addresses are defined above, the software must not access those devices directly using the above ports. All I/O accesses must be done using BIOS calls, in order to make the software independent of hardware differences. MSX manufacturers may change some of the hardware from the standard MSX system and maintain software compatibility by rewriting BIOS. The hardware differences would thus be transparent to the software."
 
-Remarks:
-  Because of technical restrictions on openMSX, the MemoryMapper I/O ports
-and the expanded-slot register cannot have their addresses changed.
-This means that this version of the AcidTest2 will not yet be able to
-test if those two devices are being correctly handled.
+Remark: because of technical restrictions on openMSX, the MemoryMapper I/O ports
+and the expanded-slot register cannot have their addresses changed. This means that this version of the AcidTest2 will not yet be able to test if those two devices are being correctly handled.
 
 For more info, see http://frs.badcoffee.info/MSXAcidTests.html
 </description>

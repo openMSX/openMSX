@@ -6,7 +6,7 @@
     <manufacturer>Sanyo</manufacturer>
     <code>PHC-33</code>
     <release_year>1985</release_year>
-    <description>A 64kB Japanese MSX1 machine with built-in high-speed tapedrive</description>
+    <description>A 64kB Japanese MSX1 machine with built-in high-speed tapedrive (not emulated).</description>
     <type>MSX</type>
     <region>jp</region>
   </info>

@@ -5,8 +5,8 @@
   <info>
     <manufacturer>Toshiba</manufacturer>
     <code>HX-10</code>
-    <release_year>1984?</release_year>
-    <description/>
+    <release_year>1984</release_year>
+    <description>A very common basic MSX1 in the UK, with 64kB RAM.</description>
     <type>MSX</type>
     <region>uk</region>
   </info>

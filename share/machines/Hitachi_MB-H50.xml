@@ -6,7 +6,7 @@
     <manufacturer>Hitachi</manufacturer>
     <code>MB-H50</code>
     <release_year>1986</release_year>
-    <description>A compact and futuristic looking MSX with an external keyboard.</description>
+    <description>A compact and futuristic looking MSX with an external keyboard. It features extra LEDs which are not emulated.</description>
     <type>MSX</type>
     <region>jp</region>
   </info>

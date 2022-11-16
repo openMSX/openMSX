@@ -6,6 +6,7 @@
     <manufacturer>National</manufacturer>
     <code>FS-5500F1</code>
     <release_year>1985</release_year>
+    <description>Japanese desktop MSX2 with super impose and digitize capabilities (which are not emulated) and 1 disk drive.</description>
     <description/>
     <type>MSX2</type>
     <region>jp</region>

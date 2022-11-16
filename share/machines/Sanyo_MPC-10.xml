@@ -6,7 +6,7 @@
     <manufacturer>Sanyo</manufacturer>
     <code>MPC-10/Wavy10</code>
     <release_year>?</release_year>
-    <description>A simple Japanese MSX1 machine</description>
+    <description>A basic Japanese MSX1 with 32kB RAM and light pen controller (not emulated).</description>
     <type>MSX</type>
     <region>jp</region>
   </info>

@@ -6,7 +6,7 @@
     <manufacturer>Sanyo</manufacturer>
     <code>PHC-SPC</code>
     <release_year>1985</release_year>
-    <description>Super Sanno Primary Computer</description>
+    <description>Super Sanno Primary Computer, a basic 64kB MSX1 targeted for Japanese schools.</description>
     <type>MSX</type>
     <region>jp</region>
   </info>

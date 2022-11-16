@@ -6,7 +6,7 @@
     <manufacturer>Pioneer</manufacturer>
     <code>PX-7(UK)</code>
     <release_year>1984?</release_year>
-    <description/>
+    <description>UK version of the PX-7, with LaserDisc controller, stereo PSG and superimpose support (not emulated).</description>
     <type>MSX</type>
     <region>uk</region>
   </info>
@@ -70,16 +70,16 @@
 
     <primary slot="2">
       <PioneerLDControl id="PBASIC">
-	<!-- This is a PAL machine. The Pioneer LD-7000 will not work.
-	     Are there any laserdisc players which will work? -->
-	<laserdisc>false</laserdisc>
+        <!-- This is a PAL machine. The Pioneer LD-7000 will not work.
+             Are there any laserdisc players which will work? -->
+        <laserdisc>false</laserdisc>
         <rom>
           <filename>px-7uk_pbasic.rom</filename>
           <sha1>4f0102cdc27216fd9bcdb9663db728d2ccd8ca6d</sha1>
         </rom>
         <mem base="0x4000" size="0x4000"/>
-	<device idref="ppi"/>
-	<device idref="VDP"/>
+        <device idref="ppi"/>
+        <device idref="VDP"/>
       </PioneerLDControl>
     </primary>
 

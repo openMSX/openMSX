@@ -8,7 +8,7 @@
     <manufacturer>Mitsubishi</manufacturer>
     <code>ML-G3 (ES)</code>
     <release_year>1986</release_year>
-    <description/>
+    <description>Spanish version of the ML-G10 Model 2, with 64kB RAM, 1 diskdrive and RS-232C interface.</description>
     <type>MSX2</type>
     <region>es</region>
   </info>

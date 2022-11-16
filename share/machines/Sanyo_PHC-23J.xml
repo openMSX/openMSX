@@ -6,7 +6,7 @@
     <manufacturer>Sanyo</manufacturer>
     <code>PHC-23J</code>
     <release_year>1987</release_year>
-    <description>MSX2 with JIS keyboard</description>
+    <description>A basic MSX2 with JIS keyboard.</description>
     <type>MSX2</type>
     <region>jp</region>
   </info>

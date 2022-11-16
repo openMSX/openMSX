@@ -6,7 +6,7 @@
     <manufacturer>Philips</manufacturer>
     <code>NMS 801</code>
     <release_year>1989</release_year>
-    <description>"MSX Compatible", special Italian MSX, without cartridge slots or a printer port</description>
+    <description>"MSX Compatible", special Italian almost-MSX, without cartridge slots or a printer port.</description>
     <type>MSX</type>
     <region>it</region>
   </info>

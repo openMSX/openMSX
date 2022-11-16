@@ -5,8 +5,8 @@
   <info>
     <manufacturer>Sanyo</manufacturer>
     <code>MPC-100</code>
-    <release_year>1984?</release_year>
-    <description/>
+    <release_year>1985</release_year>
+    <description>Basic 64kB MSX1, popular in the UK. Brittish version of the MPC-6.</description>
     <type>MSX</type>
     <region>uk</region>
   </info>

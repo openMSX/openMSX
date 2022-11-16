@@ -6,7 +6,7 @@
     <manufacturer>Daewoo</manufacturer>
     <code>DPC-100</code>
     <release_year>1984</release_year>
-    <description/>
+    <description>Basic MSX1 for the Korean market with 16kB RAM.</description>
     <type>MSX</type>
     <region>kr</region>
   </info>

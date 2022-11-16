@@ -6,7 +6,7 @@
     <manufacturer>Daewoo</manufacturer>
     <code>CPC-400S</code>
     <release_year>1986</release_year>
-    <description/>
+    <description>A desktop MSX2 for the Korean market with hangul support, disk drive and stereo PSG output.</description>
     <type>MSX2</type>
     <region>kr</region>
   </info>

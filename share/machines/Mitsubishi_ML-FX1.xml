@@ -5,8 +5,8 @@
   <info>
     <manufacturer>Mitsubishi</manufacturer>
     <code>ML-FX1</code>
-    <release_year>1983</release_year>
-    <description/>
+    <release_year>1986</release_year>
+    <description>Basic MSX1 released on the Spanish market, with 64kB RAM and numeric keypad.</description>
     <type>MSX</type>
     <region>uk</region>
   </info>

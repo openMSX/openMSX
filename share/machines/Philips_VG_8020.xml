@@ -5,8 +5,8 @@
   <info>
     <manufacturer>Philips</manufacturer>
     <code>VG 8020/00</code>
-    <release_year>?</release_year>
-    <description/>
+    <release_year>1985</release_year>
+    <description>First version of this basic European MSX1 with 64kB RAM. Very popular machine in the Netherlands.</description>
     <type>MSX</type>
     <region>eu</region>
   </info>

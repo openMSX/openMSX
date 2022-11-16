@@ -20,7 +20,7 @@
     <manufacturer>Victor</manufacturer>
     <code>HC-7</code>
     <release_year>1985</release_year>
-    <description/>
+    <description>First original MSX created by Victor, with 64kB RAM and superimpose features (not emulated) and built in software.</description>
     <type>MSX</type>
     <region>jp</region>
   </info>

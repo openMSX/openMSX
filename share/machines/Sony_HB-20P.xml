@@ -5,8 +5,8 @@
   <info>
     <manufacturer>Sony</manufacturer>
     <code>HB-20P</code>
-    <release_year/>
-    <description>Spanish MSX</description>
+    <release_year>1986</release_year>
+    <description>Basic Spanish MSX with 64kB, like the HB-10P.</description>
     <type>MSX</type>
     <region>es</region>
   </info>

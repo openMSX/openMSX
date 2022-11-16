@@ -6,7 +6,7 @@
     <manufacturer>Sega</manufacturer>
     <code>SG-1000</code>
     <release_year>1983</release_year>
-    <description>Game console with hardware similar to MSX</description>
+    <description>Game console with hardware similar to MSX.</description>
     <type>SG-1000</type>
     <region>int</region>
   </info>

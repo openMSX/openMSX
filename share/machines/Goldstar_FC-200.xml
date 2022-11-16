@@ -5,8 +5,8 @@
   <info>
     <manufacturer>Goldstar</manufacturer>
     <code>FC-200</code>
-    <release_year>1984?</release_year>
-    <description/>
+    <release_year>1984</release_year>
+    <description>Basic MSX1 for the Western/European market with 64kB RAM, based on the FC-80.</description>
     <type>MSX</type>
     <region>eu</region>
   </info>

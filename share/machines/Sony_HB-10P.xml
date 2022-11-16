@@ -5,8 +5,8 @@
   <info>
     <manufacturer>Sony</manufacturer>
     <code>HB-10P</code>
-    <release_year/>
-    <description/>
+    <release_year>1986</release_year>
+    <description>Basic European MSX1 with 64kB. Has a weird memory mirroring glitch.</description>
     <type>MSX</type>
     <region>eu</region>
   </info>

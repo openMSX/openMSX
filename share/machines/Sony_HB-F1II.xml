@@ -6,7 +6,7 @@
     <manufacturer>Sony</manufacturer>
     <code>HB-F1II</code>
     <release_year>1987</release_year>
-    <description/>
+    <description>Cost reduced version of the HB-F1, with Ren-sha turbo slider, speed controller (not emulated) and software built in.</description>
     <type>MSX2</type>
     <region>jp</region>
   </info>

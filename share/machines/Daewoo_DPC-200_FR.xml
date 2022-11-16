@@ -6,7 +6,7 @@
     <manufacturer>Daewoo</manufacturer>
     <code>DPC-200 (BE/FR)</code>
     <release_year>1985</release_year>
-    <description>Daewoo's DPC-200 for the Belgian (French) market</description>
+    <description>Daewoo's DPC-200 for the Belgian (French) market, a basic MSX1 with 64kB RAM.</description>
     <type>MSX</type>
     <region>be/fr</region>
   </info>

@@ -20,8 +20,8 @@
   <info>
     <manufacturer>Victor</manufacturer>
     <code>HC-80</code>
-    <release_year></release_year>
-    <description>An MSX2 with firmware.</description>
+    <release_year>1986</release_year>
+    <description>Japanese MSX2 with software built in.</description>
     <type>MSX2</type>
     <region>jp</region>
   </info>

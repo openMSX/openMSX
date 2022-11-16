@@ -7,7 +7,7 @@
     <manufacturer>Philips</manufacturer>
     <code>NMS 8255</code>
     <release_year>1986</release_year>
-    <description/>
+    <description>European desktop MSX2 (as NMS 8250) with two double sided disk drives.</description>
     <type>MSX2</type>
     <region>eu</region>
   </info>

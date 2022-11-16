@@ -6,7 +6,7 @@
     <manufacturer>Yamaha</manufacturer>
     <code>YIS-503IIIR</code>
     <release_year>1986</release_year>
-    <description>Russian MSX2 for use in classroom network (as student).</description>
+    <description>USSR MSX2 for use in classroom network (as student), with 128kB RAM and network module (not emulated).</description>
     <type>MSX2</type>
     <region>ru</region>
   </info>

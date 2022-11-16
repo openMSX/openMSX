@@ -6,7 +6,7 @@
     <manufacturer>Sony</manufacturer>
     <code>HB-F500 (v2)</code>
     <release_year>1985</release_year>
-    <description>Japanese MSX2 (second version)</description>
+    <description>Japanese MSX2 (second version, with simpler memory layout) with 64kB RAM.</description>
     <type>MSX2</type>
     <region>jp</region>
   </info>

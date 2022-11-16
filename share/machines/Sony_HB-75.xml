@@ -5,7 +5,8 @@
   <info>
     <manufacturer>Sony</manufacturer>
     <code>HB-75</code>
-    <release_year>1983</release_year>
+    <release_year>1984</release_year>
+    <description>Basic Japanese MSX1 with 64kB RAM and built in Personal Databank software.</description>
     <description/>
     <type>MSX</type>
     <region>jp</region>

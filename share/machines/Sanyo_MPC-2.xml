@@ -5,8 +5,8 @@
   <info>
     <manufacturer>Sanyo</manufacturer>
     <code>MPC-2/Wavy2</code>
-    <release_year>1985?</release_year>
-    <description>A simple 64kB Japanese MSX1 machine</description>
+    <release_year>1985</release_year>
+    <description>Basic 64kB Japanese MSX1 machine.</description>
     <type>MSX</type>
     <region>jp</region>
   </info>

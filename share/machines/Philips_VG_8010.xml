@@ -6,7 +6,7 @@
     <manufacturer>Philips</manufacturer>
     <code>VG 8010/00</code>
     <release_year>1984</release_year>
-    <description/>
+    <description>As VG 8000, but with 32kB RAM.</description>
     <type>MSX</type>
     <region>eu</region>
   </info>

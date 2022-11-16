@@ -6,7 +6,7 @@
     <manufacturer>Philips</manufacturer>
     <code>VG 8020/20</code>
     <release_year>?</release_year>
-    <description/>
+    <description>Second version of the Philips VG 8020, a basic 64kB MSX1. This version as a different memory layout, making use of S3527 VLSI chip.</description>
     <type>MSX</type>
     <region>eu</region>
   </info>

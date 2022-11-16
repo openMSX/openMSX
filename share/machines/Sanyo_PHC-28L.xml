@@ -5,8 +5,8 @@
   <info>
     <manufacturer>Sanyo</manufacturer>
     <code>PHC-28L</code>
-    <release_year>?</release_year>
-    <description>French MSX machine (upgrade of the PHC-28S).</description>
+    <release_year>1985</release_year>
+    <description>Basic French MSX1 (upgrade of the PHC-28S), with 64kB RAM.</description>
     <type>MSX</type>
     <region>fr</region>
   </info>

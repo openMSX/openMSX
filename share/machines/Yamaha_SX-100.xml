@@ -6,7 +6,7 @@
     <manufacturer>Yamaha</manufacturer>
     <code>SX-100</code>
     <release_year>1985</release_year>
-    <description>A funky game oriented MSX.</description>
+    <description>A funky game oriented MSX with 32kB RAM.</description>
     <type>MSX</type>
     <region>jp</region>
   </info>

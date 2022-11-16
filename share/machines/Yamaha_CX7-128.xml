@@ -19,7 +19,7 @@
     <manufacturer>Yamaha</manufacturer>
     <code>CX7/128</code>
     <release_year>1985</release_year>
-    <description>"Music Computer"</description>
+    <description>"Music Computer", like CX7M/128, but without the built in SFG-05 module (from the factory).</description>
     <type>MSX2</type>
     <region>jp</region>
   </info>

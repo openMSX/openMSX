@@ -6,7 +6,7 @@
     <manufacturer>Mitsubishi</manufacturer>
     <code>ML-F80</code>
     <release_year>1984</release_year>
-    <description/>
+    <description>Basic 64kB MSX1 machine for the European market.</description>
     <type>MSX</type>
     <region>uk</region>
   </info>
