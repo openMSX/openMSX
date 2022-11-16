@@ -64,7 +64,7 @@ public:
 		assert(uint32_t(q) == q); // must fit in 32 bit
 		// result fits in 32-bit, so no 64-bit calculations required
 		uint32_t r = uint32_t(dividend) - uint32_t(q) * uint32_t(divisor);
-		return {q, r};
+		return {uint32_t(q), r};
 	}
 
 	[[nodiscard]] uint32_t mod(uint64_t dividend) const
