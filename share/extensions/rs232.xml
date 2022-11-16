@@ -3,7 +3,7 @@
 <msxconfig>
   <info>
     <name>Generic MSX RS-232C</name>
-    <manufacturer/>
+    <manufacturer>openMSX Team</manufacturer>
     <code/>
     <release_year/>
     <description>Generic MSX RS-232C (version 1) cartridge.</description>

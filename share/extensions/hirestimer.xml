@@ -1,6 +1,14 @@
 <?xml version="1.0" ?>
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
+  <info>
+    <name>hirestimer</name>
+    <manufacturer>openMSX Team</manufacturer>
+    <code></code>
+    <release_year></release_year>
+    <description>A peripheral of which only one was built (by Alex Wulms). It's a MSX cartridge containing a high resolution 32-bit counter. The counter ticks at 3.57MHz. It reacts to IO ports 0x20-0x23. Writing to any port resets the counter. Reading port 0x20 makes an internal copy of the value of the counter and returns the 8 lower bits of that copy. Reading ports 0x21-0x23 returns the other 3 bytes (from low to high) of this copy.</description>
+    <type>sound expansion</type>
+  </info>
   <devices>
     <HiResTimer id="HiResTimer">
       <io base="0x20" num="4"/>

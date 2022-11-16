@@ -3,7 +3,7 @@
 <msxconfig>
   <info>
     <name>Memory Mapper (512 kB)</name>
-    <manufacturer/>
+    <manufacturer>openMSX Team</manufacturer>
     <code/>
     <release_year/>
     <description>512 kB memory mapper cartridge.</description>

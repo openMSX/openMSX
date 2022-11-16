@@ -4,6 +4,7 @@
   <info>
     <name>Lascom Kanji ROM Cartridge</name>
     <type>kanji font expansion</type>
+    <description>This is a dummy implementation of this kanji font ROM cartridge, to make the Lascom laserdiscs work. There is no dump known to properly emulate it.</description>
   </info>
   <devices>
     <Kanji id="Lascom Kanji ROM">

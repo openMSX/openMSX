@@ -5,7 +5,7 @@
     <name>ADVRAM</name>
     <manufacturer>Ademir Carchano</manufacturer>
     <code/>
-    <release_year/>
+    <release_year>2000</release_year>
     <description>A hardware modification that makes direct access to VRAM possible. This version can be enabled by software.</description>
     <type>hardware mod</type>
   </info>

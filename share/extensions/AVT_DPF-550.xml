@@ -5,7 +5,7 @@
     <name>Floppy Disk Drive</name>
     <manufacturer>AVT</manufacturer>
     <code>DPF-550</code>
-    <release_year></release_year>
+    <release_year>1985</release_year>
     <description>External 5.25" disk drive.</description>
     <type>external disk drive</type>
   </info>

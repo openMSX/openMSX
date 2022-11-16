@@ -2,8 +2,8 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
-    <name>MSX-AUDIO</name>
-    <manufacturer/>
+    <name>Generic MSX-AUDIO</name>
+    <manufacturer>openMSX Team</manufacturer>
     <code/>
     <release_year>1986</release_year>
     <description>Generic Yamaha Y8950 MSX-AUDIO, including MIDI ports to enable proper detection.</description>

@@ -3,7 +3,7 @@
 <msxconfig>
   <info>
     <name>RAM (16 kB)</name>
-    <manufacturer/>
+    <manufacturer>openMSX Team</manufacturer>
     <code/>
     <release_year/>
     <description>Generic 16 kB RAM cartridge.</description>

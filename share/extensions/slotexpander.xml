@@ -3,7 +3,7 @@
 <msxconfig>
   <info>
     <name>Slot Expander</name>
-    <manufacturer/>
+    <manufacturer>openMSX Team</manufacturer>
     <code/>
     <release_year/>
     <description>Generic 4x slot expander. Creates 4 secondary slots in the primary slot it has been placed in.</description>

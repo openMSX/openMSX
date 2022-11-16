@@ -6,7 +6,7 @@
     <manufacturer>JVC</manufacturer>
     <code></code>
     <release_year>1986</release_year>
-    <description>JVC UK's MSX MIDI interface</description>
+    <description>JVC UK's MSX MIDI interface.</description>
     <type>MIDI cartridge</type>
   </info>
   <devices>
