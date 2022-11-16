@@ -7,6 +7,8 @@ set_help_text main_menu_toggle "Toggle the OSD menu."
 variable is_dingux [string match dingux "[openmsx_info platform]"]
 variable scaling_available [expr {[lindex [lindex [openmsx_info setting scale_factor] 2] 1] > 1}]
 
+variable menu_z 3
+
 proc get_optional {dict_name key default} {
 	upvar $dict_name d
 	expr {[dict exists $d $key] ? [dict get $d $key] : $default}
@@ -68,6 +70,7 @@ proc menu_create {menudef} {
 	variable default_text_color
 	variable default_select_color
 	variable default_header_text_color
+	variable menu_z
 
 	set name "menu[expr {$menulevels + 1}]"
 
@@ -84,7 +87,7 @@ proc menu_create {menudef} {
 	set on_close     [get_optional menudef "on-close" ""]
 
 	osd create rectangle $name -scaled true -rgba $bgcolor -clip true \
-		-borderrgba 0x000000ff -bordersize 0.5
+		-borderrgba 0x000000ff -bordersize 0.5 -z $menu_z
 
 	set bordersizereduction [expr {-$bordersize*2}]
 
@@ -144,7 +147,7 @@ proc menu_create {menudef} {
 	set ypos [get_optional menudef "ypos" [expr {(240 - $height) / 2}]]
 	osd configure $name -x $xpos -y $ypos -w $width -h $height
 
-	osd create rectangle "${name}.selection" -z -1 -rgba $selectcolor \
+	osd create rectangle "${name}.selection" -rgba $selectcolor \
 		-x 0 -w $width
 
 	set lst [get_optional menudef "lst" ""]
@@ -158,9 +161,9 @@ proc menu_create {menudef} {
 			set startheight [lindex $selectinfo 0 0]
 		}
 		set scrollbarwidth 6
-		osd create rectangle "${name}.scrollbar" -z -1 -rgba 0x00000010 \
+		osd create rectangle "${name}.scrollbar" -rgba 0x00000010 \
 		   -relx 1.0 -x -$scrollbarwidth -w $scrollbarwidth -relh 1.0 -h -$startheight -y $startheight -borderrgba 0x00000070 -bordersize 0.5
-		osd create rectangle "${name}.scrollbar.thumb" -z -1 -rgba $default_select_color \
+		osd create rectangle "${name}.scrollbar.thumb" -rgba $default_select_color \
 		   -relw 1.0 -w -2 -x 1
 		# Now also reduce the width of the clip area to avoid having
 		# text on the scrollbar...
@@ -1688,8 +1691,9 @@ proc get_hardware_description_text {hwitem} {
 proc menu_hardware_select {item} {
 	variable default_bg_color
 	variable default_text_color
+	variable menu_z
 	set text [get_hardware_description_text $item]
-	osd_widgets::text_box "hardware_infobox" -text $text -x 60 -y 5 -w 200 -rgba $default_bg_color -textrgba [expr {$default_text_color & 0xffffff00}] -scaled true
+	osd_widgets::text_box "hardware_infobox" -text $text -z $menu_z -x 60 -y 5 -w 200 -rgba $default_bg_color -textrgba [expr {$default_text_color & 0xffffff00}] -scaled true
 }
 
 proc menu_hardware_deselect {item} {
