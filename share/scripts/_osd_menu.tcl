@@ -147,7 +147,7 @@ proc menu_create {menudef} {
 	set ypos [get_optional menudef "ypos" [expr {(240 - $height) / 2}]]
 	osd configure $name -x $xpos -y $ypos -w $width -h $height
 
-	osd create rectangle "${name}.selection" -rgba $selectcolor \
+	osd create rectangle "${name}.selection" -z -1 -rgba $selectcolor \
 		-x 0 -w $width
 
 	set lst [get_optional menudef "lst" ""]
@@ -275,7 +275,7 @@ proc menu_reselect {new_idx} {
 proc menu_on_select {selectinfo selectidx} {
 	set osd_elem [lindex $selectinfo $selectidx 5]
 	if {$osd_elem ne ""} {
-		osd configure $osd_elem -scrollSpeed 25
+		osd configure $osd_elem -scrollSpeed 15
 	}
 	set on_select [lindex $selectinfo $selectidx 3]
 	uplevel #0 $on_select
