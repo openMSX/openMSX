@@ -183,7 +183,6 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void msxPrnSetFont(std::span<const uint8_t, 256 * 8> msxBits);
 	[[nodiscard]] unsigned parseNumber(unsigned sizeStart, unsigned sizeChars);
 
 	[[nodiscard]] std::pair<unsigned, unsigned> getNumberOfDots() override;

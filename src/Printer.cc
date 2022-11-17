@@ -581,12 +581,40 @@ static constexpr std::array<uint8_t, 256 * 8> MSXFontRaw = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // 255
 };
 
-static std::array<uint8_t, 256 * 9> MSXFont;
+// Convert MSX printer font to Epson printer font
+static constexpr auto MSXFont = []{
+	std::array<uint8_t, 256 * 9> result = {};
+	for (auto i : xrange(256)) {
+		uint8_t oneBits = 0;
+		int start = -1;
+		int end = 0;
+
+		// Rotate MSX character
+		for (auto j : xrange(8)) {
+			uint8_t charBits = 0;
+			for (auto k : xrange(8)) {
+				charBits |= ((MSXFontRaw[8 * i + 7 - k] >> (7 - j)) & 1) << k;
+			}
+
+			oneBits |= charBits;
+			if (oneBits  != 0 && start < 0) start = j;
+			if (charBits != 0) end = j;
+			result[9 * i + j + 1] = charBits;
+		}
+
+		end = end + 1;
+		if (start < 0 || start >= 7) start = 0;
+		if (end == 1) end = 5;
+		if (end >= 7) end = 7;
+		result[9 * i] = (start << 4) | end;
+	}
+	return result;
+}();
+
 
 ImagePrinterMSX::ImagePrinterMSX(MSXMotherBoard& motherBoard_)
 	: ImagePrinter(motherBoard_, true)
 {
-	msxPrnSetFont(MSXFontRaw);
 	resetEmulatedPrinter();
 }
 
@@ -599,35 +627,6 @@ std::string_view ImagePrinterMSX::getDescription() const
 {
 	// TODO which printer type
 	return "Emulate MSX printer, prints to image.";
-}
-
-void ImagePrinterMSX::msxPrnSetFont(std::span<const uint8_t, 256 * 8> msxBits)
-{
-	// Convert MSX printer font to Epson printer font
-	for (auto i : xrange(256)) {
-		uint8_t oneBits = 0;
-		int start = -1;
-		int end = 0;
-
-		// Rotate MSX character
-		for (auto j : xrange(8)) {
-			uint8_t charBits = 0;
-			for (auto k : xrange(8)) {
-				charBits |= ((msxBits[8 * i + 7 - k] >> (7 - j)) & 1) << k;
-			}
-
-			oneBits |= charBits;
-			if (oneBits  != 0 && start < 0) start = j;
-			if (charBits != 0) end = j;
-			MSXFont[9 * i + j + 1] = charBits;
-		}
-
-		end = end + 1;
-		if (start < 0 || start >= 7) start = 0;
-		if (end == 1) end = 5;
-		if (end >= 7) end = 7;
-		MSXFont[9 * i] = (start << 4) | end;
-	}
 }
 
 std::pair<unsigned, unsigned> ImagePrinterMSX::getNumberOfDots()
