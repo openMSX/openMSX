@@ -93,6 +93,6 @@ REGISTER_MSXDEVICE(MusicModuleMIDI, "MusicModuleMIDI");
 // For backwards compatiblity, also register this class with the old name (only
 // needed for loading from disk). Versions 1-3 use the old name "MC6850",
 // version 4 (and above) use the name "MusicModuleMIDI".
-static RegisterInitializerHelper<XmlInputArchive, MusicModuleMIDI> registerbwCompat("MC6850");
+static const RegisterInitializerHelper<XmlInputArchive, MusicModuleMIDI> registerbwCompat("MC6850");
 
 } // namespace openmsx

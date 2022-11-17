@@ -7,7 +7,7 @@ namespace openmsx {
 
 static DeviceConfig getMultiConfig(const HardwareConfig& hwConf)
 {
-	static XMLElement* xml = [] {
+	static const XMLElement* xml = [] {
 		auto& doc = XMLDocument::getStaticDocument();
 		return doc.allocateElement("Multi");
 	}();

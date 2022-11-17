@@ -128,7 +128,7 @@ LaserdiscPlayer::LaserdiscPlayer(
 	reactor.getEventDistributor().registerEventListener(EventType::BOOT, *this);
 	scheduleDisplayStart(getCurrentTime());
 
-	static XMLElement* xml = [] {
+	static const XMLElement* xml = [] {
 		auto& doc = XMLDocument::getStaticDocument();
 		auto* result = doc.allocateElement(string(getLaserDiscPlayerName()).c_str());
 		result->setFirstChild(doc.allocateElement("sound"))

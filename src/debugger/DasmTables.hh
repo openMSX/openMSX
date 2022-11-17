@@ -5,11 +5,11 @@
 
 namespace openmsx {
 
-extern std::array<const char*, 256> mnemonic_xx_cb;
-extern std::array<const char*, 256> mnemonic_cb;
-extern std::array<const char*, 256> mnemonic_ed;
-extern std::array<const char*, 256> mnemonic_xx;
-extern std::array<const char*, 256> mnemonic_main;
+extern const std::array<const char*, 256> mnemonic_xx_cb;
+extern const std::array<const char*, 256> mnemonic_cb;
+extern const std::array<const char*, 256> mnemonic_ed;
+extern const std::array<const char*, 256> mnemonic_xx;
+extern const std::array<const char*, 256> mnemonic_main;
 
 } // namespace openmsx
 

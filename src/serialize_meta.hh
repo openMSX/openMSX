@@ -299,18 +299,18 @@ static RegisterLoaderHelper<MemInputArchive,   C> registerHelper5##C(N); \
 static RegisterSaverHelper <MemOutputArchive,  C> registerHelper6##C(N); \*/
 #define REGISTER_POLYMORPHIC_CLASS_HELPER(B,C,N) \
 static_assert(std::is_base_of_v<B,C>, "must be base and sub class"); \
-static RegisterLoaderHelper<MemInputArchive,  C> registerHelper3##C(N); \
-static RegisterSaverHelper <MemOutputArchive, C> registerHelper4##C(N); \
-static RegisterLoaderHelper<XmlInputArchive,  C> registerHelper5##C(N); \
-static RegisterSaverHelper <XmlOutputArchive, C> registerHelper6##C(N); \
+static const RegisterLoaderHelper<MemInputArchive,  C> registerHelper3##C(N); \
+static const RegisterSaverHelper <MemOutputArchive, C> registerHelper4##C(N); \
+static const RegisterLoaderHelper<XmlInputArchive,  C> registerHelper5##C(N); \
+static const RegisterSaverHelper <XmlOutputArchive, C> registerHelper6##C(N); \
 template<> struct PolymorphicBaseClass<C> { using type = B; };
 
 #define REGISTER_POLYMORPHIC_INITIALIZER_HELPER(B,C,N) \
 static_assert(std::is_base_of_v<B,C>, "must be base and sub class"); \
-static RegisterInitializerHelper<MemInputArchive,  C> registerHelper3##C(N); \
-static RegisterSaverHelper      <MemOutputArchive, C> registerHelper4##C(N); \
-static RegisterInitializerHelper<XmlInputArchive,  C> registerHelper5##C(N); \
-static RegisterSaverHelper      <XmlOutputArchive, C> registerHelper6##C(N); \
+static const RegisterInitializerHelper<MemInputArchive,  C> registerHelper3##C(N); \
+static const RegisterSaverHelper      <MemOutputArchive, C> registerHelper4##C(N); \
+static const RegisterInitializerHelper<XmlInputArchive,  C> registerHelper5##C(N); \
+static const RegisterSaverHelper      <XmlOutputArchive, C> registerHelper6##C(N); \
 template<> struct PolymorphicBaseClass<C> { using type = B; };
 
 #define REGISTER_BASE_NAME_HELPER(B,N) \

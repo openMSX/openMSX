@@ -84,7 +84,7 @@ CassettePlayer::CassettePlayer(const HardwareConfig& hwConf)
 		motherBoard.getCommandController(),
 		"autoruncassettes", "automatically try to run cassettes", true)
 {
-	static XMLElement* xml = [] {
+	static const XMLElement* xml = [] {
 		auto& doc = XMLDocument::getStaticDocument();
 		XMLElement* result = doc.allocateElement("cassetteplayer");
 		result->setFirstChild(doc.allocateElement("sound"))

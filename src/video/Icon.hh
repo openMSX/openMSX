@@ -11,7 +11,7 @@ struct OpenMSX_Icon
 	const char* pixel_data;
 };
 
-extern OpenMSX_Icon openMSX_icon;
+extern const OpenMSX_Icon openMSX_icon;
 
 } // namespace openmsx
 

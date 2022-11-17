@@ -366,7 +366,7 @@ ResampleCoeffs::Table ResampleCoeffs::calcTable(
 	return table;
 }
 
-static std::array<int16_t, HALF_TAB_LEN> dummyPermute;
+static const std::array<int16_t, HALF_TAB_LEN> dummyPermute = {};
 
 template<unsigned CHANNELS>
 ResampleHQ<CHANNELS>::ResampleHQ(
