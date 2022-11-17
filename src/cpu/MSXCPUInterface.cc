@@ -834,8 +834,7 @@ void MSXCPUInterface::checkBreakPoints(
 
 static void registerIOWatch(WatchPoint& watchPoint, std::span<MSXDevice*, 256> devices)
 {
-	assert(dynamic_cast<WatchIO*>(&watchPoint));
-	auto& ioWatch = static_cast<WatchIO&>(watchPoint);
+	auto& ioWatch = checked_cast<WatchIO&>(watchPoint);
 	unsigned beginPort = ioWatch.getBeginAddress();
 	unsigned endPort   = ioWatch.getEndAddress();
 	assert(beginPort <= endPort);
@@ -869,8 +868,7 @@ void MSXCPUInterface::setWatchPoint(const std::shared_ptr<WatchPoint>& watchPoin
 
 static void unregisterIOWatch(WatchPoint& watchPoint, std::span<MSXDevice*, 256> devices)
 {
-	assert(dynamic_cast<WatchIO*>(&watchPoint));
-	auto& ioWatch = static_cast<WatchIO&>(watchPoint);
+	auto& ioWatch = checked_cast<WatchIO&>(watchPoint);
 	unsigned beginPort = ioWatch.getBeginAddress();
 	unsigned endPort   = ioWatch.getEndAddress();
 	assert(beginPort <= endPort);

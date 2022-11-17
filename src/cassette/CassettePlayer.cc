@@ -44,6 +44,7 @@
 #include "TclObject.hh"
 #include "DynamicClock.hh"
 #include "EmuDuration.hh"
+#include "checked_cast.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
@@ -566,7 +567,7 @@ std::string_view CassettePlayer::getDescription() const
 void CassettePlayer::plugHelper(Connector& conn, EmuTime::param time)
 {
 	sync(time);
-	lastOutput = static_cast<CassettePort&>(conn).lastOut();
+	lastOutput = checked_cast<CassettePort&>(conn).lastOut();
 }
 
 void CassettePlayer::unplugHelper(EmuTime::param time)

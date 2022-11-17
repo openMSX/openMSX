@@ -8,6 +8,7 @@
 #include "EnumSetting.hh"
 #include "MemBuffer.hh"
 #include "Clock.hh"
+#include "checked_cast.hh"
 #include "narrow.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
@@ -941,7 +942,7 @@ void V9990CmdEngine::reportV9990Command() const
 
 void V9990CmdEngine::update(const Setting& setting) noexcept
 {
-	brokenTiming = static_cast<const EnumSetting<bool>&>(setting).getEnum();
+	brokenTiming = checked_cast<const EnumSetting<bool>&>(setting).getEnum();
 }
 
 // STOP

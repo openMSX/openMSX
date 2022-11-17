@@ -4,6 +4,7 @@
 #include "EventDistributor.hh"
 #include "Scheduler.hh"
 #include "FileOperations.hh"
+#include "checked_cast.hh"
 #include "serialize.hh"
 #include <array>
 #include <cstdio>
@@ -37,7 +38,7 @@ void MidiInReader::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 		throw PlugException("Failed to open input: ", strerror(errno));
 	}
 
-	auto& midiConnector = static_cast<MidiInConnector&>(connector_);
+	auto& midiConnector = checked_cast<MidiInConnector&>(connector_);
 	midiConnector.setDataBits(SerialDataInterface::DATA_8); // 8 data bits
 	midiConnector.setStopBits(SerialDataInterface::STOP_1); // 1 stop bit
 	midiConnector.setParityBit(false, SerialDataInterface::EVEN); // no parity
@@ -98,7 +99,7 @@ void MidiInReader::run()
 // MidiInDevice
 void MidiInReader::signal(EmuTime::param time)
 {
-	auto* conn = static_cast<MidiInConnector*>(getConnector());
+	auto* conn = checked_cast<MidiInConnector*>(getConnector());
 	if (!conn->acceptsData()) {
 		std::lock_guard<std::mutex> lock(mutex);
 		queue.clear();
