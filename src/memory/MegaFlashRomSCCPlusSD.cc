@@ -133,9 +133,9 @@ by VPP/WD pin)
     7	Disable config register (1 = Disabled)
     6
     5	Disable SRAM (i.e. the RAM in subslot 2)
-    4	DSK mode (1 = On): Bank 0 and 1 are remaped to DSK kernel (config banks 2-3)
+    4	DSK mode (1 = On): Bank 0 and 1 are remapped to DSK kernel (config banks 2-3)
     3	Cartridge PSG also mapped to ports #A0-#A3
-    2	Subslots disabled (1 = Disabled) Only MegaflashROM SCC+ is available.
+    2	Subslots disabled (1 = Disabled) Only MegaFlashROM SCC+ is available.
     1	FlashROM Block protect (1 = Protect) VPP_WD pin
     0	FlashROM write enable (1 = Enabled)
 

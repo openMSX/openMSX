@@ -48,7 +48,7 @@ public:
 	 * If you override this method you should unregister this Schedulable
 	 * in the implementation. The default implementation just prints a
 	 * diagnostic (and soon after the Scheduler will trigger an assert that
-	 * there are still regsitered Schedulables.
+	 * there are still registered Schedulables.
 	 * Normally there are easier ways to unregister a Schedulable. ATM this
 	 * method is only used in AfterCommand (because it's not part of the
 	 * MSX machine).

@@ -22,7 +22,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	Rom basicbiosRom;
+	Rom basicBiosRom;
 	Rom firmwareRom;
 	bool firmwareSelected;
 };

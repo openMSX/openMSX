@@ -9,7 +9,7 @@ namespace openmsx {
 class DiskPartition final : public SectorBasedDisk
 {
 public:
-	/** Return a partition (as a SectorbasedDisk) from another Disk.
+	/** Return a partition (as a SectorBasedDisk) from another Disk.
 	 * @param disk The whole disk.
 	 * @param partition The partition number.
 	 *        0 for the whole disk

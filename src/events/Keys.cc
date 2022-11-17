@@ -354,10 +354,10 @@ KeyCode getCode(string_view name)
 	return result;
 }
 
-std::pair<KeyCode, KeyCode> getCodes(SDL_Keycode sdlkeycode, Uint16 mod, SDL_Scancode sdlscancode, bool release)
+std::pair<KeyCode, KeyCode> getCodes(SDL_Keycode sdlKeyCode, Uint16 mod, SDL_Scancode sdlScanCode, bool release)
 {
 	KeyCode key = [&] {
-		switch (sdlkeycode) {
+		switch (sdlKeyCode) {
 		case SDLK_BACKSPACE:      return K_BACKSPACE;
 		case SDLK_TAB:            return K_TAB;
 		case SDLK_CLEAR:          return K_CLEAR;
@@ -523,7 +523,7 @@ std::pair<KeyCode, KeyCode> getCodes(SDL_Keycode sdlkeycode, Uint16 mod, SDL_Sca
 	}();
 
 	KeyCode scan = [&] {
-		switch (sdlscancode) {
+		switch (sdlScanCode) {
 		case SDL_SCANCODE_BACKSPACE:      return K_BACKSPACE;
 		case SDL_SCANCODE_TAB:            return K_TAB;
 		case SDL_SCANCODE_CLEAR:          return K_CLEAR;
@@ -673,7 +673,7 @@ std::pair<KeyCode, KeyCode> getCodes(SDL_Keycode sdlkeycode, Uint16 mod, SDL_Sca
 		// scancode to recognize a few japanese
 		// specific keys for which SDL does not have an
 		// SDL_Keycode keysym definition.
-		switch (sdlscancode) {
+		switch (sdlScanCode) {
 		// Keys found on Japanese keyboards:
 		case 49:
 			key = K_ZENKAKU_HENKAKU;

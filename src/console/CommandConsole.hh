@@ -126,8 +126,8 @@ private:
 	IntegerSetting historySizeSetting;
 	BooleanSetting removeDoublesSetting;
 
-	static constexpr int LINESHISTORY = 1000;
-	CircularBuffer<ConsoleLine, LINESHISTORY> lines;
+	static constexpr int LINES_HISTORY = 1000;
+	CircularBuffer<ConsoleLine, LINES_HISTORY> lines;
 	std::string commandBuffer;
 	std::string prompt;
 	/** Saves Current Command to enable command recall. */

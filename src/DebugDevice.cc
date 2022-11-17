@@ -146,7 +146,7 @@ void DebugDevice::openOutput(std::string_view name)
 		outputStrm = &std::cerr;
 	} else {
 		auto realName = FileOperations::expandTilde(fileNameString);
-		FileOperations::openofstream(debugOut, realName, std::ios::app);
+		FileOperations::openOfStream(debugOut, realName, std::ios::app);
 		outputStrm = &debugOut;
 	}
 }

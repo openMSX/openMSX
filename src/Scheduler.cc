@@ -127,7 +127,7 @@ void Scheduler::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("currentTime", scheduleTime);
 	// don't serialize 'queue', each Schedulable serializes its own
-	// syncpoints
+	// sync-points
 }
 INSTANTIATE_SERIALIZE_METHODS(Scheduler);
 

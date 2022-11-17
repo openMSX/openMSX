@@ -244,8 +244,8 @@ MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
 	msxMixer->mute(); // powered down
 
 	// Do this before machine-specific settings are created, otherwise
-	// a setting-info clicomm message is send with a machine id that hasn't
-	// been announced yet over clicomm.
+	// a setting-info CliComm message is send with a machine id that hasn't
+	// been announced yet over CliComm.
 	addRemoveUpdate = make_unique<AddRemoveUpdate>(*this);
 
 	// TODO: Initialization of this field cannot be done much earlier because
@@ -809,7 +809,7 @@ LoadMachineCmd::LoadMachineCmd(MSXMotherBoard& motherBoard_)
 	// create_machine command:
 	// - It's not allowed to use load_machine on a machine that has
 	//   already a machine configuration loaded earlier.
-	// - We also disallow executing most machine-specifc commands on an
+	// - We also disallow executing most machine-specific commands on an
 	//   'empty machine' (an 'empty machine', is a machine returned by
 	//   create_machine before the load_machine command is executed, so a
 	//   machine without a machine configuration). The only exception is
@@ -1218,7 +1218,7 @@ void MSXMotherBoard::serialize(Archive& ar, unsigned version)
 
 	// Scheduler must come early so that devices can query current time
 	ar.serialize("scheduler", *scheduler);
-	// MSXMixer has already set syncpoints, those are invalid now
+	// MSXMixer has already set sync points, those are invalid now
 	// the following call will fix this
 	if constexpr (Archive::IS_LOADER) {
 		msxMixer->reInit();

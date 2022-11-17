@@ -164,7 +164,7 @@ void ArkanoidPad::stopReplay(EmuTime::param time) noexcept
 }
 
 
-// version 1: Initial version, the variables dialpos and buttonStatus were not
+// version 1: Initial version, the variables dialPos and buttonStatus were not
 //            serialized.
 // version 2: Also serialize the above variables, this is required for
 //            record/replay, see comment in Keyboard.cc for more details.

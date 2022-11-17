@@ -130,7 +130,7 @@ CLIFileType* CommandLineParser::getFileTypeHandlerForFileName(string_view filena
 		return f ? f->fileType : nullptr;
 	};
 
-	// First try the fileName as we get it from the commandline. This may
+	// First try the fileName as we get it from the command line. This may
 	// be more interesting than the original fileName of a (g)zipped file:
 	// in case of an OMR file for instance, we want to select on the
 	// original extension, and not on the extension inside the (g)zipped
@@ -400,7 +400,7 @@ static string formatSet(std::span<const string_view> inputSet, string::size_type
 	return outString;
 }
 
-static string formatHelptext(string_view helpText,
+static string formatHelpText(string_view helpText,
 	                     unsigned maxLength, unsigned indent)
 {
 	string outText;
@@ -427,7 +427,7 @@ static void printItemMap(const GroupedItems& itemMap)
 {
 	auto printSet = to_vector(view::transform(itemMap, [](auto& p) {
 		return strCat(formatSet(p.second, 15), ' ',
-		              formatHelptext(p.first, 50, 20));
+		              formatHelpText(p.first, 50, 20));
 	}));
 	ranges::sort(printSet);
 	for (auto& s : printSet) {

@@ -6,7 +6,7 @@
 namespace openmsx {
 
 /** General debugger condition
- *  Like breakpoints, but not tied to a specifc address.
+ *  Like breakpoints, but not tied to a specific address.
  */
 class DebugCondition final : public BreakPointBase
 {

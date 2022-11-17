@@ -22,7 +22,7 @@ MSXMidi::MSXMidi(const DeviceConfig& config)
 	, isExternalMSXMIDI(config.findChild("external") != nullptr)
 	, isEnabled(!isExternalMSXMIDI)
 	, outConnector(MSXDevice::getPluggingController(), "msx-midi-out")
-	, i8251(getScheduler(), interf, getCurrentTime())
+	, i8251(getScheduler(), interface, getCurrentTime())
 	, i8254(getScheduler(), &cntr0, nullptr, &cntr2, getCurrentTime())
 {
 	EmuDuration total(1.0 / 4e6); // 4MHz
@@ -260,62 +260,62 @@ void MSXMidi::enableRxRDYIRQ(bool enabled)
 
 // I8251Interface  (pass calls from I8251 to outConnector)
 
-void MSXMidi::I8251Interf::setRxRDY(bool status, EmuTime::param /*time*/)
+void MSXMidi::Interface::setRxRDY(bool status, EmuTime::param /*time*/)
 {
-	auto& midi = OUTER(MSXMidi, interf);
+	auto& midi = OUTER(MSXMidi, interface);
 	midi.setRxRDYIRQ(status);
 }
 
-void MSXMidi::I8251Interf::setDTR(bool status, EmuTime::param time)
+void MSXMidi::Interface::setDTR(bool status, EmuTime::param time)
 {
-	auto& midi = OUTER(MSXMidi, interf);
+	auto& midi = OUTER(MSXMidi, interface);
 	midi.enableTimerIRQ(status, time);
 }
 
-void MSXMidi::I8251Interf::setRTS(bool status, EmuTime::param /*time*/)
+void MSXMidi::Interface::setRTS(bool status, EmuTime::param /*time*/)
 {
-	auto& midi = OUTER(MSXMidi, interf);
+	auto& midi = OUTER(MSXMidi, interface);
 	midi.enableRxRDYIRQ(status);
 }
 
-bool MSXMidi::I8251Interf::getDSR(EmuTime::param /*time*/)
+bool MSXMidi::Interface::getDSR(EmuTime::param /*time*/)
 {
-	auto& midi = OUTER(MSXMidi, interf);
+	auto& midi = OUTER(MSXMidi, interface);
 	return midi.timerIRQ.getState();
 }
 
-bool MSXMidi::I8251Interf::getCTS(EmuTime::param /*time*/)
+bool MSXMidi::Interface::getCTS(EmuTime::param /*time*/)
 {
 	return true;
 }
 
-void MSXMidi::I8251Interf::setDataBits(DataBits bits)
+void MSXMidi::Interface::setDataBits(DataBits bits)
 {
-	auto& midi = OUTER(MSXMidi, interf);
+	auto& midi = OUTER(MSXMidi, interface);
 	midi.outConnector.setDataBits(bits);
 }
 
-void MSXMidi::I8251Interf::setStopBits(StopBits bits)
+void MSXMidi::Interface::setStopBits(StopBits bits)
 {
-	auto& midi = OUTER(MSXMidi, interf);
+	auto& midi = OUTER(MSXMidi, interface);
 	midi.outConnector.setStopBits(bits);
 }
 
-void MSXMidi::I8251Interf::setParityBit(bool enable, ParityBit parity)
+void MSXMidi::Interface::setParityBit(bool enable, ParityBit parity)
 {
-	auto& midi = OUTER(MSXMidi, interf);
+	auto& midi = OUTER(MSXMidi, interface);
 	midi.outConnector.setParityBit(enable, parity);
 }
 
-void MSXMidi::I8251Interf::recvByte(byte value, EmuTime::param time)
+void MSXMidi::Interface::recvByte(byte value, EmuTime::param time)
 {
-	auto& midi = OUTER(MSXMidi, interf);
+	auto& midi = OUTER(MSXMidi, interface);
 	midi.outConnector.recvByte(value, time);
 }
 
-void MSXMidi::I8251Interf::signal(EmuTime::param time)
+void MSXMidi::Interface::signal(EmuTime::param time)
 {
-	auto& midi = OUTER(MSXMidi, interf);
+	auto& midi = OUTER(MSXMidi, interface);
 	midi.getPluggedMidiInDev().signal(time);
 }
 
@@ -421,7 +421,7 @@ void MSXMidi::serialize(Archive& ar, unsigned version)
 		}
 	}
 
-	// don't serialize:  cntr0, cntr2, interf
+	// don't serialize:  cntr0, cntr2, interface
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXMidi);
 REGISTER_MSXDEVICE(MSXMidi, "MSX-Midi");

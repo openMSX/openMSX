@@ -51,7 +51,7 @@ void PluggableFactory::createAll(PluggingController& controller,
 	// Input devices:
 	// TODO: Support hot-plugging of input devices:
 	// - additional key joysticks can be created by the user
-	// - real joysticks and mice can be hotplugged (USB)
+	// - real joysticks and mice can be hot-plugged (USB)
 	controller.registerPluggable(std::make_unique<ArkanoidPad>(
 		msxEventDistributor, stateChangeDistributor));
 	controller.registerPluggable(std::make_unique<Mouse>(

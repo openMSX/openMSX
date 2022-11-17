@@ -71,11 +71,11 @@ public:
 
 	// helper to delegate to a subcommand
 	template<typename... Args>
-	void executeSubCommand(std::string_view subcmd, Args&&... args) {
+	void executeSubCommand(std::string_view subCmd, Args&&... args) {
 		try {
-			executeSubCommandImpl(subcmd, std::forward<Args>(args)...);
+			executeSubCommandImpl(subCmd, std::forward<Args>(args)...);
 		} catch (UnknownSubCommand) {
-			unknownSubCommand(subcmd, std::forward<Args>(args)...);
+			unknownSubCommand(subCmd, std::forward<Args>(args)...);
 		}
 	}
 
@@ -85,20 +85,20 @@ protected:
 
 private:
 	template<typename Func, typename... Args>
-	void executeSubCommandImpl(std::string_view subcmd, std::string_view candidate, Func func, Args&&... args) {
-		if (subcmd == candidate) {
+	void executeSubCommandImpl(std::string_view subCmd, std::string_view candidate, Func func, Args&&... args) {
+		if (subCmd == candidate) {
 			func();
 		} else {
-			executeSubCommandImpl(subcmd, std::forward<Args>(args)...);
+			executeSubCommandImpl(subCmd, std::forward<Args>(args)...);
 		}
 	}
-	void executeSubCommandImpl(std::string_view /*subcmd*/) {
+	void executeSubCommandImpl(std::string_view /*subCmd*/) {
 		throw UnknownSubCommand{}; // exhausted all possible candidates
 	}
 
 	template<typename Func, typename... Args>
-	void unknownSubCommand(std::string_view subcmd, std::string_view firstCandidate, Func /*func*/, Args&&... args) {
-		unknownSubCommandImpl(strCat("Unknown subcommand '", subcmd, "'. Must be one of '", firstCandidate, '\''),
+	void unknownSubCommand(std::string_view subCmd, std::string_view firstCandidate, Func /*func*/, Args&&... args) {
+		unknownSubCommandImpl(strCat("Unknown subcommand '", subCmd, "'. Must be one of '", firstCandidate, '\''),
 		                      std::forward<Args>(args)...);
 	}
 	template<typename Func, typename... Args>

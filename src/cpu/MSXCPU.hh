@@ -122,7 +122,7 @@ public:
 	  */
 	[[nodiscard]] bool isM1Cycle(unsigned address) const;
 
-	/** See CPUCore::exitCPULoopsync() */
+	/** See CPUCore::exitCPULoopSync() */
 	void exitCPULoopSync();
 	/** See CPUCore::exitCPULoopAsync() */
 	void exitCPULoopAsync();
@@ -133,7 +133,7 @@ public:
 	/** Switch the Z80 clock freq. */
 	void setZ80Freq(unsigned freq);
 
-	void setInterface(MSXCPUInterface* interf);
+	void setInterface(MSXCPUInterface* interface);
 
 	void disasmCommand(Interpreter& interp,
 	                   std::span<const TclObject> tokens,

@@ -95,7 +95,7 @@ void UserSettings::Cmd::create(std::span<const TclObject> tokens, TclObject& res
 
 UserSettings::Info UserSettings::Cmd::createString(std::span<const TclObject> tokens)
 {
-	checkNumArgs(tokens, 6, Prefix{3}, "name description initialvalue");
+	checkNumArgs(tokens, 6, Prefix{3}, "name description initial-value");
 	const auto& sName   = tokens[3].getString();
 	const auto& desc    = tokens[4].getString();
 	const auto& initVal = tokens[5].getString();
@@ -108,7 +108,7 @@ UserSettings::Info UserSettings::Cmd::createString(std::span<const TclObject> to
 
 UserSettings::Info UserSettings::Cmd::createBoolean(std::span<const TclObject> tokens)
 {
-	checkNumArgs(tokens, 6, Prefix{3}, "name description initialvalue");
+	checkNumArgs(tokens, 6, Prefix{3}, "name description initial-value");
 	const auto& sName   = tokens[3].getString();
 	const auto& desc    = tokens[4].getString();
 	const auto& initVal = tokens[5].getBoolean(getInterpreter());
@@ -121,7 +121,7 @@ UserSettings::Info UserSettings::Cmd::createBoolean(std::span<const TclObject> t
 
 UserSettings::Info UserSettings::Cmd::createInteger(std::span<const TclObject> tokens)
 {
-	checkNumArgs(tokens, 8, Prefix{3}, "name description initialvalue minvalue maxvalue");
+	checkNumArgs(tokens, 8, Prefix{3}, "name description initial-value min-value max-value");
 	auto& interp = getInterpreter();
 	const auto& sName   = tokens[3].getString();
 	const auto& desc    = tokens[4].getString();
@@ -137,7 +137,7 @@ UserSettings::Info UserSettings::Cmd::createInteger(std::span<const TclObject> t
 
 UserSettings::Info UserSettings::Cmd::createFloat(std::span<const TclObject> tokens)
 {
-	checkNumArgs(tokens, 8, Prefix{3}, "name description initialvalue minvalue maxvalue");
+	checkNumArgs(tokens, 8, Prefix{3}, "name description initial-value min-value max-value");
 	auto& interp = getInterpreter();
 	const auto& sName   = tokens[3].getString();
 	const auto& desc    = tokens[4].getString();
@@ -153,7 +153,7 @@ UserSettings::Info UserSettings::Cmd::createFloat(std::span<const TclObject> tok
 
 UserSettings::Info UserSettings::Cmd::createEnum(std::span<const TclObject> tokens)
 {
-	checkNumArgs(tokens, 7, Prefix{3}, "name description initialvalue allowed-values-list");
+	checkNumArgs(tokens, 7, Prefix{3}, "name description initial-value allowed-values-list");
 	const auto& sName   = tokens[3].getString();
 	const auto& desc    = tokens[4].getString();
 	const auto& initStr = tokens[5].getString();

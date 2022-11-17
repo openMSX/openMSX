@@ -21,7 +21,7 @@ MSXRS232::MSXRS232(const DeviceConfig& config)
 	: MSXDevice(config)
 	, RS232Connector(MSXDevice::getPluggingController(), "msx-rs232")
 	, i8254(getScheduler(), &cntr0, &cntr1, nullptr, getCurrentTime())
-	, i8251(getScheduler(), interf, getCurrentTime())
+	, i8251(getScheduler(), interface, getCurrentTime())
 	, rom(config.findChild("rom")
 		? std::make_unique<Rom>(
 			MSXDevice::getName() + " ROM", "rom", config)
@@ -243,7 +243,7 @@ byte MSXRS232::readStatus(EmuTime::param time)
 		result |= 0x08;
 	}
 
-	if (!interf.getCTS(time)) {
+	if (!interface.getCTS(time)) {
 		result |= 0x80;
 	}
 	if (i8254.getOutputPin(2).getState(time)) {
@@ -284,63 +284,63 @@ void MSXRS232::enableRxRDYIRQ(bool enabled)
 
 // I8251Interface  (pass calls from I8251 to outConnector)
 
-void MSXRS232::I8251Interf::setRxRDY(bool status, EmuTime::param /*time*/)
+void MSXRS232::Interface::setRxRDY(bool status, EmuTime::param /*time*/)
 {
-	auto& rs232 = OUTER(MSXRS232, interf);
+	auto& rs232 = OUTER(MSXRS232, interface);
 	rs232.setRxRDYIRQ(status);
 }
 
-void MSXRS232::I8251Interf::setDTR(bool status, EmuTime::param time)
+void MSXRS232::Interface::setDTR(bool status, EmuTime::param time)
 {
-	auto& rs232 = OUTER(MSXRS232, interf);
+	auto& rs232 = OUTER(MSXRS232, interface);
 	rs232.getPluggedRS232Dev().setDTR(status, time);
 }
 
-void MSXRS232::I8251Interf::setRTS(bool status, EmuTime::param time)
+void MSXRS232::Interface::setRTS(bool status, EmuTime::param time)
 {
-	auto& rs232 = OUTER(MSXRS232, interf);
+	auto& rs232 = OUTER(MSXRS232, interface);
 	rs232.getPluggedRS232Dev().setRTS(status, time);
 }
 
-bool MSXRS232::I8251Interf::getDSR(EmuTime::param time)
+bool MSXRS232::Interface::getDSR(EmuTime::param time)
 {
-	auto& rs232 = OUTER(MSXRS232, interf);
+	auto& rs232 = OUTER(MSXRS232, interface);
 	return rs232.getPluggedRS232Dev().getDSR(time);
 }
 
-bool MSXRS232::I8251Interf::getCTS(EmuTime::param time)
+bool MSXRS232::Interface::getCTS(EmuTime::param time)
 {
-	auto& rs232 = OUTER(MSXRS232, interf);
+	auto& rs232 = OUTER(MSXRS232, interface);
 	return rs232.getPluggedRS232Dev().getCTS(time);
 }
 
-void MSXRS232::I8251Interf::setDataBits(DataBits bits)
+void MSXRS232::Interface::setDataBits(DataBits bits)
 {
-	auto& rs232 = OUTER(MSXRS232, interf);
+	auto& rs232 = OUTER(MSXRS232, interface);
 	rs232.getPluggedRS232Dev().setDataBits(bits);
 }
 
-void MSXRS232::I8251Interf::setStopBits(StopBits bits)
+void MSXRS232::Interface::setStopBits(StopBits bits)
 {
-	auto& rs232 = OUTER(MSXRS232, interf);
+	auto& rs232 = OUTER(MSXRS232, interface);
 	rs232.getPluggedRS232Dev().setStopBits(bits);
 }
 
-void MSXRS232::I8251Interf::setParityBit(bool enable, ParityBit parity)
+void MSXRS232::Interface::setParityBit(bool enable, ParityBit parity)
 {
-	auto& rs232 = OUTER(MSXRS232, interf);
+	auto& rs232 = OUTER(MSXRS232, interface);
 	rs232.getPluggedRS232Dev().setParityBit(enable, parity);
 }
 
-void MSXRS232::I8251Interf::recvByte(byte value, EmuTime::param time)
+void MSXRS232::Interface::recvByte(byte value, EmuTime::param time)
 {
-	auto& rs232 = OUTER(MSXRS232, interf);
+	auto& rs232 = OUTER(MSXRS232, interface);
 	rs232.getPluggedRS232Dev().recvByte(value, time);
 }
 
-void MSXRS232::I8251Interf::signal(EmuTime::param time)
+void MSXRS232::Interface::signal(EmuTime::param time)
 {
-	auto& rs232 = OUTER(MSXRS232, interf);
+	auto& rs232 = OUTER(MSXRS232, interface);
 	rs232.getPluggedRS232Dev().signal(time); // for input
 }
 
@@ -441,7 +441,7 @@ void MSXRS232::serialize(Archive& ar, unsigned version)
 					// safest
 	}
 
-	// don't serialize cntr0, cntr1, interf
+	// don't serialize cntr0, cntr1, interface
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXRS232);
 REGISTER_MSXDEVICE(MSXRS232, "RS232");

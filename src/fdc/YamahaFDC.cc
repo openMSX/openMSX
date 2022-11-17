@@ -7,7 +7,7 @@
 #include "one_of.hh"
 #include "serialize.hh"
 
-// This is derived by disassembly of the Yamaha FD-03 diskrom
+// This is derived by disassembly of the Yamaha FD-03 disk rom
 //   https://sourceforge.net/p/msxsyssrc/git/ci/master/tree/diskdrvs/fd-03/
 //
 // FDD interface:

@@ -137,7 +137,7 @@ SOCKET CliServer::createSocket()
 	// write port number to file
 	FileOperations::unlink(socketName); // ignore error
 	std::ofstream out;
-	FileOperations::openofstream(out, socketName);
+	FileOperations::openOfStream(out, socketName);
 	out << portNumber << '\n';
 	if (!out.good()) {
 		sock_close(sd);

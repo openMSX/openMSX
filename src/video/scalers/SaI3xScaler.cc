@@ -52,7 +52,7 @@ inline Pixel SaI3xScaler<Pixel>::blend(Pixel p1, Pixel p2) const
 	return pixelOps.template blend<1, 1>(p1, p2);
 }
 
-static constexpr unsigned redblueMask = 0xF81F;
+static constexpr unsigned redBlueMask = 0xF81F;
 static constexpr unsigned greenMask = 0x7E0;
 
 // TODO use PixelOperations::lerp()
@@ -66,10 +66,10 @@ template<> [[nodiscard]] uint16_t bilinear<uint16_t>(unsigned a, unsigned b, uns
 	const unsigned areaB = x >> 11; // reduce 16 bit fraction to 5 bits
 	const unsigned areaA = 0x20 - areaB;
 
-	a = (a & redblueMask) | ((a & greenMask) << 16);
-	b = (b & redblueMask) | ((b & greenMask) << 16);
+	a = (a & redBlueMask) | ((a & greenMask) << 16);
+	b = (b & redBlueMask) | ((b & greenMask) << 16);
 	const unsigned result = ((areaA * a) + (areaB * b)) >> 5;
-	return (result & redblueMask) | ((result >> 16) & greenMask);
+	return (result & redBlueMask) | ((result >> 16) & greenMask);
 }
 
 template<> [[nodiscard]] uint32_t bilinear<uint32_t>(unsigned a, unsigned b, unsigned x)
@@ -102,14 +102,14 @@ template<> uint16_t bilinear4<uint16_t>(
 	const unsigned areaC = y - xy;
 	const unsigned areaD = xy;
 
-	a = (a & redblueMask) | ((a & greenMask) << 16);
-	b = (b & redblueMask) | ((b & greenMask) << 16);
-	c = (c & redblueMask) | ((c & greenMask) << 16);
-	d = (d & redblueMask) | ((d & greenMask) << 16);
+	a = (a & redBlueMask) | ((a & greenMask) << 16);
+	b = (b & redBlueMask) | ((b & greenMask) << 16);
+	c = (c & redBlueMask) | ((c & greenMask) << 16);
+	d = (d & redBlueMask) | ((d & greenMask) << 16);
 	unsigned result = (
 		(areaA * a) + (areaB * b) + (areaC * c) + (areaD * d)
 		) >> 5;
-	return (result & redblueMask) | ((result >> 16) & greenMask);
+	return (result & redBlueMask) | ((result >> 16) & greenMask);
 }
 
 template<> [[nodiscard]] uint32_t bilinear4<uint32_t>(
@@ -162,10 +162,10 @@ inline Pixel Blender<Pixel>::blend(unsigned a, unsigned b)
 	const unsigned areaA = (1 << bits) - areaB;
 
 	if constexpr (sizeof(Pixel) == 2) {
-		a = (a & redblueMask) | ((a & greenMask) << 16);
-		b = (b & redblueMask) | ((b & greenMask) << 16);
+		a = (a & redBlueMask) | ((a & greenMask) << 16);
+		b = (b & redBlueMask) | ((b & greenMask) << 16);
 		const unsigned result = ((areaA * a) + (areaB * b)) >> bits;
-		return (result & redblueMask) | ((result >> 16) & greenMask);
+		return (result & redBlueMask) | ((result >> 16) & greenMask);
 	} else {
 		const unsigned result0 =
 			((a & 0x00FF00FF) * areaA +
@@ -190,14 +190,14 @@ inline Pixel Blender<Pixel>::blend(
 	const unsigned areaA = (1 << bits) - areaB - areaC - areaD;
 
 	if constexpr (sizeof(Pixel) == 2) {
-		a = (a & redblueMask) | ((a & greenMask) << 16);
-		b = (b & redblueMask) | ((b & greenMask) << 16);
-		c = (c & redblueMask) | ((c & greenMask) << 16);
-		d = (d & redblueMask) | ((d & greenMask) << 16);
+		a = (a & redBlueMask) | ((a & greenMask) << 16);
+		b = (b & redBlueMask) | ((b & greenMask) << 16);
+		c = (c & redBlueMask) | ((c & greenMask) << 16);
+		d = (d & redBlueMask) | ((d & greenMask) << 16);
 		unsigned result = (
 			(areaA * a) + (areaB * b) + (areaC * c) + (areaD * d)
 			) >> bits;
-		return (result & redblueMask) | ((result >> 16) & greenMask);
+		return (result & redBlueMask) | ((result >> 16) & greenMask);
 	} else {
 		const unsigned result0 =
 			((a & 0x00FF00FF) * areaA +

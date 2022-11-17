@@ -8,10 +8,10 @@ namespace openmsx {
 //
 // x11xxxxx select SRAM in page 2 (8000H-87FFH, or perhaps mirrored in page 2), R/W
 // x00xxxxx select ROM in page 2, R/W
-// xxxxxx00 select ROM segment 0 in page 2 (screencopy, japanese wordprocessor), R/W
-// xxxxxx01 select ROM segment 1 in page 2 (japanese wordprocessor), R/W
-// xxxxxx10 select ROM segment 2 in page 2 (european wordprocessor), R/W
-// xxxxxx11 select ROM segment 3 in page 2 (japanese wordprocessor), R/W
+// xxxxxx00 select ROM segment 0 in page 2 (screen copy, japanese word processor), R/W
+// xxxxxx01 select ROM segment 1 in page 2 (japanese word processor), R/W
+// xxxxxx10 select ROM segment 2 in page 2 (european word processor), R/W
+// xxxxxx11 select ROM segment 3 in page 2 (japanese word processor), R/W
 // kxxxxxxx COPY key, 0 is pressed (R)
 
 // b6,b5 = SRAM select. Only pattern 00 and 11 are used, not sure what pattern 01 and 10 do

@@ -528,7 +528,7 @@ std::unique_ptr<FileContext> OldXMLElement::getLastSerializedFileContext()
 //            map<string, string>, later this was changed to
 //            vector<pair<string, string>>. To keep bw-compat the serialize()
 //            method converted between these two formats. Though (by luck) in
-//            the XML output both datastructures are serialized to the same
+//            the XML output both data structures are serialized to the same
 //            format, so we can drop this conversion step without breaking
 //            bw-compat.
 template<typename Archive>

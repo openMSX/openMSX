@@ -1564,7 +1564,7 @@ void ImagePrinterEpson::processCharacter(uint8_t data)
 			doubleWidth = true;
 			normalAfterLine = true;
 			break;
-		case 15: // Shift in. Emties buffer, turns compressed mode ON (17.16 cpi)
+		case 15: // Shift in. Empties buffer, turns compressed mode ON (17.16 cpi)
 			compressed = true;
 			if (!elite) {
 				fontDensity = 1.72;

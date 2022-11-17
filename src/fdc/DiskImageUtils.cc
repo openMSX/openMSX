@@ -11,12 +11,12 @@
 
 namespace openmsx::DiskImageUtils {
 
-static constexpr std::array<char, 11> PARTAB_HEADER = {
+static constexpr std::array<char, 11> PARTITION_TABLE_HEADER = {
 	'\353', '\376', '\220', 'M', 'S', 'X', '_', 'I', 'D', 'E', ' '
 };
 [[nodiscard]] static bool isPartitionTableSector(const PartitionTable& pt)
 {
-	return pt.header == PARTAB_HEADER;
+	return pt.header == PARTITION_TABLE_HEADER;
 }
 
 bool hasPartitionTable(SectorAccessibleDisk& disk)
@@ -221,7 +221,7 @@ struct CHS {
 };
 [[nodiscard]] static constexpr CHS logicalToCHS(unsigned logical)
 {
-	// This is made to fit the openMSX harddisk configuration:
+	// This is made to fit the openMSX hard disk configuration:
 	//  32 sectors/track   16 heads
 	unsigned tmp = logical + 1;
 	unsigned sector = tmp % 32;
@@ -238,7 +238,7 @@ void partition(SectorAccessibleDisk& disk, std::span<const unsigned> sizes)
 
 	SectorBuffer buf;
 	ranges::fill(buf.raw, 0);
-	buf.pt.header = PARTAB_HEADER;
+	buf.pt.header = PARTITION_TABLE_HEADER;
 	buf.pt.end = 0xAA55;
 
 	unsigned partitionOffset = 1;

@@ -19,7 +19,7 @@ class StringSetting;
 class I8255
 {
 public:
-	I8255(I8255Interface& interf, EmuTime::param time,
+	I8255(I8255Interface& interface, EmuTime::param time,
 	      StringSetting& invalidPpiModeSetting);
 
 	// CPU side

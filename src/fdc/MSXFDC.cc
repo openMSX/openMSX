@@ -14,7 +14,7 @@ MSXFDC::MSXFDC(const DeviceConfig& config, const std::string& romId, bool needRO
 	: MSXDevice(config)
 	, rom(needROM
 		? std::optional<Rom>(std::in_place, getName() + " ROM", "rom", config, romId)
-		: std::nullopt) // e.g. Spectravideo_SVI-328 doesn't have a diskrom
+		: std::nullopt) // e.g. Spectravideo_SVI-328 doesn't have a disk rom
 {
 	if (needROM && (rom->size() == 0)) {
 		throw MSXException(

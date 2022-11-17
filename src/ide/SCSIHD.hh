@@ -24,7 +24,7 @@ public:
 	SCSIHD(const SCSIHD&) = delete;
 	SCSIHD& operator=(const SCSIHD&) = delete;
 
-	SCSIHD(const DeviceConfig& targetconfig,
+	SCSIHD(const DeviceConfig& targetConfig,
 	       AlignedBuffer& buf, unsigned mode);
 
 	template<typename Archive>

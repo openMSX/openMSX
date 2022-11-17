@@ -218,7 +218,7 @@ namespace openmsx::InputEventFactory {
 		throw CommandException("Invalid filedrop event: ", str.getString());
 	}
 	return Event::create<GroupEvent>(
-		std::initializer_list<EventType>{EventType::FILEDROP},
+		std::initializer_list<EventType>{EventType::FILE_DROP},
 		makeTclList("filename"));
 }
 

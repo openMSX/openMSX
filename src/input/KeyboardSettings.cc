@@ -26,7 +26,7 @@ namespace openmsx {
 }
 
 KeyboardSettings::KeyboardSettings(CommandController& commandController)
-	: deadkeyHostKey(generate_array<3>([&](auto i) {
+	: deadKeyHostKey(generate_array<3>([&](auto i) {
 		static constexpr std::array<static_string_view, 3> description = {
 			"Host key that maps to deadkey 1. Not applicable to Japanese and Korean MSX models",
 			"Host key that maps to deadkey 2. Only applicable to Brazilian MSX models (Sharp Hotbit and Gradiente)",

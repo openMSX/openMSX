@@ -122,7 +122,7 @@ def getBlendCode(weights):
 		index, = (index for index, weight in enumerate(weights) if weight != 0)
 		return 'c%d' % (index + 1)
 	elif wSum <= 8:
-		# Because the lower 3 bits of each colour component (R,G,B)
+		# Because the lower 3 bits of each color component (R,G,B)
 		# are zeroed out, we can operate on a single integer as if it
 		# is a vector.
 		return ' + '.join(

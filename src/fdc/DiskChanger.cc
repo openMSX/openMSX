@@ -233,7 +233,7 @@ void DiskCommand::execute(std::span<const TclObject> tokens, TclObject& result)
 		int firstFileToken = 1;
 		if (tokens[1] == "insert") {
 			if (tokens.size() > 2) {
-				firstFileToken = 2; // skip this subcommand as filearg
+				firstFileToken = 2; // skip this subcommand as file arg
 			} else {
 				throw CommandException("Missing argument to insert subcommand");
 			}
@@ -299,18 +299,18 @@ static string calcSha1(SectorAccessibleDisk* disk, FilePool& filePool)
 template<typename Archive>
 void DiskChanger::serialize(Archive& ar, unsigned version)
 {
-	DiskName diskname = disk->getName();
+	DiskName diskName = disk->getName();
 	if (ar.versionBelow(version, 2)) {
 		// there was no DiskName yet, just a plain Filename
 		Filename filename;
 		ar.serialize("disk", filename);
 		if (filename.getOriginal() == "ramdisk") {
-			diskname = DiskName(Filename(), "ramdisk");
+			diskName = DiskName(Filename(), "ramdisk");
 		} else {
-			diskname = DiskName(filename, {});
+			diskName = DiskName(filename, {});
 		}
 	} else {
-		ar.serialize("disk", diskname);
+		ar.serialize("disk", diskName);
 	}
 
 	std::vector<Filename> patches;
@@ -327,8 +327,8 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 	ar.serialize("checksum", oldChecksum);
 
 	if constexpr (Archive::IS_LOADER) {
-		diskname.updateAfterLoadState();
-		string name = diskname.getResolved(); // TODO use Filename
+		diskName.updateAfterLoadState();
+		string name = diskName.getResolved(); // TODO use Filename
 		if (!name.empty()) {
 			// Only when the original file doesn't exist on this
 			// system, try to search by sha1sum. This means we
@@ -366,7 +366,7 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 		if (oldChecksum != newChecksum) {
 			controller.getCliComm().printWarning(
 				"The content of the disk image ",
-				diskname.getResolved(),
+				diskName.getResolved(),
 				" has changed since the time this savestate was "
 				"created. This might result in emulation problems "
 				"or even disk corruption. To prevent the latter, "

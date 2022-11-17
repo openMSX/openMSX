@@ -88,9 +88,9 @@ size_t CompressedFileAdapter::getSize()
 	return decompressed->size;
 }
 
-void CompressedFileAdapter::seek(size_t newpos)
+void CompressedFileAdapter::seek(size_t newPos)
 {
-	pos = newpos;
+	pos = newPos;
 }
 
 size_t CompressedFileAdapter::getPos()

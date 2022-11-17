@@ -73,7 +73,7 @@ HotKey::HotKey(RTScheduler& rtScheduler,
 	eventDistributor.registerEventListener(
 		EventType::FOCUS, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
-		EventType::FILEDROP, *this, EventDistributor::HOTKEY);
+		EventType::FILE_DROP, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
 		EventType::OSD_CONTROL_RELEASE, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
@@ -84,7 +84,7 @@ HotKey::~HotKey()
 {
 	eventDistributor.unregisterEventListener(EventType::OSD_CONTROL_PRESS, *this);
 	eventDistributor.unregisterEventListener(EventType::OSD_CONTROL_RELEASE, *this);
-	eventDistributor.unregisterEventListener(EventType::FILEDROP, *this);
+	eventDistributor.unregisterEventListener(EventType::FILE_DROP, *this);
 	eventDistributor.unregisterEventListener(EventType::FOCUS, *this);
 	eventDistributor.unregisterEventListener(EventType::JOY_BUTTON_UP, *this);
 	eventDistributor.unregisterEventListener(EventType::JOY_BUTTON_DOWN, *this);

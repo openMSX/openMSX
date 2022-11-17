@@ -25,16 +25,16 @@ static bool formatHelper(std::span<const string_view> input, size_t columnLimit,
 	size_t column = 0;
 	auto it = begin(input);
 	do {
-		size_t maxcolumn = column;
+		size_t maxColumn = column;
 		for (size_t i = 0; (i < result.size()) && (it != end(input));
 		     ++i, ++it) {
 			auto curSize = utf8::unchecked::size(result[i]);
 			strAppend(result[i], spaces(column - curSize), *it);
-			maxcolumn = std::max(maxcolumn,
+			maxColumn = std::max(maxColumn,
 			                     utf8::unchecked::size(result[i]));
-			if (maxcolumn > columnLimit) return false;
+			if (maxColumn > columnLimit) return false;
 		}
-		column = maxcolumn + 2;
+		column = maxColumn + 2;
 	} while (it != end(input));
 	return true;
 }

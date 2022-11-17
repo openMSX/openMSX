@@ -49,9 +49,9 @@ private:
 	// EventListener
 	int signalEvent(const Event& event) override;
 
-	static void sendPacketList(const MIDIPacketList *pktlist,
+	static void sendPacketList(const MIDIPacketList *pktList,
 	                           void *readProcRefCon, void *srcConnRefCon);
-	void sendPacketList(const MIDIPacketList *pktlist, void *srcConnRefCon);
+	void sendPacketList(const MIDIPacketList *pktList, void *srcConnRefCon);
 
 private:
 	EventDistributor& eventDistributor;
@@ -94,9 +94,9 @@ private:
 	// EventListener
 	int signalEvent(const Event& event) override;
 
-	static void sendPacketList(const MIDIPacketList *pktlist,
+	static void sendPacketList(const MIDIPacketList *pktList,
 	                           void *readProcRefCon, void *srcConnRefCon);
-	void sendPacketList(const MIDIPacketList *pktlist, void *srcConnRefCon);
+	void sendPacketList(const MIDIPacketList *pktList, void *srcConnRefCon);
 
 	EventDistributor& eventDistributor;
 	Scheduler& scheduler;

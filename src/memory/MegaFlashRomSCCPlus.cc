@@ -105,7 +105,7 @@ Main features:
 [LOGIC]
 
   Banks0-3: are set depending on the mapper mode.
-  Subslots: are set writting to #FFFF in the MegaFlashROM SCC+ slot when CONFIG_REG bit 4 is set.
+  Subslots: are set writing to #FFFF in the MegaFlashROM SCC+ slot when CONFIG_REG bit 4 is set.
   Offset:   is set by writing offset value + #80 to bank0 mapper register in Konami SCC mode.
 
   -- Subslots offsets

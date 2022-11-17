@@ -21,10 +21,10 @@ struct GetSha1 {
 };
 
 
-FilePoolCore::FilePoolCore(std::string filecache_,
+FilePoolCore::FilePoolCore(std::string fileCache_,
                            std::function<Directories()> getDirectories_,
                            std::function<void(std::string_view)> reportProgress_)
-	: filecache(std::move(filecache_))
+	: fileCache(std::move(fileCache_))
 	, getDirectories(std::move(getDirectories_))
 	, reportProgress(std::move(reportProgress_))
 {
@@ -167,7 +167,7 @@ void FilePoolCore::readSha1sums()
 	assert(sha1Index.empty());
 	assert(fileMem.empty());
 
-	File file(filecache);
+	File file(fileCache);
 	auto size = file.getSize();
 	fileMem.resize(size + 1);
 	file.read(std::span{fileMem.data(), size});
@@ -220,7 +220,7 @@ void FilePoolCore::readSha1sums()
 void FilePoolCore::writeSha1sums()
 {
 	std::ofstream file;
-	FileOperations::openofstream(file, filecache);
+	FileOperations::openOfStream(file, fileCache);
 	if (!file.is_open()) {
 		return;
 	}

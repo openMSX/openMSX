@@ -44,7 +44,7 @@ public:
 	using Directories = std::vector<Dir>;
 
 public:
-	FilePoolCore(std::string filecache,
+	FilePoolCore(std::string fileCache,
 	             std::function<Directories()> getDirectories,
 	             std::function<void(std::string_view)> reportProgress);
 	~FilePoolCore();
@@ -153,7 +153,7 @@ private:
 	[[nodiscard]] std::pair<Index, Entry*> findInDatabase(std::string_view filename);
 
 private:
-	std::string filecache; // path of the '.filecache' file.
+	std::string fileCache; // path of the '.filecache' file.
 	std::function<Directories()> getDirectories;
 	std::function<void(std::string_view)> reportProgress;
 

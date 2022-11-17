@@ -415,7 +415,7 @@ uint8_t WD33C93::peekCtrl() const
 	}
 }
 
-void WD33C93::reset(bool scsireset)
+void WD33C93::reset(bool scsiReset)
 {
 	// initialized register
 	ranges::fill(subspan<0x1b>(regs, 0x00), 0x00);
@@ -426,7 +426,7 @@ void WD33C93::reset(bool scsireset)
 	tc    = 0;
 	phase = SCSI::BUS_FREE;
 	bufIdx  = 0;
-	if (scsireset) {
+	if (scsiReset) {
 		for (auto& d : dev) {
 			d->reset();
 		}

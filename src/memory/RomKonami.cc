@@ -5,7 +5,7 @@
 // The Maze of Galious, Aleste 1, 1942, Heaven, Mystery World, ...
 // (the latter four are hacked ROM images with modified mappers)
 //
-// page at 4000 is fixed, other banks are switched by writting at
+// page at 4000 is fixed, other banks are switched by writing at
 // 0x6000, 0x8000 and 0xA000 (those addresses are used by the games, but any
 // other address in a page switches that page as well)
 

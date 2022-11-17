@@ -251,7 +251,7 @@ FILE_t openFile(zstring_view filename, zstring_view mode)
 #endif
 }
 
-void openofstream(std::ofstream& stream, zstring_view filename)
+void openOfStream(std::ofstream& stream, zstring_view filename)
 {
 #if defined _WIN32 && defined _MSC_VER
 	// MinGW 3.x doesn't support ofstream.open(wchar_t*)
@@ -262,7 +262,7 @@ void openofstream(std::ofstream& stream, zstring_view filename)
 #endif
 }
 
-void openofstream(std::ofstream& stream, zstring_view filename,
+void openOfStream(std::ofstream& stream, zstring_view filename,
                   std::ios_base::openmode mode)
 {
 #if defined _WIN32 && defined _MSC_VER
@@ -568,18 +568,18 @@ bool exists(zstring_view filename)
 }
 
 static unsigned getNextNum(dirent* d, string_view prefix, string_view extension,
-                           unsigned nofdigits)
+                           unsigned nofDigits)
 {
 	auto extensionLen = extension.size();
 	auto prefixLen = prefix.size();
 	string_view name(d->d_name);
 
-	if ((name.size() != (prefixLen + nofdigits + extensionLen)) ||
+	if ((name.size() != (prefixLen + nofDigits + extensionLen)) ||
 	    (name.substr(0, prefixLen) != prefix) ||
-	    (name.substr(prefixLen + nofdigits, extensionLen) != extension)) {
+	    (name.substr(prefixLen + nofDigits, extensionLen) != extension)) {
 		return 0;
 	}
-	if (auto n = StringOp::stringToBase<10, unsigned>(name.substr(prefixLen, nofdigits))) {
+	if (auto n = StringOp::stringToBase<10, unsigned>(name.substr(prefixLen, nofDigits))) {
 		return *n;
 	}
 	return 0;
@@ -588,7 +588,7 @@ static unsigned getNextNum(dirent* d, string_view prefix, string_view extension,
 string getNextNumberedFileName(
 	string_view directory, string_view prefix, string_view extension)
 {
-	const unsigned nofdigits = 4;
+	const unsigned nofDigits = 4;
 
 	unsigned max_num = 0;
 
@@ -601,12 +601,12 @@ string getNextNumberedFileName(
 
 	ReadDir dir(dirName);
 	while (auto* d = dir.getEntry()) {
-		max_num = std::max(max_num, getNextNum(d, prefix, extension, nofdigits));
+		max_num = std::max(max_num, getNextNum(d, prefix, extension, nofDigits));
 	}
 
 	std::ostringstream os;
 	os << dirName << '/' << prefix;
-	os.width(nofdigits);
+	os.width(nofDigits);
 	os.fill('0');
 	os << (max_num + 1) << extension;
 	return os.str();

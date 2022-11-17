@@ -32,7 +32,7 @@ namespace gl {
 }
 
 // Returns a 4x4 translation matrix for the given xyz translation vector.
-// Comparable to the gltranslate() function.
+// Comparable to the glTranslate() function.
 [[nodiscard]] constexpr mat4 translate(const vec3& xyz)
 {
 	mat4 result;

@@ -9,7 +9,7 @@ MSXFacMidiInterface::MSXFacMidiInterface(const DeviceConfig& config)
 	: MSXDevice(config)
 	, MidiInConnector(MSXDevice::getPluggingController(), MSXDevice::getName() + "-in")
 	, outConnector   (MSXDevice::getPluggingController(), MSXDevice::getName() + "-out")
-	, i8251(getScheduler(), interf, getCurrentTime())
+	, i8251(getScheduler(), interface, getCurrentTime())
 {
 	EmuTime::param time = getCurrentTime();
 	static constexpr auto period = EmuDuration::hz(500000); // 500 kHz
@@ -43,55 +43,55 @@ void MSXFacMidiInterface::writeIO(word port, byte value, EmuTime::param time)
 
 // I8251Interface  (pass calls from I8251 to outConnector)
 
-void MSXFacMidiInterface::I8251Interf::setRxRDY(bool /*status*/, EmuTime::param /*time*/)
+void MSXFacMidiInterface::Interface::setRxRDY(bool /*status*/, EmuTime::param /*time*/)
 {
 }
 
-void MSXFacMidiInterface::I8251Interf::setDTR(bool /*status*/, EmuTime::param /*time*/)
+void MSXFacMidiInterface::Interface::setDTR(bool /*status*/, EmuTime::param /*time*/)
 {
 }
 
-void MSXFacMidiInterface::I8251Interf::setRTS(bool /*status*/, EmuTime::param /*time*/)
+void MSXFacMidiInterface::Interface::setRTS(bool /*status*/, EmuTime::param /*time*/)
 {
 }
 
-bool MSXFacMidiInterface::I8251Interf::getDSR(EmuTime::param /*time*/)
+bool MSXFacMidiInterface::Interface::getDSR(EmuTime::param /*time*/)
 {
 	return true;
 }
 
-bool MSXFacMidiInterface::I8251Interf::getCTS(EmuTime::param /*time*/)
+bool MSXFacMidiInterface::Interface::getCTS(EmuTime::param /*time*/)
 {
 	return true;
 }
 
-void MSXFacMidiInterface::I8251Interf::setDataBits(DataBits bits)
+void MSXFacMidiInterface::Interface::setDataBits(DataBits bits)
 {
-	auto& midi = OUTER(MSXFacMidiInterface, interf);
+	auto& midi = OUTER(MSXFacMidiInterface, interface);
 	midi.outConnector.setDataBits(bits);
 }
 
-void MSXFacMidiInterface::I8251Interf::setStopBits(StopBits bits)
+void MSXFacMidiInterface::Interface::setStopBits(StopBits bits)
 {
-	auto& midi = OUTER(MSXFacMidiInterface, interf);
+	auto& midi = OUTER(MSXFacMidiInterface, interface);
 	midi.outConnector.setStopBits(bits);
 }
 
-void MSXFacMidiInterface::I8251Interf::setParityBit(bool enable, ParityBit parity)
+void MSXFacMidiInterface::Interface::setParityBit(bool enable, ParityBit parity)
 {
-	auto& midi = OUTER(MSXFacMidiInterface, interf);
+	auto& midi = OUTER(MSXFacMidiInterface, interface);
 	midi.outConnector.setParityBit(enable, parity);
 }
 
-void MSXFacMidiInterface::I8251Interf::recvByte(byte value, EmuTime::param time)
+void MSXFacMidiInterface::Interface::recvByte(byte value, EmuTime::param time)
 {
-	auto& midi = OUTER(MSXFacMidiInterface, interf);
+	auto& midi = OUTER(MSXFacMidiInterface, interface);
 	midi.outConnector.recvByte(value, time);
 }
 
-void MSXFacMidiInterface::I8251Interf::signal(EmuTime::param time)
+void MSXFacMidiInterface::Interface::signal(EmuTime::param time)
 {
-	auto& midi = OUTER(MSXFacMidiInterface, interf);
+	auto& midi = OUTER(MSXFacMidiInterface, interface);
 	midi.getPluggedMidiInDev().signal(time);
 }
 

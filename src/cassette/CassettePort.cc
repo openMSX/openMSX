@@ -130,7 +130,7 @@ void CassettePort::serialize(Archive& ar, unsigned version)
 	// don't serialize 'lastOutput', done via MSXPPI
 
 	// Must come after serialization of the connector because that one
-	// potentionally serializes the CassettePlayer.
+	// potentially serializes the CassettePlayer.
 	if (ar.versionAtLeast(version, 2)) {
 		// always serialize CassettePlayer, even if it's not plugged in.
 		ar.serializeOnlyOnce("cassettePlayer", *cassettePlayer);

@@ -579,13 +579,13 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
 		      Keys::getName(keyEvent.getKeyCode()).c_str());
 	}
 
-	// Process deadkeys.
+	// Process dead keys.
 	if (mode == KeyboardSettings::CHARACTER_MAPPING) {
 		for (auto n : xrange(3)) {
-			if (key == keyboardSettings.getDeadkeyHostKey(n)) {
-				UnicodeKeymap::KeyInfo deadkey = unicodeKeymap.getDeadKey(n);
-				if (deadkey.isValid()) {
-					updateKeyMatrix(time, down, deadkey.pos);
+			if (key == keyboardSettings.getDeadKeyHostKey(n)) {
+				UnicodeKeymap::KeyInfo deadKey = unicodeKeymap.getDeadKey(n);
+				if (deadKey.isValid()) {
+					updateKeyMatrix(time, down, deadKey.pos);
 					return false;
 				}
 			}
@@ -612,7 +612,7 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
 /*
  * Process a change (up or down event) of the CODE/KANA key
  * It presses or releases the key in the MSX keyboard matrix
- * and changes the kanalock state in case of a press
+ * and changes the kana-lock state in case of a press
  */
 void Keyboard::processCodeKanaChange(EmuTime::param time, bool down)
 {
@@ -625,7 +625,7 @@ void Keyboard::processCodeKanaChange(EmuTime::param time, bool down)
 /*
  * Process a change (up or down event) of the GRAPH key
  * It presses or releases the key in the MSX keyboard matrix
- * and changes the graphlock state in case of a press
+ * and changes the graph-lock state in case of a press
  */
 void Keyboard::processGraphChange(EmuTime::param time, bool down)
 {
@@ -931,23 +931,23 @@ bool Keyboard::pressUnicodeByUser(
 			// katakana on japanese model)
 			pressKeyMatrixEvent(time, keyInfo.pos);
 
-			uint8_t modmask = keyInfo.modMask & ~modifierIsLock;
+			uint8_t modMask = keyInfo.modMask & ~modifierIsLock;
 			if (('A' <= unicode && unicode <= 'Z') || ('a' <= unicode && unicode <= 'z')) {
 				// For a-z and A-Z, leave SHIFT unchanged, this to cater
 				// for difference in behaviour between host and emulated
 				// machine with respect to how the combination of CAPSLOCK
 				// and SHIFT is interpreted for these characters.
-				modmask &= ~KeyInfo::SHIFT_MASK;
+				modMask &= ~KeyInfo::SHIFT_MASK;
 			} else {
 				// Release SHIFT if our character does not require it.
-				if (~modmask & KeyInfo::SHIFT_MASK) {
+				if (~modMask & KeyInfo::SHIFT_MASK) {
 					releaseKeyMatrixEvent(time, modifierPos[KeyInfo::SHIFT]);
 				}
 			}
 			// Press required modifiers for our character.
 			// Note that these modifiers are only pressed, never released.
 			for (auto [i, mp] : enumerate(modifierPos)) {
-				if ((modmask >> i) & 1) {
+				if ((modMask >> i) & 1) {
 					pressKeyMatrixEvent(time, mp);
 				}
 			}
@@ -991,7 +991,7 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
 	if (!keyInfo.isValid()) {
 		return releaseMask;
 	}
-	uint8_t modmask = keyInfo.modMask & ~modifierIsLock;
+	uint8_t modMask = keyInfo.modMask & ~modifierIsLock;
 	if (down) {
 		// check for modifier toggles
 		uint8_t toggleLocks = needsLockToggle(keyInfo);
@@ -1004,8 +1004,8 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
 			}
 		}
 		if (releaseMask == 0) {
-			debug("Key pasted, unicode: 0x%04x, row: %02d, col: %d, modmask: %02x\n",
-			      unicode, keyInfo.pos.getRow(), keyInfo.pos.getColumn(), modmask);
+			debug("Key pasted, unicode: 0x%04x, row: %02d, col: %d, modMask: %02x\n",
+			      unicode, keyInfo.pos.getRow(), keyInfo.pos.getColumn(), modMask);
 			// Workaround MSX-BIOS(?) bug/limitation:
 			//
 			// Under these conditions:
@@ -1033,7 +1033,7 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
 			// To fix both these problems (and possibly still undiscovered
 			// variations), I'm now extending the workaround to all characters
 			// that are typed via a key combination that includes GRAPH.
-			if (modmask & KeyInfo::GRAPH_MASK) {
+			if (modMask & KeyInfo::GRAPH_MASK) {
 				auto isPressed = [&](auto& key) {
 					return (typeKeyMatrix[key.getRow()] & key.getMask()) == 0;
 				};
@@ -1045,7 +1045,7 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
 			}
 			// press modifiers
 			for (auto [i, mp] : enumerate(modifierPos)) {
-				if ((modmask >> i) & 1) {
+				if ((modMask >> i) & 1) {
 					typeKeyMatrix[mp.getRow()] &= ~mp.getMask();
 				}
 			}
@@ -1057,7 +1057,7 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
 	} else {
 		typeKeyMatrix[keyInfo.pos.getRow()] |= keyInfo.pos.getMask();
 		for (auto [i, mp] : enumerate(modifierPos)) {
-			if ((modmask >> i) & 1) {
+			if ((modMask >> i) & 1) {
 				typeKeyMatrix[mp.getRow()] |= mp.getMask();
 			}
 		}
@@ -1136,7 +1136,7 @@ void Keyboard::KeyMatrixUpCmd::execute(
 
 std::string Keyboard::KeyMatrixUpCmd::help(std::span<const TclObject> /*tokens*/) const
 {
-	return "keymatrixup <row> <bitmask>  release a key in the keyboardmatrix\n";
+	return "keymatrixup <row> <bitmask>  release a key in the keyboard matrix\n";
 }
 
 
@@ -1160,7 +1160,7 @@ void Keyboard::KeyMatrixDownCmd::execute(std::span<const TclObject> tokens,
 
 std::string Keyboard::KeyMatrixDownCmd::help(std::span<const TclObject> /*tokens*/) const
 {
-	return "keymatrixdown <row> <bitmask>  press a key in the keyboardmatrix\n";
+	return "keymatrixdown <row> <bitmask>  press a key in the keyboard matrix\n";
 }
 
 

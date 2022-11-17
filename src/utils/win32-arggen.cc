@@ -19,16 +19,16 @@ ArgumentGenerator::~ArgumentGenerator()
 char** ArgumentGenerator::GetArguments(int& argc_)
 {
 	if (argv.empty()) {
-		LPWSTR* pszArglist = CommandLineToArgvW(GetCommandLineW(), &argc);
-		if (!pszArglist) {
+		LPWSTR* pszArgList = CommandLineToArgvW(GetCommandLineW(), &argc);
+		if (!pszArgList) {
 			throw MSXException("Failed to obtain command line arguments");
 		}
 
 		argv.resize(argc);
 		for (auto i : xrange(argc)) {
-			argv[i] = strdup(utf8::utf16to8(pszArglist[i]).c_str());
+			argv[i] = strdup(utf8::utf16to8(pszArgList[i]).c_str());
 		}
-		LocalFree(pszArglist);
+		LocalFree(pszArgList);
 	}
 
 	argc_ = argc;

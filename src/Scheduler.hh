@@ -95,7 +95,7 @@ private: // -> intended for Schedulable
 	 */
 	bool removeSyncPoint(Schedulable& device);
 
-	/** Remove all syncpoints for the given device.
+	/** Remove all sync-points for the given device.
 	  */
 	void removeSyncPoints(Schedulable& device);
 

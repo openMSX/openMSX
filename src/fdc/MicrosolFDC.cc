@@ -77,7 +77,7 @@ void MicrosolFDC::writeIO(word port, byte value, EmuTime::param time)
 		// bit 3:  drive select D
 		// bit 4:  side select
 		// bit 5:  turn on motor
-		// bit 6:  enable waitstates
+		// bit 6:  enable wait states
 		// bit 7:  density: 0=single 1=double
 		//
 		// When you enable a drive select bit, the led on the

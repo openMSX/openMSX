@@ -99,7 +99,7 @@ public:
 		mode = mode_;
 	}
 
-	/** Get the base dispay mode as an integer: M5..M1 combined.
+	/** Get the base display mode as an integer: M5..M1 combined.
 	  * If YJK is active, the base mode is the underlying display mode.
 	  * @return The integer representation of the base of this display mode,
 	  *     in the range [0..0x1F].

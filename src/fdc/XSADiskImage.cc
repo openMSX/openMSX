@@ -15,9 +15,9 @@ public:
 	std::pair<MemBuffer<SectorBuffer>, unsigned> extractData();
 
 private:
-	static constexpr int MAXSTRLEN = 254;
-	static constexpr int TBLSIZE = 16;
-	static constexpr int MAXHUFCNT = 127;
+	static constexpr int MAX_STR_LEN = 254;
+	static constexpr int TBL_SIZE = 16;
+	static constexpr int MAX_HUF_CNT = 127;
 
 	[[nodiscard]] inline uint8_t charIn();
 	void chkHeader();
@@ -41,15 +41,15 @@ private:
 	unsigned sectors;
 
 	int updHufCnt;
-	std::array<int, TBLSIZE + 1> cpDist;
-	std::array<int, TBLSIZE> cpdBmask;
-	std::array<int, TBLSIZE> tblSizes;
-	std::array<HufNode, 2 * TBLSIZE - 1> hufTbl;
+	std::array<int, TBL_SIZE + 1> cpDist;
+	std::array<int, TBL_SIZE> cpdBmask;
+	std::array<int, TBL_SIZE> tblSizes;
+	std::array<HufNode, 2 * TBL_SIZE - 1> hufTbl;
 
 	uint8_t bitFlg;		// flag with the bits
 	uint8_t bitCnt;		// nb bits left
 
-	static constexpr std::array<int, TBLSIZE> cpdExt = { // Extra bits for distance codes
+	static constexpr std::array<int, TBL_SIZE> cpdExt = { // Extra bits for distance codes
 		  0,  0,  0,  0,  1,  2,  3,  4, 5,  6,  7,  8,  9, 10, 11, 12
 	};
 };
@@ -146,7 +146,7 @@ void XSAExtractor::unLz77()
 		if (bitIn()) {
 			// 1-bit
 			unsigned strLen = rdStrLen();
-			if (strLen == (MAXSTRLEN + 1)) {
+			if (strLen == (MAX_STR_LEN + 1)) {
 				 return;
 			}
 			unsigned strPos = rdStrPos();
@@ -197,7 +197,7 @@ unsigned XSAExtractor::rdStrLen()
 // read string pos
 int XSAExtractor::rdStrPos()
 {
-	HufNode* hufPos = &hufTbl[2 * TBLSIZE - 2];
+	HufNode* hufPos = &hufTbl[2 * TBL_SIZE - 2];
 
 	while (hufPos->child1) {
 		if (bitIn()) {
@@ -251,14 +251,14 @@ bool XSAExtractor::bitIn()
 void XSAExtractor::initHufInfo()
 {
 	int offs = 1;
-	for (auto i : xrange(TBLSIZE)) {
+	for (auto i : xrange(TBL_SIZE)) {
 		cpDist[i] = offs;
 		cpdBmask[i] = 1 << cpdExt[i];
 		offs += cpdBmask[i];
 	}
-	cpDist[TBLSIZE] = offs;
+	cpDist[TBL_SIZE] = offs;
 
-	for (auto i : xrange(TBLSIZE)) {
+	for (auto i : xrange(TBL_SIZE)) {
 		tblSizes[i] = 0;            // reset the table counters
 		hufTbl[i].child1 = nullptr; // mark the leave nodes
 	}
@@ -270,14 +270,14 @@ void XSAExtractor::mkHufTbl()
 {
 	// Initialize the huffman tree
 	HufNode* hufPos = &hufTbl[0];
-	for (auto i : xrange(TBLSIZE)) {
+	for (auto i : xrange(TBL_SIZE)) {
 		(hufPos++)->weight = 1 + (tblSizes[i] >>= 1);
 	}
-	for (int i = TBLSIZE; i != 2 * TBLSIZE - 1; ++i) {
+	for (int i = TBL_SIZE; i != 2 * TBL_SIZE - 1; ++i) {
 		(hufPos++)->weight = -1;
 	}
 	// Place the nodes in the correct manner in the tree
-	while (hufTbl[2 * TBLSIZE - 2].weight == -1) {
+	while (hufTbl[2 * TBL_SIZE - 2].weight == -1) {
 		for (hufPos = &hufTbl[0]; !(hufPos->weight); ++hufPos) {
 			// nothing
 		}
@@ -310,7 +310,7 @@ void XSAExtractor::mkHufTbl()
 		(hufPos->child1 = l1Pos)->weight = 0;
 		(hufPos->child2 = l2Pos)->weight = 0;
 	}
-	updHufCnt = MAXHUFCNT;
+	updHufCnt = MAX_HUF_CNT;
 }
 
 } // namespace openmsx

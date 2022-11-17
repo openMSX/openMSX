@@ -83,7 +83,7 @@ private:
 // attribute points to the next and so on.
 //
 // Hierarchy is achieved via two pointers. This class has a pointer to its first
-// child and to its next sibling. Thus getting all children of a specfic
+// child and to its next sibling. Thus getting all children of a specific
 // elements requires to first follow the 'firstChild' pointer, and from there on
 // follow the 'nextSibling' pointers (and stop when any of these pointers in
 // nullptr). XMLElement objects do not have a pointer to their parent.

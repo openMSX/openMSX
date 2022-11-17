@@ -128,7 +128,7 @@ void CommandConsole::saveHistory()
 {
 	try {
 		std::ofstream outputFile;
-		FileOperations::openofstream(outputFile,
+		FileOperations::openOfStream(outputFile,
 		        userFileContext("console").resolveCreate("history.txt"));
 		if (!outputFile) {
 			throw FileException(

@@ -151,7 +151,7 @@ void EEPROM_93C46::clockEvent(EmuTime::param time)
 		}
 		break;
 
-	case WAIT_FOR_WRITEALL:
+	case WAIT_FOR_WRITE_ALL:
 		shiftRegister = (shiftRegister << 1) | int(pinDI);
 		++bits;
 		if (bits == DATA_BITS) {
@@ -179,12 +179,12 @@ void EEPROM_93C46::execute_command(EmuTime::param time)
 			state = IN_RESET;
 			break;
 
-		case 1: // WRITEALL
+		case 1: // WRITE ALL
 			shiftRegister = 0;
-			state = WAIT_FOR_WRITEALL;
+			state = WAIT_FOR_WRITE_ALL;
 			break;
 
-		case 2: // ERASEALL
+		case 2: // ERASE ALL
 			if (writeProtected) {
 				state = IN_RESET;
 				break;
@@ -230,7 +230,7 @@ static constexpr std::initializer_list<enum_string<EEPROM_93C46::State>> stateIn
 	{ "WAIT_FOR_COMMAND",   EEPROM_93C46::WAIT_FOR_COMMAND   },
 	{ "READING_DATA",       EEPROM_93C46::READING_DATA       },
 	{ "WAIT_FOR_WRITE",     EEPROM_93C46::WAIT_FOR_WRITE     },
-	{ "WAIT_FOR_WRITEALL",  EEPROM_93C46::WAIT_FOR_WRITEALL  },
+	{ "WAIT_FOR_WRITEALL",  EEPROM_93C46::WAIT_FOR_WRITE_ALL },
 };
 SERIALIZE_ENUM(EEPROM_93C46::State, stateInfo);
 

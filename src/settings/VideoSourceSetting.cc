@@ -22,7 +22,7 @@ VideoSourceSetting::VideoSourceSetting(CommandController& commandController_)
 
 void VideoSourceSetting::checkSetValue(std::string_view newValue) const
 {
-	// Special case: in case there are no videosources registered (yet),
+	// Special case: in case there are no video sources registered (yet),
 	// the only allowed value is "none". In case there is at least one
 	// registered source, this special value "none" should be hidden.
 	if (((newValue == "none") && (sources.size() >  1)) ||
@@ -117,7 +117,7 @@ void VideoSourceSetting::unregisterVideoSource(int source)
 	move_pop_back(sources, rfind_unguarded(sources, source, &Source::id));
 
 	// First notify the (possibly) changed value before announcing the
-	// shrinked set of values.
+	// shrunken set of values.
 	setSource(getSource()); // via source to (possibly) adjust value
 	notifyPropertyChange();
 }

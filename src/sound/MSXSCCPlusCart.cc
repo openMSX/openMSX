@@ -176,7 +176,7 @@ void MSXSCCPlusCart::writeMem(word address, byte value, EmuTime::param time)
 		return;
 	}
 
-	/* Write to bankswitching registers
+	/* Write to bank-switching registers
 	 * The address to change banks:
 	 *   bank 1: 0x5000 - 0x57FF (0x5000 used)
 	 *   bank 2: 0x7000 - 0x77FF (0x7000 used)

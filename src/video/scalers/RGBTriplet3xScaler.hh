@@ -75,7 +75,6 @@ private:
 	 * Calculates the RGB triplets.
 	 * @param in Buffer of input pixels
 	 * @param out Buffer of output pixels, should be 3x as long as input
-	 * @param inwidth Width of the input buffer (in pixels)
 	 */
 	void rgbify(std::span<const Pixel> in, std::span<Pixel> out, unsigned c1, unsigned c2);
 

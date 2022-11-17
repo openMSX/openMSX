@@ -1,5 +1,5 @@
 /**
- * Tecall MSX Ramfile TM220
+ * Tecall MSX RAMFile TM220
  *
  * This is a cartridge with 16kB ROM and 16kB RAM (powered by a battery). It
  * offers BASIC commands to load/save files to this RAM. See manual for more

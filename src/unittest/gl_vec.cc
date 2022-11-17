@@ -157,7 +157,7 @@ TEST_CASE("gl_vec: constructors")
 		CHECK(j4[3] == 8);
 
 	#if 0
-		// Not implemeneted yet (also not yet needed).
+		// Not implemented yet (also not yet needed).
 		vec4 x4(1, vec2(3, 5), 7);
 		CHECK(x4[0] == 1);
 		CHECK(x4[1] == 3);

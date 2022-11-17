@@ -220,7 +220,7 @@ enum KeyCode {
 
 /** Translate SDL_Keycode/SDL_Scancode into openMSX key/scan Keycode's. */
 [[nodiscard]] std::pair<KeyCode, KeyCode> getCodes(
-	SDL_Keycode keycode, Uint16 mod = KMOD_NONE, SDL_Scancode scancode = SDL_SCANCODE_UNKNOWN, bool release = false);
+	SDL_Keycode keyCode, Uint16 mod = KMOD_NONE, SDL_Scancode scanCode = SDL_SCANCODE_UNKNOWN, bool release = false);
 
 /**
  * Translate key code to key name.

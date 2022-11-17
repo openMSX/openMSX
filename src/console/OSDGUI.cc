@@ -62,11 +62,11 @@ void OSDGUI::OSDCommand::create(std::span<const TclObject> tokens, TclObject& re
 			fullnameStr);
 	}
 
-	auto [parentname, childName] = StringOp::splitOnLast(fullnameStr, '.');
-	auto* parent = childName.empty() ? &top : top.findByName(parentname);
+	auto [parentName, childName] = StringOp::splitOnLast(fullnameStr, '.');
+	auto* parent = childName.empty() ? &top : top.findByName(parentName);
 	if (!parent) {
 		throw CommandException(
-			"Parent widget doesn't exist yet:", parentname);
+			"Parent widget doesn't exist yet:", parentName);
 	}
 
 	auto widget = create(type, fullname);

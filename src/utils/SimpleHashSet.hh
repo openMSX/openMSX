@@ -19,7 +19,7 @@
 // * When inserting more elements in this set, the already present elements may
 //   move around in memory (e.g. because the internal table has run out of
 //   capacity). In other words elements in this set do not have stable
-//   addresses. (Because elemnts can move around, they should preferably be
+//   addresses. (Because elements can move around, they should preferably be
 //   cheap to move (same as with std::vector)).
 // * This set does not offer a fully STL-compatible interface. Though where
 //   possible it does come close. For example it's not possible to iterate over

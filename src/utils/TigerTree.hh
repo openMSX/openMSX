@@ -50,7 +50,7 @@ public:
 	[[nodiscard]] virtual uint8_t* getData(size_t offset, size_t size) = 0;
 
 	/** Because TTH calculation of a large file takes some time (a few
-	  * 1/10s for a harddisk image) we try to cache previous calculations.
+	  * 1/10s for a hard disk image) we try to cache previous calculations.
 	  * This method makes sure we don't wrongly reuse the data. E.g. after
 	  * it has been modified (by openmsx or even externally).
 	  *

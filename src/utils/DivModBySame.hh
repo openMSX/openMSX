@@ -11,7 +11,7 @@ namespace openmsx {
  * Binary division can be performed by:
  *   - multiplication by a magic number
  *   - followed by an addition of a magic number
- *   - follwed by a right shift over some magic number of bits
+ *   - followed by a right shift over some magic number of bits
  * These magic constants only depend on the divisor, but they are quite
  * expensive to calculate.
  * However if you know you will divide many times by the same number this
@@ -33,11 +33,11 @@ public:
 		uint64_t t = (__uint128_t(dividend) * m + a) >> 64;
 		return t >> s;
 	#else
-		return divinC(dividend);
+		return divInC(dividend);
 	#endif
 	}
 
-	[[nodiscard]] inline uint32_t divinC(uint64_t dividend) const
+	[[nodiscard]] inline uint32_t divInC(uint64_t dividend) const
 	{
 		uint64_t t1 = uint64_t(uint32_t(dividend)) * uint32_t(m);
 		uint64_t t2 = (dividend >> 32) * uint32_t(m);

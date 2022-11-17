@@ -18,12 +18,12 @@ TEST_CASE("static_string_view")
 	//static_string_view v4(buf); // ok, does NOT compile
 
 	// This compiles, but ideally it shouldn't :(
-	//const char cbuf[3] = { 'f', 'o', 'o' };
-	//static_string_view v5(cbuf); // but it does trigger an assert at runtime
+	//const char cBuf[3] = { 'f', 'o', 'o' };
+	//static_string_view v5(cBuf); // but it does trigger an assert at runtime
 
 	// This compiles, but ideally it shouldn't :(
-	const char cbuf0[4] = { 'f', 'o', 'o', '\0' };
-	static_string_view v6(cbuf0); // and also no assert
+	const char cBuf0[4] = { 'f', 'o', 'o', '\0' };
+	static_string_view v6(cBuf0); // and also no assert
 	std::string_view sv6 = v6;
 	CHECK(sv6 == "foo");
 

@@ -16,8 +16,8 @@
  *
  *  Another thing: the MegaRAMs of Ademir Carchano have a mirror
  *  effect: if you map the page 0 of MegaRAM slot, you'll be
- *  acessing the same area of 8000h-BFFFh of this slot; if you map
- *  the page 3 of MegaRAM slot, you'll be acessing the same area of
+ *  accessing the same area of 8000h-BFFFh of this slot; if you map
+ *  the page 3 of MegaRAM slot, you'll be accessing the same area of
  *  4000h-7FFFh of this slot. I don't know any software that makes
  *  use of this feature, except UZIX for MSX1.
  */

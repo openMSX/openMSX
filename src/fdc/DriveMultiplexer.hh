@@ -9,7 +9,7 @@
 namespace openmsx {
 
 /**
- * This class connects to a FDC as a normal DiskDrive and deligates all
+ * This class connects to a FDC as a normal DiskDrive and delegates all
  * requests to one of four other DiskDrives.
  */
 class DriveMultiplexer final : public DiskDrive

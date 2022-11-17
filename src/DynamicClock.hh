@@ -50,7 +50,7 @@ public:
 	  */
 	[[nodiscard]] unsigned getTicksTill(EmuTime::param e) const {
 		assert(e.time >= lastTick.time);
-		return divmod.div(e.time - lastTick.time);
+		return divMod.div(e.time - lastTick.time);
 	}
 	/** Like getTicksTill(), but also returns the fractional part (in range [0, 1)).
 	  * This is equivalent to, but numerically more stable than:
@@ -67,7 +67,7 @@ public:
 	[[nodiscard]] IntegralFractional getTicksTillAsIntFloat(EmuTime::param e) const {
 		assert(e.time >= lastTick.time);
 		auto dur = e.time - lastTick.time;
-		auto [q, r] = divmod.divMod(dur);
+		auto [q, r] = divMod.divMod(dur);
 		auto f = float(r) / float(getStep());
 		assert(0.0f <= f); assert(f < 1.0f);
 		return {q, f};
@@ -77,7 +77,7 @@ public:
 	void getTicksTill(EmuTime::param e, FIXED& result) const {
 		assert(e.time >= lastTick.time);
 		uint64_t tmp = (e.time - lastTick.time) << FIXED::FRACTION_BITS;
-		result = FIXED::create(divmod.div(tmp + (getStep() / 2)));
+		result = FIXED::create(divMod.div(tmp + (getStep() / 2)));
 	}
 
 	/** Calculate the number of ticks this clock has to tick to reach
@@ -86,7 +86,7 @@ public:
 	  */
 	[[nodiscard]] unsigned getTicksTillUp(EmuTime::param e) const {
 		assert(e.time >= lastTick.time);
-		return divmod.div(e.time - lastTick.time + (getStep() - 1));
+		return divMod.div(e.time - lastTick.time + (getStep() - 1));
 	}
 
 	[[nodiscard]] double getTicksTillDouble(EmuTime::param e) const {
@@ -95,7 +95,7 @@ public:
 	}
 
 	[[nodiscard]] uint64_t getTotalTicks() const {
-		// note: don't use divmod.div() because that one only returns a
+		// note: don't use divMod.div() because that one only returns a
 		//       32 bit result. Maybe improve in the future.
 		return lastTick.time / getStep();
 	}
@@ -138,7 +138,7 @@ public:
 	/** Set the duration of a clock tick. See also setFreq(). */
 	void setPeriod(EmuDuration period) {
 		assert(period.length() < (1ull << 32));
-		divmod.setDivisor(uint32_t(period.length()));
+		divMod.setDivisor(uint32_t(period.length()));
 	}
 
 	/** Reset the clock to start ticking at the given time.
@@ -153,7 +153,7 @@ public:
 	  */
 	void advance(EmuTime::param e) {
 		assert(lastTick.time <= e.time);
-		lastTick.time = e.time - divmod.mod(e.time - lastTick.time);
+		lastTick.time = e.time - divMod.mod(e.time - lastTick.time);
 	}
 
 	/** Advance this clock by the given number of ticks.
@@ -202,14 +202,14 @@ private:
 	  * We used to store this as a member, but DivModBySame also stores
 	  * it, so we can as well get it from there (getter is inlined).
 	  */
-	[[nodiscard]] unsigned getStep() const { return divmod.getDivisor(); }
+	[[nodiscard]] unsigned getStep() const { return divMod.getDivisor(); }
 
 private:
 	/** Time of this clock's last tick.
 	  */
 	EmuTime lastTick;
 
-	DivModBySame divmod;
+	DivModBySame divMod;
 };
 SERIALIZE_CLASS_VERSION(DynamicClock, 2);
 

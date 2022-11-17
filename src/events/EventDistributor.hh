@@ -79,7 +79,7 @@ private:
 	std::array<PriorityMap, size_t(EventType::NUM_EVENT_TYPES)> listeners;
 	using EventQueue = std::vector<Event>;
 	EventQueue scheduledEvents;
-	std::mutex mutex; // lock datastructures
+	std::mutex mutex; // lock data structures
 	std::mutex cvMutex; // lock condition_variable
 	std::condition_variable condition;
 };

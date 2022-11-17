@@ -11,7 +11,7 @@ static constexpr byte STAT_TXEMPTY = 0x04;
 static constexpr byte STAT_PE      = 0x08;
 static constexpr byte STAT_OE      = 0x10;
 static constexpr byte STAT_FE      = 0x20;
-static constexpr byte STAT_SYNBRK  = 0x40;
+static constexpr byte STAT_SYN_BRK = 0x40;
 static constexpr byte STAT_DSR     = 0x80;
 
 static constexpr byte MODE_BAUDRATE    = 0x03;
@@ -19,35 +19,35 @@ static constexpr byte MODE_SYNCHRONOUS = 0x00;
 static constexpr byte MODE_RATE1       = 0x01;
 static constexpr byte MODE_RATE16      = 0x02;
 static constexpr byte MODE_RATE64      = 0x03;
-static constexpr byte MODE_WORDLENGTH  = 0x0C;
+static constexpr byte MODE_WORD_LENGTH  = 0x0C;
 static constexpr byte MODE_5BIT        = 0x00;
 static constexpr byte MODE_6BIT        = 0x04;
 static constexpr byte MODE_7BIT        = 0x08;
 static constexpr byte MODE_8BIT        = 0x0C;
-static constexpr byte MODE_PARITYEN    = 0x10;
-static constexpr byte MODE_PARITODD    = 0x00;
+static constexpr byte MODE_PARITY_EVEN = 0x10;
+static constexpr byte MODE_PARITY_ODD  = 0x00;
 static constexpr byte MODE_PARITEVEN   = 0x20;
 static constexpr byte MODE_STOP_BITS   = 0xC0;
 static constexpr byte MODE_STOP_INV    = 0x00;
 static constexpr byte MODE_STOP_1      = 0x40;
 static constexpr byte MODE_STOP_15     = 0x80;
 static constexpr byte MODE_STOP_2      = 0xC0;
-static constexpr byte MODE_SINGLESYNC  = 0x80;
+static constexpr byte MODE_SINGLE_SYNC = 0x80;
 
-static constexpr byte CMD_TXEN   = 0x01;
-static constexpr byte CMD_DTR    = 0x02;
-static constexpr byte CMD_RXE    = 0x04;
-static constexpr byte CMD_SBRK   = 0x08;
-static constexpr byte CMD_RSTERR = 0x10;
-static constexpr byte CMD_RTS    = 0x20;
-static constexpr byte CMD_RESET  = 0x40;
-static constexpr byte CMD_HUNT   = 0x80;
+static constexpr byte CMD_TXEN    = 0x01;
+static constexpr byte CMD_DTR     = 0x02;
+static constexpr byte CMD_RXE     = 0x04;
+static constexpr byte CMD_SBRK    = 0x08;
+static constexpr byte CMD_RST_ERR = 0x10;
+static constexpr byte CMD_RTS     = 0x20;
+static constexpr byte CMD_RESET   = 0x40;
+static constexpr byte CMD_HUNT    = 0x80;
 
 
-I8251::I8251(Scheduler& scheduler, I8251Interface& interf_, EmuTime::param time)
+I8251::I8251(Scheduler& scheduler, I8251Interface& interface_, EmuTime::param time)
 	: syncRecv (scheduler)
 	, syncTrans(scheduler)
-	, interf(interf_), clock(scheduler)
+	, interface(interface_), clock(scheduler)
 {
 	reset(time);
 }
@@ -111,7 +111,7 @@ void I8251::writeIO(word port, byte value, EmuTime::param time)
 			break;
 		case FAZE_SYNC1:
 			sync1 = value;
-			if (mode & MODE_SINGLESYNC) {
+			if (mode & MODE_SINGLE_SYNC) {
 				cmdFaze = FAZE_CMD;
 			} else {
 				cmdFaze = FAZE_SYNC2;
@@ -142,7 +142,7 @@ void I8251::setMode(byte newMode)
 	mode = newMode;
 
 	auto dataBits = [&] {
-		switch (mode & MODE_WORDLENGTH) {
+		switch (mode & MODE_WORD_LENGTH) {
 		case MODE_5BIT: return SerialDataInterface::DATA_5;
 		case MODE_6BIT: return SerialDataInterface::DATA_6;
 		case MODE_7BIT: return SerialDataInterface::DATA_7;
@@ -150,7 +150,7 @@ void I8251::setMode(byte newMode)
 		default: UNREACHABLE; return SerialDataInterface::DATA_8;
 		}
 	}();
-	interf.setDataBits(dataBits);
+	interface.setDataBits(dataBits);
 
 	auto stopBits = [&] {
 		switch(mode & MODE_STOP_BITS) {
@@ -161,12 +161,12 @@ void I8251::setMode(byte newMode)
 		default: UNREACHABLE; return SerialDataInterface::STOP_2;
 		}
 	}();
-	interf.setStopBits(stopBits);
+	interface.setStopBits(stopBits);
 
-	bool parityEnable = (mode & MODE_PARITYEN) != 0;
+	bool parityEnable = (mode & MODE_PARITY_EVEN) != 0;
 	SerialDataInterface::ParityBit parity = (mode & MODE_PARITEVEN) ?
 		SerialDataInterface::EVEN : SerialDataInterface::ODD;
-	interf.setParityBit(parityEnable, parity);
+	interface.setParityBit(parityEnable, parity);
 
 	unsigned baudrate = [&] {
 		switch (mode & MODE_BAUDRATE) {
@@ -189,15 +189,15 @@ void I8251::writeCommand(byte value, EmuTime::param time)
 
 	// CMD_RESET, CMD_TXEN, CMD_RXE  handled in other routines
 
-	interf.setRTS((command & CMD_RTS) != 0, time);
-	interf.setDTR((command & CMD_DTR) != 0, time);
+	interface.setRTS((command & CMD_RTS) != 0, time);
+	interface.setDTR((command & CMD_DTR) != 0, time);
 
 	if (!(command & CMD_TXEN)) {
 		// disable transmitter
 		syncTrans.removeSyncPoint();
 		status |= STAT_TXRDY | STAT_TXEMPTY;
 	}
-	if (command & CMD_RSTERR) {
+	if (command & CMD_RST_ERR) {
 		status &= ~(STAT_PE | STAT_OE | STAT_FE);
 	}
 	if (command & CMD_SBRK) {
@@ -218,14 +218,14 @@ void I8251::writeCommand(byte value, EmuTime::param time)
 			status &= ~(STAT_PE | STAT_OE | STAT_FE); // TODO
 			status &= ~STAT_RXRDY;
 		}
-		interf.signal(time);
+		interface.signal(time);
 	}
 }
 
 byte I8251::readStatus(EmuTime::param time)
 {
 	byte result = status;
-	if (interf.getDSR(time)) {
+	if (interface.getDSR(time)) {
 		result |= STAT_DSR;
 	}
 	return result;
@@ -234,7 +234,7 @@ byte I8251::readStatus(EmuTime::param time)
 byte I8251::readTrans(EmuTime::param time)
 {
 	status &= ~STAT_RXRDY;
-	interf.setRxRDY(false, time);
+	interface.setRxRDY(false, time);
 	return recvBuf;
 }
 
@@ -260,14 +260,14 @@ void I8251::setParityBit(bool enable, ParityBit parity)
 
 void I8251::recvByte(byte value, EmuTime::param time)
 {
-	// TODO STAT_PE / STAT_FE / STAT_SYNBRK
+	// TODO STAT_PE / STAT_FE / STAT_SYN_BRK
 	assert(recvReady && (command & CMD_RXE));
 	if (status & STAT_RXRDY) {
 		status |= STAT_OE;
 	} else {
 		recvBuf = value;
 		status |= STAT_RXRDY;
-		interf.setRxRDY(true, time);
+		interface.setRxRDY(true, time);
 	}
 	recvReady = false;
 	if (clock.isPeriodic()) {
@@ -295,14 +295,14 @@ void I8251::execRecv(EmuTime::param time)
 {
 	assert(command & CMD_RXE);
 	recvReady = true;
-	interf.signal(time);
+	interface.signal(time);
 }
 
 void I8251::execTrans(EmuTime::param time)
 {
 	assert(!(status & STAT_TXEMPTY) && (command & CMD_TXEN));
 
-	interf.recvByte(sendByte, time);
+	interface.recvByte(sendByte, time);
 	if (status & STAT_TXRDY) {
 		status |= STAT_TXEMPTY;
 	} else {

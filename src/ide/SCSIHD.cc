@@ -14,9 +14,9 @@
  *  Only the direct access device is supported now.
  *  Message system might be imperfect.
  *
- *  NOTE: this version only supports a non-removable harddisk, as the class
+ *  NOTE: this version only supports a non-removable hard disk, as the class
  *  name suggests. Refer to revision 6526 of this file to see what was removed
- *  from the generic/parameterised code.
+ *  from the generic/parameterized code.
  */
 
 #include "SCSIHD.hh"
@@ -69,12 +69,12 @@ static constexpr std::array<uint8_t, 36> inqData = {
 static constexpr unsigned BUFFER_BLOCK_SIZE = SCSIHD::BUFFER_SIZE /
                                               SectorAccessibleDisk::SECTOR_SIZE;
 
-SCSIHD::SCSIHD(const DeviceConfig& targetconfig,
+SCSIHD::SCSIHD(const DeviceConfig& targetConfig,
                AlignedBuffer& buf, unsigned mode_)
-	: HD(targetconfig)
+	: HD(targetConfig)
 	, buffer(buf)
 	, mode(mode_)
-	, scsiId(targetconfig.getAttributeValueAsInt("id", 0))
+	, scsiId(targetConfig.getAttributeValueAsInt("id", 0))
 {
 	lun = 0; // move to reset() ?
 	message = 0;
@@ -170,7 +170,7 @@ unsigned SCSIHD::modeSense()
 
 		// Mode Parameter Header 4bytes
 		pBuffer[1] = media; // Medium Type
-		pBuffer[3] = 8;     // block descripter length
+		pBuffer[3] = 8;     // block descriptor length
 		pBuffer += 4;
 
 		// Disable Block Descriptor check
@@ -534,7 +534,7 @@ scsiDeviceMsgOut()
 Notes:
     [out]
 	  -1: Busfree demand. (Please process it in the call origin.)
-	bit2: Status phase demand. Error happend.
+	bit2: Status phase demand. Error happened.
 	bit1: Make it to a busfree if ATN has not been released.
 	bit0: There is a message(MsgIn).
 */

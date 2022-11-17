@@ -332,7 +332,7 @@ void Mouse::stopReplay(EmuTime::param time) noexcept
 	}
 }
 
-// version 1: Initial version, the variables curxrel, curyrel and status were
+// version 1: Initial version, the variables curXRel, curYRel and status were
 //            not serialized.
 // version 2: Also serialize the above variables, this is required for
 //            record/replay, see comment in Keyboard.cc for more details.

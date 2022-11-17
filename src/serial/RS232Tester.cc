@@ -36,7 +36,7 @@ void RS232Tester::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 {
 	// output
 	auto outName = rs232OutputFilenameSetting.getString();
-	FileOperations::openofstream(outFile, outName);
+	FileOperations::openOfStream(outFile, outName);
 	if (outFile.fail()) {
 		outFile.clear();
 		throw PlugException("Error opening output file: ", outName);

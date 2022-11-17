@@ -87,7 +87,7 @@ namespace openmsx::FileOperations {
 	 * @param stream an ofstream
 	 * @param filename the file path
 	 */
-	void openofstream(std::ofstream& stream, zstring_view filename);
+	void openOfStream(std::ofstream& stream, zstring_view filename);
 
 	/**
 	 * Open an ofstream in a platform-independent manner
@@ -95,7 +95,7 @@ namespace openmsx::FileOperations {
 	 * @param filename the file path
 	 * @param mode the open mode
 	 */
-        void openofstream(std::ofstream& stream, zstring_view filename,
+        void openOfStream(std::ofstream& stream, zstring_view filename,
 	                  std::ios_base::openmode mode);
 
         /**

@@ -31,7 +31,7 @@ template<typename E> std::ostream& operator<<(std::ostream& os, EnumValueName<E>
 // A collection of (simple) profile counters:
 // - Counters start at zero.
 // - An individual counter can be incremented by 1 via 'tick(<counter-id>)'.
-// - When this 'ProfileCounters' object is destoyed it prints the value of each
+// - When this 'ProfileCounters' object is destroyed it prints the value of each
 //   counter.
 //
 // Template parameters:

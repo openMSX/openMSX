@@ -64,7 +64,7 @@ private:
 
 	I8254 i8254;
 
-	struct I8251Interf final : I8251Interface {
+	struct Interface final : I8251Interface {
 		void setRxRDY(bool status, EmuTime::param time) override;
 		void setDTR(bool status, EmuTime::param time) override;
 		void setRTS(bool status, EmuTime::param time) override;
@@ -75,7 +75,7 @@ private:
 		void setParityBit(bool enable, ParityBit parity) override;
 		void recvByte(byte value, EmuTime::param time) override;
 		void signal(EmuTime::param time) override;
-	} interf;
+	} interface;
 
 	I8251 i8251;
 	const std::unique_ptr<Rom> rom; // can be nullptr

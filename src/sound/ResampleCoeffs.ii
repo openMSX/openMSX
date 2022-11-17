@@ -1,12 +1,12 @@
-// Based on libsamplerate-0.1.2 (aka Secret Rabit Code)
+// Based on libsamplerate-0.1.2 (aka Secret Rabbit Code)
 //   see comments in Resample.cc
 //
 // f = make_filter(8f, 128f, 100.3);
-// Pass band width  : 0.0039062 (should be 0.0039062)
-// Stop band atten. : 100.71 dB
-// -3dB band width  : 0.484
-// half length      : 2463
-// increment        : 128
+// Pass band width       : 0.0039062 (should be 0.0039062)
+// Stop band attenuation : 100.71 dB
+// -3dB band width       : 0.484
+// half length           : 2463
+// increment             : 128
 
  8.31472372954840555082e-01f,
  8.31414005540308198583e-01f,

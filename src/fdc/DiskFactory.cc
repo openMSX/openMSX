@@ -94,7 +94,7 @@ std::unique_ptr<Disk> DiskFactory::createDisk(
 		unsigned num = [&] {
 			auto n = StringOp::stringToBase<10, unsigned>(std::string_view(diskImage).substr(pos + 1));
 			if (!n) {
-				// not a valid partion number, throw previous exception
+				// not a valid partition number, throw previous exception
 				throw e;
 			}
 			return *n;

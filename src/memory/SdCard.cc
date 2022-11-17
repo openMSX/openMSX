@@ -274,7 +274,7 @@ void SdCard::executeCommand()
 		responseQueue.push_back(R1_IDLE); // R1 (OK)
 		mode = COMMAND;
 		break;
-	case 16: // SET_BLOCKLEN
+	case 16: // SET_BLOCK_LEN
 		responseQueue.push_back(R1_IDLE); // OK, we don't really care
 		break;
 	case 17: // READ_SINGLE_BLOCK

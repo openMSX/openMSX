@@ -518,7 +518,7 @@ enum class EventType : uint8_t
 	OSD_CONTROL_PRESS        = event_index<OsdControlPressEvent>,
 	FOCUS                    = event_index<FocusEvent>,
 	RESIZE                   = event_index<ResizeEvent>,
-	FILEDROP                 = event_index<FileDropEvent>,
+	FILE_DROP                = event_index<FileDropEvent>,
 	QUIT                     = event_index<QuitEvent>,
 	GROUP                    = event_index<GroupEvent>,
 	BOOT                     = event_index<BootEvent>,
@@ -568,7 +568,7 @@ inline ObjectPool<RcEvent> eventPool;
 // * In some cases a helper thread want to signal something to the main thread.
 //   It can then construct an Event object (construction is allowed on non-main
 //   thread), and _move_ this freshly created (not yet copied) object to the
-//   EventDistributor. The EventDistribtor may or may not move this object into
+//   EventDistributor. The EventDistributor may or may not move this object into
 //   some queue. When it was moved then later the main-thread will pick it up
 //   (and processes and eventually destroy it). When it was not moved the (same)
 //   non-main thread will destroy the object.

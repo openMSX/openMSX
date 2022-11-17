@@ -22,9 +22,9 @@ const int BIT_NR       = 0x0E;
 const int SET_RESET    = 0x01;
 
 
-I8255::I8255(I8255Interface& interf, EmuTime::param time,
+I8255::I8255(I8255Interface& interface_, EmuTime::param time,
              StringSetting& invalidPpiModeSetting)
-	: interface(interf)
+	: interface(interface_)
 	, ppiModeCallback(invalidPpiModeSetting)
 {
 	reset(time);

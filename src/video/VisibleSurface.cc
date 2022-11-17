@@ -84,7 +84,7 @@ void VisibleSurface::updateCursor()
 	grab = renderSettings.getFullScreen() ||
 	       inputEventGenerator.getGrabInput().getBoolean();
 	if (grab) {
-		// always hide cursor in fullscreen or grabinput mode, but do it
+		// always hide cursor in fullscreen or grab-input mode, but do it
 		// after the derived class is constructed to avoid an SDL bug.
 		scheduleRT(0);
 		return;

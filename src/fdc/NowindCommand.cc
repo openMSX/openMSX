@@ -39,7 +39,7 @@ std::unique_ptr<DiskChanger> NowindCommand::createDiskChanger(
 			false, true);
 }
 
-[[nodiscard]] static unsigned searchRomdisk(const NowindHost::Drives& drives)
+[[nodiscard]] static unsigned searchRomDisk(const NowindHost::Drives& drives)
 {
 	for (auto [i, drv] : enumerate(drives)) {
 		if (drv->isRomDisk()) {
@@ -57,7 +57,7 @@ void NowindCommand::processHdimage(
 	// Possible formats are:
 	//   <filename> or <filename>:<range>
 	// Though <filename> itself can contain ':' characters. To solve this
-	// disambiguity we will always interpret the string as <filename> if
+	// ambiguity we will always interpret the string as <filename> if
 	// it is an existing filename.
 	IterableBitSet<64> partitions;
 	if (auto pos = hdImage.find_last_of(':');
@@ -97,7 +97,7 @@ void NowindCommand::execute(std::span<const TclObject> tokens, TclObject& result
 {
 	auto& host = interface.host;
 	auto& drives = interface.drives;
-	unsigned oldRomdisk = searchRomdisk(drives);
+	unsigned oldRomDisk = searchRomDisk(drives);
 
 	if (tokens.size() == 1) {
 		// no arguments, show general status
@@ -126,17 +126,17 @@ void NowindCommand::execute(std::span<const TclObject> tokens, TclObject& result
 		return;
 	}
 
-	// first parse complete commandline and store state in these local vars
+	// first parse complete command line and store state in these local vars
 	bool enablePhantom = false;
 	bool disablePhantom = false;
 	bool allowOther = false;
 	bool disallowOther = false;
 	bool changeDrives = false;
-	unsigned romdisk = 255;
+	unsigned romDisk = 255;
 	NowindHost::Drives tmpDrives;
 	string error;
 
-	// actually parse the commandline
+	// actually parse the command line
 	std::span<const TclObject> args(&tokens[1], tokens.size() - 1);
 	while (error.empty() && !args.empty()) {
 		bool createDrive = false;
@@ -158,10 +158,10 @@ void NowindCommand::execute(std::span<const TclObject> tokens, TclObject& result
 			disallowOther = true;
 
 		} else if (arg == one_of("--romdisk", "-j")) {
-			if (romdisk != 255) {
+			if (romDisk != 255) {
 				error = "Can only have one romdisk";
 			} else {
-				romdisk = unsigned(tmpDrives.size());
+				romDisk = unsigned(tmpDrives.size());
 				tmpDrives.push_back(std::make_unique<NowindRomDisk>());
 				changeDrives = true;
 			}
@@ -257,10 +257,10 @@ void NowindCommand::execute(std::span<const TclObject> tokens, TclObject& result
 	if (changeDrives && (prevSize != drives.size())) {
 		r += "Number of drives changed. ";
 	}
-	if (changeDrives && (romdisk != oldRomdisk)) {
-		if (oldRomdisk == 255) {
+	if (changeDrives && (romDisk != oldRomDisk)) {
+		if (oldRomDisk == 255) {
 			r += "Romdisk added. ";
-		} else if (romdisk == 255) {
+		} else if (romDisk == 255) {
 			r += "Romdisk removed. ";
 		} else {
 			r += "Romdisk changed position. ";
@@ -294,7 +294,7 @@ string NowindCommand::help(std::span<const TclObject> /*tokens*/) const
 	       "--no-allow -A    don't allow other disk roms to initialize\n"
 	     //"--dsk2rom  -z    converts a 360kB disk to romdisk.bin\n"
 	     //"--debug    -d    enable libnowind debug info\n"
-	     //"--test     -t    testmode\n"
+	     //"--test     -t    test mode\n"
 	     //"--help     -h    help message\n"
 	       "\n"
 	       "If you don't pass any arguments to this command, you'll get "

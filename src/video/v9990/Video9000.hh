@@ -30,8 +30,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void recalc();
-	void recalcVideoSource();
+	void recalculate();
+	void recalculateVideoSource();
 
 	// VideoSystemChangeListener
 	void preVideoSystemChange() noexcept override;

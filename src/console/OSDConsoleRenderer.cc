@@ -85,7 +85,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 #if !COMPONENT_GL
 	assert(!openGL);
 #endif
-	bgPos = bgSize = ivec2(); // recalc on first paint()
+	bgPos = bgSize = ivec2(); // recalculate on first paint()
 	blink = false;
 	lastBlinkTime = Timer::getTime();
 	lastCursorX = lastCursorY = 0;

@@ -56,7 +56,7 @@ public: // for serialize
 		WAIT_FOR_COMMAND,
 		READING_DATA,
 		WAIT_FOR_WRITE,
-		WAIT_FOR_WRITEALL,
+		WAIT_FOR_WRITE_ALL,
 	};
 
 private:

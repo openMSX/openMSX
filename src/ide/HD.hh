@@ -47,7 +47,7 @@ private:
 	[[nodiscard]] bool isWriteProtectedImpl() const override;
 	[[nodiscard]] Sha1Sum getSha1SumImpl(FilePool& filePool) override;
 
-	// Diskcontainer:
+	// DiskContainer:
 	[[nodiscard]] SectorAccessibleDisk* getSectorAccessibleDisk() override;
 	[[nodiscard]] std::string_view getContainerName() const override;
 	[[nodiscard]] bool diskChanged() override;

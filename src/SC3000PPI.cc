@@ -142,7 +142,7 @@ void SC3000PPI::writeC1(nibble value, EmuTime::param time)
 		cassettePort.cassetteOut((value & 2) != 0, time);
 	}
 	//if ((prevBits ^ value) & 4) {
-	//	cassetteDevice.Mute(); // CASAUD, mute case speker (1=enable, 0=disable)
+	//	cassetteDevice.Mute(); // CASAUD, mute case speaker (1=enable, 0=disable)
 	//}
 	//if ((prevBits ^ value) & 8) {
 	//	click.setClick((value & 8) != 0, time);

@@ -66,7 +66,7 @@ void Connector::serialize(Archive& ar, unsigned /*version*/)
 				ar.serializePolymorphic("pluggable", *plugged);
 			} catch (PlugException& e) {
 				pluggingController.getCliComm().printWarning(
-					"Pluggable \"", plugName, "\" failed to re-plug: ",
+					"Pluggable \"", plugName, "\" failed to replug: ",
 					e.getMessage());
 				pluggable->setConnector(nullptr);
 				plugged = dummy.get();

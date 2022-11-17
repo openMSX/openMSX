@@ -19,9 +19,9 @@ public:
 
 	explicit KeyboardSettings(CommandController& commandController);
 
-	[[nodiscard]] Keys::KeyCode getDeadkeyHostKey(unsigned n) const {
+	[[nodiscard]] Keys::KeyCode getDeadKeyHostKey(unsigned n) const {
 		assert(n < 3);
-		return deadkeyHostKey[n].getEnum();
+		return deadKeyHostKey[n].getEnum();
 	}
 	[[nodiscard]] Keys::KeyCode getCodeKanaHostKey() const {
 		return codeKanaHostKey.getEnum();
@@ -43,7 +43,7 @@ public:
 	}
 
 private:
-	std::array<EnumSetting<Keys::KeyCode>, 3> deadkeyHostKey;
+	std::array<EnumSetting<Keys::KeyCode>, 3> deadKeyHostKey;
 	EnumSetting<Keys::KeyCode> codeKanaHostKey;
 	EnumSetting<KpEnterMode> kpEnterMode;
 	EnumSetting<MappingMode> mappingMode;

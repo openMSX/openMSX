@@ -30,7 +30,7 @@ protected:
 class I8251 final : public SerialDataInterface
 {
 public:
-	I8251(Scheduler& scheduler, I8251Interface& interf, EmuTime::param time);
+	I8251(Scheduler& scheduler, I8251Interface& interface, EmuTime::param time);
 
 	void reset(EmuTime::param time);
 	[[nodiscard]] byte readIO(word port, EmuTime::param time);
@@ -83,7 +83,7 @@ private:
 	void send(byte value, EmuTime::param time);
 
 private:
-	I8251Interface& interf;
+	I8251Interface& interface;
 	ClockPin clock;
 	unsigned charLength;
 

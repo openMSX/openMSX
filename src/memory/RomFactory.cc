@@ -161,8 +161,8 @@ std::unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	RomType type = [&] {
 		// if no type is mentioned, we assume 'mirrored' which works for most
 		// plain ROMs...
-		std::string_view typestr = config.getChildData("mappertype", "Mirrored");
-		if (typestr == "auto") {
+		std::string_view typeStr = config.getChildData("mappertype", "Mirrored");
+		if (typeStr == "auto") {
 			// First check whether the (possibly patched) SHA1 is in the DB
 			const RomInfo* romInfo = config.getReactor().getSoftwareDatabase().fetchRomInfo(rom.getSHA1());
 			// If not found, try the original SHA1 in the DB
@@ -186,9 +186,9 @@ std::unique_ptr<MSXDevice> create(const DeviceConfig& config)
 			}
 		} else {
 			// Use mapper type from config, even if this overrides DB.
-			auto t = RomInfo::nameToRomType(typestr);
+			auto t = RomInfo::nameToRomType(typeStr);
 			if (t == ROM_UNKNOWN) {
-				throw MSXException("Unknown mappertype: ", typestr);
+				throw MSXException("Unknown mappertype: ", typeStr);
 			}
 			return t;
 		}
