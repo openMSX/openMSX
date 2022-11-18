@@ -138,7 +138,7 @@ std::optional<float> OSDImageBasedWidget::getScrollWidth() const
 
         vec2 parentPos, parentSize;
         parentImage->getBoundingBox(*output, parentPos, parentSize);
-        auto parentWidth = parentSize[0] / getScaleFactor(*output);
+        auto parentWidth = parentSize[0] / narrow<float>(getScaleFactor(*output));
 
         auto thisWidth = getRenderedSize()[0];
         auto scrollWidth = thisWidth - parentWidth;
@@ -169,7 +169,7 @@ gl::vec2 OSDImageBasedWidget::getPos() const
 	// transform moment in time to animation-timestamp 't'
 	//  [0..1) scrolling to the left
 	//  [1..2) scrolling to the right
-	auto now = (Timer::getTime() - startScrollTime) / 1'000'000.0f;
+	auto now = narrow_cast<float>(Timer::getTime() - startScrollTime) / 1'000'000.0f;
 	auto t = fmodf(scrollSpeed * now / *width, 2.0f);
 
 	// transform animation timestamp to position
