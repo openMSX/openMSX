@@ -275,7 +275,7 @@ proc menu_reselect {new_idx} {
 proc menu_on_select {selectinfo selectidx} {
 	set osd_elem [lindex $selectinfo $selectidx 5]
 	if {$osd_elem ne ""} {
-		osd configure $osd_elem -scrollSpeed 15
+		osd configure $osd_elem -scrollSpeed 25
 	}
 	set on_select [lindex $selectinfo $selectidx 3]
 	uplevel #0 $on_select
