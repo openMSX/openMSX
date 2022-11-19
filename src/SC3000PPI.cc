@@ -105,8 +105,7 @@ byte SC3000PPI::peekB(EmuTime::param time) const
 			PB6     BUSY input from printer
 			PB7     Cassette tape input
 		*/
-		auto& keyb = const_cast<Keyboard&>(keyboard);
-		auto keys = keyb.getKeys()[selectedRow + 7];
+		auto keys = keyboard.getKeys()[selectedRow + 7];
 		return 0xF0 | keys;
 	}
 }

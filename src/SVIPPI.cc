@@ -140,8 +140,7 @@ byte SVIPPI::readB(EmuTime::param time)
 }
 byte SVIPPI::peekB(EmuTime::param /*time*/) const
 {
-	auto& keyb = const_cast<Keyboard&>(keyboard);
-	return keyb.getKeys()[selectedRow];
+	return keyboard.getKeys()[selectedRow];
 }
 void SVIPPI::writeB(byte /*value*/, EmuTime::param /*time*/)
 {

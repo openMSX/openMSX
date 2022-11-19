@@ -200,7 +200,7 @@ void LocalFile::munmap()
 {
 	if (mmem) {
 		try {
-			::munmap(const_cast<uint8_t*>(mmem), getSize());
+			::munmap(mmem, getSize());
 		} catch (FileException&) {
 			// In theory getSize() could throw. Does that ever
 			// happen in practice?
