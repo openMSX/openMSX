@@ -526,10 +526,6 @@ VLM5030::VLM5030(const std::string& name_, static_string_view desc,
 	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 1, INPUT_RATE, false)
 	, rom(name_ + " ROM", "rom", DeviceConfig(config, *getRomConfig(const_cast<DeviceConfig&>(config), name_, romFilename)))
 {
-	// reset input pins
-	pin_RST = pin_ST = pin_VCU = false;
-	latch_data = 0;
-
 	reset();
 	phase = PH_IDLE;
 

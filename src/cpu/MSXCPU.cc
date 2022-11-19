@@ -41,11 +41,7 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 			motherboard.getMachineInfoCommand(), "r800_freq", *r800)
 		: nullptr)
 	, debuggable(motherboard_)
-	, reference(EmuTime::zero())
 {
-	z80Active = true; // setActiveCPU(CPU_Z80);
-	newZ80Active = z80Active;
-
 	motherboard.getDebugger().setCPU(this);
 	motherboard.getScheduler().setCPU(this);
 	traceSetting.attach(*this);

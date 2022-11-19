@@ -124,7 +124,7 @@ private:
 	// the current renderer
 	RenderSettings::RendererID currentRenderer = RenderSettings::UNINITIALIZED;
 
-	bool renderFrozen;
+	bool renderFrozen = false;
 	bool switchInProgress = false;
 };
 

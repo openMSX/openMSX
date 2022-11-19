@@ -197,38 +197,38 @@ private:
 	/** Time at which the next vram access slot is available.
 	  * Only valid when a command is executing.
 	  */
-	EmuTime engineTime;
+	EmuTime engineTime{EmuTime::zero()};
 
 	/** Lower bound for the time when the status register will change, IOW
 	  * the status register will not change before this time.
 	  * Can also be EmuTime::zero -> status can change any moment
 	  * or EmuTime::infinity -> this command doesn't change the status
 	  */
-	EmuTime statusChangeTime;
+	EmuTime statusChangeTime{EmuTime::infinity()};
 
 	/** Some commands execute multiple VRAM accesses per pixel
 	  * (e.g. LMMM does two reads and a write). This variable keeps
 	  * track of where in the (sub)command we are. */
-	int phase;
+	int phase{0};
 
 	/** Current screen mode.
 	  * 0 -> SCREEN5, 1 -> SCREEN6, 2 -> SCREEN7, 3 -> SCREEN8,
 	  * 4 -> Non-BitMap mode (like SCREEN8 but non-planar addressing)
 	  * -1 -> other.
 	  */
-	int scrMode;
+	int scrMode{-1};
 
 	/** VDP command registers.
 	  */
-	unsigned SX, SY, DX, DY, NX, NY; // registers that can be set by CPU
-	unsigned ASX, ADX, ANX; // Temporary registers used in the VDP commands
-	                        // Register ASX can be read (via status register 8/9)
-	byte COL, ARG, CMD;
+	unsigned SX{0}, SY{0}, DX{0}, DY{0}, NX{0}, NY{0}; // registers that can be set by CPU
+	unsigned ASX{0}, ADX{0}, ANX{0}; // Temporary registers used in the VDP commands
+	                                 // Register ASX can be read (via status register 8/9)
+	byte COL{0}, ARG{0}, CMD{0};
 
 	/** When a command needs multiple VRAM accesses per pixel, the result
 	 * of intermediate reads is stored in these variables. */
-	byte tmpSrc;
-	byte tmpDst;
+	byte tmpSrc{0};
+	byte tmpDst{0};
 
 	/** The command engine status (part of S#2).
 	  * Bit 7 (TR) is set when the command engine is ready for
@@ -236,12 +236,12 @@ private:
 	  * Bit 4 (BD) is set when the boundary color is detected.
 	  * Bit 0 (CE) is set when a command is in progress.
 	  */
-	byte status;
+	byte status{0};
 
 	/** Used in LMCM LMMC HMMC cmds, true when CPU has read or written
 	  * next byte.
 	  */
-	bool transfer;
+	bool transfer{false};
 
 	/** Flag that indicated whether extended VRAM is available
 	 */

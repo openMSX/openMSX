@@ -877,12 +877,8 @@ YM2151::YM2151(const std::string& name_, static_string_view desc,
 					     : EmuTimer::createOPM_2(config.getScheduler(), *this))
 	, variant(variant_)
 {
-	// Avoid UMR on savestate
 	// TODO Registers 0x20-0xFF are cleared on reset.
 	//      Should we do the same for registers 0x00-0x1F?
-	ranges::fill(regs, 0);
-
-	timer_A_val = 0;
 
 	if (false) {
 		std::cout << "tl_tab:";

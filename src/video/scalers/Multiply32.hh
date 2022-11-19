@@ -19,7 +19,9 @@ template<std::unsigned_integral Pixel> class Multiply32;
 template<> class Multiply32<uint32_t>
 {
 public:
-	explicit Multiply32(const PixelOperations<uint32_t>& format);
+	explicit Multiply32(const PixelOperations<uint32_t>& /*format*/) {
+		// nothing
+	}
 
 	inline void setFactor32(unsigned f)
 	{
@@ -38,7 +40,7 @@ public:
 	}
 
 private:
-	unsigned factor;
+	unsigned factor = 0;
 };
 
 template<> class Multiply32<uint16_t>
@@ -61,13 +63,13 @@ public:
 	}
 
 private:
-	std::array<uint32_t, 0x10000> tab;
-	unsigned factor;
+	std::array<uint32_t, 0x10000> tab = {}; // fill with zero
+	unsigned factor = 0;
 	int Rshift1, Gshift1, Bshift1;
 	int Rshift2, Gshift2, Bshift2;
 	int Rshift3, Gshift3, Bshift3;
-	uint16_t Rmask1,  Gmask1,  Bmask1;
-	uint16_t Rmask2,  Gmask2,  Bmask2;
+	uint16_t Rmask1, Gmask1, Bmask1;
+	uint16_t Rmask2, Gmask2, Bmask2;
 };
 
 } // namespace openmsx

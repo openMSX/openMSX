@@ -67,7 +67,6 @@ Display::Display(Reactor& reactor_)
 	renderSettings.getRendererSetting().attach(*this);
 	renderSettings.getFullScreenSetting().attach(*this);
 	renderSettings.getScaleFactorSetting().attach(*this);
-	renderFrozen = false;
 }
 
 Display::~Display()

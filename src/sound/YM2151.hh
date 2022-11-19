@@ -189,7 +189,7 @@ private:
 	int m2, c1, c2;          // Phase Modulation input for operators 2,3,4
 	int mem;                 // one sample delay memory
 
-	uint16_t timer_A_val;
+	uint16_t timer_A_val{0};
 
 	uint8_t lfo_wsel;        // LFO waveform (0-saw, 1-square, 2-triangle,
 	                         //               3-random noise)
@@ -199,7 +199,7 @@ private:
 	uint8_t test;            // TEST register
 	uint8_t ct;              // output control pins (bit1-CT2, bit0-CT1)
 
-	std::array<uint8_t, 256> regs; // only used for serialization ATM
+	std::array<uint8_t, 256> regs = {}; // only used for serialization ATM
 	const Variant variant;   // Whether we're emulating YM2151 or YM2164
 };
 

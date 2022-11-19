@@ -486,25 +486,8 @@ static int phase_modulation2; // phase modulation input (SLOT 3
 
 
 YMF262::Slot::Slot()
-	: Cnt(0), Incr(0), waveTable(sin.tab[0])
+	: waveTable(sin.tab[0])
 {
-	ar = dr = rr = KSR = ksl = ksr = mul = fb_shift = 0;
-	op1_out[0] = op1_out[1] = 0;
-	CON = eg_type = vib = false;
-	connect = nullptr;
-	TL = TLL = volume = sl = 0;
-	state = EG_OFF;
-	eg_m_ar = eg_sh_ar = eg_sel_ar = eg_m_dr = eg_sh_dr = 0;
-	eg_sel_dr = eg_m_rr = eg_sh_rr = eg_sel_rr = 0;
-	key = AMmask = 0;
-}
-
-YMF262::Channel::Channel()
-{
-	block_fnum = 0;
-	ksl_base = kcode = 0;
-	extended = false;
-	fc = FreqIndex(0);
 }
 
 
@@ -1457,19 +1440,8 @@ YMF262::YMF262(const std::string& name_,
 	         ? EmuTimer::createOPL4_2(config.getScheduler(), *this)
 	         : EmuTimer::createOPL3_2(config.getScheduler(), *this))
 	, irq(config.getMotherBoard(), getName() + ".IRQ")
-	, lfo_am_cnt(0), lfo_pm_cnt(0)
 	, isYMF278(isYMF278_)
 {
-	lfo_am_depth = false;
-	lfo_pm_depth_range = 0;
-	rhythm = 0;
-	OPL3_mode = false;
-	status = status2 = statusMask = 0;
-
-	// avoid (harmless) UMR in serialize()
-	ranges::fill(chanOut, 0);
-	ranges::fill(reg, 0);
-
 	// For debugging: print out tables to be able to compare before/after
 	// when the calculation changes.
 	if (false) {

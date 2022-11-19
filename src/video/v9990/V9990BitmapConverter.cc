@@ -404,12 +404,6 @@ public:
 	           unsigned attrAddr, unsigned patAddr,
 		   int displayY, bool drawCursor)
 	{
-		x = unsigned(-1); // means not visible
-		// initialize these 3 to avoid warning
-		pattern = 0;
-		color = 0;
-		doXor = false;
-
 		if (!drawCursor) return;
 
 		unsigned attrY = vram.readVRAMBx(attrAddr + 0) +
@@ -458,10 +452,10 @@ public:
 	}
 
 public:
-	unsigned x;
-	uint32_t pattern;
-	int16_t color;
-	bool doXor;
+	unsigned x{unsigned(-1)}; // not visible
+	uint32_t pattern{0};
+	int16_t color{0};
+	bool doXor{false};
 };
 
 template<std::unsigned_integral Pixel>

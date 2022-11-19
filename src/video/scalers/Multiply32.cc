@@ -2,47 +2,33 @@
 #include "PixelOperations.hh"
 #include "enumerate.hh"
 #include "narrow.hh"
-#include "ranges.hh"
 
 namespace openmsx {
 
-// class Multiply32<uint32_t>
-
-Multiply32<uint32_t>::Multiply32(const PixelOperations<uint32_t>& /*pixelOps*/)
-{
-	// nothing
-}
-
-
-// class Multiply32<uint16_t>
-
 Multiply32<uint16_t>::Multiply32(const PixelOperations<uint16_t>& pixelOps)
+	: Rshift1(narrow<int>(((2 + pixelOps.getRloss()) - pixelOps.getRshift()) & 31))
+	, Gshift1(narrow<int>(((2 + pixelOps.getGloss()) - pixelOps.getGshift()) & 31))
+	, Bshift1(narrow<int>(((2 + pixelOps.getBloss()) - pixelOps.getBshift()) & 31))
+
+	, Rshift2(narrow<int>((2 * (2 + pixelOps.getRloss()) - pixelOps.getRshift() - 10) & 31))
+	, Gshift2(narrow<int>((2 * (2 + pixelOps.getGloss()) - pixelOps.getGshift() - 10) & 31))
+	, Bshift2(narrow<int>((2 * (2 + pixelOps.getBloss()) - pixelOps.getBshift() - 10) & 31))
+
+	, Rshift3((Rshift1 +  0) & 31)
+	, Gshift3((Gshift1 + 10) & 31)
+	, Bshift3((Bshift1 + 20) & 31)
+
+	, Rmask1(pixelOps.getRmask())
+	, Gmask1(pixelOps.getGmask())
+	, Bmask1(pixelOps.getBmask())
+
+	, Rmask2(((1 << (2 + pixelOps.getRloss())) - 1) <<
+	                (10 + pixelOps.getRshift() - 2 * (2 + pixelOps.getRloss())))
+	, Gmask2(((1 << (2 + pixelOps.getGloss())) - 1) <<
+	                (10 + pixelOps.getGshift() - 2 * (2 + pixelOps.getGloss())))
+	, Bmask2(((1 << (2 + pixelOps.getBloss())) - 1) <<
+	                (10 + pixelOps.getBshift() - 2 * (2 + pixelOps.getBloss())))
 {
-	Rmask1 = pixelOps.getRmask();
-	Gmask1 = pixelOps.getGmask();
-	Bmask1 = pixelOps.getBmask();
-
-	Rshift1 = narrow<int>(((2 + pixelOps.getRloss()) - pixelOps.getRshift()) & 31);
-	Gshift1 = narrow<int>(((2 + pixelOps.getGloss()) - pixelOps.getGshift()) & 31);
-	Bshift1 = narrow<int>(((2 + pixelOps.getBloss()) - pixelOps.getBshift()) & 31);
-
-	Rmask2 = ((1 << (2 + pixelOps.getRloss())) - 1) <<
-	                (10 + pixelOps.getRshift() - 2 * (2 + pixelOps.getRloss()));
-	Gmask2 = ((1 << (2 + pixelOps.getGloss())) - 1) <<
-	                (10 + pixelOps.getGshift() - 2 * (2 + pixelOps.getGloss()));
-	Bmask2 = ((1 << (2 + pixelOps.getBloss())) - 1) <<
-	                (10 + pixelOps.getBshift() - 2 * (2 + pixelOps.getBloss()));
-
-	Rshift2 = narrow<int>((2 * (2 + pixelOps.getRloss()) - pixelOps.getRshift() - 10) & 31);
-	Gshift2 = narrow<int>((2 * (2 + pixelOps.getGloss()) - pixelOps.getGshift() - 10) & 31);
-	Bshift2 = narrow<int>((2 * (2 + pixelOps.getBloss()) - pixelOps.getBshift() - 10) & 31);
-
-	Rshift3 = (Rshift1 +  0) & 31;
-	Gshift3 = (Gshift1 + 10) & 31;
-	Bshift3 = (Bshift1 + 20) & 31;
-
-	factor = 0;
-	ranges::fill(tab, 0);
 }
 
 void Multiply32<uint16_t>::setFactor32(unsigned f)

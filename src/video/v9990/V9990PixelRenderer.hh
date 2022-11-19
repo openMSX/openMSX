@@ -88,8 +88,8 @@ private:
 
 	/** Frameskip
 	  */
-	float finishFrameDuration;
-	int frameSkipCounter;
+	float finishFrameDuration{0.0f};
+	int frameSkipCounter{999}; // force drawing of frame;
 
 	/** Accuracy setting for current frame.
 	 */
@@ -125,8 +125,8 @@ private:
 
 	/** Should current frame be draw or can it be skipped.
 	  */
-	bool drawFrame;
-	bool prevDrawFrame;
+	bool drawFrame{false}; // don't draw before frameStart is called
+	bool prevDrawFrame{false};
 };
 
 } // namespace openmsx

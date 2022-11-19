@@ -98,13 +98,13 @@ private:
 	std::unique_ptr<BaseImage> backgroundImage;
 
 	uint64_t lastBlinkTime;
-	uint64_t activeTime;
-	gl::ivec2 bgPos;
-	gl::ivec2 bgSize;
-	unsigned lastCursorX;
-	unsigned lastCursorY;
-	bool blink;
-	bool active;
+	uint64_t activeTime{0};
+	gl::ivec2 bgPos{}; // recalculate on first paint()
+	gl::ivec2 bgSize{};
+	unsigned lastCursorX{0};
+	unsigned lastCursorY{0};
+	bool blink{false};
+	bool active{false};
 };
 
 } // namespace openmsx

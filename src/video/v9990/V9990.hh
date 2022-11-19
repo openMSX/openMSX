@@ -574,28 +574,28 @@ private:
 
 	/** Registers
 	  */
-	std::array<byte, 0x40> regs;
+	std::array<byte, 0x40> regs = {}; // fill with zero
 	byte regSelect;
 
 	/** Is PAL timing active?  False means NTSC timing
 	  */
-	bool palTiming;
+	bool palTiming{false};
 
 	/** Is interlace active?
 	  * @see isInterlaced.
 	  */
-	bool interlaced;
+	bool interlaced{false};
 
 	/** Is the current scan position inside the display area?
 	  */
-	bool isDisplayArea;
+	bool isDisplayArea{false};
 
 	/** Is display enabled. Note that this is not always the same as bit 7
 	  * of the CONTROL register because the display enable status change
 	  * only takes place at the start of the next frame.
 	  * Note: on V99x8, display enable takes effect the next line
 	  */
-	bool displayEnabled;
+	bool displayEnabled{false};
 
 	/** Changing high byte of vertical scroll registers only takes effect
 	  * at the start of the next page. These members hold the current
@@ -618,12 +618,12 @@ private:
 	  * In 32bpp we could just always output an alpha channel. But in
 	  * 16bpp we only want to output the special color-key when later
 	  * it will be replaced by a pixel from the external video source. */
-	bool externalVideoSource = false;
+	bool externalVideoSource{false};
 
 	/** Combination of 'externalVideoSource' and R#8 bit 5 (YSE). This
 	  * variable only changes once per frame, so we can't directly
 	  * calculate it from the two former states. */
-	bool superimposing;
+	bool superimposing{false};
 
 	// --- methods ----------------------------------------------------
 

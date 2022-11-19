@@ -130,55 +130,53 @@ private:
 	std::span<const unsigned, SIN_LEN> waveTable;	// waveform select
 
 	// Phase Generator
-	FreqIndex phase; // frequency counter
-	FreqIndex freq;  // frequency counter step
+	FreqIndex phase{0}; // frequency counter
+	FreqIndex freq{0};  // frequency counter step
 
 	// Envelope Generator
-	int TL;		// total level: TL << 2
-	int TLL;	// adjusted now TL
-	int egOut;	// envelope counter
-	int sl;		// sustain level: sl_tab[SL]
+	int TL{0};	// total level: TL << 2
+	int TLL{0};	// adjusted now TL
+	int egOut{0};	// envelope counter
+	int sl{0};	// sustain level: sl_tab[SL]
 	EnvelopeState state;
 
-	std::array<int, 2> op1_out; // MOD output for feedback
-	bool eg_sustain;  // percussive/non-percussive mode
-	uint8_t fb_shift; // feedback shift value
+	std::array<int, 2> op1_out = {0, 0}; // MOD output for feedback
+	bool eg_sustain{false};  // percussive/non-percussive mode
+	uint8_t fb_shift{0}; // feedback shift value
 
-	uint8_t key;	// 0 = KEY OFF, >0 = KEY ON
+	uint8_t key{0};	// 0 = KEY OFF, >0 = KEY ON
 
 	std::span<const uint8_t, 8> eg_sel_dp;
 	std::span<const uint8_t, 8> eg_sel_ar;
 	std::span<const uint8_t, 8> eg_sel_dr;
 	std::span<const uint8_t, 8> eg_sel_rr;
 	std::span<const uint8_t, 8> eg_sel_rs;
-	unsigned eg_mask_dp; // == (1 << eg_sh_dp) - 1
-	unsigned eg_mask_ar; // == (1 << eg_sh_ar) - 1
-	unsigned eg_mask_dr; // == (1 << eg_sh_dr) - 1
-	unsigned eg_mask_rr; // == (1 << eg_sh_rr) - 1
-	unsigned eg_mask_rs; // == (1 << eg_sh_rs) - 1
-	uint8_t eg_sh_dp;    // (dump state)
-	uint8_t eg_sh_ar;    // (attack state)
-	uint8_t eg_sh_dr;    // (decay state)
-	uint8_t eg_sh_rr;    // (release state for non-perc.)
-	uint8_t eg_sh_rs;    // (release state for perc.mode)
+	unsigned eg_mask_dp{0}; // == (1 << eg_sh_dp) - 1
+	unsigned eg_mask_ar{0}; // == (1 << eg_sh_ar) - 1
+	unsigned eg_mask_dr{0}; // == (1 << eg_sh_dr) - 1
+	unsigned eg_mask_rr{0}; // == (1 << eg_sh_rr) - 1
+	unsigned eg_mask_rs{0}; // == (1 << eg_sh_rs) - 1
+	uint8_t eg_sh_dp{0};    // (dump state)
+	uint8_t eg_sh_ar{0};    // (attack state)
+	uint8_t eg_sh_dr{0};    // (decay state)
+	uint8_t eg_sh_rr{0};    // (release state for non-perc.)
+	uint8_t eg_sh_rs{0};    // (release state for perc.mode)
 
-	uint8_t ar;	// attack rate: AR<<2
-	uint8_t dr;	// decay rate:  DR<<2
-	uint8_t rr;	// release rate:RR<<2
-	uint8_t KSR;	// key scale rate
-	uint8_t ksl;	// key scale level
-	uint8_t mul;	// multiple: mul_tab[ML]
+	uint8_t ar{0};	// attack rate: AR<<2
+	uint8_t dr{0};	// decay rate:  DR<<2
+	uint8_t rr{0};	// release rate:RR<<2
+	uint8_t KSR{0};	// key scale rate
+	uint8_t ksl{0};	// key scale level
+	uint8_t mul{0};	// multiple: mul_tab[ML]
 
 	// LFO
-	uint8_t AMmask;	// LFO Amplitude Modulation enable mask
-	uint8_t vib;	// LFO Phase Modulation enable flag (active high)
+	uint8_t AMmask{0}; // LFO Amplitude Modulation enable mask
+	uint8_t vib{0};    // LFO Phase Modulation enable flag (active high)
 };
 
 class Channel
 {
 public:
-	Channel();
-
 	/** Calculate the value of the current sample produced by this channel.
 	 */
 	[[nodiscard]] inline int calcOutput(unsigned eg_cnt, unsigned lfo_pm, unsigned lfo_am, int fm);
@@ -221,10 +219,10 @@ public:
 
 private:
 	// phase generator state
-	int block_fnum;	// block+fnum
-	FreqIndex fc;	// Freq. increment base
-	int ksl_base;	// KeyScaleLevel Base step
-	bool sus;	// sus on/off (release speed in percussive mode)
+	int block_fnum{0}; // block+fnum
+	FreqIndex fc{0};   // Freq. increment base
+	int ksl_base{0};   // KeyScaleLevel Base step
+	bool sus{false};   // sus on/off (release speed in percussive mode)
 };
 
 class YM2413 final : public YM2413Core

@@ -31,11 +31,6 @@ V9990PixelRenderer::V9990PixelRenderer(V9990& vdp_)
 	, rasterizer(vdp.getReactor().getDisplay().
 	                getVideoSystem().createV9990Rasterizer(vdp))
 {
-	frameSkipCounter = 999; // force drawing of frame;
-	finishFrameDuration = 0;
-	drawFrame = false; // don't draw before frameStart is called
-	prevDrawFrame = false;
-
 	reset(vdp.getMotherBoard().getCurrentTime());
 
 	renderSettings.getMaxFrameSkipSetting().attach(*this);

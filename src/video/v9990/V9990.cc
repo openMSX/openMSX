@@ -69,7 +69,6 @@ V9990::V9990(const DeviceConfig& config)
 	, hScanSyncTime(getCurrentTime())
 {
 	// clear regs TODO find realistic init values
-	ranges::fill(regs, 0);
 	setDisplayMode(calcDisplayMode());
 
 	// initialize palette
@@ -83,14 +82,9 @@ V9990::V9990(const DeviceConfig& config)
 	vram.setCmdEngine(cmdEngine);
 
 	// Start with NTSC timing
-	palTiming = false;
-	interlaced = false;
 	setVerticalTiming();
 
 	// Initialise rendering system
-	isDisplayArea = false;
-	displayEnabled = false; // avoid UMR (used by createRenderer())
-	superimposing  = false; // avoid UMR
 	EmuTime::param time = getCurrentTime();
 	createRenderer(time);
 

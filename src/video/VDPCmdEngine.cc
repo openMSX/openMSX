@@ -420,8 +420,8 @@ inline byte NonBitmapMode::duplicate(byte color)
 struct IncrByteAddr4
 {
 	IncrByteAddr4(unsigned x, unsigned y, int /*tx*/)
+		: addr(Graphic4Mode::addressOf(x, y, false))
 	{
-		addr = Graphic4Mode::addressOf(x, y, false);
 	}
 	[[nodiscard]] unsigned getAddr() const
 	{
@@ -439,8 +439,8 @@ private:
 struct IncrByteAddr5
 {
 	IncrByteAddr5(unsigned x, unsigned y, int /*tx*/)
+		: addr(Graphic5Mode::addressOf(x, y, false))
 	{
-		addr = Graphic5Mode::addressOf(x, y, false);
 	}
 	[[nodiscard]] unsigned getAddr() const
 	{
@@ -458,11 +458,11 @@ private:
 struct IncrByteAddr7
 {
 	IncrByteAddr7(unsigned x, unsigned y, int tx)
-		: delta2((tx > 0) ? ( 0x10000 ^ (1 - 0x10000))
+		: addr(Graphic7Mode::addressOf(x, y, false))
+		, delta((tx > 0) ? 0x10000 : (0x10000 - 1))
+		, delta2((tx > 0) ? ( 0x10000 ^ (1 - 0x10000))
 		                  : (-0x10000 ^ (0x10000 - 1)))
 	{
-		addr = Graphic7Mode::addressOf(x, y, false);
-		delta = (tx > 0) ? 0x10000 : (0x10000 - 1);
 		if (x & 1) delta ^= delta2;
 	}
 	[[nodiscard]] unsigned getAddr() const
@@ -494,9 +494,9 @@ struct IncrByteAddr6 : IncrByteAddr7
 struct IncrPixelAddr4
 {
 	IncrPixelAddr4(unsigned x, unsigned y, int tx)
+		: addr(Graphic4Mode::addressOf(x, y, false))
+		, delta((tx == 1) ? (x & 1) : ((x & 1) - 1))
 	{
-		addr = Graphic4Mode::addressOf(x, y, false);
-		delta = (tx == 1) ? (x & 1) : ((x & 1) - 1);
 	}
 	[[nodiscard]] unsigned getAddr() const { return addr; }
 	void step(int tx)
@@ -512,12 +512,12 @@ private:
 struct IncrPixelAddr5
 {
 	IncrPixelAddr5(unsigned x, unsigned y, int tx)
-	{
-		addr = Graphic5Mode::addressOf(x, y, false);
+		: addr(Graphic5Mode::addressOf(x, y, false))
 		                       // x |  0 |  1 |  2 |  3
 		                       //-----------------------
-		c1 = -(signed(x) & 1); //   |  0 | -1 |  0 | -1
-		c2 = (x & 2) >> 1;     //   |  0 |  0 |  1 |  1
+		, c1(-(signed(x) & 1)) //   |  0 | -1 |  0 | -1
+		, c2((x & 2) >> 1)     //   |  0 |  0 |  1 |  1
+	{
 		if (tx < 0) {
 			c1 = ~c1;      //   | -1 |  0 | -1 |  0
 			c2 -= 1;       //   | -1 | -1 |  0 |  0
@@ -539,11 +539,11 @@ private:
 struct IncrPixelAddr6
 {
 	IncrPixelAddr6(unsigned x, unsigned y, int tx)
-		: c3((tx == 1) ? unsigned(0x10000 ^ (1 - 0x10000))   // == -0x1FFFF
+		: addr(Graphic6Mode::addressOf(x, y, false))
+		, c1(-(signed(x) & 1))
+		, c3((tx == 1) ? unsigned(0x10000 ^ (1 - 0x10000))   // == -0x1FFFF
 		               : unsigned(-0x10000 ^ (0x10000 - 1))) // == -1
 	{
-		addr = Graphic6Mode::addressOf(x, y, false);
-		c1 = -(signed(x) & 1);
 		if (tx == 1) {
 			c2 = (x & 2) ? (1 - 0x10000) :  0x10000;
 		} else {
@@ -572,8 +572,8 @@ private:
 struct IncrMask4
 {
 	IncrMask4(unsigned x, int /*tx*/)
+		: mask(0x0F << ((x & 1) << 2))
 	{
-		mask = 0x0F << ((x & 1) << 2);
 	}
 	[[nodiscard]] byte getMask() const
 	{
@@ -590,9 +590,9 @@ private:
 struct IncrMask5
 {
 	IncrMask5(unsigned x, int tx)
-		: shift((tx > 0) ? 6 : 2)
+		: mask(~(0xC0 >> ((x & 3) << 1)))
+		, shift((tx > 0) ? 6 : 2)
 	{
-		mask = ~(0xC0 >> ((x & 3) << 1));
 	}
 	[[nodiscard]] byte getMask() const
 	{
@@ -1784,17 +1784,8 @@ VDPCmdEngine::VDPCmdEngine(VDP& vdp_, CommandController& commandController)
 		strCat(vdp.getName(), '.', "commandExecuting"),
 		"Is the V99x8 VDP is currently executing a command",
 		false)
-	, engineTime(EmuTime::zero())
-	, statusChangeTime(EmuTime::infinity())
 	, hasExtendedVRAM(vram.getSize() == (192 * 1024))
 {
-	status = 0;
-	scrMode = -1;
-	transfer = false;
-	SX = SY = DX = DY = NX = NY = 0;
-	ASX = ADX = ANX = 0;
-	COL = ARG = CMD = 0;
-	phase = tmpSrc = tmpDst = 0; // not strictly needed, but avoid UMR in serialize
 }
 
 void VDPCmdEngine::reset(EmuTime::param time)

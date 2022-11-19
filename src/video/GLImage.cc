@@ -74,12 +74,9 @@ GLImage::GLImage(OutputSurface& /*output*/, const std::string& filename, ivec2 s
 }
 
 GLImage::GLImage(OutputSurface& /*output*/, ivec2 size_, uint32_t rgba)
-	: texture(gl::Null())
 {
 	checkSize(size_);
 	size = size_;
-	borderSize = 0;
-	borderR = borderG = borderB = borderA = 0; // not used, but avoid (harmless) UMR
 	for (auto i : xrange(4)) {
 		bgR[i] = (rgba >> 24) & 0xff;
 		bgG[i] = (rgba >> 16) & 0xff;
@@ -92,11 +89,13 @@ GLImage::GLImage(OutputSurface& /*output*/, ivec2 size_, uint32_t rgba)
 
 GLImage::GLImage(OutputSurface& /*output*/, ivec2 size_, std::span<const uint32_t, 4> rgba,
                  int borderSize_, uint32_t borderRGBA)
-	: texture(gl::Null())
+	: borderSize(borderSize_)
+	, borderR((borderRGBA >> 24) & 0xff)
+	, borderG((borderRGBA >> 16) & 0xff)
+	, borderB((borderRGBA >>  8) & 0xff)
 {
 	checkSize(size_);
 	size = size_;
-	borderSize = borderSize_;
 	for (auto i : xrange(4)) {
 		bgR[i] = (rgba[i] >> 24) & 0xff;
 		bgG[i] = (rgba[i] >> 16) & 0xff;
@@ -105,9 +104,6 @@ GLImage::GLImage(OutputSurface& /*output*/, ivec2 size_, std::span<const uint32_
 		bgA[i] = (alpha == 255) ? 256 : alpha;
 	}
 
-	borderR = (borderRGBA >> 24) & 0xff;
-	borderG = (borderRGBA >> 16) & 0xff;
-	borderB = (borderRGBA >>  8) & 0xff;
 	auto alpha = (borderRGBA >> 0) & 0xff;
 	borderA = (alpha == 255) ? 256 : alpha;
 

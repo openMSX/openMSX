@@ -81,17 +81,11 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 	, backgroundSetting(reactor.getCommandController(),
 		"consolebackground", "console background file",
 		"skins/ConsoleBackgroundGrey.png")
+	, lastBlinkTime(Timer::getTime())
 {
 #if !COMPONENT_GL
 	assert(!openGL);
 #endif
-	bgPos = bgSize = ivec2(); // recalculate on first paint()
-	blink = false;
-	lastBlinkTime = Timer::getTime();
-	lastCursorX = lastCursorY = 0;
-
-	active = false;
-	activeTime = 0;
 	setCoverage(COVER_PARTIAL);
 
 	adjustColRow();

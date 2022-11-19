@@ -77,52 +77,51 @@ private:
 		void serialize(Archive& ar, unsigned version);
 
 		// Phase Generator
-		FreqIndex Cnt;	// frequency counter
-		FreqIndex Incr;	// frequency counter step
-		int* connect;	// slot output pointer
-		std::array<int, 2> op1_out; // slot1 output for feedback
+		FreqIndex Cnt{0};  // frequency counter
+		FreqIndex Incr{0}; // frequency counter step
+		int* connect{nullptr}; // slot output pointer
+		std::array<int, 2> op1_out{0, 0}; // slot1 output for feedback
 
 		// Envelope Generator
-		unsigned TL;  // total level: TL << 2
-		unsigned TLL; // adjusted now TL
-		int volume;   // envelope counter
-		int sl;       // sustain level: sl_tab[SL]
+		unsigned TL{0};  // total level: TL << 2
+		unsigned TLL{0}; // adjusted now TL
+		int volume{0};   // envelope counter
+		int sl{0};       // sustain level: sl_tab[SL]
 
 		std::span<const unsigned, SIN_LEN> waveTable; // waveform select
 
-		EnvelopeState state; // EG: phase type
-		unsigned eg_m_ar;  // (attack state)
-		unsigned eg_m_dr;  // (decay state)
-		unsigned eg_m_rr;  // (release state)
-		uint8_t eg_sh_ar;  // (attack state)
-		uint8_t eg_sel_ar; // (attack state)
-		uint8_t eg_sh_dr;  // (decay state)
-		uint8_t eg_sel_dr; // (decay state)
-		uint8_t eg_sh_rr;  // (release state)
-		uint8_t eg_sel_rr; // (release state)
+		EnvelopeState state{EG_OFF}; // EG: phase type
+		unsigned eg_m_ar{0};  // (attack state)
+		unsigned eg_m_dr{0};  // (decay state)
+		unsigned eg_m_rr{0};  // (release state)
+		uint8_t eg_sh_ar{0};  // (attack state)
+		uint8_t eg_sel_ar{0}; // (attack state)
+		uint8_t eg_sh_dr{0};  // (decay state)
+		uint8_t eg_sel_dr{0}; // (decay state)
+		uint8_t eg_sh_rr{0};  // (release state)
+		uint8_t eg_sel_rr{0}; // (release state)
 
-		uint8_t key;	// 0 = KEY OFF, >0 = KEY ON
+		uint8_t key{0}; // 0 = KEY OFF, >0 = KEY ON
 
-		uint8_t fb_shift;	// PG: feedback shift value
-		bool CON;	// PG: connection (algorithm) type
-		bool eg_type;	// EG: percussive/non-percussive mode
+		uint8_t fb_shift{0}; // PG: feedback shift value
+		bool CON{false};     // PG: connection (algorithm) type
+		bool eg_type{false}; // EG: percussive/non-percussive mode
 
 		// LFO
-		uint8_t AMmask;	// LFO Amplitude Modulation enable mask
-		bool vib;	// LFO Phase Modulation enable flag (active high)
+		uint8_t AMmask{0}; // LFO Amplitude Modulation enable mask
+		bool vib{false};   // LFO Phase Modulation enable flag (active high)
 
-		uint8_t ar;	// attack rate: AR<<2
-		uint8_t dr;	// decay rate:  DR<<2
-		uint8_t rr;	// release rate:RR<<2
-		uint8_t KSR;	// key scale rate
-		uint8_t ksl;	// key scale level
-		uint8_t ksr;	// key scale rate: kcode>>KSR
-		uint8_t mul;	// multiple: mul_tab[ML]
+		uint8_t ar{0};	// attack rate: AR<<2
+		uint8_t dr{0};	// decay rate:  DR<<2
+		uint8_t rr{0};	// release rate:RR<<2
+		uint8_t KSR{0};	// key scale rate
+		uint8_t ksl{0};	// key scale level
+		uint8_t ksr{0};	// key scale rate: kcode>>KSR
+		uint8_t mul{0};	// multiple: mul_tab[ML]
 	};
 
 	class Channel {
 	public:
-		Channel();
 		void chan_calc(unsigned lfo_am);
 		void chan_calc_ext(unsigned lfo_am);
 
@@ -131,10 +130,10 @@ private:
 
 		std::array<Slot, 2> slot;
 
-		int block_fnum;    // block+fnum
-		FreqIndex fc;      // Freq. Increment base
-		unsigned ksl_base; // KeyScaleLevel Base step
-		uint8_t kcode;     // key code (for key scaling)
+		int block_fnum{0};    // block+fnum
+		FreqIndex fc{0};      // Freq. Increment base
+		unsigned ksl_base{0}; // KeyScaleLevel Base step
+		uint8_t kcode{0};     // key code (for key scaling)
 
 		// there are 12 2-operator channels which can be combined in pairs
 		// to form six 4-operator channel, they are:
@@ -144,9 +143,9 @@ private:
 		//  9 and 12,
 		//  10 and 13,
 		//  11 and 14
-		bool extended; // set if this channel forms up a 4op channel with
-			       // another channel (only used by first of pair of
-			       // channels, ie 0,1,2 and 9,10,11)
+		bool extended{false}; // set if this channel forms up a 4op channel with
+		                      // another channel (only used by first of pair of
+		                      // channels, ie 0,1,2 and 9,10,11)
 	};
 
 	// SoundDevice
@@ -199,33 +198,33 @@ private:
 
 	IRQHelper irq;
 
-	std::array<int, 18> chanOut;      // 18 channels
+	std::array<int, 18> chanOut = {};      // 18 channels
 
-	std::array<uint8_t, 512> reg;
+	std::array<uint8_t, 512> reg = {};
 	std::array<Channel, 18> channel;  // OPL3 chips have 18 channels
 
 	std::array<int, 18 * 4> pan; // channels output masks 4 per channel
 	                             //    0xffffffff = enable
-	unsigned eg_cnt;             // global envelope generator counter
-	unsigned noise_rng;          // 23 bit noise shift register
+	unsigned eg_cnt{0};          // global envelope generator counter
+	unsigned noise_rng{1};       // 23 bit noise shift register
 
 	// LFO
 	using LFOAMIndex = FixedPoint< 6>;
 	using LFOPMIndex = FixedPoint<10>;
-	LFOAMIndex lfo_am_cnt;
-	LFOPMIndex lfo_pm_cnt;
-	bool lfo_am_depth;
-	uint8_t lfo_pm_depth_range;
+	LFOAMIndex lfo_am_cnt{0};
+	LFOPMIndex lfo_pm_cnt{0};
+	bool lfo_am_depth{false};
+	uint8_t lfo_pm_depth_range{0};
 
-	uint8_t rhythm;			// Rhythm mode
-	bool nts;			// NTS (note select)
-	bool OPL3_mode;			// OPL3 extension enable flag
+	uint8_t rhythm{0};		// Rhythm mode
+	bool nts{false};			// NTS (note select)
+	bool OPL3_mode{false};		// OPL3 extension enable flag
 
-	uint8_t status;			// status flag
-	uint8_t status2;
-	uint8_t statusMask;		// status mask
+	uint8_t status{0};		// status flag
+	uint8_t status2{0};
+	uint8_t statusMask{0};		// status mask
 
-	bool alreadySignaledNEW2;
+	bool alreadySignaledNEW2{false};
 	const bool isYMF278;		// true iff this is actually a YMF278
 					// ATM only used for NEW2 bit
 };

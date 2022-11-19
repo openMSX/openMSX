@@ -46,32 +46,19 @@ Frame::~Frame()
 OggReader::OggReader(const Filename& filename, CliComm& cli_)
 	: cli(cli_)
 	, file(filename)
+	, fileSize(file.getSize())
 {
-	audioSerial = -1;
-	videoSerial = -1;
-	skeletonSerial = -1;
-	audioHeaders = 3;
-	keyFrame = size_t(-1);
-	currentSample = 0;
-	currentFrame = 1;
-	vorbisPos = 0;
-
 	th_info ti;
 	th_comment tc;
 	th_setup_info* tsi = nullptr;
 
 	th_info_init(&ti);
 	th_comment_init(&tc);
-	theora = nullptr;
 
 	vorbis_info_init(&vi);
 	vorbis_comment_init(&vc);
 
 	ogg_sync_init(&sync);
-
-	state = PLAYING;
-	fileOffset = 0;
-	fileSize = file.getSize();
 
 	ogg_page page;
 
@@ -189,8 +176,7 @@ OggReader::OggReader(const Filename& filename, CliComm& cli_)
 		if (ti.pixel_fmt != TH_PF_420) {
 			throw MSXException("Video must be YUV420");
 		}
-	}
-	catch (MSXException&) {
+	} catch (MSXException&) {
 		th_setup_free(tsi);
 		th_info_clear(&ti);
 		th_comment_clear(&tc);

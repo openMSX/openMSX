@@ -78,13 +78,13 @@ private:
 	uint8_t sample_count; // sample number within interp
 	uint8_t pitch_count;
 
-	uint8_t latch_data;
+	uint8_t latch_data{0};
 	uint8_t parameter;
 	uint8_t phase;
-	bool pin_BSY;
-	bool pin_ST;
-	bool pin_VCU;
-	bool pin_RST;
+	bool pin_BSY{false};
+	bool pin_ST{false};
+	bool pin_VCU{false};
+	bool pin_RST{false};
 };
 
 } // namespace openmsx

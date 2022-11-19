@@ -643,18 +643,10 @@ static constexpr int genPhaseCymbal(int phaseM7, int phaseC8)
 
 Slot::Slot()
 	: waveTable(sinTab[0])
-	, phase(0), freq(0)
 	, eg_sel_dp(eg_inc[0]), eg_sel_ar(eg_inc[0]), eg_sel_dr(eg_inc[0])
 	, eg_sel_rr(eg_inc[0]), eg_sel_rs(eg_inc[0])
 {
-	ar = dr = rr = KSR = ksl = mul = 0;
-	fb_shift = op1_out[0] = op1_out[1] = 0;
-	TL = TLL = egOut = sl = 0;
-	eg_sh_dp   = eg_sh_ar   = eg_sh_dr   = eg_sh_rr   = eg_sh_rs   = 0;
-	eg_mask_dp = eg_mask_ar = eg_mask_dr = eg_mask_rr = eg_mask_rs = 0;
-	eg_sustain = false;
 	setEnvelopeState(EG_OFF);
-	key = AMmask = vib = 0;
 }
 
 void Slot::setKeyOn(KeyPart part)
@@ -804,13 +796,6 @@ void Slot::updateGenerators(Channel& channel)
 
 	eg_mask_rs = (1 << eg_sh_rs) - 1;
 	eg_mask_dp = (1 << eg_sh_dp) - 1;
-}
-
-Channel::Channel()
-	: fc(0)
-{
-	block_fnum = ksl_base = 0;
-	sus = false;
 }
 
 void Channel::setFrequency(int block_fnum_)

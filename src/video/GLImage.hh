@@ -32,12 +32,12 @@ private:
 private:
 	std::array<gl::BufferObject, 3> vbo;
 	gl::BufferObject elementsBuffer;
-	gl::Texture texture; // must come after size
-	int borderSize;
+	gl::Texture texture{gl::Null()}; // must come after size
+	int borderSize{0};
 	std::array<uint16_t, 4> bgA; // 0..256
-	uint16_t borderA; // 0..256
+	uint16_t borderA{0}; // 0..256
 	std::array<uint8_t, 4> bgR, bgG, bgB;
-	uint8_t borderR, borderG, borderB;
+	uint8_t borderR{0}, borderG{0}, borderB{0};
 };
 
 } // namespace openmsx
