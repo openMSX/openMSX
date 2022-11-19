@@ -84,13 +84,13 @@ static SetBootSectorResult setBootSector(
 	uint8_t nbReservedSectors = 1;
 	uint8_t nbHiddenSectors = 1;
 
-	// all these are initialized below (in this order)
-	uint16_t nbSides;
-	uint8_t nbFats;
-	uint8_t nbSectorsPerFat;
-	uint8_t nbSectorsPerCluster;
-	uint16_t nbDirEntry;
-	uint8_t descriptor;
+	// all these are set below (but initialize here to avoid warning)
+	uint16_t nbSides = 2;
+	uint8_t nbFats = 2;
+	uint8_t nbSectorsPerFat = 3;
+	uint8_t nbSectorsPerCluster = 2;
+	uint16_t nbDirEntry = 112;
+	uint8_t descriptor = 0xF9;
 
 	// now set correct info according to size of image (in sectors!)
 	// and using the same layout as used by Jon in IDEFDISK v 3.1
