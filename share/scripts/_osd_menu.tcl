@@ -783,7 +783,9 @@ proc get_slot_content {slot} {
 		set slotcontent [file tail $contentname]
 		if {[string match "cart*" $slot]} {
 			# so, we have something in a cartridge slot
-			set slotcontent [get_extension_display_name $contentname]
+			# make sure to pass the device name
+			set devicename [lindex [$slot] 1]
+			set slotcontent [get_extension_display_name $devicename]
 		}
 	}
 	return $slotcontent
