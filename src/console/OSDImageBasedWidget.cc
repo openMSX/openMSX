@@ -152,10 +152,10 @@ bool OSDImageBasedWidget::isAnimating() const
 	return static_cast<bool>(getScrollWidth());
 }
 
-[[nodiscard]] static float smoothStep(float x)
+[[nodiscard]] static float smootherStep(float x)
 {
 	// https://en.wikipedia.org/wiki/Smoothstep
-	return (3 * x * x) - (2 * x * x * x);
+	return (6* x * x * x * x * x) - (15 * x * x * x * x) + (10 * x * x * x);
 }
 
 gl::vec2 OSDImageBasedWidget::getPos() const
@@ -173,7 +173,7 @@ gl::vec2 OSDImageBasedWidget::getPos() const
 	auto t = fmodf(scrollSpeed * now / *width, 2.0f);
 
 	// transform animation timestamp to position
-	auto offsetX = smoothStep(t <= 1.0f ? t : 2.0f - t);
+	auto offsetX = smootherStep(t <= 1.0f ? t : 2.0f - t);
 	result[0] -= *width * offsetX;
 	return result;
 }
