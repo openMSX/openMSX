@@ -1,6 +1,7 @@
 #include "MSXCliComm.hh"
 #include "GlobalCliComm.hh"
 #include "MSXMotherBoard.hh"
+#include "MSXCommandController.hh"
 
 namespace openmsx {
 
@@ -12,7 +13,10 @@ MSXCliComm::MSXCliComm(MSXMotherBoard& motherBoard_, GlobalCliComm& cliComm_)
 
 void MSXCliComm::log(LogLevel level, std::string_view message)
 {
-	cliComm.log(level, message);
+	if (!suppressMessages)
+	{
+		cliComm.log(level, message);
+	}
 }
 
 void MSXCliComm::update(UpdateType type, std::string_view name, std::string_view value)
@@ -34,5 +38,11 @@ void MSXCliComm::updateFiltered(UpdateType type, std::string_view name, std::str
 	}
 	cliComm.updateHelper(type, motherBoard.getMachineID(), name, value);
 }
+
+void MSXCliComm::setSuppressMessages(bool enable)
+{
+	suppressMessages = enable;
+}
+
 
 } // namespace openmsx

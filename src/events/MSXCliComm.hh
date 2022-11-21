@@ -21,11 +21,15 @@ public:
 	            std::string_view value) override;
 	void updateFiltered(UpdateType type, std::string_view name,
 	            std::string_view value) override;
+	
+	// enable/disable message suppression 
+	void setSuppressMessages(bool enable);
 
 private:
 	MSXMotherBoard& motherBoard;
 	GlobalCliComm& cliComm;
 	std::array<hash_map<std::string, std::string, XXHasher>, NUM_UPDATES> prevValues;
+	bool suppressMessages = false;
 };
 
 } // namespace openmsx

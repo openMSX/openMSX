@@ -84,6 +84,19 @@ proc format_time_hours_and_subseconds {time} {
 	format "%02d:%02d:%02d.%02d" [expr {int($time / 3600)}] [expr {int($time / 60) % 60}] [expr {int($time) % 60}] [expr {int(fmod($time,1) * 100)}]
 }
 
+proc get_machine_total_ram {{machineid ""}} {
+	if {$machineid eq ""} {
+		set machineid [machine]
+	}
+	set result 0
+	foreach device [${machineid}::debug list] {
+		if {[${machineid}::debug desc $device] in [list "memory mapper" "ram"]} {
+			incr result [${machineid}::debug size $device]
+		}
+	}
+	return $result
+}
+
 proc get_ordered_machine_list {} {
 	lsort -dictionary [list_machines]
 }
@@ -149,6 +162,7 @@ namespace export get_extension_display_name_by_config_name
 namespace export get_display_name_by_config_name
 namespace export get_machine_time
 namespace export format_time
+namespace export get_machine_total_ram
 namespace export get_ordered_machine_list
 namespace export get_random_number
 namespace export clip

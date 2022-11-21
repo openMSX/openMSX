@@ -3,6 +3,7 @@
 
 #include "EmuTime.hh"
 #include "VideoSourceSetting.hh"
+#include "BooleanSetting.hh"
 #include "hash_map.hh"
 #include "serialize_meta.hh"
 #include "xxhash.hh"
@@ -17,7 +18,6 @@
 namespace openmsx {
 
 class AddRemoveUpdate;
-class BooleanSetting;
 class CartridgeSlotManager;
 class CassettePortInterface;
 class CliComm;
@@ -157,6 +157,7 @@ public:
 	[[nodiscard]] ReverseManager& getReverseManager() { return *reverseManager; }
 	[[nodiscard]] Reactor& getReactor() { return reactor; }
 	[[nodiscard]] VideoSourceSetting& getVideoSource() { return videoSourceSetting; }
+	[[nodiscard]] BooleanSetting& suppressMessages() { return suppressMessagesSetting; }
 
 	// convenience methods
 	[[nodiscard]] CommandController& getCommandController();
@@ -280,6 +281,7 @@ private:
 	std::unique_ptr<RenShaTurbo> renShaTurbo;
 	std::unique_ptr<LedStatus> ledStatus;
 	VideoSourceSetting videoSourceSetting;
+	BooleanSetting suppressMessagesSetting;
 
 	std::unique_ptr<CartridgeSlotManager> slotManager;
 	std::unique_ptr<ReverseManager> reverseManager;

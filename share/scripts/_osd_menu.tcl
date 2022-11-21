@@ -1561,7 +1561,7 @@ proc menu_create_load_machine_list {{mode "replace"}} {
 	         width 210 \
 	         xpos 110 \
 	         ypos 130 \
-	         on-select   menu_hardware_select \
+	         on-select   menu_machine_select \
 	         on-deselect menu_hardware_deselect \
 	         header { text "Select Machine to Run"
 	                  font-size 10
@@ -1635,7 +1635,7 @@ proc menu_create_extensions_list {{slot "none"}} {
 	         width 200 \
 	         xpos 110 \
 	         ypos 130 \
-	         on-select   menu_hardware_select \
+	         on-select   menu_extension_select \
 	         on-deselect menu_hardware_deselect \
 	         header [list text "Select Extension to $target_text" \
 	                  font-size 10 \
@@ -1668,32 +1668,88 @@ proc menu_create_extensions_list {{slot "none"}} {
 	return [prepare_menu_list $items_sorted 10 $menu_def]
 }
 
-proc get_hardware_description_text {hwitem} {
-	set info_data ""
-	catch {set info_data [openmsx_info machines $hwitem]}
-	if {$info_data eq ""} {
-		catch {set info_data [openmsx_info extensions $hwitem]}
+proc get_detailed_machine_info {machine_name} {
+	set result [dict create]
+
+	set machineID [create_machine]
+	set ${machineID}::suppressmessages on
+	set err [catch {${machineID}::load_machine $machine_name} error_result]
+	if {$err} {
+		dict set result error $error_result
+	} else {
+		dict set result ramsize [utils::get_machine_total_ram ${machineID}]
+		dict set result vramsize [${machineID}::debug size "physical VRAM"]
+		dict set result nofdrives [llength [info command ::${machineID}::disk?]]
+		dict set result nofslots [llength [info command ::${machineID}::cart?]]
+		dict set result vdptype [dict get [${machineID}::machine_info device VDP] version]
 	}
-	set text ""
-	foreach item {{name Name} {manufacturer Manufacturer} {code "Product code"} {release_year "Release year"} {type Type} {region Region} {description Description}} {
-		set valtext ""
-		catch {set valtext [dict get $info_data [lindex $item 0]]}
-		if {$valtext ne ""} {
-			if {$text ne ""} {
-				set text "$text\n"
-			}
-			set text "${text}[lindex $item 1]: $valtext"
-		}
-	}
-	return $text
+	delete_machine $machineID
+
+	return $result
 }
 
-proc menu_hardware_select {item} {
+proc get_hardware_description_text {hwtype hwitem} {
+	set err [catch {set info_data [openmsx_info ${hwtype}s $hwitem]} error_result]
+	if {$err} {
+		set info_data [dict create error $error_result]
+	} else {
+		if {$hwtype eq "machine"} {
+			set info_data [dict merge $info_data [get_detailed_machine_info $hwitem]]
+			# We have all data. Let's tweak for presentation where necessary
+			foreach k {ramsize vramsize} {
+				if {[dict exists $info_data $k]} {
+					dict set info_data $k [format "%dkB" [expr {[dict get $info_data $k] / 1024}]]
+				}
+			}
+			foreach k {nofdrives nofslots} {
+				if {[dict exists $info_data $k] && [dict get $info_data $k] == 0} {
+					set info_data [dict remove $info_data $k]
+				}
+			}
+		}
+	}
+	set items [list [list name Name] \
+			[list manufacturer Manufacturer] \
+			[list code "Product code"] \
+			[list release_year "Release year"] \
+			[list type Type] \
+			[list region Region] \
+			[list ramsize "RAM size"] \
+			[list vramsize "VRAM size"] \
+			[list vdptype "VDP type"] \
+			[list nofslots "Number of cartridge slots"] \
+			[list nofdrives "Number of diskdrives"] \
+			[list description Description] \
+			[list error "\nWARNING, broken"] \
+		]
+	set result ""
+	foreach {i} $items {
+		lassign $i key desc
+		catch {
+			set valtext [dict get $info_data $key]
+			if {$valtext ne ""} {
+				append result "${desc}: $valtext\n"
+			}
+		}
+	}
+	return [list $result [dict exists $info_data error]]
+}
+
+proc menu_machine_select {item} {
+	menu_hardware_select machine $item
+}
+
+proc menu_extension_select {item} {
+	menu_hardware_select extension $item
+}
+
+proc menu_hardware_select {hwtype item} {
 	variable default_bg_color
 	variable default_text_color
 	variable menu_z
-	set text [get_hardware_description_text $item]
-	osd_widgets::text_box "hardware_infobox" -text $text -z $menu_z -x 60 -y 5 -w 200 -rgba $default_bg_color -textrgba [expr {$default_text_color & 0xffffff00}] -scaled true
+	lassign [get_hardware_description_text $hwtype $item] text has_error
+	set color [lmap c $default_bg_color {expr {$has_error ? (($c | 0xff000000) & 0xff7f7fff) : $c}}]
+	osd_widgets::text_box "hardware_infobox" -text $text -z $menu_z -x 60 -y 5 -w 200 -rgba $color -textrgba [expr {$default_text_color & 0xffffff00}] -scaled true
 }
 
 proc menu_hardware_deselect {item} {

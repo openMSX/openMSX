@@ -223,6 +223,12 @@ MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
 		reactor.getMixer(), *this,
 		reactor.getGlobalSettings()))
 	, videoSourceSetting(*msxCommandController)
+	, suppressMessagesSetting(*msxCommandController, "suppressmessages",
+		"Suppress info, warning and error messages for this machine. "
+		"Intended use is for scripts that create temporary machines "
+		"of which you don't want to see warning messages about blank "
+		"SRAM content or PSG port directions for instance.",
+		false, Setting::DONT_SAVE)
 	, fastForwardHelper(make_unique<FastForwardHelper>(*this))
 	, settingObserver(make_unique<SettingObserver>(*this))
 	, powerSetting(reactor.getGlobalSettings().getPowerSetting())
@@ -259,10 +265,12 @@ MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
 		*this, reactor.getGlobalSettings(), *eventDelay);
 
 	powerSetting.attach(*settingObserver);
+	suppressMessagesSetting.attach(*settingObserver);
 }
 
 MSXMotherBoard::~MSXMotherBoard()
 {
+	suppressMessagesSetting.detach(*settingObserver);
 	powerSetting.detach(*settingObserver);
 	deleteMachine();
 
@@ -1195,6 +1203,8 @@ void SettingObserver::update(const Setting& setting) noexcept
 		} else {
 			motherBoard.powerDown();
 		}
+	} else if (&setting == &motherBoard.suppressMessagesSetting) {
+		motherBoard.msxCliComm->setSuppressMessages(motherBoard.suppressMessagesSetting.getBoolean());
 	} else {
 		UNREACHABLE;
 	}
