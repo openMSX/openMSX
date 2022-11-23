@@ -316,49 +316,47 @@ void MidiInALSA::run()
 	snd_seq_poll_descriptors(&seq, pfd.data(), npfd, POLLIN);
 
 	while (true) {
-		if (poll(pfd.data(), npfd, 1000) > 0) {
-			do {
-				snd_seq_event_t *ev = NULL;
-
-				if (auto err = snd_seq_event_input(&seq, &ev); err < 0) {
-					std::cerr << "Error receiving MIDI event: "
-						<< snd_strerror(err) << '\n';
-					break;
-				}
-
-				if (!ev) {
-					break;
-				}
-
-				if (ev->type == SND_SEQ_EVENT_SYSEX) {
-					std::lock_guard<std::mutex> lock(mutex);
-
-					for (auto i : xrange(ev->data.ext.len)) {
-						queue.push_back(static_cast<uint8_t*>(ev->data.ext.ptr)[i]);
-					}
-				} else {
-					std::array<uint8_t, 12> bytes = {};
-
-					auto size = snd_midi_event_decode(event_parser, bytes.data(), bytes.size(), ev);
-					if (size < 0) {
-						std::cerr << "Error decoding MIDI event: "
-							<< snd_strerror(size) << '\n';
-						snd_seq_free_event(ev);
-						break;
-					}
-
-					std::lock_guard<std::mutex> lock(mutex);
-					for (auto i : xrange(size)) {
-						queue.push_back(bytes[i]);
-					}
-				}
-				snd_seq_free_event(ev);
-				eventDistributor.distributeEvent(
-					Event::create<MidiInALSAEvent>());
-			} while (0);
-		}
 		if (stop)
 			break;
+		if (poll(pfd.data(), npfd, 1000) > 0) {
+			snd_seq_event_t *ev = NULL;
+
+			if (auto err = snd_seq_event_input(&seq, &ev); err < 0) {
+				std::cerr << "Error receiving MIDI event: "
+					<< snd_strerror(err) << '\n';
+				continue;
+			}
+
+			if (!ev) {
+				continue;
+			}
+
+			if (ev->type == SND_SEQ_EVENT_SYSEX) {
+				std::lock_guard<std::mutex> lock(mutex);
+
+				for (auto i : xrange(ev->data.ext.len)) {
+					queue.push_back(static_cast<uint8_t*>(ev->data.ext.ptr)[i]);
+				}
+			} else {
+				std::array<uint8_t, 12> bytes = {};
+
+				auto size = snd_midi_event_decode(event_parser, bytes.data(), bytes.size(), ev);
+				if (size < 0) {
+					std::cerr << "Error decoding MIDI event: "
+						<< snd_strerror(size) << '\n';
+					snd_seq_free_event(ev);
+					break;
+				}
+
+				std::lock_guard<std::mutex> lock(mutex);
+				for (auto i : xrange(size)) {
+					queue.push_back(bytes[i]);
+				}
+			}
+			snd_seq_free_event(ev);
+			eventDistributor.distributeEvent(
+				Event::create<MidiInALSAEvent>());
+		}
 	}
 }
 
