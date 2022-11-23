@@ -76,6 +76,10 @@ void OSDImageBasedWidget::setProperty(
 	} else if (propName == "-scrollSpeed") {
 		scrollSpeed = std::max(0.0f, value.getFloat(interp));
 		startScrollTime = Timer::getTime();
+	} else if (propName == "-scrollPauseLeft") {
+		scrollPauseLeft = std::max(0.0f, value.getFloat(interp));
+	} else if (propName == "-scrollPauseRight") {
+		scrollPauseRight = std::max(0.0f, value.getFloat(interp));
 	} else if (propName == "-query-size") {
 		throw CommandException("-query-size property is readonly");
 	} else {
@@ -118,6 +122,10 @@ void OSDImageBasedWidget::getProperty(std::string_view propName, TclObject& resu
 		result = getCurrentFadeValue();
 	} else if (propName == "-scrollSpeed") {
 		result = scrollSpeed;
+	} else if (propName == "-scrollPauseLeft") {
+		result = scrollPauseLeft;
+	} else if (propName == "-scrollPauseRight") {
+		result = scrollPauseRight;
 	} else if (propName == "-query-size") {
 		auto [w, h] = getRenderedSize();
 		result.addListElement(w, h);
@@ -166,15 +174,29 @@ gl::vec2 OSDImageBasedWidget::getPos() const
 	auto width = getScrollWidth();
 	if (!width) return result;
 
+	auto scrollTime = *width / scrollSpeed;
+	auto animationTime = 2*scrollTime + scrollPauseLeft + scrollPauseRight;
+
 	// transform moment in time to animation-timestamp 't'
-	//  [0..1) scrolling to the left
-	//  [1..2) scrolling to the right
 	auto now = narrow_cast<float>(Timer::getTime() - startScrollTime) / 1'000'000.0f;
-	auto t = fmodf(scrollSpeed * now / *width, 2.0f);
+	auto t = fmodf(now, animationTime);
 
 	// transform animation timestamp to position
-	auto offsetX = smootherStep(t <= 1.0f ? t : 2.0f - t);
-	result[0] -= *width * offsetX;
+	float relOffsetX = 0;
+	if (t < scrollPauseLeft) {
+		// no scrolling yet, pausing at the left
+		relOffsetX = 0;
+	} else if (t < (scrollPauseLeft + scrollTime)) {
+		// scrolling to the left
+		relOffsetX = smootherStep((t - scrollPauseLeft) / scrollTime);
+	} else if (t < (scrollPauseLeft + scrollTime + scrollPauseRight)) {
+		// no scrolling yet, pausing at the right
+		relOffsetX = 1;
+	} else {
+		// scrolling to the right
+		relOffsetX = smootherStep(1.0f - ((t - scrollPauseLeft - scrollTime - scrollPauseRight) / scrollTime));
+	}
+	result[0] -= *width * relOffsetX;
 	return result;
 }
 

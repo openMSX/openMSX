@@ -25,6 +25,8 @@ protected:
 				"-fadePeriod"sv, "-fadeTarget"sv,
 				"-fadeCurrent"sv,
 				"-scrollSpeed"sv,
+				"-scrollPauseLeft"sv,
+				"-scrollPauseRight"sv,
 				"-query-size"sv,
 			});
 	}();
@@ -81,6 +83,8 @@ private:
 	float fadeTarget = 1.0f;
 	mutable float startFadeValue = 1.0f;
 	float scrollSpeed = 0.0f; // 0 means disabled
+	float scrollPauseLeft = 0.0f;
+	float scrollPauseRight = 0.0f;
 	uint64_t startScrollTime = 0;
 	std::array<uint32_t, 4> rgba;
 	bool error = false;
