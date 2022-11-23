@@ -15,6 +15,7 @@
 #include "checked_cast.hh"
 #include <iostream>
 #include <memory>
+#include <thread>
 
 
 namespace openmsx {
@@ -318,9 +319,8 @@ void MidiInALSA::run()
 		if (poll(pfd.data(), npfd, 1000) > 0) {
 			do {
 				snd_seq_event_t *ev = NULL;
-				long err, size;
 
-				if ((err = snd_seq_event_input(&seq, &ev)) < 0) {
+				if (auto err = snd_seq_event_input(&seq, &ev); err < 0) {
 					std::cerr << "Error receiving MIDI event: "
 						<< snd_strerror(err) << '\n';
 					break;
@@ -337,9 +337,9 @@ void MidiInALSA::run()
 						queue.push_back(static_cast<uint8_t*>(ev->data.ext.ptr)[i]);
 					}
 				} else {
-					uint8_t bytes[12] = {};
+					std::array<uint8_t, 12> bytes = {};
 
-					size = snd_midi_event_decode(event_parser, bytes, 12, ev);
+					auto size = snd_midi_event_decode(event_parser, bytes.data(), bytes.size(), ev);
 					if (size < 0) {
 						std::cerr << "Error decoding MIDI event: "
 							<< snd_strerror(size) << '\n';
@@ -372,7 +372,7 @@ void MidiInALSA::signal(EmuTime::param time)
 	}
 	if (!conn->ready()) return;
 
-	byte data;
+	uint8_t data;
 	{
 		std::lock_guard<std::mutex> lock(mutex);
 		if (queue.empty()) return;
