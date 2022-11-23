@@ -18,7 +18,8 @@ class PluggingController;
 class MidiSessionALSA final
 {
 public:
-	static void registerAll(PluggingController& controller, CliComm& cliComm);
+	static void registerAll(PluggingController& controller, CliComm& cliComm,
+							EventDistributor& eventDistributor, Scheduler& scheduler);
 
 	~MidiSessionALSA();
 
@@ -26,7 +27,9 @@ private:
 	static std::unique_ptr<MidiSessionALSA> instance;
 
 	explicit MidiSessionALSA(snd_seq_t& seq);
-	void scanClients(PluggingController& controller);
+	void scanClients(PluggingController& controller,
+					 EventDistributor& eventDistributor,
+					 Scheduler& scheduler);
 
 	snd_seq_t& seq;
 };

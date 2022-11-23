@@ -1,10 +1,18 @@
 #include "MidiSessionALSA.hh"
 #include "CliComm.hh"
 #include "MidiOutDevice.hh"
+#include "MidiInDevice.hh"
+#include "MidiInConnector.hh"
+#include "EventListener.hh"
+#include "EventDistributor.hh"
 #include "PlugException.hh"
+#include "Poller.hh"
 #include "PluggingController.hh"
+#include "Scheduler.hh"
 #include "narrow.hh"
 #include "serialize.hh"
+#include "circular_buffer.hh"
+#include "checked_cast.hh"
 #include <iostream>
 #include <memory>
 
@@ -166,13 +174,253 @@ void MidiOutALSA::serialize(Archive& /*ar*/, unsigned /*version*/)
 INSTANTIATE_SERIALIZE_METHODS(MidiOutALSA);
 REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, MidiOutALSA, "MidiOutALSA");
 
+// MidiInALSA ==============================================================
+class MidiInALSA final : public MidiInDevice, private EventListener
+{
+public:
+	MidiInALSA(
+			EventDistributor& eventDistributor, Scheduler& scheduler, snd_seq_t& seq,
+			snd_seq_client_info_t& cinfo, snd_seq_port_info_t& pinfo);
+	~MidiInALSA() override;
+
+	// Pluggable
+	void plugHelper(Connector& connector, EmuTime::param time) override;
+	void unplugHelper(EmuTime::param time) override;
+	[[nodiscard]] std::string_view getName() const override;
+	[[nodiscard]] std::string_view getDescription() const override;
+
+	// MidiInDevice
+	void signal(EmuTime::param time) override;
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
+private:
+	void run();
+	void connect();
+	void disconnect();
+
+	// EventListener
+	int signalEvent(const Event& event) override;
+
+private:
+	EventDistributor& eventDistributor;
+	Scheduler& scheduler;
+	std::thread thread;
+	snd_seq_t& seq;
+	snd_midi_event_t* event_parser;
+	int destinationPort = -1;
+	int srcClient;
+	int srcPort;
+	std::string name;
+	std::string desc;
+	bool connected = false;
+	bool stop = false;
+	cb_queue<uint8_t> queue;
+	std::mutex mutex; // to protect queue
+};
+
+MidiInALSA::MidiInALSA(
+		EventDistributor& eventDistributor_,
+		Scheduler& scheduler_,
+		snd_seq_t& seq_,
+		snd_seq_client_info_t& cinfo, snd_seq_port_info_t& pinfo)
+	: eventDistributor(eventDistributor_)
+	, scheduler(scheduler_)
+	, seq(seq_)
+	, srcClient(snd_seq_port_info_get_client(&pinfo))
+	, srcPort(snd_seq_port_info_get_port(&pinfo))
+	, name(snd_seq_client_info_get_name(&cinfo))
+	, desc(snd_seq_port_info_get_name(&pinfo))
+{
+	eventDistributor.registerEventListener(EventType::MIDI_IN_ALSA, *this);
+	if ((snd_seq_port_info_get_capability(&pinfo) & (SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE))) {
+		name.append(" (input)");
+	}
+}
+
+MidiInALSA::~MidiInALSA()
+{
+	if (connected) {
+		disconnect();
+	}
+	eventDistributor.unregisterEventListener(EventType::MIDI_IN_ALSA, *this);
+}
+
+void MidiInALSA::plugHelper(Connector& connector_, EmuTime::param /*time*/)
+{
+	auto& midiConnector = checked_cast<MidiInConnector&>(connector_);
+	midiConnector.setDataBits(SerialDataInterface::DATA_8); // 8 data bits
+	midiConnector.setStopBits(SerialDataInterface::STOP_1); // 1 stop bit
+	midiConnector.setParityBit(false, SerialDataInterface::EVEN); // no parity
+
+	setConnector(&midiConnector); // base class will do this in a moment,
+	                              // but thread already needs it
+	connect();
+}
+
+void MidiInALSA::unplugHelper(EmuTime::param /*time*/)
+{
+	if (connected) {
+		disconnect();
+	}
+}
+
+void MidiInALSA::connect()
+{
+	destinationPort = snd_seq_create_simple_port(
+		&seq, "MIDI in pluggable",
+		SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE, SND_SEQ_PORT_TYPE_MIDI_GENERIC);
+	if (destinationPort < 0) {
+		throw PlugException(
+			"Failed to create ALSA port: ", snd_strerror(destinationPort));
+	}
+
+	int err = snd_seq_connect_from(&seq, destinationPort, srcClient, srcPort);
+	if (err) {
+		snd_seq_delete_simple_port(&seq, destinationPort);
+		throw PlugException(
+			"Failed to connect to ALSA port "
+			"(", srcClient, ':', srcPort, ")"
+			": ", snd_strerror(err));
+	}
+
+	snd_midi_event_new(MidiOutDevice::MAX_MESSAGE_SIZE, &event_parser);
+	snd_midi_event_no_status(event_parser, 1);
+
+	connected = true;
+	stop = false;
+
+	thread = std::thread([this]() { run(); });
+}
+
+void MidiInALSA::disconnect()
+{
+	stop = true;
+	thread.join();
+
+	snd_midi_event_free(event_parser);
+	snd_seq_disconnect_from(&seq, destinationPort, srcClient, srcPort);
+	snd_seq_delete_simple_port(&seq, destinationPort);
+
+	connected = false;
+}
+
+void MidiInALSA::run()
+{
+	assert(isPluggedIn());
+
+	auto npfd = snd_seq_poll_descriptors_count(&seq, POLLIN);
+	std::vector<struct pollfd> pfd(npfd);
+	snd_seq_poll_descriptors(&seq, pfd.data(), npfd, POLLIN);
+
+	while (true) {
+		if (poll(pfd.data(), npfd, 1000) > 0) {
+			do {
+				snd_seq_event_t *ev = NULL;
+				long err, size;
+
+				if ((err = snd_seq_event_input(&seq, &ev)) < 0) {
+					std::cerr << "Error receiving MIDI event: "
+						<< snd_strerror(err) << '\n';
+					break;
+				}
+
+				if (!ev) {
+					break;
+				}
+
+				if (ev->type == SND_SEQ_EVENT_SYSEX) {
+					std::lock_guard<std::mutex> lock(mutex);
+
+					for (auto i : xrange(ev->data.ext.len)) {
+						queue.push_back(static_cast<uint8_t*>(ev->data.ext.ptr)[i]);
+					}
+				} else {
+					uint8_t bytes[12] = {};
+
+					size = snd_midi_event_decode(event_parser, bytes, 12, ev);
+					if (size < 0) {
+						std::cerr << "Error decoding MIDI event: "
+							<< snd_strerror(size) << '\n';
+						snd_seq_free_event(ev);
+						break;
+					}
+
+					std::lock_guard<std::mutex> lock(mutex);
+					for (auto i : xrange(size)) {
+						queue.push_back(bytes[i]);
+					}
+				}
+				snd_seq_free_event(ev);
+				eventDistributor.distributeEvent(
+					Event::create<MidiInALSAEvent>());
+			} while (0);
+		}
+		if (stop)
+			break;
+	}
+}
+
+void MidiInALSA::signal(EmuTime::param time)
+{
+	auto* conn = static_cast<MidiInConnector*>(getConnector());
+	if (!conn->acceptsData()) {
+		std::lock_guard<std::mutex> lock(mutex);
+		queue.clear();
+		return;
+	}
+	if (!conn->ready()) return;
+
+	byte data;
+	{
+		std::lock_guard<std::mutex> lock(mutex);
+		if (queue.empty()) return;
+		data = queue.pop_front();
+	}
+	conn->recvByte(data, time);
+}
+
+// EventListener
+int MidiInALSA::signalEvent(const Event& /*event*/)
+{
+	if (isPluggedIn()) {
+		signal(scheduler.getCurrentTime());
+	} else {
+		std::lock_guard<std::mutex> lock(mutex);
+		queue.clear();
+	}
+	return 0;
+}
+
+std::string_view MidiInALSA::getName() const
+{
+	return name;
+}
+
+std::string_view MidiInALSA::getDescription() const
+{
+	return desc;
+}
+
+template<typename Archive>
+void MidiInALSA::serialize(Archive& /*ar*/, unsigned /*version*/)
+{
+	if constexpr (Archive::IS_LOADER) {
+		connect();
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(MidiInALSA);
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, MidiInALSA, "MidiInALSA");
+
 
 // MidiSessionALSA ==========================================================
 
 std::unique_ptr<MidiSessionALSA> MidiSessionALSA::instance;
 
 void MidiSessionALSA::registerAll(
-		PluggingController& controller, CliComm& cliComm)
+		PluggingController& controller, CliComm& cliComm,
+		EventDistributor& eventDistributor, Scheduler& scheduler)
 {
 	if (!instance) {
 		// Open the sequencer.
@@ -186,7 +434,7 @@ void MidiSessionALSA::registerAll(
 		snd_seq_set_client_name(seq, "openMSX");
 		instance.reset(new MidiSessionALSA(*seq));
 	}
-	instance->scanClients(controller);
+	instance->scanClients(controller, eventDistributor, scheduler);
 }
 
 MidiSessionALSA::MidiSessionALSA(snd_seq_t& seq_)
@@ -201,7 +449,10 @@ MidiSessionALSA::~MidiSessionALSA()
 	snd_seq_close(&seq);
 }
 
-void MidiSessionALSA::scanClients(PluggingController& controller)
+void MidiSessionALSA::scanClients(
+	PluggingController& controller,
+	EventDistributor& eventDistributor,
+	Scheduler& scheduler)
 {
 	// Iterate through all clients.
 	snd_seq_client_info_t* cinfo;
@@ -226,9 +477,16 @@ void MidiSessionALSA::scanClients(PluggingController& controller)
 			}
 			constexpr unsigned int wrcaps =
 					SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE;
+			constexpr unsigned int rdcaps =
+					SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ;
 			if ((snd_seq_port_info_get_capability(pinfo) & wrcaps) == wrcaps) {
 				controller.registerPluggable(std::make_unique<MidiOutALSA>(
 						seq, *cinfo, *pinfo
+						));
+			}
+			if ((snd_seq_port_info_get_capability(pinfo) & rdcaps) == rdcaps) {
+				controller.registerPluggable(std::make_unique<MidiInALSA>(
+						eventDistributor, scheduler, seq, *cinfo, *pinfo
 						));
 			}
 		}
