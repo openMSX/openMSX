@@ -2,7 +2,7 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
-    <name>SN76489 Digital Complex Sound Generator</name>
+    <name>Digital Complex Sound Generator</name>
     <manufacturer>Texas Instruments</manufacturer>
     <code>SN76489</code>
     <description>This extension contains an SN76489 sound chip on I/O ports $48 and $49 (mirror), the same as Franky, which makes it compatible with software like Grauw's VGMPlay.</description>
