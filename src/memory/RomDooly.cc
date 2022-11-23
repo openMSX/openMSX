@@ -22,7 +22,7 @@ void RomDooly::reset(EmuTime::param /*time*/)
 byte RomDooly::peekMem(word address, EmuTime::param /*time*/) const
 {
 	if ((0x4000 <= address) && (address < 0xc000)) {
-		byte value = rom[address - 0x4000];
+		byte value = rom[(address - 0x4000) & (rom.size() - 1)];
 		switch (conversion) {
 		case 0:
 			return value;
