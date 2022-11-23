@@ -66,7 +66,15 @@ byte RomDooly::readMem(word address, EmuTime::param time)
 
 void RomDooly::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
-	if ((0x4000 <= address) && (address < 0xc000)) {
+	// TODO: To what region does the real cartridge react?
+	// * Using the full region [0x4000,0xc000) interferes with the
+	//   RAM-check routine of many MSX machines (game doesn't boot)
+	// * The game seems to write at many different addresses. The min/max
+	//   I've seen is 0x8900/0x8f86. So my best *guess* is to extend this
+	//   region to [0x8800,0x9000).
+	// * This smaller region seems to make the game work (on the above
+	//   machines that failed before).
+	if ((0x8800 <= address) && (address < 0x9000)) {
 		conversion = value & 0x07;
 	}
 }
