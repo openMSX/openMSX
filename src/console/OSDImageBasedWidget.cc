@@ -163,7 +163,8 @@ bool OSDImageBasedWidget::isAnimating() const
 [[nodiscard]] static float smootherStep(float x)
 {
 	// https://en.wikipedia.org/wiki/Smoothstep
-	return (6* x * x * x * x * x) - (15 * x * x * x * x) + (10 * x * x * x);
+	//    6x^5 - 15x^4 + 10x^3
+	return ((6.0f * x - 15.0f) * x + 10.0f) * x * x * x;
 }
 
 gl::vec2 OSDImageBasedWidget::getPos() const
@@ -175,27 +176,28 @@ gl::vec2 OSDImageBasedWidget::getPos() const
 	if (!width) return result;
 
 	auto scrollTime = *width / scrollSpeed;
-	auto animationTime = 2*scrollTime + scrollPauseLeft + scrollPauseRight;
+	auto animationTime = 2.0f * scrollTime + scrollPauseLeft + scrollPauseRight;
 
 	// transform moment in time to animation-timestamp 't'
 	auto now = narrow_cast<float>(Timer::getTime() - startScrollTime) / 1'000'000.0f;
 	auto t = fmodf(now, animationTime);
 
 	// transform animation timestamp to position
-	float relOffsetX = 0;
-	if (t < scrollPauseLeft) {
-		// no scrolling yet, pausing at the left
-		relOffsetX = 0;
-	} else if (t < (scrollPauseLeft + scrollTime)) {
-		// scrolling to the left
-		relOffsetX = smootherStep((t - scrollPauseLeft) / scrollTime);
-	} else if (t < (scrollPauseLeft + scrollTime + scrollPauseRight)) {
-		// no scrolling yet, pausing at the right
-		relOffsetX = 1;
-	} else {
-		// scrolling to the right
-		relOffsetX = smootherStep(1.0f - ((t - scrollPauseLeft - scrollTime - scrollPauseRight) / scrollTime));
-	}
+	float relOffsetX = [&]{
+		if (t < scrollPauseLeft) {
+			// no scrolling yet, pausing at the left
+			return 0.0f;
+		} else if (t < (scrollPauseLeft + scrollTime)) {
+			// scrolling to the left
+			return smootherStep((t - scrollPauseLeft) / scrollTime);
+		} else if (t < (scrollPauseLeft + scrollTime + scrollPauseRight)) {
+			// no scrolling yet, pausing at the right
+			return 1.0f;
+		} else {
+			// scrolling to the right
+			return smootherStep(1.0f - ((t - scrollPauseLeft - scrollTime - scrollPauseRight) / scrollTime));
+		}
+	}();
 	result[0] -= *width * relOffsetX;
 	return result;
 }
