@@ -4,6 +4,7 @@
 
 #include "RomDooly.hh"
 #include "CacheLine.hh"
+#include "MSXException.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -12,6 +13,9 @@ RomDooly::RomDooly(const DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
 	, romBlockDebug(*this, std::span{&conversion, 1}, 0x4000, 0x8000, 15)
 {
+	if (rom.size() != 0x8000) {
+		throw MSXException("Dooly ROM-size must be exactly 32kB");
+	}
 }
 
 void RomDooly::reset(EmuTime::param /*time*/)
@@ -22,7 +26,7 @@ void RomDooly::reset(EmuTime::param /*time*/)
 byte RomDooly::peekMem(word address, EmuTime::param /*time*/) const
 {
 	if ((0x4000 <= address) && (address < 0xc000)) {
-		byte value = rom[(address - 0x4000) & (rom.size() - 1)];
+		byte value = rom[address - 0x4000];
 		switch (conversion) {
 		case 0:
 			return value;
