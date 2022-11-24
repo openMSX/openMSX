@@ -2,9 +2,11 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
 
-<!-- dumps provided by Peter Hanraets, thanks! -->
+<!--
+Dumps provided by Peter Hanraets, thanks!
+Serial number of his machine: 205243
 
-<!-- MSX.org photos:
+MSX.org photos:
 CPU: NEC D780C-1
 PPI/PSG: Yamaha S3527 - ANSI
 VDP: TMS9118NL
@@ -38,7 +40,7 @@ VDP: TMS9118NL
       <io base="0xA8" num="4"/>
       <keyboard_type>jp_ansi</keyboard_type>
       <has_keypad>false</has_keypad>
-      <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected> <!-- not sure yet -->
+      <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected> <!-- as checked by Peter -->
       <code_kana_locks>true</code_kana_locks>
       <graph_locks>false</graph_locks>
     </PPI>
