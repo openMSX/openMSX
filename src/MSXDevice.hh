@@ -4,9 +4,11 @@
 #include "DeviceConfig.hh"
 #include "EmuTime.hh"
 #include "IterableBitSet.hh"
+#include "narrow.hh"
 #include "openmsx.hh"
 #include "serialize_meta.hh"
 #include <array>
+#include <cassert>
 #include <span>
 #include <string>
 #include <vector>
@@ -321,7 +323,11 @@ private:
 protected:
 	std::string deviceName;
 
-	[[nodiscard]] byte getPrimarySlot() const { return ps; };
+	[[nodiscard]] byte getPrimarySlot() const {
+		// must already be resolved to an actual slot
+		assert((0 <= ps) && (ps <= 3));
+		return narrow_cast<byte>(ps);
+	}
 
 private:
 	struct BaseSize {

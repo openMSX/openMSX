@@ -305,7 +305,7 @@ static void calcPermute(double ratio, std::span<int16_t, HALF_TAB_LEN> permute)
 
 #ifdef DEBUG
 	std::array<int16_t, N2> testPerm;
-	ranges::iota(testPerm, 0);
+	ranges::iota(testPerm, int16_t(0));
 	assert(std::is_permutation(permute.begin(), permute.end(), testPerm.begin()));
 #endif
 }

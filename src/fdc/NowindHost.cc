@@ -235,8 +235,8 @@ void NowindHost::send(byte value)
 }
 void NowindHost::send16(word value)
 {
-	hostToMsxFifo.push_back(value & 255);
-	hostToMsxFifo.push_back(value >> 8);
+	hostToMsxFifo.push_back(narrow_cast<byte>(value & 255));
+	hostToMsxFifo.push_back(narrow_cast<byte>(value >> 8));
 }
 
 void NowindHost::purge()

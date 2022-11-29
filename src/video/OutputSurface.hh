@@ -80,7 +80,7 @@ public:
 	  */
 	template<std::unsigned_integral Pixel> [[nodiscard]] Pixel mapKeyedRGB255(gl::ivec3 rgb)
 	{
-		Pixel p = mapRGB255(rgb);
+		auto p = Pixel(mapRGB255(rgb));
 		if constexpr (sizeof(Pixel) == 2) {
 			return (p != getKeyColor<Pixel>())
 				? p

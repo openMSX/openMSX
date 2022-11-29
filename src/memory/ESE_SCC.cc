@@ -81,7 +81,7 @@ ESE_SCC::ESE_SCC(const DeviceConfig& config, bool withSCSI)
 	, mapperMask(narrow<byte>((sram.size() / 0x2000) - 1))
 {
 	// initialized mapper
-	ranges::iota(mapper, 0);
+	ranges::iota(mapper, byte(0));
 }
 
 void ESE_SCC::powerUp(EmuTime::param time)

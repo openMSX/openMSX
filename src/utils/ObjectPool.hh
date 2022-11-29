@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
+#include "narrow.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
 
@@ -117,7 +118,7 @@ public:
 
 	// for unittest
 	[[nodiscard]] Index capacity() const {
-		return 256 * pool.size();
+		return narrow<Index>(256 * pool.size());
 	}
 
 private:

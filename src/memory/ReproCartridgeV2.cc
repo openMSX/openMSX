@@ -105,7 +105,7 @@ void ReproCartridgeV2::reset(EmuTime::param time)
 	setVolume(time, 0b10'000'10);
 	mapperTypeReg = 0;
 	sccMode = 0;
-	ranges::iota(bankRegs, 0);
+	ranges::iota(bankRegs, byte(0));
 
 	scc.reset(time);
 	psg0x10Latch = 0;

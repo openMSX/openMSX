@@ -40,18 +40,18 @@ void HQ_1x1on3x3<Pixel>::operator()(
 	assert(out1.size() == 3 * srcWidth);
 	assert(out2.size() == 3 * srcWidth);
 
-	unsigned c2 = readPixel(in0[0]); unsigned c3 = c2;
-	unsigned c5 = readPixel(in1[0]); unsigned c6 = c5;
-	unsigned c8 = readPixel(in2[0]); unsigned c9 = c8;
+	auto c2 = readPixel(in0[0]); auto c3 = c2;
+	auto c5 = readPixel(in1[0]); auto c6 = c5;
+	auto c8 = readPixel(in2[0]); auto c9 = c8;
 
 	unsigned pattern = 0;
 	if (edgeOp(c5, c8)) pattern |= 3 <<  6;
 	if (edgeOp(c5, c2)) pattern |= 3 <<  9;
 
 	for (auto x : xrange(srcWidth)) {
-		unsigned c1 = c2;
-		unsigned c4 = c5;
-		unsigned c7 = c8;
+		auto c1 = c2;
+		auto c4 = c5;
+		auto c7 = c8;
 		c2 = c3;
 		c5 = c6;
 		c8 = c9;
@@ -80,7 +80,7 @@ void HQ_1x1on3x3<Pixel>::operator()(
 		//if (edgeOp(c5, c2)) pattern |= 1 << 11; //     t: c5-c8 5
 		pattern |= ((edgeBuf[x] &  (1 << 5)            ) << 6) |
 		           ((edgeBuf[x] & ((1 << 6) | (1 << 7))) << 3);
-		edgeBuf[x] = pattern;
+		edgeBuf[x] = narrow_cast<uint16_t>(pattern);
 
 		unsigned pixel0, pixel1, pixel2, pixel3, pixel4,
 		         pixel5, pixel6, pixel7, pixel8;

@@ -1,5 +1,6 @@
 #include "catch.hpp"
 #include "StringOp.hh"
+#include "narrow.hh"
 #include <type_traits>
 
 using namespace StringOp;
@@ -91,7 +92,7 @@ static void checkParseRange(const string& s, const std::vector<unsigned>& expect
 {
 	auto parsed = parseRange(s, 0, 63);
 	std::vector<unsigned> result;
-	parsed.foreachSetBit([&](unsigned i) { result.push_back(i); });
+	parsed.foreachSetBit([&](size_t i) { result.push_back(narrow<unsigned>(i)); });
 	CHECK(result == expected);
 }
 

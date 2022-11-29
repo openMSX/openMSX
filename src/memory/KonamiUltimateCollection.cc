@@ -65,7 +65,7 @@ void KonamiUltimateCollection::reset(EmuTime::param time)
 	mapperReg = 0;
 	offsetReg = 0;
 	sccMode = 0;
-	ranges::iota(bankRegs, 0);
+	ranges::iota(bankRegs, byte(0));
 
 	scc.reset(time);
 	dac.reset(time);

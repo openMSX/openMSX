@@ -1,5 +1,6 @@
 #include "catch.hpp"
 #include "FixedPoint.hh"
+#include "narrow.hh"
 
 using namespace openmsx;
 
@@ -11,8 +12,8 @@ static void check(const FixedPoint<BITS>& fp, int expectedRaw)
 	unsigned fi = expectedRaw & ((1 << BITS) - 1);
 	float  ff = float (fi) / (1 << BITS);
 	double fd = double(fi) / (1 << BITS);
-	float  f = i + ff;
-	double d = i + fd;
+	float  f = narrow_cast<float >(i) + ff;
+	double d = narrow_cast<double>(i) + fd;
 	CHECK(fp.toInt()            == i);
 	CHECK(fp.toFloat()          == f);
 	CHECK(fp.toDouble()         == d);

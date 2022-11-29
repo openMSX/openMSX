@@ -1,6 +1,7 @@
 #ifndef UINT128_HH
 #define UINT128_HH
 
+#include "narrow.hh"
 #include <cstdint>
 #include <utility>
 
@@ -9,8 +10,8 @@
 // use that type because it's most likely much more efficient.
 // VC++ 2008 does not provide a 128-bit integer type
 using uint128 = __uint128_t;
-[[nodiscard]] constexpr uint64_t low64 (uint128 a) { return a; }
-[[nodiscard]] constexpr uint64_t high64(uint128 a) { return a >> 64; }
+[[nodiscard]] constexpr uint64_t low64 (uint128 a) { return narrow_cast<uint64_t>(a >>  0); }
+[[nodiscard]] constexpr uint64_t high64(uint128 a) { return narrow_cast<uint64_t>(a >> 64); }
 
 #else // __x86_64 && !_MSC_VER
 

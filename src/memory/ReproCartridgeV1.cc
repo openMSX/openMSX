@@ -70,7 +70,7 @@ void ReproCartridgeV1::reset(EmuTime::param time)
 	flashRomWriteEnabled = false;
 	mainBankReg = 0;
 	sccMode = 0;
-	ranges::iota(bankRegs, 0);
+	ranges::iota(bankRegs, byte(0));
 
 	scc.reset(time);
 	psgLatch = 0;

@@ -3,6 +3,7 @@
 
 #include "File.hh"
 #include "circular_buffer.hh"
+#include "narrow.hh"
 #include <ogg/ogg.h>
 #include <vorbis/codec.h>
 #include <theora/theoradec.h>
@@ -46,7 +47,7 @@ public:
 	~OggReader();
 
 	bool seek(size_t frame, size_t sample);
-	[[nodiscard]] unsigned getSampleRate() const { return vi.rate; }
+	[[nodiscard]] unsigned getSampleRate() const { return narrow<unsigned>(vi.rate); }
 	void getFrameNo(RawFrame& frame, size_t frameno);
 	[[nodiscard]] const AudioFragment* getAudio(size_t sample);
 	[[nodiscard]] size_t getFrames() const { return totalFrames; }

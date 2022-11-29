@@ -262,7 +262,7 @@ void Trackball::stopReplay(EmuTime::param time) noexcept
 	uint8_t release = (JOY_BUTTONA | JOY_BUTTONB) & ~status;
 	if ((currentDeltaX != 0) || (currentDeltaY != 0) || (release != 0)) {
 		stateChangeDistributor.distributeNew<TrackballState>(
-			time, -currentDeltaX, -currentDeltaY, 0, release);
+			time, -currentDeltaX, -currentDeltaY, uint8_t(0), release);
 	}
 }
 

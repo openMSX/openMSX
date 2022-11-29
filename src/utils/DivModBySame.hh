@@ -1,6 +1,7 @@
 #ifndef DIVISIONBYCONST_HH
 #define DIVISIONBYCONST_HH
 
+#include "narrow.hh"
 #include <cassert>
 #include <cstdint>
 #include <utility>
@@ -30,8 +31,8 @@ public:
 	[[nodiscard]] uint32_t div(uint64_t dividend) const
 	{
 	#if defined __x86_64 && !defined _MSC_VER
-		uint64_t t = (__uint128_t(dividend) * m + a) >> 64;
-		return t >> s;
+		auto t = narrow_cast<uint64_t>((__uint128_t(dividend) * m + a) >> 64);
+		return narrow_cast<uint32_t>(t >> s);
 	#else
 		return divInC(dividend);
 	#endif

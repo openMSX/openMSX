@@ -95,8 +95,8 @@ template<typename T> constexpr std::pair<T, T> calcValueMask(auto str)
 	T m = 0;
 	int s = Endian::LITTLE ? 0 : (8 * (sizeof(T) - 1));
 	for (size_t i = 0; i < str.size(); ++i) {
-		v += T(str.data()[i]) << s;
-		m += T(255) << s;
+		v = T(v + (T(str.data()[i]) << s));
+		m = T(m + (T(255) << s));
 		s += Endian::LITTLE ? 8 : -8;
 	}
 	return {v, m};

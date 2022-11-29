@@ -33,6 +33,7 @@
 // (getting the stop condition correct is not trivial) and we don't need it
 // currently.
 
+#include "narrow.hh"
 #include <cstddef>
 #include <iterator>
 #include <type_traits>
@@ -83,12 +84,12 @@ template<typename T> struct XRange
 		// RandomAccessIterator
 		constexpr Iter& operator+=(difference_type n)
 		{
-			x += n;
+			x += narrow<T>(n);
 			return *this;
 		}
 		constexpr Iter& operator-=(difference_type n)
 		{
-			x -= n;
+			x -= narrow<T>(n);
 			return *this;
 		}
 

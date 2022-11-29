@@ -42,22 +42,22 @@ octet_iterator append(uint32_t cp, octet_iterator result)
 {
 	if (cp < 0x80) {
 		// one octet
-		*result++ = cp;
+		*result++ = narrow_cast<uint8_t>(cp);
 	} else if (cp < 0x800) {
 		// two octets
-		*result++ = ((cp >>  6)       ) | 0xc0;
-		*result++ = ((cp >>  0) & 0x3f) | 0x80;
+		*result++ = narrow_cast<uint8_t>(((cp >>  6)       ) | 0xc0);
+		*result++ = narrow_cast<uint8_t>(((cp >>  0) & 0x3f) | 0x80);
 	} else if (cp < 0x10000) {
 		// three octets
-		*result++ = ((cp >> 12)       ) | 0xe0;
-		*result++ = ((cp >>  6) & 0x3f) | 0x80;
-		*result++ = ((cp >>  0) & 0x3f) | 0x80;
+		*result++ = narrow_cast<uint8_t>(((cp >> 12)       ) | 0xe0);
+		*result++ = narrow_cast<uint8_t>(((cp >>  6) & 0x3f) | 0x80);
+		*result++ = narrow_cast<uint8_t>(((cp >>  0) & 0x3f) | 0x80);
 	} else {
 		// four octets
-		*result++ = ((cp >> 18)       ) | 0xf0;
-		*result++ = ((cp >> 12) & 0x3f) | 0x80;
-		*result++ = ((cp >>  6) & 0x3f) | 0x80;
-		*result++ = ((cp >>  0) & 0x3f) | 0x80;
+		*result++ = narrow_cast<uint8_t>(((cp >> 18)       ) | 0xf0);
+		*result++ = narrow_cast<uint8_t>(((cp >> 12) & 0x3f) | 0x80);
+		*result++ = narrow_cast<uint8_t>(((cp >>  6) & 0x3f) | 0x80);
+		*result++ = narrow_cast<uint8_t>(((cp >>  0) & 0x3f) | 0x80);
 	}
 	return result;
 }
@@ -65,8 +65,8 @@ octet_iterator append(uint32_t cp, octet_iterator result)
 template<typename octet_iterator>
 uint32_t next(octet_iterator& it)
 {
-	uint32_t cp = narrow_cast<unsigned char>(*it);
-	switch (utf8::internal::sequence_length(cp)) {
+	uint32_t cp = narrow_cast<uint8_t>(*it);
+	switch (utf8::internal::sequence_length(narrow_cast<uint8_t>(cp))) {
 	case 1:
 		break;
 	case 2:

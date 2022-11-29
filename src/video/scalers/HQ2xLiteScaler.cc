@@ -47,16 +47,16 @@ void HQLite_1x1on2x2<Pixel>::operator()(
 	assert(out0.size() == 2 * srcWidth);
 	assert(out1.size() == 2 * srcWidth);
 
-	unsigned c2 = readPixel(in0[0]);
-	unsigned c5 = readPixel(in1[0]); unsigned c6 = c5;
-	unsigned c8 = readPixel(in2[0]); unsigned c9 = c8;
+	auto c2 = readPixel(in0[0]);
+	auto c5 = readPixel(in1[0]); auto c6 = c5;
+	auto c8 = readPixel(in2[0]); auto c9 = c8;
 
 	unsigned pattern = 0;
 	if (c5 != c8) pattern |= 3 <<  6;
 	if (c5 != c2) pattern |= 3 <<  9;
 
 	for (auto x : xrange(srcWidth)) {
-		unsigned c4 = c5;
+		auto c4 = c5;
 		c5 = c6;
 		c8 = c9;
 		if (x != srcWidth - 1) {
@@ -83,7 +83,7 @@ void HQLite_1x1on2x2<Pixel>::operator()(
 		//if (c5 != c2) pattern |= 1 << 11; //     t: c5-c8 5
 		pattern |= ((edgeBuf[x] &  (1 << 5)            ) << 6) |
 		           ((edgeBuf[x] & ((1 << 6) | (1 << 7))) << 3);
-		edgeBuf[x] = pattern;
+		edgeBuf[x] = narrow_cast<uint16_t>(pattern);
 
 		unsigned pixel0, pixel1, pixel2, pixel3;
 
@@ -117,16 +117,16 @@ void HQLite_1x1on1x2<Pixel>::operator()(
 	assert(out0.size() == srcWidth);
 	assert(out1.size() == srcWidth);
 
-	unsigned c2 = readPixel(in0[0]);
-	unsigned c5 = readPixel(in1[0]); unsigned c6 = c5;
-	unsigned c8 = readPixel(in2[0]); unsigned c9 = c8;
+	auto c2 = readPixel(in0[0]);
+	auto c5 = readPixel(in1[0]); auto c6 = c5;
+	auto c8 = readPixel(in2[0]); auto c9 = c8;
 
 	unsigned pattern = 0;
 	if (c5 != c8) pattern |= 3 <<  6;
 	if (c5 != c2) pattern |= 3 <<  9;
 
 	for (auto x : xrange(srcWidth)) {
-		unsigned c4 = c5;
+		auto c4 = c5;
 		c5 = c6;
 		c8 = c9;
 		if (x != srcWidth - 1) {
@@ -153,7 +153,7 @@ void HQLite_1x1on1x2<Pixel>::operator()(
 		//if (c5 != c2) pattern |= 1 << 11; //     t: c5-c8 5
 		pattern |= ((edgeBuf[x] &  (1 << 5)            ) << 6) |
 		           ((edgeBuf[x] & ((1 << 6) | (1 << 7))) << 3);
-		edgeBuf[x] = pattern;
+		edgeBuf[x] = narrow_cast<uint16_t>(pattern);
 
 		unsigned pixel0, pixel1;
 

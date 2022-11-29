@@ -23,7 +23,7 @@ constexpr To narrow_cast(From&& from) noexcept
 	return static_cast<To>(std::forward<From>(from));
 }
 
-ALWAYS_INLINE void narrow_assert(bool ok)
+ALWAYS_INLINE constexpr void narrow_assert(bool ok)
 {
 	if (!ok) {
 #ifdef UNITTEST

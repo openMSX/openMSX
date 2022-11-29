@@ -3,6 +3,7 @@
 
 #include "EmuTime.hh"
 #include "DivModBySame.hh"
+#include "narrow.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -126,7 +127,7 @@ public:
 	  */
 	[[nodiscard]] unsigned getFreq() const {
 		auto step = getStep();
-		return (MAIN_FREQ + (step / 2)) / step;
+		return narrow<unsigned>((MAIN_FREQ + (step / 2)) / step);
 	}
 
 	/** Returns the length of one clock-cycle.

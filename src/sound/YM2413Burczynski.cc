@@ -1296,7 +1296,7 @@ void Slot::serialize(Archive& a, unsigned /*version*/)
 {
 	// TODO some of the serialized members here could be calculated from
 	//      other members
-	int waveform = (waveTable.data() == sinTab[0].data()) ? 0 : 1;
+	uint8_t waveform = (waveTable.data() == sinTab[0].data()) ? 0 : 1;
 	a.serialize("waveform", waveform);
 	if constexpr (Archive::IS_LOADER) {
 		setWaveform(waveform);

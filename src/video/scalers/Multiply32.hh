@@ -57,9 +57,10 @@ public:
 
 	[[nodiscard]] inline uint16_t conv32(uint32_t p) const
 	{
-		return (std::rotr(p, Rshift3) & Rmask1) |
-		       (std::rotr(p, Gshift3) & Gmask1) |
-		       (std::rotr(p, Bshift3) & Bmask1);
+		return uint16_t(
+			(std::rotr(p, Rshift3) & Rmask1) |
+			(std::rotr(p, Gshift3) & Gmask1) |
+			(std::rotr(p, Bshift3) & Bmask1));
 	}
 
 private:

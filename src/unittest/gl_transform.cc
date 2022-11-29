@@ -153,7 +153,7 @@ TEST_CASE("gl_transform: rotation")
 		CHECK(approxEq(rot2, rot3));
 		vec4 p(-1, 2, 1, 1);
 		vec4 q = rot1 * p;
-		CHECK(approxEq(q, vec4(-1.05647, 0.231566, 2.19778, 1)));
+		CHECK(approxEq(q, vec4(-1.05647f, 0.231566f, 2.19778f, 1.0f)));
 		CHECK(approxEq(length(p), length(q)));
 		CHECK(approxEq(inverse(rot1), rotate(-1.23f, axis)));
 		CHECK(approxEq(inverse(rot1), transpose(rot1)));
@@ -163,19 +163,19 @@ TEST_CASE("gl_transform: rotation")
 TEST_CASE("gl_transform: ortho")
 {
 	mat4 O = ortho(0, 640, 0, 480, -1, 1);
-	CHECK(approxEq(O, mat4(vec4(0.003125, 0, 0, 0),
-			       vec4(0, 0.00416667, 0, 0),
-			       vec4(0, 0, -1, 0),
-			       vec4(-1, -1, 0, 1))));
+	CHECK(approxEq(O, mat4(vec4(0.003125f, 0.0f, 0.0f, 0.0f),
+			       vec4(0.0f, 0.00416667f, 0.0f, 0.0f),
+			       vec4(0.0f, 0.0f, -1.0f, 0.0f),
+			       vec4(-1.0f, -1.0f, 0.0f, 1.0f))));
 }
 
 TEST_CASE("gl_transform: frustum")
 {
 	mat4 F = frustum(0, 640, 0, 480, -1, 1);
-	CHECK(approxEq(F, mat4(vec4(-0.003125, 0, 0, 0),
-			       vec4(0, 0.00416667, 0, 0),
-			       vec4(1, 1, 0, -1),
-			       vec4(0, 0, 1, 0))));
+	CHECK(approxEq(F, mat4(vec4(-0.003125f, 0.0f, 0.0f, 0.0f),
+			       vec4(0.0f, 0.00416667f, 0.0f, 0.0f),
+			       vec4(1.0f, 1.0f, 0.0f, -1.0f),
+			       vec4(0.0f, 0.0f, 1.0f, 0.0f))));
 }
 
 

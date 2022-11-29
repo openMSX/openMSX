@@ -1,6 +1,7 @@
 #ifndef FIXEDPOINT_HH
 #define FIXEDPOINT_HH
 
+#include "narrow.hh"
 #include "serialize.hh"
 #include <cmath>
 #include <cstdint>
@@ -53,11 +54,11 @@ public:
 
 	explicit constexpr FixedPoint(int i)      : value(i << FRACTION_BITS) {}
 	explicit constexpr FixedPoint(unsigned i) : value(i << FRACTION_BITS) {}
-	explicit FixedPoint(float  f) : value(lrintf(f * ONE)) {}
-	explicit FixedPoint(double d) : value(lrint (d * ONE)) {}
+	explicit FixedPoint(float  f) : value(narrow_cast<int>(lrintf(f * ONE))) {}
+	explicit FixedPoint(double d) : value(narrow_cast<int>(lrint (d * ONE))) {}
 
 	[[nodiscard]] static constexpr FixedPoint roundRatioDown(unsigned n, unsigned d) {
-		return create((static_cast<uint64_t>(n) << FRACTION_BITS) / d);
+		return create(narrow_cast<int>((static_cast<uint64_t>(n) << FRACTION_BITS) / d));
 	}
 
 	[[nodiscard]] static constexpr int shiftHelper(int x, int s) {
@@ -81,14 +82,14 @@ public:
 	 * Returns the float value that corresponds to this fixed point number.
 	 */
 	[[nodiscard]] constexpr float toFloat() const {
-		return value * INV_ONE_F;
+		return narrow_cast<float>(value) * INV_ONE_F;
 	}
 
 	/**
 	 * Returns the double value that corresponds to this fixed point number.
 	 */
 	[[nodiscard]] constexpr double toDouble() const {
-		return value * INV_ONE_D;
+		return narrow_cast<double>(value) * INV_ONE_D;
 	}
 
 	/**
@@ -98,7 +99,7 @@ public:
 	 * x.toInt() + x.fractionAsFloat() is approximately equal to x.toFloat()
 	 */
 	[[nodiscard]] constexpr float fractionAsFloat() const {
-		return (value & FRACTION_MASK) * INV_ONE_F;
+		return narrow_cast<float>(value & FRACTION_MASK) * INV_ONE_F;
 	}
 
 	/**
@@ -108,7 +109,7 @@ public:
 	 * x.toInt() + x.fractionAsDouble() is approximately equal to x.toDouble()
 	 */
 	[[nodiscard]] constexpr double fractionAsDouble() const {
-		return (value & FRACTION_MASK) * INV_ONE_D;
+		return narrow_cast<double>(value & FRACTION_MASK) * INV_ONE_D;
 	}
 
 	// Various arithmetic:

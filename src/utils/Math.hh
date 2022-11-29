@@ -1,6 +1,7 @@
 #ifndef MATH_HH
 #define MATH_HH
 
+#include "narrow.hh"
 #include <bit>
 #include <cassert>
 #include <climits>
@@ -47,10 +48,10 @@ template<std::signed_integral T>
 {
 	static_assert((T(-1) >> 1) == T(-1), "right-shift must preserve sign");
 	if (int16_t(x) == x) [[likely]] {
-		return x;
+		return narrow_cast<int16_t>(x);
 	} else {
 		constexpr int SHIFT = (sizeof(T) * CHAR_BIT) - 1;
-		return 0x7FFF - (x >> SHIFT);
+		return narrow_cast<int16_t>(0x7FFF - (x >> SHIFT));
 	}
 }
 
@@ -61,9 +62,9 @@ template<std::signed_integral T>
 {
 	static_assert((-1 >> 1) == -1, "right-shift must preserve sign");
 	if (uint8_t(x) == x) [[likely]] {
-		return x;
+		return narrow_cast<uint8_t>(x);
 	} else {
-		return ~(x >> 31);
+		return narrow_cast<uint8_t>(~(x >> 31));
 	}
 }
 
@@ -134,10 +135,10 @@ template<std::signed_integral T>
 	//    http://graphics.stanford.edu/~seander/bithacks.html
 #ifdef __x86_64
 	// on 64-bit systems this is slightly faster
-	return (((a * 0x80200802ULL) & 0x0884422110ULL) * 0x0101010101ULL) >> 32;
+	return narrow_cast<uint8_t>((((a * 0x80200802ULL) & 0x0884422110ULL) * 0x0101010101ULL) >> 32);
 #else
 	// on 32-bit systems this is faster
-	return (((a * 0x0802 & 0x22110) | (a * 0x8020 & 0x88440)) * 0x10101) >> 16;
+	return narrow_cast<uint8_t>((((a * 0x0802 & 0x22110) | (a * 0x8020 & 0x88440)) * 0x10101) >> 16);
 #endif
 }
 

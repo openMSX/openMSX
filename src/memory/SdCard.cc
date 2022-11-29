@@ -60,7 +60,7 @@ byte SdCard::readCurrentByteFromCurrentSector()
 	}();
 	currentByteInSector++;
 	if (currentByteInSector == sizeof(sectorBuf)) {
-		responseQueue.push_back({0x00, 0x00}); // 2 CRC's (dummy)
+		responseQueue.push_back({byte(0x00), byte(0x00)}); // 2 CRC's (dummy)
 	}
 	return result;
 }

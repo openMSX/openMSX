@@ -1,6 +1,7 @@
 #ifndef PIXELFORMAT_HH
 #define PIXELFORMAT_HH
 
+#include "narrow.hh"
 #include <cstdint>
 
 namespace openmsx {
@@ -17,7 +18,8 @@ public:
 		: Rmask (Rmask_),  Gmask (Gmask_),  Bmask (Bmask_),  Amask (Amask_)
 		, Rshift(Rshift_), Gshift(Gshift_), Bshift(Bshift_), Ashift(Ashift_)
 		, Rloss (Rloss_),  Gloss (Gloss_),  Bloss (Bloss_),  Aloss (Aloss_)
-		, bpp(bpp_), bytesPerPixel((bpp + 7) / 8) {}
+		, bpp(narrow<uint8_t>(bpp_))
+		, bytesPerPixel(narrow<uint8_t>((bpp + 7) / 8)) {}
 
 	[[nodiscard]] unsigned getBpp()           const { return bpp; }
 	[[nodiscard]] unsigned getBytesPerPixel() const { return bytesPerPixel; }

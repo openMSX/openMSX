@@ -1,5 +1,6 @@
 #include "catch.hpp"
 #include "CRC16.hh"
+#include "narrow.hh"
 #include "xrange.hh"
 #include <array>
 
@@ -40,7 +41,7 @@ TEST_CASE("CRC16")
 	// same as disk sector size
 	SECTION("512 bytes") {
 		std::array<uint8_t, 512> buf;
-		for (auto i : xrange(512)) buf[i] = i & 255;
+		for (auto i : xrange(512)) buf[i] = narrow_cast<uint8_t>(i & 255);
 		SECTION("in a loop") {
 			for (char c : buf) crc.update(c);
 			CHECK(crc.getValue() == 0x56EE);
@@ -55,7 +56,7 @@ TEST_CASE("CRC16")
 	// It's possible to pass up-to 4 parameters. Verify that this gives
 	// the same result as the other 2 CRC calculation methods.
 	SECTION("'11' in a loop") {
-		for (char c : {0x11}) crc.update(c);
+		for (uint8_t c : {uint8_t(0x11)}) crc.update(c);
 		CHECK(crc.getValue() == 0xE3E0);
 	}
 	SECTION("'11' in one chunk") {
@@ -69,7 +70,7 @@ TEST_CASE("CRC16")
 	}
 
 	SECTION("'11 22' in a loop") {
-		for (char c : {0x11, 0x22}) crc.update(c);
+		for (uint8_t c : {uint8_t(0x11), uint8_t(0x22)}) crc.update(c);
 		CHECK(crc.getValue() == 0x296D);
 	}
 	SECTION("'11 22' in one chunk") {
@@ -83,7 +84,7 @@ TEST_CASE("CRC16")
 	}
 
 	SECTION("'11 22 33' in a loop") {
-		for (char c : {0x11, 0x22, 0x33}) crc.update(c);
+		for (uint8_t c : {uint8_t(0x11), uint8_t(0x22), uint8_t(0x33)}) crc.update(c);
 		CHECK(crc.getValue() == 0xDE7B);
 	}
 	SECTION("'11 22 33' in one chunk") {
@@ -97,7 +98,7 @@ TEST_CASE("CRC16")
 	}
 
 	SECTION("'11 22 33 44' in a loop") {
-		for (char c : {0x11, 0x22, 0x33, 0x44}) crc.update(c);
+		for (uint8_t c : {uint8_t(0x11), uint8_t(0x22), uint8_t(0x33), uint8_t(0x44)}) crc.update(c);
 		CHECK(crc.getValue() == 0x59F3);
 	}
 	SECTION("'11 22 33 44' in one chunk") {

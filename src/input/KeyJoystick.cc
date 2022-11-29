@@ -165,7 +165,7 @@ void KeyJoystick::stopReplay(EmuTime::param time) noexcept
 	if (newStatus != status) {
 		uint8_t release = newStatus & ~status;
 		stateChangeDistributor.distributeNew<KeyJoyState>(
-			time, id, 0, release);
+			time, id, uint8_t(0), release);
 	}
 }
 

@@ -268,7 +268,7 @@ void Touchpad::stopReplay(EmuTime::param time) noexcept
 	// TODO Get actual mouse state. Is it worth the trouble?
 	if (x || y || touch || button) {
 		stateChangeDistributor.distributeNew<TouchpadState>(
-			time, 0, 0, false, false);
+			time, uint8_t(0), uint8_t(0), false, false);
 	}
 }
 

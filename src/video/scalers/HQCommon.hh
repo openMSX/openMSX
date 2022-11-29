@@ -203,7 +203,7 @@ void calcInitialEdges(
 	size_t x = 0;
 	uint32_t c1 = readPixel(srcPrev[x]);
 	uint32_t c2 = readPixel(srcCurr[x]);
-	unsigned pattern = edgeOp(c1, c2) ? ((1 << 6) | (1 << 7)) : 0;
+	uint16_t pattern = edgeOp(c1, c2) ? ((1 << 6) | (1 << 7)) : 0;
 	for (/* */; x < (srcWidth - 1); ++x) {
 		pattern >>= 6;
 		uint32_t n1 = readPixel(srcPrev[x + 1]);

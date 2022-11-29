@@ -105,7 +105,7 @@ void Carnivore2::reset(EmuTime::param time)
 	// multi-mapper
 	scc.reset(time);
 	sccMode = 0;
-	ranges::iota(sccBank, 0);
+	ranges::iota(sccBank, byte(0));
 
 	// PSG
 	psgLatch = 0;
@@ -119,7 +119,7 @@ void Carnivore2::reset(EmuTime::param time)
 	ideDevices[1]->reset(time);
 
 	// memory mapper
-	ranges::iota(memMapRegs, 0); // Note: different from how BIOS initializes these registers
+	ranges::iota(memMapRegs, byte(0)); // Note: different from how BIOS initializes these registers
 
 	// fm-pac
 	ym2413.reset(time);

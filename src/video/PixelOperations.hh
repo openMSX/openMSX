@@ -56,7 +56,7 @@ private:
 		auto rBit = ~(getRmask() << 1) & getRmask();
 		auto gBit = ~(getGmask() << 1) & getGmask();
 		auto bBit = ~(getBmask() << 1) & getBmask();
-		return ~(rBit | gBit | bBit);
+		return Pixel(~(rBit | gBit | bBit));
 	}
 
 private:

@@ -17,6 +17,7 @@
 // auto-vectorization has become as good as the manually vectorized code.
 
 #include "Math.hh"
+#include "narrow.hh"
 #include "xrange.hh"
 #include <algorithm>
 #include <array>
@@ -339,7 +340,7 @@ template<int N, typename T>
 template<int N, typename T>
 [[nodiscard]] inline T length(const vecN<N, T>& x)
 {
-	return sqrt(length2(x));
+	return std::sqrt(length2(x));
 }
 
 // normalize vector
@@ -365,7 +366,7 @@ template<int N, typename T>
 	vecN<N, int> r;
 	// note: std::lrint() is more generic (e.g. also works with double),
 	// but Dingux doesn't seem to have std::lrint().
-	for (auto i : xrange(N)) r[i] = lrintf(x[i]);
+	for (auto i : xrange(N)) r[i] = narrow_cast<int>(lrintf(narrow_cast<float>(x[i])));
 	return r;
 }
 

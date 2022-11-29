@@ -209,11 +209,11 @@ void MegaFlashRomSCCPlus::reset(EmuTime::param time)
 	offsetReg = 0;
 	subslotReg = 0;
 	for (auto& regs : bankRegs) {
-		ranges::iota(regs, 0);
+		ranges::iota(regs, byte(0));
 	}
 
 	sccMode = 0;
-	ranges::iota(sccBanks, 0);
+	ranges::iota(sccBanks, byte(0));
 	scc.reset(time);
 
 	psgLatch = 0;

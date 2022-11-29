@@ -61,7 +61,7 @@ inline constexpr uint32_t CODE_POINT_MAX      = 0x0010ffffu;
 	return (oc >> 6) == 0x2;
 }
 
-[[nodiscard]] constexpr bool is_surrogate(uint16_t cp)
+[[nodiscard]] constexpr bool is_surrogate(uint32_t cp)
 {
 	return (cp >= LEAD_SURROGATE_MIN) && (cp <= TRAIL_SURROGATE_MAX);
 }

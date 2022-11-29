@@ -1,5 +1,6 @@
 #include "catch.hpp"
 #include "enumerate.hh"
+#include "narrow.hh"
 #include <type_traits>
 #include <vector>
 
@@ -29,7 +30,7 @@ TEST_CASE("enumerate: transform")
 		static_assert(std::is_same_v<decltype(i), const size_t&>);
 		static_assert(std::is_same_v<decltype(e), int&>);
 		out.push_back(i);
-		e = 2 * e + i;
+		e = narrow_cast<int>(2 * e + i);
 	}
 
 	CHECK(in == std::vector{6, 19, 24});

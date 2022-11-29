@@ -1012,7 +1012,7 @@ void YMF278::Slot::serialize(Archive& ar, unsigned version)
 		ar.serialize("endaddr", endAddr,
 		             "OCT",     OCT);
 	} else {
-		unsigned e = 0; ar.serialize("endaddr", e); endAddr = (e ^ 0xffff) + 1;
+		unsigned e = 0; ar.serialize("endaddr", e); endAddr = uint16_t((e ^ 0xffff) + 1);
 
 		char O = 0;
 		if (ar.versionAtLeast(version, 2)) {

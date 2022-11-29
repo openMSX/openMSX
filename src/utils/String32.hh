@@ -1,9 +1,9 @@
 #ifndef STRING32_HH
 #define STRING32_HH
 
+#include "narrow.hh"
 #include <cassert>
 #include <cstdint>
-#include <limits>
 #include <type_traits>
 
 // Given a buffer of max size 4GB, 32 bits are enough to address each position
@@ -24,8 +24,7 @@ using String32 = std::conditional_t<
 // convert string in buffer to String32
 constexpr void toString32(const char* buffer, const char* str, uint32_t& result) {
 	assert(buffer <= str);
-	assert(str < (buffer + std::numeric_limits<uint32_t>::max()));
-	result = str - buffer;
+	result = narrow<uint32_t>(str - buffer);
 }
 constexpr void toString32(const char* /*buffer*/, const char* str, const char*& result) {
 	result = str;

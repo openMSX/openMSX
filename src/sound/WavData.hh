@@ -121,7 +121,7 @@ inline WavData::WavData(File file, Filter filter)
 	};
 	if (bits == 8) {
 		convertLoop(read<uint8_t>(raw, pos, size_t(length) * channels),
-		            [](uint8_t u8) { return (int16_t(u8) - 0x80) << 8; });
+		            [](uint8_t u8) { return int16_t((int16_t(u8) - 0x80) << 8); });
 	} else {
 		convertLoop(read<Endian::L16>(raw, pos, size_t(length) * channels),
 		            [](Endian::L16 s16) { return int16_t(s16); });

@@ -3,9 +3,10 @@
 
 #include "CommandException.hh"
 #include "MsxChar2Unicode.hh"
-#include "openmsx.hh"
+#include "narrow.hh"
 #include <array>
 #include <cassert>
+#include <cstdint>
 #include <optional>
 #include <string_view>
 #include <vector>
@@ -30,10 +31,10 @@ public:
 	  */
 	constexpr KeyMatrixPosition() = default;
 
-	/** Creates a key matrix position from a byte: the row is stored in
+	/** Creates a key matrix position from a uint8_t: the row is stored in
 	  * the high nibble, the column is stored in the low nibble.
 	  */
-	constexpr KeyMatrixPosition(byte rowCol_)
+	constexpr KeyMatrixPosition(uint8_t rowCol_)
 		: KeyMatrixPosition(rowCol_ >> 4, rowCol_ & 0x0F)
 	{
 	}
@@ -41,7 +42,7 @@ public:
 	/** Creates a key matrix position with a given row and column.
 	  */
 	constexpr KeyMatrixPosition(unsigned row, unsigned col)
-		: rowCol((row << 3) | col)
+		: rowCol(narrow<uint8_t>((row << 3) | col))
 	{
 		assert(row < NUM_ROWS);
 		assert(col < NUM_COLS);
@@ -70,11 +71,11 @@ public:
 		return rowCol & 0x07;
 	}
 
-	/** Returns the matrix row and column combined in a single byte: the column
+	/** Returns the matrix row and column combined in a single uint8_t: the column
 	  * is stored in the lower 3 bits, the row is stored in the higher bits.
 	  * Must only be called on valid positions.
 	  */
-	[[nodiscard]] constexpr byte getRowCol() const {
+	[[nodiscard]] constexpr uint8_t getRowCol() const {
 		assert(isValid());
 		return rowCol;
 	}
@@ -91,7 +92,7 @@ public:
 	[[nodiscard]] constexpr bool operator==(const KeyMatrixPosition&) const = default;
 
 private:
-	byte rowCol = INVALID;
+	uint8_t rowCol = INVALID;
 };
 
 class UnicodeKeymap
@@ -100,14 +101,14 @@ public:
 	struct KeyInfo {
 		enum Modifier { SHIFT, CTRL, GRAPH, CAPS, CODE, NUM_MODIFIERS };
 		// Modifier masks:
-		static constexpr byte SHIFT_MASK = 1 << SHIFT;
-		static constexpr byte CTRL_MASK  = 1 << CTRL;
-		static constexpr byte GRAPH_MASK = 1 << GRAPH;
-		static constexpr byte CAPS_MASK  = 1 << CAPS;
-		static constexpr byte CODE_MASK  = 1 << CODE;
+		static constexpr uint8_t SHIFT_MASK = 1 << SHIFT;
+		static constexpr uint8_t CTRL_MASK  = 1 << CTRL;
+		static constexpr uint8_t GRAPH_MASK = 1 << GRAPH;
+		static constexpr uint8_t CAPS_MASK  = 1 << CAPS;
+		static constexpr uint8_t CODE_MASK  = 1 << CODE;
 
 		constexpr KeyInfo() = default;
-		constexpr KeyInfo(KeyMatrixPosition pos_, byte modMask_)
+		constexpr KeyInfo(KeyMatrixPosition pos_, uint8_t modMask_)
 			: pos(pos_), modMask(modMask_)
 		{
 			assert(pos.isValid());
@@ -116,7 +117,7 @@ public:
 			return pos.isValid();
 		}
 		KeyMatrixPosition pos;
-		byte modMask = 0;
+		uint8_t modMask = 0;
 	};
 
 	explicit UnicodeKeymap(std::string_view keyboardType);
@@ -130,7 +131,7 @@ public:
 	  * modifier to be active.
 	  * Must only be called on valid KeyInfos.
 	  */
-	[[nodiscard]] byte getRelevantMods(const KeyInfo& keyInfo) const {
+	[[nodiscard]] uint8_t getRelevantMods(const KeyInfo& keyInfo) const {
 		return relevantMods[keyInfo.pos.getRowCol()];
 	}
 
@@ -154,7 +155,7 @@ private:
 	/** Contains a mask for each key matrix position, which for each modifier
 	  * has the corresponding bit set if that modifier that affects the key.
 	  */
-	std::array<byte, KeyMatrixPosition::NUM_ROWCOL> relevantMods;
+	std::array<uint8_t, KeyMatrixPosition::NUM_ROWCOL> relevantMods;
 	std::array<KeyInfo, NUM_DEAD_KEYS> deadKeys;
 
 	std::optional<MsxChar2Unicode> msxChars; // TODO should this be required for MSX/SVI machines?

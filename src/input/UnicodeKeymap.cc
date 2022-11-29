@@ -178,7 +178,7 @@ void UnicodeKeymap::parseUnicodeKeyMapFile(string_view data)
 		auto pos = KeyMatrixPosition(*rowcol);
 
 		// Parse remaining tokens. It is an optional list of modifier keywords.
-		byte modMask = 0;
+		uint8_t modMask = 0;
 		while (true) {
 			token = nextToken(data);
 			if (token.empty()) {

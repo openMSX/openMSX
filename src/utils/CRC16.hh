@@ -80,7 +80,7 @@ public:
 		for (auto d : data) {
 			c = uint16_t(c << 8) ^ tab[0][(c >> 8) ^ d];
 		}
-		crc = c; // store back in a 16-bit result
+		crc = uint16_t(c); // store back in a 16-bit result
 	}
 
 	/** Get current CRC value
@@ -94,7 +94,7 @@ private:
 	static inline constexpr auto tab = [] {
 		std::array<std::array<uint16_t, 0x100>, 8> result = {}; // uint16_t[8][0x100]
 		for (auto i : xrange(0x100)) {
-			uint16_t x = i << 8;
+			auto x = uint16_t(i << 8);
 			repeat(8, [&] {
 				x = (x << 1) ^ ((x & 0x8000) ? 0x1021 : 0);
 			});
