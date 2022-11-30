@@ -45,18 +45,18 @@ public:
 	[[nodiscard]] inline byte getSPh() const { return SP_.b.h; }
 	[[nodiscard]] inline byte getSPl() const { return SP_.b.l; }
 
-	[[nodiscard]] inline unsigned getAF()  const { return AF_.w; }
-	[[nodiscard]] inline unsigned getBC()  const { return BC_.w; }
-	[[nodiscard]] inline unsigned getDE()  const { return DE_.w; }
-	[[nodiscard]] inline unsigned getHL()  const { return HL_.w; }
-	[[nodiscard]] inline unsigned getAF2() const { return AF2_.w; }
-	[[nodiscard]] inline unsigned getBC2() const { return BC2_.w; }
-	[[nodiscard]] inline unsigned getDE2() const { return DE2_.w; }
-	[[nodiscard]] inline unsigned getHL2() const { return HL2_.w; }
-	[[nodiscard]] inline unsigned getIX()  const { return IX_.w; }
-	[[nodiscard]] inline unsigned getIY()  const { return IY_.w; }
-	[[nodiscard]] inline unsigned getPC()  const { return PC_.w; }
-	[[nodiscard]] inline unsigned getSP()  const { return SP_.w; }
+	[[nodiscard]] inline word getAF()  const { return AF_.w; }
+	[[nodiscard]] inline word getBC()  const { return BC_.w; }
+	[[nodiscard]] inline word getDE()  const { return DE_.w; }
+	[[nodiscard]] inline word getHL()  const { return HL_.w; }
+	[[nodiscard]] inline word getAF2() const { return AF2_.w; }
+	[[nodiscard]] inline word getBC2() const { return BC2_.w; }
+	[[nodiscard]] inline word getDE2() const { return DE2_.w; }
+	[[nodiscard]] inline word getHL2() const { return HL2_.w; }
+	[[nodiscard]] inline word getIX()  const { return IX_.w; }
+	[[nodiscard]] inline word getIY()  const { return IY_.w; }
+	[[nodiscard]] inline word getPC()  const { return PC_.w; }
+	[[nodiscard]] inline word getSP()  const { return SP_.w; }
 
 	[[nodiscard]] inline byte getIM()  const { return IM_; }
 	[[nodiscard]] inline byte getI()   const { return I_; }
@@ -90,18 +90,18 @@ public:
 	inline void setSPh(byte x) { SP_.b.h = x; }
 	inline void setSPl(byte x) { SP_.b.l = x; }
 
-	inline void setAF(unsigned x)  { AF_.w = x; }
-	inline void setBC(unsigned x)  { BC_.w = x; }
-	inline void setDE(unsigned x)  { DE_.w = x; }
-	inline void setHL(unsigned x)  { HL_.w = x; }
-	inline void setAF2(unsigned x) { AF2_.w = x; }
-	inline void setBC2(unsigned x) { BC2_.w = x; }
-	inline void setDE2(unsigned x) { DE2_.w = x; }
-	inline void setHL2(unsigned x) { HL2_.w = x; }
-	inline void setIX(unsigned x)  { IX_.w = x; }
-	inline void setIY(unsigned x)  { IY_.w = x; }
-	inline void setPC(unsigned x)  { PC_.w = x; }
-	inline void setSP(unsigned x)  { SP_.w = x; }
+	inline void setAF(word x)  { AF_.w = x; }
+	inline void setBC(word x)  { BC_.w = x; }
+	inline void setDE(word x)  { DE_.w = x; }
+	inline void setHL(word x)  { HL_.w = x; }
+	inline void setAF2(word x) { AF2_.w = x; }
+	inline void setBC2(word x) { BC2_.w = x; }
+	inline void setDE2(word x) { DE2_.w = x; }
+	inline void setHL2(word x) { HL2_.w = x; }
+	inline void setIX(word x)  { IX_.w = x; }
+	inline void setIY(word x)  { IY_.w = x; }
+	inline void setPC(word x)  { PC_.w = x; }
+	inline void setSP(word x)  { SP_.w = x; }
 
 	inline void setIM(byte x) { IM_ = x; }
 	inline void setI(byte x)  { I_ = x; }

@@ -31,7 +31,7 @@ struct II { // InstructionInfo
 	// Number of instruction byte fetches since the last M1 cycle.
 	// In other words, at the end of an instruction the PC register should
 	// be incremented by this amount.
-	int length;
+	word length;
 
 	// Total duration of the instruction. At the end of the instruction
 	// this value is added to the total cycle counter. For efficiency
@@ -179,8 +179,8 @@ private:
 	inline void cpuTracePost();
 	void cpuTracePost_slow();
 
-	inline byte READ_PORT(unsigned port, unsigned cc);
-	inline void WRITE_PORT(unsigned port, byte value, unsigned cc);
+	inline byte READ_PORT(word port, unsigned cc);
+	inline void WRITE_PORT(word port, byte value, unsigned cc);
 
 	template<bool PRE_PB, bool POST_PB>
 	byte RDMEMslow(unsigned address, unsigned cc);
@@ -193,14 +193,14 @@ private:
 	inline byte RDMEM(unsigned address, unsigned cc);
 
 	template<bool PRE_PB, bool POST_PB>
-	unsigned RD_WORD_slow(unsigned address, unsigned cc);
+	word RD_WORD_slow(unsigned address, unsigned cc);
 	template<bool PRE_PB, bool POST_PB>
-	inline unsigned RD_WORD_impl2(unsigned address, unsigned cc);
+	inline word RD_WORD_impl2(unsigned address, unsigned cc);
 	template<bool PRE_PB, bool POST_PB>
-	inline unsigned RD_WORD_impl (unsigned address, unsigned cc);
+	inline word RD_WORD_impl (unsigned address, unsigned cc);
 	template<unsigned PC_OFFSET>
-	inline unsigned RD_WORD_PC(unsigned cc);
-	inline unsigned RD_WORD(unsigned address, unsigned cc);
+	inline word RD_WORD_PC(unsigned cc);
+	inline word RD_WORD(unsigned address, unsigned cc);
 
 	template<bool PRE_PB, bool POST_PB>
 	void WRMEMslow(unsigned address, byte value, unsigned cc);
@@ -210,15 +210,15 @@ private:
 	inline void WRMEM_impl (unsigned address, byte value, unsigned cc);
 	inline void WRMEM(unsigned address, byte value, unsigned cc);
 
-	void WR_WORD_slow(unsigned address, unsigned value, unsigned cc);
-	inline void WR_WORD(unsigned address, unsigned value, unsigned cc);
+	void WR_WORD_slow(unsigned address, word value, unsigned cc);
+	inline void WR_WORD(unsigned address, word value, unsigned cc);
 
 	template<bool PRE_PB, bool POST_PB>
-	void WR_WORD_rev_slow(unsigned address, unsigned value, unsigned cc);
+	void WR_WORD_rev_slow(unsigned address, word value, unsigned cc);
 	template<bool PRE_PB, bool POST_PB>
-	inline void WR_WORD_rev2(unsigned address, unsigned value, unsigned cc);
+	inline void WR_WORD_rev2(unsigned address, word value, unsigned cc);
 	template<bool PRE_PB, bool POST_PB>
-	inline void WR_WORD_rev (unsigned address, unsigned value, unsigned cc);
+	inline void WR_WORD_rev (unsigned address, word value, unsigned cc);
 
 	void executeInstructions();
 	inline void nmi();
@@ -228,10 +228,10 @@ private:
 	[[nodiscard]] ExecIRQ getExecIRQ() const;
 	void executeSlow(ExecIRQ execIRQ);
 
-	template<Reg8>  [[nodiscard]] inline byte     get8()  const;
-	template<Reg16> [[nodiscard]] inline unsigned get16() const;
-	template<Reg8>  inline void set8 (byte     x);
-	template<Reg16> inline void set16(unsigned x);
+	template<Reg8>  [[nodiscard]] inline byte get8()  const;
+	template<Reg16> [[nodiscard]] inline word get16() const;
+	template<Reg8>  inline void set8 (byte x);
+	template<Reg16> inline void set16(word x);
 
 	template<Reg8 DST, Reg8 SRC, int EE> inline II ld_R_R();
 	template<Reg16 REG, int EE> inline II ld_sp_SS();
@@ -242,7 +242,7 @@ private:
 	inline II ld_xhl_byte();
 	template<Reg16 IXY> inline II ld_xix_byte();
 
-	template<int EE> inline II WR_NN_Y(unsigned reg);
+	template<int EE> inline II WR_NN_Y(word reg);
 	template<Reg16 REG, int EE> inline II ld_xword_SS();
 	template<Reg16 REG> inline II ld_xword_SS_ED();
 	template<Reg16 REG> inline II ld_a_SS();
@@ -254,7 +254,7 @@ private:
 	template<Reg8 DST> inline II ld_R_xhl();
 	template<Reg8 DST, Reg16 IXY> inline II ld_R_xix();
 
-	template<int EE> inline unsigned RD_P_XX();
+	template<int EE> inline word RD_P_XX();
 	template<Reg16 REG, int EE> inline II ld_SS_xword();
 	template<Reg16 REG> inline II ld_SS_xword_ED();
 
@@ -409,9 +409,9 @@ private:
 	inline II rld();
 	inline II rrd();
 
-	template<int EE> inline void PUSH(unsigned reg);
+	template<int EE> inline void PUSH(word reg);
 	template<Reg16 REG, int EE> inline II push_SS();
-	template<int EE> inline unsigned POP();
+	template<int EE> inline word POP();
 	template<Reg16 REG, int EE> inline II pop_SS();
 
 	template<typename COND> inline II call(COND cond);

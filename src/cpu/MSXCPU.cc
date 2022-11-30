@@ -159,8 +159,11 @@ void MSXCPU::invalidateMemCacheSlot()
 
 void MSXCPU::updateVisiblePage(byte page, byte primarySlot, byte secondarySlot)
 {
+	assert(primarySlot < 4);
+	assert(secondarySlot < 4);
+
 	byte from = slots[page];
-	byte to = 4 * primarySlot + secondarySlot;
+	byte to = narrow<byte>(4 * primarySlot + secondarySlot);
 	slots[page] = to;
 
 	auto [cpuReadLines, cpuWriteLines] = z80Active ? z80->getCacheLines() : r800->getCacheLines();
@@ -472,9 +475,9 @@ byte MSXCPU::Debuggable::read(unsigned address)
 	case 24: return regs.getI();
 	case 25: return regs.getR();
 	case 26: return regs.getIM();
-	case 27: return 1 *  regs.getIFF1() +
-	                2 *  regs.getIFF2() +
-	                4 * (regs.getIFF1() && !regs.prevWasEI());
+	case 27: return byte(1 *  regs.getIFF1() +
+	                     2 *  regs.getIFF2() +
+	                     4 * (regs.getIFF1() && !regs.prevWasEI()));
 	default: UNREACHABLE; return 0;
 	}
 }
