@@ -329,10 +329,10 @@ private:
 
 	void setCommandMode();
 
-	[[nodiscard]] inline unsigned getWrappedNX() const {
+	[[nodiscard]] inline word getWrappedNX() const {
 		return NX ? NX : 2048;
 	}
-	[[nodiscard]] inline unsigned getWrappedNY() const {
+	[[nodiscard]] inline word getWrappedNY() const {
 		return NY ? NY : 4096;
 	}
 };

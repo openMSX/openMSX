@@ -184,7 +184,7 @@ private:
 	template<uint32_t CYCLES>                               ALWAYS_INLINE void doRegWrite();
 	template<uint32_t CYCLES>                               ALWAYS_INLINE void doIO();
 
-	NEVER_INLINE void doRegWrite(uint32_t channel);
+	NEVER_INLINE void doRegWrite(uint8_t channel);
 	             void doRegWrite(uint8_t block, uint8_t channel, uint8_t data);
 	NEVER_INLINE void doIO(uint32_t cycles_plus_1, Write& write);
 

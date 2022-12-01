@@ -201,7 +201,7 @@ inline void Graphic4Mode::pset(
 	byte src, byte color, LogOp op)
 {
 	byte sh = ((~x) & 1) << 2;
-	op(time, vram, addr, src, color << sh, ~(15 << sh));
+	op(time, vram, addr, src, color << sh, ~byte(15 << sh));
 }
 
 inline byte Graphic4Mode::duplicate(byte color)
@@ -253,7 +253,7 @@ inline void Graphic5Mode::pset(
 	byte src, byte color, LogOp op)
 {
 	byte sh = ((~x) & 3) << 1;
-	op(time, vram, addr, src, color << sh, ~(3 << sh));
+	op(time, vram, addr, src, color << sh, ~byte(3 << sh));
 }
 
 inline byte Graphic5Mode::duplicate(byte color)
@@ -307,7 +307,7 @@ inline void Graphic6Mode::pset(
 	byte src, byte color, LogOp op)
 {
 	byte sh = ((~x) & 1) << 2;
-	op(time, vram, addr, src, color << sh, ~(15 << sh));
+	op(time, vram, addr, src, color << sh, ~byte(15 << sh));
 }
 
 inline byte Graphic6Mode::duplicate(byte color)
@@ -590,7 +590,7 @@ private:
 struct IncrMask5
 {
 	IncrMask5(unsigned x, int tx)
-		: mask(~(0xC0 >> ((x & 3) << 1)))
+		: mask(~byte(0xC0 >> ((x & 3) << 1)))
 		, shift((tx > 0) ? 6 : 2)
 	{
 	}
@@ -1793,7 +1793,7 @@ VDPCmdEngine::VDPCmdEngine(VDP& vdp_, CommandController& commandController)
 void VDPCmdEngine::reset(EmuTime::param time)
 {
 	for (int i = 14; i >= 0; --i) { // start with ABORT
-		setCmdReg(i, 0, time);
+		setCmdReg(byte(i), 0, time);
 	}
 	status = 0;
 	scrMode = -1;
@@ -1872,20 +1872,20 @@ void VDPCmdEngine::setCmdReg(byte index, byte value, EmuTime::param time)
 byte VDPCmdEngine::peekCmdReg(byte index) const
 {
 	switch (index) {
-	case 0x00: return SX & 0xFF;
-	case 0x01: return SX >> 8;
-	case 0x02: return SY & 0xFF;
-	case 0x03: return SY >> 8;
+	case 0x00: return narrow_cast<byte>(SX & 0xFF);
+	case 0x01: return narrow_cast<byte>(SX >> 8);
+	case 0x02: return narrow_cast<byte>(SY & 0xFF);
+	case 0x03: return narrow_cast<byte>(SY >> 8);
 
-	case 0x04: return DX & 0xFF;
-	case 0x05: return DX >> 8;
-	case 0x06: return DY & 0xFF;
-	case 0x07: return DY >> 8;
+	case 0x04: return narrow_cast<byte>(DX & 0xFF);
+	case 0x05: return narrow_cast<byte>(DX >> 8);
+	case 0x06: return narrow_cast<byte>(DY & 0xFF);
+	case 0x07: return narrow_cast<byte>(DY >> 8);
 
-	case 0x08: return NX & 0xFF;
-	case 0x09: return NX >> 8;
-	case 0x0A: return NY & 0xFF;
-	case 0x0B: return NY >> 8;
+	case 0x08: return narrow_cast<byte>(NX & 0xFF);
+	case 0x09: return narrow_cast<byte>(NX >> 8);
+	case 0x0A: return narrow_cast<byte>(NY & 0xFF);
+	case 0x0B: return narrow_cast<byte>(NY >> 8);
 
 	case 0x0C: return COL;
 	case 0x0D: return ARG;

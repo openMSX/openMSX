@@ -121,7 +121,7 @@ static constexpr auto bitLUT = [] {
 			for (auto dst : xrange(2)) {
 				unsigned b = tmp & 1;
 				for (auto bit : xrange(8)) {
-					result[bit][op][src][dst] = b << bit;
+					result[bit][op][src][dst] = narrow<byte>(b << bit);
 				}
 				tmp >>= 1;
 			}
@@ -240,7 +240,7 @@ static constexpr void fillTable8(unsigned op, std::span<byte, 256 * 256> table)
 {
 	for (auto dst : xrange(256)) {
 		{ // src == 0
-			table[dst * 256 + 0  ] = dst;
+			table[dst * 256 + 0  ] = narrow_cast<byte>(dst);
 		}
 		for (auto src : xrange(1, 256)) { // src != 0
 			table[dst * 256 + src] = func07(op, src, dst);
@@ -332,7 +332,7 @@ inline void V9990CmdEngine::V9990P1::pset(
 	unsigned addr = addressOf(x, y, pitch);
 	byte dstColor = vram.readVRAMDirect(addr);
 	byte newColor = logOp(lut, srcColor, dstColor);
-	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
+	byte mask1 = narrow_cast<byte>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
 	byte mask2 = mask1 & shiftMask(x);
 	byte result = (dstColor & ~mask2) | (newColor & mask2);
 	vram.writeVRAMDirect(addr, result);
@@ -342,10 +342,10 @@ inline void V9990CmdEngine::V9990P1::psetColor(
 	word color, word mask, std::span<const byte, 256 * 256> lut, byte /*op*/)
 {
 	unsigned addr = addressOf(x, y, pitch);
-	byte srcColor = (addr & 0x40000) ? (color >> 8) : (color & 0xFF);
+	byte srcColor = narrow_cast<byte>((addr & 0x40000) ? (color >> 8) : (color & 0xFF));
 	byte dstColor = vram.readVRAMDirect(addr);
 	byte newColor = logOp(lut, srcColor, dstColor);
-	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
+	byte mask1 = narrow_cast<byte>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
 	byte mask2 = mask1 & (0xF0 >> (4 * (x & 1)));
 	byte result = (dstColor & ~mask2) | (newColor & mask2);
 	vram.writeVRAMDirect(addr, result);
@@ -400,7 +400,7 @@ inline void V9990CmdEngine::V9990P2::pset(
 	unsigned addr = addressOf(x, y, pitch);
 	byte dstColor = vram.readVRAMDirect(addr);
 	byte newColor = logOp(lut, srcColor, dstColor);
-	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
+	byte mask1 = narrow_cast<byte>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
 	byte mask2 = mask1 & shiftMask(x);
 	byte result = (dstColor & ~mask2) | (newColor & mask2);
 	vram.writeVRAMDirect(addr, result);
@@ -411,10 +411,10 @@ inline void V9990CmdEngine::V9990P2::psetColor(
 	word color, word mask, std::span<const byte, 256 * 256> lut, byte /*op*/)
 {
 	unsigned addr = addressOf(x, y, pitch);
-	byte srcColor = (addr & 0x40000) ? (color >> 8) : (color & 0xFF);
+	byte srcColor = narrow_cast<byte>((addr & 0x40000) ? (color >> 8) : (color & 0xFF));
 	byte dstColor = vram.readVRAMDirect(addr);
 	byte newColor = logOp(lut, srcColor, dstColor);
-	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
+	byte mask1 = narrow_cast<byte>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
 	byte mask2 = mask1 & (0xF0 >> (4 * (x & 1)));
 	byte result = (dstColor & ~mask2) | (newColor & mask2);
 	vram.writeVRAMDirect(addr, result);
@@ -468,7 +468,7 @@ inline void V9990CmdEngine::V9990Bpp2::pset(
 	unsigned addr = addressOf(x, y, pitch);
 	byte dstColor = vram.readVRAMDirect(addr);
 	byte newColor = logOp(lut, srcColor, dstColor);
-	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
+	byte mask1 = narrow_cast<byte>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
 	byte mask2 = mask1 & shiftMask(x);
 	byte result = (dstColor & ~mask2) | (newColor & mask2);
 	vram.writeVRAMDirect(addr, result);
@@ -479,10 +479,10 @@ inline void V9990CmdEngine::V9990Bpp2::psetColor(
 	word color, word mask, std::span<const byte, 256 * 256> lut, byte /*op*/)
 {
 	unsigned addr = addressOf(x, y, pitch);
-	byte srcColor = (addr & 0x40000) ? (color >> 8) : (color & 0xFF);
+	byte srcColor = narrow_cast<byte>((addr & 0x40000) ? (color >> 8) : (color & 0xFF));
 	byte dstColor = vram.readVRAMDirect(addr);
 	byte newColor = logOp(lut, srcColor, dstColor);
-	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
+	byte mask1 = narrow_cast<byte>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
 	byte mask2 = mask1 & (0xC0 >> (2 * (x & 3)));
 	byte result = (dstColor & ~mask2) | (newColor & mask2);
 	vram.writeVRAMDirect(addr, result);
@@ -536,7 +536,7 @@ inline void V9990CmdEngine::V9990Bpp4::pset(
 	unsigned addr = addressOf(x, y, pitch);
 	byte dstColor = vram.readVRAMDirect(addr);
 	byte newColor = logOp(lut, srcColor, dstColor);
-	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
+	byte mask1 = narrow_cast<byte>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
 	byte mask2 = mask1 & shiftMask(x);
 	byte result = (dstColor & ~mask2) | (newColor & mask2);
 	vram.writeVRAMDirect(addr, result);
@@ -547,10 +547,10 @@ inline void V9990CmdEngine::V9990Bpp4::psetColor(
 	word color, word mask, std::span<const byte, 256 * 256> lut, byte /*op*/)
 {
 	unsigned addr = addressOf(x, y, pitch);
-	byte srcColor = (addr & 0x40000) ? (color >> 8) : (color & 0xFF);
+	byte srcColor = narrow_cast<byte>((addr & 0x40000) ? (color >> 8) : (color & 0xFF));
 	byte dstColor = vram.readVRAMDirect(addr);
 	byte newColor = logOp(lut, srcColor, dstColor);
-	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
+	byte mask1 = narrow_cast<byte>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
 	byte mask2 = mask1 & (0xF0 >> (4 * (x & 1)));
 	byte result = (dstColor & ~mask2) | (newColor & mask2);
 	vram.writeVRAMDirect(addr, result);
@@ -603,7 +603,7 @@ inline void V9990CmdEngine::V9990Bpp8::pset(
 	unsigned addr = addressOf(x, y, pitch);
 	byte dstColor = vram.readVRAMDirect(addr);
 	byte newColor = logOp(lut, srcColor, dstColor);
-	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
+	byte mask1 = narrow_cast<byte>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
 	byte result = (dstColor & ~mask1) | (newColor & mask1);
 	vram.writeVRAMDirect(addr, result);
 }
@@ -613,10 +613,10 @@ inline void V9990CmdEngine::V9990Bpp8::psetColor(
 	word color, word mask, std::span<const byte, 256 * 256> lut, byte /*op*/)
 {
 	unsigned addr = addressOf(x, y, pitch);
-	byte srcColor = (addr & 0x40000) ? (color >> 8) : (color & 0xFF);
+	byte srcColor = narrow_cast<byte>((addr & 0x40000) ? (color >> 8) : (color & 0xFF));
 	byte dstColor = vram.readVRAMDirect(addr);
 	byte newColor = logOp(lut, srcColor, dstColor);
-	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
+	byte mask1 = narrow_cast<byte>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
 	byte result = (dstColor & ~mask1) | (newColor & mask1);
 	vram.writeVRAMDirect(addr, result);
 }
@@ -639,8 +639,8 @@ inline word V9990CmdEngine::V9990Bpp16::point(
 	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch)
 {
 	unsigned addr = addressOf(x, y, pitch);
-	return vram.readVRAMDirect(addr + 0x00000) +
-	       vram.readVRAMDirect(addr + 0x40000) * 256;
+	return word(vram.readVRAMDirect(addr + 0x00000) +
+	            vram.readVRAMDirect(addr + 0x40000) * 256);
 }
 
 inline word V9990CmdEngine::V9990Bpp16::shift(
@@ -663,8 +663,8 @@ inline word V9990CmdEngine::V9990Bpp16::logOp(
 	std::span<const byte, 256 * 256> lut, word src, word dst, bool transp)
 {
 	if (transp && (src == 0)) return dst;
-	return (lut[((dst & 0x00FF) << 8) + ((src & 0x00FF) >> 0)] << 0) +
-	       (lut[((dst & 0xFF00) << 0) + ((src & 0xFF00) >> 8)] << 8);
+	return word((lut[((dst & 0x00FF) << 8) + ((src & 0x00FF) >> 0)] << 0) +
+	            (lut[((dst & 0xFF00) << 0) + ((src & 0xFF00) >> 8)] << 8));
 }
 
 inline void V9990CmdEngine::V9990Bpp16::pset(
@@ -672,12 +672,12 @@ inline void V9990CmdEngine::V9990Bpp16::pset(
 	word srcColor, word mask, std::span<const byte, 256 * 256> lut, byte op)
 {
 	unsigned addr = addressOf(x, y, pitch);
-	word dstColor = vram.readVRAMDirect(addr + 0x00000) +
-	                vram.readVRAMDirect(addr + 0x40000) * 256;
+	auto dstColor = word(vram.readVRAMDirect(addr + 0x00000) +
+	                     vram.readVRAMDirect(addr + 0x40000) * 256);
 	word newColor = logOp(lut, srcColor, dstColor, (op & 0x10) != 0);
 	word result = (dstColor & ~mask) | (newColor & mask);
-	vram.writeVRAMDirect(addr + 0x00000, result & 0xFF);
-	vram.writeVRAMDirect(addr + 0x40000, result >> 8);
+	vram.writeVRAMDirect(addr + 0x00000, narrow_cast<byte>(result & 0xFF));
+	vram.writeVRAMDirect(addr + 0x40000, narrow_cast<byte>(result >> 8));
 }
 
 inline void V9990CmdEngine::V9990Bpp16::psetColor(
@@ -685,12 +685,12 @@ inline void V9990CmdEngine::V9990Bpp16::psetColor(
 	word srcColor, word mask, std::span<const byte, 256 * 256> lut, byte op)
 {
 	unsigned addr = addressOf(x, y, pitch);
-	word dstColor = vram.readVRAMDirect(addr + 0x00000) +
-	                vram.readVRAMDirect(addr + 0x40000) * 256;
+	auto dstColor = word(vram.readVRAMDirect(addr + 0x00000) +
+	                     vram.readVRAMDirect(addr + 0x40000) * 256);
 	word newColor = logOp(lut, srcColor, dstColor, (op & 0x10) != 0);
 	word result = (dstColor & ~mask) | (newColor & mask);
-	vram.writeVRAMDirect(addr + 0x00000, result & 0xFF);
-	vram.writeVRAMDirect(addr + 0x40000, result >> 8);
+	vram.writeVRAMDirect(addr + 0x00000, narrow_cast<byte>(result & 0xFF));
+	vram.writeVRAMDirect(addr + 0x40000, narrow_cast<byte>(result >> 8));
 }
 
 // ====================================================================
@@ -983,11 +983,11 @@ void V9990CmdEngine::executeLMMC<V9990CmdEngine::V9990Bpp16>(EmuTime::param limi
 			unsigned pitch = V9990Bpp16::getPitch(vdp.getImageWidth());
 			auto lut = V9990Bpp16::getLogOpLUT(LOG);
 			V9990Bpp16::pset(vram, DX, DY, pitch, value, WM, lut, LOG);
-			int dx = (ARG & DIX) ? -1 : 1;
+			word dx = (ARG & DIX) ? word(-1) : 1;
 			DX += dx;
 			if (!--(ANX)) {
-				int dy = (ARG & DIY) ? -1 : 1;
-				DX -= (NX * dx);
+				word dy = (ARG & DIY) ? word(-1) : 1;
+				DX -= word(NX * dx);
 				DY += dy;
 				if (!--(ANY)) {
 					cmdReady(limit);
@@ -1010,11 +1010,11 @@ void V9990CmdEngine::executeLMMC(EmuTime::param limit)
 			byte d = Mode::shift(data, i, DX);
 			Mode::pset(vram, DX, DY, pitch, d, WM, lut, LOG);
 
-			int dx = (ARG & DIX) ? -1 : 1;
+			word dx = (ARG & DIX) ? word(-1) : 1;
 			DX += dx;
 			if (!--(ANX)) {
-				int dy = (ARG & DIY) ? -1 : 1;
-				DX -= (NX * dx);
+				word dy = (ARG & DIY) ? word(-1) : 1;
+				DX -= word(NX * dx);
 				DY += dy;
 				if (!--(ANY)) {
 					cmdReady(limit);
@@ -1041,8 +1041,8 @@ void V9990CmdEngine::executeLMMV(EmuTime::param limit)
 
 	auto delta = getTiming(*this, LMMV_TIMING);
 	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
-	int dx = (ARG & DIX) ? -1 : 1;
-	int dy = (ARG & DIY) ? -1 : 1;
+	word dx = (ARG & DIX) ? word(-1) : 1;
+	word dy = (ARG & DIY) ? word(-1) : 1;
 	auto lut = Mode::getLogOpLUT(LOG);
 	while (engineTime < limit) {
 		engineTime += delta;
@@ -1050,7 +1050,7 @@ void V9990CmdEngine::executeLMMV(EmuTime::param limit)
 
 		DX += dx;
 		if (!--(ANX)) {
-			DX -= (NX * dx);
+			DX -= word(NX * dx);
 			DY += dy;
 			if (!--(ANY)) {
 				cmdReady(engineTime);
@@ -1087,16 +1087,17 @@ void V9990CmdEngine::executeLMCM(EmuTime::param /*limit*/)
 			return;
 		}
 		unsigned pitch = Mode::getPitch(vdp.getImageWidth());
-		typename Mode::Type d = 0;
+		using Type = typename Mode::Type;
+		Type d = 0;
 		for (int i = 0; (ANY > 0) && (i < Mode::PIXELS_PER_BYTE); ++i) {
 			auto src = Mode::point(vram, SX, SY, pitch);
-			d |= Mode::shift(src, SX, i) & Mode::shiftMask(i);
+			d |= Type(Mode::shift(src, SX, i) & Mode::shiftMask(i));
 
-			int dx = (ARG & DIX) ? -1 : 1;
+			word dx = (ARG & DIX) ? word(-1) : 1;
 			SX += dx;
 			if (!--(ANX)) {
-				int dy = (ARG & DIY) ? -1 : 1;
-				SX -= (NX * dx);
+				word dy = (ARG & DIY) ? word(-1) : 1;
+				SX -= word(NX * dx);
 				SY += dy;
 				if (!--(ANY)) {
 					endAfterRead = true;
@@ -1109,8 +1110,8 @@ void V9990CmdEngine::executeLMCM(EmuTime::param /*limit*/)
 			unsigned tmp = d; // workaround for VC++ warning C4333
 			                  // (in case Mode::Type == byte and
 			                  //          Mode::BITS_PER_PIXEL == 8)
-			data = tmp & 0xff;
-			partial = tmp >> 8;
+			data = narrow_cast<byte>(tmp & 0xff);
+			partial = narrow_cast<byte>(tmp >> 8);
 			bitsLeft = 1;
 		} else {
 			data = byte(d);
@@ -1133,8 +1134,8 @@ void V9990CmdEngine::executeLMMM(EmuTime::param limit)
 
 	auto delta = getTiming(*this, LMMM_TIMING);
 	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
-	int dx = (ARG & DIX) ? -1 : 1;
-	int dy = (ARG & DIY) ? -1 : 1;
+	word dx = (ARG & DIX) ? word(-1) : 1;
+	word dy = (ARG & DIY) ? word(-1) : 1;
 	auto lut = Mode::getLogOpLUT(LOG);
 	while (engineTime < limit) {
 		engineTime += delta;
@@ -1145,8 +1146,8 @@ void V9990CmdEngine::executeLMMM(EmuTime::param limit)
 		DX += dx;
 		SX += dx;
 		if (!--(ANX)) {
-			DX -= (NX * dx);
-			SX -= (NX * dx);
+			DX -= word(NX * dx);
+			SX -= word(NX * dx);
 			DY += dy;
 			SY += dy;
 			if (!--(ANY)) {
@@ -1174,8 +1175,8 @@ void V9990CmdEngine::executeCMMC(EmuTime::param limit)
 		status |= TR;
 
 		unsigned pitch = Mode::getPitch(vdp.getImageWidth());
-		int dx = (ARG & DIX) ? -1 : 1;
-		int dy = (ARG & DIY) ? -1 : 1;
+		word dx = (ARG & DIX) ? word(-1) : 1;
+		word dy = (ARG & DIY) ? word(-1) : 1;
 		auto lut = Mode::getLogOpLUT(LOG);
 		for (auto i : xrange(8)) {
 			(void)i;
@@ -1187,7 +1188,7 @@ void V9990CmdEngine::executeCMMC(EmuTime::param limit)
 
 			DX += dx;
 			if (!--(ANX)) {
-				DX -= (NX * dx);
+				DX -= word(NX * dx);
 				DY += dy;
 				if (!--(ANY)) {
 					cmdReady(limit);
@@ -1229,8 +1230,8 @@ void V9990CmdEngine::executeCMMM(EmuTime::param limit)
 
 	auto delta = getTiming(*this, CMMM_TIMING);
 	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
-	int dx = (ARG & DIX) ? -1 : 1;
-	int dy = (ARG & DIY) ? -1 : 1;
+	word dx = (ARG & DIX) ? word(-1) : 1;
+	word dy = (ARG & DIY) ? word(-1) : 1;
 	auto lut = Mode::getLogOpLUT(LOG);
 	while (engineTime < limit) {
 		engineTime += delta;
@@ -1247,7 +1248,7 @@ void V9990CmdEngine::executeCMMM(EmuTime::param limit)
 
 		DX += dx;
 		if (!--(ANX)) {
-			DX -= (NX * dx);
+			DX -= word(NX * dx);
 			DY += dy;
 			if (!--(ANY)) {
 				cmdReady(engineTime);
@@ -1274,19 +1275,19 @@ void V9990CmdEngine::executeBMXL<V9990CmdEngine::V9990Bpp16>(EmuTime::param limi
 	// timing value is times 2, because it does 2 bytes per iteration:
 	auto delta = getTiming(*this, BMXL_TIMING) * 2;
 	unsigned pitch = V9990Bpp16::getPitch(vdp.getImageWidth());
-	int dx = (ARG & DIX) ? -1 : 1;
-	int dy = (ARG & DIY) ? -1 : 1;
+	word dx = (ARG & DIX) ? word(-1) : 1;
+	word dy = (ARG & DIY) ? word(-1) : 1;
 	auto lut = V9990Bpp16::getLogOpLUT(LOG);
 
 	while (engineTime < limit) {
 		engineTime += delta;
-		word src = vram.readVRAMBx(srcAddress + 0) +
-		           vram.readVRAMBx(srcAddress + 1) * 256;
+		auto src = word(vram.readVRAMBx(srcAddress + 0) +
+		                vram.readVRAMBx(srcAddress + 1) * 256);
 		srcAddress += 2;
 		V9990Bpp16::pset(vram, DX, DY, pitch, src, WM, lut, LOG);
 		DX += dx;
 		if (!--(ANX)) {
-			DX -= (NX * dx);
+			DX -= word(NX * dx);
 			DY += dy;
 			if (!--(ANY)) {
 				cmdReady(engineTime);
@@ -1303,8 +1304,8 @@ void V9990CmdEngine::executeBMXL(EmuTime::param limit)
 {
 	auto delta = getTiming(*this, BMXL_TIMING);
 	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
-	int dx = (ARG & DIX) ? -1 : 1;
-	int dy = (ARG & DIY) ? -1 : 1;
+	word dx = (ARG & DIX) ? word(-1) : 1;
+	word dy = (ARG & DIY) ? word(-1) : 1;
 	auto lut = Mode::getLogOpLUT(LOG);
 
 	while (engineTime < limit) {
@@ -1315,7 +1316,7 @@ void V9990CmdEngine::executeBMXL(EmuTime::param limit)
 			Mode::pset(vram, DX, DY, pitch, d2, WM, lut, LOG);
 			DX += dx;
 			if (!--(ANX)) {
-				DX -= (NX * dx);
+				DX -= word(NX * dx);
 				DY += dy;
 				if (!--(ANY)) {
 					cmdReady(engineTime);
@@ -1343,17 +1344,17 @@ void V9990CmdEngine::executeBMLX<V9990CmdEngine::V9990Bpp16>(EmuTime::param limi
 	// TODO test corner cases, timing
 	auto delta = getTiming(*this, BMLX_TIMING);
 	unsigned pitch = V9990Bpp16::getPitch(vdp.getImageWidth());
-	int dx = (ARG & DIX) ? -1 : 1;
-	int dy = (ARG & DIY) ? -1 : 1;
+	word dx = (ARG & DIX) ? word(-1) : 1;
+	word dy = (ARG & DIY) ? word(-1) : 1;
 
 	while (engineTime < limit) {
 		engineTime += delta;
 		auto src = V9990Bpp16::point(vram, SX, SY, pitch);
-		vram.writeVRAMBx(dstAddress++, src & 0xFF);
-		vram.writeVRAMBx(dstAddress++, src >> 8);
+		vram.writeVRAMBx(dstAddress++, narrow_cast<byte>(src & 0xFF));
+		vram.writeVRAMBx(dstAddress++, narrow_cast<byte>(src >> 8));
 		SX += dx;
 		if (!--(ANX)) {
-			SX -= (NX * dx);
+			SX -= word(NX * dx);
 			SY += dy;
 			if (!--(ANY)) {
 				cmdReady(engineTime);
@@ -1370,18 +1371,18 @@ void V9990CmdEngine::executeBMLX(EmuTime::param limit)
 	// TODO test corner cases, timing
 	auto delta = getTiming(*this, BMLX_TIMING);
 	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
-	int dx = (ARG & DIX) ? -1 : 1;
-	int dy = (ARG & DIY) ? -1 : 1;
+	word dx = (ARG & DIX) ? word(-1) : 1;
+	word dy = (ARG & DIY) ? word(-1) : 1;
 
 	while (engineTime < limit) {
 		engineTime += delta;
 		byte d = 0;
 		for (auto i : xrange(Mode::PIXELS_PER_BYTE)) {
 			auto src = Mode::point(vram, SX, SY, pitch);
-			d |= Mode::shift(src, SX, i) & Mode::shiftMask(i);
+			d |= byte(Mode::shift(src, SX, i) & Mode::shiftMask(i));
 			SX += dx;
 			if (!--(ANX)) {
-				SX -= (NX * dx);
+				SX -= word(NX * dx);
 				SY += dy;
 				if (!--(ANY)) {
 					vram.writeVRAMBx(dstAddress++, d);
@@ -1428,14 +1429,14 @@ void V9990CmdEngine::executeBMLL<V9990CmdEngine::V9990Bpp16>(EmuTime::param limi
 	while (engineTime < limit) {
 		engineTime += delta;
 		// VRAM always mapped as in Bx modes
-		word srcColor = vram.readVRAMDirect(srcAddress + 0x00000) +
-		                vram.readVRAMDirect(srcAddress + 0x40000) * 256;
-		word dstColor = vram.readVRAMDirect(dstAddress + 0x00000) +
-		                vram.readVRAMDirect(dstAddress + 0x40000) * 256;
+		auto srcColor = word(vram.readVRAMDirect(srcAddress + 0x00000) +
+		                     vram.readVRAMDirect(srcAddress + 0x40000) * 256);
+		auto dstColor = word(vram.readVRAMDirect(dstAddress + 0x00000) +
+		                     vram.readVRAMDirect(dstAddress + 0x40000) * 256);
 		word newColor = V9990Bpp16::logOp(lut, srcColor, dstColor, transp);
 		word result = (dstColor & ~WM) | (newColor & WM);
-		vram.writeVRAMDirect(dstAddress + 0x00000, result & 0xFF);
-		vram.writeVRAMDirect(dstAddress + 0x40000, result >> 8);
+		vram.writeVRAMDirect(dstAddress + 0x00000, narrow_cast<byte>(result & 0xFF));
+		vram.writeVRAMDirect(dstAddress + 0x40000, narrow_cast<byte>(result >> 8));
 		srcAddress = (srcAddress + 1) & 0x3FFFF;
 		dstAddress = (dstAddress + 1) & 0x3FFFF;
 		if (!--nbBytes) {
@@ -1458,7 +1459,7 @@ void V9990CmdEngine::executeBMLL(EmuTime::param limit)
 		unsigned addr = V9990VRAM::transformBx(dstAddress);
 		byte dstColor = vram.readVRAMDirect(addr);
 		byte newColor = Mode::logOp(lut, srcColor, dstColor);
-		byte mask = (addr & 0x40000) ? (WM >> 8) : (WM & 0xFF);
+		byte mask = narrow_cast<byte>((addr & 0x40000) ? (WM >> 8) : (WM & 0xFF));
 		byte result = (dstColor & ~mask) | (newColor & mask);
 		vram.writeVRAMDirect(addr, result);
 		srcAddress = (srcAddress + 1) & 0x7FFFF;
@@ -1474,7 +1475,7 @@ void V9990CmdEngine::executeBMLL(EmuTime::param limit)
 void V9990CmdEngine::startLINE(EmuTime::param time)
 {
 	engineTime = time;
-	ASX = (NX - 1) / 2;
+	ASX = word((NX - 1) / 2);
 	ADX = DX;
 	ANX = 0;
 }
@@ -1486,8 +1487,8 @@ void V9990CmdEngine::executeLINE(EmuTime::param limit)
 	unsigned width = vdp.getImageWidth();
 	unsigned pitch = Mode::getPitch(width);
 
-	int TX = (ARG & DIX) ? -1 : 1;
-	int TY = (ARG & DIY) ? -1 : 1;
+	word TX = (ARG & DIX) ? word(-1) : 1;
+	word TY = (ARG & DIY) ? word(-1) : 1;
 	auto lut = Mode::getLogOpLUT(LOG);
 
 	if ((ARG & MAJ) == 0) {
@@ -1538,28 +1539,29 @@ void V9990CmdEngine::startSRCH(EmuTime::param time)
 template<typename Mode>
 void V9990CmdEngine::executeSRCH(EmuTime::param limit)
 {
+	using Type = typename Mode::Type;
 	auto delta = getTiming(*this, SRCH_TIMING);
 	unsigned width = vdp.getImageWidth();
 	unsigned pitch = Mode::getPitch(width);
-	typename Mode::Type mask = (1 << Mode::BITS_PER_PIXEL) -1;
+	Type mask = (1 << Mode::BITS_PER_PIXEL) -1;
 
-	int TX = (ARG & DIX) ? -1 : 1;
+	word TX = (ARG & DIX) ? word(-1) : 1;
 	bool AEQ = (ARG & NEQ) != 0;
 
 	while (engineTime < limit) {
 		engineTime += delta;
-		typename Mode::Type value;
-		typename Mode::Type col;
-		typename Mode::Type mask2;
+		Type value;
+		Type col;
+		Type mask2;
 		if constexpr (Mode::BITS_PER_PIXEL == 16) {
 			value = Mode::point(vram, ASX, SY, pitch);
-			col = static_cast<typename Mode::Type>(fgCol);
-			mask2 = static_cast<typename Mode::Type>(~0);
+			col = static_cast<Type>(fgCol);
+			mask2 = static_cast<Type>(~0);
 		} else {
 			// TODO check
 			unsigned addr = Mode::addressOf(ASX, SY, pitch);
 			value = vram.readVRAMDirect(addr);
-			col = (addr & 0x40000) ? (fgCol >> 8) : (fgCol & 0xFF);
+			col = narrow_cast<byte>((addr & 0x40000) ? (fgCol >> 8) : (fgCol & 0xFF));
 			mask2 = Mode::shift(mask, 3, ASX);
 		}
 		if (((value & mask2) == (col & mask2)) ^ AEQ) {
@@ -1592,8 +1594,8 @@ void V9990CmdEngine::startPOINT(EmuTime::param /*time*/)
 		unsigned tmp = d; // workaround for VC++ warning C4333
 				  // (in case Mode::Type == byte and
 				  //          Mode::BITS_PER_PIXEL == 8)
-		data = tmp & 0xff;
-		partial = tmp >> 8;
+		data = narrow_cast<byte>(tmp & 0xff);
+		partial = narrow_cast<byte>(tmp >> 8);
 		endAfterRead = false;
 	}
 	status |= TR;

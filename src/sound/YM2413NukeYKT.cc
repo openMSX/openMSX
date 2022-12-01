@@ -156,7 +156,8 @@ void YM2413::reset()
 	op_mod = 0;
 	op_phase[0] = op_phase[1] = 0;
 
-	lfo_counter = lfo_vib_counter = lfo_am_out = lfo_am_counter = 0;
+	lfo_counter = lfo_am_counter = 0;
+	lfo_vib_counter = lfo_am_out = 0;
 	lfo_vib = VIB_TAB[lfo_vib_counter];
 	lfo_am_step = lfo_am_dir = false;
 
@@ -260,7 +261,7 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::envelopeTim
 			}
 			if (eg_counter_state == 3) {
 				eg_timer = (eg_timer + 1) & 0x3ffff;
-				eg_timer_shift = Math::findFirstSet(eg_timer);
+				eg_timer_shift = narrow_cast<uint8_t>(Math::findFirstSet(eg_timer));
 			}
 		}
 	}
@@ -310,7 +311,7 @@ template<uint32_t CYCLES> ALWAYS_INLINE bool YM2413::envelopeGenerate1()
 		}
 		return 0;
 	}();
-	eg_level[(CYCLES + 16) % 18] = next_level + step;
+	eg_level[(CYCLES + 16) % 18] = narrow_cast<uint8_t>(next_level + step);
 
 	return level == 0x7f; // eg_silent
 }
@@ -378,12 +379,12 @@ template<uint32_t CYCLES> ALWAYS_INLINE void YM2413::envelopeGenerate2(const Pat
 		   : /*(state_rate == EgState::release) ?*/ ((sk & 2) ? (5 * 4) : patch1.rr4[mcsel]);
 	}();
 
-	eg_rate[CYCLES & 1] = [&]() {
+	eg_rate[CYCLES & 1] = narrow_cast<uint8_t>([&]() {
 		if (rate4 == 0) return 0;
 		auto tmp = rate4 + (p_ksr_freq[ch] >> patch1.ksr_t[mcsel]);
 		return (tmp < 0x40) ? tmp
 		                    : (0x3c | (tmp & 3));
-	}();
+	}());
 }
 
 template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::doLFO(bool& lfo_am_car)
@@ -505,12 +506,12 @@ void YM2413::changeFnumBlock(uint32_t ch)
 	static constexpr std::array<uint8_t, 16> KSL_TABLE = {
 		0, 32, 40, 45, 48, 51, 53, 55, 56, 58, 59, 60, 61, 62, 63, 64
 	};
-	p_ksl[ch] = std::max(0, KSL_TABLE[fnum[ch] >> 5] - ((8 - block[ch]) << 3)) << 1;
-	p_incr[ch] = fnum[ch] << block[ch];
+	p_ksl[ch] = narrow_cast<uint8_t>(std::max(0, KSL_TABLE[fnum[ch] >> 5] - ((8 - block[ch]) << 3)) << 1);
+	p_incr[ch] = narrow_cast<uint16_t>(fnum[ch] << block[ch]);
 	p_ksr_freq[ch] = (block[ch] << 1) | (fnum[ch] >> 8);
 }
 
-NEVER_INLINE void YM2413::doRegWrite(uint32_t channel)
+NEVER_INLINE void YM2413::doRegWrite(uint8_t channel)
 {
 	if (write_address < 0x40) {
 		write_fm_cycle = uint8_t(-1);
@@ -633,7 +634,7 @@ template<uint32_t CYCLES> ALWAYS_INLINE void YM2413::doOperator(std::span<float*
 	auto output = [&]() -> int32_t {
 		if (eg_silent) return 0;
 		auto prev2_phase = op_phase[(CYCLES - 2) & 1];
-		uint8_t quarter = (prev2_phase & 0x100) ? ~prev2_phase : prev2_phase;
+		uint8_t quarter = narrow_cast<uint8_t>((prev2_phase & 0x100) ? ~prev2_phase : prev2_phase);
 		auto logSin = logSinTab[quarter];
 		auto op_level = std::min(4095, logSin + (eg_out[(CYCLES - 2) & 1] << 4));
 		uint32_t op_exp_m = expTab[op_level & 0xff];
@@ -650,7 +651,7 @@ template<uint32_t CYCLES> ALWAYS_INLINE void YM2413::doOperator(std::span<float*
 	if (ismod1) {
 		constexpr uint32_t cycles9 = (CYCLES + 1) % 9;
 		op_fb2[cycles9] = op_fb1[cycles9];
-		op_fb1[cycles9] = output;
+		op_fb1[cycles9] = narrow_cast<int16_t>(output);
 	}
 	channelOutput<CYCLES>(out, output >> 3);
 
@@ -665,9 +666,9 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE uint32_t YM2413::getPhas
 
 	// Rhythm mode
 	if constexpr (CYCLES == 12) {
-		rm_hh_bits = phase >> (2 + 9);
+		rm_hh_bits = narrow_cast<uint8_t>(phase >> (2 + 9));
 	} else if (CYCLES == 16 && (rhythm & 0x20)) {
-		rm_tc_bits = phase >> 8;
+		rm_tc_bits = narrow_cast<uint8_t>(phase >> 8);
 	}
 
 	if (rhythm & 0x20) {
@@ -774,7 +775,7 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE uint8_t YM2413::envelope
 		return 0;
 	}
 	int32_t level = eg_level[CYCLES] + ksltl + (am_t & lfo_am_out);
-	return std::min(127, level);
+	return narrow_cast<uint8_t>(std::min(127, level));
 }
 
 template<uint32_t CYCLES, bool TEST_MODE>
@@ -810,7 +811,7 @@ ALWAYS_INLINE void YM2413::step(Locals& l)
 	doOperator<CYCLES>(l.out, eg_silent);
 
 	uint32_t pg_out = getPhase<CYCLES, TEST_MODE>(l.rm_hh_bits);
-	op_phase[CYCLES & 1] = phaseMod + pg_out;
+	op_phase[CYCLES & 1] = narrow_cast<uint16_t>(phaseMod + pg_out);
 	incrementPhase<CYCLES, TEST_MODE>(phase_incr, key_on_event);
 
 	eg_out[CYCLES & 1] = envelopeOutput<CYCLES, TEST_MODE>(ksltl, patch2_am_t);
@@ -904,7 +905,7 @@ void YM2413::pokeReg(uint8_t reg, uint8_t value)
 	if (reg < 0x10) {
 		doModeWrite(reg, value);
 	} else {
-		if (auto ch = reg & 0xf; ch < 9) {
+		if (uint8_t ch = reg & 0xf; ch < 9) {
 			doRegWrite(reg & 0xf0, ch, value);
 		}
 	}
@@ -1002,7 +1003,7 @@ void YM2413::serialize(Archive& ar, unsigned /*version*/)
 		// Restore these from register values:
 		//   fnum, block, p_ksl, p_incr, p_ksr_freq, sk_on, vol8,
 		//   inst, p_inst, rhythm, testMode, patches[0]
-		for (auto i : xrange(64)) {
+		for (auto i : xrange(uint8_t(64))) {
 			pokeReg(i, regs[i]);
 		}
 	}

@@ -61,7 +61,7 @@ template<std::unsigned_integral Pixel>
 
 template<> [[nodiscard]] uint16_t bilinear<uint16_t>(unsigned a, unsigned b, unsigned x)
 {
-	if (a == b) return a;
+	if (a == b) return narrow_cast<uint16_t>(a);
 
 	const unsigned areaB = x >> 11; // reduce 16 bit fraction to 5 bits
 	const unsigned areaA = 0x20 - areaB;
@@ -155,7 +155,7 @@ template<std::unsigned_integral Pixel>
 template<unsigned x>
 inline Pixel Blender<Pixel>::blend(unsigned a, unsigned b)
 {
-	if (a == b) return a;
+	if (a == b) return narrow_cast<Pixel>(a);
 
 	const unsigned bits = (sizeof(Pixel) == 2) ? 5 : 8;
 	const unsigned areaB = Round<x, 16, bits>::result;
@@ -219,7 +219,7 @@ class PixelStripRepeater
 public:
 	template<std::unsigned_integral Pixel>
 	inline static void fill(Pixel*& dp, unsigned sa) {
-		*dp++ = sa;
+		*dp++ = Pixel(sa);
 		PixelStripRepeater<i - 1>::template fill<Pixel>(dp, sa);
 	}
 
