@@ -60,7 +60,7 @@ static_assert(sizeof(MSXDirEntry) == 32);
 struct Partition {
 	uint8_t        boot_ind;   // + 0 0x80 - active
 	uint8_t        head;       // + 1 starting head
-	uint8_t        sector;     // + 2 tarting sector
+	uint8_t        sector;     // + 2 starting sector
 	uint8_t        cyl;        // + 3 starting cylinder
 	uint8_t        sys_ind;    // + 4 what partition type
 	uint8_t        end_head;   // + 5 end head

@@ -51,7 +51,7 @@ private:
 	unsigned appendClusterToSubdir(unsigned sector);
 	DirEntry addEntryToDir(unsigned sector);
 	unsigned addSubdir(std::string_view msxName,
-	                   unsigned t, unsigned d, unsigned sector);
+	                   uint16_t t, uint16_t d, unsigned sector);
 	void alterFileInDSK(MSXDirEntry& msxDirEntry, const std::string& hostName);
 	unsigned addSubdirToDSK(zstring_view hostName,
 	                        std::string_view msxName, unsigned sector);

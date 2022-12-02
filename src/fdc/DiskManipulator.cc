@@ -419,7 +419,7 @@ void DiskManipulator::create(std::span<const TclObject> tokens)
 	// initialize (create partition tables and format partitions)
 	DSKDiskImage image(filename);
 	if (sizes.size() > 1) {
-		DiskImageUtils::partition(image, sizes);
+		DiskImageUtils::partition(image, static_cast<std::span<const unsigned>>(sizes));
 	} else {
 		// only one partition specified, don't create partition table
 		DiskImageUtils::format(image, dos1);

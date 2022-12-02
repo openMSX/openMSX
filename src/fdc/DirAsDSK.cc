@@ -7,6 +7,7 @@
 #include "FileException.hh"
 #include "ReadDir.hh"
 #include "StringOp.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "stl.hh"
@@ -64,11 +65,11 @@ void DirAsDSK::writeFATHelper(std::span<SectorBuffer> fatBuf, unsigned cluster, 
 	std::span buf{fatBuf[0].raw.data(), fatBuf.size() * SECTOR_SIZE};
 	auto p = subspan<2>(buf, (cluster * 3) / 2);
 	if (cluster & 1) {
-		p[0] = (p[0] & 0x0F) + (val << 4);
-		p[1] = val >> 4;
+		p[0] = narrow_cast<uint8_t>((p[0] & 0x0F) + (val << 4));
+		p[1] = narrow_cast<uint8_t>(val >> 4);
 	} else {
-		p[0] = val;
-		p[1] = (p[1] & 0xF0) + ((val >> 8) & 0x0F);
+		p[0] = narrow_cast<uint8_t>(val);
+		p[1] = narrow_cast<uint8_t>((p[1] & 0xF0) + ((val >> 8) & 0x0F));
 	}
 }
 
@@ -266,7 +267,7 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 	, syncMode(syncMode_)
 	, lastAccess(EmuTime::zero())
 	, nofSectors((diskChanger_.isDoubleSidedDrive() ? 2 : 1) * SECTORS_PER_TRACK * NUM_TRACKS)
-	, nofSectorsPerFat((((3 * nofSectors) / (2 * SECTORS_PER_CLUSTER)) + SECTOR_SIZE - 1) / SECTOR_SIZE)
+	, nofSectorsPerFat(narrow<unsigned>((((3 * nofSectors) / (2 * SECTORS_PER_CLUSTER)) + SECTOR_SIZE - 1) / SECTOR_SIZE))
 	, firstSector2ndFAT(FIRST_FAT_SECTOR + nofSectorsPerFat)
 	, firstDirSector(FIRST_FAT_SECTOR + NUM_FATS * nofSectorsPerFat)
 	, firstDataSector(firstDirSector + SECTORS_PER_DIR)
@@ -298,9 +299,9 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 	bootSector.spCluster    = SECTORS_PER_CLUSTER;
 	bootSector.nrFats       = NUM_FATS;
 	bootSector.dirEntries   = SECTORS_PER_DIR * (SECTOR_SIZE / sizeof(MSXDirEntry));
-	bootSector.nrSectors    = nofSectors;
+	bootSector.nrSectors    = narrow_cast<uint16_t>(nofSectors);
 	bootSector.descriptor   = mediaDescriptor;
-	bootSector.sectorsFat   = nofSectorsPerFat;
+	bootSector.sectorsFat   = narrow_cast<uint16_t>(nofSectorsPerFat);
 	bootSector.sectorsTrack = SECTORS_PER_TRACK;
 	bootSector.nrSides      = numSides;
 
@@ -605,7 +606,7 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, FileOperations::Stat& fst)
 			if (prevCl) {
 				writeFAT12(prevCl, curCl);
 			} else {
-				msxDir(dirIndex).startCluster = curCl;
+				msxDir(dirIndex).startCluster = narrow<uint16_t>(curCl);
 			}
 			prevCl = curCl;
 
@@ -669,11 +670,11 @@ void DirAsDSK::setMSXTimeStamp(DirIndex dirIndex, FileOperations::Stat& fst)
 	int t1 = mtim ? (mtim->tm_sec >> 1) + (mtim->tm_min << 5) +
 	                (mtim->tm_hour << 11)
 	              : 0;
-	msxDir(dirIndex).time = t1;
+	msxDir(dirIndex).time = narrow<uint16_t>(t1);
 	int t2 = mtim ? mtim->tm_mday + ((mtim->tm_mon + 1) << 5) +
 	                ((mtim->tm_year + 1900 - 1980) << 9)
 	              : 0;
-	msxDir(dirIndex).date = t2;
+	msxDir(dirIndex).date = narrow<uint16_t>(t2);
 }
 
 // Used to add 'regular' files before 'derived' files. E.g. when editing a file
@@ -758,7 +759,7 @@ void DirAsDSK::addNewDirectory(const string& hostSubDir, const string& hostName,
 		}
 		setMSXTimeStamp(dirIndex, fst);
 		msxDir(dirIndex).attrib = MSXDirEntry::ATT_DIRECTORY;
-		msxDir(dirIndex).startCluster = cluster;
+		msxDir(dirIndex).startCluster = narrow<uint16_t>(cluster);
 
 		// Initialize the new directory.
 		newMsxDirSector = clusterToSector(cluster);
@@ -777,9 +778,10 @@ void DirAsDSK::addNewDirectory(const string& hostSubDir, const string& hostName,
 		e1.attrib = MSXDirEntry::ATT_DIRECTORY;
 		setMSXTimeStamp(idx0, fst);
 		setMSXTimeStamp(idx1, fst);
-		e0.startCluster = cluster;
+		e0.startCluster = narrow<uint16_t>(cluster);
 		e1.startCluster = msxDirSector == firstDirSector
-		                ? 0 : sectorToCluster(msxDirSector);
+		                ? uint16_t(0)
+		                : narrow<uint16_t>(sectorToCluster(msxDirSector));
 	} else {
 		if (!(msxDir(dirIndex).attrib & MSXDirEntry::ATT_DIRECTORY)) {
 			// Should rarely happen because checkDeletedHostFiles()
@@ -1339,7 +1341,7 @@ void DirAsDSK::writeDataSector(unsigned sector, const SectorBuffer& buf)
 	// Get first cluster in the FAT chain that contains this sector.
 	auto [cluster, offset] = sectorToClusterOffset(sector);
 	auto [startCluster, chainLength] = getChainStart(cluster);
-	offset += (sizeof(buf) * SECTORS_PER_CLUSTER) * chainLength;
+	offset += narrow<unsigned>((sizeof(buf) * SECTORS_PER_CLUSTER) * chainLength);
 
 	// Get corresponding directory entry.
 	DirIndex dirIndex = getDirEntryForCluster(startCluster);

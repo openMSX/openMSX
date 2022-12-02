@@ -216,18 +216,18 @@ void format(SectorAccessibleDisk& disk, bool dos1)
 
 struct CHS {
 	unsigned cylinder;
-	unsigned head;
-	unsigned sector;
+	uint8_t head; // 0-15
+	uint8_t sector; // 1-32
 };
 [[nodiscard]] static constexpr CHS logicalToCHS(unsigned logical)
 {
 	// This is made to fit the openMSX hard disk configuration:
 	//  32 sectors/track   16 heads
 	unsigned tmp = logical + 1;
-	unsigned sector = tmp % 32;
+	uint8_t sector = tmp % 32;
 	if (sector == 0) sector = 32;
 	tmp = (tmp - sector) / 32;
-	unsigned head = tmp % 16;
+	uint8_t head = tmp % 16;
 	unsigned cylinder = tmp / 16;
 	return {cylinder, head, sector};
 }
@@ -252,11 +252,11 @@ void partition(SectorAccessibleDisk& disk, std::span<const unsigned> sizes)
 		p.boot_ind = (i == 0) ? 0x80 : 0x00; // boot flag
 		p.head = startHead;
 		p.sector = startSector;
-		p.cyl = startCylinder;
+		p.cyl = narrow_cast<uint8_t>(startCylinder); // wraps for size larger than 64MB
 		p.sys_ind = 0x01; // FAT12
 		p.end_head = endHead;
 		p.end_sector = endSector;
-		p.end_cyl = endCylinder;
+		p.end_cyl = narrow_cast<uint8_t>(endCylinder);
 		p.start = partitionOffset;
 		p.size = size;
 		DiskPartition diskPartition(disk, partitionOffset, partitionNbSectors);

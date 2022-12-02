@@ -167,7 +167,7 @@ void DMKDiskImage::extendImageToTrack(uint8_t track)
 
 	// update header
 	file->seek(1); // position in header where numTracks is stored
-	std::array numTracksBuf = {uint8_t(numTracks)};
+	std::array<uint8_t, 1> numTracksBuf = {numTracks};
 	file->write(numTracksBuf);
 }
 

@@ -207,11 +207,11 @@ void MSXtar::writeFAT(unsigned clNr, unsigned val)
 	std::span data{fatBuffer[0].raw.data(), sectorsPerFat * size_t(SECTOR_SIZE)};
 	auto p = subspan<2>(data, (clNr * 3) / 2);
 	if (clNr & 1) {
-		p[0] = (p[0] & 0x0F) + (val << 4);
-		p[1] = val >> 4;
+		p[0] = narrow_cast<uint8_t>((p[0] & 0x0F) + (val << 4));
+		p[1] = narrow_cast<uint8_t>(val >> 4);
 	} else {
-		p[0] = val;
-		p[1] = (p[1] & 0xF0) + ((val >> 8) & 0x0F);
+		p[0] = narrow_cast<uint8_t>(val);
+		p[1] = narrow_cast<uint8_t>((p[1] & 0xF0) + ((val >> 8) & 0x0F));
 	}
 	fatCacheDirty = true;
 }
@@ -380,7 +380,7 @@ static string makeSimpleMSXFileName(string_view fullFilename)
 // returns: the first sector of the new subdir
 // @throws in case no directory could be created
 unsigned MSXtar::addSubdir(
-	std::string_view msxName, unsigned t, unsigned d, unsigned sector)
+	std::string_view msxName, uint16_t t, uint16_t d, unsigned sector)
 {
 	// returns the sector for the first cluster of this subdir
 	DirEntry result = addEntryToDir(sector);
@@ -397,7 +397,7 @@ unsigned MSXtar::addSubdir(
 
 	// dirEntry.filesize = fsize;
 	unsigned curCl = findFirstFreeCluster();
-	dirEntry.startCluster = curCl;
+	dirEntry.startCluster = narrow<uint16_t>(curCl);
 	writeFAT(curCl, EOF_FAT);
 
 	// save the sector again
@@ -417,7 +417,7 @@ unsigned MSXtar::addSubdir(
 	buf.dirEntry[0].attrib = T_MSX_DIR;
 	buf.dirEntry[0].time = t;
 	buf.dirEntry[0].date = d;
-	buf.dirEntry[0].startCluster = curCl;
+	buf.dirEntry[0].startCluster = narrow<uint16_t>(curCl);
 
 	memset(&buf.dirEntry[1], 0, sizeof(MSXDirEntry));
 	ranges::fill(buf.dirEntry[1].filename, ' ');
@@ -426,7 +426,7 @@ unsigned MSXtar::addSubdir(
 	buf.dirEntry[1].attrib = T_MSX_DIR;
 	buf.dirEntry[1].time = t;
 	buf.dirEntry[1].date = d;
-	buf.dirEntry[1].startCluster = sectorToCluster(sector);
+	buf.dirEntry[1].startCluster = narrow<uint16_t>(sectorToCluster(sector));
 
 	// and save this in the first sector of the new subdir
 	writeLogicalSector(logicalSector, buf);
@@ -435,15 +435,17 @@ unsigned MSXtar::addSubdir(
 }
 
 struct TimeDate {
-	unsigned time, date;
+	uint16_t time, date;
 };
 static TimeDate getTimeDate(time_t totalSeconds)
 {
 	if (tm* mtim = localtime(&totalSeconds)) {
-		unsigned time = (mtim->tm_sec >> 1) + (mtim->tm_min << 5) +
-		                (mtim->tm_hour << 11);
-		unsigned date = mtim->tm_mday + ((mtim->tm_mon + 1) << 5) +
-		                ((mtim->tm_year + 1900 - 1980) << 9);
+		auto time = narrow<uint16_t>(
+			(mtim->tm_sec >> 1) + (mtim->tm_min << 5) +
+			(mtim->tm_hour << 11));
+		auto date = narrow<uint16_t>(
+			mtim->tm_mday + ((mtim->tm_mon + 1) << 5) +
+			((mtim->tm_year + 1900 - 1980) << 9));
 		return {time, date};
 	}
 	return {0, 0};
@@ -484,7 +486,7 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxDirEntry, const string& hostName)
 	if (!st) {
 		throw MSXException("Error reading host file: ", hostName);
 	}
-	unsigned hostSize = st->st_size;
+	unsigned hostSize = narrow<unsigned>(st->st_size);
 	unsigned remaining = hostSize;
 
 	// open host file for reading
@@ -499,7 +501,7 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxDirEntry, const string& hostName)
 			if (curCl == one_of(0u, EOF_FAT)) {
 				unsigned newCl = findFirstFreeCluster();
 				if (prevCl == 0) {
-					msxDirEntry.startCluster = newCl;
+					msxDirEntry.startCluster = narrow<uint16_t>(newCl);
 				} else {
 					writeFAT(prevCl, newCl);
 				}

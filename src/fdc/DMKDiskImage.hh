@@ -37,8 +37,8 @@ private:
 
 private:
 	std::shared_ptr<File> file;
-	unsigned numTracks;
 	unsigned dmkTrackLen;
+	uint8_t numTracks;
 	bool singleSided;
 	bool writeProtected;
 };

@@ -12,6 +12,7 @@
 #include "TclObject.hh"
 #include "CommandException.hh"
 #include "MemBuffer.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "stl.hh"
@@ -199,7 +200,7 @@ static word getAddress(Interpreter& interp, const TclObject& token)
 	if (addr >= 0x10000) {
 		throw CommandException("Invalid address");
 	}
-	return addr;
+	return narrow_cast<word>(addr);
 }
 
 Debugger::Cmd::Cmd(CommandController& commandController_,
@@ -315,7 +316,7 @@ void Debugger::Cmd::write(std::span<const TclObject> tokens, TclObject& /*result
 		throw CommandException("Invalid value");
 	}
 
-	device.write(addr, value);
+	device.write(addr, narrow_cast<byte>(value));
 }
 
 void Debugger::Cmd::writeBlock(std::span<const TclObject> tokens, TclObject& /*result*/)
