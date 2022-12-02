@@ -348,8 +348,8 @@ byte HardwareConfig::parseSlotMap() const
 				throw MSXException("Invalid or missing slot in slotmap entry");
 			}
 			unsigned offset = page * 2;
-			initialPrimarySlots &= ~(3 << offset);
-			initialPrimarySlots |= slot << offset;
+			initialPrimarySlots &= byte(~(3 << offset));
+			initialPrimarySlots |= byte(slot << offset);
 		}
 	}
 	return initialPrimarySlots;

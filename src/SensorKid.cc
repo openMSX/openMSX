@@ -3,6 +3,7 @@
 #include "CommandController.hh"
 #include "MSXException.hh"
 #include "StringSetting.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -67,13 +68,13 @@ byte SensorKid::readIO(word port, EmuTime::param /* time */)
 		//  for 12,11,1,0 we return 1
 		//  for 10        we return 0
 		//  for 9..2      we return one of the analog bits
-		byte result = [&] {
+		byte result = [&]  {
 			if (mb4052_count == 10) {
-				return 0;
+				return byte(0);
 			} else if ((mb4052_count < 10) && (mb4052_count > 1)) {
-				return (mb4052_ana >> (mb4052_count - 2)) & 1;
+				return byte((mb4052_ana >> (mb4052_count - 2)) & 1);
 			} else {
-				return 1;
+				return byte(1);
 			}
 		}();
 		return 0xFE | result; // other bits read as '1'.
@@ -98,14 +99,15 @@ byte SensorKid::getAnalog(byte chi)
 	//  port 1 is connector to a temperature sensor   ONDO
 	//  port 2 is connected to a microphone           OTO
 	//  port 3 is not connected, always return 255
-	int result = 255;
+	byte result = 255;
 	try {
 		auto obj = acquireCallback.execute(port);
 		if (obj != TclObject()) {
-			result = obj.getInt(getCommandController().getInterpreter());
-			if ((result < 0) || (result > 255)) {
+			auto tmp = obj.getInt(getCommandController().getInterpreter());
+			if ((tmp < 0) || (tmp > 255)) {
 				throw MSXException("outside range 0..255");
 			}
+			result = narrow_cast<byte>(tmp);
 		}
 	} catch (MSXException& e) {
 		getCliComm().printWarning(

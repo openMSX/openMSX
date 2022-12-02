@@ -14,6 +14,7 @@
 #include "outer.hh"
 #include "serialize_meta.hh"
 #include <array>
+#include <cstdint>
 #include <memory>
 #include <string>
 
@@ -141,7 +142,7 @@ private:
 	void execSyncAudioEmu(EmuTime::param time);
 	EmuTime::param getCurrentTime() const { return syncEndOfTape.getCurrentTime(); }
 
-	std::array<unsigned char, 1024> buf;
+	std::array<uint8_t, 1024> buf;
 
 	double lastX; // last unfiltered output
 	double lastY; // last filtered output

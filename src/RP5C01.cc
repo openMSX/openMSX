@@ -173,20 +173,20 @@ void RP5C01::time2Regs()
 		if (hours >= 12) hours_ = (hours - 12) + 20;
 	}
 
-	regs.write(TIME_BLOCK  * 13 +  0,  seconds   % 10);
-	regs.write(TIME_BLOCK  * 13 +  1,  seconds   / 10);
-	regs.write(TIME_BLOCK  * 13 +  2,  minutes   % 10);
-	regs.write(TIME_BLOCK  * 13 +  3,  minutes   / 10);
-	regs.write(TIME_BLOCK  * 13 +  4,  hours_    % 10);
-	regs.write(TIME_BLOCK  * 13 +  5,  hours_    / 10);
-	regs.write(TIME_BLOCK  * 13 +  6,  dayWeek);
-	regs.write(TIME_BLOCK  * 13 +  7, (days+1)   % 10); // 0-30 -> 1-31
-	regs.write(TIME_BLOCK  * 13 +  8, (days+1)   / 10); // 0-11 -> 1-12
-	regs.write(TIME_BLOCK  * 13 +  9, (months+1) % 10);
-	regs.write(TIME_BLOCK  * 13 + 10, (months+1) / 10);
-	regs.write(TIME_BLOCK  * 13 + 11,  years     % 10);
-	regs.write(TIME_BLOCK  * 13 + 12,  years     / 10);
-	regs.write(ALARM_BLOCK * 13 + 11,  leapYear);
+	regs.write(TIME_BLOCK  * 13 +  0, narrow<byte>( seconds   % 10));
+	regs.write(TIME_BLOCK  * 13 +  1, narrow<byte>( seconds   / 10));
+	regs.write(TIME_BLOCK  * 13 +  2, narrow<byte>( minutes   % 10));
+	regs.write(TIME_BLOCK  * 13 +  3, narrow<byte>( minutes   / 10));
+	regs.write(TIME_BLOCK  * 13 +  4, narrow<byte>( hours_    % 10));
+	regs.write(TIME_BLOCK  * 13 +  5, narrow<byte>( hours_    / 10));
+	regs.write(TIME_BLOCK  * 13 +  6, narrow<byte>( dayWeek));
+	regs.write(TIME_BLOCK  * 13 +  7, narrow<byte>((days+1)   % 10)); // 0-30 -> 1-31
+	regs.write(TIME_BLOCK  * 13 +  8, narrow<byte>((days+1)   / 10)); // 0-11 -> 1-12
+	regs.write(TIME_BLOCK  * 13 +  9, narrow<byte>((months+1) % 10));
+	regs.write(TIME_BLOCK  * 13 + 10, narrow<byte>((months+1) / 10));
+	regs.write(TIME_BLOCK  * 13 + 11, narrow<byte>( years     % 10));
+	regs.write(TIME_BLOCK  * 13 + 12, narrow<byte>( years     / 10));
+	regs.write(ALARM_BLOCK * 13 + 11, narrow<byte>( leapYear));
 }
 
 static constexpr int daysInMonth(int month, unsigned leapYear)

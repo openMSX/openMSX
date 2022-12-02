@@ -146,7 +146,7 @@ TTFFont::~TTFFont()
 	TTFFontPool::instance().release(static_cast<TTF_Font*>(font));
 }
 
-SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
+SDLSurfacePtr TTFFont::render(std::string text, uint8_t r, uint8_t g, uint8_t b) const
 {
 	SDL_Color color = { r, g, b, 0 };
 

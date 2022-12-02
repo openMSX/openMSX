@@ -20,6 +20,7 @@
 #include "Reactor.hh"
 #include "CommandException.hh"
 #include "MemBuffer.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "serialize.hh"
@@ -834,7 +835,7 @@ unsigned ReverseManager::ReverseHistory::getNextSeqNum(EmuTime::param time) cons
 	}
 	const auto& startTime = begin(chunks)->second.time;
 	double duration = (time - startTime).toDouble();
-	return lrint(duration / SNAPSHOT_PERIOD);
+	return narrow<unsigned>(lrint(duration / SNAPSHOT_PERIOD));
 }
 
 void ReverseManager::takeSnapshot(EmuTime::param time)

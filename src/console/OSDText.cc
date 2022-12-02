@@ -187,7 +187,9 @@ template<typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 		// That way we can avoid join() (in the wrap functions)
 		// followed by // StringOp::split() (in TTFFont::render()).
 		SDLSurfacePtr surface(font.render(wrappedText,
-			(textRgba >> 24) & 0xff, (textRgba >> 16) & 0xff, (textRgba >> 8) & 0xff));
+		                                  narrow_cast<uint8_t>(textRgba >> 24),
+		                                  narrow_cast<uint8_t>(textRgba >> 16),
+		                                  narrow_cast<uint8_t>(textRgba >>  8)));
 		if (surface) {
 			return std::make_unique<IMAGE>(output, std::move(surface));
 		} else {

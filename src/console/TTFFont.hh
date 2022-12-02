@@ -2,9 +2,9 @@
 #define TTFFONT_HH
 
 #include "SDLSurfacePtr.hh"
-#include "openmsx.hh"
 #include "gl_vec.hh"
 #include "zstring_view.hh"
+#include <cstdint>
 #include <string>
 #include <utility>
 
@@ -54,7 +54,7 @@ public:
 	  * The text must be UTF-8 encoded.
 	  * The result is a 32bpp RGBA SDL_Surface.
 	  */
-	[[nodiscard]] SDLSurfacePtr render(std::string text, byte r, byte g, byte b) const;
+	[[nodiscard]] SDLSurfacePtr render(std::string text, uint8_t r, uint8_t g, uint8_t b) const;
 
 	/** Return the height of the font.
 	  * This is the recommended number of pixels between two text lines.

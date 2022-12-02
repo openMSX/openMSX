@@ -45,6 +45,7 @@
 #include "DynamicClock.hh"
 #include "EmuDuration.hh"
 #include "checked_cast.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
@@ -496,13 +497,13 @@ void CassettePlayer::generateRecordOutput(EmuDuration::param duration)
 	if (rest <= samples) {
 		// enough to fill next interval
 		partialOut += out * rest;
-		fillBuf(1, int(partialOut));
+		fillBuf(1, partialOut);
 		samples -= rest;
 
 		// fill complete intervals
 		int count = int(samples);
 		if (count > 0) {
-			fillBuf(count, int(out));
+			fillBuf(count, out);
 		}
 		samples -= count;
 		assert(samples < 1.0);
@@ -528,7 +529,7 @@ void CassettePlayer::fillBuf(size_t length, double x)
 	while (length) {
 		size_t len = std::min(length, buf.size() - sampCnt);
 		repeat(len, [&] {
-			buf[sampCnt++] = int(y) + 128;
+			buf[sampCnt++] = narrow<uint8_t>(int(y) + 128);
 			y *= A;
 		});
 		length -= len;
