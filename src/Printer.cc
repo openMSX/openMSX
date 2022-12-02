@@ -593,7 +593,7 @@ static constexpr auto MSXFont = []{
 		for (auto j : xrange(8)) {
 			uint8_t charBits = 0;
 			for (auto k : xrange(8)) {
-				charBits |= ((MSXFontRaw[8 * i + 7 - k] >> (7 - j)) & 1) << k;
+				charBits |= uint8_t(((MSXFontRaw[8 * i + 7 - k] >> (7 - j)) & 1) << k);
 			}
 
 			oneBits |= charBits;
@@ -606,7 +606,7 @@ static constexpr auto MSXFont = []{
 		if (start < 0 || start >= 7) start = 0;
 		if (end == 1) end = 5;
 		if (end >= 7) end = 7;
-		result[9 * i] = (start << 4) | end;
+		result[9 * i] = uint8_t((start << 4) | end);
 	}
 	return result;
 }();
@@ -1711,7 +1711,7 @@ void Paper::plot(double xPos, double yPos)
 					}
 				}
 			}
-			dot(xx, yy) = std::max(0, dot(xx, yy) - sum);
+			dot(xx, yy) = narrow<uint8_t>(std::max(0, dot(xx, yy) - sum));
 			x += 16;
 		}
 		y += 16;

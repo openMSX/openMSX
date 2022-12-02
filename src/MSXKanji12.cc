@@ -1,6 +1,7 @@
 #include "MSXKanji12.hh"
 #include "MSXException.hh"
 #include "TclObject.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "serialize.hh"
 
@@ -62,12 +63,12 @@ void MSXKanji12::writeSwitchedIO(word port, byte value, EmuTime::param /*time*/)
 			break;
 		case 7: {
 			byte row = value;
-			byte col = ((address - 0x800) / 18) % 192;
+			byte col = narrow<byte>(((address - 0x800) / 18) % 192);
 			address = 0x800 + (row * 192 + col) * 18;
 			break;
 		}
 		case 8: {
-			byte row = (address - 0x800) / (18 * 192);
+			byte row = narrow<byte>((address - 0x800) / (18 * 192));
 			byte col = value;
 			address = 0x800 + (row * 192 + col) * 18;
 			break;

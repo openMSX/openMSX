@@ -2,6 +2,7 @@
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
 #include "PanasonicMemory.hh"
+#include "narrow.hh"
 #include "outer.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
@@ -101,13 +102,13 @@ MSXS1990::Debuggable::Debuggable(MSXMotherBoard& motherBoard_, const std::string
 byte MSXS1990::Debuggable::read(unsigned address)
 {
 	auto& s1990 = OUTER(MSXS1990, debuggable);
-	return s1990.readRegister(address);
+	return s1990.readRegister(narrow<byte>(address));
 }
 
 void MSXS1990::Debuggable::write(unsigned address, byte value)
 {
 	auto& s1990 = OUTER(MSXS1990, debuggable);
-	s1990.writeRegister(address, value);
+	s1990.writeRegister(narrow<byte>(address), value);
 }
 
 

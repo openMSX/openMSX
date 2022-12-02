@@ -8,6 +8,7 @@
  */
 
 #include "PasswordCart.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 #include <algorithm>
 
@@ -15,7 +16,7 @@ namespace openmsx {
 
 PasswordCart::PasswordCart(const DeviceConfig& config)
 	: MSXDevice(config)
-	, password(config.getChildDataAsInt("password", 0))
+	, password(narrow_cast<word>(config.getChildDataAsInt("password", 0)))
 {
 	reset(EmuTime::dummy());
 }
@@ -33,7 +34,7 @@ void PasswordCart::writeIO(word /*port*/, byte value, EmuTime::param /*time*/)
 byte PasswordCart::readIO(word port, EmuTime::param time)
 {
 	byte result = peekIO(port, time);
-	pointer = std::min(3, pointer + 1);
+	pointer = byte(std::min(3, pointer + 1));
 	return result;
 }
 
@@ -43,9 +44,9 @@ byte PasswordCart::peekIO(word /*port*/, EmuTime::param /*time*/) const
 	case 0:
 		return 0xAA;
 	case 1:
-		return password >> 8;
+		return narrow_cast<byte>(password >> 8);
 	case 2:
-		return password & 0xFF;
+		return narrow_cast<byte>(password & 0xFF);
 	default:
 		return 0xFF;
 	}

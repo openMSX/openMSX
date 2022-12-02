@@ -1,9 +1,11 @@
 #include "MSXPrinterPort.hh"
 #include "DummyPrinterPortDevice.hh"
 #include "checked_cast.hh"
+#include "narrow.hh"
 #include "outer.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include <cstdint>
 #include <memory>
 
 namespace openmsx {
@@ -101,7 +103,7 @@ uint8_t MSXPrinterPort::Debuggable::read(unsigned address)
 void MSXPrinterPort::Debuggable::write(unsigned address, uint8_t value)
 {
 	auto& pPort = OUTER(MSXPrinterPort, debuggable);
-	pPort.writeIO(address, value, pPort.getCurrentTime());
+	pPort.writeIO(narrow<uint16_t>(address), value, pPort.getCurrentTime());
 }
 
 

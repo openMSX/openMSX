@@ -31,7 +31,7 @@ void MSXDeviceSwitch::registerDevice(byte id, MSXSwitchedDevice* device)
 	}
 	devices[id] = device;
 	if (count == 0) {
-		for (auto port : xrange(0x40, 0x50)) {
+		for (auto port : xrange(byte(0x40), byte(0x50))) {
 			getCPUInterface().register_IO_In (port, this);
 			getCPUInterface().register_IO_Out(port, this);
 		}
@@ -43,7 +43,7 @@ void MSXDeviceSwitch::unregisterDevice(byte id)
 {
 	--count;
 	if (count == 0) {
-		for (auto port : xrange(0x40, 0x50)) {
+		for (auto port : xrange(byte(0x40), byte(0x50))) {
 			getCPUInterface().unregister_IO_Out(port, this);
 			getCPUInterface().unregister_IO_In (port, this);
 		}

@@ -43,10 +43,10 @@ void MSXMatsushita::init()
 	auto& cpuInterface = getCPUInterface();
 	bool error = false;
 	for (auto i : xrange(2)) {
-		error |= !cpuInterface.replace_IO_In (0x98 + i, vdp, this);
+		error |= !cpuInterface.replace_IO_In (byte(0x98 + i), vdp, this);
 	}
 	for (auto i : xrange(4)) {
-		error |= !cpuInterface.replace_IO_Out(0x98 + i, vdp, this);
+		error |= !cpuInterface.replace_IO_Out(byte(0x98 + i), vdp, this);
 	}
 	if (error) {
 		unwrap();
@@ -67,16 +67,19 @@ void MSXMatsushita::unwrap()
 	// Unwrap the VDP ports.
 	auto& cpuInterface = getCPUInterface();
 	for (auto i : xrange(2)) {
-		cpuInterface.replace_IO_In (0x98 + i, this, vdp);
+		cpuInterface.replace_IO_In (byte(0x98 + i), this, vdp);
 	}
 	for (auto i : xrange(4)) {
-		cpuInterface.replace_IO_Out(0x98 + i, this, vdp);
+		cpuInterface.replace_IO_Out(byte(0x98 + i), this, vdp);
 	}
 }
 
 void MSXMatsushita::reset(EmuTime::param /*time*/)
 {
-	color1 = color2 = pattern = address = 0; // TODO check this
+	// TODO check this
+	color1 = color2 = 0;
+	pattern = 0;
+	address = 0;
 }
 
 byte MSXMatsushita::readSwitchedIO(word port, EmuTime::param time)
