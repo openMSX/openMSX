@@ -427,7 +427,7 @@ private:
 
 	/** IRQ types
 	  */
-	enum IRQType {
+	enum IRQType : byte {
 		VER_IRQ = 1,
 		HOR_IRQ = 2,
 		CMD_IRQ = 4

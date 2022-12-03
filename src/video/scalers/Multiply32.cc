@@ -18,16 +18,19 @@ Multiply32<uint16_t>::Multiply32(const PixelOperations<uint16_t>& pixelOps)
 	, Gshift3((Gshift1 + 10) & 31)
 	, Bshift3((Bshift1 + 20) & 31)
 
-	, Rmask1(pixelOps.getRmask())
-	, Gmask1(pixelOps.getGmask())
-	, Bmask1(pixelOps.getBmask())
+	, Rmask1(narrow_cast<uint16_t>(pixelOps.getRmask()))
+	, Gmask1(narrow_cast<uint16_t>(pixelOps.getGmask()))
+	, Bmask1(narrow_cast<uint16_t>(pixelOps.getBmask()))
 
-	, Rmask2(((1 << (2 + pixelOps.getRloss())) - 1) <<
-	                (10 + pixelOps.getRshift() - 2 * (2 + pixelOps.getRloss())))
-	, Gmask2(((1 << (2 + pixelOps.getGloss())) - 1) <<
-	                (10 + pixelOps.getGshift() - 2 * (2 + pixelOps.getGloss())))
-	, Bmask2(((1 << (2 + pixelOps.getBloss())) - 1) <<
-	                (10 + pixelOps.getBshift() - 2 * (2 + pixelOps.getBloss())))
+	, Rmask2(narrow_cast<uint16_t>(
+		((1 << (2 + pixelOps.getRloss())) - 1) <<
+	                (10 + pixelOps.getRshift() - 2 * (2 + pixelOps.getRloss()))))
+	, Gmask2(narrow_cast<uint16_t>(
+		((1 << (2 + pixelOps.getGloss())) - 1) <<
+	                (10 + pixelOps.getGshift() - 2 * (2 + pixelOps.getGloss()))))
+	, Bmask2(narrow_cast<uint16_t>(
+		((1 << (2 + pixelOps.getBloss())) - 1) <<
+	                (10 + pixelOps.getBshift() - 2 * (2 + pixelOps.getBloss()))))
 {
 }
 

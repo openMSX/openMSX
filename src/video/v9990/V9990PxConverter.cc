@@ -222,7 +222,7 @@ static void renderSprites(
 	for (auto sprite : xrange(125)) {
 		unsigned spriteInfo = spriteTable + 4 * sprite;
 		byte spriteY = Policy::readSpriteAttr(vram, spriteInfo) + 1;
-		byte posY = displayY - spriteY;
+		auto posY = narrow_cast<byte>(displayY - spriteY);
 		if (posY < 16) {
 			byte attr = Policy::readSpriteAttr(vram, spriteInfo + 3);
 			if (attr & 0x10) {
@@ -248,7 +248,7 @@ static void renderSprites(
 		if (spriteX > 1008) spriteX -= 1024; // hack X coord into -16..1008
 		byte spriteY  = Policy::readSpriteAttr(vram, addr + 0);
 		byte spriteNo = Policy::readSpriteAttr(vram, addr + 1);
-		spriteY = displayY - (spriteY + 1);
+		spriteY = narrow_cast<byte>(displayY - (spriteY + 1));
 		unsigned patAddr = spritePatternTable + Policy::spritePatOfst(spriteNo, spriteY);
 		auto palette16 = subspan<16>(palette64, (spriteAttr >> 2) & 0x30);
 		for (int x = 0; x < 16; x +=2) {

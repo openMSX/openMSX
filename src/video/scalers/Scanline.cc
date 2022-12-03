@@ -26,18 +26,19 @@ void Multiply<uint16_t>::setFactor(unsigned f)
 
 	for (auto [p, t] : enumerate(tab)) {
 		auto pix = uint32_t(p);
-		t = ((((pix & pixelOps.getRmask()) * f) >> 8) & pixelOps.getRmask()) |
-		    ((((pix & pixelOps.getGmask()) * f) >> 8) & pixelOps.getGmask()) |
-		    ((((pix & pixelOps.getBmask()) * f) >> 8) & pixelOps.getBmask());
+		t = narrow_cast<uint16_t>(
+			((((pix & pixelOps.getRmask()) * f) >> 8) & pixelOps.getRmask()) |
+			((((pix & pixelOps.getGmask()) * f) >> 8) & pixelOps.getGmask()) |
+			((((pix & pixelOps.getBmask()) * f) >> 8) & pixelOps.getBmask()));
 	}
 }
 
 inline uint16_t Multiply<uint16_t>::multiply(uint16_t p, unsigned f) const
 {
-	unsigned r = (((p & pixelOps.getRmask()) * f) >> 8) & pixelOps.getRmask();
-	unsigned g = (((p & pixelOps.getGmask()) * f) >> 8) & pixelOps.getGmask();
-	unsigned b = (((p & pixelOps.getBmask()) * f) >> 8) & pixelOps.getBmask();
-	return r | g | b;
+	auto r = (((p & pixelOps.getRmask()) * f) >> 8) & pixelOps.getRmask();
+	auto g = (((p & pixelOps.getGmask()) * f) >> 8) & pixelOps.getGmask();
+	auto b = (((p & pixelOps.getBmask()) * f) >> 8) & pixelOps.getBmask();
+	return narrow_cast<uint16_t>(r | g | b);
 }
 
 inline uint16_t Multiply<uint16_t>::multiply(uint16_t p) const

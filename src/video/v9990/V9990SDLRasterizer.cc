@@ -309,8 +309,8 @@ void V9990SDLRasterizer<Pixel>::preCalcPalettes()
 					gl::vec3 rgb{narrow<float>(r),
 					             narrow<float>(g),
 					             narrow<float>(b)};
-					palette32768[(g << 10) + (r << 5) + b] =
-						screen.mapRGB(renderSettings.transformRGB(rgb / 31.0f));
+					palette32768[(g << 10) + (r << 5) + b] = Pixel(
+						screen.mapRGB(renderSettings.transformRGB(rgb / 31.0f)));
 				}
 			}
 		}

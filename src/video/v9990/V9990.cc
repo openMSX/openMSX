@@ -364,7 +364,7 @@ void V9990::writeIO(word port, byte val, EmuTime::param time)
 					// Enter systemReset mode
 					//   Verified on real MSX: palette data
 					//   and VRAM content are NOT reset.
-					for (auto i : xrange(64)) {
+					for (auto i : xrange(byte(64))) {
 						writeRegister(i, 0, time);
 					}
 					// TODO verify IRQ behaviour
@@ -482,7 +482,7 @@ byte V9990::RegDebug::read(unsigned address)
 void V9990::RegDebug::write(unsigned address, byte value, EmuTime::param time)
 {
 	auto& v9990 = OUTER(V9990, v9990RegDebug);
-	v9990.writeRegister(address, value, time);
+	v9990.writeRegister(narrow<byte>(address), value, time);
 }
 
 // -------------------------------------------------------------------------
@@ -505,7 +505,7 @@ byte V9990::PalDebug::read(unsigned address)
 void V9990::PalDebug::write(unsigned address, byte value, EmuTime::param time)
 {
 	auto& v9990 = OUTER(V9990, v9990PalDebug);
-	v9990.writePaletteRegister(address, value, time);
+	v9990.writePaletteRegister(narrow<byte>(address), value, time);
 }
 
 // -------------------------------------------------------------------------
@@ -539,7 +539,8 @@ byte V9990::readRegister(byte reg, EmuTime::param time) const
 		} else {
 			word borderX = cmdEngine.getBorderX(time);
 			return (reg == CMD_PARAM_BORDER_X_0)
-			       ? (borderX & 0xFF) : (borderX >> 8);
+			       ? narrow_cast<byte>(borderX & 0xFF)
+			       : narrow_cast<byte>(borderX >> 8);
 		}
 	} else {
 		return 0xFF;
