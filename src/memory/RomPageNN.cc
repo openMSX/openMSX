@@ -8,7 +8,7 @@ namespace openmsx {
 RomPageNN::RomPageNN(const DeviceConfig& config, Rom&& rom_, RomType type)
 	: Rom8kBBlocks(config, std::move(rom_))
 {
-	const byte pages = [&] {
+	const auto pages = [&] {
 		switch (type) {
 			case ROM_PAGE0:    return 0b0001;
 			case ROM_PAGE1:    return 0b0010;

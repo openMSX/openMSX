@@ -108,7 +108,7 @@ void RomManbow2::powerUp(EmuTime::param time)
 void RomManbow2::reset(EmuTime::param time)
 {
 	for (auto i : xrange(4)) {
-		setRom(i, i);
+		setRom(i, byte(i));
 	}
 
 	sccEnabled = false;
@@ -124,18 +124,18 @@ void RomManbow2::reset(EmuTime::param time)
 	flash.reset();
 }
 
-void RomManbow2::setRom(unsigned region, unsigned block)
+void RomManbow2::setRom(unsigned region, byte block)
 {
 	assert(region < 4);
 	auto nrBlocks = narrow<unsigned>(flash.size() / 0x2000);
-	bank[region] = block & (nrBlocks - 1);
+	bank[region] = block & narrow<byte>(nrBlocks - 1);
 	invalidateDeviceRCache(0x4000 + region * 0x2000, 0x2000);
 }
 
 byte RomManbow2::peekMem(word address, EmuTime::param time) const
 {
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
-		return scc->peekMem(address & 0xFF, time);
+		return scc->peekMem(narrow_cast<uint8_t>(address & 0xFF), time);
 	} else if ((0x4000 <= address) && (address < 0xC000)) {
 		unsigned page = (address - 0x4000) / 0x2000;
 		unsigned addr = (address & 0x1FFF) + 0x2000 * bank[page];
@@ -148,7 +148,7 @@ byte RomManbow2::peekMem(word address, EmuTime::param time) const
 byte RomManbow2::readMem(word address, EmuTime::param time)
 {
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
-		return scc->readMem(address & 0xFF, time);
+		return scc->readMem(narrow_cast<uint8_t>(address & 0xFF), time);
 	} else if ((0x4000 <= address) && (address < 0xC000)) {
 		unsigned page = (address - 0x4000) / 0x2000;
 		unsigned addr = (address & 0x1FFF) + 0x2000 * bank[page];
@@ -175,7 +175,7 @@ void RomManbow2::writeMem(word address, byte value, EmuTime::param time)
 {
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
 		// write to SCC
-		scc->writeMem(address & 0xff, value, time);
+		scc->writeMem(narrow_cast<uint8_t>(address & 0xff), value, time);
 		// note: writes to SCC also go to flash
 		//    thanks to 'enen' for testing this
 	}

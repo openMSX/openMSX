@@ -24,7 +24,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void changeBank(byte region, unsigned bank);
+	void changeBank(unsigned region, unsigned bank);
 
 private:
 	PanasonicMemory& panasonicMem;

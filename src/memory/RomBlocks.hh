@@ -46,7 +46,7 @@ protected:
 	/** Select 'unmapped' memory for this region. Reads from this
 	  * region will return 0xff.
 	  */
-	void setUnmapped(byte region);
+	void setUnmapped(unsigned region);
 
 	/** Sets the memory visible for reading in a certain region.
 	  * @param region number of 8kB region in Z80 address space
@@ -54,7 +54,7 @@ protected:
 	  * @param adr pointer to memory, area must be at least 0x2000 bytes long
 	  * @param block Block number, only used for the 'romblock' debuggable, limited to 8-bit.
 	  */
-	void setBank(byte region, const byte* adr, byte block);
+	void setBank(unsigned region, const byte* adr, byte block);
 
 	/** Selects a block of the ROM image for reading in a certain region.
 	  * @param region number of 8kB region in Z80 address space
@@ -62,7 +62,7 @@ protected:
 	  * @param block number of 8kB block in the ROM image
 	  *   (block i starts at ROM image offset i * 0x2000)
 	  */
-	void setRom(byte region, unsigned block);
+	void setRom(unsigned region, unsigned block);
 
 	/** Sets a mask for the block numbers.
 	  * On every call to setRom, the given block number is AND-ed with this

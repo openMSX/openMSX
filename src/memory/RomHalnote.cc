@@ -97,7 +97,7 @@ void RomHalnote::writeMem(word address, byte value, EmuTime::param /*time*/)
 			}
 		} else if ((address & 0x1FFF) == 0x0FFF) {
 			// normal bank switch region
-			int bank = address >> 13; // 2-5
+			auto bank = address >> 13; // 2-5
 			setRom(bank, value);
 			if (bank == 2) {
 				// sram enable/disable

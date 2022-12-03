@@ -10,6 +10,7 @@
 #include "MSXCPU.hh"
 #include "MSXException.hh"
 #include "enumerate.hh"
+#include "narrow.hh"
 #include "outer.hh"
 #include "ranges.hh"
 #include "serialize.hh"
@@ -24,11 +25,11 @@ static constexpr auto decryptLUT = [] {
 	std::array<byte, 256> result = {};
 	//for (auto [i, r] : enumerate(result)) { msvc bug
 	for (int i = 0; i < 256; ++i) {
-		result[i] = (((i << 4) & 0x50) |
-		             ((i >> 3) & 0x05) |
-		             ((i << 1) & 0xa0) |
-		             ((i << 2) & 0x08) |
-	                     ((i >> 6) & 0x02)) ^ 0x4d;
+		result[i] = byte((((i << 4) & 0x50) |
+		                  ((i >> 3) & 0x05) |
+		                  ((i << 1) & 0xa0) |
+		                  ((i << 2) & 0x08) |
+		                  ((i >> 6) & 0x02)) ^ 0x4d);
 	}
 	return result;
 }();
@@ -113,7 +114,7 @@ void RomHolyQuran2::serialize(Archive& ar, unsigned /*version*/)
 		}
 	} else {
 		for (auto [i, b] : enumerate(bb)) {
-			b = (bank[i] - &rom[0]) / 0x2000;
+			b = narrow<unsigned>((bank[i] - &rom[0]) / 0x2000);
 		}
 		ar.serialize("banks", bb);
 	}
@@ -134,7 +135,7 @@ byte RomHolyQuran2::Blocks::read(unsigned address)
 	if ((address < 0x4000) || (address >= 0xc000)) return 255;
 	unsigned page = (address - 0x4000) / 0x2000;
 	auto& device = OUTER(RomHolyQuran2, romBlocks);
-	return (device.bank[page] - &device.rom[0]) / 0x2000;
+	return narrow<byte>((device.bank[page] - &device.rom[0]) / 0x2000);
 }
 
 } // namespace openmsx

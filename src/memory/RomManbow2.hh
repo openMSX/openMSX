@@ -36,7 +36,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void setRom(unsigned region, unsigned block);
+	void setRom(unsigned region, byte block);
 
 private:
 	const std::unique_ptr<SCC> scc;    // can be nullptr

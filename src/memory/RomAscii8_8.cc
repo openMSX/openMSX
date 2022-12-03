@@ -41,7 +41,7 @@ void RomAscii8_8::reset(EmuTime::param /*time*/)
 {
 	setUnmapped(0);
 	setUnmapped(1);
-	for (auto i : xrange(byte(2), byte(6))) {
+	for (auto i : xrange(2, 6)) {
 		setRom(i, 0);
 	}
 	setUnmapped(6);

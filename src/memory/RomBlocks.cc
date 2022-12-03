@@ -42,7 +42,7 @@ RomBlocks<BANK_SIZE>::RomBlocks(
 
 	// Default mask: wraps at end of ROM image.
 	blockMask = nrBlocks - 1;
-	for (auto i : xrange(narrow<byte>(NUM_BANKS))) {
+	for (auto i : xrange(NUM_BANKS)) {
 		setRom(i, 0);
 	}
 }
@@ -75,7 +75,7 @@ const byte* RomBlocks<BANK_SIZE>::getReadCacheLine(word address) const
 }
 
 template<unsigned BANK_SIZE>
-void RomBlocks<BANK_SIZE>::setBank(byte region, const byte* adr, byte block)
+void RomBlocks<BANK_SIZE>::setBank(unsigned region, const byte* adr, byte block)
 {
 	assert("address passed to setBank() is not serializable" &&
 	       ((adr == unmappedRead.data()) ||
@@ -89,7 +89,7 @@ void RomBlocks<BANK_SIZE>::setBank(byte region, const byte* adr, byte block)
 }
 
 template<unsigned BANK_SIZE>
-void RomBlocks<BANK_SIZE>::setUnmapped(byte region)
+void RomBlocks<BANK_SIZE>::setUnmapped(unsigned region)
 {
 	setBank(region, unmappedRead.data(), 255);
 }
@@ -101,7 +101,7 @@ void RomBlocks<BANK_SIZE>::setExtraMemory(std::span<const byte> mem)
 }
 
 template<unsigned BANK_SIZE>
-void RomBlocks<BANK_SIZE>::setRom(byte region, unsigned block)
+void RomBlocks<BANK_SIZE>::setRom(unsigned region, unsigned block)
 {
 	// Note: Some cartridges have a number of blocks that is not a power of 2,
 	//       for those we have to make an exception for "block < nrBlocks".

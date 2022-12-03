@@ -62,7 +62,7 @@ void RomKonamiSCC::reset(EmuTime::param time)
 byte RomKonamiSCC::peekMem(word address, EmuTime::param time) const
 {
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
-		return scc.peekMem(address & 0xFF, time);
+		return scc.peekMem(narrow_cast<uint8_t>(address & 0xFF), time);
 	} else {
 		return Rom8kBBlocks::peekMem(address, time);
 	}
@@ -71,7 +71,7 @@ byte RomKonamiSCC::peekMem(word address, EmuTime::param time) const
 byte RomKonamiSCC::readMem(word address, EmuTime::param time)
 {
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
-		return scc.readMem(address & 0xFF, time);
+		return scc.readMem(narrow_cast<uint8_t>(address & 0xFF), time);
 	} else {
 		return Rom8kBBlocks::readMem(address, time);
 	}
@@ -94,7 +94,7 @@ void RomKonamiSCC::writeMem(word address, byte value, EmuTime::param time)
 	}
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
 		// write to SCC
-		scc.writeMem(address & 0xFF, value, time);
+		scc.writeMem(narrow_cast<uint8_t>(address & 0xFF), value, time);
 		return;
 	}
 	if ((address & 0xF800) == 0x9000) {
@@ -107,7 +107,7 @@ void RomKonamiSCC::writeMem(word address, byte value, EmuTime::param time)
 	}
 	if ((address & 0x1800) == 0x1000) {
 		// page selection
-		byte region = address >> 13;
+		auto region = address >> 13;
 		setRom(region, value);
 		if ((region == 4) && sccEnabled) {
 			invalidateDeviceRCache(0x9800, 0x0800);

@@ -151,7 +151,7 @@ byte* RomPanasonic::getWriteCacheLine(word address) const
 	}
 }
 
-void RomPanasonic::changeBank(byte region, unsigned bank)
+void RomPanasonic::changeBank(unsigned region, unsigned bank)
 {
 	if (bank == bankSelect[region]) {
 		return;
@@ -160,17 +160,17 @@ void RomPanasonic::changeBank(byte region, unsigned bank)
 
 	if (sram && (SRAM_BASE <= bank) && (bank < maxSRAMBank)) {
 		// SRAM
-		auto offset = (bank - SRAM_BASE) * 0x2000u;
+		auto offset = (bank - SRAM_BASE) * size_t(0x2000);
 		auto sramSize = sram->size();
 		if (offset >= sramSize) {
 			offset &= (sramSize - 1);
 		}
 		// TODO RomBlock debuggable is only 8 bits, here bank is 9 bits
-		setBank(region, &sram->operator[](offset), bank);
+		setBank(region, &sram->operator[](offset), narrow_cast<byte>(bank));
 	} else if (panasonicMem.getRamSize() && (RAM_BASE <= bank)) {
 		// RAM
 		// TODO RomBlock debuggable is only 8 bits, here bank is 9 bits
-		setBank(region, panasonicMem.getRamBlock(bank - RAM_BASE), bank);
+		setBank(region, panasonicMem.getRamBlock(bank - RAM_BASE), narrow_cast<byte>(bank));
 	} else {
 		// ROM
 		setRom(region, bank);

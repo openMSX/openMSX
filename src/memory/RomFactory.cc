@@ -80,8 +80,8 @@ namespace openmsx::RomFactory {
 	if (size < 0x10000) {
 		if ((size <= 0x4000) &&
 		           (data[0] == 'A') && (data[1] == 'B')) {
-			word initAddr = data[2] + 256 * data[3];
-			word textAddr = data[8] + 256 * data[9];
+			auto initAddr = word(data[2] + 256 * data[3]);
+			auto textAddr = word(data[8] + 256 * data[9]);
 			if ((textAddr & 0xC000) == 0x8000) {
 				if ((initAddr == 0) ||
 				    (((initAddr & 0xC000) == 0x8000) &&
@@ -109,7 +109,7 @@ namespace openmsx::RomFactory {
 		std::array<unsigned, ROM_LAST> typeGuess = {}; // 0-initialized
 		for (auto i : xrange(size - 3)) {
 			if (data[i] == 0x32) {
-				word value = data[i + 1] + (data[i + 2] << 8);
+				auto value = word(data[i + 1] + (data[i + 2] << 8));
 				switch (value) {
 				case 0x5000:
 				case 0x9000:

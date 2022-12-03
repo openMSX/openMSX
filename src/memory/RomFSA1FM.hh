@@ -46,7 +46,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void changeBank(byte region, byte bank);
+	void changeBank(unsigned region, byte bank);
 
 private:
 	std::shared_ptr<SRAM> fsSram;

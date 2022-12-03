@@ -70,7 +70,7 @@ void RomGameMaster2::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	if ((0x6000 <= address) && (address < 0xB000)) {
 		if (!(address & 0x1000)) {
-			byte region = address >> 12; // 0x6, 0x8 or 0xA
+			auto region = address >> 12; // 0x6, 0x8 or 0xA
 			if (region == 0x0A) {
 				sramEnabled = (value & 0x10) != 0;
 				invalidateDeviceWCache(0xB000, 0x1000); // 'R' is handled below

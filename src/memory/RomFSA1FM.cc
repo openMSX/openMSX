@@ -264,7 +264,7 @@ byte* RomFSA1FM2::getWriteCacheLine(word address) const
 	}
 }
 
-void RomFSA1FM2::changeBank(byte region, byte bank)
+void RomFSA1FM2::changeBank(unsigned region, byte bank)
 {
 	bankSelect[region] = bank;
 	if ((0x80 <= bank) && (bank < 0x90)) {
