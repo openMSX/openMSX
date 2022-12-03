@@ -631,7 +631,7 @@ void Carnivore2::ideWriteReg(byte reg, byte value, EmuTime::param time)
 		// ignore all other writes
 	} else {
 		if (reg == 0) {
-			ideWriteData((value << 8) | value, time);
+			ideWriteData(narrow_cast<word>((value << 8) | value), time);
 		} else {
 			if ((reg == 14) && (value & 0x04)) {
 				// set SRST

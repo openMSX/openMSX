@@ -467,6 +467,7 @@ byte* MSXDevice::getWriteCacheLine(word /*start*/) const
 template<typename Action, typename... Args>
 void MSXDevice::clip(unsigned start, unsigned size, Action action, Args... args)
 {
+	assert(start < 0x10000);
 	int ss2 = (ss != -1) ? ss : 0;
 	unsigned end = start + size;
 	for (auto [base, fullBsize] : memRegions) {
@@ -480,7 +481,7 @@ void MSXDevice::clip(unsigned start, unsigned size, Action action, Args... args)
 			unsigned clipEnd   = std::min(end, baseEnd);
 			if (clipStart < clipEnd) { // non-empty
 				unsigned clipSize = clipEnd - clipStart;
-				action(clipStart, clipSize, args..., ps, ss2);
+				action(narrow<word>(clipStart), clipSize, args..., ps, ss2);
 			}
 
 			base += bsize;

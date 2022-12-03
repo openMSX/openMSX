@@ -4,6 +4,7 @@
 #include "MSXCPUInterface.hh"
 #include "TclObject.hh"
 #include "Interpreter.hh"
+#include "narrow.hh"
 #include <cassert>
 #include <memory>
 
@@ -19,7 +20,7 @@ WatchIO::WatchIO(MSXMotherBoard& motherboard_,
 	: WatchPoint(std::move(command_), std::move(condition_), type_, beginAddr_, endAddr_, once_, newId)
 	, motherboard(motherboard_)
 {
-	for (unsigned i = byte(beginAddr_); i <= byte(endAddr_); ++i) {
+	for (unsigned i = narrow_cast<byte>(beginAddr_); i <= narrow_cast<byte>(endAddr_); ++i) {
 		ios.push_back(std::make_unique<MSXWatchIODevice>(
 			*motherboard.getMachineConfig(), *this));
 	}
@@ -27,7 +28,7 @@ WatchIO::WatchIO(MSXMotherBoard& motherboard_,
 
 MSXWatchIODevice& WatchIO::getDevice(byte port)
 {
-	byte begin = getBeginAddress();
+	auto begin = narrow_cast<byte>(getBeginAddress());
 	return *ios[port - begin];
 }
 

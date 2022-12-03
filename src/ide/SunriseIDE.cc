@@ -192,7 +192,7 @@ void SunriseIDE::writeReg(nibble reg, byte value, EmuTime::param time)
 		// ignore all other writes
 	} else {
 		if (reg == 0) {
-			writeData((value << 8) | value, time);
+			writeData(narrow_cast<word>((value << 8) | value), time);
 		} else {
 			if ((reg == 14) && (value & 0x04)) {
 				// set SRST
