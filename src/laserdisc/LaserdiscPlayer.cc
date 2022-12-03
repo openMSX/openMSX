@@ -241,10 +241,10 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 		// is, we process the button here. Note that real hardware
 		// needs the trailing pulse to be at least 200µs
 		if (++remoteBitNr == 32) {
-			byte custom      = ( remoteBits >>  0) & 0xff;
-			byte customCompl = (~remoteBits >>  8) & 0xff;
-			byte code        = ( remoteBits >> 16) & 0xff;
-			byte codeCompl   = (~remoteBits >> 24) & 0xff;
+			auto custom      = narrow_cast<byte>(( remoteBits >>  0) & 0xff);
+			auto customCompl = narrow_cast<byte>((~remoteBits >>  8) & 0xff);
+			auto code        = narrow_cast<byte>(( remoteBits >> 16) & 0xff);
+			auto codeCompl   = narrow_cast<byte>((~remoteBits >> 24) & 0xff);
 			if (custom == customCompl &&
 			    custom == 0xa8 &&
 			    code == codeCompl) {
@@ -259,7 +259,7 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 	}
 }
 
-void LaserdiscPlayer::submitRemote(RemoteProtocol protocol, unsigned code)
+void LaserdiscPlayer::submitRemote(RemoteProtocol protocol, uint8_t code)
 {
 	// The END command for seeking/waiting acknowledges repeats,
 	// Esh's Aurunmilla needs play as well.
@@ -289,7 +289,7 @@ void LaserdiscPlayer::setAck(EmuTime::param time, int wait)
 	ack = true;
 }
 
-void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
+void LaserdiscPlayer::remoteButtonNEC(uint8_t code, EmuTime::param time)
 {
 #ifdef DEBUG
 	string f;
@@ -400,7 +400,7 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 		case 0x07:
 		case 0x08:
 		case 0x09:
-			seekNum = seekNum * 10 + narrow<int>(code);
+			seekNum = seekNum * 10 + code;
 			break;
 		case 0x42:
 			switch (seekState) {

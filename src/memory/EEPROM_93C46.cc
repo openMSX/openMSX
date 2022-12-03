@@ -146,7 +146,7 @@ void EEPROM_93C46::clockEvent(EmuTime::param time)
 				state = IN_RESET;
 				break;
 			}
-			write(address, shiftRegister, time);
+			write(address, narrow_cast<uint8_t>(shiftRegister), time);
 			state = IN_RESET;
 		}
 		break;
@@ -159,7 +159,7 @@ void EEPROM_93C46::clockEvent(EmuTime::param time)
 				state = IN_RESET;
 				break;
 			}
-			writeAll(shiftRegister, time);
+			writeAll(narrow_cast<uint8_t>(shiftRegister), time);
 			state = IN_RESET;
 		}
 		break;

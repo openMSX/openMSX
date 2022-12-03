@@ -93,7 +93,7 @@ void ESE_SCC::powerUp(EmuTime::param time)
 void ESE_SCC::reset(EmuTime::param time)
 {
 	setMapperHigh(0);
-	for (auto i : xrange(4)) {
+	for (auto i : xrange(byte(4))) {
 		setMapperLow(i, i);
 	}
 	scc.reset(time);
@@ -112,7 +112,7 @@ void ESE_SCC::setMapperLow(unsigned page, byte value)
 		}
 	}
 	byte newValue = value;
-	if (page == 0) newValue |= mapper[0] & 0x40;
+	if (page == 0) newValue |= byte(mapper[0] & 0x40);
 	newValue &= mapperMask;
 	if (mapper[page] != newValue) {
 		mapper[page] = newValue;
@@ -160,7 +160,7 @@ byte ESE_SCC::readMem(word address, EmuTime::param time)
 	}
 	// SCC bank
 	if (sccEnable && (address >= 0x9800) && (address < 0xa000)) {
-		return scc.readMem(address & 0xff, time);
+		return scc.readMem(narrow_cast<uint8_t>(address & 0xff), time);
 	}
 	// SRAM read
 	return sram[mapper[page] * 0x2000 + (address & 0x1fff)];
@@ -180,7 +180,7 @@ byte ESE_SCC::peekMem(word address, EmuTime::param time) const
 	}
 	// SCC bank
 	if (sccEnable && (address >= 0x9800) && (address < 0xa000)) {
-		return scc.peekMem(address & 0xff, time);
+		return scc.peekMem(narrow_cast<uint8_t>(address & 0xff), time);
 	}
 	// SRAM read
 	return sram[mapper[page] * 0x2000 + (address & 0x1fff)];
@@ -217,7 +217,7 @@ void ESE_SCC::writeMem(word address, byte value, EmuTime::param time)
 
 	// SCC write
 	if (sccEnable && (0x9800 <= address) && (address < 0xa000)) {
-		scc.writeMem(address & 0xff, value, time);
+		scc.writeMem(narrow_cast<uint8_t>(address & 0xff), value, time);
 		return;
 	}
 

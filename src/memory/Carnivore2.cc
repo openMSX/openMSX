@@ -150,13 +150,13 @@ Carnivore2::SubDevice Carnivore2::getSubDevice(word address) const
 	byte subSlot = 0xff;
 
 	if (slotExpanded()) {
-		byte page = address >> 14;
+		auto page = narrow<byte>(address >> 14);
 		byte selectedSubSlot = (subSlotReg >> (2 * page)) & 0x03;
 		if (subSlotEnabled(selectedSubSlot)) {
 			subSlot = selectedSubSlot;
 		}
 	} else {
-		for (auto i : xrange(4)) {
+		for (auto i : xrange(byte(4))) {
 			if (subSlotEnabled(i)) {
 				subSlot = i;
 				break;
@@ -436,7 +436,7 @@ byte Carnivore2::readMultiMapperSlot(word address, EmuTime::param time)
 		return readConfigRegister(address, time);
 	}
 	if (sccAccess(address)) {
-		return scc.readMem(address & 0xff, time);
+		return scc.readMem(narrow_cast<uint8_t>(address & 0xff), time);
 	}
 
 	auto [addr, mult] = decodeMultiMapper(address);
@@ -503,10 +503,10 @@ void Carnivore2::writeMultiMapperSlot(word address, byte value, EmuTime::param t
 	}
 	if (((sccMode & 0x10) == 0x00) && // note: no check for sccEnabled()
 	    ((address & 0x1800) == 0x1000)) {
-		byte region = (address >> 13) - 2;
+		auto region = narrow<byte>((address >> 13) - 2);
 		sccBank[region] = value;
 	} else if (sccAccess(address)) {
-		scc.writeMem(address & 0xff, value, time);
+		scc.writeMem(narrow_cast<uint8_t>(address & 0xff), value, time);
 	}
 }
 
@@ -518,8 +518,8 @@ byte Carnivore2::readIDESlot(word address, EmuTime::param time)
 		switch (address & 1) {
 			case 0: { // data low
 				auto tmp = ideReadData(time);
-				ideRead = tmp >> 8;
-				return tmp & 0xff;
+				ideRead = narrow_cast<byte>(tmp >> 8);
+				return narrow_cast<byte>(tmp & 0xff);
 			}
 			case 1: // data high
 				return ideRead;
@@ -610,7 +610,7 @@ byte Carnivore2::ideReadReg(byte reg, EmuTime::param time)
 		}
 	} else {
 		if (reg == 0) {
-			return ideReadData(time) & 0xff;
+			return narrow_cast<byte>(ideReadData(time) & 0xff);
 		} else {
 			auto result = ideDevices[ideSelectedDevice]->readReg(reg, time);
 			if (reg == 6) {
@@ -664,7 +664,7 @@ unsigned Carnivore2::getMemoryMapperAddress(word address) const
 
 bool Carnivore2::isMemoryMapperWriteProtected(word address) const
 {
-	byte page = address >> 14;
+	auto page = address >> 14;
 	return (port3C & (1 << page)) != 0;
 }
 
@@ -832,7 +832,7 @@ void Carnivore2::writeIO(word port, byte value, EmuTime::param time)
 			configRegs[0x00] &= ~1;
 		} else if ('0' <= value && value <= '3') {
 			configRegs[0x00] &= ~(0b11 << 5);
-			configRegs[0x00] |= (value - '0') << 5;
+			configRegs[0x00] |= byte((value - '0') << 5);
 		} else if (value == 'A') {
 			shadowConfigRegs[0x1e] &= ~1; // Mconf
 		} else if (value == 'M') {

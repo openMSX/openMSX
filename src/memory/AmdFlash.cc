@@ -225,9 +225,9 @@ uint8_t AmdFlash::peek(size_t address) const
 		}
 		switch (address & 3) {
 		case 0:
-			return ID >> 8;
+			return narrow_cast<uint8_t>(ID >> 8);
 		case 1:
-			return ID & 0xFF;
+			return narrow_cast<uint8_t>(ID & 0xFF);
 		case 2:
 			// 1 -> write protected
 			return isSectorWritable(sector) ? 0 : 1;

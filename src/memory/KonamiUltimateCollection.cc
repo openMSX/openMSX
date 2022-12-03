@@ -1,4 +1,5 @@
 #include "KonamiUltimateCollection.hh"
+#include "narrow.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include <array>
@@ -106,7 +107,7 @@ bool KonamiUltimateCollection::isSCCAccess(word addr) const
 byte KonamiUltimateCollection::readMem(word addr, EmuTime::param time)
 {
 	if (isSCCAccess(addr)) {
-		return scc.readMem(addr & 0xFF, time);
+		return scc.readMem(narrow_cast<uint8_t>(addr & 0xFF), time);
 	}
 
 	unsigned flashAddr = getFlashAddr(addr);
@@ -118,7 +119,7 @@ byte KonamiUltimateCollection::readMem(word addr, EmuTime::param time)
 byte KonamiUltimateCollection::peekMem(word addr, EmuTime::param time) const
 {
 	if (isSCCAccess(addr)) {
-		return scc.peekMem(addr & 0xFF, time);
+		return scc.peekMem(narrow_cast<uint8_t>(addr & 0xFF), time);
 	}
 
 	unsigned flashAddr = getFlashAddr(addr);
@@ -150,7 +151,7 @@ void KonamiUltimateCollection::writeMem(word addr, byte value, EmuTime::param ti
 	// SCC registers
 
 	if (isSCCAccess(addr)) {
-		scc.writeMem(addr & 0xFF, value, time);
+		scc.writeMem(narrow_cast<uint8_t>(addr & 0xFF), value, time);
 		return; // write to SCC blocks write to other functions
 	}
 

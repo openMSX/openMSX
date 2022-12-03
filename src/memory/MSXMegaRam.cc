@@ -23,7 +23,10 @@
  */
 
 #include "MSXMegaRam.hh"
+#include "DeviceConfig.hh"
+#include "MSXException.hh"
 #include "Rom.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 #include "xrange.hh"
 #include <bit>
@@ -31,15 +34,29 @@
 
 namespace openmsx {
 
+[[nodiscard]] static unsigned getNumBlocks(const DeviceConfig& config)
+{
+	int size = config.getChildDataAsInt("size", 0); // size in kB
+	if (auto err = [&]() -> const char* {
+		if (size < 0)         return "Cannot be negative.";
+		if (size > (8 * 256)) return "Cannot be larger than 2048.";
+		if ((size % 8) != 0)  return "Must be a multiple of 8.";
+		return nullptr;
+	}()) {
+		throw MSXException("Invalid MegaRam size: ", size, ". ", err);
+	}
+	return size / 8;
+}
+
 MSXMegaRam::MSXMegaRam(const DeviceConfig& config)
 	: MSXDevice(config)
-	, numBlocks(config.getChildDataAsInt("size", 0) / 8) // 8kB blocks
+	, numBlocks(getNumBlocks(config)) // number of 8kB blocks
 	, ram(config, getName() + " RAM", "Mega-RAM", numBlocks * 0x2000)
 	, rom(config.findChild("rom")
 	      ? std::make_unique<Rom>(getName() + " ROM", "Mega-RAM DiskROM", config)
 	      : nullptr)
 	, romBlockDebug(*this, bank, 0x0000, 0x10000, 13, 0, 3)
-	, maskBlocks(std::bit_ceil(numBlocks) - 1)
+	, maskBlocks(narrow<byte>(std::bit_ceil(numBlocks) - 1))
 {
 	powerUp(EmuTime::dummy());
 }
@@ -48,7 +65,7 @@ MSXMegaRam::~MSXMegaRam() = default;
 
 void MSXMegaRam::powerUp(EmuTime::param time)
 {
-	for (auto i : xrange(4)) {
+	for (auto i : xrange(byte(4))) {
 		setBank(i, 0);
 	}
 	writeMode = false;
@@ -87,7 +104,7 @@ void MSXMegaRam::writeMem(word address, byte value, EmuTime::param /*time*/)
 		*tmp = value;
 	} else {
 		assert(!romMode && !writeMode);
-		setBank((address & 0x7FFF) / 0x2000, value);
+		setBank(narrow<byte>((address & 0x7FFF) / 0x2000), value);
 	}
 }
 

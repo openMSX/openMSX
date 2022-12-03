@@ -26,7 +26,7 @@ namespace openmsx {
 	if (*bits < 0 || *bits > 8) {
 		throw FatalError("MapperReadBackBits out of range: \"", type, "\".");
 	}
-	return ~(unsigned(-1) << *bits);
+	return byte(~(unsigned(-1) << *bits));
 }
 
 MSXMapperIO::MSXMapperIO(const DeviceConfig& config)
@@ -119,7 +119,7 @@ void MSXMapperIO::Debuggable::write(unsigned address, byte value,
                                     EmuTime::param time)
 {
 	auto& mapperIO = OUTER(MSXMapperIO, debuggable);
-	mapperIO.writeIO(address, value, time);
+	mapperIO.writeIO(narrow_cast<word>(address), value, time);
 }
 
 

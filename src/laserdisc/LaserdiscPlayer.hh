@@ -107,8 +107,8 @@ private:
 	  */
 	void scheduleDisplayStart(EmuTime::param time);
 	[[nodiscard]] bool isVideoOutputAvailable(EmuTime::param time);
-	void remoteButtonNEC(unsigned code, EmuTime::param time);
-	void submitRemote(RemoteProtocol protocol, unsigned code);
+	void remoteButtonNEC(uint8_t code, EmuTime::param time);
+	void submitRemote(RemoteProtocol protocol, uint8_t code);
 	void setAck(EmuTime::param time, int wait);
 	[[nodiscard]] size_t getCurrentSample(EmuTime::param time);
 	void createRenderer();
@@ -193,7 +193,7 @@ private:
 	unsigned remoteBits;
 	bool remoteLastBit = false;
 	RemoteProtocol remoteProtocol = IR_NONE;
-	unsigned remoteCode;
+	uint8_t remoteCode;
 	bool remoteExecuteDelayed;
 	// Number of v-blank since code was sent
 	int remoteVblanksBack;

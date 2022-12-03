@@ -56,13 +56,13 @@ byte MSXMemoryMapperBase::readIO(word port, EmuTime::param time)
 byte MSXMemoryMapperBase::peekIO(word port, EmuTime::param /*time*/) const
 {
 	auto numSegments = narrow<unsigned>(checkedRam.size() / 0x4000);
-	return registers[port & 0x03] | ~(std::bit_ceil(numSegments) - 1);
+	return registers[port & 0x03] | byte(~(std::bit_ceil(numSegments) - 1));
 }
 
 void MSXMemoryMapperBase::writeIOImpl(word port, byte value, EmuTime::param /*time*/)
 {
 	auto numSegments = narrow<unsigned>(checkedRam.size() / 0x4000);
-	registers[port & 3] = value & (std::bit_ceil(numSegments) - 1);
+	registers[port & 3] = value & byte(std::bit_ceil(numSegments) - 1);
 	// Note: subclasses are responsible for handling CPU cacheline stuff
 }
 
@@ -76,7 +76,7 @@ unsigned MSXMemoryMapperBase::segmentOffset(byte page) const
 
 unsigned MSXMemoryMapperBase::calcAddress(word address) const
 {
-	return segmentOffset(address / 0x4000) | (address & 0x3fff);
+	return segmentOffset(narrow<byte>(address / 0x4000)) | (address & 0x3fff);
 }
 
 byte MSXMemoryMapperBase::peekMem(word address, EmuTime::param /*time*/) const
@@ -123,7 +123,7 @@ byte MSXMemoryMapperBase::Debuggable::read(unsigned address)
 void MSXMemoryMapperBase::Debuggable::write(unsigned address, byte value)
 {
 	auto& mapper = OUTER(MSXMemoryMapperBase, debuggable);
-	mapper.writeIO(address, value, EmuTime::dummy());
+	mapper.writeIO(narrow<word>(address), value, EmuTime::dummy());
 }
 
 
