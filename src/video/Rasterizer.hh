@@ -54,7 +54,7 @@ public:
 	/** Changes the background color.
 	  * @param index Palette index of the new background color.
 	  */
-	virtual void setBackgroundColor(int index) = 0;
+	virtual void setBackgroundColor(byte index) = 0;
 
 	virtual void setHorizontalAdjust(int adjust) = 0;
 	virtual void setHorizontalScrollLow(byte scroll) = 0;

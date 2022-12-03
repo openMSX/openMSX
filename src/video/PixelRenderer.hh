@@ -43,10 +43,10 @@ public:
 	void updateMultiPage(bool multiPage, EmuTime::param time) override;
 	void updateTransparency(bool enabled, EmuTime::param time) override;
 	void updateSuperimposing(const RawFrame* videoSource, EmuTime::param time) override;
-	void updateForegroundColor(int color, EmuTime::param time) override;
-	void updateBackgroundColor(int color, EmuTime::param time) override;
-	void updateBlinkForegroundColor(int color, EmuTime::param time) override;
-	void updateBlinkBackgroundColor(int color, EmuTime::param time) override;
+	void updateForegroundColor(byte color, EmuTime::param time) override;
+	void updateBackgroundColor(byte color, EmuTime::param time) override;
+	void updateBlinkForegroundColor(byte color, EmuTime::param time) override;
+	void updateBlinkBackgroundColor(byte color, EmuTime::param time) override;
 	void updateBlinkState(bool enabled, EmuTime::param time) override;
 	void updatePalette(unsigned index, int grb, EmuTime::param time) override;
 	void updateVerticalScroll(int scroll, EmuTime::param time) override;

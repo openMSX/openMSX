@@ -108,7 +108,7 @@ static inline void writePixel(
 	unsigned r = pixelOps.red256(pixel);
 	unsigned g = pixelOps.green256(pixel);
 	unsigned b = pixelOps.blue256(pixel);
-	dest = ((r & 0xF8) << (11 - 3)) | ((g & 0xFC) << (5 - 2)) | (b >> 3);
+	dest = narrow<uint16_t>(((r & 0xF8) << (11 - 3)) | ((g & 0xFC) << (5 - 2)) | (b >> 3));
 }
 
 static inline void writePixel(
@@ -311,7 +311,7 @@ void ZMBVEncoder::addFullFrame(const PixelFormat& pixelFormat, unsigned& workUse
 			writePixel(pixelOps, pixelsIn[x], pixelsOut[x]);
 		}
 		readFrame += pitch * sizeof(P);
-		workUsed += width * sizeof(P);
+		workUsed += narrow<unsigned>(width * sizeof(P));
 	});
 }
 

@@ -292,26 +292,26 @@ void PixelRenderer::updateSuperimposing(
 }
 
 void PixelRenderer::updateForegroundColor(
-	int /*color*/, EmuTime::param time)
+	byte /*color*/, EmuTime::param time)
 {
 	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updateBackgroundColor(
-	int color, EmuTime::param time)
+	byte color, EmuTime::param time)
 {
 	sync(time);
 	rasterizer->setBackgroundColor(color);
 }
 
 void PixelRenderer::updateBlinkForegroundColor(
-	int /*color*/, EmuTime::param time)
+	byte /*color*/, EmuTime::param time)
 {
 	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updateBlinkBackgroundColor(
-	int /*color*/, EmuTime::param time)
+	byte /*color*/, EmuTime::param time)
 {
 	if (displayEnabled) sync(time);
 }
@@ -336,7 +336,7 @@ void PixelRenderer::updatePalette(
 		DisplayMode mode = vdp.getDisplayMode();
 		if (mode.getBase() == DisplayMode::GRAPHIC5) {
 			auto bgColor = vdp.getBackgroundColor();
-			if (index == one_of(bgColor & 3, bgColor >> 2)) {
+			if (index == one_of(uint8_t(bgColor & 3), uint8_t(bgColor >> 2))) {
 				sync(time);
 			}
 		} else if (mode.getByte() != DisplayMode::GRAPHIC7) {

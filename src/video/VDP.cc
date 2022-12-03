@@ -704,7 +704,7 @@ void VDP::writeIO(word port, byte value, EmuTime::param time_)
 	case 2: // Palette data write
 		if (paletteDataStored) {
 			unsigned index = controlRegs[16];
-			int grb = ((value << 8) | dataLatch) & 0x777;
+			word grb = ((value << 8) | dataLatch) & 0x777;
 			setPalette(index, grb, time);
 			controlRegs[16] = (index + 1) & 0x0F;
 			paletteDataStored = false;
@@ -1586,7 +1586,7 @@ byte VDP::RegDebug::read(unsigned address)
 	if (address < 0x20) {
 		return vdp.controlRegs[address];
 	} else if (address < 0x2F) {
-		return vdp.cmdEngine->peekCmdReg(address - 0x20);
+		return vdp.cmdEngine->peekCmdReg(narrow<byte>(address - 0x20));
 	} else {
 		return 0xFF;
 	}
@@ -1600,7 +1600,7 @@ void VDP::RegDebug::write(unsigned address, byte value, EmuTime::param time)
 	// compatibility with some existing scripts. E.g. script that queries
 	// PAL vs NTSC in a VDP agnostic way.
 	if ((address >= 8) && vdp.isMSX1VDP()) return;
-	vdp.changeRegister(address, value, time);
+	vdp.changeRegister(narrow<byte>(address), value, time);
 }
 
 
@@ -1615,7 +1615,7 @@ VDP::StatusRegDebug::StatusRegDebug(VDP& vdp_)
 byte VDP::StatusRegDebug::read(unsigned address, EmuTime::param time)
 {
 	auto& vdp = OUTER(VDP, vdpStatusRegDebug);
-	return vdp.peekStatusReg(address, time);
+	return vdp.peekStatusReg(narrow<byte>(address), time);
 }
 
 
@@ -1631,7 +1631,8 @@ byte VDP::PaletteDebug::read(unsigned address)
 {
 	auto& vdp = OUTER(VDP, vdpPaletteDebug);
 	word grb = vdp.getPalette(address / 2);
-	return (address & 1) ? (grb >> 8) : (grb & 0xff);
+	return (address & 1) ? narrow_cast<byte>(grb >> 8)
+	                     : narrow_cast<byte>(grb & 0xff);
 }
 
 void VDP::PaletteDebug::write(unsigned address, byte value, EmuTime::param time)
@@ -1664,9 +1665,9 @@ byte VDP::VRAMPointerDebug::read(unsigned address)
 {
 	auto& vdp = OUTER(VDP, vramPointerDebug);
 	if (address & 1) {
-		return vdp.vramPointer >> 8;  // TODO add read/write mode?
+		return narrow_cast<byte>(vdp.vramPointer >> 8);  // TODO add read/write mode?
 	} else {
-		return vdp.vramPointer & 0xFF;
+		return narrow_cast<byte>(vdp.vramPointer & 0xFF);
 	}
 }
 

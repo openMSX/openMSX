@@ -46,7 +46,7 @@ public:
 	void frameEnd() override;
 	void setDisplayMode(DisplayMode mode) override;
 	void setPalette(unsigned index, int grb) override;
-	void setBackgroundColor(int index) override;
+	void setBackgroundColor(byte index) override;
 	void setHorizontalAdjust(int adjust) override;
 	void setHorizontalScrollLow(byte scroll) override;
 	void setBorderMask(bool masked) override;

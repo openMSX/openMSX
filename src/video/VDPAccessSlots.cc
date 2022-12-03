@@ -192,7 +192,7 @@ struct CycleTable : AccessTable
 				} else {
 					assert(t < 256);
 				}
-				values[out++] = t;
+				values[out++] = narrow_cast<uint8_t>(t);
 			}
 		}
 	}

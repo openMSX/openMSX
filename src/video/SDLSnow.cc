@@ -16,7 +16,7 @@ SDLSnow<Pixel>::SDLSnow(OutputSurface& output, Display& display_)
 {
 	// Precalc gray values for noise
 	for (auto [i, g] : enumerate(gray)) {
-		g = output.mapRGB255(gl::ivec3(int(i)));
+		g = Pixel(output.mapRGB255(gl::ivec3(int(i))));
 	}
 }
 

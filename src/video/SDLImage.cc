@@ -272,10 +272,10 @@ static uint32_t convertColor(const SDL_PixelFormat& format, uint32_t rgba)
 {
 	return SDL_MapRGBA(
 		&format,
-		(rgba >> 24) & 0xff,
-		(rgba >> 16) & 0xff,
-		(rgba >>  8) & 0xff,
-		(rgba >>  0) & 0xff);
+		narrow_cast<Uint8>((rgba >> 24) & 0xff),
+		narrow_cast<Uint8>((rgba >> 16) & 0xff),
+		narrow_cast<Uint8>((rgba >>  8) & 0xff),
+		narrow_cast<Uint8>((rgba >>  0) & 0xff));
 }
 
 static void drawBorder(SDL_Surface& image, int size, uint32_t rgba)

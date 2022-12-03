@@ -204,7 +204,7 @@ void SDLRasterizer<Pixel>::setPalette(unsigned index, int grb)
 }
 
 template<std::unsigned_integral Pixel>
-void SDLRasterizer<Pixel>::setBackgroundColor(int index)
+void SDLRasterizer<Pixel>::setBackgroundColor(byte index)
 {
 	if (vdp.getDisplayMode().getByte() != DisplayMode::GRAPHIC7) {
 		precalcColorIndex0(vdp.getDisplayMode(), vdp.getTransparency(),
@@ -343,16 +343,16 @@ void SDLRasterizer<Pixel>::precalcPalette()
 
 template<std::unsigned_integral Pixel>
 void SDLRasterizer<Pixel>::precalcColorIndex0(DisplayMode mode,
-		bool transparency, const RawFrame* superimposing, byte bgcolorIndex)
+		bool transparency, const RawFrame* superimposing, byte bgColorIndex)
 {
 	// Graphic7 mode doesn't use transparency.
 	if (mode.getByte() == DisplayMode::GRAPHIC7) {
 		transparency = false;
 	}
 
-	int tpIndex = transparency ? bgcolorIndex : 0;
+	int tpIndex = transparency ? bgColorIndex : 0;
 	if (mode.getBase() != DisplayMode::GRAPHIC5) {
-		Pixel c = (superimposing && (bgcolorIndex == 0))
+		Pixel c = (superimposing && (bgColorIndex == 0))
 		        ? screen.getKeyColor<Pixel>()
 		        : palBg[tpIndex];
 

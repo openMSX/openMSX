@@ -204,7 +204,7 @@ public:
 	  *   In Graphic7 mode with YJK off, the range is [0..255].
 	  *   In other modes, the range is [0..15].
 	  */
-	[[nodiscard]] inline unsigned getBackgroundColor() const {
+	[[nodiscard]] inline byte getBackgroundColor() const {
 		byte reg7 = controlRegs[7];
 		if (displayMode.getByte() == DisplayMode::GRAPHIC7) {
 			return reg7;
@@ -1135,7 +1135,7 @@ private:
 	  * makes MSX2 registers inaccessible on MSX1,
 	  * instead the MSX1 registers are mirrored.
 	  */
-	int controlRegMask;
+	byte controlRegMask;
 
 	/** Mask on the values of control registers.
 	  * This saves a lot of masking when using the register values,

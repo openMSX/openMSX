@@ -142,7 +142,7 @@ inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 				continue;
 			}
 
-			int visibleIndex = spriteCount[line];
+			auto visibleIndex = spriteCount[line];
 			if (visibleIndex == 4) {
 				// Find earliest line where this condition occurs.
 				if (line < fifthSpriteLine) {
@@ -172,12 +172,12 @@ inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 		// According to TMS9918.pdf 5th sprite detection is only
 		// active when F flag is zero.
 		if ((status & 0xC0) == 0) {
-			status = 0x40 | (status & 0x20) | fifthSpriteNum;
+			status = byte(0x40 | (status & 0x20) | fifthSpriteNum);
 		}
 	}
 	if (~status & 0x40) {
 		// No 5th sprite detected, store number of latest sprite processed.
-		status = (status & 0x20) | std::min(sprite, 31);
+		status = (status & 0x20) | byte(std::min(sprite, 31));
 	}
 	vdp.setSpriteStatus(status);
 
@@ -309,7 +309,7 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 					continue;
 				}
 
-				int visibleIndex = spriteCount[line];
+				auto visibleIndex = spriteCount[line];
 				if (visibleIndex == 8) {
 					// Find earliest line where this condition occurs.
 					if (line < ninthSpriteLine) {
@@ -354,7 +354,7 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 					continue;
 				}
 
-				int visibleIndex = spriteCount[line];
+				auto visibleIndex = spriteCount[line];
 				if (visibleIndex == 8) {
 					// Find earliest line where this condition occurs.
 					if (line < ninthSpriteLine) {
@@ -403,12 +403,12 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 		// active when F flag is zero. Stuck to this for V9938.
 		// Dragon Quest 2 needs this.
 		if ((status & 0xC0) == 0) {
-			status = 0x40 | (status & 0x20) | ninthSpriteNum;
+			status = byte(0x40 | (status & 0x20) | ninthSpriteNum);
 		}
 	}
 	if (~status & 0x40) {
 		// No 9th sprite detected, store number of latest sprite processed.
-		status = (status & 0x20) | std::min(sprite, 31);
+		status = (status & 0x20) | byte(std::min(sprite, 31));
 	}
 	vdp.setSpriteStatus(status);
 
