@@ -122,7 +122,7 @@ byte YM2148::peekStatus(EmuTime::param /*time*/) const
 // MSX programs reads the data register.
 byte YM2148::readData(EmuTime::param /*time*/)
 {
-	status &= ~STAT_RXRDY;
+	status &= byte(~STAT_RXRDY);
 	rxIRQ.reset(); // no need to check CMD_RXIE
 	return rxBuffer;
 }
@@ -139,7 +139,7 @@ void YM2148::writeCommand(byte value)
 		return; // do not process any other commands
 	}
 	if (value & CMD_ER) {
-		status &= ~(STAT_OE | STAT_FE);
+		status &= byte(~(STAT_OE | STAT_FE));
 		return;
 	}
 
@@ -154,7 +154,7 @@ void YM2148::writeCommand(byte value)
 			// enabled -> disabled
 			rxReady = false;
 			syncRecv.removeSyncPoint();
-			status &= ~STAT_RXRDY; // IRQ is handled below
+			status &= byte(~STAT_RXRDY); // IRQ is handled below
 		}
 	}
 	if (diff & CMD_TXEN) {
@@ -164,7 +164,7 @@ void YM2148::writeCommand(byte value)
 			// TODO transmitter is ready at this point, does this immediately trigger an IRQ (when IRQs are enabled)?
 		} else {
 			// enabled -> disabled
-			status &= ~STAT_TXRDY; // IRQ handled below
+			status &= byte(~STAT_TXRDY); // IRQ handled below
 			syncTrans.removeSyncPoint();
 		}
 	}
@@ -183,7 +183,7 @@ void YM2148::writeData(byte value, EmuTime::param time)
 		// We're still sending the previous character, only buffer
 		// this one. Don't accept any further characters.
 		txBuffer2 = value;
-		status &= ~STAT_TXRDY;
+		status &= byte(~STAT_TXRDY);
 		txIRQ.reset();
 	} else {
 		// Immediately start sending this character. We're still

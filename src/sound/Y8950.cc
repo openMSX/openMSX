@@ -618,17 +618,17 @@ void Y8950::setRythmMode(int data)
 void Y8950::update_key_status()
 {
 	for (auto [i, c] : enumerate(ch)) {
-		int main = (reg[0xb0 + i] & 0x20) ? KEY_MAIN : 0;
+		uint8_t main = (reg[0xb0 + i] & 0x20) ? KEY_MAIN : 0;
 		c.slot[MOD].key = main;
 		c.slot[CAR].key = main;
 	}
 	if (rythm_mode) {
-		ch[6].slot[MOD].key |= (reg[0xbd] & 0x10) ? KEY_RHYTHM : 0; // BD1
-		ch[6].slot[CAR].key |= (reg[0xbd] & 0x10) ? KEY_RHYTHM : 0; // BD2
-		ch[7].slot[MOD].key |= (reg[0xbd] & 0x01) ? KEY_RHYTHM : 0; // HH
-		ch[7].slot[CAR].key |= (reg[0xbd] & 0x08) ? KEY_RHYTHM : 0; // SD
-		ch[8].slot[MOD].key |= (reg[0xbd] & 0x04) ? KEY_RHYTHM : 0; // TOM
-		ch[8].slot[CAR].key |= (reg[0xbd] & 0x02) ? KEY_RHYTHM : 0; // CYM
+		ch[6].slot[MOD].key |= uint8_t((reg[0xbd] & 0x10) ? KEY_RHYTHM : 0); // BD1
+		ch[6].slot[CAR].key |= uint8_t((reg[0xbd] & 0x10) ? KEY_RHYTHM : 0); // BD2
+		ch[7].slot[MOD].key |= uint8_t((reg[0xbd] & 0x01) ? KEY_RHYTHM : 0); // HH
+		ch[7].slot[CAR].key |= uint8_t((reg[0xbd] & 0x08) ? KEY_RHYTHM : 0); // SD
+		ch[8].slot[MOD].key |= uint8_t((reg[0xbd] & 0x04) ? KEY_RHYTHM : 0); // TOM
+		ch[8].slot[CAR].key |= uint8_t((reg[0xbd] & 0x02) ? KEY_RHYTHM : 0); // CYM
 	}
 }
 
@@ -1359,13 +1359,13 @@ Y8950::Debuggable::Debuggable(MSXMotherBoard& motherBoard_,
 uint8_t Y8950::Debuggable::read(unsigned address, EmuTime::param time)
 {
 	auto& y8950 = OUTER(Y8950, debuggable);
-	return y8950.peekReg(address, time);
+	return y8950.peekReg(narrow<uint8_t>(address), time);
 }
 
 void Y8950::Debuggable::write(unsigned address, uint8_t value, EmuTime::param time)
 {
 	auto& y8950 = OUTER(Y8950, debuggable);
-	y8950.writeReg(address, value, time);
+	y8950.writeReg(narrow<uint8_t>(address), value, time);
 }
 
 INSTANTIATE_SERIALIZE_METHODS(Y8950);

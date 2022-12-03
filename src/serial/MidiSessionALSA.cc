@@ -137,7 +137,7 @@ void MidiOutALSA::recvMessage(
 	snd_seq_ev_clear(&ev);
 
 	// Set routing.
-	snd_seq_ev_set_source(&ev, sourcePort);
+	snd_seq_ev_set_source(&ev, narrow_cast<uint8_t>(sourcePort));
 	snd_seq_ev_set_subs(&ev);
 
 	// Set message.
@@ -317,31 +317,26 @@ void MidiInALSA::run()
 
 	while (!stop) {
 		if (poll(pfd.data(), npfd, 1000) > 0) {
-			snd_seq_event_t *ev = NULL;
-
+			snd_seq_event_t *ev = nullptr;
 			if (auto err = snd_seq_event_input(&seq, &ev); err < 0) {
 				std::cerr << "Error receiving MIDI event: "
 					<< snd_strerror(err) << '\n';
 				continue;
 			}
-
-			if (!ev) {
-				continue;
-			}
+			if (!ev) continue;
 
 			if (ev->type == SND_SEQ_EVENT_SYSEX) {
 				std::lock_guard<std::mutex> lock(mutex);
-
 				for (auto i : xrange(ev->data.ext.len)) {
 					queue.push_back(static_cast<uint8_t*>(ev->data.ext.ptr)[i]);
 				}
+
 			} else {
 				std::array<uint8_t, 12> bytes = {};
-
 				auto size = snd_midi_event_decode(event_parser, bytes.data(), bytes.size(), ev);
 				if (size < 0) {
 					std::cerr << "Error decoding MIDI event: "
-						<< snd_strerror(size) << '\n';
+					          << snd_strerror(int(size)) << '\n';
 					snd_seq_free_event(ev);
 					continue;
 				}
@@ -360,7 +355,7 @@ void MidiInALSA::run()
 
 void MidiInALSA::signal(EmuTime::param time)
 {
-	auto* conn = static_cast<MidiInConnector*>(getConnector());
+	auto* conn = checked_cast<MidiInConnector*>(getConnector());
 	if (!conn->acceptsData()) {
 		std::lock_guard<std::mutex> lock(mutex);
 		queue.clear();
@@ -451,39 +446,37 @@ void MidiSessionALSA::scanClients(
 	Scheduler& scheduler)
 {
 	// Iterate through all clients.
-	snd_seq_client_info_t* cinfo;
-	snd_seq_client_info_alloca(&cinfo);
-	snd_seq_client_info_set_client(cinfo, -1);
-	while (snd_seq_query_next_client(&seq, cinfo) >= 0) {
-		int client = snd_seq_client_info_get_client(cinfo);
+	snd_seq_client_info_t* cInfo;
+	snd_seq_client_info_alloca(&cInfo);
+	snd_seq_client_info_set_client(cInfo, -1);
+	while (snd_seq_query_next_client(&seq, cInfo) >= 0) {
+		int client = snd_seq_client_info_get_client(cInfo);
 		if (client == SND_SEQ_CLIENT_SYSTEM) {
 			continue;
 		}
 
 		// TODO: When there is more than one usable port per client,
 		//       register them as separate pluggables.
-		snd_seq_port_info_t* pinfo;
-		snd_seq_port_info_alloca(&pinfo);
-		snd_seq_port_info_set_client(pinfo, client);
-		snd_seq_port_info_set_port(pinfo, -1);
-		while (snd_seq_query_next_port(&seq, pinfo) >= 0) {
-			unsigned int type = snd_seq_port_info_get_type(pinfo);
+		snd_seq_port_info_t* pInfo;
+		snd_seq_port_info_alloca(&pInfo);
+		snd_seq_port_info_set_client(pInfo, client);
+		snd_seq_port_info_set_port(pInfo, -1);
+		while (snd_seq_query_next_port(&seq, pInfo) >= 0) {
+			unsigned int type = snd_seq_port_info_get_type(pInfo);
 			if (!(type & SND_SEQ_PORT_TYPE_MIDI_GENERIC)) {
 				continue;
 			}
-			constexpr unsigned int wrcaps =
+			constexpr unsigned int wrCaps =
 					SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE;
-			constexpr unsigned int rdcaps =
+			constexpr unsigned int rdCaps =
 					SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ;
-			if ((snd_seq_port_info_get_capability(pinfo) & wrcaps) == wrcaps) {
+			if ((snd_seq_port_info_get_capability(pInfo) & wrCaps) == wrCaps) {
 				controller.registerPluggable(std::make_unique<MidiOutALSA>(
-						seq, *cinfo, *pinfo
-						));
+						seq, *cInfo, *pInfo));
 			}
-			if ((snd_seq_port_info_get_capability(pinfo) & rdcaps) == rdcaps) {
+			if ((snd_seq_port_info_get_capability(pInfo) & rdCaps) == rdCaps) {
 				controller.registerPluggable(std::make_unique<MidiInALSA>(
-						eventDistributor, scheduler, seq, *cinfo, *pinfo
-						));
+						eventDistributor, scheduler, seq, *cInfo, *pInfo));
 			}
 		}
 	}

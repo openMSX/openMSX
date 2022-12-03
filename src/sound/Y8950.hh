@@ -109,7 +109,7 @@ public:
 	enum EnvelopeState { ATTACK, DECAY, SUSTAIN, RELEASE, FINISH };
 
 private:
-	enum KeyPart { KEY_MAIN = 1, KEY_RHYTHM = 2 };
+	enum KeyPart : uint8_t { KEY_MAIN = 1, KEY_RHYTHM = 2 };
 
 	class Patch {
 	public:

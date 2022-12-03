@@ -103,7 +103,7 @@ byte MC6850::peekStatusReg() const
 byte MC6850::readDataReg()
 {
 	byte result = peekDataReg();
-	statusReg &= ~(STAT_RDRF | STAT_OVRN);
+	statusReg &= byte(~(STAT_RDRF | STAT_OVRN));
 	if (pendingOVRN) {
 		pendingOVRN = false;
 		statusReg |= STAT_OVRN;
@@ -179,7 +179,7 @@ void MC6850::writeDataReg(byte value, EmuTime::param time)
 	if ((controlReg & CR_CDS) == CR_MR) return;
 
 	txDataReg = value;
-	statusReg &= ~STAT_TDRE;
+	statusReg &= byte(~STAT_TDRE);
 	txIRQ.reset();
 
 	if (syncTrans.pendingSyncPoint()) {

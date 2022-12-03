@@ -43,7 +43,7 @@ private:
 	std::unique_ptr<Y8950Periphery> periphery; // polymorphic
 	Y8950 y8950;
 	std::unique_ptr<DACSound8U> dac; // can be nullptr
-	int registerLatch;
+	byte registerLatch;
 	byte dacValue = 0x80;
 	bool dacEnabled = false;
 

@@ -8,6 +8,7 @@
 #include "XMLElement.hh"
 #include "CacheLine.hh"
 #include "enumerate.hh"
+#include "narrow.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include <bit>
@@ -48,7 +49,7 @@ static auto getMapperConfig(const DeviceConfig& config)
 				ramSize);
 		}
 		result.numBlocks = ramSize / 8;
-		result.registerMask = result.numBlocks - 1; // this assumes mirroring, correct?
+		result.registerMask = narrow<byte>(result.numBlocks - 1); // this assumes mirroring, correct?
 		result.registerOffset = 0; // start at block 0
 	} else {
 		// subtype "expanded", and all others
@@ -108,7 +109,7 @@ byte MSXSCCPlusCart::readMem(word addr, EmuTime::param time)
 {
 	if (((enable == EN_SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
 	    ((enable == EN_SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
-		return scc.readMem(addr & 0xFF, time);
+		return scc.readMem(narrow_cast<uint8_t>(addr & 0xFF), time);
 	} else {
 		return MSXSCCPlusCart::peekMem(addr, time);
 	}
@@ -121,7 +122,7 @@ byte MSXSCCPlusCart::peekMem(word addr, EmuTime::param time) const
 	    ((enable == EN_SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
 		// SCC  visible in 0x9800 - 0x9FFF
 		// SCC+ visible in 0xB800 - 0xBFFF
-		return scc.peekMem(addr & 0xFF, time);
+		return scc.peekMem(narrow_cast<uint8_t>(addr & 0xFF), time);
 	} else if ((0x4000 <= addr) && (addr < 0xC000)) {
 		// SCC(+) enabled/disabled but not requested so memory stuff
 		return internalMemoryBank[(addr >> 13) - 2][addr & 0x1FFF];
@@ -195,12 +196,12 @@ void MSXSCCPlusCart::writeMem(word address, byte value, EmuTime::param time)
 		break;
 	case EN_SCC:
 		if ((0x9800 <= address) && (address < 0xA000)) {
-			scc.writeMem(address & 0xFF, value, time);
+			scc.writeMem(narrow_cast<uint8_t>(address & 0xFF), value, time);
 		}
 		break;
 	case EN_SCCPLUS:
 		if ((0xB800 <= address) && (address < 0xC000)) {
-			scc.writeMem(address & 0xFF, value, time);
+			scc.writeMem(narrow_cast<uint8_t>(address & 0xFF), value, time);
 		}
 		break;
 	}

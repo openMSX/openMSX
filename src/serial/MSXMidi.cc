@@ -2,6 +2,7 @@
 #include "MidiInDevice.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXException.hh"
+#include "narrow.hh"
 #include "outer.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
@@ -197,15 +198,15 @@ void MSXMidi::registerIOports(byte value)
 void MSXMidi::registerRange(byte port, unsigned num)
 {
 	for (auto i : xrange(num)) {
-		getCPUInterface().register_IO_In (port + i, this);
-		getCPUInterface().register_IO_Out(port + i, this);
+		getCPUInterface().register_IO_In (narrow<byte>(port + i), this);
+		getCPUInterface().register_IO_Out(narrow<byte>(port + i), this);
 	}
 }
 void MSXMidi::unregisterRange(byte port, unsigned num)
 {
 	for (auto i : xrange(num)) {
-		getCPUInterface().unregister_IO_In (port + i, this);
-		getCPUInterface().unregister_IO_Out(port + i, this);
+		getCPUInterface().unregister_IO_In (narrow<byte>(port + i), this);
+		getCPUInterface().unregister_IO_Out(narrow<byte>(port + i), this);
 	}
 }
 

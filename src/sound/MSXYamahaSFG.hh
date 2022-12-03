@@ -33,7 +33,7 @@ private:
 	Rom rom;
 	YM2151 ym2151;
 	YM2148 ym2148;
-	int registerLatch;
+	byte registerLatch;
 	byte irqVector;
 	byte irqVector2148;
 };

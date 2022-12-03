@@ -323,9 +323,9 @@ byte Y8950Adpcm::peekReg(byte rg) const
 		// TODO check: is this before or after
 		//   volume is applied
 		//   filtering is performed
-		return (emu.output >> 8) & 0xFF;
+		return narrow_cast<byte>((emu.output >>  8) & 0xFF);
 	case 0x14:
-		return emu.output >> 16;
+		return narrow_cast<byte>((emu.output >> 16) & 0xFF);
 	default:
 		return 255;
 	}
@@ -467,10 +467,10 @@ int Y8950Adpcm::calcSample(bool doEmu)
 						y8950.setStatus(Y8950::STATUS_BUF_RDY);
 					}
 				}
-				return pd.adpcm_data >> 4;
+				return byte(pd.adpcm_data >> 4);
 			} else {
 				// odd nibble
-				return pd.adpcm_data & 0x0F;
+				return byte(pd.adpcm_data & 0x0F);
 			}
 		}();
 		int prevOut = pd.out;

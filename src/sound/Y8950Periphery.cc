@@ -62,7 +62,7 @@ public:
 private:
 	void setBank(byte value);
 	void setIOPorts(byte value);
-	void setIOPortsHelper(unsigned base, bool enable);
+	void setIOPortsHelper(byte base, bool enable);
 
 private:
 	MSXAudio& audio;
@@ -260,7 +260,7 @@ void PanasonicAudioPeriphery::setIOPorts(byte value)
 	}
 	ioPorts = value;
 }
-void PanasonicAudioPeriphery::setIOPortsHelper(unsigned base, bool enable)
+void PanasonicAudioPeriphery::setIOPortsHelper(byte base, bool enable)
 {
 	MSXCPUInterface& cpu = audio.getCPUInterface();
 	if (enable) {

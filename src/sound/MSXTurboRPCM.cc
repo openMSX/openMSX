@@ -1,6 +1,7 @@
 #include "MSXTurboRPCM.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXMixer.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 
@@ -101,7 +102,7 @@ void MSXTurboRPCM::writeIO(word port, byte value, EmuTime::param time)
 byte MSXTurboRPCM::getSample(EmuTime::param time) const
 {
 	return (status & 0x04)
-		? (connector.readSample(time) / 256) + 0x80
+		? narrow<byte>((connector.readSample(time) / 256) + 0x80)
 		: 0x80; // TODO check
 }
 

@@ -160,24 +160,24 @@ uint8_t Counter::readIO(EmuTime::param time)
 		return latchedControl;
 	}
 	advance(time);
-	uint16_t readData = ltchCntr ? latchedCounter : counter;
+	uint16_t readData = ltchCntr ? latchedCounter : narrow_cast<uint16_t>(counter);
 	switch (control & WRT_FRMT) {
 	case WF_LATCH:
 		UNREACHABLE;
 	case WF_LOW:
 		ltchCntr = false;
-		return readData & 0x00FF;
+		return narrow_cast<uint8_t>(readData & 0x00FF);
 	case WF_HIGH:
 		ltchCntr = false;
-		return readData >> 8;
+		return narrow_cast<uint8_t>(readData >> 8);
 	case WF_BOTH:
 		if (readOrder == LOW) {
 			readOrder = HIGH;
-			return readData & 0x00FF;
+			return narrow_cast<uint8_t>(readData & 0x00FF);
 		} else {
 			readOrder = LOW;
 			ltchCntr = false;
-			return readData >> 8;
+			return narrow_cast<uint8_t>(readData >> 8);
 		}
 	default:
 		UNREACHABLE; return 0;
@@ -192,19 +192,19 @@ uint8_t Counter::peekIO(EmuTime::param time) const
 
 	const_cast<Counter*>(this)->advance(time);
 
-	uint16_t readData = ltchCntr ? latchedCounter : counter;
+	uint16_t readData = ltchCntr ? latchedCounter : narrow_cast<uint16_t>(counter);
 	switch (control & WRT_FRMT) {
 	case WF_LATCH:
 		UNREACHABLE;
 	case WF_LOW:
-		return readData & 0x00FF;
+		return narrow_cast<uint8_t>(readData & 0x00FF);
 	case WF_HIGH:
-		return readData >> 8;
+		return narrow_cast<uint8_t>(readData >> 8);
 	case WF_BOTH:
 		if (readOrder == LOW) {
-			return readData & 0x00FF;
+			return narrow_cast<uint8_t>(readData & 0x00FF);
 		} else {
-			return readData >> 8;
+			return narrow_cast<uint8_t>(readData >> 8);
 		}
 	default:
 		UNREACHABLE; return 0;
@@ -310,7 +310,7 @@ void Counter::latchCounter(EmuTime::param time)
 	if (!ltchCntr) {
 		ltchCntr = true;
 		readOrder = LOW;
-		latchedCounter = counter;
+		latchedCounter = narrow_cast<uint16_t>(counter);
 	}
 }
 
