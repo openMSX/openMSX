@@ -20,6 +20,7 @@
 #include "XMLElement.hh"
 #include "MSXException.hh"
 #include "enumerate.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 #include <array>
 #include <cassert>
@@ -373,15 +374,15 @@ uint8_t WD33C93::readCtrl()
 		return rv; // no latch-inc for address-, aux.status-, data- and command regs.
 
 	case REG_TCH:
-		rv = (tc >> 16) & 0xff;
+		rv = narrow_cast<uint8_t>((tc >> 16) & 0xff);
 		break;
 
 	case REG_TCM:
-		rv = (tc >>  8) & 0xff;
+		rv = narrow_cast<uint8_t>((tc >>  8) & 0xff);
 		break;
 
 	case REG_TCL:
-		rv = (tc >>  0) & 0xff;
+		rv = narrow_cast<uint8_t>((tc >>  0) & 0xff);
 		break;
 
 	case REG_AUX_STATUS:
@@ -405,11 +406,11 @@ uint8_t WD33C93::peekCtrl() const
 {
 	switch (latch) {
 	case REG_TCH:
-		return (tc >> 16) & 0xff;
+		return narrow_cast<uint8_t>((tc >> 16) & 0xff);
 	case REG_TCM:
-		return (tc >>  8) & 0xff;
+		return narrow_cast<uint8_t>((tc >>  8) & 0xff);
 	case REG_TCL:
-		return (tc >>  0) & 0xff;
+		return narrow_cast<uint8_t>((tc >>  0) & 0xff);
 	default:
 		return regs[latch];
 	}

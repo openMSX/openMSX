@@ -713,11 +713,11 @@ uint8_t MB89352::peekRegister(uint8_t reg) const
 	case REG_SSTS:
 		return getSSTS();
 	case REG_TCH:
-		return (tc >> 16) & 0xFF;
+		return narrow_cast<uint8_t>((tc >> 16) & 0xFF);
 	case REG_TCM:
-		return (tc >>  8) & 0xFF;
+		return narrow_cast<uint8_t>((tc >>  8) & 0xFF);
 	case REG_TCL:
-		return (tc >>  0) & 0xFF;
+		return narrow_cast<uint8_t>((tc >>  0) & 0xFF);
 	default:
 		return regs[reg];
 	}

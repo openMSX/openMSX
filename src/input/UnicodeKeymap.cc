@@ -3,6 +3,7 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "stl.hh"
@@ -175,7 +176,7 @@ void UnicodeKeymap::parseUnicodeKeyMapFile(string_view data)
 		if ((*rowcol & 0x0F) >= KeyMatrixPosition::NUM_COLS) {
 			throw MSXException("Too high column value in keymap file");
 		}
-		auto pos = KeyMatrixPosition(*rowcol);
+		auto pos = KeyMatrixPosition(narrow_cast<uint8_t>(*rowcol));
 
 		// Parse remaining tokens. It is an optional list of modifier keywords.
 		uint8_t modMask = 0;

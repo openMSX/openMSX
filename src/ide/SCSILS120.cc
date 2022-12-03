@@ -32,6 +32,7 @@
 #include "CommandException.hh"
 #include "FileContext.hh"
 #include "endian.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "serialize.hh"
 #include <algorithm>
@@ -84,7 +85,7 @@ SCSILS120::SCSILS120(const DeviceConfig& targetConfig,
 	, buffer(buf)
 	, name("lsX")
 	, mode(mode_)
-	, scsiId(targetConfig.getAttributeValueAsInt("id", 0))
+	, scsiId(narrow_cast<uint8_t>(targetConfig.getAttributeValueAsInt("id", 0)))
 {
 	lsInUse = motherBoard.getSharedStuff<LSInUse>("lsInUse");
 

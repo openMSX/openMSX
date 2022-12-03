@@ -2,8 +2,9 @@
 #include "IDEDeviceFactory.hh"
 #include "IDEDevice.hh"
 #include "Math.hh"
-#include "serialize.hh"
+#include "narrow.hh"
 #include "outer.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -101,7 +102,7 @@ byte SunriseIDE::getBank() const
 {
 	byte bank = Math::reverseByte(control & 0xF8);
 	if (bank >= (rom.size() / 0x4000)) {
-		bank &= ((rom.size() / 0x4000) - 1);
+		bank &= narrow_cast<byte>((rom.size() / 0x4000) - 1);
 	}
 	return bank;
 }
@@ -127,8 +128,8 @@ void SunriseIDE::writeControl(byte value)
 byte SunriseIDE::readDataLow(EmuTime::param time)
 {
 	word temp = readData(time);
-	readLatch = temp >> 8;
-	return temp & 0xFF;
+	readLatch = narrow_cast<byte>(temp >> 8);
+	return narrow_cast<byte>(temp & 0xFF);
 }
 byte SunriseIDE::readDataHigh(EmuTime::param /*time*/) const
 {
@@ -155,7 +156,7 @@ byte SunriseIDE::readReg(nibble reg, EmuTime::param time)
 		}
 	} else {
 		if (reg == 0) {
-			return readData(time) & 0xFF;
+			return narrow_cast<byte>(readData(time) & 0xFF);
 		} else {
 			byte result = device[selectedDevice]->readReg(reg, time);
 			if (reg == 6) {

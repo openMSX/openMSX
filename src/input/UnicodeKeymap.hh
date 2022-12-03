@@ -58,7 +58,7 @@ public:
 	/** Returns the matrix row.
 	  * Must only be called on valid positions.
 	  */
-	[[nodiscard]] constexpr unsigned getRow() const {
+	[[nodiscard]] constexpr uint8_t getRow() const {
 		assert(isValid());
 		return rowCol >> 3;
 	}
@@ -66,7 +66,7 @@ public:
 	/** Returns the matrix column.
 	  * Must only be called on valid positions.
 	  */
-	[[nodiscard]] constexpr unsigned getColumn() const {
+	[[nodiscard]] constexpr uint8_t getColumn() const {
 		assert(isValid());
 		return rowCol & 0x07;
 	}
@@ -84,7 +84,7 @@ public:
 	  * column set, all other bits clear.
 	  * Must only be called on valid positions.
 	  */
-	[[nodiscard]] constexpr unsigned getMask() const {
+	[[nodiscard]] constexpr uint8_t getMask() const {
 		assert(isValid());
 		return 1 << getColumn();
 	}

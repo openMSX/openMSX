@@ -36,23 +36,23 @@ public:
 	 */
 
 	// use in the read() method
-	static constexpr int JOY_UP      = 0x01;
-	static constexpr int JOY_DOWN    = 0x02;
-	static constexpr int JOY_LEFT    = 0x04;
-	static constexpr int JOY_RIGHT   = 0x08;
-	static constexpr int JOY_BUTTONA = 0x10;
-	static constexpr int JOY_BUTTONB = 0x20;
-	static constexpr int RD_PIN1 = 0x01;
-	static constexpr int RD_PIN2 = 0x02;
-	static constexpr int RD_PIN3 = 0x04;
-	static constexpr int RD_PIN4 = 0x08;
-	static constexpr int RD_PIN6 = 0x10;
-	static constexpr int RD_PIN7 = 0x20;
+	static constexpr uint8_t JOY_UP      = 0x01;
+	static constexpr uint8_t JOY_DOWN    = 0x02;
+	static constexpr uint8_t JOY_LEFT    = 0x04;
+	static constexpr uint8_t JOY_RIGHT   = 0x08;
+	static constexpr uint8_t JOY_BUTTONA = 0x10;
+	static constexpr uint8_t JOY_BUTTONB = 0x20;
+	static constexpr uint8_t RD_PIN1 = 0x01;
+	static constexpr uint8_t RD_PIN2 = 0x02;
+	static constexpr uint8_t RD_PIN3 = 0x04;
+	static constexpr uint8_t RD_PIN4 = 0x08;
+	static constexpr uint8_t RD_PIN6 = 0x10;
+	static constexpr uint8_t RD_PIN7 = 0x20;
 
 	// use in the write() method
-	static constexpr int WR_PIN6 = 0x01;
-	static constexpr int WR_PIN7 = 0x02;
-	static constexpr int WR_PIN8 = 0x04;
+	static constexpr uint8_t WR_PIN6 = 0x01;
+	static constexpr uint8_t WR_PIN7 = 0x02;
+	static constexpr uint8_t WR_PIN8 = 0x04;
 };
 
 } // namespace openmsx

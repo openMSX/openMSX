@@ -26,6 +26,7 @@
 #include "MSXMotherBoard.hh"
 #include "DeviceConfig.hh"
 #include "endian.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "serialize.hh"
 #include "xrange.hh"
@@ -74,7 +75,7 @@ SCSIHD::SCSIHD(const DeviceConfig& targetConfig,
 	: HD(targetConfig)
 	, buffer(buf)
 	, mode(mode_)
-	, scsiId(targetConfig.getAttributeValueAsInt("id", 0))
+	, scsiId(narrow_cast<uint8_t>(targetConfig.getAttributeValueAsInt("id", 0)))
 	, message(0)
 	, lun(0) // move to reset() ?
 {
