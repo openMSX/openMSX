@@ -151,7 +151,7 @@ const void* DeflickerImpl<Pixel>::getLineInfo(
 	// The implementation below also detects a constant pixel value
 	// "A A A A" as alternating between "A" and "A", but that's fine.
 	Pixel* dst = out;
-	unsigned remaining = width0;
+	size_t remaining = width0;
 #ifdef __SSE2__
 	size_t pixelsPerSSE = sizeof(__m128i) / sizeof(Pixel);
 	size_t widthSSE = remaining & ~(pixelsPerSSE - 1); // rounded down to a multiple of pixels in a SSE register

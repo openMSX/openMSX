@@ -519,8 +519,8 @@ void GLPostProcessor::preCalcMonitor3D(float width)
 	uint16_t* ind = indices.data();
 	for (auto y : xrange(GRID_SIZE)) {
 		for (auto x : xrange(GRID_SIZE1)) {
-			*ind++ = (y + 0) * GRID_SIZE1 + x;
-			*ind++ = (y + 1) * GRID_SIZE1 + x;
+			*ind++ = narrow<uint16_t>((y + 0) * GRID_SIZE1 + x);
+			*ind++ = narrow<uint16_t>((y + 1) * GRID_SIZE1 + x);
 		}
 		// skip 2, filled in later
 		ind += 2;

@@ -68,7 +68,7 @@ AviWriter::~AviWriter()
 	auto AVIOUTs = [&](zstring_view s) {
 		auto len1 = s.size() + 1; // +1 for zero-terminator
 		ranges::copy(std::span{s.data(), len1}, subspan(avi_header, header_pos));
-		header_pos += (len1 + 1) & ~1; // round-up to even
+		header_pos += narrow<unsigned>((len1 + 1) & ~1); // round-up to even
 	};
 
 	bool hasAudio = audioRate != 0;
@@ -136,7 +136,7 @@ AviWriter::~AviWriter()
 
 	if (hasAudio) {
 		// 1 fragment is 1 (for mono) or 2 (for stereo) samples
-		unsigned bitsPerSample = 16;
+		uint16_t bitsPerSample = 16;
 		unsigned bytesPerSample = bitsPerSample / 8;
 		unsigned bytesPerFragment = bytesPerSample * channels;
 		unsigned bytesPerSecond = audioRate * bytesPerFragment;
@@ -168,10 +168,10 @@ AviWriter::~AviWriter()
 		AVIOUT4("strf");
 		AVIOUTd(16);                // # of bytes to follow
 		AVIOUTw(1);                 // Format, WAVE_ZMBV_FORMAT_PCM
-		AVIOUTw(channels);          // Number of channels
+		AVIOUTw(narrow<uint16_t>(channels)); // Number of channels
 		AVIOUTd(audioRate);         // SamplesPerSec
 		AVIOUTd(bytesPerSecond);    // AvgBytesPerSec
-		AVIOUTw(bytesPerFragment);  // BlockAlign: for PCM: nChannels * BitsPerSample / 8
+		AVIOUTw(narrow<uint16_t>(bytesPerFragment)); // BlockAlign: for PCM: nChannels * BitsPerSample / 8
 		AVIOUTw(bitsPerSample);     // BitsPerSample
 	}
 
@@ -197,10 +197,11 @@ AviWriter::~AviWriter()
 	assert(dateLen < size);
 
 	AVIOUT4("LIST");
-	AVIOUTd(4 // list type
-		+ (4 + 4 + ((versionStr.size() + 1 + 1) & ~1)) // 1st chunk
-		+ (4 + 4 + ((dateLen + 1 + 1) & ~1)) // 2nd chunk
-		); // size of the list
+	AVIOUTd(narrow<uint32_t>(
+			4 // list type
+			+ (4 + 4 + ((versionStr.size() + 1 + 1) & ~1)) // 1st chunk
+			+ (4 + 4 + ((dateLen + 1 + 1) & ~1)) // 2nd chunk
+		)); // size of the list
 	AVIOUT4("INFO");
 	AVIOUT4("ISFT");
 	AVIOUTd(unsigned(versionStr.size()) + 1); // # of bytes to follow

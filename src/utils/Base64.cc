@@ -1,4 +1,5 @@
 #include "Base64.hh"
+#include "narrow.hh"
 #include "ranges.hh"
 #include "xrange.hh"
 #include <algorithm>
@@ -109,9 +110,9 @@ std::pair<MemBuffer<uint8_t>, size_t> decode(std::string_view input)
 			buf4[j] = 0;
 		}
 		std::array<uint8_t, 3> buf3;
-		buf3[0] = ((buf4[0] & 0xff) << 2) + ((buf4[1] & 0x30) >> 4);
-		buf3[1] = ((buf4[1] & 0x0f) << 4) + ((buf4[2] & 0x3c) >> 2);
-		buf3[2] = ((buf4[2] & 0x03) << 6) + ((buf4[3] & 0xff) >> 0);
+		buf3[0] = narrow_cast<uint8_t>(((buf4[0] & 0xff) << 2) + ((buf4[1] & 0x30) >> 4));
+		buf3[1] = narrow_cast<uint8_t>(((buf4[1] & 0x0f) << 4) + ((buf4[2] & 0x3c) >> 2));
+		buf3[2] = narrow_cast<uint8_t>(((buf4[2] & 0x03) << 6) + ((buf4[3] & 0xff) >> 0));
 		for (auto j : xrange(i - 1)) {
 			ret[out++] = buf3[j];
 		}
@@ -145,9 +146,9 @@ bool decode_inplace(std::string_view input, std::span<uint8_t> output)
 			buf4[j] = 0;
 		}
 		std::array<uint8_t, 3> buf3;
-		buf3[0] = ((buf4[0] & 0xff) << 2) + ((buf4[1] & 0x30) >> 4);
-		buf3[1] = ((buf4[1] & 0x0f) << 4) + ((buf4[2] & 0x3c) >> 2);
-		buf3[2] = ((buf4[2] & 0x03) << 6) + ((buf4[3] & 0xff) >> 0);
+		buf3[0] = narrow_cast<uint8_t>(((buf4[0] & 0xff) << 2) + ((buf4[1] & 0x30) >> 4));
+		buf3[1] = narrow_cast<uint8_t>(((buf4[1] & 0x0f) << 4) + ((buf4[2] & 0x3c) >> 2));
+		buf3[2] = narrow_cast<uint8_t>(((buf4[2] & 0x03) << 6) + ((buf4[3] & 0xff) >> 0));
 		for (auto j : xrange(i - 1)) {
 			if (out == outSize) [[unlikely]] return false;
 			output[out++] = buf3[j];

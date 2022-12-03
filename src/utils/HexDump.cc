@@ -1,4 +1,5 @@
 #include "HexDump.hh"
+#include "narrow.hh"
 #include "strCat.hh"
 #include "xrange.hh"
 #include <algorithm>
@@ -57,10 +58,12 @@ std::pair<MemBuffer<uint8_t>, size_t> decode(std::string_view input)
 	for (char c : input) {
 		int d = decode(c);
 		if (d == -1) continue;
+		assert(d >= 0);
+		assert(d <= 15);
 		if (flip) {
-			tmp = d;
+			tmp = narrow<uint8_t>(d);
 		} else {
-			ret[out++] = (tmp << 4) | d;
+			ret[out++] = narrow<uint8_t>((tmp << 4) | d);
 		}
 		flip = !flip;
 	}
@@ -79,11 +82,13 @@ bool decode_inplace(std::string_view input, std::span<uint8_t> output)
 	for (char c : input) {
 		int d = decode(c);
 		if (d == -1) continue;
+		assert(d >= 0);
+		assert(d <= 15);
 		if (flip) {
-			tmp = d;
+			tmp = narrow<uint8_t>(d);
 		} else {
 			if (out == outSize) [[unlikely]] return false;
-			output[out++] = (tmp << 4) | d;
+			output[out++] = narrow<uint8_t>((tmp << 4) | d);
 		}
 		flip = !flip;
 	}

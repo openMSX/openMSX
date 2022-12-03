@@ -157,7 +157,7 @@ void CharacterConverter<Pixel>::renderText1(std::span<Pixel, 256> buf, int line)
 	Pixel* __restrict pixelPtr = buf.data();
 	for (auto name : xrange(nameStart, nameEnd)) {
 		unsigned charCode = vram.nameTable.readNP((name + 0xC00) | (~0u << 12));
-		unsigned pattern = patternArea[l + charCode * 8];
+		auto pattern = patternArea[l + charCode * 8];
 		draw6(pixelPtr, fg, bg, pattern);
 	}
 }
@@ -180,7 +180,7 @@ void CharacterConverter<Pixel>::renderText1Q(std::span<Pixel, 256> buf, int line
 	for (auto name : xrange(nameStart, nameEnd)) {
 		unsigned charCode = vram.nameTable.readNP((name + 0xC00) | (~0u << 12));
 		unsigned patternNr = patternQuarter | charCode;
-		unsigned pattern = vram.patternTable.readNP(
+		auto pattern = vram.patternTable.readNP(
 			patternBaseLine | (patternNr * 8));
 		draw6(pixelPtr, fg, bg, pattern);
 	}
@@ -267,9 +267,9 @@ void CharacterConverter<Pixel>::renderGraphic1(std::span<Pixel, 256> buf, int li
 	auto namePtr = getNamePtr(line, scroll);
 	Pixel* __restrict pixelPtr = buf.data();
 	repeat(32, [&] {
-		unsigned charCode = namePtr[scroll & 0x1F];
-		unsigned pattern = patternArea[l + charCode * 8];
-		unsigned color = colorArea[charCode / 8];
+		auto charCode = namePtr[scroll & 0x1F];
+		auto pattern = patternArea[l + charCode * 8];
+		auto color = colorArea[charCode / 8];
 		Pixel fg = palFg[color >> 4];
 		Pixel bg = palFg[color & 0x0F];
 		draw8(pixelPtr, fg, bg, pattern);
@@ -295,9 +295,9 @@ void CharacterConverter<Pixel>::renderGraphic2(std::span<Pixel, 256> buf, int li
 		auto patternArea = vram.patternTable.getReadArea<256 * 8>(quarter8);
 		auto colorArea   = vram.colorTable  .getReadArea<256 * 8>(quarter8);
 		for (auto n : xrange(32)) {
-			unsigned charCode8 = namePtr[n] * 8;
-			unsigned pattern = patternArea[line7 + charCode8];
-			unsigned color   = colorArea  [line7 + charCode8];
+			auto charCode8 = namePtr[n] * 8;
+			auto pattern = patternArea[line7 + charCode8];
+			auto color   = colorArea  [line7 + charCode8];
 			Pixel fg = palFg[color >> 4];
 			Pixel bg = palFg[color & 0x0F];
 			draw8(pixelPtr, fg, bg, pattern);
@@ -311,8 +311,8 @@ void CharacterConverter<Pixel>::renderGraphic2(std::span<Pixel, 256> buf, int li
 		repeat(32, [&] {
 			unsigned charCode8 = namePtr[scroll & 0x1F] * 8;
 			unsigned index = charCode8 | baseLine;
-			unsigned pattern = vram.patternTable.readNP(index);
-			unsigned color   = vram.colorTable  .readNP(index);
+			auto pattern = vram.patternTable.readNP(index);
+			auto color   = vram.colorTable  .readNP(index);
 			Pixel fg = palFg[color >> 4];
 			Pixel bg = palFg[color & 0x0F];
 			draw8(pixelPtr, fg, bg, pattern);

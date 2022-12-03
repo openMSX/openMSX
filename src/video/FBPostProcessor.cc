@@ -56,9 +56,9 @@ void FBPostProcessor<Pixel>::preCalcNoise(float factor)
 		scale[pixelOps.blue (p)] = factor;
 	} else {
 		// 16bpp
-		scale[0] = (pixelOps.getMaxRed()   / 255.0f) * factor;
-		scale[1] = (pixelOps.getMaxGreen() / 255.0f) * factor;
-		scale[2] = (pixelOps.getMaxBlue()  / 255.0f) * factor;
+		scale[0] = (narrow_cast<float>(pixelOps.getMaxRed())   / 255.0f) * factor;
+		scale[1] = (narrow_cast<float>(pixelOps.getMaxGreen()) / 255.0f) * factor;
+		scale[2] = (narrow_cast<float>(pixelOps.getMaxBlue())  / 255.0f) * factor;
 		scale[3] = 0.0f;
 	}
 
@@ -226,7 +226,7 @@ void FBPostProcessor<Pixel>::update(const Setting& setting) noexcept
 	VideoLayer::update(setting);
 	auto& noiseSetting = renderSettings.getNoiseSetting();
 	if (&setting == &noiseSetting) {
-		preCalcNoise(noiseSetting.getDouble());
+		preCalcNoise(noiseSetting.getFloat());
 	}
 }
 
@@ -243,7 +243,7 @@ FBPostProcessor<Pixel>::FBPostProcessor(MSXMotherBoard& motherBoard_,
 {
 	auto& noiseSetting = renderSettings.getNoiseSetting();
 	noiseSetting.attach(*this);
-	preCalcNoise(noiseSetting.getDouble());
+	preCalcNoise(noiseSetting.getFloat());
 	assert((screen.getLogicalWidth() * sizeof(Pixel)) < NOISE_SHIFT);
 }
 
@@ -270,7 +270,7 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output_)
 	// New scaler algorithm selected? Or different horizontal stretch?
 	auto algo = renderSettings.getScaleAlgorithm();
 	unsigned factor = renderSettings.getScaleFactor();
-	unsigned inWidth = lrintf(renderSettings.getHorizontalStretch());
+	unsigned inWidth = narrow<unsigned>(lrintf(renderSettings.getHorizontalStretch()));
 	if ((scaleAlgorithm != algo) || (scaleFactor != factor) ||
 	    (inWidth != stretchWidth) || (lastOutput != &output)) {
 		scaleAlgorithm = algo;
@@ -336,7 +336,7 @@ std::unique_ptr<RawFrame> FBPostProcessor<Pixel>::rotateFrames(
 	auto& generator = global_urng(); // fast (non-cryptographic) random numbers
 	std::uniform_int_distribution<int> distribution(0, NOISE_SHIFT / 16 - 1);
 	for (auto y : xrange(screen.getLogicalHeight())) {
-		noiseShift[y] = distribution(generator) * 16;
+		noiseShift[y] = narrow<uint16_t>(distribution(generator) * 16);
 	}
 
 	return PostProcessor::rotateFrames(std::move(finishedFrame), time);

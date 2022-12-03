@@ -78,10 +78,10 @@ GLImage::GLImage(OutputSurface& /*output*/, ivec2 size_, uint32_t rgba)
 	checkSize(size_);
 	size = size_;
 	for (auto i : xrange(4)) {
-		bgR[i] = (rgba >> 24) & 0xff;
-		bgG[i] = (rgba >> 16) & 0xff;
-		bgB[i] = (rgba >>  8) & 0xff;
-		auto alpha = (rgba >> 0) & 0xff;
+		bgR[i] = narrow_cast<uint8_t>((rgba >> 24) & 0xff);
+		bgG[i] = narrow_cast<uint8_t>((rgba >> 16) & 0xff);
+		bgB[i] = narrow_cast<uint8_t>((rgba >>  8) & 0xff);
+		auto alpha = narrow_cast<uint8_t>((rgba >> 0) & 0xff);
 		bgA[i] = (alpha == 255) ? 256 : alpha;
 	}
 	initBuffers();
@@ -90,21 +90,21 @@ GLImage::GLImage(OutputSurface& /*output*/, ivec2 size_, uint32_t rgba)
 GLImage::GLImage(OutputSurface& /*output*/, ivec2 size_, std::span<const uint32_t, 4> rgba,
                  int borderSize_, uint32_t borderRGBA)
 	: borderSize(borderSize_)
-	, borderR((borderRGBA >> 24) & 0xff)
-	, borderG((borderRGBA >> 16) & 0xff)
-	, borderB((borderRGBA >>  8) & 0xff)
+	, borderR(narrow_cast<uint8_t>((borderRGBA >> 24) & 0xff))
+	, borderG(narrow_cast<uint8_t>((borderRGBA >> 16) & 0xff))
+	, borderB(narrow_cast<uint8_t>((borderRGBA >>  8) & 0xff))
 {
 	checkSize(size_);
 	size = size_;
 	for (auto i : xrange(4)) {
-		bgR[i] = (rgba[i] >> 24) & 0xff;
-		bgG[i] = (rgba[i] >> 16) & 0xff;
-		bgB[i] = (rgba[i] >>  8) & 0xff;
-		auto alpha = (rgba[i] >> 0) & 0xff;
+		bgR[i] = narrow_cast<uint8_t>((rgba[i] >> 24) & 0xff);
+		bgG[i] = narrow_cast<uint8_t>((rgba[i] >> 16) & 0xff);
+		bgB[i] = narrow_cast<uint8_t>((rgba[i] >>  8) & 0xff);
+		auto alpha = narrow_cast<uint8_t>((rgba[i] >> 0) & 0xff);
 		bgA[i] = (alpha == 255) ? 256 : alpha;
 	}
 
-	auto alpha = (borderRGBA >> 0) & 0xff;
+	auto alpha = narrow_cast<uint8_t>((borderRGBA >> 0) & 0xff);
 	borderA = (alpha == 255) ? 256 : alpha;
 
 	initBuffers();
