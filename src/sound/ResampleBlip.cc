@@ -1,5 +1,6 @@
 #include "ResampleBlip.hh"
 #include "ResampledSoundDevice.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "vla.hh"
@@ -17,9 +18,8 @@ ResampleBlip<CHANNELS>::ResampleBlip(
 	, step([&]{ // calculate 'hostClock.getFreq() / getEmuClock().getFreq()', but with less rounding errors
 			uint64_t emuPeriod = input_.getEmuClock().getPeriod().length(); // unknown units
 			uint64_t hostPeriod = hostClock.getPeriod().length(); // unknown units, but same as above
-			assert(unsigned( emuPeriod) ==  emuPeriod);
-			assert(unsigned(hostPeriod) == hostPeriod);
-			return FP::roundRatioDown(emuPeriod, hostPeriod);
+			return FP::roundRatioDown(narrow<unsigned>(emuPeriod),
+			                          narrow<unsigned>(hostPeriod));
 		}())
 {
 	ranges::fill(lastInput, 0.0f);

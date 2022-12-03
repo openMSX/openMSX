@@ -151,7 +151,7 @@ void SN76489::write(byte value, EmuTime::param time)
 	}
 	auto& reg = regs[registerLatch];
 
-	word data = [&] {
+	auto data = [&]() -> word {
 		switch (registerLatch) {
 		case 0:
 		case 2:
@@ -280,7 +280,7 @@ template<bool NOISE> void SN76489::synthesizeChannel(
 
 	if (!NOISE || generator == 3) {
 		outputs[generator] = output;
-		counters[generator] = counter;
+		counters[generator] = narrow_cast<word>(counter);
 	}
 }
 
@@ -356,7 +356,8 @@ byte SN76489::Debuggable::read(unsigned address, EmuTime::param time)
 
 	auto& sn76489 = OUTER(SN76489, debuggable);
 	word data = sn76489.peekRegister(reg, time);
-	return hi ? (data >> 4) : (data & 0xF);
+	return hi ? narrow_cast<byte>(data >> 4)
+	          : narrow_cast<byte>(data & 0xF);
 }
 
 void SN76489::Debuggable::write(unsigned address, byte value, EmuTime::param time)
@@ -365,7 +366,7 @@ void SN76489::Debuggable::write(unsigned address, byte value, EmuTime::param tim
 	auto hi  = SN76489_DEBUG_MAP[address][1];
 
 	auto& sn76489 = OUTER(SN76489, debuggable);
-	word data = [&] {
+	auto data = [&]() -> word {
 		if (reg == one_of(0, 2, 4)) {
 			word d = sn76489.peekRegister(reg, time);
 			if (hi) {

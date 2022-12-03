@@ -95,11 +95,11 @@ namespace openmsx {
 // interpolator per frame
 static constexpr int FR_SIZE = 4;
 // samples per interpolator
-static constexpr int IP_SIZE_SLOWER = 240 / FR_SIZE;
-static constexpr int IP_SIZE_SLOW   = 200 / FR_SIZE;
-static constexpr int IP_SIZE_NORMAL = 160 / FR_SIZE;
-static constexpr int IP_SIZE_FAST   = 120 / FR_SIZE;
-static constexpr int IP_SIZE_FASTER =  80 / FR_SIZE;
+static constexpr uint8_t IP_SIZE_SLOWER = 240 / FR_SIZE;
+static constexpr uint8_t IP_SIZE_SLOW   = 200 / FR_SIZE;
+static constexpr uint8_t IP_SIZE_NORMAL = 160 / FR_SIZE;
+static constexpr uint8_t IP_SIZE_FAST   = 120 / FR_SIZE;
+static constexpr uint8_t IP_SIZE_FASTER =  80 / FR_SIZE;
 
 // phase value
 enum {
@@ -119,7 +119,7 @@ enum {
 //  x   0   0  normal    (00h,04h) : 25.6ms (100%) : 40sample
 //  0   0   1  fast      (01h)     : 20.2ms  (75%) : 30sample
 //  0   1   x  more fast (02h,03h) : 12.2ms  (50%) : 20sample
-static constexpr std::array<int, 8> VLM5030_speed_table =
+static constexpr std::array<uint8_t, 8> VLM5030_speed_table =
 {
 	IP_SIZE_NORMAL,
 	IP_SIZE_FAST,
@@ -213,7 +213,7 @@ int VLM5030::parseFrame()
 		}
 	}
 	// pitch
-	new_pitch  = (pitchTable[getBits(1, 5)] + pitch_offset) & 0xff;
+	new_pitch  = narrow_cast<uint8_t>((pitchTable[getBits(1, 5)] + pitch_offset) & 0xff);
 	// energy
 	new_energy = energyTable[getBits(6, 5)];
 
@@ -259,7 +259,7 @@ void VLM5030::generateChannels(std::span<float*> bufs, unsigned num)
 				// interpolator changes
 				if (interp_count == 0) {
 					// change to new frame
-					interp_count = parseFrame(); // with change phase
+					interp_count = narrow_cast<uint8_t>(parseFrame()); // with change phase
 					if (interp_count == 0) {
 						// end mark found
 						interp_count = FR_SIZE;
@@ -273,7 +273,7 @@ void VLM5030::generateChannels(std::span<float*> bufs, unsigned num)
 					// is this a zero energy frame?
 					if (current_energy == 0) {
 						target_energy = 0;
-						target_pitch = current_pitch;
+						target_pitch = narrow_cast<uint8_t>(current_pitch);
 						ranges::copy(current_k, target_k); // no assignment because arrays have different type (intentional?)
 					} else {
 						// normal frame
@@ -340,7 +340,7 @@ phase_stop:
 			// pin_BSY = true;
 			phase = PH_WAIT;
 		} else {
-			sample_count -= num;
+			sample_count -= narrow<uint8_t>(num);
 		}
 		break;
 	case PH_END:
@@ -349,7 +349,7 @@ phase_stop:
 			pin_BSY = false;
 			phase = PH_IDLE;
 		} else {
-			sample_count -= num;
+			sample_count -= narrow<uint8_t>(num);
 		}
 	}
 	// silent buffering
@@ -471,7 +471,7 @@ void VLM5030::setST(bool pin)
 		pin_ST = false;
 		if (pin_VCU) {
 			// direct access mode & address High
-			vcu_addr_h = (int(latch_data) << 8) + 0x01;
+			vcu_addr_h = narrow<uint16_t>((latch_data << 8) + 0x01);
 		} else {
 			// check access mode
 			if (vcu_addr_h) {

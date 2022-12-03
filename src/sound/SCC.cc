@@ -269,9 +269,9 @@ uint8_t SCC::getFreqVol(unsigned address) const
 		// get frequency
 		unsigned channel = address / 2;
 		if (address & 1) {
-			return orgPeriod[channel] >> 8;
+			return narrow_cast<uint8_t>(orgPeriod[channel] >> 8);
 		} else {
-			return orgPeriod[channel] & 0xFF;
+			return narrow_cast<uint8_t>(orgPeriod[channel] & 0xFF);
 		}
 	} else if (address < 0x0F) {
 		// get volume

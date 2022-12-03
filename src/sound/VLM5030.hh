@@ -50,7 +50,7 @@ private:
 	unsigned address_mask;
 
 	// state of option parameter
-	int frame_size;
+	uint8_t frame_size;
 	int pitch_offset;
 
 	// these contain data describing the current and previous voice frames

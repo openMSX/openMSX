@@ -4,6 +4,7 @@
 #include "Mixer.hh"
 #include "endian.hh"
 #include "enumerate.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "vla.hh"
@@ -40,11 +41,11 @@ WavWriter::WavWriter(const Filename& filename,
 	ranges::copy(std::string_view("fmt "), header.subChunk1ID);
 	header.subChunk1Size = 16;
 	header.audioFormat   = 1;
-	header.numChannels   = channels;
+	header.numChannels   = narrow<uint16_t>(channels);
 	header.sampleRate    = frequency;
 	header.byteRate      = (channels * frequency * bits) / 8;
-	header.blockAlign    = (channels * bits) / 8;
-	header.bitsPerSample = bits;
+	header.blockAlign    = narrow<uint16_t>((channels * bits) / 8);
+	header.bitsPerSample = narrow<uint16_t>(bits);
 	ranges::copy(std::string_view("data"), header.subChunk2ID);
 	header.subChunk2Size = 0; // actual value filled in later
 

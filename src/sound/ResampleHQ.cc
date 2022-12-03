@@ -241,7 +241,7 @@ static void calcPermute(double ratio, std::span<int16_t, HALF_TAB_LEN> permute)
 {
 	double r2 = ratio * N;
 	double fract = r2 - floor(r2);
-	unsigned step = floor(r2);
+	auto step = narrow_cast<unsigned>(floor(r2));
 	bool incr = [&] {
 		if (fract > 0.5) {
 			// mostly (> 50%) take steps of 'floor(r2) + 1'
@@ -276,7 +276,7 @@ static void calcPermute(double ratio, std::span<int16_t, HALF_TAB_LEN> permute)
 	while (true) {
 		assert(permute[curr] == -1);
 		assert(cnt < N2);
-		permute[curr] = cnt++;
+		permute[curr] = narrow<int16_t>(cnt++);
 
 		auto [nxt1, nxt2] = next(curr, step);
 		if (permute[nxt1] == -1) {
@@ -379,7 +379,7 @@ ResampleHQ<CHANNELS>::ResampleHQ(
 	ResampleCoeffs::instance().getCoeffs(double(ratio), permute, table, filterLen);
 
 	// fill buffer with 'enough' zero's
-	unsigned extra = narrow_cast<int>(filterLen + 1 + ratio + 1);
+	unsigned extra = filterLen + 1 + narrow_cast<int>(ratio) + 1;
 	bufStart = 0;
 	bufEnd   = extra;
 	size_t initialSize = 4000; // buffer grows dynamically if this is too small
@@ -652,7 +652,7 @@ bool ResampleHQ<CHANNELS>::generateOutputImpl(
 		// main processing loop
 		EmuTime host1 = hostClock.getFastAdd(1);
 		assert(host1 > emuClk.getTime());
-		float pos = emuClk.getTicksTillDouble(host1);
+		float pos = narrow_cast<float>(emuClk.getTicksTillDouble(host1));
 		assert(pos <= (ratio + 2));
 		for (auto i : xrange(hostNum)) {
 			calcOutput(pos, &dataOut[i * CHANNELS]);
@@ -665,7 +665,7 @@ bool ResampleHQ<CHANNELS>::generateOutputImpl(
 
 	assert(bufStart <= bufEnd);
 	unsigned available = bufEnd - bufStart;
-	unsigned extra = int(filterLen + 1 + ratio + 1);
+	unsigned extra = filterLen + 1 + narrow_cast<int>(ratio) + 1;
 	assert(available == extra); (void)available; (void)extra;
 
 	return notMuted;

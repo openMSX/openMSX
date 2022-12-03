@@ -1,5 +1,6 @@
 #include "ResampleLQ.hh"
 #include "ResampledSoundDevice.hh"
+#include "narrow.hh"
 #include "ranges.hh"
 #include "xrange.hh"
 #include <cassert>
@@ -10,7 +11,7 @@ namespace openmsx {
 
 // 16-byte aligned buffer of ints (shared among all instances of this resampler)
 static std::vector<float> bufferStorage; // (possibly) unaligned storage
-static unsigned bufferSize = 0; // usable buffer size (aligned portion)
+static size_t bufferSize = 0; // usable buffer size (aligned portion)
 static float* aBuffer = nullptr; // pointer to aligned sub-buffer
 
 ////
@@ -36,9 +37,8 @@ ResampleLQ<CHANNELS>::ResampleLQ(
 	, step([&]{ // calculate 'getEmuClock().getFreq() / hostClock.getFreq()', but with less rounding errors
 			uint64_t emuPeriod = input_.getEmuClock().getPeriod().length(); // unknown units
 			uint64_t hostPeriod = hostClock.getPeriod().length(); // unknown units, but same as above
-			assert(unsigned( emuPeriod) ==  emuPeriod);
-			assert(unsigned(hostPeriod) == hostPeriod);
-			return FP::roundRatioDown(hostPeriod, emuPeriod);
+			return FP::roundRatioDown(narrow<unsigned>(hostPeriod),
+			                          narrow<unsigned>(emuPeriod));
 		}())
 {
 	ranges::fill(lastInput, 0.0f);

@@ -21,7 +21,7 @@ SDLSoundDriver::SDLSoundDriver(Reactor& reactor_,
 {
 	SDL_AudioSpec desired;
 	desired.freq     = narrow<int>(wantedFreq);
-	desired.samples  = std::bit_ceil(wantedSamples);
+	desired.samples  = narrow<Uint16>(std::bit_ceil(wantedSamples));
 	desired.channels = 2; // stereo
 	desired.format   = AUDIO_F32SYS;
 	desired.callback = audioCallbackHelper; // must be a static method
@@ -37,7 +37,7 @@ SDLSoundDriver::SDLSoundDriver(Reactor& reactor_,
 	frequency = obtained.freq;
 	fragmentSize = obtained.samples;
 
-	mixBufferSize = 3 * (obtained.size / sizeof(StereoFloat)) + 1;
+	mixBufferSize = narrow<unsigned>(3 * (obtained.size / sizeof(StereoFloat)) + 1);
 	mixBuffer.resize(mixBufferSize);
 	reInit();
 }
