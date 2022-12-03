@@ -403,9 +403,10 @@ void TC8566AF::commandPhase1(uint8_t value)
 {
 	drive[driveSelect]->setSide((value & 0x04) != 0);
 	status0 &= ~(ST0_DS0 | ST0_DS1 | ST0_IC0 | ST0_IC1);
-	status0 |= //(drive[driveSelect]->isDiskInserted() ? 0 : ST0_DS0) |
+	status0 |= uint8_t(
+		   //(drive[driveSelect]->isDiskInserted() ? 0 : ST0_DS0) |
 	           (value & (ST0_DS0 | ST0_DS1)) |
-	           (drive[driveSelect]->isDummyDrive() ? ST0_IC1 : 0);
+	           (drive[driveSelect]->isDummyDrive() ? ST0_IC1 : 0));
 	status3  = (value & (ST3_DS0 | ST3_DS1)) |
 	           (drive[driveSelect]->isTrack00()        ? ST3_TK0 : 0) |
 	           (drive[driveSelect]->isDoubleSided()    ? ST3_HD  : 0) |
@@ -637,8 +638,8 @@ void TC8566AF::formatSector()
 		repeat(n, [&] { write1(value); });
 	};
 	auto writeCRC = [&] {
-		write1(crc.getValue() >> 8);   // CRC (high byte)
-		write1(crc.getValue() & 0xff); //     (low  byte)
+		write1(narrow_cast<uint8_t>(crc.getValue() >> 8));   // CRC (high byte)
+		write1(narrow_cast<uint8_t>(crc.getValue() & 0xff)); //     (low  byte)
 	};
 
 	writeN(12, 0x00); // sync
@@ -669,7 +670,7 @@ void TC8566AF::doSeek(int n)
 	auto& si = seekInfo[n];
 	DiskDrive& currentDrive = *drive[n];
 
-	const auto stm_dbn = 1 << n; // STM_DB0..STM_DB3
+	const uint8_t stm_dbn = 1 << n; // STM_DB0..STM_DB3
 	mainStatus |= stm_dbn;
 
 	auto endSeek = [&] {
@@ -735,8 +736,8 @@ void TC8566AF::writeSector()
 {
 	// write 2 CRC bytes (big endian)
 	auto* drv = drive[driveSelect];
-	drv->writeTrackByte(dataCurrent++, crc.getValue() >> 8);
-	drv->writeTrackByte(dataCurrent++, crc.getValue() & 0xFF);
+	drv->writeTrackByte(dataCurrent++, narrow_cast<uint8_t>(crc.getValue() >> 8));
+	drv->writeTrackByte(dataCurrent++, narrow_cast<uint8_t>(crc.getValue() & 0xFF));
 	drv->flushTrack();
 }
 

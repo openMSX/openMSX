@@ -91,7 +91,7 @@ private:
 	void doDiskWrite1();
 	void doDiskWrite2();
 
-	[[nodiscard]] unsigned getFCB() const;
+	[[nodiscard]] word getFCB() const;
 	[[nodiscard]] std::string extractName(int begin, int end) const;
 	unsigned readHelper1(unsigned dev, std::span<char, 256> buffer);
 	void readHelper2(std::span<const char> buffer);
@@ -113,7 +113,7 @@ private:
 
 	struct Device {
 		std::optional<std::fstream> fs; // not in use when fs == nullopt
-		unsigned fcb;
+		word fcb;
 	};
 	std::array<Device, MAX_DEVICES> devices;
 

@@ -1,5 +1,6 @@
 #include "SectorBasedDisk.hh"
 #include "MSXException.hh"
+#include "narrow.hh"
 #include "xrange.hh"
 #include <cassert>
 
@@ -98,11 +99,11 @@ void SectorBasedDisk::readTrack(uint8_t track, uint8_t side, RawTrack& output)
 			output.write(idx++, 0xFE, true); //           (2) add idam
 			output.write(idx++, track); // C: Cylinder number
 			output.write(idx++, side);  // H: Head Address
-			output.write(idx++, j + 1); // R: Record
+			output.write(idx++, narrow<uint8_t>(j + 1)); // R: Record
 			output.write(idx++, 0x02);  // N: Number (length of sector: 512 = 128 << 2)
 			uint16_t addrCrc = output.calcCrc(idx - 8, 8);
-			output.write(idx++, addrCrc >> 8);   // CRC (high byte)
-			output.write(idx++, addrCrc & 0xff); //     (low  byte)
+			output.write(idx++, narrow_cast<uint8_t>(addrCrc >> 8));   // CRC (high byte)
+			output.write(idx++, narrow_cast<uint8_t>(addrCrc & 0xff)); //     (low  byte)
 
 			write(22, 0x4E); // gap2
 			write(12, 0x00); // sync
@@ -110,14 +111,14 @@ void SectorBasedDisk::readTrack(uint8_t track, uint8_t side, RawTrack& output)
 			write( 3, 0xA1); // data mark (1)
 			write( 1, 0xFB); //           (2)
 
-			auto logicalSector = physToLog(track, side, j + 1);
+			auto logicalSector = physToLog(track, side, narrow<uint8_t>(j + 1));
 			SectorBuffer buf;
 			readSector(logicalSector, buf);
 			for (auto& r : buf.raw) output.write(idx++, r);
 
 			uint16_t dataCrc = output.calcCrc(idx - (512 + 4), 512 + 4);
-			output.write(idx++, dataCrc >> 8);   // CRC (high byte)
-			output.write(idx++, dataCrc & 0xff); //     (low  byte)
+			output.write(idx++, narrow_cast<uint8_t>(dataCrc >> 8));   // CRC (high byte)
+			output.write(idx++, narrow_cast<uint8_t>(dataCrc & 0xff)); //     (low  byte)
 
 			write(84, 0x4E); // gap3
 		}

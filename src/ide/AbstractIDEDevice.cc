@@ -2,6 +2,7 @@
 #include "MSXMotherBoard.hh"
 #include "LedStatus.hh"
 #include "Version.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
@@ -160,8 +161,8 @@ word AbstractIDEDevice::readData(EmuTime::param /*time*/)
 		return 0x7F7F;
 	}
 	assert((transferIdx + 1) < sizeof(buffer));
-	word result = (buffer[transferIdx + 0] << 0) +
-	              (buffer[transferIdx + 1] << 8);
+	auto result = word((buffer[transferIdx + 0] << 0) +
+	                   (buffer[transferIdx + 1] << 8));
 	transferIdx += 2;
 	bufferLeft -= 2;
 	if (bufferLeft == 0) {
@@ -194,8 +195,8 @@ void AbstractIDEDevice::writeData(word value, EmuTime::param /*time*/)
 		return;
 	}
 	assert((transferIdx + 1) < sizeof(buffer));
-	buffer[transferIdx + 0] = value & 0xFF;
-	buffer[transferIdx + 1] = value >> 8;
+	buffer[transferIdx + 0] = narrow_cast<byte>(value & 0xFF);
+	buffer[transferIdx + 1] = narrow_cast<byte>(value >> 8);
 	transferIdx += 2;
 	bufferLeft -= 2;
 	if (bufferLeft == 0) {
@@ -257,8 +258,8 @@ unsigned AbstractIDEDevice::getByteCount() const
 
 void AbstractIDEDevice::setByteCount(unsigned count)
 {
-	cylinderLowReg = count & 0xFF;
-	cylinderHighReg = count >> 8;
+	cylinderLowReg  = narrow_cast<byte>(count & 0xFF);
+	cylinderHighReg = narrow_cast<byte>(count >> 8);
 }
 
 void AbstractIDEDevice::setSectorNumber(unsigned lba)

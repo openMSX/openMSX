@@ -10,6 +10,7 @@
 #include "CliComm.hh"
 #include "GlobalSettings.hh"
 #include "MSXException.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 #include <memory>
@@ -294,7 +295,7 @@ unsigned RealDrive::getCurrentAngle(EmuTime::param time) const
 	if (motorStatus) {
 		// rotating, take passed time into account
 		auto deltaAngle = motorTimer.getTicksTillUp(time);
-		return (startAngle + deltaAngle) % TICKS_PER_ROTATION;
+		return narrow_cast<unsigned>((startAngle + deltaAngle) % TICKS_PER_ROTATION);
 	} else {
 		// not rotating, angle didn't change
 		return startAngle;
@@ -380,7 +381,9 @@ void RealDrive::getTrack()
 	}
 	if (!trackValid) {
 		if (auto rdTrack = getDiskReadTrack()) {
-			changer->getDisk().readTrack(*rdTrack, side, track);
+			changer->getDisk().readTrack(narrow<uint8_t>(*rdTrack),
+			                             narrow<uint8_t>(side),
+			                             track);
 		} else {
 			track.clear(track.getLength());
 		}
@@ -448,7 +451,9 @@ void RealDrive::flushTrack()
 {
 	if (trackValid && trackDirty) {
 		if (auto wrTrack = getDiskWriteTrack()) {
-			changer->getDisk().writeTrack(*wrTrack, side, track);
+			changer->getDisk().writeTrack(narrow<uint8_t>(*wrTrack),
+			                              narrow<uint8_t>(side),
+			                              track);
 		}
 		trackDirty = false;
 	}

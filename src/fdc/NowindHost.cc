@@ -312,9 +312,9 @@ void NowindHost::setDateMSX()
 	auto* tm = localtime(&td);
 
 	sendHeader();
-	send(tm->tm_mday);          // day
-	send(tm->tm_mon + 1);       // month
-	send16(tm->tm_year + 1900); // year
+	send(narrow_cast<uint8_t>(tm->tm_mday));          // day
+	send(narrow_cast<uint8_t>(tm->tm_mon + 1));       // month
+	send16(narrow_cast<uint16_t>(tm->tm_year + 1900)); // year
 }
 
 
@@ -444,8 +444,8 @@ void NowindHost::transferSectors(unsigned transferAddress, unsigned amount)
 {
 	sendHeader();
 	send(0x00); // don't exit command, (more) data is coming
-	send16(transferAddress);
-	send16(amount);
+	send16(narrow_cast<uint16_t>(transferAddress));
+	send16(narrow_cast<uint16_t>(amount));
 
 	std::span fullBuf{buffer[0].raw.data(), buffer.size() * SECTOR_SIZE};
 	auto buf = fullBuf.subspan(transferred, amount);
@@ -461,8 +461,8 @@ void NowindHost::transferSectorsBackwards(unsigned transferAddress, unsigned amo
 {
 	sendHeader();
 	send(0x02); // don't exit command, (more) data is coming
-	send16(transferAddress + amount);
-	send(amount / 64);
+	send16(narrow_cast<uint16_t>(transferAddress + amount));
+	send(narrow_cast<uint8_t>(amount / 64));
 
 	std::span fullBuf{buffer[0].raw.data(), buffer.size() * SECTOR_SIZE};
 	auto buf = fullBuf.subspan(transferred, amount);
@@ -522,8 +522,8 @@ void NowindHost::doDiskWrite1()
 
 	sendHeader();
 	send(0);          // data ahead!
-	send16(address);
-	send16(transferSize);
+	send16(narrow_cast<uint16_t>(address));
+	send16(narrow_cast<uint16_t>(transferSize));
 	send(0xaa);
 
 	// wait for data
@@ -563,12 +563,12 @@ void NowindHost::doDiskWrite2()
 }
 
 
-unsigned NowindHost::getFCB() const
+word NowindHost::getFCB() const
 {
 	// note: same code as getStartAddress(), merge???
 	byte reg_l = cmdData[4];
 	byte reg_h = cmdData[5];
-	return reg_h * 256 + reg_l;
+	return word(reg_h * 256 + reg_l);
 }
 
 string NowindHost::extractName(int begin, int end) const
@@ -584,7 +584,7 @@ string NowindHost::extractName(int begin, int end) const
 
 int NowindHost::getDeviceNum() const
 {
-	unsigned fcb = getFCB();
+	auto fcb = getFCB();
 	for (auto [i, dev] : enumerate(devices)) {
 		if (dev.fs && dev.fcb == fcb) {
 			return int(i);
@@ -622,7 +622,7 @@ void NowindHost::deviceOpen()
 		strAppend(filename, '.', ext);
 	}
 
-	unsigned fcb = getFCB();
+	auto fcb = getFCB();
 	unsigned dev = getFreeDeviceNum();
 	devices[dev].fs.emplace(); // takes care of deleting old fs
 	devices[dev].fcb = fcb;
@@ -669,7 +669,7 @@ void NowindHost::deviceOpen()
 
 	send(0x00); // no error
 	send16(fcb);
-	send16(9 + readLen + (eof ? 1 : 0)); // number of bytes to transfer
+	send16(narrow_cast<uint16_t>(9 + readLen + (eof ? 1 : 0))); // number of bytes to transfer
 
 	send(openMode);
 	send(0);
@@ -712,8 +712,8 @@ void NowindHost::deviceRead()
 	send(0xAF);
 	send(0x05);
 	send(0x00); // dummy
-	send16(getFCB() + 9);
-	send16(readLen + (eof ? 1 : 0));
+	send16(narrow_cast<uint16_t>(getFCB() + 9));
+	send16(narrow_cast<uint16_t>(readLen + (eof ? 1 : 0)));
 	readHelper2(subspan(buf, 0, readLen));
 }
 

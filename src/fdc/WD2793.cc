@@ -778,8 +778,8 @@ void WD2793::postWriteSector(EmuTime::param time)
 		--dataAvailable;
 		if (dataAvailable > 0) {
 			// write 2 CRC bytes (big endian)
-			uint8_t val = (dataAvailable == 2) ? (crc.getValue() >> 8)
-			                                   : (crc.getValue() & 0xFF);
+			uint8_t val = (dataAvailable == 2) ? narrow_cast<uint8_t>((crc.getValue() >> 8))
+			                                   : narrow_cast<uint8_t>((crc.getValue() & 0xFF));
 			drive.writeTrackByte(dataCurrent++, val);
 			drqTime.reset(time);
 			schedule(FSM_POST_WRITE_SECTOR, drqTime + 1);
@@ -976,7 +976,7 @@ void WD2793::writeTrackData(EmuTime::param time)
 			dataOutReg = 0xC2;
 		} else if (dataOutReg == 0xF7) {
 			// write 2 CRC bytes, big endian
-			dataOutReg = crc.getValue() >> 8; // high byte
+			dataOutReg = narrow_cast<uint8_t>(crc.getValue() >> 8); // high byte
 			lastWasCRC = true;
 		} else if (dataOutReg == 0xFE) {
 			// Record locations of 0xA1 (with missing clock
@@ -1008,7 +1008,7 @@ void WD2793::writeTrackData(EmuTime::param time)
 					statusReg |= LOST_DATA;
 				}
 			} else {
-				dataOutReg = crc.getValue() & 0xFF; // low byte
+				dataOutReg = narrow_cast<uint8_t>(crc.getValue() & 0xFF); // low byte
 				// don't re-activate DRQ for 2nd byte of CRC
 				drqTime.reset(EmuTime::infinity()); // DRQ = false
 			}

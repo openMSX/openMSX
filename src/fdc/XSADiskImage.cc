@@ -49,7 +49,7 @@ private:
 	uint8_t bitFlg;		// flag with the bits
 	uint8_t bitCnt;		// nb bits left
 
-	static constexpr std::array<int, TBL_SIZE> cpdExt = { // Extra bits for distance codes
+	static constexpr std::array<uint8_t, TBL_SIZE> cpdExt = { // Extra bits for distance codes
 		  0,  0,  0,  0,  1,  2,  3,  4, 5,  6,  7,  8,  9, 10, 11, 12
 	};
 };
@@ -213,8 +213,9 @@ int XSAExtractor::rdStrPos()
 		if (cpdBmask[cpdIndex] >= 256) {
 			uint8_t strPosLsb = charIn();
 			uint8_t strPosMsb = 0;
-			for (uint8_t nrBits = cpdExt[cpdIndex] - 8; nrBits--;
-			     strPosMsb |= (bitIn() ? 1 : 0)) {
+			for (auto nrBits = narrow_cast<uint8_t>(cpdExt[cpdIndex] - 8);
+			     nrBits--;
+			     strPosMsb |= uint8_t(bitIn() ? 1 : 0)) {
 				strPosMsb <<= 1;
 			}
 			return strPosLsb + 256 * strPosMsb;

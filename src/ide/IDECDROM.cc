@@ -6,6 +6,7 @@
 #include "TclObject.hh"
 #include "CliComm.hh"
 #include "endian.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "serialize.hh"
 #include "xrange.hh"
@@ -228,9 +229,9 @@ void IDECDROM::executePacketCommand(AlignedBuffer& packet)
 			buf[i] = 0x00;
 		}
 		buf[ 0] = 0xF0;
-		buf[ 2] = senseKey >> 16; // sense key
-		buf[12] = (senseKey >> 8) & 0xFF; // ASC
-		buf[13] = senseKey & 0xFF; // ASQ
+		buf[ 2] = narrow_cast<byte>((senseKey >> 16) & 0xFF); // sense key
+		buf[12] = narrow_cast<byte>((senseKey >>  8) & 0xFF); // ASC
+		buf[13] = narrow_cast<byte>((senseKey >>  0) & 0xFF); // ASQ
 		buf[ 7] = byteCount - 7;
 		senseKey = 0;
 		break;
