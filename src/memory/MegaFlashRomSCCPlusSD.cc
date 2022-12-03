@@ -5,6 +5,7 @@
 #include "CheckedRam.hh"
 #include "SdCard.hh"
 #include "enumerate.hh"
+#include "narrow.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include "xrange.hh"
@@ -257,7 +258,7 @@ UPDATE:
 ******************************************************************************/
 
 static constexpr unsigned MEMORY_MAPPER_SIZE = 512;
-static constexpr unsigned MEMORY_MAPPER_MASK = (MEMORY_MAPPER_SIZE / 16) - 1;
+static constexpr uint8_t MEMORY_MAPPER_MASK = (MEMORY_MAPPER_SIZE / 16) - 1;
 
 namespace openmsx {
 
@@ -536,7 +537,7 @@ byte MegaFlashRomSCCPlusSD::readMemSubSlot1(word addr, EmuTime::param time)
 		SCCEnable enable = getSCCEnable();
 		if (((enable == EN_SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
 		    ((enable == EN_SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
-			byte val = scc.readMem(addr & 0xFF, time);
+			byte val = scc.readMem(narrow_cast<uint8_t>(addr & 0xFF), time);
 			return val;
 		}
 	}
@@ -553,7 +554,7 @@ byte MegaFlashRomSCCPlusSD::peekMemSubSlot1(word addr, EmuTime::param time) cons
 		SCCEnable enable = getSCCEnable();
 		if (((enable == EN_SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
 		    ((enable == EN_SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
-			byte val = scc.peekMem(addr & 0xFF, time);
+			byte val = scc.peekMem(narrow_cast<uint8_t>(addr & 0xFF), time);
 			return val;
 		}
 	}
@@ -632,7 +633,7 @@ void MegaFlashRomSCCPlusSD::writeMemSubSlot1(word addr, byte value, EmuTime::par
 		     (0x9800 <= addr) && (addr < 0xA000)) ||
 		    ((enable == EN_SCCPLUS) && !isRamSegment3 &&
 		     (0xB800 <= addr) && (addr < 0xC000))) {
-			scc.writeMem(addr & 0xFF, value, time);
+			scc.writeMem(narrow_cast<uint8_t>(addr & 0xFF), value, time);
 			return; // Pazos: when SCC registers are selected flashROM is not seen, so it does not accept commands.
 		}
 	}
@@ -697,13 +698,13 @@ void MegaFlashRomSCCPlusSD::writeMemSubSlot1(word addr, byte value, EmuTime::par
 			// the content of the bank registers is unchanged after
 			// a switch.
 			if ((0x6000 <= addr) && (addr < 0x6800)) {
-				bankRegsSubSlot1[0] = 2 * value + 0;
-				bankRegsSubSlot1[1] = 2 * value + 1;
+				bankRegsSubSlot1[0] = narrow_cast<uint8_t>(2 * value + 0);
+				bankRegsSubSlot1[1] = narrow_cast<uint8_t>(2 * value + 1);
 				invalidateDeviceRWCache(0x4000, 0x4000);
 			}
 			if ((0x7000 <= addr) && (addr < 0x7800)) {
-				bankRegsSubSlot1[2] = 2 * value + 0;
-				bankRegsSubSlot1[3] = 2 * value + 1;
+				bankRegsSubSlot1[2] = narrow_cast<uint8_t>(2 * value + 0);
+				bankRegsSubSlot1[3] = narrow_cast<uint8_t>(2 * value + 1);
 				invalidateDeviceRWCache(0x8000, 0x4000);
 			}
 			break;
@@ -724,7 +725,7 @@ byte* MegaFlashRomSCCPlusSD::getWriteCacheLineSubSlot1(word /*addr*/) const
 
 unsigned MegaFlashRomSCCPlusSD::calcMemMapperAddress(word address) const
 {
-	unsigned bank = memMapperRegs[address >> 14];
+	auto bank = memMapperRegs[address >> 14];
 	return ((bank & MEMORY_MAPPER_MASK) << 14) | (address & 0x3FFF);
 }
 
@@ -762,7 +763,7 @@ byte MegaFlashRomSCCPlusSD::MapperIO::readIO(word port, EmuTime::param time)
 
 byte MegaFlashRomSCCPlusSD::MapperIO::peekIO(word port, EmuTime::param /*time*/) const
 {
-	return getSelectedSegment(port & 3) | ~MEMORY_MAPPER_MASK;
+	return getSelectedSegment(port & 3) | byte(~MEMORY_MAPPER_MASK);
 }
 
 void MegaFlashRomSCCPlusSD::MapperIO::writeIO(word port, byte value, EmuTime::param /*time*/)

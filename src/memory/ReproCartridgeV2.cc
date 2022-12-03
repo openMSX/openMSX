@@ -152,7 +152,7 @@ bool ReproCartridgeV2::isSCCAccess(word addr) const
 byte ReproCartridgeV2::readMem(word addr, EmuTime::param time)
 {
 	if (isSCCAccess(addr)) {
-		return scc.readMem(addr & 0xFF, time);
+		return scc.readMem(narrow_cast<uint8_t>(addr & 0xFF), time);
 	}
 
 	unsigned flashAddr = getFlashAddr(addr);
@@ -164,7 +164,7 @@ byte ReproCartridgeV2::readMem(word addr, EmuTime::param time)
 byte ReproCartridgeV2::peekMem(word addr, EmuTime::param time) const
 {
 	if (isSCCAccess(addr)) {
-		return scc.peekMem(addr & 0xFF, time);
+		return scc.peekMem(narrow_cast<uint8_t>(addr & 0xFF), time);
 	}
 
 	unsigned flashAddr = getFlashAddr(addr);
@@ -196,7 +196,7 @@ void ReproCartridgeV2::writeMem(word addr, byte value, EmuTime::param time)
 	// SCC registers
 
 	if (isSCCAccess(addr)) {
-		scc.writeMem(addr & 0xFF, value, time);
+		scc.writeMem(narrow_cast<uint8_t>(addr & 0xFF), value, time);
 		return; // write to SCC blocks write to other functions
 	}
 
@@ -264,13 +264,13 @@ void ReproCartridgeV2::writeMem(word addr, byte value, EmuTime::param time)
 			// the content of the bank registers is unchanged after
 			// a switch.
 			if ((0x6000 <= addr) && (addr < 0x6800)) {
-				bankRegs[0] = 2 * value + 0;
-				bankRegs[1] = 2 * value + 1;
+				bankRegs[0] = narrow_cast<byte>(2 * value + 0);
+				bankRegs[1] = narrow_cast<byte>(2 * value + 1);
 				invalidateDeviceRCache(0x4000, 0x4000);
 			}
 			if ((0x7000 <= addr) && (addr < 0x7800)) {
-				bankRegs[2] = 2 * value + 0;
-				bankRegs[3] = 2 * value + 1;
+				bankRegs[2] = narrow_cast<byte>(2 * value + 0);
+				bankRegs[3] = narrow_cast<byte>(2 * value + 1);
 				invalidateDeviceRCache(0x8000, 0x4000);
 			}
 			break;

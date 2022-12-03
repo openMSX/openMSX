@@ -2,6 +2,7 @@
 #include "DummyAY8910Periphery.hh"
 #include "MSXCPUInterface.hh"
 #include "CacheLine.hh"
+#include "narrow.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include "xrange.hh"
@@ -275,7 +276,7 @@ byte MegaFlashRomSCCPlus::peekMem(word addr, EmuTime::param time) const
 		SCCEnable enable = getSCCEnable();
 		if (((enable == EN_SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
 		    ((enable == EN_SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
-			return scc.peekMem(addr & 0xFF, time);
+			return scc.peekMem(narrow_cast<uint8_t>(addr & 0xFF), time);
 		}
 	}
 
@@ -302,7 +303,7 @@ byte MegaFlashRomSCCPlus::readMem(word addr, EmuTime::param time)
 		SCCEnable enable = getSCCEnable();
 		if (((enable == EN_SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
 		    ((enable == EN_SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
-			return scc.readMem(addr & 0xFF, time);
+			return scc.readMem(narrow_cast<uint8_t>(addr & 0xFF), time);
 		}
 	}
 
@@ -389,7 +390,7 @@ void MegaFlashRomSCCPlus::writeMem(word addr, byte value, EmuTime::param time)
 		     (0x9800 <= addr) && (addr < 0xA000)) ||
 		    ((enable == EN_SCCPLUS) && !isRamSegment3 &&
 		     (0xB800 <= addr) && (addr < 0xC000))) {
-			scc.writeMem(addr & 0xFF, value, time);
+			scc.writeMem(narrow_cast<uint8_t>(addr & 0xFF), value, time);
 			return; // Pazos: when SCC registers are selected flashROM is not seen, so it does not accept commands.
 		}
 	}
@@ -460,13 +461,13 @@ void MegaFlashRomSCCPlus::writeMem(word addr, byte value, EmuTime::param time)
 			// the content of the bank registers is unchanged after
 			// a switch.
 			if ((0x6000 <= addr) && (addr < 0x6800)) {
-				bankRegs[subslot][0] = 2 * value + 0;
-				bankRegs[subslot][1] = 2 * value + 1;
+				bankRegs[subslot][0] = narrow_cast<uint8_t>(2 * value + 0);
+				bankRegs[subslot][1] = narrow_cast<uint8_t>(2 * value + 1);
 				invalidateDeviceRCache(0x4000, 0x4000);
 			}
 			if ((0x7000 <= addr) && (addr < 0x7800)) {
-				bankRegs[subslot][2] = 2 * value + 0;
-				bankRegs[subslot][3] = 2 * value + 1;
+				bankRegs[subslot][2] = narrow_cast<uint8_t>(2 * value + 0);
+				bankRegs[subslot][3] = narrow_cast<uint8_t>(2 * value + 1);
 				invalidateDeviceRCache(0x8000, 0x4000);
 			}
 			break;

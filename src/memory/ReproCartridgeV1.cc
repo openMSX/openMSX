@@ -1,6 +1,7 @@
 #include "ReproCartridgeV1.hh"
 #include "DummyAY8910Periphery.hh"
 #include "MSXCPUInterface.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 #include <array>
 
@@ -115,7 +116,7 @@ bool ReproCartridgeV1::isSCCAccess(word addr) const
 byte ReproCartridgeV1::readMem(word addr, EmuTime::param time)
 {
 	if (isSCCAccess(addr)) {
-		return scc.readMem(addr & 0xFF, time);
+		return scc.readMem(narrow_cast<uint8_t>(addr & 0xFF), time);
 	}
 
 	unsigned flashAddr = getFlashAddr(addr);
@@ -127,7 +128,7 @@ byte ReproCartridgeV1::readMem(word addr, EmuTime::param time)
 byte ReproCartridgeV1::peekMem(word addr, EmuTime::param time) const
 {
 	if (isSCCAccess(addr)) {
-		return scc.peekMem(addr & 0xFF, time);
+		return scc.peekMem(narrow_cast<uint8_t>(addr & 0xFF), time);
 	}
 
 	unsigned flashAddr = getFlashAddr(addr);
@@ -159,7 +160,7 @@ void ReproCartridgeV1::writeMem(word addr, byte value, EmuTime::param time)
 	// SCC registers
 
 	if (isSCCAccess(addr)) {
-		scc.writeMem(addr & 0xFF, value, time);
+		scc.writeMem(narrow_cast<uint8_t>(addr & 0xFF), value, time);
 		return; // write to SCC blocks write to other functions
 	}
 

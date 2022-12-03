@@ -1,6 +1,7 @@
 #include "CliComm.hh"
 #include "RomBlocks.hh"
 #include "SRAM.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
@@ -41,7 +42,7 @@ RomBlocks<BANK_SIZE>::RomBlocks(
 
 	// Default mask: wraps at end of ROM image.
 	blockMask = nrBlocks - 1;
-	for (auto i : xrange(NUM_BANKS)) {
+	for (auto i : xrange(narrow<byte>(NUM_BANKS))) {
 		setRom(i, 0);
 	}
 }
@@ -106,7 +107,8 @@ void RomBlocks<BANK_SIZE>::setRom(byte region, unsigned block)
 	//       for those we have to make an exception for "block < nrBlocks".
 	block = (block < nrBlocks) ? block : block & blockMask;
 	if (block < nrBlocks) {
-		setBank(region, &rom[block * BANK_SIZE], block);
+		setBank(region, &rom[block * BANK_SIZE],
+		        narrow_cast<byte>(block)); // only used for debug, narrowing is fine
 	} else {
 		setBank(region, unmappedRead.data(), 255);
 	}

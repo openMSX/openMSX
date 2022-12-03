@@ -50,7 +50,7 @@ std::span<const byte, 0x2000> PanasonicMemory::getRomBlock(unsigned block) const
 	} else {
 		unsigned offset = block * 0x2000;
 		if (offset >= rom->size()) {
-			offset &= rom->size() - 1;
+			offset &= narrow<unsigned>(rom->size() - 1);
 		}
 		return subspan<0x2000>(*rom, offset);
 	}

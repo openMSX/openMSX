@@ -1,5 +1,6 @@
 #include "MusicalMemoryMapper.hh"
 #include "enumerate.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 #include "xrange.hh"
 
@@ -126,12 +127,12 @@ void MusicalMemoryMapper::updateControlReg(byte value)
 		// Invalidate pages for which register access changes.
 		byte regAccessBefore = 0;
 		for (auto page : xrange(4)) {
-			regAccessBefore |= registerAccessAt(0x4000 * page) << page;
+			regAccessBefore |= byte(registerAccessAt(narrow_cast<word>(0x4000 * page)) << page);
 		}
 		controlReg = value;
 		byte regAccessAfter = 0;
 		for (auto page : xrange(4)) {
-			regAccessAfter |= registerAccessAt(0x4000 * page) << page;
+			regAccessAfter |= byte(registerAccessAt(narrow_cast<word>(0x4000 * page)) << page);
 		}
 		invalidate |= regAccessBefore ^ regAccessAfter;
 
@@ -146,13 +147,13 @@ void MusicalMemoryMapper::updateControlReg(byte value)
 byte MusicalMemoryMapper::peekMem(word address, EmuTime::param time) const
 {
 	int reg = readReg(address);
-	return reg >= 0 ? reg : MSXMemoryMapperBase::peekMem(address, time);
+	return reg >= 0 ? narrow<byte>(reg) : MSXMemoryMapperBase::peekMem(address, time);
 }
 
 byte MusicalMemoryMapper::readMem(word address, EmuTime::param time)
 {
 	int reg = readReg(address);
-	return reg >= 0 ? reg : MSXMemoryMapperBase::readMem(address, time);
+	return reg >= 0 ? narrow<byte>(reg) : MSXMemoryMapperBase::readMem(address, time);
 }
 
 void MusicalMemoryMapper::writeMem(word address, byte value, EmuTime::param time)

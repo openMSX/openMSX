@@ -1,4 +1,5 @@
 #include "ROMHunterMk2.hh"
+#include "narrow.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include <cassert>
@@ -105,13 +106,13 @@ void ROMHunterMk2::writeMem(word addr, byte value, EmuTime::param /*time*/)
 			// the bank registers is unchanged after a switch.
 			const byte maskedValue = value & 0xF;
 			if ((0x6000 <= addr) && (addr < 0x6800)) {
-				bankRegs[0] = 2 * maskedValue + 0;
-				bankRegs[1] = 2 * maskedValue + 1;
+				bankRegs[0] = narrow_cast<byte>(2 * maskedValue + 0);
+				bankRegs[1] = narrow_cast<byte>(2 * maskedValue + 1);
 				invalidateDeviceRCache(0x4000, 0x4000);
 			}
 			if ((0x7000 <= addr) && (addr < 0x7800)) {
-				bankRegs[2] = 2 * maskedValue + 0;
-				bankRegs[3] = 2 * maskedValue + 1;
+				bankRegs[2] = narrow_cast<byte>(2 * maskedValue + 0);
+				bankRegs[3] = narrow_cast<byte>(2 * maskedValue + 1);
 				invalidateDeviceRCache(0x8000, 0x4000);
 			}
 			break;

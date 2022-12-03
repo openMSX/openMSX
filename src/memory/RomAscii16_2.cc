@@ -65,7 +65,7 @@ void RomAscii16_2::writeMem(word address, byte value, EmuTime::param /*time*/)
 		} else {
 			// ROM block
 			setRom(region, value);
-			sramEnabled &= ~(1 << region);
+			sramEnabled &= byte(~(1 << region));
 		}
 		invalidateDeviceRWCache(0x4000 * region, 0x4000);
 	} else {

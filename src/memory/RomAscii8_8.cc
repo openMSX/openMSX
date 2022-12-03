@@ -41,7 +41,7 @@ void RomAscii8_8::reset(EmuTime::param /*time*/)
 {
 	setUnmapped(0);
 	setUnmapped(1);
-	for (auto i : xrange(2, 6)) {
+	for (auto i : xrange(byte(2), byte(6))) {
 		setRom(i, 0);
 	}
 	setUnmapped(6);
@@ -52,10 +52,10 @@ void RomAscii8_8::reset(EmuTime::param /*time*/)
 
 byte RomAscii8_8::readMem(word address, EmuTime::param time)
 {
-	byte bank = address / BANK_SIZE;
+	auto bank = narrow<byte>(address / BANK_SIZE);
 	if ((1 << bank) & sramEnabled) {
 		// read from SRAM (possibly mirror)
-		word addr = (sramBlock[bank] * BANK_SIZE)
+		auto addr = (sramBlock[bank] * BANK_SIZE)
 		          + (address & (sram->size() - 1) & BANK_MASK);
 		return (*sram)[addr];
 	} else {
@@ -65,10 +65,10 @@ byte RomAscii8_8::readMem(word address, EmuTime::param time)
 
 const byte* RomAscii8_8::getReadCacheLine(word address) const
 {
-	byte bank = address / BANK_SIZE;
+	auto bank = narrow<byte>(address / BANK_SIZE);
 	if ((1 << bank) & sramEnabled) {
 		// read from SRAM (possibly mirror)
-		word addr = (sramBlock[bank] * BANK_SIZE)
+		auto addr = (sramBlock[bank] * BANK_SIZE)
 		          + (address & (sram->size() - 1) & BANK_MASK);
 		return &(*sram)[addr];
 	} else {
@@ -88,16 +88,16 @@ void RomAscii8_8::writeMem(word address, byte value, EmuTime::param /*time*/)
 			setBank(region, &(*sram)[sramBlock[region] * BANK_SIZE], value);
 			invalidateDeviceRCache(0x2000 * region, 0x2000); // do not cache
 		} else {
-			sramEnabled &= ~(1 << region);
+			sramEnabled &= byte(~(1 << region));
 			setRom(region, value);
 		}
 		// 'R' is already handled
 		invalidateDeviceWCache(0x2000 * region, 0x2000);
 	} else {
-		byte bank = address / BANK_SIZE;
+		auto bank = narrow<byte>(address / BANK_SIZE);
 		if ((1 << bank) & sramEnabled) {
 			// write to SRAM (possibly mirror)
-			word addr = (sramBlock[bank] * BANK_SIZE)
+			auto addr = (sramBlock[bank] * BANK_SIZE)
 			          + (address & (sram->size() - 1) & BANK_MASK);
 			sram->write(addr, value);
 		}
