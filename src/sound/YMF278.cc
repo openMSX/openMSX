@@ -102,7 +102,7 @@ static constexpr std::array<uint8_t, 15 * RATE_STEPS> eg_inc = {
 	0, 0,  0, 0,  0, 0,  0, 0, // 14  infinity rates for attack and decay(s)
 };
 
-[[nodiscard]] static constexpr uint8_t O(int a) { return a * RATE_STEPS; }
+[[nodiscard]] static constexpr uint8_t O(int a) { return narrow<uint8_t>(a * RATE_STEPS); }
 static constexpr std::array<uint8_t, 64> eg_rate_select = {
 	O(14),O(14),O(14),O(14), // inf rate
 	O( 0),O( 1),O( 2),O( 3),
@@ -226,7 +226,9 @@ void YMF278::Slot::reset()
 	PRVB = keyon = DAMP = false;
 	stepPtr = 0;
 	step = calcStep(OCT, FN);
-	bits = startAddr = loopAddr = endAddr = 0;
+	bits = 0;
+	startAddr = 0;
+	loopAddr = endAddr = 0;
 	env_vol = MAX_ATT_INDEX;
 
 	lfo_active = false;
@@ -239,7 +241,7 @@ void YMF278::Slot::reset()
 	pos = 0;
 }
 
-int YMF278::Slot::compute_rate(int val) const
+uint8_t YMF278::Slot::compute_rate(int val) const
 {
 	if (val == 0) {
 		return 0;
@@ -252,10 +254,10 @@ int YMF278::Slot::compute_rate(int val) const
 		res += 2 * std::clamp(OCT + RC, 0, 15);
 		res += (FN & 0x200) ? 1 : 0;
 	}
-	return std::clamp(res, 0, 63);
+	return narrow<uint8_t>(std::clamp(res, 0, 63));
 }
 
-int YMF278::Slot::compute_decay_rate(int val) const
+uint8_t YMF278::Slot::compute_decay_rate(int val) const
 {
 	if (DAMP) {
 		// damping
@@ -316,11 +318,11 @@ uint16_t YMF278::Slot::compute_am() const
 	//  With LFO speed 0 (period 262144 samples), each tremolo step takes
 	//  1024 samples.
 	//  -> 256 steps total
-	uint16_t lfo_am = lfo_cnt / (LFO_PERIOD / 0x100);
+	auto lfo_am = narrow<uint16_t>(lfo_cnt / (LFO_PERIOD / 0x100));
 	// results in 0x00..0x7F, 0x7F..0x00
 	if (lfo_am >= 0x80) lfo_am ^= 0xFF;
 
-	return (lfo_am * am_depth[AM]) >> 7;
+	return narrow<uint16_t>((lfo_am * am_depth[AM]) >> 7);
 }
 
 
@@ -463,7 +465,7 @@ uint16_t YMF278::nextPos(Slot& slot, uint16_t pos, uint16_t increment)
 	// This is abused by the "Lizard Star" song to generate noise at 0:52. -Valley Bell
 	pos += increment;
 	if ((uint32_t(pos) + slot.endAddr) >= 0x10000) // check position >= (negated) end address
-		pos += slot.endAddr + slot.loopAddr; // This is how the actual chip does it.
+		pos += narrow_cast<uint16_t>(slot.endAddr + slot.loopAddr); // This is how the actual chip does it.
 	return pos;
 }
 
@@ -526,8 +528,9 @@ void YMF278::generateChannels(std::span<float*> bufs, unsigned num)
 			// A volume of -60dB or lower results in silence. (value 0x280..0x3FF).
 			// Recordings from actual hardware indicate that TL level and envelope level are applied separately.
 			// Each of them is clipped to silence below -60dB, but TL+envelope might result in a lower volume. -Valley Bell
-			uint16_t envVol = std::min(sl.env_vol + ((sl.lfo_active && sl.AM) ? sl.compute_am() : 0),
-			                           MAX_ATT_INDEX);
+			auto envVol = narrow_cast<uint16_t>(
+				std::min(sl.env_vol + ((sl.lfo_active && sl.AM) ? sl.compute_am() : 0),
+				         MAX_ATT_INDEX));
 			int smplOut = vol_factor(vol_factor(sample, envVol), sl.TL << TL_SHIFT);
 
 			// Panning is also done separately. (low-volume TL + low-volume panning goes below -60dB)
@@ -548,7 +551,7 @@ void YMF278::generateChannels(std::span<float*> bufs, unsigned num)
 			sl.stepPtr += step;
 
 			if (sl.stepPtr >= 0x10000) {
-				sl.pos = nextPos(sl, sl.pos, sl.stepPtr >> 16);
+				sl.pos = nextPos(sl, sl.pos, narrow<uint16_t>(sl.stepPtr >> 16));
 				sl.stepPtr &= 0xffff;
 			}
 		}
@@ -606,7 +609,7 @@ void YMF278::writeRegDirect(uint8_t reg, uint8_t data, EmuTime::param time)
 				// Verified on real YMF278:
 				// After tone loading, if you read these
 				// registers, their value actually has changed.
-				writeRegDirect(8 + sNum + (i - 2) * 24, buf[i], time);
+				writeRegDirect(narrow<uint8_t>(8 + sNum + (i - 2) * 24), buf[i], time);
 			}
 			if (slot.keyon) {
 				keyOnHelper(slot);
@@ -846,7 +849,7 @@ void YMF278::reset(EmuTime::param time)
 	}
 	regs[2] = 0; // avoid UMR
 	for (int i = 0xf7; i >= 0; --i) { // reverse order to avoid UMR
-		writeRegDirect(i, 0, time);
+		writeRegDirect(narrow<uint8_t>(i), 0, time);
 	}
 	memAdr = 0;
 	setMixLevel(0, time);
@@ -1104,7 +1107,7 @@ void YMF278::serialize(Archive& ar, unsigned version)
 	// TODO restore more state from registers
 	if constexpr (Archive::IS_LOADER) {
 		for (auto [i, sl] : enumerate(slots)) {
-			auto t = regs[0x50 + i] >> 1;
+			uint8_t t = regs[0x50 + i] >> 1;
 			sl.TLdest = (t != 0x7f) ? t : 0xff;
 
 			sl.keyon = (regs[0x68 + i] & 0x80) != 0;
@@ -1128,13 +1131,13 @@ YMF278::DebugRegisters::DebugRegisters(MSXMotherBoard& motherBoard_,
 uint8_t YMF278::DebugRegisters::read(unsigned address)
 {
 	auto& ymf278 = OUTER(YMF278, debugRegisters);
-	return ymf278.peekReg(address);
+	return ymf278.peekReg(narrow<uint8_t>(address));
 }
 
 void YMF278::DebugRegisters::write(unsigned address, uint8_t value, EmuTime::param time)
 {
 	auto& ymf278 = OUTER(YMF278, debugRegisters);
-	ymf278.writeReg(address, value, time);
+	ymf278.writeReg(narrow<uint8_t>(address), value, time);
 }
 
 

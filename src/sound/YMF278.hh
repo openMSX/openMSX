@@ -40,8 +40,8 @@ private:
 	public:
 		Slot();
 		void reset();
-		[[nodiscard]] int compute_rate(int val) const;
-		[[nodiscard]] int compute_decay_rate(int val) const;
+		[[nodiscard]] uint8_t compute_rate(int val) const;
+		[[nodiscard]] uint8_t compute_decay_rate(int val) const;
 		[[nodiscard]] unsigned decay_rate(int num, int sample_rate);
 		void envelope_next(int sample_rate);
 		[[nodiscard]] int16_t compute_vib() const;

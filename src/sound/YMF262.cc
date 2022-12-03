@@ -166,7 +166,7 @@ static constexpr std::array<uint8_t, 15 * RATE_STEPS> eg_inc = {
 
 
 // note that there is no O(13) in this table - it's directly in the code
-[[nodiscard]] static constexpr uint8_t O(int a) { return a * RATE_STEPS; }
+[[nodiscard]] static constexpr uint8_t O(int a) { return narrow<uint8_t>(a * RATE_STEPS); }
 static constexpr std::array<uint8_t, 16 + 64 + 16> eg_rate_select = {
 	// Envelope Generator rates (16 + 64 rates + 16 RKS)
 	// 16 infinite time rates
@@ -914,7 +914,7 @@ void YMF262::Slot::calc_fc(const Channel& ch)
 	// (frequency) phase increment counter
 	Incr = ch.fc * mul;
 
-	int newKsr = ch.kcode >> KSR;
+	auto newKsr = narrow<uint8_t>(ch.kcode >> KSR);
 	if (ksr == newKsr) return;
 	ksr = newKsr;
 
@@ -980,7 +980,7 @@ void YMF262::set_ksl_tl(unsigned sl, uint8_t v)
 
 	// This is indeed {0.0, 3.0, 1.5, 6.0} dB/oct, verified on real YMF262.
 	// Note the illogical order of 2nd and 3rd element.
-	static constexpr std::array<unsigned, 4> ksl_shift = {31, 1, 2, 0};
+	static constexpr std::array<uint8_t, 4> ksl_shift = {31, 1, 2, 0};
 	slot.ksl = ksl_shift[v >> 6];
 
 	slot.TL  = (v & 0x3F) << (ENV_BITS - 1 - 7); // 7 bits TL (bit 6 = always 0)
@@ -1001,8 +1001,8 @@ void YMF262::set_ar_dr(unsigned sl, uint8_t v)
 	auto& ch = channel[sl / 2];
 	auto& slot = ch.slot[sl & 1];
 
-	slot.ar = (v >> 4) ? 16 + ((v >> 4) << 2) : 0;
-	slot.dr = (v & 0x0F) ? 16 + ((v & 0x0F) << 2) : 0;
+	slot.ar = (v >> 4)   ? narrow<uint8_t>(16 + ((v >> 4)   << 2)) : 0;
+	slot.dr = (v & 0x0F) ? narrow<uint8_t>(16 + ((v & 0x0F) << 2)) : 0;
 	slot.update_ar_dr();
 }
 

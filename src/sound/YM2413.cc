@@ -25,13 +25,13 @@ YM2413::Debuggable::Debuggable(
 byte YM2413::Debuggable::read(unsigned address)
 {
 	auto& ym2413 = OUTER(YM2413, debuggable);
-	return ym2413.core->peekReg(address);
+	return ym2413.core->peekReg(narrow<uint8_t>(address));
 }
 
 void YM2413::Debuggable::write(unsigned address, byte value, EmuTime::param time)
 {
 	auto& ym2413 = OUTER(YM2413, debuggable);
-	ym2413.pokeReg(address, value, time);
+	ym2413.pokeReg(narrow<uint8_t>(address), value, time);
 }
 
 

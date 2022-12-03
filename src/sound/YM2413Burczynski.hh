@@ -40,7 +40,7 @@ public:
 	[[nodiscard]] inline int calc_envelope(Channel& channel, unsigned eg_cnt, bool carrier);
 	[[nodiscard]] inline int calc_phase(Channel& channel, unsigned lfo_pm);
 
-	enum KeyPart { KEY_MAIN = 1, KEY_RHYTHM = 2 };
+	enum KeyPart : uint8_t { KEY_MAIN = 1, KEY_RHYTHM = 2 };
 	void setKeyOn(KeyPart part);
 	void setKeyOff(KeyPart part);
 	void setKeyOnOff(KeyPart part, bool enabled);

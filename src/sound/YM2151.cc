@@ -148,7 +148,7 @@ static constexpr std::array<uint8_t, 19 * RATE_STEPS> eg_inc = {
 };
 
 
-static constexpr uint8_t O(int a) { return a * RATE_STEPS; }
+static constexpr uint8_t O(int a) { return narrow<uint8_t>(a * RATE_STEPS); }
 // note that there is no O(17) in this table - it's directly in the code
 static constexpr std::array<uint8_t, 32 + 64 + 32> eg_rate_select {
 // Envelope Generator rates (32 + 64 rates + 32 RKS)
@@ -959,7 +959,7 @@ void YM2151::reset(EmuTime::param time)
 	writeReg(0x1b, 0, time); // only because of CT1, CT2 output pins
 	writeReg(0x18, 0, time); // set LFO frequency
 	for (auto i : xrange(0x20, 0x100)) { // set the operators
-		writeReg(i, 0, time);
+		writeReg(narrow<uint8_t>(i), 0, time);
 	}
 
 	irq.reset();
@@ -1633,7 +1633,7 @@ void YM2151::serialize(Archive& a, unsigned /*version*/)
 	if constexpr (Archive::IS_LOADER) {
 		// TODO restore more state from registers
 		EmuTime::param time = timer1->getCurrentTime();
-		for (auto r : xrange(0x20, 0x28)) {
+		for (auto r : xrange(uint8_t(0x20), uint8_t(0x28))) {
 			writeReg(r , regs[r], time);
 		}
 	}

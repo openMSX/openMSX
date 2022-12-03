@@ -739,21 +739,21 @@ void Slot::setFeedbackShift(uint8_t value)
 void Slot::setAttackRate(const Channel& channel, uint8_t value)
 {
 	int kcodeScaled = channel.getKeyCode() >> KSR;
-	ar = value ? 16 + (value << 2) : 0;
+	ar = value ? narrow<uint8_t>(16 + (value << 2)) : 0;
 	updateAttackRate(kcodeScaled);
 }
 
 void Slot::setDecayRate(const Channel& channel, uint8_t value)
 {
 	int kcodeScaled = channel.getKeyCode() >> KSR;
-	dr = value ? 16 + (value << 2) : 0;
+	dr = value ? narrow<uint8_t>(16 + (value << 2)) : 0;
 	updateDecayRate(kcodeScaled);
 }
 
 void Slot::setReleaseRate(const Channel& channel, uint8_t value)
 {
 	int kcodeScaled = channel.getKeyCode() >> KSR;
-	rr = value ? 16 + (value << 2) : 0;
+	rr = value ? narrow<uint8_t>(16 + (value << 2)) : 0;
 	updateReleaseRate(kcodeScaled);
 }
 
@@ -1000,7 +1000,7 @@ void YM2413::reset()
 
 	// reset with register write
 	writeReg(0x0F, 0); // test reg
-	for (int i = 0x3F; i >= 0x10; --i) {
+	for (uint8_t i = 0x3F; i >= 0x10; --i) {
 		writeReg(i, 0);
 	}
 	registerLatch = 0;

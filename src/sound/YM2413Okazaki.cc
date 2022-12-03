@@ -200,7 +200,7 @@ static constexpr auto tllTab = [] {
 		for (auto KL : xrange(4)) {
 			unsigned t = (tmp <= 0 || KL == 0) ? 0 : (tmp >> (3 - KL));
 			assert(t <= 112);
-			result[KL][freq] = t;
+			result[KL][freq] = narrow<uint8_t>(t);
 		}
 	}
 	return result;
@@ -365,8 +365,7 @@ void Patch::setKL(uint8_t value)
 void Patch::setTL(uint8_t value)
 {
 	assert(value < 64);
-	assert(TL2EG(value) < 256);
-	TL = TL2EG(value);
+	TL = narrow<uint8_t>(TL2EG(value));
 }
 void Patch::setWF(uint8_t value)
 {
@@ -709,7 +708,7 @@ void YM2413::reset()
 	for (auto& ch : channels) {
 		ch.reset(*this);
 	}
-	for (auto i : xrange(0x40)) {
+	for (auto i : xrange(uint8_t(0x40))) {
 		writeReg(i, 0);
 	}
 	registerLatch = 0;
@@ -863,20 +862,20 @@ void YM2413::setRhythmFlags(uint8_t old)
 void YM2413::update_key_status()
 {
 	for (auto [i, ch] : enumerate(channels)) {
-		int slot_on = (reg[0x20 + i] & 0x10) ? 1 : 0;
+		uint8_t slot_on = (reg[0x20 + i] & 0x10) ? 1 : 0;
 		ch.mod.slot_on_flag = slot_on;
 		ch.car.slot_on_flag = slot_on;
 	}
 	if (isRhythm()) {
 		Channel& ch6 = channels[6];
-		ch6.mod.slot_on_flag |= (reg[0x0e] & 0x10) ? 2 : 0; // BD1
-		ch6.car.slot_on_flag |= (reg[0x0e] & 0x10) ? 2 : 0; // BD2
+		ch6.mod.slot_on_flag |= uint8_t((reg[0x0e] & 0x10) ? 2 : 0); // BD1
+		ch6.car.slot_on_flag |= uint8_t((reg[0x0e] & 0x10) ? 2 : 0); // BD2
 		Channel& ch7 = channels[7];
-		ch7.mod.slot_on_flag |= (reg[0x0e] & 0x01) ? 2 : 0; // HH
-		ch7.car.slot_on_flag |= (reg[0x0e] & 0x08) ? 2 : 0; // SD
+		ch7.mod.slot_on_flag |= uint8_t((reg[0x0e] & 0x01) ? 2 : 0); // HH
+		ch7.car.slot_on_flag |= uint8_t((reg[0x0e] & 0x08) ? 2 : 0); // SD
 		Channel& ch8 = channels[8];
-		ch8.mod.slot_on_flag |= (reg[0x0e] & 0x04) ? 2 : 0; // TOM
-		ch8.car.slot_on_flag |= (reg[0x0e] & 0x02) ? 2 : 0; // CYM
+		ch8.mod.slot_on_flag |= uint8_t((reg[0x0e] & 0x04) ? 2 : 0); // TOM
+		ch8.car.slot_on_flag |= uint8_t((reg[0x0e] & 0x02) ? 2 : 0); // CYM
 	}
 }
 

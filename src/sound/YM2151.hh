@@ -183,7 +183,7 @@ private:
 	unsigned irq_enable;     // IRQ enable for timer B (bit 3) and timer A
 	                         // (bit 2); bit 7 - CSM mode (keyon to all
 	                         // slots, every time timer A overflows)
-	unsigned status;         // chip status (BUSY, IRQ Flags)
+	uint8_t status;          // chip status (BUSY, IRQ Flags)
 
 	std::array<int, 8> chanOut;
 	int m2, c1, c2;          // Phase Modulation input for operators 2,3,4
