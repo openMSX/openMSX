@@ -24,7 +24,7 @@
       <io base="0xA8" num="4"/>
       <keyboard_type>jp_ansi</keyboard_type>
       <has_keypad>false</has_keypad>
-      <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected> <!-- not sure yet -->
+      <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected> <!-- checked by Peter Hanraets -->
       <code_kana_locks>true</code_kana_locks>
       <graph_locks>false</graph_locks>
     </PPI>
