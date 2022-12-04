@@ -670,7 +670,7 @@ void TC8566AF::doSeek(int n)
 	auto& si = seekInfo[n];
 	DiskDrive& currentDrive = *drive[n];
 
-	const uint8_t stm_dbn = 1 << n; // STM_DB0..STM_DB3
+	const auto stm_dbn = uint8_t(1 << n); // STM_DB0..STM_DB3
 	mainStatus |= stm_dbn;
 
 	auto endSeek = [&] {

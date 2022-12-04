@@ -174,7 +174,7 @@ void SunriseIDE::writeDataLow(byte value)
 }
 void SunriseIDE::writeDataHigh(byte value, EmuTime::param time)
 {
-	word temp = (value << 8) | writeLatch;
+	auto temp = word((value << 8) | writeLatch);
 	writeData(temp, time);
 }
 void SunriseIDE::writeData(word value, EmuTime::param time)

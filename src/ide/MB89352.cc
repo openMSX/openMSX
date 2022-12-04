@@ -596,7 +596,7 @@ void MB89352::writeRegister(uint8_t reg, uint8_t value)
 		// set Bus Device ID
 		value &= 7;
 		myId = value;
-		regs[REG_BDID] = 1 << value;
+		regs[REG_BDID] = uint8_t(1 << value);
 		break;
 
 		// Nothing

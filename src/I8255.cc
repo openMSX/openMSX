@@ -191,7 +191,7 @@ byte I8255::readC1(EmuTime::param time)
 {
 	if (control & DIRECTION_C1) {
 		// input
-		return interface.readC1(time) << 4;	// input not latched
+		return byte(interface.readC1(time) << 4); // input not latched
 	} else {
 		// output
 		return latchPortC & 0xf0;		// output is latched
@@ -201,7 +201,7 @@ byte I8255::readC1(EmuTime::param time)
 byte I8255::peekC1(EmuTime::param time) const
 {
 	if (control & DIRECTION_C1) {
-		return interface.peekC1(time) << 4;	// input not latched
+		return byte(interface.peekC1(time) << 4); // input not latched
 	} else {
 		return latchPortC & 0xf0;		// output is latched
 	}
@@ -329,7 +329,7 @@ void I8255::writeControlPort(byte value, EmuTime::param time)
 		outputPortC(latchPortC, time);
 	} else {
 		// (re)set bit of port C
-		byte bitmask = 1 << ((value & BIT_NR) >> 1);
+		auto bitmask = byte(1 << ((value & BIT_NR) >> 1));
 		if (value & SET_RESET) {
 			// set
 			latchPortC |= bitmask;

@@ -3508,7 +3508,7 @@ template<typename T> template<unsigned N, Reg8 REG> II CPUCore<T>::set_N_xix_R(u
 // RL r
 template<typename T> inline byte CPUCore<T>::RL(byte reg) {
 	byte c = reg >> 7;
-	reg = (reg << 1) | ((getF() & C_FLAG) ? 0x01 : 0);
+	reg = narrow_cast<byte>((reg << 1) | ((getF() & C_FLAG) ? 0x01 : 0));
 	byte f = c ? C_FLAG : 0;
 	if constexpr (T::IS_R800) {
 		f |= table.ZSP[reg];
@@ -3539,7 +3539,7 @@ template<typename T> template<Reg8 REG> II CPUCore<T>::rl_xix_R(unsigned a) {
 // RLC r
 template<typename T> inline byte CPUCore<T>::RLC(byte reg) {
 	byte c = reg >> 7;
-	reg = (reg << 1) | c;
+	reg = narrow_cast<byte>((reg << 1) | c);
 	byte f = c ? C_FLAG : 0;
 	if constexpr (T::IS_R800) {
 		f |= table.ZSP[reg];
@@ -3570,7 +3570,7 @@ template<typename T> template<Reg8 REG> II CPUCore<T>::rlc_xix_R(unsigned a) {
 // RR r
 template<typename T> inline byte CPUCore<T>::RR(byte reg) {
 	byte c = reg & 1;
-	reg = (reg >> 1) | ((getF() & C_FLAG) << 7);
+	reg = narrow_cast<byte>((reg >> 1) | ((getF() & C_FLAG) << 7));
 	byte f = c ? C_FLAG : 0;
 	if constexpr (T::IS_R800) {
 		f |= table.ZSP[reg];
@@ -3601,7 +3601,7 @@ template<typename T> template<Reg8 REG> II CPUCore<T>::rr_xix_R(unsigned a) {
 // RRC r
 template<typename T> inline byte CPUCore<T>::RRC(byte reg) {
 	byte c = reg & 1;
-	reg = (reg >> 1) | (c << 7);
+	reg = narrow_cast<byte>((reg >> 1) | (c << 7));
 	byte f = c ? C_FLAG : 0;
 	if constexpr (T::IS_R800) {
 		f |= table.ZSP[reg];
@@ -3664,7 +3664,7 @@ template<typename T> template<Reg8 REG> II CPUCore<T>::sla_xix_R(unsigned a) {
 template<typename T> inline byte CPUCore<T>::SLL(byte reg) {
 	assert(!T::IS_R800); // this instruction is Z80-only
 	byte c = reg >> 7;
-	reg = (reg << 1) | 1;
+	reg = narrow_cast<byte>((reg << 1) | 1);
 	byte f = c ? C_FLAG : 0;
 	f |= table.ZSPXY[reg];
 	setF(f);
@@ -3766,7 +3766,7 @@ template<typename T> II CPUCore<T>::rla() {
 	} else {
 		f |= byte(getF() & (S_FLAG | Z_FLAG | P_FLAG));
 	}
-	setA((getA() << 1) | (c ? 1 : 0));
+	setA(narrow_cast<byte>((getA() << 1) | (c ? 1 : 0)));
 	if constexpr (!T::IS_R800) {
 		f |= byte(getA() & (X_FLAG | Y_FLAG));
 	}
@@ -3774,7 +3774,7 @@ template<typename T> II CPUCore<T>::rla() {
 	return {1, T::CC_RLA};
 }
 template<typename T> II CPUCore<T>::rlca() {
-	setA((getA() << 1) | (getA() >> 7));
+	setA(narrow_cast<byte>((getA() << 1) | (getA() >> 7)));
 	byte f = 0;
 	if constexpr (T::IS_R800) {
 		f |= byte(getF() & (S_FLAG | Z_FLAG | P_FLAG | X_FLAG | Y_FLAG));
@@ -3787,7 +3787,7 @@ template<typename T> II CPUCore<T>::rlca() {
 	return {1, T::CC_RLA};
 }
 template<typename T> II CPUCore<T>::rra() {
-	byte c = (getF() & C_FLAG) << 7;
+	auto c = byte((getF() & C_FLAG) << 7);
 	byte f = (getA() & 0x01) ? C_FLAG : 0;
 	if constexpr (T::IS_R800) {
 		f |= byte(getF() & (S_FLAG | Z_FLAG | P_FLAG | X_FLAG | Y_FLAG));
@@ -3808,7 +3808,7 @@ template<typename T> II CPUCore<T>::rrca() {
 	} else {
 		f |= byte(getF() & (S_FLAG | Z_FLAG | P_FLAG));
 	}
-	setA((getA() >> 1) | (getA() << 7));
+	setA(narrow_cast<byte>((getA() >> 1) | (getA() << 7)));
 	if constexpr (!T::IS_R800) {
 		f |= byte(getA() & (X_FLAG | Y_FLAG));
 	}
@@ -3821,7 +3821,7 @@ template<typename T> II CPUCore<T>::rrca() {
 template<typename T> II CPUCore<T>::rld() {
 	byte val = RDMEM(getHL(), T::CC_RLD_1);
 	T::setMemPtr(getHL() + 1);
-	WRMEM(getHL(), (val << 4) | (getA() & 0x0F), T::CC_RLD_2);
+	WRMEM(getHL(), narrow_cast<byte>((val << 4) | (getA() & 0x0F)), T::CC_RLD_2);
 	setA((getA() & 0xF0) | (val >> 4));
 	byte f = 0;
 	if constexpr (T::IS_R800) {
@@ -3839,7 +3839,7 @@ template<typename T> II CPUCore<T>::rld() {
 template<typename T> II CPUCore<T>::rrd() {
 	byte val = RDMEM(getHL(), T::CC_RLD_1);
 	T::setMemPtr(getHL() + 1);
-	WRMEM(getHL(), (val >> 4) | (getA() << 4), T::CC_RLD_2);
+	WRMEM(getHL(), narrow_cast<byte>((val >> 4) | (getA() << 4)), T::CC_RLD_2);
 	setA((getA() & 0xF0) | (val & 0x0F));
 	byte f = 0;
 	if constexpr (T::IS_R800) {
@@ -4382,7 +4382,7 @@ template<typename T> template<Reg8 REG> II CPUCore<T>::mulub_a_R() {
 	//   SV   flags are reset
 	//   Z    flag is set when result is zero
 	//   C    flag is set when result doesn't fit in 8-bit
-	setHL(unsigned(getA()) * get8<REG>());
+	setHL(word(getA()) * word(get8<REG>()));
 	setF((getF() & (N_FLAG | H_FLAG | X_FLAG | Y_FLAG)) |
 	       0 | // S_FLAG V_FLAG
 	       (getHL() ? 0 : Z_FLAG) |

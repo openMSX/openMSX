@@ -88,7 +88,7 @@ byte MSXMatsushita::readSwitchedIO(word port, EmuTime::param time)
 	byte result = peekSwitchedIO(port, time);
 	switch (port & 0x0F) {
 	case 3:
-		pattern = (pattern << 2) | (pattern >> 6);
+		pattern = byte((pattern << 2) | (pattern >> 6));
 		break;
 	case 9:
 		address = (address + 1) & 0x1FFF;
@@ -115,8 +115,8 @@ byte MSXMatsushita::peekSwitchedIO(word port, EmuTime::param /*time*/) const
 		return result;
 	}
 	case 3:
-		return (((pattern & 0x80) ? color2 : color1) << 4)
-		        | ((pattern & 0x40) ? color2 : color1);
+		return byte((((pattern & 0x80) ? color2 : color1) << 4) |
+		            (((pattern & 0x40) ? color2 : color1) << 0));
 	case 9:
 		if (address < 0x800 && sram) {
 			return (*sram)[address];
@@ -160,7 +160,7 @@ void MSXMatsushita::writeSwitchedIO(word port, byte value, EmuTime::param /*time
 		break;
 	case 8:
 		// set address (high)
-		address = (address & 0x00FF) | ((value & 0x1F) << 8);
+		address = word((address & 0x00FF) | ((value & 0x1F) << 8));
 		break;
 	case 9:
 		// write sram

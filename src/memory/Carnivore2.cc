@@ -249,8 +249,8 @@ byte Carnivore2::peekConfigRegister(word address, EmuTime::param time) const
 		switch (address) {
 			case 0x04: return flash.peek(getDirectFlashAddr());
 			case 0x1f: return configRegs[0x00]; // mirror 'CardMDR' register
-			case 0x23: return configRegs[address] |
-					  int(eeprom.read_DO(time));
+			case 0x23: return byte(configRegs[address] |
+					       byte(eeprom.read_DO(time)));
 			case 0x2C: return '2';
 			case 0x2D: return '5';
 			case 0x2E: return '0';
@@ -576,7 +576,7 @@ void Carnivore2::writeIDESlot(word address, byte value, EmuTime::param time)
 				ideWrite = value;
 				break;
 			case 1: { // data high
-				word tmp = (value << 8) | ideWrite;
+				auto tmp = word((value << 8) | ideWrite);
 				ideWriteData(tmp, time);
 				break;
 			}

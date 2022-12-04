@@ -5,6 +5,7 @@
 #include "JoystickPort.hh"
 #include "XMLElement.hh"
 #include "GlobalSettings.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -70,7 +71,7 @@ byte SC3000PPI::peekA(EmuTime::param time) const
 		// read method for peeking should be safe.
 		byte joy1 = ports[0]->read(time) & 0x3F;
 		byte joy2 = ports[1]->read(time) & 0x3F;
-		return joy1 | (joy2 << 6);
+		return narrow_cast<byte>(joy1 | (joy2 << 6));
 	} else {
 		return keyboard.getKeys()[selectedRow];
 	}
@@ -161,7 +162,7 @@ void SC3000PPI::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("i8255", i8255);
 
 	// merge prevBits and selectedRow into one byte
-	byte portC = (prevBits << 4) | (selectedRow << 0);
+	auto portC = byte((prevBits << 4) | (selectedRow << 0));
 	ar.serialize("portC", portC);
 	if constexpr (Archive::IS_LOADER) {
 		selectedRow = (portC >> 0) & 0xF;

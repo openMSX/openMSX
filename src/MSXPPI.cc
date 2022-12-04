@@ -144,7 +144,7 @@ void MSXPPI::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("i8255", i8255);
 
 	// merge prevBits and selectedRow into one byte
-	byte portC = (prevBits << 4) | (selectedRow << 0);
+	auto portC = byte((prevBits << 4) | (selectedRow << 0));
 	ar.serialize("portC", portC);
 	if constexpr (Archive::IS_LOADER) {
 		selectedRow = (portC >> 0) & 0xF;

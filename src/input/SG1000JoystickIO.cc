@@ -1,6 +1,7 @@
 #include "SG1000JoystickIO.hh"
 #include "MSXMotherBoard.hh"
 #include "JoystickPort.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -34,7 +35,7 @@ byte SG1000JoystickIO::peekIO(word port, EmuTime::param time) const
 	} else {
 		byte joy1 = ports[0]->read(time) & 0x3F;
 		byte joy2 = ports[1]->read(time) & 0x3F;
-		return joy1 | (joy2 << 6);
+		return narrow_cast<byte>(joy1 | (joy2 << 6));
 	}
 }
 

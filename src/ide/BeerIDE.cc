@@ -107,7 +107,7 @@ nibble BeerIDE::peekC0(EmuTime::param /*time*/) const
 }
 void BeerIDE::writeC1(nibble value, EmuTime::param time)
 {
-	changeControl((controlReg & 0x0F) | (value << 4), time);
+	changeControl(byte((controlReg & 0x0F) | (value << 4)), time);
 }
 void BeerIDE::writeC0(nibble value, EmuTime::param time)
 {

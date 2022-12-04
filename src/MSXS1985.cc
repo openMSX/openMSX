@@ -51,7 +51,7 @@ byte MSXS1985::readSwitchedIO(word port, EmuTime::param time)
 	byte result = peekSwitchedIO(port, time);
 	switch (port & 0x0F) {
 	case 7:
-		pattern = (pattern << 1) | (pattern >> 7);
+		pattern = byte((pattern << 1) | (pattern >> 7));
 		break;
 	}
 	return result;

@@ -49,7 +49,7 @@ byte MSXToshibaTcx200x::getSelectedSegment() const
 byte MSXToshibaTcx200x::peekMem(word address, EmuTime::param /*time*/) const
 {
 	if (address == 0x7FFF) {
-		return controlReg | ((copyButtonPressed.getBoolean() ? 0 : 1) << 7);
+		return byte(controlReg | ((copyButtonPressed.getBoolean() ? 0 : 1) << 7));
 	} else if ((0x4000 <= address) && (address < 0x7FFF)) {
 		return rs232Rom[address - 0x4000];
 	} else if ((0x8000 <= address) && (address < 0xC000)) {

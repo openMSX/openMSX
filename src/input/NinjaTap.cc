@@ -44,9 +44,9 @@ void NinjaTap::write(uint8_t value, EmuTime::param time)
 			// TODO does output change?
 			for (auto [i, slave] : enumerate(slaves)) {
 				uint8_t t = slave->read(time);
-				buf[i] = ((t & 0x0F) << 4) |
-				         ((t & 0x30) >> 4) |
-				         0x0C;
+				buf[i] = uint8_t(((t & 0x0F) << 4) |
+				                 ((t & 0x30) >> 4) |
+				                 0x0C);
 			}
 		}
 		if (!(value & 4) && (previous & 4)) {
