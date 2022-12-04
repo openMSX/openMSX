@@ -1,6 +1,7 @@
 #ifndef CRC16_HH
 #define CRC16_HH
 
+#include "narrow.hh"
 #include "xrange.hh"
 #include <array>
 #include <cstddef>
@@ -44,7 +45,7 @@ public:
 	constexpr void update(uint8_t value)
 	{
 		// Classical byte-at-a-time algorithm by Dilip V. Sarwate
-		crc = (crc << 8) ^ tab[0][(crc >> 8) ^ value];
+		crc = uint16_t((crc << 8) ^ tab[0][(crc >> 8) ^ value]);
 	}
 
 	/** For large blocks (e.g. 512 bytes) this routine is approx 5x faster
@@ -96,14 +97,14 @@ private:
 		for (auto i : xrange(0x100)) {
 			auto x = uint16_t(i << 8);
 			repeat(8, [&] {
-				x = (x << 1) ^ ((x & 0x8000) ? 0x1021 : 0);
+				x = narrow_cast<uint16_t>((x << 1) ^ ((x & 0x8000) ? 0x1021 : 0));
 			});
 			result[0][i] = x;
 		}
 		for (auto i : xrange(0x100)) {
 			uint16_t c = result[0][i];
 			for (auto j : xrange(1, 8)) {
-				c = result[0][c >> 8] ^ (c << 8);
+				c = narrow_cast<uint16_t>(result[0][c >> 8] ^ (c << 8));
 				result[j][i] = c;
 			}
 		}

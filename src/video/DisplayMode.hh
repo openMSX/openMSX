@@ -65,15 +65,16 @@ public:
 	  */
 	constexpr DisplayMode(byte reg0, byte reg1, byte reg25) {
 		if ((reg25 & 0x08) == 0) reg25 = 0; // If YJK is off, ignore YAE.
-		mode = ((reg25 & 0x18) << 2)  // YAE YJK
-		     | ((reg0  & 0x0E) << 1)  // M5..M3
-		     | ((reg1  & 0x08) >> 2)  // M2
-		     | ((reg1  & 0x10) >> 4); // M1
+		mode = byte(
+			((reg25 & 0x18) << 2) | // YAE YJK
+			((reg0  & 0x0E) << 1) | // M5..M3
+			((reg1  & 0x08) >> 2) | // M2
+			((reg1  & 0x10) >> 4)); // M1
 	}
 
 	[[nodiscard]] constexpr DisplayMode updateReg25(byte reg25) const {
 		if ((reg25 & 0x08) == 0) reg25 = 0; // If YJK is off, ignore YAE.
-		return DisplayMode(getBase() | ((reg25 & 0x18) << 2));
+		return DisplayMode(byte(getBase() | ((reg25 & 0x18) << 2)));
 	}
 
 	/** Bring the display mode to its initial state.

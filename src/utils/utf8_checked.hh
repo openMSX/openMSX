@@ -211,7 +211,7 @@ octet_iterator utf16to8(u16bit_iterator start, u16bit_iterator end,
 			if (start == end) {
 				throw invalid_utf16(*start);
 			}
-			uint32_t trail_surrogate = *start++;
+			auto trail_surrogate = *start++;
 			if (trail_surrogate < internal::TRAIL_SURROGATE_MIN ||
 			    trail_surrogate > internal::TRAIL_SURROGATE_MAX) {
 				throw invalid_utf16(trail_surrogate);

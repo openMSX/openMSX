@@ -86,7 +86,7 @@ public:
 	  */
 	[[nodiscard]] constexpr uint8_t getMask() const {
 		assert(isValid());
-		return 1 << getColumn();
+		return uint8_t(1 << getColumn());
 	}
 
 	[[nodiscard]] constexpr bool operator==(const KeyMatrixPosition&) const = default;

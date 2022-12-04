@@ -305,7 +305,7 @@ public:
 	/** return sprite palette offset
 	  */
 	[[nodiscard]] inline byte getSpritePaletteOffset() const {
-		return regs[SPRITE_PALETTE_CONTROL] << 2;
+		return narrow_cast<byte>(regs[SPRITE_PALETTE_CONTROL] << 2);
 	}
 
 	/** Get horizontal display timings

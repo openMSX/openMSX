@@ -2,6 +2,7 @@
 #define ENDIAN_HH
 
 #include "inline.hh"
+#include "narrow.hh"
 #include <array>
 #include <bit>
 #include <cassert>
@@ -23,7 +24,7 @@ static_assert(BIG || LITTLE, "mixed endian not supported");
 	// versions also do 'the right thing' for the simpler expression below.
 	// Those newer compilers also support __builtin_bswap16() but that
 	// doesn't generate better code (and is less portable).
-	return ((x & 0x00FF) << 8) | ((x & 0xFF00) >> 8);
+	return uint16_t(((x & 0x00FF) << 8) | ((x & 0xFF00) >> 8));
 	//return (x << 8) | (x >> 8);
 }
 
@@ -50,8 +51,8 @@ static_assert(BIG || LITTLE, "mixed endian not supported");
 	// E.g. on x86 this is translated to a single 'bswap' instruction.
 	return __builtin_bswap64(x);
 #else
-	return (uint64_t(byteswap32(x >>  0)) << 32) |
-	       (uint64_t(byteswap32(x >> 32)) <<  0);
+	return (uint64_t(byteswap32(narrow_cast<uint32_t>(x >>  0))) << 32) |
+	       (uint64_t(byteswap32(narrow_cast<uint32_t>(x >> 32))) <<  0);
 #endif
 }
 
