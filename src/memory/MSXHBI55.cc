@@ -144,7 +144,7 @@ void MSXHBI55::writeC0(nibble value, EmuTime::param /*time*/)
 }
 void MSXHBI55::writeC1(nibble value, EmuTime::param /*time*/)
 {
-	lastC = (lastC & 0x0f) | (value << 4); // hack
+	lastC = byte((lastC & 0x0f) | (value << 4)); // hack
 	writeStuff();
 }
 

@@ -1646,8 +1646,8 @@ void VDP::PaletteDebug::write(unsigned address, byte value, EmuTime::param time)
 	unsigned index = address / 2;
 	word grb = vdp.getPalette(index);
 	grb = (address & 1)
-	    ? (grb & 0x0077) | ((value & 0x07) << 8)
-	    : (grb & 0x0700) |  (value & 0x77);
+	    ? word((grb & 0x0077) | ((value & 0x07) << 8))
+	    : word((grb & 0x0700) | ((value & 0x77) << 0));
 	vdp.setPalette(index, grb, time);
 }
 

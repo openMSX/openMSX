@@ -96,8 +96,8 @@ void SVIPSG::writeIO(word port, byte value, EmuTime::param time)
 
 byte SVIPSG::readA(EmuTime::param time)
 {
-	return ((ports[1]->read(time) & 0x0F) << 4) |
-	       ((ports[0]->read(time) & 0x0F) << 0);
+	return byte(((ports[1]->read(time) & 0x0F) << 4) |
+	            ((ports[0]->read(time) & 0x0F) << 0));
 }
 
 void SVIPSG::writeB(byte value, EmuTime::param /*time*/)

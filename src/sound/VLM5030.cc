@@ -481,8 +481,8 @@ void VLM5030::setST(bool pin)
 			} else {
 				// indirect access mode
 				int table = (latch_data & 0xfe) + ((int(latch_data) & 1) << 8);
-				address = ((rom[(table + 0) & address_mask]) << 8) |
-				            rom[(table + 1) & address_mask];
+				address = uint16_t((rom[(table + 0) & address_mask] << 8) |
+				                   (rom[(table + 1) & address_mask] << 0));
 			}
 			// reset process status
 			sample_count = frame_size;

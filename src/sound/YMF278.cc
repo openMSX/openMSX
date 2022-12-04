@@ -603,8 +603,8 @@ void YMF278::writeRegDirect(uint8_t reg, uint8_t data, EmuTime::param time)
 			}
 			slot.bits = (buf[0] & 0xC0) >> 6;
 			slot.startAddr = buf[2] | (buf[1] << 8) | ((buf[0] & 0x3F) << 16);
-			slot.loopAddr = buf[4] | (buf[3] << 8);
-			slot.endAddr  = buf[6] | (buf[5] << 8);
+			slot.loopAddr = uint16_t(buf[4] | (buf[3] << 8));
+			slot.endAddr  = uint16_t(buf[6] | (buf[5] << 8));
 			for (auto i : xrange(7, 12)) {
 				// Verified on real YMF278:
 				// After tone loading, if you read these
@@ -620,13 +620,13 @@ void YMF278::writeRegDirect(uint8_t reg, uint8_t data, EmuTime::param time)
 			break;
 		}
 		case 1: {
-			slot.wave = (slot.wave & 0xFF) | ((data & 0x1) << 8);
+			slot.wave = uint16_t((slot.wave & 0xFF) | ((data & 0x1) << 8));
 			slot.FN = (slot.FN & 0x380) | (data >> 1);
 			slot.step = calcStep(slot.OCT, slot.FN);
 			break;
 		}
 		case 2: {
-			slot.FN = (slot.FN & 0x07F) | ((data & 0x07) << 7);
+			slot.FN = uint16_t((slot.FN & 0x07F) | ((data & 0x07) << 7));
 			slot.PRVB = (data & 0x08) != 0;
 			slot.OCT = sign_extend_4((data & 0xF0) >> 4);
 			slot.step = calcStep(slot.OCT, slot.FN);

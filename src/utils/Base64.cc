@@ -52,12 +52,12 @@ std::string encode(std::span<const uint8_t> input)
 		if (out) ret[out++] = '\n';
 		auto n = std::min<size_t>(IN_CHUNKS, input.size());
 		for (/**/; n >= 3; n -= 3) {
-			ret[out++] = encode( (input[0] & 0xfc) >> 2);
-			ret[out++] = encode(((input[0] & 0x03) << 4) +
-			                    ((input[1] & 0xf0) >> 4));
-			ret[out++] = encode(((input[1] & 0x0f) << 2) +
-			                    ((input[2] & 0xc0) >> 6));
-			ret[out++] = encode( (input[2] & 0x3f) >> 0);
+			ret[out++] = encode(uint8_t( (input[0] & 0xfc) >> 2));
+			ret[out++] = encode(uint8_t(((input[0] & 0x03) << 4) +
+			                            ((input[1] & 0xf0) >> 4)));
+			ret[out++] = encode(uint8_t(((input[1] & 0x0f) << 2) +
+			                            ((input[2] & 0xc0) >> 6)));
+			ret[out++] = encode(uint8_t( (input[2] & 0x3f) >> 0));
 			input = input.subspan(3);
 		}
 		if (n) {
@@ -66,12 +66,12 @@ std::string encode(std::span<const uint8_t> input)
 			input = input.subspan(n);
 
 			std::array<uint8_t, 4> buf4;
-			buf4[0] =  (buf3[0] & 0xfc) >> 2;
-			buf4[1] = ((buf3[0] & 0x03) << 4) +
-				  ((buf3[1] & 0xf0) >> 4);
-			buf4[2] = ((buf3[1] & 0x0f) << 2) +
-				  ((buf3[2] & 0xc0) >> 6);
-			buf4[3] =  (buf3[2] & 0x3f) >> 0;
+			buf4[0] = uint8_t( (buf3[0] & 0xfc) >> 2);
+			buf4[1] = uint8_t(((buf3[0] & 0x03) << 4) +
+			                  ((buf3[1] & 0xf0) >> 4));
+			buf4[2] = uint8_t(((buf3[1] & 0x0f) << 2) +
+			                  ((buf3[2] & 0xc0) >> 6));
+			buf4[3] = uint8_t( (buf3[2] & 0x3f) >> 0);
 			for (auto j : xrange(n + 1)) {
 				ret[out++] = encode(buf4[j]);
 			}

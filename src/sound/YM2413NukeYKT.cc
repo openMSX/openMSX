@@ -417,7 +417,7 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::doLFO(bool&
 		if constexpr (CYCLES < 8) {
 			lfo_am_car = am_bit & 2;
 		}
-		lfo_am_counter = ((am_bit & 1) << 8) | (lfo_am_counter >> 1);
+		lfo_am_counter = uint16_t(((am_bit & 1) << 8) | (lfo_am_counter >> 1));
 
 		// Reset LFO
 		if (testMode & 2) {
@@ -508,7 +508,7 @@ void YM2413::changeFnumBlock(uint32_t ch)
 	};
 	p_ksl[ch] = narrow_cast<uint8_t>(std::max(0, KSL_TABLE[fnum[ch] >> 5] - ((8 - block[ch]) << 3)) << 1);
 	p_incr[ch] = narrow_cast<uint16_t>(fnum[ch] << block[ch]);
-	p_ksr_freq[ch] = (block[ch] << 1) | (fnum[ch] >> 8);
+	p_ksr_freq[ch] = uint8_t((block[ch] << 1) | (fnum[ch] >> 8));
 }
 
 NEVER_INLINE void YM2413::doRegWrite(uint8_t channel)
@@ -525,17 +525,17 @@ void YM2413::doRegWrite(uint8_t regBlock, uint8_t channel, uint8_t data)
 {
 	switch (regBlock) {
 	case 0x10:
-		fnum[channel] = (fnum[channel] & 0x100) | data;
+		fnum[channel] = uint16_t((fnum[channel] & 0x100) | data);
 		changeFnumBlock(channel);
 		break;
 	case 0x20:
-		fnum[channel] = (fnum[channel] & 0xff) | ((data & 1) << 8);
+		fnum[channel] = uint16_t((fnum[channel] & 0xff) | ((data & 1) << 8));
 		block[channel] = (data >> 1) & 7;
 		changeFnumBlock(channel);
 		sk_on[channel] = (data >> 4) & 3;
 		break;
 	case 0x30:
-		vol8[channel] = (data & 0x0f) << (2 + 1); // pre-multiply by 8
+		vol8[channel] = uint8_t((data & 0x0f) << (2 + 1)); // pre-multiply by 8
 		inst[channel] = (data >> 4) & 0x0f;
 		p_inst[channel] = &patches[inst[channel]];
 		break;

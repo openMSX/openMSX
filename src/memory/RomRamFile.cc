@@ -26,6 +26,7 @@
 
 #include "RomRamFile.hh"
 #include "MSXCPU.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 #include <memory>
 
@@ -50,7 +51,7 @@ byte RomRamFile::readMem(word address, EmuTime::param /*time*/)
 		byte result = rom[address & 0x1fff];
 		if (cpu.isM1Cycle(address)) {
 			bool tmp = (result & 0x44) == 0x44;
-			shiftValue = (shiftValue << 1) | byte(tmp);
+			shiftValue = narrow_cast<byte>((shiftValue << 1) | byte(tmp));
 		}
 		return result;
 	} else if ((0x8000 <= address) && (address < 0xC000)) {

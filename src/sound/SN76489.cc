@@ -158,9 +158,9 @@ void SN76489::write(byte value, EmuTime::param time)
 		case 4:
 			// Tone period.
 			if (value & 0x80) {
-				return (reg & 0x3F0) | (value & 0x0F);
+				return word((reg & 0x3F0) | ((value & 0x0F) << 0));
 			}  else {
-				return (reg & 0x00F) | ((value & 0x3F) << 4);
+				return word((reg & 0x00F) | ((value & 0x3F) << 4));
 			}
 		case 6:
 			// Noise control.
@@ -370,9 +370,9 @@ void SN76489::Debuggable::write(unsigned address, byte value, EmuTime::param tim
 		if (reg == one_of(0, 2, 4)) {
 			word d = sn76489.peekRegister(reg, time);
 			if (hi) {
-				return ((value & 0x3F) << 4) | (d & 0x0F);
+				return word(((value & 0x3F) << 4) | (d & 0x0F));
 			} else {
-				return (d & 0x3F0) | (value & 0x0F);
+				return word((d & 0x3F0) | (value & 0x0F));
 			}
 		} else {
 			return value & 0x0F;

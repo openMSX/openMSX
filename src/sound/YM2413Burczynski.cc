@@ -953,10 +953,10 @@ void YM2413::setRhythmFlags(uint8_t old)
 			ch6.updateInstrument(inst_tab[16]);
 			// High hat and snare drum.
 			ch7.updateInstrument(inst_tab[17]);
-			ch7.mod.setTotalLevel(ch7, (reg[0x37] >> 4) << 2); // High hat
+			ch7.mod.setTotalLevel(ch7, uint8_t((reg[0x37] >> 4) << 2)); // High hat
 			// Tom-tom and top cymbal.
 			ch8.updateInstrument(inst_tab[18]);
-			ch8.mod.setTotalLevel(ch8, (reg[0x38] >> 4) << 2); // Tom-tom
+			ch8.mod.setTotalLevel(ch8, uint8_t((reg[0x38] >> 4) << 2)); // Tom-tom
 		} else { // ON -> OFF
 			ch6.updateInstrument(inst_tab[reg[0x36] >> 4]);
 			ch7.updateInstrument(inst_tab[reg[0x37] >> 4]);
@@ -1244,7 +1244,7 @@ void YM2413::writeReg(uint8_t r, uint8_t v)
 	}
 	case 0x30: { // inst 4 MSBs, VOL 4 LSBs
 		Channel& ch = getChannelForReg(r);
-		ch.car.setTotalLevel(ch, (v & 0x0F) << 2);
+		ch.car.setTotalLevel(ch, uint8_t((v & 0x0F) << 2));
 
 		// Check wether we are in rhythm mode and handle instrument/volume
 		// register accordingly.
@@ -1254,7 +1254,7 @@ void YM2413::writeReg(uint8_t r, uint8_t v)
 			if (chan > 6) {
 				// channel 7 or 8 in rythm mode
 				// modulator envelope is HH(chan=7) or TOM(chan=8).
-				ch.mod.setTotalLevel(ch, (v >> 4) << 2);
+				ch.mod.setTotalLevel(ch, uint8_t((v >> 4) << 2));
 			}
 		} else {
 			if ((old & 0xF0) != (v & 0xF0)) {

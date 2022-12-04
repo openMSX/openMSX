@@ -349,7 +349,7 @@ static void OPLL_DoRegWrite(opll_t *chip) {
             case 0x10:
                 if (chip->chip_type == opll_type_ym2420)
                 {
-                    chip->fnum[channel] = (chip->fnum[channel] & 0x0f) | ((chip->data & 0x1f) << 4);
+                    chip->fnum[channel] = uint16_t((chip->fnum[channel] & 0x0f) | ((chip->data & 0x1f) << 4));
                     chip->block[channel] = (chip->data >> 5) & 0x07;
                 }
                 else
@@ -360,7 +360,7 @@ static void OPLL_DoRegWrite(opll_t *chip) {
                     chip->fnum[channel] = (chip->fnum[channel] & 0x1f0) | (chip->data & 0x0f);
                 else
                 {
-                    chip->fnum[channel] = (chip->fnum[channel] & 0xff) | ((chip->data & 0x01) << 8);
+                    chip->fnum[channel] = uint16_t((chip->fnum[channel] & 0xff) | ((chip->data & 0x01) << 8));
                     chip->block[channel] = (chip->data >> 1) & 0x07;
                 }
                 chip->kon[channel] = (chip->data >> 4) & 0x01;
@@ -410,9 +410,9 @@ static void OPLL_PreparePatch1(opll_t *chip) {
         patch = &chip->patch;
     }
     if (chip->rm_select == rm_num_hh || chip->rm_select == rm_num_tom) {
-        chip->c_tl = chip->inst[ch] << 2;
+        chip->c_tl = uint8_t(chip->inst[ch] << 2);
     } else if (mcsel == 1) {
-        chip->c_tl = chip->vol[ch] << 2;
+        chip->c_tl = uint8_t(chip->vol[ch] << 2);
     } else {
         chip->c_tl = patch->tl;
     }
@@ -423,7 +423,7 @@ static void OPLL_PreparePatch1(opll_t *chip) {
     chip->c_et = patch->et[mcsel];
     chip->c_ksr = patch->ksr[mcsel];
     chip->c_ksl = patch->ksl[mcsel];
-    chip->c_ksr_freq = (chip->block[ch] << 1) | (chip->fnum[ch] >> 8);
+    chip->c_ksr_freq = uint8_t((chip->block[ch] << 1) | (chip->fnum[ch] >> 8));
     chip->c_ksl_freq = uint8_t(chip->fnum[ch]>>5);
     chip->c_ksl_block = (chip->block[ch]);
 }
@@ -497,7 +497,7 @@ static void OPLL_PhaseGenerate(opll_t *chip) {
             uint8_t rm_bit = (chip->rm_hh_bit2 ^ chip->rm_hh_bit7)
                    | (chip->rm_hh_bit3 ^ chip->rm_tc_bit5)
                    | (chip->rm_tc_bit3 ^ chip->rm_tc_bit5);
-            pg_out = rm_bit << 9;
+            pg_out = uint16_t(rm_bit << 9);
             if (rm_bit ^ (chip->rm_noise & 1)) {
                 pg_out |= 0xd0;
             } else {
@@ -515,7 +515,7 @@ static void OPLL_PhaseGenerate(opll_t *chip) {
             uint8_t rm_bit = (chip->rm_hh_bit2 ^ chip->rm_hh_bit7)
                    | (chip->rm_hh_bit3 ^ chip->rm_tc_bit5)
                    | (chip->rm_tc_bit3 ^ chip->rm_tc_bit5);
-            pg_out = (rm_bit << 9) | 0x100;
+            pg_out = uint16_t((rm_bit << 9) | 0x100);
             break;
 	}
         default:
@@ -1046,7 +1046,7 @@ static void OPLL_DoLFO(opll_t *chip) {
     am_bit += uint8_t(am_inc + chip->lfo_am_car);
     chip->lfo_am_car = am_bit >> 1;
     am_bit &= 0x01;
-    chip->lfo_am_counter = (am_bit << 8) | (chip->lfo_am_counter >> 1);
+    chip->lfo_am_counter = uint16_t((am_bit << 8) | (chip->lfo_am_counter >> 1));
 
 
     /* Reset LFO */

@@ -218,10 +218,10 @@ void Counter::writeIO(uint8_t value, EmuTime::param time)
 	case WF_LATCH:
 		UNREACHABLE;
 	case WF_LOW:
-		writeLoad((counterLoad & 0xFF00) | value, time);
+		writeLoad((counterLoad & 0xFF00) | uint16_t(value << 0), time);
 		break;
 	case WF_HIGH:
-		writeLoad((counterLoad & 0x00FF) | (value << 8), time);
+		writeLoad((counterLoad & 0x00FF) | uint16_t(value << 8), time);
 		break;
 	case WF_BOTH:
 		if (writeOrder == LOW) {
@@ -233,7 +233,7 @@ void Counter::writeIO(uint8_t value, EmuTime::param time)
 		} else {
 			writeOrder = LOW;
 			counting = true;
-			writeLoad((value << 8) | writeLatch, time);
+			writeLoad(uint16_t((value << 8) | writeLatch), time);
 		}
 		break;
 	default:

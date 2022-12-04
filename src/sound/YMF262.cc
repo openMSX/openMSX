@@ -1013,7 +1013,7 @@ void YMF262::set_sl_rr(unsigned sl, uint8_t v)
 	auto& slot = ch.slot[sl & 1];
 
 	slot.sl  = sl_tab[v >> 4];
-	slot.rr  = (v & 0x0F) ? 16 + ((v & 0x0F) << 2) : 0;
+	slot.rr  = (v & 0x0F) ? uint8_t(16 + ((v & 0x0F) << 2)) : 0;
 	slot.update_rr();
 }
 
