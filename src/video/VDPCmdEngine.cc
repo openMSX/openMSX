@@ -200,14 +200,14 @@ inline void Graphic4Mode::pset(
 	EmuTime::param time, VDPVRAM& vram, unsigned x, unsigned addr,
 	byte src, byte color, LogOp op)
 {
-	byte sh = ((~x) & 1) << 2;
-	op(time, vram, addr, src, color << sh, ~byte(15 << sh));
+	auto sh = byte(((~x) & 1) << 2);
+	op(time, vram, addr, src, byte(color << sh), ~byte(15 << sh));
 }
 
 inline byte Graphic4Mode::duplicate(byte color)
 {
 	assert((color & 0xF0) == 0);
-	return color | (color << 4);
+	return byte(color | (color << 4));
 }
 
 /** Represents V9938 Graphic 5 mode (SCREEN6).
@@ -252,8 +252,8 @@ inline void Graphic5Mode::pset(
 	EmuTime::param time, VDPVRAM& vram, unsigned x, unsigned addr,
 	byte src, byte color, LogOp op)
 {
-	byte sh = ((~x) & 3) << 1;
-	op(time, vram, addr, src, color << sh, ~byte(3 << sh));
+	auto sh = byte(((~x) & 3) << 1);
+	op(time, vram, addr, src, byte(color << sh), ~byte(3 << sh));
 }
 
 inline byte Graphic5Mode::duplicate(byte color)
@@ -306,14 +306,14 @@ inline void Graphic6Mode::pset(
 	EmuTime::param time, VDPVRAM& vram, unsigned x, unsigned addr,
 	byte src, byte color, LogOp op)
 {
-	byte sh = ((~x) & 1) << 2;
-	op(time, vram, addr, src, color << sh, ~byte(15 << sh));
+	auto sh = byte(((~x) & 1) << 2);
+	op(time, vram, addr, src, byte(color << sh), ~byte(15 << sh));
 }
 
 inline byte Graphic6Mode::duplicate(byte color)
 {
 	assert((color & 0xF0) == 0);
-	return color | (color << 4);
+	return byte(color | (color << 4));
 }
 
 /** Represents V9938 Graphic 7 mode (SCREEN8).
@@ -572,7 +572,7 @@ private:
 struct IncrMask4
 {
 	IncrMask4(unsigned x, int /*tx*/)
-		: mask(0x0F << ((x & 1) << 2))
+		: mask(byte(0x0F << ((x & 1) << 2)))
 	{
 	}
 	[[nodiscard]] byte getMask() const
@@ -600,7 +600,7 @@ struct IncrMask5
 	}
 	void step()
 	{
-		mask = (mask << shift) | (mask >> (8 - shift));
+		mask = byte((mask << shift) | (mask >> (8 - shift)));
 	}
 private:
 	byte mask;
@@ -628,7 +628,7 @@ struct IncrShift4
 	}
 	[[nodiscard]] byte doShift(byte color) const
 	{
-		return (color >> shift) | (color << shift);
+		return byte((color >> shift) | (color << shift));
 	}
 private:
 	const byte shift;
@@ -642,7 +642,7 @@ struct IncrShift5
 	}
 	[[nodiscard]] byte doShift(byte color) const
 	{
-		return (color >> shift) | (color << (8 - shift));
+		return byte((color >> shift) | (color << (8 - shift)));
 	}
 private:
 	const byte shift;

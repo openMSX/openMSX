@@ -306,7 +306,7 @@ inline byte V9990CmdEngine::V9990P1::shift(
 	byte value, unsigned fromX, unsigned toX)
 {
 	int shift = 4 * (narrow<int>(toX & 1) - narrow<int>(fromX & 1));
-	return (shift > 0) ? (value >> shift) : (value << -shift);
+	return (shift > 0) ? byte(value >> shift) : byte(value << -shift);
 }
 
 inline byte V9990CmdEngine::V9990P1::shiftMask(unsigned x)
@@ -374,7 +374,7 @@ inline byte V9990CmdEngine::V9990P2::shift(
 	byte value, unsigned fromX, unsigned toX)
 {
 	int shift = 4 * (narrow<int>(toX & 1) - narrow<int>(fromX & 1));
-	return (shift > 0) ? (value >> shift) : (value << -shift);
+	return (shift > 0) ? byte(value >> shift) : byte(value << -shift);
 }
 
 inline byte V9990CmdEngine::V9990P2::shiftMask(unsigned x)
@@ -442,7 +442,7 @@ inline byte V9990CmdEngine::V9990Bpp2::shift(
 	byte value, unsigned fromX, unsigned toX)
 {
 	int shift = 2 * (narrow<int>(toX & 3) - narrow<int>(fromX & 3));
-	return (shift > 0) ? (value >> shift) : (value << -shift);
+	return (shift > 0) ? byte(value >> shift) : byte(value << -shift);
 }
 
 inline byte V9990CmdEngine::V9990Bpp2::shiftMask(unsigned x)
@@ -510,7 +510,7 @@ inline byte V9990CmdEngine::V9990Bpp4::shift(
 	byte value, unsigned fromX, unsigned toX)
 {
 	int shift = 4 * (narrow<int>(toX & 1) - narrow<int>(fromX & 1));
-	return (shift > 0) ? (value >> shift) : (value << -shift);
+	return (shift > 0) ? byte(value >> shift) : byte(value << -shift);
 }
 
 inline byte V9990CmdEngine::V9990Bpp4::shiftMask(unsigned x)
@@ -738,40 +738,40 @@ void V9990CmdEngine::setCmdReg(byte reg, byte value, EmuTime::param time)
 	sync(time);
 	switch(reg - 32) {
 	case  0: // SX low
-		SX = (SX & 0x0700) | value;
+		SX = word((SX & 0x0700) | ((value & 0xFF) << 0));
 		break;
 	case  1: // SX high
-		SX = (SX & 0x00FF) | ((value & 0x07) << 8);
+		SX = word((SX & 0x00FF) | ((value & 0x07) << 8));
 		break;
 	case  2: // SY low
-		SY = (SY & 0x0F00) | value;
+		SY = word((SY & 0x0F00) | ((value & 0xFF) << 0));
 		break;
 	case  3: // SY high
-		SY = (SY & 0x00FF) | ((value & 0x0F) << 8);
+		SY = word((SY & 0x00FF) | ((value & 0x0F) << 8));
 		break;
 	case  4: // DX low
-		DX = (DX & 0x0700) | value;
+		DX = word((DX & 0x0700) | ((value & 0xFF) << 0));
 		break;
 	case  5: // DX high
-		DX = (DX & 0x00FF) | ((value & 0x07) << 8);
+		DX = word((DX & 0x00FF) | ((value & 0x07) << 8));
 		break;
 	case  6: // DY low
-		DY = (DY & 0x0F00) | value;
+		DY = word((DY & 0x0F00) | ((value & 0xFF) << 0));
 		break;
 	case  7: // DY high
-		DY = (DY & 0x00FF) | ((value & 0x0F) << 8);
+		DY = word((DY & 0x00FF) | ((value & 0x0F) << 8));
 		break;
 	case  8: // NX low
-		NX = (NX & 0x0F00) | value;
+		NX = word((NX & 0x0F00) | ((value & 0xFF) << 0));
 		break;
 	case  9: // NX high
-		NX = (NX & 0x00FF) | ((value & 0x0F) << 8);
+		NX = word((NX & 0x00FF) | ((value & 0x0F) << 8));
 		break;
 	case 10: // NY low
-		NY = (NY & 0x0F00) | value;
+		NY = word((NY & 0x0F00) | ((value & 0xFF) << 0));
 		break;
 	case 11: // NY high
-		NY = (NY & 0x00FF) | ((value & 0x0F) << 8);
+		NY = word((NY & 0x00FF) | ((value & 0x0F) << 8));
 		break;
 	case 12: // ARG
 		ARG = value & 0x0F;
@@ -780,22 +780,22 @@ void V9990CmdEngine::setCmdReg(byte reg, byte value, EmuTime::param time)
 		LOG = value & 0x1F;
 		break;
 	case 14: // write mask low
-		WM = (WM & 0xFF00) | value;
+		WM = word((WM & 0xFF00) | (value << 0));
 		break;
 	case 15: // write mask high
-		WM = (WM & 0x00FF) | (value << 8);
+		WM = word((WM & 0x00FF) | (value << 8));
 		break;
 	case 16: // Font color - FG low
-		fgCol = (fgCol & 0xFF00) | value;
+		fgCol = word((fgCol & 0xFF00) | (value << 0));
 		break;
 	case 17: // Font color - FG high
-		fgCol = (fgCol & 0x00FF) | (value << 8);
+		fgCol = word((fgCol & 0x00FF) | (value << 8));
 		break;
 	case 18: // Font color - BG low
-		bgCol = (bgCol & 0xFF00) | value;
+		bgCol = word((bgCol & 0xFF00) | (value << 0));
 		break;
 	case 19: // Font color - BG high
-		bgCol = (bgCol & 0x00FF) | (value << 8);
+		bgCol = word((bgCol & 0x00FF) | (value << 8));
 		break;
 	case 20: { // CMD
 		CMD = value;
@@ -979,7 +979,7 @@ void V9990CmdEngine::executeLMMC<V9990CmdEngine::V9990Bpp16>(EmuTime::param limi
 			partial = data;
 		} else {
 			bitsLeft = 1;
-			word value = (data << 8) | partial;
+			auto value = word((data << 8) | partial);
 			unsigned pitch = V9990Bpp16::getPitch(vdp.getImageWidth());
 			auto lut = V9990Bpp16::getLogOpLUT(LOG);
 			V9990Bpp16::pset(vram, DX, DY, pitch, value, WM, lut, LOG);
