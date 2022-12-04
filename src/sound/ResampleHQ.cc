@@ -31,10 +31,14 @@
 
 namespace openmsx {
 
-// Note: without appending 'f' to the values in ResampleCoeffs.ii,
-// this will generate thousands of C4305 warnings in VC++
-// E.g. warning C4305: 'initializing' : truncation from 'double' to 'const float'
-static constexpr std::array coeffs = {
+// Letting the compiler deduce the (type and) size of the std::array works fine
+// with gcc, msvc and clang-11 but is broken from clang-12 onwards. More
+// specifically it only works for sizes upto 256. For more details see:
+//   https://www.mail-archive.com/llvm-bugs@lists.llvm.org/msg50598.html
+//   https://reviews.llvm.org/D86936
+// As a workaround we do hardcode the (type and) size here:
+//static constexpr std::array coeffs = {
+static constexpr std::array<float, 2464> coeffs = {
 	#include "ResampleCoeffs.ii"
 };
 
