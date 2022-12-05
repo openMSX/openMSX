@@ -343,7 +343,7 @@ void MidiInALSA::run()
 					std::cerr << "Error decoding MIDI event: "
 						<< snd_strerror(size) << '\n';
 					snd_seq_free_event(ev);
-					break;
+					continue;
 				}
 
 				std::lock_guard<std::mutex> lock(mutex);
