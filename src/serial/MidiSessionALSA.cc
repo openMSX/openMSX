@@ -315,9 +315,7 @@ void MidiInALSA::run()
 	std::vector<struct pollfd> pfd(npfd);
 	snd_seq_poll_descriptors(&seq, pfd.data(), npfd, POLLIN);
 
-	while (true) {
-		if (stop)
-			break;
+	while (!stop) {
 		if (poll(pfd.data(), npfd, 1000) > 0) {
 			snd_seq_event_t *ev = NULL;
 
