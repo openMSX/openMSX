@@ -454,6 +454,7 @@ class MidiInReaderEvent          final : public SimpleEvent {};
 class MidiInWindowsEvent         final : public SimpleEvent {};
 class MidiInCoreMidiEvent        final : public SimpleEvent {};
 class MidiInCoreMidiVirtualEvent final : public SimpleEvent {};
+class MidiInALSAEvent            final : public SimpleEvent {};
 class Rs232TesterEvent           final : public SimpleEvent {};
 
 
@@ -493,6 +494,7 @@ using EventVariant = std::variant<
 	MidiInWindowsEvent,
 	MidiInCoreMidiEvent,
 	MidiInCoreMidiVirtualEvent,
+	MidiInALSAEvent,
 	Rs232TesterEvent
 >;
 
@@ -537,6 +539,7 @@ enum class EventType : uint8_t
 	MIDI_IN_WINDOWS          = event_index<MidiInWindowsEvent>,
 	MIDI_IN_COREMIDI         = event_index<MidiInCoreMidiEvent>,
 	MIDI_IN_COREMIDI_VIRTUAL = event_index<MidiInCoreMidiVirtualEvent>,
+	MIDI_IN_ALSA             = event_index<MidiInALSAEvent>,
 	RS232_TESTER             = event_index<Rs232TesterEvent>,
 
 	NUM_EVENT_TYPES // must be last
