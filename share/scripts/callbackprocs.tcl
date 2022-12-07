@@ -50,7 +50,7 @@ proc psgdirectioncallback {} {
 	message {The running MSX software has set unsafe PSG port directions.
 Real (older) MSX machines can get damaged by this.} warning
 }
-set invalid_psg_directions_callback psgdirectioncallback
+interp alias {} default_invalid_psg_directions_callback {} psgdirectioncallback
 
 
 # Callback on setting an invalid PPI mode.
@@ -60,7 +60,7 @@ proc ppimodecallback {} {
 	set ::ppi_mode_warning_printed true
 	message {Invalid PPI mode selected. This is not yet correctly emulated. On a real MSX this will most likely hang.} warning
 }
-set invalid_ppi_mode_callback ppimodecallback
+interp alias {} default_invalid_ppi_mode_callback {} ppimodecallback
 
 
 # Callback on DI;HALT.
@@ -70,8 +70,7 @@ proc dihaltcallback {} {
 		message "DI; HALT detected, which means a hang. You can just as well reset the machine now..." warning
 	}
 }
-set di_halt_callback dihaltcallback
-
+interp alias {} default_di_halt_callback {} dihaltcallback
 
 # Callback on too fast VRAM read/write, not enabled by default
 proc warn_too_fast_vram_access {} {
@@ -110,4 +109,4 @@ set sensor_kid_acquire_callback     sensorkidacquirecallback
 
 
 # show message (also) as OSD message
-set message_callback osd::display_message
+interp alias {} default_message_callback {} osd::display_message

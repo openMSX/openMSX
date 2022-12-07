@@ -11,11 +11,12 @@ TclCallback::TclCallback(
 		CommandController& controller,
 		std::string_view name,
 		static_string_view description,
-		bool useCliComm_,
-		bool save)
+		std::string_view defaultValue,
+		Setting::SaveSetting saveSetting,
+		bool useCliComm_)
 	: callbackSetting2(std::in_place,
-		controller, name, description, std::string_view{},
-		save ? Setting::SAVE : Setting::DONT_SAVE)
+		controller, name, description, defaultValue,
+		saveSetting)
 	, callbackSetting(*callbackSetting2)
 	, useCliComm(useCliComm_)
 {

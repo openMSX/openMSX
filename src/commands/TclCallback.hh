@@ -17,8 +17,9 @@ public:
 	TclCallback(CommandController& controller,
 	            std::string_view name,
 	            static_string_view description,
-	            bool useCliComm = true,
-	            bool save = true);
+	            std::string_view defaultValue,
+	            Setting::SaveSetting saveSetting,
+	            bool useCliComm = true);
 	explicit TclCallback(StringSetting& setting);
 
 	TclObject execute();

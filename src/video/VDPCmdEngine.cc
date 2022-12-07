@@ -1778,7 +1778,9 @@ VDPCmdEngine::VDPCmdEngine(VDP& vdp_, CommandController& commandController)
 		"vdpcmdinprogress_callback" : vdp_.getName() +
 		" vdpcmdinprogress_callback",
 	        "Tcl proc to call when a write to the VDP command engine is "
-		"detected while the previous command is still in progress.")
+		"detected while the previous command is still in progress.",
+		"",
+		Setting::SaveSetting::SAVE)
 	, executingProbe(
 		vdp_.getMotherBoard().getDebugger(),
 		strCat(vdp.getName(), '.', "commandExecuting"),

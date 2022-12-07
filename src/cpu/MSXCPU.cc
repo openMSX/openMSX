@@ -25,7 +25,9 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 		"CPU tracing on/off", false, Setting::DONT_SAVE)
 	, diHaltCallback(
 		motherboard.getCommandController(), "di_halt_callback",
-		"Tcl proc called when the CPU executed a DI/HALT sequence")
+		"Tcl proc called when the CPU executed a DI/HALT sequence",
+		"default_di_halt_callback",
+		Setting::SaveSetting::SAVE) // user must be able to override
 	, z80(std::make_unique<CPUCore<Z80TYPE>>(
 		motherboard, "z80", traceSetting,
 		diHaltCallback, EmuTime::zero()))

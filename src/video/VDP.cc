@@ -94,7 +94,9 @@ VDP::VDP(const DeviceConfig& config)
 	, tooFastCallback(
 		getCommandController(),
 		getName() + ".too_fast_vram_access_callback",
-		"Tcl proc called when the VRAM is read or written too fast")
+		"Tcl proc called when the VRAM is read or written too fast",
+		"",
+		Setting::SaveSetting::SAVE)
 	, cpu(getCPU()) // used frequently, so cache it
 	, fixedVDPIOdelayCycles(getDelayCycles(getMotherBoard().getMachineConfig()->getConfig().getChild("devices")))
 {
