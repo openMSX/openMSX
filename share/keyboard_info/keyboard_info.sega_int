@@ -1,7 +1,5 @@
 UnicodeMap: sega_int
 
-MSX-Video-Characterset: all.txt
-
 # Sega key names in the keyboard matrix
 # Note that in this case, rows 0-6 are on PPI port A and 7-D are on PPI port B
 #------+- bit 7 -------------+- bit 6 --------------+- bit 5 -+- bit 4 ----+- bit 3 -+- bit 2 -+- bit 1 -+- bit 0 -+
