@@ -1,0 +1,22 @@
+UnicodeMap: sega_int
+
+MSX-Video-Characterset: all.txt
+
+# Sega key names in the keyboard matrix
+# Note that in this case, rows 0-6 are on PPI port A and 7-D are on PPI port B
+#------+- bit 7 -------------+- bit 6 --------------+- bit 5 -+- bit 4 ----+- bit 3 -+- bit 2 -+- bit 1 -+- bit 0 -+
+row  0 | I                   | K                    | COMMA   | ENG_DIER_S | Z       | A       | Q       | 1       |
+row  1 | O                   | L                    | PERIOD  | SPACE      | X       | S       | W       | 2       |
+row  2 | P                   | SEMICOLON            | SLASH   | HOME       | C       | D       | E       | 3       |
+row  3 | AT                  | COLON                | PI      | INS        | V       | F       | R       | 4       |
+row  4 | LEFT_SQUARE_BRACKET | RIGHT_SQUARE_BRACKET | DOWN    |            | B       | G       | T       | 5       |
+row  5 |                     | ENTER_CR             | LEFT    |            | N       | H       | Y       | 6       |
+row  6 |                     | UP                   | RIGHT   |            | M       | J       | U       | 7       |
+row  7 |                     |                      |         |            |         |         |         | 8       |
+row  8 |                     |                      |         |            |         |         |         | 9       |
+row  9 |                     |                      |         |            |         |         |         | 0       |
+row 10 |                     |                      |         |            |         |         |         | MINUS   |
+row 11 |                     |                      |         |            |         |         |         | CARET   |
+row 12 |                     |                      |         |            | FUNC    |         |         | CUR     |
+row 13 |                     |                      |         |            | SHIFT   | CTRL    | GRAPH   | BREAK   |
+#------+---------------------+----------------------+---------+---------+---------+---------+---------+---------+
