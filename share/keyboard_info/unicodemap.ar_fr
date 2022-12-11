@@ -76,9 +76,6 @@
 # - SHIFT+GRAPH+55: all: "_system"
 # - SHIFT+GRAPH+57: all: "wait"
 #
-
-MSX-Video-Characterset: MSXVIDAF.TXT
-
 00000, 02, CTRL CODE   # ^@
 00001, 46, CTRL        # ^A
 00002, 27, CTRL        # ^B

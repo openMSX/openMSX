@@ -12,9 +12,6 @@
 # Spectravideo SVI-728 and SVI-738 (from the blueMSX website, origin not
 # clear), not verified with a real keyboard.
 #
-
-MSX-Video-Characterset: MSXVIDDK.TXT
-
 DEADKEY1, 25,
 00000, 02, CTRL SHIFT  # ^@
 00001, 26, CTRL        # ^A
