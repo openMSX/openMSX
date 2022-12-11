@@ -17,7 +17,8 @@
           <mem base="0x0000" size="0x10000"/> <!-- Verified: mirroring on all pages! -->
           <singlesided/>
           <rom>
-            <sha1>adb90803ba6fd25df35d10ac0d90da23f1b9c164</sha1> <!-- marked as JVC..? -->
+            <sha1>28b683d5f6fd4a59046d5a8843233596fced104a</sha1> <!-- Same as JVC-HC-FC303 (without FDC registers) -->
+            <sha1>adb90803ba6fd25df35d10ac0d90da23f1b9c164</sha1> <!-- same as previous, with FDC registers -->
             <sha1>4a55eb07e1ab8b847e230854e2e26e48983982a6</sha1> <!-- same as previous, FDC registers differ -->
             <sha1>8924e3e11eb1c8c1edcb7efa63c26d2bdc142473</sha1> <!-- marked as VG8245..? v. 1.05-->
             <filename>vy0010.rom</filename>
