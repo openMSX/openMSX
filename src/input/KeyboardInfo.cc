@@ -42,11 +42,11 @@ void KeyboardInfo::parseKeyboardInfoFile(std::string_view file)
 		if (token1.empty()) continue; // empty line (or only whitespace / comments)
 
 		if (token1 == "UnicodeMap:") {
-			auto unicodeMapFileName = getToken(line);
-			if (unicodeMapFileName.empty()) {
-				throw MSXException("Missing filename for UnicodeMap");
+			auto unicodeMapFileExtension = getToken(line);
+			if (unicodeMapFileExtension.empty()) {
+				throw MSXException("Missing extension for UnicodeMap file");
 			}
-			unicodeKeymap.emplace(unicodeMapFileName);
+			unicodeKeymap.emplace(unicodeMapFileExtension);
 
 		} else if (token1 == "MSX-Video-Characterset:") {
 			auto vidFileName = getToken(line);

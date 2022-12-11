@@ -57,10 +57,10 @@ using namespace std::literals;
 	return KeyMatrixPosition(narrow_cast<uint8_t>(*rowCol));
 }
 
-UnicodeKeymap::UnicodeKeymap(std::string_view keyboardType)
+UnicodeKeymap::UnicodeKeymap(std::string_view extension)
 {
 	auto filename = systemFileContext().resolve(
-		tmpStrCat("unicodemaps/unicodemap.", keyboardType));
+		tmpStrCat("keyboard_info/unicodemap.", extension));
 	try {
 		auto buf = File(filename).mmap<const char>();
 		parseUnicodeKeyMapFile(std::string_view(buf.data(), buf.size())); // TODO c++23

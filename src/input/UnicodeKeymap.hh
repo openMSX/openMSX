@@ -37,7 +37,7 @@ public:
 		uint8_t modMask = 0;
 	};
 
-	explicit UnicodeKeymap(std::string_view keyboardType);
+	explicit UnicodeKeymap(std::string_view extension);
 
 	[[nodiscard]] KeyInfo get(unsigned unicode) const;
 	[[nodiscard]] KeyInfo getDeadKey(unsigned n) const;
