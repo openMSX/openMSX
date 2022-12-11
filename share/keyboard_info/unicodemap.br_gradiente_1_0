@@ -8,9 +8,6 @@
 #
 # Example characters in comments are encoded in UTF-8
 #
-
-MSX-Video-Characterset: MSXVIDBG.TXT
-
 DEADKEY1, 25,
 00000, 02, CTRL SHIFT  # ^@
 00001, 26, CTRL        # ^A

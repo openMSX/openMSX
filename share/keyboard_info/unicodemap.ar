@@ -113,9 +113,6 @@
 # - SHIFT+GRAPH+56: AX150, AX200, AX500: nothing; Bawareth: "_TEXT(""
 # - SHIFT+GRAPH+57: AX150, AX200, AX500: nothing; Bawareth: "_SIZE"
 #
-
-MSX-Video-Characterset: MSXVIDAR.TXT
-
 00000, 02, CTRL SHIFT  # ^@
 00001, 26, CTRL        # ^A
 00002, 27, CTRL        # ^B

@@ -9,10 +9,6 @@
 #
 # Example characters in comments are encoded in UTF-8
 #
-# The character set of the SC-3000 (its font is loaded by the BASIC cartridge).
-
-MSX-Video-Characterset: SC3000JP.TXT
-
 00000, 37, CTRL        # ^@
 00001, 02, CTRL        # ^A
 00002, 43, CTRL        # ^B
