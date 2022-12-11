@@ -8,9 +8,6 @@
 #
 # Example characters in comments are encoded in UTF-8
 #
-
-MSX-Video-Characterset: MSXVIDBH.TXT
-
 DEADKEY1, 15,          # ´ -> á, é, ú, í, ó
 DEADKEY2, 16,          # ¨ -> ü
 DEADKEY3, 20,          # ~ -> ã, õ

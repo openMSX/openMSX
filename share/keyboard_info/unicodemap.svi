@@ -8,9 +8,6 @@
 #
 # Example characters in comments are encoded in UTF-8
 #
-
-MSX-Video-Characterset: SVI328.TXT
-
 00000, 02, CTRL SHIFT  # ^@
 00001, 21, CTRL        # ^A
 00002, 22, CTRL        # ^B
