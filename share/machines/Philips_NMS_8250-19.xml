@@ -81,7 +81,7 @@
       <!-- This model has a second CAPS LOCK key, at row 2, bit 5 of the
            key matrix. Its BIOS handles it like the normal CAPS key; on the
            NMS 8245/19, that position does nothing. -->
-      <keyboard_type>fr</keyboard_type>
+      <keyboard_type>fr_numpad</keyboard_type>
       <has_keypad>true</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
       <code_kana_locks>false</code_kana_locks>

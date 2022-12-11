@@ -29,12 +29,12 @@ http://bilgisayarlarim.com/Philips/VG-8235 (with serial FF00 632042694):
   <devices>
 
     <PPI id="ppi">
-      <has_keypad>false</has_keypad>
       <sound>
         <volume>16000</volume>
       </sound>
       <io base="0xA8" num="8"/> <!-- S-3527 mirrors -->
       <keyboard_type>int</keyboard_type>
+      <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
       <code_kana_locks>false</code_kana_locks>
       <graph_locks>false</graph_locks>
