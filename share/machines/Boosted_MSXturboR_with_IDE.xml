@@ -230,7 +230,7 @@
         <volume>16000</volume>
       </sound>
       <key_ghosting>false</key_ghosting>
-      <keyboard_type>jp_jis</keyboard_type>
+      <keyboard_type>jp_jis_numpad_yesno</keyboard_type>
       <has_keypad>true</has_keypad>
       <has_yesno_keys>true</has_yesno_keys>
       <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>

@@ -25,7 +25,7 @@
         <volume>16000</volume>
       </sound>
       <io base="0xA8" num="8"/> <!-- S-1985 mirrors -->
-      <keyboard_type>int</keyboard_type>
+      <keyboard_type>int_numpad</keyboard_type>
       <has_keypad>true</has_keypad>
     </PPI>
 
