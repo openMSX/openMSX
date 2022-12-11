@@ -35,7 +35,7 @@
       <sound>
         <volume>16000</volume>
       </sound>
-      <keyboard_type>jp_ansi</keyboard_type>
+      <keyboard_type>jp_ansi_numpad</keyboard_type>
       <has_keypad>true</has_keypad>
       <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected> <!-- not tested yet -->
       <code_kana_locks>true</code_kana_locks>

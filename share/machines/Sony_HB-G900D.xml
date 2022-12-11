@@ -21,7 +21,7 @@
         <volume>16000</volume>
       </sound>
       <io base="0xA8" num="4"/>
-      <keyboard_type>de</keyboard_type>
+      <keyboard_type>de_numpad</keyboard_type>
       <has_keypad>true</has_keypad>
     </PPI>
 
