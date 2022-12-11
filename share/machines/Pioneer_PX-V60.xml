@@ -27,15 +27,11 @@
         <volume>16000</volume>
       </sound>
       <io base="0xA8" num="8"/> <!-- S-3527 mirrors -->
-      <keyboard_type>jp_jis</keyboard_type>
+      <keyboard_type>jp_jis_video</keyboard_type>
       <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
       <code_kana_locks>true</code_kana_locks>
       <graph_locks>false</graph_locks>
-      <!-- there are three extra keys -->
-      <!-- row 9, bit 0: super-impose -->
-      <!-- row 9, bit 1: video -->
-      <!-- row 9, bit 2: computer -->
     </PPI>
 
     <VDP id="VDP">

@@ -96,7 +96,7 @@ connect other Yamaha "units", like the SFG-01/05 modules.
       <sound>
         <volume>16000</volume>
       </sound>
-      <keyboard_type>ru</keyboard_type>
+      <keyboard_type>ru_numpad</keyboard_type>
       <has_keypad>true</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
       <code_kana_locks>true</code_kana_locks>

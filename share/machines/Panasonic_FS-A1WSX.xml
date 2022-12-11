@@ -40,7 +40,7 @@
         <volume>16000</volume>
       </sound>
       <io base="0xA8" num="4"/>
-      <keyboard_type>jp_jis</keyboard_type>
+      <keyboard_type>jp_jis_numpad_yesno</keyboard_type>
       <has_keypad>true</has_keypad>
       <has_yesno_keys>true</has_yesno_keys>
       <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>
