@@ -3,6 +3,7 @@
 
 #include "narrow.hh"
 #include <cstdint>
+#include <tuple>
 #include <utility>
 
 #if defined __x86_64 && !defined _MSC_VER
@@ -35,7 +36,7 @@ public:
 
 	[[nodiscard]] constexpr uint128 operator~() const
 	{
-		return uint128(~lo, ~hi);
+		return {~lo, ~hi};
 	}
 	[[nodiscard]] constexpr uint128 operator-() const
 	{
@@ -144,7 +145,7 @@ private:
 	constexpr uint128() : lo(0), hi(0) {}
 	constexpr uint128(uint64_t low, uint64_t high) : lo(low), hi(high) {}
 
-	constexpr std::pair<uint128, uint128> div(const uint128& ds) const;
+	[[nodiscard]] constexpr std::pair<uint128, uint128> div(const uint128& ds) const;
 
 	[[nodiscard]] constexpr bool bit(unsigned n) const
 	{
@@ -224,8 +225,8 @@ private:
 
 [[nodiscard]] constexpr auto operator<=>(const uint128& a, const uint128& b)
 {
-	if (auto cmp = high64(a) <=> high64(b); cmp != 0) return cmp;
-	return low64(a) <=> low64(b);
+	return std::tuple(high64(a), low64(a)) <=>
+	       std::tuple(high64(b), low64(b));
 }
 
 [[nodiscard]] constexpr bool operator&&(const uint128& a, const uint128& b)

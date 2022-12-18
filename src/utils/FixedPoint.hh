@@ -183,7 +183,6 @@ public:
 	}
 
 	// Comparison operators:
-	[[nodiscard]] constexpr bool operator== (const FixedPoint&) const = default;
 	[[nodiscard]] constexpr auto operator<=>(const FixedPoint&) const = default;
 
 	// Arithmetic operators that modify this object:

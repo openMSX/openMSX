@@ -52,7 +52,6 @@ public:
 	[[nodiscard]] constexpr uint64_t length() const { return time; }
 
 	// comparison operators
-	[[nodiscard]] constexpr bool operator== (const EmuDuration&) const = default;
 	[[nodiscard]] constexpr auto operator<=>(const EmuDuration&) const = default;
 
 	// arithmetic operators

@@ -33,7 +33,6 @@ public:
 	static constexpr EmuTime makeEmuTime(uint64_t u) { return EmuTime(u); }
 
 	// comparison operators
-	[[nodiscard]] constexpr bool operator== (const EmuTime&) const = default;
 	[[nodiscard]] constexpr auto operator<=>(const EmuTime&) const = default;
 
 	// arithmetic operators
