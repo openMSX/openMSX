@@ -38,7 +38,15 @@ byte PhilipsFDC::readMem(word address, EmuTime::param time)
 		return res;
 	}
 	case 0x3FFF: {
-		byte value = 0xC0;
+		// bit 6: !intrq
+		// bit 7: !dtrq
+		// bit 5: !type1 (Philips VY-0010/JVC HC-FC303, pin 2 of FDD
+		//                interface, indicates DS drive)
+		// bit 4: !type0 (Philips VY-0010/JVC HC-FC303, pin 1 of FDD
+		//                interface)
+		// Other bits are not connected, according to service manuals
+		// of VY-0010 and Sony HBD-50.
+		byte value = 0xFF; // all bits are pulled up to 1	
 		if (controller.getIRQ(time)) value &= ~0x40;
 		if (controller.getDTRQ(time)) value &= ~0x80;
 		return value;
@@ -90,8 +98,13 @@ byte PhilipsFDC::peekMem(word address, EmuTime::param time) const
 		// interrupt request
 		// bit 6: !intrq
 		// bit 7: !dtrq
-		// TODO check other bits !!
-		byte value = 0xC0;
+		// bit 5: !type1 (Philips VY-0010/JVC HC-FC303, pin 2 of FDD
+		//                interface, indicates DS drive)
+		// bit 4: !type0 (Philips VY-0010/JVC HC-FC303, pin 1 of FDD
+		//                interface)
+		// Other bits are not connected, according to service manuals
+		// of VY-0010 and Sony HBD-50.
+		byte value = 0xFF; // all bits are pulled up to 1
 		if (controller.peekIRQ(time)) value &= ~0x40;
 		if (controller.peekDTRQ(time)) value &= ~0x80;
 		return value;
