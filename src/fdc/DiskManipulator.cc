@@ -155,14 +155,14 @@ void DiskManipulator::execute(std::span<const TclObject> tokens, TclObject& resu
 		auto& settings = getDriveSettings(tokens[2].getString());
 		// Workaround clang-13/libc++ bug
 		//std::span<const TclObject> lists(std::begin(tokens) + 4, std::end(tokens));
-		std::span<const TclObject> lists(&*(std::begin(tokens) + 4), std::end(tokens) - std::begin(tokens) + 4);
+		std::span<const TclObject> lists(&*(std::begin(tokens) + 4), std::end(tokens) - (std::begin(tokens) + 4));
 		exprt(settings, directory, lists);
 
 	} else if (subCmd == "import") {
 		auto& settings = getDriveSettings(tokens[2].getString());
 		// Workaround clang-13/libc++ bug
 		//std::span<const TclObject> lists(std::begin(tokens) + 3, std::end(tokens));
-		std::span<const TclObject> lists(&*(std::begin(tokens) + 3), std::end(tokens) - std::begin(tokens) + 3);
+		std::span<const TclObject> lists(&*(std::begin(tokens) + 3), std::end(tokens) - (std::begin(tokens) + 3));
 		result = import(settings, lists);
 
 	} else if (subCmd == "savedsk") {
