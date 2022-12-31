@@ -711,7 +711,7 @@ string MSXtar::dir()
 			          (dirEntry.attrib & T_MSX_ARC  ? 'a' : '-'), // TODO check if this is the output of files,l
 			          "  ",
 			          // filesize
-			          dirEntry.size << '\n');
+			          dirEntry.size, '\n');
 		}
 	}
 	return result;
