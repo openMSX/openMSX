@@ -1234,18 +1234,13 @@ Keyboard::KeyInserter::KeyInserter(
 void Keyboard::KeyInserter::execute(
 	std::span<const TclObject> tokens, TclObject& /*result*/, EmuTime::param /*time*/)
 {
-	checkNumArgs(tokens, AtLeast{2}, "?-release? ?-freq hz? text");
+	checkNumArgs(tokens, AtLeast{2}, "?-release? ?-freq hz? ?-cancel? text");
 
+	bool cancel = false;
 	releaseBeforePress = false;
 	typingFrequency = 15;
-
-	// for full backwards compatibility: one option means type it...
-	if (tokens.size() == 2) {
-		type(tokens[1].getString());
-		return;
-	}
-
 	std::array info = {
+		flagArg("-cancel", cancel),
 		flagArg("-release", releaseBeforePress),
 		valueArg("-freq", typingFrequency),
 	};
@@ -1254,6 +1249,11 @@ void Keyboard::KeyInserter::execute(
 	if (typingFrequency <= 0) {
 		throw CommandException("Wrong argument for -freq (should be a positive number)");
 	}
+	if (cancel) {
+		text_utf8.clear();
+		return;
+	}
+
 	if (arguments.size() != 1) throw SyntaxError();
 
 	type(arguments[0].getString());
@@ -1263,7 +1263,8 @@ std::string Keyboard::KeyInserter::help(std::span<const TclObject> /*tokens*/) c
 {
 	return "Type a string in the emulated MSX.\n"
 	       "Use -release to make sure the keys are always released before typing new ones (necessary for some game input routines, but in general, this means typing is twice as slow).\n"
-	       "Use -freq to tweak how fast typing goes and how long the keys will be pressed (and released in case -release was used). Keys will be typed at the given frequency and will remain pressed/released for 1/freq seconds";
+	       "Use -freq to tweak how fast typing goes and how long the keys will be pressed (and released in case -release was used). Keys will be typed at the given frequency and will remain pressed/released for 1/freq seconds\n"
+	       "Use -cancel to cancel a (long) in-progress type command.";
 }
 
 void Keyboard::KeyInserter::tabCompletion(std::vector<std::string>& tokens) const

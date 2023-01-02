@@ -15,18 +15,34 @@ variable the_text
 variable index
 
 proc type_via_keybuf {args} {
+	variable bp_id
+	variable index
+	variable the_text
+
 	set text ""
 	# note: ignore extra args to be able to be an alias for the original type command
 	while {[llength $args] > 0} {
 		set option [lindex $args 0]
 		switch -- $option {
-			"-release" {
+			"-release" { # ignore
 				set args [lrange $args 1 end]
 			}
-			"-freq" {
+			"-freq" { # ignore
 				set args [lrange $args 2 end]
 			}
-			default {
+			"-cancel" { # cancel an in-progress type command
+				stop
+				return
+			}
+			"--" { # Stop processing options
+				# In this case that means there must follow exactly one more argument
+				if {($text ne "") || ([llength $args] != 2)} {
+					error "Syntax error"
+				}
+				set text [lindex $args 1]
+				set args [list]
+			}
+			default { # The to-be typed text
 				if {$text ne ""} {
 					error "Syntax error"
 				}
@@ -35,22 +51,17 @@ proc type_via_keybuf {args} {
 			}
 		}
 	}
-	variable bp_id
 
 	if {$bp_id ne "invalid"} {
 		# already typing going on, so append
-		variable the_text
 		append the_text $text
-		return ""
+		return
 	}
-
-	variable the_text
-	variable index
 
 	set index 0
 	set the_text $text
 	set bp_id [debug set_bp 0x38 {} "type_via_keybuf::handleinterrupt"]
-	return ""
+	return
 }
 
 proc handleinterrupt {} {
@@ -68,18 +79,16 @@ proc handleinterrupt {} {
 
 	if {[peek16 $PUTPNT] == [peek16 $GETPNT]} {
 		# keyboard buffer is processed
+		variable index
+		variable the_text
 
 		# poke the buffer (almost!) full with the next file content
 		set addr $KEYBUF
 		while {$addr < $BUFEND - 1} {
-			variable index
-			variable the_text
 			set char [string index $the_text $index]
 			if {$char eq ""} {
 				# apparently end of string reached, clean up
-				variable bp_id
-				debug remove_bp $bp_id
-				set bp_id "invalid"
+				stop
 				break
 			}
 			# do not skip newlines, similar to normal type command
@@ -92,6 +101,12 @@ proc handleinterrupt {} {
 		# put read pointer at start of keyboard buffer
 		poke16 $GETPNT $KEYBUF
 	}
+}
+
+proc stop {} {
+	variable bp_id
+	catch { debug remove_bp $bp_id }
+	set bp_id "invalid"
 }
 
 namespace export type_via_keybuf
