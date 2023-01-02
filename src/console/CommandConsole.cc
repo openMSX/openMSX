@@ -318,14 +318,14 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 			return true;
 		case Keys::K_HOME:
 #ifdef __APPLE__
-			scroll(lines.size());
+			scroll(narrow<int>(lines.size()));
 #else
 			cursorPosition = unsigned(prompt.size());
 #endif
 			return true;
 		case Keys::K_END:
 #ifdef __APPLE__
-			scroll(-lines.size());
+			scroll(-narrow<int>(lines.size()));
 #else
 			cursorPosition = unsigned(lines[0].numChars());
 #endif
