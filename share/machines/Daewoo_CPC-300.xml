@@ -6,7 +6,7 @@
     <manufacturer>Daewoo</manufacturer>
     <code>CPC-300</code>
     <release_year>1986</release_year>
-    <description>An MSX2 for the Korean market, with built in software, hangul support ans 128kB RAM.</description>
+    <description>An MSX2 for the Korean market, with built in software, hangul support and 128kB RAM.</description>
     <type>MSX2</type>
     <region>kr</region>
   </info>
