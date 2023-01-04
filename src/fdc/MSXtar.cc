@@ -18,6 +18,7 @@
 #include "one_of.hh"
 #include "stl.hh"
 #include "xrange.hh"
+#include <algorithm>
 #include <cstring>
 #include <cassert>
 #include <cctype>
@@ -441,11 +442,11 @@ static TimeDate getTimeDate(time_t totalSeconds)
 {
 	if (tm* mtim = localtime(&totalSeconds)) {
 		auto time = narrow<uint16_t>(
-			(mtim->tm_sec >> 1) + (mtim->tm_min << 5) +
+			(std::min(mtim->tm_sec, 59) >> 1) + (mtim->tm_min << 5) +
 			(mtim->tm_hour << 11));
 		auto date = narrow<uint16_t>(
 			mtim->tm_mday + ((mtim->tm_mon + 1) << 5) +
-			((mtim->tm_year + 1900 - 1980) << 9));
+			(std::clamp(mtim->tm_year + 1900 - 1980, 0, 119) << 9));
 		return {time, date};
 	}
 	return {0, 0};
