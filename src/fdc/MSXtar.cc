@@ -28,6 +28,7 @@ using std::string_view;
 
 namespace openmsx {
 
+static constexpr unsigned FREE_FAT = 0x000;
 static constexpr unsigned BAD_FAT = 0xFF7;
 static constexpr unsigned EOF_FAT = 0xFFF; // actually 0xFF8-0xFFF, signals EOF in FAT12
 static constexpr unsigned SECTOR_SIZE = SectorAccessibleDisk::SECTOR_SIZE;
@@ -427,7 +428,7 @@ unsigned MSXtar::addSubdir(
 	buf.dirEntry[1].attrib = T_MSX_DIR;
 	buf.dirEntry[1].time = t;
 	buf.dirEntry[1].date = d;
-	buf.dirEntry[1].startCluster = narrow<uint16_t>(sectorToCluster(sector));
+	buf.dirEntry[1].startCluster = sector == rootDirStart ? FREE_FAT : narrow<uint16_t>(sectorToCluster(sector));
 
 	// and save this in the first sector of the new subdir
 	writeLogicalSector(logicalSector, buf);
@@ -634,8 +635,8 @@ string MSXtar::recurseDirFill(string_view dirName, unsigned sector)
 			auto& msxDirEntry = buf.dirEntry[entry.index];
 			if (msxDirEntry.attrib & T_MSX_DIR) {
 				// .. and is a directory
-				unsigned nextSector = clusterToSector(
-					getStartCluster(msxDirEntry));
+				unsigned nextCluster = getStartCluster(msxDirEntry);
+				unsigned nextSector = nextCluster == FREE_FAT ? rootDirStart : clusterToSector(nextCluster);
 				messages += recurseDirFill(path, nextSector);
 			} else {
 				// .. but is NOT a directory
@@ -763,7 +764,8 @@ void MSXtar::chroot(string_view newRootDir, bool createDir)
 			if (!(dirEntry.attrib & T_MSX_DIR)) {
 				throw MSXException(firstPart, " is not a directory.");
 			}
-			chrootSector = clusterToSector(getStartCluster(dirEntry));
+			unsigned chrootCluster = getStartCluster(dirEntry);
+			chrootSector = chrootCluster == FREE_FAT ? rootDirStart : clusterToSector(chrootCluster);
 		}
 	}
 }
@@ -806,9 +808,9 @@ string MSXtar::singleItemExtract(string_view dirName, string_view itemName,
 	if  (msxDirEntry.attrib & T_MSX_DIR) {
 		// recursive extract this subdir
 		FileOperations::mkdirp(fullName);
-		recurseDirExtract(
-			fullName,
-			clusterToSector(getStartCluster(msxDirEntry)));
+		unsigned nextCluster = getStartCluster(msxDirEntry);
+		unsigned nextSector = nextCluster == FREE_FAT ? rootDirStart : clusterToSector(nextCluster);
+		recurseDirExtract(fullName, nextSector);
 	} else {
 		// it is a file
 		fileExtract(fullName, msxDirEntry);
