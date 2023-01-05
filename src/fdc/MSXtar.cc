@@ -29,6 +29,7 @@ using std::string_view;
 namespace openmsx {
 
 static constexpr unsigned FREE_FAT = 0x000;
+static constexpr unsigned FIRST_CLUSTER = 0x002;
 static constexpr unsigned BAD_FAT = 0xFF7;
 static constexpr unsigned EOF_FAT = 0xFFF; // actually 0xFF8-0xFFF, signals EOF in FAT12
 static constexpr unsigned SECTOR_SIZE = SectorAccessibleDisk::SECTOR_SIZE;
@@ -50,7 +51,9 @@ static constexpr uint8_t T_MSX_LFN  = 0x0F; // LFN entry (long files names)
   */
 unsigned MSXtar::clusterToSector(unsigned cluster) const
 {
-	return 1 + rootDirLast + sectorsPerCluster * (cluster - 2);
+	assert(cluster >= FIRST_CLUSTER);
+	assert(cluster < maxCluster);
+	return 1 + rootDirLast + sectorsPerCluster * (cluster - FIRST_CLUSTER);
 }
 
 /** Transforms a sector number towards it containing cluster
@@ -58,7 +61,10 @@ unsigned MSXtar::clusterToSector(unsigned cluster) const
   */
 unsigned MSXtar::sectorToCluster(unsigned sector) const
 {
-	return 2 + ((sector - (1 + rootDirLast)) / sectorsPerCluster);
+	assert(sector > rootDirLast);
+	unsigned cluster = FIRST_CLUSTER + ((sector - (1 + rootDirLast)) / sectorsPerCluster);
+	assert(cluster < maxCluster);
+	return cluster;
 }
 
 
@@ -98,7 +104,11 @@ void MSXtar::parseBootSector(const MSXBootSector& boot)
 	rootDirStart = 1 + boot.nrFats * sectorsPerFat;
 	chrootSector = rootDirStart;
 	rootDirLast = rootDirStart + nbRootDirSectors - 1;
+
+	// Bypass max cluster check in sectorToCluster
+	maxCluster = std::numeric_limits<decltype(maxCluster)>::max();
 	maxCluster = sectorToCluster(boot.nrSectors);
+	maxCluster = std::min(maxCluster, BAD_FAT);
 
 	// Some (invalid) disk images have a too small FAT to be able to address
 	// all clusters of the image. OpenMSX SVN revisions pre-11326 even
@@ -222,7 +232,7 @@ void MSXtar::writeFAT(unsigned clNr, unsigned val)
 // @throws When no more free clusters
 unsigned MSXtar::findFirstFreeCluster()
 {
-	for (auto cluster : xrange(2u, maxCluster)) {
+	for (auto cluster : xrange(FIRST_CLUSTER, maxCluster)) {
 		if (readFAT(cluster) == 0) {
 			return cluster;
 		}
