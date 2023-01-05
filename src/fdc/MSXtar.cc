@@ -698,8 +698,12 @@ string MSXtar::dir()
 		SectorBuffer buf;
 		readLogicalSector(sector, buf);
 		for (auto& dirEntry : buf.dirEntry) {
-			if ((dirEntry.filename[0] == one_of(char(0xe5), char(0x00))) ||
-			    (dirEntry.attrib == T_MSX_LFN)) continue;
+			if (dirEntry.filename[0] == char(0x00)) {
+				return result;
+			}
+			if (dirEntry.filename[0] == char(0xe5) || dirEntry.attrib == T_MSX_LFN) {
+				continue;
+			}
 
 			// filename first (in condensed form for human readability)
 			string tmp = condenseName(dirEntry);
@@ -826,7 +830,10 @@ void MSXtar::recurseDirExtract(string_view dirName, unsigned sector)
 		SectorBuffer buf;
 		readLogicalSector(sector, buf);
 		for (auto& dirEntry : buf.dirEntry) {
-			if (dirEntry.filename[0] == one_of(char(0xe5), char(0x00), '.')) {
+			if (dirEntry.filename[0] == char(0x00)) {
+				return;
+			}
+			if (dirEntry.filename[0] == one_of(char(0xe5), '.') || dirEntry.attrib == T_MSX_LFN) {
 				continue;
 			}
 			string filename = condenseName(dirEntry);
