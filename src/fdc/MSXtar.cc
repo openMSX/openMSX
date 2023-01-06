@@ -34,6 +34,7 @@ static constexpr unsigned FIRST_CLUSTER = 0x002;
 static constexpr unsigned BAD_FAT = 0xFF7;
 static constexpr unsigned EOF_FAT = 0xFFF; // actually 0xFF8-0xFFF, signals EOF in FAT12
 static constexpr unsigned SECTOR_SIZE = sizeof(SectorBuffer);
+static constexpr unsigned DIR_ENTRIES_PER_SECTOR = SECTOR_SIZE / sizeof(MSXDirEntry);
 
 static constexpr uint8_t T_MSX_REG  = 0x00; // Normal file
 static constexpr uint8_t T_MSX_READ = 0x01; // Read-Only file
@@ -73,7 +74,6 @@ unsigned MSXtar::sectorToCluster(unsigned sector) const
   */
 void MSXtar::parseBootSector(const MSXBootSector& boot)
 {
-	unsigned nbRootDirSectors = boot.dirEntries / 16;
 	sectorsPerFat     = boot.sectorsFat;
 	sectorsPerCluster = boot.spCluster;
 
@@ -92,13 +92,14 @@ void MSXtar::parseBootSector(const MSXBootSector& boot)
 	if (sectorsPerFat == 0) { // TODO: check limits more accurately
 		throw MSXException("Illegal number sectors per FAT: ", sectorsPerFat);
 	}
-	if (nbRootDirSectors == 0) { // TODO: check limits more accurately
-		throw MSXException("Illegal number of root dir sectors: ", nbRootDirSectors);
+	if (boot.dirEntries == 0 || boot.dirEntries % DIR_ENTRIES_PER_SECTOR != 0) {
+		throw MSXException("Illegal number of root directory entries: ", boot.dirEntries);
 	}
 	if (!std::has_single_bit(sectorsPerCluster)) {
 		throw MSXException("Illegal number of sectors per cluster: ", sectorsPerCluster);
 	}
 
+	unsigned nbRootDirSectors = boot.dirEntries / DIR_ENTRIES_PER_SECTOR;
 	rootDirStart = 1 + boot.nrFats * sectorsPerFat;
 	chrootSector = rootDirStart;
 	rootDirLast = rootDirStart + nbRootDirSectors - 1;
@@ -301,7 +302,7 @@ unsigned MSXtar::findUsableIndexInSector(unsigned sector)
 	readLogicalSector(sector, buf);
 
 	// find a not used (0x00) or delete entry (0xE5)
-	for (auto i : xrange(16)) {
+	for (auto i : xrange(DIR_ENTRIES_PER_SECTOR)) {
 		if (buf.dirEntry[i].filename[0] == one_of(0x00, char(0xE5))) {
 			return i;
 		}
@@ -577,7 +578,7 @@ MSXtar::DirEntry MSXtar::findEntryInDir(
 	while (result.sector) {
 		// read sector and scan 16 entries
 		readLogicalSector(result.sector, buf);
-		for (result.index = 0; result.index < 16; ++result.index) {
+		for (result.index = 0; result.index < DIR_ENTRIES_PER_SECTOR; ++result.index) {
 			if (ranges::equal(buf.dirEntry[result.index].filename, name)) {
 				return result;
 			}
