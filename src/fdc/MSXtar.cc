@@ -32,7 +32,7 @@ static constexpr unsigned FREE_FAT = 0x000;
 static constexpr unsigned FIRST_CLUSTER = 0x002;
 static constexpr unsigned BAD_FAT = 0xFF7;
 static constexpr unsigned EOF_FAT = 0xFFF; // actually 0xFF8-0xFFF, signals EOF in FAT12
-static constexpr unsigned SECTOR_SIZE = SectorAccessibleDisk::SECTOR_SIZE;
+static constexpr unsigned SECTOR_SIZE = sizeof(SectorBuffer);
 
 static constexpr uint8_t T_MSX_REG  = 0x00; // Normal file
 static constexpr uint8_t T_MSX_READ = 0x01; // Read-Only file
@@ -76,6 +76,9 @@ void MSXtar::parseBootSector(const MSXBootSector& boot)
 	sectorsPerFat     = boot.sectorsFat;
 	sectorsPerCluster = boot.spCluster;
 
+	if (boot.bpSector != SECTOR_SIZE) {
+		throw MSXException("Illegal sector size: ", boot.bpSector);
+	}
 	if (boot.nrSectors == 0) { // TODO: check limits more accurately
 		throw MSXException("Illegal number of sectors: ", boot.nrSectors);
 	}
