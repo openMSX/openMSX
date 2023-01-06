@@ -16,7 +16,7 @@ struct MSXBootSector {
 	std::array<uint8_t, 8>      name;          // + 3
 	Endian::UA_L16              bpSector;      // +11 bytes per sector (always 512)
 	uint8_t                     spCluster;     // +13 sectors per cluster (always 2)
-	Endian::L16                 resvSectors;   // +14 nb of non-data sectors (ex boot sector)
+	Endian::L16                 resvSectors;   // +14 nb of non-data sectors (incl boot sector)
 	uint8_t                     nrFats;        // +16 nb of fats
 	Endian::UA_L16              dirEntries;    // +17 max nb of files in root directory
 	Endian::UA_L16              nrSectors;     // +19 nb of sectors on this disk

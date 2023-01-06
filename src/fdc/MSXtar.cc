@@ -83,6 +83,9 @@ void MSXtar::parseBootSector(const MSXBootSector& boot)
 	if (boot.nrSectors == 0) { // TODO: check limits more accurately
 		throw MSXException("Illegal number of sectors: ", boot.nrSectors);
 	}
+	if (boot.resvSectors == 0) {
+		throw MSXException("Illegal number of reserved sectors: ", boot.resvSectors);
+	}
 	if (boot.nrFats == 0) { // TODO: check limits more accurately
 		throw MSXException("Illegal number of FATs: ", boot.nrFats);
 	}
@@ -97,7 +100,8 @@ void MSXtar::parseBootSector(const MSXBootSector& boot)
 	}
 
 	unsigned nbRootDirSectors = boot.dirEntries / DIR_ENTRIES_PER_SECTOR;
-	rootDirStart = 1 + boot.nrFats * sectorsPerFat;
+	fatStart = boot.resvSectors;
+	rootDirStart = fatStart + boot.nrFats * sectorsPerFat;
 	chrootSector = rootDirStart;
 	rootDirLast = rootDirStart + nbRootDirSectors - 1;
 
@@ -116,7 +120,7 @@ void MSXtar::parseBootSector(const MSXBootSector& boot)
 void MSXtar::writeLogicalSector(unsigned sector, const SectorBuffer& buf)
 {
 	assert(!fatBuffer.empty());
-	unsigned fatSector = sector - 1;
+	unsigned fatSector = sector - fatStart;
 	if (fatSector < sectorsPerFat) {
 		// we have a cache and this is a sector of the 1st FAT
 		//   --> update cache
@@ -130,7 +134,7 @@ void MSXtar::writeLogicalSector(unsigned sector, const SectorBuffer& buf)
 void MSXtar::readLogicalSector(unsigned sector, SectorBuffer& buf)
 {
 	assert(!fatBuffer.empty());
-	unsigned fatSector = sector - 1;
+	unsigned fatSector = sector - fatStart;
 	if (fatSector < sectorsPerFat) {
 		// we have a cache and this is a sector of the 1st FAT
 		//   --> read from cache
@@ -157,7 +161,7 @@ MSXtar::MSXtar(SectorAccessibleDisk& sectorDisk)
 	// cache complete FAT
 	fatCacheDirty = false;
 	fatBuffer.resize(sectorsPerFat);
-	disk.readSectors(std::span{fatBuffer.data(), sectorsPerFat}, 1);
+	disk.readSectors(std::span{fatBuffer.data(), sectorsPerFat}, fatStart);
 }
 
 // Not used when NRVO is used (but NRVO optimization is not (yet) mandated)
@@ -167,6 +171,7 @@ MSXtar::MSXtar(MSXtar&& other) noexcept
 	, maxCluster(other.maxCluster)
 	, sectorsPerCluster(other.sectorsPerCluster)
 	, sectorsPerFat(other.sectorsPerFat)
+	, fatStart(other.fatStart)
 	, rootDirStart(other.rootDirStart)
 	, rootDirLast(other.rootDirLast)
 	, chrootSector(other.chrootSector)
@@ -181,7 +186,7 @@ MSXtar::~MSXtar()
 
 	for (auto i : xrange(sectorsPerFat)) {
 		try {
-			disk.writeSector(i + 1, fatBuffer[i]);
+			disk.writeSector(i + fatStart, fatBuffer[i]);
 		} catch (MSXException&) {
 			// nothing
 		}

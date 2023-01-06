@@ -69,6 +69,7 @@ void checkFAT12Partition(SectorAccessibleDisk& disk, unsigned partition)
 
 // Create a correct boot sector depending on the required size of the filesystem
 struct SetBootSectorResult {
+	unsigned firstFATSector;
 	unsigned firstDataSector;
 	uint8_t descriptor;
 };
@@ -184,10 +185,11 @@ static SetBootSectorResult setBootSector(
 		// set random volume id
 		boot.vol_id = random_32bit() & 0x7F7F7F7F; // why are bits masked?
 	}
+
 	unsigned nbRootDirSectors = nbDirEntry / 16;
-	unsigned rootDirStart = 1 + nbFats * nbSectorsPerFat;
+	unsigned rootDirStart = nbReservedSectors + nbFats * nbSectorsPerFat;
 	unsigned firstDataSector = rootDirStart + nbRootDirSectors;
-	return {firstDataSector, descriptor};
+	return {nbReservedSectors, firstDataSector, descriptor};
 }
 
 void format(SectorAccessibleDisk& disk, bool dos1)
@@ -195,12 +197,13 @@ void format(SectorAccessibleDisk& disk, bool dos1)
 	// first create a boot sector for given partition size
 	size_t nbSectors = disk.getNbSectors();
 	SectorBuffer buf;
-	auto [firstDataSector, descriptor] = setBootSector(buf.bootSector, nbSectors, dos1);
+	auto [firstFATSector, firstDataSector, descriptor] =
+		setBootSector(buf.bootSector, nbSectors, dos1);
 	disk.writeSector(0, buf);
 
 	// write empty FAT and directory sectors
 	ranges::fill(buf.raw, 0);
-	for (auto i : xrange(2u, firstDataSector)) {
+	for (auto i : xrange(firstFATSector + 1, firstDataSector)) {
 		disk.writeSector(i, buf);
 	}
 	// first FAT sector is special:
@@ -209,7 +212,7 @@ void format(SectorAccessibleDisk& disk, bool dos1)
 	buf.raw[0] = descriptor;
 	buf.raw[1] = 0xFF;
 	buf.raw[2] = 0xFF;
-	disk.writeSector(1, buf);
+	disk.writeSector(firstFATSector, buf);
 
 	// write 'empty' data sectors
 	ranges::fill(buf.raw, 0xE5);
