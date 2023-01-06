@@ -19,6 +19,7 @@
 #include "stl.hh"
 #include "xrange.hh"
 #include <algorithm>
+#include <bit>
 #include <cstring>
 #include <cassert>
 #include <cctype>
@@ -94,7 +95,7 @@ void MSXtar::parseBootSector(const MSXBootSector& boot)
 	if (nbRootDirSectors == 0) { // TODO: check limits more accurately
 		throw MSXException("Illegal number of root dir sectors: ", nbRootDirSectors);
 	}
-	if (sectorsPerCluster == 0) { // TODO: check limits more accurately
+	if (!std::has_single_bit(sectorsPerCluster)) {
 		throw MSXException("Illegal number of sectors per cluster: ", sectorsPerCluster);
 	}
 
