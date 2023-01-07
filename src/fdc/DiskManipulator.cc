@@ -384,10 +384,6 @@ void DiskManipulator::create(std::span<const TclObject> tokens)
 			}
 		}
 		sectors = (sectors * scale) / SectorBasedDisk::SECTOR_SIZE;
-		// for a 32MB disk or greater the sectors would be >= 65536
-		// since MSX use 16 bits for this, in case of sectors = 65536
-		// the truncated word will be 0 -> formatted as 320 Kb disk!
-		if (sectors > 65535) sectors = 65535; // this is the max size for fat12 :-)
 
 		// TEMP FIX: the smallest boot sector we create in MSXtar is for
 		// a normal single sided disk.

@@ -104,6 +104,10 @@ static SetBootSectorResult setBootSector(
 		nbDirEntry = 256;
 		descriptor = 0xF0;
 		nbHiddenSectors = 16;	// override default from above
+		// for a 32MB disk or greater the sectors would be >= 65536
+		// since MSX use 16 bits for this, in case of sectors = 65536
+		// the truncated word will be 0 -> formatted as 320 Kb disk!
+		if (nbSectors > 65535) nbSectors = 65535; // this is the max size for fat12 :-)
 	} else if (nbSectors > 16388) {
 		// 16388 < nbSectors <= 32732
 		nbSides = 2;		// unknown yet
