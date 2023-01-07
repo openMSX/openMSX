@@ -18,6 +18,7 @@ namespace openmsx::DiskImageUtils {
 
 static constexpr unsigned DOS1_MAX_CLUSTER_COUNT = 0x3FE;  // Max 3 sectors per FAT
 static constexpr unsigned FAT12_MAX_CLUSTER_COUNT = 0xFF4;
+static constexpr unsigned FAT16_MAX_CLUSTER_COUNT = 0xFFF4;
 static constexpr unsigned SECTOR_SIZE = sizeof(SectorBuffer);
 static constexpr unsigned DIR_ENTRIES_PER_SECTOR = SECTOR_SIZE / sizeof(MSXDirEntry);
 
@@ -134,14 +135,14 @@ Partition& getPartition(SectorAccessibleDisk& disk, unsigned partition, SectorBu
 	}
 }
 
-void checkFAT12Partition(SectorAccessibleDisk& disk, unsigned partition)
+void checkSupportedPartition(SectorAccessibleDisk& disk, unsigned partition)
 {
 	SectorBuffer buf;
 	Partition& p = getPartition(disk, partition, buf);
 
 	// check partition type
-	if (p.sys_ind != 0x01) {
-		throw CommandException("Only FAT12 partitions are supported.");
+	if (p.sys_ind != one_of(0x01, 0x04, 0x06, 0x0E)) {
+		throw CommandException("Only FAT12 and FAT16 partitions are supported.");
 	}
 }
 
@@ -154,6 +155,7 @@ struct SetBootSectorResult {
 	unsigned rootDirStart;
 	unsigned dataStart;
 	uint8_t descriptor;
+	bool fat16;
 };
 static SetBootSectorResult setBootSector(
 	MSXBootSector& boot, MSXBootSectorType bootType, size_t nbSectors)
@@ -163,6 +165,8 @@ static SetBootSectorResult setBootSector(
 		boot = BootBlocks::dos1BootBlock.bootSector;
 	} else if (bootType == MSXBootSectorType::DOS2) {
 		boot = BootBlocks::dos2BootBlock.bootSector;
+	} else if (bootType == MSXBootSectorType::NEXTOR && nbSectors > 0x10000) {
+		boot = BootBlocks::nextorBootBlockFAT16.bootSector;
 	} else if (bootType == MSXBootSectorType::NEXTOR) {
 		boot = BootBlocks::nextorBootBlockFAT12.bootSector;
 	} else {
@@ -182,9 +186,34 @@ static SetBootSectorResult setBootSector(
 	uint8_t nbSectorsPerCluster = 2;
 	uint16_t nbDirEntry = 112;
 	uint8_t descriptor = 0xF9;
+	bool fat16 = false;
 
 	// now set correct info according to size of image (in sectors!)
-	if (bootType == MSXBootSectorType::NEXTOR) {
+	if (bootType == MSXBootSectorType::NEXTOR && nbSectors > 0x10000) {
+		// using the same layout as Nextor 2.1.1’s FDISK
+		nbSides = 0;
+		nbFats = 2;
+		nbDirEntry = 512;
+		descriptor = 0xF0;
+		nbHiddenSectors = 0;
+		fat16 = true;
+
+		// <= 128 MB: 4, <= 256 MB: 8, ..., <= 4 GB: 128
+		nbSectorsPerCluster = narrow<uint8_t>(std::clamp(std::bit_ceil(nbSectors) >> 16, size_t(4), size_t(128)));
+
+		// Calculate fat size based on cluster count estimate
+		unsigned fatStart = nbReservedSectors + nbDirEntry / DIR_ENTRIES_PER_SECTOR;
+		unsigned estSectorCount = narrow<unsigned>(nbSectors - fatStart);
+		unsigned estClusterCount = std::min(estSectorCount / nbSectorsPerCluster, FAT16_MAX_CLUSTER_COUNT);
+		unsigned fatSize = 2 * (estClusterCount + 2);
+		nbSectorsPerFat = narrow<uint16_t>((fatSize + SECTOR_SIZE - 1) / SECTOR_SIZE);  // round up
+
+		// Adjust sectors count down to match cluster count
+		unsigned dataStart = fatStart + nbFats * nbSectorsPerFat;
+		unsigned dataSectorCount = narrow<unsigned>(nbSectors - dataStart);
+		unsigned clusterCount = std::min(dataSectorCount / nbSectorsPerCluster, FAT16_MAX_CLUSTER_COUNT);
+		nbSectors = dataStart + clusterCount * nbSectorsPerCluster;
+	} else if (bootType == MSXBootSectorType::NEXTOR) {
 		// using the same layout as Nextor 2.1.1’s FDISK
 		nbSides = 0;
 		nbFats = 2;
@@ -325,6 +354,8 @@ static SetBootSectorResult setBootSector(
 
 	if (nbSectors < 0x10000) {
 		boot.nrSectors = narrow<uint16_t>(nbSectors);
+	} else if (bootType == MSXBootSectorType::NEXTOR && fat16) {
+		boot.nrSectors = 0;
 	} else {
 		throw CommandException("Too many sectors for FAT12 ", nbSectors);
 	}
@@ -340,8 +371,17 @@ static SetBootSectorResult setBootSector(
 	if (bootType == MSXBootSectorType::DOS1) {
 		auto& params = boot.params.dos1;
 		params.hiddenSectors = nbHiddenSectors;
-	} else if (bootType == MSXBootSectorType::DOS2 || bootType == MSXBootSectorType::NEXTOR) {
+	} else if (bootType == MSXBootSectorType::DOS2 || (bootType == MSXBootSectorType::NEXTOR && !fat16)) {
 		auto& params = boot.params.dos2;
+		params.hiddenSectors = nbHiddenSectors;
+		params.vol_id = vol_id;
+	} else if (bootType == MSXBootSectorType::NEXTOR && fat16) {
+		auto& params = boot.params.extended;
+		if (nbSectors <= 0x800000) {
+			params.nrSectors = narrow<unsigned>(nbSectors);
+		} else {
+			throw CommandException("Too many sectors for FAT16 ", nbSectors);
+		}
 		params.hiddenSectors = nbHiddenSectors;
 		params.vol_id = vol_id;
 	} else {
@@ -355,6 +395,7 @@ static SetBootSectorResult setBootSector(
 	result.rootDirStart = result.fatStart + nbFats * nbSectorsPerFat;
 	result.dataStart = result.rootDirStart + nbDirEntry / 16;
 	result.descriptor = descriptor;
+	result.fat16 = fat16;
 	return result;
 }
 
@@ -385,6 +426,9 @@ void format(SectorAccessibleDisk& disk, MSXBootSectorType bootType)
 	buf.raw[0] = result.descriptor;
 	buf.raw[1] = 0xFF;
 	buf.raw[2] = 0xFF;
+	if (result.fat16) {
+		buf.raw[3] = 0xFF;
+	}
 	for (auto fat : xrange(result.fatCount)) {
 		disk.writeSector(result.fatStart + fat * result.sectorsPerFat, buf);
 	}

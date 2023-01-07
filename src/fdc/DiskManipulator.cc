@@ -117,7 +117,7 @@ DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
 		if (!partition) {
 			throw CommandException("Invalid partition name: ", partitionName);
 		}
-		DiskImageUtils::checkFAT12Partition(*disk, *partition);
+		DiskImageUtils::checkSupportedPartition(*disk, *partition);
 		it->partition = *partition;
 	}
 	return *it;
@@ -256,14 +256,14 @@ string DiskManipulator::help(std::span<const TclObject> tokens) const
 	    "postfix M for megabyte.\n"
 	    "When using the -dos1 option, the boot sector of the created image will be MSX-DOS1\n"
 	    "compatible. When using the -nextor option, the boot sector and partition table will be\n"
-		"Nextor compatible.\n\n";
+		"Nextor compatible, and FAT16 volumes can be created.\n";
 	  } else if (tokens[1] == "format") {
 	  helpText =
 	    "diskmanipulator format <disk name>\n"
 	    "Formats the current (partition on) <disk name>. By default, it will create a regular\n"
 	    "FAT12 MSX file system with an MSX-DOS2 boot sector, or, when the -dos1 option is\n"
 		"specified, with an MSX-DOS1 boot sector. When the -nextor option is specified, it\n"
-		"will create a FAT12 file system with a Nextor boot sector.\n";
+		"will create a FAT12 or FAT16 file system, with a Nextor boot sector.\n";
 	  } else if (tokens[1] == "dir") {
 	  helpText =
 	    "diskmanipulator dir <disk name>\n"
@@ -317,7 +317,7 @@ void DiskManipulator::tabCompletion(std::vector<string>& tokens) const
 			if (auto* disk = d.drive->getSectorAccessibleDisk()) {
 				for (unsigned i = 1; i <= MAX_PARTITIONS; ++i) {
 					try {
-						DiskImageUtils::checkFAT12Partition(*disk, i);
+						DiskImageUtils::checkSupportedPartition(*disk, i);
 						append(names,
 						       {strCat(name1, i), strCat(name2, i)});
 					} catch (MSXException&) {
