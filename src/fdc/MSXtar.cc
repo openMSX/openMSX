@@ -233,7 +233,7 @@ void MSXtar::writeFAT(unsigned clNr, unsigned val)
 unsigned MSXtar::findFirstFreeCluster()
 {
 	for (auto cluster : xrange(FIRST_CLUSTER, maxCluster)) {
-		if (readFAT(cluster) == 0) {
+		if (readFAT(cluster) == FREE_FAT) {
 			return cluster;
 		}
 	}
@@ -505,14 +505,14 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxDirEntry, const string& hostName)
 	File file(hostName, "rb");
 
 	// copy host file to image
-	unsigned prevCl = 0;
+	unsigned prevCl = FREE_FAT;
 	unsigned curCl = getStartCluster(msxDirEntry);
 	while (remaining) {
 		// allocate new cluster if needed
 		try {
-			if (curCl == one_of(0u, EOF_FAT)) {
+			if (curCl == one_of(FREE_FAT, EOF_FAT)) {
 				unsigned newCl = findFirstFreeCluster();
-				if (prevCl == 0) {
+				if (prevCl == FREE_FAT) {
 					msxDirEntry.startCluster = narrow<uint16_t>(newCl);
 				} else {
 					writeFAT(prevCl, newCl);
@@ -542,16 +542,16 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxDirEntry, const string& hostName)
 	}
 
 	// terminate FAT chain
-	if (prevCl == 0) {
-		msxDirEntry.startCluster = 0;
+	if (prevCl == FREE_FAT) {
+		msxDirEntry.startCluster = FREE_FAT;
 	} else {
 		writeFAT(prevCl, EOF_FAT);
 	}
 
 	// free rest of FAT chain
-	while (curCl != one_of(EOF_FAT, 0u)) {
+	while (curCl != one_of(FREE_FAT, EOF_FAT)) {
 		unsigned nextCl = readFAT(curCl);
-		writeFAT(curCl, 0);
+		writeFAT(curCl, FREE_FAT);
 		curCl = nextCl;
 	}
 
