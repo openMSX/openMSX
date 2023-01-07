@@ -77,28 +77,22 @@ void MSXtar::parseBootSector(const MSXBootSector& boot)
 	sectorsPerCluster = boot.spCluster;
 
 	if (boot.nrSectors == 0) { // TODO: check limits more accurately
-		throw MSXException(
-			"Illegal number of sectors: ", boot.nrSectors);
+		throw MSXException("Illegal number of sectors: ", boot.nrSectors);
 	}
 	if (boot.nrSides == 0) { // TODO: check limits more accurately
-		throw MSXException(
-			"Illegal number of sides: ", boot.nrSides);
+		throw MSXException("Illegal number of sides: ", boot.nrSides);
 	}
 	if (boot.nrFats == 0) { // TODO: check limits more accurately
-		throw MSXException(
-			"Illegal number of FATs: ", boot.nrFats);
+		throw MSXException("Illegal number of FATs: ", boot.nrFats);
 	}
 	if (sectorsPerFat == 0) { // TODO: check limits more accurately
-		throw MSXException(
-			"Illegal number sectors per FAT: ", sectorsPerFat);
+		throw MSXException("Illegal number sectors per FAT: ", sectorsPerFat);
 	}
 	if (nbRootDirSectors == 0) { // TODO: check limits more accurately
-		throw MSXException(
-			"Illegal number of root dir sectors: ", nbRootDirSectors);
+		throw MSXException("Illegal number of root dir sectors: ", nbRootDirSectors);
 	}
 	if (sectorsPerCluster == 0) { // TODO: check limits more accurately
-		throw MSXException(
-			"Illegal number of sectors per cluster: ", sectorsPerCluster);
+		throw MSXException("Illegal number of sectors per cluster: ", sectorsPerCluster);
 	}
 
 	rootDirStart = 1 + boot.nrFats * sectorsPerFat;
