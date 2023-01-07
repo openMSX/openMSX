@@ -99,6 +99,7 @@ private:
 	unsigned rootDirStart; // first sector of the root directory
 	unsigned dataStart;    // first sector of the cluster data
 	unsigned chrootSector;
+	bool fat16;
 
 	bool fatCacheDirty;
 };

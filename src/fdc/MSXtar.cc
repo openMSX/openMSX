@@ -54,8 +54,24 @@ namespace FAT12 {
 	} toClusterNumber;
 }
 
+namespace FAT16 {
+	static constexpr unsigned BAD = 0xFFF7;
+	static constexpr unsigned END_OF_CHAIN = 0xFFFF; // actually 0xFFF8-0xFFFF, signals EOF in FAT16
+
+	static constexpr unsigned MAX_CLUSTER_COUNT = 0xFFF4;
+
+	// Functor to convert a FatCluster or DirCluster to a FAT16 cluster number
+	struct ToClusterNumber {
+		unsigned operator()(Free) const { return FAT::FREE; }
+		unsigned operator()(EndOfChain) const { return END_OF_CHAIN; }
+		unsigned operator()(Cluster cluster) const { return FAT::FIRST_CLUSTER + cluster.index; }
+	} toClusterNumber;
+}
+
 static constexpr unsigned SECTOR_SIZE = sizeof(SectorBuffer);
 static constexpr unsigned DIR_ENTRIES_PER_SECTOR = SECTOR_SIZE / sizeof(MSXDirEntry);
+
+static constexpr uint8_t EBPB_SIGNATURE = 0x29;  // Extended BIOS Parameter Block signature
 
 static constexpr uint8_t T_MSX_REG  = 0x00; // Normal file
 static constexpr uint8_t T_MSX_READ = 0x01; // Read-Only file
@@ -97,6 +113,11 @@ void MSXtar::parseBootSector(const MSXBootSector& boot)
 	sectorsPerFat     = boot.sectorsFat;
 	sectorsPerCluster = boot.spCluster;
 
+	unsigned nrSectors = boot.nrSectors;
+	if (nrSectors == 0 && boot.extendedBootSignature == EBPB_SIGNATURE) {
+		nrSectors = boot.nrSectorsBig;
+	}
+
 	if (boot.bpSector != SECTOR_SIZE) {
 		throw MSXException("Illegal sector size: ", boot.bpSector);
 	}
@@ -106,8 +127,8 @@ void MSXtar::parseBootSector(const MSXBootSector& boot)
 	if (fatCount == 0) {
 		throw MSXException("Illegal number of FATs: ", fatCount);
 	}
-	if (sectorsPerFat == 0) { // TODO: check limits more accurately
-		throw MSXException("Illegal number sectors per FAT: ", sectorsPerFat);
+	if (sectorsPerFat == 0 || sectorsPerFat > 0x100) {
+		throw MSXException("Illegal number of sectors per FAT: ", sectorsPerFat);
 	}
 	if (boot.dirEntries == 0 || boot.dirEntries % DIR_ENTRIES_PER_SECTOR != 0) {
 		throw MSXException("Illegal number of root directory entries: ", boot.dirEntries);
@@ -122,12 +143,20 @@ void MSXtar::parseBootSector(const MSXBootSector& boot)
 	chrootSector = rootDirStart;
 	dataStart = rootDirStart + nbRootDirSectors;
 
-	if (dataStart + sectorsPerCluster > boot.nrSectors) {
-		throw MSXException("Illegal number of sectors: ", boot.nrSectors);
+	// Whether to use FAT16 is strangely implicit, it must be derived from the
+	// cluster count being higher than 0xFF4. Let's round that up to 0x1000,
+	// since FAT12 uses 1.5 bytes per cluster its maximum size is 12 sectors,
+	// whereas FAT16 uses 2 bytes per cluster so its minimum size is 16 sectors.
+	// Therefore we can pick the correct FAT type with sectorsPerFat >= 14.
+	constexpr unsigned fat16Threshold = (0x1000 * 3 / 2 + 0x1000 * 2) / 2 / SECTOR_SIZE;
+	fat16 = sectorsPerFat >= fat16Threshold;
+
+	if (dataStart + sectorsPerCluster > nrSectors) {
+		throw MSXException("Illegal number of sectors: ", nrSectors);
 	}
 
-	clusterCount = std::min((boot.nrSectors - dataStart) / sectorsPerCluster,
-	                        FAT12::MAX_CLUSTER_COUNT);
+	clusterCount = std::min((nrSectors - dataStart) / sectorsPerCluster,
+	                        fat16 ? FAT16::MAX_CLUSTER_COUNT : FAT12::MAX_CLUSTER_COUNT);
 
 	// Some (invalid) disk images have a too small FAT to be able to address
 	// all clusters of the image. OpenMSX SVN revisions pre-11326 even
@@ -224,10 +253,17 @@ FatCluster MSXtar::readFAT(Cluster cluster) const
 	std::span<const uint8_t> data{fatBuffer[0].raw.data(), sectorsPerFat * size_t(SECTOR_SIZE)};
 
 	unsigned index = FAT::FIRST_CLUSTER + cluster.index;
-	auto p = subspan<2>(data, (index * 3) / 2);
-	unsigned value = (index & 1)
-	                ? (p[0] >> 4) + (p[1] << 4)
-	                : p[0] + ((p[1] & 0x0F) << 8);
+	unsigned value = [&] {
+		if (fat16) {
+			auto p = subspan<2>(data, index * 2);
+			return p[0] | p[1] << 8;
+		} else {
+			auto p = subspan<2>(data, (index * 3) / 2);
+			return (index & 1)
+			     ? (p[0] >> 4) + (p[1] << 4)
+			     : p[0] + ((p[1] & 0x0F) << 8);
+		}
+	}();
 
 	// Be tolerant when reading:
 	// * FREE is returned as FREE.
@@ -250,18 +286,26 @@ void MSXtar::writeFAT(Cluster cluster, FatCluster value)
 	// Be strict when writing:
 	// * Anything but FREE, END_OF_CHAIN or a valid cluster number is rejected.
 	assert(!std::holds_alternative<Cluster>(value) || std::get<Cluster>(value).index < clusterCount);
-	unsigned fatValue = std::visit(FAT12::toClusterNumber, value);
 
 	std::span data{fatBuffer[0].raw.data(), sectorsPerFat * size_t(SECTOR_SIZE)};
 
 	unsigned index = FAT::FIRST_CLUSTER + cluster.index;
-	auto p = subspan<2>(data, (index * 3) / 2);
-	if (index & 1) {
-		p[0] = narrow_cast<uint8_t>((p[0] & 0x0F) + (fatValue << 4));
-		p[1] = narrow_cast<uint8_t>(fatValue >> 4);
-	} else {
+
+	if (fat16) {
+		unsigned fatValue = std::visit(FAT16::toClusterNumber, value);
+		auto p = subspan<2>(data, index * 2);
 		p[0] = narrow_cast<uint8_t>(fatValue);
-		p[1] = narrow_cast<uint8_t>((p[1] & 0xF0) + ((fatValue >> 8) & 0x0F));
+		p[1] = narrow_cast<uint8_t>(fatValue >> 8);
+	} else {
+		unsigned fatValue = std::visit(FAT12::toClusterNumber, value);
+		auto p = subspan<2>(data, (index * 3) / 2);
+		if (index & 1) {
+			p[0] = narrow_cast<uint8_t>((p[0] & 0x0F) + (fatValue << 4));
+			p[1] = narrow_cast<uint8_t>(fatValue >> 4);
+		} else {
+			p[0] = narrow_cast<uint8_t>(fatValue);
+			p[1] = narrow_cast<uint8_t>((p[1] & 0xF0) + ((fatValue >> 8) & 0x0F));
+		}
 	}
 	fatCacheDirty = true;
 }
@@ -321,7 +365,11 @@ void MSXtar::setStartCluster(MSXDirEntry& entry, DirCluster cluster) const
 	// Be strict when writing:
 	// * Anything but FREE or a valid cluster number is rejected.
 	assert(!std::holds_alternative<Cluster>(cluster) || std::get<Cluster>(cluster).index < clusterCount);
-	entry.startCluster = narrow<uint16_t>(std::visit(FAT12::toClusterNumber, cluster));
+	if (fat16) {
+		entry.startCluster = narrow<uint16_t>(std::visit(FAT16::toClusterNumber, cluster));
+	} else {
+		entry.startCluster = narrow<uint16_t>(std::visit(FAT12::toClusterNumber, cluster));
+	}
 }
 
 // If there are no more free entries in a subdirectory, the subdir is

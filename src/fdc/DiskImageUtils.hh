@@ -19,15 +19,18 @@ struct MSXBootSector {
 	Endian::L16                 resvSectors;   // +14 nb of non-data sectors (incl boot sector)
 	uint8_t                     nrFats;        // +16 nb of fats
 	Endian::UA_L16              dirEntries;    // +17 max nb of files in root directory
-	Endian::UA_L16              nrSectors;     // +19 nb of sectors on this disk
+	Endian::UA_L16              nrSectors;     // +19 nb of sectors on this disk (< 65536)
 	uint8_t                     descriptor;    // +21 media descriptor
 	Endian::L16                 sectorsFat;    // +22 sectors per FAT
 	Endian::L16                 sectorsTrack;  // +24 sectors per track (0 for LBA volumes)
 	Endian::L16                 nrSides;       // +26 number of sides (heads) (0 for LBA volumes)
 	Endian::L16                 hiddenSectors; // +28 not used
-	std::array<uint8_t, 9>      pad1;          // +30
+	std::array<uint8_t, 2>      pad1;          // +30
+	Endian::L32                 nrSectorsBig;  // +32 nb of sectors on this disk (>= 65536)
+	std::array<uint8_t, 2>      pad2;          // +36
+	uint8_t                     extendedBootSignature;  // +38
 	Endian::UA_L32              vol_id;        // +39
-	std::array<uint8_t, 512-43> pad2;          // +43
+	std::array<uint8_t, 512-43> pad3;          // +43
 };
 static_assert(sizeof(MSXBootSector) == 512);
 
