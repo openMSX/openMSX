@@ -255,6 +255,9 @@ unsigned MSXtar::getNextSector(unsigned sector)
 	} else {
 		// first sector in next cluster
 		unsigned nextCl = readFAT(currCluster);
+		if (nextCl < FIRST_CLUSTER) {
+			return 0;  // Invalid FAT entry. Error / warning?
+		}
 		return (nextCl == EOF_FAT) ? 0 : clusterToSector(nextCl);
 	}
 }
