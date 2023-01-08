@@ -22,8 +22,8 @@ struct MSXBootSector {
 	Endian::UA_L16              nrSectors;     // +19 nb of sectors on this disk
 	uint8_t                     descriptor;    // +21 media descriptor
 	Endian::L16                 sectorsFat;    // +22 sectors per FAT
-	Endian::L16                 sectorsTrack;  // +24 sectors per track
-	Endian::L16                 nrSides;       // +26 number of side
+	Endian::L16                 sectorsTrack;  // +24 sectors per track (0 for LBA volumes)
+	Endian::L16                 nrSides;       // +26 number of sides (heads) (0 for LBA volumes)
 	Endian::L16                 hiddenSectors; // +28 not used
 	std::array<uint8_t, 9>      pad1;          // +30
 	Endian::UA_L32              vol_id;        // +39

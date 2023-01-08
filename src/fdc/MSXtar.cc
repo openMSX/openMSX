@@ -83,9 +83,6 @@ void MSXtar::parseBootSector(const MSXBootSector& boot)
 	if (boot.nrSectors == 0) { // TODO: check limits more accurately
 		throw MSXException("Illegal number of sectors: ", boot.nrSectors);
 	}
-	if (boot.nrSides == 0) { // TODO: check limits more accurately
-		throw MSXException("Illegal number of sides: ", boot.nrSides);
-	}
 	if (boot.nrFats == 0) { // TODO: check limits more accurately
 		throw MSXException("Illegal number of FATs: ", boot.nrFats);
 	}
