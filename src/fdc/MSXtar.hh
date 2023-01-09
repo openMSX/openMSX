@@ -73,8 +73,8 @@ private:
 	unsigned sectorsPerCluster;
 	unsigned sectorsPerFat;
 	unsigned fatStart;     // first sector of the first FAT
-	unsigned rootDirStart; // first sector from the root directory
-	unsigned rootDirLast;  // last  sector from the root directory
+	unsigned rootDirStart; // first sector of the root directory
+	unsigned dataStart;    // first sector of the cluster data
 	unsigned chrootSector;
 
 	bool fatCacheDirty;

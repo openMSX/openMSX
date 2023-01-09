@@ -55,7 +55,7 @@ unsigned MSXtar::clusterToSector(unsigned cluster) const
 {
 	assert(cluster >= FIRST_CLUSTER);
 	assert(cluster < maxCluster);
-	return 1 + rootDirLast + sectorsPerCluster * (cluster - FIRST_CLUSTER);
+	return dataStart + sectorsPerCluster * (cluster - FIRST_CLUSTER);
 }
 
 /** Transforms a sector number towards it containing cluster
@@ -63,8 +63,8 @@ unsigned MSXtar::clusterToSector(unsigned cluster) const
   */
 unsigned MSXtar::sectorToCluster(unsigned sector) const
 {
-	assert(sector > rootDirLast);
-	unsigned cluster = FIRST_CLUSTER + ((sector - (1 + rootDirLast)) / sectorsPerCluster);
+	assert(sector >= dataStart);
+	unsigned cluster = FIRST_CLUSTER + (sector - dataStart) / sectorsPerCluster;
 	assert(cluster < maxCluster);
 	return cluster;
 }
@@ -103,7 +103,7 @@ void MSXtar::parseBootSector(const MSXBootSector& boot)
 	fatStart = boot.resvSectors;
 	rootDirStart = fatStart + boot.nrFats * sectorsPerFat;
 	chrootSector = rootDirStart;
-	rootDirLast = rootDirStart + nbRootDirSectors - 1;
+	dataStart = rootDirStart + nbRootDirSectors;
 
 	// Bypass max cluster check in sectorToCluster
 	maxCluster = std::numeric_limits<decltype(maxCluster)>::max();
@@ -173,7 +173,7 @@ MSXtar::MSXtar(MSXtar&& other) noexcept
 	, sectorsPerFat(other.sectorsPerFat)
 	, fatStart(other.fatStart)
 	, rootDirStart(other.rootDirStart)
-	, rootDirLast(other.rootDirLast)
+	, dataStart(other.dataStart)
 	, chrootSector(other.chrootSector)
 	, fatCacheDirty(other.fatCacheDirty)
 {
@@ -245,9 +245,10 @@ unsigned MSXtar::findFirstFreeCluster()
 // If no next sector then 0 is returned
 unsigned MSXtar::getNextSector(unsigned sector)
 {
-	if (sector <= rootDirLast) {
+	assert(sector >= rootDirStart);
+	if (sector < dataStart) {
 		// sector is part of the root directory
-		return (sector == rootDirLast) ? 0 : sector + 1;
+		return (sector == dataStart - 1) ? 0 : sector + 1;
 	}
 	unsigned currCluster = sectorToCluster(sector);
 	if (currCluster == sectorToCluster(sector + 1)) {
@@ -323,9 +324,10 @@ MSXtar::DirEntry MSXtar::addEntryToDir(unsigned sector)
 	DirEntry result;
 	result.sector = sector;
 
-	if (sector <= rootDirLast) {
+	assert(sector >= rootDirStart);
+	if (sector < dataStart) {
 		// add to the root directory
-		for (/* */ ; result.sector <= rootDirLast; result.sector++) {
+		for (/* */ ; result.sector < dataStart; result.sector++) {
 			result.index = findUsableIndexInSector(result.sector);
 			if (result.index != unsigned(-1)) {
 				return result;
