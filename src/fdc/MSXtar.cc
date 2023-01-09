@@ -193,38 +193,45 @@ MSXtar::~MSXtar()
 	}
 }
 
-// transform BAD_FAT (0xFF7) and EOF_FAT-range (0xFF8-0xFFF)
-// to a single value: EOF_FAT (0xFFF)
-static constexpr unsigned normalizeFAT(unsigned cluster)
-{
-	return (cluster < BAD_FAT) ? cluster : EOF_FAT;
-}
-
 // Get the next cluster number from the FAT chain
-unsigned MSXtar::readFAT(unsigned clNr) const
+unsigned MSXtar::readFAT(unsigned index) const
 {
 	assert(!fatBuffer.empty()); // FAT must already be cached
+	assert(index >= FIRST_CLUSTER && index < FIRST_CLUSTER + clusterCount);
+
 	std::span<const uint8_t> data{fatBuffer[0].raw.data(), sectorsPerFat * size_t(SECTOR_SIZE)};
-	auto p = subspan<2>(data, (clNr * 3) / 2);
-	unsigned result = (clNr & 1)
+
+	auto p = subspan<2>(data, (index * 3) / 2);
+	unsigned value = (index & 1)
 	                ? (p[0] >> 4) + (p[1] << 4)
 	                : p[0] + ((p[1] & 0x0F) << 8);
-	return normalizeFAT(result);
+
+	// Be tolerant when reading:
+	// * FREE_FAT is returned as FREE_FAT.
+	// * Anything else but a valid cluster number is returned as EOF_FAT.
+	return value == FREE_FAT ? FREE_FAT :
+		(value >= FIRST_CLUSTER && value < FIRST_CLUSTER + clusterCount) ? value : EOF_FAT;
 }
 
 // Write an entry to the FAT
-void MSXtar::writeFAT(unsigned clNr, unsigned val)
+void MSXtar::writeFAT(unsigned index, unsigned value)
 {
 	assert(!fatBuffer.empty()); // FAT must already be cached
-	assert(val < 4096); // FAT12
+	assert(index >= FIRST_CLUSTER && index < FIRST_CLUSTER + clusterCount);
+
+	// Be strict when writing:
+	// * Anything but FREE_FAT, EOF_FAT or a valid cluster number is rejected.
+	assert(value == FREE_FAT || value == EOF_FAT || (value >= FIRST_CLUSTER && value < FIRST_CLUSTER + clusterCount));
+
 	std::span data{fatBuffer[0].raw.data(), sectorsPerFat * size_t(SECTOR_SIZE)};
-	auto p = subspan<2>(data, (clNr * 3) / 2);
-	if (clNr & 1) {
-		p[0] = narrow_cast<uint8_t>((p[0] & 0x0F) + (val << 4));
-		p[1] = narrow_cast<uint8_t>(val >> 4);
+
+	auto p = subspan<2>(data, (index * 3) / 2);
+	if (index & 1) {
+		p[0] = narrow_cast<uint8_t>((p[0] & 0x0F) + (value << 4));
+		p[1] = narrow_cast<uint8_t>(value >> 4);
 	} else {
-		p[0] = narrow_cast<uint8_t>(val);
-		p[1] = narrow_cast<uint8_t>((p[1] & 0xF0) + ((val >> 8) & 0x0F));
+		p[0] = narrow_cast<uint8_t>(value);
+		p[1] = narrow_cast<uint8_t>((p[1] & 0xF0) + ((value >> 8) & 0x0F));
 	}
 	fatCacheDirty = true;
 }
@@ -257,7 +264,7 @@ unsigned MSXtar::getNextSector(unsigned sector)
 	} else {
 		// first sector in next cluster
 		unsigned nextCl = readFAT(currCluster);
-		if (nextCl < FIRST_CLUSTER) {
+		if (nextCl == FREE_FAT) {
 			return 0;  // Invalid FAT entry. Error / warning?
 		}
 		return (nextCl == EOF_FAT) ? 0 : clusterToSector(nextCl);
@@ -265,15 +272,19 @@ unsigned MSXtar::getNextSector(unsigned sector)
 }
 
 // Get start cluster from a directory entry.
-// BAD FAT and EOF FAT-range is normalized to a single EOF_FAT value.
 unsigned MSXtar::getStartCluster(const MSXDirEntry& entry) const
 {
-	return normalizeFAT(entry.startCluster);
+	// Be tolerant when reading:
+	// * Anything but a valid cluster number is returned as FREE_FAT.
+	unsigned cluster = entry.startCluster;
+	return cluster >= FIRST_CLUSTER && cluster < FIRST_CLUSTER + clusterCount ? cluster : FREE_FAT;
 }
 
 // Set start cluster on a directory entry.
 void MSXtar::setStartCluster(MSXDirEntry& entry, unsigned cluster) const
 {
+	// Be strict when writing:
+	// * Anything but FREE_FAT or a valid cluster number is rejected.
 	assert(cluster == FREE_FAT || (cluster >= FIRST_CLUSTER && cluster < FIRST_CLUSTER + clusterCount));
 	entry.startCluster = narrow<uint16_t>(cluster);
 }
