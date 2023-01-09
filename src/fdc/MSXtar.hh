@@ -66,6 +66,9 @@ private:
 	void chroot(std::string_view newRootDir, bool createDir);
 
 private:
+	[[nodiscard]] unsigned getStartCluster(const MSXDirEntry& entry) const;
+	void setStartCluster(MSXDirEntry& entry, unsigned cluster) const;
+
 	SectorAccessibleDisk& disk;
 	MemBuffer<SectorBuffer> fatBuffer;
 

@@ -264,11 +264,18 @@ unsigned MSXtar::getNextSector(unsigned sector)
 	}
 }
 
-// get start cluster from a directory entry,
-// also takes care of BAD_FAT and EOF_FAT-range.
-static unsigned getStartCluster(const MSXDirEntry& entry)
+// Get start cluster from a directory entry.
+// BAD FAT and EOF FAT-range is normalized to a single EOF_FAT value.
+unsigned MSXtar::getStartCluster(const MSXDirEntry& entry) const
 {
 	return normalizeFAT(entry.startCluster);
+}
+
+// Set start cluster on a directory entry.
+void MSXtar::setStartCluster(MSXDirEntry& entry, unsigned cluster) const
+{
+	assert(cluster == FREE_FAT || (cluster >= FIRST_CLUSTER && cluster < FIRST_CLUSTER + clusterCount));
+	entry.startCluster = narrow<uint16_t>(cluster);
 }
 
 // If there are no more free entries in a subdirectory, the subdir is
@@ -415,7 +422,7 @@ unsigned MSXtar::addSubdir(
 
 	// dirEntry.filesize = fsize;
 	unsigned curCl = findFirstFreeCluster();
-	dirEntry.startCluster = narrow<uint16_t>(curCl);
+	setStartCluster(dirEntry, curCl);
 	writeFAT(curCl, EOF_FAT);
 
 	// save the sector again
@@ -435,7 +442,7 @@ unsigned MSXtar::addSubdir(
 	buf.dirEntry[0].attrib = T_MSX_DIR;
 	buf.dirEntry[0].time = t;
 	buf.dirEntry[0].date = d;
-	buf.dirEntry[0].startCluster = narrow<uint16_t>(curCl);
+	setStartCluster(buf.dirEntry[0], curCl);
 
 	memset(&buf.dirEntry[1], 0, sizeof(MSXDirEntry));
 	ranges::fill(buf.dirEntry[1].filename, ' ');
@@ -444,7 +451,7 @@ unsigned MSXtar::addSubdir(
 	buf.dirEntry[1].attrib = T_MSX_DIR;
 	buf.dirEntry[1].time = t;
 	buf.dirEntry[1].date = d;
-	buf.dirEntry[1].startCluster = sector == rootDirStart ? FREE_FAT : narrow<uint16_t>(sectorToCluster(sector));
+	setStartCluster(buf.dirEntry[1], sector == rootDirStart ? FREE_FAT : sectorToCluster(sector));
 
 	// and save this in the first sector of the new subdir
 	writeLogicalSector(logicalSector, buf);
@@ -519,7 +526,7 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxDirEntry, const string& hostName)
 			if (curCl == one_of(FREE_FAT, EOF_FAT)) {
 				unsigned newCl = findFirstFreeCluster();
 				if (prevCl == FREE_FAT) {
-					msxDirEntry.startCluster = narrow<uint16_t>(newCl);
+					setStartCluster(msxDirEntry, newCl);
 				} else {
 					writeFAT(prevCl, newCl);
 				}
@@ -549,7 +556,7 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxDirEntry, const string& hostName)
 
 	// terminate FAT chain
 	if (prevCl == FREE_FAT) {
-		msxDirEntry.startCluster = FREE_FAT;
+		setStartCluster(msxDirEntry, prevCl);
 	} else {
 		writeFAT(prevCl, EOF_FAT);
 	}
