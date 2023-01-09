@@ -55,8 +55,9 @@ static constexpr uint8_t T_MSX_LFN  = 0x0F; // LFN entry (long files names)
   */
 unsigned MSXtar::clusterToSector(unsigned cluster) const
 {
+	// check lower bound since unsigned can't represent negative numbers
+	// don't check upper bound since it might be used in calculations
 	assert(cluster >= FIRST_CLUSTER);
-	assert(cluster < FIRST_CLUSTER + clusterCount);
 	return dataStart + sectorsPerCluster * (cluster - FIRST_CLUSTER);
 }
 
@@ -65,10 +66,10 @@ unsigned MSXtar::clusterToSector(unsigned cluster) const
   */
 unsigned MSXtar::sectorToCluster(unsigned sector) const
 {
+	// check lower bound since unsigned can't represent negative numbers
+	// don't check upper bound since it is used in calculations like getNextSector
 	assert(sector >= dataStart);
-	unsigned cluster = (sector - dataStart) / sectorsPerCluster;
-	assert(cluster < clusterCount);
-	return FIRST_CLUSTER + cluster;
+	return FIRST_CLUSTER + (sector - dataStart) / sectorsPerCluster;
 }
 
 
