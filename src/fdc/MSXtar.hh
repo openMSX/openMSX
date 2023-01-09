@@ -69,7 +69,7 @@ private:
 	SectorAccessibleDisk& disk;
 	MemBuffer<SectorBuffer> fatBuffer;
 
-	unsigned maxCluster;
+	unsigned clusterCount;
 	unsigned sectorsPerCluster;
 	unsigned sectorsPerFat;
 	unsigned fatStart;     // first sector of the first FAT

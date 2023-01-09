@@ -29,6 +29,8 @@ using std::string_view;
 
 namespace openmsx {
 
+static constexpr unsigned FAT12_MAX_CLUSTER_COUNT = 0xFF4;
+
 static constexpr unsigned FREE_FAT = 0x000;
 static constexpr unsigned FIRST_CLUSTER = 0x002;
 static constexpr unsigned BAD_FAT = 0xFF7;
@@ -54,7 +56,7 @@ static constexpr uint8_t T_MSX_LFN  = 0x0F; // LFN entry (long files names)
 unsigned MSXtar::clusterToSector(unsigned cluster) const
 {
 	assert(cluster >= FIRST_CLUSTER);
-	assert(cluster < maxCluster);
+	assert(cluster < FIRST_CLUSTER + clusterCount);
 	return dataStart + sectorsPerCluster * (cluster - FIRST_CLUSTER);
 }
 
@@ -64,9 +66,9 @@ unsigned MSXtar::clusterToSector(unsigned cluster) const
 unsigned MSXtar::sectorToCluster(unsigned sector) const
 {
 	assert(sector >= dataStart);
-	unsigned cluster = FIRST_CLUSTER + (sector - dataStart) / sectorsPerCluster;
-	assert(cluster < maxCluster);
-	return cluster;
+	unsigned cluster = (sector - dataStart) / sectorsPerCluster;
+	assert(cluster < clusterCount);
+	return FIRST_CLUSTER + cluster;
 }
 
 
@@ -105,16 +107,14 @@ void MSXtar::parseBootSector(const MSXBootSector& boot)
 	chrootSector = rootDirStart;
 	dataStart = rootDirStart + nbRootDirSectors;
 
-	// Bypass max cluster check in sectorToCluster
-	maxCluster = std::numeric_limits<decltype(maxCluster)>::max();
-	maxCluster = sectorToCluster(boot.nrSectors);
-	maxCluster = std::min(maxCluster, BAD_FAT);
+	clusterCount = std::min((boot.nrSectors - dataStart) / sectorsPerCluster,
+	                        FAT12_MAX_CLUSTER_COUNT);
 
 	// Some (invalid) disk images have a too small FAT to be able to address
 	// all clusters of the image. OpenMSX SVN revisions pre-11326 even
 	// created such invalid images for some disk sizes!!
-	unsigned maxFatCluster = (2 * SECTOR_SIZE * sectorsPerFat) / 3;
-	maxCluster = std::min(maxCluster, maxFatCluster);
+	unsigned fatCapacity = (2 * SECTOR_SIZE * sectorsPerFat) / 3 - FIRST_CLUSTER;
+	clusterCount = std::min(clusterCount, fatCapacity);
 }
 
 void MSXtar::writeLogicalSector(unsigned sector, const SectorBuffer& buf)
@@ -168,7 +168,7 @@ MSXtar::MSXtar(SectorAccessibleDisk& sectorDisk)
 MSXtar::MSXtar(MSXtar&& other) noexcept
 	: disk(other.disk)
 	, fatBuffer(std::move(other.fatBuffer))
-	, maxCluster(other.maxCluster)
+	, clusterCount(other.clusterCount)
 	, sectorsPerCluster(other.sectorsPerCluster)
 	, sectorsPerFat(other.sectorsPerFat)
 	, fatStart(other.fatStart)
@@ -233,7 +233,7 @@ void MSXtar::writeFAT(unsigned clNr, unsigned val)
 // @throws When no more free clusters
 unsigned MSXtar::findFirstFreeCluster()
 {
-	for (auto cluster : xrange(FIRST_CLUSTER, maxCluster)) {
+	for (auto cluster : xrange(FIRST_CLUSTER, FIRST_CLUSTER + clusterCount)) {
 		if (readFAT(cluster) == FREE_FAT) {
 			return cluster;
 		}
