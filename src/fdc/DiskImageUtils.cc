@@ -69,8 +69,11 @@ void checkFAT12Partition(SectorAccessibleDisk& disk, unsigned partition)
 
 // Create a correct boot sector depending on the required size of the filesystem
 struct SetBootSectorResult {
-	unsigned firstFATSector;
-	unsigned firstDataSector;
+	unsigned sectorsPerFat;
+	unsigned fatCount;
+	unsigned fatStart;
+	unsigned rootDirStart;
+	unsigned dataStart;
 	uint8_t descriptor;
 };
 static SetBootSectorResult setBootSector(
@@ -186,10 +189,14 @@ static SetBootSectorResult setBootSector(
 		boot.vol_id = random_32bit() & 0x7F7F7F7F; // why are bits masked?
 	}
 
-	unsigned nbRootDirSectors = nbDirEntry / 16;
-	unsigned rootDirStart = nbReservedSectors + nbFats * nbSectorsPerFat;
-	unsigned firstDataSector = rootDirStart + nbRootDirSectors;
-	return {nbReservedSectors, firstDataSector, descriptor};
+	SetBootSectorResult result;
+	result.sectorsPerFat = nbSectorsPerFat;
+	result.fatCount = nbFats;
+	result.fatStart = nbReservedSectors;
+	result.rootDirStart = result.fatStart + nbFats * nbSectorsPerFat;
+	result.dataStart = result.rootDirStart + nbDirEntry / 16;
+	result.descriptor = descriptor;
+	return result;
 }
 
 void format(SectorAccessibleDisk& disk, bool dos1)
@@ -197,26 +204,35 @@ void format(SectorAccessibleDisk& disk, bool dos1)
 	// first create a boot sector for given partition size
 	size_t nbSectors = disk.getNbSectors();
 	SectorBuffer buf;
-	auto [firstFATSector, firstDataSector, descriptor] =
-		setBootSector(buf.bootSector, nbSectors, dos1);
+	SetBootSectorResult result = setBootSector(buf.bootSector, nbSectors, dos1);
 	disk.writeSector(0, buf);
 
-	// write empty FAT and directory sectors
+	// write empty FAT sectors (except for first sector, see below)
 	ranges::fill(buf.raw, 0);
-	for (auto i : xrange(firstFATSector + 1, firstDataSector)) {
+	for (auto fat : xrange(result.fatCount)) {
+		for (auto i : xrange(1u, result.sectorsPerFat)) {
+			disk.writeSector(i + result.fatStart + fat * result.sectorsPerFat, buf);
+		}
+	}
+
+	// write empty directory sectors
+	for (auto i : xrange(result.rootDirStart, result.dataStart)) {
 		disk.writeSector(i, buf);
 	}
+
 	// first FAT sector is special:
 	//  - first byte contains the media descriptor
 	//  - first two clusters must be marked as EOF
-	buf.raw[0] = descriptor;
+	buf.raw[0] = result.descriptor;
 	buf.raw[1] = 0xFF;
 	buf.raw[2] = 0xFF;
-	disk.writeSector(firstFATSector, buf);
+	for (auto fat : xrange(result.fatCount)) {
+		disk.writeSector(result.fatStart + fat * result.sectorsPerFat, buf);
+	}
 
 	// write 'empty' data sectors
 	ranges::fill(buf.raw, 0xE5);
-	for (auto i : xrange(firstDataSector, nbSectors)) {
+	for (auto i : xrange(result.dataStart, nbSectors)) {
 		disk.writeSector(i, buf);
 	}
 }

@@ -77,6 +77,7 @@ unsigned MSXtar::sectorToCluster(unsigned sector) const
   */
 void MSXtar::parseBootSector(const MSXBootSector& boot)
 {
+	fatCount          = boot.nrFats;
 	sectorsPerFat     = boot.sectorsFat;
 	sectorsPerCluster = boot.spCluster;
 
@@ -86,8 +87,8 @@ void MSXtar::parseBootSector(const MSXBootSector& boot)
 	if (boot.resvSectors == 0) {
 		throw MSXException("Illegal number of reserved sectors: ", boot.resvSectors);
 	}
-	if (boot.nrFats == 0) { // TODO: check limits more accurately
-		throw MSXException("Illegal number of FATs: ", boot.nrFats);
+	if (fatCount == 0) {
+		throw MSXException("Illegal number of FATs: ", fatCount);
 	}
 	if (sectorsPerFat == 0) { // TODO: check limits more accurately
 		throw MSXException("Illegal number sectors per FAT: ", sectorsPerFat);
@@ -101,7 +102,7 @@ void MSXtar::parseBootSector(const MSXBootSector& boot)
 
 	unsigned nbRootDirSectors = boot.dirEntries / DIR_ENTRIES_PER_SECTOR;
 	fatStart = boot.resvSectors;
-	rootDirStart = fatStart + boot.nrFats * sectorsPerFat;
+	rootDirStart = fatStart + fatCount * sectorsPerFat;
 	chrootSector = rootDirStart;
 	dataStart = rootDirStart + nbRootDirSectors;
 
@@ -171,6 +172,7 @@ MSXtar::MSXtar(MSXtar&& other) noexcept
 	: disk(other.disk)
 	, fatBuffer(std::move(other.fatBuffer))
 	, clusterCount(other.clusterCount)
+	, fatCount(other.fatCount)
 	, sectorsPerCluster(other.sectorsPerCluster)
 	, sectorsPerFat(other.sectorsPerFat)
 	, fatStart(other.fatStart)
@@ -186,11 +188,13 @@ MSXtar::~MSXtar()
 {
 	if (!fatCacheDirty) return;
 
-	for (auto i : xrange(sectorsPerFat)) {
-		try {
-			disk.writeSector(i + fatStart, fatBuffer[i]);
-		} catch (MSXException&) {
-			// nothing
+	for (auto fat : xrange(fatCount)) {
+		for (auto i : xrange(sectorsPerFat)) {
+			try {
+				disk.writeSector(i + fatStart + fat * sectorsPerFat, fatBuffer[i]);
+			} catch (MSXException&) {
+				// nothing
+			}
 		}
 	}
 }

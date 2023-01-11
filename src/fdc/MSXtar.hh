@@ -73,6 +73,7 @@ private:
 	MemBuffer<SectorBuffer> fatBuffer;
 
 	unsigned clusterCount;
+	unsigned fatCount;
 	unsigned sectorsPerCluster;
 	unsigned sectorsPerFat;
 	unsigned fatStart;     // first sector of the first FAT
