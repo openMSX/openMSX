@@ -83,9 +83,6 @@ void MSXtar::parseBootSector(const MSXBootSector& boot)
 	if (boot.bpSector != SECTOR_SIZE) {
 		throw MSXException("Illegal sector size: ", boot.bpSector);
 	}
-	if (boot.nrSectors == 0) { // TODO: check limits more accurately
-		throw MSXException("Illegal number of sectors: ", boot.nrSectors);
-	}
 	if (boot.resvSectors == 0) {
 		throw MSXException("Illegal number of reserved sectors: ", boot.resvSectors);
 	}
@@ -107,6 +104,10 @@ void MSXtar::parseBootSector(const MSXBootSector& boot)
 	rootDirStart = fatStart + boot.nrFats * sectorsPerFat;
 	chrootSector = rootDirStart;
 	dataStart = rootDirStart + nbRootDirSectors;
+
+	if (dataStart + sectorsPerCluster > boot.nrSectors) {
+		throw MSXException("Illegal number of sectors: ", boot.nrSectors);
+	}
 
 	clusterCount = std::min((boot.nrSectors - dataStart) / sectorsPerCluster,
 	                        FAT12_MAX_CLUSTER_COUNT);
