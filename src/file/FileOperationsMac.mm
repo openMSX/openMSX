@@ -22,10 +22,8 @@ std::string findShareDir()
 		// Fallback when there is no application bundle
 		NSURL* url = [mainBundle executableURL].URLByResolvingSymlinksInPath;
 		while (url != nil) {
-			shareURL = [url URLByAppendingPathComponent:@"share" isDirectory:YES];
-			NSNumber* isDirectory;
-			BOOL success = [shareURL getResourceValue:&isDirectory forKey:NSURLIsDirectoryKey error:nil];
-			if (success && [isDirectory boolValue]) {
+			shareURL = [url URLByAppendingPathComponent:@"share"];
+			if ([shareURL hasDirectoryPath]) {
 				return std::string(shareURL.fileSystemRepresentation);
 			}
 			if (![url getResourceValue:&url forKey:NSURLParentDirectoryURLKey error:nil]) {
