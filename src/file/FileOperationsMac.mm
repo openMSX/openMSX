@@ -14,9 +14,15 @@ std::string findShareDir()
 			throw FatalError("Failed to get main bundle");
 		}
 
-		NSURL* url = [mainBundle bundleURL].URLByResolvingSymlinksInPath;
+		NSURL* shareURL = [mainBundle URLForResource:@"share" withExtension:nil];
+		if ([shareURL hasDirectoryPath]) {
+			return std::string(shareURL.fileSystemRepresentation);
+		}
+
+		// Fallback when there is no application bundle
+		NSURL* url = [mainBundle executableURL].URLByResolvingSymlinksInPath;
 		while (url != nil) {
-			NSURL* shareURL = [url URLByAppendingPathComponent:@"Contents/Resources/share" isDirectory:YES];
+			shareURL = [url URLByAppendingPathComponent:@"share" isDirectory:YES];
 			NSNumber* isDirectory;
 			BOOL success = [shareURL getResourceValue:&isDirectory forKey:NSURLIsDirectoryKey error:nil];
 			if (success && [isDirectory boolValue]) {
