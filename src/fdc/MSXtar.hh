@@ -11,10 +11,29 @@
 #include "DiskImageUtils.hh"
 #include "zstring_view.hh"
 #include <string_view>
+#include <variant>
 
 namespace openmsx {
 
 class SectorAccessibleDisk;
+
+namespace FAT {
+	struct Free {
+		[[nodiscard]] auto operator<=>(const Free&) const = default;
+	};
+
+	struct EndOfChain {
+		[[nodiscard]] auto operator<=>(const EndOfChain&) const = default;
+	};
+
+	struct Cluster {
+		unsigned index;
+		[[nodiscard]] auto operator<=>(const Cluster&) const = default;
+	};
+
+	using DirCluster = std::variant<Free, Cluster>;
+	using FatCluster = std::variant<Free, EndOfChain, Cluster>;
+}
 
 class MSXtar
 {
@@ -40,12 +59,12 @@ private:
 	void writeLogicalSector(unsigned sector, const SectorBuffer& buf);
 	void readLogicalSector (unsigned sector,       SectorBuffer& buf);
 
-	[[nodiscard]] unsigned clusterToSector(unsigned cluster) const;
-	[[nodiscard]] unsigned sectorToCluster(unsigned sector) const;
+	[[nodiscard]] unsigned clusterToSector(FAT::Cluster cluster) const;
+	[[nodiscard]] FAT::Cluster sectorToCluster(unsigned sector) const;
 	void parseBootSector(const MSXBootSector& boot);
-	[[nodiscard]] unsigned readFAT(unsigned index) const;
-	void writeFAT(unsigned index, unsigned value);
-	unsigned findFirstFreeCluster();
+	[[nodiscard]] FAT::FatCluster readFAT(FAT::Cluster index) const;
+	void writeFAT(FAT::Cluster index, FAT::FatCluster value);
+	FAT::Cluster findFirstFreeCluster();
 	unsigned findUsableIndexInSector(unsigned sector);
 	unsigned getNextSector(unsigned sector);
 	unsigned appendClusterToSubdir(unsigned sector);
@@ -66,8 +85,8 @@ private:
 	void chroot(std::string_view newRootDir, bool createDir);
 
 private:
-	[[nodiscard]] unsigned getStartCluster(const MSXDirEntry& entry) const;
-	void setStartCluster(MSXDirEntry& entry, unsigned cluster) const;
+	[[nodiscard]] FAT::DirCluster getStartCluster(const MSXDirEntry& entry) const;
+	void setStartCluster(MSXDirEntry& entry, FAT::DirCluster cluster) const;
 
 	SectorAccessibleDisk& disk;
 	MemBuffer<SectorBuffer> fatBuffer;
