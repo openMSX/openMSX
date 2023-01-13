@@ -6,10 +6,16 @@
 #include "enumerate.hh"
 #include "random.hh"
 #include "xrange.hh"
+#include <algorithm>
+#include <bit>
 #include <cassert>
 #include <ctime>
 
 namespace openmsx::DiskImageUtils {
+
+static constexpr unsigned DOS1_MAX_CLUSTER_COUNT = 0x3FE;  // Max 3 sectors per FAT
+static constexpr unsigned SECTOR_SIZE = sizeof(SectorBuffer);
+static constexpr unsigned DIR_ENTRIES_PER_SECTOR = SECTOR_SIZE / sizeof(MSXDirEntry);
 
 static constexpr std::array<char, 11> PARTITION_TABLE_HEADER = {
 	'\353', '\376', '\220', 'M', 'S', 'X', '_', 'I', 'D', 'E', ' '
@@ -103,8 +109,31 @@ static SetBootSectorResult setBootSector(
 	uint8_t descriptor = 0xF9;
 
 	// now set correct info according to size of image (in sectors!)
-	// and using the same layout as used by Jon in IDEFDISK v 3.1
-	if (nbSectors > 32732) {
+	if (bootType == MSXBootSectorType::DOS1 && nbSectors > 1440) {
+		// DOS1 supports up to 3 sectors per FAT, limiting the cluster count to 1022.
+		nbSides = 0;
+		nbFats = 2;
+		nbDirEntry = 112;
+		descriptor = 0xF0;
+		nbHiddenSectors = 0;
+
+		// <= 1 MB: 2, <= 2 MB: 4, ..., <= 32 MB: 64
+		nbSectorsPerCluster = narrow<uint8_t>(std::clamp(std::bit_ceil(nbSectors) >> 10, size_t(2), size_t(64)));
+
+		// Calculate fat size based on cluster count estimate
+		unsigned fatStart = nbReservedSectors + nbDirEntry / DIR_ENTRIES_PER_SECTOR;
+		unsigned estSectorCount = narrow<unsigned>(nbSectors - fatStart);
+		unsigned estClusterCount = std::min(estSectorCount / nbSectorsPerCluster, DOS1_MAX_CLUSTER_COUNT);
+		unsigned fatSize = (3 * (estClusterCount + 2) + 1) / 2;  // round up
+		nbSectorsPerFat = narrow<uint16_t>((fatSize + SECTOR_SIZE - 1) / SECTOR_SIZE);  // round up
+
+		// Adjust sectors count down to match cluster count
+		unsigned dataStart = fatStart + nbFats * nbSectorsPerFat;
+		unsigned dataSectorCount = narrow<unsigned>(nbSectors - dataStart);
+		unsigned clusterCount = std::min(dataSectorCount / nbSectorsPerCluster, DOS1_MAX_CLUSTER_COUNT);
+		nbSectors = dataStart + clusterCount * nbSectorsPerCluster;
+	} else if (nbSectors > 32732) {
+		// using the same layout as used by Jon in IDEFDISK v 3.1
 		// 32732 < nbSectors
 		// note: this format is only valid for nbSectors <= 65536
 		nbSides = 32;		// copied from a partition from an IDE HD
@@ -119,6 +148,7 @@ static SetBootSectorResult setBootSector(
 		// the truncated word will be 0 -> formatted as 320 Kb disk!
 		if (nbSectors > 65535) nbSectors = 65535; // this is the max size for fat12 :-)
 	} else if (nbSectors > 16388) {
+		// using the same layout as used by Jon in IDEFDISK v 3.1
 		// 16388 < nbSectors <= 32732
 		nbSides = 2;		// unknown yet
 		nbFats = 2;
@@ -127,6 +157,7 @@ static SetBootSectorResult setBootSector(
 		nbDirEntry = 256;
 		descriptor = 0XF0;
 	} else if (nbSectors > 8212) {
+		// using the same layout as used by Jon in IDEFDISK v 3.1
 		// 8212 < nbSectors <= 16388
 		nbSides = 2;		// unknown yet
 		nbFats = 2;
@@ -135,6 +166,7 @@ static SetBootSectorResult setBootSector(
 		nbDirEntry = 256;
 		descriptor = 0xF0;
 	} else if (nbSectors > 4126) {
+		// using the same layout as used by Jon in IDEFDISK v 3.1
 		// 4126 < nbSectors <= 8212
 		nbSides = 2;		// unknown yet
 		nbFats = 2;
@@ -143,6 +175,7 @@ static SetBootSectorResult setBootSector(
 		nbDirEntry = 256;
 		descriptor = 0xF0;
 	} else if (nbSectors > 2880) {
+		// using the same layout as used by Jon in IDEFDISK v 3.1
 		// 2880 < nbSectors <= 4126
 		nbSides = 2;		// unknown yet
 		nbFats = 2;
@@ -151,6 +184,7 @@ static SetBootSectorResult setBootSector(
 		nbDirEntry = 224;
 		descriptor = 0xF0;
 	} else if (nbSectors > 1440) {
+		// using the same layout as used by Jon in IDEFDISK v 3.1
 		// 1440 < nbSectors <= 2880
 		nbSides = 2;		// unknown yet
 		nbFats = 2;
