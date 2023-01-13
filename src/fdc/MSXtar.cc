@@ -35,12 +35,25 @@ using FAT::Cluster;
 using FAT::DirCluster;
 using FAT::FatCluster;
 
-static constexpr unsigned FAT12_MAX_CLUSTER_COUNT = 0xFF4;
+namespace FAT {
+	static constexpr unsigned FREE = 0x000;
+	static constexpr unsigned FIRST_CLUSTER = 0x002;
+}
 
-static constexpr unsigned FREE_FAT = 0x000;
-static constexpr unsigned FIRST_CLUSTER = 0x002;
-static constexpr unsigned BAD_FAT = 0xFF7;
-static constexpr unsigned EOF_FAT = 0xFFF; // actually 0xFF8-0xFFF, signals EOF in FAT12
+namespace FAT12 {
+	static constexpr unsigned BAD = 0xFF7;
+	static constexpr unsigned END_OF_CHAIN = 0xFFF; // actually 0xFF8-0xFFF, signals EOF in FAT12
+
+	static constexpr unsigned MAX_CLUSTER_COUNT = 0xFF4;
+
+	// Functor to convert a FatCluster or DirCluster to a FAT12 cluster number
+	struct ToClusterNumber {
+		unsigned operator()(Free) const { return FAT::FREE; }
+		unsigned operator()(EndOfChain) const { return END_OF_CHAIN; }
+		unsigned operator()(Cluster cluster) const { return FAT::FIRST_CLUSTER + cluster.index; }
+	} toClusterNumber;
+}
+
 static constexpr unsigned SECTOR_SIZE = sizeof(SectorBuffer);
 static constexpr unsigned DIR_ENTRIES_PER_SECTOR = SECTOR_SIZE / sizeof(MSXDirEntry);
 
@@ -55,13 +68,6 @@ static constexpr uint8_t T_MSX_ARC  = 0x20; // Archive bit
 // to store a long Unicode file name.
 // For details, read http://home.teleport.com/~brainy/lfn.htm
 static constexpr uint8_t T_MSX_LFN  = 0x0F; // LFN entry (long files names)
-
-// Functor to convert a FatCluster or DirCluster to a FAT12 cluster number
-struct ToClusterNumberFAT12 {
-	unsigned operator()(Free) const { return FREE_FAT; }
-	unsigned operator()(EndOfChain) const { return EOF_FAT; }
-	unsigned operator()(Cluster cluster) const { return FIRST_CLUSTER + cluster.index; }
-} toClusterNumberFAT12;
 
 /** Transforms a cluster number towards the first sector of this cluster
   * The calculation uses info read fom the boot sector
@@ -121,12 +127,12 @@ void MSXtar::parseBootSector(const MSXBootSector& boot)
 	}
 
 	clusterCount = std::min((boot.nrSectors - dataStart) / sectorsPerCluster,
-	                        FAT12_MAX_CLUSTER_COUNT);
+	                        FAT12::MAX_CLUSTER_COUNT);
 
 	// Some (invalid) disk images have a too small FAT to be able to address
 	// all clusters of the image. OpenMSX SVN revisions pre-11326 even
 	// created such invalid images for some disk sizes!!
-	unsigned fatCapacity = (2 * SECTOR_SIZE * sectorsPerFat) / 3 - FIRST_CLUSTER;
+	unsigned fatCapacity = (2 * SECTOR_SIZE * sectorsPerFat) / 3 - FAT::FIRST_CLUSTER;
 	clusterCount = std::min(clusterCount, fatCapacity);
 }
 
@@ -217,19 +223,19 @@ FatCluster MSXtar::readFAT(Cluster cluster) const
 
 	std::span<const uint8_t> data{fatBuffer[0].raw.data(), sectorsPerFat * size_t(SECTOR_SIZE)};
 
-	unsigned index = FIRST_CLUSTER + cluster.index;
+	unsigned index = FAT::FIRST_CLUSTER + cluster.index;
 	auto p = subspan<2>(data, (index * 3) / 2);
 	unsigned value = (index & 1)
 	                ? (p[0] >> 4) + (p[1] << 4)
 	                : p[0] + ((p[1] & 0x0F) << 8);
 
 	// Be tolerant when reading:
-	// * FREE_FAT is returned as FREE_FAT.
-	// * Anything else but a valid cluster number is returned as EOF_FAT.
-	if (value == FREE_FAT) {
+	// * FREE is returned as FREE.
+	// * Anything else but a valid cluster number is returned as END_OF_CHAIN.
+	if (value == FAT::FREE) {
 		return Free{};
-	} else if (value >= FIRST_CLUSTER && value < FIRST_CLUSTER + clusterCount) {
-		return Cluster{value - FIRST_CLUSTER};
+	} else if (value >= FAT::FIRST_CLUSTER && value < FAT::FIRST_CLUSTER + clusterCount) {
+		return Cluster{value - FAT::FIRST_CLUSTER};
 	} else {
 		return EndOfChain{};
 	}
@@ -242,13 +248,13 @@ void MSXtar::writeFAT(Cluster cluster, FatCluster value)
 	assert(cluster.index < clusterCount);
 
 	// Be strict when writing:
-	// * Anything but FREE_FAT, EOF_FAT or a valid cluster number is rejected.
+	// * Anything but FREE, END_OF_CHAIN or a valid cluster number is rejected.
 	assert(!std::holds_alternative<Cluster>(value) || std::get<Cluster>(value).index < clusterCount);
-	unsigned fatValue = std::visit(toClusterNumberFAT12, value);
+	unsigned fatValue = std::visit(FAT12::toClusterNumber, value);
 
 	std::span data{fatBuffer[0].raw.data(), sectorsPerFat * size_t(SECTOR_SIZE)};
 
-	unsigned index = FIRST_CLUSTER + cluster.index;
+	unsigned index = FAT::FIRST_CLUSTER + cluster.index;
 	auto p = subspan<2>(data, (index * 3) / 2);
 	if (index & 1) {
 		p[0] = narrow_cast<uint8_t>((p[0] & 0x0F) + (fatValue << 4));
@@ -300,10 +306,10 @@ unsigned MSXtar::getNextSector(unsigned sector)
 DirCluster MSXtar::getStartCluster(const MSXDirEntry& entry) const
 {
 	// Be tolerant when reading:
-	// * Anything but a valid cluster number is returned as FREE_FAT.
+	// * Anything but a valid cluster number is returned as FREE.
 	unsigned cluster = entry.startCluster;
-	if (cluster >= FIRST_CLUSTER && cluster < FIRST_CLUSTER + clusterCount) {
-		return Cluster{cluster - FIRST_CLUSTER};
+	if (cluster >= FAT::FIRST_CLUSTER && cluster < FAT::FIRST_CLUSTER + clusterCount) {
+		return Cluster{cluster - FAT::FIRST_CLUSTER};
 	} else {
 		return Free{};
 	}
@@ -313,9 +319,9 @@ DirCluster MSXtar::getStartCluster(const MSXDirEntry& entry) const
 void MSXtar::setStartCluster(MSXDirEntry& entry, DirCluster cluster) const
 {
 	// Be strict when writing:
-	// * Anything but FREE_FAT or a valid cluster number is rejected.
+	// * Anything but FREE or a valid cluster number is rejected.
 	assert(!std::holds_alternative<Cluster>(cluster) || std::get<Cluster>(cluster).index < clusterCount);
-	entry.startCluster = narrow<uint16_t>(std::visit(toClusterNumberFAT12, cluster));
+	entry.startCluster = narrow<uint16_t>(std::visit(FAT12::toClusterNumber, cluster));
 }
 
 // If there are no more free entries in a subdirectory, the subdir is
