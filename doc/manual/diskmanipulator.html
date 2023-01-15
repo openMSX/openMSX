@@ -18,7 +18,8 @@
   in openMSX. It implements the basic stuff needed to handle files
   and subdirectories on MSX media. It also helps one creating new disk
   image files, both simple 360 kB and 720 kB disks as well as
-  hard disk images containing up to 30 partitions of 32 MB each (only for Sunrise IDE!).
+  hard disk images containing up to 31 partitions of 32 MB each for
+  Sunrise IDE or Nextor.
   Creating disk images and manipulating the files on them can be
   done without the need of a running emulated MSX (<code>set power
   off</code>).</p>
@@ -44,7 +45,7 @@
   <p><code>&lt;command&gt;</code> specifies the action to be performed. The next section lists the commands available and explains them.</p>
 
   <p><code>&lt;disk name&gt;</code> specifies the disk to operate on. Typical values are: <code><a class="external" href="commands.html#disk">diska</a></code>, <code>diskb</code>, <code><a class="external" href="commands.html#hd">hda</a></code> or the special <code><a class="external" href="commands.html#disk">virtual_drive</a></code> device. <code>disk&lt;x&gt;</code> and <code>hd&lt;x&gt;</code> are the drives available to the running emulated MSX machine. This allows interaction with the currently used disk images.<br />
-  In case the disk contains a Sunrise IDE (or Beer IDE 1.9RC1) compatible partition table (FAT12 only!) you can add a partition number (from 1 till 31) to the disk name to specify on which partition the command will act. For example <code>hda2</code> is the second partition on the master IDE disk, <code>hdb3</code> is the third partition on the slave IDE disk.</p>
+  In case the disk contains a Sunrise IDE, Beer IDE 1.9RC1 or Nextor compatible partition table (FAT12 only!) you can add a partition number (from 1 till 31) to the disk name to specify on which partition the command will act. For example <code>hda2</code> is the second partition on the master IDE disk, <code>hdb3</code> is the third partition on the slave IDE disk.</p>
 
   <p><code>&lt;command arguments&gt;</code> depend upon the command involved, see the detailed descriptions of the commands below.</p>
 
@@ -111,11 +112,14 @@
   <p>This new disk will be formatted using an MSX-DOS2 boot
   sector, unless you specify the option <code>-dos1</code>.</p>
 
-  <p>You can specify multiple sizes in which case a Sunrise IDE compatible
-  partitioned image will be created (FAT12 only!), each partition will be
-  formatted as required. If a size of 360 kB or 720 kB is given, a normal
-  floppy disk image is created single or double sided, respectively. Any larger
-  value will result in a Sunrise IDE hard disk image.</p>
+  <p>If a size of 360 kB or 720 kB is given, a normal floppy disk image is
+  created, single or double sided respectively. Any larger value will result
+  in a Sunrise IDE hard disk image, or a Nextor one if the <code>-nextor</code>
+  option is specified.</p>
+
+  <p>You can specify multiple sizes in which case a Sunrise IDE or Nextor
+  compatible partitioned image will be created (FAT12 only!). Each partition
+  will be formatted as required.</p>
 
   <p>You can specify the disk/partition sizes by using the
   following postfixes:</p>

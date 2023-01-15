@@ -4,7 +4,10 @@
 #include "BootBlocks.hh"
 #include "endian.hh"
 #include "enumerate.hh"
+#include "one_of.hh"
 #include "random.hh"
+#include "ranges.hh"
+#include "view.hh"
 #include "xrange.hh"
 #include <algorithm>
 #include <bit>
@@ -18,16 +21,24 @@ static constexpr unsigned SECTOR_SIZE = sizeof(SectorBuffer);
 static constexpr unsigned DIR_ENTRIES_PER_SECTOR = SECTOR_SIZE / sizeof(MSXDirEntry);
 
 enum class PartitionTableType {
-	SUNRISE_IDE
+	SUNRISE_IDE,
+	NEXTOR
 };
 
 static constexpr std::array<char, 11> SUNRISE_PARTITION_TABLE_HEADER = {
 	'\353', '\376', '\220', 'M', 'S', 'X', '_', 'I', 'D', 'E', ' '
 };
+static constexpr std::array<char, 11> NEXTOR_PARTITION_TABLE_HEADER = {
+	'\353', '\376', '\220', 'N', 'E', 'X', 'T', 'O', 'R', '2', '0'
+};
 [[nodiscard]] static std::optional<PartitionTableType> getPartitionTableType(const SectorBuffer& buf)
 {
 	if (buf.ptSunrise.header == SUNRISE_PARTITION_TABLE_HEADER) {
 		return PartitionTableType::SUNRISE_IDE;
+	} else if (buf.ptNextor.header == NEXTOR_PARTITION_TABLE_HEADER &&
+	           buf.ptNextor.part[0].sys_ind != 0 && // Extra checks to distinguish MBR from VBR
+	           buf.ptNextor.part[0].start == 1) {   // since they have the same OEM signature.
+		return PartitionTableType::NEXTOR;
 	}
 	return {};
 }
@@ -37,6 +48,57 @@ bool hasPartitionTable(SectorAccessibleDisk& disk)
 	SectorBuffer buf;
 	disk.readSector(0, buf);
 	return getPartitionTableType(buf).has_value();
+}
+
+// Get partition from Nextor extended boot record (standard EBR) chain.
+static Partition& getPartitionNextorExtended(
+	SectorAccessibleDisk& disk, unsigned partition, SectorBuffer& buf,
+	unsigned remaining, unsigned ebrOuterSector)
+{
+	unsigned ebrSector = ebrOuterSector;
+	while (true) {
+		disk.readSector(ebrSector, buf);
+
+		if (remaining == 0) {
+			// EBR partition entry. Start is relative to *this* EBR sector.
+			auto& p = buf.ptNextor.part[0];
+			if (p.start == 0) {
+				break;
+			}
+			// Adjust to absolute address before returning.
+			p.start = ebrSector + p.start;
+			return p;
+		}
+
+		// EBR link entry. Start is relative to *outermost* EBR sector.
+		auto& link = buf.ptNextor.part[1];
+		if (link.start == 0) {
+			break;
+		} else if (link.sys_ind != one_of(0x05, 0x0F)) {
+			throw CommandException("Invalid extended boot record.");
+		}
+		ebrSector = ebrOuterSector + link.start;
+		remaining--;
+	}
+	throw CommandException("No partition number ", partition);
+}
+
+// Get partition from Nextor master boot record (standard MBR).
+static Partition& getPartitionNextor(
+	SectorAccessibleDisk& disk, unsigned partition, SectorBuffer& buf)
+{
+	unsigned remaining = partition - 1;
+	for (auto& p : buf.ptNextor.part) {
+		if (p.start == 0) {
+			break;
+		} else if (p.sys_ind == one_of(0x05, 0x0F)) {
+			return getPartitionNextorExtended(disk, partition, buf, remaining, p.start);
+		} else if (remaining == 0) {
+			return p;
+		}
+		remaining--;
+	}
+	throw CommandException("No partition number ", partition);
 }
 
 // Get partition from Sunrise IDE master boot record.
@@ -64,6 +126,8 @@ Partition& getPartition(SectorAccessibleDisk& disk, unsigned partition, SectorBu
 	auto partitionTableType = getPartitionTableType(buf);
 	if (partitionTableType == PartitionTableType::SUNRISE_IDE) {
 		return getPartitionSunrise(partition, buf);
+	} else if (partitionTableType == PartitionTableType::NEXTOR) {
+		return getPartitionNextor(disk, partition, buf);
 	} else {
 		throw CommandException("No (or invalid) partition table.");
 	}
@@ -96,7 +160,7 @@ static SetBootSectorResult setBootSector(
 	// start from the default boot block ..
 	if (bootType == MSXBootSectorType::DOS1) {
 		boot = BootBlocks::dos1BootBlock.bootSector;
-	} else if (bootType == MSXBootSectorType::DOS2) {
+	} else if (bootType == MSXBootSectorType::DOS2 || bootType == MSXBootSectorType::NEXTOR) {
 		boot = BootBlocks::dos2BootBlock.bootSector;
 	} else {
 		UNREACHABLE;
@@ -241,7 +305,7 @@ static SetBootSectorResult setBootSector(
 	if (bootType == MSXBootSectorType::DOS1) {
 		auto& params = boot.params.dos1;
 		params.hiddenSectors = nbHiddenSectors;
-	} else if (bootType == MSXBootSectorType::DOS2) {
+	} else if (bootType == MSXBootSectorType::DOS2 || bootType == MSXBootSectorType::NEXTOR) {
 		auto& params = boot.params.dos2;
 		params.hiddenSectors = nbHiddenSectors;
 		params.vol_id = vol_id;
@@ -315,6 +379,45 @@ struct CHS {
 	return {cylinder, head, sector};
 }
 
+static void partitionNextor(SectorAccessibleDisk& disk, std::span<const unsigned> sizes)
+{
+	SectorBuffer buf;
+	auto& pt = buf.ptNextor;
+
+	unsigned ptSector = 0;
+	for (auto [i, size] : enumerate(sizes)) {
+		ranges::fill(buf.raw, 0);
+		if (i == 0) {
+			pt.header = NEXTOR_PARTITION_TABLE_HEADER;
+		}
+		pt.end = 0xAA55;
+
+		// Add partition entry
+		auto& p = pt.part[0];
+		p.boot_ind = (i == 0) ? 0x80 : 0x00; // boot flag
+		p.sys_ind = size > 0x10000 ? 0x0E : 0x01; // FAT16B (LBA), or FAT12
+		p.start = 1;
+		p.size = size - 1;
+
+		// Add link if not the last partition
+		if (i != sizes.size() - 1) {
+			auto& link = pt.part[1];
+			link.sys_ind = 0x05;
+			if (i == 0) {
+				link.start = ptSector + size;
+				link.size = ranges::accumulate(view::drop(sizes, 1), 0u);
+			} else {
+				link.start = ptSector + size - sizes[0];
+				link.size = sizes[i + 1];
+			}
+		}
+
+		disk.writeSector(ptSector, buf);
+
+		ptSector += size;
+	}
+}
+
 static void partitionSunrise(SectorAccessibleDisk& disk, std::span<const unsigned> sizes)
 {
 	SectorBuffer buf;
@@ -351,7 +454,11 @@ static void partitionSunrise(SectorAccessibleDisk& disk, std::span<const unsigne
 
 void partition(SectorAccessibleDisk& disk, std::span<const unsigned> sizes, MSXBootSectorType bootType)
 {
-	partitionSunrise(disk, sizes);
+	if (bootType == MSXBootSectorType::NEXTOR) {
+		partitionNextor(disk, sizes);
+	} else {
+		partitionSunrise(disk, sizes);
+	}
 
 	for (auto [i, size] : enumerate(sizes)) {
 		DiskPartition diskPartition(disk, narrow<unsigned>(i + 1));

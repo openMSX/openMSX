@@ -13,7 +13,8 @@ class SectorAccessibleDisk;
 
 enum class MSXBootSectorType {
 	DOS1,
-	DOS2
+	DOS2,
+	NEXTOR
 };
 
 struct MSXBootSector {
@@ -104,6 +105,14 @@ struct PartitionTableSunrise {
 };
 static_assert(sizeof(PartitionTableSunrise) == 512);
 
+struct PartitionTableNextor {
+	std::array<char,  11>     header; // +  0
+	std::array<char, 435>     pad;    // +  3
+	std::array<Partition, 4>  part;   // +446,+462,+478,+494 Not 4-byte aligned!!
+	Endian::L16               end;    // +510
+};
+static_assert(sizeof(PartitionTableNextor) == 512);
+
 
 // Buffer that can hold a (512-byte) disk sector.
 // The main advantages of this type over something like 'byte buf[512]' are:
@@ -116,6 +125,7 @@ union SectorBuffer {
 	MSXBootSector               bootSector; // interpreted as bootSector
 	std::array<MSXDirEntry, 16> dirEntry;   // interpreted as 16 dir entries
 	PartitionTableSunrise       ptSunrise;  // interpreted as Sunrise-IDE partition table
+	PartitionTableNextor        ptNextor;   // interpreted as Nextor partition table
 	AlignedBuffer               aligned;    // force big alignment (for faster memcpy)
 };
 static_assert(sizeof(SectorBuffer) == 512);

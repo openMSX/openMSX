@@ -134,6 +134,7 @@ DiskPartition DiskManipulator::getPartition(
 std::optional<MSXBootSectorType> parseBootSectorType(std::string_view s) {
 	if (s == "-dos1")   return MSXBootSectorType::DOS1;
 	if (s == "-dos2")   return MSXBootSectorType::DOS2;
+	if (s == "-nextor") return MSXBootSectorType::NEXTOR;
 	return {};
 };
 
@@ -254,7 +255,8 @@ string DiskManipulator::help(std::span<const TclObject> tokens) const
 	    "having the size as indicated. By default the sizes are expressed in kilobyte, add the\n"
 	    "postfix M for megabyte.\n"
 	    "When using the -dos1 option, the boot sector of the created image will be MSX-DOS1\n"
-	    "compatible.\n";
+	    "compatible. When using the -nextor option, the partition table will be\n"
+		"Nextor compatible.\n\n";
 	  } else if (tokens[1] == "format") {
 	  helpText =
 	    "diskmanipulator format <disk name>\n"
@@ -302,6 +304,7 @@ void DiskManipulator::tabCompletion(std::vector<string>& tokens) const
 		if (tokens[1] == one_of("format", "create")) {
 			names.emplace_back("-dos1");
 			names.emplace_back("-dos2");
+			names.emplace_back("-nextor");
 		}
 		for (const auto& d : drives) {
 			const auto& name1 = d.driveName; // with prefix
@@ -328,11 +331,11 @@ void DiskManipulator::tabCompletion(std::vector<string>& tokens) const
 			completeFileName(tokens, userFileContext());
 		} else if (tokens[1] == "create") {
 			static constexpr std::array cmds = {
-				"360"sv, "720"sv, "32M"sv, "-dos1"sv, "-dos2"sv,
+				"360"sv, "720"sv, "32M"sv, "-dos1"sv, "-dos2"sv, "-nextor"sv,
 			};
 			completeString(tokens, cmds);
 		} else if (tokens[1] == "format") {
-			static constexpr std::array cmds = {"-dos1"sv, "-dos2"sv};
+			static constexpr std::array cmds = {"-dos1"sv, "-dos2"sv, "-nextor"sv};
 			completeString(tokens, cmds);
 		}
 	}
@@ -406,7 +409,7 @@ void DiskManipulator::create(std::span<const TclObject> tokens)
 	if (sizes.empty()) {
 		throw CommandException("No size(s) given.");
 	}
-	if (sizes.size() > 1) {
+	if (sizes.size() > 1 && bootType != MSXBootSectorType::NEXTOR) {
 		// extra sector for partition table
 		++totalSectors;
 	}
