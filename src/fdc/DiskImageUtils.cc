@@ -17,6 +17,7 @@
 namespace openmsx::DiskImageUtils {
 
 static constexpr unsigned DOS1_MAX_CLUSTER_COUNT = 0x3FE;  // Max 3 sectors per FAT
+static constexpr unsigned FAT12_MAX_CLUSTER_COUNT = 0xFF4;
 static constexpr unsigned SECTOR_SIZE = sizeof(SectorBuffer);
 static constexpr unsigned DIR_ENTRIES_PER_SECTOR = SECTOR_SIZE / sizeof(MSXDirEntry);
 
@@ -160,8 +161,10 @@ static SetBootSectorResult setBootSector(
 	// start from the default boot block ..
 	if (bootType == MSXBootSectorType::DOS1) {
 		boot = BootBlocks::dos1BootBlock.bootSector;
-	} else if (bootType == MSXBootSectorType::DOS2 || bootType == MSXBootSectorType::NEXTOR) {
+	} else if (bootType == MSXBootSectorType::DOS2) {
 		boot = BootBlocks::dos2BootBlock.bootSector;
+	} else if (bootType == MSXBootSectorType::NEXTOR) {
+		boot = BootBlocks::nextorBootBlockFAT12.bootSector;
 	} else {
 		UNREACHABLE;
 	}
@@ -181,7 +184,39 @@ static SetBootSectorResult setBootSector(
 	uint8_t descriptor = 0xF9;
 
 	// now set correct info according to size of image (in sectors!)
-	if (bootType == MSXBootSectorType::DOS1 && nbSectors > 1440) {
+	if (bootType == MSXBootSectorType::NEXTOR) {
+		// using the same layout as Nextor 2.1.1’s FDISK
+		nbSides = 0;
+		nbFats = 2;
+		nbDirEntry = 112;
+		descriptor = 0xF0;
+		nbHiddenSectors = 0;
+
+		// <= 2 MB: 1, <= 4 MB: 2, ..., <= 32 MB: 16
+		nbSectorsPerCluster = narrow<uint8_t>(std::clamp(std::bit_ceil(nbSectors) >> 12, size_t(1), size_t(16)));
+
+		// Partitions <= 16 MB are defined to have at most 3 sectors per FAT,
+		// so that they can boot DOS 1. This limits the cluster count to 1022.
+		// And for some unknown reason, Nextor limits it to one less than that.
+		unsigned maxClusterCount = FAT12_MAX_CLUSTER_COUNT;
+		if (nbSectors <= 0x8000) {
+			maxClusterCount = DOS1_MAX_CLUSTER_COUNT - 1;
+			nbSectorsPerCluster *= 4; // <= 2 MB: 4, <= 4 MB: 8, ..., <= 16 MB: 32
+		}
+
+		// Calculate fat size based on cluster count estimate
+		unsigned fatStart = nbReservedSectors + nbDirEntry / DIR_ENTRIES_PER_SECTOR;
+		unsigned estSectorCount = narrow<unsigned>(nbSectors - fatStart);
+		unsigned estClusterCount = std::min(estSectorCount / nbSectorsPerCluster, maxClusterCount);
+		unsigned fatSize = (3 * (estClusterCount + 2) + 1) / 2;  // round up
+		nbSectorsPerFat = narrow<uint16_t>((fatSize + SECTOR_SIZE - 1) / SECTOR_SIZE);  // round up
+
+		// Adjust sectors count down to match cluster count
+		unsigned dataStart = fatStart + nbFats * nbSectorsPerFat;
+		unsigned dataSectorCount = narrow<unsigned>(nbSectors - dataStart);
+		unsigned clusterCount = std::min(dataSectorCount / nbSectorsPerCluster, maxClusterCount);
+		nbSectors = dataStart + clusterCount * nbSectorsPerCluster;
+	} else if (bootType == MSXBootSectorType::DOS1 && nbSectors > 1440) {
 		// DOS1 supports up to 3 sectors per FAT, limiting the cluster count to 1022.
 		nbSides = 0;
 		nbFats = 2;
