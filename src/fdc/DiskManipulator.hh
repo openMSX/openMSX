@@ -15,6 +15,7 @@ class SectorAccessibleDisk;
 class DiskPartition;
 class MSXtar;
 class Reactor;
+enum class MSXBootSectorType;
 
 class DiskManipulator final : public Command
 {
@@ -55,7 +56,7 @@ private:
 
 	static void create(std::span<const TclObject> tokens);
 	void savedsk(const DriveSettings& driveData, std::string filename);
-	void format(DriveSettings& driveData, bool dos1);
+	void format(DriveSettings& driveData, MSXBootSectorType bootType);
 	std::string chdir(DriveSettings& driveData, std::string_view filename);
 	void mkdir(DriveSettings& driveData, std::string_view filename);
 	[[nodiscard]] std::string dir(DriveSettings& driveData);

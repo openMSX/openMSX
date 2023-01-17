@@ -11,11 +11,16 @@ namespace openmsx {
 
 class SectorAccessibleDisk;
 
+enum class MSXBootSectorType {
+	DOS1,
+	DOS2
+};
+
 struct MSXBootSector {
 	std::array<uint8_t, 3>      jumpCode;      // + 0 0xE5 to boot program
 	std::array<uint8_t, 8>      name;          // + 3
 	Endian::UA_L16              bpSector;      // +11 bytes per sector (always 512)
-	uint8_t                     spCluster;     // +13 sectors per cluster (always 2)
+	uint8_t                     spCluster;     // +13 sectors per cluster
 	Endian::L16                 resvSectors;   // +14 nb of non-data sectors (incl boot sector)
 	uint8_t                     nrFats;        // +16 nb of fats
 	Endian::UA_L16              dirEntries;    // +17 max nb of files in root directory
@@ -24,13 +29,29 @@ struct MSXBootSector {
 	Endian::L16                 sectorsFat;    // +22 sectors per FAT
 	Endian::L16                 sectorsTrack;  // +24 sectors per track (0 for LBA volumes)
 	Endian::L16                 nrSides;       // +26 number of sides (heads) (0 for LBA volumes)
-	Endian::L16                 hiddenSectors; // +28 not used
-	std::array<uint8_t, 2>      pad1;          // +30
-	Endian::L32                 nrSectorsBig;  // +32 nb of sectors on this disk (>= 65536)
-	std::array<uint8_t, 2>      pad2;          // +36
-	uint8_t                     extendedBootSignature;  // +38
-	Endian::UA_L32              vol_id;        // +39
-	std::array<uint8_t, 512-43> pad3;          // +43
+	union {
+		struct {
+			Endian::L16                 hiddenSectors; // +28 not used
+			std::array<uint8_t, 512-30> pad;           // +30
+		} dos1;
+		struct {
+			Endian::L16                 hiddenSectors; // +28 not used
+			std::array<uint8_t, 9>      pad1;          // +30
+			Endian::UA_L32              vol_id;        // +39
+			std::array<uint8_t, 512-43> pad2;          // +43
+		} dos2;
+		struct {
+			Endian::L32                 hiddenSectors;          // +28 not used
+			Endian::L32                 nrSectors;              // +32 nb of sectors on this disk (>= 65536)
+			uint8_t                     physicalDriveNum;       // +36
+			uint8_t                     reserved;               // +37
+			uint8_t                     extendedBootSignature;  // +38
+			Endian::UA_L32              vol_id;                 // +39
+			std::array<uint8_t, 11>     volumeLabel;            // +43
+			std::array<uint8_t, 8>      fileSystemType;         // +54
+			std::array<uint8_t, 512-62> padding;                // +62
+		} extended;
+	} params;
 };
 static_assert(sizeof(MSXBootSector) == 512);
 
@@ -121,17 +142,18 @@ namespace DiskImageUtils {
 
 	/** Format the given disk (= a single partition).
 	 * The formatting depends on the size of the image.
-	 * @param disk the disk/partition image to be formatted
-	 * @param dos1 set to true if you want to force dos1 formatting (boot sector)
+	 * @param disk The disk/partition image to be formatted.
+	 * @param bootType The boot sector type to use.
 	 */
-	void format(SectorAccessibleDisk& disk, bool dos1 = false);
+	void format(SectorAccessibleDisk& disk, MSXBootSectorType bootType);
 
 	/** Write a partition table to the given disk and format each partition
 	 * @param disk The disk to partition.
 	 * @param sizes The number of sectors for each partition.
+	 * @param bootType The boot sector type to use.
 	 */
 	void partition(SectorAccessibleDisk& disk,
-	               std::span<const unsigned> sizes);
+	               std::span<const unsigned> sizes, MSXBootSectorType bootType);
 };
 
 } // namespace openmsx

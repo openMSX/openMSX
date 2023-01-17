@@ -114,8 +114,8 @@ void MSXtar::parseBootSector(const MSXBootSector& boot)
 	sectorsPerCluster = boot.spCluster;
 
 	unsigned nrSectors = boot.nrSectors;
-	if (nrSectors == 0 && boot.extendedBootSignature == EBPB_SIGNATURE) {
-		nrSectors = boot.nrSectorsBig;
+	if (nrSectors == 0 && boot.params.extended.extendedBootSignature == EBPB_SIGNATURE) {
+		nrSectors = boot.params.extended.nrSectors;
 	}
 
 	if (boot.bpSector != SECTOR_SIZE) {

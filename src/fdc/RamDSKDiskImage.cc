@@ -10,7 +10,7 @@ RamDSKDiskImage::RamDSKDiskImage(size_t size)
 {
 	setNbSectors(size / sizeof(SectorBuffer));
 
-	DiskImageUtils::format(*this);
+	DiskImageUtils::format(*this, MSXBootSectorType::DOS2);
 }
 
 void RamDSKDiskImage::readSectorsImpl(

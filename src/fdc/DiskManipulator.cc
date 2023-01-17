@@ -131,6 +131,11 @@ DiskPartition DiskManipulator::getPartition(
 	return {*disk, driveData.partition};
 }
 
+std::optional<MSXBootSectorType> parseBootSectorType(std::string_view s) {
+	if (s == "-dos1")   return MSXBootSectorType::DOS1;
+	if (s == "-dos2")   return MSXBootSectorType::DOS2;
+	return {};
+};
 
 void DiskManipulator::execute(std::span<const TclObject> tokens, TclObject& result)
 {
@@ -186,18 +191,20 @@ void DiskManipulator::execute(std::span<const TclObject> tokens, TclObject& resu
 		create(tokens);
 
 	} else if (subCmd == "format") {
-		bool dos1 = false;
+		MSXBootSectorType bootType = MSXBootSectorType::DOS2;
 		string_view drive = tokens[2].getString();
 		if (tokens.size() == 4) {
-			if (drive == "-dos1") {
-				dos1 = true;
+			if (auto t2 = parseBootSectorType(drive)) {
+				bootType = *t2;
 				drive = tokens[3].getString();
-			} else if (tokens[3] == "-dos1") {
-				dos1 = true;
+			} else if (auto t3 = parseBootSectorType(tokens[3].getString())) {
+				bootType = *t3;
+			} else {
+				throw CommandException("Incorrect number of parameters");
 			}
 		}
 		auto& settings = getDriveSettings(drive);
-		format(settings, dos1);
+		format(settings, bootType);
 
 	} else if (subCmd == "dir") {
 		auto& settings = getDriveSettings(tokens[2].getString());
@@ -294,6 +301,7 @@ void DiskManipulator::tabCompletion(std::vector<string>& tokens) const
 		std::vector<string> names;
 		if (tokens[1] == one_of("format", "create")) {
 			names.emplace_back("-dos1");
+			names.emplace_back("-dos2");
 		}
 		for (const auto& d : drives) {
 			const auto& name1 = d.driveName; // with prefix
@@ -320,11 +328,11 @@ void DiskManipulator::tabCompletion(std::vector<string>& tokens) const
 			completeFileName(tokens, userFileContext());
 		} else if (tokens[1] == "create") {
 			static constexpr std::array cmds = {
-				"360"sv, "720"sv, "32M"sv, "-dos1"sv,
+				"360"sv, "720"sv, "32M"sv, "-dos1"sv, "-dos2"sv,
 			};
 			completeString(tokens, cmds);
 		} else if (tokens[1] == "format") {
-			static constexpr std::array cmds = {"-dos1"sv};
+			static constexpr std::array cmds = {"-dos1"sv, "-dos2"sv};
 			completeString(tokens, cmds);
 		}
 	}
@@ -346,11 +354,11 @@ void DiskManipulator::create(std::span<const TclObject> tokens)
 {
 	static_vector<unsigned, MAX_PARTITIONS> sizes;
 	size_t totalSectors = 0;
-	bool dos1 = false;
+	MSXBootSectorType bootType = MSXBootSectorType::DOS2;
 
 	for (const auto& token : view::drop(tokens, 3)) {
-		if (token == "-dos1") {
-			dos1 = true;
+		if (auto t = parseBootSectorType(token.getString())) {
+			bootType = *t;
 			continue;
 		}
 
@@ -415,17 +423,17 @@ void DiskManipulator::create(std::span<const TclObject> tokens)
 	// initialize (create partition tables and format partitions)
 	DSKDiskImage image(filename);
 	if (sizes.size() > 1) {
-		DiskImageUtils::partition(image, static_cast<std::span<const unsigned>>(sizes));
+		DiskImageUtils::partition(image, static_cast<std::span<const unsigned>>(sizes), bootType);
 	} else {
 		// only one partition specified, don't create partition table
-		DiskImageUtils::format(image, dos1);
+		DiskImageUtils::format(image, bootType);
 	}
 }
 
-void DiskManipulator::format(DriveSettings& driveData, bool dos1)
+void DiskManipulator::format(DriveSettings& driveData, MSXBootSectorType bootType)
 {
 	auto partition = getPartition(driveData);
-	DiskImageUtils::format(partition, dos1);
+	DiskImageUtils::format(partition, bootType);
 	driveData.workingDir[driveData.partition] = '/';
 }
 

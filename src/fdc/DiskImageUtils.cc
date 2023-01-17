@@ -77,21 +77,27 @@ struct SetBootSectorResult {
 	uint8_t descriptor;
 };
 static SetBootSectorResult setBootSector(
-	MSXBootSector& boot, size_t nbSectors, bool dos1)
+	MSXBootSector& boot, MSXBootSectorType bootType, size_t nbSectors)
 {
 	// start from the default boot block ..
-	const auto& defaultBootBlock = dos1 ? BootBlocks::dos1BootBlock : BootBlocks::dos2BootBlock;
-	boot = defaultBootBlock.bootSector;
+	if (bootType == MSXBootSectorType::DOS1) {
+		boot = BootBlocks::dos1BootBlock.bootSector;
+	} else if (bootType == MSXBootSectorType::DOS2) {
+		boot = BootBlocks::dos2BootBlock.bootSector;
+	} else {
+		UNREACHABLE;
+	}
 
 	// .. and fill-in image-size dependent parameters ..
 	// these are the same for most formats
 	uint8_t nbReservedSectors = 1;
 	uint8_t nbHiddenSectors = 1;
+	uint32_t vol_id = random_32bit() & 0x7F7F7F7F; // why are bits masked?;
 
 	// all these are set below (but initialize here to avoid warning)
 	uint16_t nbSides = 2;
 	uint8_t nbFats = 2;
-	uint8_t nbSectorsPerFat = 3;
+	uint16_t nbSectorsPerFat = 3;
 	uint8_t nbSectorsPerCluster = 2;
 	uint16_t nbDirEntry = 112;
 	uint8_t descriptor = 0xF9;
@@ -174,7 +180,14 @@ static SetBootSectorResult setBootSector(
 		nbSectors = 720;	// force nbSectors to 720, why?
 	}
 
-	boot.nrSectors = uint16_t(nbSectors); // TODO check for overflow
+	assert(nbDirEntry % 16 == 0);  // Non multiples of 16 not supported.
+
+	if (nbSectors < 0x10000) {
+		boot.nrSectors = narrow<uint16_t>(nbSectors);
+	} else {
+		throw CommandException("Too many sectors for FAT12 ", nbSectors);
+	}
+
 	boot.nrSides = nbSides;
 	boot.spCluster = nbSectorsPerCluster;
 	boot.nrFats = nbFats;
@@ -182,11 +195,16 @@ static SetBootSectorResult setBootSector(
 	boot.dirEntries = nbDirEntry;
 	boot.descriptor = descriptor;
 	boot.resvSectors = nbReservedSectors;
-	boot.hiddenSectors = nbHiddenSectors;
 
-	if (!dos1) {
-		// set random volume id
-		boot.vol_id = random_32bit() & 0x7F7F7F7F; // why are bits masked?
+	if (bootType == MSXBootSectorType::DOS1) {
+		auto& params = boot.params.dos1;
+		params.hiddenSectors = nbHiddenSectors;
+	} else if (bootType == MSXBootSectorType::DOS2) {
+		auto& params = boot.params.dos2;
+		params.hiddenSectors = nbHiddenSectors;
+		params.vol_id = vol_id;
+	} else {
+		UNREACHABLE;
 	}
 
 	SetBootSectorResult result;
@@ -199,12 +217,12 @@ static SetBootSectorResult setBootSector(
 	return result;
 }
 
-void format(SectorAccessibleDisk& disk, bool dos1)
+void format(SectorAccessibleDisk& disk, MSXBootSectorType bootType)
 {
 	// first create a boot sector for given partition size
 	size_t nbSectors = disk.getNbSectors();
 	SectorBuffer buf;
-	SetBootSectorResult result = setBootSector(buf.bootSector, nbSectors, dos1);
+	SetBootSectorResult result = setBootSector(buf.bootSector, bootType, nbSectors);
 	disk.writeSector(0, buf);
 
 	// write empty FAT sectors (except for first sector, see below)
@@ -255,7 +273,7 @@ struct CHS {
 	return {cylinder, head, sector};
 }
 
-void partition(SectorAccessibleDisk& disk, std::span<const unsigned> sizes)
+void partition(SectorAccessibleDisk& disk, std::span<const unsigned> sizes, MSXBootSectorType bootType)
 {
 	assert(sizes.size() <= 31);
 
@@ -283,7 +301,7 @@ void partition(SectorAccessibleDisk& disk, std::span<const unsigned> sizes)
 		p.start = partitionOffset;
 		p.size = size;
 		DiskPartition diskPartition(disk, partitionOffset, partitionNbSectors);
-		format(diskPartition);
+		format(diskPartition, bootType);
 		partitionOffset += partitionNbSectors;
 	}
 	disk.writeSector(0, buf);
