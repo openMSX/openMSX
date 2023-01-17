@@ -30,10 +30,8 @@ DiskPartition::DiskPartition(SectorAccessibleDisk& disk, unsigned partition,
 		start = 0;
 		setNbSectors(disk.getNbSectors());
 	} else {
-		checkValidPartition(disk, partition); // throws
 		SectorBuffer buf;
-		disk.readSector(0, buf);
-		auto& p = buf.pt.part[31 - partition];
+		Partition& p = getPartition(disk, partition, buf); // throws
 		start = p.start;
 		setNbSectors(p.size);
 	}

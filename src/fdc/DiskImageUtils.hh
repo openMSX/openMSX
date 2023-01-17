@@ -96,13 +96,13 @@ struct Partition {
 static_assert(sizeof(Partition) == 16);
 static_assert(alignof(Partition) == 1, "must not have alignment requirements");
 
-struct PartitionTable {
+struct PartitionTableSunrise {
 	std::array<char, 11>      header; // +  0
 	std::array<char,  3>      pad;    // +  3
 	std::array<Partition, 31> part;   // + 14,+30,..,+494    Not 4-byte aligned!!
 	Endian::L16               end;    // +510
 };
-static_assert(sizeof(PartitionTable) == 512);
+static_assert(sizeof(PartitionTableSunrise) == 512);
 
 
 // Buffer that can hold a (512-byte) disk sector.
@@ -115,7 +115,7 @@ union SectorBuffer {
 	std::array<uint8_t, 512>    raw;        // raw byte data
 	MSXBootSector               bootSector; // interpreted as bootSector
 	std::array<MSXDirEntry, 16> dirEntry;   // interpreted as 16 dir entries
-	PartitionTable              pt;         // interpreted as Sunrise-IDE partition table
+	PartitionTableSunrise       ptSunrise;  // interpreted as Sunrise-IDE partition table
 	AlignedBuffer               aligned;    // force big alignment (for faster memcpy)
 };
 static_assert(sizeof(SectorBuffer) == 512);
@@ -123,14 +123,16 @@ static_assert(sizeof(SectorBuffer) == 512);
 
 namespace DiskImageUtils {
 
-	/** Checks whether
+	/** Gets the requested partition. Checks whether:
 	 *   the disk is partitioned
 	 *   the specified partition exists
 	 * throws a CommandException if one of these conditions is false
 	 * @param disk The disk to check.
-	 * @param partition Partition number, in range [1..31].
+	 * @param partition Partition number, in range [1..].
+	 * @param buf Sector buffer for partition table.
+	 * @return Reference to partition information struct in sector buffer.
 	 */
-	void checkValidPartition(SectorAccessibleDisk& disk, unsigned partition);
+	Partition& getPartition(SectorAccessibleDisk& disk, unsigned partition, SectorBuffer& buf);
 
 	/** Like above, but also check whether partition is of type FAT12.
 	 */

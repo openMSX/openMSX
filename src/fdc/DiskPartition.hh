@@ -13,7 +13,7 @@ public:
 	 * @param disk The whole disk.
 	 * @param partition The partition number.
 	 *        0 for the whole disk
-	 *        1-31 for a specific partition, this must be a valid partition.
+	 *        >0 for a specific partition, this must be a valid partition.
 	 * @param owned If specified it should be a shared_ptr to the Disk
 	 *              object passed as first parameter. This DiskPartition
 	 *              will then take (shared) ownership of that Disk.

@@ -17,54 +17,61 @@ static constexpr unsigned DOS1_MAX_CLUSTER_COUNT = 0x3FE;  // Max 3 sectors per 
 static constexpr unsigned SECTOR_SIZE = sizeof(SectorBuffer);
 static constexpr unsigned DIR_ENTRIES_PER_SECTOR = SECTOR_SIZE / sizeof(MSXDirEntry);
 
-static constexpr std::array<char, 11> PARTITION_TABLE_HEADER = {
+enum class PartitionTableType {
+	SUNRISE_IDE
+};
+
+static constexpr std::array<char, 11> SUNRISE_PARTITION_TABLE_HEADER = {
 	'\353', '\376', '\220', 'M', 'S', 'X', '_', 'I', 'D', 'E', ' '
 };
-[[nodiscard]] static bool isPartitionTableSector(const PartitionTable& pt)
+[[nodiscard]] static std::optional<PartitionTableType> getPartitionTableType(const SectorBuffer& buf)
 {
-	return pt.header == PARTITION_TABLE_HEADER;
+	if (buf.ptSunrise.header == SUNRISE_PARTITION_TABLE_HEADER) {
+		return PartitionTableType::SUNRISE_IDE;
+	}
+	return {};
 }
 
 bool hasPartitionTable(SectorAccessibleDisk& disk)
 {
 	SectorBuffer buf;
 	disk.readSector(0, buf);
-	return isPartitionTableSector(buf.pt);
+	return getPartitionTableType(buf).has_value();
 }
 
-
-static Partition& checkImpl(
-	SectorAccessibleDisk& disk, unsigned partition, SectorBuffer& buf)
+// Get partition from Sunrise IDE master boot record.
+static Partition& getPartitionSunrise(unsigned partition, SectorBuffer& buf)
 {
 	// check number in range
 	if (partition < 1 || partition > 31) {
 		throw CommandException(
 			"Invalid partition number specified (must be 1-31).");
 	}
-	// check drive has a partition table
-	disk.readSector(0, buf);
-	if (!isPartitionTableSector(buf.pt)) {
-		throw CommandException(
-			"No (or invalid) partition table.");
-	}
 	// check valid partition number
-	auto& p = buf.pt.part[31 - partition];
+	auto& p = buf.ptSunrise.part[31 - partition];
 	if (p.start == 0) {
 		throw CommandException("No partition number ", partition);
 	}
 	return p;
 }
 
-void checkValidPartition(SectorAccessibleDisk& disk, unsigned partition)
+Partition& getPartition(SectorAccessibleDisk& disk, unsigned partition, SectorBuffer& buf)
 {
-	SectorBuffer buf;
-	checkImpl(disk, partition, buf);
+	// check drive has a partition table
+	// check valid partition number and return the entry
+	disk.readSector(0, buf);
+	auto partitionTableType = getPartitionTableType(buf);
+	if (partitionTableType == PartitionTableType::SUNRISE_IDE) {
+		return getPartitionSunrise(partition, buf);
+	} else {
+		throw CommandException("No (or invalid) partition table.");
+	}
 }
 
 void checkFAT12Partition(SectorAccessibleDisk& disk, unsigned partition)
 {
 	SectorBuffer buf;
-	Partition& p = checkImpl(disk, partition, buf);
+	Partition& p = getPartition(disk, partition, buf);
 
 	// check partition type
 	if (p.sys_ind != 0x01) {
@@ -307,19 +314,21 @@ struct CHS {
 	return {cylinder, head, sector};
 }
 
-void partition(SectorAccessibleDisk& disk, std::span<const unsigned> sizes, MSXBootSectorType bootType)
+static void partitionSunrise(SectorAccessibleDisk& disk, std::span<const unsigned> sizes)
 {
 	assert(sizes.size() <= 31);
 
 	SectorBuffer buf;
 	ranges::fill(buf.raw, 0);
-	buf.pt.header = PARTITION_TABLE_HEADER;
-	buf.pt.end = 0xAA55;
+	auto& pt = buf.ptSunrise;
+
+	pt.header = SUNRISE_PARTITION_TABLE_HEADER;
+	pt.end = 0xAA55;
 
 	unsigned partitionOffset = 1;
 	for (auto [i, size] : enumerate(sizes)) {
 		unsigned partitionNbSectors = size;
-		auto& p = buf.pt.part[30 - i];
+		auto& p = pt.part[30 - i];
 		auto [startCylinder, startHead, startSector] =
 			logicalToCHS(partitionOffset);
 		auto [endCylinder, endHead, endSector] =
@@ -333,12 +342,20 @@ void partition(SectorAccessibleDisk& disk, std::span<const unsigned> sizes, MSXB
 		p.end_sector = endSector;
 		p.end_cyl = narrow_cast<uint8_t>(endCylinder);
 		p.start = partitionOffset;
-		p.size = size;
-		DiskPartition diskPartition(disk, partitionOffset, partitionNbSectors);
-		format(diskPartition, bootType);
+		p.size = partitionNbSectors;
 		partitionOffset += partitionNbSectors;
 	}
 	disk.writeSector(0, buf);
+}
+
+void partition(SectorAccessibleDisk& disk, std::span<const unsigned> sizes, MSXBootSectorType bootType)
+{
+	partitionSunrise(disk, sizes);
+
+	for (auto [i, size] : enumerate(sizes)) {
+		DiskPartition diskPartition(disk, narrow<unsigned>(i + 1));
+		format(diskPartition, bootType);
+	}
 }
 
 } // namespace openmsx::DiskImageUtils
