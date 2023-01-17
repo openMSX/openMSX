@@ -51,8 +51,8 @@
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
           <filename>svi-728_se_basic-bios1.rom</filename>
-          <sha1>654ea61ab42d70461e91e047b5acebf285b512d5</sha1> <!-- according to blueMSX website -->
           <sha1>87f4d0fa58cfe9cef818a3185df2735e6da6168c</sha1> <!-- in NYYRIKKI's machine, which is the same ROM as in the SVI-738 -->
+          <sha1>654ea61ab42d70461e91e047b5acebf285b512d5</sha1> <!-- according to blueMSX website -->
         </rom>
         <mem base="0x0000" size="0x10000"/> <!-- it's mirrored -->
       </ROM>
