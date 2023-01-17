@@ -43,12 +43,13 @@ bool hasPartitionTable(SectorAccessibleDisk& disk)
 static Partition& getPartitionSunrise(unsigned partition, SectorBuffer& buf)
 {
 	// check number in range
-	if (partition < 1 || partition > 31) {
+	if (partition < 1 || partition > buf.ptSunrise.part.size()) {
 		throw CommandException(
-			"Invalid partition number specified (must be 1-31).");
+			"Invalid partition number specified (must be 1-",
+			buf.ptSunrise.part.size(), ").");
 	}
 	// check valid partition number
-	auto& p = buf.ptSunrise.part[31 - partition];
+	auto& p = buf.ptSunrise.part[buf.ptSunrise.part.size() - partition];
 	if (p.start == 0) {
 		throw CommandException("No partition number ", partition);
 	}
@@ -316,11 +317,11 @@ struct CHS {
 
 static void partitionSunrise(SectorAccessibleDisk& disk, std::span<const unsigned> sizes)
 {
-	assert(sizes.size() <= 31);
-
 	SectorBuffer buf;
 	ranges::fill(buf.raw, 0);
 	auto& pt = buf.ptSunrise;
+
+	assert(sizes.size() <= pt.part.size());
 
 	pt.header = SUNRISE_PARTITION_TABLE_HEADER;
 	pt.end = 0xAA55;
