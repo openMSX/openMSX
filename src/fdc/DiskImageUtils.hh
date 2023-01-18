@@ -165,7 +165,7 @@ namespace DiskImageUtils {
 	 * @param sizes The number of sectors for each partition.
 	 * @param bootType The boot sector type to use.
 	 */
-	void partition(SectorAccessibleDisk& disk,
+	unsigned partition(SectorAccessibleDisk& disk,
 	               std::span<const unsigned> sizes, MSXBootSectorType bootType);
 };
 

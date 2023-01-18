@@ -463,14 +463,56 @@ struct CHS {
 	return {cylinder, head, sector};
 }
 
+static std::vector<unsigned> clampPartitionSizes(std::span<const unsigned> sizes,
+	size_t diskSize, unsigned initialOffset, unsigned perPartitionOffset)
+{
+	std::vector<unsigned> clampedSizes;
+	size_t sizeRemaining = std::min(diskSize, size_t(std::numeric_limits<unsigned>::max()));
+
+	if (sizeRemaining >= initialOffset) {
+		sizeRemaining -= initialOffset;
+	} else {
+		return clampedSizes;
+	}
+
+	for (auto size : sizes) {
+		if (sizeRemaining <= perPartitionOffset) {
+			break;
+		}
+		sizeRemaining -= perPartitionOffset;
+		if (size <= perPartitionOffset) {
+			throw CommandException("Partition size too small: ", size);
+		}
+		size -= perPartitionOffset;
+		if (sizeRemaining > size) {
+			clampedSizes.push_back(size);
+			sizeRemaining -= size;
+		} else {
+			clampedSizes.push_back(narrow<unsigned>(sizeRemaining));
+			break;
+		}
+	}
+	return clampedSizes;
+}
+
 // Partition with standard master / extended boot record (MBR / EBR) for Nextor.
-static void partitionNextor(SectorAccessibleDisk& disk, std::span<const unsigned> sizes)
+static std::vector<unsigned> partitionNextor(SectorAccessibleDisk& disk, std::span<const unsigned> sizes)
 {
 	SectorBuffer buf;
 	auto& pt = buf.ptNextor;
 
+	std::vector<unsigned> clampedSizes = clampPartitionSizes(sizes, disk.getNbSectors(), 0, 1);
+
+	if (clampedSizes.empty()) {
+		ranges::fill(buf.raw, 0);
+		pt.header = NEXTOR_PARTITION_TABLE_HEADER;
+		pt.end = 0xAA55;
+		disk.writeSector(0, buf);
+		return clampedSizes;
+	}
+
 	unsigned ptSector = 0;
-	for (auto [i, size] : enumerate(sizes)) {
+	for (auto [i, size] : enumerate(clampedSizes)) {
 		ranges::fill(buf.raw, 0);
 		if (i == 0) {
 			pt.header = NEXTOR_PARTITION_TABLE_HEADER;
@@ -482,41 +524,45 @@ static void partitionNextor(SectorAccessibleDisk& disk, std::span<const unsigned
 		p.boot_ind = (i == 0) ? 0x80 : 0x00; // boot flag
 		p.sys_ind = size > 0x10000 ? 0x0E : 0x01; // FAT16B (LBA), or FAT12
 		p.start = 1;
-		p.size = size - 1;
+		p.size = size;
 
 		// Add link if not the last partition
-		if (i != sizes.size() - 1) {
+		if (i != clampedSizes.size() - 1) {
 			auto& link = pt.part[1];
-			link.sys_ind = 0x05;
+			link.sys_ind = 0x05; // EBR
 			if (i == 0) {
-				link.start = ptSector + size;
-				link.size = ranges::accumulate(view::drop(sizes, 1), 0u);
+				link.start = ptSector + 1 + size;
+				link.size = sum(view::drop(sizes, 1), [](unsigned s) { return 1 + s; });
 			} else {
-				link.start = ptSector + size - sizes[0];
-				link.size = sizes[i + 1];
+				link.start = ptSector + 1 + size - (1 + clampedSizes[0]);
+				link.size = 1 + clampedSizes[i + 1];
 			}
 		}
 
 		disk.writeSector(ptSector, buf);
 
-		ptSector += size;
+		ptSector += 1 + size;
 	}
+	return clampedSizes;
 }
 
 // Partition with Sunrise IDE master boot record.
-static void partitionSunrise(SectorAccessibleDisk& disk, std::span<const unsigned> sizes)
+static std::vector<unsigned> partitionSunrise(SectorAccessibleDisk& disk, std::span<const unsigned> sizes)
 {
 	SectorBuffer buf;
 	auto& pt = buf.ptSunrise;
 
-	assert(sizes.size() <= pt.part.size());
+	std::vector<unsigned> clampedSizes = clampPartitionSizes(sizes, disk.getNbSectors(), 1, 0);
+	if (clampedSizes.size() > pt.part.size()) {
+		clampedSizes.resize(pt.part.size());
+	}
 
 	ranges::fill(buf.raw, 0);
 	pt.header = SUNRISE_PARTITION_TABLE_HEADER;
 	pt.end = 0xAA55;
 
 	unsigned partitionOffset = 1;
-	for (auto [i, size] : enumerate(sizes)) {
+	for (auto [i, size] : enumerate(clampedSizes)) {
 		unsigned partitionNbSectors = size;
 		auto& p = pt.part[30 - i];
 		auto [startCylinder, startHead, startSector] =
@@ -536,20 +582,25 @@ static void partitionSunrise(SectorAccessibleDisk& disk, std::span<const unsigne
 		partitionOffset += partitionNbSectors;
 	}
 	disk.writeSector(0, buf);
+	return clampedSizes;
 }
 
-void partition(SectorAccessibleDisk& disk, std::span<const unsigned> sizes, MSXBootSectorType bootType)
+unsigned partition(SectorAccessibleDisk& disk, std::span<const unsigned> sizes, MSXBootSectorType bootType)
 {
-	if (bootType == MSXBootSectorType::NEXTOR) {
-		partitionNextor(disk, sizes);
-	} else {
-		partitionSunrise(disk, sizes);
+	std::vector<unsigned> clampedSizes = [&] {
+		if (bootType == MSXBootSectorType::NEXTOR) {
+			return partitionNextor(disk, sizes);
+		} else {
+			return partitionSunrise(disk, sizes);
+		}
+	}();
+
+	for (auto [i, size] : enumerate(clampedSizes)) {
+		DiskPartition diskPartition(disk, narrow<unsigned>(i + 1));
+		format(diskPartition, bootType, size);
 	}
 
-	for (auto [i, size] : enumerate(sizes)) {
-		DiskPartition diskPartition(disk, narrow<unsigned>(i + 1));
-		format(diskPartition, bootType);
-	}
+	return narrow<unsigned>(clampedSizes.size());
 }
 
 } // namespace openmsx::DiskImageUtils

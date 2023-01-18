@@ -416,10 +416,6 @@ void DiskManipulator::create(std::span<const TclObject> tokens)
 	if (sizes.empty()) {
 		throw CommandException("No size(s) given.");
 	}
-	if (sizes.size() > 1 && bootType != MSXBootSectorType::NEXTOR) {
-		// extra sector for partition table
-		++totalSectors;
-	}
 
 	// create file with correct size
 	Filename filename(FileOperations::expandTilde(string(tokens[2].getString())));
@@ -433,7 +429,12 @@ void DiskManipulator::create(std::span<const TclObject> tokens)
 	// initialize (create partition tables and format partitions)
 	DSKDiskImage image(filename);
 	if (sizes.size() > 1) {
-		DiskImageUtils::partition(image, static_cast<std::span<const unsigned>>(sizes), bootType);
+		unsigned partitionCount = DiskImageUtils::partition(image,
+			static_cast<std::span<const unsigned>>(sizes), bootType);
+		if (partitionCount != sizes.size()) {
+			throw CommandException("Could not create all partitions; ",
+				partitionCount, " of ", sizes.size(), " created.");
+		}
 	} else {
 		// only one partition specified, don't create partition table
 		DiskImageUtils::format(image, bootType);
