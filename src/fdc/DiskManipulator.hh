@@ -29,14 +29,17 @@ public:
 	void unregisterDrive(DiskContainer& drive);
 
 private:
-	static constexpr unsigned MAX_PARTITIONS = 31;
 	struct DriveSettings
 	{
+		std::string getWorkingDir(unsigned p);
+		void setWorkingDir(unsigned p, std::string_view dir);
+
 		DiskContainer* drive;
 		std::string driveName; // includes machine prefix
-		std::array<std::string, MAX_PARTITIONS + 1> workingDir;
-		/** 0 = whole disk, 1..MAX_PARTITIONS = partition number */
+		/** 0 = whole disk, 1.. = partition number */
 		unsigned partition;
+	private:
+		std::vector<std::string> workingDir;
 	};
 	using Drives = std::vector<DriveSettings>;
 	Drives drives; // unordered

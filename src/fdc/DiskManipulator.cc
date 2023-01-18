@@ -77,9 +77,6 @@ void DiskManipulator::registerDrive(
 	driveSettings.drive = &drive;
 	driveSettings.driveName = strCat(prefix, drive.getContainerName());
 	driveSettings.partition = 0;
-	for (unsigned i = 0; i <= MAX_PARTITIONS; ++i) {
-		driveSettings.workingDir[i] = '/';
-	}
 	drives.push_back(driveSettings);
 }
 
@@ -88,6 +85,19 @@ void DiskManipulator::unregisterDrive(DiskContainer& drive)
 	auto it = findDriveSettings(drive);
 	assert(it != end(drives));
 	move_pop_back(drives, it);
+}
+
+std::string DiskManipulator::DriveSettings::getWorkingDir(unsigned p)
+{
+	return p < workingDir.size() ? workingDir[p] : "/";
+}
+
+void DiskManipulator::DriveSettings::setWorkingDir(unsigned p, std::string_view dir)
+{
+	if (p >= workingDir.size()) {
+		workingDir.resize(p + 1, "/");
+	}
+	workingDir[p] = dir;
 }
 
 DiskManipulator::Drives::iterator DiskManipulator::findDriveSettings(
@@ -234,7 +244,7 @@ void DiskManipulator::execute(std::span<const TclObject> tokens, TclObject& resu
 		auto& settings = getDriveSettings(tokens[2].getString());
 		if (tokens.size() == 3) {
 			result = tmpStrCat("Current directory: ",
-			                   settings.workingDir[settings.partition]);
+			                   settings.getWorkingDir(settings.partition));
 		} else {
 			result = chdir(settings, tokens[3].getString());
 		}
@@ -357,7 +367,13 @@ void DiskManipulator::tabCompletion(std::vector<string>& tokens) const
 			// if it has partitions then we also add the partition
 			// numbers to the autocompletion
 			if (auto* disk = d.drive->getSectorAccessibleDisk()) {
-				for (unsigned i = 1; i <= MAX_PARTITIONS; ++i) {
+				for (unsigned i = 1; true; ++i) {
+					try {
+						SectorBuffer buf;
+						DiskImageUtils::getPartition(*disk, i, buf);
+					} catch (MSXException&) {
+						break;
+					}
 					try {
 						DiskImageUtils::checkSupportedPartition(*disk, i);
 						append(names,
@@ -396,15 +412,13 @@ void DiskManipulator::savedsk(const DriveSettings& driveData,
 
 void DiskManipulator::create(std::span<const TclObject> tokens)
 {
-	static_vector<unsigned, MAX_PARTITIONS> sizes;
 	size_t totalSectors = 0;
 	MSXBootSectorType bootType = MSXBootSectorType::DOS2;
+	std::vector<unsigned> sizes;
 
 	for (const auto& token_ : view::drop(tokens, 3)) {
 		if (auto t = parseBootSectorType(token_.getString())) {
 			bootType = *t;
-		} else if (sizes.size() >= MAX_PARTITIONS) {
-			throw CommandException("Maximum number of partitions is ", MAX_PARTITIONS);
 		} else if (size_t sectors = parseSectorSize(token_.getString());
 		           sectors <= std::numeric_limits<unsigned>::max()) {
 			sizes.push_back(narrow<unsigned>(sectors));
@@ -465,7 +479,7 @@ void DiskManipulator::format(std::span<const TclObject> tokens)
 		} else {
 			DiskImageUtils::format(partition, bootType);
 		}
-		driveData.workingDir[driveData.partition] = '/';
+		driveData.setWorkingDir(driveData.partition, "/");
 	} else {
 		throw CommandException("Incorrect number of parameters");
 	}
@@ -479,12 +493,13 @@ MSXtar DiskManipulator::getMSXtar(
 	}
 
 	MSXtar result(disk, getMsxChar2Unicode());
+	string cwd = driveData.getWorkingDir(driveData.partition);
 	try {
-		result.chdir(driveData.workingDir[driveData.partition]);
+		result.chdir(cwd);
 	} catch (MSXException&) {
-		driveData.workingDir[driveData.partition] = '/';
+		driveData.setWorkingDir(driveData.partition, "/");
 		throw CommandException(
-			"Directory ", driveData.workingDir[driveData.partition],
+			"Directory ", cwd,
 			" doesn't exist anymore. Went back to root "
 			"directory. Command aborted, please retry.");
 	}
@@ -508,13 +523,14 @@ string DiskManipulator::chdir(DriveSettings& driveData, string_view filename)
 		throw CommandException("chdir failed: ", e.getMessage());
 	}
 	// TODO clean-up this temp hack, used to enable relative paths
-	string& cwd = driveData.workingDir[driveData.partition];
+	string cwd = driveData.getWorkingDir(driveData.partition);
 	if (filename.starts_with('/')) {
 		cwd = filename;
 	} else {
 		if (!cwd.ends_with('/')) cwd += '/';
 		cwd.append(filename.data(), filename.size());
 	}
+	driveData.setWorkingDir(driveData.partition, cwd);
 	return "New working directory: " + cwd;
 }
 

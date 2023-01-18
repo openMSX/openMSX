@@ -18,8 +18,8 @@
   in openMSX. It implements the basic stuff needed to handle files
   and subdirectories on MSX media. It also helps one creating new disk
   image files, both simple 360 kB and 720 kB disks as well as
-  hard disk images containing up to 31 partitions of 32 MB each for
-  Sunrise IDE, or up to 4 GB for Nextor.
+  hard disk images containing partitions of 32 MB each for Sunrise IDE,
+  or up to 4 GB for Nextor.
   Creating disk images and manipulating the files on them can be
   done without the need of a running emulated MSX (<code>set power
   off</code>).</p>
@@ -45,7 +45,7 @@
   <p><code>&lt;command&gt;</code> specifies the action to be performed. The next section lists the commands available and explains them.</p>
 
   <p><code>&lt;disk name&gt;</code> specifies the disk to operate on. Typical values are: <code><a class="external" href="commands.html#disk">diska</a></code>, <code>diskb</code>, <code><a class="external" href="commands.html#hd">hda</a></code> or the special <code><a class="external" href="commands.html#disk">virtual_drive</a></code> device. <code>disk&lt;x&gt;</code> and <code>hd&lt;x&gt;</code> are the drives available to the running emulated MSX machine. This allows interaction with the currently used disk images.<br />
-  In case the disk contains a Sunrise IDE, Beer IDE 1.9RC1 or Nextor compatible partition table you can add a partition number (from 1 till 31) to the disk name to specify on which partition the command will act. For example <code>hda2</code> is the second partition on the master IDE disk, <code>hdb3</code> is the third partition on the slave IDE disk.</p>
+  In case the disk contains a Sunrise IDE, Beer IDE 1.9RC1 or Nextor compatible partition table you can add a partition number (starting at 1) to the disk name to specify on which partition the command will act. For example <code>hda2</code> is the second partition on the master IDE disk, <code>hdb3</code> is the third partition on the slave IDE disk.</p>
 
   <p><code>&lt;command arguments&gt;</code> depend upon the command involved, see the detailed descriptions of the commands below.</p>
 
