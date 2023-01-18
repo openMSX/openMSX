@@ -3,6 +3,7 @@
 
 #include "MSXDevice.hh"
 #include "Schedulable.hh"
+#include "TclCallback.hh"
 #include "VideoSystemChangeListener.hh"
 #include "IRQHelper.hh"
 #include "V9990CmdEngine.hh"
@@ -528,6 +529,9 @@ private:
 	IRQHelper irq;
 
 	Display& display;
+
+	TclCallback   invalidRegisterReadCallback;
+	TclCallback   invalidRegisterWriteCallback;
 
 	/** VRAM
 	  */

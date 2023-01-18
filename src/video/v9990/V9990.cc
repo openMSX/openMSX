@@ -63,6 +63,16 @@ V9990::V9990(const DeviceConfig& config)
 	, v9990PalDebug(*this)
 	, irq(getMotherBoard(), getName() + ".IRQ")
 	, display(getReactor().getDisplay())
+	, invalidRegisterReadCallback(getCommandController(),
+		"v9990_invalid_register_read_callback",
+		"Tcl proc to call when a write-only register was read from. "
+		"Input: register number (0-63)",
+                {}, Setting::SAVE)
+	, invalidRegisterWriteCallback(getCommandController(),
+		"v9990_invalid_register_write_callback",
+		"Tcl proc to call when a read-only register was written to. "
+		"Input: register number (0-63), 8-bit data",
+		{}, Setting::SAVE)
 	, vram(*this, getCurrentTime())
 	, cmdEngine(*this, getCurrentTime(), display.getRenderSettings())
 	, frameStartTime(getCurrentTime())
@@ -543,6 +553,7 @@ byte V9990::readRegister(byte reg, EmuTime::param time) const
 			       : narrow_cast<byte>(borderX >> 8);
 		}
 	} else {
+		invalidRegisterReadCallback.execute(reg);
 		return 0xFF;
 	}
 }
@@ -569,6 +580,7 @@ void V9990::writeRegister(byte reg, byte val, EmuTime::param time)
 	assert(reg < 64);
 	if (!(regAccess[reg] & ALLOW_WRITE)) {
 		// register not writable
+		invalidRegisterWriteCallback.execute(reg, val);
 		return;
 	}
 	if (reg >= CMD_PARAM_SRC_ADDRESS_0) {
