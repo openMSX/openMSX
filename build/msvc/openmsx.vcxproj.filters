@@ -1315,6 +1315,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\serialize_meta.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\ThrottleManager.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\Version.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\YamahaSKW01.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\SVIPrinterPort.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\SVIPPI.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\SerializeBuffer.cc" />
@@ -2851,6 +2852,7 @@
     <None Include="$(OpenMSXSrcDir)\serialize_stl.hh" />
     <None Include="$(OpenMSXSrcDir)\ThrottleManager.hh" />
     <None Include="$(OpenMSXSrcDir)\Version.hh" />
+    <None Include="$(OpenMSXSrcDir)\YamahaSKW01.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\SVIPSG.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\SVIFDC.hh" />
     <None Include="$(OpenMSXSrcDir)\SVIPrinterPort.hh" />

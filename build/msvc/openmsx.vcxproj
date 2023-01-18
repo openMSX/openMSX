@@ -842,6 +842,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\SpeedManager.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\ThrottleManager.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\Version.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\YamahaSKW01.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\SVIPSG.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\SVIFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\SVIPrinterPort.cc" />
@@ -1594,6 +1595,7 @@ popd</Command>
     <None Include="$(OpenMSXSrcDir)\SpeedManager.hh" />
     <None Include="$(OpenMSXSrcDir)\ThrottleManager.hh" />
     <None Include="$(OpenMSXSrcDir)\Version.hh" />
+    <None Include="$(OpenMSXSrcDir)\YamahaSKW01.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\SVIPSG.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\SVIFDC.hh" />
     <None Include="$(OpenMSXSrcDir)\SVIPrinterPort.hh" />

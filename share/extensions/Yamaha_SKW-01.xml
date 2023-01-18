@@ -1,0 +1,36 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <!-- Note: the switch to disable SRAM is not emulated! -->
+    <name>Kanji Word Processor Unit</name>
+    <manufacturer>Yamaha</manufacturer>
+    <code>SKW-01</code>
+    <release_year>1985</release_year>
+    <description>Japanese Word Processor with Kanji ROM and printer port.</description>
+    <type>kanji font expansion</type>
+  </info>
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <YamahaSKW01 id="Kanji Word Processor Unit">
+          <mem base="0x0000" size="0x8000"/>
+          <rom id="main">
+            <sha1>6a7f41d89f9d50f4ff648233670660cfb07a41ee</sha1>
+            <filename>skw-01_main.rom</filename>
+          </rom>
+          <rom id="kanjifont">
+            <sha1>f0901a63de6c95a42ce6ad82dd5e6bfba4bcf180</sha1>
+            <filename>skw-01_kanjifont.rom</filename>
+          </rom>
+          <rom id="data">
+            <sha1>82f2ecd9f3135a8602d54cc6322216b3b15ae8b3</sha1>
+            <filename>skw-01_data.rom</filename>
+          </rom>
+          <sramname>skw-01.sram</sramname>
+        </YamahaSKW01>
+      </secondary>
+    </primary>
+
+  </devices>
+</msxconfig>

@@ -85,6 +85,7 @@
 #include "MSXMapperIO.hh"
 #include "VDPIODelay.hh"
 #include "SensorKid.hh"
+#include "YamahaSKW01.hh"
 #include "CliComm.hh"
 #include "MSXException.hh"
 #include "components.hh"
@@ -303,6 +304,8 @@ std::unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<MusicalMemoryMapper>(conf);
 	} else if (type == "Carnivore2") {
 		result = make_unique<Carnivore2>(conf);
+	} else if (type == "YamahaSKW01") {
+		result = make_unique<YamahaSKW01>(conf);
 	} else if (type == one_of("T7775", "T7937", "T9763", "T9769")) {
 		// Ignore for now. We might want to create a real device for it later.
 	} else {
