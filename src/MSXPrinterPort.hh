@@ -15,8 +15,6 @@ class MSXPrinterPort final : public MSXDevice, public Connector
 public:
 	explicit MSXPrinterPort(const DeviceConfig& config);
 
-	[[nodiscard]] PrinterPortDevice& getPluggedPrintDev() const;
-
 	// MSXDevice
 	void reset(EmuTime::param time) override;
 	[[nodiscard]] uint8_t readIO(uint16_t port, EmuTime::param time) override;
@@ -32,6 +30,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	[[nodiscard]] PrinterPortDevice& getPluggedPrintDev() const;
 	void setStrobe(bool newStrobe, EmuTime::param time);
 	void writeData(uint8_t newData, EmuTime::param time);
 
