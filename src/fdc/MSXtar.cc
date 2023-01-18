@@ -632,12 +632,12 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxDirEntry, const string& hostName)
 					Cluster newCl = findFirstFreeCluster();
 					std::visit(overloaded{
 						[&](Free) { setStartCluster(msxDirEntry, newCl); },
-						[&](Cluster cluster) { writeFAT(cluster, newCl); }
+						[&](Cluster cluster_) { writeFAT(cluster_, newCl); }
 					}, prevCl);
 					writeFAT(newCl, EndOfChain{});
 					return newCl;
 				},
-				[](Cluster cluster) { return cluster; }
+				[](Cluster cluster_) { return cluster_; }
 			}, curCl);
 		} catch (MSXException&) {
 			// no more free clusters or invalid entry in FAT chain

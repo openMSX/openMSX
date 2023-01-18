@@ -131,7 +131,7 @@ DiskPartition DiskManipulator::getPartition(
 	return {*disk, driveData.partition};
 }
 
-std::optional<MSXBootSectorType> parseBootSectorType(std::string_view s) {
+static std::optional<MSXBootSectorType> parseBootSectorType(std::string_view s) {
 	if (s == "-dos1")   return MSXBootSectorType::DOS1;
 	if (s == "-dos2")   return MSXBootSectorType::DOS2;
 	if (s == "-nextor") return MSXBootSectorType::NEXTOR;
