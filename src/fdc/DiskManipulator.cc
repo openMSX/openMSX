@@ -211,20 +211,7 @@ void DiskManipulator::execute(std::span<const TclObject> tokens, TclObject& resu
 		create(tokens);
 
 	} else if (subCmd == "format") {
-		MSXBootSectorType bootType = MSXBootSectorType::DOS2;
-		string_view drive = tokens[2].getString();
-		if (tokens.size() == 4) {
-			if (auto t2 = parseBootSectorType(drive)) {
-				bootType = *t2;
-				drive = tokens[3].getString();
-			} else if (auto t3 = parseBootSectorType(tokens[3].getString())) {
-				bootType = *t3;
-			} else {
-				throw CommandException("Incorrect number of parameters");
-			}
-		}
-		auto& settings = getDriveSettings(drive);
-		format(settings, bootType);
+		format(tokens);
 
 	} else if (subCmd == "dir") {
 		auto& settings = getDriveSettings(tokens[2].getString());
@@ -454,11 +441,27 @@ void DiskManipulator::create(std::span<const TclObject> tokens)
 	}
 }
 
-void DiskManipulator::format(DriveSettings& driveData, MSXBootSectorType bootType)
+void DiskManipulator::format(std::span<const TclObject> tokens)
 {
-	auto partition = getPartition(driveData);
-	DiskImageUtils::format(partition, bootType);
-	driveData.workingDir[driveData.partition] = '/';
+	MSXBootSectorType bootType = MSXBootSectorType::DOS2;
+	std::optional<string> drive;
+	for (const auto& token_ : view::drop(tokens, 2)) {
+		if (auto t = parseBootSectorType(token_.getString())) {
+			bootType = *t;
+		} else if (!drive) {
+			drive = token_.getString();
+		} else {
+			throw CommandException("Incorrect number of parameters");
+		}
+	}
+	if (drive) {
+		auto& driveData = getDriveSettings(*drive);
+		auto partition = getPartition(driveData);
+		DiskImageUtils::format(partition, bootType);
+		driveData.workingDir[driveData.partition] = '/';
+	} else {
+		throw CommandException("Incorrect number of parameters");
+	}
 }
 
 MSXtar DiskManipulator::getMSXtar(
