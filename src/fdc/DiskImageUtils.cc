@@ -401,8 +401,13 @@ static SetBootSectorResult setBootSector(
 
 void format(SectorAccessibleDisk& disk, MSXBootSectorType bootType)
 {
+	format(disk, bootType, disk.getNbSectors());
+}
+
+void format(SectorAccessibleDisk& disk, MSXBootSectorType bootType, size_t nbSectors)
+{
 	// first create a boot sector for given partition size
-	size_t nbSectors = disk.getNbSectors();
+	nbSectors = std::min(nbSectors, disk.getNbSectors());
 	SectorBuffer buf;
 	SetBootSectorResult result = setBootSector(buf.bootSector, bootType, nbSectors);
 	disk.writeSector(0, buf);

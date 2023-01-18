@@ -157,6 +157,41 @@ static std::optional<MSXBootSectorType> parseBootSectorType(std::string_view s) 
 	return {};
 };
 
+static size_t parseSectorSize(zstring_view tok) {
+	char* q;
+	size_t bytes = strtoull(tok.c_str(), &q, 0);
+	int scale = 1024; // default is kilobytes
+	if (*q) {
+		if ((q == tok.c_str()) || *(q + 1)) {
+			throw CommandException("Invalid size: ", tok);
+		}
+		switch (tolower(*q)) {
+			case 'b':
+				scale = 1;
+				break;
+			case 'k':
+				scale = 1024;
+				break;
+			case 'm':
+				scale = 1024 * 1024;
+				break;
+			case 's':
+				scale = SectorBasedDisk::SECTOR_SIZE;
+				break;
+			default:
+				throw CommandException("Invalid suffix: ", q);
+		}
+	}
+	size_t sectors = (bytes * scale) / SectorBasedDisk::SECTOR_SIZE;
+
+	// TEMP FIX: the smallest boot sector we create in MSXtar is for
+	// a normal single sided disk.
+	// TODO: MSXtar must be altered and this temp fix must be set to
+	// the real smallest dsk possible (= boot sector + minimal fat +
+	// minimal dir + minimal data clusters)
+	return std::max(sectors, size_t(720));
+}
+
 void DiskManipulator::execute(std::span<const TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() == 1) {
@@ -166,7 +201,8 @@ void DiskManipulator::execute(std::span<const TclObject> tokens, TclObject& resu
 	string_view subCmd = tokens[1].getString();
 	if (((tokens.size() != 4)                     && (subCmd == one_of("savedsk", "mkdir"))) ||
 	    ((tokens.size() != 3)                     && (subCmd ==        "dir"             ))  ||
-	    ((tokens.size() < 3 || tokens.size() > 4) && (subCmd == one_of("format", "chdir")))  ||
+	    ((tokens.size() < 3 || tokens.size() > 4) && (subCmd ==        "chdir"           ))  ||
+	    ((tokens.size() < 3 || tokens.size() > 5) && (subCmd ==        "format"          ))  ||
 	    ((tokens.size() < 4)                      && (subCmd == one_of("export", "import", "create")))) {
 		throw CommandException("Incorrect number of parameters");
 	}
@@ -282,7 +318,7 @@ string DiskManipulator::help(std::span<const TclObject> tokens) const
 	    "diskmanipulator create <fn> <sz> [<sz> ...]  : create a formatted dsk file with name <fn>\n"
 	    "                                               having the given (partition) size(s)\n"
 	    "diskmanipulator savedsk <disk name> <fn>     : save <disk name> as dsk file named as <fn>\n"
-	    "diskmanipulator format <disk name>           : format (a partition) on <disk name>\n"
+	    "diskmanipulator format <disk name> [<sz>]    : format (a partition on) <disk name>\n"
 	    "diskmanipulator chdir <disk name> <MSX dir>  : change directory on <disk name>\n"
 	    "diskmanipulator mkdir <disk name> <MSX dir>  : create directory on <disk name>\n"
 	    "diskmanipulator dir <disk name>              : long format file listing of current\n"
@@ -337,13 +373,10 @@ void DiskManipulator::tabCompletion(std::vector<string>& tokens) const
 	} else if (tokens.size() >= 4) {
 		if (tokens[1] == one_of("savedsk", "import", "export")) {
 			completeFileName(tokens, userFileContext());
-		} else if (tokens[1] == "create") {
+		} else if (tokens[1] == one_of("create", "format")) {
 			static constexpr std::array cmds = {
 				"360"sv, "720"sv, "32M"sv, "-dos1"sv, "-dos2"sv, "-nextor"sv,
 			};
-			completeString(tokens, cmds);
-		} else if (tokens[1] == "format") {
-			static constexpr std::array cmds = {"-dos1"sv, "-dos2"sv, "-nextor"sv};
 			completeString(tokens, cmds);
 		}
 	}
@@ -377,39 +410,7 @@ void DiskManipulator::create(std::span<const TclObject> tokens)
 			throw CommandException(
 				"Maximum number of partitions is ", MAX_PARTITIONS);
 		}
-		auto tok = token_.getString();
-		char* q;
-		size_t sectors = strtoull(tok.c_str(), &q, 0);
-		int scale = 1024; // default is kilobytes
-		if (*q) {
-			if ((q == tok.c_str()) || *(q + 1)) {
-				throw CommandException("Invalid size: ", tok);
-			}
-			switch (tolower(*q)) {
-				case 'b':
-					scale = 1;
-					break;
-				case 'k':
-					scale = 1024;
-					break;
-				case 'm':
-					scale = 1024 * 1024;
-					break;
-				case 's':
-					scale = SectorBasedDisk::SECTOR_SIZE;
-					break;
-				default:
-					throw CommandException("Invalid suffix: ", q);
-			}
-		}
-		sectors = (sectors * scale) / SectorBasedDisk::SECTOR_SIZE;
-
-		// TEMP FIX: the smallest boot sector we create in MSXtar is for
-		// a normal single sided disk.
-		// TODO: MSXtar must be altered and this temp fix must be set to
-		// the real smallest dsk possible (= boot sector + minimal fat +
-		// minimal dir + minimal data clusters)
-		if (sectors < 720) sectors = 720;
+		size_t sectors = parseSectorSize(token_.getString());
 
 		sizes.push_back(narrow<unsigned>(sectors));
 		totalSectors += sectors;
@@ -445,11 +446,14 @@ void DiskManipulator::format(std::span<const TclObject> tokens)
 {
 	MSXBootSectorType bootType = MSXBootSectorType::DOS2;
 	std::optional<string> drive;
+	std::optional<size_t> size;
 	for (const auto& token_ : view::drop(tokens, 2)) {
 		if (auto t = parseBootSectorType(token_.getString())) {
 			bootType = *t;
 		} else if (!drive) {
 			drive = token_.getString();
+		} else if (!size) {
+			size = parseSectorSize(token_.getString());
 		} else {
 			throw CommandException("Incorrect number of parameters");
 		}
@@ -457,7 +461,11 @@ void DiskManipulator::format(std::span<const TclObject> tokens)
 	if (drive) {
 		auto& driveData = getDriveSettings(*drive);
 		auto partition = getPartition(driveData);
-		DiskImageUtils::format(partition, bootType);
+		if (size) {
+			DiskImageUtils::format(partition, bootType, *size);
+		} else {
+			DiskImageUtils::format(partition, bootType);
+		}
 		driveData.workingDir[driveData.partition] = '/';
 	} else {
 		throw CommandException("Incorrect number of parameters");

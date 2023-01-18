@@ -158,6 +158,7 @@ namespace DiskImageUtils {
 	 * @param bootType The boot sector type to use.
 	 */
 	void format(SectorAccessibleDisk& disk, MSXBootSectorType bootType);
+	void format(SectorAccessibleDisk& disk, MSXBootSectorType bootType, size_t nbSectors);
 
 	/** Write a partition table to the given disk and format each partition
 	 * @param disk The disk to partition.
