@@ -303,7 +303,7 @@ void DiskManipulator::tabCompletion(std::vector<string>& tokens) const
 
 	} else if (tokens.size() == 3) {
 		std::vector<string> names;
-		if (tokens[1] == one_of("format", "create")) {
+		if (tokens[1] == "format") {
 			names.emplace_back("-dos1");
 			names.emplace_back("-dos2");
 			names.emplace_back("-nextor");
