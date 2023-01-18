@@ -980,10 +980,7 @@ void MSXtar::recurseDirExtract(string_view dirName, unsigned sector)
 			if (!dirName.empty()) {
 				fullName = strCat(dirName, '/', filename);
 			}
-			if (dirEntry.attrib != T_MSX_DIR) { // TODO
-				fileExtract(fullName, dirEntry);
-			}
-			if (dirEntry.attrib == T_MSX_DIR) {
+			if (dirEntry.attrib & T_MSX_DIR) {
 				FileOperations::mkdirp(fullName);
 				// now change the access time
 				changeTime(fullName, dirEntry);
@@ -991,6 +988,8 @@ void MSXtar::recurseDirExtract(string_view dirName, unsigned sector)
 					[](Free) { /* Points to root, ignore. */ },
 					[&](Cluster cluster) { recurseDirExtract(fullName, clusterToSector(cluster)); }
 				}, getStartCluster(dirEntry));
+			} else {
+				fileExtract(fullName, dirEntry);
 			}
 		}
 	}
