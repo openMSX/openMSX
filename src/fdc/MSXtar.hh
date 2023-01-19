@@ -33,6 +33,8 @@ namespace FAT {
 
 	using DirCluster = std::variant<Free, Cluster>;
 	using FatCluster = std::variant<Free, EndOfChain, Cluster>;
+
+	using FileName = decltype(MSXDirEntry::filename);
 }
 
 class MSXtar
@@ -69,12 +71,12 @@ private:
 	unsigned getNextSector(unsigned sector);
 	unsigned appendClusterToSubdir(unsigned sector);
 	DirEntry addEntryToDir(unsigned sector);
-	unsigned addSubdir(std::string_view msxName,
+	unsigned addSubdir(const FAT::FileName& msxName,
 	                   uint16_t t, uint16_t d, unsigned sector);
 	void alterFileInDSK(MSXDirEntry& msxDirEntry, const std::string& hostName);
 	unsigned addSubdirToDSK(zstring_view hostName,
-	                        std::string_view msxName, unsigned sector);
-	DirEntry findEntryInDir(const std::string& name, unsigned sector,
+	                        const FAT::FileName& msxName, unsigned sector);
+	DirEntry findEntryInDir(const FAT::FileName& msxName, unsigned sector,
 	                        SectorBuffer& sectorBuf);
 	std::string addFileToDSK(const std::string& fullHostName, unsigned sector);
 	std::string recurseDirFill(std::string_view dirName, unsigned sector);

@@ -34,6 +34,7 @@ using FAT::EndOfChain;
 using FAT::Cluster;
 using FAT::DirCluster;
 using FAT::FatCluster;
+using FAT::FileName;
 
 namespace FAT {
 	static constexpr unsigned FREE = 0x000;
@@ -464,18 +465,19 @@ static char toMSXChr(char a)
 
 // Transform a long hostname in a 8.3 uppercase filename as used in the
 // dirEntries on an MSX
-static string makeSimpleMSXFileName(string_view fullFilename)
+static FileName hostToMSXFileName(string_view hostName)
 {
-	auto [dir, fullFile] = StringOp::splitOnLast(fullFilename, '/');
+	auto [hostDir, hostFile] = StringOp::splitOnLast(hostName, '/');
 
 	// handle special case '.' and '..' first
-	string result(8 + 3, ' ');
-	if (fullFile == one_of(".", "..")) {
-		ranges::copy(fullFile, result);
+	FileName result;
+	result.fill(' ');
+	if (hostFile == one_of(".", "..")) {
+		ranges::copy(hostFile, result);
 		return result;
 	}
 
-	auto [file, ext] = StringOp::splitOnLast(fullFile, '.');
+	auto [file, ext] = StringOp::splitOnLast(hostFile, '.');
 	if (file.empty()) std::swap(file, ext);
 
 	StringOp::trimRight(file, ' ');
@@ -499,7 +501,7 @@ static string makeSimpleMSXFileName(string_view fullFilename)
 // returns: the first sector of the new subdir
 // @throws in case no directory could be created
 unsigned MSXtar::addSubdir(
-	std::string_view msxName, uint16_t t, uint16_t d, unsigned sector)
+	const FileName& msxName, uint16_t t, uint16_t d, unsigned sector)
 {
 	// returns the sector for the first cluster of this subdir
 	DirEntry result = addEntryToDir(sector);
@@ -509,7 +511,7 @@ unsigned MSXtar::addSubdir(
 	readLogicalSector(result.sector, buf);
 
 	auto& dirEntry = buf.dirEntry[result.index];
-	ranges::copy(makeSimpleMSXFileName(msxName), dirEntry.filename);
+	ranges::copy(msxName, dirEntry.filename);
 	dirEntry.attrib = T_MSX_DIR;
 	dirEntry.time = t;
 	dirEntry.date = d;
@@ -591,7 +593,7 @@ static TimeDate getTimeDate(zstring_view filename)
 
 // Add an MSXsubdir with the time properties from the HOST-OS subdir
 // @throws when subdir could not be created
-unsigned MSXtar::addSubdirToDSK(zstring_view hostName, std::string_view msxName,
+unsigned MSXtar::addSubdirToDSK(zstring_view hostName, const FileName& msxName,
                                 unsigned sector)
 {
 	auto [time, date] = getTimeDate(hostName);
@@ -687,7 +689,7 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxDirEntry, const string& hostName)
 // returns: a DirEntry with sector and index filled in
 //          sector is 0 if no match was found
 MSXtar::DirEntry MSXtar::findEntryInDir(
-	const string& name, unsigned sector, SectorBuffer& buf)
+	const FileName& msxName, unsigned sector, SectorBuffer& buf)
 {
 	DirEntry result;
 	result.sector = sector;
@@ -696,7 +698,7 @@ MSXtar::DirEntry MSXtar::findEntryInDir(
 		// read sector and scan 16 entries
 		readLogicalSector(result.sector, buf);
 		for (result.index = 0; result.index < DIR_ENTRIES_PER_SECTOR; ++result.index) {
-			if (ranges::equal(buf.dirEntry[result.index].filename, name)) {
+			if (ranges::equal(buf.dirEntry[result.index].filename, msxName)) {
 				return result;
 			}
 		}
@@ -711,7 +713,7 @@ MSXtar::DirEntry MSXtar::findEntryInDir(
 string MSXtar::addFileToDSK(const string& fullHostName, unsigned rootSector)
 {
 	auto [directory, hostName] = StringOp::splitOnLast(fullHostName, "/\\");
-	string msxName = makeSimpleMSXFileName(hostName);
+	FileName msxName = hostToMSXFileName(hostName);
 
 	// first find out if the filename already exists in current dir
 	SectorBuffer dummy;
@@ -756,7 +758,7 @@ string MSXtar::recurseDirFill(string_view dirName, unsigned sector)
 		messages += addFileToDSK(path, sector);
 	};
 	auto dirAction = [&](const string& path, std::string_view name) {
-		string msxFileName = makeSimpleMSXFileName(name);
+		FileName msxFileName = hostToMSXFileName(name);
 		SectorBuffer buf;
 		DirEntry entry = findEntryInDir(msxFileName, sector, buf);
 		if (entry.sector != 0) {
@@ -766,18 +768,16 @@ string MSXtar::recurseDirFill(string_view dirName, unsigned sector)
 				// .. and is a directory
 				DirCluster nextCluster = getStartCluster(msxDirEntry);
 				messages += std::visit(overloaded{
-					[&](Free) { return strCat("Directory ", msxFileName, " goes to root.\n"); },
+					[&](Free) { return strCat("Directory ", name, " goes to root.\n"); },
 					[&](Cluster cluster) { return recurseDirFill(path, clusterToSector(cluster)); }
 				}, nextCluster);
 			} else {
 				// .. but is NOT a directory
-				strAppend(messages,
-					  "MSX file ", msxFileName,
-					  " is not a directory.\n");
+				strAppend(messages, "MSX file ", name, " is not a directory.\n");
 			}
 		} else {
 			// add new directory
-			unsigned nextSector = addSubdirToDSK(path, name, sector);
+			unsigned nextSector = addSubdirToDSK(path, msxFileName, sector);
 			messages += recurseDirFill(path, nextSector);
 		}
 	};
@@ -787,16 +787,16 @@ string MSXtar::recurseDirFill(string_view dirName, unsigned sector)
 }
 
 
-static string condenseName(const MSXDirEntry& dirEntry)
+static string msxToHostFileName(const FileName& msxName)
 {
 	string result;
-	for (unsigned i = 0; (i < 8) && (dirEntry.base()[i] != ' '); ++i) {
-		result += char(tolower(dirEntry.base()[i]));
+	for (unsigned i = 0; i < 8 && msxName[i] != ' '; ++i) {
+		result += char(tolower(msxName[i]));
 	}
-	if (dirEntry.ext()[0] != ' ') {
+	if (msxName[8] != ' ') {
 		result += '.';
-		for (unsigned i = 0; (i < 3) && (dirEntry.ext()[i] != ' '); ++i) {
-			result += char(tolower(dirEntry.ext()[i]));
+		for (unsigned i = 8; i < 11 && msxName[i] != ' '; ++i) {
+			result += char(tolower(msxName[i]));
 		}
 	}
 	return result;
@@ -837,9 +837,9 @@ string MSXtar::dir()
 			}
 
 			// filename first (in condensed form for human readability)
-			string tmp = condenseName(dirEntry);
-			tmp.resize(13, ' ');
-			strAppend(result, tmp,
+			string hostName = msxToHostFileName(dirEntry.filename);
+			hostName.resize(13, ' ');
+			strAppend(result, hostName,
 			          // attributes
 			          (dirEntry.attrib & T_MSX_DIR  ? 'd' : '-'),
 			          (dirEntry.attrib & T_MSX_READ ? 'r' : '-'),
@@ -882,8 +882,8 @@ void MSXtar::chroot(string_view newRootDir, bool createDir)
 
 		// find 'firstPart' directory or create it if requested
 		SectorBuffer buf;
-		string simple = makeSimpleMSXFileName(firstPart);
-		DirEntry entry = findEntryInDir(simple, chrootSector, buf);
+		FileName msxName = hostToMSXFileName(firstPart);
+		DirEntry entry = findEntryInDir(msxName, chrootSector, buf);
 		if (entry.sector == 0) {
 			if (!createDir) {
 				throw MSXException("Subdirectory ", firstPart,
@@ -893,7 +893,7 @@ void MSXtar::chroot(string_view newRootDir, bool createDir)
 			time_t now;
 			time(&now);
 			auto [t, d] = getTimeDate(now);
-			chrootSector = addSubdir(simple, t, d, chrootSector);
+			chrootSector = addSubdir(msxName, t, d, chrootSector);
 		} else {
 			auto& dirEntry = buf.dirEntry[entry.index];
 			if (!(dirEntry.attrib & T_MSX_DIR)) {
@@ -935,7 +935,7 @@ string MSXtar::singleItemExtract(string_view dirName, string_view itemName,
 {
 	// first find out if the filename exists in current dir
 	SectorBuffer buf;
-	string msxName = makeSimpleMSXFileName(itemName);
+	FileName msxName = hostToMSXFileName(itemName);
 	DirEntry entry = findEntryInDir(msxName, sector, buf);
 	if (entry.sector == 0) {
 		return strCat(itemName, " not found!\n");
@@ -943,7 +943,7 @@ string MSXtar::singleItemExtract(string_view dirName, string_view itemName,
 
 	auto& msxDirEntry = buf.dirEntry[entry.index];
 	// create full name for local filesystem
-	string fullName = strCat(dirName, '/', condenseName(msxDirEntry));
+	string fullName = strCat(dirName, '/', msxToHostFileName(msxDirEntry.filename));
 
 	// ...and extract
 	if  (msxDirEntry.attrib & T_MSX_DIR) {
@@ -975,7 +975,7 @@ void MSXtar::recurseDirExtract(string_view dirName, unsigned sector)
 			if (dirEntry.filename[0] == one_of(char(0xe5), '.') || dirEntry.attrib == T_MSX_LFN) {
 				continue;
 			}
-			string filename = condenseName(dirEntry);
+			string filename = msxToHostFileName(dirEntry.filename);
 			string fullName = filename;
 			if (!dirName.empty()) {
 				fullName = strCat(dirName, '/', filename);
