@@ -8,10 +8,10 @@
 // Implementation based on reverse-engineering of 'acet'/'uniabis', see:
 //   https://www.msx.org/forum/msx-talk/hardware/trying-to-dump-yamaha-skw-01
 //   https://github.com/uniabis/msxrawl/tree/main/dumpskw1
-// The printer port is assumed to work the same as a standard MSX printer port,
-// but when testing with the built in software, it doesn't seem to work
-// correctly, as the output is not what I would expect (when connecting an
-// emulated MSX Printer).
+// The printer port is assumed to work the same as a standard MSX printer port.
+// This seems to be OK, because when printing with the SKW-01 software and
+// selecting the "HR-5X" printer and an emulated MSX Printer plugged in, sane
+// output is produced.
 // As the emulation is purely based on reverse engineering based on the built
 // in software, there may be plenty of details wrong.
 // Also note that the delay that is apparently present when writing the font
@@ -58,15 +58,19 @@ byte YamahaSKW01::readMem(word address, EmuTime::param time)
 
 void YamahaSKW01::writeMem(word address, byte value, EmuTime::param time)
 {
-	if (0x7FC0 <= address && address <= 0x7FC9) {
+	if (0x7FC0 <= address && address <= 0x7FC7) {
 		unsigned group = (address - 0x7FC0) / 2;
 		if ((address & 1) == 0) {
 			// LSB address
-			fontAddress[group] = (fontAddress[group] & 0xFF00) | (value << 0);
+			fontAddress[group] = (fontAddress[group] & 0xFF00) | uint16_t(value << 0);
 		} else {
 			// MSB address
-			fontAddress[group] = (fontAddress[group] & 0x00FF) | (value << 8);
+			fontAddress[group] = (fontAddress[group] & 0x00FF) | uint16_t(value << 8);
 		}
+	} else if (address == 0x7FC8) {
+		dataAddress = (dataAddress & 0xFF00) | uint16_t(value << 0);
+	} else if (address == 0x7FC9) {
+		dataAddress = (dataAddress & 0x00FF) | uint16_t(value << 8);
 	} else if (address == 0x7FCA || address == 0x7FCB) {
 		if ((dataAddress & (1 << 15)) != 0) {
 			sram.write(dataAddress & 0x7FF, value);
@@ -109,6 +113,7 @@ byte YamahaSKW01::peekMem(word address, EmuTime::param time) const
 		unsigned base = 0x8000 * group;
 		unsigned offset = fontAddress[group] & 0x7FFF;
 		return fontRom[base + offset];
+	// note: reads from 0x7FC8-0x7FC9 always read 0xFF
 	} else if (address == 0x7FCA || address == 0x7FCB) {
 		if ((dataAddress & (1 << 15)) == 0) {
 			return dataRom[dataAddress & 0x7FFF];
@@ -144,7 +149,7 @@ void YamahaSKW01::writeData(uint8_t newData, EmuTime::param time)
 
 std::string_view YamahaSKW01::getDescription() const
 {
-	return MSXDevice::getName() + " printer port";
+	return "Yamaha SKW-01 printer port";
 }
 
 std::string_view YamahaSKW01::getClass() const
