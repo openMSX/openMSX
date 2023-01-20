@@ -107,6 +107,14 @@ proc sensorkidacquirecallback {port} {
 set sensor_kid_port_status_callback sensorkidportstatuscallback
 set sensor_kid_acquire_callback     sensorkidacquirecallback
 
+proc default_V9990_invalid_register_read_callback {reg} {
+	message [format "Reading from V9990 write-only register 0x%x" $reg] warning
+}
+proc default_V9990_invalid_register_write_callback {reg value} {
+	message [format "Writing 0x%x to V9990 read-only register %i" $value $reg] warning
+}
+#set v9990_invalid_register_read_callback  default_V9990_invalid_register_read_callback
+#set v9990_invalid_register_write_callback default_V9990_invalid_register_write_callback
 
 # show message (also) as OSD message
 interp alias {} default_message_callback {} osd::display_message

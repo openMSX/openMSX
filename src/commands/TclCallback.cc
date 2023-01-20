@@ -33,7 +33,7 @@ TclObject TclCallback::getValue() const
 	return getSetting().getValue();
 }
 
-TclObject TclCallback::execute()
+TclObject TclCallback::execute() const
 {
 	const auto& callback = getValue();
 	if (callback.empty()) return {};
@@ -42,7 +42,7 @@ TclObject TclCallback::execute()
 	return executeCommon(command);
 }
 
-TclObject TclCallback::execute(int arg1)
+TclObject TclCallback::execute(int arg1) const
 {
 	const auto& callback = getValue();
 	if (callback.empty()) return {};
@@ -51,7 +51,7 @@ TclObject TclCallback::execute(int arg1)
 	return executeCommon(command);
 }
 
-TclObject TclCallback::execute(int arg1, int arg2)
+TclObject TclCallback::execute(int arg1, int arg2) const
 {
 	const auto& callback = getValue();
 	if (callback.empty()) return {};
@@ -60,7 +60,7 @@ TclObject TclCallback::execute(int arg1, int arg2)
 	return executeCommon(command);
 }
 
-TclObject TclCallback::execute(int arg1, std::string_view arg2)
+TclObject TclCallback::execute(int arg1, std::string_view arg2) const
 {
 	const auto& callback = getValue();
 	if (callback.empty()) return {};
@@ -69,7 +69,7 @@ TclObject TclCallback::execute(int arg1, std::string_view arg2)
 	return executeCommon(command);
 }
 
-TclObject TclCallback::execute(std::string_view arg1, std::string_view arg2)
+TclObject TclCallback::execute(std::string_view arg1, std::string_view arg2) const
 {
 	const auto& callback = getValue();
 	if (callback.empty()) return {};
@@ -78,7 +78,7 @@ TclObject TclCallback::execute(std::string_view arg1, std::string_view arg2)
 	return executeCommon(command);
 }
 
-TclObject TclCallback::executeCommon(TclObject& command)
+TclObject TclCallback::executeCommon(TclObject& command) const
 {
 	try {
 		return command.executeCommand(callbackSetting.getInterpreter());
