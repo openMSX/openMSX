@@ -403,17 +403,15 @@ void DiskManipulator::create(std::span<const TclObject> tokens)
 	for (const auto& token_ : view::drop(tokens, 3)) {
 		if (auto t = parseBootSectorType(token_.getString())) {
 			bootType = *t;
-			continue;
+		} else if (sizes.size() >= MAX_PARTITIONS) {
+			throw CommandException("Maximum number of partitions is ", MAX_PARTITIONS);
+		} else if (size_t sectors = parseSectorSize(token_.getString());
+		           sectors <= std::numeric_limits<unsigned>::max()) {
+			sizes.push_back(narrow<unsigned>(sectors));
+			totalSectors += sectors;
+		} else {
+			throw CommandException("Partition size too large.");
 		}
-
-		if (sizes.size() >= MAX_PARTITIONS) {
-			throw CommandException(
-				"Maximum number of partitions is ", MAX_PARTITIONS);
-		}
-		size_t sectors = parseSectorSize(token_.getString());
-
-		sizes.push_back(narrow<unsigned>(sectors));
-		totalSectors += sectors;
 	}
 	if (sizes.empty()) {
 		throw CommandException("No size(s) given.");
