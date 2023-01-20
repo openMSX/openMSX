@@ -144,7 +144,7 @@ namespace DiskImageUtils {
 	 */
 	Partition& getPartition(SectorAccessibleDisk& disk, unsigned partition, SectorBuffer& buf);
 
-	/** Like above, but also check whether partition is of type FAT12 or FAT16.
+	/** Check whether partition is of type FAT12 or FAT16.
 	 */
 	void checkSupportedPartition(SectorAccessibleDisk& disk, unsigned partition);
 
