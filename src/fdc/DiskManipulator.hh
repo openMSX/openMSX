@@ -15,6 +15,7 @@ class SectorAccessibleDisk;
 class DiskPartition;
 class MSXtar;
 class Reactor;
+class MsxChar2Unicode;
 enum class MSXBootSectorType;
 
 class DiskManipulator final : public Command
@@ -46,12 +47,13 @@ private:
 	void tabCompletion(std::vector<std::string>& tokens) const override;
 
 	[[nodiscard]] std::string getMachinePrefix() const;
+	[[nodiscard]] const MsxChar2Unicode& getMsxChar2Unicode() const;
 	[[nodiscard]] Drives::iterator findDriveSettings(DiskContainer& drive);
 	[[nodiscard]] Drives::iterator findDriveSettings(std::string_view driveName);
 	[[nodiscard]] DriveSettings& getDriveSettings(std::string_view diskName);
 	[[nodiscard]] static DiskPartition getPartition(
 		const DriveSettings& driveData);
-	[[nodiscard]] static MSXtar getMSXtar(SectorAccessibleDisk& disk,
+	[[nodiscard]] MSXtar getMSXtar(SectorAccessibleDisk& disk,
 	                                      DriveSettings& driveData);
 
 	static void create(std::span<const TclObject> tokens);

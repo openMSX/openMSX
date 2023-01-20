@@ -12,6 +12,11 @@
 #include "FileException.hh"
 #include "FileOperations.hh"
 #include "SectorBasedDisk.hh"
+#include "MsxChar2Unicode.hh"
+#include "MSXDevice.hh"
+#include "MSXMotherBoard.hh"
+#include "MSXPPI.hh"
+#include "Keyboard.hh"
 #include "StringOp.hh"
 #include "TclObject.hh"
 #include "narrow.hh"
@@ -48,6 +53,20 @@ string DiskManipulator::getMachinePrefix() const
 {
 	string_view id = reactor.getMachineID();
 	return id.empty() ? string{} : strCat(id, "::");
+}
+
+const MsxChar2Unicode& DiskManipulator::getMsxChar2Unicode() const
+{
+	try {
+		if (MSXMotherBoard* board = reactor.getMotherBoard()) {
+			if (MSXPPI* ppi = dynamic_cast<MSXPPI*>(board->findDevice("ppi"))) {
+				return ppi->getKeyboard().getMsxChar2Unicode();
+			}
+		}
+	} catch (MSXException&) {
+	}
+	static const MsxChar2Unicode defaultMsxChars("MSXVID.TXT");
+	return defaultMsxChars;
 }
 
 void DiskManipulator::registerDrive(
@@ -449,7 +468,7 @@ MSXtar DiskManipulator::getMSXtar(
 		throw CommandException("Please select partition number.");
 	}
 
-	MSXtar result(disk);
+	MSXtar result(disk, getMsxChar2Unicode());
 	try {
 		result.chdir(driveData.workingDir[driveData.partition]);
 	} catch (MSXException&) {

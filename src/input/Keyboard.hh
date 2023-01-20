@@ -58,6 +58,8 @@ public:
 
 	~Keyboard();
 
+	[[nodiscard]] const MsxChar2Unicode& getMsxChar2Unicode() const;
+
 	/** Returns a pointer to the current KeyBoard matrix
 	 */
 	[[nodiscard]] std::span<const uint8_t, KeyMatrixPosition::NUM_ROWS> getKeys() const;

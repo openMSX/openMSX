@@ -352,6 +352,11 @@ Keyboard::~Keyboard()
 	msxEventDistributor.unregisterEventListener(*this);
 }
 
+const MsxChar2Unicode& Keyboard::getMsxChar2Unicode() const
+{
+	return unicodeKeymap.getMsxChars();
+}
+
 static constexpr void doKeyGhosting(std::span<uint8_t, KeyMatrixPosition::NUM_ROWS> matrix,
                                     bool protectRow6)
 {

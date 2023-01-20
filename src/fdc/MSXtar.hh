@@ -16,6 +16,7 @@
 namespace openmsx {
 
 class SectorAccessibleDisk;
+class MsxChar2Unicode;
 
 namespace FAT {
 	struct Free {
@@ -40,7 +41,7 @@ namespace FAT {
 class MSXtar
 {
 public:
-	explicit MSXtar(SectorAccessibleDisk& disk);
+	explicit MSXtar(SectorAccessibleDisk& disk, const MsxChar2Unicode& msxChars_);
 	MSXtar(MSXtar&& other) noexcept;
 	~MSXtar();
 
@@ -90,8 +91,12 @@ private:
 	[[nodiscard]] FAT::DirCluster getStartCluster(const MSXDirEntry& entry) const;
 	void setStartCluster(MSXDirEntry& entry, FAT::DirCluster cluster) const;
 
+	[[nodiscard]] FAT::FileName hostToMSXFileName(std::string_view hostName) const;
+	[[nodiscard]] std::string msxToHostFileName(const FAT::FileName& msxName) const;
+
 	SectorAccessibleDisk& disk;
 	MemBuffer<SectorBuffer> fatBuffer;
+	const MsxChar2Unicode& msxChars;
 
 	unsigned clusterCount;
 	unsigned fatCount;

@@ -11,6 +11,7 @@
 #include "FileOperations.hh"
 #include "foreach_file.hh"
 #include "MSXException.hh"
+#include "MsxChar2Unicode.hh"
 #include "StringOp.hh"
 #include "strCat.hh"
 #include "File.hh"
@@ -193,8 +194,9 @@ void MSXtar::readLogicalSector(unsigned sector, SectorBuffer& buf)
 	}
 }
 
-MSXtar::MSXtar(SectorAccessibleDisk& sectorDisk)
+MSXtar::MSXtar(SectorAccessibleDisk& sectorDisk, const MsxChar2Unicode& msxChars_)
 	: disk(sectorDisk)
+	, msxChars(msxChars_)
 {
 	if (disk.getNbSectors() == 0) {
 		throw MSXException("No disk inserted.");
@@ -217,6 +219,7 @@ MSXtar::MSXtar(SectorAccessibleDisk& sectorDisk)
 MSXtar::MSXtar(MSXtar&& other) noexcept
 	: disk(other.disk)
 	, fatBuffer(std::move(other.fatBuffer))
+	, msxChars(other.msxChars)
 	, clusterCount(other.clusterCount)
 	, fatCount(other.fatCount)
 	, sectorsPerCluster(other.sectorsPerCluster)
@@ -465,9 +468,11 @@ static char toFileNameChar(char a)
 
 // Transform a long hostname in a 8.3 uppercase filename as used in the
 // dirEntries on an MSX
-static FileName hostToMSXFileName(string_view hostName)
+FileName MSXtar::hostToMSXFileName(string_view hostName) const
 {
-	auto [hostDir, hostFile] = StringOp::splitOnLast(hostName, '/');
+	std::vector<uint8_t> hostMSXName = msxChars.utf8ToMsx(hostName, '_');
+	std::string_view hostMSXNameView(reinterpret_cast<char*>(hostMSXName.data()), hostMSXName.size());
+	auto [hostDir, hostFile] = StringOp::splitOnLast(hostMSXNameView, '/');
 
 	// handle special case '.' and '..' first
 	FileName result;
@@ -787,7 +792,7 @@ string MSXtar::recurseDirFill(string_view dirName, unsigned sector)
 }
 
 
-static string msxToHostFileName(const FileName& msxName)
+string MSXtar::msxToHostFileName(const FileName& msxName) const
 {
 	string result;
 	for (unsigned i = 0; i < 8 && msxName[i] != ' '; ++i) {
@@ -799,7 +804,8 @@ static string msxToHostFileName(const FileName& msxName)
 			result += char(tolower(msxName[i]));
 		}
 	}
-	return result;
+	std::span<const uint8_t> resultSpan(reinterpret_cast<const uint8_t*>(result.data()), result.size());
+	return msxChars.msxToUtf8(resultSpan, '_');
 }
 
 

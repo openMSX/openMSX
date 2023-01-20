@@ -88,6 +88,9 @@ UnicodeKeymap::UnicodeKeymap(string_view keyboardType)
 		auto buf = file.mmap();
 		parseUnicodeKeyMapFile(
 			string_view(reinterpret_cast<const char*>(buf.data()), buf.size()));
+		if (!msxChars.has_value()) {
+			msxChars.emplace("MSXVID.TXT");
+		}
 	} catch (FileException&) {
 		throw MSXException("Couldn't load unicode keymap file: ", filename);
 	}
