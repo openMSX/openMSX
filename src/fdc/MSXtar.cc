@@ -453,14 +453,14 @@ MSXtar::DirEntry MSXtar::addEntryToDir(unsigned sector)
 	}
 }
 
-// create an MSX filename 8.3 format, if needed in vfat like abbreviation
-static char toMSXChr(char a)
+// filters out unsupported characters and upper-cases
+static char toFileNameChar(char a)
 {
-	a = narrow<char>(toupper(a));
-	if (a == one_of(' ', '.')) {
+	if ((a >= 0x00 && a < 0x20) || a == one_of(
+		' ', '"', '*', '+', ',', '.', '/', ':', ';', '<', '=', '>', '?', '[', '\\', ']', '|', 0x7F, 0xFF)) {
 		a = '_';
 	}
-	return a;
+	return narrow<char>(toupper(a));
 }
 
 // Transform a long hostname in a 8.3 uppercase filename as used in the
@@ -486,8 +486,8 @@ static FileName hostToMSXFileName(string_view hostName)
 	// put in major case and create '_' if needed
 	string fileS(file.data(), std::min<size_t>(8, file.size()));
 	string extS (ext .data(), std::min<size_t>(3, ext .size()));
-	transform_in_place(fileS, toMSXChr);
-	transform_in_place(extS,  toMSXChr);
+	transform_in_place(fileS, toFileNameChar);
+	transform_in_place(extS,  toFileNameChar);
 
 	// add correct number of spaces
 	ranges::copy(fileS, subspan<8>(result, 0));
