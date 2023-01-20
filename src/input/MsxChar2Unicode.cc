@@ -181,4 +181,15 @@ std::vector<uint8_t> MsxChar2Unicode::utf8ToMsx(
 	return msx;
 }
 
+std::string MsxChar2Unicode::msxToUtf8(std::span<const uint8_t> msx, char fallback) const
+{
+	return msxToUtf8(msx, [&](uint32_t) { return fallback; });
+}
+
+std::vector<uint8_t> MsxChar2Unicode::utf8ToMsx(std::string_view utf8, char fallback) const
+{
+	return utf8ToMsx(utf8, [&](uint8_t) { return fallback; });
+}
+
+
 } // namespace openmsx

@@ -25,6 +25,9 @@ public:
 		std::string_view utf8,
 		const std::function<uint8_t(uint32_t)>& fallback) const;
 
+	[[nodiscard]] std::string msxToUtf8(std::span<const uint8_t> msx, char fallback) const;
+	[[nodiscard]] std::vector<uint8_t> utf8ToMsx(std::string_view utf8, char fallback) const;
+
 private:
 	void parseVid(std::string_view file);
 
