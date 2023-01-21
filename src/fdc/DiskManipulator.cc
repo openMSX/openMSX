@@ -380,8 +380,8 @@ void DiskManipulator::create(std::span<const TclObject> tokens)
 	size_t totalSectors = 0;
 	MSXBootSectorType bootType = MSXBootSectorType::DOS2;
 
-	for (const auto& token : view::drop(tokens, 3)) {
-		if (auto t = parseBootSectorType(token.getString())) {
+	for (const auto& token_ : view::drop(tokens, 3)) {
+		if (auto t = parseBootSectorType(token_.getString())) {
 			bootType = *t;
 			continue;
 		}
@@ -390,7 +390,7 @@ void DiskManipulator::create(std::span<const TclObject> tokens)
 			throw CommandException(
 				"Maximum number of partitions is ", MAX_PARTITIONS);
 		}
-		auto tok = token.getString();
+		auto tok = token_.getString();
 		char* q;
 		size_t sectors = strtoull(tok.c_str(), &q, 0);
 		int scale = 1024; // default is kilobytes
