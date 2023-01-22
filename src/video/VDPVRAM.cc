@@ -167,7 +167,7 @@ void VDPVRAM::updateSpritesEnabled(bool enabled, EmuTime::param time)
 
 void VDPVRAM::setSizeMask(EmuTime::param time)
 {
-	sizeMask = (
+	unsigned newSizeMask = (
 		  vrMode
 		// VR = 1: 64K address space, CAS0/1 is determined by A16
 		? (std::bit_ceil(actualSize) - 1) | (1u << 16)
@@ -175,15 +175,17 @@ void VDPVRAM::setSizeMask(EmuTime::param time)
 		: (std::min(std::bit_ceil(actualSize), 0x4000u) - 1) | (1u << 14)
 		) | (1u << 17); // CASX (expansion RAM) is always relevant
 
-	cmdReadWindow.setSizeMask(sizeMask, time);
-	cmdWriteWindow.setSizeMask(sizeMask, time);
-	nameTable.setSizeMask(sizeMask, time);
-	colorTable.setSizeMask(sizeMask, time);
-	patternTable.setSizeMask(sizeMask, time);
-	bitmapVisibleWindow.setSizeMask(sizeMask, time);
-	bitmapCacheWindow.setSizeMask(sizeMask, time);
-	spriteAttribTable.setSizeMask(sizeMask, time);
-	spritePatternTable.setSizeMask(sizeMask, time);
+	cmdReadWindow.setSizeMask(newSizeMask, time);
+	cmdWriteWindow.setSizeMask(newSizeMask, time);
+	nameTable.setSizeMask(newSizeMask, time);
+	colorTable.setSizeMask(newSizeMask, time);
+	patternTable.setSizeMask(newSizeMask, time);
+	bitmapVisibleWindow.setSizeMask(newSizeMask, time);
+	bitmapCacheWindow.setSizeMask(newSizeMask, time);
+	spriteAttribTable.setSizeMask(newSizeMask, time);
+	spritePatternTable.setSizeMask(newSizeMask, time);
+
+	sizeMask = newSizeMask;
 }
 static constexpr unsigned swapAddr(unsigned x)
 {

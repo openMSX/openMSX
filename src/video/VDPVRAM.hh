@@ -152,6 +152,7 @@ public:
 	  *     with the unused bits all ones.
 	  * @param newIndexMask The table index mask,
 	  *     with the unused bits all ones.
+	  * @param newSizeMask
 	  * @param time The moment in emulated time this change occurs.
 	  * TODO: In planar mode, the index bits are rotated one to the right.
 	  *       Solution: have the caller pass index mask instead of the
@@ -160,9 +161,9 @@ public:
 	  *       display mode anyway.
 	  */
 	inline void setMask(unsigned newBaseMask, unsigned newIndexMask,
-	                    EmuTime::param time) {
+	                    unsigned newSizeMask, EmuTime::param time) {
 		origBaseMask = newBaseMask;
-		newBaseMask &= sizeMask;
+		newBaseMask &= newSizeMask;
 		if (isEnabled() &&
 		    (newBaseMask  == effectiveBaseMask) &&
 		    (newIndexMask == indexMask)) {
@@ -173,6 +174,14 @@ public:
 		indexMask         = newIndexMask;
 		baseAddr  =  effectiveBaseMask & indexMask; // this enables window
 		combiMask = ~effectiveBaseMask | indexMask;
+	}
+
+	/** Same as above, but 'sizeMask' doesn't change.
+	 * This is a useful shortcut, because 'sizeMask' rarely changes.
+	 */
+	inline void setMask(unsigned newBaseMask, unsigned newIndexMask,
+	                    EmuTime::param time) {
+		setMask(newBaseMask, newIndexMask, sizeMask, time);
 	}
 
 	/** Disable this window: no address will be considered inside.
@@ -314,10 +323,11 @@ public:
 	  * register 8 (in VR=0 mode only 32kB VRAM is addressable).
 	  */
 	void setSizeMask(unsigned newSizeMask, EmuTime::param time) {
-		sizeMask = newSizeMask;
 		if (isEnabled()) {
-			setMask(origBaseMask, indexMask, time);
+			setMask(origBaseMask, indexMask, newSizeMask, time);
 		}
+		// only apply sizeMask after observers have been notified
+		sizeMask = newSizeMask;
 	}
 
 	template<typename Archive>
