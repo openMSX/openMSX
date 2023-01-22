@@ -666,14 +666,13 @@ As announced above, there is (limited) support for CD-ROM with the 'ide' extensi
 
 <h4><a id="beeride">4.4.2 Beer IDE</a></h4>
 
-<p>The Beer IDE interface, as brought to us by SOLID, is emulated by openMSX, too. This interfaces only offers a single device (no master and slave) and can only handle up to 5 partitions of 32MB. But the up side is that it doesn't need MSX-DOS2, and thus it can run on any MSX (with 64kB RAM to run MSX-DOS). Emulation of this interface is quite recent, so consider it experimental.</p>
+<p>The Beer IDE interface, as brought to us by SOLID, is emulated by openMSX, too. This interface only offers a single device (no master and slave) and can only handle up to 4 (version 1.9) or 5 (version 1.8) partitions of 32MB. But the upside is that it doesn't need MSX-DOS2, and thus it can run on any MSX (with 64kB RAM to run MSX-DOS). Emulation of this interface is quite recent, so consider it experimental.</p>
 
 <p>Usage is identical to using the Sunrise hard disk interface: you can use the <a class="external" href="commands.html#hd">hda</a> command and the matching command line parameter <code>-hda</code> to control which image will be used.</p>
 
-<p>By default, the image is 170MB, so that 5 partitions of 32MB fit easily. Firmware version 1.9RC1 is selected by default, because we could not get the 1.8 firmware to work: the MSXFDISK program didn't create partitions which actually worked with the 1.8 firmware. If you want to experiment with it, you can change the firmware to use by editing the extension file in <code>share/extensions/Beer_IDE.xml</code>.</p>
+<p>By default, the image is 128MB, so that it fits 4 partitions of 32MB. Firmware version 1.9RC1 is selected by default, because we could not get the 1.8 firmware to work: the MSXFDISK program didn't create partitions which actually worked with the 1.8 firmware. If you want to experiment with it, you can change the firmware to use by editing the extension file in <code>share/extensions/Beer_IDE.xml</code>.</p>
 
-<p>With the 1.9RC1 firmware, we were able to work with an existing harddisk image, partitioned with the Windows tools that come with that firmware. Using this firmware, you can also partly work with Sunrise IDE compatible hard disk images, so you can use diskmanipulator to create a hard disk image and to import and export to them. Be careful though, this has not been extensively tested. Always back-up your hard disk image before doing this, in case something goes wrong. Important note: the Sunrise partition format numbers partitions the other way around as what Beer IDE 1.9RC1 firmware expects. This also means that you can't boot from Sunrise IDE images (and thus also not from images created by diskmanipulator).
-</p>
+<p>With the 1.9RC1 firmware, you can use <code><a class="external" href="diskmanipulator.html">diskmanipulator</a></code> to create a hard disk image and import from and export to them. To get started, partition the default drive with <code>diskmanipulator partition hda -dos1 32M 32M 32M 32M</code>. Then import MSX-DOS system files onto the first partition using <code>diskmanipulator import hda1 &lt;host-path&gt;</code>, and now you should be able to boot into MSX-DOS.</p>
 
 <p>
 Unfortunately, the Beer IDE is hardly documented and the software is hard to find. So, it's for experts only!

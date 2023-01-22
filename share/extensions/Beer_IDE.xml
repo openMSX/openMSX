@@ -24,7 +24,7 @@
           <idedevice>
             <type>IDEHD</type>
             <filename>hd.dsk</filename>
-            <size>170</size>
+            <size>128</size>
           </idedevice>
         </BeerIDE>
       </secondary>

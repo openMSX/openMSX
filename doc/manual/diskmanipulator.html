@@ -120,9 +120,10 @@
   in a Sunrise IDE hard disk image, or a Nextor one if the <code>-nextor</code>
   option is specified.</p>
 
-  <p>You can specify multiple sizes in which case a Sunrise IDE or Nextor
-  compatible partitioned image will be created. Each partition will be formatted
-  as required.</p>
+  <p>You can specify multiple sizes in which case a Beer IDE 1.9, Sunrise IDE
+  or Nextor compatible partitioned image will be created, see
+  <code><a class="internal" href="#partition">partition</a></code> for more
+  information. Each partition will be formatted as required.</p>
 
   <p>You can specify the disk/partition sizes by using the
   following postfixes:</p>
@@ -266,12 +267,18 @@
   
     <p>You can (re)partition existing disk images using this command.</p>
   
-    <p>As many partitions as specified will be created, using either the Sunrise
-    IDE partition table format, or the Nextor format (standard MBR / EBR) if the
-    <code>-nextor</code> option is specified. The Sunrise IDE partition table
-    supports up to 31 partitions. Nextor's MBR / EBR partition table has no
-    partition count limit, but Nextor only handles the first 256.</p>
-
+    <p>As many partitions as specified will be created, using one of the
+    following partition table formats according to the option given:</p>
+  
+    <ul>
+      <li><code>-dos1</code>: Standard MBR, Beer IDE 1.9 and Nextor compatible.
+          Max 4 partitions.</li>
+      <li><code>-dos2</code> (default): Sunrise IDE MBR, Sunrise IDE compatible.
+          Max 31 partitions.</li>
+      <li><code>-nextor</code>: Standard MBR / EBR, Nextor compatible.
+          Max 256 partitions.</li>
+    </ul>
+  
     <p>After partitioning each partition will also be formatted appropriately,
     see <a href="#format">format</a> for more details on that.</p>
   

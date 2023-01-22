@@ -585,13 +585,46 @@ static std::vector<unsigned> partitionSunrise(SectorAccessibleDisk& disk, std::s
 	return clampedSizes;
 }
 
+// Partition with standard master boot record (MBR) for Beer IDE 1.9.
+static std::vector<unsigned> partitionBeer(SectorAccessibleDisk& disk, std::span<const unsigned> sizes)
+{
+	SectorBuffer buf;
+	auto& pt = buf.ptNextor;
+
+	std::vector<unsigned> clampedSizes = clampPartitionSizes(sizes, disk.getNbSectors(), 1, 0);
+	if (clampedSizes.size() > pt.part.size()) {
+		clampedSizes.resize(pt.part.size());
+	}
+
+	ranges::fill(buf.raw, 0);
+	pt.header = NEXTOR_PARTITION_TABLE_HEADER; // TODO: Find out BEER IDE signature
+	pt.end = 0xAA55;
+
+	unsigned partitionOffset = 1;
+	for (auto [i, size] : enumerate(clampedSizes)) {
+		auto& p = pt.part[i];
+		p.boot_ind = (i == 0) ? 0x80 : 0x00; // boot flag
+		p.sys_ind = 0x01; // FAT12
+		p.start = partitionOffset;
+		p.size = size;
+		partitionOffset += size;
+	}
+
+	disk.writeSector(0, buf);
+	return clampedSizes;
+}
+
 unsigned partition(SectorAccessibleDisk& disk, std::span<const unsigned> sizes, MSXBootSectorType bootType)
 {
 	std::vector<unsigned> clampedSizes = [&] {
 		if (bootType == MSXBootSectorType::NEXTOR) {
 			return partitionNextor(disk, sizes);
-		} else {
+		} else if (bootType == MSXBootSectorType::DOS2) {
 			return partitionSunrise(disk, sizes);
+		} else if (bootType == MSXBootSectorType::DOS1) {
+			return partitionBeer(disk, sizes);
+		} else {
+			UNREACHABLE;
 		}
 	}();
 
