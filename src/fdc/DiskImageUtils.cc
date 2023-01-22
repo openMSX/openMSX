@@ -458,6 +458,7 @@ struct CHS {
 	return {cylinder, head, sector};
 }
 
+// Partition with standard master / extended boot record (MBR / EBR) for Nextor.
 static void partitionNextor(SectorAccessibleDisk& disk, std::span<const unsigned> sizes)
 {
 	SectorBuffer buf;
@@ -497,14 +498,15 @@ static void partitionNextor(SectorAccessibleDisk& disk, std::span<const unsigned
 	}
 }
 
+// Partition with Sunrise IDE master boot record.
 static void partitionSunrise(SectorAccessibleDisk& disk, std::span<const unsigned> sizes)
 {
 	SectorBuffer buf;
-	ranges::fill(buf.raw, 0);
 	auto& pt = buf.ptSunrise;
 
 	assert(sizes.size() <= pt.part.size());
 
+	ranges::fill(buf.raw, 0);
 	pt.header = SUNRISE_PARTITION_TABLE_HEADER;
 	pt.end = 0xAA55;
 
