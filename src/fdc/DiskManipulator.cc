@@ -213,6 +213,7 @@ void DiskManipulator::execute(std::span<const TclObject> tokens, TclObject& resu
 	    ((tokens.size() != 3)                     && (subCmd ==        "dir"             ))  ||
 	    ((tokens.size() < 3 || tokens.size() > 4) && (subCmd ==        "chdir"           ))  ||
 	    ((tokens.size() < 3 || tokens.size() > 5) && (subCmd ==        "format"          ))  ||
+	    ((tokens.size() < 3)                      && (subCmd ==        "partition"       ))  ||
 	    ((tokens.size() < 4)                      && (subCmd == one_of("export", "import", "create")))) {
 		throw CommandException("Incorrect number of parameters");
 	}
@@ -255,6 +256,9 @@ void DiskManipulator::execute(std::span<const TclObject> tokens, TclObject& resu
 
 	} else if (subCmd == "create") {
 		create(tokens);
+
+	} else if (subCmd == "partition") {
+		partition(tokens);
 
 	} else if (subCmd == "format") {
 		format(tokens);
@@ -309,6 +313,14 @@ string DiskManipulator::help(std::span<const TclObject> tokens) const
 	    "When using the -dos1 option, the boot sector of the created image will be MSX-DOS1\n"
 	    "compatible. When using the -nextor option, the boot sector and partition table will be\n"
 		"Nextor compatible, and FAT16 volumes can be created.\n";
+	  } else if (tokens[1] == "partition") {
+	  helpText =
+	    "diskmanipulator partition <disk name> [<size/option>...]\n"
+	    "Partitions and formats the current <disk name> to the indicated sizes. By default the\n"
+	    "sizes are expressed in kilobyte, add the postfix M for megabyte.\n"
+	    "When using the -dos1 option, the boot sector of the disk will be MSX-DOS1 compatible.\n"
+	    "When using the -nextor option, the boot sector and partition table will be Nextor\n"
+		"compatible, and FAT16 volumes can be created.\n";
 	  } else if (tokens[1] == "format") {
 	  helpText =
 	    "diskmanipulator format <disk name>\n"
@@ -327,6 +339,7 @@ string DiskManipulator::help(std::span<const TclObject> tokens) const
 	  helpText =
 	    "diskmanipulator create <fn> <sz> [<sz> ...]  : create a formatted dsk file with name <fn>\n"
 	    "                                               having the given (partition) size(s)\n"
+	    "diskmanipulator partition <dn> [<sz> ...]    : partition and format <disk name>\n"
 	    "diskmanipulator savedsk <disk name> <fn>     : save <disk name> as dsk file named as <fn>\n"
 	    "diskmanipulator format <disk name> [<sz>]    : format (a partition on) <disk name>\n"
 	    "diskmanipulator chdir <disk name> <MSX dir>  : change directory on <disk name>\n"
@@ -346,7 +359,7 @@ void DiskManipulator::tabCompletion(std::vector<string>& tokens) const
 	if (tokens.size() == 2) {
 		static constexpr std::array cmds = {
 			"import"sv, "export"sv, "savedsk"sv, "dir"sv, "create"sv,
-			"format"sv, "chdir"sv, "mkdir"sv,
+			"partition"sv, "format"sv, "chdir"sv, "mkdir"sv,
 		};
 		completeString(tokens, cmds);
 
@@ -355,7 +368,7 @@ void DiskManipulator::tabCompletion(std::vector<string>& tokens) const
 
 	} else if (tokens.size() == 3) {
 		std::vector<string> names;
-		if (tokens[1] == "format") {
+		if (tokens[1] == one_of("partition", "format")) {
 			names.emplace_back("-dos1");
 			names.emplace_back("-dos2");
 			names.emplace_back("-nextor");
@@ -389,7 +402,7 @@ void DiskManipulator::tabCompletion(std::vector<string>& tokens) const
 	} else if (tokens.size() >= 4) {
 		if (tokens[1] == one_of("savedsk", "import", "export")) {
 			completeFileName(tokens, userFileContext());
-		} else if (tokens[1] == one_of("create", "format")) {
+		} else if (tokens[1] == one_of("create", "partition", "format")) {
 			static constexpr std::array cmds = {
 				"360"sv, "720"sv, "32M"sv, "-dos1"sv, "-dos2"sv, "-nextor"sv,
 			};
@@ -410,24 +423,31 @@ void DiskManipulator::savedsk(const DriveSettings& driveData,
 	}
 }
 
-void DiskManipulator::create(std::span<const TclObject> tokens)
+static std::pair<MSXBootSectorType, std::vector<unsigned>> parsePartitionSizes(auto tokens)
 {
-	size_t totalSectors = 0;
 	MSXBootSectorType bootType = MSXBootSectorType::DOS2;
 	std::vector<unsigned> sizes;
 
-	for (const auto& token_ : view::drop(tokens, 3)) {
+	for (const auto& token_ : tokens) {
 		if (auto t = parseBootSectorType(token_.getString())) {
 			bootType = *t;
 		} else if (size_t sectors = parseSectorSize(token_.getString());
 		           sectors <= std::numeric_limits<unsigned>::max()) {
 			sizes.push_back(narrow<unsigned>(sectors));
-			totalSectors += sectors;
 		} else {
 			throw CommandException("Partition size too large.");
 		}
 	}
-	if (sizes.empty()) {
+
+	return {bootType, sizes};
+}
+
+void DiskManipulator::create(std::span<const TclObject> tokens)
+{
+	auto [bootType, sizes] = parsePartitionSizes(view::drop(tokens, 3));
+
+	size_t totalSectors = sum(sizes, [](size_t s) { return s; });
+	if (totalSectors == 0) {
 		throw CommandException("No size(s) given.");
 	}
 
@@ -452,6 +472,24 @@ void DiskManipulator::create(std::span<const TclObject> tokens)
 	} else {
 		// only one partition specified, don't create partition table
 		DiskImageUtils::format(image, bootType);
+	}
+}
+
+void DiskManipulator::partition(std::span<const TclObject> tokens)
+{
+	auto [bootType, sizes] = parsePartitionSizes(view::drop(tokens, 3));
+
+	// initialize (create partition tables and format partitions)
+	auto& settings = getDriveSettings(tokens[2].getString());
+	if (settings.partition > 0) {
+		throw CommandException("Disk name must not have partition number.");
+	}
+	auto* image = settings.drive->getSectorAccessibleDisk();
+	unsigned partitionCount = DiskImageUtils::partition(*image,
+		static_cast<std::span<const unsigned>>(sizes), bootType);
+	if (partitionCount != sizes.size()) {
+		throw CommandException("Could not create all partitions; ",
+			partitionCount, " of ", sizes.size(), " created.");
 	}
 }
 

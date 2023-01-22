@@ -70,6 +70,8 @@
 
     <li><a class="internal" href="#mkdir">mkdir</a></li>
 
+    <li><a class="internal" href="#partition">partition</a></li>
+
     <li><a class="internal" href="#savedsk">savedsk</a></li>
   </ol>
 
@@ -101,7 +103,7 @@
   </div>
 
   <p><code>diskmanipulator create &lt;dskfilename&gt;
-  &lt;size|option&gt; &lt;size|option&gt; ...</code></p>
+  &lt;size|option&gt; [&lt;size|option&gt; ...]</code></p>
 
   <div class="subsectiontitle">
     explanation:
@@ -255,6 +257,34 @@
     syntax:
   </div>
 
+  <p><code>diskmanipulator partition &lt;disk name&gt;
+    [&lt;size|option&gt; ...]</code></p>
+  
+    <div class="subsectiontitle">
+      explanation:
+    </div>
+  
+    <p>You can (re)partition existing disk images using this command.</p>
+  
+    <p>As many partitions as specified will be created, using either the Sunrise
+    IDE partition table format, or the Nextor format (standard MBR / EBR) if the
+    <code>-nextor</code> option is specified. The Sunrise IDE partition table
+    supports up to 31 partitions. Nextor's MBR / EBR partition table has no
+    partition count limit, but Nextor only handles the first 256.</p>
+
+    <p>After partitioning each partition will also be formatted appropriately,
+    see <a href="#format">format</a> for more details on that.</p>
+  
+    <p>You can specify the disk/partition sizes by using the following
+    postfixes:</p>
+  
+    <ul>
+      <li>S or s -&gt; size in sectors</li>
+      <li>B or b -&gt; size in bytes</li>
+      <li>K or k -&gt; size in kilobytes (default)</li>
+      <li>M or m -&gt; size in megabytes</li>
+    </ul>
+  
   <p><code>diskmanipulator savedsk &lt;disk name&gt;
   &lt;dskfilename&gt;</code></p>
 

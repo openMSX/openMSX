@@ -59,7 +59,8 @@ private:
 	[[nodiscard]] MSXtar getMSXtar(SectorAccessibleDisk& disk,
 	                                      DriveSettings& driveData);
 
-	static void create(std::span<const TclObject> tokens);
+	void create(std::span<const TclObject> tokens);
+	void partition(std::span<const TclObject> tokens);
 	void savedsk(const DriveSettings& driveData, std::string filename);
 	void format(std::span<const TclObject> tokens);
 	std::string chdir(DriveSettings& driveData, std::string_view filename);
