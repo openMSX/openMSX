@@ -587,7 +587,7 @@ configuration, in the form of a 100MB sized disk image. This is the default size
 not present, the file is created with this size. The image will end up in your openMSX user directory<code>/persistent/NAME/untitled1/IMAGENAME.dsk</code>, where NAME is the name of the extension used and IMAGENAME is a name that is configured in the extension's XML file (default <code>hd.dsk</code>).
 </p>
 
-<p>When using these extensions for the first time, one has to treat them as if they are real interfaces with a blank harddisk connected. How to initialise them depends on the type, it is advisable to read the manuals. The sections below give some hints. The <code><a class="external" href="diskmanipulator.html">diskmanipulator</a></code> may be helpful, but only supports hard disk images with a partition table format compatible with the Sunrise IDE at the moment.
+<p>When using these extensions for the first time, one has to treat them as if they are real interfaces with a blank harddisk connected. How to initialise them depends on the type, it is advisable to read the manuals. The sections below give some hints. The <code><a class="external" href="diskmanipulator.html">diskmanipulator</a></code> may be helpful, it supports hard disk images with both Sunrise IDE and Nextor compatible partition table formats.
 </p>
 
 <p>
@@ -660,8 +660,6 @@ set <a class="external" href="commands.html#power">power</a> off<br/>
 set <a class="external" href="commands.html#power">power</a> on
 </div>
 
-<p>Note that the diskmanipulator can only handle hard disk images that are compatible with the Sunrise IDE interface!</p>
-
 <p>
 As announced above, there is (limited) support for CD-ROM with the 'ide' extension. You can insert an ISO image in that virtual CD-ROM player with the <code>-cda</code> command line option and change it at run time with the <code><a class="external" href="commands.html#cd">cda</a></code> console command, all similar to the aforementioned <code><a class="external" href="commands.html#hd">hda</a></code> and <code><a class="external" href="commands.html#disk">diska</a></code> commands and options.
 </p>
@@ -711,7 +709,7 @@ To change the disk image of the LS-120 device, use the <code>lsa</code> (LS driv
 <p>Currently, by default, the first SD card is 8MB and the 2nd SD card is 100MB size. You can change these defaults by editing the extension file in <code>share/extensions/MegaFlashROM_SCC+_SD.xml</code>. For formatting and managing the SD cards, please refer to its manual and tools on the Flash part of the <a class="external" href="http://www.msxcartridgeshop.com/">MSX Cartridge Shop</a>. It also provides the ROM file with the initial content of the flash ROM as it is shipped on real MegaFlashROM SCC+ SD cartridges.
 </p>
 
-<p>One problem you may encounter compared to a real MegaFlashROM SCC+ SD is: how to get files on the SD cards... You can't take out the SD cards and put them in a PC or so. Your options are the same as on a real system when you don't have a PC at hand: use the floppy drive of your MSX to transfer files or use another mass storage medium. You can for instance use the Sunrise IDE concurrently with the MegaFlashROM SCC+ SD. And for the Sunrise IDE partitions, you could use <code><a class="external" href="diskmanipulator.html">diskmanipulator</a></code> to import a lot of files, as is explained <a class="internal" href="#ide">above at the Sunrise IDE</a> section. Once you have that you can copy these files from MSX-DOS2/Nextor onto the virtual SD card(s).
+<p>To get files on the SD cards, you can use <code><a class="external" href="diskmanipulator.html">diskmanipulator</a></code> with the <code>-nextor</code> option to partition and to import files, similar to what is explained above <a class="internal" href="#ide">in the Sunrise IDE section</a>.
 </p>
 
 <h3><a id="laserdisc">4.5 Running Laserdisc software</a></h3>
