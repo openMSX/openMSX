@@ -197,6 +197,7 @@ void MSXtar::readLogicalSector(unsigned sector, SectorBuffer& buf)
 MSXtar::MSXtar(SectorAccessibleDisk& sectorDisk, const MsxChar2Unicode& msxChars_)
 	: disk(sectorDisk)
 	, msxChars(msxChars_)
+	, findFirstFreeClusterStart{0}
 {
 	if (disk.getNbSectors() == 0) {
 		throw MSXException("No disk inserted.");
@@ -220,6 +221,7 @@ MSXtar::MSXtar(MSXtar&& other) noexcept
 	: disk(other.disk)
 	, fatBuffer(std::move(other.fatBuffer))
 	, msxChars(other.msxChars)
+	, findFirstFreeClusterStart(other.findFirstFreeClusterStart)
 	, clusterCount(other.clusterCount)
 	, fatCount(other.fatCount)
 	, sectorsPerCluster(other.sectorsPerCluster)
@@ -295,6 +297,11 @@ void MSXtar::writeFAT(Cluster cluster, FatCluster value)
 
 	unsigned index = FAT::FIRST_CLUSTER + cluster.index;
 
+	if (std::holds_alternative<Free>(value) && cluster < findFirstFreeClusterStart) {
+		// update where findFirstFreeCluster() will start scanning
+		findFirstFreeClusterStart = cluster;
+	}
+
 	if (fat16) {
 		unsigned fatValue = std::visit(FAT16::toClusterNumber, value);
 		auto p = subspan<2>(data, index * 2);
@@ -318,9 +325,10 @@ void MSXtar::writeFAT(Cluster cluster, FatCluster value)
 // @throws When no more free clusters
 Cluster MSXtar::findFirstFreeCluster()
 {
-	for (auto cluster : xrange(clusterCount)) {
-		if (readFAT(Cluster{cluster}) == FatCluster(Free{})) {
-			return Cluster{cluster};
+	for (auto cluster : xrange(findFirstFreeClusterStart.index, clusterCount)) {
+		if (readFAT({cluster}) == FatCluster(Free{})) {
+			findFirstFreeClusterStart = {cluster};
+			return findFirstFreeClusterStart;
 		}
 	}
 	throw MSXException("Disk full.");
