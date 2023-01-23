@@ -1,0 +1,98 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <info>
+    <manufacturer>Sony</manufacturer>
+    <code>HB-701FD</code>
+    <release_year>1984</release_year>
+    <description>Luxurious machine with separate keyboard, single sided disk drive and (not emulated) superimposing capabilities and S-Link interface.</description>
+    <type>MSX</type>
+    <region>jp</region>
+  </info>
+
+  <CassettePort/>
+
+  <devices>
+
+    <PPI id="ppi">
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <io base="0xA8" num="4"/>
+      <keyboard_type>jp_ansi</keyboard_type>
+      <has_keypad>false</has_keypad>
+      <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>
+      <code_kana_locks>true</code_kana_locks>
+    </PPI>
+
+    <VDP id="VDP">
+      <io base="0x98" num="4" type="O"/>
+      <io base="0x98" num="2" type="I"/>
+      <version>TMS99X8A</version>
+    </VDP>
+
+    <PSG id="PSG">
+      <type>YM2149</type>
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <io base="0xA0" num="2" type="O"/>
+      <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>false</ignorePortDirections> <!-- not sure, but guess based on discrete PSG chip -->
+    </PSG>
+
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
+
+    <primary slot="0">
+      <ROM id="MSX BIOS with BASIC ROM">
+        <rom>
+          <sha1>302afb5d8be26c758309ca3df611ae69cced2821</sha1>
+          <filename>hb-701_basic-bios1.rom</filename>
+        </rom>
+        <mem base="0x0000" size="0x8000"/>
+      </ROM>
+    </primary>
+
+    <primary external="true" slot="1"/>
+
+    <primary slot="2">
+
+      <secondary slot="0">
+        <RAM id="Main RAM">
+          <mem base="0x0000" size="0x10000"/>
+        </RAM>
+      </secondary>
+
+      <secondary slot="1">
+        <WD2793 id="Memory Mapped FDC">
+          <connectionstyle>Sony</connectionstyle>
+          <motor_off_timeout_ms>4000</motor_off_timeout_ms>
+          <drives>1</drives>
+          <rom>
+            <filename>hb-701fd_disk.rom</filename>
+            <sha1>be86a0c2004142f2e8b7d65bf03733cc3d041ec1</sha1>
+          </rom>
+          <mem base="0x0000" size="0x10000"/> <!-- FDC regs mirrored on all pages -->
+        </WD2793>
+      </secondary>
+
+      <secondary slot="2">
+        <ROM id="HB-701 Firmware">
+          <rom>
+            <sha1>2520e55987ea3084a5bfd75452dc6215b9a1aac4</sha1>
+            <filename>hb-701_firmware.rom</filename>
+          </rom>
+          <mem base="0x4000" size="0x4000"/>
+        </ROM>
+      </secondary>
+
+    </primary>
+
+    <primary external="true" slot="3"/>
+
+  </devices>
+
+</msxconfig>
