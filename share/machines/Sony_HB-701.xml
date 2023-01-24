@@ -11,7 +11,7 @@
     <region>jp</region>
   </info>
 
-  <!-- based on the Sony HB-701FD, just leaving out the FDC -->
+  <!-- Based on the Sony HB-701FD of Peter Hanraets, just leaving out the FDC -->
 
   <CassettePort/>
 
@@ -24,17 +24,19 @@
       <io base="0xA8" num="4"/>
       <keyboard_type>jp_ansi</keyboard_type>
       <has_keypad>false</has_keypad>
-      <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>
+      <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected> <!-- confirmed -->
       <code_kana_locks>true</code_kana_locks>
     </PPI>
 
     <VDP id="VDP">
       <io base="0x98" num="4" type="O"/>
       <io base="0x98" num="2" type="I"/>
-      <version>TMS99X8A</version>
+      <version>TMS9928A</version>
+      <saturation>100</saturation> <!-- TMS9x2x and RGB output -->
     </VDP>
 
     <PSG id="PSG">
+      <!-- Peter checked, the sound output of the PSG is monaural -->
       <type>YM2149</type>
       <sound>
         <volume>21000</volume>
@@ -65,6 +67,7 @@
       <secondary slot="0">
         <RAM id="Main RAM">
           <mem base="0x0000" size="0x10000"/>
+          <initialContent encoding="gz-base64">eJz7/58ywEAhAAAJyD/B</initialContent> <!-- ((chr(255)*64  + chr(0)* 64)).encode('zip').encode('base64'), as seen on Peter's HB-701FD machine -->
         </RAM>
       </secondary>
 
