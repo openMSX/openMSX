@@ -113,7 +113,8 @@ byte YamahaSKW01::peekMem(word address, EmuTime::param time) const
 		unsigned base = 0x8000 * group;
 		unsigned offset = fontAddress[group] & 0x7FFF;
 		return fontRom[base + offset];
-	// note: reads from 0x7FC8-0x7FC9 always read 0xFF
+	} else if (address == 0x7FC8 || address == 0x7FC9) {
+		return 0xFF;
 	} else if (address == 0x7FCA || address == 0x7FCB) {
 		if ((dataAddress & (1 << 15)) == 0) {
 			return dataRom[dataAddress & 0x7FFF];
