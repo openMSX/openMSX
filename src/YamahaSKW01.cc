@@ -56,6 +56,34 @@ byte YamahaSKW01::readMem(word address, EmuTime::param time)
 	return peekMem(address, time);
 }
 
+byte YamahaSKW01::peekMem(word address, EmuTime::param time) const
+{
+	if (address == one_of(0x7FC0, 0x7FC2, 0x7FC4, 0x7FC6)) {
+		return 0x01; // for now, always READY to read
+	} else if (address == one_of(0x7FC1, 0x7FC3, 0x7FC5, 0x7FC7)) {
+		unsigned group = (address - 0x7FC1) / 2;
+		unsigned base = 0x8000 * group;
+		unsigned offset = fontAddress[group] & 0x7FFF;
+		return fontRom[base + offset];
+	} else if (address == 0x7FC8 || address == 0x7FC9) {
+		return 0xFF;
+	} else if (address == 0x7FCA || address == 0x7FCB) {
+		if ((dataAddress & (1 << 15)) == 0) {
+			return dataRom[dataAddress & 0x7FFF];
+		} else {
+			return sram[dataAddress & 0x7FF];
+		}
+	} else if (address == 0x7FCC) {
+		// bit 1 = status / other bits always 1
+		return getPluggedPrintDev().getStatus(time)
+		       ? 0xFF : 0xFD;
+	} else if (address < 0x8000) {
+		return mainRom[address];
+	} else {
+		return 0xFF;
+	}
+}
+
 void YamahaSKW01::writeMem(word address, byte value, EmuTime::param time)
 {
 	if (0x7FC0 <= address && address <= 0x7FC7) {
@@ -101,34 +129,6 @@ byte* YamahaSKW01::getWriteCacheLine(word start) const
 		return nullptr; // not cacheable
 	} else {
 		return unmappedWrite.data();
-	}
-}
-
-byte YamahaSKW01::peekMem(word address, EmuTime::param time) const
-{
-	if (address == one_of(0x7FC0, 0x7FC2, 0x7FC4, 0x7FC6)) {
-		return 0x01; // for now, always READY to read
-	} else if (address == one_of(0x7FC1, 0x7FC3, 0x7FC5, 0x7FC7)) {
-		unsigned group = (address - 0x7FC1) / 2;
-		unsigned base = 0x8000 * group;
-		unsigned offset = fontAddress[group] & 0x7FFF;
-		return fontRom[base + offset];
-	} else if (address == 0x7FC8 || address == 0x7FC9) {
-		return 0xFF;
-	} else if (address == 0x7FCA || address == 0x7FCB) {
-		if ((dataAddress & (1 << 15)) == 0) {
-			return dataRom[dataAddress & 0x7FFF];
-		} else {
-			return sram[dataAddress & 0x7FF];
-		}
-	} else if (address == 0x7FCC) {
-		// bit 1 = status / other bits always 1
-		return getPluggedPrintDev().getStatus(time)
-		       ? 0xFF : 0xFD;
-	} else if (address < 0x8000) {
-		return mainRom[address];
-	} else {
-		return 0xFF;
 	}
 }
 

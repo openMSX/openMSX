@@ -20,10 +20,10 @@ public:
 	void reset(EmuTime::param time) override;
 
 	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
+	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;
 	void writeMem(word address, byte value, EmuTime::param time) override;
 	[[nodiscard]] const byte* getReadCacheLine(word start) const override;
 	[[nodiscard]] byte* getWriteCacheLine(word start) const override;
-	[[nodiscard]] virtual byte peekMem(word address, EmuTime::param time) const override;
 
 	// Connector
 	[[nodiscard]] std::string_view getDescription() const override;
@@ -32,6 +32,13 @@ public:
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
+
+private:
+	// printer port stuff
+	[[nodiscard]] PrinterPortDevice& getPluggedPrintDev() const;
+
+	void setStrobe(bool newStrobe, EmuTime::param time);
+	void writeData(uint8_t newData, EmuTime::param time);
 
 private:
 	Rom mainRom;
@@ -44,13 +51,6 @@ private:
 	// printer port stuff
 	bool strobe = false; // != true
 	uint8_t data = 255;  // != 0
-
-private:
-	// printer port stuff
-	[[nodiscard]] PrinterPortDevice& getPluggedPrintDev() const;
-
-	void setStrobe(bool newStrobe, EmuTime::param time);
-	void writeData(uint8_t newData, EmuTime::param time);
 };
 
 } // namespace openmsx
