@@ -57,6 +57,9 @@ string DiskManipulator::getMachinePrefix() const
 
 const MsxChar2Unicode& DiskManipulator::getMsxChar2Unicode() const
 {
+	// TODO cleanup this code. It should be easier to get a hold of the
+	// 'MsxChar2Unicode' object. Probably the 'Keyboard' class is not the
+	// right location to store it.
 	try {
 		if (MSXMotherBoard* board = reactor.getMotherBoard()) {
 			if (MSXPPI* ppi = dynamic_cast<MSXPPI*>(board->findDevice("ppi"))) {

@@ -88,6 +88,9 @@ UnicodeKeymap::UnicodeKeymap(string_view keyboardType)
 		auto buf = file.mmap();
 		parseUnicodeKeyMapFile(
 			string_view(reinterpret_cast<const char*>(buf.data()), buf.size()));
+		// TODO in the future we'll require the presence of
+		//      "MSX-Video-Characterset" in the keyboard information
+		//      file, then we don't need this fallback.
 		if (!msxChars.has_value()) {
 			msxChars.emplace("MSXVID.TXT");
 		}
