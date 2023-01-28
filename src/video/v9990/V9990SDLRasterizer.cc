@@ -274,9 +274,8 @@ void V9990SDLRasterizer<Pixel>::drawBxMode(
 		// position of the borders into account, the display area
 		// plus 3 pixels cannot go beyond the end of the buffer.
 		unsigned y = scrollYBase + ((displayYA + scrollY) & rollMask);
-		auto dst = workFrame->getLineDirect<Pixel>(fromY).subspan(fromX);
-		bitmapConverter.convertLine(dst.subspan(displayWidth), x, y,
-		                            cursorY, drawSprites);
+		auto dst = workFrame->getLineDirect<Pixel>(fromY).subspan(fromX, displayWidth);
+		bitmapConverter.convertLine(dst, x, y, cursorY, drawSprites);
 		workFrame->setLineWidth(fromY, vdp.getLineWidth());
 		++fromY;
 		displayYA += lineStep;
