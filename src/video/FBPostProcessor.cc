@@ -296,6 +296,7 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output_)
 	//       on the PC screen, as a preparation for resizable output window.
 	unsigned srcStartY = 0;
 	unsigned dstStartY = 0;
+	stretchScaler->frameStart();
 	while (dstStartY < dstHeight) {
 		// Currently this is true because the source frame height
 		// is always >= dstHeight/(dstStep/srcStep).
@@ -323,6 +324,7 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output_)
 		srcStartY = srcEndY;
 		dstStartY = dstEndY;
 	}
+	stretchScaler->frameStop();
 
 	drawNoise(output);
 

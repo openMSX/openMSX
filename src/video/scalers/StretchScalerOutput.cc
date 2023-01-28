@@ -22,6 +22,10 @@ public:
 
 	[[nodiscard]] unsigned getWidth()  const final;
 	[[nodiscard]] unsigned getHeight() const final;
+
+	void frameStart() final { output.frameStart(); }
+	void frameStop()  final { output.frameStop();  }
+
 	[[nodiscard]] std::span<Pixel> acquireLine(unsigned y) final;
 	void fillLine(unsigned y, Pixel color) override;
 

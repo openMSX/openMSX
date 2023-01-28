@@ -2,26 +2,29 @@
 #include "SDLOutputSurface.hh"
 #include "MemoryOps.hh"
 #include "build-info.hh"
+#include <cassert>
 #include <cstdint>
 
 namespace openmsx {
 
 template<std::unsigned_integral Pixel>
 DirectScalerOutput<Pixel>::DirectScalerOutput(SDLOutputSurface& output_)
-	: output(output_), pixelAccess(output.getDirectPixelAccess())
+	: output(output_)
 {
 }
 
 template<std::unsigned_integral Pixel>
 std::span<Pixel> DirectScalerOutput<Pixel>::acquireLine(unsigned y)
 {
-	return pixelAccess.getLine<Pixel>(y).subspan(0, getWidth());
+	assert(pixelAccess);
+	return pixelAccess->getLine<Pixel>(y).subspan(0, getWidth());
 }
 
 template<std::unsigned_integral Pixel>
 void DirectScalerOutput<Pixel>::releaseLine(unsigned y, std::span<Pixel> buf)
 {
-	assert(buf.data() == pixelAccess.getLine<Pixel>(y).data());
+	assert(pixelAccess);
+	assert(buf.data() == pixelAccess->getLine<Pixel>(y).data());
 	assert(buf.size() == getWidth());
 	(void)y;
 	(void)buf;
@@ -30,8 +33,9 @@ void DirectScalerOutput<Pixel>::releaseLine(unsigned y, std::span<Pixel> buf)
 template<std::unsigned_integral Pixel>
 void DirectScalerOutput<Pixel>::fillLine(unsigned y, Pixel color)
 {
+	assert(pixelAccess);
 	MemoryOps::MemSet<Pixel> memset;
-	auto dstLine = pixelAccess.getLine<Pixel>(y).subspan(0, getWidth());
+	auto dstLine = pixelAccess->getLine<Pixel>(y).subspan(0, getWidth());
 	memset(dstLine, color);
 }
 
