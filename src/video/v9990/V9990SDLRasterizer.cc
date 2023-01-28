@@ -256,6 +256,7 @@ void V9990SDLRasterizer<Pixel>::drawBxMode(
 
 	int lineStep = 1;
 	if (vdp.isEvenOddEnabled()) {
+		displayYA *= 2;
 		if (vdp.getEvenOdd()) {
 			++displayY;
 			++displayYA;
