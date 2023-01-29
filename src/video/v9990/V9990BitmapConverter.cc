@@ -474,7 +474,7 @@ void V9990BitmapConverter<Pixel>::convertLine(
 		raster(colorMode, highRes,
 		       IndexLookup(palette64_32768, palette256_32768),
 		       vdp, vram,
-		       subspan(buf, dst.size()), x, y);
+		       subspan(buf, 0, dst.size()), x, y);
 
 		// draw sprites in this buffer
 		// TODO can be optimized
