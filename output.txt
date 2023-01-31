@@ -1,0 +1,975 @@
+<html>
+<a name="top"><h3>openMSX Compile results for 64bits </h3></a><br> <br>
+<a href="#64bit3rdparty">3rd Party results</a><br>
+<a href="#64bitCompile">Compile results</a><br>
+<a href="#msi64">Starting work on 64 Bit MSI Package</a><br>
+<br>
+<br>
+<a name="3rdparty"><h3>3rd party</h3></a> 
+<pre style="background:#eeeeee;">
+
+c:\compiler\openMSX>call "python3" build\\thirdparty_download.py windows 
+Downloading freetype-2.11.1.tar.gz: contacting server...
+Downloading freetype-2.11.1.tar.gz: done.
+
+Patched: freetype-2.11.1/include/freetype/config/ftoption.h
+Patched: freetype-2.11.1/modules.cfg
+Downloading glew-2.1.0.tgz: contacting server...
+Downloading glew-2.1.0.tgz: done.
+
+Patched: glew-2.1.0/config/Makefile.linux-mingw-w64
+Downloading libogg-1.3.5.tar.gz: contacting server...
+Downloading libogg-1.3.5.tar.gz: done.
+
+Downloading libpng-1.6.37.tar.gz: contacting server...
+Downloading libpng-1.6.37.tar.gz: done.
+
+Downloading SDL2-2.0.20.tar.gz: contacting server...
+Downloading SDL2-2.0.20.tar.gz: done.
+
+Downloading SDL2_ttf-2.0.15.tar.gz: contacting server...
+Downloading SDL2_ttf-2.0.15.tar.gz: done.
+
+WARNING: Skipping symlink creation: c:\compiler\openMSX\derived\3rdparty\src\SDL2_ttf-2.0.15\Xcode\Frameworks\FreeType.framework\FreeType -> Versions/Current/FreeType: symbolic link privilege not held
+WARNING: Skipping symlink creation: c:\compiler\openMSX\derived\3rdparty\src\SDL2_ttf-2.0.15\Xcode\Frameworks\FreeType.framework\Resources -> Versions/Current/Resources: symbolic link privilege not held
+WARNING: Skipping symlink creation: c:\compiler\openMSX\derived\3rdparty\src\SDL2_ttf-2.0.15\Xcode\Frameworks\FreeType.framework\Headers -> Versions/Current/Headers: symbolic link privilege not held
+WARNING: Skipping symlink creation: c:\compiler\openMSX\derived\3rdparty\src\SDL2_ttf-2.0.15\Xcode\Frameworks\FreeType.framework\Versions\Current -> A: symbolic link privilege not held
+Downloading tcl8.6.12-src.tar.gz: contacting server...
+Downloading tcl8.6.12-src.tar.gz: done.
+
+Downloading libtheora-1.1.1.tar.gz: contacting server...
+Downloading libtheora-1.1.1.tar.gz: done.
+
+Patched: libtheora-1.1.1/configure
+Downloading libvorbis-1.3.7.tar.gz: contacting server...
+Downloading libvorbis-1.3.7.tar.gz: done.
+
+Downloading zlib-1.2.11.tar.gz: contacting server...
+Downloading zlib-1.2.11.tar.gz: done.
+
+</pre>
+<a href="#top">Back To Top</a><br>
+<pre style="background:#eeeeee;">
+**********************************************************************
+** Visual Studio 2019 Developer Command Prompt v16.11.10
+** Copyright (c) 2021 Microsoft Corporation
+**********************************************************************
+[vcvarsall.bat] Environment initialized for: 'x64'
+</pre>
+<a name="64bit3rdparty"><h3>64 bit 3rd party</h3></a> 
+<pre style="background:#eeeeee;">
+Microsoft (R) Build Engine version 16.11.2+f32259642 for .NET Framework
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+Build started 2/15/2022 8:08:24 AM.
+     1>Project "c:\compiler\openMSX\build\3rdparty\3rdparty.sln" on node 1 (default targets).
+     1>ValidateSolutionConfiguration:
+         Building solution configuration "Release|x64".
+     1>Project "c:\compiler\openMSX\build\3rdparty\3rdparty.sln" (1) is building "c:\compiler\openMSX\build\3rdparty\libpng.vcxproj" (2) on node 4 (default targets).
+     2>InitializeBuildStatus:
+         Creating "..\..\derived\x64-VC-Release\3rdParty\build\libpng-1.6.37\libpng.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+       PreBuildEvent:
+         copy ..\..\derived\3rdParty\src\libpng-1.6.37\scripts\pnglibconf.h.prebuilt ..\..\derived\3rdParty\src\libpng-1.6.37\pnglibconf.h
+         :VCEnd
+     1>Project "c:\compiler\openMSX\build\3rdparty\3rdparty.sln" (1) is building "c:\compiler\openMSX\build\3rdparty\freetype.vcxproj" (3) on node 2 (default targets).
+     3>InitializeBuildStatus:
+         Creating "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\freetype.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Tools\MSVC\14.29.30133\bin\HostX86\x64\CL.exe /c /I"..\..\derived\3rdParty\src\freetype-2.11.1\include" /nologo /W4 /WX- /diagnostics:column /Ox /Ob2 /Oi /Os /Oy /GT /GL /D NDEBUG /D WIN32 /D _LIB /D FT2_BUILD_LIBRARY /D _CRT_SECURE_NO_WARNINGS /D _VC80_UPGRADE=0x0710 /D _MBCS /GF /Gm- /EHsc /MT /GS /Gy /fp:precise /Za /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\\" /Fd"..\..\derived\x64-VC-Release\3rdParty\install\lib\freetype.pdb" /external:W4 /Gd /TC /wd4001 /FC /errorReport:queue "..\..\derived\3rdParty\src\freetype-2.11.1\src\autofit\autofit.c" "..\..\derived\3rdParty\src\freetype-2.11.1\src\base\ftbbox.c" "..\..\derived\3rdParty\src\freetype-2.11.1\src\base\ftbitmap.c" "..\..\derived\3rdParty\src\freetype-2.11.1\src\base\ftgasp.c" "..\..\derived\3rdParty\src\freetype-2.11.1\src\base\ftpfr.c" "..\..\derived\3rdParty\src\freetype-2.11.1\src\base\ftstroke.c" "..\..\derived\3rdParty\src\freetype-2.11.1\src\base\ftsynth.c" "..\..\derived\3rdParty\src\freetype-2.11.1\src\base\fttype1.c" "..\..\derived\3rdParty\src\freetype-2.11.1\src\base\ftwinfnt.c"
+     1>Project "c:\compiler\openMSX\build\3rdparty\3rdparty.sln" (1) is building "c:\compiler\openMSX\build\3rdparty\libtheora.vcxproj" (6) on node 5 (default targets).
+     6>InitializeBuildStatus:
+         Creating "..\..\derived\x64-VC-Release\3rdParty\build\libtheora-1.1.1\libtheora.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         All outputs are up-to-date.
+         All outputs are up-to-date.
+         All outputs are up-to-date.
+         All outputs are up-to-date.
+       Lib:
+         All outputs are up-to-date.
+         libtheora.vcxproj -> c:\compiler\openMSX\derived\x64-VC-Release\3rdParty\install\lib\libtheora.lib
+     1>Project "c:\compiler\openMSX\build\3rdparty\3rdparty.sln" (1) is building "c:\compiler\openMSX\build\3rdparty\libvorbis.vcxproj" (7) on node 6 (default targets).
+     7>InitializeBuildStatus:
+         Creating "..\..\derived\x64-VC-Release\3rdParty\build\libvorbis-1.3.7\libvorbis.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         All outputs are up-to-date.
+     1>Project "c:\compiler\openMSX\build\3rdparty\3rdparty.sln" (1) is building "c:\compiler\openMSX\build\3rdparty\glew.vcxproj" (5) on node 1 (default targets).
+     5>InitializeBuildStatus:
+         Creating "..\..\derived\x64-VC-Release\3rdParty\build\glew-2.1.0\glew.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+     1>Project "c:\compiler\openMSX\build\3rdparty\3rdparty.sln" (1) is building "c:\compiler\openMSX\build\3rdparty\libogg.vcxproj" (4) on node 3 (default targets).
+     4>InitializeBuildStatus:
+         Creating "..\..\derived\x64-VC-Release\3rdParty\build\libogg-1.3.5\libogg.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         All outputs are up-to-date.
+       Lib:
+         All outputs are up-to-date.
+         libogg.vcxproj -> c:\compiler\openMSX\derived\x64-VC-Release\3rdParty\install\lib\libogg.lib
+     6>FinalizeBuildStatus:
+         Deleting file "..\..\derived\x64-VC-Release\3rdParty\build\libtheora-1.1.1\libtheora.tlog\unsuccessfulbuild".
+         Touching "..\..\derived\x64-VC-Release\3rdParty\build\libtheora-1.1.1\libtheora.tlog\libtheora.lastbuildstate".
+     6>Done Building Project "c:\compiler\openMSX\build\3rdparty\libtheora.vcxproj" (default targets).
+     7>Lib:
+         All outputs are up-to-date.
+         libvorbis.vcxproj -> c:\compiler\openMSX\derived\x64-VC-Release\3rdParty\install\lib\libvorbis.lib
+     1>Project "c:\compiler\openMSX\build\3rdparty\3rdparty.sln" (1) is building "c:\compiler\openMSX\build\3rdparty\SDL.vcxproj" (8) on node 2 (default targets).
+     8>InitializeBuildStatus:
+         Touching "..\..\derived\x64-VC-Release\3rdParty\build\SDL2-2.0.20\SDL.tlog\unsuccessfulbuild".
+     4>FinalizeBuildStatus:
+         Deleting file "..\..\derived\x64-VC-Release\3rdParty\build\libogg-1.3.5\libogg.tlog\unsuccessfulbuild".
+         Touching "..\..\derived\x64-VC-Release\3rdParty\build\libogg-1.3.5\libogg.tlog\libogg.lastbuildstate".
+     4>Done Building Project "c:\compiler\openMSX\build\3rdparty\libogg.vcxproj" (default targets).
+     7>FinalizeBuildStatus:
+         Deleting file "..\..\derived\x64-VC-Release\3rdParty\build\libvorbis-1.3.7\libvorbis.tlog\unsuccessfulbuild".
+         Touching "..\..\derived\x64-VC-Release\3rdParty\build\libvorbis-1.3.7\libvorbis.tlog\libvorbis.lastbuildstate".
+     7>Done Building Project "c:\compiler\openMSX\build\3rdparty\libvorbis.vcxproj" (default targets).
+     5>ClCompile:
+         All outputs are up-to-date.
+     1>Project "c:\compiler\openMSX\build\3rdparty\3rdparty.sln" (1) is building "c:\compiler\openMSX\build\3rdparty\SDLmain.vcxproj" (9) on node 3 (default targets).
+     9>InitializeBuildStatus:
+         Creating "..\..\derived\x64-VC-Release\3rdParty\build\SDLmain\SDLmain.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+     5>ResourceCompile:
+         All outputs are up-to-date.
+     9>ClCompile:
+         All outputs are up-to-date.
+       Lib:
+         All outputs are up-to-date.
+         SDLmain.vcxproj -> c:\compiler\openMSX\derived\x64-VC-Release\3rdParty\install\lib\SDLmain.lib
+     5>Lib:
+         All outputs are up-to-date.
+     9>FinalizeBuildStatus:
+         Deleting file "..\..\derived\x64-VC-Release\3rdParty\build\SDLmain\SDLmain.tlog\unsuccessfulbuild".
+         Touching "..\..\derived\x64-VC-Release\3rdParty\build\SDLmain\SDLmain.tlog\SDLmain.lastbuildstate".
+     5>Lib:
+         glew.vcxproj -> c:\compiler\openMSX\derived\x64-VC-Release\3rdParty\install\lib\glew.lib
+     1>Project "c:\compiler\openMSX\build\3rdparty\3rdparty.sln" (1) is building "c:\compiler\openMSX\build\3rdparty\SDL_ttf.vcxproj" (11) on node 5 (default targets).
+    11>InitializeBuildStatus:
+         Creating "..\..\derived\x64-VC-Release\3rdParty\build\SDL2_ttf-2.0.15\SDL_ttf.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Tools\MSVC\14.29.30133\bin\HostX86\x64\CL.exe /c /I"..\..\derived\3rdParty\src\SDL2-2.0.20\include" /I"..\..\derived\3rdParty\src\freetype-2.11.1\include" /Zi /nologo /W3 /WX- /diagnostics:column /Ox /Ob2 /Oi /Os /Oy /GT /GL /D WIN32 /D NDEBUG /D _WINDOWS /D _VC80_UPGRADE=0x0600 /GF /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"..\..\derived\x64-VC-Release\3rdParty\build\SDL2_ttf-2.0.15\\" /Fd"..\..\derived\x64-VC-Release\3rdParty\install\lib\SDL_ttf.pdb" /external:W3 /Gd /TC /FC /errorReport:queue "..\..\derived\3rdParty\src\SDL2_ttf-2.0.15\SDL_ttf.c"
+     2>PreBuildEvent:
+                 1 file(s) copied.
+     5>FinalizeBuildStatus:
+         Deleting file "..\..\derived\x64-VC-Release\3rdParty\build\glew-2.1.0\glew.tlog\unsuccessfulbuild".
+     9>Done Building Project "c:\compiler\openMSX\build\3rdparty\SDLmain.vcxproj" (default targets).
+     5>FinalizeBuildStatus:
+         Touching "..\..\derived\x64-VC-Release\3rdParty\build\glew-2.1.0\glew.tlog\glew.lastbuildstate".
+     5>Done Building Project "c:\compiler\openMSX\build\3rdparty\glew.vcxproj" (default targets).
+     1>Project "c:\compiler\openMSX\build\3rdparty\3rdparty.sln" (1) is building "c:\compiler\openMSX\build\3rdparty\tcl.vcxproj" (10) on node 6 (default targets).
+    10>InitializeBuildStatus:
+         Creating "..\..\derived\x64-VC-Release\3rdParty\build\tcl8.6.12\tcl.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+     1>Project "c:\compiler\openMSX\build\3rdparty\3rdparty.sln" (1) is building "c:\compiler\openMSX\build\3rdparty\zlib.vcxproj" (12) on node 5 (default targets).
+    12>InitializeBuildStatus:
+         Creating "..\..\derived\x64-VC-Release\3rdParty\build\zlib-1.2.11\zlib.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+     2>ClCompile:
+         All outputs are up-to-date.
+       ResourceCompile:
+         All outputs are up-to-date.
+    12>ClCompile:
+         All outputs are up-to-date.
+     2>Lib:
+         All outputs are up-to-date.
+         libpng.vcxproj -> c:\compiler\openMSX\derived\x64-VC-Release\3rdParty\install\lib\libpng.lib
+    11>ClCompile:
+         SDL_ttf.c
+    12>ResourceCompile:
+         All outputs are up-to-date.
+     8>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Tools\MSVC\14.29.30133\bin\HostX86\x64\CL.exe /c /I\include /I"..\..\derived\3rdParty\src\SDL2-2.0.20\include" /Zi /nologo /W3 /WX- /diagnostics:column /Ox /Ob2 /Oi /Os /Oy /GT /GL /D HAVE_LIBC=1 /D _CRT_SECURE_NO_DEPRECATE /D NDEBUG /D _WINDOWS /D _WIN32_WINNT=0x0400 /D _VC80_UPGRADE=0x0700 /GF /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"..\..\derived\x64-VC-Release\3rdParty\build\SDL2-2.0.20\\" /Fd"..\..\derived\x64-VC-Release\3rdParty\install\lib\SDL.pdb" /external:W3 /Gd /TC /FC /errorReport:queue "..\..\derived\3rdParty\src\SDL2-2.0.20\src\atomic\SDL_atomic.c" "..\..\derived\3rdParty\src\SDL2-2.0.20\src\events\SDL_dropevents.c" "..\..\derived\3rdParty\src\SDL2-2.0.20\src\joystick\hidapi\SDL_hidapi_xbox360.c" "..\..\derived\3rdParty\src\SDL2-2.0.20\src\joystick\windows\SDL_mmjoystick.c" "..\..\derived\3rdParty\src\SDL2-2.0.20\src\joystick\windows\SDL_windowsjoystick.c" "..\..\derived\3rdParty\src\SDL2-2.0.20\src\libm\k_tan.c" "..\..\derived\3rdParty\src\SDL2-2.0.20\src\render\SDL_d3dmath.c" "..\..\derived\3rdParty\src\SDL2-2.0.20\src\stdlib\SDL_malloc.c" "..\..\derived\3rdParty\src\SDL2-2.0.20\src\video\SDL_blit_auto.c"
+    12>Lib:
+         All outputs are up-to-date.
+         zlib.vcxproj -> c:\compiler\openMSX\derived\x64-VC-Release\3rdParty\install\lib\zlib.lib
+    10>ClCompile:
+         All outputs are up-to-date.
+     2>FinalizeBuildStatus:
+         Deleting file "..\..\derived\x64-VC-Release\3rdParty\build\libpng-1.6.37\libpng.tlog\unsuccessfulbuild".
+    12>FinalizeBuildStatus:
+         Deleting file "..\..\derived\x64-VC-Release\3rdParty\build\zlib-1.2.11\zlib.tlog\unsuccessfulbuild".
+         Touching "..\..\derived\x64-VC-Release\3rdParty\build\zlib-1.2.11\zlib.tlog\zlib.lastbuildstate".
+     2>FinalizeBuildStatus:
+         Touching "..\..\derived\x64-VC-Release\3rdParty\build\libpng-1.6.37\libpng.tlog\libpng.lastbuildstate".
+    12>Done Building Project "c:\compiler\openMSX\build\3rdparty\zlib.vcxproj" (default targets).
+     2>Done Building Project "c:\compiler\openMSX\build\3rdparty\libpng.vcxproj" (default targets).
+    10>Lib:
+         All outputs are up-to-date.
+         tcl.vcxproj -> c:\compiler\openMSX\derived\x64-VC-Release\3rdParty\install\lib\tcl.lib
+     8>ClCompile:
+         SDL_atomic.c
+    10>FinalizeBuildStatus:
+         Deleting file "..\..\derived\x64-VC-Release\3rdParty\build\tcl8.6.12\tcl.tlog\unsuccessfulbuild".
+         Touching "..\..\derived\x64-VC-Release\3rdParty\build\tcl8.6.12\tcl.tlog\tcl.lastbuildstate".
+    10>Done Building Project "c:\compiler\openMSX\build\3rdparty\tcl.vcxproj" (default targets).
+    11>c:\compiler\openMSX\derived\3rdParty\src\SDL2_ttf-2.0.15\SDL_ttf.c(602,38): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data [c:\compiler\openMSX\build\3rdparty\SDL_ttf.vcxproj]
+    11>c:\compiler\openMSX\derived\3rdParty\src\SDL2_ttf-2.0.15\SDL_ttf.c(603,38): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data [c:\compiler\openMSX\build\3rdparty\SDL_ttf.vcxproj]
+    11>c:\compiler\openMSX\derived\3rdParty\src\SDL2_ttf-2.0.15\SDL_ttf.c(1949,55): warning C4018: '>': signed/unsigned mismatch [c:\compiler\openMSX\build\3rdparty\SDL_ttf.vcxproj]
+     8>ClCompile:
+         SDL_dropevents.c
+    11>Lib:
+         C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Tools\MSVC\14.29.30133\bin\HostX86\x64\Lib.exe /OUT:"..\..\derived\x64-VC-Release\3rdParty\install\lib\SDL_ttf.lib" /NOLOGO /MACHINE:X64 /LTCG "..\..\derived\x64-VC-Release\3rdParty\build\SDL2_ttf-2.0.15\SDL_ttf.obj"
+     8>ClCompile:
+         SDL_hidapi_xbox360.c
+         SDL_mmjoystick.c
+     8>c1 : fatal error C1083: Cannot open source file: '..\..\derived\3rdParty\src\SDL2-2.0.20\src\joystick\windows\SDL_mmjoystick.c': No such file or directory [c:\compiler\openMSX\build\3rdparty\SDL.vcxproj]
+         SDL_windowsjoystick.c
+    11>Lib:
+         SDL_ttf.vcxproj -> c:\compiler\openMSX\derived\x64-VC-Release\3rdParty\install\lib\SDL_ttf.lib
+     3>ClCompile:
+         autofit.c
+    11>FinalizeBuildStatus:
+         Deleting file "..\..\derived\x64-VC-Release\3rdParty\build\SDL2_ttf-2.0.15\SDL_ttf.tlog\unsuccessfulbuild".
+         Touching "..\..\derived\x64-VC-Release\3rdParty\build\SDL2_ttf-2.0.15\SDL_ttf.tlog\SDL_ttf.lastbuildstate".
+    11>Done Building Project "c:\compiler\openMSX\build\3rdparty\SDL_ttf.vcxproj" (default targets).
+     3>ClCompile:
+         ftbbox.c
+     8>ClCompile:
+         k_tan.c
+     3>ClCompile:
+         ftbitmap.c
+     8>ClCompile:
+         SDL_d3dmath.c
+         SDL_malloc.c
+     3>ClCompile:
+         ftgasp.c
+         ftpfr.c
+     8>ClCompile:
+         SDL_blit_auto.c
+     3>ClCompile:
+         ftstroke.c
+         ftsynth.c
+         fttype1.c
+     8>Done Building Project "c:\compiler\openMSX\build\3rdparty\SDL.vcxproj" (default targets) -- FAILED.
+     3>ClCompile:
+         ftwinfnt.c
+         C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Tools\MSVC\14.29.30133\bin\HostX86\x64\CL.exe /c /I"..\..\derived\3rdParty\src\freetype-2.11.1\include" /nologo /W4 /WX- /diagnostics:column /O2 /Ob2 /Oi /Os /Oy /GT /GL /D NDEBUG /D WIN32 /D _LIB /D FT2_BUILD_LIBRARY /D _CRT_SECURE_NO_WARNINGS /D _VC80_UPGRADE=0x0710 /D _MBCS /GF /Gm- /EHsc /MT /GS /Gy /fp:precise /Za /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\\" /Fd"..\..\derived\x64-VC-Release\3rdParty\install\lib\freetype.pdb" /external:W4 /Gd /TC /wd4001 /FC /errorReport:queue "..\..\derived\3rdParty\src\freetype-2.11.1\src\base\ftbase.c" "..\..\derived\3rdParty\src\freetype-2.11.1\src\base\ftglyph.c" "..\..\derived\3rdParty\src\freetype-2.11.1\src\base\ftinit.c" "..\..\derived\3rdParty\src\freetype-2.11.1\src\base\ftmm.c" "..\..\derived\3rdParty\src\freetype-2.11.1\src\base\ftsystem.c" "..\..\derived\3rdParty\src\freetype-2.11.1\src\bdf\bdf.c" "..\..\derived\3rdParty\src\freetype-2.11.1\src\cache\ftcache.c" "..\..\derived\3rdParty\src\freetype-2.11.1\src\cff\cff.c" "..\..\derived\3rdParty\src\freetype-2.11.1\src\cid\type1cid.c" "..\..\derived\3rdParty\src\freetype-2.11.1\src\gzip\ftgzip.c" "..\..\derived\3rdParty\src\freetype-2.11.1\src\lzw\ftlzw.c" "..\..\derived\3rdParty\src\freetype-2.11.1\src\pcf\pcf.c" "..\..\derived\3rdParty\src\freetype-2.11.1\src\pfr\pfr.c" "..\..\derived\3rdParty\src\freetype-2.11.1\src\psaux\psaux.c" "..\..\derived\3rdParty\src\freetype-2.11.1\src\pshinter\pshinter.c" "..\..\derived\3rdParty\src\freetype-2.11.1\src\psnames\psmodule.c" "..\..\derived\3rdParty\src\freetype-2.11.1\src\raster\raster.c" "..\..\derived\3rdParty\src\freetype-2.11.1\src\sfnt\sfnt.c" "..\..\derived\3rdParty\src\freetype-2.11.1\src\smooth\smooth.c" "..\..\derived\3rdParty\src\freetype-2.11.1\src\truetype\truetype.c" "..\..\derived\3rdParty\src\freetype-2.11.1\src\type1\type1.c" "..\..\derived\3rdParty\src\freetype-2.11.1\src\type42\type42.c" "..\..\derived\3rdParty\src\freetype-2.11.1\src\winfonts\winfnt.c"
+         ftbase.c
+         ftglyph.c
+         ftinit.c
+         ftmm.c
+         ftsystem.c
+         bdf.c
+         ftcache.c
+         cff.c
+         type1cid.c
+         ftgzip.c
+         ftlzw.c
+         pcf.c
+         pfr.c
+         psaux.c
+     3>c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\psaux\t1decode.c(1996,27): warning C4267: '=': conversion from 'size_t' to 'FT_Int', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+     3>c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\psaux\psintrp.c(1005,29): warning C4267: '=': conversion from 'size_t' to 'FT_Fast', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+         pshinter.c
+         psmodule.c
+         raster.c
+         sfnt.c
+     3>c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\sfnt\sfdriver.c(859,32): warning C4267: '=': conversion from 'size_t' to 'FT_UInt', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+     3>c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\sfnt\sfdriver.c(1011,44): warning C4244: 'function': conversion from '__int64' to 'const unsigned int', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+         smooth.c
+     3>c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\smooth\ftgrays.c(1978,26): warning C4267: '+=': conversion from 'size_t' to 'TCoord', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+         truetype.c
+         Compiling...
+         type1.c
+     3>c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\type1\t1driver.c(276,51): warning C4267: '=': conversion from 'size_t' to 'FT_ULong', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+     3>c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\type1\t1driver.c(297,58): warning C4267: '=': conversion from 'size_t' to 'FT_ULong', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+     3>c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\type1\t1driver.c(329,65): warning C4267: '=': conversion from 'size_t' to 'FT_ULong', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+     3>c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\type1\t1driver.c(359,23): warning C4267: '=': conversion from 'size_t' to 'FT_UInt', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+     3>c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\type1\t1driver.c(568,59): warning C4267: '=': conversion from 'size_t' to 'FT_ULong', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+     3>c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\type1\t1driver.c(577,58): warning C4267: '=': conversion from 'size_t' to 'FT_ULong', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+     3>c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\type1\t1driver.c(586,61): warning C4267: '=': conversion from 'size_t' to 'FT_ULong', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+     3>c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\type1\t1driver.c(595,63): warning C4267: '=': conversion from 'size_t' to 'FT_ULong', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+     3>c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\type1\t1driver.c(605,58): warning C4267: '=': conversion from 'size_t' to 'FT_ULong', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+     3>c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\type1\t1load.c(1771,68): warning C4244: '=': conversion from '__int64' to 'FT_Int', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+     3>c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\type1\t1load.c(1941,40): warning C4244: '=': conversion from '__int64' to 'FT_Int', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+         type42.c
+     3>c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\type42\t42parse.c(851,66): warning C4244: '=': conversion from '__int64' to 'FT_Int', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+         winfnt.c
+         C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Tools\MSVC\14.29.30133\bin\HostX86\x64\CL.exe /c /I"..\..\derived\3rdParty\src\freetype-2.11.1\include" /nologo /W4 /WX- /diagnostics:column /O2 /Ob2 /Oi /Os /Oy /GT /GL /D NDEBUG /D WIN32 /D _LIB /D FT2_BUILD_LIBRARY /D _CRT_SECURE_NO_WARNINGS /D _VC80_UPGRADE=0x0710 /D _MBCS /GF /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\\" /Fd"..\..\derived\x64-VC-Release\3rdParty\install\lib\freetype.pdb" /external:W4 /Gd /TC /wd4001 /FC /errorReport:queue "..\..\derived\3rdParty\src\freetype-2.11.1\builds\windows\ftdebug.c"
+         ftdebug.c
+       Lib:
+         C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Tools\MSVC\14.29.30133\bin\HostX86\x64\Lib.exe /OUT:"..\..\derived\x64-VC-Release\3rdParty\install\lib\freetype.lib" /NOLOGO /MACHINE:X64 /LTCG "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\autofit.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\bdf.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\cff.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\ftbase.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\ftbitmap.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\ftcache.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\ftdebug.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\ftgasp.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\ftglyph.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\ftgzip.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\ftinit.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\ftlzw.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\ftstroke.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\ftsystem.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\smooth.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\ftbbox.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\ftmm.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\ftpfr.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\ftsynth.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\fttype1.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\ftwinfnt.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\pcf.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\pfr.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\psaux.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\pshinter.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\psmodule.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\raster.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\sfnt.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\truetype.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\type1.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\type1cid.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\type42.obj"
+         "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\winfnt.obj"
+         freetype.vcxproj -> c:\compiler\openMSX\derived\x64-VC-Release\3rdParty\install\lib\freetype.lib
+       FinalizeBuildStatus:
+         Deleting file "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\freetype.tlog\unsuccessfulbuild".
+         Touching "..\..\derived\x64-VC-Release\3rdParty\build\freetype-2.11.1\freetype.tlog\freetype.lastbuildstate".
+     3>Done Building Project "c:\compiler\openMSX\build\3rdparty\freetype.vcxproj" (default targets).
+     1>Done Building Project "c:\compiler\openMSX\build\3rdparty\3rdparty.sln" (default targets) -- FAILED.
+
+Build FAILED.
+
+       "c:\compiler\openMSX\build\3rdparty\3rdparty.sln" (default target) (1) ->
+       "c:\compiler\openMSX\build\3rdparty\SDL_ttf.vcxproj" (default target) (11) ->
+       (ClCompile target) -> 
+         c:\compiler\openMSX\derived\3rdParty\src\SDL2_ttf-2.0.15\SDL_ttf.c(602,38): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data [c:\compiler\openMSX\build\3rdparty\SDL_ttf.vcxproj]
+         c:\compiler\openMSX\derived\3rdParty\src\SDL2_ttf-2.0.15\SDL_ttf.c(603,38): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data [c:\compiler\openMSX\build\3rdparty\SDL_ttf.vcxproj]
+         c:\compiler\openMSX\derived\3rdParty\src\SDL2_ttf-2.0.15\SDL_ttf.c(1949,55): warning C4018: '>': signed/unsigned mismatch [c:\compiler\openMSX\build\3rdparty\SDL_ttf.vcxproj]
+
+
+       "c:\compiler\openMSX\build\3rdparty\3rdparty.sln" (default target) (1) ->
+       "c:\compiler\openMSX\build\3rdparty\freetype.vcxproj" (default target) (3) ->
+         c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\psaux\t1decode.c(1996,27): warning C4267: '=': conversion from 'size_t' to 'FT_Int', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+         c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\psaux\psintrp.c(1005,29): warning C4267: '=': conversion from 'size_t' to 'FT_Fast', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+         c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\sfnt\sfdriver.c(859,32): warning C4267: '=': conversion from 'size_t' to 'FT_UInt', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+         c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\sfnt\sfdriver.c(1011,44): warning C4244: 'function': conversion from '__int64' to 'const unsigned int', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+         c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\smooth\ftgrays.c(1978,26): warning C4267: '+=': conversion from 'size_t' to 'TCoord', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+         c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\type1\t1driver.c(276,51): warning C4267: '=': conversion from 'size_t' to 'FT_ULong', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+         c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\type1\t1driver.c(297,58): warning C4267: '=': conversion from 'size_t' to 'FT_ULong', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+         c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\type1\t1driver.c(329,65): warning C4267: '=': conversion from 'size_t' to 'FT_ULong', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+         c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\type1\t1driver.c(359,23): warning C4267: '=': conversion from 'size_t' to 'FT_UInt', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+         c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\type1\t1driver.c(568,59): warning C4267: '=': conversion from 'size_t' to 'FT_ULong', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+         c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\type1\t1driver.c(577,58): warning C4267: '=': conversion from 'size_t' to 'FT_ULong', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+         c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\type1\t1driver.c(586,61): warning C4267: '=': conversion from 'size_t' to 'FT_ULong', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+         c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\type1\t1driver.c(595,63): warning C4267: '=': conversion from 'size_t' to 'FT_ULong', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+         c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\type1\t1driver.c(605,58): warning C4267: '=': conversion from 'size_t' to 'FT_ULong', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+         c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\type1\t1load.c(1771,68): warning C4244: '=': conversion from '__int64' to 'FT_Int', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+         c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\type1\t1load.c(1941,40): warning C4244: '=': conversion from '__int64' to 'FT_Int', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+         c:\compiler\openMSX\derived\3rdParty\src\freetype-2.11.1\src\type42\t42parse.c(851,66): warning C4244: '=': conversion from '__int64' to 'FT_Int', possible loss of data [c:\compiler\openMSX\build\3rdparty\freetype.vcxproj]
+
+
+       "c:\compiler\openMSX\build\3rdparty\3rdparty.sln" (default target) (1) ->
+       "c:\compiler\openMSX\build\3rdparty\SDL.vcxproj" (default target) (8) ->
+       (ClCompile target) -> 
+         c1 : fatal error C1083: Cannot open source file: '..\..\derived\3rdParty\src\SDL2-2.0.20\src\joystick\windows\SDL_mmjoystick.c': No such file or directory [c:\compiler\openMSX\build\3rdparty\SDL.vcxproj]
+
+    20 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:05.59
+</pre>
+<a href="#top">Back To Top</a><br>
+<a name="64bitCompile"><h3>64 bit compile</h3></a> 
+<pre style="background:#eeeeee;">
+Microsoft (R) Build Engine version 16.11.2+f32259642 for .NET Framework
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+Build started 2/15/2022 8:08:30 AM.
+     1>Project "c:\compiler\openMSX\build\msvc\openmsx.sln" on node 1 (default targets).
+     1>ValidateSolutionConfiguration:
+         Building solution configuration "Release|x64".
+     1>Project "c:\compiler\openMSX\build\msvc\openmsx.sln" (1) is building "c:\compiler\openMSX\build\msvc\openmsx.vcxproj" (2) on node 1 (default targets).
+     2>InitializeBuildStatus:
+         Touching "..\..\derived\x64-VC-Release\build\openmsx.tlog\unsuccessfulbuild".
+       CustomBuild:
+         Generating config headers...
+         Up to date: c:\compiler\openMSX\derived\x64-VC-Release\config\build-info.hh
+         Up to date: c:\compiler\openMSX\derived\x64-VC-Release\config\components.hh
+         Up to date: c:\compiler\openMSX\derived\x64-VC-Release\config\systemfuncs.hh
+         Up to date: c:\compiler\openMSX\derived\x64-VC-Release\config\resource-info.h
+         Up to date: c:\compiler\openMSX\derived\x64-VC-Release\config\version.ii
+     2>C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Microsoft\VC\v160\Microsoft.CppCommon.targets(241,5): warning MSB8065: Custom build for item "..\..\src\openmsx.hh" succeeded, but specified output "c:\compiler\openmsx\build\msvc\build-info.hh" has not been created. This may cause incremental build to work incorrectly. [c:\compiler\openMSX\build\msvc\openmsx.vcxproj]
+     2>C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Microsoft\VC\v160\Microsoft.CppCommon.targets(241,5): warning MSB8065: Custom build for item "..\..\src\openmsx.hh" succeeded, but specified output "c:\compiler\openmsx\build\msvc\components.hh" has not been created. This may cause incremental build to work incorrectly. [c:\compiler\openMSX\build\msvc\openmsx.vcxproj]
+     2>C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Microsoft\VC\v160\Microsoft.CppCommon.targets(241,5): warning MSB8065: Custom build for item "..\..\src\openmsx.hh" succeeded, but specified output "c:\compiler\openmsx\build\msvc\probed_defs.hh" has not been created. This may cause incremental build to work incorrectly. [c:\compiler\openMSX\build\msvc\openmsx.vcxproj]
+     2>C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Microsoft\VC\v160\Microsoft.CppCommon.targets(241,5): warning MSB8065: Custom build for item "..\..\src\openmsx.hh" succeeded, but specified output "c:\compiler\openmsx\build\msvc\resource-info.h" has not been created. This may cause incremental build to work incorrectly. [c:\compiler\openMSX\build\msvc\openmsx.vcxproj]
+     2>C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Microsoft\VC\v160\Microsoft.CppCommon.targets(241,5): warning MSB8065: Custom build for item "..\..\src\openmsx.hh" succeeded, but specified output "c:\compiler\openmsx\build\msvc\version.ii" has not been created. This may cause incremental build to work incorrectly. [c:\compiler\openMSX\build\msvc\openmsx.vcxproj]
+       ClCompile:
+         All outputs are up-to-date.
+       ResourceCompile:
+         All outputs are up-to-date.
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Tools\MSVC\14.29.30133\bin\HostX64\x64\link.exe /ERRORREPORT:QUEUE /OUT:"..\..\derived\x64-VC-Release\install\openmsx.exe" /NOLOGO /LIBPATH:\Lib\x64 /LIBPATH:"..\..\derived\x64-VC-Release\3rdParty\install\lib" wsock32.lib setupapi.lib netapi32.lib winmm.lib imm32.lib version.lib secur32.lib opengl32.lib dxguid.lib dsound.lib SDL.lib SDLmain.lib SDL_ttf.lib freetype.lib glew.lib libogg.lib libpng.lib libtheora.lib libvorbis.lib tcl.lib zlib.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib Delayimp.lib /DELAYLOAD:shell32.dll /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"..\..\derived\x64-VC-Release\install\openmsx.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG:incremental /LTCGOUT:"..\..\derived\x64-VC-Release\build\openmsx.iobj" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"..\..\derived\x64-VC-Release\install\openmsx.lib" /MACHINE:X64 "..\..\derived\x64-VC-Release\build\openmsx.res"
+         "..\..\derived\x64-VC-Release\build\CasImage.obj"
+         "..\..\derived\x64-VC-Release\build\CassetteDevice.obj"
+         "..\..\derived\x64-VC-Release\build\CassetteImage.obj"
+         "..\..\derived\x64-VC-Release\build\CassettePlayer.obj"
+         "..\..\derived\x64-VC-Release\build\CassettePlayerCLI.obj"
+         "..\..\derived\x64-VC-Release\build\CassettePort.obj"
+         "..\..\derived\x64-VC-Release\build\DummyCassetteDevice.obj"
+         "..\..\derived\x64-VC-Release\build\WavImage.obj"
+         "..\..\derived\x64-VC-Release\build\Command.obj"
+         "..\..\derived\x64-VC-Release\build\CommandException.obj"
+         "..\..\derived\x64-VC-Release\build\Completer.obj"
+         "..\..\derived\x64-VC-Release\build\GlobalCommandController.obj"
+         "..\..\derived\x64-VC-Release\build\InfoCommand.obj"
+         "..\..\derived\x64-VC-Release\build\InfoTopic.obj"
+         "..\..\derived\x64-VC-Release\build\Interpreter.obj"
+         "..\..\derived\x64-VC-Release\build\MSXCommandController.obj"
+         "..\..\derived\x64-VC-Release\build\ProxyCommand.obj"
+         "..\..\derived\x64-VC-Release\build\TclArgParser.obj"
+         "..\..\derived\x64-VC-Release\build\TclObject.obj"
+         "..\..\derived\x64-VC-Release\build\TclParser.obj"
+         "..\..\derived\x64-VC-Release\build\TclCallback.obj"
+         "..\..\derived\x64-VC-Release\build\HardwareConfig.obj"
+         "..\..\derived\x64-VC-Release\build\DeviceConfig.obj"
+         "..\..\derived\x64-VC-Release\build\SettingsConfig.obj"
+         "..\..\derived\x64-VC-Release\build\XMLElement.obj"
+         "..\..\derived\x64-VC-Release\build\CommandConsole.obj"
+         "..\..\derived\x64-VC-Release\build\OSDConsoleRenderer.obj"
+         "..\..\derived\x64-VC-Release\build\OSDGUI.obj"
+         "..\..\derived\x64-VC-Release\build\OSDGUILayer.obj"
+         "..\..\derived\x64-VC-Release\build\OSDImageBasedWidget.obj"
+         "..\..\derived\x64-VC-Release\build\OSDRectangle.obj"
+         "..\..\derived\x64-VC-Release\build\OSDText.obj"
+         "..\..\derived\x64-VC-Release\build\OSDTopWidget.obj"
+         "..\..\derived\x64-VC-Release\build\OSDWidget.obj"
+         "..\..\derived\x64-VC-Release\build\TTFFont.obj"
+         "..\..\derived\x64-VC-Release\build\BreakPointBase.obj"
+         "..\..\derived\x64-VC-Release\build\CPURegs.obj"
+         "..\..\derived\x64-VC-Release\build\CPUClock.obj"
+         "..\..\derived\x64-VC-Release\build\CPUCore.obj"
+         "..\..\derived\x64-VC-Release\build\Dasm.obj"
+         "..\..\derived\x64-VC-Release\build\IRQHelper.obj"
+         "..\..\derived\x64-VC-Release\build\MSXCPU.obj"
+         "..\..\derived\x64-VC-Release\build\MSXCPUInterface.obj"
+         "..\..\derived\x64-VC-Release\build\MSXMultiDevice.obj"
+         "..\..\derived\x64-VC-Release\build\MSXMultiIODevice.obj"
+         "..\..\derived\x64-VC-Release\build\MSXMultiMemDevice.obj"
+         "..\..\derived\x64-VC-Release\build\MSXWatchIODevice.obj"
+         "..\..\derived\x64-VC-Release\build\VDPIODelay.obj"
+         "..\..\derived\x64-VC-Release\build\DasmTables.obj"
+         "..\..\derived\x64-VC-Release\build\Debugger.obj"
+         "..\..\derived\x64-VC-Release\build\Probe.obj"
+         "..\..\derived\x64-VC-Release\build\ProbeBreakPoint.obj"
+         "..\..\derived\x64-VC-Release\build\SimpleDebuggable.obj"
+         "..\..\derived\x64-VC-Release\build\AdhocCliCommParser.obj"
+         "..\..\derived\x64-VC-Release\build\AfterCommand.obj"
+         "..\..\derived\x64-VC-Release\build\CliComm.obj"
+         "..\..\derived\x64-VC-Release\build\CliConnection.obj"
+         "..\..\derived\x64-VC-Release\build\CliServer.obj"
+         "..\..\derived\x64-VC-Release\build\Event.obj"
+         "..\..\derived\x64-VC-Release\build\EventDistributor.obj"
+         "..\..\derived\x64-VC-Release\build\GlobalCliComm.obj"
+         "..\..\derived\x64-VC-Release\build\HotKey.obj"
+         "..\..\derived\x64-VC-Release\build\InputEventFactory.obj"
+         "..\..\derived\x64-VC-Release\build\InputEventGenerator.obj"
+         "..\..\derived\x64-VC-Release\build\Keys.obj"
+         "..\..\derived\x64-VC-Release\build\MSXCliComm.obj"
+         "..\..\derived\x64-VC-Release\build\Socket.obj"
+         "..\..\derived\x64-VC-Release\build\StdioMessages.obj"
+         "..\..\derived\x64-VC-Release\build\TclCallbackMessages.obj"
+         "..\..\derived\x64-VC-Release\build\MessageCommand.obj"
+         "..\..\derived\x64-VC-Release\build\BootBlocks.obj"
+         "..\..\derived\x64-VC-Release\build\AVTFDC.obj"
+         "..\..\derived\x64-VC-Release\build\DirAsDSK.obj"
+         "..\..\derived\x64-VC-Release\build\Disk.obj"
+         "..\..\derived\x64-VC-Release\build\DiskChanger.obj"
+         "..\..\derived\x64-VC-Release\build\DiskContainer.obj"
+         "..\..\derived\x64-VC-Release\build\DiskDrive.obj"
+         "..\..\derived\x64-VC-Release\build\DiskFactory.obj"
+         "..\..\derived\x64-VC-Release\build\DiskImageCLI.obj"
+         "..\..\derived\x64-VC-Release\build\DiskImageUtils.obj"
+         "..\..\derived\x64-VC-Release\build\DiskManipulator.obj"
+         "..\..\derived\x64-VC-Release\build\DiskName.obj"
+         "..\..\derived\x64-VC-Release\build\DiskPartition.obj"
+         "..\..\derived\x64-VC-Release\build\DriveMultiplexer.obj"
+         "..\..\derived\x64-VC-Release\build\DSKDiskImage.obj"
+         "..\..\derived\x64-VC-Release\build\DummyDisk.obj"
+         "..\..\derived\x64-VC-Release\build\EmptyDiskPatch.obj"
+         "..\..\derived\x64-VC-Release\build\MicrosolFDC.obj"
+         "..\..\derived\x64-VC-Release\build\MSXFDC.obj"
+         "..\..\derived\x64-VC-Release\build\MSXtar.obj"
+         "..\..\derived\x64-VC-Release\build\CanonFDC.obj"
+         "..\..\derived\x64-VC-Release\build\NationalFDC.obj"
+         "..\..\derived\x64-VC-Release\build\SanyoFDC.obj"
+         "..\..\derived\x64-VC-Release\build\ToshibaFDC.obj"
+         "..\..\derived\x64-VC-Release\build\SpectravideoFDC.obj"
+         "..\..\derived\x64-VC-Release\build\VictorFDC.obj"
+         "..\..\derived\x64-VC-Release\build\NowindCommand.obj"
+         "..\..\derived\x64-VC-Release\build\NowindHost.obj"
+         "..\..\derived\x64-VC-Release\build\NowindInterface.obj"
+         "..\..\derived\x64-VC-Release\build\NowindRomDisk.obj"
+         "..\..\derived\x64-VC-Release\build\PhilipsFDC.obj"
+         "..\..\derived\x64-VC-Release\build\YamahaFDC.obj"
+         "..\..\derived\x64-VC-Release\build\RamDSKDiskImage.obj"
+         "..\..\derived\x64-VC-Release\build\RealDrive.obj"
+         "..\..\derived\x64-VC-Release\build\SectorAccessibleDisk.obj"
+         "..\..\derived\x64-VC-Release\build\SectorBasedDisk.obj"
+         "..\..\derived\x64-VC-Release\build\RawTrack.obj"
+         "..\..\derived\x64-VC-Release\build\DMKDiskImage.obj"
+         "..\..\derived\x64-VC-Release\build\TC8566AF.obj"
+         "..\..\derived\x64-VC-Release\build\TalentTDC600.obj"
+         "..\..\derived\x64-VC-Release\build\TurboRFDC.obj"
+         "..\..\derived\x64-VC-Release\build\WD2793.obj"
+         "..\..\derived\x64-VC-Release\build\WD2793BasedFDC.obj"
+         "..\..\derived\x64-VC-Release\build\XSADiskImage.obj"
+         "..\..\derived\x64-VC-Release\build\CompressedFileAdapter.obj"
+         "..\..\derived\x64-VC-Release\build\File.obj"
+         "..\..\derived\x64-VC-Release\build\FileBase.obj"
+         "..\..\derived\x64-VC-Release\build\FileContext.obj"
+         "..\..\derived\x64-VC-Release\build\Filename.obj"
+         "..\..\derived\x64-VC-Release\build\FileOperations.obj"
+         "..\..\derived\x64-VC-Release\build\FilePool.obj"
+         "..\..\derived\x64-VC-Release\build\FilePoolCore.obj"
+         "..\..\derived\x64-VC-Release\build\GZFileAdapter.obj"
+         "..\..\derived\x64-VC-Release\build\LocalFile.obj"
+         "..\..\derived\x64-VC-Release\build\LocalFileReference.obj"
+         "..\..\derived\x64-VC-Release\build\PreCacheFile.obj"
+         "..\..\derived\x64-VC-Release\build\ReadDir.obj"
+         "..\..\derived\x64-VC-Release\build\ZipFileAdapter.obj"
+         "..\..\derived\x64-VC-Release\build\ZlibInflate.obj"
+         "..\..\derived\x64-VC-Release\build\AbstractIDEDevice.obj"
+         "..\..\derived\x64-VC-Release\build\CDImageCLI.obj"
+         "..\..\derived\x64-VC-Release\build\DummyIDEDevice.obj"
+         "..\..\derived\x64-VC-Release\build\DummySCSIDevice.obj"
+         "..\..\derived\x64-VC-Release\build\GoudaSCSI.obj"
+         "..\..\derived\x64-VC-Release\build\HD.obj"
+         "..\..\derived\x64-VC-Release\build\HDCommand.obj"
+         "..\..\derived\x64-VC-Release\build\HDImageCLI.obj"
+         "..\..\derived\x64-VC-Release\build\IDECDROM.obj"
+         "..\..\derived\x64-VC-Release\build\IDEDeviceFactory.obj"
+         "..\..\derived\x64-VC-Release\build\IDEHD.obj"
+         "..\..\derived\x64-VC-Release\build\MB89352.obj"
+         "..\..\derived\x64-VC-Release\build\MegaSCSI.obj"
+         "..\..\derived\x64-VC-Release\build\SCSIHD.obj"
+         "..\..\derived\x64-VC-Release\build\SCSILS120.obj"
+         "..\..\derived\x64-VC-Release\build\SunriseIDE.obj"
+         "..\..\derived\x64-VC-Release\build\BeerIDE.obj"
+         "..\..\derived\x64-VC-Release\build\WD33C93.obj"
+         "..\..\derived\x64-VC-Release\build\ArkanoidPad.obj"
+         "..\..\derived\x64-VC-Release\build\DummyJoystick.obj"
+         "..\..\derived\x64-VC-Release\build\EventDelay.obj"
+         "..\..\derived\x64-VC-Release\build\Joystick.obj"
+         "..\..\derived\x64-VC-Release\build\JoystickDevice.obj"
+         "..\..\derived\x64-VC-Release\build\JoystickPort.obj"
+         "..\..\derived\x64-VC-Release\build\JoyTap.obj"
+         "..\..\derived\x64-VC-Release\build\JoyMega.obj"
+         "..\..\derived\x64-VC-Release\build\Keyboard.obj"
+         "..\..\derived\x64-VC-Release\build\KeyboardSettings.obj"
+         "..\..\derived\x64-VC-Release\build\KeyJoystick.obj"
+         "..\..\derived\x64-VC-Release\build\MagicKey.obj"
+         "..\..\derived\x64-VC-Release\build\Mouse.obj"
+         "..\..\derived\x64-VC-Release\build\MSXEventDistributor.obj"
+         "..\..\derived\x64-VC-Release\build\NinjaTap.obj"
+         "..\..\derived\x64-VC-Release\build\Paddle.obj"
+         "..\..\derived\x64-VC-Release\build\RecordedCommand.obj"
+         "..\..\derived\x64-VC-Release\build\SETetrisDongle.obj"
+         "..\..\derived\x64-VC-Release\build\SG1000JoystickIO.obj"
+         "..\..\derived\x64-VC-Release\build\StateChangeDistributor.obj"
+         "..\..\derived\x64-VC-Release\build\Trackball.obj"
+         "..\..\derived\x64-VC-Release\build\UnicodeKeymap.obj"
+         "..\..\derived\x64-VC-Release\build\Touchpad.obj"
+         "..\..\derived\x64-VC-Release\build\ColecoJoystickIO.obj"
+         "..\..\derived\x64-VC-Release\build\RomSuperSwangi.obj"
+         "..\..\derived\x64-VC-Release\build\AmdFlash.obj"
+         "..\..\derived\x64-VC-Release\build\EEPROM_93C46.obj"
+         "..\..\derived\x64-VC-Release\build\Carnivore2.obj"
+         "..\..\derived\x64-VC-Release\build\CheckedRam.obj"
+         "..\..\derived\x64-VC-Release\build\CanonWordProcessor.obj"
+         "..\..\derived\x64-VC-Release\build\ColecoSuperGameModule.obj"
+         "..\..\derived\x64-VC-Release\build\TrackedRam.obj"
+         "..\..\derived\x64-VC-Release\build\ESE_RAM.obj"
+         "..\..\derived\x64-VC-Release\build\ESE_SCC.obj"
+         "..\..\derived\x64-VC-Release\build\FraelSwitchableROM.obj"
+         "..\..\derived\x64-VC-Release\build\MSXHBI55.obj"
+         "..\..\derived\x64-VC-Release\build\MSXMapperIO.obj"
+         "..\..\derived\x64-VC-Release\build\MSXMegaRam.obj"
+         "..\..\derived\x64-VC-Release\build\MSXMemoryMapper.obj"
+         "..\..\derived\x64-VC-Release\build\MSXMemoryMapperBase.obj"
+         "..\..\derived\x64-VC-Release\build\MSXMirrorDevice.obj"
+         "..\..\derived\x64-VC-Release\build\MSXPac.obj"
+         "..\..\derived\x64-VC-Release\build\MSXRam.obj"
+         "..\..\derived\x64-VC-Release\build\MSXRom.obj"
+         "..\..\derived\x64-VC-Release\build\MSXRomCLI.obj"
+         "..\..\derived\x64-VC-Release\build\MusicalMemoryMapper.obj"
+         "..\..\derived\x64-VC-Release\build\PanasonicMemory.obj"
+         "..\..\derived\x64-VC-Release\build\PanasonicRam.obj"
+         "..\..\derived\x64-VC-Release\build\Ram.obj"
+         "..\..\derived\x64-VC-Release\build\Rom.obj"
+         "..\..\derived\x64-VC-Release\build\RomArc.obj"
+         "..\..\derived\x64-VC-Release\build\RomAscii16_2.obj"
+         "..\..\derived\x64-VC-Release\build\RomAscii16kB.obj"
+         "..\..\derived\x64-VC-Release\build\RomAscii8_8.obj"
+         "..\..\derived\x64-VC-Release\build\RomAscii8kB.obj"
+         "..\..\derived\x64-VC-Release\build\RomBlocks.obj"
+         "..\..\derived\x64-VC-Release\build\RomColecoMegaCart.obj"
+         "..\..\derived\x64-VC-Release\build\RomCrossBlaim.obj"
+         "..\..\derived\x64-VC-Release\build\RomDatabase.obj"
+         "..\..\derived\x64-VC-Release\build\RomDRAM.obj"
+         "..\..\derived\x64-VC-Release\build\RomFactory.obj"
+         "..\..\derived\x64-VC-Release\build\RomFSA1FM.obj"
+         "..\..\derived\x64-VC-Release\build\RomGameMaster2.obj"
+         "..\..\derived\x64-VC-Release\build\RomGeneric16kB.obj"
+         "..\..\derived\x64-VC-Release\build\RomGeneric8kB.obj"
+         "..\..\derived\x64-VC-Release\build\RomHalnote.obj"
+         "..\..\derived\x64-VC-Release\build\RomHarryFox.obj"
+         "..\..\derived\x64-VC-Release\build\RomHolyQuran.obj"
+         "..\..\derived\x64-VC-Release\build\RomHolyQuran2.obj"
+         "..\..\derived\x64-VC-Release\build\RomInfo.obj"
+         "..\..\derived\x64-VC-Release\build\RomInfoTopic.obj"
+         "..\..\derived\x64-VC-Release\build\RomKonami.obj"
+         "..\..\derived\x64-VC-Release\build\RomKonamiKeyboardMaster.obj"
+         "..\..\derived\x64-VC-Release\build\RomKonamiSCC.obj"
+         "..\..\derived\x64-VC-Release\build\RomMajutsushi.obj"
+         "..\..\derived\x64-VC-Release\build\RomManbow2.obj"
+         "..\..\derived\x64-VC-Release\build\RomMSXtra.obj"
+         "..\..\derived\x64-VC-Release\build\RomMSXWrite.obj"
+         "..\..\derived\x64-VC-Release\build\RomMitsubishiMLTS2.obj"
+         "..\..\derived\x64-VC-Release\build\RomMultiRom.obj"
+         "..\..\derived\x64-VC-Release\build\RomMatraCompilation.obj"
+         "..\..\derived\x64-VC-Release\build\RomMatraInk.obj"
+         "..\..\derived\x64-VC-Release\build\RomMSXDOS2.obj"
+         "..\..\derived\x64-VC-Release\build\RomNational.obj"
+         "..\..\derived\x64-VC-Release\build\RomNettouYakyuu.obj"
+         "..\..\derived\x64-VC-Release\build\RomPadial16kB.obj"
+         "..\..\derived\x64-VC-Release\build\RomPadial8kB.obj"
+         "..\..\derived\x64-VC-Release\build\RomPageNN.obj"
+         "..\..\derived\x64-VC-Release\build\RomPanasonic.obj"
+         "..\..\derived\x64-VC-Release\build\RomPlain.obj"
+         "..\..\derived\x64-VC-Release\build\RomPlayBall.obj"
+         "..\..\derived\x64-VC-Release\build\RomRamFile.obj"
+         "..\..\derived\x64-VC-Release\build\RomRType.obj"
+         "..\..\derived\x64-VC-Release\build\RomSuperLodeRunner.obj"
+         "..\..\derived\x64-VC-Release\build\RomSynthesizer.obj"
+         "..\..\derived\x64-VC-Release\build\RomZemina126in1.obj"
+         "..\..\derived\x64-VC-Release\build\RomZemina25in1.obj"
+         "..\..\derived\x64-VC-Release\build\RomZemina80in1.obj"
+         "..\..\derived\x64-VC-Release\build\RomZemina90in1.obj"
+         "..\..\derived\x64-VC-Release\build\SRAM.obj"
+         "..\..\derived\x64-VC-Release\build\ReproCartridgeV1.obj"
+         "..\..\derived\x64-VC-Release\build\ReproCartridgeV2.obj"
+         "..\..\derived\x64-VC-Release\build\KonamiUltimateCollection.obj"
+         "..\..\derived\x64-VC-Release\build\MegaFlashRomSCCPlus.obj"
+         "..\..\derived\x64-VC-Release\build\MegaFlashRomSCCPlusSD.obj"
+         "..\..\derived\x64-VC-Release\build\ROMHunterMk2.obj"
+         "..\..\derived\x64-VC-Release\build\SdCard.obj"
+         "..\..\derived\x64-VC-Release\build\RomDooly.obj"
+         "..\..\derived\x64-VC-Release\build\BooleanSetting.obj"
+         "..\..\derived\x64-VC-Release\build\EnumSetting.obj"
+         "..\..\derived\x64-VC-Release\build\FilenameSetting.obj"
+         "..\..\derived\x64-VC-Release\build\FloatSetting.obj"
+         "..\..\derived\x64-VC-Release\build\IntegerSetting.obj"
+         "..\..\derived\x64-VC-Release\build\KeyCodeSetting.obj"
+         "..\..\derived\x64-VC-Release\build\ProxySetting.obj"
+         "..\..\derived\x64-VC-Release\build\Setting.obj"
+         "..\..\derived\x64-VC-Release\build\ReadOnlySetting.obj"
+         "..\..\derived\x64-VC-Release\build\SettingsManager.obj"
+         "..\..\derived\x64-VC-Release\build\StringSetting.obj"
+         "..\..\derived\x64-VC-Release\build\UserSettings.obj"
+         "..\..\derived\x64-VC-Release\build\VideoSourceSetting.obj"
+         "..\..\derived\x64-VC-Release\build\AudioInputConnector.obj"
+         "..\..\derived\x64-VC-Release\build\AudioInputDevice.obj"
+         "..\..\derived\x64-VC-Release\build\AY8910.obj"
+         "..\..\derived\x64-VC-Release\build\AY8910Periphery.obj"
+         "..\..\derived\x64-VC-Release\build\BlipBuffer.obj"
+         "..\..\derived\x64-VC-Release\build\DACSound16S.obj"
+         "..\..\derived\x64-VC-Release\build\DACSound8U.obj"
+         "..\..\derived\x64-VC-Release\build\DummyAudioInputDevice.obj"
+         "..\..\derived\x64-VC-Release\build\DummyY8950KeyboardDevice.obj"
+         "..\..\derived\x64-VC-Release\build\EmuTimer.obj"
+         "..\..\derived\x64-VC-Release\build\KeyClick.obj"
+         "..\..\derived\x64-VC-Release\build\Mixer.obj"
+         "..\..\derived\x64-VC-Release\build\MSXAudio.obj"
+         "..\..\derived\x64-VC-Release\build\MSXFmPac.obj"
+         "..\..\derived\x64-VC-Release\build\MSXMixer.obj"
+         "..\..\derived\x64-VC-Release\build\MSXMoonSound.obj"
+         "..\..\derived\x64-VC-Release\build\MSXMusic.obj"
+         "..\..\derived\x64-VC-Release\build\MSXOPL3Cartridge.obj"
+         "..\..\derived\x64-VC-Release\build\MSXPSG.obj"
+         "..\..\derived\x64-VC-Release\build\MSXSCCPlusCart.obj"
+         "..\..\derived\x64-VC-Release\build\MSXTurboRPCM.obj"
+         "..\..\derived\x64-VC-Release\build\MSXYamahaSFG.obj"
+         "..\..\derived\x64-VC-Release\build\NullSoundDriver.obj"
+         "..\..\derived\x64-VC-Release\build\ResampledSoundDevice.obj"
+         "..\..\derived\x64-VC-Release\build\ResampleBlip.obj"
+         "..\..\derived\x64-VC-Release\build\ResampleHQ.obj"
+         "..\..\derived\x64-VC-Release\build\ResampleLQ.obj"
+         "..\..\derived\x64-VC-Release\build\ResampleTrivial.obj"
+         "..\..\derived\x64-VC-Release\build\SamplePlayer.obj"
+         "..\..\derived\x64-VC-Release\build\SCC.obj"
+         "..\..\derived\x64-VC-Release\build\SDLSoundDriver.obj"
+         "..\..\derived\x64-VC-Release\build\SN76489.obj"
+         "..\..\derived\x64-VC-Release\build\SNPSG.obj"
+         "..\..\derived\x64-VC-Release\build\SoundDevice.obj"
+         "..\..\derived\x64-VC-Release\build\VLM5030.obj"
+         "..\..\derived\x64-VC-Release\build\WavAudioInput.obj"
+         "..\..\derived\x64-VC-Release\build\WavWriter.obj"
+         "..\..\derived\x64-VC-Release\build\Y8950.obj"
+         "..\..\derived\x64-VC-Release\build\Y8950Adpcm.obj"
+         "..\..\derived\x64-VC-Release\build\Y8950KeyboardConnector.obj"
+         "..\..\derived\x64-VC-Release\build\Y8950KeyboardDevice.obj"
+         "..\..\derived\x64-VC-Release\build\Y8950Periphery.obj"
+         "..\..\derived\x64-VC-Release\build\YM2151.obj"
+         "..\..\derived\x64-VC-Release\build\YM2413.obj"
+         "..\..\derived\x64-VC-Release\build\YM2413Burczynski.obj"
+         "..\..\derived\x64-VC-Release\build\YM2413Okazaki.obj"
+         "..\..\derived\x64-VC-Release\build\YM2413NukeYKT.obj"
+         "..\..\derived\x64-VC-Release\build\YM2413OriginalNukeYKT.obj"
+         "..\..\derived\x64-VC-Release\build\opll.obj"
+         "..\..\derived\x64-VC-Release\build\YMF262.obj"
+         "..\..\derived\x64-VC-Release\build\YMF278.obj"
+         "..\..\derived\x64-VC-Release\build\Thread.obj"
+         "..\..\derived\x64-VC-Release\build\Timer.obj"
+         "..\..\derived\x64-VC-Release\build\DeltaBlock.obj"
+         "..\..\derived\x64-VC-Release\build\Tiger.obj"
+         "..\..\derived\x64-VC-Release\build\TigerTree.obj"
+         "..\..\derived\x64-VC-Release\build\Base64.obj"
+         "..\..\derived\x64-VC-Release\build\Date.obj"
+         "..\..\derived\x64-VC-Release\build\DivModBySame.obj"
+         "..\..\derived\x64-VC-Release\build\HexDump.obj"
+         "..\..\derived\x64-VC-Release\build\lz4.obj"
+         "..\..\derived\x64-VC-Release\build\SerializeBuffer.obj"
+         "..\..\derived\x64-VC-Release\build\MemoryOps.obj"
+         "..\..\derived\x64-VC-Release\build\sha1.obj"
+         "..\..\derived\x64-VC-Release\build\StringOp.obj"
+         "..\..\derived\x64-VC-Release\build\rapidsax.obj"
+         "..\..\derived\x64-VC-Release\build\utf8_checked.obj"
+         "..\..\derived\x64-VC-Release\build\win32-arggen.obj"
+         "..\..\derived\x64-VC-Release\build\win32-dirent.obj"
+         "..\..\derived\x64-VC-Release\build\Poller.obj"
+         "..\..\derived\x64-VC-Release\build\ADVram.obj"
+         "..\..\derived\x64-VC-Release\build\AviRecorder.obj"
+         "..\..\derived\x64-VC-Release\build\AviWriter.obj"
+         "..\..\derived\x64-VC-Release\build\BaseImage.obj"
+         "..\..\derived\x64-VC-Release\build\BitmapConverter.obj"
+         "..\..\derived\x64-VC-Release\build\CharacterConverter.obj"
+         "..\..\derived\x64-VC-Release\build\DeinterlacedFrame.obj"
+         "..\..\derived\x64-VC-Release\build\Deflicker.obj"
+         "..\..\derived\x64-VC-Release\build\Display.obj"
+         "..\..\derived\x64-VC-Release\build\DoubledFrame.obj"
+         "..\..\derived\x64-VC-Release\build\DummyRenderer.obj"
+         "..\..\derived\x64-VC-Release\build\DummyVideoSystem.obj"
+         "..\..\derived\x64-VC-Release\build\FBPostProcessor.obj"
+         "..\..\derived\x64-VC-Release\build\FrameSource.obj"
+         "..\..\derived\x64-VC-Release\build\GLHQLiteScaler.obj"
+         "..\..\derived\x64-VC-Release\build\GLHQScaler.obj"
+         "..\..\derived\x64-VC-Release\build\GLImage.obj"
+         "..\..\derived\x64-VC-Release\build\GLPostProcessor.obj"
+         "..\..\derived\x64-VC-Release\build\GLRGBScaler.obj"
+         "..\..\derived\x64-VC-Release\build\GLSaIScaler.obj"
+         "..\..\derived\x64-VC-Release\build\GLScaleNxScaler.obj"
+         "..\..\derived\x64-VC-Release\build\GLScaler.obj"
+         "..\..\derived\x64-VC-Release\build\GLScalerFactory.obj"
+         "..\..\derived\x64-VC-Release\build\GLSimpleScaler.obj"
+         "..\..\derived\x64-VC-Release\build\DirectScalerOutput.obj"
+         "..\..\derived\x64-VC-Release\build\SuperImposeScalerOutput.obj"
+         "..\..\derived\x64-VC-Release\build\StretchScalerOutput.obj"
+         "..\..\derived\x64-VC-Release\build\MLAAScaler.obj"
+         "..\..\derived\x64-VC-Release\build\GLSnow.obj"
+         "..\..\derived\x64-VC-Release\build\GLTVScaler.obj"
+         "..\..\derived\x64-VC-Release\build\GLUtil.obj"
+         "..\..\derived\x64-VC-Release\build\GLDefaultScaler.obj"
+         "..\..\derived\x64-VC-Release\build\HQ2xLiteScaler.obj"
+         "..\..\derived\x64-VC-Release\build\HQ2xScaler.obj"
+         "..\..\derived\x64-VC-Release\build\HQ3xLiteScaler.obj"
+         "..\..\derived\x64-VC-Release\build\HQ3xScaler.obj"
+         "..\..\derived\x64-VC-Release\build\Icon.obj"
+         "..\..\derived\x64-VC-Release\build\Layer.obj"
+         "..\..\derived\x64-VC-Release\build\GLContext.obj"
+         "..\..\derived\x64-VC-Release\build\Multiply32.obj"
+         "..\..\derived\x64-VC-Release\build\OutputSurface.obj"
+         "..\..\derived\x64-VC-Release\build\SDLOutputSurface.obj"
+         "..\..\derived\x64-VC-Release\build\PixelRenderer.obj"
+         "..\..\derived\x64-VC-Release\build\PNG.obj"
+         "..\..\derived\x64-VC-Release\build\PostProcessor.obj"
+         "..\..\derived\x64-VC-Release\build\RawFrame.obj"
+         "..\..\derived\x64-VC-Release\build\RendererFactory.obj"
+         "..\..\derived\x64-VC-Release\build\RenderSettings.obj"
+         "..\..\derived\x64-VC-Release\build\RGBTriplet3xScaler.obj"
+         "..\..\derived\x64-VC-Release\build\SaI2xScaler.obj"
+         "..\..\derived\x64-VC-Release\build\SaI3xScaler.obj"
+         "..\..\derived\x64-VC-Release\build\Scale2xScaler.obj"
+         "..\..\derived\x64-VC-Release\build\Scale3xScaler.obj"
+         "..\..\derived\x64-VC-Release\build\Scaler1.obj"
+         "..\..\derived\x64-VC-Release\build\Scaler2.obj"
+         "..\..\derived\x64-VC-Release\build\Scaler3.obj"
+         "..\..\derived\x64-VC-Release\build\ScalerFactory.obj"
+         "..\..\derived\x64-VC-Release\build\Scanline.obj"
+         "..\..\derived\x64-VC-Release\build\SDLGLOffScreenSurface.obj"
+         "..\..\derived\x64-VC-Release\build\SDLGLVisibleSurface.obj"
+         "..\..\derived\x64-VC-Release\build\SDLImage.obj"
+         "..\..\derived\x64-VC-Release\build\SDLOffScreenSurface.obj"
+         "..\..\derived\x64-VC-Release\build\SDLRasterizer.obj"
+         "..\..\derived\x64-VC-Release\build\SDLSnow.obj"
+         "..\..\derived\x64-VC-Release\build\SDLVideoSystem.obj"
+         "..\..\derived\x64-VC-Release\build\SDLVisibleSurface.obj"
+         "..\..\derived\x64-VC-Release\build\SDLVisibleSurfaceBase.obj"
+         "..\..\derived\x64-VC-Release\build\Simple2xScaler.obj"
+         "..\..\derived\x64-VC-Release\build\Simple3xScaler.obj"
+         "..\..\derived\x64-VC-Release\build\SpriteChecker.obj"
+         "..\..\derived\x64-VC-Release\build\VDP.obj"
+         "..\..\derived\x64-VC-Release\build\VDPCmdEngine.obj"
+         "..\..\derived\x64-VC-Release\build\VDPAccessSlots.obj"
+         "..\..\derived\x64-VC-Release\build\VDPVRAM.obj"
+         "..\..\derived\x64-VC-Release\build\VideoLayer.obj"
+         "..\..\derived\x64-VC-Release\build\VideoSystem.obj"
+         "..\..\derived\x64-VC-Release\build\VisibleSurface.obj"
+         "..\..\derived\x64-VC-Release\build\ZMBVEncoder.obj"
+         "..\..\derived\x64-VC-Release\build\SuperImposedVideoFrame.obj"
+         "..\..\derived\x64-VC-Release\build\SuperImposedFrame.obj"
+         "..\..\derived\x64-VC-Release\build\V9990.obj"
+         "..\..\derived\x64-VC-Release\build\Video9000.obj"
+         "..\..\derived\x64-VC-Release\build\V9990BitmapConverter.obj"
+         "..\..\derived\x64-VC-Release\build\V9990CmdEngine.obj"
+         "..\..\derived\x64-VC-Release\build\V9990DummyRenderer.obj"
+         "..\..\derived\x64-VC-Release\build\V9990PxConverter.obj"
+         "..\..\derived\x64-VC-Release\build\V9990PixelRenderer.obj"
+         "..\..\derived\x64-VC-Release\build\V9990SDLRasterizer.obj"
+         "..\..\derived\x64-VC-Release\build\V9990VRAM.obj"
+         "..\..\derived\x64-VC-Release\build\LDDummyRenderer.obj"
+         "..\..\derived\x64-VC-Release\build\LDPixelRenderer.obj"
+         "..\..\derived\x64-VC-Release\build\LDSDLRasterizer.obj"
+         "..\..\derived\x64-VC-Release\build\ClockPin.obj"
+         "..\..\derived\x64-VC-Release\build\DummyMidiInDevice.obj"
+         "..\..\derived\x64-VC-Release\build\DummyMidiOutDevice.obj"
+         "..\..\derived\x64-VC-Release\build\DummyRS232Device.obj"
+         "..\..\derived\x64-VC-Release\build\I8251.obj"
+         "..\..\derived\x64-VC-Release\build\I8254.obj"
+         "..\..\derived\x64-VC-Release\build\JVCMSXMIDI.obj"
+         "..\..\derived\x64-VC-Release\build\MC6850.obj"
+         "..\..\derived\x64-VC-Release\build\Midi_w32.obj"
+         "..\..\derived\x64-VC-Release\build\MidiInConnector.obj"
+         "..\..\derived\x64-VC-Release\build\MidiInDevice.obj"
+         "..\..\derived\x64-VC-Release\build\MidiInReader.obj"
+         "..\..\derived\x64-VC-Release\build\MidiInWindows.obj"
+         "..\..\derived\x64-VC-Release\build\MidiOutConnector.obj"
+         "..\..\derived\x64-VC-Release\build\MidiOutDevice.obj"
+         "..\..\derived\x64-VC-Release\build\MidiOutLogger.obj"
+         "..\..\derived\x64-VC-Release\build\MidiOutWindows.obj"
+         "..\..\derived\x64-VC-Release\build\MSXFacMidiInterface.obj"
+         "..\..\derived\x64-VC-Release\build\MSXMidi.obj"
+         "..\..\derived\x64-VC-Release\build\MSXRS232.obj"
+         "..\..\derived\x64-VC-Release\build\MusicModuleMIDI.obj"
+         "..\..\derived\x64-VC-Release\build\RS232Connector.obj"
+         "..\..\derived\x64-VC-Release\build\RS232Device.obj"
+         "..\..\derived\x64-VC-Release\build\RS232Tester.obj"
+         "..\..\derived\x64-VC-Release\build\YM2148.obj"
+         "..\..\derived\x64-VC-Release\build\SocketStreamWrapper.obj"
+         "..\..\derived\x64-VC-Release\build\SspiNegotiateServer.obj"
+         "..\..\derived\x64-VC-Release\build\SspiUtils.obj"
+         "..\..\derived\x64-VC-Release\build\LaserdiscPlayer.obj"
+         "..\..\derived\x64-VC-Release\build\LaserdiscPlayerCLI.obj"
+         "..\..\derived\x64-VC-Release\build\OggReader.obj"
+         "..\..\derived\x64-VC-Release\build\PioneerLDControl.obj"
+         "..\..\derived\x64-VC-Release\build\yuv2rgb.obj"
+         "..\..\derived\x64-VC-Release\build\Autofire.obj"
+         "..\..\derived\x64-VC-Release\build\CartridgeSlotManager.obj"
+         "..\..\derived\x64-VC-Release\build\CliExtension.obj"
+         "..\..\derived\x64-VC-Release\build\ChakkariCopy.obj"
+         "..\..\derived\x64-VC-Release\build\CLIOption.obj"
+         "..\..\derived\x64-VC-Release\build\CommandLineParser.obj"
+         "..\..\derived\x64-VC-Release\build\Connector.obj"
+         "..\..\derived\x64-VC-Release\build\DebugDevice.obj"
+         "..\..\derived\x64-VC-Release\build\DeviceFactory.obj"
+         "..\..\derived\x64-VC-Release\build\DummyDevice.obj"
+         "..\..\derived\x64-VC-Release\build\DummyPrinterPortDevice.obj"
+         "..\..\derived\x64-VC-Release\build\DynamicClock.obj"
+         "..\..\derived\x64-VC-Release\build\EmptyPatch.obj"
+         "..\..\derived\x64-VC-Release\build\EmuTime.obj"
+         "..\..\derived\x64-VC-Release\build\FirmwareSwitch.obj"
+         "..\..\derived\x64-VC-Release\build\GlobalSettings.obj"
+         "..\..\derived\x64-VC-Release\build\I8255.obj"
+         "..\..\derived\x64-VC-Release\build\IPSPatch.obj"
+         "..\..\derived\x64-VC-Release\build\LedStatus.obj"
+         "..\..\derived\x64-VC-Release\build\main.obj"
+         "..\..\derived\x64-VC-Release\build\MSXBunsetsu.obj"
+         "..\..\derived\x64-VC-Release\build\MSXDevice.obj"
+         "..\..\derived\x64-VC-Release\build\MSXDeviceSwitch.obj"
+         "..\..\derived\x64-VC-Release\build\MSXE6Timer.obj"
+         "..\..\derived\x64-VC-Release\build\MSXHiResTimer.obj"
+         "..\..\derived\x64-VC-Release\build\MSXResetStatusRegister.obj"
+         "..\..\derived\x64-VC-Release\build\MSXKanji.obj"
+         "..\..\derived\x64-VC-Release\build\MSXKanji12.obj"
+         "..\..\derived\x64-VC-Release\build\MSXMatsushita.obj"
+         "..\..\derived\x64-VC-Release\build\MSXVictorHC9xSystemControl.obj"
+         "..\..\derived\x64-VC-Release\build\MSXMotherBoard.obj"
+         "..\..\derived\x64-VC-Release\build\MSXPPI.obj"
+         "..\..\derived\x64-VC-Release\build\MSXPrinterPort.obj"
+         "..\..\derived\x64-VC-Release\build\MSXRTC.obj"
+         "..\..\derived\x64-VC-Release\build\MSXS1985.obj"
+         "..\..\derived\x64-VC-Release\build\MSXS1990.obj"
+         "..\..\derived\x64-VC-Release\build\MSXSwitchedDevice.obj"
+         "..\..\derived\x64-VC-Release\build\MSXToshibaTcx200x.obj"
+         "..\..\derived\x64-VC-Release\build\MSXTurboRPause.obj"
+         "..\..\derived\x64-VC-Release\build\PasswordCart.obj"
+         "..\..\derived\x64-VC-Release\build\Pluggable.obj"
+         "..\..\derived\x64-VC-Release\build\PluggableFactory.obj"
+         "..\..\derived\x64-VC-Release\build\PluggingController.obj"
+         "..\..\derived\x64-VC-Release\build\Printer.obj"
+         "..\..\derived\x64-VC-Release\build\PrinterPortDevice.obj"
+         "..\..\derived\x64-VC-Release\build\PrinterPortLogger.obj"
+         "..\..\derived\x64-VC-Release\build\PrinterPortSimpl.obj"
+         "..\..\derived\x64-VC-Release\build\Reactor.obj"
+         "..\..\derived\x64-VC-Release\build\RealTime.obj"
+         "..\..\derived\x64-VC-Release\build\RenShaTurbo.obj"
+         "..\..\derived\x64-VC-Release\build\ReplayCLI.obj"
+         "..\..\derived\x64-VC-Release\build\ReverseManager.obj"
+         "..\..\derived\x64-VC-Release\build\RP5C01.obj"
+         "..\..\derived\x64-VC-Release\build\RTSchedulable.obj"
+         "..\..\derived\x64-VC-Release\build\RTScheduler.obj"
+         "..\..\derived\x64-VC-Release\build\SaveStateCLI.obj"
+         "..\..\derived\x64-VC-Release\build\Schedulable.obj"
+         "..\..\derived\x64-VC-Release\build\Scheduler.obj"
+         "..\..\derived\x64-VC-Release\build\SensorKid.obj"
+         "..\..\derived\x64-VC-Release\build\serialize.obj"
+         "..\..\derived\x64-VC-Release\build\serialize_core.obj"
+         "..\..\derived\x64-VC-Release\build\serialize_meta.obj"
+         "..\..\derived\x64-VC-Release\build\SC3000PPI.obj"
+         "..\..\derived\x64-VC-Release\build\SG1000Pause.obj"
+         "..\..\derived\x64-VC-Release\build\SpeedManager.obj"
+         "..\..\derived\x64-VC-Release\build\ThrottleManager.obj"
+         "..\..\derived\x64-VC-Release\build\Version.obj"
+         "..\..\derived\x64-VC-Release\build\SVIPSG.obj"
+         "..\..\derived\x64-VC-Release\build\SVIFDC.obj"
+         "..\..\derived\x64-VC-Release\build\SVIPrinterPort.obj"
+         "..\..\derived\x64-VC-Release\build\SVIPPI.obj"
+         "..\..\derived\x64-VC-Release\build\MSXCielTurbo.obj"
+            Creating library ..\..\derived\x64-VC-Release\install\openmsx.lib and object ..\..\derived\x64-VC-Release\install\openmsx.exp
+     2>freetype.lib(ftinit.obj) : error LNK2001: unresolved external symbol ft_sdf_renderer_class [c:\compiler\openMSX\build\msvc\openmsx.vcxproj]
+     2>freetype.lib(ftinit.obj) : error LNK2001: unresolved external symbol ft_bitmap_sdf_renderer_class [c:\compiler\openMSX\build\msvc\openmsx.vcxproj]
+     2>..\..\derived\x64-VC-Release\install\openmsx.exe : fatal error LNK1120: 2 unresolved externals [c:\compiler\openMSX\build\msvc\openmsx.vcxproj]
+     2>Done Building Project "c:\compiler\openMSX\build\msvc\openmsx.vcxproj" (default targets) -- FAILED.
+     1>Done Building Project "c:\compiler\openMSX\build\msvc\openmsx.sln" (default targets) -- FAILED.
+
+Build FAILED.
+
+       "c:\compiler\openMSX\build\msvc\openmsx.sln" (default target) (1) ->
+       "c:\compiler\openMSX\build\msvc\openmsx.vcxproj" (default target) (2) ->
+       (CustomBuild target) -> 
+         C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Microsoft\VC\v160\Microsoft.CppCommon.targets(241,5): warning MSB8065: Custom build for item "..\..\src\openmsx.hh" succeeded, but specified output "c:\compiler\openmsx\build\msvc\build-info.hh" has not been created. This may cause incremental build to work incorrectly. [c:\compiler\openMSX\build\msvc\openmsx.vcxproj]
+         C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Microsoft\VC\v160\Microsoft.CppCommon.targets(241,5): warning MSB8065: Custom build for item "..\..\src\openmsx.hh" succeeded, but specified output "c:\compiler\openmsx\build\msvc\components.hh" has not been created. This may cause incremental build to work incorrectly. [c:\compiler\openMSX\build\msvc\openmsx.vcxproj]
+         C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Microsoft\VC\v160\Microsoft.CppCommon.targets(241,5): warning MSB8065: Custom build for item "..\..\src\openmsx.hh" succeeded, but specified output "c:\compiler\openmsx\build\msvc\probed_defs.hh" has not been created. This may cause incremental build to work incorrectly. [c:\compiler\openMSX\build\msvc\openmsx.vcxproj]
+         C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Microsoft\VC\v160\Microsoft.CppCommon.targets(241,5): warning MSB8065: Custom build for item "..\..\src\openmsx.hh" succeeded, but specified output "c:\compiler\openmsx\build\msvc\resource-info.h" has not been created. This may cause incremental build to work incorrectly. [c:\compiler\openMSX\build\msvc\openmsx.vcxproj]
+         C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Microsoft\VC\v160\Microsoft.CppCommon.targets(241,5): warning MSB8065: Custom build for item "..\..\src\openmsx.hh" succeeded, but specified output "c:\compiler\openmsx\build\msvc\version.ii" has not been created. This may cause incremental build to work incorrectly. [c:\compiler\openMSX\build\msvc\openmsx.vcxproj]
+
+
+       "c:\compiler\openMSX\build\msvc\openmsx.sln" (default target) (1) ->
+       "c:\compiler\openMSX\build\msvc\openmsx.vcxproj" (default target) (2) ->
+       (Link target) -> 
+         freetype.lib(ftinit.obj) : error LNK2001: unresolved external symbol ft_sdf_renderer_class [c:\compiler\openMSX\build\msvc\openmsx.vcxproj]
+         freetype.lib(ftinit.obj) : error LNK2001: unresolved external symbol ft_bitmap_sdf_renderer_class [c:\compiler\openMSX\build\msvc\openmsx.vcxproj]
+         ..\..\derived\x64-VC-Release\install\openmsx.exe : fatal error LNK1120: 2 unresolved externals [c:\compiler\openMSX\build\msvc\openmsx.vcxproj]
+
+    5 Warning(s)
+    3 Error(s)
+
+Time Elapsed 00:00:05.33
+</pre>
+<a href="#top">Back To Top</a><br>
+<a name="msi64"><h3>64bit MSI Package</h3></a> 
+<pre style="background:#eeeeee;">
+OPENMSX_PLATFORM is x64
+OPENMSX_CONFIGURATION is release
+CATAPULT_BASEPATH is ..\\openmsx-wxcatapult
+Generating install files...
+  Executable...
+Generating install files...
+  Executable...
+</pre>
+<a href="#top">Back To Top</a><br>
