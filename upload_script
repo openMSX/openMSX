@@ -1,8 +1,0 @@
-option batch abort
-option confirm off
-option transfer binary
-
-open sftp://vampier@openmsx.fixato.net:22222
-cd /openmsx/uploaded
-put c:\compiler\openMSX\upload\*.zip 
-exit
