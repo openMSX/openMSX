@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1675208277">
+<softwaredb timestamp="1675364236">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -5136,21 +5136,21 @@ The softwaredb.xml file contains information about rom mapper types
 	<title>Bomb Jack</title>
 	<genmsxid>3446</genmsxid>
 	<system>MSX</system>
-	<company>Kralizec</company>
-	<year>2010</year>
-	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>aacdfbd5eda687377e66df2e376bd28679fbc160</hash></rom></dump>
-		<dump><rom><hash>6ca9f56cef15277adcff3f0cafdc59f5eb042fa2</hash><remark>[a]</remark></rom></dump>
-</software>
-<software>
-	<title>Bomb Jack</title>
-	<genmsxid>3446</genmsxid>
-	<system>MSX</system>
 	<company>Sega</company>
 	<year>1983</year>
 	<country>JP</country>
 		<dump><rom><hash>cef76580a01cc8e16704590d0d884d7eeadaa3a8</hash></rom></dump>
 		<dump><original value="true">Author</original><rom><type>Normal</type><hash>5c904e7d202d9df2ff2ef9c8300f00d207670e82</hash><remark>Kralizec MSX2 Version</remark></rom></dump>
+</software>
+<software>
+	<title>Bomb Jack</title>
+	<genmsxid>3446</genmsxid>
+	<system>MSX</system>
+	<company>Kralizec</company>
+	<year>2010</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>aacdfbd5eda687377e66df2e376bd28679fbc160</hash></rom></dump>
+		<dump><rom><hash>6ca9f56cef15277adcff3f0cafdc59f5eb042fa2</hash><remark>[a]</remark></rom></dump>
 </software>
 <software>
 	<title>Bomb Man</title>
@@ -7092,6 +7092,8 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>2020</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash>b47a944b6ece4d3b58d949e94ce8fa20381dcf48</hash></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>05c65a537d92681b40c7a25f20fa8bb346f83e72</hash><remark>2021-05-13</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>1691dcc00d5d2bdc7e2e645bd1d06dff0aa22c97</hash><remark>2020-08-26</remark></rom></dump>
 </software>
 <software>
 	<title>Cross Chase</title>
@@ -7100,14 +7102,25 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>2020</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash>1811d7ff157f856d976c1b800544e2b191d29444</hash></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>282aad5de055fd8404661413b145b0fba2579822</hash></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>3e551178c8fa00645c3f730b93aabe275b90e84f</hash><remark>2017-12-10</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>9c6a7bc137500952b714dd49411d741252cb6d8f</hash><remark>2018-07-19</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>15ba0106f0d86febf6412023f03f491914ab73a6</hash><remark>2018-08-04</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>20b78d770a54564d2df2743caec77dffd5c52731</hash><remark>2017-10-30</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>9786f9089281dd810b0a488e4c3d1df9e03aae44</hash><remark>2018-04-15</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>bba1bbd39b270c9a29f3eba0a0843aa3ccca8d97</hash><remark>2021-05-13</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>d16d9d016c9b181b58b944a2c30b8b6c8aa8fac6</hash><remark>2018-02-03</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>df4a54ab465ae9545486bdff4558d13aa5601578</hash><remark>2018-05-19</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>ea2ab3e17a3692e57fd4754021fd133ac0988395</hash><remark>2020-04-02</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>eb06f7949a3a9b4351e541aa5b35350ab8a061a0</hash><remark>2017-10-11</remark></rom></dump>
 </software>
 <software>
-	<title>Cross Chase</title>
+	<title>Cross Demo</title>
 	<system>MSX</system>
 	<company>Fabrizio Caruso</company>
 	<year>2020</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>282aad5de055fd8404661413b145b0fba2579822</hash></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>751318169568bfd3f89f79d8b1780426e03c52eb</hash></rom></dump>
 </software>
 <software>
 	<title>Cross Horde</title>
@@ -7116,6 +7129,8 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>2021</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash>2f48d5a71955ce7fbc455251aae7eedbc1ef5f00</hash></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>69433d11f079afc19d3f968145bad1a6c1bae968</hash><remark>2021-04-25</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>e11caa6fddcaa00ba209cf9bb01fc440c6d4187e</hash><remark>2021-04-16</remark></rom></dump>
 </software>
 <software>
 	<title>Cross Shoot</title>
@@ -7124,6 +7139,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>2020</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash>4cab91aedb534a2f1107ea0121caca19ffc132f6</hash></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>baa2a12e745c53528a5418ae8b4c9dcb52a9f6a6</hash><remark>2021-05-13</remark></rom></dump>
 </software>
 <software>
 	<title>Cross Snake</title>
@@ -7132,6 +7148,9 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>2020</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash>875704c4e19a0168490612c9656489f9d9137091</hash><remark>v2.0</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>d8e0b2f42416810577b1d844a13cb4104b54fd29</hash><remark>v2.0</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>afd35151fd05ed26be62eef1dc8398380def8d76</hash><remark>v1.0</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>5b80401274e86e48d0317a8424e671a1300cdbf3</hash><remark>Preview</remark></rom></dump>
 </software>
 <software>
 	<title>Crossa</title>
@@ -7848,6 +7867,14 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><hash>95454c172e34f4cf1eb0600105366153f27ac4c8</hash></rom></dump>
 		<dump><rom><hash>0d09fb6b96294ec326bdb24f32de0cc3ca5c22cb</hash></rom></dump>
 		<dump><rom><hash>9c2fefc4d7c731bfcccf055dd367e1c7c851e6bb</hash></rom></dump>
+</software>
+<software>
+	<title>Doolhof</title>
+	<system>MSX</system>
+	<company>SoftWorld/Softwood Programs</company>
+	<year>1986</year>
+	<country>NL</country>
+		<dump><rom><start>0x8000</start><type>Normal</type><hash>44a66a96b68052f6e95e4b5d54cca91a35147ab8</hash><remark>J. Saul</remark></rom></dump>
 </software>
 <software>
 	<title>Doopm Community</title>
@@ -19237,6 +19264,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><hash>da55d2b5de5d6b04a55d901911c9fa7776fd0159</hash></rom></dump>
 		<dump><rom><hash>a1d4461adf060d685c4a7e4201a38b5e24a03dee</hash><remark>Ulver crack</remark></rom></dump>
 		<dump><rom><hash>8891e3e3148bb0fe4e91e322ba709d2f95285d1e</hash></rom></dump>
+		<dump><rom><hash>1991d8f3027f03ab807c8550dcee064d7387c880</hash></rom></dump>
 </software>
 <software>
 	<title>Risky Risk</title>
@@ -19353,20 +19381,20 @@ The softwaredb.xml file contains information about rom mapper types
 	<title>Robots</title>
 	<genmsxid>5711</genmsxid>
 	<system>MSX</system>
-	<company>German Gomez Herrera</company>
-	<year>2008</year>
-	<country>ES</country>
-		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>b7f36450d1ac76834046fd582d6e77a6d3881a8c</hash></megarom></dump>
-		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>c960c1b895557ef1b336035029d5c6d553c64085</hash></megarom></dump>
+	<company>Michel d'Alger</company>
+	<year>2011</year>
+	<country>EU</country>
+		<dump><original value="true">Author</original><rom><hash>c1577863c6ac7aab87cc0c2d64cc0577e2e5e360</hash><remark>MSXDev11</remark></rom></dump>
 </software>
 <software>
 	<title>Robots</title>
 	<genmsxid>5711</genmsxid>
 	<system>MSX</system>
-	<company>Michel d'Alger</company>
-	<year>2011</year>
-	<country>EU</country>
-		<dump><original value="true">Author</original><rom><hash>c1577863c6ac7aab87cc0c2d64cc0577e2e5e360</hash><remark>MSXDev11</remark></rom></dump>
+	<company>German Gomez Herrera</company>
+	<year>2008</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>b7f36450d1ac76834046fd582d6e77a6d3881a8c</hash></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>c960c1b895557ef1b336035029d5c6d553c64085</hash></megarom></dump>
 </software>
 <software>
 	<title>Robotto Demo</title>
@@ -21621,6 +21649,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>2022</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><megarom><type>Konami</type><hash>633824fa00e519ecfff36be7cf6adb9e587f4db6</hash><remark>Digital Version</remark></megarom></dump>
+		<dump><original value="false">BAD Dump</original><megarom><type>Konami</type><hash>3c9f0051c7d8e58ae88a2111bcacf1017d588479</hash></megarom></dump>
 </software>
 <software>
 	<title>Suparobo</title>
@@ -23553,6 +23582,15 @@ The softwaredb.xml file contains information about rom mapper types
 </software>
 <software>
 	<title>Traffic</title>
+	<genmsxid>1871</genmsxid>
+	<system>MSX</system>
+	<company>Barq</company>
+	<year>1987</year>
+	<country>KW</country>
+		<dump><rom><hash>b7b63a9b333a0cb1ca0453bffac358fde5430578</hash></rom></dump>
+</software>
+<software>
+	<title>Traffic</title>
 	<genmsxid>764</genmsxid>
 	<system>MSX</system>
 	<company>Sony</company>
@@ -23561,15 +23599,6 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><hash>503cbad7516c6fde89761388ab32845f35284cc6</hash></rom></dump>
 		<dump><original value="true">GoodMSX1</original><rom><hash>7dbeaf25e3a1a66f9c6b331332dc36e73b511d4a</hash></rom></dump>
 		<dump><rom><hash>c007d2e21f61ee10aa81ebd94267c02f27ac2961</hash></rom></dump>
-</software>
-<software>
-	<title>Traffic</title>
-	<genmsxid>1871</genmsxid>
-	<system>MSX</system>
-	<company>Barq</company>
-	<year>1987</year>
-	<country>KW</country>
-		<dump><rom><hash>b7b63a9b333a0cb1ca0453bffac358fde5430578</hash></rom></dump>
 </software>
 <software>
 	<title>Traffic Jam</title>
@@ -25718,4 +25747,4 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><hash>b6dd7af36c8d16b04fca4963f081db534e91b360</hash><remark>SD-003C</remark></rom></dump>
 </software>
 </softwaredb>
-<!-- Roms in this XML file:6614 - Created on Tue Jan 31 2023 - 23:37:59 UTC-->
+<!-- Roms in this XML file:6636 - Created on Thu Feb 2 2023 - 18:57:18 UTC-->
