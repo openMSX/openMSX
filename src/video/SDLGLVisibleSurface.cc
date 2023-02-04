@@ -16,9 +16,12 @@
 #include "imgui.h"
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
+#include "imgui_memory_editor.h"
 
 #include "GLUtil.hh"
 #include "Reactor.hh"
+#include "MSXMotherBoard.hh"
+#include "MSXCPUInterface.hh"
 #include "CommandController.hh"
 
 bool ImGuiInitialized = false;
@@ -215,11 +218,27 @@ void SDLGLVisibleSurface::beginFrame()
 
 	auto& display = getDisplay();
 	auto& rendererSettings = display.getRenderSettings();
-	auto& commandController = display.getReactor().getCommandController();
+	auto& reactor = display.getReactor();
+	auto& commandController = reactor.getCommandController();
 
 	static bool show_demo_window = false;
 	if (show_demo_window) {
 		ImGui::ShowDemoWindow(&show_demo_window);
+	}
+
+	static MemoryEditor mem_edit;
+	if (mem_edit.Open) {
+		if (auto* motherBoard = reactor.getMotherBoard()) {
+			auto& cpuInterface = motherBoard->getCPUInterface();
+			auto& memoryDebug = cpuInterface.getMemoryDebuggable();
+			std::array<uint8_t, 0x10000> data;
+			// Stupid implementation, can be improved in the future.
+			// So that also writes are supported
+			for (unsigned i = 0; i < 0x10000; ++i) {
+				data[i] = memoryDebug.read(i);
+			}
+			mem_edit.DrawWindow("Memory Editor", data.data(), 0x10000);
+		}
 	}
 
 	ImGui::Begin("OpenMSX ImGui integration proof of concept");
@@ -228,6 +247,9 @@ void SDLGLVisibleSurface::beginFrame()
 	HelpMarker("Show the ImGui demo window.\n"
 	           "This is purely to demonstrate the ImGui capabilities.\n"
 	           "There is no connection with any openMSX functionality.");
+
+	ImGui::Checkbox("memory view", &mem_edit.Open);
+	HelpMarker("In the distant future we might want to integrate the debugger.");
 
 	if (ImGui::Button("Reset MSX")) {
 		commandController.executeCommand("reset");

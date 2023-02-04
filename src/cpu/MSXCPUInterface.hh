@@ -291,6 +291,9 @@ public:
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
+	// HACK for imgui demo
+	SimpleDebuggable& getMemoryDebuggable() { return memoryDebug; }
+
 private:
 	byte readMemSlow(word address, EmuTime::param time);
 	void writeMemSlow(word address, byte value, EmuTime::param time);
