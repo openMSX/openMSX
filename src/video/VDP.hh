@@ -988,6 +988,21 @@ private:
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	} vramPointerDebug;
 
+	struct RegisterLatchStatusDebug final : SimpleDebuggable {
+		explicit RegisterLatchStatusDebug(VDP& vdp);
+		[[nodiscard]] byte read(unsigned address) override;
+	} registerLatchStatusDebug;
+
+	struct PaletteLatchStatusDebug final : SimpleDebuggable {
+		explicit PaletteLatchStatusDebug(VDP& vdp);
+		[[nodiscard]] byte read(unsigned address) override;
+	} paletteLatchStatusDebug;
+
+	struct DataLatchDebug final : SimpleDebuggable {
+		explicit DataLatchDebug(VDP& vdp);
+		[[nodiscard]] byte read(unsigned address) override;
+	} dataLatchDebug;
+
 	class Info : public InfoTopic {
 	public:
 		void execute(std::span<const TclObject> tokens,

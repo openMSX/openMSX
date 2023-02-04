@@ -78,6 +78,9 @@ VDP::VDP(const DeviceConfig& config)
 	, vdpStatusRegDebug(*this)
 	, vdpPaletteDebug  (*this)
 	, vramPointerDebug (*this)
+	, registerLatchStatusDebug(*this)
+	, paletteLatchStatusDebug(*this)
+	, dataLatchDebug   (*this)
 	, frameCountInfo   (*this)
 	, cycleInFrameInfo (*this)
 	, lineInFrameInfo  (*this)
@@ -1682,6 +1685,47 @@ void VDP::VRAMPointerDebug::write(unsigned address, byte value, EmuTime::param /
 	}
 }
 
+// class RegisterLatchStatusDebug
+
+VDP::RegisterLatchStatusDebug::RegisterLatchStatusDebug(VDP &vdp_)
+	: SimpleDebuggable(vdp_.getMotherBoard(),
+			vdp_.getName() + " register latch status", "V99x8 register latch status (0 = expecting a value, 1 = expecting a register)", 1)
+{
+}
+
+byte VDP::RegisterLatchStatusDebug::read(unsigned /*address*/)
+{
+	auto& vdp = OUTER(VDP, registerLatchStatusDebug);
+	return byte(vdp.registerDataStored);
+}
+
+// class PaletteLatchStatusDebug
+
+VDP::PaletteLatchStatusDebug::PaletteLatchStatusDebug(VDP &vdp_)
+	: SimpleDebuggable(vdp_.getMotherBoard(),
+			vdp_.getName() + " palette latch status", "V99x8 palette latch status (0 = expecting red & blue, 1 = expecting green)", 1)
+{
+}
+
+byte VDP::PaletteLatchStatusDebug::read(unsigned /*address*/)
+{
+	auto& vdp = OUTER(VDP, paletteLatchStatusDebug);
+	return byte(vdp.paletteDataStored);
+}
+
+// class DataLatchDebug
+
+VDP::DataLatchDebug::DataLatchDebug(VDP &vdp_)
+	: SimpleDebuggable(vdp_.getMotherBoard(),
+			vdp_.getName() + " data latch value", "V99x8 data latch value (byte)", 1)
+{
+}
+
+byte VDP::DataLatchDebug::read(unsigned /*address*/)
+{
+	auto& vdp = OUTER(VDP, dataLatchDebug);
+	return vdp.dataLatch;
+}
 
 // class Info
 
