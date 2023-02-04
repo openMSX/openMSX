@@ -17,7 +17,6 @@ public:
 	[[nodiscard]] std::unique_ptr<LDRasterizer> createLDRasterizer(
 		LaserdiscPlayer& ld) override;
 #endif
-	void flush() override;
 	[[nodiscard]] gl::ivec2 getMouseCoord() override;
 	[[nodiscard]] OutputSurface* getOutputSurface() override;
 	void showCursor(bool show) override;

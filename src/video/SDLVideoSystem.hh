@@ -40,7 +40,6 @@ public:
 		LaserdiscPlayer& ld) override;
 #endif
 	[[nodiscard]] bool checkSettings() override;
-	void flush() override;
 	void takeScreenShot(const std::string& filename, bool withOsd) override;
 	void updateWindowTitle() override;
 	[[nodiscard]] gl::ivec2 getMouseCoord() override;

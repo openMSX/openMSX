@@ -44,6 +44,7 @@ public:
 	[[nodiscard]] RenderSettings& getRenderSettings() { return renderSettings; }
 	[[nodiscard]] OSDGUI& getOSDGUI() { return osdGui; }
 	[[nodiscard]] CommandConsole& getCommandConsole() { return commandConsole; }
+	[[nodiscard]] Reactor& getReactor() { return reactor; }
 
 	/** Redraw the display.
 	  * The repaintImpl() methods are for internal and VideoSystem/VisibleSurface use only.

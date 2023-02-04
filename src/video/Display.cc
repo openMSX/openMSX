@@ -3,6 +3,7 @@
 #include "Layer.hh"
 #include "VideoSystem.hh"
 #include "VideoLayer.hh"
+#include "OutputSurface.hh"
 #include "EventDistributor.hh"
 #include "Event.hh"
 #include "FileOperations.hh"
@@ -339,8 +340,9 @@ void Display::repaintImpl()
 	if (!renderFrozen) {
 		assert(videoSystem);
 		if (OutputSurface* surface = videoSystem->getOutputSurface()) {
+			surface->beginFrame();
 			repaintImpl(*surface);
-			videoSystem->flush();
+			surface->endFrame();
 		}
 	}
 

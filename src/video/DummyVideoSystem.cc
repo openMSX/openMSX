@@ -29,10 +29,6 @@ std::unique_ptr<LDRasterizer> DummyVideoSystem::createLDRasterizer(
 }
 #endif
 
-void DummyVideoSystem::flush()
-{
-}
-
 gl::ivec2 DummyVideoSystem::getMouseCoord()
 {
 	return {0, 0};

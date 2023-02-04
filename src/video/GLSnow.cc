@@ -26,7 +26,7 @@ GLSnow::GLSnow(Display& display_)
 #else
 	// GL_LUMINANCE no longer supported in newer versions
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 128, 128, 0,
-	             GL_RED, GL_UNSIGNED_BYTE, buf);
+	             GL_RED, GL_UNSIGNED_BYTE, buf.data());
 	GLint swizzleMask[] = {GL_RED, GL_RED, GL_RED, GL_ONE};
 	glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
 #endif
