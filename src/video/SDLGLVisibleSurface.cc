@@ -207,6 +207,26 @@ static void HelpMarker(const char* desc)
 	}
 }
 
+template<typename Getter, typename Setter>
+static bool Checkbox(const char* label, Getter getter, Setter setter)
+{
+	bool value = getter();
+	bool changed = ImGui::Checkbox(label, &value);
+	if (changed) setter(value);
+	return changed;
+}
+
+// Should we put these helpers in the ImGui namespace?
+static bool SliderFloat(const char* label, FloatSetting& setting, const char* format = "%.3f", ImGuiSliderFlags flags = 0)
+{
+	float value = setting.getFloat();
+	float min = narrow_cast<float>(setting.getMinValue());
+	float max = narrow_cast<float>(setting.getMaxValue());
+	bool changed = ImGui::SliderFloat(label, &value, min, max, format, flags);
+	if (changed) setting.setDouble(value); // TODO setFloat()
+	return changed;
+}
+
 void SDLGLVisibleSurface::beginFrame()
 {
 	// Start the Dear ImGui frame
@@ -256,13 +276,7 @@ void SDLGLVisibleSurface::beginFrame()
 	}
 	HelpMarker("Reset the emulated MSX machine.");
 
-	// This takes currently 4 lines of code. But we can/should simplify
-	// this further. E.g. so that you don't need to repeat the min/max.
-	// Or that you don't need to manually pull/push the internal setting value.
-	auto& noiseSetting = rendererSettings.getNoiseSetting();
-	float noise = noiseSetting.getFloat();
-	ImGui::SliderFloat("noise", &noise, 0.0f, 100.0f, "%.1f");
-	noiseSetting.setDouble(noise); // TODO setFloat()
+	SliderFloat("noise", rendererSettings.getNoiseSetting(), "%.1f");
 	HelpMarker("Stupid example. But good enough to demonstrate that this stuff is very easy.");
 
 	ImGui::End();
