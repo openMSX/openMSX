@@ -227,6 +227,24 @@ static bool SliderFloat(const char* label, FloatSetting& setting, const char* fo
 	return changed;
 }
 
+struct DebuggableEditor : public MemoryEditor
+{
+	DebuggableEditor() {
+		Open = false;
+		ReadFn = [](const ImU8* userdata, size_t offset) -> ImU8 {
+			auto* debuggable = reinterpret_cast<Debuggable*>(const_cast<ImU8*>(userdata));
+			return debuggable->read(offset);
+		};
+		WriteFn = [](ImU8* userdata, size_t offset, ImU8 data) -> void {
+			auto* debuggable = reinterpret_cast<Debuggable*>(userdata);
+			debuggable->write(offset, data);
+		};
+	}
+	void DrawWindow(const char* title, Debuggable& debuggable, size_t base_display_addr = 0x0000) {
+		MemoryEditor::DrawWindow(title, &debuggable, debuggable.getSize(), base_display_addr);
+	}
+};
+
 void SDLGLVisibleSurface::beginFrame()
 {
 	// Start the Dear ImGui frame
@@ -246,18 +264,12 @@ void SDLGLVisibleSurface::beginFrame()
 		ImGui::ShowDemoWindow(&show_demo_window);
 	}
 
-	static MemoryEditor mem_edit;
+	static DebuggableEditor mem_edit;
 	if (mem_edit.Open) {
 		if (auto* motherBoard = reactor.getMotherBoard()) {
 			auto& cpuInterface = motherBoard->getCPUInterface();
 			auto& memoryDebug = cpuInterface.getMemoryDebuggable();
-			std::array<uint8_t, 0x10000> data;
-			// Stupid implementation, can be improved in the future.
-			// So that also writes are supported
-			for (unsigned i = 0; i < 0x10000; ++i) {
-				data[i] = memoryDebug.read(i);
-			}
-			mem_edit.DrawWindow("Memory Editor", data.data(), 0x10000);
+			mem_edit.DrawWindow("Memory Editor", memoryDebug);
 		}
 	}
 

@@ -107,7 +107,7 @@ struct MemoryEditor
     MemoryEditor()
     {
         // Settings
-        Open = false;
+        Open = true;
         ReadOnly = false;
         Cols = 16;
         OptShowOptions = true;
