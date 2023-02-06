@@ -79,6 +79,7 @@ VDP::VDP(const DeviceConfig& config)
 	, vdpPaletteDebug  (*this)
 	, vramPointerDebug (*this)
 	, registerLatchStatusDebug(*this)
+	, vramAccessStatusDebug(*this)
 	, paletteLatchStatusDebug(*this)
 	, dataLatchDebug   (*this)
 	, frameCountInfo   (*this)
@@ -262,6 +263,7 @@ void VDP::resetInit()
 	dataLatch = 0;
 	cpuExtendedVram = false;
 	registerDataStored = false;
+	writeAccess = false;
 	paletteDataStored = false;
 	blinkState = false;
 	blinkCount = 0;
@@ -685,6 +687,7 @@ void VDP::writeIO(word port, byte value, EmuTime::param time_)
 				}
 			} else {
 				// Set read/write address.
+				writeAccess = value & 0x40;
 				vramPointer = (value << 8 | dataLatch) & 0x3FFF;
 				if (!(value & 0x40)) {
 					// Read ahead.
@@ -1699,6 +1702,21 @@ byte VDP::RegisterLatchStatusDebug::read(unsigned /*address*/)
 	return byte(vdp.registerDataStored);
 }
 
+// class VramAccessStatusDebug
+
+VDP::VramAccessStatusDebug::VramAccessStatusDebug(VDP &vdp_)
+	: SimpleDebuggable(vdp_.getMotherBoard(), vdp_.getName() == "VDP" ?
+			"VRAM access status" : vdp_.getName() + " VRAM access status",
+			"VDP VRAM access status (0 = ready to read, 1 = ready to write)", 1)
+{
+}
+
+byte VDP::VramAccessStatusDebug::read(unsigned /*address*/)
+{
+	auto& vdp = OUTER(VDP, vramAccessStatusDebug);
+	return byte(vdp.writeAccess);
+}
+
 // class PaletteLatchStatusDebug
 
 VDP::PaletteLatchStatusDebug::PaletteLatchStatusDebug(VDP &vdp_)
@@ -1880,6 +1898,7 @@ int VDP::MsxX512PosInfo::calc(const EmuTime& time) const
 // version 7: removed cpuVramReqAddr again, fixed issue in a different way
 // version 8: removed 'userData' from Schedulable
 // version 9: update sprite-enabled-status only once per line
+// version 10: added writeAccess
 template<typename Archive>
 void VDP::serialize(Archive& ar, unsigned serVersion)
 {
@@ -1968,6 +1987,11 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 	} else {
 		assert(Archive::IS_LOADER);
 		spriteEnabled = (controlRegs[8] & 0x02) == 0;
+	}
+	if (ar.versionAtLeast(serVersion, 10)) {
+		ar.serialize("writeAccess", writeAccess);
+	} else {
+		writeAccess = !cpuVramReqIsRead; // best guess
 	}
 
 	// externalVideo does not need serializing. It is set on load by the
