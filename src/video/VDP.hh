@@ -993,6 +993,11 @@ private:
 		[[nodiscard]] byte read(unsigned address) override;
 	} registerLatchStatusDebug;
 
+	struct VramAccessStatusDebug final : SimpleDebuggable {
+		explicit VramAccessStatusDebug(VDP& vdp);
+		[[nodiscard]] byte read(unsigned address) override;
+	} vramAccessStatusDebug;
+
 	struct PaletteLatchStatusDebug final : SimpleDebuggable {
 		explicit PaletteLatchStatusDebug(VDP& vdp);
 		[[nodiscard]] byte read(unsigned address) override;
@@ -1217,6 +1222,14 @@ private:
 	  */
 	byte dataLatch;
 
+	/** Direction of VRAM access for reading or writing
+	  * Note: this variable is _only_ used for the 'VRAM access status' debuggable.
+	  *   The real VDP allows to setup a read/write VRAM address and then do the opposite
+	  *   out/in operation.
+	  * See the variables 'cpuVramData' and 'cpuVramReqIsRead' for more details.
+	  */
+	bool writeAccess;
+
 	/** Does the data latch have register data (port #99) stored?
 	  */
 	bool registerDataStored;
@@ -1278,7 +1291,7 @@ private:
 	MSXCPU& cpu;
 	const byte fixedVDPIOdelayCycles;
 };
-SERIALIZE_CLASS_VERSION(VDP, 9);
+SERIALIZE_CLASS_VERSION(VDP, 10);
 
 } // namespace openmsx
 
