@@ -12,10 +12,12 @@
 #include "EventDistributor.hh"
 #include "RenderSettings.hh"
 #include "EnumSetting.hh"
+#include "FileContext.hh"
 #include "MSXException.hh"
 #include "Thread.hh"
 #include "build-info.hh"
 #include "random.hh"
+#include <imgui.h>
 #include <iostream>
 #include <exception>
 #include <ctime>
@@ -82,6 +84,20 @@ static void initializeSDL()
 	setenv("FREETYPE_PROPERTIES", "truetype:interpreter-version=35", 0);
 }
 
+static void initializeImGui()
+{
+	// Setup Dear ImGui context
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard |
+	                  ImGuiConfigFlags_NavEnableGamepad |
+	                  ImGuiConfigFlags_DockingEnable |
+	                  ImGuiConfigFlags_ViewportsEnable;
+	static auto iniFilename = systemFileContext().resolveCreate("imgui.ini");
+	io.IniFilename = iniFilename.c_str();
+}
+
 static int main(int argc, char **argv)
 {
 #if LOG_TO_FILE
@@ -113,6 +129,7 @@ static int main(int argc, char **argv)
 	try {
 		randomize(); // seed global random generator
 		initializeSDL();
+		initializeImGui();
 
 		Thread::setMainThread();
 		Reactor reactor;

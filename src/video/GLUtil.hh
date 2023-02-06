@@ -22,8 +22,7 @@
 #define OPENGL_ES_2_0 1
 #define OPENGL_2_1    2
 #define OPENGL_3_3    3
-//#define OPENGL_VERSION OPENGL_2_1
-#define OPENGL_VERSION OPENGL_ES_2_0 // imgui experiment
+#define OPENGL_VERSION OPENGL_2_1
 
 namespace gl {
 

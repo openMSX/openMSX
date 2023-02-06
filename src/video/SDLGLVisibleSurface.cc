@@ -13,18 +13,16 @@
 #include "InitException.hh"
 #include <memory>
 
-#include "imgui.h"
-#include "imgui_impl_sdl.h"
-#include "imgui_impl_opengl3.h"
-#include "imgui_memory_editor.h"
+#include <imgui.h>
+#include <imgui_impl_sdl.h>
+#include <imgui_impl_opengl3.h>
+#include <imgui_memory_editor.h>
 
 #include "GLUtil.hh"
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCPUInterface.hh"
 #include "CommandController.hh"
-
-bool ImGuiInitialized = false;
 
 namespace openmsx {
 
@@ -40,10 +38,8 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	                        inputEventGenerator_, cliComm_, videoSystem_)
 {
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	//SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
-	//SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 0);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24); // imgui ?
-	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8); // imgui ?
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
+	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 0);
 #if OPENGL_VERSION == OPENGL_ES_2_0
 	#define VERSION_STRING "openGL ES 2.0"
 	const char* glsl_version = "#version 100";
@@ -52,6 +48,7 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 #elif OPENGL_VERSION == OPENGL_2_1
 	#define VERSION_STRING "openGL 2.1"
+	const char* glsl_version = "#version 120";
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
@@ -72,42 +69,10 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 		throw InitException(
 			"Failed to create " VERSION_STRING " context: ", SDL_GetError());
 	}
-	SDL_GL_MakeCurrent(window.get(), glContext); // imgui ?
 
-	//////////////////////
-	// Setup Dear ImGui context
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiInitialized = true;
-	ImGuiIO& io = ImGui::GetIO();
-	(void)io;
-	io.ConfigFlags |=
-	        ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
-	// io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable
-	// Gamepad Controls
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking
-	io.ConfigFlags |=
-	        ImGuiConfigFlags_ViewportsEnable; // Enable Multi-Viewport /
-	                                          // Platform Windows
-	// io.ConfigViewportsNoAutoMerge = true;
-	// io.ConfigViewportsNoTaskBarIcon = true;
-
-	// Setup Dear ImGui style
-	ImGui::StyleColorsDark();
-	// ImGui::StyleColorsLight();
-
-	// When viewports are enabled we tweak WindowRounding/WindowBg so
-	// platform windows can look identical to regular ones.
-	ImGuiStyle& style = ImGui::GetStyle();
-	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
-		style.WindowRounding = 0.0f;
-		style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-	}
-
-	// Setup Platform/Renderer backends
+	// Setup ImGui Platform/Renderer backends
 	ImGui_ImplSDL2_InitForOpenGL(window.get(), glContext);
 	ImGui_ImplOpenGL3_Init(glsl_version);
-	//////////////////////
 
 	// From the glew documentation:
 	//   GLEW obtains information on the supported extensions from the
@@ -233,11 +198,11 @@ struct DebuggableEditor : public MemoryEditor
 		Open = false;
 		ReadFn = [](const ImU8* userdata, size_t offset) -> ImU8 {
 			auto* debuggable = reinterpret_cast<Debuggable*>(const_cast<ImU8*>(userdata));
-			return debuggable->read(offset);
+			return debuggable->read(narrow<unsigned>(offset));
 		};
 		WriteFn = [](ImU8* userdata, size_t offset, ImU8 data) -> void {
 			auto* debuggable = reinterpret_cast<Debuggable*>(userdata);
-			debuggable->write(offset, data);
+			debuggable->write(narrow<unsigned>(offset), data);
 		};
 	}
 	void DrawWindow(const char* title, Debuggable& debuggable, size_t base_display_addr = 0x0000) {
@@ -292,31 +257,32 @@ void SDLGLVisibleSurface::beginFrame()
 	HelpMarker("Stupid example. But good enough to demonstrate that this stuff is very easy.");
 
 	ImGui::End();
+
+	static bool first = true;
+	if (first) {
+		// on startup, focus main openMSX window instead of the GUI window
+		first = false;
+		ImGui::SetWindowFocus(nullptr);
+	}
 }
 
 void SDLGLVisibleSurface::endFrame()
 {
 	// Rendering
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	ImGuiIO& io = ImGui::GetIO();
 	ImGui::Render();
-	glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
-	//glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	//glClear(GL_COLOR_BUFFER_BIT);
+	glViewport(0, 0, int(io.DisplaySize.x), int(io.DisplaySize.y));
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 	// Update and Render additional Platform Windows
 	// (Platform functions may change the current OpenGL context, so we
 	// save/restore it to make it easier to paste this code elsewhere.
-	//  For this specific demo app we could also call
-	//  SDL_GL_MakeCurrent(window, gl_context) directly)
 	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
 		SDL_Window* backup_current_window = SDL_GL_GetCurrentWindow();
-		SDL_GLContext backup_current_context =
-		        SDL_GL_GetCurrentContext();
+		SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
 		ImGui::UpdatePlatformWindows();
 		ImGui::RenderPlatformWindowsDefault();
-		SDL_GL_MakeCurrent(backup_current_window,
-		                   backup_current_context);
+		SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
 	}
 
 	SDL_GL_SwapWindow(window.get());
