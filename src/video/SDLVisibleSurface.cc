@@ -102,6 +102,11 @@ std::unique_ptr<Layer> SDLVisibleSurface::createOSDGUILayer(OSDGUI& gui)
 	return std::make_unique<SDLOSDGUILayer>(gui);
 }
 
+std::unique_ptr<Layer> SDLVisibleSurface::createImGUILayer(Reactor& /*reactor*/)
+{
+	return {};
+}
+
 std::unique_ptr<OutputSurface> SDLVisibleSurface::createOffScreenSurface()
 {
 	return std::make_unique<SDLOffScreenSurface>(*surface);

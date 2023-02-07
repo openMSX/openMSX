@@ -69,6 +69,7 @@ private:
 	std::unique_ptr<Layer> snowLayer;
 	std::unique_ptr<Layer> iconLayer;
 	std::unique_ptr<Layer> osdGuiLayer;
+	std::unique_ptr<Layer> imGuiLayer;
 };
 
 } // namespace openmsx

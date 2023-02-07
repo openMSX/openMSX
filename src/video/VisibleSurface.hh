@@ -41,6 +41,7 @@ public:
 	[[nodiscard]] virtual std::unique_ptr<Layer> createConsoleLayer(
 		Reactor& reactor, CommandConsole& console) = 0;
 	[[nodiscard]] virtual std::unique_ptr<Layer> createOSDGUILayer(OSDGUI& gui) = 0;
+	[[nodiscard]] virtual std::unique_ptr<Layer> createImGUILayer(Reactor& reactor) = 0;
 
 	/** Create an off-screen OutputSurface which has similar properties
 	  * as this VisibleSurface. E.g. used to re-render the current frame

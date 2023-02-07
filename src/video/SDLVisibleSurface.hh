@@ -30,6 +30,7 @@ public:
 	[[nodiscard]] std::unique_ptr<Layer> createConsoleLayer(
 		Reactor& reactor, CommandConsole& console) override;
 	[[nodiscard]] std::unique_ptr<Layer> createOSDGUILayer(OSDGUI& gui) override;
+	[[nodiscard]] std::unique_ptr<Layer> createImGUILayer(Reactor& reactor) override;
 	[[nodiscard]] std::unique_ptr<OutputSurface> createOffScreenSurface() override;
 	void fullScreenUpdated(bool fullScreen) override;
 

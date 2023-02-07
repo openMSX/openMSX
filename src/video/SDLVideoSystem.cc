@@ -36,9 +36,11 @@ SDLVideoSystem::SDLVideoSystem(Reactor& reactor_, CommandConsole& console)
 	consoleLayer = screen->createConsoleLayer(reactor, console);
 	snowLayer = screen->createSnowLayer();
 	osdGuiLayer = screen->createOSDGUILayer(display.getOSDGUI());
+	imGuiLayer = screen->createImGUILayer(reactor);
 	display.addLayer(*consoleLayer);
 	display.addLayer(*snowLayer);
 	display.addLayer(*osdGuiLayer);
+	if (imGuiLayer) display.addLayer(*imGuiLayer);
 
 	renderSettings.getScaleFactorSetting().attach(*this);
 
@@ -53,6 +55,7 @@ SDLVideoSystem::~SDLVideoSystem()
 
 	renderSettings.getScaleFactorSetting().detach(*this);
 
+	if (imGuiLayer) display.removeLayer(*imGuiLayer);
 	display.removeLayer(*osdGuiLayer);
 	display.removeLayer(*snowLayer);
 	display.removeLayer(*consoleLayer);
