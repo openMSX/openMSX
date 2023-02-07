@@ -1,6 +1,7 @@
 #include "ImGuiLayer.hh"
 
 #include "CommandController.hh"
+#include "Debugger.hh"
 #include "Display.hh"
 #include "FloatSetting.hh"
 #include "GLUtil.hh"
@@ -72,7 +73,6 @@ struct DebuggableEditor : public MemoryEditor
 ImGuiLayer::ImGuiLayer(Reactor& reactor_)
 	: Layer(Layer::COVER_PARTIAL, Layer::Z_IMGUI)
 	, reactor(reactor_)
-	, mem_edit(std::make_unique<DebuggableEditor>())
 {
 }
 
@@ -94,23 +94,40 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 		ImGui::ShowDemoWindow(&show_demo_window);
 	}
 
-	if (mem_edit->Open) {
-		if (auto* motherBoard = reactor.getMotherBoard()) {
-			auto& cpuInterface = motherBoard->getCPUInterface();
-			auto& memoryDebug = cpuInterface.getMemoryDebuggable();
-			mem_edit->DrawWindow("Memory Editor", memoryDebug);
+	// Show the enabled 'debuggables'
+	if (auto* motherBoard = reactor.getMotherBoard()) {
+		auto& debugger = motherBoard->getDebugger();
+		for (const auto& [name, editor] : debuggables) {
+			if (editor->Open) {
+				if (auto* debuggable = debugger.findDebuggable(name)) {
+					editor->DrawWindow(name.c_str(), *debuggable);
+				}
+			}
 		}
 	}
 
-	ImGui::Begin("OpenMSX ImGui integration proof of concept");
+	ImGui::Begin("OpenMSX ImGui integration proof of concept", nullptr, ImGuiWindowFlags_MenuBar);
+
+	if (ImGui::BeginMenuBar()) {
+		if (auto* motherBoard = reactor.getMotherBoard()) {
+			auto& debugger = motherBoard->getDebugger();
+			if (ImGui::BeginMenu("Debuggables")) {
+				for (auto& name : view::keys(debugger.getDebuggables())) {
+					auto [it, inserted] = debuggables.try_emplace(name);
+					auto& editor = it->second;
+					if (inserted) editor = std::make_unique<DebuggableEditor>();
+					ImGui::MenuItem(name.c_str(), nullptr, &editor->Open);
+				}
+				ImGui::EndMenu();
+			}
+		}
+		ImGui::EndMenuBar();
+	}
 
 	ImGui::Checkbox("ImGui Demo Window", &show_demo_window);
 	HelpMarker("Show the ImGui demo window.\n"
 	           "This is purely to demonstrate the ImGui capabilities.\n"
 	           "There is no connection with any openMSX functionality.");
-
-	ImGui::Checkbox("memory view", &mem_edit->Open);
-	HelpMarker("In the distant future we might want to integrate the debugger.");
 
 	if (ImGui::Button("Reset MSX")) {
 		commandController.executeCommand("reset");

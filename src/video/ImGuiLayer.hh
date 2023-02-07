@@ -2,7 +2,9 @@
 #define IMGUILAYER_HH
 
 #include "Layer.hh"
+#include <map>
 #include <memory>
+#include <string>
 
 namespace openmsx {
 
@@ -21,7 +23,7 @@ private:
 
 private:
 	Reactor& reactor;
-	std::unique_ptr<DebuggableEditor> mem_edit;
+	std::map<std::string, std::unique_ptr<DebuggableEditor>> debuggables;
 	bool show_demo_window = false;
 	bool first = true;
 };

@@ -31,6 +31,7 @@ public:
 	void registerDebuggable   (std::string name, Debuggable& debuggable);
 	void unregisterDebuggable (std::string_view name, Debuggable& debuggable);
 	[[nodiscard]] Debuggable* findDebuggable(std::string_view name);
+	[[nodiscard]] const auto& getDebuggables() const { return debuggables; }
 
 	void registerProbe  (ProbeBase& probe);
 	void unregisterProbe(ProbeBase& probe);
