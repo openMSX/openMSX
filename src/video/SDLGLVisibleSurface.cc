@@ -210,7 +210,7 @@ struct DebuggableEditor : public MemoryEditor
 	}
 };
 
-void SDLGLVisibleSurface::beginFrame()
+void SDLGLVisibleSurface::finish()
 {
 	// Start the Dear ImGui frame
 	ImGui_ImplOpenGL3_NewFrame();
@@ -264,10 +264,8 @@ void SDLGLVisibleSurface::beginFrame()
 		first = false;
 		ImGui::SetWindowFocus(nullptr);
 	}
-}
 
-void SDLGLVisibleSurface::endFrame()
-{
+
 	// Rendering
 	ImGuiIO& io = ImGui::GetIO();
 	ImGui::Render();

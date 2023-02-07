@@ -67,11 +67,7 @@ void SDLVisibleSurface::flushFrameBuffer()
 	SDL_RenderCopy(render, texture.get(), nullptr, nullptr);
 }
 
-void SDLVisibleSurface::beginFrame()
-{
-}
-
-void SDLVisibleSurface::endFrame()
+void SDLVisibleSurface::finish()
 {
 	SDL_RenderPresent(getSDLRenderer());
 }

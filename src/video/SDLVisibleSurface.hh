@@ -23,10 +23,9 @@ public:
 	void saveScreenshot(const std::string& filename) override;
 	void flushFrameBuffer() override;
 	void clearScreen() override;
-	void beginFrame() override;
-	void endFrame() override;
 
 	// VisibleSurface
+	void finish() override;
 	[[nodiscard]] std::unique_ptr<Layer> createSnowLayer() override;
 	[[nodiscard]] std::unique_ptr<Layer> createConsoleLayer(
 		Reactor& reactor, CommandConsole& console) override;

@@ -105,10 +105,6 @@ public:
 	  */
 	virtual void saveScreenshot(const std::string& filename) = 0;
 
-	// TODO
-	virtual void beginFrame() {}
-	virtual void endFrame() {}
-
 protected:
 	OutputSurface() = default;
 

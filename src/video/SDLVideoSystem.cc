@@ -213,6 +213,11 @@ bool SDLVideoSystem::checkSettings()
 	return screen->setFullScreen(renderSettings.getFullScreen());
 }
 
+void SDLVideoSystem::flush()
+{
+	screen->finish();
+}
+
 void SDLVideoSystem::takeScreenShot(const std::string& filename, bool withOsd)
 {
 	if (withOsd) {
