@@ -3,6 +3,7 @@
 #include "GLContext.hh"
 #include "GLSnow.hh"
 #include "ImGuiLayer.hh"
+#include "InputEventGenerator.hh"
 #include "OSDConsoleRenderer.hh"
 #include "OSDGUILayer.hh"
 #include "Display.hh"
@@ -56,6 +57,7 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	int flags = SDL_WINDOW_OPENGL;
 	//flags |= SDL_RESIZABLE;
 	createSurface(width, height, flags);
+	getInputEventGenerator().setMainWindowId(SDL_GetWindowID(window.get()));
 
 	glContext = SDL_GL_CreateContext(window.get());
 	if (!glContext) {

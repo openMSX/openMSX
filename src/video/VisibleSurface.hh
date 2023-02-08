@@ -49,8 +49,9 @@ public:
 	  */
 	[[nodiscard]] virtual std::unique_ptr<OutputSurface> createOffScreenSurface() = 0;
 
-	[[nodiscard]] CliComm& getCliComm() const { return cliComm; }
-	[[nodiscard]] Display& getDisplay() const { return display; }
+	[[nodiscard]] auto& getCliComm() const { return cliComm; }
+	[[nodiscard]] auto& getDisplay() const { return display; }
+	[[nodiscard]] auto& getInputEventGenerator() const { return inputEventGenerator; }
 
 protected:
 	VisibleSurface(Display& display,

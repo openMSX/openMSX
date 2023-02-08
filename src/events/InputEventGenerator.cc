@@ -378,6 +378,10 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		break;
 
 	case SDL_WINDOWEVENT:
+		if (mainWindowId && (evt.window.windowID != mainWindowId)) {
+			// ignore events not for the main window
+			break;
+		}
 		switch (evt.window.event) {
 		case SDL_WINDOWEVENT_FOCUS_GAINED:
 			event = Event::create<FocusEvent>(true);
@@ -391,6 +395,9 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 			break;
 		case SDL_WINDOWEVENT_EXPOSED:
 			event = Event::create<ExposeEvent>();
+			break;
+		case SDL_WINDOWEVENT_CLOSE:
+			event = Event::create<QuitEvent>();
 			break;
 		default:
 			break;

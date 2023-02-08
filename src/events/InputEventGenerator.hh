@@ -33,6 +33,7 @@ public:
 	BooleanSetting& getGrabInput() { return grabInput; }
 	/** Must be called when 'grabinput' or 'fullscreen' setting changes. */
 	void updateGrab(bool grab);
+	void setMainWindowId(uint32_t id) { mainWindowId = id; }
 
 	/** Normally the following two functions simply delegate to
 	 * SDL_JoystickNumButtons() and SDL_JoystickGetButton(). Except on
@@ -84,6 +85,7 @@ private:
 
 
 	unsigned osdControlButtonsState = unsigned(~0); // 0 is pressed, 1 is released
+	uint32_t mainWindowId = 0;
 
 	// only for Android
 	static inline bool androidButtonA = false;
