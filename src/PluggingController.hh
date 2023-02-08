@@ -43,6 +43,9 @@ public:
 	  */
 	[[nodiscard]] Pluggable* findPluggable(std::string_view name) const;
 
+	[[nodiscard]] const auto& getConnectors() const { return connectors; }
+	[[nodiscard]] const auto& getPluggables() const { return pluggables; }
+
 	/** Access to the MSX specific CliComm, so that Connectors can get it.
 	 */
 	[[nodiscard]] CliComm& getCliComm();

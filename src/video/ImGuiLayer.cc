@@ -1,12 +1,15 @@
 #include "ImGuiLayer.hh"
 
 #include "CommandController.hh"
+#include "Connector.hh"
 #include "Debugger.hh"
 #include "Display.hh"
 #include "FloatSetting.hh"
 #include "GLUtil.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCPUInterface.hh"
+#include "Pluggable.hh"
+#include "PluggingController.hh"
 #include "Reactor.hh"
 
 #include <imgui.h>
@@ -18,17 +21,22 @@
 
 namespace openmsx {
 
-static void HelpMarker(const char* desc)
+static void simpleToolTip(const char* desc)
 {
-	ImGui::SameLine();
-	ImGui::TextDisabled("(?)");
-	if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort)) {
+	if (ImGui::IsItemHovered()) {
 		ImGui::BeginTooltip();
 		ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
 		ImGui::TextUnformatted(desc);
 		ImGui::PopTextWrapPos();
 		ImGui::EndTooltip();
 	}
+}
+
+static void HelpMarker(const char* desc)
+{
+	ImGui::SameLine();
+	ImGui::TextDisabled("(?)");
+	simpleToolTip(desc);
 }
 
 template<typename Getter, typename Setter>
@@ -73,11 +81,78 @@ struct DebuggableEditor : public MemoryEditor
 ImGuiLayer::ImGuiLayer(Reactor& reactor_)
 	: Layer(Layer::COVER_PARTIAL, Layer::Z_IMGUI)
 	, reactor(reactor_)
+	, interp(reactor.getInterpreter())
 {
 }
 
 ImGuiLayer::~ImGuiLayer()
 {
+}
+
+void ImGuiLayer::connectorsMenu(MSXMotherBoard* motherBoard)
+{
+	if (!ImGui::BeginMenu("Connectors", motherBoard != nullptr)) {
+		return;
+	}
+	TclObject command;
+	if (motherBoard) {
+		const auto& pluggingController = motherBoard->getPluggingController();
+		const auto& pluggables = pluggingController.getPluggables();
+		for (auto* connector : pluggingController.getConnectors()) {
+			const auto& connectorName = connector->getName();
+			auto connectorClass = connector->getClass();
+			const auto& currentPluggable = connector->getPlugged();
+			if (ImGui::BeginCombo(connectorName.c_str(), std::string(currentPluggable.getName()).c_str())) {
+				if (!currentPluggable.getName().empty()) {
+					if (ImGui::Selectable("[unplug]")) {
+						command.addListElement(std::string_view("unplug"));
+						command.addListElement(connectorName);
+					}
+				}
+				for (auto& plug : pluggables) {
+					if (plug->getClass() != connectorClass) continue;
+					auto plugName = std::string(plug->getName());
+					bool selected = plug.get() == &currentPluggable;
+					int flags = !selected && plug->getConnector() ? ImGuiSelectableFlags_Disabled : 0; // plugged in another connector
+					if (ImGui::Selectable(plugName.c_str(), selected, flags)) {
+						command.addListElement(std::string_view("plug"));
+						command.addListElement(connectorName);
+						command.addListElement(plugName);
+					}
+					simpleToolTip(std::string(plug->getDescription()).c_str());
+				}
+				ImGui::EndCombo();
+			}
+		}
+	}
+	ImGui::EndMenu();
+	if (!command.empty()) {
+		// only execute the command after the full menu is drawn
+		try {
+			command.executeCommand(interp);
+		} catch (CommandException&) {
+			// ignore
+		}
+	}
+}
+
+void ImGuiLayer::debuggableMenu(MSXMotherBoard* motherBoard)
+{
+	if (!ImGui::BeginMenu("Debuggables", motherBoard != nullptr)) {
+		return;
+	}
+	if (motherBoard) {
+		auto& debugger = motherBoard->getDebugger();
+		// TODO sort debuggable names, either via sort here, or by
+		//    storing the debuggable always in sorted order in Debugger
+		for (auto& name : view::keys(debugger.getDebuggables())) {
+			auto [it, inserted] = debuggables.try_emplace(name);
+			auto& editor = it->second;
+			if (inserted) editor = std::make_unique<DebuggableEditor>();
+			ImGui::MenuItem(name.c_str(), nullptr, &editor->Open);
+		}
+	}
+	ImGui::EndMenu();
 }
 
 void ImGuiLayer::paint(OutputSurface& /*surface*/)
@@ -89,13 +164,14 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 
 	auto& rendererSettings = reactor.getDisplay().getRenderSettings();
 	auto& commandController = reactor.getCommandController();
+	auto* motherBoard = reactor.getMotherBoard();
 
 	if (show_demo_window) {
 		ImGui::ShowDemoWindow(&show_demo_window);
 	}
 
 	// Show the enabled 'debuggables'
-	if (auto* motherBoard = reactor.getMotherBoard()) {
+	if (motherBoard) {
 		auto& debugger = motherBoard->getDebugger();
 		for (const auto& [name, editor] : debuggables) {
 			if (editor->Open) {
@@ -109,18 +185,8 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 	ImGui::Begin("OpenMSX ImGui integration proof of concept", nullptr, ImGuiWindowFlags_MenuBar);
 
 	if (ImGui::BeginMenuBar()) {
-		if (auto* motherBoard = reactor.getMotherBoard()) {
-			auto& debugger = motherBoard->getDebugger();
-			if (ImGui::BeginMenu("Debuggables")) {
-				for (auto& name : view::keys(debugger.getDebuggables())) {
-					auto [it, inserted] = debuggables.try_emplace(name);
-					auto& editor = it->second;
-					if (inserted) editor = std::make_unique<DebuggableEditor>();
-					ImGui::MenuItem(name.c_str(), nullptr, &editor->Open);
-				}
-				ImGui::EndMenu();
-			}
-		}
+		connectorsMenu(motherBoard);
+		debuggableMenu(motherBoard);
 		ImGui::EndMenuBar();
 	}
 
