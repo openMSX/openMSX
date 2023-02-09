@@ -11,6 +11,7 @@
 #include "Pluggable.hh"
 #include "PluggingController.hh"
 #include "Reactor.hh"
+#include "RealDrive.hh"
 
 #include <imgui.h>
 #include <imgui_impl_sdl.h>
@@ -89,6 +90,115 @@ ImGuiLayer::~ImGuiLayer()
 {
 }
 
+std::optional<TclObject> ImGuiLayer::execute(TclObject command)
+{
+	if (!command.empty()) {
+		try {
+			return command.executeCommand(interp);
+		} catch (CommandException&) {
+			// ignore
+		}
+	}
+	return {};
+}
+
+void ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
+{
+	if (!ImGui::BeginMenu("Media", motherBoard != nullptr)) {
+		return;
+	}
+
+	TclObject command;
+	if (motherBoard) {
+		bool needSeparator = false;
+		auto addSeparator = [&] {
+			if (needSeparator) {
+				needSeparator = false;
+				ImGui::Separator();
+			}
+		};
+		auto showCurrent = [&](TclObject current, const char* type) {
+			if (current.empty()) {
+				ImGui::Text("no %s inserted", type);
+			} else {
+				ImGui::Text("Current: %s", current.getString().c_str());
+			}
+			ImGui::Separator();
+		};
+
+		// diskX
+		auto drivesInUse = RealDrive::getDrivesInUse(*motherBoard);
+		std::string driveName = "diskX";
+		for (auto i : xrange(RealDrive::MAX_DRIVES)) {
+			if (!(*drivesInUse)[i]) continue;
+			driveName[4] = char('a' + i);
+			if (auto cmdResult = execute(TclObject(driveName))) {
+				if (ImGui::BeginMenu(driveName.c_str())) {
+					auto currentImage = cmdResult->getListIndex(interp, 1);
+					showCurrent(currentImage, "disk");
+					if (ImGui::MenuItem("eject", nullptr, false, !currentImage.empty())) {
+						command.addListElement(driveName, "eject");
+					}
+					if (ImGui::MenuItem("insert disk image ... TODO")) {
+						ImGui::OpenPopup(modalID); // WIP
+					}
+					ImGui::EndMenu();
+					needSeparator = true;
+				}
+			}
+		}
+		addSeparator();
+
+		// cartA / extX TODO
+		if (ImGui::BeginMenu("carta TODO")) {
+			ImGui::Text("currently inserted: TODO");
+			ImGui::MenuItem("eject");
+			ImGui::MenuItem("insert extension");
+			if (ImGui::BeginMenu("insert ROM cartridge")) {
+				ImGui::MenuItem("select ROM file");
+				ImGui::MenuItem("select ROM type:");
+				ImGui::MenuItem("patch files:");
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenu();
+			needSeparator = true;
+		}
+		addSeparator();
+
+		// cassetteplayer
+		if (auto cmdResult = execute(TclObject("cassetteplayer"))) {
+			if (ImGui::BeginMenu("cassetteplayer")) {
+				auto currentImage = cmdResult->getListIndex(interp, 1);
+				showCurrent(currentImage, "cassette");
+				if (ImGui::MenuItem("eject", nullptr, false, !currentImage.empty())) {
+					command.addListElement("cassetteplayer", "eject");
+				}
+				ImGui::MenuItem("insert cassette image ... TODO");
+				ImGui::EndMenu();
+				needSeparator = true;
+			}
+		}
+		addSeparator();
+
+		// laserdisc
+		if (auto cmdResult = execute(TclObject("laserdiscplayer"))) {
+			if (ImGui::BeginMenu("laserdisc")) {
+				auto currentImage = cmdResult->getListIndex(interp, 1);
+				showCurrent(currentImage, "laserdisc");
+				if (ImGui::MenuItem("eject", nullptr, false, !currentImage.empty())) {
+					command.addListElement("laserdiscplayer", "eject");
+				}
+				ImGui::MenuItem("insert laserdisc image ... TODO");
+				ImGui::EndMenu();
+				needSeparator = true;
+			}
+		}
+	}
+	ImGui::EndMenu();
+
+	execute(command);
+}
+
 void ImGuiLayer::connectorsMenu(MSXMotherBoard* motherBoard)
 {
 	if (!ImGui::BeginMenu("Connectors", motherBoard != nullptr)) {
@@ -105,8 +215,7 @@ void ImGuiLayer::connectorsMenu(MSXMotherBoard* motherBoard)
 			if (ImGui::BeginCombo(connectorName.c_str(), std::string(currentPluggable.getName()).c_str())) {
 				if (!currentPluggable.getName().empty()) {
 					if (ImGui::Selectable("[unplug]")) {
-						command.addListElement(std::string_view("unplug"));
-						command.addListElement(connectorName);
+						command.addListElement("unplug", connectorName);
 					}
 				}
 				for (auto& plug : pluggables) {
@@ -115,9 +224,7 @@ void ImGuiLayer::connectorsMenu(MSXMotherBoard* motherBoard)
 					bool selected = plug.get() == &currentPluggable;
 					int flags = !selected && plug->getConnector() ? ImGuiSelectableFlags_Disabled : 0; // plugged in another connector
 					if (ImGui::Selectable(plugName.c_str(), selected, flags)) {
-						command.addListElement(std::string_view("plug"));
-						command.addListElement(connectorName);
-						command.addListElement(plugName);
+						command.addListElement("plug", connectorName, plugName);
 					}
 					simpleToolTip(std::string(plug->getDescription()).c_str());
 				}
@@ -126,14 +233,8 @@ void ImGuiLayer::connectorsMenu(MSXMotherBoard* motherBoard)
 		}
 	}
 	ImGui::EndMenu();
-	if (!command.empty()) {
-		// only execute the command after the full menu is drawn
-		try {
-			command.executeCommand(interp);
-		} catch (CommandException&) {
-			// ignore
-		}
-	}
+	// only execute the command after the full menu is drawn
+	execute(command);
 }
 
 void ImGuiLayer::debuggableMenu(MSXMotherBoard* motherBoard)
@@ -182,9 +283,12 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 		}
 	}
 
+	modalID = ImGui::GetID("openfile"); // WIP
+
 	ImGui::Begin("OpenMSX ImGui integration proof of concept", nullptr, ImGuiWindowFlags_MenuBar);
 
 	if (ImGui::BeginMenuBar()) {
+		mediaMenu(motherBoard);
 		connectorsMenu(motherBoard);
 		debuggableMenu(motherBoard);
 		ImGui::EndMenuBar();
@@ -205,6 +309,11 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 
 	ImGui::End();
 
+	if (ImGui::BeginPopupModal("openfile", nullptr, 0)) { // WIP
+		// WIP: the plan is to use something like:
+		//  https://github.com/samhocevar/portable-file-dialogs
+		ImGui::EndPopup();
+	}
 	if (first) {
 		// on startup, focus main openMSX window instead of the GUI window
 		first = false;

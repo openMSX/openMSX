@@ -19,6 +19,11 @@ namespace openmsx {
 class RealDrive final : public DiskDrive, public MediaInfoProvider
 {
 public:
+	static constexpr unsigned MAX_DRIVES = 26; // a-z
+	using DrivesInUse = std::bitset<MAX_DRIVES>;
+	static std::shared_ptr<DrivesInUse> getDrivesInUse(MSXMotherBoard& motherBoard);
+
+public:
 	RealDrive(MSXMotherBoard& motherBoard, EmuDuration::param motorTimeout,
 	          bool signalsNeedMotorOn, bool doubleSided,
 	          DiskDrive::TrackMode trackMode);
@@ -107,8 +112,6 @@ private:
 	const bool signalsNeedMotorOn;
 	const DiskDrive::TrackMode trackMode;
 
-	static constexpr unsigned MAX_DRIVES = 26; // a-z
-	using DrivesInUse = std::bitset<MAX_DRIVES>;
 	std::shared_ptr<DrivesInUse> drivesInUse;
 
 	RawTrack track;

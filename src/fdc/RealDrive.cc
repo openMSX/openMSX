@@ -17,6 +17,11 @@
 
 namespace openmsx {
 
+std::shared_ptr<RealDrive::DrivesInUse> RealDrive::getDrivesInUse(MSXMotherBoard& motherBoard)
+{
+	return motherBoard.getSharedStuff<DrivesInUse>("drivesInUse");
+}
+
 RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeout_,
                      bool signalsNeedMotorOn_, bool doubleSided,
                      DiskDrive::TrackMode trackMode_)
@@ -31,7 +36,7 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeo
 	, signalsNeedMotorOn(signalsNeedMotorOn_)
 	, trackMode(trackMode_)
 {
-	drivesInUse = motherBoard.getSharedStuff<DrivesInUse>("drivesInUse");
+	drivesInUse = getDrivesInUse(motherBoard);
 
 	unsigned i = 0;
 	while ((*drivesInUse)[i]) {
