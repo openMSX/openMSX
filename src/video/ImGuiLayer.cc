@@ -1,5 +1,6 @@
 #include "ImGuiLayer.hh"
 
+#include "CartridgeSlotManager.hh"
 #include "CommandController.hh"
 #include "Connector.hh"
 #include "Debugger.hh"
@@ -17,6 +18,7 @@
 #include <imgui_impl_sdl.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_memory_editor.h>
+#include <portable-file-dialogs.h>
 
 #include <SDL.h>
 
@@ -102,6 +104,17 @@ std::optional<TclObject> ImGuiLayer::execute(TclObject command)
 	return {};
 }
 
+void ImGuiLayer::selectFileCommand(const std::string& title, TclObject command)
+{
+	openFileDialog = std::make_unique<pfd::open_file>(title);
+	openFileCallback = [this, command](const std::vector<std::string>& files) mutable {
+		if (files.size() != 1) return;
+		command.addListElement(files.front());
+		execute(command);
+	};
+	wantOpenModal = true;
+}
+
 void ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
 {
 	if (!ImGui::BeginMenu("Media", motherBoard != nullptr)) {
@@ -127,7 +140,7 @@ void ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
 		};
 
 		// diskX
-		auto drivesInUse = RealDrive::getDrivesInUse(*motherBoard);
+		auto drivesInUse = RealDrive::getDrivesInUse(*motherBoard); // TODO use this or fully rely on commands?
 		std::string driveName = "diskX";
 		for (auto i : xrange(RealDrive::MAX_DRIVES)) {
 			if (!(*drivesInUse)[i]) continue;
@@ -136,32 +149,49 @@ void ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
 				if (ImGui::BeginMenu(driveName.c_str())) {
 					auto currentImage = cmdResult->getListIndex(interp, 1);
 					showCurrent(currentImage, "disk");
-					if (ImGui::MenuItem("eject", nullptr, false, !currentImage.empty())) {
+					if (ImGui::MenuItem("Eject", nullptr, false, !currentImage.empty())) {
 						command.addListElement(driveName, "eject");
 					}
-					if (ImGui::MenuItem("insert disk image ... TODO")) {
-						ImGui::OpenPopup(modalID); // WIP
+					if (ImGui::MenuItem("Insert disk image")) {
+						selectFileCommand("Select disk image for " + driveName,
+						                  makeTclList(driveName, "insert"));
 					}
 					ImGui::EndMenu();
-					needSeparator = true;
 				}
+				needSeparator = true;
 			}
 		}
 		addSeparator();
 
 		// cartA / extX TODO
-		if (ImGui::BeginMenu("carta TODO")) {
-			ImGui::Text("currently inserted: TODO");
-			ImGui::MenuItem("eject");
-			ImGui::MenuItem("insert extension");
-			if (ImGui::BeginMenu("insert ROM cartridge")) {
-				ImGui::MenuItem("select ROM file");
-				ImGui::MenuItem("select ROM type:");
-				ImGui::MenuItem("patch files:");
-				ImGui::EndMenu();
+		auto& slotManager = motherBoard->getSlotManager();
+		std::string cartName = "cartX";
+		for (auto slot : xrange(CartridgeSlotManager::MAX_SLOTS)) {
+			if (!slotManager.slotExists(slot)) continue;
+			cartName[4] = char('a' + slot);
+			if (auto cmdResult = execute(TclObject(cartName))) {
+				if (ImGui::BeginMenu(cartName.c_str())) {
+					auto currentImage = cmdResult->getListIndex(interp, 1);
+					showCurrent(currentImage, "cart"); // TODO cart/ext
+					if (ImGui::MenuItem("Eject", nullptr, false, !currentImage.empty())) {
+						command.addListElement(cartName, "eject");
+					}
+					if (ImGui::BeginMenu("ROM cartridge")) {
+						if (ImGui::MenuItem("select ROM file")) {
+							selectFileCommand("Select ROM image for " + cartName,
+									makeTclList(cartName, "insert"));
+						}
+						ImGui::MenuItem("select ROM type: TODO");
+						ImGui::MenuItem("patch files: TODO");
+						ImGui::EndMenu();
+					}
+					if (ImGui::MenuItem("insert extension")) {
+						ImGui::TextUnformatted("TODO");
+					}
+					ImGui::EndMenu();
+				}
+				needSeparator = true;
 			}
-			ImGui::EndMenu();
-			needSeparator = true;
 		}
 		addSeparator();
 
@@ -173,10 +203,13 @@ void ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
 				if (ImGui::MenuItem("eject", nullptr, false, !currentImage.empty())) {
 					command.addListElement("cassetteplayer", "eject");
 				}
-				ImGui::MenuItem("insert cassette image ... TODO");
+				if (ImGui::MenuItem("insert cassette image")) {
+					selectFileCommand("Select cassette image",
+					                  makeTclList("cassetteplayer", "insert"));
+				}
 				ImGui::EndMenu();
-				needSeparator = true;
 			}
+			needSeparator = true;
 		}
 		addSeparator();
 
@@ -188,10 +221,13 @@ void ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
 				if (ImGui::MenuItem("eject", nullptr, false, !currentImage.empty())) {
 					command.addListElement("laserdiscplayer", "eject");
 				}
-				ImGui::MenuItem("insert laserdisc image ... TODO");
+				if (ImGui::MenuItem("insert laserdisc image")) {
+					selectFileCommand("Select laserdisc image",
+					                  makeTclList("laserdiscplayer", "insert"));
+				}
 				ImGui::EndMenu();
-				needSeparator = true;
 			}
+			needSeparator = true;
 		}
 	}
 	ImGui::EndMenu();
@@ -267,8 +303,8 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 	auto& commandController = reactor.getCommandController();
 	auto* motherBoard = reactor.getMotherBoard();
 
-	if (show_demo_window) {
-		ImGui::ShowDemoWindow(&show_demo_window);
+	if (showDemoWindow) {
+		ImGui::ShowDemoWindow(&showDemoWindow);
 	}
 
 	// Show the enabled 'debuggables'
@@ -283,9 +319,7 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 		}
 	}
 
-	modalID = ImGui::GetID("openfile"); // WIP
-
-	ImGui::Begin("OpenMSX ImGui integration proof of concept", nullptr, ImGuiWindowFlags_MenuBar);
+	ImGui::Begin("main window", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_MenuBar);
 
 	if (ImGui::BeginMenuBar()) {
 		mediaMenu(motherBoard);
@@ -294,7 +328,7 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 		ImGui::EndMenuBar();
 	}
 
-	ImGui::Checkbox("ImGui Demo Window", &show_demo_window);
+	ImGui::Checkbox("ImGui Demo Window", &showDemoWindow);
 	HelpMarker("Show the ImGui demo window.\n"
 	           "This is purely to demonstrate the ImGui capabilities.\n"
 	           "There is no connection with any openMSX functionality.");
@@ -309,11 +343,29 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 
 	ImGui::End();
 
-	if (ImGui::BeginPopupModal("openfile", nullptr, 0)) { // WIP
-		// WIP: the plan is to use something like:
-		//  https://github.com/samhocevar/portable-file-dialogs
+	if (wantOpenModal) {
+		wantOpenModal = false;
+		ImGui::OpenPopup("openfile");
+	}
+	if (ImGui::BeginPopupModal("openfile", nullptr, 0)) {
+		ImGui::TextUnformatted("select a file");
+		ImGui::SameLine();
+		if (ImGui::Button("Cancel")) {
+			ImGui::CloseCurrentPopup();
+			openFileDialog->kill();
+			openFileDialog.reset();
+			openFileCallback = {};
+		}
+		ImGui::TextUnformatted("(TODO ideally this window wouldn't show up)");
+		if (openFileDialog && openFileDialog->ready(0)) {
+			openFileCallback(openFileDialog->result());
+			openFileDialog.reset();
+			openFileCallback = {};
+			ImGui::CloseCurrentPopup();
+		}
 		ImGui::EndPopup();
 	}
+
 	if (first) {
 		// on startup, focus main openMSX window instead of the GUI window
 		first = false;

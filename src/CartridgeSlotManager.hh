@@ -6,6 +6,7 @@
 #include "InfoTopic.hh"
 #include "TclObject.hh"
 #include <array>
+#include <cassert>
 #include <optional>
 #include <string_view>
 
@@ -15,6 +16,9 @@ class HardwareConfig;
 
 class CartridgeSlotManager
 {
+public:
+	static constexpr unsigned MAX_SLOTS = 16 + 4;
+
 public:
 	explicit CartridgeSlotManager(MSXMotherBoard& motherBoard);
 	~CartridgeSlotManager();
@@ -40,6 +44,12 @@ public:
 	void freePrimarySlot(int ps, const HardwareConfig& hwConfig);
 
 	[[nodiscard]] bool isExternalSlot(int ps, int ss, bool convert) const;
+
+	// TODO allow to query more info like cart or ext inserted ...
+	bool slotExists(unsigned slot) const {
+		assert(slot < MAX_SLOTS);
+		return slots[slot].exists();
+	}
 
 private:
 	[[nodiscard]] unsigned getSlot(int ps, int ss) const;
@@ -86,7 +96,6 @@ private:
 		int ss = 0;
 		MSXCPUInterface* cpuInterface;
 	};
-	static constexpr unsigned MAX_SLOTS = 16 + 4;
 	std::array<Slot, MAX_SLOTS> slots;
 };
 
