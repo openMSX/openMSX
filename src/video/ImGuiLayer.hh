@@ -32,6 +32,7 @@ private:
 
 	void mediaMenu(MSXMotherBoard* motherBoard);
 	void connectorsMenu(MSXMotherBoard* motherBoard);
+	void settingsMenu(MSXMotherBoard* motherBoard);
 	void debuggableMenu(MSXMotherBoard* motherBoard);
 
 	std::optional<TclObject> execute(TclObject command);

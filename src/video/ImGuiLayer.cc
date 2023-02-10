@@ -1,18 +1,28 @@
 #include "ImGuiLayer.hh"
 
 #include "CartridgeSlotManager.hh"
-#include "CommandController.hh"
 #include "Connector.hh"
 #include "Debugger.hh"
 #include "Display.hh"
+#include "EnumSetting.hh"
+#include "FilenameSetting.hh"
 #include "FloatSetting.hh"
+#include "GlobalCommandController.hh"
 #include "GLUtil.hh"
+#include "IntegerSetting.hh"
+#include "KeyCodeSetting.hh"
+#include "Mixer.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCPUInterface.hh"
 #include "Pluggable.hh"
 #include "PluggingController.hh"
+#include "ProxySetting.hh"
 #include "Reactor.hh"
+#include "ReadOnlySetting.hh"
 #include "RealDrive.hh"
+#include "SettingsManager.hh"
+#include "StringSetting.hh"
+#include "ranges.hh"
 
 #include <imgui.h>
 #include <imgui_impl_sdl.h>
@@ -26,7 +36,7 @@ namespace openmsx {
 
 static void simpleToolTip(const char* desc)
 {
-	if (ImGui::IsItemHovered()) {
+	if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal)) {
 		ImGui::BeginTooltip();
 		ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
 		ImGui::TextUnformatted(desc);
@@ -42,24 +52,74 @@ static void HelpMarker(const char* desc)
 	simpleToolTip(desc);
 }
 
-template<typename Getter, typename Setter>
-static bool Checkbox(const char* label, Getter getter, Setter setter)
+static bool Checkbox(const char* label, BooleanSetting& setting)
 {
-	bool value = getter();
+	bool value = setting.getBoolean();
 	bool changed = ImGui::Checkbox(label, &value);
-	if (changed) setter(value);
+	simpleToolTip(std::string(setting.getDescription()).c_str());
+	if (changed) setting.setBoolean(value);
 	return changed;
 }
 
 // Should we put these helpers in the ImGui namespace?
+static bool SliderInt(const char* label, IntegerSetting& setting, ImGuiSliderFlags flags = 0)
+{
+	int value = setting.getInt();
+	int min = setting.getMinValue();
+	int max = setting.getMaxValue();
+	bool changed = ImGui::SliderInt(label, &value, min, max, "%d", flags);
+	simpleToolTip(std::string(setting.getDescription()).c_str());
+	if (changed) setting.setInt(value);
+	return changed;
+}
 static bool SliderFloat(const char* label, FloatSetting& setting, const char* format = "%.3f", ImGuiSliderFlags flags = 0)
 {
 	float value = setting.getFloat();
 	float min = narrow_cast<float>(setting.getMinValue());
 	float max = narrow_cast<float>(setting.getMaxValue());
 	bool changed = ImGui::SliderFloat(label, &value, min, max, format, flags);
+	simpleToolTip(std::string(setting.getDescription()).c_str());
 	if (changed) setting.setDouble(value); // TODO setFloat()
 	return changed;
+}
+static bool InputText(const char* label, Setting& setting)
+{
+	char buffer[256 + 1];
+	auto value = setting.getValue().getString();
+	assert(value.size() < 256); // TODO
+	strncpy(buffer, value.data(), 256);
+	bool changed = ImGui::InputText(label, buffer, 256);
+	simpleToolTip(std::string(setting.getDescription()).c_str());
+	if (changed) setting.setValue(TclObject(buffer));
+	return changed;
+}
+static void ComboBox(const char* label, BaseSetting& setting, EnumSettingBase& enumSetting)
+{
+	auto current = setting.getValue().getString();
+	if (ImGui::BeginCombo(label, current.c_str())) {
+		for (const auto& entry : enumSetting.getMap()) {
+			bool selected = entry.name == current;
+			if (ImGui::Selectable(entry.name.c_str(), selected)) {
+				setting.setValue(TclObject(entry.name));
+			}
+		}
+		ImGui::EndCombo();
+	}
+	simpleToolTip(std::string(setting.getDescription()).c_str());
+}
+static void ComboBox(const char* label, VideoSourceSetting& setting) // TODO share code with EnumSetting?
+{
+	auto current = setting.getValue().getString();
+	if (ImGui::BeginCombo(label, current.c_str())) {
+		for (const auto& value : setting.getPossibleValues()) {
+			bool selected = value == current;
+			if (ImGui::Selectable(std::string(value).c_str(), selected)) {
+				setting.setValue(TclObject(value));
+			}
+		}
+		ImGui::EndCombo();
+	}
+	simpleToolTip(std::string(setting.getDescription()).c_str());
 }
 
 struct DebuggableEditor : public MemoryEditor
@@ -273,6 +333,67 @@ void ImGuiLayer::connectorsMenu(MSXMotherBoard* motherBoard)
 	execute(command);
 }
 
+void ImGuiLayer::settingsMenu(MSXMotherBoard* /*motherBoard*/)
+{
+	if (ImGui::BeginMenu("Settings")) {
+		if (ImGui::BeginMenu("Video")) {
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Sound")) {
+			auto& mixer = reactor.getMixer();
+			auto& muteSetting = mixer.getMuteSetting();
+			ImGui::BeginDisabled(muteSetting.getBoolean());
+			SliderInt("master volume", mixer.getMasterVolume());
+			ImGui::EndDisabled();
+			Checkbox("mute", muteSetting);
+			ImGui::Separator();
+			ImGui::Text("Soundchip settings ...");
+
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Misc")) {
+			ImGui::EndMenu();
+		}
+		ImGui::Separator();
+		if (ImGui::BeginMenu("Advanced")) {
+			ImGui::TextUnformatted("All settings");
+			ImGui::Separator();
+			auto& manager = reactor.getGlobalCommandController().getSettingsManager();
+			std::vector<BaseSetting*> settings;
+			for (auto* setting : manager.getAllSettings()) {
+				if (dynamic_cast<ProxySetting*>(setting)) continue;
+				if (dynamic_cast<ReadOnlySetting*>(setting)) continue;
+				settings.push_back(setting);
+			}
+			ranges::sort(settings, {}, &BaseSetting::getBaseName);
+			for (auto* setting : settings) {
+				std::string name(setting->getBaseName());
+				if (auto* bSetting = dynamic_cast<BooleanSetting*>(setting)) {
+					Checkbox(name.c_str(), *bSetting);
+				} else if (auto* iSetting = dynamic_cast<IntegerSetting*>(setting)) {
+					SliderInt(name.c_str(), *iSetting);
+				} else if (auto* fSetting = dynamic_cast<FloatSetting*>(setting)) {
+					SliderFloat(name.c_str(), *fSetting);
+				} else if (auto* sSetting = dynamic_cast<StringSetting*>(setting)) {
+					InputText(name.c_str(), *sSetting);
+				} else if (auto* fnSetting = dynamic_cast<FilenameSetting*>(setting)) {
+					InputText(name.c_str(), *fnSetting); // TODO
+				} else if (auto* kSetting = dynamic_cast<KeyCodeSetting*>(setting)) {
+					InputText(name.c_str(), *kSetting); // TODO
+				} else if (auto* eSetting = dynamic_cast<EnumSettingBase*>(setting)) {
+					ComboBox(name.c_str(), *setting, *eSetting);
+				} else if (auto* vSetting = dynamic_cast<VideoSourceSetting*>(setting)) {
+					ComboBox(name.c_str(), *vSetting);
+				} else {
+					assert(false);
+				}
+			}
+			ImGui::EndMenu();
+		}
+		ImGui::EndMenu();
+	}
+}
+
 void ImGuiLayer::debuggableMenu(MSXMotherBoard* motherBoard)
 {
 	if (!ImGui::BeginMenu("Debuggables", motherBoard != nullptr)) {
@@ -324,6 +445,7 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 	if (ImGui::BeginMenuBar()) {
 		mediaMenu(motherBoard);
 		connectorsMenu(motherBoard);
+		settingsMenu(motherBoard);
 		debuggableMenu(motherBoard);
 		ImGui::EndMenuBar();
 	}
@@ -339,7 +461,6 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 	HelpMarker("Reset the emulated MSX machine.");
 
 	SliderFloat("noise", rendererSettings.getNoiseSetting(), "%.1f");
-	HelpMarker("Stupid example. But good enough to demonstrate that this stuff is very easy.");
 
 	ImGui::End();
 

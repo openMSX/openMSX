@@ -51,6 +51,7 @@ public:
 	void uploadBuffer(MSXMixer& msxMixer, std::span<const StereoFloat> buffer);
 
 	[[nodiscard]] IntegerSetting& getMasterVolume() { return masterVolume; }
+	[[nodiscard]] BooleanSetting& getMuteSetting() { return muteSetting; }
 
 private:
 	void reloadDriver();

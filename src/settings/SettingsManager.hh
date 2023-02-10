@@ -35,6 +35,8 @@ public:
 	void registerSetting  (BaseSetting& setting);
 	void unregisterSetting(BaseSetting& setting);
 
+	[[nodiscard]] const auto& getAllSettings() const { return settings; }
+
 private:
 	[[nodiscard]] BaseSetting& getByName(std::string_view cmd, std::string_view name) const;
 	[[nodiscard]] std::vector<std::string> getTabSettingNames() const;
