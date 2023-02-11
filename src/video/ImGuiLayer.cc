@@ -213,116 +213,117 @@ void ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
 	if (!ImGui::BeginMenu("Media", motherBoard != nullptr)) {
 		return;
 	}
+	assert(motherBoard);
 
 	TclObject command;
-	if (motherBoard) {
-		bool needSeparator = false;
-		auto addSeparator = [&] {
-			if (needSeparator) {
-				needSeparator = false;
-				ImGui::Separator();
-			}
-		};
-		auto showCurrent = [&](TclObject current, const char* type) {
-			if (current.empty()) {
-				ImGui::Text("no %s inserted", type);
-			} else {
-				ImGui::Text("Current: %s", current.getString().c_str());
-			}
+
+	bool needSeparator = false;
+	auto addSeparator = [&] {
+		if (needSeparator) {
+			needSeparator = false;
 			ImGui::Separator();
-		};
-
-		// diskX
-		auto drivesInUse = RealDrive::getDrivesInUse(*motherBoard); // TODO use this or fully rely on commands?
-		std::string driveName = "diskX";
-		for (auto i : xrange(RealDrive::MAX_DRIVES)) {
-			if (!(*drivesInUse)[i]) continue;
-			driveName[4] = char('a' + i);
-			if (auto cmdResult = execute(TclObject(driveName))) {
-				if (ImGui::BeginMenu(driveName.c_str())) {
-					auto currentImage = cmdResult->getListIndex(interp, 1);
-					showCurrent(currentImage, "disk");
-					if (ImGui::MenuItem("Eject", nullptr, false, !currentImage.empty())) {
-						command.addListElement(driveName, "eject");
-					}
-					if (ImGui::MenuItem("Insert disk image")) {
-						selectFileCommand("Select disk image for " + driveName,
-						                  makeTclList(driveName, "insert"));
-					}
-					ImGui::EndMenu();
-				}
-				needSeparator = true;
-			}
 		}
-		addSeparator();
-
-		// cartA / extX TODO
-		auto& slotManager = motherBoard->getSlotManager();
-		std::string cartName = "cartX";
-		for (auto slot : xrange(CartridgeSlotManager::MAX_SLOTS)) {
-			if (!slotManager.slotExists(slot)) continue;
-			cartName[4] = char('a' + slot);
-			if (auto cmdResult = execute(TclObject(cartName))) {
-				if (ImGui::BeginMenu(cartName.c_str())) {
-					auto currentImage = cmdResult->getListIndex(interp, 1);
-					showCurrent(currentImage, "cart"); // TODO cart/ext
-					if (ImGui::MenuItem("Eject", nullptr, false, !currentImage.empty())) {
-						command.addListElement(cartName, "eject");
-					}
-					if (ImGui::BeginMenu("ROM cartridge")) {
-						if (ImGui::MenuItem("select ROM file")) {
-							selectFileCommand("Select ROM image for " + cartName,
-									makeTclList(cartName, "insert"));
-						}
-						ImGui::MenuItem("select ROM type: TODO");
-						ImGui::MenuItem("patch files: TODO");
-						ImGui::EndMenu();
-					}
-					if (ImGui::MenuItem("insert extension")) {
-						ImGui::TextUnformatted("TODO");
-					}
-					ImGui::EndMenu();
-				}
-				needSeparator = true;
-			}
+	};
+	auto showCurrent = [&](TclObject current, const char* type) {
+		if (current.empty()) {
+			ImGui::Text("no %s inserted", type);
+		} else {
+			ImGui::Text("Current: %s", current.getString().c_str());
 		}
-		addSeparator();
+		ImGui::Separator();
+	};
 
-		// cassetteplayer
-		if (auto cmdResult = execute(TclObject("cassetteplayer"))) {
-			if (ImGui::BeginMenu("cassetteplayer")) {
+	// diskX
+	auto drivesInUse = RealDrive::getDrivesInUse(*motherBoard); // TODO use this or fully rely on commands?
+	std::string driveName = "diskX";
+	for (auto i : xrange(RealDrive::MAX_DRIVES)) {
+		if (!(*drivesInUse)[i]) continue;
+		driveName[4] = char('a' + i);
+		if (auto cmdResult = execute(TclObject(driveName))) {
+			if (ImGui::BeginMenu(driveName.c_str())) {
 				auto currentImage = cmdResult->getListIndex(interp, 1);
-				showCurrent(currentImage, "cassette");
-				if (ImGui::MenuItem("eject", nullptr, false, !currentImage.empty())) {
-					command.addListElement("cassetteplayer", "eject");
+				showCurrent(currentImage, "disk");
+				if (ImGui::MenuItem("Eject", nullptr, false, !currentImage.empty())) {
+					command.addListElement(driveName, "eject");
 				}
-				if (ImGui::MenuItem("insert cassette image")) {
-					selectFileCommand("Select cassette image",
-					                  makeTclList("cassetteplayer", "insert"));
-				}
-				ImGui::EndMenu();
-			}
-			needSeparator = true;
-		}
-		addSeparator();
-
-		// laserdisc
-		if (auto cmdResult = execute(TclObject("laserdiscplayer"))) {
-			if (ImGui::BeginMenu("laserdisc")) {
-				auto currentImage = cmdResult->getListIndex(interp, 1);
-				showCurrent(currentImage, "laserdisc");
-				if (ImGui::MenuItem("eject", nullptr, false, !currentImage.empty())) {
-					command.addListElement("laserdiscplayer", "eject");
-				}
-				if (ImGui::MenuItem("insert laserdisc image")) {
-					selectFileCommand("Select laserdisc image",
-					                  makeTclList("laserdiscplayer", "insert"));
+				if (ImGui::MenuItem("Insert disk image")) {
+					selectFileCommand("Select disk image for " + driveName,
+								makeTclList(driveName, "insert"));
 				}
 				ImGui::EndMenu();
 			}
 			needSeparator = true;
 		}
 	}
+	addSeparator();
+
+	// cartA / extX TODO
+	auto& slotManager = motherBoard->getSlotManager();
+	std::string cartName = "cartX";
+	for (auto slot : xrange(CartridgeSlotManager::MAX_SLOTS)) {
+		if (!slotManager.slotExists(slot)) continue;
+		cartName[4] = char('a' + slot);
+		if (auto cmdResult = execute(TclObject(cartName))) {
+			if (ImGui::BeginMenu(cartName.c_str())) {
+				auto currentImage = cmdResult->getListIndex(interp, 1);
+				showCurrent(currentImage, "cart"); // TODO cart/ext
+				if (ImGui::MenuItem("Eject", nullptr, false, !currentImage.empty())) {
+					command.addListElement(cartName, "eject");
+				}
+				if (ImGui::BeginMenu("ROM cartridge")) {
+					if (ImGui::MenuItem("select ROM file")) {
+						selectFileCommand("Select ROM image for " + cartName,
+								makeTclList(cartName, "insert"));
+					}
+					ImGui::MenuItem("select ROM type: TODO");
+					ImGui::MenuItem("patch files: TODO");
+					ImGui::EndMenu();
+				}
+				if (ImGui::MenuItem("insert extension")) {
+					ImGui::TextUnformatted("TODO");
+				}
+				ImGui::EndMenu();
+			}
+			needSeparator = true;
+		}
+	}
+	addSeparator();
+
+	// cassetteplayer
+	if (auto cmdResult = execute(TclObject("cassetteplayer"))) {
+		if (ImGui::BeginMenu("cassetteplayer")) {
+			auto currentImage = cmdResult->getListIndex(interp, 1);
+			showCurrent(currentImage, "cassette");
+			if (ImGui::MenuItem("eject", nullptr, false, !currentImage.empty())) {
+				command.addListElement("cassetteplayer", "eject");
+			}
+			if (ImGui::MenuItem("insert cassette image")) {
+				selectFileCommand("Select cassette image",
+							makeTclList("cassetteplayer", "insert"));
+			}
+			ImGui::EndMenu();
+		}
+		needSeparator = true;
+	}
+	addSeparator();
+
+	// laserdisc
+	if (auto cmdResult = execute(TclObject("laserdiscplayer"))) {
+		if (ImGui::BeginMenu("laserdisc")) {
+			auto currentImage = cmdResult->getListIndex(interp, 1);
+			showCurrent(currentImage, "laserdisc");
+			if (ImGui::MenuItem("eject", nullptr, false, !currentImage.empty())) {
+				command.addListElement("laserdiscplayer", "eject");
+			}
+			if (ImGui::MenuItem("insert laserdisc image")) {
+				selectFileCommand("Select laserdisc image",
+							makeTclList("laserdiscplayer", "insert"));
+			}
+			ImGui::EndMenu();
+		}
+		needSeparator = true;
+	}
+
 	ImGui::EndMenu();
 
 	execute(command);
@@ -333,37 +334,38 @@ void ImGuiLayer::connectorsMenu(MSXMotherBoard* motherBoard)
 	if (!ImGui::BeginMenu("Connectors", motherBoard != nullptr)) {
 		return;
 	}
+	assert(motherBoard);
+
 	TclObject command;
-	if (motherBoard) {
-		const auto& pluggingController = motherBoard->getPluggingController();
-		const auto& pluggables = pluggingController.getPluggables();
-		for (auto* connector : pluggingController.getConnectors()) {
-			const auto& connectorName = connector->getName();
-			auto connectorClass = connector->getClass();
-			const auto& currentPluggable = connector->getPlugged();
-			if (ImGui::BeginCombo(connectorName.c_str(), std::string(currentPluggable.getName()).c_str())) {
-				if (!currentPluggable.getName().empty()) {
-					if (ImGui::Selectable("[unplug]")) {
-						command.addListElement("unplug", connectorName);
-					}
+
+	const auto& pluggingController = motherBoard->getPluggingController();
+	const auto& pluggables = pluggingController.getPluggables();
+	for (auto* connector : pluggingController.getConnectors()) {
+		const auto& connectorName = connector->getName();
+		auto connectorClass = connector->getClass();
+		const auto& currentPluggable = connector->getPlugged();
+		if (ImGui::BeginCombo(connectorName.c_str(), std::string(currentPluggable.getName()).c_str())) {
+			if (!currentPluggable.getName().empty()) {
+				if (ImGui::Selectable("[unplug]")) {
+					command.addListElement("unplug", connectorName);
 				}
-				for (auto& plug : pluggables) {
-					if (plug->getClass() != connectorClass) continue;
-					auto plugName = std::string(plug->getName());
-					bool selected = plug.get() == &currentPluggable;
-					int flags = !selected && plug->getConnector() ? ImGuiSelectableFlags_Disabled : 0; // plugged in another connector
-					if (ImGui::Selectable(plugName.c_str(), selected, flags)) {
-						command.addListElement("plug", connectorName, plugName);
-					}
-					simpleToolTip(plug->getDescription());
-				}
-				ImGui::EndCombo();
 			}
+			for (auto& plug : pluggables) {
+				if (plug->getClass() != connectorClass) continue;
+				auto plugName = std::string(plug->getName());
+				bool selected = plug.get() == &currentPluggable;
+				int flags = !selected && plug->getConnector() ? ImGuiSelectableFlags_Disabled : 0; // plugged in another connector
+				if (ImGui::Selectable(plugName.c_str(), selected, flags)) {
+					command.addListElement("plug", connectorName, plugName);
+				}
+				simpleToolTip(plug->getDescription());
+			}
+			ImGui::EndCombo();
 		}
 	}
+
 	ImGui::EndMenu();
-	// only execute the command after the full menu is drawn
-	execute(command);
+	execute(command); // only execute the command after the full menu is drawn
 }
 
 void ImGuiLayer::saveStateMenu(MSXMotherBoard* motherBoard)
@@ -371,68 +373,70 @@ void ImGuiLayer::saveStateMenu(MSXMotherBoard* motherBoard)
 	if (!ImGui::BeginMenu("Save state", motherBoard != nullptr)) {
 		return;
 	}
+	assert(motherBoard);
+
 	TclObject command;
-	if (motherBoard) {
-		if (ImGui::MenuItem("Quick load state", "ALT+F7")) { // TODO check binding dynamically
-			command.addListElement("loadstate");
-		}
-		if (ImGui::MenuItem("Quick save state", "ALT+F8")) { // TODO
-			command.addListElement("savestate");
-		}
-		ImGui::Separator();
 
-		auto existingStates = execute(TclObject("list_savestates"));
-		if (ImGui::BeginMenu("Load state ...", existingStates && !existingStates->empty())) {
-			if (ImGui::BeginTable("table", 2, ImGuiTableFlags_BordersInnerV)) {
-				ImGui::TableNextColumn();
-				ImGui::TextUnformatted("select savestate");
-				if (ImGui::BeginListBox("##list", ImVec2(ImGui::GetFontSize() * 20.0f, 240.0f))) {
-					for (const auto& name : *existingStates) {
-						if (ImGui::Selectable(name.c_str())) {
-							command = makeTclList("loadstate", name);
-						}
-						if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort)) {
-							if (previewImage.name != name) {
-								// record name, but (so far) without image
-								// this prevents that on a missing image, we don't continue retrying
-								previewImage.name = std::string(name);
-								previewImage.texture = gl::Texture(gl::Null{});
+	if (ImGui::MenuItem("Quick load state", "ALT+F7")) { // TODO check binding dynamically
+		command.addListElement("loadstate");
+	}
+	if (ImGui::MenuItem("Quick save state", "ALT+F8")) { // TODO
+		command.addListElement("savestate");
+	}
+	ImGui::Separator();
 
-								std::string filename = FileOperations::join(
-									FileOperations::getUserOpenMSXDir(),
-									"savestates", tmpStrCat(name, ".png"));
-								if (FileOperations::exists(filename)) {
-									try {
-										gl::ivec2 dummy;
-										previewImage.texture = loadTexture(filename, dummy);
-									} catch (...) {
-										// ignore
-									}
+	auto existingStates = execute(TclObject("list_savestates"));
+	if (ImGui::BeginMenu("Load state ...", existingStates && !existingStates->empty())) {
+		if (ImGui::BeginTable("table", 2, ImGuiTableFlags_BordersInnerV)) {
+			ImGui::TableNextColumn();
+			ImGui::TextUnformatted("select savestate");
+			if (ImGui::BeginListBox("##list", ImVec2(ImGui::GetFontSize() * 20.0f, 240.0f))) {
+				for (const auto& name : *existingStates) {
+					if (ImGui::Selectable(name.c_str())) {
+						command = makeTclList("loadstate", name);
+					}
+					if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort)) {
+						if (previewImage.name != name) {
+							// record name, but (so far) without image
+							// this prevents that on a missing image, we don't continue retrying
+							previewImage.name = std::string(name);
+							previewImage.texture = gl::Texture(gl::Null{});
+
+							std::string filename = FileOperations::join(
+								FileOperations::getUserOpenMSXDir(),
+								"savestates", tmpStrCat(name, ".png"));
+							if (FileOperations::exists(filename)) {
+								try {
+									gl::ivec2 dummy;
+									previewImage.texture = loadTexture(filename, dummy);
+								} catch (...) {
+									// ignore
 								}
 							}
 						}
 					}
-					ImGui::EndListBox();
 				}
-
-				ImGui::TableNextColumn();
-				ImGui::TextUnformatted("preview");
-				ImVec2 size(320, 240);
-				if (previewImage.texture.get()) {
-					ImGui::Image(reinterpret_cast<void*>(previewImage.texture.get()), size);
-				} else {
-					ImGui::Dummy(size);
-				}
-				ImGui::EndTable();
+				ImGui::EndListBox();
 			}
-			ImGui::EndMenu();
-		}
-		ImGui::TextUnformatted("Save state ... TODO");
-		ImGui::Separator();
 
-		ImGui::TextUnformatted("Load replay ... TODO");
-		ImGui::TextUnformatted("Save replay ... TODO");
+			ImGui::TableNextColumn();
+			ImGui::TextUnformatted("preview");
+			ImVec2 size(320, 240);
+			if (previewImage.texture.get()) {
+				ImGui::Image(reinterpret_cast<void*>(previewImage.texture.get()), size);
+			} else {
+				ImGui::Dummy(size);
+			}
+			ImGui::EndTable();
+		}
+		ImGui::EndMenu();
 	}
+	ImGui::TextUnformatted("Save state ... TODO");
+	ImGui::Separator();
+
+	ImGui::TextUnformatted("Load replay ... TODO");
+	ImGui::TextUnformatted("Save replay ... TODO");
+
 	ImGui::EndMenu();
 	execute(command);
 }
@@ -520,61 +524,66 @@ void ImGuiLayer::soundChipSettings(MSXMotherBoard* motherBoard)
 	};
 
 	ImGui::Begin("Sound chip settings", &showSoundChipSettings);
-	if (motherBoard) {
-		auto& msxMixer = motherBoard->getMSXMixer();
-		auto& infos = msxMixer.getDeviceInfos(); // TODO sort on name
-		if (ImGui::BeginTable("table", narrow<int>(infos.size()), ImGuiTableFlags_ScrollX)) {
-			for (auto& info : infos) {
-				auto& device = *info.device;
-				ImGui::TableNextColumn();
-				ImGui::TextUnformatted(device.getName().c_str());
-				simpleToolTip(device.getDescription());
-			}
-			for (auto& info : infos) {
-				auto& volumeSetting = *info.volumeSetting;
-				int volume = volumeSetting.getInt();
-				int min = volumeSetting.getMinValue();
-				int max = volumeSetting.getMaxValue();
-				ImGui::TableNextColumn();
-				ImGui::TextUnformatted("volume");
-				std::string id = "##volume-" + info.device->getName();
-				if (ImGui::VSliderInt(id.c_str(), ImVec2(18, 120), &volume, min, max)) {
-					volumeSetting.setInt(volume);
-				}
-				restoreDefaultPopup("Set default", volumeSetting);
-			}
-			for (auto& info : infos) {
-				auto& balanceSetting = *info.balanceSetting;
-				int balance = balanceSetting.getInt();
-				int min = balanceSetting.getMinValue();
-				int max = balanceSetting.getMaxValue();
-				ImGui::TableNextColumn();
-				ImGui::TextUnformatted("balance");
-				std::string id = "##balance-" + info.device->getName();
-				if (ImGui::SliderInt(id.c_str(), &balance, min, max)) {
-					balanceSetting.setInt(balance);
-				}
-				restoreDefaultPopup("Set center", balanceSetting);
-			}
-			for (auto& info : infos) {
-				ImGui::TableNextColumn();
-				if (anySpecialChannelSettings(info)) {
-					ImU32 color = ImGui::GetColorU32(ImVec4(1.0f, 1.0f, 0.0f, 0.75f));
-					ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
-				}
-				ImGui::TextUnformatted("channels");
-				const auto& name = info.device->getName();
-				std::string id = "##channels-" + name;
-				ImGui::Checkbox(id.c_str(), &channels[name]);
-			}
-			ImGui::EndTable();
-		}
+	if (!motherBoard) {
+		ImGui::End();
+		return;
 	}
+
+	auto& msxMixer = motherBoard->getMSXMixer();
+	auto& infos = msxMixer.getDeviceInfos(); // TODO sort on name
+	if (ImGui::BeginTable("table", narrow<int>(infos.size()), ImGuiTableFlags_ScrollX)) {
+		for (auto& info : infos) {
+			auto& device = *info.device;
+			ImGui::TableNextColumn();
+			ImGui::TextUnformatted(device.getName().c_str());
+			simpleToolTip(device.getDescription());
+		}
+		for (auto& info : infos) {
+			auto& volumeSetting = *info.volumeSetting;
+			int volume = volumeSetting.getInt();
+			int min = volumeSetting.getMinValue();
+			int max = volumeSetting.getMaxValue();
+			ImGui::TableNextColumn();
+			ImGui::TextUnformatted("volume");
+			std::string id = "##volume-" + info.device->getName();
+			if (ImGui::VSliderInt(id.c_str(), ImVec2(18, 120), &volume, min, max)) {
+				volumeSetting.setInt(volume);
+			}
+			restoreDefaultPopup("Set default", volumeSetting);
+		}
+		for (auto& info : infos) {
+			auto& balanceSetting = *info.balanceSetting;
+			int balance = balanceSetting.getInt();
+			int min = balanceSetting.getMinValue();
+			int max = balanceSetting.getMaxValue();
+			ImGui::TableNextColumn();
+			ImGui::TextUnformatted("balance");
+			std::string id = "##balance-" + info.device->getName();
+			if (ImGui::SliderInt(id.c_str(), &balance, min, max)) {
+				balanceSetting.setInt(balance);
+			}
+			restoreDefaultPopup("Set center", balanceSetting);
+		}
+		for (auto& info : infos) {
+			ImGui::TableNextColumn();
+			if (anySpecialChannelSettings(info)) {
+				ImU32 color = ImGui::GetColorU32(ImVec4(1.0f, 1.0f, 0.0f, 0.75f));
+				ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
+			}
+			ImGui::TextUnformatted("channels");
+			const auto& name = info.device->getName();
+			std::string id = "##channels-" + name;
+			ImGui::Checkbox(id.c_str(), &channels[name]);
+		}
+		ImGui::EndTable();
+	}
+
 	ImGui::End();
 }
 
 void ImGuiLayer::channelSettings(MSXMotherBoard* motherBoard, const std::string& name, bool* enabled)
 {
+	if (!motherBoard) return;
 	auto& msxMixer = motherBoard->getMSXMixer();
 	auto* info = msxMixer.findDeviceInfo(name);
 	if (!info) return;
@@ -607,17 +616,18 @@ void ImGuiLayer::debuggableMenu(MSXMotherBoard* motherBoard)
 	if (!ImGui::BeginMenu("Debuggables", motherBoard != nullptr)) {
 		return;
 	}
-	if (motherBoard) {
-		auto& debugger = motherBoard->getDebugger();
-		// TODO sort debuggable names, either via sort here, or by
-		//    storing the debuggable always in sorted order in Debugger
-		for (auto& name : view::keys(debugger.getDebuggables())) {
-			auto [it, inserted] = debuggables.try_emplace(name);
-			auto& editor = it->second;
-			if (inserted) editor = std::make_unique<DebuggableEditor>();
-			ImGui::MenuItem(name.c_str(), nullptr, &editor->Open);
-		}
+	assert(motherBoard);
+
+	auto& debugger = motherBoard->getDebugger();
+	// TODO sort debuggable names, either via sort here, or by
+	//    storing the debuggable always in sorted order in Debugger
+	for (auto& name : view::keys(debugger.getDebuggables())) {
+		auto [it, inserted] = debuggables.try_emplace(name);
+		auto& editor = it->second;
+		if (inserted) editor = std::make_unique<DebuggableEditor>();
+		ImGui::MenuItem(name.c_str(), nullptr, &editor->Open);
 	}
+
 	ImGui::EndMenu();
 }
 
