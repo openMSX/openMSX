@@ -36,6 +36,21 @@ public:
 	// and MSXMixer::updateVolumeParams()
 	static constexpr int AMP_BITS = 9;
 
+	struct SoundDeviceInfo {
+		SoundDeviceInfo(unsigned numChannels);
+
+		SoundDevice* device = nullptr;
+		std::unique_ptr<IntegerSetting> volumeSetting;
+		std::unique_ptr<IntegerSetting> balanceSetting;
+		struct ChannelSettings {
+			std::unique_ptr<StringSetting> record;
+			std::unique_ptr<BooleanSetting> mute;
+		};
+		dynarray<ChannelSettings> channelSettings;
+		float defaultVolume = 0.f;
+		float left1 = 0.f, right1 = 0.f, left2 = 0.f, right2 = 0.f;
+	};
+
 public:
 	MSXMixer(const MSXMixer&) = delete;
 	MSXMixer& operator=(const MSXMixer&) = delete;
@@ -119,25 +134,12 @@ public:
 	[[nodiscard]] unsigned getSampleRate() const { return hostSampleRate; }
 
 	[[nodiscard]] SoundDevice* findDevice(std::string_view name) const;
+	[[nodiscard]] const SoundDeviceInfo* findDeviceInfo(std::string_view name) const;
+	[[nodiscard]] const auto& getDeviceInfos() const { return infos; }
 
 	void reInit();
 
 private:
-	struct SoundDeviceInfo {
-		SoundDeviceInfo(unsigned numChannels);
-
-		SoundDevice* device = nullptr;
-		std::unique_ptr<IntegerSetting> volumeSetting;
-		std::unique_ptr<IntegerSetting> balanceSetting;
-		struct ChannelSettings {
-			std::unique_ptr<StringSetting> record;
-			std::unique_ptr<BooleanSetting> mute;
-		};
-		dynarray<ChannelSettings> channelSettings;
-		float defaultVolume = 0.f;
-		float left1 = 0.f, right1 = 0.f, left2 = 0.f, right2 = 0.f;
-	};
-
 	void updateVolumeParams(SoundDeviceInfo& info);
 	void updateMasterVolume();
 	void reschedule();

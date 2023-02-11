@@ -806,11 +806,17 @@ void MSXMixer::executeUntil(EmuTime::param time)
 
 // Sound device info
 
-SoundDevice* MSXMixer::findDevice(std::string_view name) const
+const MSXMixer::SoundDeviceInfo* MSXMixer::findDeviceInfo(std::string_view name) const
 {
 	auto it = ranges::find(infos, name,
 		[](auto& i) { return i.device->getName(); });
-	return (it != end(infos)) ? it->device : nullptr;
+	return (it != end(infos)) ? &*it : nullptr;
+}
+
+SoundDevice* MSXMixer::findDevice(std::string_view name) const
+{
+	auto* info = findDeviceInfo(name);
+	return info ? info->device : nullptr;
 }
 
 MSXMixer::SoundDeviceInfoTopic::SoundDeviceInfoTopic(

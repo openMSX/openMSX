@@ -12,6 +12,7 @@
 #include "IntegerSetting.hh"
 #include "KeyCodeSetting.hh"
 #include "Mixer.hh"
+#include "MSXMixer.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCPUInterface.hh"
 #include "Pluggable.hh"
@@ -21,8 +22,10 @@
 #include "ReadOnlySetting.hh"
 #include "RealDrive.hh"
 #include "SettingsManager.hh"
+#include "SoundDevice.hh"
 #include "StringSetting.hh"
 #include "checked_cast.hh"
+#include "narrow.hh"
 #include "ranges.hh"
 
 #include <imgui.h>
@@ -45,6 +48,8 @@ static void simpleToolTip(const char* desc)
 		ImGui::EndTooltip();
 	}
 }
+static void simpleToolTip(const std::string& desc) { simpleToolTip(desc.c_str()); }
+static void simpleToolTip(std::string_view desc) { simpleToolTip(std::string(desc)); }
 
 static void HelpMarker(const char* desc)
 {
@@ -55,7 +60,7 @@ static void HelpMarker(const char* desc)
 
 static void settingStuff(Setting& setting)
 {
-	simpleToolTip(std::string(setting.getDescription()).c_str());
+	simpleToolTip(setting.getDescription());
 	if (ImGui::BeginPopupContextItem()) {
 		auto defaultValue = setting.getDefaultValue();
 		auto defaultString = defaultValue.getString();
@@ -102,14 +107,20 @@ static bool SliderFloat(const char* label, FloatSetting& setting, const char* fo
 	settingStuff(setting);
 	return changed;
 }
-static bool InputText(const char* label, Setting& setting)
+static bool InputText(const char* label, std::string& value)
 {
 	char buffer[256 + 1];
-	auto value = setting.getValue().getString();
 	assert(value.size() < 256); // TODO
 	strncpy(buffer, value.data(), 256);
 	bool changed = ImGui::InputText(label, buffer, 256);
-	if (changed) setting.setValue(TclObject(buffer));
+	if (changed) value = buffer;
+	return changed;
+}
+static bool InputText(const char* label, Setting& setting)
+{
+	auto value = std::string(setting.getValue().getString());
+	bool changed = InputText(label, value);
+	if (changed) setting.setValue(TclObject(value));
 	settingStuff(setting);
 	return changed;
 }
@@ -342,7 +353,7 @@ void ImGuiLayer::connectorsMenu(MSXMotherBoard* motherBoard)
 					if (ImGui::Selectable(plugName.c_str(), selected, flags)) {
 						command.addListElement("plug", connectorName, plugName);
 					}
-					simpleToolTip(std::string(plug->getDescription()).c_str());
+					simpleToolTip(plug->getDescription());
 				}
 				ImGui::EndCombo();
 			}
@@ -353,7 +364,7 @@ void ImGuiLayer::connectorsMenu(MSXMotherBoard* motherBoard)
 	execute(command);
 }
 
-void ImGuiLayer::settingsMenu(MSXMotherBoard* /*motherBoard*/)
+void ImGuiLayer::settingsMenu()
 {
 	if (ImGui::BeginMenu("Settings")) {
 		if (ImGui::BeginMenu("Video")) {
@@ -367,7 +378,7 @@ void ImGuiLayer::settingsMenu(MSXMotherBoard* /*motherBoard*/)
 			ImGui::EndDisabled();
 			Checkbox("mute", muteSetting);
 			ImGui::Separator();
-			ImGui::Text("Soundchip settings ...");
+			ImGui::MenuItem("Show sound chip settings", nullptr, &showSoundChipSettings);
 
 			ImGui::EndMenu();
 		}
@@ -414,6 +425,110 @@ void ImGuiLayer::settingsMenu(MSXMotherBoard* /*motherBoard*/)
 	}
 }
 
+static bool anySpecialChannelSettings(const MSXMixer::SoundDeviceInfo& info)
+{
+	for (const auto& channel : info.channelSettings) {
+		if (channel.mute->getBoolean()) return true;
+		if (!channel.record->getString().empty()) return true;
+	}
+	return false;
+}
+
+void ImGuiLayer::soundChipSettings(MSXMotherBoard* motherBoard)
+{
+	auto restoreDefaultPopup = [](const char* label, Setting& setting) {
+		if (ImGui::BeginPopupContextItem()) {
+			if (ImGui::Button(label)) {
+				setting.setValue(setting.getDefaultValue());
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+	};
+
+	ImGui::Begin("Sound chip settings", &showSoundChipSettings);
+	if (motherBoard) {
+		auto& msxMixer = motherBoard->getMSXMixer();
+		auto& infos = msxMixer.getDeviceInfos(); // TODO sort on name
+		if (ImGui::BeginTable("table", narrow<int>(infos.size()), ImGuiTableFlags_ScrollX)) {
+			for (auto& info : infos) {
+				auto& device = *info.device;
+				ImGui::TableNextColumn();
+				ImGui::TextUnformatted(device.getName().c_str());
+				simpleToolTip(device.getDescription());
+			}
+			for (auto& info : infos) {
+				auto& volumeSetting = *info.volumeSetting;
+				int volume = volumeSetting.getInt();
+				int min = volumeSetting.getMinValue();
+				int max = volumeSetting.getMaxValue();
+				ImGui::TableNextColumn();
+				ImGui::TextUnformatted("volume");
+				std::string id = "##volume-" + info.device->getName();
+				if (ImGui::VSliderInt(id.c_str(), ImVec2(18, 120), &volume, min, max)) {
+					volumeSetting.setInt(volume);
+				}
+				restoreDefaultPopup("Set default", volumeSetting);
+			}
+			for (auto& info : infos) {
+				auto& balanceSetting = *info.balanceSetting;
+				int balance = balanceSetting.getInt();
+				int min = balanceSetting.getMinValue();
+				int max = balanceSetting.getMaxValue();
+				ImGui::TableNextColumn();
+				ImGui::TextUnformatted("balance");
+				std::string id = "##balance-" + info.device->getName();
+				if (ImGui::SliderInt(id.c_str(), &balance, min, max)) {
+					balanceSetting.setInt(balance);
+				}
+				restoreDefaultPopup("Set center", balanceSetting);
+			}
+			for (auto& info : infos) {
+				ImGui::TableNextColumn();
+				if (anySpecialChannelSettings(info)) {
+					ImU32 color = ImGui::GetColorU32(ImVec4(1.0f, 1.0f, 0.0f, 0.75f));
+					ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
+				}
+				ImGui::TextUnformatted("channels");
+				const auto& name = info.device->getName();
+				std::string id = "##channels-" + name;
+				ImGui::Checkbox(id.c_str(), &channels[name]);
+			}
+			ImGui::EndTable();
+		}
+	}
+	ImGui::End();
+}
+
+void ImGuiLayer::channelSettings(MSXMotherBoard* motherBoard, const std::string& name, bool* enabled)
+{
+	auto& msxMixer = motherBoard->getMSXMixer();
+	auto* info = msxMixer.findDeviceInfo(name);
+	if (!info) return;
+
+	std::string label = name + " channel setting";
+	if (ImGui::Begin(label.c_str(), enabled)) {
+		if (ImGui::BeginTable("table", 3)) {
+			int counter = 0;
+			for (auto& channel : info->channelSettings) {
+				ImGui::PushID(counter);
+				++counter;
+				ImGui::TableNextColumn();
+				ImGui::Text("channel %d", counter);
+
+				ImGui::TableNextColumn();
+				Checkbox("mute", *channel.mute);
+
+				ImGui::TableNextColumn();
+				InputText("record", *channel.record);
+				ImGui::PopID();
+			}
+			ImGui::EndTable();
+		}
+	}
+	ImGui::End();
+}
+
 void ImGuiLayer::debuggableMenu(MSXMotherBoard* motherBoard)
 {
 	if (!ImGui::BeginMenu("Debuggables", motherBoard != nullptr)) {
@@ -448,8 +563,8 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 		ImGui::ShowDemoWindow(&showDemoWindow);
 	}
 
-	// Show the enabled 'debuggables'
 	if (motherBoard) {
+		// Show the enabled 'debuggables'
 		auto& debugger = motherBoard->getDebugger();
 		for (const auto& [name, editor] : debuggables) {
 			if (editor->Open) {
@@ -458,30 +573,41 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 				}
 			}
 		}
+
+		// Show sound chip settings
+		if (showSoundChipSettings) {
+			soundChipSettings(motherBoard);
+		}
+
+		// Show sound chip channel settings
+		for (auto& [name, enabled] : channels) {
+			if (enabled) {
+				channelSettings(motherBoard, name, &enabled);
+			}
+		}
 	}
 
-	ImGui::Begin("main window", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_MenuBar);
+	if (ImGui::Begin("main window", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_MenuBar)) {
+		if (ImGui::BeginMenuBar()) {
+			mediaMenu(motherBoard);
+			connectorsMenu(motherBoard);
+			settingsMenu();
+			debuggableMenu(motherBoard);
+			ImGui::EndMenuBar();
+		}
 
-	if (ImGui::BeginMenuBar()) {
-		mediaMenu(motherBoard);
-		connectorsMenu(motherBoard);
-		settingsMenu(motherBoard);
-		debuggableMenu(motherBoard);
-		ImGui::EndMenuBar();
+		ImGui::Checkbox("ImGui Demo Window", &showDemoWindow);
+		HelpMarker("Show the ImGui demo window.\n"
+			"This is purely to demonstrate the ImGui capabilities.\n"
+			"There is no connection with any openMSX functionality.");
+
+		if (ImGui::Button("Reset MSX")) {
+			commandController.executeCommand("reset");
+		}
+		HelpMarker("Reset the emulated MSX machine.");
+
+		SliderFloat("noise", rendererSettings.getNoiseSetting(), "%.1f");
 	}
-
-	ImGui::Checkbox("ImGui Demo Window", &showDemoWindow);
-	HelpMarker("Show the ImGui demo window.\n"
-	           "This is purely to demonstrate the ImGui capabilities.\n"
-	           "There is no connection with any openMSX functionality.");
-
-	if (ImGui::Button("Reset MSX")) {
-		commandController.executeCommand("reset");
-	}
-	HelpMarker("Reset the emulated MSX machine.");
-
-	SliderFloat("noise", rendererSettings.getNoiseSetting(), "%.1f");
-
 	ImGui::End();
 
 	if (wantOpenModal) {
