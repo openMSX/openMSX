@@ -22,6 +22,7 @@
 #include "RealDrive.hh"
 #include "SettingsManager.hh"
 #include "StringSetting.hh"
+#include "checked_cast.hh"
 #include "ranges.hh"
 
 #include <imgui.h>
@@ -52,12 +53,31 @@ static void HelpMarker(const char* desc)
 	simpleToolTip(desc);
 }
 
+static void settingStuff(Setting& setting)
+{
+	simpleToolTip(std::string(setting.getDescription()).c_str());
+	if (ImGui::BeginPopupContextItem()) {
+		auto defaultValue = setting.getDefaultValue();
+		auto defaultString = defaultValue.getString();
+		ImGui::Text("Default value: %s", defaultString.c_str());
+		if (defaultString.empty()) {
+			ImGui::SameLine();
+			ImGui::TextDisabled("<empty>");
+		}
+		if (ImGui::Button("Restore default")) {
+			setting.setValue(defaultValue);
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+}
+
 static bool Checkbox(const char* label, BooleanSetting& setting)
 {
 	bool value = setting.getBoolean();
 	bool changed = ImGui::Checkbox(label, &value);
-	simpleToolTip(std::string(setting.getDescription()).c_str());
 	if (changed) setting.setBoolean(value);
+	settingStuff(setting);
 	return changed;
 }
 
@@ -68,8 +88,8 @@ static bool SliderInt(const char* label, IntegerSetting& setting, ImGuiSliderFla
 	int min = setting.getMinValue();
 	int max = setting.getMaxValue();
 	bool changed = ImGui::SliderInt(label, &value, min, max, "%d", flags);
-	simpleToolTip(std::string(setting.getDescription()).c_str());
 	if (changed) setting.setInt(value);
+	settingStuff(setting);
 	return changed;
 }
 static bool SliderFloat(const char* label, FloatSetting& setting, const char* format = "%.3f", ImGuiSliderFlags flags = 0)
@@ -78,8 +98,8 @@ static bool SliderFloat(const char* label, FloatSetting& setting, const char* fo
 	float min = narrow_cast<float>(setting.getMinValue());
 	float max = narrow_cast<float>(setting.getMaxValue());
 	bool changed = ImGui::SliderFloat(label, &value, min, max, format, flags);
-	simpleToolTip(std::string(setting.getDescription()).c_str());
 	if (changed) setting.setDouble(value); // TODO setFloat()
+	settingStuff(setting);
 	return changed;
 }
 static bool InputText(const char* label, Setting& setting)
@@ -89,11 +109,11 @@ static bool InputText(const char* label, Setting& setting)
 	assert(value.size() < 256); // TODO
 	strncpy(buffer, value.data(), 256);
 	bool changed = ImGui::InputText(label, buffer, 256);
-	simpleToolTip(std::string(setting.getDescription()).c_str());
 	if (changed) setting.setValue(TclObject(buffer));
+	settingStuff(setting);
 	return changed;
 }
-static void ComboBox(const char* label, BaseSetting& setting, EnumSettingBase& enumSetting)
+static void ComboBox(const char* label, Setting& setting, EnumSettingBase& enumSetting)
 {
 	auto current = setting.getValue().getString();
 	if (ImGui::BeginCombo(label, current.c_str())) {
@@ -105,7 +125,7 @@ static void ComboBox(const char* label, BaseSetting& setting, EnumSettingBase& e
 		}
 		ImGui::EndCombo();
 	}
-	simpleToolTip(std::string(setting.getDescription()).c_str());
+	settingStuff(setting);
 }
 static void ComboBox(const char* label, VideoSourceSetting& setting) // TODO share code with EnumSetting?
 {
@@ -119,7 +139,7 @@ static void ComboBox(const char* label, VideoSourceSetting& setting) // TODO sha
 		}
 		ImGui::EndCombo();
 	}
-	simpleToolTip(std::string(setting.getDescription()).c_str());
+	settingStuff(setting);
 }
 
 struct DebuggableEditor : public MemoryEditor
@@ -359,13 +379,13 @@ void ImGuiLayer::settingsMenu(MSXMotherBoard* /*motherBoard*/)
 			ImGui::TextUnformatted("All settings");
 			ImGui::Separator();
 			auto& manager = reactor.getGlobalCommandController().getSettingsManager();
-			std::vector<BaseSetting*> settings;
+			std::vector<Setting*> settings;
 			for (auto* setting : manager.getAllSettings()) {
 				if (dynamic_cast<ProxySetting*>(setting)) continue;
 				if (dynamic_cast<ReadOnlySetting*>(setting)) continue;
-				settings.push_back(setting);
+				settings.push_back(checked_cast<Setting*>(setting));
 			}
-			ranges::sort(settings, {}, &BaseSetting::getBaseName);
+			ranges::sort(settings, {}, &Setting::getBaseName);
 			for (auto* setting : settings) {
 				std::string name(setting->getBaseName());
 				if (auto* bSetting = dynamic_cast<BooleanSetting*>(setting)) {
