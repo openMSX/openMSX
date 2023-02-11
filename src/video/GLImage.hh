@@ -12,6 +12,9 @@ class SDLSurfacePtr;
 
 namespace openmsx {
 
+// TODO does this belong here or in GLUtil?
+gl::Texture loadTexture(const std::string& filename, gl::ivec2& size);
+
 class GLImage final : public BaseImage
 {
 public:

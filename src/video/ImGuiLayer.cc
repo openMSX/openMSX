@@ -6,8 +6,10 @@
 #include "Display.hh"
 #include "EnumSetting.hh"
 #include "FilenameSetting.hh"
+#include "FileOperations.hh"
 #include "FloatSetting.hh"
 #include "GlobalCommandController.hh"
+#include "GLImage.hh"
 #include "GLUtil.hh"
 #include "IntegerSetting.hh"
 #include "KeyCodeSetting.hh"
@@ -364,6 +366,77 @@ void ImGuiLayer::connectorsMenu(MSXMotherBoard* motherBoard)
 	execute(command);
 }
 
+void ImGuiLayer::saveStateMenu(MSXMotherBoard* motherBoard)
+{
+	if (!ImGui::BeginMenu("Save state", motherBoard != nullptr)) {
+		return;
+	}
+	TclObject command;
+	if (motherBoard) {
+		if (ImGui::MenuItem("Quick load state", "ALT+F7")) { // TODO check binding dynamically
+			command.addListElement("loadstate");
+		}
+		if (ImGui::MenuItem("Quick save state", "ALT+F8")) { // TODO
+			command.addListElement("savestate");
+		}
+		ImGui::Separator();
+
+		auto existingStates = execute(TclObject("list_savestates"));
+		if (ImGui::BeginMenu("Load state ...", existingStates && !existingStates->empty())) {
+			if (ImGui::BeginTable("table", 2, ImGuiTableFlags_BordersInnerV)) {
+				ImGui::TableNextColumn();
+				ImGui::TextUnformatted("select savestate");
+				if (ImGui::BeginListBox("##list", ImVec2(ImGui::GetFontSize() * 20.0f, 240.0f))) {
+					for (const auto& name : *existingStates) {
+						if (ImGui::Selectable(name.c_str())) {
+							command = makeTclList("loadstate", name);
+						}
+						if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort)) {
+							if (previewImage.name != name) {
+								// record name, but (so far) without image
+								// this prevents that on a missing image, we don't continue retrying
+								previewImage.name = std::string(name);
+								previewImage.texture = gl::Texture(gl::Null{});
+
+								std::string filename = FileOperations::join(
+									FileOperations::getUserOpenMSXDir(),
+									"savestates", tmpStrCat(name, ".png"));
+								if (FileOperations::exists(filename)) {
+									try {
+										gl::ivec2 dummy;
+										previewImage.texture = loadTexture(filename, dummy);
+									} catch (...) {
+										// ignore
+									}
+								}
+							}
+						}
+					}
+					ImGui::EndListBox();
+				}
+
+				ImGui::TableNextColumn();
+				ImGui::TextUnformatted("preview");
+				ImVec2 size(320, 240);
+				if (previewImage.texture.get()) {
+					ImGui::Image(reinterpret_cast<void*>(previewImage.texture.get()), size);
+				} else {
+					ImGui::Dummy(size);
+				}
+				ImGui::EndTable();
+			}
+			ImGui::EndMenu();
+		}
+		ImGui::TextUnformatted("Save state ... TODO");
+		ImGui::Separator();
+
+		ImGui::TextUnformatted("Load replay ... TODO");
+		ImGui::TextUnformatted("Save replay ... TODO");
+	}
+	ImGui::EndMenu();
+	execute(command);
+}
+
 void ImGuiLayer::settingsMenu()
 {
 	if (ImGui::BeginMenu("Settings")) {
@@ -591,6 +664,7 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 		if (ImGui::BeginMenuBar()) {
 			mediaMenu(motherBoard);
 			connectorsMenu(motherBoard);
+			saveStateMenu(motherBoard);
 			settingsMenu();
 			debuggableMenu(motherBoard);
 			ImGui::EndMenuBar();

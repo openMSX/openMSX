@@ -41,8 +41,7 @@ static gl::Texture loadTexture(
 	return texture;
 }
 
-static gl::Texture loadTexture(
-	const std::string& filename, ivec2& size)
+gl::Texture loadTexture(const std::string& filename, ivec2& size)
 {
 	SDLSurfacePtr surface(PNG::load(filename, false));
 	try {

@@ -1,6 +1,7 @@
 #ifndef IMGUILAYER_HH
 #define IMGUILAYER_HH
 
+#include "GLUtil.hh"
 #include "Layer.hh"
 #include "TclObject.hh"
 #include <functional>
@@ -32,6 +33,7 @@ private:
 
 	void mediaMenu(MSXMotherBoard* motherBoard);
 	void connectorsMenu(MSXMotherBoard* motherBoard);
+	void saveStateMenu(MSXMotherBoard* motherBoard);
 	void settingsMenu();
 	void soundChipSettings(MSXMotherBoard* motherBoard);
 	void channelSettings(MSXMotherBoard* motherBoard, const std::string& name, bool* enabled);
@@ -45,9 +47,16 @@ private:
 	Interpreter& interp;
 	std::map<std::string, std::unique_ptr<DebuggableEditor>> debuggables;
 	std::map<std::string, bool> channels;
+
 	std::unique_ptr<pfd::open_file> openFileDialog;
 	std::function<void(const std::vector<std::string>&)> openFileCallback;
 	bool wantOpenModal = false; //WIP
+
+	struct PreviewImage {
+		std::string name;
+		gl::Texture texture{gl::Null{}};
+	} previewImage;
+
 	bool showDemoWindow = false;
 	bool showSoundChipSettings = false;
 	bool first = true;
