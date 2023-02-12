@@ -11,9 +11,6 @@
 #include <string>
 #include <vector>
 
-namespace pfd {
-	class open_file;
-}
 namespace openmsx {
 
 class DebuggableEditor;
@@ -40,7 +37,7 @@ private:
 	void debuggableMenu(MSXMotherBoard* motherBoard);
 
 	std::optional<TclObject> execute(TclObject command);
-	void selectFileCommand(const std::string& title, TclObject command);
+	void selectFileCommand(const std::string& title, const char* filters, TclObject command);
 
 private:
 	Reactor& reactor;
@@ -48,9 +45,7 @@ private:
 	std::map<std::string, std::unique_ptr<DebuggableEditor>> debuggables;
 	std::map<std::string, bool> channels;
 
-	std::unique_ptr<pfd::open_file> openFileDialog;
-	std::function<void(const std::vector<std::string>&)> openFileCallback;
-	bool wantOpenModal = false; //WIP
+	std::function<void(const std::string&)> openFileCallback;
 
 	struct PreviewImage {
 		std::string name;

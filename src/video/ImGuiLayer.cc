@@ -34,7 +34,7 @@
 #include <imgui_impl_sdl.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_memory_editor.h>
-#include <portable-file-dialogs.h>
+#include <ImGuiFileDialog.h>
 
 #include <SDL.h>
 
@@ -197,15 +197,21 @@ std::optional<TclObject> ImGuiLayer::execute(TclObject command)
 	return {};
 }
 
-void ImGuiLayer::selectFileCommand(const std::string& title, TclObject command)
+void ImGuiLayer::selectFileCommand(const std::string& title, const char* filters, TclObject command)
 {
-	openFileDialog = std::make_unique<pfd::open_file>(title);
-	openFileCallback = [this, command](const std::vector<std::string>& files) mutable {
-		if (files.size() != 1) return;
-		command.addListElement(files.front());
+	ImGuiFileDialogFlags flags =
+		ImGuiFileDialogFlags_DontShowHiddenFiles |
+	//	ImGuiFileDialogFlags_CaseInsensitiveExtention |    // TODO
+		ImGuiFileDialogFlags_Modal;
+	//flags |= ImGuiFileDialogFlags_ConfirmOverwrite |
+	//         ImGuiFileDialogFlags_DisableCreateDirectoryButton;
+	ImGuiFileDialog::Instance()->OpenDialog(
+		"FileDialog", title, filters,
+		".", "", 1, nullptr, flags);
+	openFileCallback = [this, command](const std::string& filename) mutable {
+		command.addListElement(filename);
 		execute(command);
 	};
-	wantOpenModal = true;
 }
 
 void ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
@@ -248,7 +254,8 @@ void ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
 				}
 				if (ImGui::MenuItem("Insert disk image")) {
 					selectFileCommand("Select disk image for " + driveName,
-								makeTclList(driveName, "insert"));
+					                  ".dsk,.gz,.*", // TODO
+					                  makeTclList(driveName, "insert"));
 				}
 				ImGui::EndMenu();
 			}
@@ -273,7 +280,8 @@ void ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
 				if (ImGui::BeginMenu("ROM cartridge")) {
 					if (ImGui::MenuItem("select ROM file")) {
 						selectFileCommand("Select ROM image for " + cartName,
-								makeTclList(cartName, "insert"));
+						                  ".rom,.gz,.*", // TODO
+						                  makeTclList(cartName, "insert"));
 					}
 					ImGui::MenuItem("select ROM type: TODO");
 					ImGui::MenuItem("patch files: TODO");
@@ -299,7 +307,8 @@ void ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
 			}
 			if (ImGui::MenuItem("insert cassette image")) {
 				selectFileCommand("Select cassette image",
-							makeTclList("cassetteplayer", "insert"));
+				                  ".wav,.cas,.gz,.*",
+				                  makeTclList("cassetteplayer", "insert"));
 			}
 			ImGui::EndMenu();
 		}
@@ -317,7 +326,8 @@ void ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
 			}
 			if (ImGui::MenuItem("insert laserdisc image")) {
 				selectFileCommand("Select laserdisc image",
-							makeTclList("laserdiscplayer", "insert"));
+				                  ".ogv,.*",
+				                  makeTclList("laserdiscplayer", "insert"));
 			}
 			ImGui::EndMenu();
 		}
@@ -693,36 +703,21 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 		SliderFloat("noise", rendererSettings.getNoiseSetting(), "%.1f");
 	}
 	ImGui::End();
-
-	if (wantOpenModal) {
-		wantOpenModal = false;
-		ImGui::OpenPopup("openfile");
-	}
-	if (ImGui::BeginPopupModal("openfile", nullptr, 0)) {
-		ImGui::TextUnformatted("select a file");
-		ImGui::SameLine();
-		if (ImGui::Button("Cancel")) {
-			ImGui::CloseCurrentPopup();
-			openFileDialog->kill();
-			openFileDialog.reset();
-			openFileCallback = {};
-		}
-		ImGui::TextUnformatted("(TODO ideally this window wouldn't show up)");
-		if (openFileDialog && openFileDialog->ready(0)) {
-			openFileCallback(openFileDialog->result());
-			openFileDialog.reset();
-			openFileCallback = {};
-			ImGui::CloseCurrentPopup();
-		}
-		ImGui::EndPopup();
-	}
-
 	if (first) {
 		// on startup, focus main openMSX window instead of the GUI window
 		first = false;
 		ImGui::SetWindowFocus(nullptr);
 	}
 
+	// (Modal) file dialog
+	if (ImGuiFileDialog::Instance()->Display("FileDialog")) {
+		if (ImGuiFileDialog::Instance()->IsOk() && openFileCallback) {
+			std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+			openFileCallback(filePathName);
+			openFileCallback = {};
+		}
+		ImGuiFileDialog::Instance()->Close();
+	}
 
 	// Rendering
 	ImGuiIO& io = ImGui::GetIO();
