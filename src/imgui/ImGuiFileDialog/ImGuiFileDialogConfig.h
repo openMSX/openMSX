@@ -1,5 +1,7 @@
 #pragma once
 
+#include <CustomFont.h>
+
 // uncomment and modify defines under for customize ImGuiFileDialog
 
 //this options need c++17
@@ -25,12 +27,11 @@
 //#define IMGUI_RADIO_BUTTON RadioButton
 //#define DisplayMode_ThumbailsList_ImageHeight 32.0f
 //#define tableHeaderFileThumbnailsString "Thumbnails"
-//#define DisplayMode_FilesList_ButtonString "FL"
+#define DisplayMode_FilesList_ButtonString ICON_IGFD_FILE_LIST
 //#define DisplayMode_FilesList_ButtonHelp "File List"
-//#define DisplayMode_ThumbailsList_ButtonString "TL"
+#define DisplayMode_ThumbailsList_ButtonString ICON_IGFD_FILE_LIST_THUMBNAILS
 //#define DisplayMode_ThumbailsList_ButtonHelp "Thumbnails List"
-// todo
-//#define DisplayMode_ThumbailsGrid_ButtonString "TG"
+#define DisplayMode_ThumbailsGrid_ButtonString ICON_IGFD_FILE_GRID_THUMBNAILS
 //#define DisplayMode_ThumbailsGrid_ButtonHelp "Thumbnails Grid"
 
 #define USE_EXPLORATION_BY_KEYS
@@ -60,16 +61,14 @@
 //#define IMGUI_BUTTON ImGui::Button
 
 // locales string
-//#define createDirButtonString "+"
-//#define resetButtonString "R"
-//#define drivesButtonString "Drives"
-//#define editPathButtonString "E"
-//#define searchString "Search"
-//#define dirEntryString "[DIR] "
-//#define linkEntryString "[LINK] "
-//#define fileEntryString "[FILE] "
-//#define fileNameString "File Name : "
-//#define dirNameString "Directory Path :"
+#define createDirButtonString ICON_IGFD_ADD
+#define resetButtonString ICON_IGFD_RESET
+#define drivesButtonString ICON_IGFD_DRIVES
+#define editPathButtonString ICON_IGFD_EDIT
+#define searchString ICON_IGFD_SEARCH
+#define dirEntryString ICON_IGFD_FOLDER
+#define linkEntryString ICON_IGFD_LINK
+#define fileEntryString ICON_IGFD_FILE
 //#define buttonResetSearchString "Reset search"
 //#define buttonDriveString "Drives"
 //#define buttonEditPathString "Edit path\nYou can also right click on path buttons"
@@ -77,16 +76,16 @@
 //#define buttonCreateDirString "Create Directory"
 //#define OverWriteDialogTitleString "The file Already Exist !"
 //#define OverWriteDialogMessageString "Would you like to OverWrite it ?"
-//#define OverWriteDialogConfirmButtonString "Confirm"
-//#define OverWriteDialogCancelButtonString "Cancel"
+#define OverWriteDialogConfirmButtonString ICON_IGFD_OK " Confirm"
+#define OverWriteDialogCancelButtonString ICON_IGFD_CANCEL " Cancel"
 
 //Validation buttons
-//#define okButtonString " OK"
-//#define okButtonWidth 0.0f
-//#define cancelButtonString " Cancel"
-//#define cancelButtonWidth 0.0f
+#define okButtonString ICON_IGFD_OK " OK"
+#define okButtonWidth 100.0f
+#define cancelButtonString ICON_IGFD_CANCEL " Cancel"
+#define cancelButtonWidth 100.0f
 //alignment [0:1], 0.0 is left, 0.5 middle, 1.0 right, and other ratios
-//#define okCancelButtonAlignement 0.0f
+#define okCancelButtonAlignement 0.0f
 //#define invertOkAndCancelButtons 0
 
 // DateTimeFormat
@@ -96,9 +95,9 @@
 //#define DateTimeFormat "%Y/%m/%d %i:%M%p"
 
 // theses icons will appear in table headers
-//#define USE_CUSTOM_SORTING_ICON
-//#define tableHeaderAscendingIcon "A|"
-//#define tableHeaderDescendingIcon "D|"
+#define USE_CUSTOM_SORTING_ICON
+#define tableHeaderAscendingIcon ICON_IGFD_CHEVRON_UP
+#define tableHeaderDescendingIcon ICON_IGFD_CHEVRON_DOWN
 //#define tableHeaderFileNameString " File name"
 //#define tableHeaderFileTypeString " Type"
 //#define tableHeaderFileSizeString " Size"
@@ -121,7 +120,7 @@
 #define USE_BOOKMARK
 //#define bookmarkPaneWith 150.0f
 //#define IMGUI_TOGGLE_BUTTON ToggleButton
-//#define bookmarksButtonString "Bookmark"
+#define bookmarksButtonString ICON_IGFD_BOOKMARK
 //#define bookmarksButtonHelpString "Bookmark"
-//#define addBookmarkButtonString "+"
-//#define removeBookmarkButtonString "-"
+#define addBookmarkButtonString ICON_IGFD_ADD
+#define removeBookmarkButtonString ICON_IGFD_REMOVE

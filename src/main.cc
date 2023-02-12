@@ -17,7 +17,10 @@
 #include "Thread.hh"
 #include "build-info.hh"
 #include "random.hh"
+
 #include <imgui.h>
+#include <CustomFont.ii> // icons for ImGuiFileDialog
+
 #include <iostream>
 #include <exception>
 #include <ctime>
@@ -96,6 +99,12 @@ static void initializeImGui()
 	                  ImGuiConfigFlags_ViewportsEnable;
 	static auto iniFilename = systemFileContext().resolveCreate("imgui.ini");
 	io.IniFilename = iniFilename.c_str();
+
+	// load icon font file (CustomFont.cpp)
+	ImGui::GetIO().Fonts->AddFontDefault();
+	static const ImWchar icons_ranges[] = { ICON_MIN_IGFD, ICON_MAX_IGFD, 0 };
+	ImFontConfig icons_config; icons_config.MergeMode = true; icons_config.PixelSnapH = true;
+	ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(FONT_ICON_BUFFER_NAME_IGFD, 15.0f, &icons_config, icons_ranges);
 }
 
 static int main(int argc, char **argv)
