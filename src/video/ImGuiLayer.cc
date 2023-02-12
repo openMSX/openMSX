@@ -652,6 +652,11 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 	auto& commandController = reactor.getCommandController();
 	auto* motherBoard = reactor.getMotherBoard();
 
+	// Allow docking in main window
+	ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(),
+		ImGuiDockNodeFlags_NoDockingInCentralNode |
+		ImGuiDockNodeFlags_PassthruCentralNode);
+
 	if (showDemoWindow) {
 		ImGui::ShowDemoWindow(&showDemoWindow);
 	}
@@ -680,7 +685,7 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 		}
 	}
 
-	if (ImGui::Begin("main window", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_MenuBar)) {
+	if (ImGui::Begin("main window", nullptr, ImGuiWindowFlags_MenuBar)) {
 		if (ImGui::BeginMenuBar()) {
 			mediaMenu(motherBoard);
 			connectorsMenu(motherBoard);
