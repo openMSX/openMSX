@@ -223,13 +223,17 @@ void ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
 
 	TclObject command;
 
-	bool needSeparator = false;
-	auto addSeparator = [&] {
-		if (needSeparator) {
-			needSeparator = false;
+	enum { NONE, ITEM, SEPARATOR } status = NONE;
+	auto endGroup = [&] {
+		if (status == ITEM) status = SEPARATOR;
+	};
+	auto elementInGroup = [&] {
+		if (status == SEPARATOR) {
 			ImGui::Separator();
 		}
+		status = ITEM;
 	};
+
 	auto showCurrent = [&](TclObject current, const char* type) {
 		if (current.empty()) {
 			ImGui::Text("no %s inserted", type);
@@ -246,6 +250,7 @@ void ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
 		if (!(*drivesInUse)[i]) continue;
 		driveName[4] = char('a' + i);
 		if (auto cmdResult = execute(TclObject(driveName))) {
+			elementInGroup();
 			if (ImGui::BeginMenu(driveName.c_str())) {
 				auto currentImage = cmdResult->getListIndex(interp, 1);
 				showCurrent(currentImage, "disk");
@@ -259,10 +264,9 @@ void ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
 				}
 				ImGui::EndMenu();
 			}
-			needSeparator = true;
 		}
 	}
-	addSeparator();
+	endGroup();
 
 	// cartA / extX TODO
 	auto& slotManager = motherBoard->getSlotManager();
@@ -271,6 +275,7 @@ void ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
 		if (!slotManager.slotExists(slot)) continue;
 		cartName[4] = char('a' + slot);
 		if (auto cmdResult = execute(TclObject(cartName))) {
+			elementInGroup();
 			if (ImGui::BeginMenu(cartName.c_str())) {
 				auto currentImage = cmdResult->getListIndex(interp, 1);
 				showCurrent(currentImage, "cart"); // TODO cart/ext
@@ -292,13 +297,13 @@ void ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
 				}
 				ImGui::EndMenu();
 			}
-			needSeparator = true;
 		}
 	}
-	addSeparator();
+	endGroup();
 
 	// cassetteplayer
 	if (auto cmdResult = execute(TclObject("cassetteplayer"))) {
+		elementInGroup();
 		if (ImGui::BeginMenu("cassetteplayer")) {
 			auto currentImage = cmdResult->getListIndex(interp, 1);
 			showCurrent(currentImage, "cassette");
@@ -312,12 +317,12 @@ void ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
 			}
 			ImGui::EndMenu();
 		}
-		needSeparator = true;
 	}
-	addSeparator();
+	endGroup();
 
 	// laserdisc
 	if (auto cmdResult = execute(TclObject("laserdiscplayer"))) {
+		elementInGroup();
 		if (ImGui::BeginMenu("laserdisc")) {
 			auto currentImage = cmdResult->getListIndex(interp, 1);
 			showCurrent(currentImage, "laserdisc");
@@ -331,7 +336,6 @@ void ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
 			}
 			ImGui::EndMenu();
 		}
-		needSeparator = true;
 	}
 
 	ImGui::EndMenu();
