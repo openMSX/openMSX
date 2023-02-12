@@ -689,6 +689,15 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 		}
 	}
 
+	if (ImGui::BeginMainMenuBar()) {
+		mediaMenu(motherBoard);
+		connectorsMenu(motherBoard);
+		saveStateMenu(motherBoard);
+		settingsMenu();
+		debuggableMenu(motherBoard);
+		ImGui::EndMainMenuBar();
+	}
+
 	if (ImGui::Begin("main window", nullptr, ImGuiWindowFlags_MenuBar)) {
 		if (ImGui::BeginMenuBar()) {
 			mediaMenu(motherBoard);
