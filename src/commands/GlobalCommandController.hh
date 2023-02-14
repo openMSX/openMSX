@@ -90,6 +90,7 @@ public:
 	[[nodiscard]] SettingsConfig& getSettingsConfig() { return settingsConfig; }
 	[[nodiscard]] SettingsManager& getSettingsManager() { return settingsConfig.getSettingsManager(); }
 	[[nodiscard]] CliConnection* getConnection() const { return connection; }
+	[[nodiscard]] Reactor& getReactor() const { return reactor; }
 
 private:
 	void tabCompletion(std::vector<std::string>& tokens);

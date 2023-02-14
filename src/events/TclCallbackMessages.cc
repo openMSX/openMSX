@@ -25,7 +25,13 @@ TclCallbackMessages::~TclCallbackMessages()
 void TclCallbackMessages::log(CliComm::LogLevel level, std::string_view message) noexcept
 {
 	auto levelStr = CliComm::getLevelStrings();
-	messageCallback.execute(message, levelStr[level]);
+	try {
+		messageCallback.execute(message, levelStr[level]);
+	} catch (TclObject& command) {
+		// Command for this message could not be executed yet.
+		// Buffer until we can redo them.
+		postponedCommands.push_back(command);
+	}
 }
 
 void TclCallbackMessages::update(
@@ -33,6 +39,14 @@ void TclCallbackMessages::update(
 	std::string_view /*name*/, std::string_view /*value*/) noexcept
 {
 	// ignore
+}
+
+void TclCallbackMessages::redoPostponedCallbacks()
+{
+	for (auto& command: postponedCommands) {
+		messageCallback.executeCommon(command);
+	}
+	postponedCommands.clear();
 }
 
 } // namespace openmsx
