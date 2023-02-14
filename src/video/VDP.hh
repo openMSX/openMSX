@@ -239,8 +239,11 @@ public:
 	  * @return Color value in the format of the palette registers:
 	  *   bit 10..8 is green, bit 6..4 is red and bit 2..0 is blue.
 	  */
-	[[nodiscard]] inline word getPalette(unsigned index) const {
+	[[nodiscard]] inline uint16_t getPalette(unsigned index) const {
 		return palette[index];
+	}
+	[[nodiscard]] inline std::span<const uint16_t, 16> getPalette() const {
+		return palette;
 	}
 
 	/** Is the display enabled?
@@ -319,6 +322,13 @@ public:
 	  */
 	[[nodiscard]] inline bool isMultiPageScrolling() const {
 		return (controlRegs[25] & 0x01) && (controlRegs[2] & 0x20);
+	}
+
+	/** Only used by debugger
+	  * @return page 0-3
+	  */
+	[[nodiscard]] int getDisplayPage() const {
+		return (controlRegs[2] >> 5) & 3;
 	}
 
 	/** Get the absolute line number of display line zero.
@@ -497,6 +507,13 @@ public:
 	  */
 	[[nodiscard]] inline int getLinesPerFrame() const {
 		return palTiming ? 313 : 262;
+	}
+
+	/** Gets the number of display lines per screen.
+	  * @return 192 or 212.
+	  */
+	[[nodiscard]] inline int getNumberOfLines() const {
+		return controlRegs[9] & 0x80 ? 212 : 192;
 	}
 
 	/** Gets the number of VDP clock ticks (21MHz) per frame.
@@ -807,13 +824,6 @@ private:
 	void execSetSprites(EmuTime::param time);
 	void execCpuVramAccess(EmuTime::param time);
 	void execSyncCmdDone(EmuTime::param time);
-
-	/** Gets the number of display lines per screen.
-	  * @return 192 or 212.
-	  */
-	[[nodiscard]] inline int getNumberOfLines() const {
-		return controlRegs[9] & 0x80 ? 212 : 192;
-	}
 
 	/** Returns the amount of vertical set-adjust 0..15.
 	  * Neutral set-adjust (that is 'set adjust(0,0)') returns the value '7'.
