@@ -14,12 +14,14 @@ class CommandController;
 class TclCallback
 {
 public:
+	friend class TclCallbackMessages;
+
 	TclCallback(CommandController& controller,
 	            std::string_view name,
 	            static_string_view description,
 	            std::string_view defaultValue,
 	            Setting::SaveSetting saveSetting,
-	            bool useCliComm = true);
+	            bool isMessageCallback = false);
 	explicit TclCallback(StringSetting& setting);
 
 	TclObject execute() const;
@@ -36,7 +38,7 @@ private:
 
 	std::optional<StringSetting> callbackSetting2;
 	StringSetting& callbackSetting;
-	const bool useCliComm;
+	const bool isMessageCallback;
 };
 
 } // namespace openmsx

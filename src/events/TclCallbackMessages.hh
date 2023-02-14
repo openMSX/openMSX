@@ -20,9 +20,13 @@ public:
 	void update(CliComm::UpdateType type, std::string_view machine,
 	            std::string_view name, std::string_view value) noexcept override;
 
+	void redoPostponedCallbacks();
+
 private:
 	GlobalCliComm& cliComm;
 	TclCallback messageCallback;
+
+	std::vector<TclObject> postponedCommands;
 };
 
 } // namespace openmsx

@@ -2,6 +2,9 @@
 #include "CommandController.hh"
 #include "CliComm.hh"
 #include "CommandException.hh"
+#include "GlobalCommandController.hh"
+#include "Reactor.hh"
+#include "checked_cast.hh"
 #include <iostream>
 #include <memory>
 
@@ -13,18 +16,18 @@ TclCallback::TclCallback(
 		static_string_view description,
 		std::string_view defaultValue,
 		Setting::SaveSetting saveSetting,
-		bool useCliComm_)
+		bool isMessageCallback_)
 	: callbackSetting2(std::in_place,
 		controller, name, description, defaultValue,
 		saveSetting)
 	, callbackSetting(*callbackSetting2)
-	, useCliComm(useCliComm_)
+	, isMessageCallback(isMessageCallback_)
 {
 }
 
 TclCallback::TclCallback(StringSetting& setting)
 	: callbackSetting(setting)
-	, useCliComm(true)
+	, isMessageCallback(false)
 {
 }
 
@@ -86,11 +89,18 @@ TclObject TclCallback::executeCommon(TclObject& command) const
 		auto message = strCat(
 			"Error executing callback function \"",
 			getSetting().getFullName(), "\": ", e.getMessage());
-		if (useCliComm) {
-			getSetting().getCommandController().getCliComm().printWarning(
-				message);
+		auto& commandController = getSetting().getCommandController();
+		if (!isMessageCallback) {
+			commandController.getCliComm().printWarning(message);
 		} else {
-			std::cerr << message << '\n';
+			if (checked_cast<GlobalCommandController&>(commandController).getReactor().isFullyStarted()) {
+				std::cerr << message << '\n';
+			} else {
+				// This is a message callback that cannot be
+				// executed yet.
+				// Let the caller deal with this.
+				throw command;
+			}
 		}
 		return {};
 	}

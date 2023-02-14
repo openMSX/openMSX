@@ -112,6 +112,8 @@ public:
 	[[nodiscard]] Board createEmptyMotherBoard();
 	void replaceBoard(MSXMotherBoard& oldBoard, Board newBoard); // for reverse
 
+	[[nodiscard]] bool isFullyStarted() const { return fullyStarted; }
+
 private:
 	void createMachineSetting();
 	void switchBoard(Board newBoard);
@@ -191,6 +193,7 @@ private:
 
 	int blockedCounter = 0;
 	bool paused = false;
+	bool fullyStarted = false; // all start up actions completed
 
 	/**
 	 * True iff the Reactor should keep running.
