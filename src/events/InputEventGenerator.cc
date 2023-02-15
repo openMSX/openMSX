@@ -12,7 +12,7 @@
 #include "build-info.hh"
 #include <memory>
 
-#include <imgui_impl_sdl.h>
+#include <imgui_impl_sdl2.h>
 
 namespace openmsx {
 

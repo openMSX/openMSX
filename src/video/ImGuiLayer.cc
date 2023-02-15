@@ -34,7 +34,7 @@
 #include "ranges.hh"
 
 #include <imgui.h>
-#include <imgui_impl_sdl.h>
+#include <imgui_impl_sdl2.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_memory_editor.h>
 #include <ImGuiFileDialog.h>
