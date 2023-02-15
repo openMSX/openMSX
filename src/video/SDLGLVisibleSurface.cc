@@ -73,7 +73,13 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 
 	// Initialise GLEW library.
 	GLenum glew_error = glewInit();
-	if (glew_error != GLEW_OK) {
+
+	// GLEW fails to initialise on Wayland because it has no GLX, since the
+	// one provided by the distros was built to use GLX instead of EGL. We
+	// ignore the GLEW_ERROR_NO_GLX_DISPLAY error with this temporary fix
+	// until it is fixed by GLEW upstream and released by major distros.
+	// See https://github.com/nigels-com/glew/issues/172
+	if (glew_error != GLEW_OK && glew_error != GLEW_ERROR_NO_GLX_DISPLAY) {
 		throw InitException(
 			"Failed to init GLEW: ",
 			reinterpret_cast<const char*>(
