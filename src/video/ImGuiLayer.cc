@@ -983,12 +983,7 @@ void ImGuiLayer::bitmapViewer(MSXMotherBoard* motherBoard)
 			ImGui::Image(reinterpret_cast<void*>(bitmapTex.get()), size);
 
 			if (bitmapGrid && (zx > 1) && (zy > 1)) {
-				//float color = ImGui::ColorConvertFloat4ToU32(bitmapGridColor); // TODO
-				auto color = ImGui::ColorConvertFloat4ToU32(ImVec4(bitmapGridColor[0],
-				                                                   bitmapGridColor[1],
-				                                                   bitmapGridColor[2],
-				                                                   bitmapGridColor[3]));
-				// TODO doesn't work yet for 512-wide
+				auto color = ImGui::ColorConvertFloat4ToU32(bitmapGridColor);
 				for (auto y : xrange(zy)) {
 					auto* line = &pixels[y * zx];
 					for (auto x : xrange(zx)) {
