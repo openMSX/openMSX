@@ -1092,7 +1092,7 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 
 	// (Modal) file dialog
 	auto* fileDialog = ImGuiFileDialog::Instance();
-	if (fileDialog->Display("FileDialog")) {
+	if (fileDialog->Display("FileDialog", ImGuiWindowFlags_NoCollapse, ImVec2(480.0f, 360.0f))) {
 		if (fileDialog->IsOk() && openFileCallback) {
 			lastPath[lastFileDialog] = fileDialog->GetCurrentPath();
 			std::string filePathName = fileDialog->GetFilePathName();
