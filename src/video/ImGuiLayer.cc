@@ -205,12 +205,14 @@ void ImGuiLayer::selectFileCommand(const std::string& title, const char* filters
 	ImGuiFileDialogFlags flags =
 		ImGuiFileDialogFlags_DontShowHiddenFiles |
 	//	ImGuiFileDialogFlags_CaseInsensitiveExtention |    // TODO
-		ImGuiFileDialogFlags_Modal;
+		ImGuiFileDialogFlags_Modal |
+		ImGuiFileDialogFlags_DisableCreateDirectoryButton;
 	//flags |= ImGuiFileDialogFlags_ConfirmOverwrite |
-	//         ImGuiFileDialogFlags_DisableCreateDirectoryButton;
+	lastFileDialog = title;
+	auto [it, inserted] = lastPath.try_emplace(lastFileDialog, ".");
 	ImGuiFileDialog::Instance()->OpenDialog(
 		"FileDialog", title, filters,
-		".", "", 1, nullptr, flags);
+		it->second, "", 1, nullptr, flags);
 	openFileCallback = [this, command](const std::string& filename) mutable {
 		command.addListElement(filename);
 		execute(command);
@@ -1089,13 +1091,15 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 	}
 
 	// (Modal) file dialog
-	if (ImGuiFileDialog::Instance()->Display("FileDialog")) {
-		if (ImGuiFileDialog::Instance()->IsOk() && openFileCallback) {
-			std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+	auto* fileDialog = ImGuiFileDialog::Instance();
+	if (fileDialog->Display("FileDialog")) {
+		if (fileDialog->IsOk() && openFileCallback) {
+			lastPath[lastFileDialog] = fileDialog->GetCurrentPath();
+			std::string filePathName = fileDialog->GetFilePathName();
 			openFileCallback(filePathName);
 			openFileCallback = {};
 		}
-		ImGuiFileDialog::Instance()->Close();
+		fileDialog->Close();
 	}
 
 	// Rendering

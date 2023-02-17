@@ -52,6 +52,8 @@ private:
 	std::map<std::string, std::unique_ptr<DebuggableEditor>> debuggables;
 	std::map<std::string, bool> channels;
 
+	std::map<std::string, std::string> lastPath;
+	std::string lastFileDialog;
 	std::function<void(const std::string&)> openFileCallback;
 
 	struct PreviewImage {
