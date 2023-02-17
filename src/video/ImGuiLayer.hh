@@ -44,7 +44,7 @@ private:
 	void bitmapViewer(MSXMotherBoard* motherBoard);
 
 	std::optional<TclObject> execute(TclObject command);
-	void selectFileCommand(const std::string& title, const char* filters, TclObject command);
+	void selectFileCommand(const std::string& title, std::string filters, TclObject command);
 
 private:
 	Reactor& reactor;

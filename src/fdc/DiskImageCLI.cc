@@ -6,12 +6,20 @@
 
 namespace openmsx {
 
+std::span<const std::string_view> DiskImageCLI::getExtensions()
+{
+	static constexpr std::array<std::string_view, 7> extensions = {
+		"di1", "di2", "dmk", "dsk", "xsa", "fd1", "fd2"
+	};
+	return extensions;
+}
+
 DiskImageCLI::DiskImageCLI(CommandLineParser& parser_)
 	: parser(parser_)
 {
 	parser.registerOption("-diska", *this);
 	parser.registerOption("-diskb", *this);
-	parser.registerFileType({"di1", "di2", "dmk", "dsk", "xsa", "fd1", "fd2"}, *this);
+	parser.registerFileType(getExtensions(), *this);
 }
 
 void DiskImageCLI::parseOption(const std::string& option, std::span<std::string>& cmdLine)

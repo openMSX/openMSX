@@ -6,11 +6,19 @@
 
 namespace openmsx {
 
+std::span<const std::string_view> CassettePlayerCLI::getExtensions()
+{
+	static constexpr std::array<std::string_view, 2> extensions = {
+		"cas", "wav"
+	};
+	return extensions;
+}
+
 CassettePlayerCLI::CassettePlayerCLI(CommandLineParser& parser_)
 	: parser(parser_)
 {
 	parser.registerOption("-cassetteplayer", *this);
-	parser.registerFileType({"cas", "wav"}, *this);
+	parser.registerFileType(getExtensions(), *this);
 }
 
 void CassettePlayerCLI::parseOption(const std::string& option,

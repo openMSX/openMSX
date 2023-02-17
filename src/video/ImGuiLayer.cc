@@ -1,8 +1,10 @@
 #include "ImGuiLayer.hh"
 
 #include "CartridgeSlotManager.hh"
+#include "CassettePlayerCLI.hh"
 #include "Connector.hh"
 #include "Debugger.hh"
+#include "DiskImageCLI.hh"
 #include "Display.hh"
 #include "EnumSetting.hh"
 #include "FilenameSetting.hh"
@@ -17,6 +19,7 @@
 #include "MSXMixer.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCPUInterface.hh"
+#include "MSXRomCLI.hh"
 #include "Pluggable.hh"
 #include "PluggingController.hh"
 #include "ProxySetting.hh"
@@ -29,9 +32,12 @@
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 #include "checked_cast.hh"
+#include "join.hh"
 #include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
+#include "strCat.hh"
+#include "view.hh"
 
 #include <imgui.h>
 #include <imgui_impl_sdl2.h>
@@ -200,8 +206,9 @@ std::optional<TclObject> ImGuiLayer::execute(TclObject command)
 	return {};
 }
 
-void ImGuiLayer::selectFileCommand(const std::string& title, const char* filters, TclObject command)
+void ImGuiLayer::selectFileCommand(const std::string& title, std::string filters, TclObject command)
 {
+	filters += ",All files (*){.*}";
 	ImGuiFileDialogFlags flags =
 		ImGuiFileDialogFlags_DontShowHiddenFiles |
 	//	ImGuiFileDialogFlags_CaseInsensitiveExtention |    // TODO
@@ -211,12 +218,26 @@ void ImGuiLayer::selectFileCommand(const std::string& title, const char* filters
 	lastFileDialog = title;
 	auto [it, inserted] = lastPath.try_emplace(lastFileDialog, ".");
 	ImGuiFileDialog::Instance()->OpenDialog(
-		"FileDialog", title, filters,
+		"FileDialog", title, filters.c_str(),
 		it->second, "", 1, nullptr, flags);
 	openFileCallback = [this, command](const std::string& filename) mutable {
 		command.addListElement(filename);
 		execute(command);
 	};
+}
+
+static std::string buildFilter(std::string_view description, std::span<const std::string_view> extensions)
+{
+	return strCat(
+		description, " (",
+		join(view::transform(extensions,
+		                     [](const auto& ext) { return strCat("*.", ext); }),
+		     ' '),
+		"){",
+		join(view::transform(extensions,
+		                     [](const auto& ext) { return strCat('.', ext); }),
+		     ','),
+		",.gz,.zip}");
 }
 
 void ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
@@ -264,7 +285,7 @@ void ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
 				}
 				if (ImGui::MenuItem("Insert disk image")) {
 					selectFileCommand("Select disk image for " + driveName,
-					                  ".dsk,.gz,.*", // TODO
+					                  buildFilter("disk images", DiskImageCLI::getExtensions()),
 					                  makeTclList(driveName, "insert"));
 				}
 				ImGui::EndMenu();
@@ -290,7 +311,7 @@ void ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
 				if (ImGui::BeginMenu("ROM cartridge")) {
 					if (ImGui::MenuItem("select ROM file")) {
 						selectFileCommand("Select ROM image for " + cartName,
-						                  ".rom,.gz,.*", // TODO
+						                  buildFilter("Rom images", MSXRomCLI::getExtensions()),
 						                  makeTclList(cartName, "insert"));
 					}
 					ImGui::MenuItem("select ROM type: TODO");
@@ -317,7 +338,7 @@ void ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
 			}
 			if (ImGui::MenuItem("insert cassette image")) {
 				selectFileCommand("Select cassette image",
-				                  ".wav,.cas,.gz,.*",
+				                  buildFilter("Cassette images", CassettePlayerCLI::getExtensions()),
 				                  makeTclList("cassetteplayer", "insert"));
 			}
 			ImGui::EndMenu();
@@ -336,7 +357,7 @@ void ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
 			}
 			if (ImGui::MenuItem("insert laserdisc image")) {
 				selectFileCommand("Select laserdisc image",
-				                  ".ogv,.*",
+				                  buildFilter("Laserdisk images", std::array<std::string_view, 1>{"ogv"}),
 				                  makeTclList("laserdiscplayer", "insert"));
 			}
 			ImGui::EndMenu();
