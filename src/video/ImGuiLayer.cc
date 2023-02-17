@@ -211,7 +211,7 @@ void ImGuiLayer::selectFileCommand(const std::string& title, std::string filters
 	filters += ",All files (*){.*}";
 	ImGuiFileDialogFlags flags =
 		ImGuiFileDialogFlags_DontShowHiddenFiles |
-	//	ImGuiFileDialogFlags_CaseInsensitiveExtention |    // TODO
+		ImGuiFileDialogFlags_CaseInsensitiveExtention |
 		ImGuiFileDialogFlags_Modal |
 		ImGuiFileDialogFlags_DisableCreateDirectoryButton;
 	//flags |= ImGuiFileDialogFlags_ConfirmOverwrite |
