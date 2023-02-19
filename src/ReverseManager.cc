@@ -201,21 +201,41 @@ EmuTime::param ReverseManager::getEndTime(const ReverseHistory& hist) const
 	return getCurrentTime();
 }
 
+bool ReverseManager::isViewOnlyMode() const
+{
+	return motherBoard.getStateChangeDistributor().isViewOnlyMode();
+}
+double ReverseManager::getBegin() const
+{
+	EmuTime b(isCollecting() ? begin(history.chunks)->second.time
+	                         : EmuTime::zero());
+	return (b - EmuTime::zero()).toDouble();
+}
+double ReverseManager::getEnd() const
+{
+	EmuTime end(isCollecting() ? getEndTime(history) : EmuTime::zero());
+	return (end - EmuTime::zero()).toDouble();
+}
+double ReverseManager::getCurrent() const
+{
+	EmuTime current(isCollecting() ? getCurrentTime() : EmuTime::zero());
+	return (current - EmuTime::zero()).toDouble();
+}
+std::vector<double> ReverseManager::getSnapshotTimes() const
+{
+	return to_vector(view::transform(history.chunks, [](auto& p) {
+		return (p.second.time - EmuTime::zero()).toDouble();
+	}));
+}
+
 void ReverseManager::status(TclObject& result) const
 {
 	result.addDictKeyValue("status", !isCollecting() ? "disabled"
 	                               : isReplaying()   ? "replaying"
 	                                                 : "enabled");
-
-	EmuTime b(isCollecting() ? begin(history.chunks)->second.time
-	                         : EmuTime::zero());
-	result.addDictKeyValue("begin", (b - EmuTime::zero()).toDouble());
-
-	EmuTime end(isCollecting() ? getEndTime(history) : EmuTime::zero());
-	result.addDictKeyValue("end", (end - EmuTime::zero()).toDouble());
-
-	EmuTime current(isCollecting() ? getCurrentTime() : EmuTime::zero());
-	result.addDictKeyValue("current", (current - EmuTime::zero()).toDouble());
+	result.addDictKeyValue("begin", getBegin());
+	result.addDictKeyValue("end", getEnd());
+	result.addDictKeyValue("current", getCurrent());
 
 	TclObject snapshots;
 	snapshots.addListElements(view::transform(history.chunks, [](auto& p) {

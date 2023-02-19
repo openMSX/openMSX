@@ -38,6 +38,7 @@ private:
 	void settingsMenu();
 	void soundChipSettings(MSXMotherBoard* motherBoard);
 	void channelSettings(MSXMotherBoard* motherBoard, const std::string& name, bool* enabled);
+	void drawReverseBar(MSXMotherBoard* motherBoard);
 	void debuggableMenu(MSXMotherBoard* motherBoard);
 	void renderBitmap(std::span<const uint8_t> vram, std::span<const uint32_t, 16> palette16,
 	                  int mode, int lines, int page, uint32_t* output);
@@ -60,6 +61,11 @@ private:
 		std::string name;
 		gl::Texture texture{gl::Null{}};
 	} previewImage;
+
+	bool showReverseBar = true;
+	bool reverseHideTitle = false;
+	bool reverseFadeOut = false;
+	float reverseAlpha = 1.0f;
 
 	bool showBitmapViewer = false;
 	int bitmapManual = 0; // 0 -> use VDP settings, 1 -> use manual settings

@@ -26,6 +26,7 @@
 #include "Reactor.hh"
 #include "ReadOnlySetting.hh"
 #include "RealDrive.hh"
+#include "ReverseManager.hh"
 #include "SettingsManager.hh"
 #include "SoundDevice.hh"
 #include "StringSetting.hh"
@@ -476,6 +477,7 @@ void ImGuiLayer::saveStateMenu(MSXMotherBoard* motherBoard)
 
 	ImGui::TextUnformatted("Load replay ... TODO");
 	ImGui::TextUnformatted("Save replay ... TODO");
+	ImGui::MenuItem("Show reverse bar", nullptr, &showReverseBar);
 
 	ImGui::EndMenu();
 	execute(command);
@@ -649,6 +651,170 @@ void ImGuiLayer::channelSettings(MSXMotherBoard* motherBoard, const std::string&
 		}
 	}
 	ImGui::End();
+}
+
+static std::string formatTime(double time)
+{
+	assert(time >= 0.0);
+	int hours = int(time / 3600.0);
+	time -= double(hours * 3600);
+	int minutes = int(time / 60.0);
+	time -= double(minutes * 60);
+	int seconds = int(time);
+	time -= double(seconds);
+	int hundreds = int(100.0 * time);
+
+	std::string result = "00:00:00.00";
+	auto insert = [&](size_t pos, unsigned value) {
+		assert(value < 100);
+		result[pos + 0] = char('0' + (value / 10));
+		result[pos + 1] = char('0' + (value % 10));
+	};
+	insert(0, hours % 100);
+	insert(3, minutes);
+	insert(6, seconds);
+	insert(9, hundreds);
+	return result;
+}
+
+void ImGuiLayer::drawReverseBar(MSXMotherBoard* motherBoard)
+{
+	const auto& style = ImGui::GetStyle();
+	auto textHeight = ImGui::GetTextLineHeight();
+	auto windowHeight = style.WindowPadding.y + 2.0f * textHeight + style.WindowPadding.y;
+	if (!reverseHideTitle) {
+		windowHeight += style.FramePadding.y + textHeight + style.FramePadding.y;
+	}
+	ImGui::SetNextWindowSizeConstraints(ImVec2(250, windowHeight), ImVec2(FLT_MAX, windowHeight));
+
+	int flags = reverseHideTitle ? ImGuiWindowFlags_NoTitleBar |
+	                               ImGuiWindowFlags_NoResize |
+	                               //ImGuiWindowFlags_NoMove |
+	                               ImGuiWindowFlags_NoScrollbar |
+	                               ImGuiWindowFlags_NoScrollWithMouse |
+	                               ImGuiWindowFlags_NoCollapse |
+	                               ImGuiWindowFlags_NoBackground
+	                             : 0;
+	ImGui::Begin("Reverse bar", &showReverseBar, flags);
+	if (!motherBoard) {
+		ImGui::End();
+		return;
+	}
+
+	TclObject command;
+	auto& reverseManager = motherBoard->getReverseManager();
+	if (reverseManager.isCollecting()) {
+		auto b = reverseManager.getBegin();
+		auto e = reverseManager.getEnd();
+		auto c = reverseManager.getCurrent();
+		auto snapshots = reverseManager.getSnapshotTimes();
+
+		auto totalLength = e - b;
+		auto playLength = c - b;
+		auto recipLength = (totalLength != 0.0) ? (1.0 / totalLength) : 0.0;
+		auto fraction = narrow_cast<float>(playLength * recipLength);
+
+		gl::vec2 pos = ImGui::GetCursorScreenPos();
+		gl::vec2 availableSize = ImGui::GetContentRegionAvail();
+		gl::vec2 outerSize(availableSize[0], 2.0f * textHeight);
+		gl::vec2 outerTopLeft = pos;
+		gl::vec2 outerBottomRight = outerTopLeft + outerSize;
+
+		gl::vec2 innerSize = outerSize - gl::vec2(2, 2);
+		gl::vec2 innerTopLeft = outerTopLeft + gl::vec2(1, 1);
+		gl::vec2 innerBottomRight = innerTopLeft + innerSize;
+		gl::vec2 barBottomRight = innerTopLeft + gl::vec2(innerSize[0] * fraction, innerSize[1]);
+
+		gl::vec2 middleTopLeft    (barBottomRight[0] - 2.0f, innerTopLeft[1]);
+		gl::vec2 middleBottomRight(barBottomRight[0] + 2.0f, innerBottomRight[1]);
+
+		const auto& io = ImGui::GetIO();
+		bool hovered = ImGui::IsWindowHovered();
+		bool replaying = reverseManager.isReplaying();
+		if (!reverseHideTitle || !reverseFadeOut || replaying ||
+		    ImGui::IsWindowDocked() || (ImGui::GetWindowViewport() != ImGui::GetMainViewport())) {
+			reverseAlpha = 1.0f;
+		} else {
+			auto target = hovered ? 1.0f : 0.0f;
+			auto period = hovered ? 0.5f : 5.0f; // TODO configurable speed
+			auto step = io.DeltaTime / period;
+			if (target > reverseAlpha) {
+				reverseAlpha = std::min(target, reverseAlpha + step);
+			} else {
+				reverseAlpha = std::max(target, reverseAlpha - step);
+			}
+		}
+		auto color = [&](gl::vec4 c) {
+			return ImGui::ColorConvertFloat4ToU32(c * reverseAlpha);
+		};
+
+		auto* drawList = ImGui::GetWindowDrawList();
+		drawList->AddRectFilled(innerTopLeft, innerBottomRight, color(gl::vec4(0.0f, 0.0f, 0.0f, 0.5f)));
+
+		static constexpr std::array barColors = {
+			std::array{gl::vec4(0.00f, 1.00f, 0.27f, 0.63f), gl::vec4(0.00f, 0.73f, 0.13f, 0.63f),
+			           gl::vec4(0.07f, 0.80f, 0.80f, 0.63f), gl::vec4(0.00f, 0.87f, 0.20f, 0.63f)}, // view-only
+			std::array{gl::vec4(0.00f, 0.27f, 1.00f, 0.63f), gl::vec4(0.00f, 0.13f, 0.73f, 0.63f),
+			           gl::vec4(0.07f, 0.80f, 0.80f, 0.63f), gl::vec4(0.00f, 0.20f, 0.87f, 0.63f)}, // replaying
+			std::array{gl::vec4(1.00f, 0.27f, 0.00f, 0.63f), gl::vec4(0.87f, 0.20f, 0.00f, 0.63f),
+			           gl::vec4(0.80f, 0.80f, 0.07f, 0.63f), gl::vec4(0.73f, 0.13f, 0.00f, 0.63f)}, // recording
+		};
+		int barColorsIndex = replaying ? (reverseManager.isViewOnlyMode() ? 0 : 1)
+		                               : 2;
+		const auto& barColor = barColors[barColorsIndex];
+		drawList->AddRectFilledMultiColor(
+			innerTopLeft, barBottomRight,
+			color(barColor[0]), color(barColor[1]), color(barColor[2]), color(barColor[3]));
+
+		for (double s : snapshots) {
+			float x = narrow_cast<float>((s - b) * recipLength) * innerSize[0];
+			drawList->AddLine(gl::vec2(innerTopLeft[0] + x, innerTopLeft[1]),
+			                  gl::vec2(innerTopLeft[0] + x, innerBottomRight[1]),
+			                  color(gl::vec4(0.25f, 0.25f, 0.25f, 1.00f)));
+		}
+		drawList->AddRectFilled(middleTopLeft, middleBottomRight, color(gl::vec4(1.0f, 0.5f, 0.0f, 0.75f)));
+		drawList->AddRect(
+			outerTopLeft, outerBottomRight, color(gl::vec4(1.0f)), 0.0f, 0, 2.0f);
+
+		gl::vec2 cursor = ImGui::GetCursorPos();
+		ImGui::SetCursorPos(cursor + gl::vec2(outerSize[0] * 0.15f, textHeight * 0.5f));
+		auto time1 = formatTime(playLength);
+		auto time2 = formatTime(totalLength);
+		ImGui::TextColored(gl::vec4(1.0f) * reverseAlpha, "%s / %s", time1.c_str(), time2.c_str());
+
+		if (hovered && ImGui::IsMouseHoveringRect(outerTopLeft, outerBottomRight)) {
+			float ratio = (io.MousePos.x - pos[0]) / outerSize[0];
+			auto timeOffset = totalLength * double(ratio);
+
+			ImGui::BeginTooltip();
+			ImGui::TextUnformatted(formatTime(timeOffset).c_str());
+			ImGui::EndTooltip();
+
+			if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+				command.addListElement("reverse", "goto", b + timeOffset);
+			}
+		}
+
+		ImGui::SetCursorPos(cursor); // cover full window for context menu
+		ImGui::Dummy(availableSize);
+		if (ImGui::BeginPopupContextItem("reverse context menu")) {
+			ImGui::Checkbox("Hide title", &reverseHideTitle);
+			ImGui::Indent();
+			ImGui::BeginDisabled(!reverseHideTitle);
+			ImGui::Checkbox("Fade out", &reverseFadeOut);
+			ImGui::EndDisabled();
+			ImGui::Unindent();
+			ImGui::EndPopup();
+		}
+	} else {
+		ImGui::TextUnformatted("Reverse is disabled.");
+		if (ImGui::Button("Enable")) {
+			command.addListElement("reverse", "start");
+		}
+	}
+
+	ImGui::End();
+	execute(command);
 }
 
 void ImGuiLayer::debuggableMenu(MSXMotherBoard* motherBoard)
@@ -1047,6 +1213,10 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 	}
 
 	if (motherBoard) {
+		if (showReverseBar) {
+			drawReverseBar(motherBoard);
+		}
+
 		// Show the enabled 'debuggables'
 		auto& debugger = motherBoard->getDebugger();
 		for (const auto& [name, editor] : debuggables) {

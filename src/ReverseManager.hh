@@ -62,6 +62,13 @@ public:
 		return *history.events.back();
 	}
 
+	[[nodiscard]] bool isCollecting() const { return collecting; }
+	[[nodiscard]] bool isViewOnlyMode() const;
+	[[nodiscard]] double getBegin() const;
+	[[nodiscard]] double getEnd() const;
+	[[nodiscard]] double getCurrent() const;
+	[[nodiscard]] std::vector<double> getSnapshotTimes() const;
+
 private:
 	struct ReverseChunk {
 		ReverseChunk() : time(EmuTime::zero()) {}
@@ -88,8 +95,6 @@ private:
 		Events events;
 		LastDeltaBlocks lastDeltaBlocks;
 	};
-
-	[[nodiscard]] bool isCollecting() const { return collecting; }
 
 	void start();
 	void stop();
