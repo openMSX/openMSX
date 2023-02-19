@@ -751,6 +751,13 @@ void ImGuiLayer::drawReverseBar(MSXMotherBoard* motherBoard)
 		auto* drawList = ImGui::GetWindowDrawList();
 		drawList->AddRectFilled(innerTopLeft, innerBottomRight, color(gl::vec4(0.0f, 0.0f, 0.0f, 0.5f)));
 
+		for (double s : snapshots) {
+			float x = narrow_cast<float>((s - b) * recipLength) * innerSize[0];
+			drawList->AddLine(gl::vec2(innerTopLeft[0] + x, innerTopLeft[1]),
+			                  gl::vec2(innerTopLeft[0] + x, innerBottomRight[1]),
+			                  color(gl::vec4(0.25f, 0.25f, 0.25f, 1.00f)));
+		}
+
 		static constexpr std::array barColors = {
 			std::array{gl::vec4(0.00f, 1.00f, 0.27f, 0.63f), gl::vec4(0.00f, 0.73f, 0.13f, 0.63f),
 			           gl::vec4(0.07f, 0.80f, 0.80f, 0.63f), gl::vec4(0.00f, 0.87f, 0.20f, 0.63f)}, // view-only
@@ -766,12 +773,6 @@ void ImGuiLayer::drawReverseBar(MSXMotherBoard* motherBoard)
 			innerTopLeft, barBottomRight,
 			color(barColor[0]), color(barColor[1]), color(barColor[2]), color(barColor[3]));
 
-		for (double s : snapshots) {
-			float x = narrow_cast<float>((s - b) * recipLength) * innerSize[0];
-			drawList->AddLine(gl::vec2(innerTopLeft[0] + x, innerTopLeft[1]),
-			                  gl::vec2(innerTopLeft[0] + x, innerBottomRight[1]),
-			                  color(gl::vec4(0.25f, 0.25f, 0.25f, 1.00f)));
-		}
 		drawList->AddRectFilled(middleTopLeft, middleBottomRight, color(gl::vec4(1.0f, 0.5f, 0.0f, 0.75f)));
 		drawList->AddRect(
 			outerTopLeft, outerBottomRight, color(gl::vec4(1.0f)), 0.0f, 0, 2.0f);
