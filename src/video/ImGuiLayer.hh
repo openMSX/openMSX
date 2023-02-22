@@ -39,6 +39,10 @@ private:
 	void soundChipSettings(MSXMotherBoard* motherBoard);
 	void channelSettings(MSXMotherBoard* motherBoard, const std::string& name, bool* enabled);
 	void drawReverseBar(MSXMotherBoard* motherBoard);
+	void drawIcons();
+	void drawConfigureIcons();
+	void setDefaultIcons();
+	void loadIcons();
 	void debuggableMenu(MSXMotherBoard* motherBoard);
 	void renderBitmap(std::span<const uint8_t> vram, std::span<const uint32_t, 16> palette16,
 	                  int mode, int lines, int page, uint32_t* output);
@@ -46,6 +50,8 @@ private:
 
 	std::optional<TclObject> execute(TclObject command);
 	void selectFileCommand(const std::string& title, std::string filters, TclObject command);
+	void selectFile(const std::string& title, std::string filters,
+                        std::function<void(const std::string&)> callback);
 
 private:
 	Reactor& reactor;
@@ -66,6 +72,35 @@ private:
 	bool reverseHideTitle = false;
 	bool reverseFadeOut = false;
 	float reverseAlpha = 1.0f;
+
+	bool showIcons = true;
+	bool iconsHideTitle = false;
+	bool iconsAllowMove = true;
+	int iconsHorizontal = 1; // 0=vertical, 1=horizontal
+	struct IconInfo {
+		IconInfo(TclObject expr_, std::string on_, std::string off_, bool fade_)
+			: expr(expr_), on(std::move(on_)), off(std::move(off_)), fade(fade_) {}
+		struct Icon {
+			Icon(std::string filename_) : filename(std::move(filename_)) {}
+			std::string filename;
+			gl::Texture tex{gl::Null{}};
+			gl::ivec2 size;
+		};
+		TclObject expr;
+		Icon on, off;
+		float time = 0.0f;
+		bool lastState = true;
+		bool enable = true;
+		bool fade;
+	};
+	std::vector<IconInfo> iconInfo;
+	gl::ivec2 iconsTotalSize;
+	gl::ivec2 iconsMaxSize;
+	float iconsFadeDuration = 5.0f;
+	float iconsFadeDelay = 5.0f;
+	int iconsNumEnabled = 0;
+	bool iconInfoDirty = false;
+	bool showConfigureIcons = false;
 
 	bool showBitmapViewer = false;
 	int bitmapManual = 0; // 0 -> use VDP settings, 1 -> use manual settings
