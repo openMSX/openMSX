@@ -32,13 +32,13 @@ private:
 	// Layer
 	void paint(OutputSurface& output) override;
 
-	void mediaMenu(MSXMotherBoard* motherBoard);
-	void connectorsMenu(MSXMotherBoard* motherBoard);
-	void saveStateMenu(MSXMotherBoard* motherBoard);
+	TclObject mediaMenu(MSXMotherBoard* motherBoard);
+	TclObject connectorsMenu(MSXMotherBoard* motherBoard);
+	TclObject saveStateMenu(MSXMotherBoard* motherBoard);
 	void settingsMenu();
 	void soundChipSettings(MSXMotherBoard* motherBoard);
 	void channelSettings(MSXMotherBoard* motherBoard, const std::string& name, bool* enabled);
-	void drawReverseBar(MSXMotherBoard* motherBoard);
+	TclObject drawReverseBar(MSXMotherBoard* motherBoard);
 	void drawIcons();
 	void drawConfigureIcons();
 	void setDefaultIcons();

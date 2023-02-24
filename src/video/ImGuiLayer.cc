@@ -256,14 +256,13 @@ static std::string buildFilter(std::string_view description, std::span<const std
 		",.gz,.zip}");
 }
 
-void ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
+TclObject ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
 {
+	TclObject command;
 	if (!ImGui::BeginMenu("Media", motherBoard != nullptr)) {
-		return;
+		return command;
 	}
 	assert(motherBoard);
-
-	TclObject command;
 
 	enum { NONE, ITEM, SEPARATOR } status = NONE;
 	auto endGroup = [&] {
@@ -382,17 +381,16 @@ void ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
 
 	ImGui::EndMenu();
 
-	execute(command);
+	return command;
 }
 
-void ImGuiLayer::connectorsMenu(MSXMotherBoard* motherBoard)
+TclObject ImGuiLayer::connectorsMenu(MSXMotherBoard* motherBoard)
 {
+	TclObject command;
 	if (!ImGui::BeginMenu("Connectors", motherBoard != nullptr)) {
-		return;
+		return command;
 	}
 	assert(motherBoard);
-
-	TclObject command;
 
 	const auto& pluggingController = motherBoard->getPluggingController();
 	const auto& pluggables = pluggingController.getPluggables();
@@ -421,17 +419,16 @@ void ImGuiLayer::connectorsMenu(MSXMotherBoard* motherBoard)
 	}
 
 	ImGui::EndMenu();
-	execute(command); // only execute the command after the full menu is drawn
+	return command;
 }
 
-void ImGuiLayer::saveStateMenu(MSXMotherBoard* motherBoard)
+TclObject ImGuiLayer::saveStateMenu(MSXMotherBoard* motherBoard)
 {
+	TclObject command;
 	if (!ImGui::BeginMenu("Save state", motherBoard != nullptr)) {
-		return;
+		return command;
 	}
 	assert(motherBoard);
-
-	TclObject command;
 
 	if (ImGui::MenuItem("Quick load state", "ALT+F7")) { // TODO check binding dynamically
 		command.addListElement("loadstate");
@@ -495,7 +492,7 @@ void ImGuiLayer::saveStateMenu(MSXMotherBoard* motherBoard)
 	ImGui::MenuItem("Show reverse bar", nullptr, &showReverseBar);
 
 	ImGui::EndMenu();
-	execute(command);
+	return command;
 }
 
 void ImGuiLayer::settingsMenu()
@@ -692,8 +689,10 @@ static std::string formatTime(double time)
 	return result;
 }
 
-void ImGuiLayer::drawReverseBar(MSXMotherBoard* motherBoard)
+TclObject ImGuiLayer::drawReverseBar(MSXMotherBoard* motherBoard)
 {
+	TclObject command;
+
 	const auto& style = ImGui::GetStyle();
 	auto textHeight = ImGui::GetTextLineHeight();
 	auto windowHeight = style.WindowPadding.y + 2.0f * textHeight + style.WindowPadding.y;
@@ -713,10 +712,9 @@ void ImGuiLayer::drawReverseBar(MSXMotherBoard* motherBoard)
 	ImGui::Begin("Reverse bar", &showReverseBar, flags);
 	if (!motherBoard) {
 		ImGui::End();
-		return;
+		return command;
 	}
 
-	TclObject command;
 	auto& reverseManager = motherBoard->getReverseManager();
 	if (reverseManager.isCollecting()) {
 		auto b = reverseManager.getBegin();
@@ -830,7 +828,7 @@ void ImGuiLayer::drawReverseBar(MSXMotherBoard* motherBoard)
 	}
 
 	ImGui::End();
-	execute(command);
+	return command;
 }
 
 void ImGuiLayer::loadIcons()
@@ -1509,6 +1507,13 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 	ImGui_ImplSDL2_NewFrame();
 	ImGui::NewFrame();
 
+	TclObject command;
+	auto setCmd = [&](const TclObject& cmd) {
+		if (!cmd.empty()) {
+			command = cmd;
+		}
+	};
+
 	auto& rendererSettings = reactor.getDisplay().getRenderSettings();
 	auto& commandController = reactor.getCommandController();
 	auto* motherBoard = reactor.getMotherBoard();
@@ -1530,7 +1535,7 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 
 	if (motherBoard) {
 		if (showReverseBar) {
-			drawReverseBar(motherBoard);
+			setCmd(drawReverseBar(motherBoard));
 		}
 		// Show the enabled 'debuggables'
 		auto& debugger = motherBoard->getDebugger();
@@ -1559,9 +1564,9 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 	}
 
 	if (ImGui::BeginMainMenuBar()) {
-		mediaMenu(motherBoard);
-		connectorsMenu(motherBoard);
-		saveStateMenu(motherBoard);
+		setCmd(mediaMenu(motherBoard));
+		setCmd(connectorsMenu(motherBoard));
+		setCmd(saveStateMenu(motherBoard));
 		settingsMenu();
 		debuggableMenu(motherBoard);
 		ImGui::EndMainMenuBar();
@@ -1569,9 +1574,9 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 
 	if (ImGui::Begin("main window", nullptr, ImGuiWindowFlags_MenuBar)) {
 		if (ImGui::BeginMenuBar()) {
-			mediaMenu(motherBoard);
-			connectorsMenu(motherBoard);
-			saveStateMenu(motherBoard);
+			setCmd(mediaMenu(motherBoard));
+			setCmd(connectorsMenu(motherBoard));
+			setCmd(saveStateMenu(motherBoard));
 			settingsMenu();
 			debuggableMenu(motherBoard);
 			ImGui::EndMenuBar();
@@ -1609,6 +1614,7 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 		}
 		fileDialog->Close();
 	}
+	execute(command);
 
 	// Rendering
 	ImGuiIO& io = ImGui::GetIO();
