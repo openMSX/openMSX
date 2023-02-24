@@ -43,6 +43,7 @@
 #include <imgui.h>
 #include <imgui_impl_sdl2.h>
 #include <imgui_impl_opengl3.h>
+#include <imgui_stdlib.h>
 #include <imgui_memory_editor.h>
 #include <ImGuiFileDialog.h>
 
@@ -119,19 +120,10 @@ static bool SliderFloat(const char* label, FloatSetting& setting, const char* fo
 	settingStuff(setting);
 	return changed;
 }
-static bool InputText(const char* label, std::string& value)
-{
-	char buffer[256 + 1];
-	assert(value.size() < 256); // TODO
-	strncpy(buffer, value.data(), 256);
-	bool changed = ImGui::InputText(label, buffer, 256);
-	if (changed) value = buffer;
-	return changed;
-}
 static bool InputText(const char* label, Setting& setting)
 {
 	auto value = std::string(setting.getValue().getString());
-	bool changed = InputText(label, value);
+	bool changed = ImGui::InputText(label, &value);
 	if (changed) setting.setValue(TclObject(value));
 	settingStuff(setting);
 	return changed;
@@ -1085,7 +1077,7 @@ void ImGuiLayer::drawConfigureIcons()
 				ImGui::PushStyleColor(ImGuiCol_Text, valid ? ImVec4(1.0f, 1.0f, 1.0f, 1.0f)
 				                                           : ImVec4(1.0f, 0.5f, 0.5f, 1.0f));
 				auto expr = std::string(icon.expr.getString());
-				if (InputText("##expr", expr)) {
+				if (ImGui::InputText("##expr", &expr)) {
 					icon.expr = expr;
 				}
 				ImGui::PopStyleColor();
