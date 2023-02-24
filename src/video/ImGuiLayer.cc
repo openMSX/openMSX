@@ -1045,10 +1045,18 @@ void ImGuiLayer::drawConfigureIcons()
 				ImGui::Checkbox("##fade-out", &icon.fade);
 				ImGui::EndDisabled();
 
-				auto image = [&](IconInfo::Icon& icon) {
+				auto image = [&](IconInfo::Icon& icon, const char* id) {
 					if (icon.tex.get()) {
 						ImGui::Image(reinterpret_cast<void*>(icon.tex.get()),
 						             gl::vec2(icon.size));
+						if (ImGui::BeginPopupContextItem(id)) {
+							if (ImGui::MenuItem("Remove image")) {
+								icon.filename.clear();
+								iconInfoDirty = true;
+								ImGui::CloseCurrentPopup();
+							}
+							ImGui::EndPopup();
+						}
 					} else {
 						ImGui::Button("Select ...");
 					}
@@ -1059,17 +1067,14 @@ void ImGuiLayer::drawConfigureIcons()
 								iconInfoDirty = true;
 							});
 						std::cerr << "clicked\n";
-					//if (InputText("##true", icon.off.filename)) {
-					//	iconInfoDirty = true;
-					//}
 					}
 				};
 
 				ImGui::TableSetColumnIndex(2);
-				image(icon.on);
+				image(icon.on, "##on");
 
 				ImGui::TableSetColumnIndex(3);
-				image(icon.off);
+				image(icon.off, "##off");
 
 				ImGui::TableSetColumnIndex(4);
 				ImGui::SetNextItemWidth(-FLT_MIN);
