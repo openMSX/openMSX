@@ -7,6 +7,7 @@
 #include "DiskImageCLI.hh"
 #include "Display.hh"
 #include "EnumSetting.hh"
+#include "EventDistributor.hh"
 #include "FileContext.hh"
 #include "FilenameSetting.hh"
 #include "FileOperations.hh"
@@ -181,8 +182,16 @@ ImGuiLayer::ImGuiLayer(Reactor& reactor_)
 	, reactor(reactor_)
 	, interp(reactor.getInterpreter())
 {
+	// TODO an alternative could be to create a dedicated event type
+	reactor.getEventDistributor().registerEventListener(EventType::FRAME_DRAWN, *this);
+
 	// TODO read from some config file
 	setDefaultIcons();
+}
+
+ImGuiLayer::~ImGuiLayer()
+{
+	reactor.getEventDistributor().unregisterEventListener(EventType::FRAME_DRAWN, *this);
 }
 
 void ImGuiLayer::setDefaultIcons()
@@ -201,10 +210,6 @@ void ImGuiLayer::setDefaultIcons()
 	iconInfoDirty = true;
 }
 
-ImGuiLayer::~ImGuiLayer()
-{
-}
-
 std::optional<TclObject> ImGuiLayer::execute(TclObject command)
 {
 	if (!command.empty()) {
@@ -217,11 +222,29 @@ std::optional<TclObject> ImGuiLayer::execute(TclObject command)
 	return {};
 }
 
+void ImGuiLayer::executeDelayed(TclObject command)
+{
+	commandQueue.push_back(std::move(command));
+}
+
+int ImGuiLayer::signalEvent(const Event& event)
+{
+	(void)event; // avoid warning for non-assert compiles
+	assert(getType(event) == EventType::FRAME_DRAWN);
+
+	for (auto& cmd : commandQueue) {
+		execute(cmd);
+	}
+	commandQueue.clear();
+
+	return 0;
+}
+
 void ImGuiLayer::selectFileCommand(const std::string& title, std::string filters, TclObject command)
 {
 	selectFile(title, filters, [this, command](const std::string& filename) mutable {
 		command.addListElement(filename);
-		execute(command);
+		executeDelayed(command);
 	});
 }
 void ImGuiLayer::selectFile(const std::string& title, std::string filters,
@@ -256,11 +279,10 @@ static std::string buildFilter(std::string_view description, std::span<const std
 		",.gz,.zip}");
 }
 
-TclObject ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
+void ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
 {
-	TclObject command;
 	if (!ImGui::BeginMenu("Media", motherBoard != nullptr)) {
-		return command;
+		return;
 	}
 	assert(motherBoard);
 
@@ -296,7 +318,7 @@ TclObject ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
 				auto currentImage = cmdResult->getListIndex(interp, 1);
 				showCurrent(currentImage, "disk");
 				if (ImGui::MenuItem("Eject", nullptr, false, !currentImage.empty())) {
-					command.addListElement(driveName, "eject");
+					executeDelayed(makeTclList(driveName, "eject"));
 				}
 				if (ImGui::MenuItem("Insert disk image")) {
 					selectFileCommand("Select disk image for " + driveName,
@@ -321,7 +343,7 @@ TclObject ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
 				auto currentImage = cmdResult->getListIndex(interp, 1);
 				showCurrent(currentImage, "cart"); // TODO cart/ext
 				if (ImGui::MenuItem("Eject", nullptr, false, !currentImage.empty())) {
-					command.addListElement(cartName, "eject");
+					executeDelayed(makeTclList(cartName, "eject"));
 				}
 				if (ImGui::BeginMenu("ROM cartridge")) {
 					if (ImGui::MenuItem("select ROM file")) {
@@ -349,7 +371,7 @@ TclObject ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
 			auto currentImage = cmdResult->getListIndex(interp, 1);
 			showCurrent(currentImage, "cassette");
 			if (ImGui::MenuItem("eject", nullptr, false, !currentImage.empty())) {
-				command.addListElement("cassetteplayer", "eject");
+				executeDelayed(makeTclList("cassetteplayer", "eject"));
 			}
 			if (ImGui::MenuItem("insert cassette image")) {
 				selectFileCommand("Select cassette image",
@@ -368,7 +390,7 @@ TclObject ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
 			auto currentImage = cmdResult->getListIndex(interp, 1);
 			showCurrent(currentImage, "laserdisc");
 			if (ImGui::MenuItem("eject", nullptr, false, !currentImage.empty())) {
-				command.addListElement("laserdiscplayer", "eject");
+				executeDelayed(makeTclList("laserdiscplayer", "eject"));
 			}
 			if (ImGui::MenuItem("insert laserdisc image")) {
 				selectFileCommand("Select laserdisc image",
@@ -380,15 +402,12 @@ TclObject ImGuiLayer::mediaMenu(MSXMotherBoard* motherBoard)
 	}
 
 	ImGui::EndMenu();
-
-	return command;
 }
 
-TclObject ImGuiLayer::connectorsMenu(MSXMotherBoard* motherBoard)
+void ImGuiLayer::connectorsMenu(MSXMotherBoard* motherBoard)
 {
-	TclObject command;
 	if (!ImGui::BeginMenu("Connectors", motherBoard != nullptr)) {
-		return command;
+		return;
 	}
 	assert(motherBoard);
 
@@ -401,7 +420,7 @@ TclObject ImGuiLayer::connectorsMenu(MSXMotherBoard* motherBoard)
 		if (ImGui::BeginCombo(connectorName.c_str(), std::string(currentPluggable.getName()).c_str())) {
 			if (!currentPluggable.getName().empty()) {
 				if (ImGui::Selectable("[unplug]")) {
-					command.addListElement("unplug", connectorName);
+					executeDelayed(makeTclList("unplug", connectorName));
 				}
 			}
 			for (auto& plug : pluggables) {
@@ -410,7 +429,7 @@ TclObject ImGuiLayer::connectorsMenu(MSXMotherBoard* motherBoard)
 				bool selected = plug.get() == &currentPluggable;
 				int flags = !selected && plug->getConnector() ? ImGuiSelectableFlags_Disabled : 0; // plugged in another connector
 				if (ImGui::Selectable(plugName.c_str(), selected, flags)) {
-					command.addListElement("plug", connectorName, plugName);
+					executeDelayed(makeTclList("plug", connectorName, plugName));
 				}
 				simpleToolTip(plug->getDescription());
 			}
@@ -419,22 +438,20 @@ TclObject ImGuiLayer::connectorsMenu(MSXMotherBoard* motherBoard)
 	}
 
 	ImGui::EndMenu();
-	return command;
 }
 
-TclObject ImGuiLayer::saveStateMenu(MSXMotherBoard* motherBoard)
+void ImGuiLayer::saveStateMenu(MSXMotherBoard* motherBoard)
 {
-	TclObject command;
 	if (!ImGui::BeginMenu("Save state", motherBoard != nullptr)) {
-		return command;
+		return;
 	}
 	assert(motherBoard);
 
 	if (ImGui::MenuItem("Quick load state", "ALT+F7")) { // TODO check binding dynamically
-		command.addListElement("loadstate");
+		executeDelayed(makeTclList("loadstate"));
 	}
 	if (ImGui::MenuItem("Quick save state", "ALT+F8")) { // TODO
-		command.addListElement("savestate");
+		executeDelayed(makeTclList("savestate"));
 	}
 	ImGui::Separator();
 
@@ -446,7 +463,7 @@ TclObject ImGuiLayer::saveStateMenu(MSXMotherBoard* motherBoard)
 			if (ImGui::BeginListBox("##list", ImVec2(ImGui::GetFontSize() * 20.0f, 240.0f))) {
 				for (const auto& name : *existingStates) {
 					if (ImGui::Selectable(name.c_str())) {
-						command = makeTclList("loadstate", name);
+						executeDelayed(makeTclList("loadstate", name));
 					}
 					if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort)) {
 						if (previewImage.name != name) {
@@ -492,7 +509,6 @@ TclObject ImGuiLayer::saveStateMenu(MSXMotherBoard* motherBoard)
 	ImGui::MenuItem("Show reverse bar", nullptr, &showReverseBar);
 
 	ImGui::EndMenu();
-	return command;
 }
 
 void ImGuiLayer::settingsMenu()
@@ -689,10 +705,8 @@ static std::string formatTime(double time)
 	return result;
 }
 
-TclObject ImGuiLayer::drawReverseBar(MSXMotherBoard* motherBoard)
+void ImGuiLayer::drawReverseBar(MSXMotherBoard* motherBoard)
 {
-	TclObject command;
-
 	const auto& style = ImGui::GetStyle();
 	auto textHeight = ImGui::GetTextLineHeight();
 	auto windowHeight = style.WindowPadding.y + 2.0f * textHeight + style.WindowPadding.y;
@@ -712,7 +726,7 @@ TclObject ImGuiLayer::drawReverseBar(MSXMotherBoard* motherBoard)
 	ImGui::Begin("Reverse bar", &showReverseBar, flags);
 	if (!motherBoard) {
 		ImGui::End();
-		return command;
+		return;
 	}
 
 	auto& reverseManager = motherBoard->getReverseManager();
@@ -805,7 +819,7 @@ TclObject ImGuiLayer::drawReverseBar(MSXMotherBoard* motherBoard)
 			ImGui::EndTooltip();
 
 			if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
-				command.addListElement("reverse", "goto", b + timeOffset);
+				executeDelayed(makeTclList("reverse", "goto", b + timeOffset));
 			}
 		}
 
@@ -823,12 +837,11 @@ TclObject ImGuiLayer::drawReverseBar(MSXMotherBoard* motherBoard)
 	} else {
 		ImGui::TextUnformatted("Reverse is disabled.");
 		if (ImGui::Button("Enable")) {
-			command.addListElement("reverse", "start");
+			executeDelayed(makeTclList("reverse", "start"));
 		}
 	}
 
 	ImGui::End();
-	return command;
 }
 
 void ImGuiLayer::loadIcons()
@@ -1507,13 +1520,6 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 	ImGui_ImplSDL2_NewFrame();
 	ImGui::NewFrame();
 
-	TclObject command;
-	auto setCmd = [&](const TclObject& cmd) {
-		if (!cmd.empty()) {
-			command = cmd;
-		}
-	};
-
 	auto& rendererSettings = reactor.getDisplay().getRenderSettings();
 	auto& commandController = reactor.getCommandController();
 	auto* motherBoard = reactor.getMotherBoard();
@@ -1535,7 +1541,7 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 
 	if (motherBoard) {
 		if (showReverseBar) {
-			setCmd(drawReverseBar(motherBoard));
+			drawReverseBar(motherBoard);
 		}
 		// Show the enabled 'debuggables'
 		auto& debugger = motherBoard->getDebugger();
@@ -1564,9 +1570,9 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 	}
 
 	if (ImGui::BeginMainMenuBar()) {
-		setCmd(mediaMenu(motherBoard));
-		setCmd(connectorsMenu(motherBoard));
-		setCmd(saveStateMenu(motherBoard));
+		mediaMenu(motherBoard);
+		connectorsMenu(motherBoard);
+		saveStateMenu(motherBoard);
 		settingsMenu();
 		debuggableMenu(motherBoard);
 		ImGui::EndMainMenuBar();
@@ -1574,9 +1580,9 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 
 	if (ImGui::Begin("main window", nullptr, ImGuiWindowFlags_MenuBar)) {
 		if (ImGui::BeginMenuBar()) {
-			setCmd(mediaMenu(motherBoard));
-			setCmd(connectorsMenu(motherBoard));
-			setCmd(saveStateMenu(motherBoard));
+			mediaMenu(motherBoard);
+			connectorsMenu(motherBoard);
+			saveStateMenu(motherBoard);
 			settingsMenu();
 			debuggableMenu(motherBoard);
 			ImGui::EndMenuBar();
@@ -1614,7 +1620,6 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 		}
 		fileDialog->Close();
 	}
-	execute(command);
 
 	// Rendering
 	ImGuiIO& io = ImGui::GetIO();

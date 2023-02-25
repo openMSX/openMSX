@@ -1,6 +1,7 @@
 #ifndef IMGUILAYER_HH
 #define IMGUILAYER_HH
 
+#include "EventListener.hh"
 #include "GLUtil.hh"
 #include "Layer.hh"
 #include "TclObject.hh"
@@ -22,7 +23,7 @@ class MSXMotherBoard;
 class Reactor;
 class VDPVRAM;
 
-class ImGuiLayer final : public Layer
+class ImGuiLayer final : public Layer, private EventListener
 {
 public:
 	ImGuiLayer(Reactor& reactor);
@@ -32,13 +33,16 @@ private:
 	// Layer
 	void paint(OutputSurface& output) override;
 
-	TclObject mediaMenu(MSXMotherBoard* motherBoard);
-	TclObject connectorsMenu(MSXMotherBoard* motherBoard);
-	TclObject saveStateMenu(MSXMotherBoard* motherBoard);
+	// EventListener
+	int signalEvent(const Event& event) override;
+
+	void mediaMenu(MSXMotherBoard* motherBoard);
+	void connectorsMenu(MSXMotherBoard* motherBoard);
+	void saveStateMenu(MSXMotherBoard* motherBoard);
 	void settingsMenu();
 	void soundChipSettings(MSXMotherBoard* motherBoard);
 	void channelSettings(MSXMotherBoard* motherBoard, const std::string& name, bool* enabled);
-	TclObject drawReverseBar(MSXMotherBoard* motherBoard);
+	void drawReverseBar(MSXMotherBoard* motherBoard);
 	void drawIcons();
 	void drawConfigureIcons();
 	void setDefaultIcons();
@@ -49,6 +53,7 @@ private:
 	void bitmapViewer(MSXMotherBoard* motherBoard);
 
 	std::optional<TclObject> execute(TclObject command);
+	void executeDelayed(TclObject command);
 	void selectFileCommand(const std::string& title, std::string filters, TclObject command);
 	void selectFile(const std::string& title, std::string filters,
                         std::function<void(const std::string&)> callback);
@@ -56,6 +61,8 @@ private:
 private:
 	Reactor& reactor;
 	Interpreter& interp;
+	std::vector<TclObject> commandQueue;
+
 	std::map<std::string, std::unique_ptr<DebuggableEditor>> debuggables;
 	std::map<std::string, bool> channels;
 
