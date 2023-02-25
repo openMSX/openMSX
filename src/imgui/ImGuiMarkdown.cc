@@ -4,6 +4,13 @@
 
 namespace openmsx {
 
+void ImGuiMarkdown::print(std::string_view str)
+{
+	ImGui::PushFont(layer.vera13);
+	imgui_md::print(str.begin(), str.end());
+	ImGui::PopFont();
+}
+
 ImFont* ImGuiMarkdown::get_font() const
 {
 	if (m_is_table_header) return layer.veraBold13;

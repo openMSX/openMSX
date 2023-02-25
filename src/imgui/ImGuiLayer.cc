@@ -1562,6 +1562,9 @@ Here's a link to [the openMSX homepage](https://openmsx.org/) (you can click it)
 1. **This is bold.**
 1. ***This is italic and bold.***
 
+Test proportional font:<br>
+iiiiiiiiiii<br>
+mmmmmmmmmmm
 
 # Table
 
@@ -1590,7 +1593,7 @@ Value-One | Long <br>explanation <br>with \<br\>\'s|1
       * Item with [link1](#link1)
       * Item with bold [**link2**](#link1)
 )";
-		markdown.print(TEST, TEST + strlen(TEST));
+		markdown.print(TEST);
 	}
 	ImGui::End();
 }
