@@ -1,6 +1,7 @@
 #ifndef IMGUILAYER_HH
 #define IMGUILAYER_HH
 
+#include "ImGuiMarkdown.hh"
 #include "EventListener.hh"
 #include "GLUtil.hh"
 #include "Layer.hh"
@@ -51,12 +52,24 @@ private:
 	void renderBitmap(std::span<const uint8_t> vram, std::span<const uint32_t, 16> palette16,
 	                  int mode, int lines, int page, uint32_t* output);
 	void bitmapViewer(MSXMotherBoard* motherBoard);
+	void helpMenu();
+	void drawHelpWindow();
 
 	std::optional<TclObject> execute(TclObject command);
 	void executeDelayed(TclObject command);
 	void selectFileCommand(const std::string& title, std::string filters, TclObject command);
 	void selectFile(const std::string& title, std::string filters,
                         std::function<void(const std::string&)> callback);
+
+public:
+	// TODO dynamic font loading in ImGui is technically possible, though not trivial
+	// So for now pre-load all the fonts we'll need.
+	//   see https://github.com/ocornut/imgui/issues/2311
+	ImFont* vera13 = nullptr;
+	ImFont* veraBold13 = nullptr;
+	ImFont* veraBold16 = nullptr;
+	ImFont* veraItalic13 = nullptr;
+	ImFont* veraBoldItalic13 = nullptr;
 
 private:
 	Reactor& reactor;
@@ -69,6 +82,9 @@ private:
 	std::map<std::string, std::string> lastPath;
 	std::string lastFileDialog;
 	std::function<void(const std::string&)> openFileCallback;
+
+	bool showHelpWindow = false;
+	ImGuiMarkdown markdown;
 
 	struct PreviewImage {
 		std::string name;

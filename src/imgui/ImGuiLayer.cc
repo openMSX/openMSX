@@ -177,11 +177,33 @@ struct DebuggableEditor : public MemoryEditor
 	}
 };
 
+static ImFont* addFont(const std::string& filename, int fontSize)
+{
+	File file(filename);
+	auto fileSize = file.getSize();
+	auto ttfData = std::span(static_cast<uint8_t*>(ImGui::MemAlloc(fileSize)), fileSize);
+	file.read(ttfData);
+
+	auto& io = ImGui::GetIO();
+	return io.Fonts->AddFontFromMemoryTTF(
+		ttfData.data(), // transfer ownership of 'ttfData' buffer
+		narrow<int>(ttfData.size()), narrow<float>(fontSize));
+}
+
 ImGuiLayer::ImGuiLayer(Reactor& reactor_)
 	: Layer(Layer::COVER_PARTIAL, Layer::Z_IMGUI)
 	, reactor(reactor_)
 	, interp(reactor.getInterpreter())
+	, markdown(*this)
 {
+	// load extra fonts
+	const auto& context = systemFileContext();
+	vera13           = addFont(context.resolve("skins/Vera.ttf.gz"), 13);
+	veraBold13       = addFont(context.resolve("skins/Vera-Bold.ttf.gz"), 13);
+	veraBold16       = addFont(context.resolve("skins/Vera-Bold.ttf.gz"), 16);
+	veraItalic13     = addFont(context.resolve("skins/Vera-Italic.ttf.gz"), 13);
+	veraBoldItalic13 = addFont(context.resolve("skins/Vera-Bold-Italic.ttf.gz"), 13);
+
 	// TODO an alternative could be to create a dedicated event type
 	reactor.getEventDistributor().registerEventListener(EventType::FRAME_DRAWN, *this);
 
@@ -1056,13 +1078,13 @@ void ImGuiLayer::drawConfigureIcons()
 				ImGui::Checkbox("##fade-out", &icon.fade);
 				ImGui::EndDisabled();
 
-				auto image = [&](IconInfo::Icon& icon, const char* id) {
-					if (icon.tex.get()) {
-						ImGui::Image(reinterpret_cast<void*>(icon.tex.get()),
-						             gl::vec2(icon.size));
+				auto image = [&](IconInfo::Icon& ic, const char* id) {
+					if (ic.tex.get()) {
+						ImGui::Image(reinterpret_cast<void*>(ic.tex.get()),
+						             gl::vec2(ic.size));
 						if (ImGui::BeginPopupContextItem(id)) {
 							if (ImGui::MenuItem("Remove image")) {
-								icon.filename.clear();
+								ic.filename.clear();
 								iconInfoDirty = true;
 								ImGui::CloseCurrentPopup();
 							}
@@ -1073,8 +1095,8 @@ void ImGuiLayer::drawConfigureIcons()
 					}
 					if (ImGui::IsItemClicked()) {
 						selectFile("Select image for icon", "PNG (*.png){.png}",
-							[this, &icon](const std::string& filename) {
-								icon.filename = filename;
+							[this, &ic](const std::string& filename) {
+								ic.filename = filename;
 								iconInfoDirty = true;
 							});
 						std::cerr << "clicked\n";
@@ -1165,6 +1187,16 @@ void ImGuiLayer::debuggableMenu(MSXMotherBoard* motherBoard)
 		}
 		ImGui::EndMenu();
 	}
+	ImGui::EndMenu();
+}
+
+void ImGuiLayer::helpMenu()
+{
+	if (!ImGui::BeginMenu("Help")) {
+		return;
+	}
+	ImGui::MenuItem("User manual", nullptr, &showHelpWindow);
+	ImGui::MenuItem("About TODO");
 	ImGui::EndMenu();
 }
 
@@ -1513,6 +1545,56 @@ void ImGuiLayer::bitmapViewer(MSXMotherBoard* motherBoard)
 	ImGui::End();
 }
 
+void ImGuiLayer::drawHelpWindow()
+{
+	if (ImGui::Begin("Help", &showHelpWindow)) {
+
+		static const char* const TEST = R"(
+# User manual
+
+Just an idea: maybe we can translate the user manual from HTML to markdown, and then use this both:
+* To generate the HTML pages from (writing markdown is easier than writing HTML).
+* To display them in the help menu in openMSX itself.
+
+Here's a link to [the openMSX homepage](https://openmsx.org/) (you can click it).
+
+1. *This is italic.*
+1. **This is bold.**
+1. ***This is italic and bold.***
+
+
+# Table
+
+Name &nbsp; &nbsp; &nbsp; &nbsp; | Multiline &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br>header  | [Link&nbsp;](#link1)
+:------|:-------------------|:--
+Value-One | Long <br>explanation <br>with \<br\>\'s|1
+~~Value-Two~~ | __text auto wrapped__\: long explanation here |25 37 43 56 78 90
+**etc** | [~~Some **link**~~](https://github.com/mekhontsev/imgui_md)|3
+
+# List
+
+1. First ordered list item
+2. Another item
+   * Unordered sub-list 1.
+   * Unordered sub-list 2.
+1. Actual numbers don't matter, just that it's a number
+   1. **Ordered** sub-list 1
+   2. **Ordered** sub-list 2
+4. And another item with minuses.
+   - __sub-list with underline__
+   - sub-list with escapes: \[looks like\]\(a link\)
+5. ~~Item with pluses and strikethrough~~.
+   + sub-list 1
+   + sub-list 2
+   + [Just a link](https://github.com/mekhontsev/imgui_md).
+      * Item with [link1](#link1)
+      * Item with bold [**link2**](#link1)
+)";
+		markdown.print(TEST, TEST + strlen(TEST));
+	}
+	ImGui::End();
+}
+
 void ImGuiLayer::paint(OutputSurface& /*surface*/)
 {
 	// Start the Dear ImGui frame
@@ -1567,6 +1649,10 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 				channelSettings(motherBoard, name, &enabled);
 			}
 		}
+
+		if (showHelpWindow) {
+			drawHelpWindow();
+		}
 	}
 
 	if (ImGui::BeginMainMenuBar()) {
@@ -1575,6 +1661,7 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 		saveStateMenu(motherBoard);
 		settingsMenu();
 		debuggableMenu(motherBoard);
+		helpMenu();
 		ImGui::EndMainMenuBar();
 	}
 
@@ -1585,6 +1672,7 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 			saveStateMenu(motherBoard);
 			settingsMenu();
 			debuggableMenu(motherBoard);
+			helpMenu();
 			ImGui::EndMenuBar();
 		}
 
