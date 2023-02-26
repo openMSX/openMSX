@@ -122,7 +122,6 @@ SDLGLVisibleSurface::~SDLGLVisibleSurface()
 
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplSDL2_Shutdown();
-	ImGui::DestroyContext();
 
 	gl::context.reset();
 	SDL_GL_DeleteContext(glContext);

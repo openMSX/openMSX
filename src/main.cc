@@ -107,6 +107,11 @@ static void initializeImGui()
 	ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(FONT_ICON_BUFFER_NAME_IGFD, 15.0f, &icons_config, icons_ranges);
 }
 
+static void cleanupImGui()
+{
+	ImGui::DestroyContext();
+}
+
 static int main(int argc, char **argv)
 {
 #if LOG_TO_FILE
@@ -183,6 +188,7 @@ static int main(int argc, char **argv)
 		exitCode = 1;
 	}
 	// Clean up.
+	cleanupImGui();
 	if (SDL_WasInit(SDL_INIT_EVERYTHING)) {
 		SDL_Quit();
 	}
