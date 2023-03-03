@@ -91,7 +91,7 @@ COMPILE_FLAGS:=-pthread
 # Note: LDFLAGS are passed to the linker itself, LINK_FLAGS are passed to the
 #       compiler in the link phase.
 LDFLAGS:=
-LINK_FLAGS:=-pthread
+LINK_FLAGS:=-pthread -ldl
 # Flags that specify the target platform.
 # These should be inherited by the 3rd party libs Makefile.
 TARGET_FLAGS:=
