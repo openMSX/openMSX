@@ -6,17 +6,17 @@
 
 namespace openmsx {
 
-static constexpr char sign(unsigned char a)
+static constexpr char sign(uint8_t a)
 {
 	return (a & 128) ? '-' : '+';
 }
 
-static constexpr int abs(unsigned char a)
+static constexpr int abs(uint8_t a)
 {
 	return (a & 128) ? (256 - a) : a;
 }
 
-unsigned dasm(const MSXCPUInterface& interface, word pc, std::span<byte, 4> buf,
+unsigned dasm(const MSXCPUInterface& interface, uint16_t pc, std::span<uint8_t, 4> buf,
               std::string& dest, EmuTime::param time)
 {
 	const char* r = nullptr;
@@ -49,25 +49,25 @@ unsigned dasm(const MSXCPUInterface& interface, word pc, std::span<byte, 4> buf,
 	for (int j = 0; s[j]; ++j) {
 		switch (s[j]) {
 		case 'B':
-			buf[i] = interface.peekMem(narrow_cast<word>(pc + i), time);
+			buf[i] = interface.peekMem(narrow_cast<uint16_t>(pc + i), time);
 			strAppend(dest, '#', hex_string<2>(
 				static_cast<uint16_t>(buf[i])));
 			i += 1;
 			break;
 		case 'R':
-			buf[i] = interface.peekMem(narrow_cast<word>(pc + i), time);
+			buf[i] = interface.peekMem(narrow_cast<uint16_t>(pc + i), time);
 			strAppend(dest, '#', hex_string<4>(
 				pc + 2 + static_cast<int8_t>(buf[i])));
 			i += 1;
 			break;
 		case 'W':
-			buf[i + 0] = interface.peekMem(narrow_cast<word>(pc + i + 0), time);
-			buf[i + 1] = interface.peekMem(narrow_cast<word>(pc + i + 1), time);
+			buf[i + 0] = interface.peekMem(narrow_cast<uint16_t>(pc + i + 0), time);
+			buf[i + 1] = interface.peekMem(narrow_cast<uint16_t>(pc + i + 1), time);
 			strAppend(dest, '#', hex_string<4>(buf[i] + buf[i + 1] * 256));
 			i += 2;
 			break;
 		case 'X':
-			buf[i] = interface.peekMem(narrow_cast<word>(pc + i), time);
+			buf[i] = interface.peekMem(narrow_cast<uint16_t>(pc + i), time);
 			strAppend(dest, '(', r, sign(buf[i]), '#',
 			     hex_string<2>(abs(buf[i])), ')');
 			i += 1;
@@ -102,6 +102,17 @@ unsigned dasm(const MSXCPUInterface& interface, word pc, std::span<byte, 4> buf,
 	}
 	dest.resize(19, ' ');
 	return i;
+}
+
+unsigned instructionLength(const MSXCPUInterface& interface, uint16_t pc,
+                           EmuTime::param time)
+{
+	auto op0 = interface.peekMem(pc, time);
+	auto t = instr_len_tab[op0];
+	if (t < 4) return t;
+
+	auto op1 = interface.peekMem(pc + 1, time);
+	return instr_len_tab[64 * t + op1];
 }
 
 } // namespace openmsx

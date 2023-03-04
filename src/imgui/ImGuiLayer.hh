@@ -49,6 +49,7 @@ private:
 	void setDefaultIcons();
 	void loadIcons();
 	void debuggableMenu(MSXMotherBoard* motherBoard);
+	void disassembly(MSXMotherBoard* motherBoard);
 	void renderBitmap(std::span<const uint8_t> vram, std::span<const uint32_t, 16> palette16,
 	                  int mode, int lines, int page, uint32_t* output);
 	void bitmapViewer(MSXMotherBoard* motherBoard);
@@ -124,6 +125,8 @@ private:
 	int iconsNumEnabled = 0;
 	bool iconInfoDirty = false;
 	bool showConfigureIcons = false;
+
+	bool showDisassembly = false;
 
 	bool showBitmapViewer = false;
 	int bitmapManual = 0; // 0 -> use VDP settings, 1 -> use manual settings

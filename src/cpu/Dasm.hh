@@ -2,7 +2,7 @@
 #define DASM_HH
 
 #include "EmuTime.hh"
-#include "openmsx.hh"
+#include <cstdint>
 #include <span>
 #include <string>
 
@@ -19,8 +19,11 @@ class MSXCPUInterface;
   * @param time TODO
   * @return Length of the disassembled opcode in bytes
   */
-unsigned dasm(const MSXCPUInterface& interface, word pc, std::span<byte, 4> buf,
+unsigned dasm(const MSXCPUInterface& interface, uint16_t pc, std::span<uint8_t, 4> buf,
               std::string& dest, EmuTime::param time);
+
+unsigned instructionLength(const MSXCPUInterface& interface, uint16_t pc,
+                           EmuTime::param time);
 
 } // namespace openmsx
 

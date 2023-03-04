@@ -3,6 +3,8 @@
 #include "CartridgeSlotManager.hh"
 #include "CassettePlayerCLI.hh"
 #include "Connector.hh"
+#include "CPURegs.hh"
+#include "Dasm.hh"
 #include "Debugger.hh"
 #include "DiskImageCLI.hh"
 #include "Display.hh"
@@ -19,6 +21,7 @@
 #include "Mixer.hh"
 #include "MSXMixer.hh"
 #include "MSXMotherBoard.hh"
+#include "MSXCPU.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXRomCLI.hh"
 #include "Pluggable.hh"
@@ -1167,7 +1170,7 @@ void ImGuiLayer::debuggableMenu(MSXMotherBoard* motherBoard)
 	}
 	assert(motherBoard);
 
-	ImGui::MenuItem("disassembly TODO");
+	ImGui::MenuItem("disassembly", nullptr, &showDisassembly);
 	ImGui::MenuItem("CPU registers TODO");
 	ImGui::MenuItem("stack TODO");
 	ImGui::MenuItem("memory TODO");
@@ -1188,6 +1191,83 @@ void ImGuiLayer::debuggableMenu(MSXMotherBoard* motherBoard)
 		ImGui::EndMenu();
 	}
 	ImGui::EndMenu();
+}
+
+void ImGuiLayer::disassembly(MSXMotherBoard* motherBoard)
+{
+	if (!motherBoard) return;
+	if (!ImGui::Begin("Disassembly", &showDisassembly)) {
+		ImGui::End();
+		return;
+	}
+	auto& cpuRegs = motherBoard->getCPU().getRegisters();
+	auto pc = cpuRegs.getPC();
+
+	// TODO can this be optimized/avoided?
+	std::vector<uint16_t> startAddresses;
+	auto time = motherBoard->getCurrentTime();
+	auto& cpuInterface = motherBoard->getCPUInterface();
+	unsigned startAddr = 0;
+	while (startAddr < 0x10000) {
+		auto addr = narrow<uint16_t>(startAddr);
+		startAddresses.push_back(addr);
+		startAddr += instructionLength(cpuInterface, addr, time);
+	}
+
+	int flags = ImGuiTableFlags_RowBg |
+	            ImGuiTableFlags_BordersV |
+	            ImGuiTableFlags_BordersOuterV |
+	            ImGuiTableFlags_Resizable |
+	            ImGuiTableFlags_ScrollX;
+	if (ImGui::BeginTable("table", 5, flags)) {
+		ImGui::TableSetupColumn("bp", ImGuiTableColumnFlags_WidthFixed);
+		ImGui::TableSetupColumn("label");
+		ImGui::TableSetupColumn("address");
+		ImGui::TableSetupColumn("opcode");
+		ImGui::TableSetupColumn("mnemonic", ImGuiTableColumnFlags_WidthStretch);
+
+		std::string mnemonic;
+		std::string opcodesStr;
+		std::array<uint8_t, 4> opcodes;
+		ImGuiListClipper clipper;
+		clipper.Begin(0x10000);
+		while (clipper.Step()) {
+			auto it = ranges::lower_bound(startAddresses, clipper.DisplayStart);
+			for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++) {
+				ImGui::TableNextRow();
+				if (it == startAddresses.end()) continue;
+				auto addr = *it++;
+
+				ImGui::TableSetColumnIndex(0); // bp
+				if (addr == pc) {
+					ImGui::Selectable("##row", true,
+					                  ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap);
+				}
+
+				mnemonic.clear();
+				auto len = dasm(cpuInterface, addr, opcodes, mnemonic, time);
+				assert(len >= 1);
+
+				ImGui::TableSetColumnIndex(2); // addr
+				auto addrStr = tmpStrCat(hex_string<4>(addr));
+				ImGui::TextUnformatted(addrStr.c_str());
+
+				ImGui::TableSetColumnIndex(3); // opcode
+				opcodesStr.clear();
+				for (auto i : xrange(len)) {
+					strAppend(opcodesStr, hex_string<2>(opcodes[i]), ' ');
+				}
+				ImGui::TextUnformatted(opcodesStr.data(), opcodesStr.data() + 3 * len - 1);
+
+				ImGui::TableSetColumnIndex(4); // mnemonic
+				ImGui::TextUnformatted(mnemonic.c_str());
+			}
+		}
+
+		ImGui::EndTable();
+	}
+
+	ImGui::End();
 }
 
 void ImGuiLayer::helpMenu()
@@ -1627,6 +1707,9 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 	if (motherBoard) {
 		if (showReverseBar) {
 			drawReverseBar(motherBoard);
+		}
+		if (showDisassembly) {
+			disassembly(motherBoard);
 		}
 		// Show the enabled 'debuggables'
 		auto& debugger = motherBoard->getDebugger();
