@@ -350,6 +350,10 @@ void Display::repaintImpl()
 	prevTimeStamp = now;
 	frameDurationSum += duration - frameDurations.removeBack();
 	frameDurations.addFront(duration);
+
+	// TODO maybe revisit this later (and/or simplify other calls to repaintDelayed())
+	// This ensures a minimum framerate for ImGui
+	repaintDelayed(100 * 1000); // 10fps
 }
 
 void Display::repaintImpl(OutputSurface& surface)
