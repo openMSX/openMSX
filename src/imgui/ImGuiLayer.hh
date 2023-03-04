@@ -127,6 +127,7 @@ private:
 	bool showConfigureIcons = false;
 
 	bool showDisassembly = false;
+	bool syncDisassemblyWithPC = false;
 
 	bool showBitmapViewer = false;
 	int bitmapManual = 0; // 0 -> use VDP settings, 1 -> use manual settings

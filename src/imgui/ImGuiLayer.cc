@@ -208,7 +208,9 @@ ImGuiLayer::ImGuiLayer(Reactor& reactor_)
 	veraBoldItalic13 = addFont(context.resolve("skins/Vera-Bold-Italic.ttf.gz"), 13);
 
 	// TODO an alternative could be to create a dedicated event type
-	reactor.getEventDistributor().registerEventListener(EventType::FRAME_DRAWN, *this);
+	auto& eventDistributor = reactor.getEventDistributor();
+	eventDistributor.registerEventListener(EventType::FRAME_DRAWN, *this);
+	eventDistributor.registerEventListener(EventType::BREAK, *this);
 
 	// TODO read from some config file
 	setDefaultIcons();
@@ -216,7 +218,9 @@ ImGuiLayer::ImGuiLayer(Reactor& reactor_)
 
 ImGuiLayer::~ImGuiLayer()
 {
-	reactor.getEventDistributor().unregisterEventListener(EventType::FRAME_DRAWN, *this);
+	auto& eventDistributor = reactor.getEventDistributor();
+	eventDistributor.unregisterEventListener(EventType::BREAK, *this);
+	eventDistributor.unregisterEventListener(EventType::FRAME_DRAWN, *this);
 }
 
 void ImGuiLayer::setDefaultIcons()
@@ -255,13 +259,19 @@ void ImGuiLayer::executeDelayed(TclObject command)
 int ImGuiLayer::signalEvent(const Event& event)
 {
 	(void)event; // avoid warning for non-assert compiles
-	assert(getType(event) == EventType::FRAME_DRAWN);
-
-	for (auto& cmd : commandQueue) {
-		execute(cmd);
+	switch (getType(event)) {
+	case EventType::FRAME_DRAWN:
+		for (auto& cmd : commandQueue) {
+			execute(cmd);
+		}
+		commandQueue.clear();
+		break;
+	case EventType::BREAK:
+		syncDisassemblyWithPC = true;
+		break;
+	default:
+		UNREACHABLE;
 	}
-	commandQueue.clear();
-
 	return 0;
 }
 
@@ -1102,7 +1112,6 @@ void ImGuiLayer::drawConfigureIcons()
 								ic.filename = filename;
 								iconInfoDirty = true;
 							});
-						std::cerr << "clicked\n";
 					}
 				};
 
@@ -1196,10 +1205,12 @@ void ImGuiLayer::debuggableMenu(MSXMotherBoard* motherBoard)
 void ImGuiLayer::disassembly(MSXMotherBoard* motherBoard)
 {
 	if (!motherBoard) return;
+
 	if (!ImGui::Begin("Disassembly", &showDisassembly)) {
 		ImGui::End();
 		return;
 	}
+
 	auto& cpuRegs = motherBoard->getCPU().getRegisters();
 	auto pc = cpuRegs.getPC();
 
@@ -1229,17 +1240,17 @@ void ImGuiLayer::disassembly(MSXMotherBoard* motherBoard)
 		std::string mnemonic;
 		std::string opcodesStr;
 		std::array<uint8_t, 4> opcodes;
-		ImGuiListClipper clipper;
+		ImGuiListClipper clipper; // only draw the actually visible rows
 		clipper.Begin(0x10000);
 		while (clipper.Step()) {
 			auto it = ranges::lower_bound(startAddresses, clipper.DisplayStart);
-			for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++) {
+			for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; ++row) {
 				ImGui::TableNextRow();
 				if (it == startAddresses.end()) continue;
 				auto addr = *it++;
 
 				ImGui::TableSetColumnIndex(0); // bp
-				if (addr == pc) {
+				if (!syncDisassemblyWithPC && (addr == pc)) {
 					ImGui::Selectable("##row", true,
 					                  ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap);
 				}
@@ -1263,7 +1274,19 @@ void ImGuiLayer::disassembly(MSXMotherBoard* motherBoard)
 				ImGui::TextUnformatted(mnemonic.c_str());
 			}
 		}
+		if (syncDisassemblyWithPC) {
+			syncDisassemblyWithPC = false; // only once
 
+			auto itemHeight = ImGui::GetTextLineHeightWithSpacing();
+			auto winHeight = ImGui::GetWindowHeight();
+			auto lines = size_t(winHeight / itemHeight); // approx
+
+			auto n = std::distance(startAddresses.begin(), ranges::lower_bound(startAddresses, pc));
+			auto n2 = std::max(size_t(0), n - lines / 4);
+			auto topAddr = startAddresses[n2];
+
+			ImGui::SetScrollY(topAddr * itemHeight);
+		}
 		ImGui::EndTable();
 	}
 
