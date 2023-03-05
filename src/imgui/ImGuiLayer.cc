@@ -1172,6 +1172,7 @@ void ImGuiLayer::debuggableMenu(MSXMotherBoard* motherBoard)
 
 	ImGui::MenuItem("disassembly", nullptr, &showDisassembly);
 	ImGui::MenuItem("CPU registers", nullptr, &showRegisters);
+	ImGui::MenuItem("CPU flags", nullptr, &showFlags);
 	ImGui::MenuItem("stack TODO");
 	ImGui::MenuItem("memory TODO");
 	ImGui::Separator();
@@ -1362,6 +1363,73 @@ void ImGuiLayer::registers(MSXMotherBoard& motherBoard)
 		}
 	}
 	simpleToolTip("double-click to toggle");
+
+	ImGui::End();
+}
+
+void ImGuiLayer::flags(MSXMotherBoard& motherBoard)
+{
+	if (!ImGui::Begin("CPU registers", &showRegisters)) {
+		ImGui::End();
+		return;
+	}
+
+	auto sizeH1 = ImGui::CalcTextSize("NC");
+	auto sizeH2 = ImGui::CalcTextSize("X:0");
+	auto sizeV = ImGui::CalcTextSize("C 0 (NC)");
+
+	auto& regs = motherBoard.getCPU().getRegisters();
+	auto f = regs.getF();
+
+	auto draw = [&](const char* name, uint8_t bit, const char* val0 = nullptr, const char* val1 = nullptr) {
+		std::string s;
+		ImVec2 sz;
+		if (flagsLayout == 0) {
+			// horizontal
+			if (val0) {
+				s = (f & bit) ? val1 : val0;
+				sz = sizeH1;
+			} else {
+				s = strCat(name, ':', (f & bit) ? '1' : '0');
+				sz = sizeH2;
+			}
+		} else {
+			// vertical
+			s = strCat(name, ' ', (f & bit) ? '1' : '0');
+			if (val0) {
+				strAppend(s, " (", (f & bit) ? val1 : val0, ')');
+			}
+			sz = sizeV;
+		}
+		if (ImGui::Selectable(s.c_str(), false, ImGuiSelectableFlags_AllowDoubleClick, sz)) {
+			if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+				regs.setF(f ^ bit);
+			}
+		}
+		simpleToolTip("double-click to toggle");
+		if (flagsLayout == 0) {
+			// horizontal
+			ImGui::SameLine(0.0f, sizeH1.x);
+		}
+	};
+
+	draw("S", 0x80, " P", " M");
+	draw("Z", 0x40, "NZ", " Z");
+	if (showUndocumentedFlags) draw("Y", 0x20);
+	draw("H", 0x10);
+	if (showUndocumentedFlags) draw("X", 0x08);
+	draw("P", 0x04, "PO", "PE");
+	draw("N", 0x02);
+	draw("C", 0x01, "NC", " C");
+
+	if (ImGui::BeginPopupContextWindow()) {
+		ImGui::TextUnformatted("Layout");
+		ImGui::RadioButton("horizontal", &flagsLayout, 0);
+		ImGui::RadioButton("vertical", &flagsLayout, 1);
+		ImGui::Separator();
+		ImGui::Checkbox("show undocumented", &showUndocumentedFlags);
+		ImGui::EndPopup();
+	}
 
 	ImGui::End();
 }
@@ -1809,6 +1877,9 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 		}
 		if (showRegisters) {
 			registers(*motherBoard);
+		}
+		if (showFlags) {
+			flags(*motherBoard);
 		}
 		// Show the enabled 'debuggables'
 		auto& debugger = motherBoard->getDebugger();

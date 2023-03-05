@@ -51,6 +51,7 @@ private:
 	void debuggableMenu(MSXMotherBoard* motherBoard);
 	void disassembly(MSXMotherBoard& motherBoard);
 	void registers(MSXMotherBoard& motherBoard);
+	void flags(MSXMotherBoard& motherBoard);
 	void renderBitmap(std::span<const uint8_t> vram, std::span<const uint32_t, 16> palette16,
 	                  int mode, int lines, int page, uint32_t* output);
 	void bitmapViewer(MSXMotherBoard& motherBoard);
@@ -131,6 +132,9 @@ private:
 	bool syncDisassemblyWithPC = false;
 
 	bool showRegisters = false;
+	bool showFlags = false;
+	bool showUndocumentedFlags = false;
+	int flagsLayout = 1; // 0=horizontal 1=vertical
 
 	bool showBitmapViewer = false;
 	int bitmapManual = 0; // 0 -> use VDP settings, 1 -> use manual settings
