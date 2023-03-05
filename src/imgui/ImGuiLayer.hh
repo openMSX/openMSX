@@ -41,18 +41,19 @@ private:
 	void connectorsMenu(MSXMotherBoard* motherBoard);
 	void saveStateMenu(MSXMotherBoard* motherBoard);
 	void settingsMenu();
-	void soundChipSettings(MSXMotherBoard* motherBoard);
-	void channelSettings(MSXMotherBoard* motherBoard, const std::string& name, bool* enabled);
-	void drawReverseBar(MSXMotherBoard* motherBoard);
+	void soundChipSettings(MSXMotherBoard& motherBoard);
+	void channelSettings(MSXMotherBoard& motherBoard, const std::string& name, bool* enabled);
+	void drawReverseBar(MSXMotherBoard& motherBoard);
 	void drawIcons();
 	void drawConfigureIcons();
 	void setDefaultIcons();
 	void loadIcons();
 	void debuggableMenu(MSXMotherBoard* motherBoard);
-	void disassembly(MSXMotherBoard* motherBoard);
+	void disassembly(MSXMotherBoard& motherBoard);
+	void registers(MSXMotherBoard& motherBoard);
 	void renderBitmap(std::span<const uint8_t> vram, std::span<const uint32_t, 16> palette16,
 	                  int mode, int lines, int page, uint32_t* output);
-	void bitmapViewer(MSXMotherBoard* motherBoard);
+	void bitmapViewer(MSXMotherBoard& motherBoard);
 	void helpMenu();
 	void drawHelpWindow();
 
@@ -128,6 +129,8 @@ private:
 
 	bool showDisassembly = false;
 	bool syncDisassemblyWithPC = false;
+
+	bool showRegisters = false;
 
 	bool showBitmapViewer = false;
 	int bitmapManual = 0; // 0 -> use VDP settings, 1 -> use manual settings

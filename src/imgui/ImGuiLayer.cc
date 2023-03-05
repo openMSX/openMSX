@@ -616,7 +616,7 @@ static bool anySpecialChannelSettings(const MSXMixer::SoundDeviceInfo& info)
 	return false;
 }
 
-void ImGuiLayer::soundChipSettings(MSXMotherBoard* motherBoard)
+void ImGuiLayer::soundChipSettings(MSXMotherBoard& motherBoard)
 {
 	auto restoreDefaultPopup = [](const char* label, Setting& setting) {
 		if (ImGui::BeginPopupContextItem()) {
@@ -629,12 +629,8 @@ void ImGuiLayer::soundChipSettings(MSXMotherBoard* motherBoard)
 	};
 
 	ImGui::Begin("Sound chip settings", &showSoundChipSettings);
-	if (!motherBoard) {
-		ImGui::End();
-		return;
-	}
 
-	auto& msxMixer = motherBoard->getMSXMixer();
+	auto& msxMixer = motherBoard.getMSXMixer();
 	auto& infos = msxMixer.getDeviceInfos(); // TODO sort on name
 	if (ImGui::BeginTable("table", narrow<int>(infos.size()), ImGuiTableFlags_ScrollX)) {
 		for (auto& info : infos) {
@@ -686,10 +682,9 @@ void ImGuiLayer::soundChipSettings(MSXMotherBoard* motherBoard)
 	ImGui::End();
 }
 
-void ImGuiLayer::channelSettings(MSXMotherBoard* motherBoard, const std::string& name, bool* enabled)
+void ImGuiLayer::channelSettings(MSXMotherBoard& motherBoard, const std::string& name, bool* enabled)
 {
-	if (!motherBoard) return;
-	auto& msxMixer = motherBoard->getMSXMixer();
+	auto& msxMixer = motherBoard.getMSXMixer();
 	auto* info = msxMixer.findDeviceInfo(name);
 	if (!info) return;
 
@@ -740,7 +735,7 @@ static std::string formatTime(double time)
 	return result;
 }
 
-void ImGuiLayer::drawReverseBar(MSXMotherBoard* motherBoard)
+void ImGuiLayer::drawReverseBar(MSXMotherBoard& motherBoard)
 {
 	const auto& style = ImGui::GetStyle();
 	auto textHeight = ImGui::GetTextLineHeight();
@@ -759,12 +754,8 @@ void ImGuiLayer::drawReverseBar(MSXMotherBoard* motherBoard)
 	                               ImGuiWindowFlags_NoBackground
 	                             : 0;
 	ImGui::Begin("Reverse bar", &showReverseBar, flags);
-	if (!motherBoard) {
-		ImGui::End();
-		return;
-	}
 
-	auto& reverseManager = motherBoard->getReverseManager();
+	auto& reverseManager = motherBoard.getReverseManager();
 	if (reverseManager.isCollecting()) {
 		auto b = reverseManager.getBegin();
 		auto e = reverseManager.getEnd();
@@ -1180,7 +1171,7 @@ void ImGuiLayer::debuggableMenu(MSXMotherBoard* motherBoard)
 	assert(motherBoard);
 
 	ImGui::MenuItem("disassembly", nullptr, &showDisassembly);
-	ImGui::MenuItem("CPU registers TODO");
+	ImGui::MenuItem("CPU registers", nullptr, &showRegisters);
 	ImGui::MenuItem("stack TODO");
 	ImGui::MenuItem("memory TODO");
 	ImGui::Separator();
@@ -1202,22 +1193,20 @@ void ImGuiLayer::debuggableMenu(MSXMotherBoard* motherBoard)
 	ImGui::EndMenu();
 }
 
-void ImGuiLayer::disassembly(MSXMotherBoard* motherBoard)
+void ImGuiLayer::disassembly(MSXMotherBoard& motherBoard)
 {
-	if (!motherBoard) return;
-
 	if (!ImGui::Begin("Disassembly", &showDisassembly)) {
 		ImGui::End();
 		return;
 	}
 
-	auto& cpuRegs = motherBoard->getCPU().getRegisters();
+	auto& cpuRegs = motherBoard.getCPU().getRegisters();
 	auto pc = cpuRegs.getPC();
 
 	// TODO can this be optimized/avoided?
 	std::vector<uint16_t> startAddresses;
-	auto time = motherBoard->getCurrentTime();
-	auto& cpuInterface = motherBoard->getCPUInterface();
+	auto time = motherBoard.getCurrentTime();
+	auto& cpuInterface = motherBoard.getCPUInterface();
 	unsigned startAddr = 0;
 	while (startAddr < 0x10000) {
 		auto addr = narrow<uint16_t>(startAddr);
@@ -1289,6 +1278,90 @@ void ImGuiLayer::disassembly(MSXMotherBoard* motherBoard)
 		}
 		ImGui::EndTable();
 	}
+
+	ImGui::End();
+}
+
+void ImGuiLayer::registers(MSXMotherBoard& motherBoard)
+{
+	if (!ImGui::Begin("CPU registers", &showRegisters)) {
+		ImGui::End();
+		return;
+	}
+
+	auto& regs = motherBoard.getCPU().getRegisters();
+
+	const auto& style = ImGui::GetStyle();
+	auto padding = 2 * style.FramePadding.x;
+	auto width16 = ImGui::CalcTextSize("FFFF").x + padding;
+	auto edit16 = [&](const char* label, auto getter, auto setter) {
+		ImGui::AlignTextToFramePadding();
+		ImGui::TextUnformatted(label);
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(width16);
+		uint16_t value = getter();
+		if (ImGui::InputScalar(tmpStrCat("##", label).c_str(), ImGuiDataType_U16, &value, nullptr, nullptr, "%04X")) {
+			setter(value);
+		}
+	};
+	auto edit8 = [&](const char* label, auto getter, auto setter) {
+		ImGui::AlignTextToFramePadding();
+		ImGui::TextUnformatted(label);
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(width16);
+		uint8_t value = getter();
+		if (ImGui::InputScalar(tmpStrCat("##", label).c_str(), ImGuiDataType_U8, &value, nullptr, nullptr, "%02X")) {
+			setter(value);
+		}
+	};
+
+	edit16("AF", [&]{ return regs.getAF(); }, [&](uint16_t value) { regs.setAF(value); });
+	ImGui::SameLine(0.0f, 20.0f);
+	edit16("AF'", [&]{ return regs.getAF2(); }, [&](uint16_t value) { regs.setAF2(value); });
+
+	edit16("BC", [&]{ return regs.getBC(); }, [&](uint16_t value) { regs.setBC(value); });
+	ImGui::SameLine(0.0f, 20.0f);
+	edit16("BC'", [&]{ return regs.getBC2(); }, [&](uint16_t value) { regs.setBC2(value); });
+
+	edit16("DE", [&]{ return regs.getDE(); }, [&](uint16_t value) { regs.setDE(value); });
+	ImGui::SameLine(0.0f, 20.0f);
+	edit16("DE'", [&]{ return regs.getDE2(); }, [&](uint16_t value) { regs.setDE2(value); });
+
+	edit16("HL", [&]{ return regs.getHL(); }, [&](uint16_t value) { regs.setHL(value); });
+	ImGui::SameLine(0.0f, 20.0f);
+	edit16("HL'", [&]{ return regs.getHL2(); }, [&](uint16_t value) { regs.setHL2(value); });
+
+	edit16("IX", [&]{ return regs.getIX(); }, [&](uint16_t value) { regs.setIX(value); });
+	ImGui::SameLine(0.0f, 20.0f);
+	edit16("IY ", [&]{ return regs.getIY(); }, [&](uint16_t value) { regs.setIY(value); });
+
+	edit16("PC", [&]{ return regs.getPC(); }, [&](uint16_t value) { regs.setPC(value); });
+	ImGui::SameLine(0.0f, 20.0f);
+	edit16("SP ", [&]{ return regs.getSP(); }, [&](uint16_t value) { regs.setSP(value); });
+
+	edit8("I ", [&]{ return regs.getI(); }, [&](uint8_t value) { regs.setI(value); });
+	ImGui::SameLine(0.0f, 20.0f);
+	edit8("R  ", [&]{ return regs.getR(); }, [&](uint8_t value) { regs.setR(value); });
+
+	ImGui::AlignTextToFramePadding();
+	ImGui::TextUnformatted("IM");
+	ImGui::SameLine();
+	ImGui::SetNextItemWidth(width16);
+	uint8_t im = regs.getIM();
+	if (ImGui::InputScalar("##IM", ImGuiDataType_U8, &im, nullptr, nullptr, "%d")) {
+		if (im <= 2) regs.setIM(im);
+	}
+
+	ImGui::SameLine(0.0f, 20.0f);
+	ImGui::AlignTextToFramePadding();
+	bool ei = regs.getIFF1();
+	if (ImGui::Selectable(ei ? "EI" : "DI", false, ImGuiSelectableFlags_AllowDoubleClick)) {
+		if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+			regs.setIFF1(!ei);
+			regs.setIFF2(!ei);
+		}
+	}
+	simpleToolTip("double-click to toggle");
 
 	ImGui::End();
 }
@@ -1466,7 +1539,7 @@ void ImGuiLayer::renderBitmap(std::span<const uint8_t> vram, std::span<const uin
 	}
 }
 
-void ImGuiLayer::bitmapViewer(MSXMotherBoard* motherBoard)
+void ImGuiLayer::bitmapViewer(MSXMotherBoard& motherBoard)
 {
 	auto parseMode = [](DisplayMode mode) {
 		auto base = mode.getBase();
@@ -1495,7 +1568,7 @@ void ImGuiLayer::bitmapViewer(MSXMotherBoard* motherBoard)
 		assert(false); return "ERROR";
 	};
 
-	VDP* vdp = dynamic_cast<VDP*>(motherBoard->findDevice("VDP")); // TODO name based OK?
+	VDP* vdp = dynamic_cast<VDP*>(motherBoard.findDevice("VDP")); // TODO name based OK?
 	if (ImGui::Begin("Bitmap viewer", &showBitmapViewer) && vdp) {
 		int vdpMode = parseMode(vdp->getDisplayMode());
 
@@ -1729,10 +1802,13 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 
 	if (motherBoard) {
 		if (showReverseBar) {
-			drawReverseBar(motherBoard);
+			drawReverseBar(*motherBoard);
 		}
 		if (showDisassembly) {
-			disassembly(motherBoard);
+			disassembly(*motherBoard);
+		}
+		if (showRegisters) {
+			registers(*motherBoard);
 		}
 		// Show the enabled 'debuggables'
 		auto& debugger = motherBoard->getDebugger();
@@ -1744,18 +1820,18 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 			}
 		}
 		if (showBitmapViewer) {
-			bitmapViewer(motherBoard);
+			bitmapViewer(*motherBoard);
 		}
 
 		// Show sound chip settings
 		if (showSoundChipSettings) {
-			soundChipSettings(motherBoard);
+			soundChipSettings(*motherBoard);
 		}
 
 		// Show sound chip channel settings
 		for (auto& [name, enabled] : channels) {
 			if (enabled) {
-				channelSettings(motherBoard, name, &enabled);
+				channelSettings(*motherBoard, name, &enabled);
 			}
 		}
 
