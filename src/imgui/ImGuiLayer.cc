@@ -1173,7 +1173,7 @@ void ImGuiLayer::debuggableMenu(MSXMotherBoard* motherBoard)
 	ImGui::MenuItem("disassembly", nullptr, &showDisassembly);
 	ImGui::MenuItem("CPU registers", nullptr, &showRegisters);
 	ImGui::MenuItem("CPU flags", nullptr, &showFlags);
-	ImGui::MenuItem("stack TODO");
+	ImGui::MenuItem("stack", nullptr, &showStack);
 	ImGui::MenuItem("memory TODO");
 	ImGui::Separator();
 	ImGui::MenuItem("VDP bitmap viewer", nullptr, &showBitmapViewer);
@@ -1283,7 +1283,7 @@ void ImGuiLayer::disassembly(MSXMotherBoard& motherBoard)
 	ImGui::End();
 }
 
-void ImGuiLayer::registers(MSXMotherBoard& motherBoard)
+void ImGuiLayer::drawRegisters(MSXMotherBoard& motherBoard)
 {
 	if (!ImGui::Begin("CPU registers", &showRegisters)) {
 		ImGui::End();
@@ -1367,9 +1367,9 @@ void ImGuiLayer::registers(MSXMotherBoard& motherBoard)
 	ImGui::End();
 }
 
-void ImGuiLayer::flags(MSXMotherBoard& motherBoard)
+void ImGuiLayer::drawFlags(MSXMotherBoard& motherBoard)
 {
-	if (!ImGui::Begin("CPU registers", &showRegisters)) {
+	if (!ImGui::Begin("CPU flags", &showFlags)) {
 		ImGui::End();
 		return;
 	}
@@ -1429,6 +1429,60 @@ void ImGuiLayer::flags(MSXMotherBoard& motherBoard)
 		ImGui::Separator();
 		ImGui::Checkbox("show undocumented", &showUndocumentedFlags);
 		ImGui::EndPopup();
+	}
+
+	ImGui::End();
+}
+
+void ImGuiLayer::drawStack(MSXMotherBoard& motherBoard)
+{
+	auto line = ImGui::GetTextLineHeightWithSpacing();
+	ImGui::SetNextWindowSize(ImVec2(0.0f, 12 * line), ImGuiCond_FirstUseEver);
+
+	if (!ImGui::Begin("stack", &showStack)) {
+		ImGui::End();
+		return;
+	}
+
+	auto time = motherBoard.getCurrentTime();
+	auto& cpuInterface = motherBoard.getCPUInterface();
+	auto& regs = motherBoard.getCPU().getRegisters();
+	auto sp = regs.getSP();
+
+	int flags = ImGuiTableFlags_ScrollY |
+	            ImGuiTableFlags_BordersInnerV |
+	            ImGuiTableFlags_Resizable |
+	            ImGuiTableFlags_Reorderable |
+	            ImGuiTableFlags_Hideable |
+	            ImGuiTableFlags_ContextMenuInBody;
+	if (ImGui::BeginTable("table", 3, flags)) {
+		ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
+		ImGui::TableSetupColumn("Address");
+		ImGui::TableSetupColumn("Offset", ImGuiTableColumnFlags_DefaultHide);
+		ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_NoHide);
+		ImGui::TableHeadersRow();
+
+		ImGuiListClipper clipper; // only draw the actually visible rows
+		clipper.Begin(std::min(128, (0x10000 - sp) / 2));
+		while (clipper.Step()) {
+			for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; ++row) {
+				auto offset = 2 * row;
+				auto addr = sp + offset;
+				if (ImGui::TableNextColumn()) { // address
+					ImGui::Text("%04X", addr);
+				}
+				if (ImGui::TableNextColumn()) { // offset
+					ImGui::Text("SP+%X", offset);
+				}
+				if (ImGui::TableNextColumn()) { // value
+					auto l = cpuInterface.peekMem(narrow_cast<uint16_t>(addr + 0), time);
+					auto h = cpuInterface.peekMem(narrow_cast<uint16_t>(addr + 1), time);
+					uint16_t value = 256 * h + l;
+					ImGui::Text("%04X", value);
+				}
+			}
+		}
+		ImGui::EndTable();
 	}
 
 	ImGui::End();
@@ -1876,10 +1930,13 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 			disassembly(*motherBoard);
 		}
 		if (showRegisters) {
-			registers(*motherBoard);
+			drawRegisters(*motherBoard);
 		}
 		if (showFlags) {
-			flags(*motherBoard);
+			drawFlags(*motherBoard);
+		}
+		if (showStack) {
+			drawStack(*motherBoard);
 		}
 		// Show the enabled 'debuggables'
 		auto& debugger = motherBoard->getDebugger();
