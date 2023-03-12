@@ -1,0 +1,166 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <info>
+    <manufacturer>Victor</manufacturer>
+    <code>HC-90A</code>
+    <release_year>1988</release_year>
+    <description>A top notch MSX2, but note: superimpose and turbo mode are not yet implemented! With 1 disk drive, RS-232C interface, kanji ROM and system control software built in.</description>
+    <type>MSX2</type>
+    <region>jp</region>
+  </info>
+
+  <!-- based on machine with serial 10210636, thanks to Daniel Padilla who
+       dumped ROMs directly and made photos available on
+       https://drive.google.com/drive/folders/1U1Vc9ex6tGCqYNN6n_N25PAOjjCvtxMx 
+       CPU: NEC D780C-1 (IC018)
+       CPU2: HD64B180ROP
+       serial 1: NEC D8251AFC (IC019)
+       serial 2: NEC D8253C-5 (IC027)
+       PPI: NEC D8255AC-5 (IC038)
+       PSG: Yamaha YM2149F (IC051)
+
+       (Kanji?) ROM: Toshiba TC531000AP (IC056?)
+       Turbo mode ROM: NEC D27C256AD-12 labeled JVC 019 E (IC040)
+       RS-232C/System ROM: NEC D27C256AD-12 labeled JVC 024 C (IC052)
+       Sub ROM: Toshiba TMM23128P (IC034)
+       MSX2BASIC ROM: Toshiba TMM23256P (IC023)
+       Clock chip: RICOH (IC081)
+       -->
+
+  <MapperReadBackBits>largest</MapperReadBackBits>
+
+  <CassettePort/>
+
+  <devices>
+
+    <Kanji id="Kanji ROM">
+      <rom>
+        <filename>hc90a_kanjifont.rom</filename>
+        <sha1>db03211b7db46899df41db2b1dfbec972109a967</sha1> <!-- not sure, taken from HC-95(A) config -->
+      </rom>
+      <io base="0xD8" num="2" type="O"/>
+      <io base="0xD9" num="1" type="I"/>
+    </Kanji>
+
+    <PPI id="ppi">
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <io base="0xA8" num="4"/>
+      <keyboard_type>jp_ansi</keyboard_type>
+      <has_keypad>true</has_keypad>
+      <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>
+      <code_kana_locks>true</code_kana_locks>
+      <graph_locks>false</graph_locks>
+    </PPI>
+
+    <VDP id="VDP">
+      <version>V9938</version>
+      <vram>128</vram>
+      <io base="0x98" num="4" type="O"/>
+      <io base="0x98" num="2" type="I"/>
+    </VDP>
+
+    <PSG id="PSG">
+      <keyboardlayout>50on</keyboardlayout>
+      <type>YM2149</type> <!-- YM2149F chip on mobo -->
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <io base="0xA0" num="2" type="O"/>
+      <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>false</ignorePortDirections> <!-- not sure, but guess based on discrete PSG chip -->
+    </PSG>
+
+    <RTC id="Real time clock">
+      <sramname>hc90a.cmos</sramname>
+      <io base="0xB4" num="2" type="O"/>
+      <io base="0xB5" num="1" type="I"/>
+    </RTC>
+
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
+
+    <primary slot="0">
+
+      <secondary slot="0">
+        <ROM id="MSX BIOS with BASIC ROM">
+          <rom>
+            <filename>C023 MSX2BASIC TMM23256.BIN</filename>
+            <sha1>0081ea0d25bc5cd8d70b60ad8cfdc7307812c0fd</sha1> <!-- direct EPROM dump by Daniel Padilla -->
+          </rom>
+          <mem base="0x0000" size="0x8000"/>
+        </ROM>
+      </secondary>
+
+      <secondary slot="1">
+        <ROM id="MSX Sub ROM">
+          <rom>
+            <filename>MSX2BASICEXT TMM23128P.BIN</filename>
+            <sha1>b8e30d604d319d511cbfbc61e5d8c38fbb9c5a33</sha1> <!-- direct ROM dump by Daniel Padilla -->
+          </rom>
+          <mem base="0x0000" size="0x4000"/>
+        </ROM>
+        <MSX-RS232 id="MSX RS-232">
+          <rom> <!-- both RS-232C and system control ROM (trigger menu with ESC while booting), first half of IC052 JVC 024 C 27C256 -->
+            <sha1>c991440778d5dc9ba54cc0e0f8e032d2f451366f</sha1> <!-- direct ROM dump by Daniel Padilla -->
+            <filename>IC052 RS232C FDD JVC024C 27C256.BIN</filename>
+            <window base="0x0000" size="0x4000"/>
+          </rom>
+          <io base="0x80" num="8"/>
+          <mem base="0x4000" size="0x3FF8"/>
+        </MSX-RS232>
+        <!-- NOTE: the FDC registers at 0x7FF8-0x7FFC
+             are visible in both slot 0-1 and slot 3. -->
+        <Mirror id="FDC registers">
+          <mem base="0x7FF8" size="5"/>
+          <ps>3</ps>
+        </Mirror>
+
+        <VictorHC9xSystemControl id="System control">
+          <mem base="0x7FFD" size="1"/>
+        </VictorHC9xSystemControl>
+
+      </secondary>
+
+      <secondary slot="2">
+        <MemoryMapper id="Main RAM">
+          <size>256</size>
+          <mem base="0x0000" size="0x10000"/>
+        </MemoryMapper>
+      </secondary>
+
+    </primary>
+
+    <primary external="true" slot="1"/>
+
+    <primary slot="3">
+
+      <WD2793 id="Memory Mapped FDC"> <!-- see http://usbsecretbase.michikusa.jp/hc-95/fdc.html -->
+        <connectionstyle>Victor</connectionstyle>
+        <mem base="0x4000" size="0x3FFD"/>
+        <broken_fdc_read>false</broken_fdc_read>
+        <rom>
+          <sha1>c991440778d5dc9ba54cc0e0f8e032d2f451366f</sha1> <!-- direct ROM dump by Daniel Padilla, 2nd half of IC052 JVC 024 C 27C256 -->
+          <filename>IC052 RS232C FDD JVC024C 27C256.BIN</filename>
+          <window base="0x4000" size="0x4000"/>
+        </rom>
+        <drives>1</drives>
+      </WD2793>
+
+      <!-- NOTE: the system control register at 0x7FFD
+           is visible in both slot 0-1 and slot 3. -->
+      <Mirror id="System control register">
+        <mem base="0x7FFD" size="1"/>
+        <ps>0</ps>
+        <ss>1</ss>
+      </Mirror>
+
+    </primary>
+
+  </devices>
+
+</msxconfig>
