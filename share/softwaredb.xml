@@ -3409,7 +3409,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Activision</company>
 	<year>1985</year>
 	<country>US</country>
-		<dump><rom><hash>f3815211c6183b4f9c26b9e7d0a12c3b3870bdda</hash></rom></dump>
+		<dump><rom><hash>f3815211c6183b4f9c26b9e7d0a12c3b3870bdda</hash><remark>[cr protection]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>807676038cbba043b8099eba9c5840a4811a7e59</hash></rom></dump>
 		<dump><rom><hash>83ed71c0e245a35cc4c4f622a6c88c026140748f</hash></rom></dump>
 		<dump><rom><hash>647733c674138fc6a295a0ad3e4d627668a04cdc</hash><remark>[a2]</remark></rom></dump>
@@ -3834,7 +3834,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Konami</company>
 	<year>1984</year>
 	<country>JP</country>
-		<dump><rom><hash>2185be579cb51729f66bf02bdf3a7b6a3cbd7b40</hash></rom></dump>
+		<dump><rom><hash>2185be579cb51729f66bf02bdf3a7b6a3cbd7b40</hash><remark>[cr protection]</remark></rom></dump>
 		<dump><rom><hash>44deaef747c572a4550681fcccc1bbbdc46a1ffc</hash></rom></dump>
 		<dump><rom><hash>292215c95c82948823eb0fbe1b081f14d6b6290d</hash></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>e894a38f3e2ad435cc5d17a66600e6016b5e47fb</hash></rom></dump>
@@ -4737,10 +4737,10 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Tecno Soft</company>
 	<year>1985</year>
 	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><hash>ee7dbd36a2b0bbae11c68ac4de75077f283bed05</hash><remark>[a1]</remark></rom></dump>
-		<dump><original value="true">GoodMSX</original><rom><hash>f86a7945b34c97cc58d5ee27964968870bfcef93</hash></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><hash>ee7dbd36a2b0bbae11c68ac4de75077f283bed05</hash><remark>[a1], v1.0</remark></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><hash>f86a7945b34c97cc58d5ee27964968870bfcef93</hash><remark>v1.04</remark></rom></dump>
 		<dump><rom><hash>efe44e5f4593036a6c00358638462a933d16b979</hash><remark>[a2]</remark></rom></dump>
-		<dump><rom><hash>9b58c70b976ca1d841185de862e7d663ec9db56b</hash></rom></dump>
+		<dump><rom><hash>9b58c70b976ca1d841185de862e7d663ec9db56b</hash><remark>v1.03</remark></rom></dump>
 </software>
 <software>
 	<title>Battle Chopper</title>
@@ -4788,7 +4788,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="true">GoodMSX</original><rom><hash>59bc608b1cb5bde2230bca0eb045cd6c58650774</hash></rom></dump>
 		<dump><rom><hash>8e2a2837c48bc8e2d2478043c728a4630982ba87</hash></rom></dump>
 		<dump><rom><hash>532037fd92f7f1d34a47767416ce5c979a0694ad</hash></rom></dump>
-		<dump><rom><hash>0f214ea9e8d673ee0c66cb6615032e57920d588b</hash><remark>[a]</remark></rom></dump>
+		<dump><rom><hash>0f214ea9e8d673ee0c66cb6615032e57920d588b</hash><remark>[a], 1984</remark></rom></dump>
 </software>
 <software>
 	<title>Battlot</title>
@@ -6636,8 +6636,8 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Sony</company>
 	<year>1986</year>
 	<country>JP</country>
-		<dump><rom><hash>47ea8d512d9fec15df8770f3b5017aea9bbba9fd</hash></rom></dump>
-		<dump><rom><hash>308c73fc04c3b390b72ea8d4980c94c74ba38a5c</hash><remark>[a]</remark></rom></dump>
+		<dump><rom><hash>47ea8d512d9fec15df8770f3b5017aea9bbba9fd</hash><remark>[cr protection]</remark></rom></dump>
+		<dump><rom><hash>308c73fc04c3b390b72ea8d4980c94c74ba38a5c</hash><remark>[a][cr protection]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>17f24b9339291dea40d2ed36517f223b9e4f49e1</hash></rom></dump>
 		<dump><original value="false">BAD Dump</original><rom><hash>0d2d4fc25b21662ef11f25ce09501ca9ef19335c</hash></rom></dump>
 </software>
@@ -11169,7 +11169,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1986</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>67baaaa870ad4a08f55ec1c67dbeabc97b6f18a0</hash></rom></dump>
-		<dump><rom><hash>5e28fa0cd90bcfb7995acb025a22f6f556ccac08</hash></rom></dump>
+		<dump><rom><hash>5e28fa0cd90bcfb7995acb025a22f6f556ccac08</hash><remark>[cr protection]</remark></rom></dump>
 		<dump><rom><hash>32a62d20456e0654a973774f0134a7278ac430e0</hash></rom></dump>
 		<dump><rom><hash>f71caadb63cc11664189b338b9d321f07af4edc7</hash><remark>[a2]</remark></rom></dump>
 </software>
@@ -12060,9 +12060,9 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="true">GoodMSX</original><rom><hash>7dfe091e02f6c1b21bd65e44eb5052d564d0ef92</hash><remark>[RC-718]</remark></rom></dump>
 		<dump><rom><hash>708eef06a0b5aca90dda120877b1cc3a5172a642</hash><remark>[RC-718]</remark></rom></dump>
 		<dump><rom><hash>2033ea831fd887c82fd8f8a1c9491f7a5dbe0175</hash><remark>[RC-718]</remark></rom></dump>
-		<dump><rom><hash>d1a7cbaff354b59003f0e297723b912cb6ad0b36</hash></rom></dump>
-		<dump><rom><hash>14393568469c74bd6f8be7770149db19f0553ab6</hash></rom></dump>
-		<dump><rom><hash>3b13e164130cab9b36c1a95e06f8d9fd707fc97f</hash><remark>[RC-718]</remark></rom></dump>
+		<dump><rom><hash>d1a7cbaff354b59003f0e297723b912cb6ad0b36</hash><remark>[cr protection]</remark></rom></dump>
+		<dump><rom><hash>14393568469c74bd6f8be7770149db19f0553ab6</hash><remark>[cr protection]</remark></rom></dump>
+		<dump><rom><hash>3b13e164130cab9b36c1a95e06f8d9fd707fc97f</hash><remark>[RC-718][cr protection]</remark></rom></dump>
 		<dump><rom><hash>eeb810dd36b512e8cc842be6a22ddf3380088a56</hash></rom></dump>
 		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>958c2a686fe52324c0adb85b3dda4471910f7000</hash></megarom></dump>
 		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>ff4c92cc84676c62b9c08b197effc6eda741db01</hash></megarom></dump>
@@ -12150,8 +12150,8 @@ The softwaredb.xml file contains information about rom mapper types
 	<country>JP</country>
 		<dump><rom><hash>1e429b73af3d9e9ae0718d88405a7b7edd0a24f2</hash><remark>[RC-733]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>af4e0490c178a18a47b34831fb5e3cf8b61d34d9</hash><remark>[RC-733]</remark></rom></dump>
-		<dump><rom><hash>ec76d4d9b61bdbde9a4b5be082dbdae96321a591</hash></rom></dump>
-		<dump><rom><hash>6842fb21abb2531c17fe0687d77e012348d3dc2c</hash><remark>[RC-733]</remark></rom></dump>
+		<dump><rom><hash>ec76d4d9b61bdbde9a4b5be082dbdae96321a591</hash><remark>[cr protection]</remark></rom></dump>
+		<dump><rom><hash>6842fb21abb2531c17fe0687d77e012348d3dc2c</hash><remark>[RC-733][cr protection]</remark></rom></dump>
 		<dump><rom><hash>3d45014accbee7c0df798a7c77771666f863dfd5</hash><remark>[RC-733]</remark></rom></dump>
 		<dump><rom><hash>00f6e7efbb5a50b66723a3130009a96d8a588363</hash></rom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>ae1255a46f7c25cecafbd46bc5257234c307d900</hash></megarom></dump>
@@ -13240,9 +13240,9 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Konami</company>
 	<year>1985</year>
 	<country>JP</country>
-		<dump><rom><hash>43dc3911b9a336bb7b17bdbe6e48464e01f2c425</hash><remark>[a2][RC-727]</remark></rom></dump>
-		<dump><rom><hash>8c9a9a9afe13a58e4cfb72489af2d6b080dffaf6</hash><remark>[a4][RC-727]</remark></rom></dump>
-		<dump><rom><hash>a4383f789482a9e868a9f136aa722129673c2a81</hash><remark>[RC-727]</remark></rom></dump>
+		<dump><rom><hash>43dc3911b9a336bb7b17bdbe6e48464e01f2c425</hash><remark>[a2][RC-727][cr protection]</remark></rom></dump>
+		<dump><rom><hash>8c9a9a9afe13a58e4cfb72489af2d6b080dffaf6</hash><remark>[a4][RC-727][cr protection]</remark></rom></dump>
+		<dump><rom><hash>a4383f789482a9e868a9f136aa722129673c2a81</hash><remark>[RC-727][cr protection]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>0cf26bf02c5b94df118129a681a7f14add708177</hash></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>07448ffb20f260df159a19df2cae1ee5545a0aef</hash><remark>[RC-727]</remark></rom></dump>
 		<dump><rom><hash>de4e210e6f757efc45e66be66b14cd6ec21b2ba7</hash><remark>[RC-727]</remark></rom></dump>
@@ -13379,9 +13379,9 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1986</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>c8ff858d239c62a859f15c2f1bf44e1d657cec13</hash><remark>[RC-739]</remark></rom></dump>
-		<dump><rom><hash>da8249452da86c0ba44f0ae279ccff82a1ddd756</hash></rom></dump>
+		<dump><rom><hash>da8249452da86c0ba44f0ae279ccff82a1ddd756</hash><remark>[cr protection]</remark></rom></dump>
 		<dump><original value="false">BAD Dump</original><rom><hash>e568e3455c14cab8992b58c2849a745ef5b19b21</hash></rom></dump>
-		<dump><rom><hash>1d6a355a9ce84c78e3bafc27a4f1151e240f68f0</hash><remark>[RC-739]</remark></rom></dump>
+		<dump><rom><hash>1d6a355a9ce84c78e3bafc27a4f1151e240f68f0</hash><remark>[RC-739][cr protection]</remark></rom></dump>
 		<dump><rom><hash>c484f44af0ab1bcaf46ae5f14a3b38a53ee77f31</hash><remark>[RC-739]</remark></rom></dump>
 		<dump><rom><hash>8a6e0f932ce12318a1c5b8dbbfe44b213acb03ae</hash></rom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>de7b6525f9aafe8ef77d25a799f0f8290bbc8f2e</hash></megarom></dump>
@@ -13605,7 +13605,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1984</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>076d6f5b9f8427f6959f7a255abb4acac0dd9d0c</hash><remark>[RC-724]</remark></rom></dump>
-		<dump><rom><hash>9bdfe44a7a0d5151346ff14ece3216b5108cc775</hash><remark>[RC-724]</remark></rom></dump>
+		<dump><rom><hash>9bdfe44a7a0d5151346ff14ece3216b5108cc775</hash><remark>[RC-724][cr protection]</remark></rom></dump>
 		<dump><rom><hash>da6a332dc236073286aa78582c0fccf728c86ba4</hash><remark>[RC-724]</remark></rom></dump>
 		<dump><rom><hash>ddfac0f89d4e0337f4c47d680422aaca458d6a45</hash><remark>[RC-724]</remark></rom></dump>
 		<dump><original value="false">BAD Dump</original><rom><hash>64cea5cdb2ff0d033793bbcf470de7ac1cf71993</hash><remark>[RC-724]</remark></rom></dump>
@@ -13620,8 +13620,8 @@ The softwaredb.xml file contains information about rom mapper types
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>7adb6812f3702b93aa2b2a872722bbd40915670d</hash><remark>[RC-736]</remark></rom></dump>
 		<dump><rom><hash>e3ac6a3ab223f5440bca5ea696e99669dd1f626d</hash><remark>[RC-736]</remark></rom></dump>
-		<dump><rom><hash>9e190cf3ca52d85fd34eb5df2c0dd8490448b9a2</hash></rom></dump>
-		<dump><rom><hash>5e349166fce12d45f3ce3f69ecd6b2a70ef4d68b</hash><remark>[RC-736]</remark></rom></dump>
+		<dump><rom><hash>9e190cf3ca52d85fd34eb5df2c0dd8490448b9a2</hash><remark>[cr protection]</remark></rom></dump>
+		<dump><rom><hash>5e349166fce12d45f3ce3f69ecd6b2a70ef4d68b</hash><remark>[RC-736][cr protection]</remark></rom></dump>
 		<dump><rom><hash>20efab45afd6be509ab4f8a012e67b094c196c73</hash></rom></dump>
 		<dump><rom><hash>aa95e2c196a59b67bede35366275a48557b1ae06</hash></rom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>4e3a48a1acddff212807f80a676910851e4aca02</hash></megarom></dump>
@@ -13678,7 +13678,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="true">GoodMSX</original><rom><hash>6a3a68836a468cc761a268175c64d53c4c1c48bd</hash><remark>[RC-723]</remark></rom></dump>
 		<dump><rom><hash>ebf474cf35a56e03771d0b17548b59feb2df0656</hash><remark>[RC-723]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>bcf72a4673c7982361db4efaf8ebc776b6539938</hash></rom></dump>
-		<dump><rom><hash>5c7971aa8688ffc429a3e315dd3d45c38f72ddeb</hash><remark>[RC-723]</remark></rom></dump>
+		<dump><rom><hash>5c7971aa8688ffc429a3e315dd3d45c38f72ddeb</hash><remark>[RC-723][cr protection]</remark></rom></dump>
 		<dump><rom><hash>d9634296511c599852aff0c6b9993509bcbc3bef</hash><remark>[RC-723]</remark></rom></dump>
 		<dump><rom><hash>1fb821d2007b28fd6a05974454f5bf8767b106ac</hash></rom></dump>
 		<dump><rom><hash>8db04faa22e5366d1903abb0728e41adc981f99a</hash><remark>[RC-723]</remark></rom></dump>
@@ -13704,8 +13704,8 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="true">GoodMSX</original><rom><hash>ae5b8e69732a23aee102bcd996ad06225f1b3eba</hash><remark>[RC-731]</remark></rom></dump>
 		<dump><rom><hash>3cce9cdf016792e531017b873e13eeb1e7c85013</hash><remark>[RC-731]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>9f4ac1287b8caa286a847c86ac8601a711be2d82</hash></rom></dump>
-		<dump><rom><hash>6c68f7be1eb46cca6dcdbb9192cbff9d59604357</hash></rom></dump>
-		<dump><rom><hash>5e1a50affe1fa973f69e423a8827751b93fc53ee</hash><remark>[RC-731]</remark></rom></dump>
+		<dump><rom><hash>6c68f7be1eb46cca6dcdbb9192cbff9d59604357</hash><remark>[cr protection]</remark></rom></dump>
+		<dump><rom><hash>5e1a50affe1fa973f69e423a8827751b93fc53ee</hash><remark>[RC-731][cr protection]</remark></rom></dump>
 		<dump><rom><hash>0ff688433d7ad075fb22ac92ac8f1b883c7a9ae4</hash></rom></dump>
 		<dump><rom><hash>90592a09228b3e3300eed51ebd7358b5ed2afa09</hash><remark>[RC-731]</remark></rom></dump>
 		<dump><rom><hash>376e8b54a560fbd0fbb4807c6262cf7171377d9c</hash><remark>[RC-731]</remark></rom></dump>
@@ -13726,13 +13726,13 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Konami</company>
 	<year>1985</year>
 	<country>JP</country>
-		<dump><rom><hash>eaa6b787784bae1c7f648b57daa1c88cf2b1b095</hash></rom></dump>
-		<dump><rom><hash>10698ea6b0423f2e858a4c28c10f39646ca5495f</hash></rom></dump>
+		<dump><rom><hash>eaa6b787784bae1c7f648b57daa1c88cf2b1b095</hash><remark>[cr protection]</remark></rom></dump>
+		<dump><rom><hash>10698ea6b0423f2e858a4c28c10f39646ca5495f</hash><remark>[cr protection]</remark></rom></dump>
 		<dump><rom><hash>8e9fb34b356b02a839dce5139c12030593be13a2</hash><remark>[RC-732]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>fd7518a6aedb51630364082c27bdfe4411adfd4c</hash><remark>[RC-732]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>89ccb1a7ffaaa75cee9bdc9b4a9ec9b063af7199</hash></rom></dump>
-		<dump><rom><hash>a0ed2c50e55241d23bb5d12cb6528a2a0c3bc156</hash></rom></dump>
-		<dump><rom><hash>79c1bf77c08b733ae04e069deaf25fd24b28beb7</hash><remark>[RC-732]</remark></rom></dump>
+		<dump><rom><hash>a0ed2c50e55241d23bb5d12cb6528a2a0c3bc156</hash><remark>[cr protection]</remark></rom></dump>
+		<dump><rom><hash>79c1bf77c08b733ae04e069deaf25fd24b28beb7</hash><remark>[RC-732][cr protection]</remark></rom></dump>
 		<dump><rom><hash>34019d5bc3687ec1255fd7ad7571830a67241ddd</hash></rom></dump>
 		<dump><rom><hash>5bef9572d71848966222819c3a1dd954994a4028</hash></rom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>10c31f1327d047a08a99f6bcad5f7c4910385012</hash></megarom></dump>
@@ -14776,7 +14776,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1986</year>
 	<country>JP</country>
 		<dump><rom><hash>3e2ef016f255168e2df1906e678ca22f880917b8</hash></rom></dump>
-		<dump><rom><hash>a3d1212eb4c58958f063aa8577ddfa07903b28b3</hash><remark>[a]</remark></rom></dump>
+		<dump><rom><hash>a3d1212eb4c58958f063aa8577ddfa07903b28b3</hash><remark>[a][cr protection]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>087afebb16bfd96f465fb0d004326d55452bdd81</hash></rom></dump>
 		<dump><rom><hash>71765b3095f4b9f2f04e553402e7406191506a8b</hash><remark>Ulver crack</remark></rom></dump>
 		<dump><rom><hash>d8561d9943b21c0298b80f9baef30872b479c2a7</hash></rom></dump>
@@ -15678,7 +15678,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>ZAP</company>
 	<year>1986</year>
 	<country>JP</country>
-		<dump><rom><hash>f1d68b477f3f54c0b6080985954208b0d95c5973</hash><remark>[a]</remark></rom></dump>
+		<dump><rom><hash>f1d68b477f3f54c0b6080985954208b0d95c5973</hash><remark>[a][cr protection]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>97adcb652bc4baf02d29a9abe5e6547065dec298</hash></rom></dump>
 		<dump><rom><hash>fb7a08237c2d453ed421b9c8bb420c60ffa9f9a9</hash><remark>[a2]</remark></rom></dump>
 </software>
@@ -16086,8 +16086,8 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="true">GoodMSX</original><rom><hash>33ec3136dfb6fd44014c8bbffc8ac79c3cafe75c</hash><remark>[RC-728]</remark></rom></dump>
 		<dump><rom><hash>9255b2ac6d03fddf3df8880ec247dd3446e3209f</hash><remark>[RC-728]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>4a185a3db81c2ce20d176d13fa5f619c6b7a170c</hash></rom></dump>
-		<dump><rom><hash>14e7ef125cc902001995bbd8acca0eae2f213dc1</hash></rom></dump>
-		<dump><rom><hash>ddc458bb3c70e0708841e516d9b89220c0e098a1</hash></rom></dump>
+		<dump><rom><hash>14e7ef125cc902001995bbd8acca0eae2f213dc1</hash><remark>[cr protection]</remark></rom></dump>
+		<dump><rom><hash>ddc458bb3c70e0708841e516d9b89220c0e098a1</hash><remark>[cr protection]</remark></rom></dump>
 		<dump><rom><hash>1b3059c7873765a476fb7791a4d6fc846ab05ade</hash><remark>[RC-728]</remark></rom></dump>
 		<dump><rom><hash>9d8029aafc4125af7f151f377978389963432d49</hash></rom></dump>
 		<dump><rom><hash>dd9d6ed442122d142987fd691001efcc2bc18c7c</hash></rom></dump>
@@ -18530,9 +18530,9 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="true">GoodMSX</original><rom><hash>10e63eba7d2b10d946822f21e7fd106f5dfab632</hash><remark>[RC-729]</remark></rom></dump>
 		<dump><rom><hash>462bbe535702c52a7905ad9c6bcf93032214eae2</hash></rom></dump>
 		<dump><rom><hash>b084a94923ce948cb39dc186d83015f7487cfbe4</hash></rom></dump>
-		<dump><rom><hash>0a9c576eabaf2651ddca35bf17f96e509d6c6ba0</hash></rom></dump>
-		<dump><rom><hash>d621e2a2f0f924a17673f5d47f2182095074acf4</hash></rom></dump>
-		<dump><rom><hash>cf8e40315f34e30e1be4776bbebc08c0a8403523</hash><remark>[RC-729]</remark></rom></dump>
+		<dump><rom><hash>0a9c576eabaf2651ddca35bf17f96e509d6c6ba0</hash><remark>[cr protection]</remark></rom></dump>
+		<dump><rom><hash>d621e2a2f0f924a17673f5d47f2182095074acf4</hash><remark>[cr protection]</remark></rom></dump>
+		<dump><rom><hash>cf8e40315f34e30e1be4776bbebc08c0a8403523</hash><remark>[RC-729][cr protection]</remark></rom></dump>
 		<dump><rom><hash>b1e6299c4711d2f571b72f11d3b1aeb23eb99b64</hash><remark>[RC-729]</remark></rom></dump>
 		<dump><rom><hash>416d97741622ff3ffab2da5021a3bde3bbc07061</hash><remark>[RC-729]</remark></rom></dump>
 		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>8927b9aa770195f255e4e0e143f89bfe93353022</hash></megarom></dump>
@@ -18592,7 +18592,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1984</year>
 	<country>US</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>b88e9c548873dcfd190e0e38f7b279344eea41ec</hash></rom></dump>
-		<dump><rom><hash>2fa9c0f016efc2d1752a272c632393f5063ea06c</hash></rom></dump>
+		<dump><rom><hash>2fa9c0f016efc2d1752a272c632393f5063ea06c</hash><remark>[cr protection]</remark></rom></dump>
 		<dump><rom><hash>5fb4b6c3735e4d9415565a856bb69f9fb4857161</hash><remark>[a]</remark></rom></dump>
 		<dump><rom><hash>0af38e0d88f6ef99fe792653d1ac389c24d2a01d</hash><remark>a4</remark></rom></dump>
 </software>
@@ -19165,7 +19165,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Konami</company>
 	<year>1986</year>
 	<country>JP</country>
-		<dump><rom><hash>2e16a588246743c9b901afdbf1ba094a0b1c8b5d</hash></rom></dump>
+		<dump><rom><hash>2e16a588246743c9b901afdbf1ba094a0b1c8b5d</hash><remark>[cr protection]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>531a7f736d86095d791d6d0f267be66eef07949c</hash><remark>[RC-746]</remark></rom></dump>
 		<dump><rom><hash>d5674f0217031d4bfab9c53393c18036a9707b72</hash><remark>[RC-746]</remark></rom></dump>
 		<dump><rom><hash>6f1774195b8db0ba34af5e16ef94700d1714e011</hash><remark>[RC-746]</remark></rom></dump>
@@ -19381,8 +19381,8 @@ The softwaredb.xml file contains information about rom mapper types
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>770805bd0be8b09a3be10030060d6ad8dc07d1c3</hash></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>4334acc2bd5c921bc4dcb6de9a1fcc79d843ee15</hash><remark>[a1]</remark></rom></dump>
-		<dump><rom><hash>ac381dfb4d0b52dedb18a8df7a4651ed2978d12f</hash><remark>[a]</remark></rom></dump>
-		<dump><rom><hash>fe1d02284b0b051308e3c796e8e9eee2f86521b8</hash><remark>[a2]</remark></rom></dump>
+		<dump><rom><hash>ac381dfb4d0b52dedb18a8df7a4651ed2978d12f</hash><remark>[a][cr protection]</remark></rom></dump>
+		<dump><rom><hash>fe1d02284b0b051308e3c796e8e9eee2f86521b8</hash><remark>[a2][cr protection]</remark></rom></dump>
 		<dump><rom><hash>1efcf9e9a8ea38bad319a70a5f7319e2589d4a8b</hash></rom></dump>
 		<dump><rom><hash>1a90b7c7f24bb7fa93c84bde2d1b655e30c4a7cb</hash></rom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>441dacb74a47ca4b7d1ce47300d182bc7424ffac</hash><remark>Alternative Intro</remark></megarom></dump>
@@ -22128,7 +22128,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Zemina</company>
 	<year>1989</year>
 	<country>KR</country>
-		<dump><rom><hash>cd466c04209a8815a95d3723653e263a868de9e0</hash></rom></dump>
+		<dump><rom><hash>cd466c04209a8815a95d3723653e263a868de9e0</hash><remark>[cr protection]</remark></rom></dump>
 		<dump><rom><hash>85153a8f25882cadde8295d040ddb7586c93cefe</hash></rom></dump>
 </software>
 <software>
@@ -22958,7 +22958,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Uttum</company>
 	<year>1987</year>
 	<country>KR</country>
-		<dump><rom><hash>e9398aceb9f8a648e4bcebe02e5d7b14a3744c7d</hash></rom></dump>
+		<dump><rom><hash>e9398aceb9f8a648e4bcebe02e5d7b14a3744c7d</hash><remark>[cr protection]</remark></rom></dump>
 		<dump><rom><hash>90df63292fc2f210b88cc8ec284391423d21c917</hash></rom></dump>
 </software>
 <software>
@@ -23241,8 +23241,8 @@ The softwaredb.xml file contains information about rom mapper types
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>b1248f7b9d4e16a894555c51c533d3fd9a90802e</hash><remark>[RC-734]</remark></rom></dump>
 		<dump><rom><hash>e0fd133eb7f645238b3ec546624c2d12b8a913f9</hash><remark>[RC-734]</remark></rom></dump>
-		<dump><rom><hash>250d0d6e646eae4817802c49e367ad8c1c35a462</hash></rom></dump>
-		<dump><rom><hash>b7b4d5c83d8c336dbfe32833bba974cea7f0cb8d</hash><remark>[RC-734]</remark></rom></dump>
+		<dump><rom><hash>250d0d6e646eae4817802c49e367ad8c1c35a462</hash><remark>[cr protection]</remark></rom></dump>
+		<dump><rom><hash>b7b4d5c83d8c336dbfe32833bba974cea7f0cb8d</hash><remark>[RC-734][cr protection]</remark></rom></dump>
 		<dump><rom><hash>4624af3dea3996f70d860dfdbd1a8844b8cf43ec</hash><remark>[RC-734]</remark></rom></dump>
 		<dump><rom><hash>3ceb18ccdd8153aa260f287f5de4460601040ab6</hash></rom></dump>
 </software>
@@ -23664,9 +23664,9 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Game Arts</company>
 	<year>1986</year>
 	<country>JP</country>
-		<dump><rom><hash>049e7dccd3977049b5f68aad7754105b014ba771</hash><remark>[a2]</remark></rom></dump>
+		<dump><rom><hash>049e7dccd3977049b5f68aad7754105b014ba771</hash><remark>[a2][cr protection]</remark></rom></dump>
 		<dump><rom><hash>3888c923f82314489405c38bd6110ab2fdbc1a61</hash><remark>[cr Magicrack]</remark></rom></dump>
-		<dump><rom><hash>6420473ec647e4d750bc2247020b6722435b5211</hash></rom></dump>
+		<dump><rom><hash>6420473ec647e4d750bc2247020b6722435b5211</hash><remark>[cr protection]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>a2109da08b1921c4b3b47c6847598d424581b508</hash></rom></dump>
 		<dump><rom><hash>7428159df6bf4ecc84a3ed9fb302b2da059475d7</hash><remark>Ulver crack</remark></rom></dump>
 		<dump><rom><hash>46e20aa2910cc934cf8e7921cf866d881335831b</hash><remark>[a]</remark></rom></dump>
@@ -24378,9 +24378,9 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1986</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>d33fe18ede20da4dd3d6991a9c2995e149c8fc3f</hash><remark>[RC-740]</remark></rom></dump>
-		<dump><rom><hash>751d722a4f36a03e88ac62118ae8d880e40c1c84</hash></rom></dump>
-		<dump><rom><hash>adb3977309d373ad1dc995ae7d2f8280f1673d66</hash></rom></dump>
-		<dump><rom><hash>8b828d33dcdfd324df1827ef79f5ca9635968c6e</hash><remark>[RC-740]</remark></rom></dump>
+		<dump><rom><hash>751d722a4f36a03e88ac62118ae8d880e40c1c84</hash><remark>[cr protection]</remark></rom></dump>
+		<dump><rom><hash>adb3977309d373ad1dc995ae7d2f8280f1673d66</hash><remark>[cr protection]</remark></rom></dump>
+		<dump><rom><hash>8b828d33dcdfd324df1827ef79f5ca9635968c6e</hash><remark>[RC-740][cr protection]</remark></rom></dump>
 		<dump><rom><hash>d71b0de8ae4e1d57ace2d1f66cac1c1965102019</hash></rom></dump>
 		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>b813123219446f16cd10b916cc18ec4a8d7c69de</hash></megarom></dump>
 		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>39a91558bba92b7310455cd7513276d487de0f9d</hash></megarom></dump>
@@ -25650,7 +25650,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>609d0bac4933d1bcc877746a3e14d82c204f40e7</hash></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>57827f8d49369e4dbf20a968e535374d35ff1648</hash><remark>[RC-737]</remark></rom></dump>
-		<dump><rom><hash>5017abeca8fbed43ff2fd1a936843acdc7192dcc</hash></rom></dump>
+		<dump><rom><hash>5017abeca8fbed43ff2fd1a936843acdc7192dcc</hash><remark>[cr protection]</remark></rom></dump>
 		<dump><rom><hash>78d3dc3e48724c1f570d1ee1671100cdd539ad2b</hash></rom></dump>
 		<dump><rom><hash>d65f0010dacbd2528eaa25467ef007a87f17ae7a</hash></rom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>181c62bf30a66ca3c74b4165c230fb44674bdb5d</hash></megarom></dump>
