@@ -1,4 +1,5 @@
 #include "ImGuiLayer.hh"
+#include "ImGuiManager.hh"
 
 #include "CartridgeSlotManager.hh"
 #include "CassettePlayerCLI.hh"
@@ -199,6 +200,47 @@ ImGuiLayer::ImGuiLayer(Reactor& reactor_)
 	, interp(reactor.getInterpreter())
 	, markdown(*this)
 {
+	auto& imGui = reactor.getImGuiManager();
+	imGui.preSaveCallback = [this](ImGuiManager& m) { syncPersistentData(m); };
+
+	auto& debugSection = imGui.get("debugger");
+	showDisassembly = &debugSection.get("showDisassembly").get<bool>();
+	showRegisters   = &debugSection.get("showRegisters").get<bool>();
+	showStack       = &debugSection.get("showStack").get<bool>();
+	showFlags       = &debugSection.get("showFlags").get<bool>();
+	showXYFlags     = &debugSection.get("showXYFlags").get<bool>();
+	flagsLayout     = &debugSection.get("flagsLayout").get<int>();
+
+	auto& bitmapSection = imGui.get("bitmap viewer");
+	showBitmapViewer = &bitmapSection.get("show").get<bool>();
+	bitmapManual     = &bitmapSection.get("override").get<int>();
+	bitmapScrnMode   = &bitmapSection.get("scrnMode").get<int>();
+	bitmapPage       = &bitmapSection.get("page").get<int>();
+	bitmapLines      = &bitmapSection.get("lines").get<int>();
+	bitmapColor0     = &bitmapSection.get("color0").get<int>();
+	bitmapPalette    = &bitmapSection.get("palette").get<int>();
+	bitmapZoom       = &bitmapSection.get("zoom").get<int>();
+	bitmapGrid       = &bitmapSection.get("showGrid").get<bool>();
+	bitmapGridColor  = &bitmapSection.get("gridColor").get<gl::vec4>();
+
+	auto& soundSection = imGui.get("sound chip settings");
+	showSoundChipSettings = &soundSection.get("show").get<bool>();
+
+	auto& reverseBarSection = imGui.get("reverse bar");
+	showReverseBar   = &reverseBarSection.get("show").get<bool>();
+	reverseHideTitle = &reverseBarSection.get("hideTitle").get<bool>();
+	reverseFadeOut   = &reverseBarSection.get("fadeOut").get<bool>();
+	reverseAllowMove = &reverseBarSection.get("allowMove").get<bool>();
+
+	auto& iconsSection = imGui.get("OSD icons");
+	showIcons          = &iconsSection.get("show").get<bool>();
+	iconsHideTitle     = &iconsSection.get("hideTitle").get<bool>();
+	iconsAllowMove     = &iconsSection.get("allowMove").get<bool>();
+	iconsHorizontal    = &iconsSection.get("layout").get<int>();
+	iconsFadeDuration  = &iconsSection.get("fadeDuration").get<float>();
+	iconsFadeDelay     = &iconsSection.get("fadeDelay").get<float>();
+	showConfigureIcons = &iconsSection.get("showConfig").get<bool>();
+
 	// load extra fonts
 	const auto& context = systemFileContext();
 	vera13           = addFont(context.resolve("skins/Vera.ttf.gz"), 13);
@@ -211,9 +253,6 @@ ImGuiLayer::ImGuiLayer(Reactor& reactor_)
 	auto& eventDistributor = reactor.getEventDistributor();
 	eventDistributor.registerEventListener(EventType::FRAME_DRAWN, *this);
 	eventDistributor.registerEventListener(EventType::BREAK, *this);
-
-	// TODO read from some config file
-	setDefaultIcons();
 }
 
 ImGuiLayer::~ImGuiLayer()
@@ -221,6 +260,19 @@ ImGuiLayer::~ImGuiLayer()
 	auto& eventDistributor = reactor.getEventDistributor();
 	eventDistributor.unregisterEventListener(EventType::BREAK, *this);
 	eventDistributor.unregisterEventListener(EventType::FRAME_DRAWN, *this);
+
+	auto& imGui = reactor.getImGuiManager();
+	syncPersistentData(imGui);
+	imGui.preSaveCallback = {};
+}
+
+void ImGuiLayer::syncPersistentData(ImGuiManager& imGui)
+{
+	auto& section = imGui.get("debugger");
+	for (auto& [name, editor] : debuggables) {
+		auto& item = section.getOrCreate(tmpStrCat("showDebuggable.", name));
+		item.get<bool>() = editor->Open;
+	}
 }
 
 void ImGuiLayer::setDefaultIcons()
@@ -293,10 +345,10 @@ void ImGuiLayer::selectFile(const std::string& title, std::string filters,
 		ImGuiFileDialogFlags_DisableCreateDirectoryButton;
 	//flags |= ImGuiFileDialogFlags_ConfirmOverwrite |
 	lastFileDialog = title;
-	auto [it, inserted] = lastPath.try_emplace(lastFileDialog, ".");
+	auto& item = reactor.getImGuiManager().get("open file dialog").getOrCreate(lastFileDialog);
 	ImGuiFileDialog::Instance()->OpenDialog(
 		"FileDialog", title, filters.c_str(),
-		it->second, "", 1, nullptr, flags);
+		item.get<std::string>(), "", 1, nullptr, flags);
 	openFileCallback = callback;
 }
 
@@ -541,7 +593,7 @@ void ImGuiLayer::saveStateMenu(MSXMotherBoard* motherBoard)
 
 	ImGui::TextUnformatted("Load replay ... TODO");
 	ImGui::TextUnformatted("Save replay ... TODO");
-	ImGui::MenuItem("Show reverse bar", nullptr, &showReverseBar);
+	ImGui::MenuItem("Show reverse bar", nullptr, showReverseBar);
 
 	ImGui::EndMenu();
 }
@@ -560,7 +612,7 @@ void ImGuiLayer::settingsMenu()
 			ImGui::EndDisabled();
 			Checkbox("mute", muteSetting);
 			ImGui::Separator();
-			ImGui::MenuItem("Show sound chip settings", nullptr, &showSoundChipSettings);
+			ImGui::MenuItem("Show sound chip settings", nullptr, showSoundChipSettings);
 
 			ImGui::EndMenu();
 		}
@@ -628,7 +680,7 @@ void ImGuiLayer::soundChipSettings(MSXMotherBoard& motherBoard)
 		}
 	};
 
-	ImGui::Begin("Sound chip settings", &showSoundChipSettings);
+	ImGui::Begin("Sound chip settings", showSoundChipSettings);
 
 	auto& msxMixer = motherBoard.getMSXMixer();
 	auto& infos = msxMixer.getDeviceInfos(); // TODO sort on name
@@ -665,6 +717,7 @@ void ImGuiLayer::soundChipSettings(MSXMotherBoard& motherBoard)
 			}
 			restoreDefaultPopup("Set center", balanceSetting);
 		}
+		auto& soundSection = reactor.getImGuiManager().get("sound chip settings");
 		for (auto& info : infos) {
 			ImGui::TableNextColumn();
 			if (anySpecialChannelSettings(info)) {
@@ -674,7 +727,8 @@ void ImGuiLayer::soundChipSettings(MSXMotherBoard& motherBoard)
 			ImGui::TextUnformatted("channels");
 			const auto& name = info.device->getName();
 			std::string id = "##channels-" + name;
-			ImGui::Checkbox(id.c_str(), &channels[name]);
+			auto& show = soundSection.getOrCreate(tmpStrCat("showChannels.", name)).get<bool>();
+			ImGui::Checkbox(id.c_str(), &show);
 		}
 		ImGui::EndTable();
 	}
@@ -740,20 +794,20 @@ void ImGuiLayer::drawReverseBar(MSXMotherBoard& motherBoard)
 	const auto& style = ImGui::GetStyle();
 	auto textHeight = ImGui::GetTextLineHeight();
 	auto windowHeight = style.WindowPadding.y + 2.0f * textHeight + style.WindowPadding.y;
-	if (!reverseHideTitle) {
+	if (!*reverseHideTitle) {
 		windowHeight += style.FramePadding.y + textHeight + style.FramePadding.y;
 	}
 	ImGui::SetNextWindowSizeConstraints(ImVec2(250, windowHeight), ImVec2(FLT_MAX, windowHeight));
 
-	int flags = reverseHideTitle ? ImGuiWindowFlags_NoTitleBar |
-	                               ImGuiWindowFlags_NoResize |
-	                               //ImGuiWindowFlags_NoMove |
-	                               ImGuiWindowFlags_NoScrollbar |
-	                               ImGuiWindowFlags_NoScrollWithMouse |
-	                               ImGuiWindowFlags_NoCollapse |
-	                               ImGuiWindowFlags_NoBackground
+	int flags = *reverseHideTitle ? ImGuiWindowFlags_NoTitleBar |
+	                                ImGuiWindowFlags_NoResize |
+	                                ImGuiWindowFlags_NoScrollbar |
+	                                ImGuiWindowFlags_NoScrollWithMouse |
+	                                ImGuiWindowFlags_NoCollapse |
+	                                ImGuiWindowFlags_NoBackground |
+	                                (*reverseAllowMove ? 0 : ImGuiWindowFlags_NoMove)
 	                             : 0;
-	ImGui::Begin("Reverse bar", &showReverseBar, flags);
+	ImGui::Begin("Reverse bar", showReverseBar, flags);
 
 	auto& reverseManager = motherBoard.getReverseManager();
 	if (reverseManager.isCollecting()) {
@@ -784,7 +838,7 @@ void ImGuiLayer::drawReverseBar(MSXMotherBoard& motherBoard)
 		const auto& io = ImGui::GetIO();
 		bool hovered = ImGui::IsWindowHovered();
 		bool replaying = reverseManager.isReplaying();
-		if (!reverseHideTitle || !reverseFadeOut || replaying ||
+		if (!*reverseHideTitle || !*reverseFadeOut || replaying ||
 		    ImGui::IsWindowDocked() || (ImGui::GetWindowViewport() != ImGui::GetMainViewport())) {
 			reverseAlpha = 1.0f;
 		} else {
@@ -852,10 +906,11 @@ void ImGuiLayer::drawReverseBar(MSXMotherBoard& motherBoard)
 		ImGui::SetCursorPos(cursor); // cover full window for context menu
 		ImGui::Dummy(availableSize);
 		if (ImGui::BeginPopupContextItem("reverse context menu")) {
-			ImGui::Checkbox("Hide title", &reverseHideTitle);
+			ImGui::Checkbox("Hide title", reverseHideTitle);
 			ImGui::Indent();
 			ImGui::BeginDisabled(!reverseHideTitle);
-			ImGui::Checkbox("Fade out", &reverseFadeOut);
+			ImGui::Checkbox("Fade out", reverseFadeOut);
+			ImGui::Checkbox("Allow move", reverseAllowMove);
 			ImGui::EndDisabled();
 			ImGui::Unindent();
 			ImGui::EndPopup();
@@ -872,10 +927,16 @@ void ImGuiLayer::drawReverseBar(MSXMotherBoard& motherBoard)
 
 void ImGuiLayer::loadIcons()
 {
+	auto& section = reactor.getImGuiManager().get("OSD icons");
+	auto& items = section.items;
+	auto it = std::ranges::find(items, "icon.1.enabled", &ImGuiPersistentItem::name);
+	items.erase(it, items.end());
+
 	iconsTotalSize = gl::ivec2();
 	iconsMaxSize = gl::ivec2();
 	iconsNumEnabled = 0;
 	FileContext context = systemFileContext();
+	int counter = 0;
 	for (auto& icon : iconInfo) {
 		auto load = [&](IconInfo::Icon& i) {
 			try {
@@ -898,6 +959,13 @@ void ImGuiLayer::loadIcons()
 			iconsTotalSize += m;
 			iconsMaxSize = max(iconsMaxSize, m);
 		}
+
+		std::string prefix = strCat("icon.", ++counter);
+		section.getOrCreate(tmpStrCat(prefix, ".enabled")).currentValue = icon.enable;
+		items.emplace_back(strCat(prefix, ".fade"), icon.fade);
+		items.emplace_back(strCat(prefix, ".on-image"), icon.on.filename);
+		items.emplace_back(strCat(prefix, ".off-image"), icon.off.filename);
+		items.emplace_back(strCat(prefix, ".expr"), std::string(icon.expr.getString()));
 	}
 	iconInfoDirty = false;
 }
@@ -911,33 +979,33 @@ void ImGuiLayer::drawIcons()
 	const auto& style = ImGui::GetStyle();
 	auto windowPadding = 2.0f * gl::vec2(style.WindowPadding);
 	auto totalSize = windowPadding + gl::vec2(iconsTotalSize) + float(iconsNumEnabled) * gl::vec2(style.ItemSpacing);
-	auto minSize = iconsHorizontal
+	auto minSize = *iconsHorizontal
 		? gl::vec2(totalSize[0], float(iconsMaxSize[1]) + windowPadding[1])
 		: gl::vec2(float(iconsMaxSize[0]) + windowPadding[0], totalSize[1]);
-	if (!iconsHideTitle) {
+	if (!*iconsHideTitle) {
 		minSize[1] += 2.0f * style.FramePadding.y + ImGui::GetTextLineHeight();
 	}
-	auto maxSize = iconsHorizontal
+	auto maxSize = *iconsHorizontal
 		? gl::vec2(FLT_MAX, minSize[1])
 		: gl::vec2(minSize[0], FLT_MAX);
 	ImGui::SetNextWindowSizeConstraints(minSize, maxSize);
 
-	int flags = iconsHideTitle ? ImGuiWindowFlags_NoTitleBar |
-	                             ImGuiWindowFlags_NoResize |
-	                             ImGuiWindowFlags_NoScrollbar |
-	                             ImGuiWindowFlags_NoScrollWithMouse |
-	                             ImGuiWindowFlags_NoCollapse |
-	                             ImGuiWindowFlags_NoBackground |
-	                             (iconsAllowMove ? 0 : ImGuiWindowFlags_NoMove)
-	                           : 0;
-	if (ImGui::Begin("Icons", &showIcons, flags | ImGuiWindowFlags_HorizontalScrollbar)) {
+	int flags = *iconsHideTitle ? ImGuiWindowFlags_NoTitleBar |
+	                              ImGuiWindowFlags_NoResize |
+	                              ImGuiWindowFlags_NoScrollbar |
+	                              ImGuiWindowFlags_NoScrollWithMouse |
+	                              ImGuiWindowFlags_NoCollapse |
+	                              ImGuiWindowFlags_NoBackground |
+	                              (*iconsAllowMove ? 0 : ImGuiWindowFlags_NoMove)
+	                            : 0;
+	if (ImGui::Begin("Icons", showIcons, flags | ImGuiWindowFlags_HorizontalScrollbar)) {
 		auto cursor0 = ImGui::GetCursorPos();
 		auto availableSize = ImGui::GetContentRegionAvail();
-		float slack = iconsHorizontal ? (availableSize.x - totalSize[0])
-		                              : (availableSize.y - totalSize[1]);
+		float slack = *iconsHorizontal ? (availableSize.x - totalSize[0])
+		                               : (availableSize.y - totalSize[1]);
 		float spacing = (iconsNumEnabled >= 2) ? (std::max(0.0f, slack) / float(iconsNumEnabled)) : 0.0f;
 
-		bool fade = iconsHideTitle && !ImGui::IsWindowDocked() &&
+		bool fade = *iconsHideTitle && !ImGui::IsWindowDocked() &&
 		            (ImGui::GetWindowViewport() == ImGui::GetMainViewport());
 		for (auto& icon : iconInfo) {
 			if (!icon.enable) continue;
@@ -957,10 +1025,10 @@ void ImGuiLayer::drawIcons()
 			icon.time += io.DeltaTime;
 			float alpha = [&] {
 				if (!fade || !icon.fade) return 1.0f;
-				auto t = icon.time - iconsFadeDelay;
+				auto t = icon.time - *iconsFadeDelay;
 				if (t <= 0.0f) return 1.0f;
-				if (t >= iconsFadeDuration) return 0.0f;
-				return 1.0f - (t / iconsFadeDuration);
+				if (t >= *iconsFadeDuration) return 0.0f;
+				return 1.0f - (t / *iconsFadeDuration);
 			}();
 
 			auto& ic = state ? icon.on : icon.off;
@@ -970,16 +1038,16 @@ void ImGuiLayer::drawIcons()
 
 			ImGui::SetCursorPos(cursor);
 			auto size = gl::vec2(max(icon.on.size, icon.off.size));
-			(iconsHorizontal ? size[0] : size[1]) += spacing;
+			(*iconsHorizontal ? size[0] : size[1]) += spacing;
 			ImGui::Dummy(size);
-			if (iconsHorizontal) ImGui::SameLine();
+			if (*iconsHorizontal) ImGui::SameLine();
 		}
 
 		ImGui::SetCursorPos(cursor0); // cover full window for context menu
 		ImGui::Dummy(availableSize);
 		if (ImGui::BeginPopupContextItem("icons context menu")) {
 			if (ImGui::MenuItem("Configure ...")) {
-				showConfigureIcons = true;
+				*showConfigureIcons = true;
 			}
 			ImGui::EndPopup();
 		}
@@ -1003,21 +1071,21 @@ void ImGuiLayer::drawConfigureIcons()
 		loadIcons();
 	}
 
-	if (ImGui::Begin("Configure Icons", &showConfigureIcons)) {
+	if (ImGui::Begin("Configure Icons", showConfigureIcons)) {
 		ImGui::TextUnformatted("Layout:");
 		ImGui::SameLine();
-		ImGui::RadioButton("Horizontal", &iconsHorizontal, 1);
+		ImGui::RadioButton("Horizontal", iconsHorizontal, 1);
 		ImGui::SameLine();
-		ImGui::RadioButton("Vertical", &iconsHorizontal, 0);
+		ImGui::RadioButton("Vertical", iconsHorizontal, 0);
 		ImGui::Separator();
 
-		ImGui::Checkbox("Hide Title", &iconsHideTitle);
+		ImGui::Checkbox("Hide Title", iconsHideTitle);
 		ImGui::Indent();
-		ImGui::BeginDisabled(!iconsHideTitle);
-		ImGui::Checkbox("Allow move", &iconsAllowMove);
+		ImGui::BeginDisabled(!*iconsHideTitle);
+		ImGui::Checkbox("Allow move", iconsAllowMove);
 		HelpMarker("Click and drag the icon box.");
-		ImGui::SliderFloat("Fade-out duration", &iconsFadeDuration, 0.0f, 30.0f);
-		ImGui::SliderFloat("Fade-out delay",    &iconsFadeDelay,    0.0f, 30.0f);
+		ImGui::SliderFloat("Fade-out duration", iconsFadeDuration, 0.0f, 30.0f);
+		ImGui::SliderFloat("Fade-out delay",    iconsFadeDelay,    0.0f, 30.0f);
 		ImGui::EndDisabled();
 		ImGui::Unindent();
 		ImGui::Separator();
@@ -1078,8 +1146,10 @@ void ImGuiLayer::drawConfigureIcons()
 				}
 
 				ImGui::TableSetColumnIndex(1);
-				ImGui::BeginDisabled(!iconsHideTitle);
-				ImGui::Checkbox("##fade-out", &icon.fade);
+				ImGui::BeginDisabled(!*iconsHideTitle);
+				if (ImGui::Checkbox("##fade-out", &icon.fade)) {
+					iconInfoDirty = true;
+				}
 				ImGui::EndDisabled();
 
 				auto image = [&](IconInfo::Icon& ic, const char* id) {
@@ -1120,6 +1190,7 @@ void ImGuiLayer::drawConfigureIcons()
 				auto expr = std::string(icon.expr.getString());
 				if (ImGui::InputText("##expr", &expr)) {
 					icon.expr = expr;
+					iconInfoDirty = true;
 				}
 				ImGui::PopStyleColor();
 
@@ -1170,24 +1241,21 @@ void ImGuiLayer::debuggableMenu(MSXMotherBoard* motherBoard)
 	}
 	assert(motherBoard);
 
-	ImGui::MenuItem("disassembly", nullptr, &showDisassembly);
-	ImGui::MenuItem("CPU registers", nullptr, &showRegisters);
-	ImGui::MenuItem("CPU flags", nullptr, &showFlags);
-	ImGui::MenuItem("stack", nullptr, &showStack);
+	ImGui::MenuItem("disassembly", nullptr, showDisassembly);
+	ImGui::MenuItem("CPU registers", nullptr, showRegisters);
+	ImGui::MenuItem("CPU flags", nullptr, showFlags);
+	ImGui::MenuItem("stack", nullptr, showStack);
 	ImGui::MenuItem("memory TODO");
 	ImGui::Separator();
-	ImGui::MenuItem("VDP bitmap viewer", nullptr, &showBitmapViewer);
+	ImGui::MenuItem("VDP bitmap viewer", nullptr, showBitmapViewer);
 	ImGui::MenuItem("TODO several more");
 	ImGui::Separator();
 	if (ImGui::BeginMenu("All debuggables")) {
 		auto& debugger = motherBoard->getDebugger();
-		// TODO sort debuggable names, either via sort here, or by
-		//    storing the debuggable always in sorted order in Debugger
-		for (auto& name : view::keys(debugger.getDebuggables())) {
-			auto [it, inserted] = debuggables.try_emplace(name);
-			auto& editor = it->second;
-			if (inserted) editor = std::make_unique<DebuggableEditor>();
-			ImGui::MenuItem(name.c_str(), nullptr, &editor->Open);
+		for (auto& [name, editor] : debuggables) {
+			if (debugger.findDebuggable(name)) {
+				ImGui::MenuItem(name.c_str(), nullptr, &editor->Open);
+			}
 		}
 		ImGui::EndMenu();
 	}
@@ -1196,7 +1264,7 @@ void ImGuiLayer::debuggableMenu(MSXMotherBoard* motherBoard)
 
 void ImGuiLayer::disassembly(MSXMotherBoard& motherBoard)
 {
-	if (!ImGui::Begin("Disassembly", &showDisassembly)) {
+	if (!ImGui::Begin("Disassembly", showDisassembly)) {
 		ImGui::End();
 		return;
 	}
@@ -1285,7 +1353,7 @@ void ImGuiLayer::disassembly(MSXMotherBoard& motherBoard)
 
 void ImGuiLayer::drawRegisters(MSXMotherBoard& motherBoard)
 {
-	if (!ImGui::Begin("CPU registers", &showRegisters)) {
+	if (!ImGui::Begin("CPU registers", showRegisters)) {
 		ImGui::End();
 		return;
 	}
@@ -1369,7 +1437,7 @@ void ImGuiLayer::drawRegisters(MSXMotherBoard& motherBoard)
 
 void ImGuiLayer::drawFlags(MSXMotherBoard& motherBoard)
 {
-	if (!ImGui::Begin("CPU flags", &showFlags)) {
+	if (!ImGui::Begin("CPU flags", showFlags)) {
 		ImGui::End();
 		return;
 	}
@@ -1384,7 +1452,7 @@ void ImGuiLayer::drawFlags(MSXMotherBoard& motherBoard)
 	auto draw = [&](const char* name, uint8_t bit, const char* val0 = nullptr, const char* val1 = nullptr) {
 		std::string s;
 		ImVec2 sz;
-		if (flagsLayout == 0) {
+		if (*flagsLayout == 0) {
 			// horizontal
 			if (val0) {
 				s = (f & bit) ? val1 : val0;
@@ -1407,7 +1475,7 @@ void ImGuiLayer::drawFlags(MSXMotherBoard& motherBoard)
 			}
 		}
 		simpleToolTip("double-click to toggle");
-		if (flagsLayout == 0) {
+		if (*flagsLayout == 0) {
 			// horizontal
 			ImGui::SameLine(0.0f, sizeH1.x);
 		}
@@ -1415,19 +1483,19 @@ void ImGuiLayer::drawFlags(MSXMotherBoard& motherBoard)
 
 	draw("S", 0x80, " P", " M");
 	draw("Z", 0x40, "NZ", " Z");
-	if (showUndocumentedFlags) draw("Y", 0x20);
+	if (*showXYFlags) draw("Y", 0x20);
 	draw("H", 0x10);
-	if (showUndocumentedFlags) draw("X", 0x08);
+	if (*showXYFlags) draw("X", 0x08);
 	draw("P", 0x04, "PO", "PE");
 	draw("N", 0x02);
 	draw("C", 0x01, "NC", " C");
 
 	if (ImGui::BeginPopupContextWindow()) {
 		ImGui::TextUnformatted("Layout");
-		ImGui::RadioButton("horizontal", &flagsLayout, 0);
-		ImGui::RadioButton("vertical", &flagsLayout, 1);
+		ImGui::RadioButton("horizontal", flagsLayout, 0);
+		ImGui::RadioButton("vertical", flagsLayout, 1);
 		ImGui::Separator();
-		ImGui::Checkbox("show undocumented", &showUndocumentedFlags);
+		ImGui::Checkbox("show undocumented", showXYFlags);
 		ImGui::EndPopup();
 	}
 
@@ -1439,7 +1507,7 @@ void ImGuiLayer::drawStack(MSXMotherBoard& motherBoard)
 	auto line = ImGui::GetTextLineHeightWithSpacing();
 	ImGui::SetNextWindowSize(ImVec2(0.0f, 12 * line), ImGuiCond_FirstUseEver);
 
-	if (!ImGui::Begin("stack", &showStack)) {
+	if (!ImGui::Begin("stack", showStack)) {
 		ImGui::End();
 		return;
 	}
@@ -1477,7 +1545,7 @@ void ImGuiLayer::drawStack(MSXMotherBoard& motherBoard)
 				if (ImGui::TableNextColumn()) { // value
 					auto l = cpuInterface.peekMem(narrow_cast<uint16_t>(addr + 0), time);
 					auto h = cpuInterface.peekMem(narrow_cast<uint16_t>(addr + 1), time);
-					uint16_t value = 256 * h + l;
+					auto value = narrow<uint16_t>(256 * h + l);
 					ImGui::Text("%04X", value);
 				}
 			}
@@ -1691,7 +1759,7 @@ void ImGuiLayer::bitmapViewer(MSXMotherBoard& motherBoard)
 	};
 
 	VDP* vdp = dynamic_cast<VDP*>(motherBoard.findDevice("VDP")); // TODO name based OK?
-	if (ImGui::Begin("Bitmap viewer", &showBitmapViewer) && vdp) {
+	if (ImGui::Begin("Bitmap viewer", showBitmapViewer) && vdp) {
 		int vdpMode = parseMode(vdp->getDisplayMode());
 
 		int vdpPages = vdpMode <= SCR6 ? 4 : 2;
@@ -1708,8 +1776,8 @@ void ImGuiLayer::bitmapViewer(MSXMotherBoard& motherBoard)
 		}();
 
 		ImGui::BeginGroup();
-		ImGui::RadioButton("Use VDP settings", &bitmapManual, 0);
-		ImGui::BeginDisabled(bitmapManual != 0);
+		ImGui::RadioButton("Use VDP settings", bitmapManual, 0);
+		ImGui::BeginDisabled(*bitmapManual != 0);
 		ImGui::AlignTextToFramePadding();
 		ImGui::Text("Screen mode: %s", modeToStr(vdpMode));
 		ImGui::AlignTextToFramePadding();
@@ -1726,15 +1794,15 @@ void ImGuiLayer::bitmapViewer(MSXMotherBoard& motherBoard)
 
 		ImGui::SameLine();
 		ImGui::BeginGroup();
-		ImGui::RadioButton("Manual override", &bitmapManual, 1);
-		ImGui::BeginDisabled(bitmapManual != 1);
+		ImGui::RadioButton("Manual override", bitmapManual, 1);
+		ImGui::BeginDisabled(*bitmapManual != 1);
 		ImGui::PushItemWidth(ImGui::GetFontSize() * 9.0f);
-		ImGui::Combo("##Screen mode", &bitmapScrnMode, "screen 5\000screen 6\000screen 7\000screen 8\000screen 11\000screen 12\000");
-		int numPages = bitmapScrnMode <= SCR6 ? 4 : 2; // TODO extended VRAM
-		if (bitmapPage >= numPages) bitmapPage = numPages - 1;
-		ImGui::Combo("##Display page", &bitmapPage, numPages == 2 ? "0\0001\000" : "0\0001\0002\0003\000");
-		ImGui::Combo("##Visible lines", &bitmapLines, "192\000212\000256\000");
-		ImGui::Combo("##Color 0 replacement", &bitmapColor0, color0Str);
+		ImGui::Combo("##Screen mode", bitmapScrnMode, "screen 5\000screen 6\000screen 7\000screen 8\000screen 11\000screen 12\000");
+		int numPages = *bitmapScrnMode <= SCR6 ? 4 : 2; // TODO extended VRAM
+		if (*bitmapPage >= numPages) *bitmapPage = numPages - 1;
+		ImGui::Combo("##Display page", bitmapPage, numPages == 2 ? "0\0001\000" : "0\0001\0002\0003\000");
+		ImGui::Combo("##Visible lines", bitmapLines, "192\000212\000256\000");
+		ImGui::Combo("##Color 0 replacement", bitmapColor0, color0Str);
 		ImGui::PopItemWidth();
 		ImGui::EndDisabled();
 		ImGui::EndGroup();
@@ -1744,15 +1812,15 @@ void ImGuiLayer::bitmapViewer(MSXMotherBoard& motherBoard)
 		ImGui::SameLine();
 		ImGui::BeginGroup();
 		ImGui::SetNextItemWidth(ImGui::GetFontSize() * 10.0f);
-		ImGui::Combo("Palette", &bitmapPalette, "Current VDP\000Fixed\000Custom (TODO)\000");
+		ImGui::Combo("Palette", bitmapPalette, "Current VDP\000Fixed\000Custom (TODO)\000");
 		ImGui::Button("Edit custom palette TODO");
 		ImGui::Separator();
 		ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.0f);
-		ImGui::Combo("Zoom", &bitmapZoom, "1x\0002x\0003x\0004x\0005x\0006x\0007x\0008x\000");
-		ImGui::Checkbox("grid", &bitmapGrid);
+		ImGui::Combo("Zoom", bitmapZoom, "1x\0002x\0003x\0004x\0005x\0006x\0007x\0008x\000");
+		ImGui::Checkbox("grid", bitmapGrid);
 		ImGui::SameLine();
-		ImGui::BeginDisabled(!bitmapGrid);
-		ImGui::ColorEdit4("Grid color", &bitmapGridColor[0],
+		ImGui::BeginDisabled(!*bitmapGrid);
+		ImGui::ColorEdit4("Grid color", &(*bitmapGridColor)[0],
 			ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
 		ImGui::EndDisabled();
 		ImGui::EndGroup();
@@ -1760,10 +1828,10 @@ void ImGuiLayer::bitmapViewer(MSXMotherBoard& motherBoard)
 		ImGui::Separator();
 
 		auto& vram = vdp->getVRAM();
-		int mode   = bitmapManual ? bitmapScrnMode : vdpMode;
-		int page   = bitmapManual ? bitmapPage     : vdpPage;
-		int lines  = bitmapManual ? bitmapLines    : vdpLines;
-		int color0 = bitmapManual ? bitmapColor0   : vdpColor0;
+		int mode   = *bitmapManual ? *bitmapScrnMode : vdpMode;
+		int page   = *bitmapManual ? *bitmapPage     : vdpPage;
+		int lines  = *bitmapManual ? *bitmapLines    : vdpLines;
+		int color0 = *bitmapManual ? *bitmapColor0   : vdpColor0;
 		int width  = mode == one_of(SCR6, SCR7) ? 512 : 256;
 		int height = (lines == 0) ? 192
 		           : (lines == 1) ? 212
@@ -1777,7 +1845,7 @@ void ImGuiLayer::bitmapViewer(MSXMotherBoard& motherBoard)
 			return (rr << 0) | (gg << 8) | (bb << 16) | (aa << 24);
 		};
 		std::array<uint32_t, 16> palette16;
-		if (bitmapPalette == 0) {
+		if (*bitmapPalette == 0) {
 			auto msxPalette = vdp->getPalette();
 			for (auto i : xrange(16)) {
 				int r = (msxPalette[i] >> 4) & 7;
@@ -1814,16 +1882,16 @@ void ImGuiLayer::bitmapViewer(MSXMotherBoard& motherBoard)
 		bitmapTex.bind();
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
 		             GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-		int zx = (1 + bitmapZoom) * (width == 256 ? 2 : 1);
-		int zy = (1 + bitmapZoom) * 2;
+		int zx = (1 + *bitmapZoom) * (width == 256 ? 2 : 1);
+		int zy = (1 + *bitmapZoom) * 2;
 
 		if (ImGui::BeginChild("##bitmap", ImGui::GetContentRegionAvail(), false, ImGuiWindowFlags_HorizontalScrollbar)) {
 			auto pos = ImGui::GetCursorPos();
 			ImVec2 size(float(width * zx), float(height * zy));
 			ImGui::Image(reinterpret_cast<void*>(bitmapTex.get()), size);
 
-			if (bitmapGrid && (zx > 1) && (zy > 1)) {
-				auto color = ImGui::ColorConvertFloat4ToU32(bitmapGridColor);
+			if (*bitmapGrid && (zx > 1) && (zy > 1)) {
+				auto color = ImGui::ColorConvertFloat4ToU32(*bitmapGridColor);
 				for (auto y : xrange(zy)) {
 					auto* line = &pixels[y * zx];
 					for (auto x : xrange(zx)) {
@@ -1906,6 +1974,36 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 	auto& rendererSettings = reactor.getDisplay().getRenderSettings();
 	auto& commandController = reactor.getCommandController();
 	auto* motherBoard = reactor.getMotherBoard();
+	auto& imGui = reactor.getImGuiManager();
+
+	if (first) {
+		auto& iconsSection = imGui.get("OSD icons");
+		assert(iconInfo.empty());
+		int counter = 0;
+		while (true) {
+			std::string prefix = strCat("icon.", ++counter);
+			auto* en = iconsSection.find(strCat(prefix, ".enabled"));
+			if (!en) break;
+			auto* f = iconsSection.find(strCat(prefix, ".fade"));
+			if (!f) break;
+			auto* on = iconsSection.find(strCat(prefix, ".on-image"));
+			if (!on) break;
+			auto* off = iconsSection.find(strCat(prefix, ".off-image"));
+			if (!off) break;
+			auto* ex = iconsSection.find(strCat(prefix, ".expr"));
+			if (!ex) break;
+
+			iconInfo.emplace_back(TclObject(ex->get<std::string>()),
+						on->get<std::string>(),
+						off->get<std::string>(),
+						f->get<bool>(),
+						en->get<bool>());
+		}
+		if (iconInfo.empty()) {
+			setDefaultIcons();
+		}
+		iconInfoDirty = true;
+	}
 
 	// Allow docking in main window
 	ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(),
@@ -1915,51 +2013,63 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 	if (showDemoWindow) {
 		ImGui::ShowDemoWindow(&showDemoWindow);
 	}
-	if (showIcons) {
+	if (*showIcons) {
 		drawIcons();
 	}
-	if (showConfigureIcons) {
+	if (*showConfigureIcons) {
 		drawConfigureIcons();
 	}
 
 	if (motherBoard) {
-		if (showReverseBar) {
+		if (*showReverseBar) {
 			drawReverseBar(*motherBoard);
 		}
-		if (showDisassembly) {
+		if (*showDisassembly) {
 			disassembly(*motherBoard);
 		}
-		if (showRegisters) {
+		if (*showRegisters) {
 			drawRegisters(*motherBoard);
 		}
-		if (showFlags) {
+		if (*showFlags) {
 			drawFlags(*motherBoard);
 		}
-		if (showStack) {
+		if (*showStack) {
 			drawStack(*motherBoard);
 		}
 		// Show the enabled 'debuggables'
-		auto& debugger = motherBoard->getDebugger();
-		for (const auto& [name, editor] : debuggables) {
+		for (auto& [name, debuggable] : motherBoard->getDebugger().getDebuggables()) {
+			auto [it, inserted] = debuggables.try_emplace(name);
+			auto& editor = it->second;
+			if (inserted) {
+				editor = std::make_unique<DebuggableEditor>();
+				auto& section = imGui.get("debugger");
+				auto& item = section.getOrCreate(tmpStrCat("showDebuggable.", name));
+				editor->Open = item.get<bool>();
+			}
+
 			if (editor->Open) {
-				if (auto* debuggable = debugger.findDebuggable(name)) {
-					editor->DrawWindow(name.c_str(), *debuggable);
-				}
+				editor->DrawWindow(name.c_str(), *debuggable);
 			}
 		}
-		if (showBitmapViewer) {
+
+		if (*showBitmapViewer) {
 			bitmapViewer(*motherBoard);
 		}
 
 		// Show sound chip settings
-		if (showSoundChipSettings) {
+		if (*showSoundChipSettings) {
 			soundChipSettings(*motherBoard);
 		}
 
 		// Show sound chip channel settings
-		for (auto& [name, enabled] : channels) {
-			if (enabled) {
-				channelSettings(*motherBoard, name, &enabled);
+		auto& soundSection = imGui.get("sound chip settings");
+		auto& msxMixer = motherBoard->getMSXMixer();
+		auto& infos = msxMixer.getDeviceInfos();
+		for (auto& info : infos) {
+			const auto& name = info.device->getName();
+			auto& show = soundSection.getOrCreate(tmpStrCat("showChannels.", name)).get<bool>();
+			if (show) {
+				channelSettings(*motherBoard, name, &show);
 			}
 		}
 
@@ -1999,7 +2109,7 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 		}
 		HelpMarker("Reset the emulated MSX machine.");
 
-		ImGui::Checkbox("Icons window", &showIcons);
+		ImGui::Checkbox("Icons window", showIcons);
 
 		SliderFloat("noise", rendererSettings.getNoiseSetting(), "%.1f");
 	}
@@ -2014,7 +2124,8 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 	auto* fileDialog = ImGuiFileDialog::Instance();
 	if (fileDialog->Display("FileDialog", ImGuiWindowFlags_NoCollapse, ImVec2(480.0f, 360.0f))) {
 		if (fileDialog->IsOk() && openFileCallback) {
-			lastPath[lastFileDialog] = fileDialog->GetCurrentPath();
+			auto& item = imGui.get("open file dialog").getOrCreate(lastFileDialog);
+			item.get<std::string>() = fileDialog->GetCurrentPath();
 			std::string filePathName = fileDialog->GetFilePathName();
 			openFileCallback(filePathName);
 			openFileCallback = {};

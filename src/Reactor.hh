@@ -22,6 +22,7 @@ class GlobalCliComm;
 class GlobalCommandController;
 class GlobalSettings;
 class CliComm;
+class ImGuiManager;
 class Interpreter;
 class Display;
 class Mixer;
@@ -89,6 +90,7 @@ public:
 	[[nodiscard]] DiskManipulator& getDiskManipulator() { return *diskManipulator; }
 	[[nodiscard]] EnumSetting<int>& getMachineSetting() { return *machineSetting; }
 	[[nodiscard]] FilePool& getFilePool() { return *filePool; }
+	[[nodiscard]] ImGuiManager& getImGuiManager() { return *imGuiManager; }
 
 	[[nodiscard]] RomDatabase& getSoftwareDatabase();
 
@@ -150,6 +152,7 @@ private:
 	std::unique_ptr<GlobalCommandController> globalCommandController;
 	std::unique_ptr<GlobalSettings> globalSettings;
 	std::unique_ptr<InputEventGenerator> inputEventGenerator;
+	std::unique_ptr<ImGuiManager> imGuiManager; // before display
 	std::unique_ptr<Display> display;
 	std::unique_ptr<Mixer> mixer; // lazy initialized
 	std::unique_ptr<DiskFactory> diskFactory;

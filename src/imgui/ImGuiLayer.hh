@@ -19,6 +19,7 @@
 namespace openmsx {
 
 class DebuggableEditor;
+class ImGuiManager;
 class Interpreter;
 class MSXMotherBoard;
 class Reactor;
@@ -65,6 +66,8 @@ private:
 	void selectFile(const std::string& title, std::string filters,
                         std::function<void(const std::string&)> callback);
 
+	void syncPersistentData(ImGuiManager& imGui);
+
 public:
 	// TODO dynamic font loading in ImGui is technically possible, though not trivial
 	// So for now pre-load all the fonts we'll need.
@@ -81,9 +84,7 @@ private:
 	std::vector<TclObject> commandQueue;
 
 	std::map<std::string, std::unique_ptr<DebuggableEditor>> debuggables;
-	std::map<std::string, bool> channels;
 
-	std::map<std::string, std::string> lastPath;
 	std::string lastFileDialog;
 	std::function<void(const std::string&)> openFileCallback;
 
@@ -95,18 +96,22 @@ private:
 		gl::Texture texture{gl::Null{}};
 	} previewImage;
 
-	bool showReverseBar = true;
-	bool reverseHideTitle = false;
-	bool reverseFadeOut = false;
+	bool* showReverseBar;
+	bool* reverseHideTitle;
+	bool* reverseFadeOut;
+	bool* reverseAllowMove;
 	float reverseAlpha = 1.0f;
 
-	bool showIcons = true;
-	bool iconsHideTitle = false;
-	bool iconsAllowMove = true;
-	int iconsHorizontal = 1; // 0=vertical, 1=horizontal
+	bool* showIcons;
+	bool* iconsHideTitle;
+	bool* iconsAllowMove;
+	int* iconsHorizontal; // 0=vertical, 1=horizontal
+	float* iconsFadeDuration;
+	float* iconsFadeDelay;
+	bool* showConfigureIcons;
 	struct IconInfo {
-		IconInfo(TclObject expr_, std::string on_, std::string off_, bool fade_)
-			: expr(expr_), on(std::move(on_)), off(std::move(off_)), fade(fade_) {}
+		IconInfo(TclObject expr_, std::string on_, std::string off_, bool fade_, bool enable_ = true)
+			: expr(expr_), on(std::move(on_)), off(std::move(off_)), enable(enable_), fade(fade_) {}
 		struct Icon {
 			Icon(std::string filename_) : filename(std::move(filename_)) {}
 			std::string filename;
@@ -123,37 +128,34 @@ private:
 	std::vector<IconInfo> iconInfo;
 	gl::ivec2 iconsTotalSize;
 	gl::ivec2 iconsMaxSize;
-	float iconsFadeDuration = 5.0f;
-	float iconsFadeDelay = 5.0f;
 	int iconsNumEnabled = 0;
 	bool iconInfoDirty = false;
-	bool showConfigureIcons = false;
 
-	bool showDisassembly = false;
+	bool* showDisassembly;
 	bool syncDisassemblyWithPC = false;
 
-	bool showRegisters = false;
-	bool showStack = false;
-	bool showFlags = false;
-	bool showUndocumentedFlags = false;
-	int flagsLayout = 1; // 0=horizontal 1=vertical
+	bool* showRegisters;
+	bool* showStack;
+	bool* showFlags;
+	bool* showXYFlags;
+	int* flagsLayout;
 
-	bool showBitmapViewer = false;
-	int bitmapManual = 0; // 0 -> use VDP settings, 1 -> use manual settings
+	bool* showBitmapViewer;
+	int* bitmapManual; // 0 -> use VDP settings, 1 -> use manual settings
 	enum BitmapScrnMode : int { SCR5, SCR6, SCR7, SCR8, SCR11, SCR12, OTHER };
-	int bitmapScrnMode = SCR5;
-	int bitmapPage = 0; // 0-3 or 0-1 depending on screen mode   TODO extended VRAM
-	int bitmapLines = 1; // 0->192, 1->212, 2->256
-	int bitmapColor0 = 16; // 0..15, 16->no replacement
-	int bitmapPalette = 0; // 0->actual, 1->fixed, 2->custom
-	int bitmapZoom = 1; // 0->1x, 1->2x, ..., 7->8x
-	bool bitmapGrid = true;
-	gl::vec4 bitmapGridColor{0.0f, 0.0f, 0.0f, 0.5f}; // RGBA
+	int* bitmapScrnMode;
+	int* bitmapPage; // 0-3 or 0-1 depending on screen mode   TODO extended VRAM
+	int* bitmapLines; // 0->192, 1->212, 2->256
+	int* bitmapColor0; // 0..15, 16->no replacement
+	int* bitmapPalette; // 0->actual, 1->fixed, 2->custom
+	int* bitmapZoom; // 0->1x, 1->2x, ..., 7->8x
+	bool* bitmapGrid;
+	gl::vec4* bitmapGridColor; // RGBA
 	gl::Texture bitmapTex{false, false}; // no interpolation, no wrapping
 	gl::Texture bitmapGridTex{false, true}; // no interpolation, with wrapping
 
 	bool showDemoWindow = false;
-	bool showSoundChipSettings = false;
+	bool* showSoundChipSettings;
 	bool first = true;
 };
 

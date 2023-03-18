@@ -9,6 +9,7 @@
 #include "DiskManipulator.hh"
 #include "DiskChanger.hh"
 #include "FilePool.hh"
+#include "ImGuiManager.hh"
 #include "UserSettings.hh"
 #include "RomDatabase.hh"
 #include "RomInfo.hh"
@@ -223,6 +224,7 @@ void Reactor::init()
 		*globalCommandController);
 	inputEventGenerator = make_unique<InputEventGenerator>(
 		*globalCommandController, *eventDistributor, *globalSettings);
+	imGuiManager = make_unique<ImGuiManager>();
 	diskFactory = make_unique<DiskFactory>(
 		*this);
 	diskManipulator = make_unique<DiskManipulator>(
