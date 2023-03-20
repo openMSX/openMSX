@@ -1,30 +1,30 @@
 #include "ImGuiMarkdown.hh"
-#include "ImGuiLayer.hh"
+#include "ImGuiManager.hh"
 #include <SDL.h>
 
 namespace openmsx {
 
 void ImGuiMarkdown::print(std::string_view str)
 {
-	ImGui::PushFont(layer.vera13);
+	ImGui::PushFont(manager.vera13);
 	imgui_md::print(str.begin(), str.end());
 	ImGui::PopFont();
 }
 
 ImFont* ImGuiMarkdown::get_font() const
 {
-	if (m_is_table_header) return layer.veraBold13;
+	if (m_is_table_header) return manager.veraBold13;
 
 	switch (m_hlevel) {
 	case 0:
-		return m_is_strong ? (m_is_em ? layer.veraBoldItalic13
-		                              : layer.veraBold13)
-		                   : (m_is_em ? layer.veraItalic13
-		                              : layer.vera13);
+		return m_is_strong ? (m_is_em ? manager.veraBoldItalic13
+		                              : manager.veraBold13)
+		                   : (m_is_em ? manager.veraItalic13
+		                              : manager.vera13);
 	case 1:
-		return layer.veraBold16;
+		return manager.veraBold16;
 	default:
-		return layer.veraBold13;
+		return manager.veraBold13;
 	}
 }
 

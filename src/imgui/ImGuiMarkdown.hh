@@ -6,13 +6,13 @@
 
 namespace openmsx {
 
-class ImGuiLayer;
+class ImGuiManager;
 
 class ImGuiMarkdown : public imgui_md
 {
 public:
-	ImGuiMarkdown(ImGuiLayer& layer_)
-		: layer(layer_) {}
+	ImGuiMarkdown(ImGuiManager& manager_)
+		: manager(manager_) {}
 
 	void print(std::string_view);
 
@@ -22,7 +22,7 @@ public:
 	//void html_div(const std::string& divClass, bool e) override;
 
 private:
-	ImGuiLayer& layer;
+	ImGuiManager& manager;
 };
 
 }

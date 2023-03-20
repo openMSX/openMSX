@@ -352,7 +352,10 @@ ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX))$(findstring /g++-,$(CXX)),)
   COMPILE_FLAGS+=-std=c++20
   # Stricter warning and error reporting.
   #COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion -Wmissing-declarations -Wshadow -Wold-style-cast -Wzero-as-null-pointer-constant
-  COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion -Wmissing-declarations -Wshadow -Wold-style-cast -Wconversion -Wno-sign-conversion
+
+  # Remove some flags until we resolve the 'Dear ImGui' warnings (ideally this should be treated as a 3rdpaty library with only standard warnings enabled)
+  #COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion -Wmissing-declarations -Wshadow -Wold-style-cast -Wconversion -Wno-sign-conversion
+  COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wmissing-declarations -Wshadow -Wno-sign-conversion
   # Empty definition of used headers, so header removal doesn't break things.
   DEPEND_FLAGS+=-MP
   # Plain C compiler, for the 3rd party libs.

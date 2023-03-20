@@ -224,7 +224,7 @@ void Reactor::init()
 		*globalCommandController);
 	inputEventGenerator = make_unique<InputEventGenerator>(
 		*globalCommandController, *eventDistributor, *globalSettings);
-	imGuiManager = make_unique<ImGuiManager>();
+	imGuiManager = make_unique<ImGuiManager>(*this);
 	diskFactory = make_unique<DiskFactory>(
 		*this);
 	diskManipulator = make_unique<DiskManipulator>(

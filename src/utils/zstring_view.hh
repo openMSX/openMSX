@@ -56,6 +56,10 @@ public:
 		assert(pos <= siz);
 		return {dat + pos, siz - pos};
 	}
+	[[nodiscard]] constexpr std::string_view substr(size_type pos, size_type count) const {
+		assert(pos <= siz);
+		return view().substr(pos, count);
+	}
 
 	[[nodiscard]] constexpr bool starts_with(std::string_view sv) const {
 		return view().starts_with(sv);
