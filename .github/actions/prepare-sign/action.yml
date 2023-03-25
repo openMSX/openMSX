@@ -1,5 +1,6 @@
 name: Prepare for signing a Darwin build
 description: "Prepare for signing a Darwin build"
+secrets: inherit
 inputs:
   os:
     required: true
