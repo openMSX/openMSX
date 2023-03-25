@@ -66,7 +66,7 @@ jobs:
     - name: Preparations for signing binaries on Darwin builds
       uses: ./.github/actions/prepare-sign
       with:
-	os: ${{ matrix.os }}
+        os: ${{ matrix.os }}
     - name: Perform the actual build
       env: 
         CODE_SIGN_IDENTITY: 748867M822
