@@ -9,6 +9,7 @@ runs:
   steps:
   - name: Install the certificate in a temporary key-chain
     if: inputs.os == 'darwin'
+    shell: bash
     env:
       BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
       P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
