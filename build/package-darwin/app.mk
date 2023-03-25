@@ -43,7 +43,7 @@ $(DESTDIR)/$(APP_ICON): $(DESTDIR)/$(APP_RES)/%: $(APP_SUPPORT_DIR)/% bindistcle
 	@mkdir -p $(@D)
 	@cp $< $@
 
-codesign:
+codesign: app
 	@if [ -z "$(CODE_SIGN_IDENTITY)" ]; then \
 		echo "  Skipping code sign, CODE_SIGN_IDENTITY not set."; \
 	else \
