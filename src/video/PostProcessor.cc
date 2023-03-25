@@ -20,7 +20,6 @@
 #include "narrow.hh"
 #include "vla.hh"
 #include "xrange.hh"
-#include "build-info.hh"
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
@@ -208,9 +207,10 @@ static void getScaledFrame(FrameSource& paintFrame, unsigned bpp,
                            std::span<const void*> lines,
                            WorkBuffer& workBuffer)
 {
+	assert(bpp == 32); // TODO remove bpp
 	auto height = narrow<unsigned>(lines.size());
 	unsigned width = (height == 240) ? 320 : 640;
-	unsigned pitch = width * ((bpp == 32) ? 4 : 2);
+	unsigned pitch = width * 4;
 	const void* linePtr = nullptr;
 	void* work = nullptr;
 	for (auto i : xrange(height)) {
@@ -219,33 +219,14 @@ static void getScaledFrame(FrameSource& paintFrame, unsigned bpp,
 			// then allocate a new one.
 			work = workBuffer.emplace_back(pitch).data();
 		}
-#if HAVE_32BPP
-		if (bpp == 32) {
-			// 32bpp
-			auto* work2 = static_cast<uint32_t*>(work);
-			if (height == 240) {
-				auto line = paintFrame.getLinePtr320_240(i, std::span<uint32_t, 320>{work2, 320});
-				linePtr = line.data();
-			} else {
-				assert (height == 480);
-				auto line = paintFrame.getLinePtr640_480(i, std::span<uint32_t, 640>{work2, 640});
-				linePtr = line.data();
-			}
-		} else
-#endif
-		{
-#if HAVE_16BPP
-			// 15bpp or 16bpp
-			auto* work2 = static_cast<uint16_t*>(work);
-			if (height == 240) {
-				auto line = paintFrame.getLinePtr320_240(i, std::span<uint16_t, 320>{work2, 320});
-				linePtr = line.data();
-			} else {
-				assert (height == 480);
-				auto line = paintFrame.getLinePtr640_480(i, std::span<uint16_t, 640>{work2, 640});
-				linePtr = line.data();
-			}
-#endif
+		auto* work2 = static_cast<uint32_t*>(work);
+		if (height == 240) {
+			auto line = paintFrame.getLinePtr320_240(i, std::span<uint32_t, 320>{work2, 320});
+			linePtr = line.data();
+		} else {
+			assert (height == 480);
+			auto line = paintFrame.getLinePtr640_480(i, std::span<uint32_t, 640>{work2, 640});
+			linePtr = line.data();
 		}
 		lines[i] = linePtr;
 	}

@@ -1,45 +1,14 @@
 #ifndef HQCOMMON_HH
 #define HQCOMMON_HH
 
-#include "FrameSource.hh"
-#include "ScalerOutput.hh"
-#include "LineScalers.hh"
-#include "PixelOperations.hh"
 #include "endian.hh"
 #include "narrow.hh"
-#include "vla.hh"
 #include "xrange.hh"
-#include <algorithm>
 #include <cassert>
 #include <cstdint>
+#include <span>
 
 namespace openmsx {
-
-template<std::unsigned_integral Pixel>
-[[nodiscard]] inline uint32_t readPixel(Pixel p)
-{
-	// TODO: Use surface info instead.
-	if constexpr (sizeof(Pixel) == 2) {
-		return ((p & 0xF800) << 8) |
-		       ((p & 0x07C0) << 5) | // drop lowest green bit
-		       ((p & 0x001F) << 3);
-	} else {
-		return p & 0xF8F8F8F8;
-	}
-}
-
-template<std::unsigned_integral Pixel>
-inline Pixel writePixel(uint32_t p)
-{
-	// TODO: Use surface info instead.
-	if constexpr (sizeof(Pixel) == 2) {
-		return ((p & 0xF80000) >> 8) |
-		       ((p & 0x00FC00) >> 5) |
-		       ((p & 0x0000F8) >> 3);
-	} else {
-		return (p & 0xF8F8F8F8) | ((p & 0xE0E0E0E0) >> 5);
-	}
-}
 
 class EdgeHQ
 {
@@ -81,18 +50,6 @@ private:
 	const unsigned shiftG;
 	const unsigned shiftB;
 };
-
-template<std::unsigned_integral Pixel>
-EdgeHQ createEdgeHQ(const PixelOperations<Pixel>& pixelOps)
-{
-	if constexpr (sizeof(Pixel) == 2) {
-		return {0, 8, 16};
-	} else {
-		return {pixelOps.getRshift(),
-		        pixelOps.getGshift(),
-		        pixelOps.getBshift()};
-	}
-}
 
 struct EdgeHQLite
 {
@@ -189,120 +146,6 @@ void calcEdgesGL(std::span<const uint32_t> curr, std::span<const uint32_t> next,
 	if (edgeOp(c6, c9)) pattern |= 0x1880'0000;  // edges:      8,9,D (right)
 
 	edges2[159] = pattern;
-}
-
-template<std::unsigned_integral Pixel, typename EdgeOp>
-void calcInitialEdges(
-	std::span<const Pixel> srcPrev, std::span<const Pixel> srcCurr,
-	std::span<uint16_t> edgeBuf, EdgeOp edgeOp)
-{
-	auto srcWidth = edgeBuf.size();
-	assert(srcPrev.size() == srcWidth);
-	assert(srcCurr.size() == srcWidth);
-
-	size_t x = 0;
-	uint32_t c1 = readPixel(srcPrev[x]);
-	uint32_t c2 = readPixel(srcCurr[x]);
-	uint16_t pattern = edgeOp(c1, c2) ? ((1 << 6) | (1 << 7)) : 0;
-	for (/* */; x < (srcWidth - 1); ++x) {
-		pattern >>= 6;
-		uint32_t n1 = readPixel(srcPrev[x + 1]);
-		uint32_t n2 = readPixel(srcCurr[x + 1]);
-		if (edgeOp(c1, c2)) pattern |= (1 << 5);
-		if (edgeOp(c1, n2)) pattern |= (1 << 6);
-		if (edgeOp(c2, n1)) pattern |= (1 << 7);
-		edgeBuf[x] = pattern;
-		c1 = n1; c2 = n2;
-	}
-	pattern >>= 6;
-	if (edgeOp(c1, c2)) pattern |= (1 << 5) | (1 << 6) | (1 << 7);
-	edgeBuf[x] = pattern;
-}
-
-template<std::unsigned_integral Pixel, typename HQScale, typename EdgeOp>
-void doHQScale2(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& postScale,
-	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
-	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
-{
-	VLA(uint16_t, edgeBuf, srcWidth);
-	VLA_SSE_ALIGNED(Pixel, buf1, srcWidth);
-	VLA_SSE_ALIGNED(Pixel, buf2, srcWidth);
-	VLA_SSE_ALIGNED(Pixel, buf3, srcWidth);
-	VLA_SSE_ALIGNED(Pixel, bufA, 2 * srcWidth);
-	VLA_SSE_ALIGNED(Pixel, bufB, 2 * srcWidth);
-
-	int srcY = narrow<int>(srcStartY);
-	auto srcPrev = src.getLine(srcY - 1, buf1);
-	auto srcCurr = src.getLine(srcY + 0, buf2);
-
-	calcInitialEdges(srcPrev, srcCurr, edgeBuf, edgeOp);
-
-	bool isCopy = postScale.isCopy();
-	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
-		auto srcNext = src.getLine(srcY + 1, buf3);
-		auto dst0 = dst.acquireLine(dstY + 0);
-		auto dst1 = dst.acquireLine(dstY + 1);
-		if (isCopy) {
-			hqScale(srcPrev, srcCurr, srcNext, dst0, dst1,
-			        edgeBuf, edgeOp);
-		} else {
-			hqScale(srcPrev, srcCurr, srcNext, bufA, bufB,
-			        edgeBuf, edgeOp);
-			postScale(bufA, dst0);
-			postScale(bufB, dst1);
-		}
-		dst.releaseLine(dstY + 0, dst0);
-		dst.releaseLine(dstY + 1, dst1);
-		srcPrev = srcCurr;
-		srcCurr = srcNext;
-		std::swap(buf1, buf2);
-		std::swap(buf2, buf3);
-	}
-}
-
-template<std::unsigned_integral Pixel, typename HQScale, typename EdgeOp>
-void doHQScale3(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& postScale,
-	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
-	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
-{
-	VLA(uint16_t, edgeBuf, srcWidth);
-	VLA_SSE_ALIGNED(Pixel, buf1, srcWidth);
-	VLA_SSE_ALIGNED(Pixel, buf2, srcWidth);
-	VLA_SSE_ALIGNED(Pixel, buf3, srcWidth);
-	VLA_SSE_ALIGNED(Pixel, bufA, 3 * srcWidth);
-	VLA_SSE_ALIGNED(Pixel, bufB, 3 * srcWidth);
-	VLA_SSE_ALIGNED(Pixel, bufC, 3 * srcWidth);
-
-	int srcY = narrow<int>(srcStartY);
-	auto srcPrev = src.getLine(srcY - 1, buf1);
-	auto srcCurr = src.getLine(srcY + 0, buf2);
-
-	calcInitialEdges(srcPrev, srcCurr, edgeBuf, edgeOp);
-
-	bool isCopy = postScale.isCopy();
-	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 3) {
-		auto srcNext = src.getLine(srcY + 1, buf3);
-		auto dst0 = dst.acquireLine(dstY + 0);
-		auto dst1 = dst.acquireLine(dstY + 1);
-		auto dst2 = dst.acquireLine(dstY + 2);
-		if (isCopy) {
-			hqScale(srcPrev, srcCurr, srcNext, dst0, dst1, dst2,
-			        edgeBuf, edgeOp);
-		} else {
-			hqScale(srcPrev, srcCurr, srcNext, bufA, bufB, bufC,
-			        edgeBuf, edgeOp);
-			postScale(bufA, dst0);
-			postScale(bufB, dst1);
-			postScale(bufC, dst2);
-		}
-		dst.releaseLine(dstY + 0, dst0);
-		dst.releaseLine(dstY + 1, dst1);
-		dst.releaseLine(dstY + 2, dst2);
-		srcPrev = srcCurr;
-		srcCurr = srcNext;
-		std::swap(buf1, buf2);
-		std::swap(buf2, buf3);
-	}
 }
 
 } // namespace openmsx

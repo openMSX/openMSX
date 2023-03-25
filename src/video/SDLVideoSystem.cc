@@ -1,8 +1,8 @@
 #include "SDLVideoSystem.hh"
-#include "SDLVisibleSurface.hh"
 #include "SDLRasterizer.hh"
+#include "SDLGLVisibleSurface.hh"
+#include "GLPostProcessor.hh"
 #include "V9990SDLRasterizer.hh"
-#include "FBPostProcessor.hh"
 #include "Reactor.hh"
 #include "Display.hh"
 #include "RenderSettings.hh"
@@ -10,15 +10,10 @@
 #include "EventDistributor.hh"
 #include "VDP.hh"
 #include "V9990.hh"
-#include "build-info.hh"
 #include "unreachable.hh"
 #include <memory>
 
 #include "components.hh"
-#if COMPONENT_GL
-#include "SDLGLVisibleSurface.hh"
-#include "GLPostProcessor.hh"
-#endif
 #if COMPONENT_LASERDISC
 #include "LaserdiscPlayer.hh"
 #include "LDSDLRasterizer.hh"
@@ -65,35 +60,12 @@ std::unique_ptr<Rasterizer> SDLVideoSystem::createRasterizer(VDP& vdp)
 	                        : vdp.getName();
 	auto& motherBoard = vdp.getMotherBoard();
 	switch (renderSettings.getRenderer()) {
-	case RenderSettings::SDL:
-		switch (screen->getPixelFormat().getBytesPerPixel()) {
-#if HAVE_16BPP
-		case 2:
-			return std::make_unique<SDLRasterizer<uint16_t>>(
-				vdp, display, *screen,
-				std::make_unique<FBPostProcessor<uint16_t>>(
-					motherBoard, display, *screen,
-					videoSource, 640, 240, true));
-#endif
-#if HAVE_32BPP
-		case 4:
-			return std::make_unique<SDLRasterizer<uint32_t>>(
-				vdp, display, *screen,
-				std::make_unique<FBPostProcessor<uint32_t>>(
-					motherBoard, display, *screen,
-					videoSource, 640, 240, true));
-#endif
-		default:
-			UNREACHABLE; return nullptr;
-		}
-#if COMPONENT_GL
 	case RenderSettings::SDLGL_PP:
 		return std::make_unique<SDLRasterizer<uint32_t>>(
 			vdp, display, *screen,
 			std::make_unique<GLPostProcessor>(
 				motherBoard, display, *screen,
 				videoSource, 640, 240, true));
-#endif
 	default:
 		UNREACHABLE; return nullptr;
 	}
@@ -107,35 +79,12 @@ std::unique_ptr<V9990Rasterizer> SDLVideoSystem::createV9990Rasterizer(
 	                        : vdp.getName();
 	MSXMotherBoard& motherBoard = vdp.getMotherBoard();
 	switch (renderSettings.getRenderer()) {
-	case RenderSettings::SDL:
-		switch (screen->getPixelFormat().getBytesPerPixel()) {
-#if HAVE_16BPP
-		case 2:
-			return std::make_unique<V9990SDLRasterizer<uint16_t>>(
-				vdp, display, *screen,
-				std::make_unique<FBPostProcessor<uint16_t>>(
-					motherBoard, display, *screen,
-					videoSource, 1280, 240, true));
-#endif
-#if HAVE_32BPP
-		case 4:
-			return std::make_unique<V9990SDLRasterizer<uint32_t>>(
-				vdp, display, *screen,
-				std::make_unique<FBPostProcessor<uint32_t>>(
-					motherBoard, display, *screen,
-					videoSource, 1280, 240, true));
-#endif
-		default:
-			UNREACHABLE; return nullptr;
-		}
-#if COMPONENT_GL
 	case RenderSettings::SDLGL_PP:
 		return std::make_unique<V9990SDLRasterizer<uint32_t>>(
 			vdp, display, *screen,
 			std::make_unique<GLPostProcessor>(
 				motherBoard, display, *screen,
 				videoSource, 1280, 240, true));
-#endif
 	default:
 		UNREACHABLE; return nullptr;
 	}
@@ -148,35 +97,12 @@ std::unique_ptr<LDRasterizer> SDLVideoSystem::createLDRasterizer(
 	std::string videoSource = "Laserdisc"; // TODO handle multiple???
 	MSXMotherBoard& motherBoard = ld.getMotherBoard();
 	switch (renderSettings.getRenderer()) {
-	case RenderSettings::SDL:
-		switch (screen->getPixelFormat().getBytesPerPixel()) {
-#if HAVE_16BPP
-		case 2:
-			return std::make_unique<LDSDLRasterizer<uint16_t>>(
-				*screen,
-				std::make_unique<FBPostProcessor<uint16_t>>(
-					motherBoard, display, *screen,
-					videoSource, 640, 480, false));
-#endif
-#if HAVE_32BPP
-		case 4:
-			return std::make_unique<LDSDLRasterizer<uint32_t>>(
-				*screen,
-				std::make_unique<FBPostProcessor<uint32_t>>(
-					motherBoard, display, *screen,
-					videoSource, 640, 480, false));
-#endif
-		default:
-			UNREACHABLE; return nullptr;
-		}
-#if COMPONENT_GL
 	case RenderSettings::SDLGL_PP:
 		return std::make_unique<LDSDLRasterizer<uint32_t>>(
 			*screen,
 			std::make_unique<GLPostProcessor>(
 				motherBoard, display, *screen,
 				videoSource, 640, 480, false));
-#endif
 	default:
 		UNREACHABLE; return nullptr;
 	}
@@ -186,17 +112,6 @@ std::unique_ptr<LDRasterizer> SDLVideoSystem::createLDRasterizer(
 gl::ivec2 SDLVideoSystem::getWindowSize()
 {
 	int factor = renderSettings.getScaleFactor();
-	switch (renderSettings.getRenderer()) {
-	case RenderSettings::SDL:
-		// We don't have 4x software scalers yet.
-		if (factor > 3) factor = 3;
-		break;
-	case RenderSettings::SDLGL_PP:
-		// All scale factors are supported.
-		break;
-	default:
-		UNREACHABLE;
-	}
 	return {320 * factor, 240 * factor};
 }
 
@@ -297,20 +212,12 @@ void SDLVideoSystem::resize()
 	screen.reset();
 
 	switch (renderSettings.getRenderer()) {
-	case RenderSettings::SDL:
-		screen = std::make_unique<SDLVisibleSurface>(
-			width, height, display, rtScheduler,
-			eventDistributor, inputEventGenerator,
-			reactor.getCliComm(), *this);
-		break;
-#if COMPONENT_GL
 	case RenderSettings::SDLGL_PP:
 		screen = std::make_unique<SDLGLVisibleSurface>(
 			width, height, display, rtScheduler,
 			eventDistributor, inputEventGenerator,
 			reactor.getCliComm(), *this);
 		break;
-#endif
 	default:
 		UNREACHABLE;
 	}

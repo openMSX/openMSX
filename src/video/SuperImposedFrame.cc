@@ -3,7 +3,6 @@
 #include "LineScalers.hh"
 #include "unreachable.hh"
 #include "vla.hh"
-#include "build-info.hh"
 #include <algorithm>
 #include <concepts>
 #include <cstdint>
@@ -32,16 +31,9 @@ private:
 std::unique_ptr<SuperImposedFrame> SuperImposedFrame::create(
 	const PixelFormat& format)
 {
-#if HAVE_16BPP
-	if (format.getBytesPerPixel() == 2) {
-		return std::make_unique<SuperImposedFrameImpl<uint16_t>>(format);
-	}
-#endif
-#if HAVE_32BPP
 	if (format.getBytesPerPixel() == 4) {
 		return std::make_unique<SuperImposedFrameImpl<uint32_t>>(format);
 	}
-#endif
 	UNREACHABLE; return nullptr; // avoid warning
 }
 

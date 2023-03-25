@@ -151,23 +151,9 @@ ZMBVEncoder::ZMBVEncoder(unsigned width_, unsigned height_, unsigned bpp)
 
 void ZMBVEncoder::setupBuffers(unsigned bpp)
 {
-	switch (bpp) {
-#if HAVE_16BPP
-	case 15:
-	case 16:
-		format = ZMBV_FORMAT_16BPP;
-		pixelSize = 2;
-		break;
-#endif
-#if HAVE_32BPP
-	case 32:
-		format = ZMBV_FORMAT_32BPP;
-		pixelSize = 4;
-		break;
-#endif
-	default:
-		UNREACHABLE;
-	}
+	assert(bpp == 32); // TODO remove bpp
+	format = ZMBV_FORMAT_32BPP;
+	pixelSize = 4;
 
 	pitch = width + 2 * MAX_VECTOR;
 	auto bufSize = (height + 2 * MAX_VECTOR) * pitch * pixelSize + 2048;
@@ -317,7 +303,6 @@ void ZMBVEncoder::addFullFrame(const PixelFormat& pixelFormat, unsigned& workUse
 
 const void* ZMBVEncoder::getScaledLine(FrameSource* frame, unsigned y, void* workBuf_) const
 {
-#if HAVE_32BPP
 	if (pixelSize == 4) { // 32bpp
 		auto* workBuf = static_cast<uint32_t*>(workBuf_);
 		switch (height) {
@@ -331,22 +316,6 @@ const void* ZMBVEncoder::getScaledLine(FrameSource* frame, unsigned y, void* wor
 			UNREACHABLE;
 		}
 	}
-#endif
-#if HAVE_16BPP
-	if (pixelSize == 2) { // 15bpp or 16bpp
-		auto* workBuf = static_cast<uint16_t*>(workBuf_);
-		switch (height) {
-		case 240:
-			return frame->getLinePtr320_240(y, std::span<uint16_t, 320>(workBuf, 320)).data();
-		case 480:
-			return frame->getLinePtr640_480(y, std::span<uint16_t, 640>(workBuf, 640)).data();
-		case 720:
-			return frame->getLinePtr960_720(y, std::span<uint16_t, 960>(workBuf, 960)).data();
-		default:
-			UNREACHABLE;
-		}
-	}
-#endif
 	UNREACHABLE;
 	return nullptr; // avoid warning
 }
@@ -390,32 +359,18 @@ std::span<const uint8_t> ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* 
 	if (keyFrame) {
 		// Key frame: full frame data.
 		switch (pixelSize) {
-#if HAVE_16BPP
-		case 2:
-			addFullFrame<uint16_t>(frame->getPixelFormat(), workUsed);
-			break;
-#endif
-#if HAVE_32BPP
 		case 4:
 			addFullFrame<uint32_t>(frame->getPixelFormat(), workUsed);
 			break;
-#endif
 		default:
 			UNREACHABLE;
 		}
 	} else {
 		// Non-key frame: delta frame data.
 		switch (pixelSize) {
-#if HAVE_16BPP
-		case 2:
-			addXorFrame<uint16_t>(frame->getPixelFormat(), workUsed);
-			break;
-#endif
-#if HAVE_32BPP
 		case 4:
 			addXorFrame<uint32_t>(frame->getPixelFormat(), workUsed);
 			break;
-#endif
 		default:
 			UNREACHABLE;
 		}

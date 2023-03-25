@@ -5,7 +5,6 @@
 #include "unreachable.hh"
 #include "vla.hh"
 #include "xrange.hh"
-#include "build-info.hh"
 #include <concepts>
 #include <memory>
 #ifdef __SSE2__
@@ -34,16 +33,9 @@ std::unique_ptr<Deflicker> Deflicker::create(
 	const PixelFormat& format,
 	std::span<std::unique_ptr<RawFrame>, 4> lastFrames)
 {
-#if HAVE_16BPP
-	if (format.getBytesPerPixel() == 2) {
-		return std::make_unique<DeflickerImpl<uint16_t>>(format, lastFrames);
-	}
-#endif
-#if HAVE_32BPP
 	if (format.getBytesPerPixel() == 4) {
 		return std::make_unique<DeflickerImpl<uint32_t>>(format, lastFrames);
 	}
-#endif
 	UNREACHABLE; return nullptr; // avoid warning
 }
 

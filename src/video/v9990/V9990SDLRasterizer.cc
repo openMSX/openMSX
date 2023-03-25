@@ -10,8 +10,6 @@
 #include "narrow.hh"
 #include "one_of.hh"
 #include "xrange.hh"
-#include "build-info.hh"
-#include "components.hh"
 #include <algorithm>
 #include <array>
 #include <cstdint>
@@ -380,11 +378,6 @@ void V9990SDLRasterizer<Pixel>::update(const Setting& setting) noexcept
 }
 
 // Force template instantiation.
-#if HAVE_16BPP
-template class V9990SDLRasterizer<uint16_t>;
-#endif
-#if HAVE_32BPP || COMPONENT_GL
 template class V9990SDLRasterizer<uint32_t>;
-#endif
 
 } // namespace openmsx

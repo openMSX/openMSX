@@ -5,7 +5,6 @@
 #include "stl.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
-#include "components.hh"
 #include <algorithm>
 #include <iostream>
 #include <cmath>
@@ -18,18 +17,11 @@ EnumSetting<RenderSettings::ScaleAlgorithm>::Map RenderSettings::getScalerMap()
 {
 	EnumSetting<ScaleAlgorithm>::Map scalerMap = { { "simple", SCALER_SIMPLE } };
 	if constexpr (MAX_SCALE_FACTOR > 1) {
-		append(scalerMap, {{"SaI",        SCALER_SAI},
-		                   {"ScaleNx",    SCALER_SCALE},
+		append(scalerMap, {{"ScaleNx",    SCALER_SCALE},
 		                   {"hq",         SCALER_HQ},
 		                   {"hqlite",     SCALER_HQLITE},
 		                   {"RGBtriplet", SCALER_RGBTRIPLET},
 		                   {"TV",         SCALER_TV}});
-		if (!Version::RELEASE) {
-			// This scaler is not ready yet for the upcoming 0.8.1
-			// release, so disable it. As soon as it is ready we
-			// can remove this test.
-			scalerMap.emplace_back("MLAA", SCALER_MLAA);
-		}
 	}
 	return scalerMap;
 }
@@ -38,12 +30,7 @@ EnumSetting<RenderSettings::RendererID>::Map RenderSettings::getRendererMap()
 {
 	EnumSetting<RendererID>::Map rendererMap = {
 		{ "none", DUMMY },// TODO: only register when in CliComm mode
-		{ "SDL", SDL } };
-#if COMPONENT_GL
-	// compiled with OpenGL-2.0, still need to test whether
-	// it's available at run time, but cannot be done here
-	rendererMap.emplace_back("SDLGL-PP", SDLGL_PP);
-#endif
+		{ "SDLGL-PP", SDLGL_PP } };
 	return rendererMap;
 }
 
@@ -98,11 +85,7 @@ RenderSettings::RenderSettings(CommandController& commandController)
 
 	, rendererSetting(commandController,
 		"renderer", "rendering back-end used to display the MSX screen",
-#if COMPONENT_GL
 		SDLGL_PP,
-#else
-		SDL,
-#endif
 		getRendererMap())
 
 	, horizontalBlurSetting(commandController,

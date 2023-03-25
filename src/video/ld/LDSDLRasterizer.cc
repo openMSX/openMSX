@@ -3,8 +3,6 @@
 #include "PostProcessor.hh"
 #include "OutputSurface.hh"
 #include "PixelFormat.hh"
-#include "build-info.hh"
-#include "components.hh"
 #include <cstdint>
 #include <memory>
 
@@ -54,11 +52,6 @@ RawFrame* LDSDLRasterizer<Pixel>::getRawFrame()
 
 
 // Force template instantiation.
-#if HAVE_16BPP
-template class LDSDLRasterizer<uint16_t>;
-#endif
-#if HAVE_32BPP || COMPONENT_GL
 template class LDSDLRasterizer<uint32_t>;
-#endif
 
 } // namespace openmsx

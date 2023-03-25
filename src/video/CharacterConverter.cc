@@ -12,8 +12,6 @@ TODO:
 #include "VDPVRAM.hh"
 #include "ranges.hh"
 #include "xrange.hh"
-#include "build-info.hh"
-#include "components.hh"
 #include <cstdint>
 
 #ifdef __SSE2__
@@ -384,11 +382,6 @@ void CharacterConverter<Pixel>::renderBlank(std::span<Pixel, 256> buf)
 }
 
 // Force template instantiation.
-#if HAVE_16BPP
-template class CharacterConverter<uint16_t>;
-#endif
-#if HAVE_32BPP || COMPONENT_GL
 template class CharacterConverter<uint32_t>;
-#endif
 
 } // namespace openmsx

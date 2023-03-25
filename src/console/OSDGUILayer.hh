@@ -7,35 +7,19 @@ namespace openmsx {
 
 class OSDGUI;
 
-class OSDGUILayer : public Layer
+class OSDGUILayer final : public Layer
 {
 public:
-	[[nodiscard]] OSDGUI& getGUI() { return gui; }
-
-protected:
 	explicit OSDGUILayer(OSDGUI& gui);
 	~OSDGUILayer() override;
 
+	[[nodiscard]] OSDGUI& getGUI() { return gui; }
+
+	// Layer
+	void paint(OutputSurface& output) override;
+
 private:
 	OSDGUI& gui;
-};
-
-class SDLOSDGUILayer final : public OSDGUILayer
-{
-public:
-	explicit SDLOSDGUILayer(OSDGUI& gui);
-
-	// Layer
-	void paint(OutputSurface& output) override;
-};
-
-class GLOSDGUILayer final : public OSDGUILayer
-{
-public:
-	explicit GLOSDGUILayer(OSDGUI& gui);
-
-	// Layer
-	void paint(OutputSurface& output) override;
 };
 
 } // namespace openmsx

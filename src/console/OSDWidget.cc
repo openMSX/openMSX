@@ -1,5 +1,5 @@
 #include "OSDWidget.hh"
-#include "SDLOutputSurface.hh"
+#include "OutputSurface.hh"
 #include "Display.hh"
 #include "VideoSystem.hh"
 #include "CommandException.hh"
@@ -42,49 +42,6 @@ static constexpr void normalize(T& x, T& w)
 	}
 }
 
-class SDLScopedClip
-{
-public:
-	SDLScopedClip(OutputSurface& output, vec2 xy, vec2 wh);
-	~SDLScopedClip();
-	SDLScopedClip(const SDLScopedClip&) = delete;
-	SDLScopedClip& operator=(const SDLScopedClip&) = delete;
-private:
-	SDL_Renderer* renderer;
-	std::optional<SDL_Rect> origClip;
-};
-
-
-SDLScopedClip::SDLScopedClip(OutputSurface& output, vec2 xy, vec2 wh)
-	: renderer(checked_cast<SDLOutputSurface&>(output).getSDLRenderer())
-{
-	ivec2 i_xy = round(xy); auto [x, y] = i_xy;
-	ivec2 i_wh = round(wh); auto [w, h] = i_wh;
-	normalize(x, w); normalize(y, h);
-
-	auto [xn, yn, wn, hn] = [&, x=x, y=y, w=w, h=h] {
-		if (SDL_RenderIsClipEnabled(renderer)) {
-			origClip.emplace();
-			SDL_RenderGetClipRect(renderer, &*origClip);
-
-			return intersect(origClip->x, origClip->y, origClip->w, origClip->h,
-			                 x,  y,  w,  h);
-		} else {
-			return IntersectResult{x, y, w, h};
-		}
-	}();
-	SDL_Rect newClip = { Sint16(xn), Sint16(yn), Uint16(wn), Uint16(hn) };
-	SDL_RenderSetClipRect(renderer, &newClip);
-}
-
-SDLScopedClip::~SDLScopedClip()
-{
-	SDL_RenderSetClipRect(renderer, origClip ? &*origClip : nullptr);
-}
-
-////
-
-#if COMPONENT_GL
 
 class GLScopedClip
 {
@@ -131,8 +88,6 @@ GLScopedClip::~GLScopedClip()
 		glDisable(GL_SCISSOR_TEST);
 	}
 }
-
-#endif
 
 ////
 
@@ -307,27 +262,9 @@ bool OSDWidget::needSuppressErrors() const
 	return false;
 }
 
-void OSDWidget::paintSDLRecursive(OutputSurface& output)
+void OSDWidget::paintRecursive(OutputSurface& output)
 {
-	paintSDL(output);
-
-	std::optional<SDLScopedClip> scopedClip;
-	if (clip) {
-		vec2 clipPos, size;
-		getBoundingBox(output, clipPos, size);
-		scopedClip.emplace(output, clipPos, size);
-	}
-
-	for (auto& s : subWidgets) {
-		s->paintSDLRecursive(output);
-	}
-}
-
-void OSDWidget::paintGLRecursive (OutputSurface& output)
-{
-	(void)output;
-#if COMPONENT_GL
-	paintGL(output);
+	paint(output);
 
 	std::optional<GLScopedClip> scopedClip;
 	if (clip) {
@@ -337,9 +274,8 @@ void OSDWidget::paintGLRecursive (OutputSurface& output)
 	}
 
 	for (auto& s : subWidgets) {
-		s->paintGLRecursive(output);
+		s->paintRecursive(output);
 	}
-#endif
 }
 
 int OSDWidget::getScaleFactor(const OutputSurface& output) const

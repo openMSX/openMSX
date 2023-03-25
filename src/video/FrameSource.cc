@@ -6,8 +6,6 @@
 #include "ranges.hh"
 #include "unreachable.hh"
 #include "vla.hh"
-#include "build-info.hh"
-#include "components.hh"
 #include <array>
 #include <cstdint>
 #include <span>
@@ -353,17 +351,9 @@ void FrameSource::scaleLine(
 
 
 // Force template method instantiation
-#if HAVE_16BPP
-template std::span<const uint16_t, 320> FrameSource::getLinePtr320_240<uint16_t>(unsigned, std::span<uint16_t, 320>) const;
-template std::span<const uint16_t, 640> FrameSource::getLinePtr640_480<uint16_t>(unsigned, std::span<uint16_t, 640>) const;
-template std::span<const uint16_t, 960> FrameSource::getLinePtr960_720<uint16_t>(unsigned, std::span<uint16_t, 960>) const;
-template void FrameSource::scaleLine<uint16_t>(std::span<const uint16_t>, std::span<uint16_t>) const;
-#endif
-#if HAVE_32BPP || COMPONENT_GL
 template std::span<const uint32_t, 320> FrameSource::getLinePtr320_240<uint32_t>(unsigned, std::span<uint32_t, 320>) const;
 template std::span<const uint32_t, 640> FrameSource::getLinePtr640_480<uint32_t>(unsigned, std::span<uint32_t, 640>) const;
 template std::span<const uint32_t, 960> FrameSource::getLinePtr960_720<uint32_t>(unsigned, std::span<uint32_t, 960>) const;
 template void FrameSource::scaleLine<uint32_t>(std::span<const uint32_t>, std::span<uint32_t>) const;
-#endif
 
 } // namespace openmsx

@@ -53,8 +53,7 @@ public:
 	[[nodiscard]] virtual std::string_view getType() const = 0;
 
 	void invalidateRecursive();
-	void paintSDLRecursive(OutputSurface& output);
-	void paintGLRecursive (OutputSurface& output);
+	void paintRecursive(OutputSurface& output);
 
 	[[nodiscard]] int getScaleFactor(const OutputSurface& output) const;
 	[[nodiscard]] gl::vec2 transformPos(const OutputSurface& output,
@@ -74,8 +73,7 @@ protected:
 	[[nodiscard]] bool needSuppressErrors() const;
 
 	virtual void invalidateLocal() = 0;
-	virtual void paintSDL(OutputSurface& output) = 0;
-	virtual void paintGL (OutputSurface& output) = 0;
+	virtual void paint(OutputSurface& output) = 0;
 
 private:
 	[[nodiscard]] gl::vec2 getMouseCoord() const;

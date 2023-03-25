@@ -1,18 +1,14 @@
 #include "OSDRectangle.hh"
-#include "SDLImage.hh"
 #include "CommandException.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
+#include "GLImage.hh"
 #include "TclObject.hh"
 #include "stl.hh"
-#include "components.hh"
 #include <cassert>
 #include <cmath>
 #include <cstdint>
 #include <memory>
-#if COMPONENT_GL
-#include "GLImage.hh"
-#endif
 
 using namespace gl;
 
@@ -142,8 +138,7 @@ uint8_t OSDRectangle::getFadedAlpha() const
 	return uint8_t(255 * getRecursiveFadeValue());
 }
 
-template<typename IMAGE> std::unique_ptr<BaseImage> OSDRectangle::create(
-	OutputSurface& output)
+std::unique_ptr<GLImage> OSDRectangle::create(OutputSurface& output)
 {
 	if (imageName.empty()) {
 		bool constAlpha = hasConstantAlpha();
@@ -160,32 +155,17 @@ template<typename IMAGE> std::unique_ptr<BaseImage> OSDRectangle::create(
 		auto factor = narrow<float>(getScaleFactor(output)) * scale;
 		auto bs = narrow_cast<int>(lrintf(factor * borderSize + sz[0] * relBorderSize));
 		assert(bs >= 0);
-		return std::make_unique<IMAGE>(output, round(sz), getRGBA4(), bs, borderRGBA);
+		return std::make_unique<GLImage>(output, round(sz), getRGBA4(), bs, borderRGBA);
 	} else {
 		auto file = systemFileContext().resolve(imageName);
 		if (takeImageDimensions()) {
 			auto factor = narrow<float>(getScaleFactor(output)) * scale;
-			return std::make_unique<IMAGE>(output, file, factor);
+			return std::make_unique<GLImage>(output, file, factor);
 		} else {
 			ivec2 iSize = round(getSize(output));
-			return std::make_unique<IMAGE>(output, file, iSize);
+			return std::make_unique<GLImage>(output, file, iSize);
 		}
 	}
-}
-
-std::unique_ptr<BaseImage> OSDRectangle::createSDL(OutputSurface& output)
-{
-	return create<SDLImage>(output);
-}
-
-std::unique_ptr<BaseImage> OSDRectangle::createGL(OutputSurface& output)
-{
-#if COMPONENT_GL
-	return create<GLImage>(output);
-#else
-	(void)&output;
-	return nullptr;
-#endif
 }
 
 } // namespace openmsx

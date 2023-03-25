@@ -158,15 +158,14 @@ std::unique_ptr<Layer> SDLGLVisibleSurface::createSnowLayer()
 std::unique_ptr<Layer> SDLGLVisibleSurface::createConsoleLayer(
 		Reactor& reactor, CommandConsole& console)
 {
-	const bool openGL = true;
 	auto [width, height] = getLogicalSize();
 	return std::make_unique<OSDConsoleRenderer>(
-		reactor, console, width, height, openGL);
+		reactor, console, width, height);
 }
 
 std::unique_ptr<Layer> SDLGLVisibleSurface::createOSDGUILayer(OSDGUI& gui)
 {
-	return std::make_unique<GLOSDGUILayer>(gui);
+	return std::make_unique<OSDGUILayer>(gui);
 }
 
 std::unique_ptr<OutputSurface> SDLGLVisibleSurface::createOffScreenSurface()

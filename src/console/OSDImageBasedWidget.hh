@@ -10,7 +10,7 @@
 
 namespace openmsx {
 
-class BaseImage;
+class GLImage;
 class Display;
 
 class OSDImageBasedWidget : public OSDWidget
@@ -54,16 +54,14 @@ protected:
 	[[nodiscard]] bool hasConstantAlpha() const;
 	void createImage(OutputSurface& output);
 	void invalidateLocal() override;
-	void paintSDL(OutputSurface& output) override;
-	void paintGL (OutputSurface& output) override;
-	[[nodiscard]] virtual std::unique_ptr<BaseImage> createSDL(OutputSurface& output) = 0;
-	[[nodiscard]] virtual std::unique_ptr<BaseImage> createGL (OutputSurface& output) = 0;
+	void paint(OutputSurface& output) override;
+	[[nodiscard]] virtual std::unique_ptr<GLImage> create(OutputSurface& output) = 0;
 	[[nodiscard]] gl::vec2 getRenderedSize() const;
 
 	void setError(std::string message);
 	[[nodiscard]] bool hasError() const { return error; }
 
-	std::unique_ptr<BaseImage> image;
+	std::unique_ptr<GLImage> image;
 
 private:
 	void setRGBA(std::span<const uint32_t, 4> newRGBA);
@@ -74,7 +72,6 @@ private:
 	[[nodiscard]] std::optional<float> getScrollWidth() const;
 	void updateCurrentFadeValue();
 
-	void paint(OutputSurface& output, bool openGL);
 	[[nodiscard]] gl::vec2 getTransformedPos(const OutputSurface& output) const;
 
 private:

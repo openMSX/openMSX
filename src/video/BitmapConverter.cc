@@ -4,7 +4,6 @@
 #include "ranges.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
-#include "components.hh"
 #include <algorithm>
 #include <cstdint>
 #include <tuple>
@@ -360,11 +359,6 @@ void BitmapConverter<Pixel>::renderBogus(std::span<Pixel, 256> buf)
 }
 
 // Force template instantiation.
-#if HAVE_16BPP
-template class BitmapConverter<uint16_t>;
-#endif
-#if HAVE_32BPP || COMPONENT_GL
 template class BitmapConverter<uint32_t>;
-#endif
 
 } // namespace openmsx

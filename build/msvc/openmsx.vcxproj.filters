@@ -1014,9 +1014,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\DummyVideoSystem.cc">
       <Filter>video</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\FBPostProcessor.cc">
-      <Filter>video</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\FrameSource.cc">
       <Filter>video</Filter>
     </ClCompile>
@@ -1039,9 +1036,6 @@
       <Filter>video</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\OutputSurface.cc">
-      <Filter>video</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\SDLOutputSurface.cc">
       <Filter>video</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\PixelRenderer.cc">
@@ -1068,22 +1062,10 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\SDLGLVisibleSurface.cc">
       <Filter>video</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\SDLImage.cc">
-      <Filter>video</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\SDLOffScreenSurface.cc">
-      <Filter>video</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\SDLRasterizer.cc">
       <Filter>video</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\SDLSnow.cc">
-      <Filter>video</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\SDLVideoSystem.cc">
-      <Filter>video</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\SDLVisibleSurface.cc">
       <Filter>video</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\SDLVisibleSurfaceBase.cc">
@@ -1335,33 +1317,11 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLHQLiteScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLHQScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLRGBScaler.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLSaIScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLScaleNxScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLScalerFactory.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLSimpleScaler.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\DirectScalerOutput.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\SuperImposeScalerOutput.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\StretchScalerOutput.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\MLAAScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLTVScaler.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\HQ2xLiteScaler.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\HQ2xScaler.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\HQ3xLiteScaler.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\HQ3xScaler.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\Multiply32.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\RGBTriplet3xScaler.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\SaI2xScaler.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\SaI3xScaler.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\Scale2xScaler.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\Scale3xScaler.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\Scaler1.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\Scaler2.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\Scaler3.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\ScalerFactory.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\Scanline.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\Simple2xScaler.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\Simple3xScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\Video9000.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXCielTurbo.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\commands\TclCallback.cc" />
@@ -1379,7 +1339,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\utils\Tiger.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\TigerTree.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\lz4.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\SuperImposedVideoFrame.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\AdhocCliCommParser.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\ReproCartridgeV1.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\ReproCartridgeV2.cc" />
@@ -2523,9 +2482,6 @@
     <None Include="$(OpenMSXSrcDir)\video\DummyVideoSystem.hh">
       <Filter>video</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\video\FBPostProcessor.hh">
-      <Filter>video</Filter>
-    </None>
     <None Include="$(OpenMSXSrcDir)\video\FrameSource.hh">
       <Filter>video</Filter>
     </None>
@@ -2551,9 +2507,6 @@
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\OutputSurface.hh">
-      <Filter>video</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\video\SDLOutputSurface.hh">
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\PixelOperations.hh">
@@ -2583,34 +2536,19 @@
     <None Include="$(OpenMSXSrcDir)\video\RenderSettings.hh">
       <Filter>video</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\video\Scanline.hh">
-      <Filter>video</Filter>
-    </None>
     <None Include="$(OpenMSXSrcDir)\video\SDLGLOffScreenSurface.hh">
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\SDLGLVisibleSurface.hh">
       <Filter>video</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\video\SDLImage.hh">
-      <Filter>video</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\video\SDLOffScreenSurface.hh">
-      <Filter>video</Filter>
-    </None>
     <None Include="$(OpenMSXSrcDir)\video\SDLRasterizer.hh">
-      <Filter>video</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\video\SDLSnow.hh">
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\SDLSurfacePtr.hh">
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\SDLVideoSystem.hh">
-      <Filter>video</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\video\SDLVisibleSurface.hh">
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\SDLVisibleSurfaceBase.hh">
@@ -2881,41 +2819,13 @@
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLHQLiteScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLHQScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLRGBScaler.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\GLSaIScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLScaleNxScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLScalerFactory.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLSimpleScaler.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\MLAAScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLTVScaler.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\HQ2xLiteScaler-1x1to1x2.nn" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\HQ2xLiteScaler-1x1to2x2.nn" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\HQ2xLiteScaler.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\HQ2xScaler-1x1to1x2.nn" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\HQ2xScaler-1x1to2x2.nn" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\HQ2xScaler.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\HQ3xLiteScaler-1x1to3x3.nn" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\HQ3xLiteScaler.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\HQ3xScaler-1x1to3x3.nn" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\HQ3xScaler.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\DirectScalerOutput.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\SuperImposeScalerOutput.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\StretchScalerOutput.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\HQCommon.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\LineScalers.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\Multiply32.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\RGBTriplet3xScaler.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\SaI2xScaler.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\SaI3xScaler.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\Scale2xScaler.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\Scale3xScaler.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\Scaler.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\Scaler1.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\Scaler2.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\Scaler3.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\ScalerFactory.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\Simple2xScaler.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\Simple3xScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\v9990\Video9000.hh" />
     <None Include="$(OpenMSXSrcDir)\SaveState.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXCielTurbo.hh" />
@@ -2933,7 +2843,6 @@
     <None Include="$(OpenMSXSrcDir)\utils\Tiger.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\TigerTree.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\lz4.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\SuperImposedVideoFrame.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
     <None Include="$(OpenMSXSrcDir)\events\AdhocCliCommParser.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\ReproCartridgeV1.hh" />

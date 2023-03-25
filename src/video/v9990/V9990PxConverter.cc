@@ -2,8 +2,6 @@
 #include "V9990.hh"
 #include "V9990VRAM.hh"
 #include "ScopedAssign.hh"
-#include "build-info.hh"
-#include "components.hh"
 #include "narrow.hh"
 #include "ranges.hh"
 #include <array>
@@ -363,13 +361,7 @@ void V9990P2Converter<Pixel>::convertLine(
 }
 
 // Force template instantiation
-#if HAVE_16BPP
-template class V9990P1Converter<uint16_t>;
-template class V9990P2Converter<uint16_t>;
-#endif
-#if HAVE_32BPP || COMPONENT_GL
 template class V9990P1Converter<uint32_t>;
 template class V9990P2Converter<uint32_t>;
-#endif
 
 } // namespace openmsx

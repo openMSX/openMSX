@@ -2,8 +2,6 @@
 #include "V9990VRAM.hh"
 #include "V9990.hh"
 #include "unreachable.hh"
-#include "build-info.hh"
-#include "components.hh"
 #include "narrow.hh"
 #include <array>
 #include <cassert>
@@ -513,11 +511,6 @@ void V9990BitmapConverter<Pixel>::convertLine(
 }
 
 // Force template instantiation
-#if HAVE_16BPP
-template class V9990BitmapConverter<uint16_t>;
-#endif
-#if HAVE_32BPP || COMPONENT_GL
 template class V9990BitmapConverter<uint32_t>;
-#endif
 
 } // namespace openmsx

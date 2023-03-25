@@ -25,7 +25,7 @@ public:
 	/** Enumeration of Renderers known to openMSX.
 	  * This is the full list, the list of available renderers may be smaller.
 	  */
-	enum RendererID { UNINITIALIZED, DUMMY, SDL, SDLGL_PP };
+	enum RendererID { UNINITIALIZED, DUMMY, SDLGL_PP };
 	using RendererSetting = EnumSetting<RendererID>;
 
 	/** Render accuracy: granularity of the rendered area.
@@ -35,8 +35,8 @@ public:
 	/** Scaler algorithm
 	  */
 	enum ScaleAlgorithm {
-		SCALER_SIMPLE, SCALER_SAI, SCALER_SCALE,
-		SCALER_HQ, SCALER_HQLITE, SCALER_RGBTRIPLET, SCALER_TV, SCALER_MLAA,
+		SCALER_SIMPLE, SCALER_SCALE,
+		SCALER_HQ, SCALER_HQLITE, SCALER_RGBTRIPLET, SCALER_TV,
 		NO_SCALER
 	};
 
