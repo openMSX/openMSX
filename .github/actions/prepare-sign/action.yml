@@ -1,6 +1,5 @@
 name: Prepare for signing a Darwin build
 description: "Prepare for signing a Darwin build"
-secrets: inherit
 inputs:
   os:
     required: true
@@ -11,10 +10,6 @@ runs:
   - name: Install the certificate in a temporary key-chain
     if: inputs.os == 'darwin'
     shell: bash
-    env:
-      BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
-      P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
-      KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
     run: |
       # create variables
       CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
