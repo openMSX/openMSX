@@ -2,7 +2,7 @@
 #define SUPERIMPOSEDFRAME_HH
 
 #include "FrameSource.hh"
-#include <memory>
+#include "PixelOperations.hh"
 
 namespace openmsx {
 
@@ -11,18 +11,20 @@ namespace openmsx {
   * The result will have the highest resolution of the two inputs (in other
   * words, the lower resolution frame gets upscaled to the higher resolution).
   */
-class SuperImposedFrame : public FrameSource
+class SuperImposedFrame final : public FrameSource
 {
 public:
-	[[nodiscard]] static std::unique_ptr<SuperImposedFrame> create(
-		const PixelFormat& format);
-	void init(const FrameSource* top, const FrameSource* bottom);
-	virtual ~SuperImposedFrame() = default;
-
-protected:
 	explicit SuperImposedFrame(const PixelFormat& format);
+	virtual ~SuperImposedFrame() = default;
+	void init(const FrameSource* top, const FrameSource* bottom);
 
-protected:
+	[[nodiscard]] unsigned getLineWidth(unsigned line) const override;
+	[[nodiscard]] const void* getLineInfo(
+		unsigned line, unsigned& width,
+		void* buf, unsigned bufWidth) const override;
+
+private:
+	PixelOperations pixelOps;
 	const FrameSource* top;
 	const FrameSource* bottom;
 };

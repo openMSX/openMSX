@@ -2,7 +2,7 @@
 #define CHARACTERCONVERTER_HH
 
 #include "openmsx.hh"
-#include <concepts>
+#include <cstdint>
 #include <span>
 
 namespace openmsx {
@@ -14,10 +14,11 @@ class DisplayMode;
 
 /** Utility class for converting VRAM contents to host pixels.
   */
-template<std::unsigned_integral Pixel>
 class CharacterConverter
 {
 public:
+	using Pixel = uint32_t;
+
 	/** Create a new bitmap scanline converter.
 	  * @param vdp The VDP of which the VRAM will be converted.
 	  * @param palFg Pointer to 16-entries array that specifies

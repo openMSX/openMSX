@@ -6,7 +6,7 @@
 #include "V9990PxConverter.hh"
 #include "Observer.hh"
 #include <array>
-#include <concepts>
+#include <cstdint>
 #include <memory>
 
 namespace openmsx {
@@ -22,11 +22,12 @@ class PostProcessor;
 
 /** Rasterizer using SDL.
   */
-template<std::unsigned_integral Pixel>
 class V9990SDLRasterizer final : public V9990Rasterizer
                                , private Observer<Setting>
 {
 public:
+	using Pixel = uint32_t;
+
 	V9990SDLRasterizer(
 		V9990& vdp, Display& display, OutputSurface& screen,
 		std::unique_ptr<PostProcessor> postProcessor);
@@ -135,9 +136,9 @@ private:
 	  */
 	const std::unique_ptr<PostProcessor> postProcessor;
 
-	V9990BitmapConverter<Pixel> bitmapConverter;
-	V9990P1Converter<Pixel> p1Converter;
-	V9990P2Converter<Pixel> p2Converter;
+	V9990BitmapConverter bitmapConverter;
+	V9990P1Converter p1Converter;
+	V9990P2Converter p2Converter;
 };
 
 } // namespace openmsx

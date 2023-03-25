@@ -284,20 +284,15 @@ struct Coefs {
 }
 
 [[nodiscard]] static inline Pixel calc(
-	const PixelFormat& format, int y, int ruv, int guv, int buv)
+	int y, int ruv, int guv, int buv)
 {
 	uint8_t r = Math::clipIntToByte((y + ruv) >> PREC);
 	uint8_t g = Math::clipIntToByte((y + guv) >> PREC);
 	uint8_t b = Math::clipIntToByte((y + buv) >> PREC);
-	if constexpr (sizeof(Pixel) == 4) {
-		return (r << 0) | (g << 8) | (b << 16);
-	} else {
-		return static_cast<Pixel>(format.map(r, g, b));
-	}
+	return (r << 0) | (g << 8) | (b << 16);
 }
 
-static void convertHelper(const th_ycbcr_buffer& buffer, RawFrame& output,
-                          const PixelFormat& format)
+static void convertHelper(const th_ycbcr_buffer& buffer, RawFrame& output)
 {
 	assert(buffer[1].width  * 2 == buffer[0].width);
 	assert(buffer[1].height * 2 == buffer[0].height);
@@ -321,16 +316,16 @@ static void convertHelper(const th_ycbcr_buffer& buffer, RawFrame& output,
 			int buv = coefs.bu[*pCb];
 
 			int Y00 = coefs.y[pY[0]];
-			out0[x + 0] = calc(format, Y00, ruv, guv, buv);
+			out0[x + 0] = calc(Y00, ruv, guv, buv);
 
 			int Y01 = coefs.y[pY[1]];
-			out0[x + 1] = calc(format, Y01, ruv, guv, buv);
+			out0[x + 1] = calc(Y01, ruv, guv, buv);
 
 			int Y10 = coefs.y[pY[y_stride + 0]];
-			out1[x + 0] = calc(format, Y10, ruv, guv, buv);
+			out1[x + 0] = calc(Y10, ruv, guv, buv);
 
 			int Y11 = coefs.y[pY[y_stride + 1]];
-			out1[x + 1] = calc(format, Y11, ruv, guv, buv);
+			out1[x + 1] = calc(Y11, ruv, guv, buv);
 		}
 
 		output.setLineWidth(y + 0, width);
@@ -349,7 +344,7 @@ void convert(const th_ycbcr_buffer& input, RawFrame& output)
 	if (sse2) {
 		convertHelperSSE2(input, output);
 	} else {
-		convertHelper(input, output, output.getPixelFormat());
+		convertHelper(input, output);
 	}
 }
 

@@ -7,8 +7,8 @@
 #include "view.hh"
 #include "xrange.hh"
 #include <cassert>
-#include <concepts>
 #include <cstddef>
+#include <cstdint>
 #include <cstring>
 #include <span>
 #include <type_traits>
@@ -20,6 +20,8 @@
 #endif
 
 namespace openmsx {
+
+using Pixel = uint32_t;
 
 // Tag classes
 struct TagCopy {};
@@ -35,187 +37,187 @@ template<typename CLASS, typename TAG> struct IsTagged
  * @param in Input line
  * @param out Output line
  */
-template<std::unsigned_integral Pixel> class Scale_1on3
+class Scale_1on3
 {
 public:
 	void operator()(std::span<const Pixel> in, std::span<Pixel> out);
 };
 
-template<std::unsigned_integral Pixel> class Scale_1on4
+class Scale_1on4
 {
 public:
 	void operator()(std::span<const Pixel> in, std::span<Pixel> out);
 };
 
-template<std::unsigned_integral Pixel> class Scale_1on6
+class Scale_1on6
 {
 public:
 	void operator()(std::span<const Pixel> in, std::span<Pixel> out);
 };
 
-template<std::unsigned_integral Pixel> class Scale_1on2
+class Scale_1on2
 {
 public:
 	void operator()(std::span<const Pixel> in, std::span<Pixel> out);
 };
 
-template<std::unsigned_integral Pixel> class Scale_1on1 : public TagCopy
+class Scale_1on1 : public TagCopy
 {
 public:
 	void operator()(std::span<const Pixel> in, std::span<Pixel> out);
 };
 
-template<std::unsigned_integral Pixel> class Scale_2on1
+class Scale_2on1
 {
 public:
-	explicit Scale_2on1(PixelOperations<Pixel> pixelOps);
+	explicit Scale_2on1(PixelOperations pixelOps);
 	void operator()(std::span<const Pixel> in, std::span<Pixel> out);
 private:
-	PixelOperations<Pixel> pixelOps;
+	PixelOperations pixelOps;
 };
 
-template<std::unsigned_integral Pixel> class Scale_6on1
+class Scale_6on1
 {
 public:
-	explicit Scale_6on1(PixelOperations<Pixel> pixelOps);
+	explicit Scale_6on1(PixelOperations pixelOps);
 	void operator()(std::span<const Pixel> in, std::span<Pixel> out);
 private:
-	PixelOperations<Pixel> pixelOps;
+	PixelOperations pixelOps;
 };
 
-template<std::unsigned_integral Pixel> class Scale_4on1
+class Scale_4on1
 {
 public:
-	explicit Scale_4on1(PixelOperations<Pixel> pixelOps);
+	explicit Scale_4on1(PixelOperations pixelOps);
 	void operator()(std::span<const Pixel> in, std::span<Pixel> out);
 private:
-	PixelOperations<Pixel> pixelOps;
+	PixelOperations pixelOps;
 };
 
-template<std::unsigned_integral Pixel> class Scale_3on1
+class Scale_3on1
 {
 public:
-	explicit Scale_3on1(PixelOperations<Pixel> pixelOps);
+	explicit Scale_3on1(PixelOperations pixelOps);
 	void operator()(std::span<const Pixel> in, std::span<Pixel> out);
 private:
-	PixelOperations<Pixel> pixelOps;
+	PixelOperations pixelOps;
 };
 
-template<std::unsigned_integral Pixel> class Scale_3on2
+class Scale_3on2
 {
 public:
-	explicit Scale_3on2(PixelOperations<Pixel> pixelOps);
+	explicit Scale_3on2(PixelOperations pixelOps);
 	void operator()(std::span<const Pixel> in, std::span<Pixel> out);
 private:
-	PixelOperations<Pixel> pixelOps;
+	PixelOperations pixelOps;
 };
 
-template<std::unsigned_integral Pixel> class Scale_3on4
+class Scale_3on4
 {
 public:
-	explicit Scale_3on4(PixelOperations<Pixel> pixelOps);
+	explicit Scale_3on4(PixelOperations pixelOps);
 	void operator()(std::span<const Pixel> in, std::span<Pixel> out);
 private:
-	PixelOperations<Pixel> pixelOps;
+	PixelOperations pixelOps;
 };
 
-template<std::unsigned_integral Pixel> class Scale_3on8
+class Scale_3on8
 {
 public:
-	explicit Scale_3on8(PixelOperations<Pixel> pixelOps);
+	explicit Scale_3on8(PixelOperations pixelOps);
 	void operator()(std::span<const Pixel> in, std::span<Pixel> out);
 private:
-	PixelOperations<Pixel> pixelOps;
+	PixelOperations pixelOps;
 };
 
-template<std::unsigned_integral Pixel> class Scale_2on3
+class Scale_2on3
 {
 public:
-	explicit Scale_2on3(PixelOperations<Pixel> pixelOps);
+	explicit Scale_2on3(PixelOperations pixelOps);
 	void operator()(std::span<const Pixel> in, std::span<Pixel> out);
 private:
-	PixelOperations<Pixel> pixelOps;
+	PixelOperations pixelOps;
 };
 
-template<std::unsigned_integral Pixel> class Scale_4on3
+class Scale_4on3
 {
 public:
-	explicit Scale_4on3(PixelOperations<Pixel> pixelOps);
+	explicit Scale_4on3(PixelOperations pixelOps);
 	void operator()(std::span<const Pixel> in, std::span<Pixel> out);
 private:
-	PixelOperations<Pixel> pixelOps;
+	PixelOperations pixelOps;
 };
 
-template<std::unsigned_integral Pixel> class Scale_8on3
+class Scale_8on3
 {
 public:
-	explicit Scale_8on3(PixelOperations<Pixel> pixelOps);
+	explicit Scale_8on3(PixelOperations pixelOps);
 	void operator()(std::span<const Pixel> in, std::span<Pixel> out);
 private:
-	PixelOperations<Pixel> pixelOps;
+	PixelOperations pixelOps;
 };
 
-template<std::unsigned_integral Pixel> class Scale_2on9
+class Scale_2on9
 {
 public:
-	explicit Scale_2on9(PixelOperations<Pixel> pixelOps);
+	explicit Scale_2on9(PixelOperations pixelOps);
 	void operator()(std::span<const Pixel> in, std::span<Pixel> out);
 private:
-	PixelOperations<Pixel> pixelOps;
+	PixelOperations pixelOps;
 };
 
-template<std::unsigned_integral Pixel> class Scale_4on9
+class Scale_4on9
 {
 public:
-	explicit Scale_4on9(PixelOperations<Pixel> pixelOps);
+	explicit Scale_4on9(PixelOperations pixelOps);
 	void operator()(std::span<const Pixel> in, std::span<Pixel> out);
 private:
-	PixelOperations<Pixel> pixelOps;
+	PixelOperations pixelOps;
 };
 
-template<std::unsigned_integral Pixel> class Scale_8on9
+class Scale_8on9
 {
 public:
-	explicit Scale_8on9(PixelOperations<Pixel> pixelOps);
+	explicit Scale_8on9(PixelOperations pixelOps);
 	void operator()(std::span<const Pixel> in, std::span<Pixel> out);
 private:
-	PixelOperations<Pixel> pixelOps;
+	PixelOperations pixelOps;
 };
 
-template<std::unsigned_integral Pixel> class Scale_4on5
+class Scale_4on5
 {
 public:
-	explicit Scale_4on5(PixelOperations<Pixel> pixelOps);
+	explicit Scale_4on5(PixelOperations pixelOps);
 	void operator()(std::span<const Pixel> in, std::span<Pixel> out);
 private:
-	PixelOperations<Pixel> pixelOps;
+	PixelOperations pixelOps;
 };
 
-template<std::unsigned_integral Pixel> class Scale_7on8
+class Scale_7on8
 {
 public:
-	explicit Scale_7on8(PixelOperations<Pixel> pixelOps);
+	explicit Scale_7on8(PixelOperations pixelOps);
 	void operator()(std::span<const Pixel> in, std::span<Pixel> out);
 private:
-	PixelOperations<Pixel> pixelOps;
+	PixelOperations pixelOps;
 };
 
-template<std::unsigned_integral Pixel> class Scale_17on20
+class Scale_17on20
 {
 public:
-	explicit Scale_17on20(PixelOperations<Pixel> pixelOps);
+	explicit Scale_17on20(PixelOperations pixelOps);
 	void operator()(std::span<const Pixel> in, std::span<Pixel> out);
 private:
-	PixelOperations<Pixel> pixelOps;
+	PixelOperations pixelOps;
 };
 
-template<std::unsigned_integral Pixel> class Scale_9on10
+class Scale_9on10
 {
 public:
-	explicit Scale_9on10(PixelOperations<Pixel> pixelOps);
+	explicit Scale_9on10(PixelOperations pixelOps);
 	void operator()(std::span<const Pixel> in, std::span<Pixel> out);
 private:
-	PixelOperations<Pixel> pixelOps;
+	PixelOperations pixelOps;
 };
 
 
@@ -226,26 +228,25 @@ private:
  * @param out Output line
  * @param width Width of the lines in pixels
  */
-template<std::unsigned_integral Pixel, unsigned w1 = 1, unsigned w2 = 1> class BlendLines
+template<unsigned w1 = 1, unsigned w2 = 1> class BlendLines
 {
 public:
-	explicit BlendLines(PixelOperations<Pixel> pixelOps);
+	explicit BlendLines(PixelOperations pixelOps);
 	void operator()(std::span<const Pixel> in1, std::span<const Pixel> in2,
 	                std::span<Pixel> out);
 private:
-	PixelOperations<Pixel> pixelOps;
+	PixelOperations pixelOps;
 };
 
 /** Stretch (or zoom) a given input line to a wider output line.
  */
-template<std::unsigned_integral Pixel>
 class ZoomLine
 {
 public:
-	explicit ZoomLine(PixelOperations<Pixel> pixelOps);
+	explicit ZoomLine(PixelOperations pixelOps);
 	void operator()(std::span<const Pixel> in, std::span<Pixel> out) const;
 private:
-	PixelOperations<Pixel> pixelOps;
+	PixelOperations pixelOps;
 };
 
 
@@ -256,16 +257,16 @@ private:
  * @param in2 Second input line
  * @param out Output line
  */
-template<std::unsigned_integral Pixel> class AlphaBlendLines
+class AlphaBlendLines
 {
 public:
-	explicit AlphaBlendLines(PixelOperations<Pixel> pixelOps);
+	explicit AlphaBlendLines(PixelOperations pixelOps);
 	void operator()(std::span<const Pixel> in1, std::span<const Pixel> in2,
 	                std::span<Pixel> out);
 	void operator()(Pixel in1, std::span<const Pixel> in2,
 	                std::span<Pixel> out);
 private:
-	PixelOperations<Pixel> pixelOps;
+	PixelOperations pixelOps;
 };
 
 
@@ -281,7 +282,6 @@ private:
  * practice this performance benefit is often not measurable while it does
  * result in bigger code size.
  */
-template<std::unsigned_integral Pixel>
 class PolyLineScaler
 {
 public:
@@ -308,15 +308,15 @@ protected:
 /** Polymorphic wrapper around another line scaler.
  * This version directly contains (and thus constructs) the wrapped Line Scaler.
  */
-template<std::unsigned_integral Pixel, typename Scaler>
-class PolyScale final : public PolyLineScaler<Pixel>
+template<typename Scaler>
+class PolyScale final : public PolyLineScaler
 {
 public:
 	PolyScale()
 		: scaler()
 	{
 	}
-	explicit PolyScale(PixelOperations<Pixel> pixelOps)
+	explicit PolyScale(PixelOperations pixelOps)
 		: scaler(pixelOps)
 	{
 	}
@@ -335,8 +335,8 @@ private:
 /** Like PolyScale above, but instead keeps a reference to the actual scaler.
  * Can be used when the actual scaler is expensive to construct (e.g. Blur_1on3).
  */
-template<std::unsigned_integral Pixel, typename Scaler>
-class PolyScaleRef final : public PolyLineScaler<Pixel>
+template<typename Scaler>
+class PolyScaleRef final : public PolyLineScaler
 {
 public:
 	explicit PolyScaleRef(Scaler& scaler_)
@@ -358,7 +358,7 @@ private:
 
 // implementation
 
-template<std::unsigned_integral Pixel, unsigned N>
+template<unsigned N>
 static inline void scale_1onN(
 	std::span<const Pixel> in, std::span<Pixel> out)
 {
@@ -377,47 +377,33 @@ static inline void scale_1onN(
 	}
 }
 
-template<std::unsigned_integral Pixel>
-void Scale_1on3<Pixel>::operator()(std::span<const Pixel> in, std::span<Pixel> out)
+inline void Scale_1on3::operator()(std::span<const Pixel> in, std::span<Pixel> out)
 {
-	scale_1onN<Pixel, 3>(in, out);
+	scale_1onN<3>(in, out);
 }
 
-template<std::unsigned_integral Pixel>
-void Scale_1on4<Pixel>::operator()(std::span<const Pixel> in, std::span<Pixel> out)
+inline void Scale_1on4::operator()(std::span<const Pixel> in, std::span<Pixel> out)
 {
-	scale_1onN<Pixel, 4>(in, out);
+	scale_1onN<4>(in, out);
 }
 
-template<std::unsigned_integral Pixel>
-void Scale_1on6<Pixel>::operator()(std::span<const Pixel> in, std::span<Pixel> out)
+inline void Scale_1on6::operator()(std::span<const Pixel> in, std::span<Pixel> out)
 {
-	scale_1onN<Pixel, 6>(in, out);
+	scale_1onN<6>(in, out);
 }
 
 #ifdef __SSE2__
-template<std::unsigned_integral Pixel> inline __m128i unpacklo(__m128i x, __m128i y)
+inline __m128i unpacklo(__m128i x, __m128i y)
 {
-	if constexpr (sizeof(Pixel) == 4) {
-		return _mm_unpacklo_epi32(x, y);
-	} else if constexpr (sizeof(Pixel) == 2) {
-		return _mm_unpacklo_epi16(x, y);
-	} else {
-		UNREACHABLE;
-	}
+	// 32bpp
+	return _mm_unpacklo_epi32(x, y);
 }
-template<std::unsigned_integral Pixel> inline __m128i unpackhi(__m128i x, __m128i y)
+inline __m128i unpackhi(__m128i x, __m128i y)
 {
-	if constexpr (sizeof(Pixel) == 4) {
-		return _mm_unpackhi_epi32(x, y);
-	} else if constexpr (sizeof(Pixel) == 2) {
-		return _mm_unpackhi_epi16(x, y);
-	} else {
-		UNREACHABLE;
-	}
+	// 32bpp
+	return _mm_unpackhi_epi32(x, y);
 }
 
-template<std::unsigned_integral Pixel>
 inline void scale_1on2_SSE(const Pixel* __restrict in_, Pixel* __restrict out_, size_t srcWidth)
 {
 	size_t bytes = srcWidth * sizeof(Pixel);
@@ -433,14 +419,14 @@ inline void scale_1on2_SSE(const Pixel* __restrict in_, Pixel* __restrict out_, 
 		__m128i a1 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + x + 16));
 		__m128i a2 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + x + 32));
 		__m128i a3 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + x + 48));
-		__m128i l0 = unpacklo<Pixel>(a0, a0);
-		__m128i h0 = unpackhi<Pixel>(a0, a0);
-		__m128i l1 = unpacklo<Pixel>(a1, a1);
-		__m128i h1 = unpackhi<Pixel>(a1, a1);
-		__m128i l2 = unpacklo<Pixel>(a2, a2);
-		__m128i h2 = unpackhi<Pixel>(a2, a2);
-		__m128i l3 = unpacklo<Pixel>(a3, a3);
-		__m128i h3 = unpackhi<Pixel>(a3, a3);
+		__m128i l0 = unpacklo(a0, a0);
+		__m128i h0 = unpackhi(a0, a0);
+		__m128i l1 = unpacklo(a1, a1);
+		__m128i h1 = unpackhi(a1, a1);
+		__m128i l2 = unpacklo(a2, a2);
+		__m128i h2 = unpackhi(a2, a2);
+		__m128i l3 = unpacklo(a3, a3);
+		__m128i h3 = unpackhi(a3, a3);
 		_mm_storeu_si128(reinterpret_cast<__m128i*>(out + 2*x +   0), l0);
 		_mm_storeu_si128(reinterpret_cast<__m128i*>(out + 2*x +  16), h0);
 		_mm_storeu_si128(reinterpret_cast<__m128i*>(out + 2*x +  32), l1);
@@ -454,8 +440,7 @@ inline void scale_1on2_SSE(const Pixel* __restrict in_, Pixel* __restrict out_, 
 }
 #endif
 
-template<std::unsigned_integral Pixel>
-void Scale_1on2<Pixel>::operator()(
+inline void Scale_1on2::operator()(
 	std::span<const Pixel> in, std::span<Pixel> out)
 {
 	// This is a fairly simple algorithm (output each input pixel twice).
@@ -519,8 +504,7 @@ inline void memcpy_SSE_128(
 }
 #endif
 
-template<std::unsigned_integral Pixel>
-void Scale_1on1<Pixel>::operator()(
+inline void Scale_1on1::operator()(
 	std::span<const Pixel> in, std::span<Pixel> out)
 {
 	assert(in.size() == out.size());
@@ -545,8 +529,7 @@ void Scale_1on1<Pixel>::operator()(
 }
 
 
-template<std::unsigned_integral Pixel>
-Scale_2on1<Pixel>::Scale_2on1(PixelOperations<Pixel> pixelOps_)
+inline Scale_2on1::Scale_2on1(PixelOperations pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
@@ -558,61 +541,16 @@ template<int IMM8> static inline __m128i shuffle(__m128i x, __m128i y)
 		_mm_castsi128_ps(x), _mm_castsi128_ps(y), IMM8));
 }
 
-template<std::unsigned_integral Pixel>
-inline __m128i blend(__m128i x, __m128i y, Pixel mask)
+inline __m128i blend(__m128i x, __m128i y)
 {
-	if constexpr (sizeof(Pixel) == 4) {
-		// 32bpp
-		__m128i p = shuffle<0x88>(x, y);
-		__m128i q = shuffle<0xDD>(x, y);
-		return _mm_avg_epu8(p, q);
-	} else {
-		// 16bpp, first shuffle odd/even pixels in the right position
-#ifdef __SSSE3__
-		// This can be done faster using SSSE3
-		auto C = [](int i) { return narrow_cast<char>(i); };
-		const __m128i LL = _mm_set_epi8(
-			C(0x80), C(0x80), C(0x80), C(0x80), C(0x80), C(0x80), C(0x80), C(0x80),
-			C(0x0D), C(0x0C), C(0x09), C(0x08), C(0x05), C(0x04), C(0x01), C(0x00));
-		const __m128i HL = _mm_set_epi8(
-			C(0x0D), C(0x0C), C(0x09), C(0x08), C(0x05), C(0x04), C(0x01), C(0x00),
-			C(0x80), C(0x80), C(0x80), C(0x80), C(0x80), C(0x80), C(0x80), C(0x80));
-		const __m128i LH = _mm_set_epi8(
-			C(0x80), C(0x80), C(0x80), C(0x80), C(0x80), C(0x80), C(0x80), C(0x80),
-			C(0x0F), C(0x0E), C(0x0B), C(0x0A), C(0x07), C(0x06), C(0x03), C(0x02));
-		const __m128i HH = _mm_set_epi8(
-			C(0x0F), C(0x0E), C(0x0B), C(0x0A), C(0x07), C(0x06), C(0x03), C(0x02),
-			C(0x80), C(0x80), C(0x80), C(0x80), C(0x80), C(0x80), C(0x80), C(0x80));
-		__m128i ll = _mm_shuffle_epi8(x, LL);
-		__m128i hl = _mm_shuffle_epi8(y, HL);
-		__m128i lh = _mm_shuffle_epi8(x, LH);
-		__m128i hh = _mm_shuffle_epi8(y, HH);
-		__m128i p = _mm_or_si128(ll, hl);
-		__m128i q = _mm_or_si128(lh, hh);
-#else
-		// For SSE2 this only generates 1 instruction more, but with
-		// longer dependency chains
-		__m128i s = _mm_unpacklo_epi16(x, y);
-		__m128i t = _mm_unpackhi_epi16(x, y);
-		__m128i u = _mm_unpacklo_epi16(s, t);
-		__m128i v = _mm_unpackhi_epi16(s, t);
-		__m128i p = _mm_unpacklo_epi16(u, v);
-		__m128i q = _mm_unpackhi_epi16(u, v);
-#endif
-		// Actually blend: (p & q) + (((p ^ q) & mask) >> 1)
-		__m128i m = _mm_set1_epi16(mask);
-		__m128i a = _mm_and_si128(p, q);
-		__m128i b = _mm_xor_si128(p, q);
-		__m128i c = _mm_and_si128(b, m);
-		__m128i d = _mm_srli_epi16(c, 1);
-		return _mm_add_epi16(a, d);
-	}
+	// 32bpp
+	__m128i p = shuffle<0x88>(x, y);
+	__m128i q = shuffle<0xDD>(x, y);
+	return _mm_avg_epu8(p, q);
 }
 
-template<std::unsigned_integral Pixel>
 inline void scale_2on1_SSE(
-	const Pixel* __restrict in_, Pixel* __restrict out_, size_t dstBytes,
-	Pixel mask)
+	const Pixel* __restrict in_, Pixel* __restrict out_, size_t dstBytes)
 {
 	assert((dstBytes % (4 * sizeof(__m128i))) == 0);
 	assert(dstBytes != 0);
@@ -630,10 +568,10 @@ inline void scale_2on1_SSE(
 		__m128i a5 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + 2*x +  80));
 		__m128i a6 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + 2*x +  96));
 		__m128i a7 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + 2*x + 112));
-		__m128i b0 = blend(a0, a1, mask);
-		__m128i b1 = blend(a2, a3, mask);
-		__m128i b2 = blend(a4, a5, mask);
-		__m128i b3 = blend(a6, a7, mask);
+		__m128i b0 = blend(a0, a1);
+		__m128i b1 = blend(a2, a3);
+		__m128i b2 = blend(a4, a5);
+		__m128i b3 = blend(a6, a7);
 		_mm_storeu_si128(reinterpret_cast<__m128i*>(out + x +  0), b0);
 		_mm_storeu_si128(reinterpret_cast<__m128i*>(out + x + 16), b1);
 		_mm_storeu_si128(reinterpret_cast<__m128i*>(out + x + 32), b2);
@@ -643,16 +581,14 @@ inline void scale_2on1_SSE(
 }
 #endif
 
-template<std::unsigned_integral Pixel>
-void Scale_2on1<Pixel>::operator()(
+inline void Scale_2on1::operator()(
 	std::span<const Pixel> in, std::span<Pixel> out)
 {
 	assert(in.size() == 2 * out.size());
 	auto outWidth = out.size();
 #ifdef __SSE2__
 	auto n64 = (outWidth * sizeof(Pixel)) & ~63;
-	Pixel mask = pixelOps.getBlendMask();
-	scale_2on1_SSE(in.data(), out.data(), n64, mask); // process 64 byte chunks
+	scale_2on1_SSE(in.data(), out.data(), n64); // process 64 byte chunks
 	outWidth &= ((64 / sizeof(Pixel)) - 1); // remaining pixels (if any)
 	if (outWidth == 0) [[likely]] return;
 	in  = in .subspan(2 * n64 / sizeof(Pixel));
@@ -667,14 +603,12 @@ void Scale_2on1<Pixel>::operator()(
 }
 
 
-template<std::unsigned_integral Pixel>
-Scale_6on1<Pixel>::Scale_6on1(PixelOperations<Pixel> pixelOps_)
+inline Scale_6on1::Scale_6on1(PixelOperations pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template<std::unsigned_integral Pixel>
-void Scale_6on1<Pixel>::operator()(
+inline void Scale_6on1::operator()(
 	std::span<const Pixel> in, std::span<Pixel> out)
 {
 	assert(in.size() == 6 * out.size());
@@ -684,14 +618,12 @@ void Scale_6on1<Pixel>::operator()(
 }
 
 
-template<std::unsigned_integral Pixel>
-Scale_4on1<Pixel>::Scale_4on1(PixelOperations<Pixel> pixelOps_)
+inline Scale_4on1::Scale_4on1(PixelOperations pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template<std::unsigned_integral Pixel>
-void Scale_4on1<Pixel>::operator()(
+inline void Scale_4on1::operator()(
 	std::span<const Pixel> in, std::span<Pixel> out)
 {
 	assert(in.size() == 4 * out.size());
@@ -701,14 +633,12 @@ void Scale_4on1<Pixel>::operator()(
 }
 
 
-template<std::unsigned_integral Pixel>
-Scale_3on1<Pixel>::Scale_3on1(PixelOperations<Pixel> pixelOps_)
+inline Scale_3on1::Scale_3on1(PixelOperations pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template<std::unsigned_integral Pixel>
-void Scale_3on1<Pixel>::operator()(
+inline void Scale_3on1::operator()(
 	std::span<const Pixel> in, std::span<Pixel> out)
 {
 	assert(in.size() == 3 * out.size());
@@ -718,14 +648,12 @@ void Scale_3on1<Pixel>::operator()(
 }
 
 
-template<std::unsigned_integral Pixel>
-Scale_3on2<Pixel>::Scale_3on2(PixelOperations<Pixel> pixelOps_)
+inline Scale_3on2::Scale_3on2(PixelOperations pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template<std::unsigned_integral Pixel>
-void Scale_3on2<Pixel>::operator()(
+inline void Scale_3on2::operator()(
 	std::span<const Pixel> in, std::span<Pixel> out)
 {
 	assert((in.size() / 3) == (out.size() / 2));
@@ -739,14 +667,12 @@ void Scale_3on2<Pixel>::operator()(
 }
 
 
-template<std::unsigned_integral Pixel>
-Scale_3on4<Pixel>::Scale_3on4(PixelOperations<Pixel> pixelOps_)
+inline Scale_3on4::Scale_3on4(PixelOperations pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template<std::unsigned_integral Pixel>
-void Scale_3on4<Pixel>::operator()(
+inline void Scale_3on4::operator()(
 	std::span<const Pixel> in, std::span<Pixel> out)
 {
 	assert((in.size() / 3) == (out.size() / 4));
@@ -764,14 +690,12 @@ void Scale_3on4<Pixel>::operator()(
 }
 
 
-template<std::unsigned_integral Pixel>
-Scale_3on8<Pixel>::Scale_3on8(PixelOperations<Pixel> pixelOps_)
+inline Scale_3on8::Scale_3on8(PixelOperations pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template<std::unsigned_integral Pixel>
-void Scale_3on8<Pixel>::operator()(
+inline void Scale_3on8::operator()(
 	std::span<const Pixel> in, std::span<Pixel> out)
 {
 	assert((in.size() / 3) == (out.size() / 8));
@@ -793,14 +717,12 @@ void Scale_3on8<Pixel>::operator()(
 }
 
 
-template<std::unsigned_integral Pixel>
-Scale_2on3<Pixel>::Scale_2on3(PixelOperations<Pixel> pixelOps_)
+inline Scale_2on3::Scale_2on3(PixelOperations pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template<std::unsigned_integral Pixel>
-void Scale_2on3<Pixel>::operator()(
+inline void Scale_2on3::operator()(
 	std::span<const Pixel> in, std::span<Pixel> out)
 {
 	assert((in.size() / 2) == (out.size() / 3));
@@ -816,14 +738,12 @@ void Scale_2on3<Pixel>::operator()(
 }
 
 
-template<std::unsigned_integral Pixel>
-Scale_4on3<Pixel>::Scale_4on3(PixelOperations<Pixel> pixelOps_)
+inline Scale_4on3::Scale_4on3(PixelOperations pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template<std::unsigned_integral Pixel>
-void Scale_4on3<Pixel>::operator()(
+inline void Scale_4on3::operator()(
 	std::span<const Pixel> in, std::span<Pixel> out)
 {
 	assert((in.size() / 4) == (out.size() / 3));
@@ -839,14 +759,12 @@ void Scale_4on3<Pixel>::operator()(
 }
 
 
-template<std::unsigned_integral Pixel>
-Scale_8on3<Pixel>::Scale_8on3(PixelOperations<Pixel> pixelOps_)
+inline Scale_8on3::Scale_8on3(PixelOperations pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template<std::unsigned_integral Pixel>
-void Scale_8on3<Pixel>::operator()(
+inline void Scale_8on3::operator()(
 	std::span<const Pixel> in, std::span<Pixel> out)
 {
 	assert((in.size() / 8) == (out.size() / 3));
@@ -862,14 +780,12 @@ void Scale_8on3<Pixel>::operator()(
 }
 
 
-template<std::unsigned_integral Pixel>
-Scale_2on9<Pixel>::Scale_2on9(PixelOperations<Pixel> pixelOps_)
+inline Scale_2on9::Scale_2on9(PixelOperations pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template<std::unsigned_integral Pixel>
-void Scale_2on9<Pixel>::operator()(
+inline void Scale_2on9::operator()(
 	std::span<const Pixel> in, std::span<Pixel> out)
 {
 	assert((in.size() / 2) == (out.size() / 9));
@@ -897,14 +813,12 @@ void Scale_2on9<Pixel>::operator()(
 }
 
 
-template<std::unsigned_integral Pixel>
-Scale_4on9<Pixel>::Scale_4on9(PixelOperations<Pixel> pixelOps_)
+inline Scale_4on9::Scale_4on9(PixelOperations pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template<std::unsigned_integral Pixel>
-void Scale_4on9<Pixel>::operator()(
+inline void Scale_4on9::operator()(
 	std::span<const Pixel> in, std::span<Pixel> out)
 {
 	assert((in.size() / 4) == (out.size() / 9));
@@ -932,14 +846,12 @@ void Scale_4on9<Pixel>::operator()(
 }
 
 
-template<std::unsigned_integral Pixel>
-Scale_8on9<Pixel>::Scale_8on9(PixelOperations<Pixel> pixelOps_)
+inline Scale_8on9::Scale_8on9(PixelOperations pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template<std::unsigned_integral Pixel>
-void Scale_8on9<Pixel>::operator()(
+inline void Scale_8on9::operator()(
 	std::span<const Pixel> in, std::span<Pixel> out)
 {
 	assert((in.size() / 8) == (out.size() / 9));
@@ -967,14 +879,12 @@ void Scale_8on9<Pixel>::operator()(
 }
 
 
-template<std::unsigned_integral Pixel>
-Scale_4on5<Pixel>::Scale_4on5(PixelOperations<Pixel> pixelOps_)
+inline Scale_4on5::Scale_4on5(PixelOperations pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template<std::unsigned_integral Pixel>
-void Scale_4on5<Pixel>::operator()(
+inline void Scale_4on5::operator()(
 	std::span<const Pixel> in, std::span<Pixel> out)
 {
 	assert((in.size() / 4) == (out.size() / 5));
@@ -990,14 +900,12 @@ void Scale_4on5<Pixel>::operator()(
 }
 
 
-template<std::unsigned_integral Pixel>
-Scale_7on8<Pixel>::Scale_7on8(PixelOperations<Pixel> pixelOps_)
+inline Scale_7on8::Scale_7on8(PixelOperations pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template<std::unsigned_integral Pixel>
-void Scale_7on8<Pixel>::operator()(
+inline void Scale_7on8::operator()(
 	std::span<const Pixel> in, std::span<Pixel> out)
 {
 	assert((in.size() / 7) == (out.size() / 8));
@@ -1016,14 +924,12 @@ void Scale_7on8<Pixel>::operator()(
 }
 
 
-template<std::unsigned_integral Pixel>
-Scale_17on20<Pixel>::Scale_17on20(PixelOperations<Pixel> pixelOps_)
+inline Scale_17on20::Scale_17on20(PixelOperations pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template<std::unsigned_integral Pixel>
-void Scale_17on20<Pixel>::operator()(
+inline void Scale_17on20::operator()(
 	std::span<const Pixel> in, std::span<Pixel> out)
 {
 	assert((in.size() / 17) == (out.size() / 20));
@@ -1054,14 +960,12 @@ void Scale_17on20<Pixel>::operator()(
 }
 
 
-template<std::unsigned_integral Pixel>
-Scale_9on10<Pixel>::Scale_9on10(PixelOperations<Pixel> pixelOps_)
+inline Scale_9on10::Scale_9on10(PixelOperations pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template<std::unsigned_integral Pixel>
-void Scale_9on10<Pixel>::operator()(
+inline void Scale_9on10::operator()(
 	std::span<const Pixel> in, std::span<Pixel> out)
 {
 	assert((in.size() / 9) == (out.size() / 10));
@@ -1082,14 +986,14 @@ void Scale_9on10<Pixel>::operator()(
 }
 
 
-template<std::unsigned_integral Pixel, unsigned w1, unsigned w2>
-BlendLines<Pixel, w1, w2>::BlendLines(PixelOperations<Pixel> pixelOps_)
+template<unsigned w1, unsigned w2>
+BlendLines<w1, w2>::BlendLines(PixelOperations pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template<std::unsigned_integral Pixel, unsigned w1, unsigned w2>
-void BlendLines<Pixel, w1, w2>::operator()(
+template<unsigned w1, unsigned w2>
+void BlendLines<w1, w2>::operator()(
 	std::span<const Pixel> in1, std::span<const Pixel> in2, std::span<Pixel> out)
 {
 	// It _IS_ allowed that the output is the same as one of the inputs.
@@ -1103,14 +1007,12 @@ void BlendLines<Pixel, w1, w2>::operator()(
 }
 
 
-template<std::unsigned_integral Pixel>
-ZoomLine<Pixel>::ZoomLine(PixelOperations<Pixel> pixelOps_)
+inline ZoomLine::ZoomLine(PixelOperations pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template<std::unsigned_integral Pixel>
-void ZoomLine<Pixel>::operator()(
+inline void ZoomLine::operator()(
 	std::span<const Pixel> in, std::span<Pixel> out) const
 {
 	constexpr unsigned FACTOR = 256;
@@ -1126,14 +1028,12 @@ void ZoomLine<Pixel>::operator()(
 }
 
 
-template<std::unsigned_integral Pixel>
-AlphaBlendLines<Pixel>::AlphaBlendLines(PixelOperations<Pixel> pixelOps_)
+inline AlphaBlendLines::AlphaBlendLines(PixelOperations pixelOps_)
 	: pixelOps(pixelOps_)
 {
 }
 
-template<std::unsigned_integral Pixel>
-void AlphaBlendLines<Pixel>::operator()(
+inline void AlphaBlendLines::operator()(
 	std::span<const Pixel> in1, std::span<const Pixel> in2, std::span<Pixel> out)
 {
 	// It _IS_ allowed that the output is the same as one of the inputs.
@@ -1144,15 +1044,13 @@ void AlphaBlendLines<Pixel>::operator()(
 	}
 }
 
-template<std::unsigned_integral Pixel>
-void AlphaBlendLines<Pixel>::operator()(
+inline void AlphaBlendLines::operator()(
 	Pixel in1, std::span<const Pixel> in2, std::span<Pixel> out)
 {
 	// It _IS_ allowed that the output is the same as the input.
 
 	// ATM this routine is only called when 'in1' is not fully opaque nor
-	// fully transparent. This cannot happen in 16bpp modes.
-	assert(sizeof(Pixel) == 4);
+	// fully transparent.
 	assert(in2.size() == out.size());
 
 	unsigned alpha = pixelOps.alpha(in1);

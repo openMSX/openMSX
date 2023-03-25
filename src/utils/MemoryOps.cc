@@ -200,9 +200,7 @@ template<typename Pixel> void MemSet2<Pixel>::operator()(
 }
 
 // Force template instantiation
-template struct MemSet <uint16_t>;
 template struct MemSet <uint32_t>;
-template struct MemSet2<uint16_t>;
 template struct MemSet2<uint32_t>;
 
 

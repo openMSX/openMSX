@@ -61,7 +61,7 @@ std::unique_ptr<Rasterizer> SDLVideoSystem::createRasterizer(VDP& vdp)
 	auto& motherBoard = vdp.getMotherBoard();
 	switch (renderSettings.getRenderer()) {
 	case RenderSettings::SDLGL_PP:
-		return std::make_unique<SDLRasterizer<uint32_t>>(
+		return std::make_unique<SDLRasterizer>(
 			vdp, display, *screen,
 			std::make_unique<GLPostProcessor>(
 				motherBoard, display, *screen,
@@ -80,7 +80,7 @@ std::unique_ptr<V9990Rasterizer> SDLVideoSystem::createV9990Rasterizer(
 	MSXMotherBoard& motherBoard = vdp.getMotherBoard();
 	switch (renderSettings.getRenderer()) {
 	case RenderSettings::SDLGL_PP:
-		return std::make_unique<V9990SDLRasterizer<uint32_t>>(
+		return std::make_unique<V9990SDLRasterizer>(
 			vdp, display, *screen,
 			std::make_unique<GLPostProcessor>(
 				motherBoard, display, *screen,
@@ -98,7 +98,7 @@ std::unique_ptr<LDRasterizer> SDLVideoSystem::createLDRasterizer(
 	MSXMotherBoard& motherBoard = ld.getMotherBoard();
 	switch (renderSettings.getRenderer()) {
 	case RenderSettings::SDLGL_PP:
-		return std::make_unique<LDSDLRasterizer<uint32_t>>(
+		return std::make_unique<LDSDLRasterizer>(
 			*screen,
 			std::make_unique<GLPostProcessor>(
 				motherBoard, display, *screen,

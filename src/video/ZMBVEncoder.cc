@@ -102,22 +102,12 @@ struct KeyframeHeader {
 
 
 static inline void writePixel(
-	const PixelOperations<uint16_t>& pixelOps,
-	uint16_t pixel, Endian::L16& dest)
-{
-	unsigned r = pixelOps.red256(pixel);
-	unsigned g = pixelOps.green256(pixel);
-	unsigned b = pixelOps.blue256(pixel);
-	dest = narrow<uint16_t>(((r & 0xF8) << (11 - 3)) | ((g & 0xFC) << (5 - 2)) | (b >> 3));
-}
-
-static inline void writePixel(
-	const PixelOperations<unsigned>& pixelOps,
+	const PixelOperations& pixelOps,
 	unsigned pixel, Endian::L32& dest)
 {
-	unsigned r = pixelOps.red256(pixel);
-	unsigned g = pixelOps.green256(pixel);
-	unsigned b = pixelOps.blue256(pixel);
+	unsigned r = pixelOps.red(pixel);
+	unsigned g = pixelOps.green(pixel);
+	unsigned b = pixelOps.blue(pixel);
 	dest = (r << 16) | (g <<  8) |  b;
 }
 
@@ -216,7 +206,7 @@ unsigned ZMBVEncoder::compareBlock(int vx, int vy, size_t offset)
 }
 
 void ZMBVEncoder::addXorBlock(
-	const PixelOperations<Pixel>& pixelOps, int vx, int vy, size_t offset, unsigned& workUsed)
+	const PixelOperations& pixelOps, int vx, int vy, size_t offset, unsigned& workUsed)
 {
 	using LE_P = typename Endian::Little<Pixel>::type;
 
@@ -235,7 +225,7 @@ void ZMBVEncoder::addXorBlock(
 
 void ZMBVEncoder::addXorFrame(const PixelFormat& pixelFormat, unsigned& workUsed)
 {
-	PixelOperations<Pixel> pixelOps(pixelFormat);
+	PixelOperations pixelOps(pixelFormat);
 	auto* vectors = reinterpret_cast<int8_t*>(&work[workUsed]);
 
 	unsigned xBlocks = width / BLOCK_WIDTH;
@@ -281,7 +271,7 @@ void ZMBVEncoder::addFullFrame(const PixelFormat& pixelFormat, unsigned& workUse
 	using LE_P = typename Endian::Little<Pixel>::type;
 	static constexpr size_t pixelSize = sizeof(Pixel);
 
-	PixelOperations<Pixel> pixelOps(pixelFormat);
+	PixelOperations pixelOps(pixelFormat);
 	auto* readFrame =
 		&newFrame[pixelSize * (MAX_VECTOR + MAX_VECTOR * pitch)];
 	repeat(height, [&] {

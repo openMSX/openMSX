@@ -21,6 +21,8 @@ using namespace gl;
 
 namespace openmsx {
 
+using Pixel = SDLRasterizer::Pixel;
+
 /** VDP ticks between start of line and start of left border.
   */
 static constexpr int TICKS_LEFT_BORDER = 100 + 102;
@@ -53,8 +55,7 @@ static constexpr int translateX(int absoluteX, bool narrow)
 	return std::max(screenX, 0);
 }
 
-template<std::unsigned_integral Pixel>
-inline void SDLRasterizer<Pixel>::renderBitmapLine(std::span<Pixel> buf, unsigned vramLine)
+inline void SDLRasterizer::renderBitmapLine(std::span<Pixel> buf, unsigned vramLine)
 {
 	if (vdp.getDisplayMode().isPlanar()) {
 		auto [vramPtr0, vramPtr1] =
@@ -67,8 +68,7 @@ inline void SDLRasterizer<Pixel>::renderBitmapLine(std::span<Pixel> buf, unsigne
 	}
 }
 
-template<std::unsigned_integral Pixel>
-SDLRasterizer<Pixel>::SDLRasterizer(
+SDLRasterizer::SDLRasterizer(
 		VDP& vdp_, Display& display, OutputSurface& screen_,
 		std::unique_ptr<PostProcessor> postProcessor_)
 	: vdp(vdp_), vram(vdp.getVRAM())
@@ -97,8 +97,7 @@ SDLRasterizer<Pixel>::SDLRasterizer(
 	renderSettings.getColorMatrixSetting().attach(*this);
 }
 
-template<std::unsigned_integral Pixel>
-SDLRasterizer<Pixel>::~SDLRasterizer()
+SDLRasterizer::~SDLRasterizer()
 {
 	renderSettings.getColorMatrixSetting().detach(*this);
 	renderSettings.getGammaSetting()      .detach(*this);
@@ -106,22 +105,19 @@ SDLRasterizer<Pixel>::~SDLRasterizer()
 	renderSettings.getContrastSetting()   .detach(*this);
 }
 
-template<std::unsigned_integral Pixel>
-PostProcessor* SDLRasterizer<Pixel>::getPostProcessor() const
+PostProcessor* SDLRasterizer::getPostProcessor() const
 {
 	return postProcessor.get();
 }
 
-template<std::unsigned_integral Pixel>
-bool SDLRasterizer<Pixel>::isActive()
+bool SDLRasterizer::isActive()
 {
 	return postProcessor->needRender() &&
 	       vdp.getMotherBoard().isActive() &&
 	       !vdp.getMotherBoard().isFastForwarding();
 }
 
-template<std::unsigned_integral Pixel>
-void SDLRasterizer<Pixel>::reset()
+void SDLRasterizer::reset()
 {
 	// Init renderer state.
 	setDisplayMode(vdp.getDisplayMode());
@@ -130,8 +126,7 @@ void SDLRasterizer<Pixel>::reset()
 	resetPalette();
 }
 
-template<std::unsigned_integral Pixel>
-void SDLRasterizer<Pixel>::resetPalette()
+void SDLRasterizer::resetPalette()
 {
 	if (!vdp.isMSX1VDP()) {
 		// Reset the palette.
@@ -141,16 +136,14 @@ void SDLRasterizer<Pixel>::resetPalette()
 	}
 }
 
-template<std::unsigned_integral Pixel>
-void SDLRasterizer<Pixel>::setSuperimposeVideoFrame(const RawFrame* videoSource)
+void SDLRasterizer::setSuperimposeVideoFrame(const RawFrame* videoSource)
 {
 	postProcessor->setSuperimposeVideoFrame(videoSource);
 	precalcColorIndex0(vdp.getDisplayMode(), vdp.getTransparency(),
 	                   videoSource, vdp.getBackgroundColor());
 }
 
-template<std::unsigned_integral Pixel>
-void SDLRasterizer<Pixel>::frameStart(EmuTime::param time)
+void SDLRasterizer::frameStart(EmuTime::param time)
 {
 	workFrame = postProcessor->rotateFrames(std::move(workFrame), time);
 	workFrame->init(
@@ -166,13 +159,11 @@ void SDLRasterizer<Pixel>::frameStart(EmuTime::param time)
 	lineRenderTop = vdp.isPalTiming() ? 59 - 14 : 32 - 14;
 }
 
-template<std::unsigned_integral Pixel>
-void SDLRasterizer<Pixel>::frameEnd()
+void SDLRasterizer::frameEnd()
 {
 }
 
-template<std::unsigned_integral Pixel>
-void SDLRasterizer<Pixel>::setDisplayMode(DisplayMode mode)
+void SDLRasterizer::setDisplayMode(DisplayMode mode)
 {
 	if (mode.isBitmapMode()) {
 		bitmapConverter.setDisplayMode(mode);
@@ -187,8 +178,7 @@ void SDLRasterizer<Pixel>::setDisplayMode(DisplayMode mode)
 
 }
 
-template<std::unsigned_integral Pixel>
-void SDLRasterizer<Pixel>::setPalette(unsigned index, int grb)
+void SDLRasterizer::setPalette(unsigned index, int grb)
 {
 	// Update SDL colors in palette.
 	Pixel newColor = V9938_COLORS[(grb >> 4) & 7][grb >> 8][grb & 7];
@@ -201,8 +191,7 @@ void SDLRasterizer<Pixel>::setPalette(unsigned index, int grb)
 	                   vdp.isSuperimposing(), vdp.getBackgroundColor());
 }
 
-template<std::unsigned_integral Pixel>
-void SDLRasterizer<Pixel>::setBackgroundColor(byte index)
+void SDLRasterizer::setBackgroundColor(byte index)
 {
 	if (vdp.getDisplayMode().getByte() != DisplayMode::GRAPHIC7) {
 		precalcColorIndex0(vdp.getDisplayMode(), vdp.getTransparency(),
@@ -210,31 +199,26 @@ void SDLRasterizer<Pixel>::setBackgroundColor(byte index)
 	}
 }
 
-template<std::unsigned_integral Pixel>
-void SDLRasterizer<Pixel>::setHorizontalAdjust(int /*adjust*/)
+void SDLRasterizer::setHorizontalAdjust(int /*adjust*/)
 {
 }
 
-template<std::unsigned_integral Pixel>
-void SDLRasterizer<Pixel>::setHorizontalScrollLow(byte /*scroll*/)
+void SDLRasterizer::setHorizontalScrollLow(byte /*scroll*/)
 {
 }
 
-template<std::unsigned_integral Pixel>
-void SDLRasterizer<Pixel>::setBorderMask(bool /*masked*/)
+void SDLRasterizer::setBorderMask(bool /*masked*/)
 {
 }
 
-template<std::unsigned_integral Pixel>
-void SDLRasterizer<Pixel>::setTransparency(bool enabled)
+void SDLRasterizer::setTransparency(bool enabled)
 {
 	spriteConverter.setTransparency(enabled);
 	precalcColorIndex0(vdp.getDisplayMode(), enabled,
 	                   vdp.isSuperimposing(), vdp.getBackgroundColor());
 }
 
-template<std::unsigned_integral Pixel>
-void SDLRasterizer<Pixel>::precalcPalette()
+void SDLRasterizer::precalcPalette()
 {
 	if (vdp.isMSX1VDP()) {
 		// Fixed palette.
@@ -242,7 +226,7 @@ void SDLRasterizer<Pixel>::precalcPalette()
 		for (auto i : xrange(16)) {
 			const auto rgb = palette[i];
 			palFg[i] = palFg[i + 16] = palBg[i] =
-				screen.mapKeyedRGB<Pixel>(
+				screen.mapKeyedRGB(
 					renderSettings.transformRGB(
 						vec3(rgb[0], rgb[1], rgb[2]) / 255.0f));
 		}
@@ -257,7 +241,7 @@ void SDLRasterizer<Pixel>::precalcPalette()
 					r = narrow_cast<int>(255.0f * renderSettings.transformComponent(narrow<float>(i) / 31.0f));
 				}
 				for (auto [rgb, col] : enumerate(V9958_COLORS)) {
-					col = screen.mapKeyedRGB255<Pixel>(ivec3(
+					col = screen.mapKeyedRGB255(ivec3(
 						intensity[(rgb >> 10) & 31],
 						intensity[(rgb >>  5) & 31],
 						intensity[(rgb >>  0) & 31]));
@@ -270,7 +254,7 @@ void SDLRasterizer<Pixel>::precalcPalette()
 							         narrow<float>(g),
 							         narrow<float>(b)};
 							V9958_COLORS[(r << 10) + (g << 5) + b] =
-								screen.mapKeyedRGB<Pixel>(
+								screen.mapKeyedRGB(
 									renderSettings.transformRGB(rgb / 31.0f));
 						}
 					}
@@ -301,7 +285,7 @@ void SDLRasterizer<Pixel>::precalcPalette()
 					for (auto g : xrange(8)) {
 						for (auto b : xrange(8)) {
 							V9938_COLORS[r][g][b] =
-								screen.mapKeyedRGB255<Pixel>(ivec3(
+								screen.mapKeyedRGB255(ivec3(
 									intensity[r],
 									intensity[g],
 									intensity[b]));
@@ -316,7 +300,7 @@ void SDLRasterizer<Pixel>::precalcPalette()
 							         narrow<float>(g),
 							         narrow<float>(b)};
 							V9938_COLORS[r][g][b] =
-								screen.mapKeyedRGB<Pixel>(
+								screen.mapKeyedRGB(
 									renderSettings.transformRGB(rgb / 7.0f));
 						}
 					}
@@ -339,8 +323,7 @@ void SDLRasterizer<Pixel>::precalcPalette()
 	}
 }
 
-template<std::unsigned_integral Pixel>
-void SDLRasterizer<Pixel>::precalcColorIndex0(DisplayMode mode,
+void SDLRasterizer::precalcColorIndex0(DisplayMode mode,
 		bool transparency, const RawFrame* superimposing, byte bgColorIndex)
 {
 	// Graphic7 mode doesn't use transparency.
@@ -351,7 +334,7 @@ void SDLRasterizer<Pixel>::precalcColorIndex0(DisplayMode mode,
 	int tpIndex = transparency ? bgColorIndex : 0;
 	if (mode.getBase() != DisplayMode::GRAPHIC5) {
 		Pixel c = (superimposing && (bgColorIndex == 0))
-		        ? screen.getKeyColor<Pixel>()
+		        ? screen.getKeyColor()
 		        : palBg[tpIndex];
 
 		if (palFg[0] != c) {
@@ -369,8 +352,7 @@ void SDLRasterizer<Pixel>::precalcColorIndex0(DisplayMode mode,
 	}
 }
 
-template<std::unsigned_integral Pixel>
-std::pair<Pixel, Pixel> SDLRasterizer<Pixel>::getBorderColors()
+std::pair<Pixel, Pixel> SDLRasterizer::getBorderColors()
 {
 	DisplayMode mode = vdp.getDisplayMode();
 	int bgColor = vdp.getBackgroundColor();
@@ -385,7 +367,7 @@ std::pair<Pixel, Pixel> SDLRasterizer<Pixel>::getBorderColors()
 			return PALETTE256[bgColor];
 		} else {
 			if (!bgColor && vdp.isSuperimposing()) {
-				return screen.getKeyColor<Pixel>();
+				return screen.getKeyColor();
 			} else {
 				return palBg[bgColor];
 			}
@@ -394,8 +376,7 @@ std::pair<Pixel, Pixel> SDLRasterizer<Pixel>::getBorderColors()
 	return {col, col};
 }
 
-template<std::unsigned_integral Pixel>
-void SDLRasterizer<Pixel>::drawBorder(
+void SDLRasterizer::drawBorder(
 	int fromX, int fromY, int limitX, int limitY)
 {
 	auto [border0, border1] = getBorderColors();
@@ -432,8 +413,7 @@ void SDLRasterizer<Pixel>::drawBorder(
 	}
 }
 
-template<std::unsigned_integral Pixel>
-void SDLRasterizer<Pixel>::drawDisplay(
+void SDLRasterizer::drawDisplay(
 	int /*fromX*/, int fromY,
 	int displayX, int displayY,
 	int displayWidth, int displayHeight)
@@ -562,8 +542,7 @@ void SDLRasterizer<Pixel>::drawDisplay(
 	}
 }
 
-template<std::unsigned_integral Pixel>
-void SDLRasterizer<Pixel>::drawSprites(
+void SDLRasterizer::drawSprites(
 	int /*fromX*/, int fromY,
 	int displayX, int /*displayY*/,
 	int displayWidth, int displayHeight)
@@ -619,14 +598,12 @@ void SDLRasterizer<Pixel>::drawSprites(
 	}
 }
 
-template<std::unsigned_integral Pixel>
-bool SDLRasterizer<Pixel>::isRecording() const
+bool SDLRasterizer::isRecording() const
 {
 	return postProcessor->isRecording();
 }
 
-template<std::unsigned_integral Pixel>
-void SDLRasterizer<Pixel>::update(const Setting& setting) noexcept
+void SDLRasterizer::update(const Setting& setting) noexcept
 {
 	if (&setting == one_of(&renderSettings.getGammaSetting(),
 	                       &renderSettings.getBrightnessSetting(),
@@ -636,9 +613,5 @@ void SDLRasterizer<Pixel>::update(const Setting& setting) noexcept
 		resetPalette();
 	}
 }
-
-
-// Force template instantiation.
-template class SDLRasterizer<uint32_t>;
 
 } // namespace openmsx

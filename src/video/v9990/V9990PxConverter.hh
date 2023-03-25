@@ -1,7 +1,7 @@
 #ifndef V9990PXCONVERTER_HH
 #define V9990PXCONVERTER_HH
 
-#include <concepts>
+#include <cstdint>
 #include <span>
 
 namespace openmsx {
@@ -9,10 +9,11 @@ namespace openmsx {
 class V9990;
 class V9990VRAM;
 
-template<std::unsigned_integral Pixel>
 class V9990P1Converter
 {
 public:
+	using Pixel = uint32_t;
+
 	V9990P1Converter(V9990& vdp, std::span<const Pixel, 64> palette64);
 
 	void convertLine(
@@ -25,10 +26,11 @@ private:
 	std::span<const Pixel, 64> palette64;
 };
 
-template<std::unsigned_integral Pixel>
 class V9990P2Converter
 {
 public:
+	using Pixel = uint32_t;
+
 	V9990P2Converter(V9990& vdp, std::span<const Pixel, 64> palette64);
 
 	void convertLine(

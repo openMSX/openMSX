@@ -6,11 +6,11 @@
 #include <array>
 #include <cassert>
 #include <cstdint>
+#include <concepts>
 
 namespace openmsx {
 
-template<std::unsigned_integral Pixel>
-V9990BitmapConverter<Pixel>::V9990BitmapConverter(
+V9990BitmapConverter::V9990BitmapConverter(
 		V9990& vdp_,
 		std::span<const Pixel,    64> palette64_,  std::span<const int16_t,  64> palette64_32768_,
 		std::span<const Pixel,   256> palette256_, std::span<const int16_t, 256> palette256_32768_,
@@ -456,8 +456,7 @@ public:
 	bool doXor{false};
 };
 
-template<std::unsigned_integral Pixel>
-void V9990BitmapConverter<Pixel>::convertLine(
+void V9990BitmapConverter::convertLine(
 	std::span<Pixel> dst, unsigned x, unsigned y,
 	int cursorY, bool drawCursors)
 {
@@ -509,8 +508,5 @@ void V9990BitmapConverter<Pixel>::convertLine(
 		       vdp, vram, dst, x, y);
 	}
 }
-
-// Force template instantiation
-template class V9990BitmapConverter<uint32_t>;
 
 } // namespace openmsx

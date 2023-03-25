@@ -12,12 +12,13 @@
 
 namespace openmsx {
 
+using Pixel = FrameSource::Pixel;
+
 FrameSource::FrameSource(const PixelFormat& format)
 	: pixelFormat(format)
 {
 }
 
-template<std::unsigned_integral Pixel>
 std::span<const Pixel, 320> FrameSource::getLinePtr320_240(unsigned line, std::span<Pixel, 320> buf0) const
 {
 	if (getHeight() == 240) {
@@ -29,14 +30,13 @@ std::span<const Pixel, 320> FrameSource::getLinePtr320_240(unsigned line, std::s
 		ALIGNAS_SSE std::array<Pixel, 320> buf1;
 		auto line0 = getLine(2 * line + 0, std::span<Pixel>(buf0));
 		auto line1 = getLine(2 * line + 1, std::span<Pixel>(buf1));
-		PixelOperations<Pixel> pixelOps(pixelFormat);
-		BlendLines<Pixel> blend(pixelOps);
+		PixelOperations pixelOps(pixelFormat);
+		BlendLines blend(pixelOps);
 		blend(line0, line1, buf0); // possibly line0 == buf0
 		return buf0;
 	}
 }
 
-template<std::unsigned_integral Pixel>
 std::span<const Pixel, 640> FrameSource::getLinePtr640_480(unsigned line, std::span<Pixel, 640> buf) const
 {
 	if (getHeight() == 480) {
@@ -51,7 +51,6 @@ std::span<const Pixel, 640> FrameSource::getLinePtr640_480(unsigned line, std::s
 	}
 }
 
-template<std::unsigned_integral Pixel>
 std::span<const Pixel, 960> FrameSource::getLinePtr960_720(unsigned line, std::span<Pixel, 960> buf0) const
 {
 	if (getHeight() == 480) {
@@ -63,8 +62,8 @@ std::span<const Pixel, 960> FrameSource::getLinePtr960_720(unsigned line, std::s
 		}
 		ALIGNAS_SSE std::array<Pixel, 960> buf1;
 		auto line1 = getLine(l2 + 1, std::span<Pixel>(buf1));
-		PixelOperations<Pixel> pixelOps(pixelFormat);
-		BlendLines<Pixel> blend(pixelOps);
+		PixelOperations pixelOps(pixelFormat);
+		BlendLines blend(pixelOps);
 		blend(line0, line1, buf0); // possibly line0 == buf0
 		return buf0;
 	} else {
@@ -75,11 +74,10 @@ std::span<const Pixel, 960> FrameSource::getLinePtr960_720(unsigned line, std::s
 	}
 }
 
-template<std::unsigned_integral Pixel>
 void FrameSource::scaleLine(
 	std::span<const Pixel> in, std::span<Pixel> out) const
 {
-	PixelOperations<Pixel> pixelOps(pixelFormat);
+	PixelOperations pixelOps(pixelFormat);
 
 	VLA_SSE_ALIGNED(Pixel, tmpBuf, in.size());
 	if (in.data() == out.data()) [[unlikely]] {
@@ -106,32 +104,32 @@ void FrameSource::scaleLine(
 		case 213:
 			UNREACHABLE;
 		case 320: {
-			Scale_2on3<Pixel> scale(pixelOps);
+			Scale_2on3 scale(pixelOps);
 			scale(in, out);
 			break;
 		}
 		case 426: {
-			Scale_1on2<Pixel> scale;
+			Scale_1on2 scale;
 			scale(in, out);
 			break;
 		}
 		case 640: {
-			Scale_1on3<Pixel> scale;
+			Scale_1on3 scale;
 			scale(in, out);
 			break;
 		}
 		case 853: {
-			Scale_1on4<Pixel> scale;
+			Scale_1on4 scale;
 			scale(in, out);
 			break;
 		}
 		case 960: {
-			Scale_2on9<Pixel> scale(pixelOps);
+			Scale_2on9 scale(pixelOps);
 			scale(in, out);
 			break;
 		}
 		case 1280: {
-			Scale_1on6<Pixel> scale;
+			Scale_1on6 scale;
 			scale(in, out);
 			break;
 		}
@@ -145,34 +143,34 @@ void FrameSource::scaleLine(
 			out[0] = in[0];
 			break;
 		case 213: {
-			Scale_3on2<Pixel> scale(pixelOps);
+			Scale_3on2 scale(pixelOps);
 			scale(in, out);
 			break;
 		}
 		case 320:
 			UNREACHABLE;
 		case 426: {
-			Scale_3on4<Pixel> scale(pixelOps);
+			Scale_3on4 scale(pixelOps);
 			scale(in, out);
 			break;
 		}
 		case 640: {
-			Scale_1on2<Pixel> scale;
+			Scale_1on2 scale;
 			scale(in, out);
 			break;
 		}
 		case 853: {
-			Scale_3on8<Pixel> scale(pixelOps);
+			Scale_3on8 scale(pixelOps);
 			scale(in, out);
 			break;
 		}
 		case 960: {
-			Scale_1on3<Pixel> scale;
+			Scale_1on3 scale;
 			scale(in, out);
 			break;
 		}
 		case 1280: {
-			Scale_1on4<Pixel> scale;
+			Scale_1on4 scale;
 			scale(in, out);
 			break;
 		}
@@ -186,34 +184,34 @@ void FrameSource::scaleLine(
 			out[0] = in[0];
 			break;
 		case 213: {
-			Scale_2on1<Pixel> scale(pixelOps);
+			Scale_2on1 scale(pixelOps);
 			scale(in, out);
 			break;
 		}
 		case 320: {
-			Scale_4on3<Pixel> scale(pixelOps);
+			Scale_4on3 scale(pixelOps);
 			scale(in, out);
 			break;
 		}
 		case 426:
 			UNREACHABLE;
 		case 640: {
-			Scale_2on3<Pixel> scale(pixelOps);
+			Scale_2on3 scale(pixelOps);
 			scale(in, out);
 			break;
 		}
 		case 853: {
-			Scale_1on2<Pixel> scale;
+			Scale_1on2 scale;
 			scale(in, out);
 			break;
 		}
 		case 960: {
-			Scale_4on9<Pixel> scale(pixelOps);
+			Scale_4on9 scale(pixelOps);
 			scale(in, out);
 			break;
 		}
 		case 1280: {
-			Scale_1on3<Pixel> scale;
+			Scale_1on3 scale;
 			scale(in, out);
 			break;
 		}
@@ -227,34 +225,34 @@ void FrameSource::scaleLine(
 			out[0] = in[0];
 			break;
 		case 213: {
-			Scale_3on1<Pixel> scale(pixelOps);
+			Scale_3on1 scale(pixelOps);
 			scale(in, out);
 			break;
 		}
 		case 320: {
-			Scale_2on1<Pixel> scale(pixelOps);
+			Scale_2on1 scale(pixelOps);
 			scale(in, out);
 			break;
 		}
 		case 426: {
-			Scale_3on2<Pixel> scale(pixelOps);
+			Scale_3on2 scale(pixelOps);
 			scale(in, out);
 			break;
 		}
 		case 640:
 			UNREACHABLE;
 		case 853: {
-			Scale_3on4<Pixel> scale(pixelOps);
+			Scale_3on4 scale(pixelOps);
 			scale(in, out);
 			break;
 		}
 		case 960: {
-			Scale_2on3<Pixel> scale(pixelOps);
+			Scale_2on3 scale(pixelOps);
 			scale(in, out);
 			break;
 		}
 		case 1280: {
-			Scale_1on2<Pixel> scale;
+			Scale_1on2 scale;
 			scale(in, out);
 			break;
 		}
@@ -268,34 +266,34 @@ void FrameSource::scaleLine(
 			out[0] = in[0];
 			break;
 		case 213: {
-			Scale_4on1<Pixel> scale(pixelOps);
+			Scale_4on1 scale(pixelOps);
 			scale(in, out);
 			break;
 		}
 		case 320: {
-			Scale_8on3<Pixel> scale(pixelOps);
+			Scale_8on3 scale(pixelOps);
 			scale(in, out);
 			break;
 		}
 		case 426: {
-			Scale_2on1<Pixel> scale(pixelOps);
+			Scale_2on1 scale(pixelOps);
 			scale(in, out);
 			break;
 		}
 		case 640: {
-			Scale_4on3<Pixel> scale(pixelOps);
+			Scale_4on3 scale(pixelOps);
 			scale(in, out);
 			break;
 		}
 		case 853:
 			UNREACHABLE;
 		case 960: {
-			Scale_8on9<Pixel> scale(pixelOps);
+			Scale_8on9 scale(pixelOps);
 			scale(in, out);
 			break;
 		}
 		case 1280: {
-			Scale_2on3<Pixel> scale(pixelOps);
+			Scale_2on3 scale(pixelOps);
 			scale(in, out);
 			break;
 		}
@@ -309,32 +307,32 @@ void FrameSource::scaleLine(
 			out[0] = in[0];
 			break;
 		case 213: {
-			Scale_6on1<Pixel> scale(pixelOps);
+			Scale_6on1 scale(pixelOps);
 			scale(in, out);
 			break;
 		}
 		case 320: {
-			Scale_4on1<Pixel> scale(pixelOps);
+			Scale_4on1 scale(pixelOps);
 			scale(in, out);
 			break;
 		}
 		case 426: {
-			Scale_3on1<Pixel> scale(pixelOps);
+			Scale_3on1 scale(pixelOps);
 			scale(in, out);
 			break;
 		}
 		case 640: {
-			Scale_2on1<Pixel> scale(pixelOps);
+			Scale_2on1 scale(pixelOps);
 			scale(in, out);
 			break;
 		}
 		case 853: {
-			Scale_3on2<Pixel> scale(pixelOps);
+			Scale_3on2 scale(pixelOps);
 			scale(in, out);
 			break;
 		}
 		case 960: {
-			Scale_4on3<Pixel> scale(pixelOps);
+			Scale_4on3 scale(pixelOps);
 			scale(in, out);
 			break;
 		}
@@ -348,12 +346,5 @@ void FrameSource::scaleLine(
 		UNREACHABLE;
 	}
 }
-
-
-// Force template method instantiation
-template std::span<const uint32_t, 320> FrameSource::getLinePtr320_240<uint32_t>(unsigned, std::span<uint32_t, 320>) const;
-template std::span<const uint32_t, 640> FrameSource::getLinePtr640_480<uint32_t>(unsigned, std::span<uint32_t, 640>) const;
-template std::span<const uint32_t, 960> FrameSource::getLinePtr960_720<uint32_t>(unsigned, std::span<uint32_t, 960>) const;
-template void FrameSource::scaleLine<uint32_t>(std::span<const uint32_t>, std::span<uint32_t>) const;
 
 } // namespace openmsx

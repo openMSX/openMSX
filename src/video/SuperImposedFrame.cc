@@ -1,41 +1,16 @@
 #include "SuperImposedFrame.hh"
-#include "PixelOperations.hh"
 #include "LineScalers.hh"
-#include "unreachable.hh"
 #include "vla.hh"
 #include <algorithm>
-#include <concepts>
 #include <cstdint>
-#include <memory>
 
 namespace openmsx {
 
-template<std::unsigned_integral Pixel>
-class SuperImposedFrameImpl final : public SuperImposedFrame
-{
-public:
-	explicit SuperImposedFrameImpl(const PixelFormat& format);
-
-private:
-	[[nodiscard]] unsigned getLineWidth(unsigned line) const override;
-	[[nodiscard]] const void* getLineInfo(
-		unsigned line, unsigned& width,
-		void* buf, unsigned bufWidth) const override;
-
-	PixelOperations<Pixel> pixelOps;
-};
-
-
-// class SuperImposedFrame
-
-std::unique_ptr<SuperImposedFrame> SuperImposedFrame::create(
-	const PixelFormat& format)
-{
-	return std::make_unique<SuperImposedFrameImpl<uint32_t>>(format);
-}
+using Pixel = uint32_t;
 
 SuperImposedFrame::SuperImposedFrame(const PixelFormat& format)
 	: FrameSource(format)
+	, pixelOps(format)
 {
 }
 
@@ -47,19 +22,7 @@ void SuperImposedFrame::init(
 	setHeight(std::max(top->getHeight(), bottom->getHeight()));
 }
 
-
-// class SuperImposedFrameImpl
-
-template<std::unsigned_integral Pixel>
-SuperImposedFrameImpl<Pixel>::SuperImposedFrameImpl(
-		const PixelFormat& format)
-	: SuperImposedFrame(format)
-	, pixelOps(format)
-{
-}
-
-template<std::unsigned_integral Pixel>
-unsigned SuperImposedFrameImpl<Pixel>::getLineWidth(unsigned line) const
+unsigned SuperImposedFrame::getLineWidth(unsigned line) const
 {
 	unsigned tNum = (getHeight() == top   ->getHeight()) ? line : line / 2;
 	unsigned bNum = (getHeight() == bottom->getHeight()) ? line : line / 2;
@@ -68,8 +31,7 @@ unsigned SuperImposedFrameImpl<Pixel>::getLineWidth(unsigned line) const
 	return std::max(tWidth, bWidth);
 }
 
-template<std::unsigned_integral Pixel>
-const void* SuperImposedFrameImpl<Pixel>::getLineInfo(
+const void* SuperImposedFrame::getLineInfo(
 	unsigned line, unsigned& width, void* buf, unsigned bufWidth) const
 {
 	unsigned tNum = (getHeight() == top   ->getHeight()) ? line : line / 2;
@@ -84,7 +46,7 @@ const void* SuperImposedFrameImpl<Pixel>::getLineInfo(
 	auto tLine = top   ->getLine(tNum, tBuf);
 	auto bLine = bottom->getLine(bNum, bBuf);
 
-	AlphaBlendLines<Pixel> blend(pixelOps);
+	AlphaBlendLines blend(pixelOps);
 	blend(tLine, bLine, tBuf); // possibly tLine == tBuf
 	return tBuf.data();
 }

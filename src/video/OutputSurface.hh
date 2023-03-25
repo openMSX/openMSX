@@ -5,7 +5,6 @@
 #include "gl_vec.hh"
 #include <string>
 #include <cassert>
-#include <concepts>
 #include <cstdint>
 
 namespace openmsx {
@@ -20,6 +19,8 @@ namespace openmsx {
 class OutputSurface
 {
 public:
+	using Pixel = uint32_t;
+
 	OutputSurface(const OutputSurface&) = delete;
 	OutputSurface& operator=(const OutputSurface&) = delete;
 
@@ -56,48 +57,29 @@ public:
 
 	/** Returns the color key for this output surface.
 	  */
-	template<std::unsigned_integral Pixel> [[nodiscard]] inline Pixel getKeyColor() const
+	[[nodiscard]] inline Pixel getKeyColor() const
 	{
-		return sizeof(Pixel) == 2
-			? 0x0001      // lowest bit of 'some' color component is set
-			: 0x00000000; // alpha = 0
-	}
-
-	/** Returns a color that is visually very close to the key color.
-	  * The returned color can be used as an alternative for pixels that would
-	  * otherwise have the key color.
-	  */
-	template<std::unsigned_integral Pixel> [[nodiscard]] inline Pixel getKeyColorClash() const
-	{
-		assert(sizeof(Pixel) != 4); // shouldn't get clashes in 32bpp
-		return 0; // is visually very close, practically
-		          // indistinguishable, from the actual KeyColor
+		return 0x00000000; // alpha = 0
 	}
 
 	/** Returns the pixel value for the given RGB color.
 	  * It is guaranteed that the returned pixel value is different from the
 	  * color key for this output surface.
 	  */
-	template<std::unsigned_integral Pixel> [[nodiscard]] Pixel mapKeyedRGB255(gl::ivec3 rgb)
+	[[nodiscard]] Pixel mapKeyedRGB255(gl::ivec3 rgb)
 	{
 		auto p = Pixel(mapRGB255(rgb));
-		if constexpr (sizeof(Pixel) == 2) {
-			return (p != getKeyColor<Pixel>())
-				? p
-				: getKeyColorClash<Pixel>();
-		} else {
-			assert(p != getKeyColor<Pixel>());
-			return p;
-		}
+		assert(p != getKeyColor());
+		return p;
 	}
 
 	/** Returns the pixel value for the given RGB color.
 	  * It is guaranteed that the returned pixel value is different from the
 	  * color key for this output surface.
 	  */
-	template<std::unsigned_integral Pixel> [[nodiscard]] Pixel mapKeyedRGB(gl::vec3 rgb)
+	[[nodiscard]] Pixel mapKeyedRGB(gl::vec3 rgb)
 	{
-		return mapKeyedRGB255<Pixel>(gl::ivec3(rgb * 255.0f));
+		return mapKeyedRGB255(gl::ivec3(rgb * 255.0f));
 	}
 
 	/** Save the content of this OutputSurface to a PNG file.

@@ -2,6 +2,7 @@
 #define DEFLICKER_HH
 
 #include "FrameSource.hh"
+#include "PixelOperations.hh"
 #include <memory>
 #include <span>
 
@@ -9,23 +10,21 @@ namespace openmsx {
 
 class RawFrame;
 
-class Deflicker : public FrameSource
+class Deflicker final : public FrameSource
 {
 public:
-	// Factory method, actually returns a Deflicker subclass.
-	[[nodiscard]] static std::unique_ptr<Deflicker> create(
-		const PixelFormat& format,
-		std::span<std::unique_ptr<RawFrame>, 4> lastFrames);
-	void init();
-	virtual ~Deflicker() = default;
-
-protected:
 	Deflicker(const PixelFormat& format,
 	          std::span<std::unique_ptr<RawFrame>, 4> lastFrames);
+	virtual ~Deflicker() = default;
+	void init();
 
 	[[nodiscard]] unsigned getLineWidth(unsigned line) const override;
+	[[nodiscard]] const void* getLineInfo(
+		unsigned line, unsigned& width,
+		void* buf, unsigned bufWidth) const override;
 
-protected:
+private:
+	PixelOperations pixelOps;
 	std::span<std::unique_ptr<RawFrame>, 4> lastFrames;
 };
 

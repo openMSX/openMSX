@@ -46,9 +46,9 @@ PostProcessor::PostProcessor(MSXMotherBoard& motherBoard_,
 			screen.getPixelFormat());
 		interlacedFrame   = std::make_unique<DoubledFrame>(
 			screen.getPixelFormat());
-		deflicker = Deflicker::create(
+		deflicker = std::make_unique<Deflicker>(
 			screen.getPixelFormat(), lastFrames);
-		superImposedFrame = SuperImposedFrame::create(
+		superImposedFrame = std::make_unique<SuperImposedFrame>(
 			screen.getPixelFormat());
 	} else {
 		// Laserdisc always produces non-interlaced frames, so we don't
