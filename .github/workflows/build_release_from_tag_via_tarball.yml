@@ -93,7 +93,18 @@ jobs:
     - name: Move extracted tarball contents to root
       shell: bash
       run: mv ${{ steps.get_dist_name.outputs.dist_name }}/* .
+    - name: Preparations for signing binaries on Darwin builds
+      if: matrix.os == 'darwin'
+      uses: ./.github/actions/prepare-sign
+      env:
+        BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+        P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+        KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+      with:
+        os: ${{ matrix.os }}
     - name: Perform build on extracted tarball
+      env: 
+        CODE_SIGN_IDENTITY: 748867M822
       # Directory name only
       uses: ./.github/actions/build
       with:
