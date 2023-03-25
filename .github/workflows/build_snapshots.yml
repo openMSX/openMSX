@@ -64,6 +64,7 @@ jobs:
       with:
         fetch-depth: 0
     - name: Preparations for signing binaries on Darwin builds
+      if: matrix.os == 'darwin'
       uses: ./.github/actions/prepare-sign
       with:
         os: ${{ matrix.os }}
