@@ -86,6 +86,8 @@ jobs:
         security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
         security list-keychain -d user -s $KEYCHAIN_PATH
     - name: Perform the actual build
+      env: 
+        CODE_SIGN_IDENTITY: 748867M822
       # Directory name only
       uses: ./.github/actions/build
       with:
