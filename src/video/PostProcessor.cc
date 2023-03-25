@@ -203,11 +203,10 @@ void PostProcessor::executeUntil(EmuTime::param /*time*/)
 }
 
 using WorkBuffer = std::vector<MemBuffer<char, SSE_ALIGNMENT>>;
-static void getScaledFrame(FrameSource& paintFrame, unsigned bpp,
+static void getScaledFrame(FrameSource& paintFrame,
                            std::span<const void*> lines,
                            WorkBuffer& workBuffer)
 {
-	assert(bpp == 32); // TODO remove bpp
 	auto height = narrow<unsigned>(lines.size());
 	unsigned width = (height == 240) ? 320 : 640;
 	unsigned pitch = width * 4;
@@ -240,14 +239,9 @@ void PostProcessor::takeRawScreenShot(unsigned height2, const std::string& filen
 
 	VLA(const void*, lines, height2);
 	WorkBuffer workBuffer;
-	getScaledFrame(*paintFrame, getBpp(), lines, workBuffer);
+	getScaledFrame(*paintFrame, lines, workBuffer);
 	unsigned width = (height2 == 240) ? 320 : 640;
 	PNG::save(width, lines, paintFrame->getPixelFormat(), filename);
-}
-
-unsigned PostProcessor::getBpp() const
-{
-	return screen.getPixelFormat().getBpp();
 }
 
 } // namespace openmsx

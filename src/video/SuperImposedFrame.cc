@@ -31,10 +31,7 @@ private:
 std::unique_ptr<SuperImposedFrame> SuperImposedFrame::create(
 	const PixelFormat& format)
 {
-	if (format.getBytesPerPixel() == 4) {
-		return std::make_unique<SuperImposedFrameImpl<uint32_t>>(format);
-	}
-	UNREACHABLE; return nullptr; // avoid warning
+	return std::make_unique<SuperImposedFrameImpl<uint32_t>>(format);
 }
 
 SuperImposedFrame::SuperImposedFrame(const PixelFormat& format)

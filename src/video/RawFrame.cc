@@ -11,7 +11,7 @@ RawFrame::RawFrame(
 	, maxWidth(maxWidth_)
 {
 	setHeight(height_);
-	unsigned bytesPerPixel = format.getBytesPerPixel();
+	static constexpr unsigned bytesPerPixel = sizeof(Pixel);
 
 	// Allocate memory, make sure each line starts at a 64 byte boundary:
 	// - SSE instructions need 16 byte aligned data

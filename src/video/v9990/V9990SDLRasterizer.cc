@@ -144,7 +144,7 @@ void V9990SDLRasterizer<Pixel>::drawBorder(
 	unsigned lineWidth = vdp.getLineWidth();
 	MemoryOps::MemSet<Pixel> memset;
 	for (auto y : xrange(startY, endY)) {
-		memset(workFrame->getLineDirect<Pixel>(y).subspan(startX, size_t(endX - startX)),
+		memset(workFrame->getLineDirect(y).subspan(startX, size_t(endX - startX)),
 		       bgColor);
 		workFrame->setLineWidth(y, lineWidth);
 	}
@@ -218,7 +218,7 @@ void V9990SDLRasterizer<Pixel>::drawP1Mode(
 	int displayWidth, int displayHeight, bool drawSprites)
 {
 	while (displayHeight--) {
-		auto dst = workFrame->getLineDirect<Pixel>(fromY).subspan(fromX, displayWidth);
+		auto dst = workFrame->getLineDirect(fromY).subspan(fromX, displayWidth);
 		p1Converter.convertLine(dst, displayX, displayY,
 		                        displayYA, displayYB, drawSprites);
 		workFrame->setLineWidth(fromY, 320);
@@ -235,7 +235,7 @@ void V9990SDLRasterizer<Pixel>::drawP2Mode(
 	int displayWidth, int displayHeight, bool drawSprites)
 {
 	while (displayHeight--) {
-		auto dst = workFrame->getLineDirect<Pixel>(fromY).subspan(fromX, displayWidth);
+		auto dst = workFrame->getLineDirect(fromY).subspan(fromX, displayWidth);
 		p2Converter.convertLine(dst, displayX, displayY, displayYA, drawSprites);
 		workFrame->setLineWidth(fromY, 640);
 		++fromY;
@@ -273,7 +273,7 @@ void V9990SDLRasterizer<Pixel>::drawBxMode(
 		// position of the borders into account, the display area
 		// plus 3 pixels cannot go beyond the end of the buffer.
 		unsigned y = scrollYBase + ((displayYA + scrollY) & rollMask);
-		auto dst = workFrame->getLineDirect<Pixel>(fromY).subspan(fromX, displayWidth);
+		auto dst = workFrame->getLineDirect(fromY).subspan(fromX, displayWidth);
 		bitmapConverter.convertLine(dst, x, y, cursorY, drawSprites);
 		workFrame->setLineWidth(fromY, vdp.getLineWidth());
 		++fromY;

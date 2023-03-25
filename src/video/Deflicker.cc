@@ -33,10 +33,7 @@ std::unique_ptr<Deflicker> Deflicker::create(
 	const PixelFormat& format,
 	std::span<std::unique_ptr<RawFrame>, 4> lastFrames)
 {
-	if (format.getBytesPerPixel() == 4) {
-		return std::make_unique<DeflickerImpl<uint32_t>>(format, lastFrames);
-	}
-	UNREACHABLE; return nullptr; // avoid warning
+	return std::make_unique<DeflickerImpl<uint32_t>>(format, lastFrames);
 }
 
 
@@ -121,10 +118,10 @@ const void* DeflickerImpl<Pixel>::getLineInfo(
 	unsigned width1 = lastFrames[1]->getLineWidthDirect(line);
 	unsigned width2 = lastFrames[2]->getLineWidthDirect(line);
 	unsigned width3 = lastFrames[3]->getLineWidthDirect(line);
-	const Pixel* line0 = lastFrames[0]->template getLineDirect<Pixel>(line).data();
-	const Pixel* line1 = lastFrames[1]->template getLineDirect<Pixel>(line).data();
-	const Pixel* line2 = lastFrames[2]->template getLineDirect<Pixel>(line).data();
-	const Pixel* line3 = lastFrames[3]->template getLineDirect<Pixel>(line).data();
+	const Pixel* line0 = lastFrames[0]->getLineDirect(line).data();
+	const Pixel* line1 = lastFrames[1]->getLineDirect(line).data();
+	const Pixel* line2 = lastFrames[2]->getLineDirect(line).data();
+	const Pixel* line3 = lastFrames[3]->getLineDirect(line).data();
 	if ((width0 != width3) || (width0 != width2) || (width0 != width1)) {
 		// Not all the same width.
 		width = width0;

@@ -21,27 +21,22 @@ class ZMBVEncoder
 {
 public:
 	static constexpr std::string_view CODEC_4CC = "ZMBV";
+	using Pixel = uint32_t;
 
-	ZMBVEncoder(unsigned width, unsigned height, unsigned bpp);
+	ZMBVEncoder(unsigned width, unsigned height);
 
 	[[nodiscard]] std::span<const uint8_t> compressFrame(bool keyFrame, FrameSource* frame);
 
 private:
-	enum Format {
-		ZMBV_FORMAT_16BPP = 6,
-		ZMBV_FORMAT_32BPP = 8
-	};
-
-	void setupBuffers(unsigned bpp);
+	void setupBuffers();
 	[[nodiscard]] unsigned neededSize() const;
-	template<std::unsigned_integral P> void addFullFrame(const PixelFormat& pixelFormat, unsigned& workUsed);
-	template<std::unsigned_integral P> void addXorFrame (const PixelFormat& pixelFormat, unsigned& workUsed);
-	template<std::unsigned_integral P> [[nodiscard]] unsigned possibleBlock(int vx, int vy, size_t offset);
-	template<std::unsigned_integral P> [[nodiscard]] unsigned compareBlock(int vx, int vy, size_t offset);
-	template<std::unsigned_integral P> void addXorBlock(
-		const PixelOperations<P>& pixelOps, int vx, int vy,
-		size_t offset, unsigned& workUsed);
-	[[nodiscard]] const void* getScaledLine(FrameSource* frame, unsigned y, void* workBuf) const;
+	void addFullFrame(const PixelFormat& pixelFormat, unsigned& workUsed);
+	void addXorFrame (const PixelFormat& pixelFormat, unsigned& workUsed);
+	[[nodiscard]] unsigned possibleBlock(int vx, int vy, size_t offset);
+	[[nodiscard]] unsigned compareBlock(int vx, int vy, size_t offset);
+	void addXorBlock(const PixelOperations<Pixel>& pixelOps, int vx, int vy,
+	                 size_t offset, unsigned& workUsed);
+	[[nodiscard]] const void* getScaledLine(const FrameSource* frame, unsigned y, void* workBuf) const;
 
 private:
 	MemBuffer<uint8_t, SSE_ALIGNMENT> oldFrame;
@@ -56,8 +51,6 @@ private:
 	const unsigned width;
 	const unsigned height;
 	size_t pitch;
-	unsigned pixelSize;
-	Format format;
 };
 
 } // namespace openmsx

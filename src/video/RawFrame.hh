@@ -4,7 +4,7 @@
 #include "FrameSource.hh"
 #include "MemBuffer.hh"
 #include <cassert>
-#include <concepts>
+#include <cstdint>
 
 namespace openmsx {
 
@@ -14,9 +14,10 @@ namespace openmsx {
 class RawFrame final : public FrameSource
 {
 public:
+	using Pixel = uint32_t;
+
 	RawFrame(const PixelFormat& format, unsigned maxWidth, unsigned height);
 
-	template<std::unsigned_integral Pixel>
 	[[nodiscard]] std::span<Pixel> getLineDirect(unsigned y) {
 		assert(y < getHeight());
 		return {reinterpret_cast<Pixel*>(data.data() + y * pitch), maxWidth};
@@ -33,10 +34,9 @@ public:
 		lineWidths[line] = width;
 	}
 
-	template<std::unsigned_integral Pixel>
 	inline void setBlank(unsigned line, Pixel color) {
 		assert(line < getHeight());
-		getLineDirect<Pixel>(line)[0] = color;
+		getLineDirect(line)[0] = color;
 		lineWidths[line] = 1;
 	}
 

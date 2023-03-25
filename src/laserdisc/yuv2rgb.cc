@@ -13,6 +13,8 @@
 
 namespace openmsx::yuv2rgb {
 
+using Pixel = uint32_t;
+
 #ifdef __SSE2__
 
 /*
@@ -43,7 +45,7 @@ namespace openmsx::yuv2rgb {
 static inline void yuv2rgb_sse2(
 	const uint8_t* u_ , const uint8_t* v_,
 	const uint8_t* y0_, const uint8_t* y1_,
-	uint32_t* out0_, uint32_t* out1_)
+	Pixel* out0_, Pixel* out1_)
 {
 	// This routine calculates 32x2 RGBA pixels. Each output pixel uses a
 	// unique corresponding input Y value, but a group of 2x2 ouput pixels
@@ -234,8 +236,8 @@ static inline void convertHelperSSE2(
 		const uint8_t* pY2 = buffer[0].data + (y + 1) * y_stride;
 		const uint8_t* pCb = buffer[1].data + (y + 0) * uv_stride2;
 		const uint8_t* pCr = buffer[2].data + (y + 0) * uv_stride2;
-		auto out0 = output.getLineDirect<uint32_t>(y + 0);
-		auto out1 = output.getLineDirect<uint32_t>(y + 1);
+		auto out0 = output.getLineDirect(y + 0);
+		auto out1 = output.getLineDirect(y + 1);
 
 		for (int x = 0; x < width; x += 32) {
 			// convert a block of (32 x 2) pixels
@@ -281,7 +283,6 @@ struct Coefs {
 	return coefs;
 }
 
-template<std::unsigned_integral Pixel>
 [[nodiscard]] static inline Pixel calc(
 	const PixelFormat& format, int y, int ruv, int guv, int buv)
 {
@@ -295,7 +296,6 @@ template<std::unsigned_integral Pixel>
 	}
 }
 
-template<std::unsigned_integral Pixel>
 static void convertHelper(const th_ycbcr_buffer& buffer, RawFrame& output,
                           const PixelFormat& format)
 {
@@ -312,8 +312,8 @@ static void convertHelper(const th_ycbcr_buffer& buffer, RawFrame& output,
 		const uint8_t* pY  = buffer[0].data + y * y_stride;
 		const uint8_t* pCb = buffer[1].data + y * uv_stride2;
 		const uint8_t* pCr = buffer[2].data + y * uv_stride2;
-		auto out0 = output.getLineDirect<Pixel>(y + 0);
-		auto out1 = output.getLineDirect<Pixel>(y + 1);
+		auto out0 = output.getLineDirect(y + 0);
+		auto out1 = output.getLineDirect(y + 1);
 
 		for (int x = 0; x < width; x += 2, pY += 2, ++pCr, ++pCb) {
 			int ruv = coefs.rv[*pCr];
@@ -321,16 +321,16 @@ static void convertHelper(const th_ycbcr_buffer& buffer, RawFrame& output,
 			int buv = coefs.bu[*pCb];
 
 			int Y00 = coefs.y[pY[0]];
-			out0[x + 0] = calc<Pixel>(format, Y00, ruv, guv, buv);
+			out0[x + 0] = calc(format, Y00, ruv, guv, buv);
 
 			int Y01 = coefs.y[pY[1]];
-			out0[x + 1] = calc<Pixel>(format, Y01, ruv, guv, buv);
+			out0[x + 1] = calc(format, Y01, ruv, guv, buv);
 
 			int Y10 = coefs.y[pY[y_stride + 0]];
-			out1[x + 0] = calc<Pixel>(format, Y10, ruv, guv, buv);
+			out1[x + 0] = calc(format, Y10, ruv, guv, buv);
 
 			int Y11 = coefs.y[pY[y_stride + 1]];
-			out1[x + 1] = calc<Pixel>(format, Y11, ruv, guv, buv);
+			out1[x + 1] = calc(format, Y11, ruv, guv, buv);
 		}
 
 		output.setLineWidth(y + 0, width);
@@ -340,16 +340,16 @@ static void convertHelper(const th_ycbcr_buffer& buffer, RawFrame& output,
 
 void convert(const th_ycbcr_buffer& input, RawFrame& output)
 {
-	const PixelFormat& format = output.getPixelFormat();
-	if (format.getBytesPerPixel() == 4) {
 #ifdef __SSE2__
-		convertHelperSSE2(input, output);
+	bool sse2 = true;
 #else
-		convertHelper<uint32_t>(input, output, format);
+	bool sse2 = false;
 #endif
+
+	if (sse2) {
+		convertHelperSSE2(input, output);
 	} else {
-		assert(format.getBytesPerPixel() == 2);
-		convertHelper<uint16_t>(input, output, format);
+		convertHelper(input, output, output.getPixelFormat());
 	}
 }
 

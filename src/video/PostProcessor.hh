@@ -76,11 +76,6 @@ public:
 	  */
 	[[nodiscard]] bool isRecording() const { return recorder != nullptr; }
 
-	/** Get the number of bits per pixel for the pixels in these frames.
-	  * @return Possible values are 15, 16 or 32
-	  */
-	[[nodiscard]] unsigned getBpp() const;
-
 	/** Get the frame that would be displayed. E.g. so that it can be
 	  * superimposed over the output of another PostProcessor, see
 	  * setSuperimposeVdpFrame().

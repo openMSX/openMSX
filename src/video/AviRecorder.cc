@@ -75,14 +75,13 @@ void AviRecorder::start(bool recordAudio, bool recordVideo, bool recordMono,
 				"Current renderer doesn't support video recording.");
 		}
 		// any source is fine because they all have the same bpp
-		unsigned bpp = postProcessors.front()->getBpp();
 		warnedFps = false;
 		duration = EmuDuration::infinity();
 		prevTime = EmuTime::infinity();
 
 		try {
 			aviWriter = std::make_unique<AviWriter>(
-				filename, frameWidth, frameHeight, bpp,
+				filename, frameWidth, frameHeight,
 				(recordAudio && stereo) ? 2 : 1, sampleRate);
 		} catch (MSXException& e) {
 			throw CommandException("Can't start recording: ",

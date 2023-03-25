@@ -381,12 +381,13 @@ void save(size_t width, std::span<const void*> rowPointers,
 {
 	// this implementation creates 1 extra copy, can be optimized if required
 	auto height = narrow<unsigned>(rowPointers.size());
+	static constexpr int bpp = 32;
 	SDLSurfacePtr surface(
-		narrow<unsigned>(width), height, format.getBpp(),
+		narrow<unsigned>(width), height, bpp,
 		format.getRmask(), format.getGmask(), format.getBmask(), format.getAmask());
 	for (auto y : xrange(height)) {
 		memcpy(surface.getLinePtr(y),
-		       rowPointers[y], width * format.getBytesPerPixel());
+		       rowPointers[y], width * sizeof(uint32_t));
 	}
 	save(surface.get(), filename);
 }
