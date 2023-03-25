@@ -6,6 +6,7 @@ inputs:
     description: "The OS to build for"
 
 runs:
+  using: "composite"
   steps:
   - name: Install the certificate in a temporary key-chain
     if: inputs.os == 'darwin'
