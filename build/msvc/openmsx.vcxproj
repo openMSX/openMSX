@@ -685,7 +685,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\RawFrame.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\RendererFactory.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\RenderSettings.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\SDLGLOffScreenSurface.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\video\OffScreenSurface.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\SDLRasterizer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\SDLVideoSystem.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\SpriteChecker.cc" />
@@ -1267,7 +1267,7 @@
     <None Include="$(OpenMSXSrcDir)\video\RendererFactory.hh" />
     <None Include="$(OpenMSXSrcDir)\video\RenderSettings.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLDefaultScaler.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\SDLGLOffScreenSurface.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\OffScreenSurface.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SDLRasterizer.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SDLSurfacePtr.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SDLVideoSystem.hh" />

@@ -13,11 +13,11 @@
 #include "InitException.hh"
 #include "InputEventGenerator.hh"
 #include "MemBuffer.hh"
+#include "OffScreenSurface.hh"
 #include "OSDConsoleRenderer.hh"
 #include "OSDGUILayer.hh"
 #include "PNG.hh"
 #include "RenderSettings.hh"
-#include "SDLGLOffScreenSurface.hh"
 #include "VideoSystem.hh"
 #include "narrow.hh"
 #include "one_of.hh"
@@ -340,7 +340,7 @@ std::unique_ptr<Layer> VisibleSurface::createOSDGUILayer(OSDGUI& gui)
 
 std::unique_ptr<OutputSurface> VisibleSurface::createOffScreenSurface()
 {
-	return std::make_unique<SDLGLOffScreenSurface>(*this);
+	return std::make_unique<OffScreenSurface>(*this);
 }
 
 void VisibleSurface::VSyncObserver::update(const Setting& setting) noexcept

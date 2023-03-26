@@ -1053,7 +1053,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\RenderSettings.cc">
       <Filter>video</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\SDLGLOffScreenSurface.cc">
+    <ClCompile Include="$(OpenMSXSrcDir)\video\OffScreenSurface.cc">
       <Filter>video</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\SDLRasterizer.cc">
@@ -2524,7 +2524,7 @@
     <None Include="$(OpenMSXSrcDir)\video\RenderSettings.hh">
       <Filter>video</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\video\SDLGLOffScreenSurface.hh">
+    <None Include="$(OpenMSXSrcDir)\video\OffScreenSurface.hh">
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\SDLRasterizer.hh">
