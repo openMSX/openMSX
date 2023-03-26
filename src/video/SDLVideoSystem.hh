@@ -3,20 +3,20 @@
 
 #include "VideoSystem.hh"
 #include "EventListener.hh"
-#include "gl_vec.hh"
 #include "Observer.hh"
+#include "gl_vec.hh"
 #include "components.hh"
 #include <memory>
 
 namespace openmsx {
 
-class Reactor;
 class CommandConsole;
 class Display;
-class RenderSettings;
-class SDLGLVisibleSurface;
 class Layer;
+class Reactor;
+class RenderSettings;
 class Setting;
+class VisibleSurface;
 
 class SDLVideoSystem final : public VideoSystem, private EventListener
                            , private Observer<Setting>
@@ -64,7 +64,7 @@ private:
 	Reactor& reactor;
 	Display& display;
 	RenderSettings& renderSettings;
-	std::unique_ptr<SDLGLVisibleSurface> screen;
+	std::unique_ptr<VisibleSurface> screen;
 	std::unique_ptr<Layer> consoleLayer;
 	std::unique_ptr<Layer> snowLayer;
 	std::unique_ptr<Layer> iconLayer;

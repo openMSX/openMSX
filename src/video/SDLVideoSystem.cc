@@ -1,6 +1,6 @@
 #include "SDLVideoSystem.hh"
 #include "SDLRasterizer.hh"
-#include "SDLGLVisibleSurface.hh"
+#include "VisibleSurface.hh"
 #include "GLPostProcessor.hh"
 #include "V9990SDLRasterizer.hh"
 #include "Reactor.hh"
@@ -212,7 +212,7 @@ void SDLVideoSystem::resize()
 
 	switch (renderSettings.getRenderer()) {
 	case RenderSettings::SDLGL_PP:
-		screen = std::make_unique<SDLGLVisibleSurface>(
+		screen = std::make_unique<VisibleSurface>(
 			width, height, display, rtScheduler,
 			eventDistributor, inputEventGenerator,
 			reactor.getCliComm(), *this);

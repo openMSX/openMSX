@@ -686,10 +686,8 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\RendererFactory.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\RenderSettings.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\SDLGLOffScreenSurface.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\SDLGLVisibleSurface.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\SDLRasterizer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\SDLVideoSystem.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\SDLVisibleSurfaceBase.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\SpriteChecker.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\VDP.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\VDPCmdEngine.cc" />
@@ -1270,11 +1268,9 @@
     <None Include="$(OpenMSXSrcDir)\video\RenderSettings.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLDefaultScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SDLGLOffScreenSurface.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\SDLGLVisibleSurface.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SDLRasterizer.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SDLSurfacePtr.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SDLVideoSystem.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\SDLVisibleSurfaceBase.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SpriteChecker.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SpriteConverter.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />

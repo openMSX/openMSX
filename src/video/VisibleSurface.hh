@@ -1,73 +1,86 @@
 #ifndef VISIBLESURFACE_HH
 #define VISIBLESURFACE_HH
 
-#include "Observer.hh"
 #include "EventListener.hh"
+#include "Observer.hh"
+#include "OutputSurface.hh"
 #include "RTSchedulable.hh"
+#include "SDLSurfacePtr.hh"
 #include <memory>
 
 namespace openmsx {
 
-class Layer;
-class OutputSurface;
-class Reactor;
+class CliComm;
 class CommandConsole;
+class Display;
 class EventDistributor;
 class InputEventGenerator;
-class Setting;
-class Display;
+class Layer;
 class OSDGUI;
-class CliComm;
+class Reactor;
+class Setting;
 class VideoSystem;
 
 /** An OutputSurface which is visible to the user, such as a window or a
   * full screen display.
   */
-class VisibleSurface : public EventListener, private Observer<Setting>
-                     , private RTSchedulable
+class VisibleSurface final : public OutputSurface, public EventListener
+                                , private Observer<Setting>, private RTSchedulable
 {
 public:
-	virtual ~VisibleSurface();
-	virtual void updateWindowTitle() = 0;
-	virtual bool setFullScreen(bool fullscreen) = 0;
+	VisibleSurface(int width, int height,
+	                    Display& display,
+	                    RTScheduler& rtScheduler,
+	                    EventDistributor& eventDistributor,
+	                    InputEventGenerator& inputEventGenerator,
+	                    CliComm& cliComm,
+	                    VideoSystem& videoSystem);
+	~VisibleSurface() override;
+
+	[[nodiscard]] CliComm& getCliComm() const { return cliComm; }
+	[[nodiscard]] Display& getDisplay() const { return display; }
+
+	static void saveScreenshotGL(const OutputSurface& output,
+	                             const std::string& filename);
+
+	void updateWindowTitle();
+	bool setFullScreen(bool fullscreen);
 
 	/** When a complete frame is finished, call this method.
 	  * It will 'actually' display it. E.g. when using double buffering
 	  * it will swap the front and back buffer.
 	  */
-	virtual void finish() = 0;
+	void finish();
 
-	[[nodiscard]] virtual std::unique_ptr<Layer> createSnowLayer() = 0;
-	[[nodiscard]] virtual std::unique_ptr<Layer> createConsoleLayer(
-		Reactor& reactor, CommandConsole& console) = 0;
-	[[nodiscard]] virtual std::unique_ptr<Layer> createOSDGUILayer(OSDGUI& gui) = 0;
+	[[nodiscard]] std::unique_ptr<Layer> createSnowLayer();
+	[[nodiscard]] std::unique_ptr<Layer> createConsoleLayer(
+		Reactor& reactor, CommandConsole& console);
+	[[nodiscard]] std::unique_ptr<Layer> createOSDGUILayer(OSDGUI& gui);
 
 	/** Create an off-screen OutputSurface which has similar properties
 	  * as this VisibleSurface. E.g. used to re-render the current frame
 	  * without OSD elements to take a screenshot.
 	  */
-	[[nodiscard]] virtual std::unique_ptr<OutputSurface> createOffScreenSurface() = 0;
+	[[nodiscard]] std::unique_ptr<OutputSurface> createOffScreenSurface();
 
-	[[nodiscard]] CliComm& getCliComm() const { return cliComm; }
-	[[nodiscard]] Display& getDisplay() const { return display; }
+	void fullScreenUpdated(bool fullScreen);
 
-protected:
-	VisibleSurface(Display& display,
-	               RTScheduler& rtScheduler,
-	               EventDistributor& eventDistributor,
-	               InputEventGenerator& inputEventGenerator,
-	               CliComm& cliComm,
-	               VideoSystem& videoSystem);
-
-private:
-	void updateCursor();
+	// OutputSurface
+	void saveScreenshot(const std::string& filename) override;
 
 	// Observer
 	void update(const Setting& setting) noexcept override;
+
 	// EventListener
 	int signalEvent(const Event& event) override;
+
 	// RTSchedulable
 	void executeRT() override;
+
+private:
+	void updateCursor();
+	void createSurface(int width, int height, unsigned flags);
+	void setViewPort(gl::ivec2 logicalSize, bool fullScreen);
 
 private:
 	Display& display;
@@ -75,7 +88,19 @@ private:
 	InputEventGenerator& inputEventGenerator;
 	CliComm& cliComm;
 	VideoSystem& videoSystem;
+
+	struct VSyncObserver : openmsx::Observer<Setting> {
+		void update(const Setting& setting) noexcept override;
+	} vSyncObserver;
+
+	SDLSubSystemInitializer<SDL_INIT_VIDEO> videoSubSystem;
+	SDLWindowPtr window;
+	SDL_GLContext glContext;
+
 	bool grab = false;
+
+	static int windowPosX;
+	static int windowPosY;
 };
 
 } // namespace openmsx

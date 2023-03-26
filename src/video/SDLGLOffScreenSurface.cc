@@ -1,5 +1,5 @@
 #include "SDLGLOffScreenSurface.hh"
-#include "SDLGLVisibleSurface.hh"
+#include "VisibleSurface.hh"
 #include "GLUtil.hh"
 
 namespace openmsx {
@@ -25,7 +25,7 @@ SDLGLOffScreenSurface::SDLGLOffScreenSurface(const OutputSurface& output)
 
 void SDLGLOffScreenSurface::saveScreenshot(const std::string& filename)
 {
-	SDLGLVisibleSurface::saveScreenshotGL(*this, filename);
+	VisibleSurface::saveScreenshotGL(*this, filename);
 }
 
 } // namespace openmsx
