@@ -262,10 +262,10 @@ void OSDConsoleRenderer::loadBackground(std::string_view value)
 		return;
 	}
 	auto filename = systemFileContext().resolve(value);
-	backgroundImage = std::make_unique<GLImage>(*output, filename, bgSize);
+	backgroundImage = std::make_unique<GLImage>(filename, bgSize);
 }
 
-void OSDConsoleRenderer::drawText(OutputSurface& output, std::string_view text,
+void OSDConsoleRenderer::drawText(std::string_view text,
                                   int cx, int cy, byte alpha, uint32_t rgb)
 {
 	auto xy = getTextPos(cx, cy);
@@ -291,7 +291,7 @@ void OSDConsoleRenderer::drawText(OutputSurface& output, std::string_view text,
 		if (!surf) {
 			// nothing was rendered, so do nothing
 		} else {
-			image2 = std::make_unique<GLImage>(output, std::move(surf));
+			image2 = std::make_unique<GLImage>(std::move(surf));
 		}
 		image = image2.get();
 		insertInCache(std::move(textStr), std::move(image2), width);
@@ -300,7 +300,7 @@ void OSDConsoleRenderer::drawText(OutputSurface& output, std::string_view text,
 		byte r = (rgb >> 16) & 0xff;
 		byte g = (rgb >>  8) & 0xff;
 		byte b = (rgb >>  0) & 0xff;
-		image->draw(output, xy, r, g, b, alpha);
+		image->draw(xy, r, g, b, alpha);
 	}
 }
 
@@ -362,7 +362,7 @@ gl::ivec2 OSDConsoleRenderer::getTextPos(int cursorX, int cursorY) const
 	                     bgSize[1] - (font.getHeight() * (cursorY + 1)) - 1);
 }
 
-void OSDConsoleRenderer::paint(OutputSurface& output)
+void OSDConsoleRenderer::paint(OutputSurface& /*output*/)
 {
 	byte visibility = getVisibility();
 	if (!visibility) return;
@@ -380,16 +380,16 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 		// no background image, try to create an empty one
 		try {
 			backgroundImage = std::make_unique<GLImage>(
-				output, bgSize, CONSOLE_ALPHA);
+				bgSize, CONSOLE_ALPHA);
 		} catch (MSXException&) {
 			// nothing
 		}
 	}
 	if (backgroundImage) {
-		backgroundImage->draw(output, bgPos, 255, 255, 255, visibility);
+		backgroundImage->draw(bgPos, visibility);
 	}
 
-	drawConsoleText(output, visibility);
+	drawConsoleText(visibility);
 
 	// Check if the blink period is over
 	auto now = Timer::getTime();
@@ -406,11 +406,11 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 		lastCursorY = cursorY;
 	}
 	if (blink && (console.getScrollBack() == 0)) {
-		drawText(output, "_", cursorX, cursorY, visibility, 0xffffff);
+		drawText("_", cursorX, cursorY, visibility, 0xffffff);
 	}
 }
 
-void OSDConsoleRenderer::drawConsoleText(OutputSurface& output, byte visibility)
+void OSDConsoleRenderer::drawConsoleText(byte visibility)
 {
 	const auto rows = console.getRows();
 	const auto columns = console.getColumns();
@@ -465,7 +465,7 @@ void OSDConsoleRenderer::drawConsoleText(OutputSurface& output, byte visibility)
 				std::string_view subText(&*it, e - it);
 				auto rgb = chunks[chunkIdx - 1].rgb;
 				auto cursorX = narrow<int>(columns - startColumn);
-				drawText(output, subText, cursorX, cursorY, visibility, rgb);
+				drawText(subText, cursorX, cursorY, visibility, rgb);
 
 				// next chunk
 				it = e;

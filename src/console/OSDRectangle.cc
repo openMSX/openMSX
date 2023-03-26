@@ -155,15 +155,15 @@ std::unique_ptr<GLImage> OSDRectangle::create(OutputSurface& output)
 		auto factor = narrow<float>(getScaleFactor(output)) * scale;
 		auto bs = narrow_cast<int>(lrintf(factor * borderSize + sz[0] * relBorderSize));
 		assert(bs >= 0);
-		return std::make_unique<GLImage>(output, round(sz), getRGBA4(), bs, borderRGBA);
+		return std::make_unique<GLImage>(round(sz), getRGBA4(), bs, borderRGBA);
 	} else {
 		auto file = systemFileContext().resolve(imageName);
 		if (takeImageDimensions()) {
 			auto factor = narrow<float>(getScaleFactor(output)) * scale;
-			return std::make_unique<GLImage>(output, file, factor);
+			return std::make_unique<GLImage>(file, factor);
 		} else {
 			ivec2 iSize = round(getSize(output));
-			return std::make_unique<GLImage>(output, file, iSize);
+			return std::make_unique<GLImage>(file, iSize);
 		}
 	}
 }

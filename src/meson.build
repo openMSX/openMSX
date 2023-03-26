@@ -438,7 +438,6 @@ sources = files(
     'video/ADVram.cc',
     'video/AviRecorder.cc',
     'video/AviWriter.cc',
-    'video/BaseImage.cc',
     'video/BitmapConverter.cc',
     'video/CharacterConverter.cc',
     'video/Deflicker.cc',

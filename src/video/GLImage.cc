@@ -15,6 +15,20 @@ using namespace gl;
 
 namespace openmsx {
 
+void GLImage::checkSize(gl::ivec2 size)
+{
+	static constexpr int MAX_SIZE = 2048;
+	auto [w, h] = size;
+	if (w < -MAX_SIZE || w > MAX_SIZE) {
+		throw MSXException("Image width too large: ", w,
+		                   " (max ", MAX_SIZE, ')');
+	}
+	if (h < -MAX_SIZE || h > MAX_SIZE) {
+		throw MSXException("Image height too large: ", h,
+		                   " (max ", MAX_SIZE, ')');
+	}
+}
+
 static gl::Texture loadTexture(
 	SDLSurfacePtr surface, ivec2& size)
 {
@@ -54,26 +68,26 @@ static gl::Texture loadTexture(
 }
 
 
-GLImage::GLImage(OutputSurface& /*output*/, const std::string& filename)
+GLImage::GLImage(const std::string& filename)
 	: texture(loadTexture(filename, size))
 {
 }
 
-GLImage::GLImage(OutputSurface& /*output*/, const std::string& filename, float scaleFactor)
+GLImage::GLImage(const std::string& filename, float scaleFactor)
 	: texture(loadTexture(filename, size))
 {
 	size = trunc(vec2(size) * scaleFactor);
 	checkSize(size);
 }
 
-GLImage::GLImage(OutputSurface& /*output*/, const std::string& filename, ivec2 size_)
+GLImage::GLImage(const std::string& filename, ivec2 size_)
 	: texture(loadTexture(filename, size))
 {
 	checkSize(size_);
 	size = size_;
 }
 
-GLImage::GLImage(OutputSurface& /*output*/, ivec2 size_, uint32_t rgba)
+GLImage::GLImage(ivec2 size_, uint32_t rgba)
 {
 	checkSize(size_);
 	size = size_;
@@ -87,7 +101,7 @@ GLImage::GLImage(OutputSurface& /*output*/, ivec2 size_, uint32_t rgba)
 	initBuffers();
 }
 
-GLImage::GLImage(OutputSurface& /*output*/, ivec2 size_, std::span<const uint32_t, 4> rgba,
+GLImage::GLImage(ivec2 size_, std::span<const uint32_t, 4> rgba,
                  int borderSize_, uint32_t borderRGBA)
 	: borderSize(borderSize_)
 	, borderR(narrow_cast<uint8_t>((borderRGBA >> 24) & 0xff))
@@ -110,7 +124,7 @@ GLImage::GLImage(OutputSurface& /*output*/, ivec2 size_, std::span<const uint32_
 	initBuffers();
 }
 
-GLImage::GLImage(OutputSurface& /*output*/, SDLSurfacePtr image)
+GLImage::GLImage(SDLSurfacePtr image)
 	: texture(loadTexture(std::move(image), size))
 {
 }
@@ -124,7 +138,7 @@ void GLImage::initBuffers()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void GLImage::draw(OutputSurface& /*output*/, ivec2 pos, uint8_t r, uint8_t g, uint8_t b, uint8_t alpha)
+void GLImage::draw(ivec2 pos, uint8_t r, uint8_t g, uint8_t b, uint8_t alpha)
 {
 	// 4-----------------7
 	// |                 |

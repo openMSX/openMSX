@@ -653,7 +653,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\ADVram.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\AviRecorder.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\AviWriter.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\BaseImage.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\BitmapConverter.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\CharacterConverter.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\DeinterlacedFrame.cc" />
@@ -1229,7 +1228,6 @@
     <None Include="$(OpenMSXSrcDir)\video\ADVram.hh" />
     <None Include="$(OpenMSXSrcDir)\video\AviRecorder.hh" />
     <None Include="$(OpenMSXSrcDir)\video\AviWriter.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\BaseImage.hh" />
     <None Include="$(OpenMSXSrcDir)\video\BitmapConverter.hh" />
     <None Include="$(OpenMSXSrcDir)\video\CharacterConverter.hh" />
     <None Include="$(OpenMSXSrcDir)\video\DeinterlacedFrame.hh" />

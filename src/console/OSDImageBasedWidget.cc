@@ -342,7 +342,7 @@ void OSDImageBasedWidget::paint(OutputSurface& output)
 	auto fadedAlpha = getFadedAlpha();
 	if ((fadedAlpha != 0) && image) {
 		ivec2 drawPos = round(getTransformedPos(output));
-		image->draw(output, drawPos, 255, 255, 255, fadedAlpha);
+		image->draw(drawPos, fadedAlpha);
 	}
 	if (isRecursiveFading() || isAnimating()) {
 		getDisplay().getOSDGUI().refresh();

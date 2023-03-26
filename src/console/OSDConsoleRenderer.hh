@@ -46,10 +46,10 @@ private:
 	void loadFont      (std::string_view value);
 	void loadBackground(std::string_view value);
 	byte getVisibility() const;
-	void drawText(OutputSurface& output, std::string_view text,
+	void drawText(std::string_view text,
 	              int cx, int cy, byte alpha, uint32_t rgb);
 	[[nodiscard]] gl::ivec2 getTextPos(int cursorX, int cursorY) const;
-	void drawConsoleText(OutputSurface& output, byte visibility);
+	void drawConsoleText(byte visibility);
 
 	[[nodiscard]] std::tuple<bool, GLImage*, unsigned> getFromCache(
 		std::string_view text);

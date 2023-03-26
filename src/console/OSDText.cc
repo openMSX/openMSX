@@ -148,7 +148,7 @@ uint8_t OSDText::getFadedAlpha() const
 std::unique_ptr<GLImage> OSDText::create(OutputSurface& output)
 {
 	if (text.empty()) {
-		return std::make_unique<GLImage>(output, ivec2(), 0);
+		return std::make_unique<GLImage>(ivec2(), 0);
 	}
 	int scale = getScaleFactor(output);
 	if (font.empty()) {
@@ -186,9 +186,9 @@ std::unique_ptr<GLImage> OSDText::create(OutputSurface& output)
 		                                  narrow_cast<uint8_t>(textRgba >> 16),
 		                                  narrow_cast<uint8_t>(textRgba >>  8)));
 		if (surface) {
-			return std::make_unique<GLImage>(output, std::move(surface));
+			return std::make_unique<GLImage>(std::move(surface));
 		} else {
-			return std::make_unique<GLImage>(output, ivec2(), 0);
+			return std::make_unique<GLImage>(ivec2(), 0);
 		}
 	} catch (MSXException& e) {
 		throw MSXException("Couldn't render text: ", e.getMessage());

@@ -987,9 +987,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\AviWriter.cc">
       <Filter>video</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\BaseImage.cc">
-      <Filter>video</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\BitmapConverter.cc">
       <Filter>video</Filter>
     </ClCompile>
@@ -2447,9 +2444,6 @@
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\AviWriter.hh">
-      <Filter>video</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\video\BaseImage.hh">
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\BitmapConverter.hh">
