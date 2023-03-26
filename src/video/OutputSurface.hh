@@ -1,7 +1,7 @@
 #ifndef OUTPUTSURFACE_HH
 #define OUTPUTSURFACE_HH
 
-#include "PixelFormat.hh"
+#include "PixelOperations.hh"
 #include "gl_vec.hh"
 #include <string>
 #include <cassert>
@@ -36,8 +36,6 @@ public:
 	[[nodiscard]] gl::vec2  getViewScale()  const { return m_viewScale; }
 	[[nodiscard]] bool      isViewScaled()  const { return m_viewScale != gl::vec2(1.0f); }
 
-	[[nodiscard]] const PixelFormat& getPixelFormat() const { return pixelFormat; }
-
 	/** Returns the pixel value for the given RGB color.
 	  * No effort is made to ensure that the returned pixel value is not the
 	  * color key for this output surface.
@@ -52,7 +50,8 @@ public:
 	[[nodiscard]] uint32_t mapRGB255(gl::ivec3 rgb) const
 	{
 		auto [r, g, b] = rgb;
-		return getPixelFormat().map(r, g, b);
+		PixelOperations pixelOps;
+		return pixelOps.combine(r, g, b);
 	}
 
 	/** Returns the color key for this output surface.
@@ -60,26 +59,6 @@ public:
 	[[nodiscard]] inline Pixel getKeyColor() const
 	{
 		return 0x00000000; // alpha = 0
-	}
-
-	/** Returns the pixel value for the given RGB color.
-	  * It is guaranteed that the returned pixel value is different from the
-	  * color key for this output surface.
-	  */
-	[[nodiscard]] Pixel mapKeyedRGB255(gl::ivec3 rgb)
-	{
-		auto p = Pixel(mapRGB255(rgb));
-		assert(p != getKeyColor());
-		return p;
-	}
-
-	/** Returns the pixel value for the given RGB color.
-	  * It is guaranteed that the returned pixel value is different from the
-	  * color key for this output surface.
-	  */
-	[[nodiscard]] Pixel mapKeyedRGB(gl::vec3 rgb)
-	{
-		return mapKeyedRGB255(gl::ivec3(rgb * 255.0f));
 	}
 
 	/** Save the content of this OutputSurface to a PNG file.
@@ -92,11 +71,8 @@ protected:
 
 	// These two _must_ be called from (each) subclass constructor.
 	void calculateViewPort(gl::ivec2 logSize, gl::ivec2 physSize);
-	void setPixelFormat(const PixelFormat& format) { pixelFormat = format; }
-	void setOpenGlPixelFormat();
 
 private:
-	PixelFormat pixelFormat;
 	gl::ivec2 m_logicalSize;
 	gl::ivec2 m_physSize;
 	gl::ivec2 m_viewOffset;

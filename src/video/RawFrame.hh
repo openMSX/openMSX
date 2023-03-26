@@ -16,7 +16,7 @@ class RawFrame final : public FrameSource
 public:
 	using Pixel = uint32_t;
 
-	RawFrame(const PixelFormat& format, unsigned maxWidth, unsigned height);
+	RawFrame(unsigned maxWidth, unsigned height);
 
 	[[nodiscard]] std::span<Pixel> getLineDirect(unsigned y) {
 		assert(y < getHeight());

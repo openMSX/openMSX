@@ -42,14 +42,10 @@ PostProcessor::PostProcessor(MSXMotherBoard& motherBoard_,
 	, eventDistributor(motherBoard_.getReactor().getEventDistributor())
 {
 	if (canDoInterlace) {
-		deinterlacedFrame = std::make_unique<DeinterlacedFrame>(
-			screen.getPixelFormat());
-		interlacedFrame   = std::make_unique<DoubledFrame>(
-			screen.getPixelFormat());
-		deflicker = std::make_unique<Deflicker>(
-			screen.getPixelFormat(), lastFrames);
-		superImposedFrame = std::make_unique<SuperImposedFrame>(
-			screen.getPixelFormat());
+		deinterlacedFrame = std::make_unique<DeinterlacedFrame>();
+		interlacedFrame   = std::make_unique<DoubledFrame>();
+		deflicker = std::make_unique<Deflicker>(lastFrames);
+		superImposedFrame = std::make_unique<SuperImposedFrame>();
 	} else {
 		// Laserdisc always produces non-interlaced frames, so we don't
 		// need lastFrames[1..3], deinterlacedFrame and
@@ -185,8 +181,7 @@ std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
 	// Return recycled frame to the caller
 	if (canDoInterlace) {
 		if (!recycleFrame) [[unlikely]] {
-			recycleFrame = std::make_unique<RawFrame>(
-				screen.getPixelFormat(), maxWidth, height);
+			recycleFrame = std::make_unique<RawFrame>(maxWidth, height);
 		}
 		return recycleFrame;
 	} else {
@@ -241,7 +236,7 @@ void PostProcessor::takeRawScreenShot(unsigned height2, const std::string& filen
 	WorkBuffer workBuffer;
 	getScaledFrame(*paintFrame, lines, workBuffer);
 	unsigned width = (height2 == 240) ? 320 : 640;
-	PNG::save(width, lines, paintFrame->getPixelFormat(), filename);
+	PNG::saveRGBA(width, lines, filename);
 }
 
 } // namespace openmsx

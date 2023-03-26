@@ -1,14 +1,11 @@
 #include "RawFrame.hh"
-#include "PixelFormat.hh"
 #include "narrow.hh"
 #include <cstdint>
 
 namespace openmsx {
 
-RawFrame::RawFrame(
-		const PixelFormat& format, unsigned maxWidth_, unsigned height_)
-	: FrameSource(format)
-	, lineWidths(height_)
+RawFrame::RawFrame(unsigned maxWidth_, unsigned height_)
+	: lineWidths(height_)
 	, maxWidth(maxWidth_)
 	, pitch(narrow<unsigned>(((sizeof(Pixel) * maxWidth) + 63) & ~63))
 {

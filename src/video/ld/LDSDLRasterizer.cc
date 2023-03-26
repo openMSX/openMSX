@@ -1,18 +1,15 @@
 #include "LDSDLRasterizer.hh"
 #include "RawFrame.hh"
 #include "PostProcessor.hh"
-#include "OutputSurface.hh"
-#include "PixelFormat.hh"
+#include "PixelOperations.hh"
 #include <cstdint>
-#include <memory>
 
 namespace openmsx {
 
 LDSDLRasterizer::LDSDLRasterizer(
-		OutputSurface& screen,
 		std::unique_ptr<PostProcessor> postProcessor_)
 	: postProcessor(std::move(postProcessor_))
-	, workFrame(std::make_unique<RawFrame>(screen.getPixelFormat(), 640, 480))
+	, workFrame(std::make_unique<RawFrame>(640, 480))
 {
 }
 
@@ -33,7 +30,8 @@ void LDSDLRasterizer::drawBlank(int r, int g, int b)
 	// We should really be presenting the "LASERVISION" text
 	// here, like the real laserdisc player does. Note that this
 	// changes when seeking or starting to play.
-	auto background = workFrame->getPixelFormat().map(r, g, b);
+	PixelOperations pixelOps;
+	auto background = pixelOps.combine(r, g, b);
 	for (auto y : xrange(480)) {
 		workFrame->setBlank(y, background);
 	}

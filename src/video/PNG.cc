@@ -1,6 +1,7 @@
 #include "PNG.hh"
-#include "MSXException.hh"
 #include "File.hh"
+#include "MSXException.hh"
+#include "PixelOperations.hh"
 #include "Version.hh"
 #include "endian.hh"
 #include "narrow.hh"
@@ -142,46 +143,6 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 			png_set_filler(png.ptr, 0xff, PNG_FILLER_AFTER);
 		}
 
-		// Try to read the PNG directly in the same format as the video
-		// surface format. The supported formats are
-		//   RGBA, BGRA, ARGB, ABGR
-		// When the output surface is 16bpp, still produce PNG in BGRA
-		// format because SDL *seems* to be better optimized for this
-		// format (not documented, but I checked SDL-1.2.15 source code).
-		// if (for some reason) the surface is not available yet,
-		// we just skip this
-		bool bgr(true), swapAlpha(false); // default BGRA
-
-		int displayIndex = 0;
-		SDL_DisplayMode currentMode;
-		if (SDL_GetCurrentDisplayMode(displayIndex, &currentMode) == 0) {
-			int bpp;
-			Uint32 Rmask, Gmask, Bmask, Amask;
-			SDL_PixelFormatEnumToMasks(
-				currentMode.format, &bpp, &Rmask, &Gmask, &Bmask, &Amask);
-			if (bpp >= 24) {
-				if        (Rmask == 0x000000FF &&
-				           Gmask == 0x0000FF00 &&
-				           Bmask == 0x00FF0000) { // RGB(A)
-					bgr = false; swapAlpha = false;
-				} else if (Rmask == 0x00FF0000 &&
-				           Gmask == 0x0000FF00 &&
-				           Bmask == 0x000000FF) { // BGR(A)
-					bgr = true;  swapAlpha = false;
-				} else if (Rmask == 0x0000FF00 &&
-				           Gmask == 0x00FF0000 &&
-				           Bmask == 0xFF000000) { // ARGB
-					bgr = false; swapAlpha = true;
-				} else if (Rmask == 0xFF000000 &&
-				           Gmask == 0x00FF0000 &&
-				           Bmask == 0x0000FF00) { // ABGR
-					bgr = true;  swapAlpha = true;
-				}
-			}
-		}
-		if (bgr)       png_set_bgr       (png.ptr);
-		if (swapAlpha) png_set_swap_alpha(png.ptr);
-
 		// always convert grayscale to RGB
 		//  together with all the above conversions, the resulting image will
 		//  be either RGB or RGBA with 8 bits per component.
@@ -206,32 +167,10 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 		}
 		int bpp = png_get_channels(png.ptr, png.info) * 8;
 		assert(bpp == one_of(24, 32));
-		auto [redMask, grnMask, bluMask, alpMask] = [&]()-> std::tuple<Uint32, Uint32, Uint32, Uint32> {
-			if constexpr (Endian::BIG) {
-				if (bpp == 32) {
-					if (swapAlpha) {
-						return {0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000};
-					} else {
-						return {0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF};
-					}
-				} else {
-					return {0x00FF0000, 0x0000FF00, 0x000000FF, 0x00000000};
-				}
-			} else {
-				if (bpp == 32) {
-					if (swapAlpha) {
-						return {0x0000FF00, 0x00FF0000, 0xFF000000, 0x000000FF};
-					} else {
-						return {0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000};
-					}
-				} else {
-					return {0x000000FF, 0x0000FF00, 0x00FF0000, 0x00000000};
-				}
-			}
-		}();
-		if (bgr) std::swap(redMask, bluMask);
+		PixelOperations pixelOps;
 		SDLSurfacePtr surface(width, height, bpp,
-		                      redMask, grnMask, bluMask, alpMask);
+		                      pixelOps.getRmask(), pixelOps.getGmask(), pixelOps.getBmask(),
+		                      ((bpp == 32) ? pixelOps.getAmask() : 0));
 
 		// Create the array of pointers to image data.
 		VLA(png_bytep, rowPointers, height);
@@ -376,26 +315,22 @@ static void save(SDL_Surface* image, const std::string& filename)
 	IMG_SavePNG_RW(image->w, row_pointers, filename, true);
 }
 
-void save(size_t width, std::span<const void*> rowPointers,
-          const PixelFormat& format, const std::string& filename)
+void saveRGBA(size_t width, std::span<const void*> rowPointers,
+              const std::string& filename)
 {
 	// this implementation creates 1 extra copy, can be optimized if required
 	auto height = narrow<unsigned>(rowPointers.size());
 	static constexpr int bpp = 32;
+	PixelOperations pixelOps;
 	SDLSurfacePtr surface(
 		narrow<unsigned>(width), height, bpp,
-		format.getRmask(), format.getGmask(), format.getBmask(), format.getAmask());
+		pixelOps.getRmask(), pixelOps.getGmask(),
+		pixelOps.getBmask(), pixelOps.getAmask());
 	for (auto y : xrange(height)) {
 		memcpy(surface.getLinePtr(y),
 		       rowPointers[y], width * sizeof(uint32_t));
 	}
 	save(surface.get(), filename);
-}
-
-void save(size_t width, std::span<const void*> rowPointers,
-          const std::string& filename)
-{
-	IMG_SavePNG_RW(width, rowPointers, filename, true);
 }
 
 void saveGrayscale(size_t width, std::span<const void*> rowPointers,

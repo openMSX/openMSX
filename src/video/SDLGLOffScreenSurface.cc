@@ -21,8 +21,6 @@ SDLGLOffScreenSurface::SDLGLOffScreenSurface(const OutputSurface& output)
 	             nullptr);         // data
 	fbo = gl::FrameBufferObject(fboTex);
 	fbo.push();
-
-	setOpenGlPixelFormat();
 }
 
 void SDLGLOffScreenSurface::saveScreenshot(const std::string& filename)

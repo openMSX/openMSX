@@ -89,7 +89,6 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	bool fullScreen = getDisplay().getRenderSettings().getFullScreen();
 	setViewPort(gl::ivec2(width, height), fullScreen); // set initial values
 
-	setOpenGlPixelFormat();
 	gl::context.emplace(width, height);
 
 	getDisplay().getRenderSettings().getVSyncSetting().attach(vSyncObserver);
@@ -128,21 +127,12 @@ void SDLGLVisibleSurface::saveScreenshotGL(
 	MemBuffer<uint8_t> buffer(4 * size_t(w) * size_t(h));
 	glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, buffer.data());
 
-	// perform in-place conversion of RGBA -> RGB
 	VLA(const void*, rowPointers, h);
 	for (auto i : xrange(size_t(h))) {
-		uint8_t* out = &buffer[4 * size_t(w) * i];
-		const uint8_t* in = out;
-		rowPointers[h - 1 - i] = out;
-
-		for (auto j : xrange(size_t(w))) {
-			out[3 * j + 0] = in[4 * j + 0];
-			out[3 * j + 1] = in[4 * j + 1];
-			out[3 * j + 2] = in[4 * j + 2];
-		}
+		rowPointers[h - 1 - i] = &buffer[4 * size_t(w) * i];
 	}
 
-	PNG::save(w, rowPointers, filename);
+	PNG::saveRGBA(w, rowPointers, filename);
 }
 
 void SDLGLVisibleSurface::finish()

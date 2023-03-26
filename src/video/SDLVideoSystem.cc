@@ -99,7 +99,6 @@ std::unique_ptr<LDRasterizer> SDLVideoSystem::createLDRasterizer(
 	switch (renderSettings.getRenderer()) {
 	case RenderSettings::SDLGL_PP:
 		return std::make_unique<LDSDLRasterizer>(
-			*screen,
 			std::make_unique<GLPostProcessor>(
 				motherBoard, display, *screen,
 				videoSource, 640, 480, false));

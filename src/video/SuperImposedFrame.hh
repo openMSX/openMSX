@@ -2,7 +2,6 @@
 #define SUPERIMPOSEDFRAME_HH
 
 #include "FrameSource.hh"
-#include "PixelOperations.hh"
 
 namespace openmsx {
 
@@ -14,7 +13,6 @@ namespace openmsx {
 class SuperImposedFrame final : public FrameSource
 {
 public:
-	explicit SuperImposedFrame(const PixelFormat& format);
 	virtual ~SuperImposedFrame() = default;
 	void init(const FrameSource* top, const FrameSource* bottom);
 
@@ -24,7 +22,6 @@ public:
 		void* buf, unsigned bufWidth) const override;
 
 private:
-	PixelOperations pixelOps;
 	const FrameSource* top;
 	const FrameSource* bottom;
 };

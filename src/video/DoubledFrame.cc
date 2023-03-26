@@ -4,11 +4,6 @@
 
 namespace openmsx {
 
-DoubledFrame::DoubledFrame(const PixelFormat& format)
-	: FrameSource(format)
-{
-}
-
 void DoubledFrame::init(FrameSource* field_, int skip_)
 {
 	FrameSource::init(FIELD_NONINTERLACED);

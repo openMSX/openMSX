@@ -3,11 +3,6 @@
 
 namespace openmsx {
 
-DeinterlacedFrame::DeinterlacedFrame(const PixelFormat& format)
-	: FrameSource(format)
-{
-}
-
 void DeinterlacedFrame::init(FrameSource* evenField, FrameSource* oddField)
 {
 	FrameSource::init(FIELD_NONINTERLACED);

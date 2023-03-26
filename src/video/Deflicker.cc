@@ -1,4 +1,5 @@
 #include "Deflicker.hh"
+#include "PixelOperations.hh"
 #include "RawFrame.hh"
 #include "vla.hh"
 #include "xrange.hh"
@@ -10,11 +11,8 @@ namespace openmsx {
 
 using Pixel = uint32_t;
 
-Deflicker::Deflicker(const PixelFormat& format,
-                     std::span<std::unique_ptr<RawFrame>, 4> lastFrames_)
-	: FrameSource(format)
-	, pixelOps(format)
-	, lastFrames(lastFrames_)
+Deflicker::Deflicker(std::span<std::unique_ptr<RawFrame>, 4> lastFrames_)
+	: lastFrames(lastFrames_)
 {
 }
 
@@ -117,6 +115,7 @@ const void* Deflicker::getLineInfo(
 	}
 	remaining &= pixelsPerSSE - 1;
 #endif
+	PixelOperations pixelOps;
 	for (auto x : xrange(remaining)) {
 		dst[x] = ((line0[x] == line2[x]) && (line1[x] == line3[x]))
 		       ? pixelOps.template blend<1, 1>(line0[x], line1[x])

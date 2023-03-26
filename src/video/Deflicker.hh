@@ -2,7 +2,6 @@
 #define DEFLICKER_HH
 
 #include "FrameSource.hh"
-#include "PixelOperations.hh"
 #include <memory>
 #include <span>
 
@@ -13,8 +12,7 @@ class RawFrame;
 class Deflicker final : public FrameSource
 {
 public:
-	Deflicker(const PixelFormat& format,
-	          std::span<std::unique_ptr<RawFrame>, 4> lastFrames);
+	Deflicker(std::span<std::unique_ptr<RawFrame>, 4> lastFrames);
 	virtual ~Deflicker() = default;
 	void init();
 
@@ -24,7 +22,6 @@ public:
 		void* buf, unsigned bufWidth) const override;
 
 private:
-	PixelOperations pixelOps;
 	std::span<std::unique_ptr<RawFrame>, 4> lastFrames;
 };
 

@@ -8,12 +8,6 @@ namespace openmsx {
 
 using Pixel = uint32_t;
 
-SuperImposedFrame::SuperImposedFrame(const PixelFormat& format)
-	: FrameSource(format)
-	, pixelOps(format)
-{
-}
-
 void SuperImposedFrame::init(
 	const FrameSource* top_, const FrameSource* bottom_)
 {
@@ -46,8 +40,7 @@ const void* SuperImposedFrame::getLineInfo(
 	auto tLine = top   ->getLine(tNum, tBuf);
 	auto bLine = bottom->getLine(bNum, bBuf);
 
-	AlphaBlendLines blend(pixelOps);
-	blend(tLine, bLine, tBuf); // possibly tLine == tBuf
+	alphaBlendLines(tLine, bLine, tBuf); // possibly tLine == tBuf
 	return tBuf.data();
 }
 

@@ -3,7 +3,6 @@
 #ifndef ZMBVENCODER_HH
 #define ZMBVENCODER_HH
 
-#include "PixelFormat.hh"
 #include "MemBuffer.hh"
 #include "aligned.hh"
 #include <concepts>
@@ -15,7 +14,6 @@
 namespace openmsx {
 
 class FrameSource;
-class PixelOperations;
 
 class ZMBVEncoder
 {
@@ -30,12 +28,11 @@ public:
 private:
 	void setupBuffers();
 	[[nodiscard]] unsigned neededSize() const;
-	void addFullFrame(const PixelFormat& pixelFormat, unsigned& workUsed);
-	void addXorFrame (const PixelFormat& pixelFormat, unsigned& workUsed);
+	void addFullFrame(unsigned& workUsed);
+	void addXorFrame (unsigned& workUsed);
 	[[nodiscard]] unsigned possibleBlock(int vx, int vy, size_t offset);
 	[[nodiscard]] unsigned compareBlock(int vx, int vy, size_t offset);
-	void addXorBlock(const PixelOperations& pixelOps, int vx, int vy,
-	                 size_t offset, unsigned& workUsed);
+	void addXorBlock(int vx, int vy, size_t offset, unsigned& workUsed);
 	[[nodiscard]] const void* getScaledLine(const FrameSource* frame, unsigned y, void* workBuf) const;
 
 private:

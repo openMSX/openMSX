@@ -1,7 +1,6 @@
 #include "yuv2rgb.hh"
 #include "RawFrame.hh"
 #include "Math.hh"
-#include "PixelFormat.hh"
 #include "xrange.hh"
 #include <array>
 #include <cassert>

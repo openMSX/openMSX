@@ -1,7 +1,6 @@
 #ifndef PNG_HH
 #define PNG_HH
 
-#include "PixelFormat.hh"
 #include "SDLSurfacePtr.hh"
 #include <span>
 #include <string>
@@ -17,10 +16,8 @@ namespace openmsx::PNG {
 	 */
 	[[nodiscard]] SDLSurfacePtr load(const std::string& filename, bool want32bpp);
 
-	void save(size_t width, std::span<const void*> rowPointers,
-	          const PixelFormat& format, const std::string& filename);
-	void save(size_t width, std::span<const void*> rowPointers,
-	          const std::string& filename);
+	void saveRGBA(size_t width, std::span<const void*> rowPointers,
+	              const std::string& filename);
 	void saveGrayscale(size_t width, std::span<const void*> rowPointers,
 	                   const std::string& filename);
 

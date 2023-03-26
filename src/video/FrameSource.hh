@@ -12,8 +12,6 @@
 
 namespace openmsx {
 
-class PixelFormat;
-
 /** Interface for getting lines from a video frame.
   */
 class FrameSource
@@ -145,12 +143,8 @@ public:
 	  */
 	[[nodiscard]] std::span<const Pixel, 960> getLinePtr960_720(unsigned line, std::span<Pixel, 960> buf) const;
 
-	[[nodiscard]] const PixelFormat& getPixelFormat() const {
-		return pixelFormat;
-	}
-
 protected:
-	explicit FrameSource(const PixelFormat& format);
+	FrameSource() = default;
 	~FrameSource() = default;
 
 	void setHeight(unsigned height_) { height = height_; }
@@ -165,10 +159,6 @@ protected:
 	void scaleLine(std::span<const Pixel> in, std::span<Pixel> out) const;
 
 private:
-	/** Pixel format. Needed for getLinePtr scaling
-	  */
-	const PixelFormat& pixelFormat;
-
 	/** Number of lines in this frame.
 	  */
 	unsigned height;

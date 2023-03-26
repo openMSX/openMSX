@@ -22,7 +22,7 @@ V9990SDLRasterizer::V9990SDLRasterizer(
 		std::unique_ptr<PostProcessor> postProcessor_)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, screen(screen_)
-	, workFrame(std::make_unique<RawFrame>(screen.getPixelFormat(), 1280, 240))
+	, workFrame(std::make_unique<RawFrame>(1280, 240))
 	, renderSettings(display.getRenderSettings())
 	, postProcessor(std::move(postProcessor_))
 	, bitmapConverter(vdp, palette64, palette64_32768, palette256, palette256_32768, palette32768)
@@ -280,7 +280,7 @@ void V9990SDLRasterizer::preCalcPalettes()
 			r = narrow_cast<int>(255.0f * renderSettings.transformComponent(narrow<float>(i) / 31.0f));
 		}
 		for (auto [grb, col] : enumerate(palette32768)) {
-			col = screen.mapKeyedRGB255(gl::ivec3(
+			col = screen.mapRGB255(gl::ivec3(
 				intensity[(grb >>  5) & 31],
 				intensity[(grb >> 10) & 31],
 				intensity[(grb >>  0) & 31]));

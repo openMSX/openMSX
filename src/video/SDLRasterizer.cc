@@ -74,7 +74,7 @@ SDLRasterizer::SDLRasterizer(
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, screen(screen_)
 	, postProcessor(std::move(postProcessor_))
-	, workFrame(std::make_unique<RawFrame>(screen.getPixelFormat(), 640, 240))
+	, workFrame(std::make_unique<RawFrame>(640, 240))
 	, renderSettings(display.getRenderSettings())
 	, characterConverter(vdp, subspan<16>(palFg), palBg)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLORS)
@@ -226,7 +226,7 @@ void SDLRasterizer::precalcPalette()
 		for (auto i : xrange(16)) {
 			const auto rgb = palette[i];
 			palFg[i] = palFg[i + 16] = palBg[i] =
-				screen.mapKeyedRGB(
+				screen.mapRGB(
 					renderSettings.transformRGB(
 						vec3(rgb[0], rgb[1], rgb[2]) / 255.0f));
 		}
@@ -241,7 +241,7 @@ void SDLRasterizer::precalcPalette()
 					r = narrow_cast<int>(255.0f * renderSettings.transformComponent(narrow<float>(i) / 31.0f));
 				}
 				for (auto [rgb, col] : enumerate(V9958_COLORS)) {
-					col = screen.mapKeyedRGB255(ivec3(
+					col = screen.mapRGB255(ivec3(
 						intensity[(rgb >> 10) & 31],
 						intensity[(rgb >>  5) & 31],
 						intensity[(rgb >>  0) & 31]));
@@ -254,7 +254,7 @@ void SDLRasterizer::precalcPalette()
 							         narrow<float>(g),
 							         narrow<float>(b)};
 							V9958_COLORS[(r << 10) + (g << 5) + b] =
-								screen.mapKeyedRGB(
+								screen.mapRGB(
 									renderSettings.transformRGB(rgb / 31.0f));
 						}
 					}
@@ -285,7 +285,7 @@ void SDLRasterizer::precalcPalette()
 					for (auto g : xrange(8)) {
 						for (auto b : xrange(8)) {
 							V9938_COLORS[r][g][b] =
-								screen.mapKeyedRGB255(ivec3(
+								screen.mapRGB255(ivec3(
 									intensity[r],
 									intensity[g],
 									intensity[b]));
@@ -300,7 +300,7 @@ void SDLRasterizer::precalcPalette()
 							         narrow<float>(g),
 							         narrow<float>(b)};
 							V9938_COLORS[r][g][b] =
-								screen.mapKeyedRGB(
+								screen.mapRGB(
 									renderSettings.transformRGB(rgb / 7.0f));
 						}
 					}

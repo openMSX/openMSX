@@ -1,10 +1,6 @@
 #ifndef PIXELOPERATIONS_HH
 #define PIXELOPERATIONS_HH
 
-#include "PixelFormat.hh"
-#include "narrow.hh"
-#include "unreachable.hh"
-#include "build-info.hh"
 #include <bit>
 #include <cstdint>
 #include <span>
@@ -16,7 +12,10 @@ using Pixel = uint32_t;
 class PixelOperations
 {
 public:
-	explicit PixelOperations(const PixelFormat& format);
+	[[nodiscard]] Pixel getRmask() const { return 0x000000FF; }
+	[[nodiscard]] Pixel getGmask() const { return 0x0000FF00; }
+	[[nodiscard]] Pixel getBmask() const { return 0x00FF0000; }
+	[[nodiscard]] Pixel getAmask() const { return 0xFF000000; }
 
 	/** Extract RGBA components, each in range [0..255]
 	  */
@@ -83,40 +82,30 @@ public:
 private:
 	[[nodiscard]] inline Pixel avgDown(Pixel p1, Pixel p2) const;
 	[[nodiscard]] inline Pixel avgUp  (Pixel p1, Pixel p2) const;
-
-private:
-	const PixelFormat& format;
 };
 
 
-inline PixelOperations::PixelOperations(const PixelFormat& format_)
-	: format(format_)
-{
-}
-
 inline unsigned PixelOperations::red(Pixel p) const
 {
-	return (p >> format.getRshift()) & 0xFF;
+	return (p >> 0) & 0xFF;
 }
 inline unsigned PixelOperations::green(Pixel p) const
 {
-	return (p >> format.getGshift()) & 0xFF;
+	return (p >> 8) & 0xFF;
 }
 inline unsigned PixelOperations::blue(Pixel p) const
 {
-	return (p >> format.getBshift()) & 0xFF;
+	return (p >> 16) & 0xFF;
 }
 inline unsigned PixelOperations::alpha(Pixel p) const
 {
-	return (p >> format.getAshift()) & 0xFF;
+	return (p >> 24) & 0xFF;
 }
 
 inline Pixel PixelOperations::combine(
 		unsigned r, unsigned g, unsigned b) const
 {
-	return Pixel((r << format.getRshift()) |
-	             (g << format.getGshift()) |
-	             (b << format.getBshift()));
+	return Pixel((r << 0) | (g << 8) | (b << 16) | (0xFF << 24));
 }
 
 inline Pixel PixelOperations::avgDown(Pixel p1, Pixel p2) const

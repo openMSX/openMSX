@@ -102,9 +102,9 @@ struct KeyframeHeader {
 
 
 static inline void writePixel(
-	const PixelOperations& pixelOps,
 	unsigned pixel, Endian::L32& dest)
 {
+	PixelOperations pixelOps;
 	unsigned r = pixelOps.red(pixel);
 	unsigned g = pixelOps.green(pixel);
 	unsigned b = pixelOps.blue(pixel);
@@ -205,8 +205,7 @@ unsigned ZMBVEncoder::compareBlock(int vx, int vy, size_t offset)
 	return ret;
 }
 
-void ZMBVEncoder::addXorBlock(
-	const PixelOperations& pixelOps, int vx, int vy, size_t offset, unsigned& workUsed)
+void ZMBVEncoder::addXorBlock(int vx, int vy, size_t offset, unsigned& workUsed)
 {
 	using LE_P = typename Endian::Little<Pixel>::type;
 
@@ -215,7 +214,7 @@ void ZMBVEncoder::addXorBlock(
 	repeat(BLOCK_HEIGHT, [&] {
 		for (auto x : xrange(BLOCK_WIDTH)) {
 			auto pXor = pNew[x] ^ pOld[x];
-			writePixel(pixelOps, pXor, *reinterpret_cast<LE_P*>(&work[workUsed]));
+			writePixel(pXor, *reinterpret_cast<LE_P*>(&work[workUsed]));
 			workUsed += sizeof(Pixel);
 		}
 		pOld += pitch;
@@ -223,9 +222,8 @@ void ZMBVEncoder::addXorBlock(
 	});
 }
 
-void ZMBVEncoder::addXorFrame(const PixelFormat& pixelFormat, unsigned& workUsed)
+void ZMBVEncoder::addXorFrame(unsigned& workUsed)
 {
-	PixelOperations pixelOps(pixelFormat);
 	auto* vectors = reinterpret_cast<int8_t*>(&work[workUsed]);
 
 	unsigned xBlocks = width / BLOCK_WIDTH;
@@ -261,24 +259,23 @@ void ZMBVEncoder::addXorFrame(const PixelFormat& pixelFormat, unsigned& workUsed
 		vectors[b * 2 + 1] = narrow<int8_t>(bestVy << 1);
 		if (bestChange) {
 			vectors[b * 2 + 0] |= 1;
-			addXorBlock(pixelOps, bestVx, bestVy, offset, workUsed);
+			addXorBlock(bestVx, bestVy, offset, workUsed);
 		}
 	}
 }
 
-void ZMBVEncoder::addFullFrame(const PixelFormat& pixelFormat, unsigned& workUsed)
+void ZMBVEncoder::addFullFrame(unsigned& workUsed)
 {
 	using LE_P = typename Endian::Little<Pixel>::type;
 	static constexpr size_t pixelSize = sizeof(Pixel);
 
-	PixelOperations pixelOps(pixelFormat);
 	auto* readFrame =
 		&newFrame[pixelSize * (MAX_VECTOR + MAX_VECTOR * pitch)];
 	repeat(height, [&] {
 		auto* pixelsIn  = reinterpret_cast<Pixel*>(readFrame);
 		auto* pixelsOut = reinterpret_cast<LE_P*>(&work[workUsed]);
 		for (auto x : xrange(width)) {
-			writePixel(pixelOps, pixelsIn[x], pixelsOut[x]);
+			writePixel(pixelsIn[x], pixelsOut[x]);
 		}
 		readFrame += pitch * sizeof(Pixel);
 		workUsed += narrow<unsigned>(width * sizeof(Pixel));
@@ -341,10 +338,10 @@ std::span<const uint8_t> ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* 
 	// Add the frame data.
 	if (keyFrame) {
 		// Key frame: full frame data.
-		addFullFrame(frame->getPixelFormat(), workUsed);
+		addFullFrame(workUsed);
 	} else {
 		// Non-key frame: delta frame data.
-		addXorFrame(frame->getPixelFormat(), workUsed);
+		addXorFrame(workUsed);
 	}
 	// Compress the frame data with zlib.
 	zstream.next_in = work.data();
