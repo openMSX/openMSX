@@ -1017,9 +1017,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\GLImage.cc">
       <Filter>video</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\GLPostProcessor.cc">
-      <Filter>video</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\GLSnow.cc">
       <Filter>video</Filter>
     </ClCompile>
@@ -2474,9 +2471,6 @@
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\GLImage.hh">
-      <Filter>video</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\video\GLPostProcessor.hh">
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\GLSnow.hh">

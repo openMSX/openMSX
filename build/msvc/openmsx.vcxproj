@@ -665,7 +665,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLHQLiteScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLHQScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\GLImage.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\GLPostProcessor.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLRGBScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLScaleNxScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLScaler.cc" />
@@ -1241,7 +1240,6 @@
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLHQLiteScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLHQScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\GLImage.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\GLPostProcessor.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLRGBScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLScaleNxScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLScaler.hh" />

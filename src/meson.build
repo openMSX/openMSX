@@ -489,7 +489,6 @@ if not get_option('glrenderer').disabled()
     sources += files(
         'video/GLContext.cc',
         'video/GLImage.cc',
-        'video/GLPostProcessor.cc',
         'video/GLSnow.cc',
         'video/GLUtil.cc',
         'video/OffScreenSurface.cc',

@@ -1,7 +1,7 @@
 #include "SDLVideoSystem.hh"
 #include "SDLRasterizer.hh"
 #include "VisibleSurface.hh"
-#include "GLPostProcessor.hh"
+#include "PostProcessor.hh"
 #include "V9990SDLRasterizer.hh"
 #include "Reactor.hh"
 #include "Display.hh"
@@ -63,7 +63,7 @@ std::unique_ptr<Rasterizer> SDLVideoSystem::createRasterizer(VDP& vdp)
 	case RenderSettings::SDLGL_PP:
 		return std::make_unique<SDLRasterizer>(
 			vdp, display, *screen,
-			std::make_unique<GLPostProcessor>(
+			std::make_unique<PostProcessor>(
 				motherBoard, display, *screen,
 				videoSource, 640, 240, true));
 	default:
@@ -82,7 +82,7 @@ std::unique_ptr<V9990Rasterizer> SDLVideoSystem::createV9990Rasterizer(
 	case RenderSettings::SDLGL_PP:
 		return std::make_unique<V9990SDLRasterizer>(
 			vdp, display, *screen,
-			std::make_unique<GLPostProcessor>(
+			std::make_unique<PostProcessor>(
 				motherBoard, display, *screen,
 				videoSource, 1280, 240, true));
 	default:
@@ -99,7 +99,7 @@ std::unique_ptr<LDRasterizer> SDLVideoSystem::createLDRasterizer(
 	switch (renderSettings.getRenderer()) {
 	case RenderSettings::SDLGL_PP:
 		return std::make_unique<LDSDLRasterizer>(
-			std::make_unique<GLPostProcessor>(
+			std::make_unique<PostProcessor>(
 				motherBoard, display, *screen,
 				videoSource, 640, 480, false));
 	default:

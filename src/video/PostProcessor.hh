@@ -1,11 +1,14 @@
-#ifndef POSTPROCESSOR_HH
-#define POSTPROCESSOR_HH
+#ifndef GLPOSTPROCESSOR_HH
+#define GLPOSTPROCESSOR_HH
 
-#include "VideoLayer.hh"
-#include "Schedulable.hh"
 #include "EmuTime.hh"
+#include "GLUtil.hh"
+#include "RenderSettings.hh"
+#include "Schedulable.hh"
+#include "VideoLayer.hh"
 #include <array>
 #include <memory>
+#include <vector>
 
 namespace openmsx {
 
@@ -17,20 +20,26 @@ class Display;
 class DoubledFrame;
 class EventDistributor;
 class FrameSource;
+class GLScaler;
+class MSXMotherBoard;
 class RawFrame;
 class RenderSettings;
 class SuperImposedFrame;
 
-/** Abstract base class for post processors.
-  * A post processor builds the frame that is displayed from the MSX frame,
+/** A post processor builds the frame that is displayed from the MSX frame,
   * while applying effects such as scalers, noise etc.
-  * TODO: With some refactoring, it would be possible to move much or even all
-  *       of the post processing code here instead of in the subclasses.
   */
-class PostProcessor : public VideoLayer, private Schedulable
+class PostProcessor final : public VideoLayer, private Schedulable
 {
 public:
+	PostProcessor(
+		MSXMotherBoard& motherBoard, Display& display,
+		OutputSurface& screen, const std::string& videoSource,
+		unsigned maxWidth, unsigned height, bool canDoInterlace);
 	~PostProcessor() override;
+
+	// Layer interface:
+	void paint(OutputSurface& output) override;
 
 	/** Sets up the "abcdFrame" variables for a new frame.
 	  * TODO: The point of passing the finished frame in and the new workFrame
@@ -42,7 +51,7 @@ public:
 	  *             PAL/NTSC, frameskip).
 	  * @return RawFrame object that can be used for building the next frame.
 	  */
-	[[nodiscard]] virtual std::unique_ptr<RawFrame> rotateFrames(
+	[[nodiscard]] std::unique_ptr<RawFrame> rotateFrames(
 		std::unique_ptr<RawFrame> finishedFrame, EmuTime::param time);
 
 	/** Set the Video frame on which to superimpose the 'normal' output of
@@ -87,19 +96,34 @@ public:
 
 	[[nodiscard]] CliComm& getCliComm();
 
-protected:
+private:
+	// Observer<Setting> interface:
+	void update(const Setting& setting) noexcept override;
+
+	// Schedulable
+	void executeUntil(EmuTime::param time) override;
+
 	/** Returns the maximum width for lines [y..y+step).
 	  */
 	[[nodiscard]] static unsigned getLineWidth(FrameSource* frame, unsigned y, unsigned step);
 
-	PostProcessor(
-		MSXMotherBoard& motherBoard, Display& display,
-		OutputSurface& screen, const std::string& videoSource,
-		unsigned maxWidth, unsigned height, bool canDoInterlace);
+	void initBuffers();
+	void createRegions();
+	void uploadFrame();
+	void uploadBlock(unsigned srcStartY, unsigned srcEndY,
+	                 unsigned lineWidth);
 
-protected:
-	/** Render settings */
+	void preCalcNoise(float factor);
+	void drawNoise();
+	void drawGlow(int glow);
+
+	void preCalcMonitor3D(float width);
+	void drawMonitor3D();
+
+private:
+	Display& display;
 	RenderSettings& renderSettings;
+	EventDistributor& eventDistributor;
 
 	/** The surface which is visible to the user. */
 	OutputSurface& screen;
@@ -138,13 +162,6 @@ protected:
 	unsigned maxWidth; // we lazily create RawFrame objects in lastFrames[]
 	unsigned height;   // these two vars remember how big those should be
 
-private:
-	// Schedulable
-	void executeUntil(EmuTime::param time) override;
-
-private:
-	Display& display;
-
 	/** Laserdisc cannot do interlace (better: the current implementation
 	  * is not interlaced). In that case some internal stuff can be done
 	  * with less buffers.
@@ -152,9 +169,59 @@ private:
 	const bool canDoInterlace;
 
 	EmuTime lastRotate;
-	EventDistributor& eventDistributor;
+	/** The currently active scaler.
+	  */
+	std::unique_ptr<GLScaler> currScaler;
+
+	std::array<gl::Texture, 2> colorTex;
+	std::array<gl::FrameBufferObject, 2> fbo;
+
+	// Noise effect:
+	gl::Texture noiseTextureA{true, true}; // interpolate + wrap
+	gl::Texture noiseTextureB{true, true};
+	float noiseX = 0.0f, noiseY = 0.0f;
+
+	struct TextureData {
+		gl::ColorTexture tex;
+		gl::PixelBuffer<unsigned> pbo;
+		[[nodiscard]] unsigned width() const { return tex.getWidth(); }
+	};
+	std::vector<TextureData> textures;
+
+	gl::ColorTexture superImposeTex;
+
+	struct Region {
+		Region(unsigned srcStartY_, unsigned srcEndY_,
+		       unsigned dstStartY_, unsigned dstEndY_,
+		       unsigned lineWidth_)
+			: srcStartY(srcStartY_)
+			, srcEndY(srcEndY_)
+			, dstStartY(dstStartY_)
+			, dstEndY(dstEndY_)
+			, lineWidth(lineWidth_) {}
+		unsigned srcStartY;
+		unsigned srcEndY;
+		unsigned dstStartY;
+		unsigned dstEndY;
+		unsigned lineWidth;
+	};
+	std::vector<Region> regions;
+
+	unsigned frameCounter = 0;
+
+	/** Currently active scale algorithm, used to detect scaler changes.
+	  */
+	RenderSettings::ScaleAlgorithm scaleAlgorithm = RenderSettings::NO_SCALER;
+
+	gl::ShaderProgram monitor3DProg;
+	gl::BufferObject arrayBuffer;
+	gl::BufferObject elementBuffer;
+	gl::BufferObject vbo;
+	gl::BufferObject stretchVBO;
+
+	bool storedFrame = false;
 };
 
 } // namespace openmsx
 
-#endif // POSTPROCESSOR_HH
+#endif // GLPOSTPROCESSOR_HH
