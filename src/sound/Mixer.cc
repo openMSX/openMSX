@@ -8,7 +8,6 @@
 #include "one_of.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include "build-info.hh"
 #include <cassert>
 #include <memory>
 

@@ -4,22 +4,19 @@
 #include "DisplayMode.hh"
 #include "openmsx.hh"
 #include <array>
-#include <concepts>
 #include <cstdint>
 #include <span>
 
 namespace openmsx {
 
-template<int N> struct DoublePixel;
-template<> struct DoublePixel<2> { using type = uint32_t; };
-template<> struct DoublePixel<4> { using type = uint64_t; };
-
 /** Utility class for converting VRAM contents to host pixels.
   */
-template<std::unsigned_integral Pixel>
 class BitmapConverter
 {
 public:
+	using Pixel = uint32_t;
+	using DPixel = uint64_t;
+
 	/** Create a new bitmap scanline converter.
 	  * @param palette16 Pointer to 2*16-entries array that specifies
 	  *   VDP color index to host pixel mapping.
@@ -109,7 +106,6 @@ private:
 	std::span<const Pixel, 256>    palette256;
 	std::span<const Pixel, 32768>  palette32768;
 
-	using DPixel = typename DoublePixel<sizeof(Pixel)>::type;
 	std::array<DPixel, 16 * 16> dPalette;
 	DisplayMode mode;
 	bool dPaletteValid = false;

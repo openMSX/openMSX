@@ -10,7 +10,6 @@ TODO:
 #include "DisplayMode.hh"
 #include "view.hh"
 #include "narrow.hh"
-#include <concepts>
 #include <cstdint>
 #include <span>
 
@@ -18,10 +17,11 @@ namespace openmsx {
 
 /** Utility class for converting VRAM contents to host pixels.
   */
-template<std::unsigned_integral Pixel>
 class SpriteConverter
 {
 public:
+	using Pixel = uint32_t;
+
 	// TODO: Move some methods to .cc?
 
 	/** Constructor.

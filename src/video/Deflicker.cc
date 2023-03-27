@@ -1,57 +1,18 @@
 #include "Deflicker.hh"
-#include "RawFrame.hh"
 #include "PixelOperations.hh"
-#include "one_of.hh"
-#include "unreachable.hh"
+#include "RawFrame.hh"
 #include "vla.hh"
 #include "xrange.hh"
-#include "build-info.hh"
-#include <concepts>
-#include <memory>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
 
 namespace openmsx {
 
-template<std::unsigned_integral Pixel> class DeflickerImpl final : public Deflicker
-{
-public:
-	DeflickerImpl(const PixelFormat& format,
-	              std::span<std::unique_ptr<RawFrame>, 4> lastFrames);
+using Pixel = uint32_t;
 
-private:
-	[[nodiscard]] const void* getLineInfo(
-		unsigned line, unsigned& width,
-		void* buf, unsigned bufWidth) const override;
-
-private:
-	PixelOperations<Pixel> pixelOps;
-};
-
-
-std::unique_ptr<Deflicker> Deflicker::create(
-	const PixelFormat& format,
-	std::span<std::unique_ptr<RawFrame>, 4> lastFrames)
-{
-#if HAVE_16BPP
-	if (format.getBytesPerPixel() == 2) {
-		return std::make_unique<DeflickerImpl<uint16_t>>(format, lastFrames);
-	}
-#endif
-#if HAVE_32BPP
-	if (format.getBytesPerPixel() == 4) {
-		return std::make_unique<DeflickerImpl<uint32_t>>(format, lastFrames);
-	}
-#endif
-	UNREACHABLE; return nullptr; // avoid warning
-}
-
-
-Deflicker::Deflicker(const PixelFormat& format,
-                     std::span<std::unique_ptr<RawFrame>, 4> lastFrames_)
-	: FrameSource(format)
-	, lastFrames(lastFrames_)
+Deflicker::Deflicker(std::span<std::unique_ptr<RawFrame>, 4> lastFrames_)
+	: lastFrames(lastFrames_)
 {
 }
 
@@ -66,34 +27,13 @@ unsigned Deflicker::getLineWidth(unsigned line) const
 	return lastFrames[0]->getLineWidthDirect(line);
 }
 
-
-template<std::unsigned_integral Pixel>
-DeflickerImpl<Pixel>::DeflickerImpl(const PixelFormat& format,
-                                    std::span<std::unique_ptr<RawFrame>, 4> lastFrames_)
-	: Deflicker(format, lastFrames_)
-	, pixelOps(format)
-{
-}
-
 #ifdef __SSE2__
-template<std::unsigned_integral Pixel>
-static __m128i blend(__m128i x, __m128i y, Pixel blendMask)
+static __m128i blend(__m128i x, __m128i y)
 {
-	if constexpr (sizeof(Pixel) == 4) {
-		// 32bpp
-		return _mm_avg_epu8(x, y);
-	} else {
-		// 16bpp,  (x & y) + (((x ^ y) & blendMask) >> 1)
-		__m128i m = _mm_set1_epi16(blendMask);
-		__m128i a = _mm_and_si128(x, y);
-		__m128i b = _mm_xor_si128(x, y);
-		__m128i c = _mm_and_si128(b, m);
-		__m128i d = _mm_srli_epi16(c, 1);
-		return _mm_add_epi16(a, d);
-	}
+	// 32bpp
+	return _mm_avg_epu8(x, y);
 }
 
-template<std::unsigned_integral Pixel>
 static __m128i uload(const Pixel* ptr, ptrdiff_t byteOffst)
 {
 	const auto* p8   = reinterpret_cast<const   char *>(ptr);
@@ -101,7 +41,6 @@ static __m128i uload(const Pixel* ptr, ptrdiff_t byteOffst)
 	return _mm_loadu_si128(p128);
 }
 
-template<std::unsigned_integral Pixel>
 static void ustore(Pixel* ptr, ptrdiff_t byteOffst, __m128i val)
 {
 	auto* p8   = reinterpret_cast<  char *>(ptr);
@@ -109,30 +48,24 @@ static void ustore(Pixel* ptr, ptrdiff_t byteOffst, __m128i val)
 	return _mm_storeu_si128(p128, val);
 }
 
-template<std::unsigned_integral Pixel>
 static __m128i compare(__m128i x, __m128i y)
 {
-	static_assert(sizeof(Pixel) == one_of(2u, 4u));
-	if constexpr (sizeof(Pixel) == 4) {
-		return _mm_cmpeq_epi32(x, y);
-	} else {
-		return _mm_cmpeq_epi16(x, y);
-	}
+	// 32bpp
+	return _mm_cmpeq_epi32(x, y);
 }
 #endif
 
-template<std::unsigned_integral Pixel>
-const void* DeflickerImpl<Pixel>::getLineInfo(
+const void* Deflicker::getLineInfo(
 	unsigned line, unsigned& width, void* buf_, unsigned bufWidth) const
 {
 	unsigned width0 = lastFrames[0]->getLineWidthDirect(line);
 	unsigned width1 = lastFrames[1]->getLineWidthDirect(line);
 	unsigned width2 = lastFrames[2]->getLineWidthDirect(line);
 	unsigned width3 = lastFrames[3]->getLineWidthDirect(line);
-	const Pixel* line0 = lastFrames[0]->template getLineDirect<Pixel>(line).data();
-	const Pixel* line1 = lastFrames[1]->template getLineDirect<Pixel>(line).data();
-	const Pixel* line2 = lastFrames[2]->template getLineDirect<Pixel>(line).data();
-	const Pixel* line3 = lastFrames[3]->template getLineDirect<Pixel>(line).data();
+	const Pixel* line0 = lastFrames[0]->getLineDirect(line).data();
+	const Pixel* line1 = lastFrames[1]->getLineDirect(line).data();
+	const Pixel* line2 = lastFrames[2]->getLineDirect(line).data();
+	const Pixel* line3 = lastFrames[3]->getLineDirect(line).data();
 	if ((width0 != width3) || (width0 != width2) || (width0 != width1)) {
 		// Not all the same width.
 		width = width0;
@@ -162,18 +95,17 @@ const void* DeflickerImpl<Pixel>::getLineInfo(
 	dst   += widthSSE;
 	auto byteOffst = -ptrdiff_t(widthSSE * sizeof(Pixel));
 
-	Pixel blendMask = pixelOps.getBlendMask();
 	while (byteOffst < 0) {
 		__m128i a0 = uload(line0, byteOffst);
 		__m128i a1 = uload(line1, byteOffst);
 		__m128i a2 = uload(line2, byteOffst);
 		__m128i a3 = uload(line3, byteOffst);
 
-		__m128i e02 = compare<Pixel>(a0, a2); // a0 == a2
-		__m128i e13 = compare<Pixel>(a1, a3); // a1 == a3
+		__m128i e02 = compare(a0, a2); // a0 == a2
+		__m128i e13 = compare(a1, a3); // a1 == a3
 		__m128i cnd = _mm_and_si128(e02, e13); // (a0==a2) && (a1==a3)
 
-		__m128i a01 = blend(a0, a1, blendMask);
+		__m128i a01 = blend(a0, a1);
 		__m128i p = _mm_xor_si128(a0, a01);
 		__m128i q = _mm_and_si128(p, cnd);
 		__m128i r = _mm_xor_si128(q, a0); // select(a0, a01, cnd)
@@ -183,6 +115,7 @@ const void* DeflickerImpl<Pixel>::getLineInfo(
 	}
 	remaining &= pixelsPerSSE - 1;
 #endif
+	PixelOperations pixelOps;
 	for (auto x : xrange(remaining)) {
 		dst[x] = ((line0[x] == line2[x]) && (line1[x] == line3[x]))
 		       ? pixelOps.template blend<1, 1>(line0[x], line1[x])

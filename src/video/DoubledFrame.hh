@@ -12,7 +12,6 @@ namespace openmsx {
 class DoubledFrame final : public FrameSource
 {
 public:
-	explicit DoubledFrame(const PixelFormat& format);
 	void init(FrameSource* field, int skip);
 
 private:

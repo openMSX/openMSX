@@ -1,10 +1,10 @@
-#include "SDLGLOffScreenSurface.hh"
-#include "SDLGLVisibleSurface.hh"
+#include "OffScreenSurface.hh"
+#include "VisibleSurface.hh"
 #include "GLUtil.hh"
 
 namespace openmsx {
 
-SDLGLOffScreenSurface::SDLGLOffScreenSurface(const OutputSurface& output)
+OffScreenSurface::OffScreenSurface(const OutputSurface& output)
 	: fboTex(true) // enable interpolation   TODO why?
 {
 	calculateViewPort(output.getLogicalSize(), output.getPhysicalSize());
@@ -21,13 +21,11 @@ SDLGLOffScreenSurface::SDLGLOffScreenSurface(const OutputSurface& output)
 	             nullptr);         // data
 	fbo = gl::FrameBufferObject(fboTex);
 	fbo.push();
-
-	setOpenGlPixelFormat();
 }
 
-void SDLGLOffScreenSurface::saveScreenshot(const std::string& filename)
+void OffScreenSurface::saveScreenshot(const std::string& filename)
 {
-	SDLGLVisibleSurface::saveScreenshotGL(*this, filename);
+	VisibleSurface::saveScreenshotGL(*this, filename);
 }
 
 } // namespace openmsx

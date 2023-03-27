@@ -1,8 +1,8 @@
 #include "OSDImageBasedWidget.hh"
 #include "OSDTopWidget.hh"
 #include "OSDGUI.hh"
-#include "BaseImage.hh"
 #include "Display.hh"
+#include "GLImage.hh"
 #include "TclObject.hh"
 #include "CommandException.hh"
 #include "Timer.hh"
@@ -297,25 +297,11 @@ void OSDImageBasedWidget::setError(std::string message)
 	}
 }
 
-void OSDImageBasedWidget::paintSDL(OutputSurface& output)
-{
-	paint(output, false);
-}
-
-void OSDImageBasedWidget::paintGL(OutputSurface& output)
-{
-	paint(output, true);
-}
-
 void OSDImageBasedWidget::createImage(OutputSurface& output)
 {
 	if (!image && !hasError()) {
 		try {
-			if (getDisplay().getOSDGUI().isOpenGL()) {
-				image = createGL(output);
-			} else {
-				image = createSDL(output);
-			}
+			image = create(output);
 		} catch (MSXException& e) {
 			setError(std::move(e).getMessage());
 		}
@@ -346,18 +332,17 @@ vec2 OSDImageBasedWidget::getRenderedSize() const
 	return imageSize / float(getScaleFactor(*output));
 }
 
-void OSDImageBasedWidget::paint(OutputSurface& output, bool openGL)
+void OSDImageBasedWidget::paint(OutputSurface& output)
 {
 	// Note: Even when alpha == 0 we still create the image:
 	//    It may be needed to get the dimensions to be able to position
 	//    child widgets.
-	assert(openGL == getDisplay().getOSDGUI().isOpenGL()); (void)openGL;
 	createImage(output);
 
 	auto fadedAlpha = getFadedAlpha();
 	if ((fadedAlpha != 0) && image) {
 		ivec2 drawPos = round(getTransformedPos(output));
-		image->draw(output, drawPos, fadedAlpha);
+		image->draw(drawPos, fadedAlpha);
 	}
 	if (isRecursiveFading() || isAnimating()) {
 		getDisplay().getOSDGUI().refresh();

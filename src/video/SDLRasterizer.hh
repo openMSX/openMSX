@@ -8,7 +8,7 @@
 #include "Observer.hh"
 #include "openmsx.hh"
 #include <array>
-#include <concepts>
+#include <cstdint>
 #include <memory>
 
 namespace openmsx {
@@ -25,11 +25,12 @@ class PostProcessor;
 /** Rasterizer using a frame buffer approach: it writes pixels to a single
   * rectangular pixel buffer.
   */
-template<std::unsigned_integral Pixel>
 class SDLRasterizer final : public Rasterizer
                           , private Observer<Setting>
 {
 public:
+	using Pixel = uint32_t;
+
 	SDLRasterizer(const SDLRasterizer&) = delete;
 	SDLRasterizer& operator=(const SDLRasterizer&) = delete;
 
@@ -117,15 +118,15 @@ private:
 
 	/** VRAM to pixels converter for character display modes.
 	  */
-	CharacterConverter<Pixel> characterConverter;
+	CharacterConverter characterConverter;
 
 	/** VRAM to pixels converter for bitmap display modes.
 	  */
-	BitmapConverter<Pixel> bitmapConverter;
+	BitmapConverter bitmapConverter;
 
 	/** VRAM to pixels converter for sprites.
 	  */
-	SpriteConverter<Pixel> spriteConverter;
+	SpriteConverter spriteConverter;
 
 	/** Line to render at top of display.
 	  * After all, our screen is 240 lines while display is 262 or 313.

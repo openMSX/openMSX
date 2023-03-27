@@ -2,8 +2,6 @@
 #include "V9990.hh"
 #include "V9990VRAM.hh"
 #include "ScopedAssign.hh"
-#include "build-info.hh"
-#include "components.hh"
 #include "narrow.hh"
 #include "ranges.hh"
 #include <array>
@@ -14,15 +12,15 @@
 
 namespace openmsx {
 
-template<std::unsigned_integral Pixel>
-V9990P1Converter<Pixel>::V9990P1Converter(V9990& vdp_, std::span<const Pixel, 64> palette64_)
+using Pixel = V9990P1Converter::Pixel;
+
+V9990P1Converter::V9990P1Converter(V9990& vdp_, std::span<const Pixel, 64> palette64_)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, palette64(palette64_)
 {
 }
 
-template<std::unsigned_integral Pixel>
-V9990P2Converter<Pixel>::V9990P2Converter(V9990& vdp_, std::span<const Pixel, 64> palette64_)
+V9990P2Converter::V9990P2Converter(V9990& vdp_, std::span<const Pixel, 64> palette64_)
 	: vdp(vdp_), vram(vdp.getVRAM()), palette64(palette64_)
 {
 }
@@ -47,7 +45,7 @@ struct P1Policy {
 	static constexpr unsigned PATTERN_CHARS = SCREEN_WIDTH / 8;
 };
 struct P1BackgroundPolicy : P1Policy {
-	template<std::unsigned_integral Pixel> static void draw1(
+	static void draw1(
 		std::span<const Pixel, 16> palette, Pixel* __restrict buffer,
 		byte* __restrict /*info*/, size_t p)
 	{
@@ -56,7 +54,7 @@ struct P1BackgroundPolicy : P1Policy {
 	static constexpr bool DRAW_BACKDROP = true;
 };
 struct P1ForegroundPolicy : P1Policy {
-	template<std::unsigned_integral Pixel> static void draw1(
+	static void draw1(
 		std::span<const Pixel, 16> palette, Pixel* __restrict buffer,
 		byte* __restrict info, size_t p)
 	{
@@ -79,7 +77,7 @@ struct P2Policy {
 		return (256 * (((spriteNo & 0xE0) >> 1) + spriteY))
 		     + (  8 *  (spriteNo & 0x1F));
 	}
-	template<std::unsigned_integral Pixel> static void draw1(
+	static void draw1(
 		std::span<const Pixel, 16> palette, Pixel* __restrict buffer,
 		byte* __restrict info, size_t p)
 	{
@@ -113,7 +111,7 @@ static constexpr unsigned nextNameAddr(unsigned addr)
 	return (addr & ~MASK) | ((addr + 2) & MASK);
 }
 
-template<typename Policy, bool CHECK_WIDTH, std::unsigned_integral Pixel>
+template<typename Policy, bool CHECK_WIDTH>
 static void draw2(
 	V9990VRAM& vram, std::span<const Pixel, 16> palette, Pixel* __restrict& buffer, byte* __restrict& info,
 	unsigned& address, int& width)
@@ -128,7 +126,7 @@ static void draw2(
 	info   += 2;
 }
 
-template<typename Policy, std::unsigned_integral Pixel>
+template<typename Policy>
 static void renderPattern(
 	V9990VRAM& vram, Pixel* __restrict buffer, std::span<byte> info_,
 	Pixel bgCol, unsigned x, unsigned y,
@@ -188,7 +186,7 @@ static void renderPattern(
 	}
 }
 
-template<typename Policy, std::unsigned_integral Pixel> // only used for P1
+template<typename Policy> // only used for P1
 static void renderPattern2(
 	V9990VRAM& vram, Pixel* buffer, std::span<byte, 256> info, Pixel bgCol, unsigned width1, unsigned width2,
 	unsigned displayAX, unsigned displayAY, unsigned nameA, unsigned patternA, std::span<const Pixel, 16> palA,
@@ -207,7 +205,7 @@ static void renderPattern2(
 		displayBX, displayBY, nameB, patternB, palB, palB);
 }
 
-template<typename Policy, std::unsigned_integral Pixel>
+template<typename Policy>
 static void renderSprites(
 	V9990VRAM& vram, unsigned spritePatternTable, std::span<const Pixel, 64> palette64,
 	Pixel* __restrict buffer, std::span<byte> info,
@@ -270,8 +268,7 @@ static void renderSprites(
 	}
 }
 
-template<std::unsigned_integral Pixel>
-void V9990P1Converter<Pixel>::convertLine(
+void V9990P1Converter::convertLine(
 	std::span<Pixel> buf, unsigned displayX, unsigned displayY,
 	unsigned displayYA, unsigned displayYB, bool drawSprites)
 {
@@ -325,8 +322,7 @@ void V9990P1Converter<Pixel>::convertLine(
 	}
 }
 
-template<std::unsigned_integral Pixel>
-void V9990P2Converter<Pixel>::convertLine(
+void V9990P2Converter::convertLine(
 	std::span<Pixel> buf, unsigned displayX, unsigned displayY,
 	unsigned displayYA, bool drawSprites)
 {
@@ -361,15 +357,5 @@ void V9990P2Converter<Pixel>::convertLine(
 			linePtr, info, displayX, displayEnd, displayY);
 	}
 }
-
-// Force template instantiation
-#if HAVE_16BPP
-template class V9990P1Converter<uint16_t>;
-template class V9990P2Converter<uint16_t>;
-#endif
-#if HAVE_32BPP || COMPONENT_GL
-template class V9990P1Converter<uint32_t>;
-template class V9990P2Converter<uint32_t>;
-#endif
 
 } // namespace openmsx

@@ -1,10 +1,10 @@
 #include "OSDConsoleRenderer.hh"
 #include "CommandConsole.hh"
 #include "BooleanSetting.hh"
-#include "SDLImage.hh"
 #include "Display.hh"
 #include "Timer.hh"
 #include "FileContext.hh"
+#include "GLImage.hh"
 #include "CliComm.hh"
 #include "Reactor.hh"
 #include "MSXException.hh"
@@ -17,11 +17,6 @@
 #include <algorithm>
 #include <cassert>
 #include <memory>
-
-#include "components.hh"
-#if COMPONENT_GL
-#include "GLImage.hh"
-#endif
 
 using namespace gl;
 
@@ -42,7 +37,7 @@ static constexpr std::string_view defaultFont = "skins/VeraMono.ttf.gz";
 
 OSDConsoleRenderer::OSDConsoleRenderer(
 		Reactor& reactor_, CommandConsole& console_,
-		int screenW_, int screenH_, bool openGL_)
+		int screenW_, int screenH_)
 	: Layer(COVER_NONE, Z_CONSOLE)
 	, reactor(reactor_)
 	, display(reactor.getDisplay()) // need to store because still needed during destructor
@@ -50,7 +45,6 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 	, consoleSetting(console.getConsoleSetting())
 	, screenW(screenW_)
 	, screenH(screenH_)
-	, openGL(openGL_)
 	, consolePlacementSetting(
 		reactor.getCommandController(), "consoleplacement",
 		"position of the console within the emulator",
@@ -83,9 +77,6 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 		"skins/ConsoleBackgroundGrey.png")
 	, lastBlinkTime(Timer::getTime())
 {
-#if !COMPONENT_GL
-	assert(!openGL);
-#endif
 	setCoverage(COVER_PARTIAL);
 
 	adjustColRow();
@@ -271,31 +262,21 @@ void OSDConsoleRenderer::loadBackground(std::string_view value)
 		return;
 	}
 	auto filename = systemFileContext().resolve(value);
-	if (!openGL) {
-		backgroundImage = std::make_unique<SDLImage>(*output, filename, bgSize);
-	}
-#if COMPONENT_GL
-	else {
-		backgroundImage = std::make_unique<GLImage>(*output, filename, bgSize);
-	}
-#endif
+	backgroundImage = std::make_unique<GLImage>(filename, bgSize);
 }
 
-void OSDConsoleRenderer::drawText(OutputSurface& output, std::string_view text,
+void OSDConsoleRenderer::drawText(std::string_view text,
                                   int cx, int cy, byte alpha, uint32_t rgb)
 {
 	auto xy = getTextPos(cx, cy);
-	auto [inCache, image, width] = getFromCache(text, rgb);
+	auto [inCache, image, width] = getFromCache(text);
 	if (!inCache) {
 		std::string textStr(text);
 		SDLSurfacePtr surf;
-		uint32_t rgb2 = openGL ? 0xffffff : rgb; // openGL -> always render white
 		try {
+			// always render white
 			width = font.getSize(textStr)[0];
-			surf = font.render(textStr,
-			                   (rgb2 >> 16) & 0xff,
-			                   (rgb2 >>  8) & 0xff,
-			                   (rgb2 >>  0) & 0xff);
+			surf = font.render(textStr, 0xff, 0xff, 0xff);
 		} catch (MSXException& e) {
 			static bool alreadyPrinted = false;
 			if (!alreadyPrinted) {
@@ -306,42 +287,32 @@ void OSDConsoleRenderer::drawText(OutputSurface& output, std::string_view text,
 			}
 			return; // don't cache negative results
 		}
-		std::unique_ptr<BaseImage> image2;
+		std::unique_ptr<GLImage> image2;
 		if (!surf) {
 			// nothing was rendered, so do nothing
-		} else if (!openGL) {
-			image2 = std::make_unique<SDLImage>(output, std::move(surf));
+		} else {
+			image2 = std::make_unique<GLImage>(std::move(surf));
 		}
-#if COMPONENT_GL
-		else {
-			image2 = std::make_unique<GLImage>(output, std::move(surf));
-		}
-#endif
 		image = image2.get();
-		insertInCache(std::move(textStr), rgb, std::move(image2), width);
+		insertInCache(std::move(textStr), std::move(image2), width);
 	}
 	if (image) {
-		if (openGL) {
-			byte r = (rgb >> 16) & 0xff;
-			byte g = (rgb >>  8) & 0xff;
-			byte b = (rgb >>  0) & 0xff;
-			image->draw(output, xy, r, g, b, alpha);
-		} else {
-			image->draw(output, xy, alpha);
-		}
+		byte r = (rgb >> 16) & 0xff;
+		byte g = (rgb >>  8) & 0xff;
+		byte b = (rgb >>  0) & 0xff;
+		image->draw(xy, r, g, b, alpha);
 	}
 }
 
-std::tuple<bool, BaseImage*, unsigned> OSDConsoleRenderer::getFromCache(
-	std::string_view text, uint32_t rgb)
+std::tuple<bool, GLImage*, unsigned> OSDConsoleRenderer::getFromCache(
+	std::string_view text)
 {
 	// Items are LRU sorted, so the next requested items will often be
 	// located right in front of the previously found item. (Though
 	// duplicate items (e.g. the command prompt '> ') degrade this
 	// heuristic).
 	auto it = cacheHint;
-	// For openGL ignore rgb
-	if ((it->text == text) && (openGL || (it->rgb  == rgb))) {
+	if (it->text == text) {
 		goto found;
 	}
 
@@ -350,8 +321,7 @@ std::tuple<bool, BaseImage*, unsigned> OSDConsoleRenderer::getFromCache(
 	// in the N first positions in the cache (in approx reverse order).
 	for (it = begin(textCache); it != end(textCache); ++it) {
 		if (it->text != text) continue;
-		if (!openGL && (it->rgb  != rgb)) continue;
-found:		BaseImage* image = it->image.get();
+found:		GLImage* image = it->image.get();
 		unsigned width = it->width;
 		cacheHint = it;
 		if (it != begin(textCache)) {
@@ -365,8 +335,7 @@ found:		BaseImage* image = it->image.get();
 }
 
 void OSDConsoleRenderer::insertInCache(
-	std::string text, uint32_t rgb, std::unique_ptr<BaseImage> image,
-	unsigned width)
+	std::string text, std::unique_ptr<GLImage> image, unsigned width)
 {
 	constexpr unsigned MAX_TEXT_CACHE_SIZE = 250;
 	if (textCache.size() == MAX_TEXT_CACHE_SIZE) {
@@ -376,14 +345,14 @@ void OSDConsoleRenderer::insertInCache(
 		}
 		textCache.pop_back();
 	}
-	textCache.emplace_front(std::move(text), rgb, std::move(image), width);
+	textCache.emplace_front(std::move(text), std::move(image), width);
 }
 
 void OSDConsoleRenderer::clearCache()
 {
 	// cacheHint must always point to a valid item, so insert a dummy entry
 	textCache.clear();
-	textCache.emplace_back(std::string{}, 0, nullptr, 0);
+	textCache.emplace_back(std::string{}, nullptr, 0);
 	cacheHint = begin(textCache);
 }
 
@@ -393,7 +362,7 @@ gl::ivec2 OSDConsoleRenderer::getTextPos(int cursorX, int cursorY) const
 	                     bgSize[1] - (font.getHeight() * (cursorY + 1)) - 1);
 }
 
-void OSDConsoleRenderer::paint(OutputSurface& output)
+void OSDConsoleRenderer::paint(OutputSurface& /*output*/)
 {
 	byte visibility = getVisibility();
 	if (!visibility) return;
@@ -410,25 +379,17 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 	if (!backgroundImage) {
 		// no background image, try to create an empty one
 		try {
-			if (!openGL) {
-				backgroundImage = std::make_unique<SDLImage>(
-					output, bgSize, CONSOLE_ALPHA);
-			}
-#if COMPONENT_GL
-			else {
-				backgroundImage = std::make_unique<GLImage>(
-					output, bgSize, CONSOLE_ALPHA);
-			}
-#endif
+			backgroundImage = std::make_unique<GLImage>(
+				bgSize, CONSOLE_ALPHA);
 		} catch (MSXException&) {
 			// nothing
 		}
 	}
 	if (backgroundImage) {
-		backgroundImage->draw(output, bgPos, visibility);
+		backgroundImage->draw(bgPos, visibility);
 	}
 
-	drawConsoleText(output, visibility);
+	drawConsoleText(visibility);
 
 	// Check if the blink period is over
 	auto now = Timer::getTime();
@@ -445,11 +406,11 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 		lastCursorY = cursorY;
 	}
 	if (blink && (console.getScrollBack() == 0)) {
-		drawText(output, "_", cursorX, cursorY, visibility, 0xffffff);
+		drawText("_", cursorX, cursorY, visibility, 0xffffff);
 	}
 }
 
-void OSDConsoleRenderer::drawConsoleText(OutputSurface& output, byte visibility)
+void OSDConsoleRenderer::drawConsoleText(byte visibility)
 {
 	const auto rows = console.getRows();
 	const auto columns = console.getColumns();
@@ -504,7 +465,7 @@ void OSDConsoleRenderer::drawConsoleText(OutputSurface& output, byte visibility)
 				std::string_view subText(&*it, e - it);
 				auto rgb = chunks[chunkIdx - 1].rgb;
 				auto cursorX = narrow<int>(columns - startColumn);
-				drawText(output, subText, cursorX, cursorY, visibility, rgb);
+				drawText(subText, cursorX, cursorY, visibility, rgb);
 
 				// next chunk
 				it = e;

@@ -2277,8 +2277,7 @@ PREDEFINED             = __restrict__= \
                          __restrict= \
                          __attribute__= \
                          aligned= \
-                         INSTANTIATE_SERIALIZE_METHODS= \
-                         COMPONENT_GL=1
+                         INSTANTIATE_SERIALIZE_METHODS=
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this
 # tag can be used to specify a list of macro names that should be expanded. The

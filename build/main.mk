@@ -261,29 +261,6 @@ SOURCES_FULL+=$(foreach dir,$(SOURCE_DIRS),$(sort $(wildcard $(dir)/*.mm)))
 endif
 SOURCES_FULL:=$(filter-out %Test.cc,$(SOURCES_FULL))
 
-# TODO: This doesn't work since MAX_SCALE_FACTOR is not a Make variable,
-#       only a #define in build-info.hh.
-ifeq ($(MAX_SCALE_FACTOR),1)
-define SOURCES_UPSCALE
-	Scanline
-	Scaler2 Scaler3
-	Simple2xScaler Simple3xScaler
-	SaI2xScaler SaI3xScaler
-	Scale2xScaler Scale3xScaler
-	HQ2xScaler HQ2xLiteScaler
-	HQ3xScaler HQ3xLiteScaler
-	RGBTriplet3xScaler MLAAScaler
-	Multiply32
-endef
-SOURCES_FULL:=$(filter-out $(foreach src,$(strip $(SOURCES_UPSCALE)),src/video/scalers/$(src).cc),$(SOURCES_FULL))
-endif
-
-ifneq ($(COMPONENT_GL),true)
-SOURCES_FULL:=$(filter-out src/video/GL%.cc,$(SOURCES_FULL))
-SOURCES_FULL:=$(filter-out src/video/SDLGL%.cc,$(SOURCES_FULL))
-SOURCES_FULL:=$(filter-out src/video/scalers/GL%.cc,$(SOURCES_FULL))
-endif
-
 ifneq ($(COMPONENT_LASERDISC),true)
 SOURCES_FULL:=$(filter-out src/laserdisc/%.cc,$(SOURCES_FULL))
 SOURCES_FULL:=$(filter-out src/video/ld/%.cc,$(SOURCES_FULL))

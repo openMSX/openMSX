@@ -20,7 +20,6 @@
 #include "VideoSystemChangeListener.hh"
 #include "CommandException.hh"
 #include "Version.hh"
-#include "build-info.hh"
 #include "narrow.hh"
 #include "outer.hh"
 #include "ranges.hh"
@@ -284,22 +283,16 @@ void Display::doRendererSwitch()
 				rendererSetting.getString(),
 				": ", e.getMessage());
 			// now try some things that might work against this:
-			if (rendererSetting.getEnum() != RenderSettings::SDL) {
-				errorMsg += "\nTrying to switch to SDL renderer instead...";
-				rendererSetting.setEnum(RenderSettings::SDL);
-				currentRenderer = RenderSettings::SDL;
-			} else {
-				auto& scaleFactorSetting = renderSettings.getScaleFactorSetting();
-				auto curVal = scaleFactorSetting.getInt();
-				if (curVal == 1) {
-					throw FatalError(
-						e.getMessage(),
-						" (and I have no other ideas to try...)"); // give up and die... :(
-				}
-				strAppend(errorMsg, "\nTrying to decrease scale_factor setting from ",
-				          curVal, " to ", curVal - 1, "...");
-				scaleFactorSetting.setInt(curVal - 1);
+			auto& scaleFactorSetting = renderSettings.getScaleFactorSetting();
+			auto curVal = scaleFactorSetting.getInt();
+			if (curVal == 1) {
+				throw FatalError(
+					e.getMessage(),
+					" (and I have no other ideas to try...)"); // give up and die... :(
 			}
+			strAppend(errorMsg, "\nTrying to decrease scale_factor setting from ",
+					curVal, " to ", curVal - 1, "...");
+			scaleFactorSetting.setInt(curVal - 1);
 			getCliComm().printWarning(errorMsg);
 		}
 	}

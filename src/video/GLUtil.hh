@@ -1,10 +1,6 @@
 #ifndef GLUTIL_HH
 #define GLUTIL_HH
 
-// Check for availability of OpenGL.
-#include "components.hh"
-#if COMPONENT_GL
-
 // Include GLEW headers.
 #include <GL/glew.h>
 // Include OpenGL headers.
@@ -468,5 +464,4 @@ private:
 
 } // namespace gl
 
-#endif // COMPONENT_GL
 #endif // GLUTIL_HH

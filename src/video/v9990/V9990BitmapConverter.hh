@@ -3,7 +3,6 @@
 
 #include "V9990ModeEnum.hh"
 #include "one_of.hh"
-#include <concepts>
 #include <cstdint>
 #include <span>
 
@@ -14,10 +13,11 @@ class V9990VRAM;
 
 /** Utility class to convert VRAM content to host pixels.
   */
-template<std::unsigned_integral Pixel>
 class V9990BitmapConverter
 {
 public:
+	using Pixel = uint32_t;
+
 	V9990BitmapConverter(
 		V9990& vdp,
 		std::span<const Pixel,    64> palette64,  std::span<const int16_t,  64> palette64_32768,

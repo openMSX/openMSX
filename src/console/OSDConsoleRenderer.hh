@@ -1,7 +1,7 @@
 #ifndef OSDCONSOLERENDERER_HH
 #define OSDCONSOLERENDERER_HH
 
-#include "BaseImage.hh"
+#include "GLImage.hh"
 #include "Layer.hh"
 #include "TTFFont.hh"
 #include "EnumSetting.hh"
@@ -26,7 +26,7 @@ class OSDConsoleRenderer final : public Layer, private Observer<Setting>
 {
 public:
 	OSDConsoleRenderer(Reactor& reactor, CommandConsole& console,
-	                   int screenW, int screenH, bool openGL);
+	                   int screenW, int screenH);
 	~OSDConsoleRenderer() override;
 
 private:
@@ -46,15 +46,15 @@ private:
 	void loadFont      (std::string_view value);
 	void loadBackground(std::string_view value);
 	byte getVisibility() const;
-	void drawText(OutputSurface& output, std::string_view text,
+	void drawText(std::string_view text,
 	              int cx, int cy, byte alpha, uint32_t rgb);
 	[[nodiscard]] gl::ivec2 getTextPos(int cursorX, int cursorY) const;
-	void drawConsoleText(OutputSurface& output, byte visibility);
+	void drawConsoleText(byte visibility);
 
-	[[nodiscard]] std::tuple<bool, BaseImage*, unsigned> getFromCache(
-		std::string_view text, uint32_t rgb);
-	void insertInCache(std::string text, uint32_t rgb,
-	                   std::unique_ptr<BaseImage> image, unsigned width);
+	[[nodiscard]] std::tuple<bool, GLImage*, unsigned> getFromCache(
+		std::string_view text);
+	void insertInCache(std::string text,
+	                   std::unique_ptr<GLImage> image, unsigned width);
 	void clearCache();
 
 private:
@@ -65,14 +65,13 @@ private:
 	};
 
 	struct TextCacheElement {
-		TextCacheElement(std::string text_, uint32_t rgb_,
-		                 std::unique_ptr<BaseImage> image_, unsigned width_)
+		TextCacheElement(std::string text_,
+		                 std::unique_ptr<GLImage> image_, unsigned width_)
 			: text(std::move(text_)), image(std::move(image_))
-			, rgb(rgb_), width(width_) {}
+			, width(width_) {}
 
 		std::string text;
-		std::unique_ptr<BaseImage> image;
-		uint32_t rgb;
+		std::unique_ptr<GLImage> image;
 		unsigned width; // in case of trailing whitespace width != image->getWidth()
 	};
 	using TextCache = std::list<TextCacheElement>;
@@ -83,7 +82,6 @@ private:
 	BooleanSetting& consoleSetting;
 	const int screenW;
 	const int screenH;
-	const bool openGL;
 
 	TTFFont font;
 	TextCache textCache;
@@ -95,7 +93,7 @@ private:
 	IntegerSetting consoleColumnsSetting;
 	IntegerSetting consoleRowsSetting;
 	FilenameSetting backgroundSetting;
-	std::unique_ptr<BaseImage> backgroundImage;
+	std::unique_ptr<GLImage> backgroundImage;
 
 	uint64_t lastBlinkTime;
 	uint64_t activeTime{0};

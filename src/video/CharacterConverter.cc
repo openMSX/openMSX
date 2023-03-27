@@ -12,8 +12,6 @@ TODO:
 #include "VDPVRAM.hh"
 #include "ranges.hh"
 #include "xrange.hh"
-#include "build-info.hh"
-#include "components.hh"
 #include <cstdint>
 
 #ifdef __SSE2__
@@ -22,22 +20,21 @@ TODO:
 
 namespace openmsx {
 
-template<std::unsigned_integral Pixel>
-CharacterConverter<Pixel>::CharacterConverter(
+using Pixel = CharacterConverter::Pixel;
+
+CharacterConverter::CharacterConverter(
 	VDP& vdp_, std::span<const Pixel, 16> palFg_, std::span<const Pixel, 16> palBg_)
 	: vdp(vdp_), vram(vdp.getVRAM()), palFg(palFg_), palBg(palBg_)
 {
 }
 
-template<std::unsigned_integral Pixel>
-void CharacterConverter<Pixel>::setDisplayMode(DisplayMode mode)
+void CharacterConverter::setDisplayMode(DisplayMode mode)
 {
 	modeBase = mode.getBase();
 	assert(modeBase < 0x0C);
 }
 
-template<std::unsigned_integral Pixel>
-void CharacterConverter<Pixel>::convertLine(std::span<Pixel> buf, int line)
+void CharacterConverter::convertLine(std::span<Pixel> buf, int line)
 {
 	// TODO: Support YJK on modes other than Graphic 6/7.
 	switch (modeBase) {
@@ -90,7 +87,7 @@ static inline __m128i select(__m128i a0, __m128i a1, __m128i mask)
 }
 #endif
 
-template<std::unsigned_integral Pixel> static inline void draw6(
+static inline void draw6(
 	Pixel* __restrict & pixelPtr, Pixel fg, Pixel bg, byte pattern)
 {
 	pixelPtr[0] = (pattern & 0x80) ? fg : bg;
@@ -102,29 +99,27 @@ template<std::unsigned_integral Pixel> static inline void draw6(
 	pixelPtr += 6;
 }
 
-template<std::unsigned_integral Pixel> static inline void draw8(
+static inline void draw8(
 	Pixel* __restrict & pixelPtr, Pixel fg, Pixel bg, byte pattern)
 {
 #ifdef __SSE2__
-	// SSE2 version, 32bpp  (16bpp is possible, but not worth it anymore)
-	if constexpr (sizeof(Pixel) == 4) {
-		const __m128i m74 = _mm_set_epi32(0x10, 0x20, 0x40, 0x80);
-		const __m128i m30 = _mm_set_epi32(0x01, 0x02, 0x04, 0x08);
-		const __m128i zero = _mm_setzero_si128();
+	// SSE2 version, 32bpp
+	const __m128i m74 = _mm_set_epi32(0x10, 0x20, 0x40, 0x80);
+	const __m128i m30 = _mm_set_epi32(0x01, 0x02, 0x04, 0x08);
+	const __m128i zero = _mm_setzero_si128();
 
-		__m128i fg4 = _mm_set1_epi32(fg);
-		__m128i bg4 = _mm_set1_epi32(bg);
-		__m128i pat = _mm_set1_epi32(pattern);
+	__m128i fg4 = _mm_set1_epi32(fg);
+	__m128i bg4 = _mm_set1_epi32(bg);
+	__m128i pat = _mm_set1_epi32(pattern);
 
-		__m128i b74 = _mm_cmpeq_epi32(_mm_and_si128(pat, m74), zero);
-		__m128i b30 = _mm_cmpeq_epi32(_mm_and_si128(pat, m30), zero);
+	__m128i b74 = _mm_cmpeq_epi32(_mm_and_si128(pat, m74), zero);
+	__m128i b30 = _mm_cmpeq_epi32(_mm_and_si128(pat, m30), zero);
 
-		auto* out = reinterpret_cast<__m128i*>(pixelPtr);
-		_mm_storeu_si128(out + 0, select(fg4, bg4, b74));
-		_mm_storeu_si128(out + 1, select(fg4, bg4, b30));
-		pixelPtr += 8;
-		return;
-	}
+	auto* out = reinterpret_cast<__m128i*>(pixelPtr);
+	_mm_storeu_si128(out + 0, select(fg4, bg4, b74));
+	_mm_storeu_si128(out + 1, select(fg4, bg4, b30));
+	pixelPtr += 8;
+	return;
 #endif
 
 	// C++ version
@@ -139,8 +134,7 @@ template<std::unsigned_integral Pixel> static inline void draw8(
 	pixelPtr += 8;
 }
 
-template<std::unsigned_integral Pixel>
-void CharacterConverter<Pixel>::renderText1(std::span<Pixel, 256> buf, int line)
+void CharacterConverter::renderText1(std::span<Pixel, 256> buf, int line)
 {
 	Pixel fg = palFg[vdp.getForegroundColor()];
 	Pixel bg = palFg[vdp.getBackgroundColor()];
@@ -162,8 +156,7 @@ void CharacterConverter<Pixel>::renderText1(std::span<Pixel, 256> buf, int line)
 	}
 }
 
-template<std::unsigned_integral Pixel>
-void CharacterConverter<Pixel>::renderText1Q(std::span<Pixel, 256> buf, int line)
+void CharacterConverter::renderText1Q(std::span<Pixel, 256> buf, int line)
 {
 	Pixel fg = palFg[vdp.getForegroundColor()];
 	Pixel bg = palFg[vdp.getBackgroundColor()];
@@ -186,8 +179,7 @@ void CharacterConverter<Pixel>::renderText1Q(std::span<Pixel, 256> buf, int line
 	}
 }
 
-template<std::unsigned_integral Pixel>
-void CharacterConverter<Pixel>::renderText2(std::span<Pixel, 512> buf, int line)
+void CharacterConverter::renderText2(std::span<Pixel, 512> buf, int line)
 {
 	Pixel plainFg = palFg[vdp.getForegroundColor()];
 	Pixel plainBg = palFg[vdp.getBackgroundColor()];
@@ -248,16 +240,14 @@ void CharacterConverter<Pixel>::renderText2(std::span<Pixel, 512> buf, int line)
 	}
 }
 
-template<std::unsigned_integral Pixel>
-std::span<const byte, 32> CharacterConverter<Pixel>::getNamePtr(int line, int scroll)
+std::span<const byte, 32> CharacterConverter::getNamePtr(int line, int scroll)
 {
 	// no need to test whether multi-page scrolling is enabled,
 	// indexMask in the nameTable already takes care of it
 	return vram.nameTable.getReadArea<32>(
 		((line / 8) * 32) | ((scroll & 0x20) ? 0x8000 : 0));
 }
-template<std::unsigned_integral Pixel>
-void CharacterConverter<Pixel>::renderGraphic1(std::span<Pixel, 256> buf, int line)
+void CharacterConverter::renderGraphic1(std::span<Pixel, 256> buf, int line)
 {
 	auto patternArea = vram.patternTable.getReadArea<256 * 8>(0);
 	auto l = line & 7;
@@ -277,8 +267,7 @@ void CharacterConverter<Pixel>::renderGraphic1(std::span<Pixel, 256> buf, int li
 	});
 }
 
-template<std::unsigned_integral Pixel>
-void CharacterConverter<Pixel>::renderGraphic2(std::span<Pixel, 256> buf, int line)
+void CharacterConverter::renderGraphic2(std::span<Pixel, 256> buf, int line)
 {
 	int quarter8 = (((line / 8) * 32) & ~0xFF) * 8;
 	int line7 = line & 7;
@@ -321,8 +310,7 @@ void CharacterConverter<Pixel>::renderGraphic2(std::span<Pixel, 256> buf, int li
 	}
 }
 
-template<std::unsigned_integral Pixel>
-void CharacterConverter<Pixel>::renderMultiHelper(
+void CharacterConverter::renderMultiHelper(
 	Pixel* __restrict pixelPtr, int line,
 	unsigned mask, unsigned patternQuarter)
 {
@@ -342,15 +330,13 @@ void CharacterConverter<Pixel>::renderMultiHelper(
 		if (!(++scroll & 0x1F)) namePtr = getNamePtr(line, scroll);
 	});
 }
-template<std::unsigned_integral Pixel>
-void CharacterConverter<Pixel>::renderMulti(std::span<Pixel, 256> buf, int line)
+void CharacterConverter::renderMulti(std::span<Pixel, 256> buf, int line)
 {
 	unsigned mask = (~0u << 11);
 	renderMultiHelper(buf.data(), line, mask, 0);
 }
 
-template<std::unsigned_integral Pixel>
-void CharacterConverter<Pixel>::renderMultiQ(
+void CharacterConverter::renderMultiQ(
 	std::span<Pixel, 256> buf, int line)
 {
 	unsigned mask = (~0u << 13);
@@ -358,8 +344,7 @@ void CharacterConverter<Pixel>::renderMultiQ(
 	renderMultiHelper(buf.data(), line, mask, patternQuarter);
 }
 
-template<std::unsigned_integral Pixel>
-void CharacterConverter<Pixel>::renderBogus(std::span<Pixel, 256> buf)
+void CharacterConverter::renderBogus(std::span<Pixel, 256> buf)
 {
 	Pixel* __restrict pixelPtr = buf.data();
 	Pixel fg = palFg[vdp.getForegroundColor()];
@@ -375,20 +360,11 @@ void CharacterConverter<Pixel>::renderBogus(std::span<Pixel, 256> buf)
 	draw(8, bg);
 }
 
-template<std::unsigned_integral Pixel>
-void CharacterConverter<Pixel>::renderBlank(std::span<Pixel, 256> buf)
+void CharacterConverter::renderBlank(std::span<Pixel, 256> buf)
 {
 	// when this is in effect, the VRAM is not refreshed anymore, but that
 	// is not emulated
 	ranges::fill(buf, palFg[15]);
 }
-
-// Force template instantiation.
-#if HAVE_16BPP
-template class CharacterConverter<uint16_t>;
-#endif
-#if HAVE_32BPP || COMPONENT_GL
-template class CharacterConverter<uint32_t>;
-#endif
 
 } // namespace openmsx
