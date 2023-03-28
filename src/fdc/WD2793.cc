@@ -955,6 +955,7 @@ void WD2793::writeTrackData(EmuTime::param time)
 		lastWasA1 = false;
 
 		// handle chars with special meaning
+		uint8_t CRCvalue2 = 0; // dummy
 		bool idam = false;
 		if (lastWasCRC) {
 			// 2nd CRC byte, don't transform
@@ -977,6 +978,7 @@ void WD2793::writeTrackData(EmuTime::param time)
 		} else if (dataOutReg == 0xF7) {
 			// write 2 CRC bytes, big endian
 			dataOutReg = narrow_cast<uint8_t>(crc.getValue() >> 8); // high byte
+			CRCvalue2  = narrow_cast<uint8_t>(crc.getValue() >> 0); // low byte
 			lastWasCRC = true;
 		} else if (dataOutReg == 0xFE) {
 			// Record locations of 0xA1 (with missing clock
@@ -987,9 +989,7 @@ void WD2793::writeTrackData(EmuTime::param time)
 		}
 		// actually write (transformed) byte
 		drive.writeTrackByte(dataCurrent++, dataOutReg, idam);
-		if (!lastWasCRC) {
-			crc.update(dataOutReg);
-		}
+		crc.update(dataOutReg); // also when 'lastWasCRC == true'
 		--dataAvailable;
 
 		if (dataAvailable > 0) {
@@ -1008,7 +1008,7 @@ void WD2793::writeTrackData(EmuTime::param time)
 					statusReg |= LOST_DATA;
 				}
 			} else {
-				dataOutReg = narrow_cast<uint8_t>(crc.getValue() & 0xFF); // low byte
+				dataOutReg = CRCvalue2;
 				// don't re-activate DRQ for 2nd byte of CRC
 				drqTime.reset(EmuTime::infinity()); // DRQ = false
 			}
