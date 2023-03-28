@@ -1,0 +1,83 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <info>
+    <manufacturer>Nikko</manufacturer>
+    <code>PC-70100</code>
+    <release_year>1988?</release_year>
+    <description>Prototype MSX?</description>
+    <type>MSX</type>
+    <region>jp</region>
+  </info>
+
+  <!-- 
+       See https://www.msx.org/forum/msx-talk/general-discussion/nikko-made-msx-computer
+
+       Thanks a lot to Takamichi Suzukawa for the information and pictures.
+
+       Note: has no GRAPH/KANA keys, CAPS + < + / acts like a kana/code toggle
+
+       MSX-ENGINE: Toshiba T7937A
+  -->
+
+  <CassettePort/>
+
+  <JoystickPorts>A</JoystickPorts> <!-- only 1 joystick port -->
+
+  <devices>
+
+    <T7937 id="T7937">
+      <subtype>A</subtype>
+    </T7937>
+
+    <PPI id="ppi">
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <io base="0xA8" num="4"/>
+      <keyboard_type>jp_jis</keyboard_type>
+      <has_keypad>false</has_keypad>
+      <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
+      <code_kana_locks>false</code_kana_locks>
+      <graph_locks>false</graph_locks>
+    </PPI>
+
+    <VDP id="VDP">
+      <version>T7937APAL</version>
+      <io base="0x98" num="2"/>
+    </VDP>
+
+    <PSG id="PSG">
+      <type>AY8910</type>
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <io base="0xA0" num="2" type="O"/>
+      <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
+    </PSG>
+
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
+
+    <primary slot="0">
+      <RAM id="Main RAM">
+        <mem base="0xC000" size="0x4000"/>
+        <initialContent encoding="hex">FF00</initialContent>
+      </RAM>
+      <ROM id="MSX BIOS with BASIC ROM">
+        <rom>
+          <filename>pc-70100_basic-bios1.rom</filename>
+          <sha1>54ffdd9daaf5f9ae90adb627186a405dffd999f6</sha1>
+        </rom>
+        <mem base="0x0000" size="0x8000"/>
+      </ROM>
+    </primary>
+
+    <primary external="true" slot="1"/>
+
+  </devices>
+
+</msxconfig>
