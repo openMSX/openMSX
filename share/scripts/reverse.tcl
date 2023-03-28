@@ -18,7 +18,8 @@ proc after_switch {} {
 		if {$::auto_enable_reverse eq "on"} {
 			auto_enable
 		} elseif {$::auto_enable_reverse eq "gui"} {
-			reverse_widgets::enable_reversebar false
+			#reverse_widgets::enable_reversebar false
+			auto_enable
 		}
 	}
 	after machine_switch [namespace code after_switch]

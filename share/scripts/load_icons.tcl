@@ -348,6 +348,6 @@ set load_icons::current_osd_leds_set $osd_leds_set
 set load_icons::current_osd_leds_pos $osd_leds_pos
 trace add variable osd_leds_set write load_icons::trace_osd_icon_vars
 trace add variable osd_leds_pos write load_icons::trace_osd_icon_vars
-after machine_switch load_icons::machine_switch_osd_icons
+#after machine_switch load_icons::machine_switch_osd_icons
 
-load_icons $osd_leds_set $osd_leds_pos
+#load_icons $osd_leds_set $osd_leds_pos
