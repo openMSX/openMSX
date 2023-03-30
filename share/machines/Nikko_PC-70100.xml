@@ -38,7 +38,7 @@
       <io base="0xA8" num="4"/>
       <keyboard_type>jp_jis</keyboard_type>
       <has_keypad>false</has_keypad>
-      <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
+      <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>
       <code_kana_locks>false</code_kana_locks>
       <graph_locks>false</graph_locks>
     </PPI>
