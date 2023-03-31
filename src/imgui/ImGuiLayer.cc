@@ -1,5 +1,6 @@
 #include "ImGuiLayer.hh"
 #include "ImGuiDebugger.hh" // TODO
+#include "ImGuiMachine.hh"
 #include "ImGuiManager.hh"
 #include "ImGuiOpenFile.hh"
 #include "ImGuiUtils.hh"
@@ -31,7 +32,6 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 	ImGui_ImplSDL2_NewFrame();
 	ImGui::NewFrame();
 
-	auto& commandController = reactor.getCommandController();
 	auto* motherBoard = reactor.getMotherBoard();
 	auto& manager = reactor.getImGuiManager();
 	manager.paint();
@@ -46,6 +46,7 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 	}
 
 	if (ImGui::BeginMainMenuBar()) {
+		manager.machine.showMenu(motherBoard);
 		manager.media.showMenu(motherBoard);
 		manager.connector.showMenu(motherBoard);
 		manager.reverseBar.showMenu(motherBoard);
@@ -57,6 +58,7 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 
 	if (ImGui::Begin("main window", nullptr, ImGuiWindowFlags_MenuBar)) {
 		if (ImGui::BeginMenuBar()) {
+			manager.machine.showMenu(motherBoard);
 			manager.media.showMenu(motherBoard);
 			manager.connector.showMenu(motherBoard);
 			manager.reverseBar.showMenu(motherBoard);
@@ -70,11 +72,6 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 		HelpMarker("Show the ImGui demo window.\n"
 			"This is purely to demonstrate the ImGui capabilities.\n"
 			"There is no connection with any openMSX functionality.");
-
-		if (ImGui::Button("Reset MSX")) {
-			commandController.executeCommand("reset");
-		}
-		HelpMarker("Reset the emulated MSX machine.");
 	}
 	ImGui::End();
 	if (first) {

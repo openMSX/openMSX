@@ -1,5 +1,7 @@
 #include "ImGuiReverseBar.hh"
+
 #include "ImGuiManager.hh"
+#include "ImGuiUtils.hh"
 
 #include "FileOperations.hh"
 #include "GLImage.hh"
@@ -36,30 +38,6 @@ void ImGuiReverseBar::loadLine(std::string_view name, zstring_view value)
 	} else if (name == "allowMove") {
 		reverseAllowMove = StringOp::stringToBool(value);
 	}
-}
-
-static std::string formatTime(double time)
-{
-	assert(time >= 0.0);
-	int hours = int(time / 3600.0);
-	time -= double(hours * 3600);
-	int minutes = int(time / 60.0);
-	time -= double(minutes * 60);
-	int seconds = int(time);
-	time -= double(seconds);
-	int hundreds = int(100.0 * time);
-
-	std::string result = "00:00:00.00";
-	auto insert = [&](size_t pos, unsigned value) {
-		assert(value < 100);
-		result[pos + 0] = char('0' + (value / 10));
-		result[pos + 1] = char('0' + (value % 10));
-	};
-	insert(0, hours % 100);
-	insert(3, minutes);
-	insert(6, seconds);
-	insert(9, hundreds);
-	return result;
 }
 
 void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)

@@ -29,6 +29,8 @@ bool InputText(const char* label, Setting& setting);
 void ComboBox(const char* label, Setting& setting, EnumSettingBase& enumSetting);
 void ComboBox(const char* label, VideoSourceSetting& setting);
 
+std::string formatTime(double time);
+
 } // namespace openmsx
 
 #endif

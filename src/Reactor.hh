@@ -113,18 +113,18 @@ public:
 	using Board = std::shared_ptr<MSXMotherBoard>;
 	[[nodiscard]] Board createEmptyMotherBoard();
 	void replaceBoard(MSXMotherBoard& oldBoard, Board newBoard); // for reverse
+	[[nodiscard]] Board getMachine(std::string_view machineID) const;
 
 	[[nodiscard]] bool isFullyStarted() const { return fullyStarted; }
 
-private:
-	void createMachineSetting();
-	void switchBoard(Board newBoard);
-	void deleteBoard(Board board);
-	[[nodiscard]] Board getMachine(std::string_view machineID) const;
 	[[nodiscard]] auto getMachineIDs() const {
 		return view::transform(boards,
 			[](auto& b) -> std::string_view { return b->getMachineID(); });
 	}
+private:
+	void createMachineSetting();
+	void switchBoard(Board newBoard);
+	void deleteBoard(Board board);
 
 	// Observer<Setting>
 	void update(const Setting& setting) noexcept override;

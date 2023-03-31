@@ -102,7 +102,9 @@ proc on_mouse_click {} {
 	after "mouse button1 up" [namespace code on_mouse_click]
 }
 
-after realtime 0.01 [namespace code update]
-after "mouse button1 up" [namespace code on_mouse_click]
+## Disable because ImGui has a replacement.
+## Probably we'll fully remove this in the future
+#after realtime 0.01 [namespace code update]
+#after "mouse button1 up" [namespace code on_mouse_click]
 
 } ;# namespace tabbed_machine_view

@@ -5,6 +5,7 @@
 #include "ImGuiDebugger.hh"
 #include "ImGuiHelp.hh"
 #include "ImGuiKeyboard.hh"
+#include "ImGuiMachine.hh"
 #include "ImGuiMedia.hh"
 #include "ImGuiOpenFile.hh"
 #include "ImGuiOsdIcons.hh"
@@ -16,6 +17,7 @@
 #include "EventListener.hh"
 #include "TclObject.hh"
 
+#include <functional>
 #include <optional>
 #include <string_view>
 #include <vector>
@@ -38,7 +40,9 @@ public:
 	Reactor& getReactor() { return reactor; }
 	Interpreter& getInterpreter();
 	std::optional<TclObject> execute(TclObject command);
-	void executeDelayed(TclObject command);
+	void executeDelayed(TclObject command,
+	                    std::function<void(const TclObject&)> ok = {},
+	                    std::function<void(const std::string&)> error = {});
 
 	void paint();
 
@@ -66,6 +70,7 @@ public: // TODO
 	ImFont* veraItalic13 = nullptr;
 	ImFont* veraBoldItalic13 = nullptr;
 
+	ImGuiMachine machine;
 	ImGuiDebugger debugger;
 	ImGuiReverseBar reverseBar;
 	ImGuiHelp help;
@@ -78,7 +83,12 @@ public: // TODO
 	ImGuiKeyboard keyboard;
 
 private:
-	std::vector<TclObject> commandQueue;
+	struct DelayedCommand {
+		TclObject command;
+		std::function<void(const TclObject&)> ok;
+		std::function<void(const std::string&)> error;
+	};
+	std::vector<DelayedCommand> commandQueue;
 };
 
 } // namespace openmsx

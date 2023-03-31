@@ -58,6 +58,7 @@ static void cleanupImGui()
 
 ImGuiManager::ImGuiManager(Reactor& reactor_)
 	: reactor(reactor_)
+	, machine(*this)
 	, reverseBar(*this)
 	, help(*this)
 	, osdIcons(*this)
@@ -109,7 +110,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	ImGui::AddSettingsHandler(&ini_handler);
 
 	auto& eventDistributor = reactor.getEventDistributor();
-	eventDistributor.registerEventListener(EventType::FRAME_DRAWN, *this); // possibly use a dedicated event
+	eventDistributor.registerEventListener(EventType::IMGUI_DELAYED_COMMAND, *this);
 	eventDistributor.registerEventListener(EventType::BREAK, *this);
 }
 
@@ -117,7 +118,7 @@ ImGuiManager::~ImGuiManager()
 {
 	auto& eventDistributor = reactor.getEventDistributor();
 	eventDistributor.unregisterEventListener(EventType::BREAK, *this);
-	eventDistributor.unregisterEventListener(EventType::FRAME_DRAWN, *this);
+	eventDistributor.unregisterEventListener(EventType::IMGUI_DELAYED_COMMAND, *this);
 
 	cleanupImGui();
 }
@@ -137,21 +138,25 @@ std::optional<TclObject> ImGuiManager::execute(TclObject command)
 	}
 }
 
-void ImGuiManager::executeDelayed(TclObject command)
+void ImGuiManager::executeDelayed(TclObject command,
+                                  std::function<void(const TclObject&)> ok,
+                                  std::function<void(const std::string&)> error)
 {
-	commandQueue.push_back(std::move(command));
+	commandQueue.push_back(DelayedCommand{std::move(command), std::move(ok), std::move(error)});
+	reactor.getEventDistributor().distributeEvent(Event::create<ImGuiDelayedCommandEvent>());
 }
 
 int ImGuiManager::signalEvent(const Event& event)
 {
 	switch (getType(event)) {
-	case EventType::FRAME_DRAWN: {
+	case EventType::IMGUI_DELAYED_COMMAND: {
 		auto& interp = getInterpreter();
-		for (auto& cmd : commandQueue) {
+		for (auto& [cmd, ok, error] : commandQueue) {
 			try {
-				cmd.executeCommand(interp);
-			} catch (CommandException&) {
-				// TODO report error
+				auto result = cmd.executeCommand(interp);
+				if (ok) ok(result);
+			} catch (CommandException& e) {
+				if (error) error(e.getMessage());
 			}
 		}
 		commandQueue.clear();
@@ -168,12 +173,14 @@ int ImGuiManager::signalEvent(const Event& event)
 
 void ImGuiManager::paint()
 {
-	if (auto* motherBoard = reactor.getMotherBoard()) {
+	auto* motherBoard = reactor.getMotherBoard();
+	if (motherBoard) {
 		debugger.paint(*motherBoard);
 		reverseBar.paint(*motherBoard);
 		soundChip.paint(*motherBoard);
 		keyboard.paint(*motherBoard);
 	}
+	machine.paint(motherBoard);
 	help.paint();
 	osdIcons.paint();
 	openFile.paint();
