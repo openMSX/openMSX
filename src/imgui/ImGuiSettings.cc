@@ -42,6 +42,8 @@ void ImGuiSettings::showMenu()
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Misc")) {
+			ImGui::MenuItem("Show OSD icons", nullptr, &manager.osdIcons.showIcons);
+			ImGui::MenuItem("Show virtual keyboard", nullptr, &manager.keyboard.show);
 			ImGui::EndMenu();
 		}
 		ImGui::Separator();

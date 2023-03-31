@@ -66,6 +66,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	, connector(*this)
 	, settings(*this)
 	, soundChip(*this)
+	, keyboard(*this)
 {
 	initializeImGui();
 
@@ -171,6 +172,7 @@ void ImGuiManager::paint()
 		debugger.paint(*motherBoard);
 		reverseBar.paint(*motherBoard);
 		soundChip.paint(*motherBoard);
+		keyboard.paint(*motherBoard);
 	}
 	help.paint();
 	osdIcons.paint();
@@ -185,6 +187,7 @@ void ImGuiManager::iniReadInit()
 	osdIcons.loadStart();
 	openFile.loadStart();
 	soundChip.loadStart();
+	keyboard.loadStart();
 }
 
 void* ImGuiManager::iniReadOpen(std::string_view name)
@@ -201,6 +204,8 @@ void* ImGuiManager::iniReadOpen(std::string_view name)
 		return &openFile;
 	} else if (name == "sound chip settings") {
 		return &soundChip;
+	} else if (name == "virtual keyboard") {
+		return &keyboard;
 	} else {
 		return nullptr;
 	}
@@ -226,6 +231,7 @@ void ImGuiManager::iniApplyAll()
 	osdIcons.loadEnd();
 	openFile.loadEnd();
 	soundChip.loadEnd();
+	keyboard.loadEnd();
 }
 
 void ImGuiManager::iniWriteAll(ImGuiTextBuffer& buf)
@@ -236,6 +242,7 @@ void ImGuiManager::iniWriteAll(ImGuiTextBuffer& buf)
 	osdIcons.save(buf);
 	openFile.save(buf);
 	soundChip.save(buf);
+	keyboard.save(buf);
 }
 
 } // namespace openmsx

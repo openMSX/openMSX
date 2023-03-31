@@ -4,6 +4,7 @@
 #include "ImGuiConnector.hh"
 #include "ImGuiDebugger.hh"
 #include "ImGuiHelp.hh"
+#include "ImGuiKeyboard.hh"
 #include "ImGuiMedia.hh"
 #include "ImGuiOpenFile.hh"
 #include "ImGuiOsdIcons.hh"
@@ -74,6 +75,7 @@ public: // TODO
 	ImGuiConnector connector;
 	ImGuiSettings settings;
 	ImGuiSoundChip soundChip;
+	ImGuiKeyboard keyboard;
 
 private:
 	std::vector<TclObject> commandQueue;

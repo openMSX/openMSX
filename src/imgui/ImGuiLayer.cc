@@ -75,8 +75,6 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 			commandController.executeCommand("reset");
 		}
 		HelpMarker("Reset the emulated MSX machine.");
-
-		ImGui::Checkbox("Icons window", &manager.osdIcons.showIcons);
 	}
 	ImGui::End();
 	if (first) {
