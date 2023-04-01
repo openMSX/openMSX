@@ -31,7 +31,7 @@ SDLVideoSystem::SDLVideoSystem(Reactor& reactor_, CommandConsole& console)
 	consoleLayer = screen->createConsoleLayer(reactor, console);
 	snowLayer = screen->createSnowLayer();
 	osdGuiLayer = screen->createOSDGUILayer(display.getOSDGUI());
-	imGuiLayer = screen->createImGUILayer(reactor);
+	imGuiLayer = screen->createImGUILayer(reactor.getImGuiManager());
 	display.addLayer(*consoleLayer);
 	display.addLayer(*snowLayer);
 	display.addLayer(*osdGuiLayer);

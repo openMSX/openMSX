@@ -14,6 +14,7 @@ class CliComm;
 class CommandConsole;
 class Display;
 class EventDistributor;
+class ImGuiManager;
 class InputEventGenerator;
 class Layer;
 class OSDGUI;
@@ -56,7 +57,7 @@ public:
 	[[nodiscard]] std::unique_ptr<Layer> createConsoleLayer(
 		Reactor& reactor, CommandConsole& console);
 	[[nodiscard]] std::unique_ptr<Layer> createOSDGUILayer(OSDGUI& gui);
-	[[nodiscard]] std::unique_ptr<Layer> createImGUILayer(Reactor& reactor);
+	[[nodiscard]] std::unique_ptr<Layer> createImGUILayer(ImGuiManager& manager);
 
 	/** Create an off-screen OutputSurface which has similar properties
 	  * as this VisibleSurface. E.g. used to re-render the current frame

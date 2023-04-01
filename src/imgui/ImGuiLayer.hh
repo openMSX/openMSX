@@ -3,24 +3,21 @@
 
 #include "Layer.hh"
 
-#include <string>
-
 namespace openmsx {
 
-class Reactor;
+class ImGuiManager;
 
 class ImGuiLayer final : public Layer
 {
 public:
-	ImGuiLayer(Reactor& reactor);
-	~ImGuiLayer() override;
+	ImGuiLayer(ImGuiManager& manager);
 
 private:
 	// Layer
 	void paint(OutputSurface& output) override;
 
 private:
-	Reactor& reactor;
+	ImGuiManager& manager;
 	bool first = true;
 };
 

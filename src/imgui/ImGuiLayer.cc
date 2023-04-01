@@ -1,29 +1,20 @@
 #include "ImGuiLayer.hh"
-#include "ImGuiDebugger.hh"
-#include "ImGuiMachine.hh"
-#include "ImGuiManager.hh"
-#include "ImGuiOpenFile.hh"
-#include "ImGuiUtils.hh"
 
-#include "GlobalCommandController.hh"
-#include "Reactor.hh"
+#include "ImGuiManager.hh"
 
 #include <imgui.h>
 #include <imgui_impl_sdl2.h>
 #include <imgui_impl_opengl3.h>
-#include <imgui_stdlib.h>
 
 #include <SDL.h>
 
 namespace openmsx {
 
-ImGuiLayer::ImGuiLayer(Reactor& reactor_)
+ImGuiLayer::ImGuiLayer(ImGuiManager& manager_)
 	: Layer(Layer::COVER_PARTIAL, Layer::Z_IMGUI)
-	, reactor(reactor_)
+	, manager(manager_)
 {
 }
-
-ImGuiLayer::~ImGuiLayer() = default;
 
 void ImGuiLayer::paint(OutputSurface& /*surface*/)
 {
@@ -32,25 +23,12 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 	ImGui_ImplSDL2_NewFrame();
 	ImGui::NewFrame();
 
-	auto* motherBoard = reactor.getMotherBoard();
-	auto& manager = reactor.getImGuiManager();
 	manager.paint();
 
 	// Allow docking in main window
 	ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(),
 		ImGuiDockNodeFlags_NoDockingInCentralNode |
 		ImGuiDockNodeFlags_PassthruCentralNode);
-
-	if (ImGui::BeginMainMenuBar()) {
-		manager.machine.showMenu(motherBoard);
-		manager.media.showMenu(motherBoard);
-		manager.connector.showMenu(motherBoard);
-		manager.reverseBar.showMenu(motherBoard);
-		manager.settings.showMenu();
-		manager.debugger.showMenu(motherBoard);
-		manager.help.showMenu();
-		ImGui::EndMainMenuBar();
-	}
 
 	if (first) {
 		// on startup, focus main openMSX window instead of the GUI window

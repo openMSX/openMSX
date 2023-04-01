@@ -355,9 +355,9 @@ std::unique_ptr<Layer> VisibleSurface::createOSDGUILayer(OSDGUI& gui)
 	return std::make_unique<OSDGUILayer>(gui);
 }
 
-std::unique_ptr<Layer> VisibleSurface::createImGUILayer(Reactor& reactor)
+std::unique_ptr<Layer> VisibleSurface::createImGUILayer(ImGuiManager& manager)
 {
-	return std::make_unique<ImGuiLayer>(reactor);
+	return std::make_unique<ImGuiLayer>(manager);
 }
 
 std::unique_ptr<OutputSurface> VisibleSurface::createOffScreenSurface()

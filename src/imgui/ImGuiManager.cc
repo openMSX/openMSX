@@ -184,6 +184,17 @@ void ImGuiManager::paint()
 	help.paint();
 	osdIcons.paint();
 	openFile.paint();
+
+	if (ImGui::BeginMainMenuBar()) {
+		machine.showMenu(motherBoard);
+		media.showMenu(motherBoard);
+		connector.showMenu(motherBoard);
+		reverseBar.showMenu(motherBoard);
+		settings.showMenu();
+		debugger.showMenu(motherBoard);
+		help.showMenu();
+		ImGui::EndMainMenuBar();
+	}
 }
 
 void ImGuiManager::iniReadInit()
