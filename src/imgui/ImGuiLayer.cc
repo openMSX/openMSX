@@ -1,5 +1,5 @@
 #include "ImGuiLayer.hh"
-#include "ImGuiDebugger.hh" // TODO
+#include "ImGuiDebugger.hh"
 #include "ImGuiMachine.hh"
 #include "ImGuiManager.hh"
 #include "ImGuiOpenFile.hh"
@@ -41,10 +41,6 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 		ImGuiDockNodeFlags_NoDockingInCentralNode |
 		ImGuiDockNodeFlags_PassthruCentralNode);
 
-	if (showDemoWindow) {
-		ImGui::ShowDemoWindow(&showDemoWindow);
-	}
-
 	if (ImGui::BeginMainMenuBar()) {
 		manager.machine.showMenu(motherBoard);
 		manager.media.showMenu(motherBoard);
@@ -56,24 +52,6 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 		ImGui::EndMainMenuBar();
 	}
 
-	if (ImGui::Begin("main window", nullptr, ImGuiWindowFlags_MenuBar)) {
-		if (ImGui::BeginMenuBar()) {
-			manager.machine.showMenu(motherBoard);
-			manager.media.showMenu(motherBoard);
-			manager.connector.showMenu(motherBoard);
-			manager.reverseBar.showMenu(motherBoard);
-			manager.settings.showMenu();
-			manager.debugger.showMenu(motherBoard);
-			manager.help.showMenu();
-			ImGui::EndMenuBar();
-		}
-
-		ImGui::Checkbox("ImGui Demo Window", &showDemoWindow);
-		HelpMarker("Show the ImGui demo window.\n"
-			"This is purely to demonstrate the ImGui capabilities.\n"
-			"There is no connection with any openMSX functionality.");
-	}
-	ImGui::End();
 	if (first) {
 		// on startup, focus main openMSX window instead of the GUI window
 		first = false;

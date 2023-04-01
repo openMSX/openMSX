@@ -21,8 +21,6 @@ private:
 
 private:
 	Reactor& reactor;
-
-	bool showDemoWindow = false;
 	bool first = true;
 };
 

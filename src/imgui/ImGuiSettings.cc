@@ -80,9 +80,17 @@ void ImGuiSettings::showMenu()
 					assert(false);
 				}
 			}
+			ImGui::Separator();
+			ImGui::Checkbox("ImGui Demo Window", &showDemoWindow);
+			HelpMarker("Show the ImGui demo window.\n"
+			           "This is purely to demonstrate the ImGui capabilities.\n"
+			           "There is no connection with any openMSX functionality.");
 			ImGui::EndMenu();
 		}
 		ImGui::EndMenu();
+	}
+	if (showDemoWindow) {
+		ImGui::ShowDemoWindow(&showDemoWindow);
 	}
 }
 

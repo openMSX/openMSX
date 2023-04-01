@@ -1,3 +1,6 @@
+// Implementation inspired by:
+//   https://github.com/CedricGuillemet/ImHotKey
+
 #include "ImGuiKeyboard.hh"
 
 #include "ImGuiManager.hh"
