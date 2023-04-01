@@ -22,7 +22,7 @@
 
 namespace openmsx {
 
-void ImGuiSettings::showMenu()
+void ImGuiSettings::showMenu(MSXMotherBoard* /*motherBoard*/)
 {
 	if (ImGui::BeginMenu("Settings")) {
 		auto& reactor = manager.getReactor();

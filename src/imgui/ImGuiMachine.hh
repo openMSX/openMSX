@@ -1,6 +1,8 @@
 #ifndef IMGUI_MACHINE_HH
 #define IMGUI_MACHINE_HH
 
+#include "ImGuiPart.hh"
+
 #include "TclObject.hh"
 
 #include <map>
@@ -12,14 +14,14 @@ namespace openmsx {
 class ImGuiManager;
 class MSXMotherBoard;
 
-class ImGuiMachine
+class ImGuiMachine final : public ImGuiPart
 {
 public:
 	ImGuiMachine(ImGuiManager& manager_)
 		: manager(manager_) {}
 
-	void showMenu(MSXMotherBoard* motherBoard);
-	void paint(MSXMotherBoard* motherBoard);
+	void showMenu(MSXMotherBoard* motherBoard) override;
+	void paint(MSXMotherBoard* motherBoard) override;
 
 private:
 	void paintSelectMachine(MSXMotherBoard* motherBoard);

@@ -5,6 +5,7 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "Reactor.hh"
+
 #include "stl.hh"
 #include "strCat.hh"
 #include "StringOp.hh"
@@ -59,6 +60,7 @@ static void cleanupImGui()
 ImGuiManager::ImGuiManager(Reactor& reactor_)
 	: reactor(reactor_)
 	, machine(*this)
+	, debugger(*this)
 	, reverseBar(*this)
 	, help(*this)
 	, osdIcons(*this)
@@ -112,6 +114,11 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	auto& eventDistributor = reactor.getEventDistributor();
 	eventDistributor.registerEventListener(EventType::IMGUI_DELAYED_COMMAND, *this);
 	eventDistributor.registerEventListener(EventType::BREAK, *this);
+
+	// In order that they appear in the menubar
+	append(parts, std::initializer_list<ImGuiPart*>{
+		&machine, &media, &connector, &reverseBar, &settings, &debugger, &help,
+		&soundChip, &keyboard, &bitmap, &osdIcons, &openFile});
 }
 
 ImGuiManager::~ImGuiManager()
@@ -174,59 +181,30 @@ int ImGuiManager::signalEvent(const Event& event)
 void ImGuiManager::paint()
 {
 	auto* motherBoard = reactor.getMotherBoard();
-	if (motherBoard) {
-		debugger.paint(*motherBoard);
-		reverseBar.paint(*motherBoard);
-		soundChip.paint(*motherBoard);
-		keyboard.paint(*motherBoard);
+	for (auto* part : parts) {
+		part->paint(motherBoard);
 	}
-	machine.paint(motherBoard);
-	help.paint();
-	osdIcons.paint();
-	openFile.paint();
-
 	if (ImGui::BeginMainMenuBar()) {
-		machine.showMenu(motherBoard);
-		media.showMenu(motherBoard);
-		connector.showMenu(motherBoard);
-		reverseBar.showMenu(motherBoard);
-		settings.showMenu();
-		debugger.showMenu(motherBoard);
-		help.showMenu();
+		for (auto* part : parts) {
+			part->showMenu(motherBoard);
+		}
 		ImGui::EndMainMenuBar();
 	}
 }
 
 void ImGuiManager::iniReadInit()
 {
-	debugger.bitmap.loadStart();
-	debugger.loadStart();
-	reverseBar.loadStart();
-	osdIcons.loadStart();
-	openFile.loadStart();
-	soundChip.loadStart();
-	keyboard.loadStart();
+	for (auto* part : parts) {
+		part->loadStart();
+	}
 }
 
 void* ImGuiManager::iniReadOpen(std::string_view name)
 {
-	if (name == "bitmap viewer") {
-		return &debugger.bitmap;
-	} else if (name == "debugger") {
-		return &debugger;
-	} else if (name == "reverse bar") {
-		return &reverseBar;
-	} else if (name == "OSD icons") {
-		return &osdIcons;
-	} else if (name == "open file dialog") {
-		return &openFile;
-	} else if (name == "sound chip settings") {
-		return &soundChip;
-	} else if (name == "virtual keyboard") {
-		return &keyboard;
-	} else {
-		return nullptr;
+	for (auto* part : parts) {
+		if (part->iniName() == name) return part;
 	}
+	return nullptr;
 }
 
 void ImGuiManager::loadLine(void* entry, const char* line_)
@@ -238,29 +216,25 @@ void ImGuiManager::loadLine(void* entry, const char* line_)
 	zstring_view value = line.substr(pos + 1);
 
 	assert(entry);
-	static_cast<ImGuiReadHandler*>(entry)->loadLine(name, value);
+	static_cast<ImGuiPart*>(entry)->loadLine(name, value);
 }
 
 void ImGuiManager::iniApplyAll()
 {
-	debugger.bitmap.loadEnd();
-	debugger.loadEnd();
-	reverseBar.loadEnd();
-	osdIcons.loadEnd();
-	openFile.loadEnd();
-	soundChip.loadEnd();
-	keyboard.loadEnd();
+	for (auto* part : parts) {
+		part->loadEnd();
+	}
 }
 
 void ImGuiManager::iniWriteAll(ImGuiTextBuffer& buf)
 {
-	debugger.bitmap.save(buf);
-	debugger.save(buf);
-	reverseBar.save(buf);
-	osdIcons.save(buf);
-	openFile.save(buf);
-	soundChip.save(buf);
-	keyboard.save(buf);
+	for (auto* part : parts) {
+		if (auto name = part->iniName(); !name.empty()) {
+			buf.appendf("[openmsx][%s]\n", name.c_str());
+			part->save(buf);
+			buf.append("\n");
+		}
+	}
 }
 
 } // namespace openmsx

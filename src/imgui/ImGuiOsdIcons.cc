@@ -18,7 +18,6 @@ namespace openmsx {
 
 void ImGuiOsdIcons::save(ImGuiTextBuffer& buf)
 {
-	buf.append("[openmsx][OSD icons]\n");
 	buf.appendf("show=%d\n", showIcons);
 	buf.appendf("hideTitle=%d\n", iconsHideTitle);
 	buf.appendf("allowMove=%d\n", iconsAllowMove);
@@ -34,7 +33,6 @@ void ImGuiOsdIcons::save(ImGuiTextBuffer& buf)
 		buf.appendf("icon.%d.off-image=%s\n", n, icon.off.filename.c_str());
 		buf.appendf("icon.%d.expr=%s\n",      n, icon.expr.getString().c_str());
 	}
-	buf.append("\n");
 }
 
 void ImGuiOsdIcons::loadStart()
@@ -136,7 +134,7 @@ void ImGuiOsdIcons::loadIcons()
 	iconInfoDirty = false;
 }
 
-void ImGuiOsdIcons::paint()
+void ImGuiOsdIcons::paint(MSXMotherBoard* /*motherBoard*/)
 {
 	if (iconInfoDirty) loadIcons();
 	if (showConfigureIcons) paintConfigureIcons();

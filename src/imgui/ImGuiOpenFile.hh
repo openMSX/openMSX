@@ -1,7 +1,7 @@
 #ifndef IMGUI_OPEN_FILE_HH
 #define IMGUI_OPEN_FILE_HH
 
-#include "ImGuiReadHandler.hh"
+#include "ImGuiPart.hh"
 
 #include "TclObject.hh"
 
@@ -9,13 +9,11 @@
 #include <map>
 #include <string>
 
-struct ImGuiTextBuffer;
-
 namespace openmsx {
 
 class ImGuiManager;
 
-class ImGuiOpenFile : public ImGuiReadHandler
+class ImGuiOpenFile final : public ImGuiPart
 {
 public:
 	ImGuiOpenFile(ImGuiManager& manager_)
@@ -25,10 +23,10 @@ public:
 	void selectFile(const std::string& title, std::string filters,
 	                std::function<void(const std::string&)> callback);
 
-	void save(ImGuiTextBuffer& buf);
+	[[nodiscard]] zstring_view iniName() const override { return "open file dialog"; }
+	void save(ImGuiTextBuffer& buf) override;
 	void loadLine(std::string_view name, zstring_view value) override;
-
-	void paint();
+	void paint(MSXMotherBoard* motherBoard) override;
 
 private:
 	ImGuiManager& manager;

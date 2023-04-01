@@ -1,4 +1,6 @@
 #include "ImGuiDebugger.hh"
+
+#include "ImGuiBitmapViewer.hh"
 #include "ImGuiManager.hh"
 #include "ImGuiUtils.hh"
 
@@ -38,7 +40,11 @@ struct DebuggableEditor : public MemoryEditor
 };
 
 
-ImGuiDebugger::ImGuiDebugger() = default;
+ImGuiDebugger::ImGuiDebugger(ImGuiManager& manager_)
+	: manager(manager_)
+{
+}
+
 ImGuiDebugger::~ImGuiDebugger() = default;
 
 void ImGuiDebugger::signalBreak()
@@ -48,7 +54,6 @@ void ImGuiDebugger::signalBreak()
 
 void ImGuiDebugger::save(ImGuiTextBuffer& buf)
 {
-	buf.append("[openmsx][debugger]\n");
 	buf.appendf("showDisassembly=%d\n", showDisassembly);
 	buf.appendf("showRegisters=%d\n", showRegisters);
 	buf.appendf("showStack=%d\n", showStack);
@@ -58,7 +63,6 @@ void ImGuiDebugger::save(ImGuiTextBuffer& buf)
 	for (const auto& [name, editor] : debuggables) {
 		buf.appendf("showDebuggable.%s=%d\n", name.c_str(), editor->Open);
 	}
-	buf.append("\n");
 }
 
 void ImGuiDebugger::loadLine(std::string_view name, zstring_view value)
@@ -103,7 +107,7 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 	ImGui::MenuItem("stack", nullptr, &showStack);
 	ImGui::MenuItem("memory TODO");
 	ImGui::Separator();
-	ImGui::MenuItem("VDP bitmap viewer", nullptr, &bitmap.showBitmapViewer);
+	ImGui::MenuItem("VDP bitmap viewer", nullptr, &manager.bitmap.showBitmapViewer);
 	ImGui::MenuItem("TODO several more");
 	ImGui::Separator();
 	if (ImGui::BeginMenu("All debuggables")) {
@@ -118,18 +122,20 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 	ImGui::EndMenu();
 }
 
-void ImGuiDebugger::paint(MSXMotherBoard& motherBoard)
+void ImGuiDebugger::paint(MSXMotherBoard* motherBoard)
 {
-	auto& regs = motherBoard.getCPU().getRegisters();
-	auto& cpuInterface = motherBoard.getCPUInterface();
-	auto time = motherBoard.getCurrentTime();
+	if (!motherBoard) return;
+
+	auto& regs = motherBoard->getCPU().getRegisters();
+	auto& cpuInterface = motherBoard->getCPUInterface();
+	auto time = motherBoard->getCurrentTime();
 	drawDisassembly(regs, cpuInterface, time);
 	drawStack(regs, cpuInterface, time);
 	drawRegisters(regs);
 	drawFlags(regs);
 
 	// Show the enabled 'debuggables'
-	for (auto& [name, debuggable] : motherBoard.getDebugger().getDebuggables()) {
+	for (auto& [name, debuggable] : motherBoard->getDebugger().getDebuggables()) {
 		auto [it, inserted] = debuggables.try_emplace(name);
 		auto& editor = it->second;
 		if (inserted) {
@@ -140,8 +146,6 @@ void ImGuiDebugger::paint(MSXMotherBoard& motherBoard)
 			editor->DrawWindow(name.c_str(), *debuggable);
 		}
 	}
-
-	bitmap.paint(motherBoard);
 }
 
 void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface, EmuTime::param time)

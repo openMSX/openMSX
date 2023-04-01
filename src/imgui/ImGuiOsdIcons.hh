@@ -1,7 +1,7 @@
 #ifndef IMGUI_OSD_ICONS_HH
 #define IMGUI_OSD_ICONS_HH
 
-#include "ImGuiReadHandler.hh"
+#include "ImGuiPart.hh"
 
 #include "GLUtil.hh"
 #include "TclObject.hh"
@@ -9,23 +9,22 @@
 
 #include <vector>
 
-struct ImGuiTextBuffer;
-
 namespace openmsx {
 
 class ImGuiManager;
 
-class ImGuiOsdIcons : public ImGuiReadHandler
+class ImGuiOsdIcons final : public ImGuiPart
 {
 public:
 	ImGuiOsdIcons(ImGuiManager& manager_)
 		: manager(manager_) {}
 
-	void save(ImGuiTextBuffer& buf);
+	[[nodiscard]] zstring_view iniName() const override { return "OSD icons"; }
+	void save(ImGuiTextBuffer& buf) override;
 	void loadStart() override;
 	void loadLine(std::string_view name, zstring_view value) override;
 	void loadEnd() override;
-	void paint();
+	void paint(MSXMotherBoard* motherBoard) override;
 
 private:
 	void setDefaultIcons();

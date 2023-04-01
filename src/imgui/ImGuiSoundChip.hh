@@ -1,27 +1,26 @@
 #ifndef IMGUI_SOUND_CHIP_HH
 #define IMGUI_SOUND_CHIP_HH
 
-#include "ImGuiReadHandler.hh"
+#include "ImGuiPart.hh"
 
 #include <map>
 #include <string>
-
-struct ImGuiTextBuffer;
 
 namespace openmsx {
 
 class ImGuiManager;
 class MSXMotherBoard;
 
-class ImGuiSoundChip : public ImGuiReadHandler
+class ImGuiSoundChip final : public ImGuiPart
 {
 public:
 	ImGuiSoundChip(ImGuiManager& manager_)
 		: manager(manager_) {}
 
-	void save(ImGuiTextBuffer& buf);
+	[[nodiscard]] zstring_view iniName() const override { return "sound chip settings"; }
+	void save(ImGuiTextBuffer& buf) override;
 	void loadLine(std::string_view name, zstring_view value) override;
-	void paint(MSXMotherBoard& motherBoard);
+	void paint(MSXMotherBoard* motherBoard) override;
 
 private:
 	void showChipSettings(MSXMotherBoard& motherBoard);

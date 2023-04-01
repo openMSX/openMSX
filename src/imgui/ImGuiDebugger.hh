@@ -1,8 +1,7 @@
 #ifndef IMGUI_DEBUGGER_HH
 #define IMGUI_DEBUGGER_HH
 
-#include "ImGuiBitmapViewer.hh"
-#include "ImGuiReadHandler.hh"
+#include "ImGuiPart.hh"
 
 #include "EmuTime.hh"
 
@@ -10,26 +9,27 @@
 #include <memory>
 #include <string>
 
-struct ImGuiTextBuffer;
-
 namespace openmsx {
 
 class CPURegs;
 class DebuggableEditor;
+class ImGuiManager;
 class MSXCPUInterface;
 class MSXMotherBoard;
 
-class ImGuiDebugger : public ImGuiReadHandler
+class ImGuiDebugger final : public ImGuiPart
 {
 public:
-	ImGuiDebugger();
+	ImGuiDebugger(ImGuiManager& manager);
 	~ImGuiDebugger();
 
 	void signalBreak();
-	void save(ImGuiTextBuffer& buf);
+
+	[[nodiscard]] zstring_view iniName() const override { return "debugger"; }
+	void save(ImGuiTextBuffer& buf) override;
 	void loadLine(std::string_view name, zstring_view value) override;
-	void showMenu(MSXMotherBoard* motherBoard);
-	void paint(MSXMotherBoard& motherBoard);
+	void showMenu(MSXMotherBoard* motherBoard) override;
+	void paint(MSXMotherBoard* motherBoard) override;
 
 private:
 	void drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface, EmuTime::param time);
@@ -37,9 +37,8 @@ private:
 	void drawRegisters(CPURegs& regs);
 	void drawFlags(CPURegs& regs);
 
-public: // TODO
-	ImGuiBitmapViewer bitmap;
 private:
+	ImGuiManager& manager;
 	std::map<std::string, std::unique_ptr<DebuggableEditor>> debuggables;
 
 	bool showDisassembly;

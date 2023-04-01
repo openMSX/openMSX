@@ -21,9 +21,7 @@ namespace openmsx {
 
 void ImGuiKeyboard::save(ImGuiTextBuffer& buf)
 {
-	buf.append("[openmsx][virtual keyboard]\n");
 	buf.appendf("show=%d\n", show);
-	buf.append("\n");
 }
 
 void ImGuiKeyboard::loadLine(std::string_view name, zstring_view value)
@@ -33,11 +31,11 @@ void ImGuiKeyboard::loadLine(std::string_view name, zstring_view value)
 	}
 }
 
-void ImGuiKeyboard::paint(MSXMotherBoard& motherBoard)
+void ImGuiKeyboard::paint(MSXMotherBoard* motherBoard)
 {
 	if (!show) return;
 
-	auto* ppi = dynamic_cast<MSXPPI*>(motherBoard.findDevice("ppi"));
+	auto* ppi = dynamic_cast<MSXPPI*>(motherBoard->findDevice("ppi"));
 	if (!ppi) return;
 	const auto& keyboard = ppi->getKeyboard();
 	auto matrix = keyboard.getKeys();

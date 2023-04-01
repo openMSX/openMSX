@@ -1,6 +1,7 @@
 #ifndef IMGUI_PERSISTENT_HH
 #define IMGUI_PERSISTENT_HH
 
+#include "ImGuiBitmapViewer.hh"
 #include "ImGuiConnector.hh"
 #include "ImGuiDebugger.hh"
 #include "ImGuiHelp.hh"
@@ -9,7 +10,6 @@
 #include "ImGuiMedia.hh"
 #include "ImGuiOpenFile.hh"
 #include "ImGuiOsdIcons.hh"
-#include "ImGuiReadHandler.hh"
 #include "ImGuiReverseBar.hh"
 #include "ImGuiSettings.hh"
 #include "ImGuiSoundChip.hh"
@@ -26,6 +26,7 @@ struct ImGuiTextBuffer;
 
 namespace openmsx {
 
+class ImGuiPart;
 class Reactor;
 
 class ImGuiManager : public EventListener
@@ -72,6 +73,7 @@ public: // TODO
 
 	ImGuiMachine machine;
 	ImGuiDebugger debugger;
+	ImGuiBitmapViewer bitmap;
 	ImGuiReverseBar reverseBar;
 	ImGuiHelp help;
 	ImGuiOsdIcons osdIcons;
@@ -89,6 +91,7 @@ private:
 		std::function<void(const std::string&)> error;
 	};
 	std::vector<DelayedCommand> commandQueue;
+	std::vector<ImGuiPart*> parts;
 };
 
 } // namespace openmsx

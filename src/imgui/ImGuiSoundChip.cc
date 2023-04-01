@@ -13,12 +13,10 @@ namespace openmsx {
 
 void ImGuiSoundChip::save(ImGuiTextBuffer& buf)
 {
-	buf.append("[openmsx][sound chip settings]\n");
 	buf.appendf("show=%d\n", showSoundChipSettings);
 	for (const auto& [name, enabled] : channels) {
 		buf.appendf("showChannels.%s=%d\n", name.c_str(), enabled);
 	}
-	buf.append("\n");
 }
 
 void ImGuiSoundChip::loadLine(std::string_view name, zstring_view value)
@@ -30,21 +28,22 @@ void ImGuiSoundChip::loadLine(std::string_view name, zstring_view value)
 	}
 }
 
-void ImGuiSoundChip::paint(MSXMotherBoard& motherBoard)
+void ImGuiSoundChip::paint(MSXMotherBoard* motherBoard)
 {
+	if (!motherBoard) return;
 	if (showSoundChipSettings) {
-		showChipSettings(motherBoard);
+		showChipSettings(*motherBoard);
 	}
 
 	// Show sound chip channel settings
-	auto& msxMixer = motherBoard.getMSXMixer();
+	auto& msxMixer = motherBoard->getMSXMixer();
 	auto& infos = msxMixer.getDeviceInfos();
 	for (const auto& info : infos) {
 		const auto& name = info.device->getName();
 		auto [it, inserted] = channels.try_emplace(name, false);
 		auto& enabled = it->second;
 		if (enabled) {
-			showChannelSettings(motherBoard, name, &enabled);
+			showChannelSettings(*motherBoard, name, &enabled);
 		}
 	}
 }

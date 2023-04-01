@@ -8,11 +8,9 @@ namespace openmsx {
 
 void ImGuiOpenFile::save(ImGuiTextBuffer& buf)
 {
-	buf.append("[openmsx][open file dialog]\n");
 	for (const auto& [key, value] : lastPath) {
 		buf.appendf("%s=%s\n", key.c_str(), value.c_str());
 	}
-	buf.append("\n");
 }
 
 void ImGuiOpenFile::loadLine(std::string_view name, zstring_view value)
@@ -44,7 +42,7 @@ void ImGuiOpenFile::selectFile(const std::string& title, std::string filters,
 	openFileCallback = callback;
 }
 
-void ImGuiOpenFile::paint()
+void ImGuiOpenFile::paint(MSXMotherBoard* /*motherBoard*/)
 {
 	// (Modal) file dialog
 	auto* fileDialog = ImGuiFileDialog::Instance();

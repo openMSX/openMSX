@@ -13,7 +13,6 @@ namespace openmsx {
 
 void ImGuiBitmapViewer::save(ImGuiTextBuffer& buf)
 {
-	buf.append("[openmsx][bitmap viewer]\n");
 	buf.appendf("show=%d\n", showBitmapViewer);
 	buf.appendf("override=%d\n", bitmapManual);
 	buf.appendf("scrnMode=%d\n", bitmapScrnMode);
@@ -24,7 +23,6 @@ void ImGuiBitmapViewer::save(ImGuiTextBuffer& buf)
 	buf.appendf("zoom=%d\n", bitmapZoom);
 	buf.appendf("showGrid=%d\n", bitmapGrid);
 	buf.appendf("gridColor=[ %f %f %f %f ]\n", bitmapGridColor[0], bitmapGridColor[1], bitmapGridColor[2], bitmapGridColor[3]);
-	buf.append("\n");
 }
 
 void ImGuiBitmapViewer::loadLine(std::string_view name, zstring_view value)
@@ -81,15 +79,16 @@ static const char* getComboString(int item, const char* itemsSeparatedByZeros)
 	}
 }
 
-void ImGuiBitmapViewer::paint(MSXMotherBoard& motherBoard)
+void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 {
 	if (!showBitmapViewer) return;
+	if (!motherBoard) return;
 
 	if (!ImGui::Begin("Bitmap viewer", &showBitmapViewer)) {
 		ImGui::End();
 		return;
 	}
-	VDP* vdp = dynamic_cast<VDP*>(motherBoard.findDevice("VDP")); // TODO name based OK?
+	VDP* vdp = dynamic_cast<VDP*>(motherBoard->findDevice("VDP")); // TODO name based OK?
 	if (!vdp) {
 		ImGui::End();
 		return;

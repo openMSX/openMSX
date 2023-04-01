@@ -19,12 +19,10 @@ ImGuiReverseBar::ImGuiReverseBar(ImGuiManager& manager_)
 
 void ImGuiReverseBar::save(ImGuiTextBuffer& buf)
 {
-	buf.append("[openmsx][reverse bar]\n");
 	buf.appendf("show=%d\n", showReverseBar);
 	buf.appendf("hideTitle=%d\n", reverseHideTitle);
 	buf.appendf("fadeOut=%d\n", reverseFadeOut);
 	buf.appendf("allowMove=%d\n", reverseAllowMove);
-	buf.append("\n");
 }
 
 void ImGuiReverseBar::loadLine(std::string_view name, zstring_view value)
@@ -111,9 +109,10 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 	ImGui::EndMenu();
 }
 
-void ImGuiReverseBar::paint(MSXMotherBoard& motherBoard)
+void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)
 {
 	if (!showReverseBar) return;
+	if (!motherBoard) return;
 
 	const auto& style = ImGui::GetStyle();
 	auto textHeight = ImGui::GetTextLineHeight();
@@ -133,7 +132,7 @@ void ImGuiReverseBar::paint(MSXMotherBoard& motherBoard)
 	                             : 0;
 	ImGui::Begin("Reverse bar", &showReverseBar, flags);
 
-	auto& reverseManager = motherBoard.getReverseManager();
+	auto& reverseManager = motherBoard->getReverseManager();
 	if (reverseManager.isCollecting()) {
 		auto b = reverseManager.getBegin();
 		auto e = reverseManager.getEnd();

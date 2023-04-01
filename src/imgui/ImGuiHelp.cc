@@ -4,7 +4,7 @@
 
 namespace openmsx {
 
-void ImGuiHelp::showMenu()
+void ImGuiHelp::showMenu(MSXMotherBoard* /*motherBoard*/)
 {
 	if (!ImGui::BeginMenu("Help")) {
 		return;
@@ -14,7 +14,7 @@ void ImGuiHelp::showMenu()
 	ImGui::EndMenu();
 }
 
-void ImGuiHelp::paint()
+void ImGuiHelp::paint(MSXMotherBoard* /*motherBoard*/)
 {
 	if (!showHelpWindow) return;
 	if (ImGui::Begin("Help", &showHelpWindow)) {

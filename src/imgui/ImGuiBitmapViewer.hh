@@ -1,7 +1,7 @@
 #ifndef IMGUI_BITMAP_VIEWER_HH
 #define IMGUI_BITMAP_VIEWER_HH
 
-#include "ImGuiReadHandler.hh"
+#include "ImGuiPart.hh"
 
 #include "GLUtil.hh"
 #include "gl_vec.hh"
@@ -10,18 +10,17 @@
 #include <optional>
 #include <span>
 
-struct ImGuiTextBuffer;
-
 namespace openmsx {
 
 class MSXMotherBoard;
 
-class ImGuiBitmapViewer : public ImGuiReadHandler
+class ImGuiBitmapViewer final : public ImGuiPart
 {
 public:
-	void save(ImGuiTextBuffer& buf);
+	[[nodiscard]] zstring_view iniName() const override { return "bitmap viewer"; }
+	void save(ImGuiTextBuffer& buf) override;
 	void loadLine(std::string_view name, zstring_view value) override;
-	void paint(MSXMotherBoard& motherBoard);
+	void paint(MSXMotherBoard* motherBoard) override;
 
 private:
 	void renderBitmap(std::span<const uint8_t> vram, std::span<const uint32_t, 16> palette16,
