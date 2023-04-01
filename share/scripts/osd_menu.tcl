@@ -83,8 +83,10 @@ proc remove_button {} {
 	osd destroy main_menu_pop_up_button
 }
 
-if {![regexp dingux "[openmsx_info platform]"] && $::osd_menu_button} {
-	add_button
-}
+## Disabled for now, the imgui stuff should replace it.
+## In the future we'll likely fully remove this.
+#if {![regexp dingux "[openmsx_info platform]"] && $::osd_menu_button} {
+#	add_button
+#}
 
 } ;# namespace osd_menu

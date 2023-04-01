@@ -167,12 +167,7 @@ void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)
 		} else {
 			auto target = hovered ? 1.0f : 0.0f;
 			auto period = hovered ? 0.5f : 5.0f; // TODO configurable speed
-			auto step = io.DeltaTime / period;
-			if (target > reverseAlpha) {
-				reverseAlpha = std::min(target, reverseAlpha + step);
-			} else {
-				reverseAlpha = std::max(target, reverseAlpha - step);
-			}
+			reverseAlpha = calculateFade(reverseAlpha, target, period);
 		}
 		auto color = [&](gl::vec4 col) {
 			return ImGui::ColorConvertFloat4ToU32(col * reverseAlpha);

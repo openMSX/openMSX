@@ -44,6 +44,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* /*motherBoard*/)
 		if (ImGui::BeginMenu("Misc")) {
 			ImGui::MenuItem("Show OSD icons", nullptr, &manager.osdIcons.showIcons);
 			ImGui::MenuItem("Show virtual keyboard", nullptr, &manager.keyboard.show);
+			ImGui::MenuItem("Fade out menu bar", nullptr, &manager.menuFade);
 			ImGui::EndMenu();
 		}
 		ImGui::Separator();

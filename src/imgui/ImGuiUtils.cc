@@ -143,4 +143,15 @@ std::string formatTime(double time)
 	return result;
 }
 
+float calculateFade(float current, float target, float period)
+{
+	const auto& io = ImGui::GetIO();
+	auto step = io.DeltaTime / period;
+	if (target > current) {
+		return std::min(target, current + step);
+	} else {
+		return std::max(target, current - step);
+	}
+}
+
 } // namespace openmsx

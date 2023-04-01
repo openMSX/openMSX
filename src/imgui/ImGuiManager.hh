@@ -61,7 +61,7 @@ private:
 private:
 	Reactor& reactor;
 
-public: // TODO
+public:
 	// TODO dynamic font loading in ImGui is technically possible, though not trivial
 	// So for now pre-load all the fonts we'll need.
 	//   see https://github.com/ocornut/imgui/issues/2311
@@ -84,6 +84,8 @@ public: // TODO
 	ImGuiSoundChip soundChip;
 	ImGuiKeyboard keyboard;
 
+	bool menuFade = true;
+
 private:
 	struct DelayedCommand {
 		TclObject command;
@@ -92,6 +94,7 @@ private:
 	};
 	std::vector<DelayedCommand> commandQueue;
 	std::vector<ImGuiPart*> parts;
+	float menuAlpha = 1.0f;
 };
 
 } // namespace openmsx

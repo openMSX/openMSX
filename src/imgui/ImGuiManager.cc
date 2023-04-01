@@ -1,5 +1,7 @@
 #include "ImGuiManager.hh"
 
+#include "ImGuiUtils.hh"
+
 #include "CommandException.hh"
 #include "EventDistributor.hh"
 #include "File.hh"
@@ -184,12 +186,22 @@ void ImGuiManager::paint()
 	for (auto* part : parts) {
 		part->paint(motherBoard);
 	}
+	menuAlpha = [&] {
+		if (!menuFade) return 1.0f;
+		bool active = ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) ||
+		              ImGui::IsWindowFocused(ImGuiHoveredFlags_AnyWindow);
+		auto target = active ? 1.0f : 0.0001f;
+		auto period = active ? 0.5f : 5.0f;
+		return calculateFade(menuAlpha, target, period);
+	}();
+	ImGui::PushStyleVar(ImGuiStyleVar_Alpha, menuAlpha);
 	if (ImGui::BeginMainMenuBar()) {
 		for (auto* part : parts) {
 			part->showMenu(motherBoard);
 		}
 		ImGui::EndMainMenuBar();
 	}
+	ImGui::PopStyleVar();
 }
 
 void ImGuiManager::iniReadInit()

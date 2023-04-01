@@ -30,6 +30,7 @@ void ComboBox(const char* label, Setting& setting, EnumSettingBase& enumSetting)
 void ComboBox(const char* label, VideoSourceSetting& setting);
 
 std::string formatTime(double time);
+float calculateFade(float current, float target, float period);
 
 } // namespace openmsx
 
