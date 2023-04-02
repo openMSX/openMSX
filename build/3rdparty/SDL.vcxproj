@@ -464,7 +464,7 @@
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\SDL_assert_c.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\SDL_dataqueue.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\SDL_error_c.h" />
-    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\SDL_guid.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\SDL_guid.c" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\SDL_hints_c.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\SDL_internal.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\SDL_list.h" />
@@ -555,8 +555,8 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\hidapi\SDL_hidapi.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\controller_type.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\dummy\SDL_sysjoystick.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\hidapi\SDL_hidapi_combined.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\hidapi\SDL_hidapijoystick.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\hidapi\SDL_hidapi_combined.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\hidapi\SDL_hidapi_gamecube.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\hidapi\SDL_hidapi_luna.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\hidapi\SDL_hidapi_ps3.c" />
