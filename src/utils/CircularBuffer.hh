@@ -70,6 +70,10 @@ public:
 		}
 	}
 
+	void clear() {
+		first = last = 0;
+	}
+
 private:
 	[[nodiscard]] constexpr size_t next(size_t a) const {
 		return (a != MAXSIZE) ? a + 1 : 0;

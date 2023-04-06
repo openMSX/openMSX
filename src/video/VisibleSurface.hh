@@ -54,8 +54,6 @@ public:
 	void finish();
 
 	[[nodiscard]] std::unique_ptr<Layer> createSnowLayer();
-	[[nodiscard]] std::unique_ptr<Layer> createConsoleLayer(
-		Reactor& reactor, CommandConsole& console);
 	[[nodiscard]] std::unique_ptr<Layer> createOSDGUILayer(OSDGUI& gui);
 	[[nodiscard]] std::unique_ptr<Layer> createImGUILayer(ImGuiManager& manager);
 

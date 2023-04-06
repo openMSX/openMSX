@@ -30,8 +30,7 @@ std::unique_ptr<VideoSystem> createVideoSystem(Reactor& reactor)
 		case RenderSettings::DUMMY:
 			return std::make_unique<DummyVideoSystem>();
 		case RenderSettings::SDLGL_PP:
-			return std::make_unique<SDLVideoSystem>(
-				reactor, display.getCommandConsole());
+			return std::make_unique<SDLVideoSystem>(reactor);
 		default:
 			UNREACHABLE; return nullptr;
 	}

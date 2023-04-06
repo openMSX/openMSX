@@ -6,7 +6,6 @@
 namespace openmsx {
 
 class ImGuiManager;
-class MSXMotherBoard;
 
 class ImGuiKeyboard final : public ImGuiPart
 {

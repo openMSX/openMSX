@@ -3,7 +3,6 @@
 
 #include "RenderSettings.hh"
 #include "Command.hh"
-#include "CommandConsole.hh"
 #include "InfoTopic.hh"
 #include "OSDGUI.hh"
 #include "EventListener.hh"
@@ -43,7 +42,6 @@ public:
 	[[nodiscard]] CliComm& getCliComm() const;
 	[[nodiscard]] RenderSettings& getRenderSettings() { return renderSettings; }
 	[[nodiscard]] OSDGUI& getOSDGUI() { return osdGui; }
-	[[nodiscard]] CommandConsole& getCommandConsole() { return commandConsole; }
 
 	/** Redraw the display.
 	  * The repaintImpl() methods are for internal and VideoSystem/VisibleSurface use only.
@@ -119,7 +117,6 @@ private:
 
 	Reactor& reactor;
 	RenderSettings renderSettings;
-	CommandConsole commandConsole;
 
 	// the current renderer
 	RenderSettings::RendererID currentRenderer = RenderSettings::UNINITIALIZED;

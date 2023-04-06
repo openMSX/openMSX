@@ -10,7 +10,6 @@
 
 namespace openmsx {
 
-class CommandConsole;
 class Display;
 class Layer;
 class Reactor;
@@ -25,7 +24,7 @@ public:
 	/** Activates this video system.
 	  * @throw InitException If initialisation fails.
 	  */
-	explicit SDLVideoSystem(Reactor& reactor, CommandConsole& console);
+	explicit SDLVideoSystem(Reactor& reactor);
 
 	/** Deactivates this video system.
 	  */
@@ -65,7 +64,6 @@ private:
 	Display& display;
 	RenderSettings& renderSettings;
 	std::unique_ptr<VisibleSurface> screen;
-	std::unique_ptr<Layer> consoleLayer;
 	std::unique_ptr<Layer> snowLayer;
 	std::unique_ptr<Layer> iconLayer;
 	std::unique_ptr<Layer> osdGuiLayer;

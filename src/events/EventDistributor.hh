@@ -20,7 +20,6 @@ public:
 	  */
 	enum Priority {
 		OTHER,
-		CONSOLE,
 		HOTKEY,
 		MSX,
 		LOWEST, // should only be used internally in EventDistributor

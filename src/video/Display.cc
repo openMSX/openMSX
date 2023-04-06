@@ -40,8 +40,6 @@ Display::Display(Reactor& reactor_)
 	, osdGui(reactor_.getCommandController(), *this)
 	, reactor(reactor_)
 	, renderSettings(reactor.getCommandController())
-	, commandConsole(reactor.getGlobalCommandController(),
-	                 reactor.getEventDistributor(), *this)
 {
 	frameDurationSum = 0;
 	repeat(NUM_FRAME_DURATIONS, [&] {

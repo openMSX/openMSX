@@ -21,7 +21,6 @@ public:
 		Z_MSX_ACTIVE = 40,
 		Z_IMGUI = 45,
 		Z_OSDGUI = 50,
-		Z_CONSOLE = 100
 	};
 
 	/** Describes how much of the screen is currently covered by a particular

@@ -72,6 +72,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	, settings(*this)
 	, soundChip(*this)
 	, keyboard(*this)
+	, console(*this)
 {
 	initializeImGui();
 
@@ -120,7 +121,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	// In order that they appear in the menubar
 	append(parts, std::initializer_list<ImGuiPart*>{
 		&machine, &media, &connector, &reverseBar, &settings, &debugger, &help,
-		&soundChip, &keyboard, &bitmap, &osdIcons, &openFile});
+		&soundChip, &keyboard, &bitmap, &osdIcons, &openFile, &console});
 }
 
 ImGuiManager::~ImGuiManager()

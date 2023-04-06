@@ -26,7 +26,7 @@ public:
 	  *  'o' -> operator
 	  *  '.' -> other
 	  */
-	[[nodiscard]] std::string getColors() const { return colors; }
+	[[nodiscard]] const std::string& getColors() const { return colors; }
 
 	/** Get Start of the last subcommand. This is the command that should
 	  * be completed by tab-completion. */

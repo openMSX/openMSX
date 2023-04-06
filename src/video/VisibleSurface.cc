@@ -1,4 +1,5 @@
 #include "VisibleSurface.hh"
+
 #include "BooleanSetting.hh"
 #include "CliComm.hh"
 #include "Display.hh"
@@ -15,22 +16,24 @@
 #include "InputEventGenerator.hh"
 #include "MemBuffer.hh"
 #include "OffScreenSurface.hh"
-#include "OSDConsoleRenderer.hh"
 #include "OSDGUILayer.hh"
 #include "PNG.hh"
 #include "RenderSettings.hh"
 #include "VideoSystem.hh"
+
 #include "narrow.hh"
 #include "one_of.hh"
 #include "outer.hh"
 #include "vla.hh"
-#include <cassert>
-#include <memory>
+
+#include "build-info.hh"
 
 #include <imgui.h>
 #include <imgui_impl_sdl2.h>
 #include <imgui_impl_opengl3.h>
 
+#include <cassert>
+#include <memory>
 
 namespace openmsx {
 
@@ -340,14 +343,6 @@ void VisibleSurface::finish()
 std::unique_ptr<Layer> VisibleSurface::createSnowLayer()
 {
 	return std::make_unique<GLSnow>(getDisplay());
-}
-
-std::unique_ptr<Layer> VisibleSurface::createConsoleLayer(
-		Reactor& reactor, CommandConsole& console)
-{
-	auto [width, height] = getLogicalSize();
-	return std::make_unique<OSDConsoleRenderer>(
-		reactor, console, width, height);
 }
 
 std::unique_ptr<Layer> VisibleSurface::createOSDGUILayer(OSDGUI& gui)

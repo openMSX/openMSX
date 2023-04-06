@@ -3,6 +3,7 @@
 
 #include "ImGuiBitmapViewer.hh"
 #include "ImGuiConnector.hh"
+#include "ImGuiConsole.hh"
 #include "ImGuiDebugger.hh"
 #include "ImGuiHelp.hh"
 #include "ImGuiKeyboard.hh"
@@ -83,6 +84,7 @@ public:
 	ImGuiSettings settings;
 	ImGuiSoundChip soundChip;
 	ImGuiKeyboard keyboard;
+	ImGuiConsole console;
 
 	bool menuFade = true;
 
