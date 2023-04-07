@@ -7,6 +7,7 @@
 
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 
 namespace openmsx {
@@ -43,6 +44,9 @@ private:
 private:
 	ImGuiManager& manager;
 	std::map<std::string, std::unique_ptr<DebuggableEditor>> debuggables;
+
+	std::string gotoAddr;
+	std::optional<unsigned> gotoTarget;
 
 	bool showControl = false;
 	bool showDisassembly = false;

@@ -11,7 +11,10 @@
 #include "MSXCPUInterface.hh"
 #include "MSXMotherBoard.hh"
 
+#include "strCat.hh"
+
 #include <imgui.h>
+#include <imgui_stdlib.h>
 #include <imgui_memory_editor.h>
 
 #include <cstdint>
@@ -241,12 +244,36 @@ void ImGuiDebugger::drawControl(MSXCPUInterface& cpuInterface)
 	ImGui::SameLine();
 
 	if (ButtonGlyph("step-back", DEBUGGER_ICON_STEP_BACK)) {
+		syncDisassemblyWithPC = true;
 		manager.executeDelayed(TclObject("step_back"));
 	}
 
 	ImGui::EndDisabled();
 
 	ImGui::End();
+}
+
+/** Parses the given string as a hexadecimal integer.
+  * TODO move this to StringOp? */
+[[nodiscard]] static constexpr std::optional<unsigned> parseHex(std::string_view str)
+{
+	if (str.empty()) {
+		return {};
+	}
+	unsigned value = 0;
+	for (const char c : str) {
+		value *= 16;
+		if ('0' <= c && c <= '9') {
+			value += c - '0';
+		} else if ('A' <= c && c <= 'F') {
+			value += c - 'A' + 10;
+		} else if ('a' <= c && c <= 'f') {
+			value += c - 'a' + 10;
+		} else {
+			return {};
+		}
+	}
+	return value;
 }
 
 void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface, EmuTime::param time)
@@ -272,51 +299,99 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 	            ImGuiTableFlags_BordersV |
 	            ImGuiTableFlags_BordersOuterV |
 	            ImGuiTableFlags_Resizable |
+	            ImGuiTableFlags_Hideable |
+	            ImGuiTableFlags_Reorderable |
+	            ImGuiTableFlags_ScrollY |
 	            ImGuiTableFlags_ScrollX;
-	if (ImGui::BeginTable("table", 5, flags)) {
+	if (ImGui::BeginTable("table", 4, flags)) {
+		ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
 		ImGui::TableSetupColumn("bp", ImGuiTableColumnFlags_WidthFixed);
-		ImGui::TableSetupColumn("label");
-		ImGui::TableSetupColumn("address");
+		ImGui::TableSetupColumn("address", ImGuiTableColumnFlags_NoHide);
 		ImGui::TableSetupColumn("opcode");
-		ImGui::TableSetupColumn("mnemonic", ImGuiTableColumnFlags_WidthStretch);
+		ImGui::TableSetupColumn("mnemonic", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHide);
+		ImGui::TableHeadersRow();
 
 		std::string mnemonic;
 		std::string opcodesStr;
 		std::array<uint8_t, 4> opcodes;
 		ImGuiListClipper clipper; // only draw the actually visible rows
 		clipper.Begin(0x10000);
+		if (gotoTarget) {
+			clipper.ForceDisplayRangeByIndices(*gotoTarget, *gotoTarget + 1);
+		}
+		std::optional<unsigned> nextGotoTarget;
 		while (clipper.Step()) {
 			auto it = ranges::lower_bound(startAddresses, clipper.DisplayStart);
 			for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; ++row) {
 				ImGui::TableNextRow();
 				if (it == startAddresses.end()) continue;
 				auto addr = *it++;
+				auto addrStr = tmpStrCat(hex_string<4>(addr));
+				ImGui::PushID(narrow<int>(addr));
 
-				ImGui::TableSetColumnIndex(0); // bp
-				if (!syncDisassemblyWithPC && (addr == pc)) {
-					ImGui::Selectable("##row", true,
-					                  ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap);
+				if (gotoTarget && addr >= *gotoTarget) {
+					gotoTarget = {};
+					ImGui::SetScrollHereY(0.25f);
 				}
+
+				bool rowAtPc = !syncDisassemblyWithPC && (addr == pc);
+				if (rowAtPc) {
+					ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg1, 0x8000ffff);
+				}
+				ImGui::TableSetColumnIndex(0); // bp
+				ImGui::Selectable("##row", false,
+				                  ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap);
+				if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
+					ImGui::OpenPopup("disassembly-context");
+				}
+				if (ImGui::BeginPopup("disassembly-context")) {
+					if (ImGui::MenuItem("Set breakpoint TODO")) {
+						// TODO
+					}
+					auto setPc = strCat("Set PC to 0x", addrStr);
+					if (ImGui::MenuItem(setPc.c_str())) {
+						regs.setPC(addr);
+					}
+					ImGui::Separator();
+					if (ImGui::MenuItem("Scroll to PC")) {
+						nextGotoTarget = pc;
+					}
+					ImGui::AlignTextToFramePadding();
+					ImGui::TextUnformatted("Scroll to address:");
+					ImGui::SameLine();
+					// TODO also allow labels
+					if (ImGui::InputText("##goto", &gotoAddr, ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
+						if (auto a = parseHex(gotoAddr)) {
+							nextGotoTarget = *a;
+						}
+					}
+					ImGui::EndPopup();
+				}
+
+				// if (breakPointOn(addr))
+				//    ImGui::Bullet();
 
 				mnemonic.clear();
 				auto len = dasm(cpuInterface, addr, opcodes, mnemonic, time);
 				assert(len >= 1);
 
-				ImGui::TableSetColumnIndex(2); // addr
-				auto addrStr = tmpStrCat(hex_string<4>(addr));
+				ImGui::TableSetColumnIndex(1); // addr
 				ImGui::TextUnformatted(addrStr.c_str());
 
-				ImGui::TableSetColumnIndex(3); // opcode
+				ImGui::TableSetColumnIndex(2); // opcode
 				opcodesStr.clear();
 				for (auto i : xrange(len)) {
 					strAppend(opcodesStr, hex_string<2>(opcodes[i]), ' ');
 				}
 				ImGui::TextUnformatted(opcodesStr.data(), opcodesStr.data() + 3 * len - 1);
 
-				ImGui::TableSetColumnIndex(4); // mnemonic
+				ImGui::TableSetColumnIndex(3); // mnemonic
 				ImGui::TextUnformatted(mnemonic.c_str());
+
+				ImGui::PopID();
 			}
 		}
+		gotoTarget = nextGotoTarget;
 		if (syncDisassemblyWithPC) {
 			syncDisassemblyWithPC = false; // only once
 
