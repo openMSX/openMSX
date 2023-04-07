@@ -23,6 +23,8 @@ public:
 	ImGuiDebugger(ImGuiManager& manager);
 	~ImGuiDebugger();
 
+	void loadIcons();
+
 	void signalBreak();
 
 	[[nodiscard]] zstring_view iniName() const override { return "debugger"; }
@@ -32,6 +34,7 @@ public:
 	void paint(MSXMotherBoard* motherBoard) override;
 
 private:
+	void drawControl(MSXCPUInterface& cpuInterface);
 	void drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface, EmuTime::param time);
 	void drawStack(CPURegs& regs, MSXCPUInterface& cpuInterface, EmuTime::param time);
 	void drawRegisters(CPURegs& regs);
@@ -41,12 +44,13 @@ private:
 	ImGuiManager& manager;
 	std::map<std::string, std::unique_ptr<DebuggableEditor>> debuggables;
 
-	bool showDisassembly;
-	bool showStack;
-	bool showRegisters;
-	bool showFlags;
-	bool showXYFlags;
-	int flagsLayout;
+	bool showControl = false;
+	bool showDisassembly = false;
+	bool showStack = false;
+	bool showRegisters = false;
+	bool showFlags = false;
+	bool showXYFlags = false;
+	int flagsLayout = 1;
 
 	bool syncDisassemblyWithPC = false;
 };

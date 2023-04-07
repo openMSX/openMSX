@@ -75,6 +75,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	, console(*this)
 {
 	initializeImGui();
+	debugger.loadIcons();
 
 	// load extra fonts
 	const auto& context = systemFileContext();
