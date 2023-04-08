@@ -49,6 +49,7 @@ private:
 
 	std::string gotoAddr;
 	std::optional<unsigned> gotoTarget;
+	bool followPC = false;
 
 	bool showControl = false;
 	bool showDisassembly = false;

@@ -13,6 +13,7 @@
 #include "MSXMotherBoard.hh"
 #include "RomPlain.hh"
 
+#include "stl.hh"
 #include "strCat.hh"
 
 #include <imgui.h>
@@ -101,6 +102,7 @@ void ImGuiDebugger::save(ImGuiTextBuffer& buf)
 {
 	buf.appendf("showControl=%d\n", showControl);
 	buf.appendf("showDisassembly=%d\n", showDisassembly);
+	buf.appendf("followPC=%d\n", followPC);
 	buf.appendf("showRegisters=%d\n", showRegisters);
 	buf.appendf("showSlots=%d\n", showSlots);
 	buf.appendf("showStack=%d\n", showStack);
@@ -118,6 +120,8 @@ void ImGuiDebugger::loadLine(std::string_view name, zstring_view value)
 
 	if (name == "showDisassembly") {
 		showDisassembly = StringOp::stringToBool(value);
+	} else if (name == "followPC") {
+		followPC = StringOp::stringToBool(value);
 	} else if (name == "showControl") {
 		showControl = StringOp::stringToBool(value);
 	} else if (name == "showRegisters") {
@@ -158,7 +162,9 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 	ImGui::MenuItem("CPU flags", nullptr, &showFlags);
 	ImGui::MenuItem("Slots", nullptr, &showSlots);
 	ImGui::MenuItem("Stack", nullptr, &showStack);
-	ImGui::MenuItem("Memory TODO");
+	if (auto* editor = lookup(debuggables, "memory")) {
+		ImGui::MenuItem("Memory", nullptr, &(*editor)->Open);
+	}
 	ImGui::Separator();
 	ImGui::MenuItem("VDP bitmap viewer", nullptr, &manager.bitmap.showBitmapViewer);
 	ImGui::MenuItem("TODO several more");
@@ -293,6 +299,9 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 	}
 
 	auto pc = regs.getPC();
+	if (followPC && !cpuInterface.isBreaked()) {
+		gotoTarget = pc;
+	}
 
 	// TODO can this be optimized/avoided?
 	std::vector<uint16_t> startAddresses;
@@ -364,6 +373,9 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 					if (ImGui::MenuItem("Scroll to PC")) {
 						nextGotoTarget = pc;
 					}
+					ImGui::Indent();
+					ImGui::Checkbox("Follow PC while running", &followPC);
+					ImGui::Unindent();
 					ImGui::AlignTextToFramePadding();
 					ImGui::TextUnformatted("Scroll to address:");
 					ImGui::SameLine();
