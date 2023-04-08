@@ -246,6 +246,14 @@ public:
 		return palette;
 	}
 
+	/** Sets a palette entry.
+	  * @param index The index [0..15] in the palette.
+	  * @param grb value in the format of the palette registers:
+	  *   bit 10..8 is green, bit 6..4 is red and bit 2..0 is blue.
+	  * @param time Moment in time palette change occurs.
+	  */
+	void setPalette(unsigned index, word grb, EmuTime::param time);
+
 	/** Is the display enabled?
 	  * Both the regular border and forced blanking by clearing
 	  * the display enable bit are considered disabled display.
@@ -958,14 +966,6 @@ private:
 	  * Update displayMode's value and inform the Renderer.
 	  */
 	void updateDisplayMode(DisplayMode newMode, bool cmdBit, EmuTime::param time);
-
-	/** Sets a palette entry.
-	  * @param index The index [0..15] in the palette.
-	  * @param grb value in the format of the palette registers:
-	  *   bit 10..8 is green, bit 6..4 is red and bit 2..0 is blue.
-	  * @param time Moment in time palette change occurs.
-	  */
-	void setPalette(unsigned index, word grb, EmuTime::param time);
 
 	// Observer<Setting>
 	void update(const Setting& setting) noexcept override;

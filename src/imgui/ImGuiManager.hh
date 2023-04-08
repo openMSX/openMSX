@@ -10,6 +10,7 @@
 #include "ImGuiMachine.hh"
 #include "ImGuiMedia.hh"
 #include "ImGuiOpenFile.hh"
+#include "ImGuiPalette.hh"
 #include "ImGuiOsdIcons.hh"
 #include "ImGuiReverseBar.hh"
 #include "ImGuiSettings.hh"
@@ -75,6 +76,7 @@ public:
 	ImGuiMachine machine;
 	ImGuiDebugger debugger;
 	ImGuiBitmapViewer bitmap;
+	ImGuiPalette palette;
 	ImGuiReverseBar reverseBar;
 	ImGuiHelp help;
 	ImGuiOsdIcons osdIcons;
