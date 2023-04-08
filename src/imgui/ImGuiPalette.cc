@@ -33,6 +33,8 @@ void ImGuiPalette::save(ImGuiTextBuffer& buf)
 		buf.appendf("%d", customPalette[i]);
 	}
 	buf.append("\n");
+
+	buf.appendf("palette=%d\n", whichPalette);
 }
 
 void ImGuiPalette::loadLine(std::string_view name, zstring_view value)
@@ -47,15 +49,18 @@ void ImGuiPalette::loadLine(std::string_view name, zstring_view value)
 			}
 			if (++i == 16) break;
 		}
+	} else if (name == "palette") {
+		if (auto r = StringOp::stringTo<unsigned>(value)) {
+			if (*r <= 2) whichPalette = *r;
+		}
 	}
 }
 
-static std::array<int, 3> extractRGB(std::span<const uint16_t, 16> msxPalette, unsigned index)
+static std::array<int, 3> extractRGB(uint16_t grb)
 {
-	assert(index < 16);
-	auto r = (msxPalette[index] >> 4) & 7;
-	auto g = (msxPalette[index] >> 8) & 7;
-	auto b = (msxPalette[index] >> 0) & 7;
+	auto r = (grb >> 4) & 7;
+	auto g = (grb >> 8) & 7;
+	auto b = (grb >> 0) & 7;
 	return {r, g, b};
 }
 
@@ -65,9 +70,9 @@ static void insertRGB(std::span<uint16_t, 16> msxPalette, unsigned index, std::a
 	msxPalette[index] = narrow<int16_t>(((rgb[1] & 7) << 8) | ((rgb[0] & 7) << 4) | ((rgb[2] & 7) << 0));
 }
 
-static ImU32 getMSXColor(std::span<const uint16_t, 16> msxPalette, unsigned index)
+uint32_t ImGuiPalette::toRGBA(uint16_t msxColor)
 {
-	auto [r, g, b] = extractRGB(msxPalette, index);
+	auto [r, g, b] = extractRGB(msxColor);
 	return ImColor(float(r) / 7.0f, float(g) / 7.0f, float(b) / 7.0f);
 }
 
@@ -79,6 +84,17 @@ static bool coloredButton(const char* id, ImU32 color, ImVec2 size)
 	bool result = ImGui::Button(id, size);
 	ImGui::PopStyleColor(3);
 	return result;
+}
+
+std::span<const uint16_t, 16> ImGuiPalette::getPalette(VDP* vdp) const
+{
+	if (whichPalette == PALETTE_CUSTOM) {
+		return customPalette;
+	} else if (whichPalette == PALETTE_VDP && vdp) {
+		return vdp->getPalette();
+	} else {
+		return fixedPalette;
+	}
 }
 
 void ImGuiPalette::paint(MSXMotherBoard* motherBoard)
@@ -122,7 +138,7 @@ void ImGuiPalette::paint(MSXMotherBoard* motherBoard)
 					if (i == selectedColor) {
 						ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_HeaderActive)));
 					}
-					auto color = getMSXColor(palette, i);
+					auto color = toRGBA(palette[i]);
 					if (coloredButton("", color, {44.0f, 30.0f})) {
 						selectedColor = i;
 					}
@@ -136,13 +152,13 @@ void ImGuiPalette::paint(MSXMotherBoard* motherBoard)
 		ImGui::Text("Color %d", selectedColor);
 		ImGui::TextUnformatted(" ");
 		ImGui::SameLine();
-		coloredButton("##color", getMSXColor(palette, selectedColor), {150.0f, 30.0f});
+		coloredButton("##color", toRGBA(palette[selectedColor]), {150.0f, 30.0f});
 		ImGui::Spacing();
 		ImGui::Spacing();
 
 		ImGui::BeginDisabled(disabled);
 		static constexpr std::array names = {"R", "G", "B"};
-		auto rgb = extractRGB(palette, selectedColor);
+		auto rgb = extractRGB(palette[selectedColor]);
 		for (auto i : xrange(3)) { // rgb sliders
 			ImGui::PushID(i);
 			ImGui::AlignTextToFramePadding();

@@ -1,15 +1,24 @@
 #include "ImGuiBitmapViewer.hh"
-#include "ImGuiManager.hh" // TODO needed?
+
+#include "ImGuiManager.hh"
+#include "ImGuiPalette.hh"
 
 #include "DisplayMode.hh"
 #include "StringOp.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 
+#include "ranges.hh"
+
 #include <imgui.h>
 
 
 namespace openmsx {
+
+ImGuiBitmapViewer::ImGuiBitmapViewer(ImGuiManager& manager_)
+	: manager(manager_)
+{
+}
 
 void ImGuiBitmapViewer::save(ImGuiTextBuffer& buf)
 {
@@ -19,7 +28,6 @@ void ImGuiBitmapViewer::save(ImGuiTextBuffer& buf)
 	buf.appendf("page=%d\n", bitmapPage);
 	buf.appendf("lines=%d\n", bitmapLines);
 	buf.appendf("color0=%d\n", bitmapColor0);
-	buf.appendf("palette=%d\n", bitmapPalette);
 	buf.appendf("zoom=%d\n", bitmapZoom);
 	buf.appendf("showGrid=%d\n", bitmapGrid);
 	buf.appendf("gridColor=[ %f %f %f %f ]\n", bitmapGridColor[0], bitmapGridColor[1], bitmapGridColor[2], bitmapGridColor[3]);
@@ -48,10 +56,6 @@ void ImGuiBitmapViewer::loadLine(std::string_view name, zstring_view value)
 	} else if (name == "color0") {
 		if (auto r = StringOp::stringTo<unsigned>(value)) {
 			if (*r <= 16) bitmapColor0 = *r;
-		}
-	} else if (name == "palette") {
-		if (auto r = StringOp::stringTo<unsigned>(value)) {
-			if (*r <= 2) bitmapPalette = *r;
 		}
 	} else if (name == "zoom") {
 		if (auto r = StringOp::stringTo<unsigned>(value)) {
@@ -173,8 +177,10 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 	ImGui::SameLine();
 	ImGui::BeginGroup();
 	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 10.0f);
-	ImGui::Combo("Palette", &bitmapPalette, "Current VDP\000Fixed\000Custom (TODO)\000");
-	ImGui::Button("Edit custom palette TODO");
+	ImGui::Combo("Palette", &manager.palette.whichPalette, "VDP\000Custom\000Fixed\000");
+	if (ImGui::Button("Open palette editor")) {
+		manager.palette.show = true;
+	}
 	ImGui::Separator();
 	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.0f);
 	ImGui::Combo("Zoom", &bitmapZoom, "1x\0002x\0003x\0004x\0005x\0006x\0007x\0008x\000");
@@ -198,47 +204,14 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 			: (lines == 1) ? 212
 					: 256;
 
-	auto msxColor = [](int r, int g, int b) -> uint32_t {
-		int rr = (r << 5) | (r << 2) | (r >> 1);
-		int gg = (g << 5) | (g << 2) | (g >> 1);
-		int bb = (b << 5) | (b << 2) | (b >> 1);
-		int aa = 255;
-		return (rr << 0) | (gg << 8) | (bb << 16) | (aa << 24);
-	};
-	std::array<uint32_t, 16> palette16;
-	if (bitmapPalette == 0) {
-		auto msxPalette = vdp->getPalette();
-		for (auto i : xrange(16)) {
-			int r = (msxPalette[i] >> 4) & 7;
-			int g = (msxPalette[i] >> 8) & 7;
-			int b = (msxPalette[i] >> 0) & 7;
-			palette16[i] = msxColor(r, g, b);
-		}
-	} else {
-		static constexpr std::array<uint32_t, 16> fixedPalette = {
-			msxColor(0, 0, 0),
-			msxColor(0, 0, 0),
-			msxColor(1, 6, 1),
-			msxColor(3, 7, 3),
-			msxColor(1, 1, 7),
-			msxColor(2, 3, 7),
-			msxColor(5, 1, 1),
-			msxColor(2, 6, 7),
-			msxColor(7, 1, 1),
-			msxColor(7, 3, 3),
-			msxColor(6, 6, 1),
-			msxColor(6, 6, 4),
-			msxColor(1, 4, 1),
-			msxColor(6, 2, 5),
-			msxColor(5, 5, 5),
-			msxColor(7, 7, 7),
-		};
-		ranges::copy(fixedPalette, palette16);
-	}
-	if (color0 < 16) palette16[0] = palette16[color0];
+	std::array<uint32_t, 16> palette;
+	auto msxPalette = manager.palette.getPalette(vdp);
+	ranges::transform(msxPalette, palette.data(),
+		[](uint16_t msx) { return ImGuiPalette::toRGBA(msx); });
+	if (color0 < 16) palette[0] = palette[color0];
 
 	std::array<uint32_t, 512 * 256> pixels;
-	renderBitmap(vram.getData(), palette16, mode, height, page,
+	renderBitmap(vram.getData(), palette, mode, height, page,
 			pixels.data());
 	if (!bitmapTex) {
 		bitmapTex.emplace(false, false); // no interpolation, no wrapping

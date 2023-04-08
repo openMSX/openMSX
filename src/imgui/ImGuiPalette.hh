@@ -5,8 +5,11 @@
 
 #include <array>
 #include <cstdint>
+#include <span>
 
 namespace openmsx {
+
+class VDP;
 
 class ImGuiPalette final : public ImGuiPart
 {
@@ -18,14 +21,17 @@ public:
 	void loadLine(std::string_view name, zstring_view value) override;
 	void paint(MSXMotherBoard* motherBoard) override;
 
+	std::span<const uint16_t, 16> getPalette(VDP* vdp) const;
+	static uint32_t toRGBA(uint16_t msxColor);
+
 public:
 	bool show = false;
+	int whichPalette = PALETTE_VDP;
 
 private:
 	static constexpr int PALETTE_VDP = 0;
 	static constexpr int PALETTE_CUSTOM = 1;
 	static constexpr int PALETTE_FIXED = 2;
-	int whichPalette = PALETTE_VDP;
 	int selectedColor = 0;
 
 	std::array<uint16_t, 16> customPalette; // palette in MSX format: 0GRB nibbles
