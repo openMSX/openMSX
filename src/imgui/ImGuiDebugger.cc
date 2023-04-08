@@ -9,7 +9,9 @@
 #include "Debugger.hh"
 #include "MSXCPU.hh"
 #include "MSXCPUInterface.hh"
+#include "MSXMemoryMapperBase.hh"
 #include "MSXMotherBoard.hh"
+#include "RomPlain.hh"
 
 #include "strCat.hh"
 
@@ -100,6 +102,7 @@ void ImGuiDebugger::save(ImGuiTextBuffer& buf)
 	buf.appendf("showControl=%d\n", showControl);
 	buf.appendf("showDisassembly=%d\n", showDisassembly);
 	buf.appendf("showRegisters=%d\n", showRegisters);
+	buf.appendf("showSlots=%d\n", showSlots);
 	buf.appendf("showStack=%d\n", showStack);
 	buf.appendf("showFlags=%d\n", showFlags);
 	buf.appendf("showXYFlags=%d\n", showXYFlags);
@@ -119,6 +122,8 @@ void ImGuiDebugger::loadLine(std::string_view name, zstring_view value)
 		showControl = StringOp::stringToBool(value);
 	} else if (name == "showRegisters") {
 		showRegisters = StringOp::stringToBool(value);
+	} else if (name == "showSlots") {
+		showSlots = StringOp::stringToBool(value);
 	} else if (name == "showStack") {
 		showStack = StringOp::stringToBool(value);
 	} else if (name == "showFlags") {
@@ -151,6 +156,7 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 	ImGui::MenuItem("Disassembly", nullptr, &showDisassembly);
 	ImGui::MenuItem("CPU registers", nullptr, &showRegisters);
 	ImGui::MenuItem("CPU flags", nullptr, &showFlags);
+	ImGui::MenuItem("Slots", nullptr, &showSlots);
 	ImGui::MenuItem("Stack", nullptr, &showStack);
 	ImGui::MenuItem("Memory TODO");
 	ImGui::Separator();
@@ -175,15 +181,17 @@ void ImGuiDebugger::paint(MSXMotherBoard* motherBoard)
 
 	auto& regs = motherBoard->getCPU().getRegisters();
 	auto& cpuInterface = motherBoard->getCPUInterface();
+	auto& debugger = motherBoard->getDebugger();
 	auto time = motherBoard->getCurrentTime();
 	drawControl(cpuInterface);
 	drawDisassembly(regs, cpuInterface, time);
+	drawSlots(cpuInterface, debugger);
 	drawStack(regs, cpuInterface, time);
 	drawRegisters(regs);
 	drawFlags(regs);
 
 	// Show the enabled 'debuggables'
-	for (auto& [name, debuggable] : motherBoard->getDebugger().getDebuggables()) {
+	for (auto& [name, debuggable] : debugger.getDebuggables()) {
 		auto [it, inserted] = debuggables.try_emplace(name);
 		auto& editor = it->second;
 		if (inserted) {
@@ -408,6 +416,73 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 		ImGui::EndTable();
 	}
 
+	ImGui::End();
+}
+
+void ImGuiDebugger::drawSlots(MSXCPUInterface& cpuInterface, Debugger& debugger)
+{
+	if (!showStack) return;
+	if (!ImGui::Begin("Slots", &showSlots)) {
+		ImGui::End();
+		return;
+	}
+
+	int flags = ImGuiTableFlags_BordersInnerV |
+	            ImGuiTableFlags_Resizable |
+	            ImGuiTableFlags_Reorderable |
+	            ImGuiTableFlags_Hideable |
+	            ImGuiTableFlags_ContextMenuInBody;
+	if (ImGui::BeginTable("table", 4, flags)) {
+		ImGui::TableSetupColumn("Page");
+		ImGui::TableSetupColumn("Address", ImGuiTableColumnFlags_DefaultHide);
+		ImGui::TableSetupColumn("Slot");
+		ImGui::TableSetupColumn("Segment");
+		ImGui::TableHeadersRow();
+
+		for (auto page : xrange(4)) {
+			auto addr = 0x4000 * page;
+			if (ImGui::TableNextColumn()) { // page
+				ImGui::Text("%d", page);
+			}
+			if (ImGui::TableNextColumn()) { // address
+				ImGui::Text("0x%04x", addr);
+			}
+			if (ImGui::TableNextColumn()) { // slot
+				int ps = cpuInterface.getPrimarySlot(page);
+				if (cpuInterface.isExpanded(ps)) {
+					int ss = cpuInterface.getSecondarySlot(page);
+					ImGui::Text("%d-%d", ps, ss);
+				} else {
+					ImGui::Text(" %d", ps);
+				}
+			}
+			if (ImGui::TableNextColumn()) { // segment
+				auto* device = cpuInterface.getVisibleMSXDevice(page);
+				Debuggable* romBlocks = nullptr;
+				if (auto* mapper = dynamic_cast<MSXMemoryMapperBase*>(device)) {
+					ImGui::Text("%d", mapper->getSelectedSegment(page));
+				} else if (!dynamic_cast<RomPlain*>(device) &&
+				           (romBlocks = debugger.findDebuggable(device->getName() + " romblocks"))) {
+					std::array<uint8_t, 4> segments;
+					for (auto sub : xrange(4)) {
+						segments[sub] = romBlocks->read(addr + 0x1000 * sub);
+					}
+					if ((segments[0] == segments[1]) && (segments[2] == segments[3])) {
+						if (segments[0] == segments[2]) { // 16kB
+							ImGui::Text("R%d", segments[0]);
+						} else { // 8kB
+							ImGui::Text("R%d/%d", segments[0], segments[2]);
+						}
+					} else { // 4kB
+						ImGui::Text("R%d/%d/%d/%d", segments[0], segments[1], segments[2], segments[3]);
+					}
+				} else {
+					ImGui::TextUnformatted("-");
+				}
+			}
+		}
+		ImGui::EndTable();
+	}
 	ImGui::End();
 }
 

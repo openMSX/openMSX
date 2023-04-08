@@ -14,6 +14,7 @@ namespace openmsx {
 
 class CPURegs;
 class DebuggableEditor;
+class Debugger;
 class ImGuiManager;
 class MSXCPUInterface;
 class MSXMotherBoard;
@@ -37,6 +38,7 @@ public:
 private:
 	void drawControl(MSXCPUInterface& cpuInterface);
 	void drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface, EmuTime::param time);
+	void drawSlots(MSXCPUInterface& cpuInterface, Debugger& debugger);
 	void drawStack(CPURegs& regs, MSXCPUInterface& cpuInterface, EmuTime::param time);
 	void drawRegisters(CPURegs& regs);
 	void drawFlags(CPURegs& regs);
@@ -50,6 +52,7 @@ private:
 
 	bool showControl = false;
 	bool showDisassembly = false;
+	bool showSlots = false;
 	bool showStack = false;
 	bool showRegisters = false;
 	bool showFlags = false;

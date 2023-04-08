@@ -123,7 +123,7 @@ public:
 	/**
 	 * This reads a byte from the currently selected device
 	 */
-	inline byte readMem(word address, EmuTime::param time) {
+	byte readMem(word address, EmuTime::param time) {
 		tick(CacheLineCounters::SlowRead);
 		if (disallowReadCache[address >> CacheLine::BITS]) [[unlikely]] {
 			return readMemSlow(address, time);
@@ -134,7 +134,7 @@ public:
 	/**
 	 * This writes a byte to the currently selected device
 	 */
-	inline void writeMem(word address, byte value, EmuTime::param time) {
+	void writeMem(word address, byte value, EmuTime::param time) {
 		tick(CacheLineCounters::SlowWrite);
 		if (disallowWriteCache[address >> CacheLine::BITS]) [[unlikely]] {
 			writeMemSlow(address, value, time);
@@ -147,7 +147,7 @@ public:
 	 * This read a byte from the given IO-port
 	 * @see MSXDevice::readIO()
 	 */
-	inline byte readIO(word port, EmuTime::param time) {
+	byte readIO(word port, EmuTime::param time) {
 		return IO_In[port & 0xFF]->readIO(port, time);
 	}
 
@@ -155,7 +155,7 @@ public:
 	 * This writes a byte to the given IO-port
 	 * @see MSXDevice::writeIO()
 	 */
-	inline void writeIO(word port, byte value, EmuTime::param time) {
+	void writeIO(word port, byte value, EmuTime::param time) {
 		IO_Out[port & 0xFF]->writeIO(port, value, time);
 	}
 
@@ -171,7 +171,7 @@ public:
 	 * An interval will never cross a 16KB border.
 	 * An interval will never contain the address 0xffff.
 	 */
-	[[nodiscard]] inline const byte* getReadCacheLine(word start) const {
+	[[nodiscard]] const byte* getReadCacheLine(word start) const {
 		tick(CacheLineCounters::GetReadCacheLine);
 		if (disallowReadCache[start >> CacheLine::BITS]) [[unlikely]] {
 			return nullptr;
@@ -191,7 +191,7 @@ public:
 	 * An interval will never cross a 16KB border.
 	 * An interval will never contain the address 0xffff.
 	 */
-	[[nodiscard]] inline byte* getWriteCacheLine(word start) const {
+	[[nodiscard]] byte* getWriteCacheLine(word start) const {
 		tick(CacheLineCounters::GetWriteCacheLine);
 		if (disallowWriteCache[start >> CacheLine::BITS]) [[unlikely]] {
 			return nullptr;
@@ -235,8 +235,11 @@ public:
 	void unsetExpanded(int ps);
 	void testUnsetExpanded(int ps,
 		               std::span<const std::unique_ptr<MSXDevice>> allowed) const;
-	[[nodiscard]] inline bool isExpanded(int ps) const { return expanded[ps] != 0; }
+	[[nodiscard]] bool isExpanded(int ps) const { return expanded[ps] != 0; }
 	void changeExpanded(bool newExpanded);
+
+	[[nodiscard]] auto getPrimarySlot  (int page) const { return primarySlotState[page]; }
+	[[nodiscard]] auto getSecondarySlot(int page) const { return secondarySlotState[page]; }
 
 	[[nodiscard]] DummyDevice& getDummyDevice() { return *dummyDevice; }
 
@@ -287,6 +290,7 @@ public:
 	[[nodiscard]] bool isFastForward() const { return fastForward; }
 
 	[[nodiscard]] MSXDevice* getMSXDevice(int ps, int ss, int page);
+	[[nodiscard]] MSXDevice* getVisibleMSXDevice(int page) { return visibleDevices[page]; }
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
