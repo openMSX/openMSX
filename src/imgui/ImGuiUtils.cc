@@ -6,6 +6,8 @@
 #include "FloatSetting.hh"
 #include "VideoSourceSetting.hh"
 
+#include "ranges.hh"
+
 #include <imgui.h>
 #include <imgui_stdlib.h>
 
@@ -89,14 +91,20 @@ bool InputText(const char* label, Setting& setting)
 	return changed;
 }
 
-void ComboBox(const char* label, Setting& setting, EnumSettingBase& enumSetting)
+void ComboBox(const char* label, Setting& setting, EnumToolTips toolTips)
 {
+	auto* enumSetting = dynamic_cast<EnumSettingBase*>(&setting);
+	assert(enumSetting);
 	auto current = setting.getValue().getString();
 	if (ImGui::BeginCombo(label, current.c_str())) {
-		for (const auto& entry : enumSetting.getMap()) {
+		for (const auto& entry : enumSetting->getMap()) {
 			bool selected = entry.name == current;
 			if (ImGui::Selectable(entry.name.c_str(), selected)) {
 				setting.setValue(TclObject(entry.name));
+			}
+			if (auto it = ranges::find(toolTips, entry.name, &EnumToolTip::value);
+			    it != toolTips.end()) {
+				simpleToolTip(it->tip);
 			}
 		}
 		ImGui::EndCombo();

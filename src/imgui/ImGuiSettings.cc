@@ -6,6 +6,7 @@
 #include "FilenameSetting.hh"
 #include "FloatSetting.hh"
 #include "GlobalCommandController.hh"
+#include "GlobalSettings.hh"
 #include "IntegerSetting.hh"
 #include "KeyCodeSetting.hh"
 #include "Mixer.hh"
@@ -26,6 +27,9 @@ void ImGuiSettings::showMenu(MSXMotherBoard* /*motherBoard*/)
 {
 	if (ImGui::BeginMenu("Settings")) {
 		auto& reactor = manager.getReactor();
+		auto& globalSettings = reactor.getGlobalSettings();
+		auto& settingsManager = reactor.getGlobalCommandController().getSettingsManager();
+
 		if (ImGui::BeginMenu("Video")) {
 			ImGui::EndMenu();
 		}
@@ -37,6 +41,14 @@ void ImGuiSettings::showMenu(MSXMotherBoard* /*motherBoard*/)
 			ImGui::EndDisabled();
 			Checkbox("mute", muteSetting);
 			ImGui::Separator();
+			static constexpr std::array resamplerToolTips = {
+				EnumToolTip{"hq",   "best quality, uses more CPU"},
+				EnumToolTip{"blip", "good speed/quality tradeoff"},
+				EnumToolTip{"fast", "fast but low quality"},
+			};
+			ComboBox("resampler", globalSettings.getResampleSetting(), resamplerToolTips);
+			ImGui::Separator();
+
 			ImGui::MenuItem("Show sound chip settings", nullptr, &manager.soundChip.showSoundChipSettings);
 
 			ImGui::EndMenu();
@@ -52,7 +64,6 @@ void ImGuiSettings::showMenu(MSXMotherBoard* /*motherBoard*/)
 		if (ImGui::BeginMenu("Advanced")) {
 			ImGui::TextUnformatted("All settings");
 			ImGui::Separator();
-			auto& settingsManager = reactor.getGlobalCommandController().getSettingsManager();
 			std::vector<Setting*> settings;
 			for (auto* setting : settingsManager.getAllSettings()) {
 				if (dynamic_cast<ProxySetting*>(setting)) continue;
@@ -74,8 +85,8 @@ void ImGuiSettings::showMenu(MSXMotherBoard* /*motherBoard*/)
 					InputText(name.c_str(), *fnSetting); // TODO
 				} else if (auto* kSetting = dynamic_cast<KeyCodeSetting*>(setting)) {
 					InputText(name.c_str(), *kSetting); // TODO
-				} else if (auto* eSetting = dynamic_cast<EnumSettingBase*>(setting)) {
-					ComboBox(name.c_str(), *setting, *eSetting);
+				} else if (dynamic_cast<EnumSettingBase*>(setting)) {
+					ComboBox(name.c_str(), *setting);
 				} else if (auto* vSetting = dynamic_cast<VideoSourceSetting*>(setting)) {
 					ComboBox(name.c_str(), *vSetting);
 				} else {
