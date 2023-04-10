@@ -51,6 +51,11 @@ static void settingStuff(Setting& setting)
 	}
 }
 
+bool Checkbox(BooleanSetting& setting)
+{
+	std::string name(setting.getBaseName());
+	return Checkbox(name.c_str(), setting);
+}
 bool Checkbox(const char* label, BooleanSetting& setting)
 {
 	bool value = setting.getBoolean();
@@ -60,6 +65,11 @@ bool Checkbox(const char* label, BooleanSetting& setting)
 	return changed;
 }
 
+bool SliderInt(IntegerSetting& setting, ImGuiSliderFlags flags)
+{
+	std::string name(setting.getBaseName());
+	return SliderInt(name.c_str(), setting, flags);
+}
 bool SliderInt(const char* label, IntegerSetting& setting, ImGuiSliderFlags flags)
 {
 	int value = setting.getInt();
@@ -71,6 +81,11 @@ bool SliderInt(const char* label, IntegerSetting& setting, ImGuiSliderFlags flag
 	return changed;
 }
 
+bool SliderFloat(FloatSetting& setting, const char* format, ImGuiSliderFlags flags)
+{
+	std::string name(setting.getBaseName());
+	return SliderFloat(name.c_str(), setting, format, flags);
+}
 bool SliderFloat(const char* label, FloatSetting& setting, const char* format, ImGuiSliderFlags flags)
 {
 	float value = setting.getFloat();
@@ -82,6 +97,11 @@ bool SliderFloat(const char* label, FloatSetting& setting, const char* format, I
 	return changed;
 }
 
+bool InputText(Setting& setting)
+{
+	std::string name(setting.getBaseName());
+	return InputText(name.c_str(), setting);
+}
 bool InputText(const char* label, Setting& setting)
 {
 	auto value = std::string(setting.getValue().getString());
@@ -91,6 +111,11 @@ bool InputText(const char* label, Setting& setting)
 	return changed;
 }
 
+void ComboBox(Setting& setting, EnumToolTips toolTips)
+{
+	std::string name(setting.getBaseName());
+	ComboBox(name.c_str(), setting, toolTips);
+}
 void ComboBox(const char* label, Setting& setting, EnumToolTips toolTips)
 {
 	auto* enumSetting = dynamic_cast<EnumSettingBase*>(&setting);
@@ -112,10 +137,11 @@ void ComboBox(const char* label, Setting& setting, EnumToolTips toolTips)
 	settingStuff(setting);
 }
 
-void ComboBox(const char* label, VideoSourceSetting& setting) // TODO share code with EnumSetting?
+void ComboBox(VideoSourceSetting& setting) // TODO share code with EnumSetting?
 {
+	std::string name(setting.getBaseName());
 	auto current = setting.getValue().getString();
-	if (ImGui::BeginCombo(label, current.c_str())) {
+	if (ImGui::BeginCombo(name.c_str(), current.c_str())) {
 		for (const auto& value : setting.getPossibleValues()) {
 			bool selected = value == current;
 			if (ImGui::Selectable(std::string(value).c_str(), selected)) {

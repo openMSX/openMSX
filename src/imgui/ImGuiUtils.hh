@@ -27,12 +27,17 @@ inline void simpleToolTip(std::string_view desc) { simpleToolTip(std::string(des
 
 void HelpMarker(const char* desc);
 
+bool Checkbox(BooleanSetting& setting);
 bool Checkbox(const char* label, BooleanSetting& setting);
+bool SliderInt(IntegerSetting& setting, ImGuiSliderFlags flags = 0);
 bool SliderInt(const char* label, IntegerSetting& setting, ImGuiSliderFlags flags = 0);
+bool SliderFloat(FloatSetting& setting, const char* format = "%.3f", ImGuiSliderFlags flags = 0);
 bool SliderFloat(const char* label, FloatSetting& setting, const char* format = "%.3f", ImGuiSliderFlags flags = 0);
+bool InputText(Setting& setting);
 bool InputText(const char* label, Setting& setting);
+void ComboBox(Setting& setting, EnumToolTips toolTips = {}); // must be an EnumSetting
 void ComboBox(const char* label, Setting& setting, EnumToolTips toolTips = {}); // must be an EnumSetting
-void ComboBox(const char* label, VideoSourceSetting& setting);
+void ComboBox(VideoSourceSetting& setting);
 
 std::string formatTime(double time);
 float calculateFade(float current, float target, float period);
