@@ -58,8 +58,7 @@ Motherboard ID: GCMK-77X YAMAHA XB155[B]
       <sound>
         <volume>21000</volume>
       </sound>
-      <io base="0xA0" num="2" type="O"/>
-      <io base="0xA2" num="1" type="I"/>
+      <io base="0xA0" num="4" type="IO"/>
       <ignorePortDirections>true</ignorePortDirections>  <!-- not confirmed but based on S-3527 -->
     </PSG>
 

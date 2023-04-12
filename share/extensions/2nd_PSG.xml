@@ -12,8 +12,7 @@
 
   <devices>
     <PSG id="PSG 2">
-      <io base="0x10" num="2" type="O"/>
-      <io base="0x12" num="1" type="I"/>
+      <io base="0x10" num="4" type="IO"/>
       <sound>
         <volume>21000</volume>
       </sound>

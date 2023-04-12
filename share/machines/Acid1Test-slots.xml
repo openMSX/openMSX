@@ -70,8 +70,7 @@ For more info, see http://frs.badcoffee.info/MSXAcidTests.html
       <sound>
         <volume>21000</volume>
       </sound>
-      <io base="0xA0" num="2" type="O"/>
-      <io base="0xA2" num="1" type="I"/>
+      <io base="0xA0" num="4" type="IO"/>
     </PSG>
 
     <RTC id="Real time clock">

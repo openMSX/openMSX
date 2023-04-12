@@ -70,8 +70,7 @@
         <balance channel="2">100</balance> <!-- According to Werner Kai's HX-21 -->
         <balance channel="3">-100</balance><!-- According to Werner Kai's HX-21 -->
       </sound>
-      <io base="0xA0" num="2" type="O"/>
-      <io base="0xA2" num="1" type="I"/>
+      <io base="0xA0" num="4" type="IO"/>
       <ignorePortDirections>false</ignorePortDirections> <!-- not sure, but guess based on discrete PSG chip -->
     </PSG>
 

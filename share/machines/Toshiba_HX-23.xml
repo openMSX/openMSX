@@ -51,8 +51,7 @@
         <balance channel="3">-100</balance>
       </sound>
       <!-- The PSG I/O ports are mirrored from A0h to A7h -->
-      <io base="0xA0" num="2" type="O"/>
-      <io base="0xA2" num="1" type="I"/>
+      <io base="0xA0" num="4" type="IO"/>
       <ignorePortDirections>false</ignorePortDirections> <!-- not sure, but guess based on discrete PSG chip -->
     </PSG>
 

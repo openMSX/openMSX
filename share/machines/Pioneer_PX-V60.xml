@@ -49,8 +49,7 @@
         <volume>21000</volume>
       </sound>
       <type>YM2149</type> <!-- in S3527 MSX-ENGINE -->
-      <io base="0xA0" num="2" type="O"/>
-      <io base="0xA2" num="1" type="I"/>
+      <io base="0xA0" num="4" type="IO"/>
       <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
     </PSG>
 
