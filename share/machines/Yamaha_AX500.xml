@@ -65,7 +65,7 @@
 
     <PSG id="PSG">
       <type>YM2149</type> <!-- due to S1985, but mask is like AY8910... -->
-      <io base="0xA0" num="4" type="IO"/>
+      <io base="0xA0" num="8" type="IO"/> <!-- S-1985 mirrors -->
       <sound>
         <volume>21000</volume>
       </sound>
