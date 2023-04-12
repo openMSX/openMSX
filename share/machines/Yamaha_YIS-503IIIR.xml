@@ -95,7 +95,7 @@ connect other Yamaha "units", like the SFG-01/05 modules.
 
     <PSG id="PSG">
       <type>YM2149</type> <!-- in S-3527 MSX-ENGINE -->
-      <io base="0xA0" num="4" type="IO"/>
+      <io base="0xA0" num="8" type="IO"/> <!-- S-3527 mirrors -->
       <sound>
         <volume>21000</volume>
       </sound>
