@@ -2,6 +2,7 @@
 #define IMGUI_PERSISTENT_HH
 
 #include "ImGuiBitmapViewer.hh"
+#include "ImGuiCharacter.hh"
 #include "ImGuiConnector.hh"
 #include "ImGuiConsole.hh"
 #include "ImGuiDebugger.hh"
@@ -76,6 +77,7 @@ public:
 	ImGuiMachine machine;
 	ImGuiDebugger debugger;
 	ImGuiBitmapViewer bitmap;
+	ImGuiCharacter character;
 	ImGuiPalette palette;
 	ImGuiReverseBar reverseBar;
 	ImGuiHelp help;

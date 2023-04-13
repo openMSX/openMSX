@@ -39,6 +39,8 @@ void ComboBox(Setting& setting, EnumToolTips toolTips = {}); // must be an EnumS
 void ComboBox(const char* label, Setting& setting, EnumToolTips toolTips = {}); // must be an EnumSetting
 void ComboBox(VideoSourceSetting& setting);
 
+const char* getComboString(int item, const char* itemsSeparatedByZeros);
+
 std::string formatTime(double time);
 float calculateFade(float current, float target, float period);
 

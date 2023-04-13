@@ -234,6 +234,19 @@ public:
 		return blinkState;
 	}
 
+	/** Get address of pattern table (only for debugger) */
+	[[nodiscard]] int getPatternTableBase() const {
+		return controlRegs[4] << 11;
+	}
+	/** Get address of color table (only for debugger) */
+	[[nodiscard]] int getColorTableBase() const {
+		return (controlRegs[10] << 14) | (controlRegs[3] << 6);
+	}
+	/** Get address of name table (only for debugger) */
+	[[nodiscard]] int getNameTableBase() const {
+		return controlRegs[2] << 10;
+	}
+
 	/** Gets a palette entry.
 	  * @param index The index [0..15] in the palette.
 	  * @return Color value in the format of the palette registers:

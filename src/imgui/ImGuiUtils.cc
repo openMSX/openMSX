@@ -153,6 +153,18 @@ void ComboBox(VideoSourceSetting& setting) // TODO share code with EnumSetting?
 	settingStuff(setting);
 }
 
+const char* getComboString(int item, const char* itemsSeparatedByZeros)
+{
+	const char* p = itemsSeparatedByZeros;
+	while (true) {
+		assert(*p);
+		if (item == 0) return p;
+		--item;
+		while (*p) ++p;
+		++p;
+	}
+}
+
 std::string formatTime(double time)
 {
 	assert(time >= 0.0);

@@ -2,6 +2,7 @@
 
 #include "ImGuiManager.hh"
 #include "ImGuiPalette.hh"
+#include "ImGuiUtils.hh"
 
 #include "DisplayMode.hh"
 #include "StringOp.hh"
@@ -68,18 +69,6 @@ void ImGuiBitmapViewer::loadLine(std::string_view name, zstring_view value)
 		if (sscanf(value.c_str(), "[ %f %f %f %f ]", &t[0], &t[1], &t[2], &t[3]) == 4) {
 			bitmapGridColor = t;
 		}
-	}
-}
-
-static const char* getComboString(int item, const char* itemsSeparatedByZeros)
-{
-	const char* p = itemsSeparatedByZeros;
-	while (true) {
-		assert(*p);
-		if (item == 0) return p;
-		--item;
-		while (*p) ++p;
-		++p;
 	}
 }
 

@@ -64,6 +64,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	, machine(*this)
 	, debugger(*this)
 	, bitmap(*this)
+	, character(*this)
 	, reverseBar(*this)
 	, help(*this)
 	, osdIcons(*this)
@@ -123,7 +124,8 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	// In order that they appear in the menubar
 	append(parts, std::initializer_list<ImGuiPart*>{
 		&machine, &media, &connector, &reverseBar, &settings, &debugger, &help,
-		&soundChip, &keyboard, &bitmap, &palette, &osdIcons, &openFile, &console});
+		&soundChip, &keyboard, &bitmap, &character, &palette, &osdIcons,
+		&openFile, &console});
 }
 
 ImGuiManager::~ImGuiManager()
