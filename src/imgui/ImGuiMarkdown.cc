@@ -30,9 +30,9 @@ ImFont* ImGuiMarkdown::get_font() const
 
 void ImGuiMarkdown::open_url() const
 {
-	if (SDL_VERSION_ATLEAST(2, 0, 14)) {
-		SDL_OpenURL(m_href.c_str());
-	}
+#if SDL_VERSION_ATLEAST(2, 0, 14)
+	SDL_OpenURL(m_href.c_str());
+#endif
 }
 
 /*bool ImGuiMarkdown::get_image(image_info& nfo) const
