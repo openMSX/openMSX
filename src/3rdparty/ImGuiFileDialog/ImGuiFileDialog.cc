@@ -25,6 +25,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#ifndef IMGUI_DEFINE_MATH_OPERATORS
+#define IMGUI_DEFINE_MATH_OPERATORS
+#endif
+
 #include "ImGuiFileDialog.h"
 
 #ifdef __cplusplus
@@ -2337,7 +2341,7 @@ namespace IGFD
 		if (!vInfos.use_count())
 			return;
 
-		if (ImGui::GetIO().KeyCtrl)
+		if (ImGui::IsKeyDown(ImGuiMod_Ctrl))
 		{
 			if (puDLGcountSelectionMax == 0) // infinite selection
 			{
@@ -2365,7 +2369,7 @@ namespace IGFD
 				}
 			}
 		}
-		else if (ImGui::GetIO().KeyShift)
+		else if (ImGui::IsKeyDown(ImGuiMod_Shift))
 		{
 			if (puDLGcountSelectionMax != 1)
 			{
@@ -2761,12 +2765,10 @@ namespace IGFD
 
 	IGFD::ThumbnailFeature::~ThumbnailFeature()	= default;
 
-	void IGFD::ThumbnailFeature::NewThumbnailFrame(FileDialogInternal& vFileDialogInternal)
+	void IGFD::ThumbnailFeature::NewThumbnailFrame(FileDialogInternal& /*vFileDialogInternal*/)
 	{
 #ifdef USE_THUMBNAILS
 		prStartThumbnailFileDatasExtraction();
-#else
-		(void)vFileDialogInternal;
 #endif
 	}
 
@@ -3577,7 +3579,6 @@ namespace IGFD
 		// We use NoHoldingActiveID on menus so user can click and _hold_ on a menu then drag to browse child entries
 		ImGuiButtonFlags button_flags = 0;
 		if (flags & ImGuiSelectableFlags_NoHoldingActiveID) { button_flags |= ImGuiButtonFlags_NoHoldingActiveId; }
-		if (flags & ImGuiSelectableFlags_NoSetKeyOwner) { button_flags |= ImGuiButtonFlags_NoSetKeyOwner; }
 		if (flags & ImGuiSelectableFlags_SelectOnClick) { button_flags |= ImGuiButtonFlags_PressedOnClick; }
 		if (flags & ImGuiSelectableFlags_SelectOnRelease) { button_flags |= ImGuiButtonFlags_PressedOnRelease; }
 		if (flags & ImGuiSelectableFlags_AllowDoubleClick) { button_flags |= ImGuiButtonFlags_PressedOnClickRelease | ImGuiButtonFlags_PressedOnDoubleClick; }
@@ -3587,26 +3588,6 @@ namespace IGFD
 		bool hovered, held;
 		bool pressed = ButtonBehavior(bb, id, &hovered, &held, button_flags);
 
-		// Auto-select when moved into
-		// - This will be more fully fleshed in the range-select branch
-		// - This is not exposed as it won't nicely work with some user side handling of shift/control
-		// - We cannot do 'if (g.NavJustMovedToId != id) { selected = false; pressed = was_selected; }' for two reasons
-		//   - (1) it would require focus scope to be set, need exposing PushFocusScope() or equivalent (e.g. BeginSelection() calling PushFocusScope())
-		//   - (2) usage will fail with clipped items
-		//   The multi-select API aim to fix those issues, e.g. may be replaced with a BeginSelection() API.
-		if ((flags & ImGuiSelectableFlags_SelectOnNav) && g.NavJustMovedToId != 0 && g.NavJustMovedToFocusScopeId == g.CurrentFocusScopeId)
-			if (g.NavJustMovedToId == id)
-				selected = pressed = true;
-
-		// Update NavId when clicking or when Hovering (this doesn't happen on most widgets), so navigation can be resumed with gamepad/keyboard
-		if (pressed || (hovered && (flags & ImGuiSelectableFlags_SetNavIdOnHover)))
-		{
-			if (!g.NavDisableMouseHover && g.NavWindow == window && g.NavLayer == window->DC.NavLayerCurrent)
-			{
-				SetNavID(id, window->DC.NavLayerCurrent, g.CurrentFocusScopeId, WindowRectAbsToRel(window, bb)); // (bb == NavRect)
-				g.NavDisableHighlight = true;
-			}
-		}
 		if (pressed)
 			MarkItemEdited(id);
 
@@ -3617,13 +3598,18 @@ namespace IGFD
 		if (selected != was_selected) //-V547
 			g.LastItemData.StatusFlags |= ImGuiItemStatusFlags_ToggledSelection;
 
+		//////////////////////////////////////////////////////////////////
+		// this function copy ImGui::Selectable just for this line.... 
+		hovered |= vFlashing;
+		//////////////////////////////////////////////////////////////////
+
 		// Render
-		if (hovered || selected || vFlashing)
+		if (hovered || selected)
 		{
 			const ImU32 col = GetColorU32((held && hovered) ? ImGuiCol_HeaderActive : hovered ? ImGuiCol_HeaderHovered : ImGuiCol_Header);
 			RenderFrame(bb.Min, bb.Max, col, false, 0.0f);
 		}
-		RenderNavHighlight(bb, id, ImGuiNavHighlightFlags_TypeThin | ImGuiNavHighlightFlags_NoRounding);
+		//RenderNavHighlight(bb, id, ImGuiNavHighlightFlags_TypeThin | ImGuiNavHighlightFlags_NoRounding);
 
 		if (span_all_columns && window->DC.CurrentColumns)
 			PopColumnsBackground();
