@@ -3,6 +3,8 @@
 #include "ImGuiManager.hh"
 #include "ImGuiUtils.hh"
 
+#include "BooleanSetting.hh"
+#include "GlobalSettings.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 
@@ -19,6 +21,13 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 
 	ImGui::MenuItem("Select MSX machine ...", nullptr, &showSelectMachine);
 	ImGui::MenuItem("Select extensions TODO", nullptr, nullptr, hasMachine);
+
+	auto& pauseSetting = manager.getReactor().getGlobalSettings().getPauseSetting();
+	bool pause = pauseSetting.getBoolean();
+	if (ImGui::MenuItem("Pause", "PAUSE", &pause)) {
+		pauseSetting.setBoolean(pause);
+	}
+
 	if (ImGui::MenuItem("Reset", nullptr, nullptr, hasMachine)) {
 		manager.executeDelayed(TclObject("reset"));
 	}
