@@ -123,6 +123,29 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Misc")) {
+			auto& speedManager = globalSettings.getSpeedManager();
+			auto& fwdSetting = speedManager.getFastForwardSetting();
+			int fastForward = fwdSetting.getBoolean() ? 1 : 0;
+			ImGui::TextUnformatted("Speed:");
+			ImGui::SameLine();
+			bool fwdChanged = ImGui::RadioButton("normal", &fastForward, 0);
+			ImGui::SameLine();
+			fwdChanged |= ImGui::RadioButton("fast forward", &fastForward, 1);
+			HelpMarker("Use 'F9' to quickly toggle between these two");
+			if (fwdChanged) {
+				fwdSetting.setBoolean(fastForward != 0);
+			}
+			ImGui::Indent();
+			ImGui::BeginDisabled(fastForward != 0);
+			SliderInt(speedManager.getSpeedSetting());
+			ImGui::EndDisabled();
+			ImGui::BeginDisabled(fastForward != 1);
+			SliderInt(speedManager.getFastForwardSpeedSetting());
+			ImGui::EndDisabled();
+			ImGui::Unindent();
+			Checkbox(globalSettings.getThrottleManager().getFullSpeedLoadingSetting());
+
+			ImGui::Separator();
 			ImGui::MenuItem("Show OSD icons", nullptr, &manager.osdIcons.showIcons);
 			ImGui::MenuItem("Show virtual keyboard", nullptr, &manager.keyboard.show);
 			ImGui::MenuItem("Show console", "F10", &manager.console.show);

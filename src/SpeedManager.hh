@@ -25,6 +25,10 @@ public:
 	 */
 	[[nodiscard]] double getSpeed() const { return speed; }
 
+	[[nodiscard]] auto& getSpeedSetting()            { return speedSetting; }
+	[[nodiscard]] auto& getFastForwardSetting()      { return fastforwardSetting; }
+	[[nodiscard]] auto& getFastForwardSpeedSetting() { return fastforwardSpeedSetting; }
+
 private:
 	void updateSpeed();
 
